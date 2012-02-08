@@ -1,4 +1,4 @@
-unit KM_Render;
+unit KM_RenderPool;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -41,7 +41,7 @@ type
   //Game Renderer
   TRenderPool = class
   private
-    fSetup: TRenderSetup;
+    fRender: TRender;
     rPitch,rHeading,rBank:integer;
     fRenderList: TRenderList;
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
@@ -67,7 +67,7 @@ type
 
     procedure RenderBrightness(Value: Byte);
   public
-    constructor Create(aSetup: TRenderSetup);
+    constructor Create(aRender: TRender);
     destructor Destroy; override;
 
     property RenderList: TRenderList read fRenderList;
@@ -103,11 +103,11 @@ implementation
 uses KM_RenderAux, KM_Terrain, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_Units;
 
 
-constructor TRenderPool.Create(aSetup: TRenderSetup);
+constructor TRenderPool.Create(aRender: TRender);
 begin
   Inherited Create;
 
-  fSetup := aSetup;
+  fRender := aRender;
   fRenderList := TRenderList.Create;
 end;
 
@@ -134,7 +134,7 @@ end;
 // 4. Renders cursor highlights
 procedure TRenderPool.Render;
 begin
-  fSetup.BeginFrame;
+  fRender.BeginFrame;
 
   if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then
   begin //If game is running
@@ -145,7 +145,7 @@ begin
     glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y, 0);
     if RENDER_3D then
     begin
-      fSetup.SetRenderMode(rm3D);
+      fRender.SetRenderMode(rm3D);
 
       glkScale(-CELL_SIZE_PX/14);
       glRotatef(rHeading,1,0,0);
@@ -172,13 +172,13 @@ begin
     glPopAttrib;
   end;
 
-  fSetup.SetRenderMode(rm2D);
+  fRender.SetRenderMode(rm2D);
   fGame.PaintInterface;
 
   glLoadIdentity;
   RenderBrightness(fGame.GlobalSettings.Brightness);
 
-  fSetup.EndFrame;
+  fRender.EndFrame;
 end;
 
 
@@ -192,8 +192,8 @@ var
 {$ENDIF}
 begin
 {$IFDEF WDC}
-  W := fSetup.ScreenX;
-  H := fSetup.ScreenY;
+  W := fRender.ScreenX;
+  H := fRender.ScreenY;
 
   SetLength(bmp, W * H + 1);
   glReadPixels(0, 0, W, H, GL_BGRA, GL_UNSIGNED_BYTE, @bmp[0]);
@@ -1176,7 +1176,7 @@ begin
   glBlendFunc(GL_DST_COLOR, GL_ONE);
   glColor4f(Value/20, Value/20, Value/20, Value/20);
   glBegin(GL_QUADS);
-    glkRect(0, 0, fSetup.ScreenX, fSetup.ScreenY);
+    glkRect(0, 0, fRender.ScreenX, fRender.ScreenY);
   glEnd;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

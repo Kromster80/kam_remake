@@ -39,7 +39,7 @@ type
     fGameOptions:TKMGameOptions;
     fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
     fGlobalSettings: TGlobalSettings;
-    fRenderSetup: TRenderSetup;
+    fRender: TRender;
     fCampaigns: TKMCampaignsCollection;
     fMusicLib: TMusicLib;
     fMapEditor: TKMMapEditor;
@@ -186,15 +186,15 @@ begin
   fGameOptions := TKMGameOptions.Create;
 
   fGlobalSettings   := TGlobalSettings.Create;
-  fRenderSetup      := TRenderSetup.Create(RenderHandle, fScreenX, fScreenY, aVSync);
-  fRenderPool       := TRenderPool.Create(fRenderSetup);
+  fRender           := TRender.Create(RenderHandle, fScreenX, fScreenY, aVSync);
+  fRenderPool       := TRenderPool.Create(fRender);
   fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
   fMusicLib         := TMusicLib.Create(fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
   fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
-  fResource         := TResource.Create(fRenderSetup, aLS, aLT);
+  fResource         := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources(fGlobalSettings.Locale);
   fCampaigns        := TKMCampaignsCollection.Create;
 
@@ -232,9 +232,11 @@ begin
   FreeThenNil(fSoundLib);
   FreeThenNil(fMusicLib);
   FreeThenNil(fTextLibrary);
-  FreeThenNil(fRenderAux);
+
   FreeThenNil(fRenderPool);
-  FreeThenNil(fRenderSetup);
+  FreeThenNil(fRenderAux);
+  FreeThenNil(fRender);
+
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fGameOptions);
   fPerfLog.Free;
@@ -272,7 +274,7 @@ procedure TKMGame.Resize(X,Y: Integer);
 begin
   fScreenX := X;
   fScreenY := Y;
-  fRenderSetup.Resize(fScreenX, fScreenY);
+  fRender.Resize(fScreenX, fScreenY);
 
   //Main menu is invisible while in game, but it still exists and when we return to it
   //it must be properly sized (player could resize the screen while playing)
@@ -1102,7 +1104,7 @@ end;
 
 function TKMGame.RenderVersion: string;
 begin
-  Result := 'OpenGL '+ fRenderSetup.RendererVersion;
+  Result := 'OpenGL '+ fRender.RendererVersion;
 end;
 
 

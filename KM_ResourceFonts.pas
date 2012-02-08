@@ -19,18 +19,18 @@ type
       u1,v1,u2,v2:single;
     end;
     LineSpacing: Byte; //Not in KaM files, we use custom value that fits well
-    procedure LoadFont(const aFileName: string; aRenderSetup: TRenderSetup; aFont: TKMFont; ExportToBMP: Boolean);
+    procedure LoadFont(const aFileName: string; aRender: TRender; aFont: TKMFont; ExportToBMP: Boolean);
   end;
 
 
   TResourceFont = class
   private
-    fRenderSetup: TRenderSetup;
+    fRender: TRender;
     fFontData:array [TKMFont] of TKMFontData;
     function GetCodePage(aLocale:AnsiString):AnsiString;
     function GetFontData(aIndex: TKMFont): TKMFontData;
   public
-    constructor Create(aRenderSetup: TRenderSetup);
+    constructor Create(aRender: TRender);
     destructor Destroy; override;
 
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
@@ -61,7 +61,7 @@ const //Font01.fnt seems to be damaged..
 
 
 { TKMFontData }
-procedure TKMFontData.LoadFont(const aFileName: string; aRenderSetup: TRenderSetup; aFont: TKMFont; ExportToBMP: Boolean);
+procedure TKMFontData.LoadFont(const aFileName: string; aRender: TRender; aFont: TKMFont; ExportToBMP: Boolean);
 const
   TexWidth = 256; //Connected to TexData, don't change
 var
@@ -137,7 +137,7 @@ begin
         inc(AdvX, 1+Width+1);
       end;
 
-  TexID := aRenderSetup.GenTexture(TexWidth, TexWidth, @TD[0], tf_Normal);
+  TexID := aRender.GenTexture(TexWidth, TexWidth, @TD[0], tf_Normal);
 
   if ExportToBMP then
   begin
@@ -160,11 +160,11 @@ end;
 
 
 { TResourceFont }
-constructor TResourceFont.Create(aRenderSetup: TRenderSetup);
+constructor TResourceFont.Create(aRender: TRender);
 var F: TKMFont;
 begin
   Inherited Create;
-  fRenderSetup := aRenderSetup;
+  fRender := aRender;
 
   for F := Low(TKMFont) to High(TKMFont) do
     fFontData[F] := TKMFontData.Create;
@@ -208,9 +208,9 @@ begin
   CodePage := GetCodePage(aLocale);
   for F := Low(TKMFont) to High(TKMFont) do
     if FileExists(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt') then
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRenderSetup, F, false)
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRender, F, false)
     else
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.fnt', fRenderSetup, F, False);
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.fnt', fRender, F, False);
 end;
 
 
@@ -222,9 +222,9 @@ begin
   CodePage := GetCodePage(aLocale);
   for F := Low(TKMFont) to High(TKMFont) do
     if FileExists(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt') then
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRenderSetup, F, true)
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRender, F, true)
     else
-      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.fnt', fRenderSetup, F, True);
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.fnt', fRender, F, True);
 end;
 
 

@@ -13,7 +13,7 @@ type
   TRenderMode = (rm2D, rm3D);
 
   //General OpenGL handling
-  TRenderSetup = class
+  TRender = class
   private
     h_DC: HDC;
     h_RC: HGLRC;
@@ -42,7 +42,7 @@ implementation
 uses KM_Log;
 
 
-constructor TRenderSetup.Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
+constructor TRender.Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
 begin
   Inherited Create;
 
@@ -61,7 +61,7 @@ begin
 end;
 
 
-destructor TRenderSetup.Destroy;
+destructor TRender.Destroy;
 begin
   {$IFDEF MSWindows}
   wglMakeCurrent(h_DC, 0);
@@ -74,7 +74,7 @@ begin
 end;
 
 
-procedure TRenderSetup.Resize(Width, Height: Integer);
+procedure TRender.Resize(Width, Height: Integer);
 begin
   fScreenX := max(Width, 1);
   fScreenY := max(Height, 1);
@@ -82,7 +82,7 @@ begin
 end;
 
 
-procedure TRenderSetup.SetRenderMode(aRenderMode: TRenderMode);
+procedure TRender.SetRenderMode(aRenderMode: TRenderMode);
 begin
   glMatrixMode(GL_PROJECTION); //Change Matrix Mode to Projection
   glLoadIdentity; //Reset View
@@ -96,7 +96,7 @@ end;
 
 
 //Generate texture out of TCardinalArray
-function TRenderSetup.GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
+function TRender.GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
 begin
   Result := 0;
 
@@ -127,7 +127,7 @@ begin
 end;
 
 
-procedure TRenderSetup.BeginFrame;
+procedure TRender.BeginFrame;
 begin
   glClear(GL_COLOR_BUFFER_BIT); //Clear The Screen, can save some FPS on this one
 
@@ -135,7 +135,7 @@ begin
 end;
 
 
-procedure TRenderSetup.EndFrame;
+procedure TRender.EndFrame;
 begin
   glFinish;
   {$IFDEF MSWindows}

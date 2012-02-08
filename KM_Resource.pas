@@ -24,7 +24,7 @@ type
 
   TResource = class
   private
-    fRenderSetup: TRenderSetup;
+    fRender: TRender;
     fDataState: TDataLoadingState;
     fCursors: TKMCursors;
     fResourceFont: TResourceFont;
@@ -44,7 +44,7 @@ type
     OnLoadingStep: TEvent;
     OnLoadingText: TStringEvent;
 
-    constructor Create(aRenderSetup: TRenderSetup; aLS: TEvent; aLT: TStringEvent);
+    constructor Create(aRender: TRender; aLS: TEvent; aLT: TStringEvent);
     destructor Destroy; override;
 
     procedure LoadMenuResources(const aLocale: AnsiString);
@@ -73,13 +73,13 @@ uses KromUtils, KM_Log, KM_Points;
 
 
 { TResource }
-constructor TResource.Create(aRenderSetup: TRenderSetup; aLS: TEvent; aLT: TStringEvent);
+constructor TResource.Create(aRender: TRender; aLS: TEvent; aLT: TStringEvent);
 begin
   Inherited Create;
   fDataState := dls_None;
   fLog.AppendLog('Resource loading state - None');
 
-  fRenderSetup := aRenderSetup;
+  fRender := aRender;
   OnLoadingStep := aLS;
   OnLoadingText := aLT;
 end;
@@ -113,21 +113,21 @@ end;
 
 procedure TResource.LoadMenuResources(const aLocale: AnsiString);
 begin
-  Assert(fRenderSetup <> nil, 'fRenderSetup should be init before ReadGFX to be able access OpenGL');
+  Assert(fRender <> nil, 'fRenderSetup should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes;
   fLog.AppendLog('Reading palettes', True);
 
-  fSprites := TKMSprites.Create(fRenderSetup, fPalettes, StepRefresh, StepCaption);
+  fSprites := TKMSprites.Create(fRender, fPalettes, StepRefresh, StepCaption);
 
   fCursors := TKMCursors.Create;
 
   fSprites.LoadMenuResources(fCursors);
 
   StepCaption('Reading fonts ...');
-  fResourceFont := TResourceFont.Create(fRenderSetup);
+  fResourceFont := TResourceFont.Create(fRender);
   fResourceFont.LoadFonts(aLocale);
   fLog.AppendLog('Read fonts is done');
 
@@ -140,7 +140,7 @@ end;
 
 procedure TResource.LoadGameResources(aAlphaShadows: boolean);
 begin
-  Assert(fRenderSetup <> nil, 'fRenderSetup inits OpenGL and we need OpenGL to make textures');
+  Assert(fRender <> nil, 'fRender inits OpenGL and we need OpenGL to make textures');
 
   if fDataState <> dls_All then
   begin

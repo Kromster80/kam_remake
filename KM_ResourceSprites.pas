@@ -128,7 +128,7 @@ type
   TKMSprites = class
   private
     fAlphaShadows: Boolean; //Remember which state we loaded
-    fRenderSetup: TRenderSetup;
+    fRender: TRender;
     fPalettes: TKMPalettes;
     fSprites: array[TRXType] of TKMSpritePack;
     fStepProgress: TEvent;
@@ -139,7 +139,7 @@ type
     procedure SaveTextureToBMP(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
     procedure ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
   public
-    constructor Create(aRenderSetup: TRenderSetup; aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
+    constructor Create(aRender: TRender; aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
     destructor Destroy; override;
 
     procedure LoadMenuResources(aCursors: TKMCursors);
@@ -708,12 +708,12 @@ end;
 
 
 { TKMSprites }
-constructor TKMSprites.Create(aRenderSetup: TRenderSetup; aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
+constructor TKMSprites.Create(aRender: TRender; aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
 var
   RT: TRXType;
 begin
-  Inherited Create;
-  fRenderSetup := aRenderSetup;
+  inherited Create;
+  fRender := aRender;
   fPalettes := aPalettes;
 
   for RT := Low(TRXType) to High(TRXType) do
@@ -922,15 +922,15 @@ begin
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
     if MAKE_TEAM_COLORS and RXInfo[aRT].TeamColors and (not ((aRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
     begin
-      GFXData[aRT,LeftIndex].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],TexType);
+      GFXData[aRT,LeftIndex].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],TexType);
       //TeamColors are done through alternative plain colored texture
       if HasMsk then begin
-        GFXData[aRT,LeftIndex].AltID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_AltID);
+        GFXData[aRT,LeftIndex].AltID := fRender.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_AltID);
         inc(ColorsRAM, (WidthPOT*HeightPOT) div 2); //GL_ALPHA4
       end;
     end
     else
-      GFXData[aRT,LeftIndex].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],TexType);
+      GFXData[aRT,LeftIndex].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],TexType);
 
     SaveTextureToBMP(WidthPOT, HeightPOT, GFXData[aRT, LeftIndex].TexID, @TD[0], False);
     if HasMsk then
@@ -1028,7 +1028,7 @@ begin
               TD[t] := TD[t] AND $01FFFFFF; //Place it as last step
         end;
 
-        GFXData[aRT,ID1].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_AlphaTest);
+        GFXData[aRT,ID1].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_AlphaTest);
 
         SaveTextureToBMP(WidthPOT,HeightPOT,GFXData[aRT,ID1].TexID,@TD[0],True);
 
