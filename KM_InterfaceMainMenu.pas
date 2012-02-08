@@ -425,14 +425,14 @@ begin
                 end;
   end;
 
-  fRender.Render;
+  fGame.Render;
 end;
 
 
 procedure TKMMainMenuInterface.AppendLoadingText(const aText:string);
 begin
   Label_Loading.Caption := Label_Loading.Caption+aText+'|';
-  fRender.Render;
+  fGame.Render;
 end;
 
 
@@ -2529,7 +2529,7 @@ begin
 
   if Sender = Radio_Options_Lang then begin
     ShowScreen(msLoading, fTextLibrary[TX_MENU_NEW_LOCALE]);
-    fRender.Render; //Force to repaint loading screen
+    fGame.Render; //Force to repaint loading screen
     fGame.GlobalSettings.FullScreen   := OldFullScreen; //Reset the resolution so the apply button is set right when we come back
     fGame.GlobalSettings.ResolutionID := OldResolutionID;
     fGame.GlobalSettings.RefreshRate  := OldRefreshRate;

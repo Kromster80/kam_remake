@@ -1242,9 +1242,9 @@ procedure TKMUnitWarrior.Paint;
 
     //In MapEd mode we borrow the anim step from terrain, as fFlagAnim is not updated
     if fGame.GameState = gsEditor then
-      fRender.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fTerrain.AnimStep, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, false)
+      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fTerrain.AnimStep, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, false)
     else
-      fRender.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fFlagAnim, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, false);
+      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fFlagAnim, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, false);
   end;
 
 var
@@ -1261,7 +1261,7 @@ begin
   XPaintPos := fPosition.X + 0.5 + GetSlide(ax_X);
   YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);
 
-  fRender.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+  fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if IsCommander and not IsDeadOrDying then
     PaintFlag(XPaintPos, YPaintPos, Direction, fUnitType); //Paint flag over the top of the unit
@@ -1269,10 +1269,10 @@ begin
   //todo: This causes issues with alpha (drawn twice) so we need to refactor it.
   //For half of the directions the flag should go UNDER the unit, so render the unit again as a child of the parent unit
   if Direction in [dir_SE, dir_S, dir_SW, dir_W] then
-    fRender.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
 
   if fThought<>th_None then
-    fRender.AddUnitThought(fThought, XPaintPos, YPaintPos);
+    fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
 
   //Paint members in MapEd mode
   if fMapEdMembersCount<>0 then
@@ -1281,7 +1281,7 @@ begin
     if not DoesFit then continue; //Don't render units that are off the map in the map editor
     XPaintPos := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
     YPaintPos := UnitPosition.Y + 1  ;
-    fRender.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
   end;
 
   if SHOW_ATTACK_RADIUS then

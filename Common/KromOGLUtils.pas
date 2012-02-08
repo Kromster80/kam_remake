@@ -21,6 +21,7 @@ type PFD_MAIN_PLANE = integer;
 
 type
     TColor4 = cardinal;
+    TTexture = record Tex: Cardinal; U,V: Single; end;
 
     procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
     procedure SetRenderFrameAA(DummyFrame,RenderFrame:HWND; AntiAliasing:byte; out h_DC: HDC; out h_RC: HGLRC);

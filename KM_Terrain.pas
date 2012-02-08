@@ -20,7 +20,7 @@ type
     fMapX: Word; //Terrain width and height
     fMapY: Word; //Terrain width and height
   public
-    Land: array[1..MAX_MAP_SIZE,1..MAX_MAP_SIZE]of record
+    Land: array[1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE]of record
       Terrain:byte;
       Height:byte;
       Rotation:byte;
@@ -656,7 +656,7 @@ begin
   Result := true;
 
   if (abs(A.X-B.X)<>1) or (abs(A.Y-B.Y)<>1) then exit; //Tiles are not diagonal to each other
-  
+
                                                                  //Relative tiles locations
   if (A.X<B.X)and(A.Y<B.Y) then                                  //   A
     Result := not MapElem[Land[B.Y,B.X].Obj+1].DiagonalBlocked   //     B
@@ -2600,10 +2600,12 @@ end;
 
 
 procedure TTerrain.SyncLoad;
-var i,k:integer;
+var
+  I, K: Integer;
 begin
-  for i:=1 to fMapY do for k:=1 to fMapX do
-    Land[i,k].IsUnit := fPlayers.GetUnitByID(cardinal(Land[i,k].IsUnit));
+  for I := 1 to fMapY do
+    for K := 1 to fMapX do
+      Land[I,K].IsUnit := fPlayers.GetUnitByID(Cardinal(Land[I,K].IsUnit));
 end;
 
 

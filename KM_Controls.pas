@@ -779,12 +779,14 @@ type
   { Minimap as stand-alone control }
   TKMMinimap = class(TKMControl)
   private
+    fTerrain: TTexture;
     fMapSize: TKMPoint;
     fViewArea: TKMRect;
     fOnChange: TPointEvent;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
+    property Terrain: TTexture read fTerrain write fTerrain;
     function LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
     property MapSize: TKMPoint read fMapSize write fMapSize;
     property ViewArea: TKMRect read fViewArea write fViewArea;

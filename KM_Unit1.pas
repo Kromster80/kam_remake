@@ -174,7 +174,7 @@ begin
 
   BeginPaint(Handle, PS);
   try
-    fRender.Render;
+    fGame.Render;
   finally
     EndPaint(Handle, PS);
   end;
@@ -188,7 +188,7 @@ end;
 procedure TMyPanel.WMSize(var Message: TWMSize);
 begin
   //Inherited;
-  if fRender <> nil then
+  if fGame <> nil then
   begin
     fGame.Resize(Message.Width, Message.Height);
     Form1.ApplyCursorRestriction;
@@ -227,7 +227,7 @@ begin
   //FPS calculation complete
 
   fGame.UpdateStateIdle(FrameTime);
-  fRender.Render;
+  fGame.Render;
   Done := False; //Repeats OnIdle asap without performing Form-specific idle code
 end;
 
@@ -429,7 +429,7 @@ procedure TForm1.Debug_PrintScreenClick(Sender: TObject);
 begin
   {$IFDEF WDC}
   DateTimeToString(s,'yyyy-mm-dd hh-nn-ss',Now); //2007-12-23 15-24-33
-  if fRender<>nil then fRender.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
+  if fRenderPool<>nil then fRenderPool.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
   {$ENDIF}
 end;
 
@@ -516,10 +516,10 @@ end;
 
 procedure TForm1.TB_Angle_Change(Sender: TObject);
 begin
-  RENDER_3D:=TB_Angle.Position<>0;
-  Label3.Caption:=inttostr(TB_Angle.Position)+' 3D';
-  fRender.SetRotation(-TB_Angle.Position,0,0);
-  fRender.Render;
+  RENDER_3D := TB_Angle.Position <> 0;
+  Label3.Caption := IntToStr(TB_Angle.Position) + ' 3D';
+  fRenderPool.SetRotation(-TB_Angle.Position, 0, 0);
+  fGame.Render;
 end;
 
 

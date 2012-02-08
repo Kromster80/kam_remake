@@ -39,7 +39,7 @@ type
   end;
 
   //Game Renderer
-  TRender = class
+  TRenderPool = class
   private
     fSetup: TRenderSetup;
     rPitch,rHeading,rBank:integer;
@@ -96,14 +96,14 @@ type
 
 
 var
-  fRender: TRender;
+  fRenderPool: TRenderPool;
 
 
 implementation
 uses KM_RenderAux, KM_Terrain, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_Units;
 
 
-constructor TRender.Create(aSetup: TRenderSetup);
+constructor TRenderPool.Create(aSetup: TRenderSetup);
 begin
   Inherited Create;
 
@@ -112,14 +112,14 @@ begin
 end;
 
 
-destructor TRender.Destroy;
+destructor TRenderPool.Destroy;
 begin
   fRenderList.Free;
   inherited;
 end;
 
 
-procedure TRender.SetRotation(aH,aP,aB:integer);
+procedure TRenderPool.SetRotation(aH,aP,aB:integer);
 begin
   rHeading := aH;
   rPitch   := aP;
@@ -132,11 +132,9 @@ end;
 // 2. Renders terrain
 // 3. Polls Game objects to add themselves to RenderList through Add** methods
 // 4. Renders cursor highlights
-procedure TRender.Render;
+procedure TRenderPool.Render;
 begin
   fSetup.BeginFrame;
-
-  if fGame = nil then exit; //Happens sometimes during ToggleFullScreen
 
   if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then
   begin //If game is running
@@ -184,7 +182,7 @@ begin
 end;
 
 
-procedure TRender.DoPrintScreen(FileName:string);
+procedure TRenderPool.DoPrintScreen(FileName:string);
 {$IFDEF WDC}
 var
   i, k, W, H: integer;
@@ -223,7 +221,7 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainTiles(aRect: TKMRect; AnimStep: Integer);
+procedure TRenderPool.RenderTerrainTiles(aRect: TKMRect; AnimStep: Integer);
   procedure LandLight(a:single);
   begin
     glColor4f(a/1.5+0.5,a/1.5+0.5,a/1.5+0.5,Abs(a*2)); //Balanced looks
@@ -384,7 +382,7 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainFieldBorders(aRect: TKMRect);
+procedure TRenderPool.RenderTerrainFieldBorders(aRect: TKMRect);
 var
   I,K: Integer;
   BordersList: TKMPointDirList;
@@ -408,7 +406,7 @@ begin
   FieldsList := TKMPointTagList.Create;
   MyPlayer.GetFieldPlans(FieldsList, aRect);
   for i := 1 to FieldsList.Count do
-    RenderTerrainMarkup(TabletsList.List[i].X, TabletsList.List[i].Y, TFieldType(TabletsList.Tag[i]));
+    RenderTerrainMarkup(FieldsList.List[i].X, FieldsList.List[i].Y, TFieldType(FieldsList.Tag[i]));
   FreeAndNil(FieldsList);
 
   //Borders
@@ -427,7 +425,7 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
+procedure TRenderPool.RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
 var I,K: Integer;
 begin
   for i := aRect.Y1 to aRect.Y2 do
@@ -444,7 +442,7 @@ begin
 end;
 
 
-procedure TRender.AddProjectile(aProj: TProjectileType; pX,pY: Single; Flight: Single; Dir: TKMDirection);
+procedure TRenderPool.AddProjectile(aProj: TProjectileType; pX,pY: Single; Flight: Single; Dir: TKMDirection);
 var
   FOW: Byte;
   ID: Integer;
@@ -480,7 +478,7 @@ begin
 end;
 
 
-procedure TRender.RenderObjectOrQuad(aIndex,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRenderPool.RenderObjectOrQuad(aIndex,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
 begin
   //Render either normal object or quad depending on what it is
   if MapElem[aIndex].WineOrCorn then
@@ -490,7 +488,7 @@ begin
 end;
 
 
-procedure TRender.RenderObject(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRenderPool.RenderObject(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var ShiftX,ShiftY:single; ID:integer; FOW:byte;
 begin
   if MapElem[aIndex].Count=0 then exit;
@@ -520,7 +518,7 @@ end;
 
 
 { 4 objects packed on 1 tile for Corn and Grapes }
-procedure TRender.RenderObjectQuad(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRenderPool.RenderObjectQuad(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var FOW:byte;
   procedure AddSpriteBy(aID:integer; aAnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
   var ID:integer;
@@ -544,7 +542,7 @@ end;
 
 
 {Render house WIP tablet}
-procedure TRender.AddHouseTablet(Index:THouseType; Loc:TKMPoint);
+procedure TRenderPool.AddHouseTablet(Index:THouseType; Loc:TKMPoint);
 var ShiftX,ShiftY: Single; ID: Integer;
 begin
   ID := fResource.HouseDat[Index].TabletIcon;
@@ -556,7 +554,7 @@ end;
 
 
 {Render house build supply}
-procedure TRender.AddHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
+procedure TRenderPool.AddHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   if Wood<>0 then begin
@@ -575,7 +573,7 @@ end;
 
 
 {Render house in wood}
-procedure TRender.AddHouseWood(Index: THouseType; Step: Single; Loc: TKMPoint);
+procedure TRenderPool.AddHouseWood(Index: THouseType; Step: Single; Loc: TKMPoint);
 var ShiftX,ShiftY: Single; ID: Integer;
 begin
   ID := fResource.HouseDat[Index].WoodPic + 1;
@@ -586,7 +584,7 @@ end;
 
 
 {Render house in stone}
-procedure TRender.AddHouseStone(Index: THouseType; Step: Single; Loc: TKMPoint);
+procedure TRenderPool.AddHouseStone(Index: THouseType; Step: Single; Loc: TKMPoint);
 var ShiftX,ShiftY: Single; ID: Integer;
 begin
   AddHouseWood(Index, 1, Loc); //Render Wood part of it, opaque
@@ -597,7 +595,7 @@ begin
 end;
 
 
-procedure TRender.AddHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
+procedure TRenderPool.AddHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
 var AnimCount,ID:cardinal; AT:THouseActionType; ShiftX,ShiftY:single;
 begin
   if aActSet = [] then Exit;
@@ -620,7 +618,7 @@ begin
 end;
 
 
-procedure TRender.AddHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
+procedure TRenderPool.AddHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
 var ID,i,k:integer;
 
   procedure AddHouseSupplySprite(aID:integer);
@@ -660,7 +658,7 @@ begin
 end;
 
 
-procedure TRender.AddMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint; AnimStep:integer);
+procedure TRenderPool.AddMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint; AnimStep:integer);
 var i,ID: Integer;
 
   procedure AddHouseSupplySprite(aID:integer);
@@ -687,7 +685,7 @@ begin
 end;
 
 
-procedure TRender.AddHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint; aRX: TRXType = rxHouses);
+procedure TRenderPool.AddHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint; aRX: TRXType = rxHouses);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   with fResource.HouseDat.BeastAnim[Index,BeastID,BeastAge] do begin
@@ -702,7 +700,7 @@ begin
 end;
 
 
-procedure TRender.AddUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRenderPool.AddUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
@@ -721,7 +719,7 @@ begin
 end;
 
 
-procedure TRender.AddEater(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; Loc:TKMPoint; OffX,OffY:single; FlagColor:TColor4);
+procedure TRenderPool.AddEater(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; Loc:TKMPoint; OffX,OffY:single; FlagColor:TColor4);
 var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
@@ -736,7 +734,7 @@ begin
 end;
 
 
-procedure TRender.AddUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
+procedure TRenderPool.AddUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
 var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
 begin
   A := fResource.UnitDat.SerfCarry[aCarry, aDir];
@@ -752,7 +750,7 @@ begin
 end;
 
 
-procedure TRender.AddUnitThought(Thought: TUnitThought; pX,pY: Single);
+procedure TRenderPool.AddUnitThought(Thought: TUnitThought; pX,pY: Single);
 var
   ID: Integer;
   ShiftX, ShiftY: Single;
@@ -770,7 +768,7 @@ begin
 end;
 
 
-procedure TRender.AddUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
+procedure TRenderPool.AddUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
 var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
@@ -788,7 +786,7 @@ begin
 end;
 
 
-procedure TRender.AddUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRenderPool.AddUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; DoImmediateRender:boolean=false; Deleting:boolean=false);
 begin
   if aUnit = ut_Fish then aAct := FishCountAct[5]; //In map editor always render 5 fish
   AddUnit(aUnit,aAct,aDir,StepID,pX,pY,FlagColor,True,DoImmediateRender,Deleting);
@@ -798,7 +796,7 @@ end;
 
 
 {Render one terrian cell}
-procedure TRender.RenderTile(Index:byte; pX,pY,Rot:integer);
+procedure TRenderPool.RenderTile(Index:byte; pX,pY,Rot:integer);
 var k,i,a:integer;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
@@ -836,7 +834,7 @@ begin
 end;
 
 
-procedure TRender.RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
+procedure TRenderPool.RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
 var
   Lay, TopLay: Byte;
 begin
@@ -885,7 +883,7 @@ begin
 end;
 
 
-procedure TRender.RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param:single; pX,pY:single; aFOW:byte);
+procedure TRenderPool.RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param:single; pX,pY:single; aFOW:byte);
 begin
   //NOTION: This function does not work on some GPUs will need to replace it with simplier more complicated way
   //glDisable(GL_BLEND);
@@ -925,16 +923,16 @@ begin
 end;
 
 
-procedure TRender.RenderTerrain;
+procedure TRenderPool.RenderTerrain;
 var
   Rect: TKMRect;
   Passability: integer;
 begin
   Rect := fGame.Viewport.GetClip;
 
-  fRender.RenderTerrainTiles(Rect, fTerrain.AnimStep);
-  fRender.RenderTerrainFieldBorders(Rect);
-  fRender.RenderTerrainObjects(Rect, fTerrain.AnimStep);
+  RenderTerrainTiles(Rect, fTerrain.AnimStep);
+  RenderTerrainFieldBorders(Rect);
+  RenderTerrainObjects(Rect, fTerrain.AnimStep);
 
   if not fGame.AllowDebugRendering then
     exit;
@@ -955,7 +953,7 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
+procedure TRenderPool.RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
 var
   a,b: TKMPointF;
   ID: Integer;
@@ -995,7 +993,7 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainBorder(Border:TBorderType; Pos:TKMDirection; pX,pY:integer);
+procedure TRenderPool.RenderTerrainBorder(Border:TBorderType; Pos:TKMDirection; pX,pY:integer);
 var a,b:TKMPointF; ID:integer; t:single; HeightInPx:integer; FOW:byte;
 begin
   ID:=1;
@@ -1046,7 +1044,7 @@ begin
 end;
 
 
-procedure TRender.RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
+procedure TRenderPool.RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
 begin
   if not fTerrain.TileInMapCoords(P.X, P.Y) then exit;
   glColor4ubv(@Col);
@@ -1061,14 +1059,14 @@ begin
 end;
 
 
-procedure TRender.RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
+procedure TRenderPool.RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
 begin
   if fTerrain.TileInMapCoords(P.X,P.Y) then
     RenderSprite(rxGui,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV,$FFFFFFFF,255);
 end;
 
 
-procedure TRender.RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
+procedure TRenderPool.RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
 var i:integer; MarksList: TKMPointTagList;
 begin
   MarksList := TKMPointTagList.Create;
@@ -1084,7 +1082,7 @@ begin
 end;
 
 
-procedure TRender.RenderCursorHighlights;
+procedure TRenderPool.RenderCursorHighlights;
   //Shortcut function
   function TileVisible: Boolean;
   begin
@@ -1170,7 +1168,7 @@ end;
 
 
 //Render highlight overlay to make whole picture look brighter (more saturated)
-procedure TRender.RenderBrightness(Value: Byte);
+procedure TRenderPool.RenderBrightness(Value: Byte);
 begin
   //There will be no change to image anyway
   if Value = 0 then Exit;
@@ -1278,7 +1276,7 @@ begin
       if RENDER_3D then
       begin
         glTranslatef(RenderList[h].Loc.X, RenderList[h].Loc.Y, 0);
-        glRotatef(fRender.rHeading, -1, 0, 0);
+        glRotatef(fRenderPool.rHeading, -1, 0, 0);
         glTranslatef(-RenderList[h].Loc.X, -RenderList[h].Loc.Y, 0);
       end;
 
@@ -1286,9 +1284,9 @@ begin
         with RenderList[h] do
         begin
           if AlphaStep = -1 then
-            fRender.RenderSprite(RX, ID, Loc.X, Loc.Y, TeamColor,FOWvalue)
+            fRenderPool.RenderSprite(RX, ID, Loc.X, Loc.Y, TeamColor,FOWvalue)
           else
-            fRender.RenderSpriteAlphaTest(RX, ID, AlphaStep, Loc.X, Loc.Y, FOWvalue);
+            fRenderPool.RenderSpriteAlphaTest(RX, ID, AlphaStep, Loc.X, Loc.Y, FOWvalue);
 
           if SHOW_GROUND_LINES then
           begin

@@ -154,6 +154,7 @@ type
 
     procedure Save(const aFilename: string);
 
+    procedure Render;
     procedure UpdateState;
     procedure UpdateStateIdle(aFrameTime:cardinal);
     procedure PaintInterface;
@@ -186,7 +187,7 @@ begin
 
   fGlobalSettings   := TGlobalSettings.Create;
   fRenderSetup      := TRenderSetup.Create(RenderHandle, fScreenX, fScreenY, aVSync);
-  fRender           := TRender.Create(fRenderSetup);
+  fRenderPool       := TRenderPool.Create(fRenderSetup);
   fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
@@ -232,7 +233,7 @@ begin
   FreeThenNil(fMusicLib);
   FreeThenNil(fTextLibrary);
   FreeThenNil(fRenderAux);
-  FreeThenNil(fRender);
+  FreeThenNil(fRenderPool);
   FreeThenNil(fRenderSetup);
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fGameOptions);
@@ -673,7 +674,7 @@ begin
   fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
   fViewport.Position := KMPointF(MyPlayer.CenterScreen);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
-  fRender.Render;
+  Render;
 
   fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
   fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
@@ -1090,6 +1091,12 @@ begin
   for i:=0 to fPlayers.Count-1 do //Reveal all players since we'll swap between them in MapEd
     fPlayers[i].FogOfWar.RevealEverything;
   if MyPlayer = nil then MyPlayer := fPlayers[0];
+end;
+
+
+procedure TKMGame.Render;
+begin
+  fRenderPool.Render;
 end;
 
 
