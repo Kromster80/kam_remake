@@ -18,7 +18,7 @@ type
     fMapTex: TTexture;
     procedure UpdateMinimap(aMapEditor: Boolean);
   public
-    constructor Create(aRender: TRender; aTerrain: TTerrain = nil);
+    constructor Create(aRender: TRender; aTerrain: TTerrain);
     destructor Destroy; override;
 
     property Terrain: TTerrain read fMyTerrain;
@@ -33,7 +33,7 @@ uses KM_Defaults, KM_Resource, KM_PlayersCollection, KM_Units_Warrior;
 
 
 { TKMMinimap }
-constructor TKMMapView.Create(aRender: TRender; aTerrain: TTerrain = nil);
+constructor TKMMapView.Create(aRender: TRender; aTerrain: TTerrain);
 begin
   inherited Create;
 
@@ -41,7 +41,7 @@ begin
   //Otherwise access synced Game terrain
   fOwnTerrain := (aTerrain = nil);
 
-  if aTerrain = nil then
+  if fOwnTerrain then
     fMyTerrain := TTerrain.Create
   else
     fMyTerrain := aTerrain;

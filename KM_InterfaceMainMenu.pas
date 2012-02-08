@@ -318,7 +318,7 @@ begin
   ScreenY := min(Y, MENU_DESIGN_Y);
   Campaign_MapIndex := 1;
 
-  fMapView := TKMMapView.Create(nil);
+  fMapView := TKMMapView.Create(nil, nil);
 
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(true);
