@@ -10,6 +10,7 @@ type
   TKMMapView = class
   private
     fRender: TRender; //Should be used to Gen and Update texture
+    fOwnTerrain: Boolean;
     fMyTerrain: TTerrain;
     fMapY: Word;
     fMapX: Word;
@@ -18,6 +19,7 @@ type
     procedure UpdateMinimap(aMapEditor: Boolean);
   public
     constructor Create(aRender: TRender; aTerrain: TTerrain = nil);
+    destructor Destroy; override;
 
     property Terrain: TTerrain read fMyTerrain;
 
@@ -35,10 +37,13 @@ constructor TKMMapView.Create(aRender: TRender; aTerrain: TTerrain = nil);
 begin
   inherited Create;
 
-  //Create our own local terrain to access when in menu
+  //We create our own local terrain to access when in main menu
+  //Otherwise access synced Game terrain
+  fOwnTerrain := (aTerrain = nil);
+
   if aTerrain = nil then
     fMyTerrain := TTerrain.Create
-  else //Otherwise access sunced Game terrain
+  else
     fMyTerrain := aTerrain;
 
   //Create texture handle
@@ -60,6 +65,14 @@ begin
   glBindTexture(GL_TEXTURE_2D, 0);
 
   fRender := aRender;
+end;
+
+
+destructor TKMMapView.Destroy;
+begin
+  if fOwnTerrain then
+    fMyTerrain.Free;
+  inherited;
 end;
 
 
