@@ -779,14 +779,14 @@ type
   { Minimap as stand-alone control }
   TKMMinimap = class(TKMControl)
   private
-    fTerrain: TTexture;
+    fMapTex: TTexture;
     fMapSize: TKMPoint;
     fViewArea: TKMRect;
     fOnChange: TPointEvent;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
-    property Terrain: TTexture read fTerrain write fTerrain;
+    property MapTex: TTexture read fMapTex write fMapTex;
     function LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
     property MapSize: TKMPoint read fMapSize write fMapSize;
     property ViewArea: TKMRect read fViewArea write fViewArea;
@@ -3247,11 +3247,13 @@ procedure TKMMinimap.Paint;
 begin
   inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
-  fRenderUI.RenderMinimap(Left, Top, Width, Height);
-  fRenderUI.WriteRect(Left + (Width - fMapSize.X) div 2 + fViewArea.X1,
-                      Top  + (Height - fMapSize.Y) div 2 + fViewArea.Y1,
-                      fViewArea.X2 - fViewArea.X1,
-                      fViewArea.Y2 - fViewArea.Y1, 1, $FFFFFFFF);
+  fRenderUI.WriteTexture(Left, Top, Width, Height, fMapTex, $FFFFFFFF);
+
+  if (fViewArea.X2 - fViewArea.X1) * (fViewArea.Y2 - fViewArea.Y1) > 0 then
+    fRenderUI.WriteRect(Left + (Width - fMapSize.X) div 2 + fViewArea.X1,
+                        Top  + (Height - fMapSize.Y) div 2 + fViewArea.Y1,
+                        fViewArea.X2 - fViewArea.X1,
+                        fViewArea.Y2 - fViewArea.Y1, 1, $FFFFFFFF);
 end;
 
 

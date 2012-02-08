@@ -8,8 +8,8 @@ uses
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math, TypInfo, Zippit,
   KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
   KM_Networking,
-  KM_MapEditor, KM_Campaigns,
-  KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderSetup, KM_RenderAux, KM_TextLibrary,
+  KM_MapEditor, KM_Campaigns, KM_MapView,
+  KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
   KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_Resource, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
   KM_ArmyEvaluation, KM_GameOptions, KM_PerfLog;
@@ -44,6 +44,7 @@ type
     fMusicLib: TMusicLib;
     fMapEditor: TKMMapEditor;
     fProjectiles:TKMProjectiles;
+    fMapView: TKMMapView;
     fGameInputProcess:TGameInputProcess;
     fNetworking:TKMNetworking;
     fViewport: TViewport;
@@ -149,10 +150,12 @@ type
     property Projectiles: TKMProjectiles read fProjectiles;
     property GameInputProcess: TGameInputProcess read fGameInputProcess;
     property Networking: TKMNetworking read fNetworking;
+    property MapView: TKMMapView read fMapView;
     property GameOptions: TKMGameOptions read fGameOptions;
     property Viewport: TViewport read fViewport;
 
     procedure Save(const aFilename: string);
+    procedure PrintScreen;
 
     procedure Render;
     procedure UpdateState;
@@ -197,6 +200,7 @@ begin
   fResource         := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources(fGlobalSettings.Locale);
   fCampaigns        := TKMCampaignsCollection.Create;
+  fMapView          := TKMMapView.Create(fRender);
 
   //If game was reinitialized from options menu then we should return there
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
@@ -215,6 +219,10 @@ begin
     fMainMenuInterface.ShowScreen(msOptions)
   else
     fMainMenuInterface.ShowScreen(msMain);
+
+  fMapView.Terrain.LoadFromFile(ExeDir + 'Maps\GoalTest\GoalTest.map', False);
+  fMapView.Update(False);
+  fMainMenuInterface.UpdateMinimap(fMapView.MapTex);
 end;
 
 
@@ -224,6 +232,7 @@ begin
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
   fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
 
+  FreeThenNil(fMapView);
   FreeThenNil(fCampaigns);
   if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeThenNil(fGlobalSettings);
@@ -1547,7 +1556,7 @@ begin
   begin
     //Minimap
     if (fGameState in [gsRunning, gsReplay, gsEditor]) then
-      fTerrain.UpdateMinimapData(fGameState = gsEditor);
+      fMapView.Update(fGameState = gsEditor);
 
     //Music
     if GlobalSettings.MusicOn and fMusicLib.IsMusicEnded then
@@ -1609,6 +1618,15 @@ begin
     Result := 'Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY)
   else
     Result := 'No map';
+end;
+
+
+procedure TKMGame.PrintScreen;
+var
+  s: string;
+begin
+  DateTimeToString(s, 'yyyy-mm-dd hh-nn-ss', Now); //2007-12-23 15-24-33
+  fRenderPool.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
 end;
 
 

@@ -9,7 +9,7 @@ uses
   Math, SysUtils, StrUtils, KromUtils,
   {$IFDEF FPC} LResources, {$ENDIF}
   dglOpenGL,
-  KM_Render, KM_Resource, KM_ResourceSprites, KM_Defaults, KM_Form_Loading,
+  KM_RenderPool, KM_Resource, KM_ResourceSprites, KM_Defaults, KM_Form_Loading,
   KM_Game, KM_PlayersCollection,
   KM_TextLibrary, KM_Sound, KM_Utils, KM_Points, KM_Settings;
 
@@ -147,7 +147,7 @@ implementation
   {$R *.dfm}
 {$ENDIF}
 
-uses KM_GameInputProcess,  KM_Log;
+uses KM_GameInputProcess, KM_Log;
 
 
 { TMyPanel }
@@ -425,12 +425,9 @@ end;
 
 
 procedure TForm1.Debug_PrintScreenClick(Sender: TObject);
-{$IFDEF WDC} var s:string; {$ENDIF}
 begin
-  {$IFDEF WDC}
-  DateTimeToString(s,'yyyy-mm-dd hh-nn-ss',Now); //2007-12-23 15-24-33
-  if fRenderPool<>nil then fRenderPool.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
-  {$ENDIF}
+  if fGame <> nil then
+    fGame.PrintScreen;
 end;
 
 

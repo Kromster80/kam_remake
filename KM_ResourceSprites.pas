@@ -10,7 +10,7 @@ uses
   KM_ResourceCursors,
   KM_ResourceHouse,
   KM_ResourcePalettes,
-  KM_RenderSetup,
+  KM_Render,
   KM_TextLibrary
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF}

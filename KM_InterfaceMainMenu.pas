@@ -124,7 +124,8 @@ type
       Button_MM_Replays,
       Button_MM_Options,
       Button_MM_Credits,
-      Button_MM_Quit:TKMButton;
+      Button_MM_Quit: TKMButton;
+      Minimap_Preview: TKMMinimap;
     Panel_SinglePlayer:TKMPanel;
       Panel_SPButtons:TKMPanel;
       Button_SP_Tutor,
@@ -291,13 +292,14 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+    procedure UpdateMinimap(aMapTex: TTexture);
     procedure UpdateState; override;
     procedure Paint; override;
   end;
 
 
 implementation
-uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection,
+uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_Terrain, KM_TextLibrary, KM_Game, KM_PlayersCollection,
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites, KM_ServerQuery;
 
 const
@@ -309,8 +311,7 @@ const
 constructor TKMMainMenuInterface.Create(X,Y:word);
 begin
   inherited;
-
-  Assert(fTextLibrary<>nil, 'fTextLibrary should be initialized before MainMenuInterface');
+  Assert(fTextLibrary <> nil, 'fTextLibrary should be initialized before MainMenuInterface');
 
   ScreenX := min(X, MENU_DESIGN_X);
   ScreenY := min(Y, MENU_DESIGN_Y);
@@ -372,6 +373,12 @@ begin
   fSaves.Free;
   fSavesMP.Free;
   inherited;
+end;
+
+
+procedure TKMMainMenuInterface.UpdateMinimap(aMapTex: TTexture);
+begin
+  Minimap_Preview.MapTex := aMapTex;
 end;
 
 
@@ -552,11 +559,11 @@ end;
 
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
-  Panel_MainMenu := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
+  Panel_MainMenu := TKMPanel.Create(Panel_Main, 0, 0, MENU_DESIGN_X, MENU_DESIGN_Y);
     TKMImage.Create(Panel_MainMenu, 300,  60, 423, 164, 4, rxGuiMain);
     TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0, 'Remake', fnt_Metal, taCenter);
-    with TKMImage.Create(Panel_MainMenu, 50,220,round(218*1.3),round(291*1.3),5,rxGuiMainH) do ImageStretch;
-    with TKMImage.Create(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
+    with TKMImage.Create(Panel_MainMenu,  50, 220, round(218*1.3), round(291*1.3), 5, rxGuiMainH) do ImageStretch;
+    with TKMImage.Create(Panel_MainMenu, 705, 220, round(207*1.3), round(295*1.3), 6, rxGuiMainH) do ImageStretch;
 
     Panel_MMButtons := TKMPanel.Create(Panel_MainMenu,337,290,350,400);
 
@@ -576,7 +583,7 @@ begin
       Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;
 
       //Test
-      TKMMinimap.Create(Panel_MainMenu, 10, 100, 192, 192);
+      Minimap_Preview := TKMMinimap.Create(Panel_MainMenu, 10, 100, 192, 192);
 end;
 
 
@@ -585,10 +592,10 @@ begin
   Panel_SinglePlayer:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
     TKMImage.Create(Panel_SinglePlayer,300,60,423,164,4,rxGuiMain);
     TKMLabel.Create(Panel_SinglePlayer, 512, 240, 0, 0, 'Remake', fnt_Metal, taCenter);
-    with TKMImage.Create(Panel_SinglePlayer,50,220,round(218*1.3),round(291*1.3),5,rxGuiMainH) do ImageStretch;
+    with TKMImage.Create(Panel_SinglePlayer, 50,220,round(218*1.3),round(291*1.3),5,rxGuiMainH) do ImageStretch;
     with TKMImage.Create(Panel_SinglePlayer,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
 
-    Panel_SPButtons:=TKMPanel.Create(Panel_SinglePlayer,337,290,350,400);
+    Panel_SPButtons := TKMPanel.Create(Panel_SinglePlayer,337,290,350,400);
       Button_SP_Tutor  :=TKMButton.Create(Panel_SPButtons,0,  0,350,30,fTextLibrary[TX_MENU_TUTORIAL_TOWN],fnt_Metal,bsMenu);
       Button_SP_Fight  :=TKMButton.Create(Panel_SPButtons,0, 40,350,30,fTextLibrary[TX_MENU_TUTORIAL_BATTLE],fnt_Metal,bsMenu);
       Button_SP_TSK    :=TKMButton.Create(Panel_SPButtons,0, 80,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);

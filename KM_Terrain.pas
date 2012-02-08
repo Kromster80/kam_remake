@@ -60,7 +60,6 @@ type
 
     Pathfinding: TPathFinding;
     FallingTrees: TKMPointTagList;
-    MiniMapRGB: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of cardinal;
 
     constructor Create;
     destructor Destroy; override;
@@ -189,7 +188,6 @@ type
 
     procedure UpdateState;
     procedure UpdateStateIdle;
-    procedure UpdateMinimapData(aMapEditor:Boolean);
   end;
 
 
@@ -2459,61 +2457,6 @@ begin
     Land[aLoc.Y, aLoc.X].Rotation := aRotation;
     RecalculatePassability(aLoc);
   end;
-end;
-
-
-//MapEditor stores only commanders instead of all groups members
-procedure TTerrain.UpdateMinimapData(aMapEditor:Boolean);
-var
-  FOW,ID:byte;
-  i,j,k:integer;
-  W: TKMUnitWarrior;
-  P: TKMPoint;
-  DoesFit: Boolean;
-  Light:smallint;
-begin
-  for i:=1 to fMapY do
-  for k:=1 to fMapX do
-  begin
-    if MyPlayer <> nil then
-      FOW := MyPlayer.FogOfWar.CheckTileRevelation(k,i,true)
-    else
-      FOW := 255;
-    if FOW = 0 then
-      MiniMapRGB[i,k] := 0
-    else
-      if Land[i,k].TileOwner <> -1 then
-        MiniMapRGB[i,k] := fPlayers.Player[Land[i,k].TileOwner].FlagColor
-      else
-        if Land[i,k].IsUnit <> nil then
-          if Land[i,k].IsUnit.GetOwner <> PLAYER_ANIMAL then
-            MiniMapRGB[i,k] := fPlayers.Player[Land[i,k].IsUnit.GetOwner].FlagColor
-          else
-            MiniMapRGB[i,k] := fResource.UnitDat[Land[i,k].IsUnit.UnitType].MinimapColor
-        else
-        begin
-          ID := Land[i,k].Terrain;
-          Light := round(Land[i,k].Light*64)-(255-FOW); //it's -255..255 range now
-          MiniMapRGB[i,k] := EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
-                             EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
-                             EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;
-        end;
-  end;
-
-  //Scan all players units and paint all virtual group members
-  if aMapEditor then
-    for i:=0 to fPlayers.Count-1 do
-      for k:=0 to fPlayers[i].Units.Count-1 do
-        if fPlayers[i].Units[k] is TKMUnitWarrior then
-        begin
-          W := TKMUnitWarrior(fPlayers[i].Units[k]);
-          for j:=1 to W.fMapEdMembersCount do
-          begin
-            P := GetPositionInGroup2(W.GetPosition.X, W.GetPosition.Y, W.Direction, j+1, W.UnitsPerRow, MapX, MapY, DoesFit);
-            if not DoesFit then Continue; //Don't render units that are off the map in the map editor
-            MiniMapRGB[P.Y,P.X] := fPlayers[i].FlagColor;
-          end;
-        end;
 end;
 
 

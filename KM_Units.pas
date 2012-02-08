@@ -243,8 +243,8 @@ type
     function GetUnitByID(aID: Integer): TKMUnit;
     function GetClosestUnit(aPoint: TKMPoint):TKMUnit;
     function GetTotalPointers: integer;
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
     procedure Paint;
@@ -253,7 +253,7 @@ type
 
 implementation
 uses
-  KM_Game, KM_Render, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection,
+  KM_Game, KM_RenderPool, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection,
   KM_Units_Warrior, KM_Terrain, KM_Resource, KM_Log, KM_MessageStack,
 
   KM_UnitActionAbandonWalk,

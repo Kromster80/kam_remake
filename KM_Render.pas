@@ -1,4 +1,4 @@
-unit KM_RenderSetup;
+unit KM_Render;
 {$I KaM_Remake.inc}
 interface
 uses

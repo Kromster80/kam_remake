@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Forms, Graphics, SysUtils,
   KM_CommonEvents, KM_Defaults,
-  KM_RenderSetup,
+  KM_Render,
   KM_ResourceCursors,
   KM_ResourceFonts,
   KM_ResourceHouse,
@@ -131,6 +131,8 @@ begin
   fResourceFont.LoadFonts(aLocale);
   fLog.AppendLog('Read fonts is done');
 
+    fTileset := TKMTileset.Create(ExeDir + 'Resource\');
+
   StepRefresh;
   fLog.AppendLog('ReadGFX is done');
   fDataState := dls_Menu;
@@ -150,7 +152,6 @@ begin
     fResources := TKMResourceCollection.Create;
     fHouseDat := TKMHouseDatCollection.Create;
     fUnitDat := TKMUnitDatCollection.Create;
-    fTileset := TKMTileset.Create(ExeDir + 'Resource\');
   end;
 
   if (fDataState <> dls_All) or (aAlphaShadows <> fSprites.AlphaShadows) then

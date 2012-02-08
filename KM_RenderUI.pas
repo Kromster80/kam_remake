@@ -20,7 +20,7 @@ type
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
     procedure WriteText         (X,Y,W,H: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF);
-    procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
+    procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
   end;
 
 
@@ -539,27 +539,19 @@ begin
 end;
 
 
-procedure TRenderUI.RenderMinimap(PosX,PosY,SizeX,SizeY:smallint);
-var i,k:integer;
+procedure TRenderUI.WriteTexture(PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
 begin
-  if fTerrain = nil then Exit;
-  glPushAttrib(GL_POINT_BIT);
-  glPushMatrix;
+  glBindTexture(GL_TEXTURE_2D, aTexture.Tex);
 
-    //Render minimap dot by dot, replace with texture later on
-    glPointSize(1);
-    glTranslatef(PosX + Round((SizeX - fTerrain.MapX) / 2) + 0.5,
-                 PosY + Round((SizeY - fTerrain.MapY) / 2) + 0.5, 0);
+  glColor4ubv(@aCol);
+  glBegin(GL_QUADS);
+    glTexCoord2f(0, 0); glVertex2f(PosX, PosY);
+    glTexCoord2f(aTexture.U, 0); glVertex2f(PosX+SizeX,PosY);
+    glTexCoord2f(aTexture.U, aTexture.V); glVertex2f(PosX+SizeX,PosY+SizeY);
+    glTexCoord2f(0, aTexture.V); glVertex2f(PosX,PosY+SizeY);
+  glEnd;
 
-    glBegin(GL_POINTS);
-      for i:=1 to fTerrain.MapY-1 do for k:=1 to fTerrain.MapX-1 do begin
-        glColor3ubv(@fTerrain.MiniMapRGB[i,k]);
-        glVertex2f(k,i);
-      end;
-    glEnd;
-
-  glPopMatrix;
-  glPopAttrib;
+  glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 

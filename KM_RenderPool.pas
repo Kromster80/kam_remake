@@ -7,7 +7,7 @@ uses
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library ye-> FPReadJPEG?t
-  KM_Defaults, KM_CommonClasses, KM_RenderSetup, KM_ResourceSprites, KM_Points;
+  KM_Defaults, KM_CommonClasses, KM_Render, KM_ResourceSprites, KM_Points;
 
 type
   TRenderList = class

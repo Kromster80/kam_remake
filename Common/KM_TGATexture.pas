@@ -37,7 +37,7 @@ const
 
 
 function LoadTexture(FileName: String; var Texture:GLuint): Boolean;
-function GenerateTextureCommon:GLuint;
+function GenerateTextureCommon: GLuint;
 
 
 implementation
