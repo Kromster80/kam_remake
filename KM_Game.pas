@@ -8,7 +8,7 @@ uses
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math, TypInfo, Zippit,
   KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
   KM_Networking,
-  KM_MapEditor, KM_Campaigns, KM_MapView,
+  KM_MapEditor, KM_Campaigns,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
   KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_Resource, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
@@ -44,7 +44,6 @@ type
     fMusicLib: TMusicLib;
     fMapEditor: TKMMapEditor;
     fProjectiles:TKMProjectiles;
-    fMapView: TKMMapView;
     fGameInputProcess:TGameInputProcess;
     fNetworking:TKMNetworking;
     fViewport: TViewport;
@@ -150,7 +149,6 @@ type
     property Projectiles: TKMProjectiles read fProjectiles;
     property GameInputProcess: TGameInputProcess read fGameInputProcess;
     property Networking: TKMNetworking read fNetworking;
-    property MapView: TKMMapView read fMapView;
     property GameOptions: TKMGameOptions read fGameOptions;
     property Viewport: TViewport read fViewport;
 
@@ -200,7 +198,6 @@ begin
   fResource         := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources(fGlobalSettings.Locale);
   fCampaigns        := TKMCampaignsCollection.Create;
-  fMapView          := TKMMapView.Create(fRender);
 
   //If game was reinitialized from options menu then we should return there
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
@@ -219,10 +216,6 @@ begin
     fMainMenuInterface.ShowScreen(msOptions)
   else
     fMainMenuInterface.ShowScreen(msMain);
-
-  fMapView.Terrain.LoadFromFile(ExeDir + 'Maps\GoalTest\GoalTest.map', False);
-  fMapView.Update(False);
-  fMainMenuInterface.UpdateMinimap(fMapView.MapTex);
 end;
 
 
@@ -232,7 +225,6 @@ begin
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
   fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
 
-  FreeThenNil(fMapView);
   FreeThenNil(fCampaigns);
   if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeThenNil(fGlobalSettings);
@@ -437,11 +429,11 @@ begin
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
 
   fViewport := TViewport.Create(fScreenX, fScreenY);
-  fGamePlayInterface := TKMGamePlayInterface.Create(fScreenX, fScreenY);
 
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
   fTerrain := TTerrain.Create;
+  fGamePlayInterface := TKMGamePlayInterface.Create(fScreenX, fScreenY);
   fProjectiles := TKMProjectiles.Create;
 
   fGameTickCount := 0; //Restart counter
@@ -698,7 +690,7 @@ begin
   fNetworking.OnPlay := GameMPPlay;
   fNetworking.OnReadyToPlay := GameMPReadyToPlay;
   fNetworking.OnCommands := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
-  fNetworking.OnTextMessage := fGamePlayInterface.ChatMessage;
+  fNetworking.OnTextMessage  := fGamePlayInterface.ChatMessage;
   fNetworking.OnPlayersSetup := fGamePlayInterface.AlliesOnPlayerSetup;
   fNetworking.OnPingInfo     := fGamePlayInterface.AlliesOnPingInfo;
   fNetworking.OnDisconnect   := GameMPDisconnect; //For auto reconnecting
@@ -1554,10 +1546,6 @@ begin
   //Every 1000ms
   if fGlobalTickCount mod 10 = 0 then
   begin
-    //Minimap
-    if (fGameState in [gsRunning, gsReplay, gsEditor]) then
-      fMapView.Update(fGameState = gsEditor);
-
     //Music
     if GlobalSettings.MusicOn and fMusicLib.IsMusicEnded then
       fMusicLib.PlayNextTrack; //Feed new music track

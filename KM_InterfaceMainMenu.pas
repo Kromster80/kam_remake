@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves,
-  KM_InterfaceDefaults;
+  KM_InterfaceDefaults, KM_MapView;
 
 
 type
@@ -19,6 +19,8 @@ type
 
     Campaign_Selected:TKMCampaign;
     Campaign_MapIndex:byte;
+
+    fMapView: TKMMapView;
 
     fMap_Selected: Integer; //Selected map
     fMaps: TKMapsCollection;
@@ -292,7 +294,6 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
-    procedure UpdateMinimap(aMapTex: TTexture);
     procedure UpdateState; override;
     procedure Paint; override;
   end;
@@ -316,6 +317,8 @@ begin
   ScreenX := min(X, MENU_DESIGN_X);
   ScreenY := min(Y, MENU_DESIGN_Y);
   Campaign_MapIndex := 1;
+
+  fMapView := TKMMapView.Create(nil);
 
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(true);
@@ -372,13 +375,8 @@ begin
   fMapsMP.Free;
   fSaves.Free;
   fSavesMP.Free;
+  fMapView.Free;
   inherited;
-end;
-
-
-procedure TKMMainMenuInterface.UpdateMinimap(aMapTex: TTexture);
-begin
-  Minimap_Preview.MapTex := aMapTex;
 end;
 
 
@@ -432,6 +430,9 @@ begin
                 end;
   end;
 
+  fMapView.Terrain.LoadFromFile(ExeDir + 'Maps\GoalTest\GoalTest.map', false);
+  fMapView.Update(false);
+  Minimap_Preview.MapTex := fMapView.MapTex;
   fGame.Render;
 end;
 
@@ -1506,8 +1507,8 @@ begin
   begin
     fMap_Selected := aIndex;
     Button_SingleStart.Enable;
-    Shape_SingleMap.Visible := InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
-    Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
+    Shape_SingleMap.Visible     := InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
+    Shape_SingleMap.Top         := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
     Label_SingleTitle.Caption   := fMaps[fMap_Selected].Filename;
     Memo_SingleDesc.Text        := fMaps[fMap_Selected].BigDesc;
     Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[fMap_Selected].Info.MissionModeText]);

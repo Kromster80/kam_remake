@@ -9,11 +9,11 @@ type
   //Intermediary class between TTerrain/Players and UI
   TKMMapView = class
   private
-    fRender: TRender;
+    fRender: TRender; //Should be used to Gen and Update texture
     fMyTerrain: TTerrain;
     fMapY: Word;
     fMapX: Word;
-    fPixels: TCardinalArray;
+    fBase: TCardinalArray; //Base terrain layer
     fMapTex: TTexture;
     procedure UpdateMinimap(aMapEditor: Boolean);
   public
@@ -81,21 +81,21 @@ begin
     else
       FOW := 255;
     if FOW = 0 then
-      fPixels[i*fMapX + k] := 0
+      fBase[i*fMapX + k] := 0
     else
       if fMyTerrain.Land[i+1,k+1].TileOwner <> -1 then
-        fPixels[i*fMapX + k] := fPlayers.Player[fMyTerrain.Land[i+1,k+1].TileOwner].FlagColor
+        fBase[i*fMapX + k] := fPlayers.Player[fMyTerrain.Land[i+1,k+1].TileOwner].FlagColor
       else
         if fMyTerrain.Land[i+1,k+1].IsUnit <> nil then
           if fMyTerrain.Land[i+1,k+1].IsUnit.GetOwner <> PLAYER_ANIMAL then
-            fPixels[i*fMapX + k] := fPlayers.Player[fMyTerrain.Land[i+1,k+1].IsUnit.GetOwner].FlagColor
+            fBase[i*fMapX + k] := fPlayers.Player[fMyTerrain.Land[i+1,k+1].IsUnit.GetOwner].FlagColor
           else
-            fPixels[i*fMapX + k] := fResource.UnitDat[fMyTerrain.Land[i+1,k+1].IsUnit.UnitType].MinimapColor
+            fBase[i*fMapX + k] := fResource.UnitDat[fMyTerrain.Land[i+1,k+1].IsUnit.UnitType].MinimapColor
         else
         begin
           ID := fMyTerrain.Land[i+1,k+1].Terrain;
           Light := round(fMyTerrain.Land[i+1,k+1].Light*64)-(255-FOW); //it's -255..255 range now
-          fPixels[i*fMapX + k] := EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
+          fBase[i*fMapX + k] := EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
                                   EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
                                   EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;
         end;
@@ -112,7 +112,7 @@ begin
           begin
             P := GetPositionInGroup2(W.GetPosition.X, W.GetPosition.Y, W.Direction, j+1, W.UnitsPerRow, fMapX, fMapY, DoesFit);
             if not DoesFit then Continue; //Don't render units that are off the map in the map editor
-            fPixels[P.Y * fMapX + P.X] := fPlayers[i].FlagColor;
+            fBase[P.Y * fMapX + P.X] := fPlayers[i].FlagColor;
           end;
         end;
 end;
@@ -126,7 +126,7 @@ var
 begin
   fMapX := fMyTerrain.MapX;
   fMapY := fMyTerrain.MapY;
-  SetLength(fPixels, fMapX * fMapY);
+  SetLength(fBase, fMapX * fMapY);
 
   UpdateMinimap(aMapEditor);
 
@@ -136,7 +136,7 @@ begin
   GetMem(wData, WidthPOT * HeightPOT * 4);
 
   for I := 0 to fMapY - 1 do
-    Move(Pointer(Cardinal(fPixels) + I * fMapX * 4)^,
+    Move(Pointer(Cardinal(fBase) + I * fMapX * 4)^,
          Pointer(Cardinal(wData) + I * WidthPOT * 4)^, fMapX * 4);
 
   glBindTexture(GL_TEXTURE_2D, fMapTex.Tex);

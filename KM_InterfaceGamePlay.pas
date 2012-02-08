@@ -5,13 +5,15 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
-  KM_InterfaceDefaults,
+  KM_InterfaceDefaults, KM_MapView,
   KM_Controls, KM_Houses, KM_Units, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
 type
   TKMGamePlayInterface = class (TKMUserInterface)
   private
+    fMapView: TKMMapView;
+
     //Not saved
     fShownUnit:TKMUnit;
     fShownHouse:TKMHouse;
@@ -668,6 +670,9 @@ constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: word);
 var i:integer;
 begin
   inherited;
+  Assert(fTerrain <> nil, 'We need valid pointer to Terrain for MapView/Minimap');
+
+  fMapView := TKMMapView.Create(nil, fTerrain);
 
   fShownUnit:=nil;
   fShownHouse:=nil;
@@ -785,6 +790,7 @@ begin
   ReleaseDirectionSelector; //Make sure we don't exit leaving the cursor restrained
   fMessageList.Free;
   fSaves.Free;
+  fMapView.Free;
   inherited;
 end;
 
@@ -3525,8 +3531,10 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.UpdateMapSize(X,Y:integer);
+procedure TKMGamePlayInterface.UpdateMapSize(X, Y: integer);
 begin
+  fMapView.Update(false);
+  Minimap.MapTex := fMapView.MapTex;
   Minimap.MapSize := KMPoint(X, Y);
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
@@ -3537,6 +3545,13 @@ end;
 procedure TKMGamePlayInterface.UpdateState;
 var i:Integer; S:String;
 begin
+  //Every 1000ms
+  if fGame.GlobalTickCount mod 10 = 0 then
+    if (fGame.GameState in [gsRunning, gsReplay]) then
+      fMapView.Update(False);
+
+  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+
   if fShownUnit<>nil then ShowUnitInfo(fShownUnit,fAskDismiss) else
   if fShownHouse<>nil then ShowHouseInfo(fShownHouse,fAskDemolish);
 
@@ -3565,8 +3580,6 @@ begin
   if Panel_Build.Visible then Build_Fill(nil);
   if Panel_Stats.Visible then Stats_Fill(nil);
   if Panel_Menu.Visible then Menu_Fill(nil);
-
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 
   //Debug info
   if SHOW_SPRITE_COUNT then

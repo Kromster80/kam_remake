@@ -3247,7 +3247,8 @@ procedure TKMMinimap.Paint;
 begin
   inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
-  fRenderUI.WriteTexture(Left, Top, Width, Height, fMapTex, $FFFFFFFF);
+  if fMapTex.Tex <> 0 then
+    fRenderUI.WriteTexture(Left, Top, Width, Height, fMapTex, $FFFFFFFF);
 
   if (fViewArea.X2 - fViewArea.X1) * (fViewArea.Y2 - fViewArea.Y1) > 0 then
     fRenderUI.WriteRect(Left + (Width - fMapSize.X) div 2 + fViewArea.X1,

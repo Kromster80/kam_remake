@@ -16,7 +16,7 @@ type
   TTerrain = class
   private
     fAnimStep: Cardinal;
-    fMapEditor: Boolean; //In MapEd mode some fetures behave differently
+    fMapEditor: Boolean; //In MapEd mode some features behave differently
     fMapX: Word; //Terrain width and height
     fMapY: Word; //Terrain width and height
   public
@@ -268,6 +268,8 @@ var
   NewX,NewY:integer;
 begin
   if not CheckFileExists(FileName) then Exit;
+
+  fMapEditor := aMapEditor;
 
   fLog.AppendLog('Loading map file: ' + FileName);
 
@@ -2474,9 +2476,8 @@ begin
   SaveStream.Write('Terrain');
   SaveStream.Write(fMapX);
   SaveStream.Write(fMapY);
-
   SaveStream.Write(fAnimStep);
-  SaveStream.Write(fMapEditor);
+
   FallingTrees.Save(SaveStream);
 
   for i:=1 to fMapY do for k:=1 to fMapX do
@@ -2506,10 +2507,7 @@ begin
   LoadStream.ReadAssert('Terrain');
   LoadStream.Read(fMapX);
   LoadStream.Read(fMapY);
-
   LoadStream.Read(fAnimStep);
-  LoadStream.Read(fMapEditor);
-  Assert(not fMapEditor, 'MapEd mode is not intended to be saved into savegame');
 
   FallingTrees.Load(LoadStream);
 

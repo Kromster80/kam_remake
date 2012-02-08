@@ -40,7 +40,7 @@ var
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   CHEATS_ENABLED        :boolean=true;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :boolean=true;  //If true, units/houses will be freed and removed from the list once they are no longer needed
-  CAP_MAX_FPS           :boolean=true;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
+  CAP_MAX_FPS           :boolean=False;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :boolean=true;  //Crash as soon as replay consistency fails (random numbers mismatch)
 
   //Implemented

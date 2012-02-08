@@ -5,11 +5,13 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, Forms,
-     KM_Controls, KM_Defaults, KM_Maps, KM_Houses, KM_Units, KM_Points, KM_InterfaceDefaults;
+     KM_Controls, KM_Defaults, KM_MapView, KM_Maps, KM_Houses, KM_Units, KM_Points, KM_InterfaceDefaults;
 
 type
   TKMapEdInterface = class (TKMUserInterface)
   private
+    fMapView: TKMMapView;
+
     fShownUnit:TKMUnit;
     fShownHouse:TKMHouse;
     fShowPassability:byte;
@@ -381,10 +383,14 @@ end;
 
 
 constructor TKMapEdInterface.Create(aScreenX, aScreenY: word);
-var i:integer;
+var
+  i: integer;
 begin
   inherited;
+  Assert(fTerrain <> nil, 'We need valid pointer to Terrain for MapView/Minimap');
   Assert(fGame.Viewport<>nil, 'fGame.Viewport required to be init first');
+
+  fMapView := TKMMapView.Create(nil, fTerrain);
 
   fShownUnit  := nil;
   fShownHouse := nil;
@@ -472,6 +478,7 @@ destructor TKMapEdInterface.Destroy;
 begin
   fMaps.Free;
   fMapsMP.Free;
+  fMapView.Free;
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
   inherited;
 end;
@@ -891,14 +898,20 @@ end;
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMapEdInterface.UpdateState;
 begin
+  //Every 1000ms
+  if fGame.GlobalTickCount mod 10 = 0 then
+    fMapView.Update(True);
+
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
 procedure TKMapEdInterface.UpdateMapSize(X,Y:integer);
 begin
+  fMapView.Update(True);
+  Minimap.MapTex := fMapView.MapTex;
   Minimap.MapSize := KMPoint(X, Y);
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;  
+  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -1674,7 +1687,7 @@ begin
     if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
        (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
       fResource.Cursors.Cursor := kmc_Info
-    else 
+    else
       if not fGame.Viewport.Scrolling then
         fResource.Cursors.Cursor := kmc_Default;
 
