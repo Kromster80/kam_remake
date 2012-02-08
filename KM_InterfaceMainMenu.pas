@@ -430,16 +430,16 @@ begin
                 end;
   end;
 
-  fMapView.Terrain.LoadFromFile(ExeDir + 'Maps\GoalTest\GoalTest.map', false);
+  fMapView.LoadTerrain(ExeDir + 'Maps\GoalTest\GoalTest.map');
   fMapView.Update(false);
   Minimap_Preview.MapTex := fMapView.MapTex;
   fGame.Render;
 end;
 
 
-procedure TKMMainMenuInterface.AppendLoadingText(const aText:string);
+procedure TKMMainMenuInterface.AppendLoadingText(const aText: string);
 begin
-  Label_Loading.Caption := Label_Loading.Caption+aText+'|';
+  Label_Loading.Caption := Label_Loading.Caption + aText + '|';
   fGame.Render;
 end;
 

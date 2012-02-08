@@ -21,11 +21,14 @@ type
     constructor Create(aRender: TRender; aTerrain: TTerrain);
     destructor Destroy; override;
 
-    property Terrain: TTerrain read fMyTerrain;
+    procedure LoadTerrain(aMapPath: string);
 
     property MapTex: TTexture read fMapTex;
     procedure Update(aMapEditor: Boolean);
   end;
+
+  //todo: Add Starting positions (Position, PlayerID, FlagColor, Alliances?)
+  //todo: For tactic missions add (Armies, FlagColors)
 
 
 implementation
@@ -73,6 +76,13 @@ begin
   if fOwnTerrain then
     fMyTerrain.Free;
   inherited;
+end;
+
+
+//Load map in a direct way, should be used only when in Menu
+procedure TKMMapView.LoadTerrain(aMapPath: string);
+begin
+  fMyTerrain.LoadFromFile(aMapPath, True);
 end;
 
 
