@@ -659,7 +659,7 @@ begin
 
   //Send move order, if applicable
   if (fShownUnit is TKMUnitWarrior) and (not fJoiningGroups)
-  and fShownUnit.CanWalkTo(KMP, 0, false) then
+  and fShownUnit.CanWalkTo(KMP, 0) then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), KMP, TKMUnitWarrior(fShownUnit).Direction);
     fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
@@ -3189,7 +3189,7 @@ begin
     H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Ally)) and
        ((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Ally)) and
-      fShownUnit.CanWalkTo(GameCursor.Cell, 0, False) then
+      fShownUnit.CanWalkTo(GameCursor.Cell, 0) then
     begin
       SelectingTroopDirection := true; //MouseMove will take care of cursor changing
       //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
@@ -3395,7 +3395,7 @@ begin
         fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
       end
       else //If there's no house - Walk to spot
-        if fShownUnit.CanWalkTo(P, 0, false) then
+        if fShownUnit.CanWalkTo(P, 0) then
         begin
           fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
           fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);

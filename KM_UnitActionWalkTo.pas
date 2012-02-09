@@ -42,6 +42,7 @@ type
     fInteractionCount, fLastSideStepNodePos: integer;
     fInteractionStatus: TInteractionStatus;
     function AssembleTheRoute:boolean;
+    function CanWalkToTarget(aFrom: TKMPoint; aPass: TPassability): Boolean;
     function CheckForNewDestination: TDestinationCheck;
     function CheckTargetHasDied:TTargetDiedCheck;
     function CheckForObstacle:TObstacleCheck;
@@ -335,27 +336,35 @@ function TUnitActionWalkTo.AssembleTheRoute:boolean;
 var i:integer; NodeList2:TKMPointList; TmpPass: TPassability;
 begin
   TmpPass := fPass;
+
   //Build a piece of route to return to nearest road piece connected to destination road network
-  if (fPass = CanWalkRoad) and (fDistance=0) then //That is Citizens walking to spot
-    if (fGame.Terrain.GetRoadConnectID(fWalkFrom) <> fGame.Terrain.GetRoadConnectID(fWalkTo)) and  //NoRoad returns 0
-      (fGame.Terrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
+  if (fPass = CanWalkRoad)
+  and (fDistance = 0) //That is Citizens walking to spot
+  and (fGame.Terrain.GetRoadConnectID(fWalkFrom) <> fGame.Terrain.GetRoadConnectID(fWalkTo)) //NoRoad returns 0
+  and (fGame.Terrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
+    if CanWalkToTarget(fWalkFrom, CanWalk) then
       fGame.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcRoad, fGame.Terrain.GetRoadConnectID(fWalkTo), CanWalk, NodeList);
 
   //If we are a worker on a construction site, build a piece of route to return to nearest walkable tile on the
-  if fPass = CanWorker then //That is Workers on a construction site
-    if (fGame.Terrain.GetWalkConnectID(fWalkFrom) <> fGame.Terrain.GetWalkConnectID(fWalkTo)) and  //Not walkable returns 0
-      (fGame.Terrain.GetWalkConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is not walkable
-    begin
+  if (fPass = CanWorker)
+  and (fGame.Terrain.GetWalkConnectID(fWalkFrom) <> fGame.Terrain.GetWalkConnectID(fWalkTo)) //Not walkable returns 0
+  and (fGame.Terrain.GetWalkConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is not walkable
+  begin
+    if CanWalkToTarget(fWalkFrom, fPass) then
       fGame.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcWalk, fGame.Terrain.GetWalkConnectID(fWalkTo), CanWorker, NodeList);
-      TmpPass := CanWalk; //After this piece of route we are in walk mode
-    end;
+    TmpPass := CanWalk; //After this piece of route we are in walk mode
+  end;
 
   //Build a route A*
-  if NodeList.Count=0 then //Build a route from scratch
-    fGame.Pathfinding.Route_Make(fWalkFrom, fWalkTo, fPass, fDistance, fTargetHouse, NodeList) //Try to make the route with fPass
+  if NodeList.Count = 0 then //Build a route from scratch
+  begin
+    if CanWalkToTarget(fWalkFrom, fPass) then
+      fGame.Pathfinding.Route_Make(fWalkFrom, fWalkTo, fPass, fDistance, fTargetHouse, NodeList) //Try to make the route with fPass
+  end
   else begin //Append route to existing part
     NodeList2 := TKMPointList.Create;
-    fGame.Pathfinding.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
+    if CanWalkToTarget(NodeList.List[NodeList.Count], TmpPass) then
+      fGame.Pathfinding.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
     //If this part of the route fails, the whole route has failed. At minimum Route_Make returns count=1 (fWalkTo)
     if NodeList2.Count = 0 then NodeList.Clear; //Clear NodeList so we return false
     for i:=2 to NodeList2.Count do
@@ -412,21 +421,20 @@ end;
 { There's unexpected immovable obstacle on our way (suddenly grown up tree, wall, house)
 1. go around the obstacle and keep on walking
 2. rebuild the route from current position from scratch}
-function TUnitActionWalkTo.CheckForObstacle:TObstacleCheck;
+function TUnitActionWalkTo.CheckForObstacle: TObstacleCheck;
 begin
   Result := oc_NoObstacle;
 
-  if (not fGame.Terrain.CheckPassability(NodeList.List[NodePos+1],GetEffectivePassability)) or
-     (not fGame.Terrain.CanWalkDiagonaly(fUnit.GetPosition,NodeList.List[NodePos+1])) then
+  if (not fGame.Terrain.CheckPassability(NodeList.List[NodePos+1], GetEffectivePassability)) or
+     (not fGame.Terrain.CanWalkDiagonaly(fUnit.GetPosition, NodeList.List[NodePos+1])) then
 
     //Try side stepping the obsticle.
     //By making HighestInteractionCount be the required timeout, we assure the solution is always checked
-    if IntSolutionSideStep(NodeList.List[NodePos+1],SIDESTEP_TIMEOUT) then
+    if IntSolutionSideStep(NodeList.List[NodePos+1], SIDESTEP_TIMEOUT) then
       Result := oc_NoObstacle
     else
     //Completely re-route if no simple side step solution is available
-    if ((fTargetHouse = nil) and fGame.Terrain.Route_CanBeMade(fUnit.GetPosition, fWalkTo, GetEffectivePassability, fDistance, false))
-    or ((fTargetHouse <> nil) and fTargetHouse.RouteCanBeMade(fUnit.GetPosition, GetEffectivePassability, fDistance, false)) then
+    if CanWalkToTarget(fWalkTo, GetEffectivePassability) then
     begin
       fUnit.SetActionWalk(fWalkTo, fActionType, fDistance, fTargetUnit, fTargetHouse);
       Result := oc_ReRouteMade;
@@ -440,8 +448,7 @@ end;
   - We were walking to spot and required range is reached
   - We were walking to house and required range to house is reached
   - We were walking to unit and met it early
-  - The Task wants us to abandon
-}
+  - The Task wants us to abandon }
 function TUnitActionWalkTo.CheckWalkComplete:boolean;
 begin
   Result := (NodePos=NodeList.Count)
@@ -689,7 +696,7 @@ begin
       //We will accept an alternative route up to 3 times greater than the amount we would have been walking anyway
       MaxLength := Math.max(NodeList.Count - NodePos, 15) * 3; //Remainder of our route times 3. Always prepared to walk 15 tiles (e.g. around houses)
       if fDestBlocked or fOpponent.GetUnitAction.Locked then
-        if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition,fWalkTo,GetEffectivePassability,fDistance,fTargetHouse,NodeList,MaxLength) then //Make sure the route can be made, if not, we must simply wait
+        if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition, fWalkTo, GetEffectivePassability, fDistance, fTargetHouse, NodeList, MaxLength) then //Make sure the route can be made, if not, we must simply wait
         begin
           //NodeList has now been re-routed, so we need to re-init everything else and start walk again
           SetInitValues;
@@ -752,6 +759,13 @@ end;
 function TUnitActionWalkTo.CheckInteractionFreq(aIntCount, aTimeout, aFreq: Integer): Boolean;
 begin
   Result := (aIntCount - aTimeout >= 0) and ((aIntCount - aTimeout) mod aFreq = 0);
+end;
+
+
+function TUnitActionWalkTo.CanWalkToTarget(aFrom: TKMPoint; aPass: TPassability): Boolean;
+begin
+  Result := ((fTargetHouse = nil) and fUnit.CanWalkTo(aFrom, fWalkTo, aPass, fDistance))
+         or ((fTargetHouse <> nil) and fUnit.CanWalkTo(aFrom, fTargetHouse, aPass, fDistance));
 end;
 
 

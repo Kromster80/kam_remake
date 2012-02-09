@@ -261,18 +261,18 @@ begin
   Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
             (fDemand[iD].Loc_House<>nil)and
-            (KMSerf.CanWalkTo(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), CanWalkRoad, 0, False))
+            (KMSerf.CanWalkTo(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), CanWalkRoad, 0))
             )
             or
             ( //House-Unit delivery can be performed without connecting road
             (fDemand[iD].Loc_Unit<>nil)and
-            (KMSerf.CanWalkTo(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, CanWalk, 1, False))
+            (KMSerf.CanWalkTo(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, CanWalk, 1))
             )
             );
 
   Result := Result and //Delivery is only permitted if the serf can access the from house. If the serf is inside (invisible) test from point below.
-           ((    KMSerf.Visible and KMSerf.CanWalkTo(KMSerf.GetPosition, KMPointBelow(fOffer[iO].Loc_House.GetEntrance), CanWalk, 0, false)) or
-            (not KMSerf.Visible and KMSerf.CanWalkTo(KMPointBelow(KMSerf.GetPosition), KMPointBelow(fOffer[iO].Loc_House.GetEntrance), CanWalk, 0, false)));
+           ((    KMSerf.Visible and KMSerf.CanWalkTo(KMSerf.GetPosition, KMPointBelow(fOffer[iO].Loc_House.GetEntrance), CanWalk, 0)) or
+            (not KMSerf.Visible and KMSerf.CanWalkTo(KMPointBelow(KMSerf.GetPosition), KMPointBelow(fOffer[iO].Loc_House.GetEntrance), CanWalk, 0)));
 end;
 
 

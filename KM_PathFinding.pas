@@ -42,7 +42,6 @@ type
     IsInteractionAvoid:boolean;
     fDestination:TDestinationPoint;
     fTargetHouse: TKMHouse;
-    function CheckRouteCanExist:boolean;
     procedure InitRoute;
     function IsDestinationReached:boolean;
     function MakeRoute:boolean;
@@ -70,7 +69,7 @@ end;
 
 //Find a route from A to B which meets aPass Passability
 //Results should be written as NodeCount of waypoint nodes to Nodes
-function TPathFinding.Route_Make(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList): Boolean;
+function TPathFinding.Route_Make(aLocA, aLocB: TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList): Boolean;
 begin
   Result := False;
 
@@ -88,7 +87,7 @@ begin
     fDestination := dp_House;
 
   InitRoute;
-  if CheckRouteCanExist and MakeRoute then
+  if MakeRoute then
   begin
     ReturnRoute(NodeList);
     Result := True;
@@ -116,7 +115,7 @@ begin
     fDestination := dp_House;
 
   InitRoute;
-  if CheckRouteCanExist and MakeRoute and (GetRouteLength <= aMaxRouteLen) then
+  if MakeRoute and (GetRouteLength <= aMaxRouteLen) then
   begin
     ReturnRoute(NodeList);
     Result := True;
@@ -146,18 +145,6 @@ begin
     Result := True;
   end else
     NodeList.Clear;
-end;
-
-
-//Don't try to make a route if it's obviously impossible
-function TPathFinding.CheckRouteCanExist:boolean;
-begin
-  //todo: Move out of WalkConnect
-  if IsInteractionAvoid then fTerrain.RebuildWalkConnect([wcAvoid]); //Rebuild on demand
-  if fDestination = dp_House then
-    Result := fTargetHouse.RouteCanBeMade(LocA,Pass,fDistance,IsInteractionAvoid)
-  else
-    Result := fTerrain.Route_CanBeMade(LocA,LocB,Pass,fDistance,IsInteractionAvoid);
 end;
 
 

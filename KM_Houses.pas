@@ -101,7 +101,6 @@ type
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
     property GetOwner:TPlayerIndex read fOwner;
     function GetHealth:word;
-    function RouteCanBeMade(LocA:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
@@ -950,21 +949,6 @@ begin
   end;
 end;
 
-
-function TKMHouse.RouteCanBeMade(LocA: TKMPoint; aPass: TPassability; aDistance: single; aInteractionAvoid: boolean): boolean;
-var i:integer; Cells: TKMPointList;
-begin
-  //Check if a route can be made to any tile around this house
-  Result := false;
-  Cells := TKMPointList.Create;
-  try
-    GetListOfCellsWithin(Cells);
-    for i:=1 to Cells.Count do
-      Result := Result or fTerrain.Route_CanBeMade(LocA,Cells.List[i],aPass,aDistance,aInteractionAvoid);
-  finally
-    Cells.Free;
-  end;
-end;
 
 { Edit production order as + / - }
 procedure TKMHouse.ResEditOrder(aID:byte; aAmount:integer);

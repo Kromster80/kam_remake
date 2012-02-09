@@ -793,12 +793,12 @@ function TTaskBuildHouse.Execute: TTaskResult;
     MyCount := 0;
     for I := 0 to Cells.Count - 1 do
       if not KMSamePoint(Cells[I].Loc, fUnit.GetPosition) then
-        if fTerrain.TileInMapCoords(Cells[I].Loc.X, Cells[I].Loc.Y) then
-          if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells[I].Loc, fUnit.GetDesiredPassability, 0, False) then
-          begin
-            Spots[MyCount] := I;
-            Inc(MyCount);
-          end;
+        //Check if unit can walk to location each time cos passability may change over time
+        if fUnit.CanWalkTo(Cells[I].Loc, 0) then
+        begin
+          Spots[MyCount] := I;
+          Inc(MyCount);
+        end;
     if MyCount > 0 then
       Result := Spots[KaMRandom(MyCount)]
     else

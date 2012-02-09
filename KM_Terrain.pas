@@ -125,7 +125,7 @@ type
     function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability; aCheckUnits:boolean=true):boolean;
     function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
     function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; aPass: TPassability; out SidePoint: TKMPoint; OnlyTakeBest: boolean=false):Boolean;
-    function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
+    function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
     function GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TPassability; aAcceptTargetLoc: Boolean):TKMPoint;
 
@@ -847,7 +847,7 @@ begin
       if TileIsWineField(KMPoint(k,i)) then
         if Land[i,k].FieldAge=65535 then
           if not TileIsLocked(KMPoint(k,i)) then //Taken by another farmer
-            if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then
+            if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0) then
               List.AddItem(KMPointDir(k, i, dir_NA));
 
   Result := List.GetRandom(FieldPoint);
@@ -867,7 +867,7 @@ begin
         if((aPlantAct in [taAny, taPlant]) and (Land[i,k].FieldAge = 0)) or
           ((aPlantAct in [taAny, taCut]) and (Land[i,k].FieldAge = 65535)) then
           if not TileIsLocked(KMPoint(k,i)) then //Taken by another farmer
-            if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then
+            if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0) then
               List.AddItem(KMPointDir(k, i, dir_NA));
 
   Result := List.GetRandom(FieldPoint);
@@ -895,7 +895,7 @@ begin
       if (TileIsStone(k,i)>0) then
         if (CanWalk in Land[i+1,k].Passability) //Now check the tile right below
         and not TileIsLocked(KMPoint(k, i+1)) then //Taken by another stonemason
-          if Route_CanBeMade(aLoc,KMPoint(k,i+1),CanWalk,0,false) then
+          if Route_CanBeMade(aLoc,KMPoint(k,i+1),CanWalk,0) then
             List.AddItem(KMPointDir(k, i+1, dir_N));
 
   Result := List.GetRandom(StonePoint);
@@ -986,7 +986,7 @@ begin
 
       if (aPlantAct in [taPlant, taAny])
       and (CanPlantTrees in Land[i,k].Passability)
-      and Route_CanBeMade(aLoc, T, CanWalk, 0, False)
+      and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
         if ObjectIsChopableTree(T, 6) then
           List2.AddEntry(T) //Stump
@@ -1024,7 +1024,7 @@ begin
     Result := False; //It is already tested that we can walk to the tree, but double-check
 
     for i:=-1 to 0 do for k:=-1 to 0 do
-    if Route_CanBeMade(aLoc, KMPoint(T.X+k, T.Y+i), CanWalk, 0, False) then
+    if Route_CanBeMade(aLoc, KMPoint(T.X+k, T.Y+i), CanWalk, 0) then
     begin
       Slope := MixLandHeight(T.X+k, T.Y+i) - Land[T.Y, T.X].Height;
       //Cutting trees which are higher than us from the front looks visually poor, (axe hits ground) so avoid it where possible
@@ -1067,7 +1067,7 @@ begin
             if TileInMapCoords(k+j,i+l) and ((l <> 0) or (j <> 0)) and
             not TileIsLocked(KMPoint(k+j, i+l)) then //Taken by another fisherman
               // D) Final check: route can be made and isn't avoid loc
-              if Route_CanBeMade(aLoc, KMPoint(k+j, i+l), CanWalk, 0,false)
+              if Route_CanBeMade(aLoc, KMPoint(k+j, i+l), CanWalk, 0)
               and not KMSamePoint(aAvoidLoc,KMPoint(k+j,i+l)) then
                 List.AddItem(KMPointDir(k+j, i+l, KMGetDirection(j,l)));
 
@@ -1658,7 +1658,7 @@ end;
 
 
 //Test wherever it is possible to make the route without actually making it to save performance
-function TTerrain.Route_CanBeMade(LocA, LocB: TKMPoint; aPass: TPassability; aDistance: Single; aInteractionAvoid: Boolean): Boolean;
+function TTerrain.Route_CanBeMade(LocA, LocB: TKMPoint; aPass: TPassability; aDistance: Single): Boolean;
 var i,k:integer; TestRadius: Boolean; WC: TWalkConnect;
 begin
   Result := True;
@@ -1673,7 +1673,7 @@ begin
   TestRadius := False;
   for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
   for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
-  if GetLength(LocB,KMPoint(k,i))<=aDistance then
+  if GetLength(LocB,KMPoint(k,i)) <= aDistance then
     TestRadius := TestRadius or CheckPassability(KMPoint(k,i),aPass);
   Result := Result and TestRadius;
 
@@ -1688,6 +1688,7 @@ begin
   end;
 
   //Walkable way between A and B is proved by FloodFill
+  //TODO: BUG+ here when Worker goes on building area
   TestRadius := False;
   for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
   for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
@@ -1695,7 +1696,7 @@ begin
     TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[WC] = Land[i,k].WalkConnect[WC]);
   Result := Result and TestRadius;
 
-  if aInteractionAvoid then
+  {if aInteractionAvoid then
   begin
     TestRadius := false;
     for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
@@ -1703,19 +1704,19 @@ begin
     if GetLength(LocB,KMPoint(k,i)) <= aDistance then
       TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcAvoid] = Land[i,k].WalkConnect[wcAvoid]);
     Result := Result and TestRadius;
-  end;
+  end;}
 end;
 
 
 //Check if a route can be made to this vertex, from any direction (used for woodcutter cutting trees)
-function TTerrain.Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
+function TTerrain.Route_CanBeMadeToVertex(LocA, LocB: TKMPoint; aPass: TPassability):boolean;
 var i,k:integer;
 begin
   Result := false;
   //Check from top-left of vertex to vertex tile itself
   for i := Max(LocB.Y-1,1) to LocB.Y do
     for k := Max(LocB.X-1,1) to LocB.X do
-      Result := Result or Route_CanBeMade(LocA,KMPoint(k,i),aPass,0,false);
+      Result := Result or Route_CanBeMade(LocA,KMPoint(k,i),aPass,0);
 end;
 
 
@@ -2474,7 +2475,7 @@ begin
       SaveStream.Write(TKMUnit(Land[i,k].IsUnit).ID) //Store ID, then substitute it with reference on SyncLoad
     else
       SaveStream.Write(Integer(0));
-    SaveStream.Write(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
+    SaveStream.Write(Land[i,k].IsVertexUnit, SizeOf(Land[i,k].IsVertexUnit));
   end;
 end;
 

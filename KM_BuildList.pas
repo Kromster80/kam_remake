@@ -207,7 +207,7 @@ begin
   aBid := 999;
   for I := fHousesCount - 1 downto 0 do
   if (fHouses[i].House <> nil) and fHouses[i].House.CheckResToBuild
-  and aWorker.CanWalkTo(KMPointBelow(fHouses[i].House.GetEntrance), 0, False)
+  and aWorker.CanWalkTo(KMPointBelow(fHouses[i].House.GetEntrance), 0)
   then
   begin
     NewBid := GetLength(aWorker.GetPosition, fHouses[I].House.GetPosition);
@@ -304,7 +304,7 @@ begin
 
   for I := 0 to fFieldsCount - 1 do
   if (fFields[I].JobStatus = js_Open)
-  and aWorker.CanWalkTo(fFields[I].Loc, 0, False) then
+  and aWorker.CanWalkTo(fFields[I].Loc, 0) then
   begin
     NewBid := GetLength(aWorker.GetPosition, fFields[I].Loc);
     if (Result = -1) or (NewBid < aBid) then
@@ -485,7 +485,7 @@ begin
 
   for I := 0 to fPlansCount - 1 do
     if (fPlans[I].JobStatus = js_Open)
-    and aWorker.CanWalkTo(fPlans[I].Loc, 0, false)
+    and aWorker.CanWalkTo(fPlans[I].Loc, 0)
     then
     begin
       NewBid := GetLength(aWorker.GetPosition, fPlans[I].Loc);

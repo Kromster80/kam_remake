@@ -163,9 +163,11 @@ type
 
 
     function CanStepTo(X,Y: Integer): Boolean;
-    function CanWalkTo(aTo: TKMPoint; aDistance: Single; aInteractionAvoid: Boolean): Boolean; overload;
-    function CanWalkTo(aFrom, aTo: TKMPoint; aDistance: Single; aInteractionAvoid: Boolean): Boolean; overload;
-    function CanWalkTo(aFrom, aTo: TKMPoint; aPass: TPassability; aDistance: Single; aInteractionAvoid: Boolean): Boolean; overload;
+    function CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean; overload;
+    function CanWalkTo(aTo: TKMPoint; aPass: TPassability; aDistance: Single): Boolean; overload;
+    function CanWalkTo(aFrom, aTo: TKMPoint; aDistance: Single): Boolean; overload;
+    function CanWalkTo(aFrom, aTo: TKMPoint; aPass: TPassability; aDistance: Single): Boolean; overload;
+    function CanWalkTo(aFrom: TKMPoint; aHouse: TKMHouse; aPass: TPassability; aDistance: Single): Boolean; overload;
     function CanWalkDiagonaly(aFrom, aTo: TKMPoint): Boolean;
     procedure VertexRem(aLoc: TKMPoint);
     function VertexUsageCompatible(aFrom, aTo: TKMPoint): Boolean;
@@ -898,7 +900,7 @@ begin
   repeat //Where unit should go, keep picking until target is walkable for the unit
     Dec(SpotJit);
     Spot := fTerrain.EnsureTileInMapCoords(fCurrPosition.X + KaMRandomS(SpotJit), fCurrPosition.Y + KaMRandomS(SpotJit));
-  until (SpotJit = 0) or (fTerrain.Route_CanBeMade(fCurrPosition, Spot, GetDesiredPassability, 0, False));
+  until (SpotJit = 0) or (CanWalkTo(Spot, 0));
 
   if KMSamePoint(fCurrPosition, Spot) then
     SetActionStay(20, ua_Walk)
@@ -1151,9 +1153,9 @@ begin
 end;
 
 
-function TKMUnit.CanAccessHome:boolean;
+function TKMUnit.CanAccessHome: Boolean;
 begin
-  Result := (fHome = nil) or fTerrain.Route_CanBeMade(GetPosition, KMPointBelow(fHome.GetEntrance), canWalk, 0, false);
+  Result := (fHome = nil) or CanWalkTo(KMPointBelow(fHome.GetEntrance), canWalk, 0);
 end;
 
 
@@ -1491,21 +1493,43 @@ begin
 end;
 
 
-function TKMUnit.CanWalkTo(aTo: TKMPoint; aDistance: Single; aInteractionAvoid: Boolean): Boolean;
+function TKMUnit.CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean;
 begin
-  Result := fTerrain.Route_CanBeMade(GetPosition, aTo, GetDesiredPassability, aDistance, aInteractionAvoid);
+  Result := fTerrain.Route_CanBeMade(GetPosition, aTo, GetDesiredPassability, aDistance);
 end;
 
 
-function TKMUnit.CanWalkTo(aFrom, aTo: TKMPoint; aDistance: Single; aInteractionAvoid: Boolean): Boolean;
+function TKMUnit.CanWalkTo(aTo: TKMPoint; aPass: TPassability; aDistance: Single): Boolean;
 begin
-  Result := fTerrain.Route_CanBeMade(aFrom, aTo, GetDesiredPassability, aDistance, aInteractionAvoid);
+  Result := fTerrain.Route_CanBeMade(GetPosition, aTo, aPass, aDistance);
 end;
 
 
-function TKMUnit.CanWalkTo(aFrom, aTo: TKMPoint; aPass: TPassability; aDistance: Single; aInteractionAvoid: Boolean): Boolean;
+function TKMUnit.CanWalkTo(aFrom, aTo: TKMPoint; aDistance: Single): Boolean;
 begin
-  Result := fTerrain.Route_CanBeMade(aFrom, aTo, aPass, aDistance, aInteractionAvoid);
+  Result := fTerrain.Route_CanBeMade(aFrom, aTo, GetDesiredPassability, aDistance);
+end;
+
+
+function TKMUnit.CanWalkTo(aFrom, aTo: TKMPoint; aPass: TPassability; aDistance: Single): Boolean;
+begin
+  Result := fTerrain.Route_CanBeMade(aFrom, aTo, aPass, aDistance);
+end;
+
+
+//Check if a route can be made to any tile around this house
+function TKMUnit.CanWalkTo(aFrom: TKMPoint; aHouse: TKMHouse; aPass: TPassability; aDistance: Single): Boolean;
+var I: integer; Cells: TKMPointList;
+begin
+  Result := False;
+  Cells := TKMPointList.Create;
+  try
+    aHouse.GetListOfCellsWithin(Cells);
+    for I := 1 to Cells.Count do
+      Result := Result or fTerrain.Route_CanBeMade(aFrom, Cells.List[I], aPass, aDistance);
+  finally
+    Cells.Free;
+  end;
 end;
 
 

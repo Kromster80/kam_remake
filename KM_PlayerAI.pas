@@ -579,7 +579,7 @@ begin
           for k:=0 to DefencePositionsCount-1 do
             if DefencePositions[k].CurrentCommander = GetCommander then
             begin
-              if GetCommander.CanWalkTo(DefencePositions[k].Position.Loc, 0, False) then
+              if GetCommander.CanWalkTo(DefencePositions[k].Position.Loc, 0) then
                 OrderWalk(DefencePositions[k].Position);
               Positioned := true; //We already have a position, finished with this group
 

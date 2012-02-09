@@ -1177,7 +1177,7 @@ begin
     //Wait for self and all team members to be in position before we set fState to None (means we no longer worry about group position)
     if (not (GetUnitTask is TTaskAttackHouse)) and (not (GetUnitAction is TUnitActionWalkTo)) and
        (not KMSamePoint(GetPosition,fOrderLoc.Loc))
-       and CanWalkTo(fOrderLoc.Loc, 0, False) then
+       and CanWalkTo(fOrderLoc.Loc, 0) then
     begin
       SetActionWalkToSpot(fOrderLoc.Loc); //Walk to correct position
       fState := ws_Walking;
