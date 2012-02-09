@@ -132,6 +132,12 @@ begin
   fLog.AppendLog('Read fonts is done');
 
     fTileset := TKMTileset.Create(ExeDir + 'Resource\');
+    LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
+    LoadPatternDAT(ExeDir + 'data\defines\pattern.dat');
+
+    fResources := TKMResourceCollection.Create;
+    fHouseDat := TKMHouseDatCollection.Create;
+    fUnitDat := TKMUnitDatCollection.Create;
 
   StepRefresh;
   fLog.AppendLog('ReadGFX is done');
@@ -144,7 +150,7 @@ procedure TResource.LoadGameResources(aAlphaShadows: boolean);
 begin
   Assert(fRender <> nil, 'fRender inits OpenGL and we need OpenGL to make textures');
 
-  if fDataState <> dls_All then
+  {if fDataState <> dls_All then
   begin
     LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
     LoadPatternDAT(ExeDir + 'data\defines\pattern.dat');
@@ -152,7 +158,7 @@ begin
     fResources := TKMResourceCollection.Create;
     fHouseDat := TKMHouseDatCollection.Create;
     fUnitDat := TKMUnitDatCollection.Create;
-  end;
+  end;}
 
   if (fDataState <> dls_All) or (aAlphaShadows <> fSprites.AlphaShadows) then
     fSprites.LoadGameResources(fHouseDat, fTileset.TextT, aAlphaShadows);

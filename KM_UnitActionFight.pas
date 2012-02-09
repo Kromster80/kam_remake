@@ -34,7 +34,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Sound, KM_Units_Warrior, KM_Game, KM_Resource;
+uses KM_PlayersCollection, KM_Sound, KM_Units_Warrior, KM_Game, KM_Resource;
 
 const STRIKE_STEP = 5; //Melee units place hit on step 5
 
@@ -97,7 +97,7 @@ begin
     DecVertex;
     if KMStepIsDiag(aFrom, aTo) then
     begin
-      if fTerrain.VertexUsageCompatible(aFrom, aTo) then
+      if fUnit.VertexUsageCompatible(aFrom, aTo) then
         IncVertex(aFrom, aTo)
       else
         //This vertex is being used so we can't fight
@@ -112,7 +112,7 @@ begin
   //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
   Assert(KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'Fight vertex in use');
 
-  fTerrain.UnitVertexAdd(aFrom,aTo);
+  fUnit.VertexAdd(aFrom, aTo);
   fVertexOccupied := KMGetDiagVertex(aFrom,aTo);
 end;
 
@@ -122,7 +122,7 @@ begin
   //Tell fTerrain that this vertex is not being used anymore
   if KMSamePoint(fVertexOccupied, KMPoint(0,0)) then exit;
 
-  fTerrain.UnitVertexRem(fVertexOccupied);
+  fUnit.VertexRem(fVertexOccupied);
   fVertexOccupied := KMPoint(0,0);
 end;
 
@@ -159,7 +159,7 @@ begin
   //See if Opponent has walked away (i.e. Serf) or died
   if (fOpponent.IsDeadOrDying) or (not fOpponent.Visible) //Don't continue to fight dead units in units that have gone into a house
   or not InRange(GetLength(fUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(fUnit).GetFightMinRange, TKMUnitWarrior(fUnit).GetFightMaxRange)
-  or not fTerrain.CanWalkDiagonaly(fUnit.GetPosition, fOpponent.GetPosition) then //Might be a tree between us now
+  or not fUnit.CanWalkDiagonaly(fUnit.GetPosition, fOpponent.GetPosition) then //Might be a tree between us now
   begin
     //After killing an opponent there is a very high chance that there is another enemy to be fought immediately
     //Try to start fighting that enemy by reusing this FightAction, rather than destorying it and making a new one

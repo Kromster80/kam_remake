@@ -2,7 +2,7 @@ unit KM_UnitTaskDelivery;
 {$I KaM_Remake.inc}
 interface
 uses Classes,
-  KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, SysUtils, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Houses, KM_Terrain, KM_Units, SysUtils, KM_Points;
 
 
 type
@@ -19,8 +19,8 @@ type
     fDeliverID:integer;
     fDeliverKind:TDeliverKind;
   public
-    constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; Res:TResourceType; aID:integer); overload;
-    constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer); overload;
+    constructor Create(aSerf:TKMUnitSerf; aTerrain: TTerrain; aFrom:TKMHouse; toHouse:TKMHouse; Res:TResourceType; aID:integer); overload;
+    constructor Create(aSerf:TKMUnitSerf; aTerrain: TTerrain; aFrom:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer); overload;
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
@@ -36,9 +36,9 @@ uses KM_PlayersCollection, KM_Units_Warrior, KM_Log;
 
 
 { TTaskDeliver }
-constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; Res:TResourceType; aID:integer);
+constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aTerrain: TTerrain; aFrom:TKMHouse; toHouse:TKMHouse; Res:TResourceType; aID:integer);
 begin
-  Inherited Create(aSerf);
+  Inherited Create(aSerf, aTerrain);
   fTaskName := utn_Deliver;
 
   Assert((aFrom<>nil) and (toHouse<>nil) and (Res <> rt_None), 'Serf '+inttostr(fUnit.ID)+': invalid delivery task');
@@ -57,9 +57,9 @@ begin
 end;
 
 
-constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
+constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aTerrain: TTerrain; aFrom:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
 begin
-  Inherited Create(aSerf);
+  Inherited Create(aSerf, aTerrain);
   fTaskName := utn_Deliver;
 
   Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> rt_None), 'Serf '+inttostr(fUnit.ID)+': invalid delivery task');
@@ -130,7 +130,6 @@ end;
 
 
 function TTaskDeliver.Execute:TTaskResult;
-var NewDelivery: TUnitTask;
 begin
   Result := TaskContinues;
 
@@ -178,14 +177,14 @@ begin
           fDeliverID := 0; //So that it can't be abandoned if unit dies while trying to GoOut
 
           //Now look for another delivery from inside this house
-          NewDelivery := GetActionFromQueue(fToHouse);
-          if NewDelivery <> nil then
-          begin //Take this new delivery
-            NewDelivery.Phase := 2; //Skip to resource-taking part of the new task
-            SetNewDelivery(NewDelivery);
-            Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
+          if TKMUnitSerf(fUnit).TryDeliverFrom(fToHouse) then
+          begin
+            //After setting new unit task we should free self.
+            //Note do not set TaskDone:=true as this will affect the new task
+            Self.Free;
             Exit;
-          end else //No delivery found then just step outside
+          end else
+            //No delivery found then just step outside
             SetActionGoIn(ua_Walk, gd_GoOutside, fToHouse);
         end;
     else Result := TaskDone;
@@ -252,11 +251,11 @@ begin
           //After feeding troops, serf should walk away, but ToUnit could be dead by now
           if (fToUnit is TKMUnitWarrior) then
           begin
-            NewDelivery := GetActionFromQueue;
-            if NewDelivery <> nil then
+            if TKMUnitSerf(fUnit).TryDeliverFrom(nil) then
             begin
-              SetNewDelivery(NewDelivery);
-              Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
+              //After setting new unit task we should free self.
+              //Note do not set TaskDone:=true as this will affect the new task
+              Self.Free;
               Exit;
             end else
               //No delivery found then just walk back to our From house

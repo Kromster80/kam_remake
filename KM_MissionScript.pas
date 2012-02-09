@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Classes, KromUtils, SysUtils, Dialogs, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior;
+  KM_AIAttacks, KM_Houses, KM_Units, KM_Terrain, KM_Units_Warrior;
 
 
 type
@@ -48,6 +48,7 @@ type
 
   TMissionParser = class
   private
+    fTerrain: TTerrain;
     fParsingMode: TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
     fStrictParsing: boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
     fRemapCount: byte;
@@ -77,7 +78,7 @@ type
   public
     constructor Create(aMode:TMissionParsingMode; aStrictParsing:boolean); overload;
     constructor Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean); overload;
-    function LoadMission(const aFileName: string):boolean;
+    function LoadMission(const aFileName: string; aTerrain: TTerrain):boolean;
 
     property ErrorMessage:string read fErrorMessage;
     property MissionInfo:TKMMissionInfo read fMissionInfo;
@@ -87,7 +88,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Player, KM_PlayerAI, KM_Resource, KM_ResourceHouse, KM_ResourceResource;
+uses KM_PlayersCollection, KM_Player, KM_PlayerAI, KM_Resource, KM_ResourceHouse, KM_ResourceResource;
 
 
 const
@@ -144,7 +145,7 @@ const
 
 { TMissionParser }
 //Mode affect how certain parameters are loaded a bit differently
-constructor TMissionParser.Create(aMode:TMissionParsingMode; aStrictParsing:boolean);
+constructor TMissionParser.Create(aMode: TMissionParsingMode; aStrictParsing: boolean);
 var i:integer;
 begin
   Inherited Create;
@@ -158,7 +159,7 @@ begin
 end;
 
 
-constructor TMissionParser.Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean);
+constructor TMissionParser.Create(aMode: TMissionParsingMode; aPlayersRemap: TPlayerArray; aStrictParsing:boolean);
 var i:integer;
 begin
   Inherited Create;
@@ -174,9 +175,12 @@ begin
 end;
 
 
-function TMissionParser.LoadMission(const aFileName:string):boolean;
+function TMissionParser.LoadMission(const aFileName: string; aTerrain: TTerrain):boolean;
 begin
+  fTerrain := aTerrain;
   fMissionFileName := aFileName;
+
+  Assert((aTerrain <> nil) or (fParsingMode <> mpm_Info));
 
   //Set default values
   fMissionInfo.MapPath := '';
@@ -516,14 +520,14 @@ begin
                          end;
                        end;
     ct_SetMaxPlayer:   begin
-                         if fPlayers=nil then fPlayers := TKMPlayersCollection.Create;
+                         if fPlayers=nil then fPlayers := TKMPlayersCollection.Create(fTerrain);
                          if fParsingMode = mpm_Single then
                            fPlayers.AddPlayers(P[0])
                          else
                            fPlayers.AddPlayers(fRemapCount);
                        end;
     ct_SetTactic:       begin
-                          if fPlayers=nil then fPlayers := TKMPlayersCollection.Create;
+                          if fPlayers=nil then fPlayers := TKMPlayersCollection.Create(fTerrain);
                           fMissionInfo.MissionMode := mm_Tactic;
                         end;
     ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_PLAYERS-1) then

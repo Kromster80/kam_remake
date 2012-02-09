@@ -430,7 +430,7 @@ begin
                 end;
   end;
 
-  fMapView.LoadTerrain(ExeDir + 'Maps\GoalTest\GoalTest.map');
+  fMapView.LoadTerrain(ExeDir + 'Maps\GoalTest\GoalTest.dat');
   fMapView.Update(False);
   Minimap_Preview.MapTex := fMapView.MapTex;
   fGame.Render;

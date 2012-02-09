@@ -2,7 +2,7 @@ unit KM_Units_Warrior;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, KromUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Utils, KM_Units, KM_Houses, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Utils, KM_Terrain, KM_Units, KM_Houses, KM_Points;
 
 type
   TKMTurnDirection = (tdNone, tdCW, tdCCW);
@@ -38,7 +38,7 @@ type
   public
   {MapEdProperties} //Don't need to be accessed nor saved during gameplay
     fMapEdMembersCount:integer;
-    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure CloseUnit(aRemoveTileUsage:boolean=true); override;
@@ -95,7 +95,7 @@ type
 
 
 implementation
-uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux, KM_Terrain,
+uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux,
   KM_UnitTaskAttackHouse, KM_MessageStack,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit;
@@ -105,9 +105,9 @@ const HUNGER_CHECK_FREQ = 10; //Check warrior hunger every 1 second
 
 
 { TKMUnitWarrior }
-constructor TKMUnitWarrior.Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnitWarrior.Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
 begin
-  Inherited;
+  inherited;
   fCommander         := nil;
   fOrderTargetUnit   := nil;
   fOrderTargetHouse  := nil;
@@ -1149,7 +1149,7 @@ begin
   if (fOrder=wo_AttackHouse) and CanInterruptAction then
   begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-    SetUnitTask := TTaskAttackHouse.Create(Self,GetOrderHouseTarget);
+    SetUnitTask := TTaskAttackHouse.Create(Self, fTerrain, GetOrderHouseTarget);
     fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //Once the house is destroyed we will position where we are standing
     fOrder := wo_None;
   end;
@@ -1176,7 +1176,8 @@ begin
   begin
     //Wait for self and all team members to be in position before we set fState to None (means we no longer worry about group position)
     if (not (GetUnitTask is TTaskAttackHouse)) and (not (GetUnitAction is TUnitActionWalkTo)) and
-       (not KMSamePoint(GetPosition,fOrderLoc.Loc)) and fTerrain.Route_CanBeMade(GetPosition,fOrderLoc.Loc,GetDesiredPassability,0, false) then
+       (not KMSamePoint(GetPosition,fOrderLoc.Loc))
+       and CanWalkTo(fOrderLoc.Loc, 0, False) then
     begin
       SetActionWalkToSpot(fOrderLoc.Loc); //Walk to correct position
       fState := ws_Walking;

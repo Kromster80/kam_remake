@@ -4,7 +4,7 @@ interface
 uses Classes, KromUtils, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ArmyEvaluation, KM_BuildList, KM_DeliverQueue, KM_FogOfWar,
-  KM_Goals, KM_Houses, KM_PlayerAI, KM_PlayerStats, KM_Units;
+  KM_Goals, KM_Houses, KM_Terrain, KM_PlayerAI, KM_PlayerStats, KM_Units;
 
 
 type
@@ -15,9 +15,10 @@ type
   TKMPlayerCommon = class
   private
     fPlayerIndex: TPlayerIndex; //Which ID this player is
+    fTerrain: TTerrain;
     fUnits: TKMUnitsCollection;
   public
-    constructor Create(aPlayerIndex: TPlayerIndex);
+    constructor Create(aPlayerIndex: TPlayerIndex; aTerrain: TTerrain);
     destructor Destroy; override;
     property PlayerIndex: TPlayerIndex read fPlayerIndex;
     property Units: TKMUnitsCollection read fUnits;
@@ -61,7 +62,7 @@ type
     function  GetAlliances(aIndex: Integer): TAllianceType;
     procedure SetAlliances(aIndex: Integer; aValue: TAllianceType);
   public
-    constructor Create(aPlayerIndex: TPlayerIndex);
+    constructor Create(aPlayerIndex: TPlayerIndex; aTerrain: TTerrain);
     destructor Destroy; override;
 
     property AI: TKMPlayerAI read fAI;
@@ -93,10 +94,11 @@ type
     procedure TrainingDone(aUnit: TKMUnit);
 
     function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
+    function CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
 
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
     procedure AddRoadToList(aLoc: TKMPoint);
-    procedure AddRoadConnect(LocA,LocB: TKMPoint);
+    //procedure AddRoadConnect(LocA,LocB: TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
@@ -132,15 +134,16 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound,
-  KM_Terrain, KM_Units_Warrior;
+  KM_Units_Warrior;
 
 
 { TKMPlayerCommon }
-constructor TKMPlayerCommon.Create(aPlayerIndex: TPlayerIndex);
+constructor TKMPlayerCommon.Create(aPlayerIndex: TPlayerIndex; aTerrain: TTerrain);
 begin
   inherited Create;
   fPlayerIndex  := aPlayerIndex;
-  fUnits        := TKMUnitsCollection.Create;
+  fTerrain      := aTerrain;
+  fUnits        := TKMUnitsCollection.Create(fTerrain);
 end;
 
 
@@ -205,16 +208,16 @@ end;
 
 
 { TKMPlayer }
-constructor TKMPlayer.Create(aPlayerIndex: TPlayerIndex);
+constructor TKMPlayer.Create(aPlayerIndex: TPlayerIndex; aTerrain: TTerrain);
 var I: Integer;
 begin
-  inherited Create(aPlayerIndex);
-  fAI           := TKMPlayerAI.Create(fPlayerIndex);
+  inherited Create(aPlayerIndex, aTerrain);
+  fAI           := TKMPlayerAI.Create(fPlayerIndex, fTerrain);
   fFogOfWar     := TKMFogOfWar.Create(fTerrain.MapX, fTerrain.MapY);
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
-  fHouses       := TKMHousesCollection.Create;
+  fHouses       := TKMHousesCollection.Create(fTerrain);
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
@@ -365,6 +368,26 @@ begin
 end;
 
 
+function TKMPlayer.CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
+var i,k,tx,ty:integer; HA:THouseArea;
+begin
+  Result := fTerrain.CanPlaceHouse(aLoc, aHouseType);
+
+  if not Result then Exit;
+
+  HA := fResource.HouseDat[aHouseType].BuildArea;
+  for i:=1 to 4 do
+  for k:=1 to 4 do
+  if HA[i,k] <> 0 then
+  begin
+    tx := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX + k - 3;
+    ty := aLoc.Y + i - 4;
+    Result := Result and fTerrain.TileInMapCoords(tx, ty, 1)
+                     and (fFogOfWar.CheckTileRevelation(tx, ty, false) > 0);
+  end;
+end;
+
+
 //Due to lag there could be already plans placed by user in previous ticks
 //Check if Plan can be placed once again, as we might have conflicting commands caused by lag
 procedure TKMPlayer.ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
@@ -390,7 +413,7 @@ end;
 
 
 //Used mainly for testing purposes
-procedure TKMPlayer.AddRoadConnect(LocA,LocB: TKMPoint);
+{procedure TKMPlayer.AddRoadConnect(LocA,LocB: TKMPoint);
 var
   NodeList: TKMPointList;
   RoadExists: Boolean;
@@ -406,7 +429,7 @@ begin
   finally
     FreeAndNil(NodeList);
   end;
-end;
+end;}
 
 
 procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
@@ -494,7 +517,8 @@ begin
   H := TKMHouseInn(FindHouse(ht_Inn));
   repeat
     //First make sure that it is valid
-    if (H <> nil) and H.HasFood and H.HasSpace and fTerrain.Route_CanBeMade(Loc, KMPointBelow(H.GetEntrance), aUnit.GetDesiredPassability(True), 0, False) then
+    if (H <> nil) and H.HasFood and H.HasSpace
+    and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), aUnit.GetDesiredPassability(True), 0, False) then
     begin
       //Take the closest inn out of the ones that are suitable
       Dist := GetLength(H.GetPosition, Loc);

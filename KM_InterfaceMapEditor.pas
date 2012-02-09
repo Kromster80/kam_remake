@@ -5,11 +5,13 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, Forms,
-     KM_Controls, KM_Defaults, KM_MapView, KM_Maps, KM_Houses, KM_Units, KM_Points, KM_InterfaceDefaults;
+     KM_Controls, KM_Defaults, KM_MapView, KM_Maps, KM_Houses, KM_Units, KM_Points, KM_InterfaceDefaults,
+     KM_Terrain;
 
 type
   TKMapEdInterface = class (TKMUserInterface)
   private
+    fTerrain: TTerrain;
     fMapView: TKMMapView;
 
     fShownUnit:TKMUnit;
@@ -201,7 +203,7 @@ type
 
 
 implementation
-uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Terrain,
+uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary,
      KM_Utils, KM_Game, KM_Resource, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
 
@@ -1766,7 +1768,7 @@ begin
       cm_Field: if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
       cm_Wine:  if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
       //cm_Wall:
-      cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1), MyPlayer) then
+      cm_Houses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
                 begin
                   MyPlayer.AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
                   Build_ButtonClick(Button_BuildRoad);

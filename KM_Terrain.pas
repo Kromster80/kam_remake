@@ -2,9 +2,7 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
-  KM_Player, KM_Units, KM_Houses,
-  KM_PathFinding;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils;
 
 
 type
@@ -39,7 +37,7 @@ type
       TileOverlay:TTileOverlay; //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
       TileOwner:TPlayerIndex; //Who owns the tile by having a house/road/field on it
-      IsUnit:TKMUnit; //Whenever there's a unit on that tile mark the tile as occupied and count the number
+      IsUnit: Pointer; //Whenever there's a unit on that tile mark the tile as occupied and count the number
       IsVertexUnit:TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
 
 
@@ -58,7 +56,6 @@ type
       BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
     end;
 
-    Pathfinding: TPathFinding;
     FallingTrees: TKMPointTagList;
 
     constructor Create;
@@ -85,7 +82,7 @@ type
     procedure ResetDigState(Loc:TKMPoint);
 
     function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType):boolean;
-    function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; aPlayer:TKMPlayer):boolean;
+    function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType):boolean;
     function CanPlaceHouseFromScript(aHouseType: THouseType; Loc:TKMPoint):boolean;
     function CanAddField(Loc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
@@ -130,13 +127,12 @@ type
     function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; aPass: TPassability; out SidePoint: TKMPoint; OnlyTakeBest: boolean=false):Boolean;
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
-    function Route_CanBeMadeToHouse(LocA:TKMPoint; aHouse:TKMHouse; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
     function GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TPassability; aAcceptTargetLoc: Boolean):TKMPoint;
 
-    procedure UnitAdd(LocTo:TKMPoint; aUnit:TKMUnit);
+    procedure UnitAdd(LocTo:TKMPoint; aUnit: Pointer);
     procedure UnitRem(LocFrom:TKMPoint);
-    procedure UnitWalk(LocFrom,LocTo:TKMPoint; aUnit:TKMUnit);
-    procedure UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom:TKMUnit);
+    procedure UnitWalk(LocFrom,LocTo:TKMPoint; aUnit: Pointer);
+    procedure UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom: Pointer);
     procedure UnitVertexAdd(LocTo:TKMPoint; Usage: TKMVertexUsage); overload;
     procedure UnitVertexAdd(LocFrom, LocTo:TKMPoint); overload;
     procedure UnitVertexRem(LocFrom:TKMPoint);
@@ -157,8 +153,8 @@ type
     function TileIsWineField(Loc:TKMPoint):boolean;
     function TileIsFactorable(Loc:TKMPoint):boolean;
     function TileIsLocked(aLoc:TKMPoint):boolean;
-    function UnitsHitTest(X,Y:word):TKMUnit;
-    function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:TPlayerIndex; aAlliance:TAllianceType; Dir:TKMDirection): TKMUnit;
+    function UnitsHitTest(X,Y:word): Pointer;
+    function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:TPlayerIndex; aAlliance:TAllianceType; Dir:TKMDirection): Pointer;
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
@@ -191,30 +187,28 @@ type
   end;
 
 
-var
-  fTerrain: TTerrain;
+//var
+  //fTerrain: TTerrain;
 
 
 implementation
 uses KM_Log, KM_PlayersCollection, //todo: Carefully remove KM_PlayersCollection references
-  KM_Resource, KM_ResourceHouse, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
+  KM_Resource, KM_Units, KM_ResourceHouse, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
 { TTerrain }
 constructor TTerrain.Create;
 begin
-  Inherited;
+  inherited;
   fAnimStep := 0;
   FallingTrees := TKMPointTagList.Create;
-  Pathfinding := TPathFinding.Create;
 end;
 
 
 destructor TTerrain.Destroy;
 begin
-  FreeAndNil(Pathfinding);
   FreeAndNil(FallingTrees);
-  Inherited;
+  inherited;
 end;
 
 
@@ -250,8 +244,6 @@ begin
     BorderBottom := false;
     BorderRight  := false;
   end;
-
-  PathFinding.UpdateMapSize(fMapX, fMapY);
 
   RebuildLighting(1,fMapX,1,fMapY);
   RebuildPassability(1,fMapX,1,fMapY);
@@ -300,8 +292,6 @@ begin
   finally
     S.Free;
   end;
-
-  PathFinding.UpdateMapSize(fMapX, fMapY);
 
   RebuildLighting(1,fMapX,1,fMapY);
   RebuildPassability(1,fMapX,1,fMapY);
@@ -523,26 +513,32 @@ end;
 
 
 function TTerrain.TileIsLocked(aLoc: TKMPoint): Boolean;
+var
+  U: TKMUnit;
 begin
+  U := Land[aLoc.Y,aLoc.X].IsUnit;
   //Action=nil can happen due to calling TileIsLocked during Unit.UpdateState.
   //Checks for Action=nil happen elsewhere, this is not the right place.
-  if (Land[aLoc.Y,aLoc.X].IsUnit <> nil) and (Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction = nil) then
-    Result := false
+  if (U <> nil) and (U.GetUnitAction = nil) then
+    Result := False
   else
-    Result := (Land[aLoc.Y,aLoc.X].IsUnit <> nil) and (Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction.Locked);
+    Result := (U <> nil) and (U.GetUnitAction.Locked);
 end;
 
 
 //Check if there's unit on the tile
 //Note that IsUnit refers to where unit started walking to, not the actual unit position
 //(which is what we used in unit interaction), so check all 9 tiles to get accurate result
-function TTerrain.UnitsHitTest(X,Y: Word): TKMUnit;
-var i,k:integer;
+function TTerrain.UnitsHitTest(X,Y: Word): Pointer;
+var i,k:integer; U: TKMUnit;
 begin
   Result := nil;
   for i:=max(Y-1,1) to min(Y+1,fMapY) do for k:=max(X-1,1) to min(X+1,fMapX) do
-  if (Land[i,k].IsUnit <> nil) and (Land[i,k].IsUnit.HitTest(X,Y)) then
-    Result := Land[i,k].IsUnit;
+  begin
+    U := Land[i,k].IsUnit;
+    if (U <> nil) and (U.HitTest(X,Y)) then
+      Result := Land[i,k].IsUnit;
+  end;
 end;
 
 
@@ -550,7 +546,7 @@ end;
 { Should scan withing given radius and return closest unit with given Alliance status
   Should be optimized versus usual UnitsHitTest
   Prefer Warriors over Citizens}
-function TTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection): TKMUnit;
+function TTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection): Pointer;
 var
   i,k:integer; //Counters
   lx,ly,hx,hy:integer; //Ranges
@@ -1723,22 +1719,6 @@ begin
 end;
 
 
-function TTerrain.Route_CanBeMadeToHouse(LocA:TKMPoint; aHouse:TKMHouse; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
-var i:integer; Cells: TKMPointList;
-begin
-  //Check if a route can be made to any tile around this house
-  Result := false;
-  Cells := TKMPointList.Create;
-  try
-    aHouse.GetListOfCellsWithin(Cells);
-    for i:=1 to Cells.Count do
-      Result := Result or Route_CanBeMade(LocA,Cells.List[i],aPass,aDistance,aInteractionAvoid);
-  finally
-    Cells.Free;
-  end;
-end;
-
-
 //Returns the closest tile to TargetLoc with aPass and walk connect to OriginLoc
 //If no tile found - return Origin location
 function TTerrain.GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TPassability; aAcceptTargetLoc: Boolean):TKMPoint;
@@ -1787,7 +1767,7 @@ end;
 
 
 {Mark tile as occupied}
-procedure TTerrain.UnitAdd(LocTo:TKMPoint; aUnit:TKMUnit);
+procedure TTerrain.UnitAdd(LocTo:TKMPoint; aUnit: Pointer);
 begin
   if not DO_UNIT_INTERACTION then exit;
   Assert(Land[LocTo.Y,LocTo.X].IsUnit = nil, 'Tile already occupied at '+TypeToString(LocTo));
@@ -1807,17 +1787,17 @@ end;
 
 {Mark previous tile as empty and next one as occupied}
 //We need to check both tiles since UnitWalk is called only by WalkTo where both tiles aren't houses
-procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint; aUnit:TKMUnit);
+procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint; aUnit: Pointer);
 begin
   if not DO_UNIT_INTERACTION then exit;
-  Assert(Land[LocFrom.Y,LocFrom.X].IsUnit = aUnit, 'Trying to remove wrong unit at '+TypeToString(LocFrom));
-  Land[LocFrom.Y,LocFrom.X].IsUnit := nil;
-  Assert(Land[LocTo.Y,LocTo.X].IsUnit = nil, 'Tile already occupied at '+TypeToString(LocTo));
-  Land[LocTo.Y,LocTo.X].IsUnit := aUnit
+  Assert(Land[LocFrom.Y, LocFrom.X].IsUnit = aUnit, 'Trying to remove wrong unit at '+TypeToString(LocFrom));
+  Land[LocFrom.Y, LocFrom.X].IsUnit := nil;
+  Assert(Land[LocTo.Y, LocTo.X].IsUnit = nil, 'Tile already occupied at '+TypeToString(LocTo));
+  Land[LocTo.Y, LocTo.X].IsUnit := aUnit
 end;
 
 
-procedure TTerrain.UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom:TKMUnit);
+procedure TTerrain.UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom:Pointer);
 begin
   Assert(Land[LocFrom.Y,LocFrom.X].IsUnit = UnitFrom, 'Trying to swap wrong unit at '+TypeToString(LocFrom));
   Land[LocFrom.Y,LocFrom.X].IsUnit := Land[LocTo.Y,LocTo.X].IsUnit;
@@ -2146,7 +2126,7 @@ end;
 
 
 {Check if house can be placed in that place}
-function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; aPlayer:TKMPlayer):boolean;
+function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType): boolean;
 var i,k:integer; HA:THouseArea;
 begin
   Result:=true;
@@ -2164,8 +2144,6 @@ begin
       else
         Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
       end;
-
-      Result := Result AND (aPlayer.FogOfWar.CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4,false) > 0);
     end;
 end;
 
@@ -2493,7 +2471,7 @@ begin
     SaveStream.Write(Land[i,k].TileOverlay,SizeOf(Land[i,k].TileOverlay));
     SaveStream.Write(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
     if Land[i,k].IsUnit <> nil then
-      SaveStream.Write(Land[i,k].IsUnit.ID) //Store ID, then substitute it with reference on SyncLoad
+      SaveStream.Write(TKMUnit(Land[i,k].IsUnit).ID) //Store ID, then substitute it with reference on SyncLoad
     else
       SaveStream.Write(Integer(0));
     SaveStream.Write(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
@@ -2528,8 +2506,6 @@ begin
 
   for i:=1 to fMapY do for k:=1 to fMapX do
     UpdateBorders(KMPoint(k,i),false);
-
-  PathFinding.UpdateMapSize(fMapX, fMapY);
 
   RebuildLighting(1, fMapX, 1, fMapY);
   RebuildPassability(1, fMapX, 1, fMapY);

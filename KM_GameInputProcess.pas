@@ -164,7 +164,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Player, KM_Terrain, KM_TextLibrary, KM_Utils;
+uses KM_Game, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Utils;
 
 
 procedure SaveCommandToMemoryStream(aCommand:TGameInputCommand; aMemoryStream: TKMemoryStream);
@@ -283,7 +283,7 @@ begin
       gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]));
       gic_BuildRemoveHouse:       P.RemHouse(KMPoint(Params[1],Params[2]), IsSilent);
       gic_BuildRemoveHousePlan:   P.RemHousePlan(KMPoint(Params[1],Params[2]));
-      gic_BuildHousePlan:         if fTerrain.CanPlaceHouse(KMPoint(Params[2],Params[3]), THouseType(Params[1]), P) then
+      gic_BuildHousePlan:         if P.CanAddHousePlan(KMPoint(Params[2],Params[3]), THouseType(Params[1])) then
                                     P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));
 
       gic_HouseRepairToggle:      H.RepairToggle;

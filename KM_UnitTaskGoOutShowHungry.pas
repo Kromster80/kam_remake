@@ -18,7 +18,7 @@ uses KM_Utils;
 { TTaskGoOutShowHungry }
 constructor TTaskGoOutShowHungry.Create(aUnit:TKMUnit);
 begin
-  Inherited Create(aUnit);
+  Inherited Create(aUnit, nil);
   fTaskName := utn_GoOutShowHungry;
 end;
 

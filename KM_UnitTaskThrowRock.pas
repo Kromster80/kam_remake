@@ -1,7 +1,8 @@
 unit KM_UnitTaskThrowRock;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonClasses, KM_Defaults, KM_Units, SysUtils;
+uses Classes, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Units;
 
 
 {Throw a rock}
@@ -27,7 +28,7 @@ uses KM_PlayersCollection, KM_Game;
 { TTaskThrowRock }
 constructor TTaskThrowRock.Create(aUnit,aTarget:TKMUnit);
 begin
-  Inherited Create(aUnit);
+  Inherited Create(aUnit, nil);
   fTaskName := utn_ThrowRock;
   fTarget := aTarget.GetUnitPointer;
 end;

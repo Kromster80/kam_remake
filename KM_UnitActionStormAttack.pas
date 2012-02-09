@@ -1,7 +1,9 @@
 unit KM_UnitActionStormAttack;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Utils, KM_CommonClasses, KM_Defaults, KM_Units, Math, KM_Points;
+uses Classes, Math,
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
+  KM_Units;
 
 
 {Charge forwards until we are tired or hit an obstacle}
@@ -15,20 +17,19 @@ type
     fVertexOccupied: TKMPoint; //The diagonal vertex we are currently occupying
     procedure IncVertex(aFrom, aTo: TKMPoint);
     procedure DecVertex;
-    function CheckForObstacle(NextPos: TKMPoint):boolean;
   public
     constructor Create(aUnit: TKMUnit; aActionType: TUnitActionType; aRow: Integer);
-    constructor Load(LoadStream:TKMemoryStream); override;
+    constructor Load(LoadStream: TKMemoryStream); override;
     destructor Destroy; override;
     function ActName: TUnitActionName; override;
     function GetExplanation:string; override;
     function GetSpeed: Single;
     function Execute: TActionResult; override;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
 implementation
-uses KM_Terrain, KM_Units_Warrior, KM_Resource;
+uses KM_Units_Warrior, KM_Resource;
 
 
 { TUnitActionStormAttack }
@@ -79,9 +80,9 @@ procedure TUnitActionStormAttack.IncVertex(aFrom, aTo: TKMPoint);
 begin
   //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
   Assert(KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'Storm vertex in use');
-  Assert(not fTerrain.HasVertexUnit(KMGetDiagVertex(aFrom,aTo)), 'Storm vertex blocked');
+  //Assert(not fTerrain.HasVertexUnit(KMGetDiagVertex(aFrom,aTo)), 'Storm vertex blocked');
 
-  fTerrain.UnitVertexAdd(aFrom,aTo); //Running counts as walking
+  fUnit.VertexAdd(aFrom,aTo); //Running counts as walking
   fVertexOccupied := KMGetDiagVertex(aFrom,aTo);
 end;
 
@@ -91,7 +92,7 @@ begin
   //Tell fTerrain that this vertex is not being used anymore
   Assert(not KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'DecVertex 0:0 Storm');
 
-  fTerrain.UnitVertexRem(fVertexOccupied);
+  fUnit.VertexRem(fVertexOccupied);
   fVertexOccupied := KMPoint(0,0);
 end;
 
@@ -102,15 +103,6 @@ begin
     Result := fResource.UnitDat[fUnit.UnitType].Speed
   else
     Result := fResource.UnitDat[fUnit.UnitType].Speed * STORM_SPEEDUP;
-end;
-
-
-function TUnitActionStormAttack.CheckForObstacle(NextPos: TKMPoint):boolean;
-begin
-  Result := (not fTerrain.CheckPassability(NextPos, fUnit.GetDesiredPassability)) or
-            (not fTerrain.CanWalkDiagonaly(fUnit.GetPosition, NextPos)) or
-            (fTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition, NextPos))) or
-            (fTerrain.Land[NextPos.Y,NextPos.X].IsUnit <> nil);
 end;
 
 
@@ -156,7 +148,7 @@ begin
     Locked := false; //So find enemy works
     FoundEnemy := TKMUnitWarrior(fUnit).FindEnemy;
     //Action ends if: 1: Used up stamina. 2: There is an enemy to fight. 3: NextPos is an obsticle
-    if (fTileSteps >= fStamina) or (FoundEnemy <> nil) or CheckForObstacle(fNextPos) then
+    if (fTileSteps >= fStamina) or (FoundEnemy <> nil) or not fUnit.CanStepTo(fNextPos.X, fNextPos.Y) then
     begin
       Result := ActDone; //Finished run
       //Make it so that when we halt we stay at this new location if we have not been given different order
@@ -173,7 +165,7 @@ begin
     Locked := true; //Finished using FindEnemy
     //Do some house keeping because we have now stepped on a new tile
     fUnit.UpdateNextPosition(fNextPos);
-    fTerrain.UnitWalk(fUnit.PrevPosition,fUnit.NextPosition,fUnit); //Pre-occupy next tile
+    fUnit.Walk(fUnit.PrevPosition, fUnit.NextPosition); //Pre-occupy next tile
     if KMStepIsDiag(fUnit.PrevPosition,fUnit.NextPosition) then
       IncVertex(fUnit.PrevPosition,fUnit.NextPosition);
   end;

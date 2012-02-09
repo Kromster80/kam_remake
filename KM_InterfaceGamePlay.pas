@@ -5,13 +5,14 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
-  KM_InterfaceDefaults, KM_MapView,
+  KM_InterfaceDefaults, KM_MapView, KM_Terrain,
   KM_Controls, KM_Houses, KM_Units, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
 type
   TKMGamePlayInterface = class (TKMUserInterface)
   private
+    fTerrain: TTerrain;
     fMapView: TKMMapView;
 
     //Not saved
@@ -310,7 +311,7 @@ type
       Button_Woodcutter:TKMButtonFlat;
 
   public
-    constructor Create(aScreenX, aScreenY: word);
+    constructor Create(aScreenX, aScreenY: word; aTerrain: TTerrain); reintroduce;
     destructor Destroy; override;
     procedure Resize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
@@ -352,7 +353,7 @@ type
 
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
-KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Terrain, KM_Game, KM_Utils,
+KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game, KM_Utils,
 KM_Sound, Forms, KM_Resource, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
 const
@@ -658,7 +659,7 @@ begin
 
   //Send move order, if applicable
   if (fShownUnit is TKMUnitWarrior) and (not fJoiningGroups)
-  and fTerrain.Route_CanBeMade(fShownUnit.GetPosition, KMP, CanWalk, 0, false) then
+  and fShownUnit.CanWalkTo(KMP, 0, false) then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), KMP, TKMUnitWarrior(fShownUnit).Direction);
     fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
@@ -666,11 +667,11 @@ begin
 end;
 
 
-constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: word);
+constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: word; aTerrain: TTerrain);
 var i:integer;
 begin
-  inherited;
-  Assert(fTerrain <> nil, 'We need valid pointer to Terrain for MapView/Minimap');
+  inherited Create(aScreenX, aScreenY);
+  fTerrain := aTerrain;
 
   fMapView := TKMMapView.Create(nil, fTerrain);
 
@@ -3188,7 +3189,7 @@ begin
     H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Ally)) and
        ((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Ally)) and
-      fTerrain.Route_CanBeMade(fShownUnit.GetPosition, GameCursor.Cell, CanWalk, 0, false) then
+      fShownUnit.CanWalkTo(GameCursor.Cell, 0, False) then
     begin
       SelectingTroopDirection := true; //MouseMove will take care of cursor changing
       //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
@@ -3394,7 +3395,7 @@ begin
         fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
       end
       else //If there's no house - Walk to spot
-        if fTerrain.Route_CanBeMade(fShownUnit.GetPosition, P, CanWalk, 0, false) then
+        if fShownUnit.CanWalkTo(P, 0, false) then
         begin
           fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
           fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
@@ -3454,7 +3455,8 @@ begin
     cm_Field: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
     cm_Wine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
     cm_Wall:  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
-    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1), MyPlayer) then begin
+    cm_Houses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+              begin
                 fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
                 Build_ButtonClick(Button_BuildRoad);
               end

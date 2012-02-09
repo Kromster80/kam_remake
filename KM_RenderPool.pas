@@ -7,7 +7,7 @@ uses
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library ye-> FPReadJPEG?t
-  KM_Defaults, KM_CommonClasses, KM_Render, KM_ResourceSprites, KM_Points;
+  KM_Defaults, KM_CommonClasses, KM_Render, KM_ResourceSprites, KM_Points, KM_Terrain;
 
 type
   TRenderList = class
@@ -42,6 +42,7 @@ type
   TRenderPool = class
   private
     fRender: TRender;
+    fTerrain: TTerrain;
     rPitch,rHeading,rBank:integer;
     fRenderList: TRenderList;
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
@@ -65,9 +66,8 @@ type
     procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
     procedure RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
 
-    procedure RenderBrightness(Value: Byte);
   public
-    constructor Create(aRender: TRender);
+    constructor Create(aRender: TRender; aTerrain: TTerrain);
     destructor Destroy; override;
 
     property RenderList: TRenderList read fRenderList;
@@ -100,14 +100,15 @@ var
 
 
 implementation
-uses KM_RenderAux, KM_Terrain, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_Units;
+uses KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_Units;
 
 
-constructor TRenderPool.Create(aRender: TRender);
+constructor TRenderPool.Create(aRender: TRender; aTerrain: TTerrain);
 begin
   Inherited Create;
 
   fRender := aRender;
+  fTerrain := aTerrain;
   fRenderList := TRenderList.Create;
 end;
 
@@ -134,51 +135,38 @@ end;
 // 4. Renders cursor highlights
 procedure TRenderPool.Render;
 begin
-  fRender.BeginFrame;
+  glLoadIdentity; // Reset The View
+  //glRotate(-15,0,0,1); //Funny thing
+  glTranslatef(fGame.Viewport.ViewportClip.X/2, fGame.Viewport.ViewportClip.Y/2, 0);
+  glkScale(fGame.Viewport.Zoom*CELL_SIZE_PX);
+  glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y, 0);
+  if RENDER_3D then
+  begin
+    fRender.SetRenderMode(rm3D);
 
-  if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then
-  begin //If game is running
-    glLoadIdentity; // Reset The View
-    //glRotate(-15,0,0,1); //Funny thing
-    glTranslatef(fGame.Viewport.ViewportClip.X/2, fGame.Viewport.ViewportClip.Y/2, 0);
-    glkScale(fGame.Viewport.Zoom*CELL_SIZE_PX);
-    glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y, 0);
-    if RENDER_3D then
-    begin
-      fRender.SetRenderMode(rm3D);
-
-      glkScale(-CELL_SIZE_PX/14);
-      glRotatef(rHeading,1,0,0);
-      glRotatef(rPitch  ,0,1,0);
-      glRotatef(rBank   ,0,0,1);
-      glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y-8, 10);
-      glkScale(fGame.Viewport.Zoom);
-    end;
-
-    glPushAttrib(GL_LINE_BIT or GL_POINT_BIT);
-      glLineWidth(fGame.Viewport.Zoom * 2);
-      glPointSize(fGame.Viewport.Zoom * 5);
-
-      RenderTerrain;
-      fPlayers.Paint; //Quite slow           //Units and houses
-      if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay] then
-        fGame.Projectiles.Paint; //Render all arrows and etc..
-
-      fRenderList.Render;
-
-      RenderCursorHighlights; //Will be on-top of everything
-
-      if DISPLAY_SOUNDS then fSoundLib.Paint;
-    glPopAttrib;
+    glkScale(-CELL_SIZE_PX/14);
+    glRotatef(rHeading,1,0,0);
+    glRotatef(rPitch  ,0,1,0);
+    glRotatef(rBank   ,0,0,1);
+    glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y-8, 10);
+    glkScale(fGame.Viewport.Zoom);
   end;
 
-  fRender.SetRenderMode(rm2D);
-  fGame.PaintInterface;
+  glPushAttrib(GL_LINE_BIT or GL_POINT_BIT);
+    glLineWidth(fGame.Viewport.Zoom * 2);
+    glPointSize(fGame.Viewport.Zoom * 5);
 
-  glLoadIdentity;
-  RenderBrightness(fGame.GlobalSettings.Brightness);
+    RenderTerrain;
+    fPlayers.Paint; //Quite slow           //Units and houses
+    if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay] then
+      fGame.Projectiles.Paint; //Render all arrows and etc..
 
-  fRender.EndFrame;
+    fRenderList.Render;
+
+    RenderCursorHighlights; //Will be on-top of everything
+
+    if DISPLAY_SOUNDS then fSoundLib.Paint;
+  glPopAttrib;
 end;
 
 
@@ -1164,22 +1152,6 @@ begin
                 else
                   RenderCursorBuildIcon(GameCursor.Cell);       //Red X
   end;
-end;
-
-
-//Render highlight overlay to make whole picture look brighter (more saturated)
-procedure TRenderPool.RenderBrightness(Value: Byte);
-begin
-  //There will be no change to image anyway
-  if Value = 0 then Exit;
-
-  glBlendFunc(GL_DST_COLOR, GL_ONE);
-  glColor4f(Value/20, Value/20, Value/20, Value/20);
-  glBegin(GL_QUADS);
-    glkRect(0, 0, fRender.ScreenX, fRender.ScreenY);
-  glEnd;
-
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 end;
 
 

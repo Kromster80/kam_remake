@@ -11,7 +11,7 @@ uses
   KM_MapEditor, KM_Campaigns,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
   KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
-  KM_Resource, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
+  KM_Resource, KM_Terrain, KM_PathFinding, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
   KM_ArmyEvaluation, KM_GameOptions, KM_PerfLog;
 
 type
@@ -46,6 +46,9 @@ type
     fProjectiles:TKMProjectiles;
     fGameInputProcess:TGameInputProcess;
     fNetworking:TKMNetworking;
+    fTerrain: TTerrain;
+    fPathfinding: TPathFinding;
+
     fViewport: TViewport;
     fPerfLog: TKMPerfLog;
     fMissionFile: string; //Path to mission we are playing, so it gets saved to crashreport
@@ -146,6 +149,8 @@ type
     property Campaigns: TKMCampaignsCollection read fCampaigns;
     property MapEditor: TKMMapEditor read fMapEditor;
     property MusicLib: TMusicLib read fMusicLib;
+    property Terrain: TTerrain read fTerrain;
+    property Pathfinding: TPathFinding read fPathfinding;
     property Projectiles: TKMProjectiles read fProjectiles;
     property GameInputProcess: TGameInputProcess read fGameInputProcess;
     property Networking: TKMNetworking read fNetworking;
@@ -188,7 +193,6 @@ begin
 
   fGlobalSettings   := TGlobalSettings.Create;
   fRender           := TRender.Create(RenderHandle, fScreenX, fScreenY, aVSync);
-  fRenderPool       := TRenderPool.Create(fRender);
   fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
@@ -413,7 +417,7 @@ procedure TKMGame.GameInit(aMultiplayerMode: Boolean);
 begin
   fGameSpeed := 1; //In case it was set in last run mission
   PlayOnState := gr_Cancel;
-  SkipReplayEndCheck := false; //Reset before each mission
+  SkipReplayEndCheck := False; //Reset before each mission
   fMultiplayerMode := aMultiplayerMode;
   //Reset the game options from the last game
   fGameOptions.Free;
@@ -433,8 +437,10 @@ begin
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
   fTerrain := TTerrain.Create;
-  fGamePlayInterface := TKMGamePlayInterface.Create(fScreenX, fScreenY);
-  fProjectiles := TKMProjectiles.Create;
+  fGamePlayInterface := TKMGamePlayInterface.Create(fScreenX, fScreenY, fTerrain);
+  fPathfinding := TPathfinding.Create(fTerrain);
+  fRenderPool := TRenderPool.Create(fRender, fTerrain);
+  fProjectiles := TKMProjectiles.Create(fTerrain);
 
   fGameTickCount := 0; //Restart counter
 end;
@@ -500,7 +506,7 @@ begin
   try //Catch exceptions
     fLog.AppendLog('Loading DAT file for singleplayer: '+aMissionFile);
     fMissionParser := TMissionParser.Create(mpm_Single, false);
-    if not fMissionParser.LoadMission(aMissionFile) then
+    if not fMissionParser.LoadMission(aMissionFile, fTerrain) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     MyPlayer := fPlayers.Player[fMissionParser.MissionInfo.HumanPlayerID];
     Assert(MyPlayer.PlayerType = pt_Human);
@@ -522,7 +528,7 @@ begin
   else
   begin
     fTerrain.MakeNewMap(64, 64, False); //For debug we use blank mission
-    fPlayers := TKMPlayersCollection.Create;
+    fPlayers := TKMPlayersCollection.Create(fTerrain);
     fPlayers.AddPlayers(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[0];
   end;
@@ -579,7 +585,7 @@ begin
   try //Catch exceptions
     fLog.AppendLog('Loading DAT file for multiplayer: '+MapNameToPath(aFilename, 'dat', true));
     fMissionParser := TMissionParser.Create(mpm_Multi, PlayerRemap, false);
-    if not fMissionParser.LoadMission(MapNameToPath(aFilename, 'dat', true)) then
+    if not fMissionParser.LoadMission(MapNameToPath(aFilename, 'dat', true), fTerrain) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     fMissionMode := fMissionParser.MissionInfo.MissionMode;
     FreeAndNil(fMissionParser);
@@ -921,6 +927,8 @@ begin
     FreeThenNil(fGameInputProcess);
     FreeThenNil(fPlayers);
     FreeThenNil(fProjectiles);
+    FreeThenNil(fRenderPool);
+    FreeThenNil(fPathfinding);
     FreeThenNil(fTerrain);
     FreeThenNil(fMapEditor);
 
@@ -995,7 +1003,7 @@ begin
   try //Catch exceptions
     fLog.AppendLog('Loading DAT file for editor: '+aFilename);
     fMissionParser := TMissionParser.Create(mpm_Editor, False);
-    if not fMissionParser.LoadMission(aFilename) then
+    if not fMissionParser.LoadMission(aFilename, fTerrain) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     MyPlayer := fPlayers.Player[0];
     fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
@@ -1017,7 +1025,7 @@ begin
   else
   begin
     fTerrain.MakeNewMap(aSizeX, aSizeY, True);
-    fPlayers := TKMPlayersCollection.Create;
+    fPlayers := TKMPlayersCollection.Create(fTerrain);
     fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
     MyPlayer := fPlayers.Player[0];
     MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
@@ -1099,7 +1107,17 @@ end;
 
 procedure TKMGame.Render;
 begin
-  fRenderPool.Render;
+  fRender.BeginFrame;
+
+  if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then
+    fRenderPool.Render;
+
+  fRender.SetRenderMode(rm2D);
+  PaintInterface;
+
+  fRender.RenderBrightness(GlobalSettings.Brightness);
+
+  fRender.EndFrame;
 end;
 
 
@@ -1384,10 +1402,10 @@ begin
     if not SaveIsMultiplayer then
       LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 
-    fPlayers := TKMPlayersCollection.Create;
-
     //Load the data into the game
     fTerrain.Load(LoadStream);
+
+    fPlayers := TKMPlayersCollection.Create(fTerrain);
     fPlayers.Load(LoadStream);
     fProjectiles.Load(LoadStream);
 

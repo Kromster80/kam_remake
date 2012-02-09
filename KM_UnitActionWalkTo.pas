@@ -1,7 +1,10 @@
 unit KM_UnitActionWalkTo;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KromUtils, KM_CommonClasses, KM_Houses, KM_Units, SysUtils, Math, KM_Points;
+uses Classes, KromUtils, Math, SysUtils,
+  KM_Defaults, KM_CommonClasses, KM_Points,
+  KM_Houses, KM_Units;
+
 
 type
   TDestinationCheck = (dc_NoChanges, dc_RouteChanged, dc_NoRoute);
@@ -94,8 +97,9 @@ type
 
 implementation
 uses
-  KM_RenderAux, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay,
-  KM_Units_Warrior, KM_Player, KM_Log, KM_Resource;
+  KM_RenderAux, KM_Game, KM_Player, KM_PlayersCollection,
+  KM_UnitActionGoInOut, KM_UnitActionStay,
+  KM_Units_Warrior, KM_Log, KM_Resource;
 
 
 { TUnitActionWalkTo }
@@ -110,7 +114,8 @@ constructor TUnitActionWalkTo.Create( aUnit: TKMUnit;
 var RouteBuilt:boolean; //Check if route was built, otherwise return nil
 begin
   Inherited Create(aUnit, aActionType, False);
-  if not fTerrain.TileInMapCoords(aLocB.X, aLocB.Y) then
+
+  if not fGame.Terrain.TileInMapCoords(aLocB.X, aLocB.Y) then
     raise ELocError.Create('Invalid Walk To for '+fResource.UnitDat[aUnit.UnitType].UnitName,aLocB);
 
   fDistance     := aDistance;
@@ -127,11 +132,11 @@ begin
   if fUseExactTarget then
     fWalkTo := aLocB
   else
-    fWalkTo := fTerrain.GetClosestTile(aLocB, aUnit.GetPosition, fPass, False);
+    fWalkTo := fGame.Terrain.GetClosestTile(aLocB, aUnit.GetPosition, fPass, False);
 
   //Walking on roads is preferable, but not esential. Some cases (e.g. citizens going
   //to home with no road below doorway) it will crash if we strictly enforce it
-  if (fPass = CanWalkRoad) and (fTerrain.GetRoadConnectID(fWalkTo) = 0) then fPass := canWalk;
+  if (fPass = CanWalkRoad) and (fGame.Terrain.GetRoadConnectID(fWalkTo) = 0) then fPass := canWalk;
 
   ExplanationLogCreate;
   Explanation := 'Walk action created';
@@ -332,25 +337,25 @@ begin
   TmpPass := fPass;
   //Build a piece of route to return to nearest road piece connected to destination road network
   if (fPass = CanWalkRoad) and (fDistance=0) then //That is Citizens walking to spot
-    if (fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo)) and  //NoRoad returns 0
-      (fTerrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
-      fTerrain.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcRoad, fTerrain.GetRoadConnectID(fWalkTo), CanWalk, NodeList);
+    if (fGame.Terrain.GetRoadConnectID(fWalkFrom) <> fGame.Terrain.GetRoadConnectID(fWalkTo)) and  //NoRoad returns 0
+      (fGame.Terrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
+      fGame.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcRoad, fGame.Terrain.GetRoadConnectID(fWalkTo), CanWalk, NodeList);
 
   //If we are a worker on a construction site, build a piece of route to return to nearest walkable tile on the
   if fPass = CanWorker then //That is Workers on a construction site
-    if (fTerrain.GetWalkConnectID(fWalkFrom) <> fTerrain.GetWalkConnectID(fWalkTo)) and  //Not walkable returns 0
-      (fTerrain.GetWalkConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is not walkable
+    if (fGame.Terrain.GetWalkConnectID(fWalkFrom) <> fGame.Terrain.GetWalkConnectID(fWalkTo)) and  //Not walkable returns 0
+      (fGame.Terrain.GetWalkConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is not walkable
     begin
-      fTerrain.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcWalk, fTerrain.GetWalkConnectID(fWalkTo), CanWorker, NodeList);
+      fGame.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcWalk, fGame.Terrain.GetWalkConnectID(fWalkTo), CanWorker, NodeList);
       TmpPass := CanWalk; //After this piece of route we are in walk mode
     end;
 
   //Build a route A*
   if NodeList.Count=0 then //Build a route from scratch
-    fTerrain.Pathfinding.Route_Make(fWalkFrom, fWalkTo, fPass, fDistance, fTargetHouse, NodeList) //Try to make the route with fPass
+    fGame.Pathfinding.Route_Make(fWalkFrom, fWalkTo, fPass, fDistance, fTargetHouse, NodeList) //Try to make the route with fPass
   else begin //Append route to existing part
     NodeList2 := TKMPointList.Create;
-    fTerrain.Pathfinding.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
+    fGame.Pathfinding.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
     //If this part of the route fails, the whole route has failed. At minimum Route_Make returns count=1 (fWalkTo)
     if NodeList2.Count = 0 then NodeList.Clear; //Clear NodeList so we return false
     for i:=2 to NodeList2.Count do
@@ -411,8 +416,8 @@ function TUnitActionWalkTo.CheckForObstacle:TObstacleCheck;
 begin
   Result := oc_NoObstacle;
 
-  if (not fTerrain.CheckPassability(NodeList.List[NodePos+1],GetEffectivePassability)) or
-     (not fTerrain.CanWalkDiagonaly(fUnit.GetPosition,NodeList.List[NodePos+1])) then
+  if (not fGame.Terrain.CheckPassability(NodeList.List[NodePos+1],GetEffectivePassability)) or
+     (not fGame.Terrain.CanWalkDiagonaly(fUnit.GetPosition,NodeList.List[NodePos+1])) then
 
     //Try side stepping the obsticle.
     //By making HighestInteractionCount be the required timeout, we assure the solution is always checked
@@ -420,8 +425,8 @@ begin
       Result := oc_NoObstacle
     else
     //Completely re-route if no simple side step solution is available
-    if ((fTargetHouse = nil) and fTerrain.Route_CanBeMade(fUnit.GetPosition,fWalkTo,GetEffectivePassability,fDistance, false))
-    or ((fTargetHouse <> nil) and fTerrain.Route_CanBeMadeToHouse(fUnit.GetPosition,fTargetHouse,GetEffectivePassability,fDistance, false)) then
+    if ((fTargetHouse = nil) and fGame.Terrain.Route_CanBeMade(fUnit.GetPosition, fWalkTo, GetEffectivePassability, fDistance, false))
+    or ((fTargetHouse <> nil) and fTargetHouse.RouteCanBeMade(fUnit.GetPosition, GetEffectivePassability, fDistance, false)) then
     begin
       fUnit.SetActionWalk(fWalkTo, fActionType, fDistance, fTargetUnit, fTargetHouse);
       Result := oc_ReRouteMade;
@@ -449,22 +454,22 @@ end;
 
 procedure TUnitActionWalkTo.IncVertex;
 begin
-  //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
+  //Tell fGame.Terrain that this vertex is being used so no other unit walks over the top of us
   if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
     raise ELocError.Create('IncVertex',fVertexOccupied);
 
-  fTerrain.UnitVertexAdd(fUnit.PrevPosition, fUnit.NextPosition);
+  fGame.Terrain.UnitVertexAdd(fUnit.PrevPosition, fUnit.NextPosition);
   fVertexOccupied := KMGetDiagVertex(fUnit.PrevPosition, fUnit.NextPosition);
 end;
 
 
 procedure TUnitActionWalkTo.DecVertex;
 begin
-  //Tell fTerrain that this vertex is not being used anymore
+  //Tell fGame.Terrain that this vertex is not being used anymore
   if KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
     raise ELocError.Create('DecVertex 0:0',fVertexOccupied);
 
-  fTerrain.UnitVertexRem(fVertexOccupied);
+  fGame.Terrain.UnitVertexRem(fVertexOccupied);
   fVertexOccupied := KMPoint(0,0);
 end;
 
@@ -524,7 +529,7 @@ begin
     if not CanAbandonInternal then
       raise ELocError.Create('Unit walk IntSolutionPush', fUnit.GetPosition);
 
-    fOpponent.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fOpponent.GetPosition, fUnit.GetPosition, OpponentPassability));
+    fOpponent.SetActionWalkPushed(fGame.Terrain.GetOutOfTheWay(fOpponent.GetPosition, fUnit.GetPosition, OpponentPassability));
 
     Explanation := 'Unit was blocking the way but it has been forced to go away now';
     ExplanationLogAdd; //Hopefully next tick tile will be free and we will walk there
@@ -549,9 +554,9 @@ begin
     //Unit not yet arrived on tile, wait till it does, otherwise there might be 2 units on one tile
     and (not TUnitActionWalkTo(fOpponent.GetUnitAction).fDoesWalking)
     //Diagonal vertex must not be in use
-    and ((not KMStepIsDiag(fUnit.GetPosition,NodeList.List[NodePos+1])) or (not fTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition,NodeList.List[NodePos+1])))) then
+    and ((not KMStepIsDiag(fUnit.GetPosition,NodeList.List[NodePos+1])) or (not fGame.Terrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition,NodeList.List[NodePos+1])))) then
       //Check that our tile is walkable for the opponent! (we could be a worker on a building site)
-      if (TUnitActionWalkTo(fOpponent.GetUnitAction).GetEffectivePassability in fTerrain.Land[fUnit.GetPosition.Y,fUnit.GetPosition.X].Passability) then
+      if (TUnitActionWalkTo(fOpponent.GetUnitAction).GetEffectivePassability in fGame.Terrain.Land[fUnit.GetPosition.Y,fUnit.GetPosition.X].Passability) then
       begin
         //Check unit's future position is where we are now and exchange (use NodeList rather than direction as it's not always right)
         if TUnitActionWalkTo(fOpponent.GetUnitAction).GetNextNextPosition(OpponentNextNextPos) then
@@ -603,7 +608,7 @@ begin
         raise ELocError.Create('Unit walk IntCheckIfPushed',fUnit.GetPosition);
 
       //Since only Idle units can be pushed, we don't need to carry on TargetUnit/TargetHouse/etc props
-      fUnit.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),GetEffectivePassability));
+      fUnit.SetActionWalkPushed(fGame.Terrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),GetEffectivePassability));
       //This action has now been freed, so we must exit without changing anything
       Result := true; //Means exit DoUnitInteraction
       exit;
@@ -632,12 +637,12 @@ begin
     begin
       if i = 0 then TempPos := KMGetPointInDir(fUnit.GetPosition,KMPrevDirection((KMGetDirection(fUnit.GetPosition,NodeList.List[NodePos+1])))).Loc;
       if i = 1 then TempPos := KMGetPointInDir(fUnit.GetPosition,KMNextDirection((KMGetDirection(fUnit.GetPosition,NodeList.List[NodePos+1])))).Loc;
-      if fTerrain.TileInMapCoords(TempPos.X,TempPos.Y) and fTerrain.CanWalkDiagonaly(fUnit.GetPosition,TempPos)
-        and (GetEffectivePassability in fTerrain.Land[TempPos.Y,TempPos.X].Passability) then //First make sure tile is on map and walkable!
-      if fTerrain.HasUnit(TempPos) then //Now see if it has a unit
+      if fGame.Terrain.TileInMapCoords(TempPos.X,TempPos.Y) and fGame.Terrain.CanWalkDiagonaly(fUnit.GetPosition,TempPos)
+        and (GetEffectivePassability in fGame.Terrain.Land[TempPos.Y,TempPos.X].Passability) then //First make sure tile is on map and walkable!
+      if fGame.Terrain.HasUnit(TempPos) then //Now see if it has a unit
       begin
         //There is a unit here, first find our alternate opponent
-        fAltOpponent := fTerrain.UnitsHitTest(TempPos.X, TempPos.Y);
+        fAltOpponent := fGame.Terrain.UnitsHitTest(TempPos.X, TempPos.Y);
 
         //Make sure unit really exists, is walking and has arrived on tile
         if (fAltOpponent <> nil) and (fAltOpponent.GetUnitAction is TUnitActionWalkTo) and
@@ -645,7 +650,7 @@ begin
           and (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoesWalking)
           and ((not KMStepIsDiag(fUnit.NextPosition,NodeList.List[NodePos+1])) //Isn't diagonal
           or ((KMStepIsDiag(fUnit.NextPosition,NodeList.List[NodePos+1])       //...or is diagonal and...
-          and not fTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition,TempPos))))) then //...vertex is free
+          and not fGame.Terrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition,TempPos))))) then //...vertex is free
           if TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetNextNextPosition(OpponentNextNextPos) then
             if KMSamePoint(OpponentNextNextPos, fUnit.GetPosition) then //Now see if they want to exchange with us
             begin
@@ -684,7 +689,7 @@ begin
       //We will accept an alternative route up to 3 times greater than the amount we would have been walking anyway
       MaxLength := Math.max(NodeList.Count - NodePos, 15) * 3; //Remainder of our route times 3. Always prepared to walk 15 tiles (e.g. around houses)
       if fDestBlocked or fOpponent.GetUnitAction.Locked then
-        if fTerrain.Pathfinding.Route_MakeAvoid(fUnit.GetPosition,fWalkTo,GetEffectivePassability,fDistance,fTargetHouse,NodeList,MaxLength) then //Make sure the route can be made, if not, we must simply wait
+        if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition,fWalkTo,GetEffectivePassability,fDistance,fTargetHouse,NodeList,MaxLength) then //Make sure the route can be made, if not, we must simply wait
         begin
           //NodeList has now been re-routed, so we need to re-init everything else and start walk again
           SetInitValues;
@@ -717,9 +722,9 @@ begin
 
   //Find a node
   if NodePos+2 > NodeList.Count then //Tell Terrain about our next position if we can
-    Found := fTerrain.FindSideStepPosition(fUnit.GetPosition, aPosition, KMPoint(0,0), GetEffectivePassability, SideStepTest, NodePos-fLastSideStepNodePos < 2)
+    Found := fGame.Terrain.FindSideStepPosition(fUnit.GetPosition, aPosition, KMPoint(0,0), GetEffectivePassability, SideStepTest, NodePos-fLastSideStepNodePos < 2)
   else
-    Found := fTerrain.FindSideStepPosition(fUnit.GetPosition, aPosition, NodeList.List[NodePos+2], GetEffectivePassability, SideStepTest, NodePos-fLastSideStepNodePos < 2);
+    Found := fGame.Terrain.FindSideStepPosition(fUnit.GetPosition, aPosition, NodeList.List[NodePos+2], GetEffectivePassability, SideStepTest, NodePos-fLastSideStepNodePos < 2);
 
   if not Found then exit; //It could be 0,0 if all tiles were blocked (return false)
 
@@ -760,7 +765,7 @@ begin
 
   //If there's a unit using this vertex to walk diagonally then we must wait, they will be finished after this step
   if KMStepIsDiag(fUnit.GetPosition,NodeList.List[NodePos+1]) and
-    fTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition,NodeList.List[NodePos+1])) then
+    fGame.Terrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition,NodeList.List[NodePos+1])) then
   begin
     Explanation := 'Diagonal vertex is being used, we must wait';
     ExplanationLogAdd;
@@ -769,12 +774,12 @@ begin
   end;
 
   //If there's no unit we can keep on walking, interaction does not need to be solved
-  if not fTerrain.HasUnit(NodeList.List[NodePos+1]) then exit;
+  if not fGame.Terrain.HasUnit(NodeList.List[NodePos+1]) then exit;
   //From now on there is a blockage, so don't allow to walk unless the problem is resolved
   Result := false;
 
   //Find the unit that is in our path
-  fOpponent := fTerrain.UnitsHitTest(NodeList.List[NodePos+1].X, NodeList.List[NodePos+1].Y);
+  fOpponent := fGame.Terrain.UnitsHitTest(NodeList.List[NodePos+1].X, NodeList.List[NodePos+1].Y);
   //If there's currently no unit in the way but tile is pre-occupied
   if fOpponent = nil then begin
     //Do nothing and wait till unit is actually there so we can interact with it
@@ -790,7 +795,7 @@ begin
 
   //Animals are low priority compared to other units, unless they are stuck (surrounded by units)
   if (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX])
-    and not fTerrain.CheckAnimalIsStuck(fUnit.GetPosition,fPass) then
+    and not fGame.Terrain.CheckAnimalIsStuck(fUnit.GetPosition,fPass) then
   begin
     Explanation:='Unit is animal and therefore has no priority in movement';
     ExplanationLogAdd;
@@ -843,7 +848,7 @@ end;
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
 procedure TUnitActionWalkTo.ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True);
 begin
-  if not fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
+  if not fGame.Terrain.TileInMapCoords(aLoc.X, aLoc.Y) then
     raise ELocError.Create('Invalid Change Walk To for '+fResource.UnitDat[fUnit.UnitType].UnitName, aLoc);
 
   //We are no longer being pushed
@@ -856,7 +861,7 @@ begin
   if fUseExactTarget then
     fNewWalkTo := aLoc
   else
-    fNewWalkTo := fTerrain.GetClosestTile(aLoc, fUnit.GetPosition, fPass, False);
+    fNewWalkTo := fGame.Terrain.GetClosestTile(aLoc, fUnit.GetPosition, fPass, False);
 
   //Release pointers if we had them
   fPlayers.CleanUpHousePointer(fTargetHouse);
@@ -1000,8 +1005,8 @@ begin
     end;
 
     //If we were in Worker mode but have now reached the walk network of our destination switch to CanWalk mode to avoid walking on other building sites
-    if (fPass = CanWorker) and (fTerrain.GetWalkConnectID(fWalkTo) <> 0) and
-      (fTerrain.GetWalkConnectID(fWalkTo) = fTerrain.GetWalkConnectID(NodeList.List[NodePos])) then
+    if (fPass = CanWorker) and (fGame.Terrain.GetWalkConnectID(fWalkTo) <> 0) and
+      (fGame.Terrain.GetWalkConnectID(fWalkTo) = fGame.Terrain.GetWalkConnectID(NodeList.List[NodePos])) then
       fPass := CanWalk;
 
     //Update unit direction according to next Node
@@ -1022,7 +1027,7 @@ begin
     
        //If this is a diagonal exchange we must make sure someone (other than the other unit) is not crossing our path
       if KMStepIsDiag(fUnit.GetPosition,NodeList.List[NodePos+1])
-      and (not fTerrain.VertexUsageCompatible(fUnit.GetPosition,NodeList.List[NodePos+1])) then
+      and (not fGame.Terrain.VertexUsageCompatible(fUnit.GetPosition,NodeList.List[NodePos+1])) then
         Exit; //Someone is crossing the path of our exchange, so we will wait until they are out of the way (this check guarantees both units in the exchange will wait)
 
       inc(NodePos);
@@ -1030,8 +1035,8 @@ begin
       fUnit.UpdateNextPosition(NodeList.List[NodePos]);
 
       //Check if we are the first or second unit (has the swap already been performed?)
-      if fUnit = fTerrain.Land[fUnit.PrevPosition.Y,fUnit.PrevPosition.X].IsUnit then
-        fTerrain.UnitSwap(fUnit.PrevPosition,fUnit.NextPosition,fUnit);
+      if fUnit = fGame.Terrain.Land[fUnit.PrevPosition.Y,fUnit.PrevPosition.X].IsUnit then
+        fGame.Terrain.UnitSwap(fUnit.PrevPosition,fUnit.NextPosition,fUnit);
 
       fInteractionStatus := kis_None;
       fDoExchange := false;
@@ -1048,7 +1053,7 @@ begin
         //If ThisAction <> ThisUnit.GetUnitAction means DoUnitInteraction destroyed this action, so we must exit immediately
         if (ThisAction = U.GetUnitAction)
         and (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX])
-        and not fTerrain.CheckAnimalIsStuck(fUnit.GetPosition,fPass) then
+        and not fGame.Terrain.CheckAnimalIsStuck(fUnit.GetPosition,fPass) then
           Result := ActDone; //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
 
         Exit; //Do no further walking until unit interaction is solved
@@ -1061,10 +1066,10 @@ begin
       if GetLength(fUnit.PrevPosition,fUnit.NextPosition) > 1.5 then
         raise ELocError.Create('Unit walk length>1.5', fUnit.PrevPosition);
 
-      if fTerrain.Land[fUnit.PrevPosition.Y,fUnit.PrevPosition.X].IsUnit = nil then
+      if fGame.Terrain.Land[fUnit.PrevPosition.Y,fUnit.PrevPosition.X].IsUnit = nil then
         raise ELocError.Create('Unit walk Prev position IsUnit = nil',fUnit.PrevPosition);
 
-      fTerrain.UnitWalk(fUnit.PrevPosition, fUnit.NextPosition,fUnit); //Pre-occupy next tile
+      fUnit.Walk(fUnit.PrevPosition, fUnit.NextPosition); //Pre-occupy next tile
       if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) then IncVertex; //Occupy the vertex
     end;
 

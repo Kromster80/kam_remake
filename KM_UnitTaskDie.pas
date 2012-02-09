@@ -7,8 +7,8 @@ type
   {Yep, this is a Task}
   TTaskDie = class(TUnitTask)
     public
-      constructor Create(aUnit:TKMUnit);
-      function Execute:TTaskResult; override;
+      constructor Create(aUnit: TKMUnit);
+      function Execute: TTaskResult; override;
     end;
 
 
@@ -17,9 +17,9 @@ uses KM_Sound, KM_PlayersCollection, KM_Resource, KM_Units_Warrior;
 
 
 { TTaskDie }
-constructor TTaskDie.Create(aUnit:TKMUnit);
+constructor TTaskDie.Create(aUnit: TKMUnit);
 begin
-  Inherited Create(aUnit);
+  Inherited Create(aUnit, nil);
   fTaskName := utn_Die;
   //Shortcut to remove the pause before the dying animation which makes fights look odd
   if aUnit.Visible then

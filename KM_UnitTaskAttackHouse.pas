@@ -1,17 +1,17 @@
 unit KM_UnitTaskAttackHouse;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonClasses, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Warrior, SysUtils, KM_Points;
+uses Classes, KM_CommonClasses, KM_Defaults, KM_Utils, KM_Terrain, KM_Houses, KM_Units, KM_Units_Warrior, SysUtils, KM_Points;
 
-{Attack a house}
-type
+  {Attack a house}
+  type
   TTaskAttackHouse = class(TUnitTask)
     private
       fHouse:TKMHouse;
       fDestroyingHouse:boolean; //House destruction in progress
       LocID:byte; //Current attack location
     public
-      constructor Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
+      constructor Create(aWarrior: TKMUnitWarrior; aTerrain: TTerrain; aHouse:TKMHouse);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
@@ -27,9 +27,9 @@ uses KM_Game, KM_PlayersCollection, KM_Sound, KM_Resource;
 
 
 { TTaskAttackHouse }
-constructor TTaskAttackHouse.Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
+constructor TTaskAttackHouse.Create(aWarrior: TKMUnitWarrior; aTerrain: TTerrain; aHouse:TKMHouse);
 begin
-  Inherited Create(aWarrior);
+  Inherited Create(aWarrior, aTerrain);
   fTaskName := utn_AttackHouse;
   fHouse := aHouse.GetHousePointer;
   fDestroyingHouse := false;

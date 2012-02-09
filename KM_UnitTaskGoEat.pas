@@ -29,7 +29,7 @@ uses KM_PlayersCollection;
 { TTaskGoEat }
 constructor TTaskGoEat.Create(aInn:TKMHouseInn; aUnit:TKMUnit);
 begin
-  Inherited Create(aUnit);
+  Inherited Create(aUnit, nil);
   fTaskName := utn_GoEat;
   fInn      := TKMHouseInn(aInn.GetHousePointer);
   PlaceID   := 0;

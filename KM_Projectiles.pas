@@ -1,7 +1,7 @@
 unit KM_Projectiles;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KromUtils, KM_Utils, KM_Defaults, KM_CommonClasses, KM_Units, KM_Houses, KM_Points;
+uses Classes, SysUtils, Math, KromUtils, KM_Utils, KM_Defaults, KM_CommonClasses, KM_Units, KM_Houses, KM_Points, KM_Terrain;
 
 
 {Projectiles in-game: arrows, bolts, rocks, etc..}
@@ -9,7 +9,8 @@ uses Classes, SysUtils, Math, KromUtils, KM_Utils, KM_Defaults, KM_CommonClasses
 type
   TKMProjectiles = class
   private
-    fItems:array of record //1..n
+    fTerrain: TTerrain;
+    fItems: array of record //1..n
       fScreenStart:TKMPointF; //Screen-space trajectory start
       fScreenEnd:TKMPointF;   //Screen-space trajectory end
 
@@ -29,7 +30,7 @@ type
     procedure RemItem(aIndex: integer);
     function ProjectileVisible(aIndex:integer):boolean;
   public
-    constructor Create;
+    constructor Create(aTerrain: TTerrain);
     function AimTarget(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex; aMaxRange,aMinRange:single):word; overload;
     function AimTarget(aStart:TKMPointF; aTarget:TKMHouse; aProjType:TProjectileType; aOwner:TPlayerIndex; aMaxRange,aMinRange:single):word; overload;
 
@@ -42,13 +43,15 @@ type
 
 
 implementation
-uses KM_Sound, KM_RenderPool, KM_RenderAux, KM_PlayersCollection, KM_Terrain, KM_Resource;
+uses KM_Sound, KM_RenderPool, KM_RenderAux, KM_PlayersCollection, KM_Resource;
 
 
 { TKMProjectiles }
-constructor TKMProjectiles.Create;
+constructor TKMProjectiles.Create(aTerrain: TTerrain);
 begin
-  Inherited;
+  inherited Create;
+
+  fTerrain := aTerrain;
   //Nothing here yet
 end;
 

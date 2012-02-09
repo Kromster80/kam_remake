@@ -2,7 +2,8 @@ unit KM_DeliverQueue;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, KromUtils,
-    KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_UnitTaskDelivery, KM_Points;
+    KM_CommonClasses, KM_Defaults, KM_Points,
+    KM_Houses, KM_Units, KM_UnitTaskDelivery;
 
 
 type
@@ -68,7 +69,7 @@ type
     procedure RemDemand(aHouse:TKMHouse); overload;
     procedure RemDemand(aUnit:TKMUnit); overload;
 
-    function AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
+    procedure AskForDelivery(KMSerf: TKMUnitSerf; KMHouse: TKMHouse=nil);
     procedure TakenOffer(aID:integer);
     procedure GaveDemand(aID:integer);
     procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
@@ -82,7 +83,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Utils, KM_Terrain, KM_PlayersCollection, KM_Resource, KM_Log;
+uses KM_Game, KM_Utils, KM_PlayersCollection, KM_Resource, KM_Log;
 
 
 const
@@ -260,28 +261,26 @@ begin
   Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
             (fDemand[iD].Loc_House<>nil)and
-            (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance),KMPointBelow(fDemand[iD].Loc_House.GetEntrance),CanWalkRoad,0, false))
+            (KMSerf.CanWalkTo(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), CanWalkRoad, 0, False))
             )
             or
             ( //House-Unit delivery can be performed without connecting road
             (fDemand[iD].Loc_Unit<>nil)and
-            (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,CanWalk,1, false))
+            (KMSerf.CanWalkTo(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, CanWalk, 1, False))
             )
             );
 
   Result := Result and //Delivery is only permitted if the serf can access the from house. If the serf is inside (invisible) test from point below.
-           ((    KMSerf.Visible and fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance),KMSerf.GetPosition,CanWalk,0,false)) or
-            (not KMSerf.Visible and fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance),KMPointBelow(KMSerf.GetPosition),CanWalk,0,false)));
+           ((    KMSerf.Visible and KMSerf.CanWalkTo(KMSerf.GetPosition, KMPointBelow(fOffer[iO].Loc_House.GetEntrance), CanWalk, 0, false)) or
+            (not KMSerf.Visible and KMSerf.CanWalkTo(KMPointBelow(KMSerf.GetPosition), KMPointBelow(fOffer[iO].Loc_House.GetEntrance), CanWalk, 0, false)));
 end;
 
 
 //Should issue a job based on requesters location and job importance
 //Serf may ask for a job from within a house after completing previous delivery
-function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
+procedure TKMDeliverQueue.AskForDelivery(KMSerf: TKMUnitSerf; KMHouse: TKMHouse=nil);
 var i,iD,iO:integer; Bid,BestBid:single; BidIsPriority: boolean;
 begin
-  Result:=nil;
-
   //Find a place where Delivery will be written to after Offer-Demand pair is found
   i:=1; while (i<=QueueCount)and(fQueue[i].JobStatus<>js_Empty) do inc(i);
   if i>QueueCount then begin
@@ -369,9 +368,9 @@ begin
 
   //Now we have best job and can perform it
   if fDemand[iD].Loc_House <> nil then
-    Result := TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fOffer[iO].Resource, i)
+    KMSerf.Deliver(fOffer[iO].Loc_House, fDemand[iD].Loc_House, fOffer[iO].Resource, i)
   else
-    Result := TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i)
+    KMSerf.Deliver(fOffer[iO].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i)
 end;
 
 

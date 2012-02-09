@@ -26,7 +26,7 @@ uses KM_PlayersCollection;
 { TTaskSelfTrain }
 constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
-  Inherited Create(aUnit);
+  Inherited Create(aUnit, nil);
   fTaskName := utn_SelfTrain;
   fSchool   := TKMHouseSchool(aSchool.GetHousePointer);
   fUnit.Visible := false;

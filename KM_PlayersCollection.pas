@@ -3,7 +3,7 @@ unit KM_PlayersCollection;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Units, KM_Houses, KM_Defaults, KM_Player, KM_Utils, KM_Points;
+  KM_CommonClasses, KM_Units, KM_Terrain, KM_Houses, KM_Defaults, KM_Player, KM_Utils, KM_Points;
 
 
 { Players are identified by their starting location }
@@ -13,11 +13,12 @@ type
     fCount:byte;
     fPlayerList:array of TKMPlayer;
     fPlayerAnimals:TKMPlayerAnimals;
+    fTerrain: TTerrain;
     function GetPlayer(Index:integer):TKMPlayer;
   public
     Selected: TObject; //Unit or House
 
-    constructor Create;
+    constructor Create(aTerrain: TTerrain);
     destructor Destroy; override;
 
     property Count:byte read fCount;
@@ -62,14 +63,15 @@ var
 
 
 implementation
-uses KM_Terrain, KM_Game, KM_Log, KM_Resource;
+uses KM_Game, KM_Log, KM_Resource;
 
 
 {TKMAllPlayers}
-constructor TKMPlayersCollection.Create;
+constructor TKMPlayersCollection.Create(aTerrain: TTerrain);
 begin
   Inherited Create;
-  fPlayerAnimals := TKMPlayerAnimals.Create(PLAYER_ANIMAL); //Always create Animals
+  fTerrain := aTerrain;
+  fPlayerAnimals := TKMPlayerAnimals.Create(PLAYER_ANIMAL, fTerrain); //Always create Animals
 end;
 
 
@@ -102,7 +104,7 @@ begin
   SetLength(fPlayerList, fCount+aCount);
 
   for i:=fCount to fCount+aCount-1 do
-    fPlayerList[i] := TKMPlayer.Create(i);
+    fPlayerList[i] := TKMPlayer.Create(i, fTerrain);
 
   fCount := fCount+aCount;
 end;
@@ -436,7 +438,7 @@ begin
 
   for i:=0 to fCount-1 do
   begin
-    fPlayerList[i] := TKMPlayer.Create(0);
+    fPlayerList[i] := TKMPlayer.Create(0, fTerrain);
     fPlayerList[i].Load(LoadStream);
   end;
   PlayerAnimals.Load(LoadStream);

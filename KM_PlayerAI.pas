@@ -2,7 +2,7 @@ unit KM_PlayerAI;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils,
-    KM_CommonClasses, KM_Defaults, KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points;
+    KM_CommonClasses, KM_Defaults, KM_Terrain, KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points;
 
 type //For now IDs must match with KaM
   TAIDefencePosType = (adt_FrontLine=0, //Front line troops may not go on attacks, they are for defence
@@ -30,6 +30,7 @@ type //For now IDs must match with KaM
   TKMPlayerAI = class
   private
     PlayerIndex:integer;
+    fTerrain: TTerrain;
     fTimeOfLastAttackMessage: cardinal;
     fLastEquippedTime: cardinal;
     fHasWonOrLost:boolean; //Has this player won/lost? If so, do not check goals
@@ -57,7 +58,7 @@ type //For now IDs must match with KaM
     DefencePositionsCount: integer;
     DefencePositions: array of TAIDefencePosition;
 
-    constructor Create(aPlayerIndex:integer);
+    constructor Create(aPlayerIndex:integer; aTerrain: TTerrain);
     destructor Destroy; override;
 
     property Autobuild:boolean read fAutobuild write fAutobuild;
@@ -83,7 +84,7 @@ type //For now IDs must match with KaM
 
 implementation
 uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
-     KM_Terrain, KM_Resource, KM_Sound, KM_MessageStack;
+     KM_Resource, KM_Sound, KM_MessageStack;
 
 
 const
@@ -162,11 +163,12 @@ end;
 
 
 { TKMPlayerAI }
-constructor TKMPlayerAI.Create(aPlayerIndex:integer);
+constructor TKMPlayerAI.Create(aPlayerIndex:integer; aTerrain: TTerrain);
 var i: TGroupType;
 begin
   Inherited Create;
 
+  fTerrain := aTerrain;
   PlayerIndex := aPlayerIndex;
   fHasWonOrLost := false;
   fTimeOfLastAttackMessage := 0;
@@ -577,7 +579,7 @@ begin
           for k:=0 to DefencePositionsCount-1 do
             if DefencePositions[k].CurrentCommander = GetCommander then
             begin
-              if fTerrain.Route_CanBeMade(GetCommander.GetPosition, DefencePositions[k].Position.Loc, canWalk, 0, False) then
+              if GetCommander.CanWalkTo(DefencePositions[k].Position.Loc, 0, False) then
                 OrderWalk(DefencePositions[k].Position);
               Positioned := true; //We already have a position, finished with this group
 

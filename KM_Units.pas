@@ -3,7 +3,7 @@ unit KM_Units;
 interface
 uses
   Classes, Math, SysUtils, KromUtils,
-  KM_CommonClasses, KM_Defaults, KM_Utils, KM_Houses, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Utils, KM_Terrain, KM_Houses, KM_Points;
 
 //Memo on directives:
 //Dynamic - declared and used (overriden) occasionally
@@ -43,8 +43,9 @@ type
     fUnit: TKMUnit; //Unit who's performing the Task
     fPhase: Byte;
     fPhase2: Byte;
+    fTerrain: TTerrain;
   public
-    constructor Create(aUnit: TKMUnit);
+    constructor Create(aUnit: TKMUnit; aTerrain: TTerrain);
     constructor Load(LoadStream: TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -60,6 +61,7 @@ type
 
   TKMUnit = class
   protected //Accessible for child classes
+    fTerrain: TTerrain;
     fID:integer; //unique unit ID, used for save/load to sync to
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
@@ -95,7 +97,7 @@ type
     AnimStep: integer;
     IsExchanging:boolean; //Current walk is an exchange, used for sliding
 
-    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Create(aTerrain: TTerrain; aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -135,7 +137,7 @@ type
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
     property GetUnitTask: TUnitTask read fUnitTask;
-    property SetUnitTask: TUnitTask write fUnitTask;
+    property SetUnitTask: TUnitTask read fUnitTask write fUnitTask;
     property UnitType: TUnitType read fUnitType;
     function GetUnitTaskText:string;
     function GetUnitActText:string;
@@ -158,6 +160,18 @@ type
     property PositionF:TKMPointF read fPosition write fPosition;
     property Thought:TUnitThought read fThought write fThought;
     function GetMovementVector: TKMPointF;
+
+
+    function CanStepTo(X,Y: Integer): Boolean;
+    function CanWalkTo(aTo: TKMPoint; aDistance: Single; aInteractionAvoid: Boolean): Boolean; overload;
+    function CanWalkTo(aFrom, aTo: TKMPoint; aDistance: Single; aInteractionAvoid: Boolean): Boolean; overload;
+    function CanWalkTo(aFrom, aTo: TKMPoint; aPass: TPassability; aDistance: Single; aInteractionAvoid: Boolean): Boolean; overload;
+    function CanWalkDiagonaly(aFrom, aTo: TKMPoint): Boolean;
+    procedure VertexRem(aLoc: TKMPoint);
+    function VertexUsageCompatible(aFrom, aTo: TKMPoint): Boolean;
+    procedure VertexAdd(aFrom, aTo: TKMPoint);
+    procedure Walk(aFrom, aTo: TKMPoint);
+
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
     function UpdateState:boolean; virtual;
@@ -191,14 +205,17 @@ type
   private
     fCarry: TResourceType;
   public
-    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure Save(SaveStream:TKMemoryStream); override;
+
+    procedure Deliver(aFrom: TKMHouse; toHouse: TKMHouse; Res: TResourceType; aID: integer); overload;
+    procedure Deliver(aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: integer); overload;
+    function TryDeliverFrom(aFrom: TKMHouse): Boolean;
 
     property Carry: TResourceType read fCarry;
     procedure CarryGive(Res:TResourceType);
     procedure CarryTake;
-    function GetActionFromQueue(aHouse:TKMHouse=nil):TUnitTask;
     procedure SetNewDelivery(aDelivery:TUnitTask);
 
     function UpdateState:boolean; override;
@@ -208,6 +225,11 @@ type
   //Worker class - builds everything in game
   TKMUnitWorker = class(TKMUnit)
   public
+    procedure BuildHouse(aHouse: TKMHouse; aIndex: Integer);
+    procedure BuildHouseRepair(aHouse: TKMHouse; aIndex: Integer);
+    procedure BuildField(aField: TFieldType; aLoc: TKMPoint; aIndex: Integer);
+    procedure BuildHouseArea(aHouseType: THouseType; aLoc: TKMPoint; aIndex: Integer);
+
     function UpdateState:boolean; override;
     procedure Paint; override;
   end;
@@ -218,7 +240,7 @@ type
   private
     fFishCount:byte; //1-5
   public
-    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType); overload;
+    constructor Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType); overload;
     constructor Load(LoadStream:TKMemoryStream); override;
     property FishCount: byte read fFishCount;
     function ReduceFish:boolean;
@@ -230,9 +252,11 @@ type
 
   TKMUnitsCollection = class(TKMList)
   private
+    fTerrain: TTerrain;
     function GetUnit(aIndex: Integer): TKMUnit;
     procedure SetUnit(aIndex: Integer; aItem: TKMUnit);
   public
+    constructor Create(aTerrain: TTerrain);
     destructor Destroy; override;
     function Add(aOwner:TPlayerIndex; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0):TKMUnit;
     function AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
@@ -254,7 +278,7 @@ type
 implementation
 uses
   KM_Game, KM_RenderPool, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection,
-  KM_Units_Warrior, KM_Terrain, KM_Resource, KM_Log, KM_MessageStack,
+  KM_Units_Warrior, KM_Resource, KM_Log, KM_MessageStack,
 
   KM_UnitActionAbandonWalk,
   KM_UnitActionFight,
@@ -428,7 +452,7 @@ begin
     if Res = 0 then Exit;
   end;
 
-  TM := TTaskMining.Create(Self, fResource.HouseDat[fHome.HouseType].ResOutput[Res]);
+  TM := TTaskMining.Create(Self, fTerrain, fResource.HouseDat[fHome.HouseType].ResOutput[Res]);
 
   if TM.WorkPlan.ResourceDepleted then
     IssueResourceDepletedMessage;
@@ -586,10 +610,39 @@ end;
 
 
 { TKMSerf }
-constructor TKMUnitSerf.Create(aOwner: shortint; PosX, PosY: integer; aUnitType: TUnitType);
+constructor TKMUnitSerf.Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY: integer; aUnitType: TUnitType);
 begin
-  Inherited;
+  inherited;
   fCarry := rt_None;
+end;
+
+
+procedure TKMUnitSerf.Deliver(aFrom, toHouse: TKMHouse; Res: TResourceType; aID: integer);
+begin
+  fUnitTask := TTaskDeliver.Create(Self, fTerrain, aFrom, toHouse, Res, aID);
+end;
+
+
+procedure TKMUnitSerf.Deliver(aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: integer);
+begin
+  fUnitTask := TTaskDeliver.Create(Self, fTerrain, aFrom, toUnit, Res, aID);
+end;
+
+
+function TKMUnitSerf.TryDeliverFrom(aFrom: TKMHouse): Boolean;
+var T: TUnitTask;
+begin
+  //Remember current task
+  T := fUnitTask;
+  //Try to get a new one
+  fPlayers.Player[GetOwner].DeliverList.AskForDelivery(Self, aFrom);
+
+  //Return True if we've got a new deliery
+  Result := fUnitTask <> T;
+
+  //If we got ourselves a new task then skip to resource-taking part
+  if Result then
+    fUnitTask.Phase := 2; //Skip  of the new task
 end;
 
 
@@ -651,7 +704,7 @@ begin
   end;
 
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
-    fUnitTask := GetActionFromQueue;
+    fPlayers.Player[fOwner].DeliverList.AskForDelivery(Self);
 
   //Only show quest thought if we are idle and not thinking anything else (e.g. death)
   if fUnitTask=nil then begin
@@ -677,12 +730,6 @@ begin
 end;
 
 
-function TKMUnitSerf.GetActionFromQueue(aHouse:TKMHouse=nil):TUnitTask;
-begin
-  Result := fPlayers.Player[fOwner].DeliverList.AskForDelivery(Self, aHouse);
-end;
-
-
 procedure TKMUnitSerf.SetNewDelivery(aDelivery:TUnitTask);
 begin
   fUnitTask := aDelivery;
@@ -690,6 +737,40 @@ end;
 
 
 { TKMWorker }
+procedure TKMUnitWorker.BuildHouse(aHouse: TKMHouse; aIndex: Integer);
+begin
+  SetUnitTask := TTaskBuildHouse.Create(Self, fTerrain, aHouse, aIndex);
+end;
+
+
+procedure TKMUnitWorker.BuildField(aField: TFieldType; aLoc: TKMPoint; aIndex: Integer);
+begin
+  case aField of
+    ft_Road: SetUnitTask := TTaskBuildRoad.Create(Self, fTerrain, aLoc, aIndex);
+    ft_Corn: SetUnitTask := TTaskBuildField.Create(Self, fTerrain, aLoc, aIndex);
+    ft_Wine: SetUnitTask := TTaskBuildWine.Create(Self, fTerrain, aLoc, aIndex);
+    ft_Wall: SetUnitTask := TTaskBuildWall.Create(Self, fTerrain, aLoc, aIndex);
+    else     begin
+              Assert(false, 'Unexpected Field Type');
+              SetUnitTask := nil;
+              Exit;
+             end;
+  end;
+end;
+
+
+procedure TKMUnitWorker.BuildHouseArea(aHouseType: THouseType; aLoc: TKMPoint; aIndex: Integer);
+begin
+  SetUnitTask := TTaskBuildHouseArea.Create(Self, fTerrain, aHouseType, aLoc, aIndex);
+end;
+
+
+procedure TKMUnitWorker.BuildHouseRepair(aHouse: TKMHouse; aIndex: Integer);
+begin
+  SetUnitTask := TTaskBuildHouseRepair.Create(Self, fTerrain, aHouse, aIndex);
+end;
+
+
 procedure TKMUnitWorker.Paint;
 var XPaintPos, YPaintPos: single;
 begin
@@ -740,9 +821,9 @@ end;
 
 
 { TKMUnitAnimal }
-constructor TKMUnitAnimal.Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnitAnimal.Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
 begin
-  Inherited;
+  inherited;
   if aUnitType = ut_Fish then fFishCount := 5;  //Always start with 5 fish in the group
 end;
 
@@ -847,9 +928,10 @@ end;
 
 
 { TKMUnit }
-constructor TKMUnit.Create(aOwner:TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnit.Create(aTerrain: TTerrain; aOwner:TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
+  fTerrain      := aTerrain;
   fID           := fGame.GetNewID;
   fPointerCount := 0;
   fIsDead       := false;
@@ -1345,6 +1427,7 @@ end;
 
 
 //Specific unit desired passability may depend on several factors
+//todo: Remove aIgnoreRoads
 function TKMUnit.GetDesiredPassability(aIgnoreRoads:boolean=false):TPassability;
 begin
   Result := fResource.UnitDat[fUnitType].DesiredPassability;
@@ -1399,6 +1482,40 @@ end;
 function TKMUnit.CanGoEat:boolean;
 begin
   Result := fPlayers.Player[fOwner].FindInn(fCurrPosition,Self) <> nil;
+end;
+
+
+function TKMUnit.CanWalkDiagonaly(aFrom, aTo: TKMPoint): Boolean;
+begin
+  Result := fTerrain.CanWalkDiagonaly(aFrom, aTo);
+end;
+
+
+function TKMUnit.CanWalkTo(aTo: TKMPoint; aDistance: Single; aInteractionAvoid: Boolean): Boolean;
+begin
+  Result := fTerrain.Route_CanBeMade(GetPosition, aTo, GetDesiredPassability, aDistance, aInteractionAvoid);
+end;
+
+
+function TKMUnit.CanWalkTo(aFrom, aTo: TKMPoint; aDistance: Single; aInteractionAvoid: Boolean): Boolean;
+begin
+  Result := fTerrain.Route_CanBeMade(aFrom, aTo, GetDesiredPassability, aDistance, aInteractionAvoid);
+end;
+
+
+function TKMUnit.CanWalkTo(aFrom, aTo: TKMPoint; aPass: TPassability; aDistance: Single; aInteractionAvoid: Boolean): Boolean;
+begin
+  Result := fTerrain.Route_CanBeMade(aFrom, aTo, aPass, aDistance, aInteractionAvoid);
+end;
+
+
+function TKMUnit.CanStepTo(X,Y: Integer): Boolean;
+begin
+  Result := fTerrain.TileInMapCoords(X,Y)
+        and (fTerrain.CheckPassability(KMPoint(X,Y), GetDesiredPassability))
+        and (not fTerrain.HasVertexUnit(KMGetDiagVertex(GetPosition, KMPoint(X,Y))))
+        and (fTerrain.CanWalkDiagonaly(GetPosition, KMPoint(X,Y)))
+        and (fTerrain.Land[Y,X].IsUnit = nil);
 end;
 
 
@@ -1484,6 +1601,28 @@ begin
   end;
 end;
 
+
+procedure TKMUnit.VertexAdd(aFrom, aTo: TKMPoint);
+begin
+  fTerrain.UnitVertexAdd(aFrom, aTo);
+end;
+
+procedure TKMUnit.VertexRem(aLoc: TKMPoint);
+begin
+  fTerrain.UnitVertexRem(aLoc); //Unoccupy vertex
+end;
+
+
+function TKMUnit.VertexUsageCompatible(aFrom, aTo: TKMPoint): Boolean;
+begin
+  Result := fTerrain.VertexUsageCompatible(aFrom, aTo);
+end;
+
+
+procedure TKMUnit.Walk(aFrom, aTo: TKMPoint);
+begin
+  fTerrain.UnitWalk(aFrom, aTo, Self)
+end;
 
 procedure TKMUnit.UpdateHitPoints;
 begin
@@ -1683,7 +1822,7 @@ end;
 
 
 { TUnitTask }
-constructor TUnitTask.Create(aUnit:TKMUnit);
+constructor TUnitTask.Create(aUnit:TKMUnit; aTerrain: TTerrain);
 begin
   Inherited Create;
   fTaskName := utn_Unknown;
@@ -1692,6 +1831,7 @@ begin
   fUnit.SetActionLockedStay(0,ua_Walk);
   fPhase    := 0;
   fPhase2   := 0;
+  fTerrain  := aTerrain;
 end;
 
 
@@ -1749,7 +1889,7 @@ begin
   fUnit       := aUnit;
   fActionType := aActionType;
   Locked      := aLocked;
-  StepDone    := false;
+  StepDone    := False;
 end;
 
 
@@ -1788,10 +1928,18 @@ end;
 
 
 { TKMUnitsCollection }
+constructor TKMUnitsCollection.Create(aTerrain: TTerrain);
+begin
+  inherited Create;
+
+  fTerrain := aTerrain;
+end;
+
+
 destructor TKMUnitsCollection.Destroy;
 begin
   //No need to free units individually since they are Freed by TKMList.Clear command.
-  Inherited;
+  inherited;
 end;
 
 
@@ -1822,7 +1970,9 @@ begin
   end;
 
   if fTerrain.HasUnit(KMPoint(PosX,PosY)) then
-    raise ELocError.Create('No space for '+fResource.UnitDat[aUnitType].UnitName+', tile occupied by '+fResource.UnitDat[fTerrain.Land[PosY,PosX].IsUnit.UnitType].UnitName,KMPoint(PosX,PosY));
+    raise ELocError.Create('No space for '+fResource.UnitDat[aUnitType].UnitName +
+                           ', tile occupied by '{+fResource.UnitDat[fTerrain.Land[PosY,PosX].IsUnit.UnitType].UnitName},
+                           KMPoint(PosX,PosY));
 
   if not fTerrain.TileInMapCoords(PosX, PosY) then begin
     fLog.AppendLog('Unable to add unit to '+KM_Points.TypeToString(KMPoint(PosX,PosY)));
@@ -1831,17 +1981,17 @@ begin
   end;
 
   case aUnitType of
-    ut_Serf:    U := Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
-    ut_Worker:  U := Inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Serf:    U := Inherited Add(TKMUnitSerf.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
+    ut_Worker:  U := Inherited Add(TKMUnitWorker.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
 
     ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                U := Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
+                U := Inherited Add(TKMUnitCitizen.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
 
-    ut_Recruit: U := Inherited Add(TKMUnitRecruit.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Recruit: U := Inherited Add(TKMUnitRecruit.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
 
-    WARRIOR_MIN..WARRIOR_MAX: U := Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
+    WARRIOR_MIN..WARRIOR_MAX: U := Inherited Add(TKMUnitWarrior.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
 
-    ANIMAL_MIN..ANIMAL_MAX:   U := Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
+    ANIMAL_MIN..ANIMAL_MAX:   U := Inherited Add(TKMUnitAnimal.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
 
     else                      raise ELocError.Create('Add '+fResource.UnitDat[aUnitType].UnitName,KMPoint(PosX, PosY));
   end;

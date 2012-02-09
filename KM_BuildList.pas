@@ -155,7 +155,7 @@ type
 
 
 implementation
-uses KM_Terrain, KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_UnitTaskBuild, KM_UnitActionStay;
+uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_UnitActionStay;
 
 
 const
@@ -207,7 +207,7 @@ begin
   aBid := 999;
   for I := fHousesCount - 1 downto 0 do
   if (fHouses[i].House <> nil) and fHouses[i].House.CheckResToBuild
-  and fTerrain.Route_CanBeMade(aWorker.GetPosition, KMPointBelow(fHouses[i].House.GetEntrance), aWorker.GetDesiredPassability, 0, false)
+  and aWorker.CanWalkTo(KMPointBelow(fHouses[i].House.GetEntrance), 0, False)
   then
   begin
     NewBid := GetLength(aWorker.GetPosition, fHouses[I].House.GetPosition);
@@ -224,7 +224,7 @@ end;
 
 procedure TKMHouseList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
 begin
-  aWorker.SetUnitTask := TTaskBuildHouse.Create(aWorker, fHouses[aIndex].House, aIndex);
+  aWorker.BuildHouse(fHouses[aIndex].House, aIndex);
   Inc(fHouses[aIndex].Assigned);
 end;
 
@@ -304,7 +304,7 @@ begin
 
   for I := 0 to fFieldsCount - 1 do
   if (fFields[I].JobStatus = js_Open)
-  and fTerrain.Route_CanBeMade(aWorker.GetPosition, fFields[I].Loc, aWorker.GetDesiredPassability, 0, False) then
+  and aWorker.CanWalkTo(fFields[I].Loc, 0, False) then
   begin
     NewBid := GetLength(aWorker.GetPosition, fFields[I].Loc);
     if (Result = -1) or (NewBid < aBid) then
@@ -336,13 +336,7 @@ end;
 
 procedure TKMFieldworksList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
 begin
-  case fFields[aIndex].FieldType of
-    ft_Road: aWorker.SetUnitTask := TTaskBuildRoad.Create(aWorker, fFields[aIndex].Loc, aIndex);
-    ft_Corn: aWorker.SetUnitTask := TTaskBuildField.Create(aWorker, fFields[aIndex].Loc, aIndex);
-    ft_Wine: aWorker.SetUnitTask := TTaskBuildWine.Create(aWorker, fFields[aIndex].Loc, aIndex);
-    ft_Wall: aWorker.SetUnitTask := TTaskBuildWall.Create(aWorker, fFields[aIndex].Loc, aIndex);
-    else     begin Assert(false, 'Unexpected Field Type'); aWorker.SetUnitTask := nil; Exit; end;
-  end;
+  aWorker.BuildField(fFields[aIndex].FieldType, fFields[aIndex].Loc, aIndex);
   fFields[aIndex].JobStatus := js_Taken;
   fFields[aIndex].Worker := aWorker.GetUnitPointer;
 end;
@@ -491,7 +485,7 @@ begin
 
   for I := 0 to fPlansCount - 1 do
     if (fPlans[I].JobStatus = js_Open)
-    and fTerrain.Route_CanBeMade(aWorker.GetPosition, fPlans[I].Loc, aWorker.GetDesiredPassability, 0, false)
+    and aWorker.CanWalkTo(fPlans[I].Loc, 0, false)
     then
     begin
       NewBid := GetLength(aWorker.GetPosition, fPlans[I].Loc);
@@ -515,8 +509,7 @@ end;
 
 procedure TKMHousePlanList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
 begin
-  aWorker.SetUnitTask := TTaskBuildHouseArea.Create(aWorker, fPlans[aIndex].HouseType, fPlans[aIndex].Loc, aIndex);
-
+  aWorker.BuildHouseArea(fPlans[aIndex].HouseType, fPlans[aIndex].Loc, aIndex);
   fPlans[aIndex].JobStatus := js_Taken;
   fPlans[aIndex].Worker := aWorker.GetUnitPointer;
 end;
@@ -761,8 +754,8 @@ end;
 
 procedure TKMRepairList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
 begin
+  aWorker.BuildHouseRepair(fHouses[aIndex].House, aIndex);
   Inc(fHouses[aIndex].Assigned);
-  aWorker.SetUnitTask := TTaskBuildHouseRepair.Create(aWorker, fHouses[aIndex].House, aIndex);
 end;
 
 
@@ -836,7 +829,6 @@ end;
 constructor TKMBuildList.Create;
 begin
   inherited;
-
   fFieldworksList := TKMFieldworksList.Create;
   fHouseList := TKMHouseList.Create;
   fHousePlanList := TKMHousePlanList.Create;

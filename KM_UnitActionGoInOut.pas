@@ -1,13 +1,15 @@
 unit KM_UnitActionGoInOut;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils, KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_Points;
+uses Classes, KromUtils, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_Houses, KM_Units;
 
 
-type TBestExit = (be_None, be_Left, be_Center, be_Right);
-
-{This is a [fairly :P] simple action making unit go inside/outside of house}
 type
+  TBestExit = (be_None, be_Left, be_Center, be_Right);
+
+  {This is a [fairly :P] simple action making unit go inside/outside of house}
   TUnitActionGoInOut = class(TUnitAction)
   private
     fStep:single;
@@ -22,7 +24,6 @@ type
     procedure IncDoorway;
     procedure DecDoorway;
     function FindBestExit(aLoc: TKMPoint): TBestExit;
-    function TileIsFree(X,Y: Word): Boolean;
     function TileHasIdleUnit(X,Y: Word): TKMUnit;
     procedure WalkIn;
     procedure WalkOut;
@@ -38,12 +39,12 @@ type
     function GetDoorwaySlide(aCheck:TCheckAxis):single;
     procedure DoLinking; //Public because we need it when the barracks is destroyed
     function Execute: TActionResult; override;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_Resource, KM_Units_Warrior, KM_Player;
+uses KM_Game, KM_Player, KM_PlayersCollection, KM_Resource, KM_UnitActionStay, KM_Units_Warrior;
 
 
 constructor TUnitActionGoInOut.Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
@@ -64,7 +65,7 @@ begin
 end;
 
 
-constructor TUnitActionGoInOut.Load(LoadStream:TKMemoryStream);
+constructor TUnitActionGoInOut.Load(LoadStream: TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fStep);
@@ -95,14 +96,15 @@ begin
   fPlayers.CleanUpHousePointer(fHouse);
   fPlayers.CleanUpUnitPointer(fPushedUnit);
 
-  //A bug can occur because this action is destroyed early when a unit is told to die. If we are still invisible
-  //then TTaskDie assumes we are inside and creates a new GoOut action. Therefore if we are invisible we do not occupy a tile.
+  //A bug can occur because this action is destroyed early when a unit is told to die.
+  //If we are still invisible then TTaskDie assumes we are inside and creates a new
+  //GoOut action. Therefore if we are invisible we do not occupy a tile.
   if (fDirection = gd_GoOutside)
   and fHasStarted
-  and not fUnit.Visible and
-    (fTerrain.Land[fUnit.NextPosition.Y,fUnit.NextPosition.X].IsUnit = fUnit) then
+  and not fUnit.Visible
+  and (fGame.Terrain.Land[fUnit.NextPosition.Y,fUnit.NextPosition.X].IsUnit = fUnit) then
   begin
-    fTerrain.UnitRem(fUnit.NextPosition);
+    fGame.Terrain.UnitRem(fUnit.NextPosition);
     if not KMSamePoint(fDoor, KMPoint(0,0)) then
       fUnit.PositionF := KMPointF(fDoor); //Put us back inside the house
   end;
@@ -150,13 +152,13 @@ function TUnitActionGoInOut.FindBestExit(aLoc: TKMPoint): TBestExit;
 var
   U: TKMUnit;
 begin
-  if TileIsFree(aLoc.X, aLoc.Y) then
+  if fUnit.CanStepTo(aLoc.X, aLoc.Y) then
     Result := be_Center
   else
-  if TileIsFree(aLoc.X-1, aLoc.Y) then
+  if fUnit.CanStepTo(aLoc.X-1, aLoc.Y) then
     Result := be_Left
   else
-  if TileIsFree(aLoc.X+1, aLoc.Y) then
+  if fUnit.CanStepTo(aLoc.X+1, aLoc.Y) then
     Result := be_Right
   else
   begin
@@ -182,18 +184,9 @@ begin
     if U <> nil then
     begin
       fPushedUnit := U.GetUnitPointer;
-      fPushedUnit.SetActionWalkPushed(fTerrain.GetOutOfTheWay(U.GetPosition, KMPoint(0,0), CanWalk));
+      fPushedUnit.SetActionWalkPushed(fGame.Terrain.GetOutOfTheWay(U.GetPosition, KMPoint(0,0), CanWalk));
     end;
   end;
-end;
-
-
-function TUnitActionGoInOut.TileIsFree(X,Y: Word): Boolean; 
-begin
-  Result := fTerrain.TileInMapCoords(X,Y)
-        and (fTerrain.CheckPassability(KMPoint(X,Y), fUnit.GetDesiredPassability))
-        and (fTerrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(X,Y)))
-        and (fTerrain.Land[Y,X].IsUnit = nil);
 end;
 
 
@@ -203,12 +196,12 @@ var U: TKMUnit;
 begin
   Result := nil;
 
-  if fTerrain.TileInMapCoords(X,Y)
-  and (fTerrain.CheckPassability(KMPoint(X,Y), fUnit.GetDesiredPassability))
-  and (fTerrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(X,Y)))
-  and (fTerrain.Land[Y,X].IsUnit <> nil) then //If there's some unit we need to do a better check on him
+  if fGame.Terrain.TileInMapCoords(X,Y)
+  and (fGame.Terrain.CheckPassability(KMPoint(X,Y), fUnit.GetDesiredPassability))
+  and (fGame.Terrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(X,Y)))
+  and (fGame.Terrain.Land[Y,X].IsUnit <> nil) then //If there's some unit we need to do a better check on him
   begin
-    U := fTerrain.UnitsHitTest(X,Y); //Let's see who is standing there
+    U := fGame.Terrain.UnitsHitTest(X,Y); //Let's see who is standing there
 
     //Check that the unit is idling and not an enemy warrior, so that we can push it away
     if (U <> nil)
@@ -225,7 +218,7 @@ begin
   fUnit.Direction := dir_N;  //one cell up
   fUnit.Thought := th_None;
   fUnit.UpdateNextPosition(KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y-1));
-  fTerrain.UnitRem(fUnit.GetPosition); //Unit does not occupy a tile while inside
+  fGame.Terrain.UnitRem(fUnit.GetPosition); //Unit does not occupy a tile while inside
 
   //We are walking straight
   if fStreet.X = fDoor.X then
@@ -237,7 +230,7 @@ procedure TUnitActionGoInOut.WalkOut;
 begin
   fUnit.Direction := KMGetDirection(fDoor, fStreet);
   fUnit.UpdateNextPosition(fStreet);
-  fTerrain.UnitAdd(fUnit.NextPosition, fUnit); //Unit was not occupying tile while inside
+  fGame.Terrain.UnitAdd(fUnit.NextPosition, fUnit); //Unit was not occupying tile while inside
 
   if (fUnit.GetHome <> nil)
   and (fUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
@@ -324,7 +317,7 @@ begin
 
   if fWaitingForPush then
   begin
-    U := fTerrain.Land[fStreet.Y,fStreet.X].IsUnit;
+    U := fGame.Terrain.Land[fStreet.Y,fStreet.X].IsUnit;
     if (U = nil) then //Unit has walked away
     begin
       fWaitingForPush := False;

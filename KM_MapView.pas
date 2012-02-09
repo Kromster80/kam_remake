@@ -2,7 +2,7 @@ unit KM_MapView;
 {$I KaM_Remake.inc}
 interface
 uses Classes, dglOpenGL, KromUtils, KromOGLUtils, KM_Render, Math, SysUtils,
-  KM_Terrain, KM_Points, KM_Utils;
+  KM_MissionScript, KM_Terrain, KM_Points, KM_Utils;
 
 
 type
@@ -11,6 +11,7 @@ type
   private
     fRender: TRender; //Should be used to Gen and Update texture
     fOwnTerrain: Boolean;
+    fParser: TMissionParser;
     fMyTerrain: TTerrain;
     fMapY: Word;
     fMapX: Word;
@@ -21,7 +22,7 @@ type
     constructor Create(aRender: TRender; aTerrain: TTerrain);
     destructor Destroy; override;
 
-    procedure LoadTerrain(aMapPath: string);
+    procedure LoadTerrain(aMissionPath: string);
 
     property MapTex: TTexture read fMapTex;
     procedure Update(aMapEditor: Boolean);
@@ -32,7 +33,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Resource, KM_PlayersCollection, KM_Units_Warrior;
+uses KM_Defaults, KM_Resource, KM_PlayersCollection, KM_Units, KM_Units_Warrior;
 
 
 { TKMMinimap }
@@ -45,9 +46,15 @@ begin
   fOwnTerrain := (aTerrain = nil);
 
   if fOwnTerrain then
-    fMyTerrain := TTerrain.Create
+  begin
+    fMyTerrain := TTerrain.Create;
+    fParser := TMissionParser.Create(mpm_Single, False);
+  end
   else
+  begin
     fMyTerrain := aTerrain;
+    fParser := nil;
+  end;
 
   //Create texture handle
   glGenTextures(1, @fMapTex.Tex);
@@ -74,15 +81,19 @@ end;
 destructor TKMMapView.Destroy;
 begin
   if fOwnTerrain then
+  begin
     fMyTerrain.Free;
+    fParser.Free;
+  end;
+
   inherited;
 end;
 
 
 //Load map in a direct way, should be used only when in Menu
-procedure TKMMapView.LoadTerrain(aMapPath: string);
+procedure TKMMapView.LoadTerrain(aMissionPath: string);
 begin
-  fMyTerrain.LoadFromFile(aMapPath, True);
+  fParser.LoadMission(aMissionPath, fMyTerrain);
 end;
 
 
@@ -91,11 +102,16 @@ procedure TKMMapView.UpdateMinimap(aMapEditor: Boolean);
 var
   FOW,ID:byte;
   i,j,k:integer;
+  U: TKMUnit;
   W: TKMUnitWarrior;
   P: TKMPoint;
   DoesFit: Boolean;
   Light:smallint;
 begin
+  //MyPlayer.UpdateState();
+
+  MyPlayer := fPlayers[0];
+
   for i:=0 to fMapY-1 do
   for k:=0 to fMapX-1 do
   begin
@@ -109,11 +125,13 @@ begin
       if fMyTerrain.Land[i+1,k+1].TileOwner <> -1 then
         fBase[i*fMapX + k] := fPlayers.Player[fMyTerrain.Land[i+1,k+1].TileOwner].FlagColor
       else
-        if fMyTerrain.Land[i+1,k+1].IsUnit <> nil then
-          if fMyTerrain.Land[i+1,k+1].IsUnit.GetOwner <> PLAYER_ANIMAL then
-            fBase[i*fMapX + k] := fPlayers.Player[fMyTerrain.Land[i+1,k+1].IsUnit.GetOwner].FlagColor
+      begin
+        U := fMyTerrain.Land[i+1,k+1].IsUnit;
+        if U <> nil then
+          if U.GetOwner <> PLAYER_ANIMAL then
+            fBase[i*fMapX + k] := fPlayers.Player[U.GetOwner].FlagColor
           else
-            fBase[i*fMapX + k] := fResource.UnitDat[fMyTerrain.Land[i+1,k+1].IsUnit.UnitType].MinimapColor
+            fBase[i*fMapX + k] := fResource.UnitDat[U.UnitType].MinimapColor
         else
         begin
           ID := fMyTerrain.Land[i+1,k+1].Terrain;
@@ -122,6 +140,7 @@ begin
                                   EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
                                   EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;
         end;
+      end;
   end;
 
   //Scan all players units and paint all virtual group members

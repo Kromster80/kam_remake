@@ -144,9 +144,9 @@ begin
   begin
     fDatSize := GetFileSize(DatFile);
 
-    fMissionParser := TMissionParser.Create(mpm_Info,false);
+    fMissionParser := TMissionParser.Create(mpm_Info, false);
     try
-      fMissionParser.LoadMission(DatFile);
+      fMissionParser.LoadMission(DatFile, nil);
 
       //Single maps Titles are the same as filename for now.
       //Campaign maps are in different folder

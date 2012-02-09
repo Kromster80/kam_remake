@@ -34,6 +34,7 @@ type
     property ScreenY: Word read fScreenY;
 
     procedure BeginFrame;
+    procedure RenderBrightness(Value: Byte);
     procedure EndFrame;
   end;
 
@@ -134,6 +135,24 @@ begin
   //RC.Activate for OSX
 end;
 
+
+
+
+//Render highlight overlay to make whole picture look brighter (more saturated)
+procedure TRender.RenderBrightness(Value: Byte);
+begin
+  //There will be no change to image anyway
+  if Value = 0 then Exit;
+
+  glLoadIdentity;
+  glBlendFunc(GL_DST_COLOR, GL_ONE);
+  glColor4f(Value/20, Value/20, Value/20, Value/20);
+  glBegin(GL_QUADS);
+    glkRect(0, 0, ScreenX, ScreenY);
+  glEnd;
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+end;
 
 procedure TRender.EndFrame;
 begin

@@ -2,7 +2,8 @@ unit KM_UnitTaskMining;
 {$I KaM_Remake.inc}
 interface
 uses Math, SysUtils,
-  KM_CommonClasses, KM_Units, KM_Units_Workplan, KM_Points, KM_Defaults, KM_Terrain;
+  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_Units, KM_Units_Workplan, KM_Terrain;
 
 
 {Perform resource mining}
@@ -15,7 +16,7 @@ type
     function ChooseToCutOrPlant: TPlantAct;
     procedure FindAnotherWorkPlan;
   public
-    constructor Create(aUnit: TKMUnit; aRes: TResourceType);
+    constructor Create(aUnit: TKMUnit; aTerrain: TTerrain; aRes: TResourceType);
     destructor Destroy; override;
     function WalkShouldAbandon:boolean; override;
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -30,11 +31,11 @@ uses KM_Houses, KM_PlayersCollection, KM_Resource;
 
 
 { TTaskMining }
-constructor TTaskMining.Create(aUnit: TKMUnit; aRes: TResourceType);
+constructor TTaskMining.Create(aUnit: TKMUnit; aTerrain: TTerrain; aRes: TResourceType);
 begin
-  Inherited Create(aUnit);
+  Inherited Create(aUnit, aTerrain);
   fTaskName := utn_Mining;
-  fWorkPlan := TUnitWorkPlan.Create;
+  fWorkPlan := TUnitWorkPlan.Create(fTerrain);
   fBeastID  := 0;
 
   fWorkPlan.FindPlan( fUnit.UnitType,
@@ -88,10 +89,10 @@ begin
 end;
 
 
-constructor TTaskMining.Load(LoadStream:TKMemoryStream);
+constructor TTaskMining.Load(LoadStream: TKMemoryStream);
 begin
   Inherited;
-  fWorkPlan := TUnitWorkPlan.Create;
+  fWorkPlan := TUnitWorkPlan.Create(nil);
   fWorkPlan.Load(LoadStream);
   LoadStream.Read(fBeastID);
 end;

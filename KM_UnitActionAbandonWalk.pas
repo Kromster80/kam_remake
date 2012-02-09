@@ -23,7 +23,7 @@ type
 
 
 implementation
-uses KM_Terrain, KM_Resource;
+uses KM_Resource;
 
 
 { TUnitActionAbandonWalk }
@@ -41,7 +41,7 @@ destructor TUnitActionAbandonWalk.Destroy;
 begin
   if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
   begin
-    fTerrain.UnitVertexRem(fVertexOccupied); //Unoccupy vertex
+    fUnit.VertexRem(fVertexOccupied); //Unoccupy vertex
     fVertexOccupied := KMPoint(0,0);
   end;
   Inherited;
@@ -84,7 +84,7 @@ begin
     fUnit.IsExchanging := false; //Disable sliding (in case it was set in previous step)
     if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
     begin
-      fTerrain.UnitVertexRem(fVertexOccupied); //Unoccupy vertex
+      fUnit.VertexRem(fVertexOccupied); //Unoccupy vertex
       fVertexOccupied := KMPoint(0,0);
     end;
     StepDone := true;
