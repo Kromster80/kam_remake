@@ -1,232 +1,232 @@
 
 MaxID:221
 
-1:
-2:
-3:
-4:
-5:
-202:
-203:
-6:
-7:
-8:
-9:
-10:
-11:
-12:
-13:
-14:
-16:
-17:
-18:
-19:
-20:
-21:
-22:
-23:
-24:
-141:
-25:
-143:
-26:
-27:
+1:Misia ukonèená
+2:Vıuka stavby
+3:Vıuka boja
+4:Hra jedného hráèa
+5:Editor mapy
+202:Záznamy z hry
+203:Ukáza záznam
+6:Pozrie poslednı záznam
+7:Zaèa misiu
+8:Názov
+9:Ve¾kos
+10:Typ misie: %s
+11:Podmienky víazstva: %s
+12:Podmienyk poráky: %s
+13:Spojenci:
+14:Nepriatelia:
+16:Ve¾kos novej mapy
+17:Šírka
+18:Vıška
+19:Vytvori novú mapu
+20:Dostupné mapy
+21:Naèíta existujúcu mapu
+22:Ovládanie:
+23:Hra:
+24:Zvuk:
+141:Rıchlos obrazu
+25:Zakáza hudbu
+143:Prechádza skladby
+26:Grafika:
+27:Jas
 221:
-28:
-29:
-30:
-31:
-216:
-217:
-218:
-219:
-220:
-215:
-208:
-209:
-210:
-32:
-212:
-33:
-34:
-35:
-36:
-37:
-38:
-39:
-40:
-41:
-139:
-140:
+28:Celá obrazovka
+29:Poui
+30:Jazyk:
+31:Nahrávam... Èakajte prosím
+216:Naèítavam jednotky
+217:Naèítavam budovy
+218:Naèítavam stromy
+219:Naèítavam definície
+220:Naèítavam prvky krajiny
+215:Naèítava prídavné súèasti
+208:inicializuje sa
+209:Inicializácia hry pre viac hráèov
+210:Naèítavam skripty
+32:Nastala chyba!
+212:Nastala chyba pri analıze súboru %s
+33:Nahrávam novú lokáciu
+34:Zoznam uloenıch hier
+35:Názov súboru
+36:Popis
+37:Naèíta
+38:Odstráni
+39:Naozaj chcete odstráni túto uloenú hru?
+40:Odstráni
+41:Storno
+139:Multiplayerové mapy
+140:Singleplayerové mapy
 
-43:
-44:
-45:
-46:
-47:
-48:
-49:
-50:
-51:
-166:
-167:
-168:
-171:
-172:
-173:
-52:
-53:
-54:
-55:
-56:
-57:
-58:
-59:
-60:
-205:
-206:
-211:
-194:
+43:Zvíazli ste!
+44:Pokraèova v hre
+45:Víazstvo
+46:Prehrali ste!
+47:Pokraèova
+48:Poráka
+49:Prehrávanie skonèilo
+50:Pokraèova
+51:Spä do menu
+166:Vyhodi hráèa
+167:Hos bude môc vyhodi tyto hráèa za %d sekúnd
+168:Hos teraz môe vyhodi tıchto hráèov
+171:Naozaj chcete skonèi?
+172:Ste si istı, e chcete vyhodi tıchto hráèov z hry?
+173:Storno
+52:Nedostupné
+53:Stlaète %s na pokraèovanie v hre
+54:Tımu
+55:Informácie o hráèoch
+56:Chat
+57:Uloená hra u existuje
+58:Prepísa
+59:Uloi
+60:Naèíta
+205:Nepodporovanı formát %s
+206:Nepodporovaná verzia %s
+211:Nová misia
+194:Èas hry:|%s
 
-61:
-62:
-63:
-64:
-65:
-66:
-67:
-68:
-150:
-151:
+61:Poèas hry došlo k chybe
+62:Prosím pošlite súbor %s z Vášho adresára KaM Remake\\Crash Reports vıvojárom. Kontaktné údaje nájdete v Readme. Ïakujeme za Vašu pomoc!
+63:Detekovaná stará verzia OpenGL, hra môe bea pomaly alebo s grafickımi chybami\nProsím aktualizujte svoje ovládaèe na dosiahnutie lepšieho vıkonu.
+64:Sieová chyba:
+65:Chyba: Musíte zada svoje meno
+66:Spojenie sa nepodarilo: %s
+67:Boli ste odpojenı
+68:Misia %d
+150:Stavanie a bojovanie
+151:Bojovanie
 
-69:
-70:
+69:Váš rybár je príliš ïaleko od vody.
+70:Váš rybár nemôe chyti iadne ïalšie ryby vo vode, ktorú má nablízku.
 
-71:
-72:
-73:
-74:
-75:
-162:
-161:
-184:
-185:
-186:
+71:Trnica
+72:Pouite ¾avé tlaèítko myši na vıber tovaru
+73:Pouite pravé tlaèítko myši na vıber tovaru
+74:Dám x%d
+75:Chcem x%d
+162:Zníi mnostvo
+161:Zvıši mnostvo
+184:Obchodovanie s tımto tovarom v tejto misii nie je moné.
+185:sadi a stína
+186:Iba stína
 
-76:
-77:
-78:
-79:
-80:
+76:Editácia terénu
+77:Plánovanie dediny
+78:Vizuálne skripty
+79:Všeobecné skriptovanie
+80:Menu
 
-82:
-81:
-83:
-84:
-85:
-86:
-87:
-88:
-89:
-90:
-91:
-92:
-93:
-94:
-144:
-95:
-96:
-97:
-98:
-153:
-99:
-159:
-100:
-101:
-142:
+82:Meno hráèa
+81:Stav:
+83:VYTVORI SERVER
+84:Meno
+85:Port
+86:Vytvori lokálny server
+87:Vytvori internetovı server
+88:Meno serveru
+89:Stav
+90:Hráèi
+91:Ping
+92:Obnovi zoznam serverov
+93:DETAILY SERVERU
+94:Zoznam hráèov:
+144:Info o hre:
+95:IP adresa
+96:Port
+97:Miesto
+98:Pripoji
+153:Pripravenı
+99:Pripájam sa, èakajte prosím...
+159:Odlišná verzia: %s. Server pouíva: %s
+100:Naèítavam...
+101:Obnovujem...
+142:Nenájdenı iadny server
 145:-
-146:
-147:
-148:
+146:Lobby
+147:Naèítavanie
+148:Hra
 
-102:
-103:
-104:
-105:
-106:
-107:
-108:
-109:
-213:
-110:
-111:
-112:
-113:
-114:
-115:
-117:
-118:
-119:
-188:
-189:
-190:
-120:
-121:
-122:
-123:
-124:
-125:
-126:
-127:
-195:
-204:
-128:
-129:
-152:
-130:
-149:
-154:
-155:
-156:
-157:
-158:
-160:
-187:
-214:
+102:Zoznam hráèov
+103:Pozícia
+104:Tım
+105:Farba
+106:Pripravenı
+107:Ping
+108:Preè
+109:Otvorené
+213:Zatvorené
+110:Poèítaè
+111:Vybra...
+112:Náhodne
+113:Prázdne
+114:iadna
+115:Tım %d
+117:Odosla správu:
+118:Typ mapy
+119:Samostatná mapa
+188:Stavanie
+189:Bojovanie
+190:Kooperácia
+120:Uloená hra
+121:Vyberte mapu...
+122:Vyberte uloenú hru...
+123:Info o mape:
+124:Hráèi: %d
+125:Mód:
+126:Podmienky k víazstvu:
+127:Ve¾kos:
+195:Nastavenia hry:
+204:Doba mieru (minúty):
+128:Opusti ponuku:
+129:Pripravenı
+152:Nepripravenı
+130:Štart!
+149:Lokácia %d
+154:Chyba: Vyberte prosím hráèa z uloenej hry
+155:Chyba: Mapa sa nedá naèíta alebo nebola iadna vybraná
+156:Nie je moné zaèa: %s
+157:Nikto nie je pripravenı na štart
+158:Poèet hráèov prekraèuje limit mapy
+160:Server Vám pridelil práva správcu
+187:Hra u zaèala
+214:Správa vykonáva nastavenia
 
-131:
-163:
-164:
-169:
-170:
-191:
-192:
-193:
+131:Èakanie na ostatnıch hráèov:
+163:Ukladám hru...
+164:%s bol porazenı!
+169:Hos (%s) sa odpojil
+170:Spojenie zo serverem sa stratilo. Pokúšam sa opä naviaza spojenie...
+191:V období mieru je toto zakázané
+192:Koniec obdobia mieru za: %s
+193:Koniec obdobia mieru. Do zbrane!
 
-174:
-175:
-176:
-177:
-178:
-179:
-180:
-181:
-182:
-183:
+174:Vycvièenıch|obèanov
+175:Stratenıch|obèanov
+176:Vycièenıch|vojakov
+177:Stratenıch|vojakov
+178:Porazenıch|jendotiek
+179:Postavenıch|budov
+180:Stratenıch|budov
+181:Znièenıch|budov
+182:Vytvorenıch|produktov
+183:Vyrobenıch|zbraní
 
-196:
-197:
-198:
+196:H
+197:L
+198:S
 
-199:
-200:
-201:
+199:Zastavi oddiel  ('%s')
+200:Spoji oddiel ('%s')
+201:Samostatnı vojak ('%s')
 
-132:
-133:
-134:
-135:
-136:
-165:
-137:
-138:
+132:O hre KaM Remake 
+133:O originálnej hre Knights & Merchants
+134:PROGRAMOVANIE:
+135:ÏALŠIE PROGRAMOVANIE:
+136:ÏALŠIA GRAFIKA:
+165:OSTATNÉ ZVUKY:
+137:OSTATNÉ PREKLADY:
+138:ŠPECIÁLNE POÏAKOVANIE:
