@@ -534,22 +534,26 @@ type
     );
 
   THouseStage = (
-    hs_None, //Nothing, clear area
-    hs_Fence,//Wooden fence, partially walkable
-    hs_StartBuild, //Entering Wood stage, no longer walkable
-    hs_Built //Done
+    hsNone,        //Nothing, clear area
+    hsFence,       //Wooden fence, partially walkable as workers digg it up
+    hsBuilt        //Done
   );
 
-  TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall );
+  TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall);
 
-  TMarkup = (
-        mu_None=0,              //Nothing
-        mu_HouseFenceCanWalk,   //Wooden fence outline of house area, undigged and walkable
-        mu_HouseFenceNoWalk,    //Wooden fence outline of house area, digged and non-walkable
-        mu_HouseFenceBlocked,   //Wooden fence outline of house area, digged and non-walkable to Workers
-
-        mu_House,               //Actual house, which is not rendered and is used in here to siplify whole thing
-        mu_UnderConstruction    //Underconstruction tile, house area being flattened and roadworks
+  //There are 4 steps in tile blocking scheme:
+  // 0. Tile is normally walkable
+  // 1. Set the tile as CantBuild
+  // 2. Sets the tile as CantWalk to anyone except workers who are performing
+  //    the digging task, so they could escape the area.
+  //    The Worker will push out any unit on his way.
+  //    sidenote: CanElevate is per-vertex property, hence it's not identical to CanWorker
+  // 3. Set the tile as fully blocked
+  TTileLock = (     // CanBuild CanWalk CanWorker CanElevate Digged Fenced
+        tlNone,     // X        X         X       X          -      -
+        tlFenced,   // -        X         X       X          -      X
+        tlDigged,   // -        -         X       X          X      X
+        tlLocked    // -        -         -       -          X      -
         );
 
   TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);

@@ -1,7 +1,7 @@
 unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, SysUtils,
+uses Classes, KromUtils, Math, SysUtils, Graphics,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils;
 
 
@@ -31,7 +31,7 @@ type
       FieldAge:word; //Empty=0, 1, 2, 3, 4, Full=65535  Depending on this special object maybe rendered (straw, grapes)
 
       //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
-      Markup:TMarkup; //Markup (ropes) used on-top of tiles for roads/fields/houseplan/housearea
+      Markup: TTileLock; //Markup (ropes) used on-top of tiles for roads/fields/houseplan/housearea
 
       //Used to display half-dug road
       TileOverlay:TTileOverlay; //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
@@ -67,7 +67,7 @@ type
     property MapX: Word read fMapX;
     property MapY: Word read fMapY;
 
-    procedure SetMarkup(aLoc: TKMPoint; aMarkup: TMarkup);
+    procedure SetMarkup(aLoc: TKMPoint; aMarkup: TTileLock);
     procedure SetRoads(aList: TKMPointList; aOwner: TPlayerIndex);
     procedure SetField(Loc: TKMPoint; aOwner: TPlayerIndex; aFieldType: TFieldType);
     procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TPlayerIndex; const aFlattenTerrain: Boolean = False);
@@ -230,7 +230,7 @@ begin
     //Uncomment to enable random trees, but we don't want that for the map editor by default
     //if KaMRandom(16)=0 then Obj := ChopableTrees[KaMRandom(13)+1,4];
     TileOverlay  := to_None;
-    Markup       := mu_None;
+    Markup       := tlNone;
     Passability  := []; //Gets recalculated later
     TileOwner    := -1;
     IsUnit       := nil;
@@ -669,7 +669,7 @@ end;
 
 
 {Place markup on tile, any new markup replaces old one, thats okay}
-procedure TTerrain.SetMarkup(aLoc: TKMPoint; aMarkup: TMarkup);
+procedure TTerrain.SetMarkup(aLoc: TKMPoint; aMarkup: TTileLock);
 begin
   Land[aLoc.Y, aLoc.X].Markup := aMarkup;
   RecalculatePassabilityAround(aLoc);
@@ -686,7 +686,7 @@ end;
 {Remove markup from tile}
 procedure TTerrain.RemMarkup(Loc:TKMPoint);
 begin
-  Land[Loc.Y,Loc.X].Markup := mu_None;
+  Land[Loc.Y,Loc.X].Markup := tlNone;
   RecalculatePassabilityAround(Loc);
 
   //Markups affect passability so therefore also floodfill
@@ -1141,8 +1141,8 @@ begin
       //Check surrounding tiles in +/- 1 range for other houses pressence
       if not (CanBuild in Land[P2.Y,P2.X].Passability) then
       for s:=-1 to 1 do for t:=-1 to 1 do
-      if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
-      if Land[P2.Y+t,P2.X+s].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked, mu_House] then
+      if (s<>0) or (t<>0) then  //This is a surrounding tile, not the actual tile
+      if Land[P2.Y+t,P2.X+s].Markup <> tlNone then
       begin
         MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
         AllowBuild := false;
@@ -1356,166 +1356,159 @@ var
     Land[aLoc.Y,aLoc.X].Passability:=Land[aLoc.Y,aLoc.X].Passability + aPass;
   end;
 
-  function IsObjectsNearby(X,Y:integer):boolean;
-  var i,k:integer;
+  function IsObjectsNearby(X,Y:integer): Boolean;
+  var I,K: Integer; P: TKMPoint;
   begin
-    Result := false;
-    for i:=-1 to 1 do
-      for k:=-1 to 1 do
-        if TileInMapCoords(X+i,Y+k)and((i<>0)or(k<>0)) then
+    Result := False;
+    for I := -1 to 1 do
+      for K := -1 to 1 do
+        if ((I<>0) or (K<>0)) and TileInMapCoords(X+I, Y+K) then
         begin
+          P := KMPoint(X+I, Y+K);
+
           //Tiles next to it can't be trees/stumps
-          if MapElem[Land[Y+k,X+i].Obj+1].DontPlantNear then Result:=true;
+          if MapElem[Land[P.Y,P.X].Obj+1].DontPlantNear then
+            Result := True;
+
           //Tiles above or to the left can't be road/field/markup
-          if (i<=0)and(k<=0) then
-            if (Land[Y+k,X+i].Markup<>mu_None)or(Land[Y+k,X+i].TileOverlay = to_Road)or
-              (TileIsCornField(KMPoint(X+i,Y+k)))or(TileIsWineField(KMPoint(X+i,Y+k))) then
-              Result := true;
+          if (I <= 0) and (K <= 0) then
+            if (Land[P.Y,P.X].Markup <> tlNone)
+            or (Land[P.Y,P.X].TileOverlay = to_Road)
+            or TileIsCornField(P)
+            or TileIsWineField(P) then
+              Result := True;
+
+          if Result then Exit;
         end;
   end;
 begin
-  Assert(TileInMapCoords(Loc.X,Loc.Y)); //First of all exclude all tiles outside of actual map
+  Assert(TileInMapCoords(Loc.X, Loc.Y)); //First of all exclude all tiles outside of actual map
 
   Land[Loc.Y,Loc.X].Passability := [];
 
   //For all passability types other than CanAll, houses and fenced houses are excluded
-  if not(Land[Loc.Y,Loc.X].Markup in [mu_House, mu_HouseFenceNoWalk, mu_HouseFenceBlocked]) then
+  if Land[Loc.Y,Loc.X].Markup in [tlNone, tlFenced] then
   begin
 
-   if (TileIsWalkable(Loc))and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
-      CheckHeightPass(Loc,CanWalk) then
-     AddPassability(Loc, [CanWalk]);
+    if TileIsWalkable(Loc)
+    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
+    and CheckHeightPass(Loc, CanWalk) then
+      AddPassability(Loc, [CanWalk]);
 
-   if (Land[Loc.Y,Loc.X].TileOverlay=to_Road)and
-      CheckPassability(Loc,CanWalk) then //Not all roads are walkable, they must also have CanWalk passability
-     AddPassability(Loc, [CanWalkRoad]);
+    if (Land[Loc.Y,Loc.X].TileOverlay = to_Road)
+    and (CanWalk in Land[Loc.Y,Loc.X].Passability) then //Not all roads are walkable, they must also have CanWalk passability
+      AddPassability(Loc, [CanWalkRoad]);
 
-   //Check for houses around this tile
-   HousesNearBy := false;
-   for i:=-1 to 1 do
-     for k:=-1 to 1 do
-       if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-         if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_HouseFenceBlocked,mu_House]) then
-           HousesNearBy := true;
+    //Check for houses around this tile
+    HousesNearBy := False;
+    for i := -1 to 1 do
+    for k := -1 to 1 do
+      if TileInMapCoords(Loc.X+k, Loc.Y+i)
+      and (Land[Loc.Y+i,Loc.X+k].Markup <> tlNone) then
+        HousesNearBy := True;
 
-   if (TileIsRoadable(Loc))and
-      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))and //Only certain objects are excluded
-      (Land[Loc.Y,Loc.X].Markup=mu_None)and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (not TileIsCornField(Loc))and
-      (not TileIsWineField(Loc))and //Can't build houses on fields
-      (TileInMapCoords(Loc.X,Loc.Y,1))and
-      (not HousesNearBy)and
-      CheckHeightPass(Loc,CanBuild) then //No houses nearby
+    if TileIsRoadable(Loc)
+    and ((Land[Loc.Y,Loc.X].Obj = 255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved)) //Only certain objects are excluded
+    and not HousesNearBy
+    and not TileIsCornField(Loc) //Can't build houses on fields
+    and not TileIsWineField(Loc)
+    and TileInMapCoords(Loc.X, Loc.Y, 1)
+    and CheckHeightPass(Loc, CanBuild) then //No houses nearby
       AddPassability(Loc, [CanBuild]);
 
-   if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])and
-      (Land[Loc.Y,Loc.X].Rotation mod 4 = 0)and //only horizontal mountain edges allowed
-      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))and
-      (Land[Loc.Y,Loc.X].Markup=mu_None)and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (not TileIsCornField(Loc))and
-      (not TileIsWineField(Loc))and //Can't build houses on fields
-      (TileInMapCoords(Loc.X,Loc.Y,1))and
-      (not HousesNearBy)and //No houses nearby
-      CheckHeightPass(Loc,CanBuildIron) then
-     AddPassability(Loc, [CanBuildIron]);
+    if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])
+    and (Land[Loc.Y,Loc.X].Rotation mod 4 = 0) //only horizontal mountain edges allowed
+    and ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))
+    and not HousesNearBy
+    and not TileIsCornField(Loc) //Can't build houses on fields
+    and not TileIsWineField(Loc)
+    and TileInMapCoords(Loc.X,Loc.Y, 1)
+    and CheckHeightPass(Loc, CanBuildIron) then
+      AddPassability(Loc, [CanBuildIron]);
 
-   if (Land[Loc.Y,Loc.X].Terrain in [171..175])and
-      (Land[Loc.Y,Loc.X].Rotation mod 4 = 0)and
-      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))and
-      (Land[Loc.Y,Loc.X].Markup=mu_None)and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (not TileIsCornField(Loc))and
-      (not TileIsWineField(Loc))and //Can't build houses on fields
-      (TileInMapCoords(Loc.X,Loc.Y,1))and
-      (not HousesNearBy)and //No houses nearby
-      CheckHeightPass(Loc,CanBuildGold) then
-     AddPassability(Loc, [CanBuildGold]);
+    if (Land[Loc.Y,Loc.X].Terrain in [171..175])
+    and (Land[Loc.Y,Loc.X].Rotation mod 4 = 0)
+    and ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))
+    and not HousesNearBy
+    and not TileIsCornField(Loc) //Can't build houses on fields
+    and not TileIsWineField(Loc)
+    and TileInMapCoords(Loc.X,Loc.Y, 1)
+    and CheckHeightPass(Loc,CanBuildGold) then
+      AddPassability(Loc, [CanBuildGold]);
 
-   if (TileIsRoadable(Loc))and
-      (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
-      (Land[Loc.Y,Loc.X].Markup=mu_None)and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Road)and
-      CheckHeightPass(Loc,CanMakeRoads) then
-     AddPassability(Loc, [CanMakeRoads]);
+    if TileIsRoadable(Loc)
+    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked //todo: Add to houses too?
+    and (Land[Loc.Y,Loc.X].Markup = tlNone)
+    and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
+    and CheckHeightPass(Loc,CanMakeRoads) then
+      AddPassability(Loc, [CanMakeRoads]);
 
-   if (TileIsSoil(Loc))and
-      (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
-      (Land[Loc.Y,Loc.X].Markup=mu_None)and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)and
-      (not TileIsWineField(Loc))and
-      (not TileIsCornField(Loc))and
-      CheckHeightPass(Loc,CanMakeFields) then
-     AddPassability(Loc, [CanMakeFields]);
+    if TileIsSoil(Loc)
+    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
+    and (Land[Loc.Y,Loc.X].Markup = tlNone)
+    and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
+    and not TileIsWineField(Loc)
+    and not TileIsCornField(Loc)
+    and CheckHeightPass(Loc,CanMakeFields) then
+      AddPassability(Loc, [CanMakeFields]);
 
-   if (TileIsSoil(Loc))and
-      (not IsObjectsNearby(Loc.X,Loc.Y))and //This function checks surrounding tiles
-      (Land[Loc.Y,Loc.X].Markup=mu_None)and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (Loc.X > 1)and(Loc.Y > 1)and //Not top/left of map, but bottom/right is ok
-      (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)and
-      (not HousesNearBy)and
-      ((Land[Loc.Y,Loc.X].Obj=255) or ObjectIsChopableTree(KMPoint(Loc.X,Loc.Y),6))and
-      CheckHeightPass(Loc,CanPlantTrees) then
-     AddPassability(Loc, [CanPlantTrees]);
+    if TileIsSoil(Loc)
+    and not IsObjectsNearby(Loc.X,Loc.Y) //This function checks surrounding tiles
+    and (Land[Loc.Y,Loc.X].Markup = tlNone)
+    and (Loc.X > 1) and (Loc.Y > 1) //Not top/left of map, but bottom/right is ok
+    and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
+    and not HousesNearBy
+    and ((Land[Loc.Y,Loc.X].Obj=255) or ObjectIsChopableTree(KMPoint(Loc.X,Loc.Y),6))
+    and CheckHeightPass(Loc, CanPlantTrees) then
+      AddPassability(Loc, [CanPlantTrees]);
 
-   if TileIsWater(Loc) then
-     AddPassability(Loc, [CanFish]);
+    if TileIsWater(Loc) then
+      AddPassability(Loc, [CanFish]);
 
-   if (TileIsSand(Loc))and
-      (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
-      (Land[Loc.Y,Loc.X].Markup<>mu_HouseFenceBlocked)and
-      (Land[Loc.Y,Loc.X].Markup<>mu_HouseFenceNoWalk)and
-      (Land[Loc.Y,Loc.X].Markup<>mu_House)and
-      (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction)and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Road)and
-      (not TileIsCornField(Loc))and
-      (not TileIsWineField(Loc))and
-      CheckHeightPass(Loc,CanCrab) then //Can't crab on houses, fields and roads (can walk on markups so you can't kill them by placing a house on top of them)
-     AddPassability(Loc, [CanCrab]);
+    if TileIsSand(Loc)
+    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
+    //Markup checked in outer begin/end
+    and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
+    and not TileIsCornField(Loc)
+    and not TileIsWineField(Loc)
+    and CheckHeightPass(Loc, CanCrab) then //Can't crab on houses, fields and roads (can walk on markups so you can't kill them by placing a house on top of them)
+      AddPassability(Loc, [CanCrab]);
 
-   if (TileIsSoil(Loc))and
-      (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
-      (not TileIsCornField(Loc))and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (not TileIsWineField(Loc))and
-      CheckHeightPass(Loc,CanWolf) then
-     AddPassability(Loc, [CanWolf]);
+    if TileIsSoil(Loc)
+    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
+    //Markup checked in outer begin/end
+    //Wolf are big enough to run over roads, right?
+    and not TileIsCornField(Loc)
+    and not TileIsWineField(Loc)
+    and CheckHeightPass(Loc,CanWolf) then
+      AddPassability(Loc, [CanWolf]);
   end;
 
-  if (TileIsWalkable(Loc)) and
-    (Land[Loc.Y,Loc.X].TileOverlay <> to_Wall) and
-    not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked and
-    CheckHeightPass(Loc, CanWalk) and
-    not (Land[Loc.Y,Loc.X].Markup in[mu_HouseFenceBlocked,mu_House]) then
+  if TileIsWalkable(Loc)
+  and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
+  and CheckHeightPass(Loc, CanWalk)
+  and (Land[Loc.Y,Loc.X].Markup <> tlLocked) then
     AddPassability(Loc, [CanWorker]);
 
   //Check all 4 tiles that border with this vertex
-  if TileIsFactorable(KMPoint(Loc.X  ,Loc.Y)) and
-     TileIsFactorable(KMPoint(Loc.X-1,Loc.Y)) and
-     TileIsFactorable(KMPoint(Loc.X  ,Loc.Y-1)) and
-     TileIsFactorable(KMPoint(Loc.X-1,Loc.Y-1)) then
+  if TileIsFactorable(KMPoint(Loc.X  ,Loc.Y))
+  and TileIsFactorable(KMPoint(Loc.X-1,Loc.Y))
+  and TileIsFactorable(KMPoint(Loc.X  ,Loc.Y-1))
+  and TileIsFactorable(KMPoint(Loc.X-1,Loc.Y-1)) then
     AddPassability(Loc, [canFactor]);
 
- //Check for houses around this vertice(!) Use only with CanElevate since it's vertice-based!
- HousesNearBy := false;
- for i:=-1 to 0 do
-   for k:=-1 to 0 do
-     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-       if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_House])or
-          (Land[Loc.Y,Loc.X].TileOverlay=to_Wall) then
-         HousesNearBy := true;
+ //Check for houses around this vertice(!)
+ //Use only with CanElevate since it's vertice-based!
+ HousesNearBy := False;
+ for i := -1 to 0 do
+ for k := -1 to 0 do
+   if TileInMapCoords(Loc.X+k, Loc.Y+i) then
+   if (Land[Loc.Y+i,Loc.X+k].Markup = tlLocked) then
+     HousesNearBy := True;
 
- if (VerticeInMapCoords(Loc.X,Loc.Y))and
-    (not HousesNearBy) then
+ if VerticeInMapCoords(Loc.X,Loc.Y)
+ and not HousesNearBy then
    AddPassability(Loc, [CanElevate]);
-
 end;
 
 
@@ -1583,17 +1576,17 @@ function TTerrain.GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoin
 var i,k:integer; L1,L2,L3:TKMPointList; TempUnit: TKMUnit; Loc2IsOk: boolean;
 begin
   //List 1 holds all available walkable positions except self
-  L1:=TKMPointList.Create;
+  L1 := TKMPointList.Create;
   for i:=-1 to 1 do for k:=-1 to 1 do
-    if (i<>0)or(k<>0) then
-      if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-        if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
-          if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
-            if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
-              L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
+    if ((i<>0) or (k<>0))
+    and TileInMapCoords(Loc.X+k, Loc.Y+i)
+    and CanWalkDiagonaly(Loc, KMPoint(Loc.X+k, Loc.Y+i)) //Check for trees that stop us walking on the diagonals!
+    and (Land[Loc.Y+i,Loc.X+k].Markup in [tlNone, tlFenced])
+    and (aPass in Land[Loc.Y+i,Loc.X+k].Passability) then
+      L1.AddEntry(KMPoint(Loc.X+k, Loc.Y+i));
 
   //List 2 holds the best positions, ones which are not occupied
-  L2:=TKMPointList.Create;
+  L2 := TKMPointList.Create;
   for i:=1 to L1.Count do
     if Land[L1.List[i].Y,L1.List[i].X].IsUnit = nil then
       L2.AddEntry(L1.List[i]);
@@ -1630,15 +1623,17 @@ var i,k:integer; L1,L2:TKMPointList;
 begin
   //List 1 holds all positions next to both Loc and Loc2
   L1 := TKMPointList.Create;
-  for i:=-1 to 1 do for k:=-1 to 1 do
-  if ((i<>0)or(k<>0)) and TileInMapCoords(Loc.X+k,Loc.Y+i) then //Valid tile for test
-  if not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i),Loc2) then
-  if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
-  if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
-  if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
-  if KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1 then //Right next to Loc2 (not diagonal)
-  if not HasUnit(KMPoint(Loc.X+k,Loc.Y+i)) then //Doesn't have a unit
-    L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
+  for i:=-1 to 1 do
+  for k:=-1 to 1 do
+    if ((i <> 0) or (k <> 0))
+    and TileInMapCoords(Loc.X+k,Loc.Y+i)
+    and not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i), Loc2)
+    and (aPass in Land[Loc.Y+i,Loc.X+k].Passability)
+    and CanWalkDiagonaly(Loc, KMPoint(Loc.X+k,Loc.Y+i)) //Check for trees that stop us walking on the diagonals!
+    and (Land[Loc.Y+i,Loc.X+k].Markup in [tlNone, tlFenced])
+    and (KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1) //Right next to Loc2 (not diagonal)
+    and not HasUnit(KMPoint(Loc.X+k,Loc.Y+i)) then //Doesn't have a unit
+      L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
 
   //List 2 holds the best positions, ones which are also next to Loc3 (next position)
   L2 := TKMPointList.Create;
@@ -1686,6 +1681,19 @@ begin
     CanWorker:    WC := wcWork;
     else Exit;
   end;
+
+  {if WC = wcWork then
+  with TBitmap.Create do
+  begin
+    Width := fMapX;
+    Height:= fMapY;
+    PixelFormat := pf32bit;
+    for I := 0 to Height-1 do
+      for K := 0 to Width-1 do
+        Canvas.Pixels[K,I] := Land[I+1,K+1].WalkConnect[wcWork] * 32;
+    SaveToFile(ExeDir + 'wcWork.bmp');
+    Free;
+  end;}
 
   //Walkable way between A and B is proved by FloodFill
   //TODO: BUG+ here when Worker goes on building area
@@ -1993,11 +2001,10 @@ var I,J,K{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability; AllowDiag:
   end;
 
 begin
-
+  //Process all items from set
   for J := Low(aSet) to High(aSet) do
   begin
     WC := aSet[J];
-
 
     case WC of
       wcWalk:  Pass := CanWalk;
@@ -2005,6 +2012,7 @@ begin
       wcFish:  Pass := CanFish;
       wcWolf:  Pass := CanWolf;
       wcCrab:  Pass := CanCrab;
+      wcWork:  Pass := CanWorker;
       wcAvoid: Pass := CanWalk; //Special case for unit interaction avoiding
     end;
 
@@ -2048,7 +2056,7 @@ begin
   else
     ToFlatten := nil;
 
-  if aHouseStage = hs_None then
+  if aHouseStage = hsNone then
     SetHouseAreaOwner(Loc, aHouseType, -1)
   else
     SetHouseAreaOwner(Loc, aHouseType, aOwner);
@@ -2064,14 +2072,13 @@ begin
       if TileInMapCoords(x,y) then
       begin
         case aHouseStage of
-          hs_None:        Land[y,x].Markup := mu_None;
-          hs_Fence:       Land[y,x].Markup := mu_HouseFenceCanWalk; //Initial state, Laborer should assign NoWalk to each tile he digs
-          hs_StartBuild:  Land[y,x].Markup := mu_HouseFenceBlocked; //Become unwalkable to Workers
-          hs_Built:       begin
+          hsNone:         Land[y,x].Markup := tlNone;
+          hsFence:        Land[y,x].Markup := tlFenced; //Initial state, Laborer should assign NoWalk to each tile he digs
+          hsBuilt:        begin
                             //Script houses are placed as built, add markup for them too
-                            Land[y,x].Markup := mu_House;
+                            Land[y,x].Markup := tlLocked;
 
-                            //Add road after Wood stage is done
+                            //Add road for scipted houses
                             if HA[i,k] = 2 then
                               Land[y,x].TileOverlay := to_Road;
 
@@ -2127,23 +2134,24 @@ end;
 
 
 {Check if house can be placed in that place}
-function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType): boolean;
-var i,k:integer; HA:THouseArea;
+function TTerrain.CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType): Boolean;
+var I,K: Integer; HA: THouseArea;
 begin
-  Result:=true;
+  Result := True;
   HA := fResource.HouseDat[aHouseType].BuildArea;
-  Loc.X:=Loc.X-fResource.HouseDat[aHouseType].EntranceOffsetX; //update offset
-  for i:=1 to 4 do for k:=1 to 4 do
-    if HA[i,k]<>0 then begin
-      Result := Result AND TileInMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
-      Result := Result AND (Land[Loc.Y+i-4,Loc.X+k-3].Markup<>mu_UnderConstruction);
+  Loc.X := Loc.X - fResource.HouseDat[aHouseType].EntranceOffsetX; //update offset
+  for I := 1 to 4 do
+  for K := 1 to 4 do
+    if Result and (HA[I,K] <> 0) then
+    begin
+      //Inset one tile from map edges
+      Result := Result and TileInMapCoords(Loc.X + k - 3, Loc.Y + i - 4, 1)
+                       and (Land[Loc.Y + i - 4, Loc.X + k - 3].Markup = tlNone);
 
       case aHouseType of
-        ht_IronMine: Result := Result AND (CanBuildIron in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
-        ht_GoldMine: Result := Result AND (CanBuildGold in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
-        //ht_Wall:     Result := Result AND (CanWalk in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
-      else
-        Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
+        ht_IronMine: Result := Result and (CanBuildIron in Land[Loc.Y+I-4,Loc.X+K-3].Passability);
+        ht_GoldMine: Result := Result and (CanBuildGold in Land[Loc.Y+I-4,Loc.X+K-3].Passability);
+        else         Result := Result and (CanBuild in Land[Loc.Y+I-4,Loc.X+K-3].Passability);
       end;
     end;
 end;
@@ -2157,29 +2165,24 @@ begin
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
   for i:=1 to 4 do for k:=1 to 4 do
-    if HA[i,k] <> 0 then
+    if Result and (HA[i,k] <> 0) then
     begin
       TestLoc := KMPoint(Loc.X+k-3, Loc.Y+i-4);
-      Result := Result AND TileInMapCoords(TestLoc.X, TestLoc.Y, 1); //Inset one tile from map edges
-      Result := Result AND TileIsWalkable(TestLoc); //Tile must be walkable
+      Result := Result and TileInMapCoords(TestLoc.X, TestLoc.Y, 1); //Inset one tile from map edges
+      Result := Result and TileIsWalkable(TestLoc); //Tile must be walkable
 
       //Mines must be on a mountain edge
       if aHouseType = ht_IronMine then
-        Result := Result AND (Land[TestLoc.Y,TestLoc.X].Terrain in [109, 166..170]) and (Land[TestLoc.Y,TestLoc.X].Rotation mod 4 = 0);
+        Result := Result and (Land[TestLoc.Y,TestLoc.X].Terrain in [109, 166..170]) and (Land[TestLoc.Y,TestLoc.X].Rotation mod 4 = 0);
       if aHouseType = ht_GoldMine then
-        Result := Result AND (Land[TestLoc.Y,TestLoc.X].Terrain in [171..175    ]) and (Land[TestLoc.Y,TestLoc.X].Rotation mod 4 = 0);
-
-      if not Result then exit;
+        Result := Result and (Land[TestLoc.Y,TestLoc.X].Terrain in [171..175     ]) and (Land[TestLoc.Y,TestLoc.X].Rotation mod 4 = 0);
 
       //Check surrounding tiles for another house that overlaps
       for j:=-1 to 1 do
-        for l:=-1 to 1 do
-          if TileInMapCoords(TestLoc.X+l, TestLoc.Y+j)
-          and (Land[TestLoc.Y+j,TestLoc.X+l].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked, mu_House]) then
-          begin
-            Result := False;
-            Exit;
-          end;
+      for l:=-1 to 1 do
+        if TileInMapCoords(TestLoc.X+l, TestLoc.Y+j)
+        and (Land[TestLoc.Y+j,TestLoc.X+l].Markup <> tlNone) then
+          Result := False;
     end;
 end;
 
@@ -2195,7 +2198,8 @@ begin
     ft_Wall:  Result := Result AND (CanMakeRoads  in Land[Loc.Y, Loc.X].Passability);
     else      Result := False;
   end;
-  Result := Result AND (Land[Loc.Y, Loc.X].Markup <> mu_UnderConstruction);
+  //Unnecessary as Can** gets recalculated each time and already ensures that
+  //Result := Result AND (Land[Loc.Y, Loc.X].Markup <> mu_UnderConstruction);
 end;
 
 
@@ -2266,7 +2270,7 @@ begin
       if HA[I,K] <> 0 then
       begin
         Land[Loc.Y+I-4, Loc.X+K-3].TileOverlay := to_Dig3;
-        Land[Loc.Y+I-4, Loc.X+K-3].Markup := mu_None;
+        Land[Loc.Y+I-4, Loc.X+K-3].Markup := tlNone;
       end;
   end
   else
@@ -2274,7 +2278,7 @@ begin
     //For glyphs leave nothing
     for I:=1 to 4 do for K:=1 to 4 do
       if HA[I,K] <> 0 then
-        Land[Loc.Y+I-4, Loc.X+K-3].Markup := mu_None;
+        Land[Loc.Y+I-4, Loc.X+K-3].Markup := tlNone;
   end;
 
   RebuildPassability(Loc.X-3, Loc.X+2, Loc.Y-4, Loc.Y+1);
@@ -2283,28 +2287,28 @@ end;
 
 
 {Check 4 surrounding tiles, and if they are different place a border}
-procedure TTerrain.UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
-  function GetBorderType:TBorderType;
+procedure TTerrain.UpdateBorders(Loc: TKMPoint; CheckSurrounding: Boolean = True);
+  function GetBorderType: TBorderType;
   begin
     if TileIsCornField(Loc) then
-      Result :=  bt_Field
+      Result := bt_Field
     else
     if TileIsWineField(Loc) then
       Result := bt_Wine
     else
-    if Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked] then
+    if Land[Loc.Y,Loc.X].Markup in [tlFenced, tlDigged] then
       Result := bt_HouseBuilding
     else
       Result := bt_None;
   end;
-  function GetBorderEnabled(Loc2:TKMPoint):boolean;
+  function GetBorderEnabled(Loc2: TKMPoint): Boolean;
   begin
     Result := True;
     if not TileInMapCoords(Loc2.X,Loc2.Y) then exit;
     if (TileIsCornField(Loc) and TileIsCornField(Loc2))or //Both are Corn
        (TileIsWineField(Loc) and TileIsWineField(Loc2))or //Both are Wine
-      ((Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) or //Both are same mu_House****
-      ((Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked]) and (Land[Loc2.Y,Loc2.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked])) then //Both are either house fence
+      ((Land[Loc.Y,Loc.X].Markup in [tlFenced, tlDigged]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) or //Both are same mu_House****
+      ((Land[Loc.Y,Loc.X].Markup in [tlFenced, tlDigged]) and (Land[Loc2.Y,Loc2.X].Markup in [tlFenced, tlDigged])) then //Both are either house fence
       Result := False;
   end;
 begin

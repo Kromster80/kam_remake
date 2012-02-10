@@ -790,7 +790,7 @@ begin
 end;
 
 
-function TKMUnitWorker.UpdateState:boolean;
+function TKMUnitWorker.UpdateState: Boolean;
 var
   H:TKMHouseInn;
   OutOfWay: TKMPoint;
@@ -799,22 +799,23 @@ begin
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitWorker.UpdateState',fCurrPosition);
   if Inherited UpdateState then exit;
 
-  if fCondition<UNIT_MIN_CONDITION then begin
-    H:=fPlayers.Player[fOwner].FindInn(fCurrPosition,Self);
-    if H<>nil then
-      fUnitTask:=TTaskGoEat.Create(H,Self);
+  if fCondition < UNIT_MIN_CONDITION then
+  begin
+    H := fPlayers.Player[fOwner].FindInn(fCurrPosition, Self);
+    if H <> nil then
+      fUnitTask := TTaskGoEat.Create(H, Self);
   end;
 
   if (fThought = th_Build)and(fUnitTask = nil) then
     fThought := th_None; //Remove build thought if we are no longer doing anything
 
   //If we are still stuck on a house for some reason, get off it ASAP
-  if (fTerrain.Land[fCurrPosition.Y,fCurrPosition.X].Markup in [mu_HouseFenceNoWalk,mu_HouseFenceBlocked]) then
-  begin
+  Assert(fTerrain.Land[fCurrPosition.Y, fCurrPosition.X].Markup <> tlLocked);
+  {begin
     Assert(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y) <> nil);
     OutOfWay := KMPointBelow(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y).GetEntrance);
     SetActionWalkToSpot(OutOfWay);
-  end;
+  end;}
 
   if (fUnitTask = nil) and (fCurrentAction = nil) then SetActionStay(20, ua_Walk);
 
@@ -1429,7 +1430,7 @@ end;
 
 
 //Specific unit desired passability may depend on several factors
-//todo: Remove aIgnoreRoads
+//todo: Remove aIgnoreRoads as we can check Desperate conditions right here
 function TKMUnit.GetDesiredPassability(aIgnoreRoads:boolean=false):TPassability;
 begin
   Result := fResource.UnitDat[fUnitType].DesiredPassability;
@@ -1442,16 +1443,14 @@ begin
     Result := CanWalk;
 
   //Preparing house area
-  if (fUnitType = ut_Worker)
-  and(((fUnitTask is TTaskBuildHouseArea)
-  and(TTaskBuildHouseArea(fUnitTask).fPhase > 1)) //Worker has arrived on site
-  or (mu_HouseFenceNoWalk = fTerrain.Land[fCurrPosition.Y,fCurrPosition.X].Markup)) //If we are standing on site after building
+  if (fUnitType = ut_Worker) and (fUnitTask is TTaskBuildHouseArea)
+  and TTaskBuildHouseArea(fUnitTask).Digging
   then
     Result := CanWorker; //Special mode that allows us to walk on building sites
 
-  //Thats for 'miners' at work
+  //Miners at work need to go off roads
   if (fUnitType in [ut_Woodcutter, ut_Farmer, ut_Fisher, ut_StoneCutter])
-  and(fUnitTask is TTaskMining)
+  and (fUnitTask is TTaskMining)
   then
     Result := CanWalk;
 

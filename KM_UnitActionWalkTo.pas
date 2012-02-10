@@ -333,10 +333,8 @@ end;
 
 
 function TUnitActionWalkTo.AssembleTheRoute:boolean;
-var i:integer; NodeList2:TKMPointList; TmpPass: TPassability;
+var i:integer; NodeList2:TKMPointList;
 begin
-  TmpPass := fPass;
-
   //Build a piece of route to return to nearest road piece connected to destination road network
   if (fPass = CanWalkRoad)
   and (fDistance = 0) //That is Citizens walking to spot
@@ -345,7 +343,7 @@ begin
     if CanWalkToTarget(fWalkFrom, CanWalk) then
       fGame.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcRoad, fGame.Terrain.GetRoadConnectID(fWalkTo), CanWalk, NodeList);
 
-  //If we are a worker on a construction site, build a piece of route to return to nearest walkable tile on the
+  {//If we are a worker on a construction site
   if (fPass = CanWorker)
   and (fGame.Terrain.GetWalkConnectID(fWalkFrom) <> fGame.Terrain.GetWalkConnectID(fWalkTo)) //Not walkable returns 0
   and (fGame.Terrain.GetWalkConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is not walkable
@@ -353,7 +351,7 @@ begin
     if CanWalkToTarget(fWalkFrom, fPass) then
       fGame.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcWalk, fGame.Terrain.GetWalkConnectID(fWalkTo), CanWorker, NodeList);
     TmpPass := CanWalk; //After this piece of route we are in walk mode
-  end;
+  end;}
 
   //Build a route A*
   if NodeList.Count = 0 then //Build a route from scratch
@@ -361,10 +359,11 @@ begin
     if CanWalkToTarget(fWalkFrom, fPass) then
       fGame.Pathfinding.Route_Make(fWalkFrom, fWalkTo, fPass, fDistance, fTargetHouse, NodeList) //Try to make the route with fPass
   end
-  else begin //Append route to existing part
+  else //Append route to existing part
+  begin
     NodeList2 := TKMPointList.Create;
-    if CanWalkToTarget(NodeList.List[NodeList.Count], TmpPass) then
-      fGame.Pathfinding.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
+    if CanWalkToTarget(NodeList.List[NodeList.Count], fPass) then
+      fGame.Pathfinding.Route_Make(NodeList.List[NodeList.Count], fWalkTo, fPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
     //If this part of the route fails, the whole route has failed. At minimum Route_Make returns count=1 (fWalkTo)
     if NodeList2.Count = 0 then NodeList.Clear; //Clear NodeList so we return false
     for i:=2 to NodeList2.Count do
@@ -1019,9 +1018,9 @@ begin
     end;
 
     //If we were in Worker mode but have now reached the walk network of our destination switch to CanWalk mode to avoid walking on other building sites
-    if (fPass = CanWorker) and (fGame.Terrain.GetWalkConnectID(fWalkTo) <> 0) and
+    {if (fPass = CanWorker) and (fGame.Terrain.GetWalkConnectID(fWalkTo) <> 0) and
       (fGame.Terrain.GetWalkConnectID(fWalkTo) = fGame.Terrain.GetWalkConnectID(NodeList.List[NodePos])) then
-      fPass := CanWalk;
+      fPass := CanWalk;}
 
     //Update unit direction according to next Node
     fUnit.Direction := KMGetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);

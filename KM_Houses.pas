@@ -358,9 +358,9 @@ begin
   begin
     Activate(False);
     fBuildingProgress := fResource.HouseDat[fHouseType].MaxHealth;
-    fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner, fGame.GameState <> gsEditor); //Sets passability and flattens terrain if we're not in the map editor
+    fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, fGame.GameState <> gsEditor); //Sets passability and flattens terrain if we're not in the map editor
   end else
-    fTerrain.SetHouse(fPosition, fHouseType, hs_Fence, fOwner); //Terrain remains neutral yet
+    fTerrain.SetHouse(fPosition, fHouseType, hsFence, fOwner); //Terrain remains neutral yet
 end;
 
 
@@ -497,7 +497,7 @@ begin
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[fOwner].DeliverList.RemOffer(Self);
   fPlayers.Player[fOwner].DeliverList.RemDemand(Self);
-  fTerrain.SetHouse(fPosition,fHouseType,hs_None,-1);
+  fTerrain.SetHouse(fPosition,fHouseType,hsNone,-1);
 
   //Leave rubble
   if not NoRubble then
@@ -513,14 +513,14 @@ procedure TKMHouse.SetPosition(aPos: TKMPoint);
 begin
   Assert(fGame.GameState = gsEditor);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
-  fTerrain.SetHouse(fPosition, fHouseType, hs_None, -1);
+  fTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
   fTerrain.RemRoad(GetEntrance);
   if MyPlayer.CanAddHousePlan(aPos, HouseType) then
   begin
     fPosition.X := aPos.X - fResource.HouseDat[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
   end;
-  fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner);
+  fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner);
   fTerrain.SetField(GetEntrance, fOwner, ft_Road);
 end;
 

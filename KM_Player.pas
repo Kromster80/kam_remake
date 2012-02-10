@@ -448,7 +448,6 @@ end;
 procedure TKMPlayer.AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint; out House: TKMHouse);
 begin
   House := fHouses.AddHouseWIP(aHouseType, aLoc.X, aLoc.Y, fPlayerIndex);
-  fTerrain.SetHouse(aLoc, aHouseType, hs_Fence, fPlayerIndex);
   fStats.HouseStarted(aHouseType);
 end;
 

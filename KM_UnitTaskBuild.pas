@@ -1,7 +1,9 @@
 unit KM_UnitTaskBuild;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, KM_CommonClasses, KM_Houses, KM_Terrain, KM_Defaults, KM_Units, KM_Points;
+uses Math, SysUtils,
+  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_Houses, KM_Terrain, KM_Units;
 
 {Perform building}
 type
@@ -78,6 +80,7 @@ type
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
+      function Digging: Boolean;
       function Execute: TTaskResult; override;
       procedure Save(SaveStream: TKMemoryStream); override;
     end;
@@ -183,7 +186,7 @@ begin
        end;
     1: begin
          Thought := th_None;
-         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
+         fTerrain.SetMarkup(fLoc, tlLocked);
          MarkupSet := true;
          fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
          BuildID := 0;
@@ -313,11 +316,11 @@ begin
       end;
    1: begin
         Thought := th_None;
-        fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
+        fTerrain.SetMarkup(fLoc, tlLocked);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0; //it can't be cancelled now
-        MarkupSet := true;
+        MarkupSet := True;
         SetActionLockedStay(12*4,ua_Work1,false);
       end;
    2: begin
@@ -430,7 +433,7 @@ begin
          Thought := th_Build;
        end;
     1: begin
-        fTerrain.SetMarkup(fLoc, mu_UnderConstruction);
+        fTerrain.SetMarkup(fLoc, tlLocked);
         MarkupSet := true;
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0;
@@ -506,7 +509,7 @@ begin
          Thought := th_Build;
        end;
     1: begin
-        fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
+        fTerrain.SetMarkup(fLoc, tlLocked);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0;
@@ -629,7 +632,6 @@ begin
   if HouseReadyToBuild and not HouseNeedsWorker and (fHouse <> nil) and not fHouse.IsDestroyed then
   begin
     fHouse.BuildingState := hbs_Wood;
-    fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_StartBuild, fUnit.GetOwner);
     fPlayers.Player[fUnit.GetOwner].BuildList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
     fPlayers.Player[fUnit.GetOwner].DeliverList.AddDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
     fPlayers.Player[fUnit.GetOwner].DeliverList.AddDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
@@ -637,6 +639,14 @@ begin
 
   fPlayers.CleanUpHousePointer(fHouse);
   inherited;
+end;
+
+
+//Tell if we are in Digging phase where we can walk on tlDigged tiles
+//(incl. phase when we walk out)
+function TTaskBuildHouseArea.Digging: Boolean;
+begin
+  Result := fPhase >= 2;
 end;
 
 
@@ -690,7 +700,7 @@ begin
           if KMSamePoint(fHouse.GetEntrance, Cells[Step]) then
             fTerrain.SetField(fHouse.GetEntrance, GetOwner, ft_Road);
           fTerrain.Land[Cells[Step].Y,Cells[Step].X].Obj := 255; //All objects are removed
-          fTerrain.SetMarkup(Cells[Step], mu_HouseFenceNoWalk); //Block passability on tile
+          fTerrain.SetMarkup(Cells[Step], tlDigged); //Block passability on tile
           dec(Step);
         end;
     7:  begin
@@ -829,9 +839,10 @@ begin
       2: begin
            SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
            Direction := Cells[CurLoc].Dir;
-           //Remove house plan when we start the stone phase (it is still required for wood) But don't do it every time we hit if it's already done!
-           if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y,fHouse.GetPosition.X].Markup <> mu_House) then
-             fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_Built, GetOwner);
+           //Remove house plan when we start the stone phase (it is still required for wood)
+           //But don't do it every time we hit if it's already done!
+           if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y, fHouse.GetPosition.X].Markup <> tlLocked) then
+             fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hsBuilt, GetOwner);
          end;
       3: begin
            fHouse.IncBuildingProgress;
