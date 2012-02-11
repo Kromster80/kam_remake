@@ -20,7 +20,7 @@ const
   FOG_OF_WAR_INC        = 128;          //Increment for FOW
   FOG_OF_WAR_DEC        = 12;           //Decrement for FOW
 
-  FPS_LAG               = 33;           //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
+  FPS_LAG               = 16;           //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
   FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
   SCROLLSPEED           = 1;            //This is the speed that the viewport will scroll every 100 ms, in cells
   SCROLLFLEX            = 4;            //This is the number of pixels either side of the edge of the screen which will count as scrolling
