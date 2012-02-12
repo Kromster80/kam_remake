@@ -47,7 +47,7 @@ MaxID:221
 210:skript
 32:Došlo k chybì!
 212:Nastala chyba pøi analýze souboru %s
-33:Nahrávám novou lokaci
+33:Nahrávám novou lokalizaci
 34:Seznam uložených her
 35:Jméno souboru
 36:Popis
@@ -69,10 +69,10 @@ MaxID:221
 50:Pokraèovat 
 51:Zpìt do menu
 166:Vyhodit hráèe
-167:Host bude moci vyhodit tyto hráèe za %d sekund
-168:Host nyní mùže vyhodit tyto hráèe
+167:Hostitel bude moci vyhodit tyto hráèe za %d sekund
+168:Hostitel nyní mùže vyhodit tyto hráèe
 171:Opravdu chcete skonèit?
-172:Jste si jisti, že chcete vyhodit tyto hráèe ze hry?
+172:Jste si jistý, že chcete vyhodit tyto hráèe ze hry?
 173:Cancel
 52:Nedostupné
 53:Stisknìte %s pro pokraèování ve høe
@@ -172,7 +172,7 @@ MaxID:221
 190:Kooperace
 120:Uložená hra
 121:Vyberte mapu...
-122:Výberte uloženou hru...
+122:Vyberte uloženou hru...
 123:Info o mapì:
 124:Hráèi: %d
 125:Mód:
@@ -184,7 +184,7 @@ MaxID:221
 129:Pøipraven
 152:Není pøipraven
 130:Zaèít!
-149:Lokace %d
+149:Pozice %d
 154:Chyba: Vyberte, prosím, hráèe z uložené hry
 155:Chyba: Mapa nelze naèíst nebo nebyla vybrána
 156:Nelze zaèít: %s
@@ -192,14 +192,14 @@ MaxID:221
 158:Poèet hráèù pøekraèuje maximální poèet daný mapou
 160:Server vám pøiøadil hostovací práva
 187:Hra již zaèala
-214:Host urèuje nastavení hráèe
+214:Hostitel urèuje nastavení hráèe
 
 131:Èekám na ostatní hráèe:
 163:Ukládám hru...
 164:%s byl poražen!
-169:Host (%s) se odpojil
+169:Hostitel (%s) se odpojil
 170:Spojení se serverem bylo ztraceno. Pokouším se opìt navázat spojení...
-191:V období míru je toto zakázáno
+191:V období míru je toto zakázáno!
 192:Konec období míru za: %s
 193:Konec období míru. Do zbranì!
 
@@ -212,7 +212,7 @@ MaxID:221
 180:Ztraceno|budov
 181:Znièeno|budov
 182:Vytvoøeno|produktù
-183:Vyrobeno zbraní
+183:Vyrobeno|zbraní
 
 196:Z
 197:S
