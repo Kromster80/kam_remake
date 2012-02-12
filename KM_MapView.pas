@@ -48,6 +48,7 @@ begin
   if fOwnTerrain then
   begin
     fMyTerrain := TTerrain.Create;
+     //@Krom: Shouldn't it be some new parsing mode? mpm_Single will access fPlayers (causes crashes sometimes e.g. when toggling locale)
     fParser := TMissionParser.Create(mpm_Single, False);
   end
   else

@@ -180,7 +180,7 @@ begin
   fTerrain := aTerrain;
   fMissionFileName := aFileName;
 
-  Assert((aTerrain <> nil) or (fParsingMode <> mpm_Info));
+  Assert((aTerrain <> nil) or (fParsingMode = mpm_Info));
 
   //Set default values
   fMissionInfo.MapPath := '';

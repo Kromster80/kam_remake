@@ -1,0 +1,5 @@
+SmallDesc
+A 3 vs 3 map in the shape of Europe
+
+BigDesc
+A 3 vs 3 map in the shape of Europe by HellRacer.||Teams must be:|1+2+3 vs 4+5+6

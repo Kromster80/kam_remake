@@ -47,8 +47,10 @@ type
   private
     fMultiplayerPath: Boolean;
     fOnMapAdd: TMapEvent;
+    fOnMapAddDone: TNotifyEvent;
   public
-    constructor Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent);
+    constructor Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone: TNotifyEvent);
+    procedure MapAddDone;
     procedure Execute; override;
   end;
 
@@ -67,6 +69,7 @@ type
     procedure Unlock;
     procedure Clear;
     procedure MapAdd(aMap: TKMapInfo);
+    procedure MapAddDone(Sender: TObject);
     procedure ScanComplete(Sender: TObject);
     procedure DoSort;
     function GetMap(aIndex: Integer): TKMapInfo;
@@ -78,6 +81,7 @@ type
     property Maps[aIndex: Integer]: TKMapInfo read GetMap; default;
 
     procedure Refresh(aOnRefresh, aOnRefreshComplete: TNotifyEvent);
+    procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
 
@@ -400,13 +404,8 @@ begin
 end;
 
 
-//Start the refresh of maplist
-procedure TKMapsCollection.Refresh(aOnRefresh, aOnRefreshComplete: TNotifyEvent);
+procedure TKMapsCollection.TerminateScan;
 begin
-  fOnRefresh := aOnRefresh;
-  fOnRefreshComplete := aOnRefreshComplete;
-
-  //Terminate previous Scanner if two scans were launched consequentialy
   if (fScanner <> nil) then
   begin
     fScanner.Terminate;
@@ -414,11 +413,21 @@ begin
     fScanner.Free;
     fScanner := nil;
   end;
+end;
 
+
+//Start the refresh of maplist
+procedure TKMapsCollection.Refresh(aOnRefresh, aOnRefreshComplete: TNotifyEvent);
+begin
+  //Terminate previous Scanner if two scans were launched consequentialy
+  TerminateScan;
   Clear;
 
+  fOnRefresh := aOnRefresh;
+  fOnRefreshComplete := aOnRefreshComplete;
+
   fScanning := True;
-  fScanner := TTScanner.Create(fMultiplayerPath, MapAdd);
+  fScanner := TTScanner.Create(fMultiplayerPath, MapAdd, MapAddDone);
   fScanner.OnTerminate := ScanComplete;
   fScanner.Resume;
 end;
@@ -432,22 +441,29 @@ begin
     fMaps[fCount] := aMap;
     Inc(fCount);
 
-    //Set the scanning to false so we could Sort and
-    //also signal that we let UI access Count and Maps list safely, as
-    //they check for fScanning flag
+    //Set the scanning to false so we could Sort
     fScanning := False;
 
     //Keep the maps sorted
     //We signal from Locked section, so everything caused by event can safely access our Maps
     DoSort;
 
-    if Assigned(fOnRefresh) then
-      fOnRefresh(Self);
-
     fScanning := True;
   finally
     Unlock;
   end;
+end;
+
+
+procedure TKMapsCollection.MapAddDone(Sender: TObject);
+begin
+  //Signal that we let UI access Count and Maps list safely, as they check for fScanning flag
+  fScanning := False;
+
+  if Assigned(fOnRefresh) then
+    fOnRefresh(Self);
+
+  fScanning := True;
 end;
 
 
@@ -467,14 +483,21 @@ end;
 
 
 { TTScanner }
-constructor TTScanner.Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent);
+constructor TTScanner.Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone: TNotifyEvent);
 begin
   inherited Create(True);
   Assert(Assigned(aOnMapAdd));
 
   fMultiplayerPath := aMultiplayerPath;
   fOnMapAdd := aOnMapAdd;
+  fOnMapAddDone := aOnMapAddDone;
   FreeOnTerminate := False;
+end;
+
+
+procedure TTScanner.MapAddDone;
+begin
+  fOnMapAddDone(Self);
 end;
 
 
@@ -501,6 +524,7 @@ begin
         Map.Load(SearchRec.Name, false, fMultiplayerPath);
         sleep(66);
         fOnMapAdd(Map);
+        Synchronize(MapAddDone); //Updates UI controls in main thread (to avoid clashes with e.g. Painting)
       end;
     until (FindNext(SearchRec) <> 0) or Terminated;
     FindClose(SearchRec);

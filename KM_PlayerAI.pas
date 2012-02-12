@@ -731,15 +731,14 @@ begin
         end;
       end;
     pt_Computer:
-      if aUnit is TKMUnitWarrior then
       begin
         //If we are attacked, then we should counter attack the attacker!
-        with TKMUnitWarrior(aUnit).GetCommander do
-          if not ArmyInFight then
-            OrderAttackUnit(aAttacker);
-      end
-      else
-        RetaliateAgainstThreat(aAttacker); //Come to the defence of our citizens
+        if aUnit is TKMUnitWarrior then
+          with TKMUnitWarrior(aUnit).GetCommander do
+            if not ArmyInFight then
+              OrderAttackUnit(aAttacker);
+        RetaliateAgainstThreat(aAttacker); //Nearby soldiers should come to assist
+      end;
   end;
 end;
 
