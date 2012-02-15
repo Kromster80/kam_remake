@@ -84,6 +84,7 @@ var
   SHOW_NETWORK_DELAY    :boolean=false; //Show the current delay in multiplayer game
   SHOW_ARMYEVALS        :boolean=false; //Show result of enemy armies evaluation
   INI_HITPOINT_RESTORE  :boolean=false; //Use the hitpoint restore rate from the INI file to compare with KaM
+  SLOW_MAP_SCAN         :boolean=false; //Scan maps with a pause to emulate uncached file access
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug

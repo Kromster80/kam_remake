@@ -36,8 +36,8 @@ const
 {$ENDIF}
 
 
-function LoadTexture(FileName: String; var Texture:GLuint): Boolean;
 function GenerateTextureCommon: GLuint;
+function LoadTextureTGA(FileName: String; var Texture:GLuint): Boolean;
 
 
 implementation
@@ -88,21 +88,21 @@ var ii,kk:cardinal;
   Back: ^Byte;
   Temp: Byte;
 begin
-for kk:=0 to (H div 2)-1 do
-for ii:=0 to W*BPP-1 do begin
-          Front := Pointer(cardinal(Image)+kk*W*BPP+ii);
-          Back := Pointer(cardinal(Image)+(H-kk-1)*W*BPP+ii);
-          Temp := Front^;
-          Front^ := Back^;
-          Back^ := Temp;
-          end;
-
+  for kk:=0 to (H div 2)-1 do
+  for ii:=0 to W*BPP-1 do
+  begin
+    Front := Pointer(cardinal(Image)+kk*W*BPP+ii);
+    Back := Pointer(cardinal(Image)+(H-kk-1)*W*BPP+ii);
+    Temp := Front^;
+    Front^ := Back^;
+    Back^ := Temp;
+  end;
 end;
 
 {------------------------------------------------------------------}
 {  Loads 24 and 32bpp (alpha channel) TGA textures                 }
 {------------------------------------------------------------------}
-function LoadTexture(FileName: String; var Texture:GLuint): Boolean;
+function LoadTextureTGA(FileName: String; var Texture:GLuint): Boolean;
 var
   TGAHeader : packed record   // Header type for TGA images
     FileType     : Byte;

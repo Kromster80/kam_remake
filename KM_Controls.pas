@@ -1089,37 +1089,38 @@ begin
 end;
 
 procedure TKMPanel.SetHeight(aValue: Integer);
-var i: Integer;
+var I: Integer;
 begin
-  for i:=1 to ChildCount do
-    if (akTop in Childs[i].Anchors) and (akBottom in Childs[i].Anchors) then
-      Childs[i].Height := Childs[i].Height + (aValue - fHeight)
+  for I := 1 to ChildCount do
+    if (akTop in Childs[I].Anchors) and (akBottom in Childs[I].Anchors) then
+      Childs[I].Height := Childs[I].Height + (aValue - fHeight)
     else
-    if akTop in Childs[i].Anchors then
+    if akTop in Childs[I].Anchors then
       //Do nothing
     else
-    if akBottom in Childs[i].Anchors then
-      Childs[i].fTop := Childs[i].fTop + (aValue - fHeight)
+    if akBottom in Childs[I].Anchors then
+      Childs[I].fTop := Childs[I].fTop + (aValue - fHeight)
     else
-      Childs[i].fTop := Childs[i].fTop + (aValue - fHeight) div 2;
+      Childs[I].fTop := Childs[I].fTop + (aValue - fHeight) div 2;
 
   inherited;
 end;
 
+
 procedure TKMPanel.SetWidth(aValue: Integer);
-var i: Integer;
+var I: Integer;
 begin
-  for i:=1 to ChildCount do
-    if (akLeft in Childs[i].Anchors) and (akRight in Childs[i].Anchors) then
-      Childs[i].Width := Childs[i].Width + (aValue - fWidth)
+  for I := 1 to ChildCount do
+    if (akLeft in Childs[I].Anchors) and (akRight in Childs[I].Anchors) then
+      Childs[I].Width := Childs[I].Width + (aValue - fWidth)
     else
-    if akLeft in Childs[i].Anchors then
+    if akLeft in Childs[I].Anchors then
       //Do nothing
     else
-    if akRight in Childs[i].Anchors then
-      Childs[i].fLeft := Childs[i].fLeft + (aValue - fWidth)
+    if akRight in Childs[I].Anchors then
+      Childs[I].fLeft := Childs[I].fLeft + (aValue - fWidth)
     else
-      Childs[i].fLeft := Childs[i].fLeft + (aValue - fWidth) div 2;
+      Childs[I].fLeft := Childs[I].fLeft + (aValue - fWidth) div 2;
 
   inherited;
 end;

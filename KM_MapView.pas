@@ -1,8 +1,8 @@
 unit KM_MapView;
 {$I KaM_Remake.inc}
 interface
-uses Classes, dglOpenGL, KromUtils, KromOGLUtils, KM_Render, Math, SysUtils,
-  KM_MissionScript, KM_Terrain, KM_Points, KM_Utils;
+uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, SysUtils,
+  KM_MissionScript, KM_Render, KM_Terrain, KM_Points, KM_Utils;
 
 
 type
@@ -23,6 +23,7 @@ type
     destructor Destroy; override;
 
     procedure LoadTerrain(aMissionPath: string);
+    procedure Clear;
 
     property MapTex: TTexture read fMapTex;
     procedure Update(aMapEditor: Boolean);
@@ -33,13 +34,16 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Resource, KM_PlayersCollection, KM_Units, KM_Units_Warrior;
+uses KM_TGATexture, KM_Defaults, KM_Resource, KM_PlayersCollection, KM_Units, KM_Units_Warrior;
 
 
 { TKMMinimap }
 constructor TKMMapView.Create(aRender: TRender; aTerrain: TTerrain);
 begin
   inherited Create;
+
+  fRender := aRender;
+  fMapTex.Tex := GenerateTextureCommon;
 
   //We create our own local terrain to access when in main menu
   //Otherwise access synced Game terrain
@@ -48,34 +52,13 @@ begin
   if fOwnTerrain then
   begin
     fMyTerrain := TTerrain.Create;
-     //@Krom: Shouldn't it be some new parsing mode? mpm_Single will access fPlayers (causes crashes sometimes e.g. when toggling locale)
-    fParser := TMissionParser.Create(mpm_Single, False);
+    fParser := TMissionParser.Create(mpm_Preview, False);
   end
   else
   begin
     fMyTerrain := aTerrain;
     fParser := nil;
   end;
-
-  //Create texture handle
-  glGenTextures(1, @fMapTex.Tex);
-  glBindTexture(GL_TEXTURE_2D, fMapTex.Tex);
-
-  {Enable color blending into texture}
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-  {Keep original KaM grainy look}
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
-  {Clamping UVs solves edge artifacts}
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-  glBindTexture(GL_TEXTURE_2D, 0);
-
-  fRender := aRender;
 end;
 
 
@@ -95,6 +78,14 @@ end;
 procedure TKMMapView.LoadTerrain(aMissionPath: string);
 begin
   fParser.LoadMission(aMissionPath, fMyTerrain);
+  if fPlayers <> nil then
+    fPlayers.AfterMissionInit(False);
+end;
+
+
+procedure TKMMapView.Clear;
+begin
+  LoadTerrain('');
 end;
 
 
@@ -138,8 +129,8 @@ begin
           ID := fMyTerrain.Land[i+1,k+1].Terrain;
           Light := round(fMyTerrain.Land[i+1,k+1].Light*64)-(255-FOW); //it's -255..255 range now
           fBase[i*fMapX + k] := EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
-                                  EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
-                                  EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;
+                                EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
+                                EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;
         end;
       end;
   end;

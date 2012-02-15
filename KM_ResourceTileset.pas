@@ -42,13 +42,13 @@ end;
 procedure TKMTileset.LoadTileSet(const aPath: string);
 var i: Integer;
 begin
-  LoadTexture(aPath + 'gradient.tga', TextG);
-  LoadTexture(aPath + 'Tiles1.tga', TextT);
+  LoadTextureTGA(aPath + 'gradient.tga', TextG); //todo: Generate programmatically
+  LoadTextureTGA(aPath + 'Tiles1.tga', TextT);
 
   if MAKE_ANIM_TERRAIN then begin
-    for i:=1 to 8 do LoadTexture(aPath + 'Water'+inttostr(i)+'.tga', TextW[i]);
-    for i:=1 to 3 do LoadTexture(aPath + 'Swamp'+inttostr(i)+'.tga', TextS[i]);
-    for i:=1 to 5 do LoadTexture(aPath + 'Falls'+inttostr(i)+'.tga', TextF[i]);
+    for i:=1 to 8 do LoadTextureTGA(aPath + 'Water'+inttostr(i)+'.tga', TextW[i]);
+    for i:=1 to 3 do LoadTextureTGA(aPath + 'Swamp'+inttostr(i)+'.tga', TextS[i]);
+    for i:=1 to 5 do LoadTextureTGA(aPath + 'Falls'+inttostr(i)+'.tga', TextF[i]);
   end;
 end;
 

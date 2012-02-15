@@ -62,7 +62,7 @@ type
     fSortMethod: TMapsSortMethod;
     CS: TCriticalSection;
     fScanner: TTScanner;
-    fScanning: Boolean;
+    fScanning: Boolean; //Flag if scan is in progress
     fOnRefresh: TNotifyEvent;
     fOnRefreshComplete: TNotifyEvent;
     procedure Lock;
@@ -243,6 +243,8 @@ begin
   fSortMethod := aSortMethod;
 
   //CS is used to guard sections of code to allow only one thread at once to access them
+  //We mostly don't need it, as UI should access Maps only when map events are signaled
+  //it acts as a safenet mostly
   CS := TCriticalSection.Create;
 end;
 
@@ -250,13 +252,7 @@ end;
 destructor TKMapsCollection.Destroy;
 begin
   //Terminate and release the Scanner if we have one working or finished
-  if (fScanner <> nil) then
-  begin
-    fScanner.Terminate;
-    fScanner.WaitFor;
-    fScanner.Free;
-    fScanner := nil;
-  end;
+  TerminateScan;
 
   //Release TKMapInfo objects
   Clear;
@@ -348,7 +344,7 @@ begin
 end;
 
 
-//For private acces, where CS is managed by tha caller
+//For private acces, where CS is managed by the caller
 procedure TKMapsCollection.DoSort;
   //Return True if items should be exchanged
   function Compare(A, B: TKMapInfo; aMethod: TMapsSortMethod): Boolean;
@@ -483,6 +479,8 @@ end;
 
 
 { TTScanner }
+//aOnMapAdd - signal that there's new map that should be added
+//aOnMapAddDone - signal that map has been added. Can safely call main thread methods since it's executed in Synchronize
 constructor TTScanner.Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone: TNotifyEvent);
 begin
   inherited Create(True);
@@ -495,6 +493,7 @@ begin
 end;
 
 
+//We need this wrapper since Synchronize can only call parameterless methods
 procedure TTScanner.MapAddDone;
 begin
   fOnMapAddDone(Self);
@@ -522,7 +521,8 @@ begin
       begin
         Map := TKMapInfo.Create;
         Map.Load(SearchRec.Name, false, fMultiplayerPath);
-        sleep(66);
+        if SLOW_MAP_SCAN then
+          Sleep(50);
         fOnMapAdd(Map);
         Synchronize(MapAddDone); //Updates UI controls in main thread (to avoid clashes with e.g. Painting)
       end;

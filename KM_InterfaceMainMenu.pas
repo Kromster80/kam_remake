@@ -429,11 +429,6 @@ begin
                   SwitchMenuPage(Panel_ResultsMP);
                 end;
   end;
-
-  fMapView.LoadTerrain(ExeDir + 'Maps\GoalTest\GoalTest.dat');
-  fMapView.Update(False);
-  Minimap_Preview.MapTex := fMapView.MapTex;
-  fGame.Render;
 end;
 
 
@@ -582,9 +577,6 @@ begin
       Button_MM_Options.OnClick      := SwitchMenuPage;
       Button_MM_Credits.OnClick      := SwitchMenuPage;
       Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;
-
-      //Test
-      Minimap_Preview := TKMMinimap.Create(Panel_MainMenu, 10, 100, 192, 192);
 end;
 
 
@@ -883,7 +875,7 @@ begin
       Memo_SingleDesc  := TKMMemo.Create(Panel_SingleDesc,15,25,415,189,fnt_Metal);
       Memo_SingleDesc.AutoWrap := True;
 
-      TKMBevel.Create(Panel_SingleDesc,125,230,192,192);
+      Minimap_Preview := TKMMinimap.Create(Panel_SingleDesc, 125, 230, 192, 192);
 
       TKMBevel.Create(Panel_SingleDesc,0,428,445,20);
       Label_SingleCondTyp:=TKMLabel.Create(Panel_SingleDesc,8,431,429,20,fTextLibrary[TX_MENU_MISSION_TYPE],fnt_Metal, taLeft);
@@ -1455,7 +1447,7 @@ begin
     SingleMap_SelectMap(-1)
   else
   begin
-    //Updating MaxValue may change Position;
+    //Updating MaxValue may change Position
     ScrollBar_SingleMaps.MaxValue := Max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
 
     for I := 0 to MENU_SP_MAPS_COUNT - 1 do
@@ -1471,7 +1463,11 @@ begin
       end;
     end;
 
-    SingleMap_SelectMap(EnsureRange(fMap_Selected, 0, fMaps.Count - 1));
+    Shape_SingleMap.Visible := InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
+    Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
+
+    if not InRange(fMap_Selected, 0, fMaps.Count - 1) then
+      SingleMap_SelectMap(EnsureRange(fMap_Selected, 0, fMaps.Count - 1));
   end;
 end;
 
@@ -1479,7 +1475,6 @@ end;
 procedure TKMMainMenuInterface.SingleMap_ScrollChange(Sender: TObject);
 begin
   SingleMap_RefreshList(nil);
-  SingleMap_SelectMap(fMap_Selected);
 end;
 
 
@@ -1495,26 +1490,32 @@ begin
   if not InRange(aIndex, 0, fMaps.Count - 1) then
   begin
     fMap_Selected := -1;
-    Button_SingleStart.Disable;
-    Shape_SingleMap.Hide;
     Label_SingleTitle.Caption   := '';
     Memo_SingleDesc.Text        := '';
     Label_SingleCondTyp.Caption := '';
     Label_SingleCondWin.Caption := '';
     Label_SingleCondDef.Caption := '';
+
+    fMapView.Clear;
+    Minimap_Preview.MapTex := fMapView.MapTex;
   end
   else
   begin
     fMap_Selected := aIndex;
-    Button_SingleStart.Enable;
-    Shape_SingleMap.Visible     := InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
-    Shape_SingleMap.Top         := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
     Label_SingleTitle.Caption   := fMaps[fMap_Selected].Filename;
     Memo_SingleDesc.Text        := fMaps[fMap_Selected].BigDesc;
     Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[fMap_Selected].Info.MissionModeText]);
     Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[fMap_Selected].Info.VictoryCondition]);
     Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[fMap_Selected].Info.DefeatCondition]);
+
+    fMapView.LoadTerrain(MapNameToPath(fMaps[fMap_Selected].Filename, 'dat', False));
+    fMapView.Update(False);
+    Minimap_Preview.MapTex := fMapView.MapTex;
   end;
+
+  Button_SingleStart.Enabled := fMap_Selected <> -1;
+  Shape_SingleMap.Visible := InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
+  Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
 end;
 
 
