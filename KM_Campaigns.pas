@@ -20,25 +20,24 @@ type
     fUnlockedMaps: Byte;
     procedure SetUnlockedMaps(Value: Byte);
   public
-    Maps:array of record
-      MapName:string;
-      MissionText:string;
-      Node:TKMPoint;
-      PrevMap:shortint; //Should be used to draw connecting dots in Campaign screen
-      ScriptPath:string;
+    Maps: array of record
+      MapName: string;
+      MissionText: string;
+      Node: TKMPoint;
+      PrevMap: shortint; //Should be used to draw connecting dots in Campaign screen
+      ScriptPath: string;
     end;
-    constructor Create(const aShortTitle: AnsiString; aMapCount:byte; aBackRX: TRXType; aBackID:word);
-    procedure LoadProgress(M:TKMemoryStream);
-    procedure SaveProgress(M:TKMemoryStream);
+    constructor Create(const aShortTitle: AnsiString; aMapCount: byte; aBackRX: TRXType; aBackID:word);
+    procedure LoadProgress(M: TKMemoryStream);
+    procedure SaveProgress(M: TKMemoryStream);
 
-    property BackGroundPicRX: TRXType read fBackGroundPic.RX;
-    property BackGroundPicID:word read fBackGroundPic.ID;
-    property MapCount:byte read fMapCount;
+    property BackGroundPic: TPicID read fBackGroundPic;
+    property MapCount: byte read fMapCount;
     property ShortTitle: AnsiString read fShortTitle;
-    property UnlockedMaps:byte read fUnlockedMaps write SetUnlockedMaps;
+    property UnlockedMaps: byte read fUnlockedMaps write SetUnlockedMaps;
 
-    function MissionText(aIndex:byte):string;
-    function SubNodesCount(aIndex:byte):byte;
+    function MissionText(aIndex: byte): string;
+    function SubNodesCount(aIndex: byte): byte;
     function SubNodesPos(aMapIndex: byte; aNodeIndex: byte):TKMPoint;
   end;
 
@@ -136,9 +135,9 @@ var i:integer; C:TKMCampaign;
 begin
   C := TKMCampaign.Create('TPR', TPR_MAPS, rxGuiMain, 20);
 
-  for i:=0 to C.MapCount-1 do
+  for i := 0 to C.MapCount - 1 do
   begin
-    C.Maps[i].MapName := 'TPR mission '+inttostr(i+1);
+    C.Maps[i].MapName := 'TPR mission ' + IntToStr(i + 1);
     C.Maps[i].MissionText := '';
     C.Maps[i].Node := CampTPRNodes[i];
     C.Maps[i].PrevMap := CampTPRPrev[i];
@@ -154,9 +153,9 @@ var i:integer; C:TKMCampaign;
 begin
   C := TKMCampaign.Create('TSK', TSK_MAPS, rxGuiMainH, 12); //Use the map from the TSK rx, as it is 1024x768 (TPR only has 800x600)
 
-  for i:=0 to C.MapCount-1 do
+  for i := 0 to C.MapCount - 1 do
   begin
-    C.Maps[i].MapName := 'TSK mission '+inttostr(i+1);
+    C.Maps[i].MapName := 'TSK mission ' + IntToStr(i + 1);
     C.Maps[i].MissionText := '';
     C.Maps[i].Node := CampTSKNodes[i];
     C.Maps[i].PrevMap := CampTSKPrev[i];
@@ -181,11 +180,11 @@ end;
 
 
 //Read progress from file trying to find matching campaigns
-procedure TKMCampaignsCollection.LoadProgress(const FileName:string);
+procedure TKMCampaignsCollection.LoadProgress(const FileName: string);
 var
   M: TKMemoryStream;
   C: TKMCampaign;
-  i,CampCount: Integer;
+  I, CampCount: Integer;
   CampName: string;
 begin
   if not FileExists(FileName) then Exit;
@@ -194,16 +193,17 @@ begin
   try
     M.LoadFromFile(FileName);
 
-    M.Read(i); //Check for wrong file format
-    if i<>CAMP_HEADER then Exit; //All campaigns will be kept in initial state
+    M.Read(I); //Check for wrong file format
+    if I <> CAMP_HEADER then Exit; //All campaigns will be kept in initial state
 
     M.Read(CampCount);
-    for i:=0 to CampCount-1 do
+    for I := 0 to CampCount - 1 do
     begin
       M.Read(CampName);
-      C := CampaignByTitle(CampName);
-      if C<>nil then
+      C := CampaignByTitle(AnsiString(CampName));
+      if C <> nil then
         C.LoadProgress(M);
+        //todo: Handle `else`
     end;
   finally
     M.Free;
@@ -211,23 +211,25 @@ begin
 end;
 
 
-procedure TKMCampaignsCollection.SaveProgress(const FileName:string);
+procedure TKMCampaignsCollection.SaveProgress(const FileName: string);
 var
-  M:TKMemoryStream;
-  i:word;
+  M: TKMemoryStream;
+  I: word;
 begin
   M := TKMemoryStream.Create;
+  try
+    M.Write(Integer(CAMP_HEADER)); //Identify our format
+    M.Write(Count);
+    for I := 0 to Count - 1 do
+    begin
+      M.Write(Campaigns[I].ShortTitle);
+      Campaigns[I].SaveProgress(M);
+    end;
 
-  M.Write(Integer(CAMP_HEADER)); //Identify our format
-  M.Write(Count);
-  for i:=0 to Count-1 do
-  begin
-    M.Write(Campaigns[i].ShortTitle);
-    Campaigns[i].SaveProgress(M);
+    M.SaveToFile(FileName);
+  finally
+    M.Free;
   end;
-
-  M.SaveToFile(FileName);
-  M.Free;
 end;
 
 
@@ -255,13 +257,13 @@ end;
 
 
 procedure TKMCampaignsCollection.Load(LoadStream: TKMemoryStream);
-var s:string;
+var s: string;
 begin
   LoadStream.ReadAssert('CampaignInfo');
   LoadStream.Read(s);
   fActiveCampaign := CampaignByTitle(s);
   LoadStream.Read(fActiveCampaignMap);
-  //If loaded savegame references to missing campaign it will be treated as single-map
+  //If loaded savegame references to missing campaign it will be treated as single-map (fActiveCampaign = nil)
 end;
 
 
@@ -297,7 +299,7 @@ end;
 
 //Mission texts of original campaigns are available in all languages,
 //custom campaigns are unlikely to have more texts in more than 1-2 languages
-function TKMCampaign.MissionText(aIndex:byte): string;
+function TKMCampaign.MissionText(aIndex: byte): string;
 begin
   if fShortTitle = 'TPR' then
     Result := fTextLibrary.GetSetupString(siCampTPRTexts + aIndex)
@@ -319,21 +321,22 @@ end;
 player may be replaying previous maps, in that case his progress remains the same}
 procedure TKMCampaign.SetUnlockedMaps(Value: byte);
 begin
-  fUnlockedMaps := EnsureRange(Value, fUnlockedMaps, fMapCount);
+  fUnlockedMaps := EnsureRange(Value, fUnlockedMaps, fMapCount - 1);
 end;
 
 
 function TKMCampaign.SubNodesCount(aIndex: byte): byte;
-var Dist:single;
+const STEP = 24; //Step each 24px
+var Dist: Single;
 begin
-  if not InRange(Maps[aIndex].PrevMap, 0, fMapCount-1) then
+  if not InRange(Maps[aIndex].PrevMap, 0, fMapCount - 1) then
   begin
     Result := 0;
     Exit;
   end;
 
   Dist := GetLength(Maps[aIndex].Node, Maps[Maps[aIndex].PrevMap].Node);
-  Result := Round(Max((Dist - 24*2)/24, 0));
+  Result := Round(Max((Dist - STEP * 2) / STEP, 0));
 end;
 
 

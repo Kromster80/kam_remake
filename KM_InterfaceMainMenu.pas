@@ -1358,32 +1358,32 @@ end;
 
 
 procedure TKMMainMenuInterface.Campaign_Set(aCampaign:TKMCampaign);
-const MapPic:array[boolean]of byte = (10,11);
-var i:integer;
+const MapPic: array [Boolean] of byte = (10, 11);
+var I: Integer;
 begin
   Campaign_Selected := aCampaign;
 
   //Choose background
-  Image_CampaignBG.RX := Campaign_Selected.BackGroundPicRX;
-  Image_CampaignBG.TexID := Campaign_Selected.BackGroundPicID;
+  Image_CampaignBG.RX := Campaign_Selected.BackGroundPic.RX;
+  Image_CampaignBG.TexID := Campaign_Selected.BackGroundPic.ID;
 
   //Setup sites
-  for i:=0 to High(Image_CampaignNodes) do
+  for I := 0 to High(Image_CampaignNodes) do
   begin
-    Image_CampaignNodes[i].Visible   := i < Campaign_Selected.MapCount;
-    Image_CampaignNodes[i].TexID     := MapPic[i<Campaign_Selected.UnlockedMaps];
-    Image_CampaignNodes[i].HighlightOnMouseOver := i<Campaign_Selected.UnlockedMaps;
+    Image_CampaignNodes[I].Visible   := I < Campaign_Selected.MapCount;
+    Image_CampaignNodes[I].TexID     := MapPic[I<Campaign_Selected.UnlockedMaps];
+    Image_CampaignNodes[I].HighlightOnMouseOver := I<Campaign_Selected.UnlockedMaps;
   end;
 
   //Place sites
-  for i:=0 to Campaign_Selected.MapCount-1 do
+  for I := 0 to Campaign_Selected.MapCount - 1 do
   begin
-    Image_CampaignNodes[i].Left := Campaign_Selected.Maps[i].Node.X - Image_CampaignNodes[i].Width div 2;
-    Image_CampaignNodes[i].Top  := Campaign_Selected.Maps[i].Node.Y - Image_CampaignNodes[i].Height div 2;
+    Image_CampaignNodes[I].Left := Campaign_Selected.Maps[I].Node.X - Image_CampaignNodes[I].Width div 2;
+    Image_CampaignNodes[I].Top  := Campaign_Selected.Maps[I].Node.Y - Image_CampaignNodes[I].Height div 2;
   end;
 
   //Select last map to play by 'clicking' last node
-  Campaign_SelectMap(Image_CampaignNodes[Campaign_Selected.UnlockedMaps-1]);
+  Campaign_SelectMap(Image_CampaignNodes[Campaign_Selected.UnlockedMaps - 1]);
 end;
 
 

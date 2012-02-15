@@ -45,7 +45,7 @@ begin
 
   for I := 0 to fCount - 1 do
   begin
-    ss := Format('%d'#9'%d'+eol, [I, fTimes[I]]);
+    ss := Format('%d'#9'%d' + eol, [I, fTimes[I]]);
     S.WriteBuffer(ss[1], Length(ss));
   end;
 

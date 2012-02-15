@@ -29,19 +29,19 @@ const
 type
   TTextLibrary = class
   private
-    TextStrings: array[0..MaxStrings] of AnsiString;
-    SetupStrings: array[0..MaxStrings] of AnsiString;
+    TextStrings: array [0..MaxStrings] of AnsiString;
+    SetupStrings: array [0..MaxStrings] of AnsiString;
     RemakeStrings: TAnsiStringArray;
-    procedure LoadLIBFile(FilePath: string; var aArray:array of AnsiString);
-    procedure LoadLIBXFile(FilePath: string; var aArray:TAnsiStringArray; aInitializeValues:boolean);
-    procedure ExportTextLibrary(var aLibrary: array of AnsiString; aFileName:AnsiString);
-    function GetRemakeString(aIndex:word):AnsiString;
-    function GetTexts(aIndex:word):AnsiString;
+    procedure LoadLIBFile(FilePath: string; var aArray: array of AnsiString);
+    procedure LoadLIBXFile(FilePath: string; var aArray: TAnsiStringArray; aInitializeValues: Boolean);
+    procedure ExportTextLibrary(aLibrary: array of AnsiString; aFileName: string);
+    function GetRemakeString(aIndex:word): AnsiString;
+    function GetTexts(aIndex:word): AnsiString;
   public
     constructor Create(aLibPath: string; aLocale: AnsiString);
-    function GetTextString(aIndex:word):AnsiString;
-    function GetSetupString(aIndex:word):AnsiString;
-    property Texts[aIndex:word]:AnsiString read GetTexts; default;
+    function GetTextString(aIndex:word): AnsiString;
+    function GetSetupString(aIndex:word): AnsiString;
+    property Texts[aIndex:word]: AnsiString read GetTexts; default;
     procedure ExportTextLibraries;
   end;
 
@@ -191,7 +191,7 @@ begin
 end;
 
 
-function TTextLibrary.GetTexts(aIndex:word):AnsiString;
+function TTextLibrary.GetTexts(aIndex: word): AnsiString;
 begin
   if aIndex < 1000 then
     Result := GetTextString(aIndex)
@@ -203,7 +203,7 @@ begin
 end;
 
 
-function TTextLibrary.GetTextString(aIndex:word):AnsiString;
+function TTextLibrary.GetTextString(aIndex: word): AnsiString;
 begin
   if aIndex <= MaxStrings then
     Result := TextStrings[aIndex]
@@ -212,7 +212,7 @@ begin
 end;
 
 
-function TTextLibrary.GetSetupString(aIndex:word):AnsiString;
+function TTextLibrary.GetSetupString(aIndex: word): AnsiString;
 begin
   if aIndex <= MaxStrings then
     Result := SetupStrings[aIndex]
@@ -221,7 +221,7 @@ begin
 end;
 
 
-function TTextLibrary.GetRemakeString(aIndex:word):AnsiString;
+function TTextLibrary.GetRemakeString(aIndex: word): AnsiString;
 begin
   if aIndex < length(RemakeStrings) then
     Result := RemakeStrings[aIndex]
@@ -230,26 +230,32 @@ begin
 end;
 
 
-procedure TTextLibrary.ExportTextLibrary(var aLibrary: array of AnsiString; aFileName:AnsiString);
+procedure TTextLibrary.ExportTextLibrary(aLibrary: array of AnsiString; aFileName: string);
 var
   i: integer;
   FileData: TStringList;
 begin
   //Here we will export all of the text to a file
   FileData := TStringList.Create;
-  if FileExists(aFileName) then DeleteFile(aFileName);
-  for i:= 0 to MaxStrings do
-    FileData.Add(IntToStr(i)+': '+aLibrary[i]);
-  FileData.SaveToFile(aFileName);
-  FileData.Free;
+  try
+    if FileExists(aFileName) then 
+      DeleteFile(aFileName);
+
+    for i := 0 to MaxStrings do
+      FileData.Add(IntToStr(i) + ': ' + aLibrary[i]);
+
+    FileData.SaveToFile(aFileName);
+  finally
+    FileData.Free;
+  end;
 end;
 
 
 procedure TTextLibrary.ExportTextLibraries;
 begin
-  CreateDir(ExeDir+'Export\');
-  ExportTextLibrary(SetupStrings,ExeDir+'Export\LIB_Setup.txt');
-  ExportTextLibrary(TextStrings,ExeDir+'Export\LIB_Text.txt');
+  CreateDir(ExeDir + 'Export\');
+  ExportTextLibrary(SetupStrings, ExeDir + 'Export\LIB_Setup.txt');
+  ExportTextLibrary(TextStrings, ExeDir + 'Export\LIB_Text.txt');
 end;
 
 

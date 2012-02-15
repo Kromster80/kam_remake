@@ -155,7 +155,7 @@ end;
 procedure TKMMapView.Update(aMapEditor: Boolean);
 var
   wData: Pointer;
-  I: Integer;
+  I: Word;
   WidthPOT, HeightPOT: Word;
 begin
   fMapX := fMyTerrain.MapX;
