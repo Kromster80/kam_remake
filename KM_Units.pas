@@ -161,6 +161,7 @@ type
     property Thought:TUnitThought read fThought write fThought;
     function GetMovementVector: TKMPointF;
 
+    function PickRandomSpot(aList: TKMPointDirList; out Loc: TKMPointDir): Boolean;
 
     function CanStepTo(X,Y: Integer): Boolean;
     function CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean; overload;
@@ -792,8 +793,7 @@ end;
 
 function TKMUnitWorker.UpdateState: Boolean;
 var
-  H:TKMHouseInn;
-  OutOfWay: TKMPoint;
+  H: TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitWorker.UpdateState',fCurrPosition);
@@ -811,11 +811,6 @@ begin
 
   //If we are still stuck on a house for some reason, get off it ASAP
   Assert(fTerrain.Land[fCurrPosition.Y, fCurrPosition.X].Markup <> tlLocked);
-  {begin
-    Assert(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y) <> nil);
-    OutOfWay := KMPointBelow(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y).GetEntrance);
-    SetActionWalkToSpot(OutOfWay);
-  end;}
 
   if (fUnitTask = nil) and (fCurrentAction = nil) then SetActionStay(20, ua_Walk);
 
@@ -1841,6 +1836,30 @@ begin
 
   if SHOW_POINTER_DOTS and fGame.AllowDebugRendering then
     fRenderAux.UnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), fPointerCount);
+end;
+
+
+//Select random point from list, excluding current location
+function TKMUnit.PickRandomSpot(aList: TKMPointDirList; out Loc: TKMPointDir): Boolean;
+var
+  I, MyCount: Integer;
+  Spots: array of Word;
+begin
+  SetLength(Spots, aList.Count);
+
+  //Scan the list and pick suitable locations
+  MyCount := 0;
+  for I := 0 to aList.Count - 1 do
+  if not KMSamePoint(aList[I].Loc, GetPosition)
+  and CanWalkTo(aList[I].Loc, 0) then
+  begin
+    Spots[MyCount] := I;
+    Inc(MyCount);
+  end;
+
+  Result := (MyCount > 0);
+  if Result then
+    Loc := aList[Spots[KaMRandom(MyCount)]];
 end;
 
 

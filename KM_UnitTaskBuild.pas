@@ -87,10 +87,10 @@ type
 
   TTaskBuildHouse = class(TUnitTask)
     private
-      fHouse:TKMHouse;
-      BuildID:integer;
-      CurLoc:byte; //Current WIP location
-      Cells:TKMPointDirList; //List of surrounding cells and directions
+      fHouse: TKMHouse;
+      BuildID: Integer;
+      BuildFrom: TKMPointDir; //Current WIP location
+      Cells: TKMPointDirList; //List of surrounding cells and directions
     public
       constructor Create(aWorker:TKMUnitWorker; aTerrain: TTerrain; aHouse:TKMHouse; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -105,7 +105,7 @@ type
     private
       fHouse: TKMHouse;
       fRepairID: Integer; //Remember the house we repair to report if we died and let others take our place
-      CurLoc: Byte; //Current WIP location
+      BuildFrom: TKMPointDir; //Current WIP location
       Cells: TKMPointDirList; //List of surrounding cells and directions
     public
       constructor Create(aWorker: TKMUnitWorker; aTerrain: TTerrain; aHouse: TKMHouse; aRepairID: Integer);
@@ -760,7 +760,7 @@ begin
   inherited;
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(BuildID);
-  LoadStream.Read(CurLoc);
+  LoadStream.Read(BuildFrom);
   Cells := TKMPointDirList.Load(LoadStream);
 end;
 
@@ -795,25 +795,6 @@ end;
 
 {Build the house}
 function TTaskBuildHouse.Execute: TTaskResult;
-  function PickRandomSpot: Shortint;
-  var
-    I, MyCount: Integer;
-    Spots: array [0..15] of Byte;
-  begin
-    MyCount := 0;
-    for I := 0 to Cells.Count - 1 do
-      if not KMSamePoint(Cells[I].Loc, fUnit.GetPosition) then
-        //Check if unit can walk to location each time cos passability may change over time
-        if fUnit.CanWalkTo(Cells[I].Loc, 0) then
-        begin
-          Spots[MyCount] := I;
-          Inc(MyCount);
-        end;
-    if MyCount > 0 then
-      Result := Spots[KaMRandom(MyCount)]
-    else
-      Result := -1;
-  end;
 begin
   Result := TaskContinues;
 
@@ -821,24 +802,25 @@ begin
   begin
     fUnit.Thought := th_None;
     Result := TaskDone;
-    exit;
+    Exit;
   end;
 
   with fUnit do
     case fPhase of
-      0: begin
+      0: if PickRandomSpot(Cells, BuildFrom) then
+         begin
            Thought := th_Build;
-           CurLoc := PickRandomSpot; //@Krom: CurLoc is type Byte, but PickRandomSpot returns ShortInt. (-1 for failure) I guess CurLoc should also be ShortInt?
-           Assert(CurLoc <> -1);
-           SetActionWalkToSpot(Cells[CurLoc].Loc);
-         end;
+           SetActionWalkToSpot(BuildFrom.Loc);
+         end
+         else //@Lewin: Do you think we can drop the task if there's not enough free place around?
+           Result := TaskDone;
       1: begin
-           Direction := Cells[CurLoc].Dir;
+           Direction := BuildFrom.Dir;
            SetActionLockedStay(0, ua_Walk);
          end;
       2: begin
            SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
-           Direction := Cells[CurLoc].Dir;
+           Direction := BuildFrom.Dir;
            //Remove house plan when we start the stone phase (it is still required for wood)
            //But don't do it every time we hit if it's already done!
            if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y, fHouse.GetPosition.X].Markup <> tlLocked) then
@@ -875,7 +857,7 @@ begin
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(BuildID);
-  SaveStream.Write(CurLoc);
+  SaveStream.Write(BuildFrom);
   Cells.Save(SaveStream);
 end;
 
@@ -887,7 +869,6 @@ begin
   fTaskName := utn_BuildHouseRepair;
   fHouse    := aHouse.GetHousePointer;
   fRepairID := aRepairID;
-  CurLoc    := 0;
 
   Cells := TKMPointDirList.Create;
   fHouse.GetListOfCellsAround(Cells, aWorker.GetDesiredPassability);
@@ -899,7 +880,7 @@ begin
   inherited;
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fRepairID);
-  LoadStream.Read(CurLoc);
+  LoadStream.Read(BuildFrom);
   Cells := TKMPointDirList.Load(LoadStream);
 end;
 
@@ -941,19 +922,20 @@ begin
 
   with fUnit do
     case fPhase of
-      //Pick random location and go there
-      0:  begin
+      0:  if PickRandomSpot(Cells, BuildFrom) then
+          begin
             Thought := th_Build;
-            CurLoc := KaMRandom(Cells.Count);
-            SetActionWalkToSpot(Cells[CurLoc].Loc);
-          end;
+            SetActionWalkToSpot(BuildFrom.Loc);
+          end
+          else //@Lewin: Do you think we can drop the task if there's not enough free place around?
+            Result := TaskDone;
       1:  begin
-            Direction := Cells[CurLoc].Dir;
+            Direction := BuildFrom.Dir;
             SetActionLockedStay(0, ua_Walk);
           end;
       2:  begin
             SetActionLockedStay(5, ua_Work, false, 0, 0); //Start animation
-            Direction := Cells[CurLoc].Dir;
+            Direction := BuildFrom.Dir;
           end;
       3:  begin
             fHouse.AddRepair;
@@ -985,7 +967,7 @@ begin
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fRepairID);
-  SaveStream.Write(CurLoc);
+  SaveStream.Write(BuildFrom);
   Cells.Save(SaveStream);
 end;
 
