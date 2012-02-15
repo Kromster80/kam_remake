@@ -1271,9 +1271,9 @@ begin
   ListBox_Load.SetItems('');
 
   if Radio_Load_MapType.ItemIndex = 0 then
-    fMaps.Refresh(Load_MapListUpdateDone, nil)
+    fMaps.Refresh(Load_MapListUpdateDone)
   else
-    fMapsMP.Refresh(Load_MapListUpdateDone, nil);
+    fMapsMP.Refresh(Load_MapListUpdateDone);
 end;
 
 

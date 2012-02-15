@@ -666,6 +666,7 @@ type
     fList: TKMListBox;
     fShape: TKMShape;
     fOnChange: TNotifyEvent;
+    procedure UpdateDropPosition;
     procedure ListShow(Sender: TObject);
     procedure ListClick(Sender: TObject);
     procedure ListHide(Sender: TObject);
@@ -3072,17 +3073,32 @@ begin
   if not aValue then ListHide(Self);
 end;
 
+//When new items are added to the list we must update the drop height and position
+procedure TKMDropBox.UpdateDropPosition;
+begin
+  if fList.Visible then
+  begin
+    if fList.Count < 1 then Exit;
+    fList.Height := Math.min(fDropCount, fList.Count)*fList.ItemHeight;
+    if fDropUp then
+      fList.Top := Top-fList.Height-MasterParent.Top
+    else
+      fList.Top := Top+Height-MasterParent.Top;
+  end;
+end;
+
 
 procedure TKMDropBox.Add(aItem: string);
 begin
   fList.Add(aItem);
+  UpdateDropPosition;
 end;
 
 
 procedure TKMDropBox.SetItems(aText: string);
 begin
   fList.SetItems(aText);
-  fCaption := fDefaultCaption;
+  UpdateDropPosition;
 end;
 
 

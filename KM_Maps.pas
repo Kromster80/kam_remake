@@ -64,7 +64,6 @@ type
     fScanner: TTScanner;
     fScanning: Boolean; //Flag if scan is in progress
     fOnRefresh: TNotifyEvent;
-    fOnRefreshComplete: TNotifyEvent;
     procedure Lock;
     procedure Unlock;
     procedure Clear;
@@ -80,7 +79,7 @@ type
     property Count: Integer read fCount;
     property Maps[aIndex: Integer]: TKMapInfo read GetMap; default;
 
-    procedure Refresh(aOnRefresh, aOnRefreshComplete: TNotifyEvent);
+    procedure Refresh(aOnRefresh: TNotifyEvent);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
     property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
@@ -413,14 +412,13 @@ end;
 
 
 //Start the refresh of maplist
-procedure TKMapsCollection.Refresh(aOnRefresh, aOnRefreshComplete: TNotifyEvent);
+procedure TKMapsCollection.Refresh(aOnRefresh: TNotifyEvent);
 begin
   //Terminate previous Scanner if two scans were launched consequentialy
   TerminateScan;
   Clear;
 
   fOnRefresh := aOnRefresh;
-  fOnRefreshComplete := aOnRefreshComplete;
 
   fScanning := True;
   fScanner := TTScanner.Create(fMultiplayerPath, MapAdd, MapAddDone);
@@ -470,8 +468,6 @@ begin
   Lock;
   try
     fScanning := False;
-    if Assigned(fOnRefreshComplete) then
-      fOnRefreshComplete(Self);
   finally
     Unlock;
   end;

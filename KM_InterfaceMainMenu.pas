@@ -1265,10 +1265,12 @@ begin
   {Show SingleMap menu}
   if Sender=Button_SP_Single then
   begin
+    //Stop current now scan so it can't add a map after we clear the list
+    fMaps.TerminateScan;
     //Remove any old entries from UI
     SingleMap_Clear;
     //Initiate refresh and process each new map added
-    fMaps.Refresh(SingleMap_RefreshList, nil);
+    fMaps.Refresh(SingleMap_RefreshList);
     Panel_Single.Show;
   end;
 
@@ -2090,29 +2092,21 @@ end;
 
 
 procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
-  procedure MapsRefresh;
-  begin
-    //If we were refreshed by SwitchPage chances are we need to fully rescan the list
-    if Sender = nil then
-      fMapsMP.Refresh(Lobby_MapTypeRefreshDone, nil) //Report after each new map
-    else
-      fMapsMP.Refresh(nil, Lobby_MapTypeRefreshDone); //Report on completion
-  end;
 begin
   case Radio_LobbyMapType.ItemIndex of
     0:  //Build Map
         begin
-          MapsRefresh;
+          fMapsMP.Refresh(Lobby_MapTypeRefreshDone);
           List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
         end;
     1:  //Fight Map
         begin
-          MapsRefresh;
+          fMapsMP.Refresh(Lobby_MapTypeRefreshDone);
           List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
         end;
     2:  //Co-op Map
         begin
-          MapsRefresh;
+          fMapsMP.Refresh(Lobby_MapTypeRefreshDone);
           List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
         end;
     3:  //Saved Game
@@ -2127,6 +2121,7 @@ begin
           List_Lobby.SetItems('');
         end;
   end;
+  List_Lobby.ItemIndex := -1; //Clear previously selected item
 
   //The Sender is nil in Reset_Lobby when we are not connected
   if Sender <> nil then
@@ -2453,9 +2448,9 @@ begin
   fMaps.TerminateScan;
   fMapsMP.TerminateScan;
   if Radio_MapEd_MapType.ItemIndex = 0 then
-    fMaps.Refresh(MapEditor_ListUpdateDone, nil)
+    fMaps.Refresh(MapEditor_ListUpdateDone)
   else
-    fMapsMP.Refresh(MapEditor_ListUpdateDone, nil);
+    fMapsMP.Refresh(MapEditor_ListUpdateDone);
 end;
 
 
