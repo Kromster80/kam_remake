@@ -10,7 +10,6 @@ uses
 
 type
   TMissionParsingMode = (
-                          mpm_Info,   //Return basic mission properties
                           mpm_Single,
                           mpm_Multi,  //Skip players
                           mpm_Editor, //Ignore errors, load armies differently
@@ -47,15 +46,39 @@ type
     Target: TKMPoint;
   end;
 
-  TMissionParser = class
+  
+  TMissionParserGeneric = class
+  private
+    fStrictParsing: boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
+    fMissionFileName: string;
+    fErrorMessage: string; //Errors descriptions accumulate here
+    fMissionInfo: TKMMissionInfo;
+    function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
+    function ReadMissionFile(const aFileName:string): AnsiString;
+    procedure AddError(const ErrorMsg:string; aFatal:boolean=false);
+  public
+    constructor Create(aStrictParsing: boolean);
+    property ErrorMessage:string read fErrorMessage;
+    property MissionInfo:TKMMissionInfo read fMissionInfo;
+    function LoadMission(const aFileName: string):boolean; overload; virtual;
+  end;
+
+
+  TMissionParserInfo = class(TMissionParserGeneric)
+  private
+    function LoadMapInfo(const aFileName:string):boolean;
+    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
+  public
+    function LoadMission(const aFileName: string):boolean; override;
+  end;
+
+
+  TMissionParserStandard = class(TMissionParserGeneric)
   private
     fTerrain: TTerrain;
     fParsingMode: TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
-    fStrictParsing: boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
     fRemapCount: byte;
     fRemap: TPlayerArray;
-    fErrorMessage: string; //Errors descriptions accumulate here
-    fMissionFileName: string;
 
     fLastPlayer: integer;
     fLastHouse: TKMHouse;
@@ -64,27 +87,24 @@ type
     fAttackPositions: array of TKMAttackPosition;
     fAttackPositionsCount: integer;
 
-    fMissionInfo: TKMMissionInfo;
-
-    function LoadSimple(const aFileName:string):boolean;
-    function LoadStandard(const aFileName:string):boolean;
-    function LoadMapInfo(const aFileName:string):boolean;
-
-    function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
     function ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam: AnsiString):boolean;
-    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
-    procedure AddScriptError(const ErrorMsg:string; aFatal:boolean=false);
     procedure ProcessAttackPositions;
-    function ReadMissionFile(const aFileName:string): AnsiString;
   public
     constructor Create(aMode:TMissionParsingMode; aStrictParsing:boolean); overload;
     constructor Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean); overload;
-    function LoadMission(const aFileName: string; aTerrain: TTerrain):boolean;
-
-    property ErrorMessage:string read fErrorMessage;
-    property MissionInfo:TKMMissionInfo read fMissionInfo;
+    function LoadMission(const aFileName: string; aTerrain: TTerrain):boolean; overload;
 
     procedure SaveDATFile(const aFileName: String);
+  end;
+
+  //todo: TMissionParserPreview = class(TMissionParserGeneric)
+  TMissionParserPreview = class(TMissionParserStandard)
+  private
+    {
+    fTileOwner: array of array of TPlayerIndex;
+    fFogOfWar: array of array of byte;
+    }
+  public
   end;
 
 
@@ -144,44 +164,17 @@ const
   -1,-1,-1,-1,-1,-1,-1,-1); //Animals
 
 
-{ TMissionParser }
-//Mode affect how certain parameters are loaded a bit differently
-constructor TMissionParser.Create(aMode: TMissionParsingMode; aStrictParsing: boolean);
-var i:integer;
+{ TMissionParserGeneric }
+constructor TMissionParserGeneric.Create(aStrictParsing: boolean);
 begin
   Inherited Create;
-  fParsingMode := aMode;
   fStrictParsing := aStrictParsing;
-
-  for i:=0 to High(fRemap) do
-    fRemap[i] := i;
-
-  fRemapCount := MAX_PLAYERS;
 end;
 
 
-constructor TMissionParser.Create(aMode: TMissionParsingMode; aPlayersRemap: TPlayerArray; aStrictParsing:boolean);
-var i:integer;
+function TMissionParserGeneric.LoadMission(const aFileName: string):boolean;
 begin
-  Inherited Create;
-  fParsingMode := aMode;
-  fStrictParsing := aStrictParsing;
-
-  //PlayerRemap tells us which player should be used for which index
-  //and which players should be ignored
-  fRemap := aPlayersRemap;
-
-  for i:=0 to High(fRemap) do
-    inc(fRemapCount);
-end;
-
-
-function TMissionParser.LoadMission(const aFileName: string; aTerrain: TTerrain):boolean;
-begin
-  fTerrain := aTerrain;
   fMissionFileName := aFileName;
-
-  Assert((aTerrain <> nil) or (fParsingMode = mpm_Info));
 
   //Set default values
   fMissionInfo.MapPath := '';
@@ -193,17 +186,11 @@ begin
   fMissionInfo.VictoryCond := '';
   fMissionInfo.DefeatCond := '';
 
-  if fParsingMode = mpm_Info then
-    Result := LoadSimple(aFileName)
-  else
-    Result := LoadStandard(aFileName);
-
-  //We double-check against success of every loading step and no errors
-  Result := Result and (fErrorMessage='');
+  Result := true;
 end;
 
 
-function TMissionParser.TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
+function TMissionParserGeneric.TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
 var
   i: TKMCommandType;
 begin
@@ -222,14 +209,14 @@ end;
 
 
 //Read mission file to a string and if necessary - decode it
-function TMissionParser.ReadMissionFile(const aFileName: string): AnsiString;
+function TMissionParserGeneric.ReadMissionFile(const aFileName: string): AnsiString;
 var
   i,Num:cardinal;
   F:TMemoryStream;
 begin
   if not FileExists(aFileName) then
   begin
-    AddScriptError(Format('Mission file %s could not be found', [aFileName]), True);
+    AddError(Format('Mission file %s could not be found', [aFileName]), True);
     Result := '';
     Exit;
   end;
@@ -241,7 +228,7 @@ begin
 
     if F.Size = 0 then
     begin
-      AddScriptError(Format('Mission file %s is empty', [aFileName]), True);
+      AddError(Format('Mission file %s is empty', [aFileName]), True);
       Result := '';
       Exit;
     end;
@@ -284,8 +271,17 @@ begin
 end;
 
 
-{Acquire specific map details in a fast way}
-function TMissionParser.LoadSimple(const aFileName:string):boolean;
+//A nice way of debugging script errors.
+//Shows the error to the user so they know exactly what they did wrong.
+procedure TMissionParserGeneric.AddError(const ErrorMsg:string; aFatal:boolean=false);
+begin
+  if fStrictParsing or aFatal then
+    fErrorMessage := fErrorMessage + ErrorMsg + '|';
+end;
+
+
+{ TMissionParserInfo }
+function TMissionParserInfo.LoadMission(const aFileName: string):boolean;
 const
   Max_Cmd=2;
 var
@@ -295,6 +291,8 @@ var
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
+  Inherited LoadMission(aFileName);
+
   Result := false;
 
   FileText := ReadMissionFile(aFileName);
@@ -354,14 +352,11 @@ begin
   until (k>=length(FileText));
   //Apparently it's faster to parse till file end than check if all details are filled
 
-  //It must have worked if we got to this point
-  Result := true;
-
-  Result := Result and LoadMapInfo(ChangeFileExt(fMissionFileName,'.map'));
+  Result := LoadMapInfo(ChangeFileExt(fMissionFileName,'.map')) and (fErrorMessage='');
 end;
 
 
-procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
+procedure TMissionParserInfo.GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
 begin
   with fMissionInfo do
   case CommandType of
@@ -385,7 +380,7 @@ end;
 
 
 {Acquire specific map details in a fast way}
-function TMissionParser.LoadMapInfo(const aFileName:string):boolean;
+function TMissionParserInfo.LoadMapInfo(const aFileName:string):boolean;
 var F:TKMemoryStream; sx,sy:integer;
 begin
   Result := false;
@@ -402,7 +397,7 @@ begin
 
   if (sx > MAX_MAP_SIZE) or (sy > MAX_MAP_SIZE) then
   begin
-    AddScriptError('MissionParser can''t open the map because it''s too big.',true);
+    AddError('MissionParser can''t open the map because it''s too big.',true);
     Result := false;
     Exit;
   end;
@@ -413,13 +408,48 @@ begin
 end;
 
 
-function TMissionParser.LoadStandard(const aFileName:string):boolean;
+{ TMissionParserStandard }
+//Mode affect how certain parameters are loaded a bit differently
+constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aStrictParsing: boolean);
+var i:integer;
+begin
+  Inherited Create(aStrictParsing);
+  fParsingMode := aMode;
+
+  for i:=0 to High(fRemap) do
+    fRemap[i] := i;
+
+  fRemapCount := MAX_PLAYERS;
+end;
+
+
+constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersRemap: TPlayerArray; aStrictParsing:boolean);
+var i:integer;
+begin
+  Inherited Create(aStrictParsing);
+  fParsingMode := aMode;
+
+  //PlayerRemap tells us which player should be used for which index
+  //and which players should be ignored
+  fRemap := aPlayersRemap;
+
+  for i:=0 to High(fRemap) do
+    inc(fRemapCount);
+end;
+
+
+function TMissionParserStandard.LoadMission(const aFileName: string; aTerrain: TTerrain):boolean;
 var
   FileText, CommandText, Param, TextParam: AnsiString;
   ParamList: array[1..8] of integer;
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
+  Inherited LoadMission(aFileName);
+
+  fTerrain := aTerrain;
+  Assert((aTerrain <> nil));
+
   Result := false; //Set it right from the start
 
   //Reset fPlayers and other stuff
@@ -484,15 +514,16 @@ begin
   //SinglePlayer needs a player
   if (fMissionInfo.HumanPlayerID = PLAYER_NONE) and (fParsingMode = mpm_Single) then
   begin
-    AddScriptError('No human player detected - ''ct_SetHumanPlayer''',true);
+    AddError('No human player detected - ''ct_SetHumanPlayer''',true);
     Exit;
   end;
 
-  Result := true; //If we have reach here without exiting then it must have worked
+  //If we have reach here without exiting then loading was successful if no errors were reported
+  Result := (fErrorMessage='');
 end;
 
 
-function TMissionParser.ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam: AnsiString):boolean;
+function TMissionParserStandard.ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam: AnsiString):boolean;
 var
   MapFileName: string;
   i: integer;
@@ -516,7 +547,7 @@ begin
                          else
                          begin
                            //Else abort loading and fail
-                           AddScriptError('Map file couldn''t be found',true);
+                           AddError('Map file couldn''t be found',true);
                            Exit;
                          end;
                        end;
@@ -568,7 +599,7 @@ begin
                           if fLastHouse <> nil then
                             fLastHouse.AddDamage(min(P[0],high(word)), fParsingMode = mpm_Editor)
                           else
-                            AddScriptError('ct_SetHouseDamage without prior declaration of House');
+                            AddError('ct_SetHouseDamage without prior declaration of House');
     ct_SetUnit:         begin
                           //Animals should be added regardless of current player
                           if UnitsRemap[P[0]] in [ANIMAL_MIN..ANIMAL_MAX] then
@@ -685,7 +716,7 @@ begin
                           if fLastTroop <> nil then
                             fLastTroop.OrderWalk(KMPoint(P[0]+1, P[1]+1), TKMDirection(P[2]+1))
                           else
-                            AddScriptError('ct_SendGroup without prior declaration of Troop');
+                            AddError('ct_SendGroup without prior declaration of Troop');
                         end;
     ct_SetGroupFood:    if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >= 0 then
@@ -693,7 +724,7 @@ begin
                           if fLastTroop <> nil then
                             fLastTroop.SetGroupFullCondition
                           else
-                            AddScriptError('ct_SetGroupFood without prior declaration of Troop');
+                            AddError('ct_SetGroupFood without prior declaration of Troop');
                         end;
     ct_AICharacter:     if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >= 0 then
@@ -738,7 +769,7 @@ begin
                             fAttackPositions[fAttackPositionsCount-1].Target := KMPoint(P[0]+1,P[1]+1);
                           end
                           else
-                            AddScriptError('ct_AttackPosition without prior declaration of Troop');
+                            AddError('ct_AttackPosition without prior declaration of Troop');
     ct_AddGoal:         if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >= 0 then
                           //If the condition is time then P[3] is the time, else it is player ID
@@ -749,7 +780,7 @@ begin
                               if fRemap[P[3]] <= fPlayers.Count-1 then
                                 fPlayers.Player[fLastPlayer].Goals.AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],fRemap[P[3]])
                               else
-                                AddScriptError('Add_Goal for non existing player');
+                                AddError('Add_Goal for non existing player');
     ct_AddLostGoal:     if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >= 0 then
                           //If the condition is time then P[3] is the time, else it is player ID
@@ -759,7 +790,7 @@ begin
                             if fRemap[P[3]] >= 0 then
                               fPlayers.Player[fLastPlayer].Goals.AddGoal(glt_Survive,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],fRemap[P[3]])
                             else
-                              AddScriptError('Add_LostGoal for non existing player');
+                              AddError('Add_LostGoal for non existing player');
     ct_AIDefence:       if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >=0 then
                           fPlayers.Player[fLastPlayer].AI.AddDefencePosition(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
@@ -773,7 +804,7 @@ begin
                             if InRange(P[1], Low(RemakeAttackType), High(RemakeAttackType)) then
                               fAIAttack.AttackType := RemakeAttackType[P[1]]
                             else
-                              AddScriptError('Unknown parameter ' + IntToStr(P[1]) + ' at ct_AIAttack');
+                              AddError('Unknown parameter ' + IntToStr(P[1]) + ' at ct_AIAttack');
                           if TextParam = AI_ATTACK_PARAMS[cpt_TotalAmount] then
                             fAIAttack.TotalMen := P[1];
                           if TextParam = AI_ATTACK_PARAMS[cpt_Counter] then
@@ -804,17 +835,8 @@ begin
 end;
 
 
-//A nice way of debugging script errors.
-//Shows the error to the user so they know exactly what they did wrong.
-procedure TMissionParser.AddScriptError(const ErrorMsg:string; aFatal:boolean=false);
-begin
-  if fStrictParsing or aFatal then
-    fErrorMessage := fErrorMessage + ErrorMsg + '|';
-end;
-
-
 //Determine what we are attacking: House, Unit or just walking to some place
-procedure TMissionParser.ProcessAttackPositions;
+procedure TMissionParserStandard.ProcessAttackPositions;
 var
   i: integer;
   H: TKMHouse;
@@ -839,7 +861,7 @@ end;
 
 
 //Write out a KaM format mission file to aFileName
-procedure TMissionParser.SaveDATFile(const aFileName: String);
+procedure TMissionParserStandard.SaveDATFile(const aFileName: String);
 const
   COMMANDLAYERS = 4;
 var

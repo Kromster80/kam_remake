@@ -11,7 +11,7 @@ type
   private
     fRender: TRender; //Should be used to Gen and Update texture
     fOwnTerrain: Boolean;
-    fParser: TMissionParser;
+    fParser: TMissionParserPreview;
     fMyTerrain: TTerrain;
     fMapY: Word;
     fMapX: Word;
@@ -52,7 +52,7 @@ begin
   if fOwnTerrain then
   begin
     fMyTerrain := TTerrain.Create;
-    fParser := TMissionParser.Create(mpm_Preview, False);
+    fParser := TMissionParserPreview.Create(mpm_Preview, False);
   end
   else
   begin

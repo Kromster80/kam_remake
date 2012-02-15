@@ -493,7 +493,7 @@ end;
 procedure TKMGame.GameStart(aMissionFile, aGameName: string);
 var
   LoadError: string;
-  fMissionParser: TMissionParser;
+  fMissionParser: TMissionParserStandard;
 begin
   fLog.AppendLog('GameStart');
 
@@ -505,7 +505,7 @@ begin
   if aMissionFile <> '' then
   try //Catch exceptions
     fLog.AppendLog('Loading DAT file for singleplayer: '+aMissionFile);
-    fMissionParser := TMissionParser.Create(mpm_Single, false);
+    fMissionParser := TMissionParserStandard.Create(mpm_Single, false);
     if not fMissionParser.LoadMission(aMissionFile, fTerrain) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     MyPlayer := fPlayers.Player[fMissionParser.MissionInfo.HumanPlayerID];
@@ -559,7 +559,7 @@ procedure TKMGame.StartMultiplayerMap(const aFilename: string);
 var
   i: integer;
   PlayerRemap:TPlayerArray;
-  fMissionParser:TMissionParser;
+  fMissionParser:TMissionParserStandard;
   LoadError:string;
 begin
   Stop(gr_Silent); //Stop everything silently
@@ -584,7 +584,7 @@ begin
 
   try //Catch exceptions
     fLog.AppendLog('Loading DAT file for multiplayer: '+MapNameToPath(aFilename, 'dat', true));
-    fMissionParser := TMissionParser.Create(mpm_Multi, PlayerRemap, false);
+    fMissionParser := TMissionParserStandard.Create(mpm_Multi, PlayerRemap, false);
     if not fMissionParser.LoadMission(MapNameToPath(aFilename, 'dat', true), fTerrain) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     fMissionMode := fMissionParser.MissionInfo.MissionMode;
@@ -970,7 +970,7 @@ procedure TKMGame.StartMapEditor(const aFilename: string; aMultiplayer:boolean; 
 var
   i: Integer;
   LoadError: string;
-  fMissionParser: TMissionParser;
+  fMissionParser: TMissionParserStandard;
 begin
   if not FileExists(aFilename) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
@@ -1002,7 +1002,7 @@ begin
   if aFilename <> '' then
   try //Catch exceptions
     fLog.AppendLog('Loading DAT file for editor: '+aFilename);
-    fMissionParser := TMissionParser.Create(mpm_Editor, False);
+    fMissionParser := TMissionParserStandard.Create(mpm_Editor, False);
     if not fMissionParser.LoadMission(aFilename, fTerrain) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     MyPlayer := fPlayers.Player[0];
@@ -1084,7 +1084,7 @@ end;
 
 
 procedure TKMGame.SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
-var i:integer; fMissionParser: TMissionParser;
+var i:integer; fMissionParser: TMissionParserStandard;
 begin
   if aMissionName = '' then exit;
 
@@ -1093,7 +1093,7 @@ begin
   CreateDir(ExeDir+'Maps');
   CreateDir(ExeDir+'Maps\'+aMissionName);
   fTerrain.SaveToFile(MapNameToPath(aMissionName, 'map', aMultiplayer));
-  fMissionParser := TMissionParser.Create(mpm_Editor,false);
+  fMissionParser := TMissionParserStandard.Create(mpm_Editor,false);
   fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat', aMultiplayer));
   FreeAndNil(fMissionParser);
   fGameName := aMissionName;

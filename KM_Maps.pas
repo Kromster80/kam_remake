@@ -128,7 +128,7 @@ var
   st,DatFile,MapFile:string;
   ft:textfile;
   i:integer;
-  fMissionParser:TMissionParser;
+  fMissionParser:TMissionParserInfo;
 begin
   //We scan only single-player maps which are in Maps\ folder, so DAT\MAP paths are straight
   DatFile := fPath + fFilename + '.dat';
@@ -147,9 +147,9 @@ begin
   begin
     fDatSize := GetFileSize(DatFile);
 
-    fMissionParser := TMissionParser.Create(mpm_Info, false);
+    fMissionParser := TMissionParserInfo.Create(false);
     try
-      fMissionParser.LoadMission(DatFile, nil);
+      fMissionParser.LoadMission(DatFile);
 
       //Single maps Titles are the same as filename for now.
       //Campaign maps are in different folder

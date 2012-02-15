@@ -812,7 +812,7 @@ begin
            Thought := th_Build;
            SetActionWalkToSpot(BuildFrom.Loc);
          end
-         else //@Lewin: Do you think we can drop the task if there's not enough free place around?
+         else
            Result := TaskDone;
       1: begin
            Direction := BuildFrom.Dir;
@@ -927,7 +927,7 @@ begin
             Thought := th_Build;
             SetActionWalkToSpot(BuildFrom.Loc);
           end
-          else //@Lewin: Do you think we can drop the task if there's not enough free place around?
+          else
             Result := TaskDone;
       1:  begin
             Direction := BuildFrom.Dir;
