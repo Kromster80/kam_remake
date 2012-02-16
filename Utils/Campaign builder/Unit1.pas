@@ -33,6 +33,7 @@ type
     imgBlackFlag: TImage;
     imgRedFlag: TImage;
     imgNode: TImage;
+    StatusBar1: TStatusBar;
     procedure Button7Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -41,21 +42,24 @@ type
     procedure CampaignChange(Sender: TObject);
     procedure MapChange(Sender: TObject);
     procedure Button1Click(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     imgFlags: array of TImage;
+    imgNodes: array of TImage;
     fUpdating: Boolean;
     fSelectedMap: Integer;
     fSelectedNode: Integer;
     PrevX, PrevY: Integer;
   public
-    procedure UpdateList;
-    procedure UpdateFlagCount;
-
     procedure FlagDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure NodeDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+
     procedure SelectMap;
     procedure RefreshFlags;
+    procedure UpdateList;
+    procedure UpdateFlagCount;
+    procedure UpdateNodeCount;
   end;
 
 
@@ -85,46 +89,67 @@ begin
 end;
 
 
-procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  {if fSelectedMap = -1 then Exit;
-
-  case Key of
-    VK_LEFT:  imgFlags[fSelectedMap].Left := imgFlags[fSelectedMap].Left - 1;
-    VK_RIGHT: imgFlags[fSelectedMap].Left := imgFlags[fSelectedMap].Left + 1;
-    VK_UP:    imgFlags[fSelectedMap].Top := imgFlags[fSelectedMap].Top - 1;
-    VK_DOWN:  imgFlags[fSelectedMap].Top := imgFlags[fSelectedMap].Top + 1;
-  end;}
-end;
-
-
 procedure TForm1.FlagDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   if Button = mbLeft then
   begin
     fSelectedMap := TImage(Sender).Tag;
     fSelectedNode := -1;
+    SelectMap;
 
     PrevX := X;
     PrevY := Y;
-
-    SelectMap;
   end;
 end;
 
 
 procedure TForm1.FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+var Img: TImage;
 begin
-  if ssLeft in Shift then
+  if (ssLeft in Shift) and (fSelectedMap <> -1) then
   begin
-    TImage(Sender).Left := TImage(Sender).Left + (X - PrevX);
-    TImage(Sender).Top  := TImage(Sender).Top  + (Y - PrevY);
+    Img := TImage(Sender);
+    Assert(Img <> nil);
 
-    C.Maps[fSelectedMap].Flag.X := TImage(Sender).Left - Image1.Left;
-    C.Maps[fSelectedMap].Flag.Y := TImage(Sender).Top  - Image1.Top;
+    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024);
+    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768);
 
-    //PrevX := X;
-    //PrevY := Y;
+    C.Maps[fSelectedMap].Flag.X := Img.Left - Image1.Left;
+    C.Maps[fSelectedMap].Flag.Y := Img.Top  - Image1.Top;
+
+    StatusBar1.Panels[1].Text := 'Position ' + IntToStr(Img.Left) + 'x' + IntToStr(Img.Top);
+  end;
+end;
+
+
+procedure TForm1.NodeDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Button = mbLeft then
+  begin
+    fSelectedNode := TImage(Sender).Tag;
+    SelectMap;
+
+    PrevX := X;
+    PrevY := Y;
+  end;
+end;
+
+
+procedure TForm1.NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+var Img: TImage;
+begin
+  if (ssLeft in Shift) and (fSelectedMap <> -1) and (fSelectedNode <> -1) then
+  begin
+    Img := TImage(Sender);
+    Assert(Img <> nil);
+
+    Img.Left := EnsureRange(Img.Left + (X - PrevX), Image1.Left, Image1.Left + 1024);
+    Img.Top  := EnsureRange(Img.Top  + (Y - PrevY), Image1.Top, Image1.Top + 768);
+
+    C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left - Image1.Left;
+    C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  - Image1.Top;
+
+    StatusBar1.Panels[1].Text := 'Position ' + IntToStr(Img.Left) + 'x' + IntToStr(Img.Top);
   end;
 end;
 
@@ -168,8 +193,8 @@ var P: TPicID;
 begin
   if fUpdating then Exit;
 
-  C.FullTitle := edtFullName.Text;
-  C.ShortTitle := edtShortName.Text;
+  C.FullTitle := AnsiString(edtFullName.Text);
+  C.ShortTitle := AnsiString(edtShortName.Text);
 
   P.RX := TRXType(cbImageLib.ItemIndex);
   P.ID := cbImageID.Value;
@@ -200,6 +225,8 @@ begin
   C.Maps[fSelectedMap].NodeCount := seNodeCount.Value;
 
   UpdateList;
+  UpdateNodeCount;
+  RefreshFlags;
 end;
 
 
@@ -215,6 +242,14 @@ begin
       imgFlags[I].Picture.Bitmap := imgBlackFlag.Picture.Bitmap
     else
       imgFlags[I].Picture.Bitmap := imgRedFlag.Picture.Bitmap
+  end;
+
+  if fSelectedMap = -1 then Exit;
+
+  for I := 0 to C.Maps[fSelectedMap].NodeCount - 1 do
+  begin
+    imgNodes[I].Left := C.Maps[fSelectedMap].Nodes[I].X + Image1.Left;
+    imgNodes[I].Top := C.Maps[fSelectedMap].Nodes[I].Y + Image1.Top;
   end;
 end;
 
@@ -262,6 +297,8 @@ end;
 
 procedure TForm1.tvListChange(Sender: TObject; Node: TTreeNode);
 begin
+  if fUpdating then Exit;
+
   if Node.Parent = nil then
   begin
     fSelectedMap := Node.Index;
@@ -305,13 +342,63 @@ begin
 end;
 
 
+procedure TForm1.UpdateNodeCount;
+var
+  I: Integer;
+begin
+  if fSelectedMap = -1 then Exit;
+
+  //Create nodes
+  if C.Maps[fSelectedMap].NodeCount > Length(imgNodes) then
+  begin
+    SetLength(imgNodes, C.Maps[fSelectedMap].NodeCount);
+
+    for I := 0 to C.Maps[fSelectedMap].NodeCount - 1 do
+    if imgNodes[I] = nil then
+    begin
+      imgNodes[I] := TImage.Create(Image1);
+      imgNodes[I].Parent := Self;
+      imgNodes[I].AutoSize := True;
+      imgNodes[I].Transparent := True;
+      imgNodes[I].Picture.Bitmap := imgNode.Picture.Bitmap;
+      imgNodes[I].Tag := I;
+      imgNodes[I].OnMouseDown := NodeDown;
+      imgNodes[I].OnMouseMove := NodeMove;
+    end;
+  end;
+
+  //Hide unused nodes
+  for I := 0 to Length(imgNodes) - 1 do
+    imgNodes[I].Visible := (I <= C.Maps[fSelectedMap].NodeCount - 1);
+end;
+
+
 procedure TForm1.SelectMap;
+var I, M, N: Integer;
 begin
   if fUpdating then Exit;
 
   fUpdating := True;
 
   //Select map in TreeList
+  M := -1;
+  N := -1;
+  for I := 0 to tvList.Items.Count - 1 do
+  begin
+    if tvList.Items[I].Parent = nil then
+    begin
+      Inc(M);
+      N := -1; //Reset node count
+    end
+    else
+      Inc(N);
+
+    if (M = fSelectedMap) and (N = fSelectedNode) then
+      tvList.Items[I].Selected := True;
+
+
+
+
   if InRange(fSelectedMap, 0, tvList.Items.Count - 1) then
   begin
     tvList.Items[fSelectedMap].Selected := True;
@@ -325,12 +412,13 @@ begin
     fSelectedMap := -1;
 
   //Update map info
-  Label7.Caption := 'Mission name (' + IntToStr(fSelectedMap) + '/' + IntToStr(fSelectedNode) + ')';
+  StatusBar1.Panels[0].Text := 'Selected map: ' + IntToStr(fSelectedMap) + '/' + IntToStr(fSelectedNode);
   edtMapName.Text := C.Maps[fSelectedMap].MapName;
   seNodeCount.Value := C.Maps[fSelectedMap].NodeCount;
 
   fUpdating := False;
 
+  UpdateNodeCount;
   RefreshFlags;
 end;
 

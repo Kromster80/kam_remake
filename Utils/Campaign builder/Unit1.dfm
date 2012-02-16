@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 72
   Top = 90
   Caption = 'Form1'
-  ClientHeight = 490
-  ClientWidth = 686
+  ClientHeight = 492
+  ClientWidth = 689
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,29 +13,28 @@ object Form1: TForm1
   KeyPreview = True
   OldCreateOrder = False
   OnCreate = FormCreate
-  OnKeyDown = FormKeyDown
   DesignSize = (
-    686
-    490)
+    689
+    492)
   PixelsPerInch = 96
   TextHeight = 13
   object Image1: TImage
-    Left = 161
+    Left = 160
     Top = 0
-    Width = 520
-    Height = 489
+    Width = 529
+    Height = 473
     Anchors = [akLeft, akTop, akRight, akBottom]
   end
   object Label1: TLabel
-    Left = 48
-    Top = 187
+    Left = 0
+    Top = 192
     Width = 50
     Height = 13
     Caption = 'Map count'
   end
   object Label2: TLabel
-    Left = 47
-    Top = 469
+    Left = 0
+    Top = 432
     Width = 55
     Height = 13
     Anchors = [akLeft, akBottom]
@@ -49,42 +48,43 @@ object Form1: TForm1
     Caption = 'Campaign name'
   end
   object Bevel1: TBevel
-    Left = 8
+    Left = 0
     Top = 64
-    Width = 146
+    Width = 154
     Height = 2
   end
   object Label4: TLabel
     Left = 0
-    Top = 144
+    Top = 152
     Width = 43
     Height = 13
     Caption = 'Image lib'
   end
   object Label5: TLabel
     Left = 104
-    Top = 144
+    Top = 152
     Width = 44
     Height = 13
     Caption = 'Image ID'
   end
   object Label6: TLabel
     Left = 0
-    Top = 115
+    Top = 112
     Width = 55
     Height = 13
     Caption = 'Short name'
   end
   object Label7: TLabel
     Left = 0
-    Top = 416
+    Top = 392
     Width = 63
     Height = 13
+    Anchors = [akLeft, akBottom]
     Caption = 'Mission name'
   end
   object imgBlackFlag: TImage
     Left = 280
-    Top = 187
+    Top = 184
     Width = 27
     Height = 29
     AutoSize = True
@@ -172,8 +172,8 @@ object Form1: TForm1
     Visible = False
   end
   object imgRedFlag: TImage
-    Left = 313
-    Top = 187
+    Left = 312
+    Top = 184
     Width = 23
     Height = 29
     AutoSize = True
@@ -250,8 +250,8 @@ object Form1: TForm1
     Visible = False
   end
   object imgNode: TImage
-    Left = 342
-    Top = 187
+    Left = 344
+    Top = 184
     Width = 11
     Height = 11
     AutoSize = True
@@ -276,9 +276,9 @@ object Form1: TForm1
   end
   object tvList: TTreeView
     Left = 0
-    Top = 212
-    Width = 156
-    Height = 201
+    Top = 232
+    Width = 153
+    Height = 153
     Anchors = [akLeft, akTop, akBottom]
     AutoExpand = True
     HideSelection = False
@@ -289,7 +289,7 @@ object Form1: TForm1
   object Button1: TButton
     Left = 80
     Top = 0
-    Width = 75
+    Width = 73
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Save CMP ...'
@@ -299,7 +299,7 @@ object Form1: TForm1
   object Button2: TButton
     Left = 0
     Top = 0
-    Width = 75
+    Width = 73
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Load CMP ...'
@@ -307,9 +307,9 @@ object Form1: TForm1
     OnClick = Button2Click
   end
   object Button7: TButton
-    Left = -1
-    Top = 33
-    Width = 155
+    Left = 0
+    Top = 32
+    Width = 153
     Height = 25
     Caption = 'Load picture ...'
     TabOrder = 3
@@ -317,8 +317,8 @@ object Form1: TForm1
   end
   object seMapCount: TSpinEdit
     Left = 0
-    Top = 184
-    Width = 41
+    Top = 208
+    Width = 49
     Height = 22
     MaxValue = 32
     MinValue = 1
@@ -328,7 +328,7 @@ object Form1: TForm1
   end
   object seNodeCount: TSpinEdit
     Left = 0
-    Top = 460
+    Top = 448
     Width = 41
     Height = 22
     Anchors = [akLeft, akBottom]
@@ -340,8 +340,8 @@ object Form1: TForm1
   end
   object cbImageID: TSpinEdit
     Left = 104
-    Top = 159
-    Width = 50
+    Top = 168
+    Width = 49
     Height = 22
     MaxValue = 0
     MinValue = 0
@@ -351,17 +351,17 @@ object Form1: TForm1
   end
   object cbImageLib: TComboBox
     Left = 0
-    Top = 160
-    Width = 89
+    Top = 168
+    Width = 97
     Height = 21
     TabOrder = 7
     Text = 'cbImageLib'
     OnChange = CampaignChange
   end
   object edtShortName: TEdit
-    Left = 61
-    Top = 112
-    Width = 92
+    Left = 0
+    Top = 128
+    Width = 65
     Height = 21
     MaxLength = 4
     TabOrder = 8
@@ -370,30 +370,47 @@ object Form1: TForm1
   object edtFullName: TEdit
     Left = 0
     Top = 88
-    Width = 154
+    Width = 153
     Height = 21
     TabOrder = 9
     OnChange = CampaignChange
   end
   object edtMapName: TEdit
     Left = 0
-    Top = 432
+    Top = 408
     Width = 154
     Height = 21
+    Anchors = [akLeft, akBottom]
     TabOrder = 10
     OnChange = MapChange
   end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 473
+    Width = 689
+    Height = 19
+    Panels = <
+      item
+        Width = 200
+      end
+      item
+        Width = 50
+      end>
+    ExplicitTop = 472
+  end
   object dlgOpenPicture: TOpenDialog
     Filter = 'Bitmap images|*.bmp'
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofNoNetworkButton, ofEnableSizing]
     Left = 200
     Top = 16
   end
   object dlgOpenCampaign: TOpenDialog
-    Left = 272
-    Top = 16
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofNoNetworkButton, ofEnableSizing]
+    Left = 200
+    Top = 64
   end
   object dlgSaveCampaign: TSaveDialog
-    Left = 272
-    Top = 64
+    Left = 200
+    Top = 112
   end
 end

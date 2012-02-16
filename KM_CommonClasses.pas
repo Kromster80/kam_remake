@@ -9,7 +9,10 @@ type
   { Extended with custom Read/Write commands which accept various types without asking for their length}
   TKMemoryStream = class(TMemoryStream)
   public
-    procedure Write(const Value:string); reintroduce; overload;
+    procedure Write(const Value: AnsiString); reintroduce; overload;
+    {$IFDEF UNICODE}
+    procedure Write(const Value: UnicodeString); reintroduce; overload;
+    {$ENDIF}
     procedure Write(const Value:TKMPointDir ); reintroduce; overload;
     function Write(const Value:TKMDirection): Longint; reintroduce; overload;
     function Write(const Value:TKMPoint ): Longint; reintroduce; overload;
@@ -23,7 +26,10 @@ type
     function Write(const Value:shortint ): Longint; reintroduce; overload;
     procedure WriteAsText(const aText: string);
 
-    procedure Read(out Value:string); reintroduce; overload;
+    procedure Read(out Value: AnsiString); reintroduce; overload;
+    {$IFDEF UNICODE}
+    procedure Read(out Value: UnicodeString); reintroduce; overload;
+    {$ENDIF}
     procedure Read(out Value:TKMPointDir); reintroduce; overload;
     function Read(out Value:TKMDirection): Longint; reintroduce; overload;
     function Read(out Value:TKMPoint    ): Longint; reintroduce; overload;
@@ -193,7 +199,17 @@ end;
 
 
 { TKMemoryStream }
-procedure TKMemoryStream.Write(const Value:string);
+procedure TKMemoryStream.Write(const Value: AnsiString);
+var I: Word;
+begin
+  I := Length(Value);
+  inherited Write(I, SizeOf(I));
+  if I = 0 then Exit;
+  inherited Write(Pointer(Value)^, I);
+end;
+
+{$IFDEF UNICODE}
+procedure TKMemoryStream.Write(const Value: UnicodeString);
 var I: Word;
 begin
   I := Length(Value);
@@ -201,13 +217,13 @@ begin
   if I = 0 then Exit;
   inherited Write(Pointer(Value)^, I * SizeOf(Char));
 end;
+{$ENDIF}
 
 procedure TKMemoryStream.Write(const Value:TKMPointDir);
 begin
   Write(Value.Loc);
   inherited Write(Value.Dir, SizeOf(Value.Dir));
 end;
-
 
 function TKMemoryStream.Write(const Value:TKMDirection): Longint;
 begin Result := inherited Write(Value, SizeOf(Value)); end;
@@ -239,7 +255,17 @@ begin
 end;
 
 
-procedure TKMemoryStream.Read(out Value: string);
+procedure TKMemoryStream.Read(out Value: AnsiString);
+var I: Word;
+begin
+  Read(I, SizeOf(I));
+  SetLength(Value, I);
+  if I=0 then exit;
+  Read(Pointer(Value)^, I);
+end;
+
+{$IFDEF UNICODE}
+procedure TKMemoryStream.Read(out Value: UnicodeString);
 var I: Word;
 begin
   Read(I, SizeOf(I));
@@ -247,6 +273,8 @@ begin
   if I=0 then exit;
   Read(Pointer(Value)^, I * SizeOf(Char));
 end;
+{$ENDIF}
+
 
 procedure TKMemoryStream.Read(out Value:TKMPointDir);
 begin

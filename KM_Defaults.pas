@@ -936,6 +936,18 @@ var
   //Lists available screen resolutions and their supported refresh rates
   ScreenRes: array[1..RESOLUTION_COUNT] of TScreenResData;
 
+type
+  TRXType = (
+    rxTrees,
+    rxHouses,
+    rxUnits,
+    rxGui,
+    rxGuiMain,
+    rxGuiMainH,
+    rxMenu, //Remake menu elements
+    rxTiles, //Tiles
+    rxGame); //Remake game sprites
+
 const
   MAPSIZES_COUNT = 11;
   MapSize: array[1..MAPSIZES_COUNT] of word=( 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192 );

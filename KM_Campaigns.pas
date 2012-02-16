@@ -3,7 +3,7 @@ unit KM_Campaigns;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_ResourceSprites, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 
 type
@@ -14,30 +14,36 @@ type
 
   TKMCampaign = class
   private
+    fFullTitle: AnsiString;
+    fShortTitle: AnsiString;
     fBackGroundPic: TPicID;
     fMapCount: Byte;
-    fShortTitle: AnsiString;
     fUnlockedMaps: Byte;
     procedure SetUnlockedMaps(Value: Byte);
+    procedure SetMapCount(aValue: byte);
   public
     Maps: array of record
-      MapName: string;
-      MissionText: string;
-      Node: TKMPoint;
-      PrevMap: shortint; //Should be used to draw connecting dots in Campaign screen
-      ScriptPath: string;
+      MapName: AnsiString;
+      MissionText: AnsiString;
+      Flag: TKMPoint;
+      NodeCount: Byte;
+      Nodes: array [0..255] of TKMPoint;
+      ScriptPath: AnsiString;
     end;
-    constructor Create(const aShortTitle: AnsiString; aMapCount: byte; aBackRX: TRXType; aBackID:word);
+    constructor Create;
 
-    property BackGroundPic: TPicID read fBackGroundPic;
-    property MapCount: byte read fMapCount;
-    property ShortTitle: AnsiString read fShortTitle;
+    procedure LoadFromFile(aFilename: string);
+    procedure SaveToFile(aFilename: string);
+
+    property BackGroundPic: TPicID read fBackGroundPic write fBackGroundPic;
+    property MapCount: byte read fMapCount write SetMapCount;
+    property FullTitle: AnsiString read fFullTitle write fFullTitle;
+    property ShortTitle: AnsiString read fShortTitle write fShortTitle;
     property UnlockedMaps: byte read fUnlockedMaps write SetUnlockedMaps;
 
-    function MissionText(aIndex: byte): string;
-    function SubNodesCount(aIndex: byte): byte;
-    function SubNodesPos(aMapIndex: byte; aNodeIndex: byte):TKMPoint;
+    function MissionText(aIndex: byte): AnsiString;
   end;
+
 
   TKMCampaignsCollection = class
   private
@@ -73,7 +79,7 @@ const
 
 
 implementation
-uses KM_Defaults, KM_Log, KM_TextLibrary;
+uses KM_Log, KM_TextLibrary;
 
 
 const
@@ -107,16 +113,15 @@ begin
   CreateTSK;
   CreateTPR;
   ScanFolder(ExeDir + 'Campaigns\');
-
-  LoadProgress(ExeDir+'Saves\KaM_Remake_Campaigns.ini');
+  LoadProgress(ExeDir+'Campaigns\Campaigns.ini');
 end;
 
 
 destructor TKMCampaignsCollection.Destroy;
 var i:integer;
 begin
-  CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
-  SaveProgress(ExeDir+'Saves\KaM_Remake_Campaigns.ini');
+  CreateDir(ExeDir+'Campaigns\'); //Makes the folder incase it was deleted
+  SaveProgress(ExeDir+'Campaigns\Campaigns.ini');
   fLog.AppendLog('Campaign.ini saved');
 
   //Free list objects
@@ -129,37 +134,19 @@ end;
 
 
 procedure TKMCampaignsCollection.CreateTPR;
-var i:integer; C:TKMCampaign;
+var C: TKMCampaign;
 begin
-  C := TKMCampaign.Create('TPR', TPR_MAPS, rxGuiMain, 20);
-
-  for i := 0 to C.MapCount - 1 do
-  begin
-    C.Maps[i].MapName := 'TPR mission ' + IntToStr(i + 1);
-    C.Maps[i].MissionText := '';
-    C.Maps[i].Node := CampTPRNodes[i];
-    C.Maps[i].PrevMap := CampTPRPrev[i];
-    C.Maps[i].ScriptPath := ExeDir+'data\mission\dmission'+inttostr(i+1)+'.dat'
-  end;
-
+  C := TKMCampaign.Create;
+  C.LoadFromFile(ExeDir+'Campaigns\TPR\campaign.cmp');//, TPR_MAPS, rxGuiMain, 20);
   fList.Add(C);
 end;
 
 
 procedure TKMCampaignsCollection.CreateTSK;
-var i:integer; C:TKMCampaign;
+var C: TKMCampaign;
 begin
-  C := TKMCampaign.Create('TSK', TSK_MAPS, rxGuiMainH, 12); //Use the map from the TSK rx, as it is 1024x768 (TPR only has 800x600)
-
-  for i := 0 to C.MapCount - 1 do
-  begin
-    C.Maps[i].MapName := 'TSK mission ' + IntToStr(i + 1);
-    C.Maps[i].MissionText := '';
-    C.Maps[i].Node := CampTSKNodes[i];
-    C.Maps[i].PrevMap := CampTSKPrev[i];
-    C.Maps[i].ScriptPath := ExeDir+'data\mission\mission'+inttostr(i+1)+'.dat';
-  end;
-
+  C := TKMCampaign.Create;
+  C.LoadFromFile(ExeDir+'Campaigns\TSK\campaign.cmp');//, TPR_MAPS, rxGuiMainH, 12);
   fList.Add(C);
 end;
 
@@ -202,7 +189,7 @@ begin
       M.Read(Unlocked);
       C := CampaignByTitle(AnsiString(CampName));
       if C <> nil then
-        C.UnlockedMaps := Unlocked;
+        C.UnlockedMaps := 12;//Unlocked;
     end;
   finally
     M.Free;
@@ -256,7 +243,7 @@ end;
 
 
 procedure TKMCampaignsCollection.Load(LoadStream: TKMemoryStream);
-var s: string;
+var s: AnsiString;
 begin
   LoadStream.ReadAssert('CampaignInfo');
   LoadStream.Read(s);
@@ -278,21 +265,82 @@ end;
 
 
 { TKMCampaign }
-constructor TKMCampaign.Create(const aShortTitle: AnsiString; aMapCount:byte; aBackRX: TRXType; aBackID:word);
+constructor TKMCampaign.Create;//(const aShortTitle: AnsiString; aMapCount:byte; aBackRX: TRXType; aBackID:word);
 begin
-  Inherited Create;
-  fShortTitle := aShortTitle;
-  fMapCount := aMapCount;
-  fBackGroundPic.RX := aBackRX;
-  fBackGroundPic.ID := aBackID;
-  SetLength(Maps, fMapCount);
+  inherited;
   fUnlockedMaps := 1; //1st map should be always unlocked to allow to start campaign
+end;
+
+
+procedure TKMCampaign.LoadFromFile(aFilename: string);
+var
+  M: TKMemoryStream;
+  I, K: Integer;
+begin
+  M := TKMemoryStream.Create;
+  M.LoadFromFile(aFilename);
+
+  M.ReadAssert('KaM Campaign');
+  M.Read(fFullTitle);
+  M.Read(fShortTitle);
+  M.Read(Byte(fBackGroundPic.RX));
+  M.Read(fBackGroundPic.ID);
+  M.Read(fMapCount);
+  SetLength(Maps, fMapCount);
+
+  for I := 0 to fMapCount - 1 do
+  begin
+    M.Read(Maps[I].MapName);
+    M.Read(Maps[I].MissionText);
+    M.Read(Maps[I].Flag);
+    M.Read(Maps[I].NodeCount);
+    //SetLength(Maps[I].Nodes, Maps[I].NodeCount);
+    for K := 0 to Maps[I].NodeCount - 1 do
+      M.Read(Maps[I].Nodes[K]);
+  end;
+
+  M.Free;
+end;
+
+
+procedure TKMCampaign.SaveToFile(aFilename: string);
+var
+  M: TKMemoryStream;
+  I, K: Integer;
+begin
+  M := TKMemoryStream.Create;
+  M.Write('KaM Campaign');
+  M.Write(fFullTitle);
+  M.Write(fShortTitle);
+  M.Write(Byte(fBackGroundPic.RX));
+  M.Write(fBackGroundPic.ID);
+  M.Write(fMapCount);
+
+  for I := 0 to fMapCount - 1 do
+  begin
+    M.Write(Maps[I].MapName);
+    M.Write(Maps[I].MissionText);
+    M.Write(Maps[I].Flag);
+    M.Write(Maps[I].NodeCount);
+    for K := 0 to Maps[I].NodeCount - 1 do
+      M.Write(Maps[I].Nodes[K]);
+  end;
+
+  M.SaveToFile(aFilename);
+  M.Free;
+end;
+
+
+procedure TKMCampaign.SetMapCount(aValue: byte);
+begin
+  fMapCount := aValue;
+  SetLength(Maps, fMapCount);
 end;
 
 
 //Mission texts of original campaigns are available in all languages,
 //custom campaigns are unlikely to have more texts in more than 1-2 languages
-function TKMCampaign.MissionText(aIndex: byte): string;
+function TKMCampaign.MissionText(aIndex: byte): AnsiString;
 begin
   if fShortTitle = 'TPR' then
     Result := fTextLibrary.GetSetupString(siCampTPRTexts + aIndex)
@@ -309,34 +357,6 @@ player may be replaying previous maps, in that case his progress remains the sam
 procedure TKMCampaign.SetUnlockedMaps(Value: byte);
 begin
   fUnlockedMaps := EnsureRange(Value, fUnlockedMaps, fMapCount - 1);
-end;
-
-
-function TKMCampaign.SubNodesCount(aIndex: byte): byte;
-const STEP = 24; //Step each 24px
-var Dist: Single;
-begin
-  if not InRange(Maps[aIndex].PrevMap, 0, fMapCount - 1) then
-  begin
-    Result := 0;
-    Exit;
-  end;
-
-  Dist := GetLength(Maps[aIndex].Node, Maps[Maps[aIndex].PrevMap].Node);
-  Result := Round(Max((Dist - STEP * 2) / STEP, 0));
-end;
-
-
-function TKMCampaign.SubNodesPos(aMapIndex: byte; aNodeIndex: byte): TKMPoint;
-begin
-  if (SubNodesCount(aMapIndex) > 0) and (aNodeIndex < SubNodesCount(aMapIndex)) then
-  begin
-    Result.X := Mix(Maps[aMapIndex].Node.X, Maps[Maps[aMapIndex].PrevMap].Node.X, aNodeIndex/SubNodesCount(aMapIndex));
-    Result.Y := Mix(Maps[aMapIndex].Node.Y, Maps[Maps[aMapIndex].PrevMap].Node.Y, aNodeIndex/SubNodesCount(aMapIndex));
-  end else begin
-    Result.X := 0;
-    Result.Y := 0;
-  end;
 end;
 
 

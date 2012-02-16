@@ -7,6 +7,7 @@ uses
 
   Classes, Graphics, Math, SysUtils,
   KM_CommonEvents,
+  KM_Defaults,
   KM_ResourceCursors,
   KM_ResourceHouse,
   KM_ResourcePalettes,
@@ -18,17 +19,6 @@ uses
   {$IFDEF FPC}, BGRABitmap {$ENDIF};
 
 type
-  TRXType = (
-    rxTrees,
-    rxHouses,
-    rxUnits,
-    rxGui,
-    rxGuiMain,
-    rxGuiMainH,
-    rxMenu, //Remake menu elements
-    rxTiles, //Tiles
-    rxGame); //Remake game sprites
-
   TRXUsage = (ruMenu, ruGame); //Where sprites are used
 
   TRXInfo = record
@@ -175,7 +165,7 @@ var
 
 
 implementation
-uses KromUtils, KM_Defaults, KM_Log, StrUtils;
+uses KromUtils, KM_Log, StrUtils;
 
 
 var
