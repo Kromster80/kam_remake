@@ -28,8 +28,6 @@ type
       ScriptPath: string;
     end;
     constructor Create(const aShortTitle: AnsiString; aMapCount: byte; aBackRX: TRXType; aBackID:word);
-    procedure LoadProgress(M: TKMemoryStream);
-    procedure SaveProgress(M: TKMemoryStream);
 
     property BackGroundPic: TPicID read fBackGroundPic;
     property MapCount: byte read fMapCount;
@@ -186,6 +184,7 @@ var
   C: TKMCampaign;
   I, CampCount: Integer;
   CampName: string;
+  Unlocked: Byte;
 begin
   if not FileExists(FileName) then Exit;
 
@@ -200,10 +199,10 @@ begin
     for I := 0 to CampCount - 1 do
     begin
       M.Read(CampName);
+      M.Read(Unlocked);
       C := CampaignByTitle(AnsiString(CampName));
       if C <> nil then
-        C.LoadProgress(M);
-        //todo: Handle `else`
+        C.UnlockedMaps := Unlocked;
     end;
   finally
     M.Free;
@@ -223,7 +222,7 @@ begin
     for I := 0 to Count - 1 do
     begin
       M.Write(Campaigns[I].ShortTitle);
-      Campaigns[I].SaveProgress(M);
+      M.Write(Campaigns[I].UnlockedMaps);
     end;
 
     M.SaveToFile(FileName);
@@ -291,12 +290,6 @@ begin
 end;
 
 
-procedure TKMCampaign.LoadProgress(M: TKMemoryStream);
-begin
-  M.Read(fUnlockedMaps);
-end;
-
-
 //Mission texts of original campaigns are available in all languages,
 //custom campaigns are unlikely to have more texts in more than 1-2 languages
 function TKMCampaign.MissionText(aIndex: byte): string;
@@ -308,12 +301,6 @@ begin
     Result := fTextLibrary.GetSetupString(siCampTSKTexts + aIndex)
   else
     Result := Maps[aIndex].MissionText;
-end;
-
-
-procedure TKMCampaign.SaveProgress(M: TKMemoryStream);
-begin
-  M.Write(fUnlockedMaps);
 end;
 
 
