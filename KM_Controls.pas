@@ -5,7 +5,7 @@ uses
     {$IFDEF MSWindows} Windows, {$ENDIF}
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
     Classes, Controls, Graphics, Math, SysUtils, Clipbrd, Forms,
-    KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonEvents, KM_ResourceSprites;
+    KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonEvents, KM_ResourceSprites, KM_MapView;
 
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
@@ -784,13 +784,19 @@ type
     fMapSize: TKMPoint;
     fViewArea: TKMRect;
     fOnChange: TPointEvent;
+    fPlayerLocs: array[1..MAX_PLAYERS] of TKMPoint;
+    fShowLocs: Boolean;
+    function GetPlayerLoc(aIndex:byte):TKMPoint;
+    procedure SetPlayerLoc(aIndex:byte; aLoc:TKMPoint);
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
-    property MapTex: TTexture read fMapTex write fMapTex;
+    procedure UpdateFrom(aMapView:TKMMapView);
     function LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
     property MapSize: TKMPoint read fMapSize write fMapSize;
     property ViewArea: TKMRect read fViewArea write fViewArea;
+    property PlayerLocs[Index:byte]: TKMPoint read GetPlayerLoc write SetPlayerLoc;
+    property ShowLocs: Boolean read fShowLocs write fShowLocs;
     property OnChange: TPointEvent write fOnChange;
 
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -2056,7 +2062,7 @@ begin
   inherited;
 
   if fCaption <> '' then
-    fRenderUI.WriteText(Left + 8, Top, Width - 8, 20, fCaption, fnt_Metal, taLeft, TextColor[fEnabled]);
+    fRenderUI.WriteText(Left + 2, Top, Width - 8, 20, fCaption, fnt_Metal, taLeft, TextColor[fEnabled]);
 
   fRenderUI.WriteBevel(Left+2,Top+fTrackTop+2,Width-4,fTrackHeight-4);
   ThumbPos := Round(mix (0, Width - ThumbWidth - 4, 1-(Position-fMinValue) / (fMaxValue - fMinValue)));
@@ -3231,6 +3237,30 @@ begin
 end;
 
 
+function TKMMinimap.GetPlayerLoc(aIndex:byte):TKMPoint;
+begin
+  Result := fPlayerLocs[aIndex];
+end;
+
+
+procedure TKMMinimap.SetPlayerLoc(aIndex:byte; aLoc:TKMPoint);
+begin
+  fPlayerLocs[aIndex] := aLoc;
+end;
+
+
+procedure TKMMinimap.UpdateFrom(aMapView:TKMMapView);
+var i: Integer;
+begin
+  fMapTex := aMapView.MapTex;
+  if fShowLocs then
+    for i:=1 to MAX_PLAYERS do
+      fPlayerLocs[i] := aMapView.GetPlayerLoc(i)
+  else
+    FillChar(fPlayerLocs, SizeOf(fPlayerLocs), #0);
+end;
+
+
 function TKMMinimap.LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
 begin
   Assert(Inset>=-1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
@@ -3261,6 +3291,7 @@ end;
 
 
 procedure TKMMinimap.Paint;
+var i:integer;
 begin
   inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
@@ -3272,6 +3303,9 @@ begin
                         Top  + (Height - fMapSize.Y) div 2 + fViewArea.Y1,
                         fViewArea.X2 - fViewArea.X1,
                         fViewArea.Y2 - fViewArea.Y1, 1, $FFFFFFFF);
+  for i:=1 to MAX_PLAYERS do
+    if not KMSamePoint(fPlayerLocs[i], KMPoint(0,0)) then
+      fRenderUI.WriteText(Left+fPlayerLocs[i].X, Top+fPlayerLocs[i].Y-8, 16, 16, IntToStr(i), fnt_Outline, taCenter);
 end;
 
 

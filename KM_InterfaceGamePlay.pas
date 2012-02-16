@@ -673,7 +673,7 @@ begin
   inherited Create(aScreenX, aScreenY);
   fTerrain := aTerrain;
 
-  fMapView := TKMMapView.Create(nil, fTerrain, False);
+  fMapView := TKMMapView.Create(nil, fTerrain, False, False);
 
   fShownUnit:=nil;
   fShownHouse:=nil;
@@ -3536,7 +3536,7 @@ end;
 procedure TKMGamePlayInterface.UpdateMapSize(X, Y: integer);
 begin
   fMapView.Update;
-  Minimap.MapTex := fMapView.MapTex;
+  Minimap.UpdateFrom(fMapView);
   Minimap.MapSize := KMPoint(X, Y);
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;

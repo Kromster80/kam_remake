@@ -12,6 +12,7 @@ type
     fRender: TRender; //Should be used to Gen and Update texture
     fFromParser: Boolean;
     fIsMapEditor: Boolean;
+    fSepia: Boolean;
     fParser: TMissionParserPreview;
     fMyTerrain: TTerrain;
     fMapY: Word;
@@ -20,14 +21,16 @@ type
     fMapTex: TTexture;
     procedure UpdateMinimapFromGame;
     procedure UpdateMinimapFromParser;
+    procedure SepiaFilter;
   public
-    constructor Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor:Boolean);
+    constructor Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor:Boolean; aSepia:Boolean);
     destructor Destroy; override;
 
     procedure LoadTerrain(aMissionPath: string);
     procedure Clear;
 
     property MapTex: TTexture read fMapTex;
+    function GetPlayerLoc(aIndex:byte):TKMPoint;
     procedure Update;
   end;
 
@@ -40,12 +43,13 @@ uses KM_TGATexture, KM_Defaults, KM_Resource, KM_PlayersCollection, KM_Units, KM
 
 
 { TKMMinimap }
-constructor TKMMapView.Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor:Boolean);
+constructor TKMMapView.Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor:Boolean; aSepia:Boolean);
 begin
   inherited Create;
 
   fIsMapEditor := aIsMapEditor;
   fRender := aRender;
+  fSepia := aSepia;
   fMapTex.Tex := GenerateTextureCommon;
 
   //We don't need terrain on main menu, just a parser
@@ -86,8 +90,7 @@ end;
 
 
 procedure TKMMapView.UpdateMinimapFromParser;
-var
-  i,k:integer;
+var i,k:integer;
 begin
   fMapX := fParser.MapX;
   fMapY := fParser.MapY;
@@ -103,6 +106,38 @@ begin
         fBase[(i-1)*fMapX + (k-1)] := fParser.PlayerPreview[TileOwner].Color;
       //todo: FOW, starting positions, etc.
     end;
+end;
+
+
+//Sepia method taken from: http://www.techrepublic.com/blog/howdoi/how-do-i-convert-images-to-grayscale-and-sepia-tone-using-c/120
+procedure TKMMapView.SepiaFilter;
+const SEPIA_VAL = 0.4;
+var i:integer; R,G,B,R2,G2,B2:byte;
+begin
+  for i:=0 to fMapX*fMapY - 1 do
+  begin
+    R :=  fBase[i] AND $000000FF;
+    G := (fBase[i] AND $0000FF00) shr 8;
+    B := (fBase[i] AND $00FF0000) shr 16;
+
+    R2 := Min(Round(0.393*R + 0.769*G + 0.189*B),255);
+    R2 := Round(SEPIA_VAL*R2 + (1-SEPIA_VAL)*R);
+
+    G2 := Min(Round(0.349*R + 0.686*G + 0.168*B),255);
+    G2 := Round(SEPIA_VAL*G2 + (1-SEPIA_VAL)*G);
+
+    B2 := Min(Round(0.272*R + 0.534*G + 0.131*B),255);
+    B2 := Round(SEPIA_VAL*B2 + (1-SEPIA_VAL)*B);
+
+    fBase[i] := (R2 + (G2 shl 8) + (B2 shl 16)) AND $FFFFFFFF;
+  end;
+end;
+
+
+function TKMMapView.GetPlayerLoc(aIndex:byte):TKMPoint;
+begin
+  Assert(fFromParser); //Should only be used in parser mode
+  Result := fParser.PlayerPreview[aIndex].StartingLoc;
 end;
 
 
@@ -179,6 +214,8 @@ begin
     UpdateMinimapFromParser
   else
     UpdateMinimapFromGame;
+
+  if fSepia then SepiaFilter;
 
   WidthPOT := MakePOT(fMapX);
   HeightPOT := MakePOT(fMapY);

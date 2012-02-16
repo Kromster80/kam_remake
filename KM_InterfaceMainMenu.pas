@@ -182,7 +182,6 @@ type
         List_Lobby:TKMDropBox;
         Label_LobbyMapName:TKMLabel;
         Memo_LobbyMapDesc: TKMMemo;
-        Label_LobbyMapCount:TKMLabel;
         Label_LobbyMapMode:TKMLabel;
         Label_LobbyMapCond:TKMLabel;
         Label_LobbyMapSize:TKMLabel;
@@ -319,7 +318,7 @@ begin
   ScreenY := min(Y, MENU_DESIGN_Y);
   Campaign_MapIndex := 1;
 
-  fMapView := TKMMapView.Create(nil, nil, False);
+  fMapView := TKMMapView.Create(nil, nil, False, True);
 
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(true);
@@ -754,25 +753,26 @@ begin
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
 
       //@DanJB: These two occupy the same place and are visible for Host/Join correspondingly, right?
-      List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 125, 274, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
+      List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 125, 264, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
       List_Lobby.OnChange := Lobby_MapSelect;
-      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 125, 274, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 125, 264, 20, '', fnt_Metal, taLeft);
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 150, 274, 192, fnt_Game);
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 150, 264, 200, fnt_Game);
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
 
-      Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 355, 282, 20, '', fnt_Metal, taLeft);
       //@Lewin: Can we remove Label_LobbyMapMode if it's duplicate to Radio_LobbyMapType?
       //@Krom: Yes I guess so. It would only be used for cooperative maps as they could be fights, but that's not so important
-      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 375, 282, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 395, 282, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 415, 282, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 362, 282, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 382, 282, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 402, 282, 20, '', fnt_Metal, taLeft);
 
-      Minimap_LobbyPreview := TKMMinimap.Create(Panel_LobbySetup, 292, 150, 192, 192);
+      TKMBevel.Create(Panel_LobbySetup, 282, 150, 200, 200);
+      Minimap_LobbyPreview := TKMMinimap.Create(Panel_LobbySetup, 286, 154, 192, 192);
+      Minimap_LobbyPreview.ShowLocs := True; //In the minimap we want player locations to be shown
 
-      TKMLabel.Create(Panel_LobbySetup, 300, 30, 190, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
-      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 300, 60, 160, 0, 120);
+      TKMLabel.Create(Panel_LobbySetup, 282, 30, 190, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
+      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 282, 60, 192, 0, 120);
       TrackBar_LobbyPeacetime.Caption := fTextLibrary[TX_LOBBY_PEACETIME];
       TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
       TrackBar_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
@@ -879,6 +879,7 @@ begin
       Memo_SingleDesc  := TKMMemo.Create(Panel_SingleDesc,15,25,415,189,fnt_Metal);
       Memo_SingleDesc.AutoWrap := True;
 
+      TKMBevel.Create(Panel_SingleDesc, 121, 220, 200, 200);
       Minimap_SinglePreview := TKMMinimap.Create(Panel_SingleDesc, 125, 224, 192, 192);
 
       TKMBevel.Create(Panel_SingleDesc,0,428,445,20);
@@ -1503,7 +1504,7 @@ begin
     Label_SingleCondDef.Caption := '';
 
     fMapView.Clear;
-    Minimap_SinglePreview.MapTex := fMapView.MapTex;
+    Minimap_SinglePreview.UpdateFrom(fMapView);
   end
   else
   begin
@@ -1516,7 +1517,7 @@ begin
 
     fMapView.LoadTerrain(MapNameToPath(fMaps[fMap_Selected].Filename, 'dat', False));
     fMapView.Update;
-    Minimap_SinglePreview.MapTex := fMapView.MapTex;
+    Minimap_SinglePreview.UpdateFrom(fMapView);
   end;
 
   Button_SingleStart.Enabled := fMap_Selected <> -1;
@@ -2159,7 +2160,7 @@ procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 var i:Integer; DropText:string;
 begin
   //todo: It will be better to rework this code into CASE, moving common part into internal procedure
-  Minimap_LobbyPreview.Visible := False; //Hide unless correct options are selected
+  Minimap_LobbyPreview.Visible := False; //Hide unless correct options are selected (e.g. currently there's no preview for saves)
   if fGame.Networking.SelectGameKind <> ngk_None then
   begin
     if fGame.Networking.SelectGameKind = ngk_Save then
@@ -2174,7 +2175,7 @@ begin
     begin
       fMapView.LoadTerrain(MapNameToPath(fGame.Networking.MapInfo.Filename, 'dat', True));
       fMapView.Update;
-      Minimap_LobbyPreview.MapTex := fMapView.MapTex;
+      Minimap_LobbyPreview.UpdateFrom(fMapView);
       Minimap_LobbyPreview.Visible := true;
 
       Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
@@ -2193,7 +2194,6 @@ begin
       end;
     end;
 
-    Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.GameInfo.PlayerCount]);
     Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+' '+fGame.Networking.GameInfo.MissionModeText;
     //Label_LobbyMapCond.Caption :=
     Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE]+' '+fGame.Networking.GameInfo.MapSizeText;
@@ -2216,7 +2216,6 @@ begin
     Memo_LobbyMapDesc.Clear;
     if aData <> fTextLibrary[TX_LOBBY_MAP_NONE] then
       Memo_LobbyMapDesc.Text := aData;
-    Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[0]);
     Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
     Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE];
 
