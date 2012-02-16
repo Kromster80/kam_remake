@@ -67,7 +67,7 @@ type
   TMissionParserInfo = class(TMissionParserGeneric)
   private
     function LoadMapInfo(const aFileName:string):boolean;
-    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
+    procedure ProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
   public
     function LoadMission(const aFileName: string):boolean; override;
   end;
@@ -97,14 +97,28 @@ type
     procedure SaveDATFile(const aFileName: String);
   end;
 
-  //todo: TMissionParserPreview = class(TMissionParserGeneric)
-  TMissionParserPreview = class(TMissionParserStandard)
+  TTilePreviewInfo = record
+                     TileColor: cardinal;
+                     TileOwner: byte;
+                     FOW: byte;
+                   end;
+
+  TMissionParserPreview = class(TMissionParserGeneric)
   private
-    {
-    fTileOwner: array of array of TPlayerIndex;
-    fFogOfWar: array of array of byte;
-    }
+    fMapX:integer;
+    fMapY:integer;
+    fMapPreview: array[1..MAX_MAP_SIZE*MAX_MAP_SIZE] of TTilePreviewInfo;
+
+    fLastPlayer: integer;
+
+    function GetTileInfo(X,Y:integer):TTilePreviewInfo;
+    procedure LoadMapData(const aFileName: string);
+    procedure ProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer);
   public
+    property MapPreview[X,Y:integer]: TTilePreviewInfo read GetTileInfo;
+    property MapX: integer read fMapX;
+    property MapY: integer read fMapY;
+    function LoadMission(const aFileName: string):boolean; override;
   end;
 
 
@@ -344,7 +358,7 @@ begin
             if FileText[k]=#32 then inc(k);
           end;
         //We now have command text and parameters, so process them
-        GetDetailsProcessCommand(CommandType,ParamList,TextParam);
+        ProcessCommand(CommandType,ParamList,TextParam);
       end;
     end
     else
@@ -356,7 +370,7 @@ begin
 end;
 
 
-procedure TMissionParserInfo.GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
+procedure TMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
 begin
   with fMissionInfo do
   case CommandType of
@@ -1166,5 +1180,140 @@ begin
   closefile(f);
 end;
 
+
+function TMissionParserPreview.GetTileInfo(X,Y:integer):TTilePreviewInfo;
+begin
+  Result := fMapPreview[(Y-1)*fMapX + X];
+end;
+
+
+procedure TMissionParserPreview.LoadMapData(const aFileName: string);
+var
+  i:integer;
+  S:TKMemoryStream;
+  NewX,NewY:integer;
+  ID:byte;
+begin
+  S := TKMemoryStream.Create;
+  try
+    S.LoadFromFile(aFileName);
+    S.Read(NewX); //We read header to new variables to avoid damage to existing map if header is wrong
+    S.Read(NewY);
+    Assert((NewX <= MAX_MAP_SIZE) and (NewY <= MAX_MAP_SIZE), 'Can''t open the map cos it has too big dimensions');
+    fMapX := NewX;
+    fMapY := NewY;
+    for i:=1 to fMapX*fMapY do
+    begin
+      S.Read(ID);
+      fMapPreview[i].TileColor :=  fResource.Tileset.TileColor[ID].R +
+                                  (fResource.Tileset.TileColor[ID].G shl 8) +
+                                  (fResource.Tileset.TileColor[ID].B shl 16);
+      S.Seek(1, soFromCurrent);
+      S.Read(ID); //Height (for lighting which can be added later)
+      S.Seek(20, soFromCurrent);
+    end;
+  finally
+    S.Free;
+  end;
+end;
+
+
+procedure TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer);
+begin
+  case CommandType of
+    ct_SetCurrPlayer:  fLastPlayer := ParamList[0];
+    ct_SetHouse:       begin
+                       end;
+    ct_SetMapColor: ;
+    ct_CenterScreen: ;
+    ct_SetRoad,
+    ct_SetField,
+    ct_Set_Winefield,
+    ct_SetUnit:        fMapPreview[(ParamList[0]+1) + (ParamList[1]+1)*fMapX].TileOwner := fLastPlayer;
+    ct_SetStock:       begin
+                         ProcessCommand(ct_SetHouse,[11,ParamList[0],  ParamList[1]  ]);
+                         ProcessCommand(ct_SetRoad, [   ParamList[0]-2,ParamList[1]+1]);
+                         ProcessCommand(ct_SetRoad, [   ParamList[0]-1,ParamList[1]+1]);
+                         ProcessCommand(ct_SetRoad, [   ParamList[0]  ,ParamList[1]+1]);
+                       end;
+    ct_SetGroup:       begin
+                       end;
+    ct_ClearUp: ;
+  end;
+end;
+
+
+function TMissionParserPreview.LoadMission(const aFileName: string):boolean;
+const
+  Max_Cmd=3;
+var
+  FileText: AnsiString;
+  CommandText, Param: AnsiString;
+  ParamList: array[1..Max_Cmd] of integer;
+  k, l, IntParam: integer;
+  CommandType: TKMCommandType;
+begin
+  Inherited LoadMission(aFileName);
+
+  fLastPlayer := 0;
+  FillChar(fMapPreview, SizeOf(fMapPreview), #0);
+
+  LoadMapData(ChangeFileExt(fMissionFileName,'.map'));
+  Result := false;
+
+  FileText := ReadMissionFile(aFileName);
+  if FileText = '' then Exit;
+
+  //FileText should now be formatted nicely with 1 space between each parameter/command
+  k := 1;
+  repeat
+    if FileText[k]='!' then
+    begin
+      for l:=1 to Max_Cmd do
+        ParamList[l]:=-1;
+      CommandText:='';
+      //Extract command until a space
+      repeat
+        CommandText:=CommandText+FileText[k];
+        inc(k);
+      until((FileText[k]=#32)or(k>=length(FileText)));
+
+      //Try to make it faster by only processing commands used
+      if (CommandText='!SET_CURR_PLAYER')or(CommandText='!SET_HOUSE')or
+         (CommandText='!SET_MAP_COLOR')or(CommandText='!CENTER_SCREEN')or
+         (CommandText='!SET_STREET')or(CommandText='!SET_FIELD')or
+         (CommandText='!SET_WINEFIELD')or(CommandText='!SET_STOCK')or
+         (CommandText='!CLEAR_UP')or(CommandText='!SET_UNIT')or(CommandText='!SET_GROUP') then
+      begin
+        //Now convert command into type
+        CommandType := TextToCommandType(CommandText);
+        inc(k);
+        //Extract parameters
+        for l:=1 to Max_Cmd do
+          if (FileText[k]<>'!') and (k<length(FileText)) then
+          begin
+            Param := '';
+            repeat
+              Param := Param + FileText[k];
+              inc(k);
+            until((k >= Length(FileText)) or (FileText[k]='!') or (FileText[k]=#32)); //Until we find another ! OR we run out of data
+
+            //Convert to an integer, if possible
+            if TryStrToInt(String(Param), IntParam) then
+              ParamList[l] := IntParam;
+
+            if FileText[k]=#32 then inc(k);
+          end;
+        //We now have command text and parameters, so process them
+        ProcessCommand(CommandType,ParamList);
+      end;
+    end
+    else
+      inc(k);
+  until (k>=length(FileText));
+  //Apparently it's faster to parse till file end than check if all details are filled
+
+  Result := (fErrorMessage='');
+end;
 
 end.

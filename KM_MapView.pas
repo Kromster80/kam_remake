@@ -17,7 +17,8 @@ type
     fMapX: Word;
     fBase: TCardinalArray; //Base terrain layer
     fMapTex: TTexture;
-    procedure UpdateMinimap(aMapEditor: Boolean);
+    procedure UpdateMinimapFromGame(aMapEditor: Boolean);
+    procedure UpdateMinimapFromParser;
   public
     constructor Create(aRender: TRender; aTerrain: TTerrain);
     destructor Destroy; override;
@@ -26,7 +27,7 @@ type
     procedure Clear;
 
     property MapTex: TTexture read fMapTex;
-    procedure Update(aMapEditor: Boolean);
+    procedure Update(aMapEditor, aFromFile: Boolean);
   end;
 
   //todo: Add Starting positions (Position, PlayerID, FlagColor, Alliances?)
@@ -52,7 +53,7 @@ begin
   if fOwnTerrain then
   begin
     fMyTerrain := TTerrain.Create;
-    fParser := TMissionParserPreview.Create(mpm_Preview, False);
+    fParser := TMissionParserPreview.Create(False);
   end
   else
   begin
@@ -77,9 +78,7 @@ end;
 //Load map in a direct way, should be used only when in Menu
 procedure TKMMapView.LoadTerrain(aMissionPath: string);
 begin
-  fParser.LoadMission(aMissionPath, fMyTerrain);
-  if fPlayers <> nil then
-    fPlayers.AfterMissionInit(False);
+  fParser.LoadMission(aMissionPath);
 end;
 
 
@@ -89,8 +88,25 @@ begin
 end;
 
 
+procedure TKMMapView.UpdateMinimapFromParser;
+var
+  i,k:integer;
+begin
+  fMapX := fParser.MapX;
+  fMapY := fParser.MapY;
+  SetLength(fBase, fMapX * fMapY);
+
+  for i:=1 to fMapY do
+  for k:=1 to fMapX do
+  begin
+    fBase[(i-1)*fMapX + (k-1)] := fParser.MapPreview[k,i].TileColor;
+    //todo: Players, FOW, starting positions, etc.
+  end;
+end;
+
+
 //MapEditor stores only commanders instead of all groups members
-procedure TKMMapView.UpdateMinimap(aMapEditor: Boolean);
+procedure TKMMapView.UpdateMinimapFromGame(aMapEditor: Boolean);
 var
   FOW,ID:byte;
   i,j,k:integer;
@@ -100,9 +116,9 @@ var
   DoesFit: Boolean;
   Light:smallint;
 begin
-  //MyPlayer.UpdateState();
-
-  MyPlayer := fPlayers[0];
+  fMapX := fMyTerrain.MapX;
+  fMapY := fMyTerrain.MapY;
+  SetLength(fBase, fMapX * fMapY);
 
   for i:=0 to fMapY-1 do
   for k:=0 to fMapX-1 do
@@ -152,17 +168,16 @@ begin
 end;
 
 
-procedure TKMMapView.Update(aMapEditor: Boolean);
+procedure TKMMapView.Update(aMapEditor, aFromFile: Boolean);
 var
   wData: Pointer;
   I: Word;
   WidthPOT, HeightPOT: Word;
 begin
-  fMapX := fMyTerrain.MapX;
-  fMapY := fMyTerrain.MapY;
-  SetLength(fBase, fMapX * fMapY);
-
-  UpdateMinimap(aMapEditor);
+  if aFromFile then
+    UpdateMinimapFromParser
+  else
+    UpdateMinimapFromGame(aMapEditor);
 
   WidthPOT := MakePOT(fMapX);
   HeightPOT := MakePOT(fMapY);

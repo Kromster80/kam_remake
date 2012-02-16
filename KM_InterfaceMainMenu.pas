@@ -1511,7 +1511,7 @@ begin
     Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[fMap_Selected].Info.DefeatCondition]);
 
     fMapView.LoadTerrain(MapNameToPath(fMaps[fMap_Selected].Filename, 'dat', False));
-    fMapView.Update(False);
+    fMapView.Update(False, True);
     Minimap_Preview.MapTex := fMapView.MapTex;
   end;
 

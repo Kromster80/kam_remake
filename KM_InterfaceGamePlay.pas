@@ -3535,7 +3535,7 @@ end;
 
 procedure TKMGamePlayInterface.UpdateMapSize(X, Y: integer);
 begin
-  fMapView.Update(false);
+  fMapView.Update(False, False);
   Minimap.MapTex := fMapView.MapTex;
   Minimap.MapSize := KMPoint(X, Y);
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
@@ -3550,7 +3550,7 @@ begin
   //Every 1000ms
   if fGame.GlobalTickCount mod 10 = 0 then
     if (fGame.GameState in [gsRunning, gsReplay]) then
-      fMapView.Update(False);
+      fMapView.Update(False, False);
 
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 

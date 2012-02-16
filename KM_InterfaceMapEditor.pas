@@ -902,7 +902,7 @@ procedure TKMapEdInterface.UpdateState;
 begin
   //Every 1000ms
   if fGame.GlobalTickCount mod 10 = 0 then
-    fMapView.Update(True);
+    fMapView.Update(True, False);
 
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
@@ -910,7 +910,7 @@ end;
 
 procedure TKMapEdInterface.UpdateMapSize(X,Y:integer);
 begin
-  fMapView.Update(True);
+  fMapView.Update(True, False);
   Minimap.MapTex := fMapView.MapTex;
   Minimap.MapSize := KMPoint(X, Y);
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
