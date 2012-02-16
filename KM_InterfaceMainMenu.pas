@@ -318,7 +318,7 @@ begin
   ScreenY := min(Y, MENU_DESIGN_Y);
   Campaign_MapIndex := 1;
 
-  fMapView := TKMMapView.Create(nil, nil);
+  fMapView := TKMMapView.Create(nil, nil, False);
 
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(true);
@@ -875,7 +875,7 @@ begin
       Memo_SingleDesc  := TKMMemo.Create(Panel_SingleDesc,15,25,415,189,fnt_Metal);
       Memo_SingleDesc.AutoWrap := True;
 
-      Minimap_Preview := TKMMinimap.Create(Panel_SingleDesc, 125, 230, 192, 192);
+      Minimap_Preview := TKMMinimap.Create(Panel_SingleDesc, 125, 224, 192, 192);
 
       TKMBevel.Create(Panel_SingleDesc,0,428,445,20);
       Label_SingleCondTyp:=TKMLabel.Create(Panel_SingleDesc,8,431,429,20,fTextLibrary[TX_MENU_MISSION_TYPE],fnt_Metal, taLeft);
@@ -1511,7 +1511,7 @@ begin
     Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[fMap_Selected].Info.DefeatCondition]);
 
     fMapView.LoadTerrain(MapNameToPath(fMaps[fMap_Selected].Filename, 'dat', False));
-    fMapView.Update(False, True);
+    fMapView.Update;
     Minimap_Preview.MapTex := fMapView.MapTex;
   end;
 

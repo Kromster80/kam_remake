@@ -10,24 +10,25 @@ type
   TKMMapView = class
   private
     fRender: TRender; //Should be used to Gen and Update texture
-    fOwnTerrain: Boolean;
+    fFromParser: Boolean;
+    fIsMapEditor: Boolean;
     fParser: TMissionParserPreview;
     fMyTerrain: TTerrain;
     fMapY: Word;
     fMapX: Word;
     fBase: TCardinalArray; //Base terrain layer
     fMapTex: TTexture;
-    procedure UpdateMinimapFromGame(aMapEditor: Boolean);
+    procedure UpdateMinimapFromGame;
     procedure UpdateMinimapFromParser;
   public
-    constructor Create(aRender: TRender; aTerrain: TTerrain);
+    constructor Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor:Boolean);
     destructor Destroy; override;
 
     procedure LoadTerrain(aMissionPath: string);
     procedure Clear;
 
     property MapTex: TTexture read fMapTex;
-    procedure Update(aMapEditor, aFromFile: Boolean);
+    procedure Update;
   end;
 
   //todo: Add Starting positions (Position, PlayerID, FlagColor, Alliances?)
@@ -39,20 +40,21 @@ uses KM_TGATexture, KM_Defaults, KM_Resource, KM_PlayersCollection, KM_Units, KM
 
 
 { TKMMinimap }
-constructor TKMMapView.Create(aRender: TRender; aTerrain: TTerrain);
+constructor TKMMapView.Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor:Boolean);
 begin
   inherited Create;
 
+  fIsMapEditor := aIsMapEditor;
   fRender := aRender;
   fMapTex.Tex := GenerateTextureCommon;
 
-  //We create our own local terrain to access when in main menu
+  //We don't need terrain on main menu, just a parser
   //Otherwise access synced Game terrain
-  fOwnTerrain := (aTerrain = nil);
+  fFromParser := (aTerrain = nil);
 
-  if fOwnTerrain then
+  if fFromParser then
   begin
-    fMyTerrain := TTerrain.Create;
+    fMyTerrain := nil;
     fParser := TMissionParserPreview.Create(False);
   end
   else
@@ -65,12 +67,7 @@ end;
 
 destructor TKMMapView.Destroy;
 begin
-  if fOwnTerrain then
-  begin
-    fMyTerrain.Free;
-    fParser.Free;
-  end;
-
+  if fFromParser then fParser.Free;
   inherited;
 end;
 
@@ -98,15 +95,19 @@ begin
 
   for i:=1 to fMapY do
   for k:=1 to fMapX do
-  begin
-    fBase[(i-1)*fMapX + (k-1)] := fParser.MapPreview[k,i].TileColor;
-    //todo: Players, FOW, starting positions, etc.
-  end;
+    with fParser.MapPreview[k,i] do
+    begin
+      if TileOwner = 0 then
+        fBase[(i-1)*fMapX + (k-1)] := TileColor
+      else
+        fBase[(i-1)*fMapX + (k-1)] := fParser.PlayerPreview[TileOwner].Color;
+      //todo: FOW, starting positions, etc.
+    end;
 end;
 
 
 //MapEditor stores only commanders instead of all groups members
-procedure TKMMapView.UpdateMinimapFromGame(aMapEditor: Boolean);
+procedure TKMMapView.UpdateMinimapFromGame;
 var
   FOW,ID:byte;
   i,j,k:integer;
@@ -152,7 +153,7 @@ begin
   end;
 
   //Scan all players units and paint all virtual group members
-  if aMapEditor then
+  if fIsMapEditor then
     for i:=0 to fPlayers.Count-1 do
       for k:=0 to fPlayers[i].Units.Count-1 do
         if fPlayers[i].Units[k] is TKMUnitWarrior then
@@ -168,16 +169,16 @@ begin
 end;
 
 
-procedure TKMMapView.Update(aMapEditor, aFromFile: Boolean);
+procedure TKMMapView.Update;
 var
   wData: Pointer;
   I: Word;
   WidthPOT, HeightPOT: Word;
 begin
-  if aFromFile then
+  if fFromParser then
     UpdateMinimapFromParser
   else
-    UpdateMinimapFromGame(aMapEditor);
+    UpdateMinimapFromGame;
 
   WidthPOT := MakePOT(fMapX);
   HeightPOT := MakePOT(fMapY);

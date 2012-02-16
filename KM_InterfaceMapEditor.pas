@@ -392,7 +392,7 @@ begin
   Assert(fTerrain <> nil, 'We need valid pointer to Terrain for MapView/Minimap');
   Assert(fGame.Viewport<>nil, 'fGame.Viewport required to be init first');
 
-  fMapView := TKMMapView.Create(nil, fTerrain);
+  fMapView := TKMMapView.Create(nil, fTerrain, True);
 
   fShownUnit  := nil;
   fShownHouse := nil;
@@ -902,7 +902,7 @@ procedure TKMapEdInterface.UpdateState;
 begin
   //Every 1000ms
   if fGame.GlobalTickCount mod 10 = 0 then
-    fMapView.Update(True, False);
+    fMapView.Update;
 
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
@@ -910,7 +910,7 @@ end;
 
 procedure TKMapEdInterface.UpdateMapSize(X,Y:integer);
 begin
-  fMapView.Update(True, False);
+  fMapView.Update;
   Minimap.MapTex := fMapView.MapTex;
   Minimap.MapSize := KMPoint(X, Y);
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;

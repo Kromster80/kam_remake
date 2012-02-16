@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Classes, KromUtils, SysUtils, Dialogs, Math,
-  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_Utils, KM_CommonClasses, KM_Defaults, KM_Points,
   KM_AIAttacks, KM_Houses, KM_Units, KM_Terrain, KM_Units_Warrior;
 
 
@@ -67,7 +67,7 @@ type
   TMissionParserInfo = class(TMissionParserGeneric)
   private
     function LoadMapInfo(const aFileName:string):boolean;
-    procedure ProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
+    procedure ProcessCommand(CommandType: TKMCommandType; const P: array of integer; TextParam:AnsiString);
   public
     function LoadMission(const aFileName: string):boolean; override;
   end;
@@ -98,24 +98,32 @@ type
   end;
 
   TTilePreviewInfo = record
-                     TileColor: cardinal;
-                     TileOwner: byte;
-                     FOW: byte;
-                   end;
+                       TileColor: cardinal;
+                       TileOwner: byte;
+                       FOW: byte;
+                     end;
+
+  TPlayerPreviewInfo = record
+                         Color: Cardinal;
+                         StartingLoc: TKMPoint;
+                       end;
 
   TMissionParserPreview = class(TMissionParserGeneric)
   private
     fMapX:integer;
     fMapY:integer;
+    fPlayerPreview: array [1..MAX_PLAYERS] of TPlayerPreviewInfo;
     fMapPreview: array[1..MAX_MAP_SIZE*MAX_MAP_SIZE] of TTilePreviewInfo;
 
     fLastPlayer: integer;
 
     function GetTileInfo(X,Y:integer):TTilePreviewInfo;
+    function GetPlayerInfo(aIndex:byte):TPlayerPreviewInfo;
     procedure LoadMapData(const aFileName: string);
-    procedure ProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer);
+    procedure ProcessCommand(CommandType: TKMCommandType; const P: array of integer);
   public
     property MapPreview[X,Y:integer]: TTilePreviewInfo read GetTileInfo;
+    property PlayerPreview[Index:byte]: TPlayerPreviewInfo read GetPlayerInfo;
     property MapX: integer read fMapX;
     property MapY: integer read fMapY;
     function LoadMission(const aFileName: string):boolean; override;
@@ -340,7 +348,7 @@ begin
         inc(k);
         //Extract parameters
         for l:=1 to Max_Cmd do
-          if (FileText[k]<>'!') and (k<length(FileText)) then
+          if (k<length(FileText)) and (FileText[k]<>'!') then
           begin
             Param := '';
             repeat
@@ -370,25 +378,25 @@ begin
 end;
 
 
-procedure TMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
+procedure TMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; const P: array of integer; TextParam:AnsiString);
 begin
   with fMissionInfo do
   case CommandType of
     ct_SetMap:         MapPath       := RemoveQuotes(String(TextParam));
-    ct_SetMaxPlayer:   PlayerCount   := ParamList[0];
+    ct_SetMaxPlayer:   PlayerCount   := P[0];
     ct_SetTactic:      MissionMode   := mm_Tactic;
-    ct_SetHumanPlayer: HumanPlayerID := ParamList[0];
-{                       if TGoalCondition(ParamList[0]) = gc_Time then
-                         VictoryCond := VictoryCond + fPlayers.Player[fLastPlayer].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
+    ct_SetHumanPlayer: HumanPlayerID := P[0];
+{                       if TGoalCondition(P[0]) = gc_Time then
+                         VictoryCond := VictoryCond + fPlayers.Player[fLastPlayer].AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),P[3],P[2],play_none)
                        else
-                         fPlayers.Player[fLastPlayer].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]));
+                         fPlayers.Player[fLastPlayer].AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],TPlayerID(P[3]));
 }
     ct_AddGoal:        VictoryCond   := VictoryCond
-                                        + GoalConditionStr[TGoalCondition(ParamList[0])] + ' '
-                                        + GoalStatusStr[TGoalStatus(ParamList[1])]+', ';
+                                        + GoalConditionStr[TGoalCondition(P[0])] + ' '
+                                        + GoalStatusStr[TGoalStatus(P[1])]+', ';
     ct_AddLostGoal:    DefeatCond    := DefeatCond
-                                        + GoalConditionStr[TGoalCondition(ParamList[0])] + ' '
-                                        + GoalStatusStr[TGoalStatus(ParamList[1])]+', ';
+                                        + GoalConditionStr[TGoalCondition(P[0])] + ' '
+                                        + GoalStatusStr[TGoalStatus(P[1])]+', ';
   end;
 end;
 
@@ -1187,6 +1195,12 @@ begin
 end;
 
 
+function TMissionParserPreview.GetPlayerInfo(aIndex:byte):TPlayerPreviewInfo;
+begin
+  Result := fPlayerPreview[aIndex];
+end;
+
+
 procedure TMissionParserPreview.LoadMapData(const aFileName: string);
 var
   i:integer;
@@ -1218,25 +1232,45 @@ begin
 end;
 
 
-procedure TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer);
+procedure TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; const P: array of integer);
+
+  procedure SetOwner(X,Y:Word);
+  begin
+    fMapPreview[X + Y*fMapX].TileOwner := fLastPlayer;
+  end;
+
+var i,k:integer; HA:THouseArea; Valid: Boolean; Loc: TKMPoint;
 begin
   case CommandType of
-    ct_SetCurrPlayer:  fLastPlayer := ParamList[0];
-    ct_SetHouse:       begin
+    ct_SetCurrPlayer:  fLastPlayer := P[0]+1;
+    ct_SetHouse:       if InRange(P[0], Low(HouseKaMType), High(HouseKaMType)) then
+                       begin
+                         HA := fResource.HouseDat[HouseKaMType[P[0]]].BuildArea;
+                         for i:=1 to 4 do for k:=1 to 4 do
+                           if HA[i,k]<>0 then
+                             if InRange(P[1]+1+k-3, 1, fMapX) and InRange(P[2]+1+i-4, 1, fMapY) then
+                               SetOwner(P[1]+1, P[2]+1);
                        end;
-    ct_SetMapColor: ;
-    ct_CenterScreen: ;
+    ct_SetMapColor:    if InRange(fLastPlayer, 1, MAX_PLAYERS) then
+                         fPlayerPreview[fLastPlayer].Color := fResource.Palettes.DefDal.Color32(P[0]);
+    ct_CenterScreen:   fPlayerPreview[fLastPlayer].StartingLoc := KMPoint(P[0]+1,P[1]+1);
     ct_SetRoad,
     ct_SetField,
-    ct_Set_Winefield,
-    ct_SetUnit:        fMapPreview[(ParamList[0]+1) + (ParamList[1]+1)*fMapX].TileOwner := fLastPlayer;
+    ct_Set_Winefield:  SetOwner(P[0]+1, P[1]+1);
+    ct_SetUnit:        if not (UnitsRemap[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
+                         SetOwner(P[1]+1, P[2]+1);
     ct_SetStock:       begin
-                         ProcessCommand(ct_SetHouse,[11,ParamList[0],  ParamList[1]  ]);
-                         ProcessCommand(ct_SetRoad, [   ParamList[0]-2,ParamList[1]+1]);
-                         ProcessCommand(ct_SetRoad, [   ParamList[0]-1,ParamList[1]+1]);
-                         ProcessCommand(ct_SetRoad, [   ParamList[0]  ,ParamList[1]+1]);
+                         ProcessCommand(ct_SetHouse,[11,P[0]+1,P[1]+1]);
+                         ProcessCommand(ct_SetRoad, [   P[0]-2,P[1]+1]);
+                         ProcessCommand(ct_SetRoad, [   P[0]-1,P[1]+1]);
+                         ProcessCommand(ct_SetRoad, [   P[0]  ,P[1]+1]);
                        end;
     ct_SetGroup:       begin
+                         for i:= 1 to P[5] do
+                         begin
+                           Loc := GetPositionInGroup2(P[1]+1,P[2]+1,TKMDirection(P[3]+1),i,P[4],fMapX,fMapY,Valid);
+                           if Valid then SetOwner(Loc.X,Loc.Y);
+                         end;
                        end;
     ct_ClearUp: ;
   end;
@@ -1245,7 +1279,7 @@ end;
 
 function TMissionParserPreview.LoadMission(const aFileName: string):boolean;
 const
-  Max_Cmd=3;
+  Max_Cmd=6;
 var
   FileText: AnsiString;
   CommandText, Param: AnsiString;
@@ -1257,6 +1291,7 @@ begin
 
   fLastPlayer := 0;
   FillChar(fMapPreview, SizeOf(fMapPreview), #0);
+  FillChar(fPlayerPreview, SizeOf(fPlayerPreview), #0);
 
   LoadMapData(ChangeFileExt(fMissionFileName,'.map'));
   Result := false;
@@ -1290,7 +1325,7 @@ begin
         inc(k);
         //Extract parameters
         for l:=1 to Max_Cmd do
-          if (FileText[k]<>'!') and (k<length(FileText)) then
+          if (k<length(FileText)) and (FileText[k]<>'!') then
           begin
             Param := '';
             repeat

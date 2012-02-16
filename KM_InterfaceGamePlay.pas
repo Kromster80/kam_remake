@@ -673,7 +673,7 @@ begin
   inherited Create(aScreenX, aScreenY);
   fTerrain := aTerrain;
 
-  fMapView := TKMMapView.Create(nil, fTerrain);
+  fMapView := TKMMapView.Create(nil, fTerrain, False);
 
   fShownUnit:=nil;
   fShownHouse:=nil;
@@ -3535,7 +3535,7 @@ end;
 
 procedure TKMGamePlayInterface.UpdateMapSize(X, Y: integer);
 begin
-  fMapView.Update(False, False);
+  fMapView.Update;
   Minimap.MapTex := fMapView.MapTex;
   Minimap.MapSize := KMPoint(X, Y);
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
@@ -3550,7 +3550,7 @@ begin
   //Every 1000ms
   if fGame.GlobalTickCount mod 10 = 0 then
     if (fGame.GameState in [gsRunning, gsReplay]) then
-      fMapView.Update(False, False);
+      fMapView.Update;
 
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 

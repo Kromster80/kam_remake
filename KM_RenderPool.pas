@@ -1180,6 +1180,7 @@ begin
   if RenderList[I].NewInst then
   begin
     RenderOrder[I] := I;
+    //todo: Crashes here when something should be rendered at negative Y value, e.g. arrows that fly off the top of the map
     PX := Round(RenderList[I].Loc.X);
     PY := Round(RenderList[I].Loc.Y);
     //RenderQuad(P.X,P.Y);
