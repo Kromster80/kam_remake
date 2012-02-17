@@ -1,17 +1,16 @@
 unit Unit1;
 interface
 uses
-  Forms, StdCtrls, ExtCtrls, ComCtrls, Math, SysUtils,
+  Forms, StdCtrls, ExtCtrls, ComCtrls, Math, SysUtils, Windows,
   KM_Defaults, KM_Campaigns, Dialogs, Controls,
   Spin, Graphics, Classes;
 
 type
   TForm1 = class(TForm)
     tvList: TTreeView;
-    Button1: TButton;
-    Button2: TButton;
-    Image1: TImage;
-    Button7: TButton;
+    btnSaveCMP: TButton;
+    btnLoadCMP: TButton;
+    btnLoadPicture: TButton;
     seMapCount: TSpinEdit;
     Label1: TLabel;
     seNodeCount: TSpinEdit;
@@ -19,29 +18,26 @@ type
     dlgOpenPicture: TOpenDialog;
     dlgOpenCampaign: TOpenDialog;
     dlgSaveCampaign: TSaveDialog;
-    Label3: TLabel;
-    cbImageID: TSpinEdit;
-    cbImageLib: TComboBox;
     Bevel1: TBevel;
-    Label4: TLabel;
-    Label5: TLabel;
     edtShortName: TEdit;
-    edtFullName: TEdit;
-    edtMapName: TEdit;
     Label6: TLabel;
-    Label7: TLabel;
+    StatusBar1: TStatusBar;
+    ScrollBox1: TScrollBox;
+    Image1: TImage;
     imgBlackFlag: TImage;
     imgRedFlag: TImage;
     imgNode: TImage;
-    StatusBar1: TStatusBar;
-    procedure Button7Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    RadioGroup1: TRadioGroup;
+    procedure btnLoadPictureClick(Sender: TObject);
+    procedure btnLoadCMPClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure tvListChange(Sender: TObject; Node: TTreeNode);
     procedure seMapCountChange(Sender: TObject);
-    procedure CampaignChange(Sender: TObject);
     procedure MapChange(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure btnSaveCMPClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure RadioGroup1Click(Sender: TObject);
+    procedure edtShortNameChange(Sender: TObject);
   private
     imgFlags: array of TImage;
     imgNodes: array of TImage;
@@ -73,19 +69,30 @@ implementation
 
 
 procedure TForm1.FormCreate(Sender: TObject);
-const
-  RXFileName: array [TRXType] of string = (
-    'Trees', 'Houses', 'Units', 'GUI',
-    'GUIMain', 'GUIMainH', 'RemakeMenu', 'Tileset', 'RemakeGame');
-var
-  R: TRXType;
 begin
-  cbImageLib.Clear;
-  for R := Low(TRXType) to High(TRXType) do
-    cbImageLib.AddItem(RXFileName[R], nil);
-
   C := TKMCampaign.Create;
   fSelectedMap := -1;
+end;
+
+
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var Img: TImage;
+begin
+  Img := nil;
+
+  if (fSelectedMap <> -1) then
+    if (fSelectedNode <> -1) then
+      Img := imgNodes[fSelectedNode]
+    else
+      Img := imgFlags[fSelectedMap];
+
+  if Img <> nil then
+  case Key of
+    Ord('D'): Img.Left := Img.Left + 1;
+    Ord('A'): Img.Left := Img.Left - 1;
+    Ord('W'): Img.Top  := Img.Top  - 1;
+    Ord('S'): Img.Top  := Img.Top  + 1;
+  end;
 end;
 
 
@@ -106,7 +113,9 @@ end;
 procedure TForm1.FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 var Img: TImage;
 begin
-  if (ssLeft in Shift) and (fSelectedMap <> -1) then
+
+
+  if (ssLeft in Shift) and (TImage(Sender).Tag = fSelectedMap) then
   begin
     Img := TImage(Sender);
     Assert(Img <> nil);
@@ -154,18 +163,22 @@ begin
 end;
 
 
-procedure TForm1.Button1Click(Sender: TObject);
+procedure TForm1.btnSaveCMPClick(Sender: TObject);
 begin
-  dlgSaveCampaign.InitialDir := ParamStr(0);
+  dlgSaveCampaign.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
   if not dlgSaveCampaign.Execute then Exit;
 
   C.SaveToFile(dlgSaveCampaign.FileName);
 end;
 
 
-procedure TForm1.Button2Click(Sender: TObject);
+procedure TForm1.btnLoadCMPClick(Sender: TObject);
 begin
-  dlgOpenCampaign.InitialDir := ParamStr(0);
+  if DirectoryExists(ExtractFilePath(ParamStr(0)) + '..\..\Campaigns\') then
+    dlgOpenCampaign.InitialDir := ExtractFilePath(ParamStr(0)) + '..\..\Campaigns\'
+  else
+    dlgOpenCampaign.InitialDir := ExtractFilePath(ParamStr(0));
+
   if not dlgOpenCampaign.Execute then Exit;
 
   C.LoadFromFile(dlgOpenCampaign.FileName);
@@ -179,7 +192,7 @@ begin
 end;
 
 
-procedure TForm1.Button7Click(Sender: TObject);
+procedure TForm1.btnLoadPictureClick(Sender: TObject);
 begin
   dlgOpenPicture.InitialDir := ParamStr(0);
   if not dlgOpenPicture.Execute then Exit;
@@ -188,17 +201,11 @@ begin
 end;
 
 
-procedure TForm1.CampaignChange(Sender: TObject);
-var P: TPicID;
+procedure TForm1.edtShortNameChange(Sender: TObject);
 begin
   if fUpdating then Exit;
 
-  C.FullTitle := AnsiString(edtFullName.Text);
   C.ShortTitle := AnsiString(edtShortName.Text);
-
-  P.RX := TRXType(cbImageLib.ItemIndex);
-  P.ID := cbImageID.Value;
-  C.BackGroundPic := P;
 
   //Shortname may be used as mapname in List
   UpdateList;
@@ -211,6 +218,9 @@ begin
 
   C.MapCount := seMapCount.Value;
 
+  if fSelectedMap > C.MapCount - 1 then
+    fSelectedMap := -1;
+
   UpdateList;
   UpdateFlagCount;
   RefreshFlags;
@@ -221,12 +231,20 @@ procedure TForm1.MapChange(Sender: TObject);
 begin
   if fUpdating or (fSelectedMap = -1) then Exit;
 
-  C.Maps[fSelectedMap].MapName := edtMapName.Text;
   C.Maps[fSelectedMap].NodeCount := seNodeCount.Value;
+
+  if fSelectedNode > C.Maps[fSelectedMap].NodeCount - 1 then
+    fSelectedNode := -1;
 
   UpdateList;
   UpdateNodeCount;
   RefreshFlags;
+end;
+
+
+procedure TForm1.RadioGroup1Click(Sender: TObject);
+begin
+  C.Maps[fSelectedMap].TextPos := RadioGroup1.ItemIndex;
 end;
 
 
@@ -258,28 +276,17 @@ procedure TForm1.UpdateList;
 var
   I, K: Integer;
   N, SN: TTreeNode;
-  S: string;
 begin
   fUpdating := True;
 
-  edtFullName.Text  := C.FullTitle;
   edtShortName.Text := C.ShortTitle;
-
-  cbImageLib.ItemIndex  := Byte(C.BackGroundPic.RX);
-  cbImageID.Value       := C.BackGroundPic.ID;
-
   seMapCount.Value := C.MapCount;
 
   tvList.Items.Clear;
 
   for I := 0 to C.MapCount - 1 do
   begin
-    if Trim(C.Maps[I].MapName) <> '' then
-      S := C.Maps[I].MapName
-    else
-      S := C.ShortTitle + ' mission ' + IntToStr(I + 1);
-
-    N := tvList.Items.AddChild(nil, S);
+    N := tvList.Items.AddChild(nil, C.ShortTitle + ' mission ' + IntToStr(I + 1));
     if fSelectedMap = I then
       N.Selected := True;
 
@@ -327,12 +334,13 @@ begin
     if imgFlags[I] = nil then
     begin
       imgFlags[I] := TImage.Create(Image1);
-      imgFlags[I].Parent := Self;
+      imgFlags[I].Parent := ScrollBox1;
       imgFlags[I].AutoSize := True;
       imgFlags[I].Transparent := True;
       imgFlags[I].Tag := I;
-      imgFlags[I].OnMouseDown := FlagDown;
-      imgFlags[I].OnMouseMove := FlagMove;
+      //imgFlags[I].OnClick := FlagClick; //Select
+      imgFlags[I].OnMouseDown := FlagDown; //Start drag
+      imgFlags[I].OnMouseMove := FlagMove; //Drag
     end;
   end;
 
@@ -357,13 +365,14 @@ begin
     if imgNodes[I] = nil then
     begin
       imgNodes[I] := TImage.Create(Image1);
-      imgNodes[I].Parent := Self;
+      imgNodes[I].Parent := ScrollBox1;
       imgNodes[I].AutoSize := True;
       imgNodes[I].Transparent := True;
       imgNodes[I].Picture.Bitmap := imgNode.Picture.Bitmap;
       imgNodes[I].Tag := I;
-      imgNodes[I].OnMouseDown := NodeDown;
-      imgNodes[I].OnMouseMove := NodeMove;
+      //imgFlags[I].OnClick := NodeClick; //Select
+      imgNodes[I].OnMouseDown := NodeDown; //Start drag
+      imgNodes[I].OnMouseMove := NodeMove; //Drag
     end;
   end;
 
@@ -380,7 +389,7 @@ begin
 
   fUpdating := True;
 
-  //Select map in TreeList
+  //Try to select map in TreeList
   M := -1;
   N := -1;
   for I := 0 to tvList.Items.Count - 1 do
@@ -395,25 +404,10 @@ begin
 
     if (M = fSelectedMap) and (N = fSelectedNode) then
       tvList.Items[I].Selected := True;
-
-
-
-
-  if InRange(fSelectedMap, 0, tvList.Items.Count - 1) then
-  begin
-    tvList.Items[fSelectedMap].Selected := True;
-
-    if InRange(fSelectedNode, 0, tvList.Items[fSelectedMap].Count - 1) then
-      tvList.Items[fSelectedMap][fSelectedNode].Selected := True
-    else
-      fSelectedNode := -1;
-  end
-  else
-    fSelectedMap := -1;
+  end;
 
   //Update map info
   StatusBar1.Panels[0].Text := 'Selected map: ' + IntToStr(fSelectedMap) + '/' + IntToStr(fSelectedNode);
-  edtMapName.Text := C.Maps[fSelectedMap].MapName;
   seNodeCount.Value := C.Maps[fSelectedMap].NodeCount;
 
   fUpdating := False;
