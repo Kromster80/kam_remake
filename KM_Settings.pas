@@ -176,7 +176,7 @@ begin
 
   fAutosave      := f.ReadBool   ('Game','Autosave',true); //Should be ON by default
   fScrollSpeed   := f.ReadInteger('Game','ScrollSpeed',10);
-  Locale         := f.ReadString ('Game','Locale','eng'); //Wrong name will become ENG too
+  Locale         := f.ReadString ('Game','Locale', DEFAULT_LOCALE); //Wrong name will become ENG too
   fSpeedPace     := f.ReadInteger('Game','SpeedPace',100);
   fSpeedMedium   := f.ReadInteger('Game','SpeedMedium',3);
   fSpeedFast     := f.ReadInteger('Game','SpeedFast',6);

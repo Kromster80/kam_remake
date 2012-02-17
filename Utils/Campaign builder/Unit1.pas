@@ -89,7 +89,8 @@ begin
     else
       Img := imgFlags[fSelectedMap];
 
-  if Img <> nil then
+  if Img = nil then Exit;
+
   case Key of
     Ord('D'): Img.Left := Img.Left + 1;
     Ord('A'): Img.Left := Img.Left - 1;
@@ -97,18 +98,16 @@ begin
     Ord('S'): Img.Top  := Img.Top  + 1;
   end;
 
-  if (fSelectedMap <> -1) then
-    if (fSelectedNode <> -1) then
-    begin
-      C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left - Image1.Left;
-      C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  - Image1.Top;
-    end
-    else
-    begin
-      C.Maps[fSelectedMap].Flag.X := Img.Left - Image1.Left;
-      C.Maps[fSelectedMap].Flag.Y := Img.Top  - Image1.Top;
-    end;
-
+  if (fSelectedNode <> -1) then
+  begin
+    C.Maps[fSelectedMap].Nodes[fSelectedNode].X := Img.Left - Image1.Left;
+    C.Maps[fSelectedMap].Nodes[fSelectedNode].Y := Img.Top  - Image1.Top;
+  end
+  else
+  begin
+    C.Maps[fSelectedMap].Flag.X := Img.Left - Image1.Left;
+    C.Maps[fSelectedMap].Flag.Y := Img.Top  - Image1.Top;
+  end;
 
   StatusBar1.Panels[1].Text := 'Position ' + IntToStr(Img.Left) + 'x' + IntToStr(Img.Top);
 end;

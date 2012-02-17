@@ -18,23 +18,23 @@ type
 
   TKMCampaign = class
   private
+    //Runtime variables
+    fPath: string;
     fFirstTextIndex: Word;
-    fFullTitle: AnsiString;
-    fShortTitle: AnsiString;
+    fUnlockedMaps: Byte;
+
+    //Saved in CMP
+    fShortTitle: AnsiString; //Used to identify the campaign
     fBackGroundPic: TPicID;
     fMapCount: Byte;
-    fUnlockedMaps: Byte;
     procedure SetUnlockedMaps(Value: Byte);
-    procedure SetMapCount(aValue: byte);
+    procedure SetMapCount(aValue: Byte);
   public
     Maps: array of record
-      MapName: AnsiString;
-      MissionText: AnsiString;
-      TextPos: Byte; //Text position (TL, TR, BL, BR corner)
       Flag: TKMPoint;
       NodeCount: Byte;
       Nodes: array [0 .. MAX_CAMP_NODES - 1] of TKMPoint;
-      ScriptPath: AnsiString;
+      TextPos: Byte; //Text position (TL, TR, BL, BR corner)
     end;
     constructor Create;
 
@@ -44,10 +44,11 @@ type
 
     property BackGroundPic: TPicID read fBackGroundPic write fBackGroundPic;
     property MapCount: byte read fMapCount write SetMapCount;
-    property FullTitle: AnsiString read fFullTitle write fFullTitle;
     property ShortTitle: AnsiString read fShortTitle write fShortTitle;
     property UnlockedMaps: byte read fUnlockedMaps write SetUnlockedMaps;
 
+    function MissionFile(aIndex: byte): string;
+    function MissionTitle(aIndex: byte): AnsiString;
     function MissionText(aIndex: byte): AnsiString;
   end;
 
@@ -134,15 +135,21 @@ begin
 
   //Hardcoded for now
   C := CampaignByTitle('TSK');
-  C.fBackGroundPic.RX := rxGuiMainH;
-  C.fBackGroundPic.ID := 12;
-  C.fFirstTextIndex := 340; //+10 added later on
+  if C <> nil then
+  begin
+    C.fBackGroundPic.RX := rxGuiMainH;
+    C.fBackGroundPic.ID := 12;
+    C.fFirstTextIndex := 340; //+10 added later on
+  end;
 
   //Hardcoded for now
   C := CampaignByTitle('TPR');
-  C.fBackGroundPic.RX := rxGuiMain;
-  C.fBackGroundPic.ID := 20;
-  C.fFirstTextIndex := 240; //+10 added later on
+  if C <> nil then
+  begin
+    C.fBackGroundPic.RX := rxGuiMain;
+    C.fBackGroundPic.ID := 20;
+    C.fFirstTextIndex := 240; //+10 added later on
+  end;
 end;
 
 
@@ -158,7 +165,7 @@ var
   M: TKMemoryStream;
   C: TKMCampaign;
   I, CampCount: Integer;
-  CampName: string;
+  CampName: AnsiString;
   Unlocked: Byte;
 begin
   if not FileExists(FileName) then Exit;
@@ -177,7 +184,7 @@ begin
       M.Read(Unlocked);
       C := CampaignByTitle(AnsiString(CampName));
       if C <> nil then
-        C.UnlockedMaps := 12;//Unlocked;
+        C.UnlockedMaps := Unlocked;
     end;
   finally
     M.Free;
@@ -207,19 +214,19 @@ begin
 end;
 
 
-function TKMCampaignsCollection.Count:integer;
+function TKMCampaignsCollection.Count: Integer;
 begin
   Result := fList.Count;
 end;
 
 
 function TKMCampaignsCollection.CampaignByTitle(const aShortTitle: AnsiString): TKMCampaign;
-var i:integer;
+var I: Integer;
 begin
   Result := nil;
-  for i:=0 to Count-1 do
-    if SameText(Campaigns[i].ShortTitle, aShortTitle) then
-      Result := Campaigns[i];
+  for I := 0 to Count - 1 do
+    if SameText(Campaigns[I].ShortTitle, aShortTitle) then
+      Result := Campaigns[I];
 end;
 
 
@@ -268,8 +275,6 @@ begin
   M := TKMemoryStream.Create;
   M.LoadFromFile(aFilename);
 
-  M.ReadAssert('KaM Campaign');
-  M.Read(fFullTitle);
   M.Read(fShortTitle);
   M.Read(Byte(fBackGroundPic.RX));
   M.Read(fBackGroundPic.ID);
@@ -278,13 +283,11 @@ begin
 
   for I := 0 to fMapCount - 1 do
   begin
-    M.Read(Maps[I].MapName);
-    M.Read(Maps[I].MissionText);
     M.Read(Maps[I].Flag);
     M.Read(Maps[I].NodeCount);
-    //SetLength(Maps[I].Nodes, Maps[I].NodeCount);
     for K := 0 to Maps[I].NodeCount - 1 do
       M.Read(Maps[I].Nodes[K]);
+    M.Read(Maps[I].TextPos);
   end;
 
   M.Free;
@@ -297,8 +300,6 @@ var
   I, K: Integer;
 begin
   M := TKMemoryStream.Create;
-  M.Write('KaM Campaign');
-  M.Write(fFullTitle);
   M.Write(fShortTitle);
   M.Write(Byte(fBackGroundPic.RX));
   M.Write(fBackGroundPic.ID);
@@ -306,12 +307,11 @@ begin
 
   for I := 0 to fMapCount - 1 do
   begin
-    M.Write(Maps[I].MapName);
-    M.Write(Maps[I].MissionText);
     M.Write(Maps[I].Flag);
     M.Write(Maps[I].NodeCount);
     for K := 0 to Maps[I].NodeCount - 1 do
       M.Write(Maps[I].Nodes[K]);
+    M.Write(Maps[I].TextPos);
   end;
 
   M.SaveToFile(aFilename);
@@ -321,11 +321,14 @@ end;
 
 procedure TKMCampaign.LoadFromPath(aPath: string);
 begin
-  LoadFromFile(aPath + 'info.cmp');
-  fFirstTextIndex := fTextLibrary.AppendCampaign(aPath + 'text.eng.libx');
-  //LoadRX(aPath + '\info.cmp');
+  fPath := aPath;
 
-  //fUnlockedMaps := 5; //Unlock more maps for debug
+  LoadFromFile(fPath + 'info.cmp');
+
+  fFirstTextIndex := fTextLibrary.AppendCampaign(fPath + 'text.%s.libx');
+  //LoadRX(fPath + '\info.cmp');
+
+  fUnlockedMaps := 5; //Unlock more maps for debug
 end;
 
 
@@ -333,6 +336,18 @@ procedure TKMCampaign.SetMapCount(aValue: byte);
 begin
   fMapCount := aValue;
   SetLength(Maps, fMapCount);
+end;
+
+
+function TKMCampaign.MissionFile(aIndex: byte): string;
+begin
+  Result := fPath + fShortTitle + '.dat';
+end;
+
+
+function TKMCampaign.MissionTitle(aIndex: byte): AnsiString;
+begin
+  Result := Format(fTextLibrary[2000 + fFirstTextIndex + 1], [aIndex]);
 end;
 
 

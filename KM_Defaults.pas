@@ -192,6 +192,7 @@ const
   ('svk', '1250',  '12', 'Slovak'),
   ('spa', '1252',  '13', 'Spanish'),
   ('swe', '1252',  '16', 'Swedish'));
+  DEFAULT_LOCALE = 'eng';
 
   TRANSLATOR_CREDITS = '|Brazilian Portuguese - Vinycius Maia|Bulgarian - Christian|Czech - Jolinar_CZ & Milan Molnar|'+
   'Dutch - xzaz & Tom|Estonian - Ingvar & Eva|French - Sylvain Domange|German - The Knight|Hungarian - Jecy|'+

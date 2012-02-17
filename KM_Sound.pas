@@ -186,7 +186,7 @@ begin
   if DirectoryExists(ExeDir+'data\sfx\speech.'+aLocale+'\') then
     fLocale := aLocale
   else
-    fLocale := 'eng'; //Use English voices when no language specific voices exist
+    fLocale := DEFAULT_LOCALE; //Use English voices when no language specific voices exist
 
   fIsSoundInitialized := InitOpenAL;
   if not fIsSoundInitialized then begin

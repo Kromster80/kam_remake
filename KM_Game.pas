@@ -92,7 +92,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure StartCampaignMap(aCampaign:TKMCampaign; aMap:byte);
+    procedure StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
     procedure StartSingleMap(aMissionFile, aGameName:string);
     procedure StartSingleSave(aFilename:string);
     procedure StartLastMap;
@@ -446,7 +446,7 @@ begin
 end;
 
 
-procedure TKMGame.StartCampaignMap(aCampaign:TKMCampaign; aMap:byte);
+procedure TKMGame.StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
 begin
   Stop(gr_Silent); //Stop everything silently
 
@@ -454,7 +454,7 @@ begin
   fCampaigns.ActiveCampaignMap := aMap;
 
   GameInit(false);
-  GameStart(aCampaign.Maps[aMap].ScriptPath, aCampaign.Maps[aMap].MapName);
+  GameStart(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap));
 end;
 
 

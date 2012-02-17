@@ -603,7 +603,8 @@ begin
       end;
 
       //Read pivots
-      if FileExists(aFolder + Copy(FileList.Strings[i], 1, 6)+'.txt') then begin
+      if FileExists(aFolder + Copy(FileList.Strings[i], 1, 6)+'.txt') then
+      begin
         AssignFile(ft, aFolder + Copy(FileList.Strings[i], 1, 6)+'.txt');
         Reset(ft);
         ReadLn(ft, RXData[fRT].Pivot[ID].X);

@@ -27,6 +27,7 @@ const
 type
   TTextLibrary = class
   private
+    fLocale: AnsiString;
     TextStrings: array [0..MaxStrings] of AnsiString;
     SetupStrings: array [0..MaxStrings] of AnsiString;
     RemakeStrings: TAnsiStringArray;
@@ -56,20 +57,23 @@ uses KM_Log;
 { TTextLibrary }
 constructor TTextLibrary.Create(aLibPath: string; aLocale: AnsiString);
 begin
-  Inherited Create;
+  inherited Create;
 
-  if FileExists(aLibPath+'text.'+aLocale+'.lib')
-  then LoadLIBFile(aLibPath+'text.'+aLocale+'.lib', TextStrings)
+  //Remember preferred locale, it will remain constant until reinit
+  fLocale := aLocale;
+
+  if FileExists(aLibPath+'text.'+fLocale+'.lib')
+  then LoadLIBFile(aLibPath+'text.'+fLocale+'.lib', TextStrings)
   else LoadLIBFile(aLibPath+'text.lib', TextStrings);
 
-  if FileExists(aLibPath+'setup.'+aLocale+'.lib')
-  then LoadLIBFile(aLibPath+'setup.'+aLocale+'.lib', SetupStrings)
+  if FileExists(aLibPath+'setup.'+fLocale+'.lib')
+  then LoadLIBFile(aLibPath+'setup.'+fLocale+'.lib', SetupStrings)
   else LoadLIBFile(aLibPath+'setup.lib', SetupStrings);
 
   //We load the English LIBX by default, then overwrite it with the selected language (this way missing strings are in English)
-  LoadLIBXFile(aLibPath+'remake.eng.libx', 0, RemakeStrings, True); //Initialize with English strings
-  if (aLocale <> 'eng') and FileExists(aLibPath+'remake.'+aLocale+'.libx') then
-    LoadLIBXFile(aLibPath+'remake.'+aLocale+'.libx', 0, RemakeStrings, False); //Overwrite with selected locale
+  LoadLIBXFile(aLibPath+'remake.'+DEFAULT_LOCALE+'.libx', 0, RemakeStrings, True); //Initialize with English strings
+  if (fLocale <> DEFAULT_LOCALE) and FileExists(aLibPath+'remake.'+fLocale+'.libx') then
+    LoadLIBXFile(aLibPath+'remake.'+fLocale+'.libx', 0, RemakeStrings, False); //Overwrite with selected locale
 
   fLog.AppendLog('TextLib init done');
 end;
@@ -202,9 +206,14 @@ end;
 
 
 function TTextLibrary.AppendCampaign(aFilename: string): Word;
+var S: string;
 begin
+  Assert(Pos('%s', aFilename) <> 0, 'Input string must be formatted properly with an %s');
+
   Result := High(RemakeStrings);
-  LoadLIBXFile(aFilename, Result, RemakeStrings, True);
+  LoadLIBXFile(Format(aFilename, [DEFAULT_LOCALE]), Result, RemakeStrings, True);
+  if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFilename, [fLocale])) then
+    LoadLIBXFile(Format(aFilename, [fLocale]), Result, RemakeStrings, False);
 end;
 
 
