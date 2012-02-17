@@ -112,6 +112,7 @@ type
     procedure MapEditor_MapTypeChange(Sender: TObject);
     procedure MapEditor_ListUpdate;
     procedure MapEditor_ListUpdateDone(Sender: TObject);
+    procedure MapEditor_SelectMap(Sender: TObject);
     procedure Options_Fill(aGlobalSettings:TGlobalSettings);
     procedure Options_Change(Sender: TObject);
     procedure Options_FlagClick(Sender: TObject);
@@ -235,6 +236,7 @@ type
       Panel_MapEd_Load:TKMPanel;
       List_MapEd:TKMListBox;
       Radio_MapEd_MapType:TKMRadioGroup;
+      Minimap_MapEd:TKMMinimap;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load:TKMButton;
     Panel_Options:TKMPanel;
       Panel_Options_GFX:TKMPanel;
@@ -933,7 +935,7 @@ procedure TKMMainMenuInterface.Create_MapEditor_Page;
 var i:integer;
 begin
   Panel_MapEd:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
-    Panel_MapEd_SizeXY := TKMPanel.Create(Panel_MapEd, 462-210, 200, 200, 400);
+    Panel_MapEd_SizeXY := TKMPanel.Create(Panel_MapEd, 120, 200, 200, 400);
       TKMLabel.Create(Panel_MapEd_SizeXY, 6, 0, 188, 20, fTextLibrary[TX_MENU_MAP_SIZE], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_MapEd_SizeXY, 0, 20, 200, 20 + MAPSIZES_COUNT*26);
       TKMLabel.Create(Panel_MapEd_SizeXY, 8, 27, 88, 20, fTextLibrary[TX_MENU_MAP_WIDTH], fnt_Outline, taLeft);
@@ -954,7 +956,7 @@ begin
       Button_MapEd_Create := TKMButton.Create(Panel_MapEd_SizeXY, 0, 335, 200, 30, fTextLibrary[TX_MENU_MAP_CREATE_NEW_MAP], fnt_Metal, bsMenu);
       Button_MapEd_Create.OnClick := MapEditor_Start;
 
-    Panel_MapEd_Load := TKMPanel.Create(Panel_MapEd, 462+10, 200, 300, 400);
+    Panel_MapEd_Load := TKMPanel.Create(Panel_MapEd, 340, 200, 520, 400);
       TKMLabel.Create(Panel_MapEd_Load, 6, 0, 288, 20, fTextLibrary[TX_MENU_MAP_AVAILABLE], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_MapEd_Load, 0, 20, 300, 50);
       Radio_MapEd_MapType := TKMRadioGroup.Create(Panel_MapEd_Load,8,28,286,40,fnt_Grey);
@@ -963,9 +965,12 @@ begin
       Radio_MapEd_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
       Radio_MapEd_MapType.OnChange := MapEditor_MapTypeChange;
       List_MapEd := TKMListBox.Create(Panel_MapEd_Load, 0, 80, 300, 240, fnt_Metal);
+      List_MapEd.OnChange := MapEditor_SelectMap;
       List_MapEd.OnDoubleClick := MapEditor_Start;
       Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 335, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], fnt_Metal, bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
+      TKMBevel.Create(Panel_MapEd_Load, 308, 80, 200, 200);
+      Minimap_MapEd := TKMMinimap.Create(Panel_MapEd_Load, 312, 84, 192, 192);
 
     Button_MapEdBack := TKMButton.Create(Panel_MapEd, 120, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_MapEdBack.OnClick := SwitchMenuPage;
@@ -2469,6 +2474,15 @@ begin
     List_MapEd.SetItems(fMaps.MapList)
   else
     List_MapEd.SetItems(fMapsMP.MapList);
+end;
+
+
+procedure TKMMainMenuInterface.MapEditor_SelectMap(Sender: TObject);
+begin
+  if (not Button_MapEd_Load.Enabled) or (List_MapEd.ItemIndex = -1) then exit;
+  fMapView.LoadTerrain(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1));
+  fMapView.Update;
+  Minimap_MapEd.UpdateFrom(fMapView);
 end;
 
 
