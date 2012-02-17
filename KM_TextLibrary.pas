@@ -13,8 +13,6 @@ const
   siUnitNames = 69;
   siUnitDescriptions = 99;
   siTrackNames = 570;
-  siCampTSKTexts = 250;
-  siCampTPRTexts = 350;
 
   //These constants are made so to be able to use Texts[] instead of GetSetupString(), which is consistent style for MainMenu
   TX_MENU_MULTIPLAYER = 1011;
@@ -33,15 +31,16 @@ type
     SetupStrings: array [0..MaxStrings] of AnsiString;
     RemakeStrings: TAnsiStringArray;
     procedure LoadLIBFile(FilePath: string; var aArray: array of AnsiString);
-    procedure LoadLIBXFile(FilePath: string; var aArray: TAnsiStringArray; aInitializeValues: Boolean);
+    procedure LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aInitializeValues: Boolean);
     procedure ExportTextLibrary(aLibrary: array of AnsiString; aFileName: string);
     function GetRemakeString(aIndex:word): AnsiString;
     function GetTexts(aIndex:word): AnsiString;
   public
     constructor Create(aLibPath: string; aLocale: AnsiString);
-    function GetTextString(aIndex:word): AnsiString;
-    function GetSetupString(aIndex:word): AnsiString;
-    property Texts[aIndex:word]: AnsiString read GetTexts; default;
+    function AppendCampaign(aFilename: string): Word;
+    function GetTextString(aIndex: word): AnsiString;
+    function GetSetupString(aIndex: word): AnsiString;
+    property Texts[aIndex: word]: AnsiString read GetTexts; default;
     procedure ExportTextLibraries;
   end;
 
@@ -68,9 +67,9 @@ begin
   else LoadLIBFile(aLibPath+'setup.lib', SetupStrings);
 
   //We load the English LIBX by default, then overwrite it with the selected language (this way missing strings are in English)
-  LoadLIBXFile(aLibPath+'remake.eng.libx', RemakeStrings, true); //Initialize with English strings
+  LoadLIBXFile(aLibPath+'remake.eng.libx', 0, RemakeStrings, True); //Initialize with English strings
   if (aLocale <> 'eng') and FileExists(aLibPath+'remake.'+aLocale+'.libx') then
-    LoadLIBXFile(aLibPath+'remake.'+aLocale+'.libx', RemakeStrings, false); //Overwrite with selected locale
+    LoadLIBXFile(aLibPath+'remake.'+aLocale+'.libx', 0, RemakeStrings, False); //Overwrite with selected locale
 
   fLog.AppendLog('TextLib init done');
 end;
@@ -96,7 +95,7 @@ begin
   AssignFile(f,FilePath);
   FileMode := 0;
   Reset(f,1);
-  FileMode := 2; 
+  FileMode := 2;
   blockread(f,FileData,100000,NumRead); //100kb should be enough
   closefile(f);
 
@@ -135,7 +134,7 @@ begin
       begin
         TheString := TheString + AnsiChar(FileData[(StrCount * 2) + 5 + i2]);
       end;
-      ExtraCount := StrLen + 1;   
+      ExtraCount := StrLen + 1;
       if LastWasFF then  TheIndex := LastFirstFFIndex
       else TheIndex := i3;
       aArray[TheIndex-1] := TheString;
@@ -146,45 +145,44 @@ end;
 
 
 {LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
-procedure TTextLibrary.LoadLIBXFile(FilePath: string; var aArray:TAnsiStringArray; aInitializeValues:boolean);
+procedure TTextLibrary.LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aInitializeValues: Boolean);
 var
-  aStringList:TStringList;
-  i:integer;
-  s:AnsiString;
-  firstDelimiter:integer;
-  ID, MaxID:integer;
+  aStringList: TStringList;
+  I: Integer;
+  s: AnsiString;
+  firstDelimiter: Integer;
+  ID, MaxID: Integer;
 begin
-  if not CheckFileExists(FilePath) then exit;
+  if not CheckFileExists(FilePath) then Exit;
 
   aStringList := TStringList.Create;
   aStringList.LoadFromFile(FilePath);
 
   //First line is empty or comment and could have first 3 bytes Unicode Byte-Order Mark (BOM)
   s := aStringList[1];
-  if Copy(s,1,6) <> 'MaxID:' then exit;
+  if Copy(s, 1, 6) <> 'MaxID:' then Exit;
 
   firstDelimiter := Pos(':', s);
-  if not TryStrToInt(RightStr(s, Length(s)-firstDelimiter), MaxID) then exit;
+  if not TryStrToInt(RightStr(s, Length(s) - firstDelimiter), MaxID) then Exit;
+  Assert(MaxID <= 255, 'Check strings count');
 
-  SetLength(aArray, Math.Max(Length(aArray), MaxID+1));
+  SetLength(aArray, Max(Length(aArray), aFirstIndex + MaxID + 1));
 
-  for i:=0 to aStringList.Count-1 do
+  for I := 0 to aStringList.Count - 1 do
   begin
-    s := aStringList[i];
+    s := aStringList[I];
 
+    //Get string index and skip erroneous lines
     firstDelimiter := Pos(':', s);
-    if firstDelimiter=0 then continue;
-    
-    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter-1)), ID) then continue;
+    if firstDelimiter = 0 then Continue;
+    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter - 1)), ID) then Continue;
+    if ID > MaxID then Continue;
 
-    if ID <= MaxID then
-    begin
-      s := RightStr(s, Length(s)-firstDelimiter);
-      //Required characters that can't be stored in plain text
-      s := StringReplace(s, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
-      s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
-      if aInitializeValues or (s <> '') then aArray[ID] := s;
-    end;
+    s := RightStr(s, Length(s) - firstDelimiter);
+    //Required characters that can't be stored in plain text
+    s := StringReplace(s, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
+    s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
+    if aInitializeValues or (s <> '') then aArray[aFirstIndex + ID] := s;
   end;
 
   aStringList.Free; //Must free at last to avoid memory-leaks
@@ -197,9 +195,16 @@ begin
     Result := GetTextString(aIndex)
   else
   if aIndex < 2000 then
-    Result := GetSetupString(aIndex-1000)
+    Result := GetSetupString(aIndex - 1000)
   else
-    Result := GetRemakeString(aIndex-2000);
+    Result := GetRemakeString(aIndex - 2000);
+end;
+
+
+function TTextLibrary.AppendCampaign(aFilename: string): Word;
+begin
+  Result := High(RemakeStrings);
+  LoadLIBXFile(aFilename, Result, RemakeStrings, True);
 end;
 
 

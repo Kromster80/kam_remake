@@ -2,7 +2,7 @@ unit RXXPackerForm;
 {$I RXXPacker.inc}
 interface
 uses
-  SysUtils, Classes, Controls, Forms, StdCtrls, TypInfo,
+  Classes, Controls, Forms, StdCtrls, SysUtils, TypInfo,
   {$IFDEF FPC} LResources, {$ENDIF}
   KM_Defaults, KM_Log, KM_ResourcePalettes, KM_ResourceSprites;
 
@@ -16,8 +16,9 @@ type
   end;
 
 
-  var
-    fPalettes: TKMPalettes;
+var
+  RXXForm1: TRXXForm1;
+  fPalettes: TKMPalettes;
 
 
 implementation
@@ -27,7 +28,8 @@ implementation
 
 
 procedure TRXXForm1.FormCreate(Sender: TObject);
-var RT: TRXType;
+var
+  RT: TRXType;
 begin
   ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) + '..\..\';
 
@@ -90,8 +92,8 @@ begin
 end;
 
 
-initialization
 {$IFDEF FPC}
+initialization
   {$i RXXPackerForm.lrs}
 {$ENDIF}
 

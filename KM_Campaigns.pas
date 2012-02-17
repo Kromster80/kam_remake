@@ -6,6 +6,10 @@ uses
   KM_CommonClasses, KM_Defaults, KM_Points;
 
 
+const
+  MAX_CAMP_MAPS = 20;
+  MAX_CAMP_NODES = 20;
+
 type
   TPicID = record
     RX: TRXType;
@@ -14,6 +18,7 @@ type
 
   TKMCampaign = class
   private
+    fFirstTextIndex: Word;
     fFullTitle: AnsiString;
     fShortTitle: AnsiString;
     fBackGroundPic: TPicID;
@@ -25,15 +30,17 @@ type
     Maps: array of record
       MapName: AnsiString;
       MissionText: AnsiString;
+      TextPos: Byte; //Text position (TL, TR, BL, BR corner)
       Flag: TKMPoint;
       NodeCount: Byte;
-      Nodes: array [0..255] of TKMPoint;
+      Nodes: array [0 .. MAX_CAMP_NODES - 1] of TKMPoint;
       ScriptPath: AnsiString;
     end;
     constructor Create;
 
     procedure LoadFromFile(aFilename: string);
     procedure SaveToFile(aFilename: string);
+    procedure LoadFromPath(aPath: string);
 
     property BackGroundPic: TPicID read fBackGroundPic write fBackGroundPic;
     property MapCount: byte read fMapCount write SetMapCount;
@@ -47,20 +54,19 @@ type
 
   TKMCampaignsCollection = class
   private
-    fActiveCampaign:TKMCampaign; //Campaign we are playing
+    fActiveCampaign: TKMCampaign; //Campaign we are playing
     fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
-    fList:TList;
-    procedure CreateTSK;
-    procedure CreateTPR;
-    function GetCampaign(aIndex:byte):TKMCampaign;
-    procedure ScanFolder(const aPath:string);
-    procedure LoadProgress(const FileName:string);
-    procedure SaveProgress(const FileName:string);
+    fList: TList;
+    function GetCampaign(aIndex:byte): TKMCampaign;
+    procedure AddCampaign(const aPath: string);
+    procedure ScanFolder(const aPath: string);
+    procedure LoadProgress(const FileName: string);
+    procedure SaveProgress(const FileName: string);
   public
     constructor Create;
     destructor Destroy; override;
 
-    property ActiveCampaign:TKMCampaign read fActiveCampaign write fActiveCampaign;
+    property ActiveCampaign: TKMCampaign read fActiveCampaign write fActiveCampaign;
     property ActiveCampaignMap:byte read fActiveCampaignMap write fActiveCampaignMap;
 
     function Count:integer;
@@ -73,88 +79,70 @@ type
   end;
 
 
-const
-  MAX_CMP_MAPS = 32;
-  MAX_CMP_SUBNODES = 16;
-
-
 implementation
 uses KM_Log, KM_TextLibrary;
 
 
 const
   CAMP_HEADER = $FEED; //Just some header to separate right progress files from wrong
-  TSK_MAPS = 20;
-  TPR_MAPS = 14;
-
-  CampTSKPrev:array [0..TSK_MAPS-1] of shortint =
-  (-1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
-
-  CampTSKNodes: array [0..TSK_MAPS-1] of TKMPoint = (
-  (X:180; Y:685), (X:170; Y:470), (X:330; Y:610), (X:452; Y:640), (X:405; Y:540),
-  (X:360; Y:435), (X:105; Y:360), (X:150; Y:205), (X:560; Y:535), (X:745; Y:525),
-  (X:895; Y:565), (X:315; Y:305), (X:390; Y:285), (X:485; Y:305), (X:590; Y:305),
-  (X:830; Y:190), (X:710; Y:160), (X:605; Y: 55), (X:730; Y: 95), (X:830; Y: 65));
-
-  CampTPRPrev:array [0..TPR_MAPS-1] of shortint =
-  (-1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
-
-  CampTPRNodes: array [0..TPR_MAPS-1] of TKMPoint = (
-  (X:185; Y:540), (X:190; Y:480), (X:120; Y:440), (X:190; Y:435), (X:240; Y:455),
-  (X:380; Y:490), (X:140; Y:220), (X:360; Y:200), (X:525; Y:370), (X:600; Y:375),
-  (X:675; Y:205), (X:770; Y:300), (X:785; Y:235), (X:740; Y:175));
 
 
 { TCampaignCollection }
 constructor TKMCampaignsCollection.Create;
 begin
-  Inherited;
+  inherited;
   fList := TList.Create;
-  CreateTSK;
-  CreateTPR;
   ScanFolder(ExeDir + 'Campaigns\');
-  LoadProgress(ExeDir+'Campaigns\Campaigns.ini');
+  LoadProgress(ExeDir + 'Campaigns\Campaigns.ini');
 end;
 
 
 destructor TKMCampaignsCollection.Destroy;
-var i:integer;
+var I: Integer;
 begin
-  CreateDir(ExeDir+'Campaigns\'); //Makes the folder incase it was deleted
-  SaveProgress(ExeDir+'Campaigns\Campaigns.ini');
+  CreateDir(ExeDir + 'Campaigns\'); //Makes the folder incase it was deleted
+  SaveProgress(ExeDir + 'Campaigns\Campaigns.ini');
   fLog.AppendLog('Campaign.ini saved');
 
   //Free list objects
-  for i:=0 to Count-1 do
-    Self[i].Free;
+  for I := 0 to Count - 1 do
+    Self[I].Free;
 
   fList.Free;
   inherited;
 end;
 
 
-procedure TKMCampaignsCollection.CreateTPR;
-var C: TKMCampaign;
+procedure TKMCampaignsCollection.AddCampaign(const aPath: string);
+var
+  C: TKMCampaign;
 begin
   C := TKMCampaign.Create;
-  C.LoadFromFile(ExeDir+'Campaigns\TPR\campaign.cmp');//, TPR_MAPS, rxGuiMain, 20);
-  fList.Add(C);
-end;
-
-
-procedure TKMCampaignsCollection.CreateTSK;
-var C: TKMCampaign;
-begin
-  C := TKMCampaign.Create;
-  C.LoadFromFile(ExeDir+'Campaigns\TSK\campaign.cmp');//, TPR_MAPS, rxGuiMainH, 12);
+  C.LoadFromPath(aPath);
   fList.Add(C);
 end;
 
 
 //Scan custom campaigns folders
-procedure TKMCampaignsCollection.ScanFolder(const aPath:string);
+procedure TKMCampaignsCollection.ScanFolder(const aPath: string);
+var C: TKMCampaign;
 begin
+  AddCampaign(aPath + 'The Shattered Kingdom\');
+  AddCampaign(aPath + 'The Peasants Rebellion\');
 
+  //todo: So far TSK and TPR are hardcoded, but we need to switch to real Scan later
+
+  //Hardcoded for now
+  C := CampaignByTitle('TSK');
+  C.fBackGroundPic.RX := rxGuiMainH;
+  C.fBackGroundPic.ID := 12;
+  C.fFirstTextIndex := 340; //+10 added later on
+
+  //Hardcoded for now
+  C := CampaignByTitle('TPR');
+  C.fBackGroundPic.RX := rxGuiMain;
+  C.fBackGroundPic.ID := 20;
+  C.fFirstTextIndex := 240; //+10 added later on
 end;
 
 
@@ -331,6 +319,16 @@ begin
 end;
 
 
+procedure TKMCampaign.LoadFromPath(aPath: string);
+begin
+  LoadFromFile(aPath + 'info.cmp');
+  fFirstTextIndex := fTextLibrary.AppendCampaign(aPath + 'text.eng.libx');
+  //LoadRX(aPath + '\info.cmp');
+
+  //fUnlockedMaps := 5; //Unlock more maps for debug
+end;
+
+
 procedure TKMCampaign.SetMapCount(aValue: byte);
 begin
   fMapCount := aValue;
@@ -342,13 +340,7 @@ end;
 //custom campaigns are unlikely to have more texts in more than 1-2 languages
 function TKMCampaign.MissionText(aIndex: byte): AnsiString;
 begin
-  if fShortTitle = 'TPR' then
-    Result := fTextLibrary.GetSetupString(siCampTPRTexts + aIndex)
-  else
-  if fShortTitle = 'TSK' then
-    Result := fTextLibrary.GetSetupString(siCampTSKTexts + aIndex)
-  else
-    Result := Maps[aIndex].MissionText;
+  Result := fTextLibrary[2000 + fFirstTextIndex + 10 + aIndex];
 end;
 
 

@@ -1,9 +1,9 @@
 unit Unit1;
 interface
 uses
-  Forms, StdCtrls, ExtCtrls, ComCtrls, Math, SysUtils, Windows,
-  KM_Defaults, KM_Campaigns, Dialogs, Controls,
-  Spin, Graphics, Classes;
+  Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math, Spin, StdCtrls, SysUtils, Windows,
+  KM_Defaults, KM_Campaigns;
+
 
 type
   TForm1 = class(TForm)
@@ -72,6 +72,9 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   C := TKMCampaign.Create;
   fSelectedMap := -1;
+
+  seMapCount.MaxValue := MAX_CAMP_MAPS;
+  seNodeCount.MaxValue := MAX_CAMP_NODES;
 end;
 
 
@@ -186,6 +189,9 @@ begin
   fSelectedMap := -1;
   fSelectedNode := -1;
 
+  btnSaveCMP.Enabled := True;
+  btnLoadPicture.Enabled := True;
+
   UpdateList;
   UpdateFlagCount;
   RefreshFlags;
@@ -194,7 +200,7 @@ end;
 
 procedure TForm1.btnLoadPictureClick(Sender: TObject);
 begin
-  dlgOpenPicture.InitialDir := ParamStr(0);
+  dlgOpenPicture.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
   if not dlgOpenPicture.Execute then Exit;
 
   Image1.Picture.LoadFromFile(dlgOpenPicture.FileName);

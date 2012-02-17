@@ -145,8 +145,6 @@ const //Here we store options that are hidden somewhere in code
   NET_DROP_PLAYER_MIN_WAIT = 30; //Host must wait at least this long before dropping disconnected players
 
 type
-  TCampaign = (cmp_Nil, cmp_TSK, cmp_TPR, cmp_Custom);
-
   TPlayerIndex = shortint;
   TPlayerArray = array [0..MAX_PLAYERS-1] of TPlayerIndex;
 

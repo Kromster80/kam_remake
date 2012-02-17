@@ -4,6 +4,7 @@ program RXXPacker;
   {$Mode Delphi} {$H+}
 {$ENDIF}
 
+
 uses
   Forms,
   {$IFDEF FPC} Interfaces, {$ENDIF}
@@ -13,10 +14,6 @@ uses
 {$IFDEF WDC}
 {$R *.res}
 {$ENDIF}
-
-
-var
-  RXXForm1: TRXXForm1;
 
 
 begin

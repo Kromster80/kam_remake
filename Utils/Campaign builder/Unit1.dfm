@@ -28,10 +28,9 @@ object Form1: TForm1
   end
   object Label2: TLabel
     Left = 8
-    Top = 264
+    Top = 320
     Width = 55
     Height = 13
-    Anchors = [akLeft, akBottom]
     Caption = 'Node count'
   end
   object Bevel1: TBevel
@@ -51,8 +50,7 @@ object Form1: TForm1
     Left = 8
     Top = 120
     Width = 153
-    Height = 137
-    Anchors = [akLeft, akTop, akBottom]
+    Height = 193
     AutoExpand = True
     HideSelection = False
     Indent = 19
@@ -65,6 +63,7 @@ object Form1: TForm1
     Width = 73
     Height = 25
     Caption = 'Save CMP ...'
+    Enabled = False
     TabOrder = 1
     OnClick = btnSaveCMPClick
   end
@@ -83,6 +82,7 @@ object Form1: TForm1
     Width = 153
     Height = 25
     Caption = 'Load picture ...'
+    Enabled = False
     TabOrder = 3
     OnClick = btnLoadPictureClick
   end
@@ -99,10 +99,9 @@ object Form1: TForm1
   end
   object seNodeCount: TSpinEdit
     Left = 8
-    Top = 280
+    Top = 336
     Width = 41
     Height = 22
-    Anchors = [akLeft, akBottom]
     MaxValue = 32
     MinValue = 0
     TabOrder = 5
@@ -340,7 +339,7 @@ object Form1: TForm1
   end
   object RadioGroup1: TRadioGroup
     Left = 8
-    Top = 312
+    Top = 368
     Width = 153
     Height = 97
     Caption = ' Mission text '

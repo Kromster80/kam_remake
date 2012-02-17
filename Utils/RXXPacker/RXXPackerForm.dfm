@@ -1,17 +1,22 @@
 object RXXForm1: TRXXForm1
-  Left = 635
-  Top = 148
-  Width = 256
-  Height = 344
+  Left = 72
+  Top = 90
   Caption = 'RXX Packer'
+  ClientHeight = 492
+  ClientWidth = 689
   Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -11
   Font.Name = 'Tahoma'
+  Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
+  DesignSize = (
+    689
+    492)
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 13
   object btnPackRXX: TButton
     Left = 24
     Top = 240

@@ -196,8 +196,8 @@ type
 
     Panel_Campaign:TKMPanel;
       Image_CampaignBG:TKMImage;
-      Image_CampaignFlags:array[0..MAX_CMP_MAPS-1] of TKMImage;
-      Image_CampaignSubNode:array[0..MAX_CMP_SUBNODES-1] of TKMImage;
+      Image_CampaignFlags:array[0..MAX_CAMP_MAPS - 1] of TKMImage;
+      Image_CampaignSubNode:array[0..MAX_CAMP_NODES - 1] of TKMImage;
       Panel_CampScroll:TKMPanel;
         Image_ScrollTop,Image_Scroll:TKMImage;
         Label_CampaignTitle,Label_CampaignText:TKMLabel;
@@ -787,26 +787,24 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Campaign_Page;
-var i:integer;
+var I: Integer;
 begin
   Panel_Campaign:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
     Image_CampaignBG := TKMImage.Create(Panel_Campaign,0,0,MENU_DESIGN_X,MENU_DESIGN_Y,12,rxGuiMain);
     Image_CampaignBG.ImageStretch;
 
-    for i:=0 to High(Image_CampaignFlags) do
+    for I := 0 to High(Image_CampaignFlags) do
     begin
-      Image_CampaignFlags[i] := TKMImage.Create(Panel_Campaign, MENU_DESIGN_X,MENU_DESIGN_Y, 23, 29, 10, rxGuiMain);
-      Image_CampaignFlags[i].OnClick := Campaign_SelectMap;
-      Image_CampaignFlags[i].Tag := i;
+      Image_CampaignFlags[I] := TKMImage.Create(Panel_Campaign, MENU_DESIGN_X,MENU_DESIGN_Y, 23, 29, 10, rxGuiMain);
+      Image_CampaignFlags[I].OnClick := Campaign_SelectMap;
+      Image_CampaignFlags[I].Tag := I;
     end;
-    for i:=0 to High(Image_CampaignSubNode) do
-    begin
-      Image_CampaignSubNode[i] := TKMImage.Create(Panel_Campaign, MENU_DESIGN_X,MENU_DESIGN_Y, 0, 0, 16, rxGuiMain);
-      Image_CampaignSubNode[i].ImageCenter;
-    end;
-  Panel_CampScroll:=TKMPanel.Create(Panel_Campaign,MENU_DESIGN_X-360,MENU_DESIGN_Y-430,360,430);
+    for I := 0 to High(Image_CampaignSubNode) do
+      Image_CampaignSubNode[I] := TKMImage.Create(Panel_Campaign, MENU_DESIGN_X,MENU_DESIGN_Y, 0, 0, 16, rxGuiMain);
 
-  //@Krom: When this page is finalised the labels will need to have their width/heights checked with the overlay debug on
+  Panel_CampScroll := TKMPanel.Create(Panel_Campaign,MENU_DESIGN_X-360,MENU_DESIGN_Y-430,360,430);
+
+    //@Krom: When this page is finalised the labels will need to have their width/heights checked with the overlay debug on
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}2,rxGuiMainH);
     Image_Scroll.ImageStretch;
     Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 180, 18,100,20, '', fnt_Outline, taCenter);
@@ -1260,12 +1258,15 @@ begin
     Panel_SinglePlayer.Show;
   end;
 
-  {Show TSK campaign menu}
-  if (Sender=Button_SP_TSK) or (Sender=Button_SP_TPR) or (Sender=Button_ResultsContinue) then begin
-    if (Sender=Button_SP_TPR) then
+  {Show campaign menu}
+  if (Sender = Button_SP_TSK)
+  or (Sender = Button_SP_TPR)
+  or (Sender = Button_ResultsContinue) then
+  begin
+    if (Sender = Button_SP_TPR) then
       Campaign_Set(fGame.Campaigns.CampaignByTitle('TPR'))
     else
-    if (Sender=Button_SP_TSK) then
+    if (Sender = Button_SP_TSK) then
       Campaign_Set(fGame.Campaigns.CampaignByTitle('TSK'))
     else
       Campaign_Set(fGame.Campaigns.ActiveCampaign);
@@ -1383,15 +1384,15 @@ begin
   for I := 0 to High(Image_CampaignFlags) do
   begin
     Image_CampaignFlags[I].Visible   := I < Campaign_Selected.MapCount;
-    Image_CampaignFlags[I].TexID     := MapPic[I<Campaign_Selected.UnlockedMaps];
+    Image_CampaignFlags[I].TexID     := MapPic[I < Campaign_Selected.UnlockedMaps];
     Image_CampaignFlags[I].HighlightOnMouseOver := I<Campaign_Selected.UnlockedMaps;
   end;
 
   //Place sites
   for I := 0 to Campaign_Selected.MapCount - 1 do
   begin
-    Image_CampaignFlags[I].Left := Campaign_Selected.Maps[I].Flag.X - Image_CampaignFlags[I].Width div 2;
-    Image_CampaignFlags[I].Top  := Campaign_Selected.Maps[I].Flag.Y - Image_CampaignFlags[I].Height div 2;
+    Image_CampaignFlags[I].Left := Campaign_Selected.Maps[I].Flag.X;
+    Image_CampaignFlags[I].Top  := Campaign_Selected.Maps[I].Flag.Y;
   end;
 
   //Select last map to play by 'clicking' last node
@@ -1408,11 +1409,11 @@ begin
   Campaign_MapIndex := TKMImage(Sender).Tag;
 
   //Place highlight
-  for i:=0 to High(Image_CampaignFlags) do
+  for i := 0 to High(Image_CampaignFlags) do
     Image_CampaignFlags[i].Highlight := (Campaign_MapIndex = i);
 
   //Connect by sub-nodes
-  for i:=0 to High(Image_CampaignSubNode) do
+  for i := 0 to High(Image_CampaignSubNode) do
   begin
     Image_CampaignSubNode[i].Visible := InRange(i, 0, Campaign_Selected.Maps[Campaign_MapIndex].NodeCount-1);
     Image_CampaignSubNode[i].Left := Campaign_Selected.Maps[Campaign_MapIndex].Nodes[i].X;

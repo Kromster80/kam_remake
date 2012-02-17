@@ -17,13 +17,13 @@ M=0
 N=1
 O=1
 P=1
-Q=0
-R=0
+Q=1
+R=1
 S=0
 T=0
 U=0
 V=1
-W=0
+W=1
 X=1
 Y=1
 Z=1
@@ -129,18 +129,6 @@ LegalTrademarks=
 OriginalFilename=
 ProductName=
 ProductVersion=1.0.0.0
-Comments=
-[HistoryLists\hlDebugSourcePath]
-Count=1
-Item0=..\..\;..\..\Common;..\..\Common\zlib;..\..\Common\pngimage;..\..\Common\Overbyte ICS
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlSearchPath]
-Count=6
-Item0=..\..\;..\..\Common;..\..\Common\zlib;..\..\Common\pngimage;..\..\Common\Overbyte ICS
-Item1=..\..\;..\..\Common;..\..\Common\pngimage;..\..\Common\Overbyte ICS
-Item2=..\..\;..\..\Common;..\..\Common\pngimage;..\..\Common\pngimage\obj
-Item3=..\..\;..\..\Common;..\..\Common\pngimage
-Item4=..\..\;..\..\Common
-Item5=..\..\

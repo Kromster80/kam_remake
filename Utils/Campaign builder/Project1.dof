@@ -76,9 +76,9 @@ LocaleToUnicode=1
 ImagebaseMultiple=1
 SuspiciousTypecast=1
 PrivatePropAccessor=1
-UnsafeType=1
-UnsafeCode=1
-UnsafeCast=1
+UnsafeType=0
+UnsafeCode=0
+UnsafeCast=0
 [Linker]
 MapFile=0
 OutputObjs=0
@@ -94,10 +94,10 @@ OutputDir=
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=..\..\;..\..\Common\
-Packages=vcl;rtl;dbrtl;inet;inetdb;dsnap;bdertl;vclx;vcldb;vcldbx;visualclx;visualdbclx;vclactnband;vclshlctrls;vclie;xmlrtl;inetdbbde;inetdbxpress;webdsnap;soaprtl;websnap;adortl;dbexpress;dsnapcon;dbxcds;ibxpress;indy;VclSmp;dclOfficeXP;qrpt;Rave50CLX;Rave50VCL;IntrawebDB_50_70;Intraweb_50_70;TeeTree2D7Tee8;TeeUI87;Tee87;TeeDB87;TeePro87;TeeLanguage87;TeeWorld87;TeeGL87;TeeQR87;TeeImage87;fsTee7;fs7;frx7;frxADO7;frxBDE7;frxcs7;frxDB7;frxDBX7;frxe7;frxIBX7;frxTee7;fsADO7;fsBDE7;fsDB7;fsIBX7;dxCoreD7;dxGDIPlusD7;cxLibraryVCLD7;cxEditorsVCLD7;dxThemeD7;cxDataD7;cxExtEditorsVCLD7;dxEdtrD7;dxELibD7;dxDockingD7;dxComnD7;dxsbD7;dxBarD7;dxBarDBNavD7;cxBarEditItemD7;dxBarExtDBItemsD7;dxBarExtItemsD7;dxRibbonD7;dxNavBarD7;dxLayoutControlD7;dxLayoutControlcxEditAdaptersD7;cxSpreadSheetVCLD7;EQTLD7;ECQDBCD7;EQDBTLD7;cxTreeListD7;cxTreeListdxBarPopupMenuD7;EQGridD7;dxGrEdD7;dxExELD7;cxPageControlVCLD7;cxGridD7;cxVerticalGridVCLD7;dxFlowChartD7;cxSchedulerD7;cxSchedulerGridD7;dxorgcD7;dxdborD7;dxMasterViewD7;cxWebD7;cxWebPascalScriptD7;cxWebSnapD7;dxmdsD7;dxdbtrD7;dxtrmdD7;dxPSCoreD7;dxPSLnksD7;dxPScxCommonD7;dxPScxExtCommonD7;dxPScxPCProdD7;dxPScxSSLnkD7;dxPScxTL5LnkD7;dxPScxVGridLnkD7;dxPSdxDBTVLnkD7;dxPSdxFCLnkD7;dxPSdxMVLnkD7;dxPSdxOCLnkD7;dxPSdxDBOCLnkD7;dxPsPrVwAdvD7;dxPSTLLnkD7;dxPSdxDBTLLnkD7;dxPSdxDBCtrlLnkD7;dxPSdxInsLnkD7;dxInsD7;dxPSdxOILnkD7;dxObjInsD7;dxPSdxDBGrLnkD7;dxPScxGrid6LnkD7;cxPivotGridD7;cxPivotGridChartD7;cxPivotGridOLAPD7;dxDBEdD7;dxExRwD7;dcldxSkinsCoreD7;dxSkinsCoreD7;dxSkinscxPCPainterD7;dxSkinscxScheduler3PainterD7;dxSkinsdxNavBar2PainterD7;dxSkinsdxDLPainterD7;dxSkinsdxRibbonPainterD7;dxSkinsdxBarPainterD7;dxSkinBlackD7;dxSkinBlueD7;dxSkinSilverD7;dxSkinStardustD7;dxSkinValentineD7;dxSkinXmas2008BlueD7;dxSkinCaramelD7;dxSkinDarkSideD7;dxSkinPumpkinD7;dxSkinCoffeeD7;dxSkinGlassOceansD7;dxSkiniMaginaryD7;dxSkinMcSkinD7;dxSkinLilianD7;dxSkinLiquidSkyD7;dxSkinLondonLiquidSkyD7;dxSkinMoneyTwinsD7;dxSkinOffice2007BlackD7;dxSkinOffice2007BlueD7;dxSkinOffice2007GreenD7;dxSkinOffice2007PinkD7;dxSkinOffice2007SilverD7;dxSkinSummer2008D7;dxSkinSpringTimeD7;dxSpellCheckerD7;tmsxlsd7;TMSD7;tmsexd7;tmswizd7;BSFD7;RaizeComponentsVcl;RaizeComponentsVclDb;dacvcl70;dac70;CRControls70;unidacvcl70;unidac70;BC100R70;BCDB100R70;BCQR100R70;GLScene7
+SearchPath=..\..\;..\..\Common;..\..\Common\zlib;..\..\Common\pngimage;..\..\Common\Overbyte ICS
+Packages=vcl;rtl;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;vclx;dbrtl;soaprtl;dsnap;VclSmp;dbexpress;vcldb;dbxcds;adortl;ibxpress;vclactnband;bdertl;vclshlctrls;dclOfficeXP
 Conditionals=
-DebugSourceDirs=
+DebugSourceDirs=..\..\;..\..\Common;..\..\Common\zlib;..\..\Common\pngimage;..\..\Common\Overbyte ICS
 UsePackages=0
 [Parameters]
 RunParams=
@@ -105,12 +105,8 @@ HostApplication=
 Launcher=
 UseLauncher=0
 DebugCWD=
-[Language]
-ActiveLang=
-ProjectLang=
-RootDir=C:\Program Files\Borland\Delphi7\Bin\
 [Version Info]
-IncludeVerInfo=1
+IncludeVerInfo=0
 AutoIncBuild=0
 MajorVer=1
 MinorVer=0
@@ -121,7 +117,7 @@ PreRelease=0
 Special=0
 Private=0
 DLL=0
-Locale=1033
+Locale=3081
 CodePage=1252
 [Version Info Keys]
 CompanyName=
@@ -136,9 +132,3 @@ ProductVersion=1.0.0.0
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlSearchPath]
-Count=4
-Item0=..\..\;..\..\Common\
-Item1=..\..\;\..\..\Common\
-Item2=\..\..\;\..\..\Common\
-Item3=..\..\; ..\..\Common\
