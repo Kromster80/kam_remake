@@ -636,7 +636,8 @@ end;
 procedure TKMGamePlayInterface.DisplayHint(Sender: TObject);
 begin
   if (PrevHint = Sender) then exit; //Hint didn't changed
-  Label_Hint.Caption := IfThen(Sender = nil, '', TKMControl(Sender).Hint);
+  if Sender=nil then Label_Hint.Caption:=''
+                else Label_Hint.Caption:=TKMControl(Sender).Hint;
   PrevHint := Sender;
 end;
 
