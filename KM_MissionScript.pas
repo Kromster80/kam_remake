@@ -98,9 +98,9 @@ type
   end;
 
   TTilePreviewInfo = record
-                       TileColor: cardinal;
-                       TileOwner: byte;
-                       FOW: byte;
+                       TileColor: Cardinal;
+                       TileOwner: Byte;
+                       Revealed: Boolean;
                      end;
 
   TPlayerPreviewInfo = record
@@ -110,12 +110,13 @@ type
 
   TMissionParserPreview = class(TMissionParserGeneric)
   private
-    fMapX:integer;
-    fMapY:integer;
+    fMapX:Integer;
+    fMapY:Integer;
     fPlayerPreview: array [1..MAX_PLAYERS] of TPlayerPreviewInfo;
     fMapPreview: array[1..MAX_MAP_SIZE*MAX_MAP_SIZE] of TTilePreviewInfo;
 
-    fLastPlayer: integer;
+    fLastPlayer: Integer;
+    fHumanPlayer: Integer;
 
     function GetTileInfo(X,Y:integer):TTilePreviewInfo;
     function GetPlayerInfo(aIndex:byte):TPlayerPreviewInfo;
@@ -1239,12 +1240,24 @@ procedure TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; cons
     fMapPreview[X + Y*fMapX].TileOwner := fLastPlayer;
   end;
 
+  procedure RevealCircle(X,Y,Radius:Word);
+  var i,k:Word;
+  begin
+    if (fHumanPlayer = 0) or (fHumanPlayer <> fLastPlayer) then exit;
+    for i:=max(Y-Radius,1) to min(Y+Radius,fMapY) do
+    for k:=max(X-Radius,1) to min(X+Radius,fMapX) do
+       if (sqr(X-k) + sqr(Y-i)) <= sqr(Radius) then
+         fMapPreview[(i-1)*fMapX + k].Revealed := True;
+  end;
+
 var i,k:integer; HA:THouseArea; Valid: Boolean; Loc: TKMPoint;
 begin
   case CommandType of
     ct_SetCurrPlayer:  fLastPlayer := P[0]+1;
+    ct_SetHumanPlayer: fHumanPlayer := P[0]+1;
     ct_SetHouse:       if InRange(P[0], Low(HouseKaMType), High(HouseKaMType)) then
                        begin
+                         RevealCircle(P[1]+1, P[2]+1, fResource.HouseDat[HouseKaMType[P[0]]].Sight);
                          HA := fResource.HouseDat[HouseKaMType[P[0]]].BuildArea;
                          for i:=1 to 4 do for k:=1 to 4 do
                            if HA[i,k]<>0 then
@@ -1258,21 +1271,34 @@ begin
     ct_SetField,
     ct_Set_Winefield:  SetOwner(P[0]+1, P[1]+1);
     ct_SetUnit:        if not (UnitsRemap[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
+                       begin
                          SetOwner(P[1]+1, P[2]+1);
+                         RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitsRemap[P[0]]].Sight);
+                       end;
     ct_SetStock:       begin
                          ProcessCommand(ct_SetHouse,[11,P[0]+1,P[1]+1]);
                          ProcessCommand(ct_SetRoad, [   P[0]-2,P[1]+1]);
                          ProcessCommand(ct_SetRoad, [   P[0]-1,P[1]+1]);
                          ProcessCommand(ct_SetRoad, [   P[0]  ,P[1]+1]);
                        end;
-    ct_SetGroup:       begin
+    ct_SetGroup:       if InRange(P[0], Low(TroopsRemap), High(TroopsRemap)) and (TroopsRemap[P[0]] <> ut_None) then
                          for i:= 1 to P[5] do
                          begin
                            Loc := GetPositionInGroup2(P[1]+1,P[2]+1,TKMDirection(P[3]+1),i,P[4],fMapX,fMapY,Valid);
-                           if Valid then SetOwner(Loc.X,Loc.Y);
+                           if Valid then
+                           begin
+                             SetOwner(Loc.X,Loc.Y);
+                             RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitsRemap[P[0]]].Sight);
+                           end;
                          end;
+    ct_ClearUp:        if (fHumanPlayer <> 0) and (fHumanPlayer = fLastPlayer) then
+                       begin
+                         if P[0] = 255 then
+                           for i:=1 to MAX_MAP_SIZE*MAX_MAP_SIZE do
+                             fMapPreview[i].Revealed := True
+                         else
+                           RevealCircle(P[0]+1,P[1]+1,P[2]);
                        end;
-    ct_ClearUp: ;
   end;
 end;
 
@@ -1290,6 +1316,7 @@ begin
   Inherited LoadMission(aFileName);
 
   fLastPlayer := 0;
+  fHumanPlayer := 0;
   FillChar(fMapPreview, SizeOf(fMapPreview), #0);
   FillChar(fPlayerPreview, SizeOf(fPlayerPreview), #0);
 
@@ -1314,11 +1341,12 @@ begin
       until((FileText[k]=#32)or(k>=length(FileText)));
 
       //Try to make it faster by only processing commands used
-      if (CommandText='!SET_CURR_PLAYER')or(CommandText='!SET_HOUSE')or
+      if (CommandText='!SET_CURR_PLAYER')or(CommandText='!SET_HUMAN_PLAYER')or
          (CommandText='!SET_MAP_COLOR')or(CommandText='!CENTER_SCREEN')or
          (CommandText='!SET_STREET')or(CommandText='!SET_FIELD')or
          (CommandText='!SET_WINEFIELD')or(CommandText='!SET_STOCK')or
-         (CommandText='!CLEAR_UP')or(CommandText='!SET_UNIT')or(CommandText='!SET_GROUP') then
+         (CommandText='!SET_HOUSE')or(CommandText='!CLEAR_UP')or
+         (CommandText='!SET_UNIT')or(CommandText='!SET_GROUP') then
       begin
         //Now convert command into type
         CommandType := TextToCommandType(CommandText);

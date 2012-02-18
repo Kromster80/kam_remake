@@ -20,7 +20,7 @@ type
     fBase: TCardinalArray; //Base terrain layer
     fMapTex: TTexture;
     procedure UpdateMinimapFromGame;
-    procedure UpdateMinimapFromParser;
+    procedure UpdateMinimapFromParser(aRevealAll:Boolean);
     procedure SepiaFilter;
   public
     constructor Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor:Boolean; aSepia:Boolean);
@@ -31,7 +31,7 @@ type
 
     property MapTex: TTexture read fMapTex;
     function GetPlayerLoc(aIndex:byte):TKMPoint;
-    procedure Update;
+    procedure Update(aRevealAll:Boolean);
   end;
 
   //todo: Add Starting positions (Position, PlayerID, FlagColor, Alliances?)
@@ -89,7 +89,7 @@ begin
 end;
 
 
-procedure TKMMapView.UpdateMinimapFromParser;
+procedure TKMMapView.UpdateMinimapFromParser(aRevealAll:Boolean);
 var i,k:integer;
 begin
   fMapX := fParser.MapX;
@@ -100,11 +100,13 @@ begin
   for k:=1 to fMapX do
     with fParser.MapPreview[k,i] do
     begin
-      if TileOwner = 0 then
-        fBase[(i-1)*fMapX + (k-1)] := TileColor
+      if not aRevealAll and not Revealed then
+        fBase[(i-1)*fMapX + (k-1)] := $FF000000
       else
-        fBase[(i-1)*fMapX + (k-1)] := fParser.PlayerPreview[TileOwner].Color;
-      //todo: FOW, starting positions, etc.
+        if TileOwner = 0 then
+          fBase[(i-1)*fMapX + (k-1)] := TileColor
+        else
+          fBase[(i-1)*fMapX + (k-1)] := fParser.PlayerPreview[TileOwner].Color;
     end;
 end;
 
@@ -204,14 +206,14 @@ begin
 end;
 
 
-procedure TKMMapView.Update;
+procedure TKMMapView.Update(aRevealAll:Boolean);
 var
   wData: Pointer;
   I: Word;
   WidthPOT, HeightPOT: Word;
 begin
   if fFromParser then
-    UpdateMinimapFromParser
+    UpdateMinimapFromParser(aRevealAll)
   else
     UpdateMinimapFromGame;
 

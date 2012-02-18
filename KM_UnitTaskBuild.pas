@@ -119,7 +119,7 @@ type
 
 
 implementation
-uses KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Resource, KM_ResourceHouse;
+uses KM_DeliverQueue, KM_PlayersCollection, KM_Resource, KM_ResourceHouse;
 
 
 { TTaskBuildRoad }

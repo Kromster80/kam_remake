@@ -1522,7 +1522,7 @@ begin
     Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[fMap_Selected].Info.DefeatCondition]);
 
     fMapView.LoadTerrain(MapNameToPath(fMaps[fMap_Selected].Filename, 'dat', False));
-    fMapView.Update;
+    fMapView.Update(False);
     Minimap_SinglePreview.UpdateFrom(fMapView);
   end;
 
@@ -2180,7 +2180,7 @@ begin
     else
     begin
       fMapView.LoadTerrain(MapNameToPath(fGame.Networking.MapInfo.Filename, 'dat', True));
-      fMapView.Update;
+      fMapView.Update(True);
       Minimap_LobbyPreview.UpdateFrom(fMapView);
       Minimap_LobbyPreview.Visible := true;
 
@@ -2482,7 +2482,7 @@ procedure TKMMainMenuInterface.MapEditor_SelectMap(Sender: TObject);
 begin
   if (not Button_MapEd_Load.Enabled) or (List_MapEd.ItemIndex = -1) then exit;
   fMapView.LoadTerrain(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1));
-  fMapView.Update;
+  fMapView.Update(True);
   Minimap_MapEd.UpdateFrom(fMapView);
 end;
 
