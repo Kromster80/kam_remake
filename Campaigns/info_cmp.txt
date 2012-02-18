@@ -1,0 +1,9 @@
+
+//This is a planned layout, feel free to update and improve it
+
+1 - Campaign name
+2 - Mission name template
+
+10..29 - Briefing texts
+
+30.. - Mission events texts
