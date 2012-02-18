@@ -247,10 +247,12 @@ begin
     if GoalConditionSatisfied(Goals[i]) then
     begin
       //Display message if set and not already shown and not a blank text
-      if (Goals[i].MessageToShow <> 0) and (not Goals[i].MessageHasShown) and (fTextLibrary.GetTextString(Goals[i].MessageToShow) <> '') then
+      if (Goals[i].MessageToShow <> 0)
+      and not Goals[i].MessageHasShown
+      and (fTextLibrary.GetTextString(Goals[i].MessageToShow) <> '') then
       begin
         if MyPlayer = fPlayers[PlayerIndex] then
-          fGame.fGamePlayInterface.MessageIssue(msgText,fTextLibrary.GetTextString(Goals[i].MessageToShow),KMPoint(0,0));
+          fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary.GetTextString(Goals[i].MessageToShow), KMPoint(0,0));
         Goals.SetMessageHasShown(i);
       end;
     end

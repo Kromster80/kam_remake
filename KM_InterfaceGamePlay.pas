@@ -20,7 +20,7 @@ type
     fShownHouse:TKMHouse;
     LastDragPoint:TKMPoint; //Last mouse point that we drag placed/removed a road/field
     PrevHint:TObject;
-    ShownMessage:integer;
+    ShownMessage: Integer;
     PlayMoreMsg:TGameResultMsg; //Remember which message we are showing
     fJoiningGroups: boolean;
     fAskDemolish, fAskDismiss: Boolean;
@@ -91,7 +91,7 @@ type
     procedure Message_Click(Sender: TObject);
     procedure Message_Close(Sender: TObject);
     procedure Message_Delete(Sender: TObject);
-    procedure Message_Display(Sender: TObject);
+    procedure Message_Display(aIndex: Integer);
     procedure Message_GoTo(Sender: TObject);
     procedure Message_UpdateStack;
     procedure Minimap_Update(Sender: TObject; const X,Y:integer);
@@ -316,7 +316,7 @@ type
     procedure Resize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
-    procedure MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
+    procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
     procedure MenuIconsEnabled(NewValue:boolean);
     procedure UpdateMapSize(X,Y:integer);
     procedure ShowClock(aSpeed: Word);
@@ -634,10 +634,7 @@ end;
 procedure TKMGamePlayInterface.DisplayHint(Sender: TObject);
 begin
   if (PrevHint = Sender) then exit; //Hint didn't changed
-
-  if Sender=nil then Label_Hint.Caption:=''
-                else Label_Hint.Caption:=TKMControl(Sender).Hint;
-
+  Label_Hint.Caption := IfThen(Sender = nil, '', TKMControl(Sender).Hint);
   PrevHint := Sender;
 end;
 
@@ -916,9 +913,9 @@ begin
   Image_MPAllies.Hint := fTextLibrary[TX_GAMEPLAY_PLAYERS_HINT];
   Image_MPAllies.OnClick := Allies_Click;
 
-  for i:=low(Image_Message) to high(Image_Message) do
+  for I := Low(Image_Message) to High(Image_Message) do
   begin
-    Image_Message[i] := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,0,30,48,495);
+    Image_Message[I] := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,0,30,48,495);
     Image_Message[i].Top := Panel_Main.Height - i*48 - IfThen(fGame.MultiplayerMode, 48*2);
     Image_Message[i].Anchors := [akLeft, akBottom];
     Image_Message[i].Disable;
@@ -1690,33 +1687,27 @@ begin
 end;
 
 
+//Click on the same message again closes it
 procedure TKMGamePlayInterface.Message_Click(Sender: TObject);
 begin
-  if (ShownMessage = 0) or (Sender <> Image_Message[ShownMessage]) then
-    Message_Display(Sender)
+  if TKMImage(Sender).Tag <> ShownMessage then
+    Message_Display(TKMImage(Sender).Tag)
   else
     Message_Close(Sender);
 end;
 
 
-procedure TKMGamePlayInterface.Message_Display(Sender: TObject);
-var i: integer;
+procedure TKMGamePlayInterface.Message_Display(aIndex: Integer);
+var I: Integer;
 begin
-  if not TKMImage(Sender).Visible then exit; //Exit if the message is not active
+  ShownMessage := aIndex;
 
-  ShownMessage := 0; //Can be replaced with Tag querring, but it not important
-  for i := low(Image_Message) to high(Image_Message) do begin
-    Image_Message[i].Highlight := false; //dim all messages
-    if Sender = Image_Message[i] then
-      ShownMessage := i;
-  end;
+  for I := Low(Image_Message) to High(Image_Message) do
+    Image_Message[I].Highlight := (ShownMessage = I);
 
-  if ShownMessage=0 then exit; //Exit if the sender cannot be found
+  Label_MessageText.Caption := fMessageList[ShownMessage].Text;
+  Button_MessageGoTo.Enabled := fMessageList[ShownMessage].IsGoto;
 
-  Image_Message[ShownMessage].Highlight := true; //make it brighter
-
-  Label_MessageText.Caption := fMessageList.GetText(ShownMessage);
-  Button_MessageGoTo.Enabled := fMessageList.GetMsgHasGoTo(ShownMessage);
   Allies_Close(nil);
   Chat_Close(nil); //Removes focus from Edit_Text
   Panel_Message.Show;
@@ -1726,31 +1717,45 @@ end;
 
 procedure TKMGamePlayInterface.Message_Close(Sender: TObject);
 begin
-  Message_UpdateStack;
-  if ShownMessage <> 0 then
+  if ShownMessage <> -1 then
   begin
-    Image_Message[ShownMessage].Highlight := false;
+    Image_Message[ShownMessage].Highlight := False;
     fSoundLib.Play(sfx_MessageClose);
   end;
-  ShownMessage := 0;
+  ShownMessage := -1;
   Panel_Message.Hide;
 end;
 
 
 procedure TKMGamePlayInterface.Message_Delete(Sender: TObject);
 begin
-  if ShownMessage = 0 then exit; //Player pressed DEL with no Msg opened
+  if ShownMessage = -1 then Exit; //Player pressed DEL with no Msg opened
+
   fMessageList.RemoveEntry(ShownMessage);
   Message_Close(Sender);
+  Message_UpdateStack;
   DisplayHint(nil);
 end;
 
 
 procedure TKMGamePlayInterface.Message_GoTo(Sender: TObject);
-var Point: TKMPoint;
 begin
-  if fMessageList.GetLoc(ShownMessage, Point) then
-    fGame.Viewport.Position := KMPointF(Point);
+  fGame.Viewport.Position := KMPointF(fMessageList[ShownMessage].Loc);
+end;
+
+
+procedure TKMGamePlayInterface.Message_UpdateStack;
+var I: Integer;
+begin
+  //MassageList is unlimited, while Image_Message has fixed depth and samples data from the list on demand
+  for I := Low(Image_Message) to High(Image_Message) do
+  begin
+    //Disable and hide at once for safety
+    Image_Message[I].Enabled := (I <= fMessageList.Count - 1);
+    Image_Message[I].Visible := (I <= fMessageList.Count - 1);
+    if I <= fMessageList.Count - 1 then
+      Image_Message[i].TexID := fMessageList[I].Icon;
+  end;
 end;
 
 
@@ -2549,24 +2554,11 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
+procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
 begin
-  fMessageList.AddEntry(MsgTyp,Text,Loc);
+  fMessageList.AddEntry(aKind, aText, aLoc);
   Message_UpdateStack;
   fSoundLib.Play(sfx_MessageNotice, 4); //Play horn sound on new message if it is the right type
-end;
-
-
-procedure TKMGamePlayInterface.Message_UpdateStack;
-var i:integer;
-begin
-  //MassageList is unlimited, while Image_Message has fixed depth and samples data from the list on demand
-  for i:=low(Image_Message) to high(Image_Message) do
-  begin
-    Image_Message[i].TexID := fMessageList.GetMsgPic(i);
-    Image_Message[i].Enabled := InRange(i,1,fMessageList.Count); //Disable and hide at once for safety
-    Image_Message[i].Visible := InRange(i,1,fMessageList.Count);
-  end;
 end;
 
 
@@ -3134,10 +3126,10 @@ begin
                   {Temporary cheat codes}
                   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
                   begin
-                    if Key=ord('5') then MessageIssue(msgText, '123', KMPoint(0,0));
-                    if Key=ord('6') then MessageIssue(msgHouse,'123', KMPointRound(fGame.Viewport.Position));
-                    if Key=ord('7') then MessageIssue(msgUnit, '123', KMPoint(0,0));
-                    if Key=ord('8') then MessageIssue(msgQuill,'123', KMPoint(0,0));
+                    if Key=ord('5') then MessageIssue(mkText, '123', KMPoint(0,0));
+                    if Key=ord('6') then MessageIssue(mkHouse,'123', KMPointRound(fGame.Viewport.Position));
+                    if Key=ord('7') then MessageIssue(mkUnit, '123', KMPoint(0,0));
+                    if Key=ord('8') then MessageIssue(mkQuill,'123', KMPoint(0,0));
 
                     if Key=ord('W') then fGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
                     if Key=ord('V') then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory

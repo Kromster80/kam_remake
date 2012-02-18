@@ -416,25 +416,25 @@ end;
 
 
 procedure TKMUnitCitizen.IssueResourceDepletedMessage;
-var Msg:string;
+var
+  Msg: string;
 begin
-  if not fHome.ResourceDepletedMsgIssued then
-  begin
-    case fHome.HouseType of
-      ht_Quary:    Msg := fTextLibrary.GetTextString(290);
-      ht_CoalMine: Msg := fTextLibrary.GetTextString(291);
-      ht_IronMine: Msg := fTextLibrary.GetTextString(292);
-      ht_GoldMine: Msg := fTextLibrary.GetTextString(293);
-      ht_FisherHut: if not fTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), fResource.UnitDat[fUnitType].MiningRange) then
-                      Msg := fTextLibrary[TX_UNITS_FISHERMAN_TOO_FAR]
-                    else
-                      Msg := fTextLibrary[TX_UNITS_FISHERMAN_CANNOT_CATCH];
-      else         begin Assert(false, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet'); Msg := ''; end;
-    end;
-    if (Msg <> '') and (fOwner = MyPlayer.PlayerIndex) then //Don't show message for other players
-      fGame.fGamePlayInterface.MessageIssue(msgHouse, Msg, fHome.GetEntrance);
-    fHome.ResourceDepletedMsgIssued := true;
+  case fHome.HouseType of
+    ht_Quary:    Msg := fTextLibrary.GetTextString(290);
+    ht_CoalMine: Msg := fTextLibrary.GetTextString(291);
+    ht_IronMine: Msg := fTextLibrary.GetTextString(292);
+    ht_GoldMine: Msg := fTextLibrary.GetTextString(293);
+    ht_FisherHut: if not fTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), fResource.UnitDat[fUnitType].MiningRange) then
+                    Msg := fTextLibrary[TX_UNITS_FISHERMAN_TOO_FAR]
+                  else
+                    Msg := fTextLibrary[TX_UNITS_FISHERMAN_CANNOT_CATCH];
+    else         begin Assert(false, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet'); Msg := ''; end;
   end;
+
+  if (Msg <> '') and (fOwner = MyPlayer.PlayerIndex) then //Don't show message for other players
+    fGame.fGamePlayInterface.MessageIssue(mkHouse, Msg, fHome.GetEntrance);
+
+  fHome.ResourceDepletedMsgIssued := True;
 end;
 
 
@@ -457,7 +457,7 @@ begin
 
   TM := TTaskMining.Create(Self, fTerrain, fResource.HouseDat[fHome.HouseType].ResOutput[Res]);
 
-  if TM.WorkPlan.ResourceDepleted then
+  if TM.WorkPlan.ResourceDepleted and not fHome.ResourceDepletedMsgIssued then
     IssueResourceDepletedMessage;
 
   if TM.WorkPlan.IsIssued

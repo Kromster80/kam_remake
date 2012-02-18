@@ -191,10 +191,13 @@ end;
 
 procedure TForm1.btnLoadCMPClick(Sender: TObject);
 begin
-  if DirectoryExists(ExtractFilePath(ParamStr(0)) + '..\..\Campaigns\') then
-    dlgOpenCampaign.InitialDir := ExtractFilePath(ParamStr(0)) + '..\..\Campaigns\'
+  if DirectoryExists(ExtractFilePath(Application.ExeName) + '..\..\Campaigns\') then
+    dlgOpenCampaign.InitialDir := ExtractFilePath(Application.ExeName) + '..\..\Campaigns\'
   else
-    dlgOpenCampaign.InitialDir := ExtractFilePath(ParamStr(0));
+    dlgOpenCampaign.InitialDir := ExtractFilePath(Application.ExeName);
+
+  //Win7 workaround
+  dlgOpenCampaign.FileName := ExtractFilePath(Application.ExeName) + '..\..\Campaigns\';
 
   if not dlgOpenCampaign.Execute then Exit;
 

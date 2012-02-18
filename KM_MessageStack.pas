@@ -6,150 +6,167 @@ uses
 
 
 {Messages}
-//number matches pic index in gui.rx
 type
-  TKMMessageType = (msgText, msgHouse, msgUnit, msgQuill);
+  TKMMessageKind = (mkText, mkHouse, mkUnit, mkQuill);
 
   TKMMessage = class
+    fKind: TKMMessageKind;
+    fLoc: TKMPoint;
+    fText: string;
   public
-    msgType:TKMMessageType;
-    msgText:string;
-    msgLoc:TKMPoint;
+    constructor Create(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+    constructor CreateFromStream(LoadStream: TKMemoryStream);
+
+    function IsGoto: Boolean;
+    function Icon: Word;
+    property Loc: TKMPoint read fLoc;
+    property Text: string read fText;
+    property Kind: TKMMessageKind read fKind;
+
+    procedure Save(SaveStream: TKMemoryStream);
   end;
 
   TKMMessageList = class
   private
-    fCount:cardinal;
-    fList:array of TKMMessage; //1..Count
+    fCount: Integer;
+    fList: array of TKMMessage; //0..Count-1
+    function GetMessage(aIndex: Integer): TKMMessage;
   public
     destructor Destroy; override;
-    procedure AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
-    procedure RemoveEntry(aID:cardinal);
-    procedure InjectEntry(aID:cardinal; aMsgTyp:TKMMessageType; aText:string);
-    function GetMsgPic(aID:cardinal):cardinal;
-    function GetMsgHasGoTo(aID:cardinal):boolean;
-    function GetText(aID:cardinal):string;
-    function GetLoc(aID:cardinal; out Point:TKMPoint):Boolean;
-    property Count:cardinal read fCount;
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+
+    property Count: Integer read fCount;
+    property Messages[aIndex: Integer]: TKMMessage read GetMessage; default;
+
+    procedure AddEntry(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+    procedure RemoveEntry(aIndex: Cardinal);
+    procedure InsertEntry(aIndex: Cardinal; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
 implementation
 
 
+{ TKMMessage }
+constructor TKMMessage.Create(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+begin
+  inherited Create;
+  fKind := aKind;
+  fLoc := aLoc;
+  fText := aText;
+end;
+
+
+constructor TKMMessage.CreateFromStream(LoadStream: TKMemoryStream);
+begin
+  inherited Create;
+  LoadStream.Read(fLoc);
+  LoadStream.Read(fText);
+  LoadStream.Read(fKind, SizeOf(TKMMessageKind));
+end;
+
+
+//Check wherever message has a GoTo option
+function TKMMessage.IsGoto: Boolean;
+begin
+  Result := fKind in [mkHouse, mkUnit];
+end;
+
+
+//GUIMain icon index associated with that message kind
+function TKMMessage.Icon: Word;
+const MsgIcon: array [TKMMessageKind] of word = (491, 492, 493, 495);
+begin
+  Result := MsgIcon[fKind];
+end;
+
+
+procedure TKMMessage.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.Write(fLoc);
+  SaveStream.Write(fText);
+  SaveStream.Write(fKind, SizeOf(TKMMessageKind));
+end;
+
+
 { TKMMessageList }
 destructor TKMMessageList.Destroy;
-var i:integer;
+var
+  I: Integer;
 begin
-  for i := 1 to fCount do
-    FreeAndNil(fList[i]);
-  Inherited;
+  for I := 0 to fCount - 1 do
+    FreeAndNil(fList[I]);
+  inherited;
 end;
 
 
-procedure TKMMessageList.AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
+function TKMMessageList.GetMessage(aIndex: Integer): TKMMessage;
 begin
-  inc(fCount);
-  SetLength(fList, fCount+1);
-  fList[fCount] := TKMMessage.Create;
-  fList[fCount].msgType := aMsgTyp;
-  fList[fCount].msgText := aText;
-  fList[fCount].msgLoc := aLoc;
+  Assert(InRange(aIndex, 0, fCount - 1));
+  Result := fList[aIndex];
 end;
 
 
-procedure TKMMessageList.RemoveEntry(aID:cardinal);
-var i:cardinal;
+procedure TKMMessageList.AddEntry(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
 begin
-  dec(fCount);
-  FreeAndNil(fList[aID]); //First remove the deleted message
-  for i := aID to fCount do
-    fList[i] := fList[i+1]; //Then move the other message up to it
-  fList[fCount+1] := nil; //Set the last+1 message to be nil, because the last message already points to it. (don't want duplicate pointers)
-  SetLength(fList, fCount+1); //to keep it neat
+  SetLength(fList, fCount + 1);
+  fList[fCount] := TKMMessage.Create(aKind, aText, aLoc);
+  Inc(fCount);
+end;
+
+
+procedure TKMMessageList.RemoveEntry(aIndex: Cardinal);
+var
+  I: Integer;
+begin
+  FreeAndNil(fList[aIndex]); //Release the deleted message
+
+  //Move the messges to cover the gap
+  if aIndex <> fCount - 1 then
+    Move(fList[aIndex + 1], fList[aIndex], (fCount - 1 - aIndex) * SizeOf(TKMMessage));
+
+  //Keep it neat
+  Dec(fCount);
+  SetLength(fList, fCount);
 end;
 
 
 //Might be of use with priority messages
-procedure TKMMessageList.InjectEntry(aID:cardinal; aMsgTyp:TKMMessageType; aText:string);
-var i:cardinal;
+procedure TKMMessageList.InsertEntry(aIndex: Cardinal; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+var
+  I: Integer;
 begin
-  inc(fCount);
-  SetLength(fList, fCount+1);
-  for i := aID + 1 to fCount do
-    fList[i] := fList[i-1];
-  fList[aID].msgType := aMsgTyp;
-  fList[aID].msgText := aText;
+  SetLength(fList, fCount + 1);
+  if aIndex <> fCount then
+    Move(fList[aIndex], fList[aIndex + 1], (fCount - aIndex) * SizeOf(TKMMessage));
+
+  fList[aIndex] := TKMMessage.Create(aKind, aText, aLoc);
+
+  Inc(fCount);
 end;
 
 
-function TKMMessageList.GetMsgPic(aID:cardinal):cardinal;
-const MsgIcon: array[TKMMessageType] of word = (491, 492, 493, 495);
-begin
-  if InRange(aID,1,fCount) then
-    Result := MsgIcon[fList[aID].msgType]
-  else
-    Result := 0;
-end;
-
-
-function TKMMessageList.GetMsgHasGoTo(aID:cardinal):boolean;
-begin
-  if InRange(aID,1,fCount) then
-    Result := (fList[aID].msgType = msgHouse) or (fList[aID].msgType = msgUnit)
-  else
-    Result := false;
-end;
-
-
-function TKMMessageList.GetText(aID:cardinal):string;
-begin
-  if InRange(aID,1,fCount) then
-    Result := fList[aID].msgText
-  else
-    Result := '';
-end;
-
-
-//Todo: convert other functions to this pattern
-function TKMMessageList.GetLoc(aID:cardinal; out Point:TKMPoint):Boolean;
-begin
-  if InRange(aID,1,fCount) then begin
-    Point := fList[aID].msgLoc;
-    Result := true;
-  end else
-    Result := false;
-end;
-
-
-procedure TKMMessageList.Save(SaveStream:TKMemoryStream);
-var i:cardinal;
+procedure TKMMessageList.Save(SaveStream: TKMemoryStream);
+var
+  I: Integer;
 begin
   SaveStream.Write(fCount);
-  for i:=1 to fCount do
-  begin
-    SaveStream.Write(fList[i].msgType, SizeOf(fList[i].msgType));
-    SaveStream.Write(fList[i].msgText);
-    SaveStream.Write(fList[i].msgLoc);
-  end;
+  for I := 0 to fCount - 1 do
+    Messages[I].Save(SaveStream);
 end;
 
 
-procedure TKMMessageList.Load(LoadStream:TKMemoryStream);
-var i:cardinal;
+procedure TKMMessageList.Load(LoadStream: TKMemoryStream);
+var
+  I: Integer;
 begin
   LoadStream.Read(fCount);
-  SetLength(fList, fCount+1);
+  SetLength(fList, fCount);
 
-  for i:=1 to fCount do
-  begin
-    fList[i] := TKMMessage.Create;
-    LoadStream.Read(fList[i].msgType, SizeOf(fList[i].msgType));
-    LoadStream.Read(fList[i].msgText);
-    LoadStream.Read(fList[i].msgLoc);
-  end;
+  for I := 0 to fCount - 1 do
+    fList[I] := TKMMessage.CreateFromStream(LoadStream);
 end;
 
 
