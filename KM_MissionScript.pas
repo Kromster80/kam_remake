@@ -1262,7 +1262,7 @@ begin
                          for i:=1 to 4 do for k:=1 to 4 do
                            if HA[i,k]<>0 then
                              if InRange(P[1]+1+k-3, 1, fMapX) and InRange(P[2]+1+i-4, 1, fMapY) then
-                               SetOwner(P[1]+1, P[2]+1);
+                               SetOwner(P[1]+1+k-3, P[2]+1+i-4);
                        end;
     ct_SetMapColor:    if InRange(fLastPlayer, 1, MAX_PLAYERS) then
                          fPlayerPreview[fLastPlayer].Color := fResource.Palettes.DefDal.Color32(P[0]);
