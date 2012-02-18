@@ -1228,7 +1228,7 @@ end;
 
 procedure TKMUnitWarrior.Paint;
 
-  procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir:TKMDirection; UnitTyp:TUnitType);
+  procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir:TKMDirection; UnitTyp:TUnitType; NewInst:Boolean);
   var
     TeamColor: cardinal;
     FlagXPaintPos, FlagYPaintPos: single;
@@ -1243,9 +1243,9 @@ procedure TKMUnitWarrior.Paint;
 
     //In MapEd mode we borrow the anim step from terrain, as fFlagAnim is not updated
     if fGame.GameState = gsEditor then
-      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fTerrain.AnimStep, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, false)
+      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fTerrain.AnimStep, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, NewInst)
     else
-      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fFlagAnim, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, false);
+      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fFlagAnim, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, NewInst);
   end;
 
 var
@@ -1262,15 +1262,21 @@ begin
   XPaintPos := fPosition.X + 0.5 + GetSlide(ax_X);
   YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-
   if IsCommander and not IsDeadOrDying then
-    PaintFlag(XPaintPos, YPaintPos, Direction, fUnitType); //Paint flag over the top of the unit
-
-  //todo: This causes issues with alpha (drawn twice) so we need to refactor it.
-  //For half of the directions the flag should go UNDER the unit, so render the unit again as a child of the parent unit
-  if Direction in [dir_SE, dir_S, dir_SW, dir_W] then
-    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+  begin
+    if Direction in [dir_SE, dir_S, dir_SW, dir_W] then
+    begin
+      PaintFlag(XPaintPos, YPaintPos, Direction, fUnitType, True); //Paint flag over the top of the unit
+      fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, False);
+    end
+    else
+    begin
+      fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, True);
+      PaintFlag(XPaintPos, YPaintPos, Direction, fUnitType, False); //Paint flag under the unit
+    end;
+  end
+  else
+    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, True);
 
   if fThought<>th_None then
     fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);

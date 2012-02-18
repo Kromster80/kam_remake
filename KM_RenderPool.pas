@@ -689,7 +689,7 @@ end;
 
 
 procedure TRenderPool.AddUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
+var ShiftX,ShiftY,Interpolation:single; ID:integer; A:TKMUnitsAnim;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   ID := A.Step[StepID mod A.Count + 1] + 1;
@@ -698,8 +698,10 @@ begin
   ShiftX := RXData[rxUnits].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY := (RXData[rxUnits].Pivot[ID].y+RXData[rxUnits].Size[ID].Y)/CELL_SIZE_PX;
 
-  ShiftY := ShiftY - fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV - 0.4;
-  fRenderList.AddSprite(rxUnits,ID,pX+ShiftX,pY+ShiftY,pY+ShiftY,NewInst,FlagColor);
+  Interpolation := fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV + 0.4;
+  ShiftY := ShiftY - Interpolation;
+
+  fRenderList.AddSprite(rxUnits,ID,pX+ShiftX,pY+ShiftY,pY-Interpolation,NewInst,FlagColor);
   if DoImmediateRender then RenderSprite(rxUnits,ID,pX+ShiftX,pY+ShiftY,FlagColor,255,Deleting);
 
   if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
@@ -757,7 +759,7 @@ end;
 
 
 procedure TRenderPool.AddUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
-var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
+var ShiftX,ShiftY,Interpolation:single; ID:integer; A:TKMUnitsAnim;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   ID := A.Step[StepID mod A.Count + 1] + 1;
@@ -766,8 +768,11 @@ begin
   ShiftX:=RXData[rxUnits].Pivot[ID].x/CELL_SIZE_PX -0.5;
   ShiftY:=(RXData[rxUnits].Pivot[ID].y+RXData[rxUnits].Size[ID].Y)/CELL_SIZE_PX;
 
-  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(UnitX,UnitY)/CELL_HEIGHT_DIV-0.4 -2.25;
-  fRenderList.AddSprite(rxUnits,ID,pX+ShiftX,pY+ShiftY,pY+ShiftY,NewInst,FlagColor);
+  Interpolation := fTerrain.InterpolateLandHeight(UnitX,UnitY)/CELL_HEIGHT_DIV+0.4;
+  ShiftY:=ShiftY-Interpolation-2.25;
+
+  //Flags should use a Ground value identical to the unit, because we render flags on top for certain directions
+  fRenderList.AddSprite(rxUnits,ID,pX+ShiftX,pY+ShiftY,UnitY-Interpolation,NewInst,FlagColor);
 
   if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
     fRenderAux.Dot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV, FlagColor); //Render dot where unit is
@@ -1261,7 +1266,7 @@ begin
           else
             fRenderPool.RenderSpriteAlphaTest(RX, ID, AlphaStep, Loc.X, Loc.Y, FOWvalue);
 
-          if SHOW_GROUND_LINES then
+          if SHOW_GROUND_LINES and NewInst then //Don't render child (not NewInst) ground lines, since they are unused
           begin
             glBegin(GL_LINES);
               glColor3f(1,1,0.5);
