@@ -145,7 +145,8 @@ begin
 end;
 
 
-//Since we track only WIP houses, we don't care if it's done or canceled/destroyed, that could be separate stats
+//House building process was ended. We don't really know if it was canceled or destroyed or finished
+//Other House** methods will handle that
 procedure TKMPlayerStats.HouseEnded(aType: THouseType);
 begin
   inc(Houses[aType].Ended);

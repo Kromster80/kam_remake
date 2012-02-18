@@ -8,7 +8,7 @@ uses
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math, TypInfo, Zippit,
   KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
   KM_Networking,
-  KM_MapEditor, KM_Campaigns,
+  KM_MapEditor, KM_Campaigns, KM_EventProcess,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
   KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_Resource, KM_Terrain, KM_PathFinding, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
@@ -45,6 +45,7 @@ type
     fMapEditor: TKMMapEditor;
     fProjectiles:TKMProjectiles;
     fGameInputProcess:TGameInputProcess;
+    fEventsManager: TKMEventsManager;
     fNetworking:TKMNetworking;
     fTerrain: TTerrain;
     fPathfinding: TPathFinding;
@@ -147,6 +148,7 @@ type
 
     property GlobalSettings: TGlobalSettings read fGlobalSettings;
     property Campaigns: TKMCampaignsCollection read fCampaigns;
+    property EventsManager: TKMEventsManager read fEventsManager;
     property MapEditor: TKMMapEditor read fMapEditor;
     property MusicLib: TMusicLib read fMusicLib;
     property Terrain: TTerrain read fTerrain;
@@ -441,6 +443,7 @@ begin
   fPathfinding := TPathfinding.Create(fTerrain);
   fRenderPool := TRenderPool.Create(fRender, fTerrain);
   fProjectiles := TKMProjectiles.Create(fTerrain);
+  fEventsManager := TKMEventsManager.Create;
 
   fGameTickCount := 0; //Restart counter
 end;
@@ -924,6 +927,7 @@ begin
     if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
       fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl'));
 
+    FreeThenNil(fEventsManager);
     FreeThenNil(fGameInputProcess);
     FreeThenNil(fPlayers);
     FreeThenNil(fProjectiles);
@@ -1466,7 +1470,7 @@ begin
                   fMainMenuInterface.UpdateState;
                 end;
     gsRunning:  begin
-                  if fMultiplayerMode then  fNetworking.UpdateState(fGlobalTickCount); //Measures pings
+                  if fMultiplayerMode then fNetworking.UpdateState(fGlobalTickCount); //Measures pings
                   if fMultiplayerMode and (fGameTickCount mod 100 = 0) then
                     SendMPGameInfo(Self); //Send status to the server every 10 seconds
                   if not fMultiplayerMode or (fNetworking.NetGameState <> lgs_Loading) then
@@ -1482,6 +1486,7 @@ begin
                         if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                         inc(fGameTickCount); //Thats our tick counter for gameplay events
                         if fMultiplayerMode then fNetworking.LastProcessedTick := fGameTickCount;
+                        fEventsManager.ProcTime(fGameTickCount);
                         UpdatePeacetime; //Send warning messages about peacetime if required
                         fTerrain.UpdateState;
                         fPlayers.UpdateState(fGameTickCount); //Quite slow

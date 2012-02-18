@@ -452,7 +452,7 @@ begin
 end;
 
 
-procedure TKMHouse.Activate(aWasBuilt:boolean);
+procedure TKMHouse.Activate(aWasBuilt: Boolean);
 var i:integer; Res:TResourceType;
 begin
   fPlayers.Player[fOwner].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
@@ -668,6 +668,7 @@ begin
     fBuildState := hbs_Done;
     fPlayers.Player[fOwner].Stats.HouseEnded(fHouseType);
     Activate(true);
+    fGame.EventsManager.ProcHouseBuilt(fHouseType, fOwner);
     //House was damaged while under construction, so set the repair mode now it is complete
     if (fDamage > 0) and BuildingRepair then
       fPlayers.Player[fOwner].BuildList.RepairList.AddHouse(Self);

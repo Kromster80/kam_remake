@@ -9,6 +9,8 @@ uses
   KM_Controls, KM_Houses, KM_Units, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
+const MAX_VISIBLE_MSGS = 32;
+
 type
   TKMGamePlayInterface = class (TKMUserInterface)
   private
@@ -131,7 +133,7 @@ type
       Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
       Label_MPChatUnread: TKMLabel;
-      Image_Message:array[1..32]of TKMImage; //Queue of messages covers 32*48=1536px height
+      Image_Message: array[0..MAX_VISIBLE_MSGS]of TKMImage; //Queue of messages covers 32*48=1536px height
       Image_Clock:TKMImage; //Clock displayed when game speed is increased
       Label_Clock:TKMLabel;
       Label_ClockSpeedup:TKMLabel;
@@ -913,16 +915,16 @@ begin
   Image_MPAllies.Hint := fTextLibrary[TX_GAMEPLAY_PLAYERS_HINT];
   Image_MPAllies.OnClick := Allies_Click;
 
-  for I := Low(Image_Message) to High(Image_Message) do
+  for I := 0 to MAX_VISIBLE_MSGS do
   begin
     Image_Message[I] := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,0,30,48,495);
-    Image_Message[i].Top := Panel_Main.Height - i*48 - IfThen(fGame.MultiplayerMode, 48*2);
-    Image_Message[i].Anchors := [akLeft, akBottom];
-    Image_Message[i].Disable;
-    Image_Message[i].Hide;
-    Image_Message[i].HighlightOnMouseOver := true;
-    Image_Message[i].Tag := i;
-    Image_Message[i].OnClick := Message_Click;
+    Image_Message[I].Top := Panel_Main.Height - (I+1)*48 - IfThen(fGame.MultiplayerMode, 48*2);
+    Image_Message[I].Anchors := [akLeft, akBottom];
+    Image_Message[I].Disable;
+    Image_Message[I].Hide;
+    Image_Message[I].HighlightOnMouseOver := True;
+    Image_Message[I].Tag := I;
+    Image_Message[I].OnClick := Message_Click;
   end;
 
   //Chat and Allies setup should be accessible only in Multiplayer
@@ -1702,7 +1704,7 @@ var I: Integer;
 begin
   ShownMessage := aIndex;
 
-  for I := Low(Image_Message) to High(Image_Message) do
+  for I := 0 to MAX_VISIBLE_MSGS do
     Image_Message[I].Highlight := (ShownMessage = I);
 
   Label_MessageText.Caption := fMessageList[ShownMessage].Text;
@@ -1748,7 +1750,7 @@ procedure TKMGamePlayInterface.Message_UpdateStack;
 var I: Integer;
 begin
   //MassageList is unlimited, while Image_Message has fixed depth and samples data from the list on demand
-  for I := Low(Image_Message) to High(Image_Message) do
+  for I := 0 to MAX_VISIBLE_MSGS do
   begin
     //Disable and hide at once for safety
     Image_Message[I].Enabled := (I <= fMessageList.Count - 1);
