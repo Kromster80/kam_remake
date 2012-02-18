@@ -3255,6 +3255,8 @@ end;
 procedure TKMMinimap.UpdateFrom(aMapView:TKMMapView);
 var i: Integer;
 begin
+  fMapSize.X := aMapView.MapX;
+  fMapSize.Y := aMapView.MapY;
   fMapTex := aMapView.MapTex;
   if fShowLocs then
     for i:=1 to MAX_PLAYERS do
@@ -3265,10 +3267,26 @@ end;
 
 
 function TKMMinimap.LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
+var PaintWidth, PaintHeight, NewLeft, NewTop:integer;
 begin
+  if fMapSize.X > fMapSize.Y then
+  begin
+    PaintWidth := Width;
+    PaintHeight := Round(Height*fMapSize.Y/Max(fMapSize.X,1)); //X could = 0
+    NewLeft := Left;
+    NewTop := Top + (Height - PaintHeight) div 2;
+  end
+  else
+  begin
+    PaintWidth := Round(Width*fMapSize.X/Max(fMapSize.Y,1)); //Y could = 0
+    PaintHeight := Height;
+    NewLeft := Left + (Width - PaintWidth) div 2;
+    NewTop := Top;
+  end;
+
   Assert(Inset>=-1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
-  Result.X := EnsureRange(X - (Left+(Width -fMapSize.X) div 2), 1+Inset, fMapSize.X-Inset);
-  Result.Y := EnsureRange(Y - (Top +(Height-fMapSize.Y) div 2), 1+Inset, fMapSize.Y-Inset);
+  Result.X := EnsureRange(Round((X - NewLeft)*fMapSize.X/PaintWidth), 1+Inset, fMapSize.X-Inset);
+  Result.Y := EnsureRange(Round((Y - NewTop)*fMapSize.Y/PaintHeight), 1+Inset, fMapSize.Y-Inset);
 end;
 
 
@@ -3294,21 +3312,38 @@ end;
 
 
 procedure TKMMinimap.Paint;
-var i:integer;
+var i, PaintWidth, PaintHeight, NewLeft, NewTop:integer;
 begin
   inherited;
-  fRenderUI.WriteBevel(Left, Top, Width, Height);
+
+  if fMapSize.X > fMapSize.Y then
+  begin
+    PaintWidth := Width;
+    PaintHeight := Round(Height*fMapSize.Y/Max(fMapSize.X,1)); //X could = 0
+    NewLeft := Left;
+    NewTop := Top + (Height - PaintHeight) div 2;
+  end
+  else
+  begin
+    PaintWidth := Round(Width*fMapSize.X/Max(fMapSize.Y,1)); //Y could = 0
+    PaintHeight := Height;
+    NewLeft := Left + (Width - PaintWidth) div 2;
+    NewTop := Top;
+  end;
+
   if fMapTex.Tex <> 0 then
-    fRenderUI.WriteTexture(Left, Top, Width, Height, fMapTex, $FFFFFFFF);
+    fRenderUI.WriteTexture(NewLeft, NewTop, PaintWidth, PaintHeight, fMapTex, $FFFFFFFF)
+  else
+    fRenderUI.WriteBevel(NewLeft, NewTop, PaintWidth, PaintHeight);
 
   if (fViewArea.X2 - fViewArea.X1) * (fViewArea.Y2 - fViewArea.Y1) > 0 then
-    fRenderUI.WriteRect(Left + (Width - fMapSize.X) div 2 + fViewArea.X1,
-                        Top  + (Height - fMapSize.Y) div 2 + fViewArea.Y1,
-                        fViewArea.X2 - fViewArea.X1,
-                        fViewArea.Y2 - fViewArea.Y1, 1, $FFFFFFFF);
+    fRenderUI.WriteRect(NewLeft + Round(fViewArea.X1*PaintWidth / fMapSize.X),
+                        NewTop  + Round(fViewArea.Y1*PaintHeight / fMapSize.Y),
+                        Round((fViewArea.X2 - fViewArea.X1)*PaintWidth / fMapSize.X),
+                        Round((fViewArea.Y2 - fViewArea.Y1)*PaintHeight / fMapSize.Y), 1, $FFFFFFFF);
   for i:=1 to MAX_PLAYERS do
     if not KMSamePoint(fPlayerLocs[i], KMPoint(0,0)) then
-      fRenderUI.WriteText(Left+fPlayerLocs[i].X, Top+fPlayerLocs[i].Y-8, 16, 16, IntToStr(i), fnt_Outline, taCenter);
+      fRenderUI.WriteText(NewLeft+Round(fPlayerLocs[i].X*PaintWidth / fMapSize.X), NewTop+Round(fPlayerLocs[i].Y*PaintHeight / fMapSize.Y)-8, 16, 16, IntToStr(i), fnt_Outline, taCenter);
 end;
 
 

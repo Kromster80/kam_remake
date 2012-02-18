@@ -769,8 +769,8 @@ begin
       Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 382, 282, 20, '', fnt_Metal, taLeft);
       Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 402, 282, 20, '', fnt_Metal, taLeft);
 
-      TKMBevel.Create(Panel_LobbySetup, 282, 150, 200, 200);
-      Minimap_LobbyPreview := TKMMinimap.Create(Panel_LobbySetup, 286, 154, 192, 192);
+      TKMBevel.Create(Panel_LobbySetup, 282, 150, 199, 199);
+      Minimap_LobbyPreview := TKMMinimap.Create(Panel_LobbySetup, 286, 154, 191, 191);
       Minimap_LobbyPreview.ShowLocs := True; //In the minimap we want player locations to be shown
 
       TKMLabel.Create(Panel_LobbySetup, 282, 30, 190, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
@@ -879,8 +879,8 @@ begin
       Memo_SingleDesc  := TKMMemo.Create(Panel_SingleDesc,15,25,415,189,fnt_Metal);
       Memo_SingleDesc.AutoWrap := True;
 
-      TKMBevel.Create(Panel_SingleDesc, 121, 220, 200, 200);
-      Minimap_SinglePreview := TKMMinimap.Create(Panel_SingleDesc, 125, 224, 192, 192);
+      TKMBevel.Create(Panel_SingleDesc, 121, 220, 199, 199);
+      Minimap_SinglePreview := TKMMinimap.Create(Panel_SingleDesc, 125, 224, 191, 191);
 
       TKMBevel.Create(Panel_SingleDesc,0,428,445,20);
       Label_SingleCondTyp:=TKMLabel.Create(Panel_SingleDesc,8,431,429,20,fTextLibrary[TX_MENU_MISSION_TYPE],fnt_Metal, taLeft);
@@ -967,8 +967,8 @@ begin
       List_MapEd.OnDoubleClick := MapEditor_Start;
       Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 335, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], fnt_Metal, bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
-      TKMBevel.Create(Panel_MapEd_Load, 308, 80, 200, 200);
-      Minimap_MapEd := TKMMinimap.Create(Panel_MapEd_Load, 312, 84, 192, 192);
+      TKMBevel.Create(Panel_MapEd_Load, 308, 80, 199, 199);
+      Minimap_MapEd := TKMMinimap.Create(Panel_MapEd_Load, 312, 84, 191, 191);
 
     Button_MapEdBack := TKMButton.Create(Panel_MapEd, 120, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_MapEdBack.OnClick := SwitchMenuPage;

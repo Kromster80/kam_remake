@@ -29,6 +29,8 @@ type
     procedure LoadTerrain(aMissionPath: string);
     procedure Clear;
 
+    property MapX: Word read fMapX;
+    property MapY: Word read fMapY;
     property MapTex: TTexture read fMapTex;
     function GetPlayerLoc(aIndex:byte):TKMPoint;
     procedure Update(aRevealAll:Boolean);
@@ -90,10 +92,10 @@ end;
 
 
 procedure TKMMapView.UpdateMinimapFromParser(aRevealAll:Boolean);
-var i,k:integer;
+var i,k:Integer; Light:SmallInt; x0,y2:Word;
 begin
-  fMapX := fParser.MapX;
-  fMapY := fParser.MapY;
+  fMapX := fParser.MapX-1;
+  fMapY := fParser.MapY-1;
   SetLength(fBase, fMapX * fMapY);
 
   for i:=1 to fMapY do
@@ -103,10 +105,18 @@ begin
       if not aRevealAll and not Revealed then
         fBase[(i-1)*fMapX + (k-1)] := $FF000000
       else
-        if TileOwner = 0 then
-          fBase[(i-1)*fMapX + (k-1)] := TileColor
+        if TileOwner <> 0 then
+          fBase[(i-1)*fMapX + (k-1)] := fParser.PlayerPreview[TileOwner].Color
         else
-          fBase[(i-1)*fMapX + (k-1)] := fParser.PlayerPreview[TileOwner].Color;
+        begin
+          //Forumlua for lighting same as in TTerrain.RebuildLighting
+          x0:=EnsureRange(k-1,1,fMapX);
+          y2:=EnsureRange(i+1,1,fMapY);
+          Light := Round(EnsureRange((TileHeight - (fParser.MapPreview[k,y2].TileHeight + fParser.MapPreview[x0,i].TileHeight)/2)/22, -1, 1)*64);
+          fBase[(i-1)*fMapX + (k-1)] := EnsureRange(fResource.Tileset.TileColor[TileID].R+Light,0,255) +
+                                        EnsureRange(fResource.Tileset.TileColor[TileID].G+Light,0,255) shl 8 +
+                                        EnsureRange(fResource.Tileset.TileColor[TileID].B+Light,0,255) shl 16;
+        end;
     end;
 end;
 
@@ -154,8 +164,8 @@ var
   DoesFit: Boolean;
   Light:smallint;
 begin
-  fMapX := fMyTerrain.MapX;
-  fMapY := fMyTerrain.MapY;
+  fMapX := fMyTerrain.MapX-1;
+  fMapY := fMyTerrain.MapY-1;
   SetLength(fBase, fMapX * fMapY);
 
   for i:=0 to fMapY-1 do
@@ -181,7 +191,7 @@ begin
         else
         begin
           ID := fMyTerrain.Land[i+1,k+1].Terrain;
-          Light := round(fMyTerrain.Land[i+1,k+1].Light*64)-(255-FOW); //it's -255..255 range now
+          Light := Round(fMyTerrain.Land[i+1,k+1].Light*64)-(255-FOW); //it's -255..255 range now
           fBase[i*fMapX + k] := EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
                                 EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
                                 EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;

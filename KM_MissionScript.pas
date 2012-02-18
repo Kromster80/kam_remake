@@ -98,7 +98,8 @@ type
   end;
 
   TTilePreviewInfo = record
-                       TileColor: Cardinal;
+                       TileID: Byte;
+                       TileHeight: Byte; //Used for calculating light
                        TileOwner: Byte;
                        Revealed: Boolean;
                      end;
@@ -1219,12 +1220,9 @@ begin
     fMapY := NewY;
     for i:=1 to fMapX*fMapY do
     begin
-      S.Read(ID);
-      fMapPreview[i].TileColor :=  fResource.Tileset.TileColor[ID].R +
-                                  (fResource.Tileset.TileColor[ID].G shl 8) +
-                                  (fResource.Tileset.TileColor[ID].B shl 16);
+      S.Read(fMapPreview[i].TileID);
       S.Seek(1, soFromCurrent);
-      S.Read(ID); //Height (for lighting which can be added later)
+      S.Read(fMapPreview[i].TileHeight); //Height (for lighting)
       S.Seek(20, soFromCurrent);
     end;
   finally
