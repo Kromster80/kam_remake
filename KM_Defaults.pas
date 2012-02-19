@@ -549,11 +549,12 @@ type
   //    The Worker will push out any unit on his way.
   //    sidenote: CanElevate is per-vertex property, hence it's not identical to CanWorker
   // 3. Set the tile as fully blocked
-  TTileLock = (     // CanBuild CanWalk CanWorker CanElevate Digged Fenced
-        tlNone,     // X        X         X       X          -      -
-        tlFenced,   // -        X         X       X          -      X
-        tlDigged,   // -        -         X       X          X      X
-        tlLocked    // -        -         -       -          X      -
+  TTileLock = (     // CanBuild CanWalk CanWorker CanElevate House Digged Fenced
+        tlNone,     // X        X         X       X          -     -      -
+        tlFenced,   // -        X         X       X          X     -      X
+        tlDigged,   // -        -         X       X          X     X      X
+        tlHouse,    // -        -         -       -          X     X      -
+        tlLocked    // -        -         -       -          -     X      -
         );
 
   TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);

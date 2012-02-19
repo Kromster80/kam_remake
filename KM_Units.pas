@@ -641,8 +641,8 @@ begin
   //Return True if we've got a new deliery
   Result := fUnitTask <> T;
 
-  //If we got ourselves a new task then skip to resource-taking part
-  if Result then
+  //If we got ourselves a new task then skip to resource-taking part, as we are already in this house
+  if Result and (aFrom <> nil) then
     fUnitTask.Phase := 2; //Skip  of the new task
 end;
 
@@ -808,7 +808,7 @@ begin
     fThought := th_None; //Remove build thought if we are no longer doing anything
 
   //If we are still stuck on a house for some reason, get off it ASAP
-  Assert(fTerrain.Land[fCurrPosition.Y, fCurrPosition.X].Markup <> tlLocked);
+  Assert(fTerrain.Land[fCurrPosition.Y, fCurrPosition.X].Markup <> tlHouse);
 
   if (fUnitTask = nil) and (fCurrentAction = nil) then SetActionStay(20, ua_Walk);
 

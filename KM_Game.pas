@@ -777,7 +777,7 @@ begin
   //Include in the bug report:
   MyZip.AddFiles(SaveName('basesave', '*')); //Replay files
   MyZip.AddFile(fLog.LogPath); //Log file
-  MyZip.AddFile(fMissionFile, 'Mission'); //Mission script
+  MyZip.AddFile(fMissionFile); //Mission script
   for I := 1 to AUTOSAVE_COUNT do
     MyZip.AddFiles(SaveName('autosave' + Int2Fix(I, 2), '*')); //All autosaves
 

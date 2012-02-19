@@ -1406,7 +1406,7 @@ begin
     for i := -1 to 1 do
     for k := -1 to 1 do
       if TileInMapCoords(Loc.X+k, Loc.Y+i)
-      and (Land[Loc.Y+i,Loc.X+k].Markup <> tlNone) then
+      and (Land[Loc.Y+i,Loc.X+k].Markup in [tlFenced,tlDigged,tlHouse]) then
         HousesNearBy := True;
 
     if TileIsRoadable(Loc)
@@ -1439,7 +1439,7 @@ begin
       AddPassability(Loc, [CanBuildGold]);
 
     if TileIsRoadable(Loc)
-    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked //todo: Add to houses too?
+    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
     and (Land[Loc.Y,Loc.X].Markup = tlNone)
     and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
     and CheckHeightPass(Loc,CanMakeRoads) then
@@ -1489,7 +1489,7 @@ begin
   if TileIsWalkable(Loc)
   and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
   and CheckHeightPass(Loc, CanWalk)
-  and (Land[Loc.Y,Loc.X].Markup <> tlLocked) then
+  and not(Land[Loc.Y,Loc.X].Markup in [tlLocked,tlHouse]) then
     AddPassability(Loc, [CanWorker]);
 
   //Check all 4 tiles that border with this vertex
@@ -1499,18 +1499,19 @@ begin
   and TileIsFactorable(KMPoint(Loc.X-1,Loc.Y-1)) then
     AddPassability(Loc, [canFactor]);
 
- //Check for houses around this vertice(!)
- //Use only with CanElevate since it's vertice-based!
- HousesNearBy := False;
- for i := -1 to 0 do
- for k := -1 to 0 do
-   if TileInMapCoords(Loc.X+k, Loc.Y+i) then
-   if (Land[Loc.Y+i,Loc.X+k].Markup = tlLocked) then
-     HousesNearBy := True;
+  //Check for houses around this vertice(!)
+  //Use only with CanElevate since it's vertice-based!
+  HousesNearBy := False;
+  for i := -1 to 0 do
+  for k := -1 to 0 do
+    if TileInMapCoords(Loc.X+k, Loc.Y+i) then
+    //Can't elevate built houses, can elevate fenced and dug houses though
+    if (Land[Loc.Y+i,Loc.X+k].Markup = tlHouse) then
+      HousesNearBy := True;
 
- if VerticeInMapCoords(Loc.X,Loc.Y)
- and not HousesNearBy then
-   AddPassability(Loc, [CanElevate]);
+  if VerticeInMapCoords(Loc.X,Loc.Y)
+  and not HousesNearBy then
+    AddPassability(Loc, [CanElevate]);
 end;
 
 
@@ -2078,7 +2079,7 @@ begin
           hsFence:        Land[y,x].Markup := tlFenced; //Initial state, Laborer should assign NoWalk to each tile he digs
           hsBuilt:        begin
                             //Script houses are placed as built, add markup for them too
-                            Land[y,x].Markup := tlLocked;
+                            Land[y,x].Markup := tlHouse;
 
                             //Add road for scipted houses
                             if HA[i,k] = 2 then

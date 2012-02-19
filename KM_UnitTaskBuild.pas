@@ -823,7 +823,7 @@ begin
            Direction := BuildFrom.Dir;
            //Remove house plan when we start the stone phase (it is still required for wood)
            //But don't do it every time we hit if it's already done!
-           if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y, fHouse.GetPosition.X].Markup <> tlLocked) then
+           if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y, fHouse.GetPosition.X].Markup <> tlHouse) then
              fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hsBuilt, GetOwner);
          end;
       3: begin

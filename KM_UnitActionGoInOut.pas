@@ -339,7 +339,7 @@ begin
   //IsExchanging can be updated while we have completed less than 20% of the move. If it is changed after that
   //the unit makes a noticable "jump". This needs to be updated after starting because we don't know about an
   //exchanging unit until they have also started walking (otherwise only 1 of the units will have IsExchanging = true)
-  if (shortint(fDirection) - fStep < 0.2) and
+  if ((fDirection = gd_GoOutside) and (fStep < 0.2)) or ((fDirection = gd_GoInside) and (fStep > 0.8)) and
      (fStreet.X = fDoor.X) and //We are walking straight
      (fHouse <> nil) then
      fUnit.IsExchanging := (fHouse.DoorwayUse > 1);
