@@ -370,20 +370,26 @@ end;
 procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint);
 begin
   Assert(aCommandType in [gic_BuildRemoveFieldPlan, gic_BuildRemoveHouse, gic_BuildRemoveHousePlan]);
-  TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
 
-  //Remove fake markup that will be visible only to MyPlayer until Server verifies it
+  //Remove fake markup that will be visible only to MyPlayer until Server verifies it.
+  //Must go before TakeCommand as it could execute command immediately (in singleplayer)
+  //and the fake markup must be added first otherwise our logic in FieldsList fails
   if aCommandType = gic_BuildRemoveFieldPlan then MyPlayer.RemFakeFieldPlan(aLoc);
+
+  TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
 end;
 
 
 procedure TGameInputProcess.CmdBuild(aCommandType: TGameInputCommandType; aLoc: TKMPoint; aFieldType: TFieldType);
 begin
   Assert(aCommandType in [gic_BuildAddFieldPlan]);
-  TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
 
-  //Add fake markup that will be visible only to MyPlayer until Server verifies it
+  //Add fake markup that will be visible only to MyPlayer until Server verifies it.
+  //Must go before TakeCommand as it could execute command immediately (in singleplayer)
+  //and the fake markup must be added first otherwise our logic in FieldsList fails
   MyPlayer.ToggleFakeFieldPlan(aLoc, aFieldType);
+
+  TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
 end;
 
 

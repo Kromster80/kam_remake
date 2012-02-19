@@ -344,6 +344,9 @@ begin
 end;
 
 
+//Returns the list of fields inside aRect.
+//aIncludeFake means the list of fields will be as the user should see it, with additional fake fields
+//and some of the real fields removed if the user has deleted them but the command has not yet been processed.
 procedure TKMFieldworksList.GetFields(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean);
 var I: Integer;
 begin
@@ -389,6 +392,7 @@ begin
 end;
 
 
+//Indicator that the real plan on this tile has been deleted, so hide it from the user
 procedure TKMFieldworksList.AddFakeDeletedField(aLoc: TKMPoint);
 var I: Integer;
 begin
@@ -409,7 +413,9 @@ procedure TKMFieldworksList.AddField(aLoc: TKMPoint; aFieldType: TFieldType);
 var
   I: Integer;
 begin
-  RemFakeField(aLoc); //Remove any fake fields here
+  //Remove any fake fields here, as the real one is being placed. FakeDeleted fields should stay,
+  //since the user might already have deleted this field we are adding so it should not reappear.
+  RemFakeField(aLoc);
 
   I := 0;
   while (I < fFieldsCount) and (fFields[I].JobStatus <> js_Empty) do
@@ -428,6 +434,7 @@ begin
 end;
 
 
+//Removes the fake marker showing the user he has placed a field here
 procedure TKMFieldworksList.RemFakeField(aLoc: TKMPoint);
 var I: Integer;
 begin
@@ -437,6 +444,7 @@ begin
 end;
 
 
+//Removes the fake deleted field which is used to hide a real field until the command can be processed
 procedure TKMFieldworksList.RemFakeDeletedField(aLoc: TKMPoint);
 var I: Integer;
 begin
@@ -461,6 +469,7 @@ begin
 end;
 
 
+//Will return the field as the game should see it, ignoring all fakes.
 function TKMFieldworksList.HasField(aLoc: TKMPoint): TFieldType;
 var I: Integer;
 begin
@@ -475,6 +484,9 @@ begin
 end;
 
 
+//Will return the field as the user should see it.
+//Fake fields are shown when the command has not yet been processed, and
+//real fields which the user deleted are hidden with the FakeDeletedFields array
 function TKMFieldworksList.HasFakeField(aLoc: TKMPoint): TFieldType;
 var I,K: Integer; Found: Boolean;
 begin

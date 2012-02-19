@@ -362,6 +362,7 @@ begin
 end;
 
 
+//See comment on CanAddFakeFieldPlan
 function TKMPlayer.CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
 var I: Integer;
 begin
@@ -378,6 +379,9 @@ begin
 end;
 
 
+//This differs from above only in that it uses HasFakeField instead of HasField.
+//We need it because the user expects to be blocked by fake field plans, but the gameplay should not.
+//When the result effects the outcome of the game, the above function should be used instead.
 function TKMPlayer.CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
 var I: Integer;
 begin
@@ -416,6 +420,7 @@ end;
 
 //Due to lag there could be already plans placed by user in previous ticks
 //Check if Plan can be placed once again, as we might have conflicting commands caused by lag
+//This is called by GIP when a place field command is processed
 procedure TKMPlayer.ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
 var
   Plan: TFieldType;
@@ -438,6 +443,8 @@ begin
 end;
 
 
+//This procedure does not effect gameplay, it only changes fake field plans to make it look better for the user
+//It is called when the user clicks to place a field plan
 procedure TKMPlayer.ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
 var Plan: TFieldType;
 begin
@@ -446,8 +453,8 @@ begin
   Plan := fBuildList.FieldworksList.HasFakeField(aLoc);
   if aFieldType = Plan then //Same plan - remove it
   begin
-    fBuildList.FieldworksList.RemFakeField(aLoc);
-    fBuildList.FieldworksList.AddFakeDeletedField(aLoc);
+    fBuildList.FieldworksList.RemFakeField(aLoc); //Remove our fake marker which is shown to the user
+    fBuildList.FieldworksList.AddFakeDeletedField(aLoc); //This will hide the real field until it is deleted from game
     if Self = MyPlayer then fSoundLib.Play(sfx_Click);
   end
   else
@@ -532,16 +539,21 @@ begin
 end;
 
 
+//This is called by the GIP when an erase command is processed
 procedure TKMPlayer.RemFieldPlan(Position: TKMPoint);
 begin
   fBuildList.FieldworksList.RemFieldPlan(Position);
 end;
 
 
+//This is called immediately when the user clicks erase on a field plan.
+//We know that an erase command is queued and will be processed in some ticks,
+//so we AddFakeDeletedField which lets the user think the field was removed,
+//while the game does not know the difference.
 procedure TKMPlayer.RemFakeFieldPlan(Position: TKMPoint);
 begin
-  fBuildList.FieldworksList.RemFakeField(Position);
-  fBuildList.FieldworksList.AddFakeDeletedField(Position);
+  fBuildList.FieldworksList.RemFakeField(Position); //Remove our fake marker which is shown to the user
+  fBuildList.FieldworksList.AddFakeDeletedField(Position); //This will hide the real field until it is deleted from game
   if Self = MyPlayer then fSoundLib.Play(sfx_Click);
 end;
 
