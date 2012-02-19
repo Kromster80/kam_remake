@@ -12,7 +12,7 @@ type
       fLoc: TKMPoint;
       BuildID: Integer;
       DemandSet: Boolean;
-      MarkupSet: Boolean;
+      TileLockSet: Boolean;
     public
       constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
       constructor Load(LoadStream: TKMemoryStream); override;
@@ -27,7 +27,7 @@ type
       fLoc: TKMPoint;
       BuildID: Integer;
       DemandSet: Boolean;
-      MarkupSet, InitialFieldSet: Boolean;
+      TileLockSet, InitialFieldSet: Boolean;
     public
       constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
       constructor Load(LoadStream: TKMemoryStream); override;
@@ -41,7 +41,7 @@ type
     private
       fLoc: TKMPoint;
       BuildID: Integer;
-      MarkupSet: Boolean;
+      TileLockSet: Boolean;
     public
       constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
       constructor Load(LoadStream: TKMemoryStream); override;
@@ -129,8 +129,8 @@ begin
   fTaskName := utn_BuildRoad;
   fLoc      := aLoc;
   BuildID   := aID;
-  DemandSet := false;
-  MarkupSet := false;
+  DemandSet := False;
+  TileLockSet := False;
 end;
 
 
@@ -140,7 +140,7 @@ begin
   LoadStream.Read(fLoc);
   LoadStream.Read(BuildID);
   LoadStream.Read(DemandSet);
-  LoadStream.Read(MarkupSet);
+  LoadStream.Read(TileLockSet);
 end;
 
 
@@ -155,8 +155,8 @@ begin
       //This plan is not valid anymore
       fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.CloseField(BuildID);
 
-  if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemDemand(fUnit);
-  if MarkupSet  then fTerrain.RemMarkup(fLoc);
+  if DemandSet   then fPlayers.Player[fUnit.GetOwner].DeliverList.RemDemand(fUnit);
+  if TileLockSet then fTerrain.UnlockTile(fLoc);
   inherited;
 end;
 
@@ -186,8 +186,8 @@ begin
        end;
     1: begin
          Thought := th_None;
-         fTerrain.SetMarkup(fLoc, tlLocked);
-         MarkupSet := true;
+         fTerrain.SetTileLock(fLoc, tlLocked);
+         TileLockSet := True;
          fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
          BuildID := -1;
          SetActionLockedStay(11,ua_Work1,false);
@@ -230,8 +230,8 @@ begin
            fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255;
          fTerrain.SetField(fLoc, GetOwner, ft_Road);
          SetActionStay(5, ua_Walk);
-         fTerrain.RemMarkup(fLoc);
-         MarkupSet := False;
+         fTerrain.UnlockTile(fLoc);
+         TileLockSet := False;
        end;
     else Result := TaskDone;
   end;
@@ -245,7 +245,7 @@ begin
   SaveStream.Write(fLoc);
   SaveStream.Write(BuildID);
   SaveStream.Write(DemandSet);
-  SaveStream.Write(MarkupSet);
+  SaveStream.Write(TileLockSet);
 end;
 
 
@@ -256,9 +256,9 @@ begin
   fTaskName := utn_BuildWine;
   fLoc      := aLoc;
   BuildID   := aID;
-  DemandSet := false;
-  MarkupSet := false;
-  InitialFieldSet := false;
+  DemandSet := False;
+  TileLockSet := False;
+  InitialFieldSet := False;
 end;
 
 
@@ -268,7 +268,7 @@ begin
   LoadStream.Read(fLoc);
   LoadStream.Read(BuildID);
   LoadStream.Read(DemandSet);
-  LoadStream.Read(MarkupSet);
+  LoadStream.Read(TileLockSet);
   LoadStream.Read(InitialFieldSet);
 end;
 
@@ -284,8 +284,8 @@ begin
       //This plan is not valid anymore
       fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.CloseField(BuildID);
 
-  if DemandSet then fPlayers.Player[fUnit.GetOwner].DeliverList.RemDemand(fUnit);
-  if MarkupSet then fTerrain.RemMarkup(fLoc);
+  if DemandSet   then fPlayers.Player[fUnit.GetOwner].DeliverList.RemDemand(fUnit);
+  if TileLockSet then fTerrain.UnlockTile(fLoc);
   if InitialFieldSet then fTerrain.RemField(fLoc);
   inherited;
 end;
@@ -316,11 +316,11 @@ begin
       end;
    1: begin
         Thought := th_None;
-        fTerrain.SetMarkup(fLoc, tlLocked);
+        fTerrain.SetTileLock(fLoc, tlLocked);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := -1; //it can't be cancelled now
-        MarkupSet := True;
+        TileLockSet := True;
         SetActionLockedStay(12*4,ua_Work1,false);
       end;
    2: begin
@@ -353,8 +353,8 @@ begin
         fTerrain.SetField(fLoc, GetOwner, ft_Wine);
         InitialFieldSet := False;
         SetActionStay(5,ua_Walk);
-        fTerrain.RemMarkup(fLoc);
-        MarkupSet := false;
+        fTerrain.UnlockTile(fLoc);
+        TileLockSet := False;
       end;
    else Result := TaskDone;
   end;
@@ -368,7 +368,7 @@ begin
   SaveStream.Write(fLoc);
   SaveStream.Write(BuildID);
   SaveStream.Write(DemandSet);
-  SaveStream.Write(MarkupSet);
+  SaveStream.Write(TileLockSet);
   SaveStream.Write(InitialFieldSet);
 end;
 
@@ -380,7 +380,7 @@ begin
   fTaskName := utn_BuildField;
   fLoc      := aLoc;
   BuildID   := aID;
-  MarkupSet := false;
+  TileLockSet := False;
 end;
 
 
@@ -389,7 +389,7 @@ begin
   inherited;
   LoadStream.Read(fLoc);
   LoadStream.Read(BuildID);
-  LoadStream.Read(MarkupSet);
+  LoadStream.Read(TileLockSet);
 end;
 
 
@@ -404,7 +404,7 @@ begin
       //This plan is not valid anymore
       fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.CloseField(BuildID);
 
-  if MarkupSet then fTerrain.RemMarkup(fLoc);
+  if TileLockSet then fTerrain.UnlockTile(fLoc);
   inherited;
 end;
 
@@ -433,8 +433,8 @@ begin
          Thought := th_Build;
        end;
     1: begin
-        fTerrain.SetMarkup(fLoc, tlLocked);
-        MarkupSet := true;
+        fTerrain.SetTileLock(fLoc, tlLocked);
+        TileLockSet := True;
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := -1;
         SetActionLockedStay(0,ua_Walk);
@@ -451,8 +451,8 @@ begin
         Thought := th_None; //Keep thinking build until it's done
         fTerrain.SetField(fLoc,GetOwner,ft_Corn);
         SetActionStay(5,ua_Walk);
-        fTerrain.RemMarkup(fLoc);
-        MarkupSet := false;
+        fTerrain.UnlockTile(fLoc);
+        TileLockSet := False;
        end;
     else Result := TaskDone;
   end;
@@ -465,7 +465,7 @@ begin
   inherited;
   SaveStream.Write(fLoc);
   SaveStream.Write(BuildID);
-  SaveStream.Write(MarkupSet);
+  SaveStream.Write(TileLockSet);
 end;
 
 
@@ -491,7 +491,7 @@ destructor TTaskBuildWall.Destroy;
 begin
   fPlayers.Player[fUnit.GetOwner].DeliverList.RemDemand(fUnit);
   if fPhase > 1 then
-    fTerrain.RemMarkup(fLoc)
+    fTerrain.UnlockTile(fLoc)
   else
     fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
   inherited;
@@ -509,7 +509,7 @@ begin
          Thought := th_Build;
        end;
     1: begin
-        fTerrain.SetMarkup(fLoc, tlLocked);
+        fTerrain.SetTileLock(fLoc, tlLocked);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := -1;
@@ -549,7 +549,7 @@ begin
     9: begin
         fTerrain.SetWall(fLoc,GetOwner);
         SetActionStay(1,ua_Work);
-        fTerrain.RemMarkup(fLoc);
+        fTerrain.UnlockTile(fLoc);
        end;
     else Result := TaskDone;
   end;
@@ -700,7 +700,7 @@ begin
           if KMSamePoint(fHouse.GetEntrance, Cells[Step]) then
             fTerrain.SetField(fHouse.GetEntrance, GetOwner, ft_Road);
           fTerrain.Land[Cells[Step].Y,Cells[Step].X].Obj := 255; //All objects are removed
-          fTerrain.SetMarkup(Cells[Step], tlDigged); //Block passability on tile
+          fTerrain.SetTileLock(Cells[Step], tlDigged); //Block passability on tile
           dec(Step);
         end;
     7:  begin
@@ -823,7 +823,7 @@ begin
            Direction := BuildFrom.Dir;
            //Remove house plan when we start the stone phase (it is still required for wood)
            //But don't do it every time we hit if it's already done!
-           if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y, fHouse.GetPosition.X].Markup <> tlHouse) then
+           if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y, fHouse.GetPosition.X].TileLock <> tlHouse) then
              fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hsBuilt, GetOwner);
          end;
       3: begin

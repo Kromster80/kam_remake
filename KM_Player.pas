@@ -396,6 +396,7 @@ begin
 end;
 
 
+//todo: This needs to check for house and field plans including allies
 function TKMPlayer.CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
 var i,k,tx,ty:integer; HA:THouseArea;
 begin

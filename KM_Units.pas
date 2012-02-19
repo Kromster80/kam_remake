@@ -808,7 +808,7 @@ begin
     fThought := th_None; //Remove build thought if we are no longer doing anything
 
   //If we are still stuck on a house for some reason, get off it ASAP
-  Assert(fTerrain.Land[fCurrPosition.Y, fCurrPosition.X].Markup <> tlHouse);
+  Assert(fTerrain.Land[fCurrPosition.Y, fCurrPosition.X].TileLock <> tlHouse);
 
   if (fUnitTask = nil) and (fCurrentAction = nil) then SetActionStay(20, ua_Walk);
 
