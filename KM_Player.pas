@@ -100,13 +100,13 @@ type
     procedure AddRoadToList(aLoc: TKMPoint);
     //procedure AddRoadConnect(LocA,LocB: TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
-    procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
+    procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound:Boolean);
     procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
     procedure AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint; out House: TKMHouse);
     procedure RemHouse(Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean = False);
     procedure RemHousePlan(Position: TKMPoint);
-    procedure RemFieldPlan(Position: TKMPoint);
+    procedure RemFieldPlan(Position: TKMPoint; aMakeSound:Boolean);
     procedure RemFakeFieldPlan(Position: TKMPoint);
     function FindInn(Loc: TKMPoint; aUnit: TKMUnit; UnitIsAtHome: Boolean = False): TKMHouseInn;
     function FindHouse(aType: THouseType; aPosition: TKMPoint; Index: Byte=1): TKMHouse; overload;
@@ -419,25 +419,30 @@ end;
 //Due to lag there could be already plans placed by user in previous ticks
 //Check if Plan can be placed once again, as we might have conflicting commands caused by lag
 //This is called by GIP when a place field command is processed
-procedure TKMPlayer.ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
-var
-  Plan: TFieldType;
+procedure TKMPlayer.ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; aMakeSound:Boolean);
+var Plan: TFieldType;
 begin
   Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine, ft_Wall], 'Placing wrong FieldType');
 
   Plan := fBuildList.FieldworksList.HasField(aLoc);
   if aFieldType = Plan then //Same plan - remove it
-    RemFieldPlan(aLoc)
+    RemFieldPlan(aLoc,aMakeSound)
   else
     if CanAddFieldPlan(aLoc, aFieldType) then
+    begin
+      if aMakeSound and (Self = MyPlayer) then fSoundLib.Play(sfx_placemarker);
       fBuildList.FieldworksList.AddField(aLoc, aFieldType)
+    end
     else
+    begin
+      if aMakeSound and (Self = MyPlayer) then fSoundLib.Play(sfx_CantPlace, 4.0);
       if Plan = ft_None then //If we can't build because there's some other plan, that's ok
       begin
-        //Can't build here anymore because something else changed, so remove any fake plans
+        //Can't build here anymore because something changed between click and command processing, so remove any fake plans
         fBuildList.FieldworksList.RemFakeField(aLoc);
         fBuildList.FieldworksList.RemFakeDeletedField(aLoc);
       end;
+    end;
 end;
 
 
@@ -446,7 +451,7 @@ end;
 procedure TKMPlayer.ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
 var Plan: TFieldType;
 begin
-  Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine, ft_Wall], 'Placing wrong FieldType');
+  Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine, ft_Wall], 'Placing wrong fake FieldType');
 
   Plan := fBuildList.FieldworksList.HasFakeField(aLoc);
   if aFieldType = Plan then //Same plan - remove it
@@ -538,9 +543,10 @@ end;
 
 
 //This is called by the GIP when an erase command is processed
-procedure TKMPlayer.RemFieldPlan(Position: TKMPoint);
+procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; aMakeSound:Boolean);
 begin
   fBuildList.FieldworksList.RemFieldPlan(Position);
+  if aMakeSound and (Self = MyPlayer) then fSoundLib.Play(sfx_Click);
 end;
 
 

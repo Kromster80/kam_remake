@@ -279,8 +279,8 @@ begin
       gic_ArmyHalt:         TKMUnitWarrior(U).OrderHalt(TKMTurnDirection(Params[2]),Params[3]);
       gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
-      gic_BuildAddFieldPlan:      P.ToggleFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3]));
-      gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]));
+      gic_BuildAddFieldPlan:      P.ToggleFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3]), (not fGame.MultiplayerMode)); //Make sound in singleplayer mode only
+      gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]), (not fGame.MultiplayerMode)); //Make sound in singleplayer mode only
       gic_BuildRemoveHouse:       P.RemHouse(KMPoint(Params[1],Params[2]), IsSilent);
       gic_BuildRemoveHousePlan:   P.RemHousePlan(KMPoint(Params[1],Params[2]));
       gic_BuildHousePlan:         if P.CanAddHousePlan(KMPoint(Params[2],Params[3]), THouseType(Params[1])) then
@@ -374,7 +374,8 @@ begin
   //Remove fake markup that will be visible only to MyPlayer until Server verifies it.
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
-  if aCommandType = gic_BuildRemoveFieldPlan then MyPlayer.RemFakeFieldPlan(aLoc);
+  if fGame.MultiplayerMode and (aCommandType = gic_BuildRemoveFieldPlan) then
+    MyPlayer.RemFakeFieldPlan(aLoc);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
 end;
@@ -387,7 +388,8 @@ begin
   //Add fake markup that will be visible only to MyPlayer until Server verifies it.
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
-  MyPlayer.ToggleFakeFieldPlan(aLoc, aFieldType);
+  if fGame.MultiplayerMode then
+    MyPlayer.ToggleFakeFieldPlan(aLoc, aFieldType);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
 end;

@@ -1,7 +1,7 @@
 unit KM_UnitTaskBuild;
 {$I KaM_Remake.inc}
 interface
-uses Math, SysUtils,
+uses SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_Houses, KM_Terrain, KM_Units;
 

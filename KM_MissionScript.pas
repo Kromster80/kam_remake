@@ -91,7 +91,7 @@ type
   public
     constructor Create(aMode:TMissionParsingMode; aStrictParsing:boolean); overload;
     constructor Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean); overload;
-    function LoadMission(const aFileName: string):boolean; overload;
+    function LoadMission(const aFileName: string):boolean; overload; override;
 
     procedure SaveDATFile(const aFileName: String);
   end;

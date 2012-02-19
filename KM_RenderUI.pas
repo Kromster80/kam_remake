@@ -25,7 +25,7 @@ type
 
 
 implementation
-uses KM_Terrain, KM_PlayersCollection, KM_Resource, KM_ResourceFonts;
+uses KM_PlayersCollection, KM_Resource, KM_ResourceFonts;
 
 
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are

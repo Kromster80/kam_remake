@@ -671,7 +671,7 @@ var i:integer;
 begin
   inherited Create(aScreenX, aScreenY);
 
-  //Instruct to use glogal Terrain
+  //Instruct to use global Terrain
   fMapView := TKMMapView.Create(nil, fTerrain, False, False);
 
   fShownUnit:=nil;

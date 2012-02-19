@@ -1,5 +1,5 @@
 <?php
-include("serverlib.php");
+include("consts.php");
 global $MAIN_VERSION;
 
 $Lang = $_REQUEST["lang"];
@@ -74,7 +74,8 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-	echo "Happy New Year! :-)";
+	echo "We're getting some '500 Internal Server Errors' on our master server which we will try to fix as soon as possible.||If you can't see any servers in the list, please press Refresh Server List to try again.||Updated 19/02/2012.";
+	//echo "Happy New Year! :-)";
 	//echo "A KaM Remake Christmas tournament is being organised!||Visit the forum to register: tinyurl.com/KAMCOMP";
 	//echo "Welcome to the new version!||Have fun, report problems and spread the word :-)";
 	//echo "Use our webchat to organise your games and stay in contact: www.kamremake.com/chat||Server admins: Don't forget to update your servers to r2460 if you haven't already.||Have fun :)";

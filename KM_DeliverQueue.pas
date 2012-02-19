@@ -3,7 +3,7 @@ unit KM_DeliverQueue;
 interface
 uses Classes, SysUtils, KromUtils,
     KM_CommonClasses, KM_Defaults, KM_Points,
-    KM_Houses, KM_Units, KM_UnitTaskDelivery;
+    KM_Houses, KM_Units;
 
 
 type

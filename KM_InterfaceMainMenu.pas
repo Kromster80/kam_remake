@@ -302,7 +302,7 @@ type
 
 
 implementation
-uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_Terrain, KM_TextLibrary, KM_Game, KM_PlayersCollection,
+uses KM_Unit1, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_PlayersCollection,
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites, KM_ServerQuery;
 
 const

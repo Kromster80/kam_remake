@@ -1435,10 +1435,11 @@ begin
       CopyFile(PChar(SaveName(aFileName,'bas')), PChar(SaveName('basesave','bas')), false); //replace Replay base savegame
 
     fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic); //Preserve disabled icons
-    fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
 
     fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
     fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
+
+    fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY); //Must be updated after SyncLoad so IsUnit pointers are correct for minimap update
     fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
     fViewport.ResetZoom; //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
   except

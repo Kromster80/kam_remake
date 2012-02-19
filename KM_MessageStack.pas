@@ -118,13 +118,11 @@ end;
 
 
 procedure TKMMessageList.RemoveEntry(aIndex: Cardinal);
-var
-  I: Integer;
 begin
   FreeAndNil(fList[aIndex]); //Release the deleted message
 
   //Move the messges to cover the gap
-  if aIndex <> fCount - 1 then
+  if aIndex <> fCount - 1 then //@Krom: This gives a warning: "Comparing signed and unsigned types - widened both operands"
     Move(fList[aIndex + 1], fList[aIndex], (fCount - 1 - aIndex) * SizeOf(TKMMessage));
 
   //Keep it neat
@@ -135,11 +133,9 @@ end;
 
 //Might be of use with priority messages
 procedure TKMMessageList.InsertEntry(aIndex: Cardinal; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
-var
-  I: Integer;
 begin
   SetLength(fList, fCount + 1);
-  if aIndex <> fCount then
+  if aIndex <> fCount then //@Krom: This gives a warning: "Comparing signed and unsigned types - widened both operands"
     Move(fList[aIndex], fList[aIndex + 1], (fCount - aIndex) * SizeOf(TKMMessage));
 
   fList[aIndex] := TKMMessage.Create(aKind, aText, aLoc);

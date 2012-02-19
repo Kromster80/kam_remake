@@ -44,7 +44,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Player, KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay, KM_Units_Warrior;
+uses KM_Player, KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay, KM_Units_Warrior;
 
 
 constructor TUnitActionGoInOut.Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);

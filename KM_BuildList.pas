@@ -170,7 +170,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_UnitActionStay;
+uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse;
 
 
 const
