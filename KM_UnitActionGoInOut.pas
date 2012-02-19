@@ -44,7 +44,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Player, KM_PlayersCollection, KM_Resource, KM_UnitActionStay, KM_Units_Warrior;
+uses KM_Game, KM_Player, KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay, KM_Units_Warrior;
 
 
 constructor TUnitActionGoInOut.Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
@@ -102,9 +102,9 @@ begin
   if (fDirection = gd_GoOutside)
   and fHasStarted
   and not fUnit.Visible
-  and (fGame.Terrain.Land[fUnit.NextPosition.Y,fUnit.NextPosition.X].IsUnit = fUnit) then
+  and (fTerrain.Land[fUnit.NextPosition.Y,fUnit.NextPosition.X].IsUnit = fUnit) then
   begin
-    fGame.Terrain.UnitRem(fUnit.NextPosition);
+    fTerrain.UnitRem(fUnit.NextPosition);
     if not KMSamePoint(fDoor, KMPoint(0,0)) then
       fUnit.PositionF := KMPointF(fDoor); //Put us back inside the house
   end;
@@ -184,7 +184,7 @@ begin
     if U <> nil then
     begin
       fPushedUnit := U.GetUnitPointer;
-      fPushedUnit.SetActionWalkPushed(fGame.Terrain.GetOutOfTheWay(U.GetPosition, KMPoint(0,0), CanWalk));
+      fPushedUnit.SetActionWalkPushed(fTerrain.GetOutOfTheWay(U.GetPosition, KMPoint(0,0), CanWalk));
     end;
   end;
 end;
@@ -196,12 +196,12 @@ var U: TKMUnit;
 begin
   Result := nil;
 
-  if fGame.Terrain.TileInMapCoords(X,Y)
-  and (fGame.Terrain.CheckPassability(KMPoint(X,Y), fUnit.GetDesiredPassability))
-  and (fGame.Terrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(X,Y)))
-  and (fGame.Terrain.Land[Y,X].IsUnit <> nil) then //If there's some unit we need to do a better check on him
+  if fTerrain.TileInMapCoords(X,Y)
+  and (fTerrain.CheckPassability(KMPoint(X,Y), fUnit.GetDesiredPassability))
+  and (fTerrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(X,Y)))
+  and (fTerrain.Land[Y,X].IsUnit <> nil) then //If there's some unit we need to do a better check on him
   begin
-    U := fGame.Terrain.UnitsHitTest(X,Y); //Let's see who is standing there
+    U := fTerrain.UnitsHitTest(X,Y); //Let's see who is standing there
 
     //Check that the unit is idling and not an enemy warrior, so that we can push it away
     if (U <> nil)
@@ -218,7 +218,7 @@ begin
   fUnit.Direction := dir_N;  //one cell up
   fUnit.Thought := th_None;
   fUnit.UpdateNextPosition(KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y-1));
-  fGame.Terrain.UnitRem(fUnit.GetPosition); //Unit does not occupy a tile while inside
+  fTerrain.UnitRem(fUnit.GetPosition); //Unit does not occupy a tile while inside
 
   //We are walking straight
   if fStreet.X = fDoor.X then
@@ -230,7 +230,7 @@ procedure TUnitActionGoInOut.WalkOut;
 begin
   fUnit.Direction := KMGetDirection(fDoor, fStreet);
   fUnit.UpdateNextPosition(fStreet);
-  fGame.Terrain.UnitAdd(fUnit.NextPosition, fUnit); //Unit was not occupying tile while inside
+  fTerrain.UnitAdd(fUnit.NextPosition, fUnit); //Unit was not occupying tile while inside
 
   if (fUnit.GetHome <> nil)
   and (fUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
@@ -317,7 +317,7 @@ begin
 
   if fWaitingForPush then
   begin
-    U := fGame.Terrain.Land[fStreet.Y,fStreet.X].IsUnit;
+    U := fTerrain.Land[fStreet.Y,fStreet.X].IsUnit;
     if (U = nil) then //Unit has walked away
     begin
       fWaitingForPush := False;

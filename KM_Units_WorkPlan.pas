@@ -7,7 +7,6 @@ uses KM_Defaults, KM_CommonClasses, KM_Points, KM_Terrain;
 type
   TUnitWorkPlan = class
   private
-    fTerrain: TTerrain;
     fHome: THouseType;
     fIssued: Boolean;
     procedure FillDefaults;
@@ -36,7 +35,7 @@ type
     AfterWorkIdle:integer;
     ResourceDepleted:boolean;
   public
-    constructor Create(aTerrain: TTerrain);
+    constructor Create;
     procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint; aPlantAct: TPlantAct);
     function FindDifferentResource(aUnitType:TUnitType; aLoc, aAvoidLoc: TKMPoint):boolean;
     property IsIssued:boolean read fIssued;
@@ -49,10 +48,10 @@ implementation
 uses KM_Resource;
 
 
-constructor TUnitWorkPlan.Create(aTerrain: TTerrain);
+constructor TUnitWorkPlan.Create;
 begin
-  inherited Create;
-  fTerrain := aTerrain;
+  inherited;
+
 end;
 
 

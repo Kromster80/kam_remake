@@ -38,7 +38,7 @@ type
   public
   {MapEdProperties} //Don't need to be accessed nor saved during gameplay
     fMapEdMembersCount:integer;
-    constructor Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Create(aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure CloseUnit(aRemoveTileUsage:boolean=true); override;
@@ -105,7 +105,7 @@ const HUNGER_CHECK_FREQ = 10; //Check warrior hunger every 1 second
 
 
 { TKMUnitWarrior }
-constructor TKMUnitWarrior.Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnitWarrior.Create(aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   inherited;
   fCommander         := nil;
@@ -1149,7 +1149,7 @@ begin
   if (fOrder=wo_AttackHouse) and CanInterruptAction then
   begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-    SetUnitTask := TTaskAttackHouse.Create(Self, fTerrain, GetOrderHouseTarget);
+    SetUnitTask := TTaskAttackHouse.Create(Self, GetOrderHouseTarget);
     fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //Once the house is destroyed we will position where we are standing
     fOrder := wo_None;
   end;

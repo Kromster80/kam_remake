@@ -29,8 +29,7 @@ type //For now IDs must match with KaM
 
   TKMPlayerAI = class
   private
-    PlayerIndex:integer;
-    fTerrain: TTerrain;
+    PlayerIndex: TPlayerIndex;
     fTimeOfLastAttackMessage: cardinal;
     fLastEquippedTime: cardinal;
     fHasWonOrLost:boolean; //Has this player won/lost? If so, do not check goals
@@ -58,7 +57,7 @@ type //For now IDs must match with KaM
     DefencePositionsCount: integer;
     DefencePositions: array of TAIDefencePosition;
 
-    constructor Create(aPlayerIndex:integer; aTerrain: TTerrain);
+    constructor Create(aPlayerIndex: TPlayerIndex);
     destructor Destroy; override;
 
     property Autobuild:boolean read fAutobuild write fAutobuild;
@@ -163,12 +162,11 @@ end;
 
 
 { TKMPlayerAI }
-constructor TKMPlayerAI.Create(aPlayerIndex:integer; aTerrain: TTerrain);
+constructor TKMPlayerAI.Create(aPlayerIndex: TPlayerIndex);
 var i: TGroupType;
 begin
   Inherited Create;
 
-  fTerrain := aTerrain;
   PlayerIndex := aPlayerIndex;
   fHasWonOrLost := false;
   fTimeOfLastAttackMessage := 0;

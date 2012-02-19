@@ -42,7 +42,6 @@ type
   TRenderPool = class
   private
     fRender: TRender;
-    fTerrain: TTerrain;
     rPitch,rHeading,rBank:integer;
     fRenderList: TRenderList;
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
@@ -67,7 +66,7 @@ type
     procedure RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
 
   public
-    constructor Create(aRender: TRender; aTerrain: TTerrain);
+    constructor Create(aRender: TRender);
     destructor Destroy; override;
 
     property RenderList: TRenderList read fRenderList;
@@ -103,12 +102,11 @@ implementation
 uses KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_Units;
 
 
-constructor TRenderPool.Create(aRender: TRender; aTerrain: TTerrain);
+constructor TRenderPool.Create(aRender: TRender);
 begin
   Inherited Create;
 
   fRender := aRender;
-  fTerrain := aTerrain;
   fRenderList := TRenderList.Create;
 end;
 

@@ -14,7 +14,6 @@ const MAX_VISIBLE_MSGS = 32;
 type
   TKMGamePlayInterface = class (TKMUserInterface)
   private
-    fTerrain: TTerrain;
     fMapView: TKMMapView;
 
     //Not saved
@@ -313,7 +312,7 @@ type
       Button_Woodcutter:TKMButtonFlat;
 
   public
-    constructor Create(aScreenX, aScreenY: word; aTerrain: TTerrain); reintroduce;
+    constructor Create(aScreenX, aScreenY: word); reintroduce;
     destructor Destroy; override;
     procedure Resize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
@@ -667,12 +666,12 @@ begin
 end;
 
 
-constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: word; aTerrain: TTerrain);
+constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: word);
 var i:integer;
 begin
   inherited Create(aScreenX, aScreenY);
-  fTerrain := aTerrain;
 
+  //Instruct to use glogal Terrain
   fMapView := TKMMapView.Create(nil, fTerrain, False, False);
 
   fShownUnit:=nil;

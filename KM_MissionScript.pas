@@ -46,7 +46,7 @@ type
     Target: TKMPoint;
   end;
 
-  
+
   TMissionParserGeneric = class
   private
     fStrictParsing: boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
@@ -75,7 +75,6 @@ type
 
   TMissionParserStandard = class(TMissionParserGeneric)
   private
-    fTerrain: TTerrain;
     fParsingMode: TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
     fRemapCount: byte;
     fRemap: TPlayerArray;
@@ -92,7 +91,7 @@ type
   public
     constructor Create(aMode:TMissionParsingMode; aStrictParsing:boolean); overload;
     constructor Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean); overload;
-    function LoadMission(const aFileName: string; aTerrain: TTerrain):boolean; overload;
+    function LoadMission(const aFileName: string):boolean; overload;
 
     procedure SaveDATFile(const aFileName: String);
   end;
@@ -462,7 +461,7 @@ begin
 end;
 
 
-function TMissionParserStandard.LoadMission(const aFileName: string; aTerrain: TTerrain):boolean;
+function TMissionParserStandard.LoadMission(const aFileName: string): Boolean;
 var
   FileText, CommandText, Param, TextParam: AnsiString;
   ParamList: array[1..8] of integer;
@@ -471,8 +470,7 @@ var
 begin
   Inherited LoadMission(aFileName);
 
-  fTerrain := aTerrain;
-  Assert((aTerrain <> nil));
+  Assert(fTerrain <> nil);
 
   Result := false; //Set it right from the start
 
@@ -577,7 +575,7 @@ begin
                        end;
     ct_SetMaxPlayer:   begin
                          if fPlayers=nil then
-                           fPlayers := TKMPlayersCollection.Create(fTerrain);
+                           fPlayers := TKMPlayersCollection.Create;
                          if fParsingMode = mpm_Single then
                            fPlayers.AddPlayers(P[0])
                          else
@@ -585,7 +583,7 @@ begin
                        end;
     ct_SetTactic:       begin
                           if fPlayers = nil then
-                            fPlayers := TKMPlayersCollection.Create(fTerrain);
+                            fPlayers := TKMPlayersCollection.Create;
                           fMissionInfo.MissionMode := mm_Tactic;
                         end;
     ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_PLAYERS-1) then

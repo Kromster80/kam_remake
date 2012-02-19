@@ -11,7 +11,7 @@ uses Classes, KM_CommonClasses, KM_Defaults, KM_Utils, KM_Terrain, KM_Houses, KM
       fDestroyingHouse:boolean; //House destruction in progress
       LocID:byte; //Current attack location
     public
-      constructor Create(aWarrior: TKMUnitWarrior; aTerrain: TTerrain; aHouse:TKMHouse);
+      constructor Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
@@ -27,9 +27,9 @@ uses KM_Game, KM_PlayersCollection, KM_Sound, KM_Resource;
 
 
 { TTaskAttackHouse }
-constructor TTaskAttackHouse.Create(aWarrior: TKMUnitWarrior; aTerrain: TTerrain; aHouse:TKMHouse);
+constructor TTaskAttackHouse.Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
 begin
-  Inherited Create(aWarrior, aTerrain);
+  Inherited Create(aWarrior);
   fTaskName := utn_AttackHouse;
   fHouse := aHouse.GetHousePointer;
   fDestroyingHouse := false;

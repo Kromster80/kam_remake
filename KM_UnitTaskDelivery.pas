@@ -19,8 +19,8 @@ type
     fDeliverID:integer;
     fDeliverKind:TDeliverKind;
   public
-    constructor Create(aSerf:TKMUnitSerf; aTerrain: TTerrain; aFrom:TKMHouse; toHouse:TKMHouse; Res:TResourceType; aID:integer); overload;
-    constructor Create(aSerf:TKMUnitSerf; aTerrain: TTerrain; aFrom:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer); overload;
+    constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; Res:TResourceType; aID:integer); overload;
+    constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer); overload;
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
@@ -36,9 +36,9 @@ uses KM_PlayersCollection, KM_Units_Warrior, KM_Log;
 
 
 { TTaskDeliver }
-constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aTerrain: TTerrain; aFrom:TKMHouse; toHouse:TKMHouse; Res:TResourceType; aID:integer);
+constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; Res:TResourceType; aID:integer);
 begin
-  Inherited Create(aSerf, aTerrain);
+  Inherited Create(aSerf);
   fTaskName := utn_Deliver;
 
   Assert((aFrom<>nil) and (toHouse<>nil) and (Res <> rt_None), 'Serf '+inttostr(fUnit.ID)+': invalid delivery task');
@@ -57,9 +57,9 @@ begin
 end;
 
 
-constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aTerrain: TTerrain; aFrom:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
+constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
 begin
-  Inherited Create(aSerf, aTerrain);
+  Inherited Create(aSerf);
   fTaskName := utn_Deliver;
 
   Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> rt_None), 'Serf '+inttostr(fUnit.ID)+': invalid delivery task');

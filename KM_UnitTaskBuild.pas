@@ -14,7 +14,7 @@ type
       DemandSet: Boolean;
       MarkupSet: Boolean;
     public
-      constructor Create(aWorker: TKMUnitWorker; aTerrain: TTerrain; aLoc: TKMPoint; aID: Integer);
+      constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
       constructor Load(LoadStream: TKMemoryStream); override;
       destructor Destroy; override;
       function WalkShouldAbandon: Boolean; override;
@@ -29,7 +29,7 @@ type
       DemandSet: Boolean;
       MarkupSet, InitialFieldSet: Boolean;
     public
-      constructor Create(aWorker: TKMUnitWorker; aTerrain: TTerrain; aLoc: TKMPoint; aID: Integer);
+      constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
       constructor Load(LoadStream: TKMemoryStream); override;
       destructor Destroy; override;
       function WalkShouldAbandon: Boolean; override;
@@ -43,7 +43,7 @@ type
       BuildID: Integer;
       MarkupSet: Boolean;
     public
-      constructor Create(aWorker: TKMUnitWorker; aTerrain: TTerrain; aLoc: TKMPoint; aID: Integer);
+      constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
       constructor Load(LoadStream: TKMemoryStream); override;
       destructor Destroy; override;
       function WalkShouldAbandon: Boolean; override;
@@ -57,7 +57,7 @@ type
       BuildID:integer;
       //not abandoned properly yet due to global unfinished conception of wall-building
     public
-      constructor Create(aWorker:TKMUnitWorker; aTerrain: TTerrain; aLoc:TKMPoint; aID:integer);
+      constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
       //function WalkShouldAbandon: Boolean; override;
@@ -76,7 +76,7 @@ type
       Step: Byte;
       Cells: array[1..4*4]of TKMPoint;
     public
-      constructor Create(aWorker: TKMUnitWorker; aTerrain: TTerrain; aHouseType: THouseType; aLoc: TKMPoint; aID:integer);
+      constructor Create(aWorker: TKMUnitWorker; aHouseType: THouseType; aLoc: TKMPoint; aID:integer);
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
@@ -92,7 +92,7 @@ type
       BuildFrom: TKMPointDir; //Current WIP location
       Cells: TKMPointDirList; //List of surrounding cells and directions
     public
-      constructor Create(aWorker:TKMUnitWorker; aTerrain: TTerrain; aHouse:TKMHouse; aID:integer);
+      constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
@@ -108,7 +108,7 @@ type
       BuildFrom: TKMPointDir; //Current WIP location
       Cells: TKMPointDirList; //List of surrounding cells and directions
     public
-      constructor Create(aWorker: TKMUnitWorker; aTerrain: TTerrain; aHouse: TKMHouse; aRepairID: Integer);
+      constructor Create(aWorker: TKMUnitWorker; aHouse: TKMHouse; aRepairID: Integer);
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
@@ -123,9 +123,9 @@ uses KM_DeliverQueue, KM_PlayersCollection, KM_Resource, KM_ResourceHouse;
 
 
 { TTaskBuildRoad }
-constructor TTaskBuildRoad.Create(aWorker:TKMUnitWorker; aTerrain: TTerrain; aLoc:TKMPoint; aID:integer);
+constructor TTaskBuildRoad.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
-  inherited Create(aWorker, aTerrain);
+  inherited Create(aWorker);
   fTaskName := utn_BuildRoad;
   fLoc      := aLoc;
   BuildID   := aID;
@@ -250,9 +250,9 @@ end;
 
 
 { TTaskBuildWine }
-constructor TTaskBuildWine.Create(aWorker: TKMUnitWorker; aTerrain: TTerrain; aLoc: TKMPoint; aID: Integer);
+constructor TTaskBuildWine.Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
 begin
-  inherited Create(aWorker, aTerrain);
+  inherited Create(aWorker);
   fTaskName := utn_BuildWine;
   fLoc      := aLoc;
   BuildID   := aID;
@@ -374,9 +374,9 @@ end;
 
 
 { TTaskBuildField }
-constructor TTaskBuildField.Create(aWorker:TKMUnitWorker; aTerrain: TTerrain; aLoc:TKMPoint; aID:integer);
+constructor TTaskBuildField.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
-  inherited Create(aWorker, aTerrain);
+  inherited Create(aWorker);
   fTaskName := utn_BuildField;
   fLoc      := aLoc;
   BuildID   := aID;
@@ -470,9 +470,9 @@ end;
 
 
 { TTaskBuildWall }
-constructor TTaskBuildWall.Create(aWorker:TKMUnitWorker; aTerrain: TTerrain; aLoc:TKMPoint; aID:integer);
+constructor TTaskBuildWall.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
-  inherited Create(aWorker, aTerrain);
+  inherited Create(aWorker);
   fTaskName := utn_BuildWall;
   fLoc      := aLoc;
   BuildID   := aID;
@@ -568,12 +568,12 @@ end;
 
 
 { TTaskBuildHouseArea }
-constructor TTaskBuildHouseArea.Create(aWorker: TKMUnitWorker; aTerrain: TTerrain; aHouseType: THouseType; aLoc: TKMPoint; aID:integer);
+constructor TTaskBuildHouseArea.Create(aWorker: TKMUnitWorker; aHouseType: THouseType; aLoc: TKMPoint; aID:integer);
 var
   i,k:integer;
   HA: THouseArea;
 begin
-  inherited Create(aWorker, aTerrain);
+  inherited Create(aWorker);
   fTaskName  := utn_BuildHouseArea;
   fHouseType := aHouseType;
   fHouseLoc  := aLoc;
@@ -743,9 +743,9 @@ end;
 
 
 { TTaskBuildHouse }
-constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aTerrain: TTerrain; aHouse:TKMHouse; aID:integer);
+constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
 begin
-  inherited Create(aWorker, aTerrain);
+  inherited Create(aWorker);
   fTaskName := utn_BuildHouse;
   fHouse    := aHouse.GetHousePointer;
   BuildID   := aID;
@@ -863,9 +863,9 @@ end;
 
 
 { TTaskBuildHouseRepair }
-constructor TTaskBuildHouseRepair.Create(aWorker: TKMUnitWorker; aTerrain: TTerrain; aHouse: TKMHouse; aRepairID: Integer);
+constructor TTaskBuildHouseRepair.Create(aWorker: TKMUnitWorker; aHouse: TKMHouse; aRepairID: Integer);
 begin
-  inherited Create(aWorker, aTerrain);
+  inherited Create(aWorker);
   fTaskName := utn_BuildHouseRepair;
   fHouse    := aHouse.GetHousePointer;
   fRepairID := aRepairID;

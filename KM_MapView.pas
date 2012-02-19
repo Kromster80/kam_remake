@@ -23,7 +23,7 @@ type
     procedure UpdateMinimapFromParser(aRevealAll:Boolean);
     procedure SepiaFilter;
   public
-    constructor Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor:Boolean; aSepia:Boolean);
+    constructor Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
     procedure LoadTerrain(aMissionPath: string);
@@ -32,8 +32,8 @@ type
     property MapX: Word read fMapX;
     property MapY: Word read fMapY;
     property MapTex: TTexture read fMapTex;
-    function GetPlayerLoc(aIndex:byte):TKMPoint;
-    procedure Update(aRevealAll:Boolean);
+    function GetPlayerLoc(aIndex: Byte): TKMPoint;
+    procedure Update(aRevealAll: Boolean);
   end;
 
   //todo: Add Starting positions (Position, PlayerID, FlagColor, Alliances?)
@@ -45,7 +45,7 @@ uses KM_TGATexture, KM_Defaults, KM_Resource, KM_PlayersCollection, KM_Units, KM
 
 
 { TKMMinimap }
-constructor TKMMapView.Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor:Boolean; aSepia:Boolean);
+constructor TKMMapView.Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor: Boolean; aSepia: Boolean);
 begin
   inherited Create;
 

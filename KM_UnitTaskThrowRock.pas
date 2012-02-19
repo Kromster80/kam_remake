@@ -28,7 +28,7 @@ uses KM_PlayersCollection, KM_Game;
 { TTaskThrowRock }
 constructor TTaskThrowRock.Create(aUnit,aTarget:TKMUnit);
 begin
-  Inherited Create(aUnit, nil);
+  Inherited Create(aUnit);
   fTaskName := utn_ThrowRock;
   fTarget := aTarget.GetUnitPointer;
 end;

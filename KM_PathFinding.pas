@@ -17,7 +17,6 @@ type
   //I think we should refactor this unit and move some TTerrain methods here
   TPathFinding = class
   private
-    fTerrain: TTerrain;
     NewCost:integer;
     MinCost:record
       Cost:integer;
@@ -48,7 +47,7 @@ type
     procedure ReturnRoute(NodeList: TKMPointList);
     function GetRouteLength:integer;
   public
-    constructor Create(aTerrain: TTerrain);
+    constructor Create;
     function Route_Make(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList):boolean;
     function Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
     function Route_ReturnToWalkable(aLocA, aLocB:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; aPass:TPassability; NodeList:TKMPointList): Boolean;
@@ -59,11 +58,11 @@ implementation
 
 
 { TPathFinding }
-constructor TPathFinding.Create(aTerrain: TTerrain);
+constructor TPathFinding.Create;
 begin
   inherited Create;
-  fTerrain := aTerrain;
-  //Keep the ORef array the size of a map for more efficient cache usage
+
+  //todo: Keep the ORef array the size of a map for more efficient cache usage
 end;
 
 

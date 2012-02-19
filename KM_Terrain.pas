@@ -187,8 +187,10 @@ type
   end;
 
 
-//var
-  //fTerrain: TTerrain;
+var
+  //Terrain is a globally accessible resource by so many objects
+  //In rare cases local terrain is used (e.g. main menu minimap)
+  fTerrain: TTerrain;
 
 
 implementation

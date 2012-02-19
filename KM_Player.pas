@@ -15,10 +15,9 @@ type
   TKMPlayerCommon = class
   private
     fPlayerIndex: TPlayerIndex; //Which ID this player is
-    fTerrain: TTerrain;
     fUnits: TKMUnitsCollection;
   public
-    constructor Create(aPlayerIndex: TPlayerIndex; aTerrain: TTerrain);
+    constructor Create(aPlayerIndex: TPlayerIndex);
     destructor Destroy; override;
     property PlayerIndex: TPlayerIndex read fPlayerIndex;
     property Units: TKMUnitsCollection read fUnits;
@@ -62,7 +61,7 @@ type
     function  GetAlliances(aIndex: Integer): TAllianceType;
     procedure SetAlliances(aIndex: Integer; aValue: TAllianceType);
   public
-    constructor Create(aPlayerIndex: TPlayerIndex; aTerrain: TTerrain);
+    constructor Create(aPlayerIndex: TPlayerIndex);
     destructor Destroy; override;
 
     property AI: TKMPlayerAI read fAI;
@@ -141,12 +140,11 @@ uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound,
 
 
 { TKMPlayerCommon }
-constructor TKMPlayerCommon.Create(aPlayerIndex: TPlayerIndex; aTerrain: TTerrain);
+constructor TKMPlayerCommon.Create(aPlayerIndex: TPlayerIndex);
 begin
   inherited Create;
   fPlayerIndex  := aPlayerIndex;
-  fTerrain      := aTerrain;
-  fUnits        := TKMUnitsCollection.Create(fTerrain);
+  fUnits        := TKMUnitsCollection.Create;
 end;
 
 
@@ -211,16 +209,16 @@ end;
 
 
 { TKMPlayer }
-constructor TKMPlayer.Create(aPlayerIndex: TPlayerIndex; aTerrain: TTerrain);
+constructor TKMPlayer.Create(aPlayerIndex: TPlayerIndex);
 var I: Integer;
 begin
-  inherited Create(aPlayerIndex, aTerrain);
-  fAI           := TKMPlayerAI.Create(fPlayerIndex, fTerrain);
+  inherited Create(aPlayerIndex);
+  fAI           := TKMPlayerAI.Create(fPlayerIndex);
   fFogOfWar     := TKMFogOfWar.Create(fTerrain.MapX, fTerrain.MapY);
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
-  fHouses       := TKMHousesCollection.Create(fTerrain);
+  fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);

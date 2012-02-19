@@ -20,9 +20,9 @@ type
       LastTree:byte;
       LastHouse:THouseType;}
     end;
+    procedure SetMapSize(X,Y:integer);
   public
     constructor Create(X,Y:integer);
-    procedure SetMapSize(X,Y:integer);
     procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word);
     procedure RevealEverything;
     function CheckVerticeRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
@@ -41,7 +41,8 @@ uses KM_Defaults, KM_Game;
 
 
 { TKMFogOfWar }
-constructor TKMFogOfWar.Create(X,Y:integer);
+//Init with Terrain size only once on creation as terrain size never change during the game
+constructor TKMFogOfWar.Create(X,Y: Integer);
 begin
   Inherited Create;
   SetMapSize(X,Y);

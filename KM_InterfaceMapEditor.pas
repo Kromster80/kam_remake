@@ -11,7 +11,6 @@ uses
 type
   TKMapEdInterface = class (TKMUserInterface)
   private
-    fTerrain: TTerrain;
     fMapView: TKMMapView;
 
     fShownUnit:TKMUnit;

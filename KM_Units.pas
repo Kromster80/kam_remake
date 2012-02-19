@@ -43,9 +43,8 @@ type
     fUnit: TKMUnit; //Unit who's performing the Task
     fPhase: Byte;
     fPhase2: Byte;
-    fTerrain: TTerrain;
   public
-    constructor Create(aUnit: TKMUnit; aTerrain: TTerrain);
+    constructor Create(aUnit: TKMUnit);
     constructor Load(LoadStream: TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -61,7 +60,6 @@ type
 
   TKMUnit = class
   protected //Accessible for child classes
-    fTerrain: TTerrain;
     fID:integer; //unique unit ID, used for save/load to sync to
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
@@ -97,7 +95,7 @@ type
     AnimStep: integer;
     IsExchanging:boolean; //Current walk is an exchange, used for sliding
 
-    constructor Create(aTerrain: TTerrain; aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -209,7 +207,7 @@ type
   private
     fCarry: TResourceType;
   public
-    constructor Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Create(aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure Save(SaveStream:TKMemoryStream); override;
 
@@ -244,7 +242,7 @@ type
   private
     fFishCount:byte; //1-5
   public
-    constructor Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType); overload;
+    constructor Create(aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType); overload;
     constructor Load(LoadStream:TKMemoryStream); override;
     property FishCount: byte read fFishCount;
     function ReduceFish:boolean;
@@ -256,11 +254,10 @@ type
 
   TKMUnitsCollection = class(TKMList)
   private
-    fTerrain: TTerrain;
     function GetUnit(aIndex: Integer): TKMUnit;
     procedure SetUnit(aIndex: Integer; aItem: TKMUnit);
   public
-    constructor Create(aTerrain: TTerrain);
+    constructor Create;
     destructor Destroy; override;
     function Add(aOwner:TPlayerIndex; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0):TKMUnit;
     function AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
@@ -456,7 +453,7 @@ begin
     if Res = 0 then Exit;
   end;
 
-  TM := TTaskMining.Create(Self, fTerrain, fResource.HouseDat[fHome.HouseType].ResOutput[Res]);
+  TM := TTaskMining.Create(Self, fResource.HouseDat[fHome.HouseType].ResOutput[Res]);
 
   if TM.WorkPlan.ResourceDepleted and not fHome.ResourceDepletedMsgIssued then
     IssueResourceDepletedMessage;
@@ -614,7 +611,7 @@ end;
 
 
 { TKMSerf }
-constructor TKMUnitSerf.Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY: integer; aUnitType: TUnitType);
+constructor TKMUnitSerf.Create(aOwner: TPlayerIndex; PosX, PosY: integer; aUnitType: TUnitType);
 begin
   inherited;
   fCarry := rt_None;
@@ -623,13 +620,13 @@ end;
 
 procedure TKMUnitSerf.Deliver(aFrom, toHouse: TKMHouse; Res: TResourceType; aID: integer);
 begin
-  fUnitTask := TTaskDeliver.Create(Self, fTerrain, aFrom, toHouse, Res, aID);
+  fUnitTask := TTaskDeliver.Create(Self, aFrom, toHouse, Res, aID);
 end;
 
 
 procedure TKMUnitSerf.Deliver(aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: integer);
 begin
-  fUnitTask := TTaskDeliver.Create(Self, fTerrain, aFrom, toUnit, Res, aID);
+  fUnitTask := TTaskDeliver.Create(Self, aFrom, toUnit, Res, aID);
 end;
 
 
@@ -743,17 +740,17 @@ end;
 { TKMWorker }
 procedure TKMUnitWorker.BuildHouse(aHouse: TKMHouse; aIndex: Integer);
 begin
-  SetUnitTask := TTaskBuildHouse.Create(Self, fTerrain, aHouse, aIndex);
+  SetUnitTask := TTaskBuildHouse.Create(Self, aHouse, aIndex);
 end;
 
 
 procedure TKMUnitWorker.BuildField(aField: TFieldType; aLoc: TKMPoint; aIndex: Integer);
 begin
   case aField of
-    ft_Road: SetUnitTask := TTaskBuildRoad.Create(Self, fTerrain, aLoc, aIndex);
-    ft_Corn: SetUnitTask := TTaskBuildField.Create(Self, fTerrain, aLoc, aIndex);
-    ft_Wine: SetUnitTask := TTaskBuildWine.Create(Self, fTerrain, aLoc, aIndex);
-    ft_Wall: SetUnitTask := TTaskBuildWall.Create(Self, fTerrain, aLoc, aIndex);
+    ft_Road: SetUnitTask := TTaskBuildRoad.Create(Self, aLoc, aIndex);
+    ft_Corn: SetUnitTask := TTaskBuildField.Create(Self, aLoc, aIndex);
+    ft_Wine: SetUnitTask := TTaskBuildWine.Create(Self, aLoc, aIndex);
+    ft_Wall: SetUnitTask := TTaskBuildWall.Create(Self, aLoc, aIndex);
     else     begin
               Assert(false, 'Unexpected Field Type');
               SetUnitTask := nil;
@@ -765,13 +762,13 @@ end;
 
 procedure TKMUnitWorker.BuildHouseArea(aHouseType: THouseType; aLoc: TKMPoint; aIndex: Integer);
 begin
-  SetUnitTask := TTaskBuildHouseArea.Create(Self, fTerrain, aHouseType, aLoc, aIndex);
+  SetUnitTask := TTaskBuildHouseArea.Create(Self, aHouseType, aLoc, aIndex);
 end;
 
 
 procedure TKMUnitWorker.BuildHouseRepair(aHouse: TKMHouse; aIndex: Integer);
 begin
-  SetUnitTask := TTaskBuildHouseRepair.Create(Self, fTerrain, aHouse, aIndex);
+  SetUnitTask := TTaskBuildHouseRepair.Create(Self, aHouse, aIndex);
 end;
 
 
@@ -820,7 +817,7 @@ end;
 
 
 { TKMUnitAnimal }
-constructor TKMUnitAnimal.Create(aTerrain: TTerrain; aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnitAnimal.Create(aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   inherited;
   if aUnitType = ut_Fish then fFishCount := 5;  //Always start with 5 fish in the group
@@ -927,10 +924,9 @@ end;
 
 
 { TKMUnit }
-constructor TKMUnit.Create(aTerrain: TTerrain; aOwner:TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnit.Create(aOwner:TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
-  fTerrain      := aTerrain;
   fID           := fGame.GetNewID;
   fPointerCount := 0;
   fIsDead       := false;
@@ -1871,7 +1867,7 @@ end;
 
 
 { TUnitTask }
-constructor TUnitTask.Create(aUnit:TKMUnit; aTerrain: TTerrain);
+constructor TUnitTask.Create(aUnit: TKMUnit);
 begin
   Inherited Create;
   fTaskName := utn_Unknown;
@@ -1880,7 +1876,6 @@ begin
   fUnit.SetActionLockedStay(0,ua_Walk);
   fPhase    := 0;
   fPhase2   := 0;
-  fTerrain  := aTerrain;
 end;
 
 
@@ -1977,11 +1972,10 @@ end;
 
 
 { TKMUnitsCollection }
-constructor TKMUnitsCollection.Create(aTerrain: TTerrain);
+constructor TKMUnitsCollection.Create;
 begin
   inherited Create;
 
-  fTerrain := aTerrain;
 end;
 
 
@@ -2030,17 +2024,17 @@ begin
   end;
 
   case aUnitType of
-    ut_Serf:    U := Inherited Add(TKMUnitSerf.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
-    ut_Worker:  U := Inherited Add(TKMUnitWorker.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
+    ut_Serf:    U := Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Worker:  U := Inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
 
     ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                U := Inherited Add(TKMUnitCitizen.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
+                U := Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_Recruit: U := Inherited Add(TKMUnitRecruit.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
+    ut_Recruit: U := Inherited Add(TKMUnitRecruit.Create(aOwner,PosX,PosY,aUnitType));
 
-    WARRIOR_MIN..WARRIOR_MAX: U := Inherited Add(TKMUnitWarrior.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
+    WARRIOR_MIN..WARRIOR_MAX: U := Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
 
-    ANIMAL_MIN..ANIMAL_MAX:   U := Inherited Add(TKMUnitAnimal.Create(fTerrain,aOwner,PosX,PosY,aUnitType));
+    ANIMAL_MIN..ANIMAL_MAX:   U := Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
 
     else                      raise ELocError.Create('Add '+fResource.UnitDat[aUnitType].UnitName,KMPoint(PosX, PosY));
   end;

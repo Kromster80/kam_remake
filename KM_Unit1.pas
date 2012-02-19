@@ -130,6 +130,7 @@ type
     procedure WMSysCommand(var Msg : TWMSysCommand); message WM_SYSCOMMAND;
     {$ENDIF}
     procedure ReadAvailableResolutions;
+    procedure SortScreenResData;
     procedure StatusBarText(const aData: string);
     procedure CheckResolution(aGameSettings: TGlobalSettings);
   public
@@ -774,6 +775,8 @@ begin
     end;
   end;
   {$ENDIF}
+  //sorting retrieved data
+  SortScreenResData;
 end;
 
 
@@ -808,6 +811,47 @@ begin
     aGameSettings.SaveSettings(True);
   end;
   {$ENDIF}
+end;
+
+
+procedure TForm1.SortScreenResData;
+var I,J,K:integer;
+    TempScreenResData:TScreenResData;
+    TempRefRate:Word;
+begin
+  for I:=1 to RESOLUTION_COUNT do
+  begin
+    for J:=1 to REFRESH_RATE_COUNT do
+    begin
+      //firstly, refresh rates for each resolution are being sorted
+      K:=J;  //iterator will be modified, but we don't want to lose it
+      while ((K>1) and (ScreenRes[I].RefRate[K] < ScreenRes[I].RefRate[K-1]) and
+             //excluding zero values from sorting, so they are kept at the end of array
+             (ScreenRes[I].RefRate[K] > 0)) do
+      begin
+        //simple replacement of data
+        TempRefRate := ScreenRes[I].RefRate[K];
+        ScreenRes[I].RefRate[K] := ScreenRes[I].RefRate[K-1];
+        ScreenRes[I].RefRate[K-1] := TempRefRate;
+        dec(K);
+      end;
+    end;
+    if I=1 then continue;
+    J:=I;  //iterator will be modified, but we don't want to lose it
+    //moving resolution to its final position
+    while ((J>1) and (((ScreenRes[J].Width < ScreenRes[J-1].Width) and
+           //excluding zero values from sorting, so they are kept at the end of array
+           (ScreenRes[J].Width > 0) and (ScreenRes[J].Height > 0)) or
+           ((ScreenRes[J].Width = ScreenRes[J-1].Width) and
+           (ScreenRes[J].Height < ScreenRes[J-1].Height)))) do
+    begin
+      //simple replacement of data
+      TempScreenResData := ScreenRes[J];
+      ScreenRes[J] := ScreenRes[J-1];
+      ScreenRes[J-1] := TempScreenResData;
+      dec(J);
+    end;
+  end;
 end;
 
 

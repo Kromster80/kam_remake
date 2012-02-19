@@ -9,7 +9,6 @@ uses Classes, SysUtils, Math, KromUtils, KM_Utils, KM_Defaults, KM_CommonClasses
 type
   TKMProjectiles = class
   private
-    fTerrain: TTerrain;
     fItems: array of record //1..n
       fScreenStart:TKMPointF; //Screen-space trajectory start
       fScreenEnd:TKMPointF;   //Screen-space trajectory end
@@ -30,7 +29,7 @@ type
     procedure RemItem(aIndex: integer);
     function ProjectileVisible(aIndex:integer):boolean;
   public
-    constructor Create(aTerrain: TTerrain);
+    constructor Create;
     function AimTarget(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex; aMaxRange,aMinRange:single):word; overload;
     function AimTarget(aStart:TKMPointF; aTarget:TKMHouse; aProjType:TProjectileType; aOwner:TPlayerIndex; aMaxRange,aMinRange:single):word; overload;
 
@@ -47,11 +46,9 @@ uses KM_Sound, KM_RenderPool, KM_RenderAux, KM_PlayersCollection, KM_Resource;
 
 
 { TKMProjectiles }
-constructor TKMProjectiles.Create(aTerrain: TTerrain);
+constructor TKMProjectiles.Create;
 begin
   inherited Create;
-
-  fTerrain := aTerrain;
   //Nothing here yet
 end;
 

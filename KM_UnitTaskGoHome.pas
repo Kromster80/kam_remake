@@ -17,7 +17,7 @@ implementation
 { TTaskGoHome }
 constructor TTaskGoHome.Create(aUnit:TKMUnit);
 begin
-  Inherited Create(aUnit, nil);
+  Inherited Create(aUnit);
   fTaskName := utn_GoHome;
 end;
 

@@ -16,7 +16,7 @@ type
     function ChooseToCutOrPlant: TPlantAct;
     procedure FindAnotherWorkPlan;
   public
-    constructor Create(aUnit: TKMUnit; aTerrain: TTerrain; aRes: TResourceType);
+    constructor Create(aUnit: TKMUnit; aRes: TResourceType);
     destructor Destroy; override;
     function WalkShouldAbandon:boolean; override;
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -31,11 +31,11 @@ uses KM_Houses, KM_PlayersCollection, KM_Resource;
 
 
 { TTaskMining }
-constructor TTaskMining.Create(aUnit: TKMUnit; aTerrain: TTerrain; aRes: TResourceType);
+constructor TTaskMining.Create(aUnit: TKMUnit; aRes: TResourceType);
 begin
-  Inherited Create(aUnit, aTerrain);
+  Inherited Create(aUnit);
   fTaskName := utn_Mining;
-  fWorkPlan := TUnitWorkPlan.Create(fTerrain);
+  fWorkPlan := TUnitWorkPlan.Create;
   fBeastID  := 0;
 
   fWorkPlan.FindPlan( fUnit.UnitType,
@@ -92,7 +92,7 @@ end;
 constructor TTaskMining.Load(LoadStream: TKMemoryStream);
 begin
   Inherited;
-  fWorkPlan := TUnitWorkPlan.Create(nil);
+  fWorkPlan := TUnitWorkPlan.Create;
   fWorkPlan.Load(LoadStream);
   LoadStream.Read(fBeastID);
 end;

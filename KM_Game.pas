@@ -47,7 +47,6 @@ type
     fGameInputProcess:TGameInputProcess;
     fEventsManager: TKMEventsManager;
     fNetworking:TKMNetworking;
-    fTerrain: TTerrain;
     fPathfinding: TPathFinding;
 
     fViewport: TViewport;
@@ -151,7 +150,6 @@ type
     property EventsManager: TKMEventsManager read fEventsManager;
     property MapEditor: TKMMapEditor read fMapEditor;
     property MusicLib: TMusicLib read fMusicLib;
-    property Terrain: TTerrain read fTerrain;
     property Pathfinding: TPathFinding read fPathfinding;
     property Projectiles: TKMProjectiles read fProjectiles;
     property GameInputProcess: TGameInputProcess read fGameInputProcess;
@@ -439,10 +437,10 @@ begin
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
   fTerrain := TTerrain.Create;
-  fGamePlayInterface := TKMGamePlayInterface.Create(fScreenX, fScreenY, fTerrain);
-  fPathfinding := TPathfinding.Create(fTerrain);
-  fRenderPool := TRenderPool.Create(fRender, fTerrain);
-  fProjectiles := TKMProjectiles.Create(fTerrain);
+  fGamePlayInterface := TKMGamePlayInterface.Create(fScreenX, fScreenY);
+  fPathfinding := TPathfinding.Create;
+  fRenderPool := TRenderPool.Create(fRender);
+  fProjectiles := TKMProjectiles.Create;
   fEventsManager := TKMEventsManager.Create;
 
   fGameTickCount := 0; //Restart counter
@@ -509,7 +507,7 @@ begin
   try //Catch exceptions
     fLog.AppendLog('Loading DAT file for singleplayer: '+aMissionFile);
     fMissionParser := TMissionParserStandard.Create(mpm_Single, false);
-    if not fMissionParser.LoadMission(aMissionFile, fTerrain) then
+    if not fMissionParser.LoadMission(aMissionFile) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     MyPlayer := fPlayers.Player[fMissionParser.MissionInfo.HumanPlayerID];
     Assert(MyPlayer.PlayerType = pt_Human);
@@ -531,7 +529,7 @@ begin
   else
   begin
     fTerrain.MakeNewMap(64, 64, False); //For debug we use blank mission
-    fPlayers := TKMPlayersCollection.Create(fTerrain);
+    fPlayers := TKMPlayersCollection.Create;
     fPlayers.AddPlayers(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[0];
   end;
@@ -588,7 +586,7 @@ begin
   try //Catch exceptions
     fLog.AppendLog('Loading DAT file for multiplayer: '+MapNameToPath(aFilename, 'dat', true));
     fMissionParser := TMissionParserStandard.Create(mpm_Multi, PlayerRemap, false);
-    if not fMissionParser.LoadMission(MapNameToPath(aFilename, 'dat', true), fTerrain) then
+    if not fMissionParser.LoadMission(MapNameToPath(aFilename, 'dat', true)) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     fMissionMode := fMissionParser.MissionInfo.MissionMode;
     FreeAndNil(fMissionParser);
@@ -999,6 +997,7 @@ begin
 
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
+  fRenderPool := TRenderPool.Create(fRender);
 
   //Set the state to gsEditor early, so the MissionParser knows we must not flatten house areas, give units random condition, etc.
   fGameState := gsEditor;
@@ -1007,7 +1006,7 @@ begin
   try //Catch exceptions
     fLog.AppendLog('Loading DAT file for editor: '+aFilename);
     fMissionParser := TMissionParserStandard.Create(mpm_Editor, False);
-    if not fMissionParser.LoadMission(aFilename, fTerrain) then
+    if not fMissionParser.LoadMission(aFilename) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     MyPlayer := fPlayers.Player[0];
     fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
@@ -1029,7 +1028,7 @@ begin
   else
   begin
     fTerrain.MakeNewMap(aSizeX, aSizeY, True);
-    fPlayers := TKMPlayersCollection.Create(fTerrain);
+    fPlayers := TKMPlayersCollection.Create;
     fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
     MyPlayer := fPlayers.Player[0];
     MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
@@ -1409,7 +1408,7 @@ begin
     //Load the data into the game
     fTerrain.Load(LoadStream);
 
-    fPlayers := TKMPlayersCollection.Create(fTerrain);
+    fPlayers := TKMPlayersCollection.Create;
     fPlayers.Load(LoadStream);
     fProjectiles.Load(LoadStream);
 

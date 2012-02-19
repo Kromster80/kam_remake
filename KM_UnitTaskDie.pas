@@ -19,7 +19,7 @@ uses KM_Sound, KM_PlayersCollection, KM_Resource, KM_Units_Warrior;
 { TTaskDie }
 constructor TTaskDie.Create(aUnit: TKMUnit);
 begin
-  Inherited Create(aUnit, nil);
+  Inherited Create(aUnit);
   fTaskName := utn_Die;
   //Shortcut to remove the pause before the dying animation which makes fights look odd
   if aUnit.Visible then
