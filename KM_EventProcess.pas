@@ -7,42 +7,69 @@ uses
 
 
 const
-  MAX_EVENT_PARAMS = 2;
+  MAX_EVENT_PARAMS = 1;
+
+  //Events are straightforward: trigger -> event
+  //When event has occurred it is simply removed
+
+  //Win Defeat conditions are more complicated, they can not be represented as events that easily
+  //because they usually consist of several triggers happening in different times and are reversible
+  //E.g. for victory we need to: destroy Store, School, Barracks, Town Hall, troops, builders. While
+  //at it enemy can rebuild/train them and we would need to add semaphore events for that to work ..
 
 type
-  TEventTrigger = (etTime, etHouseBuilt);
+  //Triggers we handle
+  TEventTrigger = (
+    etDefeated,       //[] Certain player has been defeated, we rely on Conditions to generate that event
+    etTime,           //[Tick] Time has come
+    etHouseBuilt);    //[House] Certain house was built
 
-  TEventAction = (eaMessage);
+  //Actions we can do
+  TEventAction = (
+    eaDelayedMessage, //[Delay, Index] Adds new etTime/eaShowMessage event (usefull to display delayed messages)
+    eaShowMessage,    //[Index]
+    eaVictory);       //[]
 
-  TKMEvent = class
-  private
-    //What sets the event off (usually time, or house built in tutorial)
-    //could be AND-array later if we need (if Trigger[0] and Trigger[1] then)
-    fTrigger: TEventTrigger;
-    fTriggerParams: array [0..MAX_EVENT_PARAMS-1] of Integer;
+  //@Lewin: How is it made in Town Tutorial, do we need to defeat both enemies or just build a Tannery?
+  //if not - remove eaVictory, as explained above^
 
-    //What happens (player index is another param)
-    fAction: TEventAction;
-    fActionParams: array [0..MAX_EVENT_PARAMS-1] of Integer;
-
-    //When event has occurred it is simply removed
-  public
-    constructor Create(aTrigger: TEventTrigger; aTriggerParams: array of Integer; aAct: TEventAction; aActParams: array of Integer);
-    function Handle(aTrigger: TEventTrigger; aParams: array of Integer): Boolean;
+  TKMTrigger = record
+    Trigger: TEventTrigger;
+    Player: TPlayerIndex;
+    Params: array [0..MAX_EVENT_PARAMS-1] of Integer;
   end;
 
+  TKMAction = record
+    Action: TEventAction;
+    Player: TPlayerIndex;
+    Params: array [0..MAX_EVENT_PARAMS-1] of Integer;
+  end;
+
+  TKMEventsManager = class;
+
+  //simple Trigger causes an Action
+  TKMEvent = class
+  private
+    fOwner: TKMEventsManager;
+    fTrigger: TKMTrigger; //What sets the event off
+    fAction: TKMAction; //What happens
+  public
+    constructor Create(aOwner: TKMEventsManager; aTrigger: TKMTrigger; aAction: TKMAction);
+    function Handle(aTrigger: TKMTrigger): Boolean;
+  end;
+
+  //Collection of events
   TKMEventsManager = class
   private
     fEvents: TList;
-
     function GetEvent(aIndex: Integer): TKMEvent;
     property Events[aIndex: Integer]: TKMEvent read GetEvent;
-    procedure Proc(aTrigger: TEventTrigger; aParams: array of Integer);
+    procedure Proc(aTrigger: TEventTrigger; aTriggerPlayer: TPlayerIndex; aParams: array of Integer);
   public
     constructor Create;
     destructor Destroy; override;
 
-    procedure AddEvent(aTrigger: TEventTrigger; aTriggerParams: array of Integer; aAct: TEventAction; aActParams: array of Integer);
+    procedure AddEvent(aTrigger: TKMTrigger; aAction: TKMAction);
 
     //Process game events
     procedure ProcTime(aTick: Cardinal);
@@ -57,6 +84,28 @@ implementation
 uses KM_Game, KM_MessageStack, KM_PlayersCollection, KM_TextLibrary;
 
 
+function MakeAction(aAction: TEventAction; aActionPlayer: TPlayerIndex; aActionParams: array of Integer): TKMAction;
+var
+  I: Integer;
+begin
+  Result.Action := aAction;
+  Result.Player := aActionPlayer;
+  for I := Low(aActionParams) to High(aActionParams) do
+    Result.Params[I] := aActionParams[I];
+end;
+
+
+function MakeTrigger(aTrigger: TEventTrigger; aTriggerPlayer: TPlayerIndex; aTriggerParams: array of Integer): TKMTrigger;
+var
+  I: Integer;
+begin
+  Result.Trigger := aTrigger;
+  Result.Player := aTriggerPlayer;
+  for I := Low(aTriggerParams) to High(aTriggerParams) do
+    Result.Params[I] := aTriggerParams[I];
+end;
+
+
 { TKMEventsManager }
 constructor TKMEventsManager.Create;
 begin
@@ -64,10 +113,37 @@ begin
 
   fEvents := TList.Create;
 
-  AddEvent(etHouseBuilt, [Byte(ht_School), 0], eaMessage, [2, 0]);
-  AddEvent(etTime, [10, -1], eaMessage, [1, 0]);
-  AddEvent(etTime, [20, -1], eaMessage, [2, 0]);
-  AddEvent(etTime, [30, -1], eaMessage, [3, 0]);
+  AddEvent(MakeTrigger(etTime, -1, [30]), MakeAction(eaShowMessage, 0, [500]));
+  AddEvent(MakeTrigger(etTime, -1, [160]), MakeAction(eaShowMessage, 0, [501]));
+  AddEvent(MakeTrigger(etTime, -1, [340]), MakeAction(eaShowMessage, 0, [502]));
+
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_School)]), MakeAction(eaShowMessage, 0, [503]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_School)]), MakeAction(eaShowMessage, 0, [504]));
+
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Inn)]), MakeAction(eaShowMessage, 0, [505]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Quary)]), MakeAction(eaShowMessage, 0, [506]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Woodcutters)]), MakeAction(eaShowMessage, 0, [507]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Sawmill)]), MakeAction(eaShowMessage, 0, [508]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_FisherHut)]), MakeAction(eaShowMessage, 0, [509]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Farm)]), MakeAction(eaShowMessage, 0, [510]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Mill)]), MakeAction(eaShowMessage, 0, [511]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Bakery)]), MakeAction(eaShowMessage, 0, [512]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Wineyard)]), MakeAction(eaShowMessage, 0, [513]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Swine)]), MakeAction(eaShowMessage, 0, [514]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Butchers)]), MakeAction(eaShowMessage, 0, [515]));
+
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Barracks)]), MakeAction(eaShowMessage, 0, [516]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Barracks)]), MakeAction(eaShowMessage, 0, [517]));
+
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_WeaponWorkshop)]), MakeAction(eaShowMessage, 0, [518]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_WeaponWorkshop)]), MakeAction(eaShowMessage, 0, [519]));
+
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Tannery)]), MakeAction(eaShowMessage, 0, [520]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_ArmorWorkshop)]), MakeAction(eaShowMessage, 0, [521]));
+  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_ArmorWorkshop)]), MakeAction(eaShowMessage, 0, [522]));
+
+  AddEvent(MakeTrigger(etDefeated, 1, []), MakeAction(eaShowMessage, 0, [522]));
+  AddEvent(MakeTrigger(etDefeated, 2, []), MakeAction(eaShowMessage, 0, [523]));
 end;
 
 
@@ -82,33 +158,33 @@ begin
 end;
 
 
-procedure TKMEventsManager.AddEvent(aTrigger: TEventTrigger; aTriggerParams: array of Integer; aAct: TEventAction; aActParams: array of Integer);
+procedure TKMEventsManager.AddEvent(aTrigger: TKMTrigger; aAction: TKMAction);
 var E: TKMEvent;
 begin
-  E := TKMEvent.Create(aTrigger, aTriggerParams, aAct, aActParams);
+  E := TKMEvent.Create(Self, aTrigger, aAction);
   fEvents.Add(E);
 end;
 
 
-procedure TKMEventsManager.Proc(aTrigger: TEventTrigger; aParams: array of Integer);
+procedure TKMEventsManager.Proc(aTrigger: TEventTrigger; aTriggerPlayer: TPlayerIndex; aParams: array of Integer);
 var I: Integer;
 begin
   //Process in reverse as we delete handled events
   for I := fEvents.Count - 1 downto 0 do
-  if Events[I].Handle(aTrigger, aParams) then
+  if Events[I].Handle(MakeTrigger(aTrigger, aTriggerPlayer, aParams)) then
     fEvents.Delete(I);
 end;
 
 
 procedure TKMEventsManager.ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
 begin
-  Proc(etHouseBuilt, [Byte(aHouseType), aOwner]);
+  Proc(etHouseBuilt, aOwner, [Byte(aHouseType)]);
 end;
 
 
 procedure TKMEventsManager.ProcTime(aTick: Cardinal);
 begin
-  Proc(etTime, [aTick, -1]);
+  Proc(etTime, -1, [aTick]);
 end;
 
 
@@ -120,45 +196,46 @@ end;
 
 procedure TKMEventsManager.LoadFromFile(aFilename: string);
 begin
-
+  //
 end;
 
 
 procedure TKMEventsManager.SaveToFile(aFilename: string);
 begin
-
+  //
 end;
 
 
 { TKMEvent }
-constructor TKMEvent.Create(aTrigger: TEventTrigger; aTriggerParams: array of Integer; aAct: TEventAction; aActParams: array of Integer);
+constructor TKMEvent.Create(aOwner: TKMEventsManager; aTrigger: TKMTrigger; aAction: TKMAction);
 var I: Integer;
 begin
   inherited Create;
 
-  Assert(Length(aTriggerParams) = Length(fTriggerParams));
+  Assert(Length(aTrigger.Params) = Length(fTrigger.Params));
 
+  fOwner := aOwner;
   fTrigger := aTrigger;
-  for I := 0 to High(fTriggerParams) do
-    fTriggerParams[I] := aTriggerParams[I];
 
-  fAction := aAct;
-  for I := 0 to High(fActionParams) do
-    fActionParams[I] := aActParams[I];
+  fAction := aAction;
 end;
 
 
-function TKMEvent.Handle(aTrigger: TEventTrigger; aParams: array of Integer): Boolean;
+function TKMEvent.Handle(aTrigger: TKMTrigger): Boolean;
 var I: Integer;
 begin
-  Result := (fTrigger = aTrigger);
-  for I := Low(aParams) to High(aParams) do
-    Result := Result and (fTriggerParams[I] = aParams[I]);
+  Result := (aTrigger.Trigger = fTrigger.Trigger) and (aTrigger.Player = fTrigger.Player);
+  for I := Low(aTrigger.Params) to High(aTrigger.Params) do
+    Result := Result and (fTrigger.Params[I] = aTrigger.Params[I]);
 
   if Result then
-  case fAction of
-    eaMessage:  if MyPlayer.PlayerIndex = fActionParams[1] then
-                  fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary[fActionParams[0]], KMPoint(0,0));
+  case fAction.Action of
+    eaDelayedMessage: begin
+                        fOwner.AddEvent(MakeTrigger(etTime, -1, [fGame.GameTickCount + 50]), MakeAction(eaShowMessage, fAction.Player, []))
+                      end;
+    eaShowMessage:  if MyPlayer.PlayerIndex = fAction.Player then
+                      fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary[fAction.Params[0]], KMPoint(0,0));
+    eaVictory:      fGame.PlayerVictory(fAction.Player);
   end;
 end;
 

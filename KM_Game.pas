@@ -833,7 +833,9 @@ end;
 
 procedure TKMGame.PlayerVictory(aPlayerIndex:TPlayerIndex);
 begin
-  if aPlayerIndex = MyPlayer.PlayerIndex then fSoundLib.Play(sfxn_Victory, 1.0, true); //Fade music
+  if aPlayerIndex = MyPlayer.PlayerIndex then
+    fSoundLib.Play(sfxn_Victory, 1.0, true); //Fade music
+
   if MultiplayerMode then
   begin
     if aPlayerIndex = MyPlayer.PlayerIndex then
