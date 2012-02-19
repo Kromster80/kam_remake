@@ -75,12 +75,27 @@ type
       JobStatus: TJobStatus;
       Worker: TKMUnit;
     end;
+    //List of fields which are shown visually but not verified by the server
+    fFakeFields: array of record
+      Loc: TKMPoint;
+      FieldType: TFieldType;
+      Active: Boolean;
+    end;
+    //List of fields which are being deleted, so fields can disappear as soon as the player deleted them
+    fFakeDeletedFields: array of record
+      Loc: TKMPoint;
+      Active: Boolean;
+    end;
   public
     //Player orders
     procedure AddFakeField(aLoc: TKMPoint; aFieldType: TFieldType);
+    procedure AddFakeDeletedField(aLoc: TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
     function HasField(aLoc: TKMPoint): TFieldType;
+    function HasFakeField(aLoc: TKMPoint): TFieldType;
     procedure RemFieldPlan(aLoc: TKMPoint);
+    procedure RemFakeField(aLoc: TKMPoint);
+    procedure RemFakeDeletedField(aLoc: TKMPoint);
 
     //Game events
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
@@ -88,7 +103,7 @@ type
     procedure ReOpenField(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
     procedure CloseField(aIndex: Integer); //Worker has finished the task
 
-    procedure GetFields(aList: TKMPointTagList; aRect: TKMRect);
+    procedure GetFields(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -318,6 +333,10 @@ end;
 
 procedure TKMFieldworksList.CloseField(aIndex: Integer);
 begin
+  //Any fake fields should now be removed
+  RemFakeField(fFields[aIndex].Loc);
+  RemFakeDeletedField(fFields[aIndex].Loc);
+
   fFields[aIndex].Loc := KMPoint(0,0);
   fFields[aIndex].FieldType := ft_None;
   fFields[aIndex].JobStatus := js_Empty;
@@ -325,12 +344,23 @@ begin
 end;
 
 
-procedure TKMFieldworksList.GetFields(aList: TKMPointTagList; aRect: TKMRect);
+procedure TKMFieldworksList.GetFields(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean);
 var I: Integer;
 begin
   for I := 0 to fFieldsCount - 1 do
   if (fFields[I].FieldType <> ft_None) and KMInRect(fFields[I].Loc, aRect) then
     aList.AddEntry(fFields[I].Loc, Byte(fFields[I].FieldType), 0);
+
+  if aIncludeFake then
+  begin
+    for I := 0 to Length(fFakeFields) - 1 do
+      if fFakeFields[I].Active then
+        aList.AddEntry(fFakeFields[I].Loc, Byte(fFakeFields[I].FieldType), 0);
+    //Fields that have been deleted should not be painted
+    for I := 0 to Length(fFakeDeletedFields) - 1 do
+      if fFakeDeletedFields[I].Active then
+        aList.RemoveEntry(fFakeDeletedFields[I].Loc);
+  end;
 end;
 
 
@@ -344,10 +374,33 @@ end;
 
 //Fake plan that will be visible until real one is verified by Server
 procedure TKMFieldworksList.AddFakeField(aLoc: TKMPoint; aFieldType: TFieldType);
+var I: Integer;
 begin
-  //todo: AddFakeField
+  I := 0;
+  while (I < Length(fFakeFields)) and (fFakeFields[I].Active) do
+    Inc(I);
 
-  //
+  if I >= Length(fFakeFields) then
+    SetLength(fFakeFields, Length(fFakeFields) + LENGTH_INC);
+
+  fFakeFields[I].Loc := aLoc;
+  fFakeFields[I].FieldType := aFieldType;
+  fFakeFields[I].Active := True;
+end;
+
+
+procedure TKMFieldworksList.AddFakeDeletedField(aLoc: TKMPoint);
+var I: Integer;
+begin
+  I := 0;
+  while (I < Length(fFakeDeletedFields)) and (fFakeDeletedFields[I].Active) do
+    Inc(I);
+
+  if I >= Length(fFakeDeletedFields) then
+    SetLength(fFakeDeletedFields, Length(fFakeDeletedFields) + LENGTH_INC);
+
+  fFakeDeletedFields[I].Loc := aLoc;
+  fFakeDeletedFields[I].Active := True;
 end;
 
 
@@ -356,6 +409,8 @@ procedure TKMFieldworksList.AddField(aLoc: TKMPoint; aFieldType: TFieldType);
 var
   I: Integer;
 begin
+  RemFakeField(aLoc); //Remove any fake fields here
+
   I := 0;
   while (I < fFieldsCount) and (fFields[I].JobStatus <> js_Empty) do
     Inc(I);
@@ -373,9 +428,28 @@ begin
 end;
 
 
+procedure TKMFieldworksList.RemFakeField(aLoc: TKMPoint);
+var I: Integer;
+begin
+  for I := 0 to Length(fFakeFields) - 1 do
+    if fFakeFields[I].Active and KMSamePoint(fFakeFields[I].Loc, aLoc) then
+      fFakeFields[I].Active := False;
+end;
+
+
+procedure TKMFieldworksList.RemFakeDeletedField(aLoc: TKMPoint);
+var I: Integer;
+begin
+  for I := 0 to Length(fFakeDeletedFields) - 1 do
+    if fFakeDeletedFields[I].Active and KMSamePoint(fFakeDeletedFields[I].Loc, aLoc) then
+      fFakeDeletedFields[I].Active := False;
+end;
+
+
 procedure TKMFieldworksList.RemFieldPlan(aLoc: TKMPoint);
 var I: Integer;
 begin
+  RemFakeDeletedField(aLoc);
   for I := 0 to fFieldsCount - 1 do
   if KMSamePoint(fFields[I].Loc, aLoc) then
   begin
@@ -397,6 +471,39 @@ begin
   begin
     Result := fFields[I].FieldType;
     Exit;
+  end;
+end;
+
+
+function TKMFieldworksList.HasFakeField(aLoc: TKMPoint): TFieldType;
+var I,K: Integer; Found: Boolean;
+begin
+  Result := ft_None;
+
+  //First check fake fields
+  for I := 0 to Length(fFakeFields) - 1 do
+  if fFakeFields[I].Active and KMSamePoint(fFakeFields[I].Loc, aLoc) then
+  begin
+    Result := fFakeFields[I].FieldType;
+    Exit;
+  end;
+
+  //Now check for real fields that are not deleted
+  for I := 0 to fFieldsCount - 1 do
+  if KMSamePoint(fFields[I].Loc, aLoc) then
+  begin
+    Found := False;
+    for K := 0 to Length(fFakeDeletedFields) - 1 do
+      if fFakeDeletedFields[K].Active and KMSamePoint(fFakeDeletedFields[K].Loc, aLoc) then
+      begin
+        Found := True; //This field is being deleted, so don't count it
+        Break;
+      end;
+    if not Found then
+    begin
+      Result := fFields[I].FieldType;
+      Exit;
+    end;
   end;
 end;
 
@@ -955,7 +1062,7 @@ begin
   //For now, each worker will go for the house closest to him
   for I := 0 to fWorkersCount - 1 do
     //Maybe we can add reassignment code later on
-    if fWorkers[I].Worker.GetUnitTask = nil then
+    if fWorkers[I].Worker.IsIdle then
     begin
 
       Idx[0] := fFieldworksList.BestBid(fWorkers[I].Worker, Bid[0]);

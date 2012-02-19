@@ -3267,32 +3267,35 @@ begin
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
     case GameCursor.Mode of
-      cm_Road:  if MyPlayer.CanAddFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
+      cm_Road:  if MyPlayer.CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
                   LastDragPoint := GameCursor.Cell;
                 end;
-      cm_Field: if MyPlayer.CanAddFieldPlan(P, ft_Corn) and not KMSamePoint(LastDragPoint, P) then
+      cm_Field: if MyPlayer.CanAddFakeFieldPlan(P, ft_Corn) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
                   LastDragPoint := GameCursor.Cell;
                 end;
-      cm_Wine:  if MyPlayer.CanAddFieldPlan(P, ft_Wine) and not KMSamePoint(LastDragPoint, P) then
+      cm_Wine:  if MyPlayer.CanAddFakeFieldPlan(P, ft_Wine) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
                   LastDragPoint := GameCursor.Cell;
                 end;
-      cm_Erase: if MyPlayer.BuildList.HousePlanList.HasPlan(P) then
+      cm_Erase: if not KMSamePoint(LastDragPoint, P) then
                 begin
-                  fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
-                  LastDragPoint := GameCursor.Cell;
-                end
-                else
-                  if MyPlayer.BuildList.FieldworksList.HasField(P) <> ft_None then
+                  if MyPlayer.BuildList.HousePlanList.HasPlan(P) then
                   begin
-                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); //Remove any plans
+                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
                     LastDragPoint := GameCursor.Cell;
-                  end;
+                  end
+                  else
+                    if (MyPlayer.BuildList.FieldworksList.HasFakeField(P) <> ft_None) then
+                    begin
+                      fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); //Remove any plans
+                      LastDragPoint := GameCursor.Cell;
+                    end;
+                end;
     end;
   end;
 
@@ -3473,7 +3476,7 @@ begin
                   if MyPlayer.BuildList.HousePlanList.HasPlan(P) then
                     fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
                   else
-                    if MyPlayer.BuildList.FieldworksList.HasField(P) <> ft_None then
+                    if MyPlayer.BuildList.FieldworksList.HasFakeField(P) <> ft_None then
                       fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
                     else
                       fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase

@@ -160,6 +160,7 @@ type
     property PositionF:TKMPointF read fPosition write fPosition;
     property Thought:TUnitThought read fThought write fThought;
     function GetMovementVector: TKMPointF;
+    function IsIdle: Boolean;
 
     function PickRandomSpot(aList: TKMPointDirList; out Loc: TKMPointDir): Boolean;
 
@@ -1696,6 +1697,12 @@ begin
 
   Result.X := KMGetVertex(fDirection).X * MovementSpeed;
   Result.Y := KMGetVertex(fDirection).Y * MovementSpeed;
+end;
+
+
+function TKMUnit.IsIdle: Boolean;
+begin
+  Result := (fUnitTask = nil) and ((fCurrentAction is TUnitActionStay) and not TUnitActionStay(fCurrentAction).Locked);
 end;
 
 

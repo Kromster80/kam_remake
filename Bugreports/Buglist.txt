@@ -32,10 +32,11 @@
 Features:
  +	Switching to fullscreen causes banding if drivers report unsupported refresh rates (add manual refresh rate selector to options) [Jimmy]
  +	Maps scan should be done in separate thread to unlock GUI
- +	Markups should only be visible on you and your allies screen to prevent exploiting (move markups from terrain to player)
+ +	Roads/field plans should only be visible on you and your allies screen to prevent exploiting (move markups from terrain to player)
  +	Allow listboxes to handle up/down arrows
  +	Add sort indicators to listboxes
  +	Minimap preview in lobby, singleplayer and map editor menus
+ +	Placing road/field in MP should put a temp/fake visual markup until the real one can be added to make it less confusing
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
@@ -62,7 +63,6 @@ Features:
 	Wares need to be taken out of the barracks for trading at the market
 	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
 	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
-	Placing road in MP should put a temp/fake visual markup until the real one can be added to make it less confusing
 	Some way to delete multiplayer saves from within the KaM Remake
 	Gameplay modes in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple modes.
 	Saves scan should be done in separate thread to unlock GUI

@@ -1208,7 +1208,6 @@ var
   i:integer;
   S:TKMemoryStream;
   NewX,NewY:integer;
-  ID:byte;
 begin
   S := TKMemoryStream.Create;
   try

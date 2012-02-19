@@ -371,6 +371,9 @@ procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TK
 begin
   Assert(aCommandType in [gic_BuildRemoveFieldPlan, gic_BuildRemoveHouse, gic_BuildRemoveHousePlan]);
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
+
+  //Remove fake markup that will be visible only to MyPlayer until Server verifies it
+  if aCommandType = gic_BuildRemoveFieldPlan then MyPlayer.RemFakeFieldPlan(aLoc);
 end;
 
 
@@ -380,8 +383,7 @@ begin
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
 
   //Add fake markup that will be visible only to MyPlayer until Server verifies it
-//todo: Keep in sync with multi-add/remove due to lags
-  MyPlayer.BuildList.FieldworksList.AddFakeField(aLoc, aFieldType);
+  MyPlayer.ToggleFakeFieldPlan(aLoc, aFieldType);
 end;
 
 

@@ -94,6 +94,7 @@ type
     procedure TrainingDone(aUnit: TKMUnit);
 
     function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
+    function CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
 
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
@@ -101,11 +102,13 @@ type
     //procedure AddRoadConnect(LocA,LocB: TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
+    procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
     procedure AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint; out House: TKMHouse);
     procedure RemHouse(Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean = False);
     procedure RemHousePlan(Position: TKMPoint);
     procedure RemFieldPlan(Position: TKMPoint);
+    procedure RemFakeFieldPlan(Position: TKMPoint);
     function FindInn(Loc: TKMPoint; aUnit: TKMUnit; UnitIsAtHome: Boolean = False): TKMHouseInn;
     function FindHouse(aType: THouseType; aPosition: TKMPoint; Index: Byte=1): TKMHouse; overload;
     function FindHouse(aType: THouseType; Index: Byte=1): TKMHouse; overload;
@@ -113,7 +116,7 @@ type
     procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
 
     function GetFieldsCount: Integer;
-    procedure GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect);
+    procedure GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean);
     procedure GetPlansBorders(aList: TKMPointDirList; aRect: TKMRect);
     procedure GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect);
 
@@ -360,11 +363,34 @@ end;
 
 
 function TKMPlayer.CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
+var I: Integer;
 begin
   Result := fTerrain.CanAddField(aLoc, aFieldType)
             and (fFogOfWar.CheckTileRevelation(aLoc.X, aLoc.Y, False) > 0)
             and (fBuildList.FieldworksList.HasField(aLoc) = ft_None)
             and not fBuildList.HousePlanList.HasPlan(aLoc);
+  //Don't allow placing on allies plans either
+  if Result then
+    for I := 0 to fPlayers.Count - 1 do
+      if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+        Result := (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
+                   and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
+end;
+
+
+function TKMPlayer.CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
+var I: Integer;
+begin
+  Result := fTerrain.CanAddField(aLoc, aFieldType)
+            and (fFogOfWar.CheckTileRevelation(aLoc.X, aLoc.Y, False) > 0)
+            and (fBuildList.FieldworksList.HasFakeField(aLoc) = ft_None)
+            and not fBuildList.HousePlanList.HasPlan(aLoc);
+  //Don't allow placing on allies plans either
+  if Result then
+    for I := 0 to fPlayers.Count - 1 do
+      if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+        Result := (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
+                   and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
 end;
 
 
@@ -401,14 +427,39 @@ begin
     RemFieldPlan(aLoc)
   else
     if CanAddFieldPlan(aLoc, aFieldType) then
+      fBuildList.FieldworksList.AddField(aLoc, aFieldType)
+    else
+      if Plan = ft_None then //If we can't build because there's some other plan, that's ok
+      begin
+        //Can't build here anymore because something else changed, so remove any fake plans
+        fBuildList.FieldworksList.RemFakeField(aLoc);
+        fBuildList.FieldworksList.RemFakeDeletedField(aLoc);
+      end;
+end;
+
+
+procedure TKMPlayer.ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
+var Plan: TFieldType;
+begin
+  Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine, ft_Wall], 'Placing wrong FieldType');
+
+  Plan := fBuildList.FieldworksList.HasFakeField(aLoc);
+  if aFieldType = Plan then //Same plan - remove it
+  begin
+    fBuildList.FieldworksList.RemFakeField(aLoc);
+    fBuildList.FieldworksList.AddFakeDeletedField(aLoc);
+    if Self = MyPlayer then fSoundLib.Play(sfx_Click);
+  end
+  else
+    if CanAddFakeFieldPlan(aLoc, aFieldType) then
     begin
-      fBuildList.FieldworksList.AddField(aLoc, aFieldType);
+      fBuildList.FieldworksList.AddFakeField(aLoc, aFieldType);
       if Self = MyPlayer then
         fSoundLib.Play(sfx_placemarker);
     end
     else
       if Self = MyPlayer then
-        fSoundLib.Play(sfx_CantPlace, aLoc, False, 4.0);
+        fSoundLib.Play(sfx_CantPlace, 4.0);
 end;
 
 
@@ -484,6 +535,13 @@ end;
 procedure TKMPlayer.RemFieldPlan(Position: TKMPoint);
 begin
   fBuildList.FieldworksList.RemFieldPlan(Position);
+end;
+
+
+procedure TKMPlayer.RemFakeFieldPlan(Position: TKMPoint);
+begin
+  fBuildList.FieldworksList.RemFakeField(Position);
+  fBuildList.FieldworksList.AddFakeDeletedField(Position);
   if Self = MyPlayer then fSoundLib.Play(sfx_Click);
 end;
 
@@ -577,15 +635,15 @@ begin
 end;
 
 
-procedure TKMPlayer.GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect);
+procedure TKMPlayer.GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean);
 var
   I: TPlayerIndex;
 begin
-  fBuildList.FieldworksList.GetFields(aList, aRect);
+  fBuildList.FieldworksList.GetFields(aList, aRect, aIncludeFake);
 
   for I := 0 to fPlayers.Count - 1 do
     if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
-      fPlayers[I].BuildList.FieldworksList.GetFields(aList, aRect);
+      fPlayers[I].BuildList.FieldworksList.GetFields(aList, aRect, aIncludeFake);
 end;
 
 

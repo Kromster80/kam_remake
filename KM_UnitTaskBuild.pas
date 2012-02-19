@@ -147,7 +147,7 @@ end;
 destructor TTaskBuildRoad.Destroy;
 begin
   //Yet unstarted
-  if BuildID <> 0 then
+  if BuildID <> -1 then
     if fTerrain.CanAddField(fLoc, ft_Road) then
       //Allow other workers to take this task
       fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID)
@@ -164,7 +164,7 @@ end;
 function TTaskBuildRoad.WalkShouldAbandon: Boolean;
 begin
   //Walk should abandon if other player has built something there before we arrived
-  Result := (BuildID <> 0) and not fTerrain.CanAddField(fLoc, ft_Road);
+  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc, ft_Road);
 end;
 
 
@@ -189,7 +189,7 @@ begin
          fTerrain.SetMarkup(fLoc, tlLocked);
          MarkupSet := true;
          fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
-         BuildID := 0;
+         BuildID := -1;
          SetActionLockedStay(11,ua_Work1,false);
        end;
     2: begin
@@ -276,7 +276,7 @@ end;
 destructor TTaskBuildWine.Destroy;
 begin
   //Yet unstarted
-  if BuildID <> 0 then
+  if BuildID <> -1 then
     if fTerrain.CanAddField(fLoc, ft_Wine) then
       //Allow other workers to take this task
       fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID)
@@ -294,7 +294,7 @@ end;
 function TTaskBuildWine.WalkShouldAbandon: Boolean;
 begin
   //Walk should abandon if other player has built something there before we arrived
-  Result := (BuildID <> 0) and not fTerrain.CanAddField(fLoc, ft_Wine);
+  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc, ft_Wine);
 end;
 
 
@@ -319,7 +319,7 @@ begin
         fTerrain.SetMarkup(fLoc, tlLocked);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
-        BuildID := 0; //it can't be cancelled now
+        BuildID := -1; //it can't be cancelled now
         MarkupSet := True;
         SetActionLockedStay(12*4,ua_Work1,false);
       end;
@@ -396,7 +396,7 @@ end;
 destructor TTaskBuildField.Destroy;
 begin
   //Yet unstarted
-  if BuildID <> 0 then
+  if BuildID <> -1 then
     if fTerrain.CanAddField(fLoc, ft_Corn) then
       //Allow other workers to take this task
       fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID)
@@ -412,7 +412,7 @@ end;
 function TTaskBuildField.WalkShouldAbandon: Boolean;
 begin
   //Walk should abandon if other player has built something there before we arrived
-  Result := (BuildID <> 0) and not fTerrain.CanAddField(fLoc, ft_Corn);
+  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc, ft_Corn);
 end;
 
 
@@ -436,7 +436,7 @@ begin
         fTerrain.SetMarkup(fLoc, tlLocked);
         MarkupSet := true;
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
-        BuildID := 0;
+        BuildID := -1;
         SetActionLockedStay(0,ua_Walk);
        end;
     2: begin
@@ -512,7 +512,7 @@ begin
         fTerrain.SetMarkup(fLoc, tlLocked);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
-        BuildID := 0;
+        BuildID := -1;
         SetActionLockedStay(0,ua_Walk);
        end;
     2: begin
@@ -620,7 +620,7 @@ end;
 destructor TTaskBuildHouseArea.Destroy;
 begin
   //Allow other workers to take this task
-  if (BuildID <> 0) then
+  if (BuildID <> -1) then
     fPlayers.Player[fUnit.GetOwner].BuildList.HousePlanList.ReOpenPlan(BuildID);
 
   //Destroy the house if worker was killed (e.g. by archer or hunger)
@@ -672,7 +672,7 @@ begin
     1:  begin
           fPlayers.Player[GetOwner].BuildList.HousePlanList.ClosePlan(BuildID);
           fPlayers.Player[GetOwner].Stats.HousePlanRemoved(fHouseType);
-          BuildID := 0; //Other workers can't take this task from now on
+          BuildID := -1; //Other workers can't take this task from now on
           Assert(fHouse = nil);
           fPlayers.Player[GetOwner].AddHouseWIP(fHouseType, fHouseLoc, fHouse);
           fHouse := fHouse.GetHousePointer; //We need to register a pointer to the house

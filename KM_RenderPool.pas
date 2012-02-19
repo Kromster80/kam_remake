@@ -392,7 +392,7 @@ begin
 
   //Fieldplans
   FieldsList := TKMPointTagList.Create;
-  MyPlayer.GetFieldPlans(FieldsList, aRect);
+  MyPlayer.GetFieldPlans(FieldsList, aRect, True); //Include fake field plans for painting
   for i := 1 to FieldsList.Count do
     RenderTerrainMarkup(FieldsList.List[i].X, FieldsList.List[i].Y, TFieldType(FieldsList.Tag[i]));
   FreeAndNil(FieldsList);
@@ -1117,7 +1117,7 @@ begin
 
                   gsPaused, gsOnHold, gsRunning:
                     begin
-                      if ((MyPlayer.BuildList.FieldworksList.HasField(GameCursor.Cell) <> ft_None)
+                      if ((MyPlayer.BuildList.FieldworksList.HasFakeField(GameCursor.Cell) <> ft_None)
                           or MyPlayer.BuildList.HousePlanList.HasPlan(GameCursor.Cell)
                           or (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
                       and TileVisible then
@@ -1126,19 +1126,19 @@ begin
                         RenderCursorBuildIcon(GameCursor.Cell);       //Red X
                     end;
                 end;
-    cm_Road:    if MyPlayer.CanAddFieldPlan(GameCursor.Cell, ft_Road) then
+    cm_Road:    if MyPlayer.CanAddFakeFieldPlan(GameCursor.Cell, ft_Road) then
                   RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Field:   if MyPlayer.CanAddFieldPlan(GameCursor.Cell, ft_Corn) then
+    cm_Field:   if MyPlayer.CanAddFakeFieldPlan(GameCursor.Cell, ft_Corn) then
                   RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Wine:    if MyPlayer.CanAddFieldPlan(GameCursor.Cell, ft_Wine) then
+    cm_Wine:    if MyPlayer.CanAddFakeFieldPlan(GameCursor.Cell, ft_Wine) then
                   RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Wall:    if MyPlayer.CanAddFieldPlan(GameCursor.Cell, ft_Wall) then
+    cm_Wall:    if MyPlayer.CanAddFakeFieldPlan(GameCursor.Cell, ft_Wall) then
                   RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(GameCursor.Cell);       //Red X
