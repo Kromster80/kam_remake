@@ -2,7 +2,7 @@ unit KM_EventProcess;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, StrUtils,
   KM_Defaults, KM_Points;
 
 
@@ -54,8 +54,11 @@ type
     fTrigger: TKMTrigger; //What sets the event off
     fAction: TKMAction; //What happens
   public
-    constructor Create(aOwner: TKMEventsManager; aTrigger: TKMTrigger; aAction: TKMAction);
+    constructor Create(aOwner: TKMEventsManager);
+    procedure Load(aTrigger: TKMTrigger; aAction: TKMAction);
     function Handle(aTrigger: TKMTrigger): Boolean;
+    procedure SaveToList(aList: TStringList);
+    function TryLoadFromLine(aLine: AnsiString): Boolean;
   end;
 
   //Collection of events
@@ -83,6 +86,10 @@ type
 implementation
 uses KM_Game, KM_MessageStack, KM_PlayersCollection, KM_TextLibrary;
 
+
+const
+  StrTriggers: array [TEventTrigger] of string = ('DEFEATED', 'TIME', 'HOUSE_BUILT');
+  StrActions: array [TEventAction] of string = ('DELAYED_MESSAGE', 'SHOW_MESSAGE', 'VICTORY');
 
 function MakeAction(aAct: TEventAction; aPlayer: TPlayerIndex; aParams: array of Integer): TKMAction;
 var
@@ -169,7 +176,8 @@ end;
 procedure TKMEventsManager.AddEvent(aTrigger: TKMTrigger; aAction: TKMAction);
 var E: TKMEvent;
 begin
-  E := TKMEvent.Create(Self, aTrigger, aAction);
+  E := TKMEvent.Create(Self);
+  E.Load(aTrigger, aAction);
   fEvents.Add(E);
 end;
 
@@ -202,26 +210,107 @@ begin
 end;
 
 
+//Try to load events from text file
 procedure TKMEventsManager.LoadFromFile(aFilename: string);
+var
+  I: Integer;
+  E: TKMEvent;
+  SL: TStringList;
 begin
-  //
+  fEvents.Clear;
+
+  //Read the file line by line and try to add valid events
+  SL := TStringList.Create;
+  SL.LoadFromFile(aFilename);
+  for I := 0 to SL.Count - 1 do
+  begin
+    E := TKMEvent.Create(Self);
+    //Invalid events get discarded to avoid memory leaks
+    if E.TryLoadFromLine(AnsiString(SL[I])) then
+      fEvents.Add(E)
+    else
+      E.Free;
+  end;
 end;
 
 
+//Save existing events into text file
 procedure TKMEventsManager.SaveToFile(aFilename: string);
+var
+  I: Integer;
+  T: TEventTrigger;
+  A: TEventAction;
+  SL: TStringList;
 begin
-  //
+  SL := TStringList.Create;
+
+  SL.Add('//Events file');
+  SL.Add('');
+  SL.Add('//Supported triggers:');
+  for T := Low(TEventTrigger) to High(TEventTrigger) do
+    SL.Add('//' + StrTriggers[T]);
+  SL.Add('');
+  SL.Add('//Supported actions:');
+  for A := Low(TEventAction) to High(TEventAction) do
+    SL.Add('//' + StrActions[A]);
+  SL.Add('');
+  SL.Add('//Syntax:');
+  SL.Add('//TRIGGER PLAYER PARAMETER1..N ACTION PLAYER PARAMETER1..N');
+  SL.Add('');
+  SL.Add('//--------------------------------------------------------');
+  SL.Add('');
+
+  for I := 0 to fEvents.Count - 1 do
+    Events[I].SaveToList(SL);
+
+  SL.SaveToFile(aFilename);
+  SL.Free;
 end;
 
 
 { TKMEvent }
-constructor TKMEvent.Create(aOwner: TKMEventsManager; aTrigger: TKMTrigger; aAction: TKMAction);
+constructor TKMEvent.Create(aOwner: TKMEventsManager);
 begin
   inherited Create;
 
   fOwner := aOwner;
+end;
+
+procedure TKMEvent.Load(aTrigger: TKMTrigger; aAction: TKMAction);
+begin
   fTrigger := aTrigger;
   fAction := aAction;
+end;
+
+
+//Try to load event from textline, if the line is invalid we return False
+function TKMEvent.TryLoadFromLine(aLine: AnsiString): Boolean;
+var
+  s: array [0 .. (2 + MAX_EVENT_PARAMS) * 2 - 1] of string;
+  I, L, R: Integer;
+begin
+  Result := False;
+
+  //Skip short lines and comments
+  if (Length(aLine) <= 2) or (aLine[1] + aLine[2] = '//') then Exit;
+
+  //Firstly - split line into words
+  L := 1;
+  for I := 0 to High(s) do
+  begin
+    R := PosEx(' ', aLine, L);
+    if R <> 0 then
+      s[I] := Copy(aLine, L, R - L)
+    else
+    begin
+      s[I] := Copy(aLine, L, Length(aLine) - L);
+      Break;
+    end;
+    L := R + 1;
+  end;
+
+  //Parse words
+  //GetTrigger[]
 end;
 
 
@@ -241,6 +330,28 @@ begin
                       fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary[fAction.Params[0]], KMPoint(0,0));
     eaVictory:      fGame.PlayerVictory(fAction.Player);
   end;
+end;
+
+
+//Assemble the Event line and append it to StringList
+procedure TKMEvent.SaveToList(aList: TStringList);
+var
+  S: string;
+  I: Integer;
+begin
+  S := StrTriggers[fTrigger.Trigger] + ' ' + IntToStr(fTrigger.Player);
+
+  for I := 0 to MAX_EVENT_PARAMS - 1 do
+  if fTrigger.Params[I] <> -1 then
+    S := S + ' ' + IntToStr(fTrigger.Params[I]);
+
+  S := S + ' ' + StrActions[fAction.Action] + ' ' + IntToStr(fAction.Player);
+
+  for I := 0 to MAX_EVENT_PARAMS - 1 do
+  if fAction.Params[I] <> -1 then
+    S := S + ' ' + IntToStr(fAction.Params[I]);
+
+  aList.Add(S);
 end;
 
 

@@ -442,6 +442,8 @@ begin
   fRenderPool := TRenderPool.Create(fRender);
   fProjectiles := TKMProjectiles.Create;
   fEventsManager := TKMEventsManager.Create;
+  fEventsManager.SaveToFile(ExeDir+'events.txt');
+  //todo: fEventsManager.LoadFromFile(ExeDir+'events.txt');
 
   fGameTickCount := 0; //Restart counter
 end;
