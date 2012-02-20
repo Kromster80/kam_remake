@@ -92,30 +92,34 @@ end;
 
 
 procedure TKMMapView.UpdateMinimapFromParser(aRevealAll:Boolean);
-var i,k:Integer; Light:SmallInt; x0,y2:Word;
+var
+  I, K, N: Integer;
+  Light: SmallInt;
+  x0,y2: Word;
 begin
   fMapX := fParser.MapX-1;
   fMapY := fParser.MapY-1;
   SetLength(fBase, fMapX * fMapY);
 
-  for i:=1 to fMapY do
-  for k:=1 to fMapX do
-    with fParser.MapPreview[k,i] do
+  for I := 1 to fMapY do
+  for K := 1 to fMapX do
+    with fParser.MapPreview[K,I] do
     begin
+      N := (I-1)*fMapX + (K-1);
       if not aRevealAll and not Revealed then
-        fBase[(i-1)*fMapX + (k-1)] := $FF000000
+        fBase[N] := $FF000000
       else
         if TileOwner <> 0 then
-          fBase[(i-1)*fMapX + (k-1)] := fParser.PlayerPreview[TileOwner].Color
+          fBase[N] := fParser.PlayerPreview[TileOwner].Color
         else
         begin
-          //Forumlua for lighting same as in TTerrain.RebuildLighting
-          x0:=EnsureRange(k-1,1,fMapX);
-          y2:=EnsureRange(i+1,1,fMapY);
-          Light := Round(EnsureRange((TileHeight - (fParser.MapPreview[k,y2].TileHeight + fParser.MapPreview[x0,i].TileHeight)/2)/22, -1, 1)*64);
-          fBase[(i-1)*fMapX + (k-1)] := EnsureRange(fResource.Tileset.TileColor[TileID].R+Light,0,255) +
-                                        EnsureRange(fResource.Tileset.TileColor[TileID].G+Light,0,255) shl 8 +
-                                        EnsureRange(fResource.Tileset.TileColor[TileID].B+Light,0,255) shl 16;
+          //Formulua for lighting same as in TTerrain.RebuildLighting
+          x0 := Max(K-1, 1);
+          y2 := Min(I+1, fMapY);
+          Light := Round(EnsureRange((TileHeight - (fParser.MapPreview[K,y2].TileHeight + fParser.MapPreview[x0,I].TileHeight)/2)/22, -1, 1)*64);
+          fBase[N] := EnsureRange(fResource.Tileset.TileColor[TileID].R+Light, 0, 255) +
+                      EnsureRange(fResource.Tileset.TileColor[TileID].G+Light, 0, 255) shl 8 +
+                      EnsureRange(fResource.Tileset.TileColor[TileID].B+Light, 0, 255) shl 16;
         end;
     end;
 end;
@@ -156,43 +160,43 @@ end;
 //MapEditor stores only commanders instead of all groups members
 procedure TKMMapView.UpdateMinimapFromGame;
 var
-  FOW,ID:byte;
-  i,j,k:integer;
+  FOW,ID: Byte;
+  I,J,K: Integer;
   U: TKMUnit;
   W: TKMUnitWarrior;
   P: TKMPoint;
   DoesFit: Boolean;
-  Light:smallint;
+  Light: Smallint;
 begin
   fMapX := fMyTerrain.MapX-1;
   fMapY := fMyTerrain.MapY-1;
   SetLength(fBase, fMapX * fMapY);
 
-  for i:=0 to fMapY-1 do
-  for k:=0 to fMapX-1 do
+  for I:=0 to fMapY-1 do
+  for K:=0 to fMapX-1 do
   begin
     if MyPlayer <> nil then
-      FOW := MyPlayer.FogOfWar.CheckTileRevelation(k+1,i+1,true)
+      FOW := MyPlayer.FogOfWar.CheckTileRevelation(K+1,I+1,true)
     else
       FOW := 255;
     if FOW = 0 then
-      fBase[i*fMapX + k] := 0
+      fBase[I*fMapX + K] := 0
     else
-      if fMyTerrain.Land[i+1,k+1].TileOwner <> -1 then
-        fBase[i*fMapX + k] := fPlayers.Player[fMyTerrain.Land[i+1,k+1].TileOwner].FlagColor
+      if fMyTerrain.Land[I+1,K+1].TileOwner <> -1 then
+        fBase[I*fMapX + K] := fPlayers.Player[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
       else
       begin
-        U := fMyTerrain.Land[i+1,k+1].IsUnit;
+        U := fMyTerrain.Land[I+1,K+1].IsUnit;
         if U <> nil then
           if U.GetOwner <> PLAYER_ANIMAL then
-            fBase[i*fMapX + k] := fPlayers.Player[U.GetOwner].FlagColor
+            fBase[I*fMapX + K] := fPlayers.Player[U.GetOwner].FlagColor
           else
-            fBase[i*fMapX + k] := fResource.UnitDat[U.UnitType].MinimapColor
+            fBase[I*fMapX + K] := fResource.UnitDat[U.UnitType].MinimapColor
         else
         begin
-          ID := fMyTerrain.Land[i+1,k+1].Terrain;
-          Light := Round(fMyTerrain.Land[i+1,k+1].Light*64)-(255-FOW); //it's -255..255 range now
-          fBase[i*fMapX + k] := EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
+          ID := fMyTerrain.Land[I+1,K+1].Terrain;
+          Light := Round(fMyTerrain.Land[I+1,K+1].Light*64)-(255-FOW); //it's -255..255 range now
+          fBase[I*fMapX + K] := EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
                                 EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
                                 EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;
         end;
@@ -201,22 +205,22 @@ begin
 
   //Scan all players units and paint all virtual group members
   if fIsMapEditor then
-    for i:=0 to fPlayers.Count-1 do
-      for k:=0 to fPlayers[i].Units.Count-1 do
-        if fPlayers[i].Units[k] is TKMUnitWarrior then
+    for I:=0 to fPlayers.Count-1 do
+      for K:=0 to fPlayers[I].Units.Count-1 do
+        if fPlayers[I].Units[K] is TKMUnitWarrior then
         begin
-          W := TKMUnitWarrior(fPlayers[i].Units[k]);
-          for j:=1 to W.fMapEdMembersCount do
+          W := TKMUnitWarrior(fPlayers[I].Units[K]);
+          for J:=1 to W.fMapEdMembersCount do
           begin
-            P := GetPositionInGroup2(W.GetPosition.X, W.GetPosition.Y, W.Direction, j+1, W.UnitsPerRow, fMapX, fMapY, DoesFit);
+            P := GetPositionInGroup2(W.GetPosition.X, W.GetPosition.Y, W.Direction, J+1, W.UnitsPerRow, fMapX, fMapY, DoesFit);
             if not DoesFit then Continue; //Don't render units that are off the map in the map editor
-            fBase[P.Y * fMapX + P.X] := fPlayers[i].FlagColor;
+            fBase[P.Y * fMapX + P.X] := fPlayers[I].FlagColor;
           end;
         end;
 end;
 
 
-procedure TKMMapView.Update(aRevealAll:Boolean);
+procedure TKMMapView.Update(aRevealAll: Boolean);
 var
   wData: Pointer;
   I: Word;

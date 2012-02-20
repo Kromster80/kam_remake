@@ -162,7 +162,7 @@ type
     procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
     procedure FlattenTerrain(Loc:TKMPoint; aRebuildWalkConnects:boolean=true); overload;
     procedure FlattenTerrain(LocList:TKMPointList); overload;
-    procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
+    procedure RebuildLighting(LowX, HighX, LowY, HighY: Integer);
     procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
     procedure RebuildWalkConnect(aSet: array of TWalkConnect);
 
@@ -1936,20 +1936,27 @@ begin
 end;
 
 
-{ Rebuilds lighting values for given bounds.
-These values are used to draw highlights/shadows on terrain.}
-procedure TTerrain.RebuildLighting(LowX,HighX,LowY,HighY:integer);
-var i,k:integer; x0,y2:integer;
+//Rebuilds lighting values for given bounds.
+//These values are used to draw highlights/shadows on terrain
+//Note that input values may be off-map
+procedure TTerrain.RebuildLighting(LowX, HighX, LowY, HighY: Integer);
+var
+  I, K: Integer;
+  x0, y2: Integer;
 begin
-  for i:=LowY to HighY do for k:=LowX to HighX do
-    if VerticeInMapCoords(k,i) then begin
-      x0:=EnsureRange(k-1,1,fMapX);
-      y2:=EnsureRange(i+1,1,fMapY);
-      if VerticeInMapCoords(x0,y2) then
-        Land[i,k].Light:=EnsureRange((Land[i,k].Height-(Land[y2,k].Height+Land[i,x0].Height)/2)/22,-1,1); //  1.33*16 ~=22
-    if (i=1) or (i=fMapY) or (k=1) or (k=fMapX) then //Map borders fade to black
-      Land[i,k].Light := -1;
-    end;
+  for I := LowY to HighY do
+  for K := LowX to HighX do
+  if VerticeInMapCoords(K,I) then
+  begin
+    x0 := Max(K-1, 1);
+    y2 := Min(I+1, fMapY);
+    Land[I,K].Light := EnsureRange((Land[I,K].Height-(Land[y2,K].Height+Land[I,x0].Height)/2)/22,-1,1); //  1.33*16 ~=22
+
+    //Map borders always fade to black
+    if (I = 1) or (I = fMapY)
+    or (K = 1) or (K = fMapX) then
+      Land[I,K].Light := -1;
+  end;
 end;
 
 
@@ -1957,7 +1964,8 @@ end;
 procedure TTerrain.RebuildPassability(LowX,HighX,LowY,HighY:integer);
 var i,k:integer;
 begin
-  for i:=max(LowY,1) to min(HighY,fMapY-1) do for k:=max(LowX,1) to min(HighX,fMapX-1) do
+  for i:=max(LowY,1) to min(HighY,fMapY-1) do 
+  for k:=max(LowX,1) to min(HighX,fMapX-1) do
     RecalculatePassability(KMPoint(k,i));
 end;
 
