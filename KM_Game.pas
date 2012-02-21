@@ -24,6 +24,24 @@ type
     gsEditor); //Game is in MapEditor mode
 
 type
+  //Methods relevant to application
+  {TKMMain = class
+  private
+    fAbout
+    fMainForm
+    fSplash
+
+    fResolutions
+    fSettings (resolutions, v-sync) //Things irrelevant to the game
+  public
+    Create
+    Resize
+    ToggleF11Menu
+    ToggleLocale
+    ToggleFullscreen
+  end;}
+
+  //Methods relevant to gameplay
   TKMGame = class
   private //Irrelevant to savegame
     fScreenX,fScreenY: Word;
@@ -1233,6 +1251,7 @@ begin
     SState := Shift;
   end;
 end;
+
 
 procedure TKMGame.UpdatePeacetime;
 var PeaceTicksRemaining:cardinal;
