@@ -94,7 +94,7 @@ var
 
 
 implementation
-uses KM_Game, KM_MessageStack, KM_PlayersCollection, KM_TextLibrary;
+uses KM_Game, KM_MessageStack, KM_PlayersCollection, KM_TextLibrary, KM_Log;
 
 
 const
@@ -199,6 +199,12 @@ var
   E: TKMEvent;
   SL: TStringList;
 begin
+  if not FileExists(aFilename) then
+  begin
+    fLog.AddToLog(aFilename + ' was not found. It is okay for mission to have no events.');
+    Exit;
+  end;
+
   fEvents.Clear;
 
   //Read the file line by line and try to add valid events
@@ -284,8 +290,6 @@ end;
 
 procedure TKMEvent.SetParams(aTrigger: TKMTrigger; aAction: TKMAction);
 begin
-  inherited Create;
-
   fTrigger := aTrigger;
   fAction := aAction;
 end;
