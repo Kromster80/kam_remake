@@ -27,76 +27,76 @@ const
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r2801';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2946';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '3rd Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
 
 var
-  //These should be TRUE
-  MAKE_ANIM_TERRAIN     :boolean=true;  //Should we animate water and swamps
-  MAKE_TEAM_COLORS      :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
-  DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
-  CHEATS_ENABLED        :boolean=true;  //Enable cheats in game (add_resource, instant_win, etc)
-  FREE_POINTERS         :boolean=true;  //If true, units/houses will be freed and removed from the list once they are no longer needed
-  CAP_MAX_FPS           :boolean=False;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
-  CRASH_ON_REPLAY       :boolean=true;  //Crash as soon as replay consistency fails (random numbers mismatch)
+  //These should be True
+  MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
+  MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
+  DO_UNIT_HUNGER        :Boolean = True;  //Wherever units get hungry or not
+  CHEATS_ENABLED        :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
+  FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
+  CAP_MAX_FPS           :Boolean = False;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
+  CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
 
   //Implemented
-  MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
-  DO_UNIT_INTERACTION   :boolean=true; //Debug for unit interaction
-  SMOOTH_SCROLLING      :boolean=true; //Smooth viewport scrolling
-  ENABLE_FIGHTING       :boolean=true; //Allow fighting
-  DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
-  CHECK_WIN_CONDITIONS  :boolean=true; //Could be disabled in test missions
-  CUSTOM_RANDOM         :boolean=true; //Use our custom random number generator or the built in "Random()"
-  KAM_WATER_DRAW        :boolean=true; //Render underwater sand
+  MOUSEWHEEL_ZOOM_ENABLE:Boolean = True; //Should we allow to zoom in game or not
+  DO_UNIT_INTERACTION   :Boolean = True; //Debug for unit interaction
+  SMOOTH_SCROLLING      :Boolean = True; //Smooth viewport scrolling
+  ENABLE_FIGHTING       :Boolean = True; //Allow fighting
+  DO_WEIGHT_ROUTES      :Boolean = True; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
+  CHECK_WIN_CONDITIONS  :Boolean = True; //Could be disabled in test missions
+  CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
+  KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
   //Not fully implemented yet
-  FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
+  FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
 
-  //These are debug things, should be FALSE
+  //These are debug things, should be False
   {User interface options}
-  SHOW_DEBUG_CONTROLS   :boolean=false; //Show debug panel / Form1 menu (F11)
-  SHOW_CONTROLS_OVERLAY :boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
-  SHOW_TEXT_OUTLINES    :boolean=false; //Display text areas outlines
-  ENABLE_DESIGN_CONTORLS:boolean=false; //Enable special mode to allow to move/edit controls
-  MODE_DESIGN_CONTORLS  :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
-  OVERLAY_RESOLUTIONS   :boolean=false; //Render constraining frame
+  SHOW_DEBUG_CONTROLS   :Boolean = False; //Show debug panel / Form1 menu (F11)
+  SHOW_CONTROLS_OVERLAY :Boolean = False; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
+  SHOW_TEXT_OUTLINES    :Boolean = False; //Display text areas outlines
+  ENABLE_DESIGN_CONTORLS:Boolean = False; //Enable special mode to allow to move/edit controls
+  MODE_DESIGN_CONTORLS  :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
+  OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   {Gameplay display}
-  AGGRESSIVE_REPLAYS    :boolean=false; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
-  SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
-  SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes
-  SHOW_PROJECTILES      :boolean=false; //Shows projectiles trajectory
-  SHOW_POINTER_DOTS     :boolean=false; //Show pointer count as small dots below unit/houses
-  SHOW_GROUND_LINES     :boolean=false; //Show a line below all sprites to mark the ground height used in Z-Order
-  SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
-  SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
-  TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
-  SHOW_SPRITES_RECT     :boolean=false; //Render outline around every sprite
-  SHOW_ATTACK_RADIUS    :boolean=false; //Render towers/archers attack radius
-  DISPLAY_SOUNDS        :boolean=false; //Display sounds on map
-  RENDER_3D             :boolean=false; //Experimental 3D render
+  AGGRESSIVE_REPLAYS    :Boolean = False; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
+  SHOW_TERRAIN_WIRES    :Boolean = False; //Makes terrain height visible
+  SHOW_UNIT_ROUTES      :Boolean = False; //Draw unit routes
+  SHOW_PROJECTILES      :Boolean = False; //Shows projectiles trajectory
+  SHOW_POINTER_DOTS     :Boolean = False; //Show pointer count as small dots below unit/houses
+  SHOW_GROUND_LINES     :Boolean = False; //Show a line below all sprites to mark the ground height used in Z-Order
+  SHOW_UNIT_MOVEMENT    :Boolean = False; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
+  SHOW_WALK_CONNECT     :Boolean = False; //Show floodfill areas of interconnected areas
+  TEST_VIEW_CLIP_INSET  :Boolean = False; //Renders smaller area to see if everything gets clipped well
+  SHOW_SPRITES_RECT     :Boolean = False; //Render outline around every sprite
+  SHOW_ATTACK_RADIUS    :Boolean = False; //Render towers/archers attack radius
+  DISPLAY_SOUNDS        :Boolean = False; //Display sounds on map
+  RENDER_3D             :Boolean = False; //Experimental 3D render
   {Stats}
-  SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
-  SHOW_POINTER_COUNT    :boolean=true; //Show debug total count of unit/house pointers being tracked
-  SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
-  SHOW_NETWORK_DELAY    :boolean=false; //Show the current delay in multiplayer game
-  SHOW_ARMYEVALS        :boolean=false; //Show result of enemy armies evaluation
-  INI_HITPOINT_RESTORE  :boolean=false; //Use the hitpoint restore rate from the INI file to compare with KaM
-  SLOW_MAP_SCAN         :boolean=false; //Scan maps with a pause to emulate uncached file access
+  SHOW_SPRITE_COUNT     :Boolean = False; //display rendered controls/sprites count
+  SHOW_POINTER_COUNT    :Boolean = True; //Show debug total count of unit/house pointers being tracked
+  SHOW_CMDQUEUE_COUNT   :Boolean = False; //Show how many commands were processed and stored by TGameInputProcess
+  SHOW_NETWORK_DELAY    :Boolean = False; //Show the current delay in multiplayer game
+  SHOW_ARMYEVALS        :Boolean = False; //Show result of enemy armies evaluation
+  INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
+  SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   {Gameplay cheats}
-  FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
-  REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :boolean=false; //Allow cheats and debug overlays (e.g. canWalk) in Multiplayer
-  DEBUG_CHEATS          :boolean=true; //Cheats for debug (place scout and reveal map) which can be turned On from menu
+  FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm
+  REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
+  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. canWalk) in Multiplayer
+  DEBUG_CHEATS          :Boolean = True; //Cheats for debug (place scout and reveal map) which can be turned On from menu
   {Data output}
-  WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file
-  WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably
-  WRITE_WALKTO_LOG      :boolean=false; //Write even more output into log + slows down game noticably
-  WRITE_RECONNECT_LOG   :boolean=true;
-  WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
-  WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
+  WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
+  WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
+  WRITE_WALKTO_LOG      :Boolean = False; //Write even more output into log + slows down game noticably
+  WRITE_RECONNECT_LOG   :Boolean = True;
+  WriteResourceInfoToTXT:Boolean = False; //Whenever to write txt files with defines data properties on loading
+  WriteAllTexturesToBMP :Boolean = False; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
 
   //Statistic
   CtrlPaintCount: Word; //How many Controls were painted in last frame
@@ -111,8 +111,8 @@ const
   AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
 const //Here we store options that are hidden somewhere in code
-  GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
-  FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
+  GOLD_TO_SCHOOLS_IMPORTANT = True;       //Whenever gold delivery to schools is highly important
+  FOOD_TO_INN_IMPORTANT = True;           //Whenever food delivery to inns is highly important
   UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min
   UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn. In KaM it's 6min
   TIME_BETWEEN_MESSAGES = 4*600;          //Time between messages saying house is unoccupied or unit is hungry. In KaM it's 4 minutes
@@ -140,7 +140,7 @@ const //Here we store options that are hidden somewhere in code
   SLINGSHOT_FIRING_DELAY = 12; //on which frame archer fires his arrow/bolt
   AIMING_DELAY_MIN = 8; //minimum time for archer to aim
   AIMING_DELAY_ADD = 8; //random component
-  FRIENDLY_FIRE = true; //Whenever archers could kill fellow men with their arrows
+  FRIENDLY_FIRE = True; //Whenever archers could kill fellow men with their arrows
 
   NET_DROP_PLAYER_MIN_WAIT = 30; //Host must wait at least this long before dropping disconnected players
 
