@@ -259,7 +259,7 @@ begin
   //Only after we read settings (fullscreen property and resolutions)
   //we can decide whenever we want to create Game fullscreen or not (OpenGL init depends on that)
   TempSettings := TGlobalSettings.Create;
-  CheckResolution (TempSettings);
+  CheckResolution(TempSettings);
   ToggleFullScreen(TempSettings.FullScreen, TempSettings.ResolutionID, TempSettings.RefreshRate, TempSettings.VSync, false);
   TempSettings.Free;
 
@@ -812,6 +812,36 @@ begin
   end;
   {$ENDIF}
 end;
+
+
+{ //Jimmy: I suggest you take this scheme and move it to separate unit KM_Resolutions.pas
+
+type
+  TKMResolutions = class
+  private
+    fCount: Integer;
+    fItems: array of TScreenResData;
+
+    function GetItem(aIndex: Integer): TScreenResData;
+    procedure ReadAvailable;
+    procedure Sort;
+    procedure Restore
+  public
+    constructor Create; //runs SaveCurrent, ReadAvailable, Sort
+    destructor Destroy; //runs RestoreCurrent
+
+    property Count read fCount; //Used by UI
+    property Items[aIndex: Integer]: TScreenResData read GetItem; //Used by UI
+
+    function FindBestMatch(aRes: TScreenResData): Integer; //Get best matching resolutions or use current
+    procedure SetResolution(aIndex: Integer); //Apply the resolution
+  end;
+
+//For UserInterface please use 2 DropBoxes one below another
+[Resolution  [\/]]
+[RefreshRate [\/]]
+That would be much less custom code.
+}
 
 
 procedure TForm1.SortScreenResData;

@@ -921,7 +921,8 @@ const
 
 
 const
-  //How many options are we displaying to the user, so that they fit into their UI place
+  //How many options are we supporting
+  //@Jimmy: Use dynamic count
   RESOLUTION_COUNT = 15;
   REFRESH_RATE_COUNT = 15;
 
