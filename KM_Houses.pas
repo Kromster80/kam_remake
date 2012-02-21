@@ -307,7 +307,9 @@ type
 
 
 implementation
-uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_RenderPool, KM_RenderAux, KM_Units,
+uses
+  KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_RenderPool, KM_RenderAux, KM_Units,
+  KM_EventProcess,
   KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary, KM_Player,
   KM_Resource, KM_ResourceResource, KM_ResourceHouse, KM_MessageStack, KM_Utils;
 
@@ -665,7 +667,7 @@ begin
     fBuildState := hbs_Done;
     fPlayers.Player[fOwner].Stats.HouseEnded(fHouseType);
     Activate(true);
-    fGame.EventsManager.ProcHouseBuilt(fHouseType, fOwner);
+    fEventsManager.ProcHouseBuilt(fHouseType, fOwner);
     //House was damaged while under construction, so set the repair mode now it is complete
     if (fDamage > 0) and BuildingRepair then
       fPlayers.Player[fOwner].BuildList.RepairList.AddHouse(Self);

@@ -45,7 +45,6 @@ type
     fMapEditor: TKMMapEditor;
     fProjectiles:TKMProjectiles;
     fGameInputProcess:TGameInputProcess;
-    fEventsManager: TKMEventsManager;
     fNetworking:TKMNetworking;
     fPathfinding: TPathFinding;
 
@@ -147,7 +146,6 @@ type
 
     property GlobalSettings: TGlobalSettings read fGlobalSettings;
     property Campaigns: TKMCampaignsCollection read fCampaigns;
-    property EventsManager: TKMEventsManager read fEventsManager;
     property MapEditor: TKMMapEditor read fMapEditor;
     property MusicLib: TMusicLib read fMusicLib;
     property Pathfinding: TPathFinding read fPathfinding;
@@ -167,7 +165,7 @@ type
   end;
 
   var
-    fGame:TKMGame;
+    fGame: TKMGame;
 
 implementation
 uses
@@ -442,8 +440,6 @@ begin
   fRenderPool := TRenderPool.Create(fRender);
   fProjectiles := TKMProjectiles.Create;
   fEventsManager := TKMEventsManager.Create;
-  fEventsManager.SaveToFile(ExeDir+'events.txt');
-  //todo: fEventsManager.LoadFromFile(ExeDir+'events.txt');
 
   fGameTickCount := 0; //Restart counter
 end;
@@ -535,6 +531,8 @@ begin
     fPlayers.AddPlayers(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[0];
   end;
+
+  fEventsManager.LoadFromFile(ChangeFileExt(aMissionFile, '.evt'));
 
   fPlayers.AfterMissionInit(true);
 
@@ -1347,6 +1345,7 @@ begin
   fTerrain.Save(SaveStream); //Saves the map
   fPlayers.Save(SaveStream); //Saves all players properties individually
   fProjectiles.Save(SaveStream);
+  fEventsManager.Save(SaveStream);
 
   if not fMultiplayerMode then
   begin
@@ -1415,6 +1414,7 @@ begin
     fPlayers := TKMPlayersCollection.Create;
     fPlayers.Load(LoadStream);
     fProjectiles.Load(LoadStream);
+    fEventsManager.Load(LoadStream);
 
     //Multiplayer saves don't have this piece of information due to each player has his own version
     //@Lewin: Does this means that MessageList in UI is lost?

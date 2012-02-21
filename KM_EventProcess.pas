@@ -2,8 +2,8 @@ unit KM_EventProcess;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, StrUtils,
-  KM_Defaults, KM_Points;
+  Classes, Math, SysUtils, StrUtils,
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 
 const
@@ -35,13 +35,13 @@ type
 
   TKMTrigger = record
     Trigger: TEventTrigger;
-    Player: TPlayerIndex;
+    Player: Integer; //We use Integer because of TryStrToInt
     Params: array [0..MAX_EVENT_PARAMS-1] of Integer;
   end;
 
   TKMAction = record
     Action: TEventAction;
-    Player: TPlayerIndex;
+    Player: Integer; //We use Integer because of TryStrToInt
     Params: array [0..MAX_EVENT_PARAMS-1] of Integer;
   end;
 
@@ -55,10 +55,13 @@ type
     fAction: TKMAction; //What happens
   public
     constructor Create(aOwner: TKMEventsManager);
-    procedure Load(aTrigger: TKMTrigger; aAction: TKMAction);
+
     function Handle(aTrigger: TKMTrigger): Boolean;
+    procedure SetParams(aTrigger: TKMTrigger; aAction: TKMAction);
     procedure SaveToList(aList: TStringList);
     function TryLoadFromLine(aLine: AnsiString): Boolean;
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
   //Collection of events
@@ -80,7 +83,14 @@ type
 
     procedure LoadFromFile(aFilename: string);
     procedure SaveToFile(aFilename: string);
+
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
+
+
+var
+  fEventsManager: TKMEventsManager;
 
 
 implementation
@@ -88,8 +98,11 @@ uses KM_Game, KM_MessageStack, KM_PlayersCollection, KM_TextLibrary;
 
 
 const
+  //How many parameters each trigger/action has
   StrTriggers: array [TEventTrigger] of string = ('DEFEATED', 'TIME', 'HOUSE_BUILT');
   StrActions: array [TEventAction] of string = ('DELAYED_MESSAGE', 'SHOW_MESSAGE', 'VICTORY');
+  TriggerParamCount: array [TEventTrigger] of byte = (0, 1, 1);
+  ActionParamCount: array [TEventAction] of byte = (2, 1, 0);
 
 function MakeAction(aAct: TEventAction; aPlayer: TPlayerIndex; aParams: array of Integer): TKMAction;
 var
@@ -127,38 +140,6 @@ begin
   inherited;
 
   fEvents := TList.Create;
-
-  AddEvent(MakeTrigger(etTime, -1, [30]), MakeAction(eaShowMessage, 0, [500]));
-  AddEvent(MakeTrigger(etTime, -1, [160]), MakeAction(eaShowMessage, 0, [501]));
-  AddEvent(MakeTrigger(etTime, -1, [340]), MakeAction(eaShowMessage, 0, [502]));
-
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_School)]), MakeAction(eaShowMessage, 0, [503]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_School)]), MakeAction(eaDelayedMessage, 0, [100, 504]));
-
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Inn)]), MakeAction(eaShowMessage, 0, [505]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Quary)]), MakeAction(eaShowMessage, 0, [506]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Woodcutters)]), MakeAction(eaShowMessage, 0, [507]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Sawmill)]), MakeAction(eaShowMessage, 0, [508]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_FisherHut)]), MakeAction(eaShowMessage, 0, [509]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Farm)]), MakeAction(eaShowMessage, 0, [510]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Mill)]), MakeAction(eaShowMessage, 0, [511]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Bakery)]), MakeAction(eaShowMessage, 0, [512]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Wineyard)]), MakeAction(eaShowMessage, 0, [513]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Swine)]), MakeAction(eaShowMessage, 0, [514]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Butchers)]), MakeAction(eaShowMessage, 0, [515]));
-
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Barracks)]), MakeAction(eaShowMessage, 0, [516]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Barracks)]), MakeAction(eaDelayedMessage, 0, [100, 517]));
-
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_WeaponWorkshop)]), MakeAction(eaShowMessage, 0, [518]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_WeaponWorkshop)]), MakeAction(eaDelayedMessage, 0, [100, 519]));
-
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_Tannery)]), MakeAction(eaShowMessage, 0, [520]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_ArmorWorkshop)]), MakeAction(eaShowMessage, 0, [521]));
-  AddEvent(MakeTrigger(etHouseBuilt, 0, [Byte(ht_ArmorWorkshop)]), MakeAction(eaDelayedMessage, 0, [100, 522]));
-
-  AddEvent(MakeTrigger(etDefeated, 1, []), MakeAction(eaShowMessage, 0, [523]));
-  AddEvent(MakeTrigger(etDefeated, 2, []), MakeAction(eaShowMessage, 0, [524]));
 end;
 
 
@@ -173,11 +154,12 @@ begin
 end;
 
 
+//Add new event, used by etDelayedMessage
 procedure TKMEventsManager.AddEvent(aTrigger: TKMTrigger; aAction: TKMAction);
 var E: TKMEvent;
 begin
   E := TKMEvent.Create(Self);
-  E.Load(aTrigger, aAction);
+  E.SetParams(aTrigger, aAction);
   fEvents.Add(E);
 end;
 
@@ -234,6 +216,29 @@ begin
 end;
 
 
+procedure TKMEventsManager.Save(SaveStream: TKMemoryStream);
+var I: Integer;
+begin
+  SaveStream.Write(fEvents.Count);
+  for I := 0 to fEvents.Count - 1 do
+    Events[I].Save(SaveStream);
+end;
+
+
+procedure TKMEventsManager.Load(LoadStream: TKMemoryStream);
+var I: Integer; EventCount: Integer;
+begin
+  fEvents.Clear;
+
+  LoadStream.Read(EventCount);
+  for I := 0 to EventCount - 1 do
+  begin
+    fEvents.Add(TKMEvent.Create(Self));
+    Events[I].Load(LoadStream);
+  end;
+end;
+
+
 //Save existing events into text file
 procedure TKMEventsManager.SaveToFile(aFilename: string);
 var
@@ -276,8 +281,11 @@ begin
   fOwner := aOwner;
 end;
 
-procedure TKMEvent.Load(aTrigger: TKMTrigger; aAction: TKMAction);
+
+procedure TKMEvent.SetParams(aTrigger: TKMTrigger; aAction: TKMAction);
 begin
+  inherited Create;
+
   fTrigger := aTrigger;
   fAction := aAction;
 end;
@@ -285,9 +293,31 @@ end;
 
 //Try to load event from textline, if the line is invalid we return False
 function TKMEvent.TryLoadFromLine(aLine: AnsiString): Boolean;
+  function GetTrigger(aText: string; out oTrigger: TEventTrigger): Boolean;
+  var T: TEventTrigger;
+  begin
+    Result := False;
+    for T := Low(TEventTrigger) to High(TEventTrigger) do
+      if aText = StrTriggers[T] then
+      begin
+        oTrigger := T;
+        Result := True;
+      end;
+  end;
+  function GetAction(aText: string; out oAction: TEventAction): Boolean;
+  var A: TEventAction;
+  begin
+    Result := False;
+    for A := Low(TEventAction) to High(TEventAction) do
+      if aText = StrActions[A] then
+      begin
+        oAction := A;
+        Result := True;
+      end;
+  end;
 var
-  s: array [0 .. (2 + MAX_EVENT_PARAMS) * 2 - 1] of string;
-  I, L, R: Integer;
+  Words: array [1 .. (2 + MAX_EVENT_PARAMS) * 2] of string;
+  I, N, L, R, WordsCount: Integer;
 begin
   Result := False;
 
@@ -296,21 +326,34 @@ begin
 
   //Firstly - split line into words
   L := 1;
-  for I := 0 to High(s) do
+  for I := 1 to High(Words) do
   begin
     R := PosEx(' ', aLine, L);
     if R <> 0 then
-      s[I] := Copy(aLine, L, R - L)
+      Words[I] := Copy(aLine, L, R - L)
     else
     begin
-      s[I] := Copy(aLine, L, Length(aLine) - L);
+      Words[I] := Copy(aLine, L, Length(aLine) - L);
       Break;
     end;
     L := R + 1;
   end;
 
   //Parse words
-  //GetTrigger[]
+  //We can safely write to own fields, because if Result=False the Event will be Freed
+  Result := GetTrigger(Words[1], fTrigger.Trigger) and TryStrToInt(Words[2], fTrigger.Player);
+  if Result then
+    for I := 0 to TriggerParamCount[fTrigger.Trigger] - 1 do
+      Result := Result and TryStrToInt(Words[I + 3], fTrigger.Params[I]);
+
+  if Result then
+    N := 2 + TriggerParamCount[fTrigger.Trigger];
+
+  Result := Result and GetAction(Words[N + 1], fAction.Action) and TryStrToInt(Words[N + 2], fAction.Player);
+
+  if Result then
+    for I := 0 to ActionParamCount[fAction.Action] - 1 do
+      Result := Result and TryStrToInt(Words[I + N + 3], fAction.Params[I]);
 end;
 
 
@@ -318,7 +361,7 @@ function TKMEvent.Handle(aTrigger: TKMTrigger): Boolean;
 var I: Integer;
 begin
   Result := (aTrigger.Trigger = fTrigger.Trigger) and (aTrigger.Player = fTrigger.Player);
-  for I := 0 to High(aTrigger.Params) do
+  for I := 0 to TriggerParamCount[aTrigger.Trigger] - 1 do
     Result := Result and (fTrigger.Params[I] = aTrigger.Params[I]);
 
   if Result then
@@ -333,6 +376,20 @@ begin
 end;
 
 
+procedure TKMEvent.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.Write(fTrigger, SizeOf(fTrigger));
+  SaveStream.Write(fAction, SizeOf(fAction));
+end;
+
+
+procedure TKMEvent.Load(LoadStream: TKMemoryStream);
+begin
+  LoadStream.Read(fTrigger, SizeOf(fTrigger));
+  LoadStream.Read(fAction, SizeOf(fAction));
+end;
+
+
 //Assemble the Event line and append it to StringList
 procedure TKMEvent.SaveToList(aList: TStringList);
 var
@@ -341,14 +398,12 @@ var
 begin
   S := StrTriggers[fTrigger.Trigger] + ' ' + IntToStr(fTrigger.Player);
 
-  for I := 0 to MAX_EVENT_PARAMS - 1 do
-  if fTrigger.Params[I] <> -1 then
+  for I := 0 to TriggerParamCount[fTrigger.Trigger] - 1 do
     S := S + ' ' + IntToStr(fTrigger.Params[I]);
 
   S := S + ' ' + StrActions[fAction.Action] + ' ' + IntToStr(fAction.Player);
 
-  for I := 0 to MAX_EVENT_PARAMS - 1 do
-  if fAction.Params[I] <> -1 then
+  for I := 0 to ActionParamCount[fAction.Action] - 1 do
     S := S + ' ' + IntToStr(fAction.Params[I]);
 
   aList.Add(S);
