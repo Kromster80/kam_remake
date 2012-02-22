@@ -551,6 +551,8 @@ begin
   end;
 
   fEventsManager.LoadFromFile(ChangeFileExt(aMissionFile, '.evt'));
+  //todo: What do we do on mission Load?
+  fTextLibrary.LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
 
   fPlayers.AfterMissionInit(true);
 

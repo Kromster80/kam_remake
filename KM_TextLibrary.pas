@@ -31,6 +31,7 @@ type
     TextStrings: array [0..MaxStrings] of AnsiString;
     SetupStrings: array [0..MaxStrings] of AnsiString;
     RemakeStrings: TAnsiStringArray;
+    MissionStrings: TAnsiStringArray; //Strings used in a mission
     procedure LoadLIBFile(FilePath: string; var aArray: array of AnsiString);
     procedure LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aInitializeValues: Boolean);
     procedure ExportTextLibrary(aLibrary: array of AnsiString; aFileName: string);
@@ -41,7 +42,9 @@ type
     function AppendCampaign(aFilename: string): Word;
     function GetTextString(aIndex: word): AnsiString;
     function GetSetupString(aIndex: word): AnsiString;
+    function GetMissionString(aIndex: word): AnsiString;
     property Texts[aIndex: word]: AnsiString read GetTexts; default;
+    procedure LoadMissionStrings(aFilename: string);
     procedure ExportTextLibraries;
   end;
 
@@ -193,6 +196,16 @@ begin
 end;
 
 
+//Load mission strings into separate array, as they get reloaded for each mission
+//Only one set of mission strings can exist at a time
+procedure TTextLibrary.LoadMissionStrings(aFilename: string);
+begin
+  LoadLIBXFile(Format(aFilename, [DEFAULT_LOCALE]), 0, MissionStrings, True);
+  if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFilename, [fLocale])) then
+    LoadLIBXFile(Format(aFilename, [fLocale]), 0, MissionStrings, False);
+end;
+
+
 function TTextLibrary.GetTexts(aIndex: word): AnsiString;
 begin
   if aIndex < 1000 then
@@ -235,9 +248,18 @@ begin
 end;
 
 
+function TTextLibrary.GetMissionString(aIndex: word): AnsiString;
+begin
+  if aIndex < Length(MissionStrings) then
+    Result := MissionStrings[aIndex]
+  else
+    Result := '~~~MissionString out of range!~~~';
+end;
+
+
 function TTextLibrary.GetRemakeString(aIndex: word): AnsiString;
 begin
-  if aIndex < length(RemakeStrings) then
+  if aIndex < Length(RemakeStrings) then
     Result := RemakeStrings[aIndex]
   else
     Result := '~~~RemakeString out of range!~~~';

@@ -381,7 +381,7 @@ begin
                         fOwner.AddEvent(MakeTrigger(etTime, -1, [fGame.GameTickCount + fAction.Params[0]]), MakeAction(eaShowMessage, fAction.Player, [fAction.Params[1]]))
                       end;
     eaShowMessage:  if MyPlayer.PlayerIndex = fAction.Player then
-                      fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary[fAction.Params[0]], KMPoint(0,0));
+                      fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary.GetMissionString(fAction.Params[0]), KMPoint(0,0));
     eaVictory:      fGame.PlayerVictory(fAction.Player);
   end;
 end;
