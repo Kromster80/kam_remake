@@ -311,27 +311,27 @@ begin
   glColor4f(1,1,1,1);
   //Render highlights
   glBlendFunc(GL_DST_COLOR, GL_ONE);
-  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextG);
+  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextL);
   glBegin(GL_QUADS);
   with fTerrain do
   for i := aRect.Y1 to aRect.Y2 do
   for k := aRect.X1 to aRect.X2 do
     if RENDER_3D then begin
-      glTexCoord1f(max(0,Land[i  ,k  ].Light)); glVertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i+1,k  ].Light)); glVertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i+1,k+1].Light)); glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i  ,k+1].Light)); glVertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i  ,k  ].Light); glVertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i+1,k  ].Light); glVertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i+1,k+1].Light); glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i  ,k+1].Light); glVertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
-      glTexCoord1f(max(0,Land[i  ,k  ].Light)); glVertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i+1,k  ].Light)); glVertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i+1,k+1].Light)); glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i  ,k+1].Light)); glVertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i  ,k  ].Light); glVertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i+1,k  ].Light); glVertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i+1,k+1].Light); glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i  ,k+1].Light); glVertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
 
   //Render shadows and FOW at once
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextG);
+  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextD);
   glBegin(GL_QUADS);
     with fTerrain do
     for i := aRect.Y1 to aRect.Y2 do
@@ -346,13 +346,13 @@ begin
       glTexCoord1f(kromutils.max(0,-Land[i  ,k+1].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i,true)/255));
       glVertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
-      glTexCoord1f(kromutils.max(0, -Land[i  ,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i,true)/255));
+      glTexCoord1f(max(-Land[i  ,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i,true)/255));
       glVertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0, -Land[i+1,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i+1,true)/255));
+      glTexCoord1f(max(-Land[i+1,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i+1,true)/255));
       glVertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0, -Land[i+1,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i+1,true)/255));
+      glTexCoord1f(max(-Land[i+1,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i+1,true)/255));
       glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0, -Land[i  ,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i,true)/255));
+      glTexCoord1f(max(-Land[i  ,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i,true)/255));
       glVertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
@@ -994,6 +994,8 @@ begin
     bt_Wine:          if Pos in [dir_N,dir_S] then ID:=462 else ID:=466; //Fence (Wood)
     bt_Field:         if Pos in [dir_N,dir_S] then ID:=461 else ID:=465; //Fence (Stones)
   end;
+
+
 
   if Pos=dir_S then pY:=pY+1;
   if Pos=dir_W then pX:=pX+1;

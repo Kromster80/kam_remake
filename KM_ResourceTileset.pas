@@ -2,7 +2,7 @@ unit KM_ResourceTileset;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils,
+  Classes, Math, SysUtils, dglOpenGL,
   {$IFDEF WDC} ZLibEx, {$ENDIF}
   {$IFDEF FPC} ZStream, {$ENDIF}
   KM_Defaults;
@@ -14,7 +14,8 @@ type
     procedure LoadTileSet(const aPath: string);
     procedure MakeMiniMapColors(const FileName: string);
   public
-    TextG: Cardinal; //Shading gradient
+    TextL: Cardinal; //Shading gradient for lighting
+    TextD: Cardinal; //Shading gradient for darkening (same as light but reversed)
     TextT: Cardinal; //Tiles
     TextW:array[1..8]of Cardinal; //Water
     TextS:array[1..3]of Cardinal; //Swamps
@@ -40,10 +41,26 @@ end;
 
 // Load the Textures
 procedure TKMTileset.LoadTileSet(const aPath: string);
-var i: Integer;
+var
+  I: Integer;
+  pData: array [0..255] of Cardinal;
 begin
-  LoadTextureTGA(aPath + 'gradient.tga', TextG); //todo: Generate programmatically
+  //Generate gradients programmatically
+  //todo: Comapre gradients with KaM
+  //[16-gradient]
+  TextL := GenerateTextureCommon;
+  for I := 0 to 255 do
+    pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, @pData[0]);
+
+  TextD := GenerateTextureCommon;
+  for I := 0 to 255 do
+    pData[I] := EnsureRange(Round((255 - I) * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, @pData[0]);
+
   LoadTextureTGA(aPath + 'Tiles1.tga', TextT);
+  LoadTextureTGA(aPath + 'gradient.tga', TextL);
+  LoadTextureTGA(aPath + 'gradient.tga', TextD);
 
   if MAKE_ANIM_TERRAIN then begin
     for i:=1 to 8 do LoadTextureTGA(aPath + 'Water'+inttostr(i)+'.tga', TextW[i]);

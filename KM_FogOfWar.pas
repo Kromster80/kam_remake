@@ -92,7 +92,7 @@ begin
     Result := 255;
     exit;
   end;
-  //I like how "alive" fog looks with some tweaks
+  //I like how "alive" the fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
   if FOG_OF_WAR_ENABLE then
     if (Revelation[Y,X].Visibility >= FOG_OF_WAR_ACT) then

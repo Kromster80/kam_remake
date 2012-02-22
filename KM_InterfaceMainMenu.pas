@@ -2161,7 +2161,6 @@ begin
 end;
 
 
-//todo: Fill in map info (@Krom: I think this is an old todo, map info has been shown in lobby for ages)
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 var i:Integer; DropText:string;
 begin
