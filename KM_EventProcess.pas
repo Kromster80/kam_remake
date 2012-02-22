@@ -78,8 +78,9 @@ type
     procedure AddEvent(aTrigger: TKMTrigger; aAction: TKMAction);
 
     //Process game events
-    procedure ProcTime(aTick: Cardinal);
+    procedure ProcDefeated(aPlayer: TPlayerIndex);
     procedure ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
+    procedure ProcTime(aTick: Cardinal);
 
     procedure LoadFromFile(aFilename: string);
     procedure SaveToFile(aFilename: string);
@@ -171,6 +172,12 @@ begin
   for I := fEvents.Count - 1 downto 0 do
   if Events[I].Handle(MakeTrigger(aTrigger, aPlayer, aParams)) then
     fEvents.Delete(I);
+end;
+
+
+procedure TKMEventsManager.ProcDefeated(aPlayer: TPlayerIndex);
+begin
+  Proc(etDefeated, aPlayer, []);
 end;
 
 
@@ -337,7 +344,7 @@ begin
       Words[I] := Copy(aLine, L, R - L)
     else
     begin
-      Words[I] := Copy(aLine, L, Length(aLine) - L);
+      Words[I] := Copy(aLine, L, Length(aLine) - L + 1);
       Break;
     end;
     L := R + 1;

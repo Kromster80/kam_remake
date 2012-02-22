@@ -10,10 +10,10 @@ type
     GoalType: TGoalType; //Victory, survive, neither
     GoalCondition: TGoalCondition; //Buildings, troops, time passing
     GoalStatus: TGoalStatus; //Must this condition be true or false (same as alive or dead) for victory/surival to occour?
-    GoalTime: cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
-    MessageToShow: integer; //Message to be shown when the goal is completed
-    MessageHasShown: boolean; //Whether we have shown this message yet
-    PlayerIndex: shortint; //Player whose buildings or troops must be destroyed
+    GoalTime: Cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
+    MessageToShow: Integer; //Message to be shown when the goal is completed
+    MessageHasShown: Boolean; //Whether we have shown this message yet
+    PlayerIndex: ShortInt; //Player whose buildings or troops must be destroyed
   end;
   //Because the goal system is hard to understand, here are some examples:
   {Destroy troops of player 2 in order to win
@@ -53,24 +53,25 @@ type
 type
   TKMGoals = class
   private
-    fCount:integer;
-    fGoals:array of TKMGoal;
-    function GetGoal(Index:integer):TKMGoal;
+    fCount: Integer;
+    fGoals: array of TKMGoal;
+    function GetGoal(aIndex: Integer): TKMGoal;
   public
     constructor Create;
     destructor Destroy; override;
 
-    property Count:integer read fCount;
-    property Item[Index:integer]:TKMGoal read GetGoal; default;
-    procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayerIndex: shortint);
-    procedure RemGoal(aIndex:integer);
-    procedure RemoveReference(aPlayerIndex:TPlayerIndex);
-    procedure SetMessageHasShown(aIndex:integer);
-    procedure AddDefaultMPGoals(aBuildings:boolean; aOurPlayerIndex:TPlayerIndex; aEnemyIndexes:array of TPlayerIndex);
+    property Count: Integer read fCount;
+    property Item[aIndex: Integer]: TKMGoal read GetGoal; default;
+    procedure AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aPlayerIndex: ShortInt);
+    procedure RemGoal(aIndex: Integer);
+    procedure RemoveReference(aPlayerIndex: TPlayerIndex);
+    procedure SetMessageHasShown(aIndex: Integer);
+    procedure AddDefaultMPGoals(aBuildings: Boolean; aOurPlayerIndex: TPlayerIndex; aEnemyIndexes: array of TPlayerIndex);
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
+
 
 implementation
 
@@ -78,99 +79,102 @@ implementation
 { TKMGoals }
 constructor TKMGoals.Create;
 begin
-  Inherited
-  //
+  inherited
+
 end;
 
 
 destructor TKMGoals.Destroy;
 begin
-  //
-  Inherited;
+
+  inherited;
 end;
 
 
-function TKMGoals.GetGoal(Index:integer):TKMGoal;
+function TKMGoals.GetGoal(aIndex: Integer): TKMGoal;
 begin
-  Result := fGoals[Index];
+  Result := fGoals[aIndex];
 end;
 
 
-procedure TKMGoals.AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayerIndex: shortint);
+procedure TKMGoals.AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aPlayerIndex: ShortInt);
 begin
-  SetLength(fGoals,fCount+1);
-  fGoals[fCount].GoalType         := aGoalType;
-  fGoals[fCount].GoalCondition    := aGoalCondition;
-  fGoals[fCount].GoalStatus       := aGoalStatus;
-  fGoals[fCount].GoalTime         := aGoalTime;
-  fGoals[fCount].MessageToShow    := aMessageToShow;
-  fGoals[fCount].PlayerIndex      := aPlayerIndex;
-  fGoals[fCount].MessageHasShown  := false;
-  inc(fCount);
+  SetLength(fGoals, fCount + 1);
+  fGoals[fCount].GoalType := aType;
+  fGoals[fCount].GoalCondition := aCondition;
+  fGoals[fCount].GoalStatus := aStatus;
+  fGoals[fCount].GoalTime := aTime;
+  fGoals[fCount].MessageToShow := aMessageToShow;
+  fGoals[fCount].PlayerIndex := aPlayerIndex;
+  fGoals[fCount].MessageHasShown := False;
+  Inc(fCount);
 end;
 
 
-procedure TKMGoals.RemGoal(aIndex:integer);
-var i:integer; //Must be an integer so it doesn't crash when fCount=1
+procedure TKMGoals.RemGoal(aIndex: Integer);
 begin
-  for i := aIndex to fCount-2 do
-    fGoals[i] := fGoals[i+1]; //shift remaining items
-  dec(fCount);
-  setlength(fGoals, fCount);
+  if aIndex <> fCount then
+    Move(fGoals[aIndex + 1], fGoals[aIndex], (fCount - 1 - aIndex) * SizeOf(TKMGoal));
+  Dec(fCount);
+  SetLength(fGoals, fCount);
 end;
 
 
 //We don't want anyones goal to use deleted player
 //Used when we delete certain player from MapEd
-procedure TKMGoals.RemoveReference(aPlayerIndex:TPlayerIndex);
-var i:integer;
+procedure TKMGoals.RemoveReference(aPlayerIndex: TPlayerIndex);
+var
+  I: Integer;
 begin
-  for i:=fCount-1 downto 0 do
-    if fGoals[i].PlayerIndex > aPlayerIndex then
-      fGoals[i].PlayerIndex := pred(fGoals[i].PlayerIndex)
-    else
-    if fGoals[i].PlayerIndex = aPlayerIndex then
-      RemGoal(i);
+  for I := fCount - 1 downto 0 do
+    if fGoals[I].PlayerIndex > aPlayerIndex then
+      fGoals[I].PlayerIndex := pred(fGoals[I].PlayerIndex)
+    else if fGoals[I].PlayerIndex = aPlayerIndex then
+      RemGoal(I);
 end;
 
 
-procedure TKMGoals.SetMessageHasShown(aIndex:integer);
+procedure TKMGoals.SetMessageHasShown(aIndex: Integer);
 begin
-  fGoals[aIndex].MessageHasShown := true;
+  fGoals[aIndex].MessageHasShown := True;
 end;
 
 
-procedure TKMGoals.AddDefaultMPGoals(aBuildings:boolean; aOurPlayerIndex:TPlayerIndex; aEnemyIndexes:array of TPlayerIndex);
-var i:integer; GoalCondition:TGoalCondition;
+procedure TKMGoals.AddDefaultMPGoals(aBuildings: Boolean; aOurPlayerIndex: TPlayerIndex; aEnemyIndexes: array of TPlayerIndex);
+var
+  I: Integer;
+  GoalCondition: TGoalCondition;
 begin
   if aBuildings then
     GoalCondition := gc_Buildings
   else
     GoalCondition := gc_Troops;
   //Defeat condition
-  AddGoal(glt_Survive,GoalCondition,gs_True,0,0,aOurPlayerIndex);
+  AddGoal(glt_Survive, GoalCondition, gs_True, 0, 0, aOurPlayerIndex);
   //Victory conditions
-  for i:=0 to Length(aEnemyIndexes)-1 do
-    AddGoal(glt_Victory,GoalCondition,gs_False,0,0,aEnemyIndexes[i]);
+  for I := 0 to Length(aEnemyIndexes) - 1 do
+    AddGoal(glt_Victory, GoalCondition, gs_False, 0, 0, aEnemyIndexes[I]);
 end;
 
 
-procedure TKMGoals.Save(SaveStream:TKMemoryStream);
-var i:integer;
+procedure TKMGoals.Save(SaveStream: TKMemoryStream);
+var
+  I: Integer;
 begin
   SaveStream.Write(fCount);
-  for i:=0 to fCount-1 do
-    SaveStream.Write(fGoals[i], SizeOf(fGoals[i]));
+  for I := 0 to fCount - 1 do
+    SaveStream.Write(fGoals[I], SizeOf(fGoals[I]));
 end;
 
 
-procedure TKMGoals.Load(LoadStream:TKMemoryStream);
-var i:integer;
+procedure TKMGoals.Load(LoadStream: TKMemoryStream);
+var
+  I: Integer;
 begin
   LoadStream.Read(fCount);
   SetLength(fGoals, fCount);
-  for i:=0 to fCount-1 do
-    LoadStream.Read(fGoals[i], SizeOf(fGoals[i]));
+  for I := 0 to fCount - 1 do
+    LoadStream.Read(fGoals[I], SizeOf(fGoals[I]));
 end;
 
 

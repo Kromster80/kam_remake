@@ -49,7 +49,6 @@ var
   SMOOTH_SCROLLING      :Boolean = True; //Smooth viewport scrolling
   ENABLE_FIGHTING       :Boolean = True; //Allow fighting
   DO_WEIGHT_ROUTES      :Boolean = True; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
-  CHECK_WIN_CONDITIONS  :Boolean = True; //Could be disabled in test missions
   CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
   KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
   //Not fully implemented yet

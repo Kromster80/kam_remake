@@ -1,0 +1,7 @@
+//Events file
+//Not sure if the timing is correct, if I remember correct, KaM did not had GROUP_KILLED trigger
+
+TIME -1 20 SHOW_MESSAGE 0 525
+DEFEATED 2 SHOW_MESSAGE 0 526
+DEFEATED 3 SHOW_MESSAGE 0 527
+DEFEATED 4 SHOW_MESSAGE 0 528

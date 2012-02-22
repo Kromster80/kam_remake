@@ -1,7 +1,7 @@
 unit KM_PlayerAI;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils,
+uses Classes, KromUtils, SysUtils,
     KM_CommonClasses, KM_Defaults, KM_Terrain, KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points;
 
 type //For now IDs must match with KaM
@@ -29,13 +29,14 @@ type //For now IDs must match with KaM
 
   TKMPlayerAI = class
   private
-    PlayerIndex: TPlayerIndex;
+    fPlayerIndex: TPlayerIndex;
     fTimeOfLastAttackMessage: cardinal;
     fLastEquippedTime: cardinal;
     fHasWonOrLost:boolean; //Has this player won/lost? If so, do not check goals
     fAttacks: TAIAttacks;
     fAutobuild:boolean;
 
+    procedure CheckDefeated;
     procedure CheckGoals;
     procedure CheckUnitCount;
     procedure CheckArmiesCount;
@@ -83,7 +84,7 @@ type //For now IDs must match with KaM
 
 implementation
 uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
-     KM_Resource, KM_Sound, KM_MessageStack;
+     KM_Resource, KM_Sound, KM_MessageStack, KM_EventProcess;
 
 
 const
@@ -167,7 +168,7 @@ var i: TGroupType;
 begin
   Inherited Create;
 
-  PlayerIndex := aPlayerIndex;
+  fPlayerIndex := aPlayerIndex;
   fHasWonOrLost := false;
   fTimeOfLastAttackMessage := 0;
   DefencePositionsCount := 0;
@@ -202,30 +203,54 @@ begin
 end;
 
 
+procedure TKMPlayerAI.CheckDefeated;
+var
+  Defeat: Boolean;
+  Stat: TKMPlayerStats;
+begin
+  Stat := fPlayers[fPlayerIndex].Stats;
+
+  //@Lewin: I have wrote my own vision of "Defeated" player here,
+  //please discuss it with me if you have other ideas
+
+  Defeat := (Stat.GetHouseQty(ht_School) = 0) and
+            (Stat.GetUnitQty(ut_Worker) = 0) and
+            (Stat.GetUnitQty(ut_Recruit) = 0) and
+            (Stat.GetArmyCount = 0) and
+            (Stat.GetHouseQty(ht_Barracks) = 0) and
+            (Stat.GetHouseQty(ht_TownHall) = 0) and
+            (Stat.GetHouseQty(ht_SiegeWorkshop) = 0);
+
+  //Let the event system know (defeat may trigger events for other players)
+  if Defeat then
+    fEventsManager.ProcDefeated(fPlayerIndex);
+end;
+
+
 procedure TKMPlayerAI.CheckGoals;
 
-  function GoalConditionSatisfied(aGoal: TKMGoal):boolean;
-  var MS: TKMPlayerStats;
+  function GoalConditionSatisfied(aGoal: TKMGoal): Boolean;
+  var Stat: TKMPlayerStats;
   begin
-    Result := false;
+    Assert((aGoal.GoalCondition = gc_Time) or (aGoal.PlayerIndex <> -1), 'Only gc_Time can have nil Player');
 
+    Result := False;
     if aGoal.PlayerIndex <> -1 then
-      MS := fPlayers[aGoal.PlayerIndex].Stats
+      Stat := fPlayers[aGoal.PlayerIndex].Stats
     else
-      MS := nil;
-    Assert((MS <> nil) or (aGoal.GoalCondition = gc_Time)); //Will trigger an error unless it's not gc_Time
+      Stat := nil;
 
     case aGoal.GoalCondition of
-      gc_BuildTutorial:     Result := MS.GetHouseQty(ht_Tannery)=0; //For some reason this goal is gs_False in KaM, that's why check is =0 not >0
+      gc_BuildTutorial:     Result := Stat.GetHouseQty(ht_Tannery) = 0; //For some reason this goal is gs_False in KaM, that's why check is =0 not  > 0
       gc_Time:              Result := fGame.CheckTime(aGoal.GoalTime);
-      gc_Buildings:         Result := (MS.GetHouseQty(ht_Store)>0)or(MS.GetHouseQty(ht_School)>0)or(MS.GetHouseQty(ht_Barracks)>0);
-      gc_Troops:            Result := (MS.GetArmyCount>0);
-      gc_MilitaryAssets:    Result := (MS.GetArmyCount>0)or(MS.GetHouseQty(ht_Barracks)>0)or(MS.GetHouseQty(ht_CoalMine)>0)or
-                                      (MS.GetHouseQty(ht_WeaponWorkshop)>0)or(MS.GetHouseQty(ht_ArmorWorkshop)>0)or(MS.GetHouseQty(ht_Stables)>0)or
-                                      (MS.GetHouseQty(ht_IronMine)>0)or(MS.GetHouseQty(ht_IronSmithy)>0)or(MS.GetHouseQty(ht_WeaponSmithy)>0)or
-                                      (MS.GetHouseQty(ht_ArmorSmithy)>0)or(MS.GetHouseQty(ht_TownHall)>0)or(MS.GetHouseQty(ht_SiegeWorkshop)>0);
-      gc_SerfsAndSchools:   Result := (MS.GetHouseQty(ht_School)>0)or(MS.GetUnitQty(ut_Serf)>0);
-      gc_EconomyBuildings:  Result := ((MS.GetHouseQty(ht_Store)>0)or(MS.GetHouseQty(ht_School)>0)or(MS.GetHouseQty(ht_Inn)>0));
+      gc_Buildings:         Result := (Stat.GetHouseQty(ht_Store) > 0) or (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetHouseQty(ht_Barracks) > 0);
+      gc_Troops:            Result := (Stat.GetArmyCount > 0);
+      gc_MilitaryAssets:    Result := (Stat.GetArmyCount > 0) or (Stat.GetHouseQty(ht_Barracks) > 0) or (Stat.GetHouseQty(ht_CoalMine) > 0) or
+                                      (Stat.GetHouseQty(ht_WeaponWorkshop) > 0) or (Stat.GetHouseQty(ht_ArmorWorkshop) > 0) or (Stat.GetHouseQty(ht_Stables) > 0) or
+                                      (Stat.GetHouseQty(ht_IronMine) > 0) or (Stat.GetHouseQty(ht_IronSmithy) > 0) or (Stat.GetHouseQty(ht_WeaponSmithy) > 0) or
+                                      (Stat.GetHouseQty(ht_ArmorSmithy) > 0) or (Stat.GetHouseQty(ht_TownHall) > 0) or (Stat.GetHouseQty(ht_SiegeWorkshop) > 0);
+      gc_SerfsAndSchools:   Result := (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetUnitQty(ut_Serf) > 0);
+      gc_EconomyBuildings:  Result := (Stat.GetHouseQty(ht_Store) > 0) or (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetHouseQty(ht_Inn) > 0);
       else                  Assert(false, 'Unknown goal');
     end;
     if aGoal.GoalStatus = gs_False then
@@ -234,55 +259,50 @@ procedure TKMPlayerAI.CheckGoals;
 
 var i: integer; VictorySatisfied, SurvivalSatisfied: boolean;
 begin
-  if not CHECK_WIN_CONDITIONS then exit; //Debug switch
-  if fHasWonOrLost then exit; //If player has elected to play on past victory or defeat then do not check for any further goals
+  if fHasWonOrLost then Exit; //If player has elected to play on past victory or defeat then do not check for any further goals
 
-  VictorySatisfied  := true; //Assume they will win/survive, then prove it with goals
-  SurvivalSatisfied := true;
+  //Assume they will win/survive, then prove it with goals
+  VictorySatisfied  := True;
+  SurvivalSatisfied := True;
 
-  with fPlayers[PlayerIndex] do
-  for i:=0 to Goals.Count-1 do //Test each goal to see if it has occured
-    if GoalConditionSatisfied(Goals[i]) then
+  with fPlayers[fPlayerIndex] do
+  for I := 0 to Goals.Count - 1 do //Test each goal to see if it has occured
+    if GoalConditionSatisfied(Goals[I]) then
     begin
       //Display message if set and not already shown and not a blank text
-      if (Goals[i].MessageToShow <> 0)
-      and not Goals[i].MessageHasShown
-      and (fTextLibrary.GetTextString(Goals[i].MessageToShow) <> '') then
+      if (Goals[I].MessageToShow <> 0)
+      and not Goals[I].MessageHasShown
+      and (fTextLibrary.GetTextString(Goals[I].MessageToShow) <> '') then
       begin
-        if MyPlayer = fPlayers[PlayerIndex] then
-          fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary.GetTextString(Goals[i].MessageToShow), KMPoint(0,0));
-        Goals.SetMessageHasShown(i);
+        if MyPlayer = fPlayers[fPlayerIndex] then
+          fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary.GetTextString(Goals[I].MessageToShow), KMPoint(0,0));
+        Goals.SetMessageHasShown(I);
       end;
     end
     else
     begin
-      if Goals[i].GoalType = glt_Victory then
-        VictorySatisfied := false;
-      if Goals[i].GoalType = glt_Survive then
-        SurvivalSatisfied := false;
+      if Goals[I].GoalType = glt_Victory then
+        VictorySatisfied := False;
+      if Goals[I].GoalType = glt_Survive then
+        SurvivalSatisfied := False;
     end;
 
-  if fGame.GameState = gsReplay then exit; //Don't check conditions in Replay
-  if (not fGame.MultiplayerMode) and (MyPlayer <> fPlayers[PlayerIndex]) then
-    exit; //Don't show message if the player is not us, except in multiplayer mode
+  //Now we know if player has been defeated or won
+  fHasWonOrLost := not SurvivalSatisfied or VictorySatisfied;
 
   //You can't win and lose at the same time. In KaM defeats override victories, except
   //when there are no goals defined, in which case you win for some weird reason...
   //But given that having no goals is pretty pointless we'll make defeat override so you can't
   //win battle missions by waiting for your troops to simultainiously starve to death.
 
-  if not SurvivalSatisfied then
-  begin
-    fGame.PlayerDefeat(PlayerIndex);
-    fHasWonOrLost := true;
-  end
-  else
+  //Let everyone know in MP mode
+  if (fGame.GameState <> gsReplay)
+  and (fGame.MultiplayerMode or (MyPlayer = fPlayers[fPlayerIndex])) then
+    if not SurvivalSatisfied then
+      fGame.PlayerDefeat(fPlayerIndex)
+    else
     if VictorySatisfied then
-    begin
-      fGame.PlayerVictory(PlayerIndex);
-      fHasWonOrLost := true;
-    end;
-
+      fGame.PlayerVictory(fPlayerIndex);
 end;
 
 
@@ -299,7 +319,7 @@ var
   function CheckUnitRequirements(Req:integer; aUnitType:TUnitType):boolean;
   begin
     //We summ up requirements for e.g. Recruits required at Towers and Barracks
-    if fPlayers[PlayerIndex].Stats.GetUnitQty(aUnitType) < (Req+UnitReq[aUnitType]) then
+    if fPlayers[fPlayerIndex].Stats.GetUnitQty(aUnitType) < (Req+UnitReq[aUnitType]) then
     begin
       dec(UnitReq[aUnitType]); //So other schools don't order same unit
       HS.AddUnitToQueue(aUnitType, 1);
@@ -314,15 +334,15 @@ begin
 
   //Citizens
   //Count overall unit requirement (excluding Barracks and ownerless houses)
-  for H:=Low(THouseType) to High(THouseType) do
+  for H := Low(THouseType) to High(THouseType) do
     if fResource.HouseDat[H].IsValid and (fResource.HouseDat[H].OwnerType <> ut_None) and (H <> ht_Barracks) then
-      inc(UnitReq[fResource.HouseDat[H].OwnerType], fPlayers[PlayerIndex].Stats.GetHouseQty(H));
+      inc(UnitReq[fResource.HouseDat[H].OwnerType], fPlayers[fPlayerIndex].Stats.GetHouseQty(H));
 
   //Schools
   //Count overall schools count and exclude already training units from UnitReq
-  SetLength(Schools, fPlayers[PlayerIndex].Stats.GetHouseQty(ht_School));
+  SetLength(Schools, fPlayers[fPlayerIndex].Stats.GetHouseQty(ht_School));
   k := 1;
-  HS := TKMHouseSchool(fPlayers[PlayerIndex].FindHouse(ht_School,k));
+  HS := TKMHouseSchool(fPlayers[fPlayerIndex].FindHouse(ht_School,k));
   while HS <> nil do
   begin
     Schools[k-1] := HS;
@@ -330,7 +350,7 @@ begin
       if HS.UnitQueue[i]<>ut_None then
         dec(UnitReq[HS.UnitQueue[i]]); //Can be negative and compensated by e.g. ReqRecruits
     inc(k);
-    HS := TKMHouseSchool(fPlayers[PlayerIndex].FindHouse(ht_School,k));
+    HS := TKMHouseSchool(fPlayers[fPlayerIndex].FindHouse(ht_School,k));
   end;
 
   //Order the training
@@ -342,7 +362,7 @@ begin
       //Order citizen training
       for UT:=Low(UnitReq) to High(UnitReq) do
         if (UnitReq[UT] > 0) and
-           (UnitReq[UT] > fPlayers[PlayerIndex].Stats.GetUnitQty(UT)) and
+           (UnitReq[UT] > fPlayers[fPlayerIndex].Stats.GetUnitQty(UT)) and
            (UT <> ut_None) then
         begin
           dec(UnitReq[UT]); //So other schools don't order same unit
@@ -353,10 +373,10 @@ begin
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
       if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
-        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*fPlayers[PlayerIndex].Stats.GetHouseQty(ht_Any)), ut_Serf) then
+        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*fPlayers[fPlayerIndex].Stats.GetHouseQty(ht_Any)), ut_Serf) then
           if not CheckUnitRequirements(ReqWorkers, ut_Worker) then
             if fGame.CheckTime(RecruitTrainTimeout) then //Recruits can only be trained after this time
-              if not CheckUnitRequirements(ReqRecruits * fPlayers[PlayerIndex].Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
+              if not CheckUnitRequirements(ReqRecruits * fPlayers[fPlayerIndex].Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
                 break; //There's no unit demand at all
     end;
   end;
@@ -373,7 +393,7 @@ var
   GroupReq: array[TGroupType] of integer;
 begin
   if fGame.IsPeaceTime then Exit; //Do not process train soldiers during peacetime
-  if fPlayers[PlayerIndex].Stats.GetArmyCount >= MaxSoldiers then Exit; //Don't train if we have reached our limit
+  if fPlayers[fPlayerIndex].Stats.GetArmyCount >= MaxSoldiers then Exit; //Don't train if we have reached our limit
   if not fGame.CheckTime(fLastEquippedTime+EquipRate) then Exit; //Delay between equipping soldiers for KaM compatibility
   fLastEquippedTime := fGame.GameTickCount;
 
@@ -387,14 +407,14 @@ begin
       inc(GroupReq[GroupType], TroopFormations[GroupType].NumUnits - (TKMUnitWarrior(CurrentCommander).GetMemberCount+1));
 
   //Find barracks
-  SetLength(Barracks, fPlayers[PlayerIndex].Stats.GetHouseQty(ht_Barracks));
+  SetLength(Barracks, fPlayers[fPlayerIndex].Stats.GetHouseQty(ht_Barracks));
   k := 1;
-  HB := TKMHouseBarracks(fPlayers[PlayerIndex].FindHouse(ht_Barracks,k));
+  HB := TKMHouseBarracks(fPlayers[fPlayerIndex].FindHouse(ht_Barracks,k));
   while HB <> nil do
   begin
     Barracks[k-1] := HB;
     inc(k);
-    HB := TKMHouseBarracks(fPlayers[PlayerIndex].FindHouse(ht_Barracks,k));
+    HB := TKMHouseBarracks(fPlayers[fPlayerIndex].FindHouse(ht_Barracks,k));
   end;
 
   //Train troops where possible in each barracks
@@ -413,7 +433,7 @@ begin
       TrainedSomething := false;
       if AITroopTrainOrder[GType,i] <> ut_None then
         while HB.CanEquip(AITroopTrainOrder[GType,i]) and (GroupReq[GType] > 0) and
-              (fPlayers[PlayerIndex].Stats.GetArmyCount < MaxSoldiers) do
+              (fPlayers[fPlayerIndex].Stats.GetArmyCount < MaxSoldiers) do
         begin
           HB.Equip(AITroopTrainOrder[GType,i], 1);
           dec(GroupReq[GType]);
@@ -436,17 +456,17 @@ begin
 
   //Find target
   case aTarget of
-    att_ClosestUnit:                  TargetUnit := fPlayers.GetClosestUnit(aCommander.GetPosition, PlayerIndex, at_Enemy);
-    att_ClosestBuildingFromArmy:      TargetHouse := fPlayers.GetClosestHouse(aCommander.GetPosition, PlayerIndex, at_Enemy, false);
-    att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(StartPosition, PlayerIndex, at_Enemy, false);
+    att_ClosestUnit:                  TargetUnit := fPlayers.GetClosestUnit(aCommander.GetPosition, fPlayerIndex, at_Enemy);
+    att_ClosestBuildingFromArmy:      TargetHouse := fPlayers.GetClosestHouse(aCommander.GetPosition, fPlayerIndex, at_Enemy, false);
+    att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(StartPosition, fPlayerIndex, at_Enemy, false);
     att_CustomPosition:               begin
                                         TargetHouse := fPlayers.HousesHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetHouse <> nil) and
-                                           (fPlayers.CheckAlliance(PlayerIndex, TargetHouse.GetOwner) = at_Ally) then
+                                           (fPlayers.CheckAlliance(fPlayerIndex, TargetHouse.GetOwner) = at_Ally) then
                                           TargetHouse := nil;
                                         TargetUnit := fTerrain.UnitsHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetUnit <> nil) and
-                                           (fPlayers.CheckAlliance(PlayerIndex, TargetUnit.GetOwner) = at_Ally) then
+                                           (fPlayers.CheckAlliance(fPlayerIndex, TargetUnit.GetOwner) = at_Ally) then
                                           TargetUnit := nil;
                                       end;
   end;
@@ -546,10 +566,10 @@ begin
         CurrentCommander := nil;
 
   //Iterate units list in search of warrior commanders, and then check the following: Hunger, (feed) formation, (units per row) position (from defence positions)
-  for i:=0 to fPlayers[PlayerIndex].Units.Count-1 do
+  for i:=0 to fPlayers[fPlayerIndex].Units.Count-1 do
   begin
-    if TKMUnit(fPlayers[PlayerIndex].Units.Items[i]) is TKMUnitWarrior then
-      with TKMUnitWarrior(fPlayers[PlayerIndex].Units.Items[i]) do
+    if TKMUnit(fPlayers[fPlayerIndex].Units.Items[i]) is TKMUnitWarrior then
+      with TKMUnitWarrior(fPlayers[fPlayerIndex].Units.Items[i]) do
       if not IsDeadOrDying and Visible then //Ignore warriors which are dead or still in barracks
       begin
         //ALL WARRIORS: Check hunger and feed
@@ -604,7 +624,7 @@ begin
           //In this case we choose the closest group, then move to a higher priority one later (see above)
           //This means at the start of the mission troops will take the position they are placed at rather than swapping around
           if not Positioned then
-            Positioned := FindPlaceForWarrior(TKMUnitWarrior(fPlayers[PlayerIndex].Units.Items[i]), AI_LINK_IDLE, AI_FILL_CLOSEST);
+            Positioned := FindPlaceForWarrior(TKMUnitWarrior(fPlayers[fPlayerIndex].Units.Items[i]), AI_LINK_IDLE, AI_FILL_CLOSEST);
 
           //Just chill and link with other idle groups
           if not Positioned then
@@ -652,7 +672,7 @@ end;
 
 procedure TKMPlayerAI.OwnerUpdate(aPlayer: TPlayerIndex);
 begin
-  PlayerIndex := aPlayer;
+  fPlayerIndex := aPlayer;
 end;
 
 
@@ -679,7 +699,7 @@ end;
 procedure TKMPlayerAI.RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
 var i: integer;
 begin
-  if fPlayers[PlayerIndex].PlayerType = pt_Human then Exit;
+  if fPlayers[fPlayerIndex].PlayerType = pt_Human then Exit;
 
   //todo: Right now "idle" troops (without an assigned defence position) will do nothing (no attacking, defending, etc.)
   //Any defence position that is within their defence radius of this threat will retaliate against it
@@ -695,7 +715,7 @@ end;
 //aHouse is our house that was attacked
 procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
 begin
-  case fPlayers[PlayerIndex].PlayerType of
+  case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
       begin
         if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
@@ -704,7 +724,7 @@ begin
           //(and it is desired behaviour: if player saw attack,
           //don't notify him as soon as he looks away)
           fTimeOfLastAttackMessage := fGame.GameTickCount;
-          if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fGame.Viewport.Position, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+          if (MyPlayer = fPlayers[fPlayerIndex]) and (GetLength(fGame.Viewport.Position, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
             fSoundLib.PlayNotification(an_Town);
         end;
       end;
@@ -717,12 +737,12 @@ end;
 //aUnit is our unit that was attacked
 procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
 begin
-  case fPlayers[PlayerIndex].PlayerType of
+  case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
       if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
       begin
         fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
-        if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fGame.Viewport.Position, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+        if (MyPlayer = fPlayers[fPlayerIndex]) and (GetLength(fGame.Viewport.Position, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
         begin
           if aUnit is TKMUnitWarrior then
             fSoundLib.PlayNotification(an_Troops)
@@ -764,7 +784,7 @@ procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
 var i: integer;
 begin
   SaveStream.Write('PlayerAI');
-  SaveStream.Write(PlayerIndex);
+  SaveStream.Write(fPlayerIndex);
   SaveStream.Write(fHasWonOrLost);
   SaveStream.Write(fTimeOfLastAttackMessage);
   SaveStream.Write(fLastEquippedTime);
@@ -788,10 +808,10 @@ end;
 
 
 procedure TKMPlayerAI.Load(LoadStream:TKMemoryStream);
-var i: integer;
+var I: Integer;
 begin
   LoadStream.ReadAssert('PlayerAI');
-  LoadStream.Read(PlayerIndex);
+  LoadStream.Read(fPlayerIndex);
   LoadStream.Read(fHasWonOrLost);
   LoadStream.Read(fTimeOfLastAttackMessage);
   LoadStream.Read(fLastEquippedTime);
@@ -808,28 +828,30 @@ begin
   LoadStream.Read(TroopFormations, SizeOf(TroopFormations));
   LoadStream.Read(DefencePositionsCount);
   SetLength(DefencePositions, DefencePositionsCount);
-  for i:=0 to DefencePositionsCount-1 do
-    DefencePositions[i] := TAIDefencePosition.Load(LoadStream);
+  for I := 0 to DefencePositionsCount - 1 do
+    DefencePositions[I] := TAIDefencePosition.Load(LoadStream);
 
   Attacks.Load(LoadStream);
 end;
 
 
 procedure TKMPlayerAI.SyncLoad;
-var i: integer;
+var I: Integer;
 begin
-  for i:=0 to DefencePositionsCount-1 do
-    DefencePositions[i].SyncLoad;
+  for I := 0 to DefencePositionsCount - 1 do
+    DefencePositions[I].SyncLoad;
 end;
 
 
 procedure TKMPlayerAI.UpdateState;
 begin
+  //Check if player has been defeated for Events
+  CheckDefeated;
 
   //Check goals for all players to maintain multiplayer consistency
-  case fPlayers[PlayerIndex].PlayerType of
+  case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:     CheckGoals; //This procedure manages victory, loss and messages all in one
-    pt_Computer:  if (MyPlayer <> fPlayers[PlayerIndex]) then
+    pt_Computer:  if (MyPlayer <> fPlayers[fPlayerIndex]) then
                   begin
                     CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
                     CheckArmy; //Feed army, position defence, arrange/organise groups

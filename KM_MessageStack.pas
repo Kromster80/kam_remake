@@ -38,8 +38,8 @@ type
     property Messages[aIndex: Integer]: TKMMessage read GetMessage; default;
 
     procedure AddEntry(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
-    procedure RemoveEntry(aIndex: Cardinal);
-    procedure InsertEntry(aIndex: Cardinal; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+    procedure RemoveEntry(aIndex: Integer);
+    procedure InsertEntry(aIndex: Integer; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -117,12 +117,12 @@ begin
 end;
 
 
-procedure TKMMessageList.RemoveEntry(aIndex: Cardinal);
+procedure TKMMessageList.RemoveEntry(aIndex: Integer);
 begin
   FreeAndNil(fList[aIndex]); //Release the deleted message
 
   //Move the messges to cover the gap
-  if aIndex <> fCount - 1 then //@Krom: This gives a warning: "Comparing signed and unsigned types - widened both operands"
+  if aIndex <> fCount - 1 then
     Move(fList[aIndex + 1], fList[aIndex], (fCount - 1 - aIndex) * SizeOf(TKMMessage));
 
   //Keep it neat
@@ -132,10 +132,10 @@ end;
 
 
 //Might be of use with priority messages
-procedure TKMMessageList.InsertEntry(aIndex: Cardinal; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+procedure TKMMessageList.InsertEntry(aIndex: Integer; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
 begin
   SetLength(fList, fCount + 1);
-  if aIndex <> fCount then //@Krom: This gives a warning: "Comparing signed and unsigned types - widened both operands"
+  if aIndex <> fCount then
     Move(fList[aIndex], fList[aIndex + 1], (fCount - aIndex) * SizeOf(TKMMessage));
 
   fList[aIndex] := TKMMessage.Create(aKind, aText, aLoc);
