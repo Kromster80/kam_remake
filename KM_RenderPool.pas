@@ -442,7 +442,7 @@ begin
 
   case aProj of
     pt_Arrow:     with fResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, Dir] do
-                    ID := Step[round(Flight*Count)+1]+1;
+                    ID := Step[round(Flight*Count)+1]+1; //todo: Bug occured once when Flight > 1
     pt_Bolt:      with fResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, Dir] do
                     ID := Step[round(Flight*Count)+1]+1;
     pt_SlingRock: with fResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, Dir] do
