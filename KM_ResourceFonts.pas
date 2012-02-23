@@ -149,9 +149,8 @@ begin
     for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do
       MyBitMap.Canvas.Pixels[ck,ci]:= TD[ci*TexWidth+ck] AND $FFFFFF;
 
-    CreateDir(ExeDir+'Export\');
-    CreateDir(ExeDir+'Export\Fonts\');
-    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(aFileName)+fResource.Palettes.PalFile(FontPal[aFont])+'.bmp');
+    ForceDirectories(ExeDir + 'Export\Fonts\');
+    MyBitMap.SaveToFile(ExeDir + 'Export\Fonts\'+ExtractFileName(aFileName)+fResource.Palettes.PalFile(FontPal[aFont])+'.bmp');
     MyBitMap.Free;
   end;
 

@@ -174,7 +174,7 @@ const
     );
 
 
-{ TSoundLib }    
+{ TSoundLib }
 constructor TSoundLib.Create(aLocale:string; aVolume:single);
 var
   Context: PALCcontext;
@@ -329,12 +329,13 @@ end;
 
 
 procedure TSoundLib.ExportSounds;
-var i:integer; S:TMemoryStream;
+var
+  i: Integer;
+  S: TMemoryStream;
 begin
   if not fIsSoundInitialized then Exit;
 
-  CreateDir(ExeDir+'Export\');
-  CreateDir(ExeDir+'Export\Sounds.dat\');
+  ForceDirectories(ExeDir + 'Export\SoundsDat\');
 
   for i:=1 to fWavesCount do
   if Length(fWaves[i].Data) > 0 then
@@ -343,7 +344,7 @@ begin
     S.Write(fWaves[i].Head, SizeOf(fWaves[i].Head));
     S.Write(fWaves[i].Data[0], Length(fWaves[i].Data));
     S.Write(fWaves[i].Foot[0], Length(fWaves[i].Foot));
-    S.SaveToFile(ExeDir+'Export\Sounds.dat\sound_'+int2fix(i,3)+'_'+SSoundFX[TSoundFX(i)]+'.wav');
+      S.SaveToFile(ExeDir + 'Export\SoundsDat\sound_' + int2fix(i, 3) + '_' + SSoundFX[TSoundFX(i)] + '.wav');
     S.Free;
   end;
 end;

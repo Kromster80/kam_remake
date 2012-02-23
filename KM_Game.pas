@@ -1109,24 +1109,29 @@ end;
 
 
 procedure TKMGame.SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
-var i:integer; fMissionParser: TMissionParserStandard;
+var
+  i: integer;
+  fMissionParser: TMissionParserStandard;
 begin
   if aMissionName = '' then exit;
 
   fPlayers.RemoveEmptyPlayers;
 
-  CreateDir(ExeDir+'Maps');
-  CreateDir(ExeDir+'Maps\'+aMissionName);
+  ForceDirectories(ExeDir + 'Maps\' + aMissionName);
   fTerrain.SaveToFile(MapNameToPath(aMissionName, 'map', aMultiplayer));
-  fMissionParser := TMissionParserStandard.Create(mpm_Editor,false);
+  fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
   fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat', aMultiplayer));
   FreeAndNil(fMissionParser);
   fGameName := aMissionName;
 
-  fPlayers.AddPlayers(MAX_PLAYERS-fPlayers.Count); //Activate all players
-  for i:=0 to fPlayers.Count-1 do //Reveal all players since we'll swap between them in MapEd
+  fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); // Activate all players
+
+  //Reveal all players since we'll swap between them in MapEd
+  for i := 0 to fPlayers.Count - 1 do
     fPlayers[i].FogOfWar.RevealEverything;
-  if MyPlayer = nil then MyPlayer := fPlayers[0];
+
+  if MyPlayer = nil then
+    MyPlayer := fPlayers[0];
 end;
 
 
