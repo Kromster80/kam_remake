@@ -37,6 +37,7 @@ type
     fUnitSprite:TKMUnitSprite;
     fUnitSprite2:TKMUnitSprite2;
     function GetAllowedPassability: TPassability;
+    function GetDescription: string;
     function GetDesiredPassability: TPassability;
     function GetFightType: TFightType;
     function GetGUIIcon:word;
@@ -45,7 +46,6 @@ type
     function GetMiningRange: byte;
     function GetSpeed:single;
     function GetUnitAnim(aAction:TUnitActionType; aDir:TKMDirection):TKMUnitsAnim;
-    function GetUnitDescription: string;
     function GetUnitName: string;
   public
     constructor Create(aType:TUnitType);
@@ -57,6 +57,7 @@ type
     property Attack:smallint read fUnitDat.Attack;
     property AttackHorse:smallint read fUnitDat.AttackHorse;
     property Defence:smallint read fUnitDat.Defence;
+    property Description: string read GetDescription;
     property Sight:smallint read fUnitDat.Sight;
     //Additional properties added by Remake
     property AllowedPassability:TPassability read GetAllowedPassability;
@@ -69,7 +70,6 @@ type
     property Speed:single read GetSpeed;
     function SupportsAction(aAct: TUnitActionType):boolean;
     property UnitAnim[aAction:TUnitActionType; aDir:TKMDirection]:TKMUnitsAnim read GetUnitAnim;
-    property UnitDescription:string read GetUnitDescription;
     property UnitName:string read GetUnitName;
   end;
 
@@ -324,7 +324,7 @@ begin
 end;
 
 
-function TKMUnitDatClass.GetUnitDescription: string;
+function TKMUnitDatClass.GetDescription: string;
 begin
   if IsValid and not IsAnimal then
     Result := fTextLibrary.GetTextString(siUnitDescriptions + UnitKaMOrder[fUnitType])

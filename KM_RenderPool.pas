@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
-  {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library ye-> FPReadJPEG?t
+  {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet -> FPReadJPEG?
   KM_Defaults, KM_CommonClasses, KM_Render, KM_ResourceSprites, KM_Points, KM_Terrain;
 
 type
@@ -442,7 +442,7 @@ begin
 
   case aProj of
     pt_Arrow:     with fResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, Dir] do
-                    ID := Step[round(Flight*Count)+1]+1;
+                    ID := Step[round(Flight*Count)+1]+1; //todo: Bug occured once when Flight > 1
     pt_Bolt:      with fResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, Dir] do
                     ID := Step[round(Flight*Count)+1]+1;
     pt_SlingRock: with fResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, Dir] do

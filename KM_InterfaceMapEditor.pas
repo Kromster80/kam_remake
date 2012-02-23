@@ -1213,7 +1213,7 @@ begin
   else
   begin
     //Citizen specific
-    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].UnitDescription;
+    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
     Label_UnitDescription.Show;
   end;
 end;

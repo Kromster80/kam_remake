@@ -99,7 +99,6 @@ type
     function CanClose: Boolean;
     procedure ToggleLocale(aLocale:shortstring);
     procedure Resize(X,Y: Integer);
-    procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
     function MapSizeText: string;
     procedure KeyDown(Key: Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
@@ -182,12 +181,14 @@ type
     procedure PaintInterface;
   end;
 
-  var
-    fGame: TKMGame;
+
+var
+  fGame: TKMGame;
+
 
 implementation
 uses
-  KM_Unit1, KM_Player, KM_GameInfo, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log,
+  KM_Main, KM_FormMain, KM_Player, KM_GameInfo, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log,
   KM_ResourceCursors;
 
 
@@ -208,7 +209,12 @@ begin
   fGameOptions := TKMGameOptions.Create;
 
   fGlobalSettings   := TGlobalSettings.Create;
+
   fRender           := TRender.Create(RenderHandle, fScreenX, fScreenY, aVSync);
+  //Show the message if user has old OpenGL drivers (pre-1.4)
+  if fRender.IsOldVersion then
+    Application.MessageBox(PChar(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]), 'Warning', MB_OK or MB_ICONWARNING);
+
   fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
@@ -306,12 +312,6 @@ begin
 end;
 
 
-procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
-begin
-  Form1.ToggleFullScreen(aToggle, fGlobalSettings.ResolutionID, fGlobalSettings.RefreshRate, fGlobalSettings.VSync, ReturnToOptions);
-end;
-
-
 procedure TKMGame.KeyDown(Key: Word; Shift: TShiftState);
 begin
   case fGameState of
@@ -349,10 +349,6 @@ begin
 
   //GLOBAL KEYS
   if Key = VK_F3 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
-  if Key = VK_F11  then begin
-    SHOW_DEBUG_CONTROLS := not SHOW_DEBUG_CONTROLS;
-    Form1.ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
-  end;
 
   case fGameState of
     gsNoGame:   fMainMenuInterface.KeyUp(Key, Shift); //Exit if handled
@@ -571,6 +567,7 @@ begin
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
   BaseSave;
 
+  fMain.StatusBarText(0, MapSizeText);
   fLog.AppendLog('Gameplay recording initialized',true);
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 end;
@@ -1210,7 +1207,7 @@ begin
                                         fGlobalSettings.AutoKickTimeout,
                                         fGlobalSettings.PingInterval,
                                         fGlobalSettings.MasterAnnounceInterval,
-                                        fGlobalSettings.GetLocalID);
+                                        fGlobalSettings.GetLocaleID);
   fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
 end;
 
@@ -1605,7 +1602,7 @@ begin
 
     //StatusBar
     if (fGameState in [gsRunning, gsReplay]) then
-      Form1.StatusBar1.Panels[2].Text := 'Time: ' + FormatDateTime('hh:nn:ss', GetMissionTime);
+      fMain.StatusBarText(2, 'Time: ' + FormatDateTime('hh:nn:ss', GetMissionTime));
   end;
   if DoGameHold then GameHold(true,DoGameHoldState);
 end;

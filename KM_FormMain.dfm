@@ -1,4 +1,4 @@
-object Form1: TForm1
+object FormMain: TFormMain
   Left = 405
   Top = 215
   HelpType = htKeyword
@@ -18,12 +18,11 @@ object Form1: TForm1
   Scaled = False
   OnCanResize = FormCanResize
   OnCloseQuery = FormCloseQuery
-  OnDestroy = FormDestroy
+  OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress
   OnKeyUp = FormKeyUp
   OnMouseWheel = FormMouseWheel
-  OnResize = FormResize
   DesignSize = (
     867
     245)
@@ -296,11 +295,5 @@ object Form1: TForm1
       Caption = 'About..'
       OnClick = AboutClick
     end
-  end
-  object Timer100ms: TTimer
-    Interval = 100
-    OnTimer = Timer100msTimer
-    Left = 80
-    Top = 192
   end
 end

@@ -28,6 +28,7 @@ type
     function GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
 
     property RendererVersion: AnsiString read fOpenGL_Version;
+    function IsOldVersion: Boolean;
     procedure Resize(Width,Height: Integer);
 
     property ScreenX: Word read fScreenX;
@@ -128,14 +129,19 @@ begin
 end;
 
 
+//1.4 is considered to be our minimal requirement
+function TRender.IsOldVersion: Boolean;
+begin
+  Result := not GL_VERSION_1_4;
+end;
+
+
 procedure TRender.BeginFrame;
 begin
   glClear(GL_COLOR_BUFFER_BIT); //Clear The Screen, can save some FPS on this one
 
   //RC.Activate for OSX
 end;
-
-
 
 
 //Render highlight overlay to make whole picture look brighter (more saturated)

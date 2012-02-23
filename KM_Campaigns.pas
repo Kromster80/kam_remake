@@ -93,7 +93,7 @@ constructor TKMCampaignsCollection.Create;
 begin
   inherited;
   fList := TList.Create;
-  ScanFolder(ExeDir + 'Saves\');
+  ScanFolder(ExeDir + 'Campaigns\');
   LoadProgress(ExeDir + 'Saves\Campaigns.dat');
 end;
 

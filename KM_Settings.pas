@@ -79,7 +79,7 @@ type
     property FullScreen:boolean read fFullScreen write SetFullScreen default true;
     property AlphaShadows:boolean read fAlphaShadows write SetAlphaShadows default true;
     property Locale:shortstring read fLocale write SetLocale;
-    function GetLocalID:byte;
+    function GetLocaleID:byte;
     property MusicOn:boolean read fMusicOn write SetMusicOn default true;
     property ShuffleOn:boolean read fShuffleOn write SetShuffleOn default false;
     property MusicVolume:byte read fMusicVolume write SetMusicVolume;
@@ -149,13 +149,14 @@ begin
 end;
 
 
-function TGlobalSettings.GetLocalID:byte;
-var i:integer;
+function TGlobalSettings.GetLocaleID: byte;
+var
+  I: Integer;
 begin
   Result := 0;
-  for i:=1 to LOCALES_COUNT do
-    if Locales[i,1] = Locale then
-      Result := i;
+  for I := Low(Locales) to High(Locales) do
+    if Locales[I, 1] = Locale then
+      Result := I;
 end;
 
 
@@ -165,27 +166,27 @@ begin
   Result := FileExists(FileName);
 
   f := TMemIniFile.Create(FileName);
-  
-  fBrightness       := f.ReadInteger('GFX','Brightness',1);
-  fFullScreen       := f.ReadBool   ('GFX','FullScreen',false);
-  fVSync            := f.ReadBool   ('GFX','VSync',true);
-  fAlphaShadows     := f.ReadBool   ('GFX','AlphaShadows',true);
-  fResolutionWidth  := f.ReadInteger('GFX','ResolutionWidth',1024);
-  fResolutionHeight := f.ReadInteger('GFX','ResolutionHeight',768);
-  fRefreshRate      := f.ReadInteger('GFX','RefreshRate',60);
 
-  fAutosave      := f.ReadBool   ('Game','Autosave',true); //Should be ON by default
-  fScrollSpeed   := f.ReadInteger('Game','ScrollSpeed',10);
-  Locale         := f.ReadString ('Game','Locale', DEFAULT_LOCALE); //Wrong name will become ENG too
-  fSpeedPace     := f.ReadInteger('Game','SpeedPace',100);
-  fSpeedMedium   := f.ReadInteger('Game','SpeedMedium',3);
-  fSpeedFast     := f.ReadInteger('Game','SpeedFast',6);
-  fSpeedVeryFast := f.ReadInteger('Game','SpeedVeryFast',10);
+  fBrightness       := f.ReadInteger('GFX', 'Brightness',       1);
+  fFullScreen       := f.ReadBool   ('GFX', 'FullScreen',       False);
+  fVSync            := f.ReadBool   ('GFX', 'VSync',            True);
+  fAlphaShadows     := f.ReadBool   ('GFX', 'AlphaShadows',     True);
+  fResolutionWidth  := f.ReadInteger('GFX', 'ResolutionWidth',  1024);
+  fResolutionHeight := f.ReadInteger('GFX', 'ResolutionHeight', 768);
+  fRefreshRate      := f.ReadInteger('GFX', 'RefreshRate',      60);
 
-  fSoundFXVolume := f.ReadInteger('SFX','SFXVolume',10);
-  fMusicVolume   := f.ReadInteger('SFX','MusicVolume',10);
-  fMusicOn       := f.ReadBool   ('SFX','MusicEnabled',true);
-  fShuffleOn     := f.ReadBool   ('SFX','ShuffleEnabled',false);
+  fAutosave       := f.ReadBool   ('Game', 'Autosave',       True); //Should be ON by default
+  fScrollSpeed    := f.ReadInteger('Game', 'ScrollSpeed',    10);
+  Locale          := f.ReadString ('Game', 'Locale',         DEFAULT_LOCALE); //Wrong name will become ENG too
+  fSpeedPace      := f.ReadInteger('Game', 'SpeedPace',      100);
+  fSpeedMedium    := f.ReadInteger('Game', 'SpeedMedium',    3);
+  fSpeedFast      := f.ReadInteger('Game', 'SpeedFast',      6);
+  fSpeedVeryFast  := f.ReadInteger('Game', 'SpeedVeryFast',  10);
+
+  fSoundFXVolume  := f.ReadInteger('SFX',  'SFXVolume',      10);
+  fMusicVolume    := f.ReadInteger('SFX',  'MusicVolume',    10);
+  fMusicOn        := f.ReadBool   ('SFX',  'MusicEnabled',   True);
+  fShuffleOn      := f.ReadBool   ('SFX',  'ShuffleEnabled', False);
 
   if INI_HITPOINT_RESTORE then
     fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',DEFAULT_HITPOINT_RESTORE)
@@ -218,71 +219,72 @@ begin
 end;
 
 
-procedure TGlobalSettings.SaveSettingsToFile(FileName:string);
-var f:TMemIniFile; //Don't rewrite the file for each change, do it in one batch
+//Don't rewrite the file for each individual change, do it in one batch for simplicity
+procedure TGlobalSettings.SaveSettingsToFile(FileName: string);
+var F: TMemIniFile;
 begin
-  f := TMemIniFile.Create(FileName);
+  F := TMemIniFile.Create(FileName);
 
-  f.WriteInteger('GFX','Brightness',      fBrightness);
-  f.WriteBool   ('GFX','FullScreen',      fFullScreen);
-  f.WriteBool   ('GFX','VSync',           fVSync);
-  f.WriteBool   ('GFX','AlphaShadows',    fAlphaShadows);
-  f.WriteInteger('GFX','ResolutionWidth', fResolutionWidth);
-  f.WriteInteger('GFX','ResolutionHeight',fResolutionHeight);
-  f.WriteInteger('GFX','RefreshRate',     fRefreshRate);
+  F.WriteInteger('GFX','Brightness',      fBrightness);
+  F.WriteBool   ('GFX','FullScreen',      fFullScreen);
+  F.WriteBool   ('GFX','VSync',           fVSync);
+  F.WriteBool   ('GFX','AlphaShadows',    fAlphaShadows);
+  F.WriteInteger('GFX','ResolutionWidth', fResolutionWidth);
+  F.WriteInteger('GFX','ResolutionHeight',fResolutionHeight);
+  F.WriteInteger('GFX','RefreshRate',     fRefreshRate);
 
-  f.WriteBool   ('Game','Autosave',   fAutosave);
-  f.WriteInteger('Game','ScrollSpeed',fScrollSpeed);
-  f.WriteString ('Game','Locale',     fLocale);
-  f.WriteInteger('Game','SpeedPace',  fSpeedPace);
-  f.WriteInteger('Game','SpeedMedium',fSpeedMedium);
-  f.WriteInteger('Game','SpeedFast',  fSpeedFast);
-  f.WriteInteger('Game','SpeedVeryFast',fSpeedVeryFast);
+  F.WriteBool   ('Game','Autosave',   fAutosave);
+  F.WriteInteger('Game','ScrollSpeed',fScrollSpeed);
+  F.WriteString ('Game','Locale',     fLocale);
+  F.WriteInteger('Game','SpeedPace',  fSpeedPace);
+  F.WriteInteger('Game','SpeedMedium',fSpeedMedium);
+  F.WriteInteger('Game','SpeedFast',  fSpeedFast);
+  F.WriteInteger('Game','SpeedVeryFast',fSpeedVeryFast);
 
-  f.WriteInteger('SFX','SFXVolume',     fSoundFXVolume);
-  f.WriteInteger('SFX','MusicVolume',   fMusicVolume);
-  f.WriteBool   ('SFX','MusicEnabled',  fMusicOn);
-  f.WriteBool   ('SFX','ShuffleEnabled',fShuffleOn);
+  F.WriteInteger('SFX','SFXVolume',     fSoundFXVolume);
+  F.WriteInteger('SFX','MusicVolume',   fMusicVolume);
+  F.WriteBool   ('SFX','MusicEnabled',  fMusicOn);
+  F.WriteBool   ('SFX','ShuffleEnabled',fShuffleOn);
 
   if INI_HITPOINT_RESTORE then
-    f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
+    F.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
 
-  f.WriteString ('Multiplayer','Name',    fMultiplayerName);
-  f.WriteString ('Multiplayer','LastIP',  fMultiplayerIP);
-  f.WriteString ('Multiplayer','LastPort',fLastPort);
-  f.WriteString ('Multiplayer','LastRoom',fLastRoom);
+  F.WriteString ('Multiplayer','Name',    fMultiplayerName);
+  F.WriteString ('Multiplayer','LastIP',  fMultiplayerIP);
+  F.WriteString ('Multiplayer','LastPort',fLastPort);
+  F.WriteString ('Multiplayer','LastRoom',fLastRoom);
 
-  f.WriteString ('Server','ServerName',fServerName);
-  f.WriteString ('Server','WelcomeMessage',fServerWelcomeMessage);
-  f.WriteString ('Server','ServerPort',fServerPort);
-  f.WriteBool   ('Server','AnnounceDedicatedServer',fAnnounceServer);
-  f.WriteInteger('Server','MaxRooms',fMaxRooms);
-  f.WriteString ('Server','HTMLStatusFile',fHTMLStatusFile);
-  f.WriteInteger('Server','MasterServerAnnounceInterval',fMasterAnnounceInterval);
-  f.WriteString ('Server','MasterServerAddress',fMasterServerAddress);
-  f.WriteInteger('Server','AutoKickTimeout',fAutoKickTimeout);
-  f.WriteInteger('Server','PingMeasurementInterval',fPingInterval);
+  F.WriteString ('Server','ServerName',fServerName);
+  F.WriteString ('Server','WelcomeMessage',fServerWelcomeMessage);
+  F.WriteString ('Server','ServerPort',fServerPort);
+  F.WriteBool   ('Server','AnnounceDedicatedServer',fAnnounceServer);
+  F.WriteInteger('Server','MaxRooms',fMaxRooms);
+  F.WriteString ('Server','HTMLStatusFile',fHTMLStatusFile);
+  F.WriteInteger('Server','MasterServerAnnounceInterval',fMasterAnnounceInterval);
+  F.WriteString ('Server','MasterServerAddress',fMasterServerAddress);
+  F.WriteInteger('Server','AutoKickTimeout',fAutoKickTimeout);
+  F.WriteInteger('Server','PingMeasurementInterval',fPingInterval);
 
-  f.UpdateFile; //Write changes to file
-  FreeAndNil(f);
+  F.UpdateFile; //Write changes to file
+  FreeAndNil(F);
   fNeedsSave := false;
 end;
 
 
 //Scan list of available locales and pick existing one, or ignore
-procedure TGlobalSettings.SetLocale(aLocale:shortstring);
-var i:integer;
+procedure TGlobalSettings.SetLocale(aLocale: ShortString);
+var I: Integer;
 begin
-  fLocale := Locales[1,1]; //Default - ENG
-  for i:=low(Locales) to high(Locales) do
-    if Locales[i,1] = aLocale then
+  fLocale := DEFAULT_LOCALE; //Default - ENG
+  for I := Low(Locales) to High(Locales) do
+    if Locales[I,1] = aLocale then
       fLocale := aLocale;
 end;
 
 
-procedure TGlobalSettings.SetBrightness(aValue:byte);
+procedure TGlobalSettings.SetBrightness(aValue: Byte);
 begin
-  fBrightness := EnsureRange(aValue,0,20);
+  fBrightness := EnsureRange(aValue, 0, 20);
   fNeedsSave  := true;
 end;
 

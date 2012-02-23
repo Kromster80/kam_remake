@@ -328,7 +328,7 @@ function TKMEvent.TryLoadFromLine(aLine: AnsiString): Boolean;
   end;
 var
   Words: array [1 .. (2 + MAX_EVENT_PARAMS) * 2] of string;
-  I, N, L, R, WordsCount: Integer;
+  I, N, L, R: Integer;
 begin
   Result := False;
 
@@ -357,8 +357,8 @@ begin
     for I := 0 to TriggerParamCount[fTrigger.Trigger] - 1 do
       Result := Result and TryStrToInt(Words[I + 3], fTrigger.Params[I]);
 
-  if Result then
-    N := 2 + TriggerParamCount[fTrigger.Trigger];
+  if not Result then Exit;
+  N := 2 + TriggerParamCount[fTrigger.Trigger];
 
   Result := Result and GetAction(Words[N + 1], fAction.Action) and TryStrToInt(Words[N + 2], fAction.Player);
 

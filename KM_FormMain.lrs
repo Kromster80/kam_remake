@@ -1,18 +1,20 @@
+{ This is an automatically generated lazarus resource file }
+
 LazarusResources.Add('TForm1','FORMDATA',[
   'TPF0'#6'TForm1'#5'Form1'#4'Left'#3'-'#1#6'Height'#3#245#0#3'Top'#2'Z'#5'Widt'
   +'h'#3'c'#3#8'HelpType'#7#9'htKeyword'#11'BorderStyle'#7#6'bsNone'#7'Caption'
-  +#6#5'Form1'#12'ClientHeight'#3#226#0#11'ClientWidth'#3'c'#3#11'Font.Height'#2
+  +#6#5'Form1'#12'ClientHeight'#3#225#0#11'ClientWidth'#3'c'#3#11'Font.Height'#2
   +#245#9'Font.Name'#6#13'MS Sans Serif'#10'KeyPreview'#9#4'Menu'#7#9'MainMenu1'
-  +#12'OnCloseQuery'#7#14'FormCloseQuery'#9'OnDestroy'#7#11'FormDestroy'#9'OnKe'
-  +'yDown'#7#11'FormKeyDown'#10'OnKeyPress'#7#12'FormKeyPress'#7'OnKeyUp'#7#9'F'
-  +'ormKeyUp'#12'OnMouseWheel'#7#14'FormMouseWheel'#8'OnResize'#7#10'FormResize'
-  +#8'Position'#7#14'poScreenCenter'#10'LCLVersion'#6#6'0.9.29'#0#6'TPanel'#6'P'
-  +'anel5'#4'Left'#2#0#6'Height'#3#206#0#3'Top'#2#0#5'Width'#3'c'#3#7'Anchors'
+  +#12'OnCloseQuery'#7#14'FormCloseQuery'#8'OnCreate'#7#10'FormCreate'#9'OnDest'
+  +'roy'#7#11'FormDestroy'#9'OnKeyDown'#7#11'FormKeyDown'#10'OnKeyPress'#7#12'F'
+  +'ormKeyPress'#7'OnKeyUp'#7#9'FormKeyUp'#12'OnMouseWheel'#7#14'FormMouseWheel'
+  +#8'Position'#7#14'poScreenCenter'#10'LCLVersion'#6#6'0.9.31'#0#6'TPanel'#6'P'
+  +'anel5'#4'Left'#2#0#6'Height'#3#205#0#3'Top'#2#0#5'Width'#3'c'#3#7'Anchors'
   +#11#5'akTop'#6'akLeft'#7'akRight'#8'akBottom'#0#10'BevelOuter'#7#6'bvNone'#5
   +'Color'#7#8'clMaroon'#11'ParentColor'#8#8'TabOrder'#2#0#14'UseDockManager'#8
   +#11'OnMouseDown'#7#15'Panel1MouseDown'#11'OnMouseMove'#7#15'Panel1MouseMove'
   +#9'OnMouseUp'#7#13'Panel1MouseUp'#0#0#10'TStatusBar'#10'StatusBar1'#4'Left'#2
-  +#0#6'Height'#2#20#3'Top'#3#206#0#5'Width'#3'c'#3#6'Panels'#14#1#4'Text'#6#11
+  +#0#6'Height'#2#23#3'Top'#3#202#0#5'Width'#3'c'#3#6'Panels'#14#1#4'Text'#6#11
   +'Map size: -'#5'Width'#2'n'#0#1#4'Text'#6#17'Cursor: 46.1 47.2'#5'Width'#3
   +#160#0#0#1#4'Text'#6#11'Time: 02:15'#5'Width'#2'Z'#0#1#4'Text'#6#13'50.0 fps'
   +' (50)'#5'Width'#2'P'#0#0#11'SimplePanel'#8#0#0#9'TGroupBox'#9'GroupBox1'#4
@@ -22,7 +24,7 @@ LazarusResources.Add('TForm1','FORMDATA',[
   +'Left'#2'U'#6'Height'#2#14#3'Top'#2#15#5'Width'#2'2'#7'Caption'#6#11'Passabi'
   +'lity'#11'ParentColor'#8#0#0#6'TLabel'#6'Label3'#4'Left'#2'e'#6'Height'#2#14
   +#3'Top'#2'#'#5'Width'#2#7#7'Caption'#6#1'0'#11'ParentColor'#8#0#0#9'TCheckBo'
-  +'x'#9'CheckBox2'#4'Left'#2#8#6'Height'#2#17#3'Top'#2'4'#5'Width'#2'G'#7'Capt'
+  +'x'#9'CheckBox2'#4'Left'#2#8#6'Height'#2#19#3'Top'#2'4'#5'Width'#2'M'#7'Capt'
   +'ion'#6#10'Speed x300'#7'OnClick'#7#14'CheckBox2Click'#8'TabOrder'#2#1#0#0#9
   +'TTrackBar'#22'Debug_PassabilityTrack'#4'Left'#2#2#6'Height'#2#17#3'Top'#2#14
   +#5'Width'#2'S'#3'Max'#2#9#8'OnChange'#7#28'Debug_PassabilityTrackChange'#8'P'
@@ -81,7 +83,5 @@ LazarusResources.Add('TForm1','FORMDATA',[
   +#7'OnClick'#7#19'Export_Sounds1Click'#0#0#9'TMenuItem'#2'N2'#7'Caption'#6#1
   +'-'#0#0#9'TMenuItem'#20'Export_Deliverlists1'#7'Caption'#6#20'Export Deliver'
   +' lists'#7'OnClick'#7#25'Export_Deliverlists1Click'#0#0#0#9'TMenuItem'#6'Abo'
-  +'ut1'#7'Caption'#6#7'About..'#7'OnClick'#7#10'AboutClick'#0#0#0#6'TTimer'#10
-  +'Timer100ms'#8'Interval'#2'd'#7'OnTimer'#7#15'Timer100msTimer'#4'left'#2'P'#3
-  +'top'#3#192#0#0#0#0
+  +'ut1'#7'Caption'#6#7'About..'#7'OnClick'#7#10'AboutClick'#0#0#0#0
 ]);

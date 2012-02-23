@@ -1,7 +1,8 @@
 unit KM_Viewport;
 {$I KaM_Remake.inc}
 interface
-uses Math, Controls, Forms, Windows, KM_CommonClasses, KM_Points;
+uses Math, Controls, Forms, {$IFDEF MSWindows} Windows, {$ENDIF}
+  KM_CommonClasses, KM_Points;
 
 type
   { Here should be viewport routines }
@@ -43,7 +44,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Sound, KM_Game, KM_Unit1, KM_Resource, KM_ResourceCursors;
+uses KM_Defaults, KM_Sound, KM_Game, KM_Main, KM_Resource, KM_ResourceCursors;
 
 
 constructor TViewport.Create(aWidth, aHeight: Integer);
@@ -163,13 +164,13 @@ var
   ScreenBounds: TRect;
   Temp:byte;
 begin
-  ScreenBounds := Form1.GetScreenBounds;
+  ScreenBounds := fMain.GetScreenBounds;
   //With multiple monitors the cursor position can be outside of this screen, which makes scrolling too fast
   CursorPoint.X := EnsureRange(Mouse.CursorPos.X, ScreenBounds.Left, ScreenBounds.Right );
   CursorPoint.Y := EnsureRange(Mouse.CursorPos.Y, ScreenBounds.Top , ScreenBounds.Bottom);
 
   //Do not do scrolling when the form is not focused (player has switched to another application)
-  if not Form1.Active or
+  if not fMain.IsFormActive or
     (not ScrollKeyLeft  and
      not ScrollKeyUp    and
      not ScrollKeyRight and
