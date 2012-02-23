@@ -194,23 +194,13 @@ begin
   //Remember as it gets wiped on game recreate
   VSync := aSettings.VSync;
 
-  if aSettings.FullScreen then begin
-    SetScreenResolution(ScreenRes[aSettings.ResolutionID].Width, ScreenRes[aSettings.ResolutionID].Height, aSettings.RefreshRate);
-    FormMain.Refresh;
-    FormMain.BorderStyle  := bsSizeable; //if we don't set Form1 sizeable it won't maximize
-    FormMain.WindowState  := wsMaximized;
-    FormMain.BorderStyle  := bsNone;     //and now we can make it borderless again
-    FormMain.Refresh;
-  end else begin
+  if aSettings.FullScreen then
+    SetScreenResolution(ScreenRes[aSettings.ResolutionID].Width, ScreenRes[aSettings.ResolutionID].Height, aSettings.RefreshRate)
+  else
     ResetResolution;
-    FormMain.Refresh;
-    FormMain.Position     := poScreenCenter;
-    FormMain.WindowState  := wsNormal;
-    FormMain.BorderStyle  := bsSizeable;
-    FormMain.ClientWidth  := MENU_DESIGN_X;
-    FormMain.ClientHeight := MENU_DESIGN_Y;
-    FormMain.Refresh;
-  end;
+
+  FormLoading.Position := poScreenCenter;
+  FormMain.ToggleFullscreen(aSettings.FullScreen);
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   FreeThenNil(fGame); //Saves all settings into ini file in midst
@@ -226,7 +216,9 @@ begin
   fGame.AfterConstruction(aReturnToOptions);
   fGame.OnCursorUpdate := StatusBarText;
 
-  fLog.AppendLog('ToggleFullscreen - '+inttostr(FormMain.Panel5.Top)+':'+inttostr(FormMain.Panel5.Height));
+  fLog.AppendLog('ToggleFullscreen');
+  fLog.AppendLog('Form Width/Height: '+inttostr(FormMain.Width)+':'+inttostr(FormMain.Height));
+  fLog.AppendLog('Panel Width/Height: '+inttostr(FormMain.Panel5.Width)+':'+inttostr(FormMain.Panel5.Height));
 
   ApplyCursorRestriction;
 end;
@@ -429,7 +421,6 @@ begin
   end;
 
   ChangeDisplaySettings(DeviceMode, CDS_FULLSCREEN);
-  ApplyCursorRestriction;
   {$ENDIF}
 end;
 
@@ -437,7 +428,10 @@ end;
 //Restore initial Windows resolution
 procedure TKMMain.ResetResolution;
 begin
-  {$IFDEF MSWindows}ChangeDisplaySettings(DEVMODE(nil^),0);{$ENDIF}
+  {$IFDEF MSWindows}
+  //if (fGame = nil) or (fGame.GlobalSettings = nil) or fGame.GlobalSettings.FullScreen then
+    ChangeDisplaySettings(DEVMODE(nil^), 0);
+  {$ENDIF}
 end;
 
 
@@ -507,13 +501,11 @@ end;
 
 procedure TKMMain.Resize(X, Y: Integer);
 begin
+  if fLog <> nil then
+    fLog.AppendLog('FormResize X/Y: '+inttostr(X)+':'+inttostr(Y));
+
   if fGame <> nil then
     fGame.Resize(X, Y);
-
-  if fLog <> nil then
-    fLog.AppendLog('FormResize - '+inttostr(X)+':'+inttostr(Y));
-
-  ApplyCursorRestriction;
 end;
 
 
@@ -525,6 +517,7 @@ begin
 end;
 
 
+//Restrict cursor movement in fullscreen mode (@Lewin: Why?)
 procedure TKMMain.ApplyCursorRestriction;
 var Rect: TRect;
 begin
@@ -532,14 +525,12 @@ begin
   if (fGame <> nil) and (fGame.GlobalSettings <> nil) and fGame.GlobalSettings.FullScreen then
   begin
     Rect := FormMain.BoundsRect;
-    ClipCursor(@Rect); //Restrict the cursor movement to inside our form
+    ClipCursor(@Rect);
   end
   else
     ClipCursor(nil); //Otherwise have no restriction
   {$ENDIF}
 end;
-
-
 
 
 end.

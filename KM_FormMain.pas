@@ -74,13 +74,12 @@ type
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure ExportMainMenu1Click(Sender: TObject);
-    procedure FormCreate;
+    procedure FormCreate(Sender: TObject);
     procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure Button_CalcArmyClick(Sender: TObject);
     procedure Debug_EnableCheatsClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure FormResize(Sender:TObject);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -116,7 +115,8 @@ type
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
     {$ENDIF}
   public
-    procedure ToggleControlsVisibility(ShowCtrls:boolean);
+    procedure ToggleControlsVisibility(ShowCtrls: Boolean);
+    procedure ToggleFullscreen(aFullscreen: Boolean);
   end;
 
 
@@ -189,7 +189,7 @@ end;
 
 
 //Remove VCL panel and use flicker-free TMyPanel instead
-procedure TFormMain.FormCreate;
+procedure TFormMain.FormCreate(Sender: TObject);
 begin
   RemoveControl(Panel5);
 
@@ -225,14 +225,6 @@ begin
   NewHeight := Math.max(NewHeight, MENU_DESIGN_Y + Margin.Y);
 
   Resize := True;
-end;
-
-
-procedure TFormMain.FormResize(Sender:TObject);
-begin
-  if fLog<>nil then
-    fLog.AppendLog('FormResize - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
-  fMain.ApplyCursorRestriction;
 end;
 
 
@@ -465,6 +457,27 @@ begin
   Panel5.Width  := ClientWidth;
 
   fMain.Resize(Panel5.Width, Panel5.Height);
+end;
+
+
+procedure TFormMain.ToggleFullscreen(aFullscreen: Boolean);
+begin
+  if aFullScreen then begin
+    Show; //Make sure the form is shown (e.g. on game creation), otherwise it won't wsMaximize
+    BorderStyle  := bsSizeable; //if we don't set Form1 sizeable it won't maximize
+    WindowState  := wsNormal;
+    WindowState  := wsMaximized;
+    BorderStyle  := bsNone;     //and now we can make it borderless again
+  end else begin
+    BorderStyle  := bsSizeable;
+    WindowState  := wsNormal;
+    ClientWidth  := MENU_DESIGN_X;
+    ClientHeight := MENU_DESIGN_Y;
+    Position     := poScreenCenter;
+  end;
+
+  //Make sure Panel is properly aligned
+  Panel5.Align := alClient;
 end;
 
 
