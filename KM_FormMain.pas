@@ -3,9 +3,9 @@ unit KM_FormMain;
 interface
 uses
   Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils,
+  {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
-  {$IFDEF FPC} LResources; {$ENDIF}
 
 
 type
@@ -115,7 +115,7 @@ type
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
     {$ENDIF}
   public
-    procedure ToggleControlsVisibility(ShowCtrls: Boolean);
+    procedure ToggleControlsVisibility(aShowCtrls: Boolean);
     procedure ToggleFullscreen(aFullscreen: Boolean);
   end;
 
@@ -135,7 +135,6 @@ uses
   KM_Log,
   KM_Main,
   KM_Points,
-  KM_Utils,
   //Use these units directly to avoid pass-through methods in fMain
   KM_Resource,
   KM_ResourceSprites,
@@ -160,7 +159,7 @@ var
   PS: TPaintStruct;
   P: TPoint;
 begin
-  P := ClientToScreen(Point(0, 0));
+  P := ClientToScreen(Classes.Point(0, 0));
   //It is said to help with black borders bug in Windows
   if (LastScreenPos.X <> P.X) or (LastScreenPos.Y <> P.Y) then
   begin
@@ -430,25 +429,25 @@ begin
 end;
 
 
-procedure TFormMain.ToggleControlsVisibility(ShowCtrls:boolean);
+procedure TFormMain.ToggleControlsVisibility(aShowCtrls: Boolean);
 var i:integer;
 begin
   Refresh;
 
-  GroupBox1.Visible  := ShowCtrls;
-  StatusBar1.Visible := ShowCtrls;
+  GroupBox1.Visible  := aShowCtrls;
+  StatusBar1.Visible := aShowCtrls;
   for i:=1 to MainMenu1.Items.Count do
-    MainMenu1.Items[i-1].Visible := ShowCtrls;
+    MainMenu1.Items[i-1].Visible := aShowCtrls;
 
   //For some reason cycling Form.Menu fixes the black bar appearing under the menu upon making it visible.
   //This is a better workaround than ClientHeight = +20 because it works on Lazarus and high DPI where Menu.Height <> 20.
   Menu := nil;
   Menu := MainMenu1;
 
-  GroupBox1.Enabled  := ShowCtrls;
-  StatusBar1.Enabled := ShowCtrls;
+  GroupBox1.Enabled  := aShowCtrls;
+  StatusBar1.Enabled := aShowCtrls;
   for i:=1 to MainMenu1.Items.Count do
-    MainMenu1.Items[i-1].Enabled := ShowCtrls;
+    MainMenu1.Items[i-1].Enabled := aShowCtrls;
 
   Refresh;
 
@@ -462,8 +461,9 @@ end;
 
 procedure TFormMain.ToggleFullscreen(aFullscreen: Boolean);
 begin
+  Show; //Make sure the form is shown (e.g. on game creation), otherwise it won't wsMaximize
+
   if aFullScreen then begin
-    Show; //Make sure the form is shown (e.g. on game creation), otherwise it won't wsMaximize
     BorderStyle  := bsSizeable; //if we don't set Form1 sizeable it won't maximize
     WindowState  := wsNormal;
     WindowState  := wsMaximized;
@@ -521,10 +521,10 @@ begin
 end;
 
 
-initialization
-
 {$IFDEF FPC}
-{$I KM_Unit1.lrs}
+initialization
+{$I KM_FormMain.lrs}
 {$ENDIF}
+
 
 end.

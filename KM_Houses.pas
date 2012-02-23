@@ -258,7 +258,7 @@ type
     procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
     function CheckResIn(aResource: TResourceType): Word; override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
 

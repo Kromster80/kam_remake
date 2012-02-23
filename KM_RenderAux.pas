@@ -15,7 +15,7 @@ type
   public
     procedure Circle(x,y,rad:single; Fill,Line:TColor4);
     procedure Dot(X,Y:single; aCol:TColor4);
-    procedure Passability(aRect: TKMRect; Passability:integer);
+    procedure Passability(aRect: TKMRect; aPass: Integer);
     procedure Projectile(x1,y1,x2,y2:single);
     procedure Quad(pX,pY:integer; aCol:TColor4);
     procedure Text(pX,pY:integer; aText:string; aCol:TColor4);
@@ -107,20 +107,15 @@ begin
 end;
 
 
-procedure TRenderAux.Passability(aRect: TKMRect; Passability: Integer);
+procedure TRenderAux.Passability(aRect: TKMRect; aPass: Integer);
 var I,K: Integer;
 begin
-  if Passability <> 0 then
+  if aPass <> 0 then
   begin
     glColor4f(0,1,0,0.25);
     for I := aRect.Y1 to aRect.Y2 do
     for K := aRect.X1 to aRect.X2 do
-      {$IFDEF WDC}
-      if Word(fTerrain.Land[I,K].Passability) AND (1 shl Passability) = (1 shl Passability) then
-      {$ENDIF}
-      {$IFDEF FPC} //Can't accept word
-      if Integer(fTerrain.Land[I,K].Passability) AND (1 shl Passability) = (1 shl Passability) then
-      {$ENDIF}
+      if TPassability(Byte(Low(TPassability)) + aPass) in fTerrain.Land[I,K].Passability then
         RenderQuad(K,I);
   end;
 end;

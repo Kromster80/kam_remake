@@ -6,24 +6,24 @@ object Form1: TForm1
   HelpType = htKeyword
   BorderStyle = bsNone
   Caption = 'Form1'
-  ClientHeight = 226
+  ClientHeight = 225
   ClientWidth = 867
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   KeyPreview = True
   Menu = MainMenu1
   OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress
   OnKeyUp = FormKeyUp
   OnMouseWheel = FormMouseWheel
-  OnResize = FormResize
   Position = poScreenCenter
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object Panel5: TPanel
     Left = 0
-    Height = 206
+    Height = 205
     Top = 0
     Width = 867
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -38,8 +38,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 20
-    Top = 206
+    Height = 23
+    Top = 202
     Width = 867
     Panels = <    
       item
@@ -87,9 +87,9 @@ object Form1: TForm1
     end
     object CheckBox2: TCheckBox
       Left = 8
-      Height = 17
+      Height = 19
       Top = 52
-      Width = 71
+      Width = 77
       Caption = 'Speed x300'
       OnClick = CheckBox2Click
       TabOrder = 1
@@ -290,11 +290,5 @@ object Form1: TForm1
       Caption = 'About..'
       OnClick = AboutClick
     end
-  end
-  object Timer100ms: TTimer
-    Interval = 100
-    OnTimer = Timer100msTimer
-    left = 80
-    top = 192
   end
 end

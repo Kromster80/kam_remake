@@ -2,14 +2,12 @@ unit KM_Main;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Forms, ExtCtrls, SysUtils, Windows, MMSystem, KromUtils, StrUtils, Math,
-  KM_FormLoading, KM_FormMain, KM_Settings, KM_Points;
+  Classes, Controls, ExtCtrls, Forms, Math, SysUtils, StrUtils, Windows, MMSystem, KromUtils,
+  KM_FormLoading, KM_FormMain, KM_Settings;
 
 type
   TKMMain = class
   private
-    //fFormMain: TFormMain;
-    //fFormLoading: TFormLoading;
     fTimer: TTimer;
 
     procedure DoDeactivate(Sender: TObject);
@@ -70,8 +68,6 @@ begin
   FormLoading.Show; //This is our splash screen
   FormLoading.Refresh;
 
-  FormMain.ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
-
   {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
   {$ENDIF}
@@ -99,6 +95,8 @@ begin
   fTimer.Enabled := True;
 
   FormMain.Caption := 'KaM Remake - ' + GAME_VERSION;
+  FormMain.ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
+
   FormLoading.Hide;
 end;
 
@@ -439,7 +437,7 @@ function TKMMain.GetScreenBounds: TRect;
 var i: integer;
     FirstTime: boolean;
 begin
-  Result := Rect(-1,-1,-1,-1);
+  Result := Classes.Rect(-1,-1,-1,-1);
   FormMain.Monitor; //This forces Delphi to reload Screen.Monitors (only if necessary) and so fixes crashes when using multiple monitors
   FirstTime := true;
   //Maximized is a special case, it can only be on one monitor. This is required because when maximized form.left = -9 (on Windows 7 anyway)
@@ -511,7 +509,7 @@ end;
 
 procedure TKMMain.ShowAbout;
 begin
-  FormLoading.Bar1.Position  := 0;
+  FormLoading.Bar1.Position := 0;
   FormLoading.Label1.Caption := '';
   FormLoading.Show;
 end;
