@@ -5,8 +5,8 @@ uses
   //FastMM4, //Can be used only in Delphi, not Lazarus
   Forms,
   {$IFDEF FPC} Interfaces, {$ENDIF}
-  KM_Unit1 in 'KM_Unit1.pas' {Form1},
-  KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
+  KM_FormMain in 'KM_FormMain.pas' {FormMain},
+  KM_FormLoading in 'KM_FormLoading.pas' {FormLoading},
 
   KM_AIAttacks in 'KM_AIAttacks.pas',
   KM_ArmyEvaluation in 'KM_ArmyEvaluation.pas',
@@ -35,6 +35,7 @@ uses
   KM_Goals in 'KM_Goals.pas',
   KM_HTTPClient in 'KM_HTTPClient.pas',
   KM_Log in 'KM_Log.pas',
+  KM_Main in 'KM_Main.pas',
   KM_MapEditor in 'KM_MapEditor.pas',
   KM_Maps in 'KM_Maps.pas',
   KM_MapView in 'KM_MapView.pas',
@@ -107,12 +108,12 @@ uses
 begin
   Application.Initialize;
   Application.Title := 'KaM Remake';
-  Application.HelpFile := '';
-  Application.CreateForm(TForm1, Form1);
+
+  Application.CreateForm(TFormMain, FormMain);
   Application.CreateForm(TFormLoading, FormLoading);
 
-  Form1.StartTheGame;
+  fMain := TKMMain.Create;
+  fMain.Start;
 
   Application.Run;
-
 end.

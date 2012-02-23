@@ -1,4 +1,4 @@
-unit KM_Form_Loading;
+unit KM_FormLoading;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -19,8 +19,13 @@ type
     Label2: TLabel;
   public
     procedure LoadingStep;
-    procedure LoadingText(const aData:string);
+    procedure LoadingText(const aData: string);
   end;
+
+
+var
+  FormLoading: TFormLoading;
+
 
 implementation
 {$IFDEF WDC}
@@ -47,7 +52,7 @@ end;
 
 {$IFDEF FPC}
 initialization
-{$I KM_Form_Loading.lrs}
+{$I KM_FormLoading.lrs}
 {$ENDIF}
 
 end.

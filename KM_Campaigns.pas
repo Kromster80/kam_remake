@@ -94,16 +94,17 @@ begin
   inherited;
   fList := TList.Create;
   ScanFolder(ExeDir + 'Campaigns\');
-  LoadProgress(ExeDir + 'Campaigns\Campaigns.ini');
+  LoadProgress(ExeDir + 'Saves\Campaigns.dat');
 end;
 
 
 destructor TKMCampaignsCollection.Destroy;
-var I: Integer;
+var
+  I: integer;
 begin
-  CreateDir(ExeDir + 'Campaigns\'); //Makes the folder incase it was deleted
-  SaveProgress(ExeDir + 'Campaigns\Campaigns.ini');
-  fLog.AppendLog('Campaign.ini saved');
+  CreateDir(ExeDir + 'Saves\'); //Makes the folder incase it was deleted
+  SaveProgress(ExeDir + 'Saves\Campaigns.dat');
+  fLog.AppendLog('Campaigns.dat saved');
 
   //Free list objects
   for I := 0 to Count - 1 do

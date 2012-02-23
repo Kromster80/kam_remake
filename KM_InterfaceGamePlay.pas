@@ -353,7 +353,7 @@ type
 
 
 implementation
-uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
+uses KM_Main, KM_FormMain, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
 KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game, KM_Utils,
 KM_Sound, Forms, KM_Resource, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
@@ -2966,8 +2966,8 @@ begin
   if SelectingTroopDirection then
   begin
     //Reset the cursor position as it will have moved during direction selection
-    SetCursorPos(Form1.Panel5.ClientToScreen(SelectingDirPosition).X,Form1.Panel5.ClientToScreen(SelectingDirPosition).Y);
-    Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
+    SetCursorPos(fMain.ClientToScreen(SelectingDirPosition).X, fMain.ClientToScreen(SelectingDirPosition).Y);
+    fMain.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := False;
     fResource.Cursors.Cursor := kmc_Default; //Reset direction selection cursor when mouse released
     DirectionCursorHide;
@@ -3169,7 +3169,7 @@ begin
 
   if SelectingTroopDirection then
   begin
-    Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
+    fMain.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := false;
     DirectionCursorHide;
   end;
@@ -3188,9 +3188,7 @@ begin
       SelectingTroopDirection := true; //MouseMove will take care of cursor changing
       //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
       {$IFDEF MSWindows}
-      MyRect := Form1.Panel5.ClientRect;
-      MyRect.TopLeft := Form1.Panel5.ClientToScreen(MyRect.TopLeft);
-      MyRect.BottomRight := Form1.Panel5.ClientToScreen(MyRect.BottomRight);
+      MyRect := fMain.ClientRect;
       ClipCursor(@MyRect);
       {$ENDIF}
       //Now record it as Client XY
@@ -3246,7 +3244,7 @@ begin
     begin
       DeltaX := Round(DeltaX / Sqrt(DeltaDistanceSqr) * DirCursorCircleRadius);
       DeltaY := Round(DeltaY / Sqrt(DeltaDistanceSqr) * DirCursorCircleRadius);
-      NewPoint := Form1.Panel5.ClientToScreen(SelectingDirPosition);
+      NewPoint := fMain.ClientToScreen(SelectingDirPosition);
       NewPoint.X := NewPoint.X - DeltaX;
       NewPoint.Y := NewPoint.Y - DeltaY;
       SetCursorPos(NewPoint.X, NewPoint.Y);

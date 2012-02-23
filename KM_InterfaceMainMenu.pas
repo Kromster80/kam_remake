@@ -302,7 +302,7 @@ type
 
 
 implementation
-uses KM_Unit1, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_PlayersCollection,
+uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_PlayersCollection,
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites, KM_ServerQuery;
 
 const
@@ -578,7 +578,7 @@ begin
       Button_MM_Replays.OnClick      := SwitchMenuPage;
       Button_MM_Options.OnClick      := SwitchMenuPage;
       Button_MM_Credits.OnClick      := SwitchMenuPage;
-      Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;
+      Button_MM_Quit.OnClick         := fMain.Stop;
 end;
 
 
@@ -2572,7 +2572,7 @@ begin
     OldFullScreen   := fGame.GlobalSettings.FullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
     OldResolutionID := fGame.GlobalSettings.ResolutionID;
     OldRefreshRate  := fGame.GlobalSettings.RefreshRate;
-    fGame.ToggleFullScreen(fGame.GlobalSettings.FullScreen, true);
+    fMain.ToggleFullScreen(fGame.GlobalSettings, True);
     exit; //Whole interface will be recreated
   end;
 
