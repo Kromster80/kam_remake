@@ -1207,7 +1207,7 @@ begin
                                         fGlobalSettings.AutoKickTimeout,
                                         fGlobalSettings.PingInterval,
                                         fGlobalSettings.MasterAnnounceInterval,
-                                        fGlobalSettings.GetLocalID);
+                                        fGlobalSettings.GetLocaleID);
   fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
 end;
 

@@ -2101,7 +2101,7 @@ begin
     end;
     Panel_Unit_Dismiss.Hide;
     Button_Unit_Dismiss.Show;
-    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].UnitDescription;
+    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
     Label_UnitDescription.Show;
   end;
 end;
@@ -3003,9 +3003,12 @@ var i:integer;
 begin
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
+    //Show players locale flag
     if fGame.Networking.NetPlayers[i+1].LangID <> 0 then
-         Image_AlliesLang[i].TexID := StrToInt(Locales[fGame.Networking.NetPlayers[i+1].LangID,3])
-    else Image_AlliesLang[i].TexID := 0;
+      Image_AlliesLang[i].TexID := StrToInt(Locales[fGame.Networking.NetPlayers[i+1].LangID, 3])
+    else
+      Image_AlliesLang[i].TexID := 0;
+
     Label_AlliesPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
     Label_AlliesPlayer[i].FontColor := fPlayers[fGame.Networking.NetPlayers[i+1].PlayerIndex.PlayerIndex].FlagColor;
     DropBox_AlliesTeam[i].ItemIndex := fGame.Networking.NetPlayers[i+1].Team;
