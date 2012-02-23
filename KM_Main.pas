@@ -2,8 +2,9 @@ unit KM_Main;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, ExtCtrls, Forms, Math, SysUtils, StrUtils, Windows, MMSystem, KromUtils,
-  KM_FormLoading, KM_FormMain, KM_Settings;
+  Classes, Controls, ExtCtrls, Forms, Math, SysUtils, StrUtils,
+  {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
+  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings;
 
 type
   TKMMain = class
