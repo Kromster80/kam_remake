@@ -1362,7 +1362,14 @@ begin
   s := ExtractRelativePath(ExeDir, ChangeFileExt(fMissionFile, '.%s.libx'));
   SaveStream.Write(s);
 
-  //Parameters that are not identical for all players should not be saved (//@Lewin: Why exactly?)
+  //Parameters that are not identical for all players should not be saved as we need saves to be
+  //created identically on all player's computers. Eventually these things can go through the GIP
+
+  //@Lewin: Why exactly?
+  //@Krom: For multiplayer consistency. Saves should be created identical on all player's computers.
+  //       If we want stuff like the MessageStack and screen center to be stored in multiplayer saves,
+  //       we must send those "commands" through the GIP so all players know about them and they're in sync.
+  //       There is a comment in fGame.Load about MessageList on this topic.
   if not fMultiplayerMode then
   begin
     //Viewport settings are unique for each player
