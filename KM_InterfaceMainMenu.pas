@@ -407,8 +407,8 @@ begin
     msOptions:  SwitchMenuPage(Button_MM_Options);
     msResults:  begin
                   case aMsg of
-                    gr_Win:       Label_Results.Caption := fTextLibrary.GetSetupString(111);
-                    gr_Defeat:    Label_Results.Caption := fTextLibrary.GetSetupString(112);
+                    gr_Win:       Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
+                    gr_Defeat:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
                     gr_Cancel:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
                     else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
@@ -423,8 +423,8 @@ begin
                 end;
     msResultsMP:begin
                   case aMsg of
-                    gr_Win:       Label_ResultsMP.Caption := fTextLibrary.GetSetupString(111);
-                    gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary.GetSetupString(112);
+                    gr_Win:       Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
+                    gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
                     gr_Cancel:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
                     else          Label_ResultsMP.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
@@ -593,11 +593,11 @@ begin
     Panel_SPButtons := TKMPanel.Create(Panel_SinglePlayer,337,290,350,400);
       Button_SP_Tutor  :=TKMButton.Create(Panel_SPButtons,0,  0,350,30,fTextLibrary[TX_MENU_TUTORIAL_TOWN],fnt_Metal,bsMenu);
       Button_SP_Fight  :=TKMButton.Create(Panel_SPButtons,0, 40,350,30,fTextLibrary[TX_MENU_TUTORIAL_BATTLE],fnt_Metal,bsMenu);
-      Button_SP_TSK    :=TKMButton.Create(Panel_SPButtons,0, 80,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
-      Button_SP_TPR    :=TKMButton.Create(Panel_SPButtons,0,120,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
-      Button_SP_Single :=TKMButton.Create(Panel_SPButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
-      Button_SP_Load   :=TKMButton.Create(Panel_SPButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
-      Button_SP_Back   :=TKMButton.Create(Panel_SPButtons,0,320,350,30,fTextLibrary.GetSetupString( 9),fnt_Metal,bsMenu);
+      Button_SP_TSK    :=TKMButton.Create(Panel_SPButtons,0, 80,350,30,fTextLibrary[TX_MENU_CAMP_TSK],fnt_Metal,bsMenu);
+      Button_SP_TPR    :=TKMButton.Create(Panel_SPButtons,0,120,350,30,fTextLibrary[TX_MENU_CAMP_TPR],fnt_Metal,bsMenu);
+      Button_SP_Single :=TKMButton.Create(Panel_SPButtons,0,160,350,30,fTextLibrary[TX_MENU_SINGLE_MAP],fnt_Metal,bsMenu);
+      Button_SP_Load   :=TKMButton.Create(Panel_SPButtons,0,200,350,30,fTextLibrary[TX_MENU_LOAD_SAVEGAME],fnt_Metal,bsMenu);
+      Button_SP_Back   :=TKMButton.Create(Panel_SPButtons,0,320,350,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
 
       Button_SP_Tutor.OnClick    := MainMenu_PlayTutorial;
       Button_SP_Fight.OnClick    := MainMenu_PlayBattle;
@@ -671,7 +671,7 @@ begin
       Button_MP_Join := TKMButton.Create(Panel_MPJoinServer,8, 52,284,30,fTextLibrary[TX_MP_MENU_SERVER_JOIN],fnt_Metal,bsMenu);
       Button_MP_Join.OnClick := MP_JoinClick;
 
-    Button_MP_Back := TKMButton.Create(Panel_MultiPlayer, 45, 700, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_MP_Back := TKMButton.Create(Panel_MultiPlayer, 45, 700, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
     Button_MP_Back.OnClick := MP_BackClick;
 end;
 
@@ -815,7 +815,7 @@ begin
   Button_CampaignStart := TKMButton.Create(Panel_Campaign, MENU_DESIGN_X-220-20, MENU_DESIGN_Y-50, 220, 30, fTextLibrary[TX_MENU_START_MISSION], fnt_Metal, bsMenu);
   Button_CampaignStart.OnClick := Campaign_StartMap;
 
-  Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, MENU_DESIGN_Y-50, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+  Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, MENU_DESIGN_Y-50, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
   Button_CampaignBack.OnClick := SwitchMenuPage;
 end;
 
@@ -893,9 +893,9 @@ begin
       TKMBevel.Create(Panel_SingleDesc,0,516,445,20);
       Label_SingleEnemies:=TKMLabel.Create(Panel_SingleDesc,8,519,429,20,fTextLibrary[TX_MENU_ENEMIES],fnt_Metal, taLeft);
 
-    Button_SingleBack := TKMButton.Create(Panel_Single, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_SingleBack := TKMButton.Create(Panel_Single, 45, 650, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
     Button_SingleBack.OnClick := SwitchMenuPage;
-    Button_SingleStart := TKMButton.Create(Panel_Single, 270, 650, 220, 30, fTextLibrary.GetSetupString(8), fnt_Metal, bsMenu);
+    Button_SingleStart := TKMButton.Create(Panel_Single, 270, 650, 220, 30, fTextLibrary[TX_MENU_SINGLE_START_MAP], fnt_Metal, bsMenu);
     Button_SingleStart.OnClick := SingleMap_Start;
 end;
 
@@ -923,7 +923,7 @@ begin
     Button_DeleteNo  := TKMButton.Create(Panel_Load, 517, 630, 170, 30, fTextLibrary[TX_MENU_LOAD_DELETE_CANCEL], fnt_Metal, bsMenu);
     Button_DeleteNo.OnClick := Load_Delete_Click;
 
-    Button_LoadBack := TKMButton.Create(Panel_Load, 337, 670, 350, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_LoadBack := TKMButton.Create(Panel_Load, 337, 670, 350, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
     Button_LoadBack.OnClick := SwitchMenuPage;
 end;
 
@@ -970,7 +970,7 @@ begin
       TKMBevel.Create(Panel_MapEd_Load, 308, 80, 199, 199);
       Minimap_MapEd := TKMMinimap.Create(Panel_MapEd_Load, 312, 84, 191, 191);
 
-    Button_MapEdBack := TKMButton.Create(Panel_MapEd, 120, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_MapEdBack := TKMButton.Create(Panel_MapEd, 120, 650, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
     Button_MapEdBack.OnClick := SwitchMenuPage;
 end;
 
@@ -996,7 +996,7 @@ begin
     Button_ReplaysPlay := TKMButton.Create(Panel_Replays,337,630,350,30,fTextLibrary[TX_MENU_VIEW_REPLAY],fnt_Metal, bsMenu);
     Button_ReplaysPlay.OnClick := Replays_Play;
 
-    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 337, 670, 350, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 337, 670, 350, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
     Button_ReplaysBack.OnClick := SwitchMenuPage;
 end;
 
@@ -1052,7 +1052,7 @@ begin
 
     //Resolutions section
     Panel_Options_Res := TKMPanel.Create(Panel_Options,360,130,210,30+RESOLUTION_COUNT*20);
-      TKMLabel.Create(Panel_Options_Res,6,0,188,20,fTextLibrary.GetSetupString(20),fnt_Outline,taLeft);
+      TKMLabel.Create(Panel_Options_Res,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_RESOLUTION],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Res,0,20,210,10+Math.max(RESOLUTION_COUNT,REFRESH_RATE_COUNT)*20);
       for i := 1 to RESOLUTION_COUNT do
       begin
@@ -1088,7 +1088,7 @@ begin
       Radio_Options_Lang.OnChange := Options_Change;
 
     //Back button
-    Button_Options_Back:=TKMButton.Create(Panel_Options,120,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_Options_Back:=TKMButton.Create(Panel_Options,120,650,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
     Button_Options_Back.OnClick:=SwitchMenuPage;
 end;
 
@@ -1108,9 +1108,9 @@ begin
     ,fnt_Grey,taCenter);
 
     TKMLabel.Create(Panel_Credits,MENU_DESIGN_X div 2 + 200, 100, 500, 20, fTextLibrary[TX_CREDITS_ORIGINAL], fnt_Outline, taCenter);
-    Label_Credits := TKMLabelScroll.Create(Panel_Credits, MENU_DESIGN_X div 2 + 200, 140, 500, MENU_DESIGN_Y - 160, fTextLibrary.GetSetupString(300), fnt_Grey, taCenter);
+    Label_Credits := TKMLabelScroll.Create(Panel_Credits, MENU_DESIGN_X div 2 + 200, 140, 500, MENU_DESIGN_Y - 160, fTextLibrary[TX_CREDITS_TEXT], fnt_Grey, taCenter);
 
-    Button_CreditsBack:=TKMButton.Create(Panel_Credits,120,700,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_CreditsBack:=TKMButton.Create(Panel_Credits,120,700,224,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
     Button_CreditsBack.OnClick:=SwitchMenuPage;
 end;
 
@@ -1129,12 +1129,16 @@ begin
     TKMLabel.Create(Panel_Error,MENU_DESIGN_X div 2,MENU_DESIGN_Y div 2 - 20,MENU_DESIGN_X-16,30,fTextLibrary[TX_MENU_ERROR],fnt_Antiqua,taCenter);
     Label_Error := TKMLabel.Create(Panel_Error,MENU_DESIGN_X div 2,MENU_DESIGN_Y div 2+10,MENU_DESIGN_X-16,200,'...',fnt_Grey,taCenter);
     Label_Error.AutoWrap := true;
-    Button_ErrorBack := TKMButton.Create(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_ErrorBack := TKMButton.Create(Panel_Error,100,640,224,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
     Button_ErrorBack.OnClick := SwitchMenuPage;
 end;
 
 
 procedure TKMMainMenuInterface.Create_Results_Page;
+const StatText: array [1..9] of Word = (
+    TX_RESULTS_UNITS_LOST,      TX_RESULTS_UNITS_DEFEATED,  TX_RESULTS_HOUSES_LOST,
+    TX_RESULTS_HOUSES_DESTROYED,TX_RESULTS_HOUSES_BUILT,    TX_RESULTS_UNITS_TRAINED,
+    TX_RESULTS_WEAPONS_MADE,    TX_RESULTS_SOLDIERS_TRAINED,TX_RESULTS_MISSION_TIME);
 var i, Adv: Integer;
 begin
   Panel_Results := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
@@ -1148,15 +1152,15 @@ begin
     begin
       inc(Adv, 25);
       if i in [3,6,7,9] then inc(Adv, 15);
-      TKMLabel.Create(Panel_Stats,0,Adv,232,20,fTextLibrary.GetSetupString(112+i),fnt_Metal,taLeft);
+      TKMLabel.Create(Panel_Stats,0,Adv,232,20,fTextLibrary[StatText[i]],fnt_Metal,taLeft);
       Label_Stat[i] := TKMLabel.Create(Panel_Stats,340,Adv,100,20,'00',fnt_Metal,taRight);
     end;
 
-    Button_ResultsBack := TKMButton.Create(Panel_Results,100,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_ResultsBack := TKMButton.Create(Panel_Results,100,650,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
     Button_ResultsBack.OnClick := SwitchMenuPage;
-    Button_ResultsRepeat := TKMButton.Create(Panel_Results,340,650,220,30,fTextLibrary.GetSetupString(18),fnt_Metal,bsMenu);
+    Button_ResultsRepeat := TKMButton.Create(Panel_Results,340,650,220,30,fTextLibrary[TX_MENU_MISSION_REPEAT],fnt_Metal,bsMenu);
     Button_ResultsRepeat.OnClick := MainMenu_ReplayLastMap;
-    Button_ResultsContinue := TKMButton.Create(Panel_Results,580,650,220,30,fTextLibrary.GetSetupString(17),fnt_Metal,bsMenu);
+    Button_ResultsContinue := TKMButton.Create(Panel_Results,580,650,220,30,fTextLibrary[TX_MENU_MISSION_NEXT],fnt_Metal,bsMenu);
     Button_ResultsContinue.OnClick := SwitchMenuPage;
 end;
 
@@ -1206,7 +1210,7 @@ begin
           Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 150 + k*BarStep, 40+i*25, BarWidth, 20, fnt_Metal);
       end;
 
-    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,650,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
     Button_ResultsMPBack.OnClick := SwitchMenuPage;
 end;
 

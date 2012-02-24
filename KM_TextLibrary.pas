@@ -20,6 +20,31 @@ const
   TX_MENU_CREDITS = 1013;
   TX_MENU_QUIT = 1014;
 
+  TX_MENU_CAMP_TSK = 1001;
+  TX_MENU_CAMP_TPR = 1002;
+  TX_MENU_SINGLE_MAP = 1004;
+  TX_MENU_SINGLE_START_MAP = 1008;
+  TX_MENU_BACK = 1009;
+  TX_MENU_LOAD_SAVEGAME = 1010;
+  TX_MENU_MISSION_NEXT = 1017;
+  TX_MENU_MISSION_REPEAT = 1018;
+  TX_MENU_OPTIONS_RESOLUTION = 1020;
+  TX_MENU_MISSION_VICTORY = 1111;
+  TX_MENU_MISSION_DEFEAT = 1112;
+
+  TX_RESULTS_UNITS_LOST = 1113;
+  TX_RESULTS_UNITS_DEFEATED = 1114;
+  TX_RESULTS_HOUSES_LOST = 1115;
+  TX_RESULTS_HOUSES_DESTROYED = 1116;
+  TX_RESULTS_HOUSES_BUILT = 1117;
+  TX_RESULTS_UNITS_TRAINED = 1118;
+  TX_RESULTS_WEAPONS_MADE = 1119;
+  TX_RESULTS_SOLDIERS_TRAINED = 1120;
+  TX_RESULTS_MISSION_TIME = 1121;
+
+
+  TX_CREDITS_TEXT = 1300;
+
   //Load text IDs from this include file that is managed by the Translation Manager
   {$I KM_TextIDs.inc}
 
@@ -35,16 +60,20 @@ type
     procedure LoadLIBFile(FilePath: string; var aArray: array of AnsiString);
     procedure LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aInitializeValues: Boolean);
     procedure ExportTextLibrary(aLibrary: array of AnsiString; aFileName: string);
+    function GetSetupString(aIndex: word): AnsiString;
     function GetRemakeString(aIndex:word): AnsiString;
     function GetTexts(aIndex:word): AnsiString;
   public
     constructor Create(aLibPath: string; aLocale: AnsiString);
+
     function AppendCampaign(aFilename: string): Word;
-    function GetTextString(aIndex: word): AnsiString;
-    function GetSetupString(aIndex: word): AnsiString;
-    function GetMissionString(aIndex: word): AnsiString;
-    property Texts[aIndex: word]: AnsiString read GetTexts; default;
     procedure LoadMissionStrings(aFilename: string);
+
+    function GetTextString(aIndex: word): AnsiString;
+    function GetMissionString(aIndex: word): AnsiString;
+
+    property Texts[aIndex: word]: AnsiString read GetTexts; default;
+
     procedure ExportTextLibraries;
   end;
 
@@ -160,7 +189,7 @@ var
   firstDelimiter: Integer;
   ID, MaxID: Integer;
 begin
-  if not CheckFileExists(FilePath) then Exit;
+  if not FileExists(FilePath) then Exit;
 
   aStringList := TStringList.Create;
   aStringList.LoadFromFile(FilePath);
@@ -196,8 +225,22 @@ begin
 end;
 
 
+//Campaign description and briefings get appended to main list
+//as they are used in Main Menu right away
+function TTextLibrary.AppendCampaign(aFilename: string): Word;
+var S: string;
+begin
+  Assert(Pos('%s', aFilename) <> 0, 'Input string must be formatted properly with an %s');
+
+  Result := High(RemakeStrings);
+  LoadLIBXFile(Format(aFilename, [DEFAULT_LOCALE]), Result, RemakeStrings, True);
+  if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFilename, [fLocale])) then
+    LoadLIBXFile(Format(aFilename, [fLocale]), Result, RemakeStrings, False);
+end;
+
+
 //Load mission strings into separate array, as they get reloaded for each mission
-//Only one set of mission strings can exist at a time
+//Only one set of mission strings is required at a time
 procedure TTextLibrary.LoadMissionStrings(aFilename: string);
 begin
   LoadLIBXFile(Format(aFilename, [DEFAULT_LOCALE]), 0, MissionStrings, True);
@@ -215,18 +258,6 @@ begin
     Result := GetSetupString(aIndex - 1000)
   else
     Result := GetRemakeString(aIndex - 2000);
-end;
-
-
-function TTextLibrary.AppendCampaign(aFilename: string): Word;
-var S: string;
-begin
-  Assert(Pos('%s', aFilename) <> 0, 'Input string must be formatted properly with an %s');
-
-  Result := High(RemakeStrings);
-  LoadLIBXFile(Format(aFilename, [DEFAULT_LOCALE]), Result, RemakeStrings, True);
-  if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFilename, [fLocale])) then
-    LoadLIBXFile(Format(aFilename, [fLocale]), Result, RemakeStrings, False);
 end;
 
 

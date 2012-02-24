@@ -24,23 +24,6 @@ type
     gsEditor); //Game is in MapEditor mode
 
 type
-  //Methods relevant to application
-  {TKMMain = class
-  private
-    fAbout
-    fMainForm
-    fSplash
-
-    fResolutions
-    fSettings (resolutions, v-sync) //Things irrelevant to the game
-  public
-    Create
-    Resize
-    ToggleF11Menu
-    ToggleLocale
-    ToggleFullscreen
-  end;}
-
   //Methods relevant to gameplay
   TKMGame = class
   private //Irrelevant to savegame
@@ -1112,15 +1095,15 @@ var
 begin
   if aMissionName = '' then exit;
 
+  //Prepare and save
   fPlayers.RemoveEmptyPlayers;
-
   ForceDirectories(ExeDir + 'Maps\' + aMissionName);
   fTerrain.SaveToFile(MapNameToPath(aMissionName, 'map', aMultiplayer));
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
   fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat', aMultiplayer));
   FreeAndNil(fMissionParser);
-  fGameName := aMissionName;
 
+  fGameName := aMissionName;
   fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); // Activate all players
 
   //Reveal all players since we'll swap between them in MapEd
@@ -1313,12 +1296,17 @@ var
   SaveStream: TKMemoryStream;
   fGameInfo: TKMGameInfo;
   i, NetIndex: integer;
+  s: string;
 begin
   fLog.AppendLog('Saving game');
   if not (fGameState in [gsPaused, gsRunning]) then begin
     Assert(false, 'Saving from wrong state?');
     Exit;
   end;
+
+  //Makes the folders incase they were deleted
+  CreateDir(ExeDir + 'Saves\');
+  CreateDir(ExeDir + 'SavesMP\');
 
   SaveStream := TKMemoryStream.Create;
 
@@ -1370,15 +1358,18 @@ begin
   fProjectiles.Save(SaveStream);
   fEventsManager.Save(SaveStream);
 
+  //Relative path to strings will be the same for all MP players
+  s := ExtractRelativePath(ExeDir, ChangeFileExt(fMissionFile, '.%s.libx'));
+  SaveStream.Write(s);
+
+  //Parameters that are not identical for all players should not be saved (//@Lewin: Why exactly?)
   if not fMultiplayerMode then
   begin
-    fViewport.Save(SaveStream); //Saves viewed area settings
+    //Viewport settings are unique for each player
+    fViewport.Save(SaveStream);
     fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
     //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
   end;
-
-  CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
-  CreateDir(ExeDir+'SavesMP\');
 
   SaveStream.SaveToFile(SaveName(aFilename,'sav')); //Some 70ms for TPR7 map
   SaveStream.Free;
@@ -1396,7 +1387,7 @@ procedure TKMGame.Load(const aFilename: string; aReplay:boolean=false);
 var
   LoadStream:TKMemoryStream;
   fGameInfo: TKMGameInfo;
-  LoadError,LoadFileExt:string;
+  LoadError,LoadFileExt, s: string;
   LoadedSeed:Longint;
   SaveIsMultiplayer:boolean;
 begin
@@ -1438,6 +1429,12 @@ begin
     fPlayers.Load(LoadStream);
     fProjectiles.Load(LoadStream);
     fEventsManager.Load(LoadStream);
+
+    //Load LIBX strings used in a mission by their relative path to ExeDir
+    //Relative path should be the same across all MP players,
+    //locale info shuold not be a problem as it is represented by %s
+    LoadStream.Read(s);
+    fTextLibrary.LoadMissionStrings(ExeDir + s);
 
     //Multiplayer saves don't have this piece of information due to each player has his own version
     //@Lewin: Does this means that MessageList in UI is lost?
