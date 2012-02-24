@@ -711,17 +711,17 @@ end;
 procedure TKMapEdInterface.Create_Menu_Page;
 begin
   Panel_Menu:=TKMPanel.Create(Panel_Common,0,128,196,400);
-    Button_Menu_Save:=TKMButton.Create(Panel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
+    Button_Menu_Save:=TKMButton.Create(Panel_Menu,8,20,180,30,fTextLibrary[TX_MENU_SAVE_GAME],fnt_Metal);
     Button_Menu_Save.OnClick:=SwitchPage;
-    Button_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
-    Button_Menu_Load:=TKMButton.Create(Panel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
+    Button_Menu_Save.Hint:=fTextLibrary[TX_MENU_SAVE_GAME];
+    Button_Menu_Load:=TKMButton.Create(Panel_Menu,8,60,180,30,fTextLibrary[TX_MENU_LOAD_GAME],fnt_Metal);
     Button_Menu_Load.OnClick:=SwitchPage;
-    Button_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
-    Button_Menu_Settings:=TKMButton.Create(Panel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
-    Button_Menu_Settings.Hint:=fTextLibrary.GetTextString(179);
+    Button_Menu_Load.Hint:=fTextLibrary[TX_MENU_LOAD_GAME];
+    Button_Menu_Settings:=TKMButton.Create(Panel_Menu,8,100,180,30,fTextLibrary[TX_MENU_SETTINGS],fnt_Metal);
+    Button_Menu_Settings.Hint:=fTextLibrary[TX_MENU_SETTINGS];
     Button_Menu_Settings.Disable;
-    Button_Menu_Quit:=TKMButton.Create(Panel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
-    Button_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
+    Button_Menu_Quit:=TKMButton.Create(Panel_Menu,8,180,180,30,fTextLibrary[TX_MENU_QUIT_MAPED],fnt_Metal);
+    Button_Menu_Quit.Hint:=fTextLibrary[TX_MENU_QUIT_MAPED];
     Button_Menu_Quit.OnClick:=SwitchPage;
 end;
 
@@ -773,10 +773,10 @@ procedure TKMapEdInterface.Create_MenuQuit_Page;
 begin
   Panel_Quit:=TKMPanel.Create(Panel_Common,0,128,200,400);
     TKMLabel.Create(Panel_Quit,100,40,184,60,'Any unsaved|changes will be lost',fnt_Outline,taCenter);
-    Button_Quit_Yes   := TKMButton.Create(Panel_Quit,8,100,180,30,'Quit',fnt_Metal);
-    Button_Quit_No    := TKMButton.Create(Panel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
-    Button_Quit_Yes.Hint      := fTextLibrary.GetTextString(177);
-    Button_Quit_No.Hint       := fTextLibrary.GetTextString(178);
+    Button_Quit_Yes   := TKMButton.Create(Panel_Quit,8,100,180,30,fTextLibrary[TX_MENU_QUIT_MISSION],fnt_Metal);
+    Button_Quit_No    := TKMButton.Create(Panel_Quit,8,140,180,30,fTextLibrary[TX_MENU_DONT_QUIT_MISSION],fnt_Metal);
+    Button_Quit_Yes.Hint      := fTextLibrary[TX_MENU_QUIT_MISSION];
+    Button_Quit_No.Hint       := fTextLibrary[TX_MENU_DONT_QUIT_MISSION];
     Button_Quit_Yes.OnClick   := Menu_QuitMission;
     Button_Quit_No.OnClick    := SwitchPage;
 end;
@@ -788,7 +788,7 @@ begin
   Panel_Unit:=TKMPanel.Create(Panel_Common,0,112,200,400);
     Label_UnitName        := TKMLabel.Create(Panel_Unit,100,16,184,0,'',fnt_Outline,taCenter);
     Image_UnitPic         := TKMImage.Create(Panel_Unit,8,38,54,100,521);
-    Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,0,fTextLibrary.GetTextString(254),fnt_Grey,taCenter);
+    Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,0,fTextLibrary[TX_UNIT_CONDITION],fnt_Grey,taCenter);
     KMConditionBar_Unit   := TKMPercentBar.Create(Panel_Unit,73,55,116,15);
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
 
@@ -823,7 +823,7 @@ begin
     Image_House_Logo.ImageCenter;
     Image_House_Worker:=TKMImage.Create(Panel_House,38,41,32,32,141);
     Image_House_Worker.ImageCenter;
-    Label_HouseHealth := TKMLabel.Create(Panel_House,130,41,60,20,fTextLibrary.GetTextString(228),fnt_Mini,taCenter);
+    Label_HouseHealth := TKMLabel.Create(Panel_House,130,41,60,20,fTextLibrary[TX_HOUSE_CONDITION],fnt_Mini,taCenter);
     Label_HouseHealth.FontColor := $FFE0E0E0;
     KMHealthBar_House := TKMPercentBar.Create(Panel_House,100,53,60,20);
     Button_HouseHealthDec := TKMButton.Create(Panel_House,80,53,20,20,'-', fnt_Metal);

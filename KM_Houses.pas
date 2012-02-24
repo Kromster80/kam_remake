@@ -1106,7 +1106,7 @@ begin
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
       if fOwner = MyPlayer.PlayerIndex then
-        fGame.fGamePlayInterface.MessageIssue(mkHouse, fTextLibrary.GetTextString(295), GetEntrance);
+        fGame.fGamePlayInterface.MessageIssue(mkHouse, fTextLibrary[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end

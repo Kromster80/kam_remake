@@ -366,9 +366,6 @@ function TMusicLib.GetTrackTitle:string;
 begin
   if not IsMusicInitialized then exit;
   if not InRange(MusicIndex, low(MusicTracks), high(MusicTracks)) then exit;
-  //May not display the correct title as not all LIBs are correct. Should also do range checking
-  //@Lewin: I think we should do it this way eventually
-  //Result := fTextLibrary.GetTextString(siTrackNames+MusicIndex);
 
   Result := TruncateExt(ExtractFileName(MusicTracks[TrackOrder[MusicIndex]]));
 end;

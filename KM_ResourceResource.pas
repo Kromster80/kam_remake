@@ -11,7 +11,7 @@ type
     fType: TResourceType;
     fMarketPrice: Single;
     function GetGUIIcon: Word;
-    function GetName: String;
+    function GetName: string;
   public
     constructor Create(aType: TResourceType);
     function IsValid: Boolean;
@@ -138,10 +138,10 @@ begin
 end;
 
 
-function TKMResourceDat.GetName: String;
+function TKMResourceDat.GetName: string;
 begin
   if IsValid then
-    Result := fTextLibrary.GetTextString(siResourceNames+ResourceKaMOrder[fType])
+    Result := fTextLibrary[TX_RESOURCES_NAMES__27 + ResourceKaMOrder[fType]]
   else
     Result := 'N/A';
 end;

@@ -569,20 +569,20 @@ begin
   if Sender=Button_Main[1] then begin
     Build_Fill(nil);
     Panel_Build.Show;
-    Label_MenuTitle.Caption:=fTextLibrary.GetTextString(166);
+    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_TAB_BUILD];
     Build_ButtonClick(Button_BuildRoad);
   end else
 
   if Sender=Button_Main[2] then begin
     Panel_Ratios.Show;
     SwitchPage_Ratios(Button_Ratios[1]); //Open 1st tab
-    Label_MenuTitle.Caption:=fTextLibrary.GetTextString(167);
+    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_TAB_DISTRIBUTE];
   end else
 
   if Sender=Button_Main[3] then begin
     Stats_Fill(nil);
     Panel_Stats.Show;
-    Label_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
+    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_TAB_STATISTICS];
   end else
 
   if (Sender=Button_Main[4]) or (Sender=Button_Quit_No) or
@@ -590,7 +590,7 @@ begin
      ((Sender=Button_Main[5]) and (LastVisiblePage=Panel_Load)) or
      ((Sender=Button_Main[5]) and (LastVisiblePage=Panel_Save)) then begin
     Menu_Fill(Sender); //Make sure updating happens before it is shown
-    Label_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
+    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_TAB_OPTIONS];
     Panel_Menu.Show;
     Button_Menu_Load.Enabled := not fGame.MultiplayerMode; //No loading during multiplayer games
   end else
@@ -599,19 +599,19 @@ begin
     Save_RefreshList; //Update savegames names
     Panel_Save.Show;
     MyControls.CtrlFocus := Edit_Save;
-    Label_MenuTitle.Caption:=fTextLibrary.GetTextString(173);
+    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_SAVE_GAME];
   end else
 
   if Sender=Button_Menu_Load then begin
     Load_RefreshList; //Update savegames names
     Panel_Load.Show;
-    Label_MenuTitle.Caption:=fTextLibrary.GetTextString(172);
+    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_LOAD_GAME];
   end else
 
   if Sender=Button_Menu_Settings then begin
     Menu_Settings_Fill;
     Panel_Settings.Show;
-    Label_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
+    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_SETTINGS];
   end else
 
   if Sender=Button_Menu_Quit then
@@ -701,15 +701,19 @@ begin
 
     {Main 4 buttons +return button}
     for i:=0 to 3 do begin
-      Button_Main[i+1]:=TKMButton.Create(Panel_Main,  8+46*i, 372, 42, 36, 439+i);
-      Button_Main[i+1].OnClick:=SwitchPage;
-      Button_Main[i+1].Hint:=fTextLibrary.GetTextString(160+i);
+      Button_Main[i+1] := TKMButton.Create(Panel_Main,  8+46*i, 372, 42, 36, 439+i);
+      Button_Main[i+1].OnClick := SwitchPage;
     end;
-    Button_Main[4].Hint:=fTextLibrary.GetTextString(164); //This is an exception to the rule above
-    Button_Main[5]:=TKMButton.Create(Panel_Main,  8, 372, 42, 36, 443);
-    Button_Main[5].OnClick:=SwitchPage;
-    Button_Main[5].Hint:=fTextLibrary.GetTextString(165);
-    Label_MenuTitle:=TKMLabel.Create(Panel_Main,54,372,138,36,'',fnt_Metal,taLeft);
+
+    Button_Main[1].Hint := fTextLibrary[TX_MENU_TAB_HINT_BUILD];
+    Button_Main[2].Hint := fTextLibrary[TX_MENU_TAB_HINT_DISTRIBUTE];
+    Button_Main[3].Hint := fTextLibrary[TX_MENU_TAB_HINT_STATISTICS];
+    Button_Main[4].Hint := fTextLibrary[TX_MENU_TAB_HINT_OPTIONS];
+
+    Button_Main[5] := TKMButton.Create(Panel_Main, 8, 372, 42, 36, 443);
+    Button_Main[5].OnClick := SwitchPage;
+    Button_Main[5].Hint := fTextLibrary[TX_MENU_TAB_HINT_GO_BACK];
+    Label_MenuTitle := TKMLabel.Create(Panel_Main, 54, 372, 138, 36, '', fnt_Metal, taLeft);
 
     Image_Clock := TKMImage.Create(Panel_Main,232,8,67,65,556);
     Image_Clock.Hide;
@@ -805,18 +809,20 @@ end;
 {Pause overlay page}
 procedure TKMGamePlayInterface.Create_Pause_Page;
 begin
-  Panel_Pause:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width,Panel_Main.Height);
+  Panel_Pause := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Pause.Stretch;
-    Bevel_Pause:=TKMBevel.Create(Panel_Pause,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2);
-    Image_Pause:=TKMImage.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2)-40,0,0,556);
-    Label_Pause1:=TKMLabel.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2),fTextLibrary.GetTextString(308),fnt_Antiqua,taCenter);
-    Label_Pause2:=TKMLabel.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2)+20,Format(fTextLibrary[TX_GAMEPLAY_PAUSE_INFO],['"P"']),fnt_Grey,taCenter);
-    Bevel_Pause.Stretch; //Anchor to all sides
-    Image_Pause.ImageCenter;
-    Label_Pause1.Center;
-    Label_Pause2.Center;
-    Image_Pause.Center;
-    Panel_Pause.Hide
+  Bevel_Pause := TKMBevel.Create(Panel_Pause, -1, -1, Panel_Main.Width + 2, Panel_Main.Height + 2);
+  Image_Pause := TKMImage.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2) - 40, 0, 0, 556);
+  Label_Pause1 := TKMLabel.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2),
+    fTextLibrary[TX_POPUP_PAUSE], fnt_Antiqua, taCenter);
+  Label_Pause2 := TKMLabel.Create(Panel_Pause, (Panel_Main.Width div 2), (Panel_Main.Height div 2) + 20,
+    Format(fTextLibrary[TX_GAMEPLAY_PAUSE_INFO], ['"P"']), fnt_Grey, taCenter);
+  Bevel_Pause.Stretch; //Anchor to all sides
+  Image_Pause.ImageCenter;
+  Label_Pause1.Center;
+  Label_Pause2.Center;
+  Image_Pause.Center;
+  Panel_Pause.Hide
 end;
 
 
@@ -980,17 +986,17 @@ begin
     Label_MessageText:=TKMLabel.Create(Panel_Message,47,67,432,122,'',fnt_Antiqua,taLeft);
     Label_MessageText.AutoWrap := true;
 
-    Button_MessageGoTo:=TKMButton.Create(Panel_Message,490,74,100,24,fTextLibrary.GetTextString(280),fnt_Antiqua);
-    Button_MessageGoTo.Hint := fTextLibrary.GetTextString(281);
+    Button_MessageGoTo:=TKMButton.Create(Panel_Message,490,74,100,24,fTextLibrary[TX_MSG_GOTO],fnt_Antiqua);
+    Button_MessageGoTo.Hint := fTextLibrary[TX_MSG_GOTO_HINT];
     Button_MessageGoTo.OnClick := Message_GoTo;
 
-    Button_MessageDelete:=TKMButton.Create(Panel_Message,490,104,100,24,fTextLibrary.GetTextString(276),fnt_Antiqua);
-    Button_MessageDelete.Hint := fTextLibrary.GetTextString(277);
+    Button_MessageDelete:=TKMButton.Create(Panel_Message,490,104,100,24,fTextLibrary[TX_MSG_DELETE],fnt_Antiqua);
+    Button_MessageDelete.Hint := fTextLibrary[TX_MSG_DELETE_HINT];
     Button_MessageDelete.OnClick := Message_Delete;
     Button_MessageDelete.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
 
-    Button_MessageClose:=TKMButton.Create(Panel_Message,490,134,100,24,fTextLibrary.GetTextString(282),fnt_Antiqua);
-    Button_MessageClose.Hint := fTextLibrary.GetTextString(283);
+    Button_MessageClose:=TKMButton.Create(Panel_Message,490,134,100,24,fTextLibrary[TX_MSG_CLOSE],fnt_Antiqua);
+    Button_MessageClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Button_MessageClose.OnClick := Message_Close;
     Button_MessageClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
 end;
@@ -1032,7 +1038,7 @@ begin
 
     Image_ChatClose:=TKMImage.Create(Panel_Chat,800-35,20,32,32,24,rxGame);
     Image_ChatClose.Anchors := [akTop, akRight];
-    Image_ChatClose.Hint := fTextLibrary.GetTextString(283);
+    Image_ChatClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_ChatClose.OnClick := Chat_Close;
     Image_ChatClose.HighlightOnMouseOver := true;
 end;
@@ -1072,7 +1078,7 @@ begin
     end;
 
     Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,32,32,24,rxGame);
-    Image_AlliesClose.Hint := fTextLibrary.GetTextString(283);
+    Image_AlliesClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := true;
 end;
@@ -1224,17 +1230,17 @@ end;
 procedure TKMGamePlayInterface.Create_Menu_Page;
 begin
   Panel_Menu:=TKMPanel.Create(Panel_Main,0,412,196,400);
-    Button_Menu_Load:=TKMButton.Create(Panel_Menu,8,20,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
+    Button_Menu_Load:=TKMButton.Create(Panel_Menu,8,20,180,30,fTextLibrary[TX_MENU_LOAD_GAME],fnt_Metal);
     Button_Menu_Load.OnClick:=SwitchPage;
-    Button_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
-    Button_Menu_Save:=TKMButton.Create(Panel_Menu,8,60,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
+    Button_Menu_Load.Hint:=fTextLibrary[TX_MENU_LOAD_GAME];
+    Button_Menu_Save:=TKMButton.Create(Panel_Menu,8,60,180,30,fTextLibrary[TX_MENU_SAVE_GAME],fnt_Metal);
     Button_Menu_Save.OnClick:=SwitchPage;
-    Button_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
-    Button_Menu_Settings:=TKMButton.Create(Panel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
+    Button_Menu_Save.Hint:=fTextLibrary[TX_MENU_SAVE_GAME];
+    Button_Menu_Settings:=TKMButton.Create(Panel_Menu,8,100,180,30,fTextLibrary[TX_MENU_SETTINGS],fnt_Metal);
     Button_Menu_Settings.OnClick:=SwitchPage;
-    Button_Menu_Settings.Hint:=fTextLibrary.GetTextString(179);
-    Button_Menu_Quit:=TKMButton.Create(Panel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
-    Button_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
+    Button_Menu_Settings.Hint:=fTextLibrary[TX_MENU_SETTINGS];
+    Button_Menu_Quit:=TKMButton.Create(Panel_Menu,8,180,180,30,fTextLibrary[TX_MENU_QUIT_MISSION],fnt_Metal);
+    Button_Menu_Quit.Hint:=fTextLibrary[TX_MENU_QUIT_MISSION];
     Button_Menu_Quit.OnClick:=SwitchPage;
     Button_Menu_TrackUp  :=TKMButton.Create(Panel_Menu,158,320,30,30,'>',fnt_Metal);
     Button_Menu_TrackDown:=TKMButton.Create(Panel_Menu,  8,320,30,30,'<',fnt_Metal);
@@ -1317,10 +1323,10 @@ procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
   Panel_Quit:=TKMPanel.Create(Panel_Main,0,412,200,400);
     TKMLabel.Create(Panel_Quit,100,30,180,70,fTextLibrary.GetTextString(176),fnt_Outline,taCenter);
-    Button_Quit_Yes := TKMButton.Create(Panel_Quit,8,100,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
-    Button_Quit_No  := TKMButton.Create(Panel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
-    Button_Quit_Yes.Hint := fTextLibrary.GetTextString(177);
-    Button_Quit_No.Hint  := fTextLibrary.GetTextString(178);
+    Button_Quit_Yes := TKMButton.Create(Panel_Quit,8,100,180,30,fTextLibrary[TX_MENU_QUIT_MISSION],fnt_Metal);
+F    Button_Quit_No  := TKMButton.Create(Panel_Quit,8,140,180,30,fTextLibrary[TX_MENU_DONT_QUIT_MISSION],fnt_Metal);
+    Button_Quit_Yes.Hint := fTextLibrary[TX_MENU_QUIT_MISSION];
+    Button_Quit_No.Hint  := fTextLibrary[TX_MENU_DONT_QUIT_MISSION];
     Button_Quit_Yes.OnClick := Menu_QuitMission;
     Button_Quit_No.OnClick  := SwitchPage;
 end;
@@ -1332,7 +1338,7 @@ begin
   Panel_Unit:=TKMPanel.Create(Panel_Main,0,412,200,400);
     Label_UnitName        := TKMLabel.Create(Panel_Unit,100,16,184,30,'',fnt_Outline,taCenter);
     Image_UnitPic         := TKMImage.Create(Panel_Unit,8,38,54,100,521);
-    Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,30,fTextLibrary.GetTextString(254),fnt_Grey,taCenter);
+    Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,30,fTextLibrary[TX_UNIT_CONDITION],fnt_Grey,taCenter);
     ConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,73,55,116,15);
     Label_UnitTask        := TKMLabel.Create(Panel_Unit,73,80,116,30,'',fnt_Grey,taLeft);
     Label_UnitTask.AutoWrap := true;
@@ -1382,17 +1388,18 @@ begin
     Button_Army_Attack.Disable;
 
     //Hints
-    Button_Army_GoTo.Hint   := fTextLibrary.GetTextString(259);
+    //@Lewin: I suggest we check other games, but I have a feeling that using same shortcuts for every version would be better
+    Button_Army_GoTo.Hint   := fTextLibrary[TX_ARMY_GOTO_HINT];
     Button_Army_Stop.Hint   := Format(fTextLibrary[TX_TROOP_HALT_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_HALT]]);
-    Button_Army_Attack.Hint := fTextLibrary.GetTextString(257);
-    Button_Army_RotCW.Hint  := fTextLibrary.GetTextString(256);
-    Button_Army_Storm.Hint  := fTextLibrary.GetTextString(263);
-    Button_Army_RotCCW.Hint := fTextLibrary.GetTextString(255);
-    Button_Army_ForDown.Hint:= fTextLibrary.GetTextString(264);
-    Button_Army_ForUp.Hint  := fTextLibrary.GetTextString(265);
+    Button_Army_Attack.Hint := fTextLibrary[TX_ARMY_ATTACK_HINT];
+    Button_Army_RotCW.Hint  := fTextLibrary[TX_ARMY_ROTATE_CW_HINT];
+    Button_Army_Storm.Hint  := fTextLibrary[TX_ARMY_STORM_HINT];
+    Button_Army_RotCCW.Hint := fTextLibrary[TX_ARMY_ROTATE_CCW_HINT];
+    Button_Army_ForDown.Hint:= fTextLibrary[TX_ARMY_LINE_ADD_HINT];
+    Button_Army_ForUp.Hint  := fTextLibrary[TX_ARMY_LINE_REM_HINT];
     Button_Army_Split.Hint  := Format(fTextLibrary[TX_TROOP_SPLIT_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT]]);
     Button_Army_Join.Hint   := Format(fTextLibrary[TX_TROOP_LINK_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_LINK]]);
-    Button_Army_Feed.Hint   := fTextLibrary.GetTextString(262);
+    Button_Army_Feed.Hint   := fTextLibrary[TX_ARMY_FEED_HINT];
     Button_Unit_Dismiss.Hint:= 'Dismiss unit';
 
     {Army controls...

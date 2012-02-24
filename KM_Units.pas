@@ -415,22 +415,24 @@ end;
 
 procedure TKMUnitCitizen.IssueResourceDepletedMessage;
 var
-  Msg: string;
+  Msg: Word;
 begin
   case fHome.HouseType of
-    ht_Quary:    Msg := fTextLibrary.GetTextString(290);
-    ht_CoalMine: Msg := fTextLibrary.GetTextString(291);
-    ht_IronMine: Msg := fTextLibrary.GetTextString(292);
-    ht_GoldMine: Msg := fTextLibrary.GetTextString(293);
+    ht_Quary:     Msg := TX_MSG_STONE_DEPLETED;
+    ht_CoalMine:  Msg := TX_MSG_COAL_DEPLETED;
+    ht_IronMine:  Msg := TX_MSG_IRON_DEPLETED;
+    ht_GoldMine:  Msg := TX_MSG_GOLD_DEPLETED;
     ht_FisherHut: if not fTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), fResource.UnitDat[fUnitType].MiningRange) then
-                    Msg := fTextLibrary[TX_UNITS_FISHERMAN_TOO_FAR]
+                    Msg := TX_MSG_FISHERMAN_TOO_FAR
                   else
-                    Msg := fTextLibrary[TX_UNITS_FISHERMAN_CANNOT_CATCH];
-    else         begin Assert(false, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet'); Msg := ''; end;
+                    Msg := TX_MSG_FISHERMAN_CANNOT_CATCH;
+    else         Msg := 0;
   end;
 
-  if (Msg <> '') and (fOwner = MyPlayer.PlayerIndex) then //Don't show message for other players
-    fGame.fGamePlayInterface.MessageIssue(mkHouse, Msg, fHome.GetEntrance);
+  Assert(Msg <> 0, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
+
+  if fOwner = MyPlayer.PlayerIndex then //Don't show message for other players
+    fGame.fGamePlayInterface.MessageIssue(mkHouse, fTextLibrary[Msg], fHome.GetEntrance);
 
   fHome.ResourceDepletedMsgIssued := True;
 end;

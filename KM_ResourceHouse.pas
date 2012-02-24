@@ -504,7 +504,7 @@ constructor TKMHouseDatClass.Create(aHouseType: THouseType);
 begin
   Inherited Create;
   fHouseType := aHouseType;
-  fNameTextID := siHouseNames + HouseKaMOrder[fHouseType]; //May be overridden for new houses
+  fNameTextID := TX_HOUSES_NAMES__29 + HouseKaMOrder[fHouseType] - 1; //May be overridden for new houses
 end;
 
 

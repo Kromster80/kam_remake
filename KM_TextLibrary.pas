@@ -7,12 +7,61 @@ uses
 
 const
   MaxStrings = 610; //Text.lib has the most entries - 590, but Russian font file has StrCount=609
-  //Here are some indexes into the files for different items. (e.g. unit names) si is for "String Index"
-  siHouseNames = 0;
-  siResourceNames = 40;
-  siUnitNames = 69;
-  siUnitDescriptions = 99;
-  siTrackNames = 570;
+
+  //NAME__## means that this const defines first element of some range that is ## long
+  TX_HOUSES_NAMES__29 = 1; //Todo: Add 30th as Marketplace
+  TX_RESOURCES_NAMES__27 = 40;
+  TX_UNITS_NAMES__29 = 70; //todo: add animal unit names
+  TX_UNITS_DESCRIPTIONS__13 = 100;
+
+  TX_MENU_LOAD_GAME = 174;
+  TX_MENU_SAVE_GAME = 175;
+
+  TX_MENU_TAB_HINT_BUILD = 160;
+  TX_MENU_TAB_HINT_DISTRIBUTE = 161;
+  TX_MENU_TAB_HINT_STATISTICS = 162;
+  TX_MENU_TAB_HINT_OPTIONS = 164;
+  TX_MENU_TAB_HINT_GO_BACK = 165;
+
+  TX_MENU_TAB_BUILD = 166;
+  TX_MENU_TAB_DISTRIBUTE = 167;
+  TX_MENU_TAB_STATISTICS = 168;
+  TX_MENU_TAB_OPTIONS = 170;
+
+
+  TX_MENU_QUIT_MISSION = 177;
+  TX_MENU_DONT_QUIT_MISSION = 178;
+  TX_MENU_SETTINGS = 179;
+  TX_MENU_QUIT_MAPED = 180;
+
+  TX_HOUSE_CONDITION = 228;
+  TX_UNIT_CONDITION = 254;
+
+  TX_ARMY_ROTATE_CCW_HINT = 255;
+  TX_ARMY_ROTATE_CW_HINT = 256;
+  TX_ARMY_ATTACK_HINT = 257;
+  TX_ARMY_GOTO_HINT = 259;
+  TX_ARMY_FEED_HINT = 262;
+  TX_ARMY_STORM_HINT = 263;
+  TX_ARMY_LINE_ADD_HINT = 264;
+  TX_ARMY_LINE_REM_HINT = 265;
+
+  TX_MSG_DELETE = 276;
+  TX_MSG_DELETE_HINT = 277;
+  TX_MSG_GOTO = 280;
+  TX_MSG_GOTO_HINT = 281;
+  TX_MSG_CLOSE = 282;
+  TX_MSG_CLOSE_HINT = 283;
+
+  TX_MSG_STONE_DEPLETED = 290;
+  TX_MSG_COAL_DEPLETED = 291;
+  TX_MSG_IRON_DEPLETED = 292;
+  TX_MSG_GOLD_DEPLETED = 293;
+  //TX_MSG_FISHERMAN_CANNOT_CATCH = 294;
+  TX_MSG_HOUSE_UNOCCUPIED = 295;
+  TX_MSG_TROOP_HUNGRY = 296;
+
+  TX_POPUP_PAUSE = 308;
 
   //These constants are made so to be able to use Texts[] instead of GetSetupString(), which is consistent style for MainMenu
   TX_MENU_MULTIPLAYER = 1011;

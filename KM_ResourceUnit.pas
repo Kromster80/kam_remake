@@ -317,7 +317,7 @@ begin
       ut_Waterflower: Result := 'Waterflower';
       ut_Waterleaf:   Result := 'Waterleaf';
       ut_Duck:        Result := 'Duck';
-      else            Result := fTextLibrary.GetTextString(siUnitNames + UnitKaMOrder[fUnitType]);
+      else            Result := fTextLibrary[TX_UNITS_NAMES__29 + UnitKaMOrder[fUnitType] - 1];
     end
   else
     Result := 'N/A';
@@ -327,7 +327,7 @@ end;
 function TKMUnitDatClass.GetDescription: string;
 begin
   if IsValid and not IsAnimal then
-    Result := fTextLibrary.GetTextString(siUnitDescriptions + UnitKaMOrder[fUnitType])
+    Result := fTextLibrary[TX_UNITS_DESCRIPTIONS__13 + UnitKaMOrder[fUnitType] - 1]
   else
     Result := 'N/A';
 end;
