@@ -1235,6 +1235,7 @@ begin
 end;
 
 
+//Override usual hittest with regard to text alignment
 function TKMLabel.HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean;
 begin
   Result := Hitable and InRange(X, AreaLeft, AreaLeft + Width) and InRange(Y, Top, Top + Height);

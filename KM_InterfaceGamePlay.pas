@@ -213,12 +213,12 @@ type
       Image_BuildCost_StonePic:TKMImage;
       Label_BuildCost_Wood:TKMLabel;
       Label_BuildCost_Stone:TKMLabel;
-      Button_BuildRoad,Button_BuildField,Button_BuildWine{,Button_BuildWall},Button_BuildCancel:TKMButtonFlat;
+      Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildCancel:TKMButtonFlat;
       Button_Build:array[1..GUI_HOUSE_COUNT]of TKMButtonFlat;
 
     Panel_Menu:TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown:TKMButton;
-      Label_Menu_Music, Label_Menu_Track, Label_GameTime: TKMLabel;
+      Label_Menu_Track, Label_GameTime: TKMLabel;
 
       Panel_Save:TKMPanel;
         List_Save: TKMListBox;
@@ -1089,34 +1089,32 @@ procedure TKMGamePlayInterface.Create_Build_Page;
 var i:integer;
 begin
   Panel_Build:=TKMPanel.Create(Panel_Main,0,412,196,400);
-    Label_Build:=TKMLabel.Create(Panel_Build,100,10,184,30,'',fnt_Outline,taCenter);
-    Image_Build_Selected:=TKMImage.Create(Panel_Build,8,40,32,32,335);
+    Label_Build := TKMLabel.Create(Panel_Build, 100, 10, 184, 30, '', fnt_Outline, taCenter);
+    Image_Build_Selected := TKMImage.Create(Panel_Build, 8, 40, 32, 32, 335);
     Image_Build_Selected.ImageCenter;
-    Image_BuildCost_WoodPic:=TKMImage.Create(Panel_Build,75,40,32,32,353);
+    Image_BuildCost_WoodPic := TKMImage.Create(Panel_Build, 75, 40, 32, 32, 353);
     Image_BuildCost_WoodPic.ImageCenter;
-    Image_BuildCost_StonePic:=TKMImage.Create(Panel_Build,130,40,32,32,352);
+    Image_BuildCost_StonePic := TKMImage.Create(Panel_Build, 130, 40, 32, 32, 352);
     Image_BuildCost_StonePic.ImageCenter;
-    Label_BuildCost_Wood:=TKMLabel.Create(Panel_Build,105,50,20,20,'',fnt_Outline,taLeft);
-    Label_BuildCost_Stone:=TKMLabel.Create(Panel_Build,160,50,20,20,'',fnt_Outline,taLeft);
-    Button_BuildRoad   := TKMButtonFlat.Create(Panel_Build,  8,80,33,33,335);
-    Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 45,80,33,33,337);
-    Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 82,80,33,33,336);
-//    Button_BuildWall   := TKMButtonFlat.Create(Panel_Build,119,80,33,33,339);
-    Button_BuildCancel := TKMButtonFlat.Create(Panel_Build,156,80,33,33,340);
-    Button_BuildRoad.OnClick:=Build_ButtonClick;
-    Button_BuildField.OnClick:=Build_ButtonClick;
-    Button_BuildWine.OnClick:=Build_ButtonClick;
-//    Button_BuildWall.OnClick:=Build_ButtonClick;
-    Button_BuildCancel.OnClick:=Build_ButtonClick;
-    Button_BuildRoad.Hint:=fTextLibrary.GetTextString(213);
-    Button_BuildField.Hint:=fTextLibrary.GetTextString(215);
-    Button_BuildWine.Hint:=fTextLibrary.GetTextString(219);
-//    Button_BuildWall.Hint:='Build a wall';
-    Button_BuildCancel.Hint:=fTextLibrary.GetTextString(211);
+    Label_BuildCost_Wood  := TKMLabel.Create(Panel_Build, 105, 50, 20, 20, '', fnt_Outline, taLeft);
+    Label_BuildCost_Stone := TKMLabel.Create(Panel_Build, 160, 50, 20, 20, '', fnt_Outline, taLeft);
+
+    Button_BuildRoad    := TKMButtonFlat.Create(Panel_Build, 8, 80, 33, 33, 335);
+    Button_BuildField   := TKMButtonFlat.Create(Panel_Build, 45, 80, 33, 33, 337);
+    Button_BuildWine    := TKMButtonFlat.Create(Panel_Build, 82, 80, 33, 33, 336);
+    Button_BuildCancel  := TKMButtonFlat.Create(Panel_Build, 156, 80, 33, 33, 340);
+    Button_BuildRoad.OnClick    := Build_ButtonClick;
+    Button_BuildField.OnClick   := Build_ButtonClick;
+    Button_BuildWine.OnClick    := Build_ButtonClick;
+    Button_BuildCancel.OnClick  := Build_ButtonClick;
+    Button_BuildRoad.Hint   := fTextLibrary[TX_BUILD_ROAD_HINT];
+    Button_BuildField.Hint  := fTextLibrary[TX_BUILD_FIELD_HINT];
+    Button_BuildWine.Hint   := fTextLibrary[TX_BUILD_WINE_HINT];
+    Button_BuildCancel.Hint := fTextLibrary[TX_BUILD_CANCEL_HINT];
 
     for i:=1 to GUI_HOUSE_COUNT do
       if GUIHouseOrder[i] <> ht_None then begin
-        Button_Build[i]:=TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,120+((i-1) div 5)*37,33,33,
+        Button_Build[i] := TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,120+((i-1) div 5)*37,33,33,
         fResource.HouseDat[GUIHouseOrder[i]].GUIIcon);
 
         Button_Build[i].OnClick:=Build_ButtonClick;
@@ -1202,21 +1200,21 @@ begin
          else
            inc(off,Nil_Width);
       1: begin
-          Stat_HousePic[hc]:=TKMImage.Create(Panel_Stats,off,LineBase,House_Width,30,41); //Filled with [?] at start
-          Stat_HouseWip[hc]:=TKMLabel.Create(Panel_Stats,off+House_Width  ,LineBase   ,30,15,'',fnt_Grey,taRight);
-          Stat_HouseQty[hc]:=TKMLabel.Create(Panel_Stats,off+House_Width-2,LineBase+16,30,15,'-',fnt_Grey,taRight);
-          Stat_HousePic[hc].Hint:=fResource.HouseDat[StatHouse[hc]].HouseName;
-          Stat_HouseWip[hc].Hint:=fResource.HouseDat[StatHouse[hc]].HouseName;
-          Stat_HouseQty[hc].Hint:=fResource.HouseDat[StatHouse[hc]].HouseName;
+          Stat_HousePic[hc] := TKMImage.Create(Panel_Stats,off,LineBase,House_Width,30,41); //Filled with [?] at start
+          Stat_HouseWip[hc] := TKMLabel.Create(Panel_Stats,off+House_Width  ,LineBase   ,30,15,'',fnt_Grey,taRight);
+          Stat_HouseQty[hc] := TKMLabel.Create(Panel_Stats,off+House_Width-2,LineBase+16,30,15,'-',fnt_Grey,taRight);
+          Stat_HousePic[hc].Hint := fResource.HouseDat[StatHouse[hc]].HouseName;
+          Stat_HouseQty[hc].Hitable := False;
+          Stat_HouseWip[hc].Hitable := False;
           Stat_HousePic[hc].ImageCenter;
           inc(hc);
           inc(off,House_Width);
          end;
       2: begin
-          Stat_UnitPic[uc]:=TKMImage.Create(Panel_Stats,off,LineBase,Unit_Width,30, fResource.UnitDat[StatUnit[uc]].GUIIcon);
-          Stat_UnitQty[uc]:=TKMLabel.Create(Panel_Stats,off+Unit_Width-2,LineBase+16,33,15,'-',fnt_Grey,taRight);
-          Stat_UnitPic[uc].Hint:=fResource.UnitDat[StatUnit[uc]].UnitName;
-          Stat_UnitQty[uc].Hint:=fResource.UnitDat[StatUnit[uc]].UnitName;
+          Stat_UnitPic[uc] := TKMImage.Create(Panel_Stats,off,LineBase,Unit_Width,30, fResource.UnitDat[StatUnit[uc]].GUIIcon);
+          Stat_UnitQty[uc] := TKMLabel.Create(Panel_Stats,off+Unit_Width-2,LineBase+16,33,15,'-',fnt_Grey,taRight);
+          Stat_UnitPic[uc].Hint := fResource.UnitDat[StatUnit[uc]].UnitName;
+          Stat_UnitQty[uc].Hitable := False;
           Stat_UnitPic[uc].ImageCenter;
           inc(uc);
           inc(off,Unit_Width);
@@ -1242,13 +1240,13 @@ begin
     Button_Menu_Quit:=TKMButton.Create(Panel_Menu,8,180,180,30,fTextLibrary[TX_MENU_QUIT_MISSION],fnt_Metal);
     Button_Menu_Quit.Hint:=fTextLibrary[TX_MENU_QUIT_MISSION];
     Button_Menu_Quit.OnClick:=SwitchPage;
-    Button_Menu_TrackUp  :=TKMButton.Create(Panel_Menu,158,320,30,30,'>',fnt_Metal);
-    Button_Menu_TrackDown:=TKMButton.Create(Panel_Menu,  8,320,30,30,'<',fnt_Metal);
-    Button_Menu_TrackUp.Hint  :=fTextLibrary.GetTextString(209);
-    Button_Menu_TrackDown.Hint:=fTextLibrary.GetTextString(208);
-    Button_Menu_TrackUp.OnClick  :=Menu_NextTrack;
-    Button_Menu_TrackDown.OnClick:=Menu_PreviousTrack;
-    Label_Menu_Music:=TKMLabel.Create(Panel_Menu,100,276,184,30,fTextLibrary.GetTextString(207),fnt_Metal,taCenter);
+    Button_Menu_TrackUp   := TKMButton.Create(Panel_Menu,158,320,30,30, '>', fnt_Metal);
+    Button_Menu_TrackDown := TKMButton.Create(Panel_Menu,  8,320,30,30, '<', fnt_Metal);
+    Button_Menu_TrackUp.Hint    := fTextLibrary[TX_MUSIC_NEXT_HINT];
+    Button_Menu_TrackDown.Hint  := fTextLibrary[TX_MUSIC_PREV_HINT];
+    Button_Menu_TrackUp.OnClick   := Menu_NextTrack;
+    Button_Menu_TrackDown.OnClick := Menu_PreviousTrack;
+    TKMLabel.Create(Panel_Menu,100,276,184,30,fTextLibrary[TX_MUSIC_PLAYER],fnt_Metal,taCenter);
     Label_Menu_Track:=TKMLabel.Create(Panel_Menu,100,296,184,30,'',fnt_Grey,taCenter);
     Label_Menu_Track.Hitable := false; //It can block hits for the track Up/Down buttons as they overlap
     Label_GameTime := TKMLabel.Create(Panel_Menu,100,228,184,20,'',fnt_Outline,taCenter);
@@ -1294,24 +1292,24 @@ end;
 procedure TKMGamePlayInterface.Create_Settings_Page;
 begin
   Panel_Settings := TKMPanel.Create(Panel_Main,0,412,200,400);
-    CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,18,15,180,20,fTextLibrary.GetTextString(203),fnt_Metal);
+    CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,18,15,180,20,fTextLibrary[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
     TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,18,40,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
-    TrackBar_Settings_Brightness.Caption := fTextLibrary.GetTextString(181);
+    TrackBar_Settings_Brightness.Caption := fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS];
     TrackBar_Settings_Brightness.OnChange := Menu_Settings_Change;
     TrackBar_Settings_ScrollSpeed := TKMTrackBar.Create(Panel_Settings,18,95,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     TrackBar_Settings_ScrollSpeed.Caption := fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED];
     TrackBar_Settings_ScrollSpeed.OnChange := Menu_Settings_Change;
     TrackBar_Settings_SFX := TKMTrackBar.Create(Panel_Settings,18,150,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
-    TrackBar_Settings_SFX.Caption := fTextLibrary.GetTextString(194);
-    TrackBar_Settings_SFX.Hint := fTextLibrary.GetTextString(195);
+    TrackBar_Settings_SFX.Caption := fTextLibrary[TX_MENU_SFX_VOLUME];
+    TrackBar_Settings_SFX.Hint := fTextLibrary[TX_MENU_SFX_VOLUME_HINT];
     TrackBar_Settings_SFX.OnChange := Menu_Settings_Change;
     TrackBar_Settings_Music := TKMTrackBar.Create(Panel_Settings,18,205,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
-    TrackBar_Settings_Music.Caption := fTextLibrary.GetTextString(196);
-    TrackBar_Settings_Music.Hint := fTextLibrary.GetTextString(195);
+    TrackBar_Settings_Music.Caption := fTextLibrary[TX_MENU_MUSIC_VOLUME];
+    TrackBar_Settings_Music.Hint := fTextLibrary[TX_MENU_MUSIC_VOLUME_HINT];
     TrackBar_Settings_Music.OnChange := Menu_Settings_Change;
     CheckBox_Settings_MusicOn := TKMCheckBox.Create(Panel_Settings,18,260,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
-    CheckBox_Settings_MusicOn.Hint := fTextLibrary.GetTextString(198);
+    CheckBox_Settings_MusicOn.Hint := fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
     CheckBox_Settings_MusicOn.OnClick := Menu_Settings_Change;
     CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,18,285,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE],fnt_Metal);
     CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
@@ -1321,14 +1319,14 @@ end;
 {Quit page}
 procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
-  Panel_Quit:=TKMPanel.Create(Panel_Main,0,412,200,400);
-    TKMLabel.Create(Panel_Quit,100,30,180,70,fTextLibrary.GetTextString(176),fnt_Outline,taCenter);
-    Button_Quit_Yes := TKMButton.Create(Panel_Quit,8,100,180,30,fTextLibrary[TX_MENU_QUIT_MISSION],fnt_Metal);
-F    Button_Quit_No  := TKMButton.Create(Panel_Quit,8,140,180,30,fTextLibrary[TX_MENU_DONT_QUIT_MISSION],fnt_Metal);
+  Panel_Quit := TKMPanel.Create(Panel_Main, 0, 412, 200, 400);
+    TKMLabel.Create(Panel_Quit, 100, 30, 180, 70, fTextLibrary[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter);
+    Button_Quit_Yes := TKMButton.Create(Panel_Quit, 8, 100, 180, 30, fTextLibrary[TX_MENU_QUIT_MISSION], fnt_Metal);
+    Button_Quit_No := TKMButton.Create(Panel_Quit, 8, 140, 180, 30, fTextLibrary[TX_MENU_DONT_QUIT_MISSION], fnt_Metal);
     Button_Quit_Yes.Hint := fTextLibrary[TX_MENU_QUIT_MISSION];
-    Button_Quit_No.Hint  := fTextLibrary[TX_MENU_DONT_QUIT_MISSION];
+    Button_Quit_No.Hint := fTextLibrary[TX_MENU_DONT_QUIT_MISSION];
     Button_Quit_Yes.OnClick := Menu_QuitMission;
-    Button_Quit_No.OnClick  := SwitchPage;
+    Button_Quit_No.OnClick := SwitchPage;
 end;
 
 
@@ -1409,8 +1407,8 @@ begin
     Split     Join      Feed}
 
   Panel_Army_JoinGroups:=TKMPanel.Create(Panel_Unit,0,160,200,400);
-    Label_Army_Join_Message := TKMLabel.Create(Panel_Army_JoinGroups, 98, 30, 188, 65, fTextLibrary.GetTextString(272),fnt_Outline,taCenter);
-    Button_Army_Join_Cancel := TKMButton.Create(Panel_Army_JoinGroups, 8, 95, 180, 30, fTextLibrary.GetTextString(274), fnt_Metal);
+    Label_Army_Join_Message := TKMLabel.Create(Panel_Army_JoinGroups, 98, 30, 188, 65, fTextLibrary[TX_ARMY_JOIN_SELECT], fnt_Outline, taCenter);
+    Button_Army_Join_Cancel := TKMButton.Create(Panel_Army_JoinGroups, 8, 95, 180, 30, fTextLibrary[TX_ARMY_JOIN_CANCEL], fnt_Metal);
 
   Button_Army_Join_Cancel.OnClick := Army_HideJoinMenu;
 end;
@@ -1425,16 +1423,16 @@ begin
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     Label_House := TKMLabel.Create(Panel_House,100,14,184,20,'',fnt_Outline,taCenter);
     Button_House_Goods := TKMButton.Create(Panel_House,8,42,30,30,37);
+    Button_House_Goods.Hint := fTextLibrary[TX_HOUSE_GOODS_HINT];
     Button_House_Goods.OnClick := House_WareDeliveryToggle;
-    Button_House_Goods.Hint := fTextLibrary.GetTextString(249);
     Button_House_Repair := TKMButton.Create(Panel_House,38,42,30,30,40);
+    Button_House_Repair.Hint := fTextLibrary[TX_HOUSE_REPAIR_HINT];
     Button_House_Repair.OnClick := House_RepairToggle;
-    Button_House_Repair.Hint := fTextLibrary.GetTextString(250);
     Image_House_Logo := TKMImage.Create(Panel_House,68,41,32,32,338);
     Image_House_Logo.ImageCenter;
     Image_House_Worker := TKMImage.Create(Panel_House,98,41,32,32,141);
     Image_House_Worker.ImageCenter;
-    Label_HouseHealth := TKMLabel.Create(Panel_House,156,45,55,15,fTextLibrary.GetTextString(228),fnt_Mini,taCenter);
+    Label_HouseHealth := TKMLabel.Create(Panel_House,156,45,55,15,fTextLibrary[TX_HOUSE_CONDITION],fnt_Mini,taCenter);
     Label_HouseHealth.FontColor := $FFE0E0E0;
 
     HealthBar_House := TKMPercentBar.Create(Panel_House,129,57,55,15);
@@ -2491,7 +2489,7 @@ begin
   end else begin
     Button_Build[i].OnClick:=nil;
     Button_Build[i].TexID:=41;
-    Button_Build[i].Hint:=fTextLibrary.GetTextString(251); //Building not available
+    Button_Build[i].Hint:=fTextLibrary[TX_HOUSE_NOT_AVAIABLE]; //Building not available
   end;
 end;
 
@@ -2720,9 +2718,7 @@ begin
     else
     begin
       Stat_HousePic[i].TexID := 41;
-      Stat_HousePic[i].Hint := fTextLibrary.GetTextString(251); //Building not available
-      Stat_HouseQty[i].Hint := fTextLibrary.GetTextString(251); //Building not available
-      Stat_HouseWip[i].Hint := fTextLibrary.GetTextString(251); //Building not available
+      Stat_HousePic[i].Hint := fTextLibrary[TX_HOUSE_NOT_AVAIABLE]; //Building not available
     end;
   end;
   for i:=low(StatUnit) to high(StatUnit) do
@@ -2730,7 +2726,6 @@ begin
     Tmp := MyPlayer.Stats.GetUnitQty(StatUnit[i]);
     Stat_UnitQty[i].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
     Stat_UnitPic[i].Hint := fResource.UnitDat[StatUnit[i]].UnitName;
-    Stat_UnitQty[i].Hint := fResource.UnitDat[StatUnit[i]].UnitName;
   end;
 end;
 

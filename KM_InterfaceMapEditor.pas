@@ -102,7 +102,7 @@ type
     Panel_Village:TKMPanel;
       Button_Village:array[1..3]of TKMButton;
       Panel_Build:TKMPanel;
-        Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildWall,Button_BuildCancel:TKMButtonFlat;
+        Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildCancel:TKMButtonFlat;
         Button_Build:array[1..GUI_HOUSE_COUNT]of TKMButtonFlat;
       Panel_Units:TKMPanel;
         Button_UnitCancel:TKMButtonFlat;
@@ -324,7 +324,7 @@ begin
      (Sender = Button_LoadCancel) or
      (Sender = Button_SaveCancel) then begin
     Panel_Menu.Show;
-    Label_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
+    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_OPTIONS];
   end else
 
   if Sender=Button_Menu_Quit then begin
@@ -578,19 +578,15 @@ begin
       Button_BuildRoad   := TKMButtonFlat.Create(Panel_Build,  8,28,33,33,335);
       Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 45,28,33,33,337);
       Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 82,28,33,33,336);
-      Button_BuildWall   := TKMButtonFlat.Create(Panel_Build,119,28,33,33,339);
-      Button_BuildWall.Hide; //Walls aren't implemented, so hide it
       Button_BuildCancel := TKMButtonFlat.Create(Panel_Build,156,28,33,33,340);
       Button_BuildRoad.OnClick  := Build_ButtonClick;
       Button_BuildField.OnClick := Build_ButtonClick;
       Button_BuildWine.OnClick  := Build_ButtonClick;
-      Button_BuildWall.OnClick  := Build_ButtonClick;
       Button_BuildCancel.OnClick:= Build_ButtonClick;
-      Button_BuildRoad.Hint     := fTextLibrary.GetTextString(213);
-      Button_BuildField.Hint    := fTextLibrary.GetTextString(215);
-      Button_BuildWine.Hint     := fTextLibrary.GetTextString(219);
-      Button_BuildWall.Hint     := 'Build a wall';
-      Button_BuildCancel.Hint   := fTextLibrary.GetTextString(211);
+      Button_BuildRoad.Hint     := fTextLibrary[TX_BUILD_ROAD_HINT];
+      Button_BuildField.Hint    := fTextLibrary[TX_BUILD_FIELD_HINT];
+      Button_BuildWine.Hint     := fTextLibrary[TX_BUILD_WINE_HINT];
+      Button_BuildCancel.Hint   := fTextLibrary[TX_BUILD_CANCEL_HINT];
 
       TKMLabel.Create(Panel_Build,100,65,184,0,'Houses',fnt_Outline,taCenter);
       for i:=1 to GUI_HOUSE_COUNT do
