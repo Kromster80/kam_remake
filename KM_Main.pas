@@ -521,6 +521,7 @@ end;
 //@Krom: I think it's for multiple monitors, it's very annoying if you play a fullscreen game and your cursor slides onto second monitor
 //       instead of stopping at the edge as expected. But I think this restriction will still apply when you alt-tab
 //       out, so we should disable it then so the player can use both screens. Needs testing.
+//@Lewin: Thats the sideeffect of undocumented code - neither of us remembers why exactly it was brought in the first place
 procedure TKMMain.ApplyCursorRestriction;
 var Rect: TRect;
 begin

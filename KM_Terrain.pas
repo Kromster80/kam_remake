@@ -741,8 +741,9 @@ begin
   //@Lewin: Please check me on this one - it does not needs wcRoad
   //@Krom: If we allowed diagonal roads, then in very rare conditions it would need wcRoad:
   //       Removal of the grapes object allows walking diagonally, which might effect the road network.
-  //       However since we disallow diagonal roads it's not needed, I can't see how it could effect the road network. To be deleted.
-  //Update affected WalkConnect's
+  //       However since we disallow diagonal roads it's not needed, I can't see how it could effect the road network
+  //@Lewin: Please give me an example when Wine fields removal affect road network
+  //Update affected WalkConnect's (wcRoad is not required to update unless we reenable diagonal roads, as wine fields ...)
   RebuildWalkConnect([wcWalk, wcWolf, wcCrab]);
 end;
 
@@ -1839,10 +1840,9 @@ begin
 end;
 
 
-//@Lewin: This function checks if we can use this diagonal, right?
-//@Krom: Yes, it tells you whether the diagonal is "in use". (a bit like IsUnit) So if there is a unit walking on
-//       the oppsoite diagonal you cannot use the vertex (same diagonal is allowed for passing and fighting)
-//       It stops units walking diagonally through each other or walking through a diagonal that has weapons swinging through it
+//This function tells whether the diagonal is "in use". (a bit like IsUnit) So if there is a unit walking on
+//the oppsoite diagonal you cannot use the vertex (same diagonal is allowed for passing and fighting)
+//It stops units walking diagonally through each other or walking through a diagonal that has weapons swinging through it
 function TTerrain.VertexUsageCompatible(LocFrom, LocTo:TKMPoint): Boolean;
 var
   Vert: TKMPoint;

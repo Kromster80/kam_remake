@@ -763,8 +763,6 @@ begin
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
 
-      //@Lewin: Can we remove Label_LobbyMapMode if it's duplicate to Radio_LobbyMapType?
-      //@Krom: Yes I guess so. It would only be used for cooperative maps as they could be fights, but that's not so important
       Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 362, 282, 20, '', fnt_Metal, taLeft);
       Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 382, 282, 20, '', fnt_Metal, taLeft);
       Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 402, 282, 20, '', fnt_Metal, taLeft);
@@ -804,7 +802,6 @@ begin
 
   Panel_CampScroll := TKMPanel.Create(Panel_Campaign,MENU_DESIGN_X-360,MENU_DESIGN_Y-430,360,430);
 
-    //@Krom: When this page is finalised the labels will need to have their width/heights checked with the overlay debug on
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}2,rxGuiMainH);
     Image_Scroll.ImageStretch;
     Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 180, 18,100,20, '', fnt_Outline, taCenter);

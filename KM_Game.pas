@@ -1365,11 +1365,7 @@ begin
   //Parameters that are not identical for all players should not be saved as we need saves to be
   //created identically on all player's computers. Eventually these things can go through the GIP
 
-  //@Lewin: Why exactly?
-  //@Krom: For multiplayer consistency. Saves should be created identical on all player's computers.
-  //       If we want stuff like the MessageStack and screen center to be stored in multiplayer saves,
-  //       we must send those "commands" through the GIP so all players know about them and they're in sync.
-  //       There is a comment in fGame.Load about MessageList on this topic.
+  //For multiplayer consistency we compare all saves CRCs, they should be created identical on all player's computers.
   if not fMultiplayerMode then
   begin
     //Viewport settings are unique for each player
@@ -1377,6 +1373,10 @@ begin
     fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
     //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
   end;
+
+  //If we want stuff like the MessageStack and screen center to be stored in multiplayer saves,
+  //we must send those "commands" through the GIP so all players know about them and they're in sync.
+  //There is a comment in fGame.Load about MessageList on this topic.
 
   SaveStream.SaveToFile(SaveName(aFilename,'sav')); //Some 70ms for TPR7 map
   SaveStream.Free;
@@ -1443,10 +1443,7 @@ begin
     LoadStream.Read(s);
     fTextLibrary.LoadMissionStrings(ExeDir + s);
 
-    //Multiplayer saves don't have this piece of information due to each player has his own version
-    //@Lewin: Does this means that MessageList in UI is lost?
-    //@Krom: Yes, it's lost for now. Multiplayer saves must be identical so I guess we'll have to send all message commands through
-    //       the GIC (add, delete) even though they won't show to other players.
+    //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
     //todo: Send all message commands through GIP
     if not SaveIsMultiplayer then
     begin

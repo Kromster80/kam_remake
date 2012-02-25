@@ -126,7 +126,7 @@ type
     procedure MakeGFX(aRT: TRXType; aAlphaShadows:boolean);
     procedure MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection; aRT: TRXType);
     function GetRXFileName(aRX: TRXType): string;
-    procedure SaveTextureToBMP(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
+    procedure SaveTextureToBMP(aWidth, aHeight: Word; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
     procedure ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
   public
     constructor Create(aRender: TRender; aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
@@ -1035,9 +1035,9 @@ begin
 end;
 
 
-procedure TKMSprites.SaveTextureToBMP(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
+procedure TKMSprites.SaveTextureToBMP(aWidth, aHeight: Word; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
 var
-  i,k: Integer;
+  I, K: Word;
   Bmp: TBitmap;
   Folder: string;
 begin
@@ -1045,22 +1045,22 @@ begin
   begin
     Folder := ExeDir + 'Export\GenTextures\';
     ForceDirectories(Folder);
-    Bmp:=TBitmap.Create;
-    Bmp.PixelFormat:=pf24bit;
-    Bmp.Width:=aWidth;
-    Bmp.Height:=aHeight;
+    Bmp := TBitmap.Create;
+    Bmp.PixelFormat := pf24bit;
+    Bmp.Width  := aWidth;
+    Bmp.Height := aHeight;
 
-    for i:=0 to aHeight-1 do for k:=0 to aWidth-1 do
-      //@Krom: I get a warning on this line: "Combining signed and unsigned types - widened both operands"
-      Bmp.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*aWidth+k)*4))^) AND $FFFFFF; //Ignore alpha
+    for I := 0 to aHeight - 1 do
+      for K := 0 to aWidth - 1 do
+        Bmp.Canvas.Pixels[K, I] := ((PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^) AND $FFFFFF; //Ignore alpha
     Bmp.SaveToFile(Folder + Int2Fix(aIndex, 4) + '.bmp');
 
     //these Alphas are worth looking at
     if aSaveAlpha then
     begin
-      for i:=0 to aHeight-1 do for k:=0 to aWidth-1 do
-        //@Krom: I get a warning on this line: "Combining signed and unsigned types - widened both operands"
-        Bmp.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*aWidth+k)*4))^) SHR 24 *65793; //convert A to RGB Greyscale
+      for I := 0 to aHeight - 1 do
+        for K := 0 to aWidth - 1 do
+          Bmp.Canvas.Pixels[K, I] := ((PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^) SHR 24 * 65793; // convert A to RGB Greyscale
       Bmp.SaveToFile(Folder + Int2Fix(aIndex, 4) + 'a.bmp');
     end;
 

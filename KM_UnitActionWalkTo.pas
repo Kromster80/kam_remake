@@ -744,10 +744,6 @@ end;
 
 
 //States whether we are allowed to run time consuming tests
-//@Lewin: I don't quite understand this logic here, could you please explain it?
-//@Krom: The logic is this: After a certain timeout, we are allowed to use a solution (e.g. push)
-//However, some solutions are very CPU intensive, and there's no need to check them every UpdateState
-//So we have two conditions here:
 //  1. We must have been stuck for more than aTimeout
 //  2. We must only return true every aFreq ticks.
 //For example: say we are checking whether we can use the solution Avoid. aTimeout = 10, aFreq = 20.
