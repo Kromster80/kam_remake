@@ -275,10 +275,11 @@ begin
       //Display message if set and not already shown and not a blank text
       if (Goals[I].MessageToShow <> 0)
       and not Goals[I].MessageHasShown
-      and (fTextLibrary.GetTextString(Goals[I].MessageToShow) <> '') then
+      //todo: replace with EVT files
+      and (fTextLibrary[Goals[I].MessageToShow] <> '') then
       begin
         if MyPlayer = fPlayers[fPlayerIndex] then
-          fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary.GetTextString(Goals[I].MessageToShow), KMPoint(0,0));
+          fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary[Goals[I].MessageToShow], KMPoint(0,0));
         Goals.SetMessageHasShown(I);
       end;
     end

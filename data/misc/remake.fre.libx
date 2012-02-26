@@ -1,232 +1,359 @@
 
-MaxID:221
+MaxID:2221
 
-1:Mission Annulée
-2:Tutoriel de Construction
-3:Tutoriel de Bataille
-4:Joueur Solo
-5:Éditeur de cartes
-202:Lecteur de Replay
-203:Voir le Replay
-6:Voir le Dernier Replay
-7:Débuter !
-8:Titre
-9:Taille
-10:Type de Mission : %s
-11:Condition de Victoire : %s
-12:Condition de Défaite : %s
-13:Alliés : 
-14:Ennemis : 
-16:Taille de la carte :
-17:Largeur
-18:Hauteur
-19:Créer une Mission
-20:Missions Existantes :
-21:Charger une Mission Existante
-22:Contrôles :
-23:Jouabilité :
-24:Effets Sonores :
-141:Vitesse de défilement.
-25:Désactiver
-143:Lecture aléatoire
-26:Graphisme :
-27:Luminosité
-221:
-28:Plein Écran
-29:Appliquer
-30:Langage :
-31:Chargement... Veuillez patienter
-216:unités
-217:bâtiments
-218:arbres
-219:définitions
-220:tileset	
-215:sprites additionnels
-208:initialisation
-209:initialisation du multijoueur
-210:script
-32:Une Erreur s'est Produite !
-212:Une erreur est survenue lors de l'analyse du fichier %s.
-33:Chargement du nouveau local...
-34:Liste des Sauvegardes :
-35:Nom du Fichier
-36:Description
-37:Charger
-38:Supprimer
-39:Êtes-vous sûr(e) de vouloir supprimer ce fichier ?
-40:Supprimer
-41:Annuler
-139:Missions Multijoueur
-140:Missions Solo
+1:
+40:
+70:
+100:
 
-43:Vous avez Gagné !
-44:Continuer à Jouer
-45:Victoire !
-46:Vous avez Perdu !
-47:Continuer à Regarder
-48:Défaite !
-49:Le Replay est Terminé
-50:Continuer à Regarder
-51:Quitter au Menu
-166:Abandonner les Joueurs
-167:L'hôte sera autorisé à abandonner ces joueurs après %d secondes.
-168:L'hôte est désormais autorisé à abandonner ces joueurs.
-171:Êtes-vous sûr(e) de vouloir quitter ?
-172:Êtes-vous sûr(e) de vouloir définitivement abandonner ces joueurs ?
-173:Annuler
-52:Non disponible
-53:Appuyer sur %s pour reprendre le jeu
-54:Pour l'Alliance
-55:Infos sur les joueurs
-56:Chat
-57:Fichier déjà existant
-58:Écraser
-59:Enregistrer
-60:Charger
-205:Format non supporté %s
-206:Version non supportée %s
-211:Nouvelle Mission
-194:Temps de Jeu :|%s
+174:
+175:
 
-61:Une erreur s'est produite durant la partie.
-62:Veuillez envoyer le fichier %s se trouvant dans le dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent se trouver dans le fichier Readme. Merci beaucoup de votre petite aide!\n\nATTENTION: Continuer à jouer après cette erreur peut causer des crashs et des instabilités supplémentaires. Voulez-vous prendre ce risque et continuer à jouer?
-63:Une ancienne version d'OpenGL a été détectée, le jeu peut être lent et/ou avec des défauts graphiques.\nVeuillez mettre à jour vos pilotes graphiques pour avoir une meilleure performance.
-64:Erreur réseau :
-65:Erreur : Le nom du joueur doit contenir au moins un caractère
-66:Connexion échoué : %s
-67:Vous vous êtes déconnecté
-68:Mission %d
-150:Troupes et Bâtiments
-151:Troupes
+160:
+161:
+162:
+164:
+165:
 
-69:La Hutte de votre Pêcheur est trop éloignée de l'eau.
-70:Votre Pêcheur ne peut plus pêcher dans les eaux environnantes..
+166:
+167:
+168:
+170:
 
-71:Place du Marché
-72:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
-73:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
-74:Échanger x%d
-75:Contre x%d
-162:Réduire le nombre d'échanges
-161:Augmenter le nombre d'échanges
-184:L'échange de cette ressource est indisponible dans cette mission
-185:Planter et Abattre
-186:Abattre Seulement
+176:
+177:
+178:
+179:
+180:
+194:
+195:
+196:
+195:
+198:
 
-76:Édition du terrain
-77:Planification du village
-78:Scripts visuels
-79:Scripts globaux
-80:Menu
+207:
+208:
+209:
 
-82:Nom du Joueur
-81:Status :
-83:CRÉER UN SERVEUR
-84:Nom
-85:Port
-86:Créer un Server Local
-87:Créer un Server en Réseau
-88:Nom du Serveur
-89:État
-90:Joueurs
-91:Ping
-92:Rafraichir la Liste des Serveurs
-93:DÉTAILS DU SERVEUR
-94:Liste des Joueurs :
-144:Informations sur la Partie :
-95:Adresse
-96:Port
-97:Salle
-98:Joindre
-153:Prêt
-99:Connexion, veuillez patienter...
-159:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
-100:Chargement des annonces...
-101:Rafraichissement...
-142:Aucun serveur n'a été trouvé
-145:-
-146:Lobby
-147:Chargement
-148:Partie
+210:
+211:
+212:
+213:
+214:
+215:
+218:
+219:
 
-102:Liste des Joueurs
-103:Positions de Départ
-104:Alliance
-105:Couleur
-106:Prêt
-107:Ping
-108:Éjecter
-109:Libre
-213:Fermé
-110:Joueur IA
-111:Sélect...
-112:Aléatoire
-113:Aucune
-114:Aucune
-115:Alliance %d
-117:Envoyer un Message :
-118:Type de Mission
-119:Mission Solo
-188:Construction
-189:Bataille
-190:Mission Coopérative
-120:Partie Enregistrée
-121:Sélect. une mission...
-122:Sélect. une sauvegarde...
-123:Informations sur la Mission :
-124:Nombre de Joueurs : %d
-125:Mode :
-126:Conditions :
-127:Taille :
-195:Options de Jeu :
-204:Temps de Paix (min.)
-128:Quitter le Lobby
-129:Prêt
-152:Non Prêt
-130:Débuter !
-149:Position %d
-154:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler
-155:Erreur : Le chargement de la mission a échoué ou aucune mission n'a été sélectionnée
-156:Impossible de débuter : %s
-157:Tout le monde n'est pas prêt pour débuter
-158:Le nombre de joueurs dépasse la limite de la mission
-160:Le Serveur vous a attribué les droits d'hebergement
-187:La partie a débuté !
-214:L'hôte configure les Joueurs
+224:
+225:
+227:
+228:
+229:
+230:
+231:
+232:
+233:
+234:
+235:
+237:
+238:
+240:
+241:
+242:
+243:
 
-131:Attente des Joueurs :
-163:Enregistrement de la partie...
-164:%s a perdu !
-169:L'hôte (%s) a quitté
-170:La connexion vers le serveur a été perdue. Tentative de reconnexion...
-191:Vous n'êtes pas autorisé à faire cela pendant le temps de paix
-192:Temps de Paix restant : %s
-193:Le temps de paix est terminé. À vos armes !
+249:
+249:
+250:
+251:
+254:
 
-174:Unités|formées
-175:Unités|perdues
-176:Soldats|entraînés
-177:Soldats|perdus
-178:Unités|éliminées
-179:Bâtiments|construits
-180:Bâtiments|perdus
-181:Bâtiments|détruits
-182:Marchandises|produites
-183:Armes|fabriquées
+255:
+256:
+257:
+259:
+262:
+263:
+264:
+265:
 
-196:H
-197:L
-198:S
+272:
+274:
 
-199:Halte ('%s')
-200:Regrouper les unités ('%s')
-201:Scinder les unités ('%s')
+276:
+277:
+280:
+281:
+282:
+283:
 
-132:Crédits de KaM Remake
-133:Crédits originaux de Knights & Merchants
-134:PROGRAMMATION :
-135:PROGRAMMATION ADDITIONNELLE :
-136:GRAPHISMES ADDITIONNELS :
-165:EFFETS SONORES ADDITIONNELS :
-137:TRADUCTIONS ADDITIONNELLES :
-138:REMERCIEMENTS PARTICULIERS :
+290:
+291:
+292:
+293:
+
+295:
+296:
+
+308:
+
+
+1011:
+1012:
+203:
+1013:
+1014:
+
+1001:
+1002:
+1004:
+1008:
+1009:
+1010:
+1017:
+1018:
+1020:
+1111:
+1112:
+
+1113:
+1114:
+1115:
+1116:
+1117:
+1118:
+1119:
+1120:
+1121:
+
+1300:
+
+2001:Mission Annulée
+2002:Tutoriel de Construction
+2003:Tutoriel de Bataille
+2004:Joueur Solo
+2005:Éditeur de cartes
+2202:Lecteur de Replay
+2203:Voir le Replay
+2006:Voir le Dernier Replay
+2007:Débuter !
+2008:Titre
+2009:Taille
+2010:Type de Mission : %s
+2011:Condition de Victoire : %s
+2012:Condition de Défaite : %s
+2013:Alliés : 
+2014:Ennemis : 
+2016:Taille de la carte :
+2017:Largeur
+2018:Hauteur
+2019:Créer une Mission
+2020:Missions Existantes :
+2021:Charger une Mission Existante
+2022:Contrôles :
+2023:Jouabilité :
+2024:Effets Sonores :
+2141:Vitesse de défilement.
+2025:Désactiver
+2143:Lecture aléatoire
+2026:Graphisme :
+2027:Luminosité
+2221:
+2028:Plein Écran
+2029:Appliquer
+2030:Langage :
+2031:Chargement... Veuillez patienter
+2216:unités
+2217:bâtiments
+2218:arbres
+2219:définitions
+2220:tileset	
+2215:sprites additionnels
+2208:initialisation
+2209:initialisation du multijoueur
+2210:script
+2032:Une Erreur s'est Produite !
+2212:Une erreur est survenue lors de l'analyse du fichier %s.
+2033:Chargement du nouveau local...
+2034:Liste des Sauvegardes :
+2035:Nom du Fichier
+2036:Description
+2037:Charger
+2038:Supprimer
+2039:Êtes-vous sûr(e) de vouloir supprimer ce fichier ?
+2040:Supprimer
+2041:Annuler
+2139:Missions Multijoueur
+2140:Missions Solo
+
+2043:Vous avez Gagné !
+2044:Continuer à Jouer
+2045:Victoire !
+2046:Vous avez Perdu !
+2047:Continuer à Regarder
+2048:Défaite !
+2049:Le Replay est Terminé
+2050:Continuer à Regarder
+2051:Quitter au Menu
+2166:Abandonner les Joueurs
+2167:L'hôte sera autorisé à abandonner ces joueurs après %d secondes.
+2168:L'hôte est désormais autorisé à abandonner ces joueurs.
+2171:Êtes-vous sûr(e) de vouloir quitter ?
+2172:Êtes-vous sûr(e) de vouloir définitivement abandonner ces joueurs ?
+2173:Annuler
+2052:Non disponible
+2053:Appuyer sur %s pour reprendre le jeu
+2054:Pour l'Alliance
+2055:Infos sur les joueurs
+2056:Chat
+2057:Fichier déjà existant
+2058:Écraser
+2059:Enregistrer
+2060:Charger
+2205:Format non supporté %s
+2206:Version non supportée %s
+2211:Nouvelle Mission
+2194:Temps de Jeu :|%s
+
+2061:Une erreur s'est produite durant la partie.
+2062:Veuillez envoyer le fichier %s se trouvant dans le dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent se trouver dans le fichier Readme. Merci beaucoup de votre petite aide!\n\nATTENTION: Continuer à jouer après cette erreur peut causer des crashs et des instabilités supplémentaires. Voulez-vous prendre ce risque et continuer à jouer?
+2063:Une ancienne version d'OpenGL a été détectée, le jeu peut être lent et/ou avec des défauts graphiques.\nVeuillez mettre à jour vos pilotes graphiques pour avoir une meilleure performance.
+2064:Erreur réseau :
+2065:Erreur : Le nom du joueur doit contenir au moins un caractère
+2066:Connexion échoué : %s
+2067:Vous vous êtes déconnecté
+2068:Mission %d
+2150:Troupes et Bâtiments
+2151:Troupes
+
+2069:La Hutte de votre Pêcheur est trop éloignée de l'eau.
+2070:Votre Pêcheur ne peut plus pêcher dans les eaux environnantes..
+
+2071:Place du Marché
+2072:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
+2073:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
+2074:Échanger x%d
+2075:Contre x%d
+2162:Réduire le nombre d'échanges
+2161:Augmenter le nombre d'échanges
+2184:L'échange de cette ressource est indisponible dans cette mission
+2185:Planter et Abattre
+2186:Abattre Seulement
+
+2076:Édition du terrain
+2077:Planification du village
+2078:Scripts visuels
+2079:Scripts globaux
+2080:Menu
+
+2082:Nom du Joueur
+2081:Status :
+2083:CRÉER UN SERVEUR
+2084:Nom
+2085:Port
+2086:Créer un Server Local
+2087:Créer un Server en Réseau
+2088:Nom du Serveur
+2089:État
+2090:Joueurs
+2091:Ping
+2092:Rafraichir la Liste des Serveurs
+2093:DÉTAILS DU SERVEUR
+2094:Liste des Joueurs :
+2144:Informations sur la Partie :
+2095:Adresse
+2096:Port
+2097:Salle
+2098:Joindre
+2153:Prêt
+2099:Connexion, veuillez patienter...
+2159:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
+2100:Chargement des annonces...
+2101:Rafraichissement...
+2142:Aucun serveur n'a été trouvé
+2145:-
+2146:Lobby
+2147:Chargement
+2148:Partie
+
+2102:Liste des Joueurs
+2103:Positions de Départ
+2104:Alliance
+2105:Couleur
+2106:Prêt
+2107:Ping
+2108:Éjecter
+2109:Libre
+2213:Fermé
+2110:Joueur IA
+2111:Sélect...
+2112:Aléatoire
+2113:Aucune
+2114:Aucune
+2115:Alliance %d
+2117:Envoyer un Message :
+2118:Type de Mission
+2119:Mission Solo
+2188:Construction
+2189:Bataille
+2190:Mission Coopérative
+2120:Partie Enregistrée
+2121:Sélect. une mission...
+2122:Sélect. une sauvegarde...
+2123:Informations sur la Mission :
+2124:Nombre de Joueurs : %d
+2125:Mode :
+2126:Conditions :
+2127:Taille :
+2195:Options de Jeu :
+2204:Temps de Paix (min.)
+2128:Quitter le Lobby
+2129:Prêt
+2152:Non Prêt
+2130:Débuter !
+2149:Position %d
+2154:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler
+2155:Erreur : Le chargement de la mission a échoué ou aucune mission n'a été sélectionnée
+2156:Impossible de débuter : %s
+2157:Tout le monde n'est pas prêt pour débuter
+2158:Le nombre de joueurs dépasse la limite de la mission
+2160:Le Serveur vous a attribué les droits d'hebergement
+2187:La partie a débuté !
+2214:L'hôte configure les Joueurs
+
+2131:Attente des Joueurs :
+2163:Enregistrement de la partie...
+2164:%s a perdu !
+2169:L'hôte (%s) a quitté
+2170:La connexion vers le serveur a été perdue. Tentative de reconnexion...
+2191:Vous n'êtes pas autorisé à faire cela pendant le temps de paix
+2192:Temps de Paix restant : %s
+2193:Le temps de paix est terminé. À vos armes !
+
+2174:Unités|formées
+2175:Unités|perdues
+2176:Soldats|entraînés
+2177:Soldats|perdus
+2178:Unités|éliminées
+2179:Bâtiments|construits
+2180:Bâtiments|perdus
+2181:Bâtiments|détruits
+2182:Marchandises|produites
+2183:Armes|fabriquées
+
+2196:H
+2197:L
+2198:S
+
+2199:Halte ('%s')
+2200:Regrouper les unités ('%s')
+2201:Scinder les unités ('%s')
+
+2132:Crédits de KaM Remake
+2133:Crédits originaux de Knights & Merchants
+2134:PROGRAMMATION :
+2135:PROGRAMMATION ADDITIONNELLE :
+2136:GRAPHISMES ADDITIONNELS :
+2165:EFFETS SONORES ADDITIONNELS :
+2137:TRADUCTIONS ADDITIONNELLES :
+2138:REMERCIEMENTS PARTICULIERS :

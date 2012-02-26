@@ -140,7 +140,7 @@ begin
   begin
     C.fBackGroundPic.RX := rxGuiMainH;
     C.fBackGroundPic.ID := 12;
-    C.fFirstTextIndex := 340; //+10 added later on
+    //C.fFirstTextIndex := 340; //+10 added later on
   end;
 
   //Hardcoded for now
@@ -149,7 +149,7 @@ begin
   begin
     C.fBackGroundPic.RX := rxGuiMain;
     C.fBackGroundPic.ID := 20;
-    C.fFirstTextIndex := 240; //+10 added later on
+    //C.fFirstTextIndex := 240; //+10 added later on
   end;
 end;
 
@@ -348,7 +348,7 @@ end;
 
 function TKMCampaign.MissionTitle(aIndex: byte): AnsiString;
 begin
-  Result := Format(fTextLibrary[2000 + fFirstTextIndex + 1], [aIndex]);
+  Result := Format(fTextLibrary[fFirstTextIndex + 1], [aIndex]);
 end;
 
 
@@ -356,7 +356,7 @@ end;
 //custom campaigns are unlikely to have more texts in more than 1-2 languages
 function TKMCampaign.MissionText(aIndex: byte): AnsiString;
 begin
-  Result := fTextLibrary[2000 + fFirstTextIndex + 10 + aIndex];
+  Result := fTextLibrary[fFirstTextIndex + 10 + aIndex];
 end;
 
 

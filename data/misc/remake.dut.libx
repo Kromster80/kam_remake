@@ -1,232 +1,359 @@
 
-MaxID:221
+MaxID:2221
 
-1:Missie geannuleerd 
-2:Stad oefenscenario
-3:Strijd oefenscenario
-4:Alleen spelen	
-5:Kaartbewerker
-202:Herhalingen
-203:Herhaling weergeven
-6:Laatste herhaling bekijken
-7:Missie starten
-8:Titel
-9:Gr.
-10:Missietype: %s
-11:Overwinningsconditie: %s
-12:Nederlaagconditie: %s
-13:Bondgenoten: 
-14:Vijanden: 
-16:Nieuwe kaartgrootte
-17:Breedte
-18:Hoogte
-19:Nieuwe kaart creëren
-20:Beschikbare kaarten
-21:Bestaande kaart inladen
-22:Besturing:
-23:Spelinstellingen:
-24:Geluid:
-141:Scrollsnelheid
-25:Muziek uit
-143:Willekeurig
-26:Weergave:
-27:Helderheid
-221:
-28:Volledig scherm
-29:Toepassen
-30:Taal:
-31:Aan het laden... Een ogenblik geduld
-216:eenheden
-217:gebouwen
-218:bomen
-219:definities
-220:tegelset
-215:aanvullende afbeeldingen
-208:initialiseren
-209:multiplayer initialisatie
-210:script
-32:Er is een fout opgetreden!
-212:Er is een fout opgetreden tijdens het ontleden van het %s bestand
-33:Nieuwe taalinstellingen laden
-34:Lijst van opgeslagen spellen
-35:Bestandsnaam
-36:Omschrijving
-37:Laden
-38:Verwijderen
-39:Weet je zeker dat je dit opgeslagen spel wilt verwijderen?
-40:Verwijder
-41:Annuleren
-139:Multiplayer kaarten
-140:Alleen-spelen kaarten
+1:
+40:
+70:
+100:
 
-43:Je hebt gewonnen!
-44:Doorspelen
-45:Victorie!
-46:Je hebt verloren!
-47:Blijven kijken
-48:Nederlaag
-49:Herhaling is geëindigd
-50:Blijven kijken
-51:Afsluiten naar menu
-166:Spelers verwijderen
-167:De host mag deze spelers na %d seconden verwijderen
-168:De host mag nu deze spelers verwijderen
-171:Weet je zeker dat je wilt afsluiten?
-172:Weet je zeker dat je deze spelers permanent wilt verwijderen?
-173:Annuleren
-52:Niet beschikbaar
-53:Druk op %s om verder te spelen
-54:Naar team
-55:Spelersinformatie
-56:Chat
-57:Opgeslagen spel bestaat al
-58:Overschrijven
-59:Opslaan
-60:Laden
-205:Niet-ondersteund formaat %s
-206:Niet-ondersteunde versie %s
-211:Nieuwe Missie
-194:Speeltijd:|%s
+174:
+175:
 
-61:Er is een fout opgetreden tijdens het spelen.
-62:Verstuur het bestand %s van jouw KaM Remake\\Crash Reports map naar de ontwikkelaars. Contactinformatie staat in het readme bestand. Bedankt voor je hulp! \n\nWAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?
-63:Verouderde OpenGL versie gedetecteerd. Het spel kan mogelijk langzaam draaien en/of grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
-64:Netwerkfout:
-65:Fout: spelernaam moet ingevuld zijn
-66:Verbindingsfout: %s
-67:Je bent verbroken met het spel
-68:Missie %d
-150:Bouwen en Vechten
-151:Vechten
+160:
+161:
+162:
+164:
+165:
 
-69:Je vissershut is te ver weg van het water.
-70:De visser kan geen vis meer vangen rondom zijn vissershut.
+166:
+167:
+168:
+170:
 
-71:Markt
-72:Gebruik de linkermuisknop om de goederen te selecteren
-73:Gebruik de rechtermuisknop om de goederen te selecteren
-74:Van x%d
-75:Naar x%d
-162:Aantal verlagen
-161:Aantal verhogen
-184:Het verhandelen van dit product is niet beschikbaar in deze missie
-185:Planten en kappen
-186:Alleen kappen
+176:
+177:
+178:
+179:
+180:
+194:
+195:
+196:
+195:
+198:
 
-76:Terrein bewerken
-77:Stadsplanning
-78:Visuele scripts
-79:Globale scripts
-80:Menu
+207:
+208:
+209:
 
-82:Spelernaam
-81:Status:
-83:SERVER AANMAKEN
-84:Naam
-85:Poort
-86:Lokale server aanmaken
-87:Internetserver aanmaken
-88:Servernaam
-89:Status
-90:Spelers
-91:Ping
-92:Serverlijst vernieuwen
-93:SERVERINFORMATIE
-94:Spelerslijst:
-144:Spelinformatie:
-95:Adres
-96:Poort
-97:Kamer
-98:Meedoen
-153:Gereed
-99:Verbinding maken, een ogenblik geduld ...
-159:Verkeerde protocol versie: %s. De server gebruikt: %s
-100:Mededelingen laden...
-101:Vernieuwen...
-142:Geen servers gevonden
-145:-
-146:Lobby
-147:Laden
-148:Spel
+210:
+211:
+212:
+213:
+214:
+215:
+218:
+219:
 
-102:Spelerslijst
-103:Startlocatie
-104:Team
-105:Vlagkleur
-106:Gereed
-107:Ping
-108:Kick
-109:Open
-213:Gesloten
-110:Computerspeler
-111:Selecteer...
-112:Willekeurig
-113:Geen
-114:Geen
-115:Team %d
-117:Bericht:
-118:Kaartsoort
-119:Enkele kaart:
-188:Bouwkaart
-189:Gevechtskaart
-190:Co-op kaart
-120:Opgeslagen spel
-121:Selecteer een kaart...
-122:Selecteer een opgeslagen spel...
-123:Kaartinformatie:
-124:Spelers: %d
-125:Modus:
-126:Condities:
-127:Grootte:
-195:Spelopties:
-204:Vredestijd (minuten)
-128:Lobby verlaten
-129:Gereed
-152:Niet gereed
-130:Start!
-149:Locatie %d
-154:Fout: Kies aub een speler uit het opgeslagen spel om te besturen
-155:Fout: laden van de kaart mislukt of er is geen map geselecteerd.
-156:Kan niet starten: %s
-157:Niet iedereen is gereed om te starten
-158:Aantal spelers overschrijdt kaartlimiet
-160:Server heeft ons hostingrechten toegewezen
-187:Spel gestart
-214:Host regelt spelerinstellingen
+224:
+225:
+227:
+228:
+229:
+230:
+231:
+232:
+233:
+234:
+235:
+237:
+238:
+240:
+241:
+242:
+243:
 
-131:Wachten op spelers:
-163:Spel opslaan...
-164:%s werd verslagen!
-169:De host (%s) heeft het spel verlaten
-170:De verbinding met de server is verbroken. Poging tot herverbinden...
-191:Het is niet toegestaan om dat te doen tijdens vredestijd.
-192:Resterende vredestijd: %s
-193:De vrede is voorbij. Grijp je wapens!
+249:
+249:
+250:
+251:
+254:
 
-174:Burgers|opgeleid
-175:Burgers|verloren
-176:Soldaten|uitgerust
-177:Soldaten|verloren
-178:Soldaten|verslagen
-179:Gebouwen|opgericht
-180:Gebouwen|verloren
-181:Gebouwen|vernietigd
-182:Producten|geproduceerd
-183:Wapens|geproduceerd
+255:
+256:
+257:
+259:
+262:
+263:
+264:
+265:
 
-196:H
-197:L
-198:S
+272:
+274:
 
-199:Troep stoppen ('%s')
-200:Troep samenvoegen ('%s')
-201:Troep splitsen ('%s')
+276:
+277:
+280:
+281:
+282:
+283:
 
-132:KaM Remake Credits
-133:Orginele Knights & Merchants Credits
-134:PROGRAMMERING:
-135:AANVULLENDE PROGRAMMERING:
-136:AANVULLENDE GRAFISCHE WERKEN:
-165:AANVULLENDE GELUIDEN:
-137:AANVULLENDE VERTALINGEN:
-138:SPECIALE DANK AAN:
+290:
+291:
+292:
+293:
+
+295:
+296:
+
+308:
+
+
+1011:
+1012:
+203:
+1013:
+1014:
+
+1001:
+1002:
+1004:
+1008:
+1009:
+1010:
+1017:
+1018:
+1020:
+1111:
+1112:
+
+1113:
+1114:
+1115:
+1116:
+1117:
+1118:
+1119:
+1120:
+1121:
+
+1300:
+
+2001:Missie geannuleerd 
+2002:Stad oefenscenario
+2003:Strijd oefenscenario
+2004:Alleen spelen	
+2005:Kaartbewerker
+2202:Herhalingen
+2203:Herhaling weergeven
+2006:Laatste herhaling bekijken
+2007:Missie starten
+2008:Titel
+2009:Gr.
+2010:Missietype: %s
+2011:Overwinningsconditie: %s
+2012:Nederlaagconditie: %s
+2013:Bondgenoten: 
+2014:Vijanden: 
+2016:Nieuwe kaartgrootte
+2017:Breedte
+2018:Hoogte
+2019:Nieuwe kaart creëren
+2020:Beschikbare kaarten
+2021:Bestaande kaart inladen
+2022:Besturing:
+2023:Spelinstellingen:
+2024:Geluid:
+2141:Scrollsnelheid
+2025:Muziek uit
+2143:Willekeurig
+2026:Weergave:
+2027:Helderheid
+2221:
+2028:Volledig scherm
+2029:Toepassen
+2030:Taal:
+2031:Aan het laden... Een ogenblik geduld
+2216:eenheden
+2217:gebouwen
+2218:bomen
+2219:definities
+2220:tegelset
+2215:aanvullende afbeeldingen
+2208:initialiseren
+2209:multiplayer initialisatie
+2210:script
+2032:Er is een fout opgetreden!
+2212:Er is een fout opgetreden tijdens het ontleden van het %s bestand
+2033:Nieuwe taalinstellingen laden
+2034:Lijst van opgeslagen spellen
+2035:Bestandsnaam
+2036:Omschrijving
+2037:Laden
+2038:Verwijderen
+2039:Weet je zeker dat je dit opgeslagen spel wilt verwijderen?
+2040:Verwijder
+2041:Annuleren
+2139:Multiplayer kaarten
+2140:Alleen-spelen kaarten
+
+2043:Je hebt gewonnen!
+2044:Doorspelen
+2045:Victorie!
+2046:Je hebt verloren!
+2047:Blijven kijken
+2048:Nederlaag
+2049:Herhaling is geëindigd
+2050:Blijven kijken
+2051:Afsluiten naar menu
+2166:Spelers verwijderen
+2167:De host mag deze spelers na %d seconden verwijderen
+2168:De host mag nu deze spelers verwijderen
+2171:Weet je zeker dat je wilt afsluiten?
+2172:Weet je zeker dat je deze spelers permanent wilt verwijderen?
+2173:Annuleren
+2052:Niet beschikbaar
+2053:Druk op %s om verder te spelen
+2054:Naar team
+2055:Spelersinformatie
+2056:Chat
+2057:Opgeslagen spel bestaat al
+2058:Overschrijven
+2059:Opslaan
+2060:Laden
+2205:Niet-ondersteund formaat %s
+2206:Niet-ondersteunde versie %s
+2211:Nieuwe Missie
+2194:Speeltijd:|%s
+
+2061:Er is een fout opgetreden tijdens het spelen.
+2062:Verstuur het bestand %s van jouw KaM Remake\\Crash Reports map naar de ontwikkelaars. Contactinformatie staat in het readme bestand. Bedankt voor je hulp! \n\nWAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?
+2063:Verouderde OpenGL versie gedetecteerd. Het spel kan mogelijk langzaam draaien en/of grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
+2064:Netwerkfout:
+2065:Fout: spelernaam moet ingevuld zijn
+2066:Verbindingsfout: %s
+2067:Je bent verbroken met het spel
+2068:Missie %d
+2150:Bouwen en Vechten
+2151:Vechten
+
+2069:Je vissershut is te ver weg van het water.
+2070:De visser kan geen vis meer vangen rondom zijn vissershut.
+
+2071:Markt
+2072:Gebruik de linkermuisknop om de goederen te selecteren
+2073:Gebruik de rechtermuisknop om de goederen te selecteren
+2074:Van x%d
+2075:Naar x%d
+2162:Aantal verlagen
+2161:Aantal verhogen
+2184:Het verhandelen van dit product is niet beschikbaar in deze missie
+2185:Planten en kappen
+2186:Alleen kappen
+
+2076:Terrein bewerken
+2077:Stadsplanning
+2078:Visuele scripts
+2079:Globale scripts
+2080:Menu
+
+2082:Spelernaam
+2081:Status:
+2083:SERVER AANMAKEN
+2084:Naam
+2085:Poort
+2086:Lokale server aanmaken
+2087:Internetserver aanmaken
+2088:Servernaam
+2089:Status
+2090:Spelers
+2091:Ping
+2092:Serverlijst vernieuwen
+2093:SERVERINFORMATIE
+2094:Spelerslijst:
+2144:Spelinformatie:
+2095:Adres
+2096:Poort
+2097:Kamer
+2098:Meedoen
+2153:Gereed
+2099:Verbinding maken, een ogenblik geduld ...
+2159:Verkeerde protocol versie: %s. De server gebruikt: %s
+2100:Mededelingen laden...
+2101:Vernieuwen...
+2142:Geen servers gevonden
+2145:-
+2146:Lobby
+2147:Laden
+2148:Spel
+
+2102:Spelerslijst
+2103:Startlocatie
+2104:Team
+2105:Vlagkleur
+2106:Gereed
+2107:Ping
+2108:Kick
+2109:Open
+2213:Gesloten
+2110:Computerspeler
+2111:Selecteer...
+2112:Willekeurig
+2113:Geen
+2114:Geen
+2115:Team %d
+2117:Bericht:
+2118:Kaartsoort
+2119:Enkele kaart:
+2188:Bouwkaart
+2189:Gevechtskaart
+2190:Co-op kaart
+2120:Opgeslagen spel
+2121:Selecteer een kaart...
+2122:Selecteer een opgeslagen spel...
+2123:Kaartinformatie:
+2124:Spelers: %d
+2125:Modus:
+2126:Condities:
+2127:Grootte:
+2195:Spelopties:
+2204:Vredestijd (minuten)
+2128:Lobby verlaten
+2129:Gereed
+2152:Niet gereed
+2130:Start!
+2149:Locatie %d
+2154:Fout: Kies aub een speler uit het opgeslagen spel om te besturen
+2155:Fout: laden van de kaart mislukt of er is geen map geselecteerd.
+2156:Kan niet starten: %s
+2157:Niet iedereen is gereed om te starten
+2158:Aantal spelers overschrijdt kaartlimiet
+2160:Server heeft ons hostingrechten toegewezen
+2187:Spel gestart
+2214:Host regelt spelerinstellingen
+
+2131:Wachten op spelers:
+2163:Spel opslaan...
+2164:%s werd verslagen!
+2169:De host (%s) heeft het spel verlaten
+2170:De verbinding met de server is verbroken. Poging tot herverbinden...
+2191:Het is niet toegestaan om dat te doen tijdens vredestijd.
+2192:Resterende vredestijd: %s
+2193:De vrede is voorbij. Grijp je wapens!
+
+2174:Burgers|opgeleid
+2175:Burgers|verloren
+2176:Soldaten|uitgerust
+2177:Soldaten|verloren
+2178:Soldaten|verslagen
+2179:Gebouwen|opgericht
+2180:Gebouwen|verloren
+2181:Gebouwen|vernietigd
+2182:Producten|geproduceerd
+2183:Wapens|geproduceerd
+
+2196:H
+2197:L
+2198:S
+
+2199:Troep stoppen ('%s')
+2200:Troep samenvoegen ('%s')
+2201:Troep splitsen ('%s')
+
+2132:KaM Remake Credits
+2133:Orginele Knights & Merchants Credits
+2134:PROGRAMMERING:
+2135:AANVULLENDE PROGRAMMERING:
+2136:AANVULLENDE GRAFISCHE WERKEN:
+2165:AANVULLENDE GELUIDEN:
+2137:AANVULLENDE VERTALINGEN:
+2138:SPECIALE DANK AAN:

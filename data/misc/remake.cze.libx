@@ -1,232 +1,359 @@
 
-MaxID:221
+MaxID:2221
 
-1:Mise ukonèena
-2:Vıuka stavby
-3:Vıuka boje
-4:Hra pro jednoho hráèe
-5:Editor mapy
-202:Záznamy ze hry
-203:Ukázat záznam
-6:Zhlédnout poslední záznam
-7:Zaèít misi
-8:Název
-9:Velikost
-10:Typ mise: %s
-11:Podmínky vítìzství: %s
-12:Podmínky poráky: %s
-13:Spojenci: 
-14:Nepøátelé: 
-16:Velikost nové mapy
-17:Šíøka
-18:Vıška
-19:Vytvoøit novou mapu
-20:Dostupné mapy
-21:Naèíst existující mapu
-22:Ovládání:
-23:Hra:
-24:Zvuk:
-141:Rychlost obrazu
-25:Zakázat hudbu
-143:Pøeházet skladby
-26:Grafika:
-27:Jas
-221:
-28:Celá obrazovka
-29:Pouít
-30:Jazyk:
-31:Nahrávám... Prosím èekejte
-216:jednotky
-217:domy
-218:stromy
-219:skripty
-220:textury terénu
-215:další grafika
-208:inicializuje se
-209:inicializace hry pro více hráèù
-210:skript
-32:Došlo k chybì!
-212:Nastala chyba pøi analıze souboru %s
-33:Nahrávám novou lokalizaci
-34:Seznam uloenıch her
-35:Jméno souboru
-36:Popis
-37:Naèíst
-38:Odstranit
-39:Opravdu chcete odstranit tuto uloenou hru?
-40:Odstranit
-41:Storno
-139:Multiplayerové mapy
-140:Singelplayerové mapy
+1:
+40:
+70:
+100:
 
-43:Zvítìzil jste!
-44:Pokraèovat ve høe
-45:Vítìzství!
-46:Prohrál jste!
-47:Pokraèovat 
-48:Poráka
-49:Pøehrávání skonèilo
-50:Pokraèovat 
-51:Zpìt do menu
-166:Vyhodit hráèe
-167:Hostitel bude moci vyhodit tyto hráèe za %d sekund
-168:Hostitel nyní mùe vyhodit tyto hráèe
-171:Opravdu chcete skonèit?
-172:Jste si jistı, e chcete vyhodit tyto hráèe ze hry?
-173:Cancel
-52:Nedostupné
-53:Stisknìte %s pro pokraèování ve høe
-54:Tımu
-55:Informace o hráèích
-56:Chat
-57:Uloená hra ji existuje
-58:Pøepsat
-59:Uloit
-60:Naèíst
-205:Nepodporovanı formát %s
-206:Nepodporovaná verze %s
-211:Nová mise
-194:Èas hry:|%s
+174:
+175:
 
-61:Bìhem hry došlo k chybì.
-62:Prosím pošlete soubor %s z vašecho adresáe KaM Remake\\Crash Reports vıvojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!\n\nVAROVÁNÍ: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
-63:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickımi chybami\nProsím aktualizujte svoje ovladaèe pro dosaení lepšího vıkonu.
-64:Síová chyba:
-65:Chyba: Musíte zadat svoje jméno
-66:Spojení se nezdaøilo: %s
-67:Byl jste odpojen
-68:Mise %d
-150:Stavìní & Bojování
-151:Bojování
+160:
+161:
+162:
+164:
+165:
 
-69:Váš rybáø je pøíliš daleko od vody.
-70:Váš rybáø nemùe chytit ádné další ryby ve vodì, kterou má poblí.
+166:
+167:
+168:
+170:
 
-71:Trištì
-72:Pouijte levé tlaèítko myši pro vıbìr zboí
-73:Pouijte pravé tlaèítko myši k vıbìru zboí
-74:Dám x%d
-75:Chci x%d
-162:Sníit mnoství
-161:Zvıšit mnoství
-184:Obchodování s tímto zboím není moné v této misi.
-185:Sázet a kácet
-186:Pouze kácet
+176:
+177:
+178:
+179:
+180:
+194:
+195:
+196:
+195:
+198:
 
-76:Editace terénu
-77:Plánování vesnice
-78:Vizualní skripty
-79:Všeobecné skriptování
-80:Menu
+207:
+208:
+209:
 
-82:Jméno hráèe
-81:Status:
-83:VYTVOØIT SERVER
-84:Jméno
-85:Port
-86:Vytvoøit lokální server
-87:Vytvoøit internetovı server
-88:Jméno serveru
-89:Stav
-90:Hráèi
-91:Ping
-92:Obnovit seznam serverù
-93:DETAILY SERVERU
-94:Seznam hráèù:
-144:Info o høe:
-95:IP Adresa
-96:Port
-97:Místo:
-98:Pøipojit
-153:Pøipraven
-99:Pøipojuji se, prosím èekejte...
-159:Odlišná verze: %s. Server pouívá: %s
-100:Naèítám...
-101:Obnovuji...
-142:Nenalezeny ádné servery
-145:-
-146:Lobby
-147:Naèítání
-148:Hra
+210:
+211:
+212:
+213:
+214:
+215:
+218:
+219:
 
-102:Seznam hráèù
-103:Pozice
-104:Tım
-105:Barva
-106:Pøipraven
-107:Ping
-108:Pryè
-109:Otevøeno
-213:Zavøeno
-110:Poèítaè
-111:Vybrat...
-112:Náhodné
-113:Prázdné
-114:Prázdné
-115:Tım %d
-117:Odeslat zprávu:
-118:Typ mapy
-119:Samostatná mapa
-188:Stavìní
-189:Bojování
-190:Kooperace
-120:Uloená hra
-121:Vyberte mapu...
-122:Vyberte uloenou hru...
-123:Info o mapì:
-124:Hráèi: %d
-125:Mód:
-126:Podmínky vítìzství:
-127:Velikost:
-195:Nastavení hry:
-204:Doba míru (minuty)
-128:Opustit nabídku
-129:Pøipraven
-152:Není pøipraven
-130:Zaèít!
-149:Pozice %d
-154:Chyba: Vyberte, prosím, hráèe z uloené hry
-155:Chyba: Mapa nelze naèíst nebo nebyla vybrána
-156:Nelze zaèít: %s
-157:Nìkdo není pøipraven ke startu
-158:Poèet hráèù pøekraèuje maximální poèet danı mapou
-160:Server vám pøiøadil hostovací práva
-187:Hra ji zaèala
-214:Hostitel urèuje nastavení hráèe
+224:
+225:
+227:
+228:
+229:
+230:
+231:
+232:
+233:
+234:
+235:
+237:
+238:
+240:
+241:
+242:
+243:
 
-131:Èekám na ostatní hráèe:
-163:Ukládám hru...
-164:%s byl poraen!
-169:Hostitel (%s) se odpojil
-170:Spojení se serverem bylo ztraceno. Pokouším se opìt navázat spojení...
-191:V období míru je toto zakázáno!
-192:Konec období míru za: %s
-193:Konec období míru. Do zbranì!
+249:
+249:
+250:
+251:
+254:
 
-174:Vycvièeno|obèanù
-175:Ztraceno|obèanù
-176:Vycvièeno|vojákù
-177:Ztraceno|vojákù
-178:Poraeno|jednotek
-179:Vyrobeno|budov
-180:Ztraceno|budov
-181:Znièeno|budov
-182:Vytvoøeno|produktù
-183:Vyrobeno|zbraní
+255:
+256:
+257:
+259:
+262:
+263:
+264:
+265:
 
-196:Z
-197:S
-198:R
+272:
+274:
 
-199:Zastavit oddíl  ('%s')
-200:Spojit oddíl ('%s')
-201:Samostatnı voják ('%s')
+276:
+277:
+280:
+281:
+282:
+283:
 
-132:KaM Remake Autoøi
-133:Autoøi Knights & Merchants 
-134:PROGRAMOVÁNÍ:
-135:DALŠÍ PROGRAMOVÁNÍ:
-136:DALŠÍ GRAFIKA:
-165:OSTATNÍ ZVUKY
-137:DALŠÍ PØEKLAD:
-138:SPECIÁLNÍ PODÌKOVÁNÍ:
+290:
+291:
+292:
+293:
+
+295:
+296:
+
+308:
+
+
+1011:
+1012:
+203:
+1013:
+1014:
+
+1001:
+1002:
+1004:
+1008:
+1009:
+1010:
+1017:
+1018:
+1020:
+1111:
+1112:
+
+1113:
+1114:
+1115:
+1116:
+1117:
+1118:
+1119:
+1120:
+1121:
+
+1300:
+
+2001:Mise ukonèena
+2002:Vıuka stavby
+2003:Vıuka boje
+2004:Hra pro jednoho hráèe
+2005:Editor mapy
+2202:Záznamy ze hry
+2203:Ukázat záznam
+2006:Zhlédnout poslední záznam
+2007:Zaèít misi
+2008:Název
+2009:Velikost
+2010:Typ mise: %s
+2011:Podmínky vítìzství: %s
+2012:Podmínky poráky: %s
+2013:Spojenci: 
+2014:Nepøátelé: 
+2016:Velikost nové mapy
+2017:Šíøka
+2018:Vıška
+2019:Vytvoøit novou mapu
+2020:Dostupné mapy
+2021:Naèíst existující mapu
+2022:Ovládání:
+2023:Hra:
+2024:Zvuk:
+2141:Rychlost obrazu
+2025:Zakázat hudbu
+2143:Pøeházet skladby
+2026:Grafika:
+2027:Jas
+2221:
+2028:Celá obrazovka
+2029:Pouít
+2030:Jazyk:
+2031:Nahrávám... Prosím èekejte
+2216:jednotky
+2217:domy
+2218:stromy
+2219:skripty
+2220:textury terénu
+2215:další grafika
+2208:inicializuje se
+2209:inicializace hry pro více hráèù
+2210:skript
+2032:Došlo k chybì!
+2212:Nastala chyba pøi analıze souboru %s
+2033:Nahrávám novou lokalizaci
+2034:Seznam uloenıch her
+2035:Jméno souboru
+2036:Popis
+2037:Naèíst
+2038:Odstranit
+2039:Opravdu chcete odstranit tuto uloenou hru?
+2040:Odstranit
+2041:Storno
+2139:Multiplayerové mapy
+2140:Singelplayerové mapy
+
+2043:Zvítìzil jste!
+2044:Pokraèovat ve høe
+2045:Vítìzství!
+2046:Prohrál jste!
+2047:Pokraèovat 
+2048:Poráka
+2049:Pøehrávání skonèilo
+2050:Pokraèovat 
+2051:Zpìt do menu
+2166:Vyhodit hráèe
+2167:Hostitel bude moci vyhodit tyto hráèe za %d sekund
+2168:Hostitel nyní mùe vyhodit tyto hráèe
+2171:Opravdu chcete skonèit?
+2172:Jste si jistı, e chcete vyhodit tyto hráèe ze hry?
+2173:Cancel
+2052:Nedostupné
+2053:Stisknìte %s pro pokraèování ve høe
+2054:Tımu
+2055:Informace o hráèích
+2056:Chat
+2057:Uloená hra ji existuje
+2058:Pøepsat
+2059:Uloit
+2060:Naèíst
+2205:Nepodporovanı formát %s
+2206:Nepodporovaná verze %s
+2211:Nová mise
+2194:Èas hry:|%s
+
+2061:Bìhem hry došlo k chybì.
+2062:Prosím pošlete soubor %s z vašecho adresáe KaM Remake\\Crash Reports vıvojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!\n\nVAROVÁNÍ: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
+2063:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickımi chybami\nProsím aktualizujte svoje ovladaèe pro dosaení lepšího vıkonu.
+2064:Síová chyba:
+2065:Chyba: Musíte zadat svoje jméno
+2066:Spojení se nezdaøilo: %s
+2067:Byl jste odpojen
+2068:Mise %d
+2150:Stavìní & Bojování
+2151:Bojování
+
+2069:Váš rybáø je pøíliš daleko od vody.
+2070:Váš rybáø nemùe chytit ádné další ryby ve vodì, kterou má poblí.
+
+2071:Trištì
+2072:Pouijte levé tlaèítko myši pro vıbìr zboí
+2073:Pouijte pravé tlaèítko myši k vıbìru zboí
+2074:Dám x%d
+2075:Chci x%d
+2162:Sníit mnoství
+2161:Zvıšit mnoství
+2184:Obchodování s tímto zboím není moné v této misi.
+2185:Sázet a kácet
+2186:Pouze kácet
+
+2076:Editace terénu
+2077:Plánování vesnice
+2078:Vizualní skripty
+2079:Všeobecné skriptování
+2080:Menu
+
+2082:Jméno hráèe
+2081:Status:
+2083:VYTVOØIT SERVER
+2084:Jméno
+2085:Port
+2086:Vytvoøit lokální server
+2087:Vytvoøit internetovı server
+2088:Jméno serveru
+2089:Stav
+2090:Hráèi
+2091:Ping
+2092:Obnovit seznam serverù
+2093:DETAILY SERVERU
+2094:Seznam hráèù:
+2144:Info o høe:
+2095:IP Adresa
+2096:Port
+2097:Místo:
+2098:Pøipojit
+2153:Pøipraven
+2099:Pøipojuji se, prosím èekejte...
+2159:Odlišná verze: %s. Server pouívá: %s
+2100:Naèítám...
+2101:Obnovuji...
+2142:Nenalezeny ádné servery
+2145:-
+2146:Lobby
+2147:Naèítání
+2148:Hra
+
+2102:Seznam hráèù
+2103:Pozice
+2104:Tım
+2105:Barva
+2106:Pøipraven
+2107:Ping
+2108:Pryè
+2109:Otevøeno
+2213:Zavøeno
+2110:Poèítaè
+2111:Vybrat...
+2112:Náhodné
+2113:Prázdné
+2114:Prázdné
+2115:Tım %d
+2117:Odeslat zprávu:
+2118:Typ mapy
+2119:Samostatná mapa
+2188:Stavìní
+2189:Bojování
+2190:Kooperace
+2120:Uloená hra
+2121:Vyberte mapu...
+2122:Vyberte uloenou hru...
+2123:Info o mapì:
+2124:Hráèi: %d
+2125:Mód:
+2126:Podmínky vítìzství:
+2127:Velikost:
+2195:Nastavení hry:
+2204:Doba míru (minuty)
+2128:Opustit nabídku
+2129:Pøipraven
+2152:Není pøipraven
+2130:Zaèít!
+2149:Pozice %d
+2154:Chyba: Vyberte, prosím, hráèe z uloené hry
+2155:Chyba: Mapa nelze naèíst nebo nebyla vybrána
+2156:Nelze zaèít: %s
+2157:Nìkdo není pøipraven ke startu
+2158:Poèet hráèù pøekraèuje maximální poèet danı mapou
+2160:Server vám pøiøadil hostovací práva
+2187:Hra ji zaèala
+2214:Hostitel urèuje nastavení hráèe
+
+2131:Èekám na ostatní hráèe:
+2163:Ukládám hru...
+2164:%s byl poraen!
+2169:Hostitel (%s) se odpojil
+2170:Spojení se serverem bylo ztraceno. Pokouším se opìt navázat spojení...
+2191:V období míru je toto zakázáno!
+2192:Konec období míru za: %s
+2193:Konec období míru. Do zbranì!
+
+2174:Vycvièeno|obèanù
+2175:Ztraceno|obèanù
+2176:Vycvièeno|vojákù
+2177:Ztraceno|vojákù
+2178:Poraeno|jednotek
+2179:Vyrobeno|budov
+2180:Ztraceno|budov
+2181:Znièeno|budov
+2182:Vytvoøeno|produktù
+2183:Vyrobeno|zbraní
+
+2196:Z
+2197:S
+2198:R
+
+2199:Zastavit oddíl  ('%s')
+2200:Spojit oddíl ('%s')
+2201:Samostatnı voják ('%s')
+
+2132:KaM Remake Autoøi
+2133:Autoøi Knights & Merchants 
+2134:PROGRAMOVÁNÍ:
+2135:DALŠÍ PROGRAMOVÁNÍ:
+2136:DALŠÍ GRAFIKA:
+2165:OSTATNÍ ZVUKY
+2137:DALŠÍ PØEKLAD:
+2138:SPECIÁLNÍ PODÌKOVÁNÍ:

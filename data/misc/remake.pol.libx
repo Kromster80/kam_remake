@@ -1,232 +1,359 @@
 
-MaxID:221
+MaxID:2221
 
-1:Misja anulowana
-2:Samouczek zarzπdzania miastem
-3:Samouczek dowodzenia podczas bitwy
-4:Jeden Gracz
-5:Edytor Map
-202:Podglπd PowtÛrek
-203:Zobacz powtÛrkÍ
-6:Zobacz ostatniπ powtÛrke
-7:Rozpocznij Misje
-8:Tytu≥
-9:Rozmiar
-10:Typ Misji: %s
-11:Warunki wygranej: %s
-12:Warunki przegranej: %s
-13:Sojusznicy:
-14:Wrogowie:
-16:Rozmiar nowej mapy
-17:SzerokoúÊ
-18:WysokoúÊ
-19:StwÛrz Nowπ MapÍ
-20:DostÍpne mapy
-21:Za≥aduj Istniejπcπ MapÍ
-22:Kontrola:
-23:Rozgrywka:
-24:DüwiÍk
-141:PrÍdkoúÊ przewijania
-25:Wy≥πcz muzykÍ
-143:Wymieszaj utwory
-26:Grafika:
-27:JasnoúÊ:
-221:
-28:Pe≥ny Ekran:
-29:Zastosuj
-30:JÍzyk:
-31:£adowanie... ProszÍ czekaÊ
-216:jednostki
-217:domy
-218:drzewa
-219:definicje
-220:grafiki terenu
-215:dodatkowe grafiki
-208:inicjowanie
-209:inicjowanie wielu graczy
-210:skrypt
-32:Wystπpi≥ B≥πd!
-212:Wystπpi≥ b≥πd podczas przetwarzania pliku %s
-33:£adowanie nowej lokalizacji
-34:Lista zapisanych gier
-35:Nazwa pliku
-36:Opis
-37:Za≥aduj
-38:UsuÒ
-39:Jesteú pewny øe chcesz usunπÊ ten zapis?
-40:UsuÒ
-41:Anuluj
-139:Mapy dla wielu graczy
-140:Mapy dla jednego gracza
+1:
+40:
+70:
+100:
 
-43:Wygra≥eú!
-44:Kontynuuj grÍ
-45:ZwyciÍstwo!
-46:Przegra≥eú!
-47:Kontynuuj oglπdanie
-48:Poraøka
-49:PowtÛrka siÍ zakoÒczy≥a
-50:Kontynuuj oglπdanie
-51:Wyjdü do menu
-166:WyrzuÊ graczy
-167:Host bÍdzie mÛg≥ wyrzuciÊ tych graczy za %d sekund
-168:Host moøe juø wyrzuciÊ tych graczy
-171:Czy na pewno chcesz wyjúÊ?
-172:Czy na pewno chcesz bezpowrotnie wyrzuciÊ tych graczy?
-173:Anuluj
-52:NiedostÍpne
-53:Naciúnij %s aby wznowiÊ grÍ
-54:Do druøyny
-55:Informacje gracza
-56:Czat
-57:Zapis juø istnieje
-58:Zastπp
-59:Zapisz
-60:Za≥aduj
-205:Niewspierany format %s
-206:Niewspierana wersja %s
-211:Nowa Misja
-194:Czas gry:|%s
+174:
+175:
 
-61:Wystπpi≥ b≥πd w trakcie gry.
-62:ProszÍ wyúlij plik %s z twojego folderu KaM Remake\\Crash Reports do programistÛw. Dane kontaktowe moøesz znaleüÊ w pliku Readme. Bardzo dziÍkujemy za twojπ øyczliwπ pomoc!
-63:Wykryto starπ wersjÍ OpenGL, gra moøe dzia≥aÊ wolno i/lub z b≥Ídami grafiki.\nProszÍ zaktualizuj sterowniki karty graficznej aby uzyskaÊ wiÍkszπ wydajnoúÊ.
-64:B≥πd sieci:
-65:B≥πd: Nie wpisa≥eú imienia
-66:Po≥πczenie nie powiod≥o siÍ: %s
-67:Zosta≥eú roz≥πczony
-68:Misja %d
-150:Budowa i Walka
-151:Walka
+160:
+161:
+162:
+164:
+165:
 
-69:Twoja Chata rybaka jest zbyt daleko od wody.
-70:TwÛj rybak nie moøe z≥owiÊ wiÍcej ryb w pobliskich zbiornikach wodnych.
+166:
+167:
+168:
+170:
 
-71:Targ
-72:Uøyj lewego przycisku myszy, aby wybraÊ towar do handlu
-73:Uøyj prawego przycisku myszy, aby wybraÊ towar do handlu
-74:Z x%d
-75:Na x%d
-162:Zmniejsz iloúÊ towarÛw
-161:ZwiÍksz iloúÊ towarÛw
-184:Handlowanie tym zasobem jest nie moøliwe w tej misji
-185:Sadü i úcinaj
-186:Tylko úcinaj
+176:
+177:
+178:
+179:
+180:
+194:
+195:
+196:
+195:
+198:
 
-76:Edycja terenu
-77:Planowanie osady
-78:Skrypty wizualne
-79:Skryptowanie globalne
-80:Menu
+207:
+208:
+209:
 
-82:ImiÍ gracza
-81:Status:
-83:STW”RZ SERWER
-84:Nazwa
-85:Port
-86:StwÛrz serwer lokalny
-87:StwÛrz serwer internetowy
-88:Nazwa Serwera
-89:Stan
-90:Gracze
-91:Ping
-92:Odúwieø ListÍ SerwerÛw
-93:SZCZEG”£Y SERWERA
-94:Lista graczy:
-144:Informacje o grze:
-95:Adres
-96:Port
-97:PokÛj
-98:Do≥πcz
-153:Gotowy
-99:£πczenie, proszÍ czekaÊ...
-159:Z≥a wersja protoko≥u: %s. Serwer uøywa: %s
-100:£adowanie og≥oszeÒ...
-101:Odúwieøanie...
-142:Nie znaleziono serwerÛw
-145:-
-146:Lobby
-147:£adowanie
-148:Gra
+210:
+211:
+212:
+213:
+214:
+215:
+218:
+219:
 
-102:Lista graczy
-103:Lokalizacja poczπtkowa
-104:Druøyna
-105:Kolor flagi
-106:Gotowy
-107:Ping
-108:WyrzuÊ
-109:Wolne
-213:ZamkniÍte
-110:Komputer
-111:Wybierz...
-112:Przypadkowe
-113:Øadna
-114:Øadna
-115:Druøyna %d
-117:UmieúÊ wiadomoúÊ:
-118:Typ mapy
-119:Pojedyncza mapa
-188:Mapa Ekonomiczna
-189:Mapa Taktyczna
-190:Mapa Kooperacyjna
-120:Zapisane Gry
-121:Wybierz mapÍ...
-122:Wybierz zapis...
-123:Informacje o mapie:
-124:Gracze: %d
-125:Tryb:
-126:Warunki:
-127:Rozmiar:
-195:Opcje gry:
-204:Okres pokojowy (minuty)
-128:Wyjdü
-129:Gotowy
-152:Nie gotowy
-130:Start!
-149:Lokacja %d
-154:B≥πd: Wybierz gracza z zapisu do kontrolowania
-155:B≥πd: Nie uda≥o siÍ za≥adowaÊ mapy lub nie wybrano mapy
-156:Nie moøna rozpoczπÊ: %s
-157:Nie wszyscy sπ gotowi do rozpoczÍcia
-158:Liczba graczy przekracza limit mapy
-160:Serwer przypisa≥ prawa hosta do nas
-187:Gra rozpoczÍta
-214:Host konfiguruje gracza
+224:
+225:
+227:
+228:
+229:
+230:
+231:
+232:
+233:
+234:
+235:
+237:
+238:
+240:
+241:
+242:
+243:
 
-131:Oczekiwanie na graczy:
-163:Zapisywanie gry...
-164:%s zosta≥ pokonany!
-169:Host (%s) wyszed≥
-170:Po≥πczenie z serwerem zosta≥o utracone. PrÛba ponownego po≥πczenia ...
-191:Nie masz prawa tego robiÊ w okresie pokoju
-192:Pozosta≥y okres pokojowy: %s
-193:Okres pokojowy minπ≥. Do broni!
+249:
+249:
+250:
+251:
+254:
 
-174:Poddani|wyszkoleni
-175:Poddani|straceni
-176:Øo≥nierze|wyszkoleni
-177:Øo≥nierze|straceni
-178:Jednostki|pokonane
-179:Budynki|wybudowane
-180:Budynki|utracone
-181:Budynki|zniszczone
-182:Towary|wyprodukowane
-183:BroÒ|wyprodukowana
+255:
+256:
+257:
+259:
+262:
+263:
+264:
+265:
 
-196:H
-197:L
-198:S
+272:
+274:
 
-199:Zatrzymaj oddzia≥ i formuj szyk ('%s')
-200:Po≥πcz oddzia≥y ('%s')
-201:Rozdziel oddzia≥ ('%s')
+276:
+277:
+280:
+281:
+282:
+283:
 
-132:Autorzy KaM Remake
-133:Autorzy Oryginalnego Knights & Merchants
-134:PROGRAMOWANIE:
-135:DODATKOWE PROGRAMOWANIE:
-136:DODATKOWE GRAFIKI;
-165:DODATKOWE DèWI KI:
-137:DODATKOWE T£UMACZENIE:
-138:SPECJALNE PODZI KOWANIA DLA:
+290:
+291:
+292:
+293:
+
+295:
+296:
+
+308:
+
+
+1011:
+1012:
+203:
+1013:
+1014:
+
+1001:
+1002:
+1004:
+1008:
+1009:
+1010:
+1017:
+1018:
+1020:
+1111:
+1112:
+
+1113:
+1114:
+1115:
+1116:
+1117:
+1118:
+1119:
+1120:
+1121:
+
+1300:
+
+2001:Misja anulowana
+2002:Samouczek zarzπdzania miastem
+2003:Samouczek dowodzenia podczas bitwy
+2004:Jeden Gracz
+2005:Edytor Map
+2202:Podglπd PowtÛrek
+2203:Zobacz powtÛrkÍ
+2006:Zobacz ostatniπ powtÛrke
+2007:Rozpocznij Misje
+2008:Tytu≥
+2009:Rozmiar
+2010:Typ Misji: %s
+2011:Warunki wygranej: %s
+2012:Warunki przegranej: %s
+2013:Sojusznicy:
+2014:Wrogowie:
+2016:Rozmiar nowej mapy
+2017:SzerokoúÊ
+2018:WysokoúÊ
+2019:StwÛrz Nowπ MapÍ
+2020:DostÍpne mapy
+2021:Za≥aduj Istniejπcπ MapÍ
+2022:Kontrola:
+2023:Rozgrywka:
+2024:DüwiÍk
+2141:PrÍdkoúÊ przewijania
+2025:Wy≥πcz muzykÍ
+2143:Wymieszaj utwory
+2026:Grafika:
+2027:JasnoúÊ:
+2221:
+2028:Pe≥ny Ekran:
+2029:Zastosuj
+2030:JÍzyk:
+2031:£adowanie... ProszÍ czekaÊ
+2216:jednostki
+2217:domy
+2218:drzewa
+2219:definicje
+2220:grafiki terenu
+2215:dodatkowe grafiki
+2208:inicjowanie
+2209:inicjowanie wielu graczy
+2210:skrypt
+2032:Wystπpi≥ B≥πd!
+2212:Wystπpi≥ b≥πd podczas przetwarzania pliku %s
+2033:£adowanie nowej lokalizacji
+2034:Lista zapisanych gier
+2035:Nazwa pliku
+2036:Opis
+2037:Za≥aduj
+2038:UsuÒ
+2039:Jesteú pewny øe chcesz usunπÊ ten zapis?
+2040:UsuÒ
+2041:Anuluj
+2139:Mapy dla wielu graczy
+2140:Mapy dla jednego gracza
+
+2043:Wygra≥eú!
+2044:Kontynuuj grÍ
+2045:ZwyciÍstwo!
+2046:Przegra≥eú!
+2047:Kontynuuj oglπdanie
+2048:Poraøka
+2049:PowtÛrka siÍ zakoÒczy≥a
+2050:Kontynuuj oglπdanie
+2051:Wyjdü do menu
+2166:WyrzuÊ graczy
+2167:Host bÍdzie mÛg≥ wyrzuciÊ tych graczy za %d sekund
+2168:Host moøe juø wyrzuciÊ tych graczy
+2171:Czy na pewno chcesz wyjúÊ?
+2172:Czy na pewno chcesz bezpowrotnie wyrzuciÊ tych graczy?
+2173:Anuluj
+2052:NiedostÍpne
+2053:Naciúnij %s aby wznowiÊ grÍ
+2054:Do druøyny
+2055:Informacje gracza
+2056:Czat
+2057:Zapis juø istnieje
+2058:Zastπp
+2059:Zapisz
+2060:Za≥aduj
+2205:Niewspierany format %s
+2206:Niewspierana wersja %s
+2211:Nowa Misja
+2194:Czas gry:|%s
+
+2061:Wystπpi≥ b≥πd w trakcie gry.
+2062:ProszÍ wyúlij plik %s z twojego folderu KaM Remake\\Crash Reports do programistÛw. Dane kontaktowe moøesz znaleüÊ w pliku Readme. Bardzo dziÍkujemy za twojπ øyczliwπ pomoc!
+2063:Wykryto starπ wersjÍ OpenGL, gra moøe dzia≥aÊ wolno i/lub z b≥Ídami grafiki.\nProszÍ zaktualizuj sterowniki karty graficznej aby uzyskaÊ wiÍkszπ wydajnoúÊ.
+2064:B≥πd sieci:
+2065:B≥πd: Nie wpisa≥eú imienia
+2066:Po≥πczenie nie powiod≥o siÍ: %s
+2067:Zosta≥eú roz≥πczony
+2068:Misja %d
+2150:Budowa i Walka
+2151:Walka
+
+2069:Twoja Chata rybaka jest zbyt daleko od wody.
+2070:TwÛj rybak nie moøe z≥owiÊ wiÍcej ryb w pobliskich zbiornikach wodnych.
+
+2071:Targ
+2072:Uøyj lewego przycisku myszy, aby wybraÊ towar do handlu
+2073:Uøyj prawego przycisku myszy, aby wybraÊ towar do handlu
+2074:Z x%d
+2075:Na x%d
+2162:Zmniejsz iloúÊ towarÛw
+2161:ZwiÍksz iloúÊ towarÛw
+2184:Handlowanie tym zasobem jest nie moøliwe w tej misji
+2185:Sadü i úcinaj
+2186:Tylko úcinaj
+
+2076:Edycja terenu
+2077:Planowanie osady
+2078:Skrypty wizualne
+2079:Skryptowanie globalne
+2080:Menu
+
+2082:ImiÍ gracza
+2081:Status:
+2083:STW”RZ SERWER
+2084:Nazwa
+2085:Port
+2086:StwÛrz serwer lokalny
+2087:StwÛrz serwer internetowy
+2088:Nazwa Serwera
+2089:Stan
+2090:Gracze
+2091:Ping
+2092:Odúwieø ListÍ SerwerÛw
+2093:SZCZEG”£Y SERWERA
+2094:Lista graczy:
+2144:Informacje o grze:
+2095:Adres
+2096:Port
+2097:PokÛj
+2098:Do≥πcz
+2153:Gotowy
+2099:£πczenie, proszÍ czekaÊ...
+2159:Z≥a wersja protoko≥u: %s. Serwer uøywa: %s
+2100:£adowanie og≥oszeÒ...
+2101:Odúwieøanie...
+2142:Nie znaleziono serwerÛw
+2145:-
+2146:Lobby
+2147:£adowanie
+2148:Gra
+
+2102:Lista graczy
+2103:Lokalizacja poczπtkowa
+2104:Druøyna
+2105:Kolor flagi
+2106:Gotowy
+2107:Ping
+2108:WyrzuÊ
+2109:Wolne
+2213:ZamkniÍte
+2110:Komputer
+2111:Wybierz...
+2112:Przypadkowe
+2113:Øadna
+2114:Øadna
+2115:Druøyna %d
+2117:UmieúÊ wiadomoúÊ:
+2118:Typ mapy
+2119:Pojedyncza mapa
+2188:Mapa Ekonomiczna
+2189:Mapa Taktyczna
+2190:Mapa Kooperacyjna
+2120:Zapisane Gry
+2121:Wybierz mapÍ...
+2122:Wybierz zapis...
+2123:Informacje o mapie:
+2124:Gracze: %d
+2125:Tryb:
+2126:Warunki:
+2127:Rozmiar:
+2195:Opcje gry:
+2204:Okres pokojowy (minuty)
+2128:Wyjdü
+2129:Gotowy
+2152:Nie gotowy
+2130:Start!
+2149:Lokacja %d
+2154:B≥πd: Wybierz gracza z zapisu do kontrolowania
+2155:B≥πd: Nie uda≥o siÍ za≥adowaÊ mapy lub nie wybrano mapy
+2156:Nie moøna rozpoczπÊ: %s
+2157:Nie wszyscy sπ gotowi do rozpoczÍcia
+2158:Liczba graczy przekracza limit mapy
+2160:Serwer przypisa≥ prawa hosta do nas
+2187:Gra rozpoczÍta
+2214:Host konfiguruje gracza
+
+2131:Oczekiwanie na graczy:
+2163:Zapisywanie gry...
+2164:%s zosta≥ pokonany!
+2169:Host (%s) wyszed≥
+2170:Po≥πczenie z serwerem zosta≥o utracone. PrÛba ponownego po≥πczenia ...
+2191:Nie masz prawa tego robiÊ w okresie pokoju
+2192:Pozosta≥y okres pokojowy: %s
+2193:Okres pokojowy minπ≥. Do broni!
+
+2174:Poddani|wyszkoleni
+2175:Poddani|straceni
+2176:Øo≥nierze|wyszkoleni
+2177:Øo≥nierze|straceni
+2178:Jednostki|pokonane
+2179:Budynki|wybudowane
+2180:Budynki|utracone
+2181:Budynki|zniszczone
+2182:Towary|wyprodukowane
+2183:BroÒ|wyprodukowana
+
+2196:H
+2197:L
+2198:S
+
+2199:Zatrzymaj oddzia≥ i formuj szyk ('%s')
+2200:Po≥πcz oddzia≥y ('%s')
+2201:Rozdziel oddzia≥ ('%s')
+
+2132:Autorzy KaM Remake
+2133:Autorzy Oryginalnego Knights & Merchants
+2134:PROGRAMOWANIE:
+2135:DODATKOWE PROGRAMOWANIE:
+2136:DODATKOWE GRAFIKI;
+2165:DODATKOWE DèWI KI:
+2137:DODATKOWE T£UMACZENIE:
+2138:SPECJALNE PODZI KOWANIA DLA:

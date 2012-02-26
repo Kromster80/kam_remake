@@ -607,7 +607,7 @@ begin
         Button_Citizen[i].OnClick := Unit_ButtonClick;
       end;
       Button_UnitCancel := TKMButtonFlat.Create(Panel_Units,8+((High(Button_Citizen)+1) mod 5)*37,8+(length(Button_Citizen) div 5)*37,33,33,340);
-      Button_UnitCancel.Hint := fTextLibrary.GetTextString(211);
+      Button_UnitCancel.Hint := fTextLibrary[TX_BUILD_CANCEL_HINT];
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
       //TKMLabel.Create(Panel_Units,100,140,0,0,'Warriors',fnt_Outline,taCenter);
@@ -1117,7 +1117,6 @@ begin
 
   if Button_UnitCancel.Down then begin
     GameCursor.Mode:=cm_Erase;
-    //Label_Build.Caption := fTextLibrary.GetTextString(210);
   end;
 
   if (TKMButtonFlat(Sender).Tag in [byte(UNIT_MIN)..byte(UNIT_MAX)]) then

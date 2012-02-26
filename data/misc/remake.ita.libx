@@ -1,232 +1,359 @@
 
-MaxID:221
+MaxID:2221
 
-1:Missione annullata
-2:Tutorial di gestione del villaggio
-3:Tutorial di combattimento
-4:Giocatore Singolo
-5:Editor di missione
-202:Replay Salvati
-203:Guarda Replay
-6:Guarda l'ultimo Replay
-7:Inizia Missione
-8:Titolo
-9:Tipo
-10:Missione: %s
-11:Vittoria: %s
-12:Sconfitta: %s
-13:Alleati: 
-14:Nemici: 
-16:Dimensioni della nuova mappa
-17:Larghezza
-18:Altezza
-19:Crea nuova mappa
-20:Mappe disponibili
-21:Carica mappa esistente
-22:Controlli:
-23:Impostazioni di gioco:
-24:Opzioni Audio:
-141:Vel. scorrimento
-25:Disattiva musica
-143:Riproduci a caso
-26:Opzioni Grafiche:
-27:Luminosità
-221:
-28:Schermo intero
-29:Applica
-30:Lingua:
-31:In caricamento...
-216:unità
-217:edifici
-218:alberi
-219:definizioni
-220:tileset
-215:sprite addizionali
-208:inizializzando
-209:inizializzando il multiplayer
-210:script
-32:Si è verificato un errore!
-212:Si è verificato un errore durante l'analisi del file %s
-33:Nuova localizzazione in caricamento
-34:Partite salvate
-35:Nome del file
-36:Descrizione
-37:Carica
-38:Elimina
-39:Sei sicuro di voler eliminare definitivamente questo salvataggio?
-40:Elimina
-41:Annulla
-139:Multigiocatore
-140:Giocatore singolo
+1:
+40:
+70:
+100:
 
-43:Hai vinto!
-44:Continua a giocare
-45:Vittoria!
-46:Hai perso!
-47:Guarda la partita
-48:Sconfitta
-49:Replay terminato
-50:Continua a guardare
-51:Torna al Menu
-166:Caccia Giocatori
-167:L'host potrà cacciare questi giocatori tra %d secondi
-168:L'host può ora cacciare questi giocatori
-171:Sicuro di voler uscire?
-172:Sicuro di voler cacciare permanentemente questi giocatori?
-173:Annulla
-52:Non disponibile
-53:Premi %s per riprendere il gioco
-54:Alla squadra
-55:Info giocatori
-56:Chat
-57:Esiste già
-58:Sovrascrivi
-59:Salva
-60:Carica
-205:Formato %s non supportato
-206:Versione %s non supportata
-211:Nuova Missione
-194:Tempo di gioco:|%s
+174:
+175:
 
-61:Si è verificato un errore durante il gioco.
-62:Per favore, invia il file %s dalla cartella KaM Remake\\Crash Reports agli sviluppatori. Nel file Readme è possibile trovare le informazioni per contattarci. Grazie per il tuo cortese aiuto!\n\nATTENZIONE: Continuare la partita dopo questo errore potrebbe causare ulteriori crash ed instabilità. Vuoi comunque rischiare e continuare a giocare?
-63:Rilevata una versione di OpenGL non aggiornata, il gioco potrebbe funzionare a rilento e/o con errori della grafica.\nPer favore, aggiorna i tuoi driver video per migliorare le prestazioni.
-64:Errore di rete:
-65:Errore: Il nome del giocatore non può essere vuoto
-66:Connessione fallita: %s
-67:Sei stato disconnesso
-68:Missione %d
-150:Costruisci e Combatti
-151:Battaglia
+160:
+161:
+162:
+164:
+165:
 
-69:La tua capanna del pescatore è troppo lontana dalla riva.
-70:Il tuo pescatore non riesce a trovare altri pesci nelle vicinanze.
+166:
+167:
+168:
+170:
 
-71:Mercato
-72:Usa il tasto sinistro del mouse per scegliere il prodotto da scambiare
-73:Usa il tasto destro del mouse per scegliere il prodotto da scambiare
-74:Da  x%d
-75:A x%d
-162:Diminuisci quantità di merce da scambiare
-161:Aumenta quantità di merce da scambiare
-184:In questa missione non è possibile scambiare questa risorsa
-185:Pianta e abbatti
-186:Abbatti solamente
+176:
+177:
+178:
+179:
+180:
+194:
+195:
+196:
+195:
+198:
 
-76:Editor del terreno
-77:Pianificazione del villaggio
-78:Impostazioni giocatore
-79:Impostazioni globali
-80:Menu
+207:
+208:
+209:
 
-82:Nome giocatore
-81:Stato:
-83:CRA SERVER
-84:Nome
-85:Porta
-86:Crea Partita Locale
-87:Crea Partita Internet
-88:Nome del Server
-89:Stato
-90:Giocatori
-91:Ping
-92:Aggiorna lista dei Server
-93:DETTAGLI DEL SERVER
-94:Giocatori:
-144:Informazioni di gioco:
-95:Indirizzo
-96:Porta
-97:Spazio
-98:Entra
-153:Pronto
-99:Connessione in corso...
-159:La versione del protocollo è sbagliata: %s. Il server usa: %s
-100:Caricamento degli annunci in corso...
-101:Aggiornamento...
-142:Nessun server trovato
-145:-
-146:Lobby
-147:In caricamento
-148:Gioco
+210:
+211:
+212:
+213:
+214:
+215:
+218:
+219:
 
-102:Giocatori
-103:Posizione
-104:Squadra
-105:Colore
-106:Pronto
-107:Ping
-108:Caccia
-109:Aperto
-213:Chiuso
-110:Giocatore IA
-111:Seleziona...
-112:Casuale
-113:Nessuna
-114:Nessuna
-115:Squadra %d
-117:Invia messaggio:
-118:Tipo di mappa
-119:Giocatore singolo
-188:Costruzione
-189:Battaglia
-190:Cooperativa
-120:Partita salvata
-121:Mappa...
-122:Partita salvata...
-123:Informazioni sulla mappa:
-124:Giocatori: %d
-125:Tipo:
-126:Condizioni:
-127:Dimensioni:
-195:Opzioni di gioco:
-204:Tempo di pace (min.)
-128:Esci
-129:Pronto
-152:Non pronto
-130:Inizia!
-149:Posizione %d
-154:Errore: Scegli una fazione da controllare.
-155:Errore: Caricamento della mappa fallito o mappa non selezionata
-156:Impossibile iniziare: %s
-157:Non tutti i giocatori sono pronti per iniziare
-158:Troppi giocatori per questa mappa
-160:Il server ci ha assegato il ruolo di host
-187:Partita iniziata
-214:L'host configura i giocatori
+224:
+225:
+227:
+228:
+229:
+230:
+231:
+232:
+233:
+234:
+235:
+237:
+238:
+240:
+241:
+242:
+243:
 
-131:In attesa dei giocatori:
-163:Salvataggio in corso...
-164:%s è stato sconfitto!
-169:L'host (%s) ha abbandonato la partita
-170:Connessione col server perduta. Tentativo di riconnessione in corso...
-191:Non puoi farlo in tempo di pace
-192:Tempo di pace rimanente: %s
-193:Il tempo della pace è finito. Alle armi!
+249:
+249:
+250:
+251:
+254:
 
-174:Cittadini|addestrati
-175:Cittadini|perduti
-176:Soldati|equipaggiati
-177:Soldati|persi
-178:Unità|sconfitte
-179:Edifici|costruiti
-180:Edifici|perduti
-181:Edifici|distrutti
-182:Merci|prodotte
-183:Armi|prodotte
+255:
+256:
+257:
+259:
+262:
+263:
+264:
+265:
 
-196:F
-197:U
-198:D
+272:
+274:
 
-199:Ferma truppa ('%s')
-200:Unisci truppe ('%s')
-201:Dividi truppa ('%s')
+276:
+277:
+280:
+281:
+282:
+283:
 
-132:Crediti di KaM Remake
-133:Crediti del Knights & Merchants originale
-134:PROGRAMMAZIONE:
-135:PROGRAMMAZIONE AGGIUNTIVA:
-136:GRAFICA AGGIUNTIVA:
-165:SUONI AGGIUNTIVI:
-137:TRADUZIONE AGGIUNTIVA:
-138:RINGRAZIAMENTI SPECIALI:
+290:
+291:
+292:
+293:
+
+295:
+296:
+
+308:
+
+
+1011:
+1012:
+203:
+1013:
+1014:
+
+1001:
+1002:
+1004:
+1008:
+1009:
+1010:
+1017:
+1018:
+1020:
+1111:
+1112:
+
+1113:
+1114:
+1115:
+1116:
+1117:
+1118:
+1119:
+1120:
+1121:
+
+1300:
+
+2001:Missione annullata
+2002:Tutorial di gestione del villaggio
+2003:Tutorial di combattimento
+2004:Giocatore Singolo
+2005:Editor di missione
+2202:Replay Salvati
+2203:Guarda Replay
+2006:Guarda l'ultimo Replay
+2007:Inizia Missione
+2008:Titolo
+2009:Tipo
+2010:Missione: %s
+2011:Vittoria: %s
+2012:Sconfitta: %s
+2013:Alleati: 
+2014:Nemici: 
+2016:Dimensioni della nuova mappa
+2017:Larghezza
+2018:Altezza
+2019:Crea nuova mappa
+2020:Mappe disponibili
+2021:Carica mappa esistente
+2022:Controlli:
+2023:Impostazioni di gioco:
+2024:Opzioni Audio:
+2141:Vel. scorrimento
+2025:Disattiva musica
+2143:Riproduci a caso
+2026:Opzioni Grafiche:
+2027:Luminosità
+2221:
+2028:Schermo intero
+2029:Applica
+2030:Lingua:
+2031:In caricamento...
+2216:unità
+2217:edifici
+2218:alberi
+2219:definizioni
+2220:tileset
+2215:sprite addizionali
+2208:inizializzando
+2209:inizializzando il multiplayer
+2210:script
+2032:Si è verificato un errore!
+2212:Si è verificato un errore durante l'analisi del file %s
+2033:Nuova localizzazione in caricamento
+2034:Partite salvate
+2035:Nome del file
+2036:Descrizione
+2037:Carica
+2038:Elimina
+2039:Sei sicuro di voler eliminare definitivamente questo salvataggio?
+2040:Elimina
+2041:Annulla
+2139:Multigiocatore
+2140:Giocatore singolo
+
+2043:Hai vinto!
+2044:Continua a giocare
+2045:Vittoria!
+2046:Hai perso!
+2047:Guarda la partita
+2048:Sconfitta
+2049:Replay terminato
+2050:Continua a guardare
+2051:Torna al Menu
+2166:Caccia Giocatori
+2167:L'host potrà cacciare questi giocatori tra %d secondi
+2168:L'host può ora cacciare questi giocatori
+2171:Sicuro di voler uscire?
+2172:Sicuro di voler cacciare permanentemente questi giocatori?
+2173:Annulla
+2052:Non disponibile
+2053:Premi %s per riprendere il gioco
+2054:Alla squadra
+2055:Info giocatori
+2056:Chat
+2057:Esiste già
+2058:Sovrascrivi
+2059:Salva
+2060:Carica
+2205:Formato %s non supportato
+2206:Versione %s non supportata
+2211:Nuova Missione
+2194:Tempo di gioco:|%s
+
+2061:Si è verificato un errore durante il gioco.
+2062:Per favore, invia il file %s dalla cartella KaM Remake\\Crash Reports agli sviluppatori. Nel file Readme è possibile trovare le informazioni per contattarci. Grazie per il tuo cortese aiuto!\n\nATTENZIONE: Continuare la partita dopo questo errore potrebbe causare ulteriori crash ed instabilità. Vuoi comunque rischiare e continuare a giocare?
+2063:Rilevata una versione di OpenGL non aggiornata, il gioco potrebbe funzionare a rilento e/o con errori della grafica.\nPer favore, aggiorna i tuoi driver video per migliorare le prestazioni.
+2064:Errore di rete:
+2065:Errore: Il nome del giocatore non può essere vuoto
+2066:Connessione fallita: %s
+2067:Sei stato disconnesso
+2068:Missione %d
+2150:Costruisci e Combatti
+2151:Battaglia
+
+2069:La tua capanna del pescatore è troppo lontana dalla riva.
+2070:Il tuo pescatore non riesce a trovare altri pesci nelle vicinanze.
+
+2071:Mercato
+2072:Usa il tasto sinistro del mouse per scegliere il prodotto da scambiare
+2073:Usa il tasto destro del mouse per scegliere il prodotto da scambiare
+2074:Da  x%d
+2075:A x%d
+2162:Diminuisci quantità di merce da scambiare
+2161:Aumenta quantità di merce da scambiare
+2184:In questa missione non è possibile scambiare questa risorsa
+2185:Pianta e abbatti
+2186:Abbatti solamente
+
+2076:Editor del terreno
+2077:Pianificazione del villaggio
+2078:Impostazioni giocatore
+2079:Impostazioni globali
+2080:Menu
+
+2082:Nome giocatore
+2081:Stato:
+2083:CRA SERVER
+2084:Nome
+2085:Porta
+2086:Crea Partita Locale
+2087:Crea Partita Internet
+2088:Nome del Server
+2089:Stato
+2090:Giocatori
+2091:Ping
+2092:Aggiorna lista dei Server
+2093:DETTAGLI DEL SERVER
+2094:Giocatori:
+2144:Informazioni di gioco:
+2095:Indirizzo
+2096:Porta
+2097:Spazio
+2098:Entra
+2153:Pronto
+2099:Connessione in corso...
+2159:La versione del protocollo è sbagliata: %s. Il server usa: %s
+2100:Caricamento degli annunci in corso...
+2101:Aggiornamento...
+2142:Nessun server trovato
+2145:-
+2146:Lobby
+2147:In caricamento
+2148:Gioco
+
+2102:Giocatori
+2103:Posizione
+2104:Squadra
+2105:Colore
+2106:Pronto
+2107:Ping
+2108:Caccia
+2109:Aperto
+2213:Chiuso
+2110:Giocatore IA
+2111:Seleziona...
+2112:Casuale
+2113:Nessuna
+2114:Nessuna
+2115:Squadra %d
+2117:Invia messaggio:
+2118:Tipo di mappa
+2119:Giocatore singolo
+2188:Costruzione
+2189:Battaglia
+2190:Cooperativa
+2120:Partita salvata
+2121:Mappa...
+2122:Partita salvata...
+2123:Informazioni sulla mappa:
+2124:Giocatori: %d
+2125:Tipo:
+2126:Condizioni:
+2127:Dimensioni:
+2195:Opzioni di gioco:
+2204:Tempo di pace (min.)
+2128:Esci
+2129:Pronto
+2152:Non pronto
+2130:Inizia!
+2149:Posizione %d
+2154:Errore: Scegli una fazione da controllare.
+2155:Errore: Caricamento della mappa fallito o mappa non selezionata
+2156:Impossibile iniziare: %s
+2157:Non tutti i giocatori sono pronti per iniziare
+2158:Troppi giocatori per questa mappa
+2160:Il server ci ha assegato il ruolo di host
+2187:Partita iniziata
+2214:L'host configura i giocatori
+
+2131:In attesa dei giocatori:
+2163:Salvataggio in corso...
+2164:%s è stato sconfitto!
+2169:L'host (%s) ha abbandonato la partita
+2170:Connessione col server perduta. Tentativo di riconnessione in corso...
+2191:Non puoi farlo in tempo di pace
+2192:Tempo di pace rimanente: %s
+2193:Il tempo della pace è finito. Alle armi!
+
+2174:Cittadini|addestrati
+2175:Cittadini|perduti
+2176:Soldati|equipaggiati
+2177:Soldati|persi
+2178:Unità|sconfitte
+2179:Edifici|costruiti
+2180:Edifici|perduti
+2181:Edifici|distrutti
+2182:Merci|prodotte
+2183:Armi|prodotte
+
+2196:F
+2197:U
+2198:D
+
+2199:Ferma truppa ('%s')
+2200:Unisci truppe ('%s')
+2201:Dividi truppa ('%s')
+
+2132:Crediti di KaM Remake
+2133:Crediti del Knights & Merchants originale
+2134:PROGRAMMAZIONE:
+2135:PROGRAMMAZIONE AGGIUNTIVA:
+2136:GRAFICA AGGIUNTIVA:
+2165:SUONI AGGIUNTIVI:
+2137:TRADUZIONE AGGIUNTIVA:
+2138:RINGRAZIAMENTI SPECIALI:

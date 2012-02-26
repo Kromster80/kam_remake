@@ -1345,10 +1345,8 @@ begin
 
   Panel_Unit_Dismiss:=TKMPanel.Create(Panel_Unit,0,160,200,400);
     Label_Unit_Dismiss             := TKMLabel.Create(Panel_Unit_Dismiss,100,16,184,30,'Are you sure?',fnt_Outline,taCenter);
-    Button_Unit_DismissYes         := TKMButton.Create(Panel_Unit_Dismiss,50, 50,100,40,fTextLibrary.GetTextString(231),fnt_Metal);
-    Button_Unit_DismissNo          := TKMButton.Create(Panel_Unit_Dismiss,50,100,100,40,fTextLibrary.GetTextString(224),fnt_Metal);
-    Button_Unit_DismissYes.Hint    := fTextLibrary.GetTextString(233);
-    Button_Unit_DismissNo.Hint     := fTextLibrary.GetTextString(224);
+    Button_Unit_DismissYes         := TKMButton.Create(Panel_Unit_Dismiss,50, 50,100,40,'Dismiss',fnt_Metal);
+    Button_Unit_DismissNo          := TKMButton.Create(Panel_Unit_Dismiss,50,100,100,40,'Cancel',fnt_Metal);
     Button_Unit_DismissYes.OnClick := Unit_Dismiss;
     Button_Unit_DismissNo.OnClick  := Unit_Dismiss;
 
@@ -1424,10 +1422,10 @@ begin
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     Label_House := TKMLabel.Create(Panel_House,100,14,184,20,'',fnt_Outline,taCenter);
     Button_House_Goods := TKMButton.Create(Panel_House,8,42,30,30,37);
-    Button_House_Goods.Hint := fTextLibrary[TX_HOUSE_GOODS_HINT];
+    Button_House_Goods.Hint := fTextLibrary[TX_HOUSE_TOGGLE_DELIVERS_HINT];
     Button_House_Goods.OnClick := House_WareDeliveryToggle;
     Button_House_Repair := TKMButton.Create(Panel_House,38,42,30,30,40);
-    Button_House_Repair.Hint := fTextLibrary[TX_HOUSE_REPAIR_HINT];
+    Button_House_Repair.Hint := fTextLibrary[TX_HOUSE_TOGGLE_REPAIR_HINT];
     Button_House_Repair.OnClick := House_RepairToggle;
     Image_House_Logo := TKMImage.Create(Panel_House,68,41,32,32,338);
     Image_House_Logo.ImageCenter;
@@ -1437,20 +1435,20 @@ begin
     Label_HouseHealth.FontColor := $FFE0E0E0;
 
     HealthBar_House := TKMPercentBar.Create(Panel_House,129,57,55,15);
-    Label_House_UnderConstruction := TKMLabel.Create(Panel_House,100,170,184,100,fTextLibrary.GetTextString(230),fnt_Grey,taCenter);
+    Label_House_UnderConstruction := TKMLabel.Create(Panel_House,100,170,184,100,fTextLibrary[TX_HOUSE_UNDER_CONSTRUCTION],fnt_Grey,taCenter);
 
-    Label_House_Demolish := TKMLabel.Create(Panel_House,100,130,184,55,fTextLibrary.GetTextString(232),fnt_Grey,taCenter);
-    Button_House_DemolishYes := TKMButton.Create(Panel_House,8,185,180,30,fTextLibrary.GetTextString(231),fnt_Metal);
-    Button_House_DemolishNo  := TKMButton.Create(Panel_House,8,220,180,30,fTextLibrary.GetTextString(224),fnt_Metal);
-    Button_House_DemolishYes.Hint := fTextLibrary.GetTextString(233);
-    Button_House_DemolishNo.Hint  := fTextLibrary.GetTextString(224);
+    Label_House_Demolish := TKMLabel.Create(Panel_House,100,130,184,55,fTextLibrary[TX_HOUSE_DEMOLISH],fnt_Grey,taCenter);
+    Button_House_DemolishYes := TKMButton.Create(Panel_House,8,185,180,30,fTextLibrary[TX_HOUSE_DEMOLISH_YES],fnt_Metal);
+    Button_House_DemolishNo  := TKMButton.Create(Panel_House,8,220,180,30,fTextLibrary[TX_HOUSE_DEMOLISH_NO],fnt_Metal);
+    Button_House_DemolishYes.Hint := fTextLibrary[TX_HOUSE_DEMOLISH_YES_HINT];
+    Button_House_DemolishNo.Hint  := fTextLibrary[TX_HOUSE_DEMOLISH_NO];
     Button_House_DemolishYes.OnClick := House_Demolish;
     Button_House_DemolishNo.OnClick  := House_Demolish;
 
     Panel_House_Common := TKMPanel.Create(Panel_House,0,76,200,400);
-      Label_Common_Demand := TKMLabel.Create(Panel_House_Common,100,2,184,30,fTextLibrary.GetTextString(227),fnt_Grey,taCenter);
+      Label_Common_Demand := TKMLabel.Create(Panel_House_Common,100,2,184,30,fTextLibrary[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
       Label_Common_Offer  := TKMLabel.Create(Panel_House_Common,100,2,184,30,'',fnt_Grey,taCenter);
-      Label_Common_Costs  := TKMLabel.Create(Panel_House_Common,100,2,184,30,fTextLibrary.GetTextString(248),fnt_Grey,taCenter);
+      Label_Common_Costs  := TKMLabel.Create(Panel_House_Common,100,2,184,30,fTextLibrary[TX_HOUSE_GOOD_COST],fnt_Grey,taCenter);
 
       //They get repositioned on display
       for i:=1 to 4 do
@@ -1462,8 +1460,8 @@ begin
         ResRow_Order[i].RX := rxGui;
         ResRow_Order[i].OrderRem.OnClickEither := House_OrderClick;
         ResRow_Order[i].OrderAdd.OnClickEither := House_OrderClick;
-        ResRow_Order[i].OrderRem.Hint          := fTextLibrary.GetTextString(234);
-        ResRow_Order[i].OrderAdd.Hint          := fTextLibrary.GetTextString(235);
+        ResRow_Order[i].OrderRem.Hint          := fTextLibrary[TX_HOUSE_ORDER_DEC_HINT];
+        ResRow_Order[i].OrderAdd.Hint          := fTextLibrary[TX_HOUSE_ORDER_INC_HINT];
 
         ResRow_Costs[i] := TKMCostsRow.Create(Panel_House_Common, 8,22,180,20);
         ResRow_Costs[i].RX := rxGui;
@@ -1556,7 +1554,7 @@ procedure TKMGamePlayInterface.Create_School_Page;
 var i:integer;
 begin
   Panel_House_School:=TKMPanel.Create(Panel_House,0,76,200,400);
-    Label_School_Res:=TKMLabel.Create(Panel_House_School,100,2,184,30,fTextLibrary.GetTextString(227),fnt_Grey,taCenter);
+    Label_School_Res:=TKMLabel.Create(Panel_House_School,100,2,184,30,fTextLibrary[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
     ResRow_School_Resource := TKMResourceRow.Create(Panel_House_School,  8,22,180,20);
     ResRow_School_Resource.RX := rxGui;
     ResRow_School_Resource.TexID := fResource.Resources[rt_Gold].GUIIcon;
@@ -1564,7 +1562,7 @@ begin
     ResRow_School_Resource.Hint := fResource.Resources[rt_Gold].Name;
     Button_School_UnitWIPBar :=TKMPercentBar.Create(Panel_House_School,42,54,138,20);
     Button_School_UnitWIP := TKMButton.Create(Panel_House_School,  8,48,32,32,0);
-    Button_School_UnitWIP.Hint := fTextLibrary.GetTextString(225);
+    Button_School_UnitWIP.Hint := fTextLibrary[TX_HOUSE_SCHOOL_WIP_HINT];
     Button_School_UnitWIP.Tag := 1;
     Button_School_UnitWIP.OnClick := House_SchoolUnitRemove;
     for i:=1 to 5 do begin
@@ -1584,9 +1582,9 @@ begin
     Button_School_Left.OnClickEither:=House_SchoolUnitChange;
     Button_School_Train.OnClickEither:=House_SchoolUnitChange;
     Button_School_Right.OnClickEither:=House_SchoolUnitChange;
-    Button_School_Left.Hint :=fTextLibrary.GetTextString(242);
-    Button_School_Train.Hint:=fTextLibrary.GetTextString(243);
-    Button_School_Right.Hint:=fTextLibrary.GetTextString(241);
+    Button_School_Left.Hint :=fTextLibrary[TX_HOUSE_SCHOOL_PREV_HINT];
+    Button_School_Train.Hint:=fTextLibrary[TX_HOUSE_SCHOOL_TRAIN_HINT];
+    Button_School_Right.Hint:=fTextLibrary[TX_HOUSE_SCHOOL_NEXT_HINT];
 end;
 
 
@@ -1628,10 +1626,10 @@ begin
     Button_Barracks_Left.OnClickEither:=House_BarracksUnitChange;
     Button_Barracks_Train.OnClickEither:=House_BarracksUnitChange;
     Button_Barracks_Right.OnClickEither:=House_BarracksUnitChange;
-    Button_Barracks_Left.Hint :=fTextLibrary.GetTextString(237);
-    Button_Barracks_Train.Hint:=fTextLibrary.GetTextString(240);
-    Button_Barracks_Right.Hint:=fTextLibrary.GetTextString(238);
-    Button_Barracks_Train.Disable; //Unimplemented yet
+    Button_Barracks_Left.Hint :=fTextLibrary[TX_HOUSE_BARRACKS_PREV_HINT];
+    Button_Barracks_Train.Hint:=fTextLibrary[TX_HOUSE_BARRACKS_TRAIN_HINT];
+    Button_Barracks_Right.Hint:=fTextLibrary[TX_HOUSE_BARRACKS_NEXT_HINT];
+    Button_Barracks_Train.Disable;
 end;
 
 
@@ -1791,31 +1789,25 @@ begin
   if Button_BuildCancel.Down then begin
     GameCursor.Mode:=cm_Erase;
     Image_Build_Selected.TexID := 340;
-    Label_Build.Caption := fTextLibrary.GetTextString(210);
+    Label_Build.Caption := fTextLibrary[TX_BUILD_DEMOLISH];
   end;
   if Button_BuildRoad.Down then begin
     GameCursor.Mode:=cm_Road;
     Image_Build_Selected.TexID := 335;
     Label_BuildCost_Stone.Caption:='1';
-    Label_Build.Caption := fTextLibrary.GetTextString(212);
+    Label_Build.Caption := fTextLibrary[TX_BUILD_ROAD];
   end;
   if Button_BuildField.Down then begin
     GameCursor.Mode:=cm_Field;
     Image_Build_Selected.TexID := 337;
-    Label_Build.Caption := fTextLibrary.GetTextString(214);
+    Label_Build.Caption := fTextLibrary[TX_BUILD_FIELD];
   end;
   if Button_BuildWine.Down then begin
     GameCursor.Mode:=cm_Wine;
     Image_Build_Selected.TexID := 336;
     Label_BuildCost_Wood.Caption:='1';
-    Label_Build.Caption := fTextLibrary.GetTextString(218);
+    Label_Build.Caption := fTextLibrary[TX_BUILD_WINE];
   end;
-{  if Button_BuildWall.Down then begin
-    CursorMode.Mode:=cm_Wall;
-    Image_Build_Selected.TexID := 339;
-    Label_BuildCost_Wood.Caption:='1';
-    //Label_Build.Caption := fTextLibrary.GetTextString(218);
-  end;}
 
   for i:=1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[i] <> ht_None then
@@ -1935,7 +1927,7 @@ begin
             Panel_House_Common.Childs[i].Hide;
 
           Label_Common_Offer.Show;
-          Label_Common_Offer.Caption := fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
+          Label_Common_Offer.Caption := fTextLibrary[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
           Label_Common_Offer.Top := 8;
 
           ResRow_Common_Resource[1].TexID := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[1]].GUIIcon;
@@ -1980,7 +1972,7 @@ begin
           if not fResource.HouseDat[Sender.HouseType].DoesOrders then
           if fResource.HouseDat[Sender.HouseType].ProducesGoods then begin
             Label_Common_Offer.Show;
-            Label_Common_Offer.Caption := fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
+            Label_Common_Offer.Caption := fTextLibrary[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
             Label_Common_Offer.Top := Base+Line*LineAdv+6;
             inc(Line);
 
@@ -2002,7 +1994,7 @@ begin
           if fResource.HouseDat[Sender.HouseType].DoesOrders then
           begin
             Label_Common_Offer.Show;
-            Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
+            Label_Common_Offer.Caption:=fTextLibrary[TX_HOUSE_DELIVERS]+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
             Label_Common_Offer.Top:=Base+Line*LineAdv+6;
             inc(Line);
             for i:=1 to 4 do //Orders

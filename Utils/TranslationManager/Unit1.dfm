@@ -1,9 +1,9 @@
 object Form1: TForm1
   Left = 40
   Top = 87
-  Width = 1273
-  Height = 828
   Caption = 'KaM Remake Translation Manager'
+  ClientHeight = 790
+  ClientWidth = 1257
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,8 +15,8 @@ object Form1: TForm1
   Scaled = False
   OnCreate = FormCreate
   DesignSize = (
-    1265
-    801)
+    1257
+    790)
   PixelsPerInch = 96
   TextHeight = 16
   object Label1: TLabel
@@ -48,9 +48,8 @@ object Form1: TForm1
     Left = 8
     Top = 48
     Width = 329
-    Height = 745
+    Height = 707
     Anchors = [akLeft, akTop, akBottom]
-    ItemHeight = 16
     TabOrder = 0
     OnClick = ListBox1Click
   end
@@ -101,8 +100,8 @@ object Form1: TForm1
   object ScrollBox1: TScrollBox
     Left = 472
     Top = 48
-    Width = 785
-    Height = 745
+    Width = 769
+    Height = 707
     HorzScrollBar.Visible = False
     VertScrollBar.Smooth = True
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -151,7 +150,6 @@ object Form1: TForm1
     Height = 24
     Style = csDropDownList
     DropDownCount = 16
-    ItemHeight = 16
     TabOrder = 11
     OnChange = cbShowMissingChange
   end

@@ -1,232 +1,359 @@
 
-MaxID:221
+MaxID:2221
 
-1:Uppdrag avbrutet
-2:Stadshandledning
-3:Stridshandledning
-4:En spelare
-5:Kartredigerare
-202:Reprisvisare
-203:Visa repris
-6:Spela upp senaste spelet
-7:Starta uppdraget
-8:Titel
-9:Storlek
-10:Uppdragstyp:
-11:Vinstvillkor:
-12:Förlustvillkor:
-13:Allierade:
-14:Fiender:
-16:Ny kartstorlek
-17:Bredd
-18:Höjd
-19:Skapa ny karta
-20:Tillgängliga kartor
-21:Ladda existerande karta
-22:Kontroller:
-23:Spelinställningar:
-24:Ljud:
-141:Scrollhastighet
-25:Ingen musik
-143:Blanda spår
-26:Grafik:
-27:Ljusstyrka
-221:
-28:Helskärm
-29:Bekräfta
-30:Språk:
-31:Laddar... Var god vänta
-216:enheter
-217:hus
-218:träd
-219:definitioner
-220:terrängtexturer
-215:ny grafik
-208:initierar
-209:flerspelarinitiering
-210:script
-32:Ett problem uppstod!
-212:Ett fel uppstod när filen %s skulle behandlas
-33:Laddar ny lokal
-34:Lista över sparade spel
-35:Filnamn
-36:Beskrivning
-37:Ladda
-38:Ta bort
-39:Är du säker på att du vill ta bort det här sparade spelet?
-40:Ta bort
-41:Avbryt
-139:Flerspelarkartor
-140:Enkelspelarkartor
+1:
+40:
+70:
+100:
 
-43:Du vann!
-44:Fortsätt spela
-45:Seger!
-46:Du förlorade!
-47:Fortsätt titta
-48:Förlust
-49:Återspelningen har avslutats
-50:Fortsätt titta
-51:Avsluta
-166:Kasta ut spelare
-167:Värden kommer att kunna kasta ut dessa spelare efter %d sekunder
-168:Värden kan nu kasta ut dessa spelare
-171:Är du säker på att du vill avsluta?
-172:Är du säker på att du permanent vill kasta ut dessa spelare?
-173:Avbryt
-52:Ej tillgänglig
-53:Tryck %s för att åter börja spela
-54:Till lag
-55:Spelarinfo
-56:Chat
-57:Spelet finns redan
-58:Skriv över
-59:Spara
-60:Ladda
-205:Inget stöd för format %s
-206:Felaktig version %s
-211:Nytt uppdrag
-194:Speltid:|%s
+174:
+175:
 
-61:Ett fel har uppstått under spelets gång.
-62:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare?
-63:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel\nVar god uppdatera grafikdrivrutinerna för bättre prestanda
-64:Nätverksfel:
-65:Error: Spelarnamnet får inte vara ingenting
-66:Uppkoppling misslyckades: %s
-67:Du har kopplats ner
-68:Uppdrag %d
-150:Bygg och strida
-151:Strid
+160:
+161:
+162:
+164:
+165:
 
-69:Din fiskares stuga är för långt från vattnet.
-70:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
+166:
+167:
+168:
+170:
 
-71:Marknad
-72:Använd vänster musknapp för att välja en vara att handla med
-73:Använd höger musknapp för att välja en vara att handla med
-74:Från x%d
-75:Till x%d
-162:Minska handelsmängd
-161:Öka handelsmängd
-184:Att handla med denna vara är inte tillåtet på det här uppdraget
-185:Plantera och hugg ner
-186:Hugg endast ner
+176:
+177:
+178:
+179:
+180:
+194:
+195:
+196:
+195:
+198:
 
-76:Terrängeditering
-77:Byplanering
-78:Visuella script
-79:Globala script
-80:Meny
+207:
+208:
+209:
 
-82:Spelarnamn:
-81:Status:
-83:SKAPA SERVER
-84:Servernamn
-85:Serverport
-86:Skapa lokalt spel
-87:Skapa internetspel
-88:Servernamn
-89:Status
-90:Spelare
-91:Ping
-92:Uppdatera serverlistan
-93:SERVERDETALJER
-94:Spelarlista:
-144:Spelinformation:
-95:Adress
-96:Port
-97:Rum
-98:Anslut
-153:Redo
-99:Kopplar upp, var god vänta...
-159:Fel protokollversion: %s. Servern använder: %s
-100:Laddar meddelanden...
-101:Uppdaterar...
-142:Hittade inga servrar
-145:-
-146:Lobby
-147:Laddar
-148:Spel
+210:
+211:
+212:
+213:
+214:
+215:
+218:
+219:
 
-102:Spelarlista
-103:Startplats
-104:Lag
-105:Flaggfärg
-106:Redo
-107:Ping
-108:Kicka
-109:Öppen
-213:Stängd
-110:AI-spelare
-111:Välj...
-112:Slumpad
-113:Inget
-114:Ingen
-115:Lag %d
-117:Skicka meddelande:
-118:Karttyp
-119:Enskild karta
-188:Byggkarta
-189:Stridskarta
-190:Samarbetskarta
-120:Sparat spel
-121:Välj en karta...
-122:Välj ett sparat spel...
-123:Kartinfo:
-124:Spelare:
-125:Läge:
-126:Villkor:
-127:Storlek:
-195:Spelinställningar:
-204:Fredstid (minuter)
-128:Avsluta sessionen
-129:Redo
-152:Inte redo
-130:Börja!
-149:Plats %d
-154:Fel: Sälj en spelare från sparningen att kontrollera
-155:Fel: Kartan kunde inte laddas eller ingen karta vald
-156:Kan inte börja: %s
-157:Alla är inte redo att börja
-158:Så många spelare kan inte spela på denna karta
-160:Servern har tilldelat dig värdrättigheter
-187:Spel startat
-214:Värden gör spelaruppställningen
+224:
+225:
+227:
+228:
+229:
+230:
+231:
+232:
+233:
+234:
+235:
+237:
+238:
+240:
+241:
+242:
+243:
 
-131:Väntar på spelare:
-163:Sparar spel...
-164:%s besegrad!
-169:Värden (%s) har gått ur spelet
-170:Uppkopplingen till servern försvann. Försöker återansluta...
-191:Du får inte göra det under fredstiden
-192:Fredstid kvar: %s
-193:Fredstiden är över. Till vapen!
+249:
+249:
+250:
+251:
+254:
 
-174:Invånare|tränade
-175:Invånare|förlorade
-176:Soldater|utrustade
-177:Soldater|förlorade
-178:Enheter|besegrade
-179:Byggnader|konstruerade
-180:Byggnader|förlorade
-181:Byggnader|förstörda
-182:Varor|producerade
-183:Vapen|producerade
+255:
+256:
+257:
+259:
+262:
+263:
+264:
+265:
 
-196:H
-197:L
-198:S
+272:
+274:
 
-199:Gör halt ('%s')
-200:Länka trupp ('%s')
-201:Separera trupp ('%s')
+276:
+277:
+280:
+281:
+282:
+283:
 
-132:KaM Remakes skapare
-133:Original Knights & Merchants skapare
-134:PROGRAMMERIG:
-135:YTTERLIGARE PROGRAMMERING:
-136:YTTERLIGARE GRAFIK:
-165:YTTERLIGARE LJUD:
-137:YTTERLIGARE ÖVERSÄTTNING:
-138:SPECIELLT TACK TILL:
+290:
+291:
+292:
+293:
+
+295:
+296:
+
+308:
+
+
+1011:
+1012:
+203:
+1013:
+1014:
+
+1001:
+1002:
+1004:
+1008:
+1009:
+1010:
+1017:
+1018:
+1020:
+1111:
+1112:
+
+1113:
+1114:
+1115:
+1116:
+1117:
+1118:
+1119:
+1120:
+1121:
+
+1300:
+
+2001:Uppdrag avbrutet
+2002:Stadshandledning
+2003:Stridshandledning
+2004:En spelare
+2005:Kartredigerare
+2202:Reprisvisare
+2203:Visa repris
+2006:Spela upp senaste spelet
+2007:Starta uppdraget
+2008:Titel
+2009:Storlek
+2010:Uppdragstyp:
+2011:Vinstvillkor:
+2012:Förlustvillkor:
+2013:Allierade:
+2014:Fiender:
+2016:Ny kartstorlek
+2017:Bredd
+2018:Höjd
+2019:Skapa ny karta
+2020:Tillgängliga kartor
+2021:Ladda existerande karta
+2022:Kontroller:
+2023:Spelinställningar:
+2024:Ljud:
+2141:Scrollhastighet
+2025:Ingen musik
+2143:Blanda spår
+2026:Grafik:
+2027:Ljusstyrka
+2221:
+2028:Helskärm
+2029:Bekräfta
+2030:Språk:
+2031:Laddar... Var god vänta
+2216:enheter
+2217:hus
+2218:träd
+2219:definitioner
+2220:terrängtexturer
+2215:ny grafik
+2208:initierar
+2209:flerspelarinitiering
+2210:script
+2032:Ett problem uppstod!
+2212:Ett fel uppstod när filen %s skulle behandlas
+2033:Laddar ny lokal
+2034:Lista över sparade spel
+2035:Filnamn
+2036:Beskrivning
+2037:Ladda
+2038:Ta bort
+2039:Är du säker på att du vill ta bort det här sparade spelet?
+2040:Ta bort
+2041:Avbryt
+2139:Flerspelarkartor
+2140:Enkelspelarkartor
+
+2043:Du vann!
+2044:Fortsätt spela
+2045:Seger!
+2046:Du förlorade!
+2047:Fortsätt titta
+2048:Förlust
+2049:Återspelningen har avslutats
+2050:Fortsätt titta
+2051:Avsluta
+2166:Kasta ut spelare
+2167:Värden kommer att kunna kasta ut dessa spelare efter %d sekunder
+2168:Värden kan nu kasta ut dessa spelare
+2171:Är du säker på att du vill avsluta?
+2172:Är du säker på att du permanent vill kasta ut dessa spelare?
+2173:Avbryt
+2052:Ej tillgänglig
+2053:Tryck %s för att åter börja spela
+2054:Till lag
+2055:Spelarinfo
+2056:Chat
+2057:Spelet finns redan
+2058:Skriv över
+2059:Spara
+2060:Ladda
+2205:Inget stöd för format %s
+2206:Felaktig version %s
+2211:Nytt uppdrag
+2194:Speltid:|%s
+
+2061:Ett fel har uppstått under spelets gång.
+2062:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare?
+2063:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel\nVar god uppdatera grafikdrivrutinerna för bättre prestanda
+2064:Nätverksfel:
+2065:Error: Spelarnamnet får inte vara ingenting
+2066:Uppkoppling misslyckades: %s
+2067:Du har kopplats ner
+2068:Uppdrag %d
+2150:Bygg och strida
+2151:Strid
+
+2069:Din fiskares stuga är för långt från vattnet.
+2070:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
+
+2071:Marknad
+2072:Använd vänster musknapp för att välja en vara att handla med
+2073:Använd höger musknapp för att välja en vara att handla med
+2074:Från x%d
+2075:Till x%d
+2162:Minska handelsmängd
+2161:Öka handelsmängd
+2184:Att handla med denna vara är inte tillåtet på det här uppdraget
+2185:Plantera och hugg ner
+2186:Hugg endast ner
+
+2076:Terrängeditering
+2077:Byplanering
+2078:Visuella script
+2079:Globala script
+2080:Meny
+
+2082:Spelarnamn:
+2081:Status:
+2083:SKAPA SERVER
+2084:Servernamn
+2085:Serverport
+2086:Skapa lokalt spel
+2087:Skapa internetspel
+2088:Servernamn
+2089:Status
+2090:Spelare
+2091:Ping
+2092:Uppdatera serverlistan
+2093:SERVERDETALJER
+2094:Spelarlista:
+2144:Spelinformation:
+2095:Adress
+2096:Port
+2097:Rum
+2098:Anslut
+2153:Redo
+2099:Kopplar upp, var god vänta...
+2159:Fel protokollversion: %s. Servern använder: %s
+2100:Laddar meddelanden...
+2101:Uppdaterar...
+2142:Hittade inga servrar
+2145:-
+2146:Lobby
+2147:Laddar
+2148:Spel
+
+2102:Spelarlista
+2103:Startplats
+2104:Lag
+2105:Flaggfärg
+2106:Redo
+2107:Ping
+2108:Kicka
+2109:Öppen
+2213:Stängd
+2110:AI-spelare
+2111:Välj...
+2112:Slumpad
+2113:Inget
+2114:Ingen
+2115:Lag %d
+2117:Skicka meddelande:
+2118:Karttyp
+2119:Enskild karta
+2188:Byggkarta
+2189:Stridskarta
+2190:Samarbetskarta
+2120:Sparat spel
+2121:Välj en karta...
+2122:Välj ett sparat spel...
+2123:Kartinfo:
+2124:Spelare:
+2125:Läge:
+2126:Villkor:
+2127:Storlek:
+2195:Spelinställningar:
+2204:Fredstid (minuter)
+2128:Avsluta sessionen
+2129:Redo
+2152:Inte redo
+2130:Börja!
+2149:Plats %d
+2154:Fel: Sälj en spelare från sparningen att kontrollera
+2155:Fel: Kartan kunde inte laddas eller ingen karta vald
+2156:Kan inte börja: %s
+2157:Alla är inte redo att börja
+2158:Så många spelare kan inte spela på denna karta
+2160:Servern har tilldelat dig värdrättigheter
+2187:Spel startat
+2214:Värden gör spelaruppställningen
+
+2131:Väntar på spelare:
+2163:Sparar spel...
+2164:%s besegrad!
+2169:Värden (%s) har gått ur spelet
+2170:Uppkopplingen till servern försvann. Försöker återansluta...
+2191:Du får inte göra det under fredstiden
+2192:Fredstid kvar: %s
+2193:Fredstiden är över. Till vapen!
+
+2174:Invånare|tränade
+2175:Invånare|förlorade
+2176:Soldater|utrustade
+2177:Soldater|förlorade
+2178:Enheter|besegrade
+2179:Byggnader|konstruerade
+2180:Byggnader|förlorade
+2181:Byggnader|förstörda
+2182:Varor|producerade
+2183:Vapen|producerade
+
+2196:H
+2197:L
+2198:S
+
+2199:Gör halt ('%s')
+2200:Länka trupp ('%s')
+2201:Separera trupp ('%s')
+
+2132:KaM Remakes skapare
+2133:Original Knights & Merchants skapare
+2134:PROGRAMMERIG:
+2135:YTTERLIGARE PROGRAMMERING:
+2136:YTTERLIGARE GRAFIK:
+2165:YTTERLIGARE LJUD:
+2137:YTTERLIGARE ÖVERSÄTTNING:
+2138:SPECIELLT TACK TILL:

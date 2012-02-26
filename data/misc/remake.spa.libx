@@ -1,232 +1,359 @@
 
-MaxID:221
+MaxID:2221
 
-1:Misión Cancelada
-2:Tutorial de Construción
-3:Tutorial de Batalla
-4:Un Solo Jugador
-5:Editor de mapas
-202:Ver Repeticiones
-203:Ver Repetición
-6:Ver la última repetición
-7:Empezar misión
-8:Nombre
-9:Medida
-10:Tipo de misión:  %s
-11:Condiciones de Victoria:  %s
-12:Condiciones de Derrota:  %s
-13:Alidados
-14:Enemigos
-16:Nueva medida de mapa
-17:Anchura
-18:Altura
-19:Crear nuevo mapa
-20:Mapa disponible
-21:Cargar mapa
-22:Controles:
-23:Juego:
-24:Sonido:
-141:Velocidad de desplazamiento
-25:Desactivar música
-143:Pistas aleatorias
-26:Gráficos:
-27:Brillo
-221:
-28:Pantalla completa
-29:Aplicar
-30:Lenguaje:
-31:Cargando... Por favor espera
-216:
-217:
+1:
+40:
+70:
+100:
+
+174:
+175:
+
+160:
+161:
+162:
+164:
+165:
+
+166:
+167:
+168:
+170:
+
+176:
+177:
+178:
+179:
+180:
+194:
+195:
+196:
+195:
+198:
+
+207:
+208:
+209:
+
+210:
+211:
+212:
+213:
+214:
+215:
 218:
 219:
-220:
-215:
-208:iniciando
-209:iniciando multijugador
-210:guión
-32:Se ha producido un error
-212:Se ha producido un error al analizar el archivo
-33:Cargando nueva partida local
-34:Lisa de partidas guardadas
-35:Nombre de archivo
-36:Descripción
-37:Carga
-38:Borrar
-39:¿Estas seguro de que quieres eliminar la partida guardada?
-40:Eliminar
-41:Cancelar
-139:Mapas Multijugador
-140:Mapas de un solo jugador
 
-43:¡ Victoria !
-44:Continuar Jugando
-45:¡Victoria!
-46:¡Has perdido!
-47:Continuar...
-48:Derrota
-49:La repetición ha terminado
-50:Continuar
-51:Regresar al Menú
-166:Caida de jugadores
-167:El anfitrión dejará caer a los jugadores pasados %d segundos
-168:El anfitrión permite la caida de estos jugadores
-171:¿Estás seguro que deseas salir del juego?
-172:¿Estás seguro de que deseas expulsar de forma permantente a estos jugadores?
-173:Cancelar
-52:No disponible
-53:Presiona %s para continuar el juego
-54:Para el equipo
-55:Informacion de jugadores
-56:Chat
-57:Guardar archivo existente
-58:Sobrescribir
-59:Salvar
-60:Cargar
-205:Formato no válido %s
-206:Versión no válida %s
-211:Nueva Misión
-194:Tiempo de juego:|%s
+224:
+225:
+227:
+228:
+229:
+230:
+231:
+232:
+233:
+234:
+235:
+237:
+238:
+240:
+241:
+242:
+243:
 
-61:Se ha producido un error durante el juego
-62:Por favor envia el archivo %s  del directorio KaM Remake\\Crash  a los desarrolladoes del juego, son archivos que informan de errores y puedan reparar los fallos. ¡Muchas gracias por su ayuda!
-63:Se ha detectado una versión antigua de OpenGL, el juego puede ejecutarse lentamente y / o con defectos gráficos\n Por favor, actualice los controladores de gráficos para obtener un mejor rendimiento
-64:Error en la red:
-65:Error: Nombre del jugador no puede estar en blanco
-66:Conexión fallida %s
-67:Te has desconectado
-68:Misión %d
-150:Construir y Luchar
-151:Luchar
+249:
+249:
+250:
+251:
+254:
 
-69:El pescador no puede pescar tan lejos del agua.
-70:El pescador no puede pescar, no hay más peces en el agua.
+255:
+256:
+257:
+259:
+262:
+263:
+264:
+265:
 
-71:Mercado
-72:Usa el botón izquierdo para selecionar la mercancia a tratar
-73:Usa el botón derecho para selecionar la mercancia a tratar
-74:De x%d
-75:A x%d
-162:Disminuir cantidad
-161:Aumentar cantidad
-184:Comerciar este recurso no está disponible en esta misión
-185:Planta y tala
-186:Sólo tala
+272:
+274:
 
-76:Editar terreno
-77:Planificar el pueblo
-78:Códigos visuales
-79:Códigos globales
-80:Menú
+276:
+277:
+280:
+281:
+282:
+283:
 
-82:Nombre de jugador
-81:Estado:
-83:CREAR SERVIDOR
-84:Nombre
-85:Puerto
-86:Crear servidor local
-87:Crear servidor en internet
-88:Nombre del servidor
-89:Estado
-90:Jugadores
-91:Retraso
-92:Actualizar lista de servidores.
-93:DETALLES DEL SERVIDOR
-94:Lista de jugadores:
-144:Información de la partida:
-95:Dirección
-96:Puerta
-97:Sala
-98:Entrar
-153:Listo
-99:Conectando. por favor espera...
-159:Versión incorrecta: %s. Este juego utiliza la versión: %s
-100:Cargando Anuncios...
-101:Actualizando...
-142:Servidores no encontrados
-145:-
-146:En la Sala
-147:Cargando
-148:Jugando
+290:
+291:
+292:
+293:
 
-102:Lista de jugadores
-103:Empezar localización
-104:Equipo
-105:Color de bandera
-106:Listo
-107:Retraso
-108:Exulsar
-109:Abierto
-213:
-110:Jugador IA
-111:Seleccionar...
-112:Aleatorio
-113:Ninguno
-114:Ninguno
-115:Equipo %d
-117:Publicar mensaje:
-118:Tipo de mapa
-119:Un mapa solo
-188:Mapa de construcción
-189:Mapa de lucha
-190:Mapa cooperativo
-120:Guardar Partida
-121:Selecciona un mapa...
-122:Seleciona para guardar...
-123:Información de mapa:
-124:Jugadores: %d
-125:Modo:
-126:Condiciones:
-127:Tamaño:
-195:Opciones de juego:
-204:Tiempo de paz (en minutos)
-128:Salir de la sala
-129:Listo
-152:No estoy listo
-130:¡Empezar!
-149:Localización %d
-154:Error: Por favor seleciona un jugador para tomar el control
-155:Error: el mapa no se puede cargar o no has seleccionado el mapa
-156:No se puede iniciar: %s
-157:Todos deben estar preparados para empezar
-158:Excedes el límite de jugadores para ese mapa
-160:El servidor te ha asignado como anfitrión
-187:El juego a comenzado
-214:
+295:
+296:
 
-131:Esperando a los jugadores:
-163:Guardado el juego...
-164:¡%s ha sido derrotado!
-169:El Anfitrión (%s) ha abandonado la partida
-170:La conexión con el servidor se ha perdido. Intentar volver a conectar...
-191:No está permitido hacer eso en tiempos de paz.
-192:Tiempo de paz restante: %s
-193:El tiempo de paz se ha terminado. ¡Prepara tus armas!
+308:
 
-174:Civiles|entrenados
-175:Civiles|Perdidos
-176:Soldados|equipados
-177:Soldados|perdidos
-178:Unidades|Derrotadas
-179:Edificios|construidos
-180:Edificios|perdidos
-181:Edificios|destruidos
-182:Materiales|producidos
-183:Armas|Produción
 
-196:H
-197:L
-198:S
+1011:
+1012:
+203:
+1013:
+1014:
 
-199:Parar tropas ('%s')
-200:Unir tropas  ('%s')
-201:Separar tropas ('%s')
+1001:
+1002:
+1004:
+1008:
+1009:
+1010:
+1017:
+1018:
+1020:
+1111:
+1112:
 
-132:KaM Remake Créditos
-133:Créditos originales Knights & Merchants
-134:PROGRAMADOR
-135:PROGRAMADORES ADICIONALES
-136:GRÁFICOS ADICIONALES
-165:SONIDOS ADICIONALES
-137:TRADUCIONES ADICIONALES:
-138:ESPECIALES GRACIAS A:
+1113:
+1114:
+1115:
+1116:
+1117:
+1118:
+1119:
+1120:
+1121:
+
+1300:
+
+2001:Misión Cancelada
+2002:Tutorial de Construción
+2003:Tutorial de Batalla
+2004:Un Solo Jugador
+2005:Editor de mapas
+2202:Ver Repeticiones
+2203:Ver Repetición
+2006:Ver la última repetición
+2007:Empezar misión
+2008:Nombre
+2009:Medida
+2010:Tipo de misión:  %s
+2011:Condiciones de Victoria:  %s
+2012:Condiciones de Derrota:  %s
+2013:Alidados
+2014:Enemigos
+2016:Nueva medida de mapa
+2017:Anchura
+2018:Altura
+2019:Crear nuevo mapa
+2020:Mapa disponible
+2021:Cargar mapa
+2022:Controles:
+2023:Juego:
+2024:Sonido:
+2141:Velocidad de desplazamiento
+2025:Desactivar música
+2143:Pistas aleatorias
+2026:Gráficos:
+2027:Brillo
+2221:
+2028:Pantalla completa
+2029:Aplicar
+2030:Lenguaje:
+2031:Cargando... Por favor espera
+2216:
+2217:
+2218:
+2219:
+2220:
+2215:
+2208:iniciando
+2209:iniciando multijugador
+2210:guión
+2032:Se ha producido un error
+2212:Se ha producido un error al analizar el archivo
+2033:Cargando nueva partida local
+2034:Lisa de partidas guardadas
+2035:Nombre de archivo
+2036:Descripción
+2037:Carga
+2038:Borrar
+2039:¿Estas seguro de que quieres eliminar la partida guardada?
+2040:Eliminar
+2041:Cancelar
+2139:Mapas Multijugador
+2140:Mapas de un solo jugador
+
+2043:¡ Victoria !
+2044:Continuar Jugando
+2045:¡Victoria!
+2046:¡Has perdido!
+2047:Continuar...
+2048:Derrota
+2049:La repetición ha terminado
+2050:Continuar
+2051:Regresar al Menú
+2166:Caida de jugadores
+2167:El anfitrión dejará caer a los jugadores pasados %d segundos
+2168:El anfitrión permite la caida de estos jugadores
+2171:¿Estás seguro que deseas salir del juego?
+2172:¿Estás seguro de que deseas expulsar de forma permantente a estos jugadores?
+2173:Cancelar
+2052:No disponible
+2053:Presiona %s para continuar el juego
+2054:Para el equipo
+2055:Informacion de jugadores
+2056:Chat
+2057:Guardar archivo existente
+2058:Sobrescribir
+2059:Salvar
+2060:Cargar
+2205:Formato no válido %s
+2206:Versión no válida %s
+2211:Nueva Misión
+2194:Tiempo de juego:|%s
+
+2061:Se ha producido un error durante el juego
+2062:Por favor envia el archivo %s  del directorio KaM Remake\\Crash  a los desarrolladoes del juego, son archivos que informan de errores y puedan reparar los fallos. ¡Muchas gracias por su ayuda!
+2063:Se ha detectado una versión antigua de OpenGL, el juego puede ejecutarse lentamente y / o con defectos gráficos\n Por favor, actualice los controladores de gráficos para obtener un mejor rendimiento
+2064:Error en la red:
+2065:Error: Nombre del jugador no puede estar en blanco
+2066:Conexión fallida %s
+2067:Te has desconectado
+2068:Misión %d
+2150:Construir y Luchar
+2151:Luchar
+
+2069:El pescador no puede pescar tan lejos del agua.
+2070:El pescador no puede pescar, no hay más peces en el agua.
+
+2071:Mercado
+2072:Usa el botón izquierdo para selecionar la mercancia a tratar
+2073:Usa el botón derecho para selecionar la mercancia a tratar
+2074:De x%d
+2075:A x%d
+2162:Disminuir cantidad
+2161:Aumentar cantidad
+2184:Comerciar este recurso no está disponible en esta misión
+2185:Planta y tala
+2186:Sólo tala
+
+2076:Editar terreno
+2077:Planificar el pueblo
+2078:Códigos visuales
+2079:Códigos globales
+2080:Menú
+
+2082:Nombre de jugador
+2081:Estado:
+2083:CREAR SERVIDOR
+2084:Nombre
+2085:Puerto
+2086:Crear servidor local
+2087:Crear servidor en internet
+2088:Nombre del servidor
+2089:Estado
+2090:Jugadores
+2091:Retraso
+2092:Actualizar lista de servidores.
+2093:DETALLES DEL SERVIDOR
+2094:Lista de jugadores:
+2144:Información de la partida:
+2095:Dirección
+2096:Puerta
+2097:Sala
+2098:Entrar
+2153:Listo
+2099:Conectando. por favor espera...
+2159:Versión incorrecta: %s. Este juego utiliza la versión: %s
+2100:Cargando Anuncios...
+2101:Actualizando...
+2142:Servidores no encontrados
+2145:-
+2146:En la Sala
+2147:Cargando
+2148:Jugando
+
+2102:Lista de jugadores
+2103:Empezar localización
+2104:Equipo
+2105:Color de bandera
+2106:Listo
+2107:Retraso
+2108:Exulsar
+2109:Abierto
+2213:
+2110:Jugador IA
+2111:Seleccionar...
+2112:Aleatorio
+2113:Ninguno
+2114:Ninguno
+2115:Equipo %d
+2117:Publicar mensaje:
+2118:Tipo de mapa
+2119:Un mapa solo
+2188:Mapa de construcción
+2189:Mapa de lucha
+2190:Mapa cooperativo
+2120:Guardar Partida
+2121:Selecciona un mapa...
+2122:Seleciona para guardar...
+2123:Información de mapa:
+2124:Jugadores: %d
+2125:Modo:
+2126:Condiciones:
+2127:Tamaño:
+2195:Opciones de juego:
+2204:Tiempo de paz (en minutos)
+2128:Salir de la sala
+2129:Listo
+2152:No estoy listo
+2130:¡Empezar!
+2149:Localización %d
+2154:Error: Por favor seleciona un jugador para tomar el control
+2155:Error: el mapa no se puede cargar o no has seleccionado el mapa
+2156:No se puede iniciar: %s
+2157:Todos deben estar preparados para empezar
+2158:Excedes el límite de jugadores para ese mapa
+2160:El servidor te ha asignado como anfitrión
+2187:El juego a comenzado
+2214:
+
+2131:Esperando a los jugadores:
+2163:Guardado el juego...
+2164:¡%s ha sido derrotado!
+2169:El Anfitrión (%s) ha abandonado la partida
+2170:La conexión con el servidor se ha perdido. Intentar volver a conectar...
+2191:No está permitido hacer eso en tiempos de paz.
+2192:Tiempo de paz restante: %s
+2193:El tiempo de paz se ha terminado. ¡Prepara tus armas!
+
+2174:Civiles|entrenados
+2175:Civiles|Perdidos
+2176:Soldados|equipados
+2177:Soldados|perdidos
+2178:Unidades|Derrotadas
+2179:Edificios|construidos
+2180:Edificios|perdidos
+2181:Edificios|destruidos
+2182:Materiales|producidos
+2183:Armas|Produción
+
+2196:H
+2197:L
+2198:S
+
+2199:Parar tropas ('%s')
+2200:Unir tropas  ('%s')
+2201:Separar tropas ('%s')
+
+2132:KaM Remake Créditos
+2133:Créditos originales Knights & Merchants
+2134:PROGRAMADOR
+2135:PROGRAMADORES ADICIONALES
+2136:GRÁFICOS ADICIONALES
+2165:SONIDOS ADICIONALES
+2137:TRADUCIONES ADICIONALES:
+2138:ESPECIALES GRACIAS A:

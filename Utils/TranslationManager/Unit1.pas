@@ -4,15 +4,15 @@ unit Unit1;
 {$ENDIF}
 interface
 uses
-  Windows, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Windows, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StrUtils, StdCtrls, Math, ExtCtrls;
 
 
 type
   TTextInfo = record
-               ID:integer;
-               ConstName:string; //Name used in KM_TextLibrary.pas
-               Translations:array of string;
+               ID: Integer;
+               ConstName: string; //Name used in KM_TextLibrary.pas
+               Translations: array of string;
              end;
 
 
@@ -64,13 +64,13 @@ type
     IgnoreChanges:boolean;
     procedure MemoChange(Sender: TObject);
 
-    procedure Load(aMiscFolder:string; aTextLibraryFile:string);
-    procedure ScanAvailableTranslations(aMiscFolder:string);
-    procedure LoadTextLibraryConsts(aFileName:string);
-    procedure LoadTranslation(aFileName:string; TranslationID:integer);
+    procedure Load(aMiscFolder: string; aTextLibraryFile: string);
+    procedure ScanAvailableTranslations(aMiscFolder: string);
+    procedure LoadTextLibraryConsts(aFileName: string);
+    procedure LoadTranslation(aFileName: string; TranslationID: integer);
 
-    procedure SaveTextLibraryConsts(aFileName:string);
-    procedure SaveTranslation(aFileName:string; TranslationID:integer);
+    procedure SaveTextLibraryConsts(aFileName: string);
+    procedure SaveTranslation(aFileName: string; TranslationID: integer);
     procedure RefreshList;
   end;
 
@@ -80,11 +80,11 @@ var
 
 
 implementation
-
 {$R *.dfm}
 
+
 const
-  eol:string=#13#10; //EndOfLine
+  eol: string = #13#10; //EndOfLine
   MiscFolder = '..\..\data\misc\';
   TextLibraryFile = '..\..\KM_TextIDs.inc';
 
@@ -95,20 +95,21 @@ begin
 end;
 
 
-procedure TForm1.Load(aMiscFolder:string; aTextLibraryFile:string);
-var i:integer;
+procedure TForm1.Load(aMiscFolder: string; aTextLibraryFile: string);
+var
+  i: integer;
 begin
   TextsCount := 0;
   TranslationCount := 0;
   MaxID := 0;
-  SetLength(Texts,0);
-  SetLength(TranslationCodes,0);
-  SetLength(IDLookup,0);
+  SetLength(Texts, 0);
+  SetLength(TranslationCodes, 0);
+  SetLength(IDLookup, 0);
 
   ScanAvailableTranslations(aMiscFolder);
   LoadTextLibraryConsts(aTextLibraryFile);
-  for i:=1 to TranslationCount do
-    LoadTranslation(aMiscFolder+'remake.'+TranslationCodes[i]+'.libx',i);
+  for i := 1 to TranslationCount do
+    LoadTranslation(aMiscFolder + 'remake.' + TranslationCodes[i] + '.libx', i);
   RefreshList;
 end;
 
@@ -171,8 +172,8 @@ begin
     FreeAndNil(TransMemos[i]);
   end;
 
-  SetLength(TransMemos,TranslationCount+1);
-  SetLength(TransLabels,TranslationCount+1);
+  SetLength(TransMemos, TranslationCount + 1);
+  SetLength(TransLabels, TranslationCount + 1);
 
   cbShowMissing.Items.Clear;
   cbShowMissing.Items.Add('None');
@@ -199,21 +200,19 @@ begin
 end;
 
 
-procedure TForm1.SaveTextLibraryConsts(aFileName:string);
+procedure TForm1.SaveTextLibraryConsts(aFileName: string);
 var
   myFile : TextFile;
-  i: integer;
+  I: integer;
 begin
   AssignFile(myFile, aFileName);
   ReWrite(myFile);
 
-  for i:=1 to TextsCount do
-  begin
-    if Texts[i].ID = -1 then
+  for I := 1 to TextsCount do
+    if Texts[I].ID = -1 then
       WriteLn(myFile, '')
     else
-      WriteLn(myFile, Texts[i].ConstName+' = '+IntToStr(Texts[i].ID+2000)+';')
-  end;
+      WriteLn(myFile, Texts[I].ConstName + ' = ' + IntToStr(Texts[I].ID) + ';');
 
   CloseFile(myFile);
 end;
@@ -232,9 +231,11 @@ begin
   begin
     ReadLn(myFile, Line);
     Line := Trim(Line);
-    inc(TextsCount);
+    Inc(TextsCount);
+
     if Length(Texts) <= TextsCount then
-      SetLength(Texts,TextsCount+Size_Inc);
+      SetLength(Texts, TextsCount + Size_Inc);
+
     CenterPos := Pos(' = ',Line);
     //Separator (line without ' = ')
     if CenterPos = 0 then
@@ -244,15 +245,15 @@ begin
     end
     else
     begin
-      Texts[TextsCount].ID := StrToInt(Copy(Line,CenterPos+3,Length(Line)-CenterPos-3))-2000;
+      Texts[TextsCount].ID := StrToInt(Copy(Line, CenterPos + 3, Length(Line) - CenterPos - 3));
       MaxID := Math.Max(MaxID, Texts[TextsCount].ID);
-      Texts[TextsCount].ConstName := Copy(Line,1,CenterPos-1);
-      SetLength(Texts[TextsCount].Translations,TranslationCount+1);
+      Texts[TextsCount].ConstName := Copy(Line, 1, CenterPos - 1);
+      SetLength(Texts[TextsCount].Translations, TranslationCount + 1);
       for i:=1 to TranslationCount do
         Texts[TextsCount].Translations[i] := '';
       //Reverse lookup for loading translations
-      if Length(IDLookup) <= Texts[TextsCount].ID then
-        SetLength(IDLookup,Texts[TextsCount].ID+Size_Inc);
+      if length(IDLookup) <= Texts[TextsCount].ID then
+        SetLength(IDLookup, Texts[TextsCount].ID + Size_Inc);
       IDLookup[Texts[TextsCount].ID] := TextsCount;
     end;
   end;
@@ -276,7 +277,7 @@ begin
 
     firstDelimiter := Pos(':', s);
     if firstDelimiter=0 then continue;
-    
+
     if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter-1)), ID) then continue;
 
     if ID <= Length(IDLookup) then
@@ -302,7 +303,7 @@ begin
   aStringList := TStringList.Create;
 
   aStringList.Add('');
-  aStringList.Add('MaxID:'+IntToStr(MaxID));
+  aStringList.Add('MaxID:' + IntToStr(MaxID));
   aStringList.Add('');
   for i:=1 to TextsCount do
   begin
@@ -349,7 +350,7 @@ begin
     else
       Texts[i].ID := i-BlanksCount;
   end;
-  MaxID := TextsCount-BlanksCount;
+  MaxID := TextsCount - BlanksCount;
   RefreshList;
 end;
 
@@ -380,6 +381,7 @@ begin
   Load(MiscFolder, TextLibraryFile);
 end;
 
+
 procedure TForm1.btnSaveClick(Sender: TObject);
 var i:integer;
 begin
@@ -387,6 +389,7 @@ begin
   for i:=1 to TranslationCount do
     SaveTranslation(MiscFolder+'remake.'+TranslationCodes[i]+'.libx',i);
 end;
+
 
 procedure TForm1.btnInsertClick(Sender: TObject);
 var i,ID: integer;
