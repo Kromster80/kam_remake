@@ -566,13 +566,8 @@ begin
   hx := min(round(aLoc.X+(MaxRad+1)),fMapX); //1.42 gets rounded to 1
   hy := min(round(aLoc.Y+(MaxRad+1)),fMapY); //1.42 gets rounded to 1
 
-  //todo: @Lewin: This may sounds like an obvious optimization
-  //Towers/Archers line-of-sight is always >= radius we test, which mean
-  //that CheckTileRevelation is not required (always returns True). Right?
-  //@Krom: As discussed, archers can sometimes shoot a bit further than their view radius...
-  //       So I don't think it should change. The effect basically means archers will have slightly reduced range
-  //       when firing at the edge of blackness. If the area was already explored they'll be able to shoot the normal amount.
-
+  //In KaM archers can shoot further than sight radius (shoot further into explored areas)
+  //so CheckTileRevelation is required, we can't remove it to optimise.
   for i:=ly to hy do for k:=lx to hx do
   if (Land[i,k].IsUnit <> nil)
   and (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i,false) = 255) then
@@ -743,6 +738,8 @@ begin
   //       Removal of the grapes object allows walking diagonally, which might effect the road network.
   //       However since we disallow diagonal roads it's not needed, I can't see how it could effect the road network
   //@Lewin: Please give me an example when Wine fields removal affect road network
+  //@Krom: The only example is if we allow routing along diagonal roads, which we decided not to.
+  //       So you are right, wine field removal cannot effect the road network now. To be deleted.
   //Update affected WalkConnect's (wcRoad is not required to update unless we reenable diagonal roads, as wine fields ...)
   RebuildWalkConnect([wcWalk, wcWolf, wcCrab]);
 end;

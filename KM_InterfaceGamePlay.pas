@@ -1387,6 +1387,7 @@ begin
 
     //Hints
     //@Lewin: I suggest we check other games, but I have a feeling that using same shortcuts for every version would be better
+    //@Krom: Yes we should check other games. I did it this way to match KaM TSK/TPR.
     Button_Army_GoTo.Hint   := fTextLibrary[TX_ARMY_GOTO_HINT];
     Button_Army_Stop.Hint   := Format(fTextLibrary[TX_TROOP_HALT_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_HALT]]);
     Button_Army_Attack.Hint := fTextLibrary[TX_ARMY_ATTACK_HINT];
@@ -2656,7 +2657,7 @@ begin
 
   M := TKMHouseMarket(fPlayers.Selected);
 
-  //@Lewin: We need to tell player that he must cancel previous order first
+  //todo: We need to tell player that he must cancel previous order first instead of silently refusing
 
   if aButton = mbLeft then
     fGame.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TResourceType(TKMButtonFlat(Sender).Tag));

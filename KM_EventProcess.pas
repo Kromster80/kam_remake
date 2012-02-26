@@ -32,6 +32,8 @@ type
 
   //@Lewin: How is it made in Town Tutorial, do we need to defeat both enemies or just build a Tannery?
   //if not - remove eaVictory, as explained above^
+  //@Krom: In TSK, there are no enemies and you win when you build the tannery.
+  //       In TPR, you must defeat the enemies AND build the tannery.
 
   TKMTrigger = record
     Trigger: TEventTrigger;

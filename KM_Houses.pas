@@ -1515,6 +1515,10 @@ begin
 
   //@Lewin: If player has cancelled the exchange and then started it again resources will not be
   //removed from offers list and perhaps serf will carry them off the marketplace
+  //@Krom: Yes. It would be better if the deliveries were abandoned and the resources were use in
+  //the new trade. For example I might be trading stone to bread, then cancel and change from stone to wine.
+  //I would expect any stone already at the marketplace to stay since the new trade requires it,
+  //it looks bad that serfs remove the stone then take it back. To be converted to todo item.
 
   //How much do we need to ask to add to delivery system = Needed - (Ordered + Arrived)
   ResRequired := (fTradeAmount * RatioFrom - (fMarketDeliveryCount[fResFrom]+fMarketResIn[fResFrom]));

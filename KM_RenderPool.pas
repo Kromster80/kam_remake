@@ -387,6 +387,9 @@ begin
   //@Lewin: Since plans are per-player now, what do we do about allies that:
   // - have partially overlapping plans
   // - have plans/tablets on exact same spot
+  //@Krom: Allies should see each other's plans and not allow to place over existing ones.
+  //For enemies, if two plans overlap, the other should be removed when one is started.
+  //This is currently working for roads/fields but not houses
 
   //Fieldplans
   FieldsList := TKMPointTagList.Create;

@@ -212,6 +212,9 @@ begin
 
   //@Lewin: I have wrote my own vision of "Defeated" player here,
   //please discuss it with me if you have other ideas
+  //@Krom: I think you should have to destroy storehouses, that's how it works in KaM.
+  //Also requiring workers and recruits to be destroyed might be confusing for the player.
+  //I'd rather keep it simple and like KaM: Army, store, school, barracks.
 
   Defeat := (Stat.GetHouseQty(ht_School) = 0) and
             (Stat.GetUnitQty(ut_Worker) = 0) and

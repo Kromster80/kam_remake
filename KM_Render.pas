@@ -111,6 +111,7 @@ begin
   //@Krom: Make textures support an alpha channel for nice shadows. How does it work for houses on top of AlphaTest?
   //@Lewin: AlphaTest does not supports semitransparency, because it uses A chanel to do the testing
   //we will need to use something else
+  //@Krom: I'd like to at least make fully built houses have smooth shadows if we can't make it for them all.
 
   //GL_ALPHA   (0-0-0-8 bit) - used only for flags, but may bring unexpected bugs
   //GL_RGB5_A1 (5-5-5-1 bit) - uses 185mb GPURAM
