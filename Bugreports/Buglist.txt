@@ -12,6 +12,7 @@
  +	On slow computers first-time loading takes >20 seconds, meaning you are kicked from multiplayer games by the server
  +	Fixed crash occurring on replay end
  +	Chat button in multiplayer replay viewer was not properly disabled and upon click caused a crash
+ +	See-through hills (lighting flaw)
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered (grouped) by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
@@ -28,7 +29,6 @@
 
 	Dots and lines displaying on tile edges (requires fResourceTiles) [Krom]
 	Colored rectangle below cursor
-	See-through hills (lighting flaw)
 
 Features:
  +	Switching to fullscreen causes banding if drivers report unsupported refresh rates (add manual refresh rate selector to options) [Jimmy]

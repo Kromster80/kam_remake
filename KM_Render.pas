@@ -88,8 +88,11 @@ procedure TRender.SetRenderMode(aRenderMode: TRenderMode);
 begin
   glMatrixMode(GL_PROJECTION); //Change Matrix Mode to Projection
   glLoadIdentity; //Reset View
+
+  //In 2D mode we use Z-test to clip terrain shadows behind mountains
+  //1 unit for each tile strip. 512 means we can handle up to 512x512 maps
   case aRenderMode of
-    rm2D: gluOrtho2D(0, fScreenX, fScreenY, 0);
+    rm2D: glOrtho(0, fScreenX, fScreenY, 0, 512, 0);
     rm3D: gluPerspective(80, -fScreenX/fScreenY, 0.1, 5000.0);
   end;
   glMatrixMode(GL_MODELVIEW); //Return to the modelview matrix
@@ -139,7 +142,7 @@ end;
 
 procedure TRender.BeginFrame;
 begin
-  glClear(GL_COLOR_BUFFER_BIT); //Clear The Screen, can save some FPS on this one
+  glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT); //Clear The Screen, can save some FPS on this one
 
   //RC.Activate for OSX
 end;
@@ -160,6 +163,7 @@ begin
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 end;
+
 
 procedure TRender.EndFrame;
 begin

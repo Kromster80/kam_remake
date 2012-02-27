@@ -136,7 +136,7 @@ begin
   glLoadIdentity; // Reset The View
   //glRotate(-15,0,0,1); //Funny thing
   glTranslatef(fGame.Viewport.ViewportClip.X/2, fGame.Viewport.ViewportClip.Y/2, 0);
-  glkScale(fGame.Viewport.Zoom*CELL_SIZE_PX);
+  glScalef(fGame.Viewport.Zoom*CELL_SIZE_PX, fGame.Viewport.Zoom*CELL_SIZE_PX, 1);
   glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y, 0);
   if RENDER_3D then
   begin
@@ -147,7 +147,7 @@ begin
     glRotatef(rPitch  ,0,1,0);
     glRotatef(rBank   ,0,0,1);
     glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y-8, 10);
-    glkScale(fGame.Viewport.Zoom);
+    glScalef(fGame.Viewport.Zoom, fGame.Viewport.Zoom, 1);
   end;
 
   glPushAttrib(GL_LINE_BIT or GL_POINT_BIT);
@@ -220,6 +220,13 @@ var
   TexC: array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO: array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
+  glPushAttrib(GL_DEPTH_BUFFER_BIT);
+
+  //With depth test we can render all terrain tiles and then apply light/shadow without worrying about
+  //foothills shadows going over mountain tops. Each tile strip is rendered an next Z plane.
+  //Means that Z-test on gpu will take care of clipping the foothill shadows
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
 
   for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do begin //Each new layer inflicts 10% fps drop
     case iW of
@@ -254,10 +261,10 @@ begin
           glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
         end else begin
 
-          glTexCoord2fv(@TexC[TexO[1]]); glVertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
-          glTexCoord2fv(@TexC[TexO[2]]); glVertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
-          glTexCoord2fv(@TexC[TexO[3]]); glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-          glTexCoord2fv(@TexC[TexO[4]]); glVertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[1]]); glVertex3f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV, -i);
+          glTexCoord2fv(@TexC[TexO[2]]); glVertex3f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV, -i);
+          glTexCoord2fv(@TexC[TexO[3]]); glVertex3f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV, -i);
+          glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV, -i);
 
           if KAM_WATER_DRAW and (iW=1) and fTerrain.TileIsWater(KMPoint(k,i)) then
           begin
@@ -269,13 +276,13 @@ begin
             TexO[1] := 1; TexO[2] := 2; TexO[3] := 3; TexO[4] := 4;
 
             LandLight(Land[i  ,k  ].Light);
-            glTexCoord2fv(@TexC[TexO[1]]); glVertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+            glTexCoord2fv(@TexC[TexO[1]]); glVertex3f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV, -i);
             LandLight(Land[i+1,k  ].Light);
-            glTexCoord2fv(@TexC[TexO[2]]); glVertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+            glTexCoord2fv(@TexC[TexO[2]]); glVertex3f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV, -i);
             LandLight(Land[i+1,k+1].Light);
-            glTexCoord2fv(@TexC[TexO[3]]); glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+            glTexCoord2fv(@TexC[TexO[3]]); glVertex3f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV, -i);
             LandLight(Land[i  ,k+1].Light);
-            glTexCoord2fv(@TexC[TexO[4]]); glVertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+            glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV, -i);
           end;
         end;
       end;
@@ -322,10 +329,10 @@ begin
       glTexCoord1f(Land[i+1,k+1].Light); glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(Land[i  ,k+1].Light); glVertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
-      glTexCoord1f(Land[i  ,k  ].Light); glVertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(Land[i+1,k  ].Light); glVertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(Land[i+1,k+1].Light); glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(Land[i  ,k+1].Light); glVertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i  ,k  ].Light); glVertex3f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord1f(Land[i+1,k  ].Light); glVertex3f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord1f(Land[i+1,k+1].Light); glVertex3f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord1f(Land[i  ,k+1].Light); glVertex3f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV, -i);
     end;
   glEnd;
 
@@ -347,13 +354,13 @@ begin
       glVertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
       glTexCoord1f(max(-Land[i  ,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i,true)/255));
-      glVertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glVertex3f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV, -i);
       glTexCoord1f(max(-Land[i+1,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i+1,true)/255));
-      glVertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glVertex3f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV, -i);
       glTexCoord1f(max(-Land[i+1,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i+1,true)/255));
-      glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glVertex3f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV, -i);
       glTexCoord1f(max(-Land[i  ,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i,true)/255));
-      glVertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+      glVertex3f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV, -i);
     end;
   glEnd;
 
@@ -365,6 +372,8 @@ begin
   for k := aRect.X1 to aRect.X2 do
   with fTerrain.Land[i,k] do
     fRenderAux.Quad(k, i, WalkConnect[wcWalk] * 32 + (WalkConnect[wcRoad] * 32) shl 8 or $80000000);
+
+  glPopAttrib;
 end;
 
 
