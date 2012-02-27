@@ -10,11 +10,9 @@ uses
 
 type
   TTextInfo = record
-               ID: Integer;
+               TextID: Integer;
                ConstName: string; //Name used in KM_TextLibrary.pas
-               Translations: array of string;
              end;
-
 
 type
   TForm1 = class(TForm)
@@ -52,22 +50,23 @@ type
     TransMemos: array of TMemo;
     TransLabels: array of TLabel;
 
-    TranslationCount:integer;
-    TranslationCodes:array of string;
-    DefaultTranslation:integer;
-    TextsCount:integer;
-    Texts:array of TTextInfo;
-    IDLookup:array of integer;
-    ListboxLookup:array of integer;
-    MaxID:integer;
-    LastSelected:integer;
-    IgnoreChanges:boolean;
+    LocalesCount: Integer;
+    Locales: array of string;
+    DefaultLocale: Integer;
+
+    Texts: array of array of string;
+    Consts: array of TTextInfo;
+
+    ListboxLookup: array of integer;
+
+    IgnoreChanges: Boolean;
     procedure MemoChange(Sender: TObject);
 
     procedure Load(aMiscFolder: string; aTextLibraryFile: string);
     procedure ScanAvailableTranslations(aMiscFolder: string);
     procedure LoadTextLibraryConsts(aFileName: string);
     procedure LoadTranslation(aFileName: string; TranslationID: integer);
+    procedure AddMissingConsts;
 
     procedure SaveTextLibraryConsts(aFileName: string);
     procedure SaveTranslation(aFileName: string; TranslationID: integer);
@@ -85,7 +84,7 @@ implementation
 
 const
   eol: string = #13#10; //EndOfLine
-  MiscFolder = '..\..\data\misc\';
+  MiscFolder = '..\..\data\text\';
   TextLibraryFile = '..\..\KM_TextIDs.inc';
 
 
@@ -99,37 +98,104 @@ procedure TForm1.Load(aMiscFolder: string; aTextLibraryFile: string);
 var
   i: integer;
 begin
-  TextsCount := 0;
-  TranslationCount := 0;
-  MaxID := 0;
+  LocalesCount := 0;
+
+  SetLength(Consts, 0);
   SetLength(Texts, 0);
-  SetLength(TranslationCodes, 0);
-  SetLength(IDLookup, 0);
+  SetLength(Locales, 0);
+
+  //SetLength(IDLookup, 0);
 
   ScanAvailableTranslations(aMiscFolder);
   LoadTextLibraryConsts(aTextLibraryFile);
-  for i := 1 to TranslationCount do
-    LoadTranslation(aMiscFolder + 'remake.' + TranslationCodes[i] + '.libx', i);
+  for i := 1 to LocalesCount do
+    LoadTranslation(aMiscFolder + 'text.' + Locales[i] + '.libx', i);
+
+  AddMissingConsts;
+
   RefreshList;
 end;
 
 
-procedure TForm1.RefreshList;
-var i:integer; ID:string;
-begin
-  ListBox1.Clear;
-  SetLength(ListboxLookup, TextsCount);
-  for i:=1 to TextsCount do
+procedure TForm1.AddMissingConsts;
+  function TextEmpty(aIndex: Integer): Boolean;
+  var I: Integer;
   begin
-    if Texts[i].ID = -1 then
-      ID := '' else ID := IntToStr(Texts[i].ID)+': ';
-    ListBox1.Items.Add(ID+Texts[i].ConstName);
-    ListboxLookup[i-1] := i; //Listbox items are 0 indexed
+    Result := True;
+    for I := 1 to LocalesCount do
+      Result := Result and (Trim(Texts[aIndex,I]) = '');
   end;
-  if InRange(LastSelected,0,ListBox1.Count-1) then
-    ListBox1.ItemIndex := LastSelected
-  else
-    ListBox1.ItemIndex := 0;
+  function TextUnused(aIndex: Integer): Boolean;
+  var I: Integer;
+  begin
+    Result := True;
+    for I := 0 to High(Consts) do
+    if Consts[I].TextID = aIndex then
+    begin
+      Result := False;
+      Break;
+    end;
+  end;
+var I: Integer; s: string;
+begin
+  for I := 0 to High(Texts) do
+    if not TextEmpty(I) and TextUnused(I) then
+    begin
+      s := ReplaceStr(Texts[I, DefaultLocale], ' ', '');
+      s := UpperCase(LeftStr(s, 16));
+
+      SetLength(Consts, Length(Consts) + 1);
+      Consts[High(Consts)].TextID := I;
+
+      Consts[High(Consts)].ConstName := 'TX_UNUSED_' + IntToStr(I) + '_' + s;
+    end;
+end;
+
+
+procedure TForm1.RefreshList;
+  function ShowConst(aIndex: Integer): Boolean;
+  begin
+    if cbShowMissing.ItemIndex = 0 then
+      Result := True
+    else
+    begin
+      Result := (Consts[aIndex].TextID <> -1) and
+                (
+                  (Texts[Consts[aIndex].TextID, cbShowMissing.ItemIndex] = '') or
+                  (
+                    cbIncludeSameAsEnglish.Checked and
+                    (Texts[Consts[aIndex].TextID, cbShowMissing.ItemIndex] = Texts[Consts[aIndex].TextID, DefaultLocale])
+                  )
+                );
+    end;
+  end;
+var
+  I, TopIdx, ItemIdx: Integer;
+  s: string;
+begin
+  ListBox1.Items.BeginUpdate;
+  ItemIdx := ListBox1.ItemIndex;
+  TopIdx := ListBox1.TopIndex;
+  ListBox1.Clear;
+
+  SetLength(ListboxLookup, 0);
+  SetLength(ListboxLookup, Length(Consts));
+
+  for I := 0 to Length(Consts) - 1 do
+  if ShowConst(I) then
+  begin
+    ListboxLookup[ListBox1.Items.Count] := I;
+    if Consts[I].TextID = -1 then
+      s := ''
+    else
+      s := IntToStr(Consts[I].TextID) + ': ' + Consts[I].ConstName;
+
+    ListBox1.Items.Add(s);
+  end;
+
+  ListBox1.Items.EndUpdate;
+  ListBox1.ItemIndex := EnsureRange(ItemIdx, 0, ListBox1.Count - 1);
+  ListBox1.TopIndex := TopIdx;
   ListBox1Click(ListBox1);
 end;
 
@@ -157,12 +223,12 @@ begin
     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then //Exclude parent folders
       //Check files
       if (SearchRec.Attr and faDirectory <> faDirectory)
-      and (LeftStr(SearchRec.Name,length('remake.')) = 'remake.')
+      and (LeftStr(SearchRec.Name,length('text.')) = 'text.')
       and (RightStr(SearchRec.Name,length('.libx')) = '.libx') then
       begin
-        inc(TranslationCount);
-        SetLength(TranslationCodes,TranslationCount+1);
-        TranslationCodes[TranslationCount] := Copy(SearchRec.Name,length('remake')+2,3);
+        inc(LocalesCount);
+        SetLength(Locales,LocalesCount+1);
+        Locales[LocalesCount] := Copy(SearchRec.Name,length('text')+2,3);
       end;
   until (FindNext(SearchRec)<>0);
 
@@ -172,29 +238,29 @@ begin
     FreeAndNil(TransMemos[i]);
   end;
 
-  SetLength(TransMemos, TranslationCount + 1);
-  SetLength(TransLabels, TranslationCount + 1);
+  SetLength(TransMemos, LocalesCount + 1);
+  SetLength(TransLabels, LocalesCount + 1);
 
   cbShowMissing.Items.Clear;
   cbShowMissing.Items.Add('None');
-  DefaultTranslation := 1; //Default in case there is no eng
-  for i:=1 to TranslationCount do
+  DefaultLocale := 1; //Default in case there is no eng
+  for i:=1 to LocalesCount do
   begin
-    if TranslationCodes[i] = 'eng' then DefaultTranslation := i;
+    if Locales[i] = 'eng' then DefaultLocale := i;
     TransLabels[i] := TLabel.Create(Form1);
     TransLabels[i].Parent := ScrollBox1;
     TransLabels[i].SetBounds(8,4+(i-1)*80,30,30);
-    TransLabels[i].Caption := TranslationCodes[i];
+    TransLabels[i].Caption := Locales[i];
 
     TransMemos[i] := TMemo.Create(Form1);
     TransMemos[i].Parent := ScrollBox1;
     TransMemos[i].SetBounds(8,22+(i-1)*80,ScrollBox1.Width-16,60);
     TransMemos[i].Anchors := [akLeft,akRight,akTop];
-    TransMemos[i].Font.Charset := GetCharset(TranslationCodes[i]);
+    TransMemos[i].Font.Charset := GetCharset(Locales[i]);
     TransMemos[i].Tag := i;
     TransMemos[i].OnChange := MemoChange;
 
-    cbShowMissing.Items.Add(TranslationCodes[i]);
+    cbShowMissing.Items.Add(Locales[i]);
   end;
   cbShowMissing.ItemIndex := 0;
 end;
@@ -208,89 +274,80 @@ begin
   AssignFile(myFile, aFileName);
   ReWrite(myFile);
 
-  for I := 1 to TextsCount do
-    if Texts[I].ID = -1 then
+  for I := 0 to Length(Consts) - 1 do
+    if Consts[I].TextID = -1 then
       WriteLn(myFile, '')
     else
-      WriteLn(myFile, Texts[I].ConstName + ' = ' + IntToStr(Texts[I].ID) + ';');
+      WriteLn(myFile, Consts[I].ConstName + ' = ' + IntToStr(Consts[I].TextID) + ';');
 
   CloseFile(myFile);
 end;
 
 
-procedure TForm1.LoadTextLibraryConsts(aFileName:string);
+procedure TForm1.LoadTextLibraryConsts(aFileName: string);
 const Size_Inc = 100;
 var
-  myFile : TextFile;
+  SL: TStringList;
   Line: string;
-  i,CenterPos:integer;
+  i, CenterPos: Integer;
 begin
-  AssignFile(myFile, aFileName);
-  Reset(myFile);
-  while not Eof(myFile) do
-  begin
-    ReadLn(myFile, Line);
-    Line := Trim(Line);
-    Inc(TextsCount);
+  SL := TStringList.Create;
+  SL.LoadFromFile(aFileName);
 
-    if Length(Texts) <= TextsCount then
-      SetLength(Texts, TextsCount + Size_Inc);
+  SetLength(Consts, SL.Count);
+
+  for I := 0 to SL.Count - 1 do
+  begin
+    Line := Trim(SL[I]);
 
     CenterPos := Pos(' = ',Line);
     //Separator (line without ' = ')
     if CenterPos = 0 then
     begin
-      Texts[TextsCount].ID := -1;
-      Texts[TextsCount].ConstName := '';
+      Consts[I].TextID := -1;
+      Consts[I].ConstName := '';
     end
     else
     begin
-      Texts[TextsCount].ID := StrToInt(Copy(Line, CenterPos + 3, Length(Line) - CenterPos - 3));
-      MaxID := Math.Max(MaxID, Texts[TextsCount].ID);
-      Texts[TextsCount].ConstName := Copy(Line, 1, CenterPos - 1);
-      SetLength(Texts[TextsCount].Translations, TranslationCount + 1);
-      for i:=1 to TranslationCount do
-        Texts[TextsCount].Translations[i] := '';
-      //Reverse lookup for loading translations
-      if length(IDLookup) <= Texts[TextsCount].ID then
-        SetLength(IDLookup, Texts[TextsCount].ID + Size_Inc);
-      IDLookup[Texts[TextsCount].ID] := TextsCount;
+      Consts[I].TextID := StrToInt(Copy(Line, CenterPos + 3, Length(Line) - CenterPos - 3));
+      Consts[I].ConstName := Copy(Line, 1, CenterPos - 1);
     end;
   end;
 
-  CloseFile(myFile);
+  SL.Free;
 end;
 
 
 procedure TForm1.LoadTranslation(aFileName:string; TranslationID:integer);
 var
-  aStringList:TStringList;
+  SL:TStringList;
   i,ID,firstDelimiter:integer;
-  s:string;
+  Line:string;
 begin
-  aStringList := TStringList.Create;
-  aStringList.LoadFromFile(aFileName);
+  SL := TStringList.Create;
+  SL.LoadFromFile(aFileName);
 
-  for i:=0 to aStringList.Count-1 do
+  SetLength(Texts, 3000);
+  for I := 0 to 3000 - 1 do
+    SetLength(Texts[I], LocalesCount+1);
+
+  for i := 0 to SL.Count - 1 do
   begin
-    s := aStringList[i];
+    Line := Trim(SL[i]);
 
-    firstDelimiter := Pos(':', s);
-    if firstDelimiter=0 then continue;
+    firstDelimiter := Pos(':', Line);
+    if firstDelimiter = 0 then continue;
+    if not TryStrToInt(TrimLeft(LeftStr(Line, firstDelimiter-1)), ID) then continue;
 
-    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter-1)), ID) then continue;
+    Line := RightStr(Line, Length(Line) - firstDelimiter);
+    //Required characters that can't be stored in plain text
+    Line := StringReplace(Line, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
+    Line := StringReplace(Line, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
 
-    if ID <= Length(IDLookup) then
-    begin
-      s := RightStr(s, Length(s)-firstDelimiter);
-      //Required characters that can't be stored in plain text
-      s := StringReplace(s, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
-      s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
-      Texts[IDLookup[ID]].Translations[TranslationID] := s;
-    end;
+    Texts[ID, TranslationID] := Line;
   end;
 
-  aStringList.Free;
+  SL.Free;
 end;
 
 
@@ -303,18 +360,14 @@ begin
   aStringList := TStringList.Create;
 
   aStringList.Add('');
-  aStringList.Add('MaxID:' + IntToStr(MaxID));
+  aStringList.Add('MaxID:' + IntToStr(3000));
   aStringList.Add('');
-  for i:=1 to TextsCount do
+  for i := 0 to Length(Texts) - 1 do
+  if Texts[i, TranslationID] <> '' then
   begin
-    if Texts[i].ID = -1 then
-      s := ''
-    else
-    begin
-      s := IntToStr(Texts[i].ID) + ':'+ Texts[i].Translations[TranslationID];
-      s := StringReplace(s, '\', '\\', [rfReplaceAll, rfIgnoreCase]); //Slash
-      s := StringReplace(s, eol, '\n', [rfReplaceAll, rfIgnoreCase]); //EOL
-    end;
+    s := IntToStr(I) + ':'+ Texts[i, TranslationID];
+    s := StringReplace(s, '\', '\\', [rfReplaceAll, rfIgnoreCase]); //Slash
+    s := StringReplace(s, eol, '\n', [rfReplaceAll, rfIgnoreCase]); //EOL
     aStringList.Add(s);
   end;
 
@@ -326,53 +379,56 @@ end;
 procedure TForm1.ListBox1Click(Sender: TObject);
 var i,ID:integer;
 begin
-  if (TextsCount = 0) or (ListBox1.ItemIndex = -1) then exit;
+  if (Length(Consts) = 0) or (ListBox1.ItemIndex = -1) then exit;
+
   IgnoreChanges := true;
   ID := ListboxLookup[ListBox1.ItemIndex];
-  EditConstName.Text := Texts[ID].ConstName;
-  LastSelected := ID-1;
-  for i:=1 to TranslationCount do
-    if Texts[ID].ID <> -1 then
-      TransMemos[i].Text := {$IFDEF FPC}AnsiToUTF8{$ENDIF}(Texts[ID].Translations[i])
+  EditConstName.Text := Consts[ID].ConstName;
+
+  for i:=1 to LocalesCount do
+    if Consts[ID].TextID <> -1 then
+      TransMemos[i].Text := {$IFDEF FPC}AnsiToUTF8{$ENDIF}(Texts[Consts[ID].TextID, i])
     else
       TransMemos[i].Text := '';
   IgnoreChanges := false;
 end;
 
+
 procedure TForm1.btnReorderListClick(Sender: TObject);
 var i,BlanksCount:integer;
 begin
-  BlanksCount := 0;
-  for i:=1 to TextsCount do
+  {BlanksCount := 0;
+  for i:=1 to ConstsCount do
   begin
-    if Texts[i].ID = -1 then
+    if Consts[i].TextID = -1 then
       inc(BlanksCount)
     else
       Texts[i].ID := i-BlanksCount;
   end;
   MaxID := TextsCount - BlanksCount;
-  RefreshList;
+  RefreshList;}
 end;
 
+
 procedure TForm1.EditConstNameChange(Sender: TObject);
-var i:integer;
+var ID: Integer;
 begin
   if IgnoreChanges then exit;
-  i := ListboxLookup[ListBox1.ItemIndex];
-  if Texts[i].ID = -1 then exit;
-  Texts[i].ConstName := EditConstName.Text;
-  ListBox1.Items[ListBox1.ItemIndex] := IntToStr(Texts[i].ID)+': '+Texts[i].ConstName;
+  ID := ListboxLookup[ListBox1.ItemIndex];
+  if Consts[ID].TextID = -1 then exit;
+  Consts[ID].ConstName := EditConstName.Text;
+  ListBox1.Items[ListBox1.ItemIndex] := IntToStr(Consts[ID].TextID)+': '+Consts[ID].ConstName;
 end;
 
 
 procedure TForm1.MemoChange(Sender: TObject);
-var i,t:integer;
+var ID,t:integer;
 begin
   if IgnoreChanges then exit;
-  i := ListboxLookup[ListBox1.ItemIndex];
-  if Texts[i].ID = -1 then exit;
+  ID := ListboxLookup[ListBox1.ItemIndex];
+  if Consts[ID].TextID = -1 then exit;
   t := TMemo(Sender).Tag;
-  Texts[i].Translations[t] := {$IFDEF FPC}Utf8ToAnsi{$ENDIF}(TMemo(Sender).Text);
+  Texts[Consts[ID].TextID, t] := {$IFDEF FPC}Utf8ToAnsi{$ENDIF}(TMemo(Sender).Text);
 end;
 
 
@@ -386,140 +442,148 @@ procedure TForm1.btnSaveClick(Sender: TObject);
 var i:integer;
 begin
   SaveTextLibraryConsts(TextLibraryFile);
-  for i:=1 to TranslationCount do
-    SaveTranslation(MiscFolder+'remake.'+TranslationCodes[i]+'.libx',i);
+  for i:=1 to LocalesCount do
+    SaveTranslation(MiscFolder+'text.'+Locales[i]+'.libx',i);
 end;
 
 
 procedure TForm1.btnInsertClick(Sender: TObject);
 var i,ID: integer;
 begin
-  ID := ListBox1.ItemIndex+2; //Item place we are adding
-  inc(TextsCount);
-  SetLength(Texts,Length(Texts)+1);
-  //Move others down
-  for i:=TextsCount downto ID do
-  begin
-    Texts[i+1] := Texts[i];
-  end;
-  inc(MaxID);
-  Texts[ID].ID := MaxID;
-  Texts[ID].ConstName := '';
-  SetLength(Texts[ID].Translations,TranslationCount+1);
-  for i:=1 to TranslationCount do
-    Texts[ID].Translations[i] := '';
+  ID := ListBox1.ItemIndex; //Item place we are adding
 
-  ListBox1.Items.Insert(ID-1, IntToStr(Texts[ID].ID)+': '+Texts[ID].ConstName);
-  ListBox1.ItemIndex := ListBox1.ItemIndex+1;
+  SetLength(Consts, Length(Consts) + 1);
+
+  //Move others down
+  for i := Length(Consts)-2 downto ID do
+    Consts[i+1] := Consts[i];
+
+  SetLength(Texts, Length(Texts) + 1);
+  SetLength(Texts[High(Texts)], LocalesCount+1);
+  for i:=1 to LocalesCount do
+    Texts[ID,i] := '';
+
+  Consts[ID].TextID := High(Texts);
+  Consts[ID].ConstName := 'TX_NEW'+IntToStr(High(Texts));
+
+  ListBox1.Items.Insert(ID, IntToStr(Consts[ID].TextID) + ': '+Consts[ID].ConstName);
+  ListBox1.ItemIndex := ListBox1.ItemIndex;
   ListBox1Click(Listbox1); //Force select the new item
 end;
+
 
 procedure TForm1.btnDeleteClick(Sender: TObject);
-var i,ID: integer;
+var i,k,ID: integer;
 begin
-  ID := ListBox1.ItemIndex+1; //Item place we are deleting
-  if Texts[ID].ID = MaxID then dec(MaxID);
-  //Move items up
-  for i:=ID to TextsCount do
+  ID := ListBox1.ItemIndex; //Item place we are deleting
+
+  if Consts[ID].TextID <> -1 then
   begin
-    Texts[i] := Texts[i+1];
+    //Shift all texts up
+    for i := Consts[ID].TextID to High(Texts)-1 do
+      for k := 1 to LocalesCount do
+        Texts[i,k] := Texts[i+1,k];
+
+    //Shift pointers
+    for i := 0 to High(Consts) do
+      if Consts[i].TextID > Consts[ID].TextID then
+        Dec(Consts[i].TextID);
   end;
-  dec(TextsCount);
-  ListBox1.Items.Delete(ListBox1.ItemIndex);
-  ListBox1.ItemIndex := max(0,ID-2);
-  ListBox1Click(Listbox1); //Force select the new item
+
+  //Shift consts up
+  for i := ID to Length(Consts)-2 do
+    Consts[i] := Consts[i+1];
+
+  SetLength(Consts, Length(Consts)-1);
+
+  ListBox1.Items.Delete(ID);
+  RefreshList;
 end;
+
 
 procedure TForm1.btnInsertSeparatorClick(Sender: TObject);
 var i,ID: integer;
 begin
-  ID := ListBox1.ItemIndex+2; //Item place we are adding
-  SetLength(Texts,Length(Texts)+1);
-  inc(TextsCount);
-  //Move others down
-  for i:=TextsCount downto ID do
-  begin
-    Texts[i+1] := Texts[i];
-  end;
-  Texts[ID].ID := -1;
-  Texts[ID].ConstName := '';
-  SetLength(Texts[ID].Translations,TranslationCount+1);
-  for i:=1 to TranslationCount do
-    Texts[ID].Translations[i] := '';
+  ID := ListBox1.ItemIndex; //Item place we are adding
 
-  ListBox1.Items.Insert(ID-1, '');
-  ListBox1.ItemIndex := ListBox1.ItemIndex+1;
+  SetLength(Consts, Length(Consts) + 1);
+
+  //Move others down
+  for i := Length(Consts)-2 downto ID do
+    Consts[i+1] := Consts[i];
+
+  Consts[ID].TextID := -1;
+  Consts[ID].ConstName := '';
+
+  ListBox1.Items.Insert(ID, '');
+  ListBox1.ItemIndex := ListBox1.ItemIndex;
   ListBox1Click(Listbox1); //Force select the new item
 end;
+
 
 procedure TForm1.btnMoveUpClick(Sender: TObject);
 var ID: integer; Temp: TTextInfo;
 begin
-  ID := ListBox1.ItemIndex+1;
-  if ID = 1 then exit; //Can't move the top item up
-  Temp := Texts[ID];
-  Texts[ID] := Texts[ID-1];
-  Texts[ID-1] := Temp;
-  ListBox1.Items.Move(ID-1,ID-2);
-  ListBox1.ItemIndex := ID-2;
+  ID := ListBox1.ItemIndex;
+  if ID <= 0 then Exit; //Can't move the top item up
+
+  Temp := Consts[ID];
+  Consts[ID] := Consts[ID-1];
+  Consts[ID-1] := Temp;
+
+  ListBox1.Items.Move(ID, ID-1);
+  ListBox1.ItemIndex := ID-1;
 end;
+
 
 procedure TForm1.btnMoveDownClick(Sender: TObject);
 var ID: integer; Temp: TTextInfo;
 begin
-  ID := ListBox1.ItemIndex+1;
-  if ID = TextsCount then exit; //Can't move the bottom item down
-  Temp := Texts[ID];
-  Texts[ID] := Texts[ID+1];
-  Texts[ID+1] := Temp;
-  ListBox1.Items.Move(ID-1,ID);
+  ID := ListBox1.ItemIndex;
+  if ID = High(Consts) then Exit; //Can't move the bottom item down
+
+  Temp := Consts[ID];
+  Consts[ID] := Consts[ID+1];
+  Consts[ID+1] := Temp;
+  ListBox1.Items.Move(ID, ID+1);
   ListBox1.ItemIndex := ID;
 end;
 
+
 procedure TForm1.cbShowMissingChange(Sender: TObject);
 var
-  NoneSelected:boolean;
-  i,ValidCount:integer;
+  Filter: Boolean;
 begin
   RefreshList;
-  NoneSelected := cbShowMissing.ItemIndex < 1;
+  Filter := cbShowMissing.ItemIndex > 0;
+
   //Disable buttons
-  btnReorderList.Enabled := NoneSelected;
-  btnInsert.Enabled := NoneSelected;
-  btnDelete.Enabled := NoneSelected;
-  btnInsertSeparator.Enabled := NoneSelected;
-  btnMoveUp.Enabled := NoneSelected;
-  btnMoveDown.Enabled := NoneSelected;
-  cbIncludeSameAsEnglish.Enabled := not NoneSelected;
-  LabelIncludeSameAsEnglish.Enabled := not NoneSelected;
+  btnReorderList.Enabled := not Filter;
+  btnInsert.Enabled := not Filter;
+  btnDelete.Enabled := not Filter;
+  btnInsertSeparator.Enabled := not Filter;
+  btnMoveUp.Enabled := not Filter;
+  btnMoveDown.Enabled := not Filter;
+  cbIncludeSameAsEnglish.Enabled := Filter;
+  LabelIncludeSameAsEnglish.Enabled := Filter;
 
-  if not InRange(cbShowMissing.ItemIndex, 1, TranslationCount) then exit;
-
-  //Display only strings which lack translations
-  ListBox1.Clear;
-  ValidCount := 0;
-  for i:=1 to TextsCount do
-    if (Texts[i].ID <> -1) and ((Texts[i].Translations[cbShowMissing.ItemIndex] = '') or (cbIncludeSameAsEnglish.Checked and
-        (Texts[i].Translations[cbShowMissing.ItemIndex] = Texts[i].Translations[DefaultTranslation]))) then
-    begin
-      ListboxLookup[ValidCount] := i;
-      inc(ValidCount);
-      ListBox1.Items.Add(IntToStr(Texts[i].ID)+': '+Texts[i].ConstName);
-    end;
   //Select the first item
   ListBox1.ItemIndex := 0;
   ListBox1Click(ListBox1);
 end;
+
 
 procedure TForm1.cbIncludeSameAsEnglishClick(Sender: TObject);
 begin
   cbShowMissingChange(cbIncludeSameAsEnglish);
 end;
 
+
 procedure TForm1.LabelIncludeSameAsEnglishClick(Sender: TObject);
 begin
   cbIncludeSameAsEnglish.Checked := not cbIncludeSameAsEnglish.Checked;
   cbIncludeSameAsEnglishClick(LabelIncludeSameAsEnglish);
 end;
+
 
 end.

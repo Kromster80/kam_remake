@@ -21,7 +21,6 @@ type
     fCount: Integer;
     GameStrings: TAnsiStringArray;
     MissionStrings: TAnsiStringArray; //Strings used in a mission
-    procedure LoadLIBFile(FilePath: string; aFirstIndex: Word);
     procedure LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aOverwrite: Boolean);
     procedure ExportTextLibrary(aLibrary: array of AnsiString; aFileName: string);
     function GetTexts(aIndex:word): AnsiString;
@@ -52,96 +51,15 @@ constructor TTextLibrary.Create(aLibPath: string; aLocale: AnsiString);
 begin
   inherited Create;
 
-  //SetLength(GameStrings, 2000);
-
   //Remember preferred locale, it will remain constant until reinit
   fLocale := aLocale;
 
   //We load the English LIBX by default, then overwrite it with the selected language (this way missing strings are in English)
-  LoadLIBXFile(aLibPath+'remake.'+DEFAULT_LOCALE+'.libx', 0, GameStrings, False); //Initialize with English strings
-  if (fLocale <> DEFAULT_LOCALE) and FileExists(aLibPath+'remake.'+fLocale+'.libx') then
-    LoadLIBXFile(aLibPath+'remake.'+fLocale+'.libx', 0, GameStrings, True); //Overwrite with selected locale
-
-  if FileExists(aLibPath + 'text.' + fLocale + '.lib') then
-    LoadLIBFile(aLibPath + 'text.' + fLocale + '.lib', 0)
-  else
-    LoadLIBFile(aLibPath + 'text.lib', 0);
-
-  if FileExists(aLibPath + 'setup.' + fLocale + '.lib') then
-    LoadLIBFile(aLibPath + 'setup.' + fLocale + '.lib', 1000)
-  else
-    LoadLIBFile(aLibPath + 'setup.lib', 1000);
+  LoadLIBXFile(aLibPath+'text.'+DEFAULT_LOCALE+'.libx', 0, GameStrings, False); //Initialize with English strings
+  if (fLocale <> DEFAULT_LOCALE) and FileExists(aLibPath+'text.'+fLocale+'.libx') then
+    LoadLIBXFile(aLibPath+'text.'+fLocale+'.libx', 0, GameStrings, True); //Overwrite with selected locale
 
   fLog.AppendLog('TextLib init done');
-end;
-
-
-procedure TTextLibrary.LoadLIBFile(FilePath: string; aFirstIndex: Word);
-var
-  f:file; NumRead:integer;
-  i2, i3, StrCount, Byte1, Byte2, LastStrLen, LastFirstFFIndex, StrLen, TheIndex, ExtraCount: integer;
-  FileData: array[0..100000] of byte;
-  TheString: AnsiString;
-  LastWasFF: boolean;
-begin
-  {
-  By reading this code you will probably think that I'm crazy. But all the weird stuff
-  with the so called "FF byte pairs" is actually needed. If I just load everything in
-  order then stuff won't be correct and it WILL cause us problems later on. Just trust
-  me on this one, I spent a long time making a tool to edit these files so I DO know
-  what I'm talking about. ;)
-  }
-  if not CheckFileExists(FilePath) then exit;
-
-  AssignFile(f,FilePath);
-  FileMode := 0;
-  Reset(f,1);
-  FileMode := 2;
-  blockread(f,FileData,100000,NumRead); //100kb should be enough
-  closefile(f);
-
-  //Load AnsiString count from first two bytes
-  StrCount := FileData[0] + (FileData[1] * 256);
-  //Load the length of the last AnsiString which is stored here
-  LastStrLen := FileData[2] + (FileData[3] * 256);
-
-  //Now starts the indexes, set some defaults then run a loop
-  ExtraCount := 1;
-  LastWasFF := false;
-  LastFirstFFIndex := 1;
-  for i3 := 1 to StrCount do
-  begin
-    //Load index bytes for this AnsiString
-    Byte1 := FileData[8+((i3-1)*2)];
-    Byte2 := FileData[9+((i3-1)*2)];
-    //Check for FF byte pars
-    if (Byte1 = $FF) and (Byte2 = $FF) then
-    begin
-      //This AnsiString is unused, meaning we must store it as blank, but also for some extreamly
-      //annoying reason they also change the order of bytes around them (don't ask...)
-      GameStrings[aFirstIndex + i3] := ''; //Make it blank
-      if not LastWasFF then
-        LastFirstFFIndex := i3;
-      LastWasFF := true;
-    end
-    else
-    begin
-      StrLen := Byte1 + (Byte2 * 256);
-      if i3 = StrCount then //For the last AnsiString we must get the length from the header
-        StrLen := LastStrLen;
-
-      TheString := '';
-      for i2 := ExtraCount to StrLen - 1 do //Extract the AnsiString from the main section of the file
-      begin
-        TheString := TheString + AnsiChar(FileData[(StrCount * 2) + 5 + i2]);
-      end;
-      ExtraCount := StrLen + 1;
-      if LastWasFF then  TheIndex := LastFirstFFIndex
-      else TheIndex := i3;
-      GameStrings[aFirstIndex + TheIndex-1] := TheString;
-      LastWasFF := false;
-    end;
-  end;
 end;
 
 
@@ -255,7 +173,7 @@ end;
 procedure TTextLibrary.ExportTextLibraries;
 begin
   CreateDir(ExeDir + 'Export\');
-  ExportTextLibrary(GameStrings, ExeDir + 'Export\Strings.'+fLocale+'.txt');
+  ExportTextLibrary(GameStrings, ExeDir + 'Export\text.'+fLocale+'.libx');
 end;
 
 

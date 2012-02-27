@@ -1,2228 +1,756 @@
 
-MaxID:2221
+MaxID:3000
 
-0:KeinText
-1:Дъскорезница
-2:Желязна ковачница
-3:Оръжейна ковачница
-4:Въглищна мина
-5:Желязна мина
-6:Златна мина
-7:Рибарска къща
-8:Пекарна
-9:Ферма
-10:Дървосечищна къща
-11:Ковачница за брони
-12:Склад
-13:Конюшня
-14:Училище
-15:Каменоломна
-16:Металургическа къща
-17:Свинеферма
-18:Стражева кула
-19:Кметство
-20:Оръжейна работилница
-21:Работилница за брони
-22:Казарма
-23:Мелница
-24:Работилница за обсадни оръжия
-25:Къща за наденици
-26:Работилница за щавени на кожи
-27:Зала за обучение
-28:Староприемница
-29:Лозе
-30:
-31:
-32:
-33:
-34:
-35:
-36:
-37:
-38:
-39:
-40:Стволове на дървета
-41:Камъни
-42:Дъски
-43:Желязна руда
-44:Златна руда
-45:Въглища
-46:Желязо
-47:Злато
-48:Барели с вино
-49:Царевица
-50:Хлябове
-51:Брашно
-52:Обработена кожа
-53:Наденици
-54:Прасета
-55:Кожи
-56:Дървен щит
-57:Железен щит
-58:Кожена броня
-59:Желязна броня
-60:Брадва
-61:Меч
-62:Копие
-63:Пика
-64:Лък
-65:Арбалет
-66:Коне
-67:Риба
-68:
-69:
-70:Крепостник
-71:Дървар
-72:Миньор
-73:Животновъд
-74:Фермер
-75:Дърводелец
-76:Пекар
-77:Касапин
-78:Рибар
-79:Работник
-80:Каменоделец
-81:Ковач
-82:Металург
-83:Новобранец
-84:Милиция
-85:Брадвар
-86:Мечоносец
-87:Стрелец
-88:Арбалетист
-89:Копиеносец
-90:Пиконосец
-91:Разузнавач
-92:Рицар
-93:Варварин
-94:Бунтовник
-95:Мошеник
-96:Воин
-97:Скитник
-98:Катапулт
-99:Балиста
-100:Крепостникът доставя|до вашите сгради|необходимите материали.||Имайте предвид, че трябва|да има свързващ път|между сградите.
-101:За проидвадството на|дъски за дъскорезницата|ви трябва дървар.||Дърварят сече дърва и|ги залесява самостоятелно.
-102:Миньорът копае|въглища, желязна руда|и златна руда.
-103:Животновъдът|използва царевица,|за да отгледа прасета|в свинефермата и|коне в конюшните.
-104:Фермерът засажда и|отглежда царевица|във фермата.||Също така той |произвежда вино|в лозето.
-105:Дърводелецът работи в|дъскорезницата,|оръжейната работилница| и в работилницата|за брони.||Също така той строи|катапулти и балисти|в работилницата за|обсадни оръжия.
-106:Пекарът смила|царевицата в|брашно в мелницата.||Също така той пече|хляб в пекарната.
-107:Касапинът прави|наденици в къщата|за наденици и|обработени кожи в |работилницата за|щавене на кожи.
-108:Рибарят хваща|риба в близките|водоеми.
-109:Работника строи|сгради и улици.|Просто очертайте|вашата искана|локация и той ще|изпълни командата|ви автоматично||Също така той|поправя порведени|сгради.
-110:За да доставите на|вашите работници|достатъчно материал, |за да построите|улици и сгради,|каменоделецът|ще насече и|обработи камъни.
-111:Ковачът прави|оръжия и брони в|ковачниците за|оръжия и брони.
-112:Металургът използва|въглища за направата|на злато и желязо.
-113:|Новобранецът може да|бъде войник в казармата.||Също така той|наблюдава в |наблюдателната кула.
-114:Милиция
-115:Брадвар
-116:Мечоносец
-117:Стрелец
-118:Арбалетист
-119:Пиконосец
-120:Алебард
-121:Кавалерия
-122:Рицар
-123:Вълк
+0:Дъскорезница
+1:Желязна ковачница
+2:Оръжейна ковачница
+3:Въглищна мина
+4:Желязна мина
+5:Златна мина
+6:Рибарска къща
+7:Пекарна
+8:Ферма
+9:Дървосечищна къща
+10:Ковачница за брони
+11:Склад
+12:Конюшня
+13:Училище
+14:Каменоломна
+15:Металургическа къща
+16:Свинеферма
+17:Стражева кула
+18:Кметство
+19:Оръжейна работилница
+20:Работилница за брони
+21:Казарма
+22:Мелница
+23:Работилница за обсадни оръжия
+24:Къща за наденици
+25:Работилница за щавени на кожи
+26:Зала за обучение
+27:Староприемница
+28:Лозе
+39:Стволове на дървета
+40:Камъни
+41:Дъски
+42:Желязна руда
+43:Златна руда
+44:Въглища
+45:Желязо
+46:Злато
+47:Барели с вино
+48:Царевица
+49:Хлябове
+50:Брашно
+51:Обработена кожа
+52:Наденици
+53:Прасета
+54:Кожи
+55:Дървен щит
+56:Железен щит
+57:Кожена броня
+58:Желязна броня
+59:Брадва
+60:Меч
+61:Копие
+62:Пика
+63:Лък
+64:Арбалет
+65:Коне
+66:Риба
+69:Крепостник
+70:Дървар
+71:Миньор
+72:Животновъд
+73:Фермер
+74:Дърводелец
+75:Пекар
+76:Касапин
+77:Рибар
+78:Работник
+79:Каменоделец
+80:Ковач
+81:Металург
+82:Новобранец
+83:Милиция
+84:Брадвар
+85:Мечоносец
+86:Стрелец
+87:Арбалетист
+88:Копиеносец
+89:Пиконосец
+90:Разузнавач
+91:Рицар
+92:Варварин
+93:Бунтовник
+94:Мошеник
+95:Воин
+96:Скитник
+97:Катапулт
+98:Балиста
+99:Крепостникът доставя|до вашите сгради|необходимите материали.||Имайте предвид, че трябва|да има свързващ път|между сградите.
+100:За проидвадството на|дъски за дъскорезницата|ви трябва дървар.||Дърварят сече дърва и|ги залесява самостоятелно.
+101:Миньорът копае|въглища, желязна руда|и златна руда.
+102:Животновъдът|използва царевица,|за да отгледа прасета|в свинефермата и|коне в конюшните.
+103:Фермерът засажда и|отглежда царевица|във фермата.||Също така той |произвежда вино|в лозето.
+104:Дърводелецът работи в|дъскорезницата,|оръжейната работилница| и в работилницата|за брони.||Също така той строи|катапулти и балисти|в работилницата за|обсадни оръжия.
+105:Пекарът смила|царевицата в|брашно в мелницата.||Също така той пече|хляб в пекарната.
+106:Касапинът прави|наденици в къщата|за наденици и|обработени кожи в |работилницата за|щавене на кожи.
+107:Рибарят хваща|риба в близките|водоеми.
+108:Работника строи|сгради и улици.|Просто очертайте|вашата искана|локация и той ще|изпълни командата|ви автоматично||Също така той|поправя порведени|сгради.
+109:За да доставите на|вашите работници|достатъчно материал, |за да построите|улици и сгради,|каменоделецът|ще насече и|обработи камъни.
+110:Ковачът прави|оръжия и брони в|ковачниците за|оръжия и брони.
+111:Металургът използва|въглища за направата|на злато и желязо.
+112:|Новобранецът може да|бъде войник в казармата.||Също така той|наблюдава в |наблюдателната кула.
+113:Милиция
+114:Брадвар
+115:Мечоносец
+116:Стрелец
+117:Арбалетист
+118:Пиконосец
+119:Алебард
+120:Кавалерия
+121:Рицар
+122:Вълк
+123:Риба
 124:Риба
-125:Риба
-126:
-127:
-128:
-129:
-130:
-131:
-132:
-133:
-134:
-135:
-136:
-137:
-138:
-139:
-140:
-141:
-142:
-143:
-144:
-145:
-146:
-147:
-148:
-149:
-150:
-151:
-152:
-153:
-154:
-155:
-156:
-157:
-158:
-159:
-160:За избор на сгради
-161:За дистрибуция на стоки
-162:Статистика
-163:Съобщения
-164:Настройки
-165:Върни се
-166:Сграда|Избор
-167:Дистрибуция|на стоки
-168:Статистики
-169:Съобщения
-170:Настройки
-171:Изискване на найстройки
-172:Зареди Игра
-173:Запамети Игра
-174:Зареди Игра
-175:Запамети Игра
-176:Сигурни ли сте, че|искате да спрете|тази мисия?
-177:Спри Мисия
-178:Върни Се
-179:Настройки
-180:Спри Мисия
-181:Светлина
-182:+
-183:-
-184:Увеличи светлината
-185:Намали светлината
-186:Много тъмно
-187:Тъмно
-188:Нормално
-189:Светло
-190:Много светло
-191:Най-светло
-192:Бързина на мишката
-193:Промени бързината на мишката
-194:SFX
-195:Промени звука
-196:Музика
-197:Музика:
-198:Музика включена/изключена
-199:Изключено
-200:През MIDI
-201:Включено
-202:Празно
-203:Автоматично запаметяване
-204:Бързо превъртане
-205:Мисия %d Време:%2.2u:%2.2u
-206:Карта %d Време:%2.2u:%2.2u
-207:Плейър на музиката
-208:Предишна мелодия
-209:Следваща мелодия
-210:Разруши
-211:Премахни сгради/очертания
-212:Построй улица
-213:Построй улици
-214:Обработва полето
-215:Обработва полета
-216:Сложи ограда
-217:Ограда на пасището
-218:Озелени винарското поле
-219:Озелени винарските полета
-220:Изправи стената
-221:Стенна постройка
-222:Обучи
-223:Обучи избраната група
-224:Отказ
-225:Откажи зададената тренировка
-226:||в процес на обучение
-227:Нужди:
-228:Условия:
-229:Доставчици
-230:Къща в процес|изграждане
-231:Унищожи
-232:Наистина ли искате да|унищожите сградата?
-233:Унищожи избраната сграда
-234:Намали сумата
-235:Увеличи сумата
-236:Описание на стоките:
-237:Предишен тип войник
-238:Следващ тип войник
-239:Въоръжи
-240:Въоръжи този тип войник
-241:Следваща професия
-242:Предишна професия
-243:Добавяне към опашката
-244:Следващ наемник
-245:Предишен наемник
-246:Наеми наемник
-247:Представи новобранците:
-248:Цена:
-249:Смени включено/изключено разнасянето на стоките
-250:Смени включено/изключено поправката на къщата
-251:Сградата не е налице в момента
-252:Демото не е налице
-253:Незаети
-254:Условие
-255:Завърти войниците наляво
-256:Завърти войниците надясно
-257:Атака ('a')
-258:Спри ('h')
-259:Изпрати войниците ('d')
-260:Съдружи войниците ('l')
-261:Раздели войниците ('s')
-262:Нахрани войниците
-263:Щурмуваща атака
-264:Строй войниците в повече редици
-265:Строй войниците в по-малко редици
-266:Офанзива:
-267:Защита:
-268:Темпо:
-269:Избери|замък
-270:Спри
-271:Избери|дестинация
-272:Избери|група
-273:Избери цел за|атакуване
-274:Отказ
-275:Войниците не са налице в момента
-276:Изтрий
-277:Изтрий съответното съобщение
-278:Изпрати
-279:Изпрати съответното съобщение
-280:Върви до
-281:Прескочи до съответната позиция на съобщението
-282:Затвори
-283:Затвори прозореца
-284:Отговори
-285:Отговори до съобщението
-286:Потвърди
-287:Нови съюзи бяха направени.
-288:е приятелски
-289:е враг
-290:|Твоята каменоломна неможе да взима повече ресурси.
-291:|Мината ви за въглища изглежда е свършила.
-292:|Желязната ви мина изглежда е свършила.
-293:|Златната ви мина изглежда е свършила.
-294:|Рибарят ви не може да хваща повече риба.
-295:|В тази къща няма никой.
-296:|Тези войници са наистина гладни, по-добре да ядат скоро!
-297:До желязната дистрибуция
-298:Дистрибуция на|желязо
-299:До въглищна дистрибуция
-300:Дистрибуция на|въглища
-301:До дървена дистрибуция
-302:Дистрибуция на|дърво
-303:До царевична дистрибуция
-304:Дистрибуция на|царевица
-305:|Моля въведете съобщение:
-306:Съобщение от играч '%s':|'%s'
-307:Съюзи:
-308:ПАУЗА
-309:
-310:
-311:
-312:
-313:
-314:
-315:
-316:
-317:
-318:
-319:
-320:
-321:
-322:
-323:
-324:
-325:
-326:
-327:
-328:
-329:
-330:
-331:
-332:
-333:
-334:
-335:
-336:
-337:
-338:
-339:
-340:
-341:
-342:
-343:
-344:
-345:
-346:
-347:
-348:
-349:
-350:
-351:
-352:
-353:
-354:
-355:
-356:
-357:
-358:
-359:
-360:
-361:
-362:
-363:
-364:
-365:
-366:
-367:
-368:
-369:
-370:
-371:
-372:
-373:
-374:
-375:
-376:
-377:
-378:
-379:
-380:
-381:
-382:
-383:
-384:
-385:
-386:
-387:
-388:
-389:
-390:
-391:
-392:
-393:
-394:
-395:
-396:
-397:
-398:
-399:
-400:
-401:
-402:
-403:
-404:
-405:
-406:
-407:
-408:
-409:
-410:
-411:
-412:
-413:
-414:
-415:
-416:
-417:
-418:
-419:
-420:
-421:
-422:
-423:
-424:
-425:
-426:
-427:
-428:
-429:
-430:
-431:
-432:
-433:
-434:
-435:
-436:
-437:
-438:
-439:
-440:
-441:
-442:
-443:
-444:
-445:
-446:
-447:
-448:
-449:
-450:
-451:
-452:
-453:
-454:
-455:
-456:
-457:
-458:
-459:
-460:
-461:
-462:
-463:
-464:
-465:
-466:
-467:
-468:
-469:
-470:
-471:
-472:
-473:
-474:
-475:
-476:
-477:
-478:
-479:Мрежово съобщение:
-480:Играчът '%s' излезе от играта.|Натиснете ~<~S~P~A~C~E~> ,за да продължите да играете.
-481:Сега вие сте домакин.|Натиснете ~<~S~P~A~C~E~> ,за да продължите да играете.
-482:Компютърът изчаква за данни. Натиснете ~<~S~P~A~C~E~> ,за да|повторите или ~<~F~1~> ,за да излезете от играта.
-483:
-484:
-485:
-486:
-487:
-488:
-489:
-490:
-491:
-492:
-493:
-494:
-495:
-496:
-497:
-498:
-499:
-500:Verily, thou must needs construct a schoolhouse totrain new citizens.|Thou needs to ensure that thou hast gold aplenty in thy coffers, so that thou canst train new citizens forthy kingdom.
-501:Start building by left click on ye hammer icon on the left side of thy screen. Then thou must needs click on the book (ye olde schoolhouse) icon. Position the frame of thy schoolhouse on thy map where thou willst construct it and left click there.
-502:Once thou hast placed the schoolhouse, thou canst see that 'construct road' has in troth become the default cursor. Thou must needs click each square where thou willst have a section of road built.|And forget not, thou must needs connect the road to the front door of every building.
-503:To train units, left click on thy schoolhouse and scrollthroughusing the 'next profession' button to select the unit that thou doth wish to train. Then shalt thou left click on the 'add to queue' button. When trained, thy serfs shall, wonder of wonders, automatically start to perform their tasks.
-504:From time to time thine loyal citizens shalt need to eat. In order for themto do this, thou must needs construct an inn.|Besuretolocate ye inn centrally, so that it canst be accessed easily by all of thine villagers.
-505:Thou shalt need stones if thou art to construct further houses and roads.Thou shouldst construct aquarryneara supply of stones, then must thou traintheeastonemasonwhowillproducethy new building material.
-506:Thoudothnotonlyneedstones to construct buildings, but alsotimber. Ye woodcutterfellsand plantstrees whichare then processed in the sawmill. Thou shouldst always build ye woodcutter's hut near a forest.
-507:Now thou must needs construct a sawmill to process the tree trunks which ye woodcutter hath felled.|Once thou hath completed that task, thou shouldst train a carpenter who will work in thy new sawmill.
-508:Once thou hath ensured a sufficient supply of building materials, thou canst turn thy attention to the production of food.|Construct thyself a fisherman's hut near the water so that ye fisherman canst supply thy inn with freshlycaught fish.
-509:Good,butforget not that even though ye sea hath fish in plenty, they shalt run out sooner or later.|To ensure a more stable food source for thy village, thou shouldst construct a farm where theredoth be enough room for ye fields.
-510:Roughly sixteen squares of field shouldst be ploughedforyefarmer,as close as possible to thy farm itself.|Nowthouneedsto construct a mill to process the corn that thy farmer shalt harvest.
-511:Great, now thou canst build a bakery which shalt supplythyinnwith freshbread. Be sure that thou hath always enough serfs on hand to transport thine goods and deliver them quickly to ye different buildings.
-512:Apart from just feeding thine loyal subjects with fish and bread, thou alsoneeds give them something to quench their thirst.|Construct thee a vineyard and lay out about sixteen squares of wine field for thy farmer to gather ye grape from.
-513:Thou art doing well, but thine hard-working subjects deserve better food than just dry bread andwine. Toproducemeatand skins, construct a swine farm where ye animal breeder shalt breed pigs.
-514:Toprocessthinenewlyslaughtered meat further, itshalt be necessary for thou to construct a butchery. Inthe butchery, ye butcher shalt string sausages from thy meat.
-515:Now that thou hath secured thine food deliveries, thoushouldst need concentrate on thine long-term goal; the production of new weapons. Start by building a barracks at a location that doth appear suitable.
-516:Inyebarracksthoucanst use the 'next soldier type' and 'previous soldier type' buttons to scroll throughyedifferent troops which thou canst have equipped.Yehighlightedsquaresdothindicatewhich piecesofequipment shouldstbeneededtoequip the currently selected soldier.
-517:If thou art to equip soldiers from thy barracks, thou doth also needs produce weapons for thine stalwart fighters. Have thine laborers build thou a weaponsworkshopnear thy barracks so that thou canst ensure quick delivery of ye weapons.
-518:To place orders for ye production of equipment, thou shouldst left-click onthy newly constructed weapons workshop and then left-click on the 'increase order amount' button. Always be sure thine weapons workshop hath enough timber for producing weapons.
-519:Without proper equipment thine soldiers shalt in troth be slaughtered on the battlefield.|To produce new armor for thine troops, thou shouldst firstly build a tannery for further processing of ye skins.
-520:Nowthatthouhatha production of leather underway, thou must needs build an armory workshop. In that very building a carpenter shalt make leather armor and wooden shields.
-521:Excellent! Thou doth now have all the buildings requiredto run a town and to equip new soldiers. Once thou hath the proper pieces of equipment required to equip a specific soldier type, thou shouldstneedtrain a recruitfromyeschool house and then click 'equip current soldier type'.
-522:Thyaimshaltnowbethedefeat the two enemy encampmentsnighby. The blue enemy to the south is cunning and hath a strongly fortified base, whilst ye green to the east is merely relying on soldiers. Preparethine troopswell before thou doth attempt to rid the area of ye wicked enemy!
-523:|The blue player hath been defeated!
-524:|The green player hath been defeated!
-525:Before thou attacketh thine enemies to the west, thou must needs kill off the scouts ensconced nighto the north. If thou dost left-click on thy lance carriers, and then right-click on thine enemies, this shall spur theminto a glorious attack.
-526:A company of bowmen lieth to the south-west. Attack it with thy militia. But caution to order thecharge at the proper moment, lest enemy arrowsinflict terrible losses on thy stalwart troops!
-527:Attack the enemy forces which lie in waiting to thewest. Watch for enemybowmen for they have entrenched themselves behind the infantry! Send thyscouts to the north that they may encircle theenemy and attackfrom the rear.
-528:Now thou shalt launch an attack with all thy forces at once. Place thy bowmen behind thine infantry to drive backthe enemy lines. If thou artglorious, the battle tutorial is complete.
-529:
-530:Thou must needs speedily equip new militia units! Shouldstthou fail to do this, we shall be defenseless against enemy attacks!
-531:Our scouts inform us that the enemy doth preparean attack against thee.Repel them with thytrusty sword!
-532:Thou hastmade good progress, but ye village must needs be enlarged. Onlywhen thou hast done this, wilt thou be in a position to storm the enemy barricades and to destroy this evil den of resistance!
-533:Once more must I press upon thee that thou shalt protect our stalwart allies, the Lauenburger troops,at all costs!
-534:Protect thy troops and thyself from those scoundrelly troops, the horsed knights of the enemy!|They again cast their eyes upon our allies!
-535:The village in the north hath declared openly against further tyranny. Thou shouldst turn this tothine ownadvantage.
-536:Our faithful scouts have discovered a deserted storehouse. It lieth to the west, nigh to a small wood. Surelythere wilt thou find items of use to thee.
-537:An enemy scout hath been captured and interrogated. It doth appear thatthe enemy hath discovered our position and even now prepares anattack against thee.
-538:It shall not be long 'til the barbarians fall upon us.Preparethy troops well or the scoundrels shall breach thy defenses!
-539:To thy weapons!|A huge enemy force makes its way toward thee!
-540:Organize thy force well, the enemy doth have superior numbers! Shouldst thou attack by storm, thou willst not find the joy that victory brings!
-541:Victory is ours, but the time for revenge is not yetupon us. Thou must needs construct Werheim anew. Thenindeed shall the black-hearted dogs payfor their dastardly deeds!
-542:Without iron, hast thou not weapons, without weapons hast thou not warriors! To the north thouwillst findthat which thou hast need of.|Prepare thyself to capture the mines located there.
-543:The good people of the village that lieth to the south still resist against thetyranny with all theirmight, but have suffered fearful losses. Make haste to aid these proud villagers, thou willst not regret it.
-544:A deserted storehouse doth perchance lie nigh to your position. Thou shalttravel with all speed to that place, for a hard trial awaits thee, and methinks thou willst be in need of all the aid whichthou canst find.
-545:Our brave spies report that the deserted storehousedoth indeed be the target of a large enemy offensive. Thoumustneedsholdfirmin this place,lest thine own advance be hindered.|Stand fast, thou brave heart!
-546:Yet another dastardly attack on the storehouse cometh thy way. Prepare thyself for battle!
-547:The enemy trieth all in his power to avoid defeat at thy hands and sallies forth even now in a vain attempt to subdue thee.Thou shalt grindthe enemydown,tothe lastman!Then,methinks, thou mayst continue thyglorious advances.
-548:The tyrant hath not yet succumbed to thy brave attacks. Our stalwart allies remain steadfast and true and stand indeed by thy side. After the first attack thou art aware that thou willst be left to thine own devices, as hath been agreed.
-549:
-550:The opposing force is larger than our scouts hath led us to believe. Equip further soldiers from thy barracks to support thine stalwart army.
-551:For thou to banish the conquerors utterly, thou must needs to destroy all of their cowardly troops.Once this purge is complete, the peasants ofthe surrounding villages shall form an alliance with thee and offerus dangerno longer.
-552:Our scouts report that thy enemy hath enslaved most of thine citizens in the area. Storm their defenses but destroy only their military buildings, leaving thine enslaved settlers unharmed. This shouldst surely sendthy enemy into glorious retreat and free thy citizens!
-553:I stress upon thee, protect thine allied troops to the south from thy enemyattacks!|Allow them not to fall prey to thy opponent, for we need their support more than ever.
-554:Our spies hath sighted a hostile army advancing on thy storehouse to the south! Thou must needs defend the valuable goods from the rebel force.
-555:Our scouts behold an opposing army south of thy location! Keep thy wits about thee, or thine enemies may take thee by surprise!
-556:Bewarned! Further enemy troops are closing in onthee from the west! Drive them back with ye stalwart troops!
-557:Tosupport thyarmy, thoushouldstneed hire more mercenaries from the town hall. These seditious soldiers will strengthen thine army and help thee repel thy enemy.
-558:Perchance if thou shouldst try the back entrance, thoumaystfindit unguarded.With this advantage thou shouldst surely defeat thine enemy with ease.
-559:An enemy force doth make its way from the mountains that lieth to the northwest and even now is marching straight toward thy camp! Prepare thy troops well, so thou wilt be able to defeat this army utterly.
-560:Thine enemy hath already discovered thy new position and shalt very soon send a strong battalion towardthee!
-561:Beware! Our scouts hath sighted enemy archers hidden in the surrounding hills.|Methinks afight inthe open gorgecould meanour ruination.
-562:We hath arrived at the final stronghold of the treacherous rebels.|Thou shalt slay all of the rebellious and caddish dwellers here, leaving nota single breathing soul after this glorious battle has come to an end!
-563:Our spies report that our enemy hath indeed discovered our new location and now prepareth an attack against thee.|Draw thy trusty sword once more and show no mercy to these ruthless rebels!
-564:
-565:
-566:
-567:
-568:
-569:
-570:Празно
-571:Въодушевление
-572:Зает
-573:Средновековни свирки
-574:Пролет
-575:Лютня
-576:Наемник
-577:Принцесата
-578:Кралицата
-579:На пазара
-580:На бойното поле
-581:В кралското семейство
-582:Армията
-583:В замъка
-584:Фанфари
-585:В кралството
-586:Предястие
-587:Дълбоко синьо
-588:Борба
+159:За избор на сгради
+160:За дистрибуция на стоки
+161:Статистика
+162:Съобщения
+163:Настройки
+164:Върни се
+165:Сграда|Избор
+166:Дистрибуция|на стоки
+167:Статистики
+168:Съобщения
+169:Настройки
+170:Изискване на найстройки
+171:Зареди Игра
+172:Запамети Игра
+173:Зареди Игра
+174:Запамети Игра
+175:Сигурни ли сте, че|искате да спрете|тази мисия?
+176:Спри Мисия
+177:Върни Се
+178:Настройки
+179:Спри Мисия
+180:Светлина
+181:+
+182:-
+183:Увеличи светлината
+184:Намали светлината
+185:Много тъмно
+186:Тъмно
+187:Нормално
+188:Светло
+189:Много светло
+190:Най-светло
+191:Бързина на мишката
+192:Промени бързината на мишката
+193:SFX
+194:Промени звука
+195:Музика
+196:Музика:
+197:Музика включена/изключена
+198:Изключено
+199:През MIDI
+200:Включено
+201:Празно
+202:Автоматично запаметяване
+203:Бързо превъртане
+204:Мисия %d Време:%2.2u:%2.2u
+205:Карта %d Време:%2.2u:%2.2u
+206:Плейър на музиката
+207:Предишна мелодия
+208:Следваща мелодия
+209:Разруши
+210:Премахни сгради/очертания
+211:Построй улица
+212:Построй улици
+213:Обработва полето
+214:Обработва полета
+215:Сложи ограда
+216:Ограда на пасището
+217:Озелени винарското поле
+218:Озелени винарските полета
+219:Изправи стената
+220:Стенна постройка
+221:Обучи
+222:Обучи избраната група
+223:Отказ
+224:Откажи зададената тренировка
+225:||в процес на обучение
+226:Нужди:
+227:Условия:
+228:Доставчици
+229:Къща в процес|изграждане
+230:Унищожи
+231:Наистина ли искате да|унищожите сградата?
+232:Унищожи избраната сграда
+233:Намали сумата
+234:Увеличи сумата
+235:Описание на стоките:
+236:Предишен тип войник
+237:Следващ тип войник
+238:Въоръжи
+239:Въоръжи този тип войник
+240:Следваща професия
+241:Предишна професия
+242:Добавяне към опашката
+243:Следващ наемник
+244:Предишен наемник
+245:Наеми наемник
+246:Представи новобранците:
+247:Цена:
+248:Смени включено/изключено разнасянето на стоките
+249:Смени включено/изключено поправката на къщата
+250:Сградата не е налице в момента
+251:Демото не е налице
+252:Незаети
+253:Условие
+254:Завърти войниците наляво
+255:Завърти войниците надясно
+256:Атака ('a')
+257:Спри ('h')
+258:Изпрати войниците ('d')
+259:Съдружи войниците ('l')
+260:Раздели войниците ('s')
+261:Нахрани войниците
+262:Щурмуваща атака
+263:Строй войниците в повече редици
+264:Строй войниците в по-малко редици
+265:Офанзива:
+266:Защита:
+267:Темпо:
+268:Избери|замък
+269:Спри
+270:Избери|дестинация
+271:Избери|група
+272:Избери цел за|атакуване
+273:Отказ
+274:Войниците не са налице в момента
+275:Изтрий
+276:Изтрий съответното съобщение
+277:Изпрати
+278:Изпрати съответното съобщение
+279:Върви до
+280:Прескочи до съответната позиция на съобщението
+281:Затвори
+282:Затвори прозореца
+283:Отговори
+284:Отговори до съобщението
+285:Потвърди
+286:Нови съюзи бяха направени.
+287:е приятелски
+288:е враг
+289:|Твоята каменоломна неможе да взима повече ресурси.
+290:|Мината ви за въглища изглежда е свършила.
+291:|Желязната ви мина изглежда е свършила.
+292:|Златната ви мина изглежда е свършила.
+293:|Рибарят ви не може да хваща повече риба.
+294:|В тази къща няма никой.
+295:|Тези войници са наистина гладни, по-добре да ядат скоро!
+296:До желязната дистрибуция
+297:Дистрибуция на|желязо
+298:До въглищна дистрибуция
+299:Дистрибуция на|въглища
+300:До дървена дистрибуция
+301:Дистрибуция на|дърво
+302:До царевична дистрибуция
+303:Дистрибуция на|царевица
+304:|Моля въведете съобщение:
+305:Съобщение от играч '%s':|'%s'
+306:Съюзи:
+307:ПАУЗА
+478:Мрежово съобщение:
+479:Играчът '%s' излезе от играта.|Натиснете ~<~S~P~A~C~E~> ,за да продължите да играете.
+480:Сега вие сте домакин.|Натиснете ~<~S~P~A~C~E~> ,за да продължите да играете.
+481:Компютърът изчаква за данни. Натиснете ~<~S~P~A~C~E~> ,за да|повторите или ~<~F~1~> ,за да излезете от играта.
+499:Verily, thou must needs construct a schoolhouse totrain new citizens.|Thou needs to ensure that thou hast gold aplenty in thy coffers, so that thou canst train new citizens forthy kingdom.
+500:Start building by left click on ye hammer icon on the left side of thy screen. Then thou must needs click on the book (ye olde schoolhouse) icon. Position the frame of thy schoolhouse on thy map where thou willst construct it and left click there.
+501:Once thou hast placed the schoolhouse, thou canst see that 'construct road' has in troth become the default cursor. Thou must needs click each square where thou willst have a section of road built.|And forget not, thou must needs connect the road to the front door of every building.
+502:To train units, left click on thy schoolhouse and scrollthroughusing the 'next profession' button to select the unit that thou doth wish to train. Then shalt thou left click on the 'add to queue' button. When trained, thy serfs shall, wonder of wonders, automatically start to perform their tasks.
+503:From time to time thine loyal citizens shalt need to eat. In order for themto do this, thou must needs construct an inn.|Besuretolocate ye inn centrally, so that it canst be accessed easily by all of thine villagers.
+504:Thou shalt need stones if thou art to construct further houses and roads.Thou shouldst construct aquarryneara supply of stones, then must thou traintheeastonemasonwhowillproducethy new building material.
+505:Thoudothnotonlyneedstones to construct buildings, but alsotimber. Ye woodcutterfellsand plantstrees whichare then processed in the sawmill. Thou shouldst always build ye woodcutter's hut near a forest.
+506:Now thou must needs construct a sawmill to process the tree trunks which ye woodcutter hath felled.|Once thou hath completed that task, thou shouldst train a carpenter who will work in thy new sawmill.
+507:Once thou hath ensured a sufficient supply of building materials, thou canst turn thy attention to the production of food.|Construct thyself a fisherman's hut near the water so that ye fisherman canst supply thy inn with freshlycaught fish.
+508:Good,butforget not that even though ye sea hath fish in plenty, they shalt run out sooner or later.|To ensure a more stable food source for thy village, thou shouldst construct a farm where theredoth be enough room for ye fields.
+509:Roughly sixteen squares of field shouldst be ploughedforyefarmer,as close as possible to thy farm itself.|Nowthouneedsto construct a mill to process the corn that thy farmer shalt harvest.
+510:Great, now thou canst build a bakery which shalt supplythyinnwith freshbread. Be sure that thou hath always enough serfs on hand to transport thine goods and deliver them quickly to ye different buildings.
+511:Apart from just feeding thine loyal subjects with fish and bread, thou alsoneeds give them something to quench their thirst.|Construct thee a vineyard and lay out about sixteen squares of wine field for thy farmer to gather ye grape from.
+512:Thou art doing well, but thine hard-working subjects deserve better food than just dry bread andwine. Toproducemeatand skins, construct a swine farm where ye animal breeder shalt breed pigs.
+513:Toprocessthinenewlyslaughtered meat further, itshalt be necessary for thou to construct a butchery. Inthe butchery, ye butcher shalt string sausages from thy meat.
+514:Now that thou hath secured thine food deliveries, thoushouldst need concentrate on thine long-term goal; the production of new weapons. Start by building a barracks at a location that doth appear suitable.
+515:Inyebarracksthoucanst use the 'next soldier type' and 'previous soldier type' buttons to scroll throughyedifferent troops which thou canst have equipped.Yehighlightedsquaresdothindicatewhich piecesofequipment shouldstbeneededtoequip the currently selected soldier.
+516:If thou art to equip soldiers from thy barracks, thou doth also needs produce weapons for thine stalwart fighters. Have thine laborers build thou a weaponsworkshopnear thy barracks so that thou canst ensure quick delivery of ye weapons.
+517:To place orders for ye production of equipment, thou shouldst left-click onthy newly constructed weapons workshop and then left-click on the 'increase order amount' button. Always be sure thine weapons workshop hath enough timber for producing weapons.
+518:Without proper equipment thine soldiers shalt in troth be slaughtered on the battlefield.|To produce new armor for thine troops, thou shouldst firstly build a tannery for further processing of ye skins.
+519:Nowthatthouhatha production of leather underway, thou must needs build an armory workshop. In that very building a carpenter shalt make leather armor and wooden shields.
+520:Excellent! Thou doth now have all the buildings requiredto run a town and to equip new soldiers. Once thou hath the proper pieces of equipment required to equip a specific soldier type, thou shouldstneedtrain a recruitfromyeschool house and then click 'equip current soldier type'.
+521:Thyaimshaltnowbethedefeat the two enemy encampmentsnighby. The blue enemy to the south is cunning and hath a strongly fortified base, whilst ye green to the east is merely relying on soldiers. Preparethine troopswell before thou doth attempt to rid the area of ye wicked enemy!
+522:|The blue player hath been defeated!
+523:|The green player hath been defeated!
+524:Before thou attacketh thine enemies to the west, thou must needs kill off the scouts ensconced nighto the north. If thou dost left-click on thy lance carriers, and then right-click on thine enemies, this shall spur theminto a glorious attack.
+525:A company of bowmen lieth to the south-west. Attack it with thy militia. But caution to order thecharge at the proper moment, lest enemy arrowsinflict terrible losses on thy stalwart troops!
+526:Attack the enemy forces which lie in waiting to thewest. Watch for enemybowmen for they have entrenched themselves behind the infantry! Send thyscouts to the north that they may encircle theenemy and attackfrom the rear.
+527:Now thou shalt launch an attack with all thy forces at once. Place thy bowmen behind thine infantry to drive backthe enemy lines. If thou artglorious, the battle tutorial is complete.
+529:Thou must needs speedily equip new militia units! Shouldstthou fail to do this, we shall be defenseless against enemy attacks!
+530:Our scouts inform us that the enemy doth preparean attack against thee.Repel them with thytrusty sword!
+531:Thou hastmade good progress, but ye village must needs be enlarged. Onlywhen thou hast done this, wilt thou be in a position to storm the enemy barricades and to destroy this evil den of resistance!
+532:Once more must I press upon thee that thou shalt protect our stalwart allies, the Lauenburger troops,at all costs!
+533:Protect thy troops and thyself from those scoundrelly troops, the horsed knights of the enemy!|They again cast their eyes upon our allies!
+534:The village in the north hath declared openly against further tyranny. Thou shouldst turn this tothine ownadvantage.
+535:Our faithful scouts have discovered a deserted storehouse. It lieth to the west, nigh to a small wood. Surelythere wilt thou find items of use to thee.
+536:An enemy scout hath been captured and interrogated. It doth appear thatthe enemy hath discovered our position and even now prepares anattack against thee.
+537:It shall not be long 'til the barbarians fall upon us.Preparethy troops well or the scoundrels shall breach thy defenses!
+538:To thy weapons!|A huge enemy force makes its way toward thee!
+539:Organize thy force well, the enemy doth have superior numbers! Shouldst thou attack by storm, thou willst not find the joy that victory brings!
+540:Victory is ours, but the time for revenge is not yetupon us. Thou must needs construct Werheim anew. Thenindeed shall the black-hearted dogs payfor their dastardly deeds!
+541:Without iron, hast thou not weapons, without weapons hast thou not warriors! To the north thouwillst findthat which thou hast need of.|Prepare thyself to capture the mines located there.
+542:The good people of the village that lieth to the south still resist against thetyranny with all theirmight, but have suffered fearful losses. Make haste to aid these proud villagers, thou willst not regret it.
+543:A deserted storehouse doth perchance lie nigh to your position. Thou shalttravel with all speed to that place, for a hard trial awaits thee, and methinks thou willst be in need of all the aid whichthou canst find.
+544:Our brave spies report that the deserted storehousedoth indeed be the target of a large enemy offensive. Thoumustneedsholdfirmin this place,lest thine own advance be hindered.|Stand fast, thou brave heart!
+545:Yet another dastardly attack on the storehouse cometh thy way. Prepare thyself for battle!
+546:The enemy trieth all in his power to avoid defeat at thy hands and sallies forth even now in a vain attempt to subdue thee.Thou shalt grindthe enemydown,tothe lastman!Then,methinks, thou mayst continue thyglorious advances.
+547:The tyrant hath not yet succumbed to thy brave attacks. Our stalwart allies remain steadfast and true and stand indeed by thy side. After the first attack thou art aware that thou willst be left to thine own devices, as hath been agreed.
+549:The opposing force is larger than our scouts hath led us to believe. Equip further soldiers from thy barracks to support thine stalwart army.
+550:For thou to banish the conquerors utterly, thou must needs to destroy all of their cowardly troops.Once this purge is complete, the peasants ofthe surrounding villages shall form an alliance with thee and offerus dangerno longer.
+551:Our scouts report that thy enemy hath enslaved most of thine citizens in the area. Storm their defenses but destroy only their military buildings, leaving thine enslaved settlers unharmed. This shouldst surely sendthy enemy into glorious retreat and free thy citizens!
+552:I stress upon thee, protect thine allied troops to the south from thy enemyattacks!|Allow them not to fall prey to thy opponent, for we need their support more than ever.
+553:Our spies hath sighted a hostile army advancing on thy storehouse to the south! Thou must needs defend the valuable goods from the rebel force.
+554:Our scouts behold an opposing army south of thy location! Keep thy wits about thee, or thine enemies may take thee by surprise!
+555:Bewarned! Further enemy troops are closing in onthee from the west! Drive them back with ye stalwart troops!
+556:Tosupport thyarmy, thoushouldstneed hire more mercenaries from the town hall. These seditious soldiers will strengthen thine army and help thee repel thy enemy.
+557:Perchance if thou shouldst try the back entrance, thoumaystfindit unguarded.With this advantage thou shouldst surely defeat thine enemy with ease.
+558:An enemy force doth make its way from the mountains that lieth to the northwest and even now is marching straight toward thy camp! Prepare thy troops well, so thou wilt be able to defeat this army utterly.
+559:Thine enemy hath already discovered thy new position and shalt very soon send a strong battalion towardthee!
+560:Beware! Our scouts hath sighted enemy archers hidden in the surrounding hills.|Methinks afight inthe open gorgecould meanour ruination.
+561:We hath arrived at the final stronghold of the treacherous rebels.|Thou shalt slay all of the rebellious and caddish dwellers here, leaving nota single breathing soul after this glorious battle has come to an end!
+562:Our spies report that our enemy hath indeed discovered our new location and now prepareth an attack against thee.|Draw thy trusty sword once more and show no mercy to these ruthless rebels!
+569:Празно
+570:Въодушевление
+571:Зает
+572:Средновековни свирки
+573:Пролет
+574:Лютня
+575:Наемник
+576:Принцесата
+577:Кралицата
+578:На пазара
+579:На бойното поле
+580:В кралското семейство
+581:Армията
+582:В замъка
+583:Фанфари
+584:В кралството
+585:Предястие
+586:Дълбоко синьо
+587:Борба
+588:Празно
 589:Празно
 590:Празно
-591:Празно
-592:
-593:
-594:
-595:
-596:
-597:
-598:
-599:
-600:
-601:
-602:
-603:
-604:
-605:
-606:
-607:
-608:
-609:
-610:
-611:
-612:
-613:
-614:
-615:
-616:
-617:
-618:
-619:
-620:
-621:
-622:
-623:
-624:
-625:
-626:
-627:
-628:
-629:
-630:
-631:
-632:
-633:
-634:
-635:
-636:
-637:
-638:
-639:
-640:
-641:
-642:
-643:
-644:
-645:
-646:
-647:
-648:
-649:
-650:
-651:
-652:
-653:
-654:
-655:
-656:
-657:
-658:
-659:
-660:
-661:
-662:
-663:
-664:
-665:
-666:
-667:
-668:
-669:
-670:
-671:
-672:
-673:
-674:
-675:
-676:
-677:
-678:
-679:
-680:
-681:
-682:
-683:
-684:
-685:
-686:
-687:
-688:
-689:
-690:
-691:
-692:
-693:
-694:
-695:
-696:
-697:
-698:
-699:
-700:
-701:
-702:
-703:
-704:
-705:
-706:
-707:
-708:
-709:
-710:
-711:
-712:
-713:
-714:
-715:
-716:
-717:
-718:
-719:
-720:
-721:
-722:
-723:
-724:
-725:
-726:
-727:
-728:
-729:
-730:
-731:
-732:
-733:
-734:
-735:
-736:
-737:
-738:
-739:
-740:
-741:
-742:
-743:
-744:
-745:
-746:
-747:
-748:
-749:
-750:
-751:
-752:
-753:
-754:
-755:
-756:
-757:
-758:
-759:
-760:
-761:
-762:
-763:
-764:
-765:
-766:
-767:
-768:
-769:
-770:
-771:
-772:
-773:
-774:
-775:
-776:
-777:
-778:
-779:
-780:
-781:
-782:
-783:
-784:
-785:
-786:
-787:
-788:
-789:
-790:
-791:
-792:
-793:
-794:
-795:
-796:
-797:
-798:
-799:
-800:
-801:
-802:
-803:
-804:
-805:
-806:
-807:
-808:
-809:
-810:
-811:
-812:
-813:
-814:
-815:
-816:
-817:
-818:
-819:
-820:
-821:
-822:
-823:
-824:
-825:
-826:
-827:
-828:
-829:
-830:
-831:
-832:
-833:
-834:
-835:
-836:
-837:
-838:
-839:
-840:
-841:
-842:
-843:
-844:
-845:
-846:
-847:
-848:
-849:
-850:
-851:
-852:
-853:
-854:
-855:
-856:
-857:
-858:
-859:
-860:
-861:
-862:
-863:
-864:
-865:
-866:
-867:
-868:
-869:
-870:
-871:
-872:
-873:
-874:
-875:
-876:
-877:
-878:
-879:
-880:
-881:
-882:
-883:
-884:
-885:
-886:
-887:
-888:
-889:
-890:
-891:
-892:
-893:
-894:
-895:
-896:
-897:
-898:
-899:
-900:
-901:
-902:
-903:
-904:
-905:
-906:
-907:
-908:
-909:
-910:
-911:
-912:
-913:
-914:
-915:
-916:
-917:
-918:
-919:
-920:
-921:
-922:
-923:
-924:
-925:
-926:
-927:
-928:
-929:
-930:
-931:
-932:
-933:
-934:
-935:
-936:
-937:
-938:
-939:
-940:
-941:
-942:
-943:
-944:
-945:
-946:
-947:
-948:
-949:
-950:
-951:
-952:
-953:
-954:
-955:
-956:
-957:
-958:
-959:
-960:
-961:
-962:
-963:
-964:
-965:
-966:
-967:
-968:
-969:
-970:
-971:
-972:
-973:
-974:
-975:
-976:
-977:
-978:
-979:
-980:
-981:
-982:
-983:
-984:
-985:
-986:
-987:
-988:
-989:
-990:
-991:
-992:
-993:
-994:
-995:
-996:
-997:
-998:
-999:
-1000:неизползван
-1001:Кампания 'Разбитото Кралсгво'
-1002:Кампания 'Бунтът На Селяните'
-1003:Играй Тренировка
-1004:Играй На Единична Карта
-1005:Единична Карта
-1006:Предишна
-1007:Следваща
-1008:Започни Игра
-1009:Върни Се Към Менюто
-1010:Зареди Запаметена Игра
-1011:Мултиплейър
-1012:Настройки
-1013:Кредити
-1014:Излез От Играта
-1015:Празно
-1016:Запаметени Игри:
-1017:Продължи
-1018:Рестартирай Мисията
-1019:Към Менюто
-1020:Резолюция:
-1021:Не е Налице
-1022:Избери Тип На Играта
-1023:Локална Мрежа
-1024:Интернет Игри:
-1025:Име:
-1026:Парола:
-1027:Направи Нов Акаунт
-1028:Вход
-1029:Свързване в Интернет Игри
-1030:Заверяване...
-1031:Успешно
-1032:Провал
-1033:Свързването се провали
-1034:Грешна парола
-1035:Името е вече взето
-1036:Този потребител е вече баннат
-1037:Невалидно потребителско име
-1038:Неопределен
-1039:В прогрес
-1040:Невалидни параметри
-1041:Канала е пълен
-1042:Каналът не съществува
-1043:Няма достъп до този канал
-1044:Времето изтече
-1045:Имате твърде много акаунти
-1046:Сървърът не приема регистрацията по това време
-1047:Потребителското име е невалидно
-1048:<COL 0>%s:<COL 1> %s|
-1049:<COL 0>%s %s|
-1050:<COL 2>%s прошепна: %s|
-1051:<COL 3>Лично съобщение до %s: %s|
+999:неизползван
+1000:Кампания 'Разбитото Кралсгво'
+1001:Кампания 'Бунтът На Селяните'
+1002:Играй Тренировка
+1003:Играй На Единична Карта
+1004:Единична Карта
+1005:Предишна
+1006:Следваща
+1007:Започни Игра
+1008:Върни Се Към Менюто
+1009:Зареди Запаметена Игра
+1010:Мултиплейър
+1011:Настройки
+1012:Кредити
+1013:Излез От Играта
+1014:Празно
+1015:Запаметени Игри:
+1016:Продължи
+1017:Рестартирай Мисията
+1018:Към Менюто
+1019:Резолюция:
+1020:Не е Налице
+1021:Избери Тип На Играта
+1022:Локална Мрежа
+1023:Интернет Игри:
+1024:Име:
+1025:Парола:
+1026:Направи Нов Акаунт
+1027:Вход
+1028:Свързване в Интернет Игри
+1029:Заверяване...
+1030:Успешно
+1031:Провал
+1032:Свързването се провали
+1033:Грешна парола
+1034:Името е вече взето
+1035:Този потребител е вече баннат
+1036:Невалидно потребителско име
+1037:Неопределен
+1038:В прогрес
+1039:Невалидни параметри
+1040:Канала е пълен
+1041:Каналът не съществува
+1042:Няма достъп до този канал
+1043:Времето изтече
+1044:Имате твърде много акаунти
+1045:Сървърът не приема регистрацията по това време
+1046:Потребителското име е невалидно
+1047:<COL 0>%s:<COL 1> %s|
+1048:<COL 0>%s %s|
+1049:<COL 2>%s прошепна: %s|
+1050:<COL 3>Лично съобщение до %s: %s|
+1051:<COL 4>СЪРВЪР: %s|
 1052:<COL 4>СЪРВЪР: %s|
-1053:<COL 4>СЪРВЪР: %s|
-1054:<COL 2>Съобщението на Деня: %s|
-1055:<COL 0>РАЗПРОСТРАНЕНИЕ: %s|
-1056:<COL 3>%s влязоха в канала|
-1057:<COL 3>%s излязоха от канала|
-1058:<COL 3>Вие влязохте в канала <COL 0>%s<COL 3>|
-1059:<COL 3>Вие влязохте в играта <COL 0>%s<COL 3>|
-1060:Обратно към менюто
-1061:Влез в Канала
-1062:Влез в Играта
-1063:Създай Игра
-1064:Създай Ладер Игра
-1065:Напусни Играта
-1066:Започни Играта
-1067:Прошепни
-1068:Кик
-1069:Бан
-1070:Информация
-1071:Регистрация
-1072:Обратно към Въвеждането на Наименованието
-1073:Моля въведете вашето име:
-1074:Продължи
-1075:Назад
-1076:Моля изберете тип мрежа:
-1077:Влез в Играта
-1078:Създай Игра
-1079:Моля въведете име на сесията:
-1080:Започни Сесия
-1081:Избери Сесия:
-1082:Влез в Играта
-1083:Търси за Игри
-1084:Играчи:
-1085:Съобщения:
-1086:Изпрати:
-1087:Начало!
-1088:Безименен
-1089:<Свободен слот>
-1090:<Не е налице>
-1091:<Компютър>
-1092:сесия
-1093:~И~г~р~а~ч~ъ~т '%s' ~б~е~ш ~е~п~р~е ~м~а~х~н~а~т~о ~т~и~г~р ~а~т~а ~о~т ~д~о~м ~а~к~и~н~а
-1094:Карти:
-1095:Заглавие:
-1096:Описание:
-1097:Ресурси:
-1098:Стартираща позиция:
-1099:Домакинът определя|картата
-1100:Склад
-1101:Войници и склад
-1102:Войници и сгради
-1103:Поредица
-1104:Случаен
-1105:Копирай запаметена игра
-1106:Прекрати Прехвърлянето
-1107:Прехвърлено: %d/100
-1108:Няма запаметени игри. %d
-1109:Играчи:%d|Размер на картата:%dx%d
-1110:Автоматично запаметяване
-1111:ПОБЕДА!
-1112:ЗАГУБА!
-1113:Изгубени войници:
-1114:Победени войници:
-1115:Изгубени постройки:
-1116:Разрушени постройки:
-1117:Построени сгради:
-1118:Обучени хора:
-1119:Произведени оръжия:
-1120:Обучени войници:
-1121:Мисията е изпълнена за:
-1122:
-1123:
-1124:
-1125:
-1126:
-1127:
-1128:
-1129:
-1130:
-1131:
-1132:
-1133:
-1134:
-1135:
-1136:
-1137:
-1138:
-1139:
-1140:
-1141:
-1142:
-1143:
-1144:
-1145:
-1146:
-1147:
-1148:
-1149:
-1150:Три Континента
-1151:В Пустинята
-1152:Битката за Въглища
-1153:Граничните Реки
-1154:Земя от Планини
-1155:Планински Региот
-1156:Замъчно Клане
-1157:Крайбрежна Схватка
-1158:В Засада!
-1159:Бедствия при Моста
-1160:Бонус Карта А
-1161:Бонус Карта Б
-1162:
-1163:
-1164:
-1165:
-1166:
-1167:
-1168:
-1169:
-1170:
-1171:
-1172:
-1173:
-1174:
-1175:
-1176:
-1177:
-1178:
-1179:
-1180:През Пустинята||Размер: 176x176|Опоненти: 5
-1181:В Странни Земи||Размер: 176x176|Опоненти: 3
-1182:Сняг и Пясък||Размер: 160x128|Опоненти: 5
-1183:Земята на Бързата Река||Размер: 176x176|Опоненти: 3
-1184:Черно Злато||Размер: 176x176|Опоненти: 5
-1185:Планинските Стени||Размер: 144x128|Опоненти: 3
-1186:Царството на Мрака||Размер: 176x176|Опоненти: 3
-1187:
-1188:
-1189:
-1190:
-1191:
-1192:
-1193:
-1194:
-1195:
-1196:
-1197:
-1198:
-1199:
-1200:Играчи: 6|Размер на картата: 176x176|Построй град
-1201:Играчи: 4|Размер на картата: 176x176|Построй град
-1202:Играчи: 6|Размер на картата: 160x128|Построй град
-1203:Играчи: 4|Размер на картата: 176x176|Построй град
-1204:Играчи: 6|Размер на картата: 176x176|Построй град
-1205:Играчи: 4|Размер на картата: 144x128|Построй град
-1206:Играчи: 6|Размер на картата: 176x144|Построй град
-1207:Играчи: 3|Размер на картата: 64x64|Битка
-1208:Играчи: 6|Размер на картата: 144x144|Битка
-1209:Играчи: 4|Размер на картата: 176x176|Построй град
-1210:
-1211:
-1212:
-1213:
-1214:
-1215:
-1216:
-1217:
-1218:
-1219:
-1220:
-1221:
-1222:
-1223:
-1224:
-1225:
-1226:
-1227:
-1228:
-1229:
-1230:
-1231:
-1232:
-1233:
-1234:
-1235:
-1236:
-1237:
-1238:
-1239:
-1240:
-1241:
-1242:
-1243:
-1244:
-1245:
-1246:
-1247:
-1248:
-1249:
-1250:Подръжниците на предателя|успяха да пробият през|нашите защити. Кралството|падна и трябва да убием|мошениците, кралството|ще падне и ще бъде загубено|и крадците ще триумфират.|На оръжие!
-1251:Победата ни даде надежда.|Но времето да се покажем|още не е дошло. Враговете|избягаха в близко село|до нашата позиция,|където ще се въстановят|и ще нападнат отново.|Принцът скоро отново|щял да се бие с нас с|неговите мошенически|войници, които са много|малко. Контролирайки|техния гняв и не оставяйки|да влизат в открита битка,|ще пободим. Теренът е за|защитни тактики на тяхната|част. Врагът трябва|да премине реката през|тесния път. Трябва да ги|атакуваме там, докато не|имаме равни войски, срещу|техните велики воиски.
-1252:Незабравим ден! Мошеническите|воиски на принцът-бунтовник|са в пълно отстъпление. Пътеката|на Лоуенбургското Баронство|сега е отворена за атака.|Баронът от Лоуенбург и слугата му|оформиха съюз с нашите врагове|сега са подготвили засада в|мошеническата провинция.
-1253:Навярно нашите врагове се|провалиха в атаката над лоялните|му войници. Баронът от Лоуенбург|нареди да избягат и да чакат|за нашата атака. Доверените на|барона се присъединиха към нас|с удоволствие. Сега имаме големия|шанс да увеличим армията си|и да превземем Лоуенбург и|да победим барона. Това ще|бъде предупреждение за всички|изменници на короната!
-1254:Баронът на Лоуенбург се подчини|и се извини на нашия крал, заради|атаката над нас. Сега се целим|да превземем Морбач. Нашите|шпиони намериха изоставено|укрепление, което ще достави|нещата които ни трябват за|целта. Сега Лоуенбург са на|наша страна. Войниците на барона|са третирани от нашите врагове.|Те ще защитават Лоуенбург|на всяка цена. Затова ще|трябва да затвърдим нашето|приятелство между новите ни|съюзници и така ще направим|нови войници.
-1255:Морбач беше превзет от нас.|Нашите врагове се молеха|за милост. Сега нашите|шпиони ни информираха,|че нова армия от мошеници|се формират на северозапад,|за да си отмъстят за моленето|в Морбач. Както и да е, ние|сме достатъчно силни, за да|влезем в битка с тях. Трябва|да ги атакуваме и да ги|изненадаме, преди да станат|организирани. Сега трябва|да се доверим на Копиеносците|на Лоуенбург, армия която се|присъедини към вас.
-1256:Навярно новините от нашите победи|се разпростират като природен|огън извън кралството. Навсякъде|благородниците се бият срещу|тираните. Валхеим Лийт на север,|все още държи враговете ти.|Кралят на Валхеим отказа|да поканата ни да пратим|пратеници. Той се закле|да защитава до последния човек.|Обикновените хора от едно|малко село се разбунтуваха|и се присъединиха към нас.|Тези добри хора ни дадоха|ресурси за оръжия и нови|войници. С такава добре|екипирана армия, няма|да има проблем да превземем|Валмхеим.
-1257:Битката за Валхеим ни донесе|голяма сила и съществува|обърканост. Северните премена|се обе|The battle of Walheim hath brought|with it an absence of power, and|there exists a state of confusion.|The savage Northern Tribes band|together to fall upon the kingdom.|Thou must needs stop them, before|thou canst again do battle with the|rebels. In the ruins of Walheim, thou|wilt find building plans for|watchtowers of a verily advanced|sort. Thou must needs form a|bulwark against the barbarians.|Thou shalt destroy them, but utterly.
-1258:The barbarians fight amongst|themselves. Perchance by persuasion|and guile canst thou win over to thy|cause two of their chieftains, and all|their warriors, that these shall fight|at thy side. Thy location at this time|is simple to defend but cannot be|enlarged, so that thou must needs|plan with care. The enemy readies|himself for battle and the attack is|nigh. Prepare with all haste, so that|thou canst verily welcome the enemy|in such a manner that he shall|never forget!
-1259:The wicked despot threatens one of|our towns. Only if thou hasten there|with all thy speed, canst thou bring|thy soldiers there on time.|According to our spies, thou must|needs reckon with a large enemy|force. Deploy thy soldiers well.|Thou wilt achieve victory by thine|usage of clever tactics. If thou|charge in a blind fashion, thou|shalt indeed regret it!
-1260:Indeed, only narrowly was the attack|on our town beaten back. But the|treacherous attack did in troth leave|its cruel mark on the town. The|enemy torched it ruthlessly and|killed nigh all who dwelt there.|Thou wilt answer this massacre with|bloody revenge! But firstly, thou|must needs build the town anew|before thou bringst the cowardly|scoundrels to account.
-1261:The enemy is destroyed and the|remnants of that army retreated to|the north. The iron ore mines in|the north are of great strategic|importance for thee, since the|iron thou wilt find there shall aid|thee in the continuance of the war.|Thou shalt build a new army, an|army which shall drive all rebels|from this region for all time to come.|To the east of thy location is a|bridge. This bridge will aid thee|in thy defenses, whilst thine army|in strength grows.
-1262:Forsooth, our enemy are still|possessed of huge reserves, and the|knaves plan a counterattack against|our stalwart army. However, the|mountains nigh to their location may|be an obstacle for a large army to|traverse. Thou shalt advance into the|mountains with thine army and|await the enemy in the highest|pass. Let not the traitors ever|again gain upper hand!
-1263:At last thine efforts bear fruit!|Everywhere in the kingdom, the king's|serfs rise against the cruel reign|of the prince. Verily, even his|generals agree not with the barbarisms|and cruelties practiced on the|commoners. One of the generals has|passed a secret message on to|us....that the dastardly prince desires|to make a cruel example of a village|whose people have openly rebelled|against his treacherous rule! Thou,|and thou alone, art the bulwark|between the tyrant and the stalwart|villagers! Thou must needs put a stop|to this barbarous scoundrel's plans!
-1264:The end is nigh for those|black-hearted scoundrels, the enemies|of the king. Thou hast forced them to|their knees. The prince hath changed|his tactics, and doth hold important|deposits of raw materials. This doth|be a hindrance to us. Thou shalt|capture ye iron ore mines nigh to thy|location put the rebels to flight!|Forget not the great marsh which|lieth before thee. Prepare thyself|and thy stalwarts well! Verily, thou|shouldst remain in fear of thy life!
-1265:Thou hast much fertile land and rich|deposits of raw materials at thy|disposal in the province which lieth|before you. Let not thyself be in|doubt that soon the enemy shall|advance to gain this fruitful land|for himself. Defend the province and|show no mercy to the enemy soldiers!|No quarter shall be given them!
-1266:In the north, the traitor gathers|together his vassals, that he may|again attack unashamedly and boldly.|But, in troth, he doth not be yet|prepared to face thee on the|battlefield. Thou shalt advance|toward him and destroy him, whilst|he is as yet unprepared for thine|assault. Thou must needs traverse|the mountains to achieve thine aim,|but beware! The scoundrel hath to all|accounts occupied the pass to hinder|thee in thy mission. Still, thou must|proceed to the north, cost what|it will!
-1267:Thy last victory hath forced thine|opponent to retreat in defense. He|hath entrenched himself in a natural|stronghold wherein he, like the coward|he doth be, awaits thine attack. Thou|willst find it hard to capture this|stronghold! Many a general hath tried|before thee, and all have failed. Let|not thy courage fail thee and thy|heart grow weak! Perchance have|these valiant generals left articles|behind, articles which shall aid thee|in thy brave quest!
-1268:This doth be a black, black day! An|insidious, dastardly assassination|plot hath cost our beloved king this|day his life! The prince, shameless|scoundrel he doth be, and, methinks,|the rogue behind this great tragedy,|hath proclaimed himself the new king.|He hath ensconced himself behind|mighty walls wherein he hopeth to|find refuge from thy wrath. Thou shalt|storm these walls and bring to this|upstart, self-proclaimed king the fate|of which he doth be most deserving.|An eye for an eye, a tooth for a|tooth!
-1269:Our quest is well-nigh over. The city,|which doth be the last remaining|bastion of the upstart king, is|surrounded and under siege. Show no|mercy to whomsoever remaineth true|to the upstart and slay all thine|enemies! Thou, oh loyal hero, shalt|raze all traces of his dastardly rule|to the ground! Only then, through thy|heroic deeds, shall peace and freedom|once more reign in the kingdom. To|the gallows with the pretender, where|he shall hang like the common|criminal he doth be!
-1270:
-1271:
-1272:
-1273:
-1274:
-1275:
-1276:
-1277:
-1278:
-1279:
-1280:
-1281:
-1282:
-1283:
-1284:
-1285:
-1286:
-1287:
-1288:
-1289:
-1290:
-1291:
-1292:
-1293:
-1294:
-1295:
-1296:
-1297:
-1298:
-1299:
-1300:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre QuaЯ||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schдfer|Jьrgen Rebhann|Klaus Staendike|Steffen Schьngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schдfer||MANUAL:|Peter Ohlmann|Uwe Schдfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schдfer|Ingrid Schдfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mьhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schдfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schдfer|Andrea Rumpelt
-1301:
-1302:
-1303:
-1304:
-1305:
-1306:
-1307:
-1308:
-1309:
-1310:
-1311:
-1312:
-1313:
-1314:
-1315:
-1316:
-1317:
-1318:
-1319:
-1320:
-1321:
-1322:
-1323:
-1324:
-1325:
-1326:
-1327:
-1328:
-1329:
-1330:
-1331:
-1332:
-1333:
-1334:
-1335:
-1336:
-1337:
-1338:
-1339:
-1340:
-1341:
-1342:
-1343:
-1344:
-1345:
-1346:
-1347:
-1348:
-1349:
-1350:              Mission 1||The renegades are trying to oppress the few farmers who remain loyal to the kingdom. Outside the king's palace, innocent farmers are being butchered, and under no circumstances can you allow this!|Force the attackers into retreat!
-1351:              Mission 2||After our successful support of the farmers, we must free the remaining farmers. A large enemy is coming directly towards us from the north.|Into battle!
-1352:              Mission 3||After the victorious battle you now have some time to rebuild the ruined towns and villages and to secure supplies to your subjects. Then you should turn your attention to liberating the occupied settlements in the north and fight the tyrannical rule of the renegade aristocracy. Spare the civilian country folk and fight only the enemy soldiers who are stationed there.
-1353:              Mission 4||Our spies have seen enemy troop maneuvers in the surrounding settlements. Due to the high number of enemy soldiers, we must presume that they have a fortified camp. Find and destroy it, including all enemy military buildings.
-1354:              Mission 5||Now, after your overwhelming success in the fight against the rebels, we must reckon with a massive counterattack. Prepare your people for a hard fight. Prevent the villages from being destroyed.
-1355:              Mission 6||We know that our enemy is building new bases. You cannot permit this. Attack as soon as possible, before the enemy has recovered.|Also search the area for raw materials, because your supplies of iron ore are almost exhausted.
-1356:              Mission 7||Before we turn again to the rebels, we must win back the settlements in the south. The victory in the last battle brought us a small quantity of iron that we urgently need. But because iron deposits in this area are very limited, we must be very careful how we use it.
-1357:              Mission 8||During our last attack we had to move most of our people away from our base and have given the enemy a chance to attack. Return as quickly as possible, before the foe can overrun our defenses!
-1358:              Mission 9||Because of the ambush we have not been able to reach the castle in time. We need to come up with a good strategy to reconquer what is ours. The main gate is heavily defended, and a direct attack would be useless. Try to attack another entrance and avoid casualties, as we have no possibility to mine for more iron ore.
-1359:              Mission 10||Through reconquering the castle, we have made some prisoners, who have told us about an underground tunnel, that leads through the northern mountains. The entrance to the tunnel is being guarded by a few enemy soldiers. Overthrow the guards and enter the tunnel.
-1360:              Mission 11||The cave is bigger than expected. Our scouts have discovered enemy guards in the winding tunnels, who are protecting the underground complex from intruders. Reach the exit on the other side of the mountains.
-1361:              Mission 12||The opposing troops have been informed of our intentions. Strong enemy battalions are advancing and will soon attack. Build towers to weaken the coming troops. When the defense has been successful, you will be able to cross the pass to the north.
-1362:              Mission 13||An ambush! Our enemy has been waiting for us. We are now in an extremely bad position. Force the insidious bandits into retreat!
-1363:              Mission 14||We have arrived at last bastion of our enemy. They have brought the rest of their armies together and barricaded themselves into their final retreat, northeast from here. Due to the freezing cold, the river is partly frozen, and offers us a possibility of surprising our opposition. Defeat the remaining enemy troops, so that peace can return to our land!
-1364:
-1365:
-1366:
-1367:
-1368:
-1369:
-1370:
-1371:
-1372:
-1373:
-1374:
-1375:
-1376:
-1377:
-1378:
-1379:
-1380:
-1381:
-1382:
-1383:
-1384:
-1385:
-1386:
-1387:
-1388:
-1389:
-1390:
-1391:
-1392:
-1393:
-1394:
-1395:
-1396:
-1397:
-1398:
-1399:
-1400:
-1401:
-1402:
-1403:
-1404:
-1405:
-1406:
-1407:
-1408:
-1409:
-1410:
-1411:
-1412:
-1413:
-1414:
-1415:
-1416:
-1417:
-1418:
-1419:
-1420:
-1421:
-1422:
-1423:
-1424:
-1425:
-1426:
-1427:
-1428:
-1429:
-1430:
-1431:
-1432:
-1433:
-1434:
-1435:
-1436:
-1437:
-1438:
-1439:
-1440:
-1441:
-1442:
-1443:
-1444:
-1445:
-1446:
-1447:
-1448:
-1449:
-1450:
-1451:
-1452:
-1453:
-1454:
-1455:
-1456:
-1457:
-1458:
-1459:
-1460:
-1461:
-1462:
-1463:
-1464:
-1465:
-1466:
-1467:
-1468:
-1469:
-1470:
-1471:
-1472:
-1473:
-1474:
-1475:
-1476:
-1477:
-1478:
-1479:
-1480:
-1481:
-1482:
-1483:
-1484:
-1485:
-1486:
-1487:
-1488:
-1489:
-1490:
-1491:
-1492:
-1493:
-1494:
-1495:
-1496:
-1497:
-1498:
-1499:
-1500:
-1501:
-1502:
-1503:
-1504:
-1505:
-1506:
-1507:
-1508:
-1509:
-1510:
-1511:
-1512:
-1513:
-1514:
-1515:
-1516:
-1517:
-1518:
-1519:
-1520:
-1521:
-1522:
-1523:
-1524:
-1525:
-1526:
-1527:
-1528:
-1529:
-1530:
-1531:
-1532:
-1533:
-1534:
-1535:
-1536:
-1537:
-1538:
-1539:
-1540:
-1541:
-1542:
-1543:
-1544:
-1545:
-1546:
-1547:
-1548:
-1549:
-1550:
-1551:
-1552:
-1553:
-1554:
-1555:
-1556:
-1557:
-1558:
-1559:
-1560:
-1561:
-1562:
-1563:
-1564:
-1565:
-1566:
-1567:
-1568:
-1569:
-1570:
-1571:
-1572:
-1573:
-1574:
-1575:
-1576:
-1577:
-1578:
-1579:
-1580:
-1581:
-1582:
-1583:
-1584:
-1585:
-1586:
-1587:
-1588:
-1589:
-1590:
-1591:
-1592:
-1593:
-1594:
-1595:
-1596:
-1597:
-1598:
-1599:
-1600:
-1601:
-1602:
-1603:
-1604:
-1605:
-1606:
-1607:
-1608:
-1609:
-1610:
-1611:
-1612:
-1613:
-1614:
-1615:
-1616:
-1617:
-1618:
-1619:
-1620:
-1621:
-1622:
-1623:
-1624:
-1625:
-1626:
-1627:
-1628:
-1629:
-1630:
-1631:
-1632:
-1633:
-1634:
-1635:
-1636:
-1637:
-1638:
-1639:
-1640:
-1641:
-1642:
-1643:
-1644:
-1645:
-1646:
-1647:
-1648:
-1649:
-1650:
-1651:
-1652:
-1653:
-1654:
-1655:
-1656:
-1657:
-1658:
-1659:
-1660:
-1661:
-1662:
-1663:
-1664:
-1665:
-1666:
-1667:
-1668:
-1669:
-1670:
-1671:
-1672:
-1673:
-1674:
-1675:
-1676:
-1677:
-1678:
-1679:
-1680:
-1681:
-1682:
-1683:
-1684:
-1685:
-1686:
-1687:
-1688:
-1689:
-1690:
-1691:
-1692:
-1693:
-1694:
-1695:
-1696:
-1697:
-1698:
-1699:
-1700:
-1701:
-1702:
-1703:
-1704:
-1705:
-1706:
-1707:
-1708:
-1709:
-1710:
-1711:
-1712:
-1713:
-1714:
-1715:
-1716:
-1717:
-1718:
-1719:
-1720:
-1721:
-1722:
-1723:
-1724:
-1725:
-1726:
-1727:
-1728:
-1729:
-1730:
-1731:
-1732:
-1733:
-1734:
-1735:
-1736:
-1737:
-1738:
-1739:
-1740:
-1741:
-1742:
-1743:
-1744:
-1745:
-1746:
-1747:
-1748:
-1749:
-1750:
-1751:
-1752:
-1753:
-1754:
-1755:
-1756:
-1757:
-1758:
-1759:
-1760:
-1761:
-1762:
-1763:
-1764:
-1765:
-1766:
-1767:
-1768:
-1769:
-1770:
-1771:
-1772:
-1773:
-1774:
-1775:
-1776:
-1777:
-1778:
-1779:
-1780:
-1781:
-1782:
-1783:
-1784:
-1785:
-1786:
-1787:
-1788:
-1789:
-1790:
-1791:
-1792:
-1793:
-1794:
-1795:
-1796:
-1797:
-1798:
-1799:
-1800:
-1801:
-1802:
-1803:
-1804:
-1805:
-1806:
-1807:
-1808:
-1809:
-1810:
-1811:
-1812:
-1813:
-1814:
-1815:
-1816:
-1817:
-1818:
-1819:
-1820:
-1821:
-1822:
-1823:
-1824:
-1825:
-1826:
-1827:
-1828:
-1829:
-1830:
-1831:
-1832:
-1833:
-1834:
-1835:
-1836:
-1837:
-1838:
-1839:
-1840:
-1841:
-1842:
-1843:
-1844:
-1845:
-1846:
-1847:
-1848:
-1849:
-1850:
-1851:
-1852:
-1853:
-1854:
-1855:
-1856:
-1857:
-1858:
-1859:
-1860:
-1861:
-1862:
-1863:
-1864:
-1865:
-1866:
-1867:
-1868:
-1869:
-1870:
-1871:
-1872:
-1873:
-1874:
-1875:
-1876:
-1877:
-1878:
-1879:
-1880:
-1881:
-1882:
-1883:
-1884:
-1885:
-1886:
-1887:
-1888:
-1889:
-1890:
-1891:
-1892:
-1893:
-1894:
-1895:
-1896:
-1897:
-1898:
-1899:
-1900:
-1901:
-1902:
-1903:
-1904:
-1905:
-1906:
-1907:
-1908:
-1909:
-1910:
-1911:
-1912:
-1913:
-1914:
-1915:
-1916:
-1917:
-1918:
-1919:
-1920:
-1921:
-1922:
-1923:
-1924:
-1925:
-1926:
-1927:
-1928:
-1929:
-1930:
-1931:
-1932:
-1933:
-1934:
-1935:
-1936:
-1937:
-1938:
-1939:
-1940:
-1941:
-1942:
-1943:
-1944:
-1945:
-1946:
-1947:
-1948:
-1949:
-1950:
-1951:
-1952:
-1953:
-1954:
-1955:
-1956:
-1957:
-1958:
-1959:
-1960:
-1961:
-1962:
-1963:
-1964:
-1965:
-1966:
-1967:
-1968:
-1969:
-1970:
-1971:
-1972:
-1973:
-1974:
-1975:
-1976:
-1977:
-1978:
-1979:
-1980:
-1981:
-1982:
-1983:
-1984:
-1985:
-1986:
-1987:
-1988:
-1989:
-1990:
-1991:
-1992:
-1993:
-1994:
-1995:
-1996:
-1997:
-1998:
-1999:
-2000:
-2001:Мисията е отмена
-2002:Тренировка за строене на град
-2003:Тренировка за битка
-2004:Единична игра
-2005:Редактор на карти
-2006:Преглед на последен запис
-2007:Започни мисия
-2008:Заглавие
-2009:Размер
-2010:Тип на мисията: %s
-2011:Изисквания за победа: %s
-2012:Изисквания за загуба: %s
-2013:Съюзници: 
-2014:Врагове: 
-2015:
-2016:Размер на нова карта
-2017:Ширина
-2018:Височина
-2019:Създай нова карта
-2020:Налични карти
-2021:Зареди съществуваща карта
-2022:Контроли:
-2023:Геймплей:
-2024:Звук:
-2025:Изключи музиката
-2026:Графика:
-2027:Светлина
-2028:Цял екран
-2029:Приложи
-2030:Език:
-2031:Зареждам... Моля изчакайте
-2032:Възникна е грешка!
-2033:Зарежда се нов локал
-2034:Лист на запаметени игри
-2035:Име на файл
-2036:Описание
-2037:Зареди
-2038:Изтрий
-2039:Сигурни ли сте, че искате да изтриете този запис?
-2040:Изтрий
-2041:Отказ
-2042:
-2043:Ти спечели!
-2044:Продължи да играеш
-2045:Победа!
-2046:Ти загуби!
-2047:Продължи да гледаш
-2048:Поражение
-2049:Повторението приключи
-2050:Продължи да гледаш
-2051:Изход към менюто
-2052:Не е наличен
-2053:Натиснете %s ,за да продължите играта
-2054:До отбора
-2055:Информация за играчите
-2056:Чат
-2057:Презапиши съществуваща игра
-2058:Презапиши
-2059:Запамети
-2060:Зареди
-2061:Възникнала е грешка, докато играете.
-2062:Моля изпратете файла %s от вашата папка KaM Remake\Crash Reports до разработчиците. Детайли могат да се намерят в  файла. "Прочети ме". Много ви благодарим за вашата помощ!
- 
-ВНИМАНИЕ: Ако продължите да играете след този проблем, може да доведе по-нататъшни сривове и нестабилности. Желаете ли да поемете риска и да продължите да играете? 
-2063:Засечена е стара версия на OpenGL, играта може да върви бавно и/или с графични недостатъци
-Моля ъпдейтнете графичните си драйвери, за да получите по-добри резултати
-2064:Мрежова грешка:
-2065:Грешка: Името на играча не трябва да бъде празно
-2066:Провал при свързването: %s
-2067:Вие бяхте изключени
-2068:Мисия %d
-2069:Вашата рибарска къща е твърде далеч от водата.
-2070:Вашият рибар не може да хване риба в близките водоеми.
-2071:Пазар
-2072:Използвайте левия бутон на мишката, за да изберете стоката, с която ще търгувате
-2073:Използвайте десния бутон на мишката, за да изберете стоката, с която ще търгувате
-2074:От x%d
-2075:До x%d
-2076:Редактиране на терен
-2077:Планиране на селото
-2078:Визуални скриптове
-2079:Глобално скриптиране
-2080:Меню
-2081:Статус:
-2082:Име на играча
-2083:СЪЗДАЙ СЪРВЪР
-2084:Име
-2085:Порт
-2086:Създай Локален Сървър
-2087:Създай Интернет Сървър
-2088:Име на сървъра
-2089:Състояние
-2090:Играчи
-2091:Пинг
-2092:Обнови Сървърният Лист
-2093:ДЕТАЙЛИ ЗА СЪРВЪРА
-2094:Лист на играчите:
-2095:Адрес
-2096:Порт
-2097:Стая
-2098:Влез
-2099:Свързване, моля изчакайте ...
-2100:Зареждане на съобщения...
-2101:Обновяване...
-2102:Лист на играчите
-2103:Стартова позиция
-2104:Отбор
-2105:Цвят на флага
-2106:Готов
-2107:Пинг
-2108:Изгони
-2109:Отворен
-2110:AI Играч
-2111:Избери...
-2112:Произволен
-2113:Никой
-2114:Никоя
-2115:Отбор %d
-2116:
-2117:Съобщение:
-2118:Тип на картата
-2119:Единична карта
-2120:Запаметена игра
-2121:Избери карта...
-2122:Избери запис...
-2123:Информация на картата:
-2124:Играчи: %d
-2125:Мод:
-2126:Условия:
-2127:Размер:
-2128:Излез от лобито
-2129:Готов
-2130:Начало!
-2131:Изчакване на играчи:
-2132:KaM Remake Кредити
-2133:Оригинални Knights & Merchants Кредити
-2134:ПРОГРАМИРАНЕ:
-2135:ДОПЪЛНИТЕЛНО ПРОГРАМИРАНЕ:
-2136:ДОПЪЛНИТЕЛНИ ГРАФИКИ:
-2137:ДОПЪЛНИТЕЛНИ ПРЕВОДИ:
-2138:СПЕЦИАЛНИ БЛАГОДАРНОСТИ ЗА:
-2139:Мултиплейър карти
-2140:Сингълплейър карти
-2141:Бързина на мишката
-2142:Не са намерени сървъри
-2143:Разбъркай песните
-2144:Информация за играта:
-2145:-
-2146:Лоби
-2147:Зареждане
-2148:Игра
-2149:Местоположение %d
-2150:Строене и Биене
-2151:Биене
-2152:Неготов
-2153:Готов
-2154:Грешка: Моля изберете играч от запаметените игри, за да управлявате
-2155:Грешка: Картата не се зареди или не е избрана
-2156:Не може да започне: %s
-2157:Не всички са готови за началото
-2158:Броя на играчите надвишава лимита на картата
-2159:Грешен протокол на версията: %s. Съвръра използва: %s
-2160:Сървъра възложи поддържащите права на нас
-2161:Увеличете размера на стоката, с която търгувате
-2162:Намалете размера на стоката, с която търгувате
-2163:Запаметяване на играта...
-2164:%s беше победен!
-2165:ДОПЪЛНИТЕЛНИ ЗВУЦИ:
-2166:Изгони играчите
-2167:Домакинът ще може да изгони играчите след %d секунди
-2168:Домакинът неможе да изгони тези играчи
-2169:Домакинът (%s) напусна
-2170:Връзката със сървъра беше загубена. Опитайте да се свържете отново...
-2171:Сигурни ли сте, че искате да излезете?
-2172:Сигурни ли сте, че искате да изгоните тези играчи за постоянно?
-2173:Отказ
-2174:Граждани|обучени
-2175:Граждани|загубени
-2176:Войници|въоръжени
-2177:Войници|загубени
-2178:Единици|унищожени
-2179:Постройки|посторени
-2180:Постройки|загубени
-2181:Постройки|разрушени
-2182:Стоки|произведени
-2183:Оръжия|произведени
-2184:Не може да се търгува с тази стока в тази мисия.
-2185:Засаждане и отсичане
-2186:Само отсичане
-2187:Играта е започната
-2188:Карта за строене
-2189:Карта за битка
-2190:Кооперативна карта
-2191:Вие нямате право да правите това, докато има мирно време
-2192:Оставащо време от мира: %s
-2193:Мирното време свърши. На оръжие!
-2194:Време на играта:|%s
-2195:Настройки:
-2196:С
-2197:П
-2198:Р
-2199:Спри войниците ('%s')
-2200:Присъединяване към войниците ('%s')
-2201:Раздели войниците ('%s')
-2202:Гледане на записи
-2203:Преглед на запис
-2204:Мирно време (минути)
-2205:Неподдържан формат %s
-2206:Неподдържана версия %s
-2207:
-2208:инициализиране
-2209:мултиплейърна инициализация
-2210:скрипт
-2211:Нова мисия
-2212:Възникнала е грешка при анализиране на файла  %s
-2213:Затворен
-2214:Домакинът прави настройката на играчите
-2215:допълнителни спрайтове
-2216:единици
-2217:постройки
-2218:дървета
-2219:очертания
-2220:настилки
-2221:Soft shadows
+1053:<COL 2>Съобщението на Деня: %s|
+1054:<COL 0>РАЗПРОСТРАНЕНИЕ: %s|
+1055:<COL 3>%s влязоха в канала|
+1056:<COL 3>%s излязоха от канала|
+1057:<COL 3>Вие влязохте в канала <COL 0>%s<COL 3>|
+1058:<COL 3>Вие влязохте в играта <COL 0>%s<COL 3>|
+1059:Обратно към менюто
+1060:Влез в Канала
+1061:Влез в Играта
+1062:Създай Игра
+1063:Създай Ладер Игра
+1064:Напусни Играта
+1065:Започни Играта
+1066:Прошепни
+1067:Кик
+1068:Бан
+1069:Информация
+1070:Регистрация
+1071:Обратно към Въвеждането на Наименованието
+1072:Моля въведете вашето име:
+1073:Продължи
+1074:Назад
+1075:Моля изберете тип мрежа:
+1076:Влез в Играта
+1077:Създай Игра
+1078:Моля въведете име на сесията:
+1079:Започни Сесия
+1080:Избери Сесия:
+1081:Влез в Играта
+1082:Търси за Игри
+1083:Играчи:
+1084:Съобщения:
+1085:Изпрати:
+1086:Начало!
+1087:Безименен
+1088:<Свободен слот>
+1089:<Не е налице>
+1090:<Компютър>
+1091:сесия
+1092:~И~г~р~а~ч~ъ~т '%s' ~б~е~ш ~е~п~р~е ~м~а~х~н~а~т~о ~т~и~г~р ~а~т~а ~о~т ~д~о~м ~а~к~и~н~а
+1093:Карти:
+1094:Заглавие:
+1095:Описание:
+1096:Ресурси:
+1097:Стартираща позиция:
+1098:Домакинът определя|картата
+1099:Склад
+1100:Войници и склад
+1101:Войници и сгради
+1102:Поредица
+1103:Случаен
+1104:Копирай запаметена игра
+1105:Прекрати Прехвърлянето
+1106:Прехвърлено: %d/100
+1107:Няма запаметени игри. %d
+1108:Играчи:%d|Размер на картата:%dx%d
+1109:Автоматично запаметяване
+1110:ПОБЕДА!
+1111:ЗАГУБА!
+1112:Изгубени войници:
+1113:Победени войници:
+1114:Изгубени постройки:
+1115:Разрушени постройки:
+1116:Построени сгради:
+1117:Обучени хора:
+1118:Произведени оръжия:
+1119:Обучени войници:
+1120:Мисията е изпълнена за:
+1149:Три Континента
+1150:В Пустинята
+1151:Битката за Въглища
+1152:Граничните Реки
+1153:Земя от Планини
+1154:Планински Региот
+1155:Замъчно Клане
+1156:Крайбрежна Схватка
+1157:В Засада!
+1158:Бедствия при Моста
+1159:Бонус Карта А
+1160:Бонус Карта Б
+1179:През Пустинята||Размер: 176x176|Опоненти: 5
+1180:В Странни Земи||Размер: 176x176|Опоненти: 3
+1181:Сняг и Пясък||Размер: 160x128|Опоненти: 5
+1182:Земята на Бързата Река||Размер: 176x176|Опоненти: 3
+1183:Черно Злато||Размер: 176x176|Опоненти: 5
+1184:Планинските Стени||Размер: 144x128|Опоненти: 3
+1185:Царството на Мрака||Размер: 176x176|Опоненти: 3
+1199:Играчи: 6|Размер на картата: 176x176|Построй град
+1200:Играчи: 4|Размер на картата: 176x176|Построй град
+1201:Играчи: 6|Размер на картата: 160x128|Построй град
+1202:Играчи: 4|Размер на картата: 176x176|Построй град
+1203:Играчи: 6|Размер на картата: 176x176|Построй град
+1204:Играчи: 4|Размер на картата: 144x128|Построй град
+1205:Играчи: 6|Размер на картата: 176x144|Построй град
+1206:Играчи: 3|Размер на картата: 64x64|Битка
+1207:Играчи: 6|Размер на картата: 144x144|Битка
+1208:Играчи: 4|Размер на картата: 176x176|Построй град
+1249:Подръжниците на предателя|успяха да пробият през|нашите защити. Кралството|падна и трябва да убием|мошениците, кралството|ще падне и ще бъде загубено|и крадците ще триумфират.|На оръжие!
+1250:Победата ни даде надежда.|Но времето да се покажем|още не е дошло. Враговете|избягаха в близко село|до нашата позиция,|където ще се въстановят|и ще нападнат отново.|Принцът скоро отново|щял да се бие с нас с|неговите мошенически|войници, които са много|малко. Контролирайки|техния гняв и не оставяйки|да влизат в открита битка,|ще пободим. Теренът е за|защитни тактики на тяхната|част. Врагът трябва|да премине реката през|тесния път. Трябва да ги|атакуваме там, докато не|имаме равни войски, срещу|техните велики воиски.
+1251:Незабравим ден! Мошеническите|воиски на принцът-бунтовник|са в пълно отстъпление. Пътеката|на Лоуенбургското Баронство|сега е отворена за атака.|Баронът от Лоуенбург и слугата му|оформиха съюз с нашите врагове|сега са подготвили засада в|мошеническата провинция.
+1252:Навярно нашите врагове се|провалиха в атаката над лоялните|му войници. Баронът от Лоуенбург|нареди да избягат и да чакат|за нашата атака. Доверените на|барона се присъединиха към нас|с удоволствие. Сега имаме големия|шанс да увеличим армията си|и да превземем Лоуенбург и|да победим барона. Това ще|бъде предупреждение за всички|изменници на короната!
+1253:Баронът на Лоуенбург се подчини|и се извини на нашия крал, заради|атаката над нас. Сега се целим|да превземем Морбач. Нашите|шпиони намериха изоставено|укрепление, което ще достави|нещата които ни трябват за|целта. Сега Лоуенбург са на|наша страна. Войниците на барона|са третирани от нашите врагове.|Те ще защитават Лоуенбург|на всяка цена. Затова ще|трябва да затвърдим нашето|приятелство между новите ни|съюзници и така ще направим|нови войници.
+1254:Морбач беше превзет от нас.|Нашите врагове се молеха|за милост. Сега нашите|шпиони ни информираха,|че нова армия от мошеници|се формират на северозапад,|за да си отмъстят за моленето|в Морбач. Както и да е, ние|сме достатъчно силни, за да|влезем в битка с тях. Трябва|да ги атакуваме и да ги|изненадаме, преди да станат|организирани. Сега трябва|да се доверим на Копиеносците|на Лоуенбург, армия която се|присъедини към вас.
+1255:Навярно новините от нашите победи|се разпростират като природен|огън извън кралството. Навсякъде|благородниците се бият срещу|тираните. Валхеим Лийт на север,|все още държи враговете ти.|Кралят на Валхеим отказа|да поканата ни да пратим|пратеници. Той се закле|да защитава до последния човек.|Обикновените хора от едно|малко село се разбунтуваха|и се присъединиха към нас.|Тези добри хора ни дадоха|ресурси за оръжия и нови|войници. С такава добре|екипирана армия, няма|да има проблем да превземем|Валмхеим.
+1256:Битката за Валхеим ни донесе|голяма сила и съществува|обърканост. Северните премена|се обе|The battle of Walheim hath brought|with it an absence of power, and|there exists a state of confusion.|The savage Northern Tribes band|together to fall upon the kingdom.|Thou must needs stop them, before|thou canst again do battle with the|rebels. In the ruins of Walheim, thou|wilt find building plans for|watchtowers of a verily advanced|sort. Thou must needs form a|bulwark against the barbarians.|Thou shalt destroy them, but utterly.
+1257:The barbarians fight amongst|themselves. Perchance by persuasion|and guile canst thou win over to thy|cause two of their chieftains, and all|their warriors, that these shall fight|at thy side. Thy location at this time|is simple to defend but cannot be|enlarged, so that thou must needs|plan with care. The enemy readies|himself for battle and the attack is|nigh. Prepare with all haste, so that|thou canst verily welcome the enemy|in such a manner that he shall|never forget!
+1258:The wicked despot threatens one of|our towns. Only if thou hasten there|with all thy speed, canst thou bring|thy soldiers there on time.|According to our spies, thou must|needs reckon with a large enemy|force. Deploy thy soldiers well.|Thou wilt achieve victory by thine|usage of clever tactics. If thou|charge in a blind fashion, thou|shalt indeed regret it!
+1259:Indeed, only narrowly was the attack|on our town beaten back. But the|treacherous attack did in troth leave|its cruel mark on the town. The|enemy torched it ruthlessly and|killed nigh all who dwelt there.|Thou wilt answer this massacre with|bloody revenge! But firstly, thou|must needs build the town anew|before thou bringst the cowardly|scoundrels to account.
+1260:The enemy is destroyed and the|remnants of that army retreated to|the north. The iron ore mines in|the north are of great strategic|importance for thee, since the|iron thou wilt find there shall aid|thee in the continuance of the war.|Thou shalt build a new army, an|army which shall drive all rebels|from this region for all time to come.|To the east of thy location is a|bridge. This bridge will aid thee|in thy defenses, whilst thine army|in strength grows.
+1261:Forsooth, our enemy are still|possessed of huge reserves, and the|knaves plan a counterattack against|our stalwart army. However, the|mountains nigh to their location may|be an obstacle for a large army to|traverse. Thou shalt advance into the|mountains with thine army and|await the enemy in the highest|pass. Let not the traitors ever|again gain upper hand!
+1262:At last thine efforts bear fruit!|Everywhere in the kingdom, the king's|serfs rise against the cruel reign|of the prince. Verily, even his|generals agree not with the barbarisms|and cruelties practiced on the|commoners. One of the generals has|passed a secret message on to|us....that the dastardly prince desires|to make a cruel example of a village|whose people have openly rebelled|against his treacherous rule! Thou,|and thou alone, art the bulwark|between the tyrant and the stalwart|villagers! Thou must needs put a stop|to this barbarous scoundrel's plans!
+1263:The end is nigh for those|black-hearted scoundrels, the enemies|of the king. Thou hast forced them to|their knees. The prince hath changed|his tactics, and doth hold important|deposits of raw materials. This doth|be a hindrance to us. Thou shalt|capture ye iron ore mines nigh to thy|location put the rebels to flight!|Forget not the great marsh which|lieth before thee. Prepare thyself|and thy stalwarts well! Verily, thou|shouldst remain in fear of thy life!
+1264:Thou hast much fertile land and rich|deposits of raw materials at thy|disposal in the province which lieth|before you. Let not thyself be in|doubt that soon the enemy shall|advance to gain this fruitful land|for himself. Defend the province and|show no mercy to the enemy soldiers!|No quarter shall be given them!
+1265:In the north, the traitor gathers|together his vassals, that he may|again attack unashamedly and boldly.|But, in troth, he doth not be yet|prepared to face thee on the|battlefield. Thou shalt advance|toward him and destroy him, whilst|he is as yet unprepared for thine|assault. Thou must needs traverse|the mountains to achieve thine aim,|but beware! The scoundrel hath to all|accounts occupied the pass to hinder|thee in thy mission. Still, thou must|proceed to the north, cost what|it will!
+1266:Thy last victory hath forced thine|opponent to retreat in defense. He|hath entrenched himself in a natural|stronghold wherein he, like the coward|he doth be, awaits thine attack. Thou|willst find it hard to capture this|stronghold! Many a general hath tried|before thee, and all have failed. Let|not thy courage fail thee and thy|heart grow weak! Perchance have|these valiant generals left articles|behind, articles which shall aid thee|in thy brave quest!
+1267:This doth be a black, black day! An|insidious, dastardly assassination|plot hath cost our beloved king this|day his life! The prince, shameless|scoundrel he doth be, and, methinks,|the rogue behind this great tragedy,|hath proclaimed himself the new king.|He hath ensconced himself behind|mighty walls wherein he hopeth to|find refuge from thy wrath. Thou shalt|storm these walls and bring to this|upstart, self-proclaimed king the fate|of which he doth be most deserving.|An eye for an eye, a tooth for a|tooth!
+1268:Our quest is well-nigh over. The city,|which doth be the last remaining|bastion of the upstart king, is|surrounded and under siege. Show no|mercy to whomsoever remaineth true|to the upstart and slay all thine|enemies! Thou, oh loyal hero, shalt|raze all traces of his dastardly rule|to the ground! Only then, through thy|heroic deeds, shall peace and freedom|once more reign in the kingdom. To|the gallows with the pretender, where|he shall hang like the common|criminal he doth be!
+1299:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre QuaЯ||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schдfer|Jьrgen Rebhann|Klaus Staendike|Steffen Schьngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schдfer||MANUAL:|Peter Ohlmann|Uwe Schдfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schдfer|Ingrid Schдfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mьhlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schдfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schдfer|Andrea Rumpelt
+1349:              Mission 1||The renegades are trying to oppress the few farmers who remain loyal to the kingdom. Outside the king's palace, innocent farmers are being butchered, and under no circumstances can you allow this!|Force the attackers into retreat!
+1350:              Mission 2||After our successful support of the farmers, we must free the remaining farmers. A large enemy is coming directly towards us from the north.|Into battle!
+1351:              Mission 3||After the victorious battle you now have some time to rebuild the ruined towns and villages and to secure supplies to your subjects. Then you should turn your attention to liberating the occupied settlements in the north and fight the tyrannical rule of the renegade aristocracy. Spare the civilian country folk and fight only the enemy soldiers who are stationed there.
+1352:              Mission 4||Our spies have seen enemy troop maneuvers in the surrounding settlements. Due to the high number of enemy soldiers, we must presume that they have a fortified camp. Find and destroy it, including all enemy military buildings.
+1353:              Mission 5||Now, after your overwhelming success in the fight against the rebels, we must reckon with a massive counterattack. Prepare your people for a hard fight. Prevent the villages from being destroyed.
+1354:              Mission 6||We know that our enemy is building new bases. You cannot permit this. Attack as soon as possible, before the enemy has recovered.|Also search the area for raw materials, because your supplies of iron ore are almost exhausted.
+1355:              Mission 7||Before we turn again to the rebels, we must win back the settlements in the south. The victory in the last battle brought us a small quantity of iron that we urgently need. But because iron deposits in this area are very limited, we must be very careful how we use it.
+1356:              Mission 8||During our last attack we had to move most of our people away from our base and have given the enemy a chance to attack. Return as quickly as possible, before the foe can overrun our defenses!
+1357:              Mission 9||Because of the ambush we have not been able to reach the castle in time. We need to come up with a good strategy to reconquer what is ours. The main gate is heavily defended, and a direct attack would be useless. Try to attack another entrance and avoid casualties, as we have no possibility to mine for more iron ore.
+1358:              Mission 10||Through reconquering the castle, we have made some prisoners, who have told us about an underground tunnel, that leads through the northern mountains. The entrance to the tunnel is being guarded by a few enemy soldiers. Overthrow the guards and enter the tunnel.
+1359:              Mission 11||The cave is bigger than expected. Our scouts have discovered enemy guards in the winding tunnels, who are protecting the underground complex from intruders. Reach the exit on the other side of the mountains.
+1360:              Mission 12||The opposing troops have been informed of our intentions. Strong enemy battalions are advancing and will soon attack. Build towers to weaken the coming troops. When the defense has been successful, you will be able to cross the pass to the north.
+1361:              Mission 13||An ambush! Our enemy has been waiting for us. We are now in an extremely bad position. Force the insidious bandits into retreat!
+1362:              Mission 14||We have arrived at last bastion of our enemy. They have brought the rest of their armies together and barricaded themselves into their final retreat, northeast from here. Due to the freezing cold, the river is partly frozen, and offers us a possibility of surprising our opposition. Defeat the remaining enemy troops, so that peace can return to our land!
+2000:Мисията е отмена
+2001:Тренировка за строене на град
+2002:Тренировка за битка
+2003:Единична игра
+2004:Редактор на карти
+2005:Преглед на последен запис
+2006:Започни мисия
+2007:Заглавие
+2008:Размер
+2009:Тип на мисията: %s
+2010:Изисквания за победа: %s
+2011:Изисквания за загуба: %s
+2012:Съюзници:
+2013:Врагове:
+2015:Размер на нова карта
+2016:Ширина
+2017:Височина
+2018:Създай нова карта
+2019:Налични карти
+2020:Зареди съществуваща карта
+2021:Контроли:
+2022:Геймплей:
+2023:Звук:
+2024:Изключи музиката
+2025:Графика:
+2026:Светлина
+2027:Цял екран
+2028:Приложи
+2029:Език:
+2030:Зареждам... Моля изчакайте
+2031:Възникна е грешка!
+2032:Зарежда се нов локал
+2033:Лист на запаметени игри
+2034:Име на файл
+2035:Описание
+2036:Зареди
+2037:Изтрий
+2038:Сигурни ли сте, че искате да изтриете този запис?
+2039:Изтрий
+2040:Отказ
+2042:Ти спечели!
+2043:Продължи да играеш
+2044:Победа!
+2045:Ти загуби!
+2046:Продължи да гледаш
+2047:Поражение
+2048:Повторението приключи
+2049:Продължи да гледаш
+2050:Изход към менюто
+2051:Не е наличен
+2052:Натиснете %s ,за да продължите играта
+2053:До отбора
+2054:Информация за играчите
+2055:Чат
+2056:Презапиши съществуваща игра
+2057:Презапиши
+2058:Запамети
+2059:Зареди
+2060:Възникнала е грешка, докато играете.
+2061:Моля изпратете файла %s от вашата папка KaM Remake\\Crash Reports до разработчиците. Детайли могат да се намерят в  файла. "Прочети ме". Много ви благодарим за вашата помощ!
+2062:Засечена е стара версия на OpenGL, играта може да върви бавно и/или с графични недостатъци
+2063:Мрежова грешка:
+2064:Грешка: Името на играча не трябва да бъде празно
+2065:Провал при свързването: %s
+2066:Вие бяхте изключени
+2067:Мисия %d
+2068:Вашата рибарска къща е твърде далеч от водата.
+2069:Вашият рибар не може да хване риба в близките водоеми.
+2070:Пазар
+2071:Използвайте левия бутон на мишката, за да изберете стоката, с която ще търгувате
+2072:Използвайте десния бутон на мишката, за да изберете стоката, с която ще търгувате
+2073:От x%d
+2074:До x%d
+2075:Редактиране на терен
+2076:Планиране на селото
+2077:Визуални скриптове
+2078:Глобално скриптиране
+2079:Меню
+2080:Статус:
+2081:Име на играча
+2082:СЪЗДАЙ СЪРВЪР
+2083:Име
+2084:Порт
+2085:Създай Локален Сървър
+2086:Създай Интернет Сървър
+2087:Име на сървъра
+2088:Състояние
+2089:Играчи
+2090:Пинг
+2091:Обнови Сървърният Лист
+2092:ДЕТАЙЛИ ЗА СЪРВЪРА
+2093:Лист на играчите:
+2094:Адрес
+2095:Порт
+2096:Стая
+2097:Влез
+2098:Свързване, моля изчакайте ...
+2099:Зареждане на съобщения...
+2100:Обновяване...
+2101:Лист на играчите
+2102:Стартова позиция
+2103:Отбор
+2104:Цвят на флага
+2105:Готов
+2106:Пинг
+2107:Изгони
+2108:Отворен
+2109:AI Играч
+2110:Избери...
+2111:Произволен
+2112:Никой
+2113:Никоя
+2114:Отбор %d
+2116:Съобщение:
+2117:Тип на картата
+2118:Единична карта
+2119:Запаметена игра
+2120:Избери карта...
+2121:Избери запис...
+2122:Информация на картата:
+2123:Играчи: %d
+2124:Мод:
+2125:Условия:
+2126:Размер:
+2127:Излез от лобито
+2128:Готов
+2129:Начало!
+2130:Изчакване на играчи:
+2131:KaM Remake Кредити
+2132:Оригинални Knights & Merchants Кредити
+2133:ПРОГРАМИРАНЕ:
+2134:ДОПЪЛНИТЕЛНО ПРОГРАМИРАНЕ:
+2135:ДОПЪЛНИТЕЛНИ ГРАФИКИ:
+2136:ДОПЪЛНИТЕЛНИ ПРЕВОДИ:
+2137:СПЕЦИАЛНИ БЛАГОДАРНОСТИ ЗА:
+2138:Мултиплейър карти
+2139:Сингълплейър карти
+2140:Бързина на мишката
+2141:Не са намерени сървъри
+2142:Разбъркай песните
+2143:Информация за играта:
+2144:-
+2145:Лоби
+2146:Зареждане
+2147:Игра
+2148:Местоположение %d
+2149:Строене и Биене
+2150:Биене
+2151:Неготов
+2152:Готов
+2153:Грешка: Моля изберете играч от запаметените игри, за да управлявате
+2154:Грешка: Картата не се зареди или не е избрана
+2155:Не може да започне: %s
+2156:Не всички са готови за началото
+2157:Броя на играчите надвишава лимита на картата
+2158:Грешен протокол на версията: %s. Съвръра използва: %s
+2159:Сървъра възложи поддържащите права на нас
+2160:Увеличете размера на стоката, с която търгувате
+2161:Намалете размера на стоката, с която търгувате
+2162:Запаметяване на играта...
+2163:%s беше победен!
+2164:ДОПЪЛНИТЕЛНИ ЗВУЦИ:
+2165:Изгони играчите
+2166:Домакинът ще може да изгони играчите след %d секунди
+2167:Домакинът неможе да изгони тези играчи
+2168:Домакинът (%s) напусна
+2169:Връзката със сървъра беше загубена. Опитайте да се свържете отново...
+2170:Сигурни ли сте, че искате да излезете?
+2171:Сигурни ли сте, че искате да изгоните тези играчи за постоянно?
+2172:Отказ
+2173:Граждани|обучени
+2174:Граждани|загубени
+2175:Войници|въоръжени
+2176:Войници|загубени
+2177:Единици|унищожени
+2178:Постройки|посторени
+2179:Постройки|загубени
+2180:Постройки|разрушени
+2181:Стоки|произведени
+2182:Оръжия|произведени
+2183:Не може да се търгува с тази стока в тази мисия.
+2184:Засаждане и отсичане
+2185:Само отсичане
+2186:Играта е започната
+2187:Карта за строене
+2188:Карта за битка
+2189:Кооперативна карта
+2190:Вие нямате право да правите това, докато има мирно време
+2191:Оставащо време от мира: %s
+2192:Мирното време свърши. На оръжие!
+2193:Време на играта:|%s
+2194:Настройки:
+2195:С
+2196:П
+2197:Р
+2198:Спри войниците ('%s')
+2199:Присъединяване към войниците ('%s')
+2200:Раздели войниците ('%s')
+2201:Гледане на записи
+2202:Преглед на запис
+2203:Мирно време (минути)
+2204:Неподдържан формат %s
+2205:Неподдържана версия %s
+2207:инициализиране
+2208:мултиплейърна инициализация
+2209:скрипт
+2210:Нова мисия
+2211:Възникнала е грешка при анализиране на файла  %s
+2212:Затворен
+2213:Домакинът прави настройката на играчите
+2214:допълнителни спрайтове
+2215:единици
+2216:постройки
+2217:дървета
+2218:очертания
+2219:настилки
+2220:Soft shadows

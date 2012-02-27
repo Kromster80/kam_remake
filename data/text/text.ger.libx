@@ -1,2228 +1,756 @@
 
-MaxID:2221
+MaxID:3000
 
-0:KeinText
-1:Sägewerk
-2:Eisenschmelze
-3:Waffenschmiede
-4:Kohlebergwerk
-5:Eisenmine
-6:Goldmine
-7:Fischerhütte
-8:Bäckerei
-9:Bauernhof
-10:Holzfällerhütte
-11:Rüstungsschmiede
-12:Lagerhaus
-13:Ställe
-14:Schulhaus
-15:Steinbruch
-16:Goldschmelze
-17:Schweinezucht
-18:Wachturm
-19:Rathaus
-20:Waffenwerkstatt
-21:Rüstungswerkstatt
-22:Kaserne
-23:Mühle
-24:Kriegswerkstatt
-25:Metzgerei
-26:Gerberei
-27:Trainingshalle
-28:Gasthof
-29:Weingut
-30:
-31:
-32:
-33:
-34:
-35:
-36:
-37:
-38:
-39:
-40:Baumstämme
-41:Steine
-42:Nutzholz
-43:Eisenerz
-44:Goldgestein
-45:Kohle
-46:Eisen
-47:Gold
-48:Weinfässer
-49:Korn
-50:Brote
-51:Mehl
-52:Leder
-53:Würste
-54:Schweine
-55:Häute
-56:Holzschild
-57:Eisenschild
-58:Lederrüstung
-59:Eisenrüstung
-60:Handaxt
-61:Schwert
-62:Lanze
-63:Pike
-64:Langbogen
-65:Armbrust
-66:Pferde
-67:Fische
-68:
-69:
-70:Gehilfe
-71:Holzfäller
-72:Bergmann
-73:Viehzüchter
-74:Bauer/Winzer
-75:Schreiner
-76:Bäcker/Müller
-77:Metzger/Gerber
-78:Fischer
-79:Bauarbeiter
-80:Steinmetz
-81:Schmied
-82:Schmelzer
-83:Rekrut
-84:Miliz
-85:Axtkämpfer
-86:Schwertkämpfer
-87:Bogenschützen
-88:Armbrustschützen
-89:Lanzenträger
-90:Pikenier
-91:Späher
-92:Rittergarde
-93:Barbar
-94:Rebell
-95:Knappe
-96:Krieger
-97:Vagabund
-98:Katapult
-99:Balliste
-100:Der Gehilfe versorgt Ihre|Gebäude mit den benötig-|ten Rohstoffen.||Beachten Sie dabei, dass|eine Straßenverbindung|zwischen den Häusern|bestehen muss.
-101:Um Baumstämme für|das Sägewerk zu|produzieren, benötigen|Sie den Holzfäller.||Der Holzfäller forstet|den Wald selbstständig|wieder auf.
-102:Der Bergmann fördert|Erze in der Kohlen-,|Eisen- und Goldmine.
-103:In der Schweine- und|Pferdezucht züchtet der|Viehzüchter mit Hilfe|von Korn das Vieh.
-104:Der Bauer säht und|erntet Korn in dem|Bauernhof.||Außerdem keltert er|Wein im Weingut.
-105:Der Schreiner arbeitet in|dem Sägewerk, in der|Waffen- und Rüstungs-|werkstatt, wo er Waffen|und Rüstungen aus|Holz herstellt.||Zusätzlich fertigt der|Schreiner Katapulte und|Ballisten in der Kriegs-|werkstatt an.
-106:Der Bäcker backt Brot|in der Bäckerei.||Zusätzlich verarbeitet|er Korn zu Mehl in|der Windmühle.
-107:Der Metzger produziert|Würste in der|Metzgerei und Leder|in der Gerberei.
-108:Der Fischer fängt Fische|in naheliegenden|Gewässern.
-109:Der Bauarbeiter errichtet|Gebäude und Straßen.|Setzen Sie die Markier-|ungen und er erfüllt|Ihre Aufträge auto-|matisch.||Außerdem repariert er|beschädigte Häuser.
-110:Damit Ihre Bauarbeiter|genügend Steine zum|Errichten von Straßen|und Häusern haben, baut|der Steinmetz Steine ab.
-111:Schwere Rüstungen und|Waffen werden von dem|Schmied in der Waffen-|und Rüstungsschmiede|hergestellt.
-112:Der Schmelzer|produziert aus Gold-|und Eisenerz Goldtruhen,|bzw. Eisen.
-113:Der Rekrut kann in der|Kaserne zu einem|Soldaten ausgerüstet|werden.||Außerdem besetzt er|den Wachturm.
-114:Miliz
-115:Axtkämpfer
-116:Schwertkämpfer
-117:Bogenschützen
-118:Armbrustschützen
-119:Pikeniere
-120:Hellebardisten
-121:Kavallerie
-122:Rittergarde
-123:Wolf
+0:Sägewerk
+1:Eisenschmelze
+2:Waffenschmiede
+3:Kohlebergwerk
+4:Eisenmine
+5:Goldmine
+6:Fischerhütte
+7:Bäckerei
+8:Bauernhof
+9:Holzfällerhütte
+10:Rüstungsschmiede
+11:Lagerhaus
+12:Ställe
+13:Schulhaus
+14:Steinbruch
+15:Goldschmelze
+16:Schweinezucht
+17:Wachturm
+18:Rathaus
+19:Waffenwerkstatt
+20:Rüstungswerkstatt
+21:Kaserne
+22:Mühle
+23:Kriegswerkstatt
+24:Metzgerei
+25:Gerberei
+26:Trainingshalle
+27:Gasthof
+28:Weingut
+39:Baumstämme
+40:Steine
+41:Nutzholz
+42:Eisenerz
+43:Goldgestein
+44:Kohle
+45:Eisen
+46:Gold
+47:Weinfässer
+48:Korn
+49:Brote
+50:Mehl
+51:Leder
+52:Würste
+53:Schweine
+54:Häute
+55:Holzschild
+56:Eisenschild
+57:Lederrüstung
+58:Eisenrüstung
+59:Handaxt
+60:Schwert
+61:Lanze
+62:Pike
+63:Langbogen
+64:Armbrust
+65:Pferde
+66:Fische
+69:Gehilfe
+70:Holzfäller
+71:Bergmann
+72:Viehzüchter
+73:Bauer/Winzer
+74:Schreiner
+75:Bäcker/Müller
+76:Metzger/Gerber
+77:Fischer
+78:Bauarbeiter
+79:Steinmetz
+80:Schmied
+81:Schmelzer
+82:Rekrut
+83:Miliz
+84:Axtkämpfer
+85:Schwertkämpfer
+86:Bogenschützen
+87:Armbrustschützen
+88:Lanzenträger
+89:Pikenier
+90:Späher
+91:Rittergarde
+92:Barbar
+93:Rebell
+94:Knappe
+95:Krieger
+96:Vagabund
+97:Katapult
+98:Balliste
+99:Der Gehilfe versorgt Ihre|Gebäude mit den benötig-|ten Rohstoffen.||Beachten Sie dabei, dass|eine Straßenverbindung|zwischen den Häusern|bestehen muss.
+100:Um Baumstämme für|das Sägewerk zu|produzieren, benötigen|Sie den Holzfäller.||Der Holzfäller forstet|den Wald selbstständig|wieder auf.
+101:Der Bergmann fördert|Erze in der Kohlen-,|Eisen- und Goldmine.
+102:In der Schweine- und|Pferdezucht züchtet der|Viehzüchter mit Hilfe|von Korn das Vieh.
+103:Der Bauer säht und|erntet Korn in dem|Bauernhof.||Außerdem keltert er|Wein im Weingut.
+104:Der Schreiner arbeitet in|dem Sägewerk, in der|Waffen- und Rüstungs-|werkstatt, wo er Waffen|und Rüstungen aus|Holz herstellt.||Zusätzlich fertigt der|Schreiner Katapulte und|Ballisten in der Kriegs-|werkstatt an.
+105:Der Bäcker backt Brot|in der Bäckerei.||Zusätzlich verarbeitet|er Korn zu Mehl in|der Windmühle.
+106:Der Metzger produziert|Würste in der|Metzgerei und Leder|in der Gerberei.
+107:Der Fischer fängt Fische|in naheliegenden|Gewässern.
+108:Der Bauarbeiter errichtet|Gebäude und Straßen.|Setzen Sie die Markier-|ungen und er erfüllt|Ihre Aufträge auto-|matisch.||Außerdem repariert er|beschädigte Häuser.
+109:Damit Ihre Bauarbeiter|genügend Steine zum|Errichten von Straßen|und Häusern haben, baut|der Steinmetz Steine ab.
+110:Schwere Rüstungen und|Waffen werden von dem|Schmied in der Waffen-|und Rüstungsschmiede|hergestellt.
+111:Der Schmelzer|produziert aus Gold-|und Eisenerz Goldtruhen,|bzw. Eisen.
+112:Der Rekrut kann in der|Kaserne zu einem|Soldaten ausgerüstet|werden.||Außerdem besetzt er|den Wachturm.
+113:Miliz
+114:Axtkämpfer
+115:Schwertkämpfer
+116:Bogenschützen
+117:Armbrustschützen
+118:Pikeniere
+119:Hellebardisten
+120:Kavallerie
+121:Rittergarde
+122:Wolf
+123:Fisch
 124:Fisch
-125:Fisch
-126:
-127:
-128:
-129:
-130:
-131:
-132:
-133:
-134:
-135:
-136:
-137:
-138:
-139:
-140:
-141:
-142:
-143:
-144:
-145:
-146:
-147:
-148:
-149:
-150:
-151:
-152:
-153:
-154:
-155:
-156:
-157:
-158:
-159:
-160:Zur Bauauswahl
-161:Zur Warenverteilung
-162:Zur Statistik
-163:Zu den Nachrichten
-164:Zu den Optionen
-165:Zurück
-166:Bauauswahl
-167:Waren-|verteilung
-168:Statistik
-169:NACHRICHTEN
-170:Optionen
-171:Einstellungen aufrufen
-172:Spiel laden
-173:Spiel|speichern
-174:Spiel laden
-175:Spiel speichern
-176:Wollen Sie|diese Mission|wirklich beenden?
-177:Mission beenden
-178:Zurück
-179:Einstellungen
-180:Mission beenden
-181:Helligkeit
-182:+
-183:-
-184:Helligkeit erhöhen
-185:Helligkeit erniedrigen
-186:Sehr dunkel
-187:Dunkel
-188:Normal
-189:Hell
-190:Sehr hell
-191:Extrem hell
-192:Maus-Geschw.
-193:Maus Geschwindigkeit anpassen
-194:Geräusche
-195:Lautstärke ändern
-196:Musik
-197:Musik:
-198:Musik ein-/ausschalten
-199:Aus
-200:Über MIDI
-201:Ein
-202:Leer
-203:AutoSave
-204:Schnelles Scrollen
-205:Mission %d Zeit:%2.2u:%2.2u
-206:Szenario %d Zeit:%2.2u:%2.2u
-207:CD-Player
-208:Vorheriges Lied
-209:Nächstes Lied
-210:Abreissen
-211:Abreissen von Häusern/Markierungen
-212:Straße bauen
-213:Straßenbau
-214:Acker pflügen
-215:Ackerbau
-216:Zaun errichten
-217:Weidezaun
-218:Weinfeld anlegen
-219:Weinfeld
-220:Mauer errichten
-221:Mauerbau
-222:Ausbilden
-223:Ausgewählte Berufsgruppe ausbilden lassen
-224:Abbrechen
-225:Derzeitige Ausbildung abbrechen
-226:|in Ausbildung
-227:Vorrätig:
-228:Zustand:
-229:Liefert
-230:Das Gebäude wird|derzeit noch errichtet
-231:Zerstören
-232:Wollen Sie das Gebäude|wirklich abreissen?
-233:Zerstört ausgewähltes Gebäude
-234:Bestellmenge erniedrigen
-235:Bestellmenge erhöhen
-236:Warenbestand:
-237:Vorheriger Einheitentyp
-238:Nächster Einheitentyp
-239:Ausrüsten
-240:Aktuellen Einheitentyp ausrüsten
-241:Nächster Beruf
-242:Vorherigen Beruf
-243:Zur Warteschlange hinzufügen
-244:Nächster Söldner
-245:Vorheriger Söldner
-246:Söldner anheuern
-247:Anwesende Rekruten:
-248:Kosten:
-249:Warenlieferung ein-/ausschalten
-250:Hausreparatur ein-/ausschalten
-251:Gebäude derzeit nicht verfügbar
-252:Nicht in der Demoversion verfügbar
-253:Nicht belegt
-254:Ausdauer
-255:Truppe linksum drehen
-256:Truppe rechtsum drehen
-257:Truppe angreifen ('a')
-258:Truppe anhalten und formieren ('h')
-259:Truppe senden ('s')
-260:Truppen zusammenführen ('v')
-261:Truppe trennen ('l')
-262:Truppe mit Nahrung versorgen
-263:Sturmangriff starten
-264:Eine Reihe hinzufügen
-265:Eine Reihe abziehen
-266:Offensive:
-267:Defensive:
-268:Tempo:
-269:Kaserne|auswählen
-270:Abbrechen
-271:Zielort|wählen
-272:Zielgruppe|wählen
-273:Angriffsziel|wählen
-274:Abbruch
-275:Einheit derzeit nicht verfügbar
-276:Löschen
-277:Löscht die aktuelle Nachricht
-278:Senden
-279:Verschickt die aktuelle Nachricht
-280:Gehe zu
-281:Springt zur Position der aktuellen Nachricht
-282:Schließen
-283:Fenster schließen
-284:Antworten
-285:Nachricht beantworten
-286:Bestätigen
-287:Bündnisse werden neu verteilt.
-288:ist freundlich.
-289:ist feindlich.
-290:|Euer Steinmetz erreicht keine weiteren Steinbestände.
-291:|Euer Kohlebergwerk ist erschöpft.
-292:|Euer Eisenbergwerk ist erschöpft.
-293:|Euer Goldbergwerk ist erschöpft.
-294:|Euer Fischer findet keine weiteren Fischbestände mehr.
-295:|Dieses Haus ist nicht bewohnt.
-296:|Diese Truppe ist sehr hungrig, sie sollte sehr bald Nahrung bekommen!
-297:Zur Eisenverteilung
-298:Verteilung des|Eisens
-299:Zur Kohlenverteilung
-300:Verteilung der|Kohle
-301:Zur Nutzholzverteilung
-302:Verteilung des|Nutzholzes
-303:Zur Kornverteilung
-304:Verteilung des|Kornes
-305:|Bitte Nachrichtentext eingeben:
-306:Nachricht von Spieler '%s':|'%s'
-307:Bündnisse:
-308:PAUSE
-309:
-310:
-311:
-312:
-313:
-314:
-315:
-316:
-317:
-318:
-319:
-320:
-321:
-322:
-323:
-324:
-325:
-326:
-327:
-328:
-329:
-330:
-331:
-332:
-333:
-334:
-335:
-336:
-337:
-338:
-339:
-340:
-341:
-342:
-343:
-344:
-345:
-346:
-347:
-348:
-349:
-350:
-351:
-352:
-353:
-354:
-355:
-356:
-357:
-358:
-359:
-360:
-361:
-362:
-363:
-364:
-365:
-366:
-367:
-368:
-369:
-370:
-371:
-372:
-373:
-374:
-375:
-376:
-377:
-378:
-379:
-380:
-381:
-382:
-383:
-384:
-385:
-386:
-387:
-388:
-389:
-390:
-391:
-392:
-393:
-394:
-395:
-396:
-397:
-398:
-399:
-400:
-401:
-402:
-403:
-404:
-405:
-406:
-407:
-408:
-409:
-410:
-411:
-412:
-413:
-414:
-415:
-416:
-417:
-418:
-419:
-420:
-421:
-422:
-423:
-424:
-425:
-426:
-427:
-428:
-429:
-430:
-431:
-432:
-433:
-434:
-435:
-436:
-437:
-438:
-439:
-440:
-441:
-442:
-443:
-444:
-445:
-446:
-447:
-448:
-449:
-450:
-451:
-452:
-453:
-454:
-455:
-456:
-457:
-458:
-459:
-460:
-461:
-462:
-463:
-464:
-465:
-466:
-467:
-468:
-469:
-470:
-471:
-472:
-473:
-474:
-475:
-476:
-477:
-478:
-479:Netzwerkmeldung:
-480:Spieler '%s' hat das Spiel verlassen.|Drücken Sie ~<~S~P~A~C~E~> zum Weiterspielen.
-481:Sie sind nun der Server.|Drücken Sie ~<~S~P~A~C~E~> zum Weiterspielen.
-482:Rechner wartet auf Daten. Drücken Sie ~<~S~P~A~C~E~> zum|Wiederholen oder ~<~F~1~> zum Spielabbruch.
-483:
-484:
-485:
-486:
-487:
-488:
-489:
-490:
-491:
-492:
-493:
-494:
-495:
-496:
-497:
-498:
-499:
-500:Um neue Arbeitskräfte ausbilden zu können, benötigt Ihr ein Schulhaus.|Achtet stets darauf, dass immer genügend Gold im Lagerhaus vorrätig ist, um damit die Ausbildung weitererUntertanen finanzieren zu können.
-501:Beginnt mit einem Links-Klick auf die Hammer-Tastelinks im Menü - die Bauauswahl. Klicktdannaufdas Buch-Symbol - das Schulhaus. PositioniertdenRahmen auf der Karte, wo Ihr dasGebäude gerne hättet undklickt auf dielinke Maustaste.
-502:Wenn Seine Lordschaft das Schulhaus gesetzt hat, seht Ihr, dass der Cursor in 'Straße bauen' geändert wurde. Ihr müsst vom Hauseingang einesGebäudes jedes quadratische Feld mit einem Weg versehen, um eineStraße bauen und diese dann mitanderen Straßen verbinden zu können.
-503:Um Untertanen auszubilden, wählt das Schulhaus an und scrollt durch dieListe, bis Euer gewünschter Berufangezeigt wird. Klickt auf die Taste 'Zur Warteschlange hinzufügen'. Nach der Ausbildung starten dieLeibeigenen automatisch mitder Ausführung ihrer Aufgaben.
-504:Von Zeit zu Zeit benötigt selbst der fleißigste Knecht Nahrung. Stellt dem arbeitenden Volk einenGasthof bereit. Den Gang zu Tisch erledigen die Untertanen von alleine. Der Gasthof sollte zudemzentral gelegen sein, damit ihn jeder Dorfbewohner schnell erreichen kann.
-505:Mein Fürst, Ihr benötigt mehr Steine für den weiteren Haus- und Straßenbau. Lasst einen Steinbruch in derNähe von Steinvorkommnissen erbauen. Dazu ist die Ausbildung eines Steinmetzesvon Nöten, der neuesBaumaterial beschafft.
-506:Nebst Stein wird für den Hausbau und die Waffenherstellung Holz verwendet. Der Holzfäller fällt und pflanzt hierfür Bäume, die dann im Sägewerk zum benötigten Bauholz weiterverarbeitetwerden. Baut die Hüttedes Holzfällers nur in die Nähe eines Waldes.
-507:Nun muss das Sägewerk errichtet werden, um die Baumstämme des Holzfällers nutzvoll zu verarbeiten. Die Arbeit im Werk verrichtet ein Schreiner, der hierfür ausgebildet werden muss.
-508:Sobald die Rohstoffversorgung aufgebaut ist, solltenLebensmittel erwirtschaftet werden. Aber rasch, die Untertanen fangen sonst an zu hungernund verweigern die Arbeit!|Am schnellsten ist die Fischerhütte erbaut, die in der Nähe von Gewässernplatziert werden muss.
-509:Der Bau ist vollendet. Man beachte, dass Fische nur begrenzt zur Verfügung stehen.|Für eine dauerhafte Nahrungsversorgung werden Bauernhöfe benötigt. Dieseproduzieren Korn für dasBackenvon Broten.
-510:Dem Bauern sollten ungefähr 16 Felder in direkter Nähe des Bauernhofes bereitgestellt werden.|Das geerntete Korn wird anschließend in die Windmühle gebracht und dort zu Mehl verarbeitet. Baut eine solche Mühle und bildet einen Müller aus.
-511:Sehr gut, mein Herr. Jetzt könnt Ihr eine Bäckerei errichten lassen, die denGasthof mit frischem Brotbeliefern wird. Achtet immer darauf, dass genügend Gehilfen für den Transport Eurer Waren bereit stehen! Damit isteine schnelle Belieferung garantiert.
-512:Nebst dem Verzehr von Brot und Fisch bekommen die Untertanen gelegentlich auch Durst.|Baut eine Winzerei mit gut 16 Weinreben an, damitder Winzer Trauben ernten und diese zu Weinstampfenkann.
-513:Eure Arbeit zeichnet hervorragende Fortschritte auf! Allerdings leisten eureArbeiter mehr, wenn siemit Fleisch bewirtet werden. Errichtet eine Schweinezucht für die Mästung und Häutung von Zuchtvieh.
-514:Ein Metzger verarbeitet das frisch geschlachtete Schweininder Metzgerei unddrehtes zu Würsten. Damit er mit seiner Arbeit beginnen kann, baut ihm eine Metzgerei.
-515:Die Nahrungsmittelproduktion ist jetzt gesichert. Nunkann mit der Herstellung von Waffen begonnenwerden.|Baut zuerst eine Kaserne an eine geeignete Stelle. Beachtet unbedingt, dassdie Kaserne nie am Grenzgebiet zum Gegner errichtet werden darf!
-516:Mit 'Nächster Einheitentyp' und 'Vorheriger Einheitentyp' kann man zwischen den Einheiten wählen. Die blinkenden Felder zeigen die benötigte Ausrüstung je Soldatentyp.
-517:Soldaten brauchen Waffen! Baut eine Waffenwerkstatt direkt neben die Kaserne um eine schnelle Waffenlieferung zu garantieren. Die Warenwerden dann direkt in die Kaserne geschafft und nicht erst in ein Lagerhaus.
-518:DieAnzahlder zu produzierenden Waffen reguliert ihr mit einem Klick auf'Bestellmenge erhöhen'. Achtet auf die Materialversorgung. Waffen kosten vielHolz.Eventuellmüssen weitere Holzfällerhütten und Sägewerke errichtetwerden.
-519:Den nächsten Schritt sollte sich Eure Hoheit der Herstellung von Lederrüstungen aus Tierhäuten widmen. UmLeder zu gerben, ist eine Gerberei samtBetreiber zwingend notwendig.
-520:Da nun fortan Leder produziert wird, errichtet eineRüstungswerkstatt. Dort wird der Schreiner Lederrüstungen und Holzschilder konstruieren.
-521:Exzellent! Ihr seid nun in der Lage, eine Siedlung mit den wichtigsten Gebäuden aufzubauen und Waffen zuproduzieren.|Neue Rekruten bildet Ihr in der Schule, Soldaten inder Kaserne mit einemKlick auf 'Aktuellen Einheitentyp ausrüsten' aus.
-522:Euer Ziel ist es nun, die beiden mit Euch in Fehde stehenden Siedlungen inder Nähe zu zerstören. DerFeindim Süden fühlt sich hinter seiner stark gesicherten Basis in Sicherheit. Der Aufsässige im Osten schützt sichmit einer ganzen Horde. Es ist unabkömmlich, eine Armee vorzubereiten!
-523:|Der blaue Spieler ist geschlagen.
-524:|Der grüne Spieler ist geschlagen.
-525:Herr, bevor Ihr Euren Rivalen im Westen angreift, müsst Ihr die in der Nähe versteckten Späher im Nordenvernichten. Wählt mit einem Links-Klick dieLanzenträger aus, klickt dann mit der rechten Maustasteauf die feindlichen Truppen. Eure Soldaten werden sofort eine Attacke ausführen!
-526:Eine Schar Bogenschützen befindet sich im Süd-Westen. Schützen bilden dieDeckung eines jedenHeeres und müssen unbedingt aufgerieben werden. Attackiert sie mit den Milizen! Achtet auf die Blick- & Schussrichtungder Schützen, damit deren Pfeile Eurem Heer keine Verluste zufügen.
-527:Attackiert nun die feindlichen Truppen, welche im Westen postiert sind. Achtet auf die Bogenschützen,diesehaben sich hinter der Infanterie verschanzt. Sendet die Späher nach Norden, damit sieden Feind umzingelnund aus demHinterhalt angreifen können.
-528:Es ist an der Zeit mit all Euren Streitkräften aufeinmal anzugreifen! Schickt die Bogenschützenhinter dieInfanterie, um Rückendeckung geben zukönnen.|Wart Ihr siegreich, mein Fürst, ist das Kampf Tutorial beendet.
-529:
-530:Es ist unumgänglich, dass Ihr schnellstens neue Milizeinheiten ausrüstet. Ansonsten sind wir den Angriffen der Feinde schutzlos ausgeliefert.
-531:Die Kundschafter melden, dass der Feind sich bereitmacht, uns anzugreifen.|Empfangt sie mit dem Schwert in der Hand.
-532:Ihr macht gute Fortschritte, doch muss das Dorf noch weiter ausgebaut werden. Dann erst ist es vernünftig,die Barrikade des Feindes zu erstürmenund das Widerstandsnest zu vernichten.
-533:Ich weise Euch noch einmal darauf hin, dass die mit uns im Bunde stehenden Lauenburger Truppen unter allen Umständen zu beschützen sind.
-534:Hütet euch vor der Reiterei unseres Gegners, die gewiss erneut angreifen wird. Sie haben es noch immer aufunsere Verbündeten abgesehen.
-535:Das Dorf im Norden ist nun bereit, sich offen gegendie Tyrannei aufzulehnen. Dies gilt es zu unserem Vorteil zu nutzen.
-536:Unsere Späher haben eine verlassene Lagerhalle entdeckt. Sie liegt im Westen am Rande eines kleinenWaldesund gewiss findet Ihr darin nützliche Waren.
-537:Ein feindlicher Kundschafter wurde gefangen genommen und verhört. Wie esscheint, hat der Feind unseren Standort ausgemacht und schickt sich nun an, einen Angriff zu starten.
-538:Es wird nicht mehr lange dauern, bis die Barbarenüber uns herfallen. Bereitet die Verteidigung sorgfältig vor, sonst werden sie Eure Stellungen überwinden.
-539:Zu den Waffen! Eine gewaltige Streitmacht ist aufdem Weg zu uns.
-540:Teilt Eure Kräfte gut ein, der Feind ist in der Übermacht. Ein unüberlegterSturmangriff wird Euchnicht denSieg bringen.
-541:Der Sieg ist unser, doch die Zeit der Rache ist nochnicht gekommen. Erst muss Werheim wieder aufgebaut werden. dann sollen die Hunde bezahlen fürihre Gräueltaten.
-542:Ohne Eisen keine Waffen, ohne Waffen keine Krieger. Im Norden gibt es wasuns fehlt, also macht Euch bereit, die dortigen Minen zu erobern.
-543:Die braven Leute des Dorfes im Süden haben sich dem Tyrannen bis lang erfolgreich widersetzt, dabeiaber schlimme Verluste erlitten. Eilt ihnen zuHilfe, es wird Euer Schaden nicht sein.
-544:Es muss hier irgendwo ein verlassenes Lagerhaus geben. Erreicht es so schnell Ihr vermögt, denn bei der bevorstehenden Aufgabe ist jede Hilfe willkommen.
-545:Unsere Spione berichten, dass das verlassene Lagerhaus zum Ziel einer Großoffensive bestimmt wurde. Es muss unter allen Umständen gehalten werden, sonst ist unser eigenes Voranschreiten gefährdet.
-546:Eine erneute Angriffswelle auf das Lagerhaus stehtkurz bevor. Macht Euchbereit zum Kampf.
-547:Der Feind versucht verzweifelt, die drohende Niederlage abzuwenden und wagt einen Ausfall. Reibt die feindliche Armee bis zum letzten Mann auf, dann kann nichts mehr Euren Vormarsch aufhalten.
-548:Noch ist der Tyrann nicht besiegt. Unsere Verbündeten stehen zu ihrem Wort und stehen unszu Seite. Nachdem ersten Ansturm seid Ihr jedoch auf Euch gestellt, so wie es vereinbart worden ist.
-549:
-550:Mein Fürst, die Rebellen kommen!|Der Verräter steht mit einer riesigen Schar Söldnerdirekt vor den Toren und überfällt Eure Siedlungen! Rekrutiert rasch weitere Soldaten in derKaserne. Ihr müsst unbedingt die Lagerhäuser vor der Zerstörung bewahren!
-551:Ich schlage Euch vor, die Besatzer einzuschüchternund ihnen Eure Größe zu zeigen. Marschiert auf ihr Lager zu und metzelt die bewachten Posten nieder.|Nach dieser Schlacht werden sich die Dörfer Euch wieder anschließen, meinHerr.
-552:Bevor Ihr erneut in die Schlacht zieht, wisset, dasssich unter den Rebellenviele unschuldige Bürger befinden. Lasst die Bewohner und deren Siedlungen in Frieden, sie sind nicht der Feind. Konzentriert Euch auf die feindlichen Soldaten undderen Versorgung mit Waffen!
-553:Vertrauliche Quellen berichten, der Verbündete im Süden ist einer Attacke der Rebellen hilflos ausgesetzt.|Beschützt unter allen Umständen unsere Alliiertenvor einem Überfall! Sonst ist unser eigenes Voranschreiten stark beeinträchtigt.
-554:Unsere Späher berichten von feindlichen Verbänden,die sich auf das Lagerim Süden zubewegen. Verteidigt die kostbaren Waren im Lagerhaus mit jedem Mann!
-555:Mein Herr ihr müsst schnell handeln! Eine Armee des Gegners wurde südlichvon uns gesichtet! Seid auf derHut!
-556:Herr, schnell! Weitere Rebellenverbände nähern sichuns aus Richtung Westen!
-557:Es lässt sich nicht verschweigen, dass es unter Eurer Armee viele Veteranen gibt. Es ist ratsam, das Heer mit Söldnern aufzustocken.|Ihr könnt diese "Kopfgeldjäger" im Rathaus mit Goldtruhen anwerben. Aber seid achtsam, Söldner sind nichtgerade wohlfeil.
-558:Einer unserer listigen Läufer hat den Feind ausspioniert. Vielleicht wäre der Hintereingang der bessere Weg in die Burg...
-559:Eine feindliche Armee bewegt sich aus den nordwestlich gelegenen Bergen direkt auf unser Basislager zu!|Formiert Eure Truppen für einen bevorstehenden Kampf!
-560:Die Rebellen haben unseren Stützpunkt entdeckt. Ihrsolltet Euch auf eine Offensive gen Osten vorbereiten.
-561:Vorsicht, mein Landsherr! Auf den umliegenden Hügeln wurden Scharen feindlicher Bogenschützen gesichtet. Ein Kampf in der Schlucht darf unser Verderben nicht sein.
-562:Wir haben die letzte Bastion der Rebellen erreicht.|Kein Abtrünniger, kein Verräter und kein Rebell dürfen überleben! Die Schlacht ist erst beendet, wenn die letzte verdorbene Seele dieses Land fürimmer verlassen hat!
-563:Der Feind naht. Ergreift zum letzten Male das Schwert und zeigt keine Gnade vor den Rebellen!|In den Kampf!
-564:
-565:
-566:
-567:
-568:
-569:
-570:Leer
-571:Spirit
-572:Busy
-573:Middleage Horn
-574:Spring
-575:Middleage Guitar
-576:Landsknechte
-577:Die Prinzessin
-578:Die Königin
-579:Auf dem Markt
-580:Auf dem Felde
-581:Tanz am Hof
-582:Die Armee
-583:Im Schloss
-584:Fanfaren
-585:Am Hofe
-586:Entree
-587:Deep Blue
-588:Struggle
+159:Zur Bauauswahl
+160:Zur Warenverteilung
+161:Zur Statistik
+162:Zu den Nachrichten
+163:Zu den Optionen
+164:Zurück
+165:Bauauswahl
+166:Waren-|verteilung
+167:Statistik
+168:NACHRICHTEN
+169:Optionen
+170:Einstellungen aufrufen
+171:Spiel laden
+172:Spiel|speichern
+173:Spiel laden
+174:Spiel speichern
+175:Wollen Sie|diese Mission|wirklich beenden?
+176:Mission beenden
+177:Zurück
+178:Einstellungen
+179:Mission beenden
+180:Helligkeit
+181:+
+182:-
+183:Helligkeit erhöhen
+184:Helligkeit erniedrigen
+185:Sehr dunkel
+186:Dunkel
+187:Normal
+188:Hell
+189:Sehr hell
+190:Extrem hell
+191:Maus-Geschw.
+192:Maus Geschwindigkeit anpassen
+193:Geräusche
+194:Lautstärke ändern
+195:Musik
+196:Musik:
+197:Musik ein-/ausschalten
+198:Aus
+199:Über MIDI
+200:Ein
+201:Leer
+202:AutoSave
+203:Schnelles Scrollen
+204:Mission %d Zeit:%2.2u:%2.2u
+205:Szenario %d Zeit:%2.2u:%2.2u
+206:CD-Player
+207:Vorheriges Lied
+208:Nächstes Lied
+209:Abreissen
+210:Abreissen von Häusern/Markierungen
+211:Straße bauen
+212:Straßenbau
+213:Acker pflügen
+214:Ackerbau
+215:Zaun errichten
+216:Weidezaun
+217:Weinfeld anlegen
+218:Weinfeld
+219:Mauer errichten
+220:Mauerbau
+221:Ausbilden
+222:Ausgewählte Berufsgruppe ausbilden lassen
+223:Abbrechen
+224:Derzeitige Ausbildung abbrechen
+225:|in Ausbildung
+226:Vorrätig:
+227:Zustand:
+228:Liefert
+229:Das Gebäude wird|derzeit noch errichtet
+230:Zerstören
+231:Wollen Sie das Gebäude|wirklich abreissen?
+232:Zerstört ausgewähltes Gebäude
+233:Bestellmenge erniedrigen
+234:Bestellmenge erhöhen
+235:Warenbestand:
+236:Vorheriger Einheitentyp
+237:Nächster Einheitentyp
+238:Ausrüsten
+239:Aktuellen Einheitentyp ausrüsten
+240:Nächster Beruf
+241:Vorherigen Beruf
+242:Zur Warteschlange hinzufügen
+243:Nächster Söldner
+244:Vorheriger Söldner
+245:Söldner anheuern
+246:Anwesende Rekruten:
+247:Kosten:
+248:Warenlieferung ein-/ausschalten
+249:Hausreparatur ein-/ausschalten
+250:Gebäude derzeit nicht verfügbar
+251:Nicht in der Demoversion verfügbar
+252:Nicht belegt
+253:Ausdauer
+254:Truppe linksum drehen
+255:Truppe rechtsum drehen
+256:Truppe angreifen ('a')
+257:Truppe anhalten und formieren ('h')
+258:Truppe senden ('s')
+259:Truppen zusammenführen ('v')
+260:Truppe trennen ('l')
+261:Truppe mit Nahrung versorgen
+262:Sturmangriff starten
+263:Eine Reihe hinzufügen
+264:Eine Reihe abziehen
+265:Offensive:
+266:Defensive:
+267:Tempo:
+268:Kaserne|auswählen
+269:Abbrechen
+270:Zielort|wählen
+271:Zielgruppe|wählen
+272:Angriffsziel|wählen
+273:Abbruch
+274:Einheit derzeit nicht verfügbar
+275:Löschen
+276:Löscht die aktuelle Nachricht
+277:Senden
+278:Verschickt die aktuelle Nachricht
+279:Gehe zu
+280:Springt zur Position der aktuellen Nachricht
+281:Schließen
+282:Fenster schließen
+283:Antworten
+284:Nachricht beantworten
+285:Bestätigen
+286:Bündnisse werden neu verteilt.
+287:ist freundlich.
+288:ist feindlich.
+289:|Euer Steinmetz erreicht keine weiteren Steinbestände.
+290:|Euer Kohlebergwerk ist erschöpft.
+291:|Euer Eisenbergwerk ist erschöpft.
+292:|Euer Goldbergwerk ist erschöpft.
+293:|Euer Fischer findet keine weiteren Fischbestände mehr.
+294:|Dieses Haus ist nicht bewohnt.
+295:|Diese Truppe ist sehr hungrig, sie sollte sehr bald Nahrung bekommen!
+296:Zur Eisenverteilung
+297:Verteilung des|Eisens
+298:Zur Kohlenverteilung
+299:Verteilung der|Kohle
+300:Zur Nutzholzverteilung
+301:Verteilung des|Nutzholzes
+302:Zur Kornverteilung
+303:Verteilung des|Kornes
+304:|Bitte Nachrichtentext eingeben:
+305:Nachricht von Spieler '%s':|'%s'
+306:Bündnisse:
+307:PAUSE
+478:Netzwerkmeldung:
+479:Spieler '%s' hat das Spiel verlassen.|Drücken Sie ~<~S~P~A~C~E~> zum Weiterspielen.
+480:Sie sind nun der Server.|Drücken Sie ~<~S~P~A~C~E~> zum Weiterspielen.
+481:Rechner wartet auf Daten. Drücken Sie ~<~S~P~A~C~E~> zum|Wiederholen oder ~<~F~1~> zum Spielabbruch.
+499:Um neue Arbeitskräfte ausbilden zu können, benötigt Ihr ein Schulhaus.|Achtet stets darauf, dass immer genügend Gold im Lagerhaus vorrätig ist, um damit die Ausbildung weitererUntertanen finanzieren zu können.
+500:Beginnt mit einem Links-Klick auf die Hammer-Tastelinks im Menü - die Bauauswahl. Klicktdannaufdas Buch-Symbol - das Schulhaus. PositioniertdenRahmen auf der Karte, wo Ihr dasGebäude gerne hättet undklickt auf dielinke Maustaste.
+501:Wenn Seine Lordschaft das Schulhaus gesetzt hat, seht Ihr, dass der Cursor in 'Straße bauen' geändert wurde. Ihr müsst vom Hauseingang einesGebäudes jedes quadratische Feld mit einem Weg versehen, um eineStraße bauen und diese dann mitanderen Straßen verbinden zu können.
+502:Um Untertanen auszubilden, wählt das Schulhaus an und scrollt durch dieListe, bis Euer gewünschter Berufangezeigt wird. Klickt auf die Taste 'Zur Warteschlange hinzufügen'. Nach der Ausbildung starten dieLeibeigenen automatisch mitder Ausführung ihrer Aufgaben.
+503:Von Zeit zu Zeit benötigt selbst der fleißigste Knecht Nahrung. Stellt dem arbeitenden Volk einenGasthof bereit. Den Gang zu Tisch erledigen die Untertanen von alleine. Der Gasthof sollte zudemzentral gelegen sein, damit ihn jeder Dorfbewohner schnell erreichen kann.
+504:Mein Fürst, Ihr benötigt mehr Steine für den weiteren Haus- und Straßenbau. Lasst einen Steinbruch in derNähe von Steinvorkommnissen erbauen. Dazu ist die Ausbildung eines Steinmetzesvon Nöten, der neuesBaumaterial beschafft.
+505:Nebst Stein wird für den Hausbau und die Waffenherstellung Holz verwendet. Der Holzfäller fällt und pflanzt hierfür Bäume, die dann im Sägewerk zum benötigten Bauholz weiterverarbeitetwerden. Baut die Hüttedes Holzfällers nur in die Nähe eines Waldes.
+506:Nun muss das Sägewerk errichtet werden, um die Baumstämme des Holzfällers nutzvoll zu verarbeiten. Die Arbeit im Werk verrichtet ein Schreiner, der hierfür ausgebildet werden muss.
+507:Sobald die Rohstoffversorgung aufgebaut ist, solltenLebensmittel erwirtschaftet werden. Aber rasch, die Untertanen fangen sonst an zu hungernund verweigern die Arbeit!|Am schnellsten ist die Fischerhütte erbaut, die in der Nähe von Gewässernplatziert werden muss.
+508:Der Bau ist vollendet. Man beachte, dass Fische nur begrenzt zur Verfügung stehen.|Für eine dauerhafte Nahrungsversorgung werden Bauernhöfe benötigt. Dieseproduzieren Korn für dasBackenvon Broten.
+509:Dem Bauern sollten ungefähr 16 Felder in direkter Nähe des Bauernhofes bereitgestellt werden.|Das geerntete Korn wird anschließend in die Windmühle gebracht und dort zu Mehl verarbeitet. Baut eine solche Mühle und bildet einen Müller aus.
+510:Sehr gut, mein Herr. Jetzt könnt Ihr eine Bäckerei errichten lassen, die denGasthof mit frischem Brotbeliefern wird. Achtet immer darauf, dass genügend Gehilfen für den Transport Eurer Waren bereit stehen! Damit isteine schnelle Belieferung garantiert.
+511:Nebst dem Verzehr von Brot und Fisch bekommen die Untertanen gelegentlich auch Durst.|Baut eine Winzerei mit gut 16 Weinreben an, damitder Winzer Trauben ernten und diese zu Weinstampfenkann.
+512:Eure Arbeit zeichnet hervorragende Fortschritte auf! Allerdings leisten eureArbeiter mehr, wenn siemit Fleisch bewirtet werden. Errichtet eine Schweinezucht für die Mästung und Häutung von Zuchtvieh.
+513:Ein Metzger verarbeitet das frisch geschlachtete Schweininder Metzgerei unddrehtes zu Würsten. Damit er mit seiner Arbeit beginnen kann, baut ihm eine Metzgerei.
+514:Die Nahrungsmittelproduktion ist jetzt gesichert. Nunkann mit der Herstellung von Waffen begonnenwerden.|Baut zuerst eine Kaserne an eine geeignete Stelle. Beachtet unbedingt, dassdie Kaserne nie am Grenzgebiet zum Gegner errichtet werden darf!
+515:Mit 'Nächster Einheitentyp' und 'Vorheriger Einheitentyp' kann man zwischen den Einheiten wählen. Die blinkenden Felder zeigen die benötigte Ausrüstung je Soldatentyp.
+516:Soldaten brauchen Waffen! Baut eine Waffenwerkstatt direkt neben die Kaserne um eine schnelle Waffenlieferung zu garantieren. Die Warenwerden dann direkt in die Kaserne geschafft und nicht erst in ein Lagerhaus.
+517:DieAnzahlder zu produzierenden Waffen reguliert ihr mit einem Klick auf'Bestellmenge erhöhen'. Achtet auf die Materialversorgung. Waffen kosten vielHolz.Eventuellmüssen weitere Holzfällerhütten und Sägewerke errichtetwerden.
+518:Den nächsten Schritt sollte sich Eure Hoheit der Herstellung von Lederrüstungen aus Tierhäuten widmen. UmLeder zu gerben, ist eine Gerberei samtBetreiber zwingend notwendig.
+519:Da nun fortan Leder produziert wird, errichtet eineRüstungswerkstatt. Dort wird der Schreiner Lederrüstungen und Holzschilder konstruieren.
+520:Exzellent! Ihr seid nun in der Lage, eine Siedlung mit den wichtigsten Gebäuden aufzubauen und Waffen zuproduzieren.|Neue Rekruten bildet Ihr in der Schule, Soldaten inder Kaserne mit einemKlick auf 'Aktuellen Einheitentyp ausrüsten' aus.
+521:Euer Ziel ist es nun, die beiden mit Euch in Fehde stehenden Siedlungen inder Nähe zu zerstören. DerFeindim Süden fühlt sich hinter seiner stark gesicherten Basis in Sicherheit. Der Aufsässige im Osten schützt sichmit einer ganzen Horde. Es ist unabkömmlich, eine Armee vorzubereiten!
+522:|Der blaue Spieler ist geschlagen.
+523:|Der grüne Spieler ist geschlagen.
+524:Herr, bevor Ihr Euren Rivalen im Westen angreift, müsst Ihr die in der Nähe versteckten Späher im Nordenvernichten. Wählt mit einem Links-Klick dieLanzenträger aus, klickt dann mit der rechten Maustasteauf die feindlichen Truppen. Eure Soldaten werden sofort eine Attacke ausführen!
+525:Eine Schar Bogenschützen befindet sich im Süd-Westen. Schützen bilden dieDeckung eines jedenHeeres und müssen unbedingt aufgerieben werden. Attackiert sie mit den Milizen! Achtet auf die Blick- & Schussrichtungder Schützen, damit deren Pfeile Eurem Heer keine Verluste zufügen.
+526:Attackiert nun die feindlichen Truppen, welche im Westen postiert sind. Achtet auf die Bogenschützen,diesehaben sich hinter der Infanterie verschanzt. Sendet die Späher nach Norden, damit sieden Feind umzingelnund aus demHinterhalt angreifen können.
+527:Es ist an der Zeit mit all Euren Streitkräften aufeinmal anzugreifen! Schickt die Bogenschützenhinter dieInfanterie, um Rückendeckung geben zukönnen.|Wart Ihr siegreich, mein Fürst, ist das Kampf Tutorial beendet.
+529:Es ist unumgänglich, dass Ihr schnellstens neue Milizeinheiten ausrüstet. Ansonsten sind wir den Angriffen der Feinde schutzlos ausgeliefert.
+530:Die Kundschafter melden, dass der Feind sich bereitmacht, uns anzugreifen.|Empfangt sie mit dem Schwert in der Hand.
+531:Ihr macht gute Fortschritte, doch muss das Dorf noch weiter ausgebaut werden. Dann erst ist es vernünftig,die Barrikade des Feindes zu erstürmenund das Widerstandsnest zu vernichten.
+532:Ich weise Euch noch einmal darauf hin, dass die mit uns im Bunde stehenden Lauenburger Truppen unter allen Umständen zu beschützen sind.
+533:Hütet euch vor der Reiterei unseres Gegners, die gewiss erneut angreifen wird. Sie haben es noch immer aufunsere Verbündeten abgesehen.
+534:Das Dorf im Norden ist nun bereit, sich offen gegendie Tyrannei aufzulehnen. Dies gilt es zu unserem Vorteil zu nutzen.
+535:Unsere Späher haben eine verlassene Lagerhalle entdeckt. Sie liegt im Westen am Rande eines kleinenWaldesund gewiss findet Ihr darin nützliche Waren.
+536:Ein feindlicher Kundschafter wurde gefangen genommen und verhört. Wie esscheint, hat der Feind unseren Standort ausgemacht und schickt sich nun an, einen Angriff zu starten.
+537:Es wird nicht mehr lange dauern, bis die Barbarenüber uns herfallen. Bereitet die Verteidigung sorgfältig vor, sonst werden sie Eure Stellungen überwinden.
+538:Zu den Waffen! Eine gewaltige Streitmacht ist aufdem Weg zu uns.
+539:Teilt Eure Kräfte gut ein, der Feind ist in der Übermacht. Ein unüberlegterSturmangriff wird Euchnicht denSieg bringen.
+540:Der Sieg ist unser, doch die Zeit der Rache ist nochnicht gekommen. Erst muss Werheim wieder aufgebaut werden. dann sollen die Hunde bezahlen fürihre Gräueltaten.
+541:Ohne Eisen keine Waffen, ohne Waffen keine Krieger. Im Norden gibt es wasuns fehlt, also macht Euch bereit, die dortigen Minen zu erobern.
+542:Die braven Leute des Dorfes im Süden haben sich dem Tyrannen bis lang erfolgreich widersetzt, dabeiaber schlimme Verluste erlitten. Eilt ihnen zuHilfe, es wird Euer Schaden nicht sein.
+543:Es muss hier irgendwo ein verlassenes Lagerhaus geben. Erreicht es so schnell Ihr vermögt, denn bei der bevorstehenden Aufgabe ist jede Hilfe willkommen.
+544:Unsere Spione berichten, dass das verlassene Lagerhaus zum Ziel einer Großoffensive bestimmt wurde. Es muss unter allen Umständen gehalten werden, sonst ist unser eigenes Voranschreiten gefährdet.
+545:Eine erneute Angriffswelle auf das Lagerhaus stehtkurz bevor. Macht Euchbereit zum Kampf.
+546:Der Feind versucht verzweifelt, die drohende Niederlage abzuwenden und wagt einen Ausfall. Reibt die feindliche Armee bis zum letzten Mann auf, dann kann nichts mehr Euren Vormarsch aufhalten.
+547:Noch ist der Tyrann nicht besiegt. Unsere Verbündeten stehen zu ihrem Wort und stehen unszu Seite. Nachdem ersten Ansturm seid Ihr jedoch auf Euch gestellt, so wie es vereinbart worden ist.
+549:Mein Fürst, die Rebellen kommen!|Der Verräter steht mit einer riesigen Schar Söldnerdirekt vor den Toren und überfällt Eure Siedlungen! Rekrutiert rasch weitere Soldaten in derKaserne. Ihr müsst unbedingt die Lagerhäuser vor der Zerstörung bewahren!
+550:Ich schlage Euch vor, die Besatzer einzuschüchternund ihnen Eure Größe zu zeigen. Marschiert auf ihr Lager zu und metzelt die bewachten Posten nieder.|Nach dieser Schlacht werden sich die Dörfer Euch wieder anschließen, meinHerr.
+551:Bevor Ihr erneut in die Schlacht zieht, wisset, dasssich unter den Rebellenviele unschuldige Bürger befinden. Lasst die Bewohner und deren Siedlungen in Frieden, sie sind nicht der Feind. Konzentriert Euch auf die feindlichen Soldaten undderen Versorgung mit Waffen!
+552:Vertrauliche Quellen berichten, der Verbündete im Süden ist einer Attacke der Rebellen hilflos ausgesetzt.|Beschützt unter allen Umständen unsere Alliiertenvor einem Überfall! Sonst ist unser eigenes Voranschreiten stark beeinträchtigt.
+553:Unsere Späher berichten von feindlichen Verbänden,die sich auf das Lagerim Süden zubewegen. Verteidigt die kostbaren Waren im Lagerhaus mit jedem Mann!
+554:Mein Herr ihr müsst schnell handeln! Eine Armee des Gegners wurde südlichvon uns gesichtet! Seid auf derHut!
+555:Herr, schnell! Weitere Rebellenverbände nähern sichuns aus Richtung Westen!
+556:Es lässt sich nicht verschweigen, dass es unter Eurer Armee viele Veteranen gibt. Es ist ratsam, das Heer mit Söldnern aufzustocken.|Ihr könnt diese "Kopfgeldjäger" im Rathaus mit Goldtruhen anwerben. Aber seid achtsam, Söldner sind nichtgerade wohlfeil.
+557:Einer unserer listigen Läufer hat den Feind ausspioniert. Vielleicht wäre der Hintereingang der bessere Weg in die Burg...
+558:Eine feindliche Armee bewegt sich aus den nordwestlich gelegenen Bergen direkt auf unser Basislager zu!|Formiert Eure Truppen für einen bevorstehenden Kampf!
+559:Die Rebellen haben unseren Stützpunkt entdeckt. Ihrsolltet Euch auf eine Offensive gen Osten vorbereiten.
+560:Vorsicht, mein Landsherr! Auf den umliegenden Hügeln wurden Scharen feindlicher Bogenschützen gesichtet. Ein Kampf in der Schlucht darf unser Verderben nicht sein.
+561:Wir haben die letzte Bastion der Rebellen erreicht.|Kein Abtrünniger, kein Verräter und kein Rebell dürfen überleben! Die Schlacht ist erst beendet, wenn die letzte verdorbene Seele dieses Land fürimmer verlassen hat!
+562:Der Feind naht. Ergreift zum letzten Male das Schwert und zeigt keine Gnade vor den Rebellen!|In den Kampf!
+569:Leer
+570:Spirit
+571:Busy
+572:Middleage Horn
+573:Spring
+574:Middleage Guitar
+575:Landsknechte
+576:Die Prinzessin
+577:Die Königin
+578:Auf dem Markt
+579:Auf dem Felde
+580:Tanz am Hof
+581:Die Armee
+582:Im Schloss
+583:Fanfaren
+584:Am Hofe
+585:Entree
+586:Deep Blue
+587:Struggle
+588:Leer
 589:Leer
 590:Leer
-591:Leer
-592:
-593:
-594:
-595:
-596:
-597:
-598:
-599:
-600:
-601:
-602:
-603:
-604:
-605:
-606:
-607:
-608:
-609:
-610:
-611:
-612:
-613:
-614:
-615:
-616:
-617:
-618:
-619:
-620:
-621:
-622:
-623:
-624:
-625:
-626:
-627:
-628:
-629:
-630:
-631:
-632:
-633:
-634:
-635:
-636:
-637:
-638:
-639:
-640:
-641:
-642:
-643:
-644:
-645:
-646:
-647:
-648:
-649:
-650:
-651:
-652:
-653:
-654:
-655:
-656:
-657:
-658:
-659:
-660:
-661:
-662:
-663:
-664:
-665:
-666:
-667:
-668:
-669:
-670:
-671:
-672:
-673:
-674:
-675:
-676:
-677:
-678:
-679:
-680:
-681:
-682:
-683:
-684:
-685:
-686:
-687:
-688:
-689:
-690:
-691:
-692:
-693:
-694:
-695:
-696:
-697:
-698:
-699:
-700:
-701:
-702:
-703:
-704:
-705:
-706:
-707:
-708:
-709:
-710:
-711:
-712:
-713:
-714:
-715:
-716:
-717:
-718:
-719:
-720:
-721:
-722:
-723:
-724:
-725:
-726:
-727:
-728:
-729:
-730:
-731:
-732:
-733:
-734:
-735:
-736:
-737:
-738:
-739:
-740:
-741:
-742:
-743:
-744:
-745:
-746:
-747:
-748:
-749:
-750:
-751:
-752:
-753:
-754:
-755:
-756:
-757:
-758:
-759:
-760:
-761:
-762:
-763:
-764:
-765:
-766:
-767:
-768:
-769:
-770:
-771:
-772:
-773:
-774:
-775:
-776:
-777:
-778:
-779:
-780:
-781:
-782:
-783:
-784:
-785:
-786:
-787:
-788:
-789:
-790:
-791:
-792:
-793:
-794:
-795:
-796:
-797:
-798:
-799:
-800:
-801:
-802:
-803:
-804:
-805:
-806:
-807:
-808:
-809:
-810:
-811:
-812:
-813:
-814:
-815:
-816:
-817:
-818:
-819:
-820:
-821:
-822:
-823:
-824:
-825:
-826:
-827:
-828:
-829:
-830:
-831:
-832:
-833:
-834:
-835:
-836:
-837:
-838:
-839:
-840:
-841:
-842:
-843:
-844:
-845:
-846:
-847:
-848:
-849:
-850:
-851:
-852:
-853:
-854:
-855:
-856:
-857:
-858:
-859:
-860:
-861:
-862:
-863:
-864:
-865:
-866:
-867:
-868:
-869:
-870:
-871:
-872:
-873:
-874:
-875:
-876:
-877:
-878:
-879:
-880:
-881:
-882:
-883:
-884:
-885:
-886:
-887:
-888:
-889:
-890:
-891:
-892:
-893:
-894:
-895:
-896:
-897:
-898:
-899:
-900:
-901:
-902:
-903:
-904:
-905:
-906:
-907:
-908:
-909:
-910:
-911:
-912:
-913:
-914:
-915:
-916:
-917:
-918:
-919:
-920:
-921:
-922:
-923:
-924:
-925:
-926:
-927:
-928:
-929:
-930:
-931:
-932:
-933:
-934:
-935:
-936:
-937:
-938:
-939:
-940:
-941:
-942:
-943:
-944:
-945:
-946:
-947:
-948:
-949:
-950:
-951:
-952:
-953:
-954:
-955:
-956:
-957:
-958:
-959:
-960:
-961:
-962:
-963:
-964:
-965:
-966:
-967:
-968:
-969:
-970:
-971:
-972:
-973:
-974:
-975:
-976:
-977:
-978:
-979:
-980:
-981:
-982:
-983:
-984:
-985:
-986:
-987:
-988:
-989:
-990:
-991:
-992:
-993:
-994:
-995:
-996:
-997:
-998:
-999:
-1000:unused
-1001:Kampagne 'The Shattered Kingdom'
-1002:Kampagne 'The Peasants Rebellion'
-1003:Tutorial spielen
-1004:Einzelmission spielen
-1005:Einzelmission
-1006:Vorherige
-1007:Nächste
-1008:Mission starten
-1009:Zurück zum Hauptmenü
-1010:Spielstand laden
-1011:Multiplayerspiel
-1012:Optionen
-1013:Credits anschauen
-1014:Programm verlassen
-1015:Leer
-1016:Spielstand laden:
-1017:Weiter
-1018:Mission wiederholen
-1019:Zum Hauptmenü
-1020:Auflösung:
-1021:nicht verfügbar
-1022:Spielart wählen
-1023:Local Area Network
-1024:Net-Games
-1025:Benutzername:
-1026:Passwort:
-1027:Neuer Account
-1028:Einloggen
-1029:Verbindung zu Net-Games wird aufgebaut...
-1030:Authentifizierung...
-1031:OK
-1032:Fehlgeschlagen
-1033:Verbindung abgebrochen
-1034:Falsches Passwort
-1035:Benutzername ist bereits vergeben
-1036:Dieser Benutzer ist gebannt
-1037:Ungültiger Benutzernamen
-1038:Undefiniert
-1039:In Bearbeitung
-1040:Invalid parameters
-1041:Channel ist voll
-1042:Channel existiert nicht
-1043:Sie haben keine Zugangsberechtigung für diesen Channel
-1044:Timeout
-1045:Sie haben zuviele Accounts
-1046:Der Server akzeptiert derzeit keine Registrierungen
-1047:Der Benutzername ist ungültig
-1048:<COL 0>%s:<COL 1> %s|
-1049:<COL 0>%s %s|
-1050:<COL 2>%s flüstert: %s|
-1051:<COL 3>Private Nachricht an %s: %s|
+999:unused
+1000:Kampagne 'The Shattered Kingdom'
+1001:Kampagne 'The Peasants Rebellion'
+1002:Tutorial spielen
+1003:Einzelmission spielen
+1004:Einzelmission
+1005:Vorherige
+1006:Nächste
+1007:Mission starten
+1008:Zurück zum Hauptmenü
+1009:Spielstand laden
+1010:Multiplayerspiel
+1011:Optionen
+1012:Credits anschauen
+1013:Programm verlassen
+1014:Leer
+1015:Spielstand laden:
+1016:Weiter
+1017:Mission wiederholen
+1018:Zum Hauptmenü
+1019:Auflösung:
+1020:nicht verfügbar
+1021:Spielart wählen
+1022:Local Area Network
+1023:Net-Games
+1024:Benutzername:
+1025:Passwort:
+1026:Neuer Account
+1027:Einloggen
+1028:Verbindung zu Net-Games wird aufgebaut...
+1029:Authentifizierung...
+1030:OK
+1031:Fehlgeschlagen
+1032:Verbindung abgebrochen
+1033:Falsches Passwort
+1034:Benutzername ist bereits vergeben
+1035:Dieser Benutzer ist gebannt
+1036:Ungültiger Benutzernamen
+1037:Undefiniert
+1038:In Bearbeitung
+1039:Invalid parameters
+1040:Channel ist voll
+1041:Channel existiert nicht
+1042:Sie haben keine Zugangsberechtigung für diesen Channel
+1043:Timeout
+1044:Sie haben zuviele Accounts
+1045:Der Server akzeptiert derzeit keine Registrierungen
+1046:Der Benutzername ist ungültig
+1047:<COL 0>%s:<COL 1> %s|
+1048:<COL 0>%s %s|
+1049:<COL 2>%s flüstert: %s|
+1050:<COL 3>Private Nachricht an %s: %s|
+1051:<COL 4>SERVER: %s|
 1052:<COL 4>SERVER: %s|
-1053:<COL 4>SERVER: %s|
-1054:<COL 2>Message of the Day: %s|
-1055:<COL 0>BROADCAST: %s|
-1056:<COL 3>%s hat den Channel betreten|
-1057:<COL 3>%s hat den Channel verlassen|
-1058:<COL 3>Sie haben den Channel <COL 0>%s<COL 3> betreten|
-1059:<COL 3>Sie haben das Spiel <COL 0>%s<COL 3> betreten|
-1060:Zurück zum Hauptmenü
-1061:Betrete Channel
-1062:Betrete Spiel
-1063:Neues Spiel
-1064:Neues Ladderspiel
-1065:Verlasse Spiel
-1066:Spiel starten
-1067:Flüstern
-1068:Rauswerfen
-1069:Bannen
-1070:Info
-1071:Registrieren
-1072:Namen erneut eingeben
-1073:Bitte geben Sie Ihren Namen ein:
-1074:Weiter
-1075:Abbruch
-1076:Bitte wählen:
-1077:Spiel betreten
-1078:Spiel erschaffen
-1079:Bitte Namen der Spielrunde eingeben:
-1080:Spielrunde starten
-1081:Spielrunde auswählen:
-1082:Ins Spiel einsteigen
-1083:Spiele suchen
-1084:Anwesende Spieler:
-1085:Nachrichten:
-1086:Senden:
-1087:Starten!
-1088:Ohne Namen
-1089:<Nicht belegt>
-1090:<Nicht verfügbar>
-1091:<Computer>
-1092:s Spielrunde
-1093:~S~p~i~e~l~e~r '%s' ~i~s~t ~v~o~m ~S~e~r~v~e~r ~e~n~t~f~e~r~n~t ~w~o~r~d~e~n
-1094:Szenarien:
-1095:Bezeichnung:
-1096:Beschreibung:
-1097:Besitz:
-1098:Startposition:
-1099:Der Server bestimmt|das Szenario
-1100:Lagerhaus
-1101:Lagerhaus und Truppen
-1102:Gebäude und Truppen
-1103:Reihenfolge
-1104:Zufällig
-1105:Spielstand wird übertragen
-1106:Übertragung abbrechen
-1107:Fertig: %d/100
-1108:Spielstand Nr.%d
-1109:Spieleranzahl:%d
-1110:AutoSave
-1111:MISSION GEWONNEN!
-1112:MISSION VERLOREN!
-1113:Verlorene Einheiten:
-1114:Besiegte Einheiten:
-1115:Verlorene Gebäude:
-1116:Zerstörte Gebäude:
-1117:Errichtete Gebäude:
-1118:Ausgebildete Einheiten:
-1119:Produzierte Waffen:
-1120:Ausgerüstete Soldaten:
-1121:Spieldauer:
-1122:
-1123:
-1124:
-1125:
-1126:
-1127:
-1128:
-1129:
-1130:
-1131:
-1132:
-1133:
-1134:
-1135:
-1136:
-1137:
-1138:
-1139:
-1140:
-1141:
-1142:
-1143:
-1144:
-1145:
-1146:
-1147:
-1148:
-1149:
-1150:Drei Kontinente
-1151:Wildes Land
-1152:Kampf um Kohle
-1153:Grenzflüsse
-1154:Land der Hügel
-1155:Berg an Berg
-1156:Burgenschlacht
-1157:Treffen an der Küste
-1158:Der Hinterhalt
-1159:Brückenfiasko
-1160:Bonuskarte A
-1161:Bonuskarte B
-1162:
-1163:
-1164:
-1165:
-1166:
-1167:
-1168:
-1169:
-1170:
-1171:
-1172:
-1173:
-1174:
-1175:
-1176:
-1177:
-1178:
-1179:
-1180:Durch die Wüste||Größe: 176x176|Anzahl der Gegner: 5
-1181:In einem fremden Land||Größe: 176x176|Anzahl der Gegner: 3
-1182:Durch Sand und Schnee||Größe: 160x128|Anzahl der Gegner: 5
-1183:Land des schnellen Stroms||Größe: 176x176|Anzahl der Gegner: 3
-1184:Schwarzes Gold||Größe: 176x176|Anzahl der Gegner: 5
-1185:Gebirgswälle||Größe: 144x128|Anzahl der Gegner: 3
-1186:Im Reich der Dunkelheit||Größe: 176x176|Anzahl der Gegner: 3
-1187:
-1188:
-1189:
-1190:
-1191:
-1192:
-1193:
-1194:
-1195:
-1196:
-1197:
-1198:
-1199:
-1200:Spieleranzahl: 6|Kartengröße: 176x176|Aufbauszenario
-1201:Spieleranzahl: 4|Kartengröße: 176x176|Aufbauszenario
-1202:Spieleranzahl: 6|Kartengröße: 160x128|Aufbauszenario
-1203:Spieleranzahl: 4|Kartengröße: 176x176|Aufbauszenario
-1204:Spieleranzahl: 6|Kartengröße: 176x176|Aufbauszenario
-1205:Spieleranzahl: 4|Kartengröße: 144x128|Aufbauszenario
-1206:Spieleranzahl: 6|Kartengröße: 176x144|Aufbauszenario
-1207:Spieleranzahl: 3|Kartengröße: 64x64|Kampfszenario
-1208:Spieleranzahl: 6|Kartengröße: 144x144|Kampfszenario
-1209:Spieleranzahl: 4|Kartengröße: 176x176|Aufbauszenario
-1210:
-1211:
-1212:
-1213:
-1214:
-1215:
-1216:
-1217:
-1218:
-1219:
-1220:
-1221:
-1222:
-1223:
-1224:
-1225:
-1226:
-1227:
-1228:
-1229:
-1230:
-1231:
-1232:
-1233:
-1234:
-1235:
-1236:
-1237:
-1238:
-1239:
-1240:
-1241:
-1242:
-1243:
-1244:
-1245:
-1246:
-1247:
-1248:
-1249:
-1250:Es ist den Schergen des Verräters|gelungen, eine Bresche in unsere|Verteidigung zu schlagen.|Die Festung ist gefallen und wenn|es euch nicht gelingt die Feinde|in die Flucht zu schlagen ist das|Königreich verloren und der Thron-|räuber triumphiert.|Zu den Waffen!
-1251:Dank des von Euch errungenen Sieges|können wir wieder Hoffnung schöpfen.|Noch ist aber nicht die Zeit für|Siegesfeiern. Die geschlagenen Feinde|haben sich zurückgezogen um sich in|einem Dorf ganz in der Nähe neu zu|sammeln. Der Prinz wird bald einen|neuen Kampf erzwingen, da er uns|zahlenmäßig stark überlegen ist.|Behaltet die Ruhe und laßt euch nicht|in eine offene Feldschlacht verwickeln.|Das Gelände ist günstig für eine|defensive Strategie: an der schmalen|Furt, welche die feindlichen Soldaten|überqueren müssen, könnt Ihr trotz|unserer Unterlegenheit den Sieg|davontragen.
-1252:Ein denkwürdiger Tag. Das Heer des|abtrünnigen Prinzen ist auf dem|Rückzug. Der Weg in das Fürstentum|Lauenburg ist nun frei.|Der Lauenburger Fürst ist ein|Verbündeter unseres Gegners, also|müßt Ihr auf dem Weg in seine|Provinz mit Widerstand rechnen.
-1253:Unseren Feinden ist es nicht|gelungen, den Vormarsch der|Königstreuen aufzuhalten. Der Fürst|von Lauenburg hat sich mit seiner|Streitmacht in seine Festung zurück-|gezogen und ist auf unseren Ansturm|vorbereitet. Die Bevölkerung des|Fürstentums hat uns freundlich|empfangen. Das gibt Euch die Gelegen-|heit, Euer Heer zu vergrößern um|Lauenburg einnehmen zu können.|Wenn Ihr den Fürsten schlagen könnt,|setzt Ihr gleichzeitig ein Zeichen|für alle anderen Verräter an der|Krone.
-1254:Der Fürst von Lauenburg hat sich|Euch ergeben und von unserem König|Pardon erhalten, da er Reue gezeigt|hat. Euer nächstes Ziel ist die Stadt|Moorbach. Ganz in der Nähe der|Stadt haben unsere Späher einen|verlassenen Stützpunkt entdeckt, den|Ihr nutzen und ausbauen solltet.|Da Lauenburg nun mit uns verbündet|ist, sehen sich die fürstlichen Truppen|nun von unseren Feinden bedroht.|Beschützt die Lauenburger Einheiten|um jeden Preis, um das Vertrauen|zwischen uns und unseren neuen|Waffengefährten zu festigen und neue|Soldaten für Euer Heer zu erhalten.
-1255:Moorbach ist eingenommen und|unsere Feinde nicht nur geschlagen|sondern zutiefst gedemütigt. Berichten|unserer Kundschafter zufolge sammelt|sich im Nordwesten ein neues|Feindesheer, um die Schmach von|Moorbach zu rächen. Wir sind nun|jedoch stark genug, um unsererseits|in die Offensive zu gehen. Zieht den|feindlichen Verbänden entgegen, bevor|sie sich vollständig formiert haben.|Dabei könnt Ihr euch auf die Lanzen-|träger aus Lauenburg stützen, die|sich unserem Heer angeschlossen|haben.
-1256:Die Kunde von Euren Siegen ver-|breitet sich wie ein Lauffeuer im|ganzen Königreich. Überall erheben|sich die Bürger gegen den Tyrannen.|Im Norden liegt Walheim, das immer|noch von unseren Feinden gehalten|wird. Der Herrscher von Walheim hat|sich geweigert, unsere Parlamentäre|zu empfangen und geschworen, die|Stadt bis zum letzten Mann zu|verteidigen. Die Bewohner eines|kleinen Dorfes in der Nähe unseres|Stützpunktes haben sich gegen die|Unterdrücker aufgelehnt.
-1257:Die wilden Bewohner des Nordens|rotten sich zusammen, um in das|Reich einzufallen. Ihr müßt Ihnen|unter allen Umständen Einhalt|gebieten, bevor Ihr euch wieder den|Rebellen zuwenden könnt. In den|Ruinen von Walheim fanden sich|Konstruktionspläne für fort-|schrittliche Spähtürme. Ihr müßt|ein Bollwerk gegen die barbarischen|Horden errichten und dann die Wilden|bis zum letzten Mann ausmerzen.
-1258:Die Barbaren sind untereinander|zerstritten. Durch diplomatisches|Geschick konnten zwei ihrer|Anführer mit ihren Kriegern auf|unsere Seite gezogen werden.|Euer momentaner Lagerort ist leicht|zu verteidigen, aber der Raum für den|Ausbau ist sehr begrenzt, so daß Ihr|sorgfältig planen müßt. Der Feind|macht sich zur Schlacht bereit und|wird bald angreifen. Es ist also|Eile geboten, damit Ihr den Feinden|einen gebührenden Empfang|bereiten könnt.
-1259:Der verruchte Despot bedroht eine|unserer Städte. Nur ein Gewaltmarsch|wird eure Soldaten rechtzeitig an den|Ort des Geschehens bringen. Nach|Angaben unserer Spione müßt Ihr|mit einer großen feindlichen|Streitmacht rechnen und Eure eigenen|Kräfte gut einteilen. Nur eine kluge|Taktik wird Euch den Sieg bringen,|stumpfes Drauflosstürmen ist Euer|Untergang.
-1260:Um Haaresbreite ist es gelungen,|den Angriff auf unsere Stadt|abzuwehren. Die heimtückische Attacke|hat allerdings ihre Spuren hinter-|lassen. Der Feind hat rücksichtslos|gebrandschatzt und beinahe alle|Bewohner getötet. Das Massaker|schreit nach blutiger Rache, doch|bevor ihr die feigen Mörder zur|Rechenschaft ziehen könnt, müßt|Ihr dringlichst die zerstörte|Stadt wieder aufbauen.
-1261:Der Feind wurde vernichtend|geschlagen und zum Rückzug nach|Norden gezwungen. Die dort|gelegenen Eisenerzminen sind für|den weiteren Verlauf des Krieges|von enormer strategischer|Bedeutung. Hebt ein neues Heer|aus, um die Rebellen ein für alle|mal aus dieser Region zu vertreiben.|Eine Brücke östlich Eures Standortes|hilft Euch bei der Verteidigung,|während eure Streitmacht anwächst.
-1262:Unser Feind verfügt immer noch über|enorme Reserven und schickt sich an,|einen Gegenschlag auszuführen.|Allerdings wird er es schwer haben,|mit seiner gewaltigen Armee das nahe|Gebirge zu überqueren. Zieht ihnen mit|Eurer eigenen Armee entgegen und|erwartet das feindliche Heer am|höchsten Paß. Die Verräter dürfen|nicht wieder die Oberhand gewinnen.
-1263:Endlich tragen Eure Bemühungen|Früchte. Überall im Königreich wider-|setzen sich die Untertanen des Königs|der Schreckensherrschaft des Prinzen.|Auch seine Generäle sind nicht alle|einverstanden mit den Grausamkeiten,|die an der Landbevölkerung begangen|werden. Einer von ihnen hat uns|heimlich die Nachricht zukommen|lassen, daß der Prinz an einem Dorf|das sich offen gegen ihn erhoben hat,|ein Exempel statuieren will.|Natürlich müßt Ihr die Pläne des|Tyrannen durchkreuzen und die|aufrechten Bürger beschützen.
-1264:Wir stehen kurz davor, die Feinde des|Königs endgültig in die Knie zu|zwingen. Der Prinz hat seine Taktik|geändert und hält wichtige Rohstoff-|vorkommen besetzt um uns zu|behindern. Erobert die nahen|Eisenerzminen und jagt die Rebellen|davon. Ausgedehnte Sumpfgebiete|stellen ein zusätzliches Problem dar,|also bereitet Euch und eure Getreuen auf|eine harte und langwierige Schlacht|vor.
-1265:In diesem Gebiet verfügt Ihr über|fruchtbare Böden und reichhaltige|Rohstoffvorkommen. Es steht ganz und|gar außer Zweifel, daß der Feind bald|anrücken wird, um diesen herrlichen|Flecken Erde wieder unter seine|Kontrolle zu bringen. Haltet die|Provinz und geht erbarmungslos gegen|alle feindlichen Soldaten vor.
-1266:Im Norden sammelt der Verräter|seine Vasallen, um erneut einen|Ansturm zu wagen. Noch ist er aber|nicht bereit sich uns in der offenen|Feldschlacht zu stellen. Zieht ihm|entgegen um seine neue Armee zu zer-|schlagen, bevor sie bereit ist, gegen|uns zu marschieren. Diesmal sind wir|es, die durch das Gebirge müssen.|Gewiß hat der Gegner den Paß besetzt|um uns am Vorankommen zu hindern.|Dennoch müssen wir nach Norden,|koste es was es wolle.
-1267:Eure erneuter Sieg zwingt den|Gegner in die Defensive. Im Schutz|einer schier uneinnehmbaren|natürlichen Festung hat er sich|verschanzt und wartet feige auf|unseren Angriff. Schon oft haben|Feldherren versucht, die Feste zu|erstürmen, doch alle sind gescheitert.|Ihr dürft aber den Mut nicht sinken|lassen. Möglicherweise haben eure|Vorgänger wertvolle Güter zurück-|gelassen, die Euch bei der Lösung|der Aufgabe helfen können.
-1268:Dies ist ein schwarzer Tag.|Ein hinterhältiges Attentat auf|unseren geliebten König war von|Erfolg gekrönt. Der schamlose Prinz,|ohne jeden Zweifel der Drahtzieher|des Meuchelmordes, hat sich selbst|zum neuen König ausgerufen. Hinter|einem gewaltigen Wall versteckt er|sich und hofft so Euch aufhalten zu|können. Stürmt die Mauern und bringt|dem selbsternannten Monarchen das|verdiente Ende.|Auge um Auge, Zahn um Zahn.
-1269:Wir sind am Ziel. Der Belagerungsring|um die letzte Bastion des falschen|Königs ist geschlossen. Keine Gnade|für alle jene, die dem Verräter jetzt|noch die Treue halten. Vernichtet den|Feind und macht alle Spuren seiner|Herrschaft dem Erdboden gleich, dann|werden wieder Frieden und Freiheit im|Königreich herrschen. Hängen soll der|Rebell, wie ein gemeiner Strauchdieb,|denn was anderes war er eigentlich|nie.
-1270:
-1271:
-1272:
-1273:
-1274:
-1275:
-1276:
-1277:
-1278:
-1279:
-1280:
-1281:
-1282:
-1283:
-1284:
-1285:
-1286:
-1287:
-1288:
-1289:
-1290:
-1291:
-1292:
-1293:
-1294:
-1295:
-1296:
-1297:
-1298:
-1299:
-1300:JOYMANIA ENTERTAINMENT||PROGRAMMIERUNG:|Peter Ohlmann||SPIELGRAFIK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||TONSCHNITT UND -MISCHUNG:|Tonstudio Mannheim||MUSIK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONEN:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBUCH:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|BlackStar Interactive||CUTSCENES:||LEITUNG:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||SPRECHER:|Claus Boyen (Erzähler)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBUCH SATZ+DESIGN:|Uwe Schäfer|Alexandra Constandache||HANDBUCH TEXTE:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||ERÖFFNUNGSANIMATION:|Uwe Schäfer|Christian Bigalk|Zusätzliches 3D-Modelling:|Niels Horstmann||BESONDEREN DANK AN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
-1301:
-1302:
-1303:
-1304:
-1305:
-1306:
-1307:
-1308:
-1309:
-1310:
-1311:
-1312:
-1313:
-1314:
-1315:
-1316:
-1317:
-1318:
-1319:
-1320:
-1321:
-1322:
-1323:
-1324:
-1325:
-1326:
-1327:
-1328:
-1329:
-1330:
-1331:
-1332:
-1333:
-1334:
-1335:
-1336:
-1337:
-1338:
-1339:
-1340:
-1341:
-1342:
-1343:
-1344:
-1345:
-1346:
-1347:
-1348:
-1349:
-1350:              Mission 1||Die Abtrünnigen versuchen die noch wenigen Bauern, die dem Königreich treu geblieben sind, ihrer Tyrannei zu unterwerfen. Vor dem Palast des Königs werden unschuldige Bauern niedergemetzelt. Dies dürfen wir unter keinen Umständen zulassen!|Schlagen Sie die Angreifer zurück!
-1351:              Mission 2||Nachdem wir unseren Bauern siegreich beistanden, gilt es nun die übrigen Bauern zurück zu gewinnen. Eine große Armee des Feindes kommt direkt aus nördlicher Richtung auf uns zu.|In den Kampf!
-1352:              Mission 3||Nach der siegreichen Schlacht bleibt Ihnen nun etwas Zeit die verwüsteten Städte und Dörfer wieder aufzubauen, um die Versorgung Ihrer Untertanen zu sichern. Dann sollten Sie sich den besetzten Siedlungen im Norden zuwenden, um sie von der Tyrannei der abtrünnigen Adligen zu befreien. Verschonen Sie die zivile Landbevölkerung und bekämpfen Sie nur die dort stationierten Soldaten des Feindes.
-1353:              Mission 4||Unsere Späher haben feindliche Truppenbewegungen in den umliegenden Siedlungen gesichtet. Aufgrund der hohen Anzahl feindlicher Soldaten ist mit einem befestigtem Stützpunkt zu rechnen. Finden Sie diesen, und zerstören Sie ausschließlich alle feindlichen Militärgebäude.
-1354:              Mission 5||Nach Ihren überwältigenden Erfolgen im Kampf gegen die Rebellen ist nun mit einem massiven Gegenschlag zu rechnen. Bereiten Sie ihre Leute auf einen harten Kampf vor. Verhindern Sie, dass die Dörfer vom Feind zerstört werden.
-1355:              Mission 6||Wir wissen, dass unsere Feinde neue Stützpunkte errichten. Das dürfen Sie nicht zulassen, greifen Sie so früh wie möglich an, bevor sich der Feind erholt hat. Suchen Sie außerdem in der Umgebung nach weiteren Rohstoffen, da Ihre Eisenvorräte fast aufgebraucht sind.
-1356:              Mission 7||Bevor wir uns wieder den Abtrünnigen zuwenden, müssen wir die südlich gelegenen Siedlungen zurückerobern. Der Sieg in der letzten Schlacht brachte uns einen kleinen Vorrat an Eisen, den wir auch dringend benötigen. Da in dieser Gegend die Vorkommen an Eisen sehr gering sind, müssen wir sehr sparsam damit umgehen.
-1357:              Mission 8||Durch unseren letzten Angriff mussten wir die meisten unserer Leute von unserem Stützpunkt abziehen und haben dem Gegner somit eine Chance zum Angriff verschafft. Kehren Sie so schnell wie möglich zurück, bevor der Gegner die Verteidigung überwunden hat!
-1358:              Mission 9||Durch den Hinterhalt haben wir die Burg nicht mehr rechtzeitig erreicht und müssen uns nun eine gute Strategie für die Rückeroberung einfallen lassen. Das Haupttor ist stark befestigt, ein direkter Frontalangriff wäre daher aussichtslos. Versuchen Sie einen anderen Eingang zu attackieren und vermeiden Sie eigene Verluste, da wir keinerlei Möglichkeiten besitzen, weitere Eisenerze abzubauen.
-1359:              Mission 10||Durch die Rückeroberung der Burg haben wir einige Gefangene gemacht, die uns auf einen unterirdischen Tunnel hingewiesen haben, der durch das nördliche Gebirge führt. Der Eingang zum Tunnel wird von einigen feindlichen Soldaten bewacht. Überwinden Sie diese und betreten Sie dann den Tunnel.
-1360:              Mission 11||Die Höhle ist größer als erwartet. Unsere Kundschafter haben in den verwinkelten Gängen feindliche Wachen ausgemacht, die den unterirdischen Komplex vor Eindringlingen schützen sollen. Erreichen Sie den Ausgang zur anderen Seite des Gebirges.
-1361:              Mission 12||Die gegnerischen Truppen wurden von unserem Angriff informiert. Im Norden sind starke Truppenverbände aufgezogen und werden uns in Kürze attackieren. Errichten Sie Türme, um die herannahenden Verbände zu schwächen. Nach erfolgreicher Verteidigung können Sie dann den Pass in Richtung Norden durchqueren.
-1362:              Mission 13||Ein Hinterhalt! Unsere Feinde haben uns aufgelauert. Jetzt befinden wir uns in einer strategisch sehr ungünstigen Lage. Schlagen Sie diese hinterhältigen Banditen zurück!
-1363:              Mission 14||Wir haben die letzte Bastion unserer Feinde erreicht. Unsere Gegner haben den Rest ihrer Armeen zusammengezogen und sich in ihrer letzten Zuflucht nordöstlich von hier verbarrikadiert. Durch die klirrende Kälte ist der Fluss teilweise zugefroren und könnte somit eine Möglichkeit bieten, den Gegner zu überraschen. Besiegen Sie die restlichen feindlichen Truppen, damit der Frieden wieder in das Land einkehren kann!
-1364:
-1365:
-1366:
-1367:
-1368:
-1369:
-1370:
-1371:
-1372:
-1373:
-1374:
-1375:
-1376:
-1377:
-1378:
-1379:
-1380:
-1381:
-1382:
-1383:
-1384:
-1385:
-1386:
-1387:
-1388:
-1389:
-1390:
-1391:
-1392:
-1393:
-1394:
-1395:
-1396:
-1397:
-1398:
-1399:
-1400:
-1401:
-1402:
-1403:
-1404:
-1405:
-1406:
-1407:
-1408:
-1409:
-1410:
-1411:
-1412:
-1413:
-1414:
-1415:
-1416:
-1417:
-1418:
-1419:
-1420:
-1421:
-1422:
-1423:
-1424:
-1425:
-1426:
-1427:
-1428:
-1429:
-1430:
-1431:
-1432:
-1433:
-1434:
-1435:
-1436:
-1437:
-1438:
-1439:
-1440:
-1441:
-1442:
-1443:
-1444:
-1445:
-1446:
-1447:
-1448:
-1449:
-1450:
-1451:
-1452:
-1453:
-1454:
-1455:
-1456:
-1457:
-1458:
-1459:
-1460:
-1461:
-1462:
-1463:
-1464:
-1465:
-1466:
-1467:
-1468:
-1469:
-1470:
-1471:
-1472:
-1473:
-1474:
-1475:
-1476:
-1477:
-1478:
-1479:
-1480:
-1481:
-1482:
-1483:
-1484:
-1485:
-1486:
-1487:
-1488:
-1489:
-1490:
-1491:
-1492:
-1493:
-1494:
-1495:
-1496:
-1497:
-1498:
-1499:
-1500:
-1501:
-1502:
-1503:
-1504:
-1505:
-1506:
-1507:
-1508:
-1509:
-1510:
-1511:
-1512:
-1513:
-1514:
-1515:
-1516:
-1517:
-1518:
-1519:
-1520:
-1521:
-1522:
-1523:
-1524:
-1525:
-1526:
-1527:
-1528:
-1529:
-1530:
-1531:
-1532:
-1533:
-1534:
-1535:
-1536:
-1537:
-1538:
-1539:
-1540:
-1541:
-1542:
-1543:
-1544:
-1545:
-1546:
-1547:
-1548:
-1549:
-1550:
-1551:
-1552:
-1553:
-1554:
-1555:
-1556:
-1557:
-1558:
-1559:
-1560:
-1561:
-1562:
-1563:
-1564:
-1565:
-1566:
-1567:
-1568:
-1569:
-1570:
-1571:
-1572:
-1573:
-1574:
-1575:
-1576:
-1577:
-1578:
-1579:
-1580:
-1581:
-1582:
-1583:
-1584:
-1585:
-1586:
-1587:
-1588:
-1589:
-1590:
-1591:
-1592:
-1593:
-1594:
-1595:
-1596:
-1597:
-1598:
-1599:
-1600:
-1601:
-1602:
-1603:
-1604:
-1605:
-1606:
-1607:
-1608:
-1609:
-1610:
-1611:
-1612:
-1613:
-1614:
-1615:
-1616:
-1617:
-1618:
-1619:
-1620:
-1621:
-1622:
-1623:
-1624:
-1625:
-1626:
-1627:
-1628:
-1629:
-1630:
-1631:
-1632:
-1633:
-1634:
-1635:
-1636:
-1637:
-1638:
-1639:
-1640:
-1641:
-1642:
-1643:
-1644:
-1645:
-1646:
-1647:
-1648:
-1649:
-1650:
-1651:
-1652:
-1653:
-1654:
-1655:
-1656:
-1657:
-1658:
-1659:
-1660:
-1661:
-1662:
-1663:
-1664:
-1665:
-1666:
-1667:
-1668:
-1669:
-1670:
-1671:
-1672:
-1673:
-1674:
-1675:
-1676:
-1677:
-1678:
-1679:
-1680:
-1681:
-1682:
-1683:
-1684:
-1685:
-1686:
-1687:
-1688:
-1689:
-1690:
-1691:
-1692:
-1693:
-1694:
-1695:
-1696:
-1697:
-1698:
-1699:
-1700:
-1701:
-1702:
-1703:
-1704:
-1705:
-1706:
-1707:
-1708:
-1709:
-1710:
-1711:
-1712:
-1713:
-1714:
-1715:
-1716:
-1717:
-1718:
-1719:
-1720:
-1721:
-1722:
-1723:
-1724:
-1725:
-1726:
-1727:
-1728:
-1729:
-1730:
-1731:
-1732:
-1733:
-1734:
-1735:
-1736:
-1737:
-1738:
-1739:
-1740:
-1741:
-1742:
-1743:
-1744:
-1745:
-1746:
-1747:
-1748:
-1749:
-1750:
-1751:
-1752:
-1753:
-1754:
-1755:
-1756:
-1757:
-1758:
-1759:
-1760:
-1761:
-1762:
-1763:
-1764:
-1765:
-1766:
-1767:
-1768:
-1769:
-1770:
-1771:
-1772:
-1773:
-1774:
-1775:
-1776:
-1777:
-1778:
-1779:
-1780:
-1781:
-1782:
-1783:
-1784:
-1785:
-1786:
-1787:
-1788:
-1789:
-1790:
-1791:
-1792:
-1793:
-1794:
-1795:
-1796:
-1797:
-1798:
-1799:
-1800:
-1801:
-1802:
-1803:
-1804:
-1805:
-1806:
-1807:
-1808:
-1809:
-1810:
-1811:
-1812:
-1813:
-1814:
-1815:
-1816:
-1817:
-1818:
-1819:
-1820:
-1821:
-1822:
-1823:
-1824:
-1825:
-1826:
-1827:
-1828:
-1829:
-1830:
-1831:
-1832:
-1833:
-1834:
-1835:
-1836:
-1837:
-1838:
-1839:
-1840:
-1841:
-1842:
-1843:
-1844:
-1845:
-1846:
-1847:
-1848:
-1849:
-1850:
-1851:
-1852:
-1853:
-1854:
-1855:
-1856:
-1857:
-1858:
-1859:
-1860:
-1861:
-1862:
-1863:
-1864:
-1865:
-1866:
-1867:
-1868:
-1869:
-1870:
-1871:
-1872:
-1873:
-1874:
-1875:
-1876:
-1877:
-1878:
-1879:
-1880:
-1881:
-1882:
-1883:
-1884:
-1885:
-1886:
-1887:
-1888:
-1889:
-1890:
-1891:
-1892:
-1893:
-1894:
-1895:
-1896:
-1897:
-1898:
-1899:
-1900:
-1901:
-1902:
-1903:
-1904:
-1905:
-1906:
-1907:
-1908:
-1909:
-1910:
-1911:
-1912:
-1913:
-1914:
-1915:
-1916:
-1917:
-1918:
-1919:
-1920:
-1921:
-1922:
-1923:
-1924:
-1925:
-1926:
-1927:
-1928:
-1929:
-1930:
-1931:
-1932:
-1933:
-1934:
-1935:
-1936:
-1937:
-1938:
-1939:
-1940:
-1941:
-1942:
-1943:
-1944:
-1945:
-1946:
-1947:
-1948:
-1949:
-1950:
-1951:
-1952:
-1953:
-1954:
-1955:
-1956:
-1957:
-1958:
-1959:
-1960:
-1961:
-1962:
-1963:
-1964:
-1965:
-1966:
-1967:
-1968:
-1969:
-1970:
-1971:
-1972:
-1973:
-1974:
-1975:
-1976:
-1977:
-1978:
-1979:
-1980:
-1981:
-1982:
-1983:
-1984:
-1985:
-1986:
-1987:
-1988:
-1989:
-1990:
-1991:
-1992:
-1993:
-1994:
-1995:
-1996:
-1997:
-1998:
-1999:
-2000:
-2001:Mission abgebrochen
-2002:Aufbaututorial
-2003:Kampftutorial
-2004:Einzelspieler
-2005:Karteneditor
-2006:Letzten Replay anzeigen
-2007:Mission starten
-2008:Bezeichnung
-2009:Größe
-2010:Missionstyp: %s
-2011:Siegbedingung: %s
-2012:Niederlagebedingung: %s
-2013:Verbündete: 
-2014:Gegner: 
-2015:
-2016:Neue Kartengröße
-2017:Breite
-2018:Höhe
-2019:Neue Karte erstellen
-2020:Verfügbare Karten
-2021:Vorhandene Karte öffnen
-2022:Steuerung:
-2023:Spieleinstellungen:
-2024:Sound:
-2025:Keine Musik
-2026:Grafik:
-2027:Helligkeit
-2028:Vollbild
-2029:Übernehmen
-2030:Sprache:
-2031:Lade... Bitte warten
-2032:Ein Fehler ist aufgetreten!
-2033:Neue Lokalisierung laden
-2034:Gespeicherte Spielstände
-2035:Name
-2036:Beschreibung
-2037:Laden
-2038:Löschen
-2039:Spielstand wirklich löschen?
-2040:Löschen
-2041:Abbrechen
-2042:
-2043:Spiel gewonnen!
-2044:Weiterspielen
-2045:Spiel beenden
-2046:Spiel verloren!
-2047:Weiterspielen
-2048:Spiel beenden
-2049:Replay beendet
-2050:Weiter betrachten
-2051:Zurück zum Menü
-2052:Nicht verfügbar
-2053:%s drücken zum weiterspielen.
-2054:Ans Team senden
-2055:Spielerinfo
-2056:Chat
-2057:Name schon vorhand.
-2058:Ersetzen
-2059:Speichern
-2060:Laden
-2061:Während des Spielens ist ein Fehler aufgetreten.
-2062:Bitte die Datei %s aus dem Verzeichnis KaM Remake\Crash Reports an die Entwickler senden. Die Kontaktinformationen stehen in der ReadMe-Datei. Vielen Dank für die Hilfe!
-
-WARNUNG: Wenn du weiterspielst riskierst du weitere Abstürze oder Fehler. Willst du auf eigene Gefahr weiterspielen?
-2063:Alte OpenGL Version ermittelt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.
-Bitte Grafikkartentreiber aktualisieren!
-2064:Netzwerkfehler:
-2065:Fehler: Bitte Spielername eingeben
-2066:Verbindung fehlgeschlagen: %s
-2067:Du bist nicht verbunden.
-2068:Mission %d
-2069:Diese Fischerhütte ist zu weit vom Wasser entfernt!
-2070:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
-2071:Markthalle
-2072:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll.
-2073:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll.
-2074:Von x%d
-2075:Zu x%d
-2076:Gelände bearbeiten
-2077:Häuser bearbeiten
-2078:Optische Skripte
-2079:Globale Skripte
-2080:Menü
-2081:Status:
-2082:Spielername
-2083:ERSTELLE SERVER
-2084:Name
-2085:Port
-2086:Erstelle lokalen Server
-2087:Erstelle Internet Server
-2088:Servername
-2089:Status
-2090:Spieler
-2091:Ping
-2092:Aktualisiere Serverliste
-2093:SERVERDETAILS
-2094:Spielerliste:
-2095:Adresse
-2096:Port
-2097:Raum
-2098:Beitreten
-2099:Verbinde, bitte warten...
-2100:Lade Ankündigung...
-2101:Aktualisiere...
-2102:Spieler
-2103:Startposition
-2104:Team
-2105:Farbe
-2106:Bereit
-2107:Ping
-2108:Kick
-2109:Öffnen
-2110:Computer
-2111:Wähle...
-2112:Zufällig
-2113:Keins
-2114:Keine Info vorhanden.
-2115:Team %d
-2116:
-2117:Nachricht:
-2118:Typ:
-2119:Einzelkarte
-2120:Spielstand laden
-2121:Wähle eine Karte...
-2122:Spielstand wählen...
-2123:Karteninfo:
-2124:Spieler: %d
-2125:Modus:
-2126:Bedingungen:
-2127:Größe:
-2128:Lobby verlassen
-2129:Bereit!
-2130:Start!
-2131:Warte auf Spieler:
-2132:KaM Remake Credits
-2133:Ursprünglichel Knights & Merchants Credits
-2134:PROGRAMMIERUNG:
-2135:WEITERE PROGRAMMIERUNG:
-2136:WEITERE GRAFIKEN:
-2137:ZUSÄTZLICHE ÜBERSETZUNGEN:
-2138:BESONDERER DANK AN:
-2139:Mehrspieler Karten
-2140:Einzelspieler Karten
-2141:Scrollgeschw.
-2142:Keinen Server gefunden.
-2143:Lieder zufällig
-2144:Spielinfo:
-2145:-
-2146:Lobby
-2147:Laden
-2148:Spiel
-2149:Standort %d
-2150:Aufbau & Gefecht
-2151:Gefecht
-2152:Nicht bereit
-2153:Bereit
-2154:Fehler: Bitte übernimm einen Spieler aus dem Spielstand!
-2155:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt!
-2156:Kann nicht starten: %s.
-2157:Es ist noch nicht jeder bereit zu starten.
-2158:Die Spieleranzahl hat die Grenze erreicht.
-2159:Falsche Version des Protokolls: %s. Benötigt wird: %s!
-2160:Der Server hat dir die Hostingrechte übertragen.
-2161:Erhöhe Warenanzahl
-2162:Verringere Warenanzahl
-2163:Spiel wird gespeichert...
-2164:%s wurde besiegt!
-2165:ZUSÄTZLICHE SOUNDEFFEKTE:
-2166:Spieler entfernen
-2167:Der Host kann diese Spieler nach %d Sekunden trennen.
-2168:Der Host darf diese Spieler nicht trennen
-2169:Der Host (%s) hat das Spiel verlassen.
-2170:Die Verbindung zum Server ist unterbrochen. Versuche neu zu verbinden...
-2171:Wirklich beenden?
-2172:Soll dieser Spieler dauerhaft entfernt werden?
-2173:Abbrechen
-2174:Bürger|ausgebildet
-2175:Bürger|verloren
-2176:Soldaten|ausgehoben
-2177:Soldaten|verloren
-2178:Einheiten|besiegt
-2179:Gebäude|errichtet
-2180:Gebäude|verloren
-2181:Gebäude|zerstört
-2182:Waren|produziert
-2183:Waffen|produziert
-2184:Mit dieser Ware kann in dieser Mission nicht gehandelt werden.
-2185:Pflanzen & Fällen
-2186:Nur fällen
-2187:Spiel gestartet
-2188:Aufbau
-2189:Gefecht
-2190:Koop-Modus
-2191:Aktion während der Friedenszeit nicht möglich.
-2192:Friedenszeit verbleibend: %s
-2193:Der Frieden ist vorüber. Zu den Waffen!
-2194:Spieldauer:|%s
-2195:Optionen:
-2196:H
-2197:V
-2198:S
-2199:Truppe anhalten ('%s')
-2200:Truppen verbinden ('%s')
-2201:Truppe trennen ('%s')
-2202:Replays
-2203:Replay anzeigen
-2204:Friedenszeit (Min.):
-2205:Nicht unterstütztes Format %s!
-2206:Nicht unterstützte Version %s!
-2207:
-2208:Initialisierung
-2209:Multiplayer Initialisierung
-2210:Skript
-2211:Neue Mission
-2212:Ein Fehler trat während der Syntaxanalyse in Datei %s auf.
-2213:Geschlossen
-2214:Host übernimmt Spieler Setup.
-2215:Zusätzliche Grafiken
-2216:Einheiten
-2217:Gebäude
-2218:Bäume
-2219:Definitionen
-2220:Texturen
-2221:Soft shadows
+1053:<COL 2>Message of the Day: %s|
+1054:<COL 0>BROADCAST: %s|
+1055:<COL 3>%s hat den Channel betreten|
+1056:<COL 3>%s hat den Channel verlassen|
+1057:<COL 3>Sie haben den Channel <COL 0>%s<COL 3> betreten|
+1058:<COL 3>Sie haben das Spiel <COL 0>%s<COL 3> betreten|
+1059:Zurück zum Hauptmenü
+1060:Betrete Channel
+1061:Betrete Spiel
+1062:Neues Spiel
+1063:Neues Ladderspiel
+1064:Verlasse Spiel
+1065:Spiel starten
+1066:Flüstern
+1067:Rauswerfen
+1068:Bannen
+1069:Info
+1070:Registrieren
+1071:Namen erneut eingeben
+1072:Bitte geben Sie Ihren Namen ein:
+1073:Weiter
+1074:Abbruch
+1075:Bitte wählen:
+1076:Spiel betreten
+1077:Spiel erschaffen
+1078:Bitte Namen der Spielrunde eingeben:
+1079:Spielrunde starten
+1080:Spielrunde auswählen:
+1081:Ins Spiel einsteigen
+1082:Spiele suchen
+1083:Anwesende Spieler:
+1084:Nachrichten:
+1085:Senden:
+1086:Starten!
+1087:Ohne Namen
+1088:<Nicht belegt>
+1089:<Nicht verfügbar>
+1090:<Computer>
+1091:s Spielrunde
+1092:~S~p~i~e~l~e~r '%s' ~i~s~t ~v~o~m ~S~e~r~v~e~r ~e~n~t~f~e~r~n~t ~w~o~r~d~e~n
+1093:Szenarien:
+1094:Bezeichnung:
+1095:Beschreibung:
+1096:Besitz:
+1097:Startposition:
+1098:Der Server bestimmt|das Szenario
+1099:Lagerhaus
+1100:Lagerhaus und Truppen
+1101:Gebäude und Truppen
+1102:Reihenfolge
+1103:Zufällig
+1104:Spielstand wird übertragen
+1105:Übertragung abbrechen
+1106:Fertig: %d/100
+1107:Spielstand Nr.%d
+1108:Spieleranzahl:%d
+1109:AutoSave
+1110:MISSION GEWONNEN!
+1111:MISSION VERLOREN!
+1112:Verlorene Einheiten:
+1113:Besiegte Einheiten:
+1114:Verlorene Gebäude:
+1115:Zerstörte Gebäude:
+1116:Errichtete Gebäude:
+1117:Ausgebildete Einheiten:
+1118:Produzierte Waffen:
+1119:Ausgerüstete Soldaten:
+1120:Spieldauer:
+1149:Drei Kontinente
+1150:Wildes Land
+1151:Kampf um Kohle
+1152:Grenzflüsse
+1153:Land der Hügel
+1154:Berg an Berg
+1155:Burgenschlacht
+1156:Treffen an der Küste
+1157:Der Hinterhalt
+1158:Brückenfiasko
+1159:Bonuskarte A
+1160:Bonuskarte B
+1179:Durch die Wüste||Größe: 176x176|Anzahl der Gegner: 5
+1180:In einem fremden Land||Größe: 176x176|Anzahl der Gegner: 3
+1181:Durch Sand und Schnee||Größe: 160x128|Anzahl der Gegner: 5
+1182:Land des schnellen Stroms||Größe: 176x176|Anzahl der Gegner: 3
+1183:Schwarzes Gold||Größe: 176x176|Anzahl der Gegner: 5
+1184:Gebirgswälle||Größe: 144x128|Anzahl der Gegner: 3
+1185:Im Reich der Dunkelheit||Größe: 176x176|Anzahl der Gegner: 3
+1199:Spieleranzahl: 6|Kartengröße: 176x176|Aufbauszenario
+1200:Spieleranzahl: 4|Kartengröße: 176x176|Aufbauszenario
+1201:Spieleranzahl: 6|Kartengröße: 160x128|Aufbauszenario
+1202:Spieleranzahl: 4|Kartengröße: 176x176|Aufbauszenario
+1203:Spieleranzahl: 6|Kartengröße: 176x176|Aufbauszenario
+1204:Spieleranzahl: 4|Kartengröße: 144x128|Aufbauszenario
+1205:Spieleranzahl: 6|Kartengröße: 176x144|Aufbauszenario
+1206:Spieleranzahl: 3|Kartengröße: 64x64|Kampfszenario
+1207:Spieleranzahl: 6|Kartengröße: 144x144|Kampfszenario
+1208:Spieleranzahl: 4|Kartengröße: 176x176|Aufbauszenario
+1249:Es ist den Schergen des Verräters|gelungen, eine Bresche in unsere|Verteidigung zu schlagen.|Die Festung ist gefallen und wenn|es euch nicht gelingt die Feinde|in die Flucht zu schlagen ist das|Königreich verloren und der Thron-|räuber triumphiert.|Zu den Waffen!
+1250:Dank des von Euch errungenen Sieges|können wir wieder Hoffnung schöpfen.|Noch ist aber nicht die Zeit für|Siegesfeiern. Die geschlagenen Feinde|haben sich zurückgezogen um sich in|einem Dorf ganz in der Nähe neu zu|sammeln. Der Prinz wird bald einen|neuen Kampf erzwingen, da er uns|zahlenmäßig stark überlegen ist.|Behaltet die Ruhe und laßt euch nicht|in eine offene Feldschlacht verwickeln.|Das Gelände ist günstig für eine|defensive Strategie: an der schmalen|Furt, welche die feindlichen Soldaten|überqueren müssen, könnt Ihr trotz|unserer Unterlegenheit den Sieg|davontragen.
+1251:Ein denkwürdiger Tag. Das Heer des|abtrünnigen Prinzen ist auf dem|Rückzug. Der Weg in das Fürstentum|Lauenburg ist nun frei.|Der Lauenburger Fürst ist ein|Verbündeter unseres Gegners, also|müßt Ihr auf dem Weg in seine|Provinz mit Widerstand rechnen.
+1252:Unseren Feinden ist es nicht|gelungen, den Vormarsch der|Königstreuen aufzuhalten. Der Fürst|von Lauenburg hat sich mit seiner|Streitmacht in seine Festung zurück-|gezogen und ist auf unseren Ansturm|vorbereitet. Die Bevölkerung des|Fürstentums hat uns freundlich|empfangen. Das gibt Euch die Gelegen-|heit, Euer Heer zu vergrößern um|Lauenburg einnehmen zu können.|Wenn Ihr den Fürsten schlagen könnt,|setzt Ihr gleichzeitig ein Zeichen|für alle anderen Verräter an der|Krone.
+1253:Der Fürst von Lauenburg hat sich|Euch ergeben und von unserem König|Pardon erhalten, da er Reue gezeigt|hat. Euer nächstes Ziel ist die Stadt|Moorbach. Ganz in der Nähe der|Stadt haben unsere Späher einen|verlassenen Stützpunkt entdeckt, den|Ihr nutzen und ausbauen solltet.|Da Lauenburg nun mit uns verbündet|ist, sehen sich die fürstlichen Truppen|nun von unseren Feinden bedroht.|Beschützt die Lauenburger Einheiten|um jeden Preis, um das Vertrauen|zwischen uns und unseren neuen|Waffengefährten zu festigen und neue|Soldaten für Euer Heer zu erhalten.
+1254:Moorbach ist eingenommen und|unsere Feinde nicht nur geschlagen|sondern zutiefst gedemütigt. Berichten|unserer Kundschafter zufolge sammelt|sich im Nordwesten ein neues|Feindesheer, um die Schmach von|Moorbach zu rächen. Wir sind nun|jedoch stark genug, um unsererseits|in die Offensive zu gehen. Zieht den|feindlichen Verbänden entgegen, bevor|sie sich vollständig formiert haben.|Dabei könnt Ihr euch auf die Lanzen-|träger aus Lauenburg stützen, die|sich unserem Heer angeschlossen|haben.
+1255:Die Kunde von Euren Siegen ver-|breitet sich wie ein Lauffeuer im|ganzen Königreich. Überall erheben|sich die Bürger gegen den Tyrannen.|Im Norden liegt Walheim, das immer|noch von unseren Feinden gehalten|wird. Der Herrscher von Walheim hat|sich geweigert, unsere Parlamentäre|zu empfangen und geschworen, die|Stadt bis zum letzten Mann zu|verteidigen. Die Bewohner eines|kleinen Dorfes in der Nähe unseres|Stützpunktes haben sich gegen die|Unterdrücker aufgelehnt.
+1256:Die wilden Bewohner des Nordens|rotten sich zusammen, um in das|Reich einzufallen. Ihr müßt Ihnen|unter allen Umständen Einhalt|gebieten, bevor Ihr euch wieder den|Rebellen zuwenden könnt. In den|Ruinen von Walheim fanden sich|Konstruktionspläne für fort-|schrittliche Spähtürme. Ihr müßt|ein Bollwerk gegen die barbarischen|Horden errichten und dann die Wilden|bis zum letzten Mann ausmerzen.
+1257:Die Barbaren sind untereinander|zerstritten. Durch diplomatisches|Geschick konnten zwei ihrer|Anführer mit ihren Kriegern auf|unsere Seite gezogen werden.|Euer momentaner Lagerort ist leicht|zu verteidigen, aber der Raum für den|Ausbau ist sehr begrenzt, so daß Ihr|sorgfältig planen müßt. Der Feind|macht sich zur Schlacht bereit und|wird bald angreifen. Es ist also|Eile geboten, damit Ihr den Feinden|einen gebührenden Empfang|bereiten könnt.
+1258:Der verruchte Despot bedroht eine|unserer Städte. Nur ein Gewaltmarsch|wird eure Soldaten rechtzeitig an den|Ort des Geschehens bringen. Nach|Angaben unserer Spione müßt Ihr|mit einer großen feindlichen|Streitmacht rechnen und Eure eigenen|Kräfte gut einteilen. Nur eine kluge|Taktik wird Euch den Sieg bringen,|stumpfes Drauflosstürmen ist Euer|Untergang.
+1259:Um Haaresbreite ist es gelungen,|den Angriff auf unsere Stadt|abzuwehren. Die heimtückische Attacke|hat allerdings ihre Spuren hinter-|lassen. Der Feind hat rücksichtslos|gebrandschatzt und beinahe alle|Bewohner getötet. Das Massaker|schreit nach blutiger Rache, doch|bevor ihr die feigen Mörder zur|Rechenschaft ziehen könnt, müßt|Ihr dringlichst die zerstörte|Stadt wieder aufbauen.
+1260:Der Feind wurde vernichtend|geschlagen und zum Rückzug nach|Norden gezwungen. Die dort|gelegenen Eisenerzminen sind für|den weiteren Verlauf des Krieges|von enormer strategischer|Bedeutung. Hebt ein neues Heer|aus, um die Rebellen ein für alle|mal aus dieser Region zu vertreiben.|Eine Brücke östlich Eures Standortes|hilft Euch bei der Verteidigung,|während eure Streitmacht anwächst.
+1261:Unser Feind verfügt immer noch über|enorme Reserven und schickt sich an,|einen Gegenschlag auszuführen.|Allerdings wird er es schwer haben,|mit seiner gewaltigen Armee das nahe|Gebirge zu überqueren. Zieht ihnen mit|Eurer eigenen Armee entgegen und|erwartet das feindliche Heer am|höchsten Paß. Die Verräter dürfen|nicht wieder die Oberhand gewinnen.
+1262:Endlich tragen Eure Bemühungen|Früchte. Überall im Königreich wider-|setzen sich die Untertanen des Königs|der Schreckensherrschaft des Prinzen.|Auch seine Generäle sind nicht alle|einverstanden mit den Grausamkeiten,|die an der Landbevölkerung begangen|werden. Einer von ihnen hat uns|heimlich die Nachricht zukommen|lassen, daß der Prinz an einem Dorf|das sich offen gegen ihn erhoben hat,|ein Exempel statuieren will.|Natürlich müßt Ihr die Pläne des|Tyrannen durchkreuzen und die|aufrechten Bürger beschützen.
+1263:Wir stehen kurz davor, die Feinde des|Königs endgültig in die Knie zu|zwingen. Der Prinz hat seine Taktik|geändert und hält wichtige Rohstoff-|vorkommen besetzt um uns zu|behindern. Erobert die nahen|Eisenerzminen und jagt die Rebellen|davon. Ausgedehnte Sumpfgebiete|stellen ein zusätzliches Problem dar,|also bereitet Euch und eure Getreuen auf|eine harte und langwierige Schlacht|vor.
+1264:In diesem Gebiet verfügt Ihr über|fruchtbare Böden und reichhaltige|Rohstoffvorkommen. Es steht ganz und|gar außer Zweifel, daß der Feind bald|anrücken wird, um diesen herrlichen|Flecken Erde wieder unter seine|Kontrolle zu bringen. Haltet die|Provinz und geht erbarmungslos gegen|alle feindlichen Soldaten vor.
+1265:Im Norden sammelt der Verräter|seine Vasallen, um erneut einen|Ansturm zu wagen. Noch ist er aber|nicht bereit sich uns in der offenen|Feldschlacht zu stellen. Zieht ihm|entgegen um seine neue Armee zu zer-|schlagen, bevor sie bereit ist, gegen|uns zu marschieren. Diesmal sind wir|es, die durch das Gebirge müssen.|Gewiß hat der Gegner den Paß besetzt|um uns am Vorankommen zu hindern.|Dennoch müssen wir nach Norden,|koste es was es wolle.
+1266:Eure erneuter Sieg zwingt den|Gegner in die Defensive. Im Schutz|einer schier uneinnehmbaren|natürlichen Festung hat er sich|verschanzt und wartet feige auf|unseren Angriff. Schon oft haben|Feldherren versucht, die Feste zu|erstürmen, doch alle sind gescheitert.|Ihr dürft aber den Mut nicht sinken|lassen. Möglicherweise haben eure|Vorgänger wertvolle Güter zurück-|gelassen, die Euch bei der Lösung|der Aufgabe helfen können.
+1267:Dies ist ein schwarzer Tag.|Ein hinterhältiges Attentat auf|unseren geliebten König war von|Erfolg gekrönt. Der schamlose Prinz,|ohne jeden Zweifel der Drahtzieher|des Meuchelmordes, hat sich selbst|zum neuen König ausgerufen. Hinter|einem gewaltigen Wall versteckt er|sich und hofft so Euch aufhalten zu|können. Stürmt die Mauern und bringt|dem selbsternannten Monarchen das|verdiente Ende.|Auge um Auge, Zahn um Zahn.
+1268:Wir sind am Ziel. Der Belagerungsring|um die letzte Bastion des falschen|Königs ist geschlossen. Keine Gnade|für alle jene, die dem Verräter jetzt|noch die Treue halten. Vernichtet den|Feind und macht alle Spuren seiner|Herrschaft dem Erdboden gleich, dann|werden wieder Frieden und Freiheit im|Königreich herrschen. Hängen soll der|Rebell, wie ein gemeiner Strauchdieb,|denn was anderes war er eigentlich|nie.
+1299:JOYMANIA ENTERTAINMENT||PROGRAMMIERUNG:|Peter Ohlmann||SPIELGRAFIK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||TONSCHNITT UND -MISCHUNG:|Tonstudio Mannheim||MUSIK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONEN:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBUCH:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|BlackStar Interactive||CUTSCENES:||LEITUNG:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||SPRECHER:|Claus Boyen (Erzähler)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBUCH SATZ+DESIGN:|Uwe Schäfer|Alexandra Constandache||HANDBUCH TEXTE:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||ERÖFFNUNGSANIMATION:|Uwe Schäfer|Christian Bigalk|Zusätzliches 3D-Modelling:|Niels Horstmann||BESONDEREN DANK AN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+1349:              Mission 1||Die Abtrünnigen versuchen die noch wenigen Bauern, die dem Königreich treu geblieben sind, ihrer Tyrannei zu unterwerfen. Vor dem Palast des Königs werden unschuldige Bauern niedergemetzelt. Dies dürfen wir unter keinen Umständen zulassen!|Schlagen Sie die Angreifer zurück!
+1350:              Mission 2||Nachdem wir unseren Bauern siegreich beistanden, gilt es nun die übrigen Bauern zurück zu gewinnen. Eine große Armee des Feindes kommt direkt aus nördlicher Richtung auf uns zu.|In den Kampf!
+1351:              Mission 3||Nach der siegreichen Schlacht bleibt Ihnen nun etwas Zeit die verwüsteten Städte und Dörfer wieder aufzubauen, um die Versorgung Ihrer Untertanen zu sichern. Dann sollten Sie sich den besetzten Siedlungen im Norden zuwenden, um sie von der Tyrannei der abtrünnigen Adligen zu befreien. Verschonen Sie die zivile Landbevölkerung und bekämpfen Sie nur die dort stationierten Soldaten des Feindes.
+1352:              Mission 4||Unsere Späher haben feindliche Truppenbewegungen in den umliegenden Siedlungen gesichtet. Aufgrund der hohen Anzahl feindlicher Soldaten ist mit einem befestigtem Stützpunkt zu rechnen. Finden Sie diesen, und zerstören Sie ausschließlich alle feindlichen Militärgebäude.
+1353:              Mission 5||Nach Ihren überwältigenden Erfolgen im Kampf gegen die Rebellen ist nun mit einem massiven Gegenschlag zu rechnen. Bereiten Sie ihre Leute auf einen harten Kampf vor. Verhindern Sie, dass die Dörfer vom Feind zerstört werden.
+1354:              Mission 6||Wir wissen, dass unsere Feinde neue Stützpunkte errichten. Das dürfen Sie nicht zulassen, greifen Sie so früh wie möglich an, bevor sich der Feind erholt hat. Suchen Sie außerdem in der Umgebung nach weiteren Rohstoffen, da Ihre Eisenvorräte fast aufgebraucht sind.
+1355:              Mission 7||Bevor wir uns wieder den Abtrünnigen zuwenden, müssen wir die südlich gelegenen Siedlungen zurückerobern. Der Sieg in der letzten Schlacht brachte uns einen kleinen Vorrat an Eisen, den wir auch dringend benötigen. Da in dieser Gegend die Vorkommen an Eisen sehr gering sind, müssen wir sehr sparsam damit umgehen.
+1356:              Mission 8||Durch unseren letzten Angriff mussten wir die meisten unserer Leute von unserem Stützpunkt abziehen und haben dem Gegner somit eine Chance zum Angriff verschafft. Kehren Sie so schnell wie möglich zurück, bevor der Gegner die Verteidigung überwunden hat!
+1357:              Mission 9||Durch den Hinterhalt haben wir die Burg nicht mehr rechtzeitig erreicht und müssen uns nun eine gute Strategie für die Rückeroberung einfallen lassen. Das Haupttor ist stark befestigt, ein direkter Frontalangriff wäre daher aussichtslos. Versuchen Sie einen anderen Eingang zu attackieren und vermeiden Sie eigene Verluste, da wir keinerlei Möglichkeiten besitzen, weitere Eisenerze abzubauen.
+1358:              Mission 10||Durch die Rückeroberung der Burg haben wir einige Gefangene gemacht, die uns auf einen unterirdischen Tunnel hingewiesen haben, der durch das nördliche Gebirge führt. Der Eingang zum Tunnel wird von einigen feindlichen Soldaten bewacht. Überwinden Sie diese und betreten Sie dann den Tunnel.
+1359:              Mission 11||Die Höhle ist größer als erwartet. Unsere Kundschafter haben in den verwinkelten Gängen feindliche Wachen ausgemacht, die den unterirdischen Komplex vor Eindringlingen schützen sollen. Erreichen Sie den Ausgang zur anderen Seite des Gebirges.
+1360:              Mission 12||Die gegnerischen Truppen wurden von unserem Angriff informiert. Im Norden sind starke Truppenverbände aufgezogen und werden uns in Kürze attackieren. Errichten Sie Türme, um die herannahenden Verbände zu schwächen. Nach erfolgreicher Verteidigung können Sie dann den Pass in Richtung Norden durchqueren.
+1361:              Mission 13||Ein Hinterhalt! Unsere Feinde haben uns aufgelauert. Jetzt befinden wir uns in einer strategisch sehr ungünstigen Lage. Schlagen Sie diese hinterhältigen Banditen zurück!
+1362:              Mission 14||Wir haben die letzte Bastion unserer Feinde erreicht. Unsere Gegner haben den Rest ihrer Armeen zusammengezogen und sich in ihrer letzten Zuflucht nordöstlich von hier verbarrikadiert. Durch die klirrende Kälte ist der Fluss teilweise zugefroren und könnte somit eine Möglichkeit bieten, den Gegner zu überraschen. Besiegen Sie die restlichen feindlichen Truppen, damit der Frieden wieder in das Land einkehren kann!
+2000:Mission abgebrochen
+2001:Aufbaututorial
+2002:Kampftutorial
+2003:Einzelspieler
+2004:Karteneditor
+2005:Letzten Replay anzeigen
+2006:Mission starten
+2007:Bezeichnung
+2008:Größe
+2009:Missionstyp: %s
+2010:Siegbedingung: %s
+2011:Niederlagebedingung: %s
+2012:Verbündete:
+2013:Gegner:
+2015:Neue Kartengröße
+2016:Breite
+2017:Höhe
+2018:Neue Karte erstellen
+2019:Verfügbare Karten
+2020:Vorhandene Karte öffnen
+2021:Steuerung:
+2022:Spieleinstellungen:
+2023:Sound:
+2024:Keine Musik
+2025:Grafik:
+2026:Helligkeit
+2027:Vollbild
+2028:Übernehmen
+2029:Sprache:
+2030:Lade... Bitte warten
+2031:Ein Fehler ist aufgetreten!
+2032:Neue Lokalisierung laden
+2033:Gespeicherte Spielstände
+2034:Name
+2035:Beschreibung
+2036:Laden
+2037:Löschen
+2038:Spielstand wirklich löschen?
+2039:Löschen
+2040:Abbrechen
+2042:Spiel gewonnen!
+2043:Weiterspielen
+2044:Spiel beenden
+2045:Spiel verloren!
+2046:Weiterspielen
+2047:Spiel beenden
+2048:Replay beendet
+2049:Weiter betrachten
+2050:Zurück zum Menü
+2051:Nicht verfügbar
+2052:%s drücken zum weiterspielen.
+2053:Ans Team senden
+2054:Spielerinfo
+2055:Chat
+2056:Name schon vorhand.
+2057:Ersetzen
+2058:Speichern
+2059:Laden
+2060:Während des Spielens ist ein Fehler aufgetreten.
+2061:Bitte die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler senden. Die Kontaktinformationen stehen in der ReadMe-Datei. Vielen Dank für die Hilfe!
+2062:Alte OpenGL Version ermittelt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.
+2063:Netzwerkfehler:
+2064:Fehler: Bitte Spielername eingeben
+2065:Verbindung fehlgeschlagen: %s
+2066:Du bist nicht verbunden.
+2067:Mission %d
+2068:Diese Fischerhütte ist zu weit vom Wasser entfernt!
+2069:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
+2070:Markthalle
+2071:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll.
+2072:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll.
+2073:Von x%d
+2074:Zu x%d
+2075:Gelände bearbeiten
+2076:Häuser bearbeiten
+2077:Optische Skripte
+2078:Globale Skripte
+2079:Menü
+2080:Status:
+2081:Spielername
+2082:ERSTELLE SERVER
+2083:Name
+2084:Port
+2085:Erstelle lokalen Server
+2086:Erstelle Internet Server
+2087:Servername
+2088:Status
+2089:Spieler
+2090:Ping
+2091:Aktualisiere Serverliste
+2092:SERVERDETAILS
+2093:Spielerliste:
+2094:Adresse
+2095:Port
+2096:Raum
+2097:Beitreten
+2098:Verbinde, bitte warten...
+2099:Lade Ankündigung...
+2100:Aktualisiere...
+2101:Spieler
+2102:Startposition
+2103:Team
+2104:Farbe
+2105:Bereit
+2106:Ping
+2107:Kick
+2108:Öffnen
+2109:Computer
+2110:Wähle...
+2111:Zufällig
+2112:Keins
+2113:Keine Info vorhanden.
+2114:Team %d
+2116:Nachricht:
+2117:Typ:
+2118:Einzelkarte
+2119:Spielstand laden
+2120:Wähle eine Karte...
+2121:Spielstand wählen...
+2122:Karteninfo:
+2123:Spieler: %d
+2124:Modus:
+2125:Bedingungen:
+2126:Größe:
+2127:Lobby verlassen
+2128:Bereit!
+2129:Start!
+2130:Warte auf Spieler:
+2131:KaM Remake Credits
+2132:Ursprünglichel Knights & Merchants Credits
+2133:PROGRAMMIERUNG:
+2134:WEITERE PROGRAMMIERUNG:
+2135:WEITERE GRAFIKEN:
+2136:ZUSÄTZLICHE ÜBERSETZUNGEN:
+2137:BESONDERER DANK AN:
+2138:Mehrspieler Karten
+2139:Einzelspieler Karten
+2140:Scrollgeschw.
+2141:Keinen Server gefunden.
+2142:Lieder zufällig
+2143:Spielinfo:
+2144:-
+2145:Lobby
+2146:Laden
+2147:Spiel
+2148:Standort %d
+2149:Aufbau & Gefecht
+2150:Gefecht
+2151:Nicht bereit
+2152:Bereit
+2153:Fehler: Bitte übernimm einen Spieler aus dem Spielstand!
+2154:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt!
+2155:Kann nicht starten: %s.
+2156:Es ist noch nicht jeder bereit zu starten.
+2157:Die Spieleranzahl hat die Grenze erreicht.
+2158:Falsche Version des Protokolls: %s. Benötigt wird: %s!
+2159:Der Server hat dir die Hostingrechte übertragen.
+2160:Erhöhe Warenanzahl
+2161:Verringere Warenanzahl
+2162:Spiel wird gespeichert...
+2163:%s wurde besiegt!
+2164:ZUSÄTZLICHE SOUNDEFFEKTE:
+2165:Spieler entfernen
+2166:Der Host kann diese Spieler nach %d Sekunden trennen.
+2167:Der Host darf diese Spieler nicht trennen
+2168:Der Host (%s) hat das Spiel verlassen.
+2169:Die Verbindung zum Server ist unterbrochen. Versuche neu zu verbinden...
+2170:Wirklich beenden?
+2171:Soll dieser Spieler dauerhaft entfernt werden?
+2172:Abbrechen
+2173:Bürger|ausgebildet
+2174:Bürger|verloren
+2175:Soldaten|ausgehoben
+2176:Soldaten|verloren
+2177:Einheiten|besiegt
+2178:Gebäude|errichtet
+2179:Gebäude|verloren
+2180:Gebäude|zerstört
+2181:Waren|produziert
+2182:Waffen|produziert
+2183:Mit dieser Ware kann in dieser Mission nicht gehandelt werden.
+2184:Pflanzen & Fällen
+2185:Nur fällen
+2186:Spiel gestartet
+2187:Aufbau
+2188:Gefecht
+2189:Koop-Modus
+2190:Aktion während der Friedenszeit nicht möglich.
+2191:Friedenszeit verbleibend: %s
+2192:Der Frieden ist vorüber. Zu den Waffen!
+2193:Spieldauer:|%s
+2194:Optionen:
+2195:H
+2196:V
+2197:S
+2198:Truppe anhalten ('%s')
+2199:Truppen verbinden ('%s')
+2200:Truppe trennen ('%s')
+2201:Replays
+2202:Replay anzeigen
+2203:Friedenszeit (Min.):
+2204:Nicht unterstütztes Format %s!
+2205:Nicht unterstützte Version %s!
+2207:Initialisierung
+2208:Multiplayer Initialisierung
+2209:Skript
+2210:Neue Mission
+2211:Ein Fehler trat während der Syntaxanalyse in Datei %s auf.
+2212:Geschlossen
+2213:Host übernimmt Spieler Setup.
+2214:Zusätzliche Grafiken
+2215:Einheiten
+2216:Gebäude
+2217:Bäume
+2218:Definitionen
+2219:Texturen
+2220:Soft shadows

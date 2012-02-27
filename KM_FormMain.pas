@@ -368,7 +368,17 @@ procedure TFormMain.Export_Sounds1Click(Sender: TObject);   begin fSoundLib.Expo
 procedure TFormMain.Export_TreeAnim1Click(Sender: TObject); begin fResource.ExportTreeAnim; end;
 procedure TFormMain.Export_HouseAnim1Click(Sender: TObject);begin fResource.ExportHouseAnim; end;
 procedure TFormMain.Export_UnitAnim1Click(Sender: TObject); begin fResource.ExportUnitAnim;  end;
-procedure TFormMain.Export_TextClick(Sender: TObject);      begin fTextLibrary.ExportTextLibraries; end;
+
+procedure TFormMain.Export_TextClick(Sender: TObject);
+var I: Integer;
+begin
+  for I := 1 to LOCALES_COUNT do
+  begin
+    fTextLibrary.Free;
+    fTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', Locales[I, 1]);
+    fTextLibrary.ExportTextLibraries;
+  end;
+end;
 
 procedure TFormMain.Export_Fonts1Click(Sender: TObject);
 begin
