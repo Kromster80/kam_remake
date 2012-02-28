@@ -1,11 +1,10 @@
-object Form1: TForm1
+object FormMain: TFormMain
   Left = 301
   Height = 245
   Top = 90
   Width = 867
   HelpType = htKeyword
   BorderStyle = bsNone
-  Caption = 'Form1'
   ClientHeight = 225
   ClientWidth = 867
   Font.Height = -11
@@ -14,7 +13,6 @@ object Form1: TForm1
   Menu = MainMenu1
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress
   OnKeyUp = FormKeyUp
