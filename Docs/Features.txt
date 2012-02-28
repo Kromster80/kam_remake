@@ -8,7 +8,6 @@ Future
 	Bugfixes
 	Fog of war
 	Lookout tower [Krom]
-	Support custom campaigns
 	Reworked deliveries
 	Select units by shape
 	Refactor warriors into TGroups
@@ -17,7 +16,13 @@ Future
 
 Doable:
 	Hotkeys for armies (Ctrl+1,2,etc)
-	Tutorial missions texts, simple GEP [Krom]
+
+
+Next demo:
+ +	Support custom campaigns
+ +	Support custom mission texts
+ +	Minimap in menu
+ +	Tutorial missions texts, simple events
 
 
 3rd Multiplayer Demo (r2678) - 11/12/11:
