@@ -267,55 +267,55 @@ MaxID:3000
 479:'%s' kilépett a játékból.|Nyomd meg a ~<~S~P~A~C~E~> a játék folytatásához.
 480:Most te vagy a szerver.|Nyomd meg a ~<~S~P~A~C~E~> a játék folytatásához.
 481:A számítógép adatokra vár. Nyomj egy ~<~S~P~A~C~E~>|az ismétléshez vagy ~<~F~1~> a kilépéshez.
-499:Új inasok képzésére lehet szükséged az iskolában, erre mindig tartalékoljelegendõ aranyat.
-500:Az építkezés megkezdéséhez kattints a bal egérgombbal a kalapács ikonra, ami a képernyõ baloldalán található. Ezután kattints a könyv ikonra (aziskolajele). Helyezd el az iskola alapját a játéktéren, ahova akarod, ésahova lehetséges is,majd bal egérgombbal kezdd el az építkezést.
-501:Ha elhelyezted az iskolát, az 'Útépítés' opcióra válta program. A bal egérgomb használatával, négyzetenként építsd meg az utat az iskola és a raktár között. Emlékezz, az utakat mindig az épületek ajtajáig kell megépíteni!
-502:Hogyalakosokatkiképezd,bal egérgombbal kattints az iskola épületére, és a 'Következõ szakma' gombra kattintva válaszd ki, melyik foglalkozásra szeretnéd betanítani az aktuális városlakót. Ezután kattints a 'Beállít a sorba' gombra. Az emberek automatikusan megkezdik a feladataikat.
-503:Embereidnekenniükis kell idõnként, ezért építs egy fogadót számukra a központban, egy jól megközelíthetõhelyre.
+499:Új inasok képzésére lehet szükséged az iskolában, erre mindig tartalékolj elegendõ aranyat.
+500:Az építkezés megkezdéséhez kattints a bal egérgombbal a kalapács ikonra, ami a képernyõ bal oldalán található. Ezután kattints a könyv ikonra (az iskola jele). Helyezd el az iskola alapját a játéktéren, ahova akarod, és ahova lehetséges is, majd bal egérgombbal kezdd el az építkezést.
+501:Ha elhelyezted az iskolát, az 'Útépítés' opcióra vált a program. A bal egérgomb használatával, négyzetenként építsd meg az utat az iskola és a raktár között. Emlékezz, az utakat mindig az épületek ajtajáig kell megépíteni!
+502:Hogy a lakosokat kiképezd, bal egérgombbal kattints az iskola épületére, és a 'Következõ szakma' gombra kattintva válaszd ki, melyik foglalkozásra szeretnéd betanítani az aktuális városlakót. Ezután kattints a 'Beállít a sorba' gombra. Az emberek automatikusan megkezdik a feladataikat.
+503:Embereidnek enniük is kell idõnként, ezért építs egy fogadót számukra a központban, egy jól megközelíthetõ helyre.
 504:A házak és utak építéséhez kõre van szükséged. Építs egy kõfejtõt a sziklák közelében. Ezután képezz ki egy kõfaragót, aki biztosítja az alapanyagot az építkezéshez.
-505:A házak és utak építéséhez nemcsak kõre, hanem gerendákra is szükséged van.Afavágó kitermeli éstelepítiaz erdõt, ellátva fával a fûrészmalmot. Kunyhóját mindig építsd az erdõ közelébe.
-506:Építsegyfûrészmalmot, hogy gerendát készíthess a farönkökbõl. Miután elkészült, küldj ide egy asztalost dolgozni.
-507:Ha elegendõ készletet gyûjtöttél az építkezésekhez, koncentrálj az élelem mielõbbi megtermelésére.|Építs egy horgászházat, közel a vízhez, hogy minélelõbb a fogadóba kerüljön a friss hal.
-508:Remek,de emlékezz, minél több halat fog ki a horgász, annál messzebb kell mennie a kifogható halakért. Katonáid nem esznek halat.|Hogy minél több istállót tudj fenntartani, elég földmûves házának kell a közelben lennie, elegendõ szántófölddel.
+505:A házak és utak építéséhez nemcsak kõre, hanem gerendákra is szükséged van. A favágó kitermeli és telepíti az erdõt, ellátva fával a fûrészmalmot. Kunyhóját mindig építsd az erdõ közelébe.
+506:Építs egy fûrészmalmot, hogy gerendát készíthess a farönkökbõl. Miután elkészült, küldj ide egy asztalost dolgozni.
+507:Ha elegendõ készletet gyûjtöttél az építkezésekhez, koncentrálj az élelem mielõbbi megtermelésére.|Építs egy horgászházat, közel a vízhez, hogy minél elõbb a fogadóba kerüljön a friss hal.
+508:Remek, de emlékezz, minél több halat fog ki a horgász, annál messzebb kell mennie a kifogható halakért. Katonáid nem esznek halat.|Hogy minél több istállót tudj fenntartani, elég földmûves házának kell a közelben lennie, elegendõ szántófölddel.
 509:Nagyjából 16 mezõnyi szántót kell kijelölni, lehetõleg a földmûves házának közelében.|Most építs egy malmot a learatott gabona megõrléséhez.
-510:Nagyszerû, most építs egy pékséget, amely friss kenyérrel látja el a fogadót.Mindig legyen elég inasoda szállításhoz, hogy gyorsan eljussanak az áruk a különbözõ épületekbe.
-511:Az alattvalóknak jut hal és kenyér, most már csaka szomjukat kell csillapítani.|Egy pincészet mellé 16 szõlõtõkét ültess, amit majd a vincellér fog leszüretelni.
-512:Remekül haladsz, de a szorgalmas alattvalók többetérdemelnek a kenyérnélés a bornál. Húst és nyersbõrt állíthatsz elõ, ha sertéshízlaldát építesz, ahol az állattenyésztõ fog dolgozni.
+510:Nagyszerû, most építs egy pékséget, amely friss kenyérrel látja el a fogadót. Mindig legyen elég inasod a szállításhoz, hogy gyorsan eljussanak az áruk a különbözõ épületekbe.
+511:Az alattvalóknak jut hal és kenyér, most már csak a szomjukat kell csillapítani.|Egy pincészet mellé 16 szõlõtõkét ültess, amit majd a vincellér fog leszüretelni.
+512:Remekül haladsz, de a szorgalmas alattvalók többet érdemelnek a kenyérnél és a bornál. Húst és nyersbõrt állíthatsz elõ, ha sertéshízlaldát építesz, ahol az állattenyésztõ fog dolgozni.
 513:A sertéseket a vágóhídon dolgozó hentes fogja feldolgozni, így válik a sertésbõl kolbász.
-514:Most, hogy biztosítottad az elegendõ élelmet, a hosszú távú fegyverkezés akövetkezõ célod. Kezdd azerõd építésével, az arra alkalmas helyen.
-515:A'Következõegység' és az 'Elõzõ egység' gombokkal tudod kiválasztani, hogy milyen típusú katonát képezz ki.A tárgyak körüli világos négyzet jelzi, miszükséges a kiválasztott katona kiképzéséhez.
+514:Most, hogy biztosítottad az elegendõ élelmet, a hosszú távú fegyverkezés a következõ célod. Kezdd az erõd építésével, az arra alkalmas helyen.
+515:A 'Következõ egység' és az 'Elõzõ egység' gombokkal tudod kiválasztani, hogy milyen típusú katonát képezz ki. A tárgyak körüli világos négyzet jelzi, mi szükséges a kiválasztott katona kiképzéséhez.
 516:Ha van újonc az erõdben, már csak a felszerelést kell nekik biztosítani. Lehetõleg az erõd közelébe építsd a fegyverkészítõket, a minél gyorsabb szállítás érdekében.
-517:A termelés fokozásához bal egérgombbal kattints a fegyvermûhelyre, majd szintén bal egérgombbal kattints a'Mennyiség növelése' gombra. Mindig figyeljarra,hogyazasztalosnak elegendõ gerenda álljon rendelkezésére.
-518:Megfelelõ és elegendõ felszerelés nélkül katonáidat le fogják mészárolni a harcmezõn.|Hogykatonáidnakpáncéltkészíts,elõször is szükséged lesz egy tímármûhelyre, a nyers bõrök elõkészítéséhez.
+517:A termelés fokozásához bal egérgombbal kattints a fegyvermûhelyre, majd szintén bal egérgombbal kattints a 'Mennyiség növelése' gombra. Mindig figyelj arra, hogy az asztalosnak elegendõ gerenda álljon rendelkezésére.
+518:Megfelelõ és elegendõ felszerelés nélkül katonáidat le fogják mészárolni a harcmezõn.|Hogy katonáidnak páncélt készíts, elõször is szükséged lesz egy tímármûhelyre, a nyers bõrök elõkészítéséhez.
 519:Most, hogy van cserzett bõr, a páncélmûhelyben dolgozzák fel azt. Itt az asztalos bõrpáncélt és fapajzsokat készít.
-520:Kitûnõ! Minden fontosabb épülettel rendelkezel, a város fejlõdésnek indulhat, és új sereget is felállíthatsz. Haminden szükséges felszerelést elõállítottál, és az iskolában kiképezted az újoncokat, már csak 'Az aktuálisegység felszerelése' gombrakell kattintanod.
-521:A következõ célod az, hogy megsemmisítsd a közelben lévõ két ellenséges tábort. A kék ellenfél jól megerõsített bázisa délen terül el, míg a zöld ellenség keletre található, éskevesebbkatonája van.Készítsd fel csapataidat, mielõtt megpróbálsz belovagolni az ellenséges területre!
+520:Kitûnõ! Minden fontosabb épülettel rendelkezel, a város fejlõdésnek indulhat, és új sereget is felállíthatsz. Ha minden szükséges felszerelést elõállítottál, és az iskolában kiképezted az újoncokat, már csak 'Az aktuális egység felszerelése' gombra kell kattintanod.
+521:A következõ célod az, hogy megsemmisítsd a közelben lévõ két ellenséges tábort. A kék ellenfél jól megerõsített bázisa délen terül el, míg a zöld ellenség keletre található, és kevesebb katonája van. Készítsd fel csapataidat, mielõtt megpróbálsz belovagolni az ellenséges területre!
 522:|A kék játékos vesztett!
 523:|A zöld játékos vesztett!
-524:Mielõtt megtámadod nyugati ellenségeidet, meg kell ölni az északi járõröket!Ha bal egérgombbal kattintasz alándzsásaidra, majd jobb egérgombbal az ellenségre, akkor csapataid támadásba lendülnek.
-525:Egy csapat íjász várakozik délnyugatra. Támadd meg õket a nemzetõrökkel, de figyelj, mikor adod ki aparancsot!Harosszidõben támadsz, az ellenség nyilai hatalmas veszteségeket okozhatnak!
-526:Támadd meg a nyugatabbra állomásozó sereget! Figyelj az ellenség íjászaira, õket általában a gyalogság védi! Küldd csapataidat északra, hogymegkerüljék az ellenséget, és úgy támadd meg õket!
+524:Mielõtt megtámadod nyugati ellenségeidet, meg kell ölni az északi járõröket! Ha bal egérgombbal kattintasz a lándzsásaidra, majd jobb egérgombbal az ellenségre, akkor csapataid támadásba lendülnek.
+525:Egy csapat íjász várakozik délnyugatra. Támadd meg õket a nemzetõrökkel, de figyelj, mikor adod ki a parancsot! Ha rossz idõben támadsz, az ellenség nyilai hatalmas veszteségeket okozhatnak!
+526:Támadd meg a nyugatabbra állomásozó sereget! Figyelj az ellenség íjászaira, õket általában a gyalogság védi! Küldd csapataidat északra, hogy megkerüljék az ellenséget, és úgy támadd meg õket!
 527:Most minden katonáddal meg kell rohamoznod az ellenfelet! Íjászaidat vezényeld a gyalogság mögé, akik megvédik õket. Ha gyõzelmet aratsz, a harcokról szóló oktató rész véget ér.
-529:Sürgõsenúj nemzetõr egységet kell felállítanod! Ha nem sikerül, védtelenné válhatsz az ellenséges támadással szemben!
-530:Akémjelentésszerintazellenségtámadásrakészül ellened. Becsülettel forgasd a kardot, hogy visszaverd õket!
-531:Dolgaid jól haladnak, de szükséged van a terjeszkedésre. Mikor elérkezettnek látod a helyzetet,szorítsd be az ellenséget saját odújába, és törd meg az ellenállását!
+529:Sürgõsen új nemzetõr egységet kell felállítanod! Ha nem sikerül, védtelenné válhatsz az ellenséges támadással szemben!
+530:A kémjelentés szerint az ellenség támadásra készül ellened. Becsülettel forgasd a kardot, hogy visszaverd õket!
+531:Dolgaid jól haladnak, de szükséged van a terjeszkedésre. Mikor elérkezettnek látod a helyzetet, szorítsd be az ellenséget saját odújába, és törd meg az ellenállását!
 532:Bármi áron meg kell védened bátor szövetségeseidet, Lauenburg csapatait!
 533:Védd meg csapataidat a semmirekellõ ellenséges lovasság támadásával szemben! Különben nem kerülhetsz többé szövetségeseid szeme elé!
 534:Az északi falu nyíltan hitet tett a zsarnokság mellett. Talán ezt saját elõnyödre fordíthatod.
-535:Hûséges felderítõink felfedeztek egy elhagyott raktárat. Nyugaton áll, egy fácskához közel, bizonyára találszbenne néhány használható dolgot.
-536:Elfogtunkéskivallattunk egy ellenséges kémet. Tudvaazt,hogy az ellenség felfedezte állásainkat, jobb eséllyel készülhetünk fel a támadásra.
-537:Szentelj egy rövid idõt soraid rendezésére, mielõtt nyakadba szakadnak a barbárok, vagy a gazfickókkönnyen rést ütnek védelmeden.
+535:Hûséges felderítõink felfedeztek egy elhagyott raktárat. Nyugaton áll, egy fácskához közel, bizonyára találsz benne néhány használható dolgot.
+536:Elfogtunk és kivallattunk egy ellenséges kémet. Tudva azt, hogy az ellenség felfedezte állásainkat, jobb eséllyel készülhetünk fel a támadásra.
+537:Szentelj egy rövid idõt soraid rendezésére, mielõtt nyakadba szakadnak a barbárok, vagy a gazfickók könnyen rést ütnek védelmeden.
 538:Fegyverbe!|Hatalmas ellenséges erõ közeledik!
 539:Jól használd fel seregeidet, az ellenség túlerõben van! Viharként támadj, vagy sosem ismered meg a gyõzelem ízét!
-540:Miénkagyõzelem, de a bosszú ideje még nem érkezettel.Walheim újjáépítéseutánmegfizetünk a sötét lelkû kutyáknak ocsmány tetteikért!
-541:Vasnélkülnincsfegyver, fegyver nélkül nincs harcos! Északon megtalálod,amire szükséged van. Készülj fel az északi bányák elfoglalására!
-542:Adélifalubana jónép még elviseli a zsarnokságot,de félõ, hogy elveszítik tûrõképességüket. Segíts a büszke parasztoknak, nem fogod megbánni!
-543:Egyelhagyottraktárvanaközelben. Sebesen vágtassoda, kemény próba vár rád, de úgy vélem, megéri az, amit ott találsz.
+540:Miénk a gyõzelem, de a bosszú ideje még nem érkezett el. Walheim újjáépítése után megfizetünk a sötét lelkû kutyáknak ocsmány tetteikért!
+541:Vas nélkül nincs fegyver, fegyver nélkül nincs harcos! Északon megtalálod, amire szükséged van. Készülj fel az északi bányák elfoglalására!
+542:A déli faluban a jónép még elviseli a zsarnokságot, de félõ, hogy elveszítik tûrõképességüket. Segíts a büszke parasztoknak, nem fogod megbánni!
+543:Egy elhagyott raktár van a közelben. Sebesen vágtass oda, kemény próba vár rád, de úgy vélem, megéri az, amit ott találsz.
 544:Bátor felderítõid jelentették, hogy egy nagy ellenséges sereg támadásának célpontja az elhagyott raktár. Tartanod kell a helyet, meggátolva elõrenyomulásukat! Harcolj sziklaszilárdan, bátor szívvel!
 545:Egy újabb alattomos támadás készül a raktár ellen. Készülj fel az ütközetre!
-546:Az ellenség minden erejét összegyûjtve próbál kitörni, hiábavaló kísérletet tévelegyõzésedre. Daráld le õket, az utolsó emberig! Azután vélhetõenmár semmi nem állhat dicsõséges elõrenyomulásod útjába.
-547:Mégnemroppantösszeazsarnokbátor csapásaid alatt. Rendíthetetlen szövetségeseid hûek maradtak hozzád, valóban az oldaladon állnak. Az elsõ támadás után számíthatsz rájuk, manõvereidet egységeikkel összehangoltan hajthatod végre.
-549:Azellenségesseregnagyobb,mintgondoltuk.Szerelj fel újabb egységeket az erõdben!
+546:Az ellenség minden erejét összegyûjtve próbál kitörni, hiábavaló kísérletet téve legyõzésedre. Daráld le õket, az utolsó emberig! Azután vélhetõen már semmi nem állhat dicsõséges elõrenyomulásod útjába.
+547:Még nem roppant össze a zsarnok bátor csapásaid alatt. Rendíthetetlen szövetségeseid hûek maradtak hozzád, valóban az oldaladon állnak. Az elsõ támadás után számíthatsz rájuk, manõvereidet egységeikkel összehangoltan hajthatod végre.
+549:Az ellenséges sereg nagyobb, mint gondoltuk. Szerelj fel újabb egységeket az erõdben!
 550:Hogy megszabadítsd a telepeseket a hódítóktól, az összes katonával végezned kell. Ez, úgy vélem, elegendõ a gyõzelemhez. Ezután a település csatlakozni fog hozzánk.
 551:A lázadók között ártatlan városlakók is vannak. Lehetõleg hagyd õket és településüket békében élni, õk nem az ellenségeid. Koncentrálj az ellenséges katonákra és hadi utánpótlásaikra.
 552:Bármi áron meg kell védened a déli falut az ellenséges támadástól!
@@ -327,8 +327,8 @@ MaxID:3000
 558:Egy ellenséges sereg az északnyugati hegyek felõl kifejezetten a bázisod irányába vonul.
 559:Az ellenség már felfedezte új állásaidat. Egy erõs zászlóalj rögvest támadásra indul kelet felõl.
 560:Figyelem! Ellenséges íjászokat láttak a környezõ dombokon.|Egy csata a szorosban a végünket jelentheti.
-561:Megérkeztünk a hûtlen lázadók utolsó erõdjéhez.|Minden ellenállóval végezned kell, becstelen embereklakják az erõdítményt, egy árva lelket se hagyj életben, a nagy hadjárat a végéhez közeledik!
-562:Kémeink jelentették, hogy ellenségünk felfedezte tartózkodási helyünket, és támadástkészül indítani.Még egyszer készítsd elõ megbízható kardodat, és mutasd meg a könyörtelen lázadóknak, hogy nem alkuszunk!
+561:Megérkeztünk a hûtlen lázadók utolsó erõdjéhez.|Minden ellenállóval végezned kell, becstelen emberek lakják az erõdítményt, egy árva lelket se hagyj életben, a nagy hadjárat a végéhez közeledik!
+562:Kémeink jelentették, hogy ellenségünk felfedezte tartózkodási helyünket, és támadást készül indítani. Még egyszer készítsd elõ megbízható kardodat, és mutasd meg a könyörtelen lázadóknak, hogy nem alkuszunk!
 569:Üres
 570:Spirit
 571:Busy

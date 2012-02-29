@@ -141,7 +141,7 @@ begin
   for I := 0 to High(Texts) do
     if not TextEmpty(I) and TextUnused(I) then
     begin
-      s := ReplaceStr(Texts[I, DefaultLocale], ' ', '');
+      s := StringReplace(Texts[I, DefaultLocale], ' ', '', [rfReplaceAll]);
       s := UpperCase(LeftStr(s, 16));
 
       SetLength(Consts, Length(Consts) + 1);

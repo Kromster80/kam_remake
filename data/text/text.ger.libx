@@ -267,67 +267,67 @@ MaxID:3000
 479:Spieler '%s' hat das Spiel verlassen.|Drücken Sie ~<~S~P~A~C~E~> zum Weiterspielen.
 480:Sie sind nun der Server.|Drücken Sie ~<~S~P~A~C~E~> zum Weiterspielen.
 481:Rechner wartet auf Daten. Drücken Sie ~<~S~P~A~C~E~> zum|Wiederholen oder ~<~F~1~> zum Spielabbruch.
-499:Um neue Arbeitskräfte ausbilden zu können, benötigt Ihr ein Schulhaus.|Achtet stets darauf, dass immer genügend Gold im Lagerhaus vorrätig ist, um damit die Ausbildung weitererUntertanen finanzieren zu können.
-500:Beginnt mit einem Links-Klick auf die Hammer-Tastelinks im Menü - die Bauauswahl. Klicktdannaufdas Buch-Symbol - das Schulhaus. PositioniertdenRahmen auf der Karte, wo Ihr dasGebäude gerne hättet undklickt auf dielinke Maustaste.
-501:Wenn Seine Lordschaft das Schulhaus gesetzt hat, seht Ihr, dass der Cursor in 'Straße bauen' geändert wurde. Ihr müsst vom Hauseingang einesGebäudes jedes quadratische Feld mit einem Weg versehen, um eineStraße bauen und diese dann mitanderen Straßen verbinden zu können.
-502:Um Untertanen auszubilden, wählt das Schulhaus an und scrollt durch dieListe, bis Euer gewünschter Berufangezeigt wird. Klickt auf die Taste 'Zur Warteschlange hinzufügen'. Nach der Ausbildung starten dieLeibeigenen automatisch mitder Ausführung ihrer Aufgaben.
-503:Von Zeit zu Zeit benötigt selbst der fleißigste Knecht Nahrung. Stellt dem arbeitenden Volk einenGasthof bereit. Den Gang zu Tisch erledigen die Untertanen von alleine. Der Gasthof sollte zudemzentral gelegen sein, damit ihn jeder Dorfbewohner schnell erreichen kann.
-504:Mein Fürst, Ihr benötigt mehr Steine für den weiteren Haus- und Straßenbau. Lasst einen Steinbruch in derNähe von Steinvorkommnissen erbauen. Dazu ist die Ausbildung eines Steinmetzesvon Nöten, der neuesBaumaterial beschafft.
-505:Nebst Stein wird für den Hausbau und die Waffenherstellung Holz verwendet. Der Holzfäller fällt und pflanzt hierfür Bäume, die dann im Sägewerk zum benötigten Bauholz weiterverarbeitetwerden. Baut die Hüttedes Holzfällers nur in die Nähe eines Waldes.
+499:Um neue Arbeitskräfte ausbilden zu können, benötigt Ihr ein Schulhaus.|Achtet stets darauf, dass immer genügend Gold im Lagerhaus vorrätig ist, um damit die Ausbildung weiterer Untertanen finanzieren zu können.
+500:Beginnt mit einem Links-Klick auf die Hammer-Taste links im Menü - die Bauauswahl. Klickt dann auf das Buch-Symbol - das Schulhaus. Positioniert den Rahmen auf der Karte, wo Ihr das Gebäude gerne hättet und klickt auf die linke Maustaste.
+501:Wenn Seine Lordschaft das Schulhaus gesetzt hat, seht Ihr, dass der Cursor in 'Straße bauen' geändert wurde. Ihr müsst vom Hauseingang eines Gebäudes jedes quadratische Feld mit einem Weg versehen, um eine Straße bauen und diese dann mit anderen Straßen verbinden zu können.
+502:Um Untertanen auszubilden, wählt das Schulhaus an und scrollt durch die Liste, bis Euer gewünschter Beruf angezeigt wird. Klickt auf die Taste 'Zur Warteschlange hinzufügen'. Nach der Ausbildung starten die Leibeigenen automatisch mit der Ausführung ihrer Aufgaben.
+503:Von Zeit zu Zeit benötigt selbst der fleißigste Knecht Nahrung. Stellt dem arbeitenden Volk einen Gasthof bereit. Den Gang zu Tisch erledigen die Untertanen von alleine. Der Gasthof sollte zudem zentral gelegen sein, damit ihn jeder Dorfbewohner schnell erreichen kann.
+504:Mein Fürst, Ihr benötigt mehr Steine für den weiteren Haus- und Straßenbau. Lasst einen Steinbruch in der Nähe von Steinvorkommnissen erbauen. Dazu ist die Ausbildung eines Steinmetzes von Nöten, der neues Baumaterial beschafft.
+505:Nebst Stein wird für den Hausbau und die Waffenherstellung Holz verwendet. Der Holzfäller fällt und pflanzt hierfür Bäume, die dann im Sägewerk zum benötigten Bauholz weiterverarbeitet werden. Baut die Hütte des Holzfällers nur in die Nähe eines Waldes.
 506:Nun muss das Sägewerk errichtet werden, um die Baumstämme des Holzfällers nutzvoll zu verarbeiten. Die Arbeit im Werk verrichtet ein Schreiner, der hierfür ausgebildet werden muss.
-507:Sobald die Rohstoffversorgung aufgebaut ist, solltenLebensmittel erwirtschaftet werden. Aber rasch, die Untertanen fangen sonst an zu hungernund verweigern die Arbeit!|Am schnellsten ist die Fischerhütte erbaut, die in der Nähe von Gewässernplatziert werden muss.
-508:Der Bau ist vollendet. Man beachte, dass Fische nur begrenzt zur Verfügung stehen.|Für eine dauerhafte Nahrungsversorgung werden Bauernhöfe benötigt. Dieseproduzieren Korn für dasBackenvon Broten.
+507:Sobald die Rohstoffversorgung aufgebaut ist, sollten Lebensmittel erwirtschaftet werden. Aber rasch, die Untertanen fangen sonst an zu hungern und verweigern die Arbeit!|Am schnellsten ist die Fischerhütte erbaut, die in der Nähe von Gewässern platziert werden muss.
+508:Der Bau ist vollendet. Man beachte, dass Fische nur begrenzt zur Verfügung stehen.|Für eine dauerhafte Nahrungsversorgung werden Bauernhöfe benötigt. Diese produzieren Korn für das Backen von Broten.
 509:Dem Bauern sollten ungefähr 16 Felder in direkter Nähe des Bauernhofes bereitgestellt werden.|Das geerntete Korn wird anschließend in die Windmühle gebracht und dort zu Mehl verarbeitet. Baut eine solche Mühle und bildet einen Müller aus.
-510:Sehr gut, mein Herr. Jetzt könnt Ihr eine Bäckerei errichten lassen, die denGasthof mit frischem Brotbeliefern wird. Achtet immer darauf, dass genügend Gehilfen für den Transport Eurer Waren bereit stehen! Damit isteine schnelle Belieferung garantiert.
-511:Nebst dem Verzehr von Brot und Fisch bekommen die Untertanen gelegentlich auch Durst.|Baut eine Winzerei mit gut 16 Weinreben an, damitder Winzer Trauben ernten und diese zu Weinstampfenkann.
-512:Eure Arbeit zeichnet hervorragende Fortschritte auf! Allerdings leisten eureArbeiter mehr, wenn siemit Fleisch bewirtet werden. Errichtet eine Schweinezucht für die Mästung und Häutung von Zuchtvieh.
-513:Ein Metzger verarbeitet das frisch geschlachtete Schweininder Metzgerei unddrehtes zu Würsten. Damit er mit seiner Arbeit beginnen kann, baut ihm eine Metzgerei.
-514:Die Nahrungsmittelproduktion ist jetzt gesichert. Nunkann mit der Herstellung von Waffen begonnenwerden.|Baut zuerst eine Kaserne an eine geeignete Stelle. Beachtet unbedingt, dassdie Kaserne nie am Grenzgebiet zum Gegner errichtet werden darf!
+510:Sehr gut, mein Herr. Jetzt könnt Ihr eine Bäckerei errichten lassen, die den Gasthof mit frischem Brot beliefern wird. Achtet immer darauf, dass genügend Gehilfen für den Transport Eurer Waren bereit stehen! Damit ist eine schnelle Belieferung garantiert.
+511:Nebst dem Verzehr von Brot und Fisch bekommen die Untertanen gelegentlich auch Durst.|Baut eine Winzerei mit gut 16 Weinreben an, damit der Winzer Trauben ernten und diese zu Wein stampfen kann.
+512:Eure Arbeit zeichnet hervorragende Fortschritte auf! Allerdings leisten eure Arbeiter mehr, wenn sie mit Fleisch bewirtet werden. Errichtet eine Schweinezucht für die Mästung und Häutung von Zuchtvieh.
+513:Ein Metzger verarbeitet das frisch geschlachtete Schwein in der Metzgerei und dreht es zu Würsten. Damit er mit seiner Arbeit beginnen kann, baut ihm eine Metzgerei.
+514:Die Nahrungsmittelproduktion ist jetzt gesichert. Nun kann mit der Herstellung von Waffen begonnen werden.|Baut zuerst eine Kaserne an eine geeignete Stelle. Beachtet unbedingt, dass die Kaserne nie am Grenzgebiet zum Gegner errichtet werden darf!
 515:Mit 'Nächster Einheitentyp' und 'Vorheriger Einheitentyp' kann man zwischen den Einheiten wählen. Die blinkenden Felder zeigen die benötigte Ausrüstung je Soldatentyp.
-516:Soldaten brauchen Waffen! Baut eine Waffenwerkstatt direkt neben die Kaserne um eine schnelle Waffenlieferung zu garantieren. Die Warenwerden dann direkt in die Kaserne geschafft und nicht erst in ein Lagerhaus.
-517:DieAnzahlder zu produzierenden Waffen reguliert ihr mit einem Klick auf'Bestellmenge erhöhen'. Achtet auf die Materialversorgung. Waffen kosten vielHolz.Eventuellmüssen weitere Holzfällerhütten und Sägewerke errichtetwerden.
-518:Den nächsten Schritt sollte sich Eure Hoheit der Herstellung von Lederrüstungen aus Tierhäuten widmen. UmLeder zu gerben, ist eine Gerberei samtBetreiber zwingend notwendig.
-519:Da nun fortan Leder produziert wird, errichtet eineRüstungswerkstatt. Dort wird der Schreiner Lederrüstungen und Holzschilder konstruieren.
-520:Exzellent! Ihr seid nun in der Lage, eine Siedlung mit den wichtigsten Gebäuden aufzubauen und Waffen zuproduzieren.|Neue Rekruten bildet Ihr in der Schule, Soldaten inder Kaserne mit einemKlick auf 'Aktuellen Einheitentyp ausrüsten' aus.
-521:Euer Ziel ist es nun, die beiden mit Euch in Fehde stehenden Siedlungen inder Nähe zu zerstören. DerFeindim Süden fühlt sich hinter seiner stark gesicherten Basis in Sicherheit. Der Aufsässige im Osten schützt sichmit einer ganzen Horde. Es ist unabkömmlich, eine Armee vorzubereiten!
+516:Soldaten brauchen Waffen! Baut eine Waffenwerkstatt direkt neben die Kaserne um eine schnelle Waffenlieferung zu garantieren. Die Waren werden dann direkt in die Kaserne geschafft und nicht erst in ein Lagerhaus.
+517:Die Anzahl der zu produzierenden Waffen reguliert ihr mit einem Klick auf 'Bestellmenge erhöhen'. Achtet auf die Materialversorgung. Waffen kosten viel Holz. Eventuell müssen weitere Holzfällerhütten und Sägewerke errichtet werden.
+518:Den nächsten Schritt sollte sich Eure Hoheit der Herstellung von Lederrüstungen aus Tierhäuten widmen. Um Leder zu gerben, ist eine Gerberei samt Betreiber zwingend notwendig.
+519:Da nun fortan Leder produziert wird, errichtet eine Rüstungswerkstatt. Dort wird der Schreiner Lederrüstungen und Holzschilder konstruieren.
+520:Exzellent! Ihr seid nun in der Lage, eine Siedlung mit den wichtigsten Gebäuden aufzubauen und Waffen zu produzieren.|Neue Rekruten bildet Ihr in der Schule, Soldaten in der Kaserne mit einem Klick auf 'Aktuellen Einheitentyp ausrüsten' aus.
+521:Euer Ziel ist es nun, die beiden mit Euch in Fehde stehenden Siedlungen in der Nähe zu zerstören. Der Feind im Süden fühlt sich hinter seiner stark gesicherten Basis in Sicherheit. Der Aufsässige im Osten schützt sich mit einer ganzen Horde. Es ist unabkömmlich, eine Armee vorzubereiten!
 522:|Der blaue Spieler ist geschlagen.
 523:|Der grüne Spieler ist geschlagen.
-524:Herr, bevor Ihr Euren Rivalen im Westen angreift, müsst Ihr die in der Nähe versteckten Späher im Nordenvernichten. Wählt mit einem Links-Klick dieLanzenträger aus, klickt dann mit der rechten Maustasteauf die feindlichen Truppen. Eure Soldaten werden sofort eine Attacke ausführen!
-525:Eine Schar Bogenschützen befindet sich im Süd-Westen. Schützen bilden dieDeckung eines jedenHeeres und müssen unbedingt aufgerieben werden. Attackiert sie mit den Milizen! Achtet auf die Blick- & Schussrichtungder Schützen, damit deren Pfeile Eurem Heer keine Verluste zufügen.
-526:Attackiert nun die feindlichen Truppen, welche im Westen postiert sind. Achtet auf die Bogenschützen,diesehaben sich hinter der Infanterie verschanzt. Sendet die Späher nach Norden, damit sieden Feind umzingelnund aus demHinterhalt angreifen können.
-527:Es ist an der Zeit mit all Euren Streitkräften aufeinmal anzugreifen! Schickt die Bogenschützenhinter dieInfanterie, um Rückendeckung geben zukönnen.|Wart Ihr siegreich, mein Fürst, ist das Kampf Tutorial beendet.
+524:Herr, bevor Ihr Euren Rivalen im Westen angreift, müsst Ihr die in der Nähe versteckten Späher im Norden vernichten. Wählt mit einem Links-Klick die Lanzenträger aus, klickt dann mit der rechten Maustaste auf die feindlichen Truppen. Eure Soldaten werden sofort eine Attacke ausführen!
+525:Eine Schar Bogenschützen befindet sich im Süd-Westen. Schützen bilden die Deckung eines jeden Heeres und müssen unbedingt aufgerieben werden. Attackiert sie mit den Milizen! Achtet auf die Blick- & Schussrichtung der Schützen, damit deren Pfeile Eurem Heer keine Verluste zufügen.
+526:Attackiert nun die feindlichen Truppen, welche im Westen postiert sind. Achtet auf die Bogenschützen, diese haben sich hinter der Infanterie verschanzt. Sendet die Späher nach Norden, damit sie den Feind umzingeln und aus dem Hinterhalt angreifen können.
+527:Es ist an der Zeit mit all Euren Streitkräften auf einmal anzugreifen! Schickt die Bogenschützen hinter die Infanterie, um Rückendeckung geben zu können.|Wart Ihr siegreich, mein Fürst, ist das Kampf Tutorial beendet.
 529:Es ist unumgänglich, dass Ihr schnellstens neue Milizeinheiten ausrüstet. Ansonsten sind wir den Angriffen der Feinde schutzlos ausgeliefert.
-530:Die Kundschafter melden, dass der Feind sich bereitmacht, uns anzugreifen.|Empfangt sie mit dem Schwert in der Hand.
-531:Ihr macht gute Fortschritte, doch muss das Dorf noch weiter ausgebaut werden. Dann erst ist es vernünftig,die Barrikade des Feindes zu erstürmenund das Widerstandsnest zu vernichten.
-532:Ich weise Euch noch einmal darauf hin, dass die mit uns im Bunde stehenden Lauenburger Truppen unter allen Umständen zu beschützen sind.
-533:Hütet euch vor der Reiterei unseres Gegners, die gewiss erneut angreifen wird. Sie haben es noch immer aufunsere Verbündeten abgesehen.
-534:Das Dorf im Norden ist nun bereit, sich offen gegendie Tyrannei aufzulehnen. Dies gilt es zu unserem Vorteil zu nutzen.
-535:Unsere Späher haben eine verlassene Lagerhalle entdeckt. Sie liegt im Westen am Rande eines kleinenWaldesund gewiss findet Ihr darin nützliche Waren.
-536:Ein feindlicher Kundschafter wurde gefangen genommen und verhört. Wie esscheint, hat der Feind unseren Standort ausgemacht und schickt sich nun an, einen Angriff zu starten.
-537:Es wird nicht mehr lange dauern, bis die Barbarenüber uns herfallen. Bereitet die Verteidigung sorgfältig vor, sonst werden sie Eure Stellungen überwinden.
-538:Zu den Waffen! Eine gewaltige Streitmacht ist aufdem Weg zu uns.
-539:Teilt Eure Kräfte gut ein, der Feind ist in der Übermacht. Ein unüberlegterSturmangriff wird Euchnicht denSieg bringen.
-540:Der Sieg ist unser, doch die Zeit der Rache ist nochnicht gekommen. Erst muss Werheim wieder aufgebaut werden. dann sollen die Hunde bezahlen fürihre Gräueltaten.
-541:Ohne Eisen keine Waffen, ohne Waffen keine Krieger. Im Norden gibt es wasuns fehlt, also macht Euch bereit, die dortigen Minen zu erobern.
-542:Die braven Leute des Dorfes im Süden haben sich dem Tyrannen bis lang erfolgreich widersetzt, dabeiaber schlimme Verluste erlitten. Eilt ihnen zuHilfe, es wird Euer Schaden nicht sein.
+530:Die Kundschafter melden, dass der Feind sich bereit macht, uns anzugreifen.|Empfangt sie mit dem Schwert in der Hand.
+531:Ihr macht gute Fortschritte, doch muss das Dorf noch weiter ausgebaut werden. Dann erst ist es vernünftig, die Barrikade des Feindes zu erstürmen und das Widerstandsnest zu vernichten.
+532:Ich weise Euch noch einmal darauf hin, dass die mit uns im Bunde stehenden Lauenburger Truppen unter allen Umständen zu beschützen sind. 
+533:Hütet euch vor der Reiterei unseres Gegners, die gewiss erneut angreifen wird. Sie haben es noch immer auf unsere Verbündeten abgesehen.
+534:Das Dorf im Norden ist nun bereit, sich offen gegen die Tyrannei aufzulehnen. Dies gilt es zu unserem Vorteil zu nutzen.
+535:Unsere Späher haben eine verlassene Lagerhalle entdeckt. Sie liegt im Westen am Rande eines kleinen Waldes und gewiss findet Ihr darin nützliche Waren.
+536:Ein feindlicher Kundschafter wurde gefangen genommen und verhört. Wie es scheint, hat der Feind unseren Standort ausgemacht und schickt sich nun an, einen Angriff zu starten.
+537:Es wird nicht mehr lange dauern, bis die Barbaren über uns herfallen. Bereitet die Verteidigung sorgfältig vor, sonst werden sie Eure Stellungen überwinden.
+538:Zu den Waffen! Eine gewaltige Streitmacht ist auf dem Weg zu uns.
+539:Teilt Eure Kräfte gut ein, der Feind ist in der Übermacht. Ein unüberlegter Sturmangriff wird Euch nicht den Sieg bringen.
+540:Der Sieg ist unser, doch die Zeit der Rache ist noch nicht gekommen. Erst muss Werheim wieder aufgebaut werden. dann sollen die Hunde bezahlen für ihre Gräueltaten.
+541:Ohne Eisen keine Waffen, ohne Waffen keine Krieger. Im Norden gibt es was uns fehlt, also macht Euch bereit, die dortigen Minen zu erobern.
+542:Die braven Leute des Dorfes im Süden haben sich dem Tyrannen bis lang erfolgreich widersetzt, dabei aber schlimme Verluste erlitten. Eilt ihnen zu Hilfe, es wird Euer Schaden nicht sein.
 543:Es muss hier irgendwo ein verlassenes Lagerhaus geben. Erreicht es so schnell Ihr vermögt, denn bei der bevorstehenden Aufgabe ist jede Hilfe willkommen.
 544:Unsere Spione berichten, dass das verlassene Lagerhaus zum Ziel einer Großoffensive bestimmt wurde. Es muss unter allen Umständen gehalten werden, sonst ist unser eigenes Voranschreiten gefährdet.
-545:Eine erneute Angriffswelle auf das Lagerhaus stehtkurz bevor. Macht Euchbereit zum Kampf.
+545:Eine erneute Angriffswelle auf das Lagerhaus steht kurz bevor. Macht Euch bereit zum Kampf.
 546:Der Feind versucht verzweifelt, die drohende Niederlage abzuwenden und wagt einen Ausfall. Reibt die feindliche Armee bis zum letzten Mann auf, dann kann nichts mehr Euren Vormarsch aufhalten.
-547:Noch ist der Tyrann nicht besiegt. Unsere Verbündeten stehen zu ihrem Wort und stehen unszu Seite. Nachdem ersten Ansturm seid Ihr jedoch auf Euch gestellt, so wie es vereinbart worden ist.
-549:Mein Fürst, die Rebellen kommen!|Der Verräter steht mit einer riesigen Schar Söldnerdirekt vor den Toren und überfällt Eure Siedlungen! Rekrutiert rasch weitere Soldaten in derKaserne. Ihr müsst unbedingt die Lagerhäuser vor der Zerstörung bewahren!
-550:Ich schlage Euch vor, die Besatzer einzuschüchternund ihnen Eure Größe zu zeigen. Marschiert auf ihr Lager zu und metzelt die bewachten Posten nieder.|Nach dieser Schlacht werden sich die Dörfer Euch wieder anschließen, meinHerr.
-551:Bevor Ihr erneut in die Schlacht zieht, wisset, dasssich unter den Rebellenviele unschuldige Bürger befinden. Lasst die Bewohner und deren Siedlungen in Frieden, sie sind nicht der Feind. Konzentriert Euch auf die feindlichen Soldaten undderen Versorgung mit Waffen!
-552:Vertrauliche Quellen berichten, der Verbündete im Süden ist einer Attacke der Rebellen hilflos ausgesetzt.|Beschützt unter allen Umständen unsere Alliiertenvor einem Überfall! Sonst ist unser eigenes Voranschreiten stark beeinträchtigt.
-553:Unsere Späher berichten von feindlichen Verbänden,die sich auf das Lagerim Süden zubewegen. Verteidigt die kostbaren Waren im Lagerhaus mit jedem Mann!
-554:Mein Herr ihr müsst schnell handeln! Eine Armee des Gegners wurde südlichvon uns gesichtet! Seid auf derHut!
-555:Herr, schnell! Weitere Rebellenverbände nähern sichuns aus Richtung Westen!
-556:Es lässt sich nicht verschweigen, dass es unter Eurer Armee viele Veteranen gibt. Es ist ratsam, das Heer mit Söldnern aufzustocken.|Ihr könnt diese "Kopfgeldjäger" im Rathaus mit Goldtruhen anwerben. Aber seid achtsam, Söldner sind nichtgerade wohlfeil.
+547:Noch ist der Tyrann nicht besiegt. Unsere Verbündeten stehen zu ihrem Wort und stehen uns zu Seite. Nach dem ersten Ansturm seid Ihr jedoch auf Euch gestellt, so wie es vereinbart worden ist.
+549:Mein Fürst, die Rebellen kommen!|Der Verräter steht mit einer riesigen Schar Söldner direkt vor den Toren und überfällt Eure Siedlungen! Rekrutiert rasch weitere Soldaten in der Kaserne. Ihr müsst unbedingt die Lagerhäuser vor der Zerstörung bewahren!
+550:Ich schlage Euch vor, die Besatzer einzuschüchtern und ihnen Eure Größe zu zeigen. Marschiert auf ihr Lager zu und metzelt die bewachten Posten nieder.|Nach dieser Schlacht werden sich die Dörfer Euch wieder anschließen, mein Herr.
+551:Bevor Ihr erneut in die Schlacht zieht, wisset, dass sich unter den Rebellen viele unschuldige Bürger befinden. Lasst die Bewohner und deren Siedlungen in Frieden, sie sind nicht der Feind. Konzentriert Euch auf die feindlichen Soldaten und deren Versorgung mit Waffen!
+552:Vertrauliche Quellen berichten, der Verbündete im Süden ist einer Attacke der Rebellen hilflos ausgesetzt.|Beschützt unter allen Umständen unsere Alliierten vor einem Überfall! Sonst ist unser eigenes Voranschreiten stark beeinträchtigt.
+553:Unsere Späher berichten von feindlichen Verbänden, die sich auf das Lager im Süden zubewegen. Verteidigt die kostbaren Waren im Lagerhaus mit jedem Mann!
+554:Mein Herr ihr müsst schnell handeln! Eine Armee des Gegners wurde südlich von uns gesichtet! Seid auf der Hut!
+555:Herr, schnell! Weitere Rebellenverbände nähern sich uns aus Richtung Westen!
+556:Es lässt sich nicht verschweigen, dass es unter Eurer Armee viele Veteranen gibt. Es ist ratsam, das Heer mit Söldnern aufzustocken.|Ihr könnt diese "Kopfgeldjäger" im Rathaus mit Goldtruhen anwerben. Aber seid achtsam, Söldner sind nicht gerade wohlfeil.
 557:Einer unserer listigen Läufer hat den Feind ausspioniert. Vielleicht wäre der Hintereingang der bessere Weg in die Burg...
 558:Eine feindliche Armee bewegt sich aus den nordwestlich gelegenen Bergen direkt auf unser Basislager zu!|Formiert Eure Truppen für einen bevorstehenden Kampf!
-559:Die Rebellen haben unseren Stützpunkt entdeckt. Ihrsolltet Euch auf eine Offensive gen Osten vorbereiten.
+559:Die Rebellen haben unseren Stützpunkt entdeckt. Ihr solltet Euch auf eine Offensive gen Osten vorbereiten.
 560:Vorsicht, mein Landsherr! Auf den umliegenden Hügeln wurden Scharen feindlicher Bogenschützen gesichtet. Ein Kampf in der Schlucht darf unser Verderben nicht sein.
-561:Wir haben die letzte Bastion der Rebellen erreicht.|Kein Abtrünniger, kein Verräter und kein Rebell dürfen überleben! Die Schlacht ist erst beendet, wenn die letzte verdorbene Seele dieses Land fürimmer verlassen hat!
+561:Wir haben die letzte Bastion der Rebellen erreicht.|Kein Abtrünniger, kein Verräter und kein Rebell dürfen überleben! Die Schlacht ist erst beendet, wenn die letzte verdorbene Seele dieses Land für immer verlassen hat!
 562:Der Feind naht. Ergreift zum letzten Male das Schwert und zeigt keine Gnade vor den Rebellen!|In den Kampf!
 569:Leer
 570:Spirit
