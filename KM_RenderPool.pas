@@ -827,10 +827,10 @@ begin
       glTexCoord2fv(@TexC[TexO[3]]); glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
       glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
-      glTexCoord2fv(@TexC[TexO[1]]); glVertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[TexO[2]]); glVertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[TexO[3]]); glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[TexO[4]]); glVertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[1]]); glVertex3f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord2fv(@TexC[TexO[2]]); glVertex3f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord2fv(@TexC[TexO[3]]); glVertex3f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV, -i);
     end;
   glEnd;
   glBindTexture(GL_TEXTURE_2D, 0);
