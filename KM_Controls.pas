@@ -3317,20 +3317,28 @@ var i, PaintWidth, PaintHeight, NewLeft, NewTop:integer;
 begin
   inherited;
 
-  if fMapSize.X > fMapSize.Y then
+  if fMapSize.X * fMapSize.Y = 0 then
   begin
-    PaintWidth := Width;
-    PaintHeight := Round(Height*fMapSize.Y/Max(fMapSize.X,1)); //X could = 0
+    PaintWidth := 0;
+    PaintHeight := 0;
     NewLeft := Left;
-    NewTop := Top + (Height - PaintHeight) div 2;
+    NewTop := Top;
   end
   else
-  begin
-    PaintWidth := Round(Width*fMapSize.X/Max(fMapSize.Y,1)); //Y could = 0
-    PaintHeight := Height;
-    NewLeft := Left + (Width - PaintWidth) div 2;
-    NewTop := Top;
-  end;
+    if fMapSize.X > fMapSize.Y then
+    begin
+      PaintWidth := Width;
+      PaintHeight := Round(Height*fMapSize.Y/Max(fMapSize.X,1)); //X could = 0
+      NewLeft := Left;
+      NewTop := Top + (Height - PaintHeight) div 2;
+    end
+    else
+    begin
+      PaintWidth := Round(Width*fMapSize.X/Max(fMapSize.Y,1)); //Y could = 0
+      PaintHeight := Height;
+      NewLeft := Left + (Width - PaintWidth) div 2;
+      NewTop := Top;
+    end;
 
   if fMapTex.Tex <> 0 then
     fRenderUI.WriteTexture(NewLeft, NewTop, PaintWidth, PaintHeight, fMapTex, $FFFFFFFF)

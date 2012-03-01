@@ -98,7 +98,7 @@ est.ViewReadme=Vaadake faili Readme
 
 ;Slovak
 svk.CreateStartShortcut=Vytvori zástupcu v ponuke Štart
-svk.NoKaM=Sprievodca inštaláciou zistil, e nemáte nainštalovanı Knight & Merchants: The Peasants Rebellion. Musíte ma nainštalovanı originálnu hru, aby ste mohli hra KaM Remake. Inštalácia bude prerušená.
+svk.NoKaM=Sprievodca inštaláciou zistil, e nemáte nainštalovanı Knight & Merchants: The Peasants Rebellion. Musíte ma nainštalovanú originálnu hru, aby ste mohli hra KaM Remake. Inštalácia bude prerušená.
 svk.CantUpdate=Sprievodca inštaláciou nemohol nájs existujúcu verziu KaM Remake, je ju potrebné aktualizova. Prosím, stiahnite a nainštalujte kompletnú inštaláciu. Inštalácia bude prerušená.
 svk.OpenAL=Chcete poui spriveodcu na inštaláciu OpenAL? (Dôrazne odporúèané). Je to potrebné pre zvuky v hre v KAM Remake.
 svk.ViewReadme=Pozri súbor Readme

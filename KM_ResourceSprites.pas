@@ -284,37 +284,47 @@ end;
 function TKMSpritePack.TrimSprites: Cardinal;
 var
   I,J,K: Integer;
-  x1,x2,y1,y2: Word;
+  Right,Left,Bottom,Top: Word;
   OffX, OffY, NewX, NewY: Word;
+  FoundPixel: Boolean;
 begin
   Result := 0;
 
   for I := 1 to RXData[fRT].Qty do
   if (RXData[fRT].Flag[I] <> 0) then
   begin
+    if RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y = 0 then Continue;
     //Check bounds
-    x1 := 0;
-    y1 := 0;
-    x2 := RXData[fRT].Size[I].X - 1;
-    y2 := RXData[fRT].Size[I].Y - 1;
+    Right  := 0;
+    Bottom := 0;
+    Left   := RXData[fRT].Size[I].X - 1;
+    Top    := RXData[fRT].Size[I].Y - 1;
+    FoundPixel := False;
     for J := 0 to RXData[fRT].Size[I].Y - 1 do
     for K := 0 to RXData[fRT].Size[I].X - 1 do
     if RXData[fRT].RGBA[I, J * RXData[fRT].Size[I].X + K] and $FF000000 <> 0 then
     begin
-      x1 := Max(x1, K);
-      y1 := Max(y1, J);
-      x2 := Min(x2, K);
-      y2 := Min(y2, J);
+      Right  := Max(Right,  K);
+      Bottom := Max(Bottom, J);
+      Left   := Min(Left,   K);
+      Top    := Min(Top,    J);
+      FoundPixel := True;
     end;
 
-    Inc(x1);
-    Inc(y1);
-    if x2 > x1 then
-      Assert(False, 'x2 > x1, Happens for Lazarus?');
-    OffX := x2;
-    OffY := y2;
-    NewX := x1 - x2;
-    NewY := y1 - y2;
+    if not FoundPixel then //Entire image is transparent
+    begin
+      RXData[fRT].Size[I].X := 1;
+      RXData[fRT].Size[I].Y := 1;
+      Continue;
+    end;
+
+    Inc(Right);
+    Inc(Bottom);
+    Assert((Left <= Right) and (Top <= Bottom),'Left > Right or Top > Bottom');
+    OffX := Left;
+    OffY := Top;
+    NewX := Right  - Left;
+    NewY := Bottom - Top;
 
     Result := Result + (RXData[fRT].Size[I].Y * RXData[fRT].Size[I].X) - NewX * NewY;
 
