@@ -894,6 +894,7 @@ begin
     else assert(false); //Should not be waiting for players from any other GameState
   end;
   fNetworking.DropWaitingPlayers(WaitingPlayers);
+  WaitingPlayers.Free;
 end;
 
 

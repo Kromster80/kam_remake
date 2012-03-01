@@ -252,6 +252,7 @@ begin
     ExplanationLogAdd;
     ExplanationLog.SaveToFile(ExeDir+'ExpLog'+inttostr(fUnit.ID)+'.txt');
   end;
+  FreeAndNil(ExplanationLog);
 
   FreeAndNil(NodeList);
 

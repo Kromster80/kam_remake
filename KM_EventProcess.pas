@@ -228,6 +228,7 @@ begin
     else
       E.Free;
   end;
+  SL.Free;
 end;
 
 

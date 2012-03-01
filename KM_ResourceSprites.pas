@@ -567,6 +567,7 @@ begin
       //Load and process the mask if it exists
       if RXData[fRT].HasMask[ID] then
       begin
+        //PNG masks are designed for the artist, they take standard KaM reds so it's easier
         if FileExists(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.png') then
         begin
           {$IFDEF WDC}
@@ -601,14 +602,19 @@ begin
           end;
           po.Free;
         end;
+
+        //BMP masks are not like PNG masks, they take the raw pixel value.
+        //We use them for creating soft shadows: BMP masks are exported from Remake then imported again
         if FileExists(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.bmp') then
         begin
-          Bmp :=TBitmap.Create;
+          Bmp := TBitmap.Create;
           Bmp.LoadFromFile(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.bmp');
 
           if (RXData[fRT].Size[ID].X = Bmp.Width) and (RXData[fRT].Size[ID].Y = Bmp.Height) then
             for y:=0 to Bmp.Height-1 do for x:=0 to Bmp.Width-1 do
-              RXData[fRT].Mask[ID, y*Bmp.Width+x] := cardinal(Bmp.Canvas.Pixels[x,y]) OR $FF000000;
+              RXData[fRT].Mask[ID, y*Bmp.Width+x] := Byte(Bmp.Canvas.Pixels[x,y] AND $FF); //Take red, although it doesn't matter as we assume the input is greyscale
+
+          Bmp.Free;
         end;
       end;
 
