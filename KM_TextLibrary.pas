@@ -18,7 +18,6 @@ type
   TTextLibrary = class
   private
     fLocale: AnsiString;
-    fCount: Integer;
     GameStrings: TAnsiStringArray;
     MissionStrings: TAnsiStringArray; //Strings used in a mission
     procedure LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aOverwrite: Boolean);

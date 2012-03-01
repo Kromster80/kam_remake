@@ -680,6 +680,7 @@ begin
   SelectingTroopDirection := false;
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
+  ShownMessage := -1; //0 is the first message, -1 is invalid
 
   LastSchoolUnit   := 0;
   LastBarracksUnit := 0;

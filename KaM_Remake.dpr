@@ -116,4 +116,6 @@ begin
   fMain.Start;
 
   Application.Run;
+
+  fMain.Free; //Prevents memory leak of TKMMain showing up in FastMM
 end.
