@@ -58,6 +58,7 @@ uses
   KM_RenderAux in 'KM_RenderAux.pas',
   KM_RenderPool in 'KM_RenderPool.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
+  KM_Resolutions in 'KM_Resolutions.pas',
   KM_Resource in 'KM_Resource.pas',
   KM_ResourceCursors in 'KM_ResourceCursors.pas',
   KM_ResourceFonts in 'KM_ResourceFonts.pas',

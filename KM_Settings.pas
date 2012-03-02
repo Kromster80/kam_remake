@@ -19,7 +19,8 @@ type
     fMusicOn:boolean;
     fShuffleOn:boolean;
     fMusicVolume:byte;
-    fResolutionID:word; //ID of currently chosen resolution, it's not a fixed value
+    fResolutionID:integer; //ID of currently chosen resolution, it's not a fixed value
+    fRefreshRateID:integer;
     fResolutionWidth:word;
     fResolutionHeight:word;
     fRefreshRate:word;
@@ -83,7 +84,8 @@ type
     property MusicOn:boolean read fMusicOn write SetMusicOn default true;
     property ShuffleOn:boolean read fShuffleOn write SetShuffleOn default false;
     property MusicVolume:byte read fMusicVolume write SetMusicVolume;
-    property ResolutionID:word read fResolutionID write fResolutionID;
+    property ResolutionID:integer read fResolutionID write fResolutionID;
+    property RefreshRateID:integer read fRefreshRateID write fRefreshRateID;
     property ResolutionWidth:word read fResolutionWidth write fResolutionWidth;
     property ResolutionHeight:word read fResolutionHeight write fResolutionHeight;
     property RefreshRate:word read fRefreshRate write fRefreshRate;
@@ -113,7 +115,7 @@ type
 
 
 implementation
-uses KM_Log;
+uses KM_Log, KM_Main;
 
 
 { TGlobalSettings }
@@ -123,6 +125,9 @@ begin
   fSlidersMin := 0;
   fSlidersMax := 20;
   LoadSettingsFromFile(ExeDir + SETTINGS_FILE);
+  //verify data loaded from file
+  if not fMain.Resolutions.Check(Self) then
+    fMain.Resolutions.FindCorrect(Self);
   fNeedsSave := false;
   fLog.AppendLog('Global settings loaded from ' + SETTINGS_FILE);
 end;
@@ -207,12 +212,6 @@ begin
   fPingInterval           := f.ReadInteger('Server','PingMeasurementInterval',1000);
   fHTMLStatusFile         := f.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
   fServerWelcomeMessage   := f.ReadString ('Server','WelcomeMessage','');
-
-  //determining ID of saved resolution, if values are incorrect, ID is 1
-  fResolutionID := 1;
-  for i := 1 to RESOLUTION_COUNT do
-    if (ScreenRes[i].Width = fResolutionWidth) and (ScreenRes[i].Height = fResolutionHeight) then
-      fResolutionID := i;
 
   FreeAndNil(f);
   fNeedsSave := false;

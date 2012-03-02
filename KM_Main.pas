@@ -4,22 +4,18 @@ interface
 uses
   Classes, Controls, ExtCtrls, Forms, Math, SysUtils, StrUtils,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
-  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings;
+  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions;
 
 type
   TKMMain = class
   private
     fTimer: TTimer;
+    fResolutions: TKMResolutions;
 
     procedure DoDeactivate(Sender: TObject);
     procedure DoIdle(Sender: TObject; var Done: Boolean);
     procedure DoTimer(Sender: TObject);
 
-    procedure CheckResolution(aGameSettings: TGlobalSettings);
-    procedure ReadAvailableResolutions;
-    procedure SortScreenResData;
-    procedure ResetResolution;
-    procedure SetScreenResolution(Width, Height, RefreshRate: word);
   public
     constructor Create;
 
@@ -39,6 +35,8 @@ type
 
     procedure StatusBarText(const aData: string); overload;
     procedure StatusBarText(aPanelIndex: Integer; aText: string); overload;
+
+    property Resolutions: TKMResolutions read fResolutions;
   end;
 
 
@@ -77,12 +75,11 @@ begin
   CreateDir(ExeDir + 'Logs\');
   fLog := TKMLog.Create(ExeDir+'Logs\KaM_'+FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz',Now)+'.log'); //First thing - create a log
 
-  ReadAvailableResolutions;
+  fResolutions := TKMResolutions.Create;
 
   //Only after we read settings (fullscreen property and resolutions)
   //we can decide whenever we want to create Game fullscreen or not (OpenGL init depends on that)
   TempSettings := TGlobalSettings.Create;
-  CheckResolution(TempSettings);
   ToggleFullScreen(TempSettings, False);
   TempSettings.Free;
 
@@ -117,7 +114,7 @@ end;
 procedure TKMMain.Stop(Sender: TObject);
 begin
   //Reset the resolution
-  ResetResolution;
+  if fResolutions<>nil then FreeThenNil(fResolutions);
   if fGame<>nil then fGame.Stop(gr_Silent);
   if fGame<>nil then FreeThenNil(fGame);
   if fLog<>nil then FreeThenNil(fLog);
@@ -194,9 +191,9 @@ begin
   VSync := aSettings.VSync;
 
   if aSettings.FullScreen then
-    SetScreenResolution(ScreenRes[aSettings.ResolutionID].Width, ScreenRes[aSettings.ResolutionID].Height, aSettings.RefreshRate)
+    fResolutions.SetResolution(aSettings.ResolutionID, aSettings.RefreshRateID)
   else
-    ResetResolution;
+    fResolutions.Restore;
 
   FormLoading.Position := poScreenCenter;
   FormMain.ToggleFullscreen(aSettings.FullScreen);
@@ -223,172 +220,6 @@ begin
 end;
 
 
-procedure TKMMain.ReadAvailableResolutions;
-var
-  I,M,N: integer;
-  {$IFDEF MSWindows}DevMode: TDevMode;{$ENDIF}
-begin
-  {$IFDEF MSWindows}
-  //Clear
-  FillChar(ScreenRes, SizeOf(ScreenRes), #0);
-
-  I := 0;
-  while EnumDisplaySettings(nil, I, DevMode) do
-  with DevMode do
-  begin
-    Inc(I);
-    //Take only 32bpp modes
-    //Exclude rotated modes, as Win reports them too
-    if (dmBitsPerPel = 32) and (dmPelsWidth > dmPelsHeight)
-    and (dmPelsWidth >= 1024) and (dmPelsHeight >= 768)
-    and (dmDisplayFrequency > 0) then
-    begin
-      //todo: There's a problem with VMware which reports ~20 resolutions which
-      //A. do not fit
-      //B. are not sorted
-      //C. cause range-check-error since A is not checked properly (fixed, see comment below)
-      //We should sort resolutions manually anyway,
-      //and decide which resolutions to keep (highest 15 ?) or raise the limit or use a ComboBox
-
-      //@Jimmy: Conditions are checked from left to right, so the following would lead to range error
-      //        (ScreenRes[N].Width <> 0) and (N < RESOLUTION_COUNT)
-      //since it first checks ScreenRes[N], where N could be already out of range
-      //@Jimmy: You can do range checks manually setting _Count limit to very low, e.g.1 or 2 instead of 15
-
-      //Find next empty place and avoid duplicating
-      N := 1;
-      while (N <= RESOLUTION_COUNT) and (ScreenRes[N].Width <> 0)
-            and ((ScreenRes[N].Width <> dmPelsWidth) or (ScreenRes[N].Height <> dmPelsHeight)) do
-        Inc(N);
-
-      if (N <= RESOLUTION_COUNT) and (ScreenRes[N].Width = 0) then
-      begin
-        ScreenRes[N].Width := dmPelsWidth;
-        ScreenRes[N].Height := dmPelsHeight;
-      end;
-
-      //Find next empty place and avoid duplicating
-      M := 1;
-      while (N <= RESOLUTION_COUNT) and (M <= REFRESH_RATE_COUNT)
-            and (ScreenRes[N].RefRate[M] <> 0)
-            and (ScreenRes[N].RefRate[M] <> dmDisplayFrequency) do
-        Inc(M);
-
-      if (M <= REFRESH_RATE_COUNT) and (N <= RESOLUTION_COUNT) and (ScreenRes[N].RefRate[M] = 0) then
-        ScreenRes[N].RefRate[M] := dmDisplayFrequency;
-    end;
-  end;
-  {$ENDIF}
-  //sorting retrieved data
-  SortScreenResData;
-end;
-
-
-{ //Jimmy: I suggest you take this scheme and move it to separate unit KM_Resolutions.pas
-
-type
-  TKMResolutions = class
-  private
-    fCount: Integer;
-    fItems: array of TScreenResData;
-
-    function GetItem(aIndex: Integer): TScreenResData;
-    procedure ReadAvailable;
-    procedure Sort;
-    procedure Restore
-  public
-    constructor Create; //runs SaveCurrent, ReadAvailable, Sort
-    destructor Destroy; //runs RestoreCurrent
-
-    property Count read fCount; //Used by UI
-    property Items[aIndex: Integer]: TScreenResData read GetItem; //Used by UI
-
-    function FindBestMatch(aRes: TScreenResData): Integer; //Get best matching resolutions or use current
-    procedure SetResolution(aIndex: Integer); //Apply the resolution
-  end;
-
-//For UserInterface please use 2 DropBoxes one below another
-[Resolution  [\/]]
-[RefreshRate [\/]]
-That would be much less custom code.
-}
-
-
-procedure TKMMain.SortScreenResData;
-var I,J,K:integer;
-    TempScreenResData:TScreenResData;
-    TempRefRate:Word;
-begin
-  for I:=1 to RESOLUTION_COUNT do
-  begin
-    for J:=1 to REFRESH_RATE_COUNT do
-    begin
-      //firstly, refresh rates for each resolution are being sorted
-      K:=J;  //iterator will be modified, but we don't want to lose it
-      while ((K>1) and (ScreenRes[I].RefRate[K] < ScreenRes[I].RefRate[K-1]) and
-             //excluding zero values from sorting, so they are kept at the end of array
-             (ScreenRes[I].RefRate[K] > 0)) do
-      begin
-        //simple replacement of data
-        TempRefRate := ScreenRes[I].RefRate[K];
-        ScreenRes[I].RefRate[K] := ScreenRes[I].RefRate[K-1];
-        ScreenRes[I].RefRate[K-1] := TempRefRate;
-        dec(K);
-      end;
-    end;
-    if I=1 then continue;
-    J:=I;  //iterator will be modified, but we don't want to lose it
-    //moving resolution to its final position
-    while ((J>1) and (((ScreenRes[J].Width < ScreenRes[J-1].Width) and
-           //excluding zero values from sorting, so they are kept at the end of array
-           (ScreenRes[J].Width > 0) and (ScreenRes[J].Height > 0)) or
-           ((ScreenRes[J].Width = ScreenRes[J-1].Width) and
-           (ScreenRes[J].Height < ScreenRes[J-1].Height)))) do
-    begin
-      //simple replacement of data
-      TempScreenResData := ScreenRes[J];
-      ScreenRes[J] := ScreenRes[J-1];
-      ScreenRes[J-1] := TempScreenResData;
-      dec(J);
-    end;
-  end;
-end;
-
-
-//Checks, whether resolution from INI file is correct
-//and if not - reuse current resolution
-procedure TKMMain.CheckResolution(aGameSettings: TGlobalSettings);
-var I, J: Integer;
-    ResolutionFound: Boolean;
-    {$IFDEF MSWindows}DevMode: TDevMode;{$ENDIF}
-begin
-  {$IFDEF MSWindows}
-  //Try to find matching Resolution
-  ResolutionFound := False;
-  for I := 1 to RESOLUTION_COUNT do
-    if (ScreenRes[I].Width = aGameSettings.ResolutionWidth)
-    and(ScreenRes[I].Height = aGameSettings.ResolutionHeight) then
-      for J := 1 to REFRESH_RATE_COUNT do
-        if (aGameSettings.RefreshRate = ScreenRes[I].RefRate[J]) then
-          ResolutionFound := True;
-
-  //Otherwise take current Resolution/RefreshRate
-  if not ResolutionFound then
-  begin
-    EnumDisplaySettings(nil, Cardinal(-1){ENUM_CURRENT_SETTINGS}, DevMode);
-    with DevMode do
-    begin
-      aGameSettings.ResolutionWidth := dmPelsWidth;
-      aGameSettings.ResolutionHeight := dmPelsHeight;
-      aGameSettings.RefreshRate := dmDisplayFrequency;
-    end;
-    //correct values must be saved immediately
-    aGameSettings.SaveSettings(True);
-  end;
-  {$ENDIF}
-end;
-
-
 function TKMMain.ClientRect: TRect;
 begin
   Result := FormMain.Panel5.ClientRect;
@@ -400,37 +231,6 @@ end;
 function TKMMain.ClientToScreen(aPoint: TPoint): TPoint;
 begin
   Result := FormMain.Panel5.ClientToScreen(aPoint);
-end;
-
-
-procedure TKMMain.SetScreenResolution(Width, Height, RefreshRate: Word);
-{$IFDEF MSWindows} var DeviceMode: DEVMODE; {$ENDIF}
-begin
-  {$IFDEF MSWindows}
-  ZeroMemory(@DeviceMode, SizeOf(DeviceMode));
-
-  with DeviceMode do
-  begin
-    dmSize := SizeOf(TDeviceMode);
-    dmPelsWidth := Width;
-    dmPelsHeight := Height;
-    dmBitsPerPel := 32;
-    dmDisplayFrequency := RefreshRate;
-    dmFields := DM_DISPLAYFREQUENCY or DM_BITSPERPEL or DM_PELSWIDTH or DM_PELSHEIGHT;
-  end;
-
-  ChangeDisplaySettings(DeviceMode, CDS_FULLSCREEN);
-  {$ENDIF}
-end;
-
-
-//Restore initial Windows resolution
-procedure TKMMain.ResetResolution;
-begin
-  {$IFDEF MSWindows}
-  //if (fGame = nil) or (fGame.GlobalSettings = nil) or fGame.GlobalSettings.FullScreen then
-    ChangeDisplaySettings(DEVMODE(nil^), 0);
-  {$ENDIF}
 end;
 
 

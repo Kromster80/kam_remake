@@ -919,22 +919,14 @@ const
     (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,7,6,6,6,5,5,5,4,4,4,3,3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0,0));
 
 
-const
-  //How many options are we supporting
-  //@Jimmy: Use dynamic count
-  RESOLUTION_COUNT = 15;
-  REFRESH_RATE_COUNT = 15;
-
 //Record storing resolution and list of its allowed refresh rates
 type
   TScreenResData = record
                  Width, Height: Word;
-                 RefRate: array [1..REFRESH_RATE_COUNT] of Word;
+                 RefRateCount: Integer;
+                 RefRate: array of Word;
                end;
 
-var
-  //Lists available screen resolutions and their supported refresh rates
-  ScreenRes: array[1..RESOLUTION_COUNT] of TScreenResData;
 
 type
   TRXType = (

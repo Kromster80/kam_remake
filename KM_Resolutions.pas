@@ -1,11 +1,3 @@
-//NOTICE: Some things has changed in another files, so I will list
-//        them now for better understanding:
-//        - RefRateCount is a member of TScreenResData, it stores
-//          number of supported refresh rates for resolution
-//        - TGlobalSettings has got a new member RefreshRateID
-
-
-
 unit KM_Resolutions;
 {$I KaM_Remake.inc}
 
@@ -24,12 +16,12 @@ type
     function GetItem(aIndex: Integer): TScreenResData;
     procedure ReadAvailable;
     procedure Sort;
-    procedure SetSettingsIDs(aGameSettings:TGlobalSettings);  //prepares IDs for TGlobalSettings
+    procedure SetSettingsIDs(aGameSettings:TGlobalSettings; Correct:Boolean);  //prepares IDs for TGlobalSettings
 
   public
-    constructor Create; //runs ReadAvailable, Sort
-    destructor Destroy; //runs Restore
-    procedure Restore;  //restore original resolution
+    constructor Create;
+    destructor Destroy;
+    procedure Restore; //restores resolution used before program was started
 
     property Count: Integer read fCount; //Used by UI
     property Items[aIndex: Integer]: TScreenResData read GetItem; //Used by UI
@@ -40,7 +32,6 @@ type
   end;
 
 implementation
-uses KM_Log; //for debugging purposes, can be deleted later
 
 constructor TKMResolutions.Create;
 begin
@@ -112,14 +103,6 @@ begin
     end;
   end;
   {$ENDIF}
-  //for debugging purposes, can be deleted later
-  for I:=0 to fCount-1 do
-    for M:=0 to fItems[I].RefRateCount-1 do
-    begin
-      fLog.AppendLog('Width: ',fItems[I].Width);
-      fLog.AppendLog('Height: ',fItems[I].Height);
-      fLog.AppendLog('RefRate: ',fItems[I].RefRate[M]);
-    end;
 end;
 
 
@@ -128,54 +111,46 @@ var I,J,K:integer;
     TempScreenResData:TScreenResData;
     TempRefRate:Word;
 begin
-  for I:=0 to fCount-1 do
-  begin
-    for J:=0 to fItems[I].RefRateCount-1 do
+  if fCount > 0 then
+    for I:=0 to fCount-1 do
     begin
-      //firstly, refresh rates for each resolution are being sorted
-      K:=J;  //iterator will be modified, but we don't want to lose it
-      while ((K>0) and (fItems[I].RefRate[K] < fItems[I].RefRate[K-1]) and
+      for J:=0 to fItems[I].RefRateCount-1 do
+      begin
+        //firstly, refresh rates for each resolution are being sorted
+        K:=J;  //iterator will be modified, but we don't want to lose it
+        while ((K>0) and (fItems[I].RefRate[K] < fItems[I].RefRate[K-1]) and
              //excluding zero values from sorting, so they are kept at the end of array
-             (fItems[I].RefRate[K] > 0)) do
+               (fItems[I].RefRate[K] > 0)) do
+        begin
+          //simple replacement of data
+          TempRefRate := fItems[I].RefRate[K];
+          fItems[I].RefRate[K] := fItems[I].RefRate[K-1];
+          fItems[I].RefRate[K-1] := TempRefRate;
+          dec(K);
+        end;
+      end;
+      if I=0 then continue;
+      J:=I;  //iterator will be modified, but we don't want to lose it
+      //moving resolution to its final position
+      while ((J>0) and (((fItems[J].Width < fItems[J-1].Width) and
+           //excluding zero values from sorting, so they are kept at the end of array
+             (fItems[J].Width > 0) and (fItems[J].Height > 0)) or
+             ((fItems[J].Width = fItems[J-1].Width) and
+             (fItems[J].Height < fItems[J-1].Height)))) do
       begin
         //simple replacement of data
-        TempRefRate := fItems[I].RefRate[K];
-        fItems[I].RefRate[K] := fItems[I].RefRate[K-1];
-        fItems[I].RefRate[K-1] := TempRefRate;
-        dec(K);
+        TempScreenResData := fItems[J];
+        fItems[J] := fItems[J-1];
+        fItems[J-1] := TempScreenResData;
+        dec(J);
       end;
-    end;
-    if I=0 then continue;
-    J:=I;  //iterator will be modified, but we don't want to lose it
-    //moving resolution to its final position
-    while ((J>0) and (((fItems[J].Width < fItems[J-1].Width) and
-           //excluding zero values from sorting, so they are kept at the end of array
-           (fItems[J].Width > 0) and (fItems[J].Height > 0)) or
-           ((fItems[J].Width = fItems[J-1].Width) and
-           (fItems[J].Height < fItems[J-1].Height)))) do
-    begin
-      //simple replacement of data
-      TempScreenResData := fItems[J];
-      fItems[J] := fItems[J-1];
-      fItems[J-1] := TempScreenResData;
-      dec(J);
-    end;
-  end;
-  //for debugging purposes, can be deleted later
-  fLog.AppendLog('After sorting:');
-  for I:=0 to fCount-1 do
-    for J:=0 to fItems[I].RefRateCount-1 do
-    begin
-      fLog.AppendLog('Width: ',fItems[I].Width);
-      fLog.AppendLog('Height: ',fItems[I].Height);
-      fLog.AppendLog('RefRate: ',fItems[I].RefRate[J]);
     end;
 end;
 
 
 function TKMResolutions.GetItem(aIndex: Integer): TScreenResData;
 begin
-  if aIndex in [0..fCount-1] then
+  if (fCount>0) and (aIndex in [0..fCount-1]) then
     Result := fItems[aIndex];
 end;
 
@@ -193,26 +168,27 @@ var I, J: Integer;
 begin
   //Try to find matching Resolution
   Result := False;
-  for I := 0 to fCount-1 do
-    if (fItems[I].Width = aGameSettings.ResolutionWidth)
-    and(fItems[I].Height = aGameSettings.ResolutionHeight) then
-      for J := 0 to fItems[I].RefRateCount-1 do
-        if (aGameSettings.RefreshRate = fItems[I].RefRate[J]) then
-        begin
-          Result := True;
-          SetSettingsIDs(aGameSettings);
-        end;
+  if fCount > 0 then
+    for I := 0 to fCount-1 do
+      if (fItems[I].Width = aGameSettings.ResolutionWidth)
+      and(fItems[I].Height = aGameSettings.ResolutionHeight) then
+        for J := 0 to fItems[I].RefRateCount-1 do
+          if (aGameSettings.RefreshRate = fItems[I].RefRate[J]) then
+          begin
+            Result := True;
+            SetSettingsIDs(aGameSettings, True);
+          end;
 end;
 
 
 procedure TKMResolutions.SetResolution(aResIndex,aRefIndex: Integer);
 {$IFDEF MSWindows} var DeviceMode: DEVMODE; {$ENDIF}
 begin
-  if (aResIndex in [0..fCount-1]) and (aRefIndex in [0..fItems[aResIndex].RefRateCount-1]) then
+  if (fCount > 0) and (aResIndex in [0..fCount-1]) and
+     (aRefIndex in [0..fItems[aResIndex].RefRateCount-1]) then
   begin
     {$IFDEF MSWindows}
     ZeroMemory(@DeviceMode, SizeOf(DeviceMode));
-
     with DeviceMode do
     begin
       dmSize := SizeOf(TDeviceMode);
@@ -237,48 +213,67 @@ begin
   with DevMode do
   begin
     //we need to check, if current resolution is lower than we can support
-    if (dmPelsWidth >= 1024) and (dmPelsHeight >= 768) then
+    if (dmPelsWidth >= 1024) and (dmPelsHeight >= 768) and (fCount > 0) then
     begin
       aGameSettings.ResolutionWidth := dmPelsWidth;
       aGameSettings.ResolutionHeight := dmPelsHeight;
       aGameSettings.RefreshRate := dmDisplayFrequency;
     end
-    //current resolution is too low, we need to take lowest supported values
-    //I suppose there won't be situations, where user has only resolutions
-    //lower than 1024x768, but I can later add code, which will force windowed
-    //mode in such cases
     else if fCount > 0 then
+    //we cannot support currently used resolution, but
+    //we can switch to supported one
     begin
       aGameSettings.ResolutionWidth := fItems[0].Width;
       aGameSettings.ResolutionHeight := fItems[0].Height;
       aGameSettings.RefreshRate := fItems[0].RefRate[0];
-    end;
+    end
+    //there is no supported resolution
+    //forcing windowed mode
+    else aGameSettings.FullScreen := false;
   end;
   {$ENDIF}
   //correct values must be saved immediately
   aGameSettings.SaveSettings(True);
-  SetSettingsIDs(aGameSettings);
+
+  SetSettingsIDs(aGameSettings, False);
 end;
 
 
 //we need to set this IDs in settings, so we don't work on "physical" values
 //and everything is kept inside this class, not in TGlobalSettings
-procedure TKMResolutions.SetSettingsIDs(aGameSettings:TGlobalSettings);
+procedure TKMResolutions.SetSettingsIDs(aGameSettings:TGlobalSettings; Correct:Boolean);
 var I,J: Integer;
   {$IFDEF MSWindows}DevMode: TDevMode;{$ENDIF}
 begin
-  EnumDisplaySettings(nil, Cardinal(-1){ENUM_CURRENT_SETTINGS}, DevMode);
-  for I := 0 to fCount-1 do
-    with DevMode do
-    begin
-      if (fItems[I].Width = dmPelsWidth) and (fItems[I].Height = dmPelsHeight) then
-          for J := 0 to fItems[I].RefRateCount-1 do
-            if fItems[I].RefRate[J] = dmDisplayFrequency  then
+  if fCount > 0 then
+  begin
+    if Correct then
+    //looking for IDs for data from settings file
+      for I:=0 to fCount-1 do
+        if (fItems[I].Width = aGameSettings.ResolutionWidth) and (fItems[I].Height = aGameSettings.ResolutionHeight) then
+          for J:=0 to fItems[I].RefRateCount-1 do
+            if fItems[I].RefRate[J] = aGameSettings.RefreshRate then
             begin
               aGameSettings.ResolutionID := I;
               aGameSettings.RefreshRateID := J;
             end;
-    end;
+    if not Correct then
+    //looking for IDs for data retrieved from system
+    begin
+      EnumDisplaySettings(nil, Cardinal(-1){ENUM_CURRENT_SETTINGS}, DevMode);
+      for I := 0 to fCount-1 do
+        with DevMode do
+        begin
+          if (fItems[I].Width = dmPelsWidth) and (fItems[I].Height = dmPelsHeight) then
+            for J := 0 to fItems[I].RefRateCount-1 do
+              if fItems[I].RefRate[J] = dmDisplayFrequency  then
+              begin
+                aGameSettings.ResolutionID := I;
+                aGameSettings.RefreshRateID := J;
+              end;
+        end;
+      end;
+  end;
 end;
 
 end.

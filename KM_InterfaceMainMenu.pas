@@ -29,8 +29,8 @@ type
     fSavesMP: TKMSavesCollection;
     MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
     OldFullScreen:boolean;
-    OldResolutionID:word;
-    OldRefreshRate:word;
+    OldResolutionID:integer;
+    OldRefreshRateID:integer;
 
     procedure Create_MainMenu_Page;
     procedure Create_SinglePlayer_Page;
@@ -116,6 +116,7 @@ type
     procedure Options_Fill(aGlobalSettings:TGlobalSettings);
     procedure Options_Change(Sender: TObject);
     procedure Options_FlagClick(Sender: TObject);
+    procedure Options_Refresh_DropBoxes;
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -256,8 +257,8 @@ type
         Image_Options_Lang_Flags:array[1..LOCALES_COUNT] of TKMImage;
       Panel_Options_Res:TKMPanel;
         CheckBox_Options_FullScreen:TKMCheckBox;
-        CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox;
-        CheckBox_Options_RefreshRate:array[1..REFRESH_RATE_COUNT] of TKMCheckBox;
+        DropBox_Options_Resolution:TKMDropBox;
+        DropBox_Options_RefreshRate:TKMDropBox;
         Button_Options_ResApply:TKMButton;
       Button_Options_Back:TKMButton;
     Panel_Credits:TKMPanel;
@@ -1048,25 +1049,20 @@ begin
       CheckBox_Options_ShuffleOn.OnClick := Options_Change;
 
     //Resolutions section
-    Panel_Options_Res := TKMPanel.Create(Panel_Options,360,130,210,30+RESOLUTION_COUNT*20);
+    Panel_Options_Res := TKMPanel.Create(Panel_Options,360,130,210,170);
       TKMLabel.Create(Panel_Options_Res,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_RESOLUTION],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Res,0,20,210,10+Math.max(RESOLUTION_COUNT,REFRESH_RATE_COUNT)*20);
-      for i := 1 to RESOLUTION_COUNT do
-      begin
-        CheckBox_Options_Resolution[i] := TKMCheckBox.Create(Panel_Options_Res,12,27+(i-1)*20,176,20,Format('%dx%d',[ScreenRes[i].Width,ScreenRes[i].Height]),fnt_Metal);
-        CheckBox_Options_Resolution[i].OnClick := Options_Change;
-      end;
+      TKMBevel.Create(Panel_Options_Res,0,20,210,85);
 
-      for i := 1 to REFRESH_RATE_COUNT do
-      begin
-        CheckBox_Options_RefreshRate[i] := TKMCheckBox.Create(Panel_Options_Res,122,27+(i-1)*20,80,20,Format('%d Hz',[0]),fnt_Metal);
-        CheckBox_Options_RefreshRate[i].OnClick := Options_Change;
-      end;
+      DropBox_Options_Resolution := TKMDropBox.Create(Panel_Options_Res,20,30,170,25,fnt_Metal,'');
+      DropBox_Options_RefreshRate := TKMDropBox.Create(Panel_Options_res,20,70,170,25,fnt_Metal,'');
 
-      CheckBox_Options_FullScreen := TKMCheckBox.Create(Panel_Options_Res,12,38+RESOLUTION_COUNT*20,176,20,fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN],fnt_Metal);
+      DropBox_Options_RefreshRate.OnChange := Options_Change;
+      DropBox_Options_Resolution.OnChange := Options_Change;
+
+      CheckBox_Options_FullScreen := TKMCheckBox.Create(Panel_Options_Res,12,115,176,20,fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN],fnt_Metal);
       CheckBox_Options_FullScreen.OnClick := Options_Change;
 
-      Button_Options_ResApply:=TKMButton.Create(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,180,30,fTextLibrary[TX_MENU_OPTIONS_APPLY],fnt_Metal, bsMenu);
+      Button_Options_ResApply:=TKMButton.Create(Panel_Options_Res,10,135,180,30,fTextLibrary[TX_MENU_OPTIONS_APPLY],fnt_Metal, bsMenu);
       Button_Options_ResApply.OnClick:=Options_Change;
 
     //Language section
@@ -1245,7 +1241,7 @@ begin
   if Sender=Button_Options_Back then begin
     fGame.GlobalSettings.FullScreen   := OldFullScreen;
     fGame.GlobalSettings.ResolutionID := OldResolutionID;
-    fGame.GlobalSettings.RefreshRate  := OldRefreshRate;
+    fGame.GlobalSettings.RefreshRateID  := OldRefreshRateID;
     fGame.GlobalSettings.SaveSettings;
     Panel_MainMenu.Show;
   end;
@@ -2507,31 +2503,34 @@ begin
     if SameText(aGlobalSettings.Locale, Locales[i,1]) then
       Radio_Options_Lang.ItemIndex := i-1;
 
-  CheckBox_Options_FullScreen.Checked := aGlobalSettings.FullScreen;
-  for i:=1 to RESOLUTION_COUNT do begin
-    CheckBox_Options_Resolution[i].Checked := (i = aGlobalSettings.ResolutionID);
-    CheckBox_Options_Resolution[i].Enabled := aGlobalSettings.FullScreen;
-    CheckBox_Options_Resolution[i].Visible := ScreenRes[i].Width <> 0;
+  //we need to reset dropboxes every time we enter Options page
+  Options_Refresh_DropBoxes;
+
+  if fMain.Resolutions.Count > 0 then
+  begin
+    DropBox_Options_Resolution.ItemIndex := aGlobalSettings.ResolutionID;
+    DropBox_Options_RefreshRate.ItemIndex := aGlobalSettings.RefreshRateID;
   end;
 
-  //Refresh rates depend on resolution, thus Captions are changed dynamically
-  for i:=1 to REFRESH_RATE_COUNT do
-  begin
-    CheckBox_Options_RefreshRate[i].Caption := Format('%d Hz', [ScreenRes[aGlobalSettings.ResolutionID].RefRate[i]]);
-    CheckBox_Options_RefreshRate[i].Checked := (ScreenRes[aGlobalSettings.ResolutionID].RefRate[i] = aGlobalSettings.RefreshRate);
-    CheckBox_Options_RefreshRate[i].Enabled := (ScreenRes[aGlobalSettings.ResolutionID].RefRate[i] > 0) AND aGlobalSettings.FullScreen;
-    CheckBox_Options_RefreshRate[i].Visible := (ScreenRes[aGlobalSettings.ResolutionID].RefRate[i] > 0);
-  end;
+  CheckBox_Options_FullScreen.Checked := aGlobalSettings.FullScreen;
+  //Controls should be disabled, when there is no resolution to choose
+  CheckBox_Options_FullScreen.Enabled := fMain.Resolutions.Count > 0;
+  DropBox_Options_Resolution.Enabled := (aGlobalSettings.FullScreen) and
+                                        (fMain.Resolutions.Count > 0);
+  DropBox_Options_RefreshRate.Enabled := (aGlobalSettings.FullScreen) and
+                                         (fMain.Resolutions.Count > 0);
 
   OldFullScreen   := aGlobalSettings.FullScreen;
   OldResolutionID := aGlobalSettings.ResolutionID;
-  OldRefreshRate  := aGlobalSettings.RefreshRate;
+  OldRefreshRateID  := aGlobalSettings.RefreshRateID;
   Button_Options_ResApply.Disable;
 end;
 
 
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
-var I:cardinal; MusicToggled, ShuffleToggled, RefRateCorrect: boolean;
+var I,NewRefRateID:cardinal; MusicToggled, ShuffleToggled, RefRateCorrect: boolean;
+    //vars below are used only to make code shorter
+    ResID, RefID:Integer;
 begin
   MusicToggled := (fGame.GlobalSettings.MusicOn = CheckBox_Options_MusicOn.Checked);
   ShuffleToggled := (not fGame.GlobalSettings.ShuffleOn = CheckBox_Options_ShuffleOn.Checked);
@@ -2564,60 +2563,72 @@ begin
     fGame.Render; //Force to repaint loading screen
     fGame.GlobalSettings.FullScreen   := OldFullScreen; //Reset the resolution so the apply button is set right when we come back
     fGame.GlobalSettings.ResolutionID := OldResolutionID;
-    fGame.GlobalSettings.RefreshRate  := OldRefreshRate;
+    fGame.GlobalSettings.RefreshRateID  := OldRefreshRateID;
     fGame.ToggleLocale(Locales[Radio_Options_Lang.ItemIndex+1,1]);
     exit; //Whole interface will be recreated
   end;
 
-  if Sender = Button_Options_ResApply then begin //Apply resolution changes
+  if (Sender = Button_Options_ResApply) and (fMain.Resolutions.Count > 0) then begin //Apply resolution changes
     OldFullScreen   := fGame.GlobalSettings.FullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
     OldResolutionID := fGame.GlobalSettings.ResolutionID;
-    OldRefreshRate  := fGame.GlobalSettings.RefreshRate;
+    OldRefreshRateID  := fGame.GlobalSettings.RefreshRateID;
+    ResID := fGame.GlobalSettings.ResolutionID;
+    RefID := fGame.GlobalSettings.RefreshRateID;
+    fGame.GlobalSettings.ResolutionWidth := fMain.Resolutions.Items[ResID].Width;
+    fGame.GlobalSettings.ResolutionHeight := fMain.Resolutions.Items[ResID].Height;
+    fGame.GlobalSettings.RefreshRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
     fMain.ToggleFullScreen(fGame.GlobalSettings, True);
     exit; //Whole interface will be recreated
   end;
 
-  for I:=1 to RESOLUTION_COUNT do
-    if Sender = CheckBox_Options_Resolution[I] then
+  if (Sender = DropBox_Options_Resolution) and (fMain.Resolutions.Count > 0) then
+  begin
+    //checks if chosen resolution has the same refresh rate as previously
+    //chosen resolution, if yes, refresh rate should be kept
+    RefRateCorrect := false;
+    ResID := fGame.GlobalSettings.ResolutionID;
+    RefID := fGame.GlobalSettings.RefreshRateID;
+    for I:=0 to fMain.Resolutions.Items[DropBox_Options_Resolution.ItemIndex].RefRateCount-1 do
+      if fMain.Resolutions.Items[DropBox_Options_Resolution.ItemIndex].RefRate[I] = fMain.Resolutions.Items[ResID].RefRate[RefID] then
+      begin
+        RefRateCorrect := true;
+        NewRefRateID := I;
+      end;
+
+    fGame.GlobalSettings.ResolutionID := DropBox_Options_Resolution.ItemIndex;
+
+    //resets refresh rate, because they are different for each resolution
+    DropBox_Options_RefreshRate.Clear;
+    ResID := fGame.GlobalSettings.ResolutionID;
+    for I:=0 to fMain.Resolutions.Items[ResID].RefRateCount-1 do
+      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[ResID].RefRate[i]]));
+
+    if RefRateCorrect then
     begin
-      fGame.GlobalSettings.ResolutionID := I;
-      fGame.GlobalSettings.ResolutionWidth := ScreenRes[I].Width;
-      fGame.GlobalSettings.ResolutionHeight := ScreenRes[I].Height;
+      DropBox_Options_RefreshRate.ItemIndex := NewRefRateID;
+      fGame.GlobalSettings.RefreshRateID := NewRefRateID;
     end;
 
-  for I := 1 to RESOLUTION_COUNT do
-  begin
-    CheckBox_Options_Resolution[I].Checked := (I = fGame.GlobalSettings.ResolutionID);
-    CheckBox_Options_Resolution[I].Enabled := fGame.GlobalSettings.FullScreen;
+    if not RefRateCorrect then
+    begin
+      DropBox_Options_RefreshRate.ItemIndex := 0;
+      fGame.GlobalSettings.RefreshRateID := 0;
+    end;
   end;
 
-  RefRateCorrect := False;
-  for I := 1 to REFRESH_RATE_COUNT do
+  DropBox_Options_Resolution.Enabled := fGame.GlobalSettings.FullScreen;
+  DropBox_Options_RefreshRate.Enabled := fGame.GlobalSettings.FullScreen;
+
+  if (Sender = DropBox_Options_RefreshRate) and
+     (fMain.Resolutions.Count > 0) then
   begin
-    CheckBox_Options_RefreshRate[I].Caption := Format('%d Hz',[ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I]]);
-    CheckBox_Options_RefreshRate[I].Visible := (ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I] > 0);
-    if (ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I] > 0)
-    and(fGame.GlobalSettings.RefreshRate = ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I]) then
-      RefRateCorrect := True;
-  end;
-
-  if not RefRateCorrect then
-    fGame.GlobalSettings.RefreshRate := ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[1];
-
-  for I:=1 to REFRESH_RATE_COUNT do
-    if Sender = CheckBox_Options_RefreshRate[I] then
-      fGame.GlobalSettings.RefreshRate := ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I];
-
-  for I:=1 to REFRESH_RATE_COUNT do
-  begin
-    CheckBox_Options_RefreshRate[I].Enabled := (ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I]>0) AND fGame.GlobalSettings.FullScreen;
-    CheckBox_Options_RefreshRate[I].Checked := (ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I] = fGame.GlobalSettings.RefreshRate);
+    fGame.GlobalSettings.RefreshRateID := DropBox_Options_RefreshRate.ItemIndex;
   end;
 
   //Make button enabled only if new resolution/mode differs from old
   Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.GlobalSettings.FullScreen) or
                                      (fGame.GlobalSettings.FullScreen and (OldResolutionID <> fGame.GlobalSettings.ResolutionID)) or
-                                     (fGame.GlobalSettings.FullScreen and (OldRefreshRate <> fGame.GlobalSettings.RefreshRate));
+                                     (fGame.GlobalSettings.FullScreen and (OldRefreshRateID <> fGame.GlobalSettings.RefreshRateID));
 end;
 
 
@@ -2626,6 +2637,33 @@ begin
   Assert(Sender is TKMImage);
   Radio_Options_Lang.ItemIndex := TKMImage(Sender).Tag;
   Options_Change(Radio_Options_Lang);
+end;
+
+
+//resets dropboxes, they will have correct values
+procedure TKMMainMenuInterface.Options_Refresh_DropBoxes;
+//ResID is used only to make code shorter
+var I, ResID: Integer;
+begin
+  DropBox_Options_Resolution.Clear;
+  DropBox_Options_RefreshRate.Clear;
+  if fMain.Resolutions.Count > 0 then
+  begin
+    ResID := fGame.GlobalSettings.ResolutionID;
+    for I:=0 to fMain.Resolutions.Count-1 do
+      DropBox_Options_Resolution.Add(Format('%dx%d',[fMain.Resolutions.Items[i].Width,fMain.Resolutions.Items[i].Height]));
+    for I:=0 to fMain.Resolutions.Items[ResID].RefRateCount-1 do
+      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[ResID].RefRate[i]]));
+  end
+  else begin
+    //no supported resolutions
+    //TODO: String "Not supported" should be moved to text library
+    //and translated to all languages
+    DropBox_Options_Resolution.Add('Not supported');
+    DropBox_Options_RefreshRate.Add('Not supported');
+    DropBox_Options_Resolution.ItemIndex := 0;
+    DropBox_Options_RefreshRate.ItemIndex := 0;
+  end;
 end;
 
 

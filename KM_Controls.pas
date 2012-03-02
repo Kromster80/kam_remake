@@ -685,6 +685,7 @@ type
     property ItemIndex: smallint read GetItemIndex write SetItemIndex;
     property Item[aIndex: Integer]: string read GetItem;
     procedure SelectByName(aText: string);
+    procedure Clear;
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
@@ -3125,6 +3126,12 @@ end;
 function TKMDropBox.GetItem(aIndex: Integer): string;
 begin
   Result := fList.Item[aIndex];
+end;
+
+
+procedure TKMDropBox.Clear;
+begin
+  fList.Clear;
 end;
 
 
