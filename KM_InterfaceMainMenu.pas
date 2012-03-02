@@ -2568,6 +2568,8 @@ begin
     exit; //Whole interface will be recreated
   end;
 
+  NewRefRateID := 0;
+
   if (Sender = Button_Options_ResApply) and (fMain.Resolutions.Count > 0) then begin //Apply resolution changes
     OldFullScreen   := fGame.GlobalSettings.FullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
     OldResolutionID := fGame.GlobalSettings.ResolutionID;

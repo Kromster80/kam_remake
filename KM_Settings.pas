@@ -166,7 +166,7 @@ end;
 
 
 function TGlobalSettings.LoadSettingsFromFile(FileName:string):boolean;
-var f:TMemIniFile; i:integer;
+var f:TMemIniFile;
 begin
   Result := FileExists(FileName);
 

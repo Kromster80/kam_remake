@@ -20,7 +20,7 @@ type
 
   public
     constructor Create;
-    destructor Destroy;
+    destructor Destroy; override;
     procedure Restore; //restores resolution used before program was started
 
     property Count: Integer read fCount; //Used by UI
@@ -35,6 +35,7 @@ implementation
 
 constructor TKMResolutions.Create;
 begin
+  Inherited;
   ReadAvailable;
   Sort;
 end;
@@ -43,6 +44,7 @@ end;
 destructor TKMResolutions.Destroy;
 begin
   Restore;
+  Inherited;
 end;
 
 
