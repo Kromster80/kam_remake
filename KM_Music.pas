@@ -134,7 +134,7 @@ begin
   {$ENDIF}
   {$IFDEF USEBASS}
   BASS_StreamFree(fBassStream); //Free the existing stream (will just return false if the stream is invalid)
-  fBassStream := BASS_StreamCreateFile(FALSE, PChar(FileName), 0, 0, BASS_STREAM_AUTOFREE);
+  fBassStream := BASS_StreamCreateFile(FALSE, PChar(FileName), 0, 0, BASS_STREAM_AUTOFREE {$IFDEF UNICODE} or BASS_UNICODE{$ENDIF});
 
   BASS_ChannelPlay(fBassStream,true); //Start playback from the beggining
 
