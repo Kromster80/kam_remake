@@ -16,7 +16,7 @@ type
     function GetItem(aIndex: Integer): TScreenResData;
     procedure ReadAvailable;
     procedure Sort;
-    procedure SetSettingsIDs(aGameSettings:TGlobalSettings; Correct:Boolean);  //prepares IDs for TGlobalSettings
+    procedure SetSettingsIDs(aMainSettings: TMainSettings; Correct:Boolean);  //prepares IDs for TMainSettings
 
   public
     constructor Create;
@@ -26,16 +26,18 @@ type
     property Count: Integer read fCount; //Used by UI
     property Items[aIndex: Integer]: TScreenResData read GetItem; //Used by UI
 
-    function Check(aGameSettings:TGlobalSettings): Boolean; //Check, if resolution is correct
-    procedure FindCorrect(aGameSettings:TGlobalSettings); //Try to find correct resolution
-    procedure SetResolution(aResIndex,aRefIndex: Integer); //Apply the resolution
+    function Check(aMainSettings: TMainSettings): Boolean; //Check, if resolution is correct
+    procedure FindCorrect(aMainSettings: TMainSettings); //Try to find correct resolution
+    procedure SetResolution(aResIndex, aRefIndex: Integer); //Apply the resolution
   end;
+
 
 implementation
 
+
 constructor TKMResolutions.Create;
 begin
-  Inherited;
+  inherited;
   ReadAvailable;
   Sort;
 end;
@@ -44,7 +46,7 @@ end;
 destructor TKMResolutions.Destroy;
 begin
   Restore;
-  Inherited;
+  inherited;
 end;
 
 
@@ -165,20 +167,20 @@ begin
 end;
 
 
-function TKMResolutions.Check(aGameSettings: TGlobalSettings): Boolean;
+function TKMResolutions.Check(aMainSettings: TMainSettings): Boolean;
 var I, J: Integer;
 begin
   //Try to find matching Resolution
   Result := False;
   if fCount > 0 then
     for I := 0 to fCount-1 do
-      if (fItems[I].Width = aGameSettings.ResolutionWidth)
-      and(fItems[I].Height = aGameSettings.ResolutionHeight) then
+      if (fItems[I].Width = aMainSettings.ResolutionWidth)
+      and(fItems[I].Height = aMainSettings.ResolutionHeight) then
         for J := 0 to fItems[I].RefRateCount-1 do
-          if (aGameSettings.RefreshRate = fItems[I].RefRate[J]) then
+          if (aMainSettings.RefreshRate = fItems[I].RefRate[J]) then
           begin
             Result := True;
-            SetSettingsIDs(aGameSettings, True);
+            SetSettingsIDs(aMainSettings, True);
           end;
 end;
 
@@ -207,7 +209,7 @@ begin
 end;
 
 
-procedure TKMResolutions.FindCorrect(aGameSettings:TGlobalSettings);
+procedure TKMResolutions.FindCorrect(aMainSettings:TMainSettings);
 {$IFDEF MSWindows}var DevMode: TDevMode;{$ENDIF}
 begin
   {$IFDEF MSWindows}
@@ -217,33 +219,33 @@ begin
     //we need to check, if current resolution is lower than we can support
     if (dmPelsWidth >= 1024) and (dmPelsHeight >= 768) and (fCount > 0) then
     begin
-      aGameSettings.ResolutionWidth := dmPelsWidth;
-      aGameSettings.ResolutionHeight := dmPelsHeight;
-      aGameSettings.RefreshRate := dmDisplayFrequency;
+      aMainSettings.ResolutionWidth := dmPelsWidth;
+      aMainSettings.ResolutionHeight := dmPelsHeight;
+      aMainSettings.RefreshRate := dmDisplayFrequency;
     end
     else if fCount > 0 then
     //we cannot support currently used resolution, but
     //we can switch to supported one
     begin
-      aGameSettings.ResolutionWidth := fItems[0].Width;
-      aGameSettings.ResolutionHeight := fItems[0].Height;
-      aGameSettings.RefreshRate := fItems[0].RefRate[0];
+      aMainSettings.ResolutionWidth := fItems[0].Width;
+      aMainSettings.ResolutionHeight := fItems[0].Height;
+      aMainSettings.RefreshRate := fItems[0].RefRate[0];
     end
     //there is no supported resolution
     //forcing windowed mode
-    else aGameSettings.FullScreen := false;
+    else aMainSettings.FullScreen := false;
   end;
   {$ENDIF}
   //correct values must be saved immediately
-  aGameSettings.SaveSettings(True);
+  aMainSettings.SaveSettings(True);
 
-  SetSettingsIDs(aGameSettings, False);
+  SetSettingsIDs(aMainSettings, False);
 end;
 
 
 //we need to set this IDs in settings, so we don't work on "physical" values
-//and everything is kept inside this class, not in TGlobalSettings
-procedure TKMResolutions.SetSettingsIDs(aGameSettings:TGlobalSettings; Correct:Boolean);
+//and everything is kept inside this class, not in TMainSettings
+procedure TKMResolutions.SetSettingsIDs(aMainSettings:TMainSettings; Correct:Boolean);
 var I,J: Integer;
   {$IFDEF MSWindows}DevMode: TDevMode;{$ENDIF}
 begin
@@ -252,12 +254,12 @@ begin
     if Correct then
     //looking for IDs for data from settings file
       for I:=0 to fCount-1 do
-        if (fItems[I].Width = aGameSettings.ResolutionWidth) and (fItems[I].Height = aGameSettings.ResolutionHeight) then
+        if (fItems[I].Width = aMainSettings.ResolutionWidth) and (fItems[I].Height = aMainSettings.ResolutionHeight) then
           for J:=0 to fItems[I].RefRateCount-1 do
-            if fItems[I].RefRate[J] = aGameSettings.RefreshRate then
+            if fItems[I].RefRate[J] = aMainSettings.RefreshRate then
             begin
-              aGameSettings.ResolutionID := I;
-              aGameSettings.RefreshRateID := J;
+              aMainSettings.ResolutionID := I;
+              aMainSettings.RefreshRateID := J;
             end;
     if not Correct then
     //looking for IDs for data retrieved from system
@@ -270,13 +272,14 @@ begin
             for J := 0 to fItems[I].RefRateCount-1 do
               if fItems[I].RefRate[J] = dmDisplayFrequency  then
               begin
-                aGameSettings.ResolutionID := I;
-                aGameSettings.RefreshRateID := J;
+                aMainSettings.ResolutionID := I;
+                aMainSettings.RefreshRateID := J;
               end;
         end;
       end;
   end;
 end;
+
 
 end.
 

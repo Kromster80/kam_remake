@@ -52,9 +52,9 @@ begin
   SetRenderDefaults;
   glDisable(GL_LIGHTING); //We don't need it
 
-  fOpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('OpenGL Vendor: '   + String(fOpenGL_Vendor));
-  fOpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer: ' + String(fOpenGL_Renderer));
-  fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version: '  + String(fOpenGL_Version));
+  fOpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('OpenGL Vendor: '   + string(fOpenGL_Vendor));
+  fOpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer: ' + string(fOpenGL_Renderer));
+  fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version: '  + string(fOpenGL_Version));
 
   SetupVSync(aVSync);
   BuildFont(h_DC, 16, FW_BOLD);

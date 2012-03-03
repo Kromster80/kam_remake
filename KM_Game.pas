@@ -39,7 +39,7 @@ type
     fWaitingForNetwork:boolean;
     fGameOptions:TKMGameOptions;
     fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
-    fGlobalSettings: TGlobalSettings;
+    fGameSettings: TGameSettings;
     fRender: TRender;
     fCampaigns: TKMCampaignsCollection;
     fMusicLib: TMusicLib;
@@ -144,7 +144,7 @@ type
     function RenderVersion: string;
     procedure UpdateGameCursor(X,Y: Integer; Shift: TShiftState);
 
-    property GlobalSettings: TGlobalSettings read fGlobalSettings;
+    property GlobalSettings: TGameSettings read fGameSettings;
     property Campaigns: TKMCampaignsCollection read fCampaigns;
     property MapEditor: TKMMapEditor read fMapEditor;
     property MusicLib: TMusicLib read fMusicLib;
@@ -191,7 +191,7 @@ begin
   fWaitingForNetwork := false;
   fGameOptions := TKMGameOptions.Create;
 
-  fGlobalSettings   := TGlobalSettings.Create;
+  fGameSettings   := TGameSettings.Create;
 
   fRender           := TRender.Create(RenderHandle, fScreenX, fScreenY, aVSync);
   //Show the message if user has old OpenGL drivers (pre-1.4)
@@ -199,20 +199,20 @@ begin
     Application.MessageBox(PChar(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]), 'Warning', MB_OK or MB_ICONWARNING);
 
   fRenderAux        := TRenderAux.Create;
-  fTextLibrary      := TTextLibrary.Create(ExeDir+'data\text\', fGlobalSettings.Locale);
-  fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
-  fMusicLib         := TMusicLib.Create(fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
+  fTextLibrary      := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
+  fSoundLib         := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume); //Required for button click sounds
+  fMusicLib         := TMusicLib.Create(fGameSettings.MusicVolume);
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
   fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
   fResource         := TResource.Create(fRender, aLS, aLT);
-  fResource.LoadMenuResources(fGlobalSettings.Locale);
+  fResource.LoadMenuResources(fGameSettings.Locale);
   fCampaigns        := TKMCampaignsCollection.Create;
 
   //If game was reinitialized from options menu then we should return there
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
 
-  if (not NoMusic) and fGlobalSettings.MusicOn then fMusicLib.PlayMenuTrack; //Start the playback as soon as loading is complete
-  fMusicLib.ToggleShuffle(fGlobalSettings.ShuffleOn); //Determine track order
+  if (not NoMusic) and fGameSettings.MusicOn then fMusicLib.PlayMenuTrack; //Start the playback as soon as loading is complete
+  fMusicLib.ToggleShuffle(fGameSettings.ShuffleOn); //Determine track order
 
   fPerfLog := TKMPerfLog.Create;
   fLog.AppendLog('<== Game creation is done ==>');
@@ -236,7 +236,7 @@ begin
 
   FreeThenNil(fCampaigns);
   if fNetworking <> nil then FreeAndNil(fNetworking);
-  FreeThenNil(fGlobalSettings);
+  FreeThenNil(fGameSettings);
   FreeThenNil(fMainMenuInterface);
   FreeThenNil(fResource);
   FreeThenNil(fSoundLib);
@@ -265,16 +265,16 @@ end;
 
 procedure TKMGame.ToggleLocale(aLocale:shortstring);
 begin
-  fGlobalSettings.Locale := aLocale; //Wrong Locale will be ignored
+  fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
   if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fSoundLib);
   FreeAndNil(fTextLibrary);
-  fTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', fGlobalSettings.Locale);
-  fSoundLib := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax);
+  fTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
+  fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume);
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
   fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
-  fResource.ResourceFont.LoadFonts(fGlobalSettings.Locale);
+  fResource.ResourceFont.LoadFonts(fGameSettings.Locale);
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
   fMainMenuInterface.ShowScreen(msOptions);
 end;
@@ -422,7 +422,7 @@ begin
   fMainMenuInterface.ShowScreen(msLoading, '');
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
   fResource.OnLoadingText := GameLoadingStep;
-  fResource.LoadGameResources(fGlobalSettings.AlphaShadows);
+  fResource.LoadGameResources(fGameSettings.AlphaShadows);
   InitUnitStatEvals; //Army
 
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
@@ -991,7 +991,7 @@ begin
   fMainMenuInterface.ShowScreen(msLoading, '');
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
   fResource.OnLoadingText := GameLoadingStep;
-  fResource.LoadGameResources(fGlobalSettings.AlphaShadows);
+  fResource.LoadGameResources(fGameSettings.AlphaShadows);
 
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
 
@@ -1187,11 +1187,11 @@ end;
 procedure TKMGame.NetworkInit;
 begin
   if fNetworking = nil then
-    fNetworking := TKMNetworking.Create(fGlobalSettings.MasterServerAddress,
-                                        fGlobalSettings.AutoKickTimeout,
-                                        fGlobalSettings.PingInterval,
-                                        fGlobalSettings.MasterAnnounceInterval,
-                                        fGlobalSettings.GetLocaleID);
+    fNetworking := TKMNetworking.Create(fGameSettings.MasterServerAddress,
+                                        fGameSettings.AutoKickTimeout,
+                                        fGameSettings.PingInterval,
+                                        fGameSettings.MasterAnnounceInterval,
+                                        fGameSettings.GetLocaleID);
   fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
 end;
 
@@ -1529,7 +1529,7 @@ begin
 
                         //Each 1min of gameplay time
                         //Don't autosave if the game was put on hold during this tick
-                        if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave and not (GameState = gsOnHold) then
+                        if (fGameTickCount mod 600 = 0) and fGameSettings.Autosave and not (GameState = gsOnHold) then
                           AutoSave;
 
                         fPerfLog.AddTime(TimeGet - T);

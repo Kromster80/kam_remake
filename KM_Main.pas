@@ -10,6 +10,7 @@ type
   TKMMain = class
   private
     fTimer: TTimer;
+    fMainSettings: TMainSettings;
     fResolutions: TKMResolutions;
 
     procedure DoDeactivate(Sender: TObject);
@@ -31,12 +32,13 @@ type
     function IsFormActive: Boolean;
     function ClientRect: TRect;
     function ClientToScreen(aPoint: TPoint): TPoint;
-    procedure ToggleFullScreen(aSettings: TGlobalSettings; aReturnToOptions: Boolean);
+    procedure ReinitRender(aReturnToOptions: Boolean);
 
     procedure StatusBarText(const aData: string); overload;
     procedure StatusBarText(aPanelIndex: Integer; aText: string); overload;
 
     property Resolutions: TKMResolutions read fResolutions;
+    property Settings: TMainSettings read fMainSettings;
   end;
 
 
@@ -57,8 +59,6 @@ end;
 
 
 procedure TKMMain.Start;
-var
-  TempSettings: TGlobalSettings;
 begin
   SetKaMSeed(4); //Used for gameplay events so the order is important
   Randomize; //Random is only used for cases where order does not matter, e.g. shuffle tracks
@@ -79,9 +79,9 @@ begin
 
   //Only after we read settings (fullscreen property and resolutions)
   //we can decide whenever we want to create Game fullscreen or not (OpenGL init depends on that)
-  TempSettings := TGlobalSettings.Create;
-  ToggleFullScreen(TempSettings, False);
-  TempSettings.Free;
+  fMainSettings := TMainSettings.Create;
+
+  ReinitRender(False);
 
   Application.OnIdle := DoIdle;
   Application.OnDeactivate := DoDeactivate;
@@ -115,6 +115,7 @@ procedure TKMMain.Stop(Sender: TObject);
 begin
   //Reset the resolution
   if fResolutions<>nil then FreeThenNil(fResolutions);
+  if fMainSettings<>nil then FreeThenNil(fMainSettings);
   if fGame<>nil then fGame.Stop(gr_Silent);
   if fGame<>nil then FreeThenNil(fGame);
   if fLog<>nil then FreeThenNil(fLog);
@@ -133,7 +134,7 @@ begin
   if Application.Active then Exit;
 
   //Prevent the game window from being in the way by minimizing when alt-tabbing
-  if (fGame <> nil) and (fGame.GlobalSettings <> nil) and fGame.GlobalSettings.FullScreen then
+  if fMainSettings.FullScreen then
     Application.Minimize;
 end;
 
@@ -184,19 +185,15 @@ begin
 end;
 
 
-procedure TKMMain.ToggleFullScreen(aSettings: TGlobalSettings; aReturnToOptions: boolean);
-var VSync: Boolean;
+procedure TKMMain.ReinitRender(aReturnToOptions: Boolean);
 begin
-  //Remember as it gets wiped on game recreate
-  VSync := aSettings.VSync;
-
-  if aSettings.FullScreen then
-    fResolutions.SetResolution(aSettings.ResolutionID, aSettings.RefreshRateID)
+  if fMainSettings.FullScreen then
+    fResolutions.SetResolution(fMainSettings.ResolutionID, fMainSettings.RefreshRateID)
   else
     fResolutions.Restore;
 
   FormLoading.Position := poScreenCenter;
-  FormMain.ToggleFullscreen(aSettings.FullScreen);
+  FormMain.ToggleFullscreen(fMainSettings.FullScreen);
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   FreeThenNil(fGame); //Saves all settings into ini file in midst
@@ -205,7 +202,7 @@ begin
                           FormMain.Panel5.Handle,
                           FormMain.Panel5.Width,
                           FormMain.Panel5.Height,
-                          VSync,
+                          fMainSettings.VSync,
                           FormLoading.LoadingStep,
                           FormLoading.LoadingText
                           );
@@ -326,7 +323,7 @@ procedure TKMMain.ApplyCursorRestriction;
 var Rect: TRect;
 begin
   {$IFDEF MSWindows}
-  if (fGame <> nil) and (fGame.GlobalSettings <> nil) and fGame.GlobalSettings.FullScreen then
+  if fMainSettings.FullScreen then
   begin
     Rect := FormMain.BoundsRect;
     ClipCursor(@Rect);

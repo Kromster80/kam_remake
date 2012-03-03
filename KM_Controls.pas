@@ -475,6 +475,8 @@ type
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aMin, aMax: Word);
 
     property Caption: string read fCaption write SetCaption;
+    property MinValue: Word read fMinValue;
+    property MaxValue: Word read fMaxValue;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;

@@ -1295,17 +1295,17 @@ begin
   Panel_Settings := TKMPanel.Create(Panel_Main,0,412,200,400);
     CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,18,15,180,20,fTextLibrary[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
-    TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,18,40,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,18,40,160,0,20);
     TrackBar_Settings_Brightness.Caption := fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS];
     TrackBar_Settings_Brightness.OnChange := Menu_Settings_Change;
-    TrackBar_Settings_ScrollSpeed := TKMTrackBar.Create(Panel_Settings,18,95,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    TrackBar_Settings_ScrollSpeed := TKMTrackBar.Create(Panel_Settings,18,95,160,0,20);
     TrackBar_Settings_ScrollSpeed.Caption := fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED];
     TrackBar_Settings_ScrollSpeed.OnChange := Menu_Settings_Change;
-    TrackBar_Settings_SFX := TKMTrackBar.Create(Panel_Settings,18,150,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    TrackBar_Settings_SFX := TKMTrackBar.Create(Panel_Settings,18,150,160,0,20);
     TrackBar_Settings_SFX.Caption := fTextLibrary[TX_MENU_SFX_VOLUME];
     TrackBar_Settings_SFX.Hint := fTextLibrary[TX_MENU_SFX_VOLUME_HINT];
     TrackBar_Settings_SFX.OnChange := Menu_Settings_Change;
-    TrackBar_Settings_Music := TKMTrackBar.Create(Panel_Settings,18,205,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    TrackBar_Settings_Music := TKMTrackBar.Create(Panel_Settings,18,205,160,0,20);
     TrackBar_Settings_Music.Caption := fTextLibrary[TX_MENU_MUSIC_VOLUME];
     TrackBar_Settings_Music.Hint := fTextLibrary[TX_MENU_MUSIC_VOLUME_HINT];
     TrackBar_Settings_Music.OnChange := Menu_Settings_Change;
@@ -2324,15 +2324,15 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Settings_Fill;
 begin
-  TrackBar_Settings_Brightness.Position    := fGame.GlobalSettings.Brightness;
-  CheckBox_Settings_Autosave.Checked    := fGame.GlobalSettings.Autosave;
-  TrackBar_Settings_ScrollSpeed.Position   := fGame.GlobalSettings.ScrollSpeed;
-  TrackBar_Settings_SFX.Position           := fGame.GlobalSettings.SoundFXVolume;
-  TrackBar_Settings_Music.Position         := fGame.GlobalSettings.MusicVolume;
-  CheckBox_Settings_MusicOn.Checked     := not fGame.GlobalSettings.MusicOn;
-  CheckBox_Settings_ShuffleOn.Checked   := fGame.GlobalSettings.ShuffleOn;
+  TrackBar_Settings_Brightness.Position   := fGame.GlobalSettings.Brightness;
+  CheckBox_Settings_Autosave.Checked      := fGame.GlobalSettings.Autosave;
+  TrackBar_Settings_ScrollSpeed.Position  := fGame.GlobalSettings.ScrollSpeed;
+  TrackBar_Settings_SFX.Position          := Round(fGame.GlobalSettings.SoundFXVolume * TrackBar_Settings_SFX.MaxValue);
+  TrackBar_Settings_Music.Position        := Round(fGame.GlobalSettings.MusicVolume * TrackBar_Settings_Music.MaxValue);
+  CheckBox_Settings_MusicOn.Checked       := not fGame.GlobalSettings.MusicOn;
+  CheckBox_Settings_ShuffleOn.Checked     := fGame.GlobalSettings.ShuffleOn;
 
-  TrackBar_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
+  TrackBar_Settings_Music.Enabled     := not CheckBox_Settings_MusicOn.Checked;
   CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
 
@@ -2346,13 +2346,13 @@ begin
   fGame.GlobalSettings.Brightness    := TrackBar_Settings_Brightness.Position;
   fGame.GlobalSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
   fGame.GlobalSettings.ScrollSpeed   := TrackBar_Settings_ScrollSpeed.Position;
-  fGame.GlobalSettings.SoundFXVolume := TrackBar_Settings_SFX.Position;
-  fGame.GlobalSettings.MusicVolume   := TrackBar_Settings_Music.Position;
+  fGame.GlobalSettings.SoundFXVolume := TrackBar_Settings_SFX.Position / TrackBar_Settings_SFX.MaxValue;
+  fGame.GlobalSettings.MusicVolume   := TrackBar_Settings_Music.Position / TrackBar_Settings_Music.MaxValue;
   fGame.GlobalSettings.MusicOn       := not CheckBox_Settings_MusicOn.Checked;
   fGame.GlobalSettings.ShuffleOn     := CheckBox_Settings_ShuffleOn.Checked;
 
-  fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume / fGame.GlobalSettings.SlidersMax);
-  fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume / fGame.GlobalSettings.SlidersMax);
+  fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume);
+  fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume);
   if MusicToggled then
   begin
     fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
