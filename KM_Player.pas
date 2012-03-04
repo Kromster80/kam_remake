@@ -396,12 +396,10 @@ begin
 end;
 
 
-//todo: This needs to check for house and field plans including allies
 function TKMPlayer.CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
-var i,k,tx,ty:integer; HA:THouseArea;
+var i,k,j,s,t,tx,ty:integer; HA:THouseArea;
 begin
   Result := fTerrain.CanPlaceHouse(aLoc, aHouseType);
-
   if not Result then Exit;
 
   HA := fResource.HouseDat[aHouseType].BuildArea;
@@ -413,6 +411,19 @@ begin
     ty := aLoc.Y + i - 4;
     Result := Result and fTerrain.TileInMapCoords(tx, ty, 1)
                      and (fFogOfWar.CheckTileRevelation(tx, ty, false) > 0);
+    //This checks below require tx;ty to be within the map so exit immediately if they are not
+    if not Result then exit;
+
+    //This tile must not contain fields/houses of allied players or self
+    for j := 0 to fPlayers.Count - 1 do
+      if (j = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, j) = at_Ally) then
+      begin
+        Result := Result and (fPlayers[j].fBuildList.FieldworksList.HasField(KMPoint(tx,ty)) = ft_None);
+        //Surrounding tiles must not be a house
+        for s:=-1 to 1 do
+          for t:=-1 to 1 do
+            Result := Result and not fPlayers[j].fBuildList.HousePlanList.HasPlan(KMPoint(tx+s,ty+t));
+      end;
   end;
 end;
 
@@ -690,7 +701,7 @@ end;
 
 procedure TKMPlayer.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
 var
-  i,k,s,t: Integer;
+  i,k,j,s,t: Integer;
   P2: TKMPoint;
   AllowBuild: Boolean;
   HA: THouseArea;
@@ -731,17 +742,24 @@ begin
     P2 := KMPoint(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+i-4);
 
     //Forbid planning on unrevealed areas and fieldplans
-    AllowBuild := (fFogOfWar.CheckTileRevelation(P2.X, P2.Y, False) > 0)
-                  and (fBuildList.FieldworksList.HasField(P2) = ft_None);
+    AllowBuild := (fFogOfWar.CheckTileRevelation(P2.X, P2.Y, False) > 0);
+
+    //This tile must not contain fields/houses of allied players or self
+    for j := 0 to fPlayers.Count - 1 do
+      if (j = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, j) = at_Ally) then
+        AllowBuild := AllowBuild and (fPlayers[j].fBuildList.FieldworksList.HasField(P2) = ft_None)
+                                 and not fPlayers[j].fBuildList.HousePlanList.HasPlan(P2);
 
     //Check surrounding tiles in +/- 1 range for other houses pressence
     for s:=-1 to 1 do for t:=-1 to 1 do
-    if (s<>0) or (t<>0) then //This is a surrounding tile, not the actual tile
-    if fBuildList.HousePlanList.HasPlan(KMPoint(P2.X+s,P2.Y+t)) then
-    begin
-      BlockPoint(KMPoint(P2.X+s,P2.Y+t), 479); //Block surrounding points
-      AllowBuild := False;
-    end;
+      if (s<>0) or (t<>0) then //This is a surrounding tile, not the actual tile
+        for j := 0 to fPlayers.Count - 1 do
+          if ((j = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, j) = at_Ally))
+          and fPlayers[j].fBuildList.HousePlanList.HasPlan(KMPoint(P2.X+s,P2.Y+t)) then
+          begin
+            BlockPoint(KMPoint(P2.X+s,P2.Y+t), 479); //Block surrounding points
+            AllowBuild := False;
+          end;
 
     //Mark the tile according to previous check results
     if not AllowBuild then

@@ -75,11 +75,13 @@ type
       HouseReadyToBuild: Boolean;
       Step: Byte;
       Cells: array[1..4*4]of TKMPoint;
+      function GetHouseEntranceLoc: TKMPoint;
     public
       constructor Create(aWorker: TKMUnitWorker; aHouseType: THouseType; aLoc: TKMPoint; aID:integer);
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
+      function WalkShouldAbandon: Boolean; override;
       function Digging: Boolean;
       function Execute: TTaskResult; override;
       procedure Save(SaveStream: TKMemoryStream); override;
@@ -619,9 +621,17 @@ end;
 { We need to revert all changes made }
 destructor TTaskBuildHouseArea.Destroy;
 begin
-  //Allow other workers to take this task
+  //Yet unstarted
   if (BuildID <> -1) then
-    fPlayers.Player[fUnit.GetOwner].BuildList.HousePlanList.ReOpenPlan(BuildID);
+    if fTerrain.CanPlaceHouse(GetHouseEntranceLoc,fHouseType) then
+      //Allow other workers to take this task
+      fPlayers.Player[fUnit.GetOwner].BuildList.HousePlanList.ReOpenPlan(BuildID)
+    else
+    begin
+      //This plan is not valid anymore
+      fPlayers.Player[fUnit.GetOwner].BuildList.HousePlanList.ClosePlan(BuildID);
+      fPlayers.Player[fUnit.GetOwner].Stats.HousePlanRemoved(fHouseType);
+    end;
 
   //Destroy the house if worker was killed (e.g. by archer or hunger)
   //as we don't have mechanics to resume the building process yet
@@ -642,6 +652,20 @@ begin
 end;
 
 
+function TTaskBuildHouseArea.WalkShouldAbandon: Boolean;
+begin
+  //Walk should abandon if other player has built something there before we arrived
+  Result := (BuildID <> -1) and not fTerrain.CanPlaceHouse(GetHouseEntranceLoc, fHouseType);
+end;
+
+
+function TTaskBuildHouseArea.GetHouseEntranceLoc: TKMPoint;
+begin
+  Result.X := fHouseLoc.X + fResource.HouseDat[fHouseType].EntranceOffsetX;
+  Result.Y := fHouseLoc.Y;
+end;
+
+
 //Tell if we are in Digging phase where we can walk on tlDigged tiles
 //(incl. phase when we walk out)
 function TTaskBuildHouseArea.Digging: Boolean;
@@ -656,6 +680,12 @@ var OutOfWay: TKMPoint;
 begin
   Result := TaskContinues;
 
+  if WalkShouldAbandon then
+  begin
+    Result := TaskDone;
+    Exit;
+  end;
+
   if (fHouse <> nil) and fHouse.IsDestroyed then
   begin
     Result := TaskDone;
@@ -666,7 +696,7 @@ begin
   with fUnit do
   case fPhase of
     0:  begin
-          SetActionWalkToSpot(KMPoint(fHouseLoc.X + fResource.HouseDat[fHouseType].EntranceOffsetX, fHouseLoc.Y));
+          SetActionWalkToSpot(GetHouseEntranceLoc);
           Thought := th_Build;
         end;
     1:  begin
