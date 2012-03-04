@@ -27,7 +27,6 @@ type
   private
     fRender: TRender;
     fFontData:array [TKMFont] of TKMFontData;
-    function GetCodePage(aLocale:AnsiString):AnsiString;
     function GetFontData(aIndex: TKMFont): TKMFontData;
   public
     constructor Create(aRender: TRender);
@@ -45,7 +44,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Log, KM_Resource, KM_ResourcePalettes;
+uses KromUtils, KM_Log, KM_Resource, KM_ResourcePalettes, KM_Locales;
 
 
 const //Font01.fnt seems to be damaged..
@@ -186,25 +185,12 @@ begin
 end;
 
 
-function TResourceFont.GetCodePage(aLocale: AnsiString):AnsiString;
-var k:integer;
-begin
-  Result := '';
-  for k:=1 to LOCALES_COUNT do
-    if Locales[k,1] = aLocale then
-    begin
-      Result := Locales[k,2];
-      Exit;
-    end;
-end;
-
-
 procedure TResourceFont.LoadFonts(aLocale: AnsiString);
 var
   F: TKMFont;
   CodePage: AnsiString;
 begin
-  CodePage := GetCodePage(aLocale);
+  CodePage := fLocales.Items[aLocale].FontCodepage;
   for F := Low(TKMFont) to High(TKMFont) do
     if FileExists(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt') then
       fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRender, F, false)
@@ -218,7 +204,7 @@ var
   F: TKMFont;
   CodePage: AnsiString;
 begin
-  CodePage := GetCodePage(aLocale);
+  CodePage := fLocales.Items[aLocale].FontCodepage;
   for F := Low(TKMFont) to High(TKMFont) do
     if FileExists(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt') then
       fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRender, F, true)

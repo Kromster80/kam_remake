@@ -142,7 +142,8 @@ uses
   KM_Sound,
   KM_RenderPool,
   KM_TextLibrary,
-  KM_GameInputProcess;
+  KM_GameInputProcess,
+  KM_Locales;
 
 
 { TMyPanel }
@@ -372,10 +373,10 @@ procedure TFormMain.Export_UnitAnim1Click(Sender: TObject); begin fResource.Expo
 procedure TFormMain.Export_TextClick(Sender: TObject);
 var I: Integer;
 begin
-  for I := 1 to LOCALES_COUNT do
+  for I := 0 to fLocales.Count-1 do
   begin
     fTextLibrary.Free;
-    fTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', Locales[I, 1]);
+    fTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', fLocales[i].Code);
     fTextLibrary.ExportTextLibraries;
   end;
 end;

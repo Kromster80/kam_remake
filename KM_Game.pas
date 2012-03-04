@@ -12,7 +12,7 @@ uses
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
   KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_Resource, KM_Terrain, KM_PathFinding, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
-  KM_ArmyEvaluation, KM_GameOptions, KM_PerfLog;
+  KM_ArmyEvaluation, KM_GameOptions, KM_PerfLog, KM_Locales;
 
 type
   TGameState = (
@@ -191,6 +191,7 @@ begin
   fWaitingForNetwork := false;
   fGameOptions := TKMGameOptions.Create;
 
+  fLocales        := TKMLocales.Create;
   fGameSettings   := TGameSettings.Create;
 
   fRender           := TRender.Create(RenderHandle, fScreenX, fScreenY, aVSync);
@@ -237,6 +238,7 @@ begin
   FreeThenNil(fCampaigns);
   if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeThenNil(fGameSettings);
+  FreeThenNil(fLocales);
   FreeThenNil(fMainMenuInterface);
   FreeThenNil(fResource);
   FreeThenNil(fSoundLib);
@@ -1191,7 +1193,7 @@ begin
                                         fGameSettings.AutoKickTimeout,
                                         fGameSettings.PingInterval,
                                         fGameSettings.MasterAnnounceInterval,
-                                        fGameSettings.GetLocaleID);
+                                        fGameSettings.Locale);
   fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
 end;
 

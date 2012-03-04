@@ -2,7 +2,7 @@ unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, StrUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Player;
+  KM_CommonClasses, KM_Defaults, KM_Player, KM_Locales;
 
 const
   PING_COUNT = 20; //Number of pings to store and take the maximum over for latency calculation (pings are measured once per second)
@@ -13,14 +13,14 @@ type
 type
   TKMPlayerInfo = class
   private
-    fNikname:string;
-    fLangID:byte;
+    fNikname:String;
+    fLangCode:String;
     fIndexOnServer:integer;
     fFlagColorID:integer;    //Flag color, 0 means random
     fPings: array[0..PING_COUNT-1] of word; //Ring buffer
     fPingPos:byte;
     function GetFlagColor:cardinal;
-    procedure SetLangID(aID:byte);
+    procedure SetLangCode(const aCode:String);
   public
     PlayerNetType:TNetPlayerType; //Human, Computer, Closed
     StartLocation:integer;  //Start location, 0 means random
@@ -39,7 +39,7 @@ type
     function GetPlayerType:TPlayerType;
     function GetNickname:string;
     property Nikname:string read fNikname;
-    property LangID:byte read fLangID write SetLangID;
+    property LangCode:String read fLangCode write SetLangCode;
     property IndexOnServer:integer read fIndexOnServer;
     property SetIndexOnServer:integer write fIndexOnServer;
     property FlagColor:cardinal read GetFlagColor;
@@ -67,7 +67,7 @@ type
     procedure Clear;
     property Count:integer read fCount;
 
-    procedure AddPlayer(aNik:string; aIndexOnServer:integer; aLang:byte=0);
+    procedure AddPlayer(aNik:string; aIndexOnServer:integer; const aLang:String='');
     procedure AddAIPlayer(aSlot:integer=-1);
     procedure AddClosedPlayer(aSlot:integer=-1);
     procedure DisconnectPlayer(aIndexOnServer:integer);
@@ -126,10 +126,10 @@ begin
 end;
 
 
-procedure TKMPlayerInfo.SetLangID(aID:byte);
+procedure TKMPlayerInfo.SetLangCode(const aCode:String);
 begin
-  if InRange(aID,1,LOCALES_COUNT) then
-    fLangID := aID;
+  if fLocales.GetIDFromCode(aCode) <> -1 then
+    fLangCode := aCode;
 end;
 
 
@@ -184,7 +184,7 @@ end;
 procedure TKMPlayerInfo.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fNikname);
-  LoadStream.Read(fLangID);
+  LoadStream.Read(fLangCode);
   LoadStream.Read(fIndexOnServer);
   LoadStream.Read(PlayerNetType, SizeOf(PlayerNetType));
   LoadStream.Read(fFlagColorID);
@@ -200,7 +200,7 @@ end;
 procedure TKMPlayerInfo.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fNikname);
-  SaveStream.Write(fLangID);
+  SaveStream.Write(fLangCode);
   SaveStream.Write(fIndexOnServer);
   SaveStream.Write(PlayerNetType, SizeOf(PlayerNetType));
   SaveStream.Write(fFlagColorID);
@@ -349,12 +349,12 @@ begin
 end;
 
 
-procedure TKMPlayersList.AddPlayer(aNik:string; aIndexOnServer:integer; aLang:byte=0);
+procedure TKMPlayersList.AddPlayer(aNik:string; aIndexOnServer:integer; const aLang:String='');
 begin
   Assert(fCount <= MAX_PLAYERS,'Can''t add player');
   inc(fCount);
   fPlayers[fCount].fNikname := aNik;
-  fPlayers[fCount].fLangID := aLang;
+  fPlayers[fCount].fLangCode := aLang;
   fPlayers[fCount].fIndexOnServer := aIndexOnServer;
   fPlayers[fCount].PlayerNetType := npt_Human;
   fPlayers[fCount].PlayerIndex := nil;
@@ -377,7 +377,7 @@ begin
     aSlot := fCount;
   end;
   fPlayers[aSlot].fNikname := 'AI Player';
-  fPlayers[aSlot].fLangID := 0;
+  fPlayers[aSlot].fLangCode := '';
   fPlayers[aSlot].fIndexOnServer := -1;
   fPlayers[aSlot].PlayerNetType := npt_Computer;
   fPlayers[aSlot].PlayerIndex := nil;
@@ -401,7 +401,7 @@ begin
     aSlot := fCount;
   end;
   fPlayers[aSlot].fNikname := 'Closed';
-  fPlayers[aSlot].fLangID := 0;
+  fPlayers[aSlot].fLangCode := '';
   fPlayers[aSlot].fIndexOnServer := -1;
   fPlayers[aSlot].PlayerNetType := npt_Closed;
   fPlayers[aSlot].PlayerIndex := nil;

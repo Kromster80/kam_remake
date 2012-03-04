@@ -102,7 +102,6 @@ type
     property ScrollSpeed:byte read fScrollSpeed write SetScrollSpeed;
     property AlphaShadows:boolean read fAlphaShadows write SetAlphaShadows;
     property Locale:shortstring read fLocale write SetLocale;
-    function GetLocaleID:byte;
     property MusicOn:boolean read fMusicOn write SetMusicOn;
     property ShuffleOn:boolean read fShuffleOn write SetShuffleOn;
     property MusicVolume: Single read fMusicVolume write SetMusicVolume;
@@ -129,7 +128,7 @@ type
 
 
 implementation
-uses KM_Log, KM_Main;
+uses KM_Log, KM_Main, KM_Locales;
 
 
 { TMainSettings }
@@ -239,17 +238,6 @@ begin
 end;
 
 
-function TGameSettings.GetLocaleID: byte;
-var
-  I: Integer;
-begin
-  Result := 0;
-  for I := Low(Locales) to High(Locales) do
-    if Locales[I, 1] = Locale then
-      Result := I;
-end;
-
-
 function TGameSettings.LoadFromINI(FileName: string): Boolean;
 var f:TMemIniFile;
 begin
@@ -347,12 +335,11 @@ end;
 
 //Scan list of available locales and pick existing one, or ignore
 procedure TGameSettings.SetLocale(aLocale: ShortString);
-var I: Integer;
 begin
-  fLocale := DEFAULT_LOCALE; //Default - ENG
-  for I := Low(Locales) to High(Locales) do
-    if Locales[I,1] = aLocale then
-      fLocale := aLocale;
+  if fLocales.GetIDFromCode(aLocale) <> -1 then
+    fLocale := aLocale
+  else
+    fLocale := DEFAULT_LOCALE; //Default - ENG
 end;
 
 

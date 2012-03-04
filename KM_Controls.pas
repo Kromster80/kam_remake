@@ -1885,6 +1885,7 @@ procedure TKMRadioGroup.Paint;
 var Col: TColor4; LineHeight: Integer; i: Integer;
 begin
   inherited;
+  if ItemCount = 0 then Exit; //Avoid dividing by zero
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   LineHeight := round(fHeight / ItemCount);

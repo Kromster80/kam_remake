@@ -24,7 +24,7 @@ const
   [mk_AllowToJoin,mk_RefuseToJoin,mk_Ping,mk_PingInfo,mk_Kicked], //lgs_Query
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
    mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
-   mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangID,mk_GameOptions,mk_ServerName], //lgs_Lobby
+   mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName], //lgs_Lobby
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked], //lgs_Loading
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected], //lgs_Game
   [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked] //lgs_Reconnecting
@@ -48,7 +48,7 @@ type
     fRoomToJoin:integer; //The room we should join once we hear from the server
     fLastProcessedTick:cardinal;
     fReconnectRequested:cardinal; //TickCount at which a reconnection was requested
-    fMyLang:byte;
+    fMyLang:string;
     fMyNikname:string;
     fWelcomeMessage:string;
     fServerName:string; //Name of the server we are currently in (shown in the lobby)
@@ -97,7 +97,7 @@ type
     procedure PacketRecieve(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal); //Process all commands
     procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
   public
-    constructor Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang:byte);
+    constructor Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang:string);
     destructor Destroy; override;
 
     property MyIndex:integer read fMyIndex;
@@ -181,7 +181,7 @@ uses KM_TextLibrary, KM_Sound, KM_Log;
 
 
 { TKMNetworking }
-constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang:byte);
+constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang:string);
 begin
   Inherited Create;
   SetGameState(lgs_None);
@@ -952,11 +952,11 @@ begin
                 PacketSend(aSenderIndex, mk_RefuseToJoin, ReMsg, 0);
             end;
 
-    mk_LangID:
+    mk_LangCode:
             begin
               PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
               if PlayerIndex <> -1 then
-                fNetPlayers[PlayerIndex].LangID := Param;
+                fNetPlayers[PlayerIndex].LangCode := Msg;
               SendPlayerListAndRefreshPlayersSetup;
             end;
 
@@ -967,7 +967,7 @@ begin
               SetGameState(lgs_Lobby);
               fSoundLib.Play(sfxn_MPChatMessage); //Sound for joining the lobby
               if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage,false);
-              PacketSend(NET_ADDRESS_HOST, mk_LangID, '', fMyLang);
+              PacketSend(NET_ADDRESS_HOST, mk_LangCode, fMyLang, 0);
             end;
 
     mk_RefuseToJoin:

@@ -42,7 +42,7 @@ var
 
 
 implementation
-uses KM_Log;
+uses KM_Log, KM_Locales;
 
 
 { TTextLibrary }

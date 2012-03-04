@@ -122,7 +122,7 @@ var
 
 
 implementation
-uses KM_CommonClasses, KM_RenderAux, KM_Log;
+uses KM_CommonClasses, KM_RenderAux, KM_Log, KM_Locales;
 
 
 const

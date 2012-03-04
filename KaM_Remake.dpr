@@ -34,6 +34,7 @@ uses
   KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',
   KM_Goals in 'KM_Goals.pas',
   KM_HTTPClient in 'KM_HTTPClient.pas',
+  KM_Locales in 'KM_Locales.pas',
   KM_Log in 'KM_Log.pas',
   KM_Main in 'KM_Main.pas',
   KM_MapEditor in 'KM_MapEditor.pas',

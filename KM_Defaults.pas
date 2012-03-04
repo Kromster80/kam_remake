@@ -170,34 +170,6 @@ const
   DirCursorCircleRadius  = 32; //Radius of the direction selector cursor restriction area
   DirCursorNARadius = 15;  //Radius of centeral part that has no direction
 
-{Controls}
-
-const
-  LOCALES_COUNT = 15;
-  Locales:array[1..LOCALES_COUNT, 1..4]of shortstring = (
-  //Code  Codepage Flag  Title
-  ('ptb', '1252',  '8',  'Brazilian Portuguese'),
-  ('bul', '1251',  '18', 'Bulgarian'),
-  ('cze', '1250',  '9',  'Czech'),
-  ('dut', '1252',  '15', 'Dutch'),
-  ('eng', '1252',  '5',  'English'),
-  ('est', '1252',  '19', 'Estonian'),
-  ('fre', '1252',  '11', 'French'),
-  ('ger', '1252',  '6',  'German'),
-  ('hun', '1250',  '17', 'Hungarian'),
-  ('ita', '1252',  '10', 'Italian'),
-  ('pol', '1250',  '7',  'Polish'),
-  ('rus', '1251',  '14', 'Russian'),
-  ('svk', '1250',  '12', 'Slovak'),
-  ('spa', '1252',  '13', 'Spanish'),
-  ('swe', '1252',  '16', 'Swedish'));
-  DEFAULT_LOCALE = 'eng';
-
-  TRANSLATOR_CREDITS = '|Brazilian Portuguese - Vinycius Maia|Bulgarian - Christian|Czech - Jolinar_CZ & Milan Molnar|'+
-  'Dutch - xzaz & Tom|Estonian - Ingvar & Eva|French - Sylvain Domange|German - The Knight|Hungarian - Jecy|'+
-  'Italian - Paolo Castelvetere|Polish - Przemyslaw Pietras|Russian - Krom|'+
-  'Slovak - Robert Marko|Spanish - Oscar|Swedish - Edvin Linge||'+
-  '';
 
 type TGameResultMsg = ( //Game result
         gr_Win,         //Player has won the game

@@ -254,7 +254,7 @@ type
         CheckBox_Options_ShuffleOn:TKMCheckBox;
       Panel_Options_Lang:TKMPanel;
         Radio_Options_Lang:TKMRadioGroup;
-        Image_Options_Lang_Flags:array[1..LOCALES_COUNT] of TKMImage;
+        Image_Options_Lang_Flags:array of TKMImage;
       Panel_Options_Res:TKMPanel;
         CheckBox_Options_FullScreen:TKMCheckBox;
         DropBox_Options_Resolution:TKMDropBox;
@@ -303,7 +303,7 @@ type
 
 
 implementation
-uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_PlayersCollection,
+uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_Locales,
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites, KM_ServerQuery;
 
 const
@@ -1066,16 +1066,17 @@ begin
       Button_Options_ResApply.OnClick:=Options_Change;
 
     //Language section
-    Panel_Options_Lang:=TKMPanel.Create(Panel_Options,590,130,220,30+LOCALES_COUNT*20);
+    Panel_Options_Lang:=TKMPanel.Create(Panel_Options,590,130,220,30+fLocales.Count*20);
       TKMLabel.Create(Panel_Options_Lang,6,0,242,20,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Lang,0,20,246,10+LOCALES_COUNT*20);
+      TKMBevel.Create(Panel_Options_Lang,0,20,246,10+fLocales.Count*20);
 
-      Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 28, 27, 220, 20*LOCALES_COUNT, fnt_Metal);
-      for i:=1 to LOCALES_COUNT do
+      Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 28, 27, 220, 20*fLocales.Count, fnt_Metal);
+      SetLength(Image_Options_Lang_Flags,fLocales.Count);
+      for i:=0 to fLocales.Count-1 do
       begin
-        Radio_Options_Lang.Items.Add(Locales[i,4]);
-        Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,28+((i-1)*20),16,11,StrToInt(Locales[i,3]),rxMenu);
-        Image_Options_Lang_Flags[i].Tag := i-1;
+        Radio_Options_Lang.Items.Add(fLocales[i].Title);
+        Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,28+(i*20),16,11,fLocales[i].FlagSpriteID,rxMenu);
+        Image_Options_Lang_Flags[i].Tag := i;
         Image_Options_Lang_Flags[i].OnClick := Options_FlagClick;
       end;
       Radio_Options_Lang.OnChange := Options_Change;
@@ -1096,7 +1097,7 @@ begin
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex|Danjb||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer|Malin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_SOUNDS]+'|trb1914||'+
-    fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+TRANSLATOR_CREDITS+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|'+fLocales.GetTranslatorCredits+'|'+
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,taCenter);
 
@@ -1999,8 +2000,8 @@ begin
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].GetNickname;
-    if fGame.Networking.NetPlayers[i+1].LangID <> 0 then
-         Image_LobbyFlag[i].TexID := StrToInt(Locales[fGame.Networking.NetPlayers[i+1].LangID,3])
+    if fGame.Networking.NetPlayers[i+1].LangCode <> '' then
+         Image_LobbyFlag[i].TexID := fLocales.Items[fGame.Networking.NetPlayers[i+1].LangCode].FlagSpriteID
     else Image_LobbyFlag[i].TexID := 0;
     if fGame.Networking.IsHost and (not fGame.Networking.NetPlayers[i+1].IsHuman) then
     begin
@@ -2486,7 +2487,6 @@ end;
 //This is called when the options page is shown, so update all the values
 //Note: Options can be required to fill before fGame is completely initialized, hence we need to pass either fGame.Settings or a direct Settings link
 procedure TKMMainMenuInterface.Options_Fill(aMainSettings: TMainSettings; aGameSettings: TGameSettings);
-var i:cardinal;
 begin
   CheckBox_Options_Autosave.Checked     := aGameSettings.Autosave;
   TrackBar_Options_Brightness.Position  := aGameSettings.Brightness;
@@ -2499,9 +2499,7 @@ begin
   CheckBox_Options_ShuffleOn.Checked    := aGameSettings.ShuffleOn;
   CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOn.Checked;
 
-  for i:=1 to LOCALES_COUNT do
-    if SameText(aGameSettings.Locale, Locales[i,1]) then
-      Radio_Options_Lang.ItemIndex := i-1;
+  Radio_Options_Lang.ItemIndex := fLocales.GetIDFromCode(aGameSettings.Locale);
 
   //we need to reset dropboxes every time we enter Options page
   Options_Refresh_DropBoxes;
@@ -2565,7 +2563,7 @@ begin
     fMain.Settings.FullScreen     := OldFullScreen; //Reset the resolution so the apply button is set right when we come back
     fMain.Settings.ResolutionID   := OldResolutionID;
     fMain.Settings.RefreshRateID  := OldRefreshRateID;
-    fGame.ToggleLocale(Locales[Radio_Options_Lang.ItemIndex+1,1]);
+    fGame.ToggleLocale(fLocales[Radio_Options_Lang.ItemIndex].Code);
     exit; //Whole interface will be recreated
   end;
 

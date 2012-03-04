@@ -354,7 +354,7 @@ type
 
 implementation
 uses KM_Main, KM_FormMain, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
-KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game, KM_Utils,
+KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game, KM_Utils, KM_Locales,
 KM_Sound, Forms, KM_Resource, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
 const
@@ -3000,8 +3000,8 @@ begin
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     //Show players locale flag
-    if fGame.Networking.NetPlayers[i+1].LangID <> 0 then
-      Image_AlliesLang[i].TexID := StrToInt(Locales[fGame.Networking.NetPlayers[i+1].LangID, 3])
+    if fGame.Networking.NetPlayers[i+1].LangCode <> '' then
+      Image_AlliesLang[i].TexID := fLocales.Items[fGame.Networking.NetPlayers[i+1].LangCode].FlagSpriteID
     else
       Image_AlliesLang[i].TexID := 0;
 
