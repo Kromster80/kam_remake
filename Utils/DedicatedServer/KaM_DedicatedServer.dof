@@ -94,7 +94,7 @@ OutputDir=
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=..\..\;..\..\Common;..\..\Common\Overbyte ICS
+SearchPath=..\..\;..\..\Common;..\..\Common\Overbyte ICS 7
 Packages=vcl;rtl;dbrtl;adortl;vcldb;vclx;bdertl;ibxpress;dsnap;cds;bdecds;qrpt;teeui;teedb;tee;vcldbx;dss;teeqr;visualclx;visualdbclx;dsnapcrba;dsnapcon;VclSmp;vclshlctrls;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;inetdb;nmfast;webdsnap;websnap;dbexpress;dbxcds;indy;dclOffice2k
 Conditionals=
 DebugSourceDirs=
@@ -138,12 +138,5 @@ Comments=
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
-Count=8
-Item0=..\..\;..\..\Common;..\..\Common\Overbyte ICS
-Item1=../../;../../Common
-Item2=.\Common;.\Common\pngimage;.\Common\Overbyte ICS;.\Common\zlib
-Item3=.\Common;.\Common\pngimage;.\Common\Overbyte ICS;\Common\zlib
-Item4=.\Common;.\Common\pngimage;.\Common\Overbyte ICS
-Item5=.\Common;.\Common\pngimage
-Item6=.\Common; .\Common\pngimage
-Item7=.\Common
+Count=1
+Item0=..\..\;..\..\Common;..\..\Common\Overbyte ICS 7

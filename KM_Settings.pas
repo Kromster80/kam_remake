@@ -333,7 +333,7 @@ end;
 //Scan list of available locales and pick existing one, or ignore
 procedure TGameSettings.SetLocale(aLocale: ShortString);
 begin
-  //@Lewin: We don't know if Locales are initialized
+  //We don't know if Locales are initialized (e.g. in dedicated server)
   if (fLocales <> nil) and (fLocales.GetIDFromCode(aLocale) <> -1) then
     fLocale := aLocale
   else
