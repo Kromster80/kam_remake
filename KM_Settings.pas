@@ -336,7 +336,8 @@ end;
 //Scan list of available locales and pick existing one, or ignore
 procedure TGameSettings.SetLocale(aLocale: ShortString);
 begin
-  if fLocales.GetIDFromCode(aLocale) <> -1 then
+  //@Lewin: We don't know if Locales are initialized
+  if (fLocales <> nil) and (fLocales.GetIDFromCode(aLocale) <> -1) then
     fLocale := aLocale
   else
     fLocale := DEFAULT_LOCALE; //Default - ENG
