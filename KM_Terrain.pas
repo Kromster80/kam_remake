@@ -306,7 +306,7 @@ end;
 
 //Save (export) map in KaM .map format with additional tile information on the end?
 procedure TTerrain.SaveToFile(aFile:string);
-var f:file; i,k:integer; c0,cF:cardinal; light,b205:byte;
+var f:file; i,k:integer; c0,cF:cardinal; light,b205:byte; SizeX,SizeY:Integer;
     ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
     Res:array[1..MAX_MAP_SIZE*2]of packed record X1,Y1,X2,Y2:integer; Typ:byte; end;
 begin
@@ -316,8 +316,11 @@ begin
 
   assignfile(f,aFile); rewrite(f,1);
 
-  blockwrite(f,fMapX,4);
-  blockwrite(f,fMapY,4);
+  //Dimensions must be stored as 4 byte integers
+  SizeX := fMapX;
+  SizeY := fMapY;
+  blockwrite(f,SizeX,4);
+  blockwrite(f,SizeY,4);
 
   c0 := 0;
   cF := $FFFFFFFF;

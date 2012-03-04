@@ -5,6 +5,8 @@ uses Classes, KromUtils, Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_Points,
   KM_Houses, KM_Units;
 
+//todo: InteractionAvoid isn't working, probably due to wcAvoid being made redundant.
+//      Serfs simply abandon their task when they realise the way is blocked by workers.
 
 type
   TDestinationCheck = (dc_NoChanges, dc_RouteChanged, dc_NoRoute);
