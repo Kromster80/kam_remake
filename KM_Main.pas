@@ -188,7 +188,12 @@ end;
 procedure TKMMain.ReinitRender(aReturnToOptions: Boolean);
 begin
   if fMainSettings.FullScreen then
-    fResolutions.SetResolution(fMainSettings.ResolutionID, fMainSettings.RefreshRateID)
+  begin
+    //We need to verify data before applying
+    if not fResolutions.Check(fMainSettings) then
+      fResolutions.FindCorrect(fMainSettings);
+    fResolutions.SetResolution(fMainSettings.ResolutionID, fMainSettings.RefreshRateID);
+  end
   else
     fResolutions.Restore;
 

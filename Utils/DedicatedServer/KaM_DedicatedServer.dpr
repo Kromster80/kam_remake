@@ -21,17 +21,17 @@ uses
 var
   fEventHandler: TKMServerEventHandler;
   fDedicatedServer: TKMDedicatedServer;
-  fSettings: TGlobalSettings;
+  fSettings: TGameSettings;
   fSettingsLastModified: integer;
-  TickCount, fLastSettingsFileCheck:cardinal;
+  TickCount, fLastSettingsFileCheck: cardinal;
 
 {$IFDEF MSWindows}
 procedure MyProcessMessages;
-var Msg : TMsg;
+var Msg: TMsg;
 begin
-  while PeekMessage(Msg,0,0,0,0) do
+  while PeekMessage(Msg, 0, 0, 0, 0) do
   begin
-    GetMessage(Msg,0,0,0);
+    GetMessage(Msg, 0, 0, 0);
     TranslateMessage(Msg);
     DispatchMessage(Msg);
   end;
@@ -92,7 +92,7 @@ begin
 
   fEventHandler.ServerStatusMessage('Using protocol for clients running '+NET_PROTOCOL_REVISON);
 
-  fSettings := TGlobalSettings.Create;
+  fSettings := TGameSettings.Create;
   fSettings.SaveSettings(true);
   fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
   fLastSettingsFileCheck := 0;

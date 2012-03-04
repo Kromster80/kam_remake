@@ -128,7 +128,7 @@ type
 
 
 implementation
-uses KM_Log, KM_Main, KM_Locales;
+uses KM_Log, KM_Locales;
 
 
 { TMainSettings }
@@ -137,9 +137,6 @@ begin
   inherited;
 
   LoadFromINI(ExeDir + SETTINGS_FILE);
-  //verify data loaded from file
-  if not fMain.Resolutions.Check(Self) then
-    fMain.Resolutions.FindCorrect(Self);
   fNeedsSave := False;
   fLog.AppendLog('Global settings loaded from ' + SETTINGS_FILE);
 end;
