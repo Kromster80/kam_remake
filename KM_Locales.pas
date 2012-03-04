@@ -12,6 +12,7 @@ type
     Title: String; //English
     FontCodepage: String;
     FlagSpriteID: Integer;
+    FallbackLocale: String;
     TranslatorCredit: String;
   end;
 
@@ -47,7 +48,7 @@ end;
 
 function TKMLocales.ParseLocale(aLine: String; out aLocale:TKMLocaleInfo):Boolean;
 var K,L,R: Integer; Word: String;
-const PARAM_COUNT = 5;
+const PARAM_COUNT = 6;
 begin
   Result := False;
   //Skip short lines and comments
@@ -70,7 +71,8 @@ begin
       2: aLocale.Title            := Word;
       3: aLocale.FontCodepage     := Word;
       4: aLocale.FlagSpriteID     := StrToIntDef(Word, 0);
-      5: aLocale.TranslatorCredit := Word;
+      5: aLocale.FallbackLocale   := Word;
+      6: aLocale.TranslatorCredit := Word;
     end;
 
     L := R + 1;

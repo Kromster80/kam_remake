@@ -18,6 +18,7 @@ type
   TTextLibrary = class
   private
     fLocale: AnsiString;
+    fFallbackLocale: AnsiString;
     GameStrings: TAnsiStringArray;
     MissionStrings: TAnsiStringArray; //Strings used in a mission
     procedure LoadLIBXFile(FilePath: string; aFirstIndex: Word; var aArray: TAnsiStringArray; aOverwrite: Boolean);
@@ -52,9 +53,14 @@ begin
 
   //Remember preferred locale, it will remain constant until reinit
   fLocale := aLocale;
+  fFallbackLocale := fLocales.Items[aLocale].FallbackLocale;
 
   //We load the English LIBX by default, then overwrite it with the selected language (this way missing strings are in English)
   LoadLIBXFile(aLibPath+'text.'+DEFAULT_LOCALE+'.libx', 0, GameStrings, False); //Initialize with English strings
+
+  if (fFallbackLocale <> '') and FileExists(aLibPath+'text.'+fFallbackLocale+'.libx') then
+    LoadLIBXFile(aLibPath+'text.'+fFallbackLocale+'.libx', 0, GameStrings, True);
+
   if (fLocale <> DEFAULT_LOCALE) and FileExists(aLibPath+'text.'+fLocale+'.libx') then
     LoadLIBXFile(aLibPath+'text.'+fLocale+'.libx', 0, GameStrings, True); //Overwrite with selected locale
 
@@ -115,6 +121,10 @@ begin
 
   Result := High(GameStrings);
   LoadLIBXFile(Format(aFilename, [DEFAULT_LOCALE]), Result, GameStrings, False);
+  
+  if (fFallbackLocale <> '') and FileExists(Format(aFilename, [fFallbackLocale])) then
+    LoadLIBXFile(Format(aFilename, [fFallbackLocale]), Result, GameStrings, True);
+
   if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFilename, [fLocale])) then
     LoadLIBXFile(Format(aFilename, [fLocale]), Result, GameStrings, True);
 end;
@@ -125,6 +135,10 @@ end;
 procedure TTextLibrary.LoadMissionStrings(aFilename: string);
 begin
   LoadLIBXFile(Format(aFilename, [DEFAULT_LOCALE]), 0, MissionStrings, False);
+
+  if (fFallbackLocale <> '') and FileExists(Format(aFilename, [fFallbackLocale])) then
+    LoadLIBXFile(Format(aFilename, [fFallbackLocale]), 0, MissionStrings, True);
+
   if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFilename, [fLocale])) then
     LoadLIBXFile(Format(aFilename, [fLocale]), 0, MissionStrings, True);
 end;

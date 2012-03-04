@@ -183,7 +183,10 @@ begin
   if DirectoryExists(ExeDir+'data\sfx\speech.'+aLocale+'\') then
     fLocale := aLocale
   else
-    fLocale := DEFAULT_LOCALE; //Use English voices when no language specific voices exist
+    if DirectoryExists(ExeDir+'data\sfx\speech.'+fLocales.Items[aLocale].FallbackLocale+'\') then
+      fLocale := fLocales.Items[aLocale].FallbackLocale //Use fallback local when primary doesn't exist
+    else
+      fLocale := DEFAULT_LOCALE; //Use English voices when no language specific voices exist
 
   fIsSoundInitialized := InitOpenAL;
   if not fIsSoundInitialized then begin

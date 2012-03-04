@@ -38,6 +38,8 @@ Features:
  +	Add sort indicators to listboxes
  +	Minimap preview in lobby, singleplayer and map editor menus
  +	Placing road/field in MP should put a temp/fake visual markup until the real one can be added to make it less confusing
+ +	Locales list is stored in a file rather than hard coded
+ +	Locales have a fallback option for very similar languages (e.g. Slovak uses Czech voices)
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth

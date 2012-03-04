@@ -262,7 +262,8 @@ type
         Button_Options_ResApply:TKMButton;
       Button_Options_Back:TKMButton;
     Panel_Credits:TKMPanel;
-      Label_Credits:TKMLabelScroll;
+      Label_Credits_KaM:TKMLabelScroll;
+      Label_Credits_Remake:TKMLabelScroll;
       Button_CreditsBack:TKMButton;
     Panel_Loading:TKMPanel;
       Label_Loading:TKMLabel;
@@ -1062,7 +1063,7 @@ begin
       CheckBox_Options_FullScreen := TKMCheckBox.Create(Panel_Options_Res,12,115,176,20,fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN],fnt_Metal);
       CheckBox_Options_FullScreen.OnClick := Options_Change;
 
-      Button_Options_ResApply:=TKMButton.Create(Panel_Options_Res,10,135,180,30,fTextLibrary[TX_MENU_OPTIONS_APPLY],fnt_Metal, bsMenu);
+      Button_Options_ResApply:=TKMButton.Create(Panel_Options_Res,10,140,180,30,fTextLibrary[TX_MENU_OPTIONS_APPLY],fnt_Metal, bsMenu);
       Button_Options_ResApply.OnClick:=Options_Change;
 
     //Language section
@@ -1091,8 +1092,8 @@ procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
   Panel_Credits:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
 
-    TKMLabel.Create(Panel_Credits,232,100,400,20,fTextLibrary[TX_CREDITS],fnt_Outline,taCenter);
-    TKMLabel.Create(Panel_Credits,232,140,400,492,
+    TKMLabel.Create(Panel_Credits,MENU_DESIGN_X div 2 - 312,100,400,20,fTextLibrary[TX_CREDITS],fnt_Outline,taCenter);
+    Label_Credits_Remake := TKMLabelScroll.Create(Panel_Credits,MENU_DESIGN_X div 2 - 312,140,400,MENU_DESIGN_Y - 160,
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex|Danjb||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer|Malin||'+
@@ -1101,10 +1102,10 @@ begin
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,taCenter);
 
-    TKMLabel.Create(Panel_Credits,MENU_DESIGN_X div 2 + 200, 100, 500, 20, fTextLibrary[TX_CREDITS_ORIGINAL], fnt_Outline, taCenter);
-    Label_Credits := TKMLabelScroll.Create(Panel_Credits, MENU_DESIGN_X div 2 + 200, 140, 500, MENU_DESIGN_Y - 160, fTextLibrary[TX_CREDITS_TEXT], fnt_Grey, taCenter);
+    TKMLabel.Create(Panel_Credits,MENU_DESIGN_X div 2 + 312, 100, 400, 20, fTextLibrary[TX_CREDITS_ORIGINAL], fnt_Outline, taCenter);
+    Label_Credits_KaM := TKMLabelScroll.Create(Panel_Credits, MENU_DESIGN_X div 2 + 312, 140, 400, MENU_DESIGN_Y - 160, fTextLibrary[TX_CREDITS_TEXT], fnt_Grey, taCenter);
 
-    Button_CreditsBack:=TKMButton.Create(Panel_Credits,120,700,224,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+    Button_CreditsBack:=TKMButton.Create(Panel_Credits,400,700,224,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
     Button_CreditsBack.OnClick:=SwitchMenuPage;
 end;
 
@@ -1329,7 +1330,8 @@ begin
   {Show Credits}
   if Sender=Button_MM_Credits then begin
     Panel_Credits.Show;
-    Label_Credits.SmoothScrollToTop := TimeGet; //Set initial position
+    Label_Credits_KaM.SmoothScrollToTop := TimeGet; //Set initial position
+    Label_Credits_Remake.SmoothScrollToTop := TimeGet; //Set initial position
   end;
 
   {Show Loading... screen}

@@ -1,17 +1,17 @@
-//Code, Title,                Codepage, FlagSpriteID, TranslatorCredit
+//Code, Title,                Codepage, FlagSpriteID, Fallback Locale, TranslatorCredit
 
-ptb,    Brazilian Portuguese, 1252,     8,            Vinycius Maia
-bul,    Bulgarian,            1251,     18,           Vinycius Maia
-cze,    Czech,                1250,     9,            Jolinar_CZ & Milan Molnar
-dut,    Dutch,                1252,     15,           xzaz & Tom
-eng,    English,              1252,     5,
-est,    Estonian,             1252,     19,           Ingvar & Eva
-fre,    French,               1252,     11,           Sylvain Domange
-ger,    German,               1252,     6,            The Knight
-hun,    Hungarian,            1250,     17,           Jecy
-ita,    Italian,              1252,     10,           Paolo Castelvetere
-pol,    Polish,               1250,     7,            Przemyslaw Pietras
-rus,    Russian,              1251,     14,           Krom
-svk,    Slovak,               1250,     12,           Robert Marko
-spa,    Spanish,              1252,     13,           Oscar
-swe,    Swedish,              1252,     16,           Edvin Linge
+ptb,    Brazilian Portuguese, 1252,     8,            ,                Vinycius Maia
+bul,    Bulgarian,            1251,     18,           ,                Christian
+cze,    Czech,                1250,     9,            svk,             Jolinar_CZ & Milan Molnar
+dut,    Dutch,                1252,     15,           ,                xzaz & Tom
+eng,    English,              1252,     5,            ,
+est,    Estonian,             1252,     19,           ,                Ingvar & Eva
+fre,    French,               1252,     11,           ,                Sylvain Domange
+ger,    German,               1252,     6,            ,                The Knight
+hun,    Hungarian,            1250,     17,           ,                Jecy
+ita,    Italian,              1252,     10,           ,                Paolo Castelvetere
+pol,    Polish,               1250,     7,            ,                Przemyslaw Pietras
+rus,    Russian,              1251,     14,           ,                Krom
+svk,    Slovak,               1250,     12,           cze,             Robert Marko
+spa,    Spanish,              1252,     13,           ,                Oscar
+swe,    Swedish,              1252,     16,           ,                Edvin Linge
