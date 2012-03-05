@@ -920,8 +920,8 @@ begin
   else
     Act := fCurrentAction.fActionType;
 
-  //Animals share the same walkTo logic as other units and they exchange places if necessary
-  fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, true);
+    //Animals share the same WalkTo logic as other units and they exchange places if necessary
+  fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, True);
 end;
 
 

@@ -841,10 +841,8 @@ procedure TRenderPool.RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: 
 var
   Lay, TopLay: Byte;
 begin
-  if (GFXData[aRX,aID].AltID <> 0) then
-    TopLay := 2
-  else
-    TopLay := 1;
+  //If there's AltID - render 2 layers instead of ordinary 1
+  TopLay := 1 + Byte(GFXData[aRX,aID].AltID <> 0);
 
   for Lay := 1 to TopLay do
   with GFXData[aRX, aID] do
@@ -1273,7 +1271,7 @@ begin
         with RenderList[h] do
         begin
           if AlphaStep = -1 then
-            fRenderPool.RenderSprite(RX, ID, Loc.X, Loc.Y, TeamColor,FOWvalue)
+            fRenderPool.RenderSprite(RX, ID, Loc.X, Loc.Y, TeamColor, FOWvalue)
           else
             fRenderPool.RenderSpriteAlphaTest(RX, ID, AlphaStep, Loc.X, Loc.Y, FOWvalue);
 
