@@ -1073,7 +1073,7 @@ begin
 
       Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 28, 27, 220, 20*fLocales.Count, fnt_Metal);
       SetLength(Image_Options_Lang_Flags,fLocales.Count);
-      for i:=0 to fLocales.Count-1 do
+      for i := 0 to fLocales.Count - 1 do
       begin
         Radio_Options_Lang.Items.Add(fLocales[i].Title);
         Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,28+(i*20),16,11,fLocales[i].FlagSpriteID,rxMenu);
@@ -2003,7 +2003,7 @@ begin
   begin
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].GetNickname;
     if fGame.Networking.NetPlayers[i+1].LangCode <> '' then
-         Image_LobbyFlag[i].TexID := fLocales.Items[fGame.Networking.NetPlayers[i+1].LangCode].FlagSpriteID
+         Image_LobbyFlag[i].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[i+1].LangCode).FlagSpriteID
     else Image_LobbyFlag[i].TexID := 0;
     if fGame.Networking.IsHost and (not fGame.Networking.NetPlayers[i+1].IsHuman) then
     begin

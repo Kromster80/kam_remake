@@ -190,7 +190,7 @@ var
   F: TKMFont;
   CodePage: AnsiString;
 begin
-  CodePage := fLocales.Items[aLocale].FontCodepage;
+  CodePage := fLocales.GetLocale(aLocale).FontCodepage;
   for F := Low(TKMFont) to High(TKMFont) do
     if FileExists(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt') then
       fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRender, F, false)
@@ -204,7 +204,7 @@ var
   F: TKMFont;
   CodePage: AnsiString;
 begin
-  CodePage := fLocales.Items[aLocale].FontCodepage;
+  CodePage := fLocales.GetLocale(aLocale).FontCodepage;
   for F := Low(TKMFont) to High(TKMFont) do
     if FileExists(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt') then
       fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRender, F, true)

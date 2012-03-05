@@ -53,7 +53,7 @@ begin
 
   //Remember preferred locale, it will remain constant until reinit
   fLocale := aLocale;
-  fFallbackLocale := fLocales.Items[aLocale].FallbackLocale;
+  fFallbackLocale := fLocales.GetLocale(aLocale).FallbackLocale;
 
   //We load the English LIBX by default, then overwrite it with the selected language (this way missing strings are in English)
   LoadLIBXFile(aLibPath+'text.'+DEFAULT_LOCALE+'.libx', 0, GameStrings, False); //Initialize with English strings

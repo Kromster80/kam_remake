@@ -3001,7 +3001,7 @@ begin
   begin
     //Show players locale flag
     if fGame.Networking.NetPlayers[i+1].LangCode <> '' then
-      Image_AlliesLang[i].TexID := fLocales.Items[fGame.Networking.NetPlayers[i+1].LangCode].FlagSpriteID
+      Image_AlliesLang[i].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[i+1].LangCode).FlagSpriteID
     else
       Image_AlliesLang[i].TexID := 0;
 
