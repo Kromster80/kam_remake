@@ -603,7 +603,7 @@ begin
   repeat
     //First make sure that it is valid
     if (H <> nil) and H.HasFood and H.HasSpace
-    and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), aUnit.GetDesiredPassability(True), 0) then
+    and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), CanWalk, 0) then
     begin
       //Take the closest inn out of the ones that are suitable
       Dist := GetLength(H.GetPosition, Loc);
