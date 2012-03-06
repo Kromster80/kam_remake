@@ -130,7 +130,7 @@ type
 
     procedure Feed(Amount:single);
     procedure AbandonWalk;
-    function GetDesiredPassability(aIgnoreRoads:boolean=false):TPassability;
+    function GetDesiredPassability: TPassability;
     property GetOwner:TPlayerIndex read fOwner;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
@@ -887,7 +887,7 @@ begin
 
   //First make sure the animal isn't stuck (check passibility of our position)
   if (not fTerrain.CheckPassability(fCurrPosition,GetDesiredPassability))
-  or fTerrain.CheckAnimalIsStuck(fCurrPosition,GetDesiredPassability,false) then begin
+  or fTerrain.CheckAnimalIsStuck(fCurrPosition,GetDesiredPassability) then begin
     KillUnit; //Animal is stuck so it dies
     exit;
   end;
@@ -1427,8 +1427,7 @@ end;
 
 
 //Specific unit desired passability may depend on several factors
-//todo: Remove aIgnoreRoads as we can check Desperate conditions right here
-function TKMUnit.GetDesiredPassability(aIgnoreRoads:boolean=false):TPassability;
+function TKMUnit.GetDesiredPassability: TPassability;
 begin
   Result := fResource.UnitDat[fUnitType].DesiredPassability;
 
@@ -1449,10 +1448,6 @@ begin
   if (fUnitType in [ut_Woodcutter, ut_Farmer, ut_Fisher, ut_StoneCutter])
   and (fUnitTask is TTaskMining)
   then
-    Result := CanWalk;
-
-  //aIgnoreRoads means we are desperate enough to ignore roads (e.g. when looking for an Inn)
-  if aIgnoreRoads then
     Result := CanWalk;
 end;
 
