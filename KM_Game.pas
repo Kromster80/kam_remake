@@ -1396,7 +1396,7 @@ end;
 procedure TKMGame.Load(const aFilename: string; aReplay:boolean=false);
 var
   LoadStream: TKMemoryStream;
-  fGameInfo: TKMGameInfo;
+  GameInfo: TKMGameInfo;
   LoadError,LoadFileExt, s: string;
   LoadedSeed: Longint;
   SaveIsMultiplayer: boolean;
@@ -1404,19 +1404,20 @@ begin
   fLog.AppendLog('Loading game: '+aFilename);
   if aReplay then LoadFileExt := 'bas' else LoadFileExt := 'sav';
 
-  LoadStream := TKMemoryStream.Create; //Read data from file into stream
+  LoadStream := TKMemoryStream.Create;
+  GameInfo := TKMGameInfo.Create;
   try //Catch exceptions
     if not FileExists(SaveName(aFileName, LoadFileExt)) then Raise Exception.Create('Savegame could not be found');
 
     LoadStream.LoadFromFile(SaveName(aFileName, LoadFileExt));
 
     //We need only few essential parts from GameInfo, the rest is duplicate from fTerrain and fPlayers
-    fGameInfo := TKMGameInfo.Create;
-    fGameInfo.Load(LoadStream);
-    fGameName := fGameInfo.Title;
-    fGameTickCount := fGameInfo.TickCount;
-    fMissionMode := fGameInfo.MissionMode;
-    fGameInfo.Free;
+    
+    GameInfo.Load(LoadStream);
+    fGameName := GameInfo.Title;
+    fGameTickCount := GameInfo.TickCount;
+    fMissionMode := GameInfo.MissionMode;
+    FreeAndNil(GameInfo);
 
     fGameOptions.Load(LoadStream);
     fCampaigns.Load(LoadStream);
@@ -1450,7 +1451,7 @@ begin
       fGamePlayInterface.Load(LoadStream);
     end;
 
-    LoadStream.Free;
+    FreeAndNil(LoadStream);
 
     if fMultiplayerMode and not aReplay then
       fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
@@ -1472,7 +1473,7 @@ begin
   except
     on E : Exception do
     begin
-      if fGameInfo <> nil  then fGameInfo.Free;
+      if GameInfo <> nil   then GameInfo.Free;
       if LoadStream <> nil then LoadStream.Free;
 
       //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
