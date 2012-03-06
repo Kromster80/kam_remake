@@ -306,12 +306,12 @@ end;
 
 
 //Length as straight and diagonal
-function KMLength(A,B:TKMPoint): single;
+function KMLength(A, B: TKMPoint): Single;
 begin
-  if abs(A.X-B.X) > abs(A.Y-B.Y) then
-    Result := abs(A.X-B.X) + abs(A.Y-B.Y)*0.41
+  if Abs(A.X-B.X) > Abs(A.Y-B.Y) then
+    Result := Abs(A.X-B.X) + Abs(A.Y-B.Y) * 0.41
   else
-    Result := abs(A.Y-B.Y) + abs(A.X-B.X)*0.41
+    Result := Abs(A.Y-B.Y) + Abs(A.X-B.X) * 0.41
 end;
 
 

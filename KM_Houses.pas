@@ -90,6 +90,7 @@ type
     function GetEntrance:TKMPoint;
     function GetClosestCell(aPos:TKMPoint):TKMPoint;
     function GetDistance(aPos:TKMPoint):single;
+    function InReach(aPos: TKMPoint; aDistance: Single): Boolean;
     procedure GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
     procedure GetListOfCellsWithin(Cells:TKMPointList);
     function GetRandomCellWithin:TKMPoint;
@@ -549,19 +550,34 @@ end;
 {Return distance from aPos to the closest house tile}
 function TKMHouse.GetDistance(aPos: TKMPoint): Single;
 var
-  C: TKMPointList;
-  i: integer;
+  I, K: Integer;
+  Loc: TKMPoint;
+  Test: Single;
+  HouseArea: THouseArea;
 begin
-  C := TKMPointList.Create;
-  try
-    GetListOfCellsWithin(C);
+  Result := -1;
+  Loc := fPosition;
+  HouseArea := fResource.HouseDat[fHouseType].BuildArea;
 
-    Result := GetLength(C.List[1], aPos);
-    for i := 2 to C.Count do
-      Result := Math.min(Result, GetLength(C.List[i], aPos));
-  finally
-    C.Free;
-  end;
+  for I := max(Loc.Y - 3, 1) to Loc.Y do
+    for K := max(Loc.X - 2, 1) to min(Loc.X + 1, fTerrain.MapX) do
+      if HouseArea[I - Loc.Y + 4, K - Loc.X + 3] <> 0 then
+      begin
+        Test := GetLength(aPos, KMPoint(K, I));
+        if (Result < 0) or (Test < Result) then
+          Result := Test;
+      end;
+end;
+
+
+//Check if house is within reach of given Distance (optimized version for PathFinding)
+//Check precise distance when we are close enough
+function TKMHouse.InReach(aPos: TKMPoint; aDistance: Single): Boolean;
+begin
+  if KMLength(aPos, fPosition) >= aDistance * 1.25 + 1 then
+    Result := False
+  else
+    Result := GetDistance(aPos) <= aDistance;
 end;
 
 
