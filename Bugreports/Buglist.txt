@@ -30,8 +30,8 @@
 	Dots and lines displaying on tile edges (requires fResourceTiles) [Krom]
 	Colored rectangle below cursor
 
-Features:
- +	Switching to fullscreen causes banding if drivers report unsupported refresh rates (add manual refresh rate selector to options) [Jimmy]
+Improvements:
+ +	Switching to fullscreen causes banding if drivers report unsupported refresh rates (add manual refresh rate selector to options) [Maciej]
  +	Maps scan should be done in separate thread to unlock GUI
  +	Roads/field plans should only be visible on you and your allies screen to prevent exploiting (move markups from terrain to player)
  +	Allow listboxes to handle up/down arrows
@@ -40,6 +40,7 @@ Features:
  +	Placing road/field in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
  +	Locales list is stored in a file rather than hard coded
  +	Locales have a fallback option for very similar languages (e.g. Slovak uses Czech voices)
+ +	Make fishes/watersnake to be more visible in MapEd
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
