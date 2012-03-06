@@ -1395,11 +1395,11 @@ end;
 
 procedure TKMGame.Load(const aFilename: string; aReplay:boolean=false);
 var
-  LoadStream:TKMemoryStream;
+  LoadStream: TKMemoryStream;
   fGameInfo: TKMGameInfo;
   LoadError,LoadFileExt, s: string;
-  LoadedSeed:Longint;
-  SaveIsMultiplayer:boolean;
+  LoadedSeed: Longint;
+  SaveIsMultiplayer: boolean;
 begin
   fLog.AppendLog('Loading game: '+aFilename);
   if aReplay then LoadFileExt := 'bas' else LoadFileExt := 'sav';
@@ -1412,15 +1412,11 @@ begin
 
     //We need only few essential parts from GameInfo, the rest is duplicate from fTerrain and fPlayers
     fGameInfo := TKMGameInfo.Create;
-    try
-      fGameInfo.Load(LoadStream);
-      fGameName := fGameInfo.Title;
-      fGameTickCount := fGameInfo.TickCount;
-      fMissionMode := fGameInfo.MissionMode;
-    finally //@Lewin: I'm not sure if exceptions from GameInfo will be caught here later on
-            //@Krom: They won't be caught, which is bad. (try adding a raise to the line above to test)
-      fGameInfo.Free;
-    end;
+    fGameInfo.Load(LoadStream);
+    fGameName := fGameInfo.Title;
+    fGameTickCount := fGameInfo.TickCount;
+    fMissionMode := fGameInfo.MissionMode;
+    fGameInfo.Free;
 
     fGameOptions.Load(LoadStream);
     fCampaigns.Load(LoadStream);
@@ -1476,6 +1472,9 @@ begin
   except
     on E : Exception do
     begin
+      if fGameInfo <> nil  then fGameInfo.Free;
+      if LoadStream <> nil then LoadStream.Free;
+
       //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
       LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFileName])+'||'+E.ClassName+': '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError); //This will show an option to return back to menu

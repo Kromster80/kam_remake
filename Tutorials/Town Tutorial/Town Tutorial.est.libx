@@ -1,0 +1,28 @@
+
+MaxID:25
+
+1:Sul on vaja ehitada koolimaja, et treenida uusi elanikke.|Peab olema piisvalt kulda, et saaksid treenida uusi elanikke kuningriigi jaoks.
+2:Ehitamiseks kliki haamri ikoonile ekraani vasakus servas. Siis on vaja klikida raamatu (koolimaja) ikoonile. Paiguta koolimaja vabale osale maale ja kliki uuesti, et panna see ehitama.
+3:Pärast seda kui koolimaja on paigutatud, tekib teile 'paiguta teed' kursor. Nüüd peab paigutama teed, ruut-ruut haaval, et ühendada majad. Ära unusta, et tee peab ühendama maja peaukse.
+4:Elanike treenimiseks peab klikima koolimaja peale ja liikuma seal nuppudega 'järgmine amet', et valida vajalik elanik treenimiseks. Treenimiseks vajuta 'lisa järjekorda' nuppu. Kui treenitud, siis nad hakkavad automaatselt tegutsema.
+5:Aeg-ajalt peavad elanikud sööma, selle jaoks pead ehitama kõrtsi. Ehita see võimalikult küla keskele, kuna elanikud peavad sellele võimalikult lihtsalt ligi pääsema.
+6:Sul on vaja kivi edasiseks majade ja teede ehitamiseks. Selle jaoks ehita kivikaevandus kivi mäe juurde, ning pärast selle ehitamist treeni kiviraidur, kes hakkab kive tootma.
+7:Sa ei vaja ainult kivi majade ahitamiseks, vaid ka laudpuitu. Selleks on vaja puuraidurit kes langetab ja istutab puid ja saekaatrit, mis lõikab nad laudpuiduks. Puuraiduri onn tuleks alati ehitada metsa lähedale.
+8:Nüüd on vaja ehitada saekaater, mis töötleb puuraiduri palke.|Pärast ehitamist on vaja treenida puusepp, kes hakkab tööle saekaatris.
+9:Kui piisavalt palju toodetakse ehitamise materjale, siis tuleb ehitama hakkata toidu tootmist.|Ehita endale kalamehe onn mõne järve/jõe äärde, kus kalamees hakkab varustama kõrtsu värske kalaga.
+10:Väga hea, kus nüüd on sul piisvalt kala, ära unusta. et see saab otsa mõninga aja pärast.|Selleks, et tagada pidev toidlustus küla jaoks, ehita talu ja selle juurde piisavalt suur põld.
+11:Kuskil 16 ruutu põldu on talul vaja ja need tuleb talule võimalikult lähedale ehitada.|Aga nüüd on sul vaja ehitada veski, et töödelda talust saadud rukkist.
+12:Tore, nüüd ehita pagariäri, mis toodab jahust värsket leiba, mis omakorda veetakse kõrtsu. Kontrolli alati et sul o piisavalt pärisorjasid, et kaubad saaksid kiiresti veetud.
+13:Lisaks oma elanike toitmisele kala ja leivaga on sul vaja neile midagi anda janu kustutamiseks.|Ehita viinamarjaistandus koos 16 ruudu viinamarja põlluga, kus saaks talupoeg vinnamarju korjata.
+14:Sul läheb hästi, aga sinu raskesti-töötavad külaelanikud vajavad paremat toitu, kui kuiv leib ja vein, tooda liha ja nahku, ehita sealaut, kus tõuaretaja aretab sigu.
+15:Selleks, et toota midagi lihast on sul vaja lihunikuäri. Ehita lihuniku äri, kus lihunik teeb lihast vorstid.
+16:Nüüd kui sul toidu kaubad kindlalt tootmises, on aeg tegeleda teiste tähtsate asjadega, milleks on relvade tootmine. Ehita kasarmu enda valitud vabale kohale.
+17:Kasarmus saab valida erinevaid sõdureid nuppudega 'järgmine sõdur tüüp' ja 'eelmine sõdur tüüp'. Erinevad sõdurid vajavad erinevaid vahendeid, ning need on välja toodud ruutudega märgitud, mis vahendeid nende varustamiseks vaja on.
+18:Selle jaoks et varustada sõdureid on sul vaja relvi toota. Lase oma ehitajatel ehitada relvade töökoda, soovitavalt kasarmu lähedusse, et relvasi oleks võimalik kiiresti viia kasarmusse.
+19:Relvade tootmiseks pead sa klikima relvade töökoja peale ja valitud relva tootmiseks vajutama nuppu 'Suurenda tellimuse arv', vastavalt vajadusele. Alatai kontrolli et sul oleks piisvaltlaudpuitu relvade tootmiseks.
+20:Ilma vajalikute vahenditeta sõdureid on lihtne tappa lahinguväljal.|Selleks et soomusrüüd toota, ehita parkimiskoda, mis pargib nahad parknahaks.
+21:Nüüd kui sul toodetakse parknahku, pead sa ehitama soomusrüükoja. Seal ehitises puusepp toodab soomusrüüsid ja puukilpe.
+22:Väga hea! Nüüd on sul vajalikud majad linna juhtimiseks ja sõdurite varsutamiseks. Kui sul on vajalikud varustuse osad olemas teatud sõduri tüübi varustamiseks, siis on sul vaja treenida nekrut koolimajas ning kui nekrut saabub kasarmusse, see-järel kliki nuppu 'Varusta hetka sõdur tüüp'.
+23:Sinu ülesandeks on kahe vaenlase alistamine. Sinine vastane kes asub lõunas, omad hästi kaistud laagrit, aga idas asuv vaenlane toetub lihtsalt sõduritele, ehk teda on lihtsam alistada. Valmista oma sõdurid hoolikalt ette, enne kui kuihutad välja vaenlased!
+24:|Sinine vastane on alistatud!
+25:|Roheline mängija on alistatud!

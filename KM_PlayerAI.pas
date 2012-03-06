@@ -166,7 +166,7 @@ end;
 constructor TKMPlayerAI.Create(aPlayerIndex: TPlayerIndex);
 var i: TGroupType;
 begin
-  Inherited Create;
+  inherited Create;
 
   fPlayerIndex := aPlayerIndex;
   fHasWonOrLost := false;
@@ -195,11 +195,12 @@ end;
 
 
 destructor TKMPlayerAI.Destroy;
-var i: integer;
+var I: Integer;
 begin
   fAttacks.Free;
-  for i:=0 to DefencePositionsCount-1 do DefencePositions[i].Free;
-  Inherited;
+  for I := 0 to DefencePositionsCount - 1 do
+    DefencePositions[I].Free;
+  inherited;
 end;
 
 
@@ -215,12 +216,15 @@ begin
   //@Krom: I think you should have to destroy storehouses, that's how it works in KaM.
   //Also requiring workers and recruits to be destroyed might be confusing for the player.
   //I'd rather keep it simple and like KaM: Army, store, school, barracks.
+  //@Lewin: Simple is not good enough for MP. As with each of the items left player can
+  //rebuild his town or overcome enemy by force
 
-  Defeat := (Stat.GetHouseQty(ht_School) = 0) and
-            (Stat.GetUnitQty(ut_Worker) = 0) and
-            (Stat.GetUnitQty(ut_Recruit) = 0) and
+  Defeat := (Stat.GetHouseQty(ht_School) = 0) and     //P can train workers and start rebuilding
+            (Stat.GetUnitQty(ut_Worker) = 0) and      //P can rebuild town
+            (Stat.GetUnitQty(ut_Recruit) = 0) and     //P can train soldiers
             (Stat.GetArmyCount = 0) and
             (Stat.GetHouseQty(ht_Barracks) = 0) and
+            (Stat.GetHouseQty(ht_Store) = 0) and
             (Stat.GetHouseQty(ht_TownHall) = 0) and
             (Stat.GetHouseQty(ht_SiegeWorkshop) = 0);
 

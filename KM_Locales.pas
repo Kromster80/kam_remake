@@ -5,9 +5,6 @@ uses
   Classes, Math, SysUtils, StrUtils, KM_Defaults;
 
 type
-  //@Krom: Is there a reason for using Shortstring? (fast/more efficient?) I noticed we used it for
-  //       the old Locales constant, but I didn't know why.
-  //@Lewin: Not really. I have changed it to string[3]
   TKMLocaleInfo = record
     Code: string[3]; //eng
     Title: string; //English

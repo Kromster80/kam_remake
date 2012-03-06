@@ -170,7 +170,6 @@ begin
     if aID <> 0 then
     begin
       TexOffsetY := TexOffsetY - 6 * byte(Caption <> '');
-      //todo: @Krom: Crashes here when opening terrain tab in map editor. GFXData[rxTiles] is empty for some reason.
       WritePicture((SizeX-GFXData[aRX,aID].PxWidth) div 2 + TexOffsetX,
                    (SizeY-GFXData[aRX,aID].PxHeight) div 2 + TexOffsetY, aRX, aID, True);
     end;

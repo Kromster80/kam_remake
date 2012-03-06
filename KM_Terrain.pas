@@ -600,9 +600,6 @@ begin
     or not U.Visible then //Inside of house
       Continue;
 
-    //@Krom: Please let me know if this makes any sense. I want to comment it so we remember why
-    //       we use U.GetPosition instead of KMPoint(k,i) in checks. Rewrite my comments if you like.
-
     //This unit could be on a different tile next to KMPoint(k,i), so we cannot use that anymore.
     //There was a crash caused by VertexUsageCompatible checking (k,i) instead of U.GetPosition.
     //In that case aLoc = (37,54) and k,i = (39;52) but U.GetPosition = (38;53).
@@ -736,14 +733,7 @@ begin
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
 
-  //@Lewin: Please check me on this one - it does not needs wcRoad
-  //@Krom: If we allowed diagonal roads, then in very rare conditions it would need wcRoad:
-  //       Removal of the grapes object allows walking diagonally, which might effect the road network.
-  //       However since we disallow diagonal roads it's not needed, I can't see how it could effect the road network
-  //@Lewin: Please give me an example when Wine fields removal affect road network
-  //@Krom: The only example is if we allow routing along diagonal roads, which we decided not to.
-  //       So you are right, wine field removal cannot effect the road network now. To be deleted.
-  //Update affected WalkConnect's (wcRoad is not required to update unless we reenable diagonal roads, as wine fields ...)
+  //Update affected WalkConnect's
   RebuildWalkConnect([wcWalk, wcWolf, wcCrab]);
 end;
 
