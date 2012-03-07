@@ -753,7 +753,7 @@ var
   RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
-    if (RXInfo[RT].Usage = ruMenu) then
+    if (RXInfo[RT].Usage = ruMenu) and (RT <> rxTiles) then
     begin
       fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
       LoadSprites(RT, False); //Menu resources never need alpha shadows
@@ -771,7 +771,7 @@ begin
   fAlphaShadows := aAlphaShadows;
 
   for RT := Low(TRXType) to High(TRXType) do
-  if (RXInfo[RT].Usage = ruGame) then
+  if (RXInfo[RT].Usage = ruGame) and (RT <> rxTiles) then
   begin
     fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
     fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');

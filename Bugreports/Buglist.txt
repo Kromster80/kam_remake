@@ -41,7 +41,9 @@ Improvements:
  +	Locales list is stored in a file rather than hard coded
  +	Locales have a fallback option for very similar languages (e.g. Slovak uses Czech voices)
  +	Make fishes/watersnake to be more visible in MapEd
+ +	High quality alpha-blended shadows for units and trees
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
+	High quality alpha-blended shadows for houses (only once constructed?)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
