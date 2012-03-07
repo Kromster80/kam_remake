@@ -547,6 +547,7 @@ var AttackTotalAvailable: integer; //Total number of warriors available to attac
   procedure AddToAvailableToAttack(aCommander: TKMUnitWarrior);
   var GT: TGroupType;
   begin
+    if not aCommander.IsIdle then exit;
     GT := UnitGroups[aCommander.UnitType];
     if Length(AttackGroups[GT]) <= AttackGroupsCount[GT] then
       SetLength(AttackGroups[GT],AttackGroupsCount[GT]+10);
