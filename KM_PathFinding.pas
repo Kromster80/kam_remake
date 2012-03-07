@@ -17,40 +17,40 @@ type
   //I think we should refactor this unit and move some TTerrain methods here
   TPathFinding = class
   private
-    NewCost:integer;
-    MinCost:record
-      Cost:integer;
-      ID:word;
-      Pos:TKMPoint;
+    fNewCost: Integer;
+    fMinCost: record
+      Cost: Integer;
+      ID: Word;
+      Pos: TKMPoint;
     end;
-    ORef:array of array of word; //References to OpenList, Sized as map
-    OCount:word;
-    OList:array of record //List of checked cells
-      Pos:TKMPoint;
-      CostTo:word;
-      Estim:word;
-      Parent:word;//Reference to parent
+    ORef: array of array of Word; //References to OpenList, Sized as map
+    OCount: Word;
+    OList: array of record //List of checked cells
+      Pos: TKMPoint;
+      CostTo: Word;
+      Estim: Word;
+      Parent: Word;//Reference to parent
     end;
   private
-    LocA:TKMPoint;
-    LocB:TKMPoint;
-    Pass:TPassability;
-    TargetWalkConnect:TWalkConnect;
-    TargetNetwork:byte;
-    fDistance:single;
-    IsInteractionAvoid:boolean;
-    fDestination:TDestinationPoint;
+    fLocA: TKMPoint;
+    fLocB: TKMPoint;
+    fPass: TPassability;
+    fTargetWalkConnect: TWalkConnect;
+    fTargetNetwork: Byte;
+    fDistance: Single;
+    fIsInteractionAvoid: Boolean;
+    fDestination: TDestinationPoint;
     fTargetHouse: TKMHouse;
     function IsDestinationReached: Boolean;
-    function MakeRoute:boolean;
+    function MakeRoute: Boolean;
     procedure ReturnRoute(NodeList: TKMPointList);
-    function GetRouteLength:integer;
+    function GetRouteLength: Integer;
   public
     constructor Create;
-    function Route_Make(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList):boolean;
-    function Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
-    function Route_ReturnToWalkable(aLocA, aLocB:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; aPass:TPassability; NodeList:TKMPointList): Boolean;
-  end;
+    function Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassability; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
+    function Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass: TPassability; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList; aMaxRouteLen: Integer): Boolean;
+    function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect: TWalkConnect; aTargetNetwork: Byte; aPass: TPassability; NodeList: TKMPointList): Boolean;
+    end;
 
 
 implementation
@@ -59,9 +59,7 @@ implementation
 { TPathFinding }
 constructor TPathFinding.Create;
 begin
-  inherited Create;
-
-  //todo: Keep the ORef array the size of a map for more efficient cache usage
+  inherited;
 end;
 
 
@@ -71,13 +69,13 @@ function TPathFinding.Route_Make(aLocA, aLocB: TKMPoint; aPass:TPassability; aDi
 begin
   Result := False;
 
-  LocA := aLocA;
-  LocB := aLocB;
-  Pass := aPass;
-  TargetNetwork := 0;
-  TargetWalkConnect := wcWalk;
+  fLocA := aLocA;
+  fLocB := aLocB;
+  fPass := aPass;
+  fTargetNetwork := 0;
+  fTargetWalkConnect := wcWalk;
   fDistance := aDistance;
-  IsInteractionAvoid := False;
+  fIsInteractionAvoid := False;
   fTargetHouse := aTargetHouse;
   if fTargetHouse = nil then
     fDestination := dp_Location
@@ -94,17 +92,17 @@ end;
 
 
 //We are using Interaction Avoid mode (go around busy units)
-function TPathFinding.Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
+function TPathFinding.Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList; aMaxRouteLen:Integer):boolean;
 begin
   Result := False;
 
-  LocA := aLocA;
-  LocB := aLocB;
-  Pass := aPass;
-  TargetNetwork := 0;
-  TargetWalkConnect := wcWalk;
+  fLocA := aLocA;
+  fLocB := aLocB;
+  fPass := aPass;
+  fTargetNetwork := 0;
+  fTargetWalkConnect := wcWalk;
   fDistance := aDistance;
-  IsInteractionAvoid := True;
+  fIsInteractionAvoid := True;
   fTargetHouse := aTargetHouse;
   if fTargetHouse = nil then
     fDestination := dp_Location
@@ -124,13 +122,13 @@ function TPathFinding.Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalk
 begin
   Result := False;
 
-  LocA := aLocA;
-  LocB := aLocB;
-  Pass := aPass; //Should be unused here
-  TargetNetwork := aTargetNetwork;
-  TargetWalkConnect := aTargetWalkConnect;
+  fLocA := aLocA;
+  fLocB := aLocB;
+  fPass := aPass; //Should be unused here
+  fTargetNetwork := aTargetNetwork;
+  fTargetWalkConnect := aTargetWalkConnect;
   fDistance := 0;
-  IsInteractionAvoid := False;
+  fIsInteractionAvoid := False;
   fTargetHouse := nil;
   fDestination := dp_Passability;
 
@@ -146,9 +144,9 @@ end;
 function TPathFinding.IsDestinationReached: Boolean;
 begin
   case fDestination of
-    dp_Location:    Result := KMLength(MinCost.Pos, LocB) <= fDistance;
-    dp_Passability: Result := fTerrain.GetConnectID(TargetWalkConnect, MinCost.Pos) = TargetNetwork;
-    dp_House:       Result := fTargetHouse.InReach(MinCost.Pos, fDistance);
+    dp_Location:    Result := KMLength(fMinCost.Pos, fLocB) <= fDistance;
+    dp_Passability: Result := fTerrain.GetConnectID(fTargetWalkConnect, fMinCost.Pos) = fTargetNetwork;
+    dp_House:       Result := fTargetHouse.InReach(fMinCost.Pos, fDistance);
     else            Result := true;
   end;
 end;
@@ -164,121 +162,116 @@ begin
 
   //Initialize first element
   OCount := 1;
-  ORef[LocA.Y, LocA.X] := OCount;
+  ORef[fLocA.Y, fLocA.X] := OCount;
   SetLength(OList, OCount + 1);
-  OList[OCount].Pos     := LocA;
+  OList[OCount].Pos     := fLocA;
   OList[OCount].CostTo  := 0;
-  OList[OCount].Estim   := (abs(LocB.X-LocA.X) + abs(LocB.Y-LocA.Y)) * 10;
+  OList[OCount].Estim   := (abs(fLocB.X-fLocA.X) + abs(fLocB.Y-fLocA.Y)) * 10;
   OList[OCount].Parent  := 0;
 
-  repeat
+  //Seed
+  fMinCost.Cost := 0;
+  fMinCost.ID := 1;
+  fMinCost.Pos := fLocA;
 
-    //Find cell with least (Estim+CostTo)
-    MinCost.Cost := 65535;
+  while not IsDestinationReached and (fMinCost.Cost <> 65535) do
+  begin
 
-    for i := OCount downto 1 do //'downto' works faster here
-      if OList[i].Estim <> c_closed then
-        if (OList[i].Estim + OList[i].CostTo) < MinCost.Cost then
+    OList[fMinCost.ID].Estim := c_closed;
+
+    //Check all surrounding cells and issue costs to them
+    for y := Math.max(fMinCost.Pos.Y-1,1) to Math.min(fMinCost.Pos.Y+1, fTerrain.MapY-1) do
+    for x := Math.max(fMinCost.Pos.X-1,1) to Math.min(fMinCost.Pos.X+1, fTerrain.MapX-1) do
+    if ORef[y,x] = 0 then //Cell is new
+    begin
+      if fTerrain.CanWalkDiagonaly(fMinCost.Pos, KMPoint(x,y)) then
+      //If we are in InteractionAvoid mode then don't use tiles with workers on them
+      //and avoid other tiles with Locked units, but that requires reworking
+      //But e.g. melee warriors might ignore this and fight their way through enemies?
+      if (not fIsInteractionAvoid) or (not fTerrain.TileIsLocked(KMPoint(x,y))) then
+      begin
+
+        inc(OCount);
+        if OCount >= Length(OList) then
+          SetLength(OList, OCount + 128); //Allocate slightly more space
+
+        OList[OCount].Pos := KMPoint(x,y);
+
+        if (fPass in fTerrain.Land[y,x].Passability) then //If cell meets Passability then estimate it
         begin
-          MinCost.Cost := OList[i].Estim + OList[i].CostTo;
-          MinCost.ID := i;
-          MinCost.Pos := OList[i].Pos;
-        end;
+          ORef[y,x] := OCount;
+          OList[OCount].Parent := ORef[fMinCost.Pos.Y,fMinCost.Pos.X];
+          OList[OCount].CostTo := OList[OList[OCount].Parent].CostTo + Round(GetLength(KMPoint(x,y),fMinCost.Pos) * 10); //
+          if DO_WEIGHT_ROUTES and not KMSamePoint(fLocB, KMPoint(x,y)) then //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
+            Inc(OList[OCount].CostTo, Byte(fTerrain.Land[y,x].IsUnit <> nil) * 10); //Unit=1tile
+          OList[OCount].Estim := (abs(x-fLocB.X) + abs(y-fLocB.Y)) * 10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
+        end
+        else //If cell doen't meets Passability then mark it as Closed
+          OList[OCount].Estim := c_closed;
+      end;
 
-    //Keep looking if we haven't reached destination
-    if not IsDestinationReached then
+    end
+    else //Else cell is old
     begin
 
-      OList[MinCost.ID].Estim := c_closed;
-
-      //Check all surrounding cells and issue costs to them
-      for y := Math.max(MinCost.Pos.Y-1,1) to Math.min(MinCost.Pos.Y+1, fTerrain.MapY-1) do
-      for x := Math.max(MinCost.Pos.X-1,1) to Math.min(MinCost.Pos.X+1, fTerrain.MapX-1) do
-        if ORef[y,x] = 0 then //Cell is new
+      //If route through new cell is shorter than ORef[y,x] then
+      if OList[ORef[y,x]].Estim <> c_closed then
+      begin
+        fNewCost := Round(GetLength(KMPoint(x,y),fMinCost.Pos) * 10);
+        if OList[fMinCost.ID].CostTo + fNewCost < OList[ORef[y,x]].CostTo then
         begin
-          if fTerrain.CanWalkDiagonaly(MinCost.Pos, KMPoint(x,y)) then
-          //If we are in InteractionAvoid mode then don't use tiles with workers on them
-          //and avoid other tiles with Locked units, but that requires reworking
-          //But e.g. melee warriors might ignore this and fight their way through enemies?
-          if (not IsInteractionAvoid) or (not fTerrain.TileIsLocked(KMPoint(x,y))) then
-          begin
-
-            inc(OCount);
-            if OCount >= Length(OList) then
-              SetLength(OList, OCount + 128); //Allocate slightly more space
-
-            OList[OCount].Pos := KMPoint(x,y);
-
-            if (Pass in fTerrain.Land[y,x].Passability) then //If cell meets Passability then estimate it
-            begin
-              ORef[y,x] := OCount;
-              OList[OCount].Parent := ORef[MinCost.Pos.Y,MinCost.Pos.X];
-              OList[OCount].CostTo := OList[OList[OCount].Parent].CostTo + Round(GetLength(KMPoint(x,y),MinCost.Pos) * 10); //
-              if DO_WEIGHT_ROUTES and not KMSamePoint(LocB, KMPoint(x,y)) then //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
-                Inc(OList[OCount].CostTo, Byte(fTerrain.Land[y,x].IsUnit <> nil) * 10); //Unit=1tile
-              OList[OCount].Estim := (abs(x-LocB.X) + abs(y-LocB.Y)) * 10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
-            end
-            else //If cell doen't meets Passability then mark it as Closed
-              OList[OCount].Estim := c_closed;
-          end;
-
-        end
-        else //Else cell is old
-        begin
-
-          //If route through new cell is shorter than ORef[y,x] then
-          if OList[ORef[y,x]].Estim <> c_closed then
-          begin
-            NewCost := Round(GetLength(KMPoint(x,y),MinCost.Pos) * 10);
-            if OList[MinCost.ID].CostTo + NewCost < OList[ORef[y,x]].CostTo then
-            begin
-              OList[ORef[y,x]].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
-              OList[ORef[y,x]].CostTo:=OList[MinCost.ID].CostTo + NewCost;
-              if DO_WEIGHT_ROUTES then
-                Inc(OList[ORef[y,x]].CostTo, Byte(fTerrain.Land[y,x].IsUnit <> nil) * 10); //Unit=1tile
-              //OList[ORef[y,x]].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y))*10;
-            end;
-          end;
-
+          OList[ORef[y,x]].Parent:=ORef[fMinCost.Pos.Y,fMinCost.Pos.X];
+          OList[ORef[y,x]].CostTo:=OList[fMinCost.ID].CostTo + fNewCost;
+          if DO_WEIGHT_ROUTES then
+            Inc(OList[ORef[y,x]].CostTo, Byte(fTerrain.Land[y,x].IsUnit <> nil) * 10); //Unit=1tile
+          //OList[ORef[y,x]].Estim:=(abs(x-fLocB.X) + abs(y-fLocB.Y))*10;
         end;
+      end;
     end;
 
-  until( IsDestinationReached or // Destination point is reached
-         (MinCost.Cost = 65535)); // There's no more open cells available
+    //Find next cell with least (Estim+CostTo)
+    fMinCost.Cost := 65535;
+    for i := OCount downto 1 do //'downto' works faster here
+      if OList[i].Estim <> c_closed then
+        if (OList[i].Estim + OList[i].CostTo) < fMinCost.Cost then
+        begin
+          fMinCost.Cost := OList[i].Estim + OList[i].CostTo;
+          fMinCost.ID := i;
+          fMinCost.Pos := OList[i].Pos;
+        end;
+  end;
 
   Result := IsDestinationReached;
-  //Assert(MinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
+  //Assert(fMinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
 end;
 
 
-function TPathFinding.GetRouteLength:integer;
-var k:integer;
+function TPathFinding.GetRouteLength:Integer;
+var I: Integer;
 begin
   Result := 0;
-  k := MinCost.ID;
+  I := fMinCost.ID;
   repeat
-    inc(Result);
-    k := OList[k].Parent;
-  until(k = 0);
+    Inc(Result);
+    I := OList[I].Parent;
+  until I = 0;
 end;
 
 
 procedure TPathFinding.ReturnRoute(NodeList: TKMPointList);
-var i,k:integer; NodesCount:integer;
+var
+  I: Integer;
 begin
   NodeList.Clear;
 
-  //Calculate NodeCount
-  NodesCount := GetRouteLength;
-
   //Assemble the route
-  k := MinCost.ID;
-  for i:=1 to NodesCount do begin
-    NodeList.AddEntry(OList[k].Pos);
-    k := OList[k].Parent;
-  end;
+  I := fMinCost.ID;
+  repeat
+    NodeList.AddEntry(OList[I].Pos);
+    I := OList[I].Parent;
+  until I = 0;
 
-  //Reverse the list, since path is LocB>LocA in fact
+  //Reverse the list, since path is assembled LocB > LocA
   NodeList.Inverse;
 end;
 
