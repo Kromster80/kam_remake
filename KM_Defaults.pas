@@ -263,8 +263,7 @@ type
     wcFish,
     wcWolf,
     wcCrab, //These things are used often but changed rarely
-    wcWork, //CanWorker areas
-    wcAvoid //WalkAvoid is different - used rarely and changed each frame
+    wcWork  //CanWorker areas
   );
 
 const
@@ -525,7 +524,8 @@ type
         tlFenced,   // -        X         X       X          X     -      X
         tlDigged,   // -        -         X       X          X     X      X
         tlHouse,    // -        -         -       -          X     X      -
-        tlLocked    // -        -         -       -          -     X      -
+        //Used by workers making roads/fields to prevent you from building over them
+        tlRoadWork  // -        X         X       X          -     X      -
         );
 
   TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);

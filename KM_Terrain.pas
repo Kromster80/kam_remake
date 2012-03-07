@@ -50,7 +50,7 @@ type
       Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
       Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 
-      WalkConnect: array [TWalkConnect] of byte; //Whole map is painted into interconnected areas 1=CanWalk, 2=CanWalkRoad, 3=CanFish, 4=CanWalkAvoid: walk avoiding tiles under construction, only recalculated when needed
+      WalkConnect: array [TWalkConnect] of byte; //Whole map is painted into interconnected areas
 
       Border: TBorderType; //Borders (ropes, planks, stones)
       BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
@@ -1376,7 +1376,7 @@ begin
   Land[Loc.Y,Loc.X].Passability := [];
 
   //For all passability types other than CanAll, houses and fenced houses are excluded
-  if Land[Loc.Y,Loc.X].TileLock in [tlNone, tlFenced] then
+  if Land[Loc.Y,Loc.X].TileLock in [tlNone, tlFenced, tlRoadWork] then
   begin
 
     if TileIsWalkable(Loc)
@@ -1401,6 +1401,7 @@ begin
     and not HousesNearBy
     and not TileIsCornField(Loc) //Can't build houses on fields
     and not TileIsWineField(Loc)
+    and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and TileInMapCoords(Loc.X, Loc.Y, 1)
     and CheckHeightPass(Loc, CanBuild) then //No houses nearby
       AddPassability(Loc, [CanBuild]);
@@ -1411,6 +1412,7 @@ begin
     and not HousesNearBy
     and not TileIsCornField(Loc) //Can't build houses on fields
     and not TileIsWineField(Loc)
+    and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and TileInMapCoords(Loc.X,Loc.Y, 1)
     and CheckHeightPass(Loc, CanBuildIron) then
       AddPassability(Loc, [CanBuildIron]);
@@ -1421,6 +1423,7 @@ begin
     and not HousesNearBy
     and not TileIsCornField(Loc) //Can't build houses on fields
     and not TileIsWineField(Loc)
+    and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and TileInMapCoords(Loc.X,Loc.Y, 1)
     and CheckHeightPass(Loc,CanBuildGold) then
       AddPassability(Loc, [CanBuildGold]);
@@ -1476,7 +1479,7 @@ begin
   if TileIsWalkable(Loc)
   and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
   and CheckHeightPass(Loc, CanWalk)
-  and not(Land[Loc.Y,Loc.X].TileLock in [tlLocked,tlHouse]) then
+  and (Land[Loc.Y,Loc.X].TileLock <> tlHouse) then
     AddPassability(Loc, [CanWorker]);
 
   //Check all 4 tiles that border with this vertex
@@ -1686,23 +1689,12 @@ begin
   end;}
 
   //Walkable way between A and B is proved by FloodFill
-  //TODO: BUG+ here when Worker goes on building area
   TestRadius := False;
   for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
   for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
   if GetLength(LocB,KMPoint(k,i)) <= aDistance then
     TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[WC] = Land[i,k].WalkConnect[WC]);
   Result := Result and TestRadius;
-
-  {if aInteractionAvoid then
-  begin
-    TestRadius := false;
-    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
-    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
-    if GetLength(LocB,KMPoint(k,i)) <= aDistance then
-      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcAvoid] = Land[i,k].WalkConnect[wcAvoid]);
-    Result := Result and TestRadius;
-  end;}
 end;
 
 
@@ -1966,11 +1958,10 @@ procedure TTerrain.RebuildWalkConnect(aSet: array of TWalkConnect);
 var I,J,K{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability; AllowDiag:boolean;
   WC: TWalkConnect;
 
-  procedure FillArea(x,y:word; ID:byte; var Count:integer);
+  procedure FillArea(x,y:word; ID:byte);
   begin
-    if (Land[y,x].WalkConnect[WC]=0)and(Pass in Land[y,x].Passability)and //Untested area
-     ((WC <> wcAvoid)or
-     ( (WC=wcAvoid) and not TileIsLocked(KMPoint(x,y)) )) then //Matches passability
+    if (Land[y,x].WalkConnect[WC]=0) //Untested area
+    and(Pass in Land[y,x].Passability) then //Matches passability
     begin
       Land[y,x].WalkConnect[WC] := ID;
       inc(Count);
@@ -1978,21 +1969,21 @@ var I,J,K{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability; AllowDiag:
       //Using custom CanWalkDiagonally is also much faster
       if x-1>=1 then begin
         if AllowDiag and (y-1>=1)
-        and not MapElem[Land[y,x].Obj+1].DiagonalBlocked then   FillArea(x-1,y-1,ID,Count);
-                                                                FillArea(x-1,y  ,ID,Count);
+        and not MapElem[Land[y,x].Obj+1].DiagonalBlocked then   FillArea(x-1,y-1,ID);
+                                                                FillArea(x-1,y  ,ID);
         if AllowDiag and (y+1<=fMapY)
-        and not MapElem[Land[y+1,x].Obj+1].DiagonalBlocked then FillArea(x-1,y+1,ID,Count);
+        and not MapElem[Land[y+1,x].Obj+1].DiagonalBlocked then FillArea(x-1,y+1,ID);
       end;
 
-      if y-1>=1 then     FillArea(x,y-1,ID,Count);
-      if y+1<=fMapY then FillArea(x,y+1,ID,Count);
+      if y-1>=1 then     FillArea(x,y-1,ID);
+      if y+1<=fMapY then FillArea(x,y+1,ID);
 
       if x+1<=fMapX then begin
         if AllowDiag and (y-1>=1)
-        and not MapElem[Land[y,x+1].Obj+1].DiagonalBlocked then   FillArea(x+1,y-1,ID,Count);
-                                                                  FillArea(x+1,y  ,ID,Count);
+        and not MapElem[Land[y,x+1].Obj+1].DiagonalBlocked then   FillArea(x+1,y-1,ID);
+                                                                  FillArea(x+1,y  ,ID);
         if AllowDiag and (y+1<=fMapY)
-        and not MapElem[Land[y+1,x+1].Obj+1].DiagonalBlocked then FillArea(x+1,y+1,ID,Count);
+        and not MapElem[Land[y+1,x+1].Obj+1].DiagonalBlocked then FillArea(x+1,y+1,ID);
       end;
     end;
   end;
@@ -2010,7 +2001,6 @@ begin
       wcWolf:  Pass := CanWolf;
       wcCrab:  Pass := CanCrab;
       wcWork:  Pass := CanWorker;
-      wcAvoid: Pass := CanWalk; //Special case for unit interaction avoiding
     end;
 
     //todo: Can be optimized if we know from which Tile to rebuild, and if that tile makes no difference - skip the thing
@@ -2022,13 +2012,11 @@ begin
     AllowDiag := (WC <> wcRoad); //Do not consider diagonals "connected" for roads
     AreaID := 0;
     for I:=1 to fMapY do for K:=1 to fMapX do
-    if (Land[I,K].WalkConnect[WC]=0) and (Pass in Land[I,K].Passability) and
-     ((WC <> wcAvoid)or
-     ( (WC=wcAvoid) and not TileIsLocked(KMPoint(K,I)) )) then
+    if (Land[I,K].WalkConnect[WC]=0) and (Pass in Land[I,K].Passability) then
     begin
       inc(AreaID);
       Count := 0;
-      FillArea(K,I,AreaID,Count);
+      FillArea(K,I,AreaID);
 
       if Count=1 {<MinSize} then //Revert
       begin

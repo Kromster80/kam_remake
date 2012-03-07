@@ -5,9 +5,6 @@ uses Classes, KromUtils, Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_Points,
   KM_Houses, KM_Units;
 
-//todo: InteractionAvoid isn't working, probably due to wcAvoid being made redundant.
-//      Serfs simply abandon their task when they realise the way is blocked by workers.
-
 type
   TDestinationCheck = (dc_NoChanges, dc_RouteChanged, dc_NoRoute);
   TTargetDiedCheck = (tc_NoChanges, tc_TargetUpdated, tc_Died);
@@ -23,7 +20,7 @@ const
   PUSH_TIMEOUT     = 1;                      //Push unit out of the way
   PUSHED_TIMEOUT   = 10;                     //Try a different way when pushed
   DODGE_TIMEOUT    = 5;     DODGE_FREQ = 8;  //Pass with a unit on a tile next to our target if they want to
-  AVOID_TIMEOUT    = 10;    AVOID_FREQ = 20; //Go around busy units
+  AVOID_TIMEOUT    = 10;    AVOID_FREQ = 50; //Go around busy units
   SIDESTEP_TIMEOUT = 10; SIDESTEP_FREQ = 15; //Step to empty tile next to target
   WAITING_TIMEOUT  = 40;                     //After this time we can be forced to exchange
 
@@ -198,11 +195,11 @@ end;
 
 procedure TUnitActionWalkTo.SetInitValues;
 begin
-  NodePos       := 1;
-  fDoExchange   := false;
-  fDoesWalking   := false;
-  fWaitingOnStep := false;
-  fDestBlocked  := false;
+  NodePos              := 1;
+  fDoExchange          := false;
+  fDoesWalking         := false;
+  fWaitingOnStep       := false;
+  fDestBlocked         := false;
   fLastSideStepNodePos := -2; //Start negitive so it is at least 2 less than NodePos at the start
   fVertexOccupied      := KMPoint(0,0);
   fInteractionCount    := 0;
@@ -683,7 +680,6 @@ end;
 //If the blockage won't go away because it's busy (Locked by other unit) then try going around it
 //by re-routing our route and avoiding that tile and all other Locked tiles
 function TUnitActionWalkTo.IntSolutionAvoid(fOpponent: TKMUnit): Boolean;
-var MaxLength:integer;
 begin
   Result := False;
 
@@ -696,9 +692,8 @@ begin
     if (not KMSamePoint(fOpponent.GetPosition, fWalkTo)) or (fTargetHouse <> nil) then
     begin
       //We will accept an alternative route up to 3 times greater than the amount we would have been walking anyway
-      MaxLength := Math.max(NodeList.Count - NodePos, 15) * 3; //Remainder of our route times 3. Always prepared to walk 15 tiles (e.g. around houses)
       if fDestBlocked or fOpponent.GetUnitAction.Locked then
-        if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition, fWalkTo, GetEffectivePassability, fDistance, fTargetHouse, NodeList, MaxLength) then //Make sure the route can be made, if not, we must simply wait
+        if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition, fWalkTo, GetEffectivePassability, fDistance, fTargetHouse, NodeList) then //Make sure the route can be made, if not, we must simply wait
         begin
           //NodeList has now been re-routed, so we need to re-init everything else and start walk again
           SetInitValues;
