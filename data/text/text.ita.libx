@@ -30,6 +30,7 @@ MaxID:3000
 26:Sala d'addestramento
 27:Locanda
 28:Cantina
+29:Mercato
 39:Tronchi d'albero
 40:Pietre
 41:Legname
@@ -606,7 +607,6 @@ MaxID:3000
 2067:Missione %d
 2068:La tua capanna del pescatore è troppo lontana dalla riva.
 2069:Il tuo pescatore non riesce a trovare altri pesci nelle vicinanze.
-2070:Mercato
 2071:Usa il tasto sinistro del mouse per scegliere il prodotto da scambiare
 2072:Usa il tasto destro del mouse per scegliere il prodotto da scambiare
 2073:Da  x%d

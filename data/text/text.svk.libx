@@ -30,6 +30,7 @@ MaxID:3000
 26:Vıcviková miestnos
 27:Reštaurácia
 28:Vinárstvo
+29:Trnica
 39:Kmene stromov
 40:Kamene
 41:Dosky
@@ -605,7 +606,6 @@ MaxID:3000
 2067:Misia %d
 2068:Váš rybár je príliš ïaleko od vody.
 2069:Váš rybár nemôe chyti iadne ïalšie ryby vo vode, ktorú má nablízku.
-2070:Trnica
 2071:Pouite ¾avé tlaèítko myši na vıber tovaru
 2072:Pouite pravé tlaèítko myši na vıber tovaru
 2073:Dám x%d

@@ -30,6 +30,7 @@ MaxID:3000
 26:Training hall
 27:Inn
 28:Vineyard
+29:Marketplace
 39:Tree trunks
 40:Stones
 41:Timber
@@ -605,7 +606,6 @@ MaxID:3000
 2067:Mission %d
 2068:Your fisherman's hut is too far away from the water.
 2069:Your fisherman cannot catch any further fish in the nearby water bodies.
-2070:Marketplace
 2071:Use the left mouse button to select the ware to trade
 2072:Use the right mouse button to select the ware to trade
 2073:From x%d

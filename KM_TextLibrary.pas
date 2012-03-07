@@ -7,7 +7,6 @@ uses
 
 const
   //NAME__## means that this const defines first element of some range that is ## long
-  //TX_HOUSES_NAMES__29 = 1; //Todo: Add 30th as Marketplace
   //TX_UNITS_NAMES__29 = 70; //todo: add animal unit names
 
   //Load text IDs from this include file that is managed by the Translation Manager

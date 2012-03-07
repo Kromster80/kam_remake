@@ -469,7 +469,7 @@ const
   //These tables are used to convert between KaM script IDs and Remake enums
   HouseDatCount = 30;
   //KaM scripts and HouseDat address houses in this order
-  HouseKaMType: array[0..HouseDatCount-1] of THouseType = (
+  HouseKaMType: array [0..HouseDatCount-1] of THouseType = (
   ht_Sawmill, ht_IronSmithy, ht_WeaponSmithy, ht_CoalMine, ht_IronMine,
   ht_GoldMine, ht_FisherHut, ht_Bakery, ht_Farm, ht_Woodcutters,
   ht_ArmorSmithy, ht_Store, ht_Stables, ht_School, ht_Quary,
@@ -479,7 +479,7 @@ const
 
   //THouseType corresponds to this index in KaM scripts and libs
   //KaM scripts are 0 based, so we must use HouseKaMOrder[H]-1 in script usage. Other cases are 1 based.
-  HouseKaMOrder: array[THouseType] of byte = (0, 0,
+  HouseKaMOrder: array [THouseType] of byte = (0, 0,
   11, 21, 8, 22, 25, 4, 9, 7, 6, 28,
   5, 2, 30, 16, 23, 15, 1, 14, 24, 13, 12,
   17, 26, 19, 18, 3, 20, 29, 10);
@@ -633,7 +633,6 @@ begin
   fCRC := LoadHouseDat(ExeDir+'data\defines\houses.dat');
 
   fItems[ht_Marketplace].fHouseType := ht_Marketplace;
-  fItems[ht_Marketplace].fNameTextID := TX_HOUSES_MARKETPLACE;
   fItems[ht_Marketplace].fHouseDat.OwnerType := -1; //No unit works here (yet anyway)
   fItems[ht_Marketplace].fHouseDat.StonePic := 150;
   fItems[ht_Marketplace].fHouseDat.WoodPic := 151;

@@ -30,6 +30,7 @@ MaxID:3000
 26:Trainingshal
 27:Herberg
 28:Wijngaard
+29:Markt
 39:Boomstammen
 40:Stenen
 41:Timmerhout
@@ -603,7 +604,6 @@ MaxID:3000
 2067:Missie %d
 2068:Je vissershut is te ver weg van het water.
 2069:De visser kan geen vis meer vangen rondom zijn vissershut.
-2070:Markt
 2071:Gebruik de linkermuisknop om de goederen te selecteren
 2072:Gebruik de rechtermuisknop om de goederen te selecteren
 2073:Van x%d

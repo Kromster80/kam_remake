@@ -30,6 +30,7 @@ MaxID:3000
 26:Salle d'Armes
 27:Auberge
 28:Chai
+29:Place du Marché
 39:Tronc d'Arbre
 40:Pierre
 41:Planche
@@ -605,7 +606,6 @@ MaxID:3000
 2067:Mission %d
 2068:La Hutte de votre Pêcheur est trop éloignée de l'eau.
 2069:Votre Pêcheur ne peut plus pêcher dans les eaux environnantes..
-2070:Place du Marché
 2071:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
 2072:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
 2073:Échanger x%d

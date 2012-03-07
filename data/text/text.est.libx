@@ -30,6 +30,7 @@ MaxID:3000
 26:Treening saal
 27:Kõrts
 28:Viinamarjaistandus
+29:Turuplats
 39:Palk
 40:Kivi
 41:Laudpuit
@@ -605,7 +606,6 @@ MaxID:3000
 2067:Missioon %d
 2068:Su kalastus onn on veest liiga kaugel.
 2069:Sinu kalamees ei saa rohkem püüda kala lähedal olevatest vetest.
-2070:Turuplats
 2071:Kasuta vasakut hiireklahvi, et valida toode, mida vahetada
 2072:Kasuta paremat hiireklahvi, et valida toodet, mida vahetada
 2073:Millest: x%d

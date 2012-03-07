@@ -29,6 +29,7 @@ MaxID:3000
 25:Garbarnia
 27:Gospoda
 28:Winnica
+29:Targ
 39:Pnie drzew
 40:Kamienie
 41:Drewno
@@ -602,7 +603,6 @@ MaxID:3000
 2067:Misja %d
 2068:Twoja Chata rybaka jest zbyt daleko od wody.
 2069:Twój rybak nie mo¿e z³owiæ wiêcej ryb w pobliskich zbiornikach wodnych.
-2070:Targ
 2071:U¿yj lewego przycisku myszy, aby wybraæ towar do handlu
 2072:U¿yj prawego przycisku myszy, aby wybraæ towar do handlu
 2073:Z x%d

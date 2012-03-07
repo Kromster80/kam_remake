@@ -30,6 +30,7 @@ MaxID:3000
 26:Trainingshalle
 27:Gasthof
 28:Weingut
+29:Markthalle
 39:Baumstämme
 40:Steine
 41:Nutzholz
@@ -605,7 +606,6 @@ MaxID:3000
 2067:Mission %d
 2068:Diese Fischerhütte ist zu weit vom Wasser entfernt!
 2069:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
-2070:Markthalle
 2071:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll.
 2072:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll.
 2073:Von x%d

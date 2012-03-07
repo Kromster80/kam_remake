@@ -30,6 +30,7 @@ MaxID:3000
 26:Edifício de treinamento
 27:Pousada
 28:Vinhedo
+29:Mercado
 39:Troncos de árvores
 40:Pedras
 41:Madeira
@@ -605,7 +606,6 @@ MaxID:3000
 2067:Missão %d
 2068:A cabana do seu pescador está muito longe da água.
 2069:Seu pescador não pode pegar nenhum peixe nas aguas próximas.
-2070:Mercado
 2071:Use o botão esquerdo do mouse para selecionar o artigo de comércio
 2072:Use o botão direito do mouse para selecionar o artigo de comércio
 2073:De x%d

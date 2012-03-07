@@ -30,6 +30,7 @@ MaxID:3000
 26:Výcviková hala
 27:Hostinec
 28:Vinice
+29:Tržištì
 39:Kmeny stromù
 40:Kamení
 41:Prkna
@@ -605,7 +606,6 @@ MaxID:3000
 2067:Mise %d
 2068:Váš rybáø je pøíliš daleko od vody.
 2069:Váš rybáø nemùže chytit žádné další ryby ve vodì, kterou má poblíž.
-2070:Tržištì
 2071:Použijte levé tlaèítko myši pro výbìr zboží
 2072:Použijte pravé tlaèítko myši k výbìru zboží
 2073:Dám x%d

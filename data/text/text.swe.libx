@@ -30,6 +30,7 @@ MaxID:3000
 26:Träningshall
 27:Värdshus
 28:Vingård
+29:Marknad
 39:Trädstammar
 40:Stenar
 41:Träplankor
@@ -605,7 +606,6 @@ MaxID:3000
 2067:Uppdrag %d
 2068:Din fiskares stuga är för långt från vattnet.
 2069:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
-2070:Marknad
 2071:Använd vänster musknapp för att välja en vara att handla med
 2072:Använd höger musknapp för att välja en vara att handla med
 2073:Från x%d

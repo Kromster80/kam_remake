@@ -30,6 +30,7 @@ MaxID:3000
 26:Casa de formación
 27:Comedor
 28:Lagar
+29:Mercado
 39:Troncos
 40:Piedras
 41:Madera
@@ -605,7 +606,6 @@ MaxID:3000
 2067:Misión %d
 2068:El pescador no puede pescar tan lejos del agua.
 2069:El pescador no puede pescar, no hay más peces en el agua.
-2070:Mercado
 2071:Usa el botón izquierdo para selecionar la mercancia a tratar
 2072:Usa el botón derecho para selecionar la mercancia a tratar
 2073:De x%d

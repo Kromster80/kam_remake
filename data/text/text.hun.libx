@@ -30,6 +30,7 @@ MaxID:3000
 26:Gyakorlóterem
 27:Fogadó
 28:Pincészet
+29:Piactér
 39:Farönk
 40:Kõ
 41:Gerenda
@@ -605,7 +606,6 @@ MaxID:3000
 2067:Küldetés %d
 2068:A halászkunyhód túl messze van a víztõl.
 2069:A halászod nem tud több halat fogni a közeli vízbõl.
-2070:Piactér
 2071:Eladni kívánt áru kiválasztása a bal egér gombal
 2072:Vásárolni kívánt áru kiválasztása a jobb egér gombal
 2073:Elad x%d
