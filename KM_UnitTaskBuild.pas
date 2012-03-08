@@ -735,7 +735,7 @@ begin
         end;
     7:  begin
           //Walk away from building site, before we get trapped when house becomes stoned
-          OutOfWay := fTerrain.GetOutOfTheWay(GetPosition, GetPosition, CanWalk);
+          OutOfWay := fTerrain.GetOutOfTheWay(GetPosition, KMPoint(0,0), CanWalk);
           if KMSamePoint(OutOfWay, KMPoint(0,0)) then
             OutOfWay := KMPointBelow(fHouse.GetEntrance); //Don't get stuck in corners
           SetActionWalkToSpot(OutOfWay);

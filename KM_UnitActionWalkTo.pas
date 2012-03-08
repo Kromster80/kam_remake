@@ -36,8 +36,9 @@ type
     fTargetUnit:TKMUnit; //Folow this unit
     fTargetHouse:TKMHouse; //Go to this House
     fPass:TPassability; //Desired passability set once on Create
-    fDoesWalking, fWaitingOnStep, fDestBlocked:boolean;
-    fDoExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
+    fDoesWalking, fWaitingOnStep: Boolean;
+    fDestBlocked: Boolean; //Our route is blocked by busy units, so we must wait for them to clear. Give way to all other units (who might be carrying stone for the worker blocking us) 
+    fDoExchange: Boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
     fInteractionCount, fLastSideStepNodePos: integer;
     fInteractionStatus: TInteractionStatus;
     function AssembleTheRoute:boolean;
@@ -680,6 +681,7 @@ end;
 //If the blockage won't go away because it's busy (Locked by other unit) then try going around it
 //by re-routing our route and avoiding that tile and all other Locked tiles
 function TUnitActionWalkTo.IntSolutionAvoid(fOpponent: TKMUnit): Boolean;
+var NewNodeList: TKMPointList;
 begin
   Result := False;
 
@@ -689,27 +691,34 @@ begin
   begin
 
     //Can't go around our target position unless it's a house
-    if (not KMSamePoint(fOpponent.GetPosition, fWalkTo)) or (fTargetHouse <> nil) then
+    if ((not KMSamePoint(fOpponent.GetPosition, fWalkTo)) or (fTargetHouse <> nil))
+    and (fDestBlocked or fOpponent.GetUnitAction.Locked) then
     begin
-      //We will accept an alternative route up to 3 times greater than the amount we would have been walking anyway
-      if fDestBlocked or fOpponent.GetUnitAction.Locked then
-        if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition, fWalkTo, GetEffectivePassability, fDistance, fTargetHouse, NodeList) then //Make sure the route can be made, if not, we must simply wait
+      NewNodeList := TKMPointList.Create;
+      //Make a new route avoiding tiles with busy units
+      if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition, fWalkTo, GetEffectivePassability, fDistance, fTargetHouse, NewNodeList) then
+        //Check if the new route still goes through busy units (no other route exists)
+        if (NodeList.Count > 1) and fTerrain.TileIsLocked(NodeList.List[2]) then
+        begin
+          fDestBlocked := True; //When in this mode we are zero priority as we cannot reach our destination. This allows serfs with stone to get through and clear our path.
+          fInteractionStatus := kis_Waiting; //If route cannot be made it means our destination is currently not available (workers in the way) So allow us to be pushed.
+          Explanation := 'Our destination is blocked by busy units';
+          ExplanationLogAdd;
+        end
+        else
         begin
           //NodeList has now been re-routed, so we need to re-init everything else and start walk again
+          NodeList.Free; //Free our current node list and swap in this new one
+          NodeList := NewNodeList;
+          NewNodeList := nil; //So we don't FreeAndNil it at the end (it's now our main node list)
           SetInitValues;
           Explanation := 'Unit in the way is working so we will re-route around it';
           ExplanationLogAdd;
           fDestBlocked := False;
           //Exit, then on next tick new walk will start
           Result := True; //Means exit DoUnitInteraction
-        end
-        else
-        begin
-          fDestBlocked := True; //When in this mode we are zero priority as we cannot reach our destination. This allows serfs with stone to get through and clear our path.
-          fInteractionStatus := kis_Waiting; //If route cannot be made it means our destination is currently not available (workers in the way) So allow us to be pushed.
-          Explanation := 'Our destination is blocked by busy units';
-          ExplanationLogAdd;
         end;
+        FreeAndNil(NewNodeList);
     end;
   end;
 end;

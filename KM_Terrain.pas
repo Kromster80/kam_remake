@@ -123,7 +123,7 @@ type
     function GetConnectID(aWalkConnect: TWalkConnect; Loc:TKMPoint):byte;
 
     function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability; aCheckUnits:boolean=true):boolean;
-    function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
+    function GetOutOfTheWay(Loc, PusherLoc:TKMPoint; aPass:TPassability):TKMPoint;
     function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; aPass: TPassability; out SidePoint: TKMPoint; OnlyTakeBest: boolean=false):Boolean;
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
@@ -1563,10 +1563,10 @@ begin
 end;
 
 
-{Return random tile surrounding Loc with aPass property except Loc2}
-{The command is used for unit interaction}
-function TTerrain.GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
-var i,k:integer; L1,L2,L3:TKMPointList; TempUnit: TKMUnit; Loc2IsOk: boolean;
+{Return random tile surrounding Loc with aPass property. PusherLoc is the unit that pushed us which is}
+{preferable to other units (otherwise we can get two units swapping places forever)}
+function TTerrain.GetOutOfTheWay(Loc, PusherLoc:TKMPoint; aPass:TPassability):TKMPoint;
+var i,k:Integer; L1,L2,L3:TKMPointList; TempUnit: TKMUnit; PusherLocValid: Boolean;
 begin
   //List 1 holds all available walkable positions except self
   L1 := TKMPointList.Create;
@@ -1584,13 +1584,13 @@ begin
     if Land[L1.List[i].Y,L1.List[i].X].IsUnit = nil then
       L2.AddEntry(L1.List[i]);
 
-  Loc2IsOk := false;
+  PusherLocValid := false;
   //List 3 holds the second best positions, ones which are occupied with an idle unit
   L3:=TKMPointList.Create;
   for i:=1 to L1.Count do
     if Land[L1.List[i].Y,L1.List[i].X].IsUnit <> nil then
     begin
-      if KMSamePoint(L1.List[i],Loc2) then Loc2IsOk := true; //Make sure unit that pushed us is a valid tile
+      if KMSamePoint(L1.List[i],Loc2) then PusherLocValid := true; //Make sure unit that pushed us is a valid tile before we use it
       TempUnit := UnitsHitTest(L1.List[i].X, L1.List[i].Y);
       if TempUnit <> nil then
         if (TempUnit.GetUnitAction is TUnitActionStay) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
@@ -1598,12 +1598,13 @@ begin
     end;
 
   if not(L2.GetRandom(Result)) then
-  if not(L3.GetRandom(Result)) then
-  if Loc2IsOk then //If there are no free or idle tiles then the unit that pushed us is a good option (exchange)
-    Result := Loc2
-  else
-  if not(L1.GetRandom(Result)) then
-    Result := Loc;
+    //If there are no free tiles we must take the pusher's tile otherwise we can get two units swapping places forever
+    if PusherLocValid then
+      Result := PusherLoc
+    else
+      if not(L3.GetRandom(Result)) then
+        if not(L1.GetRandom(Result)) then
+          Result := Loc;
 
   L1.Free;
   L2.Free;
