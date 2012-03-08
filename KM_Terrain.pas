@@ -1590,7 +1590,7 @@ begin
   for i:=1 to L1.Count do
     if Land[L1.List[i].Y,L1.List[i].X].IsUnit <> nil then
     begin
-      if KMSamePoint(L1.List[i],Loc2) then PusherLocValid := true; //Make sure unit that pushed us is a valid tile before we use it
+      if KMSamePoint(L1.List[i],PusherLoc) then PusherLocValid := true; //Make sure unit that pushed us is a valid tile before we use it
       TempUnit := UnitsHitTest(L1.List[i].X, L1.List[i].Y);
       if TempUnit <> nil then
         if (TempUnit.GetUnitAction is TUnitActionStay) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
