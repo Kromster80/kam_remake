@@ -13,6 +13,7 @@
  +	Fixed crash occurring on replay end
  +	Chat button in multiplayer replay viewer was not properly disabled and upon click caused a crash
  +	See-through hills (lighting flaw)
+ +	Server selection highlight in MP menu disappears when sorting by any column
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered (grouped) by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
@@ -24,7 +25,6 @@
 	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
-	Server selection highlight in MP menu disappears when sorting by any column
 	Players that have intentionally quit (not just disconnected) should count as defeated
 
 	Dots and lines displaying on tile edges (requires fResourceTiles) [Krom]

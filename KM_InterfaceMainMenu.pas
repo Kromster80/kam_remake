@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves,
-  KM_InterfaceDefaults, KM_MapView;
+  KM_InterfaceDefaults, KM_MapView, KM_ServerQuery;
 
 
 type
@@ -19,6 +19,10 @@ type
 
     Campaign_Selected:TKMCampaign;
     Campaign_MapIndex:byte;
+
+    fServerClicked: Boolean;
+    fClickedRoomInfo: TKMRoomInfo;
+    fClickedServerInfo: TKMServerInfo;
 
     fMapView: TKMMapView;
 
@@ -305,7 +309,7 @@ type
 
 implementation
 uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_Locales,
-  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites, KM_ServerQuery;
+  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites;
 
 const
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
@@ -1581,6 +1585,8 @@ end;
 
 procedure TKMMainMenuInterface.MP_Init(Sender: TObject);
 begin
+  fServerClicked := False;
+
   MP_ServersRefresh(Sender); //Refresh the list when they first open the multiplayer page
 
   Edit_MP_PlayerName.Text := fGame.GlobalSettings.MultiplayerName;
@@ -1672,6 +1678,12 @@ begin
     DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
     ColList_Servers.AddItem([DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.PlayerCount), IntToStr(S.Ping)],
                             [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)], I);
+
+    //if server was selected, we need to select it again, because TKMColumnListBox was cleared
+    if fServerClicked then
+      if (R.RoomID = fClickedRoomInfo.RoomID) and (S.IP = fClickedServerInfo.IP) and
+         (S.Port = fClickedServerInfo.Port) then
+           ColList_Servers.ItemIndex := I;
   end;
 end;
 
@@ -1723,8 +1735,12 @@ begin
   if ColList_Servers.ItemIndex = -1 then Exit;
   if ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag = -1 then exit;
 
+  fServerClicked := True;
+
   RoomInfo := fGame.Networking.ServerQuery.Rooms[ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag];
   ServerInfo := fGame.Networking.ServerQuery.Servers[RoomInfo.ServerIndex];
+  fClickedRoomInfo := RoomInfo;
+  fClickedServerInfo := ServerInfo;
 
   Edit_MP_IP.Text := ServerInfo.IP;
   Edit_MP_Port.Text := ServerInfo.Port;
