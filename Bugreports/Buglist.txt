@@ -42,6 +42,7 @@ Improvements:
  +	Locales have a fallback option for very similar languages (e.g. Slovak uses Czech voices)
  +	Make fishes/watersnake to be more visible in MapEd
  +	High quality alpha-blended shadows for units and trees
+ +      Logs older than 14 days are automatically deleted
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	High quality alpha-blended shadows for houses (only once constructed?)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive

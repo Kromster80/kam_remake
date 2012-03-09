@@ -33,6 +33,8 @@ const
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
 
+  DEL_LOGS_OLDER_THAN   = 14;           //in days
+
 var
   //These should be True
   MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
@@ -889,6 +891,12 @@ const
   SlideLookup: array[1..2, 0..Round(CELL_SIZE_PX*1.42)] of byte = ( //1.42 instead of 1.41 because we want to round up just in case (it was causing a crash because Round(40*sqrt(2)) = 57 but Round(40*1.41) = 56)
     (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9,9,9,8,8,7,7,6,5,4,3,3,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,7,6,6,6,5,5,5,4,4,4,3,3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0,0));
+
+
+//Lowest supported resolution
+const
+  MIN_RESOLUTION_WIDTH  = 1024;
+  MIN_RESOLUTION_HEIGHT = 768;
 
 
 //Record storing resolution and list of its allowed refresh rates

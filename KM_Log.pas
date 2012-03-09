@@ -4,9 +4,27 @@ interface
 uses
   SysUtils
   {$IFDEF MSWindows}
+  ,Classes
   ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
+  ,KM_Utils
   {$ENDIF}
   ;
+
+
+//creates new thread, in which old logs are deleted
+{$IFDEF MSWindows}
+type
+  TKMOldLogsDeleter = class(TThread)
+  private
+    PathToLogs:String;
+    SearchRec:TSearchRec;
+
+  public
+    constructor Create;
+    procedure Execute; override;
+  end;
+{$ENDIF}
+
 
 {This is our custom logging system}
 type
@@ -17,6 +35,9 @@ type
     fFirstTick: cardinal;
     fPreviousTick: cardinal;
     fPreviousDate: TDateTime;
+    {$IFDEF MSWindows}
+    fOldLogsDeleter: TKMOldLogsDeleter;
+    {$ENDIF}
     procedure AddLine(const aText: string);
     procedure AddLineNoTime(const aText: string);
   public
@@ -57,6 +78,36 @@ begin
 end;
 
 
+{$IFDEF MSWindows}
+constructor TKMOldLogsDeleter.Create;
+begin
+  //thread should start immediately, object can be automatically removed after its termination
+  inherited Create(False);
+  FreeOnTerminate := True;
+end;
+{$ENDIF}
+
+
+{$IFDEF MSWindows}
+procedure TKMOldLogsDeleter.Execute;
+begin
+  PathToLogs := ExeDir+'Logs\';
+
+  if not DirectoryExists(PathToLogs) then Exit;
+
+  FindFirst(PathToLogs+'KaM*.log', faAnyFile, SearchRec);
+  repeat
+    if (SearchRec.Attr and faDirectory <> faDirectory) //Only files
+    and(SearchRec.Name<>'.')and(SearchRec.Name<>'..')
+    and(abs(Trunc(Now) - Trunc(FileTimeToDateTime(SearchRec.FindData.ftCreationTime))) > DEL_LOGS_OLDER_THAN)
+    then
+      DeleteFile(PathToLogs+SearchRec.Name);
+  until (FindNext(SearchRec) <> 0);
+  FindClose(SearchRec);
+end;
+{$ENDIF}
+
+
 {Reset log file}
 constructor TKMLog.Create(aPath:string);
 begin
@@ -68,6 +119,10 @@ begin
   Rewrite(fl);
   CloseFile(fl);
   AddLine('Log is up and running. Game version: '+GAME_VERSION);
+  {$IFDEF MSWindows}
+  //running thread deleting old logs
+  fOldLogsDeleter := TKMOldLogsDeleter.Create;
+  {$ENDIF}
 end;
 
 

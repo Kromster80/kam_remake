@@ -65,7 +65,7 @@ begin
     //Take only 32bpp modes
     //Exclude rotated modes, as Win reports them too
     if (dmBitsPerPel = 32) and (dmPelsWidth > dmPelsHeight)
-    and (dmPelsWidth >= 1024) and (dmPelsHeight >= 768)
+    and (dmPelsWidth >= MIN_RESOLUTION_WIDTH) and (dmPelsHeight >= MIN_RESOLUTION_HEIGHT)
     and (dmDisplayFrequency > 0) then
     begin
       //Find next empty place and avoid duplicating
@@ -217,7 +217,8 @@ begin
   with DevMode do
   begin
     //we need to check, if current resolution is lower than we can support
-    if (dmPelsWidth >= 1024) and (dmPelsHeight >= 768) and (fCount > 0) then
+    if (dmPelsWidth >= MIN_RESOLUTION_WIDTH) and
+       (dmPelsHeight >= MIN_RESOLUTION_HEIGHT) and (fCount > 0) then
     begin
       aMainSettings.ResolutionWidth := dmPelsWidth;
       aMainSettings.ResolutionHeight := dmPelsHeight;
