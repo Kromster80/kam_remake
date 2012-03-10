@@ -20,13 +20,14 @@ type
     Campaign_Selected:TKMCampaign;
     Campaign_MapIndex:byte;
 
-    fServerClicked: Boolean;
-    fClickedRoomInfo: TKMRoomInfo;
-    fClickedServerInfo: TKMServerInfo;
+    fServerSelected: Boolean;
+    fSelectedRoomInfo: TKMRoomInfo;
+    fSelectedServerInfo: TKMServerInfo;
 
     fMapView: TKMMapView;
 
     fMap_Selected: Integer; //Selected map
+    fMapCRC_Selected: Cardinal; //CRC of selected map
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
     fSaves: TKMSavesCollection;
@@ -1467,6 +1468,12 @@ begin
     //Updating MaxValue may change Position
     ScrollBar_SingleMaps.MaxValue := Max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
 
+	//IDs of maps could changed, so use CRC to check
+	//which one was selected
+    for I := 0 to fMaps.Count-1 do
+      if (fMaps[I].CRC = fMapCRC_Selected) then
+          fMap_Selected := I;
+
     for I := 0 to MENU_SP_MAPS_COUNT - 1 do
     begin
       MapID := ScrollBar_SingleMaps.Position + I;
@@ -1519,6 +1526,7 @@ begin
   else
   begin
     fMap_Selected := aIndex;
+    fMapCRC_Selected := fMaps[fMap_Selected].CRC;
     Label_SingleTitle.Caption   := fMaps[fMap_Selected].Filename;
     Memo_SingleDesc.Text        := fMaps[fMap_Selected].BigDesc;
     Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[fMap_Selected].Info.MissionModeText]);
@@ -1585,7 +1593,7 @@ end;
 
 procedure TKMMainMenuInterface.MP_Init(Sender: TObject);
 begin
-  fServerClicked := False;
+  fServerSelected := False;
 
   MP_ServersRefresh(Sender); //Refresh the list when they first open the multiplayer page
 
@@ -1680,9 +1688,9 @@ begin
                             [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)], I);
 
     //if server was selected, we need to select it again, because TKMColumnListBox was cleared
-    if fServerClicked then
-      if (R.RoomID = fClickedRoomInfo.RoomID) and (S.IP = fClickedServerInfo.IP) and
-         (S.Port = fClickedServerInfo.Port) then
+    if fServerSelected then
+      if (R.RoomID = fSelectedRoomInfo.RoomID) and (S.IP = fSelectedServerInfo.IP) and
+         (S.Port = fSelectedServerInfo.Port) then
            ColList_Servers.ItemIndex := I;
   end;
 end;
@@ -1728,26 +1736,21 @@ end;
 
 
 procedure TKMMainMenuInterface.MP_ServersClick(Sender: TObject);
-var
-  ServerInfo: TKMServerInfo;
-  RoomInfo: TKMRoomInfo;
 begin
   if ColList_Servers.ItemIndex = -1 then Exit;
   if ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag = -1 then exit;
 
-  fServerClicked := True;
+  fServerSelected := True;
 
-  RoomInfo := fGame.Networking.ServerQuery.Rooms[ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag];
-  ServerInfo := fGame.Networking.ServerQuery.Servers[RoomInfo.ServerIndex];
-  fClickedRoomInfo := RoomInfo;
-  fClickedServerInfo := ServerInfo;
+  fSelectedRoomInfo := fGame.Networking.ServerQuery.Rooms[ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag];
+  fSelectedServerInfo := fGame.Networking.ServerQuery.Servers[fSelectedRoomInfo.ServerIndex];
 
-  Edit_MP_IP.Text := ServerInfo.IP;
-  Edit_MP_Port.Text := ServerInfo.Port;
-  Edit_MP_Room.Text := IntToStr(RoomInfo.RoomID);
-  Label_MP_Players.Caption := RoomInfo.GameInfo.Players;
-  Label_MP_GameTime.Caption := RoomInfo.GameInfo.GetFormattedTime;
-  Label_MP_Map.Caption := RoomInfo.GameInfo.Map;
+  Edit_MP_IP.Text := fSelectedServerInfo.IP;
+  Edit_MP_Port.Text := fSelectedServerInfo.Port;
+  Edit_MP_Room.Text := IntToStr(fSelectedRoomInfo.RoomID);
+  Label_MP_Players.Caption := fSelectedRoomInfo.GameInfo.Players;
+  Label_MP_GameTime.Caption := fSelectedRoomInfo.GameInfo.GetFormattedTime;
+  Label_MP_Map.Caption := fSelectedRoomInfo.GameInfo.Map;
 end;
 
 
