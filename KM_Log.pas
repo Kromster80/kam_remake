@@ -2,28 +2,22 @@ unit KM_Log;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils
+  SysUtils, Classes
   {$IFDEF MSWindows}
-  ,Classes
   ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
-  ,KM_Utils
   {$ENDIF}
   ;
 
 
 //creates new thread, in which old logs are deleted
-{$IFDEF MSWindows}
 type
   TKMOldLogsDeleter = class(TThread)
   private
-    PathToLogs:String;
-    SearchRec:TSearchRec;
-
+    fPathToLogs: string;
   public
-    constructor Create;
+    constructor Create(const aPathToLogs:string);
     procedure Execute; override;
   end;
-{$ENDIF}
 
 
 {This is our custom logging system}
@@ -35,13 +29,10 @@ type
     fFirstTick: cardinal;
     fPreviousTick: cardinal;
     fPreviousDate: TDateTime;
-    {$IFDEF MSWindows}
-    fOldLogsDeleter: TKMOldLogsDeleter;
-    {$ENDIF}
     procedure AddLine(const aText: string);
     procedure AddLineNoTime(const aText: string);
   public
-    constructor Create(aPath: string);
+    constructor Create(const aPath: string; aDeleteOldLogs:Boolean);
     // AppendLog adds the line to Log along with time passed since previous line added
     procedure AppendLog(const aText: string); overload;
     procedure AppendLog(const aText: string; num: integer); overload;
@@ -78,38 +69,34 @@ begin
 end;
 
 
-{$IFDEF MSWindows}
-constructor TKMOldLogsDeleter.Create;
+constructor TKMOldLogsDeleter.Create(const aPathToLogs:string);
 begin
-  //thread should start immediately, object can be automatically removed after its termination
-  inherited Create(False);
-  FreeOnTerminate := True;
+  //Must set these values BEFORE starting the thread
+  FreeOnTerminate := True; //object can be automatically removed after its termination
+  fPathToLogs := aPathToLogs;
+  Inherited Create(False); //thread should start immediately
 end;
-{$ENDIF}
 
 
-{$IFDEF MSWindows}
 procedure TKMOldLogsDeleter.Execute;
+var SearchRec:TSearchRec;
 begin
-  PathToLogs := ExeDir+'Logs\';
+  if not DirectoryExists(fPathToLogs) then Exit;
 
-  if not DirectoryExists(PathToLogs) then Exit;
-
-  FindFirst(PathToLogs+'KaM*.log', faAnyFile, SearchRec);
+  FindFirst(fPathToLogs+'KaM*.log', faAnyFile, SearchRec);
   repeat
     if (SearchRec.Attr and faDirectory <> faDirectory) //Only files
     and(SearchRec.Name<>'.')and(SearchRec.Name<>'..')
-    and(abs(Trunc(Now) - Trunc(FileTimeToDateTime(SearchRec.FindData.ftCreationTime))) > DEL_LOGS_OLDER_THAN)
+    and(abs(Now - FileDateToDateTime(FileAge(fPathToLogs+SearchRec.Name))) > DEL_LOGS_OLDER_THAN)
     then
-      DeleteFile(PathToLogs+SearchRec.Name);
+      DeleteFile(fPathToLogs+SearchRec.Name);
   until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
 end;
-{$ENDIF}
 
 
 {Reset log file}
-constructor TKMLog.Create(aPath:string);
+constructor TKMLog.Create(const aPath:string; aDeleteOldLogs:Boolean);
 begin
   Inherited Create;
   fLogPath := aPath;
@@ -119,10 +106,9 @@ begin
   Rewrite(fl);
   CloseFile(fl);
   AddLine('Log is up and running. Game version: '+GAME_VERSION);
-  {$IFDEF MSWindows}
-  //running thread deleting old logs
-  fOldLogsDeleter := TKMOldLogsDeleter.Create;
-  {$ENDIF}
+  //Run thread to delete old logs. No need to remember the instance, it's set to FreeOnTerminate
+  if aDeleteOldLogs then
+    TKMOldLogsDeleter.Create(IncludeTrailingPathDelimiter(ExtractFilePath(aPath)));
 end;
 
 

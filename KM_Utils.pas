@@ -1,9 +1,7 @@
 unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils,
-     {$IFDEF MSWindows} Windows, {$ENDIF}
-     KM_Defaults, KM_Points;
+uses Classes, Math, SysUtils, KM_Defaults, KM_Points;
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
@@ -25,10 +23,6 @@ uses Classes, Math, SysUtils,
   function KaMRandomS(Range_Both_Directions:single):single; overload;
   {$IFDEF Unix}
   function FakeGetTickCount: DWord;
-  {$ENDIF}
-  {$IFDEF MSWindows}
-  //converts FILETIME (WinAPI) to TDateTime
-  function FileTimeToDateTime (FileTime: TFileTime): TDateTime;
   {$ENDIF}
 
 implementation
@@ -287,21 +281,6 @@ function KaMRandomS(Range_Both_Directions:single):single; overload;
 begin
   Result := KaMRandom(round(Range_Both_Directions*20000)+1)/10000-Range_Both_Directions;
 end;
-
-
-{$IFDEF MSWindows}
-function FileTimeToDateTime (FileTime: TFileTime): TDateTime;
-var LocalFileTime: TFileTime;
-    SystemTime: TSystemTime;
-begin
-  //Unfortunately, we need 3 convertions here
-  //It's impossible to convert directly from
-  //FILETIME to TDateTime
-  FileTimeToLocalFileTime(FileTime, LocalFileTime) ;
-  FileTimeToSystemTime(LocalFileTime, SystemTime) ;
-  Result := SystemTimeToDateTime(SystemTime) ;
-end;
-{$ENDIF}
 
 
 end.

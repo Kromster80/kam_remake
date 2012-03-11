@@ -9,6 +9,7 @@ program KaM_DedicatedServer;
 {$ENDIF}
 
 uses
+  {$IFDEF UNIX} cthreads, {$ENDIF} //We use a thread for deleting old log files
   SysUtils,
   {$IFDEF MSWindows}Windows,{$ENDIF}
   {$IFDEF Unix} KM_Utils, {$ENDIF} //Needed in Linux for FakeGetTickCount

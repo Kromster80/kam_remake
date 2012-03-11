@@ -73,7 +73,7 @@ begin
   ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
 
   CreateDir(ExeDir + 'Logs\');
-  fLog := TKMLog.Create(ExeDir+'Logs\KaM_'+FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz',Now)+'.log'); //First thing - create a log
+  fLog := TKMLog.Create(ExeDir+'Logs\KaM_'+FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz',Now)+'.log', True); //First thing - create a log
 
   fResolutions := TKMResolutions.Create;
 

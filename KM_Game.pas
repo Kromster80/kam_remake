@@ -171,7 +171,7 @@ var
 
 implementation
 uses
-  KM_Main, KM_FormMain, KM_Player, KM_GameInfo, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log,
+  KM_Main, KM_Player, KM_GameInfo, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log,
   KM_ResourceCursors;
 
 
