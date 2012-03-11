@@ -49,7 +49,7 @@ type
     fOnMapAdd: TMapEvent;
     fOnMapAddDone: TNotifyEvent;
   public
-    constructor Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone: TNotifyEvent);
+    constructor Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
     procedure MapAddDone;
     procedure Execute; override;
   end;
@@ -420,10 +420,9 @@ begin
 
   fOnRefresh := aOnRefresh;
 
+  //Scan will launch upon create automatcally
   fScanning := True;
-  fScanner := TTScanner.Create(fMultiplayerPath, MapAdd, MapAddDone);
-  fScanner.OnTerminate := ScanComplete;
-  fScanner.Resume;
+  fScanner := TTScanner.Create(fMultiplayerPath, MapAdd, MapAddDone, ScanComplete);
 end;
 
 
@@ -477,15 +476,19 @@ end;
 { TTScanner }
 //aOnMapAdd - signal that there's new map that should be added
 //aOnMapAddDone - signal that map has been added. Can safely call main thread methods since it's executed in Synchronize
-constructor TTScanner.Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone: TNotifyEvent);
+//aOnComplete - scan is complete
+constructor TTScanner.Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
 begin
-  inherited Create(True);
   Assert(Assigned(aOnMapAdd));
 
   fMultiplayerPath := aMultiplayerPath;
   fOnMapAdd := aOnMapAdd;
   fOnMapAddDone := aOnMapAddDone;
+  OnTerminate := aOnComplete;
   FreeOnTerminate := False;
+
+  //Call Create last, so it can start immediately and we don't rely on Resume (which is deprecated)
+  inherited Create(False);
 end;
 
 
