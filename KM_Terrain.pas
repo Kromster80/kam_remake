@@ -194,7 +194,7 @@ var
 
 
 implementation
-uses KM_Log, KM_PlayersCollection, //todo: Carefully remove KM_PlayersCollection references
+uses KM_Log, KM_PlayersCollection,
   KM_Resource, KM_Units, KM_ResourceHouse, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
@@ -688,15 +688,15 @@ end;
 
 
 procedure TTerrain.SetRoads(aList: TKMPointList; aOwner: TPlayerIndex);
-var I: Integer; TL,BR: TKMPoint;
+var I: Integer; TL, BR: TKMPoint;
 begin
   if aList.Count = 0 then Exit; //Nothing to be done
 
   for I := 1 to aList.Count do begin
-    Land[aList.List[I].Y,aList.List[I].X].TileOwner   := aOwner;
-    Land[aList.List[I].Y,aList.List[I].X].TileOverlay := to_Road;
-    Land[aList.List[I].Y,aList.List[I].X].FieldAge    := 0;
-    UpdateBorders(aList.List[I]);
+    Land[aList[I].Y, aList[I].X].TileOwner   := aOwner;
+    Land[aList[I].Y, aList[I].X].TileOverlay := to_Road;
+    Land[aList[I].Y, aList[I].X].FieldAge    := 0;
+    UpdateBorders(aList[I]);
   end;
 
   aList.GetTopLeft(TL);
@@ -1100,11 +1100,11 @@ var
   AllowBuild:boolean;
   HA: THouseArea;
 
-  procedure MarkPoint(aPoint:TKMPoint; aID:integer);
+  procedure MarkPoint(aPoint: TKMPoint; aID: Integer);
   var v: integer;
   begin
     for v:=1 to aList.Count do //Skip wires from comparison
-      if (aList.Tag[v] <> 0) and KMSamePoint(aList.List[v],aPoint) then
+      if (aList.Tag[v] <> 0) and KMSamePoint(aList[v], aPoint) then
         Exit;
     aList.AddEntry(aPoint, aID, 0);
   end;
@@ -1581,20 +1581,20 @@ begin
   //List 2 holds the best positions, ones which are not occupied
   L2 := TKMPointList.Create;
   for i:=1 to L1.Count do
-    if Land[L1.List[i].Y,L1.List[i].X].IsUnit = nil then
-      L2.AddEntry(L1.List[i]);
+    if Land[L1[i].Y, L1[i].X].IsUnit = nil then
+      L2.AddEntry(L1[i]);
 
   PusherLocValid := false;
   //List 3 holds the second best positions, ones which are occupied with an idle unit
   L3:=TKMPointList.Create;
   for i:=1 to L1.Count do
-    if Land[L1.List[i].Y,L1.List[i].X].IsUnit <> nil then
+    if Land[L1[i].Y, L1[i].X].IsUnit <> nil then
     begin
-      if KMSamePoint(L1.List[i],PusherLoc) then PusherLocValid := true; //Make sure unit that pushed us is a valid tile before we use it
-      TempUnit := UnitsHitTest(L1.List[i].X, L1.List[i].Y);
+      if KMSamePoint(L1[i], PusherLoc) then PusherLocValid := true; //Make sure unit that pushed us is a valid tile before we use it
+      TempUnit := UnitsHitTest(L1[i].X, L1[i].Y);
       if TempUnit <> nil then
         if (TempUnit.GetUnitAction is TUnitActionStay) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
-          L3.AddEntry(L1.List[i]);
+          L3.AddEntry(L1[i]);
     end;
 
   if not(L2.GetRandom(Result)) then
@@ -1633,8 +1633,8 @@ begin
   L2 := TKMPointList.Create;
   if not KMSamePoint(Loc3, KMPoint(0,0)) then //No Loc3 was given
   for i:=1 to L1.Count do
-    if KMLength(L1.List[i],Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
-      L2.AddEntry(L1.List[i]);
+    if KMLength(L1[i], Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
+      L2.AddEntry(L1[i]);
 
   Result := True;
   if not(L2.GetRandom(SidePoint)) then
@@ -1912,7 +1912,7 @@ procedure TTerrain.FlattenTerrain(LocList:TKMPointList);
 var i:integer;
 begin
   for i:=1 to LocList.Count do
-    FlattenTerrain(LocList.List[i], false); //Rebuild the Walk Connect at the end, rather than every time
+    FlattenTerrain(LocList[i], False); //Rebuild the Walk Connect at the end, rather than every time
 
   //All 4 are affected by height
   RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
@@ -2527,7 +2527,7 @@ begin
 
   for i:=FallingTrees.Count downto 1 do
   if fAnimStep - FallingTrees.Tag2[i]+1 >= MapElem[FallingTrees.Tag[i]+1].Count then
-    ChopTree(FallingTrees.List[i]); //Make the tree turn into a stump
+    ChopTree(FallingTrees[i]); //Make the tree turn into a stump
 
   for i:=1 to fMapY do
   for k:=1 to fMapX do
@@ -2540,10 +2540,14 @@ begin
       inc(Land[i,k].FieldAge);
       if TileIsCornField(KMPoint(k,i)) then
         case Land[i,k].FieldAge of
-          CORN_AGE1: SetLand(k,i,61,255);
-          CORN_AGE2: SetLand(k,i,59,255);
-          CORN_AGE3: SetLand(k,i,60,58);
-          CORN_AGEFULL: begin SetLand(k,i,60,59); Land[i,k].FieldAge:=65535; end; //Skip to the end
+          CORN_AGE1:    SetLand(k,i,61,255);
+          CORN_AGE2:    SetLand(k,i,59,255);
+          CORN_AGE3:    SetLand(k,i,60,58);
+          CORN_AGEFULL: begin
+                          //Skip to the end
+                          SetLand(k,i,60,59);
+                          Land[i,k].FieldAge := 65535;
+                        end;
         end
       else
       if TileIsWineField(KMPoint(k,i)) then

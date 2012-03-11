@@ -1517,7 +1517,7 @@ begin
   try
     aHouse.GetListOfCellsWithin(Cells);
     for I := 1 to Cells.Count do
-      Result := Result or fTerrain.Route_CanBeMade(aFrom, Cells.List[I], aPass, aDistance);
+      Result := Result or fTerrain.Route_CanBeMade(aFrom, Cells[I], aPass, aDistance);
   finally
     Cells.Free;
   end;

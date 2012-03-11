@@ -712,7 +712,7 @@ var
   begin
     Replaced := False;
     for v := aList.Count downto 1 do
-      if KMSamePoint(aList.List[v], aPoint) then
+      if KMSamePoint(aList[v], aPoint) then
       begin
         if Replaced then
           aList.RemoveEntry(aPoint)

@@ -404,7 +404,7 @@ begin
   FieldsList := TKMPointTagList.Create;
   MyPlayer.GetFieldPlans(FieldsList, aRect, True); //Include fake field plans for painting
   for i := 1 to FieldsList.Count do
-    RenderTerrainMarkup(FieldsList.List[i].X, FieldsList.List[i].Y, TFieldType(FieldsList.Tag[i]));
+    RenderTerrainMarkup(FieldsList[i].X, FieldsList[i].Y, TFieldType(FieldsList.Tag[i]));
   FreeAndNil(FieldsList);
 
   //Borders
@@ -418,7 +418,7 @@ begin
   TabletsList := TKMPointTagList.Create;
   MyPlayer.GetPlansTablets(TabletsList, aRect);
   for i := 1 to TabletsList.Count do
-    AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList.List[i]);
+    AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList[i]);
   FreeAndNil(TabletsList);
 end;
 
@@ -431,11 +431,11 @@ begin
     if fTerrain.Land[I,K].Obj <> 255 then
       RenderObjectOrQuad(fTerrain.Land[i, k].Obj + 1, AnimStep, k, i);
 
-  with fTerrain.FallingTrees do
-    for i := 1 to Count do
+  with fTerrain do
+    for i := 1 to FallingTrees.Count do
     begin
-      RenderObject(Tag[i] + 1, AnimStep - Tag2[i], List[i].X, List[i].Y);
-      Assert(AnimStep - Tag2[i] <= 100, 'Falling tree overrun?');
+      RenderObject(FallingTrees.Tag[i] + 1, AnimStep - FallingTrees.Tag2[i], FallingTrees[i].X, FallingTrees[i].Y);
+      Assert(AnimStep - FallingTrees.Tag2[i] <= 100, 'Falling tree overrun?');
     end;
 end;
 
@@ -1077,9 +1077,9 @@ begin
 
   for i:=1 to MarksList.Count do
   if MarksList.Tag[i] = 0 then
-    RenderCursorWireQuad(MarksList.List[i], $FFFFFF00) //Cyan rect
+    RenderCursorWireQuad(MarksList[i], $FFFFFF00) //Cyan rect
   else
-    RenderCursorBuildIcon(MarksList.List[i], MarksList.Tag[i]); //icon
+    RenderCursorBuildIcon(MarksList[i], MarksList.Tag[i]); //icon
 
   MarksList.Free;
 end;

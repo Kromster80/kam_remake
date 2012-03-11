@@ -189,21 +189,21 @@ begin
   end;
 
   for i:=1 to NodeList.Count do
-    RenderDotOnTile(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5);
+    RenderDotOnTile(NodeList[i].X+0.5,NodeList[i].Y+0.5);
 
   glBegin(GL_LINE_STRIP);
   for i:=1 to NodeList.Count do
-    glVertex2f(NodeList.List[i].X-0.5,NodeList.List[i].Y-0.5-fTerrain.InterpolateLandHeight(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5)/CELL_HEIGHT_DIV);
+    glVertex2f(NodeList[i].X-0.5,NodeList[i].Y-0.5-fTerrain.InterpolateLandHeight(NodeList[i].X+0.5,NodeList[i].Y+0.5)/CELL_HEIGHT_DIV);
   glEnd;
 
   glColor4f(1,1,1,1); //Vector where unit is going to
   i:=Pos;
   k:=min(Pos+1,NodeList.Count);
-  x:=mix(NodeList.List[i].X-0.5,NodeList.List[k].X-0.5,0.4);
-  y:=mix(NodeList.List[i].Y-0.5,NodeList.List[k].Y-0.5,0.4)+0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
-  RenderDotOnTile(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5+0.2);
+  x:=mix(NodeList[i].X-0.5,NodeList[k].X-0.5,0.4);
+  y:=mix(NodeList[i].Y-0.5,NodeList[k].Y-0.5,0.4)+0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
+  RenderDotOnTile(NodeList[i].X+0.5,NodeList[i].Y+0.5+0.2);
   glBegin(GL_LINES);
-    glVertex2f(NodeList.List[i].X-0.5,NodeList.List[i].Y-0.5+0.2-fTerrain.InterpolateLandHeight(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5)/CELL_HEIGHT_DIV);
+    glVertex2f(NodeList[i].X-0.5,NodeList[i].Y-0.5+0.2-fTerrain.InterpolateLandHeight(NodeList[i].X+0.5,NodeList[i].Y+0.5)/CELL_HEIGHT_DIV);
     glVertex2f(x,y-fTerrain.InterpolateLandHeight(x+1,y+1)/CELL_HEIGHT_DIV);
   glEnd;
 end;
