@@ -347,6 +347,8 @@ type
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
+    procedure SaveMapview(SaveStream:TKMemoryStream);
+    procedure LoadMapview(LoadStream:TKMemoryStream);
     procedure UpdateState; override;
     procedure Paint; override;
   end;
@@ -3524,6 +3526,18 @@ begin
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
   Message_UpdateStack;
   fLog.AppendLog('Interface loaded');
+end;
+
+
+procedure TKMGamePlayInterface.SaveMapview(SaveStream:TKMemoryStream);
+begin
+  fMapView.Save(SaveStream);
+end;
+
+
+procedure TKMGamePlayInterface.LoadMapview(LoadStream:TKMemoryStream);
+begin
+  fMapView.Load(LoadStream);
 end;
 
 

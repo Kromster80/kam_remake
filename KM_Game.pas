@@ -1345,14 +1345,18 @@ begin
   fGameInfo.Save(SaveStream);
   fGameInfo.Free;
   fGameOptions.Save(SaveStream);
+  
+  //Because some stuff is only saved in singleplayer we need to know whether it is included in this save,
+  //so we can load multiplayer saves in single player and vice versa.
+  SaveStream.Write(fMultiplayerMode);
+
+  if not fMultiplayerMode then
+    fGamePlayInterface.SaveMapview(SaveStream); //Minimap is near the start so it can be accessed quickly
 
   fCampaigns.Save(SaveStream);
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
   SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
-  //Because the viewport is only saved in singleplayer we need to know whether it is included in this save,
-  //so we can load multiplayer saves in single player and vice versa.
-  SaveStream.Write(fMultiplayerMode);
   if not fMultiplayerMode then
     SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
 
@@ -1418,14 +1422,18 @@ begin
     fGameTickCount := GameInfo.TickCount;
     fMissionMode := GameInfo.MissionMode;
     FreeAndNil(GameInfo);
-
     fGameOptions.Load(LoadStream);
+
+    //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is
+    LoadStream.Read(SaveIsMultiplayer);
+
+    if not SaveIsMultiplayer then
+      fGamePlayInterface.LoadMapview(LoadStream); //Not used, (only stored for preview) but it's easiest way to skip past it
+
     fCampaigns.Load(LoadStream);
     LoadStream.Read(ID_Tracker);
     LoadStream.Read(LoadedSeed);
 
-    //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is
-    LoadStream.Read(SaveIsMultiplayer);
     if not SaveIsMultiplayer then
       LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 

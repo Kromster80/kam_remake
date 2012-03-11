@@ -231,11 +231,13 @@ type
       Label_DeleteConfirm: TKMLabel;
       Button_DeleteYes, Button_DeleteNo: TKMButton;
       Button_LoadBack:TKMButton;
+      Minimap_LoadPreview: TKMMinimap;
     Panel_Replays:TKMPanel;
       Radio_Replays_Type:TKMRadioGroup;
       List_Replays: TKMColumnListBox;
       Button_ReplaysPlay: TKMButton;
       Button_ReplaysBack:TKMButton;
+      Minimap_ReplayPreview: TKMMinimap;
     Panel_MapEd:TKMPanel;
       Panel_MapEd_SizeXY:TKMPanel;
       Radio_MapEd_SizeX,Radio_MapEd_SizeY:TKMRadioGroup;
@@ -908,9 +910,9 @@ procedure TKMMainMenuInterface.Create_Load_Page;
 begin
   Panel_Load:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
 
-    TKMLabel.Create(Panel_Load, MENU_DESIGN_X div 2, 60, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Metal, taCenter);
+    TKMLabel.Create(Panel_Load, MENU_DESIGN_X div 2, 60, 700, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Metal, taCenter);
 
-    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 85, 900, 468, fnt_Metal);
+    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 85, 700, 468, fnt_Metal);
     List_Load.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Load.OnChange := Load_ListClick;
     List_Load.OnDoubleClick := Load_Click;
@@ -929,6 +931,9 @@ begin
 
     Button_LoadBack := TKMButton.Create(Panel_Load, 337, 670, 350, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
     Button_LoadBack.OnClick := SwitchMenuPage;
+
+    TKMBevel.Create(Panel_Load, 785, 220, 199, 199);
+    Minimap_LoadPreview := TKMMinimap.Create(Panel_Load,789,224,191,191);
 end;
 
 
@@ -992,7 +997,7 @@ begin
     Radio_Replays_Type.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Replays_Type.OnChange := Replay_TypeChange;
 
-    List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 200, 900, 350, fnt_Metal);
+    List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 200, 700, 400, fnt_Metal);
     List_Replays.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Replays.OnChange := Replays_ListClick;
     List_Replays.OnDoubleClick := Replays_Play;
@@ -1002,6 +1007,9 @@ begin
 
     Button_ReplaysBack := TKMButton.Create(Panel_Replays, 337, 670, 350, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
     Button_ReplaysBack.OnClick := SwitchMenuPage;
+
+    TKMBevel.Create(Panel_Replays, 785, 300, 199, 199);
+    Minimap_ReplayPreview := TKMMinimap.Create(Panel_Replays,789,304,191,191);
 end;
 
 
@@ -1520,8 +1528,7 @@ begin
     Label_SingleCondWin.Caption := '';
     Label_SingleCondDef.Caption := '';
 
-    fMapView.Clear;
-    Minimap_SinglePreview.UpdateFrom(fMapView);
+    Minimap_SinglePreview.Hide;
   end
   else
   begin
@@ -1533,6 +1540,7 @@ begin
     Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[fMap_Selected].Info.VictoryCondition]);
     Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[fMap_Selected].Info.DefeatCondition]);
 
+    Minimap_SinglePreview.Show;
     fMapView.LoadTerrain(MapNameToPath(fMaps[fMap_Selected].Filename, 'dat', False));
     fMapView.Update(False);
     Minimap_SinglePreview.UpdateFrom(fMapView);
@@ -2184,7 +2192,7 @@ procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 var i:Integer; DropText:string;
 begin
   //todo: It will be better to rework this code into CASE, moving common part into internal procedure
-  Minimap_LobbyPreview.Visible := False; //Hide unless correct options are selected (e.g. currently there's no preview for saves)
+  Minimap_LobbyPreview.Visible := False; //Hide unless correct options are selected (e.g. there's no preview for multiplayer saves)
   if fGame.Networking.SelectGameKind <> ngk_None then
   begin
     if fGame.Networking.SelectGameKind = ngk_Save then
@@ -2342,6 +2350,14 @@ begin
   Button_Delete.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1);
   Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1)
                          and fSaves[List_Load.ItemIndex].IsValid;
+  if Button_Load.Enabled then
+  begin
+    fSaves[List_Load.ItemIndex].LoadMinimap(fMapView);
+    Minimap_LoadPreview.UpdateFrom(fMapView);
+    Minimap_LoadPreview.Show;
+  end
+  else
+    Minimap_LoadPreview.Hide;
 end;
 
 
@@ -2412,6 +2428,14 @@ begin
   Button_ReplaysPlay.Enabled := InRange(List_Replays.ItemIndex, 0, fSaves.Count-1)
                                 and fSaves[List_Replays.ItemIndex].IsValid
                                 and fGame.ReplayExists(fSaves[List_Replays.ItemIndex].Filename, (Radio_Replays_Type.ItemIndex = 1));
+  if Button_ReplaysPlay.Enabled then
+  begin
+    fSaves[List_Replays.ItemIndex].LoadMinimap(fMapView);
+    Minimap_ReplayPreview.UpdateFrom(fMapView);
+    Minimap_ReplayPreview.Show;
+  end
+  else
+    Minimap_ReplayPreview.Hide;
 end;
 
 

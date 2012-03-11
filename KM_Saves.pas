@@ -3,7 +3,7 @@ unit KM_Saves;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_GameInfo, KM_GameOptions;
+  KM_CommonClasses, KM_Defaults, KM_GameInfo, KM_GameOptions, KM_MapView;
 
 
 type
@@ -28,6 +28,7 @@ type
     property CRC: Cardinal read fCRC;
 
     function IsValid:boolean;
+    procedure LoadMinimap(aMapView:TKMMapView);
   end;
 
 
@@ -97,6 +98,31 @@ begin
   if fSaveError <> '' then
     fInfo.Title := fSaveError;
 
+  LoadStream.Free;
+end;
+
+
+procedure TKMSaveInfo.LoadMinimap(aMapView:TKMMapView);
+var
+  LoadStream:TKMemoryStream;
+  DummyInfo: TKMGameInfo;
+  DummyOptions: TKMGameOptions;
+  IsMultiplayer: Boolean;
+begin
+  if not FileExists(fPath + fFilename + '.sav') then Exit;
+
+  LoadStream := TKMemoryStream.Create; //Read data from file into stream
+  LoadStream.LoadFromFile(fPath + fFilename + '.sav');
+
+  DummyInfo := TKMGameInfo.Create;
+  DummyOptions := TKMGameOptions.Create;
+  DummyInfo.Load(LoadStream); //We don't care, we just need to skip past it correctly
+  DummyOptions.Load(LoadStream); //We don't care, we just need to skip past it correctly
+  LoadStream.Read(IsMultiplayer);
+  if not IsMultiplayer then aMapView.Load(LoadStream);
+
+  DummyInfo.Free;
+  DummyOptions.Free;
   LoadStream.Free;
 end;
 

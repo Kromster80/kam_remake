@@ -2,7 +2,7 @@ unit KM_MapView;
 {$I KaM_Remake.inc}
 interface
 uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, SysUtils,
-  KM_MissionScript, KM_Render, KM_Terrain, KM_Points, KM_Utils;
+  KM_MissionScript, KM_Render, KM_Terrain, KM_Points, KM_Utils, KM_CommonClasses;
 
 
 type
@@ -22,18 +22,21 @@ type
     procedure UpdateMinimapFromGame;
     procedure UpdateMinimapFromParser(aRevealAll:Boolean);
     procedure SepiaFilter;
+    procedure GenerateTexture;
   public
     constructor Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
     procedure LoadTerrain(aMissionPath: string);
-    procedure Clear;
 
     property MapX: Word read fMapX;
     property MapY: Word read fMapY;
     property MapTex: TTexture read fMapTex;
     function GetPlayerLoc(aIndex: Byte): TKMPoint;
     procedure Update(aRevealAll: Boolean);
+
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
   end;
 
   //todo: Add Starting positions (Position, PlayerID, FlagColor, Alliances?)
@@ -82,12 +85,6 @@ end;
 procedure TKMMapView.LoadTerrain(aMissionPath: string);
 begin
   fParser.LoadMission(aMissionPath);
-end;
-
-
-procedure TKMMapView.Clear;
-begin
-  LoadTerrain('');
 end;
 
 
@@ -221,10 +218,6 @@ end;
 
 
 procedure TKMMapView.Update(aRevealAll: Boolean);
-var
-  wData: Pointer;
-  I: Word;
-  WidthPOT, HeightPOT: Word;
 begin
   if fFromParser then
     UpdateMinimapFromParser(aRevealAll)
@@ -233,6 +226,16 @@ begin
 
   if fSepia then SepiaFilter;
 
+  GenerateTexture;
+end;
+
+
+procedure TKMMapView.GenerateTexture;
+var
+  wData: Pointer;
+  I: Word;
+  WidthPOT, HeightPOT: Word;
+begin
   WidthPOT := MakePOT(fMapX);
   HeightPOT := MakePOT(fMapY);
 
@@ -251,6 +254,33 @@ begin
   FreeMem(wData);
 
   glBindTexture(GL_TEXTURE_2D, 0);
+end;
+
+
+procedure TKMMapView.Save(SaveStream:TKMemoryStream);
+var L: Cardinal;
+begin
+  SaveStream.Write(fMapX);
+  SaveStream.Write(fMapY);
+  L := Length(fBase);
+  SaveStream.Write(L);
+  if L > 0 then
+    SaveStream.Write(fBase[0], L * SizeOf(Cardinal));
+end;
+
+
+procedure TKMMapView.Load(LoadStream:TKMemoryStream);
+var L: Cardinal;
+begin
+  LoadStream.Read(fMapX);
+  LoadStream.Read(fMapY);
+  LoadStream.Read(L);
+  SetLength(fBase, L);
+  if L > 0 then
+    LoadStream.Read(fBase[0], L * SizeOf(Cardinal));
+
+  if fSepia then SepiaFilter;
+  GenerateTexture;
 end;
 
 
