@@ -791,7 +791,8 @@ begin
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(BuildID);
   LoadStream.Read(BuildFrom);
-  Cells := TKMPointDirList.Load(LoadStream);
+  Cells := TKMPointDirList.Create;
+  Cells.LoadFromStream(LoadStream);
 end;
 
 
@@ -888,7 +889,7 @@ begin
     SaveStream.Write(Integer(0));
   SaveStream.Write(BuildID);
   SaveStream.Write(BuildFrom);
-  Cells.Save(SaveStream);
+  Cells.SaveToStream(SaveStream);
 end;
 
 
@@ -911,7 +912,8 @@ begin
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fRepairID);
   LoadStream.Read(BuildFrom);
-  Cells := TKMPointDirList.Load(LoadStream);
+  Cells := TKMPointDirList.Create;
+  Cells.LoadFromStream(LoadStream);
 end;
 
 
@@ -998,7 +1000,7 @@ begin
     SaveStream.Write(Integer(0));
   SaveStream.Write(fRepairID);
   SaveStream.Write(BuildFrom);
-  Cells.Save(SaveStream);
+  Cells.SaveToStream(SaveStream);
 end;
 
 

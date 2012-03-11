@@ -512,10 +512,10 @@ end;
 //Consult with the fGame if we can shut down the program
 procedure TFormMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  if (fGame <> nil) and not fGame.CanClose then
-    CanClose := MessageDlg('Any unsaved changes will be lost. Exit?',mtWarning,[mbYes, mbNo],0) = mrYes
-  else
-    CanClose := True;
+  CanClose := (fGame = nil) or fGame.CanClose or
+              (MessageDlg('Any unsaved changes will be lost. Exit?', mtWarning, [mbYes, mbNo], 0) = mrYes);
+  if CanClose then
+    fMain.Stop(Self);
 end;
 
 

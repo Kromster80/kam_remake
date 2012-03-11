@@ -89,8 +89,8 @@ type
     procedure Inverse;
     function  GetTopLeft(out TL: TKMPoint): Boolean;
     function  GetBottomRight(out RB: TKMPoint): Boolean;
-    procedure Save(SaveStream: TKMemoryStream); virtual;
-    procedure Load(LoadStream: TKMemoryStream); virtual;
+    procedure SaveToStream(SaveStream: TKMemoryStream); virtual;
+    procedure LoadFromStream(LoadStream: TKMemoryStream); virtual;
   end;
 
 
@@ -101,8 +101,8 @@ type
     procedure Clear; override;
     procedure AddEntry(aLoc: TKMPoint; aTag,aTag2: Cardinal); reintroduce;
     function RemoveEntry(aLoc: TKMPoint): Integer; override;
-    procedure Save(SaveStream: TKMemoryStream); override;
-    procedure Load(LoadStream: TKMemoryStream); override;
+    procedure SaveToStream(SaveStream: TKMemoryStream); override;
+    procedure LoadFromStream(LoadStream: TKMemoryStream); override;
   end;
 
 
@@ -112,7 +112,6 @@ type
     fCount: Integer;
     function GetItem(aIndex: Integer): TKMPointDir;
   public
-    constructor Load(LoadStream: TKMemoryStream);
     procedure Clear;
     procedure AddItem(aLoc: TKMPointDir);
 
@@ -120,7 +119,9 @@ type
     property Items[aIndex: Integer]: TKMPointDir read GetItem; default;
 
     function GetRandom(out Point: TKMPointDir):Boolean;
-    procedure Save(SaveStream: TKMemoryStream);
+
+    procedure LoadFromStream(LoadStream: TKMemoryStream);
+    procedure SaveToStream(SaveStream: TKMemoryStream);
   end;
 
 
@@ -325,17 +326,6 @@ end;
 
 
 { TKMPointList }
-procedure TKMPointList.Load(LoadStream:TKMemoryStream);
-var i:integer;
-begin
-  Inherited Create;
-  LoadStream.Read(fCount);
-  SetLength(fList,Count+32);
-  for i:=1 to fCount do
-    LoadStream.Read(fList[i]);
-end;
-
-
 procedure TKMPointList.Clear;
 begin
   fCount := 0;
@@ -461,34 +451,29 @@ begin
 end;
 
 
-procedure TKMPointList.Save(SaveStream:TKMemoryStream);
+procedure TKMPointList.SaveToStream(SaveStream: TKMemoryStream);
+var I: Integer;
+begin
+  SaveStream.Write(fCount);
+  for I := 1 to fCount do
+    SaveStream.Write(fList[I]);
+end;
+
+
+procedure TKMPointList.LoadFromStream(LoadStream:TKMemoryStream);
 var i:integer;
 begin
-  SaveStream.Write(Count);
-  for i:=1 to Count do
-    SaveStream.Write(fList[i]);
+  LoadStream.Read(fCount);
+  SetLength(fList, fCount+32);
+  for i:=1 to fCount do
+    LoadStream.Read(fList[i]);
 end;
 
 
 { TKMPointTagList }
-procedure TKMPointTagList.Load(LoadStream: TKMemoryStream);
-var i:integer;
-begin
-  Inherited; //Reads Count
-
-  SetLength(Tag, Count + 32); //Make space in lists to write data to, otherwise we get "Range Check Error"
-  SetLength(Tag2, Count + 32);
-  for i := 1 to Count do
-  begin
-    LoadStream.Read(Tag[i]);
-    LoadStream.Read(Tag2[i]);
-  end;
-end;
-
-
 procedure TKMPointTagList.Clear;
 begin
-  Inherited;
+  inherited;
   SetLength(Tag, 0);
   SetLength(Tag2, 0);
 end;
@@ -517,35 +502,35 @@ begin
 end;
 
 
-procedure TKMPointTagList.Save(SaveStream: TKMemoryStream);
-var i:integer;
+procedure TKMPointTagList.SaveToStream(SaveStream: TKMemoryStream);
+var I: Integer;
 begin
-  Inherited; //Writes Count
+  inherited; //Writes Count
 
-  for i:=1 to Count do
+  for I := 1 to fCount do
   begin
-    SaveStream.Write(Tag[i]);
-    SaveStream.Write(Tag2[i]);
+    SaveStream.Write(Tag[I]);
+    SaveStream.Write(Tag2[I]);
+  end;
+end;
+
+
+procedure TKMPointTagList.LoadFromStream(LoadStream: TKMemoryStream);
+var I: Integer;
+begin
+  inherited; //Reads Count
+
+  SetLength(Tag, fCount + 32); //Make space in lists to write data to, otherwise we get "Range Check Error"
+  SetLength(Tag2, fCount + 32);
+  for I := 1 to fCount do
+  begin
+    LoadStream.Read(Tag[I]);
+    LoadStream.Read(Tag2[I]);
   end;
 end;
 
 
 { TKMPointList }
-constructor TKMPointDirList.Load(LoadStream: TKMemoryStream);
-var
-  I: Integer;
-begin
-  Inherited Create;
-  LoadStream.Read(fCount);
-  SetLength(fItems, fCount);
-  for I := 0 to fCount - 1 do
-  begin
-    LoadStream.Read(fItems[I].Loc);
-    LoadStream.Read(fItems[I].Dir);
-  end;
-end;
-
-
 procedure TKMPointDirList.Clear;
 begin
   fCount := 0;
@@ -579,7 +564,21 @@ begin
 end;
 
 
-procedure TKMPointDirList.Save(SaveStream: TKMemoryStream);
+procedure TKMPointDirList.LoadFromStream(LoadStream: TKMemoryStream);
+var
+  I: Integer;
+begin
+  LoadStream.Read(fCount);
+  SetLength(fItems, fCount);
+  for I := 0 to fCount - 1 do
+  begin
+    LoadStream.Read(fItems[I].Loc);
+    LoadStream.Read(fItems[I].Dir);
+  end;
+end;
+
+
+procedure TKMPointDirList.SaveToStream(SaveStream: TKMemoryStream);
 var
   I: Integer;
 begin

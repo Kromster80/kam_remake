@@ -118,13 +118,17 @@ begin
   if fMainSettings<>nil then FreeThenNil(fMainSettings);
   if fGame<>nil then fGame.Stop(gr_Silent);
   if fGame<>nil then FreeThenNil(fGame);
+  fTimer.Free;
   if fLog<>nil then FreeThenNil(fLog);
   {$IFDEF MSWindows}
   TimeEndPeriod(1);
   ClipCursor(nil); //Release the cursor restriction
   {$ENDIF}
 
-  FormMain.Close;
+  //We could be asked to close from MainForm or from other place
+  //In first case Form will take care about closing itself
+  if Sender <> FormMain then
+    FormMain.Close;
 end;
 
 

@@ -210,7 +210,7 @@ end;
 
 constructor TUnitActionWalkTo.Load(LoadStream: TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(fWalkFrom);
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fNewWalkTo);
@@ -229,7 +229,7 @@ begin
 
   LoadStream.Read(fVertexOccupied);
   NodeList := TKMPointList.Create;
-  NodeList.Load(LoadStream);
+  NodeList.LoadFromStream(LoadStream);
   LoadStream.Read(NodePos);
 end;
 
@@ -1130,7 +1130,7 @@ begin
   SaveStream.Write(fInteractionStatus,SizeOf(fInteractionStatus));
 
   SaveStream.Write(fVertexOccupied);
-  NodeList.Save(SaveStream);
+  NodeList.SaveToStream(SaveStream);
   SaveStream.Write(NodePos);
 end;
 

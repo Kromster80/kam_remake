@@ -2443,7 +2443,7 @@ begin
   SaveStream.Write(fMapY);
   SaveStream.Write(fAnimStep);
 
-  FallingTrees.Save(SaveStream);
+  FallingTrees.SaveToStream(SaveStream);
 
   for i:=1 to fMapY do for k:=1 to fMapX do
   begin
@@ -2474,7 +2474,7 @@ begin
   LoadStream.Read(fMapY);
   LoadStream.Read(fAnimStep);
 
-  FallingTrees.Load(LoadStream);
+  FallingTrees.LoadFromStream(LoadStream);
 
   for i:=1 to fMapY do for k:=1 to fMapX do
   begin
