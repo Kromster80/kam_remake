@@ -19,7 +19,7 @@ type
     ListBox1: TListBox;
     EditConstName: TEdit;
     Label1: TLabel;
-    btnReorderList: TButton;
+    btnSortByIndex: TButton;
     btnLoad: TButton;
     btnSave: TButton;
     btnInsert: TButton;
@@ -32,9 +32,11 @@ type
     Label2: TLabel;
     cbIncludeSameAsEnglish: TCheckBox;
     LabelIncludeSameAsEnglish: TLabel;
+    btnSortByName: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
-    procedure btnReorderListClick(Sender: TObject);
+    procedure btnSortByIndexClick(Sender: TObject);
+    procedure btnSortByNameClick(Sender: TObject);
     procedure EditConstNameChange(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
@@ -181,7 +183,7 @@ begin
   SetLength(ListboxLookup, 0);
   SetLength(ListboxLookup, Length(Consts));
 
-  for I := 0 to Length(Consts) - 1 do
+  for I := 0 to High(Consts) do
   if ShowConst(I) then
   begin
     ListboxLookup[ListBox1.Items.Count] := I;
@@ -274,7 +276,7 @@ begin
   AssignFile(myFile, aFileName);
   ReWrite(myFile);
 
-  for I := 0 to Length(Consts) - 1 do
+  for I := 0 to High(Consts) do
     if Consts[I].TextID = -1 then
       WriteLn(myFile, '')
     else
@@ -394,19 +396,79 @@ begin
 end;
 
 
-procedure TForm1.btnReorderListClick(Sender: TObject);
-var i,BlanksCount:integer;
-begin
-  {BlanksCount := 0;
-  for i:=1 to ConstsCount do
+//Sort the items by TextID
+procedure TForm1.btnSortByIndexClick(Sender: TObject);
+  function Compare(A, B: Integer): Boolean;
   begin
-    if Consts[i].TextID = -1 then
-      inc(BlanksCount)
-    else
-      Texts[i].ID := i-BlanksCount;
+    Result := Consts[A].TextID > Consts[B].TextID;
   end;
-  MaxID := TextsCount - BlanksCount;
-  RefreshList;}
+
+  procedure Swap(A, B: Integer);
+  var Temp: TTextInfo;
+  begin
+    Temp := Consts[A]; Consts[A] := Consts[B]; Consts[B] := Temp;
+  end;
+
+var
+  I, K: Integer;
+begin
+  //Delete separators
+  for I := High(Consts) downto 0 do
+    if Consts[I].TextID = -1 then
+    begin
+      for K := I to Length(Consts)-2 do
+        Consts[K] := Consts[K+1];
+      SetLength(Consts, Length(Consts) - 1);
+    end;
+
+  //Sort
+  for I := 0 to High(Consts) do
+  for K:= I + 1 to High(Consts) do
+  if Compare(I, K) then
+    Swap(I, K);
+
+  //Add separators anew between grouped areas
+  for I := 1 to High(Consts) do
+    if (Consts[I-1].TextID <> -1) and (Consts[I-1].TextID+1 <> Consts[I].TextID) then
+    begin
+      for K := Length(Consts)-1 downto I+1 do
+        Consts[K] := Consts[K-1];
+      Consts[I].TextID := -1;
+      Consts[I].ConstName := '';
+    end;
+
+  RefreshList;
+end;
+
+
+//Sort TextIDs by Index
+procedure TForm1.btnSortByNameClick(Sender: TObject);
+  function Compare(A, B: Integer): Boolean;
+  begin
+    Result := Consts[A].TextID > Consts[B].TextID;
+  end;
+
+  procedure Swap(A, B: Integer);
+  var I: Integer; s: string;
+  begin
+    for I := 1 to LocalesCount do
+    begin
+      s := Texts[A, I];
+      Texts[A, I] := Texts[B, I];
+      Texts[B, I] := s;
+    end;
+  end;
+
+var
+  I, K: Integer;
+begin
+  //todo: Name Sort
+  {for I := 0 to High(Consts) do
+  for K:= I + 1 to High(Consts) do
+  if Compare(I,K) then
+    Swap(A,B);}
+
+  RefreshList;
 end;
 
 
@@ -558,7 +620,8 @@ begin
   Filter := cbShowMissing.ItemIndex > 0;
 
   //Disable buttons
-  btnReorderList.Enabled := not Filter;
+  btnSortByIndex.Enabled := not Filter;
+  btnSortByName.Enabled := not Filter;
   btnInsert.Enabled := not Filter;
   btnDelete.Enabled := not Filter;
   btnInsertSeparator.Enabled := not Filter;

@@ -61,14 +61,14 @@ object Form1: TForm1
     TabOrder = 1
     OnChange = EditConstNameChange
   end
-  object btnReorderList: TButton
+  object btnSortByIndex: TButton
     Left = 344
     Top = 240
     Width = 121
     Height = 25
-    Caption = 'Reorder IDs'
+    Caption = 'Sort by Index'
     TabOrder = 2
-    OnClick = btnReorderListClick
+    OnClick = btnSortByIndexClick
   end
   object btnLoad: TButton
     Left = 8
@@ -136,7 +136,7 @@ object Form1: TForm1
   end
   object btnMoveDown: TButton
     Left = 344
-    Top = 208
+    Top = 200
     Width = 121
     Height = 25
     Caption = 'Move Down'
@@ -161,5 +161,14 @@ object Form1: TForm1
     Enabled = False
     TabOrder = 12
     OnClick = cbIncludeSameAsEnglishClick
+  end
+  object btnSortByName: TButton
+    Left = 344
+    Top = 264
+    Width = 121
+    Height = 25
+    Caption = 'Sort by Name'
+    TabOrder = 13
+    OnClick = btnSortByNameClick
   end
 end
