@@ -32,7 +32,7 @@ type
     procedure AddLine(const aText: string);
     procedure AddLineNoTime(const aText: string);
   public
-    constructor Create(const aPath: string; aDeleteOldLogs:Boolean);
+    constructor Create(const aPath: string);
     // AppendLog adds the line to Log along with time passed since previous line added
     procedure AppendLog(const aText: string); overload;
     procedure AppendLog(const aText: string; num: integer); overload;
@@ -45,6 +45,7 @@ type
     // AddToLog simply adds the text
     procedure AddToLog(const aText: string);
     property LogPath: string read fLogPath;
+    procedure DeleteOldLogs;
   end;
 
   var
@@ -96,7 +97,7 @@ end;
 
 
 {Reset log file}
-constructor TKMLog.Create(const aPath:string; aDeleteOldLogs:Boolean);
+constructor TKMLog.Create(const aPath: string);
 begin
   Inherited Create;
   fLogPath := aPath;
@@ -105,16 +106,20 @@ begin
   AssignFile(fl, fLogPath);
   Rewrite(fl);
   CloseFile(fl);
-  AddLine('Log is up and running. Game version: '+GAME_VERSION);
-  //Run thread to delete old logs. No need to remember the instance, it's set to FreeOnTerminate
-  if aDeleteOldLogs then
-    TKMOldLogsDeleter.Create(IncludeTrailingPathDelimiter(ExtractFilePath(aPath)));
+  AddLine('Log is up and running. Game version: ' + GAME_VERSION);
+end;
+
+
+//Run thread to delete old logs. No need to remember the instance, it's set to FreeOnTerminate
+procedure TKMLog.DeleteOldLogs;
+begin
+  TKMOldLogsDeleter.Create(IncludeTrailingPathDelimiter(ExtractFilePath(fLogPath)));
 end;
 
 
 {Lines are timestamped, each line invokes file open/close for writing,
 meaning no lines will be lost if Remake crashes}
-procedure TKMLog.AddLine(const aText:string);
+procedure TKMLog.AddLine(const aText: string);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);

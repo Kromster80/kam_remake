@@ -73,7 +73,8 @@ begin
   ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
 
   CreateDir(ExeDir + 'Logs\');
-  fLog := TKMLog.Create(ExeDir+'Logs\KaM_'+FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz',Now)+'.log', True); //First thing - create a log
+  fLog := TKMLog.Create(ExeDir + 'Logs\KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
+  fLog.DeleteOldLogs;
 
   fResolutions := TKMResolutions.Create;
 
@@ -138,7 +139,6 @@ begin
   if Application.Active then Exit;
 
   //Prevent the game window from being in the way by minimizing when alt-tabbing
-
   if (fMainSettings <> nil) and fMainSettings.FullScreen then
     Application.Minimize;
 end;

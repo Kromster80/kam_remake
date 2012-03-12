@@ -1,0 +1,241 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{CB64F5E8-91AE-4497-A8C4-89668924F870}</ProjectGuid>
+			<MainSource>KaM_Remake.dpr</MainSource>
+			<Base>True</Base>
+			<Config Condition="'$(Config)'==''">Debug</Config>
+			<TargetedPlatforms>1</TargetedPlatforms>
+			<AppType>Application</AppType>
+			<FrameworkType>VCL</FrameworkType>
+			<ProjectVersion>13.4</ProjectVersion>
+			<Platform Condition="'$(Platform)'==''">Win32</Platform>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+			<Base_Win32>true</Base_Win32>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+			<Cfg_1>true</Cfg_1>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+			<Cfg_2>true</Cfg_2>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+			<Cfg_2_Win32>true</Cfg_2_Win32>
+			<CfgParent>Cfg_2</CfgParent>
+			<Cfg_2>true</Cfg_2>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<Manifest_File>None</Manifest_File>
+			<Icon_MainIcon>KaM_Remake_Icon.ico</Icon_MainIcon>
+			<DCC_ImageBase>00400000</DCC_ImageBase>
+			<DCC_UsePackage>vcl;rtl;dbrtl;adortl;vcldb;vclx;bdertl;vcldbx;ibxpress;dsnap;cds;bdecds;qrpt;teeui;teedb;tee;dss;teeqr;visualclx;visualdbclx;dsnapcrba;dsnapcon;VclSmp;vclshlctrls;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;inetdb;nmfast;webdsnap;websnap;dbexpress;dbxcds;indy;dclOffice2k;Krom;$(DCC_UsePackage)</DCC_UsePackage>
+			<VerInfo_Keys>FileVersion=1.0.0.0</VerInfo_Keys>
+			<DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
+			<DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
+			<DCC_RangeChecking>true</DCC_RangeChecking>
+			<DCC_UnitSearchPath>.\Common;.\Common\pngimage;.\Common\BGRABitmap;.\Common\Overbyte ICS;.\Common\zlib;.\Common\Overbyte ICS 7;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+			<DCC_K>false</DCC_K>
+			<DCC_N>true</DCC_N>
+			<DCC_S>false</DCC_S>
+			<DCC_F>false</DCC_F>
+			<DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
+			<VerInfo_Locale>1049</VerInfo_Locale>
+			<DCC_E>false</DCC_E>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base_Win32)'!=''">
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+			<VerInfo_Locale>1033</VerInfo_Locale>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+			<DCC_DebugInformation>false</DCC_DebugInformation>
+			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+			<DCC_Optimize>false</DCC_Optimize>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
+			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<VerInfo_Locale>1033</VerInfo_Locale>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+		</PropertyGroup>
+		<ItemGroup>
+			<DelphiCompile Include="$(MainSource)">
+				<MainSource>MainSource</MainSource>
+			</DelphiCompile>
+			<DCCReference Include="KM_FormMain.pas">
+				<Form>FormMain</Form>
+			</DCCReference>
+			<DCCReference Include="KM_FormLoading.pas">
+				<Form>FormLoading</Form>
+			</DCCReference>
+			<DCCReference Include="KM_AIAttacks.pas"/>
+			<DCCReference Include="KM_ArmyEvaluation.pas"/>
+			<DCCReference Include="KM_BuildList.pas"/>
+			<DCCReference Include="KM_Campaigns.pas"/>
+			<DCCReference Include="KM_CommonClasses.pas"/>
+			<DCCReference Include="KM_CommonEvents.pas"/>
+			<DCCReference Include="KM_Controls.pas"/>
+			<DCCReference Include="KM_DedicatedServer.pas"/>
+			<DCCReference Include="KM_Defaults.pas"/>
+			<DCCReference Include="KM_DeliverQueue.pas"/>
+			<DCCReference Include="KM_EventProcess.pas"/>
+			<DCCReference Include="KM_FogOfWar.pas"/>
+			<DCCReference Include="KM_Houses.pas"/>
+			<DCCReference Include="KM_InterfaceDefaults.pas"/>
+			<DCCReference Include="KM_InterfaceGamePlay.pas"/>
+			<DCCReference Include="KM_InterfaceMainMenu.pas"/>
+			<DCCReference Include="KM_InterfaceMapEditor.pas"/>
+			<DCCReference Include="KM_MessageStack.pas"/>
+			<DCCReference Include="KM_Game.pas"/>
+			<DCCReference Include="KM_GameInfo.pas"/>
+			<DCCReference Include="KM_GameOptions.pas"/>
+			<DCCReference Include="KM_GameInputProcess.pas"/>
+			<DCCReference Include="KM_GameInputProcess_Multi.pas"/>
+			<DCCReference Include="KM_GameInputProcess_Single.pas"/>
+			<DCCReference Include="KM_Goals.pas"/>
+			<DCCReference Include="KM_HTTPClient.pas"/>
+			<DCCReference Include="KM_Locales.pas"/>
+			<DCCReference Include="KM_Log.pas"/>
+			<DCCReference Include="KM_Main.pas"/>
+			<DCCReference Include="KM_MapEditor.pas"/>
+			<DCCReference Include="KM_Maps.pas"/>
+			<DCCReference Include="KM_MapView.pas"/>
+			<DCCReference Include="KM_MasterServer.pas"/>
+			<DCCReference Include="KM_MissionScript.pas"/>
+			<DCCReference Include="KM_Music.pas"/>
+			<DCCReference Include="KM_NetClient.pas"/>
+			<DCCReference Include="KM_NetServer.pas"/>
+			<DCCReference Include="KM_Networking.pas"/>
+			<DCCReference Include="KM_NetworkTypes.pas"/>
+			<DCCReference Include="KM_NetPlayersList.pas"/>
+			<DCCReference Include="KM_PathFinding.pas"/>
+			<DCCReference Include="KM_Player.pas"/>
+			<DCCReference Include="KM_PlayerAI.pas"/>
+			<DCCReference Include="KM_PlayersCollection.pas"/>
+			<DCCReference Include="KM_PlayerStats.pas"/>
+			<DCCReference Include="KM_Projectiles.pas"/>
+			<DCCReference Include="KM_Points.pas"/>
+			<DCCReference Include="KM_Render.pas"/>
+			<DCCReference Include="KM_RenderAux.pas"/>
+			<DCCReference Include="KM_RenderPool.pas"/>
+			<DCCReference Include="KM_RenderUI.pas"/>
+			<DCCReference Include="KM_Resolutions.pas"/>
+			<DCCReference Include="KM_Resource.pas"/>
+			<DCCReference Include="KM_ResourceCursors.pas"/>
+			<DCCReference Include="KM_ResourceFonts.pas"/>
+			<DCCReference Include="KM_ResourceHouse.pas"/>
+			<DCCReference Include="KM_ResourcePalettes.pas"/>
+			<DCCReference Include="KM_ResourceResource.pas"/>
+			<DCCReference Include="KM_ResourceSprites.pas"/>
+			<DCCReference Include="KM_ResourceTileset.pas"/>
+			<DCCReference Include="KM_ResourceUnit.pas"/>
+			<DCCReference Include="KM_Saves.pas"/>
+			<DCCReference Include="KM_ServerQuery.pas"/>
+			<DCCReference Include="KM_Settings.pas"/>
+			<DCCReference Include="KM_Sound.pas"/>
+			<DCCReference Include="KM_Terrain.pas"/>
+			<DCCReference Include="KM_TextLibrary.pas"/>
+			<DCCReference Include="Common\KM_TGATexture.pas"/>
+			<DCCReference Include="KM_UnitActionAbandonWalk.pas"/>
+			<DCCReference Include="KM_UnitActionFight.pas"/>
+			<DCCReference Include="KM_UnitActionGoInOut.pas"/>
+			<DCCReference Include="KM_UnitActionStay.pas"/>
+			<DCCReference Include="KM_UnitActionStormAttack.pas"/>
+			<DCCReference Include="KM_UnitActionWalkTo.pas"/>
+			<DCCReference Include="KM_Units.pas"/>
+			<DCCReference Include="KM_Units_Warrior.pas"/>
+			<DCCReference Include="KM_Units_WorkPlan.pas"/>
+			<DCCReference Include="KM_UnitTaskAttackHouse.pas"/>
+			<DCCReference Include="KM_UnitTaskBuild.pas"/>
+			<DCCReference Include="KM_UnitTaskDelivery.pas"/>
+			<DCCReference Include="KM_UnitTaskDie.pas"/>
+			<DCCReference Include="KM_UnitTaskGoEat.pas"/>
+			<DCCReference Include="KM_UnitTaskGoHome.pas"/>
+			<DCCReference Include="KM_UnitTaskGoOutShowHungry.pas"/>
+			<DCCReference Include="KM_UnitTaskMining.pas"/>
+			<DCCReference Include="KM_UnitTaskSelfTrain.pas"/>
+			<DCCReference Include="KM_UnitTaskThrowRock.pas"/>
+			<DCCReference Include="KM_Utils.pas"/>
+			<DCCReference Include="KM_Viewport.pas"/>
+			<None Include="Profiling\AQtimeModule1.aqt"/>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_2</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Release">
+				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Delphi.Personality>
+					<Source>
+						<Source Name="MainSource">KaM_Remake.dpr</Source>
+					</Source>
+					<Language>
+						<Language Name="ProjectLang">$00000419</Language>
+					</Language>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+						<VersionInfo Name="MajorVer">1</VersionInfo>
+						<VersionInfo Name="MinorVer">0</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">0</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">False</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">1049</VersionInfo>
+						<VersionInfo Name="CodePage">1251</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+					</VersionInfoKeys>
+					<Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+					</Excluded_Packages>
+				</Delphi.Personality>
+				<Platforms>
+					<Platform value="Win64">False</Platform>
+					<Platform value="Win32">True</Platform>
+				</Platforms>
+				<UnitTesting>
+					<TestProjectName>G:\Delphi\KaM Remake\Test\KaM_RemakeTests.dproj</TestProjectName>
+				</UnitTesting>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')" Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
+	</Project>
