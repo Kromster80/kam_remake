@@ -29,6 +29,8 @@ type
     fJumpToSelectedMap: Boolean;
     fJumpToSelectedServer: Boolean;
 
+    fGoBackToSinglePlayerPage: Boolean; //flag, if user returns to signle player page from single player maps page
+    fUserSelectedMap: Boolean; //flag, if user selected a map
     fMap_Selected: Integer; //Selected map
     fMapCRC_Selected: Cardinal; //CRC of selected map
     fMaps: TKMapsCollection;
@@ -1270,7 +1272,13 @@ begin
      (Sender=Button_CampaignBack)or
      (Sender=Button_SingleBack)or
      (Sender=Button_LoadBack) then begin
-    Panel_SinglePlayer.Show;
+       if (Sender=Button_SingleBack) then
+       begin
+         fGoBackToSinglePlayerPage := True;
+         //scan should be terminated, it is no longer needed
+         fMaps.TerminateScan;
+       end;
+       Panel_SinglePlayer.Show;
   end;
 
   {Show campaign menu}
@@ -1291,6 +1299,9 @@ begin
   {Show SingleMap menu}
   if Sender=Button_SP_Single then
   begin
+    fUserSelectedMap := False;
+    fGoBackToSinglePlayerPage := False;
+
     //Stop current now scan so it can't add a map after we clear the list
     fMaps.TerminateScan;
     //Remove any old entries from UI
@@ -1511,12 +1522,9 @@ begin
     Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
 
     //while maps are added, always select this, which is first on sorted list
-    if not fMaps.ScanFinished then
-    begin
-      for I := 0 to fMaps.Count - 1 do
-        if fMaps[I].Filename = Label_SingleTitle1[0].Caption then
-          SingleMap_SelectMap(I);
-    end;
+    if (not fUserSelectedMap) and (not fMaps.ScanFinished) and
+       (not fGoBackToSinglePlayerPage) then
+          SingleMap_SelectMap(0);
   end;
 end;
 
@@ -1529,6 +1537,7 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_MapClick(Sender: TObject);
 begin
+  fUserSelectedMap := True;
   SingleMap_SelectMap(ScrollBar_SingleMaps.Position + TKMControl(Sender).Tag);
 end;
 
@@ -1576,6 +1585,8 @@ begin
     Exit;
 
   if not InRange(fMap_Selected, 0, fMaps.Count-1) then exit; //Some odd index
+  //scan should be terminated, as it is no longer needed
+  fMaps.TerminateScan;
   fGame.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].Filename,'dat',false),fMaps[fMap_Selected].Filename); //Provide mission filename mask and title here
 end;
 
