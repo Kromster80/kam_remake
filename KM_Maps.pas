@@ -63,6 +63,7 @@ type
     CS: TCriticalSection;
     fScanner: TTScanner;
     fScanning: Boolean; //Flag if scan is in progress
+    fScanFinished: Boolean; //Flag if scan is finished
     fOnRefresh: TNotifyEvent;
     procedure Lock;
     procedure Unlock;
@@ -78,6 +79,7 @@ type
 
     property Count: Integer read fCount;
     property Maps[aIndex: Integer]: TKMapInfo read GetMap; default;
+    property ScanFinished: Boolean read fScanFinished;
 
     procedure Refresh(aOnRefresh: TNotifyEvent);
     procedure TerminateScan;
@@ -420,6 +422,8 @@ begin
 
   fOnRefresh := aOnRefresh;
 
+  fScanFinished := False;
+
   //Scan will launch upon create automatcally
   fScanning := True;
   fScanner := TTScanner.Create(fMultiplayerPath, MapAdd, MapAddDone, ScanComplete);
@@ -470,6 +474,9 @@ begin
   finally
     Unlock;
   end;
+
+  fScanFinished := True;
+
 end;
 
 

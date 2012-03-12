@@ -26,6 +26,9 @@ type
 
     fMapView: TKMMapView;
 
+    fJumpToSelectedMap: Boolean;
+    fJumpToSelectedServer: Boolean;
+
     fMap_Selected: Integer; //Selected map
     fMapCRC_Selected: Cardinal; //CRC of selected map
     fMaps: TKMapsCollection;
@@ -1476,11 +1479,20 @@ begin
     //Updating MaxValue may change Position
     ScrollBar_SingleMaps.MaxValue := Max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
 
-	//IDs of maps could changed, so use CRC to check
-	//which one was selected
+    //IDs of maps could changed, so use CRC to check
+    //which one was selected
     for I := 0 to fMaps.Count-1 do
       if (fMaps[I].CRC = fMapCRC_Selected) then
           fMap_Selected := I;
+
+    if not InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1) and
+           (fJumpToSelectedMap) then begin
+              if fMap_Selected < ScrollBar_SingleMaps.Position + MENU_SP_MAPS_COUNT - 1 then
+                ScrollBar_SingleMaps.Position := fMap_Selected
+              else if fMap_Selected > ScrollBar_SingleMaps.Position + MENU_SP_MAPS_COUNT - 1 then
+                ScrollBar_SingleMaps.Position := fMap_Selected-MENU_SP_MAPS_COUNT + 1;
+              fJumpToSelectedMap := False;
+           end;
 
     for I := 0 to MENU_SP_MAPS_COUNT - 1 do
     begin
@@ -1498,8 +1510,13 @@ begin
     Shape_SingleMap.Visible := InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
     Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
 
-    if not InRange(fMap_Selected, 0, fMaps.Count - 1) then
-      SingleMap_SelectMap(EnsureRange(fMap_Selected, 0, fMaps.Count - 1));
+    //while maps are added, always select this, which is first on sorted list
+    if not fMaps.ScanFinished then
+    begin
+      for I := 0 to fMaps.Count - 1 do
+        if fMaps[I].Filename = Label_SingleTitle1[0].Caption then
+          SingleMap_SelectMap(I);
+    end;
   end;
 end;
 
@@ -1593,6 +1610,9 @@ begin
       Method := smByModeDesc
   else
     Method := smByNameAsc; //Default
+
+  //scroll to selected map, so it will be shown on the screen
+  fJumpToSelectedMap := True;
 
   //Start sorting and wait for SortComplete event
   fMaps.Sort(Method, SingleMap_RefreshList);
@@ -1699,7 +1719,17 @@ begin
     if fServerSelected then
       if (R.RoomID = fSelectedRoomInfo.RoomID) and (S.IP = fSelectedServerInfo.IP) and
          (S.Port = fSelectedServerInfo.Port) then
+         begin
            ColList_Servers.ItemIndex := I;
+           if not InRange(I - ColList_Servers.TopIndex, 0, (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1) and
+           (fJumpToSelectedServer) then begin
+              if I < ColList_Servers.TopIndex + (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1 then
+                ColList_Servers.TopIndex := I
+              else if I > ColList_Servers.TopIndex + (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1 then
+                ColList_Servers.TopIndex := I - (ColList_Servers.Height div ColList_Servers.ItemHeight) + 1;
+              fJumpToSelectedServer := False;
+           end;
+         end;
   end;
 end;
 
@@ -1736,6 +1766,9 @@ begin
         else
           fGame.Networking.ServerQuery.SortMethod := ssmByPingAsc;
   end;
+
+  //scroll to selected server, so it will be shown on the screen
+  fJumpToSelectedServer := True;
 
   //Refresh the display only if there are rooms to be sorted (otherwise it shows "no servers found" immediately)
   if fGame.Networking.ServerQuery.Rooms.Count > 0 then
