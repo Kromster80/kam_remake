@@ -103,9 +103,8 @@ var
   CtrlPaintCount: Word; //How many Controls were painted in last frame
 
 const
-  MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house
-  MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
-  MAX_TEX_RESOLUTION=512; //Maximum texture resolution client can handle (used for packing sprites)
+  MAX_RES_IN_HOUSE    = 5;     //Maximum resource items allowed to be in house
+  MAX_ORDER           = 999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map

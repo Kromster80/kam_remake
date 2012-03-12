@@ -6,6 +6,9 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   dglOpenGL, KromOGLUtils, KromUtils, Math, KM_TGATexture;
 
+const
+  MAX_TEX_RESOLUTION  = 512; //Maximum texture resolution client can handle (used for packing sprites)
+
 type
   TCardinalArray = array of Cardinal;
   TTexFormat = (tf_Normal, tf_NormalAlpha, tf_AltID, tf_AlphaTest);
@@ -28,7 +31,7 @@ type
     function GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
 
     property RendererVersion: AnsiString read fOpenGL_Version;
-    function IsOldVersion: Boolean;
+    function IsOldGLVersion: Boolean;
     procedure Resize(Width,Height: Integer);
 
     property ScreenX: Word read fScreenX;
@@ -134,7 +137,7 @@ end;
 
 
 //1.4 is considered to be our minimal requirement
-function TRender.IsOldVersion: Boolean;
+function TRender.IsOldGLVersion: Boolean;
 begin
   Result := not GL_VERSION_1_4;
 end;

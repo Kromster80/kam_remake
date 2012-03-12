@@ -196,7 +196,7 @@ begin
 
   fRender           := TRender.Create(RenderHandle, fScreenX, fScreenY, aVSync);
   //Show the message if user has old OpenGL drivers (pre-1.4)
-  if fRender.IsOldVersion then
+  if fRender.IsOldGLVersion then
     Application.MessageBox(PChar(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]), 'Warning', MB_OK or MB_ICONWARNING);
 
   fRenderAux        := TRenderAux.Create;

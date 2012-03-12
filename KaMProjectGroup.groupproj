@@ -9,13 +9,13 @@
 			<Projects Include="Test\KaM_RemakeTests.dproj">
 				<Dependencies/>
 			</Projects>
-			<Projects Include="Utils\TranslationManager\TranslationManager.dproj">
-				<Dependencies/>
-			</Projects>
 			<Projects Include="Utils\Campaign builder\CampaignBuilder.dproj">
 				<Dependencies/>
 			</Projects>
 			<Projects Include="Utils\RXXPacker\RXXPacker.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="Utils\TranslationManager\TranslationManager.dproj">
 				<Dependencies/>
 			</Projects>
 		</ItemGroup>
@@ -44,15 +44,6 @@
 		<Target Name="KaM_RemakeTests:Make">
 			<MSBuild Projects="Test\KaM_RemakeTests.dproj" Targets="Make"/>
 		</Target>
-		<Target Name="TranslationManager">
-			<MSBuild Projects="Utils\TranslationManager\TranslationManager.dproj"/>
-		</Target>
-		<Target Name="TranslationManager:Clean">
-			<MSBuild Projects="Utils\TranslationManager\TranslationManager.dproj" Targets="Clean"/>
-		</Target>
-		<Target Name="TranslationManager:Make">
-			<MSBuild Projects="Utils\TranslationManager\TranslationManager.dproj" Targets="Make"/>
-		</Target>
 		<Target Name="CampaignBuilder">
 			<MSBuild Projects="Utils\Campaign builder\CampaignBuilder.dproj"/>
 		</Target>
@@ -71,14 +62,23 @@
 		<Target Name="RXXPacker:Make">
 			<MSBuild Projects="Utils\RXXPacker\RXXPacker.dproj" Targets="Make"/>
 		</Target>
+		<Target Name="TranslationManager">
+			<MSBuild Projects="Utils\TranslationManager\TranslationManager.dproj"/>
+		</Target>
+		<Target Name="TranslationManager:Clean">
+			<MSBuild Projects="Utils\TranslationManager\TranslationManager.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="TranslationManager:Make">
+			<MSBuild Projects="Utils\TranslationManager\TranslationManager.dproj" Targets="Make"/>
+		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="KaM_Remake;KaM_RemakeTests;TranslationManager;CampaignBuilder;RXXPacker"/>
+			<CallTarget Targets="KaM_Remake;KaM_RemakeTests;CampaignBuilder;RXXPacker;TranslationManager"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="KaM_Remake:Clean;KaM_RemakeTests:Clean;TranslationManager:Clean;CampaignBuilder:Clean;RXXPacker:Clean"/>
+			<CallTarget Targets="KaM_Remake:Clean;KaM_RemakeTests:Clean;CampaignBuilder:Clean;RXXPacker:Clean;TranslationManager:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="KaM_Remake:Make;KaM_RemakeTests:Make;TranslationManager:Make;CampaignBuilder:Make;RXXPacker:Make"/>
+			<CallTarget Targets="KaM_Remake:Make;KaM_RemakeTests:Make;CampaignBuilder:Make;RXXPacker:Make;TranslationManager:Make"/>
 		</Target>
 		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
 	</Project>
