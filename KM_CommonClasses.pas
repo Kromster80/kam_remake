@@ -68,14 +68,14 @@ type
     procedure Clear; override;
   end;
 
-  //todo: Convert to 0..N-1 form
   TKMPointList = class
   private
     fCount: Integer;
-    fList: array of TKMPoint;
+    fItems: array of TKMPoint; //0..Count-1
     function GetPoint(aIndex: Integer): TKMPoint;
     procedure SetPoint(aIndex: Integer; const aValue: TKMPoint); //1..Count
   public
+    constructor Create;
 
     property Count: Integer read fCount;
     property Items[aIndex: Integer]: TKMPoint read GetPoint write SetPoint; default;
@@ -88,7 +88,7 @@ type
     function  GetClosest(aLoc: TKMPoint; out Point: TKMPoint): Boolean;
     procedure Inverse;
     function  GetTopLeft(out TL: TKMPoint): Boolean;
-    function  GetBottomRight(out RB: TKMPoint): Boolean;
+    function  GetBottomRight(out BR: TKMPoint): Boolean;
     procedure SaveToStream(SaveStream: TKMemoryStream); virtual;
     procedure LoadFromStream(LoadStream: TKMemoryStream); virtual;
   end;
@@ -326,75 +326,90 @@ end;
 
 
 { TKMPointList }
+constructor TKMPointList.Create;
+begin
+  inherited;
+end;
+
+
 procedure TKMPointList.Clear;
 begin
   fCount := 0;
-  setlength(fList, 0);
 end;
 
 
-procedure TKMPointList.AddEntry(aLoc:TKMPoint);
+procedure TKMPointList.AddEntry(aLoc: TKMPoint);
 begin
-  inc(fCount);
-  if fCount>length(fList)-1 then setlength(fList, fCount+32);
-  fList[fCount]:=aLoc;
+  if fCount >= Length(fItems) then
+    SetLength(fItems, fCount + 32);
+  fItems[fCount] := aLoc;
+  Inc(fCount);
 end;
 
 
-{Remove point from the list if is there. Return index of removed entry or -1 on failure}
-function TKMPointList.RemoveEntry(aLoc:TKMPoint):Integer;
-var i: integer;
+//Remove point from the list if is there. Return index of removed entry or -1 on failure
+function TKMPointList.RemoveEntry(aLoc: TKMPoint): Integer;
+var
+  I: Integer;
 begin
-  Result:=-1;
-  for i:=1 to fCount do
-    if KMSamePoint(fList[i],aLoc) then
-    begin
-      dec(fCount);
-      Result := i;
-      Break;
-    end;
-  if Result <> -1 then
-    for i:=Result to fCount do
-      fList[i] := fList[i+1];
-end;
+  Result := -1;
 
+  //Scan whole list to detect duplicate entries
+  for I := 0 to fCount - 1 do
+  if KMSamePoint(fItems[I], aLoc) then
+  begin
+    Assert(Result = -1, 'Duplicate points in list');
+    Result := I;
+  end;
 
-{ Insert an entry and check if list is still walkable
-  Walkable means that every point is next to neighbour points }
-procedure TKMPointList.Insert(ID:integer; aLoc:TKMPoint);
-var i:integer;
-begin
-  AddEntry(fList[fCount]);
-  for i:=fCount downto ID+1 do //todo: Replace with System.Move
-    fList[i]:=fList[i-1];
-  fList[ID]:=aLoc;
-
-  if ID = 1 then Assert(GetLength(fList[ID],fList[ID+1])<1.5); //Inject first
-  if ID = fCount then Assert(GetLength(fList[ID-1],fList[ID])<1.5); //Inject last
-end;
-
-
-function TKMPointList.GetRandom(out Point: TKMPoint):Boolean;
-begin
-  if Count=0 then
-    Result := False
-  else begin
-    Point := fList[KaMRandom(fCount)+1];
-    Result := True;
+  //Remove found entry
+  if (Result <> -1) then
+  begin
+    if (Result <> fCount - 1) then
+      Move(fItems[Result+1], fItems[Result], SizeOf(fItems[Result]) * (fCount - 1 - Result));
+    Dec(fCount);
   end;
 end;
 
 
-function TKMPointList.GetClosest(aLoc: TKMPoint; out Point: TKMPoint): Boolean;
-var i:integer;
+//Insert an entry and check if list is still walkable
+//Walkable means that every point is next to neighbour points }
+procedure TKMPointList.Insert(ID: Integer; aLoc: TKMPoint);
 begin
-  if Count=0 then
-    Result := False
-  else begin
-    Point := fList[1];
-    for i:=2 to fCount do
-    if GetLength(fList[i], aLoc) < GetLength(Point, aLoc) then
-      Point := fList[i];
+  Assert(InRange(ID, 0, fCount));
+
+  //Grow the list
+  if fCount >= Length(fItems) then
+    SetLength(fItems, fCount + 32);
+
+  //Shift items towards end
+  if fCount <> 0 then
+    Move(fItems[ID], fItems[ID+1], SizeOf(fItems[ID]) * (fCount - ID));
+
+  fItems[ID] := aLoc;
+  Inc(fCount);
+end;
+
+
+function TKMPointList.GetRandom(out Point: TKMPoint): Boolean;
+begin
+  Result := fCount <> 0;
+  if Result then
+    Point := fItems[KaMRandom(fCount)];
+end;
+
+
+function TKMPointList.GetClosest(aLoc: TKMPoint; out Point: TKMPoint): Boolean;
+var
+  I: Integer;
+begin
+  Result := fCount <> 0;
+  if Result then
+  begin
+    Point := fItems[0];
+    for I := 1 to fCount - 1 do
+    if GetLength(fItems[I], aLoc) < GetLength(Point, aLoc) then
+      Point := fItems[I];
     Result := True;
   end;
 end;
@@ -402,71 +417,78 @@ end;
 
 function TKMPointList.GetPoint(aIndex: Integer): TKMPoint;
 begin
-  Result := fList[aIndex];
+  Result := fItems[aIndex];
 end;
 
 
 procedure TKMPointList.SetPoint(aIndex: Integer; const aValue: TKMPoint);
 begin
-  fList[aIndex] := aValue;
+  fItems[aIndex] := aValue;
 end;
 
 
 //Reverse the list
 procedure TKMPointList.Inverse;
-var i:integer;
+var
+  I: Integer;
 begin
-  for i:=1 to Count div 2 do
-    KMSwapPoints(fList[i],fList[Count-i+1]); //Do +1 since i starts from 1
+  for I := 0 to fCount div 2 - 1 do
+    KMSwapPoints(fItems[I], fItems[fCount-1-I]);
 end;
 
 
+//Get top-leftmost coordinates of bounding box around all the points
 function TKMPointList.GetTopLeft(out TL: TKMPoint): Boolean;
-var i:integer;
+var
+  I: Integer;
 begin
-  Result := Count > 0;
+  Result := fCount <> 0;
+
   if Result then
   begin
-    TL := fList[1]; //Something to start with
-    for i:=2 to Count do begin
-      if fList[i].X < TL.X then TL.X := fList[i].X;
-      if fList[i].Y < TL.Y then TL.Y := fList[i].Y;
+    TL := fItems[0]; //Something to start with
+    for I := 1 to fCount - 1 do
+    begin
+      if fItems[I].X < TL.X then TL.X := fItems[I].X;
+      if fItems[I].Y < TL.Y then TL.Y := fItems[I].Y;
     end;
   end;
 end;
 
 
-function TKMPointList.GetBottomRight(out RB: TKMPoint): Boolean;
-var i:integer;
+//Get bottom-rightmost coordinates of bounding box around all the points
+function TKMPointList.GetBottomRight(out BR: TKMPoint): Boolean;
+var
+  I: Integer;
 begin
-  Result := Count > 0;
+  Result := fCount <> 0;
+
   if Result then
   begin
-    RB := fList[1]; //Something to start with
-    for i:=2 to Count do begin
-      if fList[i].X > RB.X then RB.X := fList[i].X;
-      if fList[i].Y > RB.Y then RB.Y := fList[i].Y;
+    BR := fItems[0]; //Something to start with
+    for I := 1 to fCount - 1 do
+    begin
+      if fItems[I].X > BR.X then BR.X := fItems[I].X;
+      if fItems[I].Y > BR.Y then BR.Y := fItems[I].Y;
     end;
   end;
 end;
 
 
 procedure TKMPointList.SaveToStream(SaveStream: TKMemoryStream);
-var I: Integer;
 begin
   SaveStream.Write(fCount);
-  for I := 1 to fCount do
-    SaveStream.Write(fList[I]);
+  if fCount > 0 then
+    SaveStream.Write(fItems[0], SizeOf(fItems[0]) * fCount);
 end;
 
 
 procedure TKMPointList.LoadFromStream(LoadStream:TKMemoryStream);
-var i:integer;
 begin
   LoadStream.Read(fCount);
-  SetLength(fList, fCount+32);
-  for i:=1 to fCount do
-    LoadStream.Read(fList[i]);
+  SetLength(fItems, fCount);
+  if fCount > 0 then
+    LoadStream.Read(fItems[0], SizeOf(fItems[0]) * fCount);
 end;
 
 
@@ -474,58 +496,55 @@ end;
 procedure TKMPointTagList.Clear;
 begin
   inherited;
-  SetLength(Tag, 0);
-  SetLength(Tag2, 0);
 end;
 
 
 procedure TKMPointTagList.AddEntry(aLoc: TKMPoint; aTag,aTag2: Cardinal);
 begin
-  Inherited AddEntry(aLoc);
-  if Count>length(Tag)-1 then setlength(Tag,Count+32); //Expand the list
-  if Count>length(Tag2)-1 then setlength(Tag2,Count+32); //+32 is just a way to avoid further expansions
-  Tag[Count]:=aTag;
-  Tag2[Count]:=aTag2;
+  inherited AddEntry(aLoc);
+
+  if fCount >= Length(Tag) then  SetLength(Tag, fCount + 32); //Expand the list
+  if fCount >= Length(Tag2) then SetLength(Tag2, fCount + 32); //+32 is just a way to avoid further expansions
+  Tag[fCount-1]  := aTag;
+  Tag2[fCount-1] := aTag2;
 end;
 
 
 function TKMPointTagList.RemoveEntry(aLoc: TKMPoint): Integer;
-var I: Integer;
 begin
-  Result := Inherited RemoveEntry(aLoc);
-  if Result <> -1 then
-    for I := Result to Count do
-    begin
-      Tag[I] := Tag[I+1];
-      Tag2[I] := Tag2[I+1];
-    end;
+  Result := inherited RemoveEntry(aLoc);
+
+  //Note that fCount is already decreased by 1
+  if (Result <> -1) and (Result <> fCount) then
+  begin
+    Move(Tag[Result+1], Tag[Result], SizeOf(Tag[Result]) * (fCount - Result));
+    Move(Tag2[Result+1], Tag2[Result], SizeOf(Tag2[Result]) * (fCount - Result));
+  end;
 end;
 
 
 procedure TKMPointTagList.SaveToStream(SaveStream: TKMemoryStream);
-var I: Integer;
 begin
   inherited; //Writes Count
 
-  for I := 1 to fCount do
+  if fCount > 0 then
   begin
-    SaveStream.Write(Tag[I]);
-    SaveStream.Write(Tag2[I]);
+    SaveStream.Write(Tag[0], SizeOf(Tag[0]) * fCount);
+    SaveStream.Write(Tag2[0], SizeOf(Tag2[0]) * fCount);
   end;
 end;
 
 
 procedure TKMPointTagList.LoadFromStream(LoadStream: TKMemoryStream);
-var I: Integer;
 begin
   inherited; //Reads Count
 
-  SetLength(Tag, fCount + 32); //Make space in lists to write data to, otherwise we get "Range Check Error"
-  SetLength(Tag2, fCount + 32);
-  for I := 1 to fCount do
+  SetLength(Tag, fCount);
+  SetLength(Tag2, fCount);
+  if fCount > 0 then
   begin
-    LoadStream.Read(Tag[I]);
-    LoadStream.Read(Tag2[I]);
+    LoadStream.Read(Tag[0], SizeOf(Tag[0]) * fCount);
+    LoadStream.Read(Tag2[0], SizeOf(Tag2[0]) * fCount);
   end;
 end;
 
@@ -534,7 +553,6 @@ end;
 procedure TKMPointDirList.Clear;
 begin
   fCount := 0;
-  SetLength(fItems, 0);
 end;
 
 
@@ -564,30 +582,20 @@ begin
 end;
 
 
-procedure TKMPointDirList.LoadFromStream(LoadStream: TKMemoryStream);
-var
-  I: Integer;
+procedure TKMPointDirList.SaveToStream(SaveStream: TKMemoryStream);
 begin
-  LoadStream.Read(fCount);
-  SetLength(fItems, fCount);
-  for I := 0 to fCount - 1 do
-  begin
-    LoadStream.Read(fItems[I].Loc);
-    LoadStream.Read(fItems[I].Dir);
-  end;
+  SaveStream.Write(fCount);
+  if fCount > 0 then
+    SaveStream.Write(fItems[0], SizeOf(fItems[0]) * fCount);
 end;
 
 
-procedure TKMPointDirList.SaveToStream(SaveStream: TKMemoryStream);
-var
-  I: Integer;
+procedure TKMPointDirList.LoadFromStream(LoadStream: TKMemoryStream);
 begin
-  SaveStream.Write(fCount);
-  for I := 0 to fCount - 1 do
-  begin
-    SaveStream.Write(fItems[I].Loc);
-    SaveStream.Write(fItems[I].Dir);
-  end;
+  LoadStream.Read(fCount);
+  SetLength(fItems, fCount);
+  if fCount > 0 then
+    LoadStream.Read(fItems[0], SizeOf(fItems[0]) * fCount);
 end;
 
 

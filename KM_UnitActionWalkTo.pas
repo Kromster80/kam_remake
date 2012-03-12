@@ -69,7 +69,7 @@ type
     procedure ExplanationLogCreate;
     procedure ExplanationLogAdd;
   private //Debug items
-    NodePos:integer;
+    NodePos: Integer;
     NodeList:TKMPointList;
     Explanation:string; //Debug only, explanation what unit is doing
     ExplanationLog:TStringList;
@@ -196,12 +196,12 @@ end;
 
 procedure TUnitActionWalkTo.SetInitValues;
 begin
-  NodePos              := 1;
+  NodePos              := 0;
   fDoExchange          := false;
   fDoesWalking         := false;
   fWaitingOnStep       := false;
   fDestBlocked         := false;
-  fLastSideStepNodePos := -2; //Start negitive so it is at least 2 less than NodePos at the start
+  fLastSideStepNodePos := -3; //Start negitive so it is at least 2 less than NodePos at the start
   fVertexOccupied      := KMPoint(0,0);
   fInteractionCount    := 0;
   fInteractionStatus   := kis_None;
@@ -303,7 +303,7 @@ begin
     Explanation := 'We were forced to exchange places';
     ExplanationLogAdd;
     fDoExchange := true;
-    if KMLength(ForcedExchangePos,NodeList[NodePos+1]) >= 1.5 then
+    if KMLength(ForcedExchangePos, NodeList[NodePos+1]) >= 1.5 then
       NodeList.Insert(NodePos+1, fUnit.GetPosition); //We must back-track if we cannot continue our route from the new tile
     NodeList.Insert(NodePos+1, ForcedExchangePos);
     if KMSamePoint(fUnit.GetPosition, ForcedExchangePos) then
@@ -324,17 +324,17 @@ end;
 //Used for dodging and side stepping
 procedure TUnitActionWalkTo.ChangeStepTo(aPos: TKMPoint);
 begin
-  if (NodePos+2 <= NodeList.Count) and (KMLength(aPos, NodeList[NodePos+2]) < 1.5) then
+  if (NodePos+2 <= NodeList.Count-1) and (KMLength(aPos, NodeList[NodePos+2]) < 1.5) then
     NodeList[NodePos+1] := aPos //We can simply replace the entry because it is near the next tile
   else //Otherwise we must insert it
-    NodeList.Insert(NodePos+1,aPos);
+    NodeList.Insert(NodePos+1, aPos);
 
   fUnit.Direction := KMGetDirection(fUnit.GetPosition, aPos); //Face the new tile
 end;
 
 
 function TUnitActionWalkTo.AssembleTheRoute: Boolean;
-var i: Integer; NodeList2: TKMPointList;
+var I: Integer; NodeList2: TKMPointList;
 begin
   //Build a piece of route to return to nearest road piece connected to destination road network
   if (fPass = CanWalkRoad)
@@ -353,13 +353,21 @@ begin
   else //Append route to existing part
   begin
     NodeList2 := TKMPointList.Create;
-    if CanWalkToTarget(NodeList[NodeList.Count], fPass) then
-      fGame.Pathfinding.Route_Make(NodeList[NodeList.Count], fWalkTo, fPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
-    //If this part of the route fails, the whole route has failed. At minimum Route_Make returns count=1 (fWalkTo)
-    if NodeList2.Count = 0 then NodeList.Clear; //Clear NodeList so we return false
-    for i:=2 to NodeList2.Count do
-      NodeList.AddEntry(NodeList2[i]);
-    FreeAndNil(NodeList2);
+    try
+      //Make a route
+      if CanWalkToTarget(NodeList[NodeList.Count-1], fPass) then
+        fGame.Pathfinding.Route_Make(NodeList[NodeList.Count-1], fWalkTo, fPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
+
+      //If this part of the route fails, the whole route has failed
+      //At minimum Route_Make returns Count = 1 (fWalkTo)
+      if NodeList2.Count > 0 then
+        for I := 1 to NodeList2.Count - 1 do
+          NodeList.AddEntry(NodeList2[I])
+      else
+        NodeList.Clear; //Clear NodeList so we return false
+    finally
+      NodeList2.Free;
+    end;
   end;
 
   Result := NodeList.Count > 0;
@@ -377,7 +385,7 @@ begin
     fWalkFrom := NodeList[NodePos];
     fNewWalkTo := KMPoint(0,0);
     NodeList.Clear;
-    NodePos := 1;
+    NodePos := 0;
     if not AssembleTheRoute then
       Result := dc_NoRoute;
   end;
@@ -440,9 +448,9 @@ end;
   - We were walking to house and required range to house is reached
   - We were walking to unit and met it early
   - The Task wants us to abandon }
-function TUnitActionWalkTo.CheckWalkComplete:boolean;
+function TUnitActionWalkTo.CheckWalkComplete: Boolean;
 begin
-  Result := (NodePos=NodeList.Count)
+  Result := (NodePos >= NodeList.Count - 1)
             or ((fTargetHouse = nil) and (round(KMLength(fUnit.GetPosition,fWalkTo)) <= fDistance))
             or ((fTargetHouse <> nil) and (fTargetHouse.GetDistance(fUnit.GetPosition) <= fDistance))
             or ((fTargetUnit <> nil) and (KMLength(fUnit.GetPosition,fTargetUnit.GetPosition) <= fDistance))
@@ -454,7 +462,7 @@ procedure TUnitActionWalkTo.IncVertex;
 begin
   //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
   if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
-    raise ELocError.Create('IncVertex',fVertexOccupied);
+    raise ELocError.Create('IncVertex', fVertexOccupied);
 
   fTerrain.UnitVertexAdd(fUnit.PrevPosition, fUnit.NextPosition);
   fVertexOccupied := KMGetDiagVertex(fUnit.PrevPosition, fUnit.NextPosition);
@@ -465,7 +473,7 @@ procedure TUnitActionWalkTo.DecVertex;
 begin
   //Tell fTerrain that this vertex is not being used anymore
   if KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
-    raise ELocError.Create('DecVertex 0:0',fVertexOccupied);
+    raise ELocError.Create('DecVertex 0:0', fVertexOccupied);
 
   fTerrain.UnitVertexRem(fVertexOccupied);
   fVertexOccupied := KMPoint(0,0);
@@ -689,7 +697,7 @@ begin
       //Make a new route avoiding tiles with busy units
       if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition, fWalkTo, GetEffectivePassability, fDistance, fTargetHouse, NewNodeList) then
         //Check if the new route still goes through busy units (no other route exists)
-        if (NodeList.Count > 1) and fTerrain.TileIsLocked(NodeList[2]) then
+        if (NodeList.Count > 1) and fTerrain.TileIsLocked(NodeList[1]) then
         begin
           fDestBlocked := True; //When in this mode we are zero priority as we cannot reach our destination. This allows serfs with stone to get through and clear our path.
           fInteractionStatus := kis_Waiting; //If route cannot be made it means our destination is currently not available (workers in the way) So allow us to be pushed.
@@ -716,19 +724,19 @@ end;
 
 
 {This solution tries to find an unoccupied tile where unit can side-step}
-function TUnitActionWalkTo.IntSolutionSideStep(aPosition:TKMPoint; HighestInteractionCount:integer):boolean;
-var SideStepTest:TKMPoint; Found: Boolean;
+function TUnitActionWalkTo.IntSolutionSideStep(aPosition: TKMPoint; HighestInteractionCount: Integer): Boolean;
+var SideStepTest: TKMPoint; Found: Boolean;
 begin
   Result := false; //Should only return true if a sidestep was taken (for use in CheckForObstacle)
   if (HighestInteractionCount < SIDESTEP_TIMEOUT) or fDoExchange then exit;
-  if KMSamePoint(aPosition, fWalkTo) then exit; //Someone stays right on target, no point in side-stepping
-  if not CheckInteractionFreq(HighestInteractionCount, SIDESTEP_TIMEOUT, SIDESTEP_FREQ) then exit; //FindSideStepPosition is CPU intensive, so don't run it every time
+  if KMSamePoint(aPosition, fWalkTo) then Exit; //Someone stays right on target, no point in side-stepping
+  if not CheckInteractionFreq(HighestInteractionCount, SIDESTEP_TIMEOUT, SIDESTEP_FREQ) then Exit; //FindSideStepPosition is CPU intensive, so don't run it every time
 
   //Find a node
-  if NodePos+2 > NodeList.Count then //Tell Terrain about our next position if we can
-    Found := fTerrain.FindSideStepPosition(fUnit.GetPosition, aPosition, KMPoint(0,0), GetEffectivePassability, SideStepTest, NodePos-fLastSideStepNodePos < 2)
+  if NodePos+2 > NodeList.Count - 1 then //Tell Terrain about our next position if we can
+    Found := fTerrain.FindSideStepPosition(fUnit.GetPosition, aPosition, KMPoint(0,0), GetEffectivePassability, SideStepTest, NodePos - fLastSideStepNodePos < 2)
   else
-    Found := fTerrain.FindSideStepPosition(fUnit.GetPosition, aPosition, NodeList[NodePos+2], GetEffectivePassability, SideStepTest, NodePos-fLastSideStepNodePos < 2);
+    Found := fTerrain.FindSideStepPosition(fUnit.GetPosition, aPosition, NodeList[NodePos+2], GetEffectivePassability, SideStepTest, NodePos - fLastSideStepNodePos < 2);
 
   if not Found then exit; //It could be 0,0 if all tiles were blocked (return false)
 
@@ -737,7 +745,7 @@ begin
   ExplanationLogAdd;
   ChangeStepTo(SideStepTest);
   fLastSideStepNodePos := NodePos;
-  Result := true; //Means exit DoUnitInteraction, but also means a sidestep has been taken (for use in CheckForObstacle)
+  Result := True; //Means exit DoUnitInteraction, but also means a sidestep has been taken (for use in CheckForObstacle)
 end;
 
 
@@ -837,17 +845,17 @@ begin
 end;
 
 
-function TUnitActionWalkTo.GetNextNextPosition(out NextNextPos:TKMPoint):boolean;
+function TUnitActionWalkTo.GetNextNextPosition(out NextNextPos: TKMPoint): Boolean;
 begin
-  if InRange(NodePos, 1, NodeList.Count) then
+  if InRange(NodePos, 0, NodeList.Count - 1) then
   begin
     NextNextPos := NodeList[NodePos+1];
-    Result := true;
+    Result := True;
   end
   else
   begin
     NextNextPos := KMPoint(0,0);
-    Result := false; //Our route is not that long, so there is no "NextNext" position
+    Result := False; //Our route is not that long, so there is no "NextNext" position
   end;
 end;
 
@@ -929,7 +937,7 @@ begin
   end;
 
   //Walk complete - NodePos cannot be greater than NodeCount (this should not happen, cause is unknown but for now this check stops crashes)
-  if NodePos > NodeList.Count then begin
+  if NodePos > NodeList.Count - 1 then begin
     if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) then
       DecVertex; //Unoccupy vertex
     fUnit.IsExchanging := False; //Disable sliding (in case it was set in previous step)
@@ -947,7 +955,7 @@ begin
     //Set precise position to avoid rounding errors
     fUnit.PositionF := KMPointF(NodeList[NodePos]);
 
-    if (NodePos > 1) and (not fWaitingOnStep) and KMStepIsDiag(NodeList[NodePos-1],NodeList[NodePos]) then
+    if (NodePos > 0) and (not fWaitingOnStep) and KMStepIsDiag(NodeList[NodePos-1],NodeList[NodePos]) then
       DecVertex; //Unoccupy vertex
 
     fWaitingOnStep := true;
@@ -977,7 +985,7 @@ begin
     //Check if we need to walk to a new destination
     if CanAbandonInternal and (CheckForNewDestination = dc_NoRoute) then begin
       Result := ActAborted;
-      exit;
+      Exit;
     end;
 
     //Check for units nearby to fight
@@ -991,23 +999,23 @@ begin
     if not fDoExchange and CheckWalkComplete then
     begin
       if (fDistance>0) and ((fUnit.GetUnitTask = nil) or (not fUnit.GetUnitTask.WalkShouldAbandon))
-      and not KMSamePoint(NodeList[NodePos],fWalkTo) then //Happens rarely when we asked to sidestep towards our not locked target (Warrior)
-        fUnit.Direction := KMGetDirection(NodeList[NodePos],fWalkTo); //Face tile (e.g. worker)
+      and not KMSamePoint(NodeList[NodePos], fWalkTo) then //Happens rarely when we asked to sidestep towards our not locked target (Warrior)
+        fUnit.Direction := KMGetDirection(NodeList[NodePos], fWalkTo); //Face tile (e.g. worker)
       Result := ActDone;
-      exit;
+      Exit;
     end;
 
     //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself
     if CanAbandonInternal then
       case CheckTargetHasDied of
         tc_NoChanges, tc_TargetUpdated:;
-        tc_Died: begin Result := ActAborted; exit; end;
+        tc_Died: begin Result := ActAborted; Exit; end;
       end;
 
     //This is sometimes caused by unit interaction changing the route so simply ignore it
     if KMSamePoint(NodeList[NodePos], NodeList[NodePos+1]) then
     begin
-      inc(NodePos); //Inc the node pos and exit so this step is simply skipped
+      Inc(NodePos); //Inc the node pos and exit so this step is simply skipped
       Exit; //Will take next step during next execute
     end;
 
@@ -1017,14 +1025,14 @@ begin
       fPass := CanWalk;}
 
     //Update unit direction according to next Node
-    fUnit.Direction := KMGetDirection(NodeList[NodePos],NodeList[NodePos+1]);
+    fUnit.Direction := KMGetDirection(NodeList[NodePos], NodeList[NodePos+1]);
 
     //Check if we can walk to next tile in the route
     if CanAbandonInternal then
     case CheckForObstacle of
-      oc_NoObstacle:;
-      oc_ReRouteMade: exit; //New route will pick-up
-      oc_NoRoute: begin Result := ActAborted; exit; end; //
+      oc_NoObstacle:  ;
+      oc_ReRouteMade: Exit; //New route will pick-up
+      oc_NoRoute:     begin Result := ActAborted; Exit; end; //
     end;
 
     //Perform exchange
@@ -1037,7 +1045,7 @@ begin
       and (not fTerrain.VertexUsageCompatible(fUnit.GetPosition,NodeList[NodePos+1])) then
         Exit; //Someone is crossing the path of our exchange, so we will wait until they are out of the way (this check guarantees both units in the exchange will wait)
 
-      inc(NodePos);
+      Inc(NodePos);
 
       fUnit.UpdateNextPosition(NodeList[NodePos]);
 
@@ -1067,29 +1075,29 @@ begin
       end else
         fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
 
-      inc(NodePos);
+      Inc(NodePos);
       fUnit.UpdateNextPosition(NodeList[NodePos]);
 
       if GetLength(fUnit.PrevPosition,fUnit.NextPosition) > 1.5 then
         raise ELocError.Create('Unit walk length>1.5', fUnit.PrevPosition);
 
       if fTerrain.Land[fUnit.PrevPosition.Y,fUnit.PrevPosition.X].IsUnit = nil then
-        raise ELocError.Create('Unit walk Prev position IsUnit = nil',fUnit.PrevPosition);
+        raise ELocError.Create('Unit walk Prev position IsUnit = nil', fUnit.PrevPosition);
 
       fUnit.Walk(fUnit.PrevPosition, fUnit.NextPosition); //Pre-occupy next tile
       if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) then IncVertex; //Occupy the vertex
     end;
 
   end;
-  fWaitingOnStep := false;
+  fWaitingOnStep := False;
 
-  if NodePos>NodeList.Count then
+  if NodePos > NodeList.Count - 1 then
     raise ELocError.Create('WalkTo overrun', fUnit.GetPosition);
 
   WalkX := NodeList[NodePos].X - fUnit.PositionF.X;
   WalkY := NodeList[NodePos].Y - fUnit.PositionF.Y;
-  DX := sign(WalkX); //-1,0,1
-  DY := sign(WalkY); //-1,0,1
+  DX := Sign(WalkX); //-1,0,1
+  DY := Sign(WalkY); //-1,0,1
 
   if (DX <> 0) and (DY <> 0) then
     Distance := Distance / 1.41; {sqrt (2) = 1.41421 }

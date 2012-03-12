@@ -138,7 +138,8 @@ begin
   if Application.Active then Exit;
 
   //Prevent the game window from being in the way by minimizing when alt-tabbing
-  if fMainSettings.FullScreen then
+
+  if (fMainSettings <> nil) and fMainSettings.FullScreen then
     Application.Minimize;
 end;
 

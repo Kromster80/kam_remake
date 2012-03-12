@@ -175,10 +175,12 @@ begin
 end;
 
 
-procedure TRenderAux.UnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
-var i,k:integer; x,y:single;
+procedure TRenderAux.UnitRoute(NodeList: TKMPointList; Pos: Integer; aUnitType: Byte);
+var
+  I, K: Integer;
+  FaceX, FaceY: Single;
 begin
-  if NodeList.Count = 0 then exit;
+  if NodeList.Count = 0 then Exit;
 
   case aUnitType of
     1: glColor3f(1,0,0); //Serf
@@ -188,23 +190,23 @@ begin
     else glColor3f(1,1,0); //Citizens
   end;
 
-  for i:=1 to NodeList.Count do
-    RenderDotOnTile(NodeList[i].X+0.5,NodeList[i].Y+0.5);
+  for I := 0 to NodeList.Count - 1 do
+    RenderDotOnTile(NodeList[I].X + 0.5, NodeList[I].Y + 0.5);
 
   glBegin(GL_LINE_STRIP);
-  for i:=1 to NodeList.Count do
-    glVertex2f(NodeList[i].X-0.5,NodeList[i].Y-0.5-fTerrain.InterpolateLandHeight(NodeList[i].X+0.5,NodeList[i].Y+0.5)/CELL_HEIGHT_DIV);
+    for I := 0 to NodeList.Count - 1 do
+      glVertex2f(NodeList[I].X-0.5, NodeList[I].Y-0.5-fTerrain.InterpolateLandHeight(NodeList[I].X+0.5, NodeList[I].Y+0.5)/CELL_HEIGHT_DIV);
   glEnd;
 
   glColor4f(1,1,1,1); //Vector where unit is going to
-  i:=Pos;
-  k:=min(Pos+1,NodeList.Count);
-  x:=mix(NodeList[i].X-0.5,NodeList[k].X-0.5,0.4);
-  y:=mix(NodeList[i].Y-0.5,NodeList[k].Y-0.5,0.4)+0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
-  RenderDotOnTile(NodeList[i].X+0.5,NodeList[i].Y+0.5+0.2);
+  I := Pos;
+  K := Min(Pos + 1, NodeList.Count - 1);
+  FaceX := Mix(NodeList[I].X - 0.5, NodeList[K].X - 0.5, 0.4);
+  FaceY := Mix(NodeList[I].Y - 0.5, NodeList[K].Y - 0.5, 0.4) + 0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
+  RenderDotOnTile(NodeList[I].X + 0.5, NodeList[I].Y + 0.5 + 0.2);
   glBegin(GL_LINES);
-    glVertex2f(NodeList[i].X-0.5,NodeList[i].Y-0.5+0.2-fTerrain.InterpolateLandHeight(NodeList[i].X+0.5,NodeList[i].Y+0.5)/CELL_HEIGHT_DIV);
-    glVertex2f(x,y-fTerrain.InterpolateLandHeight(x+1,y+1)/CELL_HEIGHT_DIV);
+    glVertex2f(NodeList[I].X-0.5, NodeList[I].Y-0.5+0.2-fTerrain.InterpolateLandHeight(NodeList[I].X+0.5,NodeList[I].Y+0.5)/CELL_HEIGHT_DIV);
+    glVertex2f(FaceX, FaceY - fTerrain.InterpolateLandHeight(FaceX+1, FaceY+1)/CELL_HEIGHT_DIV);
   glEnd;
 end;
 

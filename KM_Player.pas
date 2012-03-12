@@ -700,24 +700,18 @@ end;
 
 
 procedure TKMPlayer.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
-var
-  i,k,j,s,t: Integer;
-  P2: TKMPoint;
-  AllowBuild: Boolean;
-  HA: THouseArea;
-
   //Replace existing icon with a Block
   procedure BlockPoint(aPoint: TKMPoint; aID: Integer);
-  var v: integer; Replaced: Boolean;
+  var I: Integer; Replaced: Boolean;
   begin
     Replaced := False;
-    for v := aList.Count downto 1 do
-      if KMSamePoint(aList[v], aPoint) then
+    for I := aList.Count - 1 downto 0 do
+      if KMSamePoint(aList[I], aPoint) then
       begin
         if Replaced then
           aList.RemoveEntry(aPoint)
         else
-          aList.Tag[v] := aID; //Replace existing Mark with a blocker
+          aList.Tag[I] := aID; //Replace existing Mark with a blocker
         Replaced := True;
         //Keep on replacing since entrance has 2 entries in the list
       end;
@@ -726,6 +720,12 @@ var
     if not Replaced then
       aList.AddEntry(aPoint, aID, 0);
   end;
+
+var
+  i,k,j,s,t: Integer;
+  P2: TKMPoint;
+  AllowBuild: Boolean;
+  HA: THouseArea;
 begin
   //Get basic Marks
   fTerrain.GetHouseMarks(aLoc, aHouseType, aList);

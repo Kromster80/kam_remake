@@ -677,9 +677,9 @@ end;
 
 
 {Remove lock from tile}
-procedure TTerrain.UnlockTile(Loc:TKMPoint);
+procedure TTerrain.UnlockTile(Loc: TKMPoint);
 begin
-  Land[Loc.Y,Loc.X].TileLock := tlNone;
+  Land[Loc.Y, Loc.X].TileLock := tlNone;
   RecalculatePassabilityAround(Loc);
 
   //TileLocks affect passability so therefore also floodfill
@@ -688,19 +688,23 @@ end;
 
 
 procedure TTerrain.SetRoads(aList: TKMPointList; aOwner: TPlayerIndex);
-var I: Integer; TL, BR: TKMPoint;
+var
+  I: Integer;
+  TL, BR: TKMPoint;
+  HasBounds: Boolean;
 begin
   if aList.Count = 0 then Exit; //Nothing to be done
 
-  for I := 1 to aList.Count do begin
+  for I := 0 to aList.Count - 1 do
+  begin
     Land[aList[I].Y, aList[I].X].TileOwner   := aOwner;
     Land[aList[I].Y, aList[I].X].TileOverlay := to_Road;
     Land[aList[I].Y, aList[I].X].FieldAge    := 0;
     UpdateBorders(aList[I]);
   end;
 
-  aList.GetTopLeft(TL);
-  aList.GetBottomRight(BR);
+  HasBounds := aList.GetTopLeft(TL) and aList.GetBottomRight(BR);
+  Assert(HasBounds);
   RebuildPassability(TL.X-1, BR.X+1, TL.Y-1, BR.Y+1);
 
   //Roads don't affect wcWalk or wcFish
@@ -1094,20 +1098,20 @@ end;
 
 
 procedure TTerrain.GetHouseMarks(aLoc:TKMPoint; aHouseType:THouseType; aList:TKMPointTagList);
+  procedure MarkPoint(aPoint: TKMPoint; aID: Integer);
+  var I: Integer;
+  begin
+    for I := 0 to aList.Count - 1 do //Skip wires from comparison
+      if (aList.Tag[I] <> 0) and KMSamePoint(aList[I], aPoint) then
+        Exit;
+    aList.AddEntry(aPoint, aID, 0);
+  end;
+
 var
   i,k,s,t:integer;
   P2:TKMPoint;
   AllowBuild:boolean;
   HA: THouseArea;
-
-  procedure MarkPoint(aPoint: TKMPoint; aID: Integer);
-  var v: integer;
-  begin
-    for v:=1 to aList.Count do //Skip wires from comparison
-      if (aList.Tag[v] <> 0) and KMSamePoint(aList[v], aPoint) then
-        Exit;
-    aList.AddEntry(aPoint, aID, 0);
-  end;
 begin
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
@@ -1566,35 +1570,39 @@ end;
 {Return random tile surrounding Loc with aPass property. PusherLoc is the unit that pushed us which is}
 {preferable to other units (otherwise we can get two units swapping places forever)}
 function TTerrain.GetOutOfTheWay(Loc, PusherLoc:TKMPoint; aPass:TPassability):TKMPoint;
-var i,k:Integer; L1,L2,L3:TKMPointList; TempUnit: TKMUnit; PusherLocValid: Boolean;
+var
+  I, K: Integer;
+  L1, L2, L3: TKMPointList;
+  TempUnit: TKMUnit;
+  PusherLocValid: Boolean;
 begin
   //List 1 holds all available walkable positions except self
   L1 := TKMPointList.Create;
-  for i:=-1 to 1 do for k:=-1 to 1 do
-    if ((i<>0) or (k<>0))
-    and TileInMapCoords(Loc.X+k, Loc.Y+i)
-    and CanWalkDiagonaly(Loc, KMPoint(Loc.X+k, Loc.Y+i)) //Check for trees that stop us walking on the diagonals!
-    and (Land[Loc.Y+i,Loc.X+k].TileLock in [tlNone, tlFenced])
-    and (aPass in Land[Loc.Y+i,Loc.X+k].Passability) then
-      L1.AddEntry(KMPoint(Loc.X+k, Loc.Y+i));
+  for I:=-1 to 1 do for K:=-1 to 1 do
+    if ((I<>0) or (K<>0))
+    and TileInMapCoords(Loc.X+K, Loc.Y+I)
+    and CanWalkDiagonaly(Loc, KMPoint(Loc.X+K, Loc.Y+I)) //Check for trees that stop us walking on the diagonals!
+    and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
+    and (aPass in Land[Loc.Y+I,Loc.X+K].Passability) then
+      L1.AddEntry(KMPoint(Loc.X+K, Loc.Y+I));
 
   //List 2 holds the best positions, ones which are not occupied
   L2 := TKMPointList.Create;
-  for i:=1 to L1.Count do
-    if Land[L1[i].Y, L1[i].X].IsUnit = nil then
-      L2.AddEntry(L1[i]);
+  for I := 0 to L1.Count - 1 do
+    if Land[L1[I].Y, L1[I].X].IsUnit = nil then
+      L2.AddEntry(L1[I]);
 
   PusherLocValid := false;
   //List 3 holds the second best positions, ones which are occupied with an idle unit
-  L3:=TKMPointList.Create;
-  for i:=1 to L1.Count do
-    if Land[L1[i].Y, L1[i].X].IsUnit <> nil then
+  L3 := TKMPointList.Create;
+  for I := 0 to L1.Count - 1 do
+    if Land[L1[I].Y, L1[I].X].IsUnit <> nil then
     begin
-      if KMSamePoint(L1[i], PusherLoc) then PusherLocValid := true; //Make sure unit that pushed us is a valid tile before we use it
-      TempUnit := UnitsHitTest(L1[i].X, L1[i].Y);
+      if KMSamePoint(L1[I], PusherLoc) then PusherLocValid := True; //Make sure unit that pushed us is a valid tile before we use it
+      TempUnit := UnitsHitTest(L1[I].X, L1[I].Y);
       if TempUnit <> nil then
         if (TempUnit.GetUnitAction is TUnitActionStay) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
-          L3.AddEntry(L1[i]);
+          L3.AddEntry(L1[I]);
     end;
 
   if not(L2.GetRandom(Result)) then
@@ -1613,33 +1621,35 @@ end;
 
 
 function TTerrain.FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; aPass: TPassability; out SidePoint: TKMPoint; OnlyTakeBest: boolean=false):Boolean;
-var i,k:integer; L1,L2:TKMPointList;
+var
+  I, K: Integer;
+  L1, L2: TKMPointList;
 begin
   //List 1 holds all positions next to both Loc and Loc2
   L1 := TKMPointList.Create;
-  for i:=-1 to 1 do
-  for k:=-1 to 1 do
-    if ((i <> 0) or (k <> 0))
-    and TileInMapCoords(Loc.X+k,Loc.Y+i)
-    and not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i), Loc2)
-    and (aPass in Land[Loc.Y+i,Loc.X+k].Passability)
-    and CanWalkDiagonaly(Loc, KMPoint(Loc.X+k,Loc.Y+i)) //Check for trees that stop us walking on the diagonals!
-    and (Land[Loc.Y+i,Loc.X+k].TileLock in [tlNone, tlFenced])
-    and (KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1) //Right next to Loc2 (not diagonal)
-    and not HasUnit(KMPoint(Loc.X+k,Loc.Y+i)) then //Doesn't have a unit
-      L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
+  for I := -1 to 1 do
+  for K := -1 to 1 do
+    if ((I <> 0) or (K <> 0))
+    and TileInMapCoords(Loc.X+K,Loc.Y+I)
+    and not KMSamePoint(KMPoint(Loc.X+K,Loc.Y+I), Loc2)
+    and (aPass in Land[Loc.Y+I,Loc.X+K].Passability)
+    and CanWalkDiagonaly(Loc, KMPoint(Loc.X+K,Loc.Y+I)) //Check for trees that stop us walking on the diagonals!
+    and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
+    and (KMLength(KMPoint(Loc.X+K,Loc.Y+I),Loc2) <= 1) //Right next to Loc2 (not diagonal)
+    and not HasUnit(KMPoint(Loc.X+K,Loc.Y+I)) then //Doesn't have a unit
+      L1.AddEntry(KMPoint(Loc.X+K,Loc.Y+I));
 
   //List 2 holds the best positions, ones which are also next to Loc3 (next position)
   L2 := TKMPointList.Create;
   if not KMSamePoint(Loc3, KMPoint(0,0)) then //No Loc3 was given
-  for i:=1 to L1.Count do
-    if KMLength(L1[i], Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
-      L2.AddEntry(L1[i]);
+  for I := 0 to L1.Count - 1 do
+    if KMLength(L1[I], Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
+      L2.AddEntry(L1[I]);
 
   Result := True;
   if not(L2.GetRandom(SidePoint)) then
   if (OnlyTakeBest) or (not(L1.GetRandom(SidePoint))) then
-    Result := false; //No side step positions available
+    Result := False; //No side step positions available
 
   L1.Free;
   L2.Free;
@@ -1909,10 +1919,11 @@ end;
 
 {Flatten a list of points in the mission init}
 procedure TTerrain.FlattenTerrain(LocList:TKMPointList);
-var i:integer;
+var
+  I: Integer;
 begin
-  for i:=1 to LocList.Count do
-    FlattenTerrain(LocList[i], False); //Rebuild the Walk Connect at the end, rather than every time
+  for I := 0 to LocList.Count - 1 do
+    FlattenTerrain(LocList[I], False); //Rebuild the Walk Connect at the end, rather than every time
 
   //All 4 are affected by height
   RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
@@ -1947,7 +1958,7 @@ end;
 procedure TTerrain.RebuildPassability(LowX,HighX,LowY,HighY:integer);
 var i,k:integer;
 begin
-  for i:=max(LowY,1) to min(HighY,fMapY-1) do 
+  for i:=max(LowY,1) to min(HighY,fMapY-1) do
   for k:=max(LowX,1) to min(HighX,fMapX-1) do
     RecalculatePassability(KMPoint(k,i));
 end;
@@ -2516,18 +2527,20 @@ end;
 { This whole thing is very CPU intesive, think of it - to update whole (192*192) tiles map }
 //Don't use any advanced math here, only simpliest operations - + div *
 procedure TTerrain.UpdateState;
-var i,k,h,j: Word;
-  procedure SetLand(X,Y,aTile,aObj:byte);
+  procedure SetLand(X, Y, aTile, aObj: Byte);
   begin
     Land[Y,X].Terrain := aTile;
     Land[Y,X].Obj     := aObj;
   end;
+var
+  I, K: Integer;
+  h,j: Word;
 begin
   inc(fAnimStep);
 
-  for i:=FallingTrees.Count downto 1 do
-  if fAnimStep - FallingTrees.Tag2[i]+1 >= MapElem[FallingTrees.Tag[i]+1].Count then
-    ChopTree(FallingTrees[i]); //Make the tree turn into a stump
+  for I := FallingTrees.Count - 1 downto 0 do
+  if fAnimStep - FallingTrees.Tag2[I]+1 >= MapElem[FallingTrees.Tag[I]+1].Count then
+    ChopTree(FallingTrees[I]); //Make the tree turn into a stump
 
   for i:=1 to fMapY do
   for k:=1 to fMapX do

@@ -403,7 +403,7 @@ begin
   //Fieldplans
   FieldsList := TKMPointTagList.Create;
   MyPlayer.GetFieldPlans(FieldsList, aRect, True); //Include fake field plans for painting
-  for i := 1 to FieldsList.Count do
+  for i := 0 to FieldsList.Count - 1 do
     RenderTerrainMarkup(FieldsList[i].X, FieldsList[i].Y, TFieldType(FieldsList.Tag[i]));
   FreeAndNil(FieldsList);
 
@@ -417,25 +417,26 @@ begin
   //Tablets
   TabletsList := TKMPointTagList.Create;
   MyPlayer.GetPlansTablets(TabletsList, aRect);
-  for i := 1 to TabletsList.Count do
+  for i := 0 to TabletsList.Count - 1 do
     AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList[i]);
   FreeAndNil(TabletsList);
 end;
 
 
 procedure TRenderPool.RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
-var I,K: Integer;
+var
+  I, K: Integer;
 begin
-  for i := aRect.Y1 to aRect.Y2 do
-  for k := aRect.X1 to aRect.X2 do
-    if fTerrain.Land[I,K].Obj <> 255 then
-      RenderObjectOrQuad(fTerrain.Land[i, k].Obj + 1, AnimStep, k, i);
+  for I := aRect.Y1 to aRect.Y2 do
+  for K := aRect.X1 to aRect.X2 do
+    if fTerrain.Land[I, K].Obj <> 255 then
+      RenderObjectOrQuad(fTerrain.Land[I, K].Obj + 1, AnimStep, K, I);
 
   with fTerrain do
-    for i := 1 to FallingTrees.Count do
+    for I := 0 to FallingTrees.Count - 1 do
     begin
-      RenderObject(FallingTrees.Tag[i] + 1, AnimStep - FallingTrees.Tag2[i], FallingTrees[i].X, FallingTrees[i].Y);
-      Assert(AnimStep - FallingTrees.Tag2[i] <= 100, 'Falling tree overrun?');
+      RenderObject(FallingTrees.Tag[I] + 1, AnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
+      Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
     end;
 end;
 
@@ -1069,17 +1070,19 @@ begin
 end;
 
 
-procedure TRenderPool.RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
-var i:integer; MarksList: TKMPointTagList;
+procedure TRenderPool.RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
+var
+  I: Integer;
+  MarksList: TKMPointTagList;
 begin
   MarksList := TKMPointTagList.Create;
   MyPlayer.GetHouseMarks(P, aHouseType, MarksList);
 
-  for i:=1 to MarksList.Count do
-  if MarksList.Tag[i] = 0 then
-    RenderCursorWireQuad(MarksList[i], $FFFFFF00) //Cyan rect
+  for I := 0 to MarksList.Count - 1 do
+  if MarksList.Tag[I] = 0 then
+    RenderCursorWireQuad(MarksList[I], $FFFFFF00) //Cyan rect
   else
-    RenderCursorBuildIcon(MarksList[i], MarksList.Tag[i]); //icon
+    RenderCursorBuildIcon(MarksList[I], MarksList.Tag[I]); //icon
 
   MarksList.Free;
 end;

@@ -1510,13 +1510,15 @@ end;
 
 //Check if a route can be made to any tile around this house
 function TKMUnit.CanWalkTo(aFrom: TKMPoint; aHouse: TKMHouse; aPass: TPassability; aDistance: Single): Boolean;
-var I: integer; Cells: TKMPointList;
+var
+  I: Integer;
+  Cells: TKMPointList;
 begin
   Result := False;
   Cells := TKMPointList.Create;
   try
     aHouse.GetListOfCellsWithin(Cells);
-    for I := 1 to Cells.Count do
+    for I := 0 to Cells.Count - 1 do
       Result := Result or fTerrain.Route_CanBeMade(aFrom, Cells[I], aPass, aDistance);
   finally
     Cells.Free;
