@@ -37,12 +37,19 @@ object Form1: TForm1
     Left = 365
     Top = 384
     Width = 97
-    Height = 81
+    Height = 49
     AutoSize = False
     Caption = 'Include strings that are the same in English'
     Enabled = False
     WordWrap = True
     OnClick = LabelIncludeSameAsEnglishClick
+  end
+  object Label3: TLabel
+    Left = 264
+    Top = 24
+    Width = 34
+    Height = 16
+    Caption = 'Count'
   end
   object ListBox1: TListBox
     Left = 8
@@ -170,5 +177,14 @@ object Form1: TForm1
     Caption = 'Sort by Name'
     TabOrder = 13
     OnClick = btnSortByNameClick
+  end
+  object btnCompactIndexes: TButton
+    Left = 344
+    Top = 288
+    Width = 121
+    Height = 25
+    Caption = 'Compact Indexes'
+    TabOrder = 14
+    OnClick = btnCompactIndexesClick
   end
 end

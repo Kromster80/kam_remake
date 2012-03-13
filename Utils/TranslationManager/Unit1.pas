@@ -33,6 +33,8 @@ type
     cbIncludeSameAsEnglish: TCheckBox;
     LabelIncludeSameAsEnglish: TLabel;
     btnSortByName: TButton;
+    btnCompactIndexes: TButton;
+    Label3: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
@@ -48,6 +50,7 @@ type
     procedure cbShowMissingChange(Sender: TObject);
     procedure cbIncludeSameAsEnglishClick(Sender: TObject);
     procedure LabelIncludeSameAsEnglishClick(Sender: TObject);
+    procedure btnCompactIndexesClick(Sender: TObject);
   private
     TransMemos: array of TMemo;
     TransLabels: array of TLabel;
@@ -69,6 +72,7 @@ type
     procedure LoadTextLibraryConsts(aFileName: string);
     procedure LoadTranslation(aFileName: string; TranslationID: integer);
     procedure AddMissingConsts;
+    procedure DeleteConst(aIndex: Integer);
 
     procedure SaveTextLibraryConsts(aFileName: string);
     procedure SaveTranslation(aFileName: string; TranslationID: integer);
@@ -199,6 +203,8 @@ begin
   ListBox1.ItemIndex := EnsureRange(ItemIdx, 0, ListBox1.Count - 1);
   ListBox1.TopIndex := TopIdx;
   ListBox1Click(ListBox1);
+
+  Label3.Caption := 'Count ' + IntToStr(ListBox1.Count);
 end;
 
 
@@ -431,6 +437,7 @@ begin
   for I := 1 to High(Consts) do
     if (Consts[I-1].TextID <> -1) and (Consts[I-1].TextID+1 <> Consts[I].TextID) then
     begin
+      SetLength(Consts, Length(Consts) + 1);
       for K := Length(Consts)-1 downto I+1 do
         Consts[K] := Consts[K-1];
       Consts[I].TextID := -1;
@@ -449,26 +456,58 @@ procedure TForm1.btnSortByNameClick(Sender: TObject);
   end;
 
   procedure Swap(A, B: Integer);
-  var I: Integer; s: string;
+  var
+    I: Integer;
+    S: string;
+    T: Integer;
   begin
+    T := Consts[A].TextID; Consts[A].TextID := Consts[B].TextID; Consts[B].TextID := T;
     for I := 1 to LocalesCount do
     begin
-      s := Texts[A, I];
-      Texts[A, I] := Texts[B, I];
-      Texts[B, I] := s;
+      S := Texts[Consts[A].TextID, I];
+      Texts[Consts[A].TextID, I] := Texts[Consts[B].TextID, I];
+      Texts[Consts[B].TextID, I] := S;
     end;
   end;
 
 var
   I, K: Integer;
 begin
-  //todo: Name Sort
-  {for I := 0 to High(Consts) do
-  for K:= I + 1 to High(Consts) do
-  if Compare(I,K) then
-    Swap(A,B);}
+  //Sort
+  for I := 0 to High(Consts) do
+  if Consts[I].TextID <> -1 then
+    for K:= I + 1 to High(Consts) do
+    if Consts[K].TextID <> -1 then
+      if Compare(I,K) then
+        Swap(I,K);
+
+  //Compact Indexes
+  {for I := 1 to High(Consts) - 1 do
+  if (Consts[I].TextID = -1) and (Consts[I-1].TextID = Consts[I+1].TextID+1) then
+    InsertConst()}
 
   RefreshList;
+end;
+
+
+procedure TForm1.btnCompactIndexesClick(Sender: TObject);
+var
+  I: Integer;
+  Used: array of Word;
+begin
+  {SetLength(Used, Length(Texts));
+  for I := 0 to High(Used) do
+    Used[I] := 1;
+
+  for I := 0 to High(Consts) do
+    if Consts[I].TextID <> -1 then
+      Used[Consts[I].TextID] := 0;
+
+  for I := 1 to High(Consts) do
+  if (Consts[I].TextID = -1) and (Consts[I-1].TextID = -1) then
+    DeleteConst(I);
+
+  RefreshList;}
 end;
 
 
@@ -534,29 +573,36 @@ begin
 end;
 
 
-procedure TForm1.btnDeleteClick(Sender: TObject);
-var i,k,ID: integer;
+procedure TForm1.DeleteConst(aIndex: Integer);
+var i,k: integer;
 begin
-  ID := ListBox1.ItemIndex; //Item place we are deleting
-
-  if Consts[ID].TextID <> -1 then
+  if Consts[aIndex].TextID <> -1 then
   begin
     //Shift all texts up
-    for i := Consts[ID].TextID to High(Texts)-1 do
+    for i := Consts[aIndex].TextID to High(Texts)-1 do
       for k := 1 to LocalesCount do
         Texts[i,k] := Texts[i+1,k];
 
     //Shift pointers
     for i := 0 to High(Consts) do
-      if Consts[i].TextID > Consts[ID].TextID then
+      if Consts[i].TextID > Consts[aIndex].TextID then
         Dec(Consts[i].TextID);
   end;
 
   //Shift consts up
-  for i := ID to Length(Consts)-2 do
+  for i := aIndex to Length(Consts)-2 do
     Consts[i] := Consts[i+1];
 
   SetLength(Consts, Length(Consts)-1);
+end;
+
+
+procedure TForm1.btnDeleteClick(Sender: TObject);
+var i,k,ID: integer;
+begin
+  ID := ListBox1.ItemIndex; //Item place we are deleting
+
+  DeleteConst(ID);
 
   ListBox1.Items.Delete(ID);
   RefreshList;
