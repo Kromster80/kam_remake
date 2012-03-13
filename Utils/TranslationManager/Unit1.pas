@@ -601,11 +601,13 @@ procedure TForm1.btnDeleteClick(Sender: TObject);
 var i,k,ID: integer;
 begin
   ID := ListBox1.ItemIndex; //Item place we are deleting
+  if ID = -1 then Exit;
 
   DeleteConst(ID);
 
   ListBox1.Items.Delete(ID);
   RefreshList;
+  ListBox1.ItemIndex := ID;
 end;
 
 
