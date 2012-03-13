@@ -268,11 +268,15 @@ begin
 end;
 
 
+//Load campaign info from *.cmp file
+//It should be private, but it is used by CampaignBuilder
 procedure TKMCampaign.LoadFromFile(aFilename: string);
 var
   M: TKMemoryStream;
   I, K: Integer;
 begin
+  if not FileExists(aFilename) then Exit;
+
   M := TKMemoryStream.Create;
   M.LoadFromFile(aFilename);
 
@@ -300,6 +304,8 @@ var
   M: TKMemoryStream;
   I, K: Integer;
 begin
+  Assert(aFilename <> '');
+
   M := TKMemoryStream.Create;
   M.Write(fShortTitle);
   M.Write(Byte(fBackGroundPic.RX));

@@ -23,6 +23,7 @@ function AssureFileExt(FileName,Ext:string): string;
 function TruncateExt(FileName:string): string;
 function GetFileSize(const FileName: string): LongInt;
 function CheckFileExists(const FileName: string; const IsSilent:boolean = false):boolean;
+function CheckSameContents(A, B: string): Boolean;
 
 procedure FreeThenNil(var Obj);
 
@@ -208,6 +209,35 @@ begin
 
   if not IsSilent and not Result then
     Application.MessageBox(PChar('Unable to locate file:' + eol + '"' + FileName + '"'), 'Error', MB_OK);
+end;
+
+
+function CheckSameContents(A, B: string): Boolean;
+var S1, S2: TMemoryStream; I: Integer;
+begin
+  Result := FileExists(A) and FileExists(B);
+
+  if Result then
+  begin
+    S1 := TMemoryStream.Create;
+    S1.LoadFromFile(A);
+    S2 := TMemoryStream.Create;
+    S2.LoadFromFile(B);
+
+    Result := (S1.Size = S2.Size);
+
+    if Result then
+    begin
+      I := 0;
+      repeat
+        Result := PByte(Cardinal(S1.Memory) + I)^ = PByte(Cardinal(S2.Memory) + I)^;
+        Inc(I);
+      until (not Result or (I = S1.Size));
+    end;
+
+    S1.Free;
+    S2.Free;
+  end;
 end;
 
 

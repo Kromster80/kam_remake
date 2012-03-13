@@ -52,7 +52,7 @@
 			<VerInfo_Locale>1049</VerInfo_Locale>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 			<DCC_DcuOutput>.</DCC_DcuOutput>
-			<DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
+			<DCC_ExeOutput>.\</DCC_ExeOutput>
 			<DCC_E>false</DCC_E>
 			<DCC_N>false</DCC_N>
 			<DCC_S>false</DCC_S>
@@ -78,6 +78,7 @@
 			<DCC_RemoteDebug>true</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 			<DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -94,6 +95,8 @@
 			</DelphiCompile>
 			<DCCReference Include="TestKM_CommonClasses.pas"/>
 			<DCCReference Include="..\KM_CommonClasses.pas"/>
+			<DCCReference Include="TestKM_Campaigns.pas"/>
+			<DCCReference Include="..\KM_Campaigns.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -156,6 +159,7 @@
 					<TestFramework>DUnit / Delphi Win32</TestFramework>
 					<TestRunner>GUI</TestRunner>
 					<SourceProjectName>G:\Delphi\KaM Remake\KaM_Remake.dproj</SourceProjectName>
+					<TestProjectName/>
 				</UnitTesting>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>
