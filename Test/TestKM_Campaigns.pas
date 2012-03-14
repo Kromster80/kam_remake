@@ -177,12 +177,9 @@ begin
 end;
 
 procedure TestTKMCampaignsCollection.TestScanFolder;
-var
-  aPath: string;
 begin
-  // TODO: Setup method call parameters
-  FKMCampaignsCollection.ScanFolder(aPath);
-  // TODO: Validate method results
+  FKMCampaignsCollection.ScanFolder(ExeDir + 'Campaigns\');
+  Check(FKMCampaignsCollection.Count >= 2);
 end;
 
 procedure TestTKMCampaignsCollection.TestLoadProgress;
