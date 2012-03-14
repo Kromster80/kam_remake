@@ -21,13 +21,13 @@ type
     //Runtime variables
     fPath: string;
     fFirstTextIndex: Word;
-    fUnlockedMaps: Byte;
+    fUnlockedMap: Byte;
 
     //Saved in CMP
     fShortTitle: AnsiString; //Used to identify the campaign
     fBackGroundPic: TPicID;
     fMapCount: Byte;
-    procedure SetUnlockedMaps(Value: Byte);
+    procedure SetUnlockedMap(aValue: Byte);
     procedure SetMapCount(aValue: Byte);
   public
     Maps: array of record
@@ -45,7 +45,7 @@ type
     property BackGroundPic: TPicID read fBackGroundPic write fBackGroundPic;
     property MapCount: byte read fMapCount write SetMapCount;
     property ShortTitle: AnsiString read fShortTitle write fShortTitle;
-    property UnlockedMaps: byte read fUnlockedMaps write SetUnlockedMaps;
+    property UnlockedMap: byte read fUnlockedMap write SetUnlockedMap;
 
     function MissionFile(aIndex: byte): string;
     function MissionTitle(aIndex: byte): AnsiString;
@@ -56,27 +56,30 @@ type
   TKMCampaignsCollection = class
   private
     fActiveCampaign: TKMCampaign; //Campaign we are playing
-    fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
+    fActiveCampaignMap: Byte; //Map of campaign we are playing, could be different than UnlockedMaps
     fList: TList;
-    function GetCampaign(aIndex:byte): TKMCampaign;
+    function GetCampaign(aIndex: Integer): TKMCampaign;
     procedure AddCampaign(const aPath: string);
-    procedure ScanFolder(const aPath: string);
-    procedure LoadProgress(const FileName: string);
-    procedure SaveProgress(const FileName: string);
   public
     constructor Create;
     destructor Destroy; override;
 
-    property ActiveCampaign: TKMCampaign read fActiveCampaign write fActiveCampaign;
-    property ActiveCampaignMap:byte read fActiveCampaignMap write fActiveCampaignMap;
+    //Initialization
+    procedure ScanFolder(const aPath: string);
+    procedure LoadProgress(const FileName: string);
+    procedure SaveProgress(const FileName: string);
 
-    function Count:integer;
-    property Campaigns[aIndex:byte]:TKMCampaign read GetCampaign; default;
-    function CampaignByTitle(const aShortTitle: AnsiString):TKMCampaign;
+    //Usage
+    property ActiveCampaign: TKMCampaign read fActiveCampaign;// write fActiveCampaign;
+    property ActiveCampaignMap: Byte read fActiveCampaignMap;// write fActiveCampaignMap;
+    function Count: Integer;
+    property Campaigns[aIndex: Integer]: TKMCampaign read GetCampaign; default;
+    function CampaignByTitle(const aShortTitle: AnsiString): TKMCampaign;
+    procedure SetActive(aCampaign: TKMCampaign; aMap: Byte);
     procedure UnlockNextMap;
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
@@ -93,22 +96,16 @@ constructor TKMCampaignsCollection.Create;
 begin
   inherited;
   fList := TList.Create;
-  ScanFolder(ExeDir + 'Campaigns\');
-  LoadProgress(ExeDir + 'Saves\Campaigns.dat');
 end;
 
 
 destructor TKMCampaignsCollection.Destroy;
 var
-  I: integer;
+  I: Integer;
 begin
-  CreateDir(ExeDir + 'Saves\'); //Makes the folder incase it was deleted
-  SaveProgress(ExeDir + 'Saves\Campaigns.dat');
-  fLog.AppendLog('Campaigns.dat saved');
-
   //Free list objects
   for I := 0 to Count - 1 do
-    Self[I].Free;
+    Campaigns[I].Free;
 
   fList.Free;
   inherited;
@@ -154,9 +151,16 @@ begin
 end;
 
 
-function TKMCampaignsCollection.GetCampaign(aIndex: byte): TKMCampaign;
+procedure TKMCampaignsCollection.SetActive(aCampaign: TKMCampaign; aMap: Byte);
 begin
-  Result := TKMCampaign(fList[aIndex]);
+  fActiveCampaign := aCampaign;
+  fActiveCampaignMap := aMap;
+end;
+
+
+function TKMCampaignsCollection.GetCampaign(aIndex: Integer): TKMCampaign;
+begin
+  Result := fList[aIndex];
 end;
 
 
@@ -185,7 +189,7 @@ begin
       M.Read(Unlocked);
       C := CampaignByTitle(AnsiString(CampName));
       if C <> nil then
-        C.UnlockedMaps := Unlocked;
+        C.UnlockedMap := Unlocked;
     end;
   finally
     M.Free;
@@ -196,8 +200,11 @@ end;
 procedure TKMCampaignsCollection.SaveProgress(const FileName: string);
 var
   M: TKMemoryStream;
-  I: word;
+  I: Integer;
 begin
+  //Makes the folder incase it is missing
+  ForceDirectories(ExtractFilePath(FileName));
+
   M := TKMemoryStream.Create;
   try
     M.Write(Integer(CAMP_HEADER)); //Identify our format
@@ -205,13 +212,15 @@ begin
     for I := 0 to Count - 1 do
     begin
       M.Write(Campaigns[I].ShortTitle);
-      M.Write(Campaigns[I].UnlockedMaps);
+      M.Write(Campaigns[I].UnlockedMap);
     end;
 
     M.SaveToFile(FileName);
   finally
     M.Free;
   end;
+
+  fLog.AppendLog('Campaigns.dat saved');
 end;
 
 
@@ -234,7 +243,7 @@ end;
 procedure TKMCampaignsCollection.UnlockNextMap;
 begin
   if ActiveCampaign <> nil then
-    ActiveCampaign.UnlockedMaps := ActiveCampaignMap + 1 + 1;
+    ActiveCampaign.UnlockedMap := ActiveCampaignMap + 1;
 end;
 
 
@@ -264,7 +273,8 @@ end;
 constructor TKMCampaign.Create;//(const aShortTitle: AnsiString; aMapCount:byte; aBackRX: TRXType; aBackID:word);
 begin
   inherited;
-  fUnlockedMaps := 1; //1st map should be always unlocked to allow to start campaign
+  //1st map is always unlocked to allow to start campaign
+  fUnlockedMap := 0;
 end;
 
 
@@ -335,7 +345,8 @@ begin
   fFirstTextIndex := fTextLibrary.AppendCampaign(fPath + 'text.%s.libx');
   //LoadRX(fPath + '\info.cmp');
 
-  fUnlockedMaps := 5; //Unlock more maps for debug
+  if UNLOCK_CAMPAIGN_MAPS then //Unlock more maps for debug
+    fUnlockedMap := 5;
 end;
 
 
@@ -368,9 +379,9 @@ end;
 
 {When player completes one map we allow to reveal the next one, note that
 player may be replaying previous maps, in that case his progress remains the same}
-procedure TKMCampaign.SetUnlockedMaps(Value: byte);
+procedure TKMCampaign.SetUnlockedMap(aValue: byte);
 begin
-  fUnlockedMaps := EnsureRange(Value, fUnlockedMaps, fMapCount - 1);
+  fUnlockedMap := EnsureRange(aValue, fUnlockedMap, fMapCount - 1);
 end;
 
 

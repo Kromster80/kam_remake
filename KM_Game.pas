@@ -208,6 +208,8 @@ begin
   fResource         := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources(fGameSettings.Locale);
   fCampaigns        := TKMCampaignsCollection.Create;
+  fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
+  fCampaigns.LoadProgress(ExeDir + 'Saves\Campaigns.dat');
 
   //If game was reinitialized from options menu then we should return there
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
@@ -235,6 +237,7 @@ begin
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
   fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
 
+  fCampaigns.SaveProgress(ExeDir + 'Saves\Campaigns.dat');
   FreeThenNil(fCampaigns);
   if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeThenNil(fGameSettings);
@@ -448,8 +451,7 @@ procedure TKMGame.StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
 begin
   Stop(gr_Silent); //Stop everything silently
 
-  fCampaigns.ActiveCampaign := aCampaign;
-  fCampaigns.ActiveCampaignMap := aMap;
+  fCampaigns.SetActive(aCampaign, aMap);
 
   GameInit(false);
   GameStart(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap));
@@ -460,8 +462,7 @@ procedure TKMGame.StartSingleMap(aMissionFile, aGameName:string);
 begin
   Stop(gr_Silent); //Stop everything silently
 
-  fCampaigns.ActiveCampaign := nil;
-  fCampaigns.ActiveCampaignMap := 0;
+  fCampaigns.SetActive(nil, 0);
 
   GameInit(false);
   GameStart(aMissionFile, aGameName);
@@ -472,8 +473,7 @@ procedure TKMGame.StartSingleSave(aFilename:string);
 begin
   Stop(gr_Silent); //Stop everything silently
 
-  fCampaigns.ActiveCampaign := nil;
-  fCampaigns.ActiveCampaignMap := 0;
+  fCampaigns.SetActive(nil, 0);
 
   GameInit(false);
   Load(aFilename);
@@ -567,8 +567,7 @@ var
 begin
   Stop(gr_Silent); //Stop everything silently
 
-  fCampaigns.ActiveCampaign := nil;
-  fCampaigns.ActiveCampaignMap := 0;
+  fCampaigns.SetActive(nil, 0);
 
   GameInit(true);
 
@@ -622,8 +621,7 @@ procedure TKMGame.StartMultiplayerSave(const aFilename: string);
 begin
   Stop(gr_Silent); //Stop everything silently
 
-  fCampaigns.ActiveCampaign := nil;
-  fCampaigns.ActiveCampaignMap := 0;
+  fCampaigns.SetActive(nil, 0);
 
   GameInit(true);
   Load(aFilename);

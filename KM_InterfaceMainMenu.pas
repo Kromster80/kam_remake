@@ -1411,8 +1411,8 @@ begin
   for I := 0 to High(Image_CampaignFlags) do
   begin
     Image_CampaignFlags[I].Visible   := I < Campaign_Selected.MapCount;
-    Image_CampaignFlags[I].TexID     := MapPic[I < Campaign_Selected.UnlockedMaps];
-    Image_CampaignFlags[I].HighlightOnMouseOver := I<Campaign_Selected.UnlockedMaps;
+    Image_CampaignFlags[I].TexID     := MapPic[I <= Campaign_Selected.UnlockedMap];
+    Image_CampaignFlags[I].HighlightOnMouseOver := I <= Campaign_Selected.UnlockedMap;
   end;
 
   //Place sites
@@ -1423,7 +1423,7 @@ begin
   end;
 
   //Select last map to play by 'clicking' last node
-  Campaign_SelectMap(Image_CampaignFlags[Campaign_Selected.UnlockedMaps - 1]);
+  Campaign_SelectMap(Image_CampaignFlags[Campaign_Selected.UnlockedMap]);
 end;
 
 

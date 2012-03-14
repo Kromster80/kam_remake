@@ -87,6 +87,7 @@ var
   INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
   SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   {Gameplay cheats}
+  UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
   MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. canWalk) in Multiplayer

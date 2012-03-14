@@ -114,6 +114,7 @@ end;
 
 procedure TKMMain.Stop(Sender: TObject);
 begin
+  fTimer.Enabled := False;
   //Reset the resolution
   if fResolutions<>nil then FreeThenNil(fResolutions);
   if fMainSettings<>nil then FreeThenNil(fMainSettings);
