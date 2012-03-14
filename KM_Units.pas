@@ -1056,7 +1056,7 @@ end;
 
 
 {Returns self and adds on to the pointer counter}
-function TKMUnit.GetUnitPointer:TKMUnit;
+function TKMUnit.GetUnitPointer: TKMUnit;
 begin
   inc(fPointerCount);
   Result := Self;
@@ -1068,7 +1068,7 @@ end;
 procedure TKMUnit.ReleaseUnitPointer;
 begin
   if fPointerCount < 1 then
-    raise ELocError.Create('Unit remove pointer',PrevPosition);
+    raise ELocError.Create('Unit remove pointer', PrevPosition);
   dec(fPointerCount);
 end;
 

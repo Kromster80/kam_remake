@@ -29,8 +29,7 @@ type
     procedure RemoveEmptyPlayers;
     procedure RemovePlayer(aIndex:TPlayerIndex);
     procedure AfterMissionInit(aFlattenRoads:boolean);
-    procedure UpdateMultiplayerTeams;
-    function HousesHitTest(X,Y:Integer):TKMHouse;
+    function HousesHitTest(X,Y:Integer): TKMHouse;
     function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
     function GetClosestUnit(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMUnit;
     function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
@@ -48,8 +47,8 @@ type
     procedure SyncFogOfWar;
     procedure AddDefaultMPGoals(aMissionMode:TKMissionMode);
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
+    procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure IncAnimStep;
     procedure UpdateState(aTick: Cardinal);
@@ -114,18 +113,6 @@ var i:integer;
 begin
   for i:=0 to fCount-1 do
     fPlayerList[i].AfterMissionInit(aFlattenRoads);
-end;
-
-
-procedure TKMPlayersCollection.UpdateMultiplayerTeams;
-var i,k:integer;
-begin
-  for i:=1 to fGame.Networking.NetPlayers.Count do
-    for k:=1 to fGame.Networking.NetPlayers.Count do
-      if (fGame.Networking.NetPlayers[i].Team = 0) or (fGame.Networking.NetPlayers[i].Team <> fGame.Networking.NetPlayers[k].Team) then
-        fGame.Networking.NetPlayers[i].PlayerIndex.Alliances[fGame.Networking.NetPlayers[k].PlayerIndex.PlayerIndex] := at_Enemy
-      else
-        fGame.Networking.NetPlayers[i].PlayerIndex.Alliances[fGame.Networking.NetPlayers[k].PlayerIndex.PlayerIndex] := at_Ally;
 end;
 
 
@@ -364,22 +351,24 @@ end;
 
 //MapEd procedure to remove any unit below
 procedure TKMPlayersCollection.RemAnyUnit(Position: TKMPoint);
-var i: Integer;
+var I: Integer;
 begin
-  for i:=0 to fCount-1 do
+  for I := 0 to fCount - 1 do
     fPlayerList[i].RemUnit(Position);
   fPlayerAnimals.RemUnit(Position);
 end;
 
 
-procedure TKMPlayersCollection.RevealForTeam(aPlayer: TPlayerIndex; Pos:TKMPoint; Radius,Amount:word);
-var i:integer;
+//Reveal portion of terrain for said player and his allies
+//@Lewin: I don't see a reason against revealing a map for allies always
+procedure TKMPlayersCollection.RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius, Amount: Word);
+var I: Integer;
 begin
   fPlayerList[aPlayer].FogOfWar.RevealCircle(Pos,Radius,Amount);
-  if fGame.MultiplayerMode then
-    for i:=0 to fCount-1 do
-      if (i<>aPlayer) and (fPlayerList[aPlayer].Alliances[i] = at_Ally) then
-        fPlayerList[i].FogOfWar.RevealCircle(Pos,Radius,Amount);
+  //if fGame.MultiplayerMode then
+    for I := 0 to fCount - 1 do
+      if (I <> aPlayer) and (fPlayerList[aPlayer].Alliances[I] = at_Ally) then
+        fPlayerList[I].FogOfWar.RevealCircle(Pos, Radius, Amount);
 end;
 
 
@@ -412,18 +401,21 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.Save(SaveStream:TKMemoryStream);
-var i:word;
+// aMultiplayer - savegames should be identical when in MP mode
+procedure TKMPlayersCollection.Save(SaveStream: TKMemoryStream; aMultiplayer: Boolean);
+var I: Integer;
 begin
   SaveStream.Write('Players');
   SaveStream.Write(fCount);
-  for i:=0 to fCount-1 do
-    fPlayerList[i].Save(SaveStream);
+  for I := 0 to fCount - 1 do
+    fPlayerList[I].Save(SaveStream);
   PlayerAnimals.Save(SaveStream);
-  if not fGame.MultiplayerMode then
-    SaveStream.Write(MyPlayer.PlayerIndex)
+
+  //Multiplayer saves must be identical
+  if aMultiplayer then
+    SaveStream.Write(Player[0].PlayerIndex)
   else
-    SaveStream.Write(Player[0].PlayerIndex); //Multiplayer saves must be identical
+    SaveStream.Write(MyPlayer.PlayerIndex);
 end;
 
 
@@ -472,9 +464,9 @@ procedure TKMPlayersCollection.UpdateState(aTick: Cardinal);
 var
   I: Byte;
 begin
+  //Update AI every 2sec for different player to even the CPU load
   for I := 0 to fCount - 1 do
     if fGame.GameState in [gsRunning, gsReplay] then
-      //Update AI every 2sec for different player to even the CPU load
       fPlayerList[I].UpdateState((aTick + I) mod 20 = 0)
     else
       //PlayerAI can stop the game and clear everything

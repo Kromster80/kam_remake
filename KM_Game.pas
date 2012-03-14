@@ -1359,7 +1359,7 @@ begin
     SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
 
   fTerrain.Save(SaveStream); //Saves the map
-  fPlayers.Save(SaveStream); //Saves all players properties individually
+  fPlayers.Save(SaveStream, fMultiplayerMode); //Saves all players properties individually
   fProjectiles.Save(SaveStream);
   fEventsManager.Save(SaveStream);
 

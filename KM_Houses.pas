@@ -456,7 +456,7 @@ procedure TKMHouse.Activate(aWasBuilt: Boolean);
 var i:integer; Res:TResourceType;
 begin
   fPlayers.Player[fOwner].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
-  fPlayers.RevealForTeam(fOwner,fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
+  fPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
@@ -1085,7 +1085,7 @@ begin
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FOG_OF_WAR_ENABLE then
   if FlagAnimStep mod 10 = 0 then
-    fPlayers.RevealForTeam(fOwner, fPosition,fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
+    fPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
 end;
 
 

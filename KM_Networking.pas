@@ -171,6 +171,7 @@ type
 
     property OnTextMessage:TStringEvent write fOnTextMessage;   //Text message recieved
 
+    procedure UpdateMultiplayerTeams;
     procedure UpdateState(aTick: cardinal);
     procedure UpdateStateIdle;
   end;
@@ -1325,6 +1326,18 @@ begin
   MPGameInfo.Players := fNetPlayers.GetSimpleAsText;
   PacketSend(NET_ADDRESS_SERVER,mk_SetGameInfo,MPGameInfo.GetAsText,0);
   MPGameInfo.Free;
+end;
+
+
+procedure TKMNetworking.UpdateMultiplayerTeams;
+var I,K: Integer;
+begin
+  for I := 1 to fNetPlayers.Count do
+    for K := 1 to fNetPlayers.Count do
+      if (fNetPlayers[I].Team = 0) or (fNetPlayers[I].Team <> fNetPlayers[K].Team) then
+        fNetPlayers[I].PlayerIndex.Alliances[fNetPlayers[K].PlayerIndex.PlayerIndex] := at_Enemy
+      else
+        fNetPlayers[I].PlayerIndex.Alliances[fNetPlayers[K].PlayerIndex.PlayerIndex] := at_Ally;
 end;
 
 
