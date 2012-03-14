@@ -361,6 +361,10 @@ end;
 
 //Reveal portion of terrain for said player and his allies
 //@Lewin: I don't see a reason against revealing a map for allies always
+//@Krom: Well in singleplayer KaM you couldn't see what your allies could. It could mess up some campaign/fanmade missions,
+//       possibly where you "discover" allies that you couldn't see at the start. (I made one such mission, you had to defend
+//       your allies village, but you couldn't see it at the start, you had to walk there)
+//       I think it would be bad to change it. Maybe it could be a script option eventually.
 procedure TKMPlayersCollection.RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius, Amount: Word);
 var I: Integer;
 begin
