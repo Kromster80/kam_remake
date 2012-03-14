@@ -697,7 +697,7 @@ begin
       //Make a new route avoiding tiles with busy units
       if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition, fWalkTo, GetEffectivePassability, fDistance, fTargetHouse, NewNodeList) then
         //Check if the new route still goes through busy units (no other route exists)
-        if (NodeList.Count > 1) and fTerrain.TileIsLocked(NodeList[1]) then
+        if (NewNodeList.Count > 1) and fTerrain.TileIsLocked(NewNodeList[1]) then
         begin
           fDestBlocked := True; //When in this mode we are zero priority as we cannot reach our destination. This allows serfs with stone to get through and clear our path.
           fInteractionStatus := kis_Waiting; //If route cannot be made it means our destination is currently not available (workers in the way) So allow us to be pushed.

@@ -120,7 +120,7 @@ begin
   if fMainSettings<>nil then FreeThenNil(fMainSettings);
   if fGame<>nil then fGame.Stop(gr_Silent);
   if fGame<>nil then FreeThenNil(fGame);
-  fTimer.Free;
+  if fTimer<>nil then fTimer.Free; //If you close the game during initialisation the timer is not yet created
   if fLog<>nil then FreeThenNil(fLog);
   {$IFDEF MSWindows}
   TimeEndPeriod(1);

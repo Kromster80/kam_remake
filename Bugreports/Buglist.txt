@@ -14,6 +14,7 @@
  +	Chat button in multiplayer replay viewer was not properly disabled and upon click caused a crash
  +	See-through hills (lighting flaw)
  +	Server selection highlight in MP menu disappears when sorting by any column
+	Putting a "/" in a save name causes an error (probably other characters like \ ? | too, we should restrict allowed chars)
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered (grouped) by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
