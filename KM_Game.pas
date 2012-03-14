@@ -23,7 +23,6 @@ type
     gsReplay,  //Game is showing replay, no player input allowed
     gsEditor); //Game is in MapEditor mode
 
-type
   //Methods relevant to gameplay
   TKMGame = class
   private //Irrelevant to savegame
@@ -68,7 +67,7 @@ type
 
     procedure Load(const aFilename: string; aReplay:boolean=false);
   public
-    OnCursorUpdate: TStringEvent;
+    OnCursorUpdate: TIntegerStringEvent;
     PlayOnState:TGameResultMsg;
     DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState:TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
@@ -76,7 +75,7 @@ type
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
+    constructor Create(aHandle: HWND; aScreenX,aScreenY:integer; aVSync:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
     destructor Destroy; override;
     procedure AfterConstruction(aReturnToOptions: Boolean); reintroduce;
     function CanClose: Boolean;
@@ -171,12 +170,12 @@ var
 
 implementation
 uses
-  KM_Main, KM_Player, KM_GameInfo, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log,
+  KM_Player, KM_GameInfo, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log,
   KM_ResourceCursors;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
+constructor TKMGame.Create(aHandle: HWND; aScreenX,aScreenY:integer; aVSync:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
 begin
   Inherited Create;
   fScreenX := aScreenX;
@@ -194,7 +193,7 @@ begin
   fLocales        := TKMLocales.Create;
   fGameSettings   := TGameSettings.Create;
 
-  fRender           := TRender.Create(RenderHandle, fScreenX, fScreenY, aVSync);
+  fRender           := TRender.Create(aHandle, fScreenX, fScreenY, aVSync);
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
     Application.MessageBox(PChar(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]), 'Warning', MB_OK or MB_ICONWARNING);
@@ -376,8 +375,8 @@ begin
   end;
 
   if Assigned(OnCursorUpdate) then
-    OnCursorUpdate(Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
-                                                        GameCursor.Cell.X, GameCursor.Cell.Y]));
+    OnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
+                                                           GameCursor.Cell.X, GameCursor.Cell.Y]));
 end;
 
 
@@ -552,7 +551,9 @@ begin
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
   BaseSave;
 
-  fMain.StatusBarText(0, MapSizeText);
+  if Assigned(OnCursorUpdate) then
+    OnCursorUpdate(0, MapSizeText);
+
   fLog.AppendLog('Gameplay recording initialized',true);
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 end;
@@ -1118,6 +1119,8 @@ end;
 
 procedure TKMGame.Render;
 begin
+  if fRender.Blind then Exit;
+
   fRender.BeginFrame;
 
   if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then
@@ -1612,7 +1615,8 @@ begin
 
     //StatusBar
     if (fGameState in [gsRunning, gsReplay]) then
-      fMain.StatusBarText(2, 'Time: ' + FormatDateTime('hh:nn:ss', GetMissionTime));
+    if Assigned(OnCursorUpdate) then
+      OnCursorUpdate(2, 'Time: ' + FormatDateTime('hh:nn:ss', GetMissionTime));
   end;
   if DoGameHold then GameHold(true,DoGameHoldState);
 end;

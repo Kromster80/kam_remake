@@ -391,7 +391,7 @@ begin
   Assert(fTerrain <> nil, 'We need valid pointer to Terrain for MapView/Minimap');
   Assert(fGame.Viewport<>nil, 'fGame.Viewport required to be init first');
 
-  fMapView := TKMMapView.Create(nil, fTerrain, True, False);
+  fMapView := TKMMapView.Create(fTerrain, True, False);
 
   fShownUnit  := nil;
   fShownHouse := nil;

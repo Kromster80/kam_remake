@@ -64,17 +64,23 @@ var
   pData: array [0..255] of Cardinal;
 begin
   //Generate gradients programmatically
-  //todo: Comapre gradients with KaM
+  //todo: Compare gradients with KaM
   //[16-gradient]
   TextL := GenerateTextureCommon;
-  for I := 0 to 255 do
-    pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, @pData[0]);
+  if TextL <> 0 then
+  begin
+    for I := 0 to 255 do
+      pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, @pData[0]);
+  end;
 
   TextD := GenerateTextureCommon;
-  for I := 0 to 255 do
-    pData[I] := EnsureRange(Round((255 - I) * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, @pData[0]);
+  if TextD <> 0 then
+  begin
+    for I := 0 to 255 do
+      pData[I] := EnsureRange(Round((255 - I) * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, @pData[0]);
+  end;
 
   LoadTextureTGA(aPath + 'Tiles1.tga', TextT);
   LoadTextureTGA(aPath + 'gradient.tga', TextL);

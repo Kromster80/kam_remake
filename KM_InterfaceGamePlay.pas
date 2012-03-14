@@ -674,7 +674,7 @@ begin
   inherited Create(aScreenX, aScreenY);
 
   //Instruct to use global Terrain
-  fMapView := TKMMapView.Create(nil, fTerrain, False, False);
+  fMapView := TKMMapView.Create(fTerrain, False, False);
 
   fShownUnit:=nil;
   fShownHouse:=nil;
@@ -2834,8 +2834,8 @@ begin
   else //GameStop has Destroyed our Sender by now
   if Sender = Button_PlayMore then
     case PlayMoreMsg of
-      gr_Win:       begin MyPlayer.SkipWinConditionCheck; fGame.GameHold(false, gr_Win); end;
-      gr_Defeat:    begin MyPlayer.SkipDefeatConditionCheck; fGame.GameHold(false, gr_Defeat); end;
+      gr_Win:       begin fGame.GameHold(false, gr_Win); end;
+      gr_Defeat:    begin fGame.GameHold(false, gr_Defeat); end;
       gr_ReplayEnd: begin fGame.SkipReplayEndCheck := true; fGame.GameHold(false, gr_ReplayEnd); end;
     end;
 end;

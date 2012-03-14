@@ -9,7 +9,7 @@ type
   //Intermediary class between TTerrain/Players and UI
   TKMMapView = class
   private
-    fRender: TRender; //Should be used to Gen and Update texture
+    //fRender: TRender; //todo: Should be used to Gen and Update texture
     fFromParser: Boolean;
     fIsMapEditor: Boolean;
     fSepia: Boolean;
@@ -24,7 +24,7 @@ type
     procedure SepiaFilter;
     procedure GenerateTexture;
   public
-    constructor Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor: Boolean; aSepia: Boolean);
+    constructor Create(aTerrain: TTerrain; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
     procedure LoadTerrain(aMissionPath: string);
@@ -48,12 +48,12 @@ uses KM_TGATexture, KM_Defaults, KM_Resource, KM_PlayersCollection, KM_Units, KM
 
 
 { TKMMinimap }
-constructor TKMMapView.Create(aRender: TRender; aTerrain: TTerrain; aIsMapEditor: Boolean; aSepia: Boolean);
+constructor TKMMapView.Create(aTerrain: TTerrain; aIsMapEditor: Boolean; aSepia: Boolean);
 begin
   inherited Create;
 
   fIsMapEditor := aIsMapEditor;
-  fRender := aRender;
+  //fRender := aRender;
   fSepia := aSepia;
   fMapTex.Tex := GenerateTextureCommon;
 
@@ -236,6 +236,8 @@ var
   I: Word;
   WidthPOT, HeightPOT: Word;
 begin
+  if not Assigned(glBindTexture) then Exit;
+
   WidthPOT := MakePOT(fMapX);
   HeightPOT := MakePOT(fMapY);
 

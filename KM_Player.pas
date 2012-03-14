@@ -53,9 +53,6 @@ type
     fCenterScreen: TKMPoint;
     fAlliances: array[0..MAX_PLAYERS-1] of TAllianceType;
 
-    fSkipWinConditionCheck: Boolean;
-    fSkipDefeatConditionCheck: Boolean;
-
     function GetColorIndex: Byte;
 
     function  GetAlliances(aIndex: Integer): TAllianceType;
@@ -82,8 +79,6 @@ type
     property CenterScreen: TKMPoint read fCenterScreen write fCenterScreen;
 
     procedure AfterMissionInit(aFlattenRoads: Boolean);
-    procedure SkipWinConditionCheck;
-    procedure SkipDefeatConditionCheck;
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean = False): TKMUnit; reintroduce;
     procedure AddUnitAndLink(aUnitType: TUnitType; Position: TKMPoint);
@@ -228,8 +223,6 @@ begin
   for I := 0 to MAX_PLAYERS - 1 do
     fAlliances[I] := at_Enemy; //Everyone is enemy by default
 
-  fSkipWinConditionCheck := False;
-  fSkipDefeatConditionCheck := False;
   fFlagColor := DefaultTeamColors[fPlayerIndex]; //Init with default color, later replaced by Script
 end;
 
@@ -774,18 +767,6 @@ begin
 end;
 
 
-procedure TKMPlayer.SkipWinConditionCheck;
-begin
-  fSkipWinConditionCheck := true;
-end;
-
-
-procedure TKMPlayer.SkipDefeatConditionCheck;
-begin
-  fSkipDefeatConditionCheck := true;
-end;
-
-
 procedure TKMPlayer.Save(SaveStream: TKMemoryStream);
 begin
   Inherited;
@@ -801,8 +782,6 @@ begin
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
   SaveStream.Write(fCenterScreen);
-  SaveStream.Write(fSkipWinConditionCheck);
-  SaveStream.Write(fSkipDefeatConditionCheck);
   SaveStream.Write(fFlagColor);
 end;
 
@@ -822,8 +801,6 @@ begin
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fCenterScreen);
-  LoadStream.Read(fSkipWinConditionCheck);
-  LoadStream.Read(fSkipDefeatConditionCheck);
   LoadStream.Read(fFlagColor);
 end;
 

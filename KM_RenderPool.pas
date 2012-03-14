@@ -133,6 +133,8 @@ end;
 // 4. Renders cursor highlights
 procedure TRenderPool.Render;
 begin
+  if fRender.Blind then Exit;
+
   glLoadIdentity; // Reset The View
   //glRotate(-15,0,0,1); //Funny thing
   glTranslatef(fGame.Viewport.ViewportClip.X/2, fGame.Viewport.ViewportClip.Y/2, 0);

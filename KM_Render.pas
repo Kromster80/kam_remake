@@ -22,6 +22,7 @@ type
     h_RC: HGLRC;
     fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version: AnsiString;
     fScreenX, fScreenY: Word;
+    fBlind: Boolean;
   public
     constructor Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
     destructor Destroy; override;
@@ -36,6 +37,7 @@ type
 
     property ScreenX: Word read fScreenX;
     property ScreenY: Word read fScreenY;
+    property Blind: Boolean read fBlind;
 
     procedure BeginFrame;
     procedure RenderBrightness(Value: Byte);
@@ -49,38 +51,48 @@ uses KM_Log;
 
 constructor TRender.Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
 begin
-  Inherited Create;
+  inherited Create;
 
-  SetRenderFrame(RenderFrame, h_DC, h_RC);
-  SetRenderDefaults;
-  glDisable(GL_LIGHTING); //We don't need it
+  fBlind := RenderFrame = 0;
 
-  fOpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('OpenGL Vendor: '   + string(fOpenGL_Vendor));
-  fOpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer: ' + string(fOpenGL_Renderer));
-  fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version: '  + string(fOpenGL_Version));
+  if not fBlind then
+  begin
+    SetRenderFrame(RenderFrame, h_DC, h_RC);
+    SetRenderDefaults;
+    glDisable(GL_LIGHTING); //We don't need it
 
-  SetupVSync(aVSync);
-  BuildFont(h_DC, 16, FW_BOLD);
+    fOpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('OpenGL Vendor: '   + string(fOpenGL_Vendor));
+    fOpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer: ' + string(fOpenGL_Renderer));
+    fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version: '  + string(fOpenGL_Version));
 
-  Resize(ScreenX, ScreenY);
+    SetupVSync(aVSync);
+    BuildFont(h_DC, 16, FW_BOLD);
+
+    Resize(ScreenX, ScreenY);
+  end;
 end;
 
 
 destructor TRender.Destroy;
 begin
-  {$IFDEF MSWindows}
-  wglMakeCurrent(h_DC, 0);
-  wglDeleteContext(h_RC);
-  {$ENDIF}
-  {$IFDEF Unix}
-    //?
-  {$ENDIF}
+  if not fBlind then
+  begin
+    {$IFDEF MSWindows}
+    wglMakeCurrent(h_DC, 0);
+    wglDeleteContext(h_RC);
+    {$ENDIF}
+    {$IFDEF Unix}
+      //?
+    {$ENDIF}
+  end;
   inherited;
 end;
 
 
 procedure TRender.Resize(Width, Height: Integer);
 begin
+  if fBlind then Exit;
+
   fScreenX := max(Width, 1);
   fScreenY := max(Height, 1);
   glViewport(0, 0, fScreenX, fScreenY);
@@ -89,6 +101,8 @@ end;
 
 procedure TRender.SetRenderMode(aRenderMode: TRenderMode);
 begin
+  if fBlind then Exit;
+
   glMatrixMode(GL_PROJECTION); //Change Matrix Mode to Projection
   glLoadIdentity; //Reset View
 
@@ -107,6 +121,7 @@ end;
 function TRender.GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
 begin
   Result := 0;
+  if fBlind then Exit;
 
   DestX := MakePOT(DestX);
   DestY := MakePOT(DestY);
@@ -139,12 +154,14 @@ end;
 //1.4 is considered to be our minimal requirement
 function TRender.IsOldGLVersion: Boolean;
 begin
-  Result := not GL_VERSION_1_4;
+  Result := not fBlind and not GL_VERSION_1_4;
 end;
 
 
 procedure TRender.BeginFrame;
 begin
+  if fBlind then Exit;
+
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT); //Clear The Screen, can save some FPS on this one
 
   //RC.Activate for OSX
@@ -154,6 +171,8 @@ end;
 //Render highlight overlay to make whole picture look brighter (more saturated)
 procedure TRender.RenderBrightness(Value: Byte);
 begin
+  if fBlind then Exit;
+
   //There will be no change to image anyway
   if Value = 0 then Exit;
 
@@ -170,6 +189,8 @@ end;
 
 procedure TRender.EndFrame;
 begin
+  if fBlind then Exit;
+
   glFinish;
   {$IFDEF MSWindows}
   SwapBuffers(h_DC);

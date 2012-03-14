@@ -34,8 +34,7 @@ type
     function ClientToScreen(aPoint: TPoint): TPoint;
     procedure ReinitRender(aReturnToOptions: Boolean);
 
-    procedure StatusBarText(const aData: string); overload;
-    procedure StatusBarText(aPanelIndex: Integer; aText: string); overload;
+    procedure StatusBarText(aPanelIndex: Integer; const aText: string); overload;
 
     property Resolutions: TKMResolutions read fResolutions;
     property Settings: TMainSettings read fMainSettings;
@@ -70,7 +69,7 @@ begin
   {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
   {$ENDIF}
-  ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
+  ExeDir := ExtractFilePath(Application.ExeName);
 
   CreateDir(ExeDir + 'Logs\');
   fLog := TKMLog.Create(ExeDir + 'Logs\KaM_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz', Now) + '.log'); //First thing - create a log
@@ -100,13 +99,7 @@ begin
 end;
 
 
-procedure TKMMain.StatusBarText(const aData: string);
-begin
-  FormMain.StatusBar1.Panels[1].Text := aData;
-end;
-
-
-procedure TKMMain.StatusBarText(aPanelIndex: Integer; aText: string);
+procedure TKMMain.StatusBarText(aPanelIndex: Integer; const aText: string);
 begin
   FormMain.StatusBar1.Panels[aPanelIndex].Text := aText;
 end;
@@ -209,7 +202,6 @@ begin
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   FreeThenNil(fGame); //Saves all settings into ini file in midst
   fGame := TKMGame.Create(
-                          ExeDir,
                           FormMain.Panel5.Handle,
                           FormMain.Panel5.Width,
                           FormMain.Panel5.Height,

@@ -235,15 +235,15 @@ end;
 
 //Check if Music is not playing, to know when new mp3 should be feeded
 function TMusicLib.IsMusicEnded:boolean;
-{$IFDEF USELIBZPLAY} var Status:TStreamStatus; {$ENDIF}
+{$IFDEF USELIBZPLAY} var Status: TStreamStatus; {$ENDIF}
 begin
   {$IFDEF USELIBZPLAY} ZPlayer.GetStatus(Status); {$ENDIF}
-  Result := IsMusicInitialized and
+  Result := IsMusicInitialized
             {$IFDEF USELIBZPLAY}
-            (not Status.fPlay and not Status.fPause) //Not playing and not paused due to fade
+            and (not Status.fPlay and not Status.fPause) //Not playing and not paused due to fade
             {$ENDIF}
             {$IFDEF USEBASS}
-            (BASS_ChannelIsActive(fBassStream) = BASS_ACTIVE_STOPPED)
+            and (BASS_ChannelIsActive(fBassStream) = BASS_ACTIVE_STOPPED)
             {$ENDIF}
             ;
 end;

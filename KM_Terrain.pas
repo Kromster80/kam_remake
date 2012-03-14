@@ -305,14 +305,13 @@ end;
 
 
 //Save (export) map in KaM .map format with additional tile information on the end?
-procedure TTerrain.SaveToFile(aFile:string);
+procedure TTerrain.SaveToFile(aFile: string);
 var f:file; i,k:integer; c0,cF:cardinal; light,b205:byte; SizeX,SizeY:Integer;
     ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
     Res:array[1..MAX_MAP_SIZE*2]of packed record X1,Y1,X2,Y2:integer; Typ:byte; end;
 begin
 
-  if not DirectoryExists(ExtractFilePath(aFile)) then
-  CreateDir(ExtractFilePath(aFile));
+  ForceDirectories(ExtractFilePath(aFile));
 
   assignfile(f,aFile); rewrite(f,1);
 

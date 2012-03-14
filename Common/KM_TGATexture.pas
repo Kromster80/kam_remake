@@ -42,6 +42,9 @@ implementation
 function GenerateTextureCommon: GLuint;
 var Texture: GLuint;
 begin
+  Result := 0;
+  if not Assigned(glGenTextures) then Exit;
+
   glGenTextures(1, @Texture);
   glBindTexture(GL_TEXTURE_2D, Texture);
 
@@ -70,11 +73,12 @@ function CreateTexture(Width, Height, Format: Word; pData: Pointer): Integer;
 begin
   Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
 
-  if Format = GL_RGBA then
-    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, pData)
-  else
-    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, Width, Height, GL_RGB, GL_UNSIGNED_BYTE, pData);
-//  glTexImage2D(GL_TEXTURE_2D, 0, 3, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, pData);  // Use when not wanting mipmaps to be built by openGL
+  if Result <> 0 then
+    if Format = GL_RGBA then
+      gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, pData)
+    else
+      gluBuild2DMipmaps(GL_TEXTURE_2D, 3, Width, Height, GL_RGB, GL_UNSIGNED_BYTE, pData);
+  //  glTexImage2D(GL_TEXTURE_2D, 0, 3, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, pData);  // Use when not wanting mipmaps to be built by openGL
 end;
 
 
