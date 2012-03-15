@@ -97,12 +97,13 @@ begin
            SetActionLockedStay(AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
              Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
-           case UnitType of
-             ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw, PositionF); //Aiming
-             ut_Bowman:     fSoundLib.Play(sfx_BowDraw,      PositionF); //Aiming
-             ut_Slingshot:  fSoundLib.Play(sfx_SlingerShoot, PositionF); //Aiming
-             else Assert(false, 'Unknown shooter');
-           end;
+           if MyPlayer.FogOfWar.CheckTileRevelation(Round(PositionF.X), Round(PositionF.Y), true) >= 255 then
+             case UnitType of
+               ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw, PositionF); //Aiming
+               ut_Bowman:     fSoundLib.Play(sfx_BowDraw,      PositionF); //Aiming
+               ut_Slingshot:  fSoundLib.Play(sfx_SlingerShoot, PositionF); //Aiming
+               else Assert(false, 'Unknown shooter');
+             end;
          end else begin
            SetActionLockedStay(0,ua_Work,false); //@Lewin: Maybe melee units can randomly pause for 1-2 frames as well?
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within

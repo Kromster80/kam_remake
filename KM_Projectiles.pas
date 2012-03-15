@@ -231,8 +231,9 @@ begin
 
         //Will hit the target in X..X-1 ticks (this ensures it only happens once)
         //Can't use InRange cos it might get called twice due to <= X <= comparison
-        if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks-1)*fSpeed) then
-          fSoundLib.Play(ProjectileHitSounds[fType], fTarget);
+        if MyPlayer.FogOfWar.CheckTileRevelation(Round(fTarget.X), Round(fTarget.Y), true) >= 255 then
+          if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks-1)*fSpeed) then
+            fSoundLib.Play(ProjectileHitSounds[fType], fTarget);
 
         if fPosition >= fLength then begin
           if KaMRandom >= ProjectileMissChance[fType] then
