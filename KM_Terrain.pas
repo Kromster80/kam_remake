@@ -714,9 +714,9 @@ end;
 
 procedure TTerrain.RemRoad(Loc:TKMPoint);
 begin
-  Land[Loc.Y,Loc.X].TileOwner:=-1;
-  Land[Loc.Y,Loc.X].TileOverlay:=to_None;
-  Land[Loc.Y,Loc.X].FieldAge:=0;
+  Land[Loc.Y,Loc.X].TileOwner := -1;
+  Land[Loc.Y,Loc.X].TileOverlay := to_None;
+  Land[Loc.Y,Loc.X].FieldAge  := 0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
 
@@ -766,7 +766,7 @@ end;
 
 
 {Set field on tile - corn/wine}
-procedure TTerrain.SetField(Loc:TKMPoint; aOwner:TPlayerIndex; aFieldType:TFieldType);
+procedure TTerrain.SetField(Loc: TKMPoint; aOwner: TPlayerIndex; aFieldType: TFieldType);
 begin
   Land[Loc.Y,Loc.X].TileOwner   := aOwner;
   Land[Loc.Y,Loc.X].TileOverlay := to_None;
@@ -785,11 +785,11 @@ begin
                     if not fMapEditor then //Don't do this in editor mode
                     case Land[Loc.Y,Loc.X].Obj of
                       58: begin  //Smaller greeninsh Corn
-                            Land[Loc.Y,Loc.X].FieldAge := 435;
+                            Land[Loc.Y,Loc.X].FieldAge := CORN_AGE_2;
                             Land[Loc.Y,Loc.X].Terrain  := 60;
                           end;
                       59: begin  //Full-grown Corn 1
-                            Land[Loc.Y,Loc.X].FieldAge := 630;
+                            Land[Loc.Y,Loc.X].FieldAge := CORN_AGE_FULL;
                             Land[Loc.Y,Loc.X].Terrain  := 60;
                           end;
                     end;
@@ -797,7 +797,7 @@ begin
     ft_Wine:      begin
                     Land[Loc.Y,Loc.X].Terrain  := 55;
                     Land[Loc.Y,Loc.X].Rotation := 0;
-                    CutGrapes(Loc);
+                    CutGrapes(Loc); //Set object and age
                   end;
     ft_InitWine:  begin
                     Land[Loc.Y,Loc.X].Terrain  := 55;
@@ -1207,9 +1207,9 @@ end;
 
 
 {Remove the tree and place stump instead}
-procedure TTerrain.ChopTree(Loc:TKMPoint);
+procedure TTerrain.ChopTree(Loc: TKMPoint);
 begin
-  Land[Loc.Y,Loc.X].TreeAge:=0;
+  Land[Loc.Y,Loc.X].TreeAge := 0;
   FallingTrees.RemoveEntry(Loc);
   RecalculatePassabilityAround(Loc); //Because surrounding tiles will be affected (CanPlantTrees)
 
@@ -1218,26 +1218,26 @@ begin
 end;
 
 
-procedure TTerrain.SowCorn(Loc:TKMPoint);
+procedure TTerrain.SowCorn(Loc: TKMPoint);
 begin
-  Land[Loc.Y,Loc.X].FieldAge:=1;
-  Land[Loc.Y,Loc.X].Terrain := 61; //Plant it right away, don't wait for update state
+  Land[Loc.Y,Loc.X].FieldAge := 1;
+  Land[Loc.Y,Loc.X].Terrain  := 61; //Plant it right away, don't wait for update state
   RecalculatePassability(Loc);
 end;
 
 
-procedure TTerrain.CutCorn(Loc:TKMPoint);
+procedure TTerrain.CutCorn(Loc: TKMPoint);
 begin
-  Land[Loc.Y,Loc.X].FieldAge:=0;
-  Land[Loc.Y,Loc.X].Terrain:=63;
-  Land[Loc.Y,Loc.X].Obj:=255;
+  Land[Loc.Y,Loc.X].FieldAge := 0;
+  Land[Loc.Y,Loc.X].Terrain  := 63;
+  Land[Loc.Y,Loc.X].Obj := 255;
 end;
 
 
-procedure TTerrain.CutGrapes(Loc:TKMPoint);
+procedure TTerrain.CutGrapes(Loc: TKMPoint);
 begin
-  Land[Loc.Y,Loc.X].FieldAge:=1;
-  Land[Loc.Y,Loc.X].Obj:=54; //Reset the grapes
+  Land[Loc.Y,Loc.X].FieldAge := 1;
+  Land[Loc.Y,Loc.X].Obj := 54; //Reset the grapes
 end;
 
 
@@ -1861,36 +1861,36 @@ end;
 
 //Interpolate between 12 vertices surrounding this tile (X and Y, no diagonals)
 //Also it is FlattenTerrain duty to preserve walkability if there are units standing
-procedure TTerrain.FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects:boolean=true);
-var TilesFactored:integer;
+procedure TTerrain.FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean = True);
+var TilesFactored: Integer;
 
   //If tiles with units standing on them become unwalkable we should try to fix them
-  procedure EnsureWalkable(aX,aY:word);
+  procedure EnsureWalkable(aX,aY: Word);
   begin
     //We did not recalculated passability yet, hence tile has CanWalk but CheckHeightPass=False already
     if (Land[aY,aX].IsUnit <> nil)
-    and CheckPassability(KMPoint(aX,aY),CanWalk)
-    and not CheckHeightPass(KMPoint(aX,aY),CanWalk)
+    and CheckPassability(KMPoint(aX,aY), CanWalk)
+    and not CheckHeightPass(KMPoint(aX,aY), CanWalk)
     and not fMapEditor //Allow units to become "stuck" in MapEd, as height changing is allowed anywhere
     then
       //This recursive call should be garanteed to exit, as eventually the terrain will be flat enough
       FlattenTerrain(KMPoint(aX,aY), False); //WalkConnect should be done at the end
   end;
 
-  function GetHeight(X,Y:word; Neighbour:boolean):byte;
+  function GetHeight(aX,aY: Word; Neighbour: Boolean): Byte;
   begin
-    if TileInMapCoords(X,Y) and (not Neighbour or (canFactor in Land[Y,X].Passability)) then
+    if TileInMapCoords(aX,aY) and (not Neighbour or (canFactor in Land[aY,aX].Passability)) then
     begin
-      Result := Land[Y,X].Height;
+      Result := Land[aY,aX].Height;
       inc(TilesFactored);
     end
     else
       Result := 0;
   end;
 
-var i,k: word; Avg:word;
+var i,k: Word; Avg: Word;
 begin
-  Assert(TileInMapCoords(Loc.X, Loc.Y),'Can''t flatten tile outside map coordinates');
+  Assert(TileInMapCoords(Loc.X, Loc.Y), 'Can''t flatten tile outside map coordinates');
 
   TilesFactored := 0; //GetHeight will add to this
   Avg :=                                   GetHeight(Loc.X,Loc.Y-1,True ) + GetHeight(Loc.X+1,Loc.Y-1,True ) +
@@ -1906,8 +1906,8 @@ begin
   if CanElevate in Land[Loc.Y+1,Loc.X+1].Passability then Land[Loc.Y+1,Loc.X+1].Height := Mix(Avg, Land[Loc.Y+1,Loc.X+1].Height, 0.5);
 
   //All 9 tiles around and including this one could have become unwalkable and made a unit stuck, so check them all
-  for i:=Max(Loc.Y-1,1) to Min(Loc.Y+1,fMapY-1) do
-    for k:=Max(Loc.X-1,1) to Min(Loc.X+1,fMapX-1) do
+  for i := Max(Loc.Y-1, 1) to Min(Loc.Y+1, fMapY-1) do
+    for k := Max(Loc.X-1, 1) to Min(Loc.X+1, fMapX-1) do
       EnsureWalkable(k,i);
 
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
@@ -1926,7 +1926,7 @@ begin
   for I := 0 to LocList.Count - 1 do
     FlattenTerrain(LocList[I], False); //Rebuild the Walk Connect at the end, rather than every time
 
-  //All 4 are affected by height
+  //All 5 are affected by height
   UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
@@ -1967,80 +1967,82 @@ end;
 
 { Rebuilds connected areas using flood fill algorithm }
 procedure TTerrain.UpdateWalkConnect(aSet: array of TWalkConnect);
-//const MinSize=9; //Minimum size that is treated as new area
-var I,J,K{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability; AllowDiag:boolean;
+var
   WC: TWalkConnect;
+  AllowDiag: Boolean;
+  Count: Integer;
+  Pass: TPassability;
 
-  procedure FillArea(x,y:word; ID:byte);
+  procedure FillArea(X,Y: Word; ID: Byte);
   begin
-    if (Land[y,x].WalkConnect[WC]=0) //Untested area
-    and(Pass in Land[y,x].Passability) then //Matches passability
+    if (Land[Y,X].WalkConnect[WC] = 0) //Untested area
+    and (Pass in Land[Y,X].Passability) then //Matches passability
     begin
-      Land[y,x].WalkConnect[WC] := ID;
-      inc(Count);
+      Land[Y,X].WalkConnect[WC] := ID;
+      Inc(Count);
       //Using custom TileInMapCoords replacement gives ~40% speed improvement
       //Using custom CanWalkDiagonally is also much faster
-      if x-1>=1 then begin
-        if AllowDiag and (y-1>=1)
-        and not MapElem[Land[y,x].Obj+1].DiagonalBlocked then   FillArea(x-1,y-1,ID);
-                                                                FillArea(x-1,y  ,ID);
-        if AllowDiag and (y+1<=fMapY)
-        and not MapElem[Land[y+1,x].Obj+1].DiagonalBlocked then FillArea(x-1,y+1,ID);
+      if X-1 >= 1 then
+      begin
+        if AllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X].Obj+1].DiagonalBlocked then
+          FillArea(X-1, Y-1, ID);
+        FillArea(X-1, Y, ID);
+        if AllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj+1].DiagonalBlocked then
+          FillArea(X-1,Y+1,ID);
       end;
 
-      if y-1>=1 then     FillArea(x,y-1,ID);
-      if y+1<=fMapY then FillArea(x,y+1,ID);
+      if Y-1 >= 1 then     FillArea(X, Y-1, ID);
+      if Y+1 <= fMapY then FillArea(X, Y+1, ID);
 
-      if x+1<=fMapX then begin
-        if AllowDiag and (y-1>=1)
-        and not MapElem[Land[y,x+1].Obj+1].DiagonalBlocked then   FillArea(x+1,y-1,ID);
-                                                                  FillArea(x+1,y  ,ID);
-        if AllowDiag and (y+1<=fMapY)
-        and not MapElem[Land[y+1,x+1].Obj+1].DiagonalBlocked then FillArea(x+1,y+1,ID);
+      if X+1 <= fMapX then
+      begin
+        if AllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj+1].DiagonalBlocked then
+          FillArea(X+1, Y-1, ID);
+        FillArea(X+1, Y, ID);
+        if AllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj+1].DiagonalBlocked then
+          FillArea(X+1, Y+1, ID);
       end;
     end;
   end;
 
+//const MinSize=9; //Minimum size that is treated as new area
+const
+  WCSet: array [TWalkConnect] of TPassability = (
+    CanWalk, CanWalkRoad, CanFish, CanWolf, CanCrab, CanWorker);
+var
+  I,J,K: Integer;
+  AreaID: Byte;
 begin
   //Process all items from set
   for J := Low(aSet) to High(aSet) do
   begin
     WC := aSet[J];
-
-    case WC of
-      wcWalk:  Pass := CanWalk;
-      wcRoad:  Pass := CanWalkRoad;
-      wcFish:  Pass := CanFish;
-      wcWolf:  Pass := CanWolf;
-      wcCrab:  Pass := CanCrab;
-      wcWork:  Pass := CanWorker;
-    end;
+    Pass := WCSet[WC];
+    AllowDiag := (WC <> wcRoad); //Do not consider diagonals "connected" for roads
 
     //todo: Can be optimized if we know from which Tile to rebuild, and if that tile makes no difference - skip the thing
 
     //Reset everything
-    for I:=1 to fMapY do for K:=1 to fMapX do
+    for I := 1 to fMapY do for K := 1 to fMapX do
       Land[I,K].WalkConnect[WC] := 0;
 
-    AllowDiag := (WC <> wcRoad); //Do not consider diagonals "connected" for roads
     AreaID := 0;
-    for I:=1 to fMapY do for K:=1 to fMapX do
-    if (Land[I,K].WalkConnect[WC]=0) and (Pass in Land[I,K].Passability) then
+    for I := 1 to fMapY do for K := 1 to fMapX do
+    if (Land[I,K].WalkConnect[WC] = 0) and (Pass in Land[I,K].Passability) then
     begin
-      inc(AreaID);
+      Inc(AreaID);
       Count := 0;
       FillArea(K,I,AreaID);
 
-      if Count=1 {<MinSize} then //Revert
+      if Count = 1 {<MinSize} then //Revert
       begin
-        dec(AreaID);
+        Dec(AreaID);
         Count := 0;
         Land[I,K].WalkConnect[WC] := 0;
       end;
 
-      Assert(AreaID<255,'UpdateWalkConnect failed due too many unconnected areas');
+      Assert(AreaID < 255, 'UpdateWalkConnect failed due too many unconnected areas');
     end;
-
   end;
 end;
 
@@ -2100,7 +2102,7 @@ begin
   end;
 
   //Recalculate Passability for tiles around the house so that they can't be built on too
-  RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
+  RebuildPassability(Loc.X-3, Loc.X+2, Loc.Y-4, Loc.Y+1);
   UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
@@ -2504,7 +2506,7 @@ begin
   end;
 
   for i:=1 to fMapY do for k:=1 to fMapX do
-    UpdateBorders(KMPoint(k,i),false);
+    UpdateBorders(KMPoint(k,i), False);
 
   RebuildLighting(1, fMapX, 1, fMapY);
   RebuildPassability(1, fMapX, 1, fMapY);
@@ -2550,12 +2552,11 @@ begin
 
     if InRange(Land[I,K].FieldAge, 1, 65534) then
     begin
-      inc(Land[I,K].FieldAge);
+      Inc(Land[I,K].FieldAge);
       if TileIsCornField(KMPoint(K,I)) then
         case Land[I,K].FieldAge of
-          CORN_AGE_1:     SetLand(K,I,61,255);
-          CORN_AGE_2:     SetLand(K,I,59,255);
-          CORN_AGE_3:     SetLand(K,I,60,58);
+          CORN_AGE_1:     SetLand(K,I,59,255);
+          CORN_AGE_2:     SetLand(K,I,60,58);
           CORN_AGE_FULL:  begin
                             //Skip to the end
                             SetLand(K,I,60,59);
@@ -2565,9 +2566,8 @@ begin
       else
       if TileIsWineField(KMPoint(K,I)) then
         case Land[I,K].FieldAge of
-          WINE_AGE_1:     SetLand(K,I,55,54); //54=naked weeds
-          WINE_AGE_2:     SetLand(K,I,55,55);
-          WINE_AGE_3:     SetLand(K,I,55,56);
+          WINE_AGE_1:     SetLand(K,I,55,55);
+          WINE_AGE_2:     SetLand(K,I,55,56);
           WINE_AGE_FULL:  begin
                             //Skip to the end
                             SetLand(K,I,55,57);
@@ -2591,7 +2591,6 @@ begin
                 TREE_AGE_FULL: Land[I,K].Obj := ChopableTrees[H,4];
               end;
     end;
-
   end;
 end;
 

@@ -560,30 +560,28 @@ const
   ( 162, 163, 164, 165, 166,  33),
   ( 167, 168, 169, 170, 171,  33));
 
-//Ages at which trees/fields grow up/change sprite multiplied by TERRAIN_PACE
-TREE_AGE_1 = 25;  //I did measured only corn, and it was ~195sec
-TREE_AGE_2 = 50;
-TREE_AGE_FULL = 80; //Tree is old enough to be chopped
+  //Ages at which trees/fields grow up/change sprite multiplied by TERRAIN_PACE
+  TREE_AGE_1 = 25;
+  TREE_AGE_2 = 50;
+  TREE_AGE_FULL = 80; //Tree is old enough to be chopped
 
-CORN_AGE_1 = 1; //When Corn reaches this age - seeds appear, 0 means unplanted field
-CORN_AGE_2 = 22;   //Numbers are measured from KaM, ~195sec
-CORN_AGE_3 = 43;
-CORN_AGE_FULL = 64; //Corn ready to be cut
+  CORN_AGE_1 = 22;   //Number measured from KaM ~195sec
+  CORN_AGE_2 = 43;
+  CORN_AGE_FULL = 64; //Corn ready to be cut
 
-WINE_AGE_1 = 1; //When Wine reaches this age - seeds appear, 0 means unplanted field
-WINE_AGE_2 = 22;   //Numbers are measured from KaM, ~195sec
-WINE_AGE_3 = 43;
-WINE_AGE_FULL = 64; //Wine ready to be harvested
+  WINE_AGE_1 = 22;   //Number measured from KaM ~195sec
+  WINE_AGE_2 = 43;
+  WINE_AGE_FULL = 64; //Wine ready to be harvested
 
 
 //   1      //Select road tile and rotation
 //  8*2     //depending on surrounding tiles
 //   4      //Bitfield
-RoadsConnectivity:array [0..15,1..2]of byte = (
-(248,0),(248,0),(248,1),(250,3),
-(248,0),(248,0),(250,0),(252,0),
-(248,1),(250,2),(248,1),(252,3),
-(250,1),(252,2),(252,1),(254,0));
+RoadsConnectivity: array [0..15, 1..2] of Byte = (
+  (248,0),(248,0),(248,1),(250,3),
+  (248,0),(248,0),(250,0),(252,0),
+  (248,1),(250,2),(248,1),(252,3),
+  (250,1),(252,2),(252,1),(254,0));
 
 {DeliverList}
 type

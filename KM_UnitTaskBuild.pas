@@ -339,22 +339,22 @@ begin
         fTerrain.ResetDigState(fLoc);
         fTerrain.SetField(fLoc, GetOwner, ft_InitWine); //Replace the terrain, but don't seed grapes yet
         InitialFieldSet := True;
-        SetActionLockedStay(30,ua_Work1);
-        Thought:=th_Wood;
+        SetActionLockedStay(30, ua_Work1);
+        Thought := th_Wood;
       end;
    5: begin //This step is repeated until Serf brings us some wood
-        SetActionLockedStay(30,ua_Work1);
-        Thought:=th_Wood;
+        SetActionLockedStay(30, ua_Work1);
+        Thought := th_Wood;
       end;
    6: begin
         DemandSet := false;
-        SetActionLockedStay(11*8,ua_Work2,false);
-        Thought:=th_None;
+        SetActionLockedStay(11*8, ua_Work2, False);
+        Thought := th_None;
       end;
    7: begin
         fTerrain.SetField(fLoc, GetOwner, ft_Wine);
         InitialFieldSet := False;
-        SetActionStay(5,ua_Walk);
+        SetActionStay(5, ua_Walk);
         fTerrain.UnlockTile(fLoc);
         TileLockSet := False;
       end;
@@ -935,8 +935,8 @@ end;
 
 function TTaskBuildHouseRepair.WalkShouldAbandon: Boolean;
 begin
-  Result := fHouse.IsDestroyed 
-            or not fHouse.IsDamaged 
+  Result := fHouse.IsDestroyed
+            or not fHouse.IsDamaged
             or not fHouse.BuildingRepair;
 end;
 
