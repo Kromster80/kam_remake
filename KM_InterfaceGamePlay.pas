@@ -1031,9 +1031,9 @@ begin
     Memo_ChatText.Anchors := [akLeft, akTop, akRight, akBottom];
 
     Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 151, 680-85, 20, fnt_Metal);
+    Edit_ChatMsg.Anchors := [akLeft, akRight, akBottom];
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
-    Edit_ChatMsg.Anchors := [akLeft, akRight, akBottom];
 
     CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,645,154,155,20,fTextLibrary[TX_GAMEPLAY_CHAT_TOTEAM],fnt_Outline);
     CheckBox_SendToAllies.Checked := true;
@@ -1265,6 +1265,7 @@ begin
     List_Save.OnChange := Save_ListChange;
 
     Edit_Save := TKMEdit.Create(Panel_Save, 12, 255, 170, 20, fnt_Metal);
+    Edit_Save.AllowedChars := acFilename;
     Edit_Save.OnChange := Save_EditChange;
     Label_SaveExists := TKMLabel.Create(Panel_Save,12,280,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
     CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,300,170,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);

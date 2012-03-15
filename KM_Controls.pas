@@ -336,12 +336,14 @@ type
     procedure Paint; override;
   end;
 
+  TAllowedChars = (acDigits, acFilename, acText);
 
   {EditField}
   TKMEdit = class(TKMControl)
   private
     fFont: TKMFont;
     fText: string;
+    fAllowedChars: TAllowedChars;
     fCursorPos: Integer;
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
     procedure SetCursorPos(aPos: Integer);
@@ -353,6 +355,8 @@ type
     OnChange: TNotifyEvent;
     OnKeyDown: TNotifyEventKey;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+
+    property AllowedChars: TAllowedChars read fAllowedChars write fAllowedChars;
     property CursorPos: Integer read fCursorPos write SetCursorPos;
     property Text: string read fText write SetText;
 
@@ -1654,6 +1658,7 @@ begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fText := '<<<LEER>>>';
   fFont := aFont;
+  fAllowedChars := acText; //Set to the widest by default
   CursorPos := 0;
 end;
 
@@ -1744,12 +1749,21 @@ end;
 
 
 procedure TKMEdit.KeyPress(Key: Char);
+const
+  DigitChars: set of Char = ['1'..'9', '0'];
+  NonFileChars: set of Char = [#0..#31, '<', '>', '|', '"', '\', '/', ':', '*', '?'];
+  NonTextChars: set of Char = [#0..#31, '|'];
 begin
-  if ReadOnly or (Key < #32) or (Key = #124) then //Not allowed to write EOL in edit field
-    Exit;
+  if ReadOnly then Exit;
 
-  Insert(Key, fText, CursorPos+1);
-  CursorPos := CursorPos+1;
+  case fAllowedChars of
+    acDigits:   if not (Key in DigitChars) then Exit;
+    acFilename: if Key in NonFileChars then Exit;
+    acText:     if Key in NonTextChars then Exit;
+  end;
+
+  Insert(Key, fText, CursorPos + 1);
+  CursorPos := CursorPos + 1;
 end;
 
 
@@ -2608,7 +2622,7 @@ begin
   inherited;
   if fScrollBar.Visible then
     PaintWidth := Width - fScrollBar.Width //Leave space for scrollbar
-  else    
+  else
     PaintWidth := Width; //List takes up the entire width
 
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
@@ -3313,7 +3327,7 @@ var ViewPos: TKMPoint;
 begin
   inherited;
 
-  if ssLeft in Shift then 
+  if ssLeft in Shift then
   begin
     ViewPos := LocalToMapCoords(X,Y);
     if Assigned(fOnChange) then

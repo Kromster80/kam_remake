@@ -68,7 +68,7 @@ begin
   fSocketServer := TWSocketServer.Create(nil);
   fSocketServer.Proto  := 'tcp';
   fSocketServer.Addr   := '0.0.0.0'; //Listen to whole range
-  fSocketServer.Port   := aPort;
+  fSocketServer.Port   := aPort; //todo: Somewhere along the hierarchy we might want to set aPort to be Word
   fSocketServer.Banner := '';
   fSocketServer.OnClientConnect := ClientConnect;
   fSocketServer.OnClientDisconnect := ClientDisconnect;
