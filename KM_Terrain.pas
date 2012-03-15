@@ -17,6 +17,8 @@ type
     fMapEditor: Boolean; //In MapEd mode some features behave differently
     fMapX: Word; //Terrain width and height
     fMapY: Word; //Terrain width and height
+
+    procedure UpdateWalkConnect(aSet: array of TWalkConnect);
   public
     Land: array[1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE]of record
       Terrain:byte;
@@ -160,11 +162,10 @@ type
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
 
     procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
-    procedure FlattenTerrain(Loc:TKMPoint; aRebuildWalkConnects:boolean=true); overload;
+    procedure FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects:boolean=true); overload;
     procedure FlattenTerrain(LocList:TKMPointList); overload;
     procedure RebuildLighting(LowX, HighX, LowY, HighY: Integer);
     procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
-    procedure RebuildWalkConnect(aSet: array of TWalkConnect);
 
     function GetVertexCursorPosition:TKMPoint;
     function ConvertCursorToMapCoord(inX,inY:single):single;
@@ -239,7 +240,7 @@ begin
     IsVertexUnit := vu_None;
     FieldAge     := 0;
     TreeAge      := 0;
-    if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge := TreeAgeFull;
+    if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge := TREE_AGE_FULL;
     Border       := bt_None;
     BorderTop    := false;
     BorderLeft   := false;
@@ -251,7 +252,7 @@ begin
   RebuildPassability(1,fMapX,1,fMapY);
 
   //Everything except roads
-  RebuildWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -286,9 +287,9 @@ begin
       S.Read(Land[i,k].Obj); //6
       S.Seek(17, soFromCurrent);
       if ObjectIsChopableTree(KMPoint(k,i),1) then Land[i,k].TreeAge := 1;
-      if ObjectIsChopableTree(KMPoint(k,i),2) then Land[i,k].TreeAge := TreeAge1;
-      if ObjectIsChopableTree(KMPoint(k,i),3) then Land[i,k].TreeAge := TreeAge2;
-      if ObjectIsChopableTree(KMPoint(k,i),4) then Land[i,k].TreeAge := TreeAgeFull;
+      if ObjectIsChopableTree(KMPoint(k,i),2) then Land[i,k].TreeAge := TREE_AGE_1;
+      if ObjectIsChopableTree(KMPoint(k,i),3) then Land[i,k].TreeAge := TREE_AGE_2;
+      if ObjectIsChopableTree(KMPoint(k,i),4) then Land[i,k].TreeAge := TREE_AGE_FULL;
       //Everything else is default
     end;
   finally
@@ -299,7 +300,7 @@ begin
   RebuildPassability(1,fMapX,1,fMapY);
 
   //Everything except roads
-  RebuildWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork]);
   fLog.AppendLog('Map file loaded');
 end;
 
@@ -671,7 +672,7 @@ begin
   RecalculatePassabilityAround(aLoc);
 
   //TileLocks affect passability so therefore also floodfill
-  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -682,7 +683,7 @@ begin
   RecalculatePassabilityAround(Loc);
 
   //TileLocks affect passability so therefore also floodfill
-  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -707,7 +708,7 @@ begin
   RebuildPassability(TL.X-1, BR.X+1, TL.Y-1, BR.Y+1);
 
   //Roads don't affect wcWalk or wcFish
-  RebuildWalkConnect([wcRoad, wcWolf, wcCrab]);
+  UpdateWalkConnect([wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -720,7 +721,7 @@ begin
   RecalculatePassabilityAround(Loc);
 
   //Roads don't affect wcWalk or wcFish
-  RebuildWalkConnect([wcRoad, wcWolf, wcCrab]);
+  UpdateWalkConnect([wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -737,7 +738,7 @@ begin
   RecalculatePassabilityAround(Loc);
 
   //Update affected WalkConnect's
-  RebuildWalkConnect([wcWalk, wcWolf, wcCrab]);
+  UpdateWalkConnect([wcWalk, wcWolf, wcCrab]);
 end;
 
 
@@ -760,7 +761,7 @@ begin
   Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -807,7 +808,7 @@ begin
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
   //Walk and Road because Grapes are blocking diagonal moves
-  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -943,7 +944,7 @@ end;
 function TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; out Tree: TKMPointDir; out PlantAct: TPlantAct): Boolean;
 var
   List1, List2, List3: TKMPointList;
-  i,k: Integer;
+  I, K: Integer;
   T: TKMPoint;
   BestSlope, Slope: Integer;
 begin
@@ -955,10 +956,11 @@ begin
   List3 := TKMPointList.Create; //Clear places
 
   //Scan terrain and add all trees/spots into lists
-  for i:=max(aLoc.Y-aRadius,1) to min(aLoc.Y+aRadius,fMapY-1) do
-  for k:=max(aLoc.X-aRadius,1) to min(aLoc.X+aRadius,fMapX-1) do
+  for I := max(aLoc.Y-aRadius, 1) to min(aLoc.Y+aRadius, fMapY-1) do
+  for K := max(aLoc.X-aRadius, 1) to min(aLoc.X+aRadius, fMapX-1) do
   begin
-    T := KMPoint(k,i);
+     //Store in temp variable for speed
+    T := KMPoint(K, I);
 
     if (KMLength(aLoc, T) <= aRadius)
     and not KMSamePoint(aAvoidLoc, T) then
@@ -967,17 +969,17 @@ begin
       //Grownup tree
       if (aPlantAct in [taCut, taAny])
       and ObjectIsChopableTree(T, 4)
-      and (Land[i,k].TreeAge >= TreeAgeFull)
+      and (Land[I,K].TreeAge >= TREE_AGE_FULL)
       //Woodcutter could be standing on any tile surrounding this tree
-      and not TileIsLocked(KMPoint(T.X  , T.Y))
-      and ((T.X=1) or not TileIsLocked(KMPoint(T.X-1, T.Y))) //if T.X=1, T.X-1 will be off map
-      and ((T.Y=1) or not TileIsLocked(KMPoint(T.X  , T.Y-1)))
-      and ((T.X=1) or (T.Y=1) or not TileIsLocked(KMPoint(T.X-1, T.Y-1)))
+      and not TileIsLocked(T)
+      and ((K = 1) or not TileIsLocked(KMPoint(K-1, I))) //if K=1, K-1 will be off map
+      and ((I = 1) or not TileIsLocked(KMPoint(K, I-1)))
+      and ((K = 1) or (I = 1) or not TileIsLocked(KMPoint(K-1, I-1)))
       and Route_CanBeMadeToVertex(aLoc, T, CanWalk) then
         List1.AddEntry(T);
 
       if (aPlantAct in [taPlant, taAny])
-      and (CanPlantTrees in Land[i,k].Passability)
+      and (CanPlantTrees in Land[I,K].Passability)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
         if ObjectIsChopableTree(T, 6) then
@@ -1212,7 +1214,7 @@ begin
   RecalculatePassabilityAround(Loc); //Because surrounding tiles will be affected (CanPlantTrees)
 
   //WalkConnect takes diagonal passability into account
-  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -1859,7 +1861,7 @@ end;
 
 //Interpolate between 12 vertices surrounding this tile (X and Y, no diagonals)
 //Also it is FlattenTerrain duty to preserve walkability if there are units standing
-procedure TTerrain.FlattenTerrain(Loc:TKMPoint; aRebuildWalkConnects:boolean=true);
+procedure TTerrain.FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects:boolean=true);
 var TilesFactored:integer;
 
   //If tiles with units standing on them become unwalkable we should try to fix them
@@ -1911,8 +1913,8 @@ begin
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
   RecalculatePassabilityAround(Loc); //Changing height will affect the cells around this one
 
-  if aRebuildWalkConnects then
-    RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+  if aUpdateWalkConnects then
+    UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -1925,7 +1927,7 @@ begin
     FlattenTerrain(LocList[I], False); //Rebuild the Walk Connect at the end, rather than every time
 
   //All 4 are affected by height
-  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -1964,7 +1966,7 @@ end;
 
 
 { Rebuilds connected areas using flood fill algorithm }
-procedure TTerrain.RebuildWalkConnect(aSet: array of TWalkConnect);
+procedure TTerrain.UpdateWalkConnect(aSet: array of TWalkConnect);
 //const MinSize=9; //Minimum size that is treated as new area
 var I,J,K{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability; AllowDiag:boolean;
   WC: TWalkConnect;
@@ -2036,7 +2038,7 @@ begin
         Land[I,K].WalkConnect[WC] := 0;
       end;
 
-      Assert(AreaID<255,'RebuildWalkConnect failed due too many unconnected areas');
+      Assert(AreaID<255,'UpdateWalkConnect failed due too many unconnected areas');
     end;
 
   end;
@@ -2099,7 +2101,7 @@ begin
 
   //Recalculate Passability for tiles around the house so that they can't be built on too
   RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
-  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -2275,7 +2277,7 @@ begin
   end;
 
   RebuildPassability(Loc.X-3, Loc.X+2, Loc.Y-4, Loc.Y+1);
-  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -2507,7 +2509,7 @@ begin
   RebuildLighting(1, fMapX, 1, fMapY);
   RebuildPassability(1, fMapX, 1, fMapY);
 
-  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
 
   fLog.AppendLog('Terrain loaded');
 end;
@@ -2532,8 +2534,7 @@ procedure TTerrain.UpdateState;
     Land[Y,X].Obj     := aObj;
   end;
 var
-  I, K: Integer;
-  h,j: Word;
+  I, K, H, J: Integer;
 begin
   inc(fAnimStep);
 
@@ -2541,49 +2542,54 @@ begin
   if fAnimStep - FallingTrees.Tag2[I]+1 >= MapElem[FallingTrees.Tag[I]+1].Count then
     ChopTree(FallingTrees[I]); //Make the tree turn into a stump
 
-  for i:=1 to fMapY do
-  for k:=1 to fMapX do
+  for I := 1 to fMapY do
+  for K := 1 to fMapX do
   //All those global things can be performed once a sec, or even less frequent
-  if (i*fMapX+k+fAnimStep) mod TERRAIN_PACE = 0 then
+  if (I*fMapX+K+fAnimStep) mod TERRAIN_PACE = 0 then
   begin
 
-    if InRange(Land[i,k].FieldAge,1,65534) then
+    if InRange(Land[I,K].FieldAge, 1, 65534) then
     begin
-      inc(Land[i,k].FieldAge);
-      if TileIsCornField(KMPoint(k,i)) then
-        case Land[i,k].FieldAge of
-          CORN_AGE1:    SetLand(k,i,61,255);
-          CORN_AGE2:    SetLand(k,i,59,255);
-          CORN_AGE3:    SetLand(k,i,60,58);
-          CORN_AGEFULL: begin
-                          //Skip to the end
-                          SetLand(k,i,60,59);
-                          Land[i,k].FieldAge := 65535;
-                        end;
+      inc(Land[I,K].FieldAge);
+      if TileIsCornField(KMPoint(K,I)) then
+        case Land[I,K].FieldAge of
+          CORN_AGE_1:     SetLand(K,I,61,255);
+          CORN_AGE_2:     SetLand(K,I,59,255);
+          CORN_AGE_3:     SetLand(K,I,60,58);
+          CORN_AGE_FULL:  begin
+                            //Skip to the end
+                            SetLand(K,I,60,59);
+                            Land[I,K].FieldAge := 65535;
+                          end;
         end
       else
-      if TileIsWineField(KMPoint(k,i)) then
-        case Land[i,k].FieldAge of
-          WINE_AGE1: SetLand(k,i,55,54); //54=naked weeds
-          WINE_AGE2: SetLand(k,i,55,55);
-          WINE_AGE3: SetLand(k,i,55,56);
-          WINE_AGEFULL: begin SetLand(k,i,55,57); Land[i,k].FieldAge:=65535; end;//Skip to the end
+      if TileIsWineField(KMPoint(K,I)) then
+        case Land[I,K].FieldAge of
+          WINE_AGE_1:     SetLand(K,I,55,54); //54=naked weeds
+          WINE_AGE_2:     SetLand(K,I,55,55);
+          WINE_AGE_3:     SetLand(K,I,55,56);
+          WINE_AGE_FULL:  begin
+                            //Skip to the end
+                            SetLand(K,I,55,57);
+                            Land[I,K].FieldAge := 65535;
+                          end;
         end;
     end;
 
-    if InRange(Land[i,k].TreeAge,1,TreeAgeFull) then
+    if InRange(Land[I,K].TreeAge, 1, TREE_AGE_FULL) then
     begin
-      inc(Land[i,k].TreeAge);
-      if (Land[i,k].TreeAge=TreeAge1)or(Land[i,k].TreeAge=TreeAge2)or
-         (Land[i,k].TreeAge=TreeAgeFull) then //Speedup
-      for h:=1 to length(ChopableTrees) do
-        for j:=1 to 3 do
-          if Land[i,k].Obj=ChopableTrees[h,j] then
-            case Land[i,k].TreeAge of
-              TreeAge1:    Land[i,k].Obj:=ChopableTrees[h,2];
-              TreeAge2:    Land[i,k].Obj:=ChopableTrees[h,3];
-              TreeAgeFull: Land[i,k].Obj:=ChopableTrees[h,4];
-            end;
+      Inc(Land[I,K].TreeAge);
+      if (Land[I,K].TreeAge = TREE_AGE_1)
+      or (Land[I,K].TreeAge = TREE_AGE_2)
+      or (Land[I,K].TreeAge = TREE_AGE_FULL) then //Speedup
+        for H := Low(ChopableTrees) to High(ChopableTrees) do
+          for J := 1 to 3 do
+            if Land[I,K].Obj = ChopableTrees[H,J] then
+              case Land[I,K].TreeAge of
+                TREE_AGE_1:    Land[I,K].Obj := ChopableTrees[H,2];
+                TREE_AGE_2:    Land[I,K].Obj := ChopableTrees[H,3];
+                TREE_AGE_FULL: Land[I,K].Obj := ChopableTrees[H,4];
+              end;
     end;
 
   end;

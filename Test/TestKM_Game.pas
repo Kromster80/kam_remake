@@ -30,6 +30,7 @@ end;
 
 procedure TestTKMGame.TearDown;
 begin
+  fGame.Stop(gr_Silent);
   FreeAndNil(fGame);
   FreeAndNil(fTextLibrary);
   FreeAndNil(fLocales);
@@ -42,11 +43,11 @@ begin
   fGame.StartSingleMap(ExtractFilePath(ParamStr(0)) + 'StoneTest.dat', 'Stone Test');
   Check(fPlayers[0].Stats.GetGoodsProduced = 0);
 
-  for I := 0 to 100000 do
+  for I := 1 to 10000 do
   begin
     fGame.UpdateState;
     if fGame.GameState = gsOnHold then
-      fGame.GameHold(false, gr_Win);
+      fGame.GameHold(False, gr_Win);
   end;
 
   Check(fPlayers[0].Stats.GetGoodsProduced > 0, 'StoneMining got broken');
@@ -55,6 +56,6 @@ end;
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest('Functional',TestTKMGame.Suite);
+  RegisterTest('Functional', TestTKMGame.Suite);
 end.
 

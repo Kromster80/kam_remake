@@ -12,7 +12,8 @@ const
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
   //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
-  TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default), Warning, it affects tree-corn growth rate
+  TERRAIN_PACE          = 100;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
+  FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
 
   FOG_OF_WAR_MIN        = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
   FOG_OF_WAR_ACT        = 160;          //Until this value FOW is not rendered at all
@@ -559,20 +560,20 @@ const
   ( 162, 163, 164, 165, 166,  33),
   ( 167, 168, 169, 170, 171,  33));
 
-//Ages at which tree grows up / changes sprite
-TreeAge1 = 250;  //I did measured only corn, and it was ~195sec
-TreeAge2 = 500;
-TreeAgeFull = 800; //Tree is old enough to be chopped
+//Ages at which trees/fields grow up/change sprite multiplied by TERRAIN_PACE
+TREE_AGE_1 = 25;  //I did measured only corn, and it was ~195sec
+TREE_AGE_2 = 50;
+TREE_AGE_FULL = 80; //Tree is old enough to be chopped
 
-CORN_AGE1 = 10; //When Corn reaches this age - seeds appear, 0 means unplanted field
-CORN_AGE2 = 220;   //Numbers are measured from KaM, ~195sec
-CORN_AGE3 = 430;
-CORN_AGEFULL = 640; //Corn ready to be harvested
+CORN_AGE_1 = 1; //When Corn reaches this age - seeds appear, 0 means unplanted field
+CORN_AGE_2 = 22;   //Numbers are measured from KaM, ~195sec
+CORN_AGE_3 = 43;
+CORN_AGE_FULL = 64; //Corn ready to be cut
 
-WINE_AGE1 = 10; //When Wine reaches this age - seeds appear, 0 means unplanted field
-WINE_AGE2 = 220;   //Numbers are measured from KaM, ~195sec
-WINE_AGE3 = 430;
-WINE_AGEFULL = 640; //Corn ready to be harvested
+WINE_AGE_1 = 1; //When Wine reaches this age - seeds appear, 0 means unplanted field
+WINE_AGE_2 = 22;   //Numbers are measured from KaM, ~195sec
+WINE_AGE_3 = 43;
+WINE_AGE_FULL = 64; //Wine ready to be harvested
 
 
 //   1      //Select road tile and rotation

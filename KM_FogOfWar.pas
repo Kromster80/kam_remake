@@ -59,24 +59,24 @@ end;
 
 {Reveal circle on map}
 {Amount controls how "strong" terrain is revealed, almost instantly or slowly frame-by-frame in multiple calls}
-procedure TKMFogOfWar.RevealCircle(Pos:TKMPoint; Radius,Amount:word);
-var i,k:integer;
+procedure TKMFogOfWar.RevealCircle(Pos: TKMPoint; Radius, Amount: Word);
+var I,K: Integer;
 begin
   //We inline maths here to gain performance
-  for i:=max(Pos.Y-Radius,2) to min(Pos.Y+Radius,MapY-1) do //Keep map edges unrevealed
-  for k:=max(Pos.X-Radius,2) to min(Pos.X+Radius,MapX-1) do
-  if (sqr(Pos.x-k) + sqr(Pos.y-i)) <= sqr(Radius) then
-    Revelation[i,k].Visibility := min(Revelation[i,k].Visibility + Amount, FOG_OF_WAR_MAX);
+  for I := max(Pos.Y-Radius, 2) to min(Pos.Y+Radius, MapY-1) do //Keep map edges unrevealed
+  for K := max(Pos.X-Radius, 2) to min(Pos.X+Radius, MapX-1) do
+  if (sqr(Pos.x-K) + sqr(Pos.y-I)) <= sqr(Radius) then
+    Revelation[I,K].Visibility := min(Revelation[I,K].Visibility + Amount, FOG_OF_WAR_MAX);
 end;
 
 
 {Reveal whole map to max value}
 procedure TKMFogOfWar.RevealEverything;
-var i,k:integer;
+var I,K: Integer;
 begin
-  for i:=1 to MapY do
-    for k:=1 to MapX do
-      Revelation[i,k].Visibility := FOG_OF_WAR_MAX;
+  for I := 1 to MapY do
+    for K := 1 to MapX do
+      Revelation[I, K].Visibility := FOG_OF_WAR_MAX;
 end;
 
 
@@ -131,51 +131,55 @@ end;
 
 
 procedure TKMFogOfWar.SyncFOW(aFOW: TKMFogOfWar);
-var i,k:integer;
+var I,K: Integer;
 begin
-  for i:=1 to MapY do
-    for k:=1 to MapX do
-      Revelation[i,k].Visibility := Math.Max(Revelation[i,k].Visibility, aFOW.Revelation[i,k].Visibility);
+  for I := 1 to MapY do
+    for K := 1 to MapX do
+      Revelation[I, K].Visibility := Math.max(Revelation[I, K].Visibility, aFOW.Revelation[I, K].Visibility);
 end;
 
 
 procedure TKMFogOfWar.Save(SaveStream: TKMemoryStream);
-var i,k:integer;
+var
+  I, K: integer;
 begin
   SaveStream.Write('FOW');
   SaveStream.Write(MapX);
   SaveStream.Write(MapY);
   SaveStream.Write(fAnimStep);
-  for i:=1 to MapY do
-  for k:=1 to MapX do
-    SaveStream.Write(Revelation[i,k], SizeOf(Revelation[i,k]));
+  for I := 1 to MapY do
+    for K := 1 to MapX do
+      SaveStream.Write(Revelation[I, K], SizeOf(Revelation[I, K]));
 end;
 
 
 procedure TKMFogOfWar.Load(LoadStream: TKMemoryStream);
-var i,k:integer;
+var
+  I, K: integer;
 begin
   LoadStream.ReadAssert('FOW');
   LoadStream.Read(MapX);
   LoadStream.Read(MapY);
   LoadStream.Read(fAnimStep);
   SetMapSize(MapX, MapY);
-  for i:=1 to MapY do
-  for k:=1 to MapX do
-    LoadStream.Read(Revelation[i,k], SizeOf(Revelation[i,k]));
+  for I := 1 to MapY do
+    for K := 1 to MapX do
+      LoadStream.Read(Revelation[I, K], SizeOf(Revelation[I, K]));
 end;
 
 
 procedure TKMFogOfWar.UpdateState;
-var i,k:word;
+var
+  I, K: Word;
 begin
-  inc(fAnimStep);
+  Inc(fAnimStep);
 
   if FOG_OF_WAR_ENABLE then
-  for i:=1 to MapY do
-  for k:=1 to MapX do
-  if (i*MapX+k+fAnimStep) mod TERRAIN_PACE = 0 then //All those global things can be performed once a sec, or even less frequent
-    if Revelation[i,k].Visibility > FOG_OF_WAR_MIN then dec(Revelation[i,k].Visibility, FOG_OF_WAR_DEC);
+    for I := 1 to MapY do
+      for K := 1 to MapX do
+        if (I * MapX + K + fAnimStep) mod FOW_PACE = 0 then
+          if Revelation[I, K].Visibility > FOG_OF_WAR_MIN then
+            Dec(Revelation[I, K].Visibility, FOG_OF_WAR_DEC);
 end;
 
 

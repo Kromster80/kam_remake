@@ -475,7 +475,7 @@ begin
   Result := false; //Set it right from the start
 
   //Reset fPlayers and other stuff
-  FreeAndNil(fPlayers);
+  FreeThenNil(fPlayers);
   fLastPlayer := -1;
 
   //Read the mission file into FileText

@@ -899,13 +899,13 @@ begin
 end;
 
 
-procedure TKMGame.SendMPGameInfo(Sender:TObject);
+procedure TKMGame.SendMPGameInfo(Sender: TObject);
 begin
-  fNetworking.SendMPGameInfo(GetMissionTime,GameName);
+  fNetworking.SendMPGameInfo(GetMissionTime, GameName);
 end;
 
 
-procedure TKMGame.Stop(Msg:TGameResultMsg; TextMsg:string='');
+procedure TKMGame.Stop(Msg: TGameResultMsg; TextMsg: string='');
 begin
   if fGameState = gsNoGame then Exit;
 

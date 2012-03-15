@@ -123,6 +123,7 @@ end;
 
 
 function TTaskMining.ResourceExists: Boolean;
+var P: TKMPoint;
 begin
   with fTerrain do
   case WorkPlan.GatheringScript of
@@ -147,7 +148,10 @@ begin
     gs_FarmerWine:      Result := TileIsWineField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 65535);
     gs_FisherCatch:     Result := CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir),true);
     gs_WoodCutterPlant: Result := CheckPassability(WorkPlan.Loc, CanPlantTrees);
-    gs_WoodCutterCut:   Result := ObjectIsChopableTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir), 4) and (Land[KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir).Y, KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir).X].TreeAge >= TreeAgeFull)
+    gs_WoodCutterCut:   begin
+                          P := KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir);
+                          Result := ObjectIsChopableTree(P, 4) and (Land[P.Y, P.X].TreeAge >= TREE_AGE_FULL);
+                        end;
     else                Result := True;
   end;
 end;
