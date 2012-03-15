@@ -79,10 +79,10 @@ begin
     if fPlayers[0].Stats.GetWarriorsKilled > fPlayers[1].Stats.GetWarriorsKilled then
       Inc(P1)
     else
-      Inc(P2)
+      Inc(P2);
     fGame.Stop(gr_Silent);
   end;
-  Check(False, s);
+  Check(Abs(P1-P2) < 5, 'Game is unfair?');
 end;
 
 

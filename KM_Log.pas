@@ -99,10 +99,11 @@ end;
 {Reset log file}
 constructor TKMLog.Create(const aPath: string);
 begin
-  Inherited Create;
+  inherited Create;
   fLogPath := aPath;
   fFirstTick := TimeGet;
   fPreviousTick := TimeGet;
+  ForceDirectories(ExtractFilePath((aPath)));
   AssignFile(fl, fLogPath);
   Rewrite(fl);
   CloseFile(fl);
