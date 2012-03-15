@@ -1516,7 +1516,7 @@ begin
       begin
         Image_SingleMode[I].TexID       := 28 + Byte(fMaps[MapID].Info.MissionMode <> mm_Tactic)*14;  //28 or 42
         Label_SinglePlayers[I].Caption  := IntToStr(fMaps[MapID].Info.PlayerCount);
-        Label_SingleTitle1[I].Caption   := fMaps[MapID].Filename;
+        Label_SingleTitle1[I].Caption   := fMaps[MapID].FileName;
         Label_SingleTitle2[I].Caption   := fMaps[MapID].SmallDesc;
         Label_SingleSize[I].Caption     := fMaps[MapID].Info.MapSizeText;
       end;
@@ -1564,14 +1564,14 @@ begin
   begin
     fMap_Selected := aIndex;
     fMapCRC_Selected := fMaps[fMap_Selected].CRC;
-    Label_SingleTitle.Caption   := fMaps[fMap_Selected].Filename;
+    Label_SingleTitle.Caption   := fMaps[fMap_Selected].FileName;
     Memo_SingleDesc.Text        := fMaps[fMap_Selected].BigDesc;
     Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[fMap_Selected].Info.MissionModeText]);
     Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[fMap_Selected].Info.VictoryCondition]);
     Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[fMap_Selected].Info.DefeatCondition]);
 
     Minimap_SinglePreview.Show;
-    fMapView.LoadTerrain(MapNameToPath(fMaps[fMap_Selected].Filename, 'dat', False));
+    fMapView.LoadTerrain(MapNameToPath(fMaps[fMap_Selected].FileName, 'dat', False));
     fMapView.Update(False);
     Minimap_SinglePreview.UpdateFrom(fMapView);
   end;
@@ -1591,7 +1591,7 @@ begin
   if not InRange(fMap_Selected, 0, fMaps.Count-1) then exit; //Some odd index
   //scan should be terminated, as it is no longer needed
   fMaps.TerminateScan;
-  fGame.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].Filename,'dat',false),fMaps[fMap_Selected].Filename); //Provide mission filename mask and title here
+  fGame.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].FileName,'dat',false),fMaps[fMap_Selected].FileName); //Provide mission FileName mask and title here
 end;
 
 
@@ -2226,7 +2226,7 @@ begin
 end;
 
 
-//Just pass Filename to Networking, it will check validity itself
+//Just pass FileName to Networking, it will check validity itself
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
 begin
   if Radio_LobbyMapType.ItemIndex < 3 then
@@ -2245,7 +2245,7 @@ begin
   begin
     if fGame.Networking.SelectGameKind = ngk_Save then
     begin
-      Label_LobbyMapName.Caption := fGame.Networking.SaveInfo.Filename;
+      Label_LobbyMapName.Caption := fGame.Networking.SaveInfo.FileName;
       Memo_LobbyMapDesc.Clear;
       Memo_LobbyMapDesc.Text := fGame.Networking.GameInfo.GetTitleWithTime;
       TrackBar_LobbyPeacetime.Disable;
@@ -2253,7 +2253,7 @@ begin
     end
     else
     begin
-      fMapView.LoadTerrain(MapNameToPath(fGame.Networking.MapInfo.Filename, 'dat', True));
+      fMapView.LoadTerrain(MapNameToPath(fGame.Networking.MapInfo.FileName, 'dat', True));
       fMapView.Update(True);
       Minimap_LobbyPreview.UpdateFrom(fMapView);
       Minimap_LobbyPreview.Visible := true;
@@ -2329,17 +2329,17 @@ begin
 
   Lobby_MapTypeSelect(nil);
   if fGame.Networking.SelectGameKind = ngk_Save then
-    List_Lobby.SelectByName(fGame.Networking.SaveInfo.Filename) //Select the map
+    List_Lobby.SelectByName(fGame.Networking.SaveInfo.FileName) //Select the map
   else
     if fGame.Networking.SelectGameKind = ngk_Map then
-      List_Lobby.SelectByName(fGame.Networking.MapInfo.Filename); //Select the map
+      List_Lobby.SelectByName(fGame.Networking.MapInfo.FileName); //Select the map
 
   Lobby_OnGameOptions(nil);
   if fGame.Networking.SelectGameKind = ngk_Save then
-    Lobby_OnMapName(fGame.Networking.SaveInfo.Filename)
+    Lobby_OnMapName(fGame.Networking.SaveInfo.FileName)
   else
     if fGame.Networking.SelectGameKind = ngk_Map then
-      Lobby_OnMapName(fGame.Networking.MapInfo.Filename);
+      Lobby_OnMapName(fGame.Networking.MapInfo.FileName);
 end;
 
 
@@ -2413,7 +2413,7 @@ procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
   if not Button_Load.Enabled then exit; //This is also called by double clicking
   if not InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then Exit;
-  fGame.StartSingleSave(fSaves[List_Load.ItemIndex].Filename);
+  fGame.StartSingleSave(fSaves[List_Load.ItemIndex].FileName);
 end;
 
 
@@ -2449,7 +2449,7 @@ begin
   List_Load.Clear;
 
   for i:=0 to fSaves.Count-1 do
-    List_Load.AddItem([fSaves[i].Filename, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
+    List_Load.AddItem([fSaves[i].FileName, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
 
   //Select first Save by default
   if List_Load.RowCount > 0 then
@@ -2475,7 +2475,7 @@ procedure TKMMainMenuInterface.Replays_ListClick(Sender: TObject);
 begin
   Button_ReplaysPlay.Enabled := InRange(List_Replays.ItemIndex, 0, fSaves.Count-1)
                                 and fSaves[List_Replays.ItemIndex].IsValid
-                                and fGame.ReplayExists(fSaves[List_Replays.ItemIndex].Filename, (Radio_Replays_Type.ItemIndex = 1));
+                                and fGame.ReplayExists(fSaves[List_Replays.ItemIndex].FileName, (Radio_Replays_Type.ItemIndex = 1));
   if Button_ReplaysPlay.Enabled then
   begin
     fSaves[List_Replays.ItemIndex].LoadMinimap(fMapView);
@@ -2500,7 +2500,7 @@ begin
   List_Replays.Clear;
 
   for i:=0 to fSaves.Count-1 do
-    List_Replays.AddItem([fSaves[i].Filename, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
+    List_Replays.AddItem([fSaves[i].FileName, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
 
   //Select first Save by default
   if List_Replays.RowCount > 0 then
@@ -2514,18 +2514,18 @@ procedure TKMMainMenuInterface.Replays_Play(Sender: TObject);
 begin
   if not Button_ReplaysPlay.Enabled then exit; //This is also called by double clicking
   if not InRange(List_Replays.ItemIndex, 0, fSaves.Count-1) then Exit;
-  fGame.StartReplay(fSaves[List_Replays.ItemIndex].Filename,(Radio_Replays_Type.ItemIndex = 1));
+  fGame.StartReplay(fSaves[List_Replays.ItemIndex].FileName,(Radio_Replays_Type.ItemIndex = 1));
 end;
 
 
 procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
 begin
   if Sender = Button_MapEd_Create then
-    fGame.StartMapEditor('', false, MapEdSizeX, MapEdSizeY); //Provide mission filename here, Mapsize will be ignored if map exists
+    fGame.StartMapEditor('', false, MapEdSizeX, MapEdSizeY); //Provide mission FileName here, Mapsize will be ignored if map exists
   //This is also called by double clicking on a map in the list
   if ((Sender = Button_MapEd_Load) or (Sender = List_MapEd)) and
      Button_MapEd_Load.Enabled and (List_MapEd.ItemIndex <> -1) then
-    fGame.StartMapEditor(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1), Radio_MapEd_MapType.ItemIndex = 1, 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
+    fGame.StartMapEditor(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1), Radio_MapEd_MapType.ItemIndex = 1, 0, 0); //Provide mission FileName here, Mapsize will be ignored if map exists
 end;
 
 

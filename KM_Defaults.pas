@@ -66,6 +66,7 @@ var
   MODE_DESIGN_CONTORLS  :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   {Gameplay display}
+  SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic
   AGGRESSIVE_REPLAYS    :Boolean = False; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_TERRAIN_WIRES    :Boolean = False; //Makes terrain height visible
   SHOW_UNIT_ROUTES      :Boolean = False; //Draw unit routes
@@ -91,7 +92,7 @@ var
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. canWalk) in Multiplayer
+  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
   DEBUG_CHEATS          :Boolean = True; //Cheats for debug (place scout and reveal map) which can be turned On from menu
   {Data output}
   WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
@@ -256,7 +257,7 @@ const {Aligned to right to use them in GUI costs display as well}
 type
   TPassability = (CanWalk=1, CanWalkRoad, CanBuild, CanBuildIron, CanBuildGold,
                   CanMakeRoads, CanMakeFields, CanPlantTrees, CanFish, CanCrab,
-                  CanWolf, CanElevate, CanWorker, canFactor);
+                  CanWolf, CanElevate, CanWorker, CanFactor);
   TPassabilitySet = set of TPassability;
 
 type
@@ -271,20 +272,20 @@ type
 
 const
   PassabilityStr: array [TPassability] of string = (
-    'canWalk',      // General passability of tile for any walking units
-    'canWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
-    'canBuild',     // Can we build a house on this tile?
-    'canBuildIron', // Special allowance for Iron Mines
-    'canBuildGold', // Special allowance for Gold Mines
-    'canMakeRoads', // Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges
-    'canMakeFields',// Thats more strict than roads, cos e.g. on beaches you can't make fields
-    'canPlantTrees',// If Forester can plant a tree here, dunno if it's the same as fields
-    'canFish',      // Water tiles where fish can move around
-    'canCrab',      // Sand tiles where crabs can move around
-    'canWolf',      // Soil tiles where wolfs can move around
-    'canElevate',   // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
-    'canWorker',    // Like canWalk but allows walking on building sites
-    'canFactor'     // Allows vertex (top left) to be factored as a neighbour in flattening algorithm
+    'CanWalk',      // General passability of tile for any walking units
+    'CanWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
+    'CanBuild',     // Can we build a house on this tile?
+    'CanBuildIron', // Special allowance for Iron Mines
+    'CanBuildGold', // Special allowance for Gold Mines
+    'CanMakeRoads', // Thats less strict than house building, roads Can be placed almost everywhere where units Can walk, except e.g. bridges
+    'CanMakeFields',// Thats more strict than roads, cos e.g. on beaches you Can't make fields
+    'CanPlantTrees',// If Forester Can plant a tree here, dunno if it's the same as fields
+    'CanFish',      // Water tiles where fish Can move around
+    'CanCrab',      // Sand tiles where crabs Can move around
+    'CanWolf',      // Soil tiles where wolfs Can move around
+    'CanElevate',   // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
+    'CanWorker',    // Like CanWalk but allows walking on building sites
+    'CanFactor'     // Allows vertex (top left) to be factored as a neighbour in flattening algorithm
   );
 
 {Units}

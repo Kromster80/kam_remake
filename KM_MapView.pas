@@ -219,6 +219,8 @@ end;
 
 procedure TKMMapView.Update(aRevealAll: Boolean);
 begin
+  if SKIP_RENDER then Exit;
+
   if fFromParser then
     UpdateMinimapFromParser(aRevealAll)
   else

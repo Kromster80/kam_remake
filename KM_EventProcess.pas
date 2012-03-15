@@ -82,8 +82,8 @@ type
     procedure ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
     procedure ProcTime(aTick: Cardinal);
 
-    procedure LoadFromFile(aFilename: string);
-    procedure SaveToFile(aFilename: string);
+    procedure LoadFromFile(aFileName: string);
+    procedure SaveToFile(aFileName: string);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -200,15 +200,15 @@ end;
 
 
 //Try to load events from text file
-procedure TKMEventsManager.LoadFromFile(aFilename: string);
+procedure TKMEventsManager.LoadFromFile(aFileName: string);
 var
   I: Integer;
   E: TKMEvent;
   SL: TStringList;
 begin
-  if not FileExists(aFilename) then
+  if not FileExists(aFileName) then
   begin
-    fLog.AddToLog(aFilename + ' was not found. It is okay for mission to have no events.');
+    fLog.AddToLog(aFileName + ' was not found. It is okay for mission to have no events.');
     Exit;
   end;
 
@@ -216,7 +216,7 @@ begin
 
   //Read the file line by line and try to add valid events
   SL := TStringList.Create;
-  SL.LoadFromFile(aFilename);
+  SL.LoadFromFile(aFileName);
   for I := 0 to SL.Count - 1 do
   begin
     E := TKMEvent.Create(Self);
@@ -254,7 +254,7 @@ end;
 
 
 //Save existing events into text file
-procedure TKMEventsManager.SaveToFile(aFilename: string);
+procedure TKMEventsManager.SaveToFile(aFileName: string);
 var
   I: Integer;
   T: TEventTrigger;
@@ -282,7 +282,7 @@ begin
   for I := 0 to fEvents.Count - 1 do
     Events[I].SaveToList(SL);
 
-  SL.SaveToFile(aFilename);
+  SL.SaveToFile(aFileName);
   SL.Free;
 end;
 

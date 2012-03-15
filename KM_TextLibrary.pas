@@ -26,8 +26,8 @@ type
   public
     constructor Create(aLibPath: string; aLocale: AnsiString);
 
-    function AppendCampaign(aFilename: string): Word;
-    procedure LoadMissionStrings(aFilename: string);
+    function AppendCampaign(aFileName: string): Word;
+    procedure LoadMissionStrings(aFileName: string);
 
     function GetMissionString(aIndex: word): AnsiString;
 
@@ -114,32 +114,32 @@ end;
 
 //Campaign description and briefings get appended to main list
 //as they are used in Main Menu right away
-function TTextLibrary.AppendCampaign(aFilename: string): Word;
+function TTextLibrary.AppendCampaign(aFileName: string): Word;
 begin
-  Assert(Pos('%s', aFilename) <> 0, 'Input string must be formatted properly with an %s');
+  Assert(Pos('%s', aFileName) <> 0, 'Input string must be formatted properly with an %s');
 
   Result := High(GameStrings);
-  LoadLIBXFile(Format(aFilename, [DEFAULT_LOCALE]), Result, GameStrings, False);
+  LoadLIBXFile(Format(aFileName, [DEFAULT_LOCALE]), Result, GameStrings, False);
   
-  if (fFallbackLocale <> '') and FileExists(Format(aFilename, [fFallbackLocale])) then
-    LoadLIBXFile(Format(aFilename, [fFallbackLocale]), Result, GameStrings, True);
+  if (fFallbackLocale <> '') and FileExists(Format(aFileName, [fFallbackLocale])) then
+    LoadLIBXFile(Format(aFileName, [fFallbackLocale]), Result, GameStrings, True);
 
-  if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFilename, [fLocale])) then
-    LoadLIBXFile(Format(aFilename, [fLocale]), Result, GameStrings, True);
+  if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFileName, [fLocale])) then
+    LoadLIBXFile(Format(aFileName, [fLocale]), Result, GameStrings, True);
 end;
 
 
 //Load mission strings into separate array, as they get reloaded for each mission
 //Only one set of mission strings is required at a time
-procedure TTextLibrary.LoadMissionStrings(aFilename: string);
+procedure TTextLibrary.LoadMissionStrings(aFileName: string);
 begin
-  LoadLIBXFile(Format(aFilename, [DEFAULT_LOCALE]), 0, MissionStrings, False);
+  LoadLIBXFile(Format(aFileName, [DEFAULT_LOCALE]), 0, MissionStrings, False);
 
-  if (fFallbackLocale <> '') and FileExists(Format(aFilename, [fFallbackLocale])) then
-    LoadLIBXFile(Format(aFilename, [fFallbackLocale]), 0, MissionStrings, True);
+  if (fFallbackLocale <> '') and FileExists(Format(aFileName, [fFallbackLocale])) then
+    LoadLIBXFile(Format(aFileName, [fFallbackLocale]), 0, MissionStrings, True);
 
-  if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFilename, [fLocale])) then
-    LoadLIBXFile(Format(aFilename, [fLocale]), 0, MissionStrings, True);
+  if (fLocale <> DEFAULT_LOCALE) and FileExists(Format(aFileName, [fLocale])) then
+    LoadLIBXFile(Format(aFileName, [fLocale]), 0, MissionStrings, True);
 end;
 
 

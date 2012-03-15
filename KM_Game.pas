@@ -65,7 +65,7 @@ type
     procedure GameMPDisconnect(const aData:string);
     procedure MultiplayerRig;
 
-    procedure Load(const aFilename: string; aReplay:boolean=false);
+    procedure Load(const aFileName: string; aReplay:boolean=false);
   public
     OnCursorUpdate: TIntegerStringEvent;
     PlayOnState:TGameResultMsg;
@@ -92,11 +92,11 @@ type
 
     procedure StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
     procedure StartSingleMap(aMissionFile, aGameName:string);
-    procedure StartSingleSave(aFilename:string);
+    procedure StartSingleSave(aFileName:string);
     procedure StartLastMap;
-    procedure StartMultiplayerSave(const aFilename: string);
-    procedure StartMultiplayerMap(const aFilename: string);
-    procedure StartMapEditor(const aFilename: string; aMultiplayer:boolean; aSizeX:integer=64; aSizeY:integer=64);
+    procedure StartMultiplayerSave(const aFileName: string);
+    procedure StartMultiplayerMap(const aFileName: string);
+    procedure StartMapEditor(const aFileName: string; aMultiplayer:boolean; aSizeX:integer=64; aSizeY:integer=64);
     procedure Stop(Msg:TGameResultMsg; TextMsg:string='');
 
     procedure GameMPPlay(Sender:TObject);
@@ -154,7 +154,7 @@ type
     property GameOptions: TKMGameOptions read fGameOptions;
     property Viewport: TViewport read fViewport;
 
-    procedure Save(const aFilename: string);
+    procedure Save(const aFileName: string);
     procedure PrintScreen;
 
     procedure Render;
@@ -193,7 +193,7 @@ begin
   fLocales        := TKMLocales.Create;
   fGameSettings   := TGameSettings.Create;
 
-  fRender           := TRender.Create(aHandle, fScreenX, fScreenY, aVSync);
+  fRender         := TRender.Create(aHandle, fScreenX, fScreenY, aVSync);
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
     Application.MessageBox(PChar(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]), 'Warning', MB_OK or MB_ICONWARNING);
@@ -468,14 +468,14 @@ begin
 end;
 
 
-procedure TKMGame.StartSingleSave(aFilename:string);
+procedure TKMGame.StartSingleSave(aFileName:string);
 begin
   Stop(gr_Silent); //Stop everything silently
 
   fCampaigns.SetActive(nil, 0);
 
   GameInit(false);
-  Load(aFilename);
+  Load(aFileName);
   fGameState := gsRunning;
   fReplayMode := false;
 end;
@@ -559,7 +559,7 @@ begin
 end;
 
 
-procedure TKMGame.StartMultiplayerMap(const aFilename: string);
+procedure TKMGame.StartMultiplayerMap(const aFileName: string);
 var
   i: integer;
   PlayerRemap:TPlayerArray;
@@ -573,7 +573,7 @@ begin
   GameInit(true);
 
   //Load mission file
-  fGameName := aFilename;
+  fGameName := aFileName;
 
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_SCRIPT]);
 
@@ -586,9 +586,9 @@ begin
   end;
 
   try //Catch exceptions
-    fLog.AppendLog('Loading DAT file for multiplayer: '+MapNameToPath(aFilename, 'dat', true));
+    fLog.AppendLog('Loading DAT file for multiplayer: '+MapNameToPath(aFileName, 'dat', true));
     fMissionParser := TMissionParserStandard.Create(mpm_Multi, PlayerRemap, false);
-    if not fMissionParser.LoadMission(MapNameToPath(aFilename, 'dat', true)) then
+    if not fMissionParser.LoadMission(MapNameToPath(aFileName, 'dat', true)) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     fMissionMode := fMissionParser.MissionInfo.MissionMode;
     FreeAndNil(fMissionParser);
@@ -599,7 +599,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFilename])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFileName])+'||'+E.ClassName+': '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError);
       fLog.AppendLog('DAT Load Exception: '+LoadError);
       fNetworking.Disconnect; //Abort all network connections
@@ -618,15 +618,15 @@ begin
 end;
 
 
-procedure TKMGame.StartMultiplayerSave(const aFilename: string);
+procedure TKMGame.StartMultiplayerSave(const aFileName: string);
 begin
   Stop(gr_Silent); //Stop everything silently
 
   fCampaigns.SetActive(nil, 0);
 
   GameInit(true);
-  Load(aFilename);
-  fGamePlayInterface.LastSaveName := aFilename; //Next time they go to save it will have this name entered
+  Load(aFileName);
+  fGamePlayInterface.LastSaveName := aFileName; //Next time they go to save it will have this name entered
 
   MultiplayerRig;
 end;
@@ -972,13 +972,13 @@ end;
 
 
 {Mission name is absolute}
-procedure TKMGame.StartMapEditor(const aFilename: string; aMultiplayer:boolean; aSizeX:integer=64; aSizeY:integer=64);
+procedure TKMGame.StartMapEditor(const aFileName: string; aMultiplayer:boolean; aSizeX:integer=64; aSizeY:integer=64);
 var
   i: Integer;
   LoadError: string;
   fMissionParser: TMissionParserStandard;
 begin
-  if not FileExists(aFilename) and (aSizeX*aSizeY=0) then exit; //Erroneous call
+  if not FileExists(aFileName) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
   Stop(gr_Silent); //Stop MapEd as we are loading from existing MapEd session
 
@@ -1006,16 +1006,16 @@ begin
   //Set the state to gsEditor early, so the MissionParser knows we must not flatten house areas, give units random condition, etc.
   fGameState := gsEditor;
 
-  if aFilename <> '' then
+  if aFileName <> '' then
   try //Catch exceptions
-    fLog.AppendLog('Loading DAT file for editor: '+aFilename);
+    fLog.AppendLog('Loading DAT file for editor: '+aFileName);
     fMissionParser := TMissionParserStandard.Create(mpm_Editor, False);
-    if not fMissionParser.LoadMission(aFilename) then
+    if not fMissionParser.LoadMission(aFileName) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     MyPlayer := fPlayers.Player[0];
     fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
     FreeAndNil(fMissionParser);
-    fGameName := TruncateExt(ExtractFileName(aFilename));
+    fGameName := TruncateExt(ExtractFileName(aFileName));
   except
     on E : Exception do
     begin
@@ -1023,7 +1023,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFilename])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFileName])+'||'+E.ClassName+': '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError);
       fLog.AppendLog('DAT Load Exception: '+LoadError);
       Exit;
@@ -1045,7 +1045,7 @@ begin
   fMapEditorInterface := TKMapEdInterface.Create(fScreenX, fScreenY);
   fMapEditorInterface.Player_UpdateColors;
   fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
-  if FileExists(aFilename) then fMapEditorInterface.SetLoadMode(aMultiplayer);
+  if FileExists(aFileName) then fMapEditorInterface.SetLoadMode(aMultiplayer);
   fPlayers.AfterMissionInit(false);
 
   for i:=0 to fPlayers.Count-1 do //Reveal all players since we'll swap between them in MapEd
@@ -1119,7 +1119,7 @@ end;
 
 procedure TKMGame.Render;
 begin
-  if fRender.Blind then Exit;
+  if SKIP_RENDER then Exit;
 
   fRender.BeginFrame;
 
@@ -1127,7 +1127,9 @@ begin
     fRenderPool.Render;
 
   fRender.SetRenderMode(rm2D);
-  PaintInterface;
+
+  if not fRender.Blind then
+    PaintInterface;
 
   fRender.RenderBrightness(GlobalSettings.Brightness);
 
@@ -1295,7 +1297,7 @@ end;
 //Saves the game in all its glory
 //Base savegame gets copied from save99.bas
 //Saves command log to RPL file
-procedure TKMGame.Save(const aFilename: string);
+procedure TKMGame.Save(const aFileName: string);
 var
   SaveStream: TKMemoryStream;
   fGameInfo: TKMGameInfo;
@@ -1386,19 +1388,19 @@ begin
   //we must send those "commands" through the GIP so all players know about them and they're in sync.
   //There is a comment in fGame.Load about MessageList on this topic.
 
-  SaveStream.SaveToFile(SaveName(aFilename,'sav')); //Some 70ms for TPR7 map
+  SaveStream.SaveToFile(SaveName(aFileName,'sav')); //Some 70ms for TPR7 map
   SaveStream.Free;
 
   fLog.AppendLog('Save done');
 
-  CopyFile(PChar(SaveName('basesave','bas')), PChar(SaveName(aFilename,'bas')), false); //replace Replay base savegame
-  fGameInputProcess.SaveToFile(SaveName(aFilename,'rpl')); //Adds command queue to savegame
+  CopyFile(PChar(SaveName('basesave','bas')), PChar(SaveName(aFileName,'bas')), false); //replace Replay base savegame
+  fGameInputProcess.SaveToFile(SaveName(aFileName,'rpl')); //Adds command queue to savegame
 
   fLog.AppendLog('Saving game', true);
 end;
 
 
-procedure TKMGame.Load(const aFilename: string; aReplay:boolean=false);
+procedure TKMGame.Load(const aFileName: string; aReplay:boolean=false);
 var
   LoadStream: TKMemoryStream;
   GameInfo: TKMGameInfo;
@@ -1406,7 +1408,7 @@ var
   LoadedSeed: Longint;
   SaveIsMultiplayer: boolean;
 begin
-  fLog.AppendLog('Loading game: '+aFilename);
+  fLog.AppendLog('Loading game: '+aFileName);
   if aReplay then LoadFileExt := 'bas' else LoadFileExt := 'sav';
 
   LoadStream := TKMemoryStream.Create;

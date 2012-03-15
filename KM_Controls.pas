@@ -336,7 +336,7 @@ type
     procedure Paint; override;
   end;
 
-  TAllowedChars = (acDigits, acFilename, acText);
+  TAllowedChars = (acDigits, acFileName, acText);
 
   {EditField}
   TKMEdit = class(TKMControl)
@@ -1758,7 +1758,7 @@ begin
 
   case fAllowedChars of
     acDigits:   if not (Key in DigitChars) then Exit;
-    acFilename: if Key in NonFileChars then Exit;
+    acFileName: if Key in NonFileChars then Exit;
     acText:     if Key in NonTextChars then Exit;
   end;
 

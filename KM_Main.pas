@@ -294,7 +294,7 @@ end;
 procedure TKMMain.Render;
 begin
   if fGame <> nil then
-   fGame.Render;
+    fGame.Render;
 end;
 
 

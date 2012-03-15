@@ -19,7 +19,7 @@ type
   private
     fInfo: TKMGameInfo;
     fPath: string;
-    fFilename: string; //without extension
+    fFileName: string; //without extension
     fStrictParsing: Boolean; //Use strict map checking, important for MP
     fDatSize: Integer;
     fCRC: Cardinal;
@@ -37,7 +37,7 @@ type
 
     property Info: TKMGameInfo read fInfo;
     property Path: string read fPath;
-    property Filename: string read fFilename;
+    property FileName: string read fFileName;
     property CRC: Cardinal read fCRC;
 
     function IsValid: Boolean;
@@ -118,7 +118,7 @@ begin
   if aIsMultiplayer then fPath := ExeDir+'MapsMP\'
                     else fPath := ExeDir+'Maps\';
   fPath := fPath+aFolder+'\';
-  fFilename := aFolder;
+  fFileName := aFolder;
 
   fStrictParsing := aStrictParsing;
   ScanMap;
@@ -133,10 +133,10 @@ var
   fMissionParser:TMissionParserInfo;
 begin
   //We scan only single-player maps which are in Maps\ folder, so DAT\MAP paths are straight
-  DatFile := fPath + fFilename + '.dat';
-  MapFile := fPath + fFilename + '.map';
+  DatFile := fPath + fFileName + '.dat';
+  MapFile := fPath + fFileName + '.map';
 
-  LoadFromFile(fPath + fFilename + '.mi'); //Data will be empty if failed
+  LoadFromFile(fPath + fFileName + '.mi'); //Data will be empty if failed
 
   //We will scan map once again if anything has changed
   //In SP mode we check DAT size and version, that is enough
@@ -153,9 +153,9 @@ begin
     try
       fMissionParser.LoadMission(DatFile);
 
-      //Single maps Titles are the same as filename for now.
+      //Single maps Titles are the same as FileName for now.
       //Campaign maps are in different folder
-      fInfo.Title             := Filename;
+      fInfo.Title             := FileName;
       fInfo.Version           := GAME_REVISION;
       fInfo.TickCount         := 0;
       fInfo.MissionMode       := fMissionParser.MissionInfo.MissionMode;
@@ -175,16 +175,16 @@ begin
       end;
 
       fCRC := Adler32CRC(DatFile) xor Adler32CRC(MapFile);
-      SaveToFile(fPath + fFilename + '.mi'); //Save new TMP file
+      SaveToFile(fPath + fFileName + '.mi'); //Save new TMP file
     finally
       fMissionParser.Free;
     end;
   end;
 
   //Load additional text info
-  if FileExists(fPath + fFilename + '.txt') then
+  if FileExists(fPath + fFileName + '.txt') then
   begin
-    AssignFile(ft, fPath + fFilename + '.txt');
+    AssignFile(ft, fPath + fFileName + '.txt');
     FileMode := 0;
     Reset(ft);
     FileMode := 2;
@@ -231,8 +231,8 @@ end;
 function TKMapInfo.IsValid:boolean;
 begin
   Result := fInfo.IsValid and
-            FileExists(fPath + fFilename + '.dat') and
-            FileExists(fPath + fFilename + '.map');
+            FileExists(fPath + fFileName + '.dat') and
+            FileExists(fPath + fFileName + '.map');
 end;
 
 
@@ -295,7 +295,7 @@ begin
   Assert(not fScanning, 'Guarding from access to inconsistent data');
   Result := '';
   for I := 0 to fCount - 1 do
-    Result := Result + fMaps[I].Filename + eol;
+    Result := Result + fMaps[I].FileName + eol;
 end;
 
 
@@ -306,7 +306,7 @@ begin
   Result := '';
   for I := 0 to fCount - 1 do
     if (fMaps[I].Info.MissionMode = mm_Normal) and not fMaps[I].IsCoop then
-      Result := Result + fMaps[I].Filename + eol;
+      Result := Result + fMaps[I].FileName + eol;
 end;
 
 
@@ -318,7 +318,7 @@ begin
   Result := '';
   for I := 0 to fCount - 1 do
     if (fMaps[I].Info.MissionMode = mm_Tactic) and not fMaps[I].IsCoop then
-      Result := Result + fMaps[I].Filename + eol;
+      Result := Result + fMaps[I].FileName + eol;
 end;
 
 
@@ -330,7 +330,7 @@ begin
   Result := '';
   for I := 0 to fCount - 1 do
     if fMaps[i].IsCoop then
-      Result := Result + fMaps[I].Filename + eol;
+      Result := Result + fMaps[I].FileName + eol;
 end;
 
 

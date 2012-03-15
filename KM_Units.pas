@@ -259,15 +259,15 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function Add(aOwner:TPlayerIndex; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0):TKMUnit;
-    function AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
+    function Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace: boolean = true; RequiredWalkConnect: Byte = 0): TKMUnit;
+    function AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aDir: TKMDirection; aUnitPerRow, aUnitCount: word; aMapEditor: boolean = false): TKMUnit;
     property Units[aIndex: Integer]: TKMUnit read GetUnit write SetUnit; default; //Use instead of Items[.]
-    procedure RemoveUnit(aUnit:TKMUnit);
-    procedure OwnerUpdate(aOwner:TPlayerIndex);
-    function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
+    procedure RemoveUnit(aUnit: TKMUnit);
+    procedure OwnerUpdate(aOwner: TPlayerIndex);
+    function HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
-    function GetClosestUnit(aPoint: TKMPoint):TKMUnit;
-    function GetTotalPointers: integer;
+    function GetClosestUnit(aPoint: TKMPoint): TKMUnit;
+    function GetTotalPointers: Integer;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
@@ -1153,7 +1153,7 @@ end;
 
 function TKMUnit.CanAccessHome: Boolean;
 begin
-  Result := (fHome = nil) or CanWalkTo(KMPointBelow(fHome.GetEntrance), canWalk, 0);
+  Result := (fHome = nil) or CanWalkTo(KMPointBelow(fHome.GetEntrance), CanWalk, 0);
 end;
 
 
@@ -1796,7 +1796,7 @@ begin
     if GetDesiredPassability = CanWalkRoad then
     begin
       if not fTerrain.CheckPassability(fNextPosition, CanWalk) then
-        raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass canWalk',fNextPosition);
+        raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk',fNextPosition);
     end else
     if not fTerrain.CheckPassability(fNextPosition, GetDesiredPassability) then
       raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+PassabilityStr[GetDesiredPassability],fNextPosition);
@@ -1990,7 +1990,7 @@ end;
 
 function TKMUnitsCollection.GetUnit(aIndex: Integer): TKMUnit;
 begin
-  Result := TKMUnit(Items[aIndex]);
+  Result := Items[aIndex];
 end;
 
 

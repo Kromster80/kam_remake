@@ -38,8 +38,8 @@ type
     end;
     constructor Create;
 
-    procedure LoadFromFile(aFilename: string);
-    procedure SaveToFile(aFilename: string);
+    procedure LoadFromFile(aFileName: string);
+    procedure SaveToFile(aFileName: string);
     procedure LoadFromPath(aPath: string);
 
     property BackGroundPic: TPicID read fBackGroundPic write fBackGroundPic;
@@ -280,15 +280,15 @@ end;
 
 //Load campaign info from *.cmp file
 //It should be private, but it is used by CampaignBuilder
-procedure TKMCampaign.LoadFromFile(aFilename: string);
+procedure TKMCampaign.LoadFromFile(aFileName: string);
 var
   M: TKMemoryStream;
   I, K: Integer;
 begin
-  if not FileExists(aFilename) then Exit;
+  if not FileExists(aFileName) then Exit;
 
   M := TKMemoryStream.Create;
-  M.LoadFromFile(aFilename);
+  M.LoadFromFile(aFileName);
 
   M.Read(fShortTitle);
   M.Read(Byte(fBackGroundPic.RX));
@@ -309,12 +309,12 @@ begin
 end;
 
 
-procedure TKMCampaign.SaveToFile(aFilename: string);
+procedure TKMCampaign.SaveToFile(aFileName: string);
 var
   M: TKMemoryStream;
   I, K: Integer;
 begin
-  Assert(aFilename <> '');
+  Assert(aFileName <> '');
 
   M := TKMemoryStream.Create;
   M.Write(fShortTitle);
@@ -331,7 +331,7 @@ begin
     M.Write(Maps[I].TextPos);
   end;
 
-  M.SaveToFile(aFilename);
+  M.SaveToFile(aFileName);
   M.Free;
 end;
 

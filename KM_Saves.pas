@@ -11,20 +11,20 @@ type
   TKMSaveInfo = class
   private
     fPath: string; //TKMGameInfo does not stores paths, because they mean different things for Maps and Saves
-    fFilename: string; //without extension
+    fFileName: string; //without extension
     fCRC: Cardinal;
     fSaveError: string;
     fInfo: TKMGameInfo;
     fGameOptions: TKMGameOptions;
     procedure ScanSave;
   public
-    constructor Create(const aPath, aFilename: String);
+    constructor Create(const aPath, aFileName: String);
     destructor Destroy; override;
 
     property Info: TKMGameInfo read fInfo;
     property GameOptions: TKMGameOptions read fGameOptions;
     property Path: string read fPath;
-    property Filename: string read fFilename;
+    property FileName: string read fFileName;
     property CRC: Cardinal read fCRC;
 
     function IsValid:boolean;
@@ -54,11 +54,11 @@ implementation
 
 
 { TKMSaveInfo }
-constructor TKMSaveInfo.Create(const aPath, aFilename: String);
+constructor TKMSaveInfo.Create(const aPath, aFileName: String);
 begin
   inherited Create;
   fPath := aPath;
-  fFilename := aFilename;
+  fFileName := aFileName;
   fInfo := TKMGameInfo.Create;
   fGameOptions := TKMGameOptions.Create;
 
@@ -80,16 +80,16 @@ procedure TKMSaveInfo.ScanSave;
 var
   LoadStream:TKMemoryStream;
 begin
-  if not FileExists(fPath + fFilename + '.sav') then
+  if not FileExists(fPath + fFileName + '.sav') then
   begin
     fSaveError := 'File not exists';
     Exit;
   end;
 
-  fCRC := Adler32CRC(fPath + fFilename + '.sav');
+  fCRC := Adler32CRC(fPath + fFileName + '.sav');
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
-  LoadStream.LoadFromFile(fPath + fFilename + '.sav');
+  LoadStream.LoadFromFile(fPath + fFileName + '.sav');
 
   fInfo.Load(LoadStream);
   fGameOptions.Load(LoadStream);
@@ -109,10 +109,10 @@ var
   DummyOptions: TKMGameOptions;
   IsMultiplayer: Boolean;
 begin
-  if not FileExists(fPath + fFilename + '.sav') then Exit;
+  if not FileExists(fPath + fFileName + '.sav') then Exit;
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
-  LoadStream.LoadFromFile(fPath + fFilename + '.sav');
+  LoadStream.LoadFromFile(fPath + fFileName + '.sav');
 
   DummyInfo := TKMGameInfo.Create;
   DummyOptions := TKMGameOptions.Create;
@@ -129,7 +129,7 @@ end;
 
 function TKMSaveInfo.IsValid: Boolean;
 begin
-  Result := FileExists(fPath + fFilename + '.sav') and (fSaveError = '') and fInfo.IsValid;
+  Result := FileExists(fPath + fFileName + '.sav') and (fSaveError = '') and fInfo.IsValid;
 end;
 
 
@@ -161,9 +161,9 @@ procedure TKMSavesCollection.DeleteSave(aIndex: Integer);
 var i:integer;
 begin
   Assert(InRange(aIndex, 0, fCount-1));
-  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFilename + '.sav');
-  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFilename + '.rpl');
-  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFilename + '.bas');
+  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.sav');
+  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.rpl');
+  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.bas');
   fSaves[aIndex].Free;
   for i := aIndex to fCount - 2 do
     fSaves[i] := fSaves[i+1]; //Move them down
@@ -178,7 +178,7 @@ var I: Integer;
 begin
   Result := '';
   for I := 0 to fCount - 1 do
-    Result := Result + fSaves[I].Filename + eol;
+    Result := Result + fSaves[I].FileName + eol;
 end;
 
 

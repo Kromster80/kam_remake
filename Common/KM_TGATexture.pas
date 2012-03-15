@@ -9,7 +9,7 @@
 //
 // Description : A unit that used with OpenGL projects to load compressed
 //               and uncompressed 24 and 32bit TGA files from the disk.
-// Usage       : LoadTexture(Filename, TextureName);
+// Usage       : LoadTexture(FileName, TextureName);
 //
 //----------------------------------------------------------------------------
 unit KM_TGATexture;
@@ -33,7 +33,7 @@ const
 
 
 function GenerateTextureCommon: GLuint;
-function LoadTextureTGA(FileName: String; var Texture:GLuint): Boolean;
+function LoadTextureTGA(FileName: string; var Texture: GLuint): Boolean;
 
 
 implementation
@@ -82,7 +82,7 @@ begin
 end;
 
 
-procedure FlipImageVertical(W,H,BPP:word; Image:pointer);
+procedure FlipImageVertical(W,H,BPP: Word; Image: Pointer);
 var ii,kk:cardinal;
   Front: ^Byte;
   Back: ^Byte;
@@ -102,7 +102,7 @@ end;
 {------------------------------------------------------------------}
 {  Loads 24 and 32bpp (alpha channel) TGA textures                 }
 {------------------------------------------------------------------}
-function LoadTextureTGA(FileName: String; var Texture:GLuint): Boolean;
+function LoadTextureTGA(FileName: string; var Texture: GLuint): Boolean;
 var
   TGAHeader : packed record   // Header type for TGA images
     FileType     : Byte;

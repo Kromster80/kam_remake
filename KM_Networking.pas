@@ -399,11 +399,11 @@ procedure TKMNetworking.SendMapOrSave;
 begin
   case fSelectGameKind of
     ngk_Save: begin
-                PacketSend(NET_ADDRESS_OTHERS, mk_SaveSelect, fSaveInfo.Filename, 0);
+                PacketSend(NET_ADDRESS_OTHERS, mk_SaveSelect, fSaveInfo.FileName, 0);
                 PacketSend(NET_ADDRESS_OTHERS, mk_SaveCRC, '', Integer(fSaveInfo.CRC));
               end;
     ngk_Map:  begin
-                PacketSend(NET_ADDRESS_OTHERS, mk_MapSelect, fMapInfo.Filename, 0);
+                PacketSend(NET_ADDRESS_OTHERS, mk_MapSelect, fMapInfo.FileName, 0);
                 PacketSend(NET_ADDRESS_OTHERS, mk_MapCRC, '', Integer(fMapInfo.CRC));
               end;
     else      PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap, '', 0);
@@ -497,7 +497,7 @@ begin
 
   SendMapOrSave;
 
-  if Assigned(fOnMapName) then fOnMapName(fMapInfo.Filename);
+  if Assigned(fOnMapName) then fOnMapName(fMapInfo.FileName);
   SendPlayerListAndRefreshPlayersSetup;
 end;
 
@@ -531,7 +531,7 @@ begin
   SendMapOrSave;
   MatchPlayersToSave; //Don't match players if it's not a valid save
 
-  if Assigned(fOnMapName) then fOnMapName(fSaveInfo.Filename);
+  if Assigned(fOnMapName) then fOnMapName(fSaveInfo.FileName);
   SendPlayerListAndRefreshPlayersSetup;
 end;
 
@@ -1103,7 +1103,7 @@ begin
               fMapInfo := TKMapInfo.Create;
               fMapInfo.Load(Msg, true, true);
               fNetPlayers.ResetLocAndReady;
-              if Assigned(fOnMapName) then fOnMapName(fMapInfo.Filename);
+              if Assigned(fOnMapName) then fOnMapName(fMapInfo.FileName);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 
@@ -1113,9 +1113,9 @@ begin
               if Integer(fMapInfo.CRC) <> Param then
               begin
                 if fMapInfo.IsValid then
-                  PostMessage('Error: '+fMyNikname+' has a different version of the map '+fMapInfo.Filename)
+                  PostMessage('Error: '+fMyNikname+' has a different version of the map '+fMapInfo.FileName)
                 else
-                  PostMessage('Error: '+fMyNikname+' does not have the map '+fMapInfo.Filename);
+                  PostMessage('Error: '+fMyNikname+' does not have the map '+fMapInfo.FileName);
                 FreeAndNil(fMapInfo);
                 fSelectGameKind := ngk_None;
                 if fMyIndex <> -1 then //In the process of joining
@@ -1130,7 +1130,7 @@ begin
               FreeAndNil(fSaveInfo);
               fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP\', Msg);
               fNetPlayers.ResetLocAndReady;
-              if Assigned(fOnMapName) then fOnMapName(fSaveInfo.Filename);
+              if Assigned(fOnMapName) then fOnMapName(fSaveInfo.FileName);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 
@@ -1139,9 +1139,9 @@ begin
               if Integer(fSaveInfo.CRC) <> Param then
               begin
                 if fSaveInfo.IsValid then
-                  PostMessage('Error: '+fMyNikname+' has a different version of the save '+fSaveInfo.Filename)
+                  PostMessage('Error: '+fMyNikname+' has a different version of the save '+fSaveInfo.FileName)
                 else
-                  PostMessage('Error: '+fMyNikname+' does not have the save '+fSaveInfo.Filename);
+                  PostMessage('Error: '+fMyNikname+' does not have the save '+fSaveInfo.FileName);
                 FreeAndNil(fSaveInfo);
                 fSelectGameKind := ngk_None;
                 if fMyIndex <> -1 then //In the process of joining
@@ -1274,8 +1274,8 @@ begin
   fIgnorePings := -1; //Ignore all pings until we have finished loading
 
   case fSelectGameKind of
-    ngk_Map:  fOnStartMap(fMapInfo.Filename);
-    ngk_Save: fOnStartSave(fSaveInfo.Filename);
+    ngk_Map:  fOnStartMap(fMapInfo.FileName);
+    ngk_Save: fOnStartSave(fSaveInfo.FileName);
     else      Assert(False);
   end;
 end;

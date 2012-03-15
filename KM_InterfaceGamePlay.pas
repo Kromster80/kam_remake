@@ -427,7 +427,7 @@ end;
 procedure TKMGamePlayInterface.Save_ListChange(Sender: TObject);
 begin
   if InRange(TKMListBox(Sender).ItemIndex, 0, fSaves.Count-1) then
-    Edit_Save.Text := fSaves[List_Save.ItemIndex].Filename;
+    Edit_Save.Text := fSaves[List_Save.ItemIndex].FileName;
 end;
 
 
@@ -460,7 +460,7 @@ begin
   Save_EditChange(nil);
 
   for i:=0 to fSaves.Count-1 do
-    List_Save.Add(fSaves[i].Filename);
+    List_Save.Add(fSaves[i].FileName);
 end;
 
 
@@ -491,7 +491,7 @@ begin
   if fGame.MultiplayerMode then Exit; //Loading disabled during multiplayer gameplay. It is done from the lobby
 
   if not InRange(List_Load.ItemIndex,0,fSaves.Count-1) then exit;
-  fGame.StartSingleSave(fSaves[List_Load.ItemIndex].Filename);
+  fGame.StartSingleSave(fSaves[List_Load.ItemIndex].FileName);
 end;
 
 
@@ -502,7 +502,7 @@ begin
   List_Load.Clear;
 
   for i:=0 to fSaves.Count-1 do
-    List_Load.Add(fSaves[i].Filename);
+    List_Load.Add(fSaves[i].FileName);
 
   //Select first Save by default
   if List_Load.Count > 0 then
@@ -1265,7 +1265,7 @@ begin
     List_Save.OnChange := Save_ListChange;
 
     Edit_Save := TKMEdit.Create(Panel_Save, 12, 255, 170, 20, fnt_Metal);
-    Edit_Save.AllowedChars := acFilename;
+    Edit_Save.AllowedChars := acFileName;
     Edit_Save.OnChange := Save_EditChange;
     Label_SaveExists := TKMLabel.Create(Panel_Save,12,280,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
     CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,300,170,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);

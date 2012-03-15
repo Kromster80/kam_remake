@@ -734,7 +734,7 @@ begin
     Radio_Save_MapType.OnChange := Menu_Save;
     TKMLabel.Create(Panel_Save,100,90,184,20,'Save map',fnt_Outline,taCenter);
     Edit_SaveName       := TKMEdit.Create(Panel_Save,8,110,180,20, fnt_Grey);
-    Edit_SaveName.AllowedChars := acFilename;
+    Edit_SaveName.AllowedChars := acFileName;
     Label_SaveExists    := TKMLabel.Create(Panel_Save,100,140,184,0,'Map already exists',fnt_Outline,taCenter);
     CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,8,160,180,20,'Overwrite', fnt_Metal);
     Button_SaveSave     := TKMButton.Create(Panel_Save,8,180,180,30,'Save',fnt_Metal);

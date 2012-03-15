@@ -794,7 +794,7 @@ begin
   for i:=1 to fMembers.Count do begin
     NewLoc := GetPositionInGroup2(aLoc.Loc.X, aLoc.Loc.Y, aLoc.Dir,
                                   i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, NewLocCanBeReached); //Allow off map positions so GetClosestTile works properly
-    NewLocCanBeReached := NewLocCanBeReached and fTerrain.CheckPassability(NewLoc,canWalk);
+    NewLocCanBeReached := NewLocCanBeReached and fTerrain.CheckPassability(NewLoc, CanWalk);
     TKMUnitWarrior(fMembers.Items[i-1]).OrderWalk(KMPointDir(NewLoc,aLoc.Dir),false,NewLocCanBeReached)
   end;
 end;

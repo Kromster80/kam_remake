@@ -3,7 +3,7 @@ interface
 uses
   TestFramework,
   SysUtils, KM_Points, KM_Defaults, KM_CommonClasses, Classes, KromUtils,
-  KM_Game, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary, KM_Terrain, Math;
+  KM_Game, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary, KM_Terrain, KM_Units_Warrior, KM_Utils, Math;
 
 type
   // Test methods for class TKMCampaign
@@ -15,12 +15,14 @@ type
     procedure TearDown; override;
   published
     procedure TestStone;
+    procedure TestFight95;
   end;
 
 implementation
 
 procedure TestTKMGame.SetUp;
 begin
+  SKIP_RENDER := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\log.tmp');
   fLocales := TKMLocales.Create;
@@ -51,6 +53,36 @@ begin
   end;
 
   Check(fPlayers[0].Stats.GetGoodsProduced > 0, 'StoneMining got broken');
+end;
+
+
+procedure TestTKMGame.TestFight95;
+var I, K: Integer; P1, P2: Integer;
+begin
+  P1 := 0;
+  P2 := 0;
+  for K := 1 to 30 do
+  begin
+    fGame.StartSingleMap(ExtractFilePath(ParamStr(0)) + 'FightTest95.dat', 'Fight Test');
+
+    SetKaMSeed(K);
+
+    TKMUnitWarrior(fPlayers[1].Units[0]).OrderAttackUnit(fPlayers[0].Units[0]);
+
+    for I := 1 to 1000 do
+    begin
+      fGame.UpdateState;
+      if fGame.GameState = gsOnHold then
+        fGame.GameHold(False, gr_Win);
+    end;
+
+    if fPlayers[0].Stats.GetWarriorsKilled > fPlayers[1].Stats.GetWarriorsKilled then
+      Inc(P1)
+    else
+      Inc(P2)
+    fGame.Stop(gr_Silent);
+  end;
+  Check(False, s);
 end;
 
 

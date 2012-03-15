@@ -137,7 +137,8 @@ begin
 
   //Walking on roads is preferable, but not esential. Some cases (e.g. citizens going
   //to home with no road below doorway) it will crash if we strictly enforce it
-  if (fPass = CanWalkRoad) and (fTerrain.GetRoadConnectID(fWalkTo) = 0) then fPass := canWalk;
+  if (fPass = CanWalkRoad) and (fTerrain.GetRoadConnectID(fWalkTo) = 0) then
+    fPass := CanWalk;
 
   ExplanationLogCreate;
   Explanation := 'Walk action created';
@@ -161,7 +162,7 @@ begin
 
   RouteBuilt := AssembleTheRoute;
 
-  //If route fails to build that's a serious issue, (consumes CPU) can*** should mean that never happens
+  //If route fails to build that's a serious issue, (consumes CPU) Can*** should mean that never happens
   if not RouteBuilt then //NoList.Count = 0, means it will exit in Execute
     fLog.AddToLog('Unable to make a route for '+fResource.UnitDat[aUnit.UnitType].UnitName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with pass '+PassabilityStr[fPass]);
 end;

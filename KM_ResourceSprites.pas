@@ -816,6 +816,8 @@ end;
 
 procedure TKMSprites.ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
 begin
+  if SKIP_RENDER then Exit;
+
   //Cursors must be made before we clear the raw RGBA data
   if (aRT = rxGui) and (aCursors <> nil) then
   begin
