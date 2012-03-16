@@ -70,6 +70,8 @@ type
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
+
+    procedure ExportMessages(aPath: string);
   end;
 
 
@@ -175,6 +177,27 @@ begin
   SetLength(fGoals, fCount);
   for I := 0 to fCount - 1 do
     LoadStream.Read(fGoals[I], SizeOf(fGoals[I]));
+end;
+
+
+//In-house method to convert KaM 'show_message' goals into EVT scripts
+procedure TKMGoals.ExportMessages(aPath: string);
+var
+  I: Integer;
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+
+  for I := 0 to fCount - 1 do
+  if Item[I].MessageToShow > 0 then
+    SL.Add('TIME -1 ' +
+           IntToStr(Item[I].GoalTime) +
+           ' SHOW_MESSAGE 0 ' +
+           IntToStr(Item[I].MessageToShow)); //-529 for TSK, -549 for TPR
+
+  if SL.Count > 0 then
+    SL.SaveToFile(aPath);
+  SL.Free;
 end;
 
 

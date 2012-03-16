@@ -264,9 +264,13 @@ procedure TKMPlayerAI.CheckGoals;
       Result := not Result; //Reverse condition
   end;
 
-var i: integer; VictorySatisfied, SurvivalSatisfied: boolean;
+var
+  I: Integer;
+  VictorySatisfied, SurvivalSatisfied: Boolean;
 begin
-  if fHasWonOrLost then Exit; //If player has elected to play on past victory or defeat then do not check for any further goals
+  //If player has elected to play on past victory or defeat
+  //then do not check for any further goals
+  if fHasWonOrLost then Exit;
 
   //Assume they will win/survive, then prove it with goals
   VictorySatisfied  := True;
