@@ -16,7 +16,6 @@ type
   published
     procedure TestStone;
     procedure TestFight95;
-    procedure TestExportCampTextEvents;
   end;
 
 implementation
@@ -43,19 +42,20 @@ begin
 end;
 
 procedure TestTKMGame.TestStone;
-var I, K: Integer;
+var I: Integer;
 begin
   fGame.StartSingleMap(ExtractFilePath(ParamStr(0)) + 'StoneTest.dat', 'Stone Test');
   Check(fPlayers[0].Stats.GetGoodsProduced = 0);
 
-  for I := 1 to 10000 do
+  for I := 1 to 100000 do
   begin
     fGame.UpdateState;
     if fGame.GameState = gsOnHold then
       fGame.GameHold(False, gr_Win);
   end;
 
-  Check(fPlayers[0].Stats.GetGoodsProduced > 0, 'StoneMining got broken');
+  fGame.Save('StoneTest');
+  Check(fPlayers[0].Stats.GetGoodsProduced >= 3810, 'StoneMining got broken');
 end;
 
 
@@ -64,13 +64,13 @@ var I, K: Integer; P1, P2: Integer;
 begin
   P1 := 0;
   P2 := 0;
-  for K := 1 to 30 do
+  for K := 1 to 50 do
   begin
     fGame.StartSingleMap(ExtractFilePath(ParamStr(0)) + 'FightTest95.dat', 'Fight Test');
 
     SetKaMSeed(K);
 
-    TKMUnitWarrior(fPlayers[1].Units[0]).OrderAttackUnit(fPlayers[0].Units[0]);
+    TKMUnitWarrior(fPlayers[0].Units[0]).OrderAttackUnit(fPlayers[1].Units[0]);
 
     for I := 1 to 1000 do
     begin
@@ -85,7 +85,7 @@ begin
       Inc(P2);
     fGame.Stop(gr_Silent);
   end;
-  Check(Abs(P1-P2) < 5, 'Game is unfair?');
+  Check(False, IntToStr(P1)+':'+IntToStr(P2)+'Game is unfair?');
 end;
 
 
