@@ -16,6 +16,7 @@ type
   published
     procedure TestStone;
     procedure TestFight95;
+    procedure TestExportCampTextEvents;
   end;
 
 implementation
@@ -23,11 +24,13 @@ implementation
 procedure TestTKMGame.SetUp;
 begin
   SKIP_RENDER := True;
+  SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\log.tmp');
+  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
   fLocales := TKMLocales.Create;
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
   fGame := TKMGame.Create(0, 1024, 768, False, nil, nil, True);
+  fGame.GlobalSettings.Autosave := False;
 end;
 
 procedure TestTKMGame.TearDown;

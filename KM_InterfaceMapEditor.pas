@@ -186,18 +186,18 @@ type
     property ShowPassability:byte read fShowPassability;
     procedure UpdateMapSize(X,Y:integer);
     procedure RightClick_Cancel;
+
     procedure KeyDown(Key:Word; Shift: TShiftState);
-    procedure KeyPress(Key: Char);
     procedure KeyUp(Key:Word; Shift: TShiftState);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+
     function GetShownPage:TKMMapEdShownPage;
     procedure SetTileDirection(aTileDirection: byte);
     procedure SetLoadMode(aMultiplayer:boolean);
     procedure UpdateState; override;
-    procedure Paint; override;
   end;
 
 
@@ -402,7 +402,7 @@ begin
   fMapsMP := TKMapsCollection.Create(True);
 
 {Parent Page for whole toolbar in-game}
-  Panel_Main := TKMPanel.Create(MyControls, 0, 0, aScreenX, aScreenY);
+  Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
 
     TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
     TKMImage.Create(Panel_Main,0, 200,224,400,404);
@@ -469,7 +469,7 @@ begin
     Create_Barracks_Page;
     //Create_TownHall_Page;
 
-  MyControls.OnHint := DisplayHint;
+  fMyControls.OnHint := DisplayHint;
 
   SwitchPage(nil); //Update
 end;
@@ -1613,7 +1613,7 @@ end;
 
 procedure TKMapEdInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
-  if MyControls.KeyDown(Key, Shift) then
+  if fMyControls.KeyDown(Key, Shift) then
   begin
     fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
     exit; //Handled by Controls
@@ -1632,15 +1632,9 @@ begin
 end;
 
 
-procedure TKMapEdInterface.KeyPress(Key: Char);
-begin
-  MyControls.KeyPress(Key);
-end;
-
-
 procedure TKMapEdInterface.KeyUp(Key:Word; Shift: TShiftState);
 begin
-  if MyControls.KeyUp(Key, Shift) then
+  if fMyControls.KeyUp(Key, Shift) then
     Exit; //Handled by Controls
 
   //1-5 game menu shortcuts
@@ -1664,7 +1658,7 @@ begin
   inherited;
 
   //So terrain brushes start on mouse down not mouse move
-  if MyControls.CtrlOver = nil then
+  if fMyControls.CtrlOver = nil then
     fGame.UpdateGameCursor(X,Y,Shift);
 end;
 
@@ -1674,7 +1668,7 @@ var P: TKMPoint;
 begin
   inherited;
 
-  if MyControls.CtrlOver <> nil then
+  if fMyControls.CtrlOver <> nil then
   begin
     GameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
     Exit;
@@ -1719,8 +1713,8 @@ end;
 procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var P:TKMPoint; OldSelected: TObject;
 begin
-  if MyControls.CtrlOver <> nil then begin
-    MyControls.MouseUp(X,Y,Shift,Button);
+  if fMyControls.CtrlOver <> nil then begin
+    fMyControls.MouseUp(X,Y,Shift,Button);
     exit; //We could have caused fGame reinit, so exit at once
   end;
 
@@ -1799,9 +1793,9 @@ end;
 procedure TKMapEdInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 var PrevCursor: TKMPointF;
 begin
-  MyControls.MouseWheel(X, Y, WheelDelta);
+  fMyControls.MouseWheel(X, Y, WheelDelta);
   if (X < 0) or (Y < 0) then exit; //This occours when you use the mouse wheel on the window frame
-  if MOUSEWHEEL_ZOOM_ENABLE and (MyControls.CtrlOver = nil) then
+  if MOUSEWHEEL_ZOOM_ENABLE and (fMyControls.CtrlOver = nil) then
   begin
     fGame.UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;
@@ -1827,10 +1821,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Paint;
-begin
-  MyControls.Paint;
-end;
+
 
 
 end.

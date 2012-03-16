@@ -9,18 +9,7 @@ uses
   ;
 
 
-//creates new thread, in which old logs are deleted
-type
-  TKMOldLogsDeleter = class(TThread)
-  private
-    fPathToLogs: string;
-  public
-    constructor Create(const aPathToLogs:string);
-    procedure Execute; override;
-  end;
-
-
-{This is our custom logging system}
+//This is our custom logging system
 type
   TKMLog = class
   private
@@ -56,6 +45,17 @@ implementation
 uses KM_Defaults;
 
 
+//New thread, in which old logs are deleted (used internally)
+type
+  TKMOldLogsDeleter = class(TThread)
+  private
+    fPathToLogs: string;
+  public
+    constructor Create(const aPathToLogs:string);
+    procedure Execute; override;
+  end;
+
+
 //This unit must not know about KromUtils because it is used by the Linux Dedicated servers
 //and KromUtils is not Linux compatible. Therefore this function is copied directly from KromUtils.
 //Do not remove and add KromUtils to uses, that would cause the Linux build to fail
@@ -70,12 +70,16 @@ begin
 end;
 
 
-constructor TKMOldLogsDeleter.Create(const aPathToLogs:string);
+{ TKMOldLogsDeleter }
+constructor TKMOldLogsDeleter.Create(const aPathToLogs: string);
 begin
+  //Note that the thread isn't started until all constructors have run to completion
+  //so Create(False) may be put in front as well
+
   //Must set these values BEFORE starting the thread
   FreeOnTerminate := True; //object can be automatically removed after its termination
   fPathToLogs := aPathToLogs;
-  Inherited Create(False); //thread should start immediately
+  inherited Create(False); //thread should start immediately
 end;
 
 
@@ -96,7 +100,7 @@ begin
 end;
 
 
-{Reset log file}
+{ TKMLog }
 constructor TKMLog.Create(const aPath: string);
 begin
   inherited Create;
@@ -108,32 +112,34 @@ begin
   Rewrite(fl);
   CloseFile(fl);
   AddLine('Log is up and running. Game version: ' + GAME_VERSION);
+  AddLine('Timestamp'#9'Elapsed time'#9'Delta'#9'Description');
 end;
 
 
-//Run thread to delete old logs. No need to remember the instance, it's set to FreeOnTerminate
+//Run thread to delete old logs.
 procedure TKMLog.DeleteOldLogs;
 begin
-  TKMOldLogsDeleter.Create(IncludeTrailingPathDelimiter(ExtractFilePath(fLogPath)));
+  //No need to remember the instance, it's set to FreeOnTerminate
+  TKMOldLogsDeleter.Create(ExtractFilePath(fLogPath));
 end;
 
 
-{Lines are timestamped, each line invokes file open/close for writing,
-meaning no lines will be lost if Remake crashes}
+//Lines are timestamped, each line invokes file open/close for writing,
+//meaning that no lines will be lost if Remake crashes
 procedure TKMLog.AddLine(const aText: string);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);
   //Write a line when the day changed since last time (useful for dedicated server logs that could be over months)
-  if abs(Trunc(fPreviousDate) - Trunc(Now)) >= 1 then
+  if Abs(Trunc(fPreviousDate) - Trunc(Now)) >= 1 then
   begin
-    WriteLn(fl,'================');
-    WriteLn(fl,'Date: '+FormatDateTime('yyyy/mm/dd',Now));
-    WriteLn(fl,'================');
+    WriteLn(fl, '================');
+    WriteLn(fl, 'Date: ' + FormatDateTime('yyyy/mm/dd', Now));
+    WriteLn(fl, '================');
   end;
-  WriteLn(fl,FormatDateTime('hh:nn:ss:zzz',Now)+#9+
-             floattostr((TimeGet - fFirstTick)/1000)+'s'+#9+
-             floattostr((TimeGet - fPreviousTick)/1000)+'s'+#9+aText);
+  WriteLn(fl,FormatDateTime('hh:nn:ss:zzz', Now)+#9+
+             floattostr((TimeGet - fFirstTick)/1000)+'s'#9+
+             floattostr((TimeGet - fPreviousTick))+'ms'#9+aText);
   CloseFile(fl);
   fPreviousTick := TimeGet;
   fPreviousDate := Now;

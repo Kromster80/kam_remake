@@ -338,7 +338,6 @@ type
     procedure AlliesTeamChange(Sender: TObject);
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
-    procedure KeyPress(Key: Char);
     procedure KeyUp(Key:Word; Shift: TShiftState);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
@@ -350,7 +349,6 @@ type
     procedure SaveMapview(SaveStream:TKMemoryStream);
     procedure LoadMapview(LoadStream:TKMemoryStream);
     procedure UpdateState; override;
-    procedure Paint; override;
   end;
 
 
@@ -525,7 +523,7 @@ var i:integer; LastVisiblePage: TKMPanel;
   end;
 
 begin
-  MyControls.CtrlFocus := nil; //Panels that require control focus should set it themselves
+  fMyControls.CtrlFocus := nil; //Panels that require control focus should set it themselves
 
   if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
      (Sender=Button_Main[3])or(Sender=Button_Main[4])or
@@ -600,7 +598,7 @@ begin
   if Sender=Button_Menu_Save then begin
     Save_RefreshList; //Update savegames names
     Panel_Save.Show;
-    MyControls.CtrlFocus := Edit_Save;
+    fMyControls.CtrlFocus := Edit_Save;
     Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_SAVE_GAME];
   end else
 
@@ -629,8 +627,8 @@ begin
     TKMPanel(Sender).Show;
 
   //Place the cursor in the chatbox if it is open and nothing else has taken focus
-  if (Panel_Chat.Visible) and (MyControls.CtrlFocus = nil) then
-    MyControls.CtrlFocus := Edit_ChatMsg;
+  if (Panel_Chat.Visible) and (fMyControls.CtrlFocus = nil) then
+    fMyControls.CtrlFocus := Edit_ChatMsg;
 end;
 
 
@@ -690,7 +688,7 @@ begin
   fSaves := TKMSavesCollection.Create;
 
 {Parent Page for whole toolbar in-game}
-  Panel_Main := TKMPanel.Create(MyControls,0,0,aScreenX,aScreenY);
+  Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
 
     TKMImage.Create(Panel_Main,0,   0,224,200,407);
     TKMImage.Create(Panel_Main,0, 200,224,168,554);
@@ -777,7 +775,7 @@ begin
   Label_Hint.Anchors := [akLeft, akBottom];
 
   //Controls without a hint will reset the Hint to ''
-  MyControls.OnHint := DisplayHint;
+  fMyControls.OnHint := DisplayHint;
 
   if OVERLAY_RESOLUTIONS then
   begin
@@ -1664,7 +1662,7 @@ end;
 procedure TKMGamePlayInterface.Chat_Show(Sender: TObject);
 begin
   fSoundLib.Play(sfxn_MPChatOpen);
-  MyControls.CtrlFocus := Edit_ChatMsg;
+  fMyControls.CtrlFocus := Edit_ChatMsg;
   Allies_Close(nil);
   Panel_Chat.Show;
   Message_Close(nil);
@@ -2502,8 +2500,8 @@ procedure TKMGamePlayInterface.Chat_Close(Sender: TObject);
 begin
   if Panel_Chat.Visible then fSoundLib.Play(sfxn_MPChatClose);
   Panel_Chat.Hide;
-  if MyControls.CtrlFocus = Edit_ChatMsg then
-    MyControls.CtrlFocus := nil; //Lose focus so you can't type messages with the panel hidden
+  if fMyControls.CtrlFocus = Edit_ChatMsg then
+    fMyControls.CtrlFocus := nil; //Lose focus so you can't type messages with the panel hidden
 end;
 
 
@@ -3060,7 +3058,7 @@ procedure TKMGamePlayInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
   if fGame.GameState in [gsRunning, gsReplay] then
   begin
-    if (fGame.GameState = gsRunning) and MyControls.KeyDown(Key, Shift) then
+    if (fGame.GameState = gsRunning) and fMyControls.KeyDown(Key, Shift) then
     begin
       fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
       Exit;
@@ -3070,12 +3068,6 @@ begin
     if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := true;
     if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := true;
   end;
-end;
-
-
-procedure TKMGamePlayInterface.KeyPress(Key: Char);
-begin
-  MyControls.KeyPress(Key);
 end;
 
 
@@ -3089,7 +3081,7 @@ begin
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
                   if (Key=VK_ESCAPE) and (Image_ChatClose.Click or Image_AlliesClose.Click) then exit; //Escape from chat/allies page
-                  if MyControls.KeyUp(Key, Shift) then Exit;
+                  if fMyControls.KeyUp(Key, Shift) then Exit;
 
                   //Scrolling
                   if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := False;
@@ -3167,7 +3159,7 @@ var U:TKMUnit; H:TKMHouse; MyRect:TRect;
 begin
   inherited;
 
-  if (fGame.GameState <> gsRunning) or (MyControls.CtrlOver <> nil) then exit;
+  if (fGame.GameState <> gsRunning) or (fMyControls.CtrlOver <> nil) then exit;
 
   if SelectingTroopDirection then
   begin
@@ -3217,10 +3209,10 @@ var
 begin
   inherited;
 
-  if (MyControls.CtrlOver is TKMDragger) or (MyControls.CtrlDown is TKMDragger) then Exit;
+  if (fMyControls.CtrlOver is TKMDragger) or (fMyControls.CtrlDown is TKMDragger) then Exit;
 
-  if (MyControls.CtrlOver <> nil)
-  and (MyControls.CtrlOver <> Image_DirectionCursor)
+  if (fMyControls.CtrlOver <> nil)
+  and (fMyControls.CtrlOver <> Image_DirectionCursor)
   and not SelectingTroopDirection then
   begin
     //kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
@@ -3351,10 +3343,10 @@ end;
 procedure TKMGamePlayInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var P:TKMPoint; U:TKMUnit; H:TKMHouse; OldSelected: TObject;
 begin
-  MyControls.MouseMove(X,Y,Shift);
-  if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) and
+  fMyControls.MouseMove(X,Y,Shift);
+  if (fMyControls.CtrlOver <> nil) and (fMyControls.CtrlOver <> Image_DirectionCursor) and
       not SelectingTroopDirection then begin
-    MyControls.MouseUp(X,Y,Shift,Button);
+    fMyControls.MouseUp(X,Y,Shift,Button);
     exit;
   end;
 
@@ -3491,9 +3483,9 @@ end;
 procedure TKMGamePlayInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 var PrevCursor: TKMPointF;
 begin
-  MyControls.MouseWheel(X, Y, WheelDelta);
+  fMyControls.MouseWheel(X, Y, WheelDelta);
   if (X < 0) or (Y < 0) then exit; //This occours when you use the mouse wheel on the window frame
-  if MOUSEWHEEL_ZOOM_ENABLE and ((MyControls.CtrlOver = nil) or fGame.ReplayMode) and
+  if MOUSEWHEEL_ZOOM_ENABLE and ((fMyControls.CtrlOver = nil) or fGame.ReplayMode) and
      (fGame.GameState in [gsReplay,gsRunning]) then
   begin
     fGame.UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
@@ -3639,12 +3631,6 @@ begin
       Button_NetDropPlayers.Enabled := i = 0;
     end;
   end;
-end;
-
-
-procedure TKMGamePlayInterface.Paint;
-begin
-  MyControls.Paint;
 end;
 
 

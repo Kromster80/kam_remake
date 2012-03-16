@@ -3,6 +3,8 @@ program KaM_RemakeTests;
 {$APPTYPE CONSOLE}
 {$ENDIF}
 
+//{$DEFINE DUNIT_TEST} Defined in ProjectOptions
+
 uses
   Forms,
   TestFramework,

@@ -171,7 +171,10 @@ begin
   //Process in reverse as we delete handled events
   for I := fEvents.Count - 1 downto 0 do
   if Events[I].Handle(MakeTrigger(aTrigger, aPlayer, aParams)) then
+  begin
+    Events[I].Free;
     fEvents.Delete(I);
+  end;
 end;
 
 

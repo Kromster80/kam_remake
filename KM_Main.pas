@@ -107,13 +107,15 @@ end;
 
 procedure TKMMain.Stop(Sender: TObject);
 begin
-  fTimer.Enabled := False;
+  if fTimer<>nil then
+    fTimer.Enabled := False;
+
   //Reset the resolution
   if fResolutions<>nil then FreeThenNil(fResolutions);
   if fMainSettings<>nil then FreeThenNil(fMainSettings);
   if fGame<>nil then fGame.Stop(gr_Silent);
   if fGame<>nil then FreeThenNil(fGame);
-  if fTimer<>nil then fTimer.Free; //If you close the game during initialisation the timer is not yet created
+  if fTimer<>nil then FreeThenNil(fTimer); //If you close the game during initialisation the timer is not yet created
   if fLog<>nil then FreeThenNil(fLog);
   {$IFDEF MSWindows}
   TimeEndPeriod(1);

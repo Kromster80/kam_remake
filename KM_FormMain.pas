@@ -505,7 +505,7 @@ end;
 
 procedure TFormMain.ExportMainMenu1Click(Sender: TObject);
 begin
-  //fGame.fMainMenuInterface.MyControls.SaveToFile(ExeDir+'MainMenu.txt');
+  fGame.fMainMenuInterface.MyControls.SaveToFile(ExeDir + 'Export\MainMenu.txt');
 end;
 
 

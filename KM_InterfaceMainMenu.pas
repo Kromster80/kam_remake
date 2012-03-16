@@ -305,13 +305,12 @@ type
     function GetChatMessages:string;
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
-    procedure KeyPress(Key: Char);
     procedure KeyUp(Key:Word; Shift: TShiftState);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+
     procedure UpdateState; override;
-    procedure Paint; override;
   end;
 
 
@@ -342,9 +341,9 @@ begin
   fSaves := TKMSavesCollection.Create;
   fSavesMP := TKMSavesCollection.Create;
 
-  Panel_Main := TKMPanel.Create(MyControls, (X - MENU_DESIGN_X) div 2,
-                                            (Y - MENU_DESIGN_Y) div 2,
-                                            ScreenX, ScreenY); //Parent Panel for whole menu
+  Panel_Main := TKMPanel.Create(fMyControls, (X - MENU_DESIGN_X) div 2,
+                                             (Y - MENU_DESIGN_Y) div 2,
+                                             ScreenX, ScreenY); //Parent Panel for whole menu
 
   //Background is the same for all pages, except Results/Campaign, which will render ontop
   TKMImage.Create(Panel_Main,-448,-216,960,600,1,rxMenu);
@@ -451,7 +450,6 @@ end;
 procedure TKMMainMenuInterface.AppendLoadingText(const aText: string);
 begin
   Label_Loading.Caption := Label_Loading.Caption + aText + '|';
-  fGame.Render;
 end;
 
 
@@ -1340,7 +1338,7 @@ begin
   if (Sender=Button_MP_Join) or (Sender=Button_MP_CreateLAN) or (Sender=Button_MP_CreateWAN) then begin
     MP_SaveSettings;
     Lobby_Reset(Sender);
-    MyControls.CtrlFocus := Edit_LobbyPost;
+    fMyControls.CtrlFocus := Edit_LobbyPost;
     Panel_Lobby.Show;
   end;
 
@@ -2755,19 +2753,13 @@ end;
 
 procedure TKMMainMenuInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
-  if MyControls.KeyDown(Key, Shift) then exit; //Handled by Controls
-end;
-
-
-procedure TKMMainMenuInterface.KeyPress(Key: Char);
-begin
-  MyControls.KeyPress(Key);
+  if fMyControls.KeyDown(Key, Shift) then exit; //Handled by Controls
 end;
 
 
 procedure TKMMainMenuInterface.KeyUp(Key:Word; Shift: TShiftState);
 begin
-  if MyControls.KeyUp(Key, Shift) then exit; //Handled by Controls
+  if fMyControls.KeyUp(Key, Shift) then exit; //Handled by Controls
 end;
 
 
@@ -2788,14 +2780,14 @@ end;
 
 procedure TKMMainMenuInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
-  MyControls.MouseUp(X,Y,Shift,Button);
+  fMyControls.MouseUp(X,Y,Shift,Button);
   exit; //We could have caused fGame reinit, so exit at once
 end;
 
 
 procedure TKMMainMenuInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 begin
-  MyControls.MouseWheel(X, Y, WheelDelta);
+  fMyControls.MouseWheel(X, Y, WheelDelta);
 end;
 
 
@@ -2803,12 +2795,6 @@ end;
 procedure TKMMainMenuInterface.UpdateState;
 begin
   //
-end;
-
-
-procedure TKMMainMenuInterface.Paint;
-begin
-  MyControls.Paint;
 end;
 
 

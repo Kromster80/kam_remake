@@ -10,8 +10,11 @@ interface
 //              - ZLibPlay supports more formats, (FLAC, AC-3, AAC, PCM) but we don't care
 //              - ZLibPlay is GPL but BASS is not, and BASS can only be used for free in non-commercial products
 
-{$DEFINE USEBASS}
-{.DEFINE USELIBZPLAY}
+//When running from DUnit, Bass.dll can not be found?
+{$IFNDEF DUNIT_TEST}
+  {$DEFINE USEBASS}
+  {.DEFINE USELIBZPLAY}
+{$ENDIF}
 
 uses Forms, Classes, Windows, SysUtils, KromUtils, Math, KM_Defaults
      {$IFDEF USEBASS}     , Bass {$ENDIF}

@@ -175,10 +175,12 @@ const
 constructor TSoundLib.Create(aLocale:string; aVolume:single);
 var
   Context: PALCcontext;
-  i:integer;
-  NumMono,NumStereo:TALCint;
+  I: Integer;
+  NumMono,NumStereo: TALCint;
 begin
-  Inherited Create;
+  inherited Create;
+
+  if SKIP_SOUND then Exit;
 
   if DirectoryExists(ExeDir+'data\sfx\speech.'+aLocale+'\') then
     fLocale := aLocale
