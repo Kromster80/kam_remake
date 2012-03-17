@@ -163,11 +163,17 @@ var
   CursorPoint: TKMPoint;
   ScreenBounds: TRect;
   Temp:byte;
+  MousePos: TPoint;
 begin
+  //Don't use Mouse.CursorPos, it will throw an EOSError (code 5: access denied) in some cases when
+  //the OS doesn't want us controling the mouse, or possibly when the mouse is reset in some way.
+  //It happens for me in Windows 7 every time I press CTRL+ALT+DEL with the game running.
+  //On Windows XP I get "call to an OS function failed" instead.
+  if not Windows.GetCursorPos(MousePos) then exit;
   ScreenBounds := fMain.GetScreenBounds;
   //With multiple monitors the cursor position can be outside of this screen, which makes scrolling too fast
-  CursorPoint.X := EnsureRange(Mouse.CursorPos.X, ScreenBounds.Left, ScreenBounds.Right );
-  CursorPoint.Y := EnsureRange(Mouse.CursorPos.Y, ScreenBounds.Top , ScreenBounds.Bottom);
+  CursorPoint.X := EnsureRange(MousePos.X, ScreenBounds.Left, ScreenBounds.Right );
+  CursorPoint.Y := EnsureRange(MousePos.Y, ScreenBounds.Top , ScreenBounds.Bottom);
 
   //Do not do scrolling when the form is not focused (player has switched to another application)
   if not fMain.IsFormActive or
