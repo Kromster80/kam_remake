@@ -412,6 +412,7 @@ end;
 procedure TKMGame.GameLoadingStep(const aText: String);
 begin
   fMainMenuInterface.AppendLoadingText(aText);
+  Render;
 end;
 
 
@@ -427,6 +428,7 @@ begin
 
   //Load the resources if necessary
   fMainMenuInterface.ShowScreen(msLoading, '');
+  Render;
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
   fResource.OnLoadingText := GameLoadingStep;
   fResource.LoadGameResources(fGameSettings.AlphaShadows);

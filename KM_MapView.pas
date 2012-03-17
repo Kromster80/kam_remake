@@ -264,6 +264,8 @@ end;
 procedure TKMMapView.Save(SaveStream:TKMemoryStream);
 var L: Cardinal;
 begin
+  SaveStream.Write('Minimap');
+
   SaveStream.Write(fMapX);
   SaveStream.Write(fMapY);
   L := Length(fBase);
@@ -276,6 +278,8 @@ end;
 procedure TKMMapView.Load(LoadStream:TKMemoryStream);
 var L: Cardinal;
 begin
+  LoadStream.ReadAssert('Minimap');
+
   LoadStream.Read(fMapX);
   LoadStream.Read(fMapY);
   LoadStream.Read(L);

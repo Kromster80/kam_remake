@@ -17,7 +17,6 @@ type
     procedure ReadAvailable;
     procedure Sort;
     procedure SetSettingsIDs(aMainSettings: TMainSettings; Correct:Boolean);  //prepares IDs for TMainSettings
-
   public
     constructor Create;
     destructor Destroy; override;
@@ -29,12 +28,23 @@ type
     function Check(aMainSettings: TMainSettings): Boolean; //Check, if resolution is correct
     procedure FindCorrect(aMainSettings: TMainSettings); //Try to find correct resolution
     procedure SetResolution(aResIndex, aRefIndex: Integer); //Apply the resolution
+
+    //@Maciej: Suggested syntax:
+    {type TScreenRes = record Width, Height, RefRate: Word; end;
+    function Check(aResolution: TScreenRes): Boolean; //Check, if resolution is supported and correct
+    procedure FindCorrect(aResolution: TScreenRes): TScreenRes; //Try to find correct resolution matching given one best
+    procedure SetResolution(aResolution: TScreenRes); //Apply the resolution
+
+    //
+
+    }
   end;
 
 
 implementation
 
 
+{ TKMResolutions }
 constructor TKMResolutions.Create;
 begin
   inherited;

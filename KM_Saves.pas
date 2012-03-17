@@ -78,7 +78,7 @@ end;
 
 procedure TKMSaveInfo.ScanSave;
 var
-  LoadStream:TKMemoryStream;
+  LoadStream: TKMemoryStream;
 begin
   if not FileExists(fPath + fFileName + '.sav') then
   begin
@@ -104,26 +104,30 @@ end;
 
 procedure TKMSaveInfo.LoadMinimap(aMapView:TKMMapView);
 var
-  LoadStream:TKMemoryStream;
+  LoadStream: TKMemoryStream;
   DummyInfo: TKMGameInfo;
   DummyOptions: TKMGameOptions;
   IsMultiplayer: Boolean;
 begin
   if not FileExists(fPath + fFileName + '.sav') then Exit;
 
-  LoadStream := TKMemoryStream.Create; //Read data from file into stream
-  LoadStream.LoadFromFile(fPath + fFileName + '.sav');
-
   DummyInfo := TKMGameInfo.Create;
   DummyOptions := TKMGameOptions.Create;
-  DummyInfo.Load(LoadStream); //We don't care, we just need to skip past it correctly
-  DummyOptions.Load(LoadStream); //We don't care, we just need to skip past it correctly
-  LoadStream.Read(IsMultiplayer);
-  if not IsMultiplayer then aMapView.Load(LoadStream);
+  LoadStream := TKMemoryStream.Create; //Read data from file into stream
+  try
+    LoadStream.LoadFromFile(fPath + fFileName + '.sav');
 
-  DummyInfo.Free;
-  DummyOptions.Free;
-  LoadStream.Free;
+    DummyInfo.Load(LoadStream); //We don't care, we just need to skip past it correctly
+    DummyOptions.Load(LoadStream); //We don't care, we just need to skip past it correctly
+    LoadStream.Read(IsMultiplayer);
+    if not IsMultiplayer then
+      aMapView.Load(LoadStream);
+
+  finally
+    DummyInfo.Free;
+    DummyOptions.Free;
+    LoadStream.Free;
+  end;
 end;
 
 
@@ -158,21 +162,20 @@ end;
 
 
 procedure TKMSavesCollection.DeleteSave(aIndex: Integer);
-var i:integer;
+var I: Integer;
 begin
   Assert(InRange(aIndex, 0, fCount-1));
   DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.sav');
   DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.rpl');
   DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.bas');
   fSaves[aIndex].Free;
-  for i := aIndex to fCount - 2 do
-    fSaves[i] := fSaves[i+1]; //Move them down
+  for I := aIndex to fCount - 2 do
+    fSaves[I] := fSaves[I+1]; //Move them down
   dec(fCount);
   SetLength(fSaves, fCount);
 end;
 
 
-//Scan either single or multiplayer saves
 function TKMSavesCollection.SavesList: string;
 var I: Integer;
 begin
@@ -182,6 +185,7 @@ begin
 end;
 
 
+//Scan either single or multiplayer saves
 procedure TKMSavesCollection.ScanSavesFolder(IsMultiplayer: Boolean);
 var
   PathToSaves: String;
@@ -189,21 +193,21 @@ var
 begin
   Clear;
 
-  if IsMultiplayer then PathToSaves := ExeDir+'SavesMP\'
-                   else PathToSaves := ExeDir+'Saves\';
+  if IsMultiplayer then PathToSaves := ExeDir + 'SavesMP\'
+                   else PathToSaves := ExeDir + 'Saves\';
 
   if not DirectoryExists(PathToSaves) then Exit;
 
-  FindFirst(PathToSaves+'*.sav', faAnyFile, SearchRec);
+  FindFirst(PathToSaves + '*.sav', faAnyFile, SearchRec);
   repeat
     if (SearchRec.Attr and faDirectory <> faDirectory) //Only files
-    and(SearchRec.Name<>'.')and(SearchRec.Name<>'..')
-    and(TruncateExt(SearchRec.Name)<>'basesave') //Ignore basesave - it is only used for crash reports
+      and (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+      and(TruncateExt(SearchRec.Name) <> 'basesave') //Ignore basesave - it is only used for crash reports
     then
     begin
-      inc(fCount);
-      SetLength(fSaves, fCount);
-      fSaves[fCount-1] := TKMSaveInfo.Create(PathToSaves, TruncateExt(SearchRec.Name));
+      SetLength(fSaves, fCount + 1);
+      fSaves[fCount] := TKMSaveInfo.Create(PathToSaves, TruncateExt(SearchRec.Name));
+      Inc(fCount);
     end;
   until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
@@ -211,4 +215,3 @@ end;
 
 
 end.
-
