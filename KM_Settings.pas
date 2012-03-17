@@ -48,7 +48,7 @@ type
     fScrollSpeed: Byte;
     fAlphaShadows: Boolean;
     fLocale: shortstring;
-    fMusicOn: Boolean;
+    fMusicOff: Boolean;
     fShuffleOn: Boolean;
     fMusicVolume: Single;
     fSoundFXVolume: Single;
@@ -78,7 +78,7 @@ type
     procedure SetScrollSpeed(aValue:byte);
     procedure SetAlphaShadows(aValue:boolean);
     procedure SetLocale(aLocale:shortstring);
-    procedure SetMusicOn(aValue:boolean);
+    procedure SetMusicOff(aValue: Boolean);
     procedure SetShuffleOn(aValue:boolean);
     procedure SetMusicVolume(aValue: Single);
     procedure SetSoundFXVolume(aValue: Single);
@@ -102,7 +102,7 @@ type
     property ScrollSpeed:byte read fScrollSpeed write SetScrollSpeed;
     property AlphaShadows:boolean read fAlphaShadows write SetAlphaShadows;
     property Locale:shortstring read fLocale write SetLocale;
-    property MusicOn:boolean read fMusicOn write SetMusicOn;
+    property MusicOff:boolean read fMusicOff write SetMusicOff;
     property ShuffleOn:boolean read fShuffleOn write SetShuffleOn;
     property MusicVolume: Single read fMusicVolume write SetMusicVolume;
     property SoundFXVolume: Single read fSoundFXVolume write SetSoundFXVolume;
@@ -255,7 +255,7 @@ begin
 
   fSoundFXVolume  := f.ReadFloat  ('SFX',  'SFXVolume',      0.5);
   fMusicVolume    := f.ReadFloat  ('SFX',  'MusicVolume',    0.5);
-  fMusicOn        := f.ReadBool   ('SFX',  'MusicEnabled',   True);
+  fMusicOff       := f.ReadBool   ('SFX',  'MusicDisabled',  False);
   fShuffleOn      := f.ReadBool   ('SFX',  'ShuffleEnabled', False);
 
   if INI_HITPOINT_RESTORE then
@@ -302,7 +302,7 @@ begin
 
   F.WriteFloat  ('SFX','SFXVolume',     fSoundFXVolume);
   F.WriteFloat  ('SFX','MusicVolume',   fMusicVolume);
-  F.WriteBool   ('SFX','MusicEnabled',  fMusicOn);
+  F.WriteBool   ('SFX','MusicDisabled', fMusicOff);
   F.WriteBool   ('SFX','ShuffleEnabled',fShuffleOn);
 
   if INI_HITPOINT_RESTORE then
@@ -432,9 +432,9 @@ begin
 end;
 
 
-procedure TGameSettings.SetMusicOn(aValue:boolean);
+procedure TGameSettings.SetMusicOff(aValue: Boolean);
 begin
-  fMusicOn := aValue;
+  fMusicOff := aValue;
   fNeedsSave := True;
 end;
 

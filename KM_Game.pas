@@ -213,7 +213,10 @@ begin
   //If game was reinitialized from options menu then we should return there
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
 
-  if (not NoMusic) and fGameSettings.MusicOn then fMusicLib.PlayMenuTrack; //Start the playback as soon as loading is complete
+  //Start the Music playback as soon as loading is complete
+  if (not NoMusic) and not fGameSettings.MusicOff then
+    fMusicLib.PlayMenuTrack;
+
   fMusicLib.ToggleShuffle(fGameSettings.ShuffleOn); //Determine track order
 
   fPerfLog := TKMPerfLog.Create;
@@ -1612,7 +1615,7 @@ begin
   if fGlobalTickCount mod 10 = 0 then
   begin
     //Music
-    if GlobalSettings.MusicOn and fMusicLib.IsMusicEnded then
+    if not GlobalSettings.MusicOff and fMusicLib.IsMusicEnded then
       fMusicLib.PlayNextTrack; //Feed new music track
 
     //StatusBar

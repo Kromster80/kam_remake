@@ -260,9 +260,9 @@ type
       Panel_Options_Game:TKMPanel;
         CheckBox_Options_Autosave:TKMCheckBox;
       Panel_Options_Sound:TKMPanel;
-        Label_Options_MusicOn:TKMLabel;
+        Label_Options_MusicOff: TKMLabel;
         TrackBar_Options_SFX,TrackBar_Options_Music:TKMTrackBar;
-        CheckBox_Options_MusicOn:TKMCheckBox;
+        CheckBox_Options_MusicOff:TKMCheckBox;
         CheckBox_Options_ShuffleOn:TKMCheckBox;
       Panel_Options_Lang:TKMPanel;
         Radio_Options_Lang:TKMRadioGroup;
@@ -1060,36 +1060,36 @@ begin
 
       TrackBar_Options_SFX       := TKMTrackBar.Create(Panel_Options_Sound, 10, 27, 180, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
       TrackBar_Options_Music     := TKMTrackBar.Create(Panel_Options_Sound, 10, 77, 180, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
-      CheckBox_Options_MusicOn   := TKMCheckBox.Create(Panel_Options_Sound, 12, 127, 176, 20, fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
+      CheckBox_Options_MusicOff  := TKMCheckBox.Create(Panel_Options_Sound, 12, 127, 176, 20, fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
       CheckBox_Options_ShuffleOn := TKMCheckBox.Create(Panel_Options_Sound, 12, 147, 184, 20, fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
       TrackBar_Options_SFX.Caption   := fTextLibrary[TX_MENU_SFX_VOLUME];
       TrackBar_Options_Music.Caption := fTextLibrary[TX_MENU_MUSIC_VOLUME];
       TrackBar_Options_SFX.OnChange      := Options_Change;
       TrackBar_Options_Music.OnChange    := Options_Change;
-      CheckBox_Options_MusicOn.OnClick   := Options_Change;
+      CheckBox_Options_MusicOff.OnClick  := Options_Change;
       CheckBox_Options_ShuffleOn.OnClick := Options_Change;
 
     //Resolutions section
-    Panel_Options_Res := TKMPanel.Create(Panel_Options,360,130,210,170);
-      TKMLabel.Create(Panel_Options_Res,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_RESOLUTION],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Res,0,20,210,85);
+    Panel_Options_Res := TKMPanel.Create(Panel_Options, 360, 130, 210, 160);
+      TKMLabel.Create(Panel_Options_Res, 6, 0, 188, 20, fTextLibrary[TX_MENU_OPTIONS_RESOLUTION], fnt_Outline, taLeft);
+      TKMBevel.Create(Panel_Options_Res, 0, 20, 220, 140);
 
-      DropBox_Options_Resolution := TKMDropBox.Create(Panel_Options_Res,20,30,170,25,fnt_Metal,'');
-      DropBox_Options_RefreshRate := TKMDropBox.Create(Panel_Options_res,20,70,170,25,fnt_Metal,'');
-
-      DropBox_Options_RefreshRate.OnChange := Options_Change;
-      DropBox_Options_Resolution.OnChange := Options_Change;
-
-      CheckBox_Options_FullScreen := TKMCheckBox.Create(Panel_Options_Res,12,115,176,20,fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN],fnt_Metal);
+      CheckBox_Options_FullScreen := TKMCheckBox.Create(Panel_Options_Res, 12, 30, 176, 20, fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN], fnt_Metal);
       CheckBox_Options_FullScreen.OnClick := Options_Change;
 
-      Button_Options_ResApply:=TKMButton.Create(Panel_Options_Res,10,140,180,30,fTextLibrary[TX_MENU_OPTIONS_APPLY],fnt_Metal, bsMenu);
-      Button_Options_ResApply.OnClick:=Options_Change;
+      DropBox_Options_Resolution := TKMDropBox.Create(Panel_Options_Res, 10, 50, 180, 20, fnt_Metal, '');
+      DropBox_Options_Resolution.OnChange := Options_Change;
+
+      DropBox_Options_RefreshRate := TKMDropBox.Create(Panel_Options_Res, 10, 85, 180, 20, fnt_Metal, '');
+      DropBox_Options_RefreshRate.OnChange := Options_Change;
+
+      Button_Options_ResApply := TKMButton.Create(Panel_Options_Res, 10, 120, 180, 30, fTextLibrary[TX_MENU_OPTIONS_APPLY], fnt_Metal, bsMenu);
+      Button_Options_ResApply.OnClick := Options_Change;
 
     //Language section
-    Panel_Options_Lang:=TKMPanel.Create(Panel_Options,590,130,220,30+fLocales.Count*20);
+    Panel_Options_Lang:=TKMPanel.Create(Panel_Options,600,130,240,30+fLocales.Count*20);
       TKMLabel.Create(Panel_Options_Lang,6,0,242,20,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Lang,0,20,246,10+fLocales.Count*20);
+      TKMBevel.Create(Panel_Options_Lang,0,20,260,10+fLocales.Count*20);
 
       Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 28, 27, 220, 20*fLocales.Count, fnt_Metal);
       SetLength(Image_Options_Lang_Flags,fLocales.Count);
@@ -2585,10 +2585,10 @@ begin
   TrackBar_Options_ScrollSpeed.Position := aGameSettings.ScrollSpeed;
   TrackBar_Options_SFX.Position         := Round(aGameSettings.SoundFXVolume * TrackBar_Options_SFX.MaxValue);
   TrackBar_Options_Music.Position       := Round(aGameSettings.MusicVolume * TrackBar_Options_Music.MaxValue);
-  CheckBox_Options_MusicOn.Checked      := not aGameSettings.MusicOn;
-  TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOn.Checked;
+  CheckBox_Options_MusicOff.Checked     := aGameSettings.MusicOff;
+  TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOff.Checked;
   CheckBox_Options_ShuffleOn.Checked    := aGameSettings.ShuffleOn;
-  CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOn.Checked;
+  CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOff.Checked;
 
   Radio_Options_Lang.ItemIndex := fLocales.GetIDFromCode(aGameSettings.Locale);
 
@@ -2604,10 +2604,8 @@ begin
   CheckBox_Options_FullScreen.Checked := aMainSettings.FullScreen;
   //Controls should be disabled, when there is no resolution to choose
   CheckBox_Options_FullScreen.Enabled := fMain.Resolutions.Count > 0;
-  DropBox_Options_Resolution.Enabled := (aMainSettings.FullScreen) and
-                                        (fMain.Resolutions.Count > 0);
-  DropBox_Options_RefreshRate.Enabled := (aMainSettings.FullScreen) and
-                                         (fMain.Resolutions.Count > 0);
+  DropBox_Options_Resolution.Enabled  := (aMainSettings.FullScreen) and (fMain.Resolutions.Count > 0);
+  DropBox_Options_RefreshRate.Enabled := (aMainSettings.FullScreen) and (fMain.Resolutions.Count > 0);
 
   OldFullScreen     := aMainSettings.FullScreen;
   OldResolutionID   := aMainSettings.ResolutionID;
@@ -2617,13 +2615,15 @@ end;
 
 
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
-var I:cardinal; MusicToggled, ShuffleToggled: boolean;
+var
+  I: Integer;
+  MusicToggled, ShuffleToggled: Boolean;
   NewRefRateID: Integer;
-    //vars below are used only to make code shorter
-    ResID, RefID:Integer;
+  ResID, RefID: Integer;
 begin
-  MusicToggled := (fGame.GlobalSettings.MusicOn = CheckBox_Options_MusicOn.Checked);
-  ShuffleToggled := (not fGame.GlobalSettings.ShuffleOn = CheckBox_Options_ShuffleOn.Checked);
+  //Change these options only if they changed state since last time
+  MusicToggled := (fGame.GlobalSettings.MusicOff <> CheckBox_Options_MusicOff.Checked);
+  ShuffleToggled := (fGame.GlobalSettings.ShuffleOn <> CheckBox_Options_ShuffleOn.Checked);
 
   fGame.GlobalSettings.Autosave         := CheckBox_Options_Autosave.Checked;
   fGame.GlobalSettings.Brightness       := TrackBar_Options_Brightness.Position;
@@ -2631,19 +2631,19 @@ begin
   fGame.GlobalSettings.ScrollSpeed      := TrackBar_Options_ScrollSpeed.Position;
   fGame.GlobalSettings.SoundFXVolume    := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
   fGame.GlobalSettings.MusicVolume      := TrackBar_Options_Music.Position / TrackBar_Options_Music.MaxValue;
-  fGame.GlobalSettings.MusicOn          := not CheckBox_Options_MusicOn.Checked;
+  fGame.GlobalSettings.MusicOff          := CheckBox_Options_MusicOff.Checked;
   fGame.GlobalSettings.ShuffleOn        := CheckBox_Options_ShuffleOn.Checked;
   fMain.Settings.FullScreen             := CheckBox_Options_FullScreen.Checked;
-  TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOn.Checked;
-  CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOn.Checked;
+  TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOff.Checked;
+  CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOff.Checked;
 
   fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume);
   fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume);
   if MusicToggled then
   begin
-    fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
-    if fGame.GlobalSettings.MusicOn then
-      ShuffleToggled := true; //Re-shuffle songs if music has been enabled
+    fGame.MusicLib.ToggleMusic(not fGame.GlobalSettings.MusicOff);
+    if not fGame.GlobalSettings.MusicOff then
+      ShuffleToggled := True; //Re-shuffle songs if music has been enabled
   end;
   if ShuffleToggled then
     fGame.MusicLib.ToggleShuffle(fGame.GlobalSettings.ShuffleOn);

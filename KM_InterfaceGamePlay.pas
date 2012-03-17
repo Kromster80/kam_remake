@@ -238,7 +238,7 @@ type
         TrackBar_Settings_SFX: TKMTrackBar;
         TrackBar_Settings_Music: TKMTrackBar;
         TrackBar_Settings_ScrollSpeed: TKMTrackBar;
-        CheckBox_Settings_MusicOn: TKMCheckBox;
+        CheckBox_Settings_MusicOff: TKMCheckBox;
         CheckBox_Settings_ShuffleOn: TKMCheckBox;
 
       Panel_Quit: TKMPanel;
@@ -1310,9 +1310,9 @@ begin
     TrackBar_Settings_Music.Caption := fTextLibrary[TX_MENU_MUSIC_VOLUME];
     TrackBar_Settings_Music.Hint := fTextLibrary[TX_MENU_MUSIC_VOLUME_HINT];
     TrackBar_Settings_Music.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_MusicOn := TKMCheckBox.Create(Panel_Settings,18,260,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
-    CheckBox_Settings_MusicOn.Hint := fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
-    CheckBox_Settings_MusicOn.OnClick := Menu_Settings_Change;
+    CheckBox_Settings_MusicOff := TKMCheckBox.Create(Panel_Settings,18,260,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
+    CheckBox_Settings_MusicOff.Hint := fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE_HINT];
+    CheckBox_Settings_MusicOff.OnClick := Menu_Settings_Change;
     CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,18,285,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE],fnt_Metal);
     CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
 end;
@@ -2330,41 +2330,43 @@ begin
   TrackBar_Settings_ScrollSpeed.Position  := fGame.GlobalSettings.ScrollSpeed;
   TrackBar_Settings_SFX.Position          := Round(fGame.GlobalSettings.SoundFXVolume * TrackBar_Settings_SFX.MaxValue);
   TrackBar_Settings_Music.Position        := Round(fGame.GlobalSettings.MusicVolume * TrackBar_Settings_Music.MaxValue);
-  CheckBox_Settings_MusicOn.Checked       := not fGame.GlobalSettings.MusicOn;
+  CheckBox_Settings_MusicOff.Checked      := fGame.GlobalSettings.MusicOff;
   CheckBox_Settings_ShuffleOn.Checked     := fGame.GlobalSettings.ShuffleOn;
 
-  TrackBar_Settings_Music.Enabled     := not CheckBox_Settings_MusicOn.Checked;
-  CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOn.Checked;
+  TrackBar_Settings_Music.Enabled     := not CheckBox_Settings_MusicOff.Checked;
+  CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOff.Checked;
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Settings_Change(Sender:TObject);
-var MusicToggled, ShuffleToggled: boolean;
+procedure TKMGamePlayInterface.Menu_Settings_Change(Sender: TObject);
+var
+  MusicToggled, ShuffleToggled: Boolean;
 begin
-  MusicToggled   := (fGame.GlobalSettings.MusicOn = CheckBox_Settings_MusicOn.Checked);
-  ShuffleToggled := (not fGame.GlobalSettings.ShuffleOn = CheckBox_Settings_ShuffleOn.Checked);
+  //Change these options only if they changed state since last time
+  MusicToggled   := (fGame.GlobalSettings.MusicOff <> CheckBox_Settings_MusicOff.Checked);
+  ShuffleToggled := (fGame.GlobalSettings.ShuffleOn <> CheckBox_Settings_ShuffleOn.Checked);
 
   fGame.GlobalSettings.Brightness    := TrackBar_Settings_Brightness.Position;
   fGame.GlobalSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
   fGame.GlobalSettings.ScrollSpeed   := TrackBar_Settings_ScrollSpeed.Position;
   fGame.GlobalSettings.SoundFXVolume := TrackBar_Settings_SFX.Position / TrackBar_Settings_SFX.MaxValue;
   fGame.GlobalSettings.MusicVolume   := TrackBar_Settings_Music.Position / TrackBar_Settings_Music.MaxValue;
-  fGame.GlobalSettings.MusicOn       := not CheckBox_Settings_MusicOn.Checked;
+  fGame.GlobalSettings.MusicOff      := CheckBox_Settings_MusicOff.Checked;
   fGame.GlobalSettings.ShuffleOn     := CheckBox_Settings_ShuffleOn.Checked;
 
   fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume);
   fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume);
   if MusicToggled then
   begin
-    fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
-    if fGame.GlobalSettings.MusicOn then
-      ShuffleToggled := true; //Re-shuffle songs if music has been enabled
+    fGame.MusicLib.ToggleMusic(not fGame.GlobalSettings.MusicOff);
+    if not fGame.GlobalSettings.MusicOff then
+      ShuffleToggled := True; //Re-shuffle songs if music has been enabled
   end;
   if ShuffleToggled then
     fGame.MusicLib.ToggleShuffle(fGame.GlobalSettings.ShuffleOn);
 
-  TrackBar_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
-  CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOn.Checked;
+  TrackBar_Settings_Music.Enabled := not CheckBox_Settings_MusicOff.Checked;
+  CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOff.Checked;
 end;
 
 
@@ -2678,19 +2680,14 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
 begin
-  if fGame.GlobalSettings.MusicOn then
-  begin
+  if fGame.GlobalSettings.MusicOff then
+    Label_Menu_Track.Caption := '-'
+  else
     Label_Menu_Track.Caption := fGame.MusicLib.GetTrackTitle;
-    Label_Menu_Track.Enable;
-    Button_Menu_TrackUp.Enable;
-    Button_Menu_TrackDown.Enable;
-  end
-  else begin
-    Label_Menu_Track.Caption := '-';
-    Label_Menu_Track.Disable;
-    Button_Menu_TrackUp.Disable;
-    Button_Menu_TrackDown.Disable;
-  end;
+
+  Label_Menu_Track.Enabled      := not fGame.GlobalSettings.MusicOff;
+  Button_Menu_TrackUp.Enabled   := not fGame.GlobalSettings.MusicOff;
+  Button_Menu_TrackDown.Enabled := not fGame.GlobalSettings.MusicOff;
 end;
 
 

@@ -51,8 +51,8 @@ type
     procedure PlayPreviousTrack;
     function IsMusicEnded:boolean;
     procedure StopMusic;
-    procedure ToggleMusic(aOn:boolean);
-    procedure ToggleShuffle(aOn:boolean);
+    procedure ToggleMusic(aEnableMusic: Boolean);
+    procedure ToggleShuffle(aEnableShuffle: Boolean);
     procedure FadeMusic(Sender:TObject);
     procedure UnfadeMusic(Sender:TObject);
     function GetTrackTitle:string;
@@ -261,18 +261,18 @@ begin
 end;
 
 
-procedure TMusicLib.ToggleMusic(aOn:boolean);
+procedure TMusicLib.ToggleMusic(aEnableMusic: Boolean);
 begin
-  if aOn then
+  if aEnableMusic then
     PlayMenuTrack //Start with the default track
   else
     StopMusic;
 end;
 
 
-procedure TMusicLib.ToggleShuffle(aOn:boolean);
+procedure TMusicLib.ToggleShuffle(aEnableShuffle: Boolean);
 begin
-  if aOn then
+  if aEnableShuffle then
     ShuffleSongs
   else
     UnshuffleSongs;
