@@ -13,9 +13,7 @@ type
     fFullScreen: Boolean;
     fResolutionID: Integer; //ID of currently chosen resolution, it's not a fixed value
     fRefreshRateID: Integer;
-    fResolutionWidth: Word;
-    fResolutionHeight: Word;
-    fRefreshRate: Word;
+    fResolution: TScreenRes;
 
     fVSync: Boolean;
 
@@ -32,9 +30,7 @@ type
     property FullScreen:boolean read fFullScreen write SetFullScreen;
     property ResolutionID:integer read fResolutionID write fResolutionID;
     property RefreshRateID:integer read fRefreshRateID write fRefreshRateID;
-    property ResolutionWidth:word read fResolutionWidth write fResolutionWidth;
-    property ResolutionHeight:word read fResolutionHeight write fResolutionHeight;
-    property RefreshRate:word read fRefreshRate write fRefreshRate;
+    property Resolution:TScreenRes read fResolution write fResolution;
     property VSync:boolean read fVSync;
   end;
 
@@ -154,11 +150,11 @@ begin
 
   f := TMemIniFile.Create(FileName);
 
-  fFullScreen       := f.ReadBool   ('GFX', 'FullScreen',       False);
-  fVSync            := f.ReadBool   ('GFX', 'VSync',            True);
-  fResolutionWidth  := f.ReadInteger('GFX', 'ResolutionWidth',  1024);
-  fResolutionHeight := f.ReadInteger('GFX', 'ResolutionHeight', 768);
-  fRefreshRate      := f.ReadInteger('GFX', 'RefreshRate',      60);
+  fFullScreen         := f.ReadBool   ('GFX', 'FullScreen',       False);
+  fVSync              := f.ReadBool   ('GFX', 'VSync',            True);
+  fResolution.Width   := f.ReadInteger('GFX', 'ResolutionWidth',  1024);
+  fResolution.Height  := f.ReadInteger('GFX', 'ResolutionHeight', 768);
+  fResolution.RefRate := f.ReadInteger('GFX', 'RefreshRate',      60);
 
 
   FreeAndNil(f);
@@ -174,9 +170,9 @@ begin
 
   F.WriteBool   ('GFX','FullScreen',      fFullScreen);
   F.WriteBool   ('GFX','VSync',           fVSync);
-  F.WriteInteger('GFX','ResolutionWidth', fResolutionWidth);
-  F.WriteInteger('GFX','ResolutionHeight',fResolutionHeight);
-  F.WriteInteger('GFX','RefreshRate',     fRefreshRate);
+  F.WriteInteger('GFX','ResolutionWidth', fResolution.Width);
+  F.WriteInteger('GFX','ResolutionHeight',fResolution.Height);
+  F.WriteInteger('GFX','RefreshRate',     fResolution.RefRate);
 
   F.UpdateFile; //Write changes to file
   FreeAndNil(F);

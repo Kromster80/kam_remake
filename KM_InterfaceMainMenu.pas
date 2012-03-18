@@ -1529,6 +1529,9 @@ begin
     //         because selecting a map causes the minimap preview to be recalculated which takes time.
     //         This was making the map list load very slowly. I think it's ok for there
     //         to be no map selected when the menu is opened, what do you and Krom think?
+    //@Lewin:  I can either try to avoid this and select first map after all all of them were loaded
+    //         (additional condition) or we can just not select any map
+    //         I'd like to know opinion of you both, which option  do you prefer?
     if (not fUserSelectedMap) and (not fMaps.ScanFinished) and
        (not fGoBackToSinglePlayerPage) then
           SingleMap_SelectMap(0);
@@ -2625,6 +2628,7 @@ var
   MusicToggled, ShuffleToggled: Boolean;
   NewRefRateID: Integer;
   ResID, RefID: Integer;
+  NewResolution: TScreenRes;
 begin
   //Change these options only if they changed state since last time
   MusicToggled := (fGame.GlobalSettings.MusicOff <> CheckBox_Options_MusicOff.Checked);
@@ -2670,9 +2674,10 @@ begin
     OldRefreshRateID  := fMain.Settings.RefreshRateID;
     ResID := fMain.Settings.ResolutionID;
     RefID := fMain.Settings.RefreshRateID;
-    fMain.Settings.ResolutionWidth := fMain.Resolutions.Items[ResID].Width;
-    fMain.Settings.ResolutionHeight := fMain.Resolutions.Items[ResID].Height;
-    fMain.Settings.RefreshRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
+    NewResolution.Width := fMain.Resolutions.Items[ResID].Width;
+    NewResolution.Height := fMain.Resolutions.Items[ResID].Height;
+    NewResolution.RefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
+    fMain.Settings.Resolution := NewResolution;
     fMain.ReinitRender(True);
     exit; //Whole interface will be recreated
   end;

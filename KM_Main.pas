@@ -191,9 +191,9 @@ begin
   if fMainSettings.FullScreen then
   begin
     //We need to verify data before applying
-    if not fResolutions.Check(fMainSettings) then
-      fResolutions.FindCorrect(fMainSettings);
-    fResolutions.SetResolution(fMainSettings.ResolutionID, fMainSettings.RefreshRateID);
+    if not fResolutions.Check(fMainSettings.Resolution) then
+      fResolutions.FindCorrect(fMainSettings.Resolution);
+    fResolutions.SetResolution(fMainSettings.Resolution);
   end
   else
     fResolutions.Restore;

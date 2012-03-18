@@ -900,6 +900,13 @@ const
   MIN_RESOLUTION_HEIGHT = 768;
 
 
+//Record storing resolution and refresh rate
+type
+  TScreenRes = record
+             Width, Height, RefRate: Word;
+           end;
+
+
 //Record storing resolution and list of its allowed refresh rates
 type
   TScreenResData = record
