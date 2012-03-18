@@ -1524,6 +1524,11 @@ begin
     Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
 
     //while maps are added, always select this, which is first on sorted list
+
+    //@Maciej: It is a very bad idea to select the first map each time one is added,
+    //         because selecting a map causes the minimap preview to be recalculated which takes time.
+    //         This was making the map list load very slowly. I think it's ok for there
+    //         to be no map selected when the menu is opened, what do you and Krom think?
     if (not fUserSelectedMap) and (not fMaps.ScanFinished) and
        (not fGoBackToSinglePlayerPage) then
           SingleMap_SelectMap(0);
