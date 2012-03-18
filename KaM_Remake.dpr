@@ -3,7 +3,7 @@ program KaM_Remake;
 
 uses
   {$IFDEF UNIX} cthreads, {$ENDIF} //Required for thread support on Unix/Linux
-  FastMM4, //Can be used only in Delphi, not Lazarus
+  {$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
   Forms,
   {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_FormMain in 'KM_FormMain.pas' {FormMain},
