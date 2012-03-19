@@ -11,15 +11,14 @@ type
     fNeedsSave: boolean;
 
     fFullScreen: Boolean;
-    fResolutionID: Integer; //ID of currently chosen resolution, it's not a fixed value
-    fRefreshRateID: Integer;
     fResolution: TScreenRes;
 
     fVSync: Boolean;
 
     function LoadFromINI(FileName: string): Boolean;
-    procedure SaveToINI(FileName:string);
-    procedure SetFullScreen(aValue:boolean);
+    procedure SaveToINI(FileName: string);
+    procedure SetFullScreen(aValue: Boolean);
+    procedure SetResolution(const Value: TScreenRes);
   public
     constructor Create;
     destructor Destroy; override;
@@ -27,11 +26,9 @@ type
     procedure SaveSettings(aForce: Boolean = False);
     procedure ReloadSettings;
 
-    property FullScreen:boolean read fFullScreen write SetFullScreen;
-    property ResolutionID:integer read fResolutionID write fResolutionID;
-    property RefreshRateID:integer read fRefreshRateID write fRefreshRateID;
-    property Resolution:TScreenRes read fResolution write fResolution;
-    property VSync:boolean read fVSync;
+    property FullScreen: Boolean read fFullScreen write SetFullScreen;
+    property Resolution: TScreenRes read fResolution write SetResolution;
+    property VSync: Boolean read fVSync;
   end;
 
   //Gameplay settings, those that affect the game
@@ -156,7 +153,6 @@ begin
   fResolution.Height  := f.ReadInteger('GFX', 'ResolutionHeight', 768);
   fResolution.RefRate := f.ReadInteger('GFX', 'RefreshRate',      60);
 
-
   FreeAndNil(f);
   fNeedsSave := False;
 end;
@@ -187,6 +183,13 @@ begin
 end;
 
 
+procedure TMainSettings.SetResolution(const Value: TScreenRes);
+begin
+  fResolution := Value;
+  fNeedsSave  := True;
+end;
+
+
 procedure TMainSettings.ReloadSettings;
 begin
   LoadFromINI(ExeDir + SETTINGS_FILE);
@@ -196,7 +199,7 @@ end;
 procedure TMainSettings.SaveSettings(aForce: boolean);
 begin
   if fNeedsSave or aForce then
-    SaveToINI(ExeDir+SETTINGS_FILE);
+    SaveToINI(ExeDir + SETTINGS_FILE);
 end;
 
 

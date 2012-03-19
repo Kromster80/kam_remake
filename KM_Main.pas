@@ -80,6 +80,12 @@ begin
   //Only after we read settings (fullscreen property and resolutions)
   //we can decide whenever we want to create Game fullscreen or not (OpenGL init depends on that)
   fMainSettings := TMainSettings.Create;
+  //We need to verify INI values, as they can be from another display
+  if not fResolutions.IsValid(fMainSettings.Resolution) then
+  begin
+    fMainSettings.FullScreen := False;
+    fMainSettings.Resolution := fResolutions.FindCorrect(fMainSettings.Resolution);
+  end;
 
   ReinitRender(False);
 
@@ -189,12 +195,10 @@ end;
 procedure TKMMain.ReinitRender(aReturnToOptions: Boolean);
 begin
   if fMainSettings.FullScreen then
-  begin
-    //We need to verify data before applying
-    if not fResolutions.Check(fMainSettings.Resolution) then
-      fResolutions.FindCorrect(fMainSettings.Resolution);
-    fResolutions.SetResolution(fMainSettings.Resolution);
-  end
+    if fResolutions.IsValid(fMainSettings.Resolution) then
+      fResolutions.SetResolution(fMainSettings.Resolution)
+    else
+      fMainSettings.FullScreen := False
   else
     fResolutions.Restore;
 

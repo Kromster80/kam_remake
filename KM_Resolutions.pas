@@ -1,13 +1,19 @@
 unit KM_Resolutions;
 {$I KaM_Remake.inc}
-
 interface
 uses
-  Classes, SysUtils,
+  Classes, Math, SysUtils,
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  KM_Defaults, KM_Settings;
+  KM_Defaults;
 
 type
+  //Record storing resolution and list of its allowed refresh rates
+  TScreenResData = record
+                 Width, Height: Word;
+                 RefRateCount: Integer;
+                 RefRate: array of Word;
+               end;
+
   TKMResolutions = class
   private
     fCount: Integer;
@@ -16,7 +22,6 @@ type
     function GetItem(aIndex: Integer): TScreenResData;
     procedure ReadAvailable;
     procedure Sort;
-    procedure SetSettingsIDs(aResolution: TScreenRes; Correct:Boolean);  //prepares IDs for TMainSettings
   public
     constructor Create;
     destructor Destroy; override;
@@ -25,14 +30,15 @@ type
     property Count: Integer read fCount; //Used by UI
     property Items[aIndex: Integer]: TScreenResData read GetItem; //Used by UI
 
-    function Check(aResolution: TScreenRes): Boolean; //Check, if resolution is correct
-    procedure FindCorrect(aResolution: TScreenRes); //Try to find correct resolution
+    function IsValid(aResolution: TScreenRes): Boolean; //Check, if resolution is correct
+    function FindCorrect(aResolution: TScreenRes): TScreenRes; //Try to find correct resolution
+    function GetResolutionIDs(aResolution: TScreenRes): TResIndex;  //prepares IDs for TMainSettings
     procedure SetResolution(aResolution: TScreenRes); //Apply the resolution
   end;
 
 
 implementation
-uses KM_Main;
+
 
 { TKMResolutions }
 constructor TKMResolutions.Create;
@@ -52,7 +58,7 @@ end;
 
 procedure TKMResolutions.ReadAvailable;
 var
-  I,M,N: integer;
+  I,M,N: Integer;
   {$IFDEF MSWindows}DevMode: TDevMode;{$ENDIF}
 begin
   {$IFDEF MSWindows}
@@ -111,9 +117,9 @@ end;
 
 
 procedure TKMResolutions.Sort;
-var I,J,K:integer;
-    TempScreenResData:TScreenResData;
-    TempRefRate:Word;
+var I,J,K: Integer;
+    TempScreenResData: TScreenResData;
+    TempRefRate: Word;
 begin
   if fCount > 0 then
     for I:=0 to fCount-1 do
@@ -126,13 +132,14 @@ begin
              //excluding zero values from sorting, so they are kept at the end of array
                (fItems[I].RefRate[K] > 0)) do
         begin
-          //simple replacement of data
+          //Exchange places
           TempRefRate := fItems[I].RefRate[K];
           fItems[I].RefRate[K] := fItems[I].RefRate[K-1];
           fItems[I].RefRate[K-1] := TempRefRate;
           dec(K);
         end;
       end;
+
       if I=0 then continue;
       J:=I;  //iterator will be modified, but we don't want to lose it
       //moving resolution to its final position
@@ -142,7 +149,7 @@ begin
              ((fItems[J].Width = fItems[J-1].Width) and
              (fItems[J].Height < fItems[J-1].Height)))) do
       begin
-        //simple replacement of data
+        //Exchange places
         TempScreenResData := fItems[J];
         fItems[J] := fItems[J-1];
         fItems[J-1] := TempScreenResData;
@@ -154,8 +161,9 @@ end;
 
 function TKMResolutions.GetItem(aIndex: Integer): TScreenResData;
 begin
-  if (fCount>0) and (aIndex in [0..fCount-1]) then
-    Result := fItems[aIndex];
+  //Make sure we access valid item
+  Assert(InRange(aIndex, 0, fCount - 1));
+  Result := fItems[aIndex];
 end;
 
 
@@ -167,128 +175,76 @@ begin
 end;
 
 
-function TKMResolutions.Check(aResolution: TScreenRes): Boolean;
-var I, J: Integer;
+function TKMResolutions.IsValid(aResolution: TScreenRes): Boolean;
 begin
-  //Try to find matching Resolution
-  Result := False;
-  if fCount > 0 then
-    for I := 0 to fCount-1 do
-      if (fItems[I].Width = aResolution.Width)
-      and(fItems[I].Height = aResolution.Height) then
-        for J := 0 to fItems[I].RefRateCount-1 do
-          if (aResolution.RefRate = fItems[I].RefRate[J]) then
-          begin
-            Result := True;
-            SetSettingsIDs(aResolution, True);
-          end;
+  Result := GetResolutionIDs(aResolution).RefID <> -1;
 end;
 
 
 procedure TKMResolutions.SetResolution(aResolution: TScreenRes);
-var I,J: Integer;
-{$IFDEF MSWindows} DeviceMode: DEVMODE; {$ENDIF}
+var
+  {$IFDEF MSWindows}
+  DeviceMode: TDeviceMode;
+  {$ENDIF}
 begin
-  if (fCount > 0) then
-    for I := 0 to fCount-1 do
-      for J := 0 to fItems[I].RefRateCount-1 do
-        if (fItems[I].Width = aResolution.Width) and
-           (fItems[I].Height = aResolution.Height) and
-           (fItems[I].RefRate[J] = aResolution.RefRate) then
-           begin
-             {$IFDEF MSWindows}
-             ZeroMemory(@DeviceMode, SizeOf(DeviceMode));
-             with DeviceMode do
-             begin
-               dmSize := SizeOf(TDeviceMode);
-               dmPelsWidth := aResolution.Width;
-               dmPelsHeight := aResolution.Height;
-               dmBitsPerPel := 32;
-               dmDisplayFrequency := aResolution.RefRate;
-               dmFields := DM_DISPLAYFREQUENCY or DM_BITSPERPEL or DM_PELSWIDTH or DM_PELSHEIGHT;
-             end;
+  //Double-check anything we get from outside
+  Assert(IsValid(aResolution));
 
-             ChangeDisplaySettings(DeviceMode, CDS_FULLSCREEN);
-             {$ENDIF}
-           end;
+  {$IFDEF MSWindows}
+  ZeroMemory(@DeviceMode, SizeOf(DeviceMode));
+  with DeviceMode do
+  begin
+    dmSize := SizeOf(TDeviceMode);
+    dmPelsWidth := aResolution.Width;
+    dmPelsHeight := aResolution.Height;
+    dmBitsPerPel := 32;
+    dmDisplayFrequency := aResolution.RefRate;
+    dmFields := DM_DISPLAYFREQUENCY or DM_BITSPERPEL or DM_PELSWIDTH or DM_PELSHEIGHT;
+  end;
+
+  ChangeDisplaySettings(DeviceMode, CDS_FULLSCREEN);
+  {$ENDIF}
 end;
 
 
-procedure TKMResolutions.FindCorrect(aResolution:TScreenRes);
-var NewResolution: TScreenRes;
-{$IFDEF MSWindows}DevMode: TDevMode;{$ENDIF}
+//@Maciej: This function should return best matching resolution
+//(e.g. if asked 1024x768@1Hz it should return 1024x768@60Hz for typical LCD)
+function TKMResolutions.FindCorrect(aResolution: TScreenRes): TScreenRes;
 begin
-  {$IFDEF MSWindows}
-  EnumDisplaySettings(nil, Cardinal(-1){ENUM_CURRENT_SETTINGS}, DevMode);
-  with DevMode do
+  if fCount = 0 then
   begin
-    //we need to check, if current resolution is lower than we can support
-    if (dmPelsWidth >= MIN_RESOLUTION_WIDTH) and
-       (dmPelsHeight >= MIN_RESOLUTION_HEIGHT) and (fCount > 0) then
-    begin
-      NewResolution.Width := dmPelsWidth;
-      NewResolution.Height := dmPelsHeight;
-      NewResolution.RefRate := dmDisplayFrequency;
-      fMain.Settings.Resolution := NewResolution;
-    end
-    else if fCount > 0 then
-    //we cannot support currently used resolution, but
-    //we can switch to supported one
-    begin
-      NewResolution.Width := fItems[0].Width;
-      NewResolution.Height := fItems[0].Height;
-      NewResolution.RefRate := fItems[0].RefRate[0];
-      fMain.Settings.Resolution := NewResolution;
-    end
-    //there is no supported resolution
-    //forcing windowed mode
-    else fMain.Settings.FullScreen := false;
+    Result.Width := -1;
+    Result.Height := -1;
+    Result.RefRate := -1;
+  end
+  else
+  begin
+    Result.Width := fItems[0].Width;
+    Result.Height := fItems[0].Height;
+    Result.RefRate := fItems[0].RefRate[0];
   end;
-  {$ENDIF}
-  //correct values must be saved immediately
-  fMain.Settings.SaveSettings(True);
-
-  SetSettingsIDs(fMain.Settings.Resolution, False);
 end;
 
 
 //we need to set this IDs in settings, so we don't work on "physical" values
 //and everything is kept inside this class, not in TMainSettings
-procedure TKMResolutions.SetSettingsIDs(aResolution:TScreenRes; Correct:Boolean);
+function TKMResolutions.GetResolutionIDs(aResolution: TScreenRes): TResIndex;
 var I,J: Integer;
-  {$IFDEF MSWindows}DevMode: TDevMode;{$ENDIF}
 begin
-  if fCount > 0 then
-  begin
-    if Correct then
-    //looking for IDs for data from settings file
-      for I:=0 to fCount-1 do
-        if (fItems[I].Width = aResolution.Width) and (fItems[I].Height = aResolution.Height) then
-          for J:=0 to fItems[I].RefRateCount-1 do
-            if fItems[I].RefRate[J] = aResolution.RefRate then
-            begin
-              fMain.Settings.ResolutionID := I;
-              fMain.Settings.RefreshRateID := J;
-            end;
-    if not Correct then
-    //looking for IDs for data retrieved from system
-    begin
-      EnumDisplaySettings(nil, Cardinal(-1){ENUM_CURRENT_SETTINGS}, DevMode);
-      for I := 0 to fCount-1 do
-        with DevMode do
+  Result.ResID := -1;
+  Result.RefID := -1;
+
+  for I := 0 to fCount - 1 do
+    if (fItems[I].Width = aResolution.Width)
+    and (fItems[I].Height = aResolution.Height) then
+      for J := 0 to fItems[I].RefRateCount - 1 do
+        if fItems[I].RefRate[J] = aResolution.RefRate then
         begin
-          if (fItems[I].Width = dmPelsWidth) and (fItems[I].Height = dmPelsHeight) then
-            for J := 0 to fItems[I].RefRateCount-1 do
-              if fItems[I].RefRate[J] = dmDisplayFrequency  then
-              begin
-                fMain.Settings.ResolutionID := I;
-                fMain.Settings.RefreshRateID := J;
-              end;
+          Result.ResID := I;
+          Result.RefID := J;
+          Exit;
         end;
-      end;
-  end;
 end;
 
 
 end.
-

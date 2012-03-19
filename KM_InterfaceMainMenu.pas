@@ -38,9 +38,9 @@ type
     fSaves: TKMSavesCollection;
     fSavesMP: TKMSavesCollection;
     MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
-    OldFullScreen:boolean;
-    OldResolutionID:integer;
-    OldRefreshRateID:integer;
+    //We remember old values to enable "Apply" button dynamicaly
+    OldFullScreen: Boolean;
+    OldResolutionID: TResIndex;
 
     procedure Create_MainMenu_Page;
     procedure Create_SinglePlayer_Page;
@@ -125,6 +125,8 @@ type
     procedure MapEditor_SelectMap(Sender: TObject);
     procedure Options_Fill(aMainSettings: TMainSettings; aGameSettings: TGameSettings);
     procedure Options_Change(Sender: TObject);
+    procedure Options_ChangeRes(Sender: TObject);
+    procedure Options_ApplyRes(Sender: TObject);
     procedure Options_FlagClick(Sender: TObject);
     procedure Options_Refresh_DropBoxes;
   protected
@@ -1075,16 +1077,16 @@ begin
       TKMBevel.Create(Panel_Options_Res, 0, 20, 220, 140);
 
       CheckBox_Options_FullScreen := TKMCheckBox.Create(Panel_Options_Res, 12, 30, 176, 20, fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN], fnt_Metal);
-      CheckBox_Options_FullScreen.OnClick := Options_Change;
+      CheckBox_Options_FullScreen.OnClick := Options_ChangeRes;
 
       DropBox_Options_Resolution := TKMDropBox.Create(Panel_Options_Res, 10, 50, 180, 20, fnt_Metal, '');
-      DropBox_Options_Resolution.OnChange := Options_Change;
+      DropBox_Options_Resolution.OnChange := Options_ChangeRes;
 
       DropBox_Options_RefreshRate := TKMDropBox.Create(Panel_Options_Res, 10, 85, 180, 20, fnt_Metal, '');
-      DropBox_Options_RefreshRate.OnChange := Options_Change;
+      DropBox_Options_RefreshRate.OnChange := Options_ChangeRes;
 
       Button_Options_ResApply := TKMButton.Create(Panel_Options_Res, 10, 120, 180, 30, fTextLibrary[TX_MENU_OPTIONS_APPLY], fnt_Metal, bsMenu);
-      Button_Options_ResApply.OnClick := Options_Change;
+      Button_Options_ResApply.OnClick := Options_ChangeRes;
 
     //Language section
     Panel_Options_Lang:=TKMPanel.Create(Panel_Options,600,130,240,30+fLocales.Count*20);
@@ -1260,10 +1262,8 @@ begin
   end;
 
   {Return to MainMenu and restore resolution changes}
-  if Sender=Button_Options_Back then begin
-    fMain.Settings.FullScreen     := OldFullScreen;
-    fMain.Settings.ResolutionID   := OldResolutionID;
-    fMain.Settings.RefreshRateID  := OldRefreshRateID;
+  if Sender=Button_Options_Back then 
+  begin
     fMain.Settings.SaveSettings;
     Panel_MainMenu.Show;
   end;
@@ -2603,32 +2603,12 @@ begin
   //we need to reset dropboxes every time we enter Options page
   Options_Refresh_DropBoxes;
 
-  if fMain.Resolutions.Count > 0 then
-  begin
-    DropBox_Options_Resolution.ItemIndex := aMainSettings.ResolutionID;
-    DropBox_Options_RefreshRate.ItemIndex := aMainSettings.RefreshRateID;
-  end;
-
-  CheckBox_Options_FullScreen.Checked := aMainSettings.FullScreen;
-  //Controls should be disabled, when there is no resolution to choose
-  CheckBox_Options_FullScreen.Enabled := fMain.Resolutions.Count > 0;
-  DropBox_Options_Resolution.Enabled  := (aMainSettings.FullScreen) and (fMain.Resolutions.Count > 0);
-  DropBox_Options_RefreshRate.Enabled := (aMainSettings.FullScreen) and (fMain.Resolutions.Count > 0);
-
-  OldFullScreen     := aMainSettings.FullScreen;
-  OldResolutionID   := aMainSettings.ResolutionID;
-  OldRefreshRateID  := aMainSettings.RefreshRateID;
-  Button_Options_ResApply.Disable;
 end;
 
 
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
 var
-  I: Integer;
   MusicToggled, ShuffleToggled: Boolean;
-  NewRefRateID: Integer;
-  ResID, RefID: Integer;
-  NewResolution: TScreenRes;
 begin
   //Change these options only if they changed state since last time
   MusicToggled := (fGame.GlobalSettings.MusicOff <> CheckBox_Options_MusicOff.Checked);
@@ -2640,9 +2620,8 @@ begin
   fGame.GlobalSettings.ScrollSpeed      := TrackBar_Options_ScrollSpeed.Position;
   fGame.GlobalSettings.SoundFXVolume    := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
   fGame.GlobalSettings.MusicVolume      := TrackBar_Options_Music.Position / TrackBar_Options_Music.MaxValue;
-  fGame.GlobalSettings.MusicOff          := CheckBox_Options_MusicOff.Checked;
+  fGame.GlobalSettings.MusicOff         := CheckBox_Options_MusicOff.Checked;
   fGame.GlobalSettings.ShuffleOn        := CheckBox_Options_ShuffleOn.Checked;
-  fMain.Settings.FullScreen             := CheckBox_Options_FullScreen.Checked;
   TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOff.Checked;
   CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOff.Checked;
 
@@ -2657,72 +2636,75 @@ begin
   if ShuffleToggled then
     fGame.MusicLib.ToggleShuffle(fGame.GlobalSettings.ShuffleOn);
 
-  if Sender = Radio_Options_Lang then begin
+  if Sender = Radio_Options_Lang then
+  begin
     ShowScreen(msLoading, fTextLibrary[TX_MENU_NEW_LOCALE]);
     fGame.Render; //Force to repaint loading screen
-    fMain.Settings.FullScreen     := OldFullScreen; //Reset the resolution so the apply button is set right when we come back
-    fMain.Settings.ResolutionID   := OldResolutionID;
-    fMain.Settings.RefreshRateID  := OldRefreshRateID;
     fGame.ToggleLocale(fLocales[Radio_Options_Lang.ItemIndex].Code);
     exit; //Whole interface will be recreated
   end;
+end;
 
 
-  if (Sender = Button_Options_ResApply) and (fMain.Resolutions.Count > 0) then begin //Apply resolution changes
-    OldFullScreen     := fMain.Settings.FullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
-    OldResolutionID   := fMain.Settings.ResolutionID;
-    OldRefreshRateID  := fMain.Settings.RefreshRateID;
-    ResID := fMain.Settings.ResolutionID;
-    RefID := fMain.Settings.RefreshRateID;
-    NewResolution.Width := fMain.Resolutions.Items[ResID].Width;
-    NewResolution.Height := fMain.Resolutions.Items[ResID].Height;
-    NewResolution.RefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
-    fMain.Settings.Resolution := NewResolution;
-    fMain.ReinitRender(True);
-    exit; //Whole interface will be recreated
-  end;
+//Apply resolution changes
+procedure TKMMainMenuInterface.Options_ChangeRes(Sender: TObject);
+var
+  I: Integer;
+  RefRate: Integer;
+  ResID, RefID: Integer;
+begin
+  if fMain.Resolutions.Count = 0 then Exit;
 
-  if (Sender = DropBox_Options_Resolution) and (fMain.Resolutions.Count > 0) then
+  DropBox_Options_Resolution.Enabled := CheckBox_Options_FullScreen.Checked;
+  DropBox_Options_RefreshRate.Enabled := CheckBox_Options_FullScreen.Checked;
+
+  //Repopulate RefreshRates list
+  if Sender = DropBox_Options_Resolution then
   begin
-    //checks if chosen resolution has the same refresh rate as previously
-    //chosen resolution, if yes, refresh rate should be kept
-    NewRefRateID := -1;
-    ResID := fMain.Settings.ResolutionID;
-    RefID := fMain.Settings.RefreshRateID;
-    for I := 0 to fMain.Resolutions.Items[DropBox_Options_Resolution.ItemIndex].RefRateCount - 1 do
-      if fMain.Resolutions.Items[DropBox_Options_Resolution.ItemIndex].RefRate[I] = fMain.Resolutions.Items[ResID].RefRate[RefID] then
-        NewRefRateID := I;
+    ResID := DropBox_Options_Resolution.ItemIndex;
+    RefID := DropBox_Options_RefreshRate.ItemIndex;
 
-    fMain.Settings.ResolutionID := DropBox_Options_Resolution.ItemIndex;
+    //Remember refresh rate (we will try to reuse it below)
+    RefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
 
-    //resets refresh rate, because they are different for each resolution
+    //Reset refresh rates, because they are different for each resolution
     DropBox_Options_RefreshRate.Clear;
-    ResID := fMain.Settings.ResolutionID;
     for I := 0 to fMain.Resolutions.Items[ResID].RefRateCount - 1 do
-      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[ResID].RefRate[i]]));
-
-    if NewRefRateID <> -1 then
     begin
-      DropBox_Options_RefreshRate.ItemIndex := NewRefRateID;
-      fMain.Settings.RefreshRateID := NewRefRateID;
-    end
-    else
-    begin
-      DropBox_Options_RefreshRate.ItemIndex := 0;
-      fMain.Settings.RefreshRateID := 0;
+      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[ResID].RefRate[I]]));
+      //Make sure to select something
+      if (I = 0) or (fMain.Resolutions.Items[ResID].RefRate[I] = RefRate) then
+        DropBox_Options_RefreshRate.ItemIndex := I;
     end;
   end;
 
-  DropBox_Options_Resolution.Enabled := fMain.Settings.FullScreen;
-  DropBox_Options_RefreshRate.Enabled := fMain.Settings.FullScreen;
-
-  if (Sender = DropBox_Options_RefreshRate) and (fMain.Resolutions.Count > 0) then
-    fMain.Settings.RefreshRateID := DropBox_Options_RefreshRate.ItemIndex;
-
   //Make button enabled only if new resolution/mode differs from old
-  Button_Options_ResApply.Enabled := (OldFullScreen <> fMain.Settings.FullScreen) or
-                                     (fMain.Settings.FullScreen and (OldResolutionID <> fMain.Settings.ResolutionID)) or
-                                     (fMain.Settings.FullScreen and (OldRefreshRateID <> fMain.Settings.RefreshRateID));
+  ResID := DropBox_Options_Resolution.ItemIndex;
+  RefID := DropBox_Options_RefreshRate.ItemIndex;
+  Button_Options_ResApply.Enabled :=
+      (OldFullScreen <> fMain.Settings.FullScreen) or
+      (fMain.Settings.FullScreen and ((OldResolutionID.ResID <> ResID) or
+                                      (OldResolutionID.RefID <> RefID)));
+end;
+
+
+procedure TKMMainMenuInterface.Options_ApplyRes(Sender: TObject);
+var
+  ResID, RefID: Integer;
+  NewResolution: TScreenRes;
+begin
+  if fMain.Resolutions.Count = 0 then Exit;
+
+  fMain.Settings.FullScreen := CheckBox_Options_FullScreen.Checked;
+
+  ResID := DropBox_Options_Resolution.ItemIndex;
+  RefID := DropBox_Options_RefreshRate.ItemIndex;
+  NewResolution.Width := fMain.Resolutions.Items[ResID].Width;
+  NewResolution.Height := fMain.Resolutions.Items[ResID].Height;
+  NewResolution.RefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
+
+  fMain.Settings.Resolution := NewResolution;
+  fMain.ReinitRender(True);
 end;
 
 
@@ -2734,22 +2716,33 @@ begin
 end;
 
 
-//resets dropboxes, they will have correct values
+//Resets dropboxes, they will have correct values
 procedure TKMMainMenuInterface.Options_Refresh_DropBoxes;
-//ResID is used only to make code shorter
-var I, ResID: Integer;
+var I: Integer; R: TResIndex;
 begin
   DropBox_Options_Resolution.Clear;
   DropBox_Options_RefreshRate.Clear;
+
+  R := fMain.Resolutions.GetResolutionIDs(fMain.Settings.Resolution);
+
   if fMain.Resolutions.Count > 0 then
   begin
-    ResID := fMain.Settings.ResolutionID;
-    for I:=0 to fMain.Resolutions.Count-1 do
-      DropBox_Options_Resolution.Add(Format('%dx%d',[fMain.Resolutions.Items[i].Width,fMain.Resolutions.Items[i].Height]));
-    for I:=0 to fMain.Resolutions.Items[ResID].RefRateCount-1 do
-      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[ResID].RefRate[i]]));
+    for I := 0 to fMain.Resolutions.Count - 1 do
+    begin
+      DropBox_Options_Resolution.Add(Format('%dx%d', [fMain.Resolutions.Items[I].Width, fMain.Resolutions.Items[I].Height]));
+      if (I = 0) or (I = R.ResID) then
+        DropBox_Options_Resolution.ItemIndex := I;
+    end;
+
+    for I := 0 to fMain.Resolutions.Items[R.ResID].RefRateCount - 1 do
+    begin
+      DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[R.ResID].RefRate[I]]));
+      if (I = 0) or (I = R.RefID) then
+        DropBox_Options_RefreshRate.ItemIndex := I;
+    end;
   end
-  else begin
+  else
+  begin
     //no supported resolutions
     //TODO: String "Not supported" should be moved to text library
     //and translated to all languages
@@ -2758,6 +2751,16 @@ begin
     DropBox_Options_Resolution.ItemIndex := 0;
     DropBox_Options_RefreshRate.ItemIndex := 0;
   end;
+
+  CheckBox_Options_FullScreen.Checked := fMain.Settings.FullScreen;
+  //Controls should be disabled, when there is no resolution to choose
+  CheckBox_Options_FullScreen.Enabled := fMain.Resolutions.Count > 0;
+  DropBox_Options_Resolution.Enabled  := (fMain.Settings.FullScreen) and (fMain.Resolutions.Count > 0);
+  DropBox_Options_RefreshRate.Enabled := (fMain.Settings.FullScreen) and (fMain.Resolutions.Count > 0);
+
+  OldFullScreen   := fMain.Settings.FullScreen;
+  OldResolutionID := R;
+  Button_Options_ResApply.Disable;
 end;
 
 

@@ -903,20 +903,12 @@ const
 //Record storing resolution and refresh rate
 type
   TScreenRes = record
-             Width, Height, RefRate: Word;
-           end;
-
-
-//Record storing resolution and list of its allowed refresh rates
-type
-  TScreenResData = record
-                 Width, Height: Word;
-                 RefRateCount: Integer;
-                 RefRate: array of Word;
+                 Width, Height, RefRate: SmallInt;
                end;
 
+  TResIndex = record ResID, RefID: Integer; end;
 
-type
+
   TRXType = (
     rxTrees,
     rxHouses,
