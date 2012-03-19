@@ -22,6 +22,7 @@ type
     function GetItem(aIndex: Integer): TScreenResData;
     procedure ReadAvailable;
     procedure Sort;
+    function SupportedRes(aWidth, aHeight, aRate, aBPP: Word): Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -56,6 +57,15 @@ begin
 end;
 
 
+function TKMResolutions.SupportedRes(aWidth, aHeight, aRate, aBPP: Word): Boolean;
+begin
+  Result := (aBPP = 32) and (aWidth > aHeight)
+    and (aWidth >= MIN_RESOLUTION_WIDTH)
+    and (aHeight >= MIN_RESOLUTION_HEIGHT)
+    and (aRate > 0);
+end;
+
+
 procedure TKMResolutions.ReadAvailable;
 var
   I,M,N: Integer;
@@ -70,9 +80,7 @@ begin
     Inc(I);
     //Take only 32bpp modes
     //Exclude rotated modes, as Win reports them too
-    if (dmBitsPerPel = 32) and (dmPelsWidth > dmPelsHeight)
-    and (dmPelsWidth >= MIN_RESOLUTION_WIDTH) and (dmPelsHeight >= MIN_RESOLUTION_HEIGHT)
-    and (dmDisplayFrequency > 0) then
+    if SupportedRes(dmPelsWidth, dmPelsHeight, dmDisplayFrequency, dmBitsPerPel) then
     begin
       //Find next empty place and avoid duplicating
       N := 0;
@@ -210,18 +218,37 @@ end;
 //@Maciej: This function should return best matching resolution
 //(e.g. if asked 1024x768@1Hz it should return 1024x768@60Hz for typical LCD)
 function TKMResolutions.FindCorrect(aResolution: TScreenRes): TScreenRes;
+{$IFDEF MSWindows}
+var
+  DevMode: TDevMode;
+{$ENDIF}
 begin
-  if fCount = 0 then
+  //1. Try to reuse current resolution
+  {$IFDEF MSWindows}
+  EnumDisplaySettings(nil, Cardinal(-1){ENUM_CURRENT_SETTINGS}, DevMode);
+  with DevMode do
+  if SupportedRes(dmPelsWidth, dmPelsHeight, dmDisplayFrequency, dmBitsPerPel) then
   begin
-    Result.Width := -1;
-    Result.Height := -1;
-    Result.RefRate := -1;
-  end
-  else
+    Result.Width := dmPelsWidth;
+    Result.Height := dmPelsHeight;
+    Result.RefRate := dmDisplayFrequency;
+    Exit;
+  end;
+  {$ENDIF}
+
+  //2. Try to use first available resolution
+  if fCount > 0 then
   begin
     Result.Width := fItems[0].Width;
     Result.Height := fItems[0].Height;
     Result.RefRate := fItems[0].RefRate[0];
+  end
+  else
+  //3. Fallback to windowed mode
+  begin
+    Result.Width := -1;
+    Result.Height := -1;
+    Result.RefRate := -1;
   end;
 end;
 

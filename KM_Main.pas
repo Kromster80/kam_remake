@@ -83,8 +83,9 @@ begin
   //We need to verify INI values, as they can be from another display
   if not fResolutions.IsValid(fMainSettings.Resolution) then
   begin
-    fMainSettings.FullScreen := False;
     fMainSettings.Resolution := fResolutions.FindCorrect(fMainSettings.Resolution);
+    if not fResolutions.IsValid(fMainSettings.Resolution) then
+      fMainSettings.FullScreen := False;
   end;
 
   ReinitRender(False);
