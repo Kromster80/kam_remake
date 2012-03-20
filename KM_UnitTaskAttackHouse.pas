@@ -78,14 +78,18 @@ begin
     //Commander should reposition his men after destroying the house
     if TKMUnitWarrior(fUnit).IsCommander then
       TKMUnitWarrior(fUnit).OrderWalk(fUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
-    exit;
+    Exit;
   end;
 
   with TKMUnitWarrior(fUnit) do
   case fPhase of
     0: if IsRanged then
-         //todo: Sort out cases when archers are too close, either step back to the minimum range or don't participate in the attack
-         SetActionWalkToHouse(fHouse, RANGE_BOWMAN_MAX / (byte(REDUCE_SHOOTING_RANGE)+1))
+         if fHouse.GetDistance(GetPosition) < GetFightMinRange then
+           //todo: Archer is too close, try to step back to the minimum range
+           //SetActionWalkFromHouse(fHouse, GetFightMinRange)
+           Result := TaskDone
+         else
+           SetActionWalkToHouse(fHouse, GetFightMaxRange)
        else
          SetActionWalkToHouse(fHouse, 1);
     1: begin

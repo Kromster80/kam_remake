@@ -68,12 +68,12 @@ type
     procedure OrderAttackHouse(aTargetHouse:TKMHouse);
 
     function GetFightMinRange:single;
-    function GetFightMaxRange(aTileBased:boolean=false):single;
+    function GetFightMaxRange(aTileBased: Boolean = False): Single;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
     property OrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
     property GetOrder:TWarriorOrder read fOrder;
-    function GetRow:integer;
+    function GetRow: Integer;
     function ArmyCanTakeOrders:boolean;
     function ArmyInFight:boolean;
     procedure ReissueOrder;
@@ -664,12 +664,12 @@ end;
 
 
 //At which range we can fight
-function TKMUnitWarrior.GetFightMaxRange(aTileBased:boolean=false):single;
+function TKMUnitWarrior.GetFightMaxRange(aTileBased: Boolean = False): Single;
 begin
   case fUnitType of
-    ut_Bowman:      Result := RANGE_BOWMAN_MAX;
-    ut_Arbaletman:  Result := RANGE_ARBALETMAN_MAX;
-    ut_Slingshot:   Result := RANGE_SLINGSHOT_MAX;
+    ut_Bowman:      Result := RANGE_BOWMAN_MAX / (Byte(REDUCE_SHOOTING_RANGE) + 1);
+    ut_Arbaletman:  Result := RANGE_ARBALETMAN_MAX / (Byte(REDUCE_SHOOTING_RANGE) + 1);
+    ut_Slingshot:   Result := RANGE_SLINGSHOT_MAX / (Byte(REDUCE_SHOOTING_RANGE) + 1);
     else            if aTileBased then
                       Result := 1 //Enemy must maximum be 1 tile away
                     else
@@ -1196,7 +1196,7 @@ begin
 
   //Make sure we didn't get given an action above
   if GetUnitAction <> nil then exit;
-    
+
   if fState = ws_Walking then
   begin
     fState := ws_RepositionPause; //Means we are in position and waiting until we turn
@@ -1293,11 +1293,11 @@ begin
 
   if SHOW_ATTACK_RADIUS then
     if IsRanged then
-    for i:=-round(RANGE_BOWMAN_MAX)-1 to round(RANGE_BOWMAN_MAX) do
-    for k:=-round(RANGE_BOWMAN_MAX)-1 to round(RANGE_BOWMAN_MAX) do
-    if InRange(GetLength(i,k),RANGE_BOWMAN_MIN,RANGE_BOWMAN_MAX) then
-    if fTerrain.TileInMapCoords(GetPosition.X+k,GetPosition.Y+i) then
-      fRenderAux.Quad(GetPosition.X+k,GetPosition.Y+i, $40FFFFFF);
+    for i := -round(GetFightMaxRange) - 1 to round(GetFightMaxRange) do
+    for k := -round(GetFightMaxRange) - 1 to round(GetFightMaxRange) do
+    if InRange(GetLength(i, k), GetFightMinRange, GetFightMaxRange) then
+    if fTerrain.TileInMapCoords(GetPosition.X + k, GetPosition.Y + i) then
+      fRenderAux.Quad(GetPosition.X + k, GetPosition.Y + i, $40FFFFFF);
 end;
 
 
