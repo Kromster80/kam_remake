@@ -21,6 +21,7 @@ type
     fLocales: array of string;
     fDefaultLocale: Integer;
 
+    fTextsCount: Integer;
     fTexts: array of TStringArray;
     fConsts: array of TTextInfo;
 
@@ -28,9 +29,9 @@ type
     function GetText(aIndex: Integer): TStringArray;
     function GetLocale(aIndex: Integer): string;
 
-    procedure ScanAvailableTranslations(aTextPath: string);
-    procedure LoadTextLibraryConsts(aConstPath: string);
-    procedure LoadTranslation(aTextPath: string; TranslationID: integer);
+    procedure ScanTranslations(aTextPath: string);
+    procedure LoadConsts(aConstPath: string);
+    procedure LoadText(aTextPath: string; TranslationID: integer);
     procedure AddMissingConsts;
     procedure SaveTextLibraryConsts(aFileName: string);
     procedure SaveTranslation(aTextPath: string; TranslationID: integer);
@@ -76,10 +77,12 @@ begin
   SetLength(fTexts, 0);
   SetLength(fLocales, 0);
 
-  ScanAvailableTranslations(aTextPath);
-  LoadTextLibraryConsts(aConstPath);
+  ScanTranslations(aTextPath);
+  if fLocalesCount = 0 then Exit;
+
+  LoadConsts(aConstPath);
   for I := 0 to fLocalesCount - 1 do
-    LoadTranslation(Format(aTextPath, [fLocales[I]]), I);
+    LoadText(Format(aTextPath, [fLocales[I]]), I);
 
   AddMissingConsts;
 end;
@@ -116,7 +119,7 @@ procedure TTextManager.AddMissingConsts;
   end;
 var I: Integer; s: string;
 begin
-  for I := 0 to High(fTexts) do
+  for I := 0 to fTextsCount - 1 do
     if not TextEmpty(I) and TextUnused(I) then
     begin
       s := StringReplace(fTexts[I, fDefaultLocale], ' ', '', [rfReplaceAll]);
@@ -130,24 +133,21 @@ begin
 end;
 
 
-procedure TTextManager.ScanAvailableTranslations(aTextPath: string);
-var
-  SearchRec: TSearchRec;
+//aTextPath is in format drive\path\filename.%s.libx
+procedure TTextManager.ScanTranslations(aTextPath: string);
+var SearchRec: TSearchRec;
 begin
-  fDefaultLocale := 0; //Default in case there is no eng
   fLocalesCount := 0;
-  FindFirst(Format(aTextPath, ['*']), faDirectory, SearchRec);
+  fDefaultLocale := 0; //Default in case there is no eng
+
+  FindFirst(Format(aTextPath, ['*']), faAnyFile - faDirectory, SearchRec);
   repeat
-    if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-    and (SearchRec.Attr and faDirectory <> faDirectory) then
-    begin
-        SetLength(fLocales, fLocalesCount + 1);
-        //text.***.libx
-        fLocales[fLocalesCount] := Copy(SearchRec.Name, 6, 3);
-        if fLocales[fLocalesCount] = 'eng' then
-          fDefaultLocale := fLocalesCount;
-        Inc(fLocalesCount);
-      end;
+    SetLength(fLocales, fLocalesCount + 1);
+    //text.***.libx
+    fLocales[fLocalesCount] := Copy(SearchRec.Name, 6, 3);
+    if fLocales[fLocalesCount] = 'eng' then
+      fDefaultLocale := fLocalesCount;
+    Inc(fLocalesCount);
   until (FindNext(SearchRec) <> 0);
 end;
 
@@ -175,12 +175,11 @@ begin
 end;
 
 
-procedure TTextManager.LoadTextLibraryConsts(aConstPath: string);
-const Size_Inc = 100;
+procedure TTextManager.LoadConsts(aConstPath: string);
 var
   SL: TStringList;
   Line: string;
-  i, CenterPos: Integer;
+  I, CenterPos: Integer;
 begin
   SL := TStringList.Create;
   SL.LoadFromFile(aConstPath);
@@ -209,33 +208,65 @@ begin
 end;
 
 
-procedure TTextManager.LoadTranslation(aTextPath: string; TranslationID: Integer);
+procedure TTextManager.LoadText(aTextPath: string; TranslationID: Integer);
 var
-  SL:TStringList;
-  i,ID,firstDelimiter:integer;
-  Line:string;
+  SL: TStringList;
+  B: Boolean;
+  I, ID, firstDelimiter, T: Integer;
+  Line: string;
 begin
   SL := TStringList.Create;
   SL.LoadFromFile(aTextPath);
 
-  SetLength(fTexts, 3000);
-  for I := 0 to 3000 - 1 do
-    SetLength(fTexts[I], fLocalesCount);
-
-  for i := 0 to SL.Count - 1 do
+  B := False;
+  for I := 0 to SL.Count - 1 do
   begin
-    Line := Trim(SL[i]);
+    Line := Trim(SL[I]);
+    if Pos('MaxID:', Line) = 1 then
+    begin
+      B := TryStrToInt(TrimLeft(Copy(Line, 7, Length(Line))), T);
+      Break;
+    end;
+  end;
 
-    firstDelimiter := Pos(':', Line);
-    if firstDelimiter = 0 then continue;
-    if not TryStrToInt(TrimLeft(LeftStr(Line, firstDelimiter-1)), ID) then continue;
+  //Make sure we've got valid TextCount
+  if B then
+  begin
+    if (fTextsCount <> 0) and (fTextsCount <> T) then
+    begin
+      ShowMessage(aTextPath + ' MaxID is inconsistent with other files');
+      B := False;
+    end
+    else
+      fTextsCount := T;
+  end
+  else
+  begin
+    ShowMessage(aTextPath + ' has no MaxID entry');
+    B := False;
+  end;
 
-    Line := RightStr(Line, Length(Line) - firstDelimiter);
-    //Required characters that can't be stored in plain text
-    Line := StringReplace(Line, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
-    Line := StringReplace(Line, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
+  if B then
+  begin
+    SetLength(fTexts, fTextsCount);
+    for I := 0 to fTextsCount - 1 do
+      SetLength(fTexts[I], fLocalesCount);
 
-    fTexts[ID, TranslationID] := Line;
+    for I := 0 to SL.Count - 1 do
+    begin
+      Line := Trim(SL[I]);
+
+      firstDelimiter := Pos(':', Line);
+      if firstDelimiter = 0 then continue;
+      if not TryStrToInt(TrimLeft(LeftStr(Line, firstDelimiter-1)), ID) then continue;
+
+      Line := RightStr(Line, Length(Line) - firstDelimiter);
+      //Required characters that can't be stored in plain text
+      Line := StringReplace(Line, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
+      Line := StringReplace(Line, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
+
+      fTexts[ID, TranslationID] := Line;
+    end;
   end;
 
   SL.Free;
@@ -244,26 +275,26 @@ end;
 
 procedure TTextManager.SaveTranslation(aTextPath: string; TranslationID: Integer);
 var
-  aStringList:TStringList;
-  i:integer;
-  s:string;
+  SL: TStringList;
+  I: Integer;
+  s: string;
 begin
-  aStringList := TStringList.Create;
+  SL := TStringList.Create;
 
-  aStringList.Add('');
-  aStringList.Add('MaxID:' + IntToStr(3000));
-  aStringList.Add('');
-  for i := 0 to Length(fTexts) - 1 do
-  if fTexts[i, TranslationID] <> '' then
+  SL.Add(''); //First line may contain BOM
+  SL.Add('MaxID:' + IntToStr(fTextsCount));
+  SL.Add('');
+  for I := 0 to fTextsCount - 1 do
+  if fTexts[I, TranslationID] <> '' then
   begin
-    s := IntToStr(I) + ':'+ fTexts[i, TranslationID];
+    s := IntToStr(I) + ':'+ fTexts[I, TranslationID];
     s := StringReplace(s, '\', '\\', [rfReplaceAll, rfIgnoreCase]); //Slash
     s := StringReplace(s, eol, '\n', [rfReplaceAll, rfIgnoreCase]); //EOL
-    aStringList.Add(s);
+    SL.Add(s);
   end;
 
-  aStringList.SaveToFile(aTextPath);
-  aStringList.Free;
+  SL.SaveToFile(aTextPath);
+  SL.Free;
 end;
 
 
@@ -382,13 +413,12 @@ begin
   for i := Length(fConsts)-2 downto aIndex do
     fConsts[i+1] := fConsts[i];
 
-  SetLength(fTexts, Length(fTexts) + 1);
-  SetLength(fTexts[High(fTexts)], fLocalesCount);
-  for I := 0 to fLocalesCount - 1 do
-    fTexts[aIndex,I] := '';
+  //Append new strings, they will be empty
+  SetLength(fTexts, fTextsCount + 1, fLocalesCount);
+  Inc(fTextsCount);
 
-  fConsts[aIndex].TextID := High(fTexts);
-  fConsts[aIndex].ConstName := 'TX_NEW'+IntToStr(High(fTexts));
+  fConsts[aIndex].TextID := fTextsCount - 1;
+  fConsts[aIndex].ConstName := 'TX_NEW' + IntToStr(fTextsCount - 1);
 end;
 
 
@@ -398,7 +428,7 @@ begin
   if fConsts[aIndex].TextID <> -1 then
   begin
     //Shift all fTexts up
-    for I := fConsts[aIndex].TextID to High(fTexts)-1 do
+    for I := fConsts[aIndex].TextID to fTextsCount-2 do
       for K := 0 to fLocalesCount - 1 do
         fTexts[I,K] := fTexts[I+1,K];
 
