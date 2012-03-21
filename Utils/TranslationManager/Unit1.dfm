@@ -190,4 +190,13 @@ object Form1: TForm1
     TabOrder = 14
     OnClick = btnCompactIndexesClick
   end
+  object Button1: TButton
+    Left = 336
+    Top = 408
+    Width = 75
+    Height = 25
+    Caption = 'Export TSK'
+    TabOrder = 15
+    OnClick = Button1Click
+  end
 end

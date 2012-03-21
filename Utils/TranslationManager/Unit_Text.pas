@@ -50,9 +50,9 @@ type
     procedure DeleteConst(aIndex: Integer);
     procedure Insert(aIndex: Integer);
     procedure InsertSeparator(aIndex: Integer);
-
     procedure MoveUp(aIndex: Integer);
     procedure MoveDown(aIndex: Integer);
+    procedure Slice(aFirst, aNum: Integer);
 
     procedure SortByIndex;
     procedure SortByName;
@@ -80,6 +80,8 @@ begin
   ScanTranslations(aTextPath);
   if fLocalesCount = 0 then Exit;
 
+  fTextsCount := 0;
+
   LoadConsts(aConstPath);
   for I := 0 to fLocalesCount - 1 do
     LoadText(Format(aTextPath, [fLocales[I]]), I);
@@ -92,7 +94,8 @@ procedure TTextManager.Save(aTextPath: string; aConstPath: string);
 var
   I: Integer;
 begin
-  SaveTextLibraryConsts(aConstPath);
+  if aConstPath <> '' then
+    SaveTextLibraryConsts(aConstPath);
   for I := 0 to fLocalesCount - 1 do
     SaveTranslation(Format(aTextPath, [fLocales[I]]), I);
 end;
@@ -156,6 +159,19 @@ procedure TTextManager.SetConst(aIndex: Integer; const Value: TTextInfo);
 begin
   fConsts[aIndex] := Value;
 end;
+
+
+procedure TTextManager.Slice(aFirst, aNum: Integer);
+var I, K: Integer;
+begin
+  for I := 0 to aNum - 1 do
+    for K := 0 to fLocalesCount - 1 do
+      fTexts[I, K] := fTexts[I + aFirst, K];
+
+  SetLength(fTexts, aNum);
+  fTextsCount := aNum;
+end;
+
 
 procedure TTextManager.SaveTextLibraryConsts(aFileName: string);
 var
@@ -248,9 +264,7 @@ begin
 
   if B then
   begin
-    SetLength(fTexts, fTextsCount);
-    for I := 0 to fTextsCount - 1 do
-      SetLength(fTexts[I], fLocalesCount);
+    SetLength(fTexts, fTextsCount, fLocalesCount);
 
     for I := 0 to SL.Count - 1 do
     begin
@@ -282,7 +296,7 @@ begin
   SL := TStringList.Create;
 
   SL.Add(''); //First line may contain BOM
-  SL.Add('MaxID:' + IntToStr(fTextsCount));
+  SL.Add('MaxID:' + IntToStr(fTextsCount - 1));
   SL.Add('');
   for I := 0 to fTextsCount - 1 do
   if fTexts[I, TranslationID] <> '' then

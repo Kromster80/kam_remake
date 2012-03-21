@@ -249,7 +249,8 @@ procedure TKMPlayerAI.CheckGoals;
 
     case aGoal.GoalCondition of
       gc_BuildTutorial:     Result := Stat.GetHouseQty(ht_Tannery) = 0; //For some reason this goal is gs_False in KaM, that's why check is =0 not  > 0
-      gc_Time:              Result := fGame.CheckTime(aGoal.GoalTime);
+      //gc_Time is disabled as we process messages in Event system now
+      gc_Time:              Result := False; //fGame.CheckTime(aGoal.GoalTime);
       gc_Buildings:         Result := (Stat.GetHouseQty(ht_Store) > 0) or (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetHouseQty(ht_Barracks) > 0);
       gc_Troops:            Result := (Stat.GetArmyCount > 0);
       gc_MilitaryAssets:    Result := (Stat.GetArmyCount > 0) or (Stat.GetHouseQty(ht_Barracks) > 0) or (Stat.GetHouseQty(ht_CoalMine) > 0) or

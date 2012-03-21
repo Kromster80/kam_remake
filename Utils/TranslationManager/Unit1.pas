@@ -2,8 +2,9 @@ unit Unit1;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Windows, SysUtils, Classes, Graphics, Controls, Forms, FileCtrl,
-  Dialogs, StrUtils, StdCtrls, Math, ExtCtrls, Unit_Text;
+  Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math,
+  {$IFDEF MSWINDOWS} FileCtrl, {$ENDIF}
+  StdCtrls, StrUtils, SysUtils, Windows, Unit_Text;
 
 
 type
@@ -27,6 +28,7 @@ type
     btnSortByName: TButton;
     btnCompactIndexes: TButton;
     Label3: TLabel;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
@@ -44,6 +46,7 @@ type
     procedure LabelIncludeSameAsEnglishClick(Sender: TObject);
     procedure btnCompactIndexesClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     fTextManager: TTextManager;
 
@@ -231,6 +234,34 @@ begin
   fTextManager.SortByName;
   //Compact Indexes
   RefreshList;
+end;
+
+
+//Export TSK/TPR texts into separate files
+procedure TForm1.Button1Click(Sender: TObject);
+const
+  TSK: array [1..21] of Integer =
+    (529, 530, 531, 531, 532, 534, 534, 537, 538, 539,
+     540, 541, 542, 542, 543, 543, 543, 543, 546, 547, 548);
+  TPR: array [1..15] of Integer =
+    (549, 550, 550, 551, 553, 553, 554, 556, 556, 558,
+     559, 559, 560, 561, 563);
+var I: Integer;
+begin
+  for I := 1 to 20 do
+  if (TSK[I+1] - TSK[I] <> 0) then
+  begin
+    btnLoadClick(nil);
+    fTextManager.Slice(TSK[I], TSK[I+1] - TSK[I]);
+    fTextManager.Save('..\..\Campaigns\The Shattered Kingdom\TSK' + Format('%.2d', [I]) + '.%s.libx', '');
+  end;
+  for I := 1 to 14 do
+  if (TPR[I+1] - TPR[I] <> 0) then
+  begin
+    btnLoadClick(nil);
+    fTextManager.Slice(TPR[I], TPR[I+1] - TPR[I]);
+    fTextManager.Save('..\..\Campaigns\The Peasants Rebellion\TPR' + Format('%.2d', [I]) + '.%s.libx', '');
+  end;
 end;
 
 
