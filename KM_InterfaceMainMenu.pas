@@ -29,8 +29,6 @@ type
     fJumpToSelectedMap: Boolean;
     fJumpToSelectedServer: Boolean;
 
-    fGoBackToSinglePlayerPage: Boolean; //flag, if user returns to signle player page from single player maps page
-    fUserSelectedMap: Boolean; //flag, if user selected a map
     fMap_Selected: Integer; //Selected map
     fMapCRC_Selected: Cardinal; //CRC of selected map
     fMaps: TKMapsCollection;
@@ -1275,11 +1273,8 @@ begin
      (Sender=Button_SingleBack)or
      (Sender=Button_LoadBack) then begin
        if (Sender=Button_SingleBack) then
-       begin
-         fGoBackToSinglePlayerPage := True;
          //scan should be terminated, it is no longer needed
          fMaps.TerminateScan;
-       end;
        Panel_SinglePlayer.Show;
   end;
 
@@ -1301,8 +1296,6 @@ begin
   {Show SingleMap menu}
   if Sender=Button_SP_Single then
   begin
-    fUserSelectedMap := False;
-    fGoBackToSinglePlayerPage := False;
 
     //Stop current now scan so it can't add a map after we clear the list
     fMaps.TerminateScan;
@@ -1477,7 +1470,8 @@ begin
   end;
 
   ScrollBar_SingleMaps.MaxValue := 0;
-  fMap_Selected := -1;
+  SingleMap_SelectMap(-1);
+  fMapCRC_Selected := 0;
 end;
 
 
@@ -1485,9 +1479,6 @@ procedure TKMMainMenuInterface.SingleMap_RefreshList(Sender: TObject);
 var
   I, MapID: Integer;
 begin
-  if fMaps.Count = 0 then
-    SingleMap_SelectMap(-1)
-  else
   begin
     //Updating MaxValue may change Position
     ScrollBar_SingleMaps.MaxValue := Max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
@@ -1523,18 +1514,6 @@ begin
     Shape_SingleMap.Visible := InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
     Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
 
-    //while maps are added, always select this, which is first on sorted list
-
-    //@Maciej: It is a very bad idea to select the first map each time one is added,
-    //         because selecting a map causes the minimap preview to be recalculated which takes time.
-    //         This was making the map list load very slowly. I think it's ok for there
-    //         to be no map selected when the menu is opened, what do you and Krom think?
-    //@Lewin:  I can either try to avoid this and select first map after all all of them were loaded
-    //         (additional condition) or we can just not select any map
-    //         I'd like to know opinion of you both, which option  do you prefer?
-    if (not fUserSelectedMap) and (not fMaps.ScanFinished) and
-       (not fGoBackToSinglePlayerPage) then
-          SingleMap_SelectMap(0);
   end;
 end;
 
@@ -1547,7 +1526,6 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_MapClick(Sender: TObject);
 begin
-  fUserSelectedMap := True;
   SingleMap_SelectMap(ScrollBar_SingleMaps.Position + TKMControl(Sender).Tag);
 end;
 
