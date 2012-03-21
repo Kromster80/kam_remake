@@ -4,7 +4,7 @@ unit Unit1;
 {$ENDIF}
 interface
 uses
-  Windows, SysUtils, Classes, Graphics, Controls, Forms,
+  Windows, SysUtils, Classes, Graphics, Controls, Forms, FileCtrl,
   Dialogs, StrUtils, StdCtrls, Math, ExtCtrls;
 
 
@@ -67,15 +67,15 @@ type
     IgnoreChanges: Boolean;
     procedure MemoChange(Sender: TObject);
 
-    procedure Load(aMiscFolder: string; aTextLibraryFile: string);
-    procedure ScanAvailableTranslations(aMiscFolder: string);
-    procedure LoadTextLibraryConsts(aFileName: string);
-    procedure LoadTranslation(aFileName: string; TranslationID: integer);
+    procedure Load(aTextPath: string; aConstPath: string);
+    procedure ScanAvailableTranslations(aTextPath: string);
+    procedure LoadTextLibraryConsts(aConstPath: string);
+    procedure LoadTranslation(aTextPath: string; TranslationID: integer);
     procedure AddMissingConsts;
     procedure DeleteConst(aIndex: Integer);
 
     procedure SaveTextLibraryConsts(aFileName: string);
-    procedure SaveTranslation(aFileName: string; TranslationID: integer);
+    procedure SaveTranslation(aTextPath: string; TranslationID: integer);
     procedure RefreshList;
   end;
 
@@ -90,8 +90,8 @@ implementation
 
 const
   eol: string = #13#10; //EndOfLine
-  MiscFolder = '..\..\data\text\';
-  TextLibraryFile = '..\..\KM_TextIDs.inc';
+  TextPath = '..\..\data\text\';
+  ConstPath = '..\..\KM_TextIDs.inc';
 
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -100,7 +100,7 @@ begin
 end;
 
 
-procedure TForm1.Load(aMiscFolder: string; aTextLibraryFile: string);
+procedure TForm1.Load(aTextPath: string; aConstPath: string);
 var
   i: integer;
 begin
@@ -112,10 +112,10 @@ begin
 
   //SetLength(IDLookup, 0);
 
-  ScanAvailableTranslations(aMiscFolder);
-  LoadTextLibraryConsts(aTextLibraryFile);
+  ScanAvailableTranslations(aTextPath);
+  LoadTextLibraryConsts(aConstPath);
   for i := 1 to LocalesCount do
-    LoadTranslation(aMiscFolder + 'text.' + Locales[i] + '.libx', i);
+    LoadTranslation(aTextPath + 'text.' + Locales[i] + '.libx', i);
 
   AddMissingConsts;
 
@@ -208,7 +208,7 @@ begin
 end;
 
 
-procedure TForm1.ScanAvailableTranslations(aMiscFolder:string);
+procedure TForm1.ScanAvailableTranslations(aTextPath: string);
 
   function GetCharset(aLang:string):TFontCharset;
   begin
@@ -225,8 +225,9 @@ var
   SearchRec:TSearchRec;
   i:integer;
 begin
-  Assert(DirectoryExists(aMiscFolder),'Misc folder does not exist: '+aMiscFolder);
-  FindFirst(aMiscFolder+'*', faDirectory, SearchRec);
+  Assert(DirectoryExists(aTextPath), 'Misc folder does not exist: '+aTextPath);
+
+  FindFirst(aTextPath+'*', faDirectory, SearchRec);
   repeat
     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then //Exclude parent folders
       //Check files
@@ -292,7 +293,7 @@ begin
 end;
 
 
-procedure TForm1.LoadTextLibraryConsts(aFileName: string);
+procedure TForm1.LoadTextLibraryConsts(aConstPath: string);
 const Size_Inc = 100;
 var
   SL: TStringList;
@@ -300,7 +301,7 @@ var
   i, CenterPos: Integer;
 begin
   SL := TStringList.Create;
-  SL.LoadFromFile(aFileName);
+  SL.LoadFromFile(aConstPath);
 
   SetLength(Consts, SL.Count);
 
@@ -326,14 +327,14 @@ begin
 end;
 
 
-procedure TForm1.LoadTranslation(aFileName:string; TranslationID:integer);
+procedure TForm1.LoadTranslation(aTextPath: string; TranslationID: Integer);
 var
   SL:TStringList;
   i,ID,firstDelimiter:integer;
   Line:string;
 begin
   SL := TStringList.Create;
-  SL.LoadFromFile(aFileName);
+  SL.LoadFromFile(aTextPath);
 
   SetLength(Texts, 3000);
   for I := 0 to 3000 - 1 do
@@ -359,7 +360,7 @@ begin
 end;
 
 
-procedure TForm1.SaveTranslation(aFileName:string; TranslationID:integer);
+procedure TForm1.SaveTranslation(aTextPath: string; TranslationID: Integer);
 var
   aStringList:TStringList;
   i:integer;
@@ -379,7 +380,7 @@ begin
     aStringList.Add(s);
   end;
 
-  aStringList.SaveToFile(aFileName);
+  aStringList.SaveToFile(aTextPath);
   aStringList.Free;
 end;
 
@@ -535,16 +536,17 @@ end;
 
 procedure TForm1.btnLoadClick(Sender: TObject);
 begin
-  Load(MiscFolder, TextLibraryFile);
+  //if SelectDirectory(WorkDir, [], 0) then
+  Load(TextPath, ConstPath);
 end;
 
 
 procedure TForm1.btnSaveClick(Sender: TObject);
 var i:integer;
 begin
-  SaveTextLibraryConsts(TextLibraryFile);
+  SaveTextLibraryConsts(ConstPath);
   for i:=1 to LocalesCount do
-    SaveTranslation(MiscFolder+'text.'+Locales[i]+'.libx',i);
+    SaveTranslation(TextPath+'text.'+Locales[i]+'.libx',i);
 end;
 
 
