@@ -1,8 +1,5 @@
 program KaM_DedicatedServer;
-{$I KaM_DedicatedServer.inc}
-{$IFDEF FPC}
-  {$Mode Delphi} {$H+}
-{$ENDIF}
+{$I ..\..\KaM_Remake.inc}
 
 {$IFDEF MSWindows}
   {$APPTYPE CONSOLE}
