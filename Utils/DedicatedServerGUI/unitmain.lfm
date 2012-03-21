@@ -1,0 +1,299 @@
+object FormMain: TFormMain
+  Left = 413
+  Height = 507
+  Top = 109
+  Width = 815
+  Anchors = [akTop]
+  Caption = 'KaM Dedicated Server'
+  ClientHeight = 507
+  ClientWidth = 815
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '0.9.30.2'
+  object StartStopButton: TButton
+    Left = 615
+    Height = 40
+    Top = 24
+    Width = 188
+    Caption = 'Server is OFFLINE'
+    OnClick = StartStopButtonClick
+    ParentFont = False
+    TabOrder = 0
+  end
+  object Label1: TLabel
+    Left = 615
+    Height = 21
+    Top = 8
+    Width = 87
+    Caption = 'Server status:'
+    ParentColor = False
+  end
+  object Panel1: TPanel
+    AnchorSideLeft.Control = Splitter1
+    Left = 611
+    Height = 371
+    Top = 136
+    Width = 204
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    BorderSpacing.Left = 8
+    ClientHeight = 371
+    ClientWidth = 204
+    TabOrder = 1
+    object ListBox1: TListBox
+      Left = 1
+      Height = 369
+      Top = 1
+      Width = 202
+      Align = alClient
+      Items.Strings = (
+        'Player1'
+        'Player2'
+        'Player3'
+        '...'
+      )
+      ItemHeight = 20
+      TabOrder = 0
+    end
+  end
+  object Splitter1: TSplitter
+    Left = 603
+    Height = 339
+    Top = 168
+    Width = 9
+    Align = alCustom
+    Anchors = [akTop, akRight, akBottom]
+    ResizeAnchor = akRight
+  end
+  object Panel2: TPanel
+    AnchorSideRight.Control = Splitter1
+    AnchorSideBottom.Control = Edit1
+    Left = 1
+    Height = 341
+    Top = 136
+    Width = 602
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Caption = 'Panel2'
+    ClientHeight = 341
+    ClientWidth = 602
+    TabOrder = 3
+    object LogsMemo: TMemo
+      Left = 1
+      Height = 339
+      Top = 1
+      Width = 600
+      Align = alClient
+      ReadOnly = True
+      ScrollBars = ssBoth
+      TabOrder = 0
+      WordWrap = False
+    end
+  end
+  object Edit1: TEdit
+    AnchorSideRight.Control = SendCmdButton
+    Left = 1
+    Height = 28
+    Top = 477
+    Width = 530
+    Anchors = [akLeft, akRight, akBottom]
+    TabOrder = 4
+  end
+  object SendCmdButton: TButton
+    AnchorSideRight.Control = Splitter1
+    Left = 531
+    Height = 23
+    Top = 482
+    Width = 72
+    Anchors = [akRight, akBottom]
+    Caption = 'Send'
+    TabOrder = 5
+  end
+  object cServerName: TEdit
+    Left = 8
+    Height = 28
+    Top = 24
+    Width = 144
+    TabOrder = 6
+  end
+  object Label2: TLabel
+    Left = 8
+    Height = 21
+    Top = 8
+    Width = 83
+    Caption = 'Server name'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 280
+    Height = 21
+    Top = 8
+    Width = 112
+    Caption = 'Announce Server'
+    ParentColor = False
+  end
+  object cAutoKickTimeout: TSpinEdit
+    Left = 384
+    Height = 28
+    Top = 24
+    Width = 104
+    TabOrder = 7
+    Value = 10
+  end
+  object Label4: TLabel
+    Left = 384
+    Height = 21
+    Top = 8
+    Width = 117
+    Caption = 'Autokick Timeout'
+    ParentColor = False
+  end
+  object cPingInterval: TSpinEdit
+    Left = 496
+    Height = 28
+    Top = 24
+    Width = 112
+    TabOrder = 8
+    Value = 10
+  end
+  object Label5: TLabel
+    Left = 496
+    Height = 21
+    Top = 8
+    Width = 83
+    Caption = 'Ping interval'
+    ParentColor = False
+  end
+  object cMasterAnnounceInterval: TSpinEdit
+    Left = 8
+    Height = 28
+    Top = 64
+    Width = 144
+    TabOrder = 9
+    Value = 10
+  end
+  object Label6: TLabel
+    Left = 8
+    Height = 21
+    Top = 48
+    Width = 167
+    Caption = 'Master announce interval'
+    ParentColor = False
+  end
+  object cMasterServerAddress: TEdit
+    Left = 160
+    Height = 28
+    Top = 64
+    Width = 176
+    TabOrder = 10
+  end
+  object Label7: TLabel
+    Left = 160
+    Height = 21
+    Top = 48
+    Width = 144
+    Caption = 'Master server address'
+    ParentColor = False
+  end
+  object cHTMLStatusFile: TEdit
+    Left = 344
+    Height = 28
+    Top = 64
+    Width = 144
+    TabOrder = 11
+  end
+  object Label8: TLabel
+    Left = 344
+    Height = 21
+    Top = 48
+    Width = 107
+    Caption = 'HTML status file'
+    ParentColor = False
+  end
+  object cServerWelcomeMessage: TEdit
+    Left = 8
+    Height = 28
+    Top = 104
+    Width = 795
+    Anchors = [akTop, akLeft, akRight]
+    TabOrder = 12
+  end
+  object Label9: TLabel
+    Left = 8
+    Height = 21
+    Top = 88
+    Width = 168
+    Caption = 'Server welcome message'
+    ParentColor = False
+  end
+  object ButtonSaveSettings: TButton
+    Left = 711
+    Height = 25
+    Top = 72
+    Width = 92
+    Caption = 'Save settings'
+    OnClick = ButtonSaveSettingsClick
+    TabOrder = 13
+  end
+  object cAnnounceServer: TComboBox
+    Left = 280
+    Height = 21
+    Top = 24
+    Width = 96
+    ItemHeight = 15
+    ItemIndex = 0
+    Items.Strings = (
+      'True'
+      'False'
+    )
+    ReadOnly = True
+    Style = csOwnerDrawFixed
+    TabOrder = 14
+    Text = 'True'
+  end
+  object Button2: TButton
+    Left = 615
+    Height = 25
+    Top = 72
+    Width = 92
+    Caption = 'Load settings'
+    OnClick = ButtonSaveSettingsClick
+    TabOrder = 15
+  end
+  object cMaxRooms: TSpinEdit
+    Left = 496
+    Height = 28
+    Top = 64
+    Width = 112
+    TabOrder = 16
+    Value = 10
+  end
+  object Label10: TLabel
+    Left = 496
+    Height = 21
+    Top = 48
+    Width = 79
+    Caption = 'Max Rooms'
+    ParentColor = False
+  end
+  object cServerPort: TEdit
+    Left = 160
+    Height = 28
+    Top = 24
+    Width = 112
+    TabOrder = 17
+  end
+  object Label11: TLabel
+    Left = 160
+    Height = 21
+    Top = 8
+    Width = 73
+    Caption = 'Server Port'
+    ParentColor = False
+  end
+  object Timer: TTimer
+    Enabled = False
+    OnTimer = TimerTimer
+    left = 8
+    top = 120
+  end
+end

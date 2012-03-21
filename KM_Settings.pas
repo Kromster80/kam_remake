@@ -60,7 +60,7 @@ type
     fMaxRooms: integer;
     fAutoKickTimeout: integer;
     fPingInterval: integer;
-    fAnnounceServer: boolean;
+    fAnnounceServer: Boolean;
     fHTMLStatusFile: string;
     fServerWelcomeMessage: string;
     function LoadFromINI(FileName: string): Boolean;
@@ -82,6 +82,13 @@ type
     procedure SetLastPort(aValue:string);
     procedure SetLastRoom(aValue:string);
     procedure SetServerPort(aValue:string);
+    procedure SetServerWelcomeMessage(aValue: string);
+    procedure SetAnnounceServer(aValue:Boolean);
+    procedure SetAutoKickTimeout(aValue:integer);
+    procedure SetPingInterval(aValue:integer);
+    procedure SetMasterAnnounceInterval(eValue:integer);
+    procedure SetHTMLStatusFile(eValue:string);
+    procedure SetMaxRooms(eValue:integer);
   public
     //Temp for fight simulator
     fHitPointRestorePace:word;
@@ -110,13 +117,13 @@ type
     property ServerPort:string read fServerPort write SetServerPort;
     property MasterServerAddress:string read fMasterServerAddress write SetMasterServerAddress;
     property ServerName:string read fServerName write SetServerName;
-    property MasterAnnounceInterval:integer read fMasterAnnounceInterval;
-    property AnnounceServer:boolean read fAnnounceServer;
-    property MaxRooms:integer read fMaxRooms;
-    property AutoKickTimeout:integer read fAutoKickTimeout;
-    property PingInterval:integer read fPingInterval;
-    property HTMLStatusFile:string read fHTMLStatusFile;
-    property ServerWelcomeMessage:string read fServerWelcomeMessage;
+    property MasterAnnounceInterval:integer read fMasterAnnounceInterval write SetMasterAnnounceInterval;
+    property AnnounceServer:boolean read fAnnounceServer write SetAnnounceServer;
+    property MaxRooms:integer read fMaxRooms write SetMaxRooms;
+    property AutoKickTimeout:integer read fAutoKickTimeout write SetAutoKickTimeout;
+    property PingInterval:integer read fPingInterval write SetPingInterval;
+    property HTMLStatusFile:string read fHTMLStatusFile write SetHTMLStatusFile;
+    property ServerWelcomeMessage:string read fServerWelcomeMessage write SetServerWelcomeMessage;
   end;
 
 
@@ -175,6 +182,47 @@ begin
   fNeedsSave := False;
 end;
 
+procedure TGameSettings.SetMaxRooms(eValue:integer);
+begin
+  fMaxRooms   := eValue;
+  fNeedsSave  := True;
+end;
+
+procedure TGameSettings.SetHTMLStatusFile(eValue:string);
+begin
+  fHTMLStatusFile   := eValue;
+  fNeedsSave        := True;
+end;
+
+procedure TGameSettings.SetMasterAnnounceInterval(eValue:integer);
+begin
+  fMasterAnnounceInterval := eValue;
+  fNeedsSave              := True;
+end;
+
+procedure TGameSettings.SetPingInterval(aValue:integer);
+begin
+  fPingInterval    := aValue;
+  fNeedsSave       := True;
+end;
+
+procedure TGameSettings.SetAutoKickTimeout(aValue:integer);
+begin
+  fAutoKickTimeout := aValue;
+  fNeedsSave       := True;
+end;
+
+procedure TGameSettings.SetAnnounceServer(aValue:Boolean);
+begin
+  fAnnounceServer := aValue;
+  fNeedsSave      := True;
+end;
+
+procedure TGameSettings.SetServerWelcomeMessage(aValue: string);
+begin
+  fServerWelcomeMessage := aValue;
+  fNeedsSave            := True;
+end;
 
 procedure TMainSettings.SetFullScreen(aValue: boolean);
 begin

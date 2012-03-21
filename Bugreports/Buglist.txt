@@ -50,6 +50,7 @@ Improvements:
  +	Minimap preview for saves (store raw color data at the begining of the save so it's fast)
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Saves scan should be done in separate thread to unlock GUI [Maciej]
+ wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	High quality alpha-blended shadows for houses (only once constructed?)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
@@ -65,7 +66,6 @@ Improvements:
 	Fade music during campaign story screens (and other places?)
 	Add support for 1024x600 (1280x720) resolution
 	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
-	Simple dedicated server form which lets you set the properties of the INI for the server and start it
 	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile) {not sure about this one}
 	Show the mining radius of the selected house or house that you are placing
 	Master server in MySQL and support multiple revisions at once

@@ -1,0 +1,380 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <MainUnit Value="0"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <i18n>
+      <EnableI18N LFM="False"/>
+    </i18n>
+    <VersionInfo>
+      <StringTable ProductVersion=""/>
+    </VersionInfo>
+    <BuildModes Count="1" Active="Default">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="20">
+      <Unit0>
+        <Filename Value="KaM_DedicatedServerGUI.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="KaM_DedicatedServerGUI"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="3" Y="10"/>
+        <UsageCount Value="39"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="unitmain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FormMain"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UnitMain"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="67"/>
+        <CursorPos X="34" Y="84"/>
+        <UsageCount Value="39"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\..\KM_DedicatedServer.pas"/>
+        <UnitName Value="KM_DedicatedServer"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="56"/>
+        <CursorPos X="37" Y="87"/>
+        <UsageCount Value="11"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\..\KM_Log.pas"/>
+        <UnitName Value="KM_Log"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="118"/>
+        <CursorPos X="1" Y="131"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\..\KM_Settings.pas"/>
+        <UnitName Value="KM_Settings"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="186"/>
+        <CursorPos X="40" Y="200"/>
+        <UsageCount Value="16"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="KM_ServerEventHandlerGUI.pas"/>
+        <UnitName Value="KM_ServerEventHandlerGUI"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="27" Y="1"/>
+        <UsageCount Value="21"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="..\..\KM_MasterServer.pas"/>
+        <UnitName Value="KM_MasterServer"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="34"/>
+        <CursorPos X="46" Y="23"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="KM_ServerEventHandler.pas"/>
+        <UnitName Value="KM_ServerEventHandler"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="46"/>
+        <UsageCount Value="9"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="..\..\KM_NetServerLNet.pas"/>
+        <UnitName Value="KM_NetServerLNet"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="67"/>
+        <CursorPos X="1" Y="83"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="..\..\KM_NetServer.pas"/>
+        <UnitName Value="KM_NetServer"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="261"/>
+        <CursorPos X="26" Y="272"/>
+        <UsageCount Value="11"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="..\..\KM_EventProcess.pas"/>
+        <UnitName Value="KM_EventProcess"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="371"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="..\..\KM_CommonEvents.pas"/>
+        <UnitName Value="KM_CommonEvents"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="16" Y="10"/>
+        <UsageCount Value="11"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="C:\lazarus\fpc\2.4.4\source\rtl\objpas\classes\classesh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="108"/>
+        <CursorPos X="3" Y="123"/>
+        <UsageCount Value="10"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="..\TranslationManager\Unit1.pas"/>
+        <UnitName Value="Unit1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="..\..\KaM_Remake.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="32" Y="8"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="C:\lazarus\lcl\forms.pp"/>
+        <UnitName Value="Forms"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="55"/>
+        <CursorPos X="35" Y="70"/>
+        <UsageCount Value="10"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="..\DedicatedServer\KaM_DedicatedServer.dpr"/>
+        <UnitName Value="KaM_DedicatedServer"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="24" Y="9"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="..\DedicatedServer\KM_ServerEventHandler.pas"/>
+        <UnitName Value="KM_ServerEventHandler"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="14"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="C:\lazarus\fpc\2.4.4\source\rtl\objpas\sysutils\sysutilh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="263"/>
+        <CursorPos X="13" Y="278"/>
+        <UsageCount Value="10"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="C:\lazarus\fpc\2.4.4\source\rtl\objpas\sysutils\sysutils.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="126"/>
+        <CursorPos X="25" Y="148"/>
+        <UsageCount Value="10"/>
+      </Unit19>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="183" Column="14" TopLine="158"/>
+      </Position1>
+      <Position2>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="184" Column="14" TopLine="159"/>
+      </Position2>
+      <Position3>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="186" Column="14" TopLine="161"/>
+      </Position3>
+      <Position4>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="191" Column="12" TopLine="166"/>
+      </Position4>
+      <Position5>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="193" Column="63" TopLine="168"/>
+      </Position5>
+      <Position6>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="194" Column="63" TopLine="169"/>
+      </Position6>
+      <Position7>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="195" Column="16" TopLine="170"/>
+      </Position7>
+      <Position8>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="199" Column="63" TopLine="174"/>
+      </Position8>
+      <Position9>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="200" Column="63" TopLine="175"/>
+      </Position9>
+      <Position10>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="201" Column="63" TopLine="176"/>
+      </Position10>
+      <Position11>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="202" Column="63" TopLine="177"/>
+      </Position11>
+      <Position12>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="203" Column="63" TopLine="178"/>
+      </Position12>
+      <Position13>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="204" Column="63" TopLine="179"/>
+      </Position13>
+      <Position14>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="88" Column="55" TopLine="67"/>
+      </Position14>
+      <Position15>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="73" Column="6" TopLine="67"/>
+      </Position15>
+      <Position16>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="88" Column="1" TopLine="74"/>
+      </Position16>
+      <Position17>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="98" Column="19" TopLine="77"/>
+      </Position17>
+      <Position18>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="71" Column="19" TopLine="66"/>
+      </Position18>
+      <Position19>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="127" Column="21" TopLine="102"/>
+      </Position19>
+      <Position20>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="9" Column="84" TopLine="1"/>
+      </Position20>
+      <Position21>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="71" Column="19" TopLine="46"/>
+      </Position21>
+      <Position22>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="127" Column="21" TopLine="108"/>
+      </Position22>
+      <Position23>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="134" Column="21" TopLine="109"/>
+      </Position23>
+      <Position24>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="131" Column="25" TopLine="110"/>
+      </Position24>
+      <Position25>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="134" Column="21" TopLine="110"/>
+      </Position25>
+      <Position26>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="135" Column="21" TopLine="110"/>
+      </Position26>
+      <Position27>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="148" Column="21" TopLine="123"/>
+      </Position27>
+      <Position28>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="147" Column="18" TopLine="127"/>
+      </Position28>
+      <Position29>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="91" Column="1" TopLine="76"/>
+      </Position29>
+      <Position30>
+        <Filename Value="unitmain.pas"/>
+        <Caret Line="121" Column="15" TopLine="70"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <SearchPaths>
+      <IncludeFiles Value="..\..;..\..\Common;..\..\Common\LNet;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..;..\..\Common;..\..\Common\LNet"/>
+    </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <SyntaxMode Value="Delphi"/>
+      </SyntaxOptions>
+    </Parsing>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerMessages>
+        <UseMsgFile Value="True"/>
+      </CompilerMessages>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
