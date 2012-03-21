@@ -15,6 +15,7 @@ object Form1: TForm1
   Scaled = False
   WindowState = wsMaximized
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   DesignSize = (
     769
     441)

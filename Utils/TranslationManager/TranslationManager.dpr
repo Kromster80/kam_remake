@@ -1,13 +1,10 @@
 program TranslationManager;
-
-{$IFDEF FPC}
-  {$Mode Delphi} {$H+}
-{$ENDIF}
-
+{$I ..\..\KaM_Remake.inc}
 uses
   {$IFDEF FPC} Interfaces, {$ENDIF}
   Forms,
-  Unit1 in 'Unit1.pas' {Form1};
+  Unit1 in 'Unit1.pas' {Form1},
+  Unit_Text in 'Unit_Text.pas';
 
 {$IFDEF WDC}
 {$R *.res}
