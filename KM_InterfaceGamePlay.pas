@@ -38,6 +38,7 @@ type
     LastBarracksUnit:byte; //Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList:TKMMessageList;
 
+    procedure Create_Controls_Page;
     procedure Create_Replay_Page;
     procedure Create_Allies_Page;
     procedure Create_Chat_Page;
@@ -126,10 +127,12 @@ type
     procedure DirectionCursorShow(X,Y: Integer; Dir:TKMDirection);
     procedure DirectionCursorHide;
   protected
-    Panel_Main:TKMPanel;
-      Minimap:TKMMinimap;
+    Panel_Main: TKMPanel;
+      Sidebar_Top: TKMImage;
+      Sidebar_Middle: TKMImage;
+      Minimap: TKMMinimap;
       Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_SoundsCount, Label_NetworkDelay, Label_Hint:TKMLabel;
-      Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
+
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
       Label_MPChatUnread: TKMLabel;
       Image_Message: array[0..MAX_VISIBLE_MSGS]of TKMImage; //Queue of messages covers 32*48=1536px height
@@ -140,6 +143,9 @@ type
       Image_DirectionCursor:TKMImage;
 
       Label_VictoryChance : TKMLabel;
+
+    Panel_Controls: TKMPanel;
+      Button_Main: array[1..5]of TKMButton; //4 common buttons + Return
 
     Panel_Replay:TKMPanel; //Bigger Panel to contain Shapes to block all interface below
     Panel_ReplayCtrl:TKMPanel; //Smaller Panel to contain replay controls
@@ -314,7 +320,7 @@ type
   public
     constructor Create(aScreenX, aScreenY: word); reintroduce;
     destructor Destroy; override;
-    procedure Resize(X,Y:word);
+    procedure Resize(X,Y: Word);
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
     procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
@@ -512,12 +518,12 @@ end;
 
 {Switch between pages}
 procedure TKMGamePlayInterface.SwitchPage(Sender: TObject);
-var i:integer; LastVisiblePage: TKMPanel;
+var I: Integer; LastVisiblePage: TKMPanel;
 
-  procedure Flip4MainButtons(ShowEm:boolean);
-  var k:integer;
+  procedure Flip4MainButtons(ShowEm: Boolean);
+  var K: Integer;
   begin
-    for k:=1 to 4 do Button_Main[k].Visible := ShowEm;
+    for K := 1 to 4 do Button_Main[K].Visible := ShowEm;
     Button_Main[5].Visible := not ShowEm;
     Label_MenuTitle.Visible := not ShowEm;
   end;
@@ -525,12 +531,13 @@ var i:integer; LastVisiblePage: TKMPanel;
 begin
   fMyControls.CtrlFocus := nil; //Panels that require control focus should set it themselves
 
-  if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
-     (Sender=Button_Main[3])or(Sender=Button_Main[4])or
-     (Sender=Button_Menu_Settings)or(Sender=Button_Menu_Quit) then begin
-    fShownHouse:=nil;
-    fShownUnit:=nil;
-    fPlayers.Selected:=nil;
+  if (Sender = Button_Main[1]) or (Sender = Button_Main[2])
+  or (Sender = Button_Main[3]) or (Sender = Button_Main[4])
+  or (Sender = Button_Menu_Settings) or (Sender = Button_Menu_Quit) then
+  begin
+    fShownHouse := nil;
+    fShownUnit := nil;
+    fPlayers.Selected := nil;
   end;
 
   //Reset the CursorMode, to cm_None
@@ -546,84 +553,76 @@ begin
   if LastVisiblePage = Panel_Settings then
     fGame.GlobalSettings.SaveSettings;
 
-  //First thing - hide all existing pages, except for message page
-  for i:=1 to Panel_Main.ChildCount do
-    if (Panel_Main.Childs[i] is TKMPanel)
-    and (Panel_Main.Childs[i] <> Panel_Allies)
-    and (Panel_Main.Childs[i] <> Panel_Chat)
-    and (Panel_Main.Childs[i] <> Panel_Message)
-    and (Panel_Main.Childs[i] <> Panel_Replay)
-    and (Panel_Main.Childs[i] <> Panel_Pause)
-    and (Panel_Main.Childs[i] <> Panel_NetWait)
-    and (Panel_Main.Childs[i] <> Panel_PlayMore)
-    and (Panel_Main.Childs[i] <> Panel_MPPlayMore) then
-      Panel_Main.Childs[i].Hide;
+  //Hide all existing pages
+  for I := 1 to Panel_Controls.ChildCount do
+    if (Panel_Controls.Childs[I] is TKMPanel) then
+      Panel_Controls.Childs[I].Hide;
 
-  //First thing - hide all existing pages
-    for i:=1 to Panel_House.ChildCount do
-      if Panel_House.Childs[i] is TKMPanel then
-        Panel_House.Childs[i].Hide;
+  //Hide all House sub-pages
+  for I := 1 to Panel_House.ChildCount do
+    if Panel_House.Childs[I] is TKMPanel then
+      Panel_House.Childs[I].Hide;
 
   //If Sender is one of 4 main buttons, then open the page, hide the buttons and show Return button
   Flip4MainButtons(false);
-  if Sender=Button_Main[1] then begin
+  if Sender = Button_Main[1] then begin
     Build_Fill(nil);
     Panel_Build.Show;
-    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_TAB_BUILD];
+    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_BUILD];
     Build_ButtonClick(Button_BuildRoad);
   end else
 
-  if Sender=Button_Main[2] then begin
+  if Sender = Button_Main[2] then begin
     Panel_Ratios.Show;
     SwitchPage_Ratios(Button_Ratios[1]); //Open 1st tab
-    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_TAB_DISTRIBUTE];
+    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_DISTRIBUTE];
   end else
 
-  if Sender=Button_Main[3] then begin
+  if Sender = Button_Main[3] then begin
     Stats_Fill(nil);
     Panel_Stats.Show;
-    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_TAB_STATISTICS];
+    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_STATISTICS];
   end else
 
-  if (Sender=Button_Main[4]) or (Sender=Button_Quit_No) or
-     ((Sender=Button_Main[5]) and (LastVisiblePage=Panel_Settings)) or
-     ((Sender=Button_Main[5]) and (LastVisiblePage=Panel_Load)) or
-     ((Sender=Button_Main[5]) and (LastVisiblePage=Panel_Save)) then begin
+  if (Sender = Button_Main[4]) or (Sender = Button_Quit_No) or
+     ((Sender = Button_Main[5]) and (LastVisiblePage = Panel_Settings)) or
+     ((Sender = Button_Main[5]) and (LastVisiblePage = Panel_Load)) or
+     ((Sender = Button_Main[5]) and (LastVisiblePage = Panel_Save)) then begin
     Menu_Fill(Sender); //Make sure updating happens before it is shown
-    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_TAB_OPTIONS];
+    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_OPTIONS];
     Panel_Menu.Show;
     Button_Menu_Load.Enabled := not fGame.MultiplayerMode; //No loading during multiplayer games
   end else
 
-  if Sender=Button_Menu_Save then begin
+  if Sender = Button_Menu_Save then begin
     Save_RefreshList; //Update savegames names
     Panel_Save.Show;
     fMyControls.CtrlFocus := Edit_Save;
-    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_SAVE_GAME];
+    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_SAVE_GAME];
   end else
 
-  if Sender=Button_Menu_Load then begin
+  if Sender = Button_Menu_Load then begin
     Load_RefreshList; //Update savegames names
     Panel_Load.Show;
-    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_LOAD_GAME];
+    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_LOAD_GAME];
   end else
 
-  if Sender=Button_Menu_Settings then begin
+  if Sender = Button_Menu_Settings then begin
     Menu_Settings_Fill;
     Panel_Settings.Show;
-    Label_MenuTitle.Caption:=fTextLibrary[TX_MENU_SETTINGS];
+    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_SETTINGS];
   end else
 
-  if Sender=Button_Menu_Quit then
+  if Sender = Button_Menu_Quit then
     Panel_Quit.Show
   else //If Sender is anything else - then show all 4 buttons and hide Return button
-    Flip4MainButtons(true);
+    Flip4MainButtons(True);
 
   //Now process all other kinds of pages
-  if (Sender=Panel_Unit) or (Sender=Panel_House)
-  or (Sender=Panel_House_Common) or (Sender=Panel_House_School)
-  or (Sender=Panel_HouseMarket) or (Sender=Panel_HouseBarracks)
-  or (Sender=Panel_HouseStore) or (Sender=Panel_HouseWoodcutter) then
+  if (Sender = Panel_Unit) or (Sender = Panel_House)
+  or (Sender = Panel_House_Common) or (Sender = Panel_House_School)
+  or (Sender = Panel_HouseMarket) or (Sender = Panel_HouseBarracks)
+  or (Sender = Panel_HouseStore) or (Sender = Panel_HouseWoodcutter) then
     TKMPanel(Sender).Show;
 
   //Place the cursor in the chatbox if it is open and nothing else has taken focus
@@ -634,9 +633,9 @@ end;
 
 procedure TKMGamePlayInterface.DisplayHint(Sender: TObject);
 begin
-  if (PrevHint = Sender) then exit; //Hint didn't changed
-  if Sender=nil then Label_Hint.Caption:=''
-                else Label_Hint.Caption:=TKMControl(Sender).Hint;
+  if (PrevHint = Sender) then Exit; //Hint didn't changed
+  if Sender = nil then Label_Hint.Caption := ''
+                else Label_Hint.Caption := TKMControl(Sender).Hint;
   PrevHint := Sender;
 end;
 
@@ -690,31 +689,12 @@ begin
 {Parent Page for whole toolbar in-game}
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
 
-    TKMImage.Create(Panel_Main,0,   0,224,200,407);
-    TKMImage.Create(Panel_Main,0, 200,224,168,554);
-    TKMImage.Create(Panel_Main,0, 368,224,400,404);
-    TKMImage.Create(Panel_Main,0, 768,224,400,404);
-    TKMImage.Create(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
+    Sidebar_Top       := TKMImage.Create(Panel_Main, 0,    0, 224, 200, 407);
+    Sidebar_Middle    := TKMImage.Create(Panel_Main, 0,  200, 224, 168, 554);
 
     Minimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
     Minimap.OnChange := Minimap_Update; //Allow dragging with LMB pressed
     Minimap.OnClickRight := Minimap_RightClick;
-
-    {Main 4 buttons +return button}
-    for i:=0 to 3 do begin
-      Button_Main[i+1] := TKMButton.Create(Panel_Main,  8+46*i, 372, 42, 36, 439+i);
-      Button_Main[i+1].OnClick := SwitchPage;
-    end;
-
-    Button_Main[1].Hint := fTextLibrary[TX_MENU_TAB_HINT_BUILD];
-    Button_Main[2].Hint := fTextLibrary[TX_MENU_TAB_HINT_DISTRIBUTE];
-    Button_Main[3].Hint := fTextLibrary[TX_MENU_TAB_HINT_STATISTICS];
-    Button_Main[4].Hint := fTextLibrary[TX_MENU_TAB_HINT_OPTIONS];
-
-    Button_Main[5] := TKMButton.Create(Panel_Main, 8, 372, 42, 36, 443);
-    Button_Main[5].OnClick := SwitchPage;
-    Button_Main[5].Hint := fTextLibrary[TX_MENU_TAB_HINT_GO_BACK];
-    Label_MenuTitle := TKMLabel.Create(Panel_Main, 54, 372, 138, 36, '', fnt_Metal, taLeft);
 
     Image_Clock := TKMImage.Create(Panel_Main,232,8,67,65,556);
     Image_Clock.Hide;
@@ -741,24 +721,7 @@ begin
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
-  Create_Build_Page;
-  Create_Ratios_Page;
-  Create_Stats_Page;
-  Create_Menu_Page;
-    Create_Save_Page;
-    Create_Load_Page;
-    Create_Settings_Page;
-    Create_Quit_Page;
-
-  Create_Unit_Page;
-
-  Create_House_Page;
-    Create_Market_Page;
-    Create_Store_Page;
-    Create_School_Page;
-    Create_Barracks_Page;
-    Create_Woodcutter_Page;
-    //Create_TownHall_Page; //I don't want to make it at all yet
+  Create_Controls_Page; //Includes all the child pages
 
   Create_NetWait_Page; //Overlay blocking everyhitng but sidestack and messages
   Create_Allies_Page; //MessagePage sibling
@@ -800,10 +763,16 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Resize(X,Y:word);
+procedure TKMGamePlayInterface.Resize(X,Y: Word);
+var ShowSwords: Boolean;
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
+
+  //Show swords filler if screen height allows
+  ShowSwords := (Panel_Main.Height >= Sidebar_Top.Height + Sidebar_Middle.Height + Panel_Controls.Height);
+  Sidebar_Middle.Visible := ShowSwords;
+  Panel_Controls.Top := Sidebar_Top.Height + Sidebar_Middle.Height * Byte(ShowSwords);
 end;
 
 
@@ -1045,6 +1014,56 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Create_Controls_Page;
+var I: Integer;
+begin
+  Panel_Controls := TKMPanel.Create(Panel_Main, 0, 368, 224, 400);
+  Panel_Controls.Anchors := [akLeft, akTop];
+
+    //We need several of these to cover max of 1534x2560 (vertically oriented)
+    TKMImage.Create(Panel_Controls, 0,    0, 224, 400, 404);
+    TKMImage.Create(Panel_Controls, 0,  400, 224, 400, 404);
+    TKMImage.Create(Panel_Controls, 0,  800, 224, 400, 404);
+    TKMImage.Create(Panel_Controls, 0, 1200, 224, 400, 404);
+    TKMImage.Create(Panel_Controls, 0, 1600, 224, 400, 404);
+    TKMImage.Create(Panel_Controls, 0, 2000, 224, 400, 404);
+
+    //Main 4 buttons
+    for i := 0 to 3 do begin
+      Button_Main[i+1] := TKMButton.Create(Panel_Controls,  8+46*i, 4, 42, 36, 439+i);
+      Button_Main[i+1].OnClick := SwitchPage;
+    end;
+    Button_Main[1].Hint := fTextLibrary[TX_MENU_TAB_HINT_BUILD];
+    Button_Main[2].Hint := fTextLibrary[TX_MENU_TAB_HINT_DISTRIBUTE];
+    Button_Main[3].Hint := fTextLibrary[TX_MENU_TAB_HINT_STATISTICS];
+    Button_Main[4].Hint := fTextLibrary[TX_MENU_TAB_HINT_OPTIONS];
+
+    Button_Main[5] := TKMButton.Create(Panel_Controls, 8, 4, 42, 36, 443);
+    Button_Main[5].OnClick := SwitchPage;
+    Button_Main[5].Hint := fTextLibrary[TX_MENU_TAB_HINT_GO_BACK];
+    Label_MenuTitle := TKMLabel.Create(Panel_Controls, 54, 4, 138, 36, '', fnt_Metal, taLeft);
+
+  Create_Build_Page;
+  Create_Ratios_Page;
+  Create_Stats_Page;
+  Create_Menu_Page;
+    Create_Save_Page;
+    Create_Load_Page;
+    Create_Settings_Page;
+    Create_Quit_Page;
+
+  Create_Unit_Page;
+
+  Create_House_Page;
+    Create_Market_Page;
+    Create_Store_Page;
+    Create_School_Page;
+    Create_Barracks_Page;
+    Create_Woodcutter_Page;
+    //Create_TownHall_Page; //I don't want to make it at all yet
+end;
+
+
 {Allies page}
 procedure TKMGamePlayInterface.Create_Allies_Page;
 var i,k:integer;
@@ -1087,9 +1106,9 @@ end;
 
 {Build page}
 procedure TKMGamePlayInterface.Create_Build_Page;
-var i:integer;
+var I: Integer;
 begin
-  Panel_Build:=TKMPanel.Create(Panel_Main,0,412,196,400);
+  Panel_Build := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
     Label_Build := TKMLabel.Create(Panel_Build, 100, 10, 184, 30, '', fnt_Outline, taCenter);
     Image_Build_Selected := TKMImage.Create(Panel_Build, 8, 40, 32, 32, 335);
     Image_Build_Selected.ImageCenter;
@@ -1129,7 +1148,7 @@ procedure TKMGamePlayInterface.Create_Ratios_Page;
 const Res:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
 var i:integer;
 begin
-  Panel_Ratios:=TKMPanel.Create(Panel_Main,0,412,200,400);
+  Panel_Ratios:=TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
 
   for i:=1 to 4 do begin
     Button_Ratios[i]         := TKMButton.Create(Panel_Ratios, 8+(i-1)*40,20,32,32,0);
@@ -1158,7 +1177,7 @@ const LineHeight=34; Nil_Width=10; House_Width=30; Unit_Width=26;
 var i,k:integer; hc,uc,off:integer;
   LineBase:integer;
 begin
-  Panel_Stats:=TKMPanel.Create(Panel_Main,0,412,200,400);
+  Panel_Stats:=TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
 
   hc:=1; uc:=1;
   for i:=1 to 8 do begin
@@ -1228,7 +1247,7 @@ end;
 {Menu page}
 procedure TKMGamePlayInterface.Create_Menu_Page;
 begin
-  Panel_Menu:=TKMPanel.Create(Panel_Main,0,412,196,400);
+  Panel_Menu:=TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
     Button_Menu_Load:=TKMButton.Create(Panel_Menu,8,20,180,30,fTextLibrary[TX_MENU_LOAD_GAME],fnt_Metal);
     Button_Menu_Load.OnClick:=SwitchPage;
     Button_Menu_Load.Hint:=fTextLibrary[TX_MENU_LOAD_GAME];
@@ -1257,7 +1276,7 @@ end;
 {Save page}
 procedure TKMGamePlayInterface.Create_Save_Page;
 begin
-  Panel_Save := TKMPanel.Create(Panel_Main,0,412,200,400);
+  Panel_Save := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
 
     List_Save := TKMListBox.Create(Panel_Save, 12, 4, 170, 240, fnt_Metal);
     List_Save.OnChange := Save_ListChange;
@@ -1277,7 +1296,7 @@ end;
 {Load page}
 procedure TKMGamePlayInterface.Create_Load_Page;
 begin
-  Panel_Load := TKMPanel.Create(Panel_Main,0,412,200,400);
+  Panel_Load := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
 
     List_Load := TKMListBox.Create(Panel_Load, 12, 2, 170, 280, fnt_Metal);
     List_Load.OnChange := Load_ListClick;
@@ -1293,7 +1312,7 @@ end;
 {Options page}
 procedure TKMGamePlayInterface.Create_Settings_Page;
 begin
-  Panel_Settings := TKMPanel.Create(Panel_Main,0,412,200,400);
+  Panel_Settings := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
     CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,18,15,180,20,fTextLibrary[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
     TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,18,40,160,0,20);
@@ -1321,7 +1340,7 @@ end;
 {Quit page}
 procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
-  Panel_Quit := TKMPanel.Create(Panel_Main, 0, 412, 200, 400);
+  Panel_Quit := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
     TKMLabel.Create(Panel_Quit, 100, 30, 180, 70, fTextLibrary[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter);
     Button_Quit_Yes := TKMButton.Create(Panel_Quit, 8, 100, 180, 30, fTextLibrary[TX_MENU_QUIT_MISSION], fnt_Metal);
     Button_Quit_No := TKMButton.Create(Panel_Quit, 8, 140, 180, 30, fTextLibrary[TX_MENU_DONT_QUIT_MISSION], fnt_Metal);
@@ -1335,7 +1354,7 @@ end;
 {Unit page}
 procedure TKMGamePlayInterface.Create_Unit_Page;
 begin
-  Panel_Unit:=TKMPanel.Create(Panel_Main,0,412,200,400);
+  Panel_Unit := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
     Label_UnitName        := TKMLabel.Create(Panel_Unit,100,16,184,30,'',fnt_Outline,taCenter);
     Image_UnitPic         := TKMImage.Create(Panel_Unit,8,38,54,100,521);
     Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,30,fTextLibrary[TX_UNIT_CONDITION],fnt_Grey,taCenter);
@@ -1345,14 +1364,14 @@ begin
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
     Button_Unit_Dismiss   := TKMButton.Create(Panel_Unit,132,120,56,34,29);
 
-  Panel_Unit_Dismiss:=TKMPanel.Create(Panel_Unit,0,160,200,400);
+  Panel_Unit_Dismiss := TKMPanel.Create(Panel_Unit,0,160,200,400);
     Label_Unit_Dismiss             := TKMLabel.Create(Panel_Unit_Dismiss,100,16,184,30,'Are you sure?',fnt_Outline,taCenter);
     Button_Unit_DismissYes         := TKMButton.Create(Panel_Unit_Dismiss,50, 50,100,40,'Dismiss',fnt_Metal);
     Button_Unit_DismissNo          := TKMButton.Create(Panel_Unit_Dismiss,50,100,100,40,'Cancel',fnt_Metal);
     Button_Unit_DismissYes.OnClick := Unit_Dismiss;
     Button_Unit_DismissNo.OnClick  := Unit_Dismiss;
 
-  Panel_Army:=TKMPanel.Create(Panel_Unit,0,160,200,400);
+  Panel_Army := TKMPanel.Create(Panel_Unit,0,160,200,400);
     //Military buttons start at 8.170 and are 52x38/30 (60x46)
     Button_Army_GoTo   := TKMButton.Create(Panel_Army,  8,  0, 56, 40, 27);
     Button_Army_Stop   := TKMButton.Create(Panel_Army, 70,  0, 56, 40, 26);
@@ -1419,7 +1438,7 @@ end;
 procedure TKMGamePlayInterface.Create_House_Page;
 var i:integer;
 begin
-  Panel_House := TKMPanel.Create(Panel_Main,0,412,200,400);
+  Panel_House := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
     //Thats common things
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     Label_House := TKMLabel.Create(Panel_House,100,14,184,20,'',fnt_Outline,taCenter);
