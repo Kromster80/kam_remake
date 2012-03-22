@@ -31,7 +31,7 @@
 	Players that have intentionally quit (not just disconnected) should count as defeated
 	The market should be blocked in the original campaigns/tutorial (maybe have an option to enable it starting at later missions, but it still ruins the balance IMO)
 
-	Dots and lines displaying on tile edges (requires fResourceTiles) [Krom]
+	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor
 
 Improvements:

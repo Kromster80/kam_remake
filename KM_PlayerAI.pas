@@ -2,7 +2,7 @@ unit KM_PlayerAI;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, SysUtils,
-    KM_CommonClasses, KM_Defaults, KM_Terrain, KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points;
+    KM_CommonClasses, KM_Defaults, KM_Terrain, KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points, KM_Mayor;
 
 type //For now IDs must match with KaM
   TAIDefencePosType = (adt_FrontLine=0, //Front line troops may not go on attacks, they are for defence
@@ -30,6 +30,8 @@ type //For now IDs must match with KaM
   TKMPlayerAI = class
   private
     fPlayerIndex: TPlayerIndex;
+    fMayor: TKMayor;
+
     fTimeOfLastAttackMessage: cardinal;
     fLastEquippedTime: cardinal;
     fHasWonOrLost:boolean; //Has this player won/lost? If so, do not check goals
@@ -74,8 +76,8 @@ type //For now IDs must match with KaM
     function HouseAutoRepair:boolean; //Do we automatically repair all houses?
     procedure AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
 
@@ -169,6 +171,7 @@ begin
   inherited Create;
 
   fPlayerIndex := aPlayerIndex;
+  fMayor := TKMayor.Create(fPlayerIndex);
   fHasWonOrLost := false;
   fTimeOfLastAttackMessage := 0;
   DefencePositionsCount := 0;
@@ -197,6 +200,7 @@ end;
 destructor TKMPlayerAI.Destroy;
 var I: Integer;
 begin
+  fMayor.Free;
   fAttacks.Free;
   for I := 0 to DefencePositionsCount - 1 do
     DefencePositions[I].Free;
@@ -870,6 +874,7 @@ begin
                     CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
                     CheckArmy; //Feed army, position defence, arrange/organise groups
                     CheckArmiesCount; //Train new soldiers if needed
+                    fMayor.UpdateState;
                     //CheckHouseCount; //Build new houses if needed
                     //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
                     //CheckAndIssueAttack; //Attack enemy

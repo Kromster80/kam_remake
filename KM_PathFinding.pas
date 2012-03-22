@@ -41,12 +41,13 @@ type
     fIsInteractionAvoid: Boolean;
     fDestination: TDestinationPoint;
     fTargetHouse: TKMHouse;
+    fWeightRoutes: Boolean;
     function IsDestinationReached: Boolean;
     function MakeRoute: Boolean;
     procedure ReturnRoute(NodeList: TKMPointList);
   public
     constructor Create;
-    function Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassability; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
+    function Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassability; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList; aWeightRoutes: Boolean = True): Boolean;
     function Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass: TPassability; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
     function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect: TWalkConnect; aTargetNetwork: Byte; aPass: TPassability; NodeList: TKMPointList): Boolean;
     end;
@@ -64,7 +65,7 @@ end;
 
 //Find a route from A to B which meets aPass Passability
 //Results should be written as NodeCount of waypoint nodes to Nodes
-function TPathFinding.Route_Make(aLocA, aLocB: TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList): Boolean;
+function TPathFinding.Route_Make(aLocA, aLocB: TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList; aWeightRoutes: Boolean = True): Boolean;
 begin
   Result := False;
 
@@ -76,10 +77,13 @@ begin
   fDistance := aDistance;
   fIsInteractionAvoid := False;
   fTargetHouse := aTargetHouse;
+  fWeightRoutes := aWeightRoutes and DO_WEIGHT_ROUTES;
   if fTargetHouse = nil then
     fDestination := dp_Location
   else
     fDestination := dp_House;
+
+
 
   if MakeRoute then
   begin
@@ -200,7 +204,7 @@ begin
           //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
           if not KMSamePoint(fLocB, KMPoint(x,y)) then
           begin
-            if DO_WEIGHT_ROUTES and (fTerrain.Land[y,x].IsUnit <> nil) then
+            if fWeightRoutes and (fTerrain.Land[y,x].IsUnit <> nil) then
               Inc(OList[OCount].CostTo, 10); //Unit = 1 extra tile
             if fIsInteractionAvoid and fTerrain.TileIsLocked(KMPoint(x,y)) then
               Inc(OList[OCount].CostTo, 500); //In interaction avoid mode, working unit = 50 tiles
@@ -219,7 +223,7 @@ begin
       if OList[ORef[y,x]].Estim <> c_closed then
       begin
         fNewCost := Round(GetLength(KMPoint(x,y),fMinCost.Pos) * 10);
-        if DO_WEIGHT_ROUTES and (fTerrain.Land[y,x].IsUnit <> nil) then
+        if fWeightRoutes and (fTerrain.Land[y,x].IsUnit <> nil) then
           Inc(fNewCost, 10); //Unit = 1 extra tile
         if fIsInteractionAvoid and fTerrain.TileIsLocked(KMPoint(x,y)) then
           Inc(fNewCost, 500); //In interaction avoid mode, working unit = 50 tiles

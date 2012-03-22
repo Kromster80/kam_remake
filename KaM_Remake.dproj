@@ -94,6 +94,7 @@
 			<DCCReference Include="KM_ArmyEvaluation.pas"/>
 			<DCCReference Include="KM_BuildList.pas"/>
 			<DCCReference Include="KM_Campaigns.pas"/>
+			<DCCReference Include="KM_CityPlanner.pas"/>
 			<DCCReference Include="KM_CommonClasses.pas"/>
 			<DCCReference Include="KM_CommonEvents.pas"/>
 			<DCCReference Include="KM_Controls.pas"/>
@@ -123,6 +124,7 @@
 			<DCCReference Include="KM_Maps.pas"/>
 			<DCCReference Include="KM_MapView.pas"/>
 			<DCCReference Include="KM_MasterServer.pas"/>
+			<DCCReference Include="KM_Mayor.pas"/>
 			<DCCReference Include="KM_MissionScript.pas"/>
 			<DCCReference Include="KM_Music.pas"/>
 			<DCCReference Include="KM_NetClient.pas"/>
