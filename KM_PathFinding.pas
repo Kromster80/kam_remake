@@ -45,12 +45,15 @@ type
     function IsDestinationReached: Boolean;
     function MakeRoute: Boolean;
     procedure ReturnRoute(NodeList: TKMPointList);
+  protected
+    function CanWalkTo(aFrom, aTo: TKMPoint): Boolean; virtual;
+    function IsWalkableTile(aX, aY: Word): Boolean; virtual;
   public
     constructor Create;
     function Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassability; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList; aWeightRoutes: Boolean = True): Boolean;
     function Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass: TPassability; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
     function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect: TWalkConnect; aTargetNetwork: Byte; aPass: TPassability; NodeList: TKMPointList): Boolean;
-    end;
+  end;
 
 
 implementation
@@ -83,8 +86,6 @@ begin
   else
     fDestination := dp_House;
 
-
-
   if MakeRoute then
   begin
     ReturnRoute(NodeList);
@@ -95,7 +96,7 @@ end;
 
 
 //We are using Interaction Avoid mode (go around busy units)
-function TPathFinding.Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList):boolean;
+function TPathFinding.Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList):boolean;
 begin
   Result := False;
 
@@ -144,6 +145,19 @@ begin
 end;
 
 
+function TPathFinding.CanWalkTo(aFrom, aTo: TKMPoint): Boolean;
+begin
+  Result := fTerrain.CanWalkDiagonaly(aFrom, aTo);
+end;
+
+
+function TPathFinding.IsWalkableTile(aX, aY: Word): Boolean;
+begin
+  //If cell meets Passability then estimate it
+  Result := (fPass in fTerrain.Land[aY,aX].Passability);
+end;
+
+
 function TPathFinding.IsDestinationReached: Boolean;
 begin
   case fDestination of
@@ -187,16 +201,15 @@ begin
     for x := Math.max(fMinCost.Pos.X-1,1) to Math.min(fMinCost.Pos.X+1, fTerrain.MapX-1) do
     if ORef[y,x] = 0 then //Cell is new
     begin
-      if fTerrain.CanWalkDiagonaly(fMinCost.Pos, KMPoint(x,y)) then
+      if CanWalkTo(fMinCost.Pos, KMPoint(x,y)) then
       begin
-
         inc(OCount);
         if OCount >= Length(OList) then
           SetLength(OList, OCount + 128); //Allocate slightly more space
 
         OList[OCount].Pos := KMPoint(x,y);
 
-        if (fPass in fTerrain.Land[y,x].Passability) then //If cell meets Passability then estimate it
+        if IsWalkableTile(X, Y) then
         begin
           ORef[y,x] := OCount;
           OList[OCount].Parent := ORef[fMinCost.Pos.Y,fMinCost.Pos.X];

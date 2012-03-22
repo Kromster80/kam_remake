@@ -3,7 +3,7 @@ unit KM_Mayor;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_Defaults, KM_CommonClasses, KM_Points, KM_CityPlanner;
+  KM_Defaults, KM_CommonClasses, KM_Points, KM_CityPlanner, KM_PathfindingRoad;
 
 
 type
@@ -11,6 +11,7 @@ type
   private
     fOwner: TPlayerIndex;
     fCityPlanner: TKMCityPlanner;
+    fPathFindingRoad: TPathFindingRoad;
 
     fSerfFactor: Single; //Serfs per house
     procedure CheckHouseCount;
@@ -32,12 +33,14 @@ begin
   inherited Create;
   fOwner := aPlayer;
   fCityPlanner := TKMCityPlanner.Create(fOwner);
+  fPathFindingRoad := TPathFindingRoad.Create(fOwner);
 end;
 
 
 destructor TKMayor.Destroy;
 begin
   fCityPlanner.Free;
+  fPathFindingRoad.Free;
   inherited;
 end;
 
@@ -72,7 +75,7 @@ begin
 
         NodeList := TKMPointList.Create;
         try
-          RoadExists := fGame.PathFinding.Route_Make(Loc, KMPointBelow(S.GetEntrance), CanWalk, 0, nil, NodeList, False);
+          RoadExists := fPathFindingRoad.Route_Make(Loc, KMPointBelow(S.GetEntrance), CanWalk, 0, nil, NodeList, False);
 
           if RoadExists then
             for K := 0 to NodeList.Count - 1 do

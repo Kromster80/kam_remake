@@ -59,7 +59,7 @@ begin
 
   for I := Max(StoreLoc.Y - 10, 1) to Min(StoreLoc.Y + 10, fTerrain.MapY - 1) do
   for K := Max(StoreLoc.X - 10, 1) to Min(StoreLoc.X + 10, fTerrain.MapX - 1) do
-    if fTerrain.CanPlaceHouse(KMPoint(K,I), aHouse) then
+    if fPlayers[fOwner].CanAddHousePlan(KMPoint(K,I), aHouse) then
     begin
       Bid := GetLength(KMPoint(K,I), StoreLoc) + Random * 3;
       if Bid < BestBid then

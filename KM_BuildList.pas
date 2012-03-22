@@ -27,6 +27,7 @@ type
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
 
+
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
