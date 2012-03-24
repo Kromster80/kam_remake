@@ -4,7 +4,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, Spin,
+  ExtCtrls, Spin, ComCtrls,
   KM_Defaults,
   KM_Settings,
   KM_DedicatedServer,
@@ -15,52 +15,66 @@ type
   { TFormMain }
 
   TFormMain = class(TForm)
+    ButtonApply: TButton;
     ButtonSaveSettings: TButton;
     Button2: TButton;
-    cAnnounceServer: TComboBox;
+    cAnnounceServer: TCheckBox;
+    cAutoKickTimeout: TSpinEdit;
+    cHTMLStatusFile: TEdit;
+    cMasterAnnounceInterval: TSpinEdit;
+    cMasterServerAddress: TEdit;
     cMaxRooms: TSpinEdit;
+    cPingInterval: TSpinEdit;
+    cServerName: TEdit;
     cServerPort: TEdit;
+    cServerWelcomeMessage: TEdit;
     Label10: TLabel;
     Label11: TLabel;
-    SendCmdButton: TButton;
-    Edit1: TEdit;
-    cServerName: TEdit;
-    cMasterServerAddress: TEdit;
-    cHTMLStatusFile: TEdit;
-    cServerWelcomeMessage: TEdit;
-    Label1: TLabel;
     Label2: TLabel;
-    Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
+    PageControl1: TPageControl;
+    SendCmdButton: TButton;
+    Edit1: TEdit;
+    Label1: TLabel;
     ListBox1: TListBox;
     LogsMemo: TMemo;
     Panel1: TPanel;
     Panel2: TPanel;
-    cAutoKickTimeout: TSpinEdit;
-    cPingInterval: TSpinEdit;
-    cMasterAnnounceInterval: TSpinEdit;
     Splitter1: TSplitter;
     StartStopButton: TButton;
-    Timer: TTimer;
+    Basic: TTabSheet;
+    Advanced: TTabSheet;
+    procedure ButtonApplyClick(Sender: TObject);
     procedure ButtonSaveSettingsClick(Sender: TObject);
+    procedure cAnnounceServerChange(Sender: TObject);
+    procedure cAutoKickTimeoutChange(Sender: TObject);
+    procedure cHTMLStatusFileChange(Sender: TObject);
+    procedure cMasterAnnounceIntervalChange(Sender: TObject);
+    procedure cMasterServerAddressChange(Sender: TObject);
+    procedure cMaxRoomsChange(Sender: TObject);
+    procedure cPingIntervalChange(Sender: TObject);
+    procedure cServerNameChange(Sender: TObject);
+    procedure cServerPortChange(Sender: TObject);
+    procedure cServerWelcomeMessageChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure StartStopButtonClick(Sender: TObject);
-    procedure TimerTimer(Sender: TObject);
-  private
-    { private declarations }
-  public
-    { public declarations }
     procedure ChangeServerStatus(Status: Boolean);
     procedure LoadSettings(Sender: TObject);
     procedure ServerStatusMessage(const aData: string);
     procedure ServerStatusMessageNoTime(const aData: string);
+    procedure ChangeEnableStateOfControls(state: Boolean);
+    procedure ChangeEnableStateOfApplyButton(state: Boolean);
+  private
+    { private declarations }
+  public
+    { public declarations }
   end;
 
 var
@@ -80,7 +94,8 @@ implementation
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  ServerStatus:=false;
+  ServerStatus:=False;
+  ChangeEnableStateOfApplyButton(false);
 
   ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
   CreateDir(ExeDir + 'Logs');
@@ -93,11 +108,15 @@ begin
   LoadSettings(nil);
 end;
 
+
 procedure TFormMain.FormDestroy(Sender: TObject);
 begin
-  FormMain.ChangeServerStatus(false);
+  if (ServerStatus = True) then
+     ChangeServerStatus(False);
   FreeAndNil(fLog);
+  fSettings.Free;
 end;
+
 
 procedure TFormMain.ServerStatusMessage(const aData: string);
 begin
@@ -113,6 +132,7 @@ end;
 
 procedure TFormMain.StartStopButtonClick(Sender: TObject);
 begin
+  ButtonApply.Enabled:=True;
   if (ServerStatus = true) then
      FormMain.ChangeServerStatus(false)
   else
@@ -120,10 +140,22 @@ begin
 end;
 
 
+procedure TFormMain.ChangeEnableStateOfControls(state: Boolean);
+begin
+  cMaxRooms.Enabled                          := state;
+  cAnnounceServer.Enabled                    := state;
+  cMasterServerAddress.Enabled               := state;
+  cServerPort.Enabled                        := state;
+  cMasterAnnounceInterval.Enabled            := state;
+  cPingInterval.Enabled                      := state;
+end;
+
 procedure TFormMain.ChangeServerStatus(Status: Boolean);
 begin
   if (Status = true) then
   begin
+    ChangeEnableStateOfControls(False);
+
     fDedicatedServer := TKMDedicatedServer.Create(fSettings.MaxRooms,
                                                 fSettings.AutoKickTimeout,
                                                 fSettings.PingInterval,
@@ -137,20 +169,26 @@ begin
     ServerStatus:=Status;
     StartStopButton.Caption:='Server is ONLINE';
 
-    ServerStatusMessage('== KaM Remake '+GAME_VERSION+' Dedicated Server - Online ==');
-    ServerStatusMessageNoTime('');
-    ServerStatusMessage('Settings file: '+ExeDir+SETTINGS_FILE);
-    ServerStatusMessage('Log file: '+fLog.LogPath);
-    ServerStatusMessageNoTime('');
+    ServerStatusMessageNoTime     ('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
+    ServerStatusMessage           ('== KaM Remake '+GAME_VERSION+' Dedicated Server - Online ==');
+    ServerStatusMessageNoTime     ('');
+    ServerStatusMessage           ('Settings file: '+ExeDir+SETTINGS_FILE);
+    ServerStatusMessage           ('Log file: '+fLog.LogPath);
+    ServerStatusMessageNoTime     ('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
+    ServerStatusMessageNoTime     ('');
+    ChangeEnableStateOfApplyButton(False);
   end
   else
   begin
-    fDedicatedServer.Stop;
-    fDedicatedServer.Free;
+    ChangeEnableStateOfControls(True);
+    ChangeEnableStateOfApplyButton(False);
+
+    FreeAndNil(fDedicatedServer);
 
     ServerStatus:=Status;
     StartStopButton.Caption:='Server is OFFLINE';
     ServerStatusMessage('Dedicated Server is now Offline');
+    ServerStatusMessageNoTime('');
   end;
 end;
 
@@ -160,10 +198,9 @@ end;
 
 procedure TFormMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
-  if (CloseAction = caFree) then
-    Timer.Enabled:=False;
-
-  FormMain.ChangeServerStatus(false);
+ if (CloseAction = caFree) then
+  if (ServerStatus = True) then
+    ChangeServerStatus(false);
   FreeAndNil(fLog);
 end;
 
@@ -171,7 +208,7 @@ procedure TFormMain.ButtonSaveSettingsClick(Sender: TObject);
 begin
     fSettings.ServerName                            := cServerName.Text;
     fSettings.ServerWelcomeMessage                  := cServerWelcomeMessage.Text;
-    if (cAnnounceServer.Text = 'True') then
+    if (cAnnounceServer.Checked = True) then
        fSettings.AnnounceServer                     := True
     else
         fSettings.AnnounceServer                    := False;
@@ -184,6 +221,81 @@ begin
     fSettings.MaxRooms                              := cMaxRooms.Value;
 
     fSettings.SaveSettings(true);
+
+    ServerStatusMessage('Setting saved to: '+ExeDir+SETTINGS_FILE);
+    ServerStatusMessageNoTime('');
+end;
+
+procedure TFormMain.ChangeEnableStateOfApplyButton(state: Boolean);
+begin
+  if (ServerStatus = True) then
+     ButtonApply.Enabled:=state;
+end;
+
+
+procedure TFormMain.cAnnounceServerChange(Sender: TObject);
+begin
+  ChangeEnableStateOfApplyButton(True);
+end;
+
+procedure TFormMain.cAutoKickTimeoutChange(Sender: TObject);
+begin
+  ChangeEnableStateOfApplyButton(True);
+end;
+
+procedure TFormMain.cHTMLStatusFileChange(Sender: TObject);
+begin
+  ChangeEnableStateOfApplyButton(True);
+end;
+
+procedure TFormMain.cMasterAnnounceIntervalChange(Sender: TObject);
+begin
+  ChangeEnableStateOfApplyButton(True);
+end;
+
+procedure TFormMain.cMasterServerAddressChange(Sender: TObject);
+begin
+  ChangeEnableStateOfApplyButton(True);
+end;
+
+procedure TFormMain.cMaxRoomsChange(Sender: TObject);
+begin
+  ChangeEnableStateOfApplyButton(True);
+end;
+
+procedure TFormMain.cPingIntervalChange(Sender: TObject);
+begin
+  ChangeEnableStateOfApplyButton(True);
+end;
+
+procedure TFormMain.cServerNameChange(Sender: TObject);
+begin
+  ChangeEnableStateOfApplyButton(True);
+end;
+
+procedure TFormMain.cServerPortChange(Sender: TObject);
+begin
+  ChangeEnableStateOfApplyButton(True);
+end;
+
+procedure TFormMain.cServerWelcomeMessageChange(Sender: TObject);
+begin
+  ChangeEnableStateOfApplyButton(True);
+end;
+
+procedure TFormMain.ButtonApplyClick(Sender: TObject);
+begin
+  fSettings.SaveSettings(true);
+  fDedicatedServer.UpdateSettings(cServerName.Text,
+                                  cAnnounceServer.Checked,
+                                  cAutoKickTimeout.Value,
+                                  cPingInterval.Value,
+                                  cMasterAnnounceInterval.Value,
+                                  cMasterServerAddress.Text,
+                                  cHTMLStatusFile.Text,
+                                  cServerWelcomeMessage.Text);
+  ServerStatusMessage('Settings updated and are now live.');
+  ChangeEnableStateOfApplyButton(False);
 end;
 
 procedure TFormMain.LoadSettings(Sender: TObject);
@@ -193,9 +305,9 @@ begin
   cServerName.Text                                := fSettings.ServerName;
   cServerWelcomeMessage.Text                      := fSettings.ServerWelcomeMessage;
   if (fSettings.AnnounceServer = True) then
-     cAnnounceServer.Text                         := 'True'
+     cAnnounceServer.Checked                      := True
   else
-      cAnnounceServer.Text                        := 'False';
+      cAnnounceServer.Checked                     := False;
   cAutoKickTimeout.Value                          := fSettings.AutoKickTimeout;
   cPingInterval.Value                             := fSettings.PingInterval;
   cMasterAnnounceInterval.Value                   := fSettings.MasterAnnounceInterval;
@@ -203,12 +315,10 @@ begin
   cHTMLStatusFile.Text                            := fSettings.HTMLStatusFile;
   cServerPort.Text                                := fSettings.ServerPort;
   cMaxRooms.Value                                 := fSettings.MaxRooms;
+
+  ServerStatusMessageNoTime('');
 end;
 
-procedure TFormMain.TimerTimer(Sender: TObject);
-begin
-  LogsMemo.Lines.Add('test');
-end;
 
 end.
 

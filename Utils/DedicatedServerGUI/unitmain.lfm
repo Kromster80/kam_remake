@@ -1,7 +1,7 @@
 object FormMain: TFormMain
-  Left = 413
+  Left = 600
   Height = 507
-  Top = 109
+  Top = 165
   Width = 815
   Anchors = [akTop]
   Caption = 'KaM Dedicated Server'
@@ -10,22 +10,25 @@ object FormMain: TFormMain
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  Position = poScreenCenter
   LCLVersion = '0.9.30.2'
   object StartStopButton: TButton
-    Left = 615
+    Left = 623
     Height = 40
     Top = 24
-    Width = 188
+    Width = 180
+    Anchors = [akTop, akRight]
     Caption = 'Server is OFFLINE'
     OnClick = StartStopButtonClick
     ParentFont = False
-    TabOrder = 0
+    TabOrder = 6
   end
   object Label1: TLabel
-    Left = 615
+    Left = 606
     Height = 21
     Top = 8
     Width = 87
+    Anchors = [akTop, akRight]
     Caption = 'Server status:'
     ParentColor = False
   end
@@ -39,7 +42,7 @@ object FormMain: TFormMain
     BorderSpacing.Left = 8
     ClientHeight = 371
     ClientWidth = 204
-    TabOrder = 1
+    TabOrder = 0
     object ListBox1: TListBox
       Left = 1
       Height = 369
@@ -76,16 +79,20 @@ object FormMain: TFormMain
     Caption = 'Panel2'
     ClientHeight = 341
     ClientWidth = 602
-    TabOrder = 3
+    TabOrder = 1
     object LogsMemo: TMemo
       Left = 1
       Height = 339
       Top = 1
       Width = 600
       Align = alClient
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      ParentFont = False
       ReadOnly = True
       ScrollBars = ssBoth
       TabOrder = 0
+      TabStop = False
       WordWrap = False
     end
   end
@@ -96,7 +103,8 @@ object FormMain: TFormMain
     Top = 477
     Width = 530
     Anchors = [akLeft, akRight, akBottom]
-    TabOrder = 4
+    TabStop = False
+    TabOrder = 7
   end
   object SendCmdButton: TButton
     AnchorSideRight.Control = Splitter1
@@ -106,194 +114,219 @@ object FormMain: TFormMain
     Width = 72
     Anchors = [akRight, akBottom]
     Caption = 'Send'
-    TabOrder = 5
-  end
-  object cServerName: TEdit
-    Left = 8
-    Height = 28
-    Top = 24
-    Width = 144
-    TabOrder = 6
-  end
-  object Label2: TLabel
-    Left = 8
-    Height = 21
-    Top = 8
-    Width = 83
-    Caption = 'Server name'
-    ParentColor = False
-  end
-  object Label3: TLabel
-    Left = 280
-    Height = 21
-    Top = 8
-    Width = 112
-    Caption = 'Announce Server'
-    ParentColor = False
-  end
-  object cAutoKickTimeout: TSpinEdit
-    Left = 384
-    Height = 28
-    Top = 24
-    Width = 104
-    TabOrder = 7
-    Value = 10
-  end
-  object Label4: TLabel
-    Left = 384
-    Height = 21
-    Top = 8
-    Width = 117
-    Caption = 'Autokick Timeout'
-    ParentColor = False
-  end
-  object cPingInterval: TSpinEdit
-    Left = 496
-    Height = 28
-    Top = 24
-    Width = 112
-    TabOrder = 8
-    Value = 10
-  end
-  object Label5: TLabel
-    Left = 496
-    Height = 21
-    Top = 8
-    Width = 83
-    Caption = 'Ping interval'
-    ParentColor = False
-  end
-  object cMasterAnnounceInterval: TSpinEdit
-    Left = 8
-    Height = 28
-    Top = 64
-    Width = 144
-    TabOrder = 9
-    Value = 10
-  end
-  object Label6: TLabel
-    Left = 8
-    Height = 21
-    Top = 48
-    Width = 167
-    Caption = 'Master announce interval'
-    ParentColor = False
-  end
-  object cMasterServerAddress: TEdit
-    Left = 160
-    Height = 28
-    Top = 64
-    Width = 176
-    TabOrder = 10
-  end
-  object Label7: TLabel
-    Left = 160
-    Height = 21
-    Top = 48
-    Width = 144
-    Caption = 'Master server address'
-    ParentColor = False
-  end
-  object cHTMLStatusFile: TEdit
-    Left = 344
-    Height = 28
-    Top = 64
-    Width = 144
-    TabOrder = 11
-  end
-  object Label8: TLabel
-    Left = 344
-    Height = 21
-    Top = 48
-    Width = 107
-    Caption = 'HTML status file'
-    ParentColor = False
-  end
-  object cServerWelcomeMessage: TEdit
-    Left = 8
-    Height = 28
-    Top = 104
-    Width = 795
-    Anchors = [akTop, akLeft, akRight]
-    TabOrder = 12
-  end
-  object Label9: TLabel
-    Left = 8
-    Height = 21
-    Top = 88
-    Width = 168
-    Caption = 'Server welcome message'
-    ParentColor = False
+    TabOrder = 2
   end
   object ButtonSaveSettings: TButton
-    Left = 711
+    Left = 720
     Height = 25
     Top = 72
-    Width = 92
-    Caption = 'Save settings'
+    Width = 84
+    Anchors = [akTop, akRight]
+    Caption = 'Save to file'
     OnClick = ButtonSaveSettingsClick
-    TabOrder = 13
-  end
-  object cAnnounceServer: TComboBox
-    Left = 280
-    Height = 21
-    Top = 24
-    Width = 96
-    ItemHeight = 15
-    ItemIndex = 0
-    Items.Strings = (
-      'True'
-      'False'
-    )
-    ReadOnly = True
-    Style = csOwnerDrawFixed
-    TabOrder = 14
-    Text = 'True'
+    TabOrder = 3
   end
   object Button2: TButton
-    Left = 615
+    Left = 624
     Height = 25
     Top = 72
     Width = 92
-    Caption = 'Load settings'
-    OnClick = ButtonSaveSettingsClick
-    TabOrder = 15
+    Anchors = [akTop, akRight]
+    Caption = 'Load from file'
+    OnClick = LoadSettings
+    TabOrder = 4
   end
-  object cMaxRooms: TSpinEdit
-    Left = 496
-    Height = 28
-    Top = 64
-    Width = 112
-    TabOrder = 16
-    Value = 10
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 136
+    Top = 0
+    Width = 616
+    ActivePage = Advanced
+    Anchors = [akTop, akLeft, akRight]
+    TabIndex = 1
+    TabOrder = 8
+    object Basic: TTabSheet
+      Caption = 'Basic'
+      ClientHeight = 103
+      ClientWidth = 608
+      object cServerWelcomeMessage: TEdit
+        Tag = 1
+        Left = 8
+        Height = 28
+        Top = 72
+        Width = 588
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = cServerWelcomeMessageChange
+        TabOrder = 0
+      end
+      object Label9: TLabel
+        Left = 8
+        Height = 21
+        Top = 56
+        Width = 168
+        Caption = 'Server welcome message'
+        ParentColor = False
+      end
+      object cServerName: TEdit
+        Tag = 1
+        Left = 8
+        Height = 28
+        Top = 24
+        Width = 332
+        OnChange = cServerNameChange
+        TabOrder = 1
+      end
+      object Label2: TLabel
+        Left = 8
+        Height = 21
+        Top = 8
+        Width = 83
+        Caption = 'Server name'
+        ParentColor = False
+      end
+      object cMaxRooms: TSpinEdit
+        Left = 348
+        Height = 28
+        Top = 24
+        Width = 112
+        OnChange = cMaxRoomsChange
+        TabOrder = 2
+        Value = 10
+      end
+      object Label10: TLabel
+        Left = 348
+        Height = 21
+        Top = 8
+        Width = 79
+        Caption = 'Max Rooms'
+        ParentColor = False
+      end
+      object cAnnounceServer: TCheckBox
+        Left = 475
+        Height = 24
+        Top = 26
+        Width = 135
+        Caption = 'Announce Server'
+        OnChange = cAnnounceServerChange
+        TabOrder = 3
+      end
+    end
+    object Advanced: TTabSheet
+      Caption = 'Advanced'
+      ClientHeight = 103
+      ClientWidth = 608
+      object cAutoKickTimeout: TSpinEdit
+        Tag = 1
+        Left = 10
+        Height = 28
+        Top = 74
+        Width = 104
+        OnChange = cAutoKickTimeoutChange
+        TabOrder = 0
+        Value = 10
+      end
+      object Label4: TLabel
+        Left = 10
+        Height = 21
+        Top = 56
+        Width = 117
+        Caption = 'Autokick Timeout'
+        ParentColor = False
+      end
+      object cPingInterval: TSpinEdit
+        Left = 124
+        Height = 28
+        Top = 74
+        Width = 112
+        OnChange = cPingIntervalChange
+        TabOrder = 1
+        Value = 10
+      end
+      object Label5: TLabel
+        Left = 124
+        Height = 21
+        Top = 56
+        Width = 83
+        Caption = 'Ping interval'
+        ParentColor = False
+      end
+      object cMasterServerAddress: TEdit
+        Left = 10
+        Height = 28
+        Top = 24
+        Width = 250
+        OnChange = cMasterServerAddressChange
+        TabOrder = 2
+      end
+      object Label7: TLabel
+        Left = 10
+        Height = 21
+        Top = 8
+        Width = 144
+        Caption = 'Master server address'
+        ParentColor = False
+      end
+      object cMasterAnnounceInterval: TSpinEdit
+        Left = 364
+        Height = 28
+        Top = 24
+        Width = 144
+        OnChange = cMasterAnnounceIntervalChange
+        TabOrder = 3
+        Value = 10
+      end
+      object Label6: TLabel
+        Left = 364
+        Height = 21
+        Top = 8
+        Width = 167
+        Caption = 'Master announce interval'
+        ParentColor = False
+      end
+      object cHTMLStatusFile: TEdit
+        Tag = 1
+        Left = 244
+        Height = 28
+        Top = 74
+        Width = 184
+        OnChange = cHTMLStatusFileChange
+        TabOrder = 4
+      end
+      object Label8: TLabel
+        Left = 244
+        Height = 21
+        Top = 56
+        Width = 107
+        Caption = 'HTML status file'
+        ParentColor = False
+      end
+      object cServerPort: TEdit
+        Left = 268
+        Height = 28
+        Top = 24
+        Width = 88
+        OnChange = cServerPortChange
+        TabOrder = 5
+      end
+      object Label11: TLabel
+        Left = 268
+        Height = 21
+        Top = 8
+        Width = 73
+        Caption = 'Server Port'
+        ParentColor = False
+      end
+    end
   end
-  object Label10: TLabel
-    Left = 496
-    Height = 21
-    Top = 48
-    Width = 79
-    Caption = 'Max Rooms'
-    ParentColor = False
-  end
-  object cServerPort: TEdit
-    Left = 160
-    Height = 28
-    Top = 24
-    Width = 112
-    TabOrder = 17
-  end
-  object Label11: TLabel
-    Left = 160
-    Height = 21
-    Top = 8
-    Width = 73
-    Caption = 'Server Port'
-    ParentColor = False
-  end
-  object Timer: TTimer
+  object ButtonApply: TButton
+    Left = 624
+    Height = 25
+    Top = 104
+    Width = 179
+    Anchors = [akTop, akRight]
+    Caption = 'Apply settings live and save'
     Enabled = False
-    OnTimer = TimerTimer
-    left = 8
-    top = 120
+    OnClick = ButtonApplyClick
+    TabOrder = 9
   end
 end
