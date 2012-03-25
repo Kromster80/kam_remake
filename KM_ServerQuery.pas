@@ -19,7 +19,6 @@ type
   TKMRoomInfo = record
     ServerIndex: Integer; //Points to some TKMServerInfo in TKMServerList
     RoomID: Integer;
-    PlayerCount: Integer;
     OnlyRoom: Boolean; //Is this the only room in the server?
     GameInfo: TMPGameInfo;
   end;
@@ -59,7 +58,7 @@ type
   private
     fCount:integer;
     fRooms:array of TKMRoomInfo;
-    procedure AddRoom(aServerIndex, aRoomID, aPlayerCount: Integer; aOnlyRoom:Boolean; aGameInfoText: string);
+    procedure AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoText: string);
     function GetRoom(aIndex: Integer): TKMRoomInfo;
     procedure Clear;
   public
@@ -134,12 +133,11 @@ begin
 end;
 
 
-procedure TKMRoomList.AddRoom(aServerIndex, aRoomID, aPlayerCount: Integer; aOnlyRoom:Boolean; aGameInfoText: string);
+procedure TKMRoomList.AddRoom(aServerIndex, aRoomID: Integer; aOnlyRoom:Boolean; aGameInfoText: string);
 begin
   if Length(fRooms) <= fCount then SetLength(fRooms, fCount+16);
   fRooms[fCount].ServerIndex := aServerIndex;
   fRooms[fCount].RoomID := aRoomID;
-  fRooms[fCount].PlayerCount := aPlayerCount;
   fRooms[fCount].OnlyRoom := aOnlyRoom;
   fRooms[fCount].GameInfo := TMPGameInfo.Create;
   fRooms[fCount].GameInfo.LoadFromText(aGameInfoText);
@@ -164,16 +162,15 @@ end;
 
 
 procedure TKMRoomList.LoadData(aServerID:integer; M:TKMemoryStream);
-var i, RoomCount, RoomID, PlayerCount: Integer; GameInfoText: string;
+var i, RoomCount, RoomID: Integer; GameInfoText: string;
 begin
   M.Position := 0;
   M.Read(RoomCount);
   for i:=0 to RoomCount-1 do //We don't actually use i as the server sends us RoomID (rooms might not be in order)
   begin
     M.Read(RoomID);
-    M.Read(PlayerCount);
     M.Read(GameInfoText);
-    AddRoom(aServerID, RoomID, PlayerCount, (RoomCount = 1), GameInfoText);
+    AddRoom(aServerID, RoomID, (RoomCount = 1), GameInfoText);
   end;
 end;
 
@@ -471,8 +468,8 @@ procedure TKMServerQuery.Sort;
       ssmByPingDesc:    Result := AServerInfo.Ping < BServerInfo.Ping;
       ssmByStateAsc:    Result := StateSortOrder[A.GameInfo.GameState] > StateSortOrder[B.GameInfo.GameState];
       ssmByStateDesc:   Result := StateSortOrder[A.GameInfo.GameState] < StateSortOrder[B.GameInfo.GameState];
-      ssmByPlayersAsc:  Result := A.PlayerCount > B.PlayerCount;
-      ssmByPlayersDesc: Result := A.PlayerCount < B.PlayerCount;
+      ssmByPlayersAsc:  Result := A.GameInfo.PlayerCount > B.GameInfo.PlayerCount;
+      ssmByPlayersDesc: Result := A.GameInfo.PlayerCount < B.GameInfo.PlayerCount;
     end;
   end;
 

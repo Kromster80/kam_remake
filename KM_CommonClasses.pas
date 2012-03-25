@@ -52,6 +52,7 @@ type
   TMPGameInfo = class
   public
     GameState:TMPGameState;
+    PlayerCount: byte;
     Players:string;
     Map:string;
     GameTime:TDateTime;
@@ -152,6 +153,7 @@ begin
   try
     M.WriteAsText(aText);
     M.Read(GameState, SizeOf(GameState));
+    M.Read(PlayerCount);
     M.Read(Players);
     M.Read(Map);
     M.Read(GameTime, SizeOf(GameTime));
@@ -176,6 +178,7 @@ begin
   M := TKMemoryStream.Create;
 
   M.Write(GameState, SizeOf(GameState));
+  M.Write(PlayerCount);
   M.Write(Players);
   M.Write(Map);
   M.Write(GameTime, SizeOf(GameTime));

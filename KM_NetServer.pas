@@ -102,7 +102,7 @@ type
     function IsValidHandle(aHandle:integer):boolean;
     function AddNewRoom:boolean;
     function GetFirstAvailableRoom:integer;
-    function GetRoomPlayersCount(aRoom:integer):integer;
+    function GetRoomClientsCount(aRoom:integer):integer;
     function GetFirstRoomClient(aRoom:integer):integer;
     procedure AddClientToRoom(aHandle, Room:integer);
     procedure SaveHTMLStatus;
@@ -424,7 +424,7 @@ begin
   //Assign a new host
   if fRoomInfo[Room].HostHandle = aHandle then
   begin
-    if GetRoomPlayersCount(Room) = 0 then
+    if GetRoomClientsCount(Room) = 0 then
     begin
       fRoomInfo[Room].HostHandle := NET_ADDRESS_EMPTY; //Room is now empty so we don't need a new host
       fRoomInfo[Room].GameInfo.Free;
@@ -607,11 +607,11 @@ end;
 
 
 procedure TKMNetServer.SaveServerInfo(M: TKMemoryStream);
-var i, RoomsNeeded, PlayerCount, EmptyRoomID: integer; NeedEmptyRoom: boolean;
+var i, RoomsNeeded, EmptyRoomID: integer; NeedEmptyRoom: boolean;
 begin
   RoomsNeeded := 0;
   for i:=0 to fRoomCount-1 do
-    if GetRoomPlayersCount(i) > 0 then
+    if GetRoomClientsCount(i) > 0 then
       inc(RoomsNeeded);
 
   if RoomsNeeded < fMaxRooms then
@@ -626,26 +626,21 @@ begin
   EmptyRoomID := fRoomCount;
   for i:=0 to fRoomCount-1 do
   begin
-    PlayerCount := GetRoomPlayersCount(i);
-    if PlayerCount = 0 then
+    if GetRoomClientsCount(i) = 0 then
     begin
       if EmptyRoomID = fRoomCount then
         EmptyRoomID := i;
     end
     else
     begin
-      PlayerCount := GetRoomPlayersCount(i);
       M.Write(i); //RoomID
-      M.Write(PlayerCount);
       M.Write(fRoomInfo[i].GameInfo.GetAsText);
     end;
   end;
   //Write out the empty room at the end
   if NeedEmptyRoom then
   begin
-    PlayerCount := 0;
     M.Write(EmptyRoomID); //RoomID
-    M.Write(PlayerCount);
     M.Write(fEmptyGameInfo.GetAsText);
   end;
 end;
@@ -678,7 +673,7 @@ function TKMNetServer.GetFirstAvailableRoom:integer;
 var i:integer;
 begin
   for i:=0 to fRoomCount-1 do
-    if GetRoomPlayersCount(i) = 0 then
+    if GetRoomClientsCount(i) = 0 then
     begin
       Result := i;
       exit;
@@ -690,7 +685,7 @@ begin
 end;
 
 
-function TKMNetServer.GetRoomPlayersCount(aRoom:integer):integer;
+function TKMNetServer.GetRoomClientsCount(aRoom:integer):integer;
 var i:integer;
 begin
   Result := 0;
@@ -768,18 +763,18 @@ begin
   XML := XML + '<server>'+sLineBreak;
   RoomXML := '';
   for i:=0 to fRoomCount-1 do
-    if GetRoomPlayersCount(i) > 0 then
+    if GetRoomClientsCount(i) > 0 then
     begin
       inc(RoomCount);
-      inc(PlayerCount,GetRoomPlayersCount(i));
+      inc(PlayerCount,fRoomInfo[i].GameInfo.PlayerCount);
       HTML := HTML + '<TR><TD>'+IntToStr(i)+'</TD><TD>'+CleanString(GameStateText[fRoomInfo[i].GameInfo.GameState])+
-                     '</TD><TD>'+IntToStr(GetRoomPlayersCount(i))+
+                     '</TD><TD>'+IntToStr(fRoomInfo[i].GameInfo.PlayerCount)+
                      '</TD><TD>'+CleanString(fRoomInfo[i].GameInfo.Map)+
                      '&nbsp;</TD><TD>'+CleanString(fRoomInfo[i].GameInfo.GetFormattedTime)+
                      '&nbsp;</TD><TD>'+GetPlayersHTML(i)+'</TD></TR>'+sLineBreak;
       RoomXML := RoomXML + '  <room id="'+IntToStr(i)+'">'+sLineBreak+
                            '    <state>'+CleanString(GameStateText[fRoomInfo[i].GameInfo.GameState])+'</state>'+sLineBreak+
-                           '    <roomplayercount>'+IntToStr(GetRoomPlayersCount(i))+'</roomplayercount>'+sLineBreak+
+                           '    <roomplayercount>'+IntToStr(fRoomInfo[i].GameInfo.PlayerCount)+'</roomplayercount>'+sLineBreak+
                            '    <map>'+CleanString(fRoomInfo[i].GameInfo.Map)+'</map>'+sLineBreak+
                            '    <gametime>'+CleanString(fRoomInfo[i].GameInfo.GetFormattedTime)+'</gametime>'+sLineBreak+
                            '    <players>'+GetPlayersXML(i)+'</players>'+sLineBreak+

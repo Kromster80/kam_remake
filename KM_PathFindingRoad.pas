@@ -37,7 +37,7 @@ end;
 
 function TPathFindingRoad.IsWalkableTile(aX, aY: Word): Boolean;
 begin
-  Result := inherited and not fPlayers[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
+  Result := inherited IsWalkableTile(aX,aY) and not fPlayers[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
 end;
 
 

@@ -1324,6 +1324,7 @@ begin
   MPGameInfo.GameTime := aGameTime;
   MPGameInfo.GameState := NetMPGameState[fNetGameState];
   MPGameInfo.Players := fNetPlayers.GetSimpleAsText;
+  MPGameInfo.PlayerCount := fNetPlayers.GetConnectedCount;
   PacketSend(NET_ADDRESS_SERVER,mk_SetGameInfo,MPGameInfo.GetAsText,0);
   MPGameInfo.Free;
 end;

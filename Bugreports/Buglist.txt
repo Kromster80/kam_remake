@@ -17,7 +17,7 @@
  +	Putting a "/" in a save name causes an error (probably other characters like \ ? | too, we should restrict allowed chars)
  +	Entering text into port/room fields. They should accept only digits
  +	Pressing CTRL+ALT+DEL with a game running caused a "System error code 5" or "call to OS function failed" due to Windows denying accesss to Mouse.CursorPos for a moment
-	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
+ +	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered (grouped) by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies

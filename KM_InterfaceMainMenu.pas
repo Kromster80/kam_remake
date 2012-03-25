@@ -1711,7 +1711,7 @@ begin
 
     //Only show # if Server has more than 1 Room
     DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
-    ColList_Servers.AddItem([DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.PlayerCount), IntToStr(S.Ping)],
+    ColList_Servers.AddItem([DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.GameInfo.PlayerCount), IntToStr(S.Ping)],
                             [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)], I);
 
     //if server was selected, we need to select it again, because TKMColumnListBox was cleared
@@ -1720,6 +1720,7 @@ begin
          (S.Port = fSelectedServerInfo.Port) then
          begin
            ColList_Servers.ItemIndex := I;
+           MP_ServersClick(nil); //Shows info about this selected server
            if not InRange(I - ColList_Servers.TopIndex, 0, (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1) and
            (fJumpToSelectedServer) then begin
               if I < ColList_Servers.TopIndex + (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1 then

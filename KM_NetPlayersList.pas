@@ -93,6 +93,7 @@ type
     procedure GetNotReadyToPlayPlayers(aPlayerList:TStringList);
     function GetAICount:integer;
     function GetClosedCount:integer;
+    function GetConnectedCount:integer;
 
     procedure ResetLocAndReady;
     procedure SetAIReady;
@@ -661,6 +662,16 @@ begin
   Result := 0;
   for i:=1 to fCount do
     if fPlayers[i].PlayerNetType = npt_Closed then
+      inc(Result);
+end;
+
+
+function TKMPlayersList.GetConnectedCount:integer;
+var i:integer;
+begin
+  Result := 0;
+  for i:=1 to fCount do
+    if fPlayers[i].IsHuman and fPlayers[i].Connected then
       inc(Result);
 end;
 
