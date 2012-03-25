@@ -220,11 +220,6 @@ end;
 
 
 procedure TKMayor.CheckHouseCount;
-var
-  H: THouseType;
-  BestHouse: THouseType;
-  P: TKMPlayer;
-  Loc: TKMPoint;
 begin
   //Check if we have Store/Inn/School in adequate counts
   CheckVitalCount;

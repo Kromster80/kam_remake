@@ -897,7 +897,10 @@ end;
 
 
 function TTerrain.FindOre(aLoc:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint):Boolean;
-var i,k,RadLeft,RadRight,RadTop,RadBottom,R1,R2,R3,R4:integer; L:array[1..4]of TKMPointList;
+var i,k: Integer;
+  RadLeft, RadRight, RadTop, RadBottom: Integer;
+  R1,R2,R3,R4: Byte;
+  L: array [1..4] of TKMPointList;
 begin
   if not (Rt in [rt_IronOre, rt_GoldOre, rt_Coal]) then
     raise ELocError.Create('Wrong resource as Ore',aLoc);

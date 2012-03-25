@@ -7,12 +7,14 @@ uses
 
 
 type
+  TCityInfluence = (ciGold);
+
   TKMCityPlanner = class
   private
     fOwner: TPlayerIndex;
 
     //Stone, Wood, Farm, Wine, Coal,
-    //fInfluenceMap
+    fInfluenceMap: array of array of array [TCityInfluence] of Byte;
 
     function NextToHouse(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
@@ -21,6 +23,8 @@ type
   public
     constructor Create(aPlayer: TPlayerIndex);
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+
+    procedure UpdateInfluence;
   end;
 
 
@@ -191,5 +195,27 @@ begin
     end;
 end;
 
+
+procedure TKMCityPlanner.UpdateInfluence;
+var I, K: Integer;
+begin
+  SetLength(fInfluenceMap, fTerrain.MapX, fTerrain.MapY);
+
+  //Fill influence
+  for I := 1 to fTerrain.MapY - 2 do
+    for K := 1 to fTerrain.MapX - 1 do
+    begin
+      fInfluenceMap[I,K,ciGold] := Byte(CanBuildGold in fTerrain.Land[I,K].Passability) * 255;
+      fInfluenceMap[I+1,K,ciGold] := Byte(CanBuildGold in fTerrain.Land[I,K].Passability) * 255;
+    end;
+
+  //Blur
+  for I := 1 to fTerrain.MapY - 1 do
+    for K := 1 to fTerrain.MapX - 1 do
+      fInfluenceMap[I,K,ciGold] := Byte(CanBuildGold in fTerrain.Land[I,K].Passability) * 255;
+
+
+
+end;
 
 end.
