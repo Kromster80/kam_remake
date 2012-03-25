@@ -27,12 +27,15 @@ type
     fMapView: TKMMapView;
 
     fJumpToSelectedMap: Boolean;
+    fJumpToSelectedSave: Boolean;
     fJumpToSelectedServer: Boolean;
 
     fMap_Selected: Integer; //Selected map
     fMapCRC_Selected: Cardinal; //CRC of selected map
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
+    fSave_Selected: Integer; //Selected save
+    fSaveCRC_Selected: Cardinal; //CRC of selected save
     fSaves: TKMSavesCollection;
     fSavesMP: TKMSavesCollection;
     MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
@@ -99,6 +102,7 @@ type
     procedure Lobby_MapTypeRefreshDone(Sender: TObject);
     procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
+    procedure Lobby_SaveRefreshDone(Sender: TObject);
     procedure Lobby_OnReassignedToHost(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
     procedure Lobby_OnMessage(const aData:string);
@@ -109,11 +113,13 @@ type
     procedure Load_Click(Sender: TObject);
     procedure Load_Delete_Click(Sender: TObject);
     procedure Load_ListClick(Sender: TObject);
-    procedure Load_RefreshList;
+    procedure Load_RefreshList(Sender: TObject);
+    procedure Load_SavesSort(aIndex: Integer);
     procedure Load_DeleteConfirmation(aVisible:boolean);
     procedure Replays_ListClick(Sender: TObject);
     procedure Replay_TypeChange(Sender: TObject);
-    procedure Replays_RefreshList;
+    procedure Replays_RefreshList(Sender: TObject);
+    procedure Replays_SavesSort(aIndex: Integer);
     procedure Replays_Play(Sender: TObject);
     procedure MapEditor_Start(Sender: TObject);
     procedure MapEditor_SizeChange(Sender: TObject);
@@ -338,8 +344,8 @@ begin
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(true);
   fMap_Selected := -1; //None
-  fSaves := TKMSavesCollection.Create;
-  fSavesMP := TKMSavesCollection.Create;
+  fSaves := TKMSavesCollection.Create(False);
+  fSavesMP := TKMSavesCollection.Create(True);
 
   Panel_Main := TKMPanel.Create(fMyControls, (X - MENU_DESIGN_X) div 2,
                                              (Y - MENU_DESIGN_Y) div 2,
@@ -921,6 +927,7 @@ begin
 
     List_Load := TKMColumnListBox.Create(Panel_Load, 62, 85, 700, 468, fnt_Metal);
     List_Load.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
+    List_Load.OnColumnClick := Load_SavesSort;
     List_Load.OnChange := Load_ListClick;
     List_Load.OnDoubleClick := Load_Click;
 
@@ -1007,6 +1014,7 @@ begin
     List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 200, 700, 400, fnt_Metal);
     List_Replays.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Replays.OnChange := Replays_ListClick;
+    List_Replays.OnColumnClick := Replays_SavesSort;
     List_Replays.OnDoubleClick := Replays_Play;
 
     Button_ReplaysPlay := TKMButton.Create(Panel_Replays,337,630,350,30,fTextLibrary[TX_MENU_VIEW_REPLAY],fnt_Metal, bsMenu);
@@ -1249,8 +1257,12 @@ begin
      (Sender = Button_MapEdBack) or
      (Sender = Button_ErrorBack) or
      (Sender = Button_ResultsBack) or
-     (Sender = Button_ReplaysBack) then
-    Panel_MainMenu.Show;
+     (Sender = Button_ReplaysBack) then begin
+       if Sender = Button_ReplaysBack then
+         //scan should be terminated, it is no longer needed
+         fSaves.TerminateScan;
+       Panel_MainMenu.Show;
+     end;
 
   {Player leaves lobby (LAN text is updated)}
   if Sender=Button_LobbyBack then
@@ -1275,6 +1287,9 @@ begin
        if (Sender=Button_SingleBack) then
          //scan should be terminated, it is no longer needed
          fMaps.TerminateScan;
+       if (Sender=Button_LoadBack) then
+         //scan should be terminated, it is no longer needed
+         fSaves.TerminateScan;
        Panel_SinglePlayer.Show;
   end;
 
@@ -1296,7 +1311,6 @@ begin
   {Show SingleMap menu}
   if Sender=Button_SP_Single then
   begin
-
     //Stop current now scan so it can't add a map after we clear the list
     fMaps.TerminateScan;
     //Remove any old entries from UI
@@ -1308,13 +1322,27 @@ begin
 
   {Show Load menu}
   if Sender=Button_SP_Load then begin
-    Load_RefreshList;
+
+    //Stop current scan so it can't add a save after we clear the list
+    fSaves.TerminateScan;
+    fSave_Selected := -1;
+    fSaveCRC_Selected := 0;
+    Load_RefreshList(nil); //call it at least one time, so GUI is prepared even if there are no saves
+    //Initiate refresh and process each new save added
+    fSaves.Refresh(Load_RefreshList, False);
     Panel_Load.Show;
   end;
 
   {Show replays menu}
   if Sender=Button_MM_Replays then begin
-    Replays_RefreshList;
+
+    //Stop current scan so it can't add a replay after we clear the list
+    fSaves.TerminateScan;
+    fSave_Selected := -1;
+    fSaveCRC_Selected := 0;
+    Replays_RefreshList(nil); //call it at least one time, so GUI is prepared even if there are no replays
+    //Initiate refresh and process each new replay added
+    fSaves.Refresh(Replays_RefreshList, False);
     Panel_Replays.Show;
   end;
 
@@ -1479,42 +1507,39 @@ procedure TKMMainMenuInterface.SingleMap_RefreshList(Sender: TObject);
 var
   I, MapID: Integer;
 begin
+  //Updating MaxValue may change Position
+  ScrollBar_SingleMaps.MaxValue := Max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
+
+  //IDs of maps could changed, so use CRC to check
+  //which one was selected
+  for I := 0 to fMaps.Count-1 do
+    if (fMaps[I].CRC = fMapCRC_Selected) then
+        fMap_Selected := I;
+
+  if not InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1) and
+         (fJumpToSelectedMap) then begin
+            if fMap_Selected < ScrollBar_SingleMaps.Position + MENU_SP_MAPS_COUNT - 1 then
+              ScrollBar_SingleMaps.Position := fMap_Selected
+            else if fMap_Selected > ScrollBar_SingleMaps.Position + MENU_SP_MAPS_COUNT - 1 then
+              ScrollBar_SingleMaps.Position := fMap_Selected-MENU_SP_MAPS_COUNT + 1;
+            fJumpToSelectedMap := False;
+         end;
+
+  for I := 0 to MENU_SP_MAPS_COUNT - 1 do
   begin
-    //Updating MaxValue may change Position
-    ScrollBar_SingleMaps.MaxValue := Max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
-
-    //IDs of maps could changed, so use CRC to check
-    //which one was selected
-    for I := 0 to fMaps.Count-1 do
-      if (fMaps[I].CRC = fMapCRC_Selected) then
-          fMap_Selected := I;
-
-    if not InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1) and
-           (fJumpToSelectedMap) then begin
-              if fMap_Selected < ScrollBar_SingleMaps.Position + MENU_SP_MAPS_COUNT - 1 then
-                ScrollBar_SingleMaps.Position := fMap_Selected
-              else if fMap_Selected > ScrollBar_SingleMaps.Position + MENU_SP_MAPS_COUNT - 1 then
-                ScrollBar_SingleMaps.Position := fMap_Selected-MENU_SP_MAPS_COUNT + 1;
-              fJumpToSelectedMap := False;
-           end;
-
-    for I := 0 to MENU_SP_MAPS_COUNT - 1 do
+    MapID := ScrollBar_SingleMaps.Position + I;
+    if MapID <= fMaps.Count - 1 then
     begin
-      MapID := ScrollBar_SingleMaps.Position + I;
-      if MapID <= fMaps.Count - 1 then
-      begin
-        Image_SingleMode[I].TexID       := 28 + Byte(fMaps[MapID].Info.MissionMode <> mm_Tactic)*14;  //28 or 42
-        Label_SinglePlayers[I].Caption  := IntToStr(fMaps[MapID].Info.PlayerCount);
-        Label_SingleTitle1[I].Caption   := fMaps[MapID].FileName;
-        Label_SingleTitle2[I].Caption   := fMaps[MapID].SmallDesc;
-        Label_SingleSize[I].Caption     := fMaps[MapID].Info.MapSizeText;
-      end;
+      Image_SingleMode[I].TexID       := 28 + Byte(fMaps[MapID].Info.MissionMode <> mm_Tactic)*14;  //28 or 42
+      Label_SinglePlayers[I].Caption  := IntToStr(fMaps[MapID].Info.PlayerCount);
+      Label_SingleTitle1[I].Caption   := fMaps[MapID].FileName;
+      Label_SingleTitle2[I].Caption   := fMaps[MapID].SmallDesc;
+      Label_SingleSize[I].Caption     := fMaps[MapID].Info.MapSizeText;
     end;
-
-    Shape_SingleMap.Visible := InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
-    Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
-
   end;
+
+  Shape_SingleMap.Visible := InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
+  Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
 end;
 
 
@@ -2182,9 +2207,8 @@ begin
         end;
     3:  //Saved Game
         begin
-          fSavesMP.ScanSavesFolder(true);
+          fSavesMP.Refresh(Lobby_SaveRefreshDone, True);
           List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
-          List_Lobby.SetItems(fSavesMP.SavesList);
         end;
     else
         begin
@@ -2293,6 +2317,12 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.Lobby_SaveRefreshDone(Sender: TObject);
+begin
+  List_Lobby.SetItems(fSavesMP.SavesList);
+end;
+
+
 //We have been assigned to be the host of the game because the host disconnected. Reopen lobby page in correct mode.
 procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
 begin
@@ -2379,12 +2409,15 @@ end;
 procedure TKMMainMenuInterface.Load_ListClick(Sender: TObject);
 begin
   //Hide delete confirmation if player has selected a different savegame item
-  Load_DeleteConfirmation(false);
+  if (Sender = List_Load) then
+    Load_DeleteConfirmation(false);
   Button_Delete.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1);
   Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1)
                          and fSaves[List_Load.ItemIndex].IsValid;
   if Button_Load.Enabled then
   begin
+    fSave_Selected := List_Load.ItemIndex;
+    fSaveCRC_Selected := fSaves[List_Load.ItemIndex].CRC;
     fSaves[List_Load.ItemIndex].LoadMinimap(fMapView);
     Minimap_LoadPreview.UpdateFrom(fMapView);
     Minimap_LoadPreview.Show;
@@ -2398,6 +2431,7 @@ procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
   if not Button_Load.Enabled then exit; //This is also called by double clicking
   if not InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then Exit;
+  fSaves.TerminateScan; //stop scan as it is no longer needed
   fGame.StartSingleSave(fSaves[List_Load.ItemIndex].FileName);
 end;
 
@@ -2419,7 +2453,7 @@ begin
   begin
     PreviouslySelected := List_Load.ItemIndex;
     fSaves.DeleteSave(List_Load.ItemIndex);
-    Load_RefreshList;
+    Load_RefreshList(nil);
     if List_Load.RowCount > 0 then
       List_Load.ItemIndex := EnsureRange(PreviouslySelected, 0, List_Load.RowCount - 1);
     Load_ListClick(List_Load);
@@ -2427,23 +2461,67 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Load_RefreshList;
+procedure TKMMainMenuInterface.Load_RefreshList(Sender: TObject);
 var i:integer;
 begin
-  fSaves.ScanSavesFolder(false);
   List_Load.Clear;
 
-  for i:=0 to fSaves.Count-1 do
-    List_Load.AddItem([fSaves[i].FileName, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
+  if (Sender = fSaves) then
+  begin
+    for I:=0 to fSaves.Count - 1 do
+      List_Load.AddItem([fSaves[i].FileName, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
 
-  //Select first Save by default
-  if List_Load.RowCount > 0 then
-    List_Load.ItemIndex := 0;
+    //IDs of saves could changed, so use CRC to check
+    //which one was selected
+    for I := 0 to fSaves.Count - 1 do
+      if (fSaves[I].CRC = fSaveCRC_Selected) then
+      begin
+          fSave_Selected := I;
+          List_Load.ItemIndex := I;
+      end;
+    end;
 
-  Load_ListClick(List_Load);
+  List_Load.ItemIndex := fSave_Selected;
 
-  Load_DeleteConfirmation(false);
+  if not InRange(fSave_Selected - List_Load.TopIndex, 0, (List_Load.Height div List_Load.ItemHeight) - 1) and
+         (fJumpToSelectedSave) then begin
+            if fSave_Selected < List_Load.TopIndex + (List_Load.Height div List_Load.ItemHeight) - 1 then
+              List_Load.TopIndex := fSave_Selected
+            else if fSave_Selected > List_Load.TopIndex + (List_Load.Height div List_Load.ItemHeight) - 1 then
+              List_Load.TopIndex := fSave_Selected - (List_Load.Height div List_Load.ItemHeight) + 1;
+            fJumpToSelectedSave := False;
+         end;
+
+  Load_ListClick(nil);
+
+  if fSaves.ScanFinished then  //do only if we don't scan
+    Load_DeleteConfirmation(false);
 end;
+
+
+procedure TKMMainMenuInterface.Load_SavesSort(aIndex: Integer);
+begin
+  case List_Load.SortIndex of
+    //Sorting by filename goes A..Z by default
+    0:  if List_Load.SortDirection = sdDown then
+          fSaves.Sort(smByFileNameDesc, Load_RefreshList)
+        else
+          fSaves.Sort(smByFileNameAsc, Load_RefreshList);
+    //Sorting by description goes A..Z by default
+    1:  if List_Load.SortDirection = sdDown then
+          fSaves.Sort(smByDescriptionDesc, Load_RefreshList)
+        else
+          fSaves.Sort(smByDescriptionAsc, Load_RefreshList);
+  end;
+
+  //scroll to selected save, so it will be shown on the screen
+  fJumpToSelectedSave := True;
+
+  //Refresh the display only if there are saves to be sorted
+  if fSaves.Count > 0 then
+    Load_RefreshList(fSaves);
+end;
+
 
 
 //Shortcut to choose if DeleteConfirmation should be displayed or hid
@@ -2463,6 +2541,8 @@ begin
                                 and fGame.ReplayExists(fSaves[List_Replays.ItemIndex].FileName, (Radio_Replays_Type.ItemIndex = 1));
   if Button_ReplaysPlay.Enabled then
   begin
+    fSave_Selected := List_Replays.ItemIndex;
+    fSaveCRC_Selected := fSaves[List_Replays.ItemIndex].CRC;
     fSaves[List_Replays.ItemIndex].LoadMinimap(fMapView);
     Minimap_ReplayPreview.UpdateFrom(fMapView);
     Minimap_ReplayPreview.Show;
@@ -2474,24 +2554,68 @@ end;
 
 procedure TKMMainMenuInterface.Replay_TypeChange(Sender: TObject);
 begin
-  Replays_RefreshList;
+  fSaves.TerminateScan;
+  fSave_Selected := -1;
+  fSaveCRC_Selected := 0;
+  fSaves.Refresh(Replays_RefreshList, (Radio_Replays_Type.ItemIndex = 1));
+  Replays_RefreshList(nil);  //we need to refresh immediately
 end;
 
 
-procedure TKMMainMenuInterface.Replays_RefreshList;
+procedure TKMMainMenuInterface.Replays_RefreshList(Sender: TObject);
 var i:integer;
 begin
-  fSaves.ScanSavesFolder((Radio_Replays_Type.ItemIndex = 1));
   List_Replays.Clear;
 
-  for i:=0 to fSaves.Count-1 do
-    List_Replays.AddItem([fSaves[i].FileName, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
+  if (Sender = fSaves) then
+  begin
+    for i:=0 to fSaves.Count-1 do
+      List_Replays.AddItem([fSaves[i].FileName, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
 
-  //Select first Save by default
-  if List_Replays.RowCount > 0 then
-    List_Replays.ItemIndex := 0;
+    for I := 0 to fSaves.Count-1 do
+      if (fSaves[I].CRC = fSaveCRC_Selected) then
+      begin
+          fSave_Selected := I;
+          List_Replays.ItemIndex := I;
+      end;
+  end;
+
+  List_Replays.ItemIndex := fSave_Selected;
+
+  if not InRange(fSave_Selected - List_Replays.TopIndex, 0, (List_Replays.Height div List_Replays.ItemHeight) - 1) and
+         (fJumpToSelectedSave) then begin
+            if fSave_Selected < List_Replays.TopIndex + (List_Replays.Height div List_Replays.ItemHeight) - 1 then
+              List_Replays.TopIndex := fSave_Selected
+            else if fSave_Selected > List_Replays.TopIndex + (List_Replays.Height div List_Replays.ItemHeight) - 1 then
+              List_Replays.TopIndex := fSave_Selected - (List_Replays.Height div List_Replays.ItemHeight) + 1;
+            fJumpToSelectedSave := False;
+         end;
 
   Replays_ListClick(List_Replays);
+end;
+
+
+procedure TKMMainMenuInterface.Replays_SavesSort(aIndex: Integer);
+begin
+  case List_Replays.SortIndex of
+    //Sorting by filename goes A..Z by default
+    0:  if List_Replays.SortDirection = sdDown then
+          fSaves.Sort(smByFileNameDesc, Replays_RefreshList)
+        else
+          fSaves.Sort(smByFileNameAsc, Replays_RefreshList);
+    //Sorting by description goes A..Z by default
+    1:  if List_Replays.SortDirection = sdDown then
+          fSaves.Sort(smByDescriptionDesc, Replays_RefreshList)
+        else
+          fSaves.Sort(smByDescriptionAsc, Replays_RefreshList);
+  end;
+
+  //scroll to selected save, so it will be shown on the screen
+  fJumpToSelectedSave := True;
+
+  //Refresh the display only if there are saves to be sorted
+  if fSaves.Count > 0 then
+    Replays_RefreshList(fSaves);
 end;
 
 
@@ -2499,6 +2623,7 @@ procedure TKMMainMenuInterface.Replays_Play(Sender: TObject);
 begin
   if not Button_ReplaysPlay.Enabled then exit; //This is also called by double clicking
   if not InRange(List_Replays.ItemIndex, 0, fSaves.Count-1) then Exit;
+  fSaves.TerminateScan; //stop scan as it is no longer needed
   fGame.StartReplay(fSaves[List_Replays.ItemIndex].FileName,(Radio_Replays_Type.ItemIndex = 1));
 end;
 

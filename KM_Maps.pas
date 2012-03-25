@@ -43,7 +43,7 @@ type
     function IsValid: Boolean;
   end;
 
-  TTScanner = class(TThread)
+  TTMapsScanner = class(TThread)
   private
     fMultiplayerPath: Boolean;
     fOnMapAdd: TMapEvent;
@@ -61,7 +61,7 @@ type
     fMultiplayerPath: Boolean;
     fSortMethod: TMapsSortMethod;
     CS: TCriticalSection;
-    fScanner: TTScanner;
+    fScanner: TTMapsScanner;
     fScanning: Boolean; //Flag if scan is in progress
     fOnRefresh: TNotifyEvent;
     procedure Lock;
@@ -422,7 +422,7 @@ begin
 
   //Scan will launch upon create automatcally
   fScanning := True;
-  fScanner := TTScanner.Create(fMultiplayerPath, MapAdd, MapAddDone, ScanComplete);
+  fScanner := TTMapsScanner.Create(fMultiplayerPath, MapAdd, MapAddDone, ScanComplete);
 end;
 
 
@@ -474,11 +474,11 @@ begin
 end;
 
 
-{ TTScanner }
+{ TTMapsScanner }
 //aOnMapAdd - signal that there's new map that should be added
 //aOnMapAddDone - signal that map has been added. Can safely call main thread methods since it's executed in Synchronize
 //aOnComplete - scan is complete
-constructor TTScanner.Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
+constructor TTMapsScanner.Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
 begin
   Assert(Assigned(aOnMapAdd));
 
@@ -494,13 +494,13 @@ end;
 
 
 //We need this wrapper since Synchronize can only call parameterless methods
-procedure TTScanner.MapAddDone;
+procedure TTMapsScanner.MapAddDone;
 begin
   fOnMapAddDone(Self);
 end;
 
 
-procedure TTScanner.Execute;
+procedure TTMapsScanner.Execute;
 var
   SearchRec: TSearchRec;
   PathToMaps: string;

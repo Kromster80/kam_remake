@@ -34,6 +34,7 @@ type
 
     //Saved
     fLastSaveName:string; //The file name we last used to save this file (used as default in Save menu)
+    fSave_Selected:integer; //Save selected from list (needed because of scanning)
     LastSchoolUnit:byte;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:byte; //Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList:TKMMessageList;
@@ -99,12 +100,12 @@ type
     procedure Minimap_Update(Sender: TObject; const X,Y:integer);
     procedure Minimap_RightClick(Sender: TObject; const X,Y:integer);
 
-    procedure Save_RefreshList;
+    procedure Save_RefreshList(Sender: TObject);
     procedure Save_ListChange(Sender: TObject);
     procedure Save_EditChange(Sender: TObject);
     procedure Save_CheckboxChange(Sender: TObject);
     procedure Save_Click(Sender: TObject);
-    procedure Load_RefreshList;
+    procedure Load_RefreshList(Sender: TObject);
     procedure Load_ListClick(Sender: TObject);
     procedure Load_Click(Sender: TObject);
     procedure SwitchPage(Sender: TObject);
@@ -431,16 +432,27 @@ end;
 procedure TKMGamePlayInterface.Save_ListChange(Sender: TObject);
 begin
   if InRange(TKMListBox(Sender).ItemIndex, 0, fSaves.Count-1) then
+  begin
+    fSave_Selected := TKMListBox(Sender).ItemIndex;
     Edit_Save.Text := fSaves[List_Save.ItemIndex].FileName;
+    CheckBox_SaveExists.Enabled := False;
+    Label_SaveExists.Visible := False;
+    CheckBox_SaveExists.Checked := False;
+    Button_Save.Enabled := True;
+  end;
 end;
 
 
 procedure TKMGamePlayInterface.Save_EditChange(Sender: TObject);
 begin
+  List_Save.ItemIndex := -1;
+  fSave_Selected := -1;
   CheckBox_SaveExists.Enabled := FileExists(fGame.SaveName(Edit_Save.Text,'sav'));
   Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
-  CheckBox_SaveExists.Checked := false;
-  Button_Save.Enabled := not CheckBox_SaveExists.Enabled;
+  CheckBox_SaveExists.Checked := False;
+  //we should protect ourselves from empty names and whitespaces at beggining and at end of name
+  Button_Save.Enabled := (not CheckBox_SaveExists.Enabled) and (Edit_Save.Text <> '') and
+                         not (Edit_Save.Text[1] = ' ') and not (Edit_Save.Text[Length(Edit_Save.Text)] = ' ');
 end;
 
 
@@ -450,21 +462,26 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Save_RefreshList;
+procedure TKMGamePlayInterface.Save_RefreshList(Sender: TObject);
 var i:integer;
 begin
-  fSaves.ScanSavesFolder(fGame.MultiplayerMode);
   List_Save.Clear;
 
-  if LastSaveName = '' then
-    Edit_Save.Text := fGame.GameName
-  else
-    Edit_Save.Text := LastSaveName;
+  if fSaves.ScanFinished then
+  begin
+    if LastSaveName = '' then
+      Edit_Save.Text := fGame.GameName
+    else
+      Edit_Save.Text := LastSaveName;
+  end;
 
   Save_EditChange(nil);
 
-  for i:=0 to fSaves.Count-1 do
-    List_Save.Add(fSaves[i].FileName);
+  if (Sender = fSaves) then
+    for i:=0 to fSaves.Count-1 do
+      List_Save.Add(fSaves[i].FileName);
+
+  List_Save.ItemIndex := fSave_Selected;
 end;
 
 
@@ -477,6 +494,7 @@ begin
   else
     fGame.Save(Edit_Save.Text);
 
+  fSaves.TerminateScan; //stop scan as it is no longer needed
   SwitchPage(nil); //Close save menu after saving
 end;
 
@@ -486,7 +504,10 @@ begin
   Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1)
                          and fSaves[List_Load.ItemIndex].IsValid;
   if InRange(List_Load.ItemIndex,0,fSaves.Count-1) then
+  begin
     Label_Load_Description.Caption := fSaves[List_Load.ItemIndex].Info.GetTitleWithTime;
+    fSave_Selected := List_Load.ItemIndex;
+  end;
 end;
 
 
@@ -495,24 +516,25 @@ begin
   if fGame.MultiplayerMode then Exit; //Loading disabled during multiplayer gameplay. It is done from the lobby
 
   if not InRange(List_Load.ItemIndex,0,fSaves.Count-1) then exit;
+  fSaves.TerminateScan; //stop scan as it is no longer needed
   fGame.StartSingleSave(fSaves[List_Load.ItemIndex].FileName);
 end;
 
 
-procedure TKMGamePlayInterface.Load_RefreshList;
+procedure TKMGamePlayInterface.Load_RefreshList(Sender: TObject);
 var i:integer;
 begin
-  fSaves.ScanSavesFolder(fGame.MultiplayerMode);
   List_Load.Clear;
 
-  for i:=0 to fSaves.Count-1 do
-    List_Load.Add(fSaves[i].FileName);
+  if (Sender = fSaves) then
+  begin
+    for i:=0 to fSaves.Count-1 do
+      List_Load.Add(fSaves[i].FileName);
+  end;
 
-  //Select first Save by default
-  if List_Load.Count > 0 then
-    List_Load.ItemIndex := 0;
+  List_Load.ItemIndex := fSave_Selected;
 
-  Load_ListClick(List_Load);
+  Load_ListClick(nil);
 end;
 
 
@@ -552,6 +574,10 @@ begin
   //If they just closed settings then we should save them (if something has changed)
   if LastVisiblePage = Panel_Settings then
     fGame.GlobalSettings.SaveSettings;
+
+  //Ensure, that saves scanning will be stopped when user leaves save/load page
+  if (LastVisiblePage = Panel_Save) or (LastVisiblePage = Panel_Load) then
+    fSaves.TerminateScan;
 
   //Hide all existing pages
   for I := 1 to Panel_Controls.ChildCount do
@@ -595,14 +621,24 @@ begin
   end else
 
   if Sender = Button_Menu_Save then begin
-    Save_RefreshList; //Update savegames names
+    fSave_Selected := -1;
+    //Stop current now scan so it can't add a save after we clear the list
+    fSaves.TerminateScan;
+    Save_RefreshList(nil); //need to call it at last one time to setup GUI even if there are no saves
+    //Initiate refresh and process each new save added
+    fSaves.Refresh(Save_RefreshList, fGame.MultiplayerMode);
     Panel_Save.Show;
     fMyControls.CtrlFocus := Edit_Save;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_SAVE_GAME];
   end else
 
   if Sender = Button_Menu_Load then begin
-    Load_RefreshList; //Update savegames names
+    fSave_Selected := -1;
+    //Stop current now scan so it can't add a save after we clear the list
+    fSaves.TerminateScan;
+    Load_RefreshList(nil); //need to call it at least one time to setup GUI even if there are no saves
+    //Initiate refresh and process each new save added
+    fSaves.Refresh(Load_RefreshList, fGame.MultiplayerMode);
     Panel_Load.Show;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_LOAD_GAME];
   end else
@@ -672,7 +708,7 @@ begin
 
   //Instruct to use global Terrain
   fMapView := TKMMapView.Create(fTerrain, False, False);
-
+  LastSaveName := '';
   fShownUnit:=nil;
   fShownHouse:=nil;
   fJoiningGroups := false;
@@ -684,7 +720,7 @@ begin
   LastSchoolUnit   := 0;
   LastBarracksUnit := 0;
   fMessageList := TKMMessageList.Create;
-  fSaves := TKMSavesCollection.Create;
+  fSaves := TKMSavesCollection.Create(fGame.MultiplayerMode);
 
 {Parent Page for whole toolbar in-game}
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);

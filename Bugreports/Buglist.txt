@@ -18,6 +18,7 @@
  +	Entering text into port/room fields. They should accept only digits
  +	Pressing CTRL+ALT+DEL with a game running caused a "System error code 5" or "call to OS function failed" due to Windows denying accesss to Mouse.CursorPos for a moment
  +	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
+ +	Issue with empty saves names and misused whitespaces
 	The multiplayer in-game player list should be ordered (grouped) by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -48,8 +49,9 @@ Improvements:
  +	High quality alpha-blended shadows for units and trees
  +	Logs older than 14 days are automatically deleted
  +	Minimap preview for saves (store raw color data at the begining of the save so it's fast)
+ +	Saves/Replays scan should be done in separate thread to unlock GUI [Maciej]
+ +	Saves/Replays can be sorted
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
- wip	Saves scan should be done in separate thread to unlock GUI [Maciej]
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	High quality alpha-blended shadows for houses (only once constructed?)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
