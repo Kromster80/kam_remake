@@ -343,13 +343,13 @@ begin
   and (fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo)) //NoRoad returns 0
   and (fTerrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
     if CanWalkToTarget(fWalkFrom, CanWalk) then
-      fGame.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcRoad, fTerrain.GetRoadConnectID(fWalkTo), CanWalk, NodeList);
+      fGame.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcRoad, fTerrain.GetRoadConnectID(fWalkTo), [CanWalk], NodeList);
 
   //Build a route A*
   if NodeList.Count = 0 then //Build a route from scratch
   begin
     if CanWalkToTarget(fWalkFrom, fPass) then
-      fGame.Pathfinding.Route_Make(fWalkFrom, fWalkTo, fPass, fDistance, fTargetHouse, NodeList) //Try to make the route with fPass
+      fGame.Pathfinding.Route_Make(fWalkFrom, fWalkTo, [fPass], fDistance, fTargetHouse, NodeList) //Try to make the route with fPass
   end
   else //Append route to existing part
   begin
@@ -357,7 +357,7 @@ begin
     try
       //Make a route
       if CanWalkToTarget(NodeList[NodeList.Count-1], fPass) then
-        fGame.Pathfinding.Route_Make(NodeList[NodeList.Count-1], fWalkTo, fPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
+        fGame.Pathfinding.Route_Make(NodeList[NodeList.Count-1], fWalkTo, [fPass], fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
 
       //If this part of the route fails, the whole route has failed
       //At minimum Route_Make returns Count = 1 (fWalkTo)
@@ -696,7 +696,7 @@ begin
     begin
       NewNodeList := TKMPointList.Create;
       //Make a new route avoiding tiles with busy units
-      if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition, fWalkTo, GetEffectivePassability, fDistance, fTargetHouse, NewNodeList) then
+      if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition, fWalkTo, [GetEffectivePassability], fDistance, fTargetHouse, NewNodeList) then
         //Check if the new route still goes through busy units (no other route exists)
         if (NewNodeList.Count > 1) and fTerrain.TileIsLocked(NewNodeList[1]) then
         begin

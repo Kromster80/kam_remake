@@ -34,7 +34,7 @@ type
   private
     fLocA: TKMPoint;
     fLocB: TKMPoint;
-    fPass: TPassability;
+    fPass: TPassabilitySet;
     fTargetWalkConnect: TWalkConnect;
     fTargetNetwork: Byte;
     fDistance: Single;
@@ -50,9 +50,9 @@ type
     function IsWalkableTile(aX, aY: Word): Boolean; virtual;
   public
     constructor Create;
-    function Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassability; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList; aWeightRoutes: Boolean = True): Boolean;
-    function Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass: TPassability; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
-    function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect: TWalkConnect; aTargetNetwork: Byte; aPass: TPassability; NodeList: TKMPointList): Boolean;
+    function Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList; aWeightRoutes: Boolean = True): Boolean;
+    function Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
+    function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect: TWalkConnect; aTargetNetwork: Byte; aPass: TPassabilitySet; NodeList: TKMPointList): Boolean;
   end;
 
 
@@ -68,7 +68,7 @@ end;
 
 //Find a route from A to B which meets aPass Passability
 //Results should be written as NodeCount of waypoint nodes to Nodes
-function TPathFinding.Route_Make(aLocA, aLocB: TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList; aWeightRoutes: Boolean = True): Boolean;
+function TPathFinding.Route_Make(aLocA, aLocB: TKMPoint; aPass:TPassabilitySet; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList; aWeightRoutes: Boolean = True): Boolean;
 begin
   Result := False;
 
@@ -96,7 +96,7 @@ end;
 
 
 //We are using Interaction Avoid mode (go around busy units)
-function TPathFinding.Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList):boolean;
+function TPathFinding.Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass:TPassabilitySet; aDistance:single; aTargetHouse:TKMHouse; NodeList:TKMPointList):boolean;
 begin
   Result := False;
 
@@ -122,7 +122,7 @@ end;
 
 
 //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
-function TPathFinding.Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; aPass:TPassability; NodeList:TKMPointList): Boolean;
+function TPathFinding.Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; aPass:TPassabilitySet; NodeList:TKMPointList): Boolean;
 begin
   Result := False;
 
@@ -154,7 +154,7 @@ end;
 function TPathFinding.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   //If cell meets Passability then estimate it
-  Result := (fPass in fTerrain.Land[aY,aX].Passability);
+  Result := (fPass * fTerrain.Land[aY,aX].Passability) <> [];
 end;
 
 

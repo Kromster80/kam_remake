@@ -46,10 +46,12 @@ begin
     ht_Bakery:    Result := NextToHouse(ht_Farm, aHouse, aLoc);
     ht_Swine:     Result := NextToHouse(ht_Farm, aHouse, aLoc);
     ht_Butchers:  Result := NextToHouse(ht_Swine, aHouse, aLoc);
+    ht_Tannery:   Result := NextToHouse(ht_Swine, aHouse, aLoc);
 
     ht_Quary:         Result := NextToStone(aHouse, aLoc);
     ht_Woodcutters:   Result := NextToTrees(aHouse, aLoc);
     ht_Farm:          Result := NextToHouse(ht_Store, aHouse, aLoc);//NextToGrass(aHouse, aLoc);
+    ht_Wineyard:      Result := NextToHouse(ht_Store, aHouse, aLoc);//NextToGrass(aHouse, aLoc);
   end;
 
   //Result := True;
@@ -108,7 +110,7 @@ begin
 
   for I := Max(TargetLoc.Y - 10, 1) to Min(TargetLoc.Y + 10, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - 10, 1) to Min(TargetLoc.X + 10, fTerrain.MapX - 1) do
-    if fPlayers[fOwner].CanAddHousePlan(KMPoint(K,I), aHouse) then
+    if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse) then
     begin
       Bid := GetLength(KMPoint(K,I), TargetLoc) + Random * 3;
       if Bid < BestBid then
@@ -142,7 +144,7 @@ begin
 
   for I := Min(StoneLoc.Loc.Y + 2, fTerrain.MapY - 1) to Min(StoneLoc.Loc.Y + 4, fTerrain.MapY - 1) do
   for K := Max(StoneLoc.Loc.X - 5, 1) to Min(StoneLoc.Loc.X + 5, fTerrain.MapX - 1) do
-    if fPlayers[fOwner].CanAddHousePlan(KMPoint(K,I), aHouse) then
+    if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse) then
     begin
       Bid := GetLength(KMPoint(K,I), StoreLoc) + Random * 4;
       if Bid < BestBid then
@@ -177,7 +179,7 @@ begin
 
   for I := Max(TreeLoc.Loc.Y - 5, 1) to Min(TreeLoc.Loc.Y + 6, fTerrain.MapY - 1) do
   for K := Max(TreeLoc.Loc.X - 7, 1) to Min(TreeLoc.Loc.X + 7, fTerrain.MapX - 1) do
-    if fPlayers[fOwner].CanAddHousePlan(KMPoint(K,I), aHouse) then
+    if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse) then
     begin
       Bid := GetLength(KMPoint(K,I), StoreLoc) + Random * 4;
       if Bid < BestBid then

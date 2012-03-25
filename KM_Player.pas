@@ -90,6 +90,7 @@ type
     function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
+    function CanAddHousePlanAI(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
 
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
     procedure AddRoadToList(aLoc: TKMPoint);
@@ -390,32 +391,69 @@ end;
 
 
 function TKMPlayer.CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
-var i,k,j,s,t,tx,ty:integer; HA:THouseArea;
+var I,K,J,S,T,Tx,Ty: Integer; HA: THouseArea;
 begin
   Result := fTerrain.CanPlaceHouse(aLoc, aHouseType);
   if not Result then Exit;
 
   HA := fResource.HouseDat[aHouseType].BuildArea;
-  for i:=1 to 4 do
-  for k:=1 to 4 do
-  if HA[i,k] <> 0 then
+  for I:=1 to 4 do
+  for K:=1 to 4 do
+  if HA[I,K] <> 0 then
   begin
-    tx := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX + k - 3;
-    ty := aLoc.Y + i - 4;
-    Result := Result and fTerrain.TileInMapCoords(tx, ty, 1)
-                     and (fFogOfWar.CheckTileRevelation(tx, ty, false) > 0);
-    //This checks below require tx;ty to be within the map so exit immediately if they are not
+    Tx := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
+    Ty := aLoc.Y + I - 4;
+    Result := Result and fTerrain.TileInMapCoords(Tx, Ty, 1)
+                     and (fFogOfWar.CheckTileRevelation(Tx, Ty, false) > 0);
+    //This checks below require Tx;Ty to be within the map so exit immediately if they are not
     if not Result then exit;
 
     //This tile must not contain fields/houses of allied players or self
-    for j := 0 to fPlayers.Count - 1 do
-      if (j = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, j) = at_Ally) then
+    for J := 0 to fPlayers.Count - 1 do
+      if (J = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally) then
       begin
-        Result := Result and (fPlayers[j].fBuildList.FieldworksList.HasField(KMPoint(tx,ty)) = ft_None);
+        Result := Result and (fPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) = ft_None);
         //Surrounding tiles must not be a house
-        for s:=-1 to 1 do
-          for t:=-1 to 1 do
-            Result := Result and not fPlayers[j].fBuildList.HousePlanList.HasPlan(KMPoint(tx+s,ty+t));
+        for S:=-1 to 1 do
+          for T:=-1 to 1 do
+            Result := Result and not fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T));
+      end;
+  end;
+end;
+
+
+function TKMPlayer.CanAddHousePlanAI(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
+var I,K,J,S,T,Tx,Ty: Integer; HA: THouseArea;
+begin
+  Result := fTerrain.CanPlaceHouse(aLoc, aHouseType);
+  if not Result then Exit;
+
+  HA := fResource.HouseDat[aHouseType].BuildArea;
+  for I := 1 to 4 do
+  for K := 1 to 4 do
+  if HA[I,K] <> 0 then
+  begin
+    Tx := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
+    Ty := aLoc.Y + I - 4;
+
+    //Make sure tile in map coords and there's no road below
+    Result := fTerrain.TileInMapCoords(Tx, Ty, 1) and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
+
+    //Make sure we can add road below house, full width
+    if (I = 4) then
+      Result := Result and fTerrain.TileInMapCoords(Tx, Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx, Ty + 1), CanMakeRoads);
+
+    if not Result then exit;
+
+    //This tile must not contain fields/houses of allied players or self
+    for J := 0 to fPlayers.Count - 1 do
+      if (J = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally) then
+      begin
+        Result := Result and (fPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) = ft_None);
+        //Surrounding tiles must not be a house
+        for S := -1 to 1 do
+          for T := -1 to 1 do
+            Result := Result and not fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T));
       end;
   end;
 end;

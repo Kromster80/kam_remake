@@ -121,7 +121,7 @@ begin
 
   NodeList := TKMPointList.Create;
   try
-    RoadExists := fPathFindingRoad.Route_Make(Loc, KMPointBelow(Store.GetEntrance), CanWalk, 0, nil, NodeList, False);
+    RoadExists := fPathFindingRoad.Route_Make(Loc, KMPointBelow(Store.GetEntrance), [CanMakeRoads, CanWalkRoad], 0, nil, NodeList, False);
 
     if RoadExists then
       for I := 0 to NodeList.Count - 1 do
