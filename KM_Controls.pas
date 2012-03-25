@@ -2306,7 +2306,9 @@ end;
 procedure TKMMemo.SetVisible(aValue: Boolean);
 begin
   inherited;
-  fScrollBar.Visible := fVisible; //Hide scrollbar and its buttons
+
+  //Hide scrollbar and its buttons
+  fScrollBar.Visible := fVisible and (fScrollBar.MaxValue <> fScrollBar.MinValue);
 end;
 
 
@@ -2376,6 +2378,7 @@ var OldMax: Integer;
 begin
   OldMax := fScrollBar.MaxValue;
   fScrollBar.MaxValue := fItems.Count - (fHeight div fItemHeight);
+  fScrollBar.Visible := fVisible and (fScrollBar.MaxValue <> fScrollBar.MinValue);
 
   if fScrollDown then
   begin
@@ -2425,7 +2428,7 @@ var i,PaintWidth: Integer;
 begin
   inherited;
   if fScrollBar.Visible then
-    PaintWidth := Width-fScrollBar.Width //Leave space for scrollbar
+    PaintWidth := Width - fScrollBar.Width //Leave space for scrollbar
   else
     PaintWidth := Width; //List takes up the entire width
 
@@ -2848,6 +2851,7 @@ end;
 procedure TKMColumnListBox.UpdateScrollBar;
 begin
   fScrollBar.MaxValue := fRowCount - (fHeight div fItemHeight);
+  fScrollBar.Visible := fVisible and (fScrollBar.MaxValue <> fScrollBar.MinValue);
 end;
 
 
@@ -2980,6 +2984,8 @@ begin
     PaintWidth := Width - fScrollBar.Width //Leave space for scrollbar
   else
     PaintWidth := Width; //List takes up the entire width
+
+  fHeader.Width := PaintWidth;
 
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
 

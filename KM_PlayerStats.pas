@@ -41,6 +41,8 @@ type
     AllowToTrade: array [WARE_MIN..WARE_MAX] of Boolean; //Allowance derived from mission script
     constructor Create;
 
+    //Input reported by Player
+    procedure GoodProduced(aRes: TResourceType; aCount: Integer);
     procedure HousePlanned(aType: THouseType);
     procedure HousePlanRemoved(aType: THouseType);
     procedure HouseStarted(aType: THouseType);
@@ -49,22 +51,19 @@ type
     procedure HouseLost(aType: THouseType);
     procedure HouseSelfDestruct(aType: THouseType);
     procedure HouseDestroyed(aType: THouseType);
-
-    property HouseReleased[aType: THouseType]: boolean read GetHouseReleased write SetHouseReleased;
-
     procedure UnitCreated(aType: TUnitType; aWasTrained:boolean);
     procedure UnitLost(aType: TUnitType);
     procedure UnitKilled(aType: TUnitType);
 
-    procedure GoodProduced(aRes: TResourceType; aCount:integer);
-
-    function GetHouseQty(aType: THouseType):integer;
-    function GetHouseWip(aType: THouseType):integer;
-    function GetUnitQty(aType: TUnitType):integer;
-    function GetArmyCount:integer;
-    function GetCanBuild(aType: THouseType):boolean;
-
+    property HouseReleased[aType: THouseType]: boolean read GetHouseReleased write SetHouseReleased;
     property Ratio[aRes: TResourceType; aHouse: THouseType]: Byte read GetRatio write SetRatio;
+
+    //Output
+    function GetHouseQty(aType: THouseType): Integer;
+    function GetHouseWip(aType: THouseType): Integer;
+    function GetUnitQty(aType: TUnitType): Integer;
+    function GetArmyCount:Integer;
+    function GetCanBuild(aType: THouseType):boolean;
 
     function GetCitizensTrained:cardinal;
     function GetCitizensLost:cardinal;
@@ -244,10 +243,18 @@ end;
 function TKMPlayerStats.GetUnitQty(aType: TUnitType): Integer;
 var UT: TUnitType;
 begin
-  Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
-  if aType = ut_Recruit then
-    for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
-      dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
+  Result := 0;
+  case aType of
+    ut_None:    ;
+    ut_Any:     for UT := HUMANS_MIN to HUMANS_MAX do
+                  Result := Units[UT].Initial + Units[UT].Trained - Units[UT].Lost;
+    else        begin
+                  Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
+                  if aType = ut_Recruit then
+                    for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
+                      dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
+                end;
+  end;
 end;
 
 
