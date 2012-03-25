@@ -359,7 +359,6 @@ function TKMPlayer.CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Bool
 var I: Integer;
 begin
   Result := fTerrain.CanAddField(aLoc, aFieldType)
-            and (fFogOfWar.CheckTileRevelation(aLoc.X, aLoc.Y, False) > 0)
             and (fBuildList.FieldworksList.HasField(aLoc) = ft_None)
             and not fBuildList.HousePlanList.HasPlan(aLoc);
   //Don't allow placing on allies plans either
@@ -378,7 +377,6 @@ function TKMPlayer.CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): 
 var I: Integer;
 begin
   Result := fTerrain.CanAddField(aLoc, aFieldType)
-            and (fFogOfWar.CheckTileRevelation(aLoc.X, aLoc.Y, False) > 0)
             and (fBuildList.FieldworksList.HasFakeField(aLoc) = ft_None)
             and not fBuildList.HousePlanList.HasPlan(aLoc);
   //Don't allow placing on allies plans either

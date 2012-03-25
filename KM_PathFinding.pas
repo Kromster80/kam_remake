@@ -234,6 +234,7 @@ begin
 
       //If route through new cell is shorter than ORef[y,x] then
       if OList[ORef[y,x]].Estim <> c_closed then
+      if CanWalkTo(fMinCost.Pos, KMPoint(x,y)) then
       begin
         fNewCost := Round(GetLength(KMPoint(x,y),fMinCost.Pos) * 10);
         if fWeightRoutes and (fTerrain.Land[y,x].IsUnit <> nil) then

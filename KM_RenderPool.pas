@@ -1091,15 +1091,14 @@ end;
 
 
 procedure TRenderPool.RenderCursorHighlights;
-  //Shortcut function
-  function TileVisible: Boolean;
-  begin
-    Result := MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, True) > 0;
-  end;
 var
   U: TKMUnit;
 begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
+
+  if (GameCursor.Mode <> cm_None) and (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, False) = 0) then
+    RenderCursorBuildIcon(GameCursor.Cell)       //Red X
+  else
 
   with fTerrain do
   case GameCursor.Mode of
@@ -1124,10 +1123,8 @@ begin
                                    or (fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
                          )
                       //And of course it is visible
-                      and TileVisible then
-                        RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-                      else
-                        RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+                      then
+                        RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00); //Cyan quad
                     end;
 
                   gsPaused, gsOnHold, gsRunning:
@@ -1135,10 +1132,8 @@ begin
                       if ((MyPlayer.BuildList.FieldworksList.HasFakeField(GameCursor.Cell) <> ft_None)
                           or MyPlayer.BuildList.HousePlanList.HasPlan(GameCursor.Cell)
                           or (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
-                      and TileVisible then
-                        RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-                      else
-                        RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+                      then
+                        RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00); //Cyan quad
                     end;
                 end;
     cm_Road:    if MyPlayer.CanAddFakeFieldPlan(GameCursor.Cell, ft_Road) then

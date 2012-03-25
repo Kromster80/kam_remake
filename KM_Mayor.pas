@@ -105,6 +105,7 @@ var
   RoadExists: Boolean;
 begin
   P := fPlayers[fOwner];
+  //P.FogOfWar.RevealEverything;
   Result := False;
 
   if ((P.Stats.GetHouseQty(ht_Any) < 3) and (P.Stats.GetHouseWip(ht_Any) >= 1))

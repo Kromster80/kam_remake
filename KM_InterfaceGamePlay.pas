@@ -3273,6 +3273,7 @@ begin
   if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
+    if MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) > 0 then
     case GameCursor.Mode of
       cm_Road:  if MyPlayer.CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
                 begin
@@ -3432,6 +3433,7 @@ begin
   end;
 
   if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
+  if MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) > 0 then
   case GameCursor.Mode of
     cm_None:  begin
                 //You cannot select nil (or unit/house from other team) simply by clicking on the terrain
