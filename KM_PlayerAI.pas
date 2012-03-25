@@ -874,8 +874,8 @@ begin
                     CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
                     CheckArmy; //Feed army, position defence, arrange/organise groups
                     CheckArmiesCount; //Train new soldiers if needed
-                    fMayor.UpdateState;
-                    //CheckHouseCount; //Build new houses if needed
+
+                    //fMayor.UpdateState;
                     //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
                     //CheckAndIssueAttack; //Attack enemy
                     //Anything Else?

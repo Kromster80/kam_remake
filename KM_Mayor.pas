@@ -14,13 +14,19 @@ type
     fPathFindingRoad: TPathFindingRoad;
 
     fExpansive: Single;
-    fHouseDemand: array [THouseType] of Single;
-    fHouseImportance: array [THouseType] of Single;
+    //fHouseImportance: array [THouseType] of Single;
 
+    function HouseCount(aHouse: THouseType): Integer;
+
+    procedure CheckVitalCount;
+    procedure CheckMiningCount;
+    procedure CheckFoodCount;
+    procedure CheckDefenceCount;
+    procedure CheckWeaponryCount;
     procedure CheckHouseCount;
-    procedure BuildHouse(aHouse: THouseType; aLoc: TKMPoint);
+    function TryBuildHouse(aHouse: THouseType): Boolean;
 
-    procedure RecalcImportance;
+    //procedure RecalcImportance;
   public
     constructor Create(aPlayer: TPlayerIndex);
     destructor Destroy; override;
@@ -51,60 +57,71 @@ begin
 end;
 
 
-procedure TKMayor.RecalcImportance;
+{procedure TKMayor.RecalcImportance;
 var
   H: THouseType;
   P: TKMPlayer;
+  UnitCount: Integer;
+  FoodDemand: Single;
+  Expansive: Single;
+  StoneSupply: Single;
 begin
   P := fPlayers[fOwner];
 
-  fHouseDemand[ht_Inn] := 1 + P.Stats.GetCitizensTrained div 50;
-  fHouseDemand[ht_School] := 1;
+  FillChar(fHouseImportance, SizeOf(fHouseImportance), #0);
 
-  fHouseDemand[ht_Quary] := 2 + fExpansive;
-  fHouseDemand[ht_Sawmill] := 1.5 + fExpansive;
-  fHouseDemand[ht_Woodcutters] := (P.Stats.GetHouseQty(ht_Sawmill) + P.Stats.GetHouseWip(ht_Sawmill)) * 2;
-
-  fHouseDemand[ht_Bakery] := 1 + (P.Stats.GetCitizensTrained + P.Stats.GetArmyCount) / 40;
-  fHouseDemand[ht_Mill] := 1 + (P.Stats.GetHouseQty(ht_Bakery) + P.Stats.GetHouseWip(ht_Bakery)) * 1.5;
-  fHouseDemand[ht_Farm] := 1 + (P.Stats.GetHouseQty(ht_Mill) + P.Stats.GetHouseWip(ht_Mill)) * 1.5;
-
-  for H := Low(THouseType) to High(THouseType) do
-    fHouseDemand[H] := fHouseDemand[H] - P.Stats.GetHouseQty(H) - P.Stats.GetHouseWip(H);
-
+  Expansive := 0.1;
+  UnitCount := P.Stats.GetUnitQty(ut_Any);
 
   //Calculate base importance 0 - means we don't need it. 1 means we need it asap
-  fHouseImportance[ht_Inn] := 1;
-  fHouseImportance[ht_School] := 1;
+  fHouseImportance[ht_Inn] := 1 - HouseCount(ht_Inn) + (UnitCount - P.Stats.GetArmyCount) / 50;
+  fHouseImportance[ht_School] := 1 - HouseCount(ht_School);// + P.Stats.GetCitizensTrained / 40;
 
-  fHouseImportance[ht_Quary] := 1;
-  fHouseImportance[ht_Woodcutters] := 1;
-  fHouseImportance[ht_Sawmill] := 1;
+  StoneSupply := Max(1 - P.Stats.GetWareCount(rt_Stone)/200, 1); //0.75
+  StoneQuarries := Max(2 - HouseCount(ht_Quary) + Expansive * 1.5, 0);
 
-  fHouseImportance[ht_Bakery] := 1;
-  fHouseImportance[ht_Mill] := 1;
-  fHouseImportance[ht_Farm] := 1;
-end;
+  //
+  fHouseImportance[ht_Quary] := 2 - HouseCount(ht_Quary) + Expansive * 1.5;
+  fHouseImportance[ht_Sawmill] := 1.5 - HouseCount(ht_Sawmill) + Expansive * 1.5;
+  fHouseImportance[ht_Woodcutters] := fHouseImportance[ht_Sawmill] * 1.1 - HouseCount(ht_Woodcutters);
+
+  //Food demand per-hour
+  //Consumtion = (UnitCount * 1.25)
+  //Production = (HouseCount(ht_Farm) * 2)
+  FoodDemand := (UnitCount * 1.25 - (HouseCount(ht_Farm) * 2)) / 20;
+  fHouseImportance[ht_Bakery] := FoodDemand;// + HouseCount(ht_Mill)/2 - HouseCount(ht_Bakery);
+  fHouseImportance[ht_Mill] := HouseCount(ht_Bakery) * 1.5 - HouseCount(ht_Mill);//FoodDemand + HouseCount(ht_Farm)/2 - HouseCount(ht_Mill);
+  fHouseImportance[ht_Farm] := HouseCount(ht_Mill) * 1.5 - HouseCount(ht_Farm);//FoodDemand;
+end;}
 
 
-procedure TKMayor.BuildHouse(aHouse: THouseType; aLoc: TKMPoint);
+function TKMayor.TryBuildHouse(aHouse: THouseType): Boolean;
 var
   I: Integer;
+  Loc: TKMPoint;
   Store: TKMHouse;
   P: TKMPlayer;
   NodeList: TKMPointList;
   RoadExists: Boolean;
 begin
   P := fPlayers[fOwner];
+  Result := False;
 
-  P.AddHousePlan(aHouse, aLoc);
-  aLoc := KMPointBelow(aLoc);
+  if ((P.Stats.GetHouseQty(ht_Any) < 3) and (P.Stats.GetHouseWip(ht_Any) >= 1))
+  or (P.Stats.GetHouseWip(ht_Any) >= 3) then
+    Exit;
 
-  Store := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, True);
+  Result := fCityPlanner.FindPlaceForHouse(aHouse, Loc);
+  if not Result then Exit;
+
+  P.AddHousePlan(aHouse, Loc);
+  Loc := KMPointBelow(Loc);
+
+  Store := P.Houses.FindHouse(ht_Any, Loc.X, Loc.Y, 1, True);
 
   NodeList := TKMPointList.Create;
   try
-    RoadExists := fPathFindingRoad.Route_Make(aLoc, KMPointBelow(Store.GetEntrance), CanWalk, 0, nil, NodeList, False);
+    RoadExists := fPathFindingRoad.Route_Make(Loc, KMPointBelow(Store.GetEntrance), CanWalk, 0, nil, NodeList, False);
 
     if RoadExists then
       for I := 0 to NodeList.Count - 1 do
@@ -114,27 +131,128 @@ begin
   finally
     NodeList.Free;
   end;
+
+  //if aHouse = ht_Farm then
+  //for I := Loc.Y to Loc.Y do
+end;
+
+
+function TKMayor.HouseCount(aHouse: THouseType): Integer;
+begin
+  Result := fPlayers[fOwner].Stats.GetHouseQty(aHouse) + fPlayers[fOwner].Stats.GetHouseWip(aHouse);
+end;
+
+
+procedure TKMayor.CheckVitalCount;
+begin
+  if HouseCount(ht_Store) = 0 then
+    TryBuildHouse(ht_Store);
+
+  if HouseCount(ht_School) = 0 then
+    TryBuildHouse(ht_School);
+
+  if HouseCount(ht_Inn) = 0 then
+    TryBuildHouse(ht_Inn);
+end;
+
+
+procedure TKMayor.CheckMiningCount;
+begin
+  if (fPlayers[fOwner].Stats.HouseReleased[ht_Quary]) then
+  begin
+    if (HouseCount(ht_Quary) = 0) then
+      TryBuildHouse(ht_Quary);
+
+    if (HouseCount(ht_Sawmill) > 1) and (HouseCount(ht_Quary) < 2) then
+      TryBuildHouse(ht_Quary);
+  end;
+
+  if (fPlayers[fOwner].Stats.HouseReleased[ht_Woodcutters]) then
+  begin
+    if (HouseCount(ht_Woodcutters) = 0) then
+      TryBuildHouse(ht_Woodcutters);
+
+    if (HouseCount(ht_Sawmill) > 1) and (HouseCount(ht_Woodcutters) < 2) then
+      TryBuildHouse(ht_Woodcutters);
+  end;
+
+  if (fPlayers[fOwner].Stats.HouseReleased[ht_Sawmill]) and (HouseCount(ht_Sawmill) = 0) then
+    TryBuildHouse(ht_Sawmill);
+end;
+
+
+procedure TKMayor.CheckFoodCount;
+begin
+  if (fPlayers[fOwner].Stats.HouseReleased[ht_Farm]) and (HouseCount(ht_Farm) < 2) then
+    TryBuildHouse(ht_Farm);
+
+  if (fPlayers[fOwner].Stats.HouseReleased[ht_Mill]) and (HouseCount(ht_Mill) = 0) then
+    TryBuildHouse(ht_Mill);
+
+  if (fPlayers[fOwner].Stats.HouseReleased[ht_Bakery]) and (HouseCount(ht_Bakery) = 0) then
+    TryBuildHouse(ht_Bakery);
+
+
+  if (fPlayers[fOwner].Stats.HouseReleased[ht_Swine]) and (HouseCount(ht_Swine) < 1) then
+    TryBuildHouse(ht_Swine);
+
+  if (fPlayers[fOwner].Stats.HouseReleased[ht_Butchers]) and (HouseCount(ht_Butchers) = 0) then
+    TryBuildHouse(ht_Butchers);
+
+
+  if (fPlayers[fOwner].Stats.HouseReleased[ht_Wineyard]) and (HouseCount(ht_Wineyard) < 2) then
+    TryBuildHouse(ht_Wineyard);
+end;
+
+
+procedure TKMayor.CheckDefenceCount;
+begin
+
+end;
+
+
+procedure TKMayor.CheckWeaponryCount;
+begin
+  if (fPlayers[fOwner].Stats.HouseReleased[ht_Tannery]) and (HouseCount(ht_Tannery) = 0) then
+    TryBuildHouse(ht_Tannery);
 end;
 
 
 procedure TKMayor.CheckHouseCount;
-const MandatoryHouses: array [0..2] of THouseType = (ht_Store, ht_School, ht_Inn);
 var
-  I: Integer;
   H: THouseType;
+  BestHouse: THouseType;
   P: TKMPlayer;
   Loc: TKMPoint;
 begin
-  P := fPlayers[fOwner];
+  //Check if we have Store/Inn/School in adequate counts
+  CheckVitalCount;
 
-  //Top priority houses
-  for I := 0 to 2 do
+  //Check if we have basic resource mining houses (stone, wood, gold)
+  CheckMiningCount;
+
+  //Check if produce adequate food supply
+  CheckFoodCount;
+
+  //
+  CheckDefenceCount;
+
+  //Check if we make enough weaponry
+  CheckWeaponryCount;
+
+  //RecalcImportance;
+
+  //Pick best house to build
+  {BestHouse := ht_None;
+  for H := Low(THouseType) to High(THouseType) do
   begin
-    H := MandatoryHouses[I];
-    if P.Stats.GetHouseQty(H) + P.Stats.GetHouseWip(H) = 0 then
-      if fCityPlanner.FindPlaceForHouse(H, Loc) then
-        BuildHouse(H, Loc);
+    if fHouseImportance[H] > Max(fHouseImportance[BestHouse], 0.5) then
+      BestHouse := H;
   end;
+
+  if BestHouse <> ht_None then
+    if fCityPlanner.FindPlaceForHouse(BestHouse, Loc) then
+      BuildHouse(BestHouse, Loc);}
 end;
 
 
