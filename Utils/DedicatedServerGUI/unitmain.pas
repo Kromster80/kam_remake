@@ -71,6 +71,7 @@ type
     procedure ServerStatusMessageNoTime(const aData: string);
     procedure ChangeEnableStateOfControls(state: Boolean);
     procedure ChangeEnableStateOfApplyButton(state: Boolean);
+    procedure ApplicationIdle(Sender: TObject; var Done: Boolean);
   private
     { private declarations }
   public
@@ -106,6 +107,8 @@ begin
   fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
 
   LoadSettings(nil);
+
+  Application.OnIdle := ApplicationIdle;
 end;
 
 
@@ -232,6 +235,18 @@ begin
      ButtonApply.Enabled:=state;
 end;
 
+
+procedure TFormMain.ApplicationIdle(Sender: TObject; var Done: Boolean);
+begin
+  if ServerStatus then
+  begin
+    fDedicatedServer.UpdateState;
+    Sleep(1); //Don't use 100% CPU
+    Done := False; //Repeats OnIdle asap without performing Form-specific idle code
+  end
+  else
+    Done := True;
+end;
 
 procedure TFormMain.cAnnounceServerChange(Sender: TObject);
 begin

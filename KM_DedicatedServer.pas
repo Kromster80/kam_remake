@@ -1,7 +1,7 @@
 unit KM_DedicatedServer;
 interface
 uses
-  SysUtils,
+  SysUtils, Classes,
   {$IFDEF MSWindows}Windows,{$ENDIF}
   KM_NetServer, KM_MasterServer, KM_CommonEvents, KM_Defaults;
 
@@ -31,6 +31,8 @@ type
     procedure UpdateSettings(const aServerName:string; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
                              const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:string);
     property OnMessage: TStringEvent write fOnMessage;
+    
+    function GetServerInfo:TList;
   end;
 
 
@@ -142,6 +144,12 @@ end;
 procedure TKMDedicatedServer.MasterServerError(const aData: string);
 begin
   StatusMessage('HTTP Master Server: '+aData);
+end;
+
+
+function TKMDedicatedServer.GetServerInfo:TList;
+begin
+  Result := fNetServer.GetServerInfo;
 end;
 
 

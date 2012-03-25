@@ -118,6 +118,7 @@ type
     property Listening: boolean read fListening;
     function GetPlayerCount:integer;
     procedure UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage, aServerName:string);
+    function GetServerInfo:TList;
   end;
 
 
@@ -337,6 +338,16 @@ begin
   if fServerName <> aServerName then
     SendMessage(NET_ADDRESS_ALL, mk_ServerName, 0, aServerName);
   fServerName := aServerName;
+end;
+
+
+function TKMNetServer.GetServerInfo:TList;
+var i,RoomIndex,RoomCount:Integer;
+begin
+  Result := TList.Create;
+  for i:=0 to fRoomCount-1 do
+    if GetRoomClientsCount(i) > 0 then
+      Result.Add(fRoomInfo[i].GameInfo);
 end;
 
 
