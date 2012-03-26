@@ -875,7 +875,7 @@ begin
                     CheckArmy; //Feed army, position defence, arrange/organise groups
                     CheckArmiesCount; //Train new soldiers if needed
 
-                    //fMayor.UpdateState;
+                    fMayor.UpdateState;
                     //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
                     //CheckAndIssueAttack; //Attack enemy
                     //Anything Else?

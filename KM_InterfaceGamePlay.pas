@@ -3594,8 +3594,9 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.UpdateMapSize(X, Y: integer);
+procedure TKMGamePlayInterface.UpdateMapSize(X, Y: Integer);
 begin
+  fMapView.UpdateMapSize(X,Y);
   fMapView.Update(False);
   Minimap.UpdateFrom(fMapView);
   Minimap.MapSize := KMPoint(X, Y);

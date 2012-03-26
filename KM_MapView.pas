@@ -19,6 +19,8 @@ type
     fMapX: Word;
     fBase: TCardinalArray; //Base terrain layer
     fMapTex: TTexture;
+    fWidthPOT: Word;
+    fHeightPOT: Word;
     procedure UpdateMinimapFromGame;
     procedure UpdateMinimapFromParser(aRevealAll:Boolean);
     procedure SepiaFilter;
@@ -34,6 +36,7 @@ type
     property MapTex: TTexture read fMapTex;
     function GetPlayerLoc(aIndex: Byte): TKMPoint;
     procedure Update(aRevealAll: Boolean);
+    procedure UpdateMapSize(aX, aY: Word);
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -85,6 +88,26 @@ end;
 procedure TKMMapView.LoadTerrain(aMissionPath: string);
 begin
   fParser.LoadMission(aMissionPath);
+
+  fMapX := fParser.MapX - 1;
+  fMapY := fParser.MapY - 1;
+  SetLength(fBase, fMapX * fMapY);
+  fWidthPOT := MakePOT(fMapX);
+  fHeightPOT := MakePOT(fMapY);
+  fMapTex.U := fMapX / fWidthPOT;
+  fMapTex.V := fMapY / fHeightPOT;
+end;
+
+
+procedure TKMMapView.UpdateMapSize(aX, aY: Word);
+begin
+  fMapX := aX - 1;
+  fMapY := aY - 1;
+  SetLength(fBase, fMapX * fMapY);
+  fWidthPOT := MakePOT(fMapX);
+  fHeightPOT := MakePOT(fMapY);
+  fMapTex.U := fMapX / fWidthPOT;
+  fMapTex.V := fMapY / fHeightPOT;
 end;
 
 
@@ -94,10 +117,6 @@ var
   Light: SmallInt;
   x0,y2: Word;
 begin
-  fMapX := fParser.MapX-1;
-  fMapY := fParser.MapY-1;
-  SetLength(fBase, fMapX * fMapY);
-
   for I := 1 to fMapY do
   for K := 1 to fMapX do
     with fParser.MapPreview[K,I] do
@@ -165,12 +184,8 @@ var
   DoesFit: Boolean;
   Light: Smallint;
 begin
-  fMapX := fMyTerrain.MapX-1;
-  fMapY := fMyTerrain.MapY-1;
-  SetLength(fBase, fMapX * fMapY);
-
-  for I:=0 to fMapY-1 do
-  for K:=0 to fMapX-1 do
+  for I := 0 to fMapY - 1 do
+  for K := 0 to fMapX - 1 do
   begin
     if MyPlayer <> nil then
       FOW := MyPlayer.FogOfWar.CheckTileRevelation(K+1,I+1,true)
@@ -236,24 +251,17 @@ procedure TKMMapView.GenerateTexture;
 var
   wData: Pointer;
   I: Word;
-  WidthPOT, HeightPOT: Word;
 begin
   if not Assigned(glBindTexture) then Exit;
 
-  WidthPOT := MakePOT(fMapX);
-  HeightPOT := MakePOT(fMapY);
-
-  GetMem(wData, WidthPOT * HeightPOT * 4);
+  GetMem(wData, fWidthPOT * fHeightPOT * 4);
 
   for I := 0 to fMapY - 1 do
     Move(Pointer(Cardinal(fBase) + I * fMapX * 4)^,
-         Pointer(Cardinal(wData) + I * WidthPOT * 4)^, fMapX * 4);
+         Pointer(Cardinal(wData) + I * fWidthPOT * 4)^, fMapX * 4);
 
   glBindTexture(GL_TEXTURE_2D, fMapTex.Tex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WidthPOT, HeightPOT, 0, GL_RGBA, GL_UNSIGNED_BYTE, wData);
-
-  fMapTex.U := fMapX / WidthPOT;
-  fMapTex.V := fMapY / HeightPOT;
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fWidthPOT, fHeightPOT, 0, GL_RGBA, GL_UNSIGNED_BYTE, wData);
 
   FreeMem(wData);
 
@@ -284,6 +292,11 @@ begin
   LoadStream.Read(fMapY);
   LoadStream.Read(L);
   SetLength(fBase, L);
+  fWidthPOT := MakePOT(fMapX);
+  fHeightPOT := MakePOT(fMapY);
+  fMapTex.U := fMapX / fWidthPOT;
+  fMapTex.V := fMapY / fHeightPOT;
+
   if L > 0 then
     LoadStream.Read(fBase[0], L * SizeOf(Cardinal));
 

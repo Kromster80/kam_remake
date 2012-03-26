@@ -3283,7 +3283,7 @@ begin
 end;
 
 
-procedure TKMMinimap.UpdateFrom(aMapView:TKMMapView);
+procedure TKMMinimap.UpdateFrom(aMapView: TKMMapView);
 var i: Integer;
 begin
   fMapSize.X := aMapView.MapX;

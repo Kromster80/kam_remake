@@ -16,6 +16,7 @@ type
   published
     procedure TestStone;
     procedure TestFight95;
+    procedure TestAIBuild;
   end;
 
 implementation
@@ -86,6 +87,23 @@ begin
     fGame.Stop(gr_Silent);
   end;
   Check(False, IntToStr(P1)+':'+IntToStr(P2)+'Game is unfair?');
+end;
+
+
+procedure TestTKMGame.TestAIBuild;
+var I: Integer;
+begin
+  fGame.StartSingleMap(ExtractFilePath(ParamStr(0)) + 'AcrossDesert.dat', 'AcrossDesert');
+
+  for I := 1 to 60*60*10 do
+  begin
+    fGame.UpdateState;
+    if fGame.GameState = gsOnHold then
+      fGame.GameHold(False, gr_Win);
+  end;
+
+  fGame.Save('AcrossDesert');
+  //Check(fPlayers[0].Stats.GetGoodsProduced >= 3810, 'StoneMining got broken');
 end;
 
 
