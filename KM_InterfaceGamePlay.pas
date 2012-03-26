@@ -445,14 +445,17 @@ end;
 
 procedure TKMGamePlayInterface.Save_EditChange(Sender: TObject);
 begin
-  List_Save.ItemIndex := -1;
-  fSave_Selected := -1;
-  CheckBox_SaveExists.Enabled := FileExists(fGame.SaveName(Edit_Save.Text,'sav'));
-  Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
-  CheckBox_SaveExists.Checked := False;
-  //we should protect ourselves from empty names and whitespaces at beggining and at end of name
-  Button_Save.Enabled := (not CheckBox_SaveExists.Enabled) and (Edit_Save.Text <> '') and
-                         not (Edit_Save.Text[1] = ' ') and not (Edit_Save.Text[Length(Edit_Save.Text)] = ' ');
+  if (Sender <> fSaves) then
+  begin
+    List_Save.ItemIndex := -1;
+    fSave_Selected := -1;
+    CheckBox_SaveExists.Enabled := FileExists(fGame.SaveName(Edit_Save.Text,'sav'));
+    Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
+    CheckBox_SaveExists.Checked := False;
+    //we should protect ourselves from empty names and whitespaces at beggining and at end of name
+    Button_Save.Enabled := (not CheckBox_SaveExists.Enabled) and (Edit_Save.Text <> '') and
+                           not (Edit_Save.Text[1] = ' ') and not (Edit_Save.Text[Length(Edit_Save.Text)] = ' ');
+  end;
 end;
 
 
@@ -475,7 +478,10 @@ begin
       Edit_Save.Text := LastSaveName;
   end;
 
-  Save_EditChange(nil);
+  if (Sender = fSaves) then
+    Save_EditChange(fSaves)
+  else
+    Save_EditChange(nil);
 
   if (Sender = fSaves) then
     for i:=0 to fSaves.Count-1 do

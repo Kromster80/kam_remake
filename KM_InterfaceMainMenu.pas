@@ -1337,6 +1337,7 @@ begin
   if Sender=Button_MM_Replays then begin
 
     //Stop current scan so it can't add a replay after we clear the list
+    Radio_Replays_Type.ItemIndex := 0; //we always show SP replays on start
     fSaves.TerminateScan;
     fSave_Selected := -1;
     fSaveCRC_Selected := 0;

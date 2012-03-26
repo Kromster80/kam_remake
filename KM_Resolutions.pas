@@ -215,8 +215,6 @@ begin
 end;
 
 
-//@Maciej: This function should return best matching resolution
-//(e.g. if asked 1024x768@1Hz it should return 1024x768@60Hz for typical LCD)
 function TKMResolutions.FindCorrect(aResolution: TScreenRes): TScreenRes;
 {$IFDEF MSWindows}
 var
