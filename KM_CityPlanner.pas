@@ -2,12 +2,12 @@ unit KM_CityPlanner;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils,
+  Classes, Graphics, KromUtils, Math, SysUtils, TypInfo,
   KM_Defaults, KM_Points;
 
 
 type
-  TCityInfluence = (ciGold);
+  TCityInfluence = (ciCoal, ciGold, ciIron);
 
   TKMCityPlanner = class
   private
@@ -37,6 +37,8 @@ constructor TKMCityPlanner.Create(aPlayer: TPlayerIndex);
 begin
   inherited Create;
   fOwner := aPlayer;
+
+  UpdateInfluence;
 end;
 
 
@@ -197,24 +199,59 @@ end;
 
 
 procedure TKMCityPlanner.UpdateInfluence;
-var I, K: Integer;
+const
+  BSize = 4;
+  BLen = Sqr(BSize * 2 + 1);
+var
+  CI: TCityInfluence;
+  I, K, M, N: Integer;
+  T: Integer;
+  Tmp: array of array of byte;
+  Bmp: TBitmap;
 begin
   SetLength(fInfluenceMap, fTerrain.MapX, fTerrain.MapY);
+  SetLength(Tmp, fTerrain.MapX, fTerrain.MapY);
 
   //Fill influence
-  for I := 1 to fTerrain.MapY - 2 do
-    for K := 1 to fTerrain.MapX - 1 do
-    begin
-      fInfluenceMap[I,K,ciGold] := Byte(CanBuildGold in fTerrain.Land[I,K].Passability) * 255;
-      fInfluenceMap[I+1,K,ciGold] := Byte(CanBuildGold in fTerrain.Land[I,K].Passability) * 255;
-    end;
-
-  //Blur
   for I := 1 to fTerrain.MapY - 1 do
     for K := 1 to fTerrain.MapX - 1 do
-      fInfluenceMap[I,K,ciGold] := Byte(CanBuildGold in fTerrain.Land[I,K].Passability) * 255;
+    begin
+      fInfluenceMap[I, K, ciCoal] := (Byte(fTerrain.Land[I, K].Terrain in [152, 153, 154, 155]) * 255);
+      fInfluenceMap[I, K, ciGold] := (Byte(CanBuildGold in fTerrain.Land[I, K].Passability) * 255);
+      fInfluenceMap[I, K, ciIron] := (Byte(CanBuildIron in fTerrain.Land[I, K].Passability) * 255);
+    end;
 
+  for CI := Low(TCityInfluence) to High(TCityInfluence) do
+  begin
+    for I := 2 to fTerrain.MapY - 1 do
+      for K := 2 to fTerrain.MapX - 2 do
+        Tmp[I, K] := fInfluenceMap[I, K, CI] or fInfluenceMap[I - 1, K, CI] or fInfluenceMap[I - 1, K - 1, CI] or
+          fInfluenceMap[I - 1, K + 1, CI];
 
+    //Blur (naive unweightened implementation)
+    for I := 1 to fTerrain.MapY - 1 do
+      for K := 1 to fTerrain.MapX - 1 do
+      begin
+        T := 0;
+        for M := Max(I - BSize, 1) to Min(I + BSize, fTerrain.MapY - 1) do
+          for N := Max(K - BSize, 1) to Min(K + BSize, fTerrain.MapX - 1) do
+            T := T + Tmp[M, N];
+        fInfluenceMap[I, K, CI] := fInfluenceMap[I, K, CI] or Tmp[I, K] or Min(T shl 2 div BLen, 255);
+      end;
+
+    Bmp := TBitmap.Create;
+    Bmp.PixelFormat := pf32bit;
+    Bmp.Width := fTerrain.MapX;
+    Bmp.Height := fTerrain.MapY;
+    for I := 0 to fTerrain.MapY - 1 do
+      for K := 0 to fTerrain.MapX - 1 do
+        Bmp.Canvas.Pixels[K,I] := fInfluenceMap[I,K,CI] * 65793;// or $FF000000;
+
+    Bmp.SaveToFile(ExeDir + GetEnumName(TypeInfo(TCityInfluence), Integer(CI)) + '.bmp');
+    Bmp.Free;
+  end;
+
+  Halt;
 
 end;
 
