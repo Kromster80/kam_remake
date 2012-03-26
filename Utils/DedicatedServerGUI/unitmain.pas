@@ -3,7 +3,7 @@ unit UnitMain;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
   ExtCtrls, Spin, ComCtrls,
   KM_Defaults,
   KM_Settings,
@@ -72,6 +72,9 @@ var
   FormMain: TFormMain;
 
 implementation
+{$IFDEF WDC}
+  {$R *.dfm}
+{$ENDIF}
 
 {$IFDEF FPC}
   {$R *.lfm}
@@ -83,7 +86,8 @@ procedure TFormMain.FormCreate(Sender: TObject);
 begin
   ServerStatus:=False;
   ChangeEnableStateOfApplyButton(false);
-  self.Caption:='KaM Remake '+GAME_VERSION+' Dedicated Server';
+  Self.Caption:='KaM Remake '+GAME_VERSION+' Dedicated Server';
+  Application.Title := 'KaM Remake '+GAME_VERSION+' Dedicated Server';
 
   ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
   CreateDir(ExeDir + 'Logs');
