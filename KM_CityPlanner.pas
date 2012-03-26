@@ -100,6 +100,23 @@ end;
 
 
 function TKMCityPlanner.NextToHouse(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+  function CanPlaceHouse(aHouse: THouseType; aPos: TKMPoint): Boolean;
+  const RAD = 4;
+  var
+    I, K: Integer;
+    FieldCount: Integer;
+  begin
+    Result := fPlayers[fOwner].CanAddHousePlanAI(aPos, aHouse);
+    if Result and (aHouse in [ht_Farm, ht_Wineyard]) then
+    begin
+      FieldCount := 0;
+      for I := Min(aPos.Y + 2, fTerrain.MapY - 1) to Min(aPos.Y + RAD, fTerrain.MapY - 1) do
+      for K := Max(aPos.X - RAD, 1) to Min(aPos.X + RAD, fTerrain.MapX - 1) do
+        if CanMakeFields in fTerrain.Land[I,K].Passability then
+          Inc(FieldCount);
+      Result := FieldCount >= 15;
+    end;
+  end;
 var
   S: TKMHouse;
   I, K: Integer;
@@ -116,7 +133,7 @@ begin
 
   for I := Max(TargetLoc.Y - 10, 1) to Min(TargetLoc.Y + 10, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - 10, 1) to Min(TargetLoc.X + 10, fTerrain.MapX - 1) do
-    if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse) then
+    if CanPlaceHouse(aHouse, KMPoint(K,I)) then
     begin
       Bid := GetLength(KMPoint(K,I), TargetLoc) + Random * 3;
       if Bid < BestBid then
@@ -251,7 +268,7 @@ begin
     Bmp.Free;
   end;
 
-  Halt;
+  //Halt;
 
 end;
 

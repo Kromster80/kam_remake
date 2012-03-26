@@ -395,8 +395,8 @@ begin
   if not Result then Exit;
 
   HA := fResource.HouseDat[aHouseType].BuildArea;
-  for I:=1 to 4 do
-  for K:=1 to 4 do
+  for I := 1 to 4 do
+  for K := 1 to 4 do
   if HA[I,K] <> 0 then
   begin
     Tx := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;

@@ -2,7 +2,7 @@ unit KM_CommonClasses;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KM_NetworkTypes, KM_Points;
+  Classes, KromUtils, Math, SysUtils, KM_NetworkTypes, KM_Points;
 
 
 type
@@ -101,6 +101,7 @@ type
     Tag, Tag2: array of Cardinal; //1..Count
     procedure Clear; override;
     procedure AddEntry(aLoc: TKMPoint; aTag,aTag2: Cardinal); reintroduce;
+    procedure SortByTag;
     function RemoveEntry(aLoc: TKMPoint): Integer; override;
     procedure SaveToStream(SaveStream: TKMemoryStream); override;
     procedure LoadFromStream(LoadStream: TKMemoryStream); override;
@@ -535,6 +536,20 @@ begin
     SaveStream.Write(Tag[0], SizeOf(Tag[0]) * fCount);
     SaveStream.Write(Tag2[0], SizeOf(Tag2[0]) * fCount);
   end;
+end;
+
+
+procedure TKMPointTagList.SortByTag;
+var I,K: Integer;
+begin
+  for I := 0 to fCount - 1 do
+    for K := I + 1 to fCount - 1 do
+      if Tag[K] < Tag[I] then
+      begin
+        KMSwapPoints(fItems[I], fItems[K]);
+        SwapInt(Tag[I], Tag[K]);
+        SwapInt(Tag2[I], Tag2[K]);
+      end;
 end;
 
 

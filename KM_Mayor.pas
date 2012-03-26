@@ -96,12 +96,14 @@ end;}
 
 
 function TKMayor.TryBuildHouse(aHouse: THouseType): Boolean;
+const RAD = 4;
 var
-  I: Integer;
+  I, K: Integer;
   Loc: TKMPoint;
   Store: TKMHouse;
   P: TKMPlayer;
   NodeList: TKMPointList;
+  NodeTagList: TKMPointTagList;
   RoadExists: Boolean;
 begin
   P := fPlayers[fOwner];
@@ -133,7 +135,19 @@ begin
     NodeList.Free;
   end;
 
-  //if aHouse = ht_Farm then
+  if aHouse = ht_Farm then
+  begin
+    NodeTagList := TKMPointTagList.Create;
+    for I := Min(Loc.Y + 1, fTerrain.MapY - 1) to Min(Loc.Y + 1 + RAD, fTerrain.MapY - 1) do
+    for K := Max(Loc.X - RAD, 1) to Min(Loc.X + RAD, fTerrain.MapX - 1) do
+      if P.CanAddFieldPlan(KMPoint(K,I), ft_Corn) then
+        NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X) + Abs(I + 1 - Loc.Y) * 2, 0);
+
+    NodeTagList.SortByTag;
+    for I := 0 to Min(NodeTagList.Count - 1, 15) do
+      P.BuildList.FieldworksList.AddField(NodeTagList[I], ft_Corn);
+
+  end;
   //for I := Loc.Y to Loc.Y do
 end;
 
