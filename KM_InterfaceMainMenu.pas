@@ -1336,8 +1336,8 @@ begin
   {Show replays menu}
   if Sender=Button_MM_Replays then begin
 
-    //Stop current scan so it can't add a replay after we clear the list
     Radio_Replays_Type.ItemIndex := 0; //we always show SP replays on start
+    //Stop current scan so it can't add a replay after we clear the list
     fSaves.TerminateScan;
     fSave_Selected := -1;
     fSaveCRC_Selected := 0;
@@ -2454,9 +2454,11 @@ begin
   begin
     PreviouslySelected := List_Load.ItemIndex;
     fSaves.DeleteSave(List_Load.ItemIndex);
-    Load_RefreshList(nil);
+    Load_RefreshList(fSaves);
     if List_Load.RowCount > 0 then
-      List_Load.ItemIndex := EnsureRange(PreviouslySelected, 0, List_Load.RowCount - 1);
+      List_Load.ItemIndex := EnsureRange(PreviouslySelected, 0, List_Load.RowCount - 1)
+    else
+      List_Load.ItemIndex := -1; //there are no saves, nothing to select
     Load_ListClick(List_Load);
   end;
 end;
