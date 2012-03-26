@@ -1,32 +1,31 @@
 object FormMain: TFormMain
-  Left = 600
+  Left = 431
   Height = 507
-  Top = 165
+  Top = 181
   Width = 815
   Anchors = [akTop]
   Caption = 'KaM Dedicated Server'
   ClientHeight = 507
   ClientWidth = 815
-  OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poScreenCenter
   LCLVersion = '0.9.30.2'
   object StartStopButton: TButton
-    Left = 623
-    Height = 40
-    Top = 24
+    Left = 624
+    Height = 48
+    Top = 40
     Width = 180
     Anchors = [akTop, akRight]
     Caption = 'Server is OFFLINE'
     OnClick = StartStopButtonClick
     ParentFont = False
-    TabOrder = 6
+    TabOrder = 4
   end
   object Label1: TLabel
     Left = 606
     Height = 21
-    Top = 8
+    Top = 16
     Width = 87
     Anchors = [akTop, akRight]
     Caption = 'Server status:'
@@ -35,17 +34,17 @@ object FormMain: TFormMain
   object Panel1: TPanel
     AnchorSideLeft.Control = Splitter1
     Left = 611
-    Height = 371
-    Top = 136
+    Height = 355
+    Top = 152
     Width = 204
     Anchors = [akTop, akLeft, akRight, akBottom]
     BorderSpacing.Left = 8
-    ClientHeight = 371
+    ClientHeight = 355
     ClientWidth = 204
     TabOrder = 0
     object ListBox1: TListBox
       Left = 1
-      Height = 369
+      Height = 353
       Top = 1
       Width = 202
       Align = alClient
@@ -61,8 +60,8 @@ object FormMain: TFormMain
   end
   object Splitter1: TSplitter
     Left = 603
-    Height = 339
-    Top = 168
+    Height = 355
+    Top = 152
     Width = 9
     Align = alCustom
     Anchors = [akTop, akRight, akBottom]
@@ -72,17 +71,17 @@ object FormMain: TFormMain
     AnchorSideRight.Control = Splitter1
     AnchorSideBottom.Control = Edit1
     Left = 1
-    Height = 341
-    Top = 136
+    Height = 325
+    Top = 152
     Width = 602
     Anchors = [akTop, akLeft, akRight, akBottom]
     Caption = 'Panel2'
-    ClientHeight = 341
+    ClientHeight = 325
     ClientWidth = 602
     TabOrder = 1
     object LogsMemo: TMemo
       Left = 1
-      Height = 339
+      Height = 323
       Top = 1
       Width = 600
       Align = alClient
@@ -104,7 +103,7 @@ object FormMain: TFormMain
     Width = 530
     Anchors = [akLeft, akRight, akBottom]
     TabStop = False
-    TabOrder = 7
+    TabOrder = 5
   end
   object SendCmdButton: TButton
     AnchorSideRight.Control = Splitter1
@@ -116,53 +115,33 @@ object FormMain: TFormMain
     Caption = 'Send'
     TabOrder = 2
   end
-  object ButtonSaveSettings: TButton
-    Left = 720
-    Height = 25
-    Top = 72
-    Width = 84
-    Anchors = [akTop, akRight]
-    Caption = 'Save to file'
-    OnClick = ButtonSaveSettingsClick
-    TabOrder = 3
-  end
-  object Button2: TButton
-    Left = 624
-    Height = 25
-    Top = 72
-    Width = 92
-    Anchors = [akTop, akRight]
-    Caption = 'Load from file'
-    OnClick = LoadSettings
-    TabOrder = 4
-  end
   object PageControl1: TPageControl
     Left = 0
-    Height = 136
+    Height = 152
     Top = 0
     Width = 616
-    ActivePage = Advanced
+    ActivePage = Basic
     Anchors = [akTop, akLeft, akRight]
-    TabIndex = 1
-    TabOrder = 8
+    TabIndex = 0
+    TabOrder = 6
     object Basic: TTabSheet
       Caption = 'Basic'
-      ClientHeight = 103
+      ClientHeight = 119
       ClientWidth = 608
       object cServerWelcomeMessage: TEdit
         Tag = 1
         Left = 8
         Height = 28
-        Top = 72
+        Top = 88
         Width = 588
         Anchors = [akTop, akLeft, akRight]
-        OnChange = cServerWelcomeMessageChange
+        OnChange = ControlChange
         TabOrder = 0
       end
       object Label9: TLabel
         Left = 8
         Height = 21
-        Top = 56
+        Top = 64
         Width = 168
         Caption = 'Server welcome message'
         ParentColor = False
@@ -171,9 +150,9 @@ object FormMain: TFormMain
         Tag = 1
         Left = 8
         Height = 28
-        Top = 24
-        Width = 332
-        OnChange = cServerNameChange
+        Top = 32
+        Width = 308
+        OnChange = ControlChange
         TabOrder = 1
       end
       object Label2: TLabel
@@ -187,9 +166,9 @@ object FormMain: TFormMain
       object cMaxRooms: TSpinEdit
         Left = 348
         Height = 28
-        Top = 24
+        Top = 32
         Width = 112
-        OnChange = cMaxRoomsChange
+        OnChange = ControlChange
         TabOrder = 2
         Value = 10
       end
@@ -202,117 +181,117 @@ object FormMain: TFormMain
         ParentColor = False
       end
       object cAnnounceServer: TCheckBox
-        Left = 475
+        Left = 484
         Height = 24
-        Top = 26
+        Top = 35
         Width = 135
         Caption = 'Announce Server'
-        OnChange = cAnnounceServerChange
+        OnChange = ControlChange
         TabOrder = 3
       end
     end
     object Advanced: TTabSheet
       Caption = 'Advanced'
-      ClientHeight = 103
+      ClientHeight = 124
       ClientWidth = 608
       object cAutoKickTimeout: TSpinEdit
         Tag = 1
         Left = 10
-        Height = 28
-        Top = 74
+        Height = 23
+        Top = 88
         Width = 104
-        OnChange = cAutoKickTimeoutChange
+        OnChange = ControlChange
         TabOrder = 0
         Value = 10
       end
       object Label4: TLabel
         Left = 10
-        Height = 21
-        Top = 56
-        Width = 117
+        Height = 16
+        Top = 64
+        Width = 96
         Caption = 'Autokick Timeout'
         ParentColor = False
       end
       object cPingInterval: TSpinEdit
-        Left = 124
-        Height = 28
-        Top = 74
+        Left = 204
+        Height = 23
+        Top = 88
         Width = 112
-        OnChange = cPingIntervalChange
+        OnChange = ControlChange
         TabOrder = 1
         Value = 10
       end
       object Label5: TLabel
-        Left = 124
-        Height = 21
-        Top = 56
-        Width = 83
+        Left = 204
+        Height = 16
+        Top = 64
+        Width = 67
         Caption = 'Ping interval'
         ParentColor = False
       end
       object cMasterServerAddress: TEdit
-        Left = 10
-        Height = 28
-        Top = 24
+        Left = 12
+        Height = 23
+        Top = 32
         Width = 250
-        OnChange = cMasterServerAddressChange
+        OnChange = ControlChange
         TabOrder = 2
       end
       object Label7: TLabel
         Left = 10
-        Height = 21
+        Height = 16
         Top = 8
-        Width = 144
+        Width = 114
         Caption = 'Master server address'
         ParentColor = False
       end
       object cMasterAnnounceInterval: TSpinEdit
-        Left = 364
-        Height = 28
-        Top = 24
+        Left = 444
+        Height = 23
+        Top = 32
         Width = 144
-        OnChange = cMasterAnnounceIntervalChange
+        OnChange = ControlChange
         TabOrder = 3
         Value = 10
       end
       object Label6: TLabel
-        Left = 364
-        Height = 21
+        Left = 444
+        Height = 16
         Top = 8
-        Width = 167
+        Width = 135
         Caption = 'Master announce interval'
         ParentColor = False
       end
       object cHTMLStatusFile: TEdit
         Tag = 1
-        Left = 244
-        Height = 28
-        Top = 74
+        Left = 404
+        Height = 23
+        Top = 88
         Width = 184
-        OnChange = cHTMLStatusFileChange
+        OnChange = ControlChange
         TabOrder = 4
       end
       object Label8: TLabel
-        Left = 244
-        Height = 21
-        Top = 56
-        Width = 107
+        Left = 404
+        Height = 16
+        Top = 64
+        Width = 87
         Caption = 'HTML status file'
         ParentColor = False
       end
       object cServerPort: TEdit
-        Left = 268
-        Height = 28
-        Top = 24
+        Left = 324
+        Height = 23
+        Top = 32
         Width = 88
-        OnChange = cServerPortChange
+        OnChange = ControlChange
         TabOrder = 5
       end
       object Label11: TLabel
-        Left = 268
-        Height = 21
+        Left = 324
+        Height = 16
         Top = 8
-        Width = 73
+        Width = 58
         Caption = 'Server Port'
         ParentColor = False
       end
@@ -320,13 +299,13 @@ object FormMain: TFormMain
   end
   object ButtonApply: TButton
     Left = 624
-    Height = 25
-    Top = 104
+    Height = 33
+    Top = 96
     Width = 179
     Anchors = [akTop, akRight]
-    Caption = 'Apply settings live and save'
+    Caption = 'Save and update settings'
     Enabled = False
     OnClick = ButtonApplyClick
-    TabOrder = 9
+    TabOrder = 7
   end
 end

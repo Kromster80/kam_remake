@@ -16,8 +16,6 @@ type
 
   TFormMain = class(TForm)
     ButtonApply: TButton;
-    ButtonSaveSettings: TButton;
-    Button2: TButton;
     cAnnounceServer: TCheckBox;
     cAutoKickTimeout: TSpinEdit;
     cHTMLStatusFile: TEdit;
@@ -51,39 +49,27 @@ type
     Advanced: TTabSheet;
     procedure ButtonApplyClick(Sender: TObject);
     procedure ButtonSaveSettingsClick(Sender: TObject);
-    procedure cAnnounceServerChange(Sender: TObject);
-    procedure cAutoKickTimeoutChange(Sender: TObject);
-    procedure cHTMLStatusFileChange(Sender: TObject);
-    procedure cMasterAnnounceIntervalChange(Sender: TObject);
-    procedure cMasterServerAddressChange(Sender: TObject);
-    procedure cMaxRoomsChange(Sender: TObject);
-    procedure cPingIntervalChange(Sender: TObject);
-    procedure cServerNameChange(Sender: TObject);
-    procedure cServerPortChange(Sender: TObject);
-    procedure cServerWelcomeMessageChange(Sender: TObject);
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure ControlChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure StartStopButtonClick(Sender: TObject);
     procedure ChangeServerStatus(Status: Boolean);
-    procedure LoadSettings(Sender: TObject);
+    procedure LoadSettings;
     procedure ServerStatusMessage(const aData: string);
     procedure ServerStatusMessageNoTime(const aData: string);
     procedure ChangeEnableStateOfControls(state: Boolean);
     procedure ChangeEnableStateOfApplyButton(state: Boolean);
     procedure ApplicationIdle(Sender: TObject; var Done: Boolean);
   private
-    { private declarations }
+    fSettings: TGameSettings;
+    fSettingsLastModified: integer;
+    ServerStatus: Boolean;
+    fDedicatedServer: TKMDedicatedServer;
   public
-    { public declarations }
   end;
 
 var
   FormMain: TFormMain;
-  fSettings: TGameSettings;
-  fSettingsLastModified: integer;
-  ServerStatus: Boolean;
-  fDedicatedServer: TKMDedicatedServer;
 
 implementation
 
@@ -97,16 +83,25 @@ procedure TFormMain.FormCreate(Sender: TObject);
 begin
   ServerStatus:=False;
   ChangeEnableStateOfApplyButton(false);
+  self.Caption:='KaM Remake '+GAME_VERSION+' Dedicated Server';
 
   ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
   CreateDir(ExeDir + 'Logs');
   fLog := TKMLog.Create(ExeDir+'Logs'+PathDelim+'KaM_Server_'+FormatDateTime('yyyy-mm-d_hh-nn-ss-zzz',Now)+'.log');
 
+  ServerStatusMessageNoTime     ('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
+  ServerStatusMessage           ('== KaM Remake '+GAME_VERSION+' Dedicated Server ==');
+  ServerStatusMessageNoTime     ('');
+  ServerStatusMessage           ('Settings file: '+ExeDir+SETTINGS_FILE);
+  ServerStatusMessage           ('Log file: '+fLog.LogPath);
+  ServerStatusMessageNoTime     ('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
+  ServerStatusMessageNoTime     ('');
+
   fSettings := TGameSettings.Create;
   fSettings.SaveSettings(true);
   fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
 
-  LoadSettings(nil);
+  LoadSettings;
 
   Application.OnIdle := ApplicationIdle;
 end;
@@ -114,7 +109,7 @@ end;
 
 procedure TFormMain.FormDestroy(Sender: TObject);
 begin
-  if (ServerStatus = True) then
+  if ServerStatus then
      ChangeServerStatus(False);
   FreeAndNil(fLog);
   fSettings.Free;
@@ -136,21 +131,28 @@ end;
 procedure TFormMain.StartStopButtonClick(Sender: TObject);
 begin
   ButtonApply.Enabled:=True;
-  if (ServerStatus = true) then
+  if ServerStatus  then
      FormMain.ChangeServerStatus(false)
   else
      FormMain.ChangeServerStatus(true);
 end;
 
 
+{
+fDedicatedServer.UpdateSettings(cServerName.Text,
+                                 cAnnounceServer.Checked,
+                                 cAutoKickTimeout.Value,
+                                 cPingInterval.Value,
+                                 cMasterAnnounceInterval.Value,
+                                 cMasterServerAddress.Text,
+                                 cHTMLStatusFile.Text,
+                                 cServerWelcomeMessage.Text);
+}
+
 procedure TFormMain.ChangeEnableStateOfControls(state: Boolean);
 begin
   cMaxRooms.Enabled                          := state;
-  cAnnounceServer.Enabled                    := state;
-  cMasterServerAddress.Enabled               := state;
   cServerPort.Enabled                        := state;
-  cMasterAnnounceInterval.Enabled            := state;
-  cPingInterval.Enabled                      := state;
 end;
 
 procedure TFormMain.ChangeServerStatus(Status: Boolean);
@@ -172,13 +174,6 @@ begin
     ServerStatus:=Status;
     StartStopButton.Caption:='Server is ONLINE';
 
-    ServerStatusMessageNoTime     ('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
-    ServerStatusMessage           ('== KaM Remake '+GAME_VERSION+' Dedicated Server - Online ==');
-    ServerStatusMessageNoTime     ('');
-    ServerStatusMessage           ('Settings file: '+ExeDir+SETTINGS_FILE);
-    ServerStatusMessage           ('Log file: '+fLog.LogPath);
-    ServerStatusMessageNoTime     ('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
-    ServerStatusMessageNoTime     ('');
     ChangeEnableStateOfApplyButton(False);
   end
   else
@@ -195,17 +190,6 @@ begin
   end;
 end;
 
-
-
-
-
-procedure TFormMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-begin
- if (CloseAction = caFree) then
-  if (ServerStatus = True) then
-    ChangeServerStatus(false);
-  FreeAndNil(fLog);
-end;
 
 procedure TFormMain.ButtonSaveSettingsClick(Sender: TObject);
 begin
@@ -248,58 +232,29 @@ begin
     Done := True;
 end;
 
-procedure TFormMain.cAnnounceServerChange(Sender: TObject);
+
+procedure TFormMain.ControlChange(Sender: TObject);
 begin
   ChangeEnableStateOfApplyButton(True);
 end;
 
-procedure TFormMain.cAutoKickTimeoutChange(Sender: TObject);
-begin
-  ChangeEnableStateOfApplyButton(True);
-end;
-
-procedure TFormMain.cHTMLStatusFileChange(Sender: TObject);
-begin
-  ChangeEnableStateOfApplyButton(True);
-end;
-
-procedure TFormMain.cMasterAnnounceIntervalChange(Sender: TObject);
-begin
-  ChangeEnableStateOfApplyButton(True);
-end;
-
-procedure TFormMain.cMasterServerAddressChange(Sender: TObject);
-begin
-  ChangeEnableStateOfApplyButton(True);
-end;
-
-procedure TFormMain.cMaxRoomsChange(Sender: TObject);
-begin
-  ChangeEnableStateOfApplyButton(True);
-end;
-
-procedure TFormMain.cPingIntervalChange(Sender: TObject);
-begin
-  ChangeEnableStateOfApplyButton(True);
-end;
-
-procedure TFormMain.cServerNameChange(Sender: TObject);
-begin
-  ChangeEnableStateOfApplyButton(True);
-end;
-
-procedure TFormMain.cServerPortChange(Sender: TObject);
-begin
-  ChangeEnableStateOfApplyButton(True);
-end;
-
-procedure TFormMain.cServerWelcomeMessageChange(Sender: TObject);
-begin
-  ChangeEnableStateOfApplyButton(True);
-end;
 
 procedure TFormMain.ButtonApplyClick(Sender: TObject);
 begin
+  fSettings.ServerName                            := cServerName.Text;
+  fSettings.ServerWelcomeMessage                  := cServerWelcomeMessage.Text;
+  if (cAnnounceServer.Checked = True) then
+     fSettings.AnnounceServer                     := True
+  else
+      fSettings.AnnounceServer                    := False;
+  fSettings.AutoKickTimeout                       := cAutoKickTimeout.Value;
+  fSettings.PingInterval                          := cPingInterval.Value;
+  fSettings.MasterAnnounceInterval                := cMasterAnnounceInterval.Value;
+  fSettings.MasterServerAddress                   := cMasterServerAddress.Text;
+  fSettings.HTMLStatusFile                        := cHTMLStatusFile.Text;
+  fSettings.ServerPort                            := cServerPort.Text;
+  fSettings.MaxRooms                              := cMaxRooms.Value;
+
   fSettings.SaveSettings(true);
   fDedicatedServer.UpdateSettings(cServerName.Text,
                                   cAnnounceServer.Checked,
@@ -309,11 +264,11 @@ begin
                                   cMasterServerAddress.Text,
                                   cHTMLStatusFile.Text,
                                   cServerWelcomeMessage.Text);
-  ServerStatusMessage('Settings updated and are now live.');
+  ServerStatusMessage('Settings saved, updated and are now live.');
   ChangeEnableStateOfApplyButton(False);
 end;
 
-procedure TFormMain.LoadSettings(Sender: TObject);
+procedure TFormMain.LoadSettings;
 begin
   fSettings.ReloadSettings;
 
