@@ -194,10 +194,10 @@ type
 
   TKMUnitRecruit = class(TKMUnit)
   private
-    function FindHome:boolean;
-    function InitiateActivity:TUnitTask;
+    function FindHome: Boolean;
+    function InitiateActivity: TUnitTask;
   public
-    function UpdateState:boolean; override;
+    function UpdateState: Boolean; override;
     procedure Paint; override;
     procedure DestroyInBarracks;
   end;
@@ -532,9 +532,9 @@ end;
 
 
 function TKMUnitRecruit.UpdateState:boolean;
-var H:TKMHouseInn;
+var H: TKMHouseInn;
 begin
-  Result:=true; //Required for override compatibility
+  Result := True; //Required for override compatibility
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitRecruit.UpdateState',fCurrPosition);
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
@@ -554,7 +554,6 @@ begin
   if IsDead then exit; //Caused by SelfTrain.Abandoned
 
   fThought := th_None;
-
 
   if fCondition<UNIT_MIN_CONDITION then
   begin
