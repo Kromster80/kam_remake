@@ -8,15 +8,17 @@ uses
   {$IFDEF FPC}
   Interfaces, // this includes the LCL widgetset
   {$ENDIF}
-  Forms, UnitMain;
+  Forms,
+  UnitMain in 'UnitMain.pas' {TFormMain};
+
 
 {$IFDEF FPC}
   {$R *.res}
 {$ENDIF}
+
 
 begin
   Application.Initialize;
   Application.CreateForm(TFormMain, FormMain);
   Application.Run;
 end.
-

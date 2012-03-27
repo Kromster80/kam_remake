@@ -21,6 +21,9 @@
 			<Projects Include="Utils\Batcher\Batcher.dproj">
 				<Dependencies/>
 			</Projects>
+			<Projects Include="Utils\DedicatedServerGUI\KaM_DedicatedServerGUI.dproj">
+				<Dependencies/>
+			</Projects>
 		</ItemGroup>
 		<ProjectExtensions>
 			<Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -83,14 +86,23 @@
 		<Target Name="Batcher:Make">
 			<MSBuild Projects="Utils\Batcher\Batcher.dproj" Targets="Make"/>
 		</Target>
+		<Target Name="KaM_DedicatedServerGUI">
+			<MSBuild Projects="Utils\DedicatedServerGUI\KaM_DedicatedServerGUI.dproj"/>
+		</Target>
+		<Target Name="KaM_DedicatedServerGUI:Clean">
+			<MSBuild Projects="Utils\DedicatedServerGUI\KaM_DedicatedServerGUI.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="KaM_DedicatedServerGUI:Make">
+			<MSBuild Projects="Utils\DedicatedServerGUI\KaM_DedicatedServerGUI.dproj" Targets="Make"/>
+		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="KaM_Remake;KaM_RemakeTests;CampaignBuilder;RXXPacker;TranslationManager;Batcher"/>
+			<CallTarget Targets="KaM_Remake;KaM_RemakeTests;CampaignBuilder;RXXPacker;TranslationManager;Batcher;KaM_DedicatedServerGUI"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="KaM_Remake:Clean;KaM_RemakeTests:Clean;CampaignBuilder:Clean;RXXPacker:Clean;TranslationManager:Clean;Batcher:Clean"/>
+			<CallTarget Targets="KaM_Remake:Clean;KaM_RemakeTests:Clean;CampaignBuilder:Clean;RXXPacker:Clean;TranslationManager:Clean;Batcher:Clean;KaM_DedicatedServerGUI:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="KaM_Remake:Make;KaM_RemakeTests:Make;CampaignBuilder:Make;RXXPacker:Make;TranslationManager:Make;Batcher:Make"/>
+			<CallTarget Targets="KaM_Remake:Make;KaM_RemakeTests:Make;CampaignBuilder:Make;RXXPacker:Make;TranslationManager:Make;Batcher:Make;KaM_DedicatedServerGUI:Make"/>
 		</Target>
 		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
 	</Project>

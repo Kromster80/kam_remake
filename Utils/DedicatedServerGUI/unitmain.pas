@@ -1,7 +1,6 @@
 unit UnitMain;
 {$I ..\..\KaM_Remake.inc}
 interface
-
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
   ExtCtrls, Spin, ComCtrls,
@@ -10,9 +9,10 @@ uses
   KM_DedicatedServer,
   KM_Log;
 
-type
 
-  { TFormMain }
+type
+  //Distinct states for the server
+  TKMServerStatus = (ssOffline, ssOnline);
 
   TFormMain = class(TForm)
     ButtonApply: TButton;
@@ -57,7 +57,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure StartStopButtonClick(Sender: TObject);
-    procedure ChangeServerStatus(Status: Boolean);
+    procedure ChangeServerStatus(aStatus: TKMServerStatus);
     procedure LoadSettings;
 
     //those procs run KM_Log.AppendLog() and add same log line to Memo control
@@ -73,13 +73,14 @@ type
   private
     fSettings: TGameSettings;
     fSettingsLastModified: integer;
-    ServerStatus: Boolean;
+    fServerStatus: TKMServerStatus;
     fDedicatedServer: TKMDedicatedServer;
-  public
   end;
+
 
 var
   FormMain: TFormMain;
+
 
 implementation
 {$IFDEF WDC}
@@ -90,26 +91,26 @@ implementation
   {$R *.lfm}
 {$ENDIF}
 
-{ TFormMain }
 
+{ TFormMain }
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  ServerStatus:=False;
-  ChangeEnableStateOfApplyButton(false);
-  Application.Title := 'KaM Remake '+GAME_VERSION+' Dedicated Server';
+  fServerStatus := ssOffline;
+  ChangeEnableStateOfApplyButton(False);
+  Application.Title := 'KaM Remake ' + GAME_VERSION + ' Dedicated Server';
 
-  ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
+  ExeDir := ExtractFilePath(ParamStr(0));
   CreateDir(ExeDir + 'Logs');
-  fLog := TKMLog.Create(ExeDir+'Logs'+PathDelim+'KaM_Server_'+FormatDateTime('yyyy-mm-d_hh-nn-ss-zzz',Now)+'.log');
+  fLog := TKMLog.Create(ExeDir + 'Logs' + PathDelim + 'KaM_Server_' + FormatDateTime('yyyy-mm-d_hh-nn-ss-zzz', Now) + '.log');
 
   //this is shown only at application start (tip. check the strange -. in morse code translator ;)
-  ServerStatusMessageNoTime     ('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
-  ServerStatusMessage           ('== KaM Remake '+GAME_VERSION+' Dedicated Server ==');
-  ServerStatusMessageNoTime     ('');
-  ServerStatusMessage           ('Settings file: '+ExeDir+SETTINGS_FILE);
-  ServerStatusMessage           ('Log file: '+fLog.LogPath);
-  ServerStatusMessageNoTime     ('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
-  ServerStatusMessageNoTime     ('');
+  ServerStatusMessageNoTime('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
+  ServerStatusMessage      ('== KaM Remake ' + GAME_VERSION + ' Dedicated Server ==');
+  ServerStatusMessageNoTime('');
+  ServerStatusMessage      ('Settings file: ' + ExeDir + SETTINGS_FILE);
+  ServerStatusMessage      ('Log file: ' + fLog.LogPath);
+  ServerStatusMessageNoTime('-.- .- -- / .-. . -- .- -.- . / .. ... / - .... . / -... . ... -');
+  ServerStatusMessageNoTime('');
 
   fSettings := TGameSettings.Create;
   fSettings.SaveSettings(true);
@@ -124,8 +125,10 @@ end;
 
 procedure TFormMain.FormDestroy(Sender: TObject);
 begin
-  if ServerStatus then
-     ChangeServerStatus(False);
+  //Terminate online server on exit
+  if fServerStatus = ssOnline then
+    ChangeServerStatus(ssOffline);
+
   FreeAndNil(fLog);
   fSettings.Free;
 end;
@@ -133,9 +136,10 @@ end;
 
 procedure TFormMain.ServerStatusMessage(const aData: string);
 begin
-  LogsMemo.Lines.Add(FormatDateTime('yyyy-mm-dd hh-nn-ss ',Now)+aData);
+  LogsMemo.Lines.Add(FormatDateTime('yyyy-mm-dd hh-nn-ss ', Now) + aData);
   fLog.AppendLog(aData);
 end;
+
 
 procedure TFormMain.ServerStatusMessageNoTime(const aData: string);
 begin
@@ -143,65 +147,73 @@ begin
   fLog.AppendLog(aData);
 end;
 
+
 procedure TFormMain.StartStopButtonClick(Sender: TObject);
 begin
-  ButtonApply.Enabled:=True;
+  ButtonApply.Enabled := True;
 
   //turn off server when it was on and vice-versa
-  FormMain.ChangeServerStatus(not ServerStatus);
+  case fServerStatus of
+    ssOffline: FormMain.ChangeServerStatus(ssOnline);
+    ssOnline:  FormMain.ChangeServerStatus(ssOffline);
+  end;
 end;
 
 
 procedure TFormMain.ChangeEnableStateOfControls(state: Boolean);
 begin
-  cMaxRooms.Enabled                          := state;
-  cServerPort.Enabled                        := state;
+  cMaxRooms.Enabled   := state;
+  cServerPort.Enabled := state;
 end;
 
-procedure TFormMain.ChangeServerStatus(Status: Boolean);
+
+procedure TFormMain.ChangeServerStatus(aStatus: TKMServerStatus);
 begin
-  if (Status = true) then
-  begin
-    ChangeEnableStateOfControls(False);
+  case aStatus of
+    ssOnline:
+      begin
+        ChangeEnableStateOfControls(False);
 
-    fDedicatedServer := TKMDedicatedServer.Create(fSettings.MaxRooms,
-                                                fSettings.AutoKickTimeout,
-                                                fSettings.PingInterval,
-                                                fSettings.MasterAnnounceInterval,
-                                                fSettings.MasterServerAddress,
-                                                fSettings.HTMLStatusFile,
-                                                fSettings.ServerWelcomeMessage);
-    fDedicatedServer.OnMessage := ServerStatusMessage;
-    fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer, true);
+        fDedicatedServer := TKMDedicatedServer.Create(fSettings.MaxRooms,
+                                                      fSettings.AutoKickTimeout,
+                                                      fSettings.PingInterval,
+                                                      fSettings.MasterAnnounceInterval,
+                                                      fSettings.MasterServerAddress,
+                                                      fSettings.HTMLStatusFile,
+                                                      fSettings.ServerWelcomeMessage);
+        fDedicatedServer.OnMessage := ServerStatusMessage;
+        fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer, true);
 
-    ServerStatus:=Status;
-    StartStopButton.Caption:='Server is ONLINE';
+        fServerStatus := aStatus;
+        StartStopButton.Caption := 'Server is ONLINE';
 
-    ChangeEnableStateOfApplyButton(False);
-  end
-  else
-  begin
-    ChangeEnableStateOfControls(True);  //we enable disabled controls
+        ChangeEnableStateOfApplyButton(False);
+      end;
+    ssOffline:
+      begin
+        //Reenable disabled controls
+        ChangeEnableStateOfControls(True);
 
-    FreeAndNil(fDedicatedServer);
+        FreeAndNil(fDedicatedServer);
 
-    ServerStatus:=Status;
-    StartStopButton.Caption:='Server is OFFLINE';
-    ServerStatusMessage('Dedicated Server is now Offline');
-    ServerStatusMessageNoTime('');
+        fServerStatus := aStatus;
+        StartStopButton.Caption := 'Server is OFFLINE';
+        ServerStatusMessage('Dedicated Server is now Offline');
+        ServerStatusMessageNoTime('');
+      end;
   end;
 end;
 
 
 procedure TFormMain.ChangeEnableStateOfApplyButton(state: Boolean);
 begin
-  ButtonApply.Enabled:=state;
+  ButtonApply.Enabled := state;
 end;
 
 
 procedure TFormMain.ApplicationIdle(Sender: TObject; var Done: Boolean);
 begin
-  if ServerStatus then
+  if fServerStatus = ssOnline then
   begin
     fDedicatedServer.UpdateState;
     Sleep(1); //Don't use 100% CPU
@@ -210,6 +222,7 @@ begin
   else
     Done := True;
 end;
+
 
 //one event for each control
 procedure TFormMain.ControlChange(Sender: TObject);
@@ -220,49 +233,52 @@ end;
 
 procedure TFormMain.ButtonApplyClick(Sender: TObject);
 begin
-  fSettings.ServerName                            := cServerName.Text;
-  fSettings.ServerWelcomeMessage                  := cServerWelcomeMessage.Text;
-  fSettings.AnnounceServer                        := cAnnounceServer.Checked;
-  fSettings.AutoKickTimeout                       := cAutoKickTimeout.Value;
-  fSettings.PingInterval                          := cPingInterval.Value;
-  fSettings.MasterAnnounceInterval                := cMasterAnnounceInterval.Value;
-  fSettings.MasterServerAddress                   := cMasterServerAddress.Text;
-  fSettings.HTMLStatusFile                        := cHTMLStatusFile.Text;
-  fSettings.ServerPort                            := cServerPort.Text;
-  fSettings.MaxRooms                              := cMaxRooms.Value;
+  //Disable the button asap to indicate we are at it
+  ChangeEnableStateOfApplyButton(False);
 
-  fSettings.SaveSettings(true);
+  fSettings.ServerName              := cServerName.Text;
+  fSettings.ServerWelcomeMessage    := cServerWelcomeMessage.Text;
+  fSettings.AnnounceServer          := cAnnounceServer.Checked;
+  fSettings.AutoKickTimeout         := cAutoKickTimeout.Value;
+  fSettings.PingInterval            := cPingInterval.Value;
+  fSettings.MasterAnnounceInterval  := cMasterAnnounceInterval.Value;
+  fSettings.MasterServerAddress     := cMasterServerAddress.Text;
+  fSettings.HTMLStatusFile          := cHTMLStatusFile.Text;
+  fSettings.ServerPort              := cServerPort.Text;
+  fSettings.MaxRooms                := cMaxRooms.Value;
 
-  //we can update only if server is online
-  if ServerStatus then
+  fSettings.SaveSettings(True);
+
+  //We can update only if server is online
+  if fServerStatus = ssOnline then
   begin
     fDedicatedServer.UpdateSettings(cServerName.Text,
-                                  cAnnounceServer.Checked,
-                                  cAutoKickTimeout.Value,
-                                  cPingInterval.Value,
-                                  cMasterAnnounceInterval.Value,
-                                  cMasterServerAddress.Text,
-                                  cHTMLStatusFile.Text,
-                                  cServerWelcomeMessage.Text);
+                                    cAnnounceServer.Checked,
+                                    cAutoKickTimeout.Value,
+                                    cPingInterval.Value,
+                                    cMasterAnnounceInterval.Value,
+                                    cMasterServerAddress.Text,
+                                    cHTMLStatusFile.Text,
+                                    cServerWelcomeMessage.Text);
     ServerStatusMessage('Settings saved, updated and are now live.');
   end;
-  ChangeEnableStateOfApplyButton(False);
 end;
+
 
 procedure TFormMain.LoadSettings;
 begin
   fSettings.ReloadSettings;
 
-  cServerName.Text                                := fSettings.ServerName;
-  cServerWelcomeMessage.Text                      := fSettings.ServerWelcomeMessage;
-  cAnnounceServer.Checked                         := fSettings.AnnounceServer;
-  cAutoKickTimeout.Value                          := fSettings.AutoKickTimeout;
-  cPingInterval.Value                             := fSettings.PingInterval;
-  cMasterAnnounceInterval.Value                   := fSettings.MasterAnnounceInterval;
-  cMasterServerAddress.Text                       := fSettings.MasterServerAddress;
-  cHTMLStatusFile.Text                            := fSettings.HTMLStatusFile;
-  cServerPort.Text                                := fSettings.ServerPort;
-  cMaxRooms.Value                                 := fSettings.MaxRooms;
+  cServerName.Text              := fSettings.ServerName;
+  cServerWelcomeMessage.Text    := fSettings.ServerWelcomeMessage;
+  cAnnounceServer.Checked       := fSettings.AnnounceServer;
+  cAutoKickTimeout.Value        := fSettings.AutoKickTimeout;
+  cPingInterval.Value           := fSettings.PingInterval;
+  cMasterAnnounceInterval.Value := fSettings.MasterAnnounceInterval;
+  cMasterServerAddress.Text     := fSettings.MasterServerAddress;
+  cHTMLStatusFile.Text          := fSettings.HTMLStatusFile;
+  cServerPort.Text              := fSettings.ServerPort;
+  cMaxRooms.Value               := fSettings.MaxRooms;
 
   ServerStatusMessageNoTime('');
   ChangeEnableStateOfApplyButton(False);
@@ -270,4 +286,3 @@ end;
 
 
 end.
-
