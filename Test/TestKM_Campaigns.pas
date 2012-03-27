@@ -113,7 +113,7 @@ procedure TestTKMCampaignsCollection.SetUp;
 begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\log.tmp');
-  fLocales := TKMLocales.Create;
+  fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
   FKMCampaignsCollection := TKMCampaignsCollection.Create;
 end;

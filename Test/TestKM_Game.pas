@@ -27,7 +27,7 @@ begin
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
-  fLocales := TKMLocales.Create;
+  fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
   fGame := TKMGame.Create(0, 1024, 768, False, nil, nil, True);
   fGame.GlobalSettings.Autosave := False;
@@ -54,9 +54,10 @@ begin
     if fGame.GameState = gsOnHold then
       fGame.GameHold(False, gr_Win);
   end;
+  Status('7');
 
   fGame.Save('StoneTest');
-  Check(fPlayers[0].Stats.GetGoodsProduced >= 3810, 'StoneMining got broken');
+  Check(fPlayers[0].Stats.GetGoodsProduced >= 3800, 'StoneMining got broken? Mined '+IntToStr(fPlayers[0].Stats.GetGoodsProduced)+'/3800');
 end;
 
 

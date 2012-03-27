@@ -42,7 +42,7 @@ begin
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
-  fLocales := TKMLocales.Create;
+  fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
   fGame := TKMGame.Create(0, 1024, 768, False, nil, nil, True);
   fGame.GlobalSettings.Autosave := False;
