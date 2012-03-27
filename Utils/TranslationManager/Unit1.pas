@@ -29,6 +29,8 @@ type
     Label3: TLabel;
     Button1: TButton;
     lbFolders: TListBox;
+    btnCopy: TButton;
+    btnPaste: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
@@ -47,10 +49,13 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure lbFoldersClick(Sender: TObject);
+    procedure btnCopyClick(Sender: TObject);
+    procedure btnPasteClick(Sender: TObject);
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
     fWorkDir: string;
+    fBuffer: array of string;
 
     TransMemos: array of TMemo;
     TransLabels: array of TLabel;
@@ -301,7 +306,8 @@ const
      559, 559, 560, 561, 563);
 var I: Integer;
 begin
-  for I := 1 to 20 do
+  //Export campaign in-mission texts
+  {for I := 1 to 20 do
   if (TSK[I+1] - TSK[I] <> 0) then
   begin
     fTextManager.Load(fWorkDir + 'data\text\text.%s.libx', '');
@@ -314,7 +320,15 @@ begin
     fTextManager.Load(fWorkDir + 'data\text\text.%s.libx', '');
     fTextManager.Slice(TPR[I], TPR[I+1] - TPR[I]);
     fTextManager.Save(fWorkDir + 'Campaigns\The Peasants Rebellion\TPR' + Format('%.2d', [I]) + '\TPR' + Format('%.2d', [I]) + '.%s.libx', '');
-  end;
+  end;}
+
+  //Export campaign briefings
+  fTextManager.Load(fWorkDir + 'data\text\text.%s.libx', '');
+  fTextManager.Slice(1249, 20);
+  fTextManager.Save(fWorkDir + 'Campaigns\The Shattered Kingdom\text.%s.libx', '');
+  fTextManager.Load(fWorkDir + 'data\text\text.%s.libx', '');
+  fTextManager.Slice(1349, 14);
+  fTextManager.Save(fWorkDir + 'Campaigns\The Peasants Rebellion\text.%s.libx', '');
 end;
 
 
@@ -403,10 +417,38 @@ begin
 end;
 
 
+procedure TForm1.btnCopyClick(Sender: TObject);
+var I, ID: Integer;
+begin
+  ID := ListBox1.ItemIndex;
+  if ID = -1 then Exit;
+
+  SetLength(fBuffer, fLocales.Count);
+  for I := 0 to fLocales.Count - 1 do
+    fBuffer[I] := fTextManager.Texts[fTextManager.Consts[ID].TextID][I];
+  btnPaste.Enabled := True;
+end;
+
+
+procedure TForm1.btnPasteClick(Sender: TObject);
+var I, ID: Integer;
+begin
+  ID := ListBox1.ItemIndex;
+  if ID = -1 then Exit;
+
+  Assert(Length(fBuffer) = fLocales.Count);
+  for I := 0 to fLocales.Count - 1 do
+    fTextManager.Texts[fTextManager.Consts[ID].TextID][I] := fBuffer[I];
+  btnSave.Enabled := True;
+  ListBox1Click(nil);
+end;
+
+
 procedure TForm1.btnMoveDownClick(Sender: TObject);
 var ID: integer;
 begin
   ID := ListBox1.ItemIndex;
+  if ID = -1 then Exit;
 
   fTextManager.MoveDown(ID);
   RefreshList;

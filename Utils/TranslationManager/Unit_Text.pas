@@ -397,8 +397,8 @@ begin
   SetLength(fConsts, Length(fConsts) + 1);
 
   //Move others down
-  for i := Length(fConsts)-2 downto aIndex do
-    fConsts[i+1] := fConsts[i];
+  for I := Length(fConsts)-2 downto aIndex do
+    fConsts[I+1] := fConsts[I];
 
   //Append new strings, they will be empty
   Inc(fTextMaxID);

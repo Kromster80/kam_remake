@@ -187,9 +187,7 @@ object Form1: TForm1
     Width = 75
     Height = 25
     Caption = 'Export TSK'
-    Enabled = False
     TabOrder = 14
-    Visible = False
     OnClick = Button1Click
   end
   object btnDelete: TButton
@@ -200,5 +198,26 @@ object Form1: TForm1
     Caption = 'Delete'
     TabOrder = 6
     OnClick = btnDeleteClick
+  end
+  object btnCopy: TButton
+    Left = 632
+    Top = 24
+    Width = 65
+    Height = 25
+    Anchors = [akTop, akRight]
+    Caption = 'Copy'
+    TabOrder = 16
+    OnClick = btnCopyClick
+  end
+  object btnPaste: TButton
+    Left = 696
+    Top = 24
+    Width = 65
+    Height = 25
+    Anchors = [akTop, akRight]
+    Caption = 'Paste'
+    Enabled = False
+    TabOrder = 17
+    OnClick = btnPasteClick
   end
 end
