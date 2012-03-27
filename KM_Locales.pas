@@ -2,12 +2,12 @@ unit KM_Locales;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, StrUtils, KM_Defaults;
+  Classes, Math, SysUtils, StrUtils;
 
 type
   TKMLocaleInfo = record
-    Code: string[3]; //eng
-    Title: string; //English
+    Code: string[3]; //3-letter code: 'eng', 'rus'
+    Title: string; //Full name: 'English', 'Russian'
     FontCodepage: string;
     FlagSpriteID: Integer;
     FallbackLocale: string;
@@ -22,7 +22,7 @@ type
     function ParseLine(aLine: string; out aLocale: TKMLocaleInfo): Boolean;
     function GetLocaleByIndex(aIndex: Integer): TKMLocaleInfo;
   public
-    constructor Create;
+    constructor Create(aPath: string);
     function GetIDFromCode(const aLocaleCode: string): Integer;
     function GetTranslatorCredits: string;
     property Locales[aIndex: Integer]: TKMLocaleInfo read GetLocaleByIndex; default;
@@ -39,10 +39,10 @@ implementation
 
 
 { TKMLocales }
-constructor TKMLocales.Create;
+constructor TKMLocales.Create(aPath: string);
 begin
-  inherited;
-  LoadLocales(ExeDir + 'data\locales.txt');
+  inherited Create;
+  LoadLocales(aPath);
 end;
 
 

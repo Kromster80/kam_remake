@@ -3,7 +3,7 @@ unit Unit_Text;
 interface
 uses
   Classes, Controls, Dialogs, ExtCtrls, FileCtrl, Forms, Graphics, Math,
-  StdCtrls, StrUtils, SysUtils, Windows;
+  StdCtrls, StrUtils, SysUtils, Windows, KM_Locales;
 
 
 type
@@ -17,19 +17,14 @@ type
 type
   TTextManager = class
   private
-    fLocalesCount: Integer;
-    fLocales: array of string;
-    fDefaultLocale: Integer;
-
-    fTextsCount: Integer;
+    fUseConsts: Boolean; //We use consts only for ingame library, others don't need them
+    fTextMaxID: Integer;
     fTexts: array of TStringArray;
     fConsts: array of TTextInfo;
 
     function GetConst(aIndex: Integer): TTextInfo;
     function GetText(aIndex: Integer): TStringArray;
-    function GetLocale(aIndex: Integer): string;
 
-    procedure ScanTranslations(aTextPath: string);
     procedure LoadConsts(aConstPath: string);
     procedure LoadText(aTextPath: string; TranslationID: integer);
     procedure AddMissingConsts;
@@ -43,9 +38,6 @@ type
     function ConstCount: Integer;
     property Consts[aIndex: Integer]: TTextInfo read GetConst write SetConst;
     property Texts[aIndex: Integer]: TStringArray read GetText;
-    property LocalesCount: Integer read fLocalesCount;
-    property Locales[aIndex: Integer]: string read GetLocale;
-    property DefaultLocale: Integer read fDefaultLocale;
 
     procedure DeleteConst(aIndex: Integer);
     procedure Insert(aIndex: Integer);
@@ -68,36 +60,32 @@ const
 
 
 procedure TTextManager.Load(aTextPath: string; aConstPath: string);
-var
-  I: Integer;
+var I: Integer;
 begin
-  fLocalesCount := 0;
-
   SetLength(fConsts, 0);
   SetLength(fTexts, 0);
-  SetLength(fLocales, 0);
 
-  ScanTranslations(aTextPath);
-  if fLocalesCount = 0 then Exit;
+  fUseConsts := aConstPath <> '';
+  fTextMaxID := -1;
 
-  fTextsCount := 0;
+  if fUseConsts then
+    LoadConsts(aConstPath);
 
-  LoadConsts(aConstPath);
-  for I := 0 to fLocalesCount - 1 do
-    LoadText(Format(aTextPath, [fLocales[I]]), I);
+  for I := 0 to fLocales.Count - 1 do
+    LoadText(Format(aTextPath, [fLocales[I].Code]), I);
 
   AddMissingConsts;
 end;
 
 
 procedure TTextManager.Save(aTextPath: string; aConstPath: string);
-var
-  I: Integer;
+var I: Integer;
 begin
-  if aConstPath <> '' then
+  if fUseConsts then
     SaveTextLibraryConsts(aConstPath);
-  for I := 0 to fLocalesCount - 1 do
-    SaveTranslation(Format(aTextPath, [fLocales[I]]), I);
+
+  for I := 0 to fLocales.Count - 1 do
+    SaveTranslation(Format(aTextPath, [fLocales[I].Code]), I);
 end;
 
 
@@ -106,7 +94,7 @@ procedure TTextManager.AddMissingConsts;
   var I: Integer;
   begin
     Result := True;
-    for I := 0 to fLocalesCount - 1 do
+    for I := 0 to fLocales.Count - 1 do
       Result := Result and (Trim(fTexts[aIndex, I]) = '');
   end;
   function TextUnused(aIndex: Integer): Boolean;
@@ -120,38 +108,20 @@ procedure TTextManager.AddMissingConsts;
       Break;
     end;
   end;
+const Mask: array [Boolean] of string = ('TX%d_%s', 'TX_UNUSED_%d_%s');
 var I: Integer; s: string;
 begin
-  for I := 0 to fTextsCount - 1 do
+  for I := 0 to fTextMaxID do
     if not TextEmpty(I) and TextUnused(I) then
     begin
-      s := StringReplace(fTexts[I, fDefaultLocale], ' ', '', [rfReplaceAll]);
+      s := StringReplace(fTexts[I, fLocales.GetIDFromCode(DEFAULT_LOCALE)], ' ', '', [rfReplaceAll]);
       s := UpperCase(LeftStr(s, 16));
 
       SetLength(fConsts, Length(fConsts) + 1);
       fConsts[High(fConsts)].TextID := I;
 
-      fConsts[High(fConsts)].ConstName := 'TX_UNUSED_' + IntToStr(I) + '_' + s;
+      fConsts[High(fConsts)].ConstName := Format(Mask[fUseConsts], [I, s]);
     end;
-end;
-
-
-//aTextPath is in format drive\path\filename.%s.libx
-procedure TTextManager.ScanTranslations(aTextPath: string);
-var SearchRec: TSearchRec;
-begin
-  fLocalesCount := 0;
-  fDefaultLocale := 0; //Default in case there is no eng
-
-  FindFirst(Format(aTextPath, ['*']), faAnyFile - faDirectory, SearchRec);
-  repeat
-    SetLength(fLocales, fLocalesCount + 1);
-    //text.***.libx
-    fLocales[fLocalesCount] := Copy(SearchRec.Name, 6, 3);
-    if fLocales[fLocalesCount] = 'eng' then
-      fDefaultLocale := fLocalesCount;
-    Inc(fLocalesCount);
-  until (FindNext(SearchRec) <> 0);
 end;
 
 
@@ -165,11 +135,11 @@ procedure TTextManager.Slice(aFirst, aNum: Integer);
 var I, K: Integer;
 begin
   for I := 0 to aNum - 1 do
-    for K := 0 to fLocalesCount - 1 do
+    for K := 0 to fLocales.Count - 1 do
       fTexts[I, K] := fTexts[I + aFirst, K];
 
   SetLength(fTexts, aNum);
-  fTextsCount := aNum;
+  fTextMaxID := aNum-1;
 end;
 
 
@@ -231,6 +201,8 @@ var
   I, ID, firstDelimiter, T: Integer;
   Line: string;
 begin
+  if not FileExists(aTextPath) then Exit;
+
   SL := TStringList.Create;
   SL.LoadFromFile(aTextPath);
 
@@ -248,13 +220,13 @@ begin
   //Make sure we've got valid TextCount
   if B then
   begin
-    if (fTextsCount <> 0) and (fTextsCount <> T) then
+    if (fTextMaxID <> -1) and (fTextMaxID <> T) then
     begin
       ShowMessage(aTextPath + ' MaxID is inconsistent with other files');
       B := False;
     end
     else
-      fTextsCount := T;
+      fTextMaxID := T;
   end
   else
   begin
@@ -264,7 +236,7 @@ begin
 
   if B then
   begin
-    SetLength(fTexts, fTextsCount, fLocalesCount);
+    SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
 
     for I := 0 to SL.Count - 1 do
     begin
@@ -296,9 +268,10 @@ begin
   SL := TStringList.Create;
 
   SL.Add(''); //First line may contain BOM
-  SL.Add('MaxID:' + IntToStr(fTextsCount - 1));
+  SL.Add('MaxID:' + IntToStr(fTextMaxID));
   SL.Add('');
-  for I := 0 to fTextsCount - 1 do
+  for I := 0 to fTextMaxID do
+  if I <= High(fTexts) then
   if fTexts[I, TranslationID] <> '' then
   begin
     s := IntToStr(I) + ':'+ fTexts[I, TranslationID];
@@ -370,7 +343,7 @@ procedure TTextManager.SortByName;
     T: Integer;
   begin
     T := fConsts[A].TextID; fConsts[A].TextID := fConsts[B].TextID; fConsts[B].TextID := T;
-    for I := 0 to fLocalesCount - 1 do
+    for I := 0 to fLocales.Count - 1 do
     begin
       S := fTexts[fConsts[A].TextID, I];
       fTexts[fConsts[A].TextID, I] := fTexts[fConsts[B].TextID, I];
@@ -428,11 +401,11 @@ begin
     fConsts[i+1] := fConsts[i];
 
   //Append new strings, they will be empty
-  SetLength(fTexts, fTextsCount + 1, fLocalesCount);
-  Inc(fTextsCount);
+  Inc(fTextMaxID);
+  SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
 
-  fConsts[aIndex].TextID := fTextsCount - 1;
-  fConsts[aIndex].ConstName := 'TX_NEW' + IntToStr(fTextsCount - 1);
+  fConsts[aIndex].TextID := fTextMaxID;
+  fConsts[aIndex].ConstName := 'TX_NEW' + IntToStr(fTextMaxID);
 end;
 
 
@@ -442,8 +415,8 @@ begin
   if fConsts[aIndex].TextID <> -1 then
   begin
     //Shift all fTexts up
-    for I := fConsts[aIndex].TextID to fTextsCount-2 do
-      for K := 0 to fLocalesCount - 1 do
+    for I := fConsts[aIndex].TextID to fTextMaxID-1 do
+      for K := 0 to fLocales.Count - 1 do
         fTexts[I,K] := fTexts[I+1,K];
 
     //Shift pointers
@@ -465,15 +438,12 @@ begin
   Result := fConsts[aIndex];
 end;
 
-function TTextManager.GetLocale(aIndex: Integer): string;
-begin
-  Result := fLocales[aIndex];
-end;
 
 function TTextManager.GetText(aIndex: Integer): TStringArray;
 begin
   Result := fTexts[aIndex];
 end;
+
 
 procedure TTextManager.InsertSeparator(aIndex: Integer);
 var i: integer;

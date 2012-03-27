@@ -30,14 +30,14 @@ object Form1: TForm1
   end
   object Label2: TLabel
     Left = 336
-    Top = 336
+    Top = 320
     Width = 85
     Height = 16
     Caption = 'Show Missing:'
   end
   object LabelIncludeSameAsEnglish: TLabel
     Left = 357
-    Top = 384
+    Top = 368
     Width = 97
     Height = 49
     AutoSize = False
@@ -47,17 +47,25 @@ object Form1: TForm1
     OnClick = LabelIncludeSameAsEnglishClick
   end
   object Label3: TLabel
-    Left = 264
-    Top = 24
+    Left = 336
+    Top = 8
     Width = 34
     Height = 16
     Caption = 'Count'
   end
+  object lbFolders: TListBox
+    Left = 8
+    Top = 8
+    Width = 321
+    Height = 249
+    TabOrder = 15
+    OnClick = lbFoldersClick
+  end
   object ListBox1: TListBox
     Left = 8
-    Top = 48
+    Top = 264
     Width = 321
-    Height = 385
+    Height = 169
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
     OnClick = ListBox1Click
@@ -67,43 +75,35 @@ object Form1: TForm1
     Top = 24
     Width = 297
     Height = 24
+    Enabled = False
     TabOrder = 1
     OnChange = EditConstNameChange
   end
   object btnSortByIndex: TButton
     Left = 336
-    Top = 240
+    Top = 232
     Width = 121
     Height = 25
     Caption = 'Sort by Index'
     TabOrder = 2
     OnClick = btnSortByIndexClick
   end
-  object btnLoad: TButton
-    Left = 8
-    Top = 8
-    Width = 75
-    Height = 33
-    Caption = 'Load'
-    TabOrder = 3
-    OnClick = btnLoadClick
-  end
   object btnSave: TButton
-    Left = 96
-    Top = 8
-    Width = 75
+    Left = 336
+    Top = 32
+    Width = 121
     Height = 33
     Caption = 'Save'
-    TabOrder = 4
+    TabOrder = 3
     OnClick = btnSaveClick
   end
   object btnInsert: TButton
     Left = 336
-    Top = 48
+    Top = 80
     Width = 121
     Height = 25
     Caption = 'Insert New'
-    TabOrder = 5
+    TabOrder = 4
     OnClick = btnInsertClick
   end
   object ScrollBox1: TScrollBox
@@ -115,88 +115,90 @@ object Form1: TForm1
     VertScrollBar.Smooth = True
     VertScrollBar.Tracking = True
     Anchors = [akLeft, akTop, akRight, akBottom]
-    TabOrder = 6
-  end
-  object btnDelete: TButton
-    Left = 336
-    Top = 112
-    Width = 121
-    Height = 25
-    Caption = 'Delete'
-    TabOrder = 7
-    OnClick = btnDeleteClick
+    TabOrder = 5
   end
   object btnInsertSeparator: TButton
     Left = 336
-    Top = 80
+    Top = 104
     Width = 121
     Height = 25
     Caption = 'Insert Separator'
-    TabOrder = 8
+    TabOrder = 7
     OnClick = btnInsertSeparatorClick
   end
   object btnMoveUp: TButton
     Left = 336
-    Top = 176
+    Top = 168
     Width = 121
     Height = 25
     Caption = 'Move Up'
-    TabOrder = 9
+    TabOrder = 8
     OnClick = btnMoveUpClick
   end
   object btnMoveDown: TButton
     Left = 336
-    Top = 200
+    Top = 192
     Width = 121
     Height = 25
     Caption = 'Move Down'
-    TabOrder = 10
+    TabOrder = 9
     OnClick = btnMoveDownClick
   end
   object cbShowMissing: TComboBox
     Left = 336
-    Top = 352
+    Top = 336
     Width = 121
     Height = 24
     Style = csDropDownList
     DropDownCount = 16
-    TabOrder = 11
+    TabOrder = 10
     OnChange = cbShowMissingChange
   end
   object cbIncludeSameAsEnglish: TCheckBox
     Left = 336
-    Top = 384
+    Top = 368
     Width = 17
     Height = 17
     Enabled = False
-    TabOrder = 12
+    TabOrder = 11
     OnClick = cbIncludeSameAsEnglishClick
   end
   object btnSortByName: TButton
     Left = 336
-    Top = 264
+    Top = 256
     Width = 121
     Height = 25
     Caption = 'Sort by Name'
-    TabOrder = 13
+    TabOrder = 12
     OnClick = btnSortByNameClick
   end
   object btnCompactIndexes: TButton
     Left = 336
-    Top = 288
+    Top = 280
     Width = 121
     Height = 25
     Caption = 'Compact Indexes'
-    TabOrder = 14
+    TabOrder = 13
     OnClick = btnCompactIndexesClick
   end
   object Button1: TButton
-    Left = 336
-    Top = 408
+    Left = 16
+    Top = 16
     Width = 75
     Height = 25
     Caption = 'Export TSK'
-    TabOrder = 15
+    Enabled = False
+    TabOrder = 14
+    Visible = False
     OnClick = Button1Click
+  end
+  object btnDelete: TButton
+    Left = 336
+    Top = 128
+    Width = 121
+    Height = 25
+    Caption = 'Delete'
+    TabOrder = 6
+    OnClick = btnDeleteClick
   end
 end

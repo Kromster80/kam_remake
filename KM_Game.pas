@@ -190,7 +190,7 @@ begin
   fWaitingForNetwork := false;
   fGameOptions := TKMGameOptions.Create;
 
-  fLocales        := TKMLocales.Create;
+  fLocales        := TKMLocales.Create(ExeDir + 'data\locales.txt');
   fGameSettings   := TGameSettings.Create;
 
   fRender         := TRender.Create(aHandle, fScreenX, fScreenY, aVSync);

@@ -4,7 +4,7 @@ interface
 uses
   Classes, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math,
   {$IFDEF MSWINDOWS} FileCtrl, {$ENDIF}
-  StdCtrls, StrUtils, SysUtils, Windows, Unit_Text;
+  StdCtrls, StrUtils, SysUtils, Windows, KM_Locales, Unit_Text, Unit_PathManager, ComCtrls;
 
 
 type
@@ -13,7 +13,6 @@ type
     EditConstName: TEdit;
     Label1: TLabel;
     btnSortByIndex: TButton;
-    btnLoad: TButton;
     btnSave: TButton;
     btnInsert: TButton;
     ScrollBox1: TScrollBox;
@@ -29,12 +28,12 @@ type
     btnCompactIndexes: TButton;
     Label3: TLabel;
     Button1: TButton;
+    lbFolders: TListBox;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
     procedure btnSortByNameClick(Sender: TObject);
     procedure EditConstNameChange(Sender: TObject);
-    procedure btnLoadClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnInsertClick(Sender: TObject);
     procedure btnDeleteClick(Sender: TObject);
@@ -47,8 +46,11 @@ type
     procedure btnCompactIndexesClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure lbFoldersClick(Sender: TObject);
   private
+    fPathManager: TPathManager;
     fTextManager: TTextManager;
+    fWorkDir: string;
 
     TransMemos: array of TMemo;
     TransLabels: array of TLabel;
@@ -56,6 +58,7 @@ type
     IgnoreChanges: Boolean;
     procedure MemoChange(Sender: TObject);
 
+    procedure RefreshFolders;
     procedure RefreshLocales;
     procedure RefreshList;
   end;
@@ -71,15 +74,22 @@ implementation
 
 const
   eol: string = #13#10; //EndOfLine
-  TextPath = '..\..\data\text\';
-  ConstPath = '..\..\KM_TextIDs.inc';
+  //TextPath = '..\..\data\text\';
+  //ConstPath = '..\..\KM_TextIDs.inc';
 
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  fWorkDir := ExtractFilePath((ParamStr(0))) + '..\..\';
+  fLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt');
+  RefreshLocales;
+
+  fPathManager := TPathManager.Create;
+  RefreshFolders;
+
   fTextManager := TTextManager.Create;
 
-  btnLoadClick(btnLoad);
+  btnSave.Enabled := False;
 end;
 
 
@@ -89,19 +99,60 @@ begin
 end;
 
 
-procedure TForm1.btnLoadClick(Sender: TObject);
+procedure TForm1.RefreshFolders;
+var
+  I: Integer;
 begin
-  //if SelectDirectory(WorkDir, [], 0) then
-  fTextManager.Load('..\..\data\text\text.%s.libx', '..\..\KM_TextIDs.inc');
+  lbFolders.Clear;
+  fPathManager.Clear;
+  fPathManager.AddPath(fWorkDir);
 
-  RefreshLocales;
+  for I := 0 to fPathManager.Count - 1 do
+    lbFolders.Items.Add(fPathManager[I]);
+end;
+
+
+procedure TForm1.lbFoldersClick(Sender: TObject);
+const MSG_WARNING: string = 'You have unsaved changes that will be lost, load new libx anyway?';
+var ID: Integer;
+begin
+  //Let the user abort and save edited translations
+  if btnSave.Enabled
+  and (MessageDlg(MSG_WARNING, mtWarning, mbOKCancel, 0) = mrCancel) then
+    Exit;
+
+  ID := lbFolders.ItemIndex;
+  if ID = -1 then Exit;
+
+  //Special case for ingame text library
+  if SameText(lbFolders.Items[ID], 'data\text\text.%s.libx') then
+  begin
+    fTextManager.Load(fWorkDir + lbFolders.Items[ID], fWorkDir + 'KM_TextIDs.inc');
+    EditConstName.Enabled := True;
+  end
+  else
+  begin
+    fTextManager.Load(fWorkDir + lbFolders.Items[ID], '');
+    EditConstName.Enabled := False;
+  end;
+
   RefreshList;
+  btnSave.Enabled := False;
 end;
 
 
 procedure TForm1.btnSaveClick(Sender: TObject);
+var ID: Integer;
 begin
-  fTextManager.Save('..\..\data\text\text.%s.libx', '..\..\KM_TextIDs.inc');
+  ID := lbFolders.ItemIndex;
+  if ID = -1 then Exit;
+
+  if SameText(lbFolders.Items[ID], 'data\text\text.%s.libx') then
+    fTextManager.Save(fWorkDir + lbFolders.Items[ID], fWorkDir + 'KM_TextIDs.inc')
+  else
+    fTextManager.Save(fWorkDir + lbFolders.Items[ID], '');
+
+  btnSave.Enabled := False;
 end;
 
 
@@ -117,7 +168,7 @@ procedure TForm1.RefreshList;
                   (fTextManager.Texts[fTextManager.Consts[aIndex].TextID][cbShowMissing.ItemIndex] = '') or
                   (
                     cbIncludeSameAsEnglish.Checked and
-                    (fTextManager.Texts[fTextManager.Consts[aIndex].TextID][cbShowMissing.ItemIndex] = fTextManager.Texts[fTextManager.Consts[aIndex].TextID][fTextManager.DefaultLocale])
+                    (fTextManager.Texts[fTextManager.Consts[aIndex].TextID][cbShowMissing.ItemIndex] = fTextManager.Texts[fTextManager.Consts[aIndex].TextID][fLocales.GetIDFromCode(DEFAULT_LOCALE)])
                   )
                 );
     end;
@@ -176,27 +227,27 @@ begin
     FreeAndNil(TransMemos[I]);
   end;
 
-  SetLength(TransMemos, fTextManager.LocalesCount);
-  SetLength(TransLabels, fTextManager.LocalesCount);
+  SetLength(TransMemos, fLocales.Count);
+  SetLength(TransLabels, fLocales.Count);
 
   cbShowMissing.Items.Clear;
   cbShowMissing.Items.Add('None');
-  for I := 0 to fTextManager.LocalesCount - 1 do
+  for I := 0 to fLocales.Count - 1 do
   begin
     TransLabels[I] := TLabel.Create(Form1);
     TransLabels[I].Parent := ScrollBox1;
-    TransLabels[I].SetBounds(8,4+I*80,30,30);
-    TransLabels[I].Caption := fTextManager.Locales[I];
+    TransLabels[I].SetBounds(8, 4 + I * 80, 30, 30);
+    TransLabels[I].Caption := fLocales[I].Title + ' (' + fLocales[I].Code + ')';
 
     TransMemos[I] := TMemo.Create(Form1);
     TransMemos[I].Parent := ScrollBox1;
-    TransMemos[I].SetBounds(8,22+I*80,ScrollBox1.Width-16,60);
-    TransMemos[I].Anchors := [akLeft,akRight,akTop];
-    TransMemos[I].Font.Charset := GetCharset(fTextManager.Locales[I]);
+    TransMemos[I].SetBounds(8, 22 + I * 80, ScrollBox1.Width - 16, 60);
+    TransMemos[I].Anchors := [akLeft, akRight, akTop];
+    TransMemos[I].Font.Charset := GetCharset(fLocales[I].Code);
     TransMemos[I].Tag := I;
     TransMemos[I].OnChange := MemoChange;
 
-    cbShowMissing.Items.Add(fTextManager.Locales[I]);
+    cbShowMissing.Items.Add(fLocales[I].Code);
   end;
   cbShowMissing.ItemIndex := 0;
 end;
@@ -211,7 +262,7 @@ begin
   ID := ListboxLookup[ListBox1.ItemIndex];
   EditConstName.Text := fTextManager.Consts[ID].ConstName;
 
-  for I := 0 to fTextManager.LocalesCount - 1 do
+  for I := 0 to fLocales.Count - 1 do
     if fTextManager.Consts[ID].TextID <> -1 then
       TransMemos[i].Text := {$IFDEF FPC}AnsiToUTF8{$ENDIF}(fTextManager.Texts[fTextManager.Consts[ID].TextID][i])
     else
@@ -225,6 +276,7 @@ procedure TForm1.btnSortByIndexClick(Sender: TObject);
 begin
   fTextManager.SortByIndex;
   RefreshList;
+  btnSave.Enabled := True;
 end;
 
 
@@ -234,6 +286,7 @@ begin
   fTextManager.SortByName;
   //Compact Indexes
   RefreshList;
+  btnSave.Enabled := True;
 end;
 
 
@@ -251,16 +304,16 @@ begin
   for I := 1 to 20 do
   if (TSK[I+1] - TSK[I] <> 0) then
   begin
-    btnLoadClick(nil);
+    fTextManager.Load(fWorkDir + 'data\text\text.%s.libx', '');
     fTextManager.Slice(TSK[I], TSK[I+1] - TSK[I]);
-    fTextManager.Save('..\..\Campaigns\The Shattered Kingdom\TSK' + Format('%.2d', [I]) + '.%s.libx', '');
+    fTextManager.Save(fWorkDir + 'Campaigns\The Shattered Kingdom\TSK' + Format('%.2d', [I]) + '\TSK' + Format('%.2d', [I]) + '.%s.libx', '');
   end;
   for I := 1 to 14 do
   if (TPR[I+1] - TPR[I] <> 0) then
   begin
-    btnLoadClick(nil);
+    fTextManager.Load(fWorkDir + 'data\text\text.%s.libx', '');
     fTextManager.Slice(TPR[I], TPR[I+1] - TPR[I]);
-    fTextManager.Save('..\..\Campaigns\The Peasants Rebellion\TPR' + Format('%.2d', [I]) + '.%s.libx', '');
+    fTextManager.Save(fWorkDir + 'Campaigns\The Peasants Rebellion\TPR' + Format('%.2d', [I]) + '\TPR' + Format('%.2d', [I]) + '.%s.libx', '');
   end;
 end;
 
@@ -269,6 +322,7 @@ procedure TForm1.btnCompactIndexesClick(Sender: TObject);
 begin
   fTextManager.CompactIndexes;
   RefreshList;
+  btnSave.Enabled := True;
 end;
 
 
@@ -285,6 +339,7 @@ begin
   fTextManager.Consts[ID] := T;
 
   RefreshList;
+  btnSave.Enabled := True;
 end;
 
 
@@ -296,6 +351,7 @@ begin
   if fTextManager.Consts[ID].TextID = -1 then exit;
   T := TMemo(Sender).Tag;
   fTextManager.Texts[fTextManager.Consts[ID].TextID][T] := {$IFDEF FPC}Utf8ToAnsi{$ENDIF}(TMemo(Sender).Text);
+  btnSave.Enabled := True;
 end;
 
 
@@ -307,18 +363,7 @@ begin
 
   fTextManager.Insert(ID);
   RefreshList;
-end;
-
-
-
-procedure TForm1.btnDeleteClick(Sender: TObject);
-var ID: integer;
-begin
-  ID := ListBox1.ItemIndex; //Item place we are deleting
-  if ID = -1 then Exit;
-
-  fTextManager.DeleteConst(ID);
-  RefreshList;
+  btnSave.Enabled := True;
 end;
 
 
@@ -330,6 +375,19 @@ begin
 
   fTextManager.InsertSeparator(ID);
   RefreshList;
+  btnSave.Enabled := True;
+end;
+
+
+procedure TForm1.btnDeleteClick(Sender: TObject);
+var ID: integer;
+begin
+  ID := ListBox1.ItemIndex; //Item place we are deleting
+  if ID = -1 then Exit;
+
+  fTextManager.DeleteConst(ID);
+  RefreshList;
+  btnSave.Enabled := True;
 end;
 
 
@@ -341,6 +399,7 @@ begin
   fTextManager.MoveUp(ID);
   RefreshList;
   ListBox1.ItemIndex := Max(ID - 1, 0);
+  btnSave.Enabled := True;
 end;
 
 
@@ -352,6 +411,7 @@ begin
   fTextManager.MoveDown(ID);
   RefreshList;
   ListBox1.ItemIndex := Min(ID + 1, ListBox1.Count - 1);
+  btnSave.Enabled := True;
 end;
 
 
