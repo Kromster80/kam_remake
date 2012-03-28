@@ -24,6 +24,9 @@
 			<Projects Include="Utils\DedicatedServerGUI\KaM_DedicatedServerGUI.dproj">
 				<Dependencies/>
 			</Projects>
+			<Projects Include="Utils\FontEditor\FontEditor.dproj">
+				<Dependencies/>
+			</Projects>
 		</ItemGroup>
 		<ProjectExtensions>
 			<Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -95,14 +98,23 @@
 		<Target Name="KaM_DedicatedServerGUI:Make">
 			<MSBuild Projects="Utils\DedicatedServerGUI\KaM_DedicatedServerGUI.dproj" Targets="Make"/>
 		</Target>
+		<Target Name="FontEditor">
+			<MSBuild Projects="Utils\FontEditor\FontEditor.dproj"/>
+		</Target>
+		<Target Name="FontEditor:Clean">
+			<MSBuild Projects="Utils\FontEditor\FontEditor.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="FontEditor:Make">
+			<MSBuild Projects="Utils\FontEditor\FontEditor.dproj" Targets="Make"/>
+		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="KaM_Remake;KaM_RemakeTests;CampaignBuilder;RXXPacker;TranslationManager;Batcher;KaM_DedicatedServerGUI"/>
+			<CallTarget Targets="KaM_Remake;KaM_RemakeTests;CampaignBuilder;RXXPacker;TranslationManager;Batcher;KaM_DedicatedServerGUI;FontEditor"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="KaM_Remake:Clean;KaM_RemakeTests:Clean;CampaignBuilder:Clean;RXXPacker:Clean;TranslationManager:Clean;Batcher:Clean;KaM_DedicatedServerGUI:Clean"/>
+			<CallTarget Targets="KaM_Remake:Clean;KaM_RemakeTests:Clean;CampaignBuilder:Clean;RXXPacker:Clean;TranslationManager:Clean;Batcher:Clean;KaM_DedicatedServerGUI:Clean;FontEditor:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="KaM_Remake:Make;KaM_RemakeTests:Make;CampaignBuilder:Make;RXXPacker:Make;TranslationManager:Make;Batcher:Make;KaM_DedicatedServerGUI:Make"/>
+			<CallTarget Targets="KaM_Remake:Make;KaM_RemakeTests:Make;CampaignBuilder:Make;RXXPacker:Make;TranslationManager:Make;Batcher:Make;KaM_DedicatedServerGUI:Make;FontEditor:Make"/>
 		</Target>
 		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
 	</Project>

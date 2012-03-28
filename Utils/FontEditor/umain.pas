@@ -1,7 +1,5 @@
 unit umain;
-{$I FontEditor.inc}
-{$IFDEF FPC} {$Mode Delphi} {$ENDIF}
-
+{$I ..\..\KaM_Remake.inc}
 interface
 uses
   {$IFDEF FPC} LCLIntf, LResources, {$ENDIF}
@@ -32,9 +30,6 @@ uses
   SettingFromFont:boolean;
 
 type
-
-  { TfrmMain }
-
   TfrmMain = class(TForm)
     Label3: TLabel;
     Label4: TLabel;
@@ -77,7 +72,7 @@ type
     procedure SpinEdit5Change(Sender: TObject);
   private
     function GetFontFromFileName(aFile:string):TKMFont;
-    procedure ScanDataForPalettesAndFonts(aPath:string);
+    procedure ScanDataForPalettesAndFonts(aPath: string);
     function LoadFont(filename:string; aFont:TKMFont):boolean;
     function LoadPalette(filename:string; PalID:byte):boolean;
   public
@@ -85,8 +80,9 @@ type
     procedure ShowPalette(aPal:integer);
   end;
 
- var
-  frmMain: TfrmMain;
+  var
+    frmMain: TfrmMain;
+
 
 implementation
 {$IFDEF WDC}
@@ -96,12 +92,13 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
+  ExeDir := ExtractFilePath(ParamStr(0));
   DataDir := ExeDir;
-  if DirectoryExists(ExeDir+'..\..\Data\gfx\Fonts\') then //Remake project location
-    DataDir := ExeDir+'..\..\';  //I wonder if it's correct syntax, but it works well [.\Utils\FontEd\..\..\]
-  if DirectoryExists(ExeDir+'Data\gfx\Fonts\') then //Default location
+  if DirectoryExists(ExeDir + '..\..\Data\gfx\Fonts\') then //Remake project location
+    DataDir := ExeDir + '..\..\';  //I wonder if it's correct syntax, but it works well [.\Utils\FontEd\..\..\]
+  if DirectoryExists(ExeDir + 'Data\gfx\Fonts\') then //Default location
     DataDir := ExeDir;
+
   ScanDataForPalettesAndFonts(DataDir);
 
   FontData.Title := fnt_Nil;
@@ -111,26 +108,27 @@ end;
 
 procedure TfrmMain.BitBtn1Click(Sender: TObject);
 var
-  f:file;
-  i:integer;
-  ErrS:string;
+  f: file;
+  I: Integer;
 begin
-  if FontData.Title = fnt_Nil then begin
-    ErrS := 'Please select editing font first';
-    MessageBox(frmMain.Handle,@ErrS[1],'Error',MB_OK);
-    exit;
+  if FontData.Title = fnt_Nil then
+  begin
+    MessageBox(frmMain.Handle, 'Please select editing font first', 'Error', MB_OK);
+    Exit;
   end;
 
-  if not RunSaveDialog(SaveDialog1, ListBox1.Items[ListBox1.ItemIndex], DataDir+'Data\Gfx\Fonts\', 'KaM Fonts|*.fnt', 'fnt') then exit;
+  if not RunSaveDialog(SaveDialog1, ListBox1.Items[ListBox1.ItemIndex], DataDir + 'Data\Gfx\Fonts\', 'KaM Fonts|*.fnt', 'fnt') then
+    Exit;
 
   assignfile(f,SaveDialog1.FileName); rewrite(f,1);
   blockwrite(f,FontData.Unk1,8);
   blockwrite(f,FontData.Pal[0],256);
 
   //Write font data
-  for i:=0 to 255 do
-    if FontData.Pal[i]<>0 then
-      with FontData.Letters[i] do begin
+  for I := 0 to 255 do
+    if FontData.Pal[I] <> 0 then
+      with FontData.Letters[I] do
+      begin
         blockwrite(f, Width, 4);
         blockwrite(f, Add1, 8);
         blockwrite(f, Data[1], Width*Height);
@@ -139,6 +137,7 @@ begin
   closefile(f);
 end;
 
+
 procedure TfrmMain.RefreshDataClick(Sender: TObject);
 begin
   if not DirectoryExists(DataDir) then MessageBox(Self.Handle, 'Data folder not found', 'Error', 0);
@@ -146,27 +145,23 @@ begin
 end;
 
 
-procedure TfrmMain.ScanDataForPalettesAndFonts(aPath:string);
-var i:integer; SearchRec:TSearchRec;
+procedure TfrmMain.ScanDataForPalettesAndFonts(aPath: string);
+var I: Integer; SearchRec: TSearchRec;
 begin
   //0. Clear old list
   ListBox1.Items.Clear;
 
   //1. Palettes
-  for i:=1 to length(PalFiles) do
-   LoadPalette(aPath+'data\gfx\'+PalFiles[i],i);
+  for I := 1 to length(PalFiles) do
+   LoadPalette(aPath+'data\gfx\'+PalFiles[I],I);
 
   //2. Fonts
   if not DirectoryExists(aPath+'data\gfx\fonts\') then exit;
 
-  ChDir(aPath+'data\gfx\fonts');
-  FindFirst('*', faAnyFile, SearchRec);
-
+  FindFirst(aPath+'data\gfx\fonts\*.fnt', faAnyFile - faDirectory, SearchRec);
   repeat
-    if (SearchRec.Attr and faDirectory = 0)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
-      ListBox1.Items.Add(SearchRec.Name);
+    ListBox1.Items.Add(SearchRec.Name);
   until (FindNext(SearchRec)<>0);
-
   FindClose(SearchRec);
 end;
 
@@ -579,6 +574,7 @@ begin
   Edit1Change(nil);
 end;
 
+
 procedure TfrmMain.SpinEdit5Change(Sender: TObject);
 begin
   if SelectedLetter = 0 then exit;
@@ -592,5 +588,5 @@ initialization
 {$I umain.lrs}
 {$ENDIF}
 
-end.
 
+end.
