@@ -1,8 +1,10 @@
 unit Unit1;
+{$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms, Graphics, Math, Spin, StdCtrls, SysUtils, Windows,
-  KM_Defaults, KM_Campaigns;
+  Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
+  Graphics, Math, Spin, StdCtrls, SysUtils, Windows,
+  KM_Campaigns;
 
 
 type
@@ -196,8 +198,8 @@ begin
   else
     dlgOpenCampaign.InitialDir := ExtractFilePath(Application.ExeName);
 
-  //Win7 workaround
-  dlgOpenCampaign.FileName := ExtractFilePath(Application.ExeName) + '..\..\Campaigns\';
+  //Win7 workaround ?
+  //dlgOpenCampaign.FileName := ExtractFilePath(Application.ExeName) + '..\..\Campaigns\';
 
   if not dlgOpenCampaign.Execute then Exit;
 

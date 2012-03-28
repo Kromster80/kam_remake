@@ -1,6 +1,5 @@
 program CampaignBuilder;
-
-
+{$I ..\..\KaM_Remake.inc}
 uses
   Forms,
   Unit1 in 'Unit1.pas' {Form1};
