@@ -4,7 +4,13 @@ uses
   Forms,
   umain in 'umain.pas' {frmMain};
 
+
+  var
+    frmMain: TfrmMain;
+
+
 {$R *.res}
+
 
 begin
   Application.Initialize;

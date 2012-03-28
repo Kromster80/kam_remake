@@ -71,17 +71,15 @@ type
     procedure SpinEdit1Change(Sender: TObject);
     procedure SpinEdit5Change(Sender: TObject);
   private
-    function GetFontFromFileName(aFile:string):TKMFont;
-    procedure ScanDataForPalettesAndFonts(aPath: string);
-    function LoadFont(filename:string; aFont:TKMFont):boolean;
-    function LoadPalette(filename:string; PalID:byte):boolean;
+    function GetFontFromFileName(const aFile: string):TKMFont;
+    procedure ScanDataForPalettesAndFonts(const aPath: string);
+    function LoadFont(const aFilename: string; aFont:TKMFont):boolean;
+    function LoadPalette(const aFilename: string; PalID: Byte): Boolean;
   public
-    procedure ShowBigImage(ShowCells, WriteFontToBMP:boolean);
+    procedure ShowBigImage(ShowCells, WriteFontToBMP: Boolean);
     procedure ShowPalette(aPal:integer);
   end;
 
-  var
-    frmMain: TfrmMain;
 
 
 implementation
@@ -113,7 +111,7 @@ var
 begin
   if FontData.Title = fnt_Nil then
   begin
-    MessageBox(frmMain.Handle, 'Please select editing font first', 'Error', MB_OK);
+    MessageBox(Handle, 'Please select editing font first', 'Error', MB_OK);
     Exit;
   end;
 
@@ -145,7 +143,7 @@ begin
 end;
 
 
-procedure TfrmMain.ScanDataForPalettesAndFonts(aPath: string);
+procedure TfrmMain.ScanDataForPalettesAndFonts(const aPath: string);
 var I: Integer; SearchRec: TSearchRec;
 begin
   //0. Clear old list
@@ -156,7 +154,7 @@ begin
    LoadPalette(aPath+'data\gfx\'+PalFiles[I],I);
 
   //2. Fonts
-  if not DirectoryExists(aPath+'data\gfx\fonts\') then exit;
+  if not DirectoryExists(aPath+'data\gfx\fonts\') then Exit;
 
   FindFirst(aPath+'data\gfx\fonts\*.fnt', faAnyFile - faDirectory, SearchRec);
   repeat
@@ -177,19 +175,19 @@ begin
 end;
 
 
-function TfrmMain.LoadFont(filename:string; aFont:TKMFont):boolean;
+function TfrmMain.LoadFont(const aFilename: string; aFont: TKMFont):boolean;
 var
   f:file;
-  i:integer;
-  MaxHeight, MaxWidth:integer;
+  I: Integer;
+  MaxHeight, MaxWidth: Integer;
 begin
   Result := false;
-  if not CheckFileExists(filename, true) then exit;
+  if not CheckFileExists(aFilename, true) then Exit;
 
   MaxWidth  := 0;
   MaxHeight := 0;
 
-  assignfile(f,filename); reset(f,1);
+  assignfile(f,aFilename); reset(f,1);
 
   blockread(f,FontData.Unk1,8);
   blockread(f,FontData.Pal[0],65000,i);
@@ -201,21 +199,21 @@ begin
   end;
 
   //Read font data
-  for i:=0 to 255 do
-    if FontData.Pal[i]<>0 then
-      with FontData.Letters[i] do begin
+  for I := 0 to 255 do
+    if FontData.Pal[I] <> 0 then
+      with FontData.Letters[I] do begin
         blockread(f, Width, 4);
         blockread(f, Add1, 8);
 
         Width := Width and $FF;
         Height := Height and $FF;
 
-        MaxHeight := Math.max(MaxHeight,Height);
-        MaxWidth := Math.max(MaxWidth,Height);
+        MaxHeight := Math.max(MaxHeight, Height);
+        MaxWidth := Math.max(MaxWidth, Height);
         blockread(f, Data[1], Width*Height);
       end
     else
-      FillChar(FontData.Letters[i], SizeOf(FontData.Letters[i]), #0);
+      FillChar(FontData.Letters[I], SizeOf(FontData.Letters[I]), #0);
 
   closefile(f);
 
@@ -232,7 +230,7 @@ begin
 end;
 
 
-procedure TfrmMain.ShowBigImage(ShowCells, WriteFontToBMP:boolean);
+procedure TfrmMain.ShowBigImage(ShowCells, WriteFontToBMP: Boolean);
 const
   TexWidth=512; //Connected to TexData, don't change
 var
@@ -240,13 +238,13 @@ var
   CellX,CellY:integer;
   Pal,t:word;
   TD:array of byte;
-  MyBitMap:TBitMap;
+  MyBitmap: TBitmap;
 begin
   //Compile texture
   setlength(TD, TexWidth*TexWidth + 1);
   FillChar(TD[0], TexWidth*TexWidth + 1, $00); //Make some background to see real offsets
 
-  for i:=0 to 255 do
+  for I:=0 to 255 do
     if FontData.Pal[i]<>0 then
       with FontData.Letters[i] do begin
 
@@ -257,7 +255,7 @@ begin
           TD[(CellY + ci) * TexWidth + CellX + ck] := Data[ci * Width + ck + 1];
       end;
 
-  MyBitMap := TBitMap.Create;
+  MyBitmap := TBitmap.Create;
   MyBitmap.PixelFormat := pf24bit;
   MyBitmap.Width := TexWidth;
   MyBitmap.Height := TexWidth;
@@ -274,11 +272,11 @@ begin
   end;
 
   if WriteFontToBMP then begin
-    if not RunSaveDialog(SaveDialog1, '', ExeDir, 'Bitmaps|*.bmp', 'bmp') then exit;
+    if not RunSaveDialog(SaveDialog1, '', ExeDir, 'Bitmaps|*.bmp', 'bmp') then Exit;
 
     //Append used palette to ease up editing, with color samples 16x16px
     MyBitmap.Height := MyBitmap.Height + 8*16; //32x8 cells
-    for i:=1 to 128 do for k:=1 to TexWidth do begin
+    for I:=1 to 128 do for k:=1 to TexWidth do begin
       t := ((i-1) div 16)*32 + ((k-1) div 16 mod 32) + 1;
       MyBitmap.Canvas.Pixels[k-1,TexWidth+i-1] := PalData[Pal, t, 1] + PalData[Pal, t, 2] shl 8 + PalData[Pal, t, 3] shl 16;
     end;
@@ -292,26 +290,27 @@ begin
 end;
 
 
-function TfrmMain.LoadPalette(filename:string; PalID:byte):boolean;
-var f:file; i:integer;
+function TfrmMain.LoadPalette(const aFilename: string; PalID: Byte): Boolean;
+var f:file; I: Integer;
 begin
-  Result:=false;
-  if not CheckFileExists(filename,true) then exit;
+  Result := False;
+  if not CheckFileExists(aFilename, True) then
+    Exit;
 
-  assignfile(f,filename);
+  assignfile(f, aFilename);
   reset(f,1);
   blockread(f,PalData[PalID],48); //Unknown and/or unimportant
   blockread(f,PalData[PalID],768); //256*3
   closefile(f);
 
   if PalID = pal_lin then //Make greyscale linear Pal
-    for i:=0 to 255 do begin
+    for I := 0 to 255 do begin
       PalData[pal_lin,i+1,1] := i;
       PalData[pal_lin,i+1,2] := i;
       PalData[pal_lin,i+1,3] := i;
     end;
 
-  Result:=true;
+  Result := True;
 end;
 
 
@@ -345,16 +344,16 @@ begin
 end;
 
 
-procedure TfrmMain.ShowPalette(aPal:integer);
-var MyBitMap:TBitMap; i:integer; MyRect:TRect;
+procedure TfrmMain.ShowPalette(aPal: Integer);
+var MyBitmap: TBitmap; I: Integer; MyRect: TRect;
 begin
-  MyBitMap := TBitMap.Create;
+  MyBitmap := TBitmap.Create;
   MyBitmap.PixelFormat := pf24bit;
   MyBitmap.Width := 8;
   MyBitmap.Height := 32;
 
-  for i:=0 to 255 do
-    MyBitmap.Canvas.Pixels[i mod 8, i div 8] := PalData[aPal,i+1,1] + PalData[aPal,i+1,2] shl 8 + PalData[aPal,i+1,3] shl 16;
+  for I := 0 to 255 do
+    MyBitmap.Canvas.Pixels[I mod 8, I div 8] := PalData[aPal,I+1,1] + PalData[aPal,I+1,2] shl 8 + PalData[aPal,I+1,3] shl 16;
 
   MyRect := Image3.Canvas.ClipRect;
   Image3.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into Image1
@@ -363,9 +362,14 @@ end;
 
 
 procedure TfrmMain.Edit1Change(Sender: TObject);
-var MyBitMap:TBitMap; i,ci,ck:integer; AdvX,Pal,t:integer; MyRect:TRect; Text:string;
+var
+  MyBitmap: TBitmap;
+  I, ci, ck: integer;
+  AdvX, Pal, t: integer;
+  MyRect: TRect;
+  Text: string;
 begin
-  MyBitMap := TBitMap.Create;
+  MyBitmap := TBitmap.Create;
   MyBitmap.PixelFormat := pf24bit;
   MyBitmap.Width := 512;
   MyBitmap.Height := 20;
@@ -384,7 +388,7 @@ begin
   MyBitmap.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
   MyBitmap.Canvas.FillRect(MyBitmap.Canvas.ClipRect);
 
-  for i:=1 to length(Text) do
+  for I:=1 to length(Text) do
   if Text[i]<>' ' then
   begin
     for ci:=0 to FontData.Letters[ord(Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Text[i])].Width-1 do begin
@@ -418,15 +422,15 @@ begin
 end;
 
 
-function TfrmMain.GetFontFromFileName(aFile:string):TKMFont;
-var i: TKMFont;
+function TfrmMain.GetFontFromFileName(const aFile: string): TKMFont;
+var I: TKMFont;
 begin
   Result := fnt_Nil; //Deliberate error
-  for i := low(TKMFont) to high(TKMFont) do
-    if LeftStr(aFile,Length(FontFileNames[i])) = FontFileNames[i] then
+  for I := Low(TKMFont) to High(TKMFont) do
+    if LeftStr(aFile, Length(FontFileNames[I])) = FontFileNames[I] then
     begin
-      Result := i;
-      exit;
+      Result := I;
+      Exit;
     end;
 end;
 
@@ -438,44 +442,44 @@ end;
 
 
 procedure TfrmMain.btnImportBigClick(Sender: TObject);
-var
-  i,k,ci,ck,x,y:integer;
-  MyBitmap:TBitmap;
-  LetterID,LetterW,LetterH:integer;
-  Pixels:array[1..512,1..512]of byte;
-  ErrS:string;
-
-  function FindBestPaletteColor(aCol:TColor):byte;
+  function FindBestPaletteColor(aCol:TColor):Byte;
   var
-    i:integer;
-    usePal:byte; //What palette to use?
-    tRMS, RMS:integer; //How different is sampled color vs. used one
+    I: Integer;
+    usePal: Byte; //What palette to use?
+    tRMS, RMS: Integer; //How different is sampled color vs. used one
   begin
-    RMS := maxint;
+    RMS := MaxInt;
     Result := 0;
     usePal := FontPal[FontData.Title]; //Use palette from current font
-    for i:=1 to 256 do begin
-      tRMS := GetLengthSQR(PalData[usePal, i, 1] - (aCol and $FF), PalData[usePal, i, 2] - ((aCol shr 8) and $FF), PalData[usePal, i, 3] - (aCol shr 16) and $FF);
-      if (i=1) or (tRMS<RMS) then begin
-        Result := i-1; //byte = 0..255
+    for I := 1 to 256 do begin
+      tRMS := GetLengthSQR(PalData[usePal, I, 1] - (aCol and $FF), PalData[usePal, I, 2] - ((aCol shr 8) and $FF), PalData[usePal, I, 3] - (aCol shr 16) and $FF);
+      if (I = 1) or (tRMS < RMS) then begin
+        Result := I-1; //Byte = 0..255
         RMS := tRMS;
-        if RMS = 0 then exit;
+        if RMS = 0 then Exit;
       end;
     end;
   end;
+
+var
+  I,K,ci,ck,x,y:integer;
+  MyBitmap: TBitmap;
+  LetterID,LetterW,LetterH:integer;
+  Pixels:array[1..512,1..512]of byte;
+  ErrS:string;
 begin
 
   if FontData.Title = fnt_Nil then begin
     ErrS := 'Please select editing font first';
-    MessageBox(frmMain.Handle,@ErrS[1],'Error',MB_OK);
-    exit;
+    MessageBox(Handle, @ErrS[1], 'Error', MB_OK);
+    Exit;
   end;
 
   RunOpenDialog(OpenDialog1, '', ExeDir, 'Bitmaps|*.bmp');
   if not FileExists(OpenDialog1.FileName) then begin
     ErrS := OpenDialog1.FileName + ' couldn''t be found';
-    MessageBox(frmMain.Handle,@ErrS[1],'Error',MB_OK);
-    exit;
+    MessageBox(Handle, @ErrS[1], 'Error', MB_OK);
+    Exit;
   end;
 
   MyBitmap := TBitmap.Create;
@@ -483,21 +487,20 @@ begin
   MyBitmap.PixelFormat := pf24bit;
 
   if MyBitmap.Width<>512 then begin
-    MessageBox(frmMain.Handle,'Image should be 512 pixels wide.','Error',MB_OK);
+    MessageBox(Handle,'Image should be 512 pixels wide.','Error',MB_OK);
     MyBitmap.Free;
-    exit;
+    Exit;
   end;
 
   //Convert 24bit to palette colors
-  for i:=1 to 512 do for k:=1 to 512 do
+  for I:=1 to 512 do for k:=1 to 512 do
     Pixels[i,k] := FindBestPaletteColor(MyBitmap.Canvas.Pixels[k-1,i-1]); //Canvas uses [X:Y] addressing, while I prefer [Y:X] order
 
   MyBitmap.Free;
 
   //Scan all letter-boxes
-  for i:=1 to 16 do for k:=1 to 16 do
+  for I := 1 to 16 do for K := 1 to 16 do
   begin
-
     LetterW := 0;
     LetterH := 0;
 
@@ -536,7 +539,7 @@ begin
   end;
 
   //Special fixes:
-  FontData.Letters[32].Width:=7; //"Space" width
+  FontData.Letters[32].Width := 7; //"Space" width
 
   ShowBigImage(CheckCells.Checked, false); //Show the result
 end;
@@ -548,16 +551,16 @@ begin
   ShowBigImage(CheckCells.Checked, false);
   ShowPalette(FontPal[FontData.Title]);
   Edit1Change(nil);
-  if ListBox1.ItemIndex<>-1 then
-  StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex]+' Palette: '+PalFiles[FontPal[FontData.Title]];
+  if ListBox1.ItemIndex <> -1 then
+    StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex]+' Palette: '+PalFiles[FontPal[FontData.Title]];
 end;
 
 
 procedure TfrmMain.SpinEdit1Change(Sender: TObject);
 begin
-  if SettingFromFont then exit;
+  if SettingFromFont then Exit;
 
-  if (Sender is TSpinEdit) and (TSpinEdit(Sender).Text = '') then exit;
+  if (Sender is TSpinEdit) and (TSpinEdit(Sender).Text = '') then Exit;
 
   FontData.Unk1        := SpinEdit1.Value;
   FontData.WordSpacing := SpinEdit2.Value;
@@ -577,7 +580,7 @@ end;
 
 procedure TfrmMain.SpinEdit5Change(Sender: TObject);
 begin
-  if SelectedLetter = 0 then exit;
+  if SelectedLetter = 0 then Exit;
   FontData.Letters[SelectedLetter].YOffset := SpinEdit5.Value;
   Edit1Change(nil);
 end;
