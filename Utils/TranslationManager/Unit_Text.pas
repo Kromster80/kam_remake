@@ -74,7 +74,8 @@ begin
   for I := 0 to fLocales.Count - 1 do
     LoadText(Format(aTextPath, [fLocales[I].Code]), I);
 
-  AddMissingConsts;
+  if fUseConsts then
+    AddMissingConsts;
 end;
 
 
@@ -108,7 +109,6 @@ procedure TTextManager.AddMissingConsts;
       Break;
     end;
   end;
-const Mask: array [Boolean] of string = ('TX%d_%s', 'TX_UNUSED_%d_%s');
 var I: Integer; s: string;
 begin
   for I := 0 to fTextMaxID do
@@ -120,7 +120,7 @@ begin
       SetLength(fConsts, Length(fConsts) + 1);
       fConsts[High(fConsts)].TextID := I;
 
-      fConsts[High(fConsts)].ConstName := Format(Mask[fUseConsts], [I, s]);
+      fConsts[High(fConsts)].ConstName := Format('TX_UNUSED_%d_%s', [I, s]);
     end;
 end;
 
@@ -387,55 +387,95 @@ end;
 
 function TTextManager.ConstCount: Integer;
 begin
-  Result := Length(fConsts);
+  if fUseConsts then
+    Result := Length(fConsts)
+  else
+    Result := Length(fTexts);
 end;
 
 
 procedure TTextManager.Insert(aIndex: Integer);
-var I: Integer;
+var I,K: Integer;
 begin
-  SetLength(fConsts, Length(fConsts) + 1);
+  if fUseConsts then
+  begin
+    SetLength(fConsts, Length(fConsts) + 1);
 
-  //Move others down
-  for I := Length(fConsts)-2 downto aIndex do
-    fConsts[I+1] := fConsts[I];
+    //Move others down
+    for I := Length(fConsts)-2 downto aIndex do
+      fConsts[I+1] := fConsts[I];
 
-  //Append new strings, they will be empty
-  Inc(fTextMaxID);
-  SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
+    //Append new strings, they will be empty
+    Inc(fTextMaxID);
+    SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
 
-  fConsts[aIndex].TextID := fTextMaxID;
-  fConsts[aIndex].ConstName := 'TX_NEW' + IntToStr(fTextMaxID);
+    fConsts[aIndex].TextID := fTextMaxID;
+    fConsts[aIndex].ConstName := 'TX_NEW' + IntToStr(fTextMaxID);
+  end
+  else
+  begin
+    Inc(fTextMaxID);
+    SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
+
+    //Move down
+    for I := fTextMaxID downto aIndex + 1 do
+      for K := 0 to fLocales.Count - 1 do
+        fTexts[I,K] := fTexts[I-1,K];
+
+    //Clear
+    for I := 0 to fLocales.Count - 1 do
+      fTexts[aIndex,I] := '';
+  end;
 end;
 
 
 procedure TTextManager.DeleteConst(aIndex: Integer);
 var I,K: Integer;
 begin
-  if fConsts[aIndex].TextID <> -1 then
+  if fUseConsts then
   begin
-    //Shift all fTexts up
-    for I := fConsts[aIndex].TextID to fTextMaxID-1 do
+    if fConsts[aIndex].TextID <> -1 then
+    begin
+      //Shift all fTexts up
+      for I := fConsts[aIndex].TextID to fTextMaxID-1 do
+        for K := 0 to fLocales.Count - 1 do
+          fTexts[I,K] := fTexts[I+1,K];
+
+      //Shift pointers
+      for I := 0 to High(fConsts) do
+        if fConsts[I].TextID > fConsts[aIndex].TextID then
+          Dec(fConsts[I].TextID);
+    end;
+
+    //Shift fConsts up
+    for I := aIndex to Length(fConsts)-2 do
+      fConsts[I] := fConsts[I+1];
+
+    SetLength(fConsts, Length(fConsts)-1);
+  end
+  else
+  begin
+    //Move up
+    for I := aIndex to fTextMaxID - 1 do
       for K := 0 to fLocales.Count - 1 do
         fTexts[I,K] := fTexts[I+1,K];
 
-    //Shift pointers
-    for I := 0 to High(fConsts) do
-      if fConsts[I].TextID > fConsts[aIndex].TextID then
-        Dec(fConsts[I].TextID);
+    Dec(fTextMaxID);
+    SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
   end;
-
-  //Shift fConsts up
-  for I := aIndex to Length(fConsts)-2 do
-    fConsts[I] := fConsts[I+1];
-
-  SetLength(fConsts, Length(fConsts)-1);
 end;
 
 
 function TTextManager.GetConst(aIndex: Integer): TTextInfo;
 begin
-  Result := fConsts[aIndex];
+  if fUseConsts then
+    Result := fConsts[aIndex]
+  else
+  begin
+    Result.ConstName := StringReplace(fTexts[aIndex, fLocales.GetIDFromCode(DEFAULT_LOCALE)], ' ', '', [rfReplaceAll]);
+    Result.ConstName := 'TX_' + IntToStr(aIndex) + '_' + UpperCase(LeftStr(Result.ConstName, 16));
+    Result.TextID := aIndex;
+  end;
 end;
 
 

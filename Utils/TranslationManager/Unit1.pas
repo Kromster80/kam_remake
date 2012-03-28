@@ -134,11 +134,23 @@ begin
   begin
     fTextManager.Load(fWorkDir + lbFolders.Items[ID], fWorkDir + 'KM_TextIDs.inc');
     EditConstName.Enabled := True;
+    btnInsertSeparator.Enabled := True;
+    btnMoveUp.Enabled := True;
+    btnMoveDown.Enabled := True;
+    btnSortByName.Enabled := True;
+    btnSortByIndex.Enabled := True;
+    btnCompactIndexes.Enabled := True;
   end
   else
   begin
     fTextManager.Load(fWorkDir + lbFolders.Items[ID], '');
     EditConstName.Enabled := False;
+    btnInsertSeparator.Enabled := False;
+    btnMoveUp.Enabled := False;
+    btnMoveDown.Enabled := False;
+    btnSortByName.Enabled := False;
+    btnSortByIndex.Enabled := False;
+    btnCompactIndexes.Enabled := False;
   end;
 
   RefreshList;
