@@ -34,7 +34,7 @@ type //For now IDs must match with KaM
 
     fTimeOfLastAttackMessage: cardinal;
     fLastEquippedTime: cardinal;
-    fHasWonOrLost:boolean; //Has this player won/lost? If so, do not check goals
+    fHasWonOrLost: boolean; //Has this player won/lost? If so, do not check goals
     fAttacks: TAIAttacks;
 
     procedure CheckDefeated;
