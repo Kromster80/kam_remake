@@ -349,10 +349,10 @@ begin
                                              MENU_DESIGN_Y); //Parent Panel for whole menu
 
   //Background is the same for all pages, except Results/Campaign, which will render ontop
-  TKMImage.Create(Panel_Main,-448,-216,960,600,1,rxMenu);
-  TKMImage.Create(Panel_Main, 512,-216,960,600,2,rxMenu);
-  TKMImage.Create(Panel_Main,-448, 384,960,600,3,rxMenu);
-  TKMImage.Create(Panel_Main, 512, 384,960,600,4,rxMenu);
+  with TKMImage.Create(Panel_Main,-448,-216,960,600,1,rxMenu) do Anchors := [];
+  with TKMImage.Create(Panel_Main, 512,-216,960,600,2,rxMenu) do Anchors := [];
+  with TKMImage.Create(Panel_Main,-448, 384,960,600,3,rxMenu) do Anchors := [];
+  with TKMImage.Create(Panel_Main, 512, 384,960,600,4,rxMenu) do Anchors := [];
 
   Create_MainMenu_Page;
   Create_SinglePlayer_Page;
@@ -399,12 +399,13 @@ end;
 
 
 //Keep Panel_Main centered
-procedure TKMMainMenuInterface.Resize(X, Y:word);
+procedure TKMMainMenuInterface.Resize(X, Y: Word);
 begin
-  Panel_Main.Left := (X - MENU_DESIGN_X) div 2;
-  Panel_Main.Top  := (Y - MENU_DESIGN_Y) div 2;
   Panel_Main.Width  := Min(X, MENU_DESIGN_X);
   Panel_Main.Height := Min(Y, MENU_DESIGN_Y);
+
+  Panel_Main.Left := (X - Panel_Main.Width) div 2;
+  Panel_Main.Top  := (Y - Panel_Main.Height) div 2;
 end;
 
 
@@ -572,14 +573,16 @@ end;
 
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
+  //Without anchors this page is centered on resize
   Panel_MainMenu := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
+  Panel_MainMenu.Anchors := [];
     TKMImage.Create(Panel_MainMenu, 300,  60, 423, 164, 4, rxGuiMain);
     TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0, 'Remake', fnt_Metal, taCenter);
+
     with TKMImage.Create(Panel_MainMenu,  50, 220, round(218*1.3), round(291*1.3), 5, rxGuiMainH) do ImageStretch;
     with TKMImage.Create(Panel_MainMenu, 705, 220, round(207*1.3), round(295*1.3), 6, rxGuiMainH) do ImageStretch;
 
-    Panel_MMButtons := TKMPanel.Create(Panel_MainMenu,337,290,350,400);
-
+    Panel_MMButtons := TKMPanel.Create(Panel_MainMenu, 337, 290, 350, 400);
       Button_MM_SinglePlayer := TKMButton.Create(Panel_MMButtons,0,  0,350,30,fTextLibrary[TX_MENU_SINGLEPLAYER],fnt_Metal,bsMenu);
       Button_MM_MultiPlayer  := TKMButton.Create(Panel_MMButtons,0, 40,350,30,fTextLibrary[TX_MENU_MULTIPLAYER],fnt_Metal,bsMenu);
       Button_MM_MapEd        := TKMButton.Create(Panel_MMButtons,0, 80,350,30,fTextLibrary[TX_MENU_MAP_EDITOR],fnt_Metal,bsMenu);
@@ -599,34 +602,37 @@ end;
 
 procedure TKMMainMenuInterface.Create_SinglePlayer_Page;
 begin
-  Panel_SinglePlayer:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
-    TKMImage.Create(Panel_SinglePlayer,300,60,423,164,4,rxGuiMain);
+  //Without anchors this page is centered on resize
+  Panel_SinglePlayer := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
+  Panel_SinglePlayer.Anchors := [];
+    TKMImage.Create(Panel_SinglePlayer, 300, 60, 423, 164, 4, rxGuiMain);
     TKMLabel.Create(Panel_SinglePlayer, 512, 240, 0, 0, 'Remake', fnt_Metal, taCenter);
-    with TKMImage.Create(Panel_SinglePlayer, 50,220,round(218*1.3),round(291*1.3),5,rxGuiMainH) do ImageStretch;
-    with TKMImage.Create(Panel_SinglePlayer,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
+    with TKMImage.Create(Panel_SinglePlayer, 50, 220, Round(218 * 1.3), Round(291 * 1.3), 5, rxGuiMainH) do ImageStretch;
+    with TKMImage.Create(Panel_SinglePlayer, 705, 220, Round(207 * 1.3), Round(295 * 1.3), 6, rxGuiMainH) do ImageStretch;
 
     Panel_SPButtons := TKMPanel.Create(Panel_SinglePlayer,337,290,350,400);
-      Button_SP_Tutor  :=TKMButton.Create(Panel_SPButtons,0,  0,350,30,fTextLibrary[TX_MENU_TUTORIAL_TOWN],fnt_Metal,bsMenu);
-      Button_SP_Fight  :=TKMButton.Create(Panel_SPButtons,0, 40,350,30,fTextLibrary[TX_MENU_TUTORIAL_BATTLE],fnt_Metal,bsMenu);
-      Button_SP_TSK    :=TKMButton.Create(Panel_SPButtons,0, 80,350,30,fTextLibrary[TX_MENU_CAMP_TSK],fnt_Metal,bsMenu);
-      Button_SP_TPR    :=TKMButton.Create(Panel_SPButtons,0,120,350,30,fTextLibrary[TX_MENU_CAMP_TPR],fnt_Metal,bsMenu);
-      Button_SP_Single :=TKMButton.Create(Panel_SPButtons,0,160,350,30,fTextLibrary[TX_MENU_SINGLE_MAP],fnt_Metal,bsMenu);
-      Button_SP_Load   :=TKMButton.Create(Panel_SPButtons,0,200,350,30,fTextLibrary[TX_MENU_LOAD_SAVEGAME],fnt_Metal,bsMenu);
-      Button_SP_Back   :=TKMButton.Create(Panel_SPButtons,0,320,350,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+      Button_SP_Tutor  := TKMButton.Create(Panel_SPButtons,0,  0,350,30,fTextLibrary[TX_MENU_TUTORIAL_TOWN],fnt_Metal,bsMenu);
+      Button_SP_Fight  := TKMButton.Create(Panel_SPButtons,0, 40,350,30,fTextLibrary[TX_MENU_TUTORIAL_BATTLE],fnt_Metal,bsMenu);
+      Button_SP_TSK    := TKMButton.Create(Panel_SPButtons,0, 80,350,30,fTextLibrary[TX_MENU_CAMP_TSK],fnt_Metal,bsMenu);
+      Button_SP_TPR    := TKMButton.Create(Panel_SPButtons,0,120,350,30,fTextLibrary[TX_MENU_CAMP_TPR],fnt_Metal,bsMenu);
+      Button_SP_Single := TKMButton.Create(Panel_SPButtons,0,160,350,30,fTextLibrary[TX_MENU_SINGLE_MAP],fnt_Metal,bsMenu);
+      Button_SP_Load   := TKMButton.Create(Panel_SPButtons,0,200,350,30,fTextLibrary[TX_MENU_LOAD_SAVEGAME],fnt_Metal,bsMenu);
+      Button_SP_Back   := TKMButton.Create(Panel_SPButtons,0,320,350,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
 
-      Button_SP_Tutor.OnClick    := MainMenu_PlayTutorial;
-      Button_SP_Fight.OnClick    := MainMenu_PlayBattle;
-      Button_SP_TSK.OnClick      := SwitchMenuPage;
-      Button_SP_TPR.OnClick      := SwitchMenuPage;
-      Button_SP_Single.OnClick   := SwitchMenuPage;
-      Button_SP_Load.OnClick     := SwitchMenuPage;
-      Button_SP_Back.OnClick     := SwitchMenuPage;
+      Button_SP_Tutor.OnClick  := MainMenu_PlayTutorial;
+      Button_SP_Fight.OnClick  := MainMenu_PlayBattle;
+      Button_SP_TSK.OnClick    := SwitchMenuPage;
+      Button_SP_TPR.OnClick    := SwitchMenuPage;
+      Button_SP_Single.OnClick := SwitchMenuPage;
+      Button_SP_Load.OnClick   := SwitchMenuPage;
+      Button_SP_Back.OnClick   := SwitchMenuPage;
 end;
 
 
 procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
 begin
   Panel_MultiPlayer := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
+  Panel_MultiPlayer.Anchors := [akLeft, akTop, akRight, akBottom];
 
     //Top area
     Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 45, 42, 620, 72);
@@ -640,7 +646,7 @@ begin
     Panel_MPAnnouncement := TKMPanel.Create(Panel_MultiPlayer, 45, 120, 620, 158);
       Memo_MP_Announcement := TKMMemo.Create(Panel_MPAnnouncement,0,0,620,158,fnt_Grey);
       Memo_MP_Announcement.ItemHeight := 16;
-      Memo_MP_Announcement.AutoWrap := true;
+      Memo_MP_Announcement.AutoWrap := True;
 
     //Create server area
     Panel_MPCreateServer := TKMPanel.Create(Panel_MultiPlayer, 673, 42, 300, 236);
@@ -658,11 +664,13 @@ begin
 
     //Server list area
     ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal);
+    ColList_Servers.Anchors := [akLeft, akTop, akBottom];
     ColList_Servers.SetColumns(fnt_Outline, [fTextLibrary[TX_MP_MENU_SERVER_NAME],fTextLibrary[TX_MP_MENU_SERVER_STATE],fTextLibrary[TX_MP_MENU_SERVER_PLAYERS],fTextLibrary[TX_MP_MENU_SERVER_PING]],[0,300,430,525]);
     ColList_Servers.OnColumnClick := MP_ServersSort;
     ColList_Servers.OnChange := MP_ServersClick;
     ColList_Servers.OnDoubleClick := MP_ServersDoubleClick;
     Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer,275,700,390,30,fTextLibrary[TX_MP_MENU_REFRESH_LIST],fnt_Metal,bsMenu);
+    Button_MP_Refresh.Anchors := [akLeft, akBottom];
     Button_MP_Refresh.OnClick := MP_ServersRefresh;
 
     //Server details area
@@ -691,6 +699,7 @@ begin
       Button_MP_Join.OnClick := MP_JoinClick;
 
     Button_MP_Back := TKMButton.Create(Panel_MultiPlayer, 45, 700, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_MP_Back.Anchors := [akLeft, akBottom];
     Button_MP_Back.OnClick := MP_BackClick;
 end;
 
@@ -807,7 +816,7 @@ procedure TKMMainMenuInterface.Create_Campaign_Page;
 var I: Integer;
 begin
   Panel_Campaign:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
-    Image_CampaignBG := TKMImage.Create(Panel_Campaign,0,0,Panel_Main.Width, Panel_Main.Height,12,rxGuiMain);
+    Image_CampaignBG := TKMImage.Create(Panel_Campaign,0,0,Panel_Main.Width, Panel_Main.Height,0,rxGuiMain);
     Image_CampaignBG.ImageStretch;
 
     for I := 0 to High(Image_CampaignFlags) do
@@ -831,7 +840,7 @@ begin
   Button_CampaignStart := TKMButton.Create(Panel_Campaign, Panel_Main.Width-220-20, Panel_Main.Height-50, 220, 30, fTextLibrary[TX_MENU_START_MISSION], fnt_Metal, bsMenu);
   Button_CampaignStart.OnClick := Campaign_StartMap;
 
-  Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, Panel_Main.Width-50, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+  Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, Panel_Main.Height-50, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
   Button_CampaignBack.OnClick := SwitchMenuPage;
 end;
 
@@ -1270,7 +1279,7 @@ begin
   end;
 
   {Return to MainMenu and restore resolution changes}
-  if Sender=Button_Options_Back then 
+  if Sender=Button_Options_Back then
   begin
     fMain.Settings.SaveSettings;
     Panel_MainMenu.Show;
