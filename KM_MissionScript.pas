@@ -753,10 +753,10 @@ begin
                         begin
                           if fPlayers.Player[fLastPlayer].PlayerType <> pt_Computer then Exit;
                           iPlayerAI := fPlayers.Player[fLastPlayer].AI; //Setup the AI's character
-                          if TextParam = PARAMVALUES[cpt_Recruits]     then iPlayerAI.ReqRecruits         := P[1];
-                          if TextParam = PARAMVALUES[cpt_Constructors] then iPlayerAI.ReqWorkers          := P[1];
-                          if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.ReqSerfFactor       := P[1];
-                          if TextParam = PARAMVALUES[cpt_RecruitCount] then iPlayerAI.RecruitTrainTimeout := P[1];
+                          if TextParam = PARAMVALUES[cpt_Recruits]     then iPlayerAI.Mayor.RecruitFactor := P[1];
+                          if TextParam = PARAMVALUES[cpt_Constructors] then iPlayerAI.Mayor.WorkerFactor  := P[1];
+                          if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.Mayor.SerfFactor    := P[1];
+                          if TextParam = PARAMVALUES[cpt_RecruitCount] then iPlayerAI.Mayor.RecruitDelay  := P[1];
                           if TextParam = PARAMVALUES[cpt_TownDefence]  then iPlayerAI.TownDefence         := P[1];
                           if TextParam = PARAMVALUES[cpt_MaxSoldier]   then iPlayerAI.MaxSoldiers         := P[1];
                           if TextParam = PARAMVALUES[cpt_EquipRate]    then iPlayerAI.EquipRate           := P[1];
@@ -769,7 +769,7 @@ begin
                         end;
     ct_AINoBuild:       if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >= 0 then
-                          fPlayers.Player[fLastPlayer].AI.Autobuild := false;
+                          fPlayers.Player[fLastPlayer].AI.Mayor.Autobuild := False;
     ct_AIStartPosition: if fLastPlayer >= 0 then
                           fPlayers.Player[fLastPlayer].AI.StartPosition := KMPoint(P[0]+1,P[1]+1);
     ct_SetAlliance:     if (fLastPlayer >=0) and (fRemap[P[0]] >= 0) then
@@ -993,18 +993,18 @@ begin
     if fPlayers.Player[i].PlayerType = pt_Computer then
     begin
       AddCommand(ct_AIStartPosition, [fPlayers.Player[i].AI.StartPosition.X-1,fPlayers.Player[i].AI.StartPosition.Y-1]);
-      if not fPlayers.Player[i].AI.Autobuild then
+      if not fPlayers.Player[i].AI.Mayor.Autobuild then
         AddCommand(ct_AINoBuild, []);
-      AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers.Player[i].AI.ReqRecruits]);
-      AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers.Player[i].AI.ReqSerfFactor]);
-      AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers.Player[i].AI.ReqWorkers]);
+      AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers.Player[i].AI.Mayor.RecruitFactor]);
+      AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers.Player[i].AI.Mayor.SerfFactor]);
+      AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers.Player[i].AI.Mayor.WorkerFactor]);
       AddCommand(ct_AICharacter,cpt_TownDefence, [fPlayers.Player[i].AI.TownDefence]);
       //Only store if a limit is in place (high is the default)
       if fPlayers.Player[i].AI.MaxSoldiers <> high(fPlayers.Player[i].AI.MaxSoldiers) then
         AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers.Player[i].AI.MaxSoldiers]);
       AddCommand(ct_AICharacter,cpt_EquipRate,    [fPlayers.Player[i].AI.EquipRate]);
       AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers.Player[i].AI.Aggressiveness]);
-      AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers.Player[i].AI.RecruitTrainTimeout]);
+      AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers.Player[i].AI.Mayor.RecruitDelay]);
       for G:=Low(TGroupType) to High(TGroupType) do
         if fPlayers.Player[i].AI.TroopFormations[G].NumUnits <> 0 then //Must be valid and used
           AddCommand(ct_AICharacter, cpt_TroopParam, [KaMGroupType[G], fPlayers.Player[i].AI.TroopFormations[G].NumUnits, fPlayers.Player[i].AI.TroopFormations[G].UnitsPerRow]);

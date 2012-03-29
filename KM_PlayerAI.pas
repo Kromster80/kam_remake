@@ -36,11 +36,9 @@ type //For now IDs must match with KaM
     fLastEquippedTime: cardinal;
     fHasWonOrLost:boolean; //Has this player won/lost? If so, do not check goals
     fAttacks: TAIAttacks;
-    fAutobuild:boolean;
 
     procedure CheckDefeated;
     procedure CheckGoals;
-    procedure CheckUnitCount;
     procedure CheckArmiesCount;
     procedure CheckArmy;
     procedure OrderAttack(aCommander: TKMUnitWarrior; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
@@ -49,9 +47,7 @@ type //For now IDs must match with KaM
     procedure RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
 
   public
-    ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Number of each unit type required
     EquipRate: word; //Number of ticks between soldiers being equipped
-    RecruitTrainTimeout: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
     TownDefence, MaxSoldiers, Aggressiveness: integer; //-1 means not used or default
     StartPosition: TKMPoint; //Defines roughly where to defend and build around
     TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
@@ -63,8 +59,8 @@ type //For now IDs must match with KaM
     constructor Create(aPlayerIndex: TPlayerIndex);
     destructor Destroy; override;
 
-    property Autobuild:boolean read fAutobuild write fAutobuild;
     property Attacks: TAIAttacks read fAttacks;
+    property Mayor: TKMayor read fMayor;
 
     procedure OwnerUpdate(aPlayer:TPlayerIndex);
 
@@ -80,7 +76,6 @@ type //For now IDs must match with KaM
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
-
   end;
 
 
@@ -179,12 +174,7 @@ begin
   fAttacks := TAIAttacks.Create;
 
   //Set some defaults (these are not measured from KaM)
-  ReqWorkers := 3;
-  ReqRecruits := 5; //This means the number in the barracks, watchtowers are counted seperately
   EquipRate := 1000; //Measured in KaM: AI equips 1 soldier every ~100 seconds
-  ReqSerfFactor := 10; //Means 1 serf per building
-  RecruitTrainTimeout := 0; //Can train at start
-  fAutobuild := true; //In KaM it is on by default, and most missions turn it off
   StartPosition := KMPoint(1,1);
   MaxSoldiers := high(MaxSoldiers); //No limit by default
   TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
@@ -320,83 +310,6 @@ begin
     else
     if VictorySatisfied then
       fGame.PlayerVictory(fPlayerIndex);
-end;
-
-
-{ Check existing unit count vs house count and train missing citizens }
-procedure TKMPlayerAI.CheckUnitCount;
-var
-  i,k:integer;
-  H:THouseType;
-  UT:TUnitType;
-  HS:TKMHouseSchool;
-  UnitReq:array[TUnitType]of integer;
-  Schools:array of TKMHouseSchool;
-
-  function CheckUnitRequirements(Req:integer; aUnitType:TUnitType):boolean;
-  begin
-    //We summ up requirements for e.g. Recruits required at Towers and Barracks
-    if fPlayers[fPlayerIndex].Stats.GetUnitQty(aUnitType) < (Req+UnitReq[aUnitType]) then
-    begin
-      dec(UnitReq[aUnitType]); //So other schools don't order same unit
-      HS.AddUnitToQueue(aUnitType, 1);
-      Result := true;
-    end
-    else
-      Result := false;
-  end;
-begin
-  //Find school and make sure it's free of tasks
-  FillChar(UnitReq,SizeOf(UnitReq),#0); //Clear up
-
-  //Citizens
-  //Count overall unit requirement (excluding Barracks and ownerless houses)
-  for H := Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat[H].IsValid and (fResource.HouseDat[H].OwnerType <> ut_None) and (H <> ht_Barracks) then
-      inc(UnitReq[fResource.HouseDat[H].OwnerType], fPlayers[fPlayerIndex].Stats.GetHouseQty(H));
-
-  //Schools
-  //Count overall schools count and exclude already training units from UnitReq
-  SetLength(Schools, fPlayers[fPlayerIndex].Stats.GetHouseQty(ht_School));
-  k := 1;
-  HS := TKMHouseSchool(fPlayers[fPlayerIndex].FindHouse(ht_School,k));
-  while HS <> nil do
-  begin
-    Schools[k-1] := HS;
-    for i:=1 to 6 do //Decrease requirement for each unit in training
-      if HS.UnitQueue[i]<>ut_None then
-        dec(UnitReq[HS.UnitQueue[i]]); //Can be negative and compensated by e.g. ReqRecruits
-    inc(k);
-    HS := TKMHouseSchool(fPlayers[fPlayerIndex].FindHouse(ht_School,k));
-  end;
-
-  //Order the training
-  for k:=1 to Length(Schools) do
-  begin
-    HS := Schools[k-1];
-    if (HS<>nil)and(HS.UnitQueue[1]=ut_None) then
-    begin
-      //Order citizen training
-      for UT:=Low(UnitReq) to High(UnitReq) do
-        if (UnitReq[UT] > 0) and
-           (UnitReq[UT] > fPlayers[fPlayerIndex].Stats.GetUnitQty(UT)) and
-           (UT <> ut_None) then
-        begin
-          dec(UnitReq[UT]); //So other schools don't order same unit
-          HS.AddUnitToQueue(UT, 1);
-          break; //Don't need more UnitTypes yet
-        end;
-
-      //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
-      //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
-      if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
-        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*fPlayers[fPlayerIndex].Stats.GetHouseQty(ht_Any)), ut_Serf) then
-          if not CheckUnitRequirements(ReqWorkers, ut_Worker) then
-            if fGame.CheckTime(RecruitTrainTimeout) then //Recruits can only be trained after this time
-              if not CheckUnitRequirements(ReqRecruits * fPlayers[fPlayerIndex].Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
-                break; //There's no unit demand at all
-    end;
-  end;
 end;
 
 
@@ -784,9 +697,9 @@ end;
 //Do we automatically repair all houses?
 //For now use fAutobuild, which is what KaM does. Later we can add a script command to turn this on and off
 //Also could be changed later to disable repairing when under attack? (only repair if the enemy goes away?)
-function TKMPlayerAI.HouseAutoRepair:boolean;
+function TKMPlayerAI.HouseAutoRepair: Boolean;
 begin
-  Result := fAutobuild;
+  Result := fMayor.Autobuild;
 end;
 
 
@@ -806,22 +719,23 @@ begin
   SaveStream.Write(fHasWonOrLost);
   SaveStream.Write(fTimeOfLastAttackMessage);
   SaveStream.Write(fLastEquippedTime);
-  SaveStream.Write(ReqWorkers);
-  SaveStream.Write(ReqSerfFactor);
-  SaveStream.Write(ReqRecruits);
+  //SaveStream.Write(ReqWorkers);
+//  SaveStream.Write(ReqSerfFactor);
+//  SaveStream.Write(ReqRecruits);
   SaveStream.Write(EquipRate);
-  SaveStream.Write(RecruitTrainTimeout);
+//  SaveStream.Write(RecruitTrainTimeout);
   SaveStream.Write(TownDefence);
   SaveStream.Write(MaxSoldiers);
   SaveStream.Write(Aggressiveness);
   SaveStream.Write(StartPosition);
-  SaveStream.Write(fAutobuild);
+  //SaveStream.Write(fAutobuild);
   SaveStream.Write(TroopFormations, SizeOf(TroopFormations));
   SaveStream.Write(DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
     DefencePositions[i].Save(SaveStream);
 
-  Attacks.Save(SaveStream);
+  fAttacks.Save(SaveStream);
+  fMayor.Save(SaveStream);
 end;
 
 
@@ -833,23 +747,24 @@ begin
   LoadStream.Read(fHasWonOrLost);
   LoadStream.Read(fTimeOfLastAttackMessage);
   LoadStream.Read(fLastEquippedTime);
-  LoadStream.Read(ReqWorkers);
-  LoadStream.Read(ReqSerfFactor);
-  LoadStream.Read(ReqRecruits);
+//  LoadStream.Read(ReqWorkers);
+//  LoadStream.Read(ReqSerfFactor);
+//  LoadStream.Read(ReqRecruits);
   LoadStream.Read(EquipRate);
-  LoadStream.Read(RecruitTrainTimeout);
+//  LoadStream.Read(RecruitTrainTimeout);
   LoadStream.Read(TownDefence);
   LoadStream.Read(MaxSoldiers);
   LoadStream.Read(Aggressiveness);
   LoadStream.Read(StartPosition);
-  LoadStream.Read(fAutobuild);
+  //LoadStream.Read(fAutobuild);
   LoadStream.Read(TroopFormations, SizeOf(TroopFormations));
   LoadStream.Read(DefencePositionsCount);
   SetLength(DefencePositions, DefencePositionsCount);
   for I := 0 to DefencePositionsCount - 1 do
     DefencePositions[I] := TAIDefencePosition.Load(LoadStream);
 
-  Attacks.Load(LoadStream);
+  fAttacks.Load(LoadStream);
+  fMayor.Load(LoadStream);
 end;
 
 
@@ -871,11 +786,12 @@ begin
     pt_Human:     CheckGoals; //This procedure manages victory, loss and messages all in one
     pt_Computer:  if (MyPlayer <> fPlayers[fPlayerIndex]) then
                   begin
-                    CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
+
+                    fMayor.UpdateState;
+
                     CheckArmy; //Feed army, position defence, arrange/organise groups
                     CheckArmiesCount; //Train new soldiers if needed
 
-                    fMayor.UpdateState;
                     //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
                     //CheckAndIssueAttack; //Attack enemy
                     //Anything Else?

@@ -708,7 +708,6 @@ end;
 
 
 constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: word);
-var i:integer;
 begin
   inherited Create(aScreenX, aScreenY);
 

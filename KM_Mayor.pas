@@ -13,25 +13,37 @@ type
     fCityPlanner: TKMCityPlanner;
     fPathFindingRoad: TPathFindingRoad;
 
-    fExpansive: Single;
-    //fHouseImportance: array [THouseType] of Single;
+    fAutobuild: Boolean;
+
+    fSerfFactor: Word;
+    fWorkerFactor: Word;
+    fRecruitFactor: Word;
+    fRecruitDelay: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
 
     function HouseCount(aHouse: THouseType): Integer;
 
-    procedure CheckVitalCount;
-    procedure CheckMiningCount;
-    procedure CheckFoodCount;
-    procedure CheckDefenceCount;
-    procedure CheckWeaponryCount;
+    procedure CheckUnitCount;
+
+    procedure CheckHouseVitalCount;
+    procedure CheckHouseMiningCount;
+    procedure CheckHouseFoodCount;
+    procedure CheckHouseDefenceCount;
+    procedure CheckHouseWeaponryCount;
     procedure CheckHouseCount;
     function TryBuildHouse(aHouse: THouseType): Boolean;
-
-    //procedure RecalcImportance;
   public
     constructor Create(aPlayer: TPlayerIndex);
     destructor Destroy; override;
 
+    property Autobuild: Boolean read fAutobuild write fAutobuild;
+    property SerfFactor: Word read fSerfFactor write fSerfFactor;
+    property WorkerFactor: Word read fWorkerFactor write fWorkerFactor;
+    property RecruitFactor: Word read fRecruitFactor write fRecruitFactor;
+    property RecruitDelay: Cardinal read fRecruitDelay write fRecruitDelay;
+
     procedure UpdateState;
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
@@ -46,6 +58,12 @@ begin
   fOwner := aPlayer;
   fCityPlanner := TKMCityPlanner.Create(fOwner);
   fPathFindingRoad := TPathFindingRoad.Create(fOwner);
+
+  fAutobuild := True; //In KaM it is on by default, and most missions turn it off
+  fSerfFactor := 10; //Means 1 serf per building
+  fWorkerFactor := 6;
+  fRecruitFactor := 5; //This means the number in the barracks, watchtowers are counted seperately
+  fRecruitDelay := 0; //Can train at start
 end;
 
 
@@ -57,42 +75,86 @@ begin
 end;
 
 
-{procedure TKMayor.RecalcImportance;
+{ Check existing unit count vs house count and train missing citizens }
+procedure TKMayor.CheckUnitCount;
 var
-  H: THouseType;
+  HS: TKMHouseSchool;
+  UnitReq: array [TUnitType] of Integer;
+
+  function CheckUnitRequirements(Req:integer; aUnitType:TUnitType):boolean;
+  begin
+    //We summ up requirements for e.g. Recruits required at Towers and Barracks
+    if fPlayers[fOwner].Stats.GetUnitQty(aUnitType) < (Req+UnitReq[aUnitType]) then
+    begin
+      dec(UnitReq[aUnitType]); //So other schools don't order same unit
+      HS.AddUnitToQueue(aUnitType, 1);
+      Result := true;
+    end
+    else
+      Result := false;
+  end;
+
+var
+  i,k:integer;
+  H:THouseType;
+  UT:TUnitType;
+  Schools:array of TKMHouseSchool;
   P: TKMPlayer;
-  UnitCount: Integer;
-  FoodDemand: Single;
-  Expansive: Single;
-  StoneSupply: Single;
 begin
   P := fPlayers[fOwner];
 
-  FillChar(fHouseImportance, SizeOf(fHouseImportance), #0);
+  //Find school and make sure it's free of tasks
+  FillChar(UnitReq,SizeOf(UnitReq),#0); //Clear up
 
-  Expansive := 0.1;
-  UnitCount := P.Stats.GetUnitQty(ut_Any);
+  //Citizens
+  //Count overall unit requirement (excluding Barracks and ownerless houses)
+  for H := Low(THouseType) to High(THouseType) do
+    if fResource.HouseDat[H].IsValid and (fResource.HouseDat[H].OwnerType <> ut_None) and (H <> ht_Barracks) then
+      inc(UnitReq[fResource.HouseDat[H].OwnerType], P.Stats.GetHouseQty(H));
 
-  //Calculate base importance 0 - means we don't need it. 1 means we need it asap
-  fHouseImportance[ht_Inn] := 1 - HouseCount(ht_Inn) + (UnitCount - P.Stats.GetArmyCount) / 50;
-  fHouseImportance[ht_School] := 1 - HouseCount(ht_School);// + P.Stats.GetCitizensTrained / 40;
+  //Schools
+  //Count overall schools count and exclude already training units from UnitReq
+  SetLength(Schools, P.Stats.GetHouseQty(ht_School));
+  k := 1;
+  HS := TKMHouseSchool(P.FindHouse(ht_School,k));
+  while HS <> nil do
+  begin
+    Schools[k-1] := HS;
+    for i:=1 to 6 do //Decrease requirement for each unit in training
+      if HS.UnitQueue[i]<>ut_None then
+        dec(UnitReq[HS.UnitQueue[i]]); //Can be negative and compensated by e.g. ReqRecruits
+    inc(k);
+    HS := TKMHouseSchool(P.FindHouse(ht_School,k));
+  end;
 
-  StoneSupply := Max(1 - P.Stats.GetWareCount(rt_Stone)/200, 1); //0.75
-  StoneQuarries := Max(2 - HouseCount(ht_Quary) + Expansive * 1.5, 0);
+  //Order the training
+  for k:=1 to Length(Schools) do
+  begin
+    HS := Schools[k-1];
+    if (HS<>nil)and(HS.UnitQueue[1]=ut_None) then
+    begin
+      //Order citizen training
+      for UT:=Low(UnitReq) to High(UnitReq) do
+        if (UnitReq[UT] > 0) and
+           (UnitReq[UT] > P.Stats.GetUnitQty(UT)) and
+           (UT <> ut_None) then
+        begin
+          dec(UnitReq[UT]); //So other schools don't order same unit
+          HS.AddUnitToQueue(UT, 1);
+          break; //Don't need more UnitTypes yet
+        end;
 
-  //
-  fHouseImportance[ht_Quary] := 2 - HouseCount(ht_Quary) + Expansive * 1.5;
-  fHouseImportance[ht_Sawmill] := 1.5 - HouseCount(ht_Sawmill) + Expansive * 1.5;
-  fHouseImportance[ht_Woodcutters] := fHouseImportance[ht_Sawmill] * 1.1 - HouseCount(ht_Woodcutters);
-
-  //Food demand per-hour
-  //Consumtion = (UnitCount * 1.25)
-  //Production = (HouseCount(ht_Farm) * 2)
-  FoodDemand := (UnitCount * 1.25 - (HouseCount(ht_Farm) * 2)) / 20;
-  fHouseImportance[ht_Bakery] := FoodDemand;// + HouseCount(ht_Mill)/2 - HouseCount(ht_Bakery);
-  fHouseImportance[ht_Mill] := HouseCount(ht_Bakery) * 1.5 - HouseCount(ht_Mill);//FoodDemand + HouseCount(ht_Farm)/2 - HouseCount(ht_Mill);
-  fHouseImportance[ht_Farm] := HouseCount(ht_Mill) * 1.5 - HouseCount(ht_Farm);//FoodDemand;
-end;}
+      //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
+      //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
+      if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
+        if not CheckUnitRequirements(Round((10/fSerfFactor) * P.Stats.GetHouseQty(ht_Any)), ut_Serf) then
+          if not CheckUnitRequirements(fWorkerFactor, ut_Worker) then
+            if fGame.CheckTime(fRecruitDelay) then //Recruits can only be trained after this time
+              if not CheckUnitRequirements(fRecruitFactor * P.Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
+                Break; //There's no unit demand at all
+    end;
+  end;
+end;
 
 
 function TKMayor.TryBuildHouse(aHouse: THouseType): Boolean;
@@ -138,17 +200,19 @@ begin
   if aHouse = ht_Farm then
   begin
     NodeTagList := TKMPointTagList.Create;
-    for I := Min(Loc.Y + 1, fTerrain.MapY - 1) to Min(Loc.Y + 1 + RAD, fTerrain.MapY - 1) do
-    for K := Max(Loc.X - RAD, 1) to Min(Loc.X + RAD, fTerrain.MapX - 1) do
-      if P.CanAddFieldPlan(KMPoint(K,I), ft_Corn) then
-        NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X) + Abs(I + 1 - Loc.Y) * 2, 0);
+    try
+      for I := Min(Loc.Y + 1, fTerrain.MapY - 1) to Min(Loc.Y + 1 + RAD - 1, fTerrain.MapY - 1) do
+      for K := Max(Loc.X - RAD, 1) to Min(Loc.X + RAD, fTerrain.MapX - 1) do
+        if P.CanAddFieldPlan(KMPoint(K,I), ft_Corn) then
+          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X) + Abs(I + 1 - Loc.Y) * 2, 0);
 
-    NodeTagList.SortByTag;
-    for I := 0 to Min(NodeTagList.Count - 1, 15) do
-      P.BuildList.FieldworksList.AddField(NodeTagList[I], ft_Corn);
-
+      NodeTagList.SortByTag;
+      for I := 0 to Min(NodeTagList.Count - 1, 15) do
+        P.BuildList.FieldworksList.AddField(NodeTagList[I], ft_Corn);
+    finally
+      NodeTagList.Free;
+    end;
   end;
-  //for I := Loc.Y to Loc.Y do
 end;
 
 
@@ -158,7 +222,7 @@ begin
 end;
 
 
-procedure TKMayor.CheckVitalCount;
+procedure TKMayor.CheckHouseVitalCount;
 begin
   if HouseCount(ht_Store) = 0 then
     TryBuildHouse(ht_Store);
@@ -171,7 +235,7 @@ begin
 end;
 
 
-procedure TKMayor.CheckMiningCount;
+procedure TKMayor.CheckHouseMiningCount;
 begin
   if (fPlayers[fOwner].Stats.HouseReleased[ht_Quary]) then
   begin
@@ -196,7 +260,7 @@ begin
 end;
 
 
-procedure TKMayor.CheckFoodCount;
+procedure TKMayor.CheckHouseFoodCount;
 begin
   if (fPlayers[fOwner].Stats.HouseReleased[ht_Farm]) and (HouseCount(ht_Farm) < 2) then
     TryBuildHouse(ht_Farm);
@@ -220,13 +284,13 @@ begin
 end;
 
 
-procedure TKMayor.CheckDefenceCount;
+procedure TKMayor.CheckHouseDefenceCount;
 begin
 
 end;
 
 
-procedure TKMayor.CheckWeaponryCount;
+procedure TKMayor.CheckHouseWeaponryCount;
 begin
   if (fPlayers[fOwner].Stats.HouseReleased[ht_Tannery]) and (HouseCount(ht_Tannery) = 0) then
     TryBuildHouse(ht_Tannery);
@@ -236,21 +300,19 @@ end;
 procedure TKMayor.CheckHouseCount;
 begin
   //Check if we have Store/Inn/School in adequate counts
-  CheckVitalCount;
+  CheckHouseVitalCount;
 
   //Check if we have basic resource mining houses (stone, wood, gold)
-  CheckMiningCount;
+  CheckHouseMiningCount;
 
   //Check if produce adequate food supply
-  CheckFoodCount;
+  CheckHouseFoodCount;
 
   //
-  CheckDefenceCount;
+  CheckHouseDefenceCount;
 
   //Check if we make enough weaponry
-  CheckWeaponryCount;
-
-  //RecalcImportance;
+  CheckHouseWeaponryCount;
 
   //Pick best house to build
   {BestHouse := ht_None;
@@ -268,7 +330,30 @@ end;
 
 procedure TKMayor.UpdateState;
 begin
-  CheckHouseCount;
+  CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
+
+  if fAutobuild then
+    CheckHouseCount;
+end;
+
+
+procedure TKMayor.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.Write(fAutobuild);
+  SaveStream.Write(fSerfFactor);
+  SaveStream.Write(fWorkerFactor);
+  SaveStream.Write(fRecruitFactor);
+  SaveStream.Write(fRecruitDelay);
+end;
+
+
+procedure TKMayor.Load(LoadStream: TKMemoryStream);
+begin
+  LoadStream.Read(fAutobuild);
+  LoadStream.Read(fSerfFactor);
+  LoadStream.Read(fWorkerFactor);
+  LoadStream.Read(fRecruitFactor);
+  LoadStream.Read(fRecruitDelay);
 end;
 
 

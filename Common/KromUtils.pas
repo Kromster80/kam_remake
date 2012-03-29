@@ -213,7 +213,7 @@ end;
 
 
 function CheckSameContents(A, B: string): Boolean;
-var S1, S2: TMemoryStream; I: Integer;
+var S1, S2: TMemoryStream; I: Cardinal;
 begin
   Result := FileExists(A) and FileExists(B);
 
