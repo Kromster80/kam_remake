@@ -221,8 +221,8 @@ begin
   Margin.X := Width - ClientWidth;
   Margin.Y := Height - ClientHeight;
 
-  NewWidth := Math.max(NewWidth, MENU_DESIGN_X + Margin.X);
-  NewHeight := Math.max(NewHeight, MENU_DESIGN_Y + Margin.Y);
+  NewWidth := Math.max(NewWidth, MENU_SIZE_MIN_X + Margin.X);
+  NewHeight := Math.max(NewHeight, MENU_SIZE_MIN_Y + Margin.Y);
 
   Resize := True;
 end;

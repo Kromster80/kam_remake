@@ -28,6 +28,9 @@ const
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
 
+  MENU_SIZE_MIN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
+  MENU_SIZE_MIN_Y         = 600;          //Thats the size menu was designed for. All elements are placed in this size
+
   GAME_REVISION         = 'r3015';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '3rd Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
@@ -64,7 +67,7 @@ var
   SHOW_TEXT_OUTLINES    :Boolean = False; //Display text areas outlines
   ENABLE_DESIGN_CONTORLS:Boolean = False; //Enable special mode to allow to move/edit controls
   MODE_DESIGN_CONTORLS  :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
-  OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
+  OVERLAY_RESOLUTIONS   :Boolean = True; //Render constraining frame
   {Gameplay display}
   SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic
   SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic
