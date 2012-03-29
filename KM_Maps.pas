@@ -27,7 +27,7 @@ type
     procedure LoadFromFile(const aPath:string);
     procedure SaveToFile(const aPath:string);
   public
-    SmallDesc, BigDesc: string;
+    Author, SmallDesc, BigDesc: string;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
 
     constructor Create;
@@ -188,6 +188,7 @@ begin
     FileMode := 2;
     repeat
       readln(ft,st);
+      if SameText(st, 'Author')    then readln(ft, Author);
       if SameText(st, 'SmallDesc') then readln(ft, SmallDesc);
       if SameText(st, 'BigDesc')   then readln(ft, BigDesc);
       if SameText(st, 'SetCoop')   then IsCoop := true;
