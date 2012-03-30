@@ -118,7 +118,7 @@ function TTextLibrary.AppendCampaign(aFileName: string): Word;
 begin
   Assert(Pos('%s', aFileName) <> 0, 'Input string must be formatted properly with an %s');
 
-  Result := High(GameStrings);
+  Result := Length(GameStrings);
   LoadLIBXFile(Format(aFileName, [DEFAULT_LOCALE]), Result, GameStrings, False);
   
   if (fFallbackLocale <> '') and FileExists(Format(aFileName, [fFallbackLocale])) then

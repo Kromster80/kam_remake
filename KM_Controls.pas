@@ -71,13 +71,18 @@ type
     fParent: TKMPanel;
     fAnchors: TAnchors;
 
-    fLeft: Integer;
-    fTop: Integer;
+    //Left and Top are floating-point to allow to precisely store controls position
+    //when Anchors [] are used. Cos that means that control must be centered
+    //even if the Parent resized by 1px. Otherwise error quickly accumylates on
+    //multiple 1px resizes
+    //Everywhere else Top and Left are accessed through Get/Set and treated as Integers
+    fLeft: Single;
+    fTop: Single;
     fWidth: Integer;
     fHeight: Integer;
 
-    fEnabled: boolean;
-    fVisible: boolean;
+    fEnabled: Boolean;
+    fVisible: Boolean;
 
     fTimeOfLastClick: Cardinal; //Required to handle double-clicks
 
@@ -92,6 +97,8 @@ type
     function GetTop: Integer;
     function GetHeight: Integer;
     function GetWidth: Integer;
+    procedure SetLeft(aValue: Integer); virtual;
+    procedure SetTop(aValue: Integer); virtual;
     procedure SetHeight(aValue: Integer); virtual;
     procedure SetWidth(aValue: Integer); virtual;
 
@@ -101,8 +108,6 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(aValue: Boolean); virtual;
     procedure SetEnabled(aValue: Boolean); virtual;
-
-    procedure SetAnchors(aAnchors: TAnchors); virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
@@ -113,11 +118,11 @@ type
     function HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean; virtual;
 
     property Parent: TKMPanel read fParent;
-    property Left: Integer read GetLeft write fLeft;
-    property Top: Integer read GetTop write fTop;
+    property Left: Integer read GetLeft write SetLeft;
+    property Top: Integer read GetTop write SetTop;
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
-    property Anchors: TAnchors read fAnchors write SetAnchors;
+    property Anchors: TAnchors read fAnchors write fAnchors;
     property Enabled: Boolean read fEnabled write SetEnabled;
     property Visible: Boolean read GetVisible write SetVisible;
     procedure Enable;
@@ -625,7 +630,6 @@ type
     fOnChange: TNotifyEvent;
     procedure SetHeight(aValue: Integer); override;
     procedure SetVisible(aValue: Boolean); override;
-    procedure SetAnchors(aAnchors: TAnchors); override;
     function GetTopIndex: Integer;
     procedure SetTopIndex(aIndex: Integer);
     procedure SetBackAlpha(aValue: single);
@@ -953,13 +957,13 @@ end;
 {Shortcuts to Controls properties}
 function TKMControl.GetLeft: Integer;
 begin
-  Result := fLeft;
+  Result := Round(fLeft);
   if Parent <> nil then Result := Result + Parent.GetLeft;
 end;
 
 function TKMControl.GetTop: Integer;
 begin
-  Result := fTop;
+  Result := Round(fTop);
   if Parent <> nil then Result := Result + Parent.GetTop;
 end;
 
@@ -971,6 +975,16 @@ end;
 function TKMControl.GetWidth: Integer;
 begin
   Result := fWidth;
+end;
+
+procedure TKMControl.SetLeft(aValue: Integer);
+begin
+  fLeft := aValue;
+end;
+
+procedure TKMControl.SetTop(aValue: Integer);
+begin
+  fTop := aValue;
 end;
 
 //Overriden in child classes
@@ -1033,12 +1047,6 @@ end;
 procedure TKMControl.SetEnabled(aValue: Boolean);
 begin
   fEnabled := aValue;
-end;
-
-
-procedure TKMControl.SetAnchors(aAnchors: TAnchors);
-begin
-  fAnchors := aAnchors;
 end;
 
 
@@ -1112,6 +1120,7 @@ begin
   Childs[ChildCount] := aChild;
 end;
 
+
 procedure TKMPanel.SetHeight(aValue: Integer);
 var I: Integer;
 begin
@@ -1125,7 +1134,7 @@ begin
     if akBottom in Childs[I].Anchors then
       Childs[I].fTop := Childs[I].fTop + (aValue - fHeight)
     else
-      Childs[I].fTop := Childs[I].fTop + (aValue - fHeight) div 2;
+      Childs[I].fTop := Childs[I].fTop + (aValue - fHeight) / 2;
 
   inherited;
 end;
@@ -1144,7 +1153,7 @@ begin
     if akRight in Childs[I].Anchors then
       Childs[I].fLeft := Childs[I].fLeft + (aValue - fWidth)
     else
-      Childs[I].fLeft := Childs[I].fLeft + (aValue - fWidth) div 2;
+      Childs[I].fLeft := Childs[I].fLeft + (aValue - fWidth) / 2;
 
   inherited;
 end;
@@ -1992,9 +2001,9 @@ procedure TKMResourceOrderRow.Paint;
 var i: Integer;
 begin
   inherited;
-  fOrderRem.Top := fTop; //Use internal fTop instead of GetTop (which will return absolute value)
-  fOrderLab.Top := fTop + 4;
-  fOrderAdd.Top := fTop;
+  fOrderRem.Top := Round(fTop); //Use internal fTop instead of GetTop (which will return absolute value)
+  fOrderLab.Top := Round(fTop + 4);
+  fOrderAdd.Top := Round(fTop);
 
   fOrderLab.Caption := inttostr(OrderCount);
 
@@ -2132,7 +2141,7 @@ procedure TKMScrollBar.SetHeight(aValue: Integer);
 begin
   inherited;
   if fScrollAxis = sa_Vertical then
-    fScrollInc.Top := fTop+fHeight-fWidth;
+    fScrollInc.Top := Round(fTop+fHeight-fWidth);
 
   UpdateThumbSize; //Update Thumb size
 end;
@@ -2307,7 +2316,7 @@ end;
 procedure TKMMemo.SetWidth(aValue: Integer);
 begin
   inherited;
-  fScrollBar.Left := fLeft + fWidth - 20;
+  fScrollBar.Left := Round(fLeft + fWidth) - 20;
   ReformatText; //Repositions the scroll bar as well
 end;
 
@@ -2795,14 +2804,6 @@ begin
   inherited;
   fHeader.Visible := aValue;
   fScrollBar.Visible := fVisible; //Hide scrollbar and its buttons
-end;
-
-
-procedure TKMColumnListBox.SetAnchors(aAnchors: TAnchors);
-begin
-  Inherited;
-  if fHeader <> nil then //Could happen during Create
-    fHeader.Anchors := fAnchors; //Header gets our anchors too, so it resizes with us
 end;
 
 

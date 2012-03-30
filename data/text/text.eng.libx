@@ -1,5 +1,5 @@
 
-MaxID:3000
+MaxID:3004
 
 0:Sawmill
 1:Iron smithy
@@ -754,3 +754,7 @@ MaxID:3000
 2218:definitions
 2219:tileset
 2220:Soft shadows
+3001:Create Server
+3002:FIND SERVER
+3003:Find Server
+3004:Find Server

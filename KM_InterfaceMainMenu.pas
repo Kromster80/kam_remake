@@ -79,16 +79,20 @@ type
     procedure MP_ServersUpdateList(Sender: TObject);
     procedure MP_AnnouncementsUpdated(const S: string);
     procedure MP_CreateServerClick(Sender: TObject);
+    procedure MP_FindServerClick(Sender: TObject);
     procedure MP_CreateServerCancelClick(Sender: TObject);
+    procedure MP_FindServerIPClick(Sender: TObject);
+    procedure MP_FindServerCancelClick(Sender: TObject);
     procedure MP_ServersRefresh(Sender: TObject);
     procedure MP_ServersSort(aIndex: Integer);
     procedure MP_ServersClick(Sender: TObject);
     procedure MP_ServersDoubleClick(Sender: TObject);
-    procedure MP_HostClick(Sender: TObject);
-    procedure MP_JoinClick(Sender: TObject);
+    procedure MP_GetInClick(Sender: TObject);
+    procedure MP_Join(aServerAddress, aPort: string; aRoom: Integer);
     procedure MP_JoinSuccess(Sender: TObject);
     procedure MP_JoinFail(const aData:string);
     procedure MP_JoinAssignedHost(Sender: TObject);
+    procedure MP_HostClick(Sender: TObject);
     procedure MP_HostFail(const aData:string);
     procedure MP_BackClick(Sender: TObject);
 
@@ -152,33 +156,39 @@ type
       Button_SP_TSK,
       Button_SP_TPR,
       Button_SP_Single,
-      Button_SP_Load:TKMButton;
-      Button_SP_Back:TKMButton;
-    Panel_MultiPlayer:TKMPanel;
-      Button_MP_CreateServer: TKMButton;
-      Panel_MPPlayerName:TKMPanel;
+      Button_SP_Load: TKMButton;
+      Button_SP_Back: TKMButton;
+    Panel_MultiPlayer: TKMPanel;
+      Panel_MPAnnouncement: TKMPanel;
+        Memo_MP_Announcement: TKMMemo;
+      ColList_Servers: TKMColumnListBox;
+      Button_MP_Back: TKMButton;
+      Button_MP_Refresh: TKMButton;
+      Button_MP_GetIn: TKMButton;
+
+      Panel_MPPlayerName: TKMPanel;
         Edit_MP_PlayerName: TKMEdit;
-        Label_MP_Status:TKMLabel;
-      Panel_MPAnnouncement:TKMPanel;
-        Memo_MP_Announcement:TKMMemo;
-      Panel_MPCreateServer:TKMPanel;
+        Label_MP_Status: TKMLabel;
+      Button_MP_CreateServer: TKMButton;
+      Button_MP_FindServer: TKMButton;
+      Panel_MPServerDetails:TKMPanel;
+        Label_MP_Players:TKMLabel;
+        Label_MP_Map:TKMLabel;
+        Label_MP_GameTime:TKMLabel;
+
+      //PopUps
+      Panel_MPCreateServer: TKMPanel;
         Edit_MP_ServerName,
         Edit_MP_ServerPort: TKMEdit;
         Button_MP_CreateLAN,
         Button_MP_CreateWAN: TKMButton;
         Button_MP_CreateServerCancel: TKMButton;
-      Panel_MPJoinServer:TKMPanel;
-        Button_MP_Join: TKMButton;
-        Edit_MP_IP,
-        Edit_MP_Port,
-        Edit_MP_Room: TKMEdit;
-      Panel_MPServerDetails:TKMPanel;
-        Label_MP_Players:TKMLabel;
-        Label_MP_Map:TKMLabel;
-        Label_MP_GameTime:TKMLabel;
-      Button_MP_Refresh,
-      Button_MP_Back:TKMButton;
-      ColList_Servers: TKMColumnListBox;
+      Panel_MPFindServer: TKMPanel;
+        Button_MP_FindServerIP: TKMButton;
+        Button_MP_FindCancel: TKMButton;
+        Edit_MP_FindIP,
+        Edit_MP_FindPort,
+        Edit_MP_FindRoom: TKMEdit;
 
     Panel_Lobby:TKMPanel;
       Panel_LobbyServerName:TKMPanel;
@@ -333,6 +343,7 @@ const
 
 { TKMMainMenuInterface }
 constructor TKMMainMenuInterface.Create(X,Y: Word);
+var S: TKMShape;
 begin
   inherited;
   Assert(fTextLibrary <> nil, 'fTextLibrary should be initialized before MainMenuInterface');
@@ -347,8 +358,8 @@ begin
   fSaves := TKMSavesCollection.Create(False);
   fSavesMP := TKMSavesCollection.Create(True);
 
-  Panel_Main := TKMPanel.Create(fMyControls, (X - MENU_DESIGN_X) div 2,
-                                             (Y - MENU_DESIGN_Y) div 2,
+  Panel_Main := TKMPanel.Create(fMyControls, 0,
+                                             0,
                                              MENU_DESIGN_X,
                                              MENU_DESIGN_Y); //Parent Panel for whole menu
 
@@ -382,8 +393,14 @@ begin
 
   if OVERLAY_RESOLUTIONS then
   begin
-    with TKMShape.Create(Panel_Main, 112, 84, 800, 600, $FF00FFFF) do Hitable := False;
-    with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable := False;
+    S := TKMShape.Create(Panel_Main, 0, 96, 1024, 576, $FF00FFFF);
+    S.Anchors := [];
+    S.LineWidth := 1;
+    S.Hitable := False;
+    S := TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00);
+    S.Anchors := [];
+    S.LineWidth := 1;
+    S.Hitable := False;
   end;
 
   fLog.AppendLog('Main menu init done');
@@ -409,7 +426,7 @@ begin
   Panel_Main.Height := Min(Y, MENU_DESIGN_Y);
 
   Panel_Main.Left := (X - Panel_Main.Width) div 2;
-  Panel_Main.Top  := (Y - Panel_Main.Height) div 2;
+  Panel_Main.Top  := (X - Panel_Main.Width) div 2;
 end;
 
 
@@ -634,12 +651,55 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
+  procedure CreateServerPopUp;
+  begin
+    Panel_MPCreateServer := TKMPanel.Create(Panel_Main, 362, 250, 320, 300);
+    Panel_MPCreateServer.Anchors := [];
+      TKMBevel.Create(Panel_MPCreateServer, -1000,  -1000, 2000, 2000);
+      TKMImage.Create(Panel_MPCreateServer, -20, -75, 340, 310, 15, rxGuiMain);
+      TKMBevel.Create(Panel_MPCreateServer,   0,  0, 320, 300);
+      TKMLabel.Create(Panel_MPCreateServer, 160, 10, 280, 20, fTextLibrary[TX_MP_MENU_CREATE_SERVER_HEADER], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_MPCreateServer, 20, 50, 280, 20, fTextLibrary[TX_MP_MENU_CREATE_SERVER_NAME], fnt_Outline, taLeft);
+      Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 20, 70, 280, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPCreateServer, 20, 100, 284, 20, fTextLibrary[TX_MP_MENU_CREATE_SERVER_PORT], fnt_Outline, taLeft);
+      Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 20, 120, 100, 20, fnt_Grey);
+      Edit_MP_ServerPort.AllowedChars := acDigits;
+      Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer, 20, 170, 280, 30, fTextLibrary[TX_MP_MENU_CREATE_SERVER_LOCAL],fnt_Metal,bsMenu);
+      Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer, 20, 210, 280, 30, fTextLibrary[TX_MP_MENU_CREATE_SERVER_INTERNET],fnt_Metal,bsMenu);
+      Button_MP_CreateServerCancel := TKMButton.Create(Panel_MPCreateServer, 20, 250, 280, 30, 'Cancel', fnt_Metal, bsMenu);
+      Button_MP_CreateLAN.OnClick := MP_HostClick;
+      Button_MP_CreateWAN.OnClick := MP_HostClick;
+      Button_MP_CreateServerCancel.OnClick := MP_CreateServerCancelClick;
+  end;
+  procedure FindServerPopUp;
+  begin
+    Panel_MPFindServer := TKMPanel.Create(Panel_Main, 362, 250, 320, 300);
+    Panel_MPFindServer.Anchors := [];
+      TKMBevel.Create(Panel_MPFindServer, -1000,  -1000, 2000, 2000);
+      TKMImage.Create(Panel_MPFindServer, -20, -75, 340, 310, 15, rxGuiMain);
+      TKMBevel.Create(Panel_MPFindServer,   0,  0, 320, 300);
+      TKMLabel.Create(Panel_MPFindServer, 160, 10, 280, 20, fTextLibrary[TX_MP_MENU_FIND_SERVER_HEADER], fnt_Outline, taCenter);
+
+      TKMLabel.Create(Panel_MPFindServer, 20, 50, 156, 20, fTextLibrary[TX_MP_MENU_FIND_SERVER_ADDRESS], fnt_Outline, taLeft);
+      Edit_MP_FindIP := TKMEdit.Create(Panel_MPFindServer, 20, 70, 162, 20, fnt_Grey);
+      Edit_MP_FindIP.AllowedChars := acText; //Server name could be "localhost"
+      TKMLabel.Create(Panel_MPFindServer, 172, 50, 60, 20, fTextLibrary[TX_MP_MENU_FIND_SERVER_PORT], fnt_Outline, taLeft);
+      Edit_MP_FindPort := TKMEdit.Create(Panel_MPFindServer, 172, 70, 60, 20, fnt_Grey);
+      Edit_MP_FindPort.AllowedChars := acDigits;
+      TKMLabel.Create(Panel_MPFindServer, 232, 50, 60, 20, fTextLibrary[TX_MP_MENU_FIND_SERVER_ROOM], fnt_Outline, taLeft);
+      Edit_MP_FindRoom := TKMEdit.Create(Panel_MPFindServer, 232, 70, 60, 20, fnt_Grey);
+      Edit_MP_FindRoom.AllowedChars := acDigits;
+      Button_MP_FindServerIP := TKMButton.Create(Panel_MPFindServer, 20, 110, 280, 30, fTextLibrary[TX_MP_MENU_FIND_SERVER_FIND],fnt_Metal,bsMenu);
+      Button_MP_FindServerIP.OnClick := MP_FindServerIPClick;
+      Button_MP_FindCancel := TKMButton.Create(Panel_MPFindServer, 20, 150, 280, 30, 'Cancel', fnt_Metal, bsMenu);
+      Button_MP_FindCancel.OnClick := MP_FindServerCancelClick;
+  end;
 begin
-  Panel_MultiPlayer := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
+  Panel_MultiPlayer := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_MultiPlayer.Anchors := [akLeft, akTop, akRight, akBottom];
 
     //Top area
-    Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 673, 45, 300, 160);
+    Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 675, 45, 300, 160);
       TKMBevel.Create(Panel_MPPlayerName, 0, 0, 300, 160);
       TKMLabel.Create(Panel_MPPlayerName, 8, 10, 136, 20, fTextLibrary[TX_MP_MENU_PLAYERNAME], fnt_Outline, taLeft);
       Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 30, 120, 20, fnt_Grey);
@@ -647,46 +707,34 @@ begin
       Label_MP_Status := TKMLabel.Create(Panel_MPPlayerName, 8, 80, 280, 46, '', fnt_Grey, taLeft);
       Label_MP_Status.AutoWrap := True;
 
-    Button_MP_CreateServer := TKMButton.Create(Panel_MultiPlayer, 680, 220, 286, 30, fTextLibrary[TX_MP_MENU_HEADER_CREATE_SERVER], fnt_Metal, bsMenu);
+    Button_MP_CreateServer := TKMButton.Create(Panel_MultiPlayer, 680, 220, 286, 30, fTextLibrary[TX_MP_MENU_CREATE_SERVER], fnt_Metal, bsMenu);
     Button_MP_CreateServer.OnClick := MP_CreateServerClick;
 
+    CreateServerPopUp;
+
+    Button_MP_FindServer := TKMButton.Create(Panel_MultiPlayer, 680, 260, 286, 30, fTextLibrary[TX_MP_MENU_FIND_SERVER], fnt_Metal, bsMenu);
+    Button_MP_FindServer.OnClick := MP_FindServerClick;
+
+    FindServerPopUp;
+
     //Create server area
-    Panel_MPCreateServer := TKMPanel.Create(Panel_Main, 362, 250, 320, 300);
-    Panel_MPCreateServer.Anchors := [];
-      TKMBevel.Create(Panel_MPCreateServer, -1000,  -1000, 2000, 2000);
-      TKMImage.Create(Panel_MPCreateServer, -20, -75, 340, 310, 15, rxGuiMain);
-      TKMBevel.Create(Panel_MPCreateServer,   0,  0, 320, 300);
-      TKMLabel.Create(Panel_MPCreateServer, 160, 10, 284, 20, fTextLibrary[TX_MP_MENU_HEADER_CREATE_SERVER], fnt_Outline, taCenter);
-      TKMLabel.Create(Panel_MPCreateServer, 20, 50, 284, 20, fTextLibrary[TX_MP_MENU_CREATE_SERVER_NAME], fnt_Outline, taLeft);
-      Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 20, 70, 280, 20, fnt_Grey);
-      TKMLabel.Create(Panel_MPCreateServer, 20, 100, 284, 20, fTextLibrary[TX_MP_MENU_SERVER_PORT], fnt_Outline, taLeft);
-      Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 20, 120, 100, 20, fnt_Grey);
-      Edit_MP_ServerPort.AllowedChars := acDigits;
-      Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer, 20, 170, 280, 30, fTextLibrary[TX_MP_MENU_CREATE_LOCAL],fnt_Metal,bsMenu);
-      Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer, 20, 210, 280, 30, fTextLibrary[TX_MP_MENU_CREATE_INTERNET],fnt_Metal,bsMenu);
-      Button_MP_CreateServerCancel := TKMButton.Create(Panel_MPCreateServer, 20, 250, 280, 30, 'Cancel', fnt_Metal, bsMenu);
-      Button_MP_CreateLAN.OnClick := MP_HostClick;
-      Button_MP_CreateWAN.OnClick := MP_HostClick;
-      Button_MP_CreateServerCancel.OnClick := MP_CreateServerCancelClick;
 
     //Server list area
-    Memo_MP_Announcement := TKMMemo.Create(Panel_MultiPlayer, 45, 45, 620, 255, fnt_Grey);
-    Memo_MP_Announcement.Anchors := [akLeft, akTop, akBottom];
+    Memo_MP_Announcement := TKMMemo.Create(Panel_MultiPlayer, 45, 45, 620, 205, fnt_Grey);
+    Memo_MP_Announcement.Anchors := [akLeft, akTop];
     Memo_MP_Announcement.AutoWrap := True;
     Memo_MP_Announcement.ItemHeight := 16;
 
-    ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal);
-    ColList_Servers.Anchors := [akLeft, akBottom];
-    ColList_Servers.SetColumns(fnt_Outline, [fTextLibrary[TX_MP_MENU_SERVER_NAME],fTextLibrary[TX_MP_MENU_SERVER_STATE],fTextLibrary[TX_MP_MENU_SERVER_PLAYERS],fTextLibrary[TX_MP_MENU_SERVER_PING]],[0,300,430,525]);
+    ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,250,620,440,fnt_Metal);
+    ColList_Servers.Anchors := [akLeft, akTop, akBottom];
+    ColList_Servers.SetColumns(fnt_Outline, [fTextLibrary[TX_MP_MENU_SERVERLIST_NAME],fTextLibrary[TX_MP_MENU_SERVERLIST_STATE],fTextLibrary[TX_MP_MENU_SERVERLIST_PLAYERS],fTextLibrary[TX_MP_MENU_SERVERLIST_PING]],[0,300,430,525]);
     ColList_Servers.OnColumnClick := MP_ServersSort;
     ColList_Servers.OnChange := MP_ServersClick;
     ColList_Servers.OnDoubleClick := MP_ServersDoubleClick;
-    Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer,275,700,390,30,fTextLibrary[TX_MP_MENU_REFRESH_LIST],fnt_Metal,bsMenu);
-    Button_MP_Refresh.Anchors := [akLeft, akBottom];
-    Button_MP_Refresh.OnClick := MP_ServersRefresh;
 
     //Server details area
-    Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 673, 300, 300, 292);
+    Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 675, 300, 300, 440);
+    Panel_MPServerDetails.Anchors := [akLeft, akBottom];
       TKMBevel.Create(Panel_MPServerDetails, 0, 0, 300, 300);
       TKMLabel.Create(Panel_MPServerDetails, 150, 6, 284, 20, fTextLibrary[TX_MP_MENU_HEADER_SERVER_DETAILS], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_MPServerDetails, 8, 30, 284, 20, fTextLibrary[TX_MP_MENU_GAME_INFORMATION], fnt_Outline, taLeft);
@@ -695,24 +743,15 @@ begin
       TKMLabel.Create(Panel_MPServerDetails, 8, 130, 284, 20, fTextLibrary[TX_MP_MENU_PLAYER_LIST], fnt_Outline, taLeft);
       Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 150, 284, 242, '', fnt_Metal, taLeft);
 
-    //Join server area
-    Panel_MPJoinServer := TKMPanel.Create(Panel_MultiPlayer, 673, 602, 300, 90);
-      TKMBevel.Create(Panel_MPJoinServer, 0, 0, 300, 90);
-      TKMLabel.Create(Panel_MPJoinServer, 8, 8, 156, 20, fTextLibrary[TX_MP_MENU_JOIN_ADDRESS], fnt_Outline, taLeft);
-      Edit_MP_IP := TKMEdit.Create(Panel_MPJoinServer, 8, 24, 162, 20, fnt_Grey);
-      Edit_MP_IP.AllowedChars := acText; //Server name could be "localhost"
-      TKMLabel.Create(Panel_MPJoinServer, 172, 8, 60, 20, fTextLibrary[TX_MP_MENU_JOIN_PORT], fnt_Outline, taLeft);
-      Edit_MP_Port := TKMEdit.Create(Panel_MPJoinServer, 172, 24, 60, 20, fnt_Grey);
-      Edit_MP_Port.AllowedChars := acDigits;
-      TKMLabel.Create(Panel_MPJoinServer, 232, 8, 60, 20, fTextLibrary[TX_MP_MENU_JOIN_ROOM], fnt_Outline, taLeft);
-      Edit_MP_Room := TKMEdit.Create(Panel_MPJoinServer, 232, 24, 60, 20, fnt_Grey);
-      Edit_MP_Room.AllowedChars := acDigits;
-      Button_MP_Join := TKMButton.Create(Panel_MPJoinServer,8, 52,284,30,fTextLibrary[TX_MP_MENU_SERVER_JOIN],fnt_Metal,bsMenu);
-      Button_MP_Join.OnClick := MP_JoinClick;
-
-    Button_MP_Back := TKMButton.Create(Panel_MultiPlayer, 45, 700, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
-    Button_MP_Back.Anchors := [akLeft, akBottom];
-    Button_MP_Back.OnClick := MP_BackClick;
+    Button_MP_Back    := TKMButton.Create(Panel_MultiPlayer,  45, 700, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer, 275, 700, 390, 30,fTextLibrary[TX_MP_MENU_REFRESH_SERVER_LIST],fnt_Metal,bsMenu);
+    Button_MP_GetIn   := TKMButton.Create(Panel_MultiPlayer, 675, 700, 300, 30,fTextLibrary[TX_MP_MENU_SERVER_JOIN], fnt_Metal, bsMenu);
+    Button_MP_Back.Anchors    := [akLeft, akBottom];
+    Button_MP_Refresh.Anchors := [akLeft, akBottom];
+    Button_MP_GetIn.Anchors   := [akLeft, akBottom];
+    Button_MP_Back.OnClick    := MP_BackClick;
+    Button_MP_Refresh.OnClick := MP_ServersRefresh;
+    Button_MP_GetIn.OnClick   := MP_GetInClick;
 end;
 
 
@@ -1376,8 +1415,11 @@ begin
   end;
 
   { Lobby }
-  if (Sender=Button_MP_Join) or (Sender=Button_MP_CreateLAN) or (Sender=Button_MP_CreateWAN) then begin
-    MP_SaveSettings;
+  if (Sender=Button_MP_FindServerIP)
+  or (Sender=Button_MP_GetIn)
+  or (Sender=Button_MP_CreateLAN)
+  or (Sender=Button_MP_CreateWAN) then
+  begin
     Lobby_Reset(Sender);
     fMyControls.CtrlFocus := Edit_LobbyPost;
     Panel_Lobby.Show;
@@ -1667,14 +1709,19 @@ procedure TKMMainMenuInterface.MP_Init(Sender: TObject);
 begin
   fServerSelected := False;
 
-  MP_ServersRefresh(Sender); //Refresh the list when they first open the multiplayer page
+  //Refresh the list when they first open the multiplayer page
+  MP_ServersRefresh(Sender);
 
   Edit_MP_PlayerName.Text := fGame.GlobalSettings.MultiplayerName;
-  Edit_MP_IP.Text := fGame.GlobalSettings.MultiplayerIP;
-  Edit_MP_Port.Text := fGame.GlobalSettings.LastPort;
-  Edit_MP_Room.Text := fGame.GlobalSettings.LastRoom;
+
   Edit_MP_ServerName.Text := fGame.GlobalSettings.ServerName;
   Edit_MP_ServerPort.Text := fGame.GlobalSettings.ServerPort;
+
+  Edit_MP_FindIP.Text := fGame.GlobalSettings.LastIP;
+  Edit_MP_FindPort.Text := fGame.GlobalSettings.LastPort;
+  Edit_MP_FindRoom.Text := fGame.GlobalSettings.LastRoom;
+
+  Button_MP_GetIn.Disable;
 
   //Fetch the announcements display
   fGame.Networking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
@@ -1712,23 +1759,56 @@ begin
 end;
 
 
-//Save the Player and IP name so it is not lost inbetween activities
-procedure TKMMainMenuInterface.MP_SaveSettings;
+procedure TKMMainMenuInterface.MP_FindServerCancelClick(Sender: TObject);
 begin
-  fGame.GlobalSettings.ServerName := Edit_MP_ServerName.Text;
-  fGame.GlobalSettings.LastPort := Edit_MP_Port.Text;
-  fGame.GlobalSettings.LastRoom := Edit_MP_Room.Text;
-  fGame.GlobalSettings.MultiplayerIP := Edit_MP_IP.Text;
-  fGame.GlobalSettings.MultiplayerName := Edit_MP_PlayerName.Text;
-  fGame.GlobalSettings.ServerPort := Edit_MP_ServerPort.Text;
+  Panel_MPFindServer.Hide;
 end;
 
 
-procedure TKMMainMenuInterface.MP_Update(const aStatus:string; aColor:TColor4; aBusy:boolean);
+procedure TKMMainMenuInterface.MP_FindServerClick(Sender: TObject);
 begin
+  Panel_MPFindServer.Show;
+end;
+
+
+procedure TKMMainMenuInterface.MP_FindServerIPClick(Sender: TObject);
+begin
+  MP_Join(Edit_MP_FindIP.Text, Edit_MP_FindPort.Text, StrToIntDef(Edit_MP_FindRoom.Text, -1));
+end;
+
+
+//Save the Player and IP name so it is not lost inbetween activities
+procedure TKMMainMenuInterface.MP_SaveSettings;
+begin
+  //Player name
+  fGame.GlobalSettings.MultiplayerName := Edit_MP_PlayerName.Text;
+
+  //Create Server popup
+  fGame.GlobalSettings.ServerName := Edit_MP_ServerName.Text;
+  fGame.GlobalSettings.ServerPort := Edit_MP_ServerPort.Text;
+
+  //Join server popup
+  fGame.GlobalSettings.LastPort := Edit_MP_FindPort.Text;
+  fGame.GlobalSettings.LastRoom := Edit_MP_FindRoom.Text;
+  fGame.GlobalSettings.LastIP   := Edit_MP_FindIP.Text;
+end;
+
+
+//Update status line
+//todo: replace Color with enum
+//When user tries to Join some server disable joining controls for that time
+procedure TKMMainMenuInterface.MP_Update(const aStatus: string; aColor: TColor4; aBusy: Boolean);
+begin
+  //Toggle server creation
+  Button_MP_CreateServer.Enabled := not aBusy;
   Button_MP_CreateLAN.Enabled := not aBusy;
   Button_MP_CreateWAN.Enabled := not aBusy;
-  Button_MP_Join.Enabled := not aBusy;
+
+  //Toggle server joining
+  Button_MP_FindServerIP.Enabled := not aBusy;
+  Button_MP_FindCancel.Enabled := not aBusy;
+  //Button_MP_GetIn.Enabled := not aBusy;
+
   Label_MP_Status.Caption := aStatus;
   Label_MP_Status.FontColor := aColor;
 end;
@@ -1743,6 +1823,7 @@ begin
   Label_MP_GameTime.Caption := '';
   Label_MP_Map.Caption := '';
   ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_REFRESHING],'','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1);
+  Button_MP_GetIn.Disable;
 end;
 
 
@@ -1834,18 +1915,17 @@ end;
 
 
 procedure TKMMainMenuInterface.MP_ServersClick(Sender: TObject);
+var ID: Integer;
 begin
-  if ColList_Servers.ItemIndex = -1 then Exit;
-  if ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag = -1 then exit;
+  ID := ColList_Servers.ItemIndex;
+  if (ID = -1) or (ColList_Servers.Rows[ID].Tag = -1) then Exit;
 
   fServerSelected := True;
+  Button_MP_GetIn.Enable;
 
-  fSelectedRoomInfo := fGame.Networking.ServerQuery.Rooms[ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag];
+  fSelectedRoomInfo := fGame.Networking.ServerQuery.Rooms[ColList_Servers.Rows[ID].Tag];
   fSelectedServerInfo := fGame.Networking.ServerQuery.Servers[fSelectedRoomInfo.ServerIndex];
 
-  Edit_MP_IP.Text := fSelectedServerInfo.IP;
-  Edit_MP_Port.Text := fSelectedServerInfo.Port;
-  Edit_MP_Room.Text := IntToStr(fSelectedRoomInfo.RoomID);
   Label_MP_Players.Caption := fSelectedRoomInfo.GameInfo.Players;
   Label_MP_GameTime.Caption := fSelectedRoomInfo.GameInfo.GetFormattedTime;
   Label_MP_Map.Caption := fSelectedRoomInfo.GameInfo.Map;
@@ -1855,15 +1935,18 @@ end;
 procedure TKMMainMenuInterface.MP_ServersDoubleClick(Sender: TObject);
 begin
   //MP_SelectServer gets called by first Click
-  if Button_MP_Join.Enabled and (ColList_Servers.ItemIndex <> -1)
+  if Button_MP_GetIn.Enabled and (ColList_Servers.ItemIndex <> -1)
   and InRange(ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag, 0, fGame.Networking.ServerQuery.Rooms.Count-1) then
-    MP_JoinClick(Sender);
+    MP_GetInClick(Sender);
 end;
 
 
 procedure TKMMainMenuInterface.MP_HostClick(Sender: TObject);
 begin
-  MP_SaveSettings; //Save the player and IP name so it is not lost if something fails
+  //Save the player and IP name so it is not lost if something fails
+  MP_SaveSettings;
+
+  //Verify PlayerName;
   if Trim(Edit_MP_PlayerName.Text) = '' then
   begin
     MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
@@ -1878,35 +1961,39 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_JoinClick(Sender: TObject);
+procedure TKMMainMenuInterface.MP_GetInClick(Sender: TObject);
 begin
-  MP_SaveSettings; //Save the player and IP name so it is not lost if the connection fails
+  MP_Join(fSelectedServerInfo.IP, fSelectedServerInfo.Port, fSelectedRoomInfo.RoomID);
+end;
+
+
+procedure TKMMainMenuInterface.MP_Join(aServerAddress, aPort: string; aRoom: Integer);
+begin
+  //Save the player and IP name so it is not lost if the connection fails
+  MP_SaveSettings;
 
   if Trim(Edit_MP_PlayerName.Text) = '' then
   begin
     MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
     fSoundLib.Play(sfxn_Error2);
-    exit;
+    Exit;
   end;
 
   //Disable buttons to prevent multiple clicks while connection process is in progress
-  Button_MP_CreateLAN.Disable;
-  Button_MP_CreateWAN.Disable;
-  Button_MP_Join.Disable;
-  MP_Update(fTextLibrary[TX_MP_MENU_STATUS_CONNECTING],$FF00FF00,true);
+  MP_Update(fTextLibrary[TX_MP_MENU_STATUS_CONNECTING],$FF00FF00, True);
 
   //Send request to join
   fGame.Networking.OnJoinSucc := MP_JoinSuccess;
   fGame.Networking.OnJoinFail := MP_JoinFail;
   fGame.Networking.OnJoinAssignedHost := MP_JoinAssignedHost;
-  fGame.Networking.Join(Edit_MP_IP.Text, Edit_MP_Port.Text, Edit_MP_PlayerName.Text, StrToIntDef(Edit_MP_Room.Text,-1)); //Init lobby
+  fGame.Networking.Join(aServerAddress, aPort, Edit_MP_PlayerName.Text, aRoom); //Init lobby
 end;
 
 
 //We had recieved permission to join
 procedure TKMMainMenuInterface.MP_JoinSuccess(Sender: TObject);
 begin
-  SwitchMenuPage(Button_MP_Join); //Open lobby page
+  SwitchMenuPage(Button_MP_GetIn); //Open lobby page
 
   fGame.Networking.OnJoinSucc := nil;
   fGame.Networking.OnJoinFail := nil;
@@ -2358,7 +2445,7 @@ end;
 //We have been assigned to be the host of the game because the host disconnected. Reopen lobby page in correct mode.
 procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
 begin
-  Lobby_Reset(Button_MP_CreateLAN,true); //Will reset the lobby page into host mode, preserving messages
+  Lobby_Reset(Button_MP_CreateLAN, True); //Will reset the lobby page into host mode, preserving messages
   if fGame.Networking.SelectGameKind = ngk_None then
     Radio_LobbyMapType.ItemIndex := 0 //Default
   else
