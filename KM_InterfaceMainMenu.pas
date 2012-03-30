@@ -696,7 +696,7 @@ procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
   end;
 begin
   Panel_MultiPlayer := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
-  Panel_MultiPlayer.Anchors := [akLeft, akTop, akRight, akBottom];
+  Panel_MultiPlayer.Stretch;
 
     //Top area
     Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 675, 45, 300, 160);
@@ -725,7 +725,7 @@ begin
     Memo_MP_Announcement.AutoWrap := True;
     Memo_MP_Announcement.ItemHeight := 16;
 
-    ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,250,620,440,fnt_Metal);
+    ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,250,620,435,fnt_Metal);
     ColList_Servers.Anchors := [akLeft, akTop, akBottom];
     ColList_Servers.SetColumns(fnt_Outline, [fTextLibrary[TX_MP_MENU_SERVERLIST_NAME],fTextLibrary[TX_MP_MENU_SERVERLIST_STATE],fTextLibrary[TX_MP_MENU_SERVERLIST_PLAYERS],fTextLibrary[TX_MP_MENU_SERVERLIST_PING]],[0,300,430,525]);
     ColList_Servers.OnColumnClick := MP_ServersSort;
@@ -733,13 +733,13 @@ begin
     ColList_Servers.OnDoubleClick := MP_ServersDoubleClick;
 
     //Server details area
-    Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 675, 300, 300, 440);
-    Panel_MPServerDetails.Anchors := [akLeft, akBottom];
-      TKMBevel.Create(Panel_MPServerDetails, 0, 0, 300, 300);
+    Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 675, 270, 300, 415);
+    Panel_MPServerDetails.Anchors := [akLeft, akTop, akBottom];
+      with TKMBevel.Create(Panel_MPServerDetails, 0, 0, 300, 415) do Stretch;
       TKMLabel.Create(Panel_MPServerDetails, 150, 6, 284, 20, fTextLibrary[TX_MP_MENU_HEADER_SERVER_DETAILS], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_MPServerDetails, 8, 30, 284, 20, fTextLibrary[TX_MP_MENU_GAME_INFORMATION], fnt_Outline, taLeft);
       Label_MP_Map := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 284, 242, '', fnt_Metal, taLeft);
-      Label_MP_GameTime := TKMLabel.Create(Panel_MPServerDetails, 8, 70, 284, 242, '', fnt_Metal, taLeft);
+      Label_MP_GameTime := TKMLabel.Create(Panel_MPServerDetails, 8, 70, 284, 242, '--:--:--', fnt_Metal, taLeft);
       TKMLabel.Create(Panel_MPServerDetails, 8, 130, 284, 20, fTextLibrary[TX_MP_MENU_PLAYER_LIST], fnt_Outline, taLeft);
       Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 150, 284, 242, '', fnt_Metal, taLeft);
 

@@ -164,7 +164,7 @@ begin
 end;
 
 
-function TMPGameInfo.GetFormattedTime:string;
+function TMPGameInfo.GetFormattedTime: string;
 begin
   if GameTime >= 0 then
     Result := FormatDateTime('hh:nn:ss', GameTime)
