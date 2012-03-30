@@ -69,6 +69,7 @@ type
   TKMControl = class
   private
     fParent: TKMPanel;
+    fAnchors: TAnchors;
 
     fLeft: Integer;
     fTop: Integer;
@@ -100,9 +101,10 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(aValue: Boolean); virtual;
     procedure SetEnabled(aValue: Boolean); virtual;
+
+    procedure SetAnchors(aAnchors: TAnchors); virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
-    Anchors: TAnchors;
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
 
     Tag: Integer; //Some tag which can be used for various needs
@@ -115,6 +117,7 @@ type
     property Top: Integer read GetTop write fTop;
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
+    property Anchors: TAnchors read fAnchors write SetAnchors;
     property Enabled: Boolean read fEnabled write SetEnabled;
     property Visible: Boolean read GetVisible write SetVisible;
     procedure Enable;
@@ -622,6 +625,7 @@ type
     fOnChange: TNotifyEvent;
     procedure SetHeight(aValue: Integer); override;
     procedure SetVisible(aValue: Boolean); override;
+    procedure SetAnchors(aAnchors: TAnchors); override;
     function GetTopIndex: Integer;
     procedure SetTopIndex(aIndex: Integer);
     procedure SetBackAlpha(aValue: single);
@@ -1029,6 +1033,12 @@ end;
 procedure TKMControl.SetEnabled(aValue: Boolean);
 begin
   fEnabled := aValue;
+end;
+
+
+procedure TKMControl.SetAnchors(aAnchors: TAnchors);
+begin
+  fAnchors := aAnchors;
 end;
 
 
@@ -2785,6 +2795,14 @@ begin
   inherited;
   fHeader.Visible := aValue;
   fScrollBar.Visible := fVisible; //Hide scrollbar and its buttons
+end;
+
+
+procedure TKMColumnListBox.SetAnchors(aAnchors: TAnchors);
+begin
+  Inherited;
+  if fHeader <> nil then //Could happen during Create
+    fHeader.Anchors := fAnchors; //Header gets our anchors too, so it resizes with us
 end;
 
 

@@ -477,9 +477,20 @@ begin
   //Assign new data to buffer and assign it to source
   if SoundID = sfx_None then
   begin
-    alutLoadWAVFile(aFile,WAVformat,WAVdata,WAVsize,WAVfreq,WAVloop);
-    AlBufferData(fSound[FreeBuf].ALBuffer,WAVformat,WAVdata,WAVsize,WAVfreq);
-    alutUnloadWAV(WAVformat,WAVdata,WAVsize,WAVfreq);
+    try
+      alutLoadWAVFile(aFile,WAVformat,WAVdata,WAVsize,WAVfreq,WAVloop);
+      AlBufferData(fSound[FreeBuf].ALBuffer,WAVformat,WAVdata,WAVsize,WAVfreq);
+      alutUnloadWAV(WAVformat,WAVdata,WAVsize,WAVfreq);
+    except
+      //This happens regularly if you run two copies of the game out of one folder and they share the MP chat sound.
+      //We ignore the error to make it possible to run two copies out of one folder (especially for debugging without
+      //continual clashes over sound files.
+      on E: EFOpenError do
+      begin
+        fLog.AppendLog('Error loading sound file: '+E.Message);
+        Exit;
+      end;
+    end;
     WAVDuration := round(WAVsize / WAVfreq * 1000);
     case WAVformat of
       AL_FORMAT_STEREO16: WAVDuration := WAVDuration div 4;
