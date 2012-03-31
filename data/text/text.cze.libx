@@ -1,5 +1,5 @@
 
-MaxID:2690
+MaxID:2692
 
 0:Pila
 1:Hu na elezo
@@ -390,7 +390,7 @@ MaxID:2690
 1855:Spojení se serverem bylo ztraceno. Pokouším se opìt navázat spojení...
 1856:Opravdu chcete skonèit?
 1857:Jste si jistı, e chcete vyhodit tyto hráèe ze hry?
-1858:Cancel
+1858:Storno
 1859:Vycvièeno|obèanù
 1860:Ztraceno|obèanù
 1861:Vycvièeno|vojákù
@@ -438,3 +438,5 @@ MaxID:2690
 1904:skripty
 1905:textury terénu
 1906:Soft shadows
+2691:Cancel
+2692:Cancel

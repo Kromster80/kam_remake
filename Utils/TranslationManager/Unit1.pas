@@ -448,9 +448,11 @@ begin
   ID := ListBox1.ItemIndex;
   if ID = -1 then Exit;
 
+
+
   SetLength(fBuffer, fLocales.Count);
   for I := 0 to fLocales.Count - 1 do
-    fBuffer[I] := fTextManager.Texts[fTextManager.Consts[ID].TextID][I];
+    fBuffer[I] := fTextManager.Texts[fTextManager.Consts[ListboxLookup[ID]].TextID][I];
   btnPaste.Enabled := True;
 end;
 
@@ -463,7 +465,7 @@ begin
 
   Assert(Length(fBuffer) = fLocales.Count);
   for I := 0 to fLocales.Count - 1 do
-    fTextManager.Texts[fTextManager.Consts[ID].TextID][I] := fBuffer[I];
+    fTextManager.Texts[fTextManager.Consts[ListboxLookup[ID]].TextID][I] := fBuffer[I];
   btnSave.Enabled := True;
   ListBox1Click(nil);
 end;

@@ -1,5 +1,5 @@
 
-MaxID:2690
+MaxID:2692
 
 0:Serraria
 1:Forjador de ferro
@@ -390,7 +390,7 @@ MaxID:2690
 1855:The connection to the server was lost. Attempting to reconnect...
 1856:Are you sure you want to quit?
 1857:Are you sure you want to permanently drop these players?
-1858:Cancel
+1858:Cancelar
 1859:Citizens|trained
 1860:Citizens|lost
 1861:Soldiers|equipped
@@ -438,3 +438,5 @@ MaxID:2690
 1904:definitions
 1905:tileset
 1906:Soft shadows
+2691:Cancel
+2692:Cancel

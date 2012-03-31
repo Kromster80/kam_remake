@@ -1,5 +1,5 @@
 
-MaxID:2690
+MaxID:2692
 
 0:Sawmill
 1:Iron smithy
@@ -446,3 +446,5 @@ MaxID:2690
 2688:FIND SERVER
 2689:Find Server
 2690:Find Server
+2691:Cancel
+2692:Cancel

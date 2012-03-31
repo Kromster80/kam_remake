@@ -1,5 +1,5 @@
 
-MaxID:2690
+MaxID:2692
 
 0:Aserradero
 1:Fundición de hierro
@@ -438,3 +438,5 @@ MaxID:2690
 1904:definitions
 1905:tileset
 1906:Soft shadows
+2691:Cancelar
+2692:Cancelar
