@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 40
   Top = 87
   Caption = 'KaM Remake Translation Manager'
-  ClientHeight = 441
-  ClientWidth = 769
+  ClientHeight = 569
+  ClientWidth = 825
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,12 +17,12 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (
-    769
-    441)
+    825
+    569)
   PixelsPerInch = 96
   TextHeight = 16
   object Label1: TLabel
-    Left = 464
+    Left = 488
     Top = 8
     Width = 89
     Height = 16
@@ -38,7 +38,7 @@ object Form1: TForm1
   object LabelIncludeSameAsEnglish: TLabel
     Left = 357
     Top = 368
-    Width = 97
+    Width = 116
     Height = 49
     AutoSize = False
     Caption = 'Include strings that are the same in English'
@@ -53,6 +53,13 @@ object Form1: TForm1
     Height = 16
     Caption = 'Count'
   end
+  object Label4: TLabel
+    Left = 336
+    Top = 432
+    Width = 32
+    Height = 16
+    Caption = 'Filter:'
+  end
   object lbFolders: TListBox
     Left = 8
     Top = 8
@@ -65,13 +72,14 @@ object Form1: TForm1
     Left = 8
     Top = 264
     Width = 321
-    Height = 169
+    Height = 297
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
     OnClick = ListBox1Click
+    ExplicitHeight = 169
   end
   object EditConstName: TEdit
-    Left = 464
+    Left = 488
     Top = 24
     Width = 297
     Height = 24
@@ -82,7 +90,7 @@ object Form1: TForm1
   object btnSortByIndex: TButton
     Left = 336
     Top = 232
-    Width = 121
+    Width = 145
     Height = 25
     Caption = 'Sort by Index'
     TabOrder = 2
@@ -91,7 +99,7 @@ object Form1: TForm1
   object btnSave: TButton
     Left = 336
     Top = 32
-    Width = 121
+    Width = 145
     Height = 33
     Caption = 'Save'
     TabOrder = 3
@@ -100,17 +108,17 @@ object Form1: TForm1
   object btnInsert: TButton
     Left = 336
     Top = 80
-    Width = 121
+    Width = 145
     Height = 25
     Caption = 'Insert New'
     TabOrder = 4
     OnClick = btnInsertClick
   end
   object ScrollBox1: TScrollBox
-    Left = 464
+    Left = 488
     Top = 48
-    Width = 297
-    Height = 385
+    Width = 329
+    Height = 513
     HorzScrollBar.Visible = False
     VertScrollBar.Smooth = True
     VertScrollBar.Tracking = True
@@ -120,7 +128,7 @@ object Form1: TForm1
   object btnInsertSeparator: TButton
     Left = 336
     Top = 104
-    Width = 121
+    Width = 145
     Height = 25
     Caption = 'Insert Separator'
     TabOrder = 7
@@ -129,7 +137,7 @@ object Form1: TForm1
   object btnMoveUp: TButton
     Left = 336
     Top = 168
-    Width = 121
+    Width = 145
     Height = 25
     Caption = 'Move Up'
     TabOrder = 8
@@ -138,7 +146,7 @@ object Form1: TForm1
   object btnMoveDown: TButton
     Left = 336
     Top = 192
-    Width = 121
+    Width = 145
     Height = 25
     Caption = 'Move Down'
     TabOrder = 9
@@ -147,7 +155,7 @@ object Form1: TForm1
   object cbShowMissing: TComboBox
     Left = 336
     Top = 336
-    Width = 121
+    Width = 145
     Height = 24
     Style = csDropDownList
     DropDownCount = 16
@@ -166,7 +174,7 @@ object Form1: TForm1
   object btnSortByName: TButton
     Left = 336
     Top = 256
-    Width = 121
+    Width = 145
     Height = 25
     Caption = 'Sort by Name'
     TabOrder = 12
@@ -175,7 +183,7 @@ object Form1: TForm1
   object btnCompactIndexes: TButton
     Left = 336
     Top = 280
-    Width = 121
+    Width = 145
     Height = 25
     Caption = 'Compact Indexes'
     TabOrder = 13
@@ -193,14 +201,14 @@ object Form1: TForm1
   object btnDelete: TButton
     Left = 336
     Top = 128
-    Width = 121
+    Width = 145
     Height = 25
     Caption = 'Delete'
     TabOrder = 6
     OnClick = btnDeleteClick
   end
   object btnCopy: TButton
-    Left = 632
+    Left = 688
     Top = 24
     Width = 65
     Height = 25
@@ -208,9 +216,10 @@ object Form1: TForm1
     Caption = 'Copy'
     TabOrder = 16
     OnClick = btnCopyClick
+    ExplicitLeft = 632
   end
   object btnPaste: TButton
-    Left = 696
+    Left = 752
     Top = 24
     Width = 65
     Height = 25
@@ -219,5 +228,14 @@ object Form1: TForm1
     Enabled = False
     TabOrder = 17
     OnClick = btnPasteClick
+    ExplicitLeft = 696
+  end
+  object Edit1: TEdit
+    Left = 336
+    Top = 448
+    Width = 145
+    Height = 24
+    TabOrder = 18
+    OnChange = Edit1Change
   end
 end

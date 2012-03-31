@@ -31,6 +31,8 @@ type
     lbFolders: TListBox;
     btnCopy: TButton;
     btnPaste: TButton;
+    Label4: TLabel;
+    Edit1: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
@@ -51,6 +53,7 @@ type
     procedure lbFoldersClick(Sender: TObject);
     procedure btnCopyClick(Sender: TObject);
     procedure btnPasteClick(Sender: TObject);
+    procedure Edit1Change(Sender: TObject);
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
@@ -175,20 +178,24 @@ end;
 
 procedure TForm1.RefreshList;
   function ShowConst(aIndex: Integer): Boolean;
+  var TextID: Integer; DefLoc: Integer;
   begin
-    if cbShowMissing.ItemIndex = 0 then
-      Result := True
-    else
-    begin
-      Result := (fTextManager.Consts[aIndex].TextID <> -1) and
+    Result := True;
+    TextID := fTextManager.Consts[aIndex].TextID;
+    DefLoc := fLocales.GetIDFromCode(DEFAULT_LOCALE);
+
+    if Result and (cbShowMissing.ItemIndex <> 0) then
+      Result := (TextID <> -1) and
                 (
-                  (fTextManager.Texts[fTextManager.Consts[aIndex].TextID][cbShowMissing.ItemIndex] = '') or
+                  (fTextManager.Texts[TextID][cbShowMissing.ItemIndex] = '') or
                   (
                     cbIncludeSameAsEnglish.Checked and
-                    (fTextManager.Texts[fTextManager.Consts[aIndex].TextID][cbShowMissing.ItemIndex] = fTextManager.Texts[fTextManager.Consts[aIndex].TextID][fLocales.GetIDFromCode(DEFAULT_LOCALE)])
+                    (fTextManager.Texts[TextID][cbShowMissing.ItemIndex] = fTextManager.Texts[TextID][DefLoc])
                   )
                 );
-    end;
+
+    if Result and (Edit1.Text <> '') then
+        Result := (TextID <> -1) and (Pos(UpperCase(Edit1.Text), UpperCase(fTextManager.Texts[TextID][DefLoc])) <> 0);
   end;
 var
   I, TopIdx, ItemIdx: Integer;
@@ -349,6 +356,12 @@ begin
   fTextManager.CompactIndexes;
   RefreshList;
   btnSave.Enabled := True;
+end;
+
+
+procedure TForm1.Edit1Change(Sender: TObject);
+begin
+  RefreshList;
 end;
 
 
