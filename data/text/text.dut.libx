@@ -103,649 +103,338 @@ MaxID:3004
 110:Zware wapenrustingen|en wapens worden door|de smid in de wapenen|wapentuigsmederij|vervaardigd.
 111:De smelter vervaardigt|van gouden ijzererts|kisten goud resp. ijzer.
 112:De rekruut kan in de|kazerne als soldaat|worden bewapend.||Bovendien bemant|hij de uitkijktoren.
-113:Militie
-114:Bijlvechter
-115:Zwaardvechter
-116:Boogschutter
-117:Kruisboogschutter
-118:Piekeniers
-119:Hellebaardiers
-120:Cavalerie
-121:Riddergarde
-122:Wolf
-123:Vis
-124:Vis
-159:Naar de keuze van de bouw
-160:Naar de verdeling van de artikelen
-161:Naar de statistiek
-162:Naar de berichten
-163:Naar de opties
-164:Terug
-165:Keuze van de bouw
-166:Verdeling van|de artikelen
-167:Statistiek
-168:BERICHTEN
-169:Opties
-170:Instellingen aanroepen
-171:Spel laden
-172:Spel opslaan
-173:Spel laden
-174:Spel opslaan
-175:Wilt u|deze missie|werkelijk beëindigen?
-176:Missie beëindigen
-177:Terug
-178:Instellingen
-179:Missie beëindigen
-180:Helderheid
-181:+
-182:-
-183:Helderheid verhogen
-184:Helderheid verlagen
-185:Zeer donker
-186:Donker
-187:Normaal
-188:Helder
-189:Zeer helder
-190:Extreem helder
-191:Muissnelheid
-192:Muissnelheid aanpassen
-193:Geluiden
-194:Volume wijzigen
-195:Muziek
-196:Muziek:
-197:Muziek in-/uitschakelen
-198:Uit
-199:Via MIDI
-200:Aan
-201:Leeg
-202:AutoSave
-203:Snel scrollen
-204:Missie %d tijd:%2.2u:%2.2u
-205:Scenario %d tijd:%2.2u:%2.2u
-206:Muziekspeler
-207:Vorige lied
-208:Volgende lied
-209:Afbreken
-210:Afbreken van huizen/markeringen
-211:Weg aanleggen
-212:Wegenbouw
-213:Akker ploegen
-214:Akkerbouw
-215:Omheining aanleggen
-216:Omheining van de wei
-217:Wijngaard bouwen
-218:Wijngaard
-219:Muur bouwen
-220:Bouw van muren
-221:Opleiden
-222:Gekozen beroepsgroep laten opleiden
-223:Afbreken
-224:Huidige opleiding afbreken
-225:|in Opleiding
-226:Voorradig:
-227:Toestand:
-228:Levert
-229:Huis in aanbouw
-230:Vernietigen
-231:Wilt u het gebouw|werkelijk afbreken?
-232:Vernietig gekozen gebouw
-233:Bestellingen verlagen
-234:Bestellingen verhogen
-235:Artikelbestand:
-236:Vorig type eenheid
-237:Volgend type eenheid
-238:Bewapenen
-239:Huidig type eenheid bewapenen
-240:Volgend beroep
-241:Vorig beroep
-242:Aan rij wachtenden toevoegen
-243:Volgende huurling
-244:Vorige huurling
-245:Huurlingen werven
-246:Aanwezige rekruten:
-247:Kosten:
-248:Artikellevering in-/uitschakelen
-249:Huizenreparatie in-/uitschakelen
-250:Gebouw thans niet beschikbaar
-251:Niet beschikbaar in de demoversie
-252:Niet bezet
-253:Uith. vermogen
-254:Eenheid linksom draaien
-255:Eenheid rechtsom draaien
-256:Eenheid aanvallen ('a')
-257:Eenheid stoppen en formeren ('h')
-258:Eenheid zenden ('d')
-259:Eenheden samenbrengen ('l')
-260:Eenheid splitsen ('s')
-261:Eenheid van voedsel voorzien
-262:Stormaanval starten
-263:Een rij toevoegen
-264:Een rij verwijderen
-265:Aanval:
-266:Verdediging:
-267:Tempo:
-268:Kazerne|kiezen
-269:Afbreken
-270:Doel|kiezen
-271:Doelgroep|kiezen
-272:Aanvalsdoel|kiezen
-273:Stoppen
-274:Eenheid thans niet beschikbaar
-275:Wissen
-276:Wist het huidige bericht
-277:Zenden
-278:Verstuurt het huidige bericht
-279:Ga naar
-280:Springt naar de plaats van het huidige bericht
-281:Sluiten
-282:Venster sluiten
-283:Antwoorden
-284:Bericht beantwoorden
-285:Bevestigen
-286:Bondgenootschappen worden opnieuw verdeeld.
-287:is vriendschappelijk.
-288:is vijandig.
-289:|Je steenhouwer heeft geen steengroeven meer.
-290:|Je kolenmijn is uitgeput.
-291:|Je ijzermijn is uitgeput.
-292:|Je goudmijn is uitgeput.
-293:|Je visser kan geen vissen meer vangen.
-294:|Dit huis is niet bewoond.
-295:|Deze eenheid heeft erg veel honger en moet zeer snel voedsel krijgen!
-296:Naar de ijzerverdeling
-297:Verdeling van|ijzer
-298:Naar de kolenverdeling
-299:Verdeling van|kolen
-300:Naar de timmerhoutverdeling
-301:Verdeling van|timmerhout
-302:Naar de korenverdeling
-303:Verdeling van|koren
-304:|Berichttekst invoeren s.v.p.:
-305:Bericht van speler '%s':|'%s'
-306:Bondgenootschappen:
-307:PAUZE
-478:Netwerkmelding:
-479:Speler '%s' heeft het spel verlaten.|Druk op ~<~S~P~A~C~E~> om verder te spelen.
-480:Jij bent nu de server.|Druk op ~<~S~P~A~C~E~> om verder te spelen.
-481:Computer wacht op data. Druk op ~<~S~P~A~C~E~> om te|herhalen of ~<~F~1~> om het spel te beëindigen.
-499:Om nieuwe arbeidskrachten te kunnen opleiden heb je een school nodig. Let erop, dat je altijd genoeg goud in het magazijn hebt, om daarmee nieuwe onderdanen op te leiden.
-500:Begin door met je linker muisknop op de Hamer-Knop links in het beeld te klikken, de Bouwkeuze. Klik daarna op het Boek-Symbool (het Schoolgebouw). Plaats het raster op een plek in de kaart waar je het gebouw graag zou willen bouwen en klik daarna met je linker muisknop.
-501:Zodra je het schoolgebouw in de kaart hebt geplaatst, dan zie je dat de cursor in 'weg aanleggen' is veranderd. Je moet nu de ingang van het gebouw met een reeds bestaande weg verbinden.
-502:Om burgers op te kunnen leiden, moet je het Schoolgebouw aanklikken. Loop door de lijst totdat het gewenste beroep zichtbaar is. Klik dan op de knop 'Aan rij wachtenden toevoegen'. Zodra de opleiding is voltooid begint de bewoner automatisch met zijn taak.
-503:Van tijd tot tijd moeten je onderdanen voedsel tot zich nemen. Daarom moet je een herberg voor hen bouwen. Let erop, dat de herberg centraal gelegen is, zodat iedere inwoner dit goed kan bereiken.
-504:Je hebt stenen nodig om huizen te bouwen en wegen aan te leggen. Leg een steengroeve aan in de buurt van een rotsformatie. Daarna moet je een steenhouwer opleiden, die dan nieuw bouw materiaal levert.
-505:Naast stenen heb je voor het bouwen van huizen houten planken nodig. De houthakker velt en plant bomen, die dan in de houtzagerij verder worden verwerkt. Bouw de hut van de houthakker in de buurt van een bos.
-506:Nu moet je een houtzagerij bouwen om de boomstammen van de houthakker te kunnen verwerken. Daarna moet je een schrijnwerker opleiden die in de houtzagerij zal gaan werken.
-507:Zodra je een voldoende voorraad aan bouwmaterialen hebt, moet je je aandacht richten op voedselproductie.|Bouw een vissershut vlak bij water, zodat je je herberg met verse vis kunt bevoorraden.
-508:Goed gedaan, maar denk er aan dat alhoewel er genoeg vissen in de zee zijn, ze uiteidelijk wel op raken. Om een meer stabiele voedselvoorraad te verzekeren, moet je een boerderij bouwen op een plaats waar genoeg ruimte is voor akkers.
-509:Voor de boer moeten ongeveer 16 velden in de directe omgeving van de boerderij worden aangelegd. Om het geoogste graan verder te kunnen verwerken, moet je een windmolen laten bouwen.
-510:Heel goed, nu kun je een bakkerij laten bouwen, die je herberg van vers brood zal voorzien. Let er steeds op dat je genoeg bedienden voor het transport van je artikelen hebt, zodat alle huizen snel kunnen worden voorzien.
-511:Op vis en brood na, moet je je onderdanen ook iets geven om hun dorst te lessen. Bouw een wijngaard en leg een wijnveld aan van ongeveer 16 vakjes, zodat de boer de druiven kan plukken.
-512:Je bent goed bezig, maar je hardwerkende onderdanen verdienen beter voedsel dan brood en wijn. Om vlees en huiden te produceren, moet je een varkensfokkerij bouwen, waar de veefokker varkens zal fokken.
-513:Om het geproduceerde vlees verder te verwerken, is het nodig dat je een slagerij bouwt. In de slagerij zal de slager worsten produceren van je varkens.
-514:Nu je de voedselproductie onder controle hebt, zul je je moeten richten op je volgende doel: de productie van wapens. Start met het bouwen van een kazerne op een geschikte locatie.
-515:Door op de knoppen 'volgend type eenheid' en 'vorig type eenheid' te klikken kun je kiezen tussen de verschillende typen eenheden. Gemarkeerde blokjes laten zien welke typen bewapening je nodig hebt om de huidig geselecteerde soldaat te bewapenen.
-516:Om troepen te bewapenen in je kazerne, moet je wel wapens hebben voor je troepen. Bouw een wapenmakerij vlak bij je kazerne zodat je een snelle levering van wapens kan verzekeren.
-517:Om orders te plaatsen voor de productie van uitrustingen, klik je links op je pasgebouwde wapenmakerij en dan op 'Bestellingen verhogen'. Zorg ervoor dat je wapenmakerij altijd genoeg hout heeft voor wapens te produceren.
-518:Zonder de benodigde uitrusting zullen je soldaten afgeslacht worden op het slagveld. Om harnassen en schilden te kunnen produceren zal je eerst een leerlooierij moeten bouwen om de huiden verder te kunnen verwerken.
-519:Nu je de productie van leer op gang hebt gezet, moet je een wapentuigmakerij bouwen. Hier zal een schrijnwerker leren harnassen en houten schilden produceren.
-520:Perfect! Nu heb je alle benodigde gebouwen om een stad draaiende te houden en nieuwe soldaten te produceren. Zodra je de juiste uitrusting voor een bepaalde soldaat hebt, kun je in de school een rekruut trainen en op 'bewapen huidig type eenheid' klikken.
-521:Je doel is nu om de twee vijandelijke kampen, die dichtbij liggen, te vernietigen. De blauwe vijand in het zuiden heeft een versterkte basis, terwijl de groene vijand vertrouwt op zijn soldaten. Bereid je troepen goed voor alvorens je probeert het gebied van deze verdorven vijanden te bevrijden.
-522:|De blauwe speler is verslagen.
-523:|De groene speler is verslagen.
-524:Voordat je de vijand in het Westen kunt aanvallen, moet je eerst de Spionnen vernietigen die zich in het Noorden verschuilen. Wanneer je met je linker muisknop je lansiers kiest en dan met je rechter muisknop op de vijand klikt, dan voeren je troepen een glansrijke aanval uit.
-525:In het Zuid-Westen bevindt zich een groep boogschutters, val ze aan met je Milities. Maar let goed op de kijk- resp. schietrichting van de schutters, zodat de vijandelijke pijlen geen grote verliezen onder je troepen teweeg brengen.
-526:In het Westen bevinden zich vijandelijke troepen, val ze aan. Pas goed op voor de boogschutters, die hebben zich achter de infanterie verschanst. Stuur je spionnen naar het Noorden zodat jouw troepen de vijand omsingelen en in de rug kunnen aanvallen.
-527:Nu moet je met al je troepen tegelijk aanvallen. Plaats je boogschutters achter je infanterie, zodat ze je rugdekking kunnen geven. Als je de overwinning hebt behaald is de gevechtstutorial afgelopen.
-529:Het is absoluut noodzakelijk, zo snel mogelijk nieuwe milities te bewapenen. Anders zijn we willoos overgeleverd aan de vijandelijke aanvallen.
-530:De verkenners melden, dat de vijand zich opmaakt om ons aan te vallen. Ontvang ze met het zwaard in de hand.
-531:Jullie maken goede vorderingen, maar het dorp moet nog verder worden uitgebreid. Dan pas is het verstandig, de barricade van de vijand te bestormen en de verzetshaard te vernietigen.
-532:Ik wijs jullie er nog één keer op, dat onze bondgenoten, de Lauenburger troepen, onder alle omstandigheden moeten worden beschermd.
-533:Pas op voor de ruiterij van onze tegenstander, die beslist opnieuw zal aanvallen. Ze hebben het nog steeds op onze bondgenoten gemunt.
-534:Het dorp in het Noorden is nu bereid, zich openlijk tegen de tirannie te verzetten. Dit moet in ons voordeel worden uitgebuit.
-535:Onze spionnen hebben een verlaten depot ontdekt. Dit ligt in het Westen aan de rand van een klein bos en jullie vinden daar zeker nuttige zaken.
-536:Er werd een vijandelijke verkenner gevangen genomen en verhoord. Naar het schijnt heeft de vijand onze positie ontdekt en staat nu op het punt, tot de aanval over te gaan.
-537:Het zal niet lang meer duren totdat de barbaren zich op ons storten. Bereid de verdediging zorgvuldig voor, anders zullen ze jullie stellingen innemen.
-538:Grijp naar de wapens! Er is een enorme strijdmacht naar ons onderweg.
-539:Deel je strijdkrachten goed in, want de vijand bezit de overmacht. Een ongeorganiseerde stormaanval zal jullie de overwinning niet brengen.
-540:De overwinning is aan ons, maar de tijd der wraak is nog niet gekomen. Eerst moet Werheim weer worden opgebouwd. Dan zullen de honden betalen voor hun gruweldaden.
-541:Zonder ijzer geen wapens, zonder wapens geen soldaten. In het Noorden vinden we wat we zoeken, dus doe je best, de mijnen daar te veroveren.
-542:De brave mensen van het dorp in het Zuiden hebben zich tot nu toe met succes verzet tegen de tiran, maar hebben daarbij ook zware verliezen geleden. Snel hen te hulp, het zal jullie geen windeieren leggen.
-543:Er moet hier ergens een verlaten depot zijn. Probeer dit zo snel mogelijk te bereiken, want bij de missie die voor ons staat is iedere hulp welkom.
-544:Onze spionnen melden, dat het verlaten depot bestemd was voor een grootoffensief. Het moet onder alle omstandigheden worden behouden, anders kunnen we zelf niet verder oprukken.
-545:Een nieuwe reeks aanvallen op het depot staat ons te wachten. Maak je gereed voor de strijd.
-546:De vijand probeert wanhopig, de dreigende nederlaag af te wenden en waagt een uitval. Vernietig het vijandelijke leger tot de laatste man, dan kan niets jullie opmars nog tegenhouden.
-547:Nog is de tiran niet overwonnen. Onze bondgenoten houden woord en staan ons terzijde. Na de eerste bestorming zijn jullie echter op jezelf aangewezen, zoals we afgesproken hebben.
-549:Het leger van de vijand is groter als verwacht. Bewapen meer soldaten in de kazerne.
-550:Om de bezetter uit de nederzettingen te verdrijven moet U alle soldaten overwinnen.|Dit zal de verrader voldoende afschrikken. Na deze zuivering sluiten de dorpen zich bij ons aan en vormen geen gevaar meer.
-551:Je moet de troepen van onze zuidelijke bondgenoot onder alle omstandigheden tegen de vijandelijke aanvallen beschermen.
-552:Onder de rebellen bevinden zich vele onschuldige burgers. Laat de bewoners en hun dorpen met rust, zij zijn niet de vijand.|Concentreer U op de vijandelijke soldaten en hun wapenbevoorrading.
-553:Onze spionnen hebben vijandelijke troepen gesignaleerd die onderweg zijn naar het magazijn in het Zuiden. Verdedig de kostbare goederen in het magazijn!
-554:Zuidelijk van ons is er een vijandelijk leger gesignaleerd! Wees op je hoede!
-555:Nog meer vijandelijke troepen naderen ons vanuit Westelijke richting!
-556:Om je leger te ondersteunen, moet je extra huurlingen werven in het stadhuis.
-557:Misschien is de achteringang de beste manier om de burcht binnen te dringen.
-558:Vanuit de Noord-Westelijke bergen is een vijandig leger onderweg naar ons basiskamp.
-559:De vijand heeft onze nieuwe basis al ontdekt. Een sterk bataljon zal ons op korte termijn aanvallen vanuit Oostelijke richting.
-560:Pas Op! In de omliggende heuvels zijn vijandelijke boogschutters ontdekt. Een gevecht in de kloof zou onze ondergang kunnen betekenen.
-561:We zijn aangekomen bij de laatste vesting van de verraderlijke rebellen.|U zult alle rebellen die hier wonen vermoorden, zodat er geen levend wezen overblijft wanneer het gevecht voorbij is!
-562:Onze spionnen rapporteren dat onze vijand inderdaad onze nieuwe locatie heeft ontdekt en nu zelfs een aanval op ons voorbereidt. Neem nogmaals uw vertrouwde zwaard en toon geen genade aan deze meedogenloze rebellen!
-569:Leeg
-570:Spirit
-571:Busy
-572:Middleage Horn
-573:Spring
-574:Middleage Guitar
-575:Lansknechten
-576:De Prinses
-577:De Koningin
-578:Op de markt
-579:In het veld
-580:Dans aan het hof
-581:Het leger
-582:In het kasteel
-583:Fanfares
-584:Aan het hof
-585:Entree
-586:Deep Blue
-587:Struggle
-999:unused
-1000:Campagne 'The Shattered Kingdom'
-1001:Campagne 'The Peasants Rebellion'
-1002:Speel Tutorial
-1003:Speel Enkelvoudige Kaart
-1004:Enkelvoudige Kaart
-1005:Vorige
-1006:Volgende
-1007:Begin Missie
-1008:Terug naar menu
-1009:Laad opgeslagen spel
-1010:Multiplayer
-1011:Opties
-1012:Credits bekijken
-1013:Verlaat programma
-1014:Leeg
-1015:Laad Spel:
-1016:Ga verder
-1017:Herhaal Missie
-1018:Naar hoofdmenu
-1019:Resolutie:
-1020:Niet aanwezig
-1021:Kies Spel-type
-1022:Local Area Network
-1023:Net-Games
-1024:Gebruikersnaam:
-1025:Wachtwoord:
-1026:Maak nieuw account aan
-1027:Log in
-1028:Verbinden naar Net-Games...
-1029:Authentificatie
-1030:OK
-1031:Mislukt
-1032:Verbinding mislukt
-1033:Verkeerd wachtwoord
-1034:Gebruikersnaam is al bezet
-1035:Deze gebruiker is verbannen
-1036:Ongeldige gebruikersnaam
-1037:Ondefinieerbaar
-1038:In bewerking
-1039:Ongeldige parameters
-1040:Kanaal is vol
-1041:Kanaal bestaat niet
-1042:Geen toegang tot dit kanaal
-1043:Time-out
-1044:U heeft teveel accounts
-1045:Server accepteert geen registraties op dit moment
-1046:Gebruikersnaam is ongeldig
-1047:<COL 0>%s:<COL 1> %s|
-1048:<COL 0>%s %s|
-1049:<COL 2>%s Fluistert: %s|
-1050:<COL 3>Prive boodschap voor %s: %s|
-1051:<COL 4>SERVER: %s|
-1052:<COL 4>SERVER: %s|
-1053:<COL 2>Bericht van de dag %s|
-1054:<COL 0>BROADCAST: %s|
-1055:<COL 3>%s Komt het kanaal binnen|
-1056:<COL 3>%s Verlaat kanaal|
-1057:<COL 3>U bent het kanaal binnengekomen <COL 0>%s<COL 3>|
-1058:<COL 3>U bent het spel binnengekomen <COL 0>%s<COL 3>|
-1059:Terug naar Hoofd Menu
-1060:Kom Kanaal binnen
-1061:Begin Spel
-1062:Creëer Spel
-1063:Creëer Ladder Spel
-1064:Verlaat Spel
-1065:Start Spel
-1066:Fluister
-1067:Eruit gooien
-1068:Bannen
-1069:Informatie
-1070:Registreren
-1071:Naam opnieuw invoeren
-1072:Voer uw naam in alstublieft:
-1073:Ga verder
-1074:Verlaat
-1075:Kies Netwerk type alstublieft:
-1076:Begin Spel
-1077:Creëer Spel
-1078:Voer de Sessie naam in alstublieft:
-1079:Start Sessie
-1080:Kies Sessie:
-1081:Doe mee met het spel
-1082:Zoek naar spel
-1083:Huidige spelers:
-1084:Berichten:
-1085:Stuur:
-1086:Begin!
-1087:Zonder naam
-1088:<Vrij>
-1089:<Niet aanwezig>
-1090:<Computer>
-1091:'s Sessie
-1092:~S~p~e~l~e~r '%s' ~i~s ~v~e~r~w~i~j~d~e~r~d ~u~i~t ~h~e~t ~s~p~e~l ~d~o~o~r ~d~e ~s~e~r~v~e~r
-1093:Scenario:
-1094:Titel:
-1095:Descriptie:
-1096:Eigendom:
-1097:Begin positie:
-1098:De Server bepaalt|het scenario
-1099:Magazijn
-1100:Magazijn en troepen
-1101:Gebouwen en troepen
-1102:Opvolgend
-1103:Willekeurig
-1104:Kopieer opgeslagen spel
-1105:Overdracht afbreken
-1106:Verplaatst: %d/100
-1107:Opgeslagen spel Nr. %d
-1108:Spelers:%d|Map-grootte:%dx%d
-1109:AutoSave
-1110:MISSIE GEWONNEN!
-1111:MISSIE VERLOREN!
-1112:Verloren eenheden:
-1113:Overwonnen eenheden:
-1114:Verloren gebouwen:
-1115:Verwoeste gebouwen:
-1116:Opgerichte gebouwen:
-1117:Opgeleide eenheden:
-1118:Geproduceerde wapens:
-1119:Bewapende soldaten:
-1120:Speelduur:
-1149:Drie continenten
-1150:Woest land
-1151:Strijd om kolen
-1152:Grensrivier
-1153:Heuvelland
-1154:Berg aan berg
-1155:Slag om de burcht
-1156:Treffen aan de kust
-1157:De hinderlaag
-1158:Fiasco bij de brug
-1179:Door de woestijn||Kaartgrootte: 176x176|Aantal tegenstanders: 5
-1180:In een vreemd land||Kaartgrootte: 176x176|Aantal tegenstanders: 3
-1181:Door Sneeuw en Zand||Kaartgrootte: 160x128|Aantal tegenstanders: 5
-1182:Land van de snelle rivier||Kaartgrootte: 176x176|Aantal tegenstanders: 3
-1183:Zwart Goud||Kaartgrootte: 176x176|Aantal tegenstanders: 5
-1184:Wal van bergen||Kaartgrootte: 144x128|Aantal tegenstanders: 3
-1185:In het rijk van de duisternis||Kaartgrootte: 176x176|Aantal tegenstanders: 3
-1199:Spelers: 6|Kaartgrootte: 176x176|Opbouwscenario
-1200:Spelers: 4|Kaartgrootte: 176x176|Opbouwscenario
-1201:Spelers: 6|Kaartgrootte: 160x128|Opbouwscenario
-1202:Spelers: 4|Kaartgrootte: 176x176|Opbouwscenario
-1203:Spelers: 6|Kaartgrootte: 176x176|Opbouwscenario
-1204:Spelers: 4|Kaartgrootte: 144x128|Opbouwscenario
-1205:Spelers: 6|Kaartgrootte: 176x144|Opbouwscenario
-1206:Spelers: 3|Kaartgrootte: 64x64|Gevechtscenario
-1207:Spelers: 6|Kaartgrootte: 144x144|Gevechtscenario
-1208:Spelers: 4|Kaartgrootte: 176x176|Opbouwscenario
-1249:Het zijn de beulsknechten van de|verrader gelukt een bres in onze|verdediging te slaan.|De vesting is gevallen en als het|jullie niet lukt de vijanden op de|vlucht te jagen, is het koninkrijk|verloren en neemt de vijand|onrechtmatig bezit van de troon.|Grijp de wapens!
-1250:Dankzij jullie overwinning hebben|we weer hoop. Het is echter nog geen|tijd om de overwinning te vieren.|De verslagen vijanden hebben zich|teruggetrokken om in een dorp heel|dichtbij opnieuw bij elkaar te komen.|De prins zal spoedig een nieuw|gevecht afdwingen, omdat hij ons|in aantal verreweg de baas is.|Blijf rustig en laat je niet in een|open veldslag dwingen. Het terrein|is geschikt voor een defensieve|strategie: op de smalle voorde, die|de vijandelijke soldaten over moeten|steken, kunnen jullie ondanks jullie|minderheid de overwinning behalen.
-1251:Een gedenkwaardige dag. Het leger|van de afvallige prins is op de|terugtocht. De weg naar het|vorstendom Lauenburg is nu vrij.|De vorst van Lauenburg is een|bondgenoot van onze tegenstander,|dus moeten jullie op weg naar zijn|provincie rekening houden met|tegenstand.
-1252:Het is onze vijanden niet gelukt,|de opmars van de koningsgezinden|tegen te houden. De vorst van|Lauenburg heeft zich met zijn|strijdmacht in zijn vesting|teruggetrokken en is op onze|bestorming voorbereid. De bevolking|van het vorstendom heeft ons|vriendelijk ontvangen. Dat geeft jullie|de gelegenheid, je leger te vergroten|om Lauenburg te kunnen innemen.|Wanneer jullie de vorst kunnen|verslaan, stel je meteen een draad|voor alle andere verraders van de|kroon.
-1253:De vorst van Lauenburg heeft zich|aan jullie overgegeven en van onze|koning gratie gekregen, omdat hij|berouw getoond heeft. Jullie volgende|doel is de stad Moorbach. Dicht bij|de stad hebben onze spionnen een|verlaten basis ontdekt, die jullie|moeten gebruiken en uitbreiden. Omdat|Lauenburg nu een bondgenoot van|ons is, voelen de eenheden van de|vorst zich nu door onze vijanden|bedreigd. Bescherm de eenheden van|Lauenburg tot elke prijs, om het|vertrouwen tussen ons en onze|nieuwe wapenbroeders te bevestigen|en nieuwe soldaten voor jullie leger|te krijgen.
-1254:Moorbach is ingenomen en onze|vijanden zijn niet alleen verslagen|maar ook ten diepste vernederd.|Volgens berichten van onze|verkenners verzamelt zich in het|noordwesten een nieuw vijandelijk|leger, om de schande van Moorbach|te wreken. We zijn nu echter sterk|genoeg, om van onze kant tot de|aanval over te gaan. Trek de|vijandelijke eenheden tegemoet|voordat deze zich volledig hebben|geformeerd. Daarbij kunnen jullie op|de lansiers uit Lauenburg rekenen,|die zich bij ons leger hebben|aangesloten.
-1255:Het bericht van jullie overwinningen|gaat als een lopend vuurtje door|het hele koninkrijk. Overal verzetten|de burgers zich tegen de tiran.|In het noorden ligt Walheim, dat nog|steeds in handen van onze vijand|is. De heerser van Walheim heeft|geweigerd, onze onderhandelaars te|ontvangen en gezworen, de stad tot|de laatste man te verdedigen. De|bewoners van een klein dorp in de|buurt van onze basis zijn tegen de|onderdrukkers in opstand gekomen.
-1256:De wilde bewoners van het noorden|spannen samen om het rijk binnen|te vallen. Jullie moeten hun onder|alle omstandigheden een halt|toeroepen, voordat jullie je weer|tot de rebellen kunnen wenden. In|de ruïnes van Walheim bevonden|zich constructieschetsen van|geavanceerde uitkijktorens. Jullie|moeten een bolwerk tegen de|barbaarse bendes oprichten en dan|de wilden tot de laatste man toe|uitroeien.
-1257:De barbaren zijn onder elkaar|verdeeld. Door diplomatieke|handigheid kunnen twee van hun|aanvoerders met hun soldaten aan|onze kant worden gebracht. Onze|huidige legerplaats is gemakkelijk|te verdedigen, maar de ruimte voor|uitbreiding is zeer beperkt, zodat|jullie zorgvuldig moeten plannen. De|vijand maakt zich op voor de strijd|en zal spoedig aanvallen. Er is dus|haast geboden om jullie vijanden|een passende ontvangst voor|te bereiden.
-1258:De laaghartige despoot bedreigt één|van onze steden. Slechts een|geforceerde mars zal jullie soldaten|op tijd op de plaats van handeling|brengen. Volgens gegevens van onze|spionnen moeten jullie rekening|houden met een grote vijandelijke|strijdmacht en je eigen krachten|goed verdelen. Alleen een verstandige|tactiek zal jullie de overwinning|brengen, er botweg op los stormen|betekent jullie ondergang.
-1259:Op het nippertje is het gelukt de|aanval op onze stad af te wenden.|De verraderlijke aanval heeft echter|zijn sporen nagelaten. De vijand|heeft meedogenloos gebrandschat|en bijna alle bewoners gedood. De|slachting schreeuwt om bloedige|wraak, maar voordat jullie de laffe|moordenaars ter verantwoording|kunnen roepen, moet je ten|spoedigste de verwoeste stad|weer opbouwen.
-1260:De vijand werd verpletterend|verslagen en tot de terugtocht naar|het noorden gedwongen. De daar|gelegen ijzerertsmijnen zijn voor|het verdere verloop van de oorlog|van enorm strategisch belang. Sticht|een nieuw leger om de rebellen voor|eens en voor altijd uit deze streek|te verdrijven. Een brug ten oosten|van jullie legerplaats helpt je bij|de verdediging, terwijl jullie|strijdmacht groeit.
-1261:Onze vijand beschikt nog steeds over|enorme reserves en maakt zich op om|een tegenaanval uit te voeren. Hij|zal er echter moeite mee hebben, met|zijn geweldige leger de nabijgelegen|bergen over te steken. Trek hen met|jullie eigen leger tegemoet en wacht|op het vijandelijke leger bij de hoogste|pas. De verraders mogen niet weer de|overhand krijgen.
-1262:Eindelijk werpen jullie inspanningen|vruchten af. Overal in het koninkrijk|verzetten de onderdanen van de|koning zich tegen het schrikbewind van|de prins. Ook zijn generaals zijn het|niet allemaal eens met de wreedheden,|die de plattelandsbevolking worden|aangedaan. Eén van hen heeft ons in|het geheim laten weten, dat de prins|aan een dorp dat zich openlijk tegen|hem heeft verzet, een afschrikwekkend|voorbeeld wil stellen. Natuurlijk|moeten jullie de plannen van de|tiran doorkruisen en de oprechte|burgers beschermen.
-1263:We zijn er bijna klaar voor, de|vijanden van de koning definitief op|de knieën te krijgen. De prins heeft|zijn tactiek veranderd en houdt|belangrijke grondstofvindplaatsen|bezet om ons te hinderen. Verover|de nabijgelegen ijzerertsmijnen en|jaag de rebellen weg. Uitgestrekte|moerasgebieden vormen een extra|probleem, dus bereid jullie zelf en|je getrouwen voorop een harde en|langdurige veldslag.
-1264:In dit gebied beschikken jullie|over vruchtbare gronden en zeer|uitgebreide grondstofvindplaatsen.|Het is honderd procent zeker, dat de|vijand spoedig zal aanrukken, om dit|prachtige stukje grond weer in zijn|bezit te brengen. Behoud de provincie|en treed meedogenloos op tegen|alle vijandelijke soldaten.
-1265:In het noorden verzamelt de verrader|zijn vazallen om opnieuw een|stormaanval te wagen. Nog is hij|evenwel niet bereid zich in de open|veldslag over te geven. Trek hem|tegemoet om zijn nieuwe leger te|verslaan, voordat dit gereed is tegen|ons te marcheren. Ditmaal zijn wij|het die door de bergen moeten.|Stellig heeft de tegenstander de pas|bezet om ons bij het oprukken te|hinderen. Toch moeten we naar het|noorden, het koste wat het kost.
-1266:Jullie nieuwe overwinning dwingt|de tegenstander in de verdediging.|In de beschutting van een bijna|onneembare natuurlijke vesting|heeft hij zich verschanst en wacht|lafhartig op onze aanval. Reeds|vaak hebben veldheren geprobeerd de|vesting te bestormen, maar het is|nog niemand gelukt. Echter mogen|jullie de moed niet laten zakken.|Mogelijk hebben jullie voorgangers|waardevolle goederen achtergelaten,|die je bij de oplossing van het|probleem kunnen helpen.
-1267:Dit is een zwarte dag. Een lafhartige|aanval op onze geliefde koning werd|met succes bekroond. De schaamteloze|prins, ongetwijfeld het brein achter|de sluipmoord, heeft zichzelf tot|nieuwe koning uitgeroepen. Achter|een enorme wal verschuilt hij zich en|hoopt zo jullie te kunnen tegenhouden.|Bestorm de muren en breng de|monarch, die zichzelf benoemde, het|einde dat hij verdient.|Oog om oog, tand om tand.
-1268:We zijn bij ons doel. De belegering-|skring rond het laatste bastion van|de valse koning is gesloten. Geen|genade voor al degenen die de|verrader nu nog trouw blijven.|Vernietig de vijand en maak alle|sporen van zijn heerschappij met|de grond gelijk, dan zal er weer|vrede en vrijheid in het koninkrijk|heersen. Hangen zal de rebel als|een gemene struikrover, want iets|anders is hij eigenlijk nooit geweest.
-1299:JOYMANIA ENTERTAINMENT||PROGRAMMERING:|Peter Ohlmann||SPELGRAFIEK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||GELUIDSMONTAGE:|Tonstudio Mannheim||MUZIEK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIES:|Boleslaw Kasza|Christoph Werner|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBOEK:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|Best Buys Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||STEMMEN:|Claus Boyen (Verteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBOEK ONTWERP:|Uwe Schäfer|Alexandra Constandache||HANDBOEK TEKSTEN:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENINGSANIMATIE:|Uwe Schäfer|Christian Bigalk|Aanvullende 3D-Modelling:|Niels Horstmann||SPECIALE DANK AAN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt|Frits van Ens
-1349:              Missie 1||De overlopers proberen de weinige boeren die het Koninkrijk trouw gebleven zijn, te onderdrukken. Buiten het paleis van de Koning worden onschuldige boeren afgeslacht. Dit kan onder geen beding toegelaten worden! |Dwing de aanvallers tot aftocht!
-1350:              Missie 2||Na onze succesvolle steun aan de boeren moeten we ook de overige boeren bevrijden. Een groot vijandig leger uit het Noorden komt recht op ons af.|Ga de strijd aan!
-1351:              Missie 3||Na de grote overwinning heb je nu enige tijd om de verwoeste steden en dorpen weer op te bouwen en de verzorging van je onderdanen zeker te stellen. Daarna moet je je richten op de bezette nederzettingen in het Noorden, bevrijd ze van de tirannie van de afvallige adelijken. Spaar de burgers en vecht alleen tegen de daar gelegerde vijandige soldaten.
-1352:              Missie 4||Onze spionnen hebben vijandige troepenbewegingen gesignaleerd in de nabije omgeving. Gezien het hoge aantal vijandelijke soldaten moet je rekening houden met een sterke vijandelijke basis. Zoek dit kamp en verwoest alleen alle vijandelijke militaire gebouwen.
-1353:              Missie 5||Na jullie overweldigend succes in de strijd tegen de rebellen, moet er rekening worden gehouden met een massale tegenaanval. Bereid je manschappen voor op een harde strijd. Verhinder dat de Dorpen van onze bondgenoten door de vijand vernietigd worden.
-1354:              Missie 6||We weten dat onze vijand een nieuwe basis aan het bouwen is. Je kan dit niet toestaan. Val zo snel mogelijk aan, voordat de vijand zich hersteld heeft. Zoek bovendien de omgeving af naar grondstoffen, aangezien je ijzervoorraad bijna is opgebruikt.
-1355:              Missie 7||Voor we ons weer op de afvalligen richten, moeten we eerst de nederzetting in het Zuiden heroveren. De laatste overwinning leverde ons een klein beetje ijzer op, wat we dringend nodig hebben. Aangezien ijzererts in deze omgeving zeer zeldzaam is, moeten we zeer zuinig met onze ijzervoorraad omgaan.
-1356:              Missie 8||Tijdens onze laatste aanval moesten de meeste van onze manschappen onze basis verlaten. Daardoor hebben we de vijand een kans gegeven om aan te vallen. Keer zo snel mogelijk terug, voordat de tegenstander onze verdediging doorbroken heeft.
-1357:              Missie 9||Vanwege de hinderlaag zijn we er niet in geslaagd de burcht tijdig te bereiken. We moeten nu een goede strategie verzinnen om wat van ons was te heroveren. De hoofdingang is goed beveiligd, een fontale aanval op die plek is uitzichtsloos. Probeer een andere ingang aan te vallen en vermijd verliezen aangezien wij geen mogelijkheden hebben om nieuw ijzererts te winnen.
-1358:              Missie 10||Tijdens de herovering van de burcht hebben we enkele krijgsgevangen gemaakt. Die hebben ons verteld over een ondergrondse tunnel die door de Noordelijke bergen voert. De ingang van de tunnel wordt door een aantal vijandelijke soldaten bewaakt. Ruim de wachters uit de weg en ga de tunnel in!
-1359:              Missie 11||De grot is groter dan verwacht. Onze spionnen hebben in de bochtige gangen vijandige bewakers ontdekt die het ondergondse complex beschermen tegen indringers. Zorg ervoor dat jullie de uitgang aan de andere kant van de berg bereiken.
-1360:              Missie 12||De tegenstanders zijn op de hoogte gebracht van onze aanval. |In het Noorden zijn sterke vijandelijke bataljons verzameld die ons spoedig zullen aanvallen. Bouw voldoende uitkijktorens om de naderende troepen te verzwakken. Na een succesvolle verdediging kunnen jullie de Noordelijke bergpas oversteken.
-1361:              Missie 13||Een hinderlaag! De vijand heeft ons opgewacht. We bevinden ons in een strategisch zeer slechte positie. Druk de geniepige bandieten in de verdediging en zorg ervoor dat ze zich terugtrekken.
-1362:              Missie 14||We hebben het laatste bolwerk van de vijand bereikt. Onze tegenstander heeft het restant van zijn leger verzameld en zich in zijn laatste schuilpaats (Noordoostelijk van hier) verschanst. Door de strenge koude is de rivier gedeeltelijk dichtgevroren waardoor er een mogelijkheid is om de vijand te verrassen. Overwin de laatste vijandelijke troepen zodat er weer vrede zal zijn in het land.
-2000:Missie geannuleerd
-2001:Stad oefenscenario
-2002:Strijd oefenscenario
-2003:Alleen spelen
-2004:Kaartbewerker
-2005:Laatste herhaling bekijken
-2006:Missie starten
-2007:Titel
-2008:Gr.
-2009:Missietype: %s
-2010:Overwinningsconditie: %s
-2011:Nederlaagconditie: %s
-2012:Bondgenoten:
-2013:Vijanden:
-2015:Nieuwe kaartgrootte
-2016:Breedte
-2017:Hoogte
-2018:Nieuwe kaart creëren
-2019:Beschikbare kaarten
-2020:Bestaande kaart inladen
-2021:Besturing:
-2022:Spelinstellingen:
-2023:Geluid:
-2024:Muziek uit
-2025:Weergave:
-2026:Helderheid
-2027:Volledig scherm
-2028:Toepassen
-2029:Taal:
-2030:Aan het laden... Een ogenblik geduld
-2031:Er is een fout opgetreden!
-2032:Nieuwe taalinstellingen laden
-2033:Lijst van opgeslagen spellen
-2034:Bestandsnaam
-2035:Omschrijving
-2036:Laden
-2037:Verwijderen
-2038:Weet je zeker dat je dit opgeslagen spel wilt verwijderen?
-2039:Verwijder
-2040:Annuleren
-2042:Je hebt gewonnen!
-2043:Doorspelen
-2044:Victorie!
-2045:Je hebt verloren!
-2046:Blijven kijken
-2047:Nederlaag
-2048:Herhaling is geëindigd
-2049:Blijven kijken
-2050:Afsluiten naar menu
-2051:Niet beschikbaar
-2052:Druk op %s om verder te spelen
-2053:Naar team
-2054:Spelersinformatie
-2055:Chat
-2056:Opgeslagen spel bestaat al
-2057:Overschrijven
-2058:Opslaan
-2059:Laden
-2060:Er is een fout opgetreden tijdens het spelen.
-2061:Verstuur het bestand %s van jouw KaM Remake\\Crash Reports map naar de ontwikkelaars. Contactinformatie staat in het readme bestand. Bedankt voor je hulp!
-2062:Verouderde OpenGL versie gedetecteerd. Het spel kan mogelijk langzaam draaien en/of grafisch niet optimaal werken.
-2063:Netwerkfout:
-2064:Fout: spelernaam moet ingevuld zijn
-2065:Verbindingsfout: %s
-2066:Je bent verbroken met het spel
-2067:Missie %d
-2068:Je vissershut is te ver weg van het water.
-2069:De visser kan geen vis meer vangen rondom zijn vissershut.
-2071:Gebruik de linkermuisknop om de goederen te selecteren
-2072:Gebruik de rechtermuisknop om de goederen te selecteren
-2073:Van x%d
-2074:Naar x%d
-2075:Terrein bewerken
-2076:Stadsplanning
-2077:Visuele scripts
-2078:Globale scripts
-2079:Menu
-2080:Status:
-2081:Spelernaam
-2082:SERVER AANMAKEN
-2083:Naam
-2084:Poort
-2085:Lokale server aanmaken
-2086:Internetserver aanmaken
-2087:Servernaam
-2088:Status
-2089:Spelers
-2090:Ping
-2091:Serverlijst vernieuwen
-2092:SERVERINFORMATIE
-2093:Spelerslijst:
-2094:Adres
-2095:Poort
-2096:Kamer
-2097:Meedoen
-2098:Verbinding maken, een ogenblik geduld ...
-2099:Mededelingen laden...
-2100:Vernieuwen...
-2101:Spelerslijst
-2102:Startlocatie
-2103:Team
-2104:Vlagkleur
-2105:Gereed
-2106:Ping
-2107:Kick
-2108:Open
-2109:Computerspeler
-2110:Selecteer...
-2111:Willekeurig
-2112:Geen
-2113:Geen
-2114:Team %d
-2116:Bericht:
-2117:Kaartsoort
-2118:Enkele kaart:
-2119:Opgeslagen spel
-2120:Selecteer een kaart...
-2121:Selecteer een opgeslagen spel...
-2122:Kaartinformatie:
-2123:Spelers: %d
-2124:Modus:
-2125:Condities:
-2126:Grootte:
-2127:Lobby verlaten
-2128:Gereed
-2129:Start!
-2130:Wachten op spelers:
-2131:KaM Remake Credits
-2132:Orginele Knights & Merchants Credits
-2133:PROGRAMMERING:
-2134:AANVULLENDE PROGRAMMERING:
-2135:AANVULLENDE GRAFISCHE WERKEN:
-2136:AANVULLENDE VERTALINGEN:
-2137:SPECIALE DANK AAN:
-2138:Multiplayer kaarten
-2139:Alleen-spelen kaarten
-2140:Scrollsnelheid
-2141:Geen servers gevonden
-2142:Willekeurig
-2143:Spelinformatie:
-2144:-
-2145:Lobby
-2146:Laden
-2147:Spel
-2148:Locatie %d
-2149:Bouwen en Vechten
-2150:Vechten
-2151:Niet gereed
-2152:Gereed
-2153:Fout: Kies aub een speler uit het opgeslagen spel om te besturen
-2154:Fout: laden van de kaart mislukt of er is geen map geselecteerd.
-2155:Kan niet starten: %s
-2156:Niet iedereen is gereed om te starten
-2157:Aantal spelers overschrijdt kaartlimiet
-2158:Verkeerde protocol versie: %s. De server gebruikt: %s
-2159:Server heeft ons hostingrechten toegewezen
-2160:Aantal verhogen
-2161:Aantal verlagen
-2162:Spel opslaan...
-2163:%s werd verslagen!
-2164:AANVULLENDE GELUIDEN:
-2165:Spelers verwijderen
-2166:De host mag deze spelers na %d seconden verwijderen
-2167:De host mag nu deze spelers verwijderen
-2168:De host (%s) heeft het spel verlaten
-2169:De verbinding met de server is verbroken. Poging tot herverbinden...
-2170:Weet je zeker dat je wilt afsluiten?
-2171:Weet je zeker dat je deze spelers permanent wilt verwijderen?
-2172:Annuleren
-2173:Burgers|opgeleid
-2174:Burgers|verloren
-2175:Soldaten|uitgerust
-2176:Soldaten|verloren
-2177:Soldaten|verslagen
-2178:Gebouwen|opgericht
-2179:Gebouwen|verloren
-2180:Gebouwen|vernietigd
-2181:Producten|geproduceerd
-2182:Wapens|geproduceerd
-2183:Het verhandelen van dit product is niet beschikbaar in deze missie
-2184:Planten en kappen
-2185:Alleen kappen
-2186:Spel gestart
-2187:Bouwkaart
-2188:Gevechtskaart
-2189:Co-op kaart
-2190:Het is niet toegestaan om dat te doen tijdens vredestijd.
-2191:Resterende vredestijd: %s
-2192:De vrede is voorbij. Grijp je wapens!
-2193:Speeltijd:|%s
-2194:Spelopties:
-2195:H
-2196:L
-2197:S
-2198:Troep stoppen ('%s')
-2199:Troep samenvoegen ('%s')
-2200:Troep splitsen ('%s')
-2201:Herhalingen
-2202:Herhaling weergeven
-2203:Vredestijd (minuten)
-2204:Niet-ondersteund formaat %s
-2205:Niet-ondersteunde versie %s
-2207:initialiseren
-2208:multiplayer initialisatie
-2209:script
-2210:Nieuwe Missie
-2211:Er is een fout opgetreden tijdens het ontleden van het %s bestand
-2212:Gesloten
-2213:Host regelt spelerinstellingen
-2214:aanvullende afbeeldingen
-2215:eenheden
-2216:gebouwen
-2217:bomen
-2218:definities
-2219:tegelset
-2220:Soft shadows
+147:Naar de keuze van de bouw
+148:Naar de verdeling van de artikelen
+149:Naar de statistiek
+150:Naar de opties
+151:Terug
+152:Keuze van de bouw
+153:Verdeling van|de artikelen
+154:Statistiek
+155:Opties
+156:Spel laden
+157:Spel opslaan
+158:Wilt u|deze missie|werkelijk beëindigen?
+159:Missie beëindigen
+160:Terug
+161:Instellingen
+162:Missie beëindigen
+163:Geluiden
+164:Volume wijzigen
+165:Muziek
+166:Muziek in-/uitschakelen
+167:AutoSave
+168:Muziekspeler
+169:Vorige lied
+170:Volgende lied
+171:Afbreken
+172:Afbreken van huizen/markeringen
+173:Weg aanleggen
+174:Wegenbouw
+175:Akker ploegen
+176:Akkerbouw
+177:Wijngaard bouwen
+178:Wijngaard
+179:Afbreken
+180:Huidige opleiding afbreken
+181:Voorradig:
+182:Toestand:
+183:Levert
+184:Huis in aanbouw
+185:Vernietigen
+186:Wilt u het gebouw|werkelijk afbreken?
+187:Vernietig gekozen gebouw
+188:Bestellingen verlagen
+189:Bestellingen verhogen
+190:Vorig type eenheid
+191:Volgend type eenheid
+192:Huidig type eenheid bewapenen
+193:Volgend beroep
+194:Vorig beroep
+195:Aan rij wachtenden toevoegen
+196:Artikellevering in-/uitschakelen
+197:Huizenreparatie in-/uitschakelen
+198:Gebouw thans niet beschikbaar
+199:Uith. vermogen
+200:Eenheid linksom draaien
+201:Eenheid rechtsom draaien
+202:Eenheid aanvallen ('a')
+203:Eenheid zenden ('d')
+204:Eenheid van voedsel voorzien
+205:Stormaanval starten
+206:Een rij toevoegen
+207:Een rij verwijderen
+208:Doelgroep|kiezen
+209:Stoppen
+210:Wissen
+211:Wist het huidige bericht
+212:Ga naar
+213:Springt naar de plaats van het huidige bericht
+214:Sluiten
+215:Venster sluiten
+216:|Je steenhouwer heeft geen steengroeven meer.
+217:|Je kolenmijn is uitgeput.
+218:|Je ijzermijn is uitgeput.
+219:|Je goudmijn is uitgeput.
+220:|Dit huis is niet bewoond.
+221:|Deze eenheid heeft erg veel honger en moet zeer snel voedsel krijgen!
+222:PAUZE
+418:Spirit
+419:Busy
+420:Middleage Horn
+421:Spring
+422:Middleage Guitar
+423:Lansknechten
+424:De Prinses
+425:De Koningin
+426:Op de markt
+427:In het veld
+428:Dans aan het hof
+429:Het leger
+430:In het kasteel
+431:Fanfares
+432:Aan het hof
+433:Entree
+434:Deep Blue
+435:Struggle
+847:Campagne 'The Shattered Kingdom'
+848:Campagne 'The Peasants Rebellion'
+849:Speel Enkelvoudige Kaart
+850:Begin Missie
+851:Terug naar menu
+852:Laad opgeslagen spel
+853:Multiplayer
+854:Opties
+855:Credits bekijken
+856:Verlaat programma
+857:Ga verder
+858:Herhaal Missie
+859:Resolutie:
+860:MISSIE GEWONNEN!
+861:MISSIE VERLOREN!
+862:Verloren eenheden:
+863:Overwonnen eenheden:
+864:Verloren gebouwen:
+865:Verwoeste gebouwen:
+866:Opgerichte gebouwen:
+867:Opgeleide eenheden:
+868:Geproduceerde wapens:
+869:Bewapende soldaten:
+870:Speelduur:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMMERING:|Peter Ohlmann||SPELGRAFIEK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||GELUIDSMONTAGE:|Tonstudio Mannheim||MUZIEK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIES:|Boleslaw Kasza|Christoph Werner|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBOEK:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|Best Buys Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||STEMMEN:|Claus Boyen (Verteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBOEK ONTWERP:|Uwe Schäfer|Alexandra Constandache||HANDBOEK TEKSTEN:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENINGSANIMATIE:|Uwe Schäfer|Christian Bigalk|Aanvullende 3D-Modelling:|Niels Horstmann||SPECIALE DANK AAN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt|Frits van Ens
+1686:Missie geannuleerd
+1687:Stad oefenscenario
+1688:Strijd oefenscenario
+1689:Alleen spelen
+1690:Kaartbewerker
+1691:Laatste herhaling bekijken
+1692:Missie starten
+1693:Titel
+1694:Gr.
+1695:Missietype: %s
+1696:Overwinningsconditie: %s
+1697:Nederlaagconditie: %s
+1698:Bondgenoten:
+1699:Vijanden:
+1701:Nieuwe kaartgrootte
+1702:Breedte
+1703:Hoogte
+1704:Nieuwe kaart creëren
+1705:Beschikbare kaarten
+1706:Bestaande kaart inladen
+1707:Besturing:
+1708:Spelinstellingen:
+1709:Geluid:
+1710:Muziek uit
+1711:Weergave:
+1712:Helderheid
+1713:Volledig scherm
+1714:Toepassen
+1715:Taal:
+1716:Aan het laden... Een ogenblik geduld
+1717:Er is een fout opgetreden!
+1718:Nieuwe taalinstellingen laden
+1719:Lijst van opgeslagen spellen
+1720:Bestandsnaam
+1721:Omschrijving
+1722:Laden
+1723:Verwijderen
+1724:Weet je zeker dat je dit opgeslagen spel wilt verwijderen?
+1725:Verwijder
+1726:Annuleren
+1728:Je hebt gewonnen!
+1729:Doorspelen
+1730:Victorie!
+1731:Je hebt verloren!
+1732:Blijven kijken
+1733:Nederlaag
+1734:Herhaling is geëindigd
+1735:Blijven kijken
+1736:Afsluiten naar menu
+1737:Niet beschikbaar
+1738:Druk op %s om verder te spelen
+1739:Naar team
+1740:Spelersinformatie
+1741:Chat
+1742:Opgeslagen spel bestaat al
+1743:Overschrijven
+1744:Opslaan
+1745:Laden
+1746:Er is een fout opgetreden tijdens het spelen.
+1747:Verstuur het bestand %s van jouw KaM Remake\\Crash Reports map naar de ontwikkelaars. Contactinformatie staat in het readme bestand. Bedankt voor je hulp!
+1748:Verouderde OpenGL versie gedetecteerd. Het spel kan mogelijk langzaam draaien en/of grafisch niet optimaal werken.
+1749:Netwerkfout:
+1750:Fout: spelernaam moet ingevuld zijn
+1751:Verbindingsfout: %s
+1752:Je bent verbroken met het spel
+1753:Missie %d
+1754:Je vissershut is te ver weg van het water.
+1755:De visser kan geen vis meer vangen rondom zijn vissershut.
+1757:Gebruik de linkermuisknop om de goederen te selecteren
+1758:Gebruik de rechtermuisknop om de goederen te selecteren
+1759:Van x%d
+1760:Naar x%d
+1761:Terrein bewerken
+1762:Stadsplanning
+1763:Visuele scripts
+1764:Globale scripts
+1765:Menu
+1766:Status:
+1767:Spelernaam
+1768:SERVER AANMAKEN
+1769:Naam
+1770:Poort
+1771:Lokale server aanmaken
+1772:Internetserver aanmaken
+1773:Servernaam
+1774:Status
+1775:Spelers
+1776:Ping
+1777:Serverlijst vernieuwen
+1778:SERVERINFORMATIE
+1779:Spelerslijst:
+1780:Adres
+1781:Poort
+1782:Kamer
+1783:Meedoen
+1784:Verbinding maken, een ogenblik geduld ...
+1785:Mededelingen laden...
+1786:Vernieuwen...
+1787:Spelerslijst
+1788:Startlocatie
+1789:Team
+1790:Vlagkleur
+1791:Gereed
+1792:Ping
+1793:Kick
+1794:Open
+1795:Computerspeler
+1796:Selecteer...
+1797:Willekeurig
+1798:Geen
+1799:Geen
+1800:Team %d
+1802:Bericht:
+1803:Kaartsoort
+1804:Enkele kaart:
+1805:Opgeslagen spel
+1806:Selecteer een kaart...
+1807:Selecteer een opgeslagen spel...
+1808:Kaartinformatie:
+1809:Spelers: %d
+1810:Modus:
+1811:Condities:
+1812:Grootte:
+1813:Lobby verlaten
+1814:Gereed
+1815:Start!
+1816:Wachten op spelers:
+1817:KaM Remake Credits
+1818:Orginele Knights & Merchants Credits
+1819:PROGRAMMERING:
+1820:AANVULLENDE PROGRAMMERING:
+1821:AANVULLENDE GRAFISCHE WERKEN:
+1822:AANVULLENDE VERTALINGEN:
+1823:SPECIALE DANK AAN:
+1824:Multiplayer kaarten
+1825:Alleen-spelen kaarten
+1826:Scrollsnelheid
+1827:Geen servers gevonden
+1828:Willekeurig
+1829:Spelinformatie:
+1830:-
+1831:Lobby
+1832:Laden
+1833:Spel
+1834:Locatie %d
+1835:Bouwen en Vechten
+1836:Vechten
+1837:Niet gereed
+1838:Gereed
+1839:Fout: Kies aub een speler uit het opgeslagen spel om te besturen
+1840:Fout: laden van de kaart mislukt of er is geen map geselecteerd.
+1841:Kan niet starten: %s
+1842:Niet iedereen is gereed om te starten
+1843:Aantal spelers overschrijdt kaartlimiet
+1844:Verkeerde protocol versie: %s. De server gebruikt: %s
+1845:Server heeft ons hostingrechten toegewezen
+1846:Aantal verhogen
+1847:Aantal verlagen
+1848:Spel opslaan...
+1849:%s werd verslagen!
+1850:AANVULLENDE GELUIDEN:
+1851:Spelers verwijderen
+1852:De host mag deze spelers na %d seconden verwijderen
+1853:De host mag nu deze spelers verwijderen
+1854:De host (%s) heeft het spel verlaten
+1855:De verbinding met de server is verbroken. Poging tot herverbinden...
+1856:Weet je zeker dat je wilt afsluiten?
+1857:Weet je zeker dat je deze spelers permanent wilt verwijderen?
+1858:Annuleren
+1859:Burgers|opgeleid
+1860:Burgers|verloren
+1861:Soldaten|uitgerust
+1862:Soldaten|verloren
+1863:Soldaten|verslagen
+1864:Gebouwen|opgericht
+1865:Gebouwen|verloren
+1866:Gebouwen|vernietigd
+1867:Producten|geproduceerd
+1868:Wapens|geproduceerd
+1869:Het verhandelen van dit product is niet beschikbaar in deze missie
+1870:Planten en kappen
+1871:Alleen kappen
+1872:Spel gestart
+1873:Bouwkaart
+1874:Gevechtskaart
+1875:Co-op kaart
+1876:Het is niet toegestaan om dat te doen tijdens vredestijd.
+1877:Resterende vredestijd: %s
+1878:De vrede is voorbij. Grijp je wapens!
+1879:Speeltijd:|%s
+1880:Spelopties:
+1881:H
+1882:L
+1883:S
+1884:Troep stoppen ('%s')
+1885:Troep samenvoegen ('%s')
+1886:Troep splitsen ('%s')
+1887:Herhalingen
+1888:Herhaling weergeven
+1889:Vredestijd (minuten)
+1890:Niet-ondersteund formaat %s
+1891:Niet-ondersteunde versie %s
+1893:initialiseren
+1894:multiplayer initialisatie
+1895:script
+1896:Nieuwe Missie
+1897:Er is een fout opgetreden tijdens het ontleden van het %s bestand
+1898:Gesloten
+1899:Host regelt spelerinstellingen
+1900:aanvullende afbeeldingen
+1901:eenheden
+1902:gebouwen
+1903:bomen
+1904:definities
+1905:tegelset
+1906:Soft shadows

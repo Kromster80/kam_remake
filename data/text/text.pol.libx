@@ -102,649 +102,338 @@ MaxID:3004
 110:Kowal wytwarza cie¿kiê|pancerze i broñ|w KuŸni P³atnerskiej|i w KuŸni Zbroi.
 111:Hutnik produkuje|z rudy z³ota i ¿elaza|sztaby z³ota i stal.
 112:Rekrut otrzymuje|w Warowni ¿o³nierskie|wyposa¿enie.||Oprócz tego pe³ni wartê|na Wie¿y Stra¿niczej.
-113:¯o³dacy
-114:Topornicy
-115:Piechurzy
-116:£ucznicy
-117:Kusznicy
-118:Pikinierzy
-119:Halabardziœci
-120:Kawaleria
-121:Gwardia
-122:Wilk
-123:Ryba
-159:Wybór budynków
-160:Podzia³ towarów
-161:Statystyka
-162:Wiadomoœci
-163:Opcje
-164:Powrót
-165:Wybór|budynków
-166:Podzia³|towarów
-167:Statystyka
-168:WIADOMOŒCI
-169:Opcje
-170:Ustawienia
-171:Za³aduj grê
-172:Zapisz grê
-173:Za³aduj grê
-174:Zapisz grê
-175:Czy jesteœ pewien,|¿e chcesz|zakoñczyæ grê?
-176:Zakoñcz grê
-177:Powrót
-178:Ustawienia
-179:Zakoñcz grê
-180:Jasnoœæ
-181:+
-182:-
-183:Zwiêksz jasnoœæ
-184:Zmniejsz jasnoœæ
-185:Bardzo ciemno
-186:Ciemno
-187:Normalnie
-188:Jasno
-189:Bardzo jasno
-190:Najjaœniej
-191:Prêdkoœæ myszy
-192:Dostosuj prêdkoœæ myszy
-193:Odg³osy
-194:Zmiana g³oœnoœci
-195:Muzyka
-196:Muzyka:
-197:W³¹czyæ/wy³¹czyæ muzykê
-198:Wy³¹czona
-199:MIDI
-200:W³¹czona
-201:Pusty
-202:Autozapis
-203:Przewijanie x 2
-204:Misja %d Czas:%2.2u:%2.2u
-205:Scenariusz %d Czas:%2.2u:%2.2u
-206:Odtwarzacz muzyki
-207:Poprzedni utwór
-208:Nastêpny utwór
-209:Burzenie
-210:Burzenie budynków i znaczników
-211:Buduj ulice
-212:Budowanie ulic
-213:Oraj pole
-214:Zak³adanie pola
-215:Buduj p³ot
-216:Ogrodzenie ³¹ki
-217:Za³ó¿ winnicê
-218:Winnica
-219:Buduj mur
-220:Budowanie muru
-221:Przyuczenie
-222:Ka¿ przyuczyæ do wybranego zawodu
-223:Anuluj
-224:Anuluj aktualne przyuczanie
-225:|W trakcie przyuczania
-226:W zapasie:
-227:Stan:
-228:Dostarcza
-229:Budynek w budowie
-230:Zniszcz
-231:Czy jesteœ pewien,|¿e chcesz|zburzyæ budynek?
-232:Niszczy wybrany budynek
-233:Zmniejsz zamówienie
-234:Zwiêksz zamówienie
-235:Zapas towarów:
-236:Poprzedni typ jednostki
-237:Nastêpny typ jednostki
-238:Uzbrojenie
-239:Uzbrój aktualny typ jednostki
-240:Nastêpny zawód
-241:Poprzedni zawód
-242:Dodaj do kolejki
-243:Nastepny najemnik
-244:Poprzedni najemnik
-245:Werbowanie najemnika
-246:Obecni Rekruci:
-247:Koszty:
-248:Dostawa towarów w³¹cz/wy³¹cz
-249:Naprawa budynku w³¹cz/wy³¹cz
-250:Budynek obecnie niedostêpny
-251:Niedostêpny w wersji demo
-252:Wolny
-253:Wytrzyma³oœæ
-254:Obróæ oddzia³ w lewo
-255:Obróæ oddzia³ w prawo
-256:Atakuj ('a')
-257:Zatrzymaj oddzia³ i formuj szyk ('h')
-258:Wyœlij oddzia³ ('d')
-259:Po³¹cz oddzia³y ('l')
-260:Rozdziel oddzia³ ('s')
-261:Zaopatrz oddzia³ w ¿ywnoœæ
-262:Rozpoczêcie szturmu
-263:Dodaj szereg
-264:Usuñ szereg
-265:Ofensywa:
-266:Defensywa:
-267:Tempo:
-268:Wybierz|Warownie
-269:Anuluj
-270:Wybierz|miejsce docelowe
-271:Wybierz|grupê docelow¹
-272:Wybierz|cel ataku
-273:Anuluj
-274:Jednostka jest obecnie niedostêpna
-275:Usuñ
-276:Usuwa aktualn¹ wiadomoœæ
-277:Wyœlij
-278:Wysy³a aktualn¹ wiadomoœæ
-279:IdŸ do
-280:Skacze do pozycji aktualnej wiadomoœci
-281:Zamknij
-282:Zamknij okno
-283:OdpowiedŸ
-284:OdpowiedŸ na wiadomoœæ
-285:PotwierdŸ
-286:Sojusze bêd¹ na nowo rozdzielane.
-287:jest przyjacielem
-288:jest wrogiem
-289:|Twój Kamieniarz nie znalaz³ dalszych pok³adów kamienia.
-290:|Zasoby Twojej Kopalni Wêgla s¹ wyczerpane.
-291:|Zasoby Twojej Kopalni ¯elaza s¹ wyczerpane.
-292:|Zasoby Twojej Kopalni Z³ota s¹ wyczerpane.
-293:|Twój Rybak nie mo¿e z³apaæ ju¿ wiêcej ryb.
-294:|Ten budynek nie ma gospodarza.
-295:|Ten oddzia³ jest bardzo g³odny!|Musisz jak najszybciej dostarczyæ im ¿ywnoœæ!
-296:Do podzia³u ¿elaza
-297:Podzia³ ¿elaza
-298:Do podzia³u wêgla
-299:Podzia³ wêgla
-300:Do podzia³u drewna
-301:Podzia³ drewna
-302:Do podzia³u ziarna
-303:Podzia³ ziarna
-304:|Wpisz tekst wiadomoœci:
-305:Wiadomoœæ od gracza '%s':|'%s'
-306:Sojusze:
-307:PAUZA
-478:Informacja sieciowa:
-479:Gracz '%s' wyszed³ z gry.|Naciœnij ~<~S~P~A~C~J~Ê~>, aby kontynuowaæ grê.
-480:Teraz Ty jesteœ serwerem.|Naciœnij ~<~S~P~A~C~J~Ê~>, aby kontynuowaæ grê.
-481:Komputer czeka na dane. Naciœnij ~<~S~P~A~C~J~Ê~>, aby|ponowiæ, lub ~<~F~1~>, aby przerwaæ grê.
-499:Aby przyuczyæ ludzi do ró¿nych zawodów, musisz wybudowaæ szko³ê.|Staraj siê mieæ zawsze wystarczaj¹cy zapas z³ota, którym op³acisz szkolenie nowych poddanych.
-500:Zacznij budowê od klikniêcia myszk¹ ikony m³otka po lewej stronie ekranu. Nastêpnie kliknij ikonê ksi¹¿ki. Umieœæ zarys budynku szko³y w miejscu na mapie, w którym chcesz, aby stanê³a i zatwierdŸ to lewym przyciskiem myszy.
-501:Kiedy umieœcisz na mapie budynek szko³y, powinieneœ zauwa¿yæ, ¿e przycisk 'buduj ulice' sta³ siê teraz domyœlnym. Jeœli chcesz wybudowaæ drogê, kliknij na ka¿de pole, by zosta³o wy³o¿one kamieniem. Zacznij budowê drogi od drzwi szko³y i po³¹cz j¹ z ju¿ istniej¹c¹, inn¹.
-502:¯eby wyszkoliæ jednostki, kliknij mysz¹ na budynek szko³y i przejdŸ strza³kami do nastêpnych profesji. Aby zacz¹æ szkoliæ obywateli, kliknij mysz¹ na ikonê 'dodaj do kolejki'. Kiedy zostan¹ wyuczeni, po chwili sami zaczn¹ wykonywaæ swe zadania.
-503:Od czasu do czasu Twoi poddani musz¹ jeœæ. W zwi¹zku z tym musisz wybudowaæ Gospodê. Pamiêtaj, ¿e Gospoda powinna byæ usytuowana w centrum, aby ka¿dy z mieszkañców móg³ z ³atwoœci¹ do niej dotrzeæ.
-504:Potrzebujesz kamienia do dalszej budowy budynków i ulic. Wznieœ Kamienio³om w pobli¿u pok³adów kamienia. Nastêpnie wyszkól Kamieniarza, który bêdzie dostarczaæ nowego budulca.
-505:Oprócz kamieni do budowy budynków potrzebujesz równie¿ drewnianych desek. Drwal œcina i sadzi drzewa, które nastêpnie poddawane s¹ w Tartaku dalszej obróbce. Zbuduj Leœniczówkê dla Drwala niedaleko lasu.
-506:Teraz musisz zbudowaæ Tartak, aby przerobiæ pnie drzew dostarczone przez Drwala.|Ka¿ przyuczyæ Cieœlê, który bêdzie obs³ugiwa³ Tartak.
-507:Jeœli zapewni³eœ ju¿ sobie wystarczaj¹c¹ iloœæ materia³ów budowlanych powinieneœ skoncentrowaæ siê na zaopatrzeniu w ¿ywnoœæ.|Zbuduj Chatkê Ryback¹ niedaleko wody aby zaopatrzyæ Gospodê w œwie¿e ryby.
-508:Bardzo dobrze. Musisz jednak pamiêtaæ, ¿e nawet jeœli w morzu jest mnóstwo ryb, prêdzej czy póŸniej wszystkie zostan¹ z³owione. ¯eby zapewniæ sobie pewniejsze Ÿród³o zaopatrzenia w ¿ywnoœæ, zbuduj Gospodarstwo w miejscu, gdzie wystarczy miejsca równie¿ na pola uprawne.
-509:Ch³opu nale¿y zapewniæ oko³o 16 pól s¹siaduj¹cych z Gospodarstwem.|Aby przerobiæ zebrane ziarno, powinieneœ zleciæ budowê M³yna.
-510:Bardzo dobrze, teraz mo¿esz zleciæ budowê Piekarni, która bêdzie zaopatrywaæ Twoj¹ Gospodê w œwie¿y chleb. Dbaj o to, abyœ zawsze dysponowa³ wystarczaj¹c¹ liczb¹ Pomocników do transportu swoich towarów. Dziêki temu dostawy do Twoich budynków bêd¹ przebiegaæ sprawnie.
-511:Oprócz karmienia poddanych ryb¹ i chlebem, potrzebujesz tak¿e czegoœ do zaspokojenia ich pragnienia.|Zbuduj Winnicê oraz za³ó¿ oko³o 16 pól winnych dla Ch³opa, aby móg³ zbieraæ winogrona.
-512:Œwietnie, jednak Twoi ciê¿ko pracuj¹cy poddani zas³uguj¹ na lepsze jedzenie, ni¿ tylko chleb i wino. ¯eby wyprodukowaæ miêso i skóry, zbuduj Chlew, gdzie Hodowca bêdzie hodowa³ œwinie.
-513:Aby przetworzyæ wyprodukowane wczeœniej miêso na kie³basy, musisz wybudowaæ RzeŸniê. Wyszkól tak¿e RzeŸnika, który bêdzie tam pracowa³.
-514:Jeœli zaopatrzy³eœ ju¿ sobie zaopatrzenie w ¿ywnoœæ, powinieniœ skupiæ siê na kolejnym celu, jakim jest produkcja broni. Zacznij od budowy Warowni w odpowiednim miejscu.
-515:U¿ywaj¹c przycisków 'Nastêpny typ jednostki' i 'Poprzedni typ jednostki' mo¿esz przewijaæ miêdzy ró¿nymi jednostkami, które mo¿na uzbroiæ. Podœwietlone prostok¹ty pokazuj¹, jakie wyposa¿enie jest potrzebne do uzbrojenia danego ¿o³nierza.
-516:Jeœli chcesz wyposa¿yæ nowych ¿o³nierzy w Warowni, musisz najpierw wyprodukowaæ broñ. Zbuduj Warsztat P³atnerski niedaleko Warowni, aby umo¿liwiæ szybszy jej transport.
-517:Aby z³o¿yæ zamówienie na broñ, kliknij na nowo zbudowany warsztat, nastêpnie kliknij lewym przyciskiem myszy na przycisku 'Zwiêksz zamówienie', aby ustaliæ iloœæ broni potrzebnej do wyprodukowania. Pamiêtaj, ¿eby zawsze mieæ wystarczaj¹c¹ iloœæ drewna do produkcji broni.
-518:Bez w³aœciwego wyposa¿enia, Twoi ¿o³nierze nie maj¹ szans na przetrwanie bitwy. Aby wyprodukowaæ pancerz dla ¿o³nierzy, musisz najpierw zbudowaæ Garbarniê, aby przetworzyæ skóry na rulony.
-519:Skoro mo¿esz ju¿ produkowaæ rulony skóry, zbuduj Warsztat Pancerzy, gdzie Cieœla zrobi tarcze i pancerze.
-520:Znakomicie! Zbudowa³eœ ju¿ wszystkie budynki potrzebne do utrzymania miasta i szkolenia wojska. Jeœli masz ju¿ odpowiedni¹ iloœæ broni do uzbrojenia okreœlonej jednostki, musisz wyszkoliæ Rekruta w Szkole, a nastêpnie klikn¹æ przycisk 'Uzbrój aktualny typ jednostki'.
-521:Teraz pozosta³o Ci jedynie zniszczenie dwóch obozów wroga. Baza niebieskiego wroga na po³udniu jest mocno uzbrojona, natomiast baza zielonego wroga na wschodzie polega jedynie na kilku oddzia³ach. Dobrze siê przygotuj przed wypêdzeniem wroga z tamtych terenów!
-522:|Niebieski gracz jest pokonany.
-523:|Zielony gracz jest pokonany.
-524:Zanim zaatakujesz wrogów na zachodzie, musisz najpierw rozprawiæ siê ze zwiadowcami, którzy ukrywaj¹ siê nieopodal na pó³nocy. Gdy wska¿esz lewym przyciskiem myszy na swoich piechurów z lanc¹, a prawym na wojska wroga, powinno to zachêciæ wojska do brawurowego ataku.
-525:Oddzia³ ³uczników bie¿y z po³udniowego zachodu. Zaatakuj go Twoj¹ armi¹. Ale uwaga: wydaj rozkaz w odpowiednim momencie, Ÿeby strza³y wrogów nie zada³y dotkliwych strat Twoim mê¿nym oddzia³om!
-526:Zaatakuj si³y wroga, które czyhaj¹ na Ciebie na zachodzie. Uwa¿aj na ³uczników wroga, gdy¿ obwarowali siê za piechot¹. Wyœlij swych zwiadowców na pó³noc, by móc otoczyæ wroga i zaatakowaæ od ty³u.
-527:Teraz powinieneœ przypuœciæ atak z u¿yciem wszystkich Twoich jednostek naraz. Ustaw swoich ³uczników tu¿ za piechot¹, by w ten sposób zmusiæ przeciwnika do odwrotu.
-529:Musisz jak najszybciej uzbroiæ nowych ¿o³daków. W przeciwnym razie bêdziemy zupe³nie bezbronni w konfrontacji z wrogiem.
-530:Zwiadowcy donosz¹, ¿e wróg przygotowuje siê do ataku na nas. Zgotuj mu powitanie z mieczem w rêku.
-531:Robisz postêpy, ale osadê trzeba jeszcze bardziej rozbudowaæ. Dopiero wtedy bêdziesz móg³ wzi¹æ szturmem barykady wroga i zniszczyæ ten nieprzyjacielski punkt oporu.
-532:Jeszcze raz przypominam Ci, ¿e masz za wszelk¹ cenê ochraniaæ sprzymierzone wojska Barona von Lauenburg.
-533:Strze¿ siê Kawalerii wroga, która z pewnoœci¹ ponowi atak. Wrogowi szczególnie zale¿y na wyeliminowaniu naszych sprzymierzeñców.
-534:Wieœ na pó³nocy kraju jest gotowa otwarcie zbuntowaæ siê przeciwko tyranii. Musimy wykorzystaæ t¹ sprzyjaj¹c¹ okazjê.
-535:Nasi zwiadowcy odkryli opuszczony Spichrz. Znajduje siê on na Zachodzie kraju na skraju niewielkiego lasu. Z pewnoœci¹ znajdziesz w Spichrzu coœ u¿ytecznego.
-536:Z³apaliœmy i przes³uchaliœmy szpiega. Prawdopodobnie wróg odkry³ nasz¹ bazê i teraz czyni przygotowania do ataku na nas.
-537:Wkrótce barbarzyñcy napadn¹ na nas. Przygotuj siê starannie do odparcia ich ataku. W przeciwnym razie dzikie watahy przebij¹ siê przez Twoj¹ obronê.
-538:Do broni! Potê¿ne si³y zbrojne s¹ w drodze do nas.
-539:M¹drze roz³ó¿ swoje si³y. Wróg ma przewagê. Nieprzemyœlane natarcie przyniesie Ci tylko klêskê.
-540:Zwyciê¿yliœmy, ale czas zemsty jeszcze nie nadszed³. Najpierw odbudujemy Werheim, a potem nikczemnicy zap³ac¹ za pope³nione okrucieñstwa.
-541:Bez ¿elaza nie ma broni, bez broni - wojowników. Na pó³nocy znajduj¹ siê potrzebne nam surowce. Przygotuj siê do przejêcia tamtejszych kopalni.
-542:Dotychczas dzielni mieszkañcy jednej z wsi na Po³udniu kraju skutecznie opierali siê tyranowi. Ponieœli jednak ciê¿kie straty. Poœpiesz tym zacnym obywatelom z pomoc¹ i zapewnij im bezpieczeñstwo.
-543:Gdzieœ w tej okolicy powinien znajdowaæ siê opuszczony Spichrz. ZnajdŸ go jak najszybciej, poniewa¿ ju¿ nied³ugo wszelka pomoc bêdzie bardzo po¿¹dana.
-544:Nasi zwiadowcy donosz¹, ¿e opuszczony Spichrz bêdzie celem potê¿nej ofensywy wroga. Musisz koniecznie utrzymaæ budynek. W przeciwnym razie wróg uniemo¿liwi nam dalszy marsz na pó³noc.
-545:Zaraz nast¹pi ponowny atak wroga na Spichrz.|Przygotuj siê do walki.
-546:Wróg próbuje rozpaczliwie zapobiec gro¿¹cej mu klêsce, stosuj¹c podjazdy. Wybij armiê nieprzyjaciela co do jednego, a wtedy ju¿ nic Ciê nie zatrzyma w parciu na pó³noc.
-547:Tyran nie zosta³ jeszcze pokonany. Nasi sojusznicy dotrzymali s³owa i stoj¹ po naszej stronie. Po pierwszym natarciu bêdziesz jednak zdany tylko na swoje si³y, tak jak to zosta³o ustalone.
-549:Armia wroga jest wiêksza ni¿ oczekiwano. Trzeba wyposa¿yæ kolejne jednostki w koszarach.
-550:¯eby wygnaæ pogromców z osad, wszyscy ¿o³nierze musz¹ zostaæ pokonani. To wystarczy, by nastraszyæ zdrajcê. Po czystce armii do³¹cz¹ siê do nas i nie bêd¹ d³u¿ej stanowiæ zagro¿enia.
-551:Wœród rebeliantów jest wielu niewinnych obywateli. Nie atakuj tych mieszkañców ani ich osad. Oni nie s¹ Twoimi wrogami.|Skoncentruj siê na ¿o³nierzach przeciwnika i ich zaopatrzeniu w broñ.
-552:Musisz za wszelk¹ cenê ochroniæ sprzymierzone wojska przed atakami przeciwnika.
-553:Nasi szpiegowie zauwa¿yli wrogie oddzia³y, które przemieszczaj¹ siê w kierunku obozu na po³udniu. Trzeba obroniæ kosztowne towary w magazynie.
-554:Na po³udniu zauwa¿ono armiê wroga. Trzeba zachowaæ ostro¿noœæ!!!
-555:Kolejne jednostki wroga zbli¿aj¹ siê do nas z zachodu.
-556:Aby wesprzeæ swoj¹ armiê, powinieneœ zwerbowaæ w ratuszu nowych najemników.
-557:Mo¿e tylne wejœcie by³oby lepszym sposobem na wejœcie do zamku.
-558:Armia wroga kroczy od strony gór po³o¿onych na pó³nocnym zachodzie w kierunku naszej bazy.
-559:Przeciwnik odkry³ ju¿ nasze nowe pozycje. Wkrótce zaatakuje nas silna jednostka z kierunku wschodniego.
-560:Uwaga! Na otaczaj¹cych wzgórzach odkryto wrogich ³uczników. Dlatego walka w w¹wozie mog³aby oznaczaæ nasz¹ pora¿kê.
-561:Dotarliœmy do ostatniego obozowiska rebeliantów.|Zabij wszystkich ¿o³nierzy wroga i zrównaj ich osady z ziemi¹, nie pozostawiaj¹c tam ani jednej ¿ywej duszy.
-562:Nasi zwiadowcy donosz¹, ¿e wróg odkry³ ju¿ nasze nowe pozycje i przygotowuje siê do ataku na nas. Raz jeszcze chwyæ za miecz i bezlitoœnie rozpraw siê z rebeliantami!
-569:Pusty
-570:Spirit
-571:Busy
-572:Middle Ages Horn
-573:Spring
-574:Lute
-575:Mercenary
-576:The Princess
-577:The Queen
-578:In the Marketplace
-579:On the Battlefield
-580:Court Dance
-581:The Army
-582:In the Castle
-583:Fanfares
-584:At Court
-585:Entree
-586:Deep Blue
-587:Struggle
-999:unused
-1000:Kampania 'The Shattered Kingdom'
-1001:Kampania 'The Peasants Rebellion'
-1002:Wprowadzenie
-1003:Rozegraj jedn¹ misjê
-1004:Jedna misja
-1005:Poprzednia
-1006:Nastêpna
-1007:Zacznij misjê
-1008:G³ówne menu
-1009:Za³aduj grê
-1010:Gra w sieci
-1011:Opcje
-1012:Autorzy
-1013:Zakoñcz grê
-1014:Pusty
-1015:Odtwórz stan gry:
-1016:Dalej
-1017:Powtórz misjê
-1018:G³ówne menu
-1019:Rozdzielczoœæ:
-1020:Niedostêpne
-1021:Wybierz typ gry
-1022:Sieæ lokalna
-1023:Net-Games
-1024:Nazwa u¿ytkownika
-1025:Has³o:
-1026:Za³ó¿ nowe konto
-1027:Zaloguj siê
-1028:£¹czenie z Net-Games...
-1029:Autoryzacja...
-1030:OK
-1031:Nieudane
-1032:Po³¹czenie zosta³o zerwane
-1033:B³êdne has³o
-1034:Taka nazwa u¿ytkownika ju¿ istnieje
-1035:Ten u¿ytkownik zosta³ usuniêty
-1036:Nieprawid³owa nazwa u¿ytkownika
-1037:Niezdefiniowany
-1038:W trakcie
-1039:B³êdne parametry
-1040:Kana³ jest pe³ny
-1041:Kana³ nie istnieje
-1042:Brak dostêpu do tego kana³u
-1043:Czas up³yn¹³
-1044:Masz zbyt wiele kont
-1045:Aktualnie serwer nie przyjmuje rejestracji
-1046:Nazwa u¿ytkownika jest nieprawid³owa
-1047:<COL 0>%s:<COL 1> %s|
-1048:<COL 0>%s %s|
-1049:<COL 2>%s whispers: %s|
-1050:<COL 3>Private message to %s: %s|
-1051:<COL 4>SERVER: %s|
-1052:<COL 4>SERVER: %s|
-1053:<COL 2>Message of the Day: %s|
-1054:<COL 0>BROADCAST: %s|
-1055:<COL 3>%s enters the channel|
-1056:<COL 3>%s quits channel|
-1057:<COL 3>You have entered the channel <COL 0>%s<COL 3>|
-1058:<COL 3>You have entered the game <COL 0>%s<COL 3>|
-1059:Powrót do g³ównego menu
-1060:WejdŸ na kana³
-1061:Do³¹cz siê do gry
-1062:Nowa gra
-1063:Nowa gra Ladder
-1064:Opuœæ grê
-1065:Zacznij grê
-1066:Szeptaj
-1067:Wyrzuc
-1068:Usun
-1069:Info
-1070:Rejestracja
-1071:Podaj swoje imiê
-1072:Wpisz swoje imiê:
-1073:Dalej
-1074:Anuluj
-1075:Wybierz:
-1076:Aktywne gry
-1077:Nowa gra
-1078:Wpisz nazwê gry:
-1079:Uruchom grê
-1080:Wybierz grê:
-1081:Przy³¹czenie siê do gry
-1082:Szukaj gier
-1083:Obecni gracze:
-1084:Wiadomoœci:
-1085:Wyœlij:
-1086:Start
-1087:Bez nazwy
-1088:<wolne>
-1089:<niedostêpny>
-1090:<komputer>
-1092:~G~r~a~c~z '%s' ~z~o~s~t~a~³ ~u~s~u~n~i~ê~t~y ~z ~S~e~r~w~e~r~a
-1093:Scenariusze:
-1094:Nazwa:
-1095:Opis:
-1096:Stan posiadania:
-1097:Pozycja startowa:
-1098:Serwer wybiera|scenariusz
-1099:Spichrz
-1100:Spichrz i oddzia³y
-1101:Budynki i oddzia³y
-1102:Standardowa
-1103:Losowa
-1104:Wczytanie stanu gry
-1105:Przerwanie wczytania
-1106:Wczytano: %d/100
-1107:Stan gry nr %d
-1108:Liczba graczy:%d
-1109:Autozapis
-1110:MISJA WYPE£NIONA!
-1111:MISJA NIEWYPE£NIONA!
-1112:Utracone jednostki:
-1113:Pokonane jednostki:
-1114:Utracone budynki:
-1115:Zburzone budynki:
-1116:Zbudowane budynki:
-1117:Wyszkolone jednostki:
-1118:Wyprodukowana broñ:
-1119:Wyposa¿eni wojownicy:
-1120:Czas trwania gry:
-1149:Trzy kontynenty
-1150:Dziki kraj
-1151:Walka o wêgiel
-1152:Graniczne rzeki
-1153:Pagórkowaty kraj
-1154:Górzysty kraj
-1155:Bitwa o zamek
-1156:Spotkanie nad brzegiem
-1157:Zasadzka
-1158:Fiasko bitwy o most
-1159:Dodatkowa mapa A
-1160:Dodatkowa mapa B
-1179:Przez pustyniê||Rozmiar: 176x176|Liczba przeciwników: 5
-1180:W obcym kraju||Rozmiar: 176x176|Liczba przeciwników: 3
-1181:Œnieg i piach||Rozmiar: 160x128|Liczba przeciwników: 5
-1182:Kraina rw¹cej rzeki||Rozmiar: 176x176|Liczba przeciwników: 3
-1183:Czarne z³oto||Rozmiar: 176x176|Liczba przeciwników: 5
-1184:Górska œciana||Rozmiar: 144x128|Liczba przeciwników: 3
-1185:W królestwie ciemnoœci||Rozmiar: 176x176|Liczba przeciwników: 3
-1199:Liczba graczy: 6|Wielkoœæ mapy: 176x176|Budowa
-1200:Liczba graczy: 4|Wielkoœæ mapy: 176x176|Budowa
-1201:Liczba graczy: 6|Wielkoœæ mapy: 160x128|Budowa
-1202:Liczba graczy: 4|Wielkoœæ mapy: 176x176|Budowa
-1203:Liczba graczy: 6|Wielkoœæ mapy: 176x176|Budowa
-1204:Liczba graczy: 4|Wielkoœæ mapy: 144x128|Budowa
-1205:Liczba graczy: 6|Wielkoœæ mapy: 176x144|Budowa
-1206:Liczba graczy: 3|Wielkoœæ mapy: 64x64|Walka
-1207:Liczba graczy: 6|Wielkoœæ mapy: 144x144|Walka
-1208:Liczba graczy: 4|Wielkoœæ mapy: 176x176|Budowa
-1249:Oddzia³y zdrajcy prze³ama³y nasz¹ obronê.|Twierdza pad³a i jeœli nie uda Ci siê|odeprzeæ wroga, zguba Królestwa bêdzie|tryumfem uzurpatora.|Do ataku!
-1250:Dziêki wygranej bitwie znowu wst¹pi-|³a w nas nadzieja. Ale jeszcze nie czas|na tryumf. Pobici wrogowie wycofali|siê, aby w jednej z okolicznych wiosek|na nowo sformowaæ swoje wojska.|Wkrótce Ksi¹¿ê ponowi walkê,|korzystaj¹c ze znacznej przewagi li-|czebnej swojej armii. Zachowaj spokój|i nie daj siê wci¹gn¹æ w otwart¹|walkê. Mimo niewielkiego potencja³u|militarnego masz szansê odnieœæ|zwyciêstwo, poniewa¿ teren sprzyja|dzia³aniom defensywnym. Zajmij po-|zycje przy w¹skim brodzie. ¯o³nierze|wroga bêd¹ musieli go przekroczyæ.|Do okupowanej wsi wejdŸ dopiero wtedy,|gdy wróg bêdzie wyraŸnie os³abiony!
-1251:Jest to pamiêtny dzieñ. Armia|zdetronizowanego Ksiêcia wycofuje siê.|Droga do prowincji Lauenburg jest wolna.|Poniewa¿ Baron von Lauenburg jest|sojusznikiem naszego wroga, musisz|liczyæ siê z zasadzkami w drodze do jego|posiad³oœci.
-1252:Wrogom nie uda³o siê powstrzymaæ|natarcia oddzia³ów wiernych Królowi.|Baron von Lauenburg wycofa³ siê ze|swoimi wojskami do twierdzy i tam|czeka na nasz atak.|Poddani Barona przyjêli nas przychylnie.|Skorzystaj wiêc ze sposobnoœci powiêksze-|nia swojej armii.|Aby zaatakowaæ twierdzê Lauenburg,|potrzebujesz znacznych si³.|Jeœli zwyciê¿ysz, klêska Barona bêdzie|przestrog¹ dla wszystkich innych zdrajców|Korony.
-1253:Baron von Lauenburg odda³ siê w nasze|rêce. Król darowa³ mu ¿ycie, poniewa¿|okaza³ skruchê. Twoim nastêpnym celem|jest gród Moorbach. W jego pobli¿u nasi|zwiadowcy odkryli opuszczon¹ bazê. Do|Ciebie nale¿y jej rozbudowa. Poniewa¿|Baron von Lauenburg jest teraz naszym|sojusznikiem, nasi wrogowie stanowi¹|zagro¿enie dla jego ¿o³nierzy. Ochraniaj|za wszelka cenê jednostki Barona. W ten|sposób zdobêdziesz zaufanie nowych|sprzymierzeñców i dodatkowych ¿o³nierzy|dla swojej armii.
-1254:Moorbach zosta³ zdobyty, a nasi wrogowie|nie tylko pokonani, lecz tak¿e g³êboko|upokorzeni. Królewscy zwiadowcy donosz¹,|¿e w pó³nocno-wschodniej czêœci kraju|wróg formuje now¹ armiê, aby zemœciæ|siê za haniebn¹ klêskê pod Moorbach. My|natomiast dysponujemy na tyle silnym|orê¿em, aby przyst¹piæ do ofensywy.|Zaatakuj wrogie oddzia³y, zanim te|zakoñcz¹ formowanie.|Mo¿esz skorzystaæ przy tym ze wsparcia|Piechurów z Lauenburg, uzbrojonych w|lance, którzy przy³¹czyli siê do naszej|armii.
-1255:Wieœæ o Twoich zwyciêstwach rozesz³a siê|po ca³ym Królestwie lotem b³yskawicy. We|wszystkich zak¹tkach kraju poddani podno-|sz¹ bunt przeciwko tyranowi. Na pó³nocy|le¿y gród Walheim, który wci¹¿ jeszcze|znajduje siê w rêkach wroga. W³adca grodu|Walheim odmówi³ przyjêcia naszych pos³ów|i zaprzysi¹g³, ¿e bêdzie broniæ miasta a¿|do ostatniego ¿o³nierza. Mieszkañcy ma³ej|wioski niedaleko naszej bazy zbuntowali|siê przeciwko swoim ciemiê¿com i bêd¹|zaopatrywaæ nasz¹ armiê w now¹ broñ i|Rekrutów. Maj¹c du¿¹ i dobrze uzbrojon¹|armiê, bêdziesz w stanie zaj¹æ Walheim.|Zrównaj z ziemi¹ mury grodu, spal|budynki i przepêdŸ ich mieszkañców. Od|tej pory nie ma litoœci dla wrogów Króla.
-1256:Zdobycie grodu Walheim spowodowa³o|zamêt na pó³nocy kraju. W naszym|kierunku zmierzaj¹ dzikie watahy|barbarzyñców, aby napaœæ na Królestwo.|Musisz ich koniecznie powstrzymaæ,|zanim znowu przyst¹pisz do walki z|rebeliantami.|W ruinach grodu Walheim znaleziono|plany konstrukcyjne nowoczesnych Wie¿|Obronnych. Wybuduj bastion, który stawi|opór dzikim hordom, a nastêpnie wybij|barbarzyñców co do jednego.
-1257:Barbarzyñcy s¹ sk³óceni miêdzy sob¹.|Dziêki naszej dyplomatycznej zrêcznoœci|ich dwaj wata¿kowie przeszli wraz ze|swoim wojskiem na nasz¹ stronê.|Lokalizacja Twojej obecnej bazy umo¿liwia|dogodn¹ obronê, ale konieczna do|rozbudowy przestrzeñ jest bardzo|ograniczona, co wymaga szczególnego|planowania. Wróg przygotowuje siê do|bitwy i wkrótce zaatakuje. Poœpiech jest|wiêc wskazany.
-1258:Wojska despoty zagra¿aj¹ jednemu z|naszych grodów. Pospiesz mieszkañcom|grodu na ratunek, zanim nie bêdzie za|póŸno.|Tylko forsownym marszem bêdziesz w|stanie dotrzeæ na czas. Wed³ug doniesieñ|naszych zwiadowców musisz liczyæ siê|ze znacznymi si³ami wroga i dobrze|roz³o¿yæ w³asne si³y. Tylko m¹dra taktyka|przyniesie Ci zwyciêstwo. Chaotyczne|szturmowanie przyniesie Ci klêskê.
-1259:Z du¿ym trudem odparliœmy|nieprzyjacielski szturm na miasto.|Niestety, skutki podjazdów wroga s¹|bardzo powa¿ne. Miasto jest niemal|doszczêtnie zniszczone, wiêkszoœæ|mieszkañców nie ¿yje.|Ta masakra musi byæ krwawo|pomszczona. Zanim jednak wymierzysz|tchórzliwym mordercom sprawiedliwoœæ,|musisz jak najszybciej odbudowaæ|zburzony gród.
-1260:Wróg poniós³ druzgoc¹c¹ klêskê i zosta³|zmuszony do wycofania siê na pó³noc.|Znajduj¹ce siê tam kopalnie ¿elaza maj¹|ogromne znaczenie strategiczne dla|dalszego przebiegu wojny. Sformuj now¹|armiê, aby przepêdziæ wroga z tych|terenów i zaj¹æ kopalnie. Na wschód od|Twojej bazy znajduje siê most, który|u³atwi Ci obronê, kiedy Ty bêdziesz|formowaæ now¹ armiê.
-1261:Wróg nadal dysponuje ogromnymi|rezerwami i szykuje siê do kontrataku.|Ale jego potê¿na armia bêdzie mieæ|trudnoœci z przekroczeniem pobliskich|gór. Udaj siê ze swoj¹ armi¹ na|najwy¿sz¹ prze³êcz i tam oczekuj wrogich|wojsk. Nie pozwól, aby zdrajcy ponownie|zdobyli przewagê.
-1262:Twoje wysi³ki wreszcie przynosz¹|efekty. W ca³ym kraju poddani Króla|podnosz¹ bunt przeciwko terrorowi|Ksiêcia. Równie¿ czêœæ jego genera³ów|potêpia okrutne obchodzenie siê Ksiêcia|z bezbronn¹ ludnoœci¹.|Jeden z genera³ów potajemnie przes³a³|nam wiadomoœæ, ¿e Ksi¹¿ê zamierza|zemœciæ siê na mieszkañcach wsi, którzy|otwarcie wypowiedzieli mu pos³uszeñstwo.|Oczywiœcie musisz pokrzy¿owaæ plany|tyrana i zapewniæ bezpieczeñstwo|zacnym obywatelom.
-1263:Ostateczna klêska wroga jest blisko. Ksi¹¿ê|zmieni³ taktykê i zaj¹³ wa¿ne strategicznie|z³o¿a surowców, aby w ten sposób|utrudniæ nam dzia³ania. Twoim zadaniem|jest przejêcie pobliskich kopalñ ¿elaza|i przepêdzenie wroga. Rozleg³e tereny|bagienne stanowi¹ dodatkow¹ przeszkodê,|wiêc przygotuj siebie i swoich ludzi na|najgorsze.
-1264:Jedna z Twoich prowincji s³ynie z|niezwykle ¿yznych ziem i obfitoœci|z³ó¿. Nie ulega ¿adnej w¹tpliwoœci, ¿e|nieprzyjaciel wkrótce podejmie próbê|zagarniêcia równie¿ tej zamo¿nej krainy.|Utrzymaj prowincjê i bezlitoœnie rozpraw|siê ze wszystkimi ¿o³nierzami wroga.
-1265:Na pó³nocy kraju zdrajca gromadzi swoich|wasali, aby ponownie zaatakowaæ. Wróg|jeszcze nie jest gotowy do podjêcia otwartej|walki. Udaj siê wiêc na Pó³noc, aby rozbiæ|jego now¹ armiê, zanim ta bêdzie w|stanie uderzyæ na nas. Tym razem czeka|Ciê przeprawa przez góry. Prawdopodobnie|prze³êcz zosta³a obsadzona przez wojska|nieprzyjaciela. Musimy za wszelk¹ cenê|prze³amaæ ich obronê i dotrzeæ z nasz¹|armi¹ na Pó³noc.
-1266:Twoje ostatnie zwyciêstwo zmusi³o|wroga do defensywy. Wykorzystuj¹c|ró¿norodn¹ formê terenu, wróg schroni³|siê w naturalnej fortecy, okopa³ i teraz|czeka na nasz atak. Forteca jest w³aœciwie|nie do zdobycia. U jej podnó¿a zalegaj¹|szcz¹tki tych, którzy odwa¿yli siê j¹|szturmowaæ. Nie traæ jednak nadziei. Byæ|mo¿e Twoi poprzednicy pozostawili akurat|coœ, co oka¿e Ci siê pomocne w tym|trudnym przedsiêwziêciu.
-1267:Jest to tragiczny dzieñ w historii naszego|Królestwa. Powiód³ siê zamach na naszego|mi³oœciwego Króla. Nikczemny Ksi¹¿ê, bez|w¹tpienia inspirator skrytobójstwa, obwo³a³|siê nowym Królem. Zdrajcê chroni¹ potê¿ne|mury obronne. WeŸcie je szturmem i|wymierzcie skrytobójcy zas³u¿on¹ karê.|Oko za oko, z¹b za z¹b.
-1268:Cel zosta³ osi¹gniêty. Zamkn¹³ siê|pierœcieñ oblê¿enia wokó³ ostatniego|bastionu samozwañczego Króla. Œmieræ|czeka tych, którzy wci¹¿ jeszcze stoj¹ po|stronie zdrajcy. Zniszcz wszystkich|wrogów i zrównaj z ziemi¹ wszelkie œlady|panowania tyrana. Dopiero wtedy w|Królestwie znowu zapanuje pokój. Niech|ka¿dy rebeliant zginie jak nikczemny|opryszek. Zas³u¿yli na tak¹ œmieræ.
-1299:JOYMANIA ENTERTAINMENT||PROGRAMOWANIE:|Peter Ohlmann||GRAFIKA:|Adam Sprys||MISJE:|Adam Sprys|André Quaß||DWIÊKI:|Tonstudio Mannheim||MUZYKA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRACJE:|Boles³aw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Schäfer||INSTRUKCJA:|Peter Ohlmann|Uwe Schäfer||BETA-TESTERZY:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||NADZÓR PRODUKCJI:|Achim Heidelauf||WYDAWCA:|TopWare Poland||FILMY:||NADZÓR PRODUKCJI:|S³awomir Jêdrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafa³ Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczyñski|Grzegorz Wiœniewski||G£OSÓW U¯YCZYLI:|Zbigniew Abrachamowicz|W³adys³aw Aniszewski|Jerzy Batycki|Kazimierz Czapla|Bartosz Dziedzic|Ireneusz Ogrodziñski|Grzegorz Sikora|Janusz Siwy|Tomasz Sylwestrzak|Piotr Tomaszewski|Robert Wdaniec||PROJEKT INSTRUKCJI:|Uwe Schäfer|Alexandra Constandache||TREŒÆ INSTRUKCJI:|Peter Ohlmann|Uwe Schäfer||ILUSTRACJE:|Boles³aw Kasza|Adam Sprys||INTRO:|Uwe Schäfer|Christian Bigalk|Dodatkowe Modelowanie 3D:|Niels Horstmann||SPECJALNE|PODZIÊKOWANIA DLA:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-1349:              Misja 1||Renegaci próbuj¹ ujarzmiæ garstkê farmerów, którzy pozostali wierni królestwu. Przed pa³acem króla zabijani s¹ niewinni ch³opi. Do tego nie mo¿emy absolutnie dopuœciæ!|Trzeba siê pozbyæ napastników.
-1350:              Misja 2||Po tym jak zwyciêsko wsparliœmy naszych ch³opów, musimy uwolniæ pozosta³ych. Wielka armia wroga kroczy w naszym kierunku z pó³nocy. | Do boju!
-1351:              Misja 3||Po zwyciêskiej bitwie mamy jeszcze trochê czasu na odbudowanie spustoszonych miast i wiosek, aby zapewniæ naszym poddanym œrodki do ¿ycia. Potem musimy zwróciæ siê w stronê okupowanych osad na pó³nocy, aby je uwolniæ od tyranii szlacheckich renegatów.
-1352:              Misja 4||Nasi szpiegowie odkryli przemieszczanie siê wrogich oddzia³ów w okolicznych osadach. Z powodu du¿ej liczby ¿o³nierzy wroga nale¿y liczyæ siê z tym, ¿e maj¹ gdzieœ obwarowany obóz. Trzeba go znaleŸæ i zniszczyæ wy³¹cznie budynki militarne.
-1353:              Misja 5||Po przyt³aczaj¹cych sukcesach w walce przeciwko rebeliantom trzeba siê liczyæ z masowym odwetem. Trzeba przygotowaæ ludzi do ciê¿kiej walki i zapobiec zniszczeniu wiosek przez wroga.
-1354:              Misja 6||Wiemy ¿e nasi wrogowie buduj¹ nowe bazy. Do tego nie wolno dopuœciæ, trzeba interweniowaæ tak szybko jak to mo¿liwe, póki wróg nie zdo³a odpocz¹æ. Nale¿y te¿ szukaæ w pobli¿u surowców, poniewa¿ zapasy ¿elaza niemal¿e siê skoñczy³y.
-1355:              Misja 7||Zanim siê znowu zwrócimy w stronê renegatów, musimy odzyskaæ po³o¿one na po³udniu osady. Zwyciêstwo w ostatniej bitwie da³o nam niewielki zapas ¿elaza, którego pilnie potrzebujemy. Poniewa¿ w tej okolicy z³o¿a ¿elaza s¹ ubogie, musimy siê z nim obchodziæ bardzo oszczêdnie.
-1356:              Misja 8||Z powodu naszego ostatniego ataku musieliœmy wiêkszoœæ ludzi wycofaæ z naszej bazy. Poprzez to stworzyliœmy wrogowi szansê ataku. Trzeba wróciæ tak szybko jak to mo¿liwe, zanim wróg sforsuje nasz¹ obronê.
-1357:              Misja 9||Z powodu zasadzki nie zd¹¿yliœmy na czas do zamku i musimy wymyœliæ jak¹œ dobr¹ strategiê do odzyskania tego, co do nas nale¿y. G³ówna brama jest bardzo umocniona, wiêc bezpoœredni atak frontowy zakoñczy³by siê na pewno niepowodzeniem. Spróbuj zaatakowaæ inne wejœcie i unikaj w³asnych strat, poniewa¿ nie mamy ¿adnych mo¿liwoœci wydobycia dalszych z³ó¿ ¿elaza.
-1358:              Misja 10||Poprzez odzyskanie zamku zdobyliœmy kilku wiêŸniów, którzy zwrócili nasz¹ uwagê na podziemny tunel, który prowadzi przez góry pó³nocne. Wejœcie do tunelu strze¿one jest przez kilku ¿o³nierzy wroga. Pokonaj ich i wejdŸ do tunelu.
-1359:              Misja 11||Jaskinia jest wiêksza ni¿ siê spodziewano. Nasi zwiadowcy odkryli w krêtych przejœciach stra¿ników wroga, którzy maj¹ strzec podziemnego kompleksu przed intruzami. Dotrzyj do wyjœcia po drugiej stronie gór.
-1360:              Misja 12||Oddzia³y wroga zosta³y poinformowane o naszym ataku. Na pó³noc œci¹gnê³y silne jednostki, które nas wkrótce zaatakuj¹. Zbuduj wie¿e aby os³abiæ zbli¿aj¹ce siê jednostki. Po zwyciêskiej obronie mo¿esz przejœæ przez prze³êcz w kierunku pó³nocnym.
-1361:              Misja 13||Zasadzka! Nasi wrogowie czyhali na nas. Teraz znajdujemy siê w bardzo niekorzystnej strategicznie sytuacji. Zabij tych podstêpnych bandytów.
-1362:              Misja 14||Zdobyliœmy ostatni bastion naszych wrogów. Nasi przeciwnicy zebrali resztkê swojej armii i zabarykadowali siê w swojej ostatniej kryjówce na pó³nocny wschód st¹d. Z powodu przenikliwego mrozu rzeka czêœciowo zamarz³a i przez to umo¿liwi³a zaskoczenie wroga. Pokonaj pozosta³e oddzia³y wroga, aby w kraju znowu zapanowa³ pokój.
-2000:Misja anulowana
-2001:Samouczek zarz¹dzania miastem
-2002:Samouczek dowodzenia podczas bitwy
-2003:Jeden Gracz
-2004:Edytor Map
-2005:Zobacz ostatni¹ powtórke
-2006:Rozpocznij Misje
-2007:Tytu³
-2008:Rozmiar
-2009:Typ Misji: %s
-2010:Warunki wygranej: %s
-2011:Warunki przegranej: %s
-2012:Sojusznicy:
-2013:Wrogowie:
-2015:Rozmiar nowej mapy
-2016:Szerokoœæ
-2017:Wysokoœæ
-2018:Stwórz Now¹ Mapê
-2019:Dostêpne mapy
-2020:Za³aduj Istniej¹c¹ Mapê
-2021:Kontrola:
-2022:Rozgrywka:
-2023:DŸwiêk
-2024:Wy³¹cz muzykê
-2025:Grafika:
-2026:Jasnoœæ:
-2027:Pe³ny Ekran:
-2028:Zastosuj
-2029:Jêzyk:
-2030:£adowanie... Proszê czekaæ
-2031:Wyst¹pi³ B³¹d!
-2032:£adowanie nowej lokalizacji
-2033:Lista zapisanych gier
-2034:Nazwa pliku
-2035:Opis
-2036:Za³aduj
-2037:Usuñ
-2038:Jesteœ pewny ¿e chcesz usun¹æ ten zapis?
-2039:Usuñ
-2040:Anuluj
-2042:Wygra³eœ!
-2043:Kontynuuj grê
-2044:Zwyciêstwo!
-2045:Przegra³eœ!
-2046:Kontynuuj ogl¹danie
-2047:Pora¿ka
-2048:Powtórka siê zakoñczy³a
-2049:Kontynuuj ogl¹danie
-2050:WyjdŸ do menu
-2051:Niedostêpne
-2052:Naciœnij %s aby wznowiæ grê
-2053:Do dru¿yny
-2054:Informacje gracza
-2055:Czat
-2056:Zapis ju¿ istnieje
-2057:Zast¹p
-2058:Zapisz
-2059:Za³aduj
-2060:Wyst¹pi³ b³¹d w trakcie gry.
-2061:Proszê wyœlij plik %s z twojego folderu KaM Remake\\Crash Reports do programistów. Dane kontaktowe mo¿esz znaleŸæ w pliku Readme. Bardzo dziêkujemy za twoj¹ ¿yczliw¹ pomoc!
-2062:Wykryto star¹ wersjê OpenGL, gra mo¿e dzia³aæ wolno i/lub z b³êdami grafiki.
-2063:B³¹d sieci:
-2064:B³¹d: Nie wpisa³eœ imienia
-2065:Po³¹czenie nie powiod³o siê: %s
-2066:Zosta³eœ roz³¹czony
-2067:Misja %d
-2068:Twoja Chata rybaka jest zbyt daleko od wody.
-2069:Twój rybak nie mo¿e z³owiæ wiêcej ryb w pobliskich zbiornikach wodnych.
-2071:U¿yj lewego przycisku myszy, aby wybraæ towar do handlu
-2072:U¿yj prawego przycisku myszy, aby wybraæ towar do handlu
-2073:Z x%d
-2074:Na x%d
-2075:Edycja terenu
-2076:Planowanie osady
-2077:Skrypty wizualne
-2078:Skryptowanie globalne
-2079:Menu
-2080:Status:
-2081:Imiê gracza
-2082:STWÓRZ SERWER
-2083:Nazwa
-2084:Port
-2085:Stwórz serwer lokalny
-2086:Stwórz serwer internetowy
-2087:Nazwa Serwera
-2088:Stan
-2089:Gracze
-2090:Ping
-2091:Odœwie¿ Listê Serwerów
-2092:SZCZEGÓ£Y SERWERA
-2093:Lista graczy:
-2094:Adres
-2095:Port
-2096:Pokój
-2097:Do³¹cz
-2098:£¹czenie, proszê czekaæ...
-2099:£adowanie og³oszeñ...
-2100:Odœwie¿anie...
-2101:Lista graczy
-2102:Lokalizacja pocz¹tkowa
-2103:Dru¿yna
-2104:Kolor flagi
-2105:Gotowy
-2106:Ping
-2107:Wyrzuæ
-2108:Wolne
-2109:Komputer
-2110:Wybierz...
-2111:Przypadkowe
-2112:¯adna
-2113:¯adna
-2114:Dru¿yna %d
-2116:Umieœæ wiadomoœæ:
-2117:Typ mapy
-2118:Pojedyncza mapa
-2119:Zapisane Gry
-2120:Wybierz mapê...
-2121:Wybierz zapis...
-2122:Informacje o mapie:
-2123:Gracze: %d
-2124:Tryb:
-2125:Warunki:
-2126:Rozmiar:
-2127:WyjdŸ
-2128:Gotowy
-2129:Start!
-2130:Oczekiwanie na graczy:
-2131:Autorzy KaM Remake
-2132:Autorzy Oryginalnego Knights & Merchants
-2133:PROGRAMOWANIE:
-2134:DODATKOWE PROGRAMOWANIE:
-2135:DODATKOWE GRAFIKI;
-2136:DODATKOWE T£UMACZENIE:
-2137:SPECJALNE PODZIÊKOWANIA DLA:
-2138:Mapy dla wielu graczy
-2139:Mapy dla jednego gracza
-2140:Prêdkoœæ przewijania
-2141:Nie znaleziono serwerów
-2142:Wymieszaj utwory
-2143:Informacje o grze:
-2144:-
-2145:Lobby
-2146:£adowanie
-2147:Gra
-2148:Lokacja %d
-2149:Budowa i Walka
-2150:Walka
-2151:Nie gotowy
-2152:Gotowy
-2153:B³¹d: Wybierz gracza z zapisu do kontrolowania
-2154:B³¹d: Nie uda³o siê za³adowaæ mapy lub nie wybrano mapy
-2155:Nie mo¿na rozpocz¹æ: %s
-2156:Nie wszyscy s¹ gotowi do rozpoczêcia
-2157:Liczba graczy przekracza limit mapy
-2158:Z³a wersja protoko³u: %s. Serwer u¿ywa: %s
-2159:Serwer przypisa³ prawa hosta do nas
-2160:Zwiêksz iloœæ towarów
-2161:Zmniejsz iloœæ towarów
-2162:Zapisywanie gry...
-2163:%s zosta³ pokonany!
-2164:DODATKOWE DWIÊKI:
-2165:Wyrzuæ graczy
-2166:Host bêdzie móg³ wyrzuciæ tych graczy za %d sekund
-2167:Host mo¿e ju¿ wyrzuciæ tych graczy
-2168:Host (%s) wyszed³
-2169:Po³¹czenie z serwerem zosta³o utracone. Próba ponownego po³¹czenia ...
-2170:Czy na pewno chcesz wyjœæ?
-2171:Czy na pewno chcesz bezpowrotnie wyrzuciæ tych graczy?
-2172:Anuluj
-2173:Poddani|wyszkoleni
-2174:Poddani|straceni
-2175:¯o³nierze|wyszkoleni
-2176:¯o³nierze|straceni
-2177:Jednostki|pokonane
-2178:Budynki|wybudowane
-2179:Budynki|utracone
-2180:Budynki|zniszczone
-2181:Towary|wyprodukowane
-2182:Broñ|wyprodukowana
-2183:Handlowanie tym zasobem jest nie mo¿liwe w tej misji
-2184:SadŸ i œcinaj
-2185:Tylko œcinaj
-2186:Gra rozpoczêta
-2187:Mapa Ekonomiczna
-2188:Mapa Taktyczna
-2189:Mapa Kooperacyjna
-2190:Nie masz prawa tego robiæ w okresie pokoju
-2191:Pozosta³y okres pokojowy: %s
-2192:Okres pokojowy min¹³. Do broni!
-2193:Czas gry:|%s
-2194:Opcje gry:
-2195:H
-2196:L
-2197:S
-2198:Zatrzymaj oddzia³ i formuj szyk ('%s')
-2199:Po³¹cz oddzia³y ('%s')
-2200:Rozdziel oddzia³ ('%s')
-2201:Podgl¹d Powtórek
-2202:Zobacz powtórkê
-2203:Okres pokojowy (minuty)
-2204:Niewspierany format %s
-2205:Niewspierana wersja %s
-2207:inicjowanie
-2208:inicjowanie wielu graczy
-2209:skrypt
-2210:Nowa Misja
-2211:Wyst¹pi³ b³¹d podczas przetwarzania pliku %s
-2212:Zamkniête
-2213:Host konfiguruje gracza
-2214:dodatkowe grafiki
-2215:jednostki
-2216:domy
-2217:drzewa
-2218:definicje
-2219:grafiki terenu
-2220:Soft shadows
+147:Wybór budynków
+148:Podzia³ towarów
+149:Statystyka
+150:Opcje
+151:Powrót
+152:Wybór|budynków
+153:Podzia³|towarów
+154:Statystyka
+155:Opcje
+156:Za³aduj grê
+157:Zapisz grê
+158:Czy jesteœ pewien,|¿e chcesz|zakoñczyæ grê?
+159:Zakoñcz grê
+160:Powrót
+161:Ustawienia
+162:Zakoñcz grê
+163:Odg³osy
+164:Zmiana g³oœnoœci
+165:Muzyka
+166:W³¹czyæ/wy³¹czyæ muzykê
+167:Autozapis
+168:Odtwarzacz muzyki
+169:Poprzedni utwór
+170:Nastêpny utwór
+171:Burzenie
+172:Burzenie budynków i znaczników
+173:Buduj ulice
+174:Budowanie ulic
+175:Oraj pole
+176:Zak³adanie pola
+177:Za³ó¿ winnicê
+178:Winnica
+179:Anuluj
+180:Anuluj aktualne przyuczanie
+181:W zapasie:
+182:Stan:
+183:Dostarcza
+184:Budynek w budowie
+185:Zniszcz
+186:Czy jesteœ pewien,|¿e chcesz|zburzyæ budynek?
+187:Niszczy wybrany budynek
+188:Zmniejsz zamówienie
+189:Zwiêksz zamówienie
+190:Poprzedni typ jednostki
+191:Nastêpny typ jednostki
+192:Uzbrój aktualny typ jednostki
+193:Nastêpny zawód
+194:Poprzedni zawód
+195:Dodaj do kolejki
+196:Dostawa towarów w³¹cz/wy³¹cz
+197:Naprawa budynku w³¹cz/wy³¹cz
+198:Budynek obecnie niedostêpny
+199:Wytrzyma³oœæ
+200:Obróæ oddzia³ w lewo
+201:Obróæ oddzia³ w prawo
+202:Atakuj ('a')
+203:Wyœlij oddzia³ ('d')
+204:Zaopatrz oddzia³ w ¿ywnoœæ
+205:Rozpoczêcie szturmu
+206:Dodaj szereg
+207:Usuñ szereg
+208:Wybierz|grupê docelow¹
+209:Anuluj
+210:Usuñ
+211:Usuwa aktualn¹ wiadomoœæ
+212:IdŸ do
+213:Skacze do pozycji aktualnej wiadomoœci
+214:Zamknij
+215:Zamknij okno
+216:|Twój Kamieniarz nie znalaz³ dalszych pok³adów kamienia.
+217:|Zasoby Twojej Kopalni Wêgla s¹ wyczerpane.
+218:|Zasoby Twojej Kopalni ¯elaza s¹ wyczerpane.
+219:|Zasoby Twojej Kopalni Z³ota s¹ wyczerpane.
+220:|Ten budynek nie ma gospodarza.
+221:|Ten oddzia³ jest bardzo g³odny!|Musisz jak najszybciej dostarczyæ im ¿ywnoœæ!
+222:PAUZA
+418:Spirit
+419:Busy
+420:Middle Ages Horn
+421:Spring
+422:Lute
+423:Mercenary
+424:The Princess
+425:The Queen
+426:In the Marketplace
+427:On the Battlefield
+428:Court Dance
+429:The Army
+430:In the Castle
+431:Fanfares
+432:At Court
+433:Entree
+434:Deep Blue
+435:Struggle
+847:Kampania 'The Shattered Kingdom'
+848:Kampania 'The Peasants Rebellion'
+849:Rozegraj jedn¹ misjê
+850:Zacznij misjê
+851:G³ówne menu
+852:Za³aduj grê
+853:Gra w sieci
+854:Opcje
+855:Autorzy
+856:Zakoñcz grê
+857:Dalej
+858:Powtórz misjê
+859:Rozdzielczoœæ:
+860:MISJA WYPE£NIONA!
+861:MISJA NIEWYPE£NIONA!
+862:Utracone jednostki:
+863:Pokonane jednostki:
+864:Utracone budynki:
+865:Zburzone budynki:
+866:Zbudowane budynki:
+867:Wyszkolone jednostki:
+868:Wyprodukowana broñ:
+869:Wyposa¿eni wojownicy:
+870:Czas trwania gry:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMOWANIE:|Peter Ohlmann||GRAFIKA:|Adam Sprys||MISJE:|Adam Sprys|André Quaß||DWIÊKI:|Tonstudio Mannheim||MUZYKA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRACJE:|Boles³aw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Schäfer||INSTRUKCJA:|Peter Ohlmann|Uwe Schäfer||BETA-TESTERZY:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||NADZÓR PRODUKCJI:|Achim Heidelauf||WYDAWCA:|TopWare Poland||FILMY:||NADZÓR PRODUKCJI:|S³awomir Jêdrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafa³ Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczyñski|Grzegorz Wiœniewski||G£OSÓW U¯YCZYLI:|Zbigniew Abrachamowicz|W³adys³aw Aniszewski|Jerzy Batycki|Kazimierz Czapla|Bartosz Dziedzic|Ireneusz Ogrodziñski|Grzegorz Sikora|Janusz Siwy|Tomasz Sylwestrzak|Piotr Tomaszewski|Robert Wdaniec||PROJEKT INSTRUKCJI:|Uwe Schäfer|Alexandra Constandache||TREŒÆ INSTRUKCJI:|Peter Ohlmann|Uwe Schäfer||ILUSTRACJE:|Boles³aw Kasza|Adam Sprys||INTRO:|Uwe Schäfer|Christian Bigalk|Dodatkowe Modelowanie 3D:|Niels Horstmann||SPECJALNE|PODZIÊKOWANIA DLA:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+1686:Misja anulowana
+1687:Samouczek zarz¹dzania miastem
+1688:Samouczek dowodzenia podczas bitwy
+1689:Jeden Gracz
+1690:Edytor Map
+1691:Zobacz ostatni¹ powtórke
+1692:Rozpocznij Misje
+1693:Tytu³
+1694:Rozmiar
+1695:Typ Misji: %s
+1696:Warunki wygranej: %s
+1697:Warunki przegranej: %s
+1698:Sojusznicy:
+1699:Wrogowie:
+1701:Rozmiar nowej mapy
+1702:Szerokoœæ
+1703:Wysokoœæ
+1704:Stwórz Now¹ Mapê
+1705:Dostêpne mapy
+1706:Za³aduj Istniej¹c¹ Mapê
+1707:Kontrola:
+1708:Rozgrywka:
+1709:DŸwiêk
+1710:Wy³¹cz muzykê
+1711:Grafika:
+1712:Jasnoœæ:
+1713:Pe³ny Ekran:
+1714:Zastosuj
+1715:Jêzyk:
+1716:£adowanie... Proszê czekaæ
+1717:Wyst¹pi³ B³¹d!
+1718:£adowanie nowej lokalizacji
+1719:Lista zapisanych gier
+1720:Nazwa pliku
+1721:Opis
+1722:Za³aduj
+1723:Usuñ
+1724:Jesteœ pewny ¿e chcesz usun¹æ ten zapis?
+1725:Usuñ
+1726:Anuluj
+1728:Wygra³eœ!
+1729:Kontynuuj grê
+1730:Zwyciêstwo!
+1731:Przegra³eœ!
+1732:Kontynuuj ogl¹danie
+1733:Pora¿ka
+1734:Powtórka siê zakoñczy³a
+1735:Kontynuuj ogl¹danie
+1736:WyjdŸ do menu
+1737:Niedostêpne
+1738:Naciœnij %s aby wznowiæ grê
+1739:Do dru¿yny
+1740:Informacje gracza
+1741:Czat
+1742:Zapis ju¿ istnieje
+1743:Zast¹p
+1744:Zapisz
+1745:Za³aduj
+1746:Wyst¹pi³ b³¹d w trakcie gry.
+1747:Proszê wyœlij plik %s z twojego folderu KaM Remake\\Crash Reports do programistów. Dane kontaktowe mo¿esz znaleŸæ w pliku Readme. Bardzo dziêkujemy za twoj¹ ¿yczliw¹ pomoc!
+1748:Wykryto star¹ wersjê OpenGL, gra mo¿e dzia³aæ wolno i/lub z b³êdami grafiki.
+1749:B³¹d sieci:
+1750:B³¹d: Nie wpisa³eœ imienia
+1751:Po³¹czenie nie powiod³o siê: %s
+1752:Zosta³eœ roz³¹czony
+1753:Misja %d
+1754:Twoja Chata rybaka jest zbyt daleko od wody.
+1755:Twój rybak nie mo¿e z³owiæ wiêcej ryb w pobliskich zbiornikach wodnych.
+1757:U¿yj lewego przycisku myszy, aby wybraæ towar do handlu
+1758:U¿yj prawego przycisku myszy, aby wybraæ towar do handlu
+1759:Z x%d
+1760:Na x%d
+1761:Edycja terenu
+1762:Planowanie osady
+1763:Skrypty wizualne
+1764:Skryptowanie globalne
+1765:Menu
+1766:Status:
+1767:Imiê gracza
+1768:STWÓRZ SERWER
+1769:Nazwa
+1770:Port
+1771:Stwórz serwer lokalny
+1772:Stwórz serwer internetowy
+1773:Nazwa Serwera
+1774:Stan
+1775:Gracze
+1776:Ping
+1777:Odœwie¿ Listê Serwerów
+1778:SZCZEGÓ£Y SERWERA
+1779:Lista graczy:
+1780:Adres
+1781:Port
+1782:Pokój
+1783:Do³¹cz
+1784:£¹czenie, proszê czekaæ...
+1785:£adowanie og³oszeñ...
+1786:Odœwie¿anie...
+1787:Lista graczy
+1788:Lokalizacja pocz¹tkowa
+1789:Dru¿yna
+1790:Kolor flagi
+1791:Gotowy
+1792:Ping
+1793:Wyrzuæ
+1794:Wolne
+1795:Komputer
+1796:Wybierz...
+1797:Przypadkowe
+1798:¯adna
+1799:¯adna
+1800:Dru¿yna %d
+1802:Umieœæ wiadomoœæ:
+1803:Typ mapy
+1804:Pojedyncza mapa
+1805:Zapisane Gry
+1806:Wybierz mapê...
+1807:Wybierz zapis...
+1808:Informacje o mapie:
+1809:Gracze: %d
+1810:Tryb:
+1811:Warunki:
+1812:Rozmiar:
+1813:WyjdŸ
+1814:Gotowy
+1815:Start!
+1816:Oczekiwanie na graczy:
+1817:Autorzy KaM Remake
+1818:Autorzy Oryginalnego Knights & Merchants
+1819:PROGRAMOWANIE:
+1820:DODATKOWE PROGRAMOWANIE:
+1821:DODATKOWE GRAFIKI;
+1822:DODATKOWE T£UMACZENIE:
+1823:SPECJALNE PODZIÊKOWANIA DLA:
+1824:Mapy dla wielu graczy
+1825:Mapy dla jednego gracza
+1826:Prêdkoœæ przewijania
+1827:Nie znaleziono serwerów
+1828:Wymieszaj utwory
+1829:Informacje o grze:
+1830:-
+1831:Lobby
+1832:£adowanie
+1833:Gra
+1834:Lokacja %d
+1835:Budowa i Walka
+1836:Walka
+1837:Nie gotowy
+1838:Gotowy
+1839:B³¹d: Wybierz gracza z zapisu do kontrolowania
+1840:B³¹d: Nie uda³o siê za³adowaæ mapy lub nie wybrano mapy
+1841:Nie mo¿na rozpocz¹æ: %s
+1842:Nie wszyscy s¹ gotowi do rozpoczêcia
+1843:Liczba graczy przekracza limit mapy
+1844:Z³a wersja protoko³u: %s. Serwer u¿ywa: %s
+1845:Serwer przypisa³ prawa hosta do nas
+1846:Zwiêksz iloœæ towarów
+1847:Zmniejsz iloœæ towarów
+1848:Zapisywanie gry...
+1849:%s zosta³ pokonany!
+1850:DODATKOWE DWIÊKI:
+1851:Wyrzuæ graczy
+1852:Host bêdzie móg³ wyrzuciæ tych graczy za %d sekund
+1853:Host mo¿e ju¿ wyrzuciæ tych graczy
+1854:Host (%s) wyszed³
+1855:Po³¹czenie z serwerem zosta³o utracone. Próba ponownego po³¹czenia ...
+1856:Czy na pewno chcesz wyjœæ?
+1857:Czy na pewno chcesz bezpowrotnie wyrzuciæ tych graczy?
+1858:Anuluj
+1859:Poddani|wyszkoleni
+1860:Poddani|straceni
+1861:¯o³nierze|wyszkoleni
+1862:¯o³nierze|straceni
+1863:Jednostki|pokonane
+1864:Budynki|wybudowane
+1865:Budynki|utracone
+1866:Budynki|zniszczone
+1867:Towary|wyprodukowane
+1868:Broñ|wyprodukowana
+1869:Handlowanie tym zasobem jest nie mo¿liwe w tej misji
+1870:SadŸ i œcinaj
+1871:Tylko œcinaj
+1872:Gra rozpoczêta
+1873:Mapa Ekonomiczna
+1874:Mapa Taktyczna
+1875:Mapa Kooperacyjna
+1876:Nie masz prawa tego robiæ w okresie pokoju
+1877:Pozosta³y okres pokojowy: %s
+1878:Okres pokojowy min¹³. Do broni!
+1879:Czas gry:|%s
+1880:Opcje gry:
+1881:H
+1882:L
+1883:S
+1884:Zatrzymaj oddzia³ i formuj szyk ('%s')
+1885:Po³¹cz oddzia³y ('%s')
+1886:Rozdziel oddzia³ ('%s')
+1887:Podgl¹d Powtórek
+1888:Zobacz powtórkê
+1889:Okres pokojowy (minuty)
+1890:Niewspierany format %s
+1891:Niewspierana wersja %s
+1893:inicjowanie
+1894:inicjowanie wielu graczy
+1895:skrypt
+1896:Nowa Misja
+1897:Wyst¹pi³ b³¹d podczas przetwarzania pliku %s
+1898:Zamkniête
+1899:Host konfiguruje gracza
+1900:dodatkowe grafiki
+1901:jednostki
+1902:domy
+1903:drzewa
+1904:definicje
+1905:grafiki terenu
+1906:Soft shadows

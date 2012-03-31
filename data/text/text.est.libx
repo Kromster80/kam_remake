@@ -103,651 +103,338 @@ MaxID:3004
 110:Sepp sepistab |raudrelvasid ja| raudrüüsid relva |ja raudturvise |sepikodades.
 111:Kullassepp kasutab |sütt kulla ja raua maagi |töötlemiseks.
 112:Nekrutit saab |varustada kasarmus.||Lisaks töötab ta |vahitornis.
-113:Rahvaväelane
-114:Kirve sõdalane
-115:Mõõga võitleja
-116:Vibukütt
-117:Ambur
-118:Piigi kandja
-119:Oda kandja
-120:Ratsavägi
-121:Rüütel
-122:Hunt
-123:Kala
-124:Kala
-159:Majade valikusse
-160:Kaupade jaguneminemisse
-161:Statistikasse
-162:Sõnumitesse
-163:Sättetesse
-164:Tagasi minek
-165:Maja|Valik
-166:Kaupade|jagunemine
-167:Statistika
-168:Sõnumid
-169:Sätted
-170:Väljakutsumise seaded
-171:Lae Mäng
-172:Salvesta Mäng
-173:Lae Mäng
-174:Salvesta Mäng
-175:Oled kindel,|et tahad lahkuda |sellest missioonist?
-176:Lõpeta Missioon
-177:Mine tagasi
-178:Sätted
-179:Lõpeta missioon
-180:Heledus
-181:+
-182:-
-183:Increase brightness|Lisa heledust
-184:Kahanda heledust
-185:Väga pime
-186:Pime
-187:Normaalne
-188:Hele
-189:Väga hele
-190:Kõige heledam
-191:Hiire kiirus
-192:Muuda hiire kiirust
-193:Ümbruskonna heli
-194:Muuda helitugevust
-195:Muusika
-196:Muusika:
-197:Muusika lahti/kinni
-198:Kinni
-199:MIDI'na
-200:Lahti
-201:Tühi
-202:Automaatsalvestis
-203:Kiire rullik
-204:Missioon %d Aeg:%2.2u:%2.2u
-205:Tsenaarium %d Aeg:%2.2u:%2.2u
-206:Muusika Mängija
-207:Eelmine lugu
-208:Uus lugu
-209:Lammuta
-210:Eemalda ehitised/väljatoodud
-211:Ehita tee
-212:Ehita teed
-213:Künna põldu
-214:Künna põldusid
-215:Ehita aed
-216:Lauda aed
-217:Määra viinamarjapõld
-218:Määra viinamarjapõllud
-219:Tekita müür
-220:Müüri ehitamine
-221:Treeni
-222:Treeni valitud ameti grupp
-223:Tühista
-224:Tühista hetkeline treening
-225:|treenimisel
-226:Vaja minev:
-227:Olek:
-228:Kohale toimetab:
-229:Maja|ehitamisel
-230:Hävita
-231:Kas oled kindel et soovid |lammutada seda maja?
-232:Hävita valitud maja
-233:Vähenda tellimuse arv
-234:Suurenda tellimuse arv
-235:Kauba nimekiri:
-236:Eelmine sõduri tüüp
-237:Järgmine sõduri tüüp
-238:Varusta
-239:Varusta hetke sõduri tüüp
-240:Järgmine amet
-241:Eelmine amet
-242:Lisa järjekorda
-243:Järgmine palgasõdur
-244:Eelmine palgasõdur
-245:Palka palgasõdur
-246:Hetke nekrutid:
-247:Hind:
-248:Luba/keela kauba vedu
-249:Luba/keela maja parandus
-250:Maja ei ole saadaval hetkel
-251:Demos mitte saadaval
-252:Asustamata
-253:Olek
-254:Keera sõdur vasakule
-255:Keera sõdur paremale
-256:Ründa ('a')
-257:Peata ('p')
-258:Saada sõdur ('d')
-259:Ühenda sõdurid ('l')
-260:Jaga sõdurid ('j')
-261:Varusta toiduga
-262:Välkrünnak
-263:Lisa rida
-264:Vähenda rida
-265:Ründav:
-266:Kaitsev:
-267:Tempo:
-268:Valige|loss
-269:Lahku
-270:Valige|sihtkoht
-271:Valige|grupp
-272:Valige rünnaku|sihtmärk
-273:Tühista
-274:Üksus ei ole hetkel saadaval
-275:Kustuta
-276:Kustuta hetke sõnumi
-277:Saada
-278:Saada hetke sõnumi
-279:Mine
-280:Liigub hetkese sõnumi kohani
-281:Sulge
-282:Sulgeb akna
-283:Vasta
-284:Vastas sõnumile
-285:Nõustun
-286:Uus liit on loodud.
-287:on sõbralik
-288:on vaenlane
-289:|Sinu kiviraidur ei pääse kivini.
-290:|Sinu söekaevanduses on süsi lõppenud.
-291:|Sinu rauakaevanduses on raud lõppenud.
-292:|Sinu kullakaevanduses on kuld lõppenud.
-293:|Sinu kalamees ei ole võimeline rohkem kala püüdma.
-294:|See maja on asustamatta.
-295:|Sinu sõdurid on väga näljased, anna neile midagi süüa!
-296:Raua jaotamiseni
-297:Raua|jaotamine
-298:Söe jaotamiseni
-299:Söe|jaotamine
-300:Puidu Jaotamiseni
-301:Puidu|jaotamine
-302:Rukkise jaotamiseni
-303:Rukkise|jaotamine
-304:|Palun kirjutage sõnum:
-305:Sõnum mängijalt '%s':|'%s'
-306:Liidud:
-307:PAUS
-478:Võrgu teade:
-479:Mängija '%s' lahkus mängust.|Vajuta ~<~T~Ü~H~I~K~U~T~> edasi mängimiseks.
-480:Sa oled uus mängu juht.|Vajuta ~<~T~Ü~H~I~K~U~T~> edasi mängimiseks.
-481:Arvutile saadetakse andmeid. Vajuta ~<~T~Ü~H~I~K~U~T~>|kordamiseks või ~<~F~1~> lahkumiseks.
-499:Sul on vaja ehitada koolimaja, et treenida uusi elanikke.|Peab olema piisvalt kulda, et saaksid treenida uusi elanikke kuningriigi jaoks.
-500:Ehitamiseks kliki haamri ikoonile ekraani vasakus servas. Siis on vaja klikida raamatu (koolimaja) ikoonile. Paiguta koolimaja vabale osale maale ja kliki uuesti, et panna see ehitama.
-501:Pärast seda kui koolimaja on paigutatud, tekib teile 'paiguta teed' kursor. Nüüd peab paigutama teed, ruut-ruut haaval, et ühendada majad. Ära unusta, et tee peab ühendama maja peaukse.
-502:Elanike treenimiseks peab klikima koolimaja peale ja liikuma seal nuppudega 'järgmine amet', et valida vajalik elanik treenimiseks. Treenimiseks vajuta 'lisa järjekorda' nuppu. Kui treenitud, siis nad hakkavad automaatselt tegutsema.
-503:Aeg-ajalt peavad elanikud sööma, selle jaoks pead ehitama kõrtsi. Ehita see võimalikult küla keskele, kuna elanikud peavad sellele võimalikult lihtsalt ligi pääsema.
-504:Sul on vaja kivi edasiseks majade ja teede ehitamiseks. Selle jaoks ehita kivikaevandus kivi mäe juurde, ning pärast selle ehitamist treeni kiviraidur, kes hakkab kive tootma.
-505:Sa ei vaja ainult kivi majade ahitamiseks, vaid ka laudpuitu. Selleks on vaja puuraidurit kes langetab ja istutab puid ja saekaatrit, mis lõikab nad laudpuiduks. Puuraiduri onn tuleks alati ehitada metsa lähedale.
-506:Nüüd on vaja ehitada saekaater, mis töötleb puuraiduri palke.|Pärast ehitamist on vaja treenida puusepp, kes hakkab tööle saekaatris.
-507:Kui piisavalt palju toodetakse ehitamise materjale, siis tuleb ehitama hakkata toidu tootmist.|Ehita endale kalamehe onn mõne järve/jõe äärde, kus kalamees hakkab varustama kõrtsu värske kalaga.
-508:Väga hea, kus nüüd on sul piisvalt kala, ära unusta. et see saab otsa mõninga aja pärast.|Selleks, et tagada pidev toidlustus küla jaoks, ehita talu ja selle juurde piisavalt suur põld.
-509:Kuskil 16 ruutu põldu on talul vaja ja need tuleb talule võimalikult lähedale ehitada.|Aga nüüd on sul vaja ehitada veski, et töödelda talust saadud rukkist.
-510:Tore, nüüd ehita pagariäri, mis toodab jahust värsket leiba, mis omakorda veetakse kõrtsu. Kontrolli alati et sul o piisavalt pärisorjasid, et kaubad saaksid kiiresti veetud.
-511:Lisaks oma elanike toitmisele kala ja leivaga on sul vaja neile midagi anda janu kustutamiseks.|Ehita viinamarjaistandus koos 16 ruudu viinamarja põlluga, kus saaks talupoeg vinnamarju korjata.
-512:Sul läheb hästi, aga sinu raskesti-töötavad külaelanikud vajavad paremat toitu, kui kuiv leib ja vein, tooda liha ja nahku, ehita sealaut, kus tõuaretaja aretab sigu.
-513:Selleks, et toota midagi lihast on sul vaja lihunikuäri. Ehita lihuniku äri, kus lihunik teeb lihast vorstid.
-514:Nüüd kui sul toidu kaubad kindlalt tootmises, on aeg tegeleda teiste tähtsate asjadega, milleks on relvade tootmine. Ehita kasarmu enda valitud vabale kohale.
-515:Kasarmus saab valida erinevaid sõdureid nuppudega 'järgmine sõdur tüüp' ja 'eelmine sõdur tüüp'. Erinevad sõdurid vajavad erinevaid vahendeid, ning need on välja toodud ruutudega märgitud, mis vahendeid nende varustamiseks vaja on.
-516:Selle jaoks et varustada sõdureid on sul vaja relvi toota. Lase oma ehitajatel ehitada relvade töökoda, soovitavalt kasarmu lähedusse, et relvasi oleks võimalik kiiresti viia kasarmusse.
-517:Relvade tootmiseks pead sa klikima relvade töökoja peale ja valitud relva tootmiseks vajutama nuppu 'Suurenda tellimuse arv', vastavalt vajadusele. Alatai kontrolli et sul oleks piisvaltlaudpuitu relvade tootmiseks.
-518:Ilma vajalikute vahenditeta sõdureid on lihtne tappa lahinguväljal.|Selleks et soomusrüüd toota, ehita parkimiskoda, mis pargib nahad parknahaks.
-519:Nüüd kui sul toodetakse parknahku, pead sa ehitama soomusrüükoja. Seal ehitises puusepp toodab soomusrüüsid ja puukilpe.
-520:Väga hea! Nüüd on sul vajalikud majad linna juhtimiseks ja sõdurite varsutamiseks. Kui sul on vajalikud varustuse osad olemas teatud sõduri tüübi varustamiseks, siis on sul vaja treenida nekrut koolimajas ning kui nekrut saabub kasarmusse, see-järel kliki nuppu 'Varusta hetka sõdur tüüp'.
-521:Sinu ülesandeks on kahe vaenlase alistamine. Sinine vastane kes asub lõunas, omad hästi kaistud laagrit, aga idas asuv vaenlane toetub lihtsalt sõduritele, ehk teda on lihtsam alistada. Valmista oma sõdurid hoolikalt ette, enne kui kuihutad välja vaenlased!
-522:|Sinine vastane on alistatud!
-523:|Roheline mängija on alistatud!
-524:Enne kui sa ründad läänes olevaid vastaseid, tuleb sul maha võtta põhjas asuvad skaudid. Kui teha vasak klik piigi kandjatele ja parem klik vastaste peale, siis hakkavad sinu mehed vastaseid ründama.
-525:Edelas asuvad vibukütid. Ründa neid rahvaväelastega. Tuleb olla ettevaatlik äkkrünnakuga, kuna vastase nooled teevad palju kahju meile lojaalsete sõdurite seas!
-526:Vaenlase väed ootavad sind läänes. Ole ettevaatlik vaenlase vibuküttidega, kuna nad varjuvad vastase jalaväe taga! Saada skaudid põhja, et nad saaksid vaenlast rünnata seljatagant.
-527:Ründa kõigi vägedega sammal ajal. Aseta oma vibukütid jalaväe taha, et nad saaksid aidata vaenlase väge tagasi ajada. Kui sa oled võidukas, siis lahingu õppused on lõppenud.
-529:Meil on kiiresti vaja rahvaväelasi! Kui sa ei ole võieline neid kiiresti värbama, oleme vaenlase vastu kaitsetud!
-530:Meie luurajad on meile teatanud, et vaenlane on valmis ründama. Kaitse end oma mõõgaga!
-531:Sa oled hästi arenenud, aga sul on veel vaja küla laiendada, Ainult siis on võimalik äkkrünnakuga hävitada vastase barikaadid ja hävitada vastase pahatahtlik urgas!
-532:Ma pean veel kordmeelde tuletama, et lauenburgi sõdureid tuleb kaista, ükskõik mis hinnaga!
-533:Kaitse oma sõdureid sulide rüütlite eest!|Nad jälle on võtnud sihiks su liitlased!
-534:Küla põhjas on end vabastanud türanni kütkest. Selle eest peab selle küla linnaks ehitama.
-535:Meie luurajad on avastanud mahajäätud laohoone. See asub sinust läänes väikses metsas. Kindlasti on seal asju mida kasutada saad.
-536:Vaenlase luuraja on tabatud ja ülekuulatud. Tuleb välja et vastane on teadlik meie asukohast ja valmistub ründama.
-537:Varsti ründavad meid barbaarlased. Valmista sõdurid ette vaenlase rünnakuks!
-538:Relvadele!|Suur vaenlase vägi liigub meie suunas!
-539:Organiseeri oma väed, vaenlane on suures ülekaalus! Kui vaenlane ründab äkkrünnakuga, siis nad võidu rõõme tunda ei saa!
-540:Võit on meie, aga kätte veel maksta ei saa. Me peame Werheimi uuesti üles ehitama. Ja alles siis musta-südamega koerad maksavad oma tegude eest!
-541:Ilma rauata, ei ole raudrelvi, ilma raudrelvateta pole sõdalasi! Põhjast leiad sa rauda, mida väga vaja on. Valmista end raua kaevanduste vallutamiseks.
-542:Lõunas siit asub küla, kes siia-maani võitlevad türanni vastu ja nad on kandnud suuri kaotusi. Rutta aitama neid külaelanikke ja sa ei kahetse seda.
-543:Meie lähedal asub mahajäätud laohoone. Kiirusta sinna, kuna kõva võitlus ootab sind seal. Kasuta kõike mis võimalik, et ellu jääda.
-544:Meie luurajad on toonud teateid sellest, et vaenlanlase eesmärk on jõuda mahajäätud laohooneni suure väega.|Me peame kindlalt siia jääma, kuna siit on ainult võimalik eie edasi liikumine.|Võidelge oma kuninga eest!
-545:Järgmine rünnak laohoone suunas on tulemas. Valmistuge lahinguks!
-546:Vaenlane üritab iga hinna eest vältita alistumist, aga iga tegu on mõjunud vastupidiselt. Võitleme kuni nende viimase meheni! Alles siis saame jätkata meie uhket edasi liikumist.
-547:Türann pole veel alistunud meie vapratele rünnakutele. Meie lojaalsed liitlased on jäänud meie kõrvale.Pärast esiest rünnakut peame jääma oma liistude juurde, nagu kokkulepitud.
-549:Vaenlase vägi on suurem kui meie luurajad on avastanud. Varusta rohkem sõdureid kasarmust, et toetada meie armeed.
-550:Vallutaiseks on vaja hävitada kõik kartlikud vaenlase väed. Kui me selle saavutame, liituvad kõik über asuvad külad meiega ja nad ei ohusta enam meid.
-551:Luurajad on teateid toonud sellest, et vaenlane on orjastanud kõik siinsed külad. Ründa vastast ja hävita ainult militaarmajad, ära ründa orjastatud elanikke. See peaks saatma suuresse taganemisesse vastased ja vabastama elanikud!
-552:Sa pead kaitsma meie liitlase vägesid lõunast tulevate vaenlase rünnakute eest!|Ära lase neil langeda, kuna me ajame nende abi rohkem kui kunagi varem!
-553:Meie luurjad on avastanud vaenlase armee marsimas lõunas oleva laohoone suunas! Me peame kaitsma neid väärtuslikke kaupu.
-554:Meie luurajad on avastanud vaenlased lõunast meist! Hoia silm peal, sa ei tea kunagi millal nad rünnata võivad!
-555:Hoiatus! Vaenlase vägesid tuleb läänest juurde! Relvadele meie lojaalsed sõdurid!
-556:Armee toetamiseks on sul vaja palga sõdureid, palka neid juurde linnakojast. Need palgatud sõdurid aitavad meie armeed vaenlase vastu.
-557:Võiks proovida tagumist sissepääsu, see võib valvamata olla. Sellise edasiliikumisega peaksid sa kindlasti võidu saavutama.
-558:Loodest mägedest saabub vaenlase armee, mis suundub meie suunas! Valmista ette oma sõdurid, et nad saaksid selle armee hävitada.
-559:Vaenlane on avastanud meie uue positsiooni ja saadab tugeva pataljoni meie suunas!
-560:Hoiatus! Meie luurajad on avastanud vaenlase vibukütid mägedes.|Ma arvan et avatud väljal liikumine on võrdne meie kaotusega.
-561:Me oleme saabunud viimasesse mässajate laagri juurde.|Hävita vaenlase viimane kui üks mees ja ära jäta midagi alles nende kohalolekust!
-562:Meie luurjad on teavitanud sellest, et vaenlane on avastanud meie asukoha ja kavatseb rünnata.|Haara oma mõõk ja ära halasta mässajatele!
-569:Tühi
-570:Vaim
-571:Hõivatud
-572:Keskaegne pasun
-573:Kevad
-574:Lauto
-575:Palgasõdur
-576:Printsess
-577:Kuninganna
-578:Turul
-579:Lahinguväljal
-580:Õukonna tants
-581:Armee
-582:Lossis
-583:Laadad
-584:Õukonnas
-585:Sisseastumine
-586:Sügav sinine
-587:Rabelema
-999:kasutamata
-1000:Kampaania 'The Shattered Kingdom'
-1001:Kampaania 'The Peasants Rebellion'
-1002:Mängi tutvustust
-1003:Mängi üksikkaarti
-1004:Üksikkaart
-1005:Eelmine
-1006:Järgmine
-1007:Alusta kaarti
-1008:Tagasi menüüsse
-1009:Lae salvestatud mäng
-1010:Võrgumäng
-1011:Sätted
-1012:Lõputiitrid
-1013:Lahku mängust
-1014:Tühi
-1015:Salvestatud mängud:
-1016:Jätka
-1017:Taaskäivita missioon
-1018:Põhi menüüsse
-1019:Resolutsioon:
-1020:Pole saadaval
-1021:Vali mängu tüüp
-1022:Kohalik võrk
-1023:Interneti mängud
-1024:Kasutaja:
-1025:Parool:
-1026:Loo uus kasutaja
-1027:Logi sisse
-1028:Loon ühendust interneti mängudega...
-1029:Autentsuse kindlakstegemine...
-1030:Õnnestumine
-1031:Ebaõnnestus
-1032:Ühendus nurjus
-1033:Vale parool
-1034:Kasutajanimi on võetud
-1035:See kasutaja on blokeeritud
-1036:Vale kasutajanimi
-1037:Defineerimata
-1038:Tegevuses
-1039:Valed parameetrid
-1040:Kanal on täis
-1041:Kanalit ei eksisteeri
-1042:Ligipääs kanalisse puudub
-1043:Vaheaeg
-1044:Teil on liiga palju kasutajaid
-1045:Server ei võta hetkel vastu registreerimist
-1046:Kasutajanimi on vale
-1047:<COL 0>%s:<COL 1> %s|
-1048:<COL 0>%s %s|
-1049:<COL 2>%s sosistas: %s
-1050:<COl 3> Isiklik sõnum %s: %s
-1051:<COL 4>SERVER: %s|
-1052:<COL 4>SERVER: %s|
-1053:<COL 2>Päeva sõnum: %s
-1054:<COL 0>TEADUSTAMINE: %s|
-1055:<COL 3>%s liitus kanaliga
-1056:<COL 3>%s lahkus kanalist
-1057:<COL 3>Te olete liitunud kanaliga >COL 0>%s<COL 3>
-1058:<COL 3>Te olete liitunud mänguga<COL 0>%s<COL 3>
-1059:Tagasi pea menüüsse
-1060:Liitu kanaliga
-1061:Liitu mänguga
-1062:Loo mäng
-1063:Loo redel mäng
-1064:Lahku mängust
-1065:Alusta mänguga
-1066:Sosista
-1067:Eemalda
-1068:Blokeeri
-1069:Info
-1070:Registreeri
-1071:Tagasi nime sisestamiseni
-1072:Palun sisestage oma nimi:
-1073:Jätka
-1074:Tagasi
-1075:Palun valige võrgu tüüp:
-1076:Liitu mänguga
-1077:Loo mäng
-1078:Palun sisestage sessiooni nimi:
-1079:Alustage sessiooni:
-1080:Valige sessioon:
-1081:Liituge mänguga
-1082:Otsige mänge
-1083:Hetke mängijad:
-1084:Sõnumid:
-1085:Saada:
-1086:Start!
-1087:Nimi puudub
-1088:<Tühi koht>
-1089:<Pole saadaval>
-1090:<Arvuti>
-1091:sessioon
-1092:~M~ä~n~g~i~j~a'%s'o~n~e~e~m~a~l~d~a~t~u~d~m~ä~n~g~u~j~u~h~i~p~o~o~l~t
-1093:Stsenaariumid:
-1094:Pealkiri:
-1095:Kirjeldus:
-1096:Kinnisvara:
-1097:Alustamise postitsioon:
-1098:Mängujuht määrab|stsenaariumi
-1099:Laohoone
-1100:Sõjaväelased ja laohoone
-1101:Sõjaväelased ja ehitised
-1102:Järg
-1103:Suvaline
-1104:Kopeeri salvestatud mäng
-1105:Katkesta ülekanne
-1106:Ülekantud: %d/100
-1107:Salvestatud mäng nr. %d
-1108:Mängijaid: %d|Kaardi suurus: %dx%d
-1109:Automaatne salvestamine
-1110:VÕIT!
-1111:KAOTUS!
-1112:Kaotatud üksused:
-1113:Hävitatud üksused:
-1114:Kaotatud ehitised:
-1115:Hävitatud ehitised:
-1116:Ehitatud ehitised:
-1117:Treenitud üksused:
-1118:Relvi toodetud:
-1119:Sõdureid treenitud:
-1120:Missioon lõpetatud:
-1149:Kolm kontinenti
-1150:Metsik loodus
-1151:Võitlus süsi eest
-1152:Jõepiirid
-1153:Mägede maa
-1154:Mägine ala
-1155:Lossi mõrv
-1156:Ranniku kokkupõrge
-1157:Varitsus!
-1158:Silla katastroof!
-1159:Boonus kaart A
-1160:Boonus kaart B
-1179:Üle kõrbe||Suurus: 176x176|Vaenlaste arv: 5
-1180:Imelikul maal||Suurus: 176x176|Vaenlaste arv: 3
-1181:Lumi ja liiv||Suurus: 160x128|Vaenlaste arv: 5
-1182:Kiire jõe maa||Suurus: 176x176|Vaenlaste arv: 3
-1183:Must kuld||Suurus: 176x176|Vaenlaste arv: 5
-1184:Mägede seinad||Suurus:144x128|Vaenlaste arv: 3
-1185:Pimeduse valdus||Suurus: 176x176|Vaenlaste arv: 3
-1199:Mängijaid: 6|Kaardi suurus: 176x176|Ehita linn
-1200:Mängijaid: 4|Kaardi suurus: 176x176|Ehita linn
-1201:Mängijaid: 6|Kaardi suurus: 160x128|Ehita linn
-1202:Mängijaid: 4|Kaardi suurus: 176x176|Ehita linn
-1203:Mängijaid: 6|Kaardi suurus: 176x176|Ehita linn
-1204:Mängijaid: 4|Kaardi suurus: 144x128|Ehita linn
-1205:Mängijaid: 6|Kaardi suurus: 176x144|Ehita linn
-1206:Mängijaid: 3|Kaardi suurus: 64x64|Võitlus
-1207:Mängijaid: 6|Kaardi suurus: 144x144|Võitlus
-1208:Mängijaid: 4|Kaardi suurus:176x176|Ehita linn
-1249:Reeturite käsilastel on|õnnestunud läbida meie kaitsed.|Kindlus on langenud ja kui|sulisid välja ei aeta, kuningriik|kaotatakse ja trooni röövel|võidutseb. Relvadele!
-1250:See võitlus andis meile lootust.|Aga endiselt ei ole aeg meie|poolel. Meie vastane on taganenud|meie lähedal olevasse külasse,|kus nad moodustavad uue väe.|Prints ründab varsti meid jälle,|sest teda toetavate sõdalaste arv|on kordades suurem. Ärge laske|end vihast end pimestada ja|meelitada end avatud võitlusesse.|See maastik on sobilik kaitse|taktikaks: vaenlasel tuleb läbida|üle jõe maa kitsus et meieni|jõuda. See tähendab et kui ta|ründab meid seal siis meie väed|on võrdsed vaenlaste vägedega.
-1251:Meeldejääv päev! Printsi|rööveljõud on taganemas. Tee|Lauenburgi Barunkonda on avatud.|Barun Lauenburg on loonud liidu|meie vaenlastega ja see tõttu|tuleb meil hävitada see|opositsioon enne kui jõuame|röövel provintsini.
-1252:Suuresti, on alt vedanud vaenlase|plaanid peatada kuningale|lojaalne armee. Lauenburgi Parun|on taganenud ja ootab meie|rünnakut. Barunkonna elanikud on|meid rõõmuga vastu võtnud. Nüüd|on ülimalt hea aeg suurendada|meie armeed ja tabada Lauenburgi|Parun. Kui me alistame Lauenburgi|Paruni, siis see on hoiatus|kõigile teistele kes on reetnud|kuninga.
-1253:Lauenburgi parun andis alla ja|palumise peale on kuningas talle|armu andnud ja nüüd ta kahetseb|oma võikaid tegusid. Aga nüüd|meie ülesandeks on tabada|Moorbach. Meie luurajad on|avastanud mahajäätud kindluse|mille me kohandame meie|vajadustele. Kuna Lauenburg on|nüüdsest meie liitlane, siis tema|sõdurid on ohustatud vaenlase|vägede poolt. Me peame kaitsma|tema sõdureid, et tugevdada meie|liitu,et edaspidi suurendada|meile lojaalset armeed.
-1254:Moorbach on langenud. Meie|vaenlased on vaimselt löödud ja|suures hämmingus. Aga on kuulda|meie luurajatelt uusi|ähvaradavaid sõnumeid. Nimelt|loodes luuakse uut sulide armeed,|kes tahavad kätte maksta|Moorbachi eest. Õnneks oleme me|piisavalt tugevad, et ise rünnata|neid. Me peame seda armeed|ründama, enne kui nad suudavad|organiseeruda. Nüüdsest saame|kaaslasteks lugeda ka Lauenburgi|odakandjaid kes saadavad meid|sellel teel.
-1255:Suuresti on levinud uudised meie|võitudest nagu kulutuli. Igal|pool tõusevad rahvad oma|türannide vastu. Põhjas asuvat|Walheim on endiselt vaenlase|kontrolli all. Walheimi valitseja|on keeldunud läbirääkimistest ja|on kuulutanud et kaitseb Walheimi|viimase meheni. Ainult väike küla|selle kinduse lähedal on ennast|vabaks kuulutanud türannist.|Selle hea küla elanikud|varustavad meid uute relvadega ja|meestega. Suure ja hästi|varustatud armeega ei tohiks olla|probleem vallutada Walheim.
-1256:Walheimi lahing on põhjustanud|võimu ja korra puudumise.|Metsikud põhja hõimud on|moodustanud suure armee, et|hävitada meie kuningriik. Me|peame nad enne peatama kui me|saame edasi tegeleda mässajatega.|Walheimi varemetest leidsime|plaanid arenenud kaitsetornide|ehitamiseks. Meil on neid vaja|palju, et need barbaarlased|pühkida minema sellelt maalt.
-1257:Nüüdsest võitlevad barbaarlased|omavahel. Tänu heale õnnele ja|veenmisele on kaks nende pealiku|meie poolel ja kontroll nende|sõdalaste üle kuulub meile. Nüüd|meie asukoht on lihtne kaista,|aga ei ole võimalik laieneda.|Vaenlane valmistub lahinguks ja|ülesandeks on kiiresti valmistada|neile halb üllatus, mida nad|kunagi ei unusta.
-1258:Nurjatu isevalitseja ähvardab|ühte meie linna. Ainult kui sa|kiirustad, siis suudad õigeks|ajaks sinna jõuda. Luurjad on|meid informeerinud, et ees ootab|suur vaenlaste vägi. Paiguta oma|sõdurid hästi, ainult kavala|taktikaga on võimalik saavutada|võit. Aga kui ründad pimedalt,|siis sa võid seda kahetseda!
-1259:Tõesti, väga vähe jäi puudu linna|kaotamisest. Aga see rünnak|jättis sügava jälje. Vaenlane|põletas maha enamuse linnast ja|tappis igaühe kes ette jäi.|Sellele tappatalgule tuleb|vastata verise kättemaksuga! Aga|linn tuleb uuesti üles ehitada,|enne kui saab võtta need|argpükslikud vaenlased|vastutusele.
-1260:Vastane on saanud hävitava löögi|ja selle armee jäänused on|põgenenud põhja. Põhjas asuvad|tuntud raua kaevandused ning raud|ise on väga tähtis strateegiline|maavara, mis on väga vajalik sõja|jätkamiseks. Seal ehitame endile|uue armee ja ajame kõik mässajad|sellest piirkonnast välja. Idas|asuv sild on kaitsmisel abiks,|kuni me oma armeed ehitame.
-1261:Seda oli ette näha, et meie|vaenlastel on endiselt suured|varud ja nende plaan on meie|suurt lojaalset armeed uuesti|rünnata mägedes. Mäed on suur|takistus suurele armeele, sellega|seoses saadame väikese armee|ette, et kohtuda meie vaenlasega|kõige kitsama koha peal. Ärgem|laskem meie vaenlasele uut|võimalust meid üllatada!
-1262:Viimased pingutused kannavad|vilja! Igalpool terves|kuningriigis hakkatakse vastu|nurjatule printsile. Isegi|kindralid ei nõustu enam printsi|barbaarsuse ja julmusega. Üks|tema kindralitest on saatnud|meile salajase sõnumi, et prints|plaanib küla, mis tema võimu|vastu mässama hakkas, näiteks|tuua, mis juhtub kui tema võimu|vastu astuda. Meie oleme|ainukesed kes saavad vahele|astuda ja lõpetada printsi|barbaarlikud jõhkrad plaanid.
-1263:Nende musta südametunnistusega|sulide, kes sõdivad kuninga|vastu, lõpp on õigustatud. Me|oleme nad sundinud oma põlvedele|ja see on sundinud printsi muutma|oma taktikat ning nüüdsest|tähelepanu on tema ressursidel.|Meil on vaja vallutada nende|sulide raua kaevandused mis|asuvad meie läheduses. Pane|mässajad sõdima. Ära unusta ette|valimistada end ja lojaalseid|sõdureid, enne kui paned|vaenlased kartma oma elu pärast!
-1264:Selles piirkonnas on palju|viljakat maad ja ressursse. Ärge|laske end eksitada selles rahus,|varsti tuleb vaenlane ka seda|endale nõudma. Kaitse seda|provintsi ja ära halasta|vastasele! Mitte sentigi maad ei|tohi neile anda.
-1265:Põhjas on kogunenud reeturite|vassalide armee, et ta saaks|jälle meeletult meid rünnata. Aga|tõde on see, et nad ei ole veel|valmis meid vastu võtma suureks|avatuks lahinguks. Me peame tema|suunas liikuma ja hävitama,|niikaua kuni ta pole veel valmis.|Me peame läbima mäed, et selle|eesmärgini jõuda. Suli on võtnud|arvesse kõik võimalused ja pannud|üles varitsused. Sellegi eest|peab mäed läbima, ükskõik mis see|meile maksma läheb.
-1266:Viimane võit on sundinud vaenlase|taganema ja asuma kaitse|positsioonidele. Ta varjab end|looduslikus kindluses ja ootab|meie rünnakut. Seda kindluston|raske vallutada, Eelmised|kindralid on seda provinud, aga|kõikide proovimised on luhtunud.|Ärgem laske sellet end segada,|nad on jätnud meile oma|kirjeldused sellest, ehk neist on|abi.
-1267:See on väga must päev! Reeturlik|prints on lastnud mõrvata meie|armastatud kuninga! Koheselt|kuulutas prints end meie|kuningaks ja varjab end suurte|müüride taga. Need müürid ei|peata rahva viha. Ründame neid|müüre ja ja paneme selle|isehakanu kuninga kannatama. Silm|silma eest, hammas hamba eest!
-1268:Meie seiklus hakkab läbi saama.|Ainult on jäänud vallutada linn ,|ümber piiratud meie vägedest, mis|on meie vaenlase viimane bastjon.|Ära halasta neile reeturitele,|kes on olnud sellele|halastamatule türannile|lojaalsed. Kohalikud kangelased,|pühkige minema reeturlikuse|jäänused! Ainult kangelaslike|tegudega saab taastatud rahu|kuningriigis. Saatke see prints|kongidesse, kuhu see kurjategija|kuulub!
-1299:JOYMANIA ENTERTAINMENT||PROGRAMEERIMINE:|Peter Ohlmann||MÄNGU GRAAFIKA:|Adam Sprys||TASEME KUJUNDUS:|Adam Sprys|Andre Quaß||HELI TÖÖTLUS JA MIKSIMINE:|Tonstudio Mannheim||MUUSIKA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||KAUNISTUSED:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUTSEERIA:|Uwe Schäfer||JUHEND:|Peter Ohlmann|Uwe Schäfer||BETA TESTIJAD:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||MÄNGU JUHENDAJA:|Achim Heidelauf||VÄLJASTAJA:|TopWare Interactive||VAHETSEENID:||JUHATAMINE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||HÄÄLED:|Claus Boyen (Jutustaja)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KUNSTITÖÖD:|Boleslaw Kasza|Adam Sprys||AVA-ANIMATSIOON:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||ERI TÄNUD:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-1349:              Missioon 1||Mässajad ründavad neid mõningaid talupoegasid, kes veel on jäänud lojaalseks kuningriigile. Kuninga palee vastas talupoegasid mõrvatakse, seda ei tohi lasta juhtuda. |Sunni vaenased taganema!|              Missioon 1
-1350:              Missioon 2||Pärast edukat talupoegade kaitsmist, tuleb meil vabastada veel ülejäänud talupojad. Suur vaenlaste hulk põhjast liigub meie suunas.|Lahingusse!|              Missioon 2
-1351:              Missioon 3||Pärast edukat lahingut, on aeg üles ehitada rikutud linnad ja taastada vajalikud varud. Edasi tuleb siirduda põhja, kus tuleb vabastada linnad türraniliku aristokraatliku valitsemise alt. Säästa tsiviil elusid ja ründa ainult vastase vägesid.|              Missioon 3
-1352:              Missioon 4||Meie luurjad märkasid vaenlase vägesid manööverdamas linnade lähedal. Suure vaenlase vägede tõttu on arvata, et lähedal asub kindlustatud vaenlase laager. Leia ja hävita see, koos militaar majadega.|              Missioon 4
-1353:              Missioon 5||Nüüd, pärast suurt võitu mässajate vastu on oodata uut massivset vasturünnakut nende poolt. Valmista end ette suureks lahinguks ja ära lase küla hävitada.|              Missioon 5
-1354:              Missioon 6||Me teame, et vaenlane üritab ehitatada uusi baase ja seda ei saa lubada. Ründa esimesel võimalusel, enne kui vaenlane taastub. Lisaks otsi uus koht kust rauda leida, vanad resursihoidlad lõppevad.|              Missioon 6
-1355:              Missioon 7||Enne kui me ründame uuesti mässajaid, me peame võitma tagasi ühe linna lõunas. Võit on toonud meile vajaliku väikse varu rauda, mida meil on väga vaja, aga kuna varud on piiratud, siis tuleb olla ettevaatlik kuidas me seda kasutame.|              Missioon 7
-1356:              Missioon 8||Viimase rünnaku ajal enamus meie meestest olid meie laagrist eemal, mis andis võimaluse vaenlasel rünnakuks. Pöördu tagasi esimesel võimalusel, enne kui meie kaitsed hävitatakse!|              Missioon 8
-1357:              Missioon 9||Varitsuse tõttu ei jõudnud me oma kindluseni ja me peame välja mõtlema uue strateegija, et vallutada tagasi see mis kuulub meile. Peavärav on raskelt kaistud ja otsene rünnak on mõtetu. Ürita vältida üleliigseid kaotusi, kuna meil ei ole võimalik rauda kaevandada.|              Missioon 9
-1358:              Missioon 10||Pärast kinduse tagasi vallutamist, oleme saanud mõned vangid, kes on öelnud, et põhja mägesid läbib tunnel. Tunneli sissepääsu valvatakse väheste sõduritega.Alista kaitsjad ja liigu tunnelisse.|              Missioon 10
-1359:              Missioon 11||Koobas on suurem kui oskasime oodata. Meie skaudid on avastanud tuulutamis tunnelite juurest mõned valvurid. Jõua tunneli väljapääsuni.|              Missioon 11
-1360:              Missioon 12||Vastaseid on hoiatatud meie tulekust. Tugevad vaenlase pataljonid liigavad meie suunas. Ehita kaitsetorne, et nõrgestada vaenlast. Kui kaitse on edukas, siis on võimalus liikuda edasi põhja mööda maakitsust.|              Missioon 12
-1361:              Missioon 13||Varitsus! Meie vaenlane on meid oodanud. Me oleme nüüd väga pahas asukohas. Sunni bandiidid taganema!|              Missioon 13
-1362:              Missioon 14||Me oleme viimase vaenlase bastjoni juures. Nad on siia toonud oma viimased armeed ja end kirde suunas kindlutanud viimase taganemise jaoks. Tänu külmale on jõgi osaliselt külmunud ja võimaldab ülatada vaenlast. Hävita viimased vastase väed ja rahu saabub taas meie maale!|              Missioon 14
-2000:Missioon katkestatud
-2001:Linna ehitamise tutvustus
-2002:Võitluse tutvustus
-2003:Üksikmäng
-2004:Kaardi ehitamine
-2005:Vaata viimast kordust
-2006:Alusta missiooni
-2007:Pealkiri
-2008:Suurus
-2009:Missiooni tüüp: %s
-2010:Võitmise tingimused: %s
-2011:Kaotamise tingimused: %s
-2012:Liitlased:
-2013:Vaenlased:
-2015:Uus kaardi suurus
-2016:Laius
-2017:Pikkus
-2018:Loo uus kaart
-2019:Olemas olevad kaardid
-2020:Lae olemas olev kaart
-2021:Juhtimisseaded:
-2022:Mängu seaded
-2023:Heli:
-2024:Vaigista muusika
-2025:Graafika:
-2026:Heledus
-2027:Täisekraan
-2028:Lisa
-2029:Keel:
-2030:Toimub laadimine... Palun oodake
-2031:Viga on esinenud!
-2032:Uue lokaadi laadimine
-2033:Salvestatud mängude list
-2034:Faili nimi
-2035:Iseloomustus
-2036:Lae
-2037:Kustuta
-2038:Oled kindel, et soovid seda salvestust kustutada?
-2039:Kustuta
-2040:Loobu
-2042:Sa Võitsid!
-2043:Jätka mängu
-2044:Võit!
-2045:Sa kaotasid!
-2046:Jätka vaatamist
-2047:Kaotus
-2048:Kordus on lõppenud
-2049:Jätka vaatamist
-2050:Lahku menüüni
-2051:Pole saadaval
-2052:Vajuta %s, et jätkata mängu
-2053:Meeskonnale
-2054:Mängijate info
-2055:Vestlus
-2056:Salvesta üle juba olemasolev
-2057:Kirjuta üle
-2058:Salvesta
-2059:Lae
-2060:Viga on esinenud mängu ajal.
-2061:Palun saatke fail %s oma KaM Remake\\Crash Reports kaustast arendajatele. Kontakti andmeid võib leida Readme failist. Suured tänud Teie abi eest!
-2062:Vana OpelGL versioon avastatud, mäng võib töötada aeglaselt ja/või graafika vigadega
-2063:Võrgu viga:
-2064:Viga: Mängija nimi ei saa olla tühi
-2065:Ühenduse viga: %s
-2066:Ühendus on kaotatud
-2067:Missioon %d
-2068:Su kalastus onn on veest liiga kaugel.
-2069:Sinu kalamees ei saa rohkem püüda kala lähedal olevatest vetest.
-2071:Kasuta vasakut hiireklahvi, et valida toode, mida vahetada
-2072:Kasuta paremat hiireklahvi, et valida toodet, mida vahetada
-2073:Millest: x%d
-2074:Milleks: x%d
-2075:Pinnastiku kujundamine
-2076:Küla planeerimine
-2077:Visuaalsed skriptid
-2078:Globaalsed skriptid
-2079:Menüü
-2080:Staatus:
-2081:Mängija nimi
-2082:LOO SERVER
-2083:Nimi
-2084:Port
-2085:Loo Kohalik Server
-2086:Loo Interneti Server
-2087:Serveri nimi
-2088:Olek
-2089:Mängijad
-2090:Ping
-2091:Värskenda Serverite nimekirja
-2092:SERVERI DETAILID
-2093:Mängijate nimekiri:
-2094:Aadress
-2095:Port
-2096:Tuba
-2097:Liitu
-2098:Toimub ühendamine, palun oodake ...
-2099:Toimub teadete laadimine...
-2100:Uuendamine...
-2101:Mängijate nimekiri
-2102:Alustamise asukoht
-2103:Meeskond
-2104:Lipu värv
-2105:Valmis
-2106:Ping
-2107:Eemalda
-2108:Avatud
-2109:Mängib arvuti
-2110:Vali...
-2111:Suvaline
-2112:Ühtegi
-2113:Ühtegi
-2114:Meeskond %d
-2116:Postita sõnum:
-2117:Kaardi tüüp
-2118:Üksik Kaart
-2119:Salvestatud Mäng
-2120:Vali kaart...
-2121:Vali salvestus...
-2122:Kaardi info:
-2123:Mängijad: %d
-2124:Tüüp:
-2125:Tingimused:
-2126:Suurus:
-2127:Lahku eesruumi
-2128:Valmis
-2129:Alusta!
-2130:Mängijate ootamine:
-2131:KaM Remake Lõputiitrid
-2132:Originaalsed Knights & Merchants Lõputiitrid
-2133:PROGRAMMEERIMINE:
-2134:LISA PROGRAMMEERIMINE:
-2135:LISA GRAAFIKA:
-2136:LISA TÕLKED:
-2137:SUURED TÄNUD:
-2138:Võrgumängu kaardid
-2139:Üksikmängu kaardid
-2140:Rulliku kiirus
-2141:Servereid ei leitud
-2142:Suva lood
-2143:Mängu informatsioon:
-2144:-
-2145:Eesruum
-2146:Toimub Laadmine
-2147:Mäng
-2148:Asukoht %d
-2149:Ehitamine ja Võitlemine
-2150:Võitlemine
-2151:Pole valmis
-2152:Valmis
-2153:Viga: Palun vali mängija salvestisest, et teda kontrollida
-2154:Viga: Kaardi laadimine ebaõnnestus või ühtegi kaarti ei ole valitud
-2155:Ei saa alustada: %s
-2156:Kõik ei ole valmis alustama
-2157:Mängijate arv ületab kaardi limiidi
-2158:Vale protokolli versioon: %s. Server kasutab: %s
-2159:Server on juhtimis õiused meile määranud
-2160:Tõsta kauba hulka
-2161:Vähenda kauba hulka
-2162:Mängu salvestamine...
-2163:%s kaotas!
-2164:LISA HELID:
-2165:Elimineeri mängijaid
-2166:Mängu juht võib elimineerida mängijaid pärast %d sekundit
-2167:Mängu juht võib nüüd elimineerida neid mängijaid
-2168:Mängujuht (%s) on lahkunud
-2169:Ühendus sevreriga on kaotatud. Taasühendamine...
-2170:Oled kindel, et soovid lahkuda?
-2171:Oled kindel, et soovid lõplikult elimineerida neid mängijaid?
-2172:Tühista
-2173:Elanikke|treenitud
-2174:Elanikke|kaotatud
-2175:Sõdureid|relvastatud
-2176:Sõdureid|kaotatud
-2177:Üksusi|hävitatud
-2178:Ehitisi|ehitatud
-2179:Ehitised|kaotatud
-2180:Ehitisi|hävitatud
-2181:Kaupu|toodetud
-2182:Relvi|toodetud
-2183:Selle ressurssi vahetamine pole võimalik selles missioonis
-2184:Istuta ja langeta
-2185:Ainult langeta
-2186:Mänguga on alustatud
-2187:Ehitamise Kaart
-2188:Võitlemise Kaart
-2189:Koostöö kaart
-2190:Sa ei saa seda teha rahuajal
-2191:Rahuaega jäänud: %s
-2192:Rahuaeg on lõppenud. Relvadele!
-2193:Mängu aeg:|%s
-2194:Mängu seaded:
-2195:P
-2196:L
-2197:J
-2198:Peata sõdur ('%s')
-2199:Lisa sõdur ('%s')
-2200:Jaga sõdurid ('%s')
-2201:Korduse vaatamine
-2202:Vaata kordust
-2203:Rahuaeg (minutid)
-2204:Toeta formaat %s
-2205:Toetamata versioon %s
-2207:alustamine
-2208:võrgumängu valmistamine
-2209:skript
-2210:Uus Missioon
-2211:Liigendamise viga on esinenud failis %s
-2212:Suletud
-2213:Mängujuht seadistab
-2214:lisa spraidid
-2215:üksused
-2216:majad
-2217:puud
-2218:definitsioonid
-2219:ruudustik
-2220:Soft shadows
+147:Majade valikusse
+148:Kaupade jaguneminemisse
+149:Statistikasse
+150:Sättetesse
+151:Tagasi minek
+152:Maja|Valik
+153:Kaupade|jagunemine
+154:Statistika
+155:Sätted
+156:Lae Mäng
+157:Salvesta Mäng
+158:Oled kindel,|et tahad lahkuda |sellest missioonist?
+159:Lõpeta Missioon
+160:Mine tagasi
+161:Sätted
+162:Lõpeta missioon
+163:Ümbruskonna heli
+164:Muuda helitugevust
+165:Muusika
+166:Muusika lahti/kinni
+167:Automaatsalvestis
+168:Muusika Mängija
+169:Eelmine lugu
+170:Uus lugu
+171:Lammuta
+172:Eemalda ehitised/väljatoodud
+173:Ehita tee
+174:Ehita teed
+175:Künna põldu
+176:Künna põldusid
+177:Määra viinamarjapõld
+178:Määra viinamarjapõllud
+179:Tühista
+180:Tühista hetkeline treening
+181:Vaja minev:
+182:Olek:
+183:Kohale toimetab:
+184:Maja|ehitamisel
+185:Hävita
+186:Kas oled kindel et soovid |lammutada seda maja?
+187:Hävita valitud maja
+188:Vähenda tellimuse arv
+189:Suurenda tellimuse arv
+190:Eelmine sõduri tüüp
+191:Järgmine sõduri tüüp
+192:Varusta hetke sõduri tüüp
+193:Järgmine amet
+194:Eelmine amet
+195:Lisa järjekorda
+196:Luba/keela kauba vedu
+197:Luba/keela maja parandus
+198:Maja ei ole saadaval hetkel
+199:Olek
+200:Keera sõdur vasakule
+201:Keera sõdur paremale
+202:Ründa ('a')
+203:Saada sõdur ('d')
+204:Varusta toiduga
+205:Välkrünnak
+206:Lisa rida
+207:Vähenda rida
+208:Valige|grupp
+209:Tühista
+210:Kustuta
+211:Kustuta hetke sõnumi
+212:Mine
+213:Liigub hetkese sõnumi kohani
+214:Sulge
+215:Sulgeb akna
+216:|Sinu kiviraidur ei pääse kivini.
+217:|Sinu söekaevanduses on süsi lõppenud.
+218:|Sinu rauakaevanduses on raud lõppenud.
+219:|Sinu kullakaevanduses on kuld lõppenud.
+220:|See maja on asustamatta.
+221:|Sinu sõdurid on väga näljased, anna neile midagi süüa!
+222:PAUS
+418:Vaim
+419:Hõivatud
+420:Keskaegne pasun
+421:Kevad
+422:Lauto
+423:Palgasõdur
+424:Printsess
+425:Kuninganna
+426:Turul
+427:Lahinguväljal
+428:Õukonna tants
+429:Armee
+430:Lossis
+431:Laadad
+432:Õukonnas
+433:Sisseastumine
+434:Sügav sinine
+435:Rabelema
+847:Kampaania 'The Shattered Kingdom'
+848:Kampaania 'The Peasants Rebellion'
+849:Mängi üksikkaarti
+850:Alusta kaarti
+851:Tagasi menüüsse
+852:Lae salvestatud mäng
+853:Võrgumäng
+854:Sätted
+855:Lõputiitrid
+856:Lahku mängust
+857:Jätka
+858:Taaskäivita missioon
+859:Resolutsioon:
+860:VÕIT!
+861:KAOTUS!
+862:Kaotatud üksused:
+863:Hävitatud üksused:
+864:Kaotatud ehitised:
+865:Hävitatud ehitised:
+866:Ehitatud ehitised:
+867:Treenitud üksused:
+868:Relvi toodetud:
+869:Sõdureid treenitud:
+870:Missioon lõpetatud:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMEERIMINE:|Peter Ohlmann||MÄNGU GRAAFIKA:|Adam Sprys||TASEME KUJUNDUS:|Adam Sprys|Andre Quaß||HELI TÖÖTLUS JA MIKSIMINE:|Tonstudio Mannheim||MUUSIKA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||KAUNISTUSED:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUTSEERIA:|Uwe Schäfer||JUHEND:|Peter Ohlmann|Uwe Schäfer||BETA TESTIJAD:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||MÄNGU JUHENDAJA:|Achim Heidelauf||VÄLJASTAJA:|TopWare Interactive||VAHETSEENID:||JUHATAMINE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||HÄÄLED:|Claus Boyen (Jutustaja)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KUNSTITÖÖD:|Boleslaw Kasza|Adam Sprys||AVA-ANIMATSIOON:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||ERI TÄNUD:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+1686:Missioon katkestatud
+1687:Linna ehitamise tutvustus
+1688:Võitluse tutvustus
+1689:Üksikmäng
+1690:Kaardi ehitamine
+1691:Vaata viimast kordust
+1692:Alusta missiooni
+1693:Pealkiri
+1694:Suurus
+1695:Missiooni tüüp: %s
+1696:Võitmise tingimused: %s
+1697:Kaotamise tingimused: %s
+1698:Liitlased:
+1699:Vaenlased:
+1701:Uus kaardi suurus
+1702:Laius
+1703:Pikkus
+1704:Loo uus kaart
+1705:Olemas olevad kaardid
+1706:Lae olemas olev kaart
+1707:Juhtimisseaded:
+1708:Mängu seaded
+1709:Heli:
+1710:Vaigista muusika
+1711:Graafika:
+1712:Heledus
+1713:Täisekraan
+1714:Lisa
+1715:Keel:
+1716:Toimub laadimine... Palun oodake
+1717:Viga on esinenud!
+1718:Uue lokaadi laadimine
+1719:Salvestatud mängude list
+1720:Faili nimi
+1721:Iseloomustus
+1722:Lae
+1723:Kustuta
+1724:Oled kindel, et soovid seda salvestust kustutada?
+1725:Kustuta
+1726:Loobu
+1728:Sa Võitsid!
+1729:Jätka mängu
+1730:Võit!
+1731:Sa kaotasid!
+1732:Jätka vaatamist
+1733:Kaotus
+1734:Kordus on lõppenud
+1735:Jätka vaatamist
+1736:Lahku menüüni
+1737:Pole saadaval
+1738:Vajuta %s, et jätkata mängu
+1739:Meeskonnale
+1740:Mängijate info
+1741:Vestlus
+1742:Salvesta üle juba olemasolev
+1743:Kirjuta üle
+1744:Salvesta
+1745:Lae
+1746:Viga on esinenud mängu ajal.
+1747:Palun saatke fail %s oma KaM Remake\\Crash Reports kaustast arendajatele. Kontakti andmeid võib leida Readme failist. Suured tänud Teie abi eest!
+1748:Vana OpelGL versioon avastatud, mäng võib töötada aeglaselt ja/või graafika vigadega
+1749:Võrgu viga:
+1750:Viga: Mängija nimi ei saa olla tühi
+1751:Ühenduse viga: %s
+1752:Ühendus on kaotatud
+1753:Missioon %d
+1754:Su kalastus onn on veest liiga kaugel.
+1755:Sinu kalamees ei saa rohkem püüda kala lähedal olevatest vetest.
+1757:Kasuta vasakut hiireklahvi, et valida toode, mida vahetada
+1758:Kasuta paremat hiireklahvi, et valida toodet, mida vahetada
+1759:Millest: x%d
+1760:Milleks: x%d
+1761:Pinnastiku kujundamine
+1762:Küla planeerimine
+1763:Visuaalsed skriptid
+1764:Globaalsed skriptid
+1765:Menüü
+1766:Staatus:
+1767:Mängija nimi
+1768:LOO SERVER
+1769:Nimi
+1770:Port
+1771:Loo Kohalik Server
+1772:Loo Interneti Server
+1773:Serveri nimi
+1774:Olek
+1775:Mängijad
+1776:Ping
+1777:Värskenda Serverite nimekirja
+1778:SERVERI DETAILID
+1779:Mängijate nimekiri:
+1780:Aadress
+1781:Port
+1782:Tuba
+1783:Liitu
+1784:Toimub ühendamine, palun oodake ...
+1785:Toimub teadete laadimine...
+1786:Uuendamine...
+1787:Mängijate nimekiri
+1788:Alustamise asukoht
+1789:Meeskond
+1790:Lipu värv
+1791:Valmis
+1792:Ping
+1793:Eemalda
+1794:Avatud
+1795:Mängib arvuti
+1796:Vali...
+1797:Suvaline
+1798:Ühtegi
+1799:Ühtegi
+1800:Meeskond %d
+1802:Postita sõnum:
+1803:Kaardi tüüp
+1804:Üksik Kaart
+1805:Salvestatud Mäng
+1806:Vali kaart...
+1807:Vali salvestus...
+1808:Kaardi info:
+1809:Mängijad: %d
+1810:Tüüp:
+1811:Tingimused:
+1812:Suurus:
+1813:Lahku eesruumi
+1814:Valmis
+1815:Alusta!
+1816:Mängijate ootamine:
+1817:KaM Remake Lõputiitrid
+1818:Originaalsed Knights & Merchants Lõputiitrid
+1819:PROGRAMMEERIMINE:
+1820:LISA PROGRAMMEERIMINE:
+1821:LISA GRAAFIKA:
+1822:LISA TÕLKED:
+1823:SUURED TÄNUD:
+1824:Võrgumängu kaardid
+1825:Üksikmängu kaardid
+1826:Rulliku kiirus
+1827:Servereid ei leitud
+1828:Suva lood
+1829:Mängu informatsioon:
+1830:-
+1831:Eesruum
+1832:Toimub Laadmine
+1833:Mäng
+1834:Asukoht %d
+1835:Ehitamine ja Võitlemine
+1836:Võitlemine
+1837:Pole valmis
+1838:Valmis
+1839:Viga: Palun vali mängija salvestisest, et teda kontrollida
+1840:Viga: Kaardi laadimine ebaõnnestus või ühtegi kaarti ei ole valitud
+1841:Ei saa alustada: %s
+1842:Kõik ei ole valmis alustama
+1843:Mängijate arv ületab kaardi limiidi
+1844:Vale protokolli versioon: %s. Server kasutab: %s
+1845:Server on juhtimis õiused meile määranud
+1846:Tõsta kauba hulka
+1847:Vähenda kauba hulka
+1848:Mängu salvestamine...
+1849:%s kaotas!
+1850:LISA HELID:
+1851:Elimineeri mängijaid
+1852:Mängu juht võib elimineerida mängijaid pärast %d sekundit
+1853:Mängu juht võib nüüd elimineerida neid mängijaid
+1854:Mängujuht (%s) on lahkunud
+1855:Ühendus sevreriga on kaotatud. Taasühendamine...
+1856:Oled kindel, et soovid lahkuda?
+1857:Oled kindel, et soovid lõplikult elimineerida neid mängijaid?
+1858:Tühista
+1859:Elanikke|treenitud
+1860:Elanikke|kaotatud
+1861:Sõdureid|relvastatud
+1862:Sõdureid|kaotatud
+1863:Üksusi|hävitatud
+1864:Ehitisi|ehitatud
+1865:Ehitised|kaotatud
+1866:Ehitisi|hävitatud
+1867:Kaupu|toodetud
+1868:Relvi|toodetud
+1869:Selle ressurssi vahetamine pole võimalik selles missioonis
+1870:Istuta ja langeta
+1871:Ainult langeta
+1872:Mänguga on alustatud
+1873:Ehitamise Kaart
+1874:Võitlemise Kaart
+1875:Koostöö kaart
+1876:Sa ei saa seda teha rahuajal
+1877:Rahuaega jäänud: %s
+1878:Rahuaeg on lõppenud. Relvadele!
+1879:Mängu aeg:|%s
+1880:Mängu seaded:
+1881:P
+1882:L
+1883:J
+1884:Peata sõdur ('%s')
+1885:Lisa sõdur ('%s')
+1886:Jaga sõdurid ('%s')
+1887:Korduse vaatamine
+1888:Vaata kordust
+1889:Rahuaeg (minutid)
+1890:Toeta formaat %s
+1891:Toetamata versioon %s
+1893:alustamine
+1894:võrgumängu valmistamine
+1895:skript
+1896:Uus Missioon
+1897:Liigendamise viga on esinenud failis %s
+1898:Suletud
+1899:Mängujuht seadistab
+1900:lisa spraidid
+1901:üksused
+1902:majad
+1903:puud
+1904:definitsioonid
+1905:ruudustik
+1906:Soft shadows

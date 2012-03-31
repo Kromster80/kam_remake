@@ -103,651 +103,338 @@ MaxID:3004
 110:O ferreiro forja|armas e armaduras|de ferro.
 111:O metalúrgico usa|carvão para refinar ouro e|minério de ferro.
 112:O recruta pode ser|equipado como um soldado|nos quartéis.||Ele também ocupa|a torre de vigia.
-113:Militia
-114:Escoteiro
-115:Escoteiro de espada
-116:Arqueiro
-117:Besteiro
-118:Lanceiro de aço
-119:Alabardeiro
-120:Cavalaria
-121:Cavaleiro
-122:Lobo
-123:Peixe
-124:Peixe
-159:Para seleção  dos edifícios
-160:Para distribuição de mercadorias
-161:Para estatísticas
-162:Para mensagens
-163:Para opções
-164:Voltar
-165:Edifícios|Seleção
-166:Distribuição|de mercadorias
-167:Estatísticas
-168:Mensagens
-169:Opções
-170:Chamar as configurações
-171:Carregar
-172:Salvar
-173:Carregar
-174:Salvar
-175:Você tem certeza|de que quer terminar|esta missão?
-176:Terminar missão
-177:Voltar
-178:Configurações
-179:Terminar missão
-180:Brilho
-181:+
-182:-
-183:Aumentar o brilho
-184:Diminuir o brilho
-185:Muito escuro
-186:Escuro
-187:Normal
-188:Brilhante
-189:Muito brilhante
-190:Extremamente brilhante
-191:Vel. do mouse
-192:Alterar velocidade do mouse
-193:SFX
-194:Alterar o Volume
-195:Musica
-196:Musica:
-197:Musica ligar/desligar
-198:Desligar
-199:Via MIDI
-200:Ligar
-201:Vazio
-202:Salvar Auto
-203:Rolar rápido
-204:Missão %d Tempo:%2.2u:%2.2u
-205:Cenário %d Tempo:%2.2u:%2.2u
-206:Player de música
-207:Faixa anterior
-208:Próxima faixa
-209:Demolir
-210:Remover Edifícios
-211:Construir rua
-212:Construir ruas
-213:Arar campo
-214:Arar campos
-215:Colocar cerca
-216:Cerca da pastagem
-217:Dispor campo de vinho
-218:Dispor campos de vinho
-219:Erguer parede
-220:Construção de parede
-221:Comboio
-222:Comboio selecionado grupo ocupacional
-223:Cancelar
-224:Cancelar treinamento atual
-225:|Em treinamento
-226:Necessidades:
-227:Condição:
-228:Estoque
-229:Casa em|construção
-230:Destruir
-231:Você quer realmente|demolir esta construção?
-232:Destruir edifício selecionado
-233:Decrease order amount
-234:Increase order amount
-235:Inventory of wares:
-236:Tipo de soldado anterior
-237:Próximo tipo de soldado
-238:Equipar
-239:Equipar tipo de soldado atual
-240:Próxima profissão
-241:Profissão anterior
-242:Adicionar à fila
-243:Próximo mercenário
-244:Mercenário anterior
-245:Contratar mercenários
-246:Recrutas presentes:
-247:Custo:
-248:ligar/desligar entrega de mercadorias
-249:ligar/desligar reparo da casa
-250:Edifício não disponível no momento
-251:Não disponível na versão Demo
-252:Desocupado
-253:Condição
-254:virar tropa á esquerda
-255:Virar tropa á direita
-256:Atacar ('a')
-257:Parar tropa ('h')
-258:Enviar tropa ('d')
-259:Juntar tropa ('l')
-260:Separar tropa ('s')
-261:Abastecer tropa com alimentos
-262:Iniciar Ataque Tempestade
-263:Adicionar linha:
-264:Retirar linha
-265:Ofensiva:
-266:Defensiva:
-267:Tempo:
-268:Selecionar|castelo
-269:Sair
-270:Selecionar|destino
-271:Selecionar|grupo
-272:Selecionar ataque|alvo
-273:Cancelar
-274:Unidade não disponível no momento
-275:Deletar
-276:Deletar mensagem atual
-277:Enviar
-278:Enviar mensagem atual
-279:Ir para
-280:Ir para a posição atual da mensagem
-281:Fechar
-282:Fechar janela
-283:Responder
-284:Respostas à mensagem
-285:Confirmar
-286:Novas alianças foram feitas.
-287:É amigável
-288:É hostil
-289:|O seu pedreiro não pode encontrar material de trabalho.
-290:|Sua mina de carvão se esgotou.
-291:|Sua mina de ferro se esgotou.
-292:|Sua mina de ouro se esgotou.
-293:|Seu pescador não pode pegar nenhum peixe aqui.
-294:|Esta casa não está ocupada.
-295:|Esta tropa está verdadeiramente com fome, é melhor comer alguma coisa logo!
-296:Para distribuição de ferro
-297:Distribuição de|ferro
-298:Para distribuição de carvão
-299:Distribuição de|carvão
-300:Para distribuição de madeira
-301:Distribuição de|madeira
-302:Para distribuição de milho
-303:Distribuição de|milho
-304:|Por favor, insira a mensagem:
-305:Mensagem do jogador '%s':|'%s'
-306:Alianças:
-307:PAUSAR
-478:Mensagem de rede:
-479:O Jogador '%s' saiu do jogo.|Pressione ~<~S~P~A~C~E~> para continuar jogando.
-480:Você está no servidor agora.|Pressione ~<~S~P~A~C~E~> para continuar jogando.
-481:O computador está aguardando por dados|Pressione ~<~S~P~A~C~E~> para|repetir ou ~<~F~1~> para sair do jogo.
-499:Você deve construir uma escola para formar novos cidadãos.|Você precisa garantir que tem ouro em abundância nos seus cofres, para que os cidadãos possam sobreviver no seu reino.
-500:Para começar a construir, clique com o botão esquerdo no ícone do martelo ao lado esquerdo de sua tela. Depois clique sobre o ícone do livro (Escola).Posicione a moldura da sua escola no seu mapa e clique com o botão esquerdo para construi-la.
-501:Uma vez que você construir uma escola, poderá também 'construir estradas'. Você deve conectar a estrada com a porta da frente de cada edifício.
-502:Para treinar unidades, clique com o botão esquerdo na Escola e use o botão 'Próxima profissão' para selecionar a unidade que deseja treinar. Após isso, clique em no botão 'Adicionar a fila'. Quando formados, teus servos, maravilha das maravilhas, automaticamente começarão a executar suas tarefas.
-503:De tempos em tempos os seu leais cidadãos precisam comer. Para que eles possam fazer isso, você deve construir uma estalagem.|Tenha certeza de colocar a estalagem próxima a parte central da cidade, de modo que possa ser acessada facilmente por todos os seus aldeões.
-504:Você precisa de pedra para construção de novas casas e estradas. Você deve construir uma pedreira perto de uma fonte de pedras. Depois deve treinar um pedreiro que vai produzir material para o seu novo edifício.
-505:Você não pode pode construir edifícios apenas com pedras, também é preciso madeira. O lenhador planta e corta arvores para serem processadas na serraria. Você deve sempre construir a cabana do lenhador perto de uma floresta.
-506:Agora você deve construir uma serraria para processar os troncos das árvores que seu lenhador derrubou.|Uma vez concluída essa tarefa, treine um carpinteiro para trabalhar em sua nova serraria.
-507:Uma vez que você tenha materiais de construção suficientes, volte sua atenção para produção de alimentos.|Construa uma cabana de pescador perto da água, para que seu pescador forneça peixes frescos a sua estalagem.
-508:Bom, mas não se esqueça que, apesar de o mar ter peixes em abundância, eles irão acabar mais cedo ou mais tarde.|Para garantir uma fonte de alimento mais estável para a sua aldeia, você deve construir uma fazenda onde deve haver espaço suficiente para arar campos em volta.
-509:Cerca de dezesseis quadrados de área deve ser arada para seu agricultour, o mais próximo possível de sua fazenda.|Agora você precisa construir um moinho para processar o milho que o seu agricultou colheu.
-510:Ótimo, agora você pode construir uma padaria que dará pães frescos a sua estalagem. Tenha certeza de ter sempre servos suficientes para transportar os seu artigos e entregá-los rapidamente para edifícios diferentes.
-511:Além de alimentar teus súditos leais com peixe e pão, você também precisa dar-lhes algo para saciar a sede.|Contrua um vinheiro e coloque ceca de dezesseis quadrados de campo de vinho para que o seu agricultor possa pegar uvas.
-512:Esta indo bem, mas quem faz trabalhos pesados merece alimentos melhores do que apenas pão seco e vinho. Para produzir carne e peles, contrua uma granja de suínos e deixe que o criador de animais cuide deles.
-513:Para processar a carne de porcos recém-abatidos é necessário a construção de um açougue, onde o seu açougueiro fará salshichas com as carnes.
-514:Agora que você já garantiu a entrega dos alimentos, você deve se concentrar-se em sua meta de longo prazo, a produção de novas armas. Para começar construa um quartel em um local que lhe pareça adequado.
-515:No quartel você pode usar os botões 'próximo tipo de soldado' e 'tipo de soldado anterior' para percorrer as diferentes tropas que você pode ter equipadas. Os quadrados destacados indicam quantas peças de equipamentos são necessárias para equipar o soldado selecionado.
-516:Se você quer equipar os soldados do seu quartel, você também precisa produzir armas para os seus lutadores corajosos. Mante os seus operários edificar uma oficina de armas perto de seu quartel, para que você possa garantir a entrega rápida de armas.
-517:Para fazer pedidos de produção de equipamentos, você deve clicar com o botão esquerdo do mouse sobre a sua recém-contruída oficina de armas e, em seguida, à esquerda, clique no botão 'aumentar valor do pedido'. Certifique-se sempre de que sua oficina de armas tem madeira suficiente para a produção de novas armas.
-518:Sem equipamento adequado, seus soldados serão abatidos facilmente no campo de batalha.|Para produzir novas armaduras para os seus soldados, você deve em primeiro lugar construir um curtume para o processamento das peles.
-519:Agora que você tem uma produção de couro em andamento, você deve construir uma oficina de armas. Nesse edifício, um carpinteiro irá te fazer armaduras de couro e escudos de madeira.
-520:Excelente! Agora você tem todas as edificações necessárias para sua cidade progredir e para equipar novos soldados. Uma vez que tiver todas as peças adequadas de equipamentos necessários para equipar um tipo específico de soldade, deve treinar um recruta na Escola, e em seguida equipa-lo clicando em 'equipar tipo de soldado atual'.
-521:Seu objetivo agora é derrotar os dois acampamentos inimigos. O inimigo azul para o sul é esperto e tem uma base fortemente fortificada, enquanto os verdes, ao leste são apenas alguns poucos soldados. Prepare bem os seus soldados e, antes que eles tentem se livrar de você, livre-se deles!
-522:|O jogador azul foi derrotado!
-523:|O jogador verde foi derrotado!
-524:Antes que você ataque seus inimigos ao oeste, você precisa matar os inimigos ao norte. Clique com o botão esquerdo do mouse sobre os portadores da lança, e depois com o botão direito do mouse sobre os inimigos. Aproxime também os seus arqueiros.
-525:Há alguns arqueiros inimigos ao sul-oeste. Ataque-os com a sua milícia que está ao sul. Mas cuidado, ordene o ataque no momento certo, pois se algo der errado, será terrível as perdas para suas leais tropas! Use o 'Ataque Frontal' do menu da infantaria ao lado esquerdo da tela, para chegar aos arqueiros mais rapidamente.
-526:Ataque as forças inimigas que estão a sua espera ao oeste, mas preste atenção nos inimigos arqueiros, pois eles podem se esconder atrás da infantaria! Envie os seus escoteiros ao norte para que possam cercar o inimigo e atacar por trás.
-527:Agora lance um ataque com todas as suas forças ao mesmo tempo. Envie seus arqueiros para trás de sua infantaria e vá para as linhas inimigas. Se você procura a gloría, vença a batalha e complete o tutorial.
-529:Você precisa equipar novas unidades de milícia! Se você não fizer isso, estaremos indefesos contra novos ataques inimigos!
-530:Nossos escoteiros informaram que o inimigo está preparando um ataque contra nós. Confie em sua espada e mande-os para fora daqui!
-531:Você tem feito um bom progresso, mas a vila deve se tornar um pouco maior. Quando fizer isso, terá uma boa posição para atacar o inimigo e barricadas para destruir as resistências do mal.
-532:Mais uma vez devo dizer a você para proteget os nossos aliados, as tropas de Lauenburger, a todo custo!
-533:Proteja as suas tropas daquelas tropas patífes, cuidado com os cavaleiros do inimigo, eles estão de olho em nossos aliados!
-534:A aldeia do norte tem anunciado abertamente ser contra a tirania. Isto será uma grande vantagem para você.
-535:Nossos fiéis escoteiros descobriram um armazém abandonado. Ele está ao Oeste, próximo a um pequeno bosque. Certamente deve haver itens que poderá usar.
-536:Um escoteiro inimigo foi capturado e interrogado. Parece que o inimigo descobriu nossa posição e agora está preparando um ataque contra você.
-537:Não deve demorar até que os bárbaros caia sobre nós. Prepare bem os seus soldados ou os canalhas violarão suas defesas!
-538:Prepare as armas!|Uma enorme tropa da força inimiga está vindo em sua direção!
-539:Organize bem a sua tropa, o inimigo tem números muito superiores aos nossos! Estamos passando por tempestades, mas você deve encontrar a alegria da sua vitória!
-540:A vitória é nossa, mas ainda não há tempo para vinganças. Você deve reconstruir a cidade. Depois, os cães de coração negro irão pagar por seus atos covardes!
-541:Sem ferro, você não tem armas, sem armas, não tem guerreiros! Ao norte você pode encontrar o que necessita. Prepare a infantaria para capturar as minas.
-542:O bom povo da aldeira que está ao sul ainda resiste contra a tirania, mas sofreram muitas pertas, estão com medo. Você não pode deixar isso acontecer, vá ajudar esses moradores rápido!
-543:Um armazém abandonado doth por acaso mentira nigh para a sua posição. Tu   viajar com toda a velocidade para aquele lugar, para um julgamento difícil espera de ti, e tu methinks willst necessitar de toda a ajuda que   tu podes encontrar.
-544:Nossos espiões corajosos relataram que o armazém abandonado realmente é alvo de um inimigo de grande porte. Você precisa ficar firme aqui para que o seu avanço não seja prejudicado.
-545:Mais um ataque covarde está vindo no caminho do seu tesouro. Prepare-se para a batalha!
-546:O inimigo colocou todo o seu poder em prova para evitar a derrota em suas mãos. Tem sido uma piada até agora, uma vã tentativa de subjugá-lo. Você deve moer o inimigo, faça-os desaparecer, são os últimos homens! Certamente isso trará avanços gloriósos.
-547:O tirano ainda não foi sucumbido. Nossos aliados permanecem firmes e verdadeiros, estão de fato ao seu lado. Depois do primeiro ataque é consciente você deixar todas as suas estratégias e partir para um ataque combinado.
-549:A força adversária é maior do que os nossos olhos nos fez acreditar. Equipe os soldados do teu quartel com equipamentos robustos para apoiar teu exércio.
-550:Para banir totalmente todos os conquistadores, você precisa destruir todos os seus soldados covardes. Uma vez que eles forem destruidos, os camponeses das aldeias circundantes devem formar uma aliança com você para que os ofereça segurança.
-551:Nossos escoteiros relataram que o inimigo tem escravizado a maioria dos cidadãos da área. Destrua as defesas do inimigo e seus edifícios militares, mas deixe os colonizadores escravizados ilesos. Isso certamente fará o seu inimigo correr de medo e você libertará todos os cidadões, será glorioso!
-552:Proteja as tropas aliadas do seu inimigo, estão atacando ao sul. Não deixe que eles morram para o seu adversário, precisam do seu apoio mais do que nunca.
-553:Nossos espiões avistaram um exército hostil avançando sobre o seu tesouro, no sul! Você precisa defender os seus bens valiosos das forças rebeldes.
-554:Nossos escoteiros avistaram um exército adversário ao sul. Use a sua inteligência, e não deixe que os inimigos o peguem de surpresa!
-555:Estou vendo! Tropas inimigas estão se aproximando de você ao oeste! Espulse-os, use toda a força de suas leais tropas!
-556:Para apoiar seu exército, você precisa contratar mais mercenários. Estes soldados fortalecerão seu exército e ajudarão a repelir o seu inimigo.
-557:Talvez se você tentar entrar pelos fundos, você pode surpreende-los. Com essa vantagem você certamente deve derrotar o inimigo com facilidade.
-558:Uma força inimiga está vindo através das montanhas do noroeste, e até agora está marchando em linha reta para o seu acampamento! Prepare bem as suas tropas, para que você seja capaz de derrotar esse exército.
-559:Seu inimigo já descobriu sua nova posição e muito em breve enviará um forte batalhão em sua direção.
-560:Cuidado! Nossos escoteiros avistaram inimigos escondidos nas colinas circundantes. Uma luta agora poderia nos deixar em ruínas!
-561:Nós chegamos no útimo reduto dos rebeldes traiçoeiros.|Você deve matar todos os moradores reldes e grosseiros daqui, não deixando uma alma se quer após a batalha. Finalmente eles terão seu fim!||Nós vos chegaram ao último reduto dos rebeldes traiçoeiro.||Tu matar todos os moradores de rebelde e grosseiro aqui, deixando uma alma não   respiração única após esta batalha gloriosa chegou ao fim!
-562:Nossos espiões relataram que o nosso inimigo descobriu o nosso novo local e agora prepara um ataque contra você. Arranque sua espada mais um vez e não seja misericordioso para com esses rebeldes.
-569:Vazio
-570:Espírito
-571:Ocupado
-572:Chifres da idade média
-573:Primavera
-574:Alaúde
-575:Mercenario
-576:A Princesa
-577:A Rainha
-578:No mercado
-579:No campo de batalha
-580:Tribunal de dança
-581:O Exército
-582:No Castelo
-583:Fanfarras
-584:Na Corte
-585:entrada
-586:Azul profundo
-587:Luta
-999:não usado
-1000:Missão 'The Shattered Kingdom'
-1001:Missão 'The Peasants Rebellion'
-1002:Jogar o Tutorial
-1003:Jogar um Mapa Único
-1004:Mapa Único
-1005:Anterior
-1006:Próximo
-1007:Iniciar Mapa
-1008:Voltar ao Menu
-1009:Carregar um jogo salvo
-1010:Multi-jogador
-1011:Opções
-1012:Créditos
-1013:Sair do jogo
-1014:Vazio
-1015:Jogos Salvos:
-1016:Continuar
-1017:Reiniciar Missão
-1018:Para o Menu Principal
-1019:Resolução:
-1020:Indisponível
-1021:Selecione o tipo de jogo
-1022:Rede Local
-1023:Net-Games
-1024:Usuário:
-1025:Senha:
-1026:Criar uma nova conta
-1027:Logar
-1028:Conectando a Net-Games...
-1029:Autenticando...
-1030:Sucesso
-1031:Falhou
-1032:Conexão falhou
-1033:Senha errada
-1034:Usuário já existe
-1035:Esse usuário foi banido
-1036:Usuário inválido
-1037:Indefinido
-1038:Em progresso
-1039:Parametros inválidos
-1040:Canal está lotado
-1041:Canal não existe
-1042:Não tem acesso a este canal
-1043:Acabou o tempo
-1044:Você tem muitas contas
-1045:Servidor não está aceitando registros no momento
-1046:Usuário inválido
-1047:<COL 0>%s:<COL 1> %s|
-1048:<COL 0>%s %s|
-1049:<COL 2>%s sussurrou: %s|
-1050:<COL 3>Mensagem privada para %s: %s|
-1051:<COL 4>SERVIDOR: %s|
-1052:<COL 4>SERVIDOR: %s|
-1053:<COL 2>Mensagem do dia: %s|
-1054:<COL 0>BROADCAST: %s|
-1055:<COL 3>%s entrou no canal|
-1056:<COL 3>%s saiu do canal|
-1057:<COL 3>Você entrou no canal <COL 0>%s<COL 3>|
-1058:<COL 3>Você entrou no jogo <COL 0>%s<COL 3>|
-1059:Voltar ao Menu Principal
-1060:Entrar no Canal
-1061:Entrar no Jogo
-1062:Criar um Jogo
-1063:Create Ladder Game
-1064:Deixar o jogo
-1065:Entrar no jogo
-1066:Sussurar
-1067:Kickar
-1068:Banir
-1069:Informação
-1070:Registrar
-1071:Voltar ao nome inicial
-1072:Por favor, insira o seu nome:
-1073:Continuar
-1074:Voltar
-1075:Por favor, selecione o seu tipo de conexão:
-1076:Entrar no jogo
-1077:Criar um jogo
-1078:Por favor, insira o nome da sessão:
-1079:Iniciar Sessão:
-1080:Selecionar Sessão:
-1081:Entrar no Jogo
-1082:Procurar por jogos
-1083:Jogadores atuais:
-1084:Mensagens:
-1085:Enviar:
-1086:Iniciar!
-1087:Sem Nome
-1088:<Vazio>
-1089:<Indisponível>
-1090:<Computador>
-1091:'s session
-1092:~P~l~a~y~e~r '%s' ~h~a~s ~b~e~e~n ~r~e~m~o~v~e~d ~f~r~o~m ~g~a~m~e ~b~y ~t~h~e ~h~o~s~t
-1093:Cenários:
-1094:Título:
-1095:Descrição:
-1096:Propriedade:
-1097:Posição Inicial:
-1098:O host determina|o cenário
-1099:Armazém
-1100:Tropas e armazém
-1101:Tropas e edifícios
-1102:Sequencia
-1103:Random
-1104:Copiar jogo salvo
-1105:Abortar transferência
-1106:Transferido: %d/100
-1107:Jogo salvo No. %d
-1108:Jogadores:%d|Tamanho do mapa:%dx%d
-1109:Salvar automaticamente
-1110:VITÓRIA!
-1111:PERDEU!
-1112:Unidades perdidas:
-1113:Unidades derrotadas:
-1114:Edifícios perdidos:
-1115:Edifícios destruídos:
-1116:Edifícios construídos:
-1117:Unidades treinadas:
-1118:Armas produzidas:
-1119:Soldadps treinados:
-1120:Missão completada em:
-1149:Três Continentes
-1150:Deserto
-1151:Batalha por Carvão
-1152:Fronteira de Rios
-1153:Terra de Colinas
-1154:Região Serrana
-1155:Castelo de Matanças
-1156:Encontro de Costeiras
-1157:Emboscado!
-1158:Desastre na ponte
-1159:Mapa de Bonus A
-1160:Mapa de Bonus B
-1179:Através do Deserto||Tamanho: 176x176|Numero de oponentes: 5
-1180:Em uma Terra Estranha||Tamanho: 176x176|Numero de oponentes: 3
-1181:Neve e areia||Tamanho: 160x128|Numero de oponentes: 5
-1182:Terras do Rio Rápido||Tamanho: 176x176|Numero de oponentes: 3
-1183:Ouro Preto||Tamanho: 176x176|Numero de oponentes: 5
-1184:Paredes de Montanhas||Tamanho: 144x128|Numero de oponentes: 3
-1185:Reino das Trevas||Tamanho: 176x176|Numero de oponentes: 3
-1199:Jogadores: 6|Tamanho do Mapa: 176x176|Construir uma cidade
-1200:Jogadores: 4|Tamanho do Mapa: 176x176|Construir uma cidade
-1201:Jogadores: 6|Tamanho do Mapa: 160x128|Construir uma cidade
-1202:Jogadores: 4|Tamanho do Mapa: 176x176|Construir uma cidade
-1203:Jogadores: 6|Tamanho do Mapa: 176x176|Construir uma cidade
-1204:Jogadores: 4|Tamanho do mapa: 144x128|Construir uma cidade
-1205:Jogadores: 6|Tamanho do Mapa: 176x144|Construir uma cidade
-1206:Jogadores: 3|Tamanho do Mapa: 64x64|Batalha
-1207:Jogadores: 6|Tamanho do Mapa: 144x144|Batalha
-1208:Jogadores: 4|Tamanho do Mapa: 176x176|Construir uma cidade
-1249:Os traidores conseguiram romper|nossas defesas. A fortaleza caiu e |se você não expulsar os canalhas, |o reino será perdido e o trono |dos ladrões irá triunfar.||Levante as armas!
-1250:Sua vitória nos deu esperança.|Mas não há tempo para a folia.|O inimigo recuou para uma aldeia|quase na sua localização, logo eles|estarão fortes novamente. Em breve o príncipe deve|batalhar mais uma vez contra nós, como|suas forças desonestas, de longe, superam|teu combatentes leais. Controle|sua ira, e não te deixar ser|atraído para a batalha aberta. o terreno|é adequado para táticas defensivas por |sua parte: o inimigo deve ter necessidades perto|do rio, deves atacá-lo lá, o seu|número inferior deve ser igual ao seu numero de|força maior.
-1251:Um dia memorável! As forças desonestas|do príncipe rebelde estão em pleno|retiro. A estrada para o Barão de|Lauenburg está agora aberta para você|O Barão de Lauenburg, o servente, tem|formado uma aliança com nossos inimigos,|portanto, você será forçado a contar|com a forte oposição em teu caminho para|a província do ladino.
-1252:Realmente, os nossos inimigos de fato não|conseguiram deter as tropas leais do Rei.|O Barão de Lauenburg|foi forçado a recuar com todos os|seus soldados para aguardar o nosso ataque.|Os plebeus do baronato nos recebeu com alegria.|Agora, de fato, tens a chance gloriosa para|aumentar o teu exército e por acaso|capturar o Lauenburg. deves|derrotar o barão, este deve de fato|servir como um alerta para todos os traidores|à coroa!
-1253:O Barão de Lauenburg se rendeu|a você e recebeu o perdão de nosso Rei.|Ele tem mostrado verdadeiro|arrependimento por seus atos covardes. teu|objetivo agora deve ser a captura de|Moorbach. Nossos espiões descobriram|uma fortaleza deserta que tu|podes usar e ampliar de acordo com|tuas necessidades. Agora que Lauenburg é nosso|aliado, os soldados do baronato vão|ameaçar um ataque.|Você deve proteger as tropas de Lauenburger|a todo custo. Isto é necessário para|reforçar a confiança entre nós e|nossos novos aliados e você,|por isso, ganhará novos soldados para |o seu exército.
-1254:Moorbach caiu. nossos|inimigos foram derrotados e|profundamente humilhados. Agora os nossos espiões|informam que um novo exército de vilões e canalhas|estão vindo ao noroeste, para vingar a humilhante |derrota em suas mãos. Estamos fortes o suficiente|para entrar em guerra. Tente atacar este exército|de surpresa, se organize. Se necessitar, você pode|contar com os portadores da lança de Lauenburg, |que se juntou a nós para esta batalha.
-1255:Realmente, as notícias das suas vitórias passadas|espalharam-se como vendo por todo o reino.|Em todos os lugares os plebeus aumentaram|os ataques contra os tiranos. Walheim logo|ao norte, ainda está detido por nossos inimigos.|O Governador se recusou a receber nossos|enviados, e jurou defender a cidade até o |último homem ter caído. Os plebeus de uma |pequena aldeia próxima ao seu ponto forte|tem declarado ser contra o tirano. Isso é bom|e deve fornecer ao seu exército novas armas|e recrutas. Com um grande e bem equipado|exército, você não terá nenhum problema|em capturar Walheim.
-1256:A batalha de Walheim trouxe|com ela uma ausência de poder, e|existe um estado de confusão.|O selvagem das Tribos ao Norte|se juntou para cair sobre o reino.|Você precisa detê-los, antes que |possa novamente lutar contra os rebeldes.|Nas ruínas de Walheim, você|pode encontrar alguns planos de construções|nas avançadas torres de vigia. Você deve|formar um baluarte e enviar contra os bárbaros.|Você deve destruí-los!
-1257:A luta entre bárbaros|si mesmos. Talvez pela persuasão|dolo e podes ganhar a tua|causar dois de seus chefes, e todos os|seus guerreiros, que estas devem lutar|ao teu lado. Tua localização neste momento|é simples de defender, mas não pode ser|alargada, de modo que tu deves necessidades|plano com cuidado. O inimigo prepara|-se para a batalha eo ataque é|próxima. Prepare-se com toda a pressa, para que|tu podes verdade o inimigo bem-vindos|de tal maneira que ele deve|nunca se esqueça!
-1258:O déspota ímpio ameaça uma de|nossas cidades. Se tu apressar-te,|com toda tua velocidade, tu podes trazer|teus soldados lá a tempo.|De acordo com nossos espiões, tu deves|encontrar uma grande força inimiga.|Insirá os teus soldados lá também.|Se queres alcançar a vitória, use | táticas inteligentes. Se tu|andar de forma cega, tu |realmente irá se arrepender!
-1259:O ataque traiçoeiro deixou uma marca|cruel na cidade. Os inimigos a incendiaram|impiedosamente e matou quase todos|os que habitavam aqui.|Tu deves responder a este massacre com|vingança sangrenta! Mas em primeiro lugar, tu|necessitas construir a cidade de novo|antes que os covardes canalhas tomem|conta de tudo.
-1260:O inimigo está destruído e os|remanescentes do exército retirou-se para|o norte. O ferro em minas de minério |do norte são de grandeimportância|estratégica para ti. O ferro que|encontrará lá deve ajuda-lo a dar |continuidade a guerra|Construia um novo exército e conduza |todos os rebeldes desta região.|Ao leste há uma ponte, essa ponte vai ajudar|nas tuas defesas, enquanto teu exército|cresce.
-1261:Em verdade, o nosso inimigo ainda estão|possuidora de grandes reservas, e os|knaves plano de um contra-ataque contra a|nosso exército stalwart. No entanto, o|montanhas próximo à sua localização pode|ser um obstáculo para um grande exército para|atravessar. Antecedência tu no|montanhas com teu exército e|aguardam o inimigo nas alturas|passar. Não deixes que os traidores sempre|mais uma vez ganhar vantagem!
-1262:No último teus esforços frutos!|Em todo o reino, o rei|servos se levantam contra o reinado cruel|do príncipe. Em verdade, até mesmo sua|generais não concordar com os barbarismos|e crueldades praticadas no|plebeus. Um dos generais tem|passou uma mensagem secreta sobre a|nós .... que o príncipe covarde desejos|para fazer um exemplo cruel de uma aldeia|cujo povo rebelou-se abertamente|contra seu governo traiçoeira! tu,|e tu só a arte, o baluarte|entre o tirano e os intrépidos|aldeões! Tu deves precisa colocar um ponto final|para os planos deste canalha bárbaro é!
-1263:O fim está próximo para aqueles|corações negros, canalhas, os inimigos|do rei.  O príncipe, mudou|suas táticas, e realizou importantes|depósitos de matérias-primas. Isso será|um obstáculo para nós.|Capture os canalhas perto das minas de|minério de ferro próximo a tua localização|e coloque os rebeldes em fuga!|Não te esqueças que o grande pântano jaz |diante de ti! Prepara-te
-1264:Tens muita terra fértil e rica nos|depósitos de matérias-primas a tua|disposição na província. Não duvides|de que que em breve o inimico virá|para tentar ganhar esta terra fecunda.|Defenda a província e não tenha misericórdia|dos soldados inimigos! O quartel não deve|ser dado a eles!
-1265:Ao norte, o traidor reúne|os seus vassalos. Ele pode querer|um novo ataque contra nós. Mas |não estão preparados para enfrentar-te|no campo de batalha. Tu deves agir rápido|e atravessar as montanhas para alcançar|o seu objetivo, mas cuidado! O canalha|ocupou todas as passagens para impedir|seu objetivos. Ainda assim, tu deves ir |para o norte, a todo custo|Vai!
-1266:Tua última vitória forçou os teus|adversários a recuar. Eles tem se|enfiado em suas fortalezas como|covardes, e aguarda o teu ataque.|Esse fortaleza é muito difícil de ser|penetrada! Muitos tem tentado diante|de ti, e todos falharam. Mas não deixe|que a tua coragem vá embora, siga seu coração!|Você tem esses valentes generais que deixaram|artigos para trás que deve ajudar-te na tua busca.|Coragem!
-1267:Por acaso é preto, dia preto!|Um enredo que teve o custo do nosso|amado rei, que pagara com tua vida!|O príncipe, sem vergonha, canalha,|ele é o canastra por trás desta grande|tragédia. Ele tem se escondido atrás |daquelas paredes poderosas, mas |agora ele enfrentará tua ira. Faça|chover tempestades nessas paredes, mostre|quem és, ele não é merecedor de misericórdia.|Agora é olho por olho, e dente por dente!
-1268:Nossa busca está quase terminada. A cidade,|doth que ser o último remanescente|bastião do rei upstart, é|cercado e sob cerco. não mostram|misericórdia para quem permanece verdadeira|para o upstart e matar todos os teus|inimigos! Tu, oh herói leais te,|raze todos os traços de seu governo covarde|para o chão! Só então, pela tua|feitos heróicos, a paz ea liberdade deve|reinar mais uma vez no reino. para|a forca com o pretendente, onde|ele deve ficar como o comum|criminal ele faz ser!
-1299:JOYMANIA ENTERTAINMENT||PROGRAMADOR:|Peter Ohlmann||EFEITOS GRÁFICOS:|Adam Sprys||DESIGN DE LEVELS:|Adam Sprys|Andre Quaß||EDIÇÃO E MIXAGEM DE SOM:|Tonstudio Mannheim||MUSICAS:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRAÇÕES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUÇÃO:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRETOR GERAL:|Achim Heidelauf||PUBLICADO POR:|TopWare Interactive||DIREÇÃO DE CUTSCENES:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOZES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||TRABALHO DE ARTES:|Boleslaw Kasza|Adam Sprys||ANIMAÇÃO INICIAL:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||AGRADECIMENTOS ESPECIAIS:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-1349:              Missão 1||Os renegados estão tentando oprimir os poucos agricultores que permanecem leais ao reino. Fora do palácio do rei, os agricultores inocentes estão sendo massacrados, e sob nenhuma circunstância se pode permitir isso!|Force os atacantes a recuar!
-1350:              Missão 2||Após o nosso sucesso ajudando aos agricultores, devemos libertar os agricultores restantes. Um grande inimigo está vindo diretamente para nós do norte.|Para a batalha!
-1351:              Missão 3||Depois da batalha vitoriosa você tem algum tempo para reconstruir as cidades em ruínas e vilas e garantir o abastecimento de seus assuntos. Então você deve voltar sua atenção para libertar os assentamentos ocupados no norte e lutar contra a tirania da renegada aristocracia. Faça a reposição do povo do campo civil e lute apenas com os soldados inimigos que estão ali estacionados.
-1352:              Missão 4||Nossos espiões viram tropas inimigas nos assentamentos circundantes. Devido ao elevado número de soldados inimigos, devemos presumir que eles têm um acampamento fortificado. Encontre-o e destrua-o, incluindo todos os militares e edifícios inimigos.
-1353:              Missão 5||Agora, depois de seu estrondoso sucesso na luta contra os rebeldes, devemos contar com um contra-ataque massivo. Prepare o seu povo para uma luta dura. Impeça as aldeias de serem destruídas.
-1354:              Missão 6||Sabemos que nosso inimigo está construindo novas bases. Você não pode permitir isso. Ataque o mais rapidamente possível, antes que o inimigo se recupere.|Também procure áreas onde pode obter matérias-primas, porque o seu abastecimento de minério de ferro está quase esgotado.
-1355:              Missão 7||Antes de nos voltarmos de novo para os rebeldes, devemos reconquistar os assentamentos no sul. A vitória da última batalha nos trouxe uma pequena quantidade de ferro que precisamos urgentemente. Mas os depósitos de ferro nesta área são muito limitados, devemos ter cuidado como os usamos.
-1356:              Missão 8||Durante o nosso último ataque tivemos que mover a maioria do nosso povo para longe de nossa base e isso deu ao inimigo a chance de atacar. Retorne o mais rápido possível, antes que o inimigo fure nossas defesas!
-1357:              Missão 9||Por causa da emboscada não temos sido capazes de chegar ao castelo a tempo. Precisamos pensar em uma boa estratégia para reconquistar o que é nosso. O portão principal está fortemente defendido, e um ataque direto seria inútil. Tente atacar outra entrada e evite batalhas desnecessárias, pois não temos minas de minério de ferro por perto.
-1358:              Missão 10||Através castelo da reconquista, fizemos alguns prisioneiros, que nos contou sobre um túnel subterrâneo, que leva através das montanhas do norte. A entrada para o túnel está sendo vigiada por alguns soldados inimigos. Derrube os guardas e entre no túnel.
-1359:              Missão 11||A caverna é maior do que o esperado. Nossos batedores descobriram guardas inimigos nos túneis sinuosos que estão protegendo o complexo subterrâneo de intrusos. Alcançe a saída do outro lado das montanhas.
-1360:              Missão 12||As tropas inimigas foram informadas das nossas intenções. Fortes batalhões inimigos estão avançando e em breve nos atacarão. Construa torres para enfraquecer as tropas que estão vindo. Se a defesa for bem sucedida, você será capaz de atravessar a passagem para o norte.
-1361:              Missão 13||Uma emboscada! Nosso inimigo está esperando por nós. Estamos agora em uma posição extremamente ruim. Force os bandidos traiçoeiros a recuar!
-1362:              Missão 14||Chegamos ao último bastião do nosso inimigo. Eles trouxeram o resto de seus exércitos juntos e barricaram-se em seu retiro de final, a nordeste daqui. Devido ao frio, o rio é parcialmente congelado, e nos oferece a possibilidade de surpreender a nossa oposição. Derrote as tropas inimigas remanescentes, para que a paz possa voltar a nossa terra!
-2000:Missão cancelada
-2001:Tutorial da cidade
-2002:Tutorial de batalha
-2003:Único jogador
-2004:Editor de Mapas
-2005:Ver o último Replay
-2006:Iniciar Missão
-2007:Título
-2008:Tamanho
-2009:Tipo de missão: %s
-2010:Condição para ganhar: %s
-2011:Condição para a derrota: %s
-2012:Aliados:
-2013:Inimigos:
-2015:Tamanho do mapa
-2016:Largura
-2017:Altura
-2018:Criar novo mapa
-2019:Mapas disponíveis
-2020:Carregar um mapa existente
-2021:Controles:
-2022:Em jogo:
-2023:Som:
-2024:Desativar musica
-2025:Gráficos:
-2026:Brilho
-2027:Tela Cheia
-2028:Aplicar
-2029:Idioma:
-2030:Carregando... Por favor aguarde
-2031:Ocorreu um erro!
-2032:Carregando novo local
-2033:Lista de jogos salvos
-2034:Nome de arquivo
-2035:Descrição
-2036:Carregar
-2037:Deletar
-2038:Você quer mesmo deletar este jogo salvo?
-2039:Deletar
-2040:Cancelar
-2042:Você venceu!
-2043:Continuar jogando
-2044:Vitória!
-2045:Você perdeu!
-2046:Continuar assistindo
-2047:Derrotado
-2048:Replay acabou
-2049:Continuar assistindo
-2050:Sair para o Menu
-2051:Indisponível
-2052:Pressione %s para continuar o jogo
-2053:Para o time
-2054:Informações dos jogadores
-2055:Chat
-2056:Já existe um jogo salvo
-2057:Sobrescrever
-2058:Salvar
-2059:Carregar
-2060:Ocorreu um erro durante o jogo.
-2061:Por favor, envie o arquivo %s do seu KaM Remake\\Crash na pasta Reports para os desenvolvedores. Maiores informações para contato você encontra no arquivo Readme. Muito obrigado pela sua ajuda!
-2062:Uma versão antiga do OpenGL foi detectada, o jogo poderá apresentar falhas grafícas
-2063:Erro de rede
-2064:Erro: Nome do jogador não pode ficar em branco
-2065:Conexão falhou: %s
-2066:Você foi desconectado
-2067:Missão %d
-2068:A cabana do seu pescador está muito longe da água.
-2069:Seu pescador não pode pegar nenhum peixe nas aguas próximas.
-2071:Use o botão esquerdo do mouse para selecionar o artigo de comércio
-2072:Use o botão direito do mouse para selecionar o artigo de comércio
-2073:De x%d
-2074:Para x%d
-2075:Editar terreno
-2076:Planejamento de Aldeia
-2077:Visual scripts
-2078:Global scripting
-2079:Menu
-2080:Status:
-2081:Nome do jogador
-2082:CRIAR SERVIDOR
-2083:Nome
-2084:Porta
-2085:Criar um servidor local
-2086:Criar um Servidor na Internet
-2087:Nome do Servidor
-2088:Estado
-2089:Jogadores
-2090:Ping
-2091:Recarregar lista de servidores
-2092:DETALHES DO SERVIDOR
-2093:Lista de jogadores:
-2094:Endereço
-2095:Porta
-2096:Sala
-2097:Entrar
-2098:Conectando, por favor aguarde...
-2099:Carregando anunciamentos...
-2100:Recarregando...
-2101:Lista de Jogadores
-2102:Iniciar local
-2103:Time
-2104:Cor da bandeira
-2105:Pronto
-2106:Ping
-2107:Kick
-2108:Aberto
-2109:Jogador AI
-2110:Selecionar..
-2111:Aleatório
-2112:Nenhum
-2113:Nenhum
-2114:Time %d
-2116:Correio de mensagens:
-2117:Map type
-2118:Mapa Único
-2119:Jogo Salvo
-2120:Selecionar um mapa...
-2121:Selecionar um jogo salvo...
-2122:Informações do mapa:
-2123:Jogadores: %d
-2124:Modo:
-2125:Condições:
-2126:Tamanho:
-2127:Sair da sala
-2128:Pronto
-2129:Iniciar!
-2130:Aguardando por jogadores:
-2131:Créditos do KaM Remake
-2132:Créditos Originais do Knights & Merchants
-2133:PROGRAMADORES:
-2134:PROGRAMADORES ADICIONAIS:
-2135:GRÁFICOS ADICIONAIS:
-2136:TRADUÇÕES ADICIONAIS:
-2137:AGRADECIMENTOS ESPECIAIS:
-2138:Mapas multiplayer
-2139:Mapas singleplayer
-2140:Velocidade do Scroll
-2141:No servers found
-2142:Shuffle tracks
-2143:Game information:
-2144:-
-2145:Lobby
-2146:Loading
-2147:Game
-2148:Location %d
-2149:Building and Fighting
-2150:Fighting
-2151:Not ready
-2152:Ready
-2153:Error: Please select a player from the save to control
-2154:Error: Map failed to load or no map selected
-2155:Cannot start: %s
-2156:Not everyone is ready to start
-2157:Player count exceeds map limit
-2158:Wrong protocol version: %s. Server uses: %s
-2159:Server has assigned hosting rights to us
-2160:Increase trade amount
-2161:Decrease trade amount
-2162:Saving game...
-2163:%s was defeated!
-2164:ADDITIONAL SOUNDS:
-2165:Drop Players
-2166:The host will be allowed to drop these players after %d seconds
-2167:The host is now allowed to drop these players
-2168:The host (%s) has quit
-2169:The connection to the server was lost. Attempting to reconnect...
-2170:Are you sure you want to quit?
-2171:Are you sure you want to permanently drop these players?
-2172:Cancel
-2173:Citizens|trained
-2174:Citizens|lost
-2175:Soldiers|equipped
-2176:Soldiers|lost
-2177:Units|defeated
-2178:Buildings|constructed
-2179:Buildings|lost
-2180:Buildings|destroyed
-2181:Wares|produced
-2182:Weapons|produced
-2183:Trading this resource is not available in this mission
-2184:Plant and fell
-2185:Fell only
-2186:Game started
-2187:Building Map
-2188:Fighting Map
-2189:Co-operative Map
-2190:You are not allowed to do that during peacetime
-2191:Peacetime remaining: %s
-2192:Peacetime is over. To thy weapons!
-2193:Game time:|%s
-2194:Game options:
-2195:H
-2196:L
-2197:S
-2198:Halt troop ('%s')
-2199:Link up troop ('%s')
-2200:Separate troop ('%s')
-2201:Replay Viewer
-2202:View Replay
-2203:Peacetime (minutes)
-2204:Unsupported format %s
-2205:Unsupported version %s
-2207:initializing
-2208:multiplayer initialization
-2209:script
-2210:New Mission
-2211:An error has occurred while parsing the file %s
-2212:Closed
-2213:Host does player setup
-2214:additional sprites
-2215:units
-2216:houses
-2217:trees
-2218:definitions
-2219:tileset
-2220:Soft shadows
+147:Para seleção  dos edifícios
+148:Para distribuição de mercadorias
+149:Para estatísticas
+150:Para opções
+151:Voltar
+152:Edifícios|Seleção
+153:Distribuição|de mercadorias
+154:Estatísticas
+155:Opções
+156:Carregar
+157:Salvar
+158:Você tem certeza|de que quer terminar|esta missão?
+159:Terminar missão
+160:Voltar
+161:Configurações
+162:Terminar missão
+163:SFX
+164:Alterar o Volume
+165:Musica
+166:Musica ligar/desligar
+167:Salvar Auto
+168:Player de música
+169:Faixa anterior
+170:Próxima faixa
+171:Demolir
+172:Remover Edifícios
+173:Construir rua
+174:Construir ruas
+175:Arar campo
+176:Arar campos
+177:Dispor campo de vinho
+178:Dispor campos de vinho
+179:Cancelar
+180:Cancelar treinamento atual
+181:Necessidades:
+182:Condição:
+183:Estoque
+184:Casa em|construção
+185:Destruir
+186:Você quer realmente|demolir esta construção?
+187:Destruir edifício selecionado
+188:Decrease order amount
+189:Increase order amount
+190:Tipo de soldado anterior
+191:Próximo tipo de soldado
+192:Equipar tipo de soldado atual
+193:Próxima profissão
+194:Profissão anterior
+195:Adicionar à fila
+196:ligar/desligar entrega de mercadorias
+197:ligar/desligar reparo da casa
+198:Edifício não disponível no momento
+199:Condição
+200:virar tropa á esquerda
+201:Virar tropa á direita
+202:Atacar ('a')
+203:Enviar tropa ('d')
+204:Abastecer tropa com alimentos
+205:Iniciar Ataque Tempestade
+206:Adicionar linha:
+207:Retirar linha
+208:Selecionar|grupo
+209:Cancelar
+210:Deletar
+211:Deletar mensagem atual
+212:Ir para
+213:Ir para a posição atual da mensagem
+214:Fechar
+215:Fechar janela
+216:|O seu pedreiro não pode encontrar material de trabalho.
+217:|Sua mina de carvão se esgotou.
+218:|Sua mina de ferro se esgotou.
+219:|Sua mina de ouro se esgotou.
+220:|Esta casa não está ocupada.
+221:|Esta tropa está verdadeiramente com fome, é melhor comer alguma coisa logo!
+222:PAUSAR
+418:Espírito
+419:Ocupado
+420:Chifres da idade média
+421:Primavera
+422:Alaúde
+423:Mercenario
+424:A Princesa
+425:A Rainha
+426:No mercado
+427:No campo de batalha
+428:Tribunal de dança
+429:O Exército
+430:No Castelo
+431:Fanfarras
+432:Na Corte
+433:entrada
+434:Azul profundo
+435:Luta
+847:Missão 'The Shattered Kingdom'
+848:Missão 'The Peasants Rebellion'
+849:Jogar um Mapa Único
+850:Iniciar Mapa
+851:Voltar ao Menu
+852:Carregar um jogo salvo
+853:Multi-jogador
+854:Opções
+855:Créditos
+856:Sair do jogo
+857:Continuar
+858:Reiniciar Missão
+859:Resolução:
+860:VITÓRIA!
+861:PERDEU!
+862:Unidades perdidas:
+863:Unidades derrotadas:
+864:Edifícios perdidos:
+865:Edifícios destruídos:
+866:Edifícios construídos:
+867:Unidades treinadas:
+868:Armas produzidas:
+869:Soldadps treinados:
+870:Missão completada em:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMADOR:|Peter Ohlmann||EFEITOS GRÁFICOS:|Adam Sprys||DESIGN DE LEVELS:|Adam Sprys|Andre Quaß||EDIÇÃO E MIXAGEM DE SOM:|Tonstudio Mannheim||MUSICAS:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRAÇÕES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUÇÃO:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRETOR GERAL:|Achim Heidelauf||PUBLICADO POR:|TopWare Interactive||DIREÇÃO DE CUTSCENES:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOZES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||TRABALHO DE ARTES:|Boleslaw Kasza|Adam Sprys||ANIMAÇÃO INICIAL:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||AGRADECIMENTOS ESPECIAIS:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+1686:Missão cancelada
+1687:Tutorial da cidade
+1688:Tutorial de batalha
+1689:Único jogador
+1690:Editor de Mapas
+1691:Ver o último Replay
+1692:Iniciar Missão
+1693:Título
+1694:Tamanho
+1695:Tipo de missão: %s
+1696:Condição para ganhar: %s
+1697:Condição para a derrota: %s
+1698:Aliados:
+1699:Inimigos:
+1701:Tamanho do mapa
+1702:Largura
+1703:Altura
+1704:Criar novo mapa
+1705:Mapas disponíveis
+1706:Carregar um mapa existente
+1707:Controles:
+1708:Em jogo:
+1709:Som:
+1710:Desativar musica
+1711:Gráficos:
+1712:Brilho
+1713:Tela Cheia
+1714:Aplicar
+1715:Idioma:
+1716:Carregando... Por favor aguarde
+1717:Ocorreu um erro!
+1718:Carregando novo local
+1719:Lista de jogos salvos
+1720:Nome de arquivo
+1721:Descrição
+1722:Carregar
+1723:Deletar
+1724:Você quer mesmo deletar este jogo salvo?
+1725:Deletar
+1726:Cancelar
+1728:Você venceu!
+1729:Continuar jogando
+1730:Vitória!
+1731:Você perdeu!
+1732:Continuar assistindo
+1733:Derrotado
+1734:Replay acabou
+1735:Continuar assistindo
+1736:Sair para o Menu
+1737:Indisponível
+1738:Pressione %s para continuar o jogo
+1739:Para o time
+1740:Informações dos jogadores
+1741:Chat
+1742:Já existe um jogo salvo
+1743:Sobrescrever
+1744:Salvar
+1745:Carregar
+1746:Ocorreu um erro durante o jogo.
+1747:Por favor, envie o arquivo %s do seu KaM Remake\\Crash na pasta Reports para os desenvolvedores. Maiores informações para contato você encontra no arquivo Readme. Muito obrigado pela sua ajuda!
+1748:Uma versão antiga do OpenGL foi detectada, o jogo poderá apresentar falhas grafícas
+1749:Erro de rede
+1750:Erro: Nome do jogador não pode ficar em branco
+1751:Conexão falhou: %s
+1752:Você foi desconectado
+1753:Missão %d
+1754:A cabana do seu pescador está muito longe da água.
+1755:Seu pescador não pode pegar nenhum peixe nas aguas próximas.
+1757:Use o botão esquerdo do mouse para selecionar o artigo de comércio
+1758:Use o botão direito do mouse para selecionar o artigo de comércio
+1759:De x%d
+1760:Para x%d
+1761:Editar terreno
+1762:Planejamento de Aldeia
+1763:Visual scripts
+1764:Global scripting
+1765:Menu
+1766:Status:
+1767:Nome do jogador
+1768:CRIAR SERVIDOR
+1769:Nome
+1770:Porta
+1771:Criar um servidor local
+1772:Criar um Servidor na Internet
+1773:Nome do Servidor
+1774:Estado
+1775:Jogadores
+1776:Ping
+1777:Recarregar lista de servidores
+1778:DETALHES DO SERVIDOR
+1779:Lista de jogadores:
+1780:Endereço
+1781:Porta
+1782:Sala
+1783:Entrar
+1784:Conectando, por favor aguarde...
+1785:Carregando anunciamentos...
+1786:Recarregando...
+1787:Lista de Jogadores
+1788:Iniciar local
+1789:Time
+1790:Cor da bandeira
+1791:Pronto
+1792:Ping
+1793:Kick
+1794:Aberto
+1795:Jogador AI
+1796:Selecionar..
+1797:Aleatório
+1798:Nenhum
+1799:Nenhum
+1800:Time %d
+1802:Correio de mensagens:
+1803:Map type
+1804:Mapa Único
+1805:Jogo Salvo
+1806:Selecionar um mapa...
+1807:Selecionar um jogo salvo...
+1808:Informações do mapa:
+1809:Jogadores: %d
+1810:Modo:
+1811:Condições:
+1812:Tamanho:
+1813:Sair da sala
+1814:Pronto
+1815:Iniciar!
+1816:Aguardando por jogadores:
+1817:Créditos do KaM Remake
+1818:Créditos Originais do Knights & Merchants
+1819:PROGRAMADORES:
+1820:PROGRAMADORES ADICIONAIS:
+1821:GRÁFICOS ADICIONAIS:
+1822:TRADUÇÕES ADICIONAIS:
+1823:AGRADECIMENTOS ESPECIAIS:
+1824:Mapas multiplayer
+1825:Mapas singleplayer
+1826:Velocidade do Scroll
+1827:No servers found
+1828:Shuffle tracks
+1829:Game information:
+1830:-
+1831:Lobby
+1832:Loading
+1833:Game
+1834:Location %d
+1835:Building and Fighting
+1836:Fighting
+1837:Not ready
+1838:Ready
+1839:Error: Please select a player from the save to control
+1840:Error: Map failed to load or no map selected
+1841:Cannot start: %s
+1842:Not everyone is ready to start
+1843:Player count exceeds map limit
+1844:Wrong protocol version: %s. Server uses: %s
+1845:Server has assigned hosting rights to us
+1846:Increase trade amount
+1847:Decrease trade amount
+1848:Saving game...
+1849:%s was defeated!
+1850:ADDITIONAL SOUNDS:
+1851:Drop Players
+1852:The host will be allowed to drop these players after %d seconds
+1853:The host is now allowed to drop these players
+1854:The host (%s) has quit
+1855:The connection to the server was lost. Attempting to reconnect...
+1856:Are you sure you want to quit?
+1857:Are you sure you want to permanently drop these players?
+1858:Cancel
+1859:Citizens|trained
+1860:Citizens|lost
+1861:Soldiers|equipped
+1862:Soldiers|lost
+1863:Units|defeated
+1864:Buildings|constructed
+1865:Buildings|lost
+1866:Buildings|destroyed
+1867:Wares|produced
+1868:Weapons|produced
+1869:Trading this resource is not available in this mission
+1870:Plant and fell
+1871:Fell only
+1872:Game started
+1873:Building Map
+1874:Fighting Map
+1875:Co-operative Map
+1876:You are not allowed to do that during peacetime
+1877:Peacetime remaining: %s
+1878:Peacetime is over. To thy weapons!
+1879:Game time:|%s
+1880:Game options:
+1881:H
+1882:L
+1883:S
+1884:Halt troop ('%s')
+1885:Link up troop ('%s')
+1886:Separate troop ('%s')
+1887:Replay Viewer
+1888:View Replay
+1889:Peacetime (minutes)
+1890:Unsupported format %s
+1891:Unsupported version %s
+1893:initializing
+1894:multiplayer initialization
+1895:script
+1896:New Mission
+1897:An error has occurred while parsing the file %s
+1898:Closed
+1899:Host does player setup
+1900:additional sprites
+1901:units
+1902:houses
+1903:trees
+1904:definitions
+1905:tileset
+1906:Soft shadows

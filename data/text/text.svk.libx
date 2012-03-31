@@ -103,651 +103,338 @@ MaxID:3004
 110:aké brnenia a zbrane|sú vyrábané|kováèom v zbrojárni|a kováèni brnenia.
 111:Hutník vyrába|truhlice zlata a oce¾|z príslušnıch rúd.
 112:Regrút môe by|vybavenı ako vojak|v hrade.||Obıva taktie|stránu veu.
-113:Domobrana
-114:Sekerníci
-115:Bojovníci s meèmi
-116:Lukostrelci
-117:Strelci z kuší
-118:Kopijníci
-119:Halapartníci
-120:Jazdci
-121:Rytieri
-122:Vlk
-123:Ryba
-124:Ryba
-159:K vıberu budov
-160:K rozdeleniu produktov
-161:Ku štatistike
-162:K správam
-163:K vo¾bám
-164:Spä
-165:Vıber|budov
-166:Rozdelenie|produktov
-167:Štatistiky
-168:Správy
-169:Vo¾by
-170:Vyvolanie nastavení
-171:Nahranie hry
-172:Uloenie hry
-173:Nahranie hry
-174:Uloenie hry
-175:Ste si istı|e chte ukonèi|túto misiu?
-176:Koniec misie
-177:Spä
-178:Nastavenia
-179:Ukonèneie misie
-180:Jas
-181:+
-182:-
-183:Zvıšenie jasu
-184:Zníenie jasu
-185:Ve¾mi tmavı
-186:Tmavı
-187:Normálny
-188:Jasnı
-189:Ve¾mi jasnı
-190:Najjasnejší
-191:Rıchlos myši
-192:Zmena rıchlosti myši
-193:Zvukové efekty
-194:Zmena hlasitosti
-195:Hudba
-196:Hudba:
-197:Hudba zap/vyp
-198:Vypnú
-199:Cez MIDI
-200:Zapnú
-201:Prázdne
-202:Autouloenie
-203:Rıchle posúvanie
-204:Misia %d Èas:%2.2u:%2.2u
-205:Scenár %d Èas:%2.2u:%2.2u
-206:CD prehrávaè
-207:Predchádzajúca skladba
-208:Ïa¾šia skladba
-209:Zbúra
-210:Odstráni budovú/zvıraznenie
-211:Postavi cestu
-212:Stavba cesty
-213:Zora pole
-214:Pole
-215:Postavi plot
-216:Ohrada pastviny
-217:Zaloi vinicu
-218:Vinièné pole
-219:Postavi múr
-220:Stavba múru
-221:Cvièi
-222:Vycvièi pracovnú skupinu
-223:Zruši
-224:Zruši súèasnı vıcvik
-225:|vo vıcviku
-226:Potreby:
-227:Stav:
-228:Dodávka
-229:Do vo|vıstavbe
-230:Znièi
-231:Skutoène chcete|znièi túto stavbu?
-232:Znièi vybranú budovu
-233:Znii objednané mnostvo
-234:Zvıši objednané mnostvo
-235:Zásoby tovaru:
-236:Predchádzajúci typ vojaka
-237:Ïa¾ší typ vojaka
-238:Vybavi
-239:Vybavi súèanı typ jednotky
-240:Ïašie povolanie
-241:Predchádzajúce povolanie
-242:Prida do fronty
-243:Ïa¾ší oldnier
-244:Predchádzajúci oldnier
-245:Naja oldniera
-246:Prítomní regrúti:
-247:Cena:
-248:Zapnú/Vypnú dodávku tovaru
-249:Zapnú/Vypnú opravu domu
-250:Budova v súèasnosti nie je k dispozícii
-251:Nedostupné v DEMO verzii
-252:Neobsadené
-253:Stav
-254:Otoèi vojsko v¾avo
-255:Otoèi vojsko vpravo
-256:Útok ('a')
-257:Zastavi a sformova ('h')
-258:Premiestni vojsko ('d')
-259:Spoji jednotky ('l')
-260:Rozdeli vojsko ('s')
-261:Zásobi vojsko potravinami
-262:Zaháji rıchly útok!
-263:Prida radu
-264:Zruši radu
-265:Útok:
-266:Obrana:
-267:Rıchlos:
-268:Vıber|hradu
-269:Opusti
-270:Vıber|miesta|urèenia
-271:Vıber|cie¾ovej|skupiny
-272:Vıber|cie¾a|útoku
-273:Opusti
-274:Jednotka nie je v súèastnosti dostupná
-275:Vymaza
-276:Vymaza súèasnú správu
-277:Posla
-278:Posla súèasnú správu
-279:Prejs na
-280:Prejs na miesto v správe
-281:Zatvori
-282:Zatvori okno
-283:Odpoveda
-284:Odpoveda na správu
-285:Potvrdi
-286:Utvorili sa nové spojenectvá.
-287:je spojenec.
-288:je nepriate¾.
-289:|Váš kamenník nemôe zohna ïa¾šie zásoby kameòa.
-290:|Zásoby uhlia sa zdajú by vyèerpané.
-291:|Vaše ily so eleznou rudou sú vyèerpané.
-292:|Vaše zlaté ily sú vyèerpané.
-293:|Váš rybár u nemôe lovi na tomto mieste.
-294:|Táto budova nie je obıvaná.
-295:|Tento vojak je skutoène hladnı. Bolo by lepšie mu da|ve¾mi skoro nieèo zajes!
-296:Na rozdelovanie eleza
-297:Rozdelovanie|eleza
-298:Na rozdelovanie uhlia
-299:Rozdelovanie|uhlia
-300:Na rozdelovanie dosiek
-301:Rozdelovanie|dosiek
-302:Na rozdelovanie obilia
-303:Rozdelovanie obilia
-304:|Zadajte prosím text správy:
-305:Správa od hráèa '%s':|'%s'
-306:Spojenectvá:
-307:PAUZA
-478:Sieová správa:
-479:'%s' opustil hru.|Stlaè ~<~M~E~D~Z~E~R~N~Í~K~> na pokraèovanie hry.
-480:Teraz ste server.|Stlaè ~<~M~E~D~Z~E~R~N~Í~K~> na pokraèovanie hry.
-481:Poèítaè èaká na dáta. Stlaè ~<~M~E~D~Z~E~R~N~Í~K~>|pre opakovanie alebo ~<~F~1~> na ukonèenie hry.
-499:Potrebuješ školu na vıcvik novıch obyvate¾ov.|Uisti sa, e máš v sklade na to vdy dos zlata.
-500:Stavbu zaèneš ¾avım klikom na ikonu kladiva na ¾avej strane obrazovky. Potom klikni na ikonu knihy (škola). Umiestni orámovanie školy na mape kde  chceš budovu postavi a ¾avım kliknutím budovu umiestniš.
-501:Keï si postavil školu, zbadaš, e bolo vybrané 'Stavba cesty'. Klikni na umiestnenie dlaby na cestu a spoj cestu od Skladu do Školy. Pamätaj, e musíš spojit cestu k vchodovım dverám kadej budovy.
-502:Na vıcvik obyvate¾ov klikni ¾avım tlaèítko na školu a roluj profesiami pomocou tlaèítok 'Ïalšia profesia' pokia¾ vyberieš jednotku ktorú chceš vycvièi. Potom klikni 'Pridaj do rady' . Vycvicení obyvatelia automaticky zaènú robi svoje úlohy.
-503:From time to time your citizens must eat. In order for them to do this, you must construct an inn.|Be sure to locate the inn centrally, so that it is easily accessible for all your villagers.
-504:You need stones for further house and road construction. Construct a quarry near a supply of stones. Then you must train a stonemason who will produce your new building material.
-505:You don't just need stones to construct buildings, but also timber. The woodcutter fells and plants trees which are then processed in the sawmill. Always build the woodcutter's hut near a forest.
-506:Now you have to construct a sawmill to process the tree trunks which the woodcutter has felled.|After doing that, you should train a carpenter who will work in the sawmill.
-507:When you've ensured a sufficient supply of building materials you should turn your attention to the production of food.|Construct a fisherman's hut near a water so that you can supply your inn with freshly caught fish.
-508:Good, but remember that even though there are be plenty of fish in the sea, they will run out sooner or later.|To ensure a more stable food source, construct a farm where there's enough room for fields.
-509:Roughly 16 fields should be laid out for the farmer, as close as possible to the farm itself.|Now you have to construct a mill to process the corn you harvest.
-510:Great, now you can build a bakery which will supply your inn with fresh bread. Make sure you've always got enough serfs on hand to transport your goods and deliver them quickly to the different buildings.
-511:Apart from just feeding your subjects with fish and bread, you also need to give them something to quench their thirst.|Construct a vineyard and lay out about 16 squares of wine field for your farmer to gather grapes from.
-512:You are doing well, but your hard-working subjects deserve better food than just bread and wine. To produce meat and skins, construct a swine farm where the animal breeder will breed pigs.
-513:To process your newly produced meat further, it is necessary to build a butchery. In the butchery, the butcher will produce sausages from your meat.
-514:Now that you have secured your food deliveries you should concentrate on your long-term goal, the production of new weapons. Start by building a barracks at a suitable location.
-515:By using the 'Next soldier type' and 'Previous soldier type' buttons you can scroll through the different soldier types which can be equipped. The highlighted squares indicate which pieces of equipment are needed to equip the currently selected soldier.
-516:If you are to equip soldiers from your barracks, you also need to produce weapons for your troops. Build a weapons workshop near your barracks so that you can ensure quick delivery of the weapons.
-517:To place orders for production of equipment, left-click on your newly constructed weapons workshop and then left-click on the 'Increase order amount' button. Always make sure that your weapons workshop has enough timber for producing weapons.
-518:Without proper equipment your soldiers will end up being slaughtered on the battlefield.|To produce new armor for your soldiers, you firstly need a tannery for further processing of your skins.
-519:Now that you have a production of leather running, you need to build an armory workshop. Here a carpenter will create leather armor and wooden shields.
-520:Excellent! You now have all the required buildings to run a town and to produce new soldiers.|Once you have the proper pieces of equipment needed to equip a specific soldier type, you need to train a recruit from the school and then click the 'Equip current soldier type' button.
-521:Your aim now is to defeat the two enemy encampments close by. The blue enemy to the south has a strongly fortified base, while the green to the east is merely relying on soldiers.|Prepare your troops well before attempting to rid the area of the wicked enemy!
-522:|The blue player has been defeated!
-523:|The green player has been defeated!
-524:Before thou attacketh thine enemies to the west, thou must needs kill off the scouts ensconced nigh to the north. If thou dost left-click on thy lance carriers, and then right-click on thine enemies, this shall spur them into a glorious attack.
-525:A company of bowmen lieth to the south-west. Attack it with thy militia. But caution to order the charge at the proper moment, lest enemy arrows inflict terrible losses on thy stalwart troops!
-526:Attack the enemy forces which lie in waiting to the west. Watch for enemy bowmen for they have entrenched themselves behind the infantry! Send thy scouts to the north that they may encircle the enemy and attack from the rear.
-527:Now thou shalt launch an attack with all thy forces at once. Place thy bowmen behind thine infantry to drive back the enemy lines. If thou art glorious, the battle tutorial is complete.
-529:Thou must needs speedily equip new militia units! Shouldst thou fail to do this, we shall be defenseless against enemy attack!
-530:Our scouts inform us that the enemy doth prepare an attack against thee. Repel them with thy trusty sword!
-531:Thou hast made good progress, but ye village must needs be enlarged. Only when thou hast done this, wilt thou be in a position to storm the enemy barricades and to destroy this evil den of resistance!
-532:Once more must I press upon thee that thou shalt protect our stalwart allies, the Lauenburger troops, at all costs!
-533:Protect thy troops and thyself from those scoundrelly troops, the horsed knights of the enemy!|They again cast their eyes upon our allies!
-534:The village in the north hath declared openly against further tyranny. Thou shouldst turn this to thine own advantage.
-535:Our faithful scouts have discovered a deserted storehouse. It lieth to the west, nigh to a small wood. Surely there wilt thou find items of use to thee.
-536:An enemy scout hath been captured and interrogated. It doth appear that the enemy hath discovered our position and even now prepares an attack against thee.
-537:It shall not be long 'til the barbarians fall upon us. Prepare thy defenses well or the scoundrels shall breach thy defenses!
-538:To thy weapons!|A huge enemy force makes its way toward thee!
-539:Organize thy force well, the enemy doth have superior numbers! Shouldst thou attack by storm, thou willst not find the joy that victory brings!
-540:Victory is ours, but the time for revenge is not yet upon us. Thou must needs construct Werheim anew. Then indeed shall the black-hearted dogs pay for their dastardly deeds!
-541:Without iron, hast thou not weapons, without weapons hast thou not warriors! To the north thou willst find that which thou hast need of.|Prepare thyself to capture the mines located there.
-542:The good people of the village that lieth to the south still resist against the tyranny with all their might, but have suffered fearful losses. Make haste to aid these proud villagers, thou willst not regret it.
-543:A deserted storehouse doth perchance lie nigh to your position. Thou shalt travel with all speed to that place, for a hard trial awaits thee, and methinks thou willst be in need of all the aid which thou canst find.
-544:Our brave spies report that the deserted storehouse doth indeed be the target of a large enemy offensive. Thou must needs hold firm in this place, lest thine own advance be hindered.|Stand fast, thou brave heart!
-545:Yet another dastardly attack on the storehouse cometh thy way. Prepare thyself for battle!
-546:The enemy trieth all in his power to avoid defeat at thy hands and sallies forth even now in a vain attempt to subdue thee. Thou shalt grind the enemy down, to the last man! Then, methinks, thou mayst continue thy glorious advances.
-547:The tyrant hath not yet succumbed to thy brave attacks. Our stalwart allies remain steadfast and true and stand indeed by thy side. After the first attack thou art aware that thou willst be left to thine own devices, as hath been agreed.
-549:The opposing force is larger than our scouts hath led us to believe. Equip further soldiers from thy barracks to support thine stalwart army.
-550:For thou to banish the conquerors utterly, thou must needs to destroy all of their cowardly troops. Once this purge is complete, the peasants of the surrounding villages shall form an alliance with thee and offer us danger no longer.
-551:Our scouts report that thy enemy hath enslaved most of thine citizens in the area. Storm their defenses but destroy only their military buildings, leaving thine enslaved settlers unharmed. This shouldst surely send thy enemy into glorious retreat and free thy citizens!
-552:I stress upon thee, protect thine allied troops to the south from thy enemy attacks!|Allow them not to fall prey to thy opponent, for we need their support more than ever.
-553:Our spies hath sighted a hostile army advancing on thy storehouse to the south! Thou must needs defend the valuable goods from the rebel force.
-554:Our scouts behold an opposing army south of thy location! Keep thy wits about thee, or thine enemies may take thee by surprise!
-555:Bewarned! Further enemy troops are closing in on thee from the west! Drive them back with ye stalwart troops!
-556:To support thy army, thou shouldst need hire more mercenaries from the town hall. These seditious soldiers will strengthen thine army and help thee repel thy enemy.
-557:Perchance if thou shouldst try the back entrance, thou mayst find it unguarded. With this advantage thou shouldst surely defeat thine enemy with ease.
-558:An enemy force doth make its way from the mountains that lieth to the northwest and even now is marching straight toward thy camp! Prepare thy troops well, so thou wilt be able to defeat this army utterly.
-559:Thine enemy hath already discovered thy new position and shalt very soon send a strong battalion toward thee!
-560:Beware! Our scouts hath sighted enemy archers hidden in the surrounding hills.|Methinks a fight in the open gorge could mean our ruination.
-561:We hath arrived at the final stronghold of the treacherous rebels.|Thou shalt slay all of the rebellious and caddish dwellers here, leaving not a single breathing soul after this glorious battle has come to an end!
-562:Our spies report that our enemy hath indeed discovered our new location and now prepareth an attack against thee.|Draw thy trusty sword once more and show no mercy to these ruthless rebels!
-569:Empty
-570:Prízrak
-571:Rušnı
-572:Stredovekı roh
-573:Prameò
-574:Lutna
-575:oldnier
-576:Princezná
-577:Krá¾ovná
-578:Na trnici
-579:Na bitevnom poli
-580:Dvornı tanec
-581:Armáda
-582:V hrade
-583:Fanfáry
-584:Na dvore
-585:Hlavnı vchod
-586:Hlboká modrá
-587:Zápas
-999:unused
-1000:Kampaò 'The Shattered Kingdom'
-1001:Kampaò 'The Peasants Rebellion'
-1002:Vıuka boja
-1003:Hra samostatnú mapu
-1004:Samostatná mapa
-1005:Predchádzajúca
-1006:Ïalej
-1007:Štart misie
-1008:Spä do menu
-1009:Naèíta uloenú hru
-1010:Multiplayer
-1011:Nastavenia
-1012:O autoroch
-1013:Ukonèenie hry
-1014:Empty
-1015:Uloené hry:
-1016:Pokraèova
-1017:Opakova misiu
-1018:Hlavné menu
-1019:Video rozlíšenie:
-1020:Nedostupné
-1021:Vıber typu hry
-1022:Miestna lokálna sie
-1023:Net-Games
-1024:Meno:
-1025:Heslo:
-1026:Novı úèet
-1027:Prihlási
-1028:Pripojovanie k Net-Games...
-1029:Autentifikácia...
-1030:OK
-1031:Chyba
-1032:Pripojenie zlyhalo
-1033:Chybné heslo
-1034:Meno hráèa u existuje
-1035:Tento hráè má BAN
-1036:Chybné meno hráèa
-1037:Nedefinované
-1038:V priebehu
-1039:Chybné parametre
-1040:Kanál je plnı
-1041:Kanál neexistuje
-1042:Chyba pripojenia k tomuto kanálu
-1043:Èas vypršal
-1044:Máte mnoho úètov
-1045:Server neakceptoval registráciu v tomto èase
-1046:Chybné meno hráèa
-1047:<COL 0>%s:<COL 1> %s|
-1048:<COL 0>%s %s|
-1049:<COL 2>%s šepká: %s|
-1050:<COL 3>Súkromná správa %s: %s|
-1051:<COL 4>SERVER: %s|
-1052:<COL 4>SERVER: %s|
-1053:<COL 2>Správa dòa: %s|
-1054:<COL 0>BROADCAST: %s|
-1055:<COL 3>%s enters the channel|
-1056:<COL 3>%s quits channel|
-1057:<COL 3>You have entered the channel <COL 0>%s<COL 3>|
-1058:<COL 3>You have entered the game <COL 0>%s<COL 3>|
-1059:Návrat do hlavného mernu
-1060:Potvrdenie kanála
-1061:Zaèa hru
-1062:Vytvori hru
-1063:Vytvorenie Ladder hry
-1064:Opusti hru
-1065:Zaèa hru
-1066:Šepka
-1067:Vyhodi
-1068:Vyhodi
-1069:Info
-1070:Registrova
-1071:Spä na zadanie mena
-1072:Zadaj meno hráèa:
-1073:Pokraèova
-1074:Spä
-1075:Vyberte typ siete:
-1076:Vstup do hry
-1077:Vytvori hru
-1078:Zadaj názov hry:
-1079:Spustenie hry
-1080:Zvolte hru:
-1081:Vstúpi do hry
-1082:Vyh¾ada hry
-1083:Hráèi:
-1084:Správy:
-1085:Odosla:
-1086:Štart!
-1087:Bez mena
-1088:<prázdne>
-1089:<Nedostupné>
-1090:<Poèítaè>
-1091:'s Masaker
-1092:~H~r~á~è '%s' ~b~o~l ~v~y~l~~ú~è~e~n ~ı~z ~h~r~y ~s~e~r~v~e~r~o~m~..
-1093:Scéna:
-1094:Názov:
-1095:Popis:
-1096:Vıbava:
-1097:Štart. pozícia:
-1098:Scenár urèuje|server
-1099:Sklad
-1100:Sklad a vojaci
-1101:Budovy a vojaci
-1102:V poradí
-1103:Náhodne
-1104:Copy saved game
-1105:Zruši prenos
-1106:Prenesené: %d/100
-1107:Uloená hra è. %d
-1108:Hráèov:%d|Ve¾kos mapy:%dx%d
-1109:Autouloenie
-1110:VÍAZSTVO!
-1111:PORÁKA!
-1112:Straty jednotiek:
-1113:Porazenıch jednotiek:
-1114:Stratenıch budov:
-1115:Znièenıch budov:
-1116:Dokonèenıch budov:
-1117:Vycvièenıch jednotiek:
-1118:Vyrobenıch zbraní:
-1119:Vycvièenıch vojakov:
-1120:Èas misie:
-1149:Try kontinenty
-1150:Pustatina
-1151:Bitka o uhlie
-1152:Vodná hrádza
-1153:Vysoèina
-1154:Hora na hore
-1155:Dobívanie hradu
-1156:Bitka na pobreí
-1157:Prepadnutie!
-1158:Pohroma mostov
-1159:Bonuskarta A
-1160:Bonuskarta B
-1179:Naprieè pustatinou||Ve¾kos: 176x176|Poèet protihráèov: 5
-1180:V cudzej zemi||Ve¾kos: 176x176|Poèet protihráèov: 3
-1181:Pieskom a snehom||Ve¾kos: 160x132|Poèet protihráèov: 5
-1182:Zem rıchlych prúdov||Ve¾kos: 176x176|Poèet protihráèov: 3
-1183:Èierne zlato||Ve¾kos: 176x176|Poèet protihráèov: 5
-1184:Hornaté valy||Ve¾kos: 144x128|Poèet protihráèov: 3
-1185:Ríša zotmenia||Ve¾kos: 176x176|Poèet protihráèov: 3
-1199:Hráèov: 6|Ve¾kos: 176x176|Postavte mesto
-1200:Hráèov: 4|Ve¾kos: 176x176|Postavte mesto
-1201:Hráèov: 6|Ve¾kos: 160x128|Postavte mesto
-1202:Hráèov: 4|Ve¾kos: 176x176|Postavte mesto
-1203:Hráèov: 6|Ve¾kas: 176x176|Postavte mesto
-1204:Hráèov: 4|Ve¾kso: 144x128|Postavte mesto
-1205:Hráèov: 6|Ve¾kso mapy: 176x144|Postavte mesto
-1206:Hráèov: 3|Ve¾kos: 64x64|Bitka
-1207:Hráèov: 6|Ve¾kso: 144x144|Bitka
-1208:Hráèov: 4|Ve¾kos: 176x176|Postavte mesto
-1249:Zradcovia z radov bıvalıch stúpencov|úspešne prelomili vašu obranu.|Pevnos padla, a pokia¾ by ste|tıchto nièomníkov nevyhnal,|krá¾ovstvo by bolo stratené,|a to by znamenalo triumf zloèincov.|Tak teda do zbrane!
-1250:Vaše víazstvo nás naplòuje nádejou. |Ale èas radovánok stále ešte|neprišiel.  Nepriate¾ sa stiahol|do obrany v dedine v blízkosti|vášho umiestnenia, kde znovu formuje|svoje sily. Princ by nás mohol znovu|uvrhnú do vojenského besnenia,|pokia¾ by jeho zloèinecké sily poèetne|prevıšili vašich hrdinskıch bojovníkov.|Ovládnite svoju zlos a nenechajte|sa zatiahnu do otvorenej bitky.|Terén je vhodnı na obrannú taktiku|vášho mustva: nepriate¾ musí prekroèi|rieku na úzkom brode.|Mali by ste naòho v tomto mieste zaútoèi,|vaše menej poèetné vojsko by sa malo vyrovna|jeho poèetnejším silám..
-1251:Toto je pamätnı deò! Zloèinecké sily|búriaceho sa princa sa dali|na útek. Cesta k barónovi|Lauenburgovi je teraz vo¾ná.|Barón Lauenburg uzavrel|spojenectvo s vašimi nepriate¾mi,|preto musíte nutne zúètova|s protivníkmi na ceste do tejto provincie nièomníkov.
-1252:Skutoène, vašim nepriate¾om sa naozaj|nepodarilo zastavi postup vojakov|oddanıch krá¾ovi. Barón Lauenburg|musel nutne ustúpi so všetkımi|svojimi vojakmi a oèakáva váš útok.|Barónovi spoloèníci nás|srdeène privítali. Teraz však|máte vynikajjúcu príleitos|posilni vašu slabú armádu a mono i|zaja Lauenburga. Mal by ste baróna|porazi, aby sa stal vıstrahou|všetkım nepriate¾om koruny!
-1253:Baron Lauenburg pred vami|ustúpil a dostal od vášho krá¾a milos,|nako¾ko prejevil ¾útos za svoje skutky.|Mal by ste sa teraz pokúsi zaja|Moorbacha. Vaši vyzvedaèi|odhalili púštnu pevnos, ktorá by mohla|by vami pouitá na uspokojenie vašich|vzrastajúcích potrieb. Teraz, keï je|Lauenburg vašim spojencom, sú vojaci|tohto baróna bezpodmieneène ohrozenı|vašimi nepriate¾mi. Preto by ste mal|chráni Lauenburgovych vojakov za|kadú cenu. To si iada posilnenie|dôvery medzi vami a vašimi novımi|spojencami a mohlo by vám to mono|prinies i novıch vojakov pre vašu|armádu.
-1254:Moorbach nám padol do rúk. Vaši|nepriatelia sú bezpeène porazení a|hlboko poníení. Teraz vás vaši|zvedovia informujú, e sa formuje|nová armáda zloduchov na severozápade,|aby sa vám pomstila za hanbu|zpôsobenú Moorbachovi.|Teraz sa cítime dostatoène silní,|aby sme sa mohli sami vrhnú|do útoku. Mal by ste zaútoèi na|túto armádu a prekvapi ich skôr,|ne sa staèí usporiada. K tomu budete|potrebova mnostvo Lauenburgovıch|kopijníkov, hrdinského zboru,|ktorı sa k vám pripojil.
-1255:Správy o vašich víazstvách sa šíria|ako povodeò celım krá¾ovstvom.|Kadı spojenec povstáva proti|tyranom. Walheim leí na severe|stále dranı v rukách vašich|nepriate¾ov. Vládca Walheimu|odmietol vašich poslov a prisahal,|e bude bráni svoje mesto,|dokia¾ nepadne jeho poslednı mu.|Spojenci v malej dedinke leiacej|v blízkosti vášho opevnenia sa|teraz vzopreli tomuto tyranovi. Títo|dobrí ¾udia by mali zásobova jeho|armádu novımi zbraòami a brancami.
-1256:Bitka o Walheim priniesla|stratu sily a všeobecnı zmätok.|Divoké severné kmene sa spojili,|aby vpadli do krá¾ovstva.|Vy ich musíte zastavi predtım,|ne budú môc znovu bojova|spolu so vzbúrencami. V ruinách|Walheimu by ste mal naplánova|stavbu stránych veí skutoène|pokroèilého typu.|Tak musíte vytvorit baštu|proti necivilizovanım divochom.|Zniète ich do jedného.
-1257:Barbari bojujú medzi sebou.|Snáï len vïaka presvedèovaniu a|podvodom by mohli nad vami zvíazi|dvaja z ich náèelníkov. Všetci|ich bojovníci, ktorí do boja vstúpili,|by mali bojova za vás. Teraz sú|v pozícii, kedy sa môu iba bráni|a nerozrasta sa, ale i napriek tomu musíte|plánova obozretne. Nepriate¾skí jazdci|sa dávajú sami do boja a útok sa blíi.|Pripravte sa èo najrıchlejšie a|privítajte nepriate¾a spôsobom,|na ktorı nikdy nezabudnú!
-1258:Bezbonı krutovládca suuje jedno|z vašich miest. Iba pokia¾ prídete|èo mono najrıchlejšie, budete v òom|môc rozmiestni svojich vojakov.|Pod¾a vašich zvedov musíte poèíta|so znaènımi silami nepriate¾ov.|Dobre rozmiestnite svoje vojsko.|Víazstvo môete dosiahnu len|pomocou chytrej taktiky. Ak sa|vrhnete do boja naslepo,|mohol by ste to skutoènì ¾utova!
-1259:Popravde, iba natesno bol útok|na vaše mesto zaehnanı. Ale|zradnı útok zanechal v meste|svoju krutú stopu.|Nepriatelia nemilosrdne vypálili a|zabili všetko, èo sa im postavilo|do cesty. Mql by ste preto na|tento masaker odpoveda krvavou|pomstou! Najskôr však musíte|postavi mesto znovu pred tım,|ne budete môc s tími|nièomníkmi zúètova.
-1260:Nepriate¾ je rozprášenı a|zbytky jeho armády utiekli|na sever. Teraz pre vás majú|ve¾kú strategickú dôleitos|bane so eleznou rudou na severe,|pretoe elezo by vám malo|pomôc v pokraèujúcej vojne.|Mal by ste vystava novú|armádu, ktorá by mala|vyhna všetkıch vzbúrencov|tam, odkia¾ prišli.|Na vıchode od vás je most.|Tento most vám môe pomoc|pri obrane, zatia¾ èo porastie|sila vašej armády.
-1261:Vskutku, vaši nepriatelia sú stále|vybavení mohutnımi zálohami a|nièomníci plánujú protiútok voèi|vašej hrdinskej armáde. Avšak|hory blízko ich pozície môu|by prekákou, ktorú ve¾ká armáda len|ako prekoná. Preto by ste mal s vašou|armádou do tıchto hôr postúpi|a èaka na nepriate¾a v najvyššom|priesmyku. Nenechte zradcov|získa nad vami prevahu!
-1262:Vaše úsilie prináša ovocie!|Po celom krá¾ovstve krá¾ovskı|nevolníci pozdvıhajú svoje sily proti|krutovláde princa. Dokonca ani ich|generálovia nesúhlasia s barbarstvom|a krutımi praktikami na obyvate¾stve.|Jeden z generálov vám poskytol|tajnú správu....|e podlı princ túi na vıstrahu|kruto potresta dedinu,|ktorej ¾udia sa otvorene postavili|proti jeho zlovôli! Vy a len vy sám|musíte postavi hrádzu medzi|tyrana a hrdinskıch dedinèanov!|Tak musíte zastavi nièomné|plány toho barbara!
-1263:Blíi sa koniec pre tıch|zlotrilích synov, nepriate¾ov|jeho Velièenstva. Postupne ich nútite|k poslušnosti. Princ mení svoju taktiku|a zadruje dôleité loiská|nerastnıch surovín. Jeho dravy|sú pre nás prekákou. Mal by ste obsadi|jeho bane so eleznou rudou v blízkosti|vašej pozície a zahna vzbúrencov na útek!|Nezabudnite, e pred vami leí ïaleká|cesta.  Pripravte dobre seba|i svojich hrdinov!
-1264:Teraz máte k dispozícii úrodnú zem a bohaté|nalezisko nerastnıch surovín,|ktoré leia v provincii pred vami.|Nepochybujte však o tom,|e nepriatelia podniknú všetky kroky,|aby získali túto pohostinnú zem|spät pre seba. Bráòte provinciu a|nemajte z¾utovanie s nepriate¾skımi vojakmi!|Nedajte im ani kúsok pôdy!
-1265:Na severe zradci zbierajú|svojich poddanıch, aby mohli|znovu nebojácne zaútoèi.|Ale zata¾ nie sú pripravení|stretnú sa s vami tvárou v tvár|na bitevnom poli. Mal by ste sa k nim|dosta a znièit ich, dokia¾|nie sú ešte pripravení na|váš útok. Musíte preto prekroèi|hory, aby ste docielil svoj zámer,|ale opatrne! Zradcovia majú|vo svojich rukách všetky priesmyky a|bránia vám tak v plnení vášho poslania.|Stále však musíte postupova na sever,|stoj, èo stoj!
-1266:Posledné víazstvo zahnalo|vašich nepriate¾ov do obrany.|Dobre sa opevnili v prírodnej pevnosti,|kde, jako zbabelci,|oèakávajú váš útok.|Pre vás môe by aké doby|túto pevnos! Mnohí generálovia to u|skúšali pred vami, a všetci odtiahli bez úspechov.|Nenechajte sa ich neúspechmi odradi èi zastraši!|Snaï po sebe títo chrabrí|generáli zanechali nejaké správy,|správy, ktoré by mohli pomôc|vám a vašej odvánej vıprave!
-1267:To bol váš èierny, najèernejší deò!|Zákerná vrada ukonèila ivot nášho|milovaného krá¾a! Princ, nehanebnı to|zbabelec, ktorı stojí za touto nesmiernou|tragédiou, sa vyhlásil sám za nového krá¾a.|Sám sa ukryl za mohutnımi|stenami, kde dúfa, e nájde|útoèisko pred spravodlivım hnevom. Vy|by ste mal strhnú tieto steny a prinies|k tomuto povıšenému, samozvanému krá¾ovi osud,|ktorı si bezpochyby zaslúi.|Oko za oko, zub za zub!
-1268:Vaša pú sa blíi ku koncu. Mesto,|ktoré sa stalo poslednou|baštou samozvaného krála, je|obklúèené a v obliehaní. Nemajte|iadne z¾utovanie s kımko¾vek, kto|stále verí tomuto povıšencovi,|a pozabíjajte všetkıch vašich nepriate¾ov!|Ty, óó vernı hrdina, by si mal zbúra|všetky stopy jeho zbabelej vlády|do základov! Iba potom, vïaka vašim|heroickım èinom, bude môc znovu|zavládnu v krá¾ovstve mier a sloboda.
-1299:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||INGAME GRAPHICS:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||INGAME MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||CUTSCENES:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|ADDITIONAL 3D-MODELLING:|Niels Horstmann||POÏAKOVANIE:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer||1.60 PATCH|'SERVICE RELEASE 3'||COORDINATION:|Tommi Räsänen (Litude)||PROGRAMMING:|Lewin Hodgman|Stephen Hodgman|Tommi Räsänen (Litude)||MISSION EDITING:|Joost Bandsma (The Dark Lord)|Lewin Hodgman|Tommi Räsänen (Litude)||GRAPHICAL EDITING:|Harold Aptroot||SOUND EFFECTS:|Lewin Hodgman|Mitchell Hodgman||TEXTUAL FIXES:|Jakub Z. (kuba11100)|Jeroen Bos (JBSnorro)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|Lewin Hodgman|Tommi Räsänen (Litude)||TRANSLATING:|Alexander B. (AZA)|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|'Merchator'|'Nick'|'M4RC0'||BETA TESTING:|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Lars Stienen (Thunderwolf)|'Michailoff'
-1349:              Misia 1||Nieko¾ko odpadlıch dedinèanov, ktorí zostali vernı krá¾ovi, sa ešte pokúsia vzoprie tyranii. Pred krá¾ovskım palácom boli napadnutí nevinní sedliaci. To predsa nesmiete necha iba tak! Zaeòte tıch biednikov naspä!
-1350:              Misia 2||Nako¾ko nám naši sedliaci dopomohli k víazstvu, musíme teraz splati dlh a tie im pomáha. Ve¾ká armáda nepriate¾ov prichádza priamo zo severu smerom k nám. Do boja!
-1351:              Misia 3||Po víaznej bytke ste získali trochu èasu. Rıchlo obnovte spustošené mesto a vaše zásobovanie. Potom by ste mal obsadi osadu na severe a oslobodit š¾achticov od miestnej tyranie. Ušetrite miestnych vidieèanov a bojujte len s miestnymi nepriaste¾skımi vojakmi.
-1352:              Misia 4||Váš zved hlási pohyb nepriate¾skıch vojsk v blízkej dedine. Nako¾ko je tu ve¾kı poèet vojákov, bude tu asi i viac vojenskıch základní. Nájdite a zniète ich všetky. Ostatné budovy si nevšímajte.
-1353:              Misia 5||I keï ste v bitkách proti vzbúrencom zatia¾ dosiahol ve¾kıch víazstiev, je treba poèíta s mohutnım protiútokom. Pripravte svojich poddanıch na tvrdı boj. Vaša dedina nesmie by znièená.
-1354:              Misia 6||Dozvedel ste sa, e vaši nepriatelia budujú nové vojenské základne. To nesmiete necha len tak. Zaútoète èo nejskôr, ne sa nepriate¾ vzpamätá. Tie sa porozhliadnite v okolí po ïa¾ších surovinách, pretoe vaše zásoby eleza u sú skoro vyèerpané.
-1355:              Misia 7||Skôr, ne se odpadlíci opä obrátia, musíte rıchlo obsadi osadu leiacu na juhu. V poslednej bitke ste získal menšiu zásobu eleza, korú teraz taktie nutne potrebujete. Nako¾ko je tunajší kraj ve¾mi chudobnı na elezné zásoby, musíte elezo ve¾mi šetri a uválivo s ním zachádza.
-1356:              Misia 8||Pri vašom poslednom útoku ste musel kvôli nepriate¾om väèššinu svojich ¾udí posla do boja. Preto sa teraz rıchlo obráte a vracajte sa spä k táboru, ne nepriate¾ premôe vašu chabú obranu!
-1357:              Misia 9||Vïaka podlej ¾sti ste prišiel o hrad. Preto teraz musíte vymyslie ve¾mi dobrú stratégiu, ako porazi nepriate¾ov. Váš úhlavnı nepriate¾ je dobre opevnenı, take bezprostrednı èelnı útok by viedol k vašej úplnej poráke. Skúste zaútoèi na inej vstupnej bráne hradu, ale vyvarujte sa príliš ve¾kım stratám vo vašich jednotkách, protoe v tejto oblasti nie je iadna monos aby eleznej rudy.
-1358:              Misia 10||V poslednej bitke ste získal naspä váš hrad. Bolo tie zajatıch nieko¾ko vzbúrencov, ktorí boli vypoèúvaní. Prozradili, e existuje tunel, ktorı vedie naprieè severnım pohorím. Vchod do tunelu je údajne stráenı nieko¾kımi nepriate¾skımi vojakmi. Ak ich premôete, môete bezpeène vstúpi do tunelu.
-1359:              Misia 11||Jaskyòa je väèšia, ne ste oèakávali. Vaši špehovia zistili, e nepriate¾ské stráe stráia nejaké ily rudy, nachádzajúce sa v tomto podzemnom komplexe. Dostaòte sa k vıstupu na druhú stranu pohoria.
-1360:              Misia 12||Nepriate¾ sa dozvedel o vašom plánovanom útoku. Jeho silné a roz¾ahlé vojsko se nachádza na severe a chystá sa vás zanedlho napadnú. Rıchlo postavte obranné vee, ktoré by mohli nepriate¾ské hordy aspoò èiastoène oslabi. Ak sa dokáete úspešne ubráni, môete potom prejs priesmykom na severe.
-1361:              Misia 13||Zrada! Nepriate¾ si na vás poèíhal. Teraz sa nachádzate vo ve¾mi strategicky nevıhodnej situácii. Pošlite toho úskoèného padúcha tam, kam patrí!
-1362:              Misia 14||Koneène ste dobyl posledné hradby vašich nepriate¾ov. Nepriate¾ stiahol posledné zbytky svojej armády a zabarikádoval sa severovıchodne odtia¾. Vïaka treskúcemu mrazu je rieka èiastoène zamrznutá a ponúka vám monos, ako protivníka neèakane prekvapi. Porazte teda zostávajúce nepriate¾ské vojsko, aby mohol v zemi opä zavládnu mier!
-2000:Misia ukonèená
-2001:Vıuka stavby
-2002:Vıuka boja
-2003:Hra jedného hráèa
-2004:Editor mapy
-2005:Pozrie poslednı záznam
-2006:Zaèa misiu
-2007:Názov
-2008:Ve¾kos
-2009:Typ misie: %s
-2010:Podmienky víazstva: %s
-2011:Podmienyk poráky: %s
-2012:Spojenci:
-2013:Nepriatelia:
-2015:Ve¾kos novej mapy
-2016:Šírka
-2017:Vıška
-2018:Vytvori novú mapu
-2019:Dostupné mapy
-2020:Naèíta existujúcu mapu
-2021:Ovládanie:
-2022:Hra:
-2023:Zvuk:
-2024:Zakáza hudbu
-2025:Grafika:
-2026:Jas
-2027:Celá obrazovka
-2028:Poui
-2029:Jazyk:
-2030:Nahrávam... Èakajte prosím
-2031:Nastala chyba!
-2032:Nahrávam novú lokáciu
-2033:Zoznam uloenıch hier
-2034:Názov súboru
-2035:Popis
-2036:Naèíta
-2037:Odstráni
-2038:Naozaj chcete odstráni túto uloenú hru?
-2039:Odstráni
-2040:Storno
-2042:Zvíazli ste!
-2043:Pokraèova v hre
-2044:Víazstvo
-2045:Prehrali ste!
-2046:Pokraèova
-2047:Poráka
-2048:Prehrávanie skonèilo
-2049:Pokraèova
-2050:Spä do menu
-2051:Nedostupné
-2052:Stlaète %s na pokraèovanie v hre
-2053:Tımu
-2054:Informácie o hráèoch
-2055:Chat
-2056:Uloená hra u existuje
-2057:Prepísa
-2058:Uloi
-2059:Naèíta
-2060:Poèas hry došlo k chybe
-2061:Prosím pošlite súbor %s z Vášho adresára KaM Remake\\Crash Reports vıvojárom. Kontaktné údaje nájdete v Readme. Ïakujeme za Vašu pomoc!
-2062:Detekovaná stará verzia OpenGL, hra môe bea pomaly alebo s grafickımi chybami
-2063:Sieová chyba:
-2064:Chyba: Musíte zada svoje meno
-2065:Spojenie sa nepodarilo: %s
-2066:Boli ste odpojenı
-2067:Misia %d
-2068:Váš rybár je príliš ïaleko od vody.
-2069:Váš rybár nemôe chyti iadne ïalšie ryby vo vode, ktorú má nablízku.
-2071:Pouite ¾avé tlaèítko myši na vıber tovaru
-2072:Pouite pravé tlaèítko myši na vıber tovaru
-2073:Dám x%d
-2074:Chcem x%d
-2075:Editácia terénu
-2076:Plánovanie dediny
-2077:Vizuálne skripty
-2078:Všeobecné skriptovanie
-2079:Menu
-2080:Stav:
-2081:Meno hráèa
-2082:VYTVORI SERVER
-2083:Meno
-2084:Port
-2085:Vytvori lokálny server
-2086:Vytvori internetovı server
-2087:Meno serveru
-2088:Stav
-2089:Hráèi
-2090:Ping
-2091:Obnovi zoznam serverov
-2092:DETAILY SERVERU
-2093:Zoznam hráèov:
-2094:IP adresa
-2095:Port
-2096:Miesto
-2097:Pripoji
-2098:Pripájam sa, èakajte prosím...
-2099:Naèítavam...
-2100:Obnovujem...
-2101:Zoznam hráèov
-2102:Pozícia
-2103:Tım
-2104:Farba
-2105:Pripravenı
-2106:Ping
-2107:Preè
-2108:Otvorené
-2109:Poèítaè
-2110:Vybra...
-2111:Náhodne
-2112:Prázdne
-2113:iadna
-2114:Tım %d
-2116:Odosla správu:
-2117:Typ mapy
-2118:Samostatná mapa
-2119:Uloená hra
-2120:Vyberte mapu...
-2121:Vyberte uloenú hru...
-2122:Info o mape:
-2123:Hráèi: %d
-2124:Mód:
-2125:Podmienky k víazstvu:
-2126:Ve¾kos:
-2127:Opusti ponuku:
-2128:Pripravenı
-2129:Štart!
-2130:Èakanie na ostatnıch hráèov:
-2131:O hre KaM Remake
-2132:O originálnej hre Knights & Merchants
-2133:PROGRAMOVANIE:
-2134:ÏALŠIE PROGRAMOVANIE:
-2135:ÏALŠIA GRAFIKA:
-2136:OSTATNÉ PREKLADY:
-2137:ŠPECIÁLNE POÏAKOVANIE:
-2138:Multiplayerové mapy
-2139:Singleplayerové mapy
-2140:Rıchlos obrazu
-2141:Nenájdenı iadny server
-2142:Prechádza skladby
-2143:Info o hre:
-2144:-
-2145:Lobby
-2146:Naèítavanie
-2147:Hra
-2148:Lokácia %d
-2149:Stavanie a bojovanie
-2150:Bojovanie
-2151:Nepripravenı
-2152:Pripravenı
-2153:Chyba: Vyberte prosím hráèa z uloenej hry
-2154:Chyba: Mapa sa nedá naèíta alebo nebola iadna vybraná
-2155:Nie je moné zaèa: %s
-2156:Nikto nie je pripravenı na štart
-2157:Poèet hráèov prekraèuje limit mapy
-2158:Odlišná verzia: %s. Server pouíva: %s
-2159:Server Vám pridelil práva správcu
-2160:Zvıši mnostvo
-2161:Zníi mnostvo
-2162:Ukladám hru...
-2163:%s bol porazenı!
-2164:OSTATNÉ ZVUKY:
-2165:Vyhodi hráèa
-2166:Hos bude môc vyhodi tyto hráèa za %d sekúnd
-2167:Hos teraz môe vyhodi tıchto hráèov
-2168:Hos (%s) sa odpojil
-2169:Spojenie zo serverem sa stratilo. Pokúšam sa opä naviaza spojenie...
-2170:Naozaj chcete skonèi?
-2171:Ste si istı, e chcete vyhodi tıchto hráèov z hry?
-2172:Storno
-2173:Vycvièenıch|obèanov
-2174:Stratenıch|obèanov
-2175:Vycièenıch|vojakov
-2176:Stratenıch|vojakov
-2177:Porazenıch|jendotiek
-2178:Postavenıch|budov
-2179:Stratenıch|budov
-2180:Znièenıch|budov
-2181:Vytvorenıch|produktov
-2182:Vyrobenıch|zbraní
-2183:Obchodovanie s tımto tovarom v tejto misii nie je moné.
-2184:sadi a stína
-2185:Iba stína
-2186:Hra u zaèala
-2187:Stavanie
-2188:Bojovanie
-2189:Kooperácia
-2190:V období mieru je toto zakázané
-2191:Koniec obdobia mieru za: %s
-2192:Koniec obdobia mieru. Do zbrane!
-2193:Èas hry:|%s
-2194:Nastavenia hry:
-2195:H
-2196:L
-2197:S
-2198:Zastavi oddiel  ('%s')
-2199:Spoji oddiel ('%s')
-2200:Samostatnı vojak ('%s')
-2201:Záznamy z hry
-2202:Ukáza záznam
-2203:Doba mieru (minúty):
-2204:Nepodporovanı formát %s
-2205:Nepodporovaná verzia %s
-2207:inicializuje sa
-2208:Inicializácia hry pre viac hráèov
-2209:Naèítavam skripty
-2210:Nová misia
-2211:Nastala chyba pri analıze súboru %s
-2212:Zatvorené
-2213:Správa vykonáva nastavenia
-2214:Naèítava prídavné súèasti
-2215:Naèítavam jednotky
-2216:Naèítavam budovy
-2217:Naèítavam stromy
-2218:Naèítavam definície
-2219:Naèítavam prvky krajiny
-2220:Soft shadows
+147:K vıberu budov
+148:K rozdeleniu produktov
+149:Ku štatistike
+150:K vo¾bám
+151:Spä
+152:Vıber|budov
+153:Rozdelenie|produktov
+154:Štatistiky
+155:Vo¾by
+156:Nahranie hry
+157:Uloenie hry
+158:Ste si istı|e chte ukonèi|túto misiu?
+159:Koniec misie
+160:Spä
+161:Nastavenia
+162:Ukonèneie misie
+163:Zvukové efekty
+164:Zmena hlasitosti
+165:Hudba
+166:Hudba zap/vyp
+167:Autouloenie
+168:CD prehrávaè
+169:Predchádzajúca skladba
+170:Ïa¾šia skladba
+171:Zbúra
+172:Odstráni budovú/zvıraznenie
+173:Postavi cestu
+174:Stavba cesty
+175:Zora pole
+176:Pole
+177:Zaloi vinicu
+178:Vinièné pole
+179:Zruši
+180:Zruši súèasnı vıcvik
+181:Potreby:
+182:Stav:
+183:Dodávka
+184:Do vo|vıstavbe
+185:Znièi
+186:Skutoène chcete|znièi túto stavbu?
+187:Znièi vybranú budovu
+188:Znii objednané mnostvo
+189:Zvıši objednané mnostvo
+190:Predchádzajúci typ vojaka
+191:Ïa¾ší typ vojaka
+192:Vybavi súèanı typ jednotky
+193:Ïašie povolanie
+194:Predchádzajúce povolanie
+195:Prida do fronty
+196:Zapnú/Vypnú dodávku tovaru
+197:Zapnú/Vypnú opravu domu
+198:Budova v súèasnosti nie je k dispozícii
+199:Stav
+200:Otoèi vojsko v¾avo
+201:Otoèi vojsko vpravo
+202:Útok ('a')
+203:Premiestni vojsko ('d')
+204:Zásobi vojsko potravinami
+205:Zaháji rıchly útok!
+206:Prida radu
+207:Zruši radu
+208:Vıber|cie¾ovej|skupiny
+209:Opusti
+210:Vymaza
+211:Vymaza súèasnú správu
+212:Prejs na
+213:Prejs na miesto v správe
+214:Zatvori
+215:Zatvori okno
+216:|Váš kamenník nemôe zohna ïa¾šie zásoby kameòa.
+217:|Zásoby uhlia sa zdajú by vyèerpané.
+218:|Vaše ily so eleznou rudou sú vyèerpané.
+219:|Vaše zlaté ily sú vyèerpané.
+220:|Táto budova nie je obıvaná.
+221:|Tento vojak je skutoène hladnı. Bolo by lepšie mu da|ve¾mi skoro nieèo zajes!
+222:PAUZA
+418:Prízrak
+419:Rušnı
+420:Stredovekı roh
+421:Prameò
+422:Lutna
+423:oldnier
+424:Princezná
+425:Krá¾ovná
+426:Na trnici
+427:Na bitevnom poli
+428:Dvornı tanec
+429:Armáda
+430:V hrade
+431:Fanfáry
+432:Na dvore
+433:Hlavnı vchod
+434:Hlboká modrá
+435:Zápas
+847:Kampaò 'The Shattered Kingdom'
+848:Kampaò 'The Peasants Rebellion'
+849:Hra samostatnú mapu
+850:Štart misie
+851:Spä do menu
+852:Naèíta uloenú hru
+853:Multiplayer
+854:Nastavenia
+855:O autoroch
+856:Ukonèenie hry
+857:Pokraèova
+858:Opakova misiu
+859:Video rozlíšenie:
+860:VÍAZSTVO!
+861:PORÁKA!
+862:Straty jednotiek:
+863:Porazenıch jednotiek:
+864:Stratenıch budov:
+865:Znièenıch budov:
+866:Dokonèenıch budov:
+867:Vycvièenıch jednotiek:
+868:Vyrobenıch zbraní:
+869:Vycvièenıch vojakov:
+870:Èas misie:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||INGAME GRAPHICS:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||INGAME MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||CUTSCENES:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|ADDITIONAL 3D-MODELLING:|Niels Horstmann||POÏAKOVANIE:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer||1.60 PATCH|'SERVICE RELEASE 3'||COORDINATION:|Tommi Räsänen (Litude)||PROGRAMMING:|Lewin Hodgman|Stephen Hodgman|Tommi Räsänen (Litude)||MISSION EDITING:|Joost Bandsma (The Dark Lord)|Lewin Hodgman|Tommi Räsänen (Litude)||GRAPHICAL EDITING:|Harold Aptroot||SOUND EFFECTS:|Lewin Hodgman|Mitchell Hodgman||TEXTUAL FIXES:|Jakub Z. (kuba11100)|Jeroen Bos (JBSnorro)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|Lewin Hodgman|Tommi Räsänen (Litude)||TRANSLATING:|Alexander B. (AZA)|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|'Merchator'|'Nick'|'M4RC0'||BETA TESTING:|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Lars Stienen (Thunderwolf)|'Michailoff'
+1686:Misia ukonèená
+1687:Vıuka stavby
+1688:Vıuka boja
+1689:Hra jedného hráèa
+1690:Editor mapy
+1691:Pozrie poslednı záznam
+1692:Zaèa misiu
+1693:Názov
+1694:Ve¾kos
+1695:Typ misie: %s
+1696:Podmienky víazstva: %s
+1697:Podmienyk poráky: %s
+1698:Spojenci:
+1699:Nepriatelia:
+1701:Ve¾kos novej mapy
+1702:Šírka
+1703:Vıška
+1704:Vytvori novú mapu
+1705:Dostupné mapy
+1706:Naèíta existujúcu mapu
+1707:Ovládanie:
+1708:Hra:
+1709:Zvuk:
+1710:Zakáza hudbu
+1711:Grafika:
+1712:Jas
+1713:Celá obrazovka
+1714:Poui
+1715:Jazyk:
+1716:Nahrávam... Èakajte prosím
+1717:Nastala chyba!
+1718:Nahrávam novú lokáciu
+1719:Zoznam uloenıch hier
+1720:Názov súboru
+1721:Popis
+1722:Naèíta
+1723:Odstráni
+1724:Naozaj chcete odstráni túto uloenú hru?
+1725:Odstráni
+1726:Storno
+1728:Zvíazli ste!
+1729:Pokraèova v hre
+1730:Víazstvo
+1731:Prehrali ste!
+1732:Pokraèova
+1733:Poráka
+1734:Prehrávanie skonèilo
+1735:Pokraèova
+1736:Spä do menu
+1737:Nedostupné
+1738:Stlaète %s na pokraèovanie v hre
+1739:Tımu
+1740:Informácie o hráèoch
+1741:Chat
+1742:Uloená hra u existuje
+1743:Prepísa
+1744:Uloi
+1745:Naèíta
+1746:Poèas hry došlo k chybe
+1747:Prosím pošlite súbor %s z Vášho adresára KaM Remake\\Crash Reports vıvojárom. Kontaktné údaje nájdete v Readme. Ïakujeme za Vašu pomoc!
+1748:Detekovaná stará verzia OpenGL, hra môe bea pomaly alebo s grafickımi chybami
+1749:Sieová chyba:
+1750:Chyba: Musíte zada svoje meno
+1751:Spojenie sa nepodarilo: %s
+1752:Boli ste odpojenı
+1753:Misia %d
+1754:Váš rybár je príliš ïaleko od vody.
+1755:Váš rybár nemôe chyti iadne ïalšie ryby vo vode, ktorú má nablízku.
+1757:Pouite ¾avé tlaèítko myši na vıber tovaru
+1758:Pouite pravé tlaèítko myši na vıber tovaru
+1759:Dám x%d
+1760:Chcem x%d
+1761:Editácia terénu
+1762:Plánovanie dediny
+1763:Vizuálne skripty
+1764:Všeobecné skriptovanie
+1765:Menu
+1766:Stav:
+1767:Meno hráèa
+1768:VYTVORI SERVER
+1769:Meno
+1770:Port
+1771:Vytvori lokálny server
+1772:Vytvori internetovı server
+1773:Meno serveru
+1774:Stav
+1775:Hráèi
+1776:Ping
+1777:Obnovi zoznam serverov
+1778:DETAILY SERVERU
+1779:Zoznam hráèov:
+1780:IP adresa
+1781:Port
+1782:Miesto
+1783:Pripoji
+1784:Pripájam sa, èakajte prosím...
+1785:Naèítavam...
+1786:Obnovujem...
+1787:Zoznam hráèov
+1788:Pozícia
+1789:Tım
+1790:Farba
+1791:Pripravenı
+1792:Ping
+1793:Preè
+1794:Otvorené
+1795:Poèítaè
+1796:Vybra...
+1797:Náhodne
+1798:Prázdne
+1799:iadna
+1800:Tım %d
+1802:Odosla správu:
+1803:Typ mapy
+1804:Samostatná mapa
+1805:Uloená hra
+1806:Vyberte mapu...
+1807:Vyberte uloenú hru...
+1808:Info o mape:
+1809:Hráèi: %d
+1810:Mód:
+1811:Podmienky k víazstvu:
+1812:Ve¾kos:
+1813:Opusti ponuku:
+1814:Pripravenı
+1815:Štart!
+1816:Èakanie na ostatnıch hráèov:
+1817:O hre KaM Remake
+1818:O originálnej hre Knights & Merchants
+1819:PROGRAMOVANIE:
+1820:ÏALŠIE PROGRAMOVANIE:
+1821:ÏALŠIA GRAFIKA:
+1822:OSTATNÉ PREKLADY:
+1823:ŠPECIÁLNE POÏAKOVANIE:
+1824:Multiplayerové mapy
+1825:Singleplayerové mapy
+1826:Rıchlos obrazu
+1827:Nenájdenı iadny server
+1828:Prechádza skladby
+1829:Info o hre:
+1830:-
+1831:Lobby
+1832:Naèítavanie
+1833:Hra
+1834:Lokácia %d
+1835:Stavanie a bojovanie
+1836:Bojovanie
+1837:Nepripravenı
+1838:Pripravenı
+1839:Chyba: Vyberte prosím hráèa z uloenej hry
+1840:Chyba: Mapa sa nedá naèíta alebo nebola iadna vybraná
+1841:Nie je moné zaèa: %s
+1842:Nikto nie je pripravenı na štart
+1843:Poèet hráèov prekraèuje limit mapy
+1844:Odlišná verzia: %s. Server pouíva: %s
+1845:Server Vám pridelil práva správcu
+1846:Zvıši mnostvo
+1847:Zníi mnostvo
+1848:Ukladám hru...
+1849:%s bol porazenı!
+1850:OSTATNÉ ZVUKY:
+1851:Vyhodi hráèa
+1852:Hos bude môc vyhodi tyto hráèa za %d sekúnd
+1853:Hos teraz môe vyhodi tıchto hráèov
+1854:Hos (%s) sa odpojil
+1855:Spojenie zo serverem sa stratilo. Pokúšam sa opä naviaza spojenie...
+1856:Naozaj chcete skonèi?
+1857:Ste si istı, e chcete vyhodi tıchto hráèov z hry?
+1858:Storno
+1859:Vycvièenıch|obèanov
+1860:Stratenıch|obèanov
+1861:Vycièenıch|vojakov
+1862:Stratenıch|vojakov
+1863:Porazenıch|jendotiek
+1864:Postavenıch|budov
+1865:Stratenıch|budov
+1866:Znièenıch|budov
+1867:Vytvorenıch|produktov
+1868:Vyrobenıch|zbraní
+1869:Obchodovanie s tımto tovarom v tejto misii nie je moné.
+1870:sadi a stína
+1871:Iba stína
+1872:Hra u zaèala
+1873:Stavanie
+1874:Bojovanie
+1875:Kooperácia
+1876:V období mieru je toto zakázané
+1877:Koniec obdobia mieru za: %s
+1878:Koniec obdobia mieru. Do zbrane!
+1879:Èas hry:|%s
+1880:Nastavenia hry:
+1881:H
+1882:L
+1883:S
+1884:Zastavi oddiel  ('%s')
+1885:Spoji oddiel ('%s')
+1886:Samostatnı vojak ('%s')
+1887:Záznamy z hry
+1888:Ukáza záznam
+1889:Doba mieru (minúty):
+1890:Nepodporovanı formát %s
+1891:Nepodporovaná verzia %s
+1893:inicializuje sa
+1894:Inicializácia hry pre viac hráèov
+1895:Naèítavam skripty
+1896:Nová misia
+1897:Nastala chyba pri analıze súboru %s
+1898:Zatvorené
+1899:Správa vykonáva nastavenia
+1900:Naèítava prídavné súèasti
+1901:Naèítavam jednotky
+1902:Naèítavam budovy
+1903:Naèítavam stromy
+1904:Naèítavam definície
+1905:Naèítavam prvky krajiny
+1906:Soft shadows

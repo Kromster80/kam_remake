@@ -103,651 +103,338 @@ MaxID:3004
 110:Smeden smider vapen|och rustningar av järn|i respektive smedjor.
 111:Metallurgen använder|kol för att raffinera guld-|och järnmalm.
 112:Rekryten kan bli|pårustad som|soldat i kasernen.||Han bemannar också|vakttornet.
-113:Milisman
-114:Yxkrigare
-115:Svärdskrigare
-116:Bågskytt
-117:Armborstskytt
-118:Pikenerare
-119:Hillebardiär
-120:Kavalleri
-121:Riddare
-122:Varg
-123:Fisk
-124:Fisk
-159:Till val av byggnader
-160:Till distribution av varor
-161:Till statistik
-162:Till meddelanden
-163:Till alternativ
-164:Tillbaka
-165:Byggnadsval
-166:Distribution|av varor
-167:Statistik
-168:Meddelanden
-169:Alternativ
-170:Ta fram inställningar
-171:Ladda spel
-172:Spara spel
-173:Ladda spel
-174:Spara spel
-175:Är du säker på att|du vill avsluta|detta uppdrag?
-176:Avsluta uppdrag
-177:Tillbaka
-178:Inställningar
-179:Avsluta uppdrag
-180:Ljusstyrka
-181:+
-182:-
-183:Öka ljusstyrka
-184:Minska ljusstyrka
-185:Väldigt mörkt
-186:Mörkt
-187:Normalt
-188:Ljust
-189:Väldigt ljust
-190:Ljusast
-191:Mushastighet
-192:Ändra mushastighet
-193:SFX
-194:Ändra volym
-195:Musik
-196:Musik:
-197:Musik på/av
-198:Av
-199:Via MIDI
-200:På
-201:Tom
-202:Autospara
-203:Snabb Scrollning
-204:Uppdrag %d Tid:%2.2u:%2.2u
-205:Skärmytslig %d Tid:%2.2u:%2.2u
-206:Musikspelare
-207:Föregående spår
-208:Nästa spår
-209:Riv
-210:Ta bort byggnader/selektioner
-211:Bygg väg
-212:Bygg vägar
-213:Ploga fält
-214:Ploga fält
-215:Sätt upp staket
-216:Lantstaket
-217:Placera vinranka
-218:Placera vinrankor
-219:Res vägg
-220:Väggkonstruktion
-221:Träna
-222:Träna vald grupp
-223:Avbryt
-224:Avbryt nuvarande träning
-225:|i träning
-226:Behöver:
-227:Skick:
-228:Levererar
-229:Hus under|konstruktion
-230:Riv
-231:Vill du verkligen|förstöra denna byggnad?
-232:Riv vald byggnad
-233:Minska beställning
-234:Öka beställning
-235:Inventarielista:
-236:Föregående soldattyp
-237:Nästa soldattyp
-238:Utrusta
-239:Utrusta nuvarande soldattyp
-240:Nästa yrke
-241:Föregående yrke
-242:Lägg till kö
-243:Nästa legosoldat
-244:Föregående legosoldat
-245:Anställ legosoldat
-246:Nuvarande rekryter:
-247:Kostnad:
-248:Sätt på/stäng av leveranser
-249:Stäng av/sätt på reparering
-250:Byggnaden är ej tillgänglig just nu
-251:Ej tillgängligt i demon
-252:Ledig plats
-253:Skick
-254:Rotera vänster
-255:Rotera höger
-256:Attackera ('a')
-257:Gör halt ('h')
-258:Lös upp trupp ('d')
-259:Länka trupper ('l')
-260:Separera trupp ('s')
-261:Ge mat till truppen
-262:Börja stormattack
-263:Lägg till linje
-264:Dra tillbaka linje
-265:Offensiv:
-266:Defensiv:
-267:Tempo:
-268:Välj|slott
-269:Avsluta
-270:Välj|destination
-271:Välj|grupp
-272:Välj|mål
-273:Avbryt
-274:Enhet ej tillgänglig just nu
-275:Ta bort
-276:Tar bort nuvarande meddelande
-277:Skicka
-278:Skickar nuvarande meddelande
-279:Gå till
-280:Hoppar till nuvarande meddelandeposition
-281:Stäng
-282:Stänger fönstret
-283:Svara
-284:Svarar på meddelandet
-285:Bekräfta
-286:Nya allianser har skapats.
-287:är vänskaplig
-288:är fientlig
-289:|Stenhuggaren kan inte få tag på mer sten.
-290:|En kolådra är tömd.
-291:|En järnådra är tömd.
-292:|En guldådra är tömd.
-293:|Fiskaren kan inte fånga mer fisk.
-294:|Detta hus har ingen ägare.
-295:|Truppen är utsvulten, det är bäst att de får nåt att äta snart!
-296:Till järndistribuering
-297:Distribuering av|järn
-298:Till koldistribuering
-299:Distribuering av|kol
-300:Till trädistribuering
-301:Distribuering av|träplankor
-302:To corn distribution
-303:Distribution of|corn
-304:|Skriv ditt meddelande:
-305:Meddelande från spelare '%s':|'%s'
-306:Allianser:
-307:PAUS
-478:Nätverksmeddelande:
-479:Spelare '%s' har gått ur spelet.|Tryck ~<~S~P~A~C~E~> för att fortsätta spela.
-480:Du är nu värd för spelet.|Tryck ~<~S~P~A~C~E~> för att gå vidare.
-481:Datorn väntar på data. Tryck ~<~S~P~A~C~E~> för|att repetera eller ~<~F~1~> för att avsluta spelet.
-499:Verily, thou must needs construct a schoolhouse to train new citizens.|Thou needs to ensure that thou hast gold aplenty in thy coffers, so that thou canst train new citizens for thy kingdom.
-500:Start building by left click on ye hammer icon on the left side of thy screen. Then thou must needs click on the book (ye olde schoolhouse) icon. Position the frame of thy schoolhouse on thy map where thou willst construct it and left click there.
-501:Once thou hast placed the schoolhouse, thou canst see that 'construct road' has in troth become the default cursor. Thou must needs click each square where thou willst have a section of road built.|And forget not, thou must needs connect the road to the front door of every building.
-502:To train units, left click on thy schoolhouse and scroll through using the 'next profession' button to select the unit that thou doth wish to train. Then shalt thou left click on the 'add to queue' button. When trained, thy serfs shall, wonder of wonders, automatically start to perform their tasks.
-503:From time to time thine loyal citizens shalt need to eat. In order for them to do this, thou must needs construct an inn.|Be sure to locate ye inn centrally, so that it canst be accessed easily by all of thine villagers.
-504:Thou shalt need stones if thou art to construct further houses and roads. Thou shouldst construct a quarry near a supply of stones, then must thou train thee a stonemason who will produce thy new building material.
-505:Thou doth not only need stones to construct buildings, but also timber. Ye woodcutter fells and plants trees which are then processed in the sawmill. Thou shouldst always build ye woodcutter's hut near a forest.
-506:Now thou must needs construct a sawmill to process the tree trunks which ye woodcutter hath felled.|Once thou hath completed that task, thou shouldst train a carpenter who will work in thy new sawmill.
-507:Once thou hath ensured a sufficient supply of building materials, thou canst turn thy attention to the production of food.|Construct thyself a fisherman's hut near the water so that ye fisherman canst supply thy inn with freshly caught fish.
-508:Good, but forget not that even though ye sea hath fish in plenty, they shalt run out sooner or later.|To ensure a more stable food source for thy village, thou shouldst construct a farm where there doth be enough room for ye fields.
-509:Roughly sixteen squares of field shouldst be ploughed for ye farmer, as close as possible to thy farm itself.|Now thou needs to construct a mill to process the corn that thy farmer shalt harvest.
-510:Great, now thou canst build a bakery which shalt supply thy inn with fresh bread. Be sure that thou hath always enough serfs on hand to transport thine goods and deliver them quickly to ye different buildings.
-511:Apart from just feeding thine loyal subjects with fish and bread, thou also needs give them something to quench their thirst.|Construct thee a vineyard and lay out about sixteen squares of wine field for thy farmer to gather ye grape from.
-512:Thou art doing well, but thine hard-working subjects deserve better food than just dry bread and wine. To produce meat and skins, construct a swine farm where ye animal breeder shalt breed pigs.
-513:To process thine newly slaughtered meat further, it shalt be necessary for thou to construct a butchery. In the butchery, ye butcher shalt string sausages from thy meat.
-514:Now that thou hath secured thine food deliveries, thou shouldst need concentrate on thine long-term goal; the production of new weapons. Start by building a barracks at a location that doth appear suitable.
-515:In ye barracks thou canst use the 'next soldier type' and 'previous soldier type' buttons to scroll through ye different troops which thou canst have equipped. Ye highlighted squares doth indicate which pieces of equipment shouldst be needed to equip the currently selected soldier.
-516:If thou art to equip soldiers from thy barracks, thou doth also needs produce weapons for thine stalwart fighters. Have thine laborers build thou a weapons workshop near thy barracks so that thou canst ensure quick delivery of ye weapons.
-517:To place orders for ye production of equipment, thou shouldst left-click on thy newly constructed weapons workshop and then left-click on the 'increase order amount' button. Always be sure thine weapons workshop hath enough timber for producing weapons.
-518:Without proper equipment thine soldiers shalt in troth be slaughtered on the battlefield.|To produce new armor for thine troops, thou shouldst firstly build a tannery for further processing of ye skins.
-519:Now that thou hath a production of leather underway, thou must needs build an armory workshop. In that very building a carpenter shalt make leather armor and wooden shields.
-520:Excellent! Thou doth now have all the buildings required to run a town and to equip new soldiers. Once thou hath the proper pieces of equipment required to equip a specific soldier type, thou shouldst need train a recruit from ye school house and then click 'equip current soldier type'.
-521:Thy aim shalt now be the defeat the two enemy encampments nigh by. The blue enemy to the south is cunning and hath a strongly fortified base, whilst ye green to the east is merely relying on soldiers. Prepare thine troops well before thou doth attempt to rid the area of ye wicked enemy!
-522:|The blue player hath been defeated!
-523:|The green player hath been defeated!
-524:Before thou attacketh thine enemies to the west, thou must needs kill off the scouts ensconced nigh to the north. If thou dost left-click on thy lance carriers, and then right-click on thine enemies, this shall spur them into a glorious attack.
-525:A company of bowmen lieth to the south-west. Attack it with thy militia. But caution to order the charge at the proper moment, lest enemy arrows inflict terrible losses on thy stalwart troops!
-526:Attack the enemy forces which lie in waiting to the west. Watch for enemy bowmen for they have entrenched themselves behind the infantry! Send thy scouts to the north that they may encircle the enemy and attack from the rear.
-527:Now thou shalt launch an attack with all thy forces at once. Place thy bowmen behind thine infantry to drive back the enemy lines. If thou art glorious, the battle tutorial is complete.
-529:Thou must needs speedily equip new militia units! Shouldst thou fail to do this, we shall be defenseless against enemy attacks!
-530:Our scouts inform us that the enemy doth prepare an attack against thee. Repel them with thy trusty sword!
-531:Thou hast made good progress, but ye village must needs be enlarged. Only when thou hast done this, wilt thou be in a position to storm the enemy barricades and to destroy this evil den of resistance!
-532:Once more must I press upon thee that thou shalt protect our stalwart allies, the Lauenburger troops, at all costs!
-533:Protect thy troops and thyself from those scoundrelly troops, the horsed knights of the enemy!|They again cast their eyes upon our allies!
-534:The village in the north hath declared openly against further tyranny. Thou shouldst turn this to thine own advantage.
-535:Our faithful scouts have discovered a deserted storehouse. It lieth to the west, nigh to a small wood. Surely there wilt thou find items of use to thee.
-536:An enemy scout hath been captured and interrogated. It doth appear that the enemy hath discovered our position and even now prepares an attack against thee.
-537:It shall not be long 'til the barbarians fall upon us. Prepare thy troops well or the scoundrels shall breach thy defenses!
-538:To thy weapons!|A huge enemy force makes its way toward thee!
-539:Organize thy force well, the enemy doth have superior numbers! Shouldst thou attack by storm, thou willst not find the joy that victory brings!
-540:Victory is ours, but the time for revenge is not yet upon us. Thou must needs construct Werheim anew. Then indeed shall the black-hearted dogs pay for their dastardly deeds!
-541:Without iron, hast thou not weapons, without weapons hast thou not warriors! To the north thou willst find that which thou hast need of.|Prepare thyself to capture the mines located there.
-542:The good people of the village that lieth to the south still resist against the tyranny with all their might, but have suffered fearful losses. Make haste to aid these proud villagers, thou willst not regret it.
-543:A deserted storehouse doth perchance lie nigh to your position. Thou shalt travel with all speed to that place, for a hard trial awaits thee, and methinks thou willst be in need of all the aid which thou canst find.
-544:Our brave spies report that the deserted storehouse doth indeed be the target of a large enemy offensive. Thou must needs hold firm in this place, lest thine own advance be hindered.|Stand fast, thou brave heart!
-545:Yet another dastardly attack on the storehouse cometh thy way. Prepare thyself for battle!
-546:The enemy trieth all in his power to avoid defeat at thy hands and sallies forth even now in a vain attempt to subdue thee. Thou shalt grind the enemy down, to the last man! Then, methinks, thou mayst continue thy glorious advances.
-547:The tyrant hath not yet succumbed to thy brave attacks. Our stalwart allies remain steadfast and true and stand indeed by thy side. After the first attack thou art aware that thou willst be left to thine own devices, as hath been agreed.
-549:The opposing force is larger than our scouts hath led us to believe. Equip further soldiers from thy barracks to support thine stalwart army.
-550:For thou to banish the conquerors utterly, thou must needs to destroy all of their cowardly troops. Once this purge is complete, the peasants of the surrounding villages shall form an alliance with thee and offer us danger no longer.
-551:Our scouts report that thy enemy hath enslaved most of thine citizens in the area. Storm their defenses but destroy only their military buildings, leaving thine enslaved settlers unharmed. This shouldst surely send thy enemy into glorious retreat and free thy citizens!
-552:I stress upon thee, protect thine allied troops to the south from thy enemy attacks!|Allow them not to fall prey to thy opponent, for we need their support more than ever.
-553:Our spies hath sighted a hostile army advancing on thy storehouse to the south! Thou must needs defend the valuable goods from the rebel force.
-554:Our scouts behold an opposing army south of thy location! Keep thy wits about thee, or thine enemies may take thee by surprise!
-555:Bewarned! Further enemy troops are closing in on thee from the west! Drive them back with ye stalwart troops!
-556:To support thy army, thou shouldst need hire more mercenaries from the town hall. These seditious soldiers will strengthen thine army and help thee repel thy enemy.
-557:Perchance if thou shouldst try the back entrance, thou mayst find it unguarded. With this advantage thou shouldst surely defeat thine enemy with ease.
-558:An enemy force doth make its way from the mountains that lieth to the northwest and even now is marching straight toward thy camp! Prepare thy troops well, so thou wilt be able to defeat this army utterly.
-559:Thine enemy hath already discovered thy new position and shalt very soon send a strong battalion toward thee!
-560:Beware! Our scouts hath sighted enemy archers hidden in the surrounding hills.|Methinks a fight in the open gorge could mean our ruination.
-561:We hath arrived at the final stronghold of the treacherous rebels.|Thou shalt slay all of the rebellious and caddish dwellers here, leaving not a single breathing soul after this glorious battle has come to an end!
-562:Our spies report that our enemy hath indeed discovered our new location and now prepareth an attack against thee.|Draw thy trusty sword once more and show no mercy to these ruthless rebels!
-569:Empty
-570:Spirit
-571:Busy
-572:Middle Ages Horn
-573:Spring
-574:Lute
-575:Mercenary
-576:The Princess
-577:The Queen
-578:In the Marketplace
-579:On the Battlefield
-580:Court Dance
-581:The Army
-582:In the Castle
-583:Fanfares
-584:At Court
-585:Entree
-586:Deep Blue
-587:Struggle
-999:oanvänd
-1000:Kampanj 'The Shattered Kingdom'
-1001:Kampanj 'The Peasants Rebellion'
-1002:Handledning
-1003:Spela enskild karta
-1004:Enskild karta
-1005:Föregående
-1006:Nästa
-1007:Starta spelet
-1008:Tillbaka
-1009:Ladda sparat spel
-1010:Flera spelare
-1011:Alternativ
-1012:Skapare
-1013:Avsluta spelet
-1014:Tom
-1015:Sparade spel:
-1016:Fortsätt
-1017:Starta om uppdraget
-1018:Till huvudmenyn
-1019:Upplösning:
-1020:Inte tillgängligt
-1021:Välj speltyp
-1022:Lokalt nätverk
-1023:Net-Games
-1024:Användarnamn:
-1025:Lösenord:
-1026:Skapa nytt konto
-1027:Logga in
-1028:Kopplar upp till Net-Games...
-1029:Autentisering...
-1030:Lyckades
-1031:Misslyckades
-1032:Uppkoppling misslyckades
-1033:Fel användarnamn
-1034:Användarnamn redan taget
-1035:Användaren är avstängd
-1036:Ogiltigt användarnamn
-1037:Odefinierad
-1038:På gång
-1039:Ogiltiga parametrar
-1040:Kanalen är full
-1041:Kanalen finns inte
-1042:Ingen tillgång till kanalen
-1043:Timeout
-1044:Du har för många konton
-1045:Servern tar inte emot registreringar just nu
-1046:Användarnamnet är ogiltigt
-1047:<COL 0>%s:<COL 1> %s|
-1048:<COL 0>%s %s|
-1049:<COL 2>%s viskade: %s|
-1050:<COL 3>Privat meddelande till %s: %s|
-1051:<COL 4>SERVER: %s|
-1052:<COL 4>SERVER: %s|
-1053:<COL 2>Dagens meddelande: %s|
-1054:<COL 0>BROADCAST: %s|
-1055:<COL 3>%s kom in i kanalen|
-1056:<COL 3>%s går ur kanalen|
-1057:<COL 3>Du har gått in i kanalen <COL 0>%s<COL 3>|
-1058:<COL 3>Du har gått in i spelet <COL 0>%s<COL 3>|
-1059:Tillbaka till huvudmenyn
-1060:Gå in i kanal
-1061:Gå in i spel
-1062:Skapa spel
-1063:Skapa stegspel
-1064:Lämna spel
-1065:Sätt igång spel
-1066:Viska
-1067:Kicka
-1068:Spärra
-1069:Info
-1070:Registrera
-1071:Tillbaka till namnet
-1072:Fyll i ditt namn:
-1073:Fortsätt
-1074:Tillbaka
-1075:Välj nätverkstyp:
-1076:Gå med spel
-1077:Skapa spel
-1078:Fyll i sessionsnamn:
-1079:Starta session
-1080:Välj session:
-1081:Anslut till spel
-1082:Sök efter spel
-1083:Spelare just nu:
-1084:Meddelanden:
-1085:Skicka:
-1086:Börja!
-1087:Inget namn
-1088:<Ledig>
-1089:<Ej tillgänglig>
-1090:<Dator>
-1091:'s session
-1092:~P~l~a~y~e~r '%s' ~h~a~s ~b~e~e~n ~r~e~m~o~v~e~d ~f~r~o~m ~g~a~m~e ~b~y ~t~h~e ~h~o~s~t
-1093:Skärmytslingar:
-1094:Titel:
-1095:Beskrivning:
-1096:Egenskap:
-1097:Startposition:
-1098:Värden väljer|skärmytsling
-1099:Förrådshus
-1100:Trupper och förrådshus
-1101:Trupper och byggnader
-1102:Sekvens
-1103:Slumpad
-1104:Kopiera sparat spel
-1105:Avbryt överföring
-1106:Överfört: %d/100
-1107:Sparat spel  no. %d
-1108:Spelare:%d|Kart-Storlek:%dx%d
-1109:Autospara
-1110:SEGER!
-1111:FÖRLUST!
-1112:Enheter förlorade:
-1113:Enheter förstörda:
-1114:Byggnader förlorade:
-1115:Byggnader förstörda:
-1116:Byggnader uppförda:
-1117:Enheter tränade:
-1118:Vapen konstruerade:
-1119:Soldater tränade:
-1120:Uppdraget slutfört på:
-1149:Three Continents
-1150:Wilderness
-1151:Battle for Coal
-1152:Border Rivers
-1153:Land of Hills
-1154:Mountainous Region
-1155:Castle Slaughter
-1156:Coastal Encounter
-1157:Ambushed!
-1158:Bridge Disaster
-1159:Bonus Map A
-1160:Bonus Map B
-1179:Across the Desert||Size: 176x176|Number of opponents: 5
-1180:In a Strange Land||Size: 176x176|Number of opponents: 3
-1181:Snow and Sand||Size: 160x128|Number of opponents: 5
-1182:Land of the Quick River||Size: 176x176|Number of opponents: 3
-1183:Black Gold||Size: 176x176|Number of opponents: 5
-1184:Mountain Walls||Size: 144x128|Number of opponents: 3
-1185:Realm of the Darkness||Size: 176x176|Number of opponents: 3
-1199:Players: 6|Map-Size: 176x176|Build a town
-1200:Players: 4|Map-Size: 176x176|Build a town
-1201:Players: 6|Map-Size: 160x128|Build a town
-1202:Players: 4|Map-Size: 176x176|Build a town
-1203:Players: 6|Map-Size: 176x176|Build a town
-1204:Players: 4|Map-Size: 144x128|Build a town
-1205:Players: 6|Map-Size: 176x144|Build a town
-1206:Players: 3|Map-Size: 64x64|Battle
-1207:Players: 6|Map-Size: 144x144|Battle
-1208:Players: 4|Map-Size: 176x176|Build a town
-1249:The traitor's henchmen have|succeeded in breaching our defenses.|The fortress has fallen and shouldst|thou not drive out the scoundrels,|the kingdom shall be lost and the|throne robber shall triumph.|To thy weapons!
-1250:Thy victory hath given us hope.|But the time for revelry is not|yet upon us. The enemy hath|retreated in defeat to a village|nigh to thy location, where at they|form anew. The prince shall soon|once more force battle upon us, as|his rogue forces by far outnumber|thy stalwart fighters. Control|thine anger, and let not thyself be|lured into open battle. The terrain|is suited for defensive tactics on|thy part: the enemy must needs cross|the river at the narrow ford.|Shouldst thou attack him there, thine|inferior numbers shall be equal to his|greater force.
-1251:A memorable day! The rogue forces|of the rebel prince are in full|retreat. The road to the Barony of|Lauenburg is now open to thee. The|Baron of Lauenburg, the knave, hath|formed an alliance with our enemies,|therefore thou must perforce reckon|with stout opposition on thy way to|the rogue's province.
-1252:Verily, our enemies have indeed failed|to halt the advance of the king's|loyal troops. The Baron of Lauenburg|has perforce retreated with all|his soldiers to await our attack.|The commoners of the barony have|received us joyfully. Now, indeed,|thou hast the glorious chance to|increase thine army and perchance|capture Lauenburg. Shouldst thou|defeat the baron, this shall indeed|serve as a warning for all traitors|to the crown!
-1253:The Baron of Lauenburg hath yielded|to thee and received pardon from|our king, in that he hath shown true|regret for his dastardly deeds. Thine|aim shall now be the capture of|Moorbach. Our spies have discovered|a deserted stronghold which thou|shalt use and enlarge according to|thy needs. Now that Lauenburg is our|ally, the soldiers of that barony are|perforce threatened by our enemies.|Thou shalt protect the Lauenburger|troops at all costs. This will needs|strengthen the trust between us and|our new allies and thou shalt|perchance gain new soldiers for thy|stalwart army.
-1254:Moorbach hath fallen to us. Our|enemies are soundly defeated and|deeply humbled. Now our spies|inform us that a new army of rogues|and scoundrels forms to the|northwest, to avenge their humbling|at thy hands in Moorbach. Howsoever,|we are in troth strong enough to|enter into attack ourselves. Thou|shalt attack this army, and surprise|them afore they can become|organized. In this, thou must needs|count on the Lance Carriers of|Lauenburg, a stalwart company|which hath joined with our own.
-1255:Verily, news of thy victories spreads|like wildfire throughout the kingdom.|Everywhere the commoners rise|against the tyrants. Walheim lieth|to the north, still held by our|enemies. The Ruler of Walheim hath|refused to receive our envoys, and|in troth, hath sworn to defend the|town until the last man hath fallen.|The commoners of a small village|nigh to thy strongpoint have perforce|declared against the tyrant. These|good commoners shall supply thine|army with new weapons and recruits.|Verily, with such a large and|well-equipped army, thou shalt find|no problem in capturing Walheim.
-1256:The battle of Walheim hath brought|with it an absence of power, and|there exists a state of confusion.|The savage Northern Tribes band|together to fall upon the kingdom.|Thou must needs stop them, before|thou canst again do battle with the|rebels. In the ruins of Walheim, thou|wilt find building plans for|watchtowers of a verily advanced|sort. Thou must needs form a|bulwark against the barbarians.|Thou shalt destroy them, but utterly.
-1257:The barbarians fight amongst|themselves. Perchance by persuasion|and guile canst thou win over to thy|cause two of their chieftains, and all|their warriors, that these shall fight|at thy side. Thy location at this time|is simple to defend but cannot be|enlarged, so that thou must needs|plan with care. The enemy readies|himself for battle and the attack is|nigh. Prepare with all haste, so that|thou canst verily welcome the enemy|in such a manner that he shall|never forget!
-1258:The wicked despot threatens one of|our towns. Only if thou hasten there|with all thy speed, canst thou bring|thy soldiers there on time.|According to our spies, thou must|needs reckon with a large enemy|force. Deploy thy soldiers well.|Thou wilt achieve victory by thine|usage of clever tactics. If thou|charge in a blind fashion, thou|shalt indeed regret it!
-1259:Indeed, only narrowly was the attack|on our town beaten back. But the|treacherous attack did in troth leave|its cruel mark on the town. The|enemy torched it ruthlessly and|killed nigh all who dwelt there.|Thou wilt answer this massacre with|bloody revenge! But firstly, thou|must needs build the town anew|before thou bringst the cowardly|scoundrels to account.
-1260:The enemy is destroyed and the|remnants of that army retreated to|the north. The iron ore mines in|the north are of great strategic|importance for thee, since the|iron thou wilt find there shall aid|thee in the continuance of the war.|Thou shalt build a new army, an|army which shall drive all rebels|from this region for all time to come.|To the east of thy location is a|bridge. This bridge will aid thee|in thy defenses, whilst thine army|in strength grows.
-1261:Forsooth, our enemy are still|possessed of huge reserves, and the|knaves plan a counterattack against|our stalwart army. However, the|mountains nigh to their location may|be an obstacle for a large army to|traverse. Thou shalt advance into the|mountains with thine army and|await the enemy in the highest|pass. Let not the traitors ever|again gain upper hand!
-1262:At last thine efforts bear fruit!|Everywhere in the kingdom, the king's|serfs rise against the cruel reign|of the prince. Verily, even his|generals agree not with the barbarisms|and cruelties practiced on the|commoners. One of the generals has|passed a secret message on to|us....that the dastardly prince desires|to make a cruel example of a village|whose people have openly rebelled|against his treacherous rule! Thou,|and thou alone, art the bulwark|between the tyrant and the stalwart|villagers! Thou must needs put a stop|to this barbarous scoundrel's plans!
-1263:The end is nigh for those|black-hearted scoundrels, the enemies|of the king. Thou hast forced them to|their knees. The prince hath changed|his tactics, and doth hold important|deposits of raw materials. This doth|be a hindrance to us. Thou shalt|capture ye iron ore mines nigh to thy|location put the rebels to flight!|Forget not the great marsh which|lieth before thee. Prepare thyself|and thy stalwarts well! Verily, thou|shouldst remain in fear of thy life!
-1264:Thou hast much fertile land and rich|deposits of raw materials at thy|disposal in the province which lieth|before you. Let not thyself be in|doubt that soon the enemy shall|advance to gain this fruitful land|for himself. Defend the province and|show no mercy to the enemy soldiers!|No quarter shall be given them!
-1265:In the north, the traitor gathers|together his vassals, that he may|again attack unashamedly and boldly.|But, in troth, he doth not be yet|prepared to face thee on the|battlefield. Thou shalt advance|toward him and destroy him, whilst|he is as yet unprepared for thine|assault. Thou must needs traverse|the mountains to achieve thine aim,|but beware! The scoundrel hath to all|accounts occupied the pass to hinder|thee in thy mission. Still, thou must|proceed to the north, cost what|it will!
-1266:Thy last victory hath forced thine|opponent to retreat in defense. He|hath entrenched himself in a natural|stronghold wherein he, like the coward|he doth be, awaits thine attack. Thou|willst find it hard to capture this|stronghold! Many a general hath tried|before thee, and all have failed. Let|not thy courage fail thee and thy|heart grow weak! Perchance have|these valiant generals left articles|behind, articles which shall aid thee|in thy brave quest!
-1267:This doth be a black, black day! An|insidious, dastardly assassination|plot hath cost our beloved king this|day his life! The prince, shameless|scoundrel he doth be, and, methinks,|the rogue behind this great tragedy,|hath proclaimed himself the new king.|He hath ensconced himself behind|mighty walls wherein he hopeth to|find refuge from thy wrath. Thou shalt|storm these walls and bring to this|upstart, self-proclaimed king the fate|of which he doth be most deserving.|An eye for an eye, a tooth for a|tooth!
-1268:Our quest is well-nigh over. The city,|which doth be the last remaining|bastion of the upstart king, is|surrounded and under siege. Show no|mercy to whomsoever remaineth true|to the upstart and slay all thine|enemies! Thou, oh loyal hero, shalt|raze all traces of his dastardly rule|to the ground! Only then, through thy|heroic deeds, shall peace and freedom|once more reign in the kingdom. To|the gallows with the pretender, where|he shall hang like the common|criminal he doth be!
-1299:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-1349:              Mission 1||The renegades are trying to oppress the few farmers who remain loyal to the kingdom. Outside the king's palace, innocent farmers are being butchered, and under no circumstances can you allow this!|Force the attackers into retreat!
-1350:              Mission 2||After our successful support of the farmers, we must free the remaining farmers. A large enemy is coming directly towards us from the north.|Into battle!
-1351:              Mission 3||After the victorious battle you now have some time to rebuild the ruined towns and villages and to secure supplies to your subjects. Then you should turn your attention to liberating the occupied settlements in the north and fight the tyrannical rule of the renegade aristocracy. Spare the civilian country folk and fight only the enemy soldiers who are stationed there.
-1352:              Mission 4||Our spies have seen enemy troop maneuvers in the surrounding settlements. Due to the high number of enemy soldiers, we must presume that they have a fortified camp. Find and destroy it, including all enemy military buildings.
-1353:              Mission 5||Now, after your overwhelming success in the fight against the rebels, we must reckon with a massive counterattack. Prepare your people for a hard fight. Prevent the villages from being destroyed.
-1354:              Mission 6||We know that our enemy is building new bases. You cannot permit this. Attack as soon as possible, before the enemy has recovered.|Also search the area for raw materials, because your supplies of iron ore are almost exhausted.
-1355:              Mission 7||Before we turn again to the rebels, we must win back the settlements in the south. The victory in the last battle brought us a small quantity of iron that we urgently need. But because iron deposits in this area are very limited, we must be very careful how we use it.
-1356:              Mission 8||During our last attack we had to move most of our people away from our base and have given the enemy a chance to attack. Return as quickly as possible, before the foe can overrun our defenses!
-1357:              Mission 9||Because of the ambush we have not been able to reach the castle in time. We need to come up with a good strategy to reconquer what is ours. The main gate is heavily defended, and a direct attack would be useless. Try to attack another entrance and avoid casualties, as we have no possibility to mine for more iron ore.
-1358:              Mission 10||Through reconquering the castle, we have made some prisoners, who have told us about an underground tunnel, that leads through the northern mountains. The entrance to the tunnel is being guarded by a few enemy soldiers. Overthrow the guards and enter the tunnel.
-1359:              Mission 11||The cave is bigger than expected. Our scouts have discovered enemy guards in the winding tunnels, who are protecting the underground complex from intruders. Reach the exit on the other side of the mountains.
-1360:              Mission 12||The opposing troops have been informed of our intentions. Strong enemy battalions are advancing and will soon attack. Build towers to weaken the coming troops. When the defense has been successful, you will be able to cross the pass to the north.
-1361:              Mission 13||An ambush! Our enemy has been waiting for us. We are now in an extremely bad position. Force the insidious bandits into retreat!
-1362:              Mission 14||We have arrived at last bastion of our enemy. They have brought the rest of their armies together and barricaded themselves into their final retreat, northeast from here. Due to the freezing cold, the river is partly frozen, and offers us a possibility of surprising our opposition. Defeat the remaining enemy troops, so that peace can return to our land!
-2000:Uppdrag avbrutet
-2001:Stadshandledning
-2002:Stridshandledning
-2003:En spelare
-2004:Kartredigerare
-2005:Spela upp senaste spelet
-2006:Starta uppdraget
-2007:Titel
-2008:Storlek
-2009:Uppdragstyp:
-2010:Vinstvillkor:
-2011:Förlustvillkor:
-2012:Allierade:
-2013:Fiender:
-2015:Ny kartstorlek
-2016:Bredd
-2017:Höjd
-2018:Skapa ny karta
-2019:Tillgängliga kartor
-2020:Ladda existerande karta
-2021:Kontroller:
-2022:Spelinställningar:
-2023:Ljud:
-2024:Ingen musik
-2025:Grafik:
-2026:Ljusstyrka
-2027:Helskärm
-2028:Bekräfta
-2029:Språk:
-2030:Laddar... Var god vänta
-2031:Ett problem uppstod!
-2032:Laddar ny lokal
-2033:Lista över sparade spel
-2034:Filnamn
-2035:Beskrivning
-2036:Ladda
-2037:Ta bort
-2038:Är du säker på att du vill ta bort det här sparade spelet?
-2039:Ta bort
-2040:Avbryt
-2042:Du vann!
-2043:Fortsätt spela
-2044:Seger!
-2045:Du förlorade!
-2046:Fortsätt titta
-2047:Förlust
-2048:Återspelningen har avslutats
-2049:Fortsätt titta
-2050:Avsluta
-2051:Ej tillgänglig
-2052:Tryck %s för att åter börja spela
-2053:Till lag
-2054:Spelarinfo
-2055:Chat
-2056:Spelet finns redan
-2057:Skriv över
-2058:Spara
-2059:Ladda
-2060:Ett fel har uppstått under spelets gång.
-2061:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!
-2062:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel
-2063:Nätverksfel:
-2064:Error: Spelarnamnet får inte vara ingenting
-2065:Uppkoppling misslyckades: %s
-2066:Du har kopplats ner
-2067:Uppdrag %d
-2068:Din fiskares stuga är för långt från vattnet.
-2069:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
-2071:Använd vänster musknapp för att välja en vara att handla med
-2072:Använd höger musknapp för att välja en vara att handla med
-2073:Från x%d
-2074:Till x%d
-2075:Terrängeditering
-2076:Byplanering
-2077:Visuella script
-2078:Globala script
-2079:Meny
-2080:Status:
-2081:Spelarnamn:
-2082:SKAPA SERVER
-2083:Servernamn
-2084:Serverport
-2085:Skapa lokalt spel
-2086:Skapa internetspel
-2087:Servernamn
-2088:Status
-2089:Spelare
-2090:Ping
-2091:Uppdatera serverlistan
-2092:SERVERDETALJER
-2093:Spelarlista:
-2094:Adress
-2095:Port
-2096:Rum
-2097:Anslut
-2098:Kopplar upp, var god vänta...
-2099:Laddar meddelanden...
-2100:Uppdaterar...
-2101:Spelarlista
-2102:Startplats
-2103:Lag
-2104:Flaggfärg
-2105:Redo
-2106:Ping
-2107:Kicka
-2108:Öppen
-2109:AI-spelare
-2110:Välj...
-2111:Slumpad
-2112:Inget
-2113:Ingen
-2114:Lag %d
-2116:Skicka meddelande:
-2117:Karttyp
-2118:Enskild karta
-2119:Sparat spel
-2120:Välj en karta...
-2121:Välj ett sparat spel...
-2122:Kartinfo:
-2123:Spelare:
-2124:Läge:
-2125:Villkor:
-2126:Storlek:
-2127:Avsluta sessionen
-2128:Redo
-2129:Börja!
-2130:Väntar på spelare:
-2131:KaM Remakes skapare
-2132:Original Knights & Merchants skapare
-2133:PROGRAMMERIG:
-2134:YTTERLIGARE PROGRAMMERING:
-2135:YTTERLIGARE GRAFIK:
-2136:YTTERLIGARE ÖVERSÄTTNING:
-2137:SPECIELLT TACK TILL:
-2138:Flerspelarkartor
-2139:Enkelspelarkartor
-2140:Scrollhastighet
-2141:Hittade inga servrar
-2142:Blanda spår
-2143:Spelinformation:
-2144:-
-2145:Lobby
-2146:Laddar
-2147:Spel
-2148:Plats %d
-2149:Bygg och strida
-2150:Strid
-2151:Inte redo
-2152:Redo
-2153:Fel: Sälj en spelare från sparningen att kontrollera
-2154:Fel: Kartan kunde inte laddas eller ingen karta vald
-2155:Kan inte börja: %s
-2156:Alla är inte redo att börja
-2157:Så många spelare kan inte spela på denna karta
-2158:Fel protokollversion: %s. Servern använder: %s
-2159:Servern har tilldelat dig värdrättigheter
-2160:Öka handelsmängd
-2161:Minska handelsmängd
-2162:Sparar spel...
-2163:%s besegrad!
-2164:YTTERLIGARE LJUD:
-2165:Kasta ut spelare
-2166:Värden kommer att kunna kasta ut dessa spelare efter %d sekunder
-2167:Värden kan nu kasta ut dessa spelare
-2168:Värden (%s) har gått ur spelet
-2169:Uppkopplingen till servern försvann. Försöker återansluta...
-2170:Är du säker på att du vill avsluta?
-2171:Är du säker på att du permanent vill kasta ut dessa spelare?
-2172:Avbryt
-2173:Invånare|tränade
-2174:Invånare|förlorade
-2175:Soldater|utrustade
-2176:Soldater|förlorade
-2177:Enheter|besegrade
-2178:Byggnader|konstruerade
-2179:Byggnader|förlorade
-2180:Byggnader|förstörda
-2181:Varor|producerade
-2182:Vapen|producerade
-2183:Att handla med denna vara är inte tillåtet på det här uppdraget
-2184:Plantera och hugg ner
-2185:Hugg endast ner
-2186:Spel startat
-2187:Byggkarta
-2188:Stridskarta
-2189:Samarbetskarta
-2190:Du får inte göra det under fredstiden
-2191:Fredstid kvar: %s
-2192:Fredstiden är över. Till vapen!
-2193:Speltid:|%s
-2194:Spelinställningar:
-2195:H
-2196:L
-2197:S
-2198:Gör halt ('%s')
-2199:Länka trupp ('%s')
-2200:Separera trupp ('%s')
-2201:Reprisvisare
-2202:Visa repris
-2203:Fredstid (minuter)
-2204:Inget stöd för format %s
-2205:Felaktig version %s
-2207:initierar
-2208:flerspelarinitiering
-2209:script
-2210:Nytt uppdrag
-2211:Ett fel uppstod när filen %s skulle behandlas
-2212:Stängd
-2213:Värden gör spelaruppställningen
-2214:ny grafik
-2215:enheter
-2216:hus
-2217:träd
-2218:definitioner
-2219:terrängtexturer
-2220:Soft shadows
+147:Till val av byggnader
+148:Till distribution av varor
+149:Till statistik
+150:Till alternativ
+151:Tillbaka
+152:Byggnadsval
+153:Distribution|av varor
+154:Statistik
+155:Alternativ
+156:Ladda spel
+157:Spara spel
+158:Är du säker på att|du vill avsluta|detta uppdrag?
+159:Avsluta uppdrag
+160:Tillbaka
+161:Inställningar
+162:Avsluta uppdrag
+163:SFX
+164:Ändra volym
+165:Musik
+166:Musik på/av
+167:Autospara
+168:Musikspelare
+169:Föregående spår
+170:Nästa spår
+171:Riv
+172:Ta bort byggnader/selektioner
+173:Bygg väg
+174:Bygg vägar
+175:Ploga fält
+176:Ploga fält
+177:Placera vinranka
+178:Placera vinrankor
+179:Avbryt
+180:Avbryt nuvarande träning
+181:Behöver:
+182:Skick:
+183:Levererar
+184:Hus under|konstruktion
+185:Riv
+186:Vill du verkligen|förstöra denna byggnad?
+187:Riv vald byggnad
+188:Minska beställning
+189:Öka beställning
+190:Föregående soldattyp
+191:Nästa soldattyp
+192:Utrusta nuvarande soldattyp
+193:Nästa yrke
+194:Föregående yrke
+195:Lägg till kö
+196:Sätt på/stäng av leveranser
+197:Stäng av/sätt på reparering
+198:Byggnaden är ej tillgänglig just nu
+199:Skick
+200:Rotera vänster
+201:Rotera höger
+202:Attackera ('a')
+203:Lös upp trupp ('d')
+204:Ge mat till truppen
+205:Börja stormattack
+206:Lägg till linje
+207:Dra tillbaka linje
+208:Välj|grupp
+209:Avbryt
+210:Ta bort
+211:Tar bort nuvarande meddelande
+212:Gå till
+213:Hoppar till nuvarande meddelandeposition
+214:Stäng
+215:Stänger fönstret
+216:|Stenhuggaren kan inte få tag på mer sten.
+217:|En kolådra är tömd.
+218:|En järnådra är tömd.
+219:|En guldådra är tömd.
+220:|Detta hus har ingen ägare.
+221:|Truppen är utsvulten, det är bäst att de får nåt att äta snart!
+222:PAUS
+418:Spirit
+419:Busy
+420:Middle Ages Horn
+421:Spring
+422:Lute
+423:Mercenary
+424:The Princess
+425:The Queen
+426:In the Marketplace
+427:On the Battlefield
+428:Court Dance
+429:The Army
+430:In the Castle
+431:Fanfares
+432:At Court
+433:Entree
+434:Deep Blue
+435:Struggle
+847:Kampanj 'The Shattered Kingdom'
+848:Kampanj 'The Peasants Rebellion'
+849:Spela enskild karta
+850:Starta spelet
+851:Tillbaka
+852:Ladda sparat spel
+853:Flera spelare
+854:Alternativ
+855:Skapare
+856:Avsluta spelet
+857:Fortsätt
+858:Starta om uppdraget
+859:Upplösning:
+860:SEGER!
+861:FÖRLUST!
+862:Enheter förlorade:
+863:Enheter förstörda:
+864:Byggnader förlorade:
+865:Byggnader förstörda:
+866:Byggnader uppförda:
+867:Enheter tränade:
+868:Vapen konstruerade:
+869:Soldater tränade:
+870:Uppdraget slutfört på:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+1686:Uppdrag avbrutet
+1687:Stadshandledning
+1688:Stridshandledning
+1689:En spelare
+1690:Kartredigerare
+1691:Spela upp senaste spelet
+1692:Starta uppdraget
+1693:Titel
+1694:Storlek
+1695:Uppdragstyp:
+1696:Vinstvillkor:
+1697:Förlustvillkor:
+1698:Allierade:
+1699:Fiender:
+1701:Ny kartstorlek
+1702:Bredd
+1703:Höjd
+1704:Skapa ny karta
+1705:Tillgängliga kartor
+1706:Ladda existerande karta
+1707:Kontroller:
+1708:Spelinställningar:
+1709:Ljud:
+1710:Ingen musik
+1711:Grafik:
+1712:Ljusstyrka
+1713:Helskärm
+1714:Bekräfta
+1715:Språk:
+1716:Laddar... Var god vänta
+1717:Ett problem uppstod!
+1718:Laddar ny lokal
+1719:Lista över sparade spel
+1720:Filnamn
+1721:Beskrivning
+1722:Ladda
+1723:Ta bort
+1724:Är du säker på att du vill ta bort det här sparade spelet?
+1725:Ta bort
+1726:Avbryt
+1728:Du vann!
+1729:Fortsätt spela
+1730:Seger!
+1731:Du förlorade!
+1732:Fortsätt titta
+1733:Förlust
+1734:Återspelningen har avslutats
+1735:Fortsätt titta
+1736:Avsluta
+1737:Ej tillgänglig
+1738:Tryck %s för att åter börja spela
+1739:Till lag
+1740:Spelarinfo
+1741:Chat
+1742:Spelet finns redan
+1743:Skriv över
+1744:Spara
+1745:Ladda
+1746:Ett fel har uppstått under spelets gång.
+1747:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!
+1748:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel
+1749:Nätverksfel:
+1750:Error: Spelarnamnet får inte vara ingenting
+1751:Uppkoppling misslyckades: %s
+1752:Du har kopplats ner
+1753:Uppdrag %d
+1754:Din fiskares stuga är för långt från vattnet.
+1755:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
+1757:Använd vänster musknapp för att välja en vara att handla med
+1758:Använd höger musknapp för att välja en vara att handla med
+1759:Från x%d
+1760:Till x%d
+1761:Terrängeditering
+1762:Byplanering
+1763:Visuella script
+1764:Globala script
+1765:Meny
+1766:Status:
+1767:Spelarnamn:
+1768:SKAPA SERVER
+1769:Servernamn
+1770:Serverport
+1771:Skapa lokalt spel
+1772:Skapa internetspel
+1773:Servernamn
+1774:Status
+1775:Spelare
+1776:Ping
+1777:Uppdatera serverlistan
+1778:SERVERDETALJER
+1779:Spelarlista:
+1780:Adress
+1781:Port
+1782:Rum
+1783:Anslut
+1784:Kopplar upp, var god vänta...
+1785:Laddar meddelanden...
+1786:Uppdaterar...
+1787:Spelarlista
+1788:Startplats
+1789:Lag
+1790:Flaggfärg
+1791:Redo
+1792:Ping
+1793:Kicka
+1794:Öppen
+1795:AI-spelare
+1796:Välj...
+1797:Slumpad
+1798:Inget
+1799:Ingen
+1800:Lag %d
+1802:Skicka meddelande:
+1803:Karttyp
+1804:Enskild karta
+1805:Sparat spel
+1806:Välj en karta...
+1807:Välj ett sparat spel...
+1808:Kartinfo:
+1809:Spelare:
+1810:Läge:
+1811:Villkor:
+1812:Storlek:
+1813:Avsluta sessionen
+1814:Redo
+1815:Börja!
+1816:Väntar på spelare:
+1817:KaM Remakes skapare
+1818:Original Knights & Merchants skapare
+1819:PROGRAMMERIG:
+1820:YTTERLIGARE PROGRAMMERING:
+1821:YTTERLIGARE GRAFIK:
+1822:YTTERLIGARE ÖVERSÄTTNING:
+1823:SPECIELLT TACK TILL:
+1824:Flerspelarkartor
+1825:Enkelspelarkartor
+1826:Scrollhastighet
+1827:Hittade inga servrar
+1828:Blanda spår
+1829:Spelinformation:
+1830:-
+1831:Lobby
+1832:Laddar
+1833:Spel
+1834:Plats %d
+1835:Bygg och strida
+1836:Strid
+1837:Inte redo
+1838:Redo
+1839:Fel: Sälj en spelare från sparningen att kontrollera
+1840:Fel: Kartan kunde inte laddas eller ingen karta vald
+1841:Kan inte börja: %s
+1842:Alla är inte redo att börja
+1843:Så många spelare kan inte spela på denna karta
+1844:Fel protokollversion: %s. Servern använder: %s
+1845:Servern har tilldelat dig värdrättigheter
+1846:Öka handelsmängd
+1847:Minska handelsmängd
+1848:Sparar spel...
+1849:%s besegrad!
+1850:YTTERLIGARE LJUD:
+1851:Kasta ut spelare
+1852:Värden kommer att kunna kasta ut dessa spelare efter %d sekunder
+1853:Värden kan nu kasta ut dessa spelare
+1854:Värden (%s) har gått ur spelet
+1855:Uppkopplingen till servern försvann. Försöker återansluta...
+1856:Är du säker på att du vill avsluta?
+1857:Är du säker på att du permanent vill kasta ut dessa spelare?
+1858:Avbryt
+1859:Invånare|tränade
+1860:Invånare|förlorade
+1861:Soldater|utrustade
+1862:Soldater|förlorade
+1863:Enheter|besegrade
+1864:Byggnader|konstruerade
+1865:Byggnader|förlorade
+1866:Byggnader|förstörda
+1867:Varor|producerade
+1868:Vapen|producerade
+1869:Att handla med denna vara är inte tillåtet på det här uppdraget
+1870:Plantera och hugg ner
+1871:Hugg endast ner
+1872:Spel startat
+1873:Byggkarta
+1874:Stridskarta
+1875:Samarbetskarta
+1876:Du får inte göra det under fredstiden
+1877:Fredstid kvar: %s
+1878:Fredstiden är över. Till vapen!
+1879:Speltid:|%s
+1880:Spelinställningar:
+1881:H
+1882:L
+1883:S
+1884:Gör halt ('%s')
+1885:Länka trupp ('%s')
+1886:Separera trupp ('%s')
+1887:Reprisvisare
+1888:Visa repris
+1889:Fredstid (minuter)
+1890:Inget stöd för format %s
+1891:Felaktig version %s
+1893:initierar
+1894:flerspelarinitiering
+1895:script
+1896:Nytt uppdrag
+1897:Ett fel uppstod när filen %s skulle behandlas
+1898:Stängd
+1899:Värden gör spelaruppställningen
+1900:ny grafik
+1901:enheter
+1902:hus
+1903:träd
+1904:definitioner
+1905:terrängtexturer
+1906:Soft shadows

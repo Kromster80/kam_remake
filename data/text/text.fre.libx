@@ -103,651 +103,338 @@ MaxID:3004
 110:Les armures et les armes|lourdes sont fabriquées|par les Forgerons à la|Fabrique d'Armures et|à l'Armurerie.
 111:Le Métallurgiste produit| des Caisses d'Or et des| barres de Fer à partir| du minerai extrait dans| les Mines d'Or et de Fer.
 112:Dans l'enceinte du|Château, la Recrue est|équipée et entraînée.||Elle se poste également|dans la Tour de Guet.
-113:Milice
-114:Fantassin
-115:Epéiste
-116:Archer
-117:Arbalétrier
-118:Lancier
-119:Hallebardier
-120:Cav. Légère
-121:Chevalier
-122:Loup
-123:Poisson
-124:Poisson
-159:Bâtiments
-160:Répartition des Matières Premières
-161:Statistiques
-162:Messages
-163:Options
-164:Retour
-165:Choisir|Bâtiment
-166:Répartition|Matières|Premières
-167:Statistiques
-168:Messages
-169:Options
-170:Voir Paramètres
-171:Charger|Partie
-172:Enregistrer|Partie
-173:Charger Partie
-174:Enregistrer Partie
-175:Etes-vous sûr(e)|de vouloir quitter|cette mission ?
-176:Quitter mission
-177:Retour
-178:Paramètres
-179:Quitter mission
-180:Luminosité
-181:+
-182:-
-183:Augmenter luminosité
-184:Baisser luminosité
-185:Très sombre
-186:Sombre
-187:Normale
-188:Claire
-189:Très claire
-190:Maximale
-191:Vitesse Souris
-192:Changer la vitesse de la souris
-193:Effets Sonores
-194:Régler volume
-195:Musique
-196:Musique :
-197:Musique on/off
-198:Off
-199:MIDI
-200:On
-201:Vide
-202:Sauvegarde Auto.
-203:Défilement Rapide
-204:Mission %d Temps: %2.2u:%2.2u
-205:Scénario %d Temps: %2.2u:%2.2u
-206:Lecteur de CD
-207:Morceau précédent
-208:Morceau suivant
-209:Démolir
-210:Démolition/Annulation
-211:Construire Route
-212:Route
-213:Labourer un Champ
-214:Champ
-215:Elever clôture
-216:Clôture d'élevage
-217:Planter Vigne
-218:Vigne
-219:Dresser un mur
-220:Mur
-221:Former
-222:Former catégorie sélectionnée
-223:Annuler
-224:Annuler l'apprentissage en cours
-225:|en cours d'apprentissage.
-226:Besoins :
-227:ETAT
-228:Produit
-229:Bâtiment en|construction.
-230:Démolir
-231:Voulez-vous vraiment|démolir ce bâtiment ?
-232:Démolir le bâtiment sélectionné
-233:Réduire le volume de la commande
-234:Augmenter le volume de la commande
-235:Inventaire des marchandises :
-236:Unité précédente
-237:Unité suivante
-238:Equiper
-239:Former Unité sélectionnée
-240:Catégorie suivante
-241:Catégorie précédente
-242:Ajouter à la liste
-243:Mercenaire suivant
-244:Mercenaire précédent
-245:Former Mercenaire sélectionnée
-246:Recrues actuelles :
-247:Coût :
-248:Livraison de marchandises oui/non
-249:Réparation du bâtiment oui/non
-250:Bâtiment indisponible actuellement
-251:Indisponible dans la démo
-252:Inoccupé
-253:Santé
-254:Pivoter à gauche
-255:Pivoter à droite
-256:Attaquer  ('A')
-257:Troupes, halte  ('H')
-258:Envoyer Troupes  ('D')
-259:Regrouper Unités  ('L')
-260:Scinder Unités ('S')
-261:Ravitailler les Troupes
-262:Charger
-263:Changer Formation : Ajouter un rang
-264:Changer Formation : Enlever un rang
-265:En attaque :
-266:En défense :
-267:Rythme :
-268:Sélectionner|Château
-269:Quitter
-270:Sélectionner|la|destination
-271:Sélectionner|l'autre|unité
-272:Sélectionner|l'ennemi|à affronter
-273:Quitter
-274:Unité non disponible
-275:Supprimer
-276:Supprimer ce message
-277:Envoyer
-278:Envoi de ce message
-279:Centrer
-280:Centrer l'écran sur l'objet de ce message
-281:Fermer
-282:Refermer ce message
-283:Répondre
-284:Répondre à ce message
-285:Confirmer
-286:De nouvelles alliances sont conclues
-287:est amical.
-288:est hostile.
-289:|Votre Tailleur de Pierres ne peut plus rien tirer de cette Carrière.
-290:|Vos gisements de charbon sont épuisés.
-291:|Vos gisements de fer sont épuisés.
-292:|Vos gisements d'or sont épuisés.
-293:|Vos Pêcheurs ne peuvent plus pêcher dans cette zone.
-294:|Ce bâtiment est inoccupé.
-295:|Ces troupes sont affamées, vous devriez les|nourrir très rapidement !
-296:Répartir le Fer
-297:Répartition du Fer
-298:Répartir le Charbon
-299:Répartition| du Charbon
-300:Répartir les Planches
-301:Répartition des|Planches
-302:Répartir le Blé
-303:Répartition du Blé
-304:|Veuillez taper le message du texte :
-305:Message du joueur '%s' :|'%s'
-306:Alliances :
-307:PAUSE
-478:Message Réseau :
-479:Le joueur '%s' a quitté la partie.|Appuyez sur ~<~E~S~P~A~C~E~> pour continuer la partie.
-480:Vous êtes désormais le serveur.|Appuyez sur ~<~E~S~P~A~C~E~> pour continuer la partie.
-481:L'ordinateur attend des données. Appuyez sur ~<~E~S~P~A~C~E~>| pour reprendre ou sur ~<~F~1~> pour quitter.
-499:Vous devez construire une école pour former de nouveaux citoyens.|Vous devez aussi vous assurer que vous avez des caisses d'or en abondance dans votre entrepôt, pour que vous puissiez former de nouveaux citoyens pour votre royaume.
-500:Démarrer la construction par un clic gauche avec l'icône du marteau.|Puis vous devez cliquer sur l'icône du livre. Placez le cadre |de votre école sur votre carte ou vous voulez la construire.
-501:Une fois que vous avez placé l'école, l'icône ' route ' est devenue le curseur par défaut.|Vous devez cliquer sur chaque carré où vous voulez avoir une section de route construite. Et n'oubliez pas, vous devez connecter la route à la porte d'entrée de chaque bâtiment.
-502:Pour former des unités, cliquez sur votre école et cliquez sur ' Catégorie suivante ' pour choisir l'unité que vous voulez former et cliquez sur ' Ajouter à la liste '. Une fois formée, vos serfs|feront d'étonnants miracles, ils commenceront automatiquement à exécuter leurs tâches.
-503:De temps en temps vos loyaux citoyens devront manger. Pour cela vous devez construire |une auberge. Assurez-vous de placer l'auberge au centre de vos bâtiments, de sorte qu'elle puisse être  facilement accessible par tous vos villageois.
-504:Vous aurez besoin de pierres si vous voulez construire de nouvelles maisons et routes vous devez construire  une carrière  près  d'un tas de pierres, vous devez ensuite entraîner un maçon qui ira produire vos nouveaux matériaux de construction.
-505:Vous n'avez pas seulement besoin de pierres pour construire des bâtiments, mais aussi du bois. Le bûcheron abat et plante des arbres qui sont ensuite traités dans la scierie. Vous devez toujours construire une cabane de bûcheron près d'une forêt.
-506:Maintenant vous devez construire une scierie pour traiter les troncs d'arbres que le bûcheron a abattu.|Une fois vous avez achevé que la tâche, vous devez former un charpentier qui travaillera dans votre nouvelle scierie.
-507:Une fois vous avez assuré une provision suffisante de matériaux de construction, vous pouvez tourner votre attention à la production de nourriture.|Construisez une cabane de pêcheur près de l'eau pour que le pêcheur puisse fournir votre auberge en poisson fraîchement attrapé.
-508:Bon travail ! , Mais n'oubliez pas que même si la mer vous donne du poisson en abondance pour l'instant, il va en manquer tôt ou tard.|Afin d'assurer une source de nourriture plus stable pour votre village, vous devez construire une ferme où il doit y avoir suffisamment d'espace vert pour les champs.
-509:Environ seize carrés de champ peuvent être labourés par le paysan, le plus près possible de votre ferme.|Maintenant vous devez construire un moulin pour traiter le blé que votre paysan récoltera.
-510:Super, maintenant vous pouvez construire un fournil qui fournira votre auberge en pain frais. Soyez sur que vous avez  toujours assez de serfs dans votre royaume pour transporter vos marchandises et q'ils livrent rapidement vos différents bâtiments.
-511:En dehors de juste alimenter vos loyaux sujets de poisson et de pain, vous devez aussi leur donner quelque chose pour étancher leur soif.|Construisez un chai et disposez environ seize carrés de vigne de vin pour votre paysan afin de recueillir des barriques de vins.
-512:Vous faites ça bien, mais vos travailleurs méritent une meilleure nourriture que le pain sec et le vin. Pour produire de la viande et des peaux, construisez une porcherie où vos animaux élevés  donneront des porcs dépecés et des peaux.
-513:Pour traiter vos porcs fraîchement abattus, il sera nécessaire pour vous de construire une boucherie. Dans la boucherie votre bouché coupera des saucisses de vos porcs dépecés.
-514:Maintenant que vous avez garanti vos livraisons alimentaires, vous avez besoin de vous concentrer sur votre but à long terme, la production de nouvelles armes. Pour débuter cela, construisez un château à l'emplacement qui vous  apparaît approprié.
-515:Dans votre château vous pouvez utiliser ' Unité suivant ' et ' Unité précédent ' pour parcourir les différentes troupes que vous pouvez créer. Vous voyez en évidence des carrés qui indiquent les pièces d'équipements nécessaires pour créer le soldat actuellement choisi.
-516:Si vous voulez créer des soldats avec votre château, vous avez aussi besoin d'armes pour vos combattants vigoureux. Construisez un atelier d'armes près de votre château pour que vous puissiez assurer la livraison rapide des armes.
-517:Lancez des commandes pour la production d'équipement! clic gauche sur votre atelier d'armes nouvellement construit et ensuite clic gauche sur ' Augmenter le volume de la commande'. Soyez toujours sur que votre atelier d'armes ait assez de bois de construction pour produire des armes.
-518:Sans armures appropriées vos soldats seront abattus sur le champ de bataille.|Pour produire de nouvelles armures pour vos troupes, vous devez construire une tannerie pour le traitement des peaux.
-519:Maintenant que vous avez une production de cuir en voie de réalisation, vous devez construire un atelier d'armure. Un charpentier fera des armures en cuir et des boucliers en bois.
-520:Excellent! Vous devez avoir maintenant tous les bâtiments exigés pour diriger une ville et équiper de nouveaux soldats. Une fois vous avez les pièces appropriées exigé pour équiper un type de soldat spécifique, vous avez besoin de former une recrue dans votre école, cliquez ensuite sur|' Equiper 'dans votre château.
-521:Votre but sera maintenant de détruire les deux campements ennemis. L'ennemi bleu du Sud est rusé et a une base fortement fortifiée, alors que l'ennemi vert à l'Est compte simplement sur des soldats. Préparez bien vos troupes avant d'essayer de vous débarrasser des ennemies!
-522:|Le joueur bleu a été vaincu!
-523:|Le joueur vert a été vaincu!
-524:Avant que vous attaquiez  vos ennemis à l'Ouest, vous deviez éliminer les éclaireurs qui sont  installés vers le Nord. Si vous faites le clic gauche sur vos soldats et cliquez ensuite avec le bouton droit sur vos ennemis, cela les stimulera dans une attaque glorieuse.
-525:Une armée d'archers est stationnée au sud-ouest. Attaquez-le avec votre milice. Mais prudence pour ordonner la charge au moment approprié, de peur que des flèches ennemies n'infligent des pertes épouvantables sur vos troupes vigoureuses!
-526:Attaquez les forces ennemies qui sont dans l'attente à l'Ouest. Surveillez les archers ennemis car ils se sont retranchés derrière l'infanterie! Envoyez des éclaireurs  au Nord et essayez d'encercler l'ennemi et de l'attaquer |par l'arrière.
-527:Maintenant vous lancerez une attaque avec toutes vos forces immédiatement. Placez vos archers derrière votre infanterie pour conduire en arrière les lignes ennemies. Si vous en sortez glorieux, l'apprentissage sera terminé.
-529:Vous devez rapidement équiper des nouvelles unités de milice! Si vous échouez à le faire, nous serons sans défense contre les attaques ennemies!
-530:Nos éclaireurs nous informent que l'ennemi prépare une attaque contre vous.Repoussez-le avec votre fidèle épée!
-531:Vous avez fait des progrès, mais le village doit être agrandi. Ce n'est que lorsque cela est fait que vous serez en mesure de prendre d'assaut les barricades ennemi et de détruire ce repaire!
-532:Une fois de plus je dois compter sur vous pour que vous  protéger nos vigoureux alliés, les troupes de Lauenburger, à tout prix!
-533:Protégez vos troupes et vous même de ces troupes de vauien, les chevaliers attelées de l'ennemi!|Ils ont à nouveau jeté les yeux sur nos alliés!
-534:Le village du nord a déclaré une guerre contre une nouvelle tyranie. Vous devez faire de ce village un avantage.
-535:Nos fidèles éclaireurs ont découvert un entrepôt abandonné. Il se trouve à l'ouest, prés d'un petit bois. Vous trouverez sûrement des ressources trés utiles.
-536:Un éclaireur ennemi a été capturé et interrogé. Il semble que l'ennemi qui a découvert notre position, prépare une attaque contre vous.
-537:Ce ne sera pas long jusqu'à la chute des barbares sur nous. Préparez bien vos troupes ou les canailles détruiront vos potentiel défense!
-538:À vos armes!|Une force ennemie énorme fait sa voie vers vous!
-539:Organisez bien vos forces, l'ennemi est supérieur à vous en unités! Vous devrez attaquer même si l'ennemi est supérieur, ne pouvez-vous pas éprouver la joie que la victiore apporte!
-540:La victoire est nôtre, mais le temp de la vengeance n'est pas encore sur nous. Vous devez construire Werheim à nouveau. Alors en effet il faut faire payer les ennemis au coeur noir pour leurs actes poltrons!
-541:Sans fer, vous ne pouvez pas fabriquer les armes, sans armes vous ne pouvez pas former vos troupes! Au nord vous trouverez tout ce dont vous avez besoin.|Préparez vous afin de saisir les mines qui s'y trouvent.
-542:Le bon peuple du village qui réside au sud  résiste encore à la tyrannie de toutes leurs forces, mais ont subi des pertes craintives. Dépêchez-vous d'aider ces villageois, vous ne le regretterez pas.
-543:Un entrepôt abandonné se trouve près de votre position. Vous devrez vous dépêcher d'aller à cet endroit, pour un court moment. Vous aurez sûrement besoin de toute l'aide que vous pourrez trouver.
-544:Nos brave espions annoncent que l'entrepôt abandonné est en effet la cible d'une grande offensive ennemie. Vous devez tenir bon des besoins à cet endroit, de peur que votre propre progression est entravée.|Tenez bon, le coeur du brave!
-545:En ce moment, l'ennemi prépare une nouvelle attaque sur l'entrepôt. Préparez-vous vous-même pour la bataille!
-546:L'ennemi utilise toute ca puissance afin d'éviter ca défaite contre vos forces, même si vain une tentative pour vous maîtriser. Vous détuirez l'ennemi du sud, jusqu'au dernier homme! Puis, il me semble que vous pourrez continuer votre glorieurse progression.
-547:Le tyran n'a pas encore succombé à votre courageuses attaques. Nos solides alliés restent fermes à vos côtés. Aprés la première attaque vous serez conscient que vous devrez être laissé à vos propes dispositifs, comme il a été convenu.
-549:La force de l'opposant est plus grande que nos éclaireurs nous ont conduit à le croire. Equipez de nouveaux soldats dans votre château pour supporter votre armée vigoureuse.
-550:Pour bannir complètement les conquérants, vous devez détruire toutes leurs troupes de lâches. Une fois que cette purge est treminée, les paysans des villages environnants formeront une alliance avec vous et ne nous offriront plus le danger.
-551:Nos éclaireurs annoncent que votre ennemi prend la plupart des citoyens de votre région en ésclavagiste. Prenez d'assaut leur potentiel de défense mais détruisez seulement leurs bâtiments militaires, laissant les esclaves des colons sains et saufs. Cela devrait envoyer votre ennemi en retraite glorieuse et libérer vos citoyens!
-552:J'insiste sur vous, que vous protègez les troupes alliées au sud de vos attaques ennemies!|Permettez-leur de ne pas devenir la proie de votre adversaire, car nous avons besoin de leur soutien plus que jamais.
-553:Nos espions ont aperçu une armée ennemi s'avançant envers votre entrepôt au sud! Vous devez défendre les marchandises de valeur de la force des rebelles.
-554:Nos éclaireurs contemplent une armée ennemie au sud de votre emplacement! Gardez votre esprit, ou vos ennemis pourront vous surpendre!
-555:Attention! De nouvelles troupes ennemies s'approchent de vous à l'ouest! Retenez-les avec vos troupes vigoureuses!
-556:Pour supporter votre armée, vous aurez besoin de plus de mercenaires de la mairie. Ces soldats séditieux renforceront votre armée et vous aideront à repousser votre ennemi.
-557:Peut-être que si vous entrez par derrière, vous pourrez vous introduire dans le camp ennemi étant sans surveillance. Avec cet avantage vous détruirez sûrement votre ennemi avec le bien-être.
-558:Une force ennemi fait sa voie dans les montagnes qui se trouvent au nord-ouest en ce moment vers votre camp! Préparez bien vos troupes, si vous voulez être en mesure de vaincre complètement cette armée.
-559:L'ennemi à déjà découvert votre nouvelle position et va très bientôt envoyer des troupes vers vous!
-560:Prenez garde! Nos éclaireurs ont aperçu des archers ennemis cachés dans les collines environnantes.|Ca me sembe un combat dans la gorge ouverte qui pourrait signifier notre ruine.
-561:Nous sommes parvenus au bastion final des rebelles déloyaux.|Vous assassinerez tous les habitants indociles et mufles ici, laissant aucune âme après que cette bataille glorieuse s'est terminée!
-562:Nos espions annoncent que notre ennemi a en effet découvert notre nouvel emplacement et maintenant prépare une attaque contre vous.|Tirez votre fidèle épée encore une fois et ne montrez aucune pitié à ces rebelles impitoyables!
-569:Vide
-570:Esprit
-571:Animation
-572:Cors du Moyen-Age
-573:Printemps
-574:Luth
-575:Mercenaire
-576:La Princesse
-577:La Reine
-578:La Place du Marché
-579:Le Champ de Bataille
-580:Danse à la Cour
-581:L'Armée
-582:Au Château
-583:Fanfares
-584:A la Cour
-585:Entree
-586:Bleu Profond
-587:Lutte
-999:Inutilisé
-1000:Campagne 'Un Royaume en Péril'
-1001:Campagne 'La Révolte des Paysans'
-1002:Apprentissage
-1003:Sélectionner une Mission
-1004:Sélect. une Mission :
-1005:Précédent
-1006:Suivant
-1007:Débuter !
-1008:Retour
-1009:Charger une Partie Enregistrée
-1010:Multijoueur
-1011:Options
-1012:Crédits
-1013:Quitter
-1014:Vide
-1015:Liste des Sauvegardes :
-1016:Continuer
-1017:Recommencer la Mission
-1018:Menu Principal
-1019:Résolution :
-1020:Non disponible
-1021:Sélect. un type de Serveur
-1022:Serveur Local
-1023:Serveur Net-Games
-1024:Username:
-1025:Password:
-1026:Create New Account
-1027:Login
-1028:Connexion à Net-Games...
-1029:Authentication...
-1030:Success
-1031:Failed
-1032:Connexion échoué
-1033:Wrong password
-1034:Username already taken
-1035:This user is banned
-1036:Invalid username
-1037:Undefined
-1038:In progress
-1039:Invalid parameters
-1040:Channel is full
-1041:Channel doesn't exist
-1042:No access to this channel
-1043:Timeout
-1044:You have too many accounts
-1045:Server doesn't accept registrations at this time
-1046:Username is invalid
-1047:<COL 0>%s:<COL 1> %s|
-1048:<COL 0>%s %s|
-1049:<COL 2>%s whispered: %s|
-1050:<COL 3>Private message to %s: %s|
-1051:<COL 4>SERVER: %s|
-1052:<COL 4>SERVER: %s|
-1053:<COL 2>Message of the Day: %s|
-1054:<COL 0>BROADCAST: %s|
-1055:<COL 3>%s enters the channel|
-1056:<COL 3>%s quits channel|
-1057:<COL 3>You have entered the channel <COL 0>%s<COL 3>|
-1058:<COL 3>You have entered the game <COL 0>%s<COL 3>|
-1059:Back to Main Menu
-1060:Enter Channel
-1061:Enter Game
-1062:Create Game
-1063:Create Ladder Game
-1064:Leave Game
-1065:Launch Game
-1066:Whisper
-1067:Kick
-1068:Ban
-1069:Info
-1070:Register
-1071:Back to Name Input
-1072:Veuillez taper votre nom :
-1073:Continuer
-1074:Retour
-1075:Veuillez sélectionner le type de connexion :
-1076:Joindre
-1077:Créer
-1078:Veuillez taper le nom de la partie :
-1079:Lancer la Partie
-1080:Sélectionner une Partie :
-1081:Rejoindre la Partie
-1082:Rechercher des Parties
-1083:Joueurs Engagés :
-1084:Messages :
-1085:Envoi :
-1086:Débuter !
-1087:Sans Nom
-1088:<Emplacement libre>
-1089:<Indisponible>
-1090:<Ordinateur>
-1091: : Partie en cours
-1092:~L~e~ ~s~e~r~v~e~u~r~ ~a~ ~i~n~t~e~r~r~o~m~p~u~ ~l~a~ ~c~o~n~n~e~x~i~o~n~ ~a~v~e~c~  '%s'.
-1093:Scénario :
-1094:Titre :
-1095:Description :
-1096:Disponibilités :
-1097:Positions de Départ :
-1098:Le serveur initialise|le scénario.
-1099:Aucune
-1100:Troupes
-1101:Troupes et Bâtiments
-1102:Fixes
-1103:Aléatoires
-1104:Copier la Sauvegarde
-1105:Annuler le Transfert
-1106:Transféré : %d/100
-1107:Sauvegarde No %d
-1108:Nombres de Joueurs :%d|Taille de la Carte :%dx%d
-1109:Sauvegarde Automatique
-1110:Victoire !
-1111:Défaite !
-1112:Unités perdues :
-1113:Unités éliminées :
-1114:Bâtiments perdus :
-1115:Bâtiments détruits :
-1116:Bâtiments construits :
-1117:Unités formées :
-1118:Armes fabriquées :
-1119:Soldats entraînés :
-1120:Mission accomplie en :
-1149:Les Trois Continents
-1150:Les Terres Sauvages
-1151:La Ruée vers le Charbon
-1152:Les Fleuves Déchaînés
-1153:Les Collines
-1154:Les Montagnes
-1155:La Destruction du Château
-1156:La Bataille de la Côte
-1157:L'Embuscade !
-1158:Le Pont du Désespoir
-1159:Carte Bonus A
-1160:Carte Bonus B
-1179:Les Trois Continents||Taille de la Carte : 176x176|Nombre d'Opposants : 5
-1180:Les Terres Sauvages||Taille de la Carte : 176x176|Nombre d'Opposants : 3
-1181:Les Collines||Taille de la Carte : 160x128|Nombre d'Opposants : 5
-1182:Les Fleuves Déchaînés||Taille de la Carte : 176x176|Nombre d'Opposants : 3
-1183:La Ruée vers le Charbon||Taille de la Carte : 176x176|Nombre d'Opposants : 5
-1184:Les Montagnes||Taille de la Carte : 144x128|Nombre d'Opposants : 3
-1185:Le Pont du Désespoir||Taille de la Carte : 176x176|Nombre d'Opposants : 3
-1199:Nombre de Joueurs : 6|Taille de la Carte : 176x176|Développement d'une cité
-1200:Nombre de Joueurs : 4|Taille de la Carte : 176x176|Développement d'une cité
-1201:Nombre de Joueurs : 6|Taille de la Carte : 160x128|Développement d'une cité
-1202:Nombre de Joueurs : 4|Taille de la Carte : 176x176|Développement d'une cité
-1203:Nombre de Joueurs : 6|Taille de la Carte : 176x176|Développement d'une cité
-1204:Nombre de Joueurs : 4|Taille de la Carte : 144x128|Développement d'une cité
-1205:Nombre de Joueurs : 6|Taille de la Carte : 176x144|Développement d'une cité
-1206:Nombre de Joueurs : 3|Taille de la Carte : 64x64|Bataille
-1207:Nombre de Joueurs : 6|Taille de la Carte : 144x144|Bataille
-1208:Nombre de Joueurs : 4|Taille de la Carte : 176x176|Développement d'une cité
-1249:Les hommes de mains du félon sont|parvenus à percer nos défenses.|La Forteresse est tombée.|Si vous ne repoussez par ces gredins,|l'usurpateur s'emparera du royaume.|Que Dieu vous accompagne !
-1250:Votre victoire a fait renaître l'espoir.|Mais tout n'est pas dit. L'ennemi|défait s'est replié sur un village|à proximité de vos positions ; il y|regroupe ses forces. Soyez sûrs que le|Prince prépare une nouvelle offensive|or sa racaille pullulante surpasse|grandement en nombre vos fidèles|guerriers. Contenez votre ire et ne|vous laissez point entraîner dans une|bataille ouverte. Le terrain vous offre|une position défensive de premier|choix, l'ennemi doit traverser la rivière|par un gué fort étroit. Si vous|l'attaquiez en ce lieu, vous compenseriez|le nombre par l'intelligence.
-1251:Un jour mémorable ! La canaille du|Prince rebelle bat en retraite.|La voie vous est ouverte vers la|Baronnie de Lauenburg. Le Baron de|Lauenburg, ce gredin, a conclu|une alliance avec nos ennemis.|Il vous faudra donc compter avec|une opposition des plus vives|de la part des troupes du traître.
-1252:En vérité, nos ennemis n'ont pu|arrêter l'élan des loyales troupes|du Roi. Le Baron de Lauenburg et|tous ses soldats se sont vus|contraints à la retraite.|Dans sa baronnie, les manants|nous ont chaleureusement accueilli.|Vous pourrez y enrôler de nouvelles|recrues qui viendront grossir les|rangs de votre armée. La chance|s'offre à vous de vous emparer|vaillamment de Lauenburg.|Une telle victoire serait un excellent|avertissement pour tous les vassaux|qui pensent à trahir la couronne !
-1253:Le Baron de Lauenburg s'est rendu|et s'est vu accordé le pardon de|notre Roi, il a fait montre d'une|sincère repentance pour ses actes|infâmes. La reconquête passe par la|prise de Moorbach. Nos espions ont|découvert une forteresse abandonnée|que vous pouvez à loisir occuper,|voire agrandir à votre guise.|Lauenburg étant désormais notre|allié, les soldats de sa baronnie sont|menacés par nos ennemis.|Il vous incombe donc de protéger ces|troupes quoi qu'il vous en coûte.|Nous renforcerons ainsi la confiance|que nous portent nos nouveaux alliés|et inciterons les indécis à rallier|notre banniére.
-1254:Moorbach est entre nos mains. Non|content d'avoir infligé une lourde|défaite à nos ennemis, vous les avez|humiliés. Nos espions nous informent,|à présent, qu'une nouvelle armée,|formée de mercenaires et de bandits,|s'est rassemblée au Nord-Ouest.|Dieu sait que nous gardons confiance|en nos forces, leur valeur est telle|que nous prendrons l'initiative de|l'attaque. Vous devrez donc|surprendre ce ramassis hétéroclite de|coquins avant qu'ils n'aient le temps|de s'organiser. Pour cette entreprise,|vous pourrez compter sur le soutien|des Lanciers de Lauenburg, une|compagnie fidèle qui s'est joint|aux nôtres.
-1255:En vérité, le Royaume tout entier se|réjouit déjà à la nouvelle de vos|victoires. Partout les manants se|dressent contre les tyrans. Walheim|au Nord est toujours aux mains de|nos ennemis. Le Souverain de Walheim|a refusé de recevoir nos émissaires|et a juré sur la Bible de défendre la|ville jusqu'au dernier homme.|Les manants d'un petit village proche|de vos quartiers se sont révoltés|contre le tyran. Ces loyaux sujets|ravitailleront votre armée et se|joindront en masse à vos troupes.|Comment pourriez-vous ne pas faire|tomber Walheim à la tête de troupes|si nombreuses et si bien équipées ?
-1256:Après la bataille de Walheim, aucune|autorité n'existe plus, aussi y|règne-t-il la plus grande confusion.|Les clans barbares du Nord se sont|regroupés dans l'intention de fondre|sur le royaume. Ils doivent être|défaits avant que vous ne poursuiviez|la campagne contre les rebelles. Dans|les décombres de Walheim se trouvent les|plans d'étranges et redoutables tours|de guet. Vous êtes notre seul rempart|contre les barbares ; le sort des|septentrionales du Royaume est entre|vos mains.
-1257:Les barbares s'entre-tuent. Par la|persuasion ou la ruse, il vous serait|possible de gagner à votre cause deux|de leurs chefs accompagnés de leurs|guerriers ; ils viendraient ainsi se|battre à vos côtés. Votre position|est aisée à défendre mais il vous est|impossible de l'étendre, vous devez|donc soigneusement organiser votre|cité. L'ennemi se tient prêt à la|bataille et l'offensive est proche.|Hâtez-vous dans vos préparatifs afin|que l'ennemi n'oublie jamais l'accueil|que vous lui aurez réservé !
-1258:L'infâme despote menace une de nos|cités. A marche forcée, vous aurez|une chance d'y mener vos soldats à|temps. Selon nos espions, vous |devez vous attendre à affronter des|forces ennemies en nombre. Veillez|à déployer vos soldats avec soin.|La victoire sera vôtre si vous usez|de génie tactique. Chargeriez-vous|aveuglément, vous le regretteriez|amèrement !
-1259:L'attaque portée sur notre ville ne|fut repoussée que d'extrême justesse.|Mais cet assaut traître y a laissé de|cruelles empreintes. L'ennemi a|ignominieusement incendié la ville et|massacré ses habitants. Seule la vue|des cadavres empalés de ces canailles|pourra apaiser notre colère.|La cité doit être rebâtie avant que|vous ne puissiez songer à|faire couler le sang de ces lâches|sans foi ni loi.
-1260:L'ennemi est vaincu et les survivants|sont réfugiés au Nord. Les gisements|de fer septentrionaux sont pour nous|d'une importance stratégique capitale|puisque leur possession conditionne|l'issue de notre campagne sacrée.|Vous assemblerez une nouvelle armée,|une armée qui boutera l'ennemi|hors de cette région et ce, à jamais.|A l'Est de votre position se trouve|un pont, goulot d'étranglement sur|lequel asseoir une défense acharnée.|Vous devez gagner assez de temps|pour lever une armée invincible.
-1261:Dieu seul sait comment, mais notre|ennemi dispose encore d'immenses|réserves et les coquins vont|contre-attaquer !|Toutefois, les montagnes proches|de leur campement devraient empêcher|une furieuse ruée. Vous devriez porter|votre armée à la rencontre des|rebelles au sommet du col le plus|élevé. Puissiez-vous ne jamais vous|laisser déborder par les traîtres !
-1262:Vos efforts ont enfin porté leurs|fruits ! Dans tout le royaume, les|sujets du Roi se révoltent contre le|règne cruel de l'usurpateur. Ses|généraux eux-mêmes désapprouvent la|barbarie et la cruauté infligées aux|manants. Un général nous a transmis|un message secret... l'infâme Prince|souhaite faire un exemple sanglant|dans un village qui s'est révolté|contre son implacable tyrannie !|Vous seul pouvez encore sauver|ces loyaux villageois ! La justice|divine exige que vous contrecarriez|les projets barbares de ce félon !
-1263:L'odeur pestilentielle de la défaite|s'est installée sur le camp ennemi.|S'il a mis un genou à terre,|le Prince a su modifier ses plans et|garder d'importantes réserves de|matières premières, promesse|de nouveaux troubles. Si vous vous|emparez des mines de fer situées à|proximité de vos positions, l'ennemi|n'aura d'autre solution que la fuite !|Prenez garde au vaste marécage qui|s'étend devant vous ! Préparez vos|fidéles troupes avec soin. Craignez|toujours pour votre vie ! Que Dieu,|en sa sainte bonté, vous garde !
-1264:De vastes étendues fertiles, riches en|matières premières, s'offrent à vous|dans cette province que vous avez|conquise. Ne pêchez pas par trop de|confiance, l'ennemi ne saurait tarder|à faire mouvement afin de s'emparer|de cette contrée d'abondance. Soyez|vaillant dans la défense de|cette province et soyez sans pitié|pour les soldats ennemis ! Tuez-les !
-1265:Au Nord, l'usurpateur bat le rappel|de ses vassaux afin de s'attaquer|encore au Royaume. Mais il n'est,|Dieu nous en garde, pas encore prêt|à l'affrontement final.|Vous devriez fondre sur lui et|l'anéantir pendant qu'il n'est point|encore préparé à repousser votre|assaut. Il vous faudra franchir des|montagnes pour atteindre votre but,|que Mère Prudence guide vos pas !|Les rebelles ont certainement pris|position en haut du col afin|d'entraver votre progression. Vous|devez cependant avancer vers le|Nord quoi qu'il en coûte !
-1266:Votre dernière victoire a contraint|notre adversaire à battre en retraite.|Il s'est retranché dans une forteresse|naturelle. Tapi, il vous y attend,|révélant ainsi toute sa couardise.|Cette forteresse est réputée|imprenable ! Avant vous, plus d'un|général a tenté de s'en emparer,|tous ont échoué. Ne perdez point|courage, ne laissez point votre|coeur faiblir ! Ces vaillants|généraux ont pu abandonner|derrière eux des objets qui|pourraient vous venir en|aide dans votre quête courageuse !
-1267:L'assassinat de notre souverain|bien-aimé a plongé le Royaume au|coeur des ténèbres. Le Prince,|dont la fourberie se reflète dans le|miroir des Enfers, a dévoilé une|nouvelle fois la noirceur de son âme,|il vient de se proclamer Roi. Il s'est|enfermé à l'abri de murs|infranchissables ; il espère sans|doute échapper à votre juste|courroux. Soyez le bras droit|de Dieu dans cette tâche sacrée, et|votre Main touchée par la grâce,|infligera au soi-disant Roi, le sort|qu'il mérite. Oeil pour Oeil,|Dent pour Dent, est-il écrit|dans la sainte Bible.
-1268:Notre croisade touche à sa fin. La|cité, dernier bastion de cet|imposteur est assiégée de toutes|parts. Soyez sans pitié pour tous|ceux qui resteraient fidèles à|l'usurpateur et que tous nos|ennemis périssent ! Vous,|ô loyal Héros, devriez faire|disparaître de la surface de la terre|toute trace de sa traîtresse|domination ! Alors et alors seulement,|la paix et la liberté règnerons de|nouveau sur le royaume. Le|prétendant marchera à la potence,|pendu tel un vulgaire criminel !
-1299:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES DU JEU :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre Quaß||ÉDITION ET MIXAGE DU SON :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schäfer||CONCEPTION DU MANUEL :|Peter Ohlmann|Uwe Schäfer||BETA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRECTEUR DU JEU :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINEMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATIONS :|Uwe Schäfer|Christian Bigalk||MODÉLISATION 3D :|Niels Horstmann||REMERCIMENTS PARTICULIERS :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-1349:              Mission 1||Les Renégats essaient d'imposer leur tyrannie sur les quelques paysans encore fidèles au royaume. Aux portes du palais royal des paysans innocents sont massacrés, vous ne pouvez pas laisser faire cela ! Forcez les attaquants à battre en retraite.
-1350:              Mission 2||Après avoir apporté une aide efficace à nos paysans, nous devons encore rendre leur liberté aux autres paysans. Une importante armée ennemie venant du Nord arrive tout droit sur nous. A l’attaque !
-1351:              Mission 3||Après la bataille victorieuse, vous avez maintenant le temps de reconstruire les villes et les villages dévastés et d’assurer l’approvisionnement de vos sujets. Ensuite, vous devriez libérer les colonies occupées du Nord et combattre la loi tyrannique imposée par les Renégats aristocrates. Épargnez la population rurale et battez-vous seulement contre les soldats ennemis stationnés dans cette contrée.
-1352:              Mission 4||Nos guetteurs ont aperçu des mouvements de troupes dans les colonies alentours. Le grand nombre de soldats ennemis nous laisse croire qu’ils ont sans doute un camp fortifié. Trouvez-le et détruisez tous les bâtiments militaires ennemis !
-1353:              Mission 5||Après votre écrasante victoire sur les rebelles, attendez-vous à une riposte sans précédent. Préparez votre peuple à un rude combat. Empêchez l’ennemi de détruire les villages !
-1354:              Mission 6||Nous savons que l’ennemi construit de nouvelles bases. Vous ne devez pas laisser faire cela ! Attaquez le plus tôt possible avant que l’ennemi ne se redresse. En outre, vos réserves en fer s’amenuisent à grands pas, cherchez d’autres matières premières dans les environs.
-1355:              Mission 7||Avant de nous tourner à nouveau vers les rebelles, il nous faut reconquérir les colonies du Sud. La victoire de la bataille derrière nous a apporté quelques réserves de fer dont nous avons besoin immédiatement. Mais dans la région, les gisements de fer sont moindres, nous devons donc en user avec parcimonie.
-1356:              Mission 8||Lors de la dernière attaque nous avons dû éloigner la majorité de notre peuple loin de la base, et nous avons donné à l’ennemi une chance d’attaquer. Revenez le plus vite possible avant que l’adversaire ne franchisse nos défenses !
-1357:              Mission 9||À cause d’une embuscade nous n’avons pas pu atteindre le château en temps voulu, nous devons établir une bonne stratégie pour reconquérir ce qui nous appartient ! La grande porte est étroitement défendue, une attaque frontale serait inutile. Essayez d’attaquer une autre entrée, et évitez les pertes matérielles car nous n’avons pas la possibilité d’exploiter plus de minerai de fer.
-1358:              Mission 10||La reconquête du château nous a permis de faire des prisonniers qui nous ont révélé la présence d’un passage souterrain menant aux montagnes du Nord. L’entrée du tunnel est surveillée par quelques gardes ennemis, débarrassez vous d’eux et pénétrez dans le tunnel !
-1359:              Mission 11||La grotte est plus grande que prévue, nos éclaireurs ont repéré des gardes ennemis dans les recoins du tunnel, ils protègent le complexe souterrain des intrus. Atteignez la sortie de l’autre côté de la montagne !
-1360:              Mission 12||Les troupes adverses ont été mises au courant de notre attaque, des bataillons ennemis du Nord sont en marche et vont bientôt attaquer ! Construisez des tours pour affaiblir les bataillons. Si vous arrivez à les repousser, vous pourrez traverser le passage vers le Nord.
-1361:              Mission 13||Une embuscade ! Notre ennemi nous attendait ! Nous sommes maintenant dans une situation critique. Forcez les bandits à battre en retraite !
-1362:              Mission 14||Nous avons réussi à atteindre le dernier bastion de notre ennemi ! Ils ont rassemblé leurs armées et se sont barricadés dans leur retraite située au Nord-Est. À cause du froid mordant, la rivière est en partie gelée, ce qui va nous permettre de surprendre l’adversaire. Soyez victorieux des troupes ennemies afin de faire régner la paix à nouveau dans notre pays !
-2000:Mission Annulée
-2001:Tutoriel de Construction
-2002:Tutoriel de Bataille
-2003:Joueur Solo
-2004:Éditeur de cartes
-2005:Voir le Dernier Replay
-2006:Débuter !
-2007:Titre
-2008:Taille
-2009:Type de Mission : %s
-2010:Condition de Victoire : %s
-2011:Condition de Défaite : %s
-2012:Alliés :
-2013:Ennemis :
-2015:Taille de la carte :
-2016:Largeur
-2017:Hauteur
-2018:Créer une Mission
-2019:Missions Existantes :
-2020:Charger une Mission Existante
-2021:Contrôles :
-2022:Jouabilité :
-2023:Effets Sonores :
-2024:Désactiver
-2025:Graphisme :
-2026:Luminosité
-2027:Plein Écran
-2028:Appliquer
-2029:Langage :
-2030:Chargement... Veuillez patienter
-2031:Une Erreur s'est Produite !
-2032:Chargement du nouveau local...
-2033:Liste des Sauvegardes :
-2034:Nom du Fichier
-2035:Description
-2036:Charger
-2037:Supprimer
-2038:Êtes-vous sûr(e) de vouloir supprimer ce fichier ?
-2039:Supprimer
-2040:Annuler
-2042:Vous avez Gagné !
-2043:Continuer à Jouer
-2044:Victoire !
-2045:Vous avez Perdu !
-2046:Continuer à Regarder
-2047:Défaite !
-2048:Le Replay est Terminé
-2049:Continuer à Regarder
-2050:Quitter au Menu
-2051:Non disponible
-2052:Appuyer sur %s pour reprendre le jeu
-2053:Pour l'Alliance
-2054:Infos sur les joueurs
-2055:Chat
-2056:Fichier déjà existant
-2057:Écraser
-2058:Enregistrer
-2059:Charger
-2060:Une erreur s'est produite durant la partie.
-2061:Veuillez envoyer le fichier %s se trouvant dans le dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent se trouver dans le fichier Readme. Merci beaucoup de votre petite aide!
-2062:Une ancienne version d'OpenGL a été détectée, le jeu peut être lent et/ou avec des défauts graphiques.
-2063:Erreur réseau :
-2064:Erreur : Le nom du joueur doit contenir au moins un caractère
-2065:Connexion échoué : %s
-2066:Vous vous êtes déconnecté
-2067:Mission %d
-2068:La Hutte de votre Pêcheur est trop éloignée de l'eau.
-2069:Votre Pêcheur ne peut plus pêcher dans les eaux environnantes..
-2071:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
-2072:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
-2073:Échanger x%d
-2074:Contre x%d
-2075:Édition du terrain
-2076:Planification du village
-2077:Scripts visuels
-2078:Scripts globaux
-2079:Menu
-2080:Status :
-2081:Nom du Joueur
-2082:CRÉER UN SERVEUR
-2083:Nom
-2084:Port
-2085:Créer un Server Local
-2086:Créer un Server en Réseau
-2087:Nom du Serveur
-2088:État
-2089:Joueurs
-2090:Ping
-2091:Rafraichir la Liste des Serveurs
-2092:DÉTAILS DU SERVEUR
-2093:Liste des Joueurs :
-2094:Adresse
-2095:Port
-2096:Salle
-2097:Joindre
-2098:Connexion, veuillez patienter...
-2099:Chargement des annonces...
-2100:Rafraichissement...
-2101:Liste des Joueurs
-2102:Positions de Départ
-2103:Alliance
-2104:Couleur
-2105:Prêt
-2106:Ping
-2107:Éjecter
-2108:Libre
-2109:Joueur IA
-2110:Sélect...
-2111:Aléatoire
-2112:Aucune
-2113:Aucune
-2114:Alliance %d
-2116:Envoyer un Message :
-2117:Type de Mission
-2118:Mission Solo
-2119:Partie Enregistrée
-2120:Sélect. une mission...
-2121:Sélect. une sauvegarde...
-2122:Informations sur la Mission :
-2123:Nombre de Joueurs : %d
-2124:Mode :
-2125:Conditions :
-2126:Taille :
-2127:Quitter le Lobby
-2128:Prêt
-2129:Débuter !
-2130:Attente des Joueurs :
-2131:Crédits de KaM Remake
-2132:Crédits originaux de Knights & Merchants
-2133:PROGRAMMATION :
-2134:PROGRAMMATION ADDITIONNELLE :
-2135:GRAPHISMES ADDITIONNELS :
-2136:TRADUCTIONS ADDITIONNELLES :
-2137:REMERCIEMENTS PARTICULIERS :
-2138:Missions Multijoueur
-2139:Missions Solo
-2140:Vitesse de défilement.
-2141:Aucun serveur n'a été trouvé
-2142:Lecture aléatoire
-2143:Informations sur la Partie :
-2144:-
-2145:Lobby
-2146:Chargement
-2147:Partie
-2148:Position %d
-2149:Troupes et Bâtiments
-2150:Troupes
-2151:Non Prêt
-2152:Prêt
-2153:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler
-2154:Erreur : Le chargement de la mission a échoué ou aucune mission n'a été sélectionnée
-2155:Impossible de débuter : %s
-2156:Tout le monde n'est pas prêt pour débuter
-2157:Le nombre de joueurs dépasse la limite de la mission
-2158:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
-2159:Le Serveur vous a attribué les droits d'hebergement
-2160:Augmenter le nombre d'échanges
-2161:Réduire le nombre d'échanges
-2162:Enregistrement de la partie...
-2163:%s a perdu !
-2164:EFFETS SONORES ADDITIONNELS :
-2165:Abandonner les Joueurs
-2166:L'hôte sera autorisé à abandonner ces joueurs après %d secondes.
-2167:L'hôte est désormais autorisé à abandonner ces joueurs.
-2168:L'hôte (%s) a quitté
-2169:La connexion vers le serveur a été perdue. Tentative de reconnexion...
-2170:Êtes-vous sûr(e) de vouloir quitter ?
-2171:Êtes-vous sûr(e) de vouloir définitivement abandonner ces joueurs ?
-2172:Annuler
-2173:Unités|formées
-2174:Unités|perdues
-2175:Soldats|entraînés
-2176:Soldats|perdus
-2177:Unités|éliminées
-2178:Bâtiments|construits
-2179:Bâtiments|perdus
-2180:Bâtiments|détruits
-2181:Marchandises|produites
-2182:Armes|fabriquées
-2183:L'échange de cette ressource est indisponible dans cette mission
-2184:Planter et Abattre
-2185:Abattre Seulement
-2186:La partie a débuté !
-2187:Construction
-2188:Bataille
-2189:Mission Coopérative
-2190:Vous n'êtes pas autorisé à faire cela pendant le temps de paix
-2191:Temps de Paix restant : %s
-2192:Le temps de paix est terminé. À vos armes !
-2193:Temps de Jeu :|%s
-2194:Options de Jeu :
-2195:H
-2196:L
-2197:S
-2198:Halte ('%s')
-2199:Regrouper les unités ('%s')
-2200:Scinder les unités ('%s')
-2201:Lecteur de Replay
-2202:Voir le Replay
-2203:Temps de Paix (min.)
-2204:Format non supporté %s
-2205:Version non supportée %s
-2207:initialisation
-2208:initialisation du multijoueur
-2209:script
-2210:Nouvelle Mission
-2211:Une erreur est survenue lors de l'analyse du fichier %s.
-2212:Fermé
-2213:L'hôte configure les Joueurs
-2214:sprites additionnels
-2215:unités
-2216:bâtiments
-2217:arbres
-2218:définitions
-2219:tileset
-2220:Soft shadows
+147:Bâtiments
+148:Répartition des Matières Premières
+149:Statistiques
+150:Options
+151:Retour
+152:Choisir|Bâtiment
+153:Répartition|Matières|Premières
+154:Statistiques
+155:Options
+156:Charger Partie
+157:Enregistrer Partie
+158:Etes-vous sûr(e)|de vouloir quitter|cette mission ?
+159:Quitter mission
+160:Retour
+161:Paramètres
+162:Quitter mission
+163:Effets Sonores
+164:Régler volume
+165:Musique
+166:Musique on/off
+167:Sauvegarde Auto.
+168:Lecteur de CD
+169:Morceau précédent
+170:Morceau suivant
+171:Démolir
+172:Démolition/Annulation
+173:Construire Route
+174:Route
+175:Labourer un Champ
+176:Champ
+177:Planter Vigne
+178:Vigne
+179:Annuler
+180:Annuler l'apprentissage en cours
+181:Besoins :
+182:ETAT
+183:Produit
+184:Bâtiment en|construction.
+185:Démolir
+186:Voulez-vous vraiment|démolir ce bâtiment ?
+187:Démolir le bâtiment sélectionné
+188:Réduire le volume de la commande
+189:Augmenter le volume de la commande
+190:Unité précédente
+191:Unité suivante
+192:Former Unité sélectionnée
+193:Catégorie suivante
+194:Catégorie précédente
+195:Ajouter à la liste
+196:Livraison de marchandises oui/non
+197:Réparation du bâtiment oui/non
+198:Bâtiment indisponible actuellement
+199:Santé
+200:Pivoter à gauche
+201:Pivoter à droite
+202:Attaquer  ('A')
+203:Envoyer Troupes  ('D')
+204:Ravitailler les Troupes
+205:Charger
+206:Changer Formation : Ajouter un rang
+207:Changer Formation : Enlever un rang
+208:Sélectionner|l'autre|unité
+209:Quitter
+210:Supprimer
+211:Supprimer ce message
+212:Centrer
+213:Centrer l'écran sur l'objet de ce message
+214:Fermer
+215:Refermer ce message
+216:|Votre Tailleur de Pierres ne peut plus rien tirer de cette Carrière.
+217:|Vos gisements de charbon sont épuisés.
+218:|Vos gisements de fer sont épuisés.
+219:|Vos gisements d'or sont épuisés.
+220:|Ce bâtiment est inoccupé.
+221:|Ces troupes sont affamées, vous devriez les|nourrir très rapidement !
+222:PAUSE
+418:Esprit
+419:Animation
+420:Cors du Moyen-Age
+421:Printemps
+422:Luth
+423:Mercenaire
+424:La Princesse
+425:La Reine
+426:La Place du Marché
+427:Le Champ de Bataille
+428:Danse à la Cour
+429:L'Armée
+430:Au Château
+431:Fanfares
+432:A la Cour
+433:Entree
+434:Bleu Profond
+435:Lutte
+847:Campagne 'Un Royaume en Péril'
+848:Campagne 'La Révolte des Paysans'
+849:Sélectionner une Mission
+850:Débuter !
+851:Retour
+852:Charger une Partie Enregistrée
+853:Multijoueur
+854:Options
+855:Crédits
+856:Quitter
+857:Continuer
+858:Recommencer la Mission
+859:Résolution :
+860:Victoire !
+861:Défaite !
+862:Unités perdues :
+863:Unités éliminées :
+864:Bâtiments perdus :
+865:Bâtiments détruits :
+866:Bâtiments construits :
+867:Unités formées :
+868:Armes fabriquées :
+869:Soldats entraînés :
+870:Mission accomplie en :
+1000:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES DU JEU :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre Quaß||ÉDITION ET MIXAGE DU SON :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schäfer||CONCEPTION DU MANUEL :|Peter Ohlmann|Uwe Schäfer||BETA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRECTEUR DU JEU :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINEMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATIONS :|Uwe Schäfer|Christian Bigalk||MODÉLISATION 3D :|Niels Horstmann||REMERCIMENTS PARTICULIERS :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+1686:Mission Annulée
+1687:Tutoriel de Construction
+1688:Tutoriel de Bataille
+1689:Joueur Solo
+1690:Éditeur de cartes
+1691:Voir le Dernier Replay
+1692:Débuter !
+1693:Titre
+1694:Taille
+1695:Type de Mission : %s
+1696:Condition de Victoire : %s
+1697:Condition de Défaite : %s
+1698:Alliés :
+1699:Ennemis :
+1701:Taille de la carte :
+1702:Largeur
+1703:Hauteur
+1704:Créer une Mission
+1705:Missions Existantes :
+1706:Charger une Mission Existante
+1707:Contrôles :
+1708:Jouabilité :
+1709:Effets Sonores :
+1710:Désactiver
+1711:Graphisme :
+1712:Luminosité
+1713:Plein Écran
+1714:Appliquer
+1715:Langage :
+1716:Chargement... Veuillez patienter
+1717:Une Erreur s'est Produite !
+1718:Chargement du nouveau local...
+1719:Liste des Sauvegardes :
+1720:Nom du Fichier
+1721:Description
+1722:Charger
+1723:Supprimer
+1724:Êtes-vous sûr(e) de vouloir supprimer ce fichier ?
+1725:Supprimer
+1726:Annuler
+1728:Vous avez Gagné !
+1729:Continuer à Jouer
+1730:Victoire !
+1731:Vous avez Perdu !
+1732:Continuer à Regarder
+1733:Défaite !
+1734:Le Replay est Terminé
+1735:Continuer à Regarder
+1736:Quitter au Menu
+1737:Non disponible
+1738:Appuyer sur %s pour reprendre le jeu
+1739:Pour l'Alliance
+1740:Infos sur les joueurs
+1741:Chat
+1742:Fichier déjà existant
+1743:Écraser
+1744:Enregistrer
+1745:Charger
+1746:Une erreur s'est produite durant la partie.
+1747:Veuillez envoyer le fichier %s se trouvant dans le dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent se trouver dans le fichier Readme. Merci beaucoup de votre petite aide!
+1748:Une ancienne version d'OpenGL a été détectée, le jeu peut être lent et/ou avec des défauts graphiques.
+1749:Erreur réseau :
+1750:Erreur : Le nom du joueur doit contenir au moins un caractère
+1751:Connexion échoué : %s
+1752:Vous vous êtes déconnecté
+1753:Mission %d
+1754:La Hutte de votre Pêcheur est trop éloignée de l'eau.
+1755:Votre Pêcheur ne peut plus pêcher dans les eaux environnantes..
+1757:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
+1758:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
+1759:Échanger x%d
+1760:Contre x%d
+1761:Édition du terrain
+1762:Planification du village
+1763:Scripts visuels
+1764:Scripts globaux
+1765:Menu
+1766:Status :
+1767:Nom du Joueur
+1768:CRÉER UN SERVEUR
+1769:Nom
+1770:Port
+1771:Créer un Server Local
+1772:Créer un Server en Réseau
+1773:Nom du Serveur
+1774:État
+1775:Joueurs
+1776:Ping
+1777:Rafraichir la Liste des Serveurs
+1778:DÉTAILS DU SERVEUR
+1779:Liste des Joueurs :
+1780:Adresse
+1781:Port
+1782:Salle
+1783:Joindre
+1784:Connexion, veuillez patienter...
+1785:Chargement des annonces...
+1786:Rafraichissement...
+1787:Liste des Joueurs
+1788:Positions de Départ
+1789:Alliance
+1790:Couleur
+1791:Prêt
+1792:Ping
+1793:Éjecter
+1794:Libre
+1795:Joueur IA
+1796:Sélect...
+1797:Aléatoire
+1798:Aucune
+1799:Aucune
+1800:Alliance %d
+1802:Envoyer un Message :
+1803:Type de Mission
+1804:Mission Solo
+1805:Partie Enregistrée
+1806:Sélect. une mission...
+1807:Sélect. une sauvegarde...
+1808:Informations sur la Mission :
+1809:Nombre de Joueurs : %d
+1810:Mode :
+1811:Conditions :
+1812:Taille :
+1813:Quitter le Lobby
+1814:Prêt
+1815:Débuter !
+1816:Attente des Joueurs :
+1817:Crédits de KaM Remake
+1818:Crédits originaux de Knights & Merchants
+1819:PROGRAMMATION :
+1820:PROGRAMMATION ADDITIONNELLE :
+1821:GRAPHISMES ADDITIONNELS :
+1822:TRADUCTIONS ADDITIONNELLES :
+1823:REMERCIEMENTS PARTICULIERS :
+1824:Missions Multijoueur
+1825:Missions Solo
+1826:Vitesse de défilement.
+1827:Aucun serveur n'a été trouvé
+1828:Lecture aléatoire
+1829:Informations sur la Partie :
+1830:-
+1831:Lobby
+1832:Chargement
+1833:Partie
+1834:Position %d
+1835:Troupes et Bâtiments
+1836:Troupes
+1837:Non Prêt
+1838:Prêt
+1839:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler
+1840:Erreur : Le chargement de la mission a échoué ou aucune mission n'a été sélectionnée
+1841:Impossible de débuter : %s
+1842:Tout le monde n'est pas prêt pour débuter
+1843:Le nombre de joueurs dépasse la limite de la mission
+1844:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
+1845:Le Serveur vous a attribué les droits d'hebergement
+1846:Augmenter le nombre d'échanges
+1847:Réduire le nombre d'échanges
+1848:Enregistrement de la partie...
+1849:%s a perdu !
+1850:EFFETS SONORES ADDITIONNELS :
+1851:Abandonner les Joueurs
+1852:L'hôte sera autorisé à abandonner ces joueurs après %d secondes.
+1853:L'hôte est désormais autorisé à abandonner ces joueurs.
+1854:L'hôte (%s) a quitté
+1855:La connexion vers le serveur a été perdue. Tentative de reconnexion...
+1856:Êtes-vous sûr(e) de vouloir quitter ?
+1857:Êtes-vous sûr(e) de vouloir définitivement abandonner ces joueurs ?
+1858:Annuler
+1859:Unités|formées
+1860:Unités|perdues
+1861:Soldats|entraînés
+1862:Soldats|perdus
+1863:Unités|éliminées
+1864:Bâtiments|construits
+1865:Bâtiments|perdus
+1866:Bâtiments|détruits
+1867:Marchandises|produites
+1868:Armes|fabriquées
+1869:L'échange de cette ressource est indisponible dans cette mission
+1870:Planter et Abattre
+1871:Abattre Seulement
+1872:La partie a débuté !
+1873:Construction
+1874:Bataille
+1875:Mission Coopérative
+1876:Vous n'êtes pas autorisé à faire cela pendant le temps de paix
+1877:Temps de Paix restant : %s
+1878:Le temps de paix est terminé. À vos armes !
+1879:Temps de Jeu :|%s
+1880:Options de Jeu :
+1881:H
+1882:L
+1883:S
+1884:Halte ('%s')
+1885:Regrouper les unités ('%s')
+1886:Scinder les unités ('%s')
+1887:Lecteur de Replay
+1888:Voir le Replay
+1889:Temps de Paix (min.)
+1890:Format non supporté %s
+1891:Version non supportée %s
+1893:initialisation
+1894:initialisation du multijoueur
+1895:script
+1896:Nouvelle Mission
+1897:Une erreur est survenue lors de l'analyse du fichier %s.
+1898:Fermé
+1899:L'hôte configure les Joueurs
+1900:sprites additionnels
+1901:unités
+1902:bâtiments
+1903:arbres
+1904:définitions
+1905:tileset
+1906:Soft shadows

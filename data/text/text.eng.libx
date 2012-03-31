@@ -103,659 +103,660 @@ MaxID:3004
 110:The blacksmith forges|iron weapons and|armor in the weapons|and armor smithies.
 111:The metallurgist uses|coal to refine gold and|iron ore.
 112:The recruit can be|equipped as a soldier|in the barracks.||He also occupies|the watchtower.
-113:Militia
-114:Axe fighter
-115:Sword fighter
-116:Bowman
-117:Crossbowman
-118:Pikeman
-119:Halberdier
-120:Cavalry
-121:Knight
-122:Wolf
-123:Fish
-124:Fish
-159:To selection of buildings
-160:To distribution of wares
-161:To statistics
-162:To messages
-163:To options
-164:Go back
-165:Building|Selection
-166:Distribution|of Wares
-167:Statistics
-168:Messages
-169:Options
-170:Call up settings
-171:Load Game
-172:Save Game
-173:Load Game
-174:Save Game
-175:Are you sure you|want to quit|this mission?
-176:Quit Mission
-177:Go Back
-178:Settings
-179:Quit Mission
-180:Brightness
-181:+
-182:-
-183:Increase brightness
-184:Decrease brightness
-185:Very dark
-186:Dark
-187:Normal
-188:Bright
-189:Very bright
-190:Brightest
-191:Mouse speed
-192:Change mouse speed
-193:SFX
-194:Change volume
-195:Music
-196:Music:
-197:Music on/off
-198:Off
-199:Via MIDI
-200:On
-201:Empty
-202:Autosave
-203:Fast Scrolling
-204:Mission %d Time:%2.2u:%2.2u
-205:Scenario %d Time:%2.2u:%2.2u
-206:Music Player
-207:Previous track
-208:Next track
-209:Demolish
-210:Remove buildings/highlights
-211:Construct road
-212:Construct roads
-213:Plough field
-214:Plough fields
-215:Put up fence
-216:Pasture fence
-217:Lay out wine field
-218:Lay out wine fields
-219:Erect wall
-220:Wall construction
-221:Train
-222:Train selected occupational group
-223:Cancel
-224:Cancel current training
-225:|in training
-226:Needs:
-227:Condition:
-228:Delivers
-229:House under|construction
-230:Destroy
-231:Do you really want to|demolish this building?
-232:Destroy selected building
-233:Decrease order amount
-234:Increase order amount
-235:Inventory of wares:
-236:Previous soldier type
-237:Next soldier type
-238:Equip
-239:Equip current soldier type
-240:Next profession
-241:Previous profession
-242:Add to queue
-243:Next mercenary
-244:Previous mercenary
-245:Hire mercenary
-246:Present recruits:
-247:Cost:
-248:Switch on/off delivery of wares
-249:Switch on/off house repair
-250:Building not available at this time
-251:Not available in demo
-252:Unoccupied
-253:Condition
-254:Turn troop left
-255:Turn troop right
-256:Attack ('a')
-257:Halt troop ('h')
-258:Dispatch troop ('d')
-259:Link up troops ('l')
-260:Separate troop ('s')
-261:Supply troop with food
-262:Start storm attack
-263:Add line
-264:Withdraw line
-265:Offensive:
-266:Defensive:
-267:Tempo:
-268:Select|castle
-269:Quit
-270:Select|destination
-271:Select|group
-272:Select attack|target
-273:Cancel
-274:Unit not available at this time
-275:Delete
-276:Deletes current message
-277:Send
-278:Sends current message
-279:Go to
-280:Jumps to current message position
-281:Close
-282:Closes window
-283:Reply
-284:Replies to message
-285:Confirm
-286:New alliances have been made.
-287:is friendly
-288:is hostile
-289:|Your stonemason cannot get any further supplies of stone.
-290:|Your coal mine seams are exhausted.
-291:|Your iron mine veins are exhausted.
-292:|Your gold mine veins are exhausted.
-293:|Your fisherman cannot catch any further fish.
-294:|This house is not occupied.
-295:|This troop is really hungry, they better get something to eat real soon!
-296:To iron distribution
-297:Distribution of|iron
-298:To coal distribution
-299:Distribution of|coal
-300:To timber distribution
-301:Distribution of|timber
-302:To corn distribution
-303:Distribution of|corn
-304:|Please enter message:
-305:Message from player '%s':|'%s'
-306:Alliances:
-307:PAUSE
-478:Network message:
-479:Player '%s' has quit the game.|Press ~<~S~P~A~C~E~> to continue playing.
-480:You are now the host.|Press ~<~S~P~A~C~E~> to continue playing.
-481:Computer is waiting for data. Press ~<~S~P~A~C~E~> to|repeat or ~<~F~1~> to quit game.
-499:Verily, thou must needs construct a schoolhouse to train new citizens.|Thou needs to ensure that thou hast gold aplenty in thy coffers, so that thou canst train new citizens for thy kingdom.
-500:Start building by left click on ye hammer icon on the left side of thy screen. Then thou must needs click on the book (ye olde schoolhouse) icon. Position the frame of thy schoolhouse on thy map where thou willst construct it and left click there.
-501:Once thou hast placed the schoolhouse, thou canst see that 'construct road' has in troth become the default cursor. Thou must needs click each square where thou willst have a section of road built.|And forget not, thou must needs connect the road to the front door of every building.
-502:To train units, left click on thy schoolhouse and scroll through using the 'next profession' button to select the unit that thou doth wish to train. Then shalt thou left click on the 'add to queue' button. When trained, thy serfs shall, wonder of wonders, automatically start to perform their tasks.
-503:From time to time thine loyal citizens shalt need to eat. In order for them to do this, thou must needs construct an inn.|Be sure to locate ye inn centrally, so that it canst be accessed easily by all of thine villagers.
-504:Thou shalt need stones if thou art to construct further houses and roads. Thou shouldst construct a quarry near a supply of stones, then must thou train thee a stonemason who will produce thy new building material.
-505:Thou doth not only need stones to construct buildings, but also timber. Ye woodcutter fells and plants trees which are then processed in the sawmill. Thou shouldst always build ye woodcutter's hut near a forest.
-506:Now thou must needs construct a sawmill to process the tree trunks which ye woodcutter hath felled.|Once thou hath completed that task, thou shouldst train a carpenter who will work in thy new sawmill.
-507:Once thou hath ensured a sufficient supply of building materials, thou canst turn thy attention to the production of food.|Construct thyself a fisherman's hut near the water so that ye fisherman canst supply thy inn with freshly caught fish.
-508:Good, but forget not that even though ye sea hath fish in plenty, they shalt run out sooner or later.|To ensure a more stable food source for thy village, thou shouldst construct a farm where there doth be enough room for ye fields.
-509:Roughly sixteen squares of field shouldst be ploughed for ye farmer, as close as possible to thy farm itself.|Now thou needs to construct a mill to process the corn that thy farmer shalt harvest.
-510:Great, now thou canst build a bakery which shalt supply thy inn with fresh bread. Be sure that thou hath always enough serfs on hand to transport thine goods and deliver them quickly to ye different buildings.
-511:Apart from just feeding thine loyal subjects with fish and bread, thou also needs give them something to quench their thirst.|Construct thee a vineyard and lay out about sixteen squares of wine field for thy farmer to gather ye grape from.
-512:Thou art doing well, but thine hard-working subjects deserve better food than just dry bread and wine. To produce meat and skins, construct a swine farm where ye animal breeder shalt breed pigs.
-513:To process thine newly slaughtered meat further, it shalt be necessary for thou to construct a butchery. In the butchery, ye butcher shalt string sausages from thy meat.
-514:Now that thou hath secured thine food deliveries, thou shouldst need concentrate on thine long-term goal; the production of new weapons. Start by building a barracks at a location that doth appear suitable.
-515:In ye barracks thou canst use the 'next soldier type' and 'previous soldier type' buttons to scroll through ye different troops which thou canst have equipped. Ye highlighted squares doth indicate which pieces of equipment shouldst be needed to equip the currently selected soldier.
-516:If thou art to equip soldiers from thy barracks, thou doth also needs produce weapons for thine stalwart fighters. Have thine laborers build thou a weapons workshop near thy barracks so that thou canst ensure quick delivery of ye weapons.
-517:To place orders for ye production of equipment, thou shouldst left-click on thy newly constructed weapons workshop and then left-click on the 'increase order amount' button. Always be sure thine weapons workshop hath enough timber for producing weapons.
-518:Without proper equipment thine soldiers shalt in troth be slaughtered on the battlefield.|To produce new armor for thine troops, thou shouldst firstly build a tannery for further processing of ye skins.
-519:Now that thou hath a production of leather underway, thou must needs build an armory workshop. In that very building a carpenter shalt make leather armor and wooden shields.
-520:Excellent! Thou doth now have all the buildings required to run a town and to equip new soldiers. Once thou hath the proper pieces of equipment required to equip a specific soldier type, thou shouldst need train a recruit from ye school house and then click 'equip current soldier type'.
-521:Thy aim shalt now be the defeat the two enemy encampments nigh by. The blue enemy to the south is cunning and hath a strongly fortified base, whilst ye green to the east is merely relying on soldiers. Prepare thine troops well before thou doth attempt to rid the area of ye wicked enemy!
-522:|The blue player hath been defeated!
-523:|The green player hath been defeated!
-524:Before thou attacketh thine enemies to the west, thou must needs kill off the scouts ensconced nigh to the north. If thou dost left-click on thy lance carriers, and then right-click on thine enemies, this shall spur them into a glorious attack.
-525:A company of bowmen lieth to the south-west. Attack it with thy militia. But caution to order the charge at the proper moment, lest enemy arrows inflict terrible losses on thy stalwart troops!
-526:Attack the enemy forces which lie in waiting to the west. Watch for enemy bowmen for they have entrenched themselves behind the infantry! Send thy scouts to the north that they may encircle the enemy and attack from the rear.
-527:Now thou shalt launch an attack with all thy forces at once. Place thy bowmen behind thine infantry to drive back the enemy lines. If thou art glorious, the battle tutorial is complete.
-529:Thou must needs speedily equip new militia units! Shouldst thou fail to do this, we shall be defenseless against enemy attacks!
-530:Our scouts inform us that the enemy doth prepare an attack against thee. Repel them with thy trusty sword!
-531:Thou hast made good progress, but ye village must needs be enlarged. Only when thou hast done this, wilt thou be in a position to storm the enemy barricades and to destroy this evil den of resistance!
-532:Once more must I press upon thee that thou shalt protect our stalwart allies, the Lauenburger troops, at all costs!
-533:Protect thy troops and thyself from those scoundrelly troops, the horsed knights of the enemy!|They again cast their eyes upon our allies!
-534:The village in the north hath declared openly against further tyranny. Thou shouldst turn this to thine own advantage.
-535:Our faithful scouts have discovered a deserted storehouse. It lieth to the west, nigh to a small wood. Surely there wilt thou find items of use to thee.
-536:An enemy scout hath been captured and interrogated. It doth appear that the enemy hath discovered our position and even now prepares an attack against thee.
-537:It shall not be long 'til the barbarians fall upon us. Prepare thy troops well or the scoundrels shall breach thy defenses!
-538:To thy weapons!|A huge enemy force makes its way toward thee!
-539:Organize thy force well, the enemy doth have superior numbers! Shouldst thou attack by storm, thou willst not find the joy that victory brings!
-540:Victory is ours, but the time for revenge is not yet upon us. Thou must needs construct Werheim anew. Then indeed shall the black-hearted dogs pay for their dastardly deeds!
-541:Without iron, hast thou not weapons, without weapons hast thou not warriors! To the north thou willst find that which thou hast need of.|Prepare thyself to capture the mines located there.
-542:The good people of the village that lieth to the south still resist against the tyranny with all their might, but have suffered fearful losses. Make haste to aid these proud villagers, thou willst not regret it.
-543:A deserted storehouse doth perchance lie nigh to your position. Thou shalt travel with all speed to that place, for a hard trial awaits thee, and methinks thou willst be in need of all the aid which thou canst find.
-544:Our brave spies report that the deserted storehouse doth indeed be the target of a large enemy offensive. Thou must needs hold firm in this place, lest thine own advance be hindered.|Stand fast, thou brave heart!
-545:Yet another dastardly attack on the storehouse cometh thy way. Prepare thyself for battle!
-546:The enemy trieth all in his power to avoid defeat at thy hands and sallies forth even now in a vain attempt to subdue thee. Thou shalt grind the enemy down, to the last man! Then, methinks, thou mayst continue thy glorious advances.
-547:The tyrant hath not yet succumbed to thy brave attacks. Our stalwart allies remain steadfast and true and stand indeed by thy side. After the first attack thou art aware that thou willst be left to thine own devices, as hath been agreed.
-549:The opposing force is larger than our scouts hath led us to believe. Equip further soldiers from thy barracks to support thine stalwart army.
-550:For thou to banish the conquerors utterly, thou must needs to destroy all of their cowardly troops. Once this purge is complete, the peasants of the surrounding villages shall form an alliance with thee and offer us danger no longer.
-551:Our scouts report that thy enemy hath enslaved most of thine citizens in the area. Storm their defenses but destroy only their military buildings, leaving thine enslaved settlers unharmed. This shouldst surely send thy enemy into glorious retreat and free thy citizens!
-552:I stress upon thee, protect thine allied troops to the south from thy enemy attacks!|Allow them not to fall prey to thy opponent, for we need their support more than ever.
-553:Our spies hath sighted a hostile army advancing on thy storehouse to the south! Thou must needs defend the valuable goods from the rebel force.
-554:Our scouts behold an opposing army south of thy location! Keep thy wits about thee, or thine enemies may take thee by surprise!
-555:Bewarned! Further enemy troops are closing in on thee from the west! Drive them back with ye stalwart troops!
-556:To support thy army, thou shouldst need hire more mercenaries from the town hall. These seditious soldiers will strengthen thine army and help thee repel thy enemy.
-557:Perchance if thou shouldst try the back entrance, thou mayst find it unguarded. With this advantage thou shouldst surely defeat thine enemy with ease.
-558:An enemy force doth make its way from the mountains that lieth to the northwest and even now is marching straight toward thy camp! Prepare thy troops well, so thou wilt be able to defeat this army utterly.
-559:Thine enemy hath already discovered thy new position and shalt very soon send a strong battalion toward thee!
-560:Beware! Our scouts hath sighted enemy archers hidden in the surrounding hills.|Methinks a fight in the open gorge could mean our ruination.
-561:We hath arrived at the final stronghold of the treacherous rebels.|Thou shalt slay all of the rebellious and caddish dwellers here, leaving not a single breathing soul after this glorious battle has come to an end!
-562:Our spies report that our enemy hath indeed discovered our new location and now prepareth an attack against thee.|Draw thy trusty sword once more and show no mercy to these ruthless rebels!
-569:Empty
-570:Spirit
-571:Busy
-572:Middle Ages Horn
-573:Spring
-574:Lute
-575:Mercenary
-576:The Princess
-577:The Queen
-578:In the Marketplace
-579:On the Battlefield
-580:Court Dance
-581:The Army
-582:In the Castle
-583:Fanfares
-584:At Court
-585:Entree
-586:Deep Blue
-587:Struggle
-588:Royal Quarters
-589:Aristocracy
-590:At the Harbor
-591:Journey
-999:unused
-1000:Campaign 'The Shattered Kingdom'
-1001:Campaign 'The Peasants Rebellion'
-1002:Play Tutorial
-1003:Play Single Map
-1004:Single Map
-1005:Previous
-1006:Next
-1007:Start Map
-1008:Back to Menu
-1009:Load Saved Game
-1010:Multiplayer
-1011:Options
-1012:Credits
-1013:Exit Game
-1014:Empty
-1015:Saved Games:
-1016:Continue
-1017:Restart Mission
-1018:To Main Menu
-1019:Resolution:
-1020:Not Available
-1021:Select Game Type
-1022:Local Area Network
-1023:Net-Games
-1024:Username:
-1025:Password:
-1026:Create New Account
-1027:Login
-1028:Connecting to Net-Games...
-1029:Authentication...
-1030:Success
-1031:Failed
-1032:Connection failed
-1033:Wrong password
-1034:Username already taken
-1035:This user is banned
-1036:Invalid username
-1037:Undefined
-1038:In progress
-1039:Invalid parameters
-1040:Channel is full
-1041:Channel doesn't exist
-1042:No access to this channel
-1043:Timeout
-1044:You have too many accounts
-1045:Server doesn't accept registrations at this time
-1046:Username is invalid
-1047:<COL 0>%s:<COL 1> %s|
-1048:<COL 0>%s %s|
-1049:<COL 2>%s whispered: %s|
-1050:<COL 3>Private message to %s: %s|
-1051:<COL 4>SERVER: %s|
-1052:<COL 4>SERVER: %s|
-1053:<COL 2>Message of the Day: %s|
-1054:<COL 0>BROADCAST: %s|
-1055:<COL 3>%s enters the channel|
-1056:<COL 3>%s quits channel|
-1057:<COL 3>You have entered the channel <COL 0>%s<COL 3>|
-1058:<COL 3>You have entered the game <COL 0>%s<COL 3>|
-1059:Back to Main Menu
-1060:Enter Channel
-1061:Enter Game
-1062:Create Game
-1063:Create Ladder Game
-1064:Leave Game
-1065:Launch Game
-1066:Whisper
-1067:Kick
-1068:Ban
-1069:Info
-1070:Register
-1071:Back to Name Input
-1072:Please enter your name:
-1073:Continue
-1074:Back
-1075:Please select network type:
-1076:Enter Game
-1077:Create Game
-1078:Please enter session name:
-1079:Start Session
-1080:Select Session:
-1081:Join Game
-1082:Search for Games
-1083:Current players:
-1084:Messages:
-1085:Send:
-1086:Start!
-1087:No name
-1088:<Slot free>
-1089:<Not available>
-1090:<Computer>
-1091:'s session
-1092:~P~l~a~y~e~r '%s' ~h~a~s ~b~e~e~n ~r~e~m~o~v~e~d ~f~r~o~m ~g~a~m~e ~b~y ~t~h~e ~h~o~s~t
-1093:Scenarios:
-1094:Title:
-1095:Description:
-1096:Property:
-1097:Starting position:
-1098:The host determines|the scenario
-1099:Storehouse
-1100:Troops and storehouse
-1101:Troops and buildings
-1102:Sequence
-1103:Random
-1104:Copy saved game
-1105:Abort Transfer
-1106:Transferred: %d/100
-1107:Saved game No. %d
-1108:Players:%d|Map-Size:%dx%d
-1109:Autosave
-1110:VICTORY!
-1111:DEFEAT!
-1112:Units lost:
-1113:Units defeated:
-1114:Buildings lost:
-1115:Buildings destroyed:
-1116:Buildings constructed:
-1117:Units trained:
-1118:Weapons produced:
-1119:Soldiers trained:
-1120:Mission completed in:
-1149:Three Continents
-1150:Wilderness
-1151:Battle for Coal
-1152:Border Rivers
-1153:Land of Hills
-1154:Mountainous Region
-1155:Castle Slaughter
-1156:Coastal Encounter
-1157:Ambushed!
-1158:Bridge Disaster
-1159:Bonus Map A
-1160:Bonus Map B
-1179:Across the Desert||Size: 176x176|Number of opponents: 5
-1180:In a Strange Land||Size: 176x176|Number of opponents: 3
-1181:Snow and Sand||Size: 160x128|Number of opponents: 5
-1182:Land of the Quick River||Size: 176x176|Number of opponents: 3
-1183:Black Gold||Size: 176x176|Number of opponents: 5
-1184:Mountain Walls||Size: 144x128|Number of opponents: 3
-1185:Realm of the Darkness||Size: 176x176|Number of opponents: 3
-1199:Players: 6|Map-Size: 176x176|Build a town
-1200:Players: 4|Map-Size: 176x176|Build a town
-1201:Players: 6|Map-Size: 160x128|Build a town
-1202:Players: 4|Map-Size: 176x176|Build a town
-1203:Players: 6|Map-Size: 176x176|Build a town
-1204:Players: 4|Map-Size: 144x128|Build a town
-1205:Players: 6|Map-Size: 176x144|Build a town
-1206:Players: 3|Map-Size: 64x64|Battle
-1207:Players: 6|Map-Size: 144x144|Battle
-1208:Players: 4|Map-Size: 176x176|Build a town
-1249:The traitor's henchmen have|succeeded in breaching our defenses.|The fortress has fallen and shouldst|thou not drive out the scoundrels,|the kingdom shall be lost and the|throne robber shall triumph.|To thy weapons!
-1250:Thy victory hath given us hope.|But the time for revelry is not|yet upon us. The enemy hath|retreated in defeat to a village|nigh to thy location, where at they|form anew. The prince shall soon|once more force battle upon us, as|his rogue forces by far outnumber|thy stalwart fighters. Control|thine anger, and let not thyself be|lured into open battle. The terrain|is suited for defensive tactics on|thy part: the enemy must needs cross|the river at the narrow ford.|Shouldst thou attack him there, thine|inferior numbers shall be equal to his|greater force.
-1251:A memorable day! The rogue forces|of the rebel prince are in full|retreat. The road to the Barony of|Lauenburg is now open to thee. The|Baron of Lauenburg, the knave, hath|formed an alliance with our enemies,|therefore thou must perforce reckon|with stout opposition on thy way to|the rogue's province.
-1252:Verily, our enemies have indeed failed|to halt the advance of the king's|loyal troops. The Baron of Lauenburg|has perforce retreated with all|his soldiers to await our attack.|The commoners of the barony have|received us joyfully. Now, indeed,|thou hast the glorious chance to|increase thine army and perchance|capture Lauenburg. Shouldst thou|defeat the baron, this shall indeed|serve as a warning for all traitors|to the crown!
-1253:The Baron of Lauenburg hath yielded|to thee and received pardon from|our king, in that he hath shown true|regret for his dastardly deeds. Thine|aim shall now be the capture of|Moorbach. Our spies have discovered|a deserted stronghold which thou|shalt use and enlarge according to|thy needs. Now that Lauenburg is our|ally, the soldiers of that barony are|perforce threatened by our enemies.|Thou shalt protect the Lauenburger|troops at all costs. This will needs|strengthen the trust between us and|our new allies and thou shalt|perchance gain new soldiers for thy|stalwart army.
-1254:Moorbach hath fallen to us. Our|enemies are soundly defeated and|deeply humbled. Now our spies|inform us that a new army of rogues|and scoundrels forms to the|northwest, to avenge their humbling|at thy hands in Moorbach. Howsoever,|we are in troth strong enough to|enter into attack ourselves. Thou|shalt attack this army, and surprise|them afore they can become|organized. In this, thou must needs|count on the Lance Carriers of|Lauenburg, a stalwart company|which hath joined with our own.
-1255:Verily, news of thy victories spreads|like wildfire throughout the kingdom.|Everywhere the commoners rise|against the tyrants. Walheim lieth|to the north, still held by our|enemies. The Ruler of Walheim hath|refused to receive our envoys, and|in troth, hath sworn to defend the|town until the last man hath fallen.|The commoners of a small village|nigh to thy strongpoint have perforce|declared against the tyrant. These|good commoners shall supply thine|army with new weapons and recruits.|Verily, with such a large and|well-equipped army, thou shalt find|no problem in capturing Walheim.
-1256:The battle of Walheim hath brought|with it an absence of power, and|there exists a state of confusion.|The savage Northern Tribes band|together to fall upon the kingdom.|Thou must needs stop them, before|thou canst again do battle with the|rebels. In the ruins of Walheim, thou|wilt find building plans for|watchtowers of a verily advanced|sort. Thou must needs form a|bulwark against the barbarians.|Thou shalt destroy them, but utterly.
-1257:The barbarians fight amongst|themselves. Perchance by persuasion|and guile canst thou win over to thy|cause two of their chieftains, and all|their warriors, that these shall fight|at thy side. Thy location at this time|is simple to defend but cannot be|enlarged, so that thou must needs|plan with care. The enemy readies|himself for battle and the attack is|nigh. Prepare with all haste, so that|thou canst verily welcome the enemy|in such a manner that he shall|never forget!
-1258:The wicked despot threatens one of|our towns. Only if thou hasten there|with all thy speed, canst thou bring|thy soldiers there on time.|According to our spies, thou must|needs reckon with a large enemy|force. Deploy thy soldiers well.|Thou wilt achieve victory by thine|usage of clever tactics. If thou|charge in a blind fashion, thou|shalt indeed regret it!
-1259:Indeed, only narrowly was the attack|on our town beaten back. But the|treacherous attack did in troth leave|its cruel mark on the town. The|enemy torched it ruthlessly and|killed nigh all who dwelt there.|Thou wilt answer this massacre with|bloody revenge! But firstly, thou|must needs build the town anew|before thou bringst the cowardly|scoundrels to account.
-1260:The enemy is destroyed and the|remnants of that army retreated to|the north. The iron ore mines in|the north are of great strategic|importance for thee, since the|iron thou wilt find there shall aid|thee in the continuance of the war.|Thou shalt build a new army, an|army which shall drive all rebels|from this region for all time to come.|To the east of thy location is a|bridge. This bridge will aid thee|in thy defenses, whilst thine army|in strength grows.
-1261:Forsooth, our enemy are still|possessed of huge reserves, and the|knaves plan a counterattack against|our stalwart army. However, the|mountains nigh to their location may|be an obstacle for a large army to|traverse. Thou shalt advance into the|mountains with thine army and|await the enemy in the highest|pass. Let not the traitors ever|again gain upper hand!
-1262:At last thine efforts bear fruit!|Everywhere in the kingdom, the king's|serfs rise against the cruel reign|of the prince. Verily, even his|generals agree not with the barbarisms|and cruelties practiced on the|commoners. One of the generals has|passed a secret message on to|us....that the dastardly prince desires|to make a cruel example of a village|whose people have openly rebelled|against his treacherous rule! Thou,|and thou alone, art the bulwark|between the tyrant and the stalwart|villagers! Thou must needs put a stop|to this barbarous scoundrel's plans!
-1263:The end is nigh for those|black-hearted scoundrels, the enemies|of the king. Thou hast forced them to|their knees. The prince hath changed|his tactics, and doth hold important|deposits of raw materials. This doth|be a hindrance to us. Thou shalt|capture ye iron ore mines nigh to thy|location put the rebels to flight!|Forget not the great marsh which|lieth before thee. Prepare thyself|and thy stalwarts well! Verily, thou|shouldst remain in fear of thy life!
-1264:Thou hast much fertile land and rich|deposits of raw materials at thy|disposal in the province which lieth|before you. Let not thyself be in|doubt that soon the enemy shall|advance to gain this fruitful land|for himself. Defend the province and|show no mercy to the enemy soldiers!|No quarter shall be given them!
-1265:In the north, the traitor gathers|together his vassals, that he may|again attack unashamedly and boldly.|But, in troth, he doth not be yet|prepared to face thee on the|battlefield. Thou shalt advance|toward him and destroy him, whilst|he is as yet unprepared for thine|assault. Thou must needs traverse|the mountains to achieve thine aim,|but beware! The scoundrel hath to all|accounts occupied the pass to hinder|thee in thy mission. Still, thou must|proceed to the north, cost what|it will!
-1266:Thy last victory hath forced thine|opponent to retreat in defense. He|hath entrenched himself in a natural|stronghold wherein he, like the coward|he doth be, awaits thine attack. Thou|willst find it hard to capture this|stronghold! Many a general hath tried|before thee, and all have failed. Let|not thy courage fail thee and thy|heart grow weak! Perchance have|these valiant generals left articles|behind, articles which shall aid thee|in thy brave quest!
-1267:This doth be a black, black day! An|insidious, dastardly assassination|plot hath cost our beloved king this|day his life! The prince, shameless|scoundrel he doth be, and, methinks,|the rogue behind this great tragedy,|hath proclaimed himself the new king.|He hath ensconced himself behind|mighty walls wherein he hopeth to|find refuge from thy wrath. Thou shalt|storm these walls and bring to this|upstart, self-proclaimed king the fate|of which he doth be most deserving.|An eye for an eye, a tooth for a|tooth!
-1268:Our quest is well-nigh over. The city,|which doth be the last remaining|bastion of the upstart king, is|surrounded and under siege. Show no|mercy to whomsoever remaineth true|to the upstart and slay all thine|enemies! Thou, oh loyal hero, shalt|raze all traces of his dastardly rule|to the ground! Only then, through thy|heroic deeds, shall peace and freedom|once more reign in the kingdom. To|the gallows with the pretender, where|he shall hang like the common|criminal he doth be!
-1299:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-1349:              Mission 1||The renegades are trying to oppress the few farmers who remain loyal to the kingdom. Outside the king's palace, innocent farmers are being butchered, and under no circumstances can you allow this!|Force the attackers into retreat!
-1350:              Mission 2||After our successful support of the farmers, we must free the remaining farmers. A large enemy is coming directly towards us from the north.|Into battle!
-1351:              Mission 3||After the victorious battle you now have some time to rebuild the ruined towns and villages and to secure supplies to your subjects. Then you should turn your attention to liberating the occupied settlements in the north and fight the tyrannical rule of the renegade aristocracy. Spare the civilian country folk and fight only the enemy soldiers who are stationed there.
-1352:              Mission 4||Our spies have seen enemy troop maneuvers in the surrounding settlements. Due to the high number of enemy soldiers, we must presume that they have a fortified camp. Find and destroy it, including all enemy military buildings.
-1353:              Mission 5||Now, after your overwhelming success in the fight against the rebels, we must reckon with a massive counterattack. Prepare your people for a hard fight. Prevent the villages from being destroyed.
-1354:              Mission 6||We know that our enemy is building new bases. You cannot permit this. Attack as soon as possible, before the enemy has recovered.|Also search the area for raw materials, because your supplies of iron ore are almost exhausted.
-1355:              Mission 7||Before we turn again to the rebels, we must win back the settlements in the south. The victory in the last battle brought us a small quantity of iron that we urgently need. But because iron deposits in this area are very limited, we must be very careful how we use it.
-1356:              Mission 8||During our last attack we had to move most of our people away from our base and have given the enemy a chance to attack. Return as quickly as possible, before the foe can overrun our defenses!
-1357:              Mission 9||Because of the ambush we have not been able to reach the castle in time. We need to come up with a good strategy to reconquer what is ours. The main gate is heavily defended, and a direct attack would be useless. Try to attack another entrance and avoid casualties, as we have no possibility to mine for more iron ore.
-1358:              Mission 10||Through reconquering the castle, we have made some prisoners, who have told us about an underground tunnel, that leads through the northern mountains. The entrance to the tunnel is being guarded by a few enemy soldiers. Overthrow the guards and enter the tunnel.
-1359:              Mission 11||The cave is bigger than expected. Our scouts have discovered enemy guards in the winding tunnels, who are protecting the underground complex from intruders. Reach the exit on the other side of the mountains.
-1360:              Mission 12||The opposing troops have been informed of our intentions. Strong enemy battalions are advancing and will soon attack. Build towers to weaken the coming troops. When the defense has been successful, you will be able to cross the pass to the north.
-1361:              Mission 13||An ambush! Our enemy has been waiting for us. We are now in an extremely bad position. Force the insidious bandits into retreat!
-1362:              Mission 14||We have arrived at last bastion of our enemy. They have brought the rest of their armies together and barricaded themselves into their final retreat, northeast from here. Due to the freezing cold, the river is partly frozen, and offers us a possibility of surprising our opposition. Defeat the remaining enemy troops, so that peace can return to our land!
-2000:Mission canceled
-2001:Town Tutorial
-2002:Battle Tutorial
-2003:Single Player
-2004:Map Editor
-2005:View Last Replay
-2006:Start Mission
-2007:Title
-2008:Size
-2009:Mission type: %s
-2010:Win condition: %s
-2011:Defeat condition: %s
-2012:Allies:
-2013:Enemies:
-2015:New map size
-2016:Width
-2017:Height
-2018:Create New Map
-2019:Available maps
-2020:Load Existing Map
-2021:Controls:
-2022:Gameplay:
-2023:Sound:
-2024:Disable music
-2025:Graphics:
-2026:Brightness
-2027:Fullscreen
-2028:Apply
-2029:Language:
-2030:Loading... Please wait
-2031:An Error Has Occurred!
-2032:Loading new locale
-2033:List of savegames
-2034:File name
-2035:Description
-2036:Load
-2037:Delete
-2038:Are you sure you want to delete this save?
-2039:Delete
-2040:Cancel
-2042:You've won!
-2043:Continue playing
-2044:Victory!
-2045:You've lost!
-2046:Continue watching
-2047:Defeat
-2048:Replay has ended
-2049:Continue Watching
-2050:Quit to Menu
-2051:Not available
-2052:Press %s to resume the game
-2053:To team
-2054:Players info
-2055:Chat
-2056:Save already exists
-2057:Overwrite
-2058:Save
-2059:Load
-2060:An error has occurred during gameplay.
-2061:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!
-2062:Old OpenGL version detected, game may run slowly and/or with graphic flaws
-2063:Network error:
-2064:Error: Player name must not be blank
-2065:Connection failed: %s
-2066:You have disconnected
-2067:Mission %d
-2068:Your fisherman's hut is too far away from the water.
-2069:Your fisherman cannot catch any further fish in the nearby water bodies.
-2071:Use the left mouse button to select the ware to trade
-2072:Use the right mouse button to select the ware to trade
-2073:From x%d
-2074:To x%d
-2075:Terrain editing
-2076:Village planning
-2077:Visual scripts
-2078:Global scripting
-2079:Menu
-2080:Status:
-2081:Player name
-2082:CREATE SERVER
-2083:Name
-2084:Port
-2085:Create Local Server
-2086:Create Internet Server
-2087:Server name
-2088:State
-2089:Players
-2090:Ping
-2091:Refresh Server List
-2092:SERVER DETAILS
-2093:Player list:
-2094:Address
-2095:Port
-2096:Room
-2097:Join
-2098:Connecting, please wait ...
-2099:Loading announcements...
-2100:Refreshing...
-2101:Players list
-2102:Start location
-2103:Team
-2104:Flag colour
-2105:Ready
-2106:Ping
-2107:Kick
-2108:Open
-2109:AI Player
-2110:Select...
-2111:Random
-2112:None
-2113:None
-2114:Team %d
-2116:Post message:
-2117:Map type
-2118:Single Map
-2119:Saved Game
-2120:Select a map...
-2121:Select a save...
-2122:Map info:
-2123:Players: %d
-2124:Mode:
-2125:Conditions:
-2126:Size:
-2127:Quit lobby
-2128:Ready
-2129:Start!
-2130:Waiting for players:
-2131:KaM Remake Credits
-2132:Original Knights & Merchants Credits
-2133:PROGRAMMING:
-2134:ADDITIONAL PROGRAMMING:
-2135:ADDITIONAL GRAPHICS:
-2136:ADDITIONAL TRANSLATIONS:
-2137:SPECIAL THANKS TO:
-2138:Multiplayer maps
-2139:Singleplayer maps
-2140:Scroll speed
-2141:No servers found
-2142:Shuffle tracks
-2143:Game information:
-2144:-
-2145:Lobby
-2146:Loading
-2147:Game
-2148:Location %d
-2149:Building and Fighting
-2150:Fighting
-2151:Not ready
-2152:Ready
-2153:Error: Please select a player from the save to control
-2154:Error: Map failed to load or no map selected
-2155:Cannot start: %s
-2156:Not everyone is ready to start
-2157:Player count exceeds map limit
-2158:Wrong protocol version: %s. Server uses: %s
-2159:Server has assigned hosting rights to us
-2160:Increase trade amount
-2161:Decrease trade amount
-2162:Saving game...
-2163:%s was defeated!
-2164:ADDITIONAL SOUNDS:
-2165:Drop Players
-2166:The host will be allowed to drop these players after %d seconds
-2167:The host is now allowed to drop these players
-2168:The host (%s) has quit
-2169:The connection to the server was lost. Attempting to reconnect...
-2170:Are you sure you want to quit?
-2171:Are you sure you want to permanently drop these players?
-2172:Cancel
-2173:Citizens|trained
-2174:Citizens|lost
-2175:Soldiers|equipped
-2176:Soldiers|lost
-2177:Units|defeated
-2178:Buildings|constructed
-2179:Buildings|lost
-2180:Buildings|destroyed
-2181:Wares|produced
-2182:Weapons|produced
-2183:Trading this resource is not available in this mission
-2184:Plant and fell
-2185:Fell only
-2186:Game started
-2187:Building Map
-2188:Fighting Map
-2189:Co-operative Map
-2190:You are not allowed to do that during peacetime
-2191:Peacetime remaining: %s
-2192:Peacetime is over. To thy weapons!
-2193:Game time:|%s
-2194:Game options:
-2195:H
-2196:L
-2197:S
-2198:Halt troop ('%s')
-2199:Link up troop ('%s')
-2200:Separate troop ('%s')
-2201:Replay Viewer
-2202:View Replay
-2203:Peacetime (minutes)
-2204:Unsupported format %s
-2205:Unsupported version %s
-2207:initializing
-2208:multiplayer initialization
-2209:script
-2210:New Mission
-2211:An error has occurred while parsing the file %s
-2212:Closed
-2213:Host does player setup
-2214:additional sprites
-2215:units
-2216:houses
-2217:trees
-2218:definitions
-2219:tileset
-2220:Soft shadows
-3001:Create Server
-3002:FIND SERVER
+147:To selection of buildings
+148:To distribution of wares
+149:To statistics
+150:To options
+151:Go back
+152:Building|Selection
+153:Distribution|of Wares
+154:Statistics
+155:Options
+156:Load Game
+157:Save Game
+158:Are you sure you|want to quit|this mission?
+159:Quit Mission
+160:Go Back
+161:Settings
+162:Quit Mission
+163:SFX
+164:Change volume
+165:Music
+166:Music on/off
+167:Autosave
+168:Music Player
+169:Previous track
+170:Next track
+171:Demolish
+172:Remove buildings/highlights
+173:Construct road
+174:Construct roads
+175:Plough field
+176:Plough fields
+177:Lay out wine field
+178:Lay out wine fields
+179:Cancel
+180:Cancel current training
+181:Needs:
+182:Condition:
+183:Delivers
+184:House under|construction
+185:Destroy
+186:Do you really want to|demolish this building?
+187:Destroy selected building
+188:Decrease order amount
+189:Increase order amount
+190:Previous soldier type
+191:Next soldier type
+192:Equip current soldier type
+193:Next profession
+194:Previous profession
+195:Add to queue
+196:Switch on/off delivery of wares
+197:Switch on/off house repair
+198:Building not available at this time
+199:Condition
+200:Turn troop left
+201:Turn troop right
+202:Attack ('a')
+203:Dispatch troop ('d')
+204:Supply troop with food
+205:Start storm attack
+206:Add line
+207:Withdraw line
+208:Select|group
+209:Cancel
+210:Delete
+211:Deletes current message
+212:Go to
+213:Jumps to current message position
+214:Close
+215:Closes window
+216:|Your stonemason cannot get any further supplies of stone.
+217:|Your coal mine seams are exhausted.
+218:|Your iron mine veins are exhausted.
+219:|Your gold mine veins are exhausted.
+220:|This house is not occupied.
+221:|This troop is really hungry, they better get something to eat real soon!
+222:PAUSE
+418:Spirit
+419:Busy
+420:Middle Ages Horn
+421:Spring
+422:Lute
+423:Mercenary
+424:The Princess
+425:The Queen
+426:In the Marketplace
+427:On the Battlefield
+428:Court Dance
+429:The Army
+430:In the Castle
+431:Fanfares
+432:At Court
+433:Entree
+434:Deep Blue
+435:Struggle
+436:Royal Quarters
+437:Aristocracy
+438:At the Harbor
+439:Journey
+847:Campaign 'The Shattered Kingdom'
+848:Campaign 'The Peasants Rebellion'
+849:Play Single Map
+850:Start Map
+851:Back to Menu
+852:Load Saved Game
+853:Multiplayer
+854:Options
+855:Credits
+856:Exit Game
+857:Continue
+858:Restart Mission
+859:Resolution:
+860:VICTORY!
+861:DEFEAT!
+862:Units lost:
+863:Units defeated:
+864:Buildings lost:
+865:Buildings destroyed:
+866:Buildings constructed:
+867:Units trained:
+868:Weapons produced:
+869:Soldiers trained:
+870:Mission completed in:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+1686:Mission canceled
+1687:Town Tutorial
+1688:Battle Tutorial
+1689:Single Player
+1690:Map Editor
+1691:View Last Replay
+1692:Start Mission
+1693:Title
+1694:Size
+1695:Mission type: %s
+1696:Win condition: %s
+1697:Defeat condition: %s
+1698:Allies:
+1699:Enemies:
+1701:New map size
+1702:Width
+1703:Height
+1704:Create New Map
+1705:Available maps
+1706:Load Existing Map
+1707:Controls:
+1708:Gameplay:
+1709:Sound:
+1710:Disable music
+1711:Graphics:
+1712:Brightness
+1713:Fullscreen
+1714:Apply
+1715:Language:
+1716:Loading... Please wait
+1717:An Error Has Occurred!
+1718:Loading new locale
+1719:List of savegames
+1720:File name
+1721:Description
+1722:Load
+1723:Delete
+1724:Are you sure you want to delete this save?
+1725:Delete
+1726:Cancel
+1728:You've won!
+1729:Continue playing
+1730:Victory!
+1731:You've lost!
+1732:Continue watching
+1733:Defeat
+1734:Replay has ended
+1735:Continue Watching
+1736:Quit to Menu
+1737:Not available
+1738:Press %s to resume the game
+1739:To team
+1740:Players info
+1741:Chat
+1742:Save already exists
+1743:Overwrite
+1744:Save
+1745:Load
+1746:An error has occurred during gameplay.
+1747:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!
+1748:Old OpenGL version detected, game may run slowly and/or with graphic flaws
+1749:Network error:
+1750:Error: Player name must not be blank
+1751:Connection failed: %s
+1752:You have disconnected
+1753:Mission %d
+1754:Your fisherman's hut is too far away from the water.
+1755:Your fisherman cannot catch any further fish in the nearby water bodies.
+1757:Use the left mouse button to select the ware to trade
+1758:Use the right mouse button to select the ware to trade
+1759:From x%d
+1760:To x%d
+1761:Terrain editing
+1762:Village planning
+1763:Visual scripts
+1764:Global scripting
+1765:Menu
+1766:Status:
+1767:Player name
+1768:CREATE SERVER
+1769:Name
+1770:Port
+1771:Create Local Server
+1772:Create Internet Server
+1773:Server name
+1774:State
+1775:Players
+1776:Ping
+1777:Refresh Server List
+1778:SERVER DETAILS
+1779:Player list:
+1780:Address
+1781:Port
+1782:Room
+1783:Join
+1784:Connecting, please wait ...
+1785:Loading announcements...
+1786:Refreshing...
+1787:Players list
+1788:Start location
+1789:Team
+1790:Flag colour
+1791:Ready
+1792:Ping
+1793:Kick
+1794:Open
+1795:AI Player
+1796:Select...
+1797:Random
+1798:None
+1799:None
+1800:Team %d
+1802:Post message:
+1803:Map type
+1804:Single Map
+1805:Saved Game
+1806:Select a map...
+1807:Select a save...
+1808:Map info:
+1809:Players: %d
+1810:Mode:
+1811:Conditions:
+1812:Size:
+1813:Quit lobby
+1814:Ready
+1815:Start!
+1816:Waiting for players:
+1817:KaM Remake Credits
+1818:Original Knights & Merchants Credits
+1819:PROGRAMMING:
+1820:ADDITIONAL PROGRAMMING:
+1821:ADDITIONAL GRAPHICS:
+1822:ADDITIONAL TRANSLATIONS:
+1823:SPECIAL THANKS TO:
+1824:Multiplayer maps
+1825:Singleplayer maps
+1826:Scroll speed
+1827:No servers found
+1828:Shuffle tracks
+1829:Game information:
+1830:-
+1831:Lobby
+1832:Loading
+1833:Game
+1834:Location %d
+1835:Building and Fighting
+1836:Fighting
+1837:Not ready
+1838:Ready
+1839:Error: Please select a player from the save to control
+1840:Error: Map failed to load or no map selected
+1841:Cannot start: %s
+1842:Not everyone is ready to start
+1843:Player count exceeds map limit
+1844:Wrong protocol version: %s. Server uses: %s
+1845:Server has assigned hosting rights to us
+1846:Increase trade amount
+1847:Decrease trade amount
+1848:Saving game...
+1849:%s was defeated!
+1850:ADDITIONAL SOUNDS:
+1851:Drop Players
+1852:The host will be allowed to drop these players after %d seconds
+1853:The host is now allowed to drop these players
+1854:The host (%s) has quit
+1855:The connection to the server was lost. Attempting to reconnect...
+1856:Are you sure you want to quit?
+1857:Are you sure you want to permanently drop these players?
+1858:Cancel
+1859:Citizens|trained
+1860:Citizens|lost
+1861:Soldiers|equipped
+1862:Soldiers|lost
+1863:Units|defeated
+1864:Buildings|constructed
+1865:Buildings|lost
+1866:Buildings|destroyed
+1867:Wares|produced
+1868:Weapons|produced
+1869:Trading this resource is not available in this mission
+1870:Plant and fell
+1871:Fell only
+1872:Game started
+1873:Building Map
+1874:Fighting Map
+1875:Co-operative Map
+1876:You are not allowed to do that during peacetime
+1877:Peacetime remaining: %s
+1878:Peacetime is over. To thy weapons!
+1879:Game time:|%s
+1880:Game options:
+1881:H
+1882:L
+1883:S
+1884:Halt troop ('%s')
+1885:Link up troop ('%s')
+1886:Separate troop ('%s')
+1887:Replay Viewer
+1888:View Replay
+1889:Peacetime (minutes)
+1890:Unsupported format %s
+1891:Unsupported version %s
+1893:initializing
+1894:multiplayer initialization
+1895:script
+1896:New Mission
+1897:An error has occurred while parsing the file %s
+1898:Closed
+1899:Host does player setup
+1900:additional sprites
+1901:units
+1902:houses
+1903:trees
+1904:definitions
+1905:tileset
+1906:Soft shadows
+2687:Create Server
+2688:FIND SERVER
+2689:Find Server
+2690:Find Server
+2691:Find Server
+2692:Find Server
+2693:Find Server
+2694:Find Server
+2695:Find Server
+2696:Find Server
+2697:Find Server
+2698:Find Server
+2699:Find Server
+2700:Find Server
+2701:Find Server
+2702:Find Server
+2703:Find Server
+2704:Find Server
+2705:Find Server
+2706:Find Server
+2707:Find Server
+2708:Find Server
+2709:Find Server
+2710:Find Server
+2711:Find Server
+2712:Find Server
+2713:Find Server
+2714:Find Server
+2715:Find Server
+2716:Find Server
+2717:Find Server
+2718:Find Server
+2719:Find Server
+2720:Find Server
+2721:Find Server
+2722:Find Server
+2723:Find Server
+2724:Find Server
+2725:Find Server
+2726:Find Server
+2727:Find Server
+2728:Find Server
+2729:Find Server
+2730:Find Server
+2731:Find Server
+2732:Find Server
+2733:Find Server
+2734:Find Server
+2735:Find Server
+2736:Find Server
+2737:Find Server
+2738:Find Server
+2739:Find Server
+2740:Find Server
+2741:Find Server
+2742:Find Server
+2743:Find Server
+2744:Find Server
+2745:Find Server
+2746:Find Server
+2747:Find Server
+2748:Find Server
+2749:Find Server
+2750:Find Server
+2751:Find Server
+2752:Find Server
+2753:Find Server
+2754:Find Server
+2755:Find Server
+2756:Find Server
+2757:Find Server
+2758:Find Server
+2759:Find Server
+2760:Find Server
+2761:Find Server
+2762:Find Server
+2763:Find Server
+2764:Find Server
+2765:Find Server
+2766:Find Server
+2767:Find Server
+2768:Find Server
+2769:Find Server
+2770:Find Server
+2771:Find Server
+2772:Find Server
+2773:Find Server
+2774:Find Server
+2775:Find Server
+2776:Find Server
+2777:Find Server
+2778:Find Server
+2779:Find Server
+2780:Find Server
+2781:Find Server
+2782:Find Server
+2783:Find Server
+2784:Find Server
+2785:Find Server
+2786:Find Server
+2787:Find Server
+2788:Find Server
+2789:Find Server
+2790:Find Server
+2791:Find Server
+2792:Find Server
+2793:Find Server
+2794:Find Server
+2795:Find Server
+2796:Find Server
+2797:Find Server
+2798:Find Server
+2799:Find Server
+2800:Find Server
+2801:Find Server
+2802:Find Server
+2803:Find Server
+2804:Find Server
+2805:Find Server
+2806:Find Server
+2807:Find Server
+2808:Find Server
+2809:Find Server
+2810:Find Server
+2811:Find Server
+2812:Find Server
+2813:Find Server
+2814:Find Server
+2815:Find Server
+2816:Find Server
+2817:Find Server
+2818:Find Server
+2819:Find Server
+2820:Find Server
+2821:Find Server
+2822:Find Server
+2823:Find Server
+2824:Find Server
+2825:Find Server
+2826:Find Server
+2827:Find Server
+2828:Find Server
+2829:Find Server
+2830:Find Server
+2831:Find Server
+2832:Find Server
+2833:Find Server
+2834:Find Server
+2835:Find Server
+2836:Find Server
+2837:Find Server
+2838:Find Server
+2839:Find Server
+2840:Find Server
+2841:Find Server
+2842:Find Server
+2843:Find Server
+2844:Find Server
+2845:Find Server
+2846:Find Server
+2847:Find Server
+2848:Find Server
+2849:Find Server
+2850:Find Server
+2851:Find Server
+2852:Find Server
+2853:Find Server
+2854:Find Server
+2855:Find Server
+2856:Find Server
+2857:Find Server
+2858:Find Server
+2859:Find Server
+2860:Find Server
+2861:Find Server
+2862:Find Server
+2863:Find Server
+2864:Find Server
+2865:Find Server
+2866:Find Server
+2867:Find Server
+2868:Find Server
+2869:Find Server
+2870:Find Server
+2871:Find Server
+2872:Find Server
+2873:Find Server
+2874:Find Server
+2875:Find Server
+2876:Find Server
+2877:Find Server
+2878:Find Server
+2879:Find Server
+2880:Find Server
+2881:Find Server
+2882:Find Server
+2883:Find Server
+2884:Find Server
+2885:Find Server
+2886:Find Server
+2887:Find Server
+2888:Find Server
+2889:Find Server
+2890:Find Server
+2891:Find Server
+2892:Find Server
+2893:Find Server
+2894:Find Server
+2895:Find Server
+2896:Find Server
+2897:Find Server
+2898:Find Server
+2899:Find Server
+2900:Find Server
+2901:Find Server
+2902:Find Server
+2903:Find Server
+2904:Find Server
+2905:Find Server
+2906:Find Server
+2907:Find Server
+2908:Find Server
+2909:Find Server
+2910:Find Server
+2911:Find Server
+2912:Find Server
+2913:Find Server
+2914:Find Server
+2915:Find Server
+2916:Find Server
+2917:Find Server
+2918:Find Server
+2919:Find Server
+2920:Find Server
+2921:Find Server
+2922:Find Server
+2923:Find Server
+2924:Find Server
+2925:Find Server
+2926:Find Server
+2927:Find Server
+2928:Find Server
+2929:Find Server
+2930:Find Server
+2931:Find Server
+2932:Find Server
+2933:Find Server
+2934:Find Server
+2935:Find Server
+2936:Find Server
+2937:Find Server
+2938:Find Server
+2939:Find Server
+2940:Find Server
+2941:Find Server
+2942:Find Server
+2943:Find Server
+2944:Find Server
+2945:Find Server
+2946:Find Server
+2947:Find Server
+2948:Find Server
+2949:Find Server
+2950:Find Server
+2951:Find Server
+2952:Find Server
+2953:Find Server
+2954:Find Server
+2955:Find Server
+2956:Find Server
+2957:Find Server
+2958:Find Server
+2959:Find Server
+2960:Find Server
+2961:Find Server
+2962:Find Server
+2963:Find Server
+2964:Find Server
+2965:Find Server
+2966:Find Server
+2967:Find Server
+2968:Find Server
+2969:Find Server
+2970:Find Server
+2971:Find Server
+2972:Find Server
+2973:Find Server
+2974:Find Server
+2975:Find Server
+2976:Find Server
+2977:Find Server
+2978:Find Server
+2979:Find Server
+2980:Find Server
+2981:Find Server
+2982:Find Server
+2983:Find Server
+2984:Find Server
+2985:Find Server
+2986:Find Server
+2987:Find Server
+2988:Find Server
+2989:Find Server
+2990:Find Server
+2991:Find Server
+2992:Find Server
+2993:Find Server
+2994:Find Server
+2995:Find Server
+2996:Find Server
+2997:Find Server
+2998:Find Server
+2999:Find Server
+3000:Find Server
+3001:Find Server
+3002:Find Server
 3003:Find Server
 3004:Find Server

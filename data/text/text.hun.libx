@@ -103,651 +103,338 @@ MaxID:3004
 110:A kovács készíti a |nehézfegyvereket és|-páncélokat a mûhelyekben.
 111:Az kohász arany-|rudakat és nyersvasat|önt az ércekbõl.
 112:Az újoncok az erõdben,|felszerelésük után|válnak katonákká.||Õk teljesítenek szolgálatot|az õrtornyokban is.
-113:Nemzetõr
-114:Fejszés
-115:Kardforgató
-116:Íjász
-117:Számszeríjász
-118:Lándzsás
-119:Pikás
-120:Felderítõ
-121:Lovag
-122:Farkas
-123:Hal
-124:Hal
-159:Építmények
-160:Áruelosztás
-161:Statisztika
-162:Üzenetek
-163:Opciók
-164:Vissza
-165:Építmény|kiválasztása
-166:Áruk|elosztása
-167:Statisztika
-168:Üzenetek
-169:Opciók
-170:Beállítások
-171:Játék betöltése
-172:Játék|kimentése
-173:Játék betöltése
-174:Játék kimentése
-175:Valóban|ki akarsz lépni|ebbõl a küldetésbõl?
-176:Kilépés
-177:Vissza
-178:Beállítások
-179:Kilépés
-180:Sötétítés
-181:+
-182:-
-183:Világosítás
-184:Sötétítés
-185:Nagyon sötét
-186:Sötét
-187:Normál
-188:Világos
-189:Nagyon világos
-190:Legvilágosabb
-191:Egér sebessége
-192:Egér sebesség beállítása
-193:Hangok
-194:Hangerõ
-195:Zene
-196:Zene:
-197:Zene be/ki
-198:Ki
-199:MIDI
-200:Be
-201:Üres
-202:Automata mentés
-203:Gyors scroll
-204:Feladat %d Ideje:%2.2u:%2.2u
-205:Küldetés %d Ideje:%2.2u:%2.2u
-206:Zenelejátszó
-207:Elõzõ zene
-208:Következõ zene
-209:Lerombol
-210:Épület kijelölés megszüntetése
-211:Útépítés
-212:Útépítés
-213:Szántás
-214:Földmûvelés
-215:Kerítésácsolás
-216:Kerítés
-217:Szõlõtelepítés
-218:Szõlõtelepítés
-219:Fal építése
-220:Fal
-221:Gyakorlat
-222:A kiválasztott egység gyakorlatozik
-223:Mégsem
-224:Gyakorlat leállítása
-225:|gyakorlaton
-226:Szükséges:
-227:Állapot:
-228:Szállít
-229:Építés alatt
-230:Lerombolás
-231:Valóban lerombolod|ezt az épületet?
-232:A kijelölt épület lerombolása
-233:Mennyiség csökkentése
-234:Mennyiség növelése
-235:Raktárkészlet:
-236:Elõzõ egység
-237:Következõ egység
-238:Felszerelés
-239:Az aktuális egység felszerelése
-240:Következõ szakma
-241:Elõzõ szakma
-242:Beállít a sorba
-243:Következõ zsoldos
-244:Elõzõ zsoldos
-245:Zsoldos felfogadása
-246:Toborzás:
-247:Zsold:
-248:Áruszállítás be/ki
-249:Épületjavítás be/ki
-250:Most nem építhetõ
-251:A demóban nem elérhetõ
-252:Nincs birtokba véve
-253:Jóllakottság
-254:Balra át!
-255:Jobbra át!
-256:Támadás! ('a')
-257:Csapat állj! ('h')
-258:Csapat mozgatása ('s')
-259:Csapatok összevonása ('v')
-260:Csapat szétválasztása ('l')
-261:Csapat élelmezése
-262:Roham indítása
-263:Alakzatban sorakozó
-264:Alakzatváltás
-265:Támadó:
-266:Védekezõ:
-267:Gyorsaság:
-268:Vár|választása
-269:Kilépés
-270:Jelöld ki a|helyet
-271:Jelöld ki a|csapatot
-272:Jelöld ki a|célpontot
-273:Kilépés
-274:Az egység nem elérhetõ Törlés
-275:Törlés
-276:Aktuális üzenet törlése
-277:Elküld
-278:Aktuális üzenet elküldése
-279:Oda lép
-280:Az aktuális üzenet helyszínére ugrik
-281:Bezár
-282:Ablak bezárása
-283:Ismét
-284:Üzenet ismétlése
-285:Jóváhagyás
-286:Új szövetséges
-287:baráti
-288:ellenséges
-289:|A kõfaragód nem képes több követ kifejteni.
-290:|Szénbányád kimerült.
-291:|Vasércbányád kimerült.
-292:|Aranybányád kimerült.
-293:|A horgász nem képes több halat kifogni.
-294:|Ez a ház nincs birtokba véve.
-295:|Ez a csapat valóban éhes, legjobb lenne gyorsan enni adni nekik!
-296:A nyersvas elosztásához
-297:Nyersvaselosztás
-298:A szén elosztásához
-299:A szén elosztása
-300:A gerenda elosztásához
-301:A gerenda elosztása
-302:A gabona elosztásához
-303:A gabona elosztása
-304:|Írd be az üzenet szövegét:
-305:Az üzenet címzettje '%s':|'%s'
-306:Szövetségesek:
-307:SZÜNET
-478:Hálózati üzenet:
-479:'%s' kilépett a játékból.|Nyomd meg a ~<~S~P~A~C~E~> a játék folytatásához.
-480:Most te vagy a szerver.|Nyomd meg a ~<~S~P~A~C~E~> a játék folytatásához.
-481:A számítógép adatokra vár. Nyomj egy ~<~S~P~A~C~E~>|az ismétléshez vagy ~<~F~1~> a kilépéshez.
-499:Új inasok képzésére lehet szükséged az iskolában, erre mindig tartalékolj elegendõ aranyat.
-500:Az építkezés megkezdéséhez kattints a bal egérgombbal a kalapács ikonra, ami a képernyõ bal oldalán található. Ezután kattints a könyv ikonra (az iskola jele). Helyezd el az iskola alapját a játéktéren, ahova akarod, és ahova lehetséges is, majd bal egérgombbal kezdd el az építkezést.
-501:Ha elhelyezted az iskolát, az 'Útépítés' opcióra vált a program. A bal egérgomb használatával, négyzetenként építsd meg az utat az iskola és a raktár között. Emlékezz, az utakat mindig az épületek ajtajáig kell megépíteni!
-502:Hogy a lakosokat kiképezd, bal egérgombbal kattints az iskola épületére, és a 'Következõ szakma' gombra kattintva válaszd ki, melyik foglalkozásra szeretnéd betanítani az aktuális városlakót. Ezután kattints a 'Beállít a sorba' gombra. Az emberek automatikusan megkezdik a feladataikat.
-503:Embereidnek enniük is kell idõnként, ezért építs egy fogadót számukra a központban, egy jól megközelíthetõ helyre.
-504:A házak és utak építéséhez kõre van szükséged. Építs egy kõfejtõt a sziklák közelében. Ezután képezz ki egy kõfaragót, aki biztosítja az alapanyagot az építkezéshez.
-505:A házak és utak építéséhez nemcsak kõre, hanem gerendákra is szükséged van. A favágó kitermeli és telepíti az erdõt, ellátva fával a fûrészmalmot. Kunyhóját mindig építsd az erdõ közelébe.
-506:Építs egy fûrészmalmot, hogy gerendát készíthess a farönkökbõl. Miután elkészült, küldj ide egy asztalost dolgozni.
-507:Ha elegendõ készletet gyûjtöttél az építkezésekhez, koncentrálj az élelem mielõbbi megtermelésére.|Építs egy horgászházat, közel a vízhez, hogy minél elõbb a fogadóba kerüljön a friss hal.
-508:Remek, de emlékezz, minél több halat fog ki a horgász, annál messzebb kell mennie a kifogható halakért. Katonáid nem esznek halat.|Hogy minél több istállót tudj fenntartani, elég földmûves házának kell a közelben lennie, elegendõ szántófölddel.
-509:Nagyjából 16 mezõnyi szántót kell kijelölni, lehetõleg a földmûves házának közelében.|Most építs egy malmot a learatott gabona megõrléséhez.
-510:Nagyszerû, most építs egy pékséget, amely friss kenyérrel látja el a fogadót. Mindig legyen elég inasod a szállításhoz, hogy gyorsan eljussanak az áruk a különbözõ épületekbe.
-511:Az alattvalóknak jut hal és kenyér, most már csak a szomjukat kell csillapítani.|Egy pincészet mellé 16 szõlõtõkét ültess, amit majd a vincellér fog leszüretelni.
-512:Remekül haladsz, de a szorgalmas alattvalók többet érdemelnek a kenyérnél és a bornál. Húst és nyersbõrt állíthatsz elõ, ha sertéshízlaldát építesz, ahol az állattenyésztõ fog dolgozni.
-513:A sertéseket a vágóhídon dolgozó hentes fogja feldolgozni, így válik a sertésbõl kolbász.
-514:Most, hogy biztosítottad az elegendõ élelmet, a hosszú távú fegyverkezés a következõ célod. Kezdd az erõd építésével, az arra alkalmas helyen.
-515:A 'Következõ egység' és az 'Elõzõ egység' gombokkal tudod kiválasztani, hogy milyen típusú katonát képezz ki. A tárgyak körüli világos négyzet jelzi, mi szükséges a kiválasztott katona kiképzéséhez.
-516:Ha van újonc az erõdben, már csak a felszerelést kell nekik biztosítani. Lehetõleg az erõd közelébe építsd a fegyverkészítõket, a minél gyorsabb szállítás érdekében.
-517:A termelés fokozásához bal egérgombbal kattints a fegyvermûhelyre, majd szintén bal egérgombbal kattints a 'Mennyiség növelése' gombra. Mindig figyelj arra, hogy az asztalosnak elegendõ gerenda álljon rendelkezésére.
-518:Megfelelõ és elegendõ felszerelés nélkül katonáidat le fogják mészárolni a harcmezõn.|Hogy katonáidnak páncélt készíts, elõször is szükséged lesz egy tímármûhelyre, a nyers bõrök elõkészítéséhez.
-519:Most, hogy van cserzett bõr, a páncélmûhelyben dolgozzák fel azt. Itt az asztalos bõrpáncélt és fapajzsokat készít.
-520:Kitûnõ! Minden fontosabb épülettel rendelkezel, a város fejlõdésnek indulhat, és új sereget is felállíthatsz. Ha minden szükséges felszerelést elõállítottál, és az iskolában kiképezted az újoncokat, már csak 'Az aktuális egység felszerelése' gombra kell kattintanod.
-521:A következõ célod az, hogy megsemmisítsd a közelben lévõ két ellenséges tábort. A kék ellenfél jól megerõsített bázisa délen terül el, míg a zöld ellenség keletre található, és kevesebb katonája van. Készítsd fel csapataidat, mielõtt megpróbálsz belovagolni az ellenséges területre!
-522:|A kék játékos vesztett!
-523:|A zöld játékos vesztett!
-524:Mielõtt megtámadod nyugati ellenségeidet, meg kell ölni az északi járõröket! Ha bal egérgombbal kattintasz a lándzsásaidra, majd jobb egérgombbal az ellenségre, akkor csapataid támadásba lendülnek.
-525:Egy csapat íjász várakozik délnyugatra. Támadd meg õket a nemzetõrökkel, de figyelj, mikor adod ki a parancsot! Ha rossz idõben támadsz, az ellenség nyilai hatalmas veszteségeket okozhatnak!
-526:Támadd meg a nyugatabbra állomásozó sereget! Figyelj az ellenség íjászaira, õket általában a gyalogság védi! Küldd csapataidat északra, hogy megkerüljék az ellenséget, és úgy támadd meg õket!
-527:Most minden katonáddal meg kell rohamoznod az ellenfelet! Íjászaidat vezényeld a gyalogság mögé, akik megvédik õket. Ha gyõzelmet aratsz, a harcokról szóló oktató rész véget ér.
-529:Sürgõsen új nemzetõr egységet kell felállítanod! Ha nem sikerül, védtelenné válhatsz az ellenséges támadással szemben!
-530:A kémjelentés szerint az ellenség támadásra készül ellened. Becsülettel forgasd a kardot, hogy visszaverd õket!
-531:Dolgaid jól haladnak, de szükséged van a terjeszkedésre. Mikor elérkezettnek látod a helyzetet, szorítsd be az ellenséget saját odújába, és törd meg az ellenállását!
-532:Bármi áron meg kell védened bátor szövetségeseidet, Lauenburg csapatait!
-533:Védd meg csapataidat a semmirekellõ ellenséges lovasság támadásával szemben! Különben nem kerülhetsz többé szövetségeseid szeme elé!
-534:Az északi falu nyíltan hitet tett a zsarnokság mellett. Talán ezt saját elõnyödre fordíthatod.
-535:Hûséges felderítõink felfedeztek egy elhagyott raktárat. Nyugaton áll, egy fácskához közel, bizonyára találsz benne néhány használható dolgot.
-536:Elfogtunk és kivallattunk egy ellenséges kémet. Tudva azt, hogy az ellenség felfedezte állásainkat, jobb eséllyel készülhetünk fel a támadásra.
-537:Szentelj egy rövid idõt soraid rendezésére, mielõtt nyakadba szakadnak a barbárok, vagy a gazfickók könnyen rést ütnek védelmeden.
-538:Fegyverbe!|Hatalmas ellenséges erõ közeledik!
-539:Jól használd fel seregeidet, az ellenség túlerõben van! Viharként támadj, vagy sosem ismered meg a gyõzelem ízét!
-540:Miénk a gyõzelem, de a bosszú ideje még nem érkezett el. Walheim újjáépítése után megfizetünk a sötét lelkû kutyáknak ocsmány tetteikért!
-541:Vas nélkül nincs fegyver, fegyver nélkül nincs harcos! Északon megtalálod, amire szükséged van. Készülj fel az északi bányák elfoglalására!
-542:A déli faluban a jónép még elviseli a zsarnokságot, de félõ, hogy elveszítik tûrõképességüket. Segíts a büszke parasztoknak, nem fogod megbánni!
-543:Egy elhagyott raktár van a közelben. Sebesen vágtass oda, kemény próba vár rád, de úgy vélem, megéri az, amit ott találsz.
-544:Bátor felderítõid jelentették, hogy egy nagy ellenséges sereg támadásának célpontja az elhagyott raktár. Tartanod kell a helyet, meggátolva elõrenyomulásukat! Harcolj sziklaszilárdan, bátor szívvel!
-545:Egy újabb alattomos támadás készül a raktár ellen. Készülj fel az ütközetre!
-546:Az ellenség minden erejét összegyûjtve próbál kitörni, hiábavaló kísérletet téve legyõzésedre. Daráld le õket, az utolsó emberig! Azután vélhetõen már semmi nem állhat dicsõséges elõrenyomulásod útjába.
-547:Még nem roppant össze a zsarnok bátor csapásaid alatt. Rendíthetetlen szövetségeseid hûek maradtak hozzád, valóban az oldaladon állnak. Az elsõ támadás után számíthatsz rájuk, manõvereidet egységeikkel összehangoltan hajthatod végre.
-549:Az ellenséges sereg nagyobb, mint gondoltuk. Szerelj fel újabb egységeket az erõdben!
-550:Hogy megszabadítsd a telepeseket a hódítóktól, az összes katonával végezned kell. Ez, úgy vélem, elegendõ a gyõzelemhez. Ezután a település csatlakozni fog hozzánk.
-551:A lázadók között ártatlan városlakók is vannak. Lehetõleg hagyd õket és településüket békében élni, õk nem az ellenségeid. Koncentrálj az ellenséges katonákra és hadi utánpótlásaikra.
-552:Bármi áron meg kell védened a déli falut az ellenséges támadástól!
-553:Kémeid ellenséges elõrenyomulást észleltek déli táborod irányában. Védd meg értékeidet és raktáraidat!
-554:Egy ellenséges sereg fürkészi a déli végeket! Légy résen!
-555:Több ellenséges csapat körbezárt nyugat felõl!
-556:Több zsoldost kellene toborozni utánpótlásként a városházán!
-557:A hátsó bejáraton esetleg könnyebben beszivároghatsz a várba.
-558:Egy ellenséges sereg az északnyugati hegyek felõl kifejezetten a bázisod irányába vonul.
-559:Az ellenség már felfedezte új állásaidat. Egy erõs zászlóalj rögvest támadásra indul kelet felõl.
-560:Figyelem! Ellenséges íjászokat láttak a környezõ dombokon.|Egy csata a szorosban a végünket jelentheti.
-561:Megérkeztünk a hûtlen lázadók utolsó erõdjéhez.|Minden ellenállóval végezned kell, becstelen emberek lakják az erõdítményt, egy árva lelket se hagyj életben, a nagy hadjárat a végéhez közeledik!
-562:Kémeink jelentették, hogy ellenségünk felfedezte tartózkodási helyünket, és támadást készül indítani. Még egyszer készítsd elõ megbízható kardodat, és mutasd meg a könyörtelen lázadóknak, hogy nem alkuszunk!
-569:Üres
-570:Spirit
-571:Busy
-572:Középkori kürt
-573:Tavasz
-574:Lant
-575:Zsoldos
-576:A Hercegnö
-577:A Királynö
-578:A piacon
-579:A csatamezön
-580:Udvari tánc
-581:A hadsereg
-582:A kastélyban
-583:Fanfárok
-584:Az Udvarban
-585:Föfogás
-586:Mélykék
-587:Csata
-999:unused
-1000:,Az elveszett királyság' hadjárat
-1001:,Parasztfelkelés' hadjárat
-1002:Oktató küldetés
-1003:Egyéni küldetés
-1004:Egyéni pálya
-1005:Elõzõ
-1006:Következõ
-1007:Játék indítása
-1008:Vissza a menübe
-1009:Játék betöltése
-1010:Hálózati játék
-1011:Opciók
-1012:Készítõk
-1013:Kilépés a programból
-1014:Üres
-1015:Játékmentések:
-1016:Tovább
-1017:A küldetés újrajátszása
-1018:A fõmenübe
-1019:Felbontás:
-1020:Nem elérhetõ
-1021:Játékmód kiválasztása
-1022:Helyi hálózat
-1023:Net-Games
-1024:Név:
-1025:Jelszó:
-1026:Új bejegyzések
-1027:Bejelentkezés
-1028:Bekapcsolva a Net-Games…
-1029:Azonosítás…
-1030:Rendben
-1031:Sikertelen
-1032:Sikertelen kapcsolódás
-1033:Rossz jelszó
-1034:A név már foglalt
-1035:A felhasználó letiltva
-1036:Helytelen felhasználónév
-1037:Meghatározatlan
-1038:Folyamatban
-1039:Helytelen paraméterek
-1040:A csatorna megtelt
-1041:A csatorna nem nyitható meg
-1042:Ehhez a csatornához nincs hozzáférés
-1043:Idõtúllépés
-1044:Túl sok a bejegyzés
-1045:A szerver jelenleg nem képes a regisztrációk fogadására
-1046:A felhasználónév helytelen
-1047:<COL 0>%s:<COL 1> %s|
-1048:<COL 0>%s %s|
-1049:<COL 2>%s bizalmas: %s|
-1050:<COL 3>Bizalmas üzenet %s: %s|
-1051:<COL 4>SERVER: %s|
-1052:<COL 4>SERVER: %s|
-1053:<COL 2>A nap üzenete: %s|
-1054:<COL 0>BROADCAST: %s|
-1055:<COL 3>%s belépett a csatornára|
-1056:<COL 3>%s kilépett a csatornáról|
-1057:<COL 3>Beléptél a csatornára <COL 0>%s<COL 3>|
-1058:<COL 3>Beléptél a játékba <COL 0>%s<COL 3>|
-1059:A fõmenühöz
-1060:Belép a csatornára
-1061:Belép a játékba
-1062:Játék létrehozása
-1063:Ranglistás játék (Ladder)
-1064:Kilépés a játékból
-1065:Játék indítása
-1066:Bizalmas
-1067:Kidob
-1068:Tilt
-1069:Info
-1070:Nyilvántartás
-1071:Vissza a névbeíráshoz
-1072:Kérlek, add meg a neved:
-1073:Tovább
-1074:Kilépés
-1075:Válaszd ki a hálózatot:
-1076:Belép a játékba
-1077:Játék létrehozása
-1078:Választott játék nevének beírása:
-1079:Játék indítása
-1080:Játék választása:
-1081:Csatlakozás egy játékhoz
-1082:Játékok keresése
-1083:Aktuális játékosok:
-1084:Üzenetek:
-1085:Elküld:
-1086:Rajta!
-1087:Névtelen
-1088:<Választható>
-1089:<Nem elérhetõ>
-1090:<Számítógép>
-1091: játéka
-1092:'%s' ~k~i~l~é~p~e~t~t ~a ~s~z~e~r~v~e~r~r~õ~l
-1093:Küldetés:
-1094:Elnevezés:
-1095:Leírás:
-1096:Jellemzõk:
-1097:Indulási pozíció
-1098:A szerver határozza meg|a küldetést.
-1099:Raktár
-1100:Raktár és csapatok
-1101:Csapatok és épületek
-1102:Sorrendben
-1103:Véletlenszerûen
-1104:Kimentés bemásolása
-1105:Az átvitel megszakadt
-1106:Átvitt: %d/100
-1107:Nincs kimentés %d
-1108:Játékosok:%d|Térképméret:%dx%d
-1109:Automatikus mentés
-1110:GYÕZELEM!
-1111:VERESÉG!
-1112:Elveszített egységek:
-1113:Legyõzött egységek:
-1114:Elveszített épületek:
-1115:Lerombolt épületek:
-1116:Felépített épületek:
-1117:Kiképzett egységek:
-1118:Gyártott fegyverek:
-1119:Kiképzett katonák:
-1120:Küldetés idõtartama:
-1149:Három földrész
-1150:Vadon
-1151:Harc a szénért
-1152:Folyópartok
-1153:Dombvidék
-1154:Hegység
-1155:Várostrom
-1156:Tengerparti csetepaté
-1157:Rajtaütés!
-1158:Híd katasztrófa
-1159:Bónusz küldetés 1
-1160:Bónusz küldetés 2
-1179:Át a sivatagon||Méret: 176x176|Ellenfelek száma: 5
-1180:Idegen földön||Méret: 176x176|Ellenfelek száma: 3
-1181:Hó és homok||Méret: 160x128|Ellenfelek száma: 5
-1182:A sebes folyó vidéke||Méret: 176x176|Ellenfelek száma: 3
-1183:Fekete arany||Méret: 176x176|Ellenfelek száma: 5
-1184:Hegyek között||Méret: 144x128|Ellenfelek száma: 3
-1185:A Sötétség birodalma||Méret: 176x176|Ellenfelek száma: 3
-1199:Játékos: 6|Térkép méret: 176x176|Építs egy várost
-1200:Játékos: 4|Térkép méret: 176x176|Építs egy várost
-1201:Játékos: 6|Térkép méret: 160x128|Építs egy várost
-1202:Játékos: 4|Térkép méret: 176x176|Építs egy várost
-1203:Játékos: 6|Térkép méret: 176x176|Építs egy várost
-1204:Játékos: 4|Térkép méret: 144x128|Építs egy várost
-1205:Játékos: 6|Térkép méret: 176x144|Építs egy várost
-1206:Játékos: 3|Térkép méret: 64x64|Csata
-1207:Játékos: 6|Térkép méret: 144x144|Csata
-1208:Játékos: 4|Térkép méret: 176x176|Építs egy várost
-1249:Az áruló csatlósai áttörték a|védelmünket. Az erõd elesett, és ha|nem zavarod el a gazfickókat, a|királyság elvész és a trónbitorló|gyõzedelmeskedik. Fegyverbe!
-1250:Gyõzelmed reményt adott számunkra.|Azonban nem jött még el a vigasság|ideje. Az ellenség visszavonult,|hogy a közeledben lévõ falut|megtámadja. Ott akarják rendezni|soraikat. A herceg hamarosan újra|ellenünk indul. Rablóhada messze|meghaladja maroknyi csapatod|erejét. Tartsd féken haragodat, és|ne engedd, hogy nyílt csatába|csaljanak. A terep alkalmas a|védekezésre, és ez neked kedvez. Az|ellenségnek elõbb a szûk gázlónál|át kell kelnie a folyón. Ha ott|támadod meg õket, csekély erõvel is|felveheted velük a harcot.
-1251:Emlékezetes nap ez a mai! A lázadó|herceg rablóhada fut, mint a|megriadt nyúl. Lauenburg báró|uradalmába vezetõ út megnyílt|elõtted. Lauenburg bárója, ez a|csibész, szövetséget kötött az|ellenséggel, ezért szembe kell|szállnod az útközben felbukkanó|csavargókkal.
-1252:Az ellenség bizony csõdöt mondott,|amikor meg akarta állítani a|királyhoz hû erõk elõrenyomulását.|Lauenburg bárója futva menekült|megmaradt katonáival, remegve|várják támadásunkat. Uradalmának|lakói kitörõ örömmel fogadtak|bennünket. Most elérkezett a remek|alkalom, hogy megerõsítsd seregedet,|és foglyul ejtsd Lauenburgot. Ha|legyõzöd a bárót, a jeles esemény|az összes árulónak komoly|figyelmeztetésül szolgál majd.
-1253:Lauenburg báró megadta magát, és|királyunk bocsánatát is elnyerte,|hiszen igazi megbánást tanúsított|rút cselekedetei miatt. Következõ|feladatod Moorbach bevétele lesz.|Kémeink felfedeztek egy elhagyott|erõdítményt, amelyet|felhasználhatsz és átalakíthatsz|saját igényeidnek megfelelõen.|Most, hogy Lauenburg a|szövetségesünk, a báró katonái|veszélyben vannak. Védd meg a|csapatait bármi áron. Ez megerõsíti|majd a bizalmat köztünk és|szövetségesünk közt, és esélyt ad,|hogy általuk gyengécske sereged|megerõsödjék.
-1254:Moorbach elesett, most már a miénk.|Az ellenséget letiportuk és|szétszórtuk. Kémeink most arról|értesítettek bennünket, hogy egy új|rablóhad formálódik északnyugat|felé. Meg akarják bosszulni|Moorbach elestét. Akárhogy is|legyen, elég erõsek vagyunk immár,|hogy bátran a harc mezejére|lépjünk. Meglepetésszerûen meg kell|támadnod azt a sereget, mielõtt|összeszedik magukat. Számíthatsz|Lauenburg lándzsásaira is, akik|ugyan nem nagy számban, de annál|lelkesebben csatlakoztak ügyünkhöz.
-1255:A gyõzelmeidrõl szálló hírek,|bizony mondom, sebesen terjednek|szerte a királyságban. A közemberek|mindenütt fellázadnak kényuraik|ellen. Walheim észak felé fekszik,|és még mindig az ellenség kezén|van. Walheim Ura kiutasította|követeinket, és mindennek tetejébe|megesküdött, hogy az utolsó szál|emberig védeni fogja a várost. Az|erõdödhöz közel esõ egyik apró falu|népe megelégelte a zsarnok|tevékenységét. E jóemberek látják|majd el seregedet fegyverekkel és|regrutákkal. Bizton állíthatom, egy|ilyen jelentõs és jól felszerelt|sereggel nem lesz nehéz Walheim|bevétele.
-1256:A Walheim-i csata felemésztette|erõtartalékaidat, ez zûrzavart|okozott a birodalomban. A vad|Északi Törzsek összeálltak, hogy a|királyságra törjenek. Meg kell|állítanod õket, mielõtt harcba|bocsátkoznál a lázadókkal. Walheim|romjai közt megtalálod egy nagyon|fejlett õrtorny építésének terveit.|Erõs védelmet kell építened a|barbárok ellen, és a földbe kell|döngölnöd mindet!
-1257:A barbárok egymással vetekednek.|Próbálj élni az álruha és a|meggyõzés eszközével, hogy két|vezérüket magunk mellé állítsuk, és|a harcosaik a mi oldalunkat|erõsítsék. A megvédendõ hely|ezúttal nem okozhat gondot. Sajnos|terjeszkedésre nincs mód, ezért|gondos tervet kell kieszelned. Az|ellenség már felkészült és|bármelyik pillanatban várható a|támadás. Sietve készülõdj! Úgy kell|fogadnod ellenfelünket, hogy örökre|megkeserülje a találkozást!
-1258:A gonosz despota kiszemelte magának|egyik városunkat. Katonáiddal csak|akkor érhetsz oda idõben, ha|késedelem nélkül elindulsz. Kémeink|jelentése szerint erõs ellenállásra|számíthatsz, tehát meggondoltan|vesd be csapataidat! Csak akkor|nyerhetsz, ha okos taktikát|alkalmazol. Ha vakon rohansz elõre,|keservesen megbánod!
-1259:Való igaz, hogy alig tudtuk|visszaverni a városunkat ért|támadást. Sajnos, a nyoma|meglátszik az épületek állagán. Az|ellenség kíméletlenül felégette a|települést és csaknem az egész|lakosságot kiirtotta. Véres bosszút|kell állnod ezért a vérontásért, de|a rühes kutyák elleni támadás elõtt|elõször is újjá kell építened a|várost.
-1260:Az ellenség vereséget szenvedett, a|megmaradt csapatai most észak felé|menekülnek. Az ott található|vasbányák nagy stratégiai|jelentõséggel bírnak, segítségükkel|folytathatod a háborút. Új sereget|kell életre hívnod, és egyszer s|mindenkorra ki kell ûznöd a|lázadókat ebbõl a régióból. Kelet|felé áll egy híd, amely védelmül|szolgál majd, amíg erõs sereged|készen áll a harcra.
-1261:Sajnos az ellenség még mindig|hatalmas tartalékokkal rendelkezik,|és a gazfickók ellentámadást|terveznek ellenünk. Ennek ellenére|a köztünk magasodó hegyek akadályt|jelenthetnek átvonuló csapataik|számára. Seregeddel nyomulj|keresztül a hegyeken és ütközz meg|az ellenséggel a legmagasabban|fekvõ hágónál. Ne hagyd, hogy az|árulók újra magukhoz ragadják a|kezdeményezést!
-1262:Végre-valahára erõfeszítéseidet|siker koronázta! A királyság egész|területén minden jobbágy fellázadt|a herceg kegyetlen bánásmódja|miatt. Még a tábornokok sem értenek|egyet a közembereket sújtó|barbarizmussal és a|kegyetlenkedéssel. Az egyik|tábornok titkos üzenetet juttatott|el hozzánk, mely szerint az álnok|herceg kegyetlen példát akar|statuálni a lázadó falubelieken.|Csakis te vagy az egyetlen, aki a|zsarnok és a reményvesztett|falusiak közé állhat. Meg kell|állítanod ezt a kegyetlen|gazfickót!
-1263:Közeleg a sötét lelkû latroknak, a|király ellenségeinek végzete.|Térdre kényszerítetted õket. A|herceg taktikát váltott és|megkezdte a fontos nyersanyagok|felhalmozását. Ez fejtörést okozhat|nekünk, ezért el kell foglalnod a|közelben lévõ vasérc-bányákat, és|el kell ûznöd a lázadókat. Nem|szabad megfeledkezned a hatalmas|lápvidékrõl, amely elõtted fekszik.|Készülj, és embereidet is|lelkesítsd! Az életük a kezedben|van.
-1264:Termékeny és nyersanyagokban gazdag|földjeid vannak a meghódított|területeken. Nem lehetnek kétségeid|afelõl, hogy az ellenség hamarosan|el akarja majd hódítani. Védd meg a|provinciádat, és ne sajnáld az|ellenséges katonákat. Nincs|kegyelem a számukra!
-1265:Az áruló északon gyûjtötte össze|vazallusaiból álló seregét, és|valószínûleg elõbb vagy utóbb|támadni fog. Szerencsére még nem|készült fel teljesen az ütközetre.|Menj, és semmisítsd meg, amíg|meglepheted. A hegyeken átkelve|csapj le rá. Vigyáznod kell! A|gazfickó teljes erejét latba vetve|fog küzdeni, hogy megakadályozza|elõrenyomulásodat. Ne rettentsen el|ez az elszántság! Az lebegjen|elõtted, hogy bármilyen áron el|kell foglalnod az északi területet.
-1266:Utolsó gyõzelmed megfutamodásra|kényszerítette az ellenséget. A|gyáva kutya egy természetes|erõdítménybe vette be magát, és|onnan várja a támadásodat. Nehéz|lesz megtalálni a központját.|Már sok tábornok megpróbálta|elõtted, és mind kudarcot vallott.|Remélem, a bátorságod nem hagy|cserben, és a szíved a helyén lesz.|Elõdeid hátrahagytak egy-két|dolgot, amelyek segíthetnek téged|hõsies küzdelmed során!
-1267:Sötét nap ez a mai! Szeretett|királyunk álnok cselszövés áldozata|lett. A szégyentelen herceg, aki|szerintünk felelõs e szörnyû|tragédiáért, királynak kiáltotta ki|magát. Hatalmas falak mögé vette be|magát, ott próbál elbújni haragod|elõl. Rohamozd meg azokat a|falakat, és végezz a senkiházi|trónbitorlóval. Megérdemli, hogy ne|légy kíméletes. Szemet szemért,|fogat fogért!
-1268:Küldetésünk a végéhez közeledik. A|várost, amely az önjelölt király|utolsó mentsvára, körülvettük és|ostrom alatt tartjuk. Ne légy|kegyes hozzá és híveihez, pusztítsd|el az ellenségeidet! Hûséges hõsünk|a porba tapossa majd azt az|elvetemültet! Hõsi tetted|eredményeként béke és szabadság|köszönt királyságunkra. Bitóra az|árulóval, ahol úgy végzi majd, mint|egy közönséges bûnözõ!
-1299:JOYMANIA ENTERTAINMENT||PROGRAMOZÁS:|Peter Ohlmann||JÁTÉK GRAFIKA:|Adam Sprys||PÁLYATERVEZÉS:|Adam Sprys|André Quass||HANGSZERKESZTÉS ÉS|KEVERÉS:|Tonstudio Mannheim||ZENE:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSZTRÁCIÓK:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||GYÁRTÁSVEZETÕ:|Uwe Schäfer||SZÖVEG:|Peter Ohlmann|Uwe Schäfer||BÉTA TESZT:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||JÁTÉK IGAZGATÓ:|Achim Heidelauf||ÁTVEZETÕK:||IGAZGATÓ:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||HANGOK:|Claus Boysen (Mesélö)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KÉZIKÖNYV GRAFIKÁI:|Uwe Schäfer|Alexandra Constandache||KÉZIKÖNYV SZÖVEGEI:|Peter Ohlmann|Uwe Schäfer||MÛREMEK:|Boleslaw Kasza|Adam Sprys||ANIMÁCIÓK:|Uwe Schäfer|Christian Bigalk|További 3D Modellezés:|Niels Horstmann||KÖSZÖNET TOVÁBI|MUNKATÁRSAINKNAK:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
-1349:              Elsõ küldetés||A renegátok megpróbálják a királysághoz hû földmûveseket elnyomni. A királyi palota falain kívül ártatlan parasztokat gyilkolnak halomra: ez megengedhetetlen. Kényszerítsd meghátrálásra a támadókat!
-1350:              Második küldetés||Miután megvédtük a parasztokat, a többieket is fel kell szabadítanunk. Hatalmas sereg közeleg felénk északról.|Csatára fel!
-1351:              Harmadik küldetés||A dicsõséges gyõzelmet követõen van egy kis idõd, hogy a lerombolt városokat és falvakat újjáépítsd, és nyersanyagokat halmozz fel. Ezután figyelmedet az elfoglalt északi települések felszabadítására kell fordítanod, és meg kell küzdened a renegát arisztokrácia zsarnoki uralmával. Vigyázz a civilekre, a parasztokra és csak az ott állomásozó ellenséges katonákkal harcolj.
-1352:              Negyedik küldetés||Kémeink ellenséges csapatmozgásokat észleltek a környezõ településeknél. Az ellenséges katonai haderõ nagysága miatt feltételezhetjük, hogy megerõsítették a táborukat. Találd meg és semmisítsd meg a csapatokat és a katonai épületeket.
-1353:              Ötödik küldetés||Most, hogy elsöprõ gyõzelmet arattál a lázadók felett, elsöprõ ellentámadást kell végrehajtanod. Készítsd fel az embereidet, kemény csata várható. Közben a falvakat is meg kell védened a lerombolástól.
-1354:              Hatodik küldetés||Megtudtuk, hogy az ellenség új táborokat épít. Ezt nem hagyhatjuk, tehát támadj, amilyen gyorsan csak tudsz, nehogy az ellenség összeszedje magát. Ezenkívül kutasd át a környéket nyersanyagok után, mivel a vasérckészleted gyakorlatilag kimerült.
-1355:              Hetedik küldetés||Mielõtt a lázadókkal foglalkoznál, vissza kell szerezned a déli településeket. Az elõzõ csatában aratott gyõzelem révén némi vasérchez jutottunk, ami nagyon jól jött. Mivel a környéken nagyon kevés a vasérc, kétszer is át kell gondolnunk, hogyan használjuk fel a készletet.
-1356:              Nyolcadik küldetés||Legutóbbi támadásunk alatt sok emberünket ki kellett telepíteni a táborból, ami az ellenségnek kedvezõ lehetõséget adott a rajtaütésre. Térj vissza mihamarabb, mielõtt az ellenség áttörné a védelmünket.
-1357:              Kilencedik küldetés||A rajtaütés miatt nem tudtuk idõben elérni a várat, ezért jól kidolgozott stratégiára lesz szükségünk a visszahódításához. A fõkaput különösképpen õrzik, és egy közvetlen támadás nem érne semmit. Próbálj egy másik bejáraton át támadni, és takarékoskodj az érccel, mert nincs lehetõségünk a bányászatra.
-1358:              Tizedik küldetés||A vár visszavételével számos foglyot ejtettünk. Mindegyikük valami földalatti alagutat emleget, és azt állítják, hogy a járat az északi hegyekbe vezet. Az alagút bejáratát csak néhány ellenséges katona õrzi. Gyõzd le õket, és lépj be az alagútba.
-1359:              Tizenegyedik küldetés||A barlang nagyobb, mint sejtettük. A felderítõink ellenséges õröket fedeztek fel a kanyargós alagutakban. Nyilván a behatolók ellen védik a föld alatti létesítményt. Juss el a hegy másik felén lévõ kijáratig.
-1360:              Tizenkettedik küldetés||A szembenálló sereg megneszelte támadásunkat. Válaszul jól felszerelt regimentek közelednek, és hamarosan megtámadnak bennünket. Építs tornyokat, hogy meggyengítsd az erõiket. Ha a védelem hatékonynak bizonyul, át kell kelned a hágón az északi területek irányába.
-1361:              Tizenharmadik küldetés||Rajtunk ütöttek! Az ellenség már várt ránk. Nagyon rossz helyzetben vagyunk, de meg kell próbálnod visszavonulásra késztetni a mocskos banditákat.
-1362:              Tizennegyedik küldetés||Elértük az ellenség utolsó erõsségét. Itt vonták össze seregeiket, és a tõlünk észak-keleti irányban lévõ területen telepedtek meg. A fogcsikorgató hideg miatt a folyó félig befagyott: ez lehetõvé teszi, hogy meglepetésszerûen támadhassunk. Mérj vereséget a megmaradt ellenségre, hogy a béke újra visszatérhessen országunkba!
-2000:Küldetés megszakítva
-2001:Oktató Küldetés (Város)
-2002:Oktató Küldetés (Csata)
-2003:Egyjátékos mód
-2004:Pálya Szerkesztõ
-2005:Utolsó visszajátszás megtekintése
-2006:Küldetés Indítása
-2007:Cím
-2008:Méret
-2009:Küldetés Típusa: %s
-2010:Gyõzelmi feltétel: %s
-2011:Vereség feltétel: %s
-2012:Szövetségesek:
-2013:Elenségek:
-2015:Térkép mérete
-2016:Szélesség
-2017:Magasság
-2018:Új Térkép Készítése
-2019:Elérhetõ térképek
-2020:Térkép Betöltése
-2021:Vezérlõk:
-2022:Játékmenet:
-2023:Hangok:
-2024:Zene kikapcsolása
-2025:Grafika:
-2026:Fényerõsség
-2027:Teljes képernyõ
-2028:Alkalmaz
-2029:Nyelv:
-2030:Betöltés... Kérem várjon
-2031:Hiba történt!
-2032:Új nyelv betöltése
-2033:Mentett állások
-2034:Fájlnév
-2035:Leírás
-2036:Töltés
-2037:Törlés
-2038:Biztosan akarod törölni ezt a mentett állást?
-2039:Törlés
-2040:Mégse
-2042:Megnyerted a játékot!
-2043:Játék folytatása
-2044:Gyõzelem!
-2045:Elvesztetted a játékot!
-2046:Játék megfigyelése
-2047:Vereség
-2048:A visszajátszás végetért
-2049:Játék megfigyelése
-2050:Vissza a menübe
-2051:Nem elérhetõ
-2052:Nyomj %s billentyût a játék folytatásához
-2053:Csapatnak
-2054:Játékos információk
-2055:Chat
-2056:A mentett állás már létezik
-2057:Felülír
-2058:Mentés
-2059:Töltés
-2060:Egy hiba történt a játék során.
-2061:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!
-2062:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek
-2063:Hálózati hiba:
-2064:Hiba: A játékos neve nem lehet üres
-2065:Kapcsolódási hiba: %s
-2066:Megszakadt a kapcsolat
-2067:Küldetés %d
-2068:A halászkunyhód túl messze van a víztõl.
-2069:A halászod nem tud több halat fogni a közeli vízbõl.
-2071:Eladni kívánt áru kiválasztása a bal egér gombal
-2072:Vásárolni kívánt áru kiválasztása a jobb egér gombal
-2073:Elad x%d
-2074:Vesz x%d
-2075:Tereprendezés
-2076:Település tervezés
-2077:Vizuális szkriptek
-2078:Globális szkriptek
-2079:Menü
-2080:Állapot:
-2081:Játékos neve
-2082:SZERVER LÉTREHOZÁSA
-2083:Szerver név
-2084:Port
-2085:Lokális Szerver Létrehozása
-2086:Internet Szerver Létrehozás
-2087:Szerver név
-2088:Állapot
-2089:Játékosok
-2090:Ping
-2091:Szerver Lista Frissítése
-2092:Szerver Részletek
-2093:Játékos lisa:
-2094:Cím
-2095:Port
-2096:Szoba
-2097:Csatlakozás
-2098:Kapcsolódás, kérem várjon ...
-2099:Események töltése...
-2100:Frissítés...
-2101:Játékosok
-2102:Kezdõhely
-2103:Csapat
-2104:Zászló szín
-2105:Kész
-2106:Ping
-2107:Kirúg
-2108:Nyitva
-2109:Számítógép
-2110:Válassz...
-2111:Véletlen
-2112:Nincs
-2113:Nincs
-2114:Csapat %d
-2116:Üzenet írása:
-2117:Pálya típusa
-2118:Egy térkép
-2119:Mentett játék
-2120:Válassz egy térképet...
-2121:Válassz egy mentést...
-2122:Térkép infó:
-2123:Játékosok: %d
-2124:Játékmód:
-2125:Feltételek:
-2126:Méret:
-2127:Kilépés
-2128:Kész
-2129:Indítás!
-2130:Várakozás a játékosokra:
-2131:KaM Remake Készítõk
-2132:Eredeti Knights & Merchants Készítõk
-2133:PROGRAMOZÁS:
-2134:TOVÁBBI PROGRAMOZÁS:
-2135:TOVÁBBI GRAFIKA:
-2136:TOVÁBBI FORDÍTÓK:
-2137:KÜLÖN KÖSZÖNET:
-2138:Többjátékos pályák
-2139:Egyjátékos pályák
-2140:Görgetési sebesség
-2141:Nem található szerver
-2142:Véletlenszerû zenelejátszás
-2143:Játék információ
-2144:-
-2145:Lobby
-2146:Betöltés
-2147:Játék
-2148:Kezdõhely %d
-2149:Építkezés és Csata
-2150:Csata
-2151:Nincs kész
-2152:Kész
-2153:Hiba: Kérem válasszon egy játékost a mentésbõl, hogy irányíthassa
-2154:Hiba: Nem sikerült betölteni a térképet vagy nincs térkép kiválasztva
-2155:Nem lehet indítani: %s
-2156:Nem áll mindenki készen a kezdésre
-2157:A játékosok száma meghaladja a térkép korlátait
-2158:Hibás protokol verzió: %s. A szerver által használt: %s
-2159:A szerver átadta a házigazda szerepét nekünk
-2160:Mennyiség növelése
-2161:Mennyiség csökkentése
-2162:Játék mentése...
-2163:%s megsemmisült!
-2164:TOVÁBBI HANGOK:
-2165:Játékos kidobása
-2166:A hosztnak lehetõsége lesz ezeket a játékosokat kidobni a játékból %d másodperc múlva
-2167:A hoszt most már kidobhatja ezeket a játékosokat
-2168:A hoszt (%s) kilépett a játékból
-2169:A kapcsolat a szerverhez elveszett. Újracsatlakozás folyamatban...
-2170:Biztosan ki szeretnél lépni?
-2171:Biztos véglegesen ki szeretnéd zárni ezeket a játékosokat?
-2172:Mégsem
-2173:Polgárok|képzett
-2174:Polgárok|elvesztett
-2175:Katonák|felszerelt
-2176:Katonák|elvesztett
-2177:Egységek|legyõzve
-2178:Épületek|építve
-2179:Épületek|elvesztve
-2180:Épületek|megsemmisítve
-2181:Áruk|elõállítva
-2182:Fegyverek|elõállítva
-2183:Ennek a nyersanyagnak a kereskedelme ezen a pályán nem engedélyezett
-2184:Ültet és kivág
-2185:Csak kivág
-2186:A játék elkezdõdött
-2187:Építkezés
-2188:Csata
-2189:Kooperatív
-2190:Nem tehetsz ilyet békeidõben
-2191:Békeidõbõl hátra van: %s
-2192:A békeidõ végetért. Fegyverbe!
-2193:Játék idõ:|%s
-2194:Játék beállítások:
-2195:S
-2196:K
-2197:V
-2198:Csapat állj ('%s')
-2199:Csapatok összekapcsolása ('%s')
-2200:Csapatok szétválasztása ('%s')
-2201:Visszajátszások
-2202:Visszajátszás megtekintése
-2203:Békeidõ (percben)
-2204:Nem támogatott formátum %s
-2205:Nem támogatott verzió %s
-2207:felkészülés
-2208:többjátékos mód indítása
-2209:szkript
-2210:Új Küldetés
-2211:Hiba történt a %s fájl beolvasása közben
-2212:Zárva
-2213:A hoszt állítja be a játékosokat
-2214:további grafikák
-2215:egységek
-2216:házak
-2217:fák
-2218:definíciók
-2219:terep grafikák
-2220:Soft shadows
+147:Építmények
+148:Áruelosztás
+149:Statisztika
+150:Opciók
+151:Vissza
+152:Építmény|kiválasztása
+153:Áruk|elosztása
+154:Statisztika
+155:Opciók
+156:Játék betöltése
+157:Játék kimentése
+158:Valóban|ki akarsz lépni|ebbõl a küldetésbõl?
+159:Kilépés
+160:Vissza
+161:Beállítások
+162:Kilépés
+163:Hangok
+164:Hangerõ
+165:Zene
+166:Zene be/ki
+167:Automata mentés
+168:Zenelejátszó
+169:Elõzõ zene
+170:Következõ zene
+171:Lerombol
+172:Épület kijelölés megszüntetése
+173:Útépítés
+174:Útépítés
+175:Szántás
+176:Földmûvelés
+177:Szõlõtelepítés
+178:Szõlõtelepítés
+179:Mégsem
+180:Gyakorlat leállítása
+181:Szükséges:
+182:Állapot:
+183:Szállít
+184:Építés alatt
+185:Lerombolás
+186:Valóban lerombolod|ezt az épületet?
+187:A kijelölt épület lerombolása
+188:Mennyiség csökkentése
+189:Mennyiség növelése
+190:Elõzõ egység
+191:Következõ egység
+192:Az aktuális egység felszerelése
+193:Következõ szakma
+194:Elõzõ szakma
+195:Beállít a sorba
+196:Áruszállítás be/ki
+197:Épületjavítás be/ki
+198:Most nem építhetõ
+199:Jóllakottság
+200:Balra át!
+201:Jobbra át!
+202:Támadás! ('a')
+203:Csapat mozgatása ('s')
+204:Csapat élelmezése
+205:Roham indítása
+206:Alakzatban sorakozó
+207:Alakzatváltás
+208:Jelöld ki a|csapatot
+209:Kilépés
+210:Törlés
+211:Aktuális üzenet törlése
+212:Oda lép
+213:Az aktuális üzenet helyszínére ugrik
+214:Bezár
+215:Ablak bezárása
+216:|A kõfaragód nem képes több követ kifejteni.
+217:|Szénbányád kimerült.
+218:|Vasércbányád kimerült.
+219:|Aranybányád kimerült.
+220:|Ez a ház nincs birtokba véve.
+221:|Ez a csapat valóban éhes, legjobb lenne gyorsan enni adni nekik!
+222:SZÜNET
+418:Spirit
+419:Busy
+420:Középkori kürt
+421:Tavasz
+422:Lant
+423:Zsoldos
+424:A Hercegnö
+425:A Királynö
+426:A piacon
+427:A csatamezön
+428:Udvari tánc
+429:A hadsereg
+430:A kastélyban
+431:Fanfárok
+432:Az Udvarban
+433:Föfogás
+434:Mélykék
+435:Csata
+847:,Az elveszett királyság' hadjárat
+848:,Parasztfelkelés' hadjárat
+849:Egyéni küldetés
+850:Játék indítása
+851:Vissza a menübe
+852:Játék betöltése
+853:Hálózati játék
+854:Opciók
+855:Készítõk
+856:Kilépés a programból
+857:Tovább
+858:A küldetés újrajátszása
+859:Felbontás:
+860:GYÕZELEM!
+861:VERESÉG!
+862:Elveszített egységek:
+863:Legyõzött egységek:
+864:Elveszített épületek:
+865:Lerombolt épületek:
+866:Felépített épületek:
+867:Kiképzett egységek:
+868:Gyártott fegyverek:
+869:Kiképzett katonák:
+870:Küldetés idõtartama:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMOZÁS:|Peter Ohlmann||JÁTÉK GRAFIKA:|Adam Sprys||PÁLYATERVEZÉS:|Adam Sprys|André Quass||HANGSZERKESZTÉS ÉS|KEVERÉS:|Tonstudio Mannheim||ZENE:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSZTRÁCIÓK:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||GYÁRTÁSVEZETÕ:|Uwe Schäfer||SZÖVEG:|Peter Ohlmann|Uwe Schäfer||BÉTA TESZT:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||JÁTÉK IGAZGATÓ:|Achim Heidelauf||ÁTVEZETÕK:||IGAZGATÓ:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||HANGOK:|Claus Boysen (Mesélö)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KÉZIKÖNYV GRAFIKÁI:|Uwe Schäfer|Alexandra Constandache||KÉZIKÖNYV SZÖVEGEI:|Peter Ohlmann|Uwe Schäfer||MÛREMEK:|Boleslaw Kasza|Adam Sprys||ANIMÁCIÓK:|Uwe Schäfer|Christian Bigalk|További 3D Modellezés:|Niels Horstmann||KÖSZÖNET TOVÁBI|MUNKATÁRSAINKNAK:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+1686:Küldetés megszakítva
+1687:Oktató Küldetés (Város)
+1688:Oktató Küldetés (Csata)
+1689:Egyjátékos mód
+1690:Pálya Szerkesztõ
+1691:Utolsó visszajátszás megtekintése
+1692:Küldetés Indítása
+1693:Cím
+1694:Méret
+1695:Küldetés Típusa: %s
+1696:Gyõzelmi feltétel: %s
+1697:Vereség feltétel: %s
+1698:Szövetségesek:
+1699:Elenségek:
+1701:Térkép mérete
+1702:Szélesség
+1703:Magasság
+1704:Új Térkép Készítése
+1705:Elérhetõ térképek
+1706:Térkép Betöltése
+1707:Vezérlõk:
+1708:Játékmenet:
+1709:Hangok:
+1710:Zene kikapcsolása
+1711:Grafika:
+1712:Fényerõsség
+1713:Teljes képernyõ
+1714:Alkalmaz
+1715:Nyelv:
+1716:Betöltés... Kérem várjon
+1717:Hiba történt!
+1718:Új nyelv betöltése
+1719:Mentett állások
+1720:Fájlnév
+1721:Leírás
+1722:Töltés
+1723:Törlés
+1724:Biztosan akarod törölni ezt a mentett állást?
+1725:Törlés
+1726:Mégse
+1728:Megnyerted a játékot!
+1729:Játék folytatása
+1730:Gyõzelem!
+1731:Elvesztetted a játékot!
+1732:Játék megfigyelése
+1733:Vereség
+1734:A visszajátszás végetért
+1735:Játék megfigyelése
+1736:Vissza a menübe
+1737:Nem elérhetõ
+1738:Nyomj %s billentyût a játék folytatásához
+1739:Csapatnak
+1740:Játékos információk
+1741:Chat
+1742:A mentett állás már létezik
+1743:Felülír
+1744:Mentés
+1745:Töltés
+1746:Egy hiba történt a játék során.
+1747:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!
+1748:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek
+1749:Hálózati hiba:
+1750:Hiba: A játékos neve nem lehet üres
+1751:Kapcsolódási hiba: %s
+1752:Megszakadt a kapcsolat
+1753:Küldetés %d
+1754:A halászkunyhód túl messze van a víztõl.
+1755:A halászod nem tud több halat fogni a közeli vízbõl.
+1757:Eladni kívánt áru kiválasztása a bal egér gombal
+1758:Vásárolni kívánt áru kiválasztása a jobb egér gombal
+1759:Elad x%d
+1760:Vesz x%d
+1761:Tereprendezés
+1762:Település tervezés
+1763:Vizuális szkriptek
+1764:Globális szkriptek
+1765:Menü
+1766:Állapot:
+1767:Játékos neve
+1768:SZERVER LÉTREHOZÁSA
+1769:Szerver név
+1770:Port
+1771:Lokális Szerver Létrehozása
+1772:Internet Szerver Létrehozás
+1773:Szerver név
+1774:Állapot
+1775:Játékosok
+1776:Ping
+1777:Szerver Lista Frissítése
+1778:Szerver Részletek
+1779:Játékos lisa:
+1780:Cím
+1781:Port
+1782:Szoba
+1783:Csatlakozás
+1784:Kapcsolódás, kérem várjon ...
+1785:Események töltése...
+1786:Frissítés...
+1787:Játékosok
+1788:Kezdõhely
+1789:Csapat
+1790:Zászló szín
+1791:Kész
+1792:Ping
+1793:Kirúg
+1794:Nyitva
+1795:Számítógép
+1796:Válassz...
+1797:Véletlen
+1798:Nincs
+1799:Nincs
+1800:Csapat %d
+1802:Üzenet írása:
+1803:Pálya típusa
+1804:Egy térkép
+1805:Mentett játék
+1806:Válassz egy térképet...
+1807:Válassz egy mentést...
+1808:Térkép infó:
+1809:Játékosok: %d
+1810:Játékmód:
+1811:Feltételek:
+1812:Méret:
+1813:Kilépés
+1814:Kész
+1815:Indítás!
+1816:Várakozás a játékosokra:
+1817:KaM Remake Készítõk
+1818:Eredeti Knights & Merchants Készítõk
+1819:PROGRAMOZÁS:
+1820:TOVÁBBI PROGRAMOZÁS:
+1821:TOVÁBBI GRAFIKA:
+1822:TOVÁBBI FORDÍTÓK:
+1823:KÜLÖN KÖSZÖNET:
+1824:Többjátékos pályák
+1825:Egyjátékos pályák
+1826:Görgetési sebesség
+1827:Nem található szerver
+1828:Véletlenszerû zenelejátszás
+1829:Játék információ
+1830:-
+1831:Lobby
+1832:Betöltés
+1833:Játék
+1834:Kezdõhely %d
+1835:Építkezés és Csata
+1836:Csata
+1837:Nincs kész
+1838:Kész
+1839:Hiba: Kérem válasszon egy játékost a mentésbõl, hogy irányíthassa
+1840:Hiba: Nem sikerült betölteni a térképet vagy nincs térkép kiválasztva
+1841:Nem lehet indítani: %s
+1842:Nem áll mindenki készen a kezdésre
+1843:A játékosok száma meghaladja a térkép korlátait
+1844:Hibás protokol verzió: %s. A szerver által használt: %s
+1845:A szerver átadta a házigazda szerepét nekünk
+1846:Mennyiség növelése
+1847:Mennyiség csökkentése
+1848:Játék mentése...
+1849:%s megsemmisült!
+1850:TOVÁBBI HANGOK:
+1851:Játékos kidobása
+1852:A hosztnak lehetõsége lesz ezeket a játékosokat kidobni a játékból %d másodperc múlva
+1853:A hoszt most már kidobhatja ezeket a játékosokat
+1854:A hoszt (%s) kilépett a játékból
+1855:A kapcsolat a szerverhez elveszett. Újracsatlakozás folyamatban...
+1856:Biztosan ki szeretnél lépni?
+1857:Biztos véglegesen ki szeretnéd zárni ezeket a játékosokat?
+1858:Mégsem
+1859:Polgárok|képzett
+1860:Polgárok|elvesztett
+1861:Katonák|felszerelt
+1862:Katonák|elvesztett
+1863:Egységek|legyõzve
+1864:Épületek|építve
+1865:Épületek|elvesztve
+1866:Épületek|megsemmisítve
+1867:Áruk|elõállítva
+1868:Fegyverek|elõállítva
+1869:Ennek a nyersanyagnak a kereskedelme ezen a pályán nem engedélyezett
+1870:Ültet és kivág
+1871:Csak kivág
+1872:A játék elkezdõdött
+1873:Építkezés
+1874:Csata
+1875:Kooperatív
+1876:Nem tehetsz ilyet békeidõben
+1877:Békeidõbõl hátra van: %s
+1878:A békeidõ végetért. Fegyverbe!
+1879:Játék idõ:|%s
+1880:Játék beállítások:
+1881:S
+1882:K
+1883:V
+1884:Csapat állj ('%s')
+1885:Csapatok összekapcsolása ('%s')
+1886:Csapatok szétválasztása ('%s')
+1887:Visszajátszások
+1888:Visszajátszás megtekintése
+1889:Békeidõ (percben)
+1890:Nem támogatott formátum %s
+1891:Nem támogatott verzió %s
+1893:felkészülés
+1894:többjátékos mód indítása
+1895:szkript
+1896:Új Küldetés
+1897:Hiba történt a %s fájl beolvasása közben
+1898:Zárva
+1899:A hoszt állítja be a játékosokat
+1900:további grafikák
+1901:egységek
+1902:házak
+1903:fák
+1904:definíciók
+1905:terep grafikák
+1906:Soft shadows
