@@ -445,6 +445,9 @@ begin
       for I := 0 to High(fConsts) do
         if fConsts[I].TextID > fConsts[aIndex].TextID then
           Dec(fConsts[I].TextID);
+
+      Dec(fTextMaxID);
+      SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
     end;
 
     //Shift fConsts up
