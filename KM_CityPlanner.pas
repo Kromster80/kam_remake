@@ -226,8 +226,8 @@ var
   Tmp: array of array of byte;
   Bmp: TBitmap;
 begin
-  SetLength(fInfluenceMap, fTerrain.MapX, fTerrain.MapY);
-  SetLength(Tmp, fTerrain.MapX, fTerrain.MapY);
+  SetLength(fInfluenceMap, fTerrain.MapY, fTerrain.MapX);
+  SetLength(Tmp, fTerrain.MapY, fTerrain.MapX);
 
   //Fill influence
   for I := 1 to fTerrain.MapY - 1 do
