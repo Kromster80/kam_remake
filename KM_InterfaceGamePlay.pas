@@ -783,11 +783,12 @@ begin
 
   if OVERLAY_RESOLUTIONS then
   begin
-    with TKMShape.Create(Panel_Main, 0, 0, 800, 600, $FF00FFFF) do Hitable := False;
+    with TKMShape.Create(Panel_Main, 0, 0, 1024, 576, $FF00FFFF) do Hitable := False;
     with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable := False;
   end;
 
   SwitchPage(nil); //Update
+  Resize(aScreenX,aScreenY); //Hide/show swords according to player's resolution when game starts
   //Panel_Main.Width := aScreenX;
   //Panel_Main.Height := aScreenY;
   //UpdatePositions; //Reposition messages stack etc.
@@ -811,9 +812,10 @@ begin
   Panel_Main.Height := Y;
 
   //Show swords filler if screen height allows
-  ShowSwords := (Panel_Main.Height >= Sidebar_Top.Height + Sidebar_Middle.Height + Panel_Controls.Height);
+  ShowSwords := (Panel_Main.Height >= Sidebar_Top.Height + Sidebar_Middle.Height + 10 + Panel_Controls.Height);
   Sidebar_Middle.Visible := ShowSwords;
-  Panel_Controls.Top := Sidebar_Top.Height + Sidebar_Middle.Height * Byte(ShowSwords);
+  //Needs to be -10 when the swords are hidden so it fits 1024x576
+  Panel_Controls.Top := Sidebar_Top.Height - 10 + (10+Sidebar_Middle.Height) * Byte(ShowSwords);
 end;
 
 
@@ -1058,7 +1060,7 @@ end;
 procedure TKMGamePlayInterface.Create_Controls_Page;
 var I: Integer;
 begin
-  Panel_Controls := TKMPanel.Create(Panel_Main, 0, 368, 224, 400);
+  Panel_Controls := TKMPanel.Create(Panel_Main, 0, 368, 224, 376);
   Panel_Controls.Anchors := [akLeft, akTop];
 
     //We need several of these to cover max of 1534x2560 (vertically oriented)
@@ -1149,7 +1151,7 @@ end;
 procedure TKMGamePlayInterface.Create_Build_Page;
 var I: Integer;
 begin
-  Panel_Build := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
+  Panel_Build := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
     Label_Build := TKMLabel.Create(Panel_Build, 100, 10, 184, 30, '', fnt_Outline, taCenter);
     Image_Build_Selected := TKMImage.Create(Panel_Build, 8, 40, 32, 32, 335);
     Image_Build_Selected.ImageCenter;
@@ -1189,7 +1191,7 @@ procedure TKMGamePlayInterface.Create_Ratios_Page;
 const Res:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
 var i:integer;
 begin
-  Panel_Ratios:=TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
+  Panel_Ratios:=TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
 
   for i:=1 to 4 do begin
     Button_Ratios[i]         := TKMButton.Create(Panel_Ratios, 8+(i-1)*40,20,32,32,0);
@@ -1218,7 +1220,7 @@ const LineHeight=34; Nil_Width=10; House_Width=30; Unit_Width=26;
 var i,k:integer; hc,uc,off:integer;
   LineBase:integer;
 begin
-  Panel_Stats:=TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
+  Panel_Stats:=TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
 
   hc:=1; uc:=1;
   for i:=1 to 8 do begin
@@ -1288,7 +1290,7 @@ end;
 {Menu page}
 procedure TKMGamePlayInterface.Create_Menu_Page;
 begin
-  Panel_Menu:=TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
+  Panel_Menu:=TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
     Button_Menu_Load:=TKMButton.Create(Panel_Menu,8,20,180,30,fTextLibrary[TX_MENU_LOAD_GAME],fnt_Metal);
     Button_Menu_Load.OnClick:=SwitchPage;
     Button_Menu_Load.Hint:=fTextLibrary[TX_MENU_LOAD_GAME];
@@ -1298,38 +1300,38 @@ begin
     Button_Menu_Settings:=TKMButton.Create(Panel_Menu,8,100,180,30,fTextLibrary[TX_MENU_SETTINGS],fnt_Metal);
     Button_Menu_Settings.OnClick:=SwitchPage;
     Button_Menu_Settings.Hint:=fTextLibrary[TX_MENU_SETTINGS];
-    Button_Menu_Quit:=TKMButton.Create(Panel_Menu,8,180,180,30,fTextLibrary[TX_MENU_QUIT_MISSION],fnt_Metal);
+    Button_Menu_Quit:=TKMButton.Create(Panel_Menu,8,170,180,30,fTextLibrary[TX_MENU_QUIT_MISSION],fnt_Metal);
     Button_Menu_Quit.Hint:=fTextLibrary[TX_MENU_QUIT_MISSION];
     Button_Menu_Quit.OnClick:=SwitchPage;
-    Button_Menu_TrackUp   := TKMButton.Create(Panel_Menu,158,320,30,30, '>', fnt_Metal);
-    Button_Menu_TrackDown := TKMButton.Create(Panel_Menu,  8,320,30,30, '<', fnt_Metal);
+    Button_Menu_TrackUp   := TKMButton.Create(Panel_Menu,158,300,30,30, '>', fnt_Metal);
+    Button_Menu_TrackDown := TKMButton.Create(Panel_Menu,  8,300,30,30, '<', fnt_Metal);
     Button_Menu_TrackUp.Hint    := fTextLibrary[TX_MUSIC_NEXT_HINT];
     Button_Menu_TrackDown.Hint  := fTextLibrary[TX_MUSIC_PREV_HINT];
     Button_Menu_TrackUp.OnClick   := Menu_NextTrack;
     Button_Menu_TrackDown.OnClick := Menu_PreviousTrack;
-    TKMLabel.Create(Panel_Menu,100,276,184,30,fTextLibrary[TX_MUSIC_PLAYER],fnt_Metal,taCenter);
-    Label_Menu_Track:=TKMLabel.Create(Panel_Menu,100,296,184,30,'',fnt_Grey,taCenter);
+    TKMLabel.Create(Panel_Menu,100,260,184,30,fTextLibrary[TX_MUSIC_PLAYER],fnt_Metal,taCenter);
+    Label_Menu_Track:=TKMLabel.Create(Panel_Menu,100,276,184,30,'',fnt_Grey,taCenter);
     Label_Menu_Track.Hitable := false; //It can block hits for the track Up/Down buttons as they overlap
-    Label_GameTime := TKMLabel.Create(Panel_Menu,100,228,184,20,'',fnt_Outline,taCenter);
+    Label_GameTime := TKMLabel.Create(Panel_Menu,100,214,184,20,'',fnt_Outline,taCenter);
 end;
 
 
 {Save page}
 procedure TKMGamePlayInterface.Create_Save_Page;
 begin
-  Panel_Save := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
+  Panel_Save := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
 
-    List_Save := TKMListBox.Create(Panel_Save, 12, 4, 170, 240, fnt_Metal);
+    List_Save := TKMListBox.Create(Panel_Save, 12, 4, 170, 220, fnt_Metal);
     List_Save.OnChange := Save_ListChange;
 
-    Edit_Save := TKMEdit.Create(Panel_Save, 12, 255, 170, 20, fnt_Metal);
+    Edit_Save := TKMEdit.Create(Panel_Save, 12, 235, 170, 20, fnt_Metal);
     Edit_Save.AllowedChars := acFileName;
     Edit_Save.OnChange := Save_EditChange;
-    Label_SaveExists := TKMLabel.Create(Panel_Save,12,280,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
-    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,300,170,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
+    Label_SaveExists := TKMLabel.Create(Panel_Save,12,260,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
+    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,280,170,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
     CheckBox_SaveExists.OnClick := Save_CheckboxChange;
 
-    Button_Save := TKMButton.Create(Panel_Save,12,320,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_SAVE],fnt_Metal, bsMenu);
+    Button_Save := TKMButton.Create(Panel_Save,12,300,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_SAVE],fnt_Metal, bsMenu);
     Button_Save.OnClick := Save_Click;
 end;
 
@@ -1337,15 +1339,15 @@ end;
 {Load page}
 procedure TKMGamePlayInterface.Create_Load_Page;
 begin
-  Panel_Load := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
+  Panel_Load := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
 
-    List_Load := TKMListBox.Create(Panel_Load, 12, 2, 170, 280, fnt_Metal);
+    List_Load := TKMListBox.Create(Panel_Load, 12, 2, 170, 260, fnt_Metal);
     List_Load.OnChange := Load_ListClick;
 
-    Label_Load_Description := TKMLabel.Create(Panel_Load,12,285,170,40,'',fnt_Grey,taLeft);
+    Label_Load_Description := TKMLabel.Create(Panel_Load,12,265,170,40,'',fnt_Grey,taLeft);
     Label_Load_Description.AutoWrap := true;
 
-    Button_Load := TKMButton.Create(Panel_Load,12,320,170,30,fTextLibrary[TX_GAMEPLAY_LOAD],fnt_Metal, bsMenu);
+    Button_Load := TKMButton.Create(Panel_Load,12,300,170,30,fTextLibrary[TX_GAMEPLAY_LOAD],fnt_Metal, bsMenu);
     Button_Load.OnClick := Load_Click;
 end;
 
@@ -1353,7 +1355,7 @@ end;
 {Options page}
 procedure TKMGamePlayInterface.Create_Settings_Page;
 begin
-  Panel_Settings := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
+  Panel_Settings := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
     CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,18,15,180,20,fTextLibrary[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
     TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,18,40,160,0,20);
@@ -1381,7 +1383,7 @@ end;
 {Quit page}
 procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
-  Panel_Quit := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
+  Panel_Quit := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
     TKMLabel.Create(Panel_Quit, 100, 30, 180, 70, fTextLibrary[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter);
     Button_Quit_Yes := TKMButton.Create(Panel_Quit, 8, 100, 180, 30, fTextLibrary[TX_MENU_QUIT_MISSION], fnt_Metal);
     Button_Quit_No := TKMButton.Create(Panel_Quit, 8, 140, 180, 30, fTextLibrary[TX_MENU_DONT_QUIT_MISSION], fnt_Metal);
@@ -1395,7 +1397,7 @@ end;
 {Unit page}
 procedure TKMGamePlayInterface.Create_Unit_Page;
 begin
-  Panel_Unit := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
+  Panel_Unit := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
     Label_UnitName        := TKMLabel.Create(Panel_Unit,100,16,184,30,'',fnt_Outline,taCenter);
     Image_UnitPic         := TKMImage.Create(Panel_Unit,8,38,54,100,521);
     Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,30,fTextLibrary[TX_UNIT_CONDITION],fnt_Grey,taCenter);
@@ -1405,14 +1407,14 @@ begin
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
     Button_Unit_Dismiss   := TKMButton.Create(Panel_Unit,132,120,56,34,29);
 
-  Panel_Unit_Dismiss := TKMPanel.Create(Panel_Unit,0,160,200,400);
+  Panel_Unit_Dismiss := TKMPanel.Create(Panel_Unit,0,160,200,182);
     Label_Unit_Dismiss             := TKMLabel.Create(Panel_Unit_Dismiss,100,16,184,30,'Are you sure?',fnt_Outline,taCenter);
     Button_Unit_DismissYes         := TKMButton.Create(Panel_Unit_Dismiss,50, 50,100,40,'Dismiss',fnt_Metal);
     Button_Unit_DismissNo          := TKMButton.Create(Panel_Unit_Dismiss,50,100,100,40,'Cancel',fnt_Metal);
     Button_Unit_DismissYes.OnClick := Unit_Dismiss;
     Button_Unit_DismissNo.OnClick  := Unit_Dismiss;
 
-  Panel_Army := TKMPanel.Create(Panel_Unit,0,160,200,400);
+  Panel_Army := TKMPanel.Create(Panel_Unit,0,160,200,182);
     //Military buttons start at 8.170 and are 52x38/30 (60x46)
     Button_Army_GoTo   := TKMButton.Create(Panel_Army,  8,  0, 56, 40, 27);
     Button_Army_Stop   := TKMButton.Create(Panel_Army, 70,  0, 56, 40, 26);
@@ -1467,7 +1469,7 @@ begin
     -Column   [Info]    +Column
     Split     Join      Feed}
 
-  Panel_Army_JoinGroups:=TKMPanel.Create(Panel_Unit,0,160,200,400);
+  Panel_Army_JoinGroups:=TKMPanel.Create(Panel_Unit,0,160,200,182);
     Label_Army_Join_Message := TKMLabel.Create(Panel_Army_JoinGroups, 98, 30, 188, 65, fTextLibrary[TX_ARMY_JOIN_SELECT], fnt_Outline, taCenter);
     Button_Army_Join_Cancel := TKMButton.Create(Panel_Army_JoinGroups, 8, 95, 180, 30, fTextLibrary[TX_ARMY_JOIN_CANCEL], fnt_Metal);
 
@@ -1479,7 +1481,7 @@ end;
 procedure TKMGamePlayInterface.Create_House_Page;
 var i:integer;
 begin
-  Panel_House := TKMPanel.Create(Panel_Controls, 0, 44, 196, 400);
+  Panel_House := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
     //Thats common things
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     Label_House := TKMLabel.Create(Panel_House,100,14,184,20,'',fnt_Outline,taCenter);
@@ -1507,7 +1509,7 @@ begin
     Button_House_DemolishYes.OnClick := House_Demolish;
     Button_House_DemolishNo.OnClick  := House_Demolish;
 
-    Panel_House_Common := TKMPanel.Create(Panel_House,0,76,200,400);
+    Panel_House_Common := TKMPanel.Create(Panel_House,0,76,200,310);
       Label_Common_Demand := TKMLabel.Create(Panel_House_Common,100,2,184,30,fTextLibrary[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
       Label_Common_Offer  := TKMLabel.Create(Panel_House_Common,100,2,184,30,'',fnt_Grey,taCenter);
       Label_Common_Costs  := TKMLabel.Create(Panel_House_Common,100,2,184,30,fTextLibrary[TX_HOUSE_GOOD_COST],fnt_Grey,taCenter);
@@ -1535,7 +1537,7 @@ end;
 procedure TKMGamePlayInterface.Create_Market_Page;
 var i:integer; LineH:integer;
 begin
-  Panel_HouseMarket := TKMPanel.Create(Panel_House,0,76,200,400);
+  Panel_HouseMarket := TKMPanel.Create(Panel_House,0,76,200,266);
     for i:=0 to STORE_RES_COUNT-1 do
     begin
       Button_Market[i] := TKMButtonFlat.Create(Panel_HouseMarket, 8+(i mod 6)*30,12+(i div 6)*34,26,30,0);
@@ -1594,7 +1596,7 @@ end;
 procedure TKMGamePlayInterface.Create_Store_Page;
 var i:integer;
 begin
-  Panel_HouseStore:=TKMPanel.Create(Panel_House,0,76,200,400);
+  Panel_HouseStore:=TKMPanel.Create(Panel_House,0,76,200,266);
     for i:=1 to STORE_RES_COUNT do
     begin
       Button_Store[i] := TKMButtonFlat.Create(Panel_HouseStore, 8+((i-1)mod 5)*36,19+((i-1)div 5)*42,32,36,0);
@@ -1615,7 +1617,7 @@ end;
 procedure TKMGamePlayInterface.Create_School_Page;
 var i:integer;
 begin
-  Panel_House_School:=TKMPanel.Create(Panel_House,0,76,200,400);
+  Panel_House_School:=TKMPanel.Create(Panel_House,0,76,200,266);
     Label_School_Res:=TKMLabel.Create(Panel_House_School,100,2,184,30,fTextLibrary[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
     ResRow_School_Resource := TKMResourceRow.Create(Panel_House_School,  8,22,180,20);
     ResRow_School_Resource.RX := rxGui;
@@ -1638,9 +1640,9 @@ begin
     Image_School_Train:=TKMImage.Create(Panel_House_School, 70,136,54,80,522);
     Image_School_Right:=TKMImage.Create(Panel_House_School,132,136,54,80,523);
     Image_School_Right.Disable;
-    Button_School_Left :=TKMButton.Create(Panel_House_School,  8,226,54,40,35);
-    Button_School_Train:=TKMButton.Create(Panel_House_School, 70,226,54,40,42);
-    Button_School_Right:=TKMButton.Create(Panel_House_School,132,226,54,40,36);
+    Button_School_Left :=TKMButton.Create(Panel_House_School,  8,222,54,40,35);
+    Button_School_Train:=TKMButton.Create(Panel_House_School, 70,222,54,40,42);
+    Button_School_Right:=TKMButton.Create(Panel_House_School,132,222,54,40,36);
     Button_School_Left.OnClickEither:=House_SchoolUnitChange;
     Button_School_Train.OnClickEither:=House_SchoolUnitChange;
     Button_School_Right.OnClickEither:=House_SchoolUnitChange;
@@ -1654,7 +1656,7 @@ end;
 procedure TKMGamePlayInterface.Create_Barracks_Page;
 var i:integer;
 begin
-  Panel_HouseBarracks:=TKMPanel.Create(Panel_House,0,76,200,400);
+  Panel_HouseBarracks:=TKMPanel.Create(Panel_House,0,76,200,266);
     for i:=1 to BARRACKS_RES_COUNT do
     begin
       Button_Barracks[i] := TKMButtonFlat.Create(Panel_HouseBarracks, 8+((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,0);
@@ -1682,9 +1684,9 @@ begin
     Image_Barracks_Right:=TKMImage.Create(Panel_HouseBarracks,132,116,54,80,537);
     Image_Barracks_Right.Disable;
 
-    Button_Barracks_Left :=TKMButton.Create(Panel_HouseBarracks,  8,226,54,40,35);
-    Button_Barracks_Train:=TKMButton.Create(Panel_HouseBarracks, 70,226,54,40,42);
-    Button_Barracks_Right:=TKMButton.Create(Panel_HouseBarracks,132,226,54,40,36);
+    Button_Barracks_Left :=TKMButton.Create(Panel_HouseBarracks,  8,222,54,40,35);
+    Button_Barracks_Train:=TKMButton.Create(Panel_HouseBarracks, 70,222,54,40,42);
+    Button_Barracks_Right:=TKMButton.Create(Panel_HouseBarracks,132,222,54,40,36);
     Button_Barracks_Left.OnClickEither:=House_BarracksUnitChange;
     Button_Barracks_Train.OnClickEither:=House_BarracksUnitChange;
     Button_Barracks_Right.OnClickEither:=House_BarracksUnitChange;
@@ -1698,7 +1700,7 @@ end;
 {Woodcutter page}
 procedure TKMGamePlayInterface.Create_Woodcutter_Page;
 begin
-  Panel_HouseWoodcutter:=TKMPanel.Create(Panel_House,0,76,200,400);
+  Panel_HouseWoodcutter:=TKMPanel.Create(Panel_House,0,76,200,266);
     Radio_Woodcutter := TKMRadioGroup.Create(Panel_HouseWoodcutter,46,64,160,32,fnt_Grey);
     Radio_Woodcutter.ItemIndex := 0;
     Radio_Woodcutter.Items.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_PLANT_CHOP]);
@@ -2072,7 +2074,7 @@ begin
               inc(Line);
             end;
             Label_Common_Costs.Show;
-            Label_Common_Costs.Top:=Base+Line*LineAdv+6;
+            Label_Common_Costs.Top:=Base+Line*LineAdv+2;
             inc(Line);
             for i:=1 to 4 do //Costs
             begin
@@ -2088,7 +2090,7 @@ begin
                 else ResRow_Costs[i].TexID2 := fResource.Resources[WarfareCosts[Res, 2]].GUIIcon;
 
                 ResRow_Costs[i].Show;
-                ResRow_Costs[i].Top := Base + Line * LineAdv;
+                ResRow_Costs[i].Top := Base + Line * LineAdv - 2*i - 6; //Pack them closer so they fit on 1024x576
                 inc(Line);
               end;
             end;

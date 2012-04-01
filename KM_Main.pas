@@ -88,6 +88,10 @@ begin
       fMainSettings.FullScreen := False;
   end;
 
+  FormMain.Caption := 'KaM Remake - ' + GAME_VERSION;
+  //Will make the form slightly higher, so do it before ReinitRender so it is reset
+  FormMain.ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
+
   ReinitRender(False);
 
   Application.OnIdle := DoIdle;
@@ -98,9 +102,6 @@ begin
   fTimer.OnTimer := DoTimer;
   fTimer.Interval := fGame.GlobalSettings.SpeedPace;
   fTimer.Enabled := True;
-
-  FormMain.Caption := 'KaM Remake - ' + GAME_VERSION;
-  FormMain.ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
 
   FormLoading.Hide;
 end;
