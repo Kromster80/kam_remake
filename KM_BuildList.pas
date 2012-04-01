@@ -842,8 +842,8 @@ begin
   if I >= Length(fHouses) then
     SetLength(fHouses, Length(fHouses) + LENGTH_INC);
 
-  fHouses[fHousesCount].House := aHouse.GetHousePointer;
-  fHouses[fHousesCount].Assigned := 0;
+  fHouses[I].House := aHouse.GetHousePointer;
+  fHouses[I].Assigned := 0;
 end;
 
 
