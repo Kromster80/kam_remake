@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
-  KM_InterfaceDefaults, KM_MapView, KM_Terrain,
+  KM_InterfaceDefaults, KM_MapView, KM_Terrain, KM_Pics,
   KM_Controls, KM_Houses, KM_Units, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
@@ -161,7 +161,7 @@ type
       Label_PeacetimeRemaining: TKMLabel;
       Image_AlliesLang:array [0..MAX_PLAYERS-1] of TKMImage;
       Label_AlliesPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
-      DropBox_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMDropBox;
+      DropBox_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMDropList;
       Label_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMLabel;
       Label_AlliesPing:array [0..MAX_PLAYERS-1] of TKMLabel;
       Image_AlliesClose:TKMImage;
@@ -1131,7 +1131,7 @@ begin
       Image_AlliesLang[i] := TKMImage.Create(Panel_Allies,      50+(i div 4)*380, 82+(i mod 4)*24, 16,  11,  0, rxMenu);
       Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    70+(i div 4)*380, 80+(i mod 4)*24, 140, 20, '', fnt_Grey, taLeft);
       Label_AlliesTeam[i]   := TKMLabel.Create(Panel_Allies,   220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, '', fnt_Grey, taLeft);
-      DropBox_AlliesTeam[i] := TKMDropBox.Create(Panel_Allies, 220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey, '');
+      DropBox_AlliesTeam[i] := TKMDropList.Create(Panel_Allies, 220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey, '');
       DropBox_AlliesTeam[i].Hide; //Use label for demos until we fix exploits
       DropBox_AlliesTeam[i].Add(fTextLibrary[TX_LOBBY_NONE]);
       for k:=1 to 4 do DropBox_AlliesTeam[i].Add(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));

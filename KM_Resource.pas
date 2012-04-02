@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Forms, Graphics, SysUtils,
-  KM_CommonEvents, KM_Defaults,
+  KM_CommonEvents, KM_Defaults, KM_Pics,
   KM_Render,
   KM_ResourceCursors,
   KM_ResourceFonts,

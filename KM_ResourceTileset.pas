@@ -5,7 +5,7 @@ uses
   Classes, Math, SysUtils, dglOpenGL,
   {$IFDEF WDC} ZLibEx, {$ENDIF}
   {$IFDEF FPC} ZStream, {$ENDIF}
-  KM_Defaults;
+  KM_Defaults, KM_Pics;
 
 
 type

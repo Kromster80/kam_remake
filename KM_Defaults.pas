@@ -913,21 +913,6 @@ type
   TResIndex = record ResID, RefID: Integer; end;
 
 
-  TRXType = (
-    rxTrees,
-    rxHouses,
-    rxUnits,
-    rxGui,
-    rxGuiMain,
-    rxGuiMainH,
-    rxMenu, //Remake menu elements
-    rxTiles, //Tiles
-    rxGame); //Remake game sprites
-
-  TKMPic = record
-    RX: TRXType;
-    ID: Word;
-  end;
 
 
 const

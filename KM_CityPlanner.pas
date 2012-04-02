@@ -65,13 +65,13 @@ end;
 
 
 function TKMCityPlanner.NextToGrass(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-var
+{var
   S: TKMHouse;
   I, K: Integer;
   Bid, BestBid: Single;
   StoreLoc: TKMPoint;
   TreeLoc: TKMPointDir;
-  TA: TPlantAct;
+  TA: TPlantAct;}
 begin
   {Result := False;
 

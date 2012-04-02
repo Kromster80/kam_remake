@@ -8,6 +8,7 @@ uses
   Classes, Graphics, Math, SysUtils,
   KM_CommonEvents,
   KM_Defaults,
+  KM_Pics,
   KM_ResourceCursors,
   KM_ResourceHouse,
   KM_ResourcePalettes,

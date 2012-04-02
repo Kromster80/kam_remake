@@ -2,7 +2,8 @@ unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
 uses dglOpenGL,
-  Math, KromOGLUtils, SysUtils, KM_Defaults, KM_Controls, Graphics, KM_Points, KM_ResourceSprites;
+  Math, KromOGLUtils, SysUtils, KM_Defaults, KM_Controls, Graphics, KM_Points, KM_Pics,
+  KM_ResourceSprites;
 
 type
   TRenderUI = class
@@ -11,10 +12,10 @@ type
     procedure SetupClipY        (Y1,Y2:smallint);
     procedure ReleaseClip;
     procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; State: TButtonStateSet; aStyle: TButtonStyle);
-    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
+    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
-    procedure WritePicture      (PosX,PosY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false); overload;
+    procedure WritePicture      (PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; Highlight: Boolean = False); overload;
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor:TColor4); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
@@ -25,7 +26,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_ResourceFonts;
+uses {KM_PlayersCollection,} KM_Resource, KM_ResourceFonts;
 
 
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are
@@ -135,7 +136,7 @@ begin
     begin
       glColor4f(1,1,1,1);
       WritePicture((SizeX-GFXData[aRX,aID].PxWidth ) div 2 +byte(bsDown in State),
-                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 +byte(bsDown in State), aRX, aID);
+                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 +byte(bsDown in State), aRX, aID, $FFFF00FF);
     end;
 
     //Render MouseOver highlight
@@ -160,7 +161,7 @@ begin
 end;
 
 
-procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
+procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
 begin
   WriteBevel(PosX, PosY, SizeX, SizeY);
 
@@ -171,7 +172,7 @@ begin
     begin
       TexOffsetY := TexOffsetY - 6 * byte(Caption <> '');
       WritePicture((SizeX-GFXData[aRX,aID].PxWidth) div 2 + TexOffsetX,
-                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 + TexOffsetY, aRX, aID, True);
+                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 + TexOffsetY, aRX, aID, aColor, True);
     end;
 
     if bsDisabled in State then
@@ -275,8 +276,7 @@ begin
 end;
 
 
-procedure TRenderUI.WritePicture(PosX,PosY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false);
-var Col: TColor4;
+procedure TRenderUI.WritePicture(PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; Highlight: Boolean = False);
 begin
   if aID = 0 then Exit;
 
@@ -296,14 +296,13 @@ begin
       glEnd;
 
       //Color overlay for unit icons and scrolls
-      if (AltID<>0) and (MyPlayer<>nil) then
+      if AltID <> 0 then
       begin
         glBindTexture(GL_TEXTURE_2D, AltID);
-        Col := MyPlayer.FlagColor;
         if Enabled then
-          glColor3ub(Col AND $FF, Col SHR 8 AND $FF, Col SHR 16 AND $FF)
+          glColor3ub(aColor AND $FF, aColor SHR 8 AND $FF, aColor SHR 16 AND $FF)
         else
-          glColor3f(Col AND $FF / 768, Col SHR 8 AND $FF / 768, Col SHR 16 AND $FF / 768);
+          glColor3f(aColor AND $FF / 768, aColor SHR 8 AND $FF / 768, aColor SHR 16 AND $FF / 768);
         glBegin(GL_QUADS);
           glTexCoord2f(u1,v1); glVertex2f(0        , 0         );
           glTexCoord2f(u2,v1); glVertex2f(0+PxWidth, 0         );

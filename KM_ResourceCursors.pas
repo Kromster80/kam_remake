@@ -5,7 +5,7 @@ uses
   Classes, Forms,
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Graphics, Math, SysUtils,
-  KM_Defaults, KM_Points;
+  KM_Defaults, KM_Pics, KM_Points;
 
 type
   TKMCursor = (

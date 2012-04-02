@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
-  KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves,
+  KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
   KM_InterfaceDefaults, KM_MapView, KM_ServerQuery;
 
 
@@ -198,10 +198,10 @@ type
       Panel_LobbyPlayers:TKMPanel;
         Button_LobbyKick:array [0..MAX_PLAYERS-1] of TKMButton;
         Image_LobbyFlag:array [0..MAX_PLAYERS-1] of TKMImage;
-        DropBox_LobbyPlayerSlot:array [0..MAX_PLAYERS-1] of TKMDropBox;
+        DropBox_LobbyPlayerSlot:array [0..MAX_PLAYERS-1] of TKMDropList;
         Label_LobbyPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
-        DropBox_LobbyLoc:array [0..MAX_PLAYERS-1] of TKMDropBox;
-        DropBox_LobbyTeam:array [0..MAX_PLAYERS-1] of TKMDropBox;
+        DropBox_LobbyLoc:array [0..MAX_PLAYERS-1] of TKMDropList;
+        DropBox_LobbyTeam:array [0..MAX_PLAYERS-1] of TKMDropList;
         DropColorBox_Lobby:array [0..MAX_PLAYERS-1] of TKMDropColorBox;
         CheckBox_LobbyReady:array [0..MAX_PLAYERS-1] of TKMCheckBox;
         Label_LobbyPing:array [0..MAX_PLAYERS-1] of TKMLabel;
@@ -210,7 +210,7 @@ type
         CheckBox_LobbyHostControl: TKMCheckBox;
         Label_LobbyChooseMap: TKMLabel;
         Radio_LobbyMapType:TKMRadioGroup;
-        List_Lobby:TKMDropBox;
+        List_Lobby:TKMDropList;
         Label_LobbyMapName:TKMLabel;
         Memo_LobbyMapDesc: TKMMemo;
         Label_LobbyMapMode:TKMLabel;
@@ -288,8 +288,8 @@ type
         Image_Options_Lang_Flags:array of TKMImage;
       Panel_Options_Res:TKMPanel;
         CheckBox_Options_FullScreen:TKMCheckBox;
-        DropBox_Options_Resolution:TKMDropBox;
-        DropBox_Options_RefreshRate:TKMDropBox;
+        DropBox_Options_Resolution:TKMDropList;
+        DropBox_Options_RefreshRate:TKMDropList;
         Button_Options_ResApply:TKMButton;
       Button_Options_Back:TKMButton;
     Panel_Credits:TKMPanel;
@@ -344,7 +344,7 @@ const
 
 { TKMMainMenuInterface }
 constructor TKMMainMenuInterface.Create(X,Y: Word);
-var S: TKMShape;
+var S: TKMShape; DC: TKMDropColumns;
 begin
   inherited;
   Assert(fTextLibrary <> nil, 'fTextLibrary should be initialized before MainMenuInterface');
@@ -385,6 +385,12 @@ begin
   Create_Error_Page;
   Create_Results_Page;
   Create_ResultsMP_Page;
+
+  DC := TKMDropColumns.Create(Panel_Main, 50, 300, 200, 20, fnt_Grey);
+  //todo: DC.HeaderVisible := False;
+  DC.SetColumns(fnt_Outline, ['First', 'Second', 'Third'], [0, 30, 130]);
+  DC.Add(MakeListRow(['','Location',''], [$FF00FFFF, $FFFFFF80, $FF0000FF], [
+  MakePic(rxGui, 150), MakePic(rxGui, 12), MakePic(rxGui, 141)], 0));
 
     {for i:=1 to length(FontFiles) do L[i]:=TKMLabel.Create(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),taLeft);//}
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
@@ -787,18 +793,18 @@ begin
         Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 35, top+2, 170, 20, '', fnt_Metal, taLeft);
         Label_LobbyPlayer[i].Hide;
 
-        DropBox_LobbyPlayerSlot[i] := TKMDropBox.Create(Panel_LobbyPlayers, 35, top, 170, 20, fnt_Metal, '');
+        DropBox_LobbyPlayerSlot[i] := TKMDropList.Create(Panel_LobbyPlayers, 35, top, 170, 20, fnt_Metal, '');
         DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
         DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_CLOSED]); //Closed, nobody can join it
         DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
         DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 215, top, 180, 20, fnt_Metal, '');
+        DropBox_LobbyLoc[i] := TKMDropList.Create(Panel_LobbyPlayers, 215, top, 180, 20, fnt_Metal, '');
         DropBox_LobbyLoc[i].Add(fTextLibrary[TX_LOBBY_RANDOM]);
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyTeam[i] := TKMDropBox.Create(Panel_LobbyPlayers, 405, top, 150, 20, fnt_Metal, '');
+        DropBox_LobbyTeam[i] := TKMDropList.Create(Panel_LobbyPlayers, 405, top, 150, 20, fnt_Metal, '');
         DropBox_LobbyTeam[i].Add(fTextLibrary[TX_LOBBY_NONE]);
         for k:=1 to 4 do DropBox_LobbyTeam[i].Add(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
         DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
@@ -838,7 +844,7 @@ begin
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
 
       //@DanJB: These two occupy the same place and are visible for Host/Join correspondingly, right?
-      List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 125, 264, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
+      List_Lobby := TKMDropList.Create(Panel_LobbySetup, 10, 125, 264, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
       List_Lobby.OnChange := Lobby_MapSelect;
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 125, 264, 20, '', fnt_Metal, taLeft);
 
@@ -1146,10 +1152,10 @@ begin
       CheckBox_Options_FullScreen := TKMCheckBox.Create(Panel_Options_Res, 12, 30, 176, 20, fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN], fnt_Metal);
       CheckBox_Options_FullScreen.OnClick := Options_ChangeRes;
 
-      DropBox_Options_Resolution := TKMDropBox.Create(Panel_Options_Res, 10, 50, 180, 20, fnt_Metal, '');
+      DropBox_Options_Resolution := TKMDropList.Create(Panel_Options_Res, 10, 50, 180, 20, fnt_Metal, '');
       DropBox_Options_Resolution.OnChange := Options_ChangeRes;
 
-      DropBox_Options_RefreshRate := TKMDropBox.Create(Panel_Options_Res, 10, 85, 180, 20, fnt_Metal, '');
+      DropBox_Options_RefreshRate := TKMDropList.Create(Panel_Options_Res, 10, 85, 180, 20, fnt_Metal, '');
       DropBox_Options_RefreshRate.OnChange := Options_ChangeRes;
 
       Button_Options_ResApply := TKMButton.Create(Panel_Options_Res, 10, 120, 180, 30, fTextLibrary[TX_MENU_OPTIONS_APPLY], fnt_Metal, bsMenu);
@@ -1859,8 +1865,9 @@ begin
 
       //Only show # if Server has more than 1 Room
       DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
-      ColList_Servers.AddItem([DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.GameInfo.PlayerCount), IntToStr(S.Ping)],
-                              [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)], I);
+      ColList_Servers.AddItem(
+      MakeListRow([DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.GameInfo.PlayerCount), IntToStr(S.Ping)],
+                  [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)], I));
 
       //if server was selected, we need to select it again, because TKMColumnListBox was cleared
       if fServerSelected
@@ -2612,7 +2619,9 @@ begin
   if (Sender = fSaves) then
   begin
     for I:=0 to fSaves.Count - 1 do
-      List_Load.AddItem([fSaves[i].FileName, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
+      List_Load.AddItem(MakeListRow(
+                          [fSaves[i].FileName, fSaves[i].Info.GetTitleWithTime],
+                          [$FFFFFFFF, $FFFFFFFF]));
 
     //IDs of saves could changed, so use CRC to check
     //which one was selected
@@ -2706,16 +2715,18 @@ end;
 
 
 procedure TKMMainMenuInterface.Replays_RefreshList(Sender: TObject);
-var i:integer;
+var I: Integer;
 begin
   List_Replays.Clear;
 
   if (Sender = fSaves) then
   begin
     for i:=0 to fSaves.Count-1 do
-      List_Replays.AddItem([fSaves[i].FileName, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
+      List_Replays.AddItem(MakeListRow(
+                            [fSaves[i].FileName, fSaves[i].Info.GetTitleWithTime],
+                            [$FFFFFFFF, $FFFFFFFF]));
 
-    for I := 0 to fSaves.Count-1 do
+    for I := 0 to fSaves.Count - 1 do
       if (fSaves[I].CRC = fSaveCRC_Selected) then
       begin
           fSave_Selected := I;

@@ -35,6 +35,8 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_WIDECHAR_REDUCED>false</DCC_WIDECHAR_REDUCED>
+			<DCC_IMPLICIT_STRING_CAST>false</DCC_IMPLICIT_STRING_CAST>
 			<Manifest_File>None</Manifest_File>
 			<Icon_MainIcon>KaM_Remake_Icon.ico</Icon_MainIcon>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
@@ -133,6 +135,7 @@
 			<DCCReference Include="KM_NetworkTypes.pas"/>
 			<DCCReference Include="KM_NetPlayersList.pas"/>
 			<DCCReference Include="KM_PathFinding.pas"/>
+			<DCCReference Include="KM_Pics.pas"/>
 			<DCCReference Include="KM_Player.pas"/>
 			<DCCReference Include="KM_PlayerAI.pas"/>
 			<DCCReference Include="KM_PlayersCollection.pas"/>

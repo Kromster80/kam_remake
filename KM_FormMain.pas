@@ -139,7 +139,7 @@ uses
   KM_Resource,
   KM_ResourceSprites,
   KM_Game, KM_PlayersCollection,
-  KM_Sound,
+  KM_Sound, KM_Pics,
   KM_RenderPool,
   KM_TextLibrary,
   KM_GameInputProcess,

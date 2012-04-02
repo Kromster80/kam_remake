@@ -4,8 +4,9 @@ interface
 uses
     {$IFDEF MSWindows} Windows, {$ENDIF}
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-    Classes, Controls, Graphics, Math, SysUtils, Clipbrd, Forms,
-    KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonEvents, KM_ResourceSprites, KM_MapView;
+    Classes, Controls,  Math, SysUtils, Clipbrd,
+    KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonEvents, KM_Pics,
+    KM_ResourceSprites, KM_MapView;
 
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
@@ -234,6 +235,7 @@ type
   private
     fRX: TRXType;
     fTexID: Word;
+    fColor: TColor4;
   public
     ImageAnchors: TAnchors;
     Highlight: Boolean;
@@ -241,6 +243,7 @@ type
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
     property RX: TRXType read fRX write fRX;
     property TexID: Word read fTexID write fTexID;
+    property Color: TColor4 read fColor write fColor;
     function Click: Boolean;
     procedure ImageStretch;
     procedure ImageCenter;
@@ -314,6 +317,7 @@ type
   TKMButtonFlat = class(TKMControl)
   private
     fFont: TKMFont;
+    fColor: TColor4;
     TextAlign: TTextAlign;
   public
     RX: TRXType;
@@ -326,7 +330,10 @@ type
     HideHighlight: Boolean;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID: Integer; aRX: TRXType = rxGui);
+    property Color: TColor4 read fColor write fColor;
+
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+
     procedure Paint; override;
   end;
 
@@ -612,8 +619,11 @@ type
   end;
 
   TKMListRow = record
-    Caption: array of string;
-    Color: array of TColor4;
+    Cells: array of record
+      Caption: string;
+      Color: TColor4;
+      Pic: TKMPic;
+    end;
     Tag: Integer;
   end;
 
@@ -628,6 +638,7 @@ type
     fHeader: TKMListHeader;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
+    procedure SetTop(aValue: Integer); override;
     procedure SetHeight(aValue: Integer); override;
     procedure SetVisible(aValue: Boolean); override;
     function GetTopIndex: Integer;
@@ -646,8 +657,9 @@ type
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
-    procedure AddItem(aItem: array of string; aItemColor: array of TColor4; aTag: Integer = 0);
+    procedure AddItem(aItem: TKMListRow);
     procedure Clear;
+    function HeaderHeight: Integer;
 
     property Rows[aIndex: Integer]: TKMListRow read GetRow;
 
@@ -669,38 +681,88 @@ type
   end;
 
 
-  TKMDropBox = class(TKMControl)
+  TKMDropCommon = class(TKMControl)
   private
-    fCaption: string; //Current caption (Default or from list)
-    fDefaultCaption: string;
     fDropCount: Byte;
     fDropUp: Boolean;
     fFont: TKMFont;
     fButton: TKMButton;
-    fList: TKMListBox;
     fShape: TKMShape;
     fOnChange: TNotifyEvent;
-    procedure UpdateDropPosition;
-    procedure ListShow(Sender: TObject);
-    procedure ListClick(Sender: TObject);
-    procedure ListHide(Sender: TObject);
+    procedure UpdateDropPosition; virtual; abstract;
+    procedure ListShow(Sender: TObject); virtual;
+    procedure ListClick(Sender: TObject); virtual;
+    procedure ListHide(Sender: TObject); virtual;
+    function ListVisible: Boolean; virtual; abstract;
+    function GetItemIndex: smallint; virtual; abstract;
+    procedure SetItemIndex(aIndex: smallint); virtual; abstract;
+    procedure SetEnabled(aValue: Boolean); override;
+    procedure SetVisible(aValue: Boolean); override;
+  public
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+
+    procedure Clear; virtual; abstract;
+    function Count: Integer; virtual; abstract;
+
+    property DropCount: Byte read fDropCount write fDropCount;
+    property DropUp: Boolean read fDropUp write fDropUp;
+    property ItemIndex: smallint read GetItemIndex write SetItemIndex;
+
+    property OnChange: TNotifyEvent read fOnChange write fOnChange;
+    procedure Paint; override;
+  end;
+
+
+  TKMDropList = class(TKMDropCommon)
+  private
+    fCaption: string; //Current caption (Default or from list)
+    fDefaultCaption: string;
+    fList: TKMListBox;
+    procedure UpdateDropPosition; override;
+    procedure ListShow(Sender: TObject); override;
+    procedure ListClick(Sender: TObject); override;
+    procedure ListHide(Sender: TObject); override;
+    function ListVisible: Boolean; override;
     function GetItem(aIndex: Integer): string;
-    function GetItemIndex: smallint;
-    procedure SetItemIndex(aIndex: smallint);
+    function GetItemIndex: smallint; override;
+    procedure SetItemIndex(aIndex: smallint); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
+    procedure Clear; override;
+    function Count: Integer; override;
     procedure Add(aItem: string);
     procedure SetItems(aText: string);
-    property DropCount: Byte write fDropCount;
-    property DefaultCaption: string read fDefaultCaption write fDefaultCaption;
-    property DropUp: Boolean write fDropUp;
-    property ItemIndex: smallint read GetItemIndex write SetItemIndex;
-    property Item[aIndex: Integer]: string read GetItem;
     procedure SelectByName(aText: string);
-    procedure Clear;
-    property OnChange: TNotifyEvent write fOnChange;
+    property DefaultCaption: string read fDefaultCaption write fDefaultCaption;
+    property Item[aIndex: Integer]: string read GetItem;
+
+    procedure Paint; override;
+  end;
+
+
+  TKMDropColumns = class(TKMDropCommon)
+  private
+    fList: TKMColumnListBox;
+    procedure UpdateDropPosition; override;
+    procedure ListShow(Sender: TObject); override;
+    procedure ListClick(Sender: TObject); override;
+    procedure ListHide(Sender: TObject); override;
+    function ListVisible: Boolean; override;
+    function GetItem(aIndex: Integer): TKMListRow;
+    function GetItemIndex: smallint; override;
+    procedure SetItemIndex(aIndex: smallint); override;
+    procedure SetEnabled(aValue: Boolean); override;
+    procedure SetVisible(aValue: Boolean); override;
+  public
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+    procedure Clear; override;
+    function Count: Integer; override;
+    procedure Add(aItem: TKMListRow);
+    property Item[aIndex: Integer]: TKMListRow read GetItem;
+    procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
+
     procedure Paint; override;
   end;
 
@@ -820,12 +882,47 @@ type
   end;
 
 
+  function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; aTag: Integer = 0): TKMListRow; overload;
+  function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; const aPic: array of TKMPic; aTag: Integer = 0): TKMListRow; overload;
+
 implementation
 uses KM_RenderUI, KM_Resource, KM_ResourceCursors, KM_Sound;
 
 
 var
   fRenderUI: TRenderUI;
+
+
+function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; aTag: Integer = 0): TKMListRow;
+var I: Integer;
+begin
+  Assert(Length(aCaption) = Length(aColor));
+
+  for I := 0 to High(aCaption) do
+  begin
+    Result.Cells[I].Caption := aCaption[I];
+    Result.Cells[I].Color := aColor[I];
+  end;
+  Result.Tag := aTag;
+end;
+
+
+function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; const aPic: array of TKMPic; aTag: Integer = 0): TKMListRow;
+var I: Integer;
+begin
+  Assert(Length(aCaption) = Length(aColor));
+  Assert(Length(aCaption) = Length(aPic));
+
+  SetLength(Result.Cells, Length(aCaption));
+
+  for I := 0 to High(aCaption) do
+  begin
+    Result.Cells[I].Caption := aCaption[I];
+    Result.Cells[I].Color := aColor[I];
+    Result.Cells[I].Pic := aPic[I];
+  end;
+  Result.Tag := aTag;
+end;
 
 
 { TKMControl }
@@ -1325,6 +1422,7 @@ begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fRX := aRX;
   fTexID := aTexID;
+  fColor := $FFFF00FF;
   ImageAnchors := [akLeft, akTop];
   Highlight := false;
   HighlightOnMouseOver := false;
@@ -1402,7 +1500,7 @@ begin
   if StretchDraw then
     fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, fRX, fTexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight)
   else
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, fRX, fTexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, fRX, fTexID, fColor, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
 end;
 
 
@@ -1622,6 +1720,7 @@ begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   RX    := aRX;
   TexID := aTexID;
+  fColor := $FFFF00FF;
   fFont := fnt_Grey;
   TextAlign := taLeft;
 end;
@@ -1645,7 +1744,7 @@ begin
     StateSet:=StateSet + [bsDown];
   //if not Enabled then StateSet:=StateSet+[fbs_Disabled];
 
-  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RX,TexID,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
+  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RX,TexID,fColor,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
 end;
 
 
@@ -1962,7 +2061,7 @@ begin
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width-8, 0, Caption, fnt_Game, taLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
-    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RX, TexID);
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RX, TexID, $00000000);
 end;
 
 
@@ -2010,7 +2109,7 @@ begin
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width - 8, 0, Caption, fnt_Game, taLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
-    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RX, TexID);
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RX, TexID, $00000000);
 end;
 
 
@@ -2019,8 +2118,8 @@ procedure TKMCostsRow.Paint;
 begin
   inherited;
   fRenderUI.WriteText(Left, Top + 4, Width-20, 0, Caption, fnt_Grey, taLeft, $FFFFFFFF);
-  if TexID1 <> 0 then fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[RX,TexID1].PxHeight) div 2, RX, TexID1);
-  if TexID2 <> 0 then fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[RX,TexID2].PxHeight) div 2, RX, TexID2);
+  if TexID1 <> 0 then fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[RX,TexID1].PxHeight) div 2, RX, TexID1, $00000000);
+  if TexID2 <> 0 then fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[RX,TexID2].PxHeight) div 2, RX, TexID2, $00000000);
 end;
 
 
@@ -2763,7 +2862,7 @@ constructor TKMColumnListBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight
 const
   DEF_HEADER_HEIGHT = 24;
 begin
-  inherited Create(aParent, aLeft, aTop + DEF_HEADER_HEIGHT, aWidth, aHeight - DEF_HEADER_HEIGHT);
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fFont       := aFont;
   fItemHeight := 20;
   fItemIndex  := -1;
@@ -2775,6 +2874,14 @@ begin
   UpdateScrollBar; //Initialise the scrollbar
 
   SetBackAlpha(0.5);
+end;
+
+
+procedure TKMColumnListBox.SetTop(aValue: Integer);
+begin
+  inherited;
+  fHeader.Top := aValue;
+  fScrollBar.Top := aValue;
 end;
 
 
@@ -2810,6 +2917,12 @@ end;
 function TKMColumnListBox.GetTopIndex: Integer;
 begin
   Result := fScrollBar.Position;
+end;
+
+
+function TKMColumnListBox.HeaderHeight: Integer;
+begin
+  Result := fHeader.Height;
 end;
 
 
@@ -2869,55 +2982,38 @@ end;
 //fRowCount or Height has changed
 procedure TKMColumnListBox.UpdateScrollBar;
 begin
-  fScrollBar.MaxValue := fRowCount - (fHeight div fItemHeight);
+  fScrollBar.MaxValue := fRowCount - (fHeight - fHeader.Height) div fItemHeight;
+  Assert(fScrollBar.MaxValue >= fScrollBar.MinValue);
   fScrollBar.Visible := fVisible and (fScrollBar.MaxValue <> fScrollBar.MinValue);
 end;
 
 
 //If we don't add columns there will be Assert on items add
 procedure TKMColumnListBox.SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
-var i: Integer;
+var I: Integer;
 begin
-  Assert(Length(aColumns) > 0);
   Assert(Length(aColumns) = Length(aColumnOffsets));
 
   Clear; //We don't want to conflict with already added rows elements
 
   fHeader.Font := aFont;
 
-  for i := 0 to Length(aColumns) - 1 do
-    fHeader.AddColumn(aColumns[i], aColumnOffsets[i]);
+  for I := 0 to Length(aColumns) - 1 do
+    fHeader.AddColumn(aColumns[I], aColumnOffsets[I]);
 end;
 
 
-procedure TKMColumnListBox.AddItem(aItem: array of string; aItemColor: array of TColor4; aTag: Integer = 0);
-var i: Integer;
+procedure TKMColumnListBox.AddItem(aItem: TKMListRow);
 begin
   Assert(fHeader.ColumnCount > 0);
-  Assert(Length(aItem) = Length(aItemColor));
+  Assert(Length(aItem.Cells) = fHeader.ColumnCount);
 
   if fRowCount >= Length(fRows) then
     SetLength(fRows, fRowCount + 16);
 
-  //Anything beyond ColumnCount will be invisible anyway
-  SetLength(fRows[fRowCount].Caption, fHeader.ColumnCount);
-  SetLength(fRows[fRowCount].Color, fHeader.ColumnCount);
+  fRows[fRowCount] := aItem;
 
-  for i := 0 to Min(Length(aItem), fHeader.ColumnCount) - 1 do
-  begin
-    fRows[fRowCount].Caption[i] := aItem[i];
-    fRows[fRowCount].Color[i] := aItemColor[i];
-    fRows[fRowCount].Tag := aTag;
-  end;
-
-  //Mark the remaining columns as erroneously empty
-  for i := Min(Length(aItem), fHeader.ColumnCount) + 1 to fHeader.ColumnCount - 1 do
-  begin
-    fRows[fRowCount].Caption[i] := '<<<LEER>>>';
-    fRows[fRowCount].Color[i] := $FFFFFFFF;
-  end;
-
-  inc(fRowCount);
+  Inc(fRowCount);
   UpdateScrollBar;
 end;
 
@@ -2970,9 +3066,9 @@ begin
 
   if (ssLeft in Shift)
   and (InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible)))
-  and (InRange(Y, Top, Top + (Height div fItemHeight) * fItemHeight))
+  and (InRange(Y, Top + fHeader.Height, Top + fHeader.Height + (Height div fItemHeight) * fItemHeight))
   then begin
-    NewIndex := TopIndex + (Y - Top) div fItemHeight;
+    NewIndex := TopIndex + (Y - Top - fHeader.Height) div fItemHeight;
 
     if NewIndex >= fRowCount then NewIndex := -1;
 
@@ -2996,9 +3092,11 @@ end;
 
 
 procedure TKMColumnListBox.Paint;
-var i,k,PaintWidth,ItemWidth: Integer;
+var
+  I, K, PaintWidth, ItemWidth: Integer;
 begin
   inherited;
+
   if fScrollBar.Visible then
     PaintWidth := Width - fScrollBar.Width //Leave space for scrollbar
   else
@@ -3006,44 +3104,113 @@ begin
 
   fHeader.Width := PaintWidth;
 
-  fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
+  fRenderUI.WriteBevel(Left, Top + fHeader.Height, PaintWidth, Height - fHeader.Height, false, fBackAlpha);
 
-  if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, (fHeight div ItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
+  //Selected item highlight on background
+  if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, (fHeight - fHeader.Height) div ItemHeight-1) then
+    fRenderUI.WriteLayer(Left, Top + fHeader.Height + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
 
-  for i:=0 to Math.min(fRowCount, (fHeight div fItemHeight)) - 1 do
-    for k:=0 to fHeader.ColumnCount - 1 do
+  for I := 0 to Math.min(fRowCount, (fHeight - fHeader.Height) div fItemHeight) - 1 do
+    for K := 0 to fHeader.ColumnCount - 1 do
     begin
 
-      if k = fHeader.ColumnCount - 1 then
-        ItemWidth := PaintWidth - 4 - fHeader.ColumnOffset[k] - 4
+      if K = fHeader.ColumnCount - 1 then
+        ItemWidth := PaintWidth - 4 - fHeader.ColumnOffset[K] - 4
       else
-        ItemWidth := fHeader.ColumnOffset[k+1] - fHeader.ColumnOffset[k] - 4;
+        ItemWidth := fHeader.ColumnOffset[K+1] - fHeader.ColumnOffset[K] - 4;
 
-      fRenderUI.WriteText(Left + 4 + fHeader.ColumnOffset[k], Top + i*fItemHeight + 3, ItemWidth, 0, fRows[TopIndex+i].Caption[k], fFont, taLeft, fRows[TopIndex+i].Color[k]);
+      if fRows[TopIndex+I].Cells[K].Caption <> '' then
+        fRenderUI.WriteText(Left + 4 + fHeader.ColumnOffset[K], Top + fHeader.Height + I*fItemHeight + 3, ItemWidth, 0, fRows[TopIndex+I].Cells[K].Caption, fFont, taLeft, fRows[TopIndex+I].Cells[K].Color);
+      if fRows[TopIndex+I].Cells[K].Pic.ID <> 0 then
+        fRenderUI.WritePicture(Left + 4 + fHeader.ColumnOffset[K],
+                               Top + fHeader.Height + I*fItemHeight + 3,
+                               fRows[TopIndex+I].Cells[K].Pic.RX,
+                               fRows[TopIndex+I].Cells[K].Pic.ID,
+                               fRows[TopIndex+I].Cells[K].Color);
     end;
 end;
 
 
-{ TKMDropBox }
-constructor TKMDropBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
+{ TKMDropCommon }
+constructor TKMDropCommon.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 
   fDropCount := 10;
-  fDropUp := false;
+  fDropUp := False;
   fFont := aFont;
-  fDefaultCaption := aDefaultCaption;
   fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, rxGui, bsMenu);
   fButton.fOnClick := ListShow;
-  fButton.MakesSound := false;
+  fButton.MakesSound := False;
 
   P := MasterParent;
   fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height, $00000000);
   fShape.fOnClick := ListHide;
+end;
+
+
+procedure TKMDropCommon.ListShow(Sender: TObject);
+begin
+  if ListVisible then
+  begin
+    ListHide(nil);
+    exit;
+  end;
+
+  if Count > 0 then
+    fShape.Show;
+end;
+
+
+procedure TKMDropCommon.ListClick(Sender: TObject);
+begin
+  if (ItemIndex <> -1) then
+    if Assigned(fOnChange) then fOnChange(Self);
+  ListHide(nil);
+end;
+
+
+procedure TKMDropCommon.ListHide(Sender: TObject);
+begin
+  fShape.Hide;
+end;
+
+
+procedure TKMDropCommon.SetEnabled(aValue: Boolean);
+begin
+  inherited;
+  fButton.Enabled := aValue;
+end;
+
+
+procedure TKMDropCommon.SetVisible(aValue: Boolean);
+begin
+  inherited;
+  fButton.Visible := aValue;
+  if not aValue then ListHide(Self);
+end;
+
+
+procedure TKMDropCommon.Paint;
+begin
+  inherited;
+  fRenderUI.WriteBevel(Left, Top, Width, Height);
+
+end;
+
+
+{ TKMDropList }
+constructor TKMDropList.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
+var P: TKMPanel;
+begin
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aFont);
+
+  fDefaultCaption := aDefaultCaption;
+
+  P := MasterParent;
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
   fList := TKMListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont);
@@ -3055,53 +3222,44 @@ begin
 end;
 
 
-procedure TKMDropBox.ListShow(Sender: TObject);
+procedure TKMDropList.ListShow(Sender: TObject);
 begin
-  if fList.Visible then
-  begin
-    ListHide(nil);
-    exit;
-  end;
+  inherited;
+  if ListVisible or (Count < 1) then Exit;
 
-  if fList.Count < 1 then Exit;
-
-  fList.Height := Math.min(fDropCount, fList.Count)*fList.ItemHeight;
-  if fDropUp then
-    fList.Top := Top-fList.Height-MasterParent.Top
-  else
-    fList.Top := Top+Height-MasterParent.Top;
-  fList.TopIndex := ItemIndex - fDropCount div 2;
-
+  UpdateDropPosition;
   fList.Show;
-  fShape.Show;
 end;
 
 
-procedure TKMDropBox.ListClick(Sender: TObject);
+procedure TKMDropList.ListClick(Sender: TObject);
 begin
-  if (fList.ItemIndex <> -1) then
-  begin
-    fCaption := fList.Item[fList.ItemIndex];
-    if Assigned(fOnChange) then fOnChange(Self);
-  end;
-  ListHide(nil);
+  fCaption := fList.Item[ItemIndex];
+
+  inherited;
 end;
 
 
-procedure TKMDropBox.ListHide(Sender: TObject);
+procedure TKMDropList.ListHide(Sender: TObject);
 begin
+  inherited;
   fList.Hide;
-  fShape.Hide;
 end;
 
 
-function TKMDropBox.GetItemIndex: smallint;
+function TKMDropList.ListVisible: Boolean;
+begin
+  Result := fList.Visible;
+end;
+
+
+function TKMDropList.GetItemIndex: smallint;
 begin
   Result := fList.ItemIndex;
 end;
 
 
-procedure TKMDropBox.SetItemIndex(aIndex: smallint);
+procedure TKMDropList.SetItemIndex(aIndex: smallint);
 begin
   fList.ItemIndex := aIndex;
   if aIndex <> -1 then
@@ -3111,27 +3269,31 @@ begin
 end;
 
 
-procedure TKMDropBox.SetEnabled(aValue: Boolean);
+procedure TKMDropList.SetEnabled(aValue: Boolean);
 begin
   inherited;
-  fButton.Enabled := aValue;
   fList.Enabled := aValue;
 end;
 
 
-procedure TKMDropBox.SetVisible(aValue: Boolean);
+procedure TKMDropList.SetVisible(aValue: Boolean);
 begin
   inherited;
-  fButton.Visible := aValue;
   if not aValue then ListHide(Self);
 end;
 
-//When new items are added to the list we must update the drop height and position
-procedure TKMDropBox.UpdateDropPosition;
+
+function TKMDropList.Count: Integer;
 begin
-  if fList.Visible then
+  Result := fList.Count;
+end;
+
+
+//When new items are added to the list we must update the drop height and position
+procedure TKMDropList.UpdateDropPosition;
+begin
+  if ListVisible and (Count > 0) then
   begin
-    if fList.Count < 1 then Exit;
     fList.Height := Math.min(fDropCount, fList.Count)*fList.ItemHeight;
     if fDropUp then
       fList.Top := Top-fList.Height-MasterParent.Top
@@ -3141,21 +3303,21 @@ begin
 end;
 
 
-procedure TKMDropBox.Add(aItem: string);
+procedure TKMDropList.Add(aItem: string);
 begin
   fList.Add(aItem);
   UpdateDropPosition;
 end;
 
 
-procedure TKMDropBox.SetItems(aText: string);
+procedure TKMDropList.SetItems(aText: string);
 begin
   fList.SetItems(aText);
   UpdateDropPosition;
 end;
 
 
-procedure TKMDropBox.SelectByName(aText: string);
+procedure TKMDropList.SelectByName(aText: string);
 var i: Integer;
 begin
   fList.ItemIndex := -1;
@@ -3165,26 +3327,153 @@ begin
 end;
 
 
-function TKMDropBox.GetItem(aIndex: Integer): string;
+function TKMDropList.GetItem(aIndex: Integer): string;
 begin
   Result := fList.Item[aIndex];
 end;
 
 
-procedure TKMDropBox.Clear;
+procedure TKMDropList.Clear;
 begin
   fList.Clear;
 end;
 
 
-procedure TKMDropBox.Paint;
+procedure TKMDropList.Paint;
+var Col: TColor4;
+begin
+  inherited;
+
+  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
+  fRenderUI.WriteText(Left+4, Top+4, Width-8, 0, fCaption, fFont, taLeft, Col);
+end;
+
+
+{ TKMDropColumns }
+constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+var P: TKMPanel;
+begin
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aFont);
+
+  P := MasterParent;
+
+  //In FullScreen mode P initialized already with offset (P.Top <> 0)
+  fList := TKMColumnListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont);
+  fList.BackAlpha := 0.85;
+  fList.OnClick := ListClick;
+
+  ListHide(nil);
+end;
+
+
+procedure TKMDropColumns.ListShow(Sender: TObject);
+begin
+  inherited;
+  if ListVisible or (Count < 1) then Exit;
+
+  UpdateDropPosition;
+  fList.Show;
+end;
+
+
+procedure TKMDropColumns.ListClick(Sender: TObject);
+begin
+  inherited;
+end;
+
+
+procedure TKMDropColumns.ListHide(Sender: TObject);
+begin
+  inherited;
+  fList.Hide;
+end;
+
+
+function TKMDropColumns.ListVisible: Boolean;
+begin
+  Result := fList.Visible;
+end;
+
+
+function TKMDropColumns.GetItemIndex: smallint;
+begin
+  Result := fList.ItemIndex;
+end;
+
+
+procedure TKMDropColumns.SetItemIndex(aIndex: smallint);
+begin
+  fList.ItemIndex := aIndex;
+end;
+
+
+procedure TKMDropColumns.SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
+begin
+  fList.SetColumns(aFont, aColumns, aColumnOffsets);
+end;
+
+
+procedure TKMDropColumns.SetEnabled(aValue: Boolean);
+begin
+  inherited;
+  fList.Enabled := aValue;
+end;
+
+
+procedure TKMDropColumns.SetVisible(aValue: Boolean);
+begin
+  inherited;
+  if not aValue then ListHide(Self);
+end;
+
+
+function TKMDropColumns.Count: Integer;
+begin
+  Result := fList.RowCount;
+end;
+
+
+//When new items are added to the list we must update the drop height and position
+procedure TKMDropColumns.UpdateDropPosition;
+begin
+  if (Count > 0) then
+  begin
+    fList.Height := Math.min(fDropCount, fList.RowCount) * fList.ItemHeight + fList.HeaderHeight;
+    if fDropUp then
+      fList.Top := Top - fList.Height - MasterParent.Top
+    else
+      fList.Top := Top + Height - MasterParent.Top;
+  end;
+end;
+
+
+procedure TKMDropColumns.Add(aItem: TKMListRow);
+begin
+  fList.AddItem(aItem);
+  UpdateDropPosition;
+end;
+
+
+function TKMDropColumns.GetItem(aIndex: Integer): TKMListRow;
+begin
+  Result := fList.Rows[aIndex];
+end;
+
+
+procedure TKMDropColumns.Clear;
+begin
+  fList.Clear;
+end;
+
+
+procedure TKMDropColumns.Paint;
 var Col: TColor4;
 begin
   inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  fRenderUI.WriteText(Left+4, Top+4, Width-8, 0, fCaption, fFont, taLeft, Col);
+  fRenderUI.WriteText(Left+4, Top+4, Width-8, 0, '<<>>', fFont, taLeft, Col);
 end;
 
 
