@@ -32,7 +32,7 @@ type
                              const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:string);
     property OnMessage: TStringEvent write fOnMessage;
     
-    function GetServerInfo:TList;
+    procedure GetServerInfo(var aList: TList);
   end;
 
 
@@ -147,9 +147,9 @@ begin
 end;
 
 
-function TKMDedicatedServer.GetServerInfo:TList;
+procedure TKMDedicatedServer.GetServerInfo(var aList: TList);
 begin
-  Result := fNetServer.GetServerInfo;
+  fNetServer.GetServerInfo(aList);
 end;
 
 
