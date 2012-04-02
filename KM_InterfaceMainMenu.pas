@@ -162,6 +162,7 @@ type
       Panel_MPAnnouncement: TKMPanel;
         Memo_MP_Announcement: TKMMemo;
       ColList_Servers: TKMColumnListBox;
+      Label_Servers_Status: TKMLabel;
       Button_MP_Back: TKMButton;
       Button_MP_Refresh: TKMButton;
       Button_MP_GetIn: TKMButton;
@@ -717,20 +718,22 @@ begin
 
     FindServerPopUp;
 
-    //Create server area
-
-    //Server list area
+    //Master server announcement
     Memo_MP_Announcement := TKMMemo.Create(Panel_MultiPlayer, 45, 45, 620, 189, fnt_Grey);
     Memo_MP_Announcement.Anchors := [akLeft, akTop];
     Memo_MP_Announcement.AutoWrap := True;
     Memo_MP_Announcement.ItemHeight := 16;
 
+    //List of available servers
     ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,240,620,465,fnt_Metal);
     ColList_Servers.Anchors := [akLeft, akTop, akBottom];
     ColList_Servers.SetColumns(fnt_Outline, [fTextLibrary[TX_MP_MENU_SERVERLIST_NAME],fTextLibrary[TX_MP_MENU_SERVERLIST_STATE],fTextLibrary[TX_MP_MENU_SERVERLIST_PLAYERS],fTextLibrary[TX_MP_MENU_SERVERLIST_PING]],[0,300,430,525]);
     ColList_Servers.OnColumnClick := MP_ServersSort;
     ColList_Servers.OnChange := MP_ServersClick;
     ColList_Servers.OnDoubleClick := MP_ServersDoubleClick;
+    Label_Servers_Status := TKMLabel.Create(Panel_MultiPlayer, 45+310, 240+230, 0, 0, '', fnt_Grey, taCenter);
+    Label_Servers_Status.Anchors := [akLeft];
+    Label_Servers_Status.Hide;
 
     //Server details area
     Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 675, 240, 320, 465);
@@ -1823,7 +1826,8 @@ begin
   Label_MP_Players.Caption := '';
   Label_MP_GameTime.Caption := '';
   Label_MP_Map.Caption := '';
-  ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_REFRESHING],'','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1);
+  Label_Servers_Status.Caption := fTextLibrary[TX_MP_MENU_REFRESHING];
+  Label_Servers_Status.Show;
   Button_MP_GetIn.Disable;
 end;
 
@@ -1841,34 +1845,43 @@ begin
   ColList_Servers.Clear;
 
   if fGame.Networking.ServerQuery.Rooms.Count = 0 then
-    ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_NO_SERVERS], '', '', ''], [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF], -1)
-  else
-  for I := 0 to fGame.Networking.ServerQuery.Rooms.Count - 1 do
   begin
-    R := fGame.Networking.ServerQuery.Rooms[I];
-    S := fGame.Networking.ServerQuery.Servers[R.ServerIndex];
+    Label_Servers_Status.Caption := fTextLibrary[TX_MP_MENU_NO_SERVERS];
+    Label_Servers_Status.Show;
+  end
+  else
+  begin
+    Label_Servers_Status.Hide;
+    for I := 0 to fGame.Networking.ServerQuery.Rooms.Count - 1 do
+    begin
+      R := fGame.Networking.ServerQuery.Rooms[I];
+      S := fGame.Networking.ServerQuery.Servers[R.ServerIndex];
 
-    //Only show # if Server has more than 1 Room
-    DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
-    ColList_Servers.AddItem([DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.GameInfo.PlayerCount), IntToStr(S.Ping)],
-                            [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)], I);
+      //Only show # if Server has more than 1 Room
+      DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
+      ColList_Servers.AddItem([DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.GameInfo.PlayerCount), IntToStr(S.Ping)],
+                              [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)], I);
 
-    //if server was selected, we need to select it again, because TKMColumnListBox was cleared
-    if fServerSelected then
-      if (R.RoomID = fSelectedRoomInfo.RoomID) and (S.IP = fSelectedServerInfo.IP) and
-         (S.Port = fSelectedServerInfo.Port) then
-         begin
-           ColList_Servers.ItemIndex := I;
-           MP_ServersClick(nil); //Shows info about this selected server
-           if not InRange(I - ColList_Servers.TopIndex, 0, (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1) and
-           (fJumpToSelectedServer) then begin
-              if I < ColList_Servers.TopIndex + (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1 then
-                ColList_Servers.TopIndex := I
-              else if I > ColList_Servers.TopIndex + (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1 then
-                ColList_Servers.TopIndex := I - (ColList_Servers.Height div ColList_Servers.ItemHeight) + 1;
-              fJumpToSelectedServer := False;
-           end;
-         end;
+      //if server was selected, we need to select it again, because TKMColumnListBox was cleared
+      if fServerSelected
+      and (R.RoomID = fSelectedRoomInfo.RoomID)
+      and (S.IP = fSelectedServerInfo.IP)
+      and (S.Port = fSelectedServerInfo.Port) then
+      begin
+        ColList_Servers.ItemIndex := I;
+        MP_ServersClick(nil); //Shows info about this selected server
+        if fJumpToSelectedServer
+        and not InRange(I - ColList_Servers.TopIndex, 0, (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1) then
+        begin
+          if I < ColList_Servers.TopIndex + (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1 then
+            ColList_Servers.TopIndex := I
+          else
+          if I > ColList_Servers.TopIndex + (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1 then
+            ColList_Servers.TopIndex := I - (ColList_Servers.Height div ColList_Servers.ItemHeight) + 1;
+          fJumpToSelectedServer := False;
+        end;
+      end;
+    end;
   end;
 end;
 
