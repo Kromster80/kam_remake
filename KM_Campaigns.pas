@@ -11,11 +11,6 @@ const
   MAX_CAMP_NODES = 20;
 
 type
-  TPicID = record
-    RX: TRXType;
-    ID: Word;
-  end;
-
   TKMCampaign = class
   private
     //Runtime variables
@@ -25,7 +20,7 @@ type
 
     //Saved in CMP
     fShortTitle: AnsiString; //Used to identify the campaign
-    fBackGroundPic: TPicID;
+    fBackGroundPic: TKMPic;
     fMapCount: Byte;
     procedure SetUnlockedMap(aValue: Byte);
     procedure SetMapCount(aValue: Byte);
@@ -42,7 +37,7 @@ type
     procedure SaveToFile(aFileName: string);
     procedure LoadFromPath(aPath: string);
 
-    property BackGroundPic: TPicID read fBackGroundPic write fBackGroundPic;
+    property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
     property MapCount: byte read fMapCount write SetMapCount;
     property ShortTitle: AnsiString read fShortTitle write fShortTitle;
     property UnlockedMap: byte read fUnlockedMap write SetUnlockedMap;

@@ -924,9 +924,15 @@ type
     rxTiles, //Tiles
     rxGame); //Remake game sprites
 
+  TKMPic = record
+    RX: TRXType;
+    ID: Word;
+  end;
+
+
 const
   MAPSIZES_COUNT = 11;
-  MapSize: array[1..MAPSIZES_COUNT] of word=( 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192 );
+  MapSize: array [1..MAPSIZES_COUNT] of Word = (32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192);
 
 
   //Colors available for selection in multiplayer
