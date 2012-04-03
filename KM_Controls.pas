@@ -98,15 +98,16 @@ type
     function GetTop: Integer;
     function GetHeight: Integer;
     function GetWidth: Integer;
-    procedure SetLeft(aValue: Integer); virtual;
-    procedure SetTop(aValue: Integer); virtual;
-    procedure SetHeight(aValue: Integer); virtual;
-    procedure SetWidth(aValue: Integer); virtual;
 
     //Let the control know that it was clicked to do its internal magic
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
 
     function GetVisible: Boolean;
+  protected
+    procedure SetLeft(aValue: Integer); virtual;
+    procedure SetTop(aValue: Integer); virtual;
+    procedure SetHeight(aValue: Integer); virtual;
+    procedure SetWidth(aValue: Integer); virtual;
     procedure SetVisible(aValue: Boolean); virtual;
     procedure SetEnabled(aValue: Boolean); virtual;
   public
@@ -157,6 +158,7 @@ type
   TKMPanel = class(TKMControl)
   private
     GetCollection: TKMMasterControl;
+  protected
     procedure SetHeight(aValue: Integer); override;
     procedure SetWidth(aValue: Integer); override;
   public
@@ -452,6 +454,7 @@ type
     fOrderAdd: TKMButton;
     fOrderLab: TKMLabel;
     fOrderRem: TKMButton;
+  protected
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
@@ -518,15 +521,16 @@ type
     fScrollDec: TKMButton;
     fScrollInc: TKMButton;
     fOnChange: TNotifyEvent;
-    procedure SetHeight(aValue: Integer); override;
-    procedure SetEnabled(aValue: Boolean); override;
-    procedure SetVisible(aValue: Boolean); override;
     procedure SetMinValue(Value: Integer);
     procedure SetMaxValue(Value: Integer);
     procedure SetPosition(Value: Integer);
     procedure IncPosition(Sender: TObject);
     procedure DecPosition(Sender: TObject);
     procedure UpdateThumbSize;
+  protected
+    procedure SetHeight(aValue: Integer); override;
+    procedure SetEnabled(aValue: Boolean); override;
+    procedure SetVisible(aValue: Boolean); override;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aScrollAxis: TScrollAxis; aStyle: TButtonStyle);
     property BackAlpha: Single read fBackAlpha write fBackAlpha;
@@ -551,16 +555,17 @@ type
     fItems: TStringList;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
-    procedure SetHeight(aValue: Integer); override;
-    procedure SetVisible(aValue: Boolean); override;
     function GetTopIndex: Integer;
     procedure SetTopIndex(aIndex: Integer);
     procedure SetBackAlpha(aValue: single);
     procedure SetItemHeight(const Value: byte);
-    procedure SetEnabled(aValue: Boolean); override;
     procedure SetAutoHideScrollBar(Value: boolean);
     procedure UpdateScrollBar;
     function GetItem(aIndex: Integer): string;
+  protected
+    procedure SetHeight(aValue: Integer); override;
+    procedure SetEnabled(aValue: Boolean); override;
+    procedure SetVisible(aValue: Boolean); override;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
     destructor Destroy; override;
@@ -636,15 +641,12 @@ type
     fRowCount: Integer;
     fRows: array of TKMListRow;
     fHeader: TKMListHeader;
+    fShowHeader: Boolean;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
-    procedure SetTop(aValue: Integer); override;
-    procedure SetHeight(aValue: Integer); override;
-    procedure SetVisible(aValue: Boolean); override;
     function GetTopIndex: Integer;
     procedure SetTopIndex(aIndex: Integer);
     procedure SetBackAlpha(aValue: single);
-    procedure SetEnabled(aValue: Boolean); override;
     function GetSortIndex: Integer;
     procedure SetSortIndex(aIndex: Integer);
     function GetSortDirection: TSortDirection;
@@ -652,6 +654,13 @@ type
     function GetRow(aIndex: Integer): TKMListRow;
     procedure ColumnClick(aValue: Integer);
     procedure UpdateScrollBar;
+    procedure SetHeaderVisible(aValue: Boolean);
+    function GetHeaderVisible: Boolean;
+  protected
+    procedure SetTop(aValue: Integer); override;
+    procedure SetHeight(aValue: Integer); override;
+    procedure SetEnabled(aValue: Boolean); override;
+    procedure SetVisible(aValue: Boolean); override;
   public
     OnColumnClick: TIntegerEvent;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
@@ -660,6 +669,7 @@ type
     procedure AddItem(aItem: TKMListRow);
     procedure Clear;
     function HeaderHeight: Integer;
+    property ShowHeader: Boolean read fShowHeader write SetHeaderVisible;
 
     property Rows[aIndex: Integer]: TKMListRow read GetRow;
 
@@ -696,6 +706,7 @@ type
     function ListVisible: Boolean; virtual; abstract;
     function GetItemIndex: smallint; virtual; abstract;
     procedure SetItemIndex(aIndex: smallint); virtual; abstract;
+  protected
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
@@ -726,6 +737,7 @@ type
     function GetItem(aIndex: Integer): string;
     function GetItemIndex: smallint; override;
     procedure SetItemIndex(aIndex: smallint); override;
+  protected
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
@@ -753,13 +765,17 @@ type
     function GetItem(aIndex: Integer): TKMListRow;
     function GetItemIndex: smallint; override;
     procedure SetItemIndex(aIndex: smallint); override;
+    function GetShowHeader: Boolean;
+    procedure SetShowHeader(aValue: Boolean);
+  protected
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+    procedure Add(aItem: TKMListRow);
     procedure Clear; override;
     function Count: Integer; override;
-    procedure Add(aItem: TKMListRow);
+    property ShowHeader: Boolean read GetShowHeader write SetShowHeader;
     property Item[aIndex: Integer]: TKMListRow read GetItem;
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
 
@@ -778,8 +794,9 @@ type
     procedure ListShow(Sender: TObject);
     procedure ListClick(Sender: TObject);
     procedure ListHide(Sender: TObject);
-    procedure SetEnabled(aValue: Boolean); override;
     procedure SetColorIndex(aIndex: Integer);
+  protected
+    procedure SetEnabled(aValue: Boolean); override;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aCount: Integer);
     property ColorIndex: Integer read fColorIndex write SetColorIndex;
@@ -799,10 +816,6 @@ type
     fScrollDown: Boolean;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
-    procedure SetHeight(aValue: Integer); override;
-    procedure SetWidth(aValue: Integer); override;
-    procedure SetVisible(aValue: Boolean); override;
-    procedure SetEnabled(aValue: Boolean); override;
 
     procedure SetAutoWrap(const Value: boolean);
     function GetText: string;
@@ -811,6 +824,11 @@ type
     procedure SetTopIndex(aIndex: smallint);
     procedure ReformatText;
     procedure UpdateScrollBar;
+  protected
+    procedure SetHeight(aValue: Integer); override;
+    procedure SetWidth(aValue: Integer); override;
+    procedure SetVisible(aValue: Boolean); override;
+    procedure SetEnabled(aValue: Boolean); override;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
     destructor Destroy; override;
@@ -2859,8 +2877,7 @@ end;
 
 { TKMColumnListBox }
 constructor TKMColumnListBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
-const
-  DEF_HEADER_HEIGHT = 24;
+const DEF_HEADER_HEIGHT = 24;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fFont       := aFont;
@@ -2882,6 +2899,12 @@ begin
   inherited;
   fHeader.Top := aValue;
   fScrollBar.Top := aValue;
+end;
+
+
+procedure TKMColumnListBox.SetHeaderVisible(aValue: Boolean);
+begin
+  fHeader.Visible := aValue;
 end;
 
 
@@ -2909,8 +2932,8 @@ end;
 procedure TKMColumnListBox.SetVisible(aValue: Boolean);
 begin
   inherited;
-  fHeader.Visible := aValue;
-  fScrollBar.Visible := fVisible; //Hide scrollbar and its buttons
+  fHeader.Visible := fVisible and fShowHeader;
+  fScrollBar.Visible := fVisible and (fScrollBar.Enabled); //Hide scrollbar and its buttons
 end;
 
 
@@ -2948,6 +2971,12 @@ begin
 end;
 
 
+function TKMColumnListBox.GetHeaderVisible: Boolean;
+begin
+  Result := fHeader.Visible;
+end;
+
+
 function TKMColumnListBox.GetRow(aIndex: Integer): TKMListRow;
 begin
   Assert(InRange(aIndex, 0, fRowCount - 1));
@@ -2982,7 +3011,7 @@ end;
 //fRowCount or Height has changed
 procedure TKMColumnListBox.UpdateScrollBar;
 begin
-  fScrollBar.MaxValue := fRowCount - (fHeight - fHeader.Height) div fItemHeight;
+  fScrollBar.MaxValue := fRowCount - (fHeight - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
   Assert(fScrollBar.MaxValue >= fScrollBar.MinValue);
   fScrollBar.Visible := fVisible and (fScrollBar.MaxValue <> fScrollBar.MinValue);
 end;
@@ -3066,13 +3095,12 @@ begin
 
   if (ssLeft in Shift)
   and (InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible)))
-  and (InRange(Y, Top + fHeader.Height, Top + fHeader.Height + (Height div fItemHeight) * fItemHeight))
   then begin
-    NewIndex := TopIndex + (Y - Top - fHeader.Height) div fItemHeight;
+    NewIndex := TopIndex + (Y - Top - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
 
     if NewIndex >= fRowCount then NewIndex := -1;
 
-    if (NewIndex <> fItemIndex) then
+    if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex) then
     begin
       fItemIndex := NewIndex;
       fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
@@ -3093,7 +3121,7 @@ end;
 
 procedure TKMColumnListBox.Paint;
 var
-  I, K, PaintWidth, ItemWidth: Integer;
+  I, K, PaintWidth, ItemWidth, MaxItem, Y: Integer;
 begin
   inherited;
 
@@ -3104,13 +3132,16 @@ begin
 
   fHeader.Width := PaintWidth;
 
-  fRenderUI.WriteBevel(Left, Top + fHeader.Height, PaintWidth, Height - fHeader.Height, false, fBackAlpha);
+  Y := Top + fHeader.Height * Byte(fShowHeader);
+  MaxItem := (fHeight - fHeader.Height * Byte(fShowHeader)) div fItemHeight - 1;
+
+  fRenderUI.WriteBevel(Left, Y, PaintWidth, Height - fHeader.Height * Byte(fShowHeader), false, fBackAlpha);
 
   //Selected item highlight on background
-  if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, (fHeight - fHeader.Height) div ItemHeight-1) then
-    fRenderUI.WriteLayer(Left, Top + fHeader.Height + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
+  if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, MaxItem) then
+    fRenderUI.WriteLayer(Left, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
 
-  for I := 0 to Math.min(fRowCount, (fHeight - fHeader.Height) div fItemHeight) - 1 do
+  for I := 0 to Math.min(fRowCount - 1, MaxItem) do
     for K := 0 to fHeader.ColumnCount - 1 do
     begin
 
@@ -3120,10 +3151,10 @@ begin
         ItemWidth := fHeader.ColumnOffset[K+1] - fHeader.ColumnOffset[K] - 4;
 
       if fRows[TopIndex+I].Cells[K].Caption <> '' then
-        fRenderUI.WriteText(Left + 4 + fHeader.ColumnOffset[K], Top + fHeader.Height + I*fItemHeight + 3, ItemWidth, 0, fRows[TopIndex+I].Cells[K].Caption, fFont, taLeft, fRows[TopIndex+I].Cells[K].Color);
+        fRenderUI.WriteText(Left + 4 + fHeader.ColumnOffset[K], Y + I*fItemHeight + 3, ItemWidth, 0, fRows[TopIndex+I].Cells[K].Caption, fFont, taLeft, fRows[TopIndex+I].Cells[K].Color);
       if fRows[TopIndex+I].Cells[K].Pic.ID <> 0 then
         fRenderUI.WritePicture(Left + 4 + fHeader.ColumnOffset[K],
-                               Top + fHeader.Height + I*fItemHeight + 3,
+                               Y + I*fItemHeight + 3,
                                fRows[TopIndex+I].Cells[K].Pic.RX,
                                fRows[TopIndex+I].Cells[K].Pic.ID,
                                fRows[TopIndex+I].Cells[K].Color);
@@ -3420,6 +3451,18 @@ begin
 end;
 
 
+function TKMDropColumns.GetShowHeader: Boolean;
+begin
+  Result := fList.ShowHeader;
+end;
+
+
+procedure TKMDropColumns.SetShowHeader(aValue: Boolean);
+begin
+  fList.ShowHeader := aValue;
+end;
+
+
 procedure TKMDropColumns.SetVisible(aValue: Boolean);
 begin
   inherited;
@@ -3438,7 +3481,7 @@ procedure TKMDropColumns.UpdateDropPosition;
 begin
   if (Count > 0) then
   begin
-    fList.Height := Math.min(fDropCount, fList.RowCount) * fList.ItemHeight + fList.HeaderHeight;
+    fList.Height := Math.min(fDropCount, fList.RowCount) * fList.ItemHeight + fList.HeaderHeight * Byte(fList.ShowHeader);
     if fDropUp then
       fList.Top := Top - fList.Height - MasterParent.Top
     else
@@ -3473,7 +3516,14 @@ begin
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  fRenderUI.WriteText(Left+4, Top+4, Width-8, 0, '<<>>', fFont, taLeft, Col);
+  if ItemIndex <> -1 then
+    fRenderUI.WritePicture(Left + 4, Top + 4,
+                            fList.Rows[ItemIndex].Cells[0].Pic.RX,
+                            fList.Rows[ItemIndex].Cells[0].Pic.ID,
+                            fList.Rows[ItemIndex].Cells[0].Color,
+                            fEnabled)
+  else
+    fRenderUI.WriteText(Left + 4, Top + 4, Width - 8, 0, '<<?>>', fFont, taLeft, Col);
 end;
 
 

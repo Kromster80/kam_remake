@@ -10,7 +10,7 @@ uses
 
 
 {Globals}
- var
+var
   ExeDir: string;
   DataDir: string;
 

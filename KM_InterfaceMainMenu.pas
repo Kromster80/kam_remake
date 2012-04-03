@@ -387,10 +387,14 @@ begin
   Create_ResultsMP_Page;
 
   DC := TKMDropColumns.Create(Panel_Main, 50, 300, 200, 20, fnt_Grey);
-  //todo: DC.HeaderVisible := False;
-  DC.SetColumns(fnt_Outline, ['First', 'Second', 'Third'], [0, 30, 130]);
-  DC.Add(MakeListRow(['','Location',''], [$FF00FFFF, $FFFFFF80, $FF0000FF], [
-  MakePic(rxGui, 150), MakePic(rxGui, 12), MakePic(rxGui, 141)], 0));
+  DC.ShowHeader := False;
+  DC.SetColumns(fnt_Outline, ['First'], [0]);
+  DC.Add(MakeListRow([''], [$FF0000FF], [MakePic(rxMenu, 20)], 0));
+  DC.Add(MakeListRow([''], [$FF00FFFF], [MakePic(rxMenu, 20)], 0));
+  DC.Add(MakeListRow([''], [$FF00FF00], [MakePic(rxMenu, 20)], 0));
+  DC.Add(MakeListRow([''], [$FFFFFF00], [MakePic(rxMenu, 20)], 0));
+  DC.Add(MakeListRow([''], [$FFFF0000], [MakePic(rxMenu, 20)], 0));
+  DC.Add(MakeListRow([''], [$FFFF00FF], [MakePic(rxMenu, 20)], 0));
 
     {for i:=1 to length(FontFiles) do L[i]:=TKMLabel.Create(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),taLeft);//}
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);

@@ -2,7 +2,7 @@ unit TestKM_Campaigns;
 interface
 uses
   TestFramework, SysUtils, KM_Points, KM_Defaults, KM_CommonClasses, Classes, KromUtils,
-  KM_Campaigns, KM_Locales, KM_Log, KM_TextLibrary, Math;
+  KM_Campaigns, KM_Locales, KM_Log, KM_Pics, KM_TextLibrary, Math;
 
 type
   // Test methods for class TKMCampaign

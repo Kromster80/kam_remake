@@ -70,7 +70,7 @@ var
     ),
     (
       FileName: 'RemakeMenu';
-      TeamColors: False;
+      TeamColors: True;
       Usage: ruMenu;
       LoadingTextID: 0;
     ),

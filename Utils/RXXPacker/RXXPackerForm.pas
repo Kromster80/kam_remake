@@ -4,7 +4,7 @@ interface
 uses
   Classes, Controls, Forms, StdCtrls, SysUtils, TypInfo,
   {$IFDEF FPC} LResources, {$ENDIF}
-  KM_Defaults, KM_Log, KM_ResourcePalettes, KM_ResourceSprites;
+  KM_Defaults, KM_Log, KM_Pics, KM_ResourcePalettes, KM_ResourceSprites;
 
 
 type
