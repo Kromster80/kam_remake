@@ -4,7 +4,7 @@
 	1. Serfs bring "demand" and walk out with empty hands because other serf already "booked" the "offer",
 	   in worse case he will just stand idling in front. 
 	2. If serfs bring "demand" and take "offer" they need to cancel other serfs "booking" on the "offer", 
-	   other serf will halt and saty idle en-route or even worse - go in reverse direction
+	   other serf will halt and stay idle en-route or even worse - go in reverse direction
 
 
 	There's a new idea by Rayzel:

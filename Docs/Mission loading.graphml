@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:y="http://www.yworks.com/xml/graphml" xmlns:yed="http://www.yworks.com/xml/yed/3" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd">
-  <!--Created by yFiles for Java 2.8-->
+  <!--Created by yFiles for Java 2.9-->
   <key for="graphml" id="d0" yfiles.type="resources"/>
   <key for="port" id="d1" yfiles.type="portgraphics"/>
   <key for="port" id="d2" yfiles.type="portgeometry"/>
@@ -18,10 +18,10 @@
     <node id="n0">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="50.0" width="120.0" x="0.0" y="70.0"/>
+          <y:Geometry height="50.0" width="120.0" x="0.0" y="60.0"/>
           <y:Fill color="#FFFFFF" color2="#C0C0C0" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="60.35546875" x="29.822265625" y="13.953125">mpm_Info</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="83.01953125" x="18.490234375" y="13.953125">mpm_Preview</y:NodeLabel>
           <y:Shape type="diamond"/>
         </y:ShapeNode>
       </data>
@@ -29,7 +29,7 @@
     <node id="n1">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="50.0" width="120.0" x="280.0" y="70.0"/>
+          <y:Geometry height="50.0" width="120.0" x="300.0" y="60.0"/>
           <y:Fill color="#FFFFFF" color2="#C0C0C0" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="73.697265625" x="23.1513671875" y="13.953125">mpm_Single</y:NodeLabel>
@@ -40,7 +40,7 @@
     <node id="n2">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="50.0" width="120.0" x="140.0" y="70.0"/>
+          <y:Geometry height="50.0" width="120.0" x="150.0" y="60.0"/>
           <y:Fill color="#FFFFFF" color2="#C0C0C0" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="65.67578125" x="27.162109375" y="13.953125">mpm_Multi</y:NodeLabel>
@@ -51,10 +51,10 @@
     <node id="n3">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="50.0" width="120.0" x="420.0" y="70.0"/>
+          <y:Geometry height="50.0" width="120.0" x="450.0" y="60.0"/>
           <y:Fill color="#FFFFFF" color2="#C0C0C0" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="78.361328125" x="20.8193359375" y="13.953125">mpm_MapEd</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="71.6875" x="24.15625" y="13.953125">mpm_Editor</y:NodeLabel>
           <y:Shape type="diamond"/>
         </y:ShapeNode>
       </data>
@@ -62,7 +62,7 @@
     <node id="n4">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="150.0" x="195.0" y="215.0"/>
+          <y:Geometry height="30.0" width="150.0" x="210.0" y="190.0"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="91.685546875" x="29.1572265625" y="3.953125">TMissionDetails</y:NodeLabel>
@@ -73,7 +73,7 @@
     <node id="n5">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="150.0" x="195.0" y="0.0"/>
+          <y:Geometry height="30.0" width="150.0" x="210.0" y="0.0"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="96.37890625" x="26.810546875" y="3.953125">Load mission file</y:NodeLabel>
@@ -84,7 +84,7 @@
     <node id="n6">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="140.0" y="145.0"/>
+          <y:Geometry height="30.0" width="120.0" x="150.0" y="130.0"/>
           <y:Fill color="#FFFFFF" color2="#C0C0C0" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="72.361328125" x="23.8193359375" y="3.953125">Skip players</y:NodeLabel>
@@ -95,7 +95,7 @@
     <node id="n7">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="0.0" y="145.0"/>
+          <y:Geometry height="30.0" width="120.0" x="0.0" y="130.0"/>
           <y:Fill color="#FFFFFF" color2="#C0C0C0" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="71.04296875" x="24.478515625" y="3.953125">Load basics</y:NodeLabel>
@@ -106,7 +106,7 @@
     <node id="n8">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="420.0" y="145.0"/>
+          <y:Geometry height="30.0" width="120.0" x="450.0" y="130.0"/>
           <y:Fill color="#FFFFFF" color2="#C0C0C0" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="65.013671875" x="27.4931640625" y="3.953125">Skip errors</y:NodeLabel>
@@ -117,7 +117,7 @@
     <node id="n9">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="120.0" x="280.0" y="145.0"/>
+          <y:Geometry height="30.0" width="120.0" x="300.0" y="130.0"/>
           <y:Fill color="#FFFFFF" color2="#C0C0C0" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="2.0" configuration="CroppingLabel" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.09375" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="96.361328125" x="11.8193359375" y="3.953125">Assign MyPlayer</y:NodeLabel>
@@ -129,8 +129,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="15.0" tx="0.0" ty="-25.0">
-            <y:Point x="270.0" y="50.0"/>
-            <y:Point x="60.0" y="50.0"/>
+            <y:Point x="285.0" y="45.0"/>
+            <y:Point x="60.0" y="45.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -142,8 +142,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="15.0" tx="0.0" ty="-25.0">
-            <y:Point x="270.0" y="50.0"/>
-            <y:Point x="200.0" y="50.0"/>
+            <y:Point x="285.0" y="45.0"/>
+            <y:Point x="210.0" y="45.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -155,8 +155,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="15.0" tx="0.0" ty="-25.0">
-            <y:Point x="270.0" y="50.0"/>
-            <y:Point x="480.0" y="50.0"/>
+            <y:Point x="285.0" y="45.0"/>
+            <y:Point x="510.0" y="45.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -168,8 +168,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="15.0" tx="0.0" ty="-25.0">
-            <y:Point x="270.0" y="50.0"/>
-            <y:Point x="340.0" y="50.0"/>
+            <y:Point x="285.0" y="45.0"/>
+            <y:Point x="360.0" y="45.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -221,8 +221,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="15.0" tx="0.0" ty="-15.0">
-            <y:Point x="60.0" y="195.0"/>
-            <y:Point x="270.0" y="195.0"/>
+            <y:Point x="60.0" y="175.0"/>
+            <y:Point x="285.0" y="175.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -234,8 +234,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="15.0" tx="0.0" ty="-15.0">
-            <y:Point x="200.0" y="195.0"/>
-            <y:Point x="270.0" y="195.0"/>
+            <y:Point x="210.0" y="175.0"/>
+            <y:Point x="285.0" y="175.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -247,8 +247,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="15.0" tx="0.0" ty="-15.0">
-            <y:Point x="340.0" y="195.0"/>
-            <y:Point x="270.0" y="195.0"/>
+            <y:Point x="360.0" y="175.0"/>
+            <y:Point x="285.0" y="175.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -260,8 +260,8 @@
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="15.0" tx="0.0" ty="-15.0">
-            <y:Point x="480.0" y="195.0"/>
-            <y:Point x="270.0" y="195.0"/>
+            <y:Point x="510.0" y="175.0"/>
+            <y:Point x="285.0" y="175.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
