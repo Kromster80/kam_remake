@@ -51,6 +51,8 @@ Improvements:
  +	Minimap preview for saves (store raw color data at the begining of the save so it's fast)
  +	Saves/Replays scan should be done in separate thread to unlock GUI [Maciej]
  +	Saves/Replays can be sorted
+ +	Custom in-game messages for fan-made campaigns and missions (could be stored in new custom .libx file for the mission)
+ +	Support color tags in text
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	High quality alpha-blended shadows for houses (only once constructed?)
@@ -81,7 +83,6 @@ Improvements:
 	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
 	Some way to delete multiplayer saves from within the KaM Remake
 	Gameplay modes in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple modes.
-	Custom in-game messages for fan-made campaigns and missions (could be stored in new custom .libx file for the mission)
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

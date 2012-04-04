@@ -609,7 +609,8 @@ begin
   Panel_MainMenu := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_MainMenu.Anchors := [];
     TKMImage.Create(Panel_MainMenu, 300,  60, 423, 164, 4, rxGuiMain);
-    TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0, 'Remake', fnt_Metal, taCenter);
+    TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0,
+    '[$4040F0]R[$40F0F0]e[$40F040]m[$F0F040]a[$F04040]k[$F040F0]e', fnt_Metal, taCenter);
 
     with TKMImage.Create(Panel_MainMenu,  50, 220, round(218*1.3), round(291*1.3), 5, rxGuiMainH) do ImageStretch;
     with TKMImage.Create(Panel_MainMenu, 705, 220, round(207*1.3), round(295*1.3), 6, rxGuiMainH) do ImageStretch;

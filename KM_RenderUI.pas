@@ -422,10 +422,15 @@ end;
 {By default color must be non-transparent white}
 procedure TRenderUI.WriteText(X,Y,W,H: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF);
 var
-  i:integer;
-  LineCount,AdvX,LineHeight,BlockWidth:integer;
-  LineWidth:array of integer; //Use signed format since some fonts may have negative CharSpacing
+  I, K: Integer;
+  LineCount,AdvX,LineHeight,BlockWidth: Integer;
+  LineWidth: array of Integer; //Use signed format since some fonts may have negative CharSpacing
   FontData: TKMFontData;
+  TmpColor: Integer;
+  Colors: array of record
+    FirstChar: Word;
+    Color: TColor4;
+  end;
 begin
   if (aText = '') or (aColor = $00000000) then Exit;
 
@@ -436,22 +441,55 @@ begin
       taRight:  SetupClipX(X-W, X+W);
     end;
 
+  //Look for [$FFFFFF][] patterns that markup text color
+  I := 1;
+  repeat
+    I := PosEx('[', aText, I);
+
+    //Check for reset
+    if (I <> 0) and (I+1 <= Length(aText)) and (aText[I+1] = ']') then
+    begin
+      SetLength(Colors, Length(Colors) + 1);
+      Colors[High(Colors)].FirstChar := I;
+      Colors[High(Colors)].Color := 0;
+      Delete(aText, I, 2);
+    end;
+
+    //Check for new color
+    if (I <> 0) and (I+8 <= Length(aText))
+    and (aText[I+1] = '$') and (aText[I+8] = ']')
+    and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
+    begin
+      SetLength(Colors, Length(Colors) + 1);
+      Colors[High(Colors)].FirstChar := I;
+      Colors[High(Colors)].Color := TmpColor or $FF000000;
+      Delete(aText, I, 9);
+    end;
+  until(I = 0);
+
+
   FontData := fResource.ResourceFont.FontData[aFont]; //Shortcut
 
   //Calculate line count and each lines width to be able to properly aAlign them
   LineCount := 1;
-  for i:=1 to length(aText) do
-    if aText[i]=#124 then inc(LineCount);
+  for I:=1 to length(aText) do
+    if aText[I]=#124 then inc(LineCount);
 
   SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
 
   LineCount := 1;
 
-  for i:=1 to length(aText) do begin
-    if aText[i]<>#124 then
-      if aText[i]=#32 then inc(LineWidth[LineCount], FontData.WordSpacing)
-                     else inc(LineWidth[LineCount], FontData.Letters[byte(aText[i])].Width + FontData.CharSpacing);
-    if (aText[i]=#124)or(i=length(aText)) then begin //If EOL or aText end
+  for I:=1 to length(aText) do
+  begin
+    if aText[I]<>#124 then
+      if aText[I]=#32 then
+        inc(LineWidth[LineCount], FontData.WordSpacing)
+      else
+        inc(LineWidth[LineCount], FontData.Letters[byte(aText[I])].Width + FontData.CharSpacing);
+
+    //If EOL or aText end
+    if (aText[I]=#124)or(I=length(aText)) then
+    begin
       LineWidth[LineCount] := Math.max(0, LineWidth[LineCount] - FontData.CharSpacing); //Remove last interletter space and negate double EOLs
       inc(LineCount);
     end;
@@ -461,8 +499,8 @@ begin
 
   dec(LineCount);
   BlockWidth := 0;
-  for i:=1 to LineCount do
-    BlockWidth := Math.max(BlockWidth, LineWidth[i]);
+  for I:=1 to LineCount do
+    BlockWidth := Math.max(BlockWidth, LineWidth[I]);
 
   AdvX := 0;
   LineCount := 1;
@@ -478,30 +516,44 @@ begin
     end;
 
     glBegin(GL_QUADS);
-      for i:=1 to length(aText) do
-      //Switch line if needed
-      //Actually KaM uses #124 or vertical bar (|) for new lines in the LIB files,
-      //so lets do the same here. Saves complex conversions...
-      if aText[i]=#124 then begin
-        glEnd;
-        inc(LineCount);
-        case aAlign of
-          taLeft:   glTranslatef(0, LineHeight, 0); //Negate previous line length
-          taCenter: glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1]) div 2, LineHeight, 0);
-          taRight:  glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], LineHeight, 0);
+      K := 0;
+      for I:=1 to length(aText) do
+      begin
+
+        //Loop as there might be adjoined tags on same position
+        while (K < Length(Colors)) and (I = Colors[K].FirstChar) do
+        begin
+          if Colors[K].Color = 0 then
+            glColor4ubv(@aColor)
+          else
+            glColor4ubv(@Colors[K].Color);
+          Inc(K);
         end;
-        AdvX := 0;
-        glBegin(GL_QUADS);
-      end else
-      if aText[i]=#32 then
-        inc(AdvX, FontData.WordSpacing)
-      else
-      with FontData.Letters[byte(aText[i])] do begin
-        glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +YOffset);
-        glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +YOffset);
-        glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+YOffset);
-        glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+YOffset);
-        inc(AdvX, Width + FontData.CharSpacing);
+
+        //Switch line if needed
+        //Actually KaM uses #124 or vertical bar (|) for new lines in the LIB files,
+        //so lets do the same here. Saves complex conversions...
+        if aText[I]=#124 then begin
+          glEnd;
+          inc(LineCount);
+          case aAlign of
+            taLeft:   glTranslatef(0, LineHeight, 0); //Negate previous line length
+            taCenter: glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1]) div 2, LineHeight, 0);
+            taRight:  glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], LineHeight, 0);
+          end;
+          AdvX := 0;
+          glBegin(GL_QUADS);
+        end else
+        if aText[I]=#32 then
+          inc(AdvX, FontData.WordSpacing)
+        else
+        with FontData.Letters[byte(aText[I])] do begin
+          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +YOffset);
+          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +YOffset);
+          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+YOffset);
+          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+YOffset);
+          inc(AdvX, Width + FontData.CharSpacing);
+        end;
       end;
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
