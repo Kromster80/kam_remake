@@ -1,63 +1,61 @@
 unit KM_TPlayer;
-{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
+{$I ..\KaM_Remake.inc}
 interface
 uses KM_Defaults,SysUtils, KM_Unit1, KromUtils;
 
 type
-TPlayer = class
-public
-//ColorID:byte;
-//ColorRemap:array[1..6]of byte;
-Enabled:boolean;
-CenterScreen:record PosX,PosY:integer; end;
-ReleaseHouse:array[1..29]of boolean;
-BlockHouse:array[1..29]of boolean;
-ClearUp:array of record
-        PosX,PosY,Radius:integer;
-        end;
-House:array of record
-      PosX,PosY:integer;
-      Kind:byte;
-      Damage:integer;
-      end;
-//Road:array of record
-//     PosX,PosY:integer;
-//     end;
-private
-pHouseCount:integer;
-pRoadCount:integer;
-pClearUpCount:integer;
-public
-constructor Create();
-property HouseCount:integer read pHouseCount;
-property RoadCount:integer read pRoadCount;
-property ClearUpCount:integer read pClearUpCount;
-procedure AddHouse(HouseID,PosX,PosY:integer);
-procedure AddClearUp(PosX,PosY,Radius:integer);
-procedure RemHouse(HouseID:integer);
-function HitTest(PosX,PosY:integer):integer;
-function  GetAllHouseStrings():string;
-end;
+  TPlayer = class
+  private
+    fHouseCount:integer;
+    fRoadCount:integer;
+    fClearUpCount:integer;
+  public
+    //ColorID:byte;
+    //ColorRemap:array[1..6]of byte;
+    Enabled:boolean;
+    CenterScreen:record PosX,PosY:integer; end;
+    ReleaseHouse:array[1..29]of boolean;
+    BlockHouse:array[1..29]of boolean;
+    ClearUp:array of record
+            PosX,PosY,Radius:integer;
+            end;
+    House:array of record
+          PosX,PosY:integer;
+          Kind:byte;
+          Damage:integer;
+          end;
+    //Road:array of record
+    //     PosX,PosY:integer;
+    //     end;
+
+    constructor Create();
+    property HouseCount:integer read fHouseCount;
+    property RoadCount:integer read fRoadCount;
+    property ClearUpCount:integer read fClearUpCount;
+    procedure AddHouse(HouseID,PosX,PosY:integer);
+    procedure AddClearUp(PosX,PosY,Radius:integer);
+    procedure RemHouse(HouseID:integer);
+    function HitTest(PosX,PosY:integer):integer;
+    function  GetAllHouseStrings():string;
+  end;
 
 TGroundProp = (gpN=0,gpR=1,gpF=2,gpW=3);  //None-Road-Farm-Wine
 
 type
-TMission = class
-public
-Player:array[1..8] of TPlayer;
-Roads:array[1..MaxMapSize,1..MaxMapSize]of TGroundProp;
-Owner:array[1..MaxMapSize,1..MaxMapSize]of byte;
-ActivePlayer:integer;
-SetMapFile:string;
-SetHumanPlayer:integer;
-private
-public
-constructor Create();
-procedure RemHouse(PosX,PosY:integer);
-procedure RemRoad(PosX,PosY:integer);
-procedure AddRoad(PosX,PosY,_Owner:integer; aGP:TGroundProp);
-function  GetAllRoadStrings(_Owner:integer):string;
-end;
+  TMission = class
+  public
+    Player:array[1..8] of TPlayer;
+    Roads:array[1..MaxMapSize,1..MaxMapSize]of TGroundProp;
+    Owner:array[1..MaxMapSize,1..MaxMapSize]of byte;
+    ActivePlayer:integer;
+    SetMapFile:string;
+    SetHumanPlayer:integer;
+    constructor Create();
+    procedure RemHouse(PosX,PosY:integer);
+    procedure RemRoad(PosX,PosY:integer);
+    procedure AddRoad(PosX,PosY,_Owner:integer; aGP:TGroundProp);
+    function  GetAllRoadStrings(_Owner:integer):string;
+  end;
 
 var
   Mission:TMission;
@@ -67,8 +65,8 @@ implementation
 constructor TPlayer.Create();
 var i:integer;
 begin
-pHouseCount:=0;
-pClearUpCount:=0;
+fHouseCount:=0;
+fClearUpCount:=0;
 for i:=1 to 29 do ReleaseHouse[i]:=false;
 for i:=1 to 29 do BlockHouse[i]:=false;
 end;
@@ -80,21 +78,21 @@ for i:=0 to 3 do for k:=0 to 3 do begin
 if HousePlanYX[HouseID,i+1,k+1]<>0 then
 if HitTest(PosX-3+k,PosY-3+i)<>0 then exit;
 end;
-inc(pHouseCount);
-setlength(House,pHouseCount+1);
-House[pHouseCount].PosX:=PosX;
-House[pHouseCount].PosY:=PosY;
-House[pHouseCount].Kind:=HouseID;
-House[pHouseCount].Damage:=0;
+inc(fHouseCount);
+setlength(House,fHouseCount+1);
+House[fHouseCount].PosX:=PosX;
+House[fHouseCount].PosY:=PosY;
+House[fHouseCount].Kind:=HouseID;
+House[fHouseCount].Damage:=0;
 end;
 
 procedure TPlayer.AddClearUp(PosX,PosY,Radius:integer);
 begin
-inc(pClearUpCount);
-setlength(ClearUp,pClearUpCount+1);
-ClearUp[pClearUpCount].PosX:=PosX;
-ClearUp[pClearUpCount].PosY:=PosY;
-ClearUp[pClearUpCount].Radius:=Radius;
+inc(fClearUpCount);
+setlength(ClearUp,fClearUpCount+1);
+ClearUp[fClearUpCount].PosX:=PosX;
+ClearUp[fClearUpCount].PosY:=PosY;
+ClearUp[fClearUpCount].Radius:=Radius;
 end;
 
 procedure TPlayer.RemHouse(HouseID:integer);
@@ -102,8 +100,8 @@ var i:integer;
 begin
 for i:=HouseID to HouseCount-1 do
 House[i]:=House[i+1];
-dec(pHouseCount);
-setlength(House,pHouseCount+1);
+dec(fHouseCount);
+setlength(House,fHouseCount+1);
 end;
 
 function TPlayer.HitTest(PosX,PosY:integer):integer;

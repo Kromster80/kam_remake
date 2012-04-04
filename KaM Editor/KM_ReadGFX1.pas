@@ -1,6 +1,5 @@
 unit KM_ReadGFX1;
-{$I KM_Editor.inc}
-{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
+{$I ..\KaM_Remake.inc}
 interface
 
     function ReadGFX(text: string):boolean;

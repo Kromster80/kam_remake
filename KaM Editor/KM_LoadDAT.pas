@@ -1,4 +1,5 @@
 unit KM_LoadDAT;
+{$I ..\KaM_Remake.inc}
 interface
 uses KM_Unit1, KM_Defaults, KromUtils, SysUtils, KM_TPlayer, Dialogs;
 

@@ -1,7 +1,5 @@
 program KM_Editor;
-{$I KM_Editor.inc}
-{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
-
+{$I ..\KaM_Remake.inc}
 uses
   Forms,
   SysUtils,

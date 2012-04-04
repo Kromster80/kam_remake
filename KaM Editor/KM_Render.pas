@@ -1,6 +1,5 @@
 unit KM_Render;
-{$I KM_Editor.inc}
-{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
+{$I ..\KaM_Remake.inc}
 interface
 
 uses SysUtils, Forms,

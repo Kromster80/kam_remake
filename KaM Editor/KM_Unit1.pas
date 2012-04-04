@@ -1,6 +1,5 @@
 unit KM_Unit1;
-{$I KM_Editor.inc}
-{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
+{$I ..\KaM_Remake.inc}
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
@@ -267,7 +266,7 @@ var
   f,f2:file;
   ft:textfile;
   fsize,NumRead:integer;
-  c:array[1..131072] of char;
+  c:array[1..131072] of AnsiChar;
   ExeDir:string;
   XH:single=33.333;        //Height divider
   BrushMode:bmBrushMode;
@@ -470,7 +469,7 @@ begin
   blockread(f,c,4,NumRead);
   if NumRead=4 then begin
     blockread(f,c,4,NumRead); c[5]:=#0; //ADDN
-    if StrPas(@c)='TILE' then begin
+    if StrPas(PAnsiChar(c[1]))='TILE' then begin
       blockread(f,i,4,NumRead); //Chunk size
       blockread(f,i,4,NumRead); //Cypher - ommited
       for i:=1 to Map.Y do
@@ -498,9 +497,9 @@ begin
   glLightfv(GL_LIGHT0, GL_DIFFUSE, @LightDiff);
   glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
   glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
-  LoadTexture(ExeDir+'Resource\Tiles1.tga', Text1);    // Load the Textures
-  LoadTexture(ExeDir+'Resource\gradient.tga', TextG); // Load the Textures
-  LoadTexture(ExeDir+'Resource\arrow.tga', TextA);    // Load the Textures
+  LoadTextureTGA(ExeDir+'Resource\Tiles1.tga', Text1);    // Load the Textures
+  LoadTextureTGA(ExeDir+'Resource\gradient.tga', TextG); // Load the Textures
+  LoadTextureTGA(ExeDir+'Resource\arrow.tga', TextA);    // Load the Textures
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glPolygonMode(GL_FRONT,GL_FILL);
 end;
@@ -557,15 +556,16 @@ end;
 procedure TForm1.ConvertDATClick(Sender: TObject);
 var ii:integer;
 begin
-if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants dat (*.dat)|*.dat') then exit;
-fsize:=GetFileSize(OpenDialog1.FileName);
-assignfile(f,OpenDialog1.FileName); reset(f,1);
-blockread(f,c,fsize);
-for ii:=1 to fsize do c[ii]:=chr(ord(c[ii]) xor 239);
-closefile(f);
-assignfile(f,OpenDialog1.FileName+'.txt'); rewrite(f,1);
-blockwrite(f,c,fsize);
-closefile(f);
+  if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants dat (*.dat)|*.dat') then exit;
+  fsize:=GetFileSize(OpenDialog1.FileName);
+  assignfile(f,OpenDialog1.FileName); reset(f,1);
+  blockread(f,c,fsize);
+  for ii:=1 to fsize do
+    c[ii] := AnsiChar(ord(c[ii]) xor 239);
+  closefile(f);
+  assignfile(f,OpenDialog1.FileName+'.txt'); rewrite(f,1);
+  blockwrite(f,c,fsize);
+  closefile(f);
 end;
 
 

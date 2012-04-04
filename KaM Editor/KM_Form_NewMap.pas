@@ -1,6 +1,5 @@
 unit KM_Form_NewMap;
-{$I KM_Editor.inc}
-{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
+{$I ..\KaM_Remake.inc}
 interface
 
 uses

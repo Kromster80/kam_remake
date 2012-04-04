@@ -1,5 +1,5 @@
 unit KM_Defaults;
-{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
+{$I ..\KaM_Remake.inc}
 interface
 
 type bmBrushMode = (

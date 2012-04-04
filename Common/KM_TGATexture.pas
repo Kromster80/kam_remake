@@ -13,7 +13,7 @@
 //
 //----------------------------------------------------------------------------
 unit KM_TGATexture;
-{$I KaM_Remake.inc}
+{$I ..\KaM_Remake.inc}
 interface
 uses
   Forms,
