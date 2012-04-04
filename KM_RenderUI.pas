@@ -1,9 +1,8 @@
 unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
-uses dglOpenGL,
-  Math, KromOGLUtils, SysUtils, KM_Defaults, KM_Controls, Graphics, KM_Points, KM_Pics,
-  KM_ResourceSprites;
+uses dglOpenGL, Graphics, Math, KromOGLUtils, StrUtils, SysUtils,
+  KM_Defaults, KM_Controls, KM_Points, KM_Pics, KM_ResourceSprites;
 
 type
   TRenderUI = class
@@ -26,7 +25,7 @@ type
 
 
 implementation
-uses {KM_PlayersCollection,} KM_Resource, KM_ResourceFonts;
+uses KM_Resource, KM_ResourceFonts;
 
 
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are
