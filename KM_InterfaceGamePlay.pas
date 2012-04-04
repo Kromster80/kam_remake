@@ -1423,7 +1423,7 @@ begin
     Button_Army_Storm  := TKMButton.Create(Panel_Army, 70, 46, 56, 40, 28);
     Button_Army_RotCW  := TKMButton.Create(Panel_Army,132, 46, 56, 40, 24);
     Button_Army_ForUp  := TKMButton.Create(Panel_Army,  8, 92, 56, 40, 33);
-    ImageStack_Army    := TKMImageStack.Create(Panel_Army, 70, 92, 56, 40, 43);
+    ImageStack_Army    := TKMImageStack.Create(Panel_Army, 70, 92, 56, 40, 43, 50);
     Button_Army_ForDown:= TKMButton.Create(Panel_Army,132, 92, 56, 40, 32);
     Button_Army_Split  := TKMButton.Create(Panel_Army,  8,138, 56, 34, 31);
     Button_Army_Join   := TKMButton.Create(Panel_Army, 70,138, 56, 34, 30);

@@ -257,14 +257,14 @@ type
   TKMImageStack = class(TKMControl)
   private
     fRX: TRXType;
-    fTexID: Word;
+    fTexID1, fTexID2: Word; //Normal and commander
     fCount: Integer;
     fColumns: Integer;
     fDrawWidth: Integer;
     fDrawHeight: Integer;
     fHighlightID: Integer;
   public
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID1, aTexID2: Word; aRX: TRXType = rxGui);
     procedure SetCount(aCount, aColumns, aHighlightID: Integer);
     procedure Paint; override;
   end;
@@ -1523,11 +1523,12 @@ end;
 
 
 { TKMImageStack }
-constructor TKMImageStack.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
+constructor TKMImageStack.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID1, aTexID2: Word; aRX: TRXType = rxGui);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fRX  := aRX;
-  fTexID := aTexID;
+  fTexID1 := aTexID1;
+  fTexID2 := aTexID2;
 end;
 
 
@@ -1538,10 +1539,10 @@ begin
   fColumns := Math.max(1, aColumns);
   fHighlightID := aHighlightID;
 
-  fDrawWidth  := EnsureRange(Width div fColumns, 8, GFXData[fRX, fTexID].PxWidth);
-  fDrawHeight := EnsureRange(Height div ceil(fCount/fColumns), 6, GFXData[fRX, fTexID].PxHeight);
+  fDrawWidth  := EnsureRange(Width div fColumns, 8, GFXData[fRX, fTexID1].PxWidth);
+  fDrawHeight := EnsureRange(Height div ceil(fCount/fColumns), 6, GFXData[fRX, fTexID1].PxHeight);
 
-  Aspect := GFXData[fRX, fTexID].PxWidth / GFXData[fRX, fTexID].PxHeight;
+  Aspect := GFXData[fRX, fTexID1].PxWidth / GFXData[fRX, fTexID1].PxHeight;
   if fDrawHeight * Aspect <= fDrawWidth then
     fDrawWidth  := round(fDrawHeight * Aspect)
   else
@@ -1556,7 +1557,7 @@ var
   OffsetX, OffsetY, CenterX, CenterY: Smallint; //variable parameters
 begin
   inherited;
-  if fTexID = 0 then Exit; //No picture to draw
+  if fTexID1 = 0 then Exit; //No picture to draw
 
   OffsetX := Width div fColumns;
   OffsetY := Height div Ceil(fCount / fColumns);
@@ -1568,11 +1569,11 @@ begin
   if i <> fHighlightID then
     fRenderUI.WritePicture(Left + CenterX + OffsetX * ((i-1) mod fColumns),
                             Top + CenterY + OffsetY * ((i-1) div fColumns),
-                            fDrawWidth, fDrawHeight, fRX, fTexID, fEnabled)
-  else //Highlight with blended color
+                            fDrawWidth, fDrawHeight, fRX, fTexID1, fEnabled)
+  else
     fRenderUI.WritePicture(Left + CenterX + OffsetX * ((i-1) mod fColumns),
                             Top + CenterY + OffsetY * ((i-1) div fColumns),
-                            fDrawWidth, fDrawHeight, fRX, fTexID, $FFFF8080);
+                            fDrawWidth, fDrawHeight, fRX, fTexID2, fEnabled);
 end;
 
 
@@ -2224,7 +2225,7 @@ begin
 
   ThumbHeight := RXData[rxGui].Size[132].Y;
 
-  fRenderUI.WritePicture(Left + ThumbPos + 2, Top+fTrackTop, ThumbWidth, ThumbHeight, rxGui, 132);
+  fRenderUI.WritePicture(Left + ThumbPos + 2, Top+fTrackTop, ThumbWidth, ThumbHeight, rxGui, 132, True);
   fRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+fTrackTop+3, 0, 0, IntToStr(Position), fnt_Metal, taCenter, TextColor[fEnabled]);
 end;
 
@@ -2868,8 +2869,8 @@ begin
 
     if fSortIndex = I then
       case fSortDirection of
-        sdDown: fRenderUI.WritePicture(Left + fColumnOffsets[I] + ColumnWidth - 4-10, Top + 6, 10, 11, rxGui, 60, $FFFFFFFF);
-        sdUp:   fRenderUI.WritePicture(Left + fColumnOffsets[I] + ColumnWidth - 4-10, Top + 6, 10, 11, rxGui, 59, $FFFFFFFF);
+        sdDown: fRenderUI.WritePicture(Left + fColumnOffsets[I] + ColumnWidth - 4-10, Top + 6, 10, 11, rxGui, 60, True);
+        sdUp:   fRenderUI.WritePicture(Left + fColumnOffsets[I] + ColumnWidth - 4-10, Top + 6, 10, 11, rxGui, 59, True);
       end;
   end;
 end;

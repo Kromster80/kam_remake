@@ -793,7 +793,7 @@ begin
     Button_Army_RotCCW   := TKMButton.Create(Panel_Army,  8, 0, 56, 40, 23);
     Button_Army_RotCW  := TKMButton.Create(Panel_Army,132, 0, 56, 40, 24);
     Button_Army_ForUp   := TKMButton.Create(Panel_Army,  8, 46, 56, 40, 33);
-    ImageStack_Army     := TKMImageStack.Create(Panel_Army, 70, 46, 56, 40, 43);
+    ImageStack_Army     := TKMImageStack.Create(Panel_Army, 70, 46, 56, 40, 43, 50);
     Label_ArmyCount     := TKMLabel.Create(Panel_Army, 98, 60, 0, 0, '-', fnt_Outline, taCenter);
     Button_Army_ForDown := TKMButton.Create(Panel_Army,132, 46, 56, 40, 32);
     Button_Army_RotCW.OnClick   := Unit_ArmyChange1;

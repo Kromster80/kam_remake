@@ -16,7 +16,6 @@ type
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
     procedure WritePicture      (PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; Highlight: Boolean = False); overload;
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false); overload;
-    procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor:TColor4); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
     procedure WriteText         (X,Y,W,H: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF);
@@ -364,26 +363,6 @@ begin
     glPopMatrix;
   end;
   glBindTexture(GL_TEXTURE_2D, 0);
-end;
-
-
-procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor:TColor4);
-begin
-  if aID = 0 then Exit;
-
-  with GFXData[aRX, aID] do
-  begin
-    glBindTexture(GL_TEXTURE_2D, TexID);
-    glColor4ubv(@aColor);
-
-    glBegin(GL_QUADS);
-      glTexCoord2f(u1,v1); glVertex2f(PosX      , PosY      );
-      glTexCoord2f(u2,v1); glVertex2f(PosX+SizeX, PosY      );
-      glTexCoord2f(u2,v2); glVertex2f(PosX+SizeX, PosY+SizeY);
-      glTexCoord2f(u1,v2); glVertex2f(PosX      , PosY+SizeY);
-    glEnd;
-    glBindTexture(GL_TEXTURE_2D, 0);
-  end;
 end;
 
 
