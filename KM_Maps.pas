@@ -198,8 +198,8 @@ begin
 end;
 
 
-procedure TKMapInfo.LoadFromFile(const aPath:string);
-var S:TKMemoryStream;
+procedure TKMapInfo.LoadFromFile(const aPath: string);
+var S: TKMemoryStream;
 begin
   if not FileExists(aPath) then Exit;
 
@@ -212,8 +212,8 @@ begin
 end;
 
 
-procedure TKMapInfo.SaveToFile(const aPath:string);
-var S:TKMemoryStream;
+procedure TKMapInfo.SaveToFile(const aPath: string);
+var S: TKMemoryStream;
 begin
   S := TKMemoryStream.Create;
   try
@@ -227,7 +227,7 @@ begin
 end;
 
 
-function TKMapInfo.IsValid:boolean;
+function TKMapInfo.IsValid: Boolean;
 begin
   Result := fInfo.IsValid and
             FileExists(fPath + fFileName + '.dat') and
@@ -244,7 +244,7 @@ begin
 
   //CS is used to guard sections of code to allow only one thread at once to access them
   //We mostly don't need it, as UI should access Maps only when map events are signaled
-  //it acts as a safenet mostly
+  //it mostly acts as a safenet
   CS := TCriticalSection.Create;
 end;
 
@@ -471,7 +471,6 @@ begin
   finally
     Unlock;
   end;
-
 end;
 
 
@@ -481,6 +480,10 @@ end;
 //aOnComplete - scan is complete
 constructor TTMapsScanner.Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
 begin
+  //Thread isn't started until all constructors have run to completion
+  //so Create(False) may be put in front as well
+  inherited Create(False);
+
   Assert(Assigned(aOnMapAdd));
 
   fMultiplayerPath := aMultiplayerPath;
@@ -488,9 +491,6 @@ begin
   fOnMapAddDone := aOnMapAddDone;
   OnTerminate := aOnComplete;
   FreeOnTerminate := False;
-
-  //Call Create last, so it can start immediately and we don't rely on Resume (which is deprecated)
-  inherited Create(False);
 end;
 
 

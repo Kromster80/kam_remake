@@ -399,6 +399,10 @@ end;
 //aOnComplete - scan is complete
 constructor TTSavesScanner.Create(aMultiplayerPath: Boolean; aOnSaveAdd: TSaveEvent; aOnSaveAddDone, aOnComplete: TNotifyEvent);
 begin
+  //Thread isn't started until all constructors have run to completion
+  //so Create(False) may be put in front as well
+  inherited Create(False);
+
   Assert(Assigned(aOnSaveAdd));
 
   fMultiplayerPath := aMultiplayerPath;
@@ -406,9 +410,6 @@ begin
   fOnSaveAddDone := aOnSaveAddDone;
   OnTerminate := aOnComplete;
   FreeOnTerminate := False;
-
-  //Call Create last, so it can start immediately and we don't rely on Resume (which is deprecated)
-  inherited Create(False);
 end;
 
 

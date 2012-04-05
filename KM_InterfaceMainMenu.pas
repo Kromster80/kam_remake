@@ -2815,12 +2815,13 @@ end;
 //Clear the list and initiate refresh
 procedure TKMMainMenuInterface.MapEditor_ListUpdate;
 begin
+  fMaps.TerminateScan;
+  fMapsMP.TerminateScan;
+
   List_MapEd.SetItems('');
 
   //If both Maps and MapsMP are scanning at once ListUpdateDone can be called from either one
   //meaning we can access inconsistent and trigger assertion
-  fMaps.TerminateScan;
-  fMapsMP.TerminateScan;
   if Radio_MapEd_MapType.ItemIndex = 0 then
     fMaps.Refresh(MapEditor_ListUpdateDone)
   else

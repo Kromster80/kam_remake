@@ -73,13 +73,13 @@ end;
 { TKMOldLogsDeleter }
 constructor TKMOldLogsDeleter.Create(const aPathToLogs: string);
 begin
-  //Note that the thread isn't started until all constructors have run to completion
+  //Thread isn't started until all constructors have run to completion
   //so Create(False) may be put in front as well
+  inherited Create(False);
 
   //Must set these values BEFORE starting the thread
   FreeOnTerminate := True; //object can be automatically removed after its termination
   fPathToLogs := aPathToLogs;
-  inherited Create(False); //thread should start immediately
 end;
 
 
