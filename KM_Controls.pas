@@ -3151,14 +3151,21 @@ begin
       else
         ItemWidth := fHeader.ColumnOffset[K+1] - fHeader.ColumnOffset[K] - 4;
 
-      if fRows[TopIndex+I].Cells[K].Caption <> '' then
-        fRenderUI.WriteText(Left + 4 + fHeader.ColumnOffset[K], Y + I*fItemHeight + 3, ItemWidth, 0, fRows[TopIndex+I].Cells[K].Caption, fFont, taLeft, fRows[TopIndex+I].Cells[K].Color);
       if fRows[TopIndex+I].Cells[K].Pic.ID <> 0 then
         fRenderUI.WritePicture(Left + 4 + fHeader.ColumnOffset[K],
                                Y + I*fItemHeight + 3,
                                fRows[TopIndex+I].Cells[K].Pic.RX,
                                fRows[TopIndex+I].Cells[K].Pic.ID,
                                fRows[TopIndex+I].Cells[K].Color);
+      if fRows[TopIndex+I].Cells[K].Caption <> '' then
+        fRenderUI.WriteText(Left + 4 + fHeader.ColumnOffset[K],
+                            Y + I*fItemHeight + 3,
+                            ItemWidth,
+                            0,
+                            fRows[TopIndex+I].Cells[K].Caption,
+                            fFont,
+                            taLeft,
+                            fRows[TopIndex+I].Cells[K].Color);
     end;
 end;
 
@@ -3189,7 +3196,7 @@ begin
   if ListVisible then
   begin
     ListHide(nil);
-    exit;
+    Exit;
   end;
 
   if Count > 0 then
@@ -3246,6 +3253,7 @@ begin
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
   fList := TKMListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont);
+  fList.Height := fList.ItemHeight * fDropCount;
   fList.AutoHideScrollBar := True; //A drop box should only have a scrollbar if required
   fList.BackAlpha := 0.85;
   fList.fOnClick := ListClick;
@@ -3324,7 +3332,7 @@ end;
 //When new items are added to the list we must update the drop height and position
 procedure TKMDropList.UpdateDropPosition;
 begin
-  if ListVisible and (Count > 0) then
+  if (Count > 0) then
   begin
     fList.Height := Math.min(fDropCount, fList.Count)*fList.ItemHeight;
     if fDropUp then
@@ -3518,7 +3526,7 @@ begin
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   if ItemIndex <> -1 then
-    fRenderUI.WritePicture(Left + 4, Top + 4,
+    fRenderUI.WritePicture(Left + 4, Top + 3,
                             fList.Rows[ItemIndex].Cells[0].Pic.RX,
                             fList.Rows[ItemIndex].Cells[0].Pic.ID,
                             fList.Rows[ItemIndex].Cells[0].Color,

@@ -202,7 +202,7 @@ type
         Label_LobbyPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
         DropBox_LobbyLoc:array [0..MAX_PLAYERS-1] of TKMDropList;
         DropBox_LobbyTeam:array [0..MAX_PLAYERS-1] of TKMDropList;
-        DropColorBox_Lobby:array [0..MAX_PLAYERS-1] of TKMDropColorBox;
+        Drop_LobbyColors:array [0..MAX_PLAYERS-1] of TKMDropColumns;
         CheckBox_LobbyReady:array [0..MAX_PLAYERS-1] of TKMCheckBox;
         Label_LobbyPing:array [0..MAX_PLAYERS-1] of TKMLabel;
 
@@ -344,7 +344,7 @@ const
 
 { TKMMainMenuInterface }
 constructor TKMMainMenuInterface.Create(X,Y: Word);
-var S: TKMShape; DC: TKMDropColumns;
+var S: TKMShape;
 begin
   inherited;
   Assert(fTextLibrary <> nil, 'fTextLibrary should be initialized before MainMenuInterface');
@@ -386,15 +386,6 @@ begin
   Create_Results_Page;
   Create_ResultsMP_Page;
 
-  DC := TKMDropColumns.Create(Panel_Main, 50, 300, 200, 20, fnt_Grey);
-  DC.ShowHeader := False;
-  DC.SetColumns(fnt_Outline, ['First'], [0]);
-  DC.Add(MakeListRow([''], [$FF0000FF], [MakePic(rxMenu, 20)], 0));
-  DC.Add(MakeListRow([''], [$FF00FFFF], [MakePic(rxMenu, 20)], 0));
-  DC.Add(MakeListRow([''], [$FF00FF00], [MakePic(rxMenu, 20)], 0));
-  DC.Add(MakeListRow([''], [$FFFFFF00], [MakePic(rxMenu, 20)], 0));
-  DC.Add(MakeListRow([''], [$FFFF0000], [MakePic(rxMenu, 20)], 0));
-  DC.Add(MakeListRow([''], [$FFFF00FF], [MakePic(rxMenu, 20)], 0));
 
     {for i:=1 to length(FontFiles) do L[i]:=TKMLabel.Create(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),taLeft);//}
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
@@ -814,11 +805,16 @@ begin
         for k:=1 to 4 do DropBox_LobbyTeam[i].Add(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
         DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 565, top, 150, 20, MP_COLOR_COUNT);
-        DropColorBox_Lobby[i].SetColors(MP_TEAM_COLORS, fTextLibrary[TX_LOBBY_RANDOM]);
-        DropColorBox_Lobby[i].OnChange := Lobby_PlayersSetupChange;
+        Drop_LobbyColors[i] := TKMDropColumns.Create(Panel_LobbyPlayers, 565, top, 150, 20, fnt_Grey);
+        Drop_LobbyColors[i].SetColumns(fnt_Outline, [''], [0]);
+        Drop_LobbyColors[i].ShowHeader := False;
+        Drop_LobbyColors[i].Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxMenu, 21)], 0));
+        for K := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
+          Drop_LobbyColors[i].Add(MakeListRow([''], [MP_TEAM_COLORS[K]], [MakePic(rxMenu, 20)]));
+        Drop_LobbyColors[i].OnChange := Lobby_PlayersSetupChange;
 
         CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 758, top, 20, 20, '', fnt_Metal);
+        CheckBox_LobbyReady[I].Disable; //Read-only, just for info (perhaps we will replace it with an icon)
 
         Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 851, top, 50, 20, '', fnt_Metal, taCenter);
 
@@ -2091,8 +2087,8 @@ begin
     DropBox_LobbyLoc[I].Disable;
     DropBox_LobbyTeam[I].Disable;
     DropBox_LobbyTeam[I].ItemIndex := 0;
-    DropColorBox_Lobby[I].Disable;
-    DropColorBox_Lobby[I].ColorIndex := 0;
+    Drop_LobbyColors[I].Disable;
+    Drop_LobbyColors[I].ItemIndex := 0;
     DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
     Button_LobbyKick[I].Disable;
     Label_LobbyPing[I].Caption := '';
@@ -2182,10 +2178,10 @@ begin
       fGame.Networking.SelectTeam(DropBox_LobbyTeam[i].ItemIndex, i+1);
 
     //Color
-    if (Sender = DropColorBox_Lobby[i]) and DropColorBox_Lobby[i].Enabled then
+    if (Sender = Drop_LobbyColors[i]) and Drop_LobbyColors[i].Enabled then
     begin
-      fGame.Networking.SelectColor(DropColorBox_Lobby[i].ColorIndex, i+1);
-      DropColorBox_Lobby[i].ColorIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
+      fGame.Networking.SelectColor(Drop_LobbyColors[i].ItemIndex, i+1);
+      Drop_LobbyColors[i].ItemIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
     end;
 
     //Kick
@@ -2233,6 +2229,7 @@ end;
 
 //Players list has been updated
 //We should reflect it to UI
+//todo: Refactor formatting
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
 var i:integer; MyNik, CanEdit, HostCanEdit, IsSave, IsValid:boolean;
 begin
@@ -2270,7 +2267,7 @@ begin
     else
       DropBox_LobbyLoc[i].ItemIndex := 0;
     DropBox_LobbyTeam[i].ItemIndex := fGame.Networking.NetPlayers[i+1].Team;
-    DropColorBox_Lobby[i].ColorIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
+    Drop_LobbyColors[i].ItemIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
     CheckBox_LobbyReady[i].Checked := fGame.Networking.NetPlayers[i+1].ReadyToStart;
 
     MyNik := (i+1 = fGame.Networking.MyIndex); //Our index
@@ -2283,8 +2280,7 @@ begin
                     not fGame.Networking.NetPlayers[i+1].IsClosed);
     DropBox_LobbyLoc[i].Enabled := (CanEdit or HostCanEdit);
     DropBox_LobbyTeam[i].Enabled := (CanEdit or HostCanEdit) and not IsSave; //Can't change color or teams in a loaded save
-    DropColorBox_Lobby[i].Enabled := (CanEdit or (MyNik and not fGame.Networking.NetPlayers[i+1].ReadyToStart)) and not IsSave;
-    CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
+    Drop_LobbyColors[i].Enabled := (CanEdit or (MyNik and not fGame.Networking.NetPlayers[i+1].ReadyToStart)) and not IsSave;
     Button_LobbyKick[i].Enabled := (fGame.Networking.NetPlayers[i+1].IsHuman) and
                                     fGame.Networking.IsHost and not MyNik; //Can't kick self
     if MyNik and not fGame.Networking.IsHost then
@@ -2296,24 +2292,24 @@ begin
     end
   end;
 
-  for i:=fGame.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
+  //Disable rest of the players
+  for I := fGame.Networking.NetPlayers.Count to MAX_PLAYERS - 1 do
   begin
-    Label_LobbyPlayer[i].Caption := '';
-    Image_LobbyFlag[i].TexID := 0;
-    Label_LobbyPlayer[i].Hide;
-    DropBox_LobbyPlayerSlot[i].Show;
-    DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
-    DropBox_LobbyLoc[i].ItemIndex := 0;
-    DropBox_LobbyTeam[i].ItemIndex := 0;
-    DropColorBox_Lobby[i].ColorIndex := 0;
+    Label_LobbyPlayer[I].Caption := '';
+    Image_LobbyFlag[I].TexID := 0;
+    Label_LobbyPlayer[I].Hide;
+    DropBox_LobbyPlayerSlot[I].Show;
+    DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
+    DropBox_LobbyLoc[I].ItemIndex := 0;
+    DropBox_LobbyTeam[I].ItemIndex := 0;
+    Drop_LobbyColors[I].ItemIndex := 0;
     //Only host may change player slots, and only the first unused slot may be changed (so there are no gaps in net players list)
-    DropBox_LobbyPlayerSlot[i].Enabled := fGame.Networking.IsHost and (i = fGame.Networking.NetPlayers.Count);
-    CheckBox_LobbyReady[i].Checked := false;
-    DropBox_LobbyLoc[i].Disable;
-    DropBox_LobbyTeam[i].Disable;
-    DropColorBox_Lobby[i].Disable;
-    Button_LobbyKick[i].Disable;
-    CheckBox_LobbyReady[i].Disable; //Read-only, just for info (perhaps we will replace it with an icon)
+    DropBox_LobbyPlayerSlot[I].Enabled := fGame.Networking.IsHost and (I = fGame.Networking.NetPlayers.Count);
+    CheckBox_LobbyReady[I].Checked := False;
+    DropBox_LobbyLoc[I].Disable;
+    DropBox_LobbyTeam[I].Disable;
+    Drop_LobbyColors[I].Disable;
+    Button_LobbyKick[I].Disable;
   end;
 
   CheckBox_LobbyHostControl.Checked := fGame.Networking.NetPlayers.HostDoesSetup;

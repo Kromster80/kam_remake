@@ -420,9 +420,9 @@ begin
     end;
 
   //Look for [$FFFFFF][] patterns that markup text color
-  I := 1;
+  I := 0;
   repeat
-    I := PosEx('[', aText, I);
+    I := PosEx('[', aText, I+1);
 
     //Check for reset
     if (I <> 0) and (I+1 <= Length(aText)) and (aText[I+1] = ']') then
