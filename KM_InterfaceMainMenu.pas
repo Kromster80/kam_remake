@@ -218,10 +218,12 @@ type
         TrackBar_LobbyPeacetime: TKMTrackBar;
         Minimap_LobbyPreview: TKMMinimap;
 
+      Memo_LobbyPosts:TKMMemo;
+      Label_LobbyPost:TKMLabel;
+      Edit_LobbyPost:TKMEdit;
+
       Button_LobbyBack:TKMButton;
       Button_LobbyStart:TKMButton;
-      Memo_LobbyPosts:TKMMemo;
-      Edit_LobbyPost:TKMEdit;
 
     Panel_Campaign:TKMPanel;
       Image_CampaignBG:TKMImage;
@@ -761,19 +763,20 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Lobby_Page;
-const C1 = 35; C2 = 215; C3 = 315; C4 = 415; C5 = 540; C6 = 590;
+const CW = 630; C1 = 35; C2 = 215; C3 = 315; C4 = 415; C5 = 540; C6 = 590;
 var i,k,top:integer;
 begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
+  Panel_Lobby.Stretch;
 
     //Server Name
-    Panel_LobbyServerName := TKMPanel.Create(Panel_Lobby, 20, 30, 700, 30);
-      TKMBevel.Create(Panel_LobbyServerName,   0,  0, 700, 30);
-      Label_LobbyServerName := TKMLabel.Create(Panel_LobbyServerName, 10, 10, 680, 20, '', fnt_Metal, taLeft);
+    Panel_LobbyServerName := TKMPanel.Create(Panel_Lobby, 40, 30, CW, 30);
+      TKMBevel.Create(Panel_LobbyServerName,   0,  0, CW, 30);
+      Label_LobbyServerName := TKMLabel.Create(Panel_LobbyServerName, 10, 10, CW-20, 20, '', fnt_Metal, taLeft);
 
     //Players
-    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,20,66,700,240);
-      TKMBevel.Create(Panel_LobbyPlayers,  0,  0, 700, 240);
+    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby, 40, 65, CW, 240);
+      TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 240);
       TKMLabel.Create(Panel_LobbyPlayers, C1, 10, 170,  20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_LobbyPlayers, C2, 10,  90,  20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_LobbyPlayers, C3, 10,  90,  20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
@@ -782,7 +785,7 @@ begin
       TKMLabel.Create(Panel_LobbyPlayers, C6, 10,  70,  20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
       for i:=0 to MAX_PLAYERS-1 do begin
-        top := 30+i*25;
+        top := 30+i*24;
         Image_LobbyFlag[i] := TKMImage.Create(Panel_LobbyPlayers, 10, top+3, 16, 11, 0, rxMenu);
 
         Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, C1, top+2, 170, 20, '', fnt_Metal, taLeft);
@@ -819,20 +822,24 @@ begin
       end;
 
     //Chat
-    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 20, 312, 475, 340, fnt_Metal);
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 40, 310, CW, 340, fnt_Metal);
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.ScrollDown := True;
-    TKMLabel.Create(Panel_Lobby, 20, 658, 475, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
-    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 20, 678, 475, 20, fnt_Metal);
+    Memo_LobbyPosts.Anchors := [akLeft, akTop, akBottom];
+    Label_LobbyPost := TKMLabel.Create(Panel_Lobby, 40, 655, CW, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
+    Label_LobbyPost.Anchors := [akLeft, akBottom];
+    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 40, 675, CW, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
+    Edit_LobbyPost.Anchors := [akLeft, akBottom];
 
     //Setup
-    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,510,312,495,430);
-      TKMBevel.Create(Panel_LobbySetup,  0,  0, 495, 430);
-      CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbySetup, 10, 10, 480, 20, fTextLibrary[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
+    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby, 680, 30, 300, 620);
+    Panel_LobbySetup.Anchors := [akLeft, akTop, akBottom];
+      with TKMBevel.Create(Panel_LobbySetup,  0,  0, 300, 620) do Stretch;
+      CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbySetup, 10, 10, 280, 20, fTextLibrary[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
       CheckBox_LobbyHostControl.OnClick := Lobby_PlayersSetupChange;
-      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 36, 282, 20, fTextLibrary[TX_LOBBY_MAP_TYPE], fnt_Outline, taLeft);
-      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 55, 282, 60, fnt_Metal);
+      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 36, 280, 20, fTextLibrary[TX_LOBBY_MAP_TYPE], fnt_Outline, taLeft);
+      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 55, 280, 60, fnt_Metal);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_BUILD]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_FIGHT]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_COOP]);
@@ -841,31 +848,33 @@ begin
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
 
       //@DanJB: These two occupy the same place and are visible for Host/Join correspondingly, right?
-      List_Lobby := TKMDropList.Create(Panel_LobbySetup, 10, 125, 264, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
+      List_Lobby := TKMDropList.Create(Panel_LobbySetup, 10, 125, 280, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
       List_Lobby.OnChange := Lobby_MapSelect;
-      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 125, 264, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 125, 280, 20, '', fnt_Metal, taLeft);
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 150, 264, 200, fnt_Game);
+      TKMBevel.Create(Panel_LobbySetup, 50, 150, 199, 199);
+      Minimap_LobbyPreview := TKMMinimap.Create(Panel_LobbySetup, 54, 154, 191, 191);
+      Minimap_LobbyPreview.ShowLocs := True; //In the minimap we want player locations to be shown
+
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 350, 280, 100, fnt_Game);
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
 
-      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 362, 282, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 382, 282, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 402, 282, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 460, 280, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 480, 280, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 500, 280, 20, '', fnt_Metal, taLeft);
 
-      TKMBevel.Create(Panel_LobbySetup, 282, 150, 199, 199);
-      Minimap_LobbyPreview := TKMMinimap.Create(Panel_LobbySetup, 286, 154, 191, 191);
-      Minimap_LobbyPreview.ShowLocs := True; //In the minimap we want player locations to be shown
-
-      TKMLabel.Create(Panel_LobbySetup, 282, 30, 190, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
-      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 282, 60, 192, 0, 120);
+      TKMLabel.Create(Panel_LobbySetup, 10, 530, 280, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
+      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 10, 560, 280, 0, 120);
       TrackBar_LobbyPeacetime.Caption := fTextLibrary[TX_LOBBY_PEACETIME];
       TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
       TrackBar_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
 
-    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 20, 712, 230, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
+    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 40, 712, 230, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
+    Button_LobbyBack.Anchors := [akLeft, akBottom];
     Button_LobbyBack.OnClick := Lobby_BackClick;
-    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 265, 712, 230, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
+    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 285, 712, 230, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
+    Button_LobbyStart.Anchors := [akLeft, akBottom];
     Button_LobbyStart.OnClick := Lobby_StartClick;
 end;
 
@@ -1829,8 +1838,11 @@ begin
   Label_MP_Players.Caption := '';
   Label_MP_GameTime.Caption := '';
   Label_MP_Map.Caption := '';
+
+  //Do not use 'Show' here as it will also make the parent panel visible
+  //which could be already hidden if player switched pages
   Label_Servers_Status.Caption := fTextLibrary[TX_MP_MENU_REFRESHING];
-  Label_Servers_Status.Show;
+  Label_Servers_Status.Visible := True;
   Button_MP_GetIn.Disable;
 end;
 
@@ -1849,8 +1861,10 @@ begin
 
   if fGame.Networking.ServerQuery.Rooms.Count = 0 then
   begin
+    //Do not use 'Show' here as it will also make the parent panel visible
+    //which could be already hidden if player switched pages
     Label_Servers_Status.Caption := fTextLibrary[TX_MP_MENU_NO_SERVERS];
-    Label_Servers_Status.Show;
+    Label_Servers_Status.Visible := True;
   end
   else
   begin
