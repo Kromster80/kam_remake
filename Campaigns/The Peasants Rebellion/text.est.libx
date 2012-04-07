@@ -2,17 +2,17 @@
 MaxID:23
 
 0:Kampaania 'The Peasants Rebellion'
-10:              Missioon 1||Mässajad ründavad neid mõningaid talupoegasid, kes veel on jäänud lojaalseks kuningriigile. Kuninga palee vastas talupoegasid mõrvatakse, seda ei tohi lasta juhtuda. |Sunni vaenased taganema!|              Missioon 1
-11:              Missioon 2||Pärast edukat talupoegade kaitsmist, tuleb meil vabastada veel ülejäänud talupojad. Suur vaenlaste hulk põhjast liigub meie suunas.|Lahingusse!|              Missioon 2
-12:              Missioon 3||Pärast edukat lahingut, on aeg üles ehitada rikutud linnad ja taastada vajalikud varud. Edasi tuleb siirduda põhja, kus tuleb vabastada linnad türraniliku aristokraatliku valitsemise alt. Säästa tsiviil elusid ja ründa ainult vastase vägesid.|              Missioon 3
-13:              Missioon 4||Meie luurjad märkasid vaenlase vägesid manööverdamas linnade lähedal. Suure vaenlase vägede tõttu on arvata, et lähedal asub kindlustatud vaenlase laager. Leia ja hävita see, koos militaar majadega.|              Missioon 4
-14:              Missioon 5||Nüüd, pärast suurt võitu mässajate vastu on oodata uut massivset vasturünnakut nende poolt. Valmista end ette suureks lahinguks ja ära lase küla hävitada.|              Missioon 5
-15:              Missioon 6||Me teame, et vaenlane üritab ehitatada uusi baase ja seda ei saa lubada. Ründa esimesel võimalusel, enne kui vaenlane taastub. Lisaks otsi uus koht kust rauda leida, vanad resursihoidlad lõppevad.|              Missioon 6
-16:              Missioon 7||Enne kui me ründame uuesti mässajaid, me peame võitma tagasi ühe linna lõunas. Võit on toonud meile vajaliku väikse varu rauda, mida meil on väga vaja, aga kuna varud on piiratud, siis tuleb olla ettevaatlik kuidas me seda kasutame.|              Missioon 7
-17:              Missioon 8||Viimase rünnaku ajal enamus meie meestest olid meie laagrist eemal, mis andis võimaluse vaenlasel rünnakuks. Pöördu tagasi esimesel võimalusel, enne kui meie kaitsed hävitatakse!|              Missioon 8
-18:              Missioon 9||Varitsuse tõttu ei jõudnud me oma kindluseni ja me peame välja mõtlema uue strateegija, et vallutada tagasi see mis kuulub meile. Peavärav on raskelt kaistud ja otsene rünnak on mõtetu. Ürita vältida üleliigseid kaotusi, kuna meil ei ole võimalik rauda kaevandada.|              Missioon 9
-19:              Missioon 10||Pärast kinduse tagasi vallutamist, oleme saanud mõned vangid, kes on öelnud, et põhja mägesid läbib tunnel. Tunneli sissepääsu valvatakse väheste sõduritega.Alista kaitsjad ja liigu tunnelisse.|              Missioon 10
-20:              Missioon 11||Koobas on suurem kui oskasime oodata. Meie skaudid on avastanud tuulutamis tunnelite juurest mõned valvurid. Jõua tunneli väljapääsuni.|              Missioon 11
-21:              Missioon 12||Vastaseid on hoiatatud meie tulekust. Tugevad vaenlase pataljonid liigavad meie suunas. Ehita kaitsetorne, et nõrgestada vaenlast. Kui kaitse on edukas, siis on võimalus liikuda edasi põhja mööda maakitsust.|              Missioon 12
-22:              Missioon 13||Varitsus! Meie vaenlane on meid oodanud. Me oleme nüüd väga pahas asukohas. Sunni bandiidid taganema!|              Missioon 13
-23:              Missioon 14||Me oleme viimase vaenlase bastjoni juures. Nad on siia toonud oma viimased armeed ja end kirde suunas kindlutanud viimase taganemise jaoks. Tänu külmale on jõgi osaliselt külmunud ja võimaldab ülatada vaenlast. Hävita viimased vastase väed ja rahu saabub taas meie maale!|              Missioon 14
+10:Mässajad ründavad neid mõningaid talupoegasid, kes veel on jäänud lojaalseks kuningriigile. Kuninga palee vastas talupoegasid mõrvatakse, seda ei tohi lasta juhtuda. |Sunni vaenased taganema!
+11:Pärast edukat talupoegade kaitsmist, tuleb meil vabastada veel ülejäänud talupojad. Suur vaenlaste hulk põhjast liigub meie suunas.|Lahingusse!
+12:Pärast edukat lahingut, on aeg üles ehitada rikutud linnad ja taastada vajalikud varud. Edasi tuleb siirduda põhja, kus tuleb vabastada linnad türraniliku aristokraatliku valitsemise alt. Säästa tsiviil elusid ja ründa ainult vastase vägesid.
+13:Meie luurjad märkasid vaenlase vägesid manööverdamas linnade lähedal. Suure vaenlase vägede tõttu on arvata, et lähedal asub kindlustatud vaenlase laager. Leia ja hävita see, koos militaar majadega.
+14:Nüüd, pärast suurt võitu mässajate vastu on oodata uut massivset vasturünnakut nende poolt. Valmista end ette suureks lahinguks ja ära lase küla hävitada.
+15:Me teame, et vaenlane üritab ehitatada uusi baase ja seda ei saa lubada. Ründa esimesel võimalusel, enne kui vaenlane taastub. Lisaks otsi uus koht kust rauda leida, vanad resursihoidlad lõppevad.
+16:Enne kui me ründame uuesti mässajaid, me peame võitma tagasi ühe linna lõunas. Võit on toonud meile vajaliku väikse varu rauda, mida meil on väga vaja, aga kuna varud on piiratud, siis tuleb olla ettevaatlik kuidas me seda kasutame.
+17:Viimase rünnaku ajal enamus meie meestest olid meie laagrist eemal, mis andis võimaluse vaenlasel rünnakuks. Pöördu tagasi esimesel võimalusel, enne kui meie kaitsed hävitatakse!
+18:Varitsuse tõttu ei jõudnud me oma kindluseni ja me peame välja mõtlema uue strateegija, et vallutada tagasi see mis kuulub meile. Peavärav on raskelt kaistud ja otsene rünnak on mõtetu. Ürita vältida üleliigseid kaotusi, kuna meil ei ole võimalik rauda kaevandada.
+19:Pärast kinduse tagasi vallutamist, oleme saanud mõned vangid, kes on öelnud, et põhja mägesid läbib tunnel. Tunneli sissepääsu valvatakse väheste sõduritega.Alista kaitsjad ja liigu tunnelisse.
+20:Koobas on suurem kui oskasime oodata. Meie skaudid on avastanud tuulutamis tunnelite juurest mõned valvurid. Jõua tunneli väljapääsuni.
+21:Vastaseid on hoiatatud meie tulekust. Tugevad vaenlase pataljonid liigavad meie suunas. Ehita kaitsetorne, et nõrgestada vaenlast. Kui kaitse on edukas, siis on võimalus liikuda edasi põhja mööda maakitsust.
+22:Varitsus! Meie vaenlane on meid oodanud. Me oleme nüüd väga pahas asukohas. Sunni bandiidid taganema!
+23:Me oleme viimase vaenlase bastjoni juures. Nad on siia toonud oma viimased armeed ja end kirde suunas kindlutanud viimase taganemise jaoks. Tänu külmale on jõgi osaliselt külmunud ja võimaldab ülatada vaenlast. Hävita viimased vastase väed ja rahu saabub taas meie maale!
