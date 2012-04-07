@@ -1904,6 +1904,7 @@ begin
   Image_House_Logo.TexID    := fResource.HouseDat[Sender.HouseType].GUIIcon;
   Image_House_Worker.TexID  := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIIcon;
   Image_House_Worker.Hint   := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
+  Image_House_Worker.Color  := fPlayers[Sender.GetOwner].FlagColor;
   HealthBar_House.Caption   := inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
   HealthBar_House.Position  := round( Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth * 100 );
 
@@ -1970,6 +1971,9 @@ begin
     ht_School:
         begin
           ResRow_School_Resource.ResourceCount:=Sender.CheckResIn(rt_Gold) - byte(TKMHouseSchool(Sender).HideOneGold);
+          Image_School_Left.Color := fPlayers[Sender.GetOwner].FlagColor;
+          Image_School_Right.Color := fPlayers[Sender.GetOwner].FlagColor;
+          Image_School_Train.Color := fPlayers[Sender.GetOwner].FlagColor;
           House_SchoolUnitChange(nil, mbLeft);
           SwitchPage(Panel_House_School);
         end;
@@ -1977,6 +1981,10 @@ begin
     ht_Barracks:
         begin
           Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
+          Image_Barracks_Left.Color := fPlayers[Sender.GetOwner].FlagColor;
+          Image_Barracks_Right.Color := fPlayers[Sender.GetOwner].FlagColor;
+          Image_Barracks_Train.Color := fPlayers[Sender.GetOwner].FlagColor;
+          Button_BarracksRecruit.Color := fPlayers[Sender.GetOwner].FlagColor;
           House_BarracksUnitChange(nil, mbLeft);
           SwitchPage(Panel_HouseBarracks);
         end;
@@ -2116,6 +2124,7 @@ begin
   SwitchPage(Panel_Unit);
   Label_UnitName.Caption:= fResource.UnitDat[Sender.UnitType].UnitName;
   Image_UnitPic.TexID:=fResource.UnitDat[Sender.UnitType].GUIScroll;
+  Image_UnitPic.Color := fPlayers[Sender.GetOwner].FlagColor;
   ConditionBar_Unit.Position:=EnsureRange(round(Sender.Condition / UNIT_MAX_CONDITION * 100),-10,110);
   Label_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
 
@@ -2780,6 +2789,7 @@ begin
     Tmp := MyPlayer.Stats.GetUnitQty(StatUnit[i]);
     Stat_UnitQty[i].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
     Stat_UnitPic[i].Hint := fResource.UnitDat[StatUnit[i]].UnitName;
+    Stat_UnitPic[i].Color := MyPlayer.FlagColor;
   end;
 end;
 

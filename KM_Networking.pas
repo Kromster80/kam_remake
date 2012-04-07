@@ -712,18 +712,22 @@ end;
 //We route the message through Server to ensure everyone sees messages in the same order
 //with exact same timestamps (possibly added by Server?)
 procedure TKMNetworking.PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
-var i: integer;
+var i: integer; NameText:String;
 begin
   if aShowName then
   begin
+    if NetPlayers[fMyIndex].FlagColorID <> 0 then
+      NameText := '[$'+IntToHex(NetPlayers[fMyIndex].FlagColor and $00FFFFFF,6)+']'+fMyNikname+'[]'
+    else
+      NameText := fMyNikname;
     if fNetGameState <> lgs_Game then
-      aText := fMyNikname+': '+aText
+      aText := NameText+': '+aText
     else
     begin
       if aTeamOnly then
-        aText := fMyNikname+' (Team): '+aText
+        aText := NameText+' (Team): '+aText
       else
-        aText := fMyNikname+' (All): '+aText;
+        aText := NameText+' (All): '+aText;
     end;
   end;
   if not aTeamOnly then
@@ -826,7 +830,10 @@ begin
   begin
     //When querying or reconnecting to a host we may receive data such as commands, player setup, etc. These should be ignored.
     if not (fNetGameState in [lgs_Query,lgs_Reconnecting]) then
+    begin
+      flog.AppendLog('Received a packet not intended for this state ('+GetEnumName(TypeInfo(TNetGameState), Integer(fNetGameState))+'): '+GetEnumName(TypeInfo(TKMessageKind), Integer(Kind)));
       PostLocalMessage('Error: Received a packet not intended for this state: '+GetEnumName(TypeInfo(TKMessageKind), Integer(Kind)));
+    end;
     Exit;
   end;
 

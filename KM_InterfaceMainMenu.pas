@@ -1074,30 +1074,35 @@ end;
 procedure TKMMainMenuInterface.Create_Replays_Page;
 begin
   Panel_Replays := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
+  Panel_Replays.Stretch;
 
-    TKMLabel.Create(Panel_Replays, Panel_Main.Width div 2, 60, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
+    TKMLabel.Create(Panel_Replays, Panel_Main.Width div 2, 50, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
-    TKMBevel.Create(Panel_Replays, 62, 100, 900, 50);
-    Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,70,108,300,40,fnt_Grey);
+    TKMBevel.Create(Panel_Replays, 62, 86, 900, 50);
+    Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,70,94,300,40,fnt_Grey);
     Radio_Replays_Type.ItemIndex := 0;
     Radio_Replays_Type.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
     Radio_Replays_Type.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Replays_Type.OnChange := Replay_TypeChange;
 
-    List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 200, 700, 400, fnt_Metal);
+    List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 150, 700, 480, fnt_Metal);
     List_Replays.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
+    List_Replays.Anchors := [akLeft,akTop,akBottom];
     List_Replays.OnChange := Replays_ListClick;
     List_Replays.OnColumnClick := Replays_SavesSort;
     List_Replays.OnDoubleClick := Replays_Play;
 
-    Button_ReplaysPlay := TKMButton.Create(Panel_Replays,337,630,350,30,fTextLibrary[TX_MENU_VIEW_REPLAY],fnt_Metal, bsMenu);
+    Button_ReplaysPlay := TKMButton.Create(Panel_Replays,337,660,350,30,fTextLibrary[TX_MENU_VIEW_REPLAY],fnt_Metal, bsMenu);
+    Button_ReplaysPlay.Anchors := [akLeft,akBottom];
     Button_ReplaysPlay.OnClick := Replays_Play;
 
-    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 337, 670, 350, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 337, 700, 350, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_ReplaysBack.Anchors := [akLeft,akBottom];
     Button_ReplaysBack.OnClick := SwitchMenuPage;
 
-    TKMBevel.Create(Panel_Replays, 785, 300, 199, 199);
-    Minimap_ReplayPreview := TKMMinimap.Create(Panel_Replays,789,304,191,191);
+    with TKMBevel.Create(Panel_Replays, 785, 290, 199, 199) do Anchors := [akLeft];
+    Minimap_ReplayPreview := TKMMinimap.Create(Panel_Replays,789,294,191,191);
+    Minimap_ReplayPreview.Anchors := [akLeft];
 end;
 
 

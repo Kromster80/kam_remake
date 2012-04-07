@@ -916,6 +916,8 @@ var I: Integer;
 begin
   Assert(Length(aCaption) = Length(aColor));
 
+  SetLength(Result.Cells, Length(aCaption));
+
   for I := 0 to High(aCaption) do
   begin
     Result.Cells[I].Caption := aCaption[I];
@@ -2884,6 +2886,7 @@ begin
   fFont       := aFont;
   fItemHeight := 20;
   fItemIndex  := -1;
+  fShowHeader := True;
 
   fHeader := TKMListHeader.Create(aParent, aLeft, aTop, aWidth - fItemHeight, DEF_HEADER_HEIGHT);
   fHeader.OnColumnClick := ColumnClick;
