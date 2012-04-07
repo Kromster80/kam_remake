@@ -731,23 +731,14 @@ end;
 procedure TKMPlayer.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
   //Replace existing icon with a Block
   procedure BlockPoint(aPoint: TKMPoint; aID: Integer);
-  var I: Integer; Replaced: Boolean;
+  var I: Integer;
   begin
-    Replaced := False;
+    //Remove all existing marks on this tile (entrance can have 2 entries)
     for I := aList.Count - 1 downto 0 do
       if KMSamePoint(aList[I], aPoint) then
-      begin
-        if Replaced then
-          aList.RemoveEntry(aPoint)
-        else
-          aList.Tag[I] := aID; //Replace existing Mark with a blocker
-        Replaced := True;
-        //Keep on replacing since entrance has 2 entries in the list
-      end;
+        aList.RemoveEntry(aPoint);
 
-    //Otherwise add a blocker
-    if not Replaced then
-      aList.AddEntry(aPoint, aID, 0);
+    aList.AddEntry(aPoint, aID, 0);
   end;
 
 var

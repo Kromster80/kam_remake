@@ -1078,6 +1078,7 @@ var
   MarksList: TKMPointTagList;
 begin
   MarksList := TKMPointTagList.Create;
+  MarksList.AllowDuplicates := True; //Enterance can have duplicates: cyan quad + door icon
   MyPlayer.GetHouseMarks(P, aHouseType, MarksList);
 
   for I := 0 to MarksList.Count - 1 do
@@ -1096,7 +1097,8 @@ var
 begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
 
-  if (GameCursor.Mode <> cm_None) and (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, False) = 0) then
+  if (GameCursor.Mode <> cm_None) and (GameCursor.Mode <> cm_Houses) and
+     (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, False) = 0) then
     RenderCursorBuildIcon(GameCursor.Cell)       //Red X
   else
 
@@ -1124,7 +1126,9 @@ begin
                          )
                       //And of course it is visible
                       then
-                        RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00); //Cyan quad
+                        RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+                      else
+                        RenderCursorBuildIcon(GameCursor.Cell); //Red X
                     end;
 
                   gsPaused, gsOnHold, gsRunning:
@@ -1133,7 +1137,9 @@ begin
                           or MyPlayer.BuildList.HousePlanList.HasPlan(GameCursor.Cell)
                           or (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
                       then
-                        RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00); //Cyan quad
+                        RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+                      else
+                        RenderCursorBuildIcon(GameCursor.Cell); //Red X
                     end;
                 end;
     cm_Road:    if MyPlayer.CanAddFakeFieldPlan(GameCursor.Cell, ft_Road) then
@@ -1152,7 +1158,7 @@ begin
                   RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Houses:  RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quad
+    cm_Houses:  RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
     cm_Tiles:   if GameCursor.Tag2 in [0..3] then
                   RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2)
                 else
