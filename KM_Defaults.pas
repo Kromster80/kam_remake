@@ -901,7 +901,7 @@ const
 //Lowest supported resolution
 const
   MIN_RESOLUTION_WIDTH  = 1024;
-  MIN_RESOLUTION_HEIGHT = 768;
+  MIN_RESOLUTION_HEIGHT = 576;
 
 
 //Record storing resolution and refresh rate

@@ -215,7 +215,7 @@ end;
 
 function TResourceFont.WordWrap(aText: string; aFont: TKMFont; aMaxPxWidth:integer; aForced:boolean): string;
 var
-  i, CharSpacing, AdvX, PrevX, LastSpace: integer;
+  i, CharSpacing, AdvX, PrevX, LastSpace, TmpColor: integer;
 begin
   AdvX := 0;
   PrevX := 0;
@@ -225,8 +225,17 @@ begin
   i:=1;
   while i <= length(aText) do
   begin
-    if aText[i]=#32 then inc(AdvX, fFontData[aFont].WordSpacing)
-                    else inc(AdvX, fFontData[aFont].Letters[byte(aText[i])].Width + CharSpacing);
+    //Ignore color markups [$FFFFFF][]
+    if (aText[i]='[') and (I+1 <= Length(aText)) and (aText[i+1]=']') then
+      inc(i) //Skip past this markup
+    else
+      if (aText[i]='[') and (I+8 <= Length(aText))
+      and (aText[I+1] = '$') and (aText[i+8]=']')
+      and TryStrToInt(Copy(aText, I+1, 7), TmpColor) then
+        inc(i,8) //Skip past this markup
+      else
+        if aText[i]=#32 then inc(AdvX, fFontData[aFont].WordSpacing)
+                        else inc(AdvX, fFontData[aFont].Letters[byte(aText[i])].Width + CharSpacing);
 
     if (aText[i]=#32) or (aText[i]=#124) then
     begin

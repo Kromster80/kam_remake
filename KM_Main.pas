@@ -224,6 +224,7 @@ begin
   fLog.AppendLog('Form Width/Height: '+inttostr(FormMain.Width)+':'+inttostr(FormMain.Height));
   fLog.AppendLog('Panel Width/Height: '+inttostr(FormMain.Panel5.Width)+':'+inttostr(FormMain.Panel5.Height));
 
+  Resize(FormMain.Panel5.Width, FormMain.Panel5.Height); //Force everything to resize
   ApplyCursorRestriction;
 end;
 

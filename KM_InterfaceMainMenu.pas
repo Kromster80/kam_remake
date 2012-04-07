@@ -38,7 +38,6 @@ type
     fSavesMP: TKMSavesCollection;
     MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
     //We remember old values to enable "Apply" button dynamicaly
-    OldFullScreen: Boolean;
     OldResolutionID: TResIndex;
 
     procedure Create_MainMenu_Page;
@@ -995,32 +994,41 @@ end;
 procedure TKMMainMenuInterface.Create_Load_Page;
 begin
   Panel_Load:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
+  Panel_Load.Stretch;
 
-    TKMLabel.Create(Panel_Load, Panel_Main.Width div 2, 60, 700, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Metal, taCenter);
+    TKMLabel.Create(Panel_Load, Panel_Main.Width div 2, 50, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
-    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 85, 700, 468, fnt_Metal);
+    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 86, 700, 480, fnt_Metal);
+    List_Load.Anchors := [akLeft,akTop,akBottom];
     List_Load.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Load.OnColumnClick := Load_SavesSort;
     List_Load.OnChange := Load_ListClick;
     List_Load.OnDoubleClick := Load_Click;
 
-    Button_Load := TKMButton.Create(Panel_Load,337,560,350,30,fTextLibrary[TX_MENU_LOAD_LOAD],fnt_Metal, bsMenu);
+    Button_Load := TKMButton.Create(Panel_Load,337,590,350,30,fTextLibrary[TX_MENU_LOAD_LOAD],fnt_Metal, bsMenu);
+    Button_Load.Anchors := [akLeft,akBottom];
     Button_Load.OnClick := Load_Click;
 
-    Button_Delete := TKMButton.Create(Panel_Load, 337, 594, 350, 30, fTextLibrary[TX_MENU_LOAD_DELETE], fnt_Metal, bsMenu);
+    Button_Delete := TKMButton.Create(Panel_Load, 337, 624, 350, 30, fTextLibrary[TX_MENU_LOAD_DELETE], fnt_Metal, bsMenu);
+    Button_Delete.Anchors := [akLeft,akBottom];
     Button_Delete.OnClick := Load_Delete_Click;
 
-    Label_DeleteConfirm := TKMLabel.Create(Panel_Load, Panel_Main.Width div 2, 604, 550, 30, fTextLibrary[TX_MENU_LOAD_DELETE_CONFIRM], fnt_Outline, taCenter);
-    Button_DeleteYes := TKMButton.Create(Panel_Load, 337, 630, 170, 30, fTextLibrary[TX_MENU_LOAD_DELETE_DELETE], fnt_Metal, bsMenu);
+    Label_DeleteConfirm := TKMLabel.Create(Panel_Load, Panel_Main.Width div 2, 634, 550, 30, fTextLibrary[TX_MENU_LOAD_DELETE_CONFIRM], fnt_Outline, taCenter);
+    Label_DeleteConfirm.Anchors := [akLeft,akBottom];
+    Button_DeleteYes := TKMButton.Create(Panel_Load, 337, 660, 170, 30, fTextLibrary[TX_MENU_LOAD_DELETE_DELETE], fnt_Metal, bsMenu);
+    Button_DeleteYes.Anchors := [akLeft,akBottom];
     Button_DeleteYes.OnClick := Load_Delete_Click;
-    Button_DeleteNo  := TKMButton.Create(Panel_Load, 517, 630, 170, 30, fTextLibrary[TX_MENU_LOAD_DELETE_CANCEL], fnt_Metal, bsMenu);
+    Button_DeleteNo  := TKMButton.Create(Panel_Load, 517, 660, 170, 30, fTextLibrary[TX_MENU_LOAD_DELETE_CANCEL], fnt_Metal, bsMenu);
+    Button_DeleteNo.Anchors := [akLeft,akBottom];
     Button_DeleteNo.OnClick := Load_Delete_Click;
 
-    Button_LoadBack := TKMButton.Create(Panel_Load, 337, 670, 350, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_LoadBack := TKMButton.Create(Panel_Load, 337, 700, 350, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_LoadBack.Anchors := [akLeft,akBottom];
     Button_LoadBack.OnClick := SwitchMenuPage;
 
-    TKMBevel.Create(Panel_Load, 785, 220, 199, 199);
-    Minimap_LoadPreview := TKMMinimap.Create(Panel_Load,789,224,191,191);
+    with TKMBevel.Create(Panel_Load, 785, 226, 199, 199) do Anchors := [akLeft];
+    Minimap_LoadPreview := TKMMinimap.Create(Panel_Load,789,230,191,191);
+    Minimap_LoadPreview.Anchors := [akLeft];
 end;
 
 
@@ -1110,10 +1118,12 @@ procedure TKMMainMenuInterface.Create_Options_Page;
 var I: Integer;
 begin
   Panel_Options:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
-    with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
+  Panel_Options.Stretch;
+    with TKMImage.Create(Panel_Options,705,180,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
 
     //Controls section
     Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,220,80);
+    Panel_Options_Ctrl.Anchors := [akLeft];
       TKMLabel.Create(Panel_Options_Ctrl,6,0,288,20,fTextLibrary[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Ctrl,0,20,220,60);
 
@@ -1123,6 +1133,7 @@ begin
 
     //Gameplay section
     Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,230,220,50);
+    Panel_Options_Game.Anchors := [akLeft];
       TKMLabel.Create(Panel_Options_Game,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Game,0,20,220,30);
 
@@ -1131,6 +1142,7 @@ begin
 
     //Graphics section
     Panel_Options_GFX:=TKMPanel.Create(Panel_Options,120,300,220,100);
+    Panel_Options_GFX.Anchors := [akLeft];
       TKMLabel.Create(Panel_Options_GFX,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_GFX,0,20,220,80);
       TrackBar_Options_Brightness:=TKMTrackBar.Create(Panel_Options_GFX,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
@@ -1141,6 +1153,7 @@ begin
 
     //SFX section
     Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,420,220,167);
+    Panel_Options_Sound.Anchors := [akLeft];
       TKMLabel.Create(Panel_Options_Sound,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Sound,0,20,220,147);
 
@@ -1157,6 +1170,7 @@ begin
 
     //Resolutions section
     Panel_Options_Res := TKMPanel.Create(Panel_Options, 360, 130, 210, 160);
+    Panel_Options_Res.Anchors := [akLeft];
       TKMLabel.Create(Panel_Options_Res, 6, 0, 188, 20, fTextLibrary[TX_MENU_OPTIONS_RESOLUTION], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_Options_Res, 0, 20, 220, 140);
 
@@ -1174,6 +1188,7 @@ begin
 
     //Language section
     Panel_Options_Lang:=TKMPanel.Create(Panel_Options,600,130,240,30+fLocales.Count*20);
+    Panel_Options_Lang.Anchors := [akLeft];
       TKMLabel.Create(Panel_Options_Lang,6,0,242,20,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Lang,0,20,260,10+fLocales.Count*20);
 
@@ -1189,7 +1204,8 @@ begin
       Radio_Options_Lang.OnChange := Options_Change;
 
     //Back button
-    Button_Options_Back:=TKMButton.Create(Panel_Options,120,650,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+    Button_Options_Back:=TKMButton.Create(Panel_Options,120,630,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+    Button_Options_Back.Anchors := [akLeft];
     Button_Options_Back.OnClick:=SwitchMenuPage;
 end;
 
@@ -1198,9 +1214,10 @@ procedure TKMMainMenuInterface.Create_Credits_Page;
 const OFFSET = 312;
 begin
   Panel_Credits:=TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
+  Panel_Credits.Stretch;
 
-    TKMLabel.Create(Panel_Credits, Panel_Main.Width div 2 - OFFSET,100,400,20,fTextLibrary[TX_CREDITS],fnt_Outline,taCenter);
-    Label_Credits_Remake := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 - OFFSET, 140, 400, Panel_Main.Height - 160,
+    TKMLabel.Create(Panel_Credits, Panel_Main.Width div 2 - OFFSET,70,400,20,fTextLibrary[TX_CREDITS],fnt_Outline,taCenter);
+    Label_Credits_Remake := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 - OFFSET, 110, 400, Panel_Main.Height - 130,
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex|Danjb||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer|Malin||'+
@@ -1208,11 +1225,14 @@ begin
     fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|'+fLocales.GetTranslatorCredits+'|'+
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,taCenter);
+    Label_Credits_Remake.Anchors := [akLeft,akTop,akBottom];
 
-    TKMLabel.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 100, 400, 20, fTextLibrary[TX_CREDITS_ORIGINAL], fnt_Outline, taCenter);
-    Label_Credits_KaM := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 140, 400, Panel_Main.Height - 160, fTextLibrary[TX_CREDITS_TEXT], fnt_Grey, taCenter);
+    TKMLabel.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 70, 400, 20, fTextLibrary[TX_CREDITS_ORIGINAL], fnt_Outline, taCenter);
+    Label_Credits_KaM := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 110, 400, Panel_Main.Height - 130, fTextLibrary[TX_CREDITS_TEXT], fnt_Grey, taCenter);
+    Label_Credits_KaM.Anchors := [akLeft,akTop,akBottom];
 
     Button_CreditsBack:=TKMButton.Create(Panel_Credits,400,700,224,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+    Button_CreditsBack.Anchors := [akLeft,akBottom];
     Button_CreditsBack.OnClick:=SwitchMenuPage;
 end;
 
@@ -2960,9 +2980,9 @@ begin
   ResID := DropBox_Options_Resolution.ItemIndex;
   RefID := DropBox_Options_RefreshRate.ItemIndex;
   Button_Options_ResApply.Enabled :=
-      (OldFullScreen <> fMain.Settings.FullScreen) or
-      (fMain.Settings.FullScreen and ((OldResolutionID.ResID <> ResID) or
-                                      (OldResolutionID.RefID <> RefID)));
+      (fMain.Settings.FullScreen <> CheckBox_Options_FullScreen.Checked) or
+      (CheckBox_Options_FullScreen.Checked and ((OldResolutionID.ResID <> ResID) or
+                                                (OldResolutionID.RefID <> RefID)));
 end;
 
 
@@ -3036,7 +3056,6 @@ begin
   DropBox_Options_Resolution.Enabled  := (fMain.Settings.FullScreen) and (fMain.Resolutions.Count > 0);
   DropBox_Options_RefreshRate.Enabled := (fMain.Settings.FullScreen) and (fMain.Resolutions.Count > 0);
 
-  OldFullScreen   := fMain.Settings.FullScreen;
   OldResolutionID := R;
   Button_Options_ResApply.Disable;
 end;
