@@ -725,7 +725,7 @@ begin
     else
     begin
       if aTeamOnly then
-        aText := NameText+' (Team): '+aText
+        aText := NameText+' [$66FF66](Team)[]: '+aText
       else
         aText := NameText+' (All): '+aText;
     end;
