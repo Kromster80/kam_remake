@@ -14,6 +14,7 @@ object Form1: TForm1
   Position = poDesktopCenter
   Scaled = False
   WindowState = wsMaximized
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (
@@ -76,7 +77,6 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
     OnClick = ListBox1Click
-    ExplicitHeight = 169
   end
   object EditConstName: TEdit
     Left = 488
@@ -216,7 +216,6 @@ object Form1: TForm1
     Caption = 'Copy'
     TabOrder = 16
     OnClick = btnCopyClick
-    ExplicitLeft = 632
   end
   object btnPaste: TButton
     Left = 752
@@ -228,7 +227,6 @@ object Form1: TForm1
     Enabled = False
     TabOrder = 17
     OnClick = btnPasteClick
-    ExplicitLeft = 696
   end
   object Edit1: TEdit
     Left = 336

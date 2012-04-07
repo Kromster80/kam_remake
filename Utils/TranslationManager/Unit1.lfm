@@ -1,19 +1,23 @@
 object Form1: TForm1
-  Left = 226
-  Height = 829
-  Top = 154
-  Width = 1275
+  Left = 40
+  Height = 569
+  Top = 87
+  Width = 825
   Caption = 'KaM Remake Translation Manager'
-  ClientHeight = 829
-  ClientWidth = 1275
+  ClientHeight = 569
+  ClientWidth = 825
   Color = clBtnFace
   Font.Color = clWindowText
+  Font.Height = -13
   Font.Name = 'MS Sans Serif'
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   Position = poDesktopCenter
-  LCLVersion = '0.9.30'
+  LCLVersion = '0.9.30.2'
+  WindowState = wsMaximized
   object Label1: TLabel
-    Left = 472
+    Left = 488
     Height = 17
     Top = 8
     Width = 90
@@ -21,18 +25,18 @@ object Form1: TForm1
     ParentColor = False
   end
   object Label2: TLabel
-    Left = 344
+    Left = 336
     Height = 17
-    Top = 336
+    Top = 320
     Width = 86
     Caption = 'Show Missing:'
     ParentColor = False
   end
   object LabelIncludeSameAsEnglish: TLabel
-    Left = 365
-    Height = 81
-    Top = 384
-    Width = 97
+    Left = 357
+    Height = 49
+    Top = 368
+    Width = 116
     AutoSize = False
     Caption = 'Include strings that are the same in English'
     Enabled = False
@@ -40,122 +44,195 @@ object Form1: TForm1
     WordWrap = True
     OnClick = LabelIncludeSameAsEnglishClick
   end
+  object Label3: TLabel
+    Left = 336
+    Height = 17
+    Top = 8
+    Width = 35
+    Caption = 'Count'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 336
+    Height = 17
+    Top = 432
+    Width = 33
+    Caption = 'Filter:'
+    ParentColor = False
+  end
+  object lbFolders: TListBox
+    Left = 8
+    Height = 249
+    Top = 8
+    Width = 321
+    ItemHeight = 0
+    OnClick = lbFoldersClick
+    TabOrder = 15
+  end
   object ListBox1: TListBox
     Left = 8
-    Height = 727
-    Top = 48
-    Width = 329
+    Height = 297
+    Top = 264
+    Width = 321
     Anchors = [akTop, akLeft, akBottom]
     ItemHeight = 0
     OnClick = ListBox1Click
     TabOrder = 0
   end
   object EditConstName: TEdit
-    Left = 472
+    Left = 488
     Height = 24
     Top = 24
     Width = 297
+    Enabled = False
     OnChange = EditConstNameChange
     TabOrder = 1
   end
-  object btnReorderList: TButton
-    Left = 344
+  object btnSortByIndex: TButton
+    Left = 336
     Height = 25
-    Top = 240
-    Width = 121
-    Caption = 'Reorder IDs'
-    OnClick = btnReorderListClick
+    Top = 232
+    Width = 145
+    Caption = 'Sort by Index'
+    OnClick = btnSortByIndexClick
     TabOrder = 2
   end
-  object btnLoad: TButton
-    Left = 8
-    Height = 25
-    Top = 8
-    Width = 75
-    Caption = 'Load'
-    OnClick = btnLoadClick
-    TabOrder = 3
-  end
   object btnSave: TButton
-    Left = 96
-    Height = 25
-    Top = 8
-    Width = 75
+    Left = 336
+    Height = 33
+    Top = 32
+    Width = 145
     Caption = 'Save'
     OnClick = btnSaveClick
-    TabOrder = 4
+    TabOrder = 3
   end
   object btnInsert: TButton
-    Left = 344
-    Height = 25
-    Top = 48
-    Width = 121
-    Caption = 'Insert New'
-    OnClick = btnInsertClick
-    TabOrder = 5
-  end
-  object ScrollBox1: TScrollBox
-    Left = 472
-    Height = 729
-    Top = 48
-    Width = 777
-    Anchors = [akTop, akLeft, akRight, akBottom]
-    TabOrder = 6
-  end
-  object btnDelete: TButton
-    Left = 344
-    Height = 25
-    Top = 112
-    Width = 121
-    Caption = 'Delete'
-    OnClick = btnDeleteClick
-    TabOrder = 7
-  end
-  object btnInsertSeparator: TButton
-    Left = 344
+    Left = 336
     Height = 25
     Top = 80
-    Width = 121
+    Width = 145
+    Caption = 'Insert New'
+    OnClick = btnInsertClick
+    TabOrder = 4
+  end
+  object ScrollBox1: TScrollBox
+    Left = 488
+    Height = 513
+    Top = 48
+    Width = 329
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    TabOrder = 5
+  end
+  object btnInsertSeparator: TButton
+    Left = 336
+    Height = 25
+    Top = 104
+    Width = 145
     Caption = 'Insert Separator'
     OnClick = btnInsertSeparatorClick
-    TabOrder = 8
+    TabOrder = 7
   end
   object btnMoveUp: TButton
-    Left = 344
+    Left = 336
     Height = 25
-    Top = 176
-    Width = 121
+    Top = 168
+    Width = 145
     Caption = 'Move Up'
     OnClick = btnMoveUpClick
-    TabOrder = 9
+    TabOrder = 8
   end
   object btnMoveDown: TButton
-    Left = 344
+    Left = 336
     Height = 25
-    Top = 208
-    Width = 121
+    Top = 192
+    Width = 145
     Caption = 'Move Down'
     OnClick = btnMoveDownClick
-    TabOrder = 10
+    TabOrder = 9
   end
   object cbShowMissing: TComboBox
-    Left = 344
+    Left = 336
     Height = 24
-    Top = 352
-    Width = 121
+    Top = 336
+    Width = 145
     DropDownCount = 16
     ItemHeight = 16
     OnChange = cbShowMissingChange
     Style = csDropDownList
-    TabOrder = 11
+    TabOrder = 10
   end
   object cbIncludeSameAsEnglish: TCheckBox
-    Left = 344
+    Left = 336
     Height = 23
-    Top = 384
+    Top = 368
     Width = 24
     Enabled = False
     OnClick = cbIncludeSameAsEnglishClick
+    TabOrder = 11
+  end
+  object btnSortByName: TButton
+    Left = 336
+    Height = 25
+    Top = 256
+    Width = 145
+    Caption = 'Sort by Name'
+    OnClick = btnSortByNameClick
     TabOrder = 12
+  end
+  object btnCompactIndexes: TButton
+    Left = 336
+    Height = 25
+    Top = 280
+    Width = 145
+    Caption = 'Compact Indexes'
+    OnClick = btnCompactIndexesClick
+    TabOrder = 13
+  end
+  object Button1: TButton
+    Left = 16
+    Height = 25
+    Top = 16
+    Width = 75
+    Caption = 'Export TSK'
+    OnClick = Button1Click
+    TabOrder = 14
+  end
+  object btnDelete: TButton
+    Left = 336
+    Height = 25
+    Top = 128
+    Width = 145
+    Caption = 'Delete'
+    OnClick = btnDeleteClick
+    TabOrder = 6
+  end
+  object btnCopy: TButton
+    Left = 688
+    Height = 25
+    Top = 24
+    Width = 65
+    Anchors = [akTop, akRight]
+    Caption = 'Copy'
+    OnClick = btnCopyClick
+    TabOrder = 16
+  end
+  object btnPaste: TButton
+    Left = 752
+    Height = 25
+    Top = 24
+    Width = 65
+    Anchors = [akTop, akRight]
+    Caption = 'Paste'
+    Enabled = False
+    OnClick = btnPasteClick
+    TabOrder = 17
+  end
+  object Edit1: TEdit
+    Left = 336
+    Height = 24
+    Top = 448
+    Width = 145
+    OnChange = Edit1Change
+    TabOrder = 18
   end
 end

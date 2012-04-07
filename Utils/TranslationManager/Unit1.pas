@@ -529,10 +529,8 @@ end;
 
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  if btnSave.Enabled and (MessageDlg('You have unsaved changes that will be lost, are you sure you want to exit?', mtWarning, mbOKCancel, 0) <> mrOK) then
-    CanClose := False
-  else
-    CanClose := True;
+  CanClose := (not btnSave.Enabled) or
+              (MessageDlg('You have unsaved changes that will be lost, are you sure you want to exit?', mtWarning, [mbYes,mbNo], 0) = mrYes);
 end;
 
 end.
