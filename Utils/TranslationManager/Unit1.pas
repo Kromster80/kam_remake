@@ -54,6 +54,7 @@ type
     procedure btnCopyClick(Sender: TObject);
     procedure btnPasteClick(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
@@ -64,6 +65,7 @@ type
     TransLabels: array of TLabel;
     ListboxLookup: array of Integer;
     IgnoreChanges: Boolean;
+    fPreviousFolder: Integer;
     procedure MemoChange(Sender: TObject);
 
     procedure RefreshFolders;
@@ -127,8 +129,12 @@ begin
   //Let the user abort and save edited translations
   if btnSave.Enabled
   and (MessageDlg(MSG_WARNING, mtWarning, mbOKCancel, 0) = mrCancel) then
+  begin
+    lbFolders.ItemIndex := fPreviousFolder;
     Exit;
+  end;
 
+  fPreviousFolder := lbFolders.ItemIndex;
   ID := lbFolders.ItemIndex;
   if ID = -1 then Exit;
 
@@ -187,10 +193,10 @@ procedure TForm1.RefreshList;
     if Result and (cbShowMissing.ItemIndex <> 0) then
       Result := (TextID <> -1) and
                 (
-                  (fTextManager.Texts[TextID][cbShowMissing.ItemIndex] = '') or
+                  (fTextManager.Texts[TextID][cbShowMissing.ItemIndex-1] = '') or
                   (
                     cbIncludeSameAsEnglish.Checked and
-                    (fTextManager.Texts[TextID][cbShowMissing.ItemIndex] = fTextManager.Texts[TextID][DefLoc])
+                    (fTextManager.Texts[TextID][cbShowMissing.ItemIndex-1] = fTextManager.Texts[TextID][DefLoc])
                   )
                 );
 
@@ -520,5 +526,13 @@ begin
   cbIncludeSameAsEnglishClick(LabelIncludeSameAsEnglish);
 end;
 
+
+procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  if btnSave.Enabled and (MessageDlg('You have unsaved changes that will be lost, are you sure you want to exit?', mtWarning, mbOKCancel, 0) <> mrOK) then
+    CanClose := False
+  else
+    CanClose := True;
+end;
 
 end.
