@@ -1,8 +1,0 @@
-Title
-Border Rivers 4P
-
-SmallDesc
-A multiplayer map from Knights and Merchants
-
-BigDesc
-A multiplayer map from Knights and Merchants. Each player has a large area to build in surrounded by rivers.

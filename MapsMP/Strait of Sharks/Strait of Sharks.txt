@@ -1,2 +1,2 @@
 BigDesc
-By Rayzel. Four allies met with four opponents in the Strait of shark. Who will dare to cross first?||Suggested teams:|1+2+3+4 vs 5+6+7+8||Features:|- Multiplayer map for building.|- Map for large-scale battles (helped by the initial resources).|- Each player starts with 4 warehouses.|- Players are isolated by towers, even when playing 1v1.|- Carefully check the initial resources.|- Locked "unnecessary" buildings (including the market - for balance).|- Fish are in all bodies of water on the map.||Enjoy the game :)
+Four allies meet four opponents in the Strait of Sharks. Who will dare to cross first?||Made by Rayzel

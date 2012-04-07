@@ -1,8 +1,2 @@
-Title
-River of Gold
-
-SmallDesc
-A multiplayer mission by GreatWhiteBear
-
 BigDesc
-A multiplayer mission by GreatWhiteBear.||Suggested teams: 1+2 vs 3+4.
+Long was this land untouched and peaceful, almost a paradise. But with the fruit came the sin and people turned greedy. Four lords know of this place, and all have fallen before greed.||Made by GreatWhiteBear.

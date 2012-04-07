@@ -1,8 +1,2 @@
-Title
-Mountainous Region
-
-SmallDesc
-A multiplayer map from Knights and Merchants
-
 BigDesc
-A multiplayer map from Knights and Merchants. Players are in enclosed areas which meet at the center of the map.
+Amidst towering mountain-scape, you alone or with an ally must face equal odds to win. A private battle in which the lords and ladies will decide who lays claim to the plains of the valley.||Original map from Knights and Merchants The Shattered Kingdom

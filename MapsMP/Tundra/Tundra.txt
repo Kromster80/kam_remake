@@ -1,8 +1,2 @@
-Title
-Tundra
-
-SmallDesc
-A multiplayer battle mission by Kirelareus
-
 BigDesc
-A multiplayer battle mission by Kirelareus.||Suggested teams: 1+3 vs 2+4.
+In the bitter cold of winter the tundra of the far north is silent and deserted, the giant fir trees watching over the land are the only sign of life. Weary troops became lost in a blizard, in the morning they wake to find they are no longer alone...||Made by Kirelareus.

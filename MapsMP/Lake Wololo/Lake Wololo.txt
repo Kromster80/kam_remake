@@ -1,8 +1,2 @@
-Title
-Lake Wololo
-
-SmallDesc
-A multiplayer 3 vs 3 mission by Pictures.
-
 BigDesc
-A multiplayer 3 vs 3 mission by Pictures.||Teams must be 1+2+3 vs 4+5+6 as each team starts together on one side of the lake.
+The sound of war shall sound once more. East and West shall clash upon the mighty bridge that spans the lake.||Made by Pictures

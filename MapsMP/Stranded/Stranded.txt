@@ -1,5 +1,2 @@
-Title
-Stranded
-
 BigDesc
-An easily defensible map where players each have 3 entrances to defend, surrounded by large rivers and streams. Iron can sometimes be far from reach.|Made by caykroyd.||Suggested teams:|1+2 vs 3+4 or|1+3 vs 2+4.
+A fleet of the King's ships ran aground on a desolate and uninhabited land. Winter is fast approaching and the generals know there will not be enough food for everyone. They each make camp with the men from their ships and prepare to stock food before the ground freezes over, but each one knows they will soon be forced to fight one another for survival.||Made by caykroyd.

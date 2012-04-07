@@ -1,9 +1,2 @@
-Title
-Blood River
-
-SmallDesc
-A multiplayer mission by andreus and Rayzel.
-
 BigDesc
-A huge map by andreus for 3v3 game by andreus and Rayzel. Build your Empire! Teams are on opposite sides of the river.||Suggested teams are 1+2+3 and 4+5+6.
-
+Build your empire, equip your army, and let the rivers run red with blood.||Made by andreus and Rayzel

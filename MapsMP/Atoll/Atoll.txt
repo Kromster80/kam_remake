@@ -1,8 +1,2 @@
-Title
-Atoll
-
-SmallDesc
-A multiplayer map by Kirelareus
-
 BigDesc
-A multiplayer map by Kirelareus. A 3 player fight around a hill on an island.
+Encircle your enemies around the lagoon in the middle of a sandy island.||Made by Kirelareus.

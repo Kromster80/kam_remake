@@ -1,8 +1,2 @@
-Title
-Kaderto
-
-SmallDesc
-A multiplayer mission by Pictures.
-
 BigDesc
-A multiplayer mission by Pictures.
+Land of mountains, grass, and stone. Waters of fish, trees that groan. Cultivate this land, slay the foe. By sword and axe their blood will flow!||Made by Pictures

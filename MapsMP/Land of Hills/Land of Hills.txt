@@ -1,8 +1,2 @@
-Title
-Land of Hills
-
-SmallDesc
-A multiplayer map from Knights and Merchants
-
 BigDesc
-A multiplayer map from Knights and Merchants. A hilly map with an open area in the middle.||Suggested teams:|1+6 vs 2+3 vs 4+5 or|1+5+6 vs 2+3+4
+The rolling hills surrounding the valley offer excellent strategic positions to defend. And yet it will be necessary to leave the safety of these hills, for the valley is rich with coal seams needed to process ore.||Original map from Knights and Merchants The Shattered Kingdom

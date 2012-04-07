@@ -1,8 +1,2 @@
-Title
-Grassland Clash
-
-SmallDesc
-A 4-player map by T*AnTi-V!Ruzz
-
 BigDesc
-A medium-sized 4-player map by T*AnTi-V!RuZz. Build around cliffs and rivers.||Best played 2 vs 2.||Can also be played FFA.||Teams: 1+2 and 3+4
+The peacefulness of this serene grassland is about to be shattered by the clash of iron and cries of war.||Made by T*AnTi-V!RuZz

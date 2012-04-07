@@ -1,10 +1,4 @@
-Title
-A Farmer's Wish
-
 SetCoop
 
-SmallDesc
-A mission by Hellracer
-
 BigDesc
-A mission by Hellracer converted for co-operative by Lewin. The small farmer village has been threatened. They rely on you to protect them from any attacks. An attack has already been planned, stop it and prepare for the next. Then stop them from ever attacking again!|LOCATIONS FOR THE HUMANS ARE 1 AND 2. Locations 3-6 should be AI players on the same team.
+The small farmer village has been threatened. They rely on you to protect them from any attacks. An attack has already been planned, stop it and prepare for the next. Then stop them from ever attacking again!|LOCATIONS FOR THE HUMANS ARE 1 AND 2. Locations 3-6 should be AI players on the same team.||Made by Hellracer and converted for co-operative by Lewin. 

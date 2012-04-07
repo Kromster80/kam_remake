@@ -1,8 +1,2 @@
-Title
-Cross
-
-SmallDesc
-A multiplayer battle mission by Kirelareus.
-
 BigDesc
-A multiplayer battle mission by Kirelareus.
+An island divided in four. In the middle a sacred stone in a grove of trees. Four parties, fighting to get the upperhand. Who shall slay all and gain victory by sword, spear and bow?||Made by Kirelareus.

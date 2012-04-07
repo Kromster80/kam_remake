@@ -1,7 +1,2 @@
-Title
-Rocky Coast
-SmallDesc
-A 8-player map by kecske
-
 BigDesc
-A large 8-player map by kecske||Teams should be:|1+2+3+4 vs 5+6+7+8 (top vs bottom) or|1+2+7+8 vs 3+4+5+6 (left vs right) or|1+2 vs 3+4 vs 5+6 vs 7+8
+The rocky coastline stretches as far as the eye can see. Many a ship has been wrecked in these perilous waters. Fight your way across the uneven terrain and crush your enemy!||Made by kecske.

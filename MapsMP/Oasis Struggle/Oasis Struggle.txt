@@ -1,8 +1,2 @@
-Title
-Oasis Struggle
-
-SmallDesc
-A multiplayer map made by Ben
-
 BigDesc
-An 8 player multiplayer map made by Ben. The center of the map is filled with a lake; with 8 players located around it. Players must go around the lake to reach each other. Like border rivers, players are grouped closely in couples, so teams must be 1+2, 3+4, 5+6, and 7+8, however, the most recommended setting is 1+2+3+4 vs. 5+6+7+8.
+Deep within the desert minerals can be found to win a war. The great oasis brings life to the otherwise uninhabitable sands, and fighting for it shall surely be a matter of life and death!||Made by Ben

@@ -1,8 +1,2 @@
-Title
-Horse Shoe
-
-SmallDesc
-A 1v1 map by Ben
-
 BigDesc
-A very small 1 vs. 1 map by Ben in the shape of a horse shoe. Limited room and resources offer an excellent opertunity for an ultimate head-to-head match.
+Limited room and resources offer an excellent opportunity for an ultimate head-to-head match.||Made by Ben.

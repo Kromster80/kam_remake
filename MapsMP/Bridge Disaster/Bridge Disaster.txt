@@ -1,8 +1,2 @@
-Title
-Bridge Disaster
-
-SmallDesc
-A multiplayer map from Knights and Merchants
-
 BigDesc
-A multiplayer map from Knights and Merchants. This map is full of chaosms, bridges and narrow spaces.
+Nestled lie the villages with ample land but scant ore. Defend what you have with the narrow passages to your town and prepare to fight over each other's mineral resources!||Original map from Knights and Merchants The Shattered Kingdom

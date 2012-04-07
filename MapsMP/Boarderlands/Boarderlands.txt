@@ -1,8 +1,2 @@
-Title
-Boarderlands
-
-SmallDesc
-A multiplayer map by Ben
-
 BigDesc
-A large 8 player map with balanced resources.|Suggested teams: 1+2+3+4 vs 5+6+7+8||Made by Ben.
+The border between four countries is a dangerous and wild place with much fertile land and valueable resources to fight over.||Made by Ben.

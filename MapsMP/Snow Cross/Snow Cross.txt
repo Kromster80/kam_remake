@@ -1,8 +1,2 @@
-Title
-Snow Cross
-
-SmallDesc
-A multiplayer mission by andreus
-
 BigDesc
-A multiplayer battle mission by andreus.||Suggested teams: 1+2 vs 3+4.
+Four armies eye each other across the snow covered forest. Who shall outmanoeuvre their opponents and claim victory?||Made by andreus.

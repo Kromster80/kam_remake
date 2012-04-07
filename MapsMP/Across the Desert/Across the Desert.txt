@@ -1,8 +1,2 @@
-Title
-Across the Desert
-
-SmallDesc
-A multiplayer map from Knights and Merchants
-
 BigDesc
-A multiplayer map from Knights and Merchants. A wide open map with lots of space.||Suggested teams:|1+6 vs 2+3 vs 4+5 or|1+4+5 vs 2+3+6.
+Pursue your enemies across the wide open desert||Original map from Knights and Merchants The Shattered Kingdom

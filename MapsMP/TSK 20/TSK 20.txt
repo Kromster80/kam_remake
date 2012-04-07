@@ -1,11 +1,4 @@
-Title
-TSK 20 Coop
-
 SetCoop
-
-SmallDesc
-Mission 20 TSK Co-operative Edition :D
- 
 
 BigDesc
 Mission 20 from The Shattered Kingdom campaign converted for co-operative by andreus and Lewin.|Locations:|HUMAN TEAM 1:|1,2 |AI TEAM 2:|3,4,5,6|

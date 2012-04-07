@@ -1,8 +1,2 @@
-Title
-Frozen Canyons
-
-SmallDesc
-A fast multiplayer match 1v1 by caykroyd. High starting resourses. Low map resourses. Open base.
-
 BigDesc
-A fast motion 1v1 multiplayer building mission by caykroyd. Scenary: High Canyons of Snow poor on minerals and fertile soil. Thus each player begins with a fair amount of wares to quickly set thy empire into place.||Hint: Woodcutters will only plant on dirty snow terrain.
+The land is plunged into a bitterly cold winter. Deep snow caps the mountain tops and covers vast fields in the mountain villages, though this time the folk are prepared, and a large harvest was stocked. Nevertheless, fertile lands are scarce enough, and are not to be shared with some mere intruder at this time of year. Prepare thy arms!|Hint: Woodcutters will only plant on dirty snow terrain.||Made by caykroyd.
