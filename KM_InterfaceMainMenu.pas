@@ -3087,10 +3087,8 @@ begin
   else
   begin
     //no supported resolutions
-    //TODO: String "Not supported" should be moved to text library
-    //and translated to all languages
-    DropBox_Options_Resolution.Add('Not supported');
-    DropBox_Options_RefreshRate.Add('Not supported');
+    DropBox_Options_Resolution.Add(fTextLibrary[TX_MENU_OPTIONS_RESOLUTION_NOT_SUPPORTED]);
+    DropBox_Options_RefreshRate.Add(fTextLibrary[TX_MENU_OPTIONS_REFRESH_RATE_NOT_SUPPORTED]);
     DropBox_Options_Resolution.ItemIndex := 0;
     DropBox_Options_RefreshRate.ItemIndex := 0;
   end;

@@ -274,6 +274,7 @@ procedure TKMGame.ToggleLocale(aLocale:shortstring);
 begin
   fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
   if fNetworking <> nil then FreeAndNil(fNetworking);
+  FreeAndNil(fCampaigns);
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fSoundLib);
   FreeAndNil(fTextLibrary);
@@ -282,6 +283,9 @@ begin
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
   fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
   fResource.ResourceFont.LoadFonts(fGameSettings.Locale);
+  fCampaigns := TKMCampaignsCollection.Create; //Campaigns load text into TextLibrary
+  fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
+  fCampaigns.LoadProgress(ExeDir + 'Saves\Campaigns.dat');
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
   fMainMenuInterface.ShowScreen(msOptions);
 end;

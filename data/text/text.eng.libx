@@ -1,5 +1,5 @@
 
-MaxID:2692
+MaxID:2694
 
 0:Sawmill
 1:Iron smithy
@@ -444,7 +444,9 @@ MaxID:2692
 1906:Soft shadows
 2687:Create Server
 2688:FIND SERVER
-2689:Find Server
-2690:Find Server
+2689:Connect
+2690:Find Server by IP
 2691:Cancel
 2692:Cancel
+2693:Not supported
+2694:Not supported
