@@ -178,7 +178,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Sound, KM_Log;
+uses KM_TextLibrary, KM_Sound, KM_Log, KM_Utils;
 
 
 { TKMNetworking }
@@ -717,7 +717,7 @@ begin
   if aShowName then
   begin
     if NetPlayers[fMyIndex].FlagColorID <> 0 then
-      NameText := '[$'+IntToHex(NetPlayers[fMyIndex].FlagColor and $00FFFFFF,6)+']'+fMyNikname+'[]'
+      NameText := '[$'+IntToHex(FlagColorToTextColor(NetPlayers[fMyIndex].FlagColor) and $00FFFFFF,6)+']'+fMyNikname+'[]'
     else
       NameText := fMyNikname;
     if fNetGameState <> lgs_Game then

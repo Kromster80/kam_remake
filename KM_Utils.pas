@@ -12,6 +12,7 @@ uses Classes, Math, SysUtils, KM_Defaults, KM_Points;
   function FixDelim(const aString:string):string;
 
   function GetPingColor(aPing:word):cardinal;
+  function FlagColorToTextColor(aColor:Cardinal):Cardinal;
 
   procedure ParseDelimited(const SL: TStringList; const Value: string; const Delimiter: string);
 
@@ -182,6 +183,13 @@ begin
     600..999: Result := $FF0099FF; //Orange
     else      Result := $FF0707FF; //Red
   end;
+end;
+
+
+//todo: @Krom: Write RGB > HSL to ensure text player names aren't over saturated
+function FlagColorToTextColor(aColor:Cardinal):Cardinal;
+begin
+  Result := aColor;
 end;
 
 

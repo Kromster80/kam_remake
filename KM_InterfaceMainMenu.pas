@@ -538,8 +538,10 @@ begin
   //Fill in raw values
   for i:=0 to fPlayers.Count-1 do
   begin
-    Label_ResultsPlayerName1[i].Caption := '[$'+IntToHex(fPlayers[i].FlagColor and $00FFFFFF,6)+']'+fPlayers[i].PlayerName+'[]';
-    Label_ResultsPlayerName2[i].Caption := '[$'+IntToHex(fPlayers[i].FlagColor and $00FFFFFF,6)+']'+fPlayers[i].PlayerName+'[]';
+    Label_ResultsPlayerName1[i].Caption   := fPlayers[i].PlayerName;
+    Label_ResultsPlayerName1[i].FontColor := FlagColorToTextColor(fPlayers[i].FlagColor);
+    Label_ResultsPlayerName2[i].Caption   := fPlayers[i].PlayerName;
+    Label_ResultsPlayerName2[i].FontColor := FlagColorToTextColor(fPlayers[i].FlagColor);
 
     with fPlayers[i].Stats do
     begin
@@ -1282,6 +1284,11 @@ begin
       ImageStretch;
       Center;
     end;
+    with TKMBevel.Create(Panel_Results,0,0,Panel_Main.Width, Panel_Main.Height) do
+    begin
+      Center;
+      BackAlpha := 0.6;
+    end;
 
     Label_Results := TKMLabel.Create(Panel_Results,512,160,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_Results.Anchors := [akLeft];
@@ -1329,6 +1336,11 @@ begin
     begin
       ImageStretch;
       Center;
+    end;
+    with TKMBevel.Create(Panel_ResultsMP,0,0,Panel_Main.Width, Panel_Main.Height) do
+    begin
+      Center;
+      BackAlpha := 0.6;
     end;
 
     Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,125,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
