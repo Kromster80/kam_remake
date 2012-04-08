@@ -516,7 +516,7 @@ var
   i,k: Integer;
   UnitsMax, HousesMax, GoodsMax, WeaponsMax, MaxValue: Integer;
 begin
-  Label_ResultsMPTime.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
+  Label_ResultsMPTime.Caption := fGame.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
 
   //Update visibility depending on players count
   for i:=0 to MAX_PLAYERS-1 do
@@ -528,17 +528,18 @@ begin
   end;
 
   //Update positioning
-  Panel_StatsMP1.Height := 40 + fPlayers.Count * 25 + 20;
-  Panel_StatsMP2.Height := 40 + fPlayers.Count * 25 + 20;
+  Panel_StatsMP1.Height := 40 + fPlayers.Count * 22;
+  Panel_StatsMP2.Height := 40 + fPlayers.Count * 22;
 
-  Panel_StatsMP1.Top := 140 + (520 - Panel_StatsMP1.Height * 2) div 2;
+  Panel_StatsMP1.Top := 134 + (520 - Panel_StatsMP1.Height * 2) div 2 -
+                        (768 - Min(Panel_ResultsMP.Height,768)) div 2; //Manually apply anchoring
   //Second panel does not move from the middle of the screen: results always go above and below the middle
 
   //Fill in raw values
   for i:=0 to fPlayers.Count-1 do
   begin
-    Label_ResultsPlayerName1[i].Caption := fPlayers[i].PlayerName;
-    Label_ResultsPlayerName2[i].Caption := fPlayers[i].PlayerName;
+    Label_ResultsPlayerName1[i].Caption := '[$'+IntToHex(fPlayers[i].FlagColor and $00FFFFFF,6)+']'+fPlayers[i].PlayerName+'[]';
+    Label_ResultsPlayerName2[i].Caption := '[$'+IntToHex(fPlayers[i].FlagColor and $00FFFFFF,6)+']'+fPlayers[i].PlayerName+'[]';
 
     with fPlayers[i].Stats do
     begin
@@ -1240,8 +1241,11 @@ end;
 procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
   Panel_Loading:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
-    TKMLabel.Create(Panel_Loading, Panel_Main.Width div 2, Panel_Main.Height div 2 - 20, 0,0,fTextLibrary[TX_MENU_LOADING],fnt_Outline,taCenter);
+  Panel_Loading.Stretch;
+    with TKMLabel.Create(Panel_Loading, Panel_Main.Width div 2, Panel_Main.Height div 2 - 20, 0,0,fTextLibrary[TX_MENU_LOADING],fnt_Outline,taCenter) do
+      Center;
     Label_Loading := TKMLabel.Create(Panel_Loading, Panel_Main.Width div 2, Panel_Main.Height div 2+10, 0, 0,'...',fnt_Grey,taCenter);
+    Label_Loading.Center;
 end;
 
 
@@ -1264,11 +1268,18 @@ const StatText: array [1..9] of Word = (
 var i, Adv: Integer;
 begin
   Panel_Results := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
-    with TKMImage.Create(Panel_Results,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMain) do ImageStretch;
+  Panel_Results.Stretch;
+    with TKMImage.Create(Panel_Results,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMain) do
+    begin
+      ImageStretch;
+      Center;
+    end;
 
-    Label_Results := TKMLabel.Create(Panel_Results,512,200,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_Results := TKMLabel.Create(Panel_Results,512,160,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_Results.Anchors := [akLeft];
 
-    Panel_Stats := TKMPanel.Create(Panel_Results,80,240,400,400);
+    Panel_Stats := TKMPanel.Create(Panel_Results,80,200,400,400);
+    Panel_Stats.Anchors := [akLeft];
     Adv := 0;
     for i:=1 to 9 do
     begin
@@ -1278,18 +1289,22 @@ begin
       Label_Stat[i] := TKMLabel.Create(Panel_Stats,340,Adv,100,20,'00',fnt_Metal,taRight);
     end;
 
-    Button_ResultsBack := TKMButton.Create(Panel_Results,100,650,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+    Button_ResultsBack := TKMButton.Create(Panel_Results,100,610,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+    Button_ResultsBack.Anchors := [akLeft];
     Button_ResultsBack.OnClick := SwitchMenuPage;
-    Button_ResultsRepeat := TKMButton.Create(Panel_Results,340,650,220,30,fTextLibrary[TX_MENU_MISSION_REPEAT],fnt_Metal,bsMenu);
+    Button_ResultsRepeat := TKMButton.Create(Panel_Results,340,610,220,30,fTextLibrary[TX_MENU_MISSION_REPEAT],fnt_Metal,bsMenu);
+    Button_ResultsRepeat.Anchors := [akLeft];
     Button_ResultsRepeat.OnClick := MainMenu_ReplayLastMap;
-    Button_ResultsContinue := TKMButton.Create(Panel_Results,580,650,220,30,fTextLibrary[TX_MENU_MISSION_NEXT],fnt_Metal,bsMenu);
+    Button_ResultsContinue := TKMButton.Create(Panel_Results,580,610,220,30,fTextLibrary[TX_MENU_MISSION_NEXT],fnt_Metal,bsMenu);
+    Button_ResultsContinue.Anchors := [akLeft];
     Button_ResultsContinue.OnClick := SwitchMenuPage;
 end;
 
 
 procedure TKMMainMenuInterface.Create_ResultsMP_Page;
 const
-  BarStep = 130;
+  BarStep = 150;
+  RowHeight = 22;
   BarWidth = BarStep - 10;
   BarHalf = BarWidth div 2;
   Columns1: array[0..4] of integer = (TX_RESULTS_MP_CITIZENS_TRAINED, TX_RESULTS_MP_CITIZENS_LOST,
@@ -1301,38 +1316,48 @@ const
 var i,k: Integer;
 begin
   Panel_ResultsMP := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
-    with TKMImage.Create(Panel_ResultsMP,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMain) do ImageStretch;
+  Panel_ResultsMP.Stretch;
+    with TKMImage.Create(Panel_ResultsMP,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMain) do
+    begin
+      ImageStretch;
+      Center;
+    end;
 
-    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,90,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
-    Label_ResultsMPTime := TKMLabel.Create(Panel_ResultsMP,512,120,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,125,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_ResultsMP.Anchors := [akLeft];
+    Label_ResultsMPTime := TKMLabel.Create(Panel_ResultsMP,512,145,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_ResultsMPTime.Anchors := [akLeft];
 
-    Panel_StatsMP1 := TKMPanel.Create(Panel_ResultsMP, 112, 140, 800, 260);
+    Panel_StatsMP1 := TKMPanel.Create(Panel_ResultsMP, 62, 230, 900, 180);
+    Panel_StatsMP1.Anchors := [akLeft];
 
       for i:=0 to 7 do
-        Label_ResultsPlayerName1[i] := TKMLabel.Create(Panel_StatsMP1, 0, 43+i*25, 140, 20, '', fnt_Metal, taLeft);
+        Label_ResultsPlayerName1[i] := TKMLabel.Create(Panel_StatsMP1, 0, 38+i*RowHeight, 150, 20, '', fnt_Metal, taLeft);
 
       for k:=0 to 4 do
       begin
-        with TKMLabel.Create(Panel_StatsMP1, 150 + BarHalf+BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns1[k]], fnt_Metal, taCenter) do
+        with TKMLabel.Create(Panel_StatsMP1, 160 + BarHalf+BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns1[k]], fnt_Metal, taCenter) do
           AutoWrap := true;
         for i:=0 to 7 do
-          Bar_Results[i,k] := TKMPercentBar.Create(Panel_StatsMP1, 150 + k*BarStep, 40+i*25, BarWidth, 20, fnt_Metal);
+          Bar_Results[i,k] := TKMPercentBar.Create(Panel_StatsMP1, 160 + k*BarStep, 35+i*RowHeight, BarWidth, 20, fnt_Metal);
       end;
 
-    Panel_StatsMP2 := TKMPanel.Create(Panel_ResultsMP, 112, 400, 800, 260);
+    Panel_StatsMP2 := TKMPanel.Create(Panel_ResultsMP, 62, 406, 900, 180);
+    Panel_StatsMP2.Anchors := [akLeft];
 
       for i:=0 to 7 do
-        Label_ResultsPlayerName2[i] := TKMLabel.Create(Panel_StatsMP2, 0, 43+i*25, 140, 20, '', fnt_Metal, taLeft);
+        Label_ResultsPlayerName2[i] := TKMLabel.Create(Panel_StatsMP2, 0, 38+i*RowHeight, 150, 20, '', fnt_Metal, taLeft);
 
       for k:=0 to 4 do
       begin
-        with TKMLabel.Create(Panel_StatsMP2, 150 + BarHalf+BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns2[k]], fnt_Metal, taCenter) do
+        with TKMLabel.Create(Panel_StatsMP2, 160 + BarHalf+BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns2[k]], fnt_Metal, taCenter) do
           AutoWrap := true;
         for i:=0 to 7 do
-          Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 150 + k*BarStep, 40+i*25, BarWidth, 20, fnt_Metal);
+          Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 160 + k*BarStep, 35+i*RowHeight, BarWidth, 20, fnt_Metal);
       end;
 
-    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,650,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,630,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+    Button_ResultsMPBack.Anchors := [akLeft];
     Button_ResultsMPBack.OnClick := SwitchMenuPage;
 end;
 
