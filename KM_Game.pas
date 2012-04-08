@@ -1566,8 +1566,16 @@ begin
 
                   except
                     //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                    on E : ELocError do GameError(E.Loc, E.ClassName+': '+E.Message);
-                    on E : Exception do GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
+                    on E : ELocError do
+                    begin
+                      GameError(E.Loc, E.ClassName+': '+E.Message);
+                      Exit; //Exit because the game could have been stopped
+                    end;
+                    on E : Exception do
+                    begin
+                      GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
+                      Exit; //Exit because the game could have been stopped
+                    end;
                   end;
                   end;
                   fGamePlayInterface.UpdateState;

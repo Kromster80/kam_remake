@@ -1038,7 +1038,9 @@ procedure TKMMainMenuInterface.Create_MapEditor_Page;
 var i:integer;
 begin
   Panel_MapEd:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
+  Panel_MapEd.Stretch;
     Panel_MapEd_SizeXY := TKMPanel.Create(Panel_MapEd, 120, 200, 200, 400);
+    Panel_MapEd_SizeXY.Anchors := [akLeft];
       TKMLabel.Create(Panel_MapEd_SizeXY, 6, 0, 188, 20, fTextLibrary[TX_MENU_MAP_SIZE], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_MapEd_SizeXY, 0, 20, 200, 20 + MAPSIZES_COUNT*26);
       TKMLabel.Create(Panel_MapEd_SizeXY, 8, 27, 88, 20, fTextLibrary[TX_MENU_MAP_WIDTH], fnt_Outline, taLeft);
@@ -1060,6 +1062,7 @@ begin
       Button_MapEd_Create.OnClick := MapEditor_Start;
 
     Panel_MapEd_Load := TKMPanel.Create(Panel_MapEd, 340, 200, 520, 400);
+    Panel_MapEd_Load.Anchors := [akLeft];
       TKMLabel.Create(Panel_MapEd_Load, 6, 0, 288, 20, fTextLibrary[TX_MENU_MAP_AVAILABLE], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_MapEd_Load, 0, 20, 300, 50);
       Radio_MapEd_MapType := TKMRadioGroup.Create(Panel_MapEd_Load,8,28,286,40,fnt_Grey);
@@ -1075,7 +1078,8 @@ begin
       TKMBevel.Create(Panel_MapEd_Load, 308, 80, 199, 199);
       Minimap_MapEd := TKMMinimap.Create(Panel_MapEd_Load, 312, 84, 191, 191);
 
-    Button_MapEdBack := TKMButton.Create(Panel_MapEd, 120, 650, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_MapEdBack := TKMButton.Create(Panel_MapEd, 100, 630, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_MapEdBack.Anchors := [akLeft];
     Button_MapEdBack.OnClick := SwitchMenuPage;
 end;
 
@@ -1252,10 +1256,14 @@ end;
 procedure TKMMainMenuInterface.Create_Error_Page;
 begin
   Panel_Error := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
-    TKMLabel.Create(Panel_Error, Panel_Main.Width div 2,Panel_Main.Height div 2 - 20, 0, 30, fTextLibrary[TX_MENU_ERROR], fnt_Antiqua, taCenter);
+  Panel_Error.Stretch;
+    with TKMLabel.Create(Panel_Error, Panel_Main.Width div 2,Panel_Main.Height div 2 - 20, 0, 30, fTextLibrary[TX_MENU_ERROR], fnt_Antiqua, taCenter) do
+      Center;
     Label_Error := TKMLabel.Create(Panel_Error, Panel_Main.Width div 2, Panel_Main.Height div 2+10, Panel_Main.Width-16, 200, '...', fnt_Grey, taCenter);
+    Label_Error.Center;
     Label_Error.AutoWrap := True;
-    Button_ErrorBack := TKMButton.Create(Panel_Error,100,640,224,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+    Button_ErrorBack := TKMButton.Create(Panel_Error,100,630,224,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+    Button_ErrorBack.Center;
     Button_ErrorBack.OnClick := SwitchMenuPage;
 end;
 
