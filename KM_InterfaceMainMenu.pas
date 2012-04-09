@@ -1286,7 +1286,7 @@ var i, Adv: Integer;
 begin
   Panel_Results := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Results.Stretch;
-    with TKMImage.Create(Panel_Results,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMain) do
+    with TKMImage.Create(Panel_Results,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMainH) do
     begin
       ImageStretch;
       Center;
@@ -1339,7 +1339,7 @@ var i,k: Integer;
 begin
   Panel_ResultsMP := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_ResultsMP.Stretch;
-    with TKMImage.Create(Panel_ResultsMP,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMain) do
+    with TKMImage.Create(Panel_ResultsMP,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMainH) do
     begin
       ImageStretch;
       Center;
