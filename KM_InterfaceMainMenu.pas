@@ -603,21 +603,21 @@ begin
   //Without anchors this page is centered on resize
   Panel_MainMenu := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_MainMenu.Anchors := [];
-    TKMImage.Create(Panel_MainMenu, 300,  60, 423, 164, 4, rxGuiMain);
-    TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0,
+    TKMImage.Create(Panel_MainMenu, 300, 120, 423, 164, 4, rxGuiMain);
+    TKMLabel.Create(Panel_MainMenu, 512, 300,   0,   0,
     '[$4040F0]R[$40F0F0]e[$40F040]m[$F0F040]a[$F04040]k[$F040F0]e', fnt_Metal, taCenter);
 
     with TKMImage.Create(Panel_MainMenu,  50, 220, round(218*1.3), round(291*1.3), 5, rxGuiMainH) do ImageStretch;
     with TKMImage.Create(Panel_MainMenu, 705, 220, round(207*1.3), round(295*1.3), 6, rxGuiMainH) do ImageStretch;
 
-    Panel_MMButtons := TKMPanel.Create(Panel_MainMenu, 337, 290, 350, 400);
+    Panel_MMButtons := TKMPanel.Create(Panel_MainMenu, 337, 340, 350, 400);
       Button_MM_SinglePlayer := TKMButton.Create(Panel_MMButtons,0,  0,350,30,fTextLibrary[TX_MENU_SINGLEPLAYER],fnt_Metal,bsMenu);
       Button_MM_MultiPlayer  := TKMButton.Create(Panel_MMButtons,0, 40,350,30,fTextLibrary[TX_MENU_MULTIPLAYER],fnt_Metal,bsMenu);
       Button_MM_MapEd        := TKMButton.Create(Panel_MMButtons,0, 80,350,30,fTextLibrary[TX_MENU_MAP_EDITOR],fnt_Metal,bsMenu);
       Button_MM_Replays      := TKMButton.Create(Panel_MMButtons,0,120,350,30,fTextLibrary[TX_MENU_REPLAYS],fnt_Metal,bsMenu);
       Button_MM_Options      := TKMButton.Create(Panel_MMButtons,0,160,350,30,fTextLibrary[TX_MENU_OPTIONS],fnt_Metal,bsMenu);
       Button_MM_Credits      := TKMButton.Create(Panel_MMButtons,0,200,350,30,fTextLibrary[TX_MENU_CREDITS],fnt_Metal,bsMenu);
-      Button_MM_Quit         := TKMButton.Create(Panel_MMButtons,0,320,350,30,fTextLibrary[TX_MENU_QUIT],fnt_Metal,bsMenu);
+      Button_MM_Quit         := TKMButton.Create(Panel_MMButtons,0,280,350,30,fTextLibrary[TX_MENU_QUIT],fnt_Metal,bsMenu);
       Button_MM_SinglePlayer.OnClick := SwitchMenuPage;
       Button_MM_MultiPlayer.OnClick  := SwitchMenuPage;
       Button_MM_MapEd.OnClick        := SwitchMenuPage;
@@ -1129,7 +1129,11 @@ var I: Integer;
 begin
   Panel_Options:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Options.Stretch;
-    with TKMImage.Create(Panel_Options,705,180,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
+    with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do
+    begin
+      ImageStretch;
+      Anchors := [akLeft];
+    end;
 
     //Controls section
     Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,220,80);
