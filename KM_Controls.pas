@@ -237,7 +237,7 @@ type
   private
     fRX: TRXType;
     fTexID: Word;
-    fColor: TColor4;
+    fFlagColor: TColor4;
   public
     ImageAnchors: TAnchors;
     Highlight: Boolean;
@@ -245,7 +245,7 @@ type
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
     property RX: TRXType read fRX write fRX;
     property TexID: Word read fTexID write fTexID;
-    property Color: TColor4 read fColor write fColor;
+    property FlagColor: TColor4 read fFlagColor write fFlagColor;
     function Click: Boolean;
     procedure ImageStretch;
     procedure ImageCenter;
@@ -303,10 +303,12 @@ type
     fMakesSound: Boolean;
     fRX: TRXType;
     fTexID: Word;
+    fFlagColor: TColor4; //When using an image
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui; aStyle: TButtonStyle=bsGame); overload;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aStyle: TButtonStyle=bsGame); overload;
     property Caption: string read fCaption write fCaption;
+    property FlagColor: TColor4 read fFlagColor write fFlagColor;
     property MakesSound: Boolean read fMakesSound write fMakesSound;
     property TexID: Word read fTexID write fTexID;
     function Click: Boolean; //Try to click a button and return TRUE if succeded
@@ -319,7 +321,7 @@ type
   TKMButtonFlat = class(TKMControl)
   private
     fFont: TKMFont;
-    fColor: TColor4;
+    fFlagColor: TColor4;
     TextAlign: TTextAlign;
   public
     RX: TRXType;
@@ -332,7 +334,7 @@ type
     HideHighlight: Boolean;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID: Integer; aRX: TRXType = rxGui);
-    property Color: TColor4 read fColor write fColor;
+    property FlagColor: TColor4 read fFlagColor write fFlagColor;
 
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
 
@@ -1442,7 +1444,7 @@ begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fRX := aRX;
   fTexID := aTexID;
-  fColor := $FFFF00FF;
+  fFlagColor := $FFFF00FF;
   ImageAnchors := [akLeft, akTop];
   Highlight := false;
   HighlightOnMouseOver := false;
@@ -1520,7 +1522,7 @@ begin
   if StretchDraw then
     fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, fRX, fTexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight)
   else
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, fRX, fTexID, fColor, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, fRX, fTexID, fFlagColor, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
 end;
 
 
@@ -1666,6 +1668,7 @@ begin
   fRX         := aRX;
   fTexID      := aTexID;
   fCaption    := '';
+  fFlagColor := $FFFF00FF;
   fStyle      := aStyle;
   fMakesSound := true;
 end;
@@ -1677,6 +1680,7 @@ begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fTexID      := 0;
   fCaption    := aCaption;
+  fFlagColor := $FFFF00FF;
   fFont       := aFont;
   fTextAlign  := taCenter; //Thats default everywhere in KaM
   fStyle      := aStyle;
@@ -1723,7 +1727,7 @@ begin
   if not fEnabled then
     StateSet := StateSet + [bsDisabled];
 
-  fRenderUI.Write3DButton(Left, Top, Width, Height, fRX, fTexID, StateSet, fStyle);
+  fRenderUI.Write3DButton(Left, Top, Width, Height, fRX, fTexID, fFlagColor, StateSet, fStyle);
 
   if fTexID <> 0 then Exit;
 
@@ -1741,7 +1745,7 @@ begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   RX    := aRX;
   TexID := aTexID;
-  fColor := $FFFF00FF;
+  fFlagColor := $FFFF00FF;
   fFont := fnt_Grey;
   TextAlign := taLeft;
 end;
@@ -1765,7 +1769,7 @@ begin
     StateSet:=StateSet + [bsDown];
   //if not Enabled then StateSet:=StateSet+[fbs_Disabled];
 
-  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RX,TexID,fColor,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
+  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RX,TexID,fFlagColor,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
 end;
 
 
@@ -2399,8 +2403,8 @@ begin
   end;
 
   case fScrollAxis of
-    sa_Vertical:   fRenderUI.Write3DButton(Left,Top+Width+ThumbPos,Width,fThumb,rxGui,0,ButtonState,fStyle);
-    sa_Horizontal: fRenderUI.Write3DButton(Left+Height+ThumbPos,Top,fThumb,Height,rxGui,0,ButtonState,fStyle);
+    sa_Vertical:   fRenderUI.Write3DButton(Left,Top+Width+ThumbPos,Width,fThumb,rxGui,0,$FFFF00FF,ButtonState,fStyle);
+    sa_Horizontal: fRenderUI.Write3DButton(Left+Height+ThumbPos,Top,fThumb,Height,rxGui,0,$FFFF00FF,ButtonState,fStyle);
   end;
 end;
 
@@ -3821,7 +3825,7 @@ begin
   if not fEnabled then
     StateSet := StateSet + [bsDisabled];
 
-  fRenderUI.Write3DButton(Left, Top, Width, Height, rxGui, 0, StateSet, bsGame);
+  fRenderUI.Write3DButton(Left, Top, Width, Height, rxGui, 0, $FFFF00FF, StateSet, bsGame);
 end;
 
 

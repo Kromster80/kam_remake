@@ -2898,6 +2898,8 @@ begin
   fMapsMP.TerminateScan;
 
   List_MapEd.SetItems('');
+  List_MapEd.ItemIndex := -1;
+  MapEditor_SelectMap(nil);
 
   //If both Maps and MapsMP are scanning at once ListUpdateDone can be called from either one
   //meaning we can access inconsistent and trigger assertion
@@ -2919,10 +2921,16 @@ end;
 
 procedure TKMMainMenuInterface.MapEditor_SelectMap(Sender: TObject);
 begin
-  if (not Button_MapEd_Load.Enabled) or (List_MapEd.ItemIndex = -1) then exit;
-  fMapView.LoadTerrain(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1));
-  fMapView.Update(True);
-  Minimap_MapEd.UpdateFrom(fMapView);
+  Button_MapEd_Load.Enabled := InRange(List_MapEd.ItemIndex,0,List_MapEd.Count-1);
+  if Button_MapEd_Load.Enabled then
+  begin
+    fMapView.LoadTerrain(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1));
+    fMapView.Update(True);
+    Minimap_MapEd.UpdateFrom(fMapView);
+    Minimap_MapEd.Show;
+  end
+  else
+    Minimap_MapEd.Hide;
 end;
 
 

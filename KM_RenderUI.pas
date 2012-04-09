@@ -10,7 +10,7 @@ type
     procedure SetupClipX        (X1,X2:smallint);
     procedure SetupClipY        (Y1,Y2:smallint);
     procedure ReleaseClip;
-    procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; State: TButtonStateSet; aStyle: TButtonStyle);
+    procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
     procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
@@ -65,7 +65,7 @@ begin
 end;
 
 
-procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; State: TButtonStateSet; aStyle: TButtonStyle);
+procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
 var
   a,b:TKMPointF;
   InsetX,InsetY:single;
@@ -134,7 +134,7 @@ begin
     begin
       glColor4f(1,1,1,1);
       WritePicture((SizeX-GFXData[aRX,aID].PxWidth ) div 2 +byte(bsDown in State),
-                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 +byte(bsDown in State), aRX, aID, $FFFF00FF);
+                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 +byte(bsDown in State), aRX, aID, aFlagColor);
     end;
 
     //Render MouseOver highlight

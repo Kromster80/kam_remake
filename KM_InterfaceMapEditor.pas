@@ -920,6 +920,12 @@ begin
   //Set player colors
   for i:=0 to MAX_PLAYERS-1 do
     Button_PlayerSelect[i].ShapeColor := fPlayers.Player[i].FlagColor;
+
+  Button_Village[2].FlagColor := MyPlayer.FlagColor;
+  for i:=Low(Button_Citizen) to High(Button_Citizen) do
+    Button_Citizen[i].FlagColor := MyPlayer.FlagColor;
+  for i:=Low(Button_Warriors) to High(Button_Warriors) do
+    Button_Warriors[i].FlagColor := MyPlayer.FlagColor;
 end;
 
 
@@ -939,6 +945,7 @@ begin
   fShownHouse := nil; //Drop selection
   fShownUnit := nil;
   fPlayers.Selected := nil;
+  Player_UpdateColors;
 end;
 
 
@@ -1155,6 +1162,7 @@ begin
   Label_House.Caption:=fResource.HouseDat[Sender.HouseType].HouseName;
   Image_House_Logo.TexID:=fResource.HouseDat[Sender.HouseType].GUIIcon;
   Image_House_Worker.TexID:=fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIIcon;
+  Image_House_Worker.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
   Image_House_Worker.Hint := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
   KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
   KMHealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth * 100 );
@@ -1194,6 +1202,7 @@ begin
   SwitchPage(Panel_Unit);
   Label_UnitName.Caption:=fResource.UnitDat[Sender.UnitType].UnitName;
   Image_UnitPic.TexID:=fResource.UnitDat[Sender.UnitType].GUIScroll;
+  Image_UnitPic.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
   KMConditionBar_Unit.Position:=EnsureRange(round(Sender.Condition / UNIT_MAX_CONDITION * 100),-10,110);
   if Sender is TKMUnitWarrior then
   begin
