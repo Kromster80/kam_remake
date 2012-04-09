@@ -2652,7 +2652,7 @@ function TChunkIDAT.IDATZlibRead(var ZLIBStream: TZStreamRec2;
   var crcfile: Cardinal): Integer;
 var
   ProcResult : Integer;
-  IDATHeader : Array[0..3] of char;
+  IDATHeader : Array[0..3] of AnsiChar;
   IDATCRC    : Cardinal;
 begin
   {Uses internal record pointed by ZLIBStream to gather information}
@@ -3505,7 +3505,7 @@ begin
 end;
 
 const
-  IDATHeader: Array[0..3] of char = ('I', 'D', 'A', 'T');
+  IDATHeader: Array[0..3] of AnsiChar = ('I', 'D', 'A', 'T');
   BUFFER = 5;
 
 {Saves the IDAT chunk to a stream}

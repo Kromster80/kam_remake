@@ -501,12 +501,14 @@ begin
   begin
 
     ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
-    if InRange(ID, 1, RXData[fRT].Qty) then begin //Replace only certain sprites
 
+    //Replace only certain sprites
+    if InRange(ID, 1, RXData[fRT].Qty) then
+    begin
       RXData[fRT].HasMask[ID] := FileExists(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.png') or
                                  FileExists(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.bmp');
 
-      if LowerCase(RightStr(FileList.Strings[i],3)) = 'png' then
+      if SameText(RightStr(FileList.Strings[i], 3), 'png') then
       begin
         {$IFDEF WDC}
         po := TPNGObject.Create;
@@ -549,7 +551,8 @@ begin
         {$ENDIF}
         po.Free;
       end;
-      if LowerCase(RightStr(FileList.Strings[i],3)) = 'bmp' then
+
+      if SameText(RightStr(FileList.Strings[i], 3), 'bmp') then
       begin
         Bmp :=TBitmap.Create;
         Bmp.LoadFromFile(aFolder + FileList.Strings[i]);
@@ -620,9 +623,9 @@ begin
       end;
 
       //Read pivots
-      if FileExists(aFolder + Copy(FileList.Strings[i], 1, 6)+'.txt') then
+      if FileExists(aFolder + Copy(FileList.Strings[i], 1, 6) + '.txt') then
       begin
-        AssignFile(ft, aFolder + Copy(FileList.Strings[i], 1, 6)+'.txt');
+        AssignFile(ft, aFolder + Copy(FileList.Strings[i], 1, 6) + '.txt');
         Reset(ft);
         ReadLn(ft, RXData[fRT].Pivot[ID].X);
         ReadLn(ft, RXData[fRT].Pivot[ID].Y);
