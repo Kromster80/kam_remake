@@ -309,8 +309,8 @@ begin
   ConvertRGB2HSB(aColor and $FF, aColor shr 8 and $FF, aColor shr 16 and $FF, Hue, Sat, Bri);
 
   //Desaturate and lighten
-  Sat := Min(Sat, 0.9);
-  Bri := Max(Bri + 0.1, 0.17);
+  Sat := Min(Sat, 0.93);
+  Bri := Max(Bri + 0.1, 0.2);
   ConvertHSB2RGB(Hue, Sat, Bri, R, G, B);
 
   //Preserve transparency value

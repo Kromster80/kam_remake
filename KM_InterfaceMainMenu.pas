@@ -87,6 +87,7 @@ type
     procedure MP_ServersClick(Sender: TObject);
     procedure MP_ServersDoubleClick(Sender: TObject);
     procedure MP_GetInClick(Sender: TObject);
+    function MP_ValidatePlayerName(const aName:string):Boolean;
     procedure MP_Join(aServerAddress, aPort: string; aRoom: Integer);
     procedure MP_JoinSuccess(Sender: TObject);
     procedure MP_JoinFail(const aData:string);
@@ -2056,13 +2057,9 @@ begin
   //Save the player and IP name so it is not lost if something fails
   MP_SaveSettings;
 
-  //Verify PlayerName;
-  if Trim(Edit_MP_PlayerName.Text) = '' then
-  begin
-    MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
-    fSoundLib.Play(sfxn_Error2);
-    Exit;
-  end;
+  Panel_MPCreateServer.Hide; //Hide the panel so if it fails the error message will be easy to see (e.g. name too long)
+  if not MP_ValidatePlayerName(Edit_MP_PlayerName.Text) then Exit;
+
   SwitchMenuPage(Sender); //Open lobby page
 
   MP_BindEvents;
@@ -2077,17 +2074,44 @@ begin
 end;
 
 
+function TKMMainMenuInterface.MP_ValidatePlayerName(const aName:string):Boolean;
+const MAX_NAME_LENGTH = 16;
+var i:Integer;
+begin
+  Result := True;
+  if Trim(aName) = '' then
+  begin
+    MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
+    fSoundLib.Play(sfxn_Error2);
+    Result := False;
+  end
+  else
+  if Length(aName) > MAX_NAME_LENGTH then
+  begin
+    MP_Update(Format(fTextLibrary[TX_GAME_ERROR_LONG_PLAYERNAME],[MAX_NAME_LENGTH]),$FF007FFF,False);
+    fSoundLib.Play(sfxn_Error2);
+    Result := False;
+  end
+  else
+  for i:=1 to Length(aName) do
+    if (aName[i] = '|') //Disallow New Line
+    or ((i < Length(aName)) and ((aName[i]+aName[i+1] = '[$') or
+                                 (aName[i]+aName[i+1] = '[]'))) then //Disallow color markup
+    begin
+      MP_Update(fTextLibrary[TX_GAME_ERROR_ILLEGAL_PLAYERNAME],$FF007FFF,False);
+      fSoundLib.Play(sfxn_Error2);
+      Result := False;
+      Exit;
+    end;
+end;
+
+
 procedure TKMMainMenuInterface.MP_Join(aServerAddress, aPort: string; aRoom: Integer);
 begin
   //Save the player and IP name so it is not lost if the connection fails
   MP_SaveSettings;
 
-  if Trim(Edit_MP_PlayerName.Text) = '' then
-  begin
-    MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
-    fSoundLib.Play(sfxn_Error2);
-    Exit;
-  end;
+  if not MP_ValidatePlayerName(Edit_MP_PlayerName.Text) then Exit;
 
   //Disable buttons to prevent multiple clicks while connection process is in progress
   MP_Update(fTextLibrary[TX_MP_MENU_STATUS_CONNECTING],$FF00FF00, True);
@@ -2584,14 +2608,9 @@ begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
 
   //Check for console commands
-  if fGame.Networking.IsHost
-  and (Length(Edit_LobbyPost.Text) = 7)
-  and SameText(LeftStr(Edit_LobbyPost.Text, 6), '/kick ')
-  and TryStrToInt(Edit_LobbyPost.Text[7], PlayerID)
-  and InRange(PlayerID, 1, fGame.Networking.NetPlayers.Count)
-  and fGame.Networking.NetPlayers[PlayerID].IsHuman
-  and (PlayerID <> fGame.Networking.MyIndex) then
-    fGame.Networking.KickPlayer(PlayerID)
+  if (Length(Edit_LobbyPost.Text) > 1) and (Edit_LobbyPost.Text[1] = '/')
+  and (Edit_LobbyPost.Text[2] <> '/') then //double slash is the escape to place a slash at the start of a sentence
+    fGame.Networking.ConsoleCommand(Edit_LobbyPost.Text)
   else
     fGame.Networking.PostMessage(Edit_LobbyPost.Text, True);
 

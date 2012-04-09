@@ -133,6 +133,7 @@ type
     procedure SendGameOptions;
 
     //Common
+    procedure ConsoleCommand(aText:string);
     procedure PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
     procedure PostLocalMessage(aText:string; aMakeSound:boolean=true);
     procedure SendMPGameInfo(aGameTime:TDateTime; aMap:string);
@@ -178,7 +179,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Sound, KM_Log, KM_Utils;
+uses KM_TextLibrary, KM_Sound, KM_Log, KM_Utils, StrUtils, Math;
 
 
 { TKMNetworking }
@@ -233,7 +234,7 @@ begin
   fIgnorePings := 0; //Accept pings
   fNetServer.Stop;
 
-  fNetServer.OnMessage := fOnTextMessage;
+  fNetServer.OnMessage := fLog.AppendLog; //Log server messages in case there is a problem, but hide from user
   try
     fNetServer.Start(aServerName, aPort, aAnnounceServer, False);
   except
@@ -706,6 +707,47 @@ procedure TKMNetworking.SendGameOptions;
 begin
   Assert(IsHost, 'Only host can send game options');
   PacketSend(NET_ADDRESS_OTHERS, mk_GameOptions, fNetGameOptions.GetAsText, 0);
+end;
+
+
+procedure TKMNetworking.ConsoleCommand(aText:string);
+var s,PlayerID:Integer;
+begin
+  PostLocalMessage('[$808080]'+aText+'[]');
+  s := PosEx(' ',aText);
+  if s = 0 then s := Length(aText)+1;
+
+  if SameText(LeftStr(aText, s-1), '/kick') then
+  begin
+    if not IsHost then
+    begin
+      PostLocalMessage('Only the host can kick people',False);
+      Exit;
+    end;
+    if (Length(aText) >= s+1) and TryStrToInt(aText[s+1], PlayerID)
+    and InRange(PlayerID, 1, fNetPlayers.Count) then
+    begin
+      if fNetPlayers[PlayerID].IsHuman
+      and (PlayerID <> MyIndex) then
+        KickPlayer(PlayerID)
+      else
+        PostLocalMessage('You cannot kick yourself or AI players.',False);
+    end
+    else
+      PostLocalMessage('Invalid syntax. Type /help for more info.',False);
+  end
+  else
+  if SameText(LeftStr(aText, s-1), '/help') then
+    PostLocalMessage('The following console commands are available:|'+
+                     '    /kick <Player ID> - Kicks a player from the lobby|'+
+                   //'    /ban <Player ID> - Kicks and bans a player from the lobby|'+
+                   //'    /newhost <Player ID> - Changes the host player|'+
+                     '    /help - Displays this page|'+
+                     'Player IDs:|'+fNetPlayers.GetPlayersWithIDs,False)
+  else
+  begin
+    PostLocalMessage('Unknown console command "'+aText+'". Type /help for more info.',False);
+  end;
 end;
 
 

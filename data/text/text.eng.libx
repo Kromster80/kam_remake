@@ -1,5 +1,5 @@
 
-MaxID:2694
+MaxID:2696
 
 0:Sawmill
 1:Iron smithy
@@ -450,3 +450,5 @@ MaxID:2694
 2692:Cancel
 2693:Not supported
 2694:Not supported
+2695:Error: Player name must be no more than %d characters long
+2696:Error: Player name contains illegal characters
