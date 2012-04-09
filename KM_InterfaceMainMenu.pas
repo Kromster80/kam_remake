@@ -834,6 +834,7 @@ begin
     Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 40, 675, CW, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
     Edit_LobbyPost.Anchors := [akLeft, akBottom];
+    Edit_LobbyPost.ShowColors := True;
 
     //Setup
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby, 680, 30, 300, 620);

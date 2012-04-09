@@ -371,6 +371,7 @@ type
   public
     Masked: Boolean; //Mask entered text as *s
     ReadOnly: Boolean;
+    ShowColors: Boolean;
     OnChange: TNotifyEvent;
     OnKeyDown: TNotifyEventKey;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
@@ -1941,7 +1942,7 @@ begin
 
   RText := Copy(RText, fLeftIndex+1, length(RText)); //Remove characters to the left of fLeftIndex
 
-  fRenderUI.WriteText(Left+4, Top+3, Width-8, 0, RText, fFont, taLeft, Col); //Characters that do not fit are trimmed
+  fRenderUI.WriteText(Left+4, Top+3, Width-8, 0, RText, fFont, taLeft, Col, not ShowColors, True); //Characters that do not fit are trimmed
 
   //Render text cursor
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then

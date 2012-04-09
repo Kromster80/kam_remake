@@ -18,7 +18,7 @@ type
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
-    procedure WriteText         (X,Y,W,H: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF);
+    procedure WriteText         (X,Y,W,H: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
     procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
   end;
 
@@ -398,7 +398,7 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-procedure TRenderUI.WriteText(X,Y,W,H: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF);
+procedure TRenderUI.WriteText(X,Y,W,H: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean = False);
 var
   I, K: Integer;
   LineCount,AdvX,LineHeight,BlockWidth: Integer;
@@ -421,6 +421,7 @@ begin
 
   //Look for [$FFFFFF][] patterns that markup text color
   I := 0;
+  if not aIgnoreMarkup then
   repeat
     I := PosEx('[', aText, I+1);
 
@@ -430,7 +431,7 @@ begin
       SetLength(Colors, Length(Colors) + 1);
       Colors[High(Colors)].FirstChar := I;
       Colors[High(Colors)].Color := 0;
-      Delete(aText, I, 2);
+      if not aShowMarkup then Delete(aText, I, 2);
     end;
 
     //Check for new color
@@ -440,8 +441,9 @@ begin
     begin
       SetLength(Colors, Length(Colors) + 1);
       Colors[High(Colors)].FirstChar := I;
+      if aShowMarkup then inc(Colors[High(Colors)].FirstChar, 9); //Don't color the markup itself
       Colors[High(Colors)].Color := TmpColor or $FF000000;
-      Delete(aText, I, 9);
+      if not aShowMarkup then Delete(aText, I, 9);
     end;
   until(I = 0);
 

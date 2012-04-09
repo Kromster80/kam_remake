@@ -1044,6 +1044,7 @@ begin
     Edit_ChatMsg.Anchors := [akLeft, akRight, akBottom];
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
+    Edit_ChatMsg.ShowColors := True;
 
     CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,645,154,155,20,fTextLibrary[TX_GAMEPLAY_CHAT_TOTEAM],fnt_Outline);
     CheckBox_SendToAllies.Checked := true;
