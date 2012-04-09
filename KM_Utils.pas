@@ -12,7 +12,7 @@ uses Classes, Math, SysUtils, KM_Defaults, KM_Points;
   function FixDelim(const aString:string):string;
 
   function GetPingColor(aPing:word):cardinal;
-  function FlagColorToTextColor(aColor:Cardinal):Cardinal;
+  function FlagColorToTextColor(aColor: Cardinal): Cardinal;
 
   procedure ParseDelimited(const SL: TStringList; const Value: string; const Delimiter: string);
 
@@ -30,13 +30,13 @@ implementation
 
 
 var
-  fKaMSeed:integer;
+  fKaMSeed: Integer;
 
 
 //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linu without using Controls)
-function GetLength(ix,iy:single): single; overload;
+function GetLength(A, B: Single): Single;
 begin
-  Result:=sqrt(sqr(ix)+sqr(iy));
+  Result := Sqrt(Sqr(A) + Sqr(B));
 end;
 
 
@@ -175,10 +175,10 @@ begin
 end;
 
 
-function GetPingColor(aPing:word):cardinal;
+function GetPingColor(aPing: Word): Cardinal;
 begin
   case aPing of
-    0..299   : Result := $FF00C000; //Green
+    0..299  : Result := $FF00C000; //Green
     300..599: Result := $FF07FFFF; //Yellow
     600..999: Result := $FF0099FF; //Orange
     else      Result := $FF0707FF; //Red
@@ -186,10 +186,135 @@ begin
 end;
 
 
-//todo: @Krom: Write RGB > HSL to ensure text player names aren't over saturated
-function FlagColorToTextColor(aColor:Cardinal):Cardinal;
+procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
+var
+  R, G, B: Single;
+  Rdlt, Gdlt, Bdlt, Vmin, Vmax, Vdlt: Single;
 begin
-  Result := aColor;
+  R := aR / 255;
+  G := aG / 255;
+  B := aB / 255;
+
+  Vmin := min(R, min(G, B));
+  Vmax := max(R, max(G, B));
+  Vdlt := Vmax - Vmin;
+  oB := (Vmax + Vmin) / 2;
+  if Vdlt = 0 then
+  begin
+    oH := 0.5;
+    oS := 0;
+  end
+  else
+  begin // Middle of HSImage
+    if oB < 0.5 then
+      oS := Vdlt / (Vmax + Vmin)
+    else
+      oS := Vdlt / (2 - Vmax - Vmin);
+
+    Rdlt := (R - Vmin) / Vdlt;
+    Gdlt := (G - Vmin) / Vdlt;
+    Bdlt := (B - Vmin) / Vdlt;
+
+    if R = Vmax then oH := (Gdlt - Bdlt) / 6 else
+    if G = Vmax then oH := 1/3 - (Rdlt - Bdlt) / 6 else
+    if B = Vmax then oH := 2/3 - (Gdlt - Rdlt) / 6 else
+                      oH := 0;
+
+    if oH < 0 then oH := oH + 1;
+    if oH > 1 then oH := oH - 1;
+  end;
+end;
+
+
+procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
+const V = 6;
+var Hue, Sat, Bri, Rt, Gt, Bt: Single;
+begin
+  Hue := EnsureRange(aHue, 0, 1);
+  Sat := EnsureRange(aSat, 0, 1);
+  Bri := EnsureRange(aBri, 0, 1);
+
+  //Hue
+  if Hue < 1/6 then
+  begin
+    Rt := 1;
+    Gt := Hue * V;
+    Bt := 0;
+  end else
+  if Hue < 2/6 then
+  begin
+    Rt := (2/6 - Hue) * V;
+    Gt := 1;
+    Bt := 0;
+  end else
+  if Hue < 3/6 then
+  begin
+    Rt := 0;
+    Gt := 1;
+    Bt := (Hue - 2/6) * V;
+  end else
+  if Hue < 4/6 then
+  begin
+    Rt := 0;
+    Gt := (4/6 - Hue) * V;
+    Bt := 1;
+  end else
+  if Hue < 5/6 then
+  begin
+    Rt := (Hue - 4/6) * V;
+    Gt := 0;
+    Bt := 1;
+  end else
+  //if Hue < 6/6 then
+  begin
+    Rt := 1;
+    Gt := 0;
+    Bt := (6/6 - Hue) * V;
+  end;
+
+  //Saturation
+  Rt := Rt + (0.5 - Rt) * (1 - Sat);
+  Gt := Gt + (0.5 - Gt) * (1 - Sat);
+  Bt := Bt + (0.5 - Bt) * (1 - Sat);
+
+  //Brightness
+  if Bri > 0.5 then
+  begin
+    //Mix with white
+    Rt := Rt + (1 - Rt) * (Bri - 0.5) * 2;
+    Gt := Gt + (1 - Gt) * (Bri - 0.5) * 2;
+    Bt := Bt + (1 - Bt) * (Bri - 0.5) * 2;
+  end
+  else if Bri < 0.5 then
+  begin
+    //Mix with black
+    Rt := Rt * (Bri * 2);
+    Gt := Gt * (Bri * 2);
+    Bt := Bt * (Bri * 2);
+  end;
+  //if Bri = 127 then color remains the same
+
+  R := Round(Rt * 255);
+  G := Round(Gt * 255);
+  B := Round(Bt * 255);
+end;
+
+
+//Desaturate and lighten the color best done in HSB colorspace
+function FlagColorToTextColor(aColor: Cardinal): Cardinal;
+var
+  R, G, B: Byte;
+  Hue, Sat, Bri: Single;
+begin
+  ConvertRGB2HSB(aColor and $FF, aColor shr 8 and $FF, aColor shr 16 and $FF, Hue, Sat, Bri);
+
+  //Desaturate and lighten
+  Sat := Min(Sat, 0.9);
+  Bri := Max(Bri + 0.1, 0.17);
+  ConvertHSB2RGB(Hue, Sat, Bri, R, G, B);
+
+  //Preserve transparency value
+  Result := (R + G shl 8 + B shl 16) or (aColor and $FF000000);
 end;
 
 

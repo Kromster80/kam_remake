@@ -934,7 +934,7 @@ const
   $FFFF67FF, //Pink
   $FF000080, //Maroon
   $FF004F7D, //Brown
-  $FF00B8A8, //Olive green
+  $FF00D4A8, //Olive green
   $FFFFFFFF, //White
   $FF808080, //Grey
   $FF000000  //Black
