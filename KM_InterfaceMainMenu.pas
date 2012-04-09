@@ -813,6 +813,7 @@ begin
         Drop_LobbyColors[i] := TKMDropColumns.Create(Panel_LobbyPlayers, C4, top, 90, 20, fnt_Grey);
         Drop_LobbyColors[i].SetColumns(fnt_Outline, [''], [0]);
         Drop_LobbyColors[i].ShowHeader := False;
+        Drop_LobbyColors[i].FadeImageWhenDisabled := False;
         Drop_LobbyColors[i].Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxMenu, 21)], 0));
         for K := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
           Drop_LobbyColors[i].Add(MakeListRow([''], [MP_TEAM_COLORS[K]], [MakePic(rxMenu, 20)]));
@@ -2337,7 +2338,11 @@ begin
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].GetNickname;
     if fGame.Networking.NetPlayers[i+1].LangCode <> '' then
          Image_LobbyFlag[i].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[i+1].LangCode).FlagSpriteID
-    else Image_LobbyFlag[i].TexID := 0;
+    else
+      if fGame.Networking.NetPlayers[i+1].IsComputer then
+        Image_LobbyFlag[i].TexID := 22 //PC icon
+      else
+        Image_LobbyFlag[i].TexID := 0;
     if fGame.Networking.IsHost and (not fGame.Networking.NetPlayers[i+1].IsHuman) then
     begin
       Label_LobbyPlayer[i].Hide;

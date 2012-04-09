@@ -774,6 +774,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
+    FadeImageWhenDisabled: Boolean;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
     procedure Add(aItem: TKMListRow);
     procedure Clear; override;
@@ -2914,6 +2915,7 @@ end;
 procedure TKMColumnListBox.SetHeaderVisible(aValue: Boolean);
 begin
   fHeader.Visible := aValue;
+  fShowHeader := aValue;
 end;
 
 
@@ -3161,7 +3163,7 @@ begin
 
       if fRows[TopIndex+I].Cells[K].Pic.ID <> 0 then
         fRenderUI.WritePicture(Left + 4 + fHeader.ColumnOffset[K],
-                               Y + I*fItemHeight + 3,
+                               Y + I*fItemHeight + 1,
                                fRows[TopIndex+I].Cells[K].Pic.RX,
                                fRows[TopIndex+I].Cells[K].Pic.ID,
                                fRows[TopIndex+I].Cells[K].Color);
@@ -3534,11 +3536,11 @@ begin
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   if ItemIndex <> -1 then
-    fRenderUI.WritePicture(Left + 4, Top + 3,
+    fRenderUI.WritePicture(Left + 4, Top + 1,
                             fList.Rows[ItemIndex].Cells[0].Pic.RX,
                             fList.Rows[ItemIndex].Cells[0].Pic.ID,
                             fList.Rows[ItemIndex].Cells[0].Color,
-                            fEnabled)
+                            fEnabled or not FadeImageWhenDisabled)
   else
     fRenderUI.WriteText(Left + 4, Top + 4, Width - 8, 0, '<<?>>', fFont, taLeft, Col);
 end;
