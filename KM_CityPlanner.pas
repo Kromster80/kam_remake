@@ -44,6 +44,8 @@ end;
 
 function TKMCityPlanner.FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
 begin
+  Result := False;
+
   case aHouse of
     ht_School:    Result := NextToHouse(ht_Store, aHouse, aLoc);
     ht_Inn:       Result := NextToHouse(ht_Store, aHouse, aLoc);
@@ -59,8 +61,6 @@ begin
     ht_Farm:          Result := NextToHouse(ht_Store, aHouse, aLoc);//NextToGrass(aHouse, aLoc);
     ht_Wineyard:      Result := NextToHouse(ht_Store, aHouse, aLoc);//NextToGrass(aHouse, aLoc);
   end;
-
-  //Result := True;
 end;
 
 

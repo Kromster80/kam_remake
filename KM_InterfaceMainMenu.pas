@@ -2604,7 +2604,6 @@ end;
 
 //Post what user has typed
 procedure TKMMainMenuInterface.Lobby_PostKey(Sender: TObject; Key: Word);
-var PlayerID: Integer;
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
 

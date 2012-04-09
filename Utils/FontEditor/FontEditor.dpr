@@ -1,5 +1,4 @@
 program FontEditor;
-
 uses
   Forms,
   umain in 'umain.pas' {frmMain};

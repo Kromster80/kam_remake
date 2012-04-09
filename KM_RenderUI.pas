@@ -442,7 +442,7 @@ begin
       SetLength(Colors, Length(Colors) + 1);
       Colors[High(Colors)].FirstChar := I;
       if aShowMarkup then inc(Colors[High(Colors)].FirstChar, 9); //Don't color the markup itself
-      Colors[High(Colors)].Color := TmpColor or $FF000000;
+      Colors[High(Colors)].Color := Abs(TmpColor) or $FF000000;
       if not aShowMarkup then Delete(aText, I, 9);
     end;
   until(I = 0);

@@ -493,19 +493,19 @@ end;
 
 
 {Check if the tile is a corn field}
-function TTerrain.TileIsCornField(Loc:TKMPoint):boolean;
+function TTerrain.TileIsCornField(Loc: TKMPoint):boolean;
 begin
-  Result := Land[Loc.Y,Loc.X].Terrain in [59..63];
-  Result := Result and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road); //Can't be if there is road here
+  Result := (Land[Loc.Y,Loc.X].Terrain in [59..63])
+            and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road); //Can't be if there is road here
 end;
 
 
 {Check if the tile is a wine field}
-function TTerrain.TileIsWineField(Loc:TKMPoint):boolean;
+function TTerrain.TileIsWineField(Loc: TKMPoint):boolean;
 begin
-  Result := Land[Loc.Y,Loc.X].Terrain in [55];
-  Result := Result and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road); //Can't be if there is road here
-  Result := Result and (Land[Loc.Y,Loc.X].Obj in [54..57]); //Must have object (e.g. for init when labourer is building it)
+  Result := (Land[Loc.Y,Loc.X].Terrain in [55])
+            and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) //Can't be if there is road here
+            and (Land[Loc.Y,Loc.X].Obj in [54..57]); //Must have object (e.g. for init when labourer is building it)
 end;
 
 
@@ -2539,13 +2539,14 @@ procedure TTerrain.UpdateState;
     Land[Y,X].Obj     := aObj;
   end;
 var
-  I, K, H, J: Integer;
+  H, I, J, K: Word;
+  T: Integer;
 begin
   inc(fAnimStep);
 
-  for I := FallingTrees.Count - 1 downto 0 do
-  if fAnimStep - FallingTrees.Tag2[I]+1 >= MapElem[FallingTrees.Tag[I]+1].Count then
-    ChopTree(FallingTrees[I]); //Make the tree turn into a stump
+  for T := FallingTrees.Count - 1 downto 0 do
+  if fAnimStep - FallingTrees.Tag2[T]+1 >= MapElem[FallingTrees.Tag[T]+1].Count then
+    ChopTree(FallingTrees[T]); //Make the tree turn into a stump
 
   for I := 1 to fMapY do
   for K := 1 to fMapX do
