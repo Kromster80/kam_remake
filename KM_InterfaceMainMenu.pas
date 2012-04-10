@@ -2498,75 +2498,69 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
-var i:Integer; DropText:string;
+procedure TKMMainMenuInterface.Lobby_OnMapName(const aData: string);
+var I: Integer; DropText: string;
 begin
-  //todo: It will be better to rework this code into CASE, moving common part into internal procedure
-  Minimap_LobbyPreview.Visible := False; //Hide unless correct options are selected (e.g. there's no preview for multiplayer saves)
-  if fGame.Networking.SelectGameKind <> ngk_None then
-  begin
-    if fGame.Networking.SelectGameKind = ngk_Save then
-    begin
-      Label_LobbyMapName.Caption := fGame.Networking.SaveInfo.FileName;
-      Memo_LobbyMapDesc.Clear;
-      Memo_LobbyMapDesc.Text := fGame.Networking.GameInfo.GetTitleWithTime;
-      TrackBar_LobbyPeacetime.Disable;
-      if not fGame.Networking.IsHost then Radio_LobbyMapType.ItemIndex := 3;
-    end
-    else
-    begin
-      fMapView.LoadTerrain(MapNameToPath(fGame.Networking.MapInfo.FileName, 'dat', True));
-      fMapView.Update(True);
-      Minimap_LobbyPreview.UpdateFrom(fMapView);
-      Minimap_LobbyPreview.Visible := true;
+  //Common settings
+  Minimap_LobbyPreview.Visible := (fGame.Networking.SelectGameKind = ngk_Map);
+  TrackBar_LobbyPeacetime.Enabled := fGame.Networking.IsHost and (fGame.Networking.SelectGameKind = ngk_Map);
 
-      Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
-      Memo_LobbyMapDesc.Text := fGame.Networking.MapInfo.BigDesc;
-      if fGame.Networking.IsHost then
-        TrackBar_LobbyPeacetime.Enable
-      else
-      begin
-        if fGame.Networking.MapInfo.IsCoop then
-          Radio_LobbyMapType.ItemIndex := 2
-        else
-          if fGame.Networking.MapInfo.Info.MissionMode = mm_Tactic then
-            Radio_LobbyMapType.ItemIndex := 1
-          else
-            Radio_LobbyMapType.ItemIndex := 0;
-      end;
-    end;
+  case  fGame.Networking.SelectGameKind of
+    ngk_None: begin
+                Label_LobbyMapName.Caption := aData; //aData is some error message
+                Memo_LobbyMapDesc.Clear;
+                if aData <> fTextLibrary[TX_LOBBY_MAP_NONE] then
+                  Memo_LobbyMapDesc.Text := aData;
+                Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
+                Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE];
 
-    Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+' '+fGame.Networking.GameInfo.MissionModeText;
-    //Label_LobbyMapCond.Caption :=
-    Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE]+' '+fGame.Networking.GameInfo.MapSizeText;
+                //Starting locations text
+                DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
+              end;
+    ngk_Save: begin
+                if not fGame.Networking.IsHost then
+                  Radio_LobbyMapType.ItemIndex := 3;
 
-    //Update starting locations
-    if fGame.Networking.SelectGameKind = ngk_Save then
-      DropText := fTextLibrary[TX_LOBBY_SELECT] + eol
-    else
-      DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
+                Label_LobbyMapName.Caption := fGame.Networking.SaveInfo.FileName;
+                Memo_LobbyMapDesc.Text := fGame.Networking.GameInfo.GetTitleWithTime;
+                Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE] + ' ' + fGame.Networking.GameInfo.MissionModeText;
+                Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE] + ' ' + fGame.Networking.GameInfo.MapSizeText;
 
-    for i:=1 to fGame.Networking.GameInfo.PlayerCount do
-      DropText := DropText + fGame.Networking.GameInfo.LocationName[i-1] + eol;
+                //Starting locations text
+                DropText := fTextLibrary[TX_LOBBY_SELECT] + eol;
+                for I := 0 to fGame.Networking.GameInfo.PlayerCount - 1 do
+                  DropText := DropText + fGame.Networking.GameInfo.LocationName[I] + eol;
+              end;
+    ngk_Map:  begin
+                if not fGame.Networking.IsHost then
+                begin
+                  if fGame.Networking.MapInfo.IsCoop then
+                    Radio_LobbyMapType.ItemIndex := 2
+                  else
+                    if fGame.Networking.MapInfo.Info.MissionMode = mm_Tactic then
+                      Radio_LobbyMapType.ItemIndex := 1
+                    else
+                      Radio_LobbyMapType.ItemIndex := 0;
+                end;
 
-    for i:=0 to MAX_PLAYERS-1 do
-      DropBox_LobbyLoc[i].SetItems(DropText);
-  end
-  else
-  begin
-    Label_LobbyMapName.Caption := aData; //aData is some error message
-    Memo_LobbyMapDesc.Clear;
-    if aData <> fTextLibrary[TX_LOBBY_MAP_NONE] then
-      Memo_LobbyMapDesc.Text := aData;
-    Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
-    Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE];
+                fMapView.LoadTerrain(MapNameToPath(fGame.Networking.MapInfo.FileName, 'dat', True));
+                fMapView.Update(True);
+                Minimap_LobbyPreview.UpdateFrom(fMapView);
 
-    //Update starting locations
-    DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
+                Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
+                Memo_LobbyMapDesc.Text := fGame.Networking.MapInfo.BigDesc;
+                Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE] + ' ' + fGame.Networking.GameInfo.MissionModeText;
+                Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE] + ' ' + fGame.Networking.GameInfo.MapSizeText;
 
-    for i:=0 to MAX_PLAYERS-1 do
-      DropBox_LobbyLoc[i].SetItems(DropText);
+              //Starting locations text
+              DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
+              for I := 0 to fGame.Networking.GameInfo.PlayerCount - 1 do
+                DropText := DropText + fGame.Networking.GameInfo.LocationName[I] + eol;
+            end;
   end;
+
+  for I := 0 to MAX_PLAYERS - 1 do
+    DropBox_LobbyLoc[I].SetItems(DropText);
 end;
 
 
