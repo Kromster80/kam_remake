@@ -704,13 +704,13 @@ begin
   fGameState := gsRunning;
   fReplayMode := false;
 
-  fNetworking.OnPlay := GameMPPlay;
-  fNetworking.OnReadyToPlay := GameMPReadyToPlay;
-  fNetworking.OnCommands := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
-  fNetworking.OnTextMessage  := fGamePlayInterface.ChatMessage;
-  fNetworking.OnPlayersSetup := fGamePlayInterface.AlliesOnPlayerSetup;
-  fNetworking.OnPingInfo     := fGamePlayInterface.AlliesOnPingInfo;
-  fNetworking.OnDisconnect   := GameMPDisconnect; //For auto reconnecting
+  fNetworking.OnPlay           := GameMPPlay;
+  fNetworking.OnReadyToPlay    := GameMPReadyToPlay;
+  fNetworking.OnCommands       := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
+  fNetworking.OnTextMessage    := fGamePlayInterface.ChatMessage;
+  fNetworking.OnPlayersSetup   := fGamePlayInterface.AlliesOnPlayerSetup;
+  fNetworking.OnPingInfo       := fGamePlayInterface.AlliesOnPingInfo;
+  fNetworking.OnDisconnect     := GameMPDisconnect; //For auto reconnecting
   fNetworking.OnReassignedHost := nil; //So it is no longer assigned to a lobby event
   fNetworking.GameCreated;
 

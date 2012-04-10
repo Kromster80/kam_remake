@@ -96,10 +96,9 @@ type
   end;
 
 
-  //todo: Convert to 0..N-1 form
   TKMPointTagList = class(TKMPointList)
   public
-    Tag, Tag2: array of Cardinal; //1..Count
+    Tag, Tag2: array of Cardinal; //0..Count-1
     procedure Clear; override;
     procedure AddEntry(aLoc: TKMPoint; aTag,aTag2: Cardinal); reintroduce;
     procedure SortByTag;
