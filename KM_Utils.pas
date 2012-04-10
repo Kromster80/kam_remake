@@ -169,7 +169,7 @@ end;
 
 
 //Use this function to convert platform-specific path delimiters
-function FixDelim(const aString:string):string;
+function FixDelim(const aString: string): string;
 begin
   Result := StringReplace(aString, '\', PathDelim, [rfReplaceAll, rfIgnoreCase]);
 end;
@@ -178,10 +178,10 @@ end;
 function GetPingColor(aPing: Word): Cardinal;
 begin
   case aPing of
-    0..299  : Result := $FF00C000; //Green
-    300..599: Result := $FF07FFFF; //Yellow
-    600..999: Result := $FF0099FF; //Orange
-    else      Result := $FF0707FF; //Red
+    0..299  : Result := icGreen;
+    300..599: Result := icYellow;
+    600..999: Result := icOrange;
+    else      Result := icRed;
   end;
 end;
 

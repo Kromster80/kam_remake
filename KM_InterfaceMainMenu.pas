@@ -1503,7 +1503,7 @@ begin
   begin
     fGame.NetworkInit;
     MP_Init(Sender);
-    MP_Update(fTextLibrary[TX_MP_MENU_STATUS_READY],$FF00FF00,false);
+    MP_Update(fTextLibrary[TX_MP_MENU_STATUS_READY],icGreen,false);
     Panel_MultiPlayer.Show;
   end;
 
@@ -1888,7 +1888,6 @@ end;
 
 
 //Update status line
-//todo: replace Color with enum
 //When user tries to Join some server disable joining controls for that time
 procedure TKMMainMenuInterface.MP_Update(const aStatus: string; aColor: TColor4; aBusy: Boolean);
 begin
@@ -2080,35 +2079,28 @@ begin
 end;
 
 
-function TKMMainMenuInterface.MP_ValidatePlayerName(const aName:string):Boolean;
+function TKMMainMenuInterface.MP_ValidatePlayerName(const aName: string): Boolean;
 const MAX_NAME_LENGTH = 16;
-var i:Integer;
 begin
-  Result := True;
+  Result := False;
+
   if Trim(aName) = '' then
   begin
-    MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
+    MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME], icYellow, false);
     fSoundLib.Play(sfxn_Error2);
-    Result := False;
   end
-  else
-  if Length(aName) > MAX_NAME_LENGTH then
+  else if Length(aName) > MAX_NAME_LENGTH then
   begin
-    MP_Update(Format(fTextLibrary[TX_GAME_ERROR_LONG_PLAYERNAME],[MAX_NAME_LENGTH]),$FF007FFF,False);
+    MP_Update(Format(fTextLibrary[TX_GAME_ERROR_LONG_PLAYERNAME], [MAX_NAME_LENGTH]), icYellow, false);
     fSoundLib.Play(sfxn_Error2);
-    Result := False;
+  end
+  else if (Pos('|', aName) <> 0) or (Pos('[$', aName) <> 0) or (Pos('[]', aName) <> 0) then
+  begin
+    MP_Update(fTextLibrary[TX_GAME_ERROR_ILLEGAL_PLAYERNAME], icYellow, false);
+    fSoundLib.Play(sfxn_Error2);
   end
   else
-  for i:=1 to Length(aName) do
-    if (aName[i] = '|') //Disallow New Line
-    or ((i < Length(aName)) and ((aName[i]+aName[i+1] = '[$') or
-                                 (aName[i]+aName[i+1] = '[]'))) then //Disallow color markup
-    begin
-      MP_Update(fTextLibrary[TX_GAME_ERROR_ILLEGAL_PLAYERNAME],$FF007FFF,False);
-      fSoundLib.Play(sfxn_Error2);
-      Result := False;
-      Exit;
-    end;
+    Result := True;
 end;
 
 
@@ -2120,7 +2112,7 @@ begin
   if not MP_ValidatePlayerName(Edit_MP_PlayerName.Text) then Exit;
 
   //Disable buttons to prevent multiple clicks while connection process is in progress
-  MP_Update(fTextLibrary[TX_MP_MENU_STATUS_CONNECTING],$FF00FF00, True);
+  MP_Update(fTextLibrary[TX_MP_MENU_STATUS_CONNECTING],icGreen, True);
 
   //Send request to join
   fGame.Networking.OnJoinSucc := MP_JoinSuccess;
@@ -2142,10 +2134,10 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_JoinFail(const aData:string);
+procedure TKMMainMenuInterface.MP_JoinFail(const aData: string);
 begin
   fGame.Networking.Disconnect;
-  MP_Update(Format(fTextLibrary[TX_GAME_ERROR_CONNECTION_FAILED],[aData]),$FF007FFF,false);
+  MP_Update(Format(fTextLibrary[TX_GAME_ERROR_CONNECTION_FAILED],[aData]),icYellow,false);
   fSoundLib.Play(sfxn_Error2);
 end;
 
@@ -2175,7 +2167,7 @@ procedure TKMMainMenuInterface.MP_HostFail(const aData: string);
 begin
   fGame.Networking.Disconnect;
   SwitchMenuPage(Button_LobbyBack);
-  MP_Update(aData, $FF007FFF, False);
+  MP_Update(aData, icYellow, False);
   fSoundLib.Play(sfxn_Error2);
 end;
 
@@ -2332,37 +2324,45 @@ end;
 
 //Players list has been updated
 //We should reflect it to UI
-//todo: Refactor formatting
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
-var i:integer; MyNik, CanEdit, HostCanEdit, IsSave, IsValid:boolean;
+var
+  I: Integer;
+  MyNik, CanEdit, HostCanEdit, IsSave, IsValid: Boolean;
 begin
   IsSave := fGame.Networking.SelectGameKind = ngk_Save;
-  for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
+
+  //Go through active players first
+  for I:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
-    Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].GetNickname;
-    if fGame.Networking.NetPlayers[i+1].LangCode <> '' then
-         Image_LobbyFlag[i].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[i+1].LangCode).FlagSpriteID
+    //Flag icon
+    if fGame.Networking.NetPlayers[I+1].LangCode <> '' then
+      Image_LobbyFlag[I].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[I+1].LangCode).FlagSpriteID
     else
-      if fGame.Networking.NetPlayers[i+1].IsComputer then
-        Image_LobbyFlag[i].TexID := 22 //PC icon
+      if fGame.Networking.NetPlayers[I+1].IsComputer then
+        Image_LobbyFlag[I].TexID := 22 //PC icon
       else
-        Image_LobbyFlag[i].TexID := 0;
-    if fGame.Networking.IsHost and (not fGame.Networking.NetPlayers[i+1].IsHuman) then
+        Image_LobbyFlag[I].TexID := 0;
+
+    //Players list
+    if fGame.Networking.IsHost and (not fGame.Networking.NetPlayers[I+1].IsHuman) then
     begin
-      Label_LobbyPlayer[i].Hide;
-      DropBox_LobbyPlayerSlot[i].Show;
-      if fGame.Networking.NetPlayers[i+1].IsComputer then
-        DropBox_LobbyPlayerSlot[i].ItemIndex := 2 //AI
+      Label_LobbyPlayer[I].Hide;
+      DropBox_LobbyPlayerSlot[I].Enable;
+      DropBox_LobbyPlayerSlot[I].Show;
+      if fGame.Networking.NetPlayers[I+1].IsComputer then
+        DropBox_LobbyPlayerSlot[I].ItemIndex := 2 //AI
       else
-        DropBox_LobbyPlayerSlot[i].ItemIndex := 1; //Closed
-      DropBox_LobbyPlayerSlot[i].Enabled := fGame.Networking.IsHost;
+        DropBox_LobbyPlayerSlot[I].ItemIndex := 1; //Closed
     end
     else
     begin
-      Label_LobbyPlayer[i].Show;
-      DropBox_LobbyPlayerSlot[i].Hide;
-      DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
+      Label_LobbyPlayer[I].Caption := fGame.Networking.NetPlayers[I+1].GetNickname;
+      Label_LobbyPlayer[I].Show;
+      DropBox_LobbyPlayerSlot[I].Disable;
+      DropBox_LobbyPlayerSlot[I].Hide;
+      DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
     end;
+
     //If we can't load the map, don't attempt to show starting locations
     IsValid := false;
     if fGame.Networking.SelectGameKind = ngk_Save then
@@ -2370,27 +2370,28 @@ begin
     if fGame.Networking.SelectGameKind = ngk_Map then
       IsValid := fGame.Networking.MapInfo.IsValid;
     if IsValid then
-      DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation
+      DropBox_LobbyLoc[I].ItemIndex := fGame.Networking.NetPlayers[I+1].StartLocation
     else
-      DropBox_LobbyLoc[i].ItemIndex := 0;
-    DropBox_LobbyTeam[i].ItemIndex := fGame.Networking.NetPlayers[i+1].Team;
-    Drop_LobbyColors[i].ItemIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
-    CheckBox_LobbyReady[i].Checked := fGame.Networking.NetPlayers[i+1].ReadyToStart;
+      DropBox_LobbyLoc[I].ItemIndex := 0;
 
-    MyNik := (i+1 = fGame.Networking.MyIndex); //Our index
+    DropBox_LobbyTeam[I].ItemIndex := fGame.Networking.NetPlayers[I+1].Team;
+    Drop_LobbyColors[I].ItemIndex := fGame.Networking.NetPlayers[I+1].FlagColorID;
+    CheckBox_LobbyReady[I].Checked := fGame.Networking.NetPlayers[I+1].ReadyToStart;
+
+    MyNik := (I+1 = fGame.Networking.MyIndex); //Our index
     //We are allowed to edit if it is our nickname and we are set as NOT ready,
     //or we are the host and this player is an AI
     CanEdit := (MyNik and (fGame.Networking.IsHost or not fGame.Networking.NetPlayers.HostDoesSetup) and
-                          (fGame.Networking.IsHost or not fGame.Networking.NetPlayers[i+1].ReadyToStart)) or
-               (fGame.Networking.IsHost and fGame.Networking.NetPlayers[i+1].IsComputer);
+                          (fGame.Networking.IsHost or not fGame.Networking.NetPlayers[I+1].ReadyToStart)) or
+               (fGame.Networking.IsHost and fGame.Networking.NetPlayers[I+1].IsComputer);
     HostCanEdit := (fGame.Networking.IsHost and fGame.Networking.NetPlayers.HostDoesSetup and
-                    not fGame.Networking.NetPlayers[i+1].IsClosed);
-    DropBox_LobbyLoc[i].Enabled := (CanEdit or HostCanEdit);
-    DropBox_LobbyTeam[i].Enabled := (CanEdit or HostCanEdit) and not IsSave; //Can't change color or teams in a loaded save
-    Drop_LobbyColors[i].Enabled := (CanEdit or (MyNik and not fGame.Networking.NetPlayers[i+1].ReadyToStart)) and not IsSave;
+                    not fGame.Networking.NetPlayers[I+1].IsClosed);
+    DropBox_LobbyLoc[I].Enabled := (CanEdit or HostCanEdit);
+    DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave; //Can't change color or teams in a loaded save
+    Drop_LobbyColors[I].Enabled := (CanEdit or (MyNik and not fGame.Networking.NetPlayers[I+1].ReadyToStart)) and not IsSave;
     if MyNik and not fGame.Networking.IsHost then
     begin
-      if fGame.Networking.NetPlayers[i+1].ReadyToStart then
+      if fGame.Networking.NetPlayers[I+1].ReadyToStart then
         Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_NOT_READY]
       else
         Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY];
@@ -2631,7 +2632,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnDisconnect(const aData:string);
 begin
   fGame.Networking.Disconnect;
-  MP_Update(aData,$FF00FFFF,false);
+  MP_Update(aData,icYellow,false);
   fSoundLib.Play(sfxn_Error2);
   SwitchMenuPage(Button_LobbyBack);
 end;
@@ -2641,7 +2642,7 @@ procedure TKMMainMenuInterface.Lobby_BackClick(Sender: TObject);
 begin
   fGame.Networking.AnnounceDisconnect;
   fGame.Networking.Disconnect;
-  MP_Update(fTextLibrary[TX_GAME_ERROR_DISCONNECT],$FF00FFFF,false);
+  MP_Update(fTextLibrary[TX_GAME_ERROR_DISCONNECT],icYellow,false);
   SwitchMenuPage(Button_LobbyBack);
 end;
 

@@ -963,6 +963,13 @@ const
   $FF000000  //Black
   );
 
+  icWhite  = $FFFFFFFF;
+  icGreen  = $FF00C000;
+  icYellow = $FF07FFFF;
+  icOrange = $FF0099FF;
+  icRed    = $FF0707FF;
+
+
 var
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 
