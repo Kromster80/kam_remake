@@ -633,19 +633,19 @@ begin
   //Without anchors this page is centered on resize
   Panel_SinglePlayer := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_SinglePlayer.Anchors := [];
-    TKMImage.Create(Panel_SinglePlayer, 300, 60, 423, 164, 4, rxGuiMain);
-    TKMLabel.Create(Panel_SinglePlayer, 512, 240, 0, 0, 'Remake', fnt_Metal, taCenter);
+    TKMImage.Create(Panel_SinglePlayer, 300, 120, 423, 164, 4, rxGuiMain);
+    TKMLabel.Create(Panel_SinglePlayer, 512, 300, 0, 0, 'Remake', fnt_Metal, taCenter);
     with TKMImage.Create(Panel_SinglePlayer, 50, 220, Round(218 * 1.3), Round(291 * 1.3), 5, rxGuiMainH) do ImageStretch;
     with TKMImage.Create(Panel_SinglePlayer, 705, 220, Round(207 * 1.3), Round(295 * 1.3), 6, rxGuiMainH) do ImageStretch;
 
-    Panel_SPButtons := TKMPanel.Create(Panel_SinglePlayer,337,290,350,400);
+    Panel_SPButtons := TKMPanel.Create(Panel_SinglePlayer,337,340,350,400);
       Button_SP_Tutor  := TKMButton.Create(Panel_SPButtons,0,  0,350,30,fTextLibrary[TX_MENU_TUTORIAL_TOWN],fnt_Metal,bsMenu);
       Button_SP_Fight  := TKMButton.Create(Panel_SPButtons,0, 40,350,30,fTextLibrary[TX_MENU_TUTORIAL_BATTLE],fnt_Metal,bsMenu);
       Button_SP_TSK    := TKMButton.Create(Panel_SPButtons,0, 80,350,30,fTextLibrary[TX_MENU_CAMP_TSK],fnt_Metal,bsMenu);
       Button_SP_TPR    := TKMButton.Create(Panel_SPButtons,0,120,350,30,fTextLibrary[TX_MENU_CAMP_TPR],fnt_Metal,bsMenu);
       Button_SP_Single := TKMButton.Create(Panel_SPButtons,0,160,350,30,fTextLibrary[TX_MENU_SINGLE_MAP],fnt_Metal,bsMenu);
       Button_SP_Load   := TKMButton.Create(Panel_SPButtons,0,200,350,30,fTextLibrary[TX_MENU_LOAD_SAVEGAME],fnt_Metal,bsMenu);
-      Button_SP_Back   := TKMButton.Create(Panel_SPButtons,0,320,350,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+      Button_SP_Back   := TKMButton.Create(Panel_SPButtons,0,280,350,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
 
       Button_SP_Tutor.OnClick  := MainMenu_PlayTutorial;
       Button_SP_Fight.OnClick  := MainMenu_PlayBattle;
