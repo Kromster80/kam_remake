@@ -444,6 +444,7 @@ begin
   fTextManager.MoveUp(ID);
   RefreshList;
   ListBox1.ItemIndex := Max(ID - 1, 0);
+  ListBox1Click(nil); //Reselect the item to update the translation boxes
   btnSave.Enabled := True;
 end;
 
@@ -486,6 +487,7 @@ begin
   fTextManager.MoveDown(ID);
   RefreshList;
   ListBox1.ItemIndex := Min(ID + 1, ListBox1.Count - 1);
+  ListBox1Click(nil); //Reselect the item to update the translation boxes
   btnSave.Enabled := True;
 end;
 

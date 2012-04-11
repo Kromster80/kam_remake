@@ -436,18 +436,9 @@ begin
   begin
     if fConsts[aIndex].TextID <> -1 then
     begin
-      //Shift all fTexts up
-      for I := fConsts[aIndex].TextID to fTextMaxID-1 do
-        for K := 0 to fLocales.Count - 1 do
-          fTexts[I,K] := fTexts[I+1,K];
-
-      //Shift pointers
-      for I := 0 to High(fConsts) do
-        if fConsts[I].TextID > fConsts[aIndex].TextID then
-          Dec(fConsts[I].TextID);
-
-      Dec(fTextMaxID);
-      SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
+      //Clear all fTexts
+      for K := 0 to fLocales.Count - 1 do
+        fTexts[fConsts[aIndex].TextID,K] := '';
     end;
 
     //Shift fConsts up
@@ -458,13 +449,9 @@ begin
   end
   else
   begin
-    //Move up
-    for I := aIndex to fTextMaxID - 1 do
-      for K := 0 to fLocales.Count - 1 do
-        fTexts[I,K] := fTexts[I+1,K];
-
-    Dec(fTextMaxID);
-    SetLength(fTexts, fTextMaxID + 1, fLocales.Count);
+    //Clear all fTexts
+    for K := 0 to fLocales.Count - 1 do
+      fTexts[aIndex,K] := '';
   end;
 end;
 

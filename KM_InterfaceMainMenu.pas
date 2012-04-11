@@ -274,7 +274,7 @@ type
     Panel_Options:TKMPanel;
       Panel_Options_GFX:TKMPanel;
         TrackBar_Options_Brightness:TKMTrackBar;
-        CheckBox_Options_Shadows:TKMCheckBox;
+        RadioGroup_Options_Shadows:TKMRadioGroup;
       Panel_Options_Ctrl:TKMPanel;
         TrackBar_Options_ScrollSpeed:TKMTrackBar;
       Panel_Options_Game:TKMPanel;
@@ -1155,18 +1155,21 @@ begin
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
     //Graphics section
-    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,120,300,220,100);
+    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,220,140);
     Panel_Options_GFX.Anchors := [akLeft];
       TKMLabel.Create(Panel_Options_GFX,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_GFX,0,20,220,80);
+      TKMBevel.Create(Panel_Options_GFX,0,20,220,120);
       TrackBar_Options_Brightness:=TKMTrackBar.Create(Panel_Options_GFX,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       TrackBar_Options_Brightness.Caption := fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS];
       TrackBar_Options_Brightness.OnChange:=Options_Change;
-      CheckBox_Options_Shadows := TKMCheckBox.Create(Panel_Options_GFX,10,74,180,20,fTextLibrary[TX_MENU_OPTIONS_SOFT_SHADOWS], fnt_Metal);
-      CheckBox_Options_Shadows.OnClick := Options_Change;
+      TKMLabel.Create(Panel_Options_GFX,10,82,200,20,fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY],fnt_Metal,taLeft);
+      RadioGroup_Options_Shadows := TKMRadioGroup.Create(Panel_Options_GFX,10,100,200,32, fnt_Metal);
+      RadioGroup_Options_Shadows.Items.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_LOW]);
+      RadioGroup_Options_Shadows.Items.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_HIGH]);
+      RadioGroup_Options_Shadows.OnChange := Options_Change;
 
     //SFX section
-    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,420,220,167);
+    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,300,220,167);
     Panel_Options_Sound.Anchors := [akLeft];
       TKMLabel.Create(Panel_Options_Sound,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Sound,0,20,220,147);
@@ -2963,7 +2966,7 @@ procedure TKMMainMenuInterface.Options_Fill(aMainSettings: TMainSettings; aGameS
 begin
   CheckBox_Options_Autosave.Checked     := aGameSettings.Autosave;
   TrackBar_Options_Brightness.Position  := aGameSettings.Brightness;
-  CheckBox_Options_Shadows.Checked      := aGameSettings.AlphaShadows;
+  RadioGroup_Options_Shadows.ItemIndex  := Byte(aGameSettings.AlphaShadows);
   TrackBar_Options_ScrollSpeed.Position := aGameSettings.ScrollSpeed;
   TrackBar_Options_SFX.Position         := Round(aGameSettings.SoundFXVolume * TrackBar_Options_SFX.MaxValue);
   TrackBar_Options_Music.Position       := Round(aGameSettings.MusicVolume * TrackBar_Options_Music.MaxValue);
@@ -2990,7 +2993,7 @@ begin
 
   fGame.GlobalSettings.Autosave         := CheckBox_Options_Autosave.Checked;
   fGame.GlobalSettings.Brightness       := TrackBar_Options_Brightness.Position;
-  fGame.GlobalSettings.AlphaShadows     := CheckBox_Options_Shadows.Checked;
+  fGame.GlobalSettings.AlphaShadows     := RadioGroup_Options_Shadows.ItemIndex = 1;
   fGame.GlobalSettings.ScrollSpeed      := TrackBar_Options_ScrollSpeed.Position;
   fGame.GlobalSettings.SoundFXVolume    := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
   fGame.GlobalSettings.MusicVolume      := TrackBar_Options_Music.Position / TrackBar_Options_Music.MaxValue;

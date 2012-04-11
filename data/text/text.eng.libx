@@ -1,5 +1,5 @@
 
-MaxID:2696
+MaxID:2699
 
 0:Sawmill
 1:Iron smithy
@@ -441,7 +441,6 @@ MaxID:2696
 1903:trees
 1904:definitions
 1905:tileset
-1906:Soft shadows
 2687:Create Server
 2688:FIND SERVER
 2689:Connect
@@ -452,3 +451,6 @@ MaxID:2696
 2694:Not supported
 2695:Error: Player name must be no more than %d characters long
 2696:Error: Player name contains illegal characters
+2697:Shadow Quality:
+2698:Low
+2699:High
