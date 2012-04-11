@@ -1,10 +1,5 @@
 program RXXPacker;
-{$I RXXPacker.inc}
-{$IFDEF FPC}
-  {$Mode Delphi} {$H+}
-{$ENDIF}
-
-
+{$I ..\..\KaM_Remake.inc}
 uses
   Forms,
   {$IFDEF FPC} Interfaces, {$ENDIF}
