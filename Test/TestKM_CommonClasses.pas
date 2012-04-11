@@ -22,8 +22,7 @@ type
     procedure TestGetRandom;
     procedure TestGetClosest;
     procedure TestInverse;
-    procedure TestGetTopLeft;
-    procedure TestGetBottomRight;
+    procedure TestGetBounds;
     procedure TestSaveToStream;
     procedure TestLoadFromStream;
   end;
@@ -244,32 +243,18 @@ begin
   Check(KMSamePoint(FKMPointList[3], KMPoint(1,1)));
 end;
 
-procedure TestTKMPointList.TestGetTopLeft;
+procedure TestTKMPointList.TestGetBounds;
 var
   ReturnValue: Boolean;
-  TL: TKMPoint;
+  B: TKMRect;
 begin
-  ReturnValue := FKMPointList.GetTopLeft(TL);
+  ReturnValue := FKMPointList.GetBounds(B);
   Check(not ReturnValue);
 
   FillDefaults;
-  ReturnValue := FKMPointList.GetTopLeft(TL);
+  ReturnValue := FKMPointList.GetBounds(B);
   Check(ReturnValue);
-  Check(KMSamePoint(TL, FKMPointList[0]));
-end;
-
-procedure TestTKMPointList.TestGetBottomRight;
-var
-  ReturnValue: Boolean;
-  BR: TKMPoint;
-begin
-  ReturnValue := FKMPointList.GetBottomRight(BR);
-  Check(not ReturnValue);
-
-  FillDefaults;
-  ReturnValue := FKMPointList.GetBottomRight(BR);
-  Check(ReturnValue);
-  Check(KMSamePoint(BR, FKMPointList[255]));
+  //todo: Check(KMSameRect(KMRect(FKMPointList[0],), FKMPointList[0]));
 end;
 
 procedure TestTKMPointList.TestSaveToStream;
