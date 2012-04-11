@@ -14,7 +14,11 @@ type
   TKMPointI = record X,Y: Integer; end; //Allows negative values
 
   //We have our own TKMRect that consistently matches TKMPoint range
-  TKMRect = record X1, Y1, X2, Y2: Word; end;
+  TKMRect = record
+      case Integer of
+        0: (Left, Top, Right, Bottom: Word);
+        1: (A, B: TKMPoint);
+      end;
 
   function KMPoint(X,Y:word): TKMPoint; overload;
   function KMPoint(P:TKMPointI): TKMPoint; overload;
@@ -31,6 +35,8 @@ type
   function KMSamePointF(P1,P2:TKMPointF; Epsilon:single): boolean; overload;
   function KMSamePointDir(P1,P2:TKMPointDir): boolean;
 
+  function KMRect(aLeft, aTop, aRight, aBottom: Word): TKMRect; overload;
+  function KMRect(aPoint: TKMPointF): TKMRect; overload;
   function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
   function KMInRect(aPoint: TKMPoint; aRect: TKMRect): Boolean; overload;
   function KMInRect(aPoint: TKMPointF; aRect: TKMRect): Boolean; overload;
@@ -154,24 +160,43 @@ begin
 end;
 
 
+function KMRect(aLeft, aTop, aRight, aBottom: Word): TKMRect;
+begin
+  Result.Left   := aLeft;
+  Result.Right  := aRight;
+  Result.Top    := aTop;
+  Result.Bottom := aBottom;
+end;
+
+
+//Encompass PointF into fixed-point rect (4 points)
+function KMRect(aPoint: TKMPointF): TKMRect;
+begin
+  Result.Left   := Trunc(aPoint.X);
+  Result.Right  := Trunc(aPoint.X) + 1;
+  Result.Top    := Trunc(aPoint.Y);
+  Result.Bottom := Trunc(aPoint.Y) + 1;
+end;
+
+
 function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
 begin
-  Result.X1 := Math.Max(aRect.X1 - aInset, 0);
-  Result.X2 := Math.Max(aRect.X2 + aInset, 0);
-  Result.Y1 := Math.Max(aRect.Y1 - aInset, 0);
-  Result.Y2 := Math.Max(aRect.Y2 + aInset, 0);
+  Result.Left   := Math.Max(aRect.Left   - aInset, 0);
+  Result.Right  := Math.Max(aRect.Right  + aInset, 0);
+  Result.Top    := Math.Max(aRect.Top    - aInset, 0);
+  Result.Bottom := Math.Max(aRect.Bottom + aInset, 0);
 end;
 
 
 function KMInRect(aPoint: TKMPoint; aRect: TKMRect): Boolean;
 begin
-  Result := InRange(aPoint.X, aRect.X1, aRect.X2) and InRange(aPoint.Y, aRect.Y1, aRect.Y2);
+  Result := InRange(aPoint.X, aRect.Left, aRect.Right) and InRange(aPoint.Y, aRect.Top, aRect.Bottom);
 end;
 
 
 function KMInRect(aPoint: TKMPointF; aRect: TKMRect): Boolean;
 begin
-  Result := InRange(aPoint.X, aRect.X1, aRect.X2) and InRange(aPoint.Y, aRect.Y1, aRect.Y2);
+  Result := InRange(aPoint.X, aRect.Left, aRect.Right) and InRange(aPoint.Y, aRect.Top, aRect.Bottom);
 end;
 
 

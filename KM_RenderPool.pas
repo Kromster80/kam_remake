@@ -239,8 +239,8 @@ begin
     end;
     glBegin(GL_QUADS);
       with fTerrain do
-      for i := aRect.Y1 to aRect.Y2 do
-      for k := aRect.X1 to aRect.X2 do
+      for i := aRect.Top to aRect.Bottom do
+      for k := aRect.Left to aRect.Right do
       if (iW=1) or (MyPlayer.FogOfWar.CheckTileRevelation(k,i,true) > FOG_OF_WAR_ACT) then //No animation in FOW
       begin
         xt := fTerrain.Land[i,k].Terrain;
@@ -293,8 +293,8 @@ begin
 
   glColor4f(1,1,1,1);
 
-  for i := aRect.Y1 to aRect.Y2 do
-  for k := aRect.X1 to aRect.X2 do
+  for i := aRect.Top to aRect.Bottom do
+  for k := aRect.Left to aRect.Right do
   begin
     case fTerrain.Land[i,k].TileOverlay of
       to_Dig1: RenderTile(249,k,i,0);
@@ -323,8 +323,8 @@ begin
   glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextL);
   glBegin(GL_QUADS);
   with fTerrain do
-  for i := aRect.Y1 to aRect.Y2 do
-  for k := aRect.X1 to aRect.X2 do
+  for i := aRect.Top to aRect.Bottom do
+  for k := aRect.Left to aRect.Right do
     if RENDER_3D then begin
       glTexCoord1f(Land[i  ,k  ].Light); glVertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(Land[i+1,k  ].Light); glVertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
@@ -343,8 +343,8 @@ begin
   glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextD);
   glBegin(GL_QUADS);
     with fTerrain do
-    for i := aRect.Y1 to aRect.Y2 do
-    for k := aRect.X1 to aRect.X2 do
+    for i := aRect.Top to aRect.Bottom do
+    for k := aRect.Left to aRect.Right do
     if RENDER_3D then begin
       glTexCoord1f(kromutils.max(0,-Land[i  ,k  ].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i,true)/255));
       glVertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
@@ -370,8 +370,8 @@ begin
   glBindTexture(GL_TEXTURE_2D, 0);
 
   if SHOW_WALK_CONNECT then
-  for i := aRect.Y1 to aRect.Y2 do
-  for k := aRect.X1 to aRect.X2 do
+  for i := aRect.Top to aRect.Bottom do
+  for k := aRect.Left to aRect.Right do
   with fTerrain.Land[i,k] do
     fRenderAux.Quad(k, i, WalkConnect[wcWalk] * 32 + (WalkConnect[wcRoad] * 32) shl 8 or $80000000);
 
@@ -385,8 +385,8 @@ var
   BordersList: TKMPointDirList;
   FieldsList, TabletsList: TKMPointTagList;
 begin
-  for I := aRect.Y1 to aRect.Y2 do
-  for K := aRect.X1 to aRect.X2 do
+  for I := aRect.Top to aRect.Bottom do
+  for K := aRect.Left to aRect.Right do
   with fTerrain do
   begin
     if Land[I,K].BorderTop then RenderTerrainBorder(Land[I,K].Border, dir_N, K, I);
@@ -429,8 +429,8 @@ procedure TRenderPool.RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
 var
   I, K: Integer;
 begin
-  for I := aRect.Y1 to aRect.Y2 do
-  for K := aRect.X1 to aRect.X2 do
+  for I := aRect.Top to aRect.Bottom do
+  for K := aRect.Left to aRect.Right do
     if fTerrain.Land[I, K].Obj <> 255 then
       RenderObjectOrQuad(fTerrain.Land[I, K].Obj + 1, AnimStep, K, I);
 

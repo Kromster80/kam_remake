@@ -711,8 +711,8 @@ begin
   //Test all plans. We use Loc-2 to test plans centers
   for I := 0 to fPlansCount - 1 do
     if (fPlans[I].HouseType <> ht_None)
-    and InRange(fPlans[I].Loc.X - 2, Rect.X1, Rect.X2)
-    and InRange(fPlans[I].Loc.Y - 2, Rect.Y1, Rect.Y2) then
+    and InRange(fPlans[I].Loc.X - 2, Rect.Left, Rect.Right)
+    and InRange(fPlans[I].Loc.Y - 2, Rect.Top, Rect.Bottom) then
     begin
       HA := fResource.HouseDat[fPlans[I].HouseType].BuildArea;
 
@@ -745,8 +745,8 @@ begin
 
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
-  and InRange(fPlans[I].Loc.X - 2, Rect.X1, Rect.X2)
-  and InRange(fPlans[I].Loc.Y - 2, Rect.Y1, Rect.Y2) then
+  and InRange(fPlans[I].Loc.X - 2, Rect.Left, Rect.Right)
+  and InRange(fPlans[I].Loc.Y - 2, Rect.Top, Rect.Bottom) then
     aList.AddEntry(KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType), 0);
 end;
 

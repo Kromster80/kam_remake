@@ -291,7 +291,6 @@ begin
                         fIssued := True;
                       end else
 
-                      //todo: Adjoin common part of workplans
                       if (aHome = ht_ArmorWorkshop) and (aProduct = rt_Armor) then
                       begin
                         ResourcePlan(rt_Leather,1,rt_None,0,rt_Armor);

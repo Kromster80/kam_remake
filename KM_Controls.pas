@@ -3752,11 +3752,11 @@ begin
   else
     fRenderUI.WriteBevel(NewLeft, NewTop, PaintWidth, PaintHeight);
 
-  if (fViewArea.X2 - fViewArea.X1) * (fViewArea.Y2 - fViewArea.Y1) > 0 then
-    fRenderUI.WriteRect(NewLeft + Round(fViewArea.X1*PaintWidth / fMapSize.X),
-                        NewTop  + Round(fViewArea.Y1*PaintHeight / fMapSize.Y),
-                        Round((fViewArea.X2 - fViewArea.X1)*PaintWidth / fMapSize.X),
-                        Round((fViewArea.Y2 - fViewArea.Y1)*PaintHeight / fMapSize.Y), 1, $FFFFFFFF);
+  if (fViewArea.Right - fViewArea.Left) * (fViewArea.Bottom - fViewArea.Top) > 0 then
+    fRenderUI.WriteRect(NewLeft + Round(fViewArea.Left*PaintWidth / fMapSize.X),
+                        NewTop  + Round(fViewArea.Top*PaintHeight / fMapSize.Y),
+                        Round((fViewArea.Right - fViewArea.Left)*PaintWidth / fMapSize.X),
+                        Round((fViewArea.Bottom - fViewArea.Top)*PaintHeight / fMapSize.Y), 1, $FFFFFFFF);
   for i:=1 to MAX_PLAYERS do
     if not KMSamePoint(fPlayerLocs[i], KMPoint(0,0)) then
       fRenderUI.WriteText(NewLeft+Round(fPlayerLocs[i].X*PaintWidth / fMapSize.X), NewTop+Round(fPlayerLocs[i].Y*PaintHeight / fMapSize.Y)-8, 16, 16, IntToStr(i), fnt_Outline, taCenter);

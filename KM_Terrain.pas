@@ -18,6 +18,11 @@ type
     fMapX: Word; //Terrain width and height
     fMapY: Word; //Terrain width and height
 
+    procedure UpdateBorders(Loc: TKMPoint; CheckSurrounding: Boolean = True);
+    procedure UpdateLighting(aRect: TKMRect);
+    procedure UpdatePassability(aRect: TKMRect); overload;
+    procedure UpdatePassability(Loc: TKMPoint); overload;
+    procedure UpdatePassabilityAround(Loc: TKMPoint);
     procedure UpdateWalkConnect(aSet: array of TWalkConnect);
   public
     Land: array[1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE]of record
@@ -115,8 +120,6 @@ type
     procedure DecStoneDeposit(Loc:TKMPoint);
     function DecOreDeposit(Loc:TKMPoint; rt:TResourceType):boolean;
 
-    procedure RecalculatePassability(Loc:TKMPoint);
-    procedure RecalculatePassabilityAround(Loc:TKMPoint);
     function CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
     function HasUnit(Loc:TKMPoint):boolean;
     function HasVertexUnit(Loc:TKMPoint):boolean;
@@ -161,16 +164,13 @@ type
     function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
 
-    procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
     procedure FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects:boolean=true); overload;
     procedure FlattenTerrain(LocList:TKMPointList); overload;
-    procedure RebuildLighting(LowX, HighX, LowY, HighY: Integer);
-    procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
 
-    function GetVertexCursorPosition:TKMPoint;
-    function ConvertCursorToMapCoord(inX,inY:single):single;
-    function InterpolateLandHeight(inX,inY:single):single; overload;
-    function InterpolateLandHeight(aPoint:TKMPointF):single; overload;
+    function GetVertexCursorPosition: TKMPoint;
+    function ConvertCursorToMapCoord(inX,inY:single): Single;
+    function InterpolateLandHeight(inX,inY:single): Single; overload;
+    function InterpolateLandHeight(aPoint:TKMPointF): Single; overload;
     function MixLandHeight(inX,inY:byte):byte;
 
     procedure MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
@@ -248,8 +248,8 @@ begin
     BorderRight  := false;
   end;
 
-  RebuildLighting(1,fMapX,1,fMapY);
-  RebuildPassability(1,fMapX,1,fMapY);
+  UpdateLighting(KMRect(1, 1, fMapX, fMapY));
+  UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork]);
@@ -296,8 +296,8 @@ begin
     S.Free;
   end;
 
-  RebuildLighting(1,fMapX,1,fMapY);
-  RebuildPassability(1,fMapX,1,fMapY);
+  UpdateLighting(KMRect(1, 1, fMapX, fMapY));
+  UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork]);
@@ -669,7 +669,7 @@ end;
 procedure TTerrain.SetTileLock(aLoc: TKMPoint; aTileLock: TTileLock);
 begin
   Land[aLoc.Y, aLoc.X].TileLock := aTileLock;
-  RecalculatePassabilityAround(aLoc);
+  UpdatePassabilityAround(aLoc);
 
   //TileLocks affect passability so therefore also floodfill
   UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
@@ -680,7 +680,7 @@ end;
 procedure TTerrain.UnlockTile(Loc: TKMPoint);
 begin
   Land[Loc.Y, Loc.X].TileLock := tlNone;
-  RecalculatePassabilityAround(Loc);
+  UpdatePassabilityAround(Loc);
 
   //TileLocks affect passability so therefore also floodfill
   UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
@@ -690,7 +690,7 @@ end;
 procedure TTerrain.SetRoads(aList: TKMPointList; aOwner: TPlayerIndex);
 var
   I: Integer;
-  TL, BR: TKMPoint;
+  Bounds: TKMRect;
   HasBounds: Boolean;
 begin
   if aList.Count = 0 then Exit; //Nothing to be done
@@ -703,9 +703,12 @@ begin
     UpdateBorders(aList[I]);
   end;
 
-  HasBounds := aList.GetTopLeft(TL) and aList.GetBottomRight(BR);
+  HasBounds := aList.GetBounds(Bounds);
   Assert(HasBounds);
-  RebuildPassability(TL.X-1, BR.X+1, TL.Y-1, BR.Y+1);
+
+  //Grow the bounds by extra tile because some passabilities
+  //depend on road nearby (e.g. CanPlantTree)
+  UpdatePassability(KMRectGrow(Bounds, 1));
 
   //Roads don't affect wcWalk or wcFish
   UpdateWalkConnect([wcRoad, wcWolf, wcCrab]);
@@ -718,7 +721,7 @@ begin
   Land[Loc.Y,Loc.X].TileOverlay := to_None;
   Land[Loc.Y,Loc.X].FieldAge  := 0;
   UpdateBorders(Loc);
-  RecalculatePassabilityAround(Loc);
+  UpdatePassabilityAround(Loc);
 
   //Roads don't affect wcWalk or wcFish
   UpdateWalkConnect([wcRoad, wcWolf, wcCrab]);
@@ -735,7 +738,7 @@ begin
     Land[Loc.Y,Loc.X].Obj := 255; //Remove corn/wine
   Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
-  RecalculatePassabilityAround(Loc);
+  UpdatePassabilityAround(Loc);
 
   //Update affected WalkConnect's
   UpdateWalkConnect([wcWalk, wcWolf, wcCrab]);
@@ -760,7 +763,7 @@ begin
   Land[Loc.Y,Loc.X].TileOverlay := to_Wall;
   Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
-  RecalculatePassabilityAround(Loc);
+  UpdatePassabilityAround(Loc);
   UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
@@ -806,7 +809,7 @@ begin
   end;
 
   UpdateBorders(Loc);
-  RecalculatePassabilityAround(Loc);
+  UpdatePassabilityAround(Loc);
   //Walk and Road because Grapes are blocking diagonal moves
   UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
 end;
@@ -1186,11 +1189,13 @@ begin
 end;
 
 
-procedure TTerrain.SetTree(Loc:TKMPoint; ID:integer);
+procedure TTerrain.SetTree(Loc: TKMPoint; ID: Integer);
 begin
-  Land[Loc.Y,Loc.X].Obj:=ID;
-  Land[Loc.Y,Loc.X].TreeAge:=1;
-  RebuildPassability(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1); //Because surrounding tiles will be affected (CanPlantTrees)
+  Land[Loc.Y,Loc.X].Obj :=  ID;
+  Land[Loc.Y,Loc.X].TreeAge :=  1;
+
+  //Add 1 tile on sides because surrounding tiles will be affected (CanPlantTrees)
+  UpdatePassabilityAround(Loc);
 end;
 
 
@@ -1214,7 +1219,7 @@ procedure TTerrain.ChopTree(Loc: TKMPoint);
 begin
   Land[Loc.Y,Loc.X].TreeAge := 0;
   FallingTrees.RemoveEntry(Loc);
-  RecalculatePassabilityAround(Loc); //Because surrounding tiles will be affected (CanPlantTrees)
+  UpdatePassabilityAround(Loc); //Because surrounding tiles will be affected (CanPlantTrees)
 
   //WalkConnect takes diagonal passability into account
   UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
@@ -1225,7 +1230,7 @@ procedure TTerrain.SowCorn(Loc: TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge := 1;
   Land[Loc.Y,Loc.X].Terrain  := 61; //Plant it right away, don't wait for update state
-  RecalculatePassability(Loc);
+  UpdatePassability(Loc);
 end;
 
 
@@ -1255,7 +1260,7 @@ begin
     rt_GoldOre: Land[Loc.Y,Loc.X].Terrain:=147;
     else        raise ELocError.Create('Wrong resource deposit',Loc);
   end;
-  RecalculatePassability(Loc);
+  UpdatePassability(Loc);
 end;
 
 
@@ -1281,7 +1286,7 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
     Land[Y,X].Terrain  := TileID[Bits];
     Land[Y,X].Rotation := RotID[Bits];
     if Land[Y,X].Terrain = 0 then Land[Y,X].Rotation := KaMRandom(4); //Randomise the direction of grass tiles
-    RecalculatePassability(Loc);
+    UpdatePassability(Loc);
   end;
 
 begin
@@ -1333,17 +1338,17 @@ begin
     else Result := false;
   end;
   Land[Loc.Y,Loc.X].Rotation:=KaMRandom(4);
-  RecalculatePassability(Loc);
+  UpdatePassability(Loc);
 end;
 
 
-procedure TTerrain.RecalculatePassabilityAround(Loc:TKMPoint);
+procedure TTerrain.UpdatePassabilityAround(Loc:TKMPoint);
 begin
-  RebuildPassability(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1);
+  UpdatePassability(KMRect(Loc.X - 1, Loc.Y - 1, Loc.X + 1, Loc.Y + 1));
 end;
 
 
-procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
+procedure TTerrain.UpdatePassability(Loc:TKMPoint);
 var
   i,k:integer;
   HousesNearBy:boolean;
@@ -1891,7 +1896,9 @@ var TilesFactored: Integer;
       Result := 0;
   end;
 
-var i,k: Word; Avg: Word;
+var
+  I, K: Word;
+  Avg: Word;
 begin
   Assert(TileInMapCoords(Loc.X, Loc.Y), 'Can''t flatten tile outside map coordinates');
 
@@ -1909,12 +1916,12 @@ begin
   if CanElevate in Land[Loc.Y+1,Loc.X+1].Passability then Land[Loc.Y+1,Loc.X+1].Height := Mix(Avg, Land[Loc.Y+1,Loc.X+1].Height, 0.5);
 
   //All 9 tiles around and including this one could have become unwalkable and made a unit stuck, so check them all
-  for i := Max(Loc.Y-1, 1) to Min(Loc.Y+1, fMapY-1) do
-    for k := Max(Loc.X-1, 1) to Min(Loc.X+1, fMapX-1) do
-      EnsureWalkable(k,i);
+  for I := Max(Loc.Y-1, 1) to Min(Loc.Y+1, fMapY-1) do
+    for K := Max(Loc.X-1, 1) to Min(Loc.X+1, fMapX-1) do
+      EnsureWalkable(K, I);
 
-  RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
-  RecalculatePassabilityAround(Loc); //Changing height will affect the cells around this one
+  UpdateLighting(KMRect(Loc.X-2, Loc.Y-2, Loc.X+3, Loc.Y+3));
+  UpdatePassabilityAround(Loc); //Changing height will affect the cells around this one
 
   if aUpdateWalkConnects then
     UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
@@ -1937,38 +1944,37 @@ end;
 //Rebuilds lighting values for given bounds.
 //These values are used to draw highlights/shadows on terrain
 //Note that input values may be off-map
-procedure TTerrain.RebuildLighting(LowX, HighX, LowY, HighY: Integer);
+procedure TTerrain.UpdateLighting(aRect: TKMRect);
 var
   I, K: Integer;
   x0, y2: Integer;
 begin
-  for I := LowY to HighY do
-  for K := LowX to HighX do
-  if VerticeInMapCoords(K,I) then
+  //Valid vertices are within 1..Map
+  for I := Max(aRect.Top, 1) to Min(aRect.Bottom, fMapY) do
+  for K := Max(aRect.Left, 1) to Min(aRect.Right, fMapX) do
   begin
     x0 := Max(K-1, 1);
     y2 := Min(I+1, fMapY);
     Land[I,K].Light := EnsureRange((Land[I,K].Height-(Land[y2,K].Height+Land[I,x0].Height)/2)/22,-1,1); //  1.33*16 ~=22
 
     //Map borders always fade to black
-    if (I = 1) or (I = fMapY)
-    or (K = 1) or (K = fMapX) then
+    if (I = 1) or (I = fMapY) or (K = 1) or (K = fMapX) then
       Land[I,K].Light := -1;
   end;
 end;
 
 
-{ Rebuilds passability for given bounds }
-procedure TTerrain.RebuildPassability(LowX,HighX,LowY,HighY:integer);
-var i,k:integer;
+//Rebuilds passability for given bounds
+procedure TTerrain.UpdatePassability(aRect: TKMRect);
+var I, K: Integer;
 begin
-  for i:=max(LowY,1) to min(HighY,fMapY-1) do
-  for k:=max(LowX,1) to min(HighX,fMapX-1) do
-    RecalculatePassability(KMPoint(k,i));
+  for I := Max(aRect.Top, 1) to Min(aRect.Bottom, fMapY - 1) do
+    for K := Max(aRect.Left, 1) to Min(aRect.Right, fMapX - 1) do
+      UpdatePassability(KMPoint(K, I));
 end;
 
 
-{ Rebuilds connected areas using flood fill algorithm }
+//Rebuilds connected areas using flood fill algorithm
 procedure TTerrain.UpdateWalkConnect(aSet: array of TWalkConnect);
 var
   WC: TWalkConnect;
@@ -2105,7 +2111,7 @@ begin
   end;
 
   //Recalculate Passability for tiles around the house so that they can't be built on too
-  RebuildPassability(Loc.X-3, Loc.X+2, Loc.Y-4, Loc.Y+1);
+  UpdatePassability(KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
   UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
@@ -2281,7 +2287,7 @@ begin
         Land[Loc.Y+I-4, Loc.X+K-3].TileLock := tlNone;
   end;
 
-  RebuildPassability(Loc.X-3, Loc.X+2, Loc.Y-4, Loc.Y+1);
+  UpdatePassability(KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
   UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
@@ -2403,33 +2409,34 @@ begin
 end;
 
 
-procedure TTerrain.MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
+procedure TTerrain.MapEdHeight(aLoc: TKMPointF; aSize, aShape: Byte; aRaise: Boolean);
 var
-  i,k:integer;
-  Size,Slope:byte;
-  Tmp:single;
+  I, K: Integer;
+  Rad, Slope: Byte;
+  Tmp: Single;
+  R: TKMRect;
 begin
-  Size := aSize AND $F; //Low bits
+  Rad := (aSize AND $F) div 2; //Low bits
   Slope := aSize SHR 4; //High bits
 
-  for i := (round(aLoc.Y) - Size div 2) to (round(aLoc.Y) + Size div 2) do
-  for k := (round(aLoc.X) - Size div 2) to (round(aLoc.X) + Size div 2) do
-  if VerticeInMapCoords(k,i) then
+  for I := Max((round(aLoc.Y) - Rad), 1) to Min((round(aLoc.Y) + Rad), fMapY) do
+  for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), fMapY) do
   begin
     case aShape of
-      MAPED_HEIGHT_CIRCLE: Tmp := 1 - GetLength(i-aLoc.Y, k-aLoc.X) / (Size div 2);
-      MAPED_HEIGHT_SQUARE: Tmp := 1 - Math.max(abs(i-aLoc.Y), abs(k-aLoc.X)) / (Size div 2);
-      else Tmp := 0;
+      MAPED_HEIGHT_CIRCLE: Tmp := 1 - GetLength(I-aLoc.Y, K-aLoc.X) / Rad;
+      MAPED_HEIGHT_SQUARE: Tmp := 1 - Math.max(abs(I-aLoc.Y), abs(K-aLoc.X)) / Rad;
+      else                 Tmp := 0;
     end;
     Tmp := power(abs(Tmp),(Slope+1)/6)*sign(Tmp); //Modify slopes curve
     //Compute resulting floating-point height
-    Tmp := EnsureRange(Land[i,k].Height + Land[i,k].HeightAdd/255 + Math.max(0,Tmp) * (byte(aRaise)*2-1), 0, 100);
-    Land[i,k].Height := trunc(Tmp);
-    Land[i,k].HeightAdd := round(frac(Tmp)*255); //write fractional part in 0..255 range (1byte) to save us mem
+    Tmp := EnsureRange(Land[I,K].Height + Land[I,K].HeightAdd/255 + Math.max(0,Tmp) * (Byte(aRaise)*2-1), 0, 100);
+    Land[I,K].Height := trunc(Tmp);
+    Land[I,K].HeightAdd := round(frac(Tmp)*255); //write fractional part in 0..255 range (1Byte) to save us mem
   end;
 
-  RebuildLighting(round(aLoc.X) - Size div 2,round(aLoc.X) + Size div 2,round(aLoc.Y) - Size div 2,round(aLoc.Y) + Size div 2);
-  RebuildPassability(round(aLoc.X) - Size div 2,round(aLoc.X) + Size div 2,round(aLoc.Y) - Size div 2,round(aLoc.Y) + Size div 2);
+  R := KMRectGrow(KMRect(aLoc), Rad);
+  UpdateLighting(R);
+  UpdatePassability(R);
 end;
 
 
@@ -2439,7 +2446,7 @@ begin
   begin
     Land[aLoc.Y, aLoc.X].Terrain := aTile;
     Land[aLoc.Y, aLoc.X].Rotation := aRotation;
-    RecalculatePassability(aLoc);
+    UpdatePassability(aLoc);
   end;
 end;
 
@@ -2511,8 +2518,8 @@ begin
   for i:=1 to fMapY do for k:=1 to fMapX do
     UpdateBorders(KMPoint(k,i), False);
 
-  RebuildLighting(1, fMapX, 1, fMapY);
-  RebuildPassability(1, fMapX, 1, fMapY);
+  UpdateLighting(KMRect(1, 1, fMapX, fMapY));
+  UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
   UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
 

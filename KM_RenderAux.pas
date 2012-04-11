@@ -113,8 +113,8 @@ begin
   if aPass <> 0 then
   begin
     glColor4f(0,1,0,0.25);
-    for I := aRect.Y1 to aRect.Y2 do
-    for K := aRect.X1 to aRect.X2 do
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
       if TPassability(Byte(Low(TPassability)) + aPass - 1) in fTerrain.Land[I,K].Passability then
         RenderQuad(K,I);
   end;
@@ -149,8 +149,8 @@ end;
 procedure TRenderAux.UnitMoves(aRect: TKMRect);
 var I,K: Integer; VertexUsage: Byte;
 begin
-  for I := aRect.Y1 to aRect.Y2 do
-  for K := aRect.X1 to aRect.X2 do
+  for I := aRect.Top to aRect.Bottom do
+  for K := aRect.Left to aRect.Right do
   begin
     if fTerrain.Land[I,K].IsVertexUnit <> vu_None then
     begin
@@ -214,10 +214,10 @@ end;
 procedure TRenderAux.Wires(aRect: TKMRect);
 var i,k:integer;
 begin
-  for I := aRect.Y1 to aRect.Y2 do
+  for I := aRect.Top to aRect.Bottom do
   begin
     glBegin(GL_LINE_STRIP);
-    for K := aRect.X1 to aRect.X2 do
+    for K := aRect.Left to aRect.Right do
     begin
       glColor4f(0.8,1,0.6,1);
       glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
@@ -228,8 +228,8 @@ begin
   glPushAttrib(GL_POINT_BIT);
     glPointSize(3);
     glBegin(GL_POINTS);
-    for I := aRect.Y1 to aRect.Y2 do
-    for K := aRect.X1 to aRect.X2 do
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
     begin
       //glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
       glColor4f(byte(fTerrain.Land[i,k].Border=bt_HousePlan),byte(fTerrain.Land[i,k].Border=bt_HousePlan),0,1);

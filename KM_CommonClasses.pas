@@ -89,8 +89,7 @@ type
     function  GetRandom(out Point: TKMPoint): Boolean;
     function  GetClosest(aLoc: TKMPoint; out Point: TKMPoint): Boolean;
     procedure Inverse;
-    function  GetTopLeft(out TL: TKMPoint): Boolean;
-    function  GetBottomRight(out BR: TKMPoint): Boolean;
+    function  GetBounds(out Bounds: TKMRect): Boolean;
     procedure SaveToStream(SaveStream: TKMemoryStream); virtual;
     procedure LoadFromStream(LoadStream: TKMemoryStream); virtual;
   end;
@@ -441,39 +440,21 @@ begin
 end;
 
 
-//Get top-leftmost coordinates of bounding box around all the points
-function TKMPointList.GetTopLeft(out TL: TKMPoint): Boolean;
-var
-  I: Integer;
+function TKMPointList.GetBounds(out Bounds: TKMRect): Boolean;
+var I: Integer;
 begin
   Result := fCount <> 0;
 
   if Result then
   begin
-    TL := fItems[0]; //Something to start with
+    Bounds.A := fItems[0]; //Something to start with
+    Bounds.B := fItems[0]; //Something to start with
     for I := 1 to fCount - 1 do
     begin
-      if fItems[I].X < TL.X then TL.X := fItems[I].X;
-      if fItems[I].Y < TL.Y then TL.Y := fItems[I].Y;
-    end;
-  end;
-end;
-
-
-//Get bottom-rightmost coordinates of bounding box around all the points
-function TKMPointList.GetBottomRight(out BR: TKMPoint): Boolean;
-var
-  I: Integer;
-begin
-  Result := fCount <> 0;
-
-  if Result then
-  begin
-    BR := fItems[0]; //Something to start with
-    for I := 1 to fCount - 1 do
-    begin
-      if fItems[I].X > BR.X then BR.X := fItems[I].X;
-      if fItems[I].Y > BR.Y then BR.Y := fItems[I].Y;
+      if fItems[I].X < Bounds.Left then Bounds.Left := fItems[I].X;
+      if fItems[I].Y < Bounds.Top then Bounds.Top := fItems[I].Y;
+      if fItems[I].X > Bounds.Right then Bounds.Right := fItems[I].X;
+      if fItems[I].Y > Bounds.Bottom then Bounds.Bottom := fItems[I].Y;
     end;
   end;
 end;
