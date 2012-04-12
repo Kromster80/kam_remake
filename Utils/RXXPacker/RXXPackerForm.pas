@@ -78,20 +78,20 @@ begin
 
   ID := lbSpritesList.ItemIndex + 1;
   if ID = 0 then Exit;
-  if fSprites.Data.Flag[ID] = 0 then Exit;
+  if fSprites.RXData.Flag[ID] = 0 then Exit;
 
   BM := TBitmap.Create;
   try
     BM.PixelFormat := pf32bit;
-    BM.Width := fSprites.Data.Size[ID].X;
-    BM.Height := fSprites.Data.Size[ID].Y;
+    BM.Width := fSprites.RXData.Size[ID].X;
+    BM.Height := fSprites.RXData.Size[ID].Y;
     BM.Transparent := True;
     BM.AlphaFormat := afDefined;
 
     for I := 0 to BM.Height - 1 do
     for K := 0 to BM.Width - 1 do
     begin
-      T := fSprites.Data.RGBA[ID, I*BM.Width+K];
+      T := fSprites.RXData.RGBA[ID, I*BM.Width+K];
       //Invert Alpha
       T := (T and $FFFFFF) or ((255 - T shr 24) shl 24);
       BM.Canvas.Pixels[K,I] := T;
@@ -143,7 +143,7 @@ begin
   for I := 0 to OpenDialog1.Files.Count - 1 do
   begin
     fSprites.AddImage(ExtractFilePath(OpenDialog1.Files[I]),
-                      ExtractFileName(OpenDialog1.Files[I]), fSprites.Data.Count+1);
+                      ExtractFileName(OpenDialog1.Files[I]), fSprites.RXData.Count+1);
   end;
 
   UpdateList;
@@ -197,12 +197,12 @@ begin
   lbSpritesList.Items.BeginUpdate;
   lbSpritesList.Items.Clear;
 
-  for I := 1 to fSprites.Data.Count do
+  for I := 1 to fSprites.RXData.Count do
   begin
-    if fSprites.Data.Flag[I] = 0 then
+    if fSprites.RXData.Flag[I] = 0 then
       lbSpritesList.Items.Add(IntToStr(I)+'.')
     else
-      lbSpritesList.Items.Add(Format('%d. %dx%d', [I, fSprites.Data.Size[I].X, fSprites.Data.Size[I].Y]));
+      lbSpritesList.Items.Add(Format('%d. %dx%d', [I, fSprites.RXData.Size[I].X, fSprites.RXData.Size[I].Y]));
   end;
 
   lbSpritesList.Items.EndUpdate;
