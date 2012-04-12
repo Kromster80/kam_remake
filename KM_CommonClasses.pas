@@ -447,8 +447,11 @@ begin
 
   if Result then
   begin
-    Bounds.A := fItems[0]; //Something to start with
-    Bounds.B := fItems[0]; //Something to start with
+    //Something to start with
+    Bounds.Left   := fItems[0].X;
+    Bounds.Top    := fItems[0].Y;
+    Bounds.Right  := fItems[0].X;
+    Bounds.Bottom := fItems[0].Y;
     for I := 1 to fCount - 1 do
     begin
       if fItems[I].X < Bounds.Left then Bounds.Left := fItems[I].X;

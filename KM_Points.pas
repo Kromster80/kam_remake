@@ -14,11 +14,8 @@ type
   TKMPointI = record X,Y: Integer; end; //Allows negative values
 
   //We have our own TKMRect that consistently matches TKMPoint range
-  TKMRect = record
-      case Integer of
-        0: (Left, Top, Right, Bottom: Word);
-        1: (A, B: TKMPoint);
-      end;
+  //Rects are often used without range checking and include negative off-map coords
+  TKMRect = record Left, Top, Right, Bottom: SmallInt end;
 
   function KMPoint(X,Y:word): TKMPoint; overload;
   function KMPoint(P:TKMPointI): TKMPoint; overload;
@@ -35,7 +32,7 @@ type
   function KMSamePointF(P1,P2:TKMPointF; Epsilon:single): boolean; overload;
   function KMSamePointDir(P1,P2:TKMPointDir): boolean;
 
-  function KMRect(aLeft, aTop, aRight, aBottom: Word): TKMRect; overload;
+  function KMRect(aLeft, aTop, aRight, aBottom: SmallInt): TKMRect; overload;
   function KMRect(aPoint: TKMPointF): TKMRect; overload;
   function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
   function KMInRect(aPoint: TKMPoint; aRect: TKMRect): Boolean; overload;
@@ -154,13 +151,13 @@ begin
 end;
 
 
-function KMSamePointDir(P1,P2:TKMPointDir): boolean;
+function KMSamePointDir(P1,P2: TKMPointDir): boolean;
 begin
   Result := ( P1.Loc.X = P2.Loc.X ) and ( P1.Loc.Y = P2.Loc.Y ) and ( P1.Dir = P2.Dir );
 end;
 
 
-function KMRect(aLeft, aTop, aRight, aBottom: Word): TKMRect;
+function KMRect(aLeft, aTop, aRight, aBottom: SmallInt): TKMRect;
 begin
   Result.Left   := aLeft;
   Result.Right  := aRight;
@@ -173,9 +170,9 @@ end;
 function KMRect(aPoint: TKMPointF): TKMRect;
 begin
   Result.Left   := Trunc(aPoint.X);
-  Result.Right  := Trunc(aPoint.X) + 1;
+  Result.Right  := Trunc(aPoint.X) + Sign(aPoint.X);
   Result.Top    := Trunc(aPoint.Y);
-  Result.Bottom := Trunc(aPoint.Y) + 1;
+  Result.Bottom := Trunc(aPoint.Y) + Sign(aPoint.Y);
 end;
 
 

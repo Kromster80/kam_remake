@@ -1929,10 +1929,7 @@ begin
     for K := Max(Loc.X-1, 1) to Min(Loc.X+1, fMapX-1) do
       EnsureWalkable(K, I);
 
-  //@Krom: UpdateLighting (and others) used integers for a reason: often they were passed
-  //       values outside the map range like Loc.X-2. If we want to use KMRect (words) then
-  //       we need to Min/Max stuff like this.
-  UpdateLighting(KMRect(Max(Loc.X-2,1), Max(Loc.Y-2,1), Min(Loc.X+3,fMapX), Min(Loc.Y+3,fMapY)));
+  UpdateLighting(KMRect(Loc.X-2, Loc.Y-2, Loc.X+3, Loc.Y+3));
   UpdatePassabilityAround(Loc); //Changing height will affect the cells around this one
 
   if aUpdateWalkConnects then
