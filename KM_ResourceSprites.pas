@@ -9,7 +9,6 @@ uses
   KM_CommonEvents,
   KM_Defaults,
   KM_Pics,
-  KM_ResourceCursors,
   KM_ResourceHouse,
   KM_ResourcePalettes,
   KM_Render,
@@ -23,7 +22,7 @@ type
   TRXUsage = (ruMenu, ruGame); //Where sprites are used
 
   TRXInfo = record
-    FileName: AnsiString; //Used for logging and filenames
+    FileName: string; //Used for logging and filenames
     TeamColors: Boolean; //sprites should be generated with color masks
     Usage: TRXUsage; //Menu and Game sprites are loaded separately
     LoadingTextID: Word;
@@ -107,17 +106,18 @@ type
     fPalettes: TKMPalettes;
     fRT: TRXType;
 
-    fRXData: PRXData; //OOP wrapper for global variable
+    fRXData: TRXData; //OOP wrapper for global variable
 
     procedure Allocate(aCount: Integer); //Allocate space for data that is being loaded
     procedure Expand;
   public
-    constructor Create(aPalettes: TKMPalettes; aRT: TRXType);
+    constructor Create; overload;
+    constructor Create(aPalettes: TKMPalettes; aRT: TRXType); overload;
 
     procedure AddImage(aFolder, aFilename: string; aIndex: Integer);
     procedure Delete(aIndex: Integer);
     //property Count: Integer read fRXData.Qty;
-    property Data: PRXData read fRXData;
+    property Data: TRXData read fRXData;
 
     procedure LoadFromRXFile(const aFileName: string);
     procedure LoadFromRXXFile(const aFileName: string);
@@ -128,7 +128,7 @@ type
     procedure ExportToBMP(const aFolder: string);
     function TrimSprites: Cardinal; //For debug
 
-    procedure ClearData; //Release non-required data
+    procedure ClearTemp; //Release non-required data
   end;
 
   //Overrides for:
@@ -149,17 +149,20 @@ type
     procedure MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection; aRT: TRXType);
     function GetRXFileName(aRX: TRXType): string;
     procedure SaveTextureToBMP(aWidth, aHeight: Word; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
-    procedure ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
+    procedure ProcessSprites(aRT: TRXType; aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
+    function GetSprites(aRT: TRXType): TKMSpritePack;
   public
     constructor Create(aRender: TRender; aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
     destructor Destroy; override;
 
-    procedure LoadMenuResources(aCursors: TKMCursors);
+    procedure LoadMenuResources;
     procedure LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal; aAlphaShadows:boolean);
+    procedure ClearTemp;
+
+    property Sprites[aRT: TRXType]: TKMSpritePack read GetSprites; default;
 
     //Used externally to access raw RGBA data (e.g. by ExportAnim)
     procedure LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
-    procedure ClearSprites(aRT: TRXType);
     procedure ExportToBMP(aRT: TRXType);
 
     property AlphaShadows: Boolean read fAlphaShadows;
@@ -168,8 +171,6 @@ type
 
 
 var
-  RXData: array [TRXType] of TRXData;
-
   GFXData: array [TRXType] of array of record
     TexID,AltID: Cardinal; //AltID used for team colors
     u1,v1,u2,v2: Single;
@@ -203,6 +204,13 @@ var
 
 
 { TKMSpritePack }
+constructor TKMSpritePack.Create;
+begin
+  inherited Create;
+
+end;
+
+
 //We need to access to palettes to properly Expand RX files
 constructor TKMSpritePack.Create(aPalettes: TKMPalettes; aRT: TRXType);
 begin
@@ -210,16 +218,16 @@ begin
 
   fPalettes := aPalettes;
   fRT := aRT;
-  fRXData := @RXData[fRT];
+  //fRXData := @RXData[fRT];
 end;
 
 
 procedure TKMSpritePack.Delete(aIndex: Integer);
 begin
-  Assert(aIndex < fRXData.Count);
+  Assert(aIndex <= fRXData.Count);
   fRXData.Flag[aIndex] := 0;
 
-  while (fRXData.Count > 0) and (fRXData.Flag[fRXData.Count - 1] = 0) do
+  while (fRXData.Count > 0) and (fRXData.Flag[fRXData.Count] = 0) do
     Dec(fRXData.Count);
 end;
 
@@ -262,7 +270,7 @@ var
   L: byte;
   Pixel: Integer;
 begin
-  with fRXData^ do
+  with fRXData do
   for H := 1 to Count do
   begin
     //Choose proper palette
@@ -374,7 +382,7 @@ end;
 
 
 //Release RAM that is no longer needed
-procedure TKMSpritePack.ClearData;
+procedure TKMSpritePack.ClearTemp;
 var I: Integer;
 begin
   for I := 1 to fRXData.Count do
@@ -495,7 +503,7 @@ var
   {$ENDIF}
 begin
   if aIndex >= fRXData.Count then
-    Allocate(aIndex+1);
+    Allocate(aIndex);
 
   fRXData.HasMask[aIndex] := FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.png') or
                              FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.bmp');
@@ -774,13 +782,28 @@ begin
 end;
 
 
+//Clear unused RAM
+procedure TKMSprites.ClearTemp;
+var RT: TRXType;
+begin
+  for RT := Low(TRXType) to High(TRXType) do
+    fSprites[RT].ClearTemp;
+end;
+
+
 function TKMSprites.GetRXFileName(aRX: TRXType): string;
 begin
   Result := RXInfo[aRX].FileName;
 end;
 
 
-procedure TKMSprites.LoadMenuResources(aCursors: TKMCursors);
+function TKMSprites.GetSprites(aRT: TRXType): TKMSpritePack;
+begin
+  Result := fSprites[aRT];
+end;
+
+
+procedure TKMSprites.LoadMenuResources;
 var
   RT: TRXType;
 begin
@@ -789,8 +812,7 @@ begin
     begin
       fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
       LoadSprites(RT, False); //Menu resources never need alpha shadows
-      ProcessSprites(RT, aCursors, nil, False);
-      ClearSprites(RT);
+      ProcessSprites(RT, nil, False);
       fStepProgress;
     end;
 end;
@@ -808,8 +830,7 @@ begin
     fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
     fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');
     LoadSprites(RT, aAlphaShadows);
-    ProcessSprites(RT, nil, aHouseDat, aAlphaShadows);
-    ClearSprites(RT);
+    ProcessSprites(RT, aHouseDat, aAlphaShadows);
   end;
 end;
 
@@ -846,29 +867,15 @@ begin
 end;
 
 
-procedure TKMSprites.ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
+procedure TKMSprites.ProcessSprites(aRT: TRXType; aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
 begin
   if SKIP_RENDER then Exit;
-
-  //Cursors must be made before we clear the raw RGBA data
-  if (aRT = rxGui) and (aCursors <> nil) then
-  begin
-    aCursors.MakeCursors;
-    aCursors.Cursor := kmc_Default;
-  end;
 
   MakeGFX(aRT, aAlphaShadows);
 
   //Alpha_tested sprites for houses. They come after MakeGFX cos they will replace above data
   if (aRT = rxHouses) and (aHouseDat <> nil) then
     MakeGFX_AlphaTest(aHouseDat, aRT);
-end;
-
-
-//Clear unused RAM
-procedure TKMSprites.ClearSprites(aRT: TRXType);
-begin
-  fSprites[aRT].ClearData;
 end;
 
 
@@ -1107,7 +1114,7 @@ procedure TKMSprites.ExportToBMP(aRT: TRXType);
 begin
   LoadSprites(aRT, True); //BMP can't show the alpha channel so don't load alpha shadows
   fSprites[aRT].ExportToBMP(ExeDir + 'Export\' + RXInfo[aRT].FileName + '.rx\');
-  ClearSprites(aRT);
+  ClearTemp;
 end;
 
 

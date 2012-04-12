@@ -1,25 +1,25 @@
 unit KM_UnitTaskAttackHouse;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonClasses, KM_Defaults, KM_Utils, KM_Terrain, KM_Houses, KM_Units, KM_Units_Warrior, SysUtils, KM_Points;
+uses Classes, KM_CommonClasses, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Warrior, SysUtils, KM_Points;
 
   {Attack a house}
-  type
+type
   TTaskAttackHouse = class(TUnitTask)
-    private
-      fHouse:TKMHouse;
-      fDestroyingHouse:boolean; //House destruction in progress
-      LocID:byte; //Current attack location
-    public
-      constructor Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
-      constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad; override;
-      destructor Destroy; override;
-      property DestroyingHouse:boolean read fDestroyingHouse;
-      function WalkShouldAbandon:boolean; override;
-      function Execute:TTaskResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
-    end;
+  private
+    fHouse:TKMHouse;
+    fDestroyingHouse:boolean; //House destruction in progress
+    LocID:byte; //Current attack location
+  public
+    constructor Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
+    constructor Load(LoadStream:TKMemoryStream); override;
+    procedure SyncLoad; override;
+    destructor Destroy; override;
+    property DestroyingHouse:boolean read fDestroyingHouse;
+    function WalkShouldAbandon:boolean; override;
+    function Execute:TTaskResult; override;
+    procedure Save(SaveStream:TKMemoryStream); override;
+  end;
 
 
 implementation

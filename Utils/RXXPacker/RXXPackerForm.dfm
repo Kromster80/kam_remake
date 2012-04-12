@@ -55,11 +55,11 @@ object RXXForm1: TRXXForm1
     Top = 456
     Width = 81
     Height = 25
-    Caption = 'Save ...'
+    Caption = 'Save RXX ...'
     TabOrder = 3
     OnClick = btnSaveRXXClick
   end
-  object ListBox2: TListBox
+  object lbSpritesList: TListBox
     Left = 8
     Top = 8
     Width = 257
@@ -67,14 +67,14 @@ object RXXForm1: TRXXForm1
     ItemHeight = 13
     MultiSelect = True
     TabOrder = 4
-    OnClick = ListBox2Click
+    OnClick = lbSpritesListClick
   end
   object btnLoadRXX: TButton
     Left = 8
     Top = 456
     Width = 81
     Height = 25
-    Caption = 'Load ...'
+    Caption = 'Load RXX ...'
     TabOrder = 5
     OnClick = btnLoadRXXClick
   end
@@ -110,15 +110,6 @@ object RXXForm1: TRXXForm1
     Filter = 'RXX packages (*.rxx)|*.rxx'
     Options = [ofHideReadOnly, ofPathMustExist, ofEnableSizing]
     Left = 176
-    Top = 8
-  end
-  object dlgOpenRXX: TOpenDialog
-    OnShow = dlgOpenRXXShow
-    DefaultExt = '*.rxx'
-    Filter = 'RXX packages (*.rxx)|*.rxx'
-    Options = [ofPathMustExist, ofFileMustExist, ofEnableSizing]
-    Title = 'Select images'
-    Left = 24
     Top = 8
   end
 end

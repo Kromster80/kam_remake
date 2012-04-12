@@ -336,7 +336,7 @@ type
 
 implementation
 uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_Locales,
-  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites;
+  KM_Utils, KM_Log, KM_Sound, KM_Networking;
 
 const
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
@@ -1591,8 +1591,8 @@ begin
   //Setup sites
   for I := 0 to High(Image_CampaignFlags) do
   begin
-    Image_CampaignFlags[I].Visible   := I < Campaign_Selected.MapCount;
-    Image_CampaignFlags[I].TexID     := MapPic[I <= Campaign_Selected.UnlockedMap];
+    Image_CampaignFlags[I].Visible := I < Campaign_Selected.MapCount;
+    Image_CampaignFlags[I].TexID   := MapPic[I <= Campaign_Selected.UnlockedMap];
     Image_CampaignFlags[I].HighlightOnMouseOver := I <= Campaign_Selected.UnlockedMap;
   end;
 

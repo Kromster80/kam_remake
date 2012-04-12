@@ -2167,7 +2167,7 @@ end;
 function TKMTrackBar.ThumbWidth: Word;
 begin
   //If the maximum allowed number of digits is more than 2 - use wider field to fit them
-  Result := RXData[rxGui].Size[132].X;
+  Result := fResource.Sprites[rxGui].Data.Size[132].X;
   if fMaxValue > 99 then
     Result := Round(Result * 1.5);
 end;
@@ -2231,7 +2231,7 @@ begin
   fRenderUI.WriteBevel(Left+2,Top+fTrackTop+2,Width-4,fTrackHeight-4);
   ThumbPos := Round(mix (0, Width - ThumbWidth - 4, 1-(Position-fMinValue) / (fMaxValue - fMinValue)));
 
-  ThumbHeight := RXData[rxGui].Size[132].Y;
+  ThumbHeight := fResource.Sprites[rxGui].Data.Size[132].Y;
 
   fRenderUI.WritePicture(Left + ThumbPos + 2, Top+fTrackTop, ThumbWidth, ThumbHeight, rxGui, 132, True);
   fRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+fTrackTop+3, 0, 0, IntToStr(Position), fnt_Metal, taCenter, TextColor[fEnabled]);

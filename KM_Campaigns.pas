@@ -3,7 +3,7 @@ unit KM_Campaigns;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Pics, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Pics, KM_ResourceSprites, KM_Points;
 
 
 const
@@ -17,6 +17,7 @@ type
     fPath: string;
     fFirstTextIndex: Word;
     fUnlockedMap: Byte;
+    fSprites: TKMSpritePack;
 
     //Saved in CMP
     fShortTitle: AnsiString; //Used to identify the campaign
@@ -32,6 +33,7 @@ type
       TextPos: Byte; //Text position (TL, TR, BL, BR corner)
     end;
     constructor Create;
+    destructor Destroy; override;
 
     procedure LoadFromFile(aFileName: string);
     procedure SaveToFile(aFileName: string);
@@ -270,6 +272,15 @@ begin
   inherited;
   //1st map is always unlocked to allow to start campaign
   fUnlockedMap := 0;
+
+  fSprites := TKMSpritePack.Create;
+end;
+
+
+destructor TKMCampaign.Destroy;
+begin
+  fSprites.Free;
+  inherited;
 end;
 
 
@@ -338,6 +349,7 @@ begin
   LoadFromFile(fPath + 'info.cmp');
 
   fFirstTextIndex := fTextLibrary.AppendCampaign(fPath + 'text.%s.libx');
+
   //LoadRX(fPath + '\info.cmp');
 
   if UNLOCK_CAMPAIGN_MAPS then //Unlock more maps for debug

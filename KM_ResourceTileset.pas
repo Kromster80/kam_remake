@@ -5,7 +5,7 @@ uses
   Classes, Math, SysUtils, dglOpenGL,
   {$IFDEF WDC} ZLibEx, {$ENDIF}
   {$IFDEF FPC} ZStream, {$ENDIF}
-  KM_Defaults, KM_Pics;
+  KM_Defaults, KM_Pics, KM_ResourceSprites;
 
 
 type
@@ -17,20 +17,20 @@ type
     TextL: Cardinal; //Shading gradient for lighting
     TextD: Cardinal; //Shading gradient for darkening (same as light but reversed)
     TextT: Cardinal; //Tiles
-    TextW: array[1..8]of Cardinal; //Water
-    TextS: array[1..3]of Cardinal; //Swamps
-    TextF: array[1..5]of Cardinal; //WaterFalls
-    TileColor: array[0..255] of record R,G,B:Byte end;
-    constructor Create(const aPath: string);
+    TextW: array [1..8] of Cardinal; //Water
+    TextS: array [1..3] of Cardinal; //Swamps
+    TextF: array [1..5] of Cardinal; //WaterFalls
+    TileColor: array [0..255] of record R,G,B: Byte end;
+    constructor Create(const aPath: string; aSprites: TKMSpritePack);
   end;
 
 
 implementation
-uses KM_TGATexture, KM_ResourceSprites;
+uses KM_TGATexture;
 
 
 { TKMTileset }
-constructor TKMTileset.Create(const aPath: string);
+constructor TKMTileset.Create(const aPath: string; aSprites: TKMSpritePack);
 var I: Integer;
 begin
   Inherited Create;
@@ -38,7 +38,6 @@ begin
   LoadTileSet(aPath);
 
   //Special case for Tileset for MapEd menu
-  RXData[rxTiles].Count := 256;
   SetLength(GFXData[rxTiles], 256 + 1);
   //Generate UV coords
   for I := 0 to 255 do

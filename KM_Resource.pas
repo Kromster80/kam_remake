@@ -123,15 +123,17 @@ begin
   fSprites := TKMSprites.Create(fRender, fPalettes, StepRefresh, StepCaption);
 
   fCursors := TKMCursors.Create;
-
-  fSprites.LoadMenuResources(fCursors);
+  fSprites.LoadMenuResources;
+  fCursors.MakeCursors(fSprites[rxGui]);
+  fCursors.Cursor := kmc_Default;
+  fSprites.ClearTemp;
 
   StepCaption('Reading fonts ...');
   fResourceFont := TResourceFont.Create(fRender);
   fResourceFont.LoadFonts(aLocale);
   fLog.AppendLog('Read fonts is done');
 
-    fTileset := TKMTileset.Create(ExeDir + 'Resource\');
+    fTileset := TKMTileset.Create(ExeDir + 'Resource\', fResource.Sprites[rxTiles]);
     LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
     LoadPatternDAT(ExeDir + 'data\defines\pattern.dat');
 
@@ -161,7 +163,11 @@ begin
   end;}
 
   if (fDataState <> dls_All) or (aAlphaShadows <> fSprites.AlphaShadows) then
+  begin
     fSprites.LoadGameResources(fHouseDat, fTileset.TextT, aAlphaShadows);
+
+    fSprites.ClearTemp;
+  end;
 
   fDataState := dls_All;
   fLog.AppendLog('Resource loading state - Game');
@@ -271,7 +277,10 @@ var
   i,ci:integer;
   sy,sx,y,x:integer;
   Used:array of Boolean;
+  Data: TRXData;
 begin
+  Data := fSprites[rxUnits].Data;
+
   Folder := ExeDir + 'Export\UnitAnim\';
   ForceDirectories(Folder);
 
@@ -295,14 +304,14 @@ begin
     begin
       ci := fUnitDat[U].UnitAnim[A,D].Step[i] + 1;
 
-      sx := RXData[rxUnits].Size[ci].X;
-      sy := RXData[rxUnits].Size[ci].Y;
+      sx := Data.Size[ci].X;
+      sy := Data.Size[ci].Y;
       MyBitMap.Width := sx;
       MyBitMap.Height := sy;
 
       for y:=0 to sy-1 do
       for x:=0 to sx-1 do
-        MyBitMap.Canvas.Pixels[x,y] := RXData[rxUnits].RGBA[ci, y*sx+x] AND $FFFFFF;
+        MyBitMap.Canvas.Pixels[x,y] := Data.RGBA[ci, y*sx+x] AND $FFFFFF;
 
       if sy > 0 then
         MyBitMap.SaveToFile(Folder +
@@ -312,7 +321,7 @@ begin
   end;
 
   CreateDir(Folder + '_Unused');
-  SetLength(Used, Length(RXData[rxUnits].Size));
+  SetLength(Used, Length(Data.Size));
 
   //Exclude actions
   for U := Low(TUnitType) to High(TUnitType) do
@@ -337,18 +346,18 @@ begin
   for ci:=1 to length(Used)-1 do
   if not Used[ci] then
   begin
-    sx := RXData[rxUnits].Size[ci].X;
-    sy := RXData[rxUnits].Size[ci].Y;
+    sx := Data.Size[ci].X;
+    sy := Data.Size[ci].Y;
     MyBitMap.Width := sx;
     MyBitMap.Height := sy;
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do
-      MyBitMap.Canvas.Pixels[x,y] := RXData[rxUnits].RGBA[ci, y*sx+x] AND $FFFFFF;
+      MyBitMap.Canvas.Pixels[x,y] := Data.RGBA[ci, y*sx+x] AND $FFFFFF;
 
     if sy>0 then MyBitMap.SaveToFile(Folder + '_Unused\_'+int2fix(ci,4) + '.bmp');
   end;
 
-  fSprites.ClearSprites(rxUnits);
+  fSprites.ClearTemp;
   MyBitMap.Free;
 end;
 
@@ -362,7 +371,10 @@ var
   Ac:THouseActionType;
   Q,Beast,i,k,ci:integer;
   sy,sx,y,x:integer;
+  Data: TRXData;
 begin
+  Data := fSprites[rxHouses].Data;
+
   Folder := ExeDir + 'Export\HouseAnim\';
   ForceDirectories(Folder);
 
@@ -381,13 +393,13 @@ begin
         if fHouseDat[ID].Anim[Ac].Step[k] <> -1 then
           ci := fHouseDat[ID].Anim[Ac].Step[k]+1;
 
-        sx := RXData[rxHouses].Size[ci].X;
-        sy := RXData[rxHouses].Size[ci].Y;
+        sx := Data.Size[ci].X;
+        sy := Data.Size[ci].Y;
         MyBitMap.Width:=sx;
         MyBitMap.Height:=sy;
 
         for y:=0 to sy-1 do for x:=0 to sx-1 do
-          MyBitMap.Canvas.Pixels[x,y] := RXData[rxHouses].RGBA[ci,y*sx+x] AND $FFFFFF;
+          MyBitMap.Canvas.Pixels[x,y] := Data.RGBA[ci,y*sx+x] AND $FFFFFF;
 
         if sy>0 then MyBitMap.SaveToFile(
         Folder+fHouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\_'+int2fix(k,2)+'.bmp');
@@ -407,19 +419,19 @@ begin
           if fHouseDat.BeastAnim[ID,Beast,i].Step[k]+1<>0 then
             ci := fHouseDat.BeastAnim[ID,Beast,i].Step[k]+1;
 
-          sx:=RXData[rxHouses].Size[ci].X;
-          sy:=RXData[rxHouses].Size[ci].Y;
+          sx:=Data.Size[ci].X;
+          sy:=Data.Size[ci].Y;
           MyBitMap.Width:=sx;
           MyBitMap.Height:=sy;
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do
-            MyBitMap.Canvas.Pixels[x,y] := RXData[rxHouses].RGBA[ci,y*sx+x] AND $FFFFFF;
+            MyBitMap.Canvas.Pixels[x,y] := Data.RGBA[ci,y*sx+x] AND $FFFFFF;
 
           if sy>0 then MyBitMap.SaveToFile(Folder+'_'+fHouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
         end;
   end;
 
-  fSprites.ClearSprites(rxHouses);
+  fSprites.ClearTemp;
   MyBitMap.Free;
 end;
 
@@ -431,7 +443,10 @@ var
   MyBitMap: TBitmap;
   i,k,ci:integer;
   sy,sx,y,x:integer;
+  Data: TRXData;
 begin
+  Data := fSprites[rxTrees].Data;
+
   Folder := ExeDir + 'Export\TreeAnim\';
   ForceDirectories(Folder);
 
@@ -448,13 +463,13 @@ begin
       if MapElem[i].Step[k]+1 <> 0 then
         ci := MapElem[i].Step[k]+1;
 
-      sx := RXData[rxTrees].Size[ci].X;
-      sy := RXData[rxTrees].Size[ci].Y;
+      sx := Data.Size[ci].X;
+      sy := Data.Size[ci].Y;
       MyBitMap.Width := sx;
       MyBitMap.Height := sy;
 
       for y:=0 to sy-1 do for x:=0 to sx-1 do
-        MyBitMap.Canvas.Pixels[x,y] := RXData[rxTrees].RGBA[ci,y*sx+x] AND $FFFFFF;
+        MyBitMap.Canvas.Pixels[x,y] := Data.RGBA[ci,y*sx+x] AND $FFFFFF;
 
       //We can insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting
@@ -462,7 +477,7 @@ begin
         Folder+{inttostr(word(MapElem[i].DiagonalBlocked))+'_'+}int2fix(i,3)+'_'+int2fix(k,2)+'.bmp');
     end;
 
-  fSprites.ClearSprites(rxTrees);
+  fSprites.ClearTemp;
   MyBitMap.Free;
 end;
 
