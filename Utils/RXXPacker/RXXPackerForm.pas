@@ -2,29 +2,37 @@ unit RXXPackerForm;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Dialogs, Forms, StdCtrls, SysUtils, TypInfo,
+  Classes, Controls, Dialogs, Forms, Graphics, StdCtrls, SysUtils, TypInfo,
   {$IFDEF FPC} LResources, {$ENDIF}
-  KM_Defaults, KM_Log, KM_Pics, KM_ResourcePalettes, KM_ResourceSprites;
+  KM_Defaults, KM_Log, KM_Pics, KM_ResourcePalettes, KM_ResourceSprites,
+  Vcl.ExtCtrls;
 
 
 type
   TRXXForm1 = class(TForm)
     btnPackRXX: TButton;
     ListBox1: TListBox;
-    btnAddImage: TButton;
+    btnAdd: TButton;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     btnSaveRXX: TButton;
     ListBox2: TListBox;
     btnLoadRXX: TButton;
     dlgOpenRXX: TOpenDialog;
+    Image1: TImage;
+    btnDelete: TButton;
+    btnReplace: TButton;
     procedure btnPackRXXClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure OpenDialog1Show(Sender: TObject);
     procedure SaveDialog1Show(Sender: TObject);
     procedure btnLoadRXXClick(Sender: TObject);
-    procedure btnAddImageClick(Sender: TObject);
+    procedure btnAddClick(Sender: TObject);
     procedure btnSaveRXXClick(Sender: TObject);
+    procedure dlgOpenRXXShow(Sender: TObject);
+    procedure ListBox2Click(Sender: TObject);
+    procedure btnDeleteClick(Sender: TObject);
+    procedure btnReplaceClick(Sender: TObject);
   private
     fPalettes: TKMPalettes;
     fSprites: TKMSpritePack;
@@ -60,6 +68,52 @@ begin
 end;
 
 
+procedure TRXXForm1.ListBox2Click(Sender: TObject);
+var
+  ID: Integer;
+  I, K: Integer;
+  T: Cardinal;
+  BM: TBitmap;
+begin
+  ID := ListBox2.ItemIndex;
+  if ID = -1 then Exit;
+
+  Image1.Picture.Bitmap.Canvas.Brush.Color := 0;
+  Image1.Picture.Bitmap.Canvas.FillRect(Image1.Picture.Bitmap.Canvas.ClipRect);
+
+  if fSprites.Data.Flag[ID] = 0 then Exit;
+
+  BM := TBitmap.Create;
+  try
+    BM.PixelFormat := pf32bit;
+    BM.Width := fSprites.Data.Size[ID].X;
+    BM.Height := fSprites.Data.Size[ID].Y;
+    BM.Transparent := True;
+    BM.AlphaFormat := afDefined;
+
+    for I := 0 to BM.Height - 1 do
+    for K := 0 to BM.Width - 1 do
+    begin
+      T := fSprites.Data.RGBA[ID, I*BM.Width+K];
+      //Invert Alpha
+      T := (T and $FFFFFF) or ((255 - T shr 24) shl 24);
+      BM.Canvas.Pixels[K,I] := T;
+    end;
+
+    Image1.Picture.Assign(BM);
+  finally
+    BM.Free;
+  end;
+end;
+
+
+procedure TRXXForm1.dlgOpenRXXShow(Sender: TObject);
+begin
+  //Win7 needs InitialDir to be set OnShow after Execute
+  dlgOpenRXX.InitialDir := ExeDir + 'data\sprites\';
+end;
+
+
 procedure TRXXForm1.OpenDialog1Show(Sender: TObject);
 begin
   OpenDialog1.InitialDir := ExeDir;
@@ -74,6 +128,8 @@ end;
 
 procedure TRXXForm1.btnLoadRXXClick(Sender: TObject);
 begin
+  //WinXP needs InitialDir to be set before Execute
+  dlgOpenRXX.InitialDir := ExeDir + 'data\sprites\';
   if not dlgOpenRXX.Execute then Exit;
   fSprites.LoadFromRXXFile(dlgOpenRXX.FileName);
 
@@ -81,13 +137,44 @@ begin
 end;
 
 
-procedure TRXXForm1.btnAddImageClick(Sender: TObject);
+procedure TRXXForm1.btnAddClick(Sender: TObject);
 var I: Integer;
 begin
+  OpenDialog1.Options := OpenDialog1.Options + [ofAllowMultiSelect];
   if not OpenDialog1.Execute then Exit;
 
   for I := 0 to OpenDialog1.Files.Count - 1 do
-    fSprites.AddImage('', OpenDialog1.Files[I]);
+    fSprites.AddImage(ExtractFilePath(OpenDialog1.Files[I]),
+                      ExtractFileName(OpenDialog1.Files[I]), fSprites.Count);
+
+  UpdateList;
+end;
+
+
+procedure TRXXForm1.btnReplaceClick(Sender: TObject);
+var
+  ID: Integer;
+begin
+  ID := ListBox2.ItemIndex;
+  if ID = -1 then Exit;
+  OpenDialog1.Options := OpenDialog1.Options - [ofAllowMultiSelect];
+  if not OpenDialog1.Execute then Exit;
+
+  fSprites.AddImage(ExtractFilePath(OpenDialog1.FileName),
+                    ExtractFileName(OpenDialog1.FileName), ID);
+
+  UpdateList;
+end;
+
+
+procedure TRXXForm1.btnDeleteClick(Sender: TObject);
+var
+  ID: Integer;
+begin
+  ID := ListBox2.ItemIndex;
+  if ID = -1 then Exit;
+
+  fSprites.Data.Flag[ID] := 0;
 
   UpdateList;
 end;
@@ -109,13 +196,14 @@ begin
 
   for I := 0 to fSprites.Count - 1 do
   begin
-    if fSprites[I].IsEmpty then
+    if fSprites.Data.Flag[I] = 0 then
       ListBox2.Items.Add(IntToStr(I)+'.')
     else
-      ListBox2.Items.Add(Format('%d. %dx%d', [I, fSprites[I].X, fSprites[I].Y));
+      ListBox2.Items.Add(Format('%d. %dx%d', [I, fSprites.Data.Size[I].X, fSprites.Data.Size[I].Y]));
   end;
 
   ListBox2.Items.EndUpdate;
+  ListBox2Click(Self);
 end;
 
 

@@ -2,7 +2,7 @@ object RXXForm1: TRXXForm1
   Left = 72
   Top = 90
   Caption = 'RXX Packer'
-  ClientHeight = 492
+  ClientHeight = 489
   ClientWidth = 689
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -14,9 +14,18 @@ object RXXForm1: TRXXForm1
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
+  object Image1: TImage
+    Left = 272
+    Top = 104
+    Width = 209
+    Height = 169
+    Proportional = True
+    Stretch = True
+    Transparent = True
+  end
   object btnPackRXX: TButton
-    Left = 392
-    Top = 320
+    Left = 496
+    Top = 432
     Width = 185
     Height = 49
     Caption = 'Pack to RXX File'
@@ -24,22 +33,22 @@ object RXXForm1: TRXXForm1
     OnClick = btnPackRXXClick
   end
   object ListBox1: TListBox
-    Left = 392
-    Top = 96
+    Left = 496
+    Top = 216
     Width = 185
     Height = 201
     ItemHeight = 13
     MultiSelect = True
     TabOrder = 1
   end
-  object btnAddImage: TButton
-    Left = 96
-    Top = 456
+  object btnAdd: TButton
+    Left = 272
+    Top = 8
     Width = 81
     Height = 25
-    Caption = 'Add images ...'
+    Caption = 'Add ...'
     TabOrder = 2
-    OnClick = btnAddImageClick
+    OnClick = btnAddClick
   end
   object btnSaveRXX: TButton
     Left = 184
@@ -58,6 +67,7 @@ object RXXForm1: TRXXForm1
     ItemHeight = 13
     MultiSelect = True
     TabOrder = 4
+    OnClick = ListBox2Click
   end
   object btnLoadRXX: TButton
     Left = 8
@@ -67,6 +77,24 @@ object RXXForm1: TRXXForm1
     Caption = 'Load ...'
     TabOrder = 5
     OnClick = btnLoadRXXClick
+  end
+  object btnDelete: TButton
+    Left = 272
+    Top = 72
+    Width = 81
+    Height = 25
+    Caption = 'Delete'
+    TabOrder = 6
+    OnClick = btnDeleteClick
+  end
+  object btnReplace: TButton
+    Left = 272
+    Top = 40
+    Width = 81
+    Height = 25
+    Caption = 'Replace ...'
+    TabOrder = 7
+    OnClick = btnReplaceClick
   end
   object OpenDialog1: TOpenDialog
     OnShow = OpenDialog1Show
@@ -85,7 +113,7 @@ object RXXForm1: TRXXForm1
     Top = 8
   end
   object dlgOpenRXX: TOpenDialog
-    OnShow = OpenDialog1Show
+    OnShow = dlgOpenRXXShow
     DefaultExt = '*.rxx'
     Filter = 'RXX packages (*.rxx)|*.rxx'
     Options = [ofPathMustExist, ofFileMustExist, ofEnableSizing]

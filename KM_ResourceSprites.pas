@@ -88,18 +88,33 @@ var
     ));
 
 type
+  TRXData = record
+    Qty: Integer;
+    Flag: array of Byte; //Sprite is valid
+    Size: array of record X,Y: Word; end;
+    Pivot: array of record x,y: Integer; end;
+    Data: array of array of Byte;
+    RGBA: array of array of Cardinal; //Expanded image
+    Mask: array of array of Byte; //Mask for team colors
+    HasMask: array of Boolean; //Mask for team colors
+  end;
+
   //Base class for Sprite loading
   TKMSpritePack = class
   private
     fPalettes: TKMPalettes;
     fRT: TRXType;
 
+    fRXData: TRXData; //OOP wrapper for global variable
+
     procedure Allocate(aCount: Integer); //Allocate space for data that is being loaded
     procedure Expand;
   public
     constructor Create(aPalettes: TKMPalettes; aRT: TRXType);
 
-    procedure AddImage(aFolder, aFilename: string);
+    procedure AddImage(aFolder, aFilename: string; aIndex: Integer);
+    property Count: Integer read fRXData.Qty;
+    property Data: TRXData read fRXData;
 
     procedure LoadFromRXFile(const aFileName: string);
     procedure LoadFromRXXFile(const aFileName: string);
@@ -150,16 +165,7 @@ type
 
 
 var
-  RXData: array [TRXType] of record
-    Qty: Integer;
-    Flag: array of Byte; //Sprite is valid
-    Size: array of record X,Y: Word; end;
-    Pivot: array of record x,y: Integer; end;
-    Data: array of array of Byte;
-    RGBA: array of array of Cardinal; //Expanded image
-    Mask: array of array of Byte; //Mask for team colors
-    HasMask: array of Boolean; //Mask for team colors
-  end;
+  RXData: array [TRXType] of TRXData;
 
   GFXData: array [TRXType] of array of record
     TexID,AltID: Cardinal; //AltID used for team colors
@@ -201,22 +207,23 @@ begin
 
   fPalettes := aPalettes;
   fRT := aRT;
+  fRXData := RXData[fRT];
 end;
 
 
 procedure TKMSpritePack.Allocate(aCount: Integer);
 begin
-  RXData[fRT].Qty := aCount;
+  fRXData.Qty := aCount;
 
-  aCount := RXData[fRT].Qty+1;
+  aCount := fRXData.Qty+1;
   SetLength(GFXData[fRT],         aCount);
-  SetLength(RXData[fRT].Flag,     aCount);
-  SetLength(RXData[fRT].Size,     aCount);
-  SetLength(RXData[fRT].Pivot,    aCount);
-  SetLength(RXData[fRT].Data,     aCount);
-  SetLength(RXData[fRT].RGBA,     aCount);
-  SetLength(RXData[fRT].Mask,     aCount);
-  SetLength(RXData[fRT].HasMask,  aCount);
+  SetLength(fRXData.Flag,     aCount);
+  SetLength(fRXData.Size,     aCount);
+  SetLength(fRXData.Pivot,    aCount);
+  SetLength(fRXData.Data,     aCount);
+  SetLength(fRXData.RGBA,     aCount);
+  SetLength(fRXData.Mask,     aCount);
+  SetLength(fRXData.HasMask,  aCount);
 end;
 
 
@@ -242,7 +249,7 @@ var
   L: byte;
   Pixel: Integer;
 begin
-  with RXData[fRT] do
+  with fRXData do
   for H := 1 to Qty do
   begin
     //Choose proper palette
@@ -294,19 +301,19 @@ var
 begin
   Result := 0;
 
-  for I := 1 to RXData[fRT].Qty do
-  if (RXData[fRT].Flag[I] <> 0) then
+  for I := 1 to fRXData.Qty do
+  if (fRXData.Flag[I] <> 0) then
   begin
-    if RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y = 0 then Continue;
+    if fRXData.Size[I].X * fRXData.Size[I].Y = 0 then Continue;
     //Check bounds
     Right  := 0;
     Bottom := 0;
-    Left   := RXData[fRT].Size[I].X - 1;
-    Top    := RXData[fRT].Size[I].Y - 1;
+    Left   := fRXData.Size[I].X - 1;
+    Top    := fRXData.Size[I].Y - 1;
     FoundPixel := False;
-    for J := 0 to RXData[fRT].Size[I].Y - 1 do
-    for K := 0 to RXData[fRT].Size[I].X - 1 do
-    if RXData[fRT].RGBA[I, J * RXData[fRT].Size[I].X + K] and $FF000000 <> 0 then
+    for J := 0 to fRXData.Size[I].Y - 1 do
+    for K := 0 to fRXData.Size[I].X - 1 do
+    if fRXData.RGBA[I, J * fRXData.Size[I].X + K] and $FF000000 <> 0 then
     begin
       Right  := Max(Right,  K);
       Bottom := Max(Bottom, J);
@@ -317,8 +324,8 @@ begin
 
     if not FoundPixel then //Entire image is transparent
     begin
-      RXData[fRT].Size[I].X := 1;
-      RXData[fRT].Size[I].Y := 1;
+      fRXData.Size[I].X := 1;
+      fRXData.Size[I].Y := 1;
       Continue;
     end;
 
@@ -330,25 +337,25 @@ begin
     NewX := Right  - Left;
     NewY := Bottom - Top;
 
-    Result := Result + (RXData[fRT].Size[I].Y * RXData[fRT].Size[I].X) - NewX * NewY;
+    Result := Result + (fRXData.Size[I].Y * fRXData.Size[I].X) - NewX * NewY;
 
     //Do the trimming
     for J := 0 to NewY - 1 do
     begin
       Move(
-        RXData[fRT].RGBA[I, (J + OffY) * RXData[fRT].Size[I].X + OffX],
-        RXData[fRT].RGBA[I, J * NewX],
+        fRXData.RGBA[I, (J + OffY) * fRXData.Size[I].X + OffX],
+        fRXData.RGBA[I, J * NewX],
         NewX * 4); //RGBA is 4 bytes per pixel
       Move(
-        RXData[fRT].Mask[I, (J + OffY) * RXData[fRT].Size[I].X + OffX],
-        RXData[fRT].Mask[I, J * NewX],
+        fRXData.Mask[I, (J + OffY) * fRXData.Size[I].X + OffX],
+        fRXData.Mask[I, J * NewX],
         NewX * 1); //Mask is 1 byte per pixel
     end;
 
-    RXData[fRT].Size[I].X := NewX;
-    RXData[fRT].Size[I].Y := NewY;
-    RXData[fRT].Pivot[I].X := RXData[fRT].Pivot[I].X + OffX;
-    RXData[fRT].Pivot[I].Y := RXData[fRT].Pivot[I].Y + OffY;
+    fRXData.Size[I].X := NewX;
+    fRXData.Size[I].Y := NewY;
+    fRXData.Pivot[I].X := fRXData.Pivot[I].X + OffX;
+    fRXData.Pivot[I].Y := fRXData.Pivot[I].Y + OffY;
   end;
 end;
 
@@ -357,11 +364,11 @@ end;
 procedure TKMSpritePack.ClearData;
 var I: Integer;
 begin
-  for I := 1 to RXData[fRT].Qty do
+  for I := 1 to fRXData.Qty do
   begin
-    SetLength(RXData[fRT].Data[I], 0);
-    SetLength(RXData[fRT].RGBA[I], 0);
-    SetLength(RXData[fRT].Mask[I], 0);
+    SetLength(fRXData.Data[I], 0);
+    SetLength(fRXData.RGBA[I], 0);
+    SetLength(fRXData.Mask[I], 0);
   end;
 end;
 
@@ -377,23 +384,23 @@ begin
   S := TMemoryStream.Create;
 
   S.LoadFromFile(aFileName);
-  S.ReadBuffer(RXData[fRT].Qty, 4);
+  S.ReadBuffer(fRXData.Qty, 4);
 
-  Allocate(RXData[fRT].Qty);
+  Allocate(fRXData.Qty);
 
-  S.ReadBuffer(RXData[fRT].Flag[1], RXData[fRT].Qty);
+  S.ReadBuffer(fRXData.Flag[1], fRXData.Qty);
 
-  for I := 1 to RXData[fRT].Qty do
-    if RXData[fRT].Flag[I] = 1 then
+  for I := 1 to fRXData.Qty do
+    if fRXData.Flag[I] = 1 then
     begin
-      S.ReadBuffer(RXData[fRT].Size[I].X, 4);
-      S.ReadBuffer(RXData[fRT].Pivot[I].X, 8);
+      S.ReadBuffer(fRXData.Size[I].X, 4);
+      S.ReadBuffer(fRXData.Pivot[I].X, 8);
       //Data part of each sprite is 8BPP palleted in KaM RX
-      SetLength(RXData[fRT].Data[I], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
-      S.ReadBuffer(RXData[fRT].Data[I,0], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
+      SetLength(fRXData.Data[I], fRXData.Size[I].X * fRXData.Size[I].Y);
+      S.ReadBuffer(fRXData.Data[I,0], fRXData.Size[I].X * fRXData.Size[I].Y);
     end;
   S.Free;
-  fLog.AppendLog(RXInfo[fRT].FileName + ' -', RXData[fRT].Qty);
+  fLog.AppendLog(RXInfo[fRT].FileName + ' -', fRXData.Qty);
 
   Expand; //Only KaM's rx needs expanding
 end;
@@ -412,28 +419,28 @@ begin
   DecompressionStream := TDecompressionStream.Create(InputStream);
 
   try
-    DecompressionStream.Read(RXData[fRT].Qty, 4);
-    fLog.AppendLog(RXInfo[fRT].FileName + ' -', RXData[fRT].Qty);
+    DecompressionStream.Read(fRXData.Qty, 4);
+    fLog.AppendLog(RXInfo[fRT].FileName + ' -', fRXData.Qty);
 
-    if RXData[fRT].Qty = 0 then
+    if fRXData.Qty = 0 then
       Exit;
 
-    Allocate(RXData[fRT].Qty);
+    Allocate(fRXData.Qty);
 
-    DecompressionStream.Read(RXData[fRT].Flag[1], RXData[fRT].Qty);
+    DecompressionStream.Read(fRXData.Flag[1], fRXData.Qty);
 
-    for I := 1 to RXData[fRT].Qty do
-      if RXData[fRT].Flag[I] = 1 then
+    for I := 1 to fRXData.Qty do
+      if fRXData.Flag[I] = 1 then
       begin
-        DecompressionStream.Read(RXData[fRT].Size[I].X, 4);
-        DecompressionStream.Read(RXData[fRT].Pivot[I].X, 8);
+        DecompressionStream.Read(fRXData.Size[I].X, 4);
+        DecompressionStream.Read(fRXData.Pivot[I].X, 8);
         //Data part of each sprite is 32BPP RGBA in Remake RXX files
-        SetLength(RXData[fRT].RGBA[I], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
-        SetLength(RXData[fRT].Mask[I], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
-        DecompressionStream.Read(RXData[fRT].RGBA[I, 0], 4 * RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
-        DecompressionStream.Read(RXData[fRT].HasMask[I], 1);
-        if RXData[fRT].HasMask[I] then
-          DecompressionStream.Read(RXData[fRT].Mask[I, 0], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
+        SetLength(fRXData.RGBA[I], fRXData.Size[I].X * fRXData.Size[I].Y);
+        SetLength(fRXData.Mask[I], fRXData.Size[I].X * fRXData.Size[I].Y);
+        DecompressionStream.Read(fRXData.RGBA[I, 0], 4 * fRXData.Size[I].X * fRXData.Size[I].Y);
+        DecompressionStream.Read(fRXData.HasMask[I], 1);
+        if fRXData.HasMask[I] then
+          DecompressionStream.Read(fRXData.Mask[I, 0], fRXData.Size[I].X * fRXData.Size[I].Y);
       end;
   finally
     DecompressionStream.Free;
@@ -451,19 +458,19 @@ begin
 
   AssignFile(ft, aFolder + IntToStr(Byte(fRT) + 1) + '.txt');
     Reset(ft);
-    ReadLn(ft, RXData[fRT].Qty);
+    ReadLn(ft, fRXData.Qty);
   CloseFile(ft);
 
-  Allocate(RXData[fRT].Qty);
+  Allocate(fRXData.Qty);
 
   OverloadFromFolder(aFolder);
 end;
 
 
-procedure TKMSpritePack.AddImage(aFolder, aFilename: string);
+procedure TKMSpritePack.AddImage(aFolder, aFilename: string; aIndex: Integer);
 var
   i,x,y:integer;
-  RX, ID: integer;
+  RX: integer;
   T: Byte;
   ft: TextFile;
   Bmp: TBitmap;
@@ -475,12 +482,10 @@ var
   po: TBGRABitmap;
   {$ENDIF}
 begin
-  ID := StrToIntDef(Copy(aFilename, 3, 4),0); //wrong file will return 0
-
   //Replace only certain sprites
-  if not InRange(ID, 1, RXData[fRT].Qty) then Exit;
+  if not InRange(aIndex, 1, fRXData.Qty) then Exit;
 
-  RXData[fRT].HasMask[ID] := FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.png') or
+  fRXData.HasMask[aIndex] := FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.png') or
                              FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.bmp');
 
   if SameText(RightStr(aFilename, 3), 'png') then
@@ -490,39 +495,39 @@ begin
     po.LoadFromFile(aFolder + aFilename);
     {$ENDIF}
     {$IFDEF FPC}
-    po := TBGRABitmap.Create(aFolder + FileList.Strings[i]);
+    po := TBGRABitmap.Create(aFolder + aFilename);
     {$ENDIF}
 
-    RXData[fRT].Flag[ID] := 1; //Mark as used (required for saving RXX)
-    RXData[fRT].Size[ID].X := po.Width;
-    RXData[fRT].Size[ID].Y := po.Height;
+    fRXData.Flag[aIndex] := 1; //Mark as used (required for saving RXX)
+    fRXData.Size[aIndex].X := po.Width;
+    fRXData.Size[aIndex].Y := po.Height;
 
-    SetLength(RXData[fRT].RGBA[ID], po.Width*po.Height);
-    SetLength(RXData[fRT].Mask[ID], po.Width*po.Height); //Should allocate space for it's always comes along
+    SetLength(fRXData.RGBA[aIndex], po.Width*po.Height);
+    SetLength(fRXData.Mask[aIndex], po.Width*po.Height); //Should allocate space for it's always comes along
 
     {$IFDEF WDC}
     case po.TransparencyMode of //There are ways to process PNG transparency
       ptmNone:
         for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-          RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+          fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
       ptmBit:
         for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
           if po.Pixels[x,y] = po.TransparentColor then
-            RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
+            fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
           else
-            RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+            fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
       ptmPartial:
         for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do begin
           p := (po.AlphaScanline[y]^[x]) shl 24; //semitransparency is killed by render later-on
-          RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR p;
+          fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR p;
         end;
       else Assert(false, 'Unknown PNG transparency mode')
     end;
     {$ENDIF}
     {$IFDEF FPC}
     for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-      RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.GetPixel(x,y).red) OR (cardinal(po.GetPixel(x,y).green) shl 8) OR
-                                          (cardinal(po.GetPixel(x,y).blue) shl 16) OR (cardinal(po.GetPixel(x,y).alpha) shl 24);
+      fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.GetPixel(x,y).red) OR (cardinal(po.GetPixel(x,y).green) shl 8) OR
+                                           (cardinal(po.GetPixel(x,y).blue) shl 16) OR (cardinal(po.GetPixel(x,y).alpha) shl 24);
     {$ENDIF}
     po.Free;
   end;
@@ -532,19 +537,19 @@ begin
     Bmp :=TBitmap.Create;
     Bmp.LoadFromFile(aFolder + aFilename);
 
-    RXData[fRT].Flag[ID] := 1; //Mark as used (required for saving RXX)
-    RXData[fRT].Size[ID].X := Bmp.Width;
-    RXData[fRT].Size[ID].Y := Bmp.Height;
+    fRXData.Flag[aIndex] := 1; //Mark as used (required for saving RXX)
+    fRXData.Size[aIndex].X := Bmp.Width;
+    fRXData.Size[aIndex].Y := Bmp.Height;
 
-    SetLength(RXData[fRT].RGBA[ID], Bmp.Width*Bmp.Height);
-    SetLength(RXData[fRT].Mask[ID], Bmp.Width*Bmp.Height); //Should allocate space for it's always comes along
+    SetLength(fRXData.RGBA[aIndex], Bmp.Width*Bmp.Height);
+    SetLength(fRXData.Mask[aIndex], Bmp.Width*Bmp.Height); //Should allocate space for it's always comes along
 
     for y:=0 to Bmp.Height-1 do for x:=0 to Bmp.Width-1 do
-      RXData[fRT].RGBA[ID, y*Bmp.Width+x] := cardinal(Bmp.Canvas.Pixels[x,y]) OR $FF000000;
+      fRXData.RGBA[aIndex, y*Bmp.Width+x] := cardinal(Bmp.Canvas.Pixels[x,y]) OR $FF000000;
   end;
 
   //Load and process the mask if it exists
-  if RXData[fRT].HasMask[ID] then
+  if fRXData.HasMask[aIndex] then
   begin
     //PNG masks are designed for the artist, they take standard KaM reds so it's easier
     if FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.png') then
@@ -554,28 +559,28 @@ begin
       po.LoadFromFile(aFolder + Copy(aFilename, 1, 6) + 'a.png');
       {$ENDIF}
       {$IFDEF FPC}
-      po := TBGRABitmap.Create(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.png');
+      po := TBGRABitmap.Create(aFolder + Copy(aFilename, 1, 6) + 'a.png');
       {$ENDIF}
 
-      if (RXData[fRT].Size[ID].X = po.Width) and (RXData[fRT].Size[ID].Y = po.Height) then
+      if (fRXData.Size[aIndex].X = po.Width) and (fRXData.Size[aIndex].Y = po.Height) then
       begin
         //We don't handle transparency in Masks
         {$IFDEF WDC}
         for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
         if cardinal(po.Pixels[x,y] AND $FF) <> 0 then
         begin
-          T := RXData[fRT].RGBA[ID, y*po.Width+x] AND $FF; //Take red component
-          RXData[fRT].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2));
-          RXData[fRT].RGBA[ID, y*po.Width+x] := T*65793 OR $FF000000;
+          T := fRXData.RGBA[aIndex, y*po.Width+x] AND $FF; //Take red component
+          fRXData.Mask[aIndex, y*po.Width+x] := Byte(255-Abs(255-T*2));
+          fRXData.RGBA[aIndex, y*po.Width+x] := T*65793 OR $FF000000;
         end;
         {$ENDIF}
         {$IFDEF FPC}
         for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
         if cardinal(po.GetPixel(x,y).red) <> 0 then
         begin
-          T := RXData[fRT].RGBA[ID, y*po.Width+x] AND $FF; //Take red component
-          RXData[fRT].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2));
-          RXData[fRT].RGBA[ID, y*po.Width+x] := T*65793 OR $FF000000;
+          T := fRXData.RGBA[aIndex, y*po.Width+x] AND $FF; //Take red component
+          fRXData.Mask[aIndex, y*po.Width+x] := Byte(255-Abs(255-T*2));
+          fRXData.RGBA[aIndex, y*po.Width+x] := T*65793 OR $FF000000;
         end;
         {$ENDIF}
       end;
@@ -589,9 +594,9 @@ begin
       Bmp := TBitmap.Create;
       Bmp.LoadFromFile(aFolder + Copy(aFilename, 1, 6) + 'a.bmp');
 
-      if (RXData[fRT].Size[ID].X = Bmp.Width) and (RXData[fRT].Size[ID].Y = Bmp.Height) then
+      if (fRXData.Size[aIndex].X = Bmp.Width) and (fRXData.Size[aIndex].Y = Bmp.Height) then
         for y:=0 to Bmp.Height-1 do for x:=0 to Bmp.Width-1 do
-          RXData[fRT].Mask[ID, y*Bmp.Width+x] := Byte(Bmp.Canvas.Pixels[x,y] AND $FF); //Take red, although it doesn't matter as we assume the input is greyscale
+          fRXData.Mask[aIndex, y*Bmp.Width+x] := Byte(Bmp.Canvas.Pixels[x,y] AND $FF); //Take red, although it doesn't matter as we assume the input is greyscale
 
       Bmp.Free;
     end;
@@ -602,8 +607,8 @@ begin
   begin
     AssignFile(ft, aFolder + Copy(aFilename, 1, 6) + '.txt');
     Reset(ft);
-    ReadLn(ft, RXData[fRT].Pivot[ID].X);
-    ReadLn(ft, RXData[fRT].Pivot[ID].Y);
+    ReadLn(ft, fRXData.Pivot[aIndex].X);
+    ReadLn(ft, fRXData.Pivot[aIndex].Y);
     CloseFile(ft);
   end;
 end;
@@ -614,7 +619,7 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
 var
   FileList: TStringList;
   SearchRec: TSearchRec;
-  I: Integer;
+  I, ID: Integer;
   RX: Byte;
 begin
   RX := Byte(fRT) + 1;
@@ -640,7 +645,10 @@ begin
   //#_####.txt - Pivot info
 
   for I := 0 to FileList.Count - 1 do
-    AddImage(aFolder, FileList.Strings[I]);
+  begin
+    if TryStrToInt(Copy(FileList.Strings[I], 3, 4), ID) then
+      AddImage(aFolder, FileList.Strings[I], ID);
+  end;
 
   FileList.Free;
 end;
@@ -655,18 +663,18 @@ var
 begin
   InputStream := TMemoryStream.Create;
 
-  InputStream.Write(RXData[fRT].Qty, 4);
-  InputStream.Write(RXData[fRT].Flag[1], RXData[fRT].Qty);
+  InputStream.Write(fRXData.Qty, 4);
+  InputStream.Write(fRXData.Flag[1], fRXData.Qty);
 
-  for I := 1 to RXData[fRT].Qty do
-    if RXData[fRT].Flag[I] = 1 then
+  for I := 1 to fRXData.Qty do
+    if fRXData.Flag[I] = 1 then
     begin
-      InputStream.Write(RXData[fRT].Size[I].X, 4);
-      InputStream.Write(RXData[fRT].Pivot[I].X, 8);
-      InputStream.Write(RXData[fRT].RGBA[I, 0], 4 * RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
-      InputStream.Write(RXData[fRT].HasMask[I], 1);
-      if RXData[fRT].HasMask[I] then
-        InputStream.Write(RXData[fRT].Mask[I, 0], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
+      InputStream.Write(fRXData.Size[I].X, 4);
+      InputStream.Write(fRXData.Pivot[I].X, 8);
+      InputStream.Write(fRXData.RGBA[I, 0], 4 * fRXData.Size[I].X * fRXData.Size[I].Y);
+      InputStream.Write(fRXData.HasMask[I], 1);
+      if fRXData.HasMask[I] then
+        InputStream.Write(fRXData.Mask[I, 0], fRXData.Size[I].X * fRXData.Size[I].Y);
     end;
   OutputStream := TFileStream.Create(aFileName,fmCreate);
   CompressionStream := TCompressionStream.Create(clMax, OutputStream);
@@ -690,18 +698,18 @@ begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf24bit;
 
-  for ID:=1 to RXData[fRT].Qty do
-  if RXData[fRT].Flag[ID] = 1 then
+  for ID:=1 to fRXData.Qty do
+  if fRXData.Flag[ID] = 1 then
   begin
-    SizeX := RXData[fRT].Size[ID].X;
-    SizeY := RXData[fRT].Size[ID].Y;
+    SizeX := fRXData.Size[ID].X;
+    SizeY := fRXData.Size[ID].Y;
     Bmp.Width  := SizeX;
     Bmp.Height := SizeY;
 
     //Export RGB values
     for I := 0 to SizeY - 1 do
     for K := 0 to SizeX - 1 do
-      Bmp.Canvas.Pixels[K,I] := RXData[fRT].RGBA[ID, I*SizeX + K] and $FFFFFF;
+      Bmp.Canvas.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
 
     //Mark pivot location with a dot
     {K := SizeX + RXData[RT].Pivot[ID].x;
@@ -712,11 +720,11 @@ begin
     Bmp.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + '.bmp');
 
     //Export Flag values
-    if RXData[fRT].HasMask[ID] then
+    if fRXData.HasMask[ID] then
     begin
       for I := 0 to SizeY - 1 do
       for K := 0 to SizeX - 1 do
-        Bmp.Canvas.Pixels[K,I] := RXData[fRT].Mask[ID, I*SizeX + K] * 65793;
+        Bmp.Canvas.Pixels[K,I] := fRXData.Mask[ID, I*SizeX + K] * 65793;
 
       Bmp.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + 'a.bmp');
     end;
@@ -865,7 +873,7 @@ var
   HasMsk:boolean;
   TexType:TTexFormat;
 begin
-  if RXData[aRT].Qty = 0 then Exit;
+  if fSprites[aRT].Count = 0 then Exit;
 
   if aAlphaShadows and (aRT in [rxTrees,rxHouses,rxUnits,rxGui,rxGame]) then
     TexType := tf_NormalAlpha
@@ -880,20 +888,20 @@ begin
   repeat
     inc(LeftIndex);
 
-    WidthPOT  := RXData[aRT].Size[LeftIndex].X;
-    HeightPOT := MakePOT(RXData[aRT].Size[LeftIndex].Y);
+    WidthPOT  := fSprites[aRT].Data.Size[LeftIndex].X;
+    HeightPOT := MakePOT(fSprites[aRT].Data.Size[LeftIndex].Y);
     SpanCount := 1;
 
     //Pack textures with same POT height into rows to save memory
     //This also means fewer textures for GPU RAM == better performance
-    while((LeftIndex+SpanCount<RXData[aRT].Qty)and //Keep packing until end of sprites
+    while((LeftIndex+SpanCount<fSprites[aRT].Data.Qty)and //Keep packing until end of sprites
           (
-            (HeightPOT=MakePOT(RXData[aRT].Size[LeftIndex+SpanCount].Y)) //Pack if HeightPOT matches
-        or((HeightPOT>=MakePOT(RXData[aRT].Size[LeftIndex+SpanCount].Y))AND(WidthPOT+RXData[aRT].Size[LeftIndex+SpanCount].X<MakePOT(WidthPOT)))
+            (HeightPOT=MakePOT(fSprites[aRT].Data.Size[LeftIndex+SpanCount].Y)) //Pack if HeightPOT matches
+        or((HeightPOT>=MakePOT(fSprites[aRT].Data.Size[LeftIndex+SpanCount].Y))AND(WidthPOT+fSprites[aRT].Data.Size[LeftIndex+SpanCount].X<MakePOT(WidthPOT)))
           )and
-          (WidthPOT+RXData[aRT].Size[LeftIndex+SpanCount].X<=MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
+          (WidthPOT+fSprites[aRT].Data.Size[LeftIndex+SpanCount].X<=MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
     do begin
-      inc(WidthPOT,RXData[aRT].Size[LeftIndex+SpanCount].X);
+      inc(WidthPOT,fSprites[aRT].Data.Size[LeftIndex+SpanCount].X);
       if (aRT=rxGuiMain)and(RX5Pal[LeftIndex]<>RX5Pal[LeftIndex+SpanCount]) then break; //Don't align RX5 images for they use all different palettes
       if (aRT=rxGuiMainH)and(RX6Pal[LeftIndex]<>RX6Pal[LeftIndex+SpanCount]) then break; //Don't align RX6 images for they use all different palettes
       inc(SpanCount);
@@ -908,13 +916,13 @@ begin
     begin
       ci := 0;
       for j := LeftIndex to RightIndex do
-        for k := 0 to RXData[aRT].Size[j].X - 1 do
+        for k := 0 to fSprites[aRT].Data.Size[j].X - 1 do
         begin
-          if i < RXData[aRT].Size[j].Y then
+          if i < fSprites[aRT].Data.Size[j].Y then
           begin
-            //CopyMemory(TD[(i-1)*WidthPOT+ci-1], RXData[aRT].RGBA[j,(i-1)*RXData[aRT].Size[j].X+k-1], )
-            TD[i*WidthPOT+ci] := RXData[aRT].RGBA[j,i*RXData[aRT].Size[j].X+k];
-            TA[i*WidthPOT+ci] := (RXData[aRT].Mask[j,i*RXData[aRT].Size[j].X+k] SHL 24) OR $FFFFFF;
+            //CopyMemory(TD[(i-1)*WidthPOT+ci-1], fSprites[aRT].Data.RGBA[j,(i-1)*fSprites[aRT].Data.Size[j].X+k-1], )
+            TD[i*WidthPOT+ci] := fSprites[aRT].Data.RGBA[j,i*fSprites[aRT].Data.Size[j].X+k];
+            TA[i*WidthPOT+ci] := (fSprites[aRT].Data.Mask[j,i*fSprites[aRT].Data.Size[j].X+k] SHL 24) OR $FFFFFF;
           end;
           inc(ci);
         end;
@@ -922,7 +930,7 @@ begin
 
     HasMsk:=false;
     for j:=LeftIndex to RightIndex do
-      HasMsk := HasMsk or RXData[aRT].HasMask[j];
+      HasMsk := HasMsk or fSprites[aRT].Data.HasMask[j];
 
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
     if MAKE_TEAM_COLORS and RXInfo[aRT].TeamColors and (not ((aRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
@@ -950,20 +958,20 @@ begin
       GFXData[aRT,j].AltID:=GFXData[aRT,LeftIndex].AltID;
       GFXData[aRT,j].u1:=k/WidthPOT;
       GFXData[aRT,j].v1:=0;
-      inc(k,RXData[aRT].Size[j].X);
+      inc(k,fSprites[aRT].Data.Size[j].X);
       GFXData[aRT,j].u2:=k/WidthPOT;
-      GFXData[aRT,j].v2:=RXData[aRT].Size[j].Y/HeightPOT;
-      GFXData[aRT,j].PxWidth:=RXData[aRT].Size[j].X;
-      GFXData[aRT,j].PxHeight:=RXData[aRT].Size[j].Y;
+      GFXData[aRT,j].v2:=fSprites[aRT].Data.Size[j].Y/HeightPOT;
+      GFXData[aRT,j].PxWidth:=fSprites[aRT].Data.Size[j].X;
+      GFXData[aRT,j].PxHeight:=fSprites[aRT].Data.Size[j].Y;
 
-      inc(RequiredRAM, RXData[aRT].Size[j].X * RXData[aRT].Size[j].Y * 4);
+      inc(RequiredRAM, fSprites[aRT].Data.Size[j].X * fSprites[aRT].Data.Size[j].Y * 4);
     end;
 
     inc(AllocatedRAM, WidthPOT * HeightPOT * 4);
     inc(LeftIndex, SpanCount-1);
     inc(TexCount);
 
-  until(LeftIndex>=RXData[aRT].Qty); // >= in case data wasn't loaded and Qty=0
+  until(LeftIndex>=fSprites[aRT].Data.Qty); // >= in case data wasn't loaded and Qty=0
 
   fLog.AppendLog(inttostr(TexCount)+' Textures created');
   fLog.AddToLog(inttostr(AllocatedRAM div 1024)+'/'+inttostr((AllocatedRAM-RequiredRAM) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
@@ -1002,28 +1010,28 @@ begin
         end;
 
         Assert(
-            (RXData[aRT].Size[ID1].X >= RXData[aRT].Size[ID2].X) and
-            (RXData[aRT].Size[ID1].Y >= RXData[aRT].Size[ID2].Y),
+            (fSprites[aRT].Data.Size[ID1].X >= fSprites[aRT].Data.Size[ID2].X) and
+            (fSprites[aRT].Data.Size[ID1].Y >= fSprites[aRT].Data.Size[ID2].Y),
             Format('Mismatched sprites %d:%d - %d:%d', [Byte(aRT), ID1, Byte(aRT), ID2]));
 
-        WidthPOT  := MakePOT(RXData[aRT].Size[ID1].X);
-        HeightPOT := MakePOT(RXData[aRT].Size[ID1].Y);
+        WidthPOT  := MakePOT(fSprites[aRT].Data.Size[ID1].X);
+        HeightPOT := MakePOT(fSprites[aRT].Data.Size[ID1].Y);
         SetLength(TD, WidthPOT*HeightPOT);
 
         //Fill in colors data
-        for i := 0 to RXData[aRT].Size[ID1].Y-1 do
-        for k := 0 to RXData[aRT].Size[ID1].X-1 do
-          TD[i*WidthPOT+k] := RXData[aRT].RGBA[ID1, i*RXData[aRT].Size[ID1].X+k];
+        for i := 0 to fSprites[aRT].Data.Size[ID1].Y-1 do
+        for k := 0 to fSprites[aRT].Data.Size[ID1].X-1 do
+          TD[i*WidthPOT+k] := fSprites[aRT].Data.RGBA[ID1, i*fSprites[aRT].Data.Size[ID1].X+k];
 
         //Apply mask to where colors are (yes, it needs to be done in 2 steps, since offsets can mismatch)
-        tx := RXData[aRT].Pivot[ID2].x - RXData[aRT].Pivot[ID1].x;
-        ty := (RXData[aRT].Pivot[ID2].y - RXData[aRT].Pivot[ID1].y)*WidthPOT;
-        for i := 0 to RXData[aRT].Size[ID2].Y-1 do
-        for k := 0 to RXData[aRT].Size[ID2].X-1 do
+        tx := fSprites[aRT].Data.Pivot[ID2].x - fSprites[aRT].Data.Pivot[ID1].x;
+        ty := (fSprites[aRT].Data.Pivot[ID2].y - fSprites[aRT].Data.Pivot[ID1].y)*WidthPOT;
+        for i := 0 to fSprites[aRT].Data.Size[ID2].Y-1 do
+        for k := 0 to fSprites[aRT].Data.Size[ID2].X-1 do
         begin
           t := i*WidthPOT+k + tx + ty; //Shift by pivot, always positive
 
-          Alpha := RXData[aRT].RGBA[ID2, i * RXData[aRT].Size[ID2].X + k] AND $FF;
+          Alpha := fSprites[aRT].Data.RGBA[ID2, i * fSprites[aRT].Data.Size[ID2].X + k] AND $FF;
 
           //Steps are going in normal order 1..n, but that last step has Alpha=0
           if TD[t] <> 0 then
@@ -1041,10 +1049,10 @@ begin
         GFXData[aRT,ID1].AltID := 0;
         GFXData[aRT,ID1].u1    := 0;
         GFXData[aRT,ID1].v1    := 0;
-        GFXData[aRT,ID1].u2    := RXData[aRT].Size[ID1].X/WidthPOT;
-        GFXData[aRT,ID1].v2    := RXData[aRT].Size[ID1].Y/HeightPOT;
-        GFXData[aRT,ID1].PxWidth := RXData[aRT].Size[ID1].X;
-        GFXData[aRT,ID1].PxHeight:= RXData[aRT].Size[ID1].Y;
+        GFXData[aRT,ID1].u2    := fSprites[aRT].Data.Size[ID1].X/WidthPOT;
+        GFXData[aRT,ID1].v2    := fSprites[aRT].Data.Size[ID1].Y/HeightPOT;
+        GFXData[aRT,ID1].PxWidth := fSprites[aRT].Data.Size[ID1].X;
+        GFXData[aRT,ID1].PxHeight:= fSprites[aRT].Data.Size[ID1].Y;
       end;
 end;
 
