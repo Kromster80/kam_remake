@@ -26,7 +26,7 @@ type
   function KMPointX1Y1(P:TKMPoint): TKMPoint; overload;
   function KMPointBelow(P:TKMPoint): TKMPoint; overload;
 
-  function KMPointRound(const P:TKMPointF): TKMPoint;
+  function KMPointRound(const P: TKMPointF): TKMPoint;
   function KMSamePoint(P1,P2:TKMPoint): boolean;
   function KMSamePointF(P1,P2:TKMPointF): boolean; overload;
   function KMSamePointF(P1,P2:TKMPointF; Epsilon:single): boolean; overload;
@@ -126,20 +126,20 @@ begin
 end;
 
 
-function KMPointRound(const P:TKMPointF):TKMPoint;
+function KMPointRound(const P: TKMPointF):TKMPoint;
 begin
   Result.X := Round(P.X);
   Result.Y := Round(P.Y);
 end;
 
 
-function KMSamePoint(P1,P2:TKMPoint): boolean;
+function KMSamePoint(P1,P2: TKMPoint): boolean;
 begin
   Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
 end;
 
 
-function KMSamePointF(P1,P2:TKMPointF): boolean;
+function KMSamePointF(P1,P2: TKMPointF): boolean;
 begin
   Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
 end;
@@ -166,13 +166,13 @@ begin
 end;
 
 
-//Encompass PointF into fixed-point rect (4 points)
+//Encompass PointF into fixed-point rect (2x2)
 function KMRect(aPoint: TKMPointF): TKMRect;
 begin
-  Result.Left   := Trunc(aPoint.X);
-  Result.Right  := Trunc(aPoint.X) + Sign(aPoint.X);
-  Result.Top    := Trunc(aPoint.Y);
-  Result.Bottom := Trunc(aPoint.Y) + Sign(aPoint.Y);
+  Result.Left   := Floor(aPoint.X) - Byte(Frac(aPoint.X) = 0);
+  Result.Right  := Ceil(aPoint.X)  + Byte(Frac(aPoint.X) = 0);
+  Result.Top    := Floor(aPoint.Y) - Byte(Frac(aPoint.Y) = 0);
+  Result.Bottom := Ceil(aPoint.Y)  + Byte(Frac(aPoint.Y) = 0);
 end;
 
 
