@@ -149,6 +149,7 @@ type
     function EnsureTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
 
     function TileIsWater(Loc:TKMPoint):boolean;
+    function TileHasWater(Loc:TKMPoint):boolean;
     function TileIsSand(Loc:TKMPoint):boolean;
     function TileIsStone(X,Y:Word):byte;
     function TileIsSoil(Loc:TKMPoint):boolean;
@@ -430,6 +431,14 @@ function TTerrain.TileIsWater(Loc:TKMPoint):boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
   Result := Land[Loc.Y,Loc.X].Terrain in [48,114,115,119,192,193,194,196, 200, 208..211, 235,236, 240,244];
+end;
+
+
+{Check if requested tile has any water, including ground-water transitions}
+function TTerrain.TileHasWater(Loc:TKMPoint):boolean;
+begin
+  //Should be Tileset property, especially if we allow different tilesets
+  Result := (Land[Loc.Y,Loc.X].Terrain in [4,10,12,22,23,44,48,105..107,114..127,142,143,192..194,196,198..200,208..211,230,232..244]);
 end;
 
 
@@ -1920,7 +1929,10 @@ begin
     for K := Max(Loc.X-1, 1) to Min(Loc.X+1, fMapX-1) do
       EnsureWalkable(K, I);
 
-  UpdateLighting(KMRect(Loc.X-2, Loc.Y-2, Loc.X+3, Loc.Y+3));
+  //@Krom: UpdateLighting (and others) used integers for a reason: often they were passed
+  //       values outside the map range like Loc.X-2. If we want to use KMRect (words) then
+  //       we need to Min/Max stuff like this.
+  UpdateLighting(KMRect(Max(Loc.X-2,1), Max(Loc.Y-2,1), Min(Loc.X+3,fMapX), Min(Loc.Y+3,fMapY)));
   UpdatePassabilityAround(Loc); //Changing height will affect the cells around this one
 
   if aUpdateWalkConnects then

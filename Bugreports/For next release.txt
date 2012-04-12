@@ -6,6 +6,7 @@ Essential:
 	Send new/changed text to be translated [Lewin]
 	Make release candidates and send to trusted testers to find new bugs we've introduced [Lewin]
 	Make sure AI city planner is stable (incomplete but doesn't cause crashes) and included in release as limited tech preview, or disable it for release
+	Hide wip unit dismiss button
 
 
 Not essential:
