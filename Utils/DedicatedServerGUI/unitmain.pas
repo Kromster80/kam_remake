@@ -8,7 +8,7 @@ uses
   KM_Settings,
   KM_DedicatedServer,
   KM_Log,
-  KM_GameInfo;
+  KM_CommonClasses;
 
 
 type
@@ -228,7 +228,7 @@ begin
   //then we read each row and add to list
   for i:=0 to Players.Count do
   begin
-    RowInfo := TKMGameInfo(Players[i]).GetTitleWithTime;// + IntToStr(TKMGameInfo(Players[i]).PlayerCount);
+    RowInfo := TMPGameInfo(Players[i]).GetFormattedTime;// + IntToStr(TKMGameInfo(Players[i]).PlayerCount);
     PlayersList.Items.Add(RowInfo);
   end;
 
