@@ -73,9 +73,9 @@ function TKMCityPlanner.NextToGrass(aHouse: THouseType; out aLoc: TKMPoint): Boo
   TreeLoc: TKMPointDir;
   TA: TPlantAct;}
 begin
-  {Result := False;
+  Result := False;
 
-  S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
+  {S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
   if S = nil then Exit;
 
   StoreLoc := S.GetPosition;

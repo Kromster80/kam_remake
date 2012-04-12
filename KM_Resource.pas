@@ -277,9 +277,9 @@ var
   i,ci:integer;
   sy,sx,y,x:integer;
   Used:array of Boolean;
-  Data: TRXData;
+  RXData: TRXData;
 begin
-  Data := fSprites[rxUnits].Data;
+  RXData := fSprites[rxUnits].RXData;
 
   Folder := ExeDir + 'Export\UnitAnim\';
   ForceDirectories(Folder);
@@ -304,14 +304,14 @@ begin
     begin
       ci := fUnitDat[U].UnitAnim[A,D].Step[i] + 1;
 
-      sx := Data.Size[ci].X;
-      sy := Data.Size[ci].Y;
+      sx := RXData.Size[ci].X;
+      sy := RXData.Size[ci].Y;
       MyBitMap.Width := sx;
       MyBitMap.Height := sy;
 
       for y:=0 to sy-1 do
       for x:=0 to sx-1 do
-        MyBitMap.Canvas.Pixels[x,y] := Data.RGBA[ci, y*sx+x] AND $FFFFFF;
+        MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci, y*sx+x] AND $FFFFFF;
 
       if sy > 0 then
         MyBitMap.SaveToFile(Folder +
@@ -321,7 +321,7 @@ begin
   end;
 
   CreateDir(Folder + '_Unused');
-  SetLength(Used, Length(Data.Size));
+  SetLength(Used, Length(RXData.Size));
 
   //Exclude actions
   for U := Low(TUnitType) to High(TUnitType) do
@@ -346,13 +346,13 @@ begin
   for ci:=1 to length(Used)-1 do
   if not Used[ci] then
   begin
-    sx := Data.Size[ci].X;
-    sy := Data.Size[ci].Y;
+    sx := RXData.Size[ci].X;
+    sy := RXData.Size[ci].Y;
     MyBitMap.Width := sx;
     MyBitMap.Height := sy;
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do
-      MyBitMap.Canvas.Pixels[x,y] := Data.RGBA[ci, y*sx+x] AND $FFFFFF;
+      MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci, y*sx+x] AND $FFFFFF;
 
     if sy>0 then MyBitMap.SaveToFile(Folder + '_Unused\_'+int2fix(ci,4) + '.bmp');
   end;
@@ -371,9 +371,9 @@ var
   Ac:THouseActionType;
   Q,Beast,i,k,ci:integer;
   sy,sx,y,x:integer;
-  Data: TRXData;
+  RXData: TRXData;
 begin
-  Data := fSprites[rxHouses].Data;
+  RXData := fSprites[rxHouses].RXData;
 
   Folder := ExeDir + 'Export\HouseAnim\';
   ForceDirectories(Folder);
@@ -393,13 +393,13 @@ begin
         if fHouseDat[ID].Anim[Ac].Step[k] <> -1 then
           ci := fHouseDat[ID].Anim[Ac].Step[k]+1;
 
-        sx := Data.Size[ci].X;
-        sy := Data.Size[ci].Y;
+        sx := RXData.Size[ci].X;
+        sy := RXData.Size[ci].Y;
         MyBitMap.Width:=sx;
         MyBitMap.Height:=sy;
 
         for y:=0 to sy-1 do for x:=0 to sx-1 do
-          MyBitMap.Canvas.Pixels[x,y] := Data.RGBA[ci,y*sx+x] AND $FFFFFF;
+          MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
         if sy>0 then MyBitMap.SaveToFile(
         Folder+fHouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\_'+int2fix(k,2)+'.bmp');
@@ -419,13 +419,13 @@ begin
           if fHouseDat.BeastAnim[ID,Beast,i].Step[k]+1<>0 then
             ci := fHouseDat.BeastAnim[ID,Beast,i].Step[k]+1;
 
-          sx:=Data.Size[ci].X;
-          sy:=Data.Size[ci].Y;
+          sx:=RXData.Size[ci].X;
+          sy:=RXData.Size[ci].Y;
           MyBitMap.Width:=sx;
           MyBitMap.Height:=sy;
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do
-            MyBitMap.Canvas.Pixels[x,y] := Data.RGBA[ci,y*sx+x] AND $FFFFFF;
+            MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
           if sy>0 then MyBitMap.SaveToFile(Folder+'_'+fHouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
         end;
@@ -443,9 +443,9 @@ var
   MyBitMap: TBitmap;
   i,k,ci:integer;
   sy,sx,y,x:integer;
-  Data: TRXData;
+  RXData: TRXData;
 begin
-  Data := fSprites[rxTrees].Data;
+  RXData := fSprites[rxTrees].RXData;
 
   Folder := ExeDir + 'Export\TreeAnim\';
   ForceDirectories(Folder);
@@ -463,13 +463,13 @@ begin
       if MapElem[i].Step[k]+1 <> 0 then
         ci := MapElem[i].Step[k]+1;
 
-      sx := Data.Size[ci].X;
-      sy := Data.Size[ci].Y;
+      sx := RXData.Size[ci].X;
+      sy := RXData.Size[ci].Y;
       MyBitMap.Width := sx;
       MyBitMap.Height := sy;
 
       for y:=0 to sy-1 do for x:=0 to sx-1 do
-        MyBitMap.Canvas.Pixels[x,y] := Data.RGBA[ci,y*sx+x] AND $FFFFFF;
+        MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
       //We can insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting

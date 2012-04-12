@@ -77,7 +77,7 @@ var
   IconInfo: TIconInfo;
   {$IFDEF Unix} IconInfoPointer:PIconInfo; {$ENDIF}
 begin
-  fRXData := @aSprites.Data;
+  fRXData := @aSprites.RXData;
 
   bm  := TBitmap.Create; bm.HandleType  := bmDIB; bm.PixelFormat  := pf24bit;
   bm2 := TBitmap.Create; bm2.HandleType := bmDIB; bm2.PixelFormat := pf24bit;

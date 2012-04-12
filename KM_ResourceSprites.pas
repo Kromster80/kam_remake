@@ -117,7 +117,7 @@ type
     procedure AddImage(aFolder, aFilename: string; aIndex: Integer);
     procedure Delete(aIndex: Integer);
     //property Count: Integer read fRXData.Qty;
-    property Data: TRXData read fRXData;
+    property RXData: TRXData read fRXData;
 
     procedure LoadFromRXFile(const aFileName: string);
     procedure LoadFromRXXFile(const aFileName: string);
@@ -892,7 +892,7 @@ var
   HasMsk:boolean;
   TexType:TTexFormat;
 begin
-  if fSprites[aRT].Data.Count = 0 then Exit;
+  if fSprites[aRT].RXData.Count = 0 then Exit;
 
   if aAlphaShadows and (aRT in [rxTrees,rxHouses,rxUnits,rxGui,rxGame]) then
     TexType := tf_NormalAlpha
@@ -907,20 +907,20 @@ begin
   repeat
     inc(LeftIndex);
 
-    WidthPOT  := fSprites[aRT].Data.Size[LeftIndex].X;
-    HeightPOT := MakePOT(fSprites[aRT].Data.Size[LeftIndex].Y);
+    WidthPOT  := fSprites[aRT].RXData.Size[LeftIndex].X;
+    HeightPOT := MakePOT(fSprites[aRT].RXData.Size[LeftIndex].Y);
     SpanCount := 1;
 
     //Pack textures with same POT height into rows to save memory
     //This also means fewer textures for GPU RAM == better performance
-    while((LeftIndex+SpanCount<fSprites[aRT].Data.Count)and //Keep packing until end of sprites
+    while((LeftIndex+SpanCount<fSprites[aRT].RXData.Count)and //Keep packing until end of sprites
           (
-            (HeightPOT=MakePOT(fSprites[aRT].Data.Size[LeftIndex+SpanCount].Y)) //Pack if HeightPOT matches
-        or((HeightPOT>=MakePOT(fSprites[aRT].Data.Size[LeftIndex+SpanCount].Y))AND(WidthPOT+fSprites[aRT].Data.Size[LeftIndex+SpanCount].X<MakePOT(WidthPOT)))
+            (HeightPOT=MakePOT(fSprites[aRT].RXData.Size[LeftIndex+SpanCount].Y)) //Pack if HeightPOT matches
+        or((HeightPOT>=MakePOT(fSprites[aRT].RXData.Size[LeftIndex+SpanCount].Y))AND(WidthPOT+fSprites[aRT].RXData.Size[LeftIndex+SpanCount].X<MakePOT(WidthPOT)))
           )and
-          (WidthPOT+fSprites[aRT].Data.Size[LeftIndex+SpanCount].X<=MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
+          (WidthPOT+fSprites[aRT].RXData.Size[LeftIndex+SpanCount].X<=MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
     do begin
-      inc(WidthPOT,fSprites[aRT].Data.Size[LeftIndex+SpanCount].X);
+      inc(WidthPOT,fSprites[aRT].RXData.Size[LeftIndex+SpanCount].X);
       if (aRT=rxGuiMain)and(RX5Pal[LeftIndex]<>RX5Pal[LeftIndex+SpanCount]) then break; //Don't align RX5 images for they use all different palettes
       if (aRT=rxGuiMainH)and(RX6Pal[LeftIndex]<>RX6Pal[LeftIndex+SpanCount]) then break; //Don't align RX6 images for they use all different palettes
       inc(SpanCount);
@@ -935,13 +935,13 @@ begin
     begin
       ci := 0;
       for j := LeftIndex to RightIndex do
-        for k := 0 to fSprites[aRT].Data.Size[j].X - 1 do
+        for k := 0 to fSprites[aRT].RXData.Size[j].X - 1 do
         begin
-          if i < fSprites[aRT].Data.Size[j].Y then
+          if i < fSprites[aRT].RXData.Size[j].Y then
           begin
-            //CopyMemory(TD[(i-1)*WidthPOT+ci-1], fSprites[aRT].Data.RGBA[j,(i-1)*fSprites[aRT].Data.Size[j].X+k-1], )
-            TD[i*WidthPOT+ci] := fSprites[aRT].Data.RGBA[j,i*fSprites[aRT].Data.Size[j].X+k];
-            TA[i*WidthPOT+ci] := (fSprites[aRT].Data.Mask[j,i*fSprites[aRT].Data.Size[j].X+k] SHL 24) OR $FFFFFF;
+            //CopyMemory(TD[(i-1)*WidthPOT+ci-1], fSprites[aRT].RXData.RGBA[j,(i-1)*fSprites[aRT].RXData.Size[j].X+k-1], )
+            TD[i*WidthPOT+ci] := fSprites[aRT].RXData.RGBA[j,i*fSprites[aRT].RXData.Size[j].X+k];
+            TA[i*WidthPOT+ci] := (fSprites[aRT].RXData.Mask[j,i*fSprites[aRT].RXData.Size[j].X+k] SHL 24) OR $FFFFFF;
           end;
           inc(ci);
         end;
@@ -949,7 +949,7 @@ begin
 
     HasMsk:=false;
     for j:=LeftIndex to RightIndex do
-      HasMsk := HasMsk or fSprites[aRT].Data.HasMask[j];
+      HasMsk := HasMsk or fSprites[aRT].RXData.HasMask[j];
 
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
     if MAKE_TEAM_COLORS and RXInfo[aRT].TeamColors and (not ((aRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
@@ -977,20 +977,20 @@ begin
       GFXData[aRT,j].AltID:=GFXData[aRT,LeftIndex].AltID;
       GFXData[aRT,j].u1:=k/WidthPOT;
       GFXData[aRT,j].v1:=0;
-      inc(k,fSprites[aRT].Data.Size[j].X);
+      inc(k,fSprites[aRT].RXData.Size[j].X);
       GFXData[aRT,j].u2:=k/WidthPOT;
-      GFXData[aRT,j].v2:=fSprites[aRT].Data.Size[j].Y/HeightPOT;
-      GFXData[aRT,j].PxWidth:=fSprites[aRT].Data.Size[j].X;
-      GFXData[aRT,j].PxHeight:=fSprites[aRT].Data.Size[j].Y;
+      GFXData[aRT,j].v2:=fSprites[aRT].RXData.Size[j].Y/HeightPOT;
+      GFXData[aRT,j].PxWidth:=fSprites[aRT].RXData.Size[j].X;
+      GFXData[aRT,j].PxHeight:=fSprites[aRT].RXData.Size[j].Y;
 
-      inc(RequiredRAM, fSprites[aRT].Data.Size[j].X * fSprites[aRT].Data.Size[j].Y * 4);
+      inc(RequiredRAM, fSprites[aRT].RXData.Size[j].X * fSprites[aRT].RXData.Size[j].Y * 4);
     end;
 
     inc(AllocatedRAM, WidthPOT * HeightPOT * 4);
     inc(LeftIndex, SpanCount-1);
     inc(TexCount);
 
-  until(LeftIndex>=fSprites[aRT].Data.Count); // >= in case data wasn't loaded and Qty=0
+  until(LeftIndex>=fSprites[aRT].RXData.Count); // >= in case RXData wasn't loaded and Qty=0
 
   fLog.AppendLog(inttostr(TexCount)+' Textures created');
   fLog.AddToLog(inttostr(AllocatedRAM div 1024)+'/'+inttostr((AllocatedRAM-RequiredRAM) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
@@ -1029,28 +1029,28 @@ begin
         end;
 
         Assert(
-            (fSprites[aRT].Data.Size[ID1].X >= fSprites[aRT].Data.Size[ID2].X) and
-            (fSprites[aRT].Data.Size[ID1].Y >= fSprites[aRT].Data.Size[ID2].Y),
+            (fSprites[aRT].RXData.Size[ID1].X >= fSprites[aRT].RXData.Size[ID2].X) and
+            (fSprites[aRT].RXData.Size[ID1].Y >= fSprites[aRT].RXData.Size[ID2].Y),
             Format('Mismatched sprites %d:%d - %d:%d', [Byte(aRT), ID1, Byte(aRT), ID2]));
 
-        WidthPOT  := MakePOT(fSprites[aRT].Data.Size[ID1].X);
-        HeightPOT := MakePOT(fSprites[aRT].Data.Size[ID1].Y);
+        WidthPOT  := MakePOT(fSprites[aRT].RXData.Size[ID1].X);
+        HeightPOT := MakePOT(fSprites[aRT].RXData.Size[ID1].Y);
         SetLength(TD, WidthPOT*HeightPOT);
 
-        //Fill in colors data
-        for i := 0 to fSprites[aRT].Data.Size[ID1].Y-1 do
-        for k := 0 to fSprites[aRT].Data.Size[ID1].X-1 do
-          TD[i*WidthPOT+k] := fSprites[aRT].Data.RGBA[ID1, i*fSprites[aRT].Data.Size[ID1].X+k];
+        //Fill in colors RXData
+        for i := 0 to fSprites[aRT].RXData.Size[ID1].Y-1 do
+        for k := 0 to fSprites[aRT].RXData.Size[ID1].X-1 do
+          TD[i*WidthPOT+k] := fSprites[aRT].RXData.RGBA[ID1, i*fSprites[aRT].RXData.Size[ID1].X+k];
 
         //Apply mask to where colors are (yes, it needs to be done in 2 steps, since offsets can mismatch)
-        tx := fSprites[aRT].Data.Pivot[ID2].x - fSprites[aRT].Data.Pivot[ID1].x;
-        ty := (fSprites[aRT].Data.Pivot[ID2].y - fSprites[aRT].Data.Pivot[ID1].y)*WidthPOT;
-        for i := 0 to fSprites[aRT].Data.Size[ID2].Y-1 do
-        for k := 0 to fSprites[aRT].Data.Size[ID2].X-1 do
+        tx := fSprites[aRT].RXData.Pivot[ID2].x - fSprites[aRT].RXData.Pivot[ID1].x;
+        ty := (fSprites[aRT].RXData.Pivot[ID2].y - fSprites[aRT].RXData.Pivot[ID1].y)*WidthPOT;
+        for i := 0 to fSprites[aRT].RXData.Size[ID2].Y-1 do
+        for k := 0 to fSprites[aRT].RXData.Size[ID2].X-1 do
         begin
           t := i*WidthPOT+k + tx + ty; //Shift by pivot, always positive
 
-          Alpha := fSprites[aRT].Data.RGBA[ID2, i * fSprites[aRT].Data.Size[ID2].X + k] AND $FF;
+          Alpha := fSprites[aRT].RXData.RGBA[ID2, i * fSprites[aRT].RXData.Size[ID2].X + k] AND $FF;
 
           //Steps are going in normal order 1..n, but that last step has Alpha=0
           if TD[t] <> 0 then
@@ -1068,10 +1068,10 @@ begin
         GFXData[aRT,ID1].AltID := 0;
         GFXData[aRT,ID1].u1    := 0;
         GFXData[aRT,ID1].v1    := 0;
-        GFXData[aRT,ID1].u2    := fSprites[aRT].Data.Size[ID1].X/WidthPOT;
-        GFXData[aRT,ID1].v2    := fSprites[aRT].Data.Size[ID1].Y/HeightPOT;
-        GFXData[aRT,ID1].PxWidth := fSprites[aRT].Data.Size[ID1].X;
-        GFXData[aRT,ID1].PxHeight:= fSprites[aRT].Data.Size[ID1].Y;
+        GFXData[aRT,ID1].u2    := fSprites[aRT].RXData.Size[ID1].X/WidthPOT;
+        GFXData[aRT,ID1].v2    := fSprites[aRT].RXData.Size[ID1].Y/HeightPOT;
+        GFXData[aRT,ID1].PxWidth := fSprites[aRT].RXData.Size[ID1].X;
+        GFXData[aRT,ID1].PxHeight:= fSprites[aRT].RXData.Size[ID1].Y;
       end;
 end;
 
