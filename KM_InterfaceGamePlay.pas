@@ -1971,8 +1971,11 @@ begin
 
     ht_School:
         begin
-          ResRow_School_Resource.ResourceCount:=Sender.CheckResIn(rt_Gold) - byte(TKMHouseSchool(Sender).HideOneGold);
-          Image_School_Left.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
+          ResRow_School_Resource.ResourceCount := Sender.CheckResIn(rt_Gold) - byte(TKMHouseSchool(Sender).HideOneGold);
+          Button_School_UnitWIP.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
+          for I := 1 to 5 do
+            Button_School_UnitPlan[I].FlagColor := fPlayers[Sender.GetOwner].FlagColor;
+          Image_School_Left.FlagColor  := fPlayers[Sender.GetOwner].FlagColor;
           Image_School_Right.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
           Image_School_Train.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
           House_SchoolUnitChange(nil, mbLeft);
