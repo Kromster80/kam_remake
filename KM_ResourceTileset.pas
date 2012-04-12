@@ -38,7 +38,7 @@ begin
   LoadTileSet(aPath);
 
   //Special case for Tileset for MapEd menu
-  RXData[rxTiles].Qty := 256;
+  RXData[rxTiles].Count := 256;
   SetLength(GFXData[rxTiles], 256 + 1);
   //Generate UV coords
   for I := 0 to 255 do

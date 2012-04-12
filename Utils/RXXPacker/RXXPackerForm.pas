@@ -75,12 +75,11 @@ var
   T: Cardinal;
   BM: TBitmap;
 begin
-  ID := ListBox2.ItemIndex;
-  if ID = -1 then Exit;
-
   Image1.Picture.Bitmap.Canvas.Brush.Color := 0;
   Image1.Picture.Bitmap.Canvas.FillRect(Image1.Picture.Bitmap.Canvas.ClipRect);
 
+  ID := ListBox2.ItemIndex;
+  if ID = -1 then Exit;
   if fSprites.Data.Flag[ID] = 0 then Exit;
 
   BM := TBitmap.Create;
@@ -144,8 +143,10 @@ begin
   if not OpenDialog1.Execute then Exit;
 
   for I := 0 to OpenDialog1.Files.Count - 1 do
+  begin
     fSprites.AddImage(ExtractFilePath(OpenDialog1.Files[I]),
-                      ExtractFileName(OpenDialog1.Files[I]), fSprites.Count);
+                      ExtractFileName(OpenDialog1.Files[I]), fSprites.Data.Count);
+  end;
 
   UpdateList;
 end;
@@ -174,7 +175,7 @@ begin
   ID := ListBox2.ItemIndex;
   if ID = -1 then Exit;
 
-  fSprites.Data.Flag[ID] := 0;
+  fSprites.Delete(ID);//Data.Flag[ID] := 0;
 
   UpdateList;
 end;
@@ -194,7 +195,7 @@ begin
   ListBox2.Items.BeginUpdate;
   ListBox2.Items.Clear;
 
-  for I := 0 to fSprites.Count - 1 do
+  for I := 0 to fSprites.Data.Count - 1 do
   begin
     if fSprites.Data.Flag[I] = 0 then
       ListBox2.Items.Add(IntToStr(I)+'.')

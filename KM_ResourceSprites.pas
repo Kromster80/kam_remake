@@ -89,7 +89,7 @@ var
 
 type
   TRXData = record
-    Qty: Integer;
+    Count: Integer;
     Flag: array of Byte; //Sprite is valid
     Size: array of record X,Y: Word; end;
     Pivot: array of record x,y: Integer; end;
@@ -99,13 +99,15 @@ type
     HasMask: array of Boolean; //Mask for team colors
   end;
 
+  PRXData = ^TRXData;
+
   //Base class for Sprite loading
   TKMSpritePack = class
   private
     fPalettes: TKMPalettes;
     fRT: TRXType;
 
-    fRXData: TRXData; //OOP wrapper for global variable
+    fRXData: PRXData; //OOP wrapper for global variable
 
     procedure Allocate(aCount: Integer); //Allocate space for data that is being loaded
     procedure Expand;
@@ -113,8 +115,9 @@ type
     constructor Create(aPalettes: TKMPalettes; aRT: TRXType);
 
     procedure AddImage(aFolder, aFilename: string; aIndex: Integer);
-    property Count: Integer read fRXData.Qty;
-    property Data: TRXData read fRXData;
+    procedure Delete(aIndex: Integer);
+    //property Count: Integer read fRXData.Qty;
+    property Data: PRXData read fRXData;
 
     procedure LoadFromRXFile(const aFileName: string);
     procedure LoadFromRXXFile(const aFileName: string);
@@ -207,16 +210,26 @@ begin
 
   fPalettes := aPalettes;
   fRT := aRT;
-  fRXData := RXData[fRT];
+  fRXData := @RXData[fRT];
+end;
+
+
+procedure TKMSpritePack.Delete(aIndex: Integer);
+begin
+  Assert(aIndex < fRXData.Count);
+  fRXData.Flag[aIndex] := 0;
+
+  while (fRXData.Count > 0) and (fRXData.Flag[fRXData.Count - 1] = 0) do
+    Dec(fRXData.Count);
 end;
 
 
 procedure TKMSpritePack.Allocate(aCount: Integer);
 begin
-  fRXData.Qty := aCount;
+  fRXData.Count := aCount;
 
-  aCount := fRXData.Qty+1;
-  SetLength(GFXData[fRT],         aCount);
+  aCount := fRXData.Count + 1;
+  SetLength(GFXData[fRT],     aCount);
   SetLength(fRXData.Flag,     aCount);
   SetLength(fRXData.Size,     aCount);
   SetLength(fRXData.Pivot,    aCount);
@@ -249,8 +262,8 @@ var
   L: byte;
   Pixel: Integer;
 begin
-  with fRXData do
-  for H := 1 to Qty do
+  with fRXData^ do
+  for H := 1 to Count do
   begin
     //Choose proper palette
     case fRT of
@@ -301,7 +314,7 @@ var
 begin
   Result := 0;
 
-  for I := 1 to fRXData.Qty do
+  for I := 1 to fRXData.Count do
   if (fRXData.Flag[I] <> 0) then
   begin
     if fRXData.Size[I].X * fRXData.Size[I].Y = 0 then Continue;
@@ -364,7 +377,7 @@ end;
 procedure TKMSpritePack.ClearData;
 var I: Integer;
 begin
-  for I := 1 to fRXData.Qty do
+  for I := 1 to fRXData.Count do
   begin
     SetLength(fRXData.Data[I], 0);
     SetLength(fRXData.RGBA[I], 0);
@@ -384,13 +397,13 @@ begin
   S := TMemoryStream.Create;
 
   S.LoadFromFile(aFileName);
-  S.ReadBuffer(fRXData.Qty, 4);
+  S.ReadBuffer(fRXData.Count, 4);
 
-  Allocate(fRXData.Qty);
+  Allocate(fRXData.Count);
 
-  S.ReadBuffer(fRXData.Flag[1], fRXData.Qty);
+  S.ReadBuffer(fRXData.Flag[1], fRXData.Count);
 
-  for I := 1 to fRXData.Qty do
+  for I := 1 to fRXData.Count do
     if fRXData.Flag[I] = 1 then
     begin
       S.ReadBuffer(fRXData.Size[I].X, 4);
@@ -400,7 +413,7 @@ begin
       S.ReadBuffer(fRXData.Data[I,0], fRXData.Size[I].X * fRXData.Size[I].Y);
     end;
   S.Free;
-  fLog.AppendLog(RXInfo[fRT].FileName + ' -', fRXData.Qty);
+  fLog.AppendLog(RXInfo[fRT].FileName + ' -', fRXData.Count);
 
   Expand; //Only KaM's rx needs expanding
 end;
@@ -419,17 +432,17 @@ begin
   DecompressionStream := TDecompressionStream.Create(InputStream);
 
   try
-    DecompressionStream.Read(fRXData.Qty, 4);
-    fLog.AppendLog(RXInfo[fRT].FileName + ' -', fRXData.Qty);
+    DecompressionStream.Read(fRXData.Count, 4);
+    fLog.AppendLog(RXInfo[fRT].FileName + ' -', fRXData.Count);
 
-    if fRXData.Qty = 0 then
+    if fRXData.Count = 0 then
       Exit;
 
-    Allocate(fRXData.Qty);
+    Allocate(fRXData.Count);
 
-    DecompressionStream.Read(fRXData.Flag[1], fRXData.Qty);
+    DecompressionStream.Read(fRXData.Flag[1], fRXData.Count);
 
-    for I := 1 to fRXData.Qty do
+    for I := 1 to fRXData.Count do
       if fRXData.Flag[I] = 1 then
       begin
         DecompressionStream.Read(fRXData.Size[I].X, 4);
@@ -458,10 +471,10 @@ begin
 
   AssignFile(ft, aFolder + IntToStr(Byte(fRT) + 1) + '.txt');
     Reset(ft);
-    ReadLn(ft, fRXData.Qty);
+    ReadLn(ft, fRXData.Count);
   CloseFile(ft);
 
-  Allocate(fRXData.Qty);
+  Allocate(fRXData.Count);
 
   OverloadFromFolder(aFolder);
 end;
@@ -469,8 +482,7 @@ end;
 
 procedure TKMSpritePack.AddImage(aFolder, aFilename: string; aIndex: Integer);
 var
-  i,x,y:integer;
-  RX: integer;
+  x,y:integer;
   T: Byte;
   ft: TextFile;
   Bmp: TBitmap;
@@ -482,8 +494,8 @@ var
   po: TBGRABitmap;
   {$ENDIF}
 begin
-  //Replace only certain sprites
-  if not InRange(aIndex, 1, fRXData.Qty) then Exit;
+  if aIndex >= fRXData.Count then
+    Allocate(aIndex+1);
 
   fRXData.HasMask[aIndex] := FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.png') or
                              FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.bmp');
@@ -663,10 +675,10 @@ var
 begin
   InputStream := TMemoryStream.Create;
 
-  InputStream.Write(fRXData.Qty, 4);
-  InputStream.Write(fRXData.Flag[1], fRXData.Qty);
+  InputStream.Write(fRXData.Count, 4);
+  InputStream.Write(fRXData.Flag[1], fRXData.Count);
 
-  for I := 1 to fRXData.Qty do
+  for I := 1 to fRXData.Count do
     if fRXData.Flag[I] = 1 then
     begin
       InputStream.Write(fRXData.Size[I].X, 4);
@@ -698,7 +710,7 @@ begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf24bit;
 
-  for ID:=1 to fRXData.Qty do
+  for ID:=1 to fRXData.Count do
   if fRXData.Flag[ID] = 1 then
   begin
     SizeX := fRXData.Size[ID].X;
@@ -873,7 +885,7 @@ var
   HasMsk:boolean;
   TexType:TTexFormat;
 begin
-  if fSprites[aRT].Count = 0 then Exit;
+  if fSprites[aRT].Data.Count = 0 then Exit;
 
   if aAlphaShadows and (aRT in [rxTrees,rxHouses,rxUnits,rxGui,rxGame]) then
     TexType := tf_NormalAlpha
@@ -894,7 +906,7 @@ begin
 
     //Pack textures with same POT height into rows to save memory
     //This also means fewer textures for GPU RAM == better performance
-    while((LeftIndex+SpanCount<fSprites[aRT].Data.Qty)and //Keep packing until end of sprites
+    while((LeftIndex+SpanCount<fSprites[aRT].Data.Count)and //Keep packing until end of sprites
           (
             (HeightPOT=MakePOT(fSprites[aRT].Data.Size[LeftIndex+SpanCount].Y)) //Pack if HeightPOT matches
         or((HeightPOT>=MakePOT(fSprites[aRT].Data.Size[LeftIndex+SpanCount].Y))AND(WidthPOT+fSprites[aRT].Data.Size[LeftIndex+SpanCount].X<MakePOT(WidthPOT)))
@@ -971,7 +983,7 @@ begin
     inc(LeftIndex, SpanCount-1);
     inc(TexCount);
 
-  until(LeftIndex>=fSprites[aRT].Data.Qty); // >= in case data wasn't loaded and Qty=0
+  until(LeftIndex>=fSprites[aRT].Data.Count); // >= in case data wasn't loaded and Qty=0
 
   fLog.AppendLog(inttostr(TexCount)+' Textures created');
   fLog.AddToLog(inttostr(AllocatedRAM div 1024)+'/'+inttostr((AllocatedRAM-RequiredRAM) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
