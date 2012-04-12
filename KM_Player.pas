@@ -876,16 +876,16 @@ end;
 { TKMPlayerAnimals }
 function TKMPlayerAnimals.GetFishInWaterBody(aWaterID: Byte; FindHighestCount: Boolean=True): TKMUnitAnimal;
 var
-  i, HighestGroupCount: Integer;
+  I, HighestGroupCount: Integer;
   U: TKMUnit;
 begin
   Result := nil;
   if aWaterID = 0 then Exit; //Fish should always be in valid water
   HighestGroupCount := 0;
 
-  for i:=0 to fUnits.Count-1 do
+  for I := 0 to fUnits.Count - 1 do
   begin
-    U := fUnits[i]; //Store locally
+    U := fUnits[I]; //Store locally
 
     if (U <> nil)
     and (U.UnitType = ut_Fish)

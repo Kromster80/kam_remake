@@ -361,8 +361,9 @@ type
 
 implementation
 uses KM_Main, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
-KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game, KM_Utils, KM_Locales,
-KM_Sound, Forms, KM_Resource, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
+  KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game, KM_Utils, KM_Locales,
+  KM_Sound, KM_Resource, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
+
 
 const
   MESSAGE_AREA_HEIGHT = 173+17; //Image_ChatHead + Image_ChatBody
@@ -377,6 +378,7 @@ const
       (ht_IronSmithy,     ht_Metallurgists,   ht_WeaponSmithy,  ht_ArmorSmithy),
       (ht_ArmorWorkshop,  ht_WeaponWorkshop,  ht_None,          ht_None),
       (ht_Mill,           ht_Swine,           ht_Stables,       ht_None));
+
 
 {Switch between pages}
 procedure TKMGamePlayInterface.SwitchPage_Ratios(Sender: TObject);
@@ -2243,31 +2245,34 @@ end;
 
 
 procedure TKMGamePlayInterface.House_WoodcutterChange(Sender:TObject);
-var Woodcutters: TKMHouseWoodcutters; WoodcutterMode: TWoodcutterMode;
+var
+  W: TKMHouseWoodcutters;
+  WMode: TWoodcutterMode;
 begin
-  Woodcutters := TKMHouseWoodcutters(fPlayers.Selected);
+  W := TKMHouseWoodcutters(fPlayers.Selected);
   if Sender = Button_Woodcutter then
-    Radio_Woodcutter.ItemIndex := (Radio_Woodcutter.ItemIndex+1) mod 2; //Cycle
+    Radio_Woodcutter.ItemIndex := (Radio_Woodcutter.ItemIndex + 1) mod 2; //Cycle
 
   if (Sender = Button_Woodcutter) or (Sender = Radio_Woodcutter) then
   begin
     if Radio_Woodcutter.ItemIndex = 0 then
-         WoodcutterMode := wcm_ChopAndPlant
-    else WoodcutterMode := wcm_Chop;
-    fGame.GameInputProcess.CmdHouse(gic_HouseWoodcutterMode, Woodcutters, WoodcutterMode);
+      WMode := wcm_ChopAndPlant
+    else
+      WMode := wcm_Chop;
+    fGame.GameInputProcess.CmdHouse(gic_HouseWoodcutterMode, W, WMode);
   end;
 
-  if Woodcutters.WoodcutterMode = wcm_ChopAndPlant then
-  begin
-    Button_Woodcutter.TexID := 310;
-    Button_Woodcutter.RX := rxGui;
-    Radio_Woodcutter.ItemIndex := 0;
-  end;
-  if Woodcutters.WoodcutterMode = wcm_Chop then
-  begin
-    Button_Woodcutter.TexID := 23;
-    Button_Woodcutter.RX := rxGame;
-    Radio_Woodcutter.ItemIndex := 1;
+  case W.WoodcutterMode of
+    wcm_ChopAndPlant: begin
+                        Button_Woodcutter.TexID := 310;
+                        Button_Woodcutter.RX := rxGui;
+                        Radio_Woodcutter.ItemIndex := 0;
+                      end;
+    wcm_Chop:         begin
+                        Button_Woodcutter.TexID := 23;
+                        Button_Woodcutter.RX := rxGame;
+                        Radio_Woodcutter.ItemIndex := 1;
+                      end;
   end;
 end;
 

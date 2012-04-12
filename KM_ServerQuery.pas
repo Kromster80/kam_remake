@@ -130,6 +130,7 @@ implementation
 destructor TKMRoomList.Destroy;
 begin
   Clear; //Frees GameInfo
+  inherited;
 end;
 
 
@@ -152,9 +153,9 @@ end;
 
 
 procedure TKMRoomList.Clear;
-var i:integer;
+var i: Integer;
 begin
-  for i:=0 to fCount-1 do
+  for i := 0 to fCount - 1 do
     fRooms[i].GameInfo.Free;
   fCount := 0;
   SetLength(fRooms, 0);
@@ -491,4 +492,3 @@ end;
 
 
 end.
-

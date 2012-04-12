@@ -16,7 +16,7 @@ interface
   {.DEFINE USELIBZPLAY}
 {$ENDIF}
 
-uses Forms, Classes, Windows, SysUtils, KromUtils, Math, KM_Defaults
+uses Classes, Windows, SysUtils, KromUtils, Math, KM_Defaults
      {$IFDEF USEBASS}     , Bass {$ENDIF}
      {$IFDEF USELIBZPLAY} , libZPlay {$ENDIF}
      ;

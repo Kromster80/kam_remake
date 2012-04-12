@@ -57,7 +57,7 @@ begin
 
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes;
-  fSprites := TKMSpritePack.Create(fPalettes, rxGame);
+  fSprites := TKMSpritePack.Create(rxGame, fPalettes, nil);
 
   for RT := Low(TRXType) to High(TRXType) do
     ListBox1.Items.Add(GetEnumName(TypeInfo(TRXType), Integer(RT)));
@@ -220,7 +220,7 @@ begin
   begin
     RT := TRXType(I);
 
-    SpritePack := TKMSpritePack.Create(fPalettes, Rt);
+    SpritePack := TKMSpritePack.Create(RT, fPalettes, nil);
 
     //Load
     {if FileExists(ExeDir + 'data\gfx\res\' + RXInfo[RT].FileName + '.rxx') then

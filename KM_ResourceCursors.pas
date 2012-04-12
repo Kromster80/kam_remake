@@ -17,7 +17,7 @@ type
 
   TKMCursors = class
   private
-    fRXData: PRXData;
+    fRXData: PRXData; //Store pointer to record instead of duplicating it
     function GetCursor: TKMCursor;
     procedure SetCursor(Value: TKMCursor);
   public
