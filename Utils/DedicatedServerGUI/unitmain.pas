@@ -7,7 +7,8 @@ uses
   KM_Defaults,
   KM_Settings,
   KM_DedicatedServer,
-  KM_Log;
+  KM_Log,
+  KM_GameInfo;
 
 
 type
@@ -39,7 +40,7 @@ type
     SendCmdButton: TButton;
     Edit1: TEdit;
     Label1: TLabel;
-    ListBox1: TListBox;
+    PlayersList: TListBox;
     LogsMemo: TMemo;
     Panel1: TPanel;
     Panel2: TPanel;
@@ -70,11 +71,13 @@ type
     //whenever there is a change in the settings controls while server is online, we call this proc to enable "ButtonApply" button
     procedure ChangeEnableStateOfApplyButton(state: Boolean);
     procedure ApplicationIdle(Sender: TObject; var Done: Boolean);
+    procedure FillPlayersList;
   private
     fSettings: TGameSettings;
     fSettingsLastModified: integer;
     fServerStatus: TKMServerStatus;
     fDedicatedServer: TKMDedicatedServer;
+    Players: TList;
   end;
 
 
@@ -210,6 +213,27 @@ begin
   ButtonApply.Enabled := state;
 end;
 
+
+procedure TFormMain.FillPlayersList;
+var i:           Integer;
+    RowInfo:    String;
+
+begin
+  Players := TList.Create;
+  fDedicatedServer.GetServerInfo(Players);
+
+  //first we clear list
+  PlayersList.Items.Clear;
+
+  //then we read each row and add to list
+  for i:=0 to Players.Count do
+  begin
+    RowInfo := TKMGameInfo(Players[i]).GetTitleWithTime;// + IntToStr(TKMGameInfo(Players[i]).PlayerCount);
+    PlayersList.Items.Add(RowInfo);
+  end;
+
+  Players.Free;
+end;
 
 procedure TFormMain.ApplicationIdle(Sender: TObject; var Done: Boolean);
 begin

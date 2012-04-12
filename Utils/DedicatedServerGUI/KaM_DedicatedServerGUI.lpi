@@ -33,15 +33,17 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="20">
+    <Units Count="24">
       <Unit0>
         <Filename Value="KaM_DedicatedServerGUI.dpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KaM_DedicatedServerGUI"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="3" Y="10"/>
-        <UsageCount Value="39"/>
+        <CursorPos X="1" Y="17"/>
+        <UsageCount Value="61"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
@@ -53,9 +55,9 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="67"/>
-        <CursorPos X="34" Y="84"/>
-        <UsageCount Value="39"/>
+        <TopLine Value="286"/>
+        <CursorPos X="27" Y="226"/>
+        <UsageCount Value="61"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -64,27 +66,27 @@
         <Filename Value="..\..\KM_DedicatedServer.pas"/>
         <UnitName Value="KM_DedicatedServer"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="56"/>
-        <CursorPos X="37" Y="87"/>
-        <UsageCount Value="11"/>
+        <TopLine Value="111"/>
+        <CursorPos X="1" Y="124"/>
+        <UsageCount Value="14"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\..\KM_Log.pas"/>
         <UnitName Value="KM_Log"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="118"/>
-        <CursorPos X="1" Y="131"/>
-        <UsageCount Value="14"/>
+        <TopLine Value="15"/>
+        <CursorPos X="63" Y="26"/>
+        <UsageCount Value="17"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\..\KM_Settings.pas"/>
         <UnitName Value="KM_Settings"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="186"/>
-        <CursorPos X="40" Y="200"/>
-        <UsageCount Value="16"/>
+        <TopLine Value="260"/>
+        <CursorPos X="10" Y="278"/>
+        <UsageCount Value="18"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
@@ -93,7 +95,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="27" Y="1"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="20"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
@@ -102,7 +104,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="34"/>
         <CursorPos X="46" Y="23"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
@@ -111,7 +113,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="46"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
@@ -120,16 +122,16 @@
         <WindowIndex Value="0"/>
         <TopLine Value="67"/>
         <CursorPos X="1" Y="83"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit8>
       <Unit9>
         <Filename Value="..\..\KM_NetServer.pas"/>
         <UnitName Value="KM_NetServer"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="261"/>
-        <CursorPos X="26" Y="272"/>
-        <UsageCount Value="11"/>
+        <TopLine Value="328"/>
+        <CursorPos X="15" Y="334"/>
+        <UsageCount Value="12"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
@@ -138,7 +140,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="371"/>
         <CursorPos X="1" Y="1"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
@@ -147,7 +149,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="16" Y="10"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit11>
       <Unit12>
@@ -155,7 +157,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="108"/>
         <CursorPos X="3" Y="123"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit12>
       <Unit13>
         <Filename Value="..\TranslationManager\Unit1.pas"/>
@@ -163,7 +165,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="1"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit13>
       <Unit14>
@@ -171,16 +173,16 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="32" Y="8"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit14>
       <Unit15>
         <Filename Value="C:\lazarus\lcl\forms.pp"/>
         <UnitName Value="Forms"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="55"/>
-        <CursorPos X="35" Y="70"/>
-        <UsageCount Value="10"/>
+        <TopLine Value="57"/>
+        <CursorPos X="41" Y="70"/>
+        <UsageCount Value="9"/>
       </Unit15>
       <Unit16>
         <Filename Value="..\DedicatedServer\KaM_DedicatedServer.dpr"/>
@@ -188,16 +190,16 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="24" Y="9"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit16>
       <Unit17>
         <Filename Value="..\DedicatedServer\KM_ServerEventHandler.pas"/>
         <UnitName Value="KM_ServerEventHandler"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="14"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="10"/>
+        <TopLine Value="4"/>
+        <CursorPos X="30" Y="24"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit17>
       <Unit18>
@@ -205,137 +207,163 @@
         <WindowIndex Value="0"/>
         <TopLine Value="263"/>
         <CursorPos X="13" Y="278"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit18>
       <Unit19>
         <Filename Value="C:\lazarus\fpc\2.4.4\source\rtl\objpas\sysutils\sysutils.inc"/>
         <WindowIndex Value="0"/>
         <TopLine Value="126"/>
         <CursorPos X="25" Y="148"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit19>
+      <Unit20>
+        <Filename Value="C:\lazarus\lcl\stdctrls.pp"/>
+        <UnitName Value="StdCtrls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="677"/>
+        <CursorPos X="31" Y="690"/>
+        <UsageCount Value="9"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="C:\lazarus\lcl\controls.pp"/>
+        <UnitName Value="Controls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1436"/>
+        <CursorPos X="3" Y="864"/>
+        <UsageCount Value="9"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="..\..\KM_GameInfo.pas"/>
+        <UnitName Value="KM_GameInfo"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="13" Y="11"/>
+        <UsageCount Value="16"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="..\..\KM_ResourceSprites.pas"/>
+        <UnitName Value="KM_ResourceSprites"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="484"/>
+        <CursorPos X="1" Y="495"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit23>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="28" HistoryIndex="27">
       <Position1>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="183" Column="14" TopLine="158"/>
+        <Caret Line="300" Column="46" TopLine="276"/>
       </Position1>
       <Position2>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="184" Column="14" TopLine="159"/>
+        <Caret Line="75" Column="1" TopLine="63"/>
       </Position2>
       <Position3>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="186" Column="14" TopLine="161"/>
+        <Caret Line="199" Column="71" TopLine="193"/>
       </Position3>
       <Position4>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="191" Column="12" TopLine="166"/>
+        <Caret Line="256" Column="38" TopLine="244"/>
       </Position4>
       <Position5>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="193" Column="63" TopLine="168"/>
+        <Caret Line="63" Column="18" TopLine="52"/>
       </Position5>
       <Position6>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="194" Column="63" TopLine="169"/>
+        <Caret Line="300" Column="4" TopLine="291"/>
       </Position6>
       <Position7>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="195" Column="16" TopLine="170"/>
+        <Caret Line="301" Column="1" TopLine="280"/>
       </Position7>
       <Position8>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="199" Column="63" TopLine="174"/>
+        <Caret Line="255" Column="1" TopLine="237"/>
       </Position8>
       <Position9>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="200" Column="63" TopLine="175"/>
+        <Caret Line="252" Column="1" TopLine="236"/>
       </Position9>
       <Position10>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="201" Column="63" TopLine="176"/>
+        <Caret Line="276" Column="26" TopLine="251"/>
       </Position10>
       <Position11>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="202" Column="63" TopLine="177"/>
+        <Caret Line="252" Column="1" TopLine="242"/>
       </Position11>
       <Position12>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="203" Column="63" TopLine="178"/>
+        <Caret Line="64" Column="1" TopLine="50"/>
       </Position12>
       <Position13>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="204" Column="63" TopLine="179"/>
+        <Caret Line="242" Column="1" TopLine="236"/>
       </Position13>
       <Position14>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="88" Column="55" TopLine="67"/>
+        <Caret Line="188" Column="20" TopLine="177"/>
       </Position14>
       <Position15>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="73" Column="6" TopLine="67"/>
+        <Caret Line="70" Column="27" TopLine="51"/>
       </Position15>
       <Position16>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="88" Column="1" TopLine="74"/>
+        <Caret Line="102" Column="15" TopLine="88"/>
       </Position16>
       <Position17>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="98" Column="19" TopLine="77"/>
+        <Caret Line="101" Column="15" TopLine="87"/>
       </Position17>
       <Position18>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="71" Column="19" TopLine="66"/>
+        <Caret Line="192" Column="5" TopLine="186"/>
       </Position18>
       <Position19>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="127" Column="21" TopLine="102"/>
+        <Caret Line="240" Column="3" TopLine="232"/>
       </Position19>
       <Position20>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="9" Column="84" TopLine="1"/>
+        <Caret Line="206" Column="34" TopLine="186"/>
       </Position20>
       <Position21>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="71" Column="19" TopLine="46"/>
+        <Caret Line="240" Column="3" TopLine="228"/>
       </Position21>
       <Position22>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="127" Column="21" TopLine="108"/>
+        <Caret Line="192" Column="1" TopLine="190"/>
       </Position22>
       <Position23>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="134" Column="21" TopLine="109"/>
+        <Caret Line="256" Column="3" TopLine="238"/>
       </Position23>
       <Position24>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="131" Column="25" TopLine="110"/>
+        <Caret Line="208" Column="1" TopLine="190"/>
       </Position24>
       <Position25>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="134" Column="21" TopLine="110"/>
+        <Caret Line="263" Column="68" TopLine="230"/>
       </Position25>
       <Position26>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="135" Column="21" TopLine="110"/>
+        <Caret Line="262" Column="68" TopLine="236"/>
       </Position26>
       <Position27>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="148" Column="21" TopLine="123"/>
+        <Caret Line="220" Column="11" TopLine="197"/>
       </Position27>
       <Position28>
         <Filename Value="unitmain.pas"/>
-        <Caret Line="147" Column="18" TopLine="127"/>
+        <Caret Line="225" Column="9" TopLine="207"/>
       </Position28>
-      <Position29>
-        <Filename Value="unitmain.pas"/>
-        <Caret Line="91" Column="1" TopLine="76"/>
-      </Position29>
-      <Position30>
-        <Filename Value="unitmain.pas"/>
-        <Caret Line="121" Column="15" TopLine="70"/>
-      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
