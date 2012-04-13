@@ -5,7 +5,7 @@ uses
   Classes, Controls, Dialogs, Forms, Graphics, StdCtrls, SysUtils, TypInfo,
   {$IFDEF FPC} LResources, {$ENDIF}
   KM_Defaults, KM_Log, KM_Pics, KM_ResourcePalettes, KM_ResourceSprites,
-  Vcl.ExtCtrls;
+  ExtCtrls;
 
 
 type
@@ -86,6 +86,7 @@ begin
     BM.Width := fSprites.RXData.Size[ID].X;
     BM.Height := fSprites.RXData.Size[ID].Y;
     BM.Transparent := True;
+    //@Krom: BM.AlphaFormat not found in D7
     BM.AlphaFormat := afDefined;
 
     for I := 0 to BM.Height - 1 do

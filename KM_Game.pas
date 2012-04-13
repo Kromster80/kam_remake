@@ -288,6 +288,7 @@ begin
   fCampaigns.LoadProgress(ExeDir + 'Saves\Campaigns.dat');
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
   fMainMenuInterface.ShowScreen(msOptions);
+  Resize(fScreenX,fScreenY); //Force the recreated main menu to resize to the user's screen
 end;
 
 

@@ -202,7 +202,7 @@ type
         DropBox_LobbyLoc:array [0..MAX_PLAYERS-1] of TKMDropList;
         DropBox_LobbyTeam:array [0..MAX_PLAYERS-1] of TKMDropList;
         Drop_LobbyColors:array [0..MAX_PLAYERS-1] of TKMDropColumns;
-        CheckBox_LobbyReady:array [0..MAX_PLAYERS-1] of TKMCheckBox;
+        Image_LobbyReady:array [0..MAX_PLAYERS-1] of TKMImage;
         Label_LobbyPing:array [0..MAX_PLAYERS-1] of TKMLabel;
 
       Panel_LobbySetup:TKMPanel;
@@ -212,9 +212,6 @@ type
         List_Lobby:TKMDropList;
         Label_LobbyMapName:TKMLabel;
         Memo_LobbyMapDesc: TKMMemo;
-        Label_LobbyMapMode:TKMLabel;
-        Label_LobbyMapCond:TKMLabel;
-        Label_LobbyMapSize:TKMLabel;
         TrackBar_LobbyPeacetime: TKMTrackBar;
         Minimap_LobbyPreview: TKMMinimap;
 
@@ -766,7 +763,7 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Lobby_Page;
-const CW = 690; C1 = 35; C2 = 215; C3 = 390; C4 = 465; C5 = 590; C6 = 650;
+const CW = 690; C1 = 35; C2 = 215; C3 = 395; C4 = 485; C5 = 590; C6 = 650;
 var i,k,top:integer;
 begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
@@ -778,17 +775,20 @@ begin
       Label_LobbyServerName := TKMLabel.Create(Panel_LobbyServerName, 10, 10, CW-20, 20, '', fnt_Metal, taLeft);
 
     //Players
-    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby, 30, 65, CW, 240);
-      TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 240);
-      TKMLabel.Create(Panel_LobbyPlayers, C1, 10, 170,  20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C2, 10, 165,  20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C3, 10,  60,  20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C4, 10,  80,  20, fTextLibrary[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C5, 10,  90,  20, fTextLibrary[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
-      TKMLabel.Create(Panel_LobbyPlayers, C6, 10,  70,  20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
+    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby, 30, 65, CW, 260);
+      TKMBevel.Create(Panel_LobbyPlayers,  0,  0, CW, 260);
+
+      CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, 450, 20, fTextLibrary[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
+      CheckBox_LobbyHostControl.OnClick := Lobby_PlayersSetupChange;
+
+      TKMLabel.Create(Panel_LobbyPlayers, C1, 40, 170,  20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C2, 40, 170,  20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C3, 40,  80,  20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C4, 40,  80,  20, fTextLibrary[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C6, 40,  70,  20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
       for i:=0 to MAX_PLAYERS-1 do begin
-        top := 30+i*24;
+        top := 60+i*24;
         Image_LobbyFlag[i] := TKMImage.Create(Panel_LobbyPlayers, 10, top+3, 16, 11, 0, rxMenu);
 
         Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, C1, top+2, 170, 20, '', fnt_Metal, taLeft);
@@ -801,11 +801,11 @@ begin
         DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyLoc[i] := TKMDropList.Create(Panel_LobbyPlayers, C2, top, 165, 20, fnt_Metal, '');
+        DropBox_LobbyLoc[i] := TKMDropList.Create(Panel_LobbyPlayers, C2, top, 170, 20, fnt_Metal, '');
         DropBox_LobbyLoc[i].Add(fTextLibrary[TX_LOBBY_RANDOM]);
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyTeam[i] := TKMDropList.Create(Panel_LobbyPlayers, C3, top, 60, 20, fnt_Metal, '');
+        DropBox_LobbyTeam[i] := TKMDropList.Create(Panel_LobbyPlayers, C3, top, 80, 20, fnt_Metal, '');
         DropBox_LobbyTeam[i].Add('-');
         for k:=1 to 4 do DropBox_LobbyTeam[i].Add(IntToStr(k));
         DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
@@ -819,14 +819,12 @@ begin
           Drop_LobbyColors[i].Add(MakeListRow([''], [MP_TEAM_COLORS[K]], [MakePic(rxMenu, 20)]));
         Drop_LobbyColors[i].OnChange := Lobby_PlayersSetupChange;
 
-        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, C5-10, top, 20, 20, '', fnt_Metal);
-        CheckBox_LobbyReady[I].Disable; //Read-only, just for info (perhaps we will replace it with an icon)
-
+        Image_LobbyReady[i] := TKMImage.Create(Panel_LobbyPlayers, C5, top, 16, 16, 23, rxMenu);
         Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, C6, top, 50, 20, '', fnt_Metal, taCenter);
       end;
 
     //Chat
-    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 310, CW, 340, fnt_Metal);
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 30, 330, CW, 320, fnt_Metal);
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.ScrollDown := True;
     Memo_LobbyPosts.Anchors := [akLeft, akTop, akBottom];
@@ -838,13 +836,11 @@ begin
     Edit_LobbyPost.ShowColors := True;
 
     //Setup
-    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby, 725, 30, 270, 620);
+    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby, 725, 30, 270, 712);
     Panel_LobbySetup.Anchors := [akLeft, akTop, akBottom];
-      with TKMBevel.Create(Panel_LobbySetup,  0,  0, 270, 620) do Stretch;
-      CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbySetup, 10, 10, 250, 20, fTextLibrary[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
-      CheckBox_LobbyHostControl.OnClick := Lobby_PlayersSetupChange;
-      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 36, 250, 20, fTextLibrary[TX_LOBBY_MAP_TYPE], fnt_Outline, taLeft);
-      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 55, 250, 60, fnt_Metal);
+      with TKMBevel.Create(Panel_LobbySetup,  0,  0, 270, 712) do Stretch;
+      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 250, 20, fTextLibrary[TX_LOBBY_MAP_TYPE], fnt_Outline, taLeft);
+      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 29, 250, 60, fnt_Metal);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_BUILD]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_FIGHT]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_COOP]);
@@ -853,26 +849,22 @@ begin
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
 
       //@DanJB: These two occupy the same place and are visible for Host/Join correspondingly, right?
-      List_Lobby := TKMDropList.Create(Panel_LobbySetup, 10, 125, 250, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
+      List_Lobby := TKMDropList.Create(Panel_LobbySetup, 10, 99, 250, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
       List_Lobby.OnChange := Lobby_MapSelect;
-      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 125, 250, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 99, 250, 20, '', fnt_Metal, taLeft);
 
-      TKMBevel.Create(Panel_LobbySetup, 35, 150, 199, 199);
-      Minimap_LobbyPreview := TKMMinimap.Create(Panel_LobbySetup, 39, 154, 191, 191);
+      TKMBevel.Create(Panel_LobbySetup, 35, 124, 199, 199);
+      Minimap_LobbyPreview := TKMMinimap.Create(Panel_LobbySetup, 39, 128, 191, 191);
       Minimap_LobbyPreview.ShowLocs := True; //In the minimap we want player locations to be shown
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 350, 250, 100, fnt_Game);
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 324, 250, 292, fnt_Game);
+      Memo_LobbyMapDesc.Anchors := [akLeft,akTop,akBottom];
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
 
-      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 460, 250, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapMode.Hide;
-      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 480, 250, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapSize.Hide;
-      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 500, 250, 20, '', fnt_Metal, taLeft);
-
-      TKMLabel.Create(Panel_LobbySetup, 10, 460, 280, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
-      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 10, 490, 250, 0, 120);
+      with TKMLabel.Create(Panel_LobbySetup, 10, 626, 280, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft) do Anchors := [akLeft,akBottom];
+      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 10, 656, 250, 0, 120);
+      TrackBar_LobbyPeacetime.Anchors := [akLeft,akBottom];
       TrackBar_LobbyPeacetime.Caption := fTextLibrary[TX_LOBBY_PEACETIME];
       TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
       TrackBar_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
@@ -2197,6 +2189,7 @@ begin
     Drop_LobbyColors[I].Disable;
     Drop_LobbyColors[I].ItemIndex := 0;
     DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
+    Image_LobbyReady[I].TexID := 0;
     Label_LobbyPing[I].Caption := '';
   end;
 
@@ -2381,7 +2374,10 @@ begin
 
     DropBox_LobbyTeam[I].ItemIndex := fGame.Networking.NetPlayers[I+1].Team;
     Drop_LobbyColors[I].ItemIndex := fGame.Networking.NetPlayers[I+1].FlagColorID;
-    CheckBox_LobbyReady[I].Checked := fGame.Networking.NetPlayers[I+1].ReadyToStart;
+    if fGame.Networking.NetPlayers[I+1].IsClosed then
+      Image_LobbyReady[I].TexID := 0
+    else
+      Image_LobbyReady[I].TexID := 23+Byte(fGame.Networking.NetPlayers[I+1].ReadyToStart);
 
     MyNik := (I+1 = fGame.Networking.MyIndex); //Our index
     //We are allowed to edit if it is our nickname and we are set as NOT ready,
@@ -2416,7 +2412,7 @@ begin
     Drop_LobbyColors[I].ItemIndex := 0;
     //Only host may change player slots, and only the first unused slot may be changed (so there are no gaps in net players list)
     DropBox_LobbyPlayerSlot[I].Enabled := fGame.Networking.IsHost and (I = fGame.Networking.NetPlayers.Count);
-    CheckBox_LobbyReady[I].Checked := False;
+    Image_LobbyReady[I].TexID := 0; //Hidden
     DropBox_LobbyLoc[I].Disable;
     DropBox_LobbyTeam[I].Disable;
     Drop_LobbyColors[I].Disable;
@@ -2517,8 +2513,6 @@ begin
                 Memo_LobbyMapDesc.Clear;
                 if aData <> fTextLibrary[TX_LOBBY_MAP_NONE] then
                   Memo_LobbyMapDesc.Text := aData;
-                Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
-                Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE];
 
                 //Starting locations text
                 DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
@@ -2529,8 +2523,6 @@ begin
 
                 Label_LobbyMapName.Caption := fGame.Networking.SaveInfo.FileName;
                 Memo_LobbyMapDesc.Text := fGame.Networking.GameInfo.GetTitleWithTime;
-                Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE] + ' ' + fGame.Networking.GameInfo.MissionModeText;
-                Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE] + ' ' + fGame.Networking.GameInfo.MapSizeText;
 
                 //Starting locations text
                 DropText := fTextLibrary[TX_LOBBY_SELECT] + eol;
@@ -2555,8 +2547,6 @@ begin
 
                 Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
                 Memo_LobbyMapDesc.Text := fGame.Networking.MapInfo.BigDesc;
-                Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE] + ' ' + fGame.Networking.GameInfo.MissionModeText;
-                Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE] + ' ' + fGame.Networking.GameInfo.MapSizeText;
 
               //Starting locations text
               DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
