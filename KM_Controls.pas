@@ -113,6 +113,7 @@ type
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
+    Scale: Single; //Child controls position is scaled
 
     Tag: Integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
@@ -953,6 +954,7 @@ end;
 constructor TKMControl.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
   inherited Create;
+  Scale     := 1;
   Hitable   := true; //All controls can be clicked by default
   fLeft     := aLeft;
   fTop      := aTop;
@@ -1078,14 +1080,18 @@ end;
 {Shortcuts to Controls properties}
 function TKMControl.GetLeft: Integer;
 begin
-  Result := Round(fLeft);
-  if Parent <> nil then Result := Result + Parent.GetLeft;
+  if Parent = nil then
+    Result := Round(fLeft)
+  else
+    Result := Round(fLeft*Parent.Scale) + Parent.GetLeft;
 end;
 
 function TKMControl.GetTop: Integer;
 begin
-  Result := Round(fTop);
-  if Parent <> nil then Result := Result + Parent.GetTop;
+  if Parent = nil then
+    Result := Round(fTop)
+  else
+    Result := Round(fTop*Parent.Scale) + Parent.GetTop;
 end;
 
 function TKMControl.GetHeight: Integer;

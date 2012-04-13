@@ -224,8 +224,9 @@ type
 
     Panel_Campaign:TKMPanel;
       Image_CampaignBG:TKMImage;
-      Image_CampaignFlags:array[0..MAX_CAMP_MAPS - 1] of TKMImage;
-      Image_CampaignSubNode:array[0..MAX_CAMP_NODES - 1] of TKMImage;
+      Panel_Campaign_Flags:TKMPanel;
+        Image_CampaignFlags:array[0..MAX_CAMP_MAPS - 1] of TKMImage;
+        Image_CampaignSubNode:array[0..MAX_CAMP_NODES - 1] of TKMImage;
       Panel_CampScroll:TKMPanel;
         Image_ScrollTop,Image_Scroll:TKMImage;
         Label_CampaignTitle,Label_CampaignText:TKMLabel;
@@ -421,12 +422,29 @@ end;
 
 //Keep Panel_Main centered
 procedure TKMMainMenuInterface.Resize(X, Y: Word);
+var I:Integer;
 begin
   Panel_Main.Width  := Min(X, MENU_DESIGN_X);
   Panel_Main.Height := Min(Y, MENU_DESIGN_Y);
 
   Panel_Main.Left := (X - Panel_Main.Width) div 2;
   Panel_Main.Top  := (Y - Panel_Main.Height) div 2;
+
+  //Special rules for resizing the campaigns panel
+  Panel_Campaign_Flags.Scale := Min(768,Y) / 768;
+  Panel_Campaign_Flags.Left := Round(1024*(1-Panel_Campaign_Flags.Scale) / 2);
+  Image_CampaignBG.Left := Round(1024*(1-Panel_Campaign_Flags.Scale) / 2);
+  Image_CampaignBG.Height := Min(768,Y);
+  Image_CampaignBG.Width := Round(1024*Panel_Campaign_Flags.Scale);
+  //Special rule to keep campaign flags pivoted at the right place (so the flagpole doesn't move when you resize)
+  if Campaign_Selected <> nil then
+    for I := 0 to High(Image_CampaignFlags) do
+      with Image_CampaignFlags[I] do
+      begin
+        //Pivot flags around Y=bottom X=middle, that's where the flag pole is
+        Left := Campaign_Selected.Maps[I].Flag.X - Round((Width/2)*(1-Panel_Campaign_Flags.Scale));
+        Top  := Campaign_Selected.Maps[I].Flag.Y - Round(Height   *(1-Panel_Campaign_Flags.Scale));
+      end;
 end;
 
 
@@ -863,7 +881,7 @@ begin
       Memo_LobbyMapDesc.ItemHeight := 16;
 
       with TKMLabel.Create(Panel_LobbySetup, 10, 626, 280, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft) do Anchors := [akLeft,akBottom];
-      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 10, 656, 250, 0, 120);
+      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 10, 648, 250, 0, 120);
       TrackBar_LobbyPeacetime.Anchors := [akLeft,akBottom];
       TrackBar_LobbyPeacetime.Caption := fTextLibrary[TX_LOBBY_PEACETIME];
       TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
@@ -882,19 +900,26 @@ procedure TKMMainMenuInterface.Create_Campaign_Page;
 var I: Integer;
 begin
   Panel_Campaign:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
+  Panel_Campaign.Stretch;
     Image_CampaignBG := TKMImage.Create(Panel_Campaign,0,0,Panel_Main.Width, Panel_Main.Height,0,rxGuiMain);
     Image_CampaignBG.ImageStretch;
 
+    Panel_Campaign_Flags:=TKMPanel.Create(Panel_Campaign,0,0,Panel_Main.Width, Panel_Main.Height);
+    Panel_Campaign_Flags.Stretch;
     for I := 0 to High(Image_CampaignFlags) do
     begin
-      Image_CampaignFlags[I] := TKMImage.Create(Panel_Campaign, Panel_Main.Width, Panel_Main.Height, 23, 29, 10, rxGuiMain);
+      Image_CampaignFlags[I] := TKMImage.Create(Panel_Campaign_Flags, Panel_Main.Width, Panel_Main.Height, 23, 29, 10, rxGuiMain);
       Image_CampaignFlags[I].OnClick := Campaign_SelectMap;
       Image_CampaignFlags[I].Tag := I;
     end;
     for I := 0 to High(Image_CampaignSubNode) do
-      Image_CampaignSubNode[I] := TKMImage.Create(Panel_Campaign, Panel_Main.Width, Panel_Main.Height, 0, 0, 16, rxGuiMain);
+    begin
+      Image_CampaignSubNode[I] := TKMImage.Create(Panel_Campaign_Flags, Panel_Main.Width, Panel_Main.Height, 0, 0, 16, rxGuiMain);
+      Image_CampaignSubNode[I].ImageCenter; //Pivot at the center of the dot (width/height = 0)
+    end;
 
   Panel_CampScroll := TKMPanel.Create(Panel_Campaign,Panel_Main.Width-360,Panel_Main.Height-430,360,430);
+  Panel_CampScroll.Anchors := [akLeft,akBottom];
 
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}2,rxGuiMainH);
     Image_Scroll.ImageStretch;
@@ -904,9 +929,11 @@ begin
     Label_CampaignText.AutoWrap := true;
 
   Button_CampaignStart := TKMButton.Create(Panel_Campaign, Panel_Main.Width-220-20, Panel_Main.Height-50, 220, 30, fTextLibrary[TX_MENU_START_MISSION], fnt_Metal, bsMenu);
+  Button_CampaignStart.Anchors := [akLeft,akBottom];
   Button_CampaignStart.OnClick := Campaign_StartMap;
 
   Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, Panel_Main.Height-50, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+  Button_CampaignBack.Anchors := [akLeft,akBottom];
   Button_CampaignBack.OnClick := SwitchMenuPage;
 end;
 
@@ -1593,8 +1620,9 @@ begin
   //Place sites
   for I := 0 to Campaign_Selected.MapCount - 1 do
   begin
-    Image_CampaignFlags[I].Left := Campaign_Selected.Maps[I].Flag.X;
-    Image_CampaignFlags[I].Top  := Campaign_Selected.Maps[I].Flag.Y;
+    //Pivot flags around Y=bottom X=middle, that's where the flag pole is
+    Image_CampaignFlags[I].Left := Campaign_Selected.Maps[I].Flag.X - Round((Image_CampaignFlags[I].Width/2)*(1-Panel_Campaign_Flags.Scale));
+    Image_CampaignFlags[I].Top  := Campaign_Selected.Maps[I].Flag.Y - Round(Image_CampaignFlags[I].Height   *(1-Panel_Campaign_Flags.Scale));
   end;
 
   //Select last map to play by 'clicking' last node
