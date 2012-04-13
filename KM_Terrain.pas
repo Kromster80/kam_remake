@@ -23,7 +23,7 @@ type
     procedure UpdatePassability(aRect: TKMRect); overload;
     procedure UpdatePassability(Loc: TKMPoint); overload;
     procedure UpdatePassabilityAround(Loc: TKMPoint);
-    procedure UpdateWalkConnect(aSet: array of TWalkConnect);
+    procedure UpdateWalkConnect(const aSet: array of TWalkConnect);
   public
     Land: array[1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE]of record
       Terrain:byte;
@@ -1984,7 +1984,7 @@ end;
 
 
 //Rebuilds connected areas using flood fill algorithm
-procedure TTerrain.UpdateWalkConnect(aSet: array of TWalkConnect);
+procedure TTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect);
 var
   WC: TWalkConnect;
   AllowDiag: Boolean;

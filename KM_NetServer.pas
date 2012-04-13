@@ -118,7 +118,7 @@ type
     property Listening: boolean read fListening;
     function GetPlayerCount:integer;
     procedure UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage, aServerName:string);
-    procedure GetServerInfo(var aList: TList);
+    procedure GetServerInfo(aList: TList);
   end;
 
 
@@ -341,16 +341,13 @@ begin
 end;
 
 
-procedure TKMNetServer.GetServerInfo(var aList: TList);
-var i: Integer;
+procedure TKMNetServer.GetServerInfo(aList: TList);
+var I: Integer;
 begin
   Assert(aList <> nil);
-  for i := 0 to fRoomCount - 1 do
-    if GetRoomClientsCount(i) > 0 then
-      aList.Add(fRoomInfo[i].GameInfo);
-  //@Lewin: Who frees that list?
-  //@Krom: My plan was whoever calls this function would free it, but that's ambigous so I changed it to a parameter.
-  //       Now it is freed in the same place it is created, much neater. Thanks. To be deleted.
+  for I := 0 to fRoomCount - 1 do
+    if GetRoomClientsCount(I) > 0 then
+      aList.Add(fRoomInfo[I].GameInfo);
 end;
 
 

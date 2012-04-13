@@ -1153,7 +1153,7 @@ end;
 
 
 //Check if replay files exist at location
-function TKMGame.ReplayExists(const aSaveName:string; aMultiplayer:boolean):boolean;
+function TKMGame.ReplayExists(const aSaveName: string; aMultiplayer:boolean):boolean;
 var OldMultiplayerMode:boolean;
 begin
   OldMultiplayerMode := fMultiplayerMode;
@@ -1166,7 +1166,7 @@ end;
 
 //Restart the replay but do not change the viewport position/zoom
 procedure TKMGame.RestartReplay;
-var OldCenter:TKMPointF; OldZoom:single;
+var OldCenter: TKMPointF; OldZoom: single;
 begin
   OldCenter := fViewport.Position;
   OldZoom := fViewport.Zoom;
@@ -1178,7 +1178,7 @@ begin
 end;
 
 
-procedure TKMGame.StartReplay(const aSaveName:string; aMultiplayer:boolean);
+procedure TKMGame.StartReplay(const aSaveName: string; aMultiplayer:boolean);
 begin
   Stop(gr_Silent);
   fReplayMode := true;

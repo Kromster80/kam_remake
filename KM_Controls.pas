@@ -284,7 +284,7 @@ type
     fInclRandom: Boolean;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize: Integer);
-    procedure SetColors(aColors:array of TColor4; aInclRandom: Boolean=false);
+    procedure SetColors(const aColors: array of TColor4; aInclRandom: Boolean = False);
     property BackAlpha: single read fBackAlpha write fBackAlpha;
     property ColorIndex: Byte read fColorIndex write fColorIndex;
     function GetColor: TColor4;
@@ -805,7 +805,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aCount: Integer);
     property ColorIndex: Integer read fColorIndex write SetColorIndex;
-    procedure SetColors(aColors:array of TColor4; aRandomCaption: string='');
+    procedure SetColors(const aColors: array of TColor4; aRandomCaption: string = '');
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
@@ -1605,7 +1605,7 @@ begin
 end;
 
 
-procedure TKMColorSwatch.SetColors(aColors:array of TColor4; aInclRandom: Boolean=false);
+procedure TKMColorSwatch.SetColors(const aColors: array of TColor4; aInclRandom: Boolean = False);
 begin
   fInclRandom := aInclRandom;
   if fInclRandom then
@@ -3625,7 +3625,7 @@ begin
 end;
 
 
-procedure TKMDropColorBox.SetColors(aColors:array of TColor4; aRandomCaption: string='');
+procedure TKMDropColorBox.SetColors(const aColors: array of TColor4; aRandomCaption: string = '');
 begin
   //Store local copy of flag to substitute 0 color with "Random" text
   fRandomCaption := aRandomCaption;

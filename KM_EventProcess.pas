@@ -70,7 +70,7 @@ type
     fEvents: TList;
     function GetEvent(aIndex: Integer): TKMEvent;
     property Events[aIndex: Integer]: TKMEvent read GetEvent;
-    procedure Proc(aTrigger: TEventTrigger; aPlayer: TPlayerIndex; aParams: array of Integer);
+    procedure Proc(aTrigger: TEventTrigger; aPlayer: TPlayerIndex; const aParams: array of Integer);
   public
     constructor Create;
     destructor Destroy; override;
@@ -105,7 +105,7 @@ const
   TriggerParamCount: array [TEventTrigger] of byte = (0, 1, 1);
   ActionParamCount: array [TEventAction] of byte = (2, 1, 0);
 
-function MakeAction(aAct: TEventAction; aPlayer: TPlayerIndex; aParams: array of Integer): TKMAction;
+function MakeAction(aAct: TEventAction; aPlayer: TPlayerIndex; const aParams: array of Integer): TKMAction;
 var
   I: Integer;
 begin
@@ -120,7 +120,7 @@ begin
 end;
 
 
-function MakeTrigger(aTrigger: TEventTrigger; aPlayer: TPlayerIndex; aParams: array of Integer): TKMTrigger;
+function MakeTrigger(aTrigger: TEventTrigger; aPlayer: TPlayerIndex; const aParams: array of Integer): TKMTrigger;
 var
   I: Integer;
 begin
@@ -165,7 +165,7 @@ begin
 end;
 
 
-procedure TKMEventsManager.Proc(aTrigger: TEventTrigger; aPlayer: TPlayerIndex; aParams: array of Integer);
+procedure TKMEventsManager.Proc(aTrigger: TEventTrigger; aPlayer: TPlayerIndex; const aParams: array of Integer);
 var I: Integer;
 begin
   //Process in reverse as we delete handled events

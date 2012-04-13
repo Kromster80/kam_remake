@@ -604,26 +604,28 @@ end;
 { TKMHouseDatCollection }
 constructor TKMHouseDatCollection.Create;
 
-  procedure AddAnimation(aHouse:THouseType; aAnim:THouseActionType; aMoveX, aMoveY:integer; const aSteps:array of smallint);
-  var i:integer;
+  procedure AddAnimation(aHouse: THouseType; aAnim:THouseActionType; aMoveX, aMoveY: Integer; const aSteps: array of SmallInt);
+  var I: Integer;
   begin
     with fItems[aHouse].fHouseDat.Anim[aAnim] do
     begin
       MoveX := aMoveX;
       MoveY := aMoveY;
       Count := length(aSteps);
-      for i:=1 to Count do
-        Step[i] := aSteps[i-1];
+      for I := 1 to Count do
+        Step[I] := aSteps[I-1];
     end;
   end;
 
-  procedure AddMarketBeastAnim(aBeast:integer; aStep:array of smallint);
-  var i:integer;
+  procedure AddMarketBeastAnim(aBeast: Integer; const aStep: array of SmallInt);
+  var I: Integer;
   begin
-    for i:=1 to 30 do fMarketBeastAnim[aBeast].Step[i] := aStep[i-1]+MarketWareTexStart-1; //Beast anims are 0 indexed
+    // Beast anims are 0 indexed
+    for I := 1 to 30 do
+      fMarketBeastAnim[aBeast].Step[I] := aStep[I - 1] + MarketWareTexStart - 1;
   end;
 
-var H:THouseType; i:integer;
+var H: THouseType; I: Integer;
 begin
   Inherited;
 
@@ -650,11 +652,11 @@ begin
   fItems[ht_Marketplace].fHouseDat.EntranceOffsetYpx := 15; //todo: When we've fixed the render order bugs, move the enterance up to "10". It's temporarily moved down now so serfs don't go under the market sprite while walking inside.
   fItems[ht_Marketplace].fHouseDat.WoodCost := 5;
   fItems[ht_Marketplace].fHouseDat.StoneCost := 6;
-  for i:=1 to 6 do begin
-    fItems[ht_Marketplace].fHouseDat.BuildSupply[1,i].MoveX := -55+ BuildSupplyOffsets[1,i].MoveX;
-    fItems[ht_Marketplace].fHouseDat.BuildSupply[1,i].MoveY := 15 + BuildSupplyOffsets[1,i].MoveY;
-    fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveX := 28 + BuildSupplyOffsets[2,i].MoveX;
-    fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveY := 20 + BuildSupplyOffsets[2,i].MoveY;
+  for I := 1 to 6 do begin
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[1,I].MoveX := -55+ BuildSupplyOffsets[1,I].MoveX;
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[1,I].MoveY := 15 + BuildSupplyOffsets[1,I].MoveY;
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[2,I].MoveX := 28 + BuildSupplyOffsets[2,I].MoveX;
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[2,I].MoveY := 20 + BuildSupplyOffsets[2,I].MoveY;
   end;
   fItems[ht_Marketplace].fHouseDat.Sight := 10;
   fItems[ht_Marketplace].fHouseDat.SizeArea := 11;
