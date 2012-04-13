@@ -327,7 +327,7 @@ MaxID:2699
 1787:Players list
 1788:Start location
 1789:Team
-1790:Flag colour
+1790:Color
 1791:Ready
 1792:Ping
 1793:Kick
@@ -337,7 +337,6 @@ MaxID:2699
 1797:Random
 1798:None
 1799:None
-1800:Team %d
 1802:Post message:
 1803:Map type
 1804:Single Map

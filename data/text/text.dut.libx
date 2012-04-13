@@ -323,7 +323,6 @@ MaxID:2699
 1787:Spelerslijst
 1788:Startlocatie
 1789:Team
-1790:Vlagkleur
 1791:Gereed
 1792:Ping
 1793:Kick
@@ -333,7 +332,6 @@ MaxID:2699
 1797:Willekeurig
 1798:Geen
 1799:Geen
-1800:Team %d
 1802:Bericht:
 1803:Kaartsoort
 1804:Enkele kaart:

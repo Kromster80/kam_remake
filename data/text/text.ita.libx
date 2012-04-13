@@ -323,7 +323,6 @@ MaxID:2699
 1787:Giocatori
 1788:Posizione
 1789:Squadra
-1790:Colore
 1791:Pronto
 1792:Ping
 1793:Caccia
@@ -333,7 +332,6 @@ MaxID:2699
 1797:Casuale
 1798:Nessuna
 1799:Nessuna
-1800:Squadra %d
 1802:Invia messaggio:
 1803:Tipo di mappa
 1804:Giocatore singolo

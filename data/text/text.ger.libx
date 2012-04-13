@@ -323,7 +323,6 @@ MaxID:2699
 1787:Spieler
 1788:Startposition
 1789:Team
-1790:Farbe
 1791:Bereit
 1792:Ping
 1793:Kick
@@ -333,7 +332,6 @@ MaxID:2699
 1797:Zufällig
 1798:Keins
 1799:Keine Info vorhanden.
-1800:Team %d
 1802:Nachricht:
 1803:Typ:
 1804:Einzelkarte

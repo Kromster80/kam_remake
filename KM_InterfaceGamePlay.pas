@@ -1136,8 +1136,8 @@ begin
       Label_AlliesTeam[i]   := TKMLabel.Create(Panel_Allies,   220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, '', fnt_Grey, taLeft);
       DropBox_AlliesTeam[i] := TKMDropList.Create(Panel_Allies, 220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey, '');
       DropBox_AlliesTeam[i].Hide; //Use label for demos until we fix exploits
-      DropBox_AlliesTeam[i].Add(fTextLibrary[TX_LOBBY_NONE]);
-      for k:=1 to 4 do DropBox_AlliesTeam[i].Add(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
+      DropBox_AlliesTeam[i].Add('-');
+      for k:=1 to 4 do DropBox_AlliesTeam[i].Add(IntToStr(k));
       DropBox_AlliesTeam[i].OnChange := AlliesTeamChange;
       DropBox_AlliesTeam[i].DropUp := true; //Doesn't fit if it drops down
       Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 60, 20, '', fnt_Grey, taCenter);
@@ -3093,9 +3093,9 @@ begin
     Label_AlliesTeam[i].Strikethrough := fGame.Networking.NetPlayers[i+1].Dropped;
     Label_AlliesPing[i].Strikethrough := fGame.Networking.NetPlayers[i+1].Dropped;
     if fGame.Networking.NetPlayers[i+1].Team = 0 then
-      Label_AlliesTeam[i].Caption := fTextLibrary[TX_LOBBY_NONE]
+      Label_AlliesTeam[i].Caption := '-'
     else
-      Label_AlliesTeam[i].Caption := Format(fTextLibrary[TX_LOBBY_TEAM_X],[fGame.Networking.NetPlayers[i+1].Team]);
+      Label_AlliesTeam[i].Caption := IntToStr(fGame.Networking.NetPlayers[i+1].Team);
     DropBox_AlliesTeam[i].Enabled := (i+1 = fGame.Networking.MyIndex); //Our index
     DropBox_AlliesTeam[i].Hide; //Use label for demos until we fix exploits
   end;
