@@ -106,7 +106,8 @@ var
   WRITE_RECONNECT_LOG   :Boolean = True;
   WriteResourceInfoToTXT:Boolean = False; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP :Boolean = False; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
-
+  {Unfinished features}
+  SHOW_DISMISS_BUTTON   :Boolean = False;
   //Statistic
   CtrlPaintCount: Word; //How many Controls were painted in last frame
 

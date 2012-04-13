@@ -687,7 +687,12 @@ begin
         if aUnit is TKMUnitWarrior then
           with TKMUnitWarrior(aUnit).GetCommander do
             if not ArmyInFight then
-              OrderAttackUnit(aAttacker);
+              if not TKMUnitWarrior(aAttacker).IsArcher then
+                OrderAttackUnit(aAttacker)
+              else begin
+                TKMUnitWarrior(aUnit).WaitForShot := True;
+                TKMUnitWarrior(aUnit).ShotAttacker := aAttacker;
+              end;
         RetaliateAgainstThreat(aAttacker); //Nearby soldiers should come to assist
       end;
   end;

@@ -2146,7 +2146,7 @@ begin
       exit;
     end;
     Panel_Unit_Dismiss.Hide;
-    Button_Unit_Dismiss.Show;
+    Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON;
     Commander := TKMUnitWarrior(Sender).GetCommander;
     if not Commander.ArmyCanTakeOrders then
       Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
@@ -2177,7 +2177,7 @@ begin
       exit;
     end;
     Panel_Unit_Dismiss.Hide;
-    Button_Unit_Dismiss.Show;
+    Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON;
     Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
     Label_UnitDescription.Show;
   end;

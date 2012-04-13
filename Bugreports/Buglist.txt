@@ -19,12 +19,12 @@
  +	Pressing CTRL+ALT+DEL with a game running caused a "System error code 5" or "call to OS function failed" due to Windows denying accesss to Mouse.CursorPos for a moment
  +	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
  +	Issue with empty saves names and misused whitespaces
+ +	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
 	The multiplayer in-game player list should be ordered (grouped) by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
-	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
 ?	Warriors should resume interrupted orders after a fight
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Replays sometimes end up with a mismatch while watching them, cause unknown
