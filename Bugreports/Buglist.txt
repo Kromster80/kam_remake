@@ -19,6 +19,7 @@
  +	Pressing CTRL+ALT+DEL with a game running caused a "System error code 5" or "call to OS function failed" due to Windows denying accesss to Mouse.CursorPos for a moment
  +	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
  +	Issue with empty saves names and misused whitespaces
+	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
 	The multiplayer in-game player list should be ordered (grouped) by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
