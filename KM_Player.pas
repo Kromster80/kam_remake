@@ -796,7 +796,7 @@ end;
 
 procedure TKMPlayer.Save(SaveStream: TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   fAI.Save(SaveStream);
   fBuildList.Save(SaveStream);
   fDeliverList.Save(SaveStream);
@@ -815,7 +815,7 @@ end;
 
 procedure TKMPlayer.Load(LoadStream: TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   fAI.Load(LoadStream);
   fBuildList.Load(LoadStream);
   fDeliverList.Load(LoadStream);
@@ -848,18 +848,18 @@ begin
 end;
 
 
-//aUpdateAI flag means we can perform CPU intensive AI update
 procedure TKMPlayer.UpdateState(aTick: Cardinal);
 begin
-  Inherited;
+  inherited;
 
   fHouses.UpdateState;
   fFogOfWar.UpdateState; //We might optimize it for AI somehow, to make it work coarse and faster
 
-  if (aTick + fPlayerIndex mod 10 = 0) then
+  //Distribute AI updates among different Ticks to avoid slowdowns
+  if (aTick + Byte(fPlayerIndex)) mod 10 = 0 then
     fBuildList.UpdateState;
 
-  if (aTick + fPlayerIndex mod 20 = 0) then
+  if (aTick + Byte(fPlayerIndex)) mod 20 = 0 then
   begin
     fAI.UpdateState;
     //fArmyEval.UpdateState;

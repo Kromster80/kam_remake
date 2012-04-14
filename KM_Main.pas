@@ -2,21 +2,18 @@ unit KM_Main;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, ExtCtrls, Forms, Math, SysUtils, StrUtils,
+  Classes, Controls, Forms, Math, SysUtils, StrUtils,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
   KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions;
 
 type
   TKMMain = class
   private
-    fTimer: TTimer;
     fMainSettings: TMainSettings;
     fResolutions: TKMResolutions;
 
     procedure DoDeactivate(Sender: TObject);
     procedure DoIdle(Sender: TObject; var Done: Boolean);
-    procedure DoTimer(Sender: TObject);
-
   public
     constructor Create;
 
@@ -97,12 +94,6 @@ begin
   Application.OnIdle := DoIdle;
   Application.OnDeactivate := DoDeactivate;
 
-  //todo: Move timer to fGame
-  fTimer := TTimer.Create(nil);
-  fTimer.OnTimer := DoTimer;
-  fTimer.Interval := fGame.GlobalSettings.SpeedPace;
-  fTimer.Enabled := True;
-
   FormLoading.Hide;
 end;
 
@@ -115,15 +106,11 @@ end;
 
 procedure TKMMain.Stop(Sender: TObject);
 begin
-  if fTimer<>nil then
-    fTimer.Enabled := False;
-
   //Reset the resolution
   if fResolutions<>nil then FreeThenNil(fResolutions);
   if fMainSettings<>nil then FreeThenNil(fMainSettings);
   if fGame<>nil then fGame.Stop(gr_Silent);
   if fGame<>nil then FreeThenNil(fGame);
-  if fTimer<>nil then FreeThenNil(fTimer); //If you close the game during initialisation the timer is not yet created
   if fLog<>nil then FreeThenNil(fLog);
   {$IFDEF MSWindows}
   TimeEndPeriod(1);
@@ -184,13 +171,6 @@ begin
   end;
 
   Done := False; //Repeats OnIdle asap without performing Form-specific idle code
-end;
-
-
-procedure TKMMain.DoTimer(Sender: TObject);
-begin
-  if fGame <> nil then
-    fGame.UpdateState;
 end;
 
 

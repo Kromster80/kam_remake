@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} MPlayer, {$ENDIF}
-  Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math, TypInfo, Zippit,
+  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo, Zippit,
   KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
   KM_Networking,
   KM_MapEditor, KM_Campaigns, KM_EventProcess,
@@ -30,6 +30,7 @@ type
     fFormPassability:integer;
     fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fGlobalTickCount:cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
+    fTimer: TTimer;
     fGameSpeed:word;
     fGameState:TGameState;
     fMultiplayerMode:boolean;
@@ -137,9 +138,9 @@ type
     function AllowDebugRendering:boolean;
     function GetNewID:cardinal;
     property GameState:TGameState read fGameState;
-    procedure SetGameSpeed(aSpeed:word);
+    procedure SetGameSpeed(aSpeed: word);
     procedure StepOneFrame;
-    function SaveName(const aName, aExt:string):string;
+    function SaveName(const aName, aExt: string):string;
     function RenderVersion: string;
     procedure UpdateGameCursor(X,Y: Integer; Shift: TShiftState);
 
@@ -158,8 +159,8 @@ type
     procedure PrintScreen;
 
     procedure Render;
-    procedure UpdateState;
-    procedure UpdateStateIdle(aFrameTime:cardinal);
+    procedure UpdateState(Sender: TObject);
+    procedure UpdateStateIdle(aFrameTime: Cardinal);
     procedure PaintInterface;
   end;
 
@@ -213,6 +214,11 @@ begin
   //If game was reinitialized from options menu then we should return there
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
 
+  fTimer := TTimer.Create(nil);
+  fTimer.Interval := fGameSettings.SpeedPace;
+  fTimer.OnTimer := UpdateState;
+  fTimer.Enabled := True;
+
   //Start the Music playback as soon as loading is complete
   if (not NoMusic) and not fGameSettings.MusicOff then
     fMusicLib.PlayMenuTrack;
@@ -236,10 +242,12 @@ end;
 { Destroy what was created }
 destructor TKMGame.Destroy;
 begin
+  fTimer.Enabled := False;
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
   fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
 
   fCampaigns.SaveProgress(ExeDir + 'Saves\Campaigns.dat');
+  FreeAndNil(fTimer);
   FreeThenNil(fCampaigns);
   if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeThenNil(fGameSettings);
@@ -1510,10 +1518,10 @@ begin
 end;
 
 
-procedure TKMGame.UpdateState;
-var i:integer; T: Cardinal;
+procedure TKMGame.UpdateState(Sender: TObject);
+var I: Integer; T: Cardinal;
 begin
-  inc(fGlobalTickCount);
+  Inc(fGlobalTickCount);
   case fGameState of
     gsPaused:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
     gsOnHold:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
