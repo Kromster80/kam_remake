@@ -310,6 +310,7 @@ type
       Panel_StatsMP1, Panel_StatsMP2: TKMPanel;
       Label_ResultsPlayerName1, Label_ResultsPlayerName2:array[0..MAX_PLAYERS-1] of TKMLabel;
       Bar_Results:array[0..MAX_PLAYERS-1, 0..9] of TKMPercentBar;
+      Image_ResultsRosette:array[0..MAX_PLAYERS-1, 0..9] of TKMImage;
       Button_ResultsMPBack:TKMButton;
   public
     constructor Create(X,Y:word);
@@ -531,6 +532,8 @@ procedure TKMMainMenuInterface.Fill_ResultsMP;
 var
   i,k: Integer;
   UnitsMax, HousesMax, GoodsMax, WeaponsMax, MaxValue: Integer;
+  Bests: array[0..9] of Integer;
+  Totals: array[0..9] of Integer;
 begin
   Label_ResultsMPTime.Caption := fGame.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
 
@@ -540,8 +543,48 @@ begin
     Label_ResultsPlayerName1[i].Visible := (i <= fPlayers.Count-1);
     Label_ResultsPlayerName2[i].Visible := (i <= fPlayers.Count-1);
     for k:=0 to 9 do
+    begin
       Bar_Results[i,k].Visible := (i <= fPlayers.Count-1);
+      Image_ResultsRosette[i,k].Visible := (i <= fPlayers.Count-1);
+    end;
   end;
+
+  //Calculate bests for each "section"
+  Bests[0] := -1;
+  Bests[1] := MaxInt;
+  Bests[2] := -1;
+  Bests[3] := MaxInt;
+  Bests[4] := -1;
+  Bests[5] := -1;
+  Bests[6] := MaxInt;
+  Bests[7] := -1;
+  Bests[8] := -1;
+  Bests[9] := -1;
+  ZeroMemory(@Totals,SizeOf(Totals));
+  for i:=0 to fPlayers.Count-1 do
+    with fPlayers[i].Stats do
+    begin
+      if Bests[0] < GetCitizensTrained then Bests[0] := GetCitizensTrained;
+      if Bests[1] > GetCitizensLost    then Bests[1] := GetCitizensLost;
+      if Bests[2] < GetWarriorsTrained then Bests[2] := GetWarriorsTrained;
+      if Bests[3] > GetWarriorsLost    then Bests[3] := GetWarriorsLost;
+      if Bests[4] < GetCitizensKilled + GetWarriorsKilled then Bests[4] := GetCitizensKilled + GetWarriorsKilled;
+      if Bests[5] < GetHousesBuilt     then Bests[5] := GetHousesBuilt;
+      if Bests[6] > GetHousesLost      then Bests[6] := GetHousesLost;
+      if Bests[7] < GetHousesDestroyed then Bests[7] := GetHousesDestroyed;
+      if Bests[8] < GetGoodsProduced   then Bests[8] := GetGoodsProduced;
+      if Bests[9] < GetWeaponsProduced then Bests[9] := GetWeaponsProduced;
+      inc(Totals[0],GetCitizensTrained);
+      inc(Totals[1],GetCitizensLost);
+      inc(Totals[2],GetWarriorsTrained);
+      inc(Totals[3],GetWarriorsLost);
+      inc(Totals[4],GetCitizensKilled + GetWarriorsKilled);
+      inc(Totals[5],GetHousesBuilt);
+      inc(Totals[6],GetHousesLost);
+      inc(Totals[7],GetHousesDestroyed);
+      inc(Totals[8],GetGoodsProduced);
+      inc(Totals[9],GetWeaponsProduced);
+    end;
 
   //Update positioning
   Panel_StatsMP1.Height := 40 + fPlayers.Count * 22;
@@ -567,12 +610,22 @@ begin
       Bar_Results[i,2].Tag := GetWarriorsTrained;
       Bar_Results[i,3].Tag := GetWarriorsLost;
       Bar_Results[i,4].Tag := GetCitizensKilled + GetWarriorsKilled;
+      Image_ResultsRosette[i,0].Visible := (GetCitizensTrained >= Bests[0]) and (Totals[0] > 0);
+      Image_ResultsRosette[i,1].Visible := (GetCitizensLost    <= Bests[1]) and (Totals[1] > 0);
+      Image_ResultsRosette[i,2].Visible := (GetWarriorsTrained >= Bests[2]) and (Totals[2] > 0);
+      Image_ResultsRosette[i,3].Visible := (GetWarriorsLost    <= Bests[3]) and (Totals[3] > 0);
+      Image_ResultsRosette[i,4].Visible := (GetCitizensKilled + GetWarriorsKilled >= Bests[4]) and (Totals[4] > 0);
       //Objects
       Bar_Results[i,5].Tag := GetHousesBuilt;
       Bar_Results[i,6].Tag := GetHousesLost;
       Bar_Results[i,7].Tag := GetHousesDestroyed;
       Bar_Results[i,8].Tag := GetGoodsProduced;
       Bar_Results[i,9].Tag := GetWeaponsProduced;
+      Image_ResultsRosette[i,5].Visible := (GetHousesBuilt     >= Bests[5]) and (Totals[5] > 0);
+      Image_ResultsRosette[i,6].Visible := (GetHousesLost      <= Bests[6]) and (Totals[6] > 0);
+      Image_ResultsRosette[i,7].Visible := (GetHousesDestroyed >= Bests[7]) and (Totals[7] > 0);
+      Image_ResultsRosette[i,8].Visible := (GetGoodsProduced   >= Bests[8]) and (Totals[8] > 0);
+      Image_ResultsRosette[i,9].Visible := (GetWeaponsProduced >= Bests[9]) and (Totals[9] > 0);
     end;
   end;
 
@@ -1390,7 +1443,10 @@ begin
         with TKMLabel.Create(Panel_StatsMP1, 160 + BarHalf+BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns1[k]], fnt_Metal, taCenter) do
           AutoWrap := true;
         for i:=0 to 7 do
+        begin
           Bar_Results[i,k] := TKMPercentBar.Create(Panel_StatsMP1, 160 + k*BarStep, 35+i*RowHeight, BarWidth, 20, fnt_Metal);
+          Image_ResultsRosette[i,k] := TKMImage.Create(Panel_StatsMP1, 164 + k*BarStep, 38+i*RowHeight, 16, 16, 25, rxMenu);
+        end;
       end;
 
     Panel_StatsMP2 := TKMPanel.Create(Panel_ResultsMP, 62, 406, 900, 180);
@@ -1404,7 +1460,10 @@ begin
         with TKMLabel.Create(Panel_StatsMP2, 160 + BarHalf+BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns2[k]], fnt_Metal, taCenter) do
           AutoWrap := true;
         for i:=0 to 7 do
+        begin
           Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 160 + k*BarStep, 35+i*RowHeight, BarWidth, 20, fnt_Metal);
+          Image_ResultsRosette[i,k+5] := TKMImage.Create(Panel_StatsMP2, 164 + k*BarStep, 38+i*RowHeight, 16, 16, 25, rxMenu);
+        end;
       end;
 
     Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,630,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
