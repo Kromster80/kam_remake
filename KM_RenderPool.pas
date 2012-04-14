@@ -77,7 +77,7 @@ type
 
     procedure Render;
 
-    procedure AddProjectile(aProj: TProjectileType; pX,pY: Single; Flight: Single; Dir: TKMDirection);
+    procedure AddProjectile(aProj: TProjectileType; aPos: TKMPointF; aDir: TKMDirection; aFlight: Single);
     procedure AddHouseTablet(Index:THouseType; Loc:TKMPoint);
     procedure AddHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
     procedure AddHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
@@ -448,26 +448,27 @@ begin
 end;
 
 
-procedure TRenderPool.AddProjectile(aProj: TProjectileType; pX,pY: Single; Flight: Single; Dir: TKMDirection);
+procedure TRenderPool.AddProjectile(aProj: TProjectileType; aPos: TKMPointF; aDir: TKMDirection; aFlight: Single);
 var
   FOW: Byte;
   ID: Integer;
   ShiftX,ShiftY: Single;
   Ground: Single;
 begin
-  if not fTerrain.TileInMapCoords(Round(pX), Round(pY)) then Exit; //Arrows may fly off map
+  //When arrows fly off map we get TKMPoint error
+  if not fTerrain.TileInMapCoords(Round(aPos.X), Round(aPos.Y)) then Exit;
 
-  FOW := MyPlayer.FogOfWar.CheckTileRevelation(Round(pX), Round(pY), true);
-  if FOW <= 128 then exit; //Don't render objects which are behind FOW
+  FOW := MyPlayer.FogOfWar.CheckTileRevelation(Round(aPos.X), Round(aPos.Y), True);
+  if FOW <= 128 then Exit; //Don't render objects which are behind FOW
 
   case aProj of
-    pt_Arrow:     with fResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, Dir] do
-                    ID := Step[round(Flight*Count)+1]+1; //todo: Bug occured once when Flight > 1
-    pt_Bolt:      with fResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, Dir] do
-                    ID := Step[round(Flight*Count)+1]+1;
-    pt_SlingRock: with fResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, Dir] do
-                    ID := Step[round(Flight*Count)+1]+1;
-    pt_TowerRock: ID := ProjectileBounds[aProj,1]+1;
+    pt_Arrow:     with fResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
+                    ID := Step[round(aFlight * Count) + 1] + 1; //todo: Bug occured once when Flight > 1
+    pt_Bolt:      with fResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
+                    ID := Step[round(aFlight * Count) + 1] + 1;
+    pt_SlingRock: with fResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
+                    ID := Step[round(aFlight * Count) + 1] + 1;
+    pt_TowerRock: ID := ProjectileBounds[aProj, 1] + 1;
     else          ID := 1; //Nothing?
   end;
 
@@ -475,12 +476,12 @@ begin
   ShiftY := (fRXData[rxUnits].Pivot[ID].y + fRXData[rxUnits].Size[ID].Y) / CELL_SIZE_PX;
 
   case aProj of
-    pt_Arrow, pt_Bolt, pt_SlingRock:  Ground := pY + ShiftY + (0.5 - Abs(Flight-0.5)) + 0.5;
-    pt_TowerRock:                     Ground := pY + ShiftY + (1 - Flight) + 0.5;
-    else                              Ground := pY + ShiftY; //Nothing?
+    pt_Arrow, pt_Bolt, pt_SlingRock:  Ground := aPos.Y + ShiftY + (0.5 - Abs(aFlight - 0.5)) + 0.5;
+    pt_TowerRock:                     Ground := aPos.Y + ShiftY + (1 - aFlight) + 0.5;
+    else                              Ground := aPos.Y + ShiftY; //Nothing?
   end;
 
-  fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, Ground, True);
+  fRenderList.AddSprite(rxUnits, ID, aPos.X + ShiftX, aPos.Y + ShiftY, Ground, True);
 end;
 
 
