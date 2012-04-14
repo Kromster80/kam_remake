@@ -344,17 +344,16 @@ type
     procedure AlliesOnPingInfo(Sender: TObject);
     procedure AlliesTeamChange(Sender: TObject);
 
-    procedure KeyDown(Key:Word; Shift: TShiftState);
-    procedure KeyUp(Key:Word; Shift: TShiftState);
+    procedure KeyDown(Key:Word; Shift: TShiftState); override;
+    procedure KeyUp(Key:Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
-    procedure SaveMapview(SaveStream:TKMemoryStream);
-    procedure LoadMapview(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
+    procedure SaveMapview(SaveStream: TKMemoryStream);
+    procedure LoadMapview(LoadStream: TKMemoryStream);
     procedure UpdateState; override;
   end;
 
@@ -3132,15 +3131,16 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.KeyDown(Key:Word; Shift: TShiftState);
+procedure TKMGamePlayInterface.KeyDown(Key: Word; Shift: TShiftState);
 begin
+  if (fGame.GameState = gsRunning) and fMyControls.KeyDown(Key, Shift) then
+  begin
+    fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
+    Exit;
+  end;
+
   if fGame.GameState in [gsRunning, gsReplay] then
   begin
-    if (fGame.GameState = gsRunning) and fMyControls.KeyDown(Key, Shift) then
-    begin
-      fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
-      Exit;
-    end;
     if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := true;
     if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := true;
     if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := true;
@@ -3422,11 +3422,14 @@ end;
 procedure TKMGamePlayInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var P:TKMPoint; U:TKMUnit; H:TKMHouse; OldSelected: TObject;
 begin
-  fMyControls.MouseMove(X,Y,Shift);
-  if (fMyControls.CtrlOver <> nil) and (fMyControls.CtrlOver <> Image_DirectionCursor) and
-      not SelectingTroopDirection then begin
+  inherited;
+
+  if (fMyControls.CtrlOver <> nil)
+  and (fMyControls.CtrlOver <> Image_DirectionCursor)
+  and not SelectingTroopDirection then
+  begin
     fMyControls.MouseUp(X,Y,Shift,Button);
-    exit;
+    Exit;
   end;
 
   if fGame.GameState <> gsRunning then exit;
@@ -3558,29 +3561,7 @@ begin
 end;
 
 
-//e.g. if we're over a scrollbar it shouldn't zoom map,
-//but this can apply for all controls (i.e. only zoom when over the map not controls)
-procedure TKMGamePlayInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
-var PrevCursor: TKMPointF;
-begin
-  fMyControls.MouseWheel(X, Y, WheelDelta);
-  if (X < 0) or (Y < 0) then exit; //This occours when you use the mouse wheel on the window frame
-  if MOUSEWHEEL_ZOOM_ENABLE and ((fMyControls.CtrlOver = nil) or fGame.ReplayMode) and
-     (fGame.GameState in [gsReplay,gsRunning]) then
-  begin
-    fGame.UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
-    PrevCursor := GameCursor.Float;
-    fGame.Viewport.Zoom := fGame.Viewport.Zoom + WheelDelta/2000;
-    fGame.UpdateGameCursor(X, Y, Shift); //Zooming changes the cursor position
-    //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-    fGame.Viewport.Position := KMPointF(fGame.Viewport.Position.X + PrevCursor.X-GameCursor.Float.X,
-                                   fGame.Viewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
-    fGame.UpdateGameCursor(X, Y, Shift); //Recentering the map changes the cursor position
-  end;
-end;
-
-
-procedure TKMGamePlayInterface.Save(SaveStream:TKMemoryStream);
+procedure TKMGamePlayInterface.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fLastSaveName);
   SaveStream.Write(LastSchoolUnit);
@@ -3590,7 +3571,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Load(LoadStream:TKMemoryStream);
+procedure TKMGamePlayInterface.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fLastSaveName);
   LoadStream.Read(LastSchoolUnit);
@@ -3602,13 +3583,13 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SaveMapview(SaveStream:TKMemoryStream);
+procedure TKMGamePlayInterface.SaveMapview(SaveStream: TKMemoryStream);
 begin
   fMapView.Save(SaveStream);
 end;
 
 
-procedure TKMGamePlayInterface.LoadMapview(LoadStream:TKMemoryStream);
+procedure TKMGamePlayInterface.LoadMapview(LoadStream: TKMemoryStream);
 begin
   fMapView.Load(LoadStream);
 end;

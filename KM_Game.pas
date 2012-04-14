@@ -10,7 +10,7 @@ uses
   KM_Networking,
   KM_MapEditor, KM_Campaigns, KM_EventProcess,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
-  KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_Resource, KM_Terrain, KM_PathFinding, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
   KM_ArmyEvaluation, KM_GameOptions, KM_PerfLog, KM_Locales;
 
@@ -69,10 +69,11 @@ type
     procedure Load(const aFileName: string; aReplay:boolean=false);
   public
     OnCursorUpdate: TIntegerStringEvent;
-    PlayOnState:TGameResultMsg;
+    PlayOnState: TGameResultMsg;
     DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
-    DoGameHoldState:TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
+    DoGameHoldState: TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
     SkipReplayEndCheck:boolean;
+    fActiveInterface: TKMUserInterface;
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
@@ -137,7 +138,7 @@ type
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
     function AllowDebugRendering:boolean;
     function GetNewID:cardinal;
-    property GameState:TGameState read fGameState;
+    property GameState: TGameState read fGameState;
     procedure SetGameSpeed(aSpeed: word);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: string):string;
@@ -161,7 +162,6 @@ type
     procedure Render;
     procedure UpdateState(Sender: TObject);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
-    procedure PaintInterface;
   end;
 
 
@@ -213,6 +213,7 @@ begin
 
   //If game was reinitialized from options menu then we should return there
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
+  fActiveInterface := fMainMenuInterface;
 
   fTimer := TTimer.Create(nil);
   fTimer.Interval := fGameSettings.SpeedPace;
@@ -317,27 +318,13 @@ end;
 
 procedure TKMGame.KeyDown(Key: Word; Shift: TShiftState);
 begin
-  case fGameState of
-    gsNoGame:   fMainMenuInterface.KeyDown(Key, Shift);
-    gsPaused:   fGamePlayInterface.KeyDown(Key, Shift);
-    gsOnHold:   fGamePlayInterface.KeyDown(Key, Shift);
-    gsRunning:  fGamePlayInterface.KeyDown(Key, Shift);
-    gsReplay:   fGamePlayInterface.KeyDown(Key, Shift);
-    gsEditor:   fMapEditorInterface.KeyDown(Key, Shift);
-  end;
+  fActiveInterface.KeyDown(Key, Shift);
 end;
 
 
 procedure TKMGame.KeyPress(Key: Char);
 begin
-  case fGameState of
-    gsNoGame:   fMainMenuInterface.KeyPress(Key);
-    gsPaused:   fGamePlayInterface.KeyPress(Key);
-    gsOnHold:   fGamePlayInterface.KeyPress(Key);
-    gsRunning:  fGamePlayInterface.KeyPress(Key);
-    gsReplay:   fGamePlayInterface.KeyPress(Key);
-    gsEditor:   fMapEditorInterface.KeyPress(Key);
-  end;
+  fActiveInterface.KeyPress(Key);
 end;
 
 
@@ -353,27 +340,13 @@ begin
   //GLOBAL KEYS
   if Key = VK_F3 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
 
-  case fGameState of
-    gsNoGame:   fMainMenuInterface.KeyUp(Key, Shift); //Exit if handled
-    gsPaused:   fGamePlayInterface.KeyUp(Key, Shift);
-    gsOnHold:   fGamePlayInterface.KeyUp(Key, Shift);
-    gsRunning:  fGamePlayInterface.KeyUp(Key, Shift);
-    gsReplay:   fGamePlayInterface.KeyUp(Key, Shift);
-    gsEditor:   fMapEditorInterface.KeyUp(Key, Shift);
-  end;
+  fActiveInterface.KeyUp(Key, Shift);
 end;
 
 
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  case fGameState of
-    gsNoGame:   fMainMenuInterface.MouseDown(Button,Shift,X,Y);
-    gsPaused:   fGamePlayInterface.MouseDown(Button,Shift,X,Y);
-    gsOnHold:   fGamePlayInterface.MouseDown(Button,Shift,X,Y);
-    gsReplay:   fGamePlayInterface.MouseDown(Button,Shift,X,Y);
-    gsRunning:  fGamePlayInterface.MouseDown(Button,Shift,X,Y);
-    gsEditor:   fMapEditorInterface.MouseDown(Button,Shift,X,Y);
-  end;
+  fActiveInterface.MouseDown(Button,Shift,X,Y);
 end;
 
 
@@ -381,14 +354,7 @@ procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
   if not InRange(X,1,fScreenX-1) or not InRange(Y,1,fScreenY-1) then exit; //Exit if Cursor is outside of frame
 
-  case fGameState of
-    gsNoGame:   fMainMenuInterface.MouseMove(Shift, X,Y);
-    gsPaused:   fGamePlayInterface.MouseMove(Shift, X,Y);
-    gsOnHold:   fGamePlayInterface.MouseMove(Shift, X,Y);
-    gsRunning:  fGamePlayInterface.MouseMove(Shift, X,Y);
-    gsReplay:   fGamePlayInterface.MouseMove(Shift, X,Y);
-    gsEditor:   fMapEditorInterface.MouseMove(Shift,X,Y);
-  end;
+  fActiveInterface.MouseMove(Shift, X,Y);
 
   if Assigned(OnCursorUpdate) then
     OnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
@@ -398,26 +364,30 @@ end;
 
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  case fGameState of
-    gsNoGame:   fMainMenuInterface.MouseUp(Button, Shift, X,Y);
-    gsPaused:   fGamePlayInterface.MouseUp(Button, Shift, X,Y);
-    gsOnHold:   fGamePlayInterface.MouseUp(Button, Shift, X,Y);
-    gsReplay:   fGamePlayInterface.MouseUp(Button, Shift, X,Y);
-    gsRunning:  fGamePlayInterface.MouseUp(Button, Shift, X,Y);
-    gsEditor:   fMapEditorInterface.MouseUp(Button, Shift, X,Y)
-  end;
+  fActiveInterface.MouseUp(Button, Shift, X,Y);
 end;
 
 
 procedure TKMGame.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer);
+var PrevCursor: TKMPointF;
 begin
-  case fGameState of
-    gsNoGame:   fMainMenuInterface.MouseWheel(Shift, WheelDelta, X, Y);
-    gsPaused:   fGamePlayInterface.MouseWheel(Shift, WheelDelta, X, Y);
-    gsOnHold:   fGamePlayInterface.MouseWheel(Shift, WheelDelta, X, Y);
-    gsRunning:  fGamePlayInterface.MouseWheel(Shift, WheelDelta, X, Y);
-    gsReplay:   fGamePlayInterface.MouseWheel(Shift, WheelDelta, X, Y);
-    gsEditor:   fMapEditorInterface.MouseWheel(Shift, WheelDelta, X, Y);
+  fActiveInterface.MouseWheel(Shift, WheelDelta, X, Y);
+
+  if (X < 0) or (Y < 0) then Exit; //This occours when you use the mouse wheel on the window frame
+
+  //e.g. if we're over a scrollbar it shouldn't zoom map,
+  //but this can apply for all controls (i.e. only zoom when over the map not controls)
+  //todo: allow to zoom in Replay (remove overlay panels and allow to "read-only" mode for everything)
+  if MOUSEWHEEL_ZOOM_ENABLE and ((fActiveInterface.MyControls.CtrlOver = nil) or (fGameState = gsReplay)) then
+  begin
+    UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
+    PrevCursor := GameCursor.Float;
+    fViewport.Zoom := fViewport.Zoom + WheelDelta/2000;
+    UpdateGameCursor(X, Y, Shift); //Zooming changes the cursor position
+    //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
+    fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-GameCursor.Float.X,
+                                   fViewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
+    UpdateGameCursor(X, Y, Shift); //Recentering the map changes the cursor position
   end;
 end;
 
@@ -486,7 +456,7 @@ begin
 end;
 
 
-procedure TKMGame.StartSingleSave(aFileName:string);
+procedure TKMGame.StartSingleSave(aFileName: string);
 begin
   Stop(gr_Silent); //Stop everything silently
 
@@ -494,7 +464,7 @@ begin
 
   GameInit(false);
   Load(aFileName);
-  fGameState := gsRunning;
+  SetGameState(gsRunning);
   fReplayMode := false;
 end;
 
@@ -562,7 +532,7 @@ begin
 
   fLog.AppendLog('Gameplay initialized', true);
 
-  fGameState := gsRunning;
+  SetGameState(gsRunning);
   fReplayMode := false;
 
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
@@ -709,7 +679,7 @@ begin
 
   fLog.AppendLog('Gameplay initialized', true);
 
-  fGameState := gsRunning;
+  SetGameState(gsRunning);
   fReplayMode := false;
 
   fNetworking.OnPlay           := GameMPPlay;
@@ -819,6 +789,15 @@ end;
 procedure TKMGame.SetGameState(aNewState: TGameState);
 begin
   fGameState := aNewState;
+
+  case fGameState of
+    gsNoGame:  fActiveInterface := fMainMenuInterface;
+    gsPaused,
+    gsOnHold,
+    gsRunning,
+    gsReplay:  fActiveInterface := fGamePlayInterface;
+    gsEditor:  fActiveInterface := fMapEditorInterface;
+  end;
 end;
 
 
@@ -928,7 +907,7 @@ begin
 
   fIsExiting := True;
   try
-    fGameState := gsNoGame;
+    SetGameState(gsNoGame);
 
     if fMultiplayerMode and not fReplayMode then
     begin
@@ -1021,7 +1000,8 @@ begin
   fRenderPool := TRenderPool.Create(fRender);
 
   //Set the state to gsEditor early, so the MissionParser knows we must not flatten house areas, give units random condition, etc.
-  fGameState := gsEditor;
+  fMapEditorInterface := TKMapEdInterface.Create(fScreenX, fScreenY);
+  SetGameState(gsEditor);
 
   if aFileName <> '' then
   try //Catch exceptions
@@ -1059,7 +1039,6 @@ begin
   fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
   fViewport.ResetZoom;
 
-  fMapEditorInterface := TKMapEdInterface.Create(fScreenX, fScreenY);
   fMapEditorInterface.Player_UpdateColors;
   fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
   if FileExists(aFileName) then fMapEditorInterface.SetLoadMode(aMultiplayer);
@@ -1146,7 +1125,7 @@ begin
   fRender.SetRenderMode(rm2D);
 
   if not fRender.Blind then
-    PaintInterface;
+    fActiveInterface.Paint;
 
   fRender.RenderBrightness(GlobalSettings.Brightness);
 
@@ -1186,7 +1165,7 @@ begin
 end;
 
 
-procedure TKMGame.StartReplay(const aSaveName: string; aMultiplayer:boolean);
+procedure TKMGame.StartReplay(const aSaveName: string; aMultiplayer: boolean);
 begin
   Stop(gr_Silent);
   fReplayMode := true;
@@ -1200,7 +1179,7 @@ begin
   fGameInputProcess.LoadFromFile(SaveName(aSaveName,'rpl'));
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
-  fGameState := gsReplay;
+  SetGameState(gsReplay);
   fReplayMode := true;
   fReplayFile := aSaveName;
 end;
@@ -1650,7 +1629,7 @@ begin
 end;
 
 
-{This is our real-time thread, use it wisely}
+//This is our real-time "thread", use it wisely
 procedure TKMGame.UpdateStateIdle(aFrameTime:cardinal);
 begin
   case fGameState of
@@ -1665,21 +1644,6 @@ begin
   if fSoundLib <> nil then fSoundLib.UpdateStateIdle;
   if fNetworking <> nil then
     fNetworking.UpdateStateIdle;
-end;
-
-
-procedure TKMGame.PaintInterface;
-begin
-  //todo: fActiveInterface.Paint;
-
-  case fGameState of
-    gsNoGame:  fMainMenuInterface.Paint;
-    gsPaused:  fGamePlayInterface.Paint;
-    gsOnHold:  fGamePlayInterface.Paint;
-    gsRunning: fGamePlayInterface.Paint;
-    gsReplay:  fGamePlayInterface.Paint;
-    gsEditor:  fMapEditorInterface.Paint;
-  end;
 end;
 
 

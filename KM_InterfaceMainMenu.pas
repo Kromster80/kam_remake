@@ -323,11 +323,10 @@ type
     function GetChatText:string;
     function GetChatMessages:string;
 
-    procedure KeyDown(Key:Word; Shift: TShiftState);
-    procedure KeyUp(Key:Word; Shift: TShiftState);
+    procedure KeyDown(Key:Word; Shift: TShiftState); override;
+    procedure KeyUp(Key:Word; Shift: TShiftState); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
     procedure UpdateState; override;
   end;
@@ -3219,13 +3218,13 @@ end;
 
 procedure TKMMainMenuInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
-  if fMyControls.KeyDown(Key, Shift) then exit; //Handled by Controls
+  if fMyControls.KeyDown(Key, Shift) then Exit; //Handled by Controls
 end;
 
 
 procedure TKMMainMenuInterface.KeyUp(Key:Word; Shift: TShiftState);
 begin
-  if fMyControls.KeyUp(Key, Shift) then exit; //Handled by Controls
+  if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 end;
 
 
@@ -3246,18 +3245,14 @@ end;
 
 procedure TKMMainMenuInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
+  inherited;
+
   fMyControls.MouseUp(X,Y,Shift,Button);
-  exit; //We could have caused fGame reinit, so exit at once
+  Exit; //We could have caused fGame reinit, so exit at once
 end;
 
 
-procedure TKMMainMenuInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
-begin
-  fMyControls.MouseWheel(X, Y, WheelDelta);
-end;
-
-
-{Should update anything we want to be updated, obviously}
+//Should update anything we want to be updated, obviously
 procedure TKMMainMenuInterface.UpdateState;
 begin
   //

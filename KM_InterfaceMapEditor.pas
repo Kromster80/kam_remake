@@ -187,14 +187,13 @@ type
     procedure UpdateMapSize(X,Y:integer);
     procedure RightClick_Cancel;
 
-    procedure KeyDown(Key:Word; Shift: TShiftState);
-    procedure KeyUp(Key:Word; Shift: TShiftState);
+    procedure KeyDown(Key:Word; Shift: TShiftState); override;
+    procedure KeyUp(Key:Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
-    function GetShownPage:TKMMapEdShownPage;
+    function GetShownPage: TKMMapEdShownPage;
     procedure SetTileDirection(aTileDirection: byte);
     procedure SetLoadMode(aMultiplayer:boolean);
     procedure UpdateState; override;
@@ -1630,7 +1629,7 @@ begin
   if fMyControls.KeyDown(Key, Shift) then
   begin
     fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
-    exit; //Handled by Controls
+    Exit; //Handled by Controls
   end;
 
   //DoPress is not working properly yet. GamePlay only uses DoClick so MapEd can be the same for now.
@@ -1648,8 +1647,7 @@ end;
 
 procedure TKMapEdInterface.KeyUp(Key:Word; Shift: TShiftState);
 begin
-  if fMyControls.KeyUp(Key, Shift) then
-    Exit; //Handled by Controls
+  if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 
   //1-5 game menu shortcuts
   if Key in [49..53] then
@@ -1725,8 +1723,10 @@ end;
 
 
 procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-var P:TKMPoint; OldSelected: TObject;
+var P: TKMPoint; OldSelected: TObject;
 begin
+  inherited;
+
   if fMyControls.CtrlOver <> nil then begin
     fMyControls.MouseUp(X,Y,Shift,Button);
     exit; //We could have caused fGame reinit, so exit at once
@@ -1804,26 +1804,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
-var PrevCursor: TKMPointF;
-begin
-  fMyControls.MouseWheel(X, Y, WheelDelta);
-  if (X < 0) or (Y < 0) then exit; //This occours when you use the mouse wheel on the window frame
-  if MOUSEWHEEL_ZOOM_ENABLE and (fMyControls.CtrlOver = nil) then
-  begin
-    fGame.UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
-    PrevCursor := GameCursor.Float;
-    fGame.Viewport.Zoom := fGame.Viewport.Zoom + WheelDelta/2000;
-    fGame.UpdateGameCursor(X, Y, Shift); //Zooming changes the cursor position
-    //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-    fGame.Viewport.Position := KMPointF(fGame.Viewport.Position.X + PrevCursor.X-GameCursor.Float.X,
-                                   fGame.Viewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
-    fGame.UpdateGameCursor(X, Y, Shift); //Recentering the map changes the cursor position
-  end;
-end;
-
-
-function TKMapEdInterface.GetShownPage:TKMMapEdShownPage;
+function TKMapEdInterface.GetShownPage: TKMMapEdShownPage;
 begin
   Result := esp_Unknown;
   if Panel_Terrain.Visible then
@@ -1833,9 +1814,6 @@ begin
   if Panel_Units.Visible then
     Result := esp_Units;
 end;
-
-
-
 
 
 end.

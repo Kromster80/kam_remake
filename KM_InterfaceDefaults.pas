@@ -17,9 +17,13 @@ type
 
     property MyControls: TKMMasterControl read fMyControls;
 
+    procedure KeyDown(Key: Word; Shift: TShiftState); virtual; abstract;
     procedure KeyPress(Key: Char);
+    procedure KeyUp(Key: Word; Shift: TShiftState); virtual; abstract;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); virtual;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual;
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
     procedure UpdateState; virtual; abstract;
     procedure Paint;
@@ -142,9 +146,23 @@ begin
 end;
 
 
+procedure TKMUserInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  //Sometimes Up gets called after mouse moves few more px from last Move event
+  fMyControls.MouseMove(X, Y, Shift);
+end;
+
+
+procedure TKMUserInterface.MouseWheel(Shift: TShiftState; WheelDelta, X, Y: Integer);
+begin
+  fMyControls.MouseWheel(X, Y, WheelDelta);
+end;
+
+
 procedure TKMUserInterface.Paint;
 begin
   fMyControls.Paint;
 end;
+
 
 end.
