@@ -1274,7 +1274,11 @@ end;
 
 procedure TKMapEdInterface.Load_MapListUpdate;
 begin
+  fMaps.TerminateScan;
+  fMapsMP.TerminateScan;
+
   ListBox_Load.SetItems('');
+  ListBox_Load.ItemIndex := -1;
 
   if Radio_Load_MapType.ItemIndex = 0 then
     fMaps.Refresh(Load_MapListUpdateDone)
