@@ -42,8 +42,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_RenderPool, KM_RenderAux, KM_PlayersCollection,
-     KM_Units_Warrior, KM_Resource;
+uses KM_Sound, KM_RenderPool, KM_RenderAux, KM_PlayersCollection, KM_Resource;
 
 
 { TKMProjectiles }
@@ -237,17 +236,9 @@ begin
             fSoundLib.Play(ProjectileHitSounds[fType], fTarget);
 
         if fPosition >= fLength then begin
-          U := fPlayers.UnitsHitTestF(fTarget);
-          //we don't care if arrow/stone made some damage,
-          //it reached us, so we should react
-          case fType of
-            pt_Arrow,
-            pt_SlingRock,
-            pt_Bolt:     if (U <> nil) and U.Visible and (U is TKMUnitWarrior)then
-                           TKMUnitWarrior(U).ShotByEnemy := True;
-          end;
           if KaMRandom >= ProjectileMissChance[fType] then
           begin
+            U := fPlayers.UnitsHitTestF(fTarget);
             case fType of
               pt_Arrow,
               pt_SlingRock,

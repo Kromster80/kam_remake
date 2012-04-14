@@ -21,9 +21,6 @@ type
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
-    fWaitForShot: Boolean; //Somebody is shooting at us
-    fShotByEnemy: Boolean; //Arrow/stone reached us
-    fShotAttacker: TKMUnit; //Unit we were shot by
   {Commander properties}
     fUnitsPerRow:integer;
     fMembers:TList;
@@ -52,15 +49,11 @@ type
     procedure AddMember(aWarrior:TKMUnitWarrior);
     function GetCommander:TKMUnitWarrior;
     function IsCommander:boolean;
-    function IsArcher:boolean;
     function GetMemberCount:integer;
     property RequestedFood:boolean read fRequestedFood write fRequestedFood; //Cleared by Serf delivering food
     procedure SetGroupFullCondition;
     procedure SetOrderHouseTarget(aHouse:TKMHouse);
     property GetWarriorState: TWarriorState read fState;
-    property ShotByEnemy: Boolean read fShotByEnemy write fShotByEnemy;
-    property WaitForShot: Boolean read fWaitForShot write fWaitForShot;
-    property ShotAttacker: TKMUnit read fShotAttacker write fShotAttacker;
 
   //Commands from player
     procedure OrderHalt(aTurnAmount:TKMTurnDirection=tdNone; aLineAmount:shortint=0);
@@ -105,7 +98,7 @@ implementation
 uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux,
   KM_UnitTaskAttackHouse, KM_MessageStack,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
-  KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit, KM_Player;
+  KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit;
 
 
 const HUNGER_CHECK_FREQ = 10; //Check warrior hunger every 1 second
@@ -127,9 +120,6 @@ begin
   fUnitsPerRow       := 1;
   fMembers           := nil; //Only commander units will have it initialized
   fMapEdMembersCount := 0; //Used only in MapEd
-  fShotByEnemy := False;
-  fWaitForShot := False;
-  fShotAttacker := nil;
 end;
 
 
@@ -326,14 +316,6 @@ end;
 function TKMUnitWarrior.IsCommander:boolean;
 begin
   Result := fCommander = nil;
-end;
-
-
-function TKMUnitWarrior.IsArcher:boolean;
-begin
-  Result := (UnitType = ut_Bowman) or
-            (UnitType = ut_Arbaletman) or
-            (UnitType = ut_Slingshot);
 end;
 
 
@@ -1029,27 +1011,6 @@ var
   ChosenFoe: TKMUnitWarrior;
 begin
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitWarrior.UpdateState',fCurrPosition);
-
-  //Not sure, if this piece of code should be here.
-    //Please move it around, if you know better place for it,
-    //but keep in mind this conditions should be checked quite often
-    //to check, if we should react to arrow/stone shot against us
-    if (fWaitForShot) and (fShotByEnemy) then
-      if (fPlayers[GetOwner].PlayerType = pt_Computer) then
-        if not (GetCommander.ArmyInFight) then begin
-          GetCommander.OrderAttackUnit(fShotAttacker);
-          if (IsArcher) and (GetCommander.GetMemberCount = 0) then
-            //When archer's group has commander only,
-            //he does not react and doesn't fight
-            //against attacker, so we need to force him to do that
-            FightEnemy(fShotAttacker);
-      fWaitForShot := False;
-      fShotByEnemy := False;
-      fShotAttacker := nil;
-    end;
-    if fShotByEnemy then
-      fShotByEnemy := False;
-
   if IsDeadOrDying then
   begin
     Result:=true; //Required for override compatibility
