@@ -128,6 +128,9 @@ begin
   if S = nil then
     S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
 
+  if S = nil then
+    Exit;
+
   BestBid := MaxSingle;
   TargetLoc := S.GetEntrance;
 

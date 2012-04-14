@@ -724,8 +724,8 @@ end;
 
 function TSoundLib.LoadWarriorSoundsFromFile(const aFile: String): Boolean;
 var
-  S:String;
-  MS:TKMemoryStream;
+  S: AnsiString;
+  MS: TKMemoryStream;
 begin
   Result := False;
   if not FileExists(aFile) then Exit;
@@ -749,10 +749,10 @@ end;
 
 procedure TSoundLib.SaveWarriorSoundsToFile(const aFile: String);
 var
-  MS:TKMemoryStream;
+  MS: TKMemoryStream;
 begin
   MS := TKMemoryStream.Create;
-  MS.Write(GAME_VERSION);
+  MS.Write(AnsiString(GAME_VERSION));
   MS.Write(fWarriorSoundCount, SizeOf(fWarriorSoundCount));
   MS.Write(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
   MS.Write(fNotificationSoundCount, SizeOf(fNotificationSoundCount));

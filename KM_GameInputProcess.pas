@@ -229,7 +229,7 @@ var i:integer;
 begin
   Result.CommandType := aGIC;
   Result.PlayerIndex := MyPlayer.PlayerIndex;
-  
+
   for i:=Low(Result.Params) to High(Result.Params) do
     Result.Params[i] := maxint;
 
@@ -498,7 +498,7 @@ procedure TGameInputProcess.SaveToFile(aFileName: string);
 var i:integer; S:TKMemoryStream;
 begin
   S := TKMemoryStream.Create;
-  S.Write(GAME_VERSION); //
+  S.Write(AnsiString(GAME_VERSION));
   S.Write(fCount);
   for i:=1 to fCount do
   begin
@@ -513,7 +513,10 @@ end;
 
 
 procedure TGameInputProcess.LoadFromFile(aFileName: string);
-var FileVersion:string; i:integer; S:TKMemoryStream;
+var
+  FileVersion: AnsiString;
+  I: Integer;
+  S: TKMemoryStream;
 begin
   if not FileExists(aFileName) then exit;
   S := TKMemoryStream.Create;
@@ -600,4 +603,3 @@ end;
 
 
 end.
-

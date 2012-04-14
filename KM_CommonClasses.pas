@@ -316,7 +316,7 @@ begin Result := Inherited Read(Value, SizeOf(Value)); end;
 
 
 procedure TKMemoryStream.ReadAssert(const Value: string);
-var S: string;
+var S: AnsiString;
 begin
   Read(s);
   Assert(s = Value, 'TKMemoryStream.Read <> Value: '+Value);

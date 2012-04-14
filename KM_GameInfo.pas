@@ -11,16 +11,16 @@ type
   private
     fParseError: string;
   public
-    Title: string; //Used for campaigns and to store in savegames
-    Version: string; //Savegame version, yet unused in maps, they always have actual version
+    Title: AnsiString; //Used for campaigns and to store in savegames
+    Version: AnsiString; //Savegame version, yet unused in maps, they always have actual version
     TickCount: cardinal;
     MissionMode: TKMissionMode; //Fighting or Build-a-City map
     MapSizeX, MapSizeY: Integer;
-    VictoryCondition: string;
-    DefeatCondition: string;
+    VictoryCondition: AnsiString;
+    DefeatCondition: AnsiString;
 
     PlayerCount: byte;
-    LocationName: array[0..MAX_PLAYERS-1] of string;
+    LocationName: array[0..MAX_PLAYERS-1] of AnsiString;
     PlayerTypes: array[0..MAX_PLAYERS-1] of TPlayerType;
     ColorID: array[0..MAX_PLAYERS-1] of integer;
     Team: array[0..MAX_PLAYERS-1] of integer;
@@ -30,8 +30,8 @@ type
     procedure Load(LoadStream: TKMemoryStream);
 
     property ParseError: string read fParseError;
-    function IsValid:boolean;
-    function AICount:integer;
+    function IsValid: Boolean;
+    function AICount: Integer;
     function MapSizeText:string;
     function MissionModeText:string;
     function GetTitleWithTime:string;
@@ -45,8 +45,8 @@ uses KM_TextLibrary;
 { TKMGameInfo }
 procedure TKMGameInfo.Load(LoadStream: TKMemoryStream);
 var
-  s:string;
-  i:integer;
+  s: AnsiString;
+  I: Integer;
 begin
   LoadStream.Read(s);
   if s <> 'KaM_GameInfo' then begin
@@ -83,7 +83,7 @@ procedure TKMGameInfo.Save(SaveStream: TKMemoryStream);
 var i:integer;
 begin
   SaveStream.Write('KaM_GameInfo');
-  SaveStream.Write(GAME_REVISION); //Save current revision
+  SaveStream.Write(AnsiString(GAME_REVISION)); //Save current revision
 
   SaveStream.Write(Title); //GameName
   SaveStream.Write(TickCount);

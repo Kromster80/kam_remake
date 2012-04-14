@@ -1413,7 +1413,8 @@ procedure TKMGame.Load(const aFileName: string; aReplay:boolean=false);
 var
   LoadStream: TKMemoryStream;
   GameInfo: TKMGameInfo;
-  LoadError,LoadFileExt, s: string;
+  LoadError,LoadFileExt: string;
+  LibxPath: AnsiString;
   LoadedSeed: Longint;
   SaveIsMultiplayer: boolean;
 begin
@@ -1460,8 +1461,8 @@ begin
     //Load LIBX strings used in a mission by their relative path to ExeDir
     //Relative path should be the same across all MP players,
     //locale info shuold not be a problem as it is represented by %s
-    LoadStream.Read(s);
-    fTextLibrary.LoadMissionStrings(ExeDir + s);
+    LoadStream.Read(LibxPath);
+    fTextLibrary.LoadMissionStrings(ExeDir + LibxPath);
 
     //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
     //todo: Send all message commands through GIP
