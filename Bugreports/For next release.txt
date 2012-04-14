@@ -2,11 +2,15 @@ Essential:
  +	Write "short story" descriptions for all multiplayer maps [Lewin]
  +	Hide wip unit dismiss button
  wip	All main menu pages to support 1024x576
+ wip	Add maps by Janosiczek/PAKER [Lewin]
 	Sort out sprite visibility at FOW edge. Currently sprites appear visible or black in cases where the shouldn't, especially trees and units
-	Add maps by Janosiczek/PAKER [Lewin]
+	Make sure AI city planner is stable (incomplete but doesn't cause crashes) and included in release as limited tech preview, or disable it for release
+	Make sure Build Queues have sensible ordering/priorities. Currently it seems unpredictable and hard to manage
+	The market should be blocked in the original campaigns/tutorial
+	Improve look of MP results screen (smaller font in bars) and allow chat over results
+
 	Send new/changed text to be translated [Lewin]
 	Make release candidates and send to trusted testers to find new bugs we've introduced [Lewin]
-	Make sure AI city planner is stable (incomplete but doesn't cause crashes) and included in release as limited tech preview, or disable it for release
 
 
 Not essential:

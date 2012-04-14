@@ -21,11 +21,9 @@
  +	Issue with empty saves names and misused whitespaces
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
-	The multiplayer in-game player list should be ordered (grouped) by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
-	Maybe archers attacked by archers should not try to walk towards enemies
-	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
-?	Warriors should resume interrupted orders after a fight
+	AIs should retaliate when the arrow is in mid flight or when it lands, not while the archer is still aiming/firing
+	Archers behave badly when you tell them to attack directly (houses and units), and they should step backwards when too close
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Replays sometimes end up with a mismatch while watching them, cause unknown
 	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
@@ -56,36 +54,30 @@ Improvements:
  +	Saves/Replays can be sorted
  +	Custom in-game messages for fan-made campaigns and missions (could be stored in new custom .libx file for the mission)
  +	Support color tags in text
+ +	Colors for chat to highlight player names and whether it is team/all channel
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
+ wip	Add support for 1024x600 (1280x720) resolution
 	High quality alpha-blended shadows for houses (only once constructed?)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
-	Show the player's name above each group (flag holder) while some key is kept pressed (conflicts with per-locale army controls)
 	Mutltiplayer spectator mode
 	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
-	Scrolling around the map using middle mouse click, as in TPR
 	256x256 icons for EXE (for vista/7/8 users)
 	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
-	Fade music during campaign story screens (and other places?)
-	Add support for 1024x600 (1280x720) resolution
-	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
-	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile) {not sure about this one}
-	Show the mining radius of the selected house or house that you are placing
-	Master server in MySQL
-	Colors for chat to highlight player names and whether it is team/all channel
-	Warriors should automatically engage enemies within 3-4 tiles (same in KaM and makes chasing down archers easier)
+	Play campaign briefing WAV files (and fade music while it plays)
+	Master server use MySQL for storage rather than .txt files
 	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team does not require acceptance. We need a "lock teams" option in the lobby for this to work.
 	Chat logs
-	Sort maps in SP and MP (building, building and fighting, fighting, co-op, players, mapsize, etc.)
+	Selecting a map in multiplayer should show columns with name, size, player count, etc. rather than dumb drop down
 	Wares need to be taken out of the barracks for trading at the market
 	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
-	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
 	Some way to delete multiplayer saves from within the KaM Remake
-	Gameplay modes in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple modes.
+	Keyboard shortcuts to zoom for people without a scrollwheel
+	Improve look of MP results screen (smaller font in bars) and allow chat over results
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

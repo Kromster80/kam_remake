@@ -1,0 +1,11 @@
+Ideas that have not been decided. Should be moved to Bugslist.txt when a decision is made
+<===================================================================================>
+	The multiplayer in-game player list could be ordered (grouped) by teams
+	Show the player's name above each group (flag holder) while some key is kept pressed (conflicts with per-locale army controls)
+	Scrolling around the map using middle mouse click, as in TPR
+	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
+	Show the mining radius of the selected house or house that you are placing
+	Gameplay modes in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple modes.
+	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
+	AI warriors should automatically engage enemies within 3-4 tiles (happens in KaM?)
+	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile) {not sure about this one. Probably ruins balance and feel of KaM}
