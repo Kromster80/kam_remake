@@ -160,6 +160,7 @@ type
     function TileIsFactorable(Loc:TKMPoint):boolean;
     function TileIsLocked(aLoc:TKMPoint):boolean;
     function UnitsHitTest(X,Y:word): Pointer;
+    function UnitsHitTestF(aLoc: TKMPointF): Pointer;
     function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:TPlayerIndex; aAlliance:TAllianceType; Dir:TKMDirection): Pointer;
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
@@ -544,14 +545,39 @@ end;
 //Note that IsUnit refers to where unit started walking to, not the actual unit position
 //(which is what we used in unit interaction), so check all 9 tiles to get accurate result
 function TTerrain.UnitsHitTest(X,Y: Word): Pointer;
-var i,k:integer; U: TKMUnit;
+var
+  I, K: Integer;
+  U: TKMUnit;
 begin
   Result := nil;
-  for i:=max(Y-1,1) to min(Y+1,fMapY) do for k:=max(X-1,1) to min(X+1,fMapX) do
+  for I := max(Y - 1, 1) to Min(Y + 1, fMapY) do
+  for K := max(X - 1, 1) to Min(X + 1, fMapX) do
   begin
-    U := Land[i,k].IsUnit;
-    if (U <> nil) and (U.HitTest(X,Y)) then
-      Result := Land[i,k].IsUnit;
+    U := Land[I,K].IsUnit;
+    if (U <> nil) and U.HitTest(X,Y) then
+      Result := Land[I,K].IsUnit;
+  end;
+end;
+
+
+//Test up to 4x4 related tiles around and pick unit whos no farther than 1 tile
+function TTerrain.UnitsHitTestF(aLoc: TKMPointF): Pointer;
+var
+  I, K: Integer;
+  U: TKMUnit;
+  T: Single;
+begin
+  Result := nil;
+  for I := Max(Trunc(aLoc.Y) - 1, 1) to Min(Trunc(aLoc.Y) + 2, fMapY) do
+  for K := Max(Trunc(aLoc.X) - 1, 1) to Min(Trunc(aLoc.X) + 2, fMapX) do
+  begin
+    U := Land[I,K].IsUnit;
+    if U <> nil then
+    begin
+      T := GetLength(U.PositionF, aLoc);
+      if (T <= 1) and (T < GetLength(TKMUnit(Result).PositionF, aLoc)) then
+        Result := U;
+    end;
   end;
 end;
 
@@ -562,11 +588,11 @@ end;
   Prefer Warriors over Citizens}
 function TTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection): Pointer;
 var
-  i,k:integer; //Counters
-  lx,ly,hx,hy:integer; //Ranges
-  dX,dY:integer;
+  i,k: integer; //Counters
+  lx,ly,hx,hy: integer; //Ranges
+  dX,dY: integer;
   RequiredMaxRad: single;
-  U,C,W:TKMUnit; //CurrentUnit, BestWarrior, BestCitizen
+  U,C,W: TKMUnit; //CurrentUnit, BestWarrior, BestCitizen
   P: TKMPoint;
 begin
   W := nil;

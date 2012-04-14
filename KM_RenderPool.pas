@@ -455,7 +455,9 @@ var
   ShiftX,ShiftY: Single;
   Ground: Single;
 begin
-  //When arrows fly off map we get TKMPoint error
+  Assert(InRange(aFlight, 0, 1));
+
+  //We don't care about off-map arrows, but still we get TKMPoint error if X/Y gets negative
   if not fTerrain.TileInMapCoords(Round(aPos.X), Round(aPos.Y)) then Exit;
 
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(Round(aPos.X), Round(aPos.Y), True);
@@ -463,7 +465,7 @@ begin
 
   case aProj of
     pt_Arrow:     with fResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
-                    ID := Step[round(aFlight * Count) + 1] + 1; //todo: Bug occured once when Flight > 1
+                    ID := Step[round(aFlight * Count) + 1] + 1;
     pt_Bolt:      with fResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
                     ID := Step[round(aFlight * Count) + 1] + 1;
     pt_SlingRock: with fResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do

@@ -1238,9 +1238,9 @@ end;
 
 function TKMUnit.HitTest(X,Y:Integer; const UT:TUnitType = ut_Any): Boolean;
 begin
-  Result := (X = fCurrPosition.X) and //Comparing X,Y to CurrentPosition separately, cos they  is negative numbers
+  Result := (X = fCurrPosition.X) and //Comparing X,Y to CurrentPosition separately, cos they can be negative numbers
             (Y = fCurrPosition.Y) and
-            ((fUnitType=UT)or(UT=ut_Any));
+            ((fUnitType = UT) or (UT = ut_Any));
 end;
 
 

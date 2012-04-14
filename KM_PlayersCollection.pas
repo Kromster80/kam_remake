@@ -30,7 +30,6 @@ type
     procedure RemovePlayer(aIndex:TPlayerIndex);
     procedure AfterMissionInit(aFlattenRoads:boolean);
     function HousesHitTest(X,Y:Integer): TKMHouse;
-    function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
     function GetClosestUnit(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMUnit;
     function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
@@ -167,25 +166,6 @@ begin
   begin
     Result := fPlayerList[i].HousesHitTest(X,Y);
     if Result<>nil then Exit; //There can't be 2 houses on one tile
-  end;
-end;
-
-
-//Floating-point hit test version, required for Projectiles
-//Return unit within range of 1 from aLoc
-//TODO: Remove in favor of UnitHitTest on Terrain
-function TKMPlayersCollection.UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
-var i,X,Y:integer; U:TKMUnit;
-begin
-  Result := nil;
-
-  for i:=0 to fCount-1 do
-  for Y:=trunc(aLoc.Y) to ceil(aLoc.Y) do //test four related tiles around
-  for X:=trunc(aLoc.X) to ceil(aLoc.X) do begin
-    U := fPlayerList[i].UnitsHitTest(X,Y);
-    if U<>nil then
-      if (Result=nil) or (GetLength(U.PositionF,aLoc)<GetLength(Result.PositionF,aLoc)) then
-        Result := U;
   end;
 end;
 
