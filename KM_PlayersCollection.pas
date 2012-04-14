@@ -451,12 +451,12 @@ begin
   //Update AI every 2sec for different player to even the CPU load
   for I := 0 to fCount - 1 do
     if fGame.GameState in [gsRunning, gsReplay] then
-      fPlayerList[I].UpdateState((aTick + I) mod 20 = 0)
+      fPlayerList[I].UpdateState(aTick)
     else
       //PlayerAI can stop the game and clear everything
       Exit;
 
-  PlayerAnimals.UpdateState(False); //Animals don't have any AI yet
+  PlayerAnimals.UpdateState(aTick); //Animals don't have any AI yet
 end;
 
 

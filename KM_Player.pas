@@ -30,7 +30,7 @@ type
     procedure Load(LoadStream: TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
 
-    procedure UpdateState(aUpdateAI: Boolean); virtual;
+    procedure UpdateState(aTick: Cardinal); virtual;
     procedure Paint; virtual;
   end;
 
@@ -119,7 +119,7 @@ type
     procedure Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure IncAnimStep;
-    procedure UpdateState(aUpdateAI: Boolean); override;
+    procedure UpdateState(aTick: Cardinal); override;
     procedure Paint; override;
   end;
 
@@ -198,7 +198,7 @@ begin
 end;
 
 
-procedure TKMPlayerCommon.UpdateState;
+procedure TKMPlayerCommon.UpdateState(aTick: Cardinal);
 begin
   fUnits.UpdateState;
 end;
@@ -849,16 +849,17 @@ end;
 
 
 //aUpdateAI flag means we can perform CPU intensive AI update
-procedure TKMPlayer.UpdateState(aUpdateAI: Boolean);
+procedure TKMPlayer.UpdateState(aTick: Cardinal);
 begin
   Inherited;
 
   fHouses.UpdateState;
   fFogOfWar.UpdateState; //We might optimize it for AI somehow, to make it work coarse and faster
 
-  fBuildList.UpdateState; //todo: Make it less frequent
+  if (aTick + fPlayerIndex mod 10 = 0) then
+    fBuildList.UpdateState;
 
-  if aUpdateAI then
+  if (aTick + fPlayerIndex mod 20 = 0) then
   begin
     fAI.UpdateState;
     //fArmyEval.UpdateState;
