@@ -11,6 +11,8 @@ type
         js_Open,    //Open - job is free to take by anyone
         js_Taken);  //Taken - job is taken by some worker
 
+  TGetBestWorkerEvent = procedure (aPoint:TKMPoint; out aWorker:TKMUnitWorker) of object;
+
   TKMHouseList = class
   private
     fHousesCount: Integer;
@@ -100,6 +102,8 @@ type
 
     //Game events
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
+    function GetAvailableJobsCount:Integer;
+    procedure MatchToWorkers(aGetBestWorker: TGetBestWorkerEvent);
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker); //Assign worker to a field
     procedure ReOpenField(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
     procedure CloseField(aIndex: Integer); //Worker has finished the task
@@ -152,6 +156,8 @@ type
     end;
     procedure RemWorker(aIndex: Integer);
     procedure RemoveExtraWorkers;
+    function GetIdleWorkerCount:Integer;
+    procedure GetBestWorker(aPoint:TKMPoint; out aWorker:TKMUnitWorker);
   public
     constructor Create;
     destructor Destroy; override;
@@ -329,6 +335,28 @@ begin
       aBid := NewBid;
     end;
   end;
+end;
+
+
+function TKMFieldworksList.GetAvailableJobsCount:Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to fFieldsCount - 1 do
+    if fFields[I].JobStatus = js_Open then
+      inc(Result);
+end;
+
+
+procedure TKMFieldworksList.MatchToWorkers(aGetBestWorker: TGetBestWorkerEvent);
+var I:Integer; BestWorker:TKMUnitWorker;
+begin
+  for I := 0 to fFieldsCount - 1 do
+    if fFields[I].JobStatus = js_Open then
+    begin
+      aGetBestWorker(fFields[I].Loc, BestWorker);
+      if BestWorker <> nil then GiveTask(I, BestWorker);
+    end;
 end;
 
 
@@ -1061,8 +1089,36 @@ begin
 end;
 
 
+function TKMBuildList.GetIdleWorkerCount:Integer;
+var I:Integer;
+begin
+  Result := 0;
+  for I := 0 to fWorkersCount - 1 do
+    if fWorkers[I].Worker.IsIdle then
+      inc(Result);
+end;
+
+
+procedure TKMBuildList.GetBestWorker(aPoint:TKMPoint; out aWorker:TKMUnitWorker);
+var I: Integer; NewBid, BestBid: single;
+begin
+  BestBid := -1;
+  aWorker := nil;
+  for I := 0 to fWorkersCount - 1 do
+    if fWorkers[I].Worker.IsIdle and fWorkers[I].Worker.CanWalkTo(aPoint, 0) then
+    begin
+      NewBid := GetLength(fWorkers[I].Worker.GetPosition, aPoint);
+      if (BestBid = -1) or (NewBid < BestBid) then
+      begin
+        aWorker := fWorkers[I].Worker;
+        BestBid := NewBid;
+      end;
+    end;
+end;
+
+
 procedure TKMBuildList.UpdateState;
-var I: Integer;
+var I, AvailableWorkers, AvailableJobs, JobID: Integer; MyBid: Single;
   Idx: array [0..3] of Integer;
   Bid: array [0..3] of Single;
 begin
@@ -1070,6 +1126,35 @@ begin
   fRepairList.UpdateState;
 
   RemoveExtraWorkers;
+
+  //In 99% of cases we have either of these situations:
+  //  1. Lots of jobs, only few workers to do them.
+  //  2. Lots of workers, only a few jobs for them to do.
+  //In case 1. the best solution is to parse workers list and find the best job for him
+  //In case 2. the best solution is to parse jobs list and find the best worker for the job
+  //This approach should give jobs more sensibly than just parsing workers or parsing jobs list each time.
+  //A hungarian solution would be better as a long term goal (match list of workers/jobs optimally) but
+  //keep in mind that it will only be more efficient when BOTH IdleWorkerCount and JobCount are > 1,
+  //which is very rare (only when ordering a large number of jobs within 2 seconds)
+
+  AvailableWorkers := GetIdleWorkerCount;
+  AvailableJobs := fFieldworksList.GetAvailableJobsCount;
+  if AvailableJobs > AvailableWorkers then
+  begin
+    for I := 0 to fWorkersCount - 1 do
+      if fWorkers[I].Worker.IsIdle then
+      begin
+        JobID := fFieldworksList.BestBid(fWorkers[I].Worker, MyBid);
+        if JobID <> -1 then fFieldworksList.GiveTask(JobID, fWorkers[I].Worker);
+      end;
+  end
+  else
+    fFieldworksList.MatchToWorkers(GetBestWorker);
+
+
+
+  //Old soltion, it can handle things other than fieldworks while testing
+
 
   //We can weight the repairs by distance, severity, etc..
   //For now, each worker will go for the house closest to him
