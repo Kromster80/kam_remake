@@ -375,10 +375,9 @@ begin
 
   if (X < 0) or (Y < 0) then Exit; //This occours when you use the mouse wheel on the window frame
 
-  //e.g. if we're over a scrollbar it shouldn't zoom map,
-  //but this can apply for all controls (i.e. only zoom when over the map not controls)
+  //Allow to zoom only when curor is over map. Controls handle zoom on their own
   //todo: allow to zoom in Replay (remove overlay panels and allow to "read-only" mode for everything)
-  //@Krom: Eventually it would be cool if you could view the contents of storehouses, barracks, watchtowers, etc. in replays (read only of course)
+  //Eventually it would be cool if you could view the contents of storehouses, barracks, watchtowers, etc. in replays (read only of course)
   if MOUSEWHEEL_ZOOM_ENABLE and ((fActiveInterface.MyControls.CtrlOver = nil) or (fGameState = gsReplay)) then
   begin
     UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
