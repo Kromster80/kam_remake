@@ -378,6 +378,7 @@ begin
   //e.g. if we're over a scrollbar it shouldn't zoom map,
   //but this can apply for all controls (i.e. only zoom when over the map not controls)
   //todo: allow to zoom in Replay (remove overlay panels and allow to "read-only" mode for everything)
+  //@Krom: Eventually it would be cool if you could view the contents of storehouses, barracks, watchtowers, etc. in replays (read only of course)
   if MOUSEWHEEL_ZOOM_ENABLE and ((fActiveInterface.MyControls.CtrlOver = nil) or (fGameState = gsReplay)) then
   begin
     UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with

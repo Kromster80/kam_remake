@@ -575,6 +575,7 @@ begin
     if U <> nil then
     begin
       T := GetLength(U.PositionF, aLoc);
+      //@Krom: What about first case where Result=nil? Then we get an access violation right?
       if (T <= 1) and (T < GetLength(TKMUnit(Result).PositionF, aLoc)) then
         Result := U;
     end;

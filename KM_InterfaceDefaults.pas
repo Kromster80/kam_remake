@@ -136,6 +136,7 @@ end;
 procedure TKMUserInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   fMyControls.MouseMove(X, Y, Shift); // Not sure why this was used in Gameplay
+                                      //@Krom: Is it for the same reason we call it in MouseUp? ("Sometimes Up gets called after mouse moves few more px from last Move event")
   fMyControls.MouseDown(X, Y, Shift, Button);
 end;
 
