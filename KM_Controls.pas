@@ -436,6 +436,7 @@ type
     Caption: string;
     FontColor: TColor4;
     TextAlign: TTextAlign;
+    TextYOffset: Integer;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont = fnt_Mini);
     procedure Paint; override;
   end;
@@ -2079,9 +2080,9 @@ begin
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
   if Caption <> '' then begin //Now draw text over bar, if required
     //Shadow
-    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)-4, Width-4, 0, Caption, fFont, TextAlign, $FF000000);
+    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)+TextYOffset-4, Width-4, 0, Caption, fFont, TextAlign, $FF000000);
     //Text
-    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, Width-4, 0, Caption, fFont, TextAlign, FontColor);
+    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)+TextYOffset-5, Width-4, 0, Caption, fFont, TextAlign, FontColor);
   end;
 end;
 

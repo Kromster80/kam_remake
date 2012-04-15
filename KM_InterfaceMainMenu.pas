@@ -1443,7 +1443,8 @@ begin
           AutoWrap := true;
         for i:=0 to 7 do
         begin
-          Bar_Results[i,k] := TKMPercentBar.Create(Panel_StatsMP1, 160 + k*BarStep, 35+i*RowHeight, BarWidth, 20, fnt_Metal);
+          Bar_Results[i,k] := TKMPercentBar.Create(Panel_StatsMP1, 160 + k*BarStep, 35+i*RowHeight, BarWidth, 20, fnt_Grey);
+          Bar_Results[i,k].TextYOffset := -3;
           Image_ResultsRosette[i,k] := TKMImage.Create(Panel_StatsMP1, 164 + k*BarStep, 38+i*RowHeight, 16, 16, 25, rxMenu);
         end;
       end;
@@ -1460,7 +1461,8 @@ begin
           AutoWrap := true;
         for i:=0 to 7 do
         begin
-          Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 160 + k*BarStep, 35+i*RowHeight, BarWidth, 20, fnt_Metal);
+          Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 160 + k*BarStep, 35+i*RowHeight, BarWidth, 20, fnt_Grey);
+          Bar_Results[i,k+5].TextYOffset := -3;
           Image_ResultsRosette[i,k+5] := TKMImage.Create(Panel_StatsMP2, 164 + k*BarStep, 38+i*RowHeight, 16, 16, 25, rxMenu);
         end;
       end;

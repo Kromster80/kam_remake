@@ -926,6 +926,7 @@ const
   $FF0707FF, //Red
   $FF0061FF, //Orange
   $FF07FFFF, //Yellow
+  $FF00D4A8, //Olive green
   $FF00FF00, //Lime green
   $FF008000, //Dark green
   $FFE3BB5B, //Cyan
@@ -934,7 +935,6 @@ const
   $FFFF67FF, //Pink
   $FF000080, //Maroon
   $FF004F7D, //Brown
-  $FF00D4A8, //Olive green
   $FFFFFFFF, //White
   $FF808080, //Grey
   $FF000000  //Black

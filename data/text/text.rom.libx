@@ -1,5 +1,5 @@
 
-MaxID:2692
+MaxID:2699
 
 0:Fabricã de blãni
 1:Fierãrie
@@ -335,9 +335,7 @@ MaxID:2692
 1795:Jucatori AI
 1796:Select...
 1797:Aleator
-1798:Nici unul
 1799:Nici una
-1800:Echipa %d
 1802:Posteazã mesaj:
 1803:Tipul hãrtii
 1804:Single Map
@@ -441,7 +439,6 @@ MaxID:2692
 1903:copaci
 1904:definitii
 1905:tileset
-1906:Umbre
 2687:Creazã server
 2688:CAUTÃ SERVER
 2689:Cautã Server
