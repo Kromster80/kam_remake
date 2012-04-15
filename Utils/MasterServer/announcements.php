@@ -5,9 +5,9 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
-if($Rev == "r2722")
+if($Rev == "r3015")
 {
-  die("Thank you for helping me test :)");
+  die('[$B700FF]KaM[] [$E88700]Remake[]: Now in [$0000E0]COLOR[]!');
 }
 
 //First see if they are up to date
@@ -16,6 +16,9 @@ if($Rev != $MAIN_VERSION)
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|";
 	switch($Lang)
 	{
+		case 'rom':
+			echo "Versiunea ta de KaM Remake este expiratã! Acum rulezi ".$Rev." dar cea mai recentã versiune este ".$MAIN_VERSION.".||Te rugãm sã descarci update-ul de la www.kamremake.com";
+			break;
 		case 'svk':
 			echo "Vaša verzia KaM Remake je zastaralá! Máte spustenú verziu ".$Rev.", ale posledná verzia je ".$MAIN_VERSION.".||Prosím, stiahnite si aktualizáciu na stránke: www.kamremake.com";
 			break;

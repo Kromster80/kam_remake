@@ -102,3 +102,10 @@ svk.NoKaM=Sprievodca inštaláciou zistil, e nemáte nainštalovanı Knight & Mercha
 svk.CantUpdate=Sprievodca inštaláciou nemohol nájs existujúcu verziu KaM Remake, je ju potrebné aktualizova. Prosím, stiahnite a nainštalujte kompletnú inštaláciu. Inštalácia bude prerušená.
 svk.OpenAL=Chcete poui spriveodcu na inštaláciu OpenAL? (Dôrazne odporúèané). Je to potrebné pre zvuky v hre v KAM Remake.
 svk.ViewReadme=Pozri súbor Readme
+
+;Romanian
+rom.CreateStartShortcut=Creeazã o scurtãtura în meniul de Start
+rom.NoKaM=Instalarea a detectat ca nu ai instalat Knights and Merchants: The Peasants Rebellion. Trebuie sã ai instalat jocul original pentru a putea juca KaM Remake. Instalarea se va întrerupe.
+rom.CantUpdate=Instalarea nu a putut gãsi o versiune care va putea fi updatã. Te rog sã downloadezi fisierul de instalare complet. Instalarea se va întrerupe.
+rom.OpenAL=Vrei sã instalezi OpenAL?(Recomandat) Este necesar pentru sunetele din KaM Remake
+rom.ViewReadme=Vizualizeazp fisierul Citeste-ma
