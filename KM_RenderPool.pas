@@ -1212,7 +1212,9 @@ begin
     PX := Max(Round(RenderList[I].Loc.X), 0);
     PY := Max(Round(RenderList[I].Loc.Y), 0);
     //RenderQuad(P.X,P.Y);
-    RenderList[I].FOWvalue := MyPlayer.FogOfWar.CheckTileRevelation(PX, PY, True);
+    //RenderList[I].FOWvalue := MyPlayer.FogOfWar.CheckTileRevelation(PX, PY, True);
+    RenderList[I].FOWvalue := MyPlayer.FogOfWar.CheckRevelation(
+                                KMPointF(RenderList[I].Loc.X, RenderList[I].Ground), True);
 
     //We rendered only houses under FOW to see their rooftops
     //But we might as well render everything for consistency

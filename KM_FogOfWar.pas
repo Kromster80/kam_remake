@@ -9,28 +9,30 @@ uses Classes, Math,
 type
   TKMFogOfWar = class
   private
-    fAnimStep:cardinal;
-    MapX: word;
-    MapY: word;
-    Revelation:array of array of record
+    fAnimStep: Cardinal;
+    MapX: Word;
+    MapY: Word;
+    Revelation: array of array of record
       //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
-      Visibility:byte;
-      {LastTerrain:byte;
-      LastHeight:byte;
-      LastTree:byte;
-      LastHouse:THouseType;}
+      Visibility: Byte;
+      {LastTerrain: Byte;
+      LastHeight: Byte;
+      LastTree: Byte;
+      LastHouse: THouseType;}
     end;
-    procedure SetMapSize(X,Y:integer);
+    procedure SetMapSize(X,Y: Word);
   public
-    constructor Create(X,Y:integer);
-    procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word);
+    constructor Create(X,Y: Word);
+    procedure RevealCircle(Pos: TKMPoint; Radius,Amount: Word);
     procedure RevealEverything;
-    function CheckVerticeRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
-    function CheckTileRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
-    procedure SyncFOW(aFOW: TKMFogOfWar);
+    function CheckVerticeRevelation(const X,Y: Word; aSkipForReplay: Boolean): Byte;
+    function CheckTileRevelation(const X,Y: Word; aSkipForReplay: Boolean): Byte;
+    function CheckRevelation(const aPoint: TKMPointF; aSkipForReplay: Boolean): Byte;
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure SyncFOW(aFOW: TKMFogOfWar);
+
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
 
     procedure UpdateState;
   end;
@@ -42,14 +44,14 @@ uses KM_Defaults, KM_Game;
 
 { TKMFogOfWar }
 //Init with Terrain size only once on creation as terrain size never change during the game
-constructor TKMFogOfWar.Create(X,Y: Integer);
+constructor TKMFogOfWar.Create(X,Y: Word);
 begin
   Inherited Create;
   SetMapSize(X,Y);
 end;
 
 
-procedure TKMFogOfWar.SetMapSize(X,Y:integer);
+procedure TKMFogOfWar.SetMapSize(X,Y: Word);
 begin
   MapX := X;
   MapY := Y;
@@ -130,7 +132,32 @@ begin
 end;
 
 
-procedure TKMFogOfWar.SyncFOW(aFOW: TKMFogOfWar);
+//
+function TKMFogOfWar.CheckRevelation(const aPoint: TKMPointF; aSkipForReplay: Boolean): Byte;
+var A, B, C, D, Y1, Y2: Byte;
+begin
+  if aSkipForReplay and fGame.ReplayMode then
+  begin
+    Result := 255;
+    Exit;
+  end;
+
+  //Interpolate as follows:
+  //A-B
+  //C-D
+  A := CheckVerticeRevelation(Trunc(aPoint.X), Trunc(aPoint.Y), aSkipForReplay);
+  B := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y), aSkipForReplay);
+  C := CheckVerticeRevelation(Trunc(aPoint.X), Trunc(aPoint.Y)+1, aSkipForReplay);
+  D := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y)+1, aSkipForReplay);
+
+  Y1 := Round(A + (B - A) * Frac(aPoint.X));
+  Y2 := Round(C + (D - C) * Frac(aPoint.X));
+
+  Result := Round(Y1 + (Y2 - Y1) * Frac(aPoint.Y));
+end;
+
+
+procedure TKMFogOfWar.SyncFOW(aFOW: TKMFogOfWar);
 var I,K: Integer;
 begin
   for I := 1 to MapY do
