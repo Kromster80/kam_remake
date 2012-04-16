@@ -55,9 +55,11 @@ Improvements:
  +	Custom in-game messages for fan-made campaigns and missions (could be stored in new custom .libx file for the mission)
  +	Support color tags in text
  +	Colors for chat to highlight player names and whether it is team/all channel
+ +	Smarter job assignment to workers
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
  wip	Add support for 1024x600 (1280x720) resolution
+ wip	Smarter delivery assignment to serfs
 	High quality alpha-blended shadows for houses (only once constructed?)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes

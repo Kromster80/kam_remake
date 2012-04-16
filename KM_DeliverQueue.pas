@@ -59,7 +59,10 @@ type
     procedure CloseDelivery(aID:integer);
     procedure CloseDemand(aID:integer);
     procedure CloseOffer(aID:integer);
+    function ValidDelivery(iO,iD:integer):boolean;
+    function SerfCanDoDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
     function PermitDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
+    function CalculateBid(iO,iD:Integer; KMSerf: TKMUnitSerf):Single;
   public
     procedure AddOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure RemOffer(aHouse:TKMHouse);
@@ -69,6 +72,8 @@ type
     procedure RemDemand(aHouse:TKMHouse); overload;
     procedure RemDemand(aUnit:TKMUnit); overload;
 
+    function GetAvailableDeliveriesCount:Integer;
+    procedure AssignDelivery(iO,iD:Integer; KMSerf:TKMUnitSerf);
     procedure AskForDelivery(KMSerf: TKMUnitSerf; KMHouse: TKMHouse=nil);
     procedure TakenOffer(aID:integer);
     procedure GaveDemand(aID:integer);
@@ -93,7 +98,6 @@ type
     procedure RemSerf(aIndex: Integer);
     procedure RemoveExtraSerfs;
     function GetIdleSerfCount:Integer;
-    function GetBestSerf(aPoint:TKMPoint):TKMUnitSerf;
   public
     procedure AddSerf(aSerf: TKMUnitSerf);
 
@@ -208,24 +212,6 @@ begin
 end;
 
 
-function TKMDeliveries.GetBestSerf(aPoint:TKMPoint):TKMUnitSerf;
-var I: Integer; NewBid, BestBid: single;
-begin
-  BestBid := -1;
-  Result := nil;
-  for I := 0 to fSerfCount - 1 do
-    if fSerfs[I].Serf.IsIdle and fSerfs[I].Serf.CanWalkTo(aPoint, 0) then
-    begin
-      NewBid := GetLength(fSerfs[I].Serf.GetPosition, aPoint);
-      if (BestBid = -1) or (NewBid < BestBid) then
-      begin
-        Result := fSerfs[I].Serf;
-        BestBid := NewBid;
-      end;
-    end;
-end;
-
-
 //Remove dead workers
 procedure TKMDeliveries.RemoveExtraSerfs;
 var
@@ -238,13 +224,71 @@ end;
 
 
 procedure TKMDeliveries.UpdateState;
-var I:Integer;
+var
+  I,K,iD,iO,FoundO,FoundD:Integer;
+  Bid,BestBid:Single;
+  AvailableDeliveries,AvailableSerfs:Integer;
+  Serf:TKMUnitSerf;
 begin
   RemoveExtraSerfs;
-  
-  for I := 0 to fSerfCount - 1 do
-    if fSerfs[I].Serf.IsIdle then
-      fQueue.AskForDelivery(fSerfs[I].Serf);
+
+  AvailableDeliveries := fQueue.GetAvailableDeliveriesCount;
+  AvailableSerfs := GetIdleSerfCount;
+  if AvailableSerfs*AvailableDeliveries = 0 then Exit;
+
+
+  if AvailableDeliveries > AvailableSerfs then
+  begin
+    for I := 0 to fSerfCount - 1 do
+      if fSerfs[I].Serf.IsIdle then
+        fQueue.AskForDelivery(fSerfs[I].Serf);
+  end
+  else
+    //I is not used anywhere, but we must loop through once for each delivery available so each one is taken
+    for I := 1 to AvailableDeliveries do
+    begin
+      //First we decide on the best delivery to be done based on current Offers and Demands
+      //We need to choose the best delivery out of all of them, otherwise we could get
+      //a further away storehouse when there are multiple possibilities.
+      //Note: All deliveries will be taken, because we have enough serfs to fill them all.
+      //The important concept here is to always get the shortest delivery when a delivery can be taken to multiple places.
+      BestBid := -1;
+      FoundO := -1;
+      FoundD := -1;
+      for iD:=1 to fQueue.DemandCount do
+        if fQueue.fDemand[iD].Resource <> rt_None then
+          for iO:=1 to fQueue.OfferCount do
+            if (fQueue.fOffer[iO].Resource <> rt_None)
+            and fQueue.ValidDelivery(iO,iD) then
+            begin
+              Bid := fQueue.CalculateBid(iO,iD,nil);
+              if (BestBid = -1) or (Bid < BestBid) then
+              begin
+                BestBid := Bid;
+                FoundO := iO;
+                FoundD := iD;
+              end;
+            end;
+      if BestBid <> -1 then
+      begin
+        //FoundO and FoundD give us the best delivery to do at this moment. Now find the best serf for the job.
+        Serf := nil;
+        BestBid := -1;
+        for K := 0 to fSerfCount - 1 do
+          if fSerfs[K].Serf.IsIdle then
+            if fQueue.SerfCanDoDelivery(FoundO,FoundD,fSerfs[K].Serf) then
+            begin
+              Bid := KMLength(fSerfs[K].Serf.GetPosition, fQueue.fOffer[FoundO].Loc_House.GetEntrance);
+              if (BestBid = -1) or (Bid < BestBid) then
+              begin
+                BestBid := Bid;
+                Serf := fSerfs[K].Serf;
+              end;
+            end;
+        if Serf <> nil then
+          fQueue.AssignDelivery(FoundO,FoundD,Serf);
+      end;
+    end;
 end;
 
 
@@ -387,7 +431,7 @@ begin
 end;
 
 
-function TKMDeliverQueue.PermitDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
+function TKMDeliverQueue.ValidDelivery(iO,iD:integer):boolean;
 begin
   //If Offer Resource matches Demand
   Result := (fDemand[iD].Resource = fOffer[iO].Resource)or
@@ -414,10 +458,12 @@ begin
 
   //If Demand and Offer are different HouseTypes, means forbid Store<->Store deliveries except the case where 2nd store is being built and requires building materials
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fOffer[iO].Loc_House.HouseType<>fDemand[iD].Loc_House.HouseType)or(fOffer[iO].Loc_House.IsComplete<>fDemand[iD].Loc_House.IsComplete));
+end;
 
 
-  Result := Result and (
-            ( //House-House delivery should be performed only if there's a connecting road
+function TKMDeliverQueue.SerfCanDoDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
+begin
+  Result := ( //House-House delivery should be performed only if there's a connecting road
             (fDemand[iD].Loc_House<>nil)and
             (KMSerf.CanWalkTo(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), CanWalkRoad, 0))
             )
@@ -425,7 +471,6 @@ begin
             ( //House-Unit delivery can be performed without connecting road
             (fDemand[iD].Loc_Unit<>nil)and
             (KMSerf.CanWalkTo(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, CanWalk, 1))
-            )
             );
 
   Result := Result and //Delivery is only permitted if the serf can access the from house. If the serf is inside (invisible) test from point below.
@@ -434,22 +479,97 @@ begin
 end;
 
 
+function TKMDeliverQueue.PermitDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
+begin
+  Result := ValidDelivery(iO,iD) and SerfCanDoDelivery(iO,iD,KMSerf);
+end;
+
+
+//Get the total number of possible deliveries with current Offers and Demands
+function TKMDeliverQueue.GetAvailableDeliveriesCount:Integer;
+var
+  iD,iO:integer;
+  OffersTaken:Cardinal;
+  DemandTaken:array of Boolean; //Each demand can only be taken once in our measurements
+begin
+  SetLength(DemandTaken,DemandCount+1);
+  FillChar(DemandTaken[0], SizeOf(Boolean)*(DemandCount+1), #0);
+
+  Result := 0;
+  for iO:=1 to OfferCount do
+    if (fOffer[iO].Resource <> rt_None) then
+    begin
+      OffersTaken := 0;
+      for iD:=1 to DemandCount do
+        if (fDemand[iD].Resource <> rt_None) and not DemandTaken[iD] and ValidDelivery(iO,iD) then
+        begin
+          if fDemand[iD].DemandType = dt_Once then
+          begin
+            DemandTaken[iD] := True;
+            inc(Result);
+            inc(OffersTaken);
+            if fOffer[iO].Count-OffersTaken = 0 then
+              Break; //Finished with this offer
+          end
+          else
+          begin
+            //This demand will take all the offers, so increase result by that many
+            inc(Result, fOffer[iO].Count-OffersTaken);
+            Break; //This offer is finished (because this demand took it all)
+          end;
+        end;
+    end;
+end;
+
+
+function TKMDeliverQueue.CalculateBid(iO,iD:Integer; KMSerf: TKMUnitSerf):Single;
+begin
+  //Basic Bid is length of route
+  if fDemand[iD].Loc_House<>nil then
+    Result := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
+  else
+    Result := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
+
+  //Also prefer deliveries near to the serf
+  if KMSerf <> nil then
+    Result := Result + GetLength(KMSerf.GetPosition,fOffer[iO].Loc_House.GetEntrance);
+
+  //Add some random element so in the case of identical bids the same resource will not always be chosen (e.g. weapons storehouse->barracks should take random weapon types not sequentially)
+  Result := Result + KaMRandom(5);
+
+  //Modifications for bidding system
+  if (fDemand[iD].Resource=rt_All) //Always prefer deliveries House>House instead of House>Store
+  or (fOffer[iO].Loc_House.HouseType = ht_Store) then //Prefer taking wares from House rather than Store
+    Result := Result + 1000;
+
+  if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
+  if (fDemand[iD].Resource <> rt_All)and(fDemand[iD].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
+    Result := Result + 20 * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource);
+
+  //Delivering weapons from store to barracks, make it lowest priority when there are >50 of that weapon in the barracks.
+  //In some missions the storehouse has vast amounts of weapons, and we don't want the serfs to spend the whole game moving these.
+  //In KaM, if the barracks has >200 weapons the serfs will stop delivering from the storehouse. I think our solution is better.
+  if fDemand[iD].Loc_House<>nil then
+  if (fDemand[iD].Loc_House.HouseType = ht_Barracks)and(fOffer[iO].Loc_House.HouseType = ht_Store)and
+     (fDemand[iD].Loc_House.CheckResIn(fOffer[iO].Resource) > 50) then
+     Result := Result + 10000;
+
+  //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.
+  if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Resource = rt_Food) then
+    Result := Result + KaMRandom(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
+end;
+
+
 //Should issue a job based on requesters location and job importance
 //Serf may ask for a job from within a house after completing previous delivery
 procedure TKMDeliverQueue.AskForDelivery(KMSerf: TKMUnitSerf; KMHouse: TKMHouse=nil);
-var i,iD,iO:integer; Bid,BestBid:single; BidIsPriority: boolean;
+var iD,iO,FoundD,FoundO:integer; Bid,BestBid:single; BidIsPriority: boolean;
 begin
-  //Find a place where Delivery will be written to after Offer-Demand pair is found
-  i:=1; while (i<=QueueCount)and(fQueue[i].JobStatus<>js_Empty) do inc(i);
-  if i>QueueCount then begin
-    inc(QueueCount, LENGTH_INC);
-    SetLength(fQueue, QueueCount+1);
-  end;
-
-
   //Find Offer matching Demand
   //TravelRoute Asker>Offer>Demand should be shortest
-  BestBid:=0;
+  BestBid := -1;
+  FoundO := -1;
+  FoundD := -1;
   BidIsPriority := false;
   for iD:=1 to DemandCount do
   if BestBid=1 then break else //Quit loop when best bid is found
@@ -461,36 +581,7 @@ begin
 
     if PermitDelivery(iO,iD,KMSerf) then
     begin
-
-      //Basic Bid is length of route
-      if fDemand[iD].Loc_House<>nil then
-        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
-      else
-        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
-
-      //Add some random element so in the case of identical bids the same resource will not always be chosen (e.g. weapons storehouse->barracks should take random weapon types not sequentially)
-      Bid:=Bid + KaMRandom(5);
-
-      //Modifications for bidding system
-      if (fDemand[iD].Resource=rt_All) //Always prefer deliveries House>House instead of House>Store
-      or (fOffer[iO].Loc_House.HouseType = ht_Store) then //Prefer taking wares from House rather than Store
-        Bid:=Bid + 1000;
-
-      if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
-      if (fDemand[iD].Resource <> rt_All)and(fDemand[iD].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
-        Bid:=Bid + 20 * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource);
-
-      //Delivering weapons from store to barracks, make it lowest priority when there are >50 of that weapon in the barracks.
-      //In some missions the storehouse has vast amounts of weapons, and we don't want the serfs to spend the whole game moving these.
-      //In KaM, if the barracks has >200 weapons the serfs will stop delivering from the storehouse. I think our solution is better.
-      if fDemand[iD].Loc_House<>nil then
-      if (fDemand[iD].Loc_House.HouseType = ht_Barracks)and(fOffer[iO].Loc_House.HouseType = ht_Store)and
-         (fDemand[iD].Loc_House.CheckResIn(fOffer[iO].Resource) > 50) then
-         Bid := Bid + 10000;
-
-      //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.
-      if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Resource = rt_Food) then
-        Bid:=Bid + KaMRandom(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
+      Bid := CalculateBid(iO,iD,KMSerf);
 
       if fDemand[iD].Importance=di_High then //If Demand importance is high - make it done ASAP
       begin
@@ -502,20 +593,34 @@ begin
 
       //Take first one incase there's nothing better to be found
       //Do not take deliveries with Bid=0 (no route found)
-      if (Bid<>0)and((fQueue[i].JobStatus=js_Empty)or(Bid<BestBid)) then
+      if (Bid<>0)and((BestBid = -1)or(Bid<BestBid)) then
       begin
-        fQueue[i].DemandID:=iD;
-        fQueue[i].OfferID:=iO;
-        fQueue[i].JobStatus:=js_Taken; //The job is found, at least something
-        BestBid:=Bid;
+        FoundO := iO;
+        FoundD := iD;
+        BestBid := Bid;
       end;
 
     end;
 
-  if BestBid=0 then exit; //No suitable delivery has been found at all
+  if BestBid<>-1 then
+    AssignDelivery(FoundO,FoundD,KMSerf);
+end;
 
-  iD:=fQueue[i].DemandID;
-  iO:=fQueue[i].OfferID;
+
+procedure TKMDeliverQueue.AssignDelivery(iO,iD:Integer; KMSerf:TKMUnitSerf);
+var i:Integer;
+begin
+  //Find a place where Delivery will be written to after Offer-Demand pair is found
+  i:=1; while (i<=QueueCount)and(fQueue[i].JobStatus<>js_Empty) do inc(i);
+  if i>QueueCount then begin
+    inc(QueueCount, LENGTH_INC);
+    SetLength(fQueue, QueueCount+1);
+  end;
+
+  fQueue[i].DemandID:=iD;
+  fQueue[i].OfferID:=iO;
+  fQueue[i].JobStatus:=js_Taken;
+
   inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on Offer
   fDemand[iD].BeingPerformed:=true; //Places a virtual "Reserved" sign on Demand
 

@@ -1147,6 +1147,8 @@ var
 begin
   AvailableWorkers := GetIdleWorkerCount;
   AvailableJobs := fFieldworksList.GetAvailableJobsCount;
+  if AvailableWorkers*AvailableJobs = 0 then Exit;
+
   if AvailableJobs > AvailableWorkers then
   begin
     for I := 0 to fWorkersCount - 1 do
@@ -1174,6 +1176,8 @@ var
 begin
   AvailableWorkers := GetIdleWorkerCount;
   AvailableJobs := fHousePlanList.GetAvailableJobsCount;
+  if AvailableWorkers*AvailableJobs = 0 then Exit;
+
   if AvailableJobs > AvailableWorkers then
   begin
     for I := 0 to fWorkersCount - 1 do
@@ -1201,6 +1205,8 @@ var
 begin
   AvailableWorkers := GetIdleWorkerCount;
   AvailableJobs := fHouseList.GetAvailableJobsCount;
+  if AvailableWorkers*AvailableJobs = 0 then Exit;
+
   if AvailableJobs > AvailableWorkers then
   begin
     for I := 0 to fWorkersCount - 1 do
@@ -1228,6 +1234,8 @@ var
 begin
   AvailableWorkers := GetIdleWorkerCount;
   AvailableJobs := fRepairList.GetAvailableJobsCount;
+  if AvailableWorkers*AvailableJobs = 0 then Exit;
+
   if AvailableJobs > AvailableWorkers then
   begin
     for I := 0 to fWorkersCount - 1 do
