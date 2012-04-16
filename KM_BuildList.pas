@@ -1100,7 +1100,7 @@ begin
   for I := 0 to fWorkersCount - 1 do
   begin
     U := fPlayers.GetUnitByID(Cardinal(fWorkers[I].Worker));
-    Assert(U is TKMUnitWorker, 'Non-worker in Repairs list');
+    Assert(U is TKMUnitWorker, 'Non-worker in build list');
     fWorkers[I].Worker := TKMUnitWorker(U);
   end;
 
@@ -1265,8 +1265,8 @@ begin
   //which is very rare (only when ordering a large number of jobs within 2 seconds)
 
   //In KaM the order is:
-  //1. Fieldworks
-  //2. House plans
+  //1. House plans
+  //2. Fieldworks
   //3. Houses
   //4. Repairs
   AssignHousePlans;

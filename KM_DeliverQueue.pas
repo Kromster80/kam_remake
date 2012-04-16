@@ -81,6 +81,32 @@ type
     procedure ExportToFile(aFileName:string);
   end;
 
+  TKMDeliveries = class
+  private
+    fQueue: TKMDeliverQueue;
+
+    fSerfCount: Integer;
+    fSerfs: array of record
+      Serf: TKMUnitSerf;
+    end;
+
+    procedure RemSerf(aIndex: Integer);
+    procedure RemoveExtraSerfs;
+    function GetIdleSerfCount:Integer;
+    function GetBestSerf(aPoint:TKMPoint):TKMUnitSerf;
+  public
+    procedure AddSerf(aSerf: TKMUnitSerf);
+
+    property Queue: TKMDeliverQueue read fQueue;
+
+    constructor Create;
+    destructor Destroy; override;
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
+    procedure SyncLoad;
+    procedure UpdateState;
+  end;
+
 
 implementation
 uses KM_Game, KM_Utils, KM_PlayersCollection, KM_Resource, KM_Log;
@@ -88,6 +114,138 @@ uses KM_Game, KM_Utils, KM_PlayersCollection, KM_Resource, KM_Log;
 
 const
   LENGTH_INC = 32; //Increment array lengths by this value
+
+
+constructor TKMDeliveries.Create;
+begin
+  Inherited;
+  fQueue := TKMDeliverQueue.Create;
+end;
+
+
+destructor TKMDeliveries.Destroy;
+begin
+  fQueue.Free;
+  Inherited;
+end;
+
+
+procedure TKMDeliveries.Save(SaveStream:TKMemoryStream);
+var I: Integer;
+begin
+  SaveStream.Write('SerfList');
+
+  SaveStream.Write(fSerfCount);
+  for I := 0 to fSerfCount - 1 do
+  begin
+    if fSerfs[I].Serf <> nil then
+      SaveStream.Write(fSerfs[I].Serf.ID)
+    else
+      SaveStream.Write(Integer(0));
+  end;
+
+  fQueue.Save(SaveStream);
+end;
+
+
+procedure TKMDeliveries.Load(LoadStream:TKMemoryStream);
+var I: Integer;
+begin
+  LoadStream.ReadAssert('SerfList');
+
+  LoadStream.Read(fSerfCount);
+  SetLength(fSerfs, fSerfCount);
+  for I := 0 to fSerfCount - 1 do
+    LoadStream.Read(fSerfs[I].Serf, 4);
+
+  fQueue.Load(LoadStream);
+end;
+
+
+procedure TKMDeliveries.SyncLoad;
+var I: Integer; U: TKMUnit;
+begin
+  for I := 0 to fSerfCount - 1 do
+  begin
+    U := fPlayers.GetUnitByID(Cardinal(fSerfs[I].Serf));
+    Assert(U is TKMUnitSerf, 'Non-serf in delivery list');
+    fSerfs[I].Serf := TKMUnitSerf(U);
+  end;
+  fQueue.SyncLoad;
+end;
+
+
+//Add the Serf to the List
+procedure TKMDeliveries.AddSerf(aSerf: TKMUnitSerf);
+begin
+  if fSerfCount >= Length(fSerfs) then
+    SetLength(fSerfs, fSerfCount + LENGTH_INC);
+
+  fSerfs[fSerfCount].Serf := TKMUnitSerf(aSerf.GetUnitPointer);
+  Inc(fSerfCount);
+end;
+
+
+//Remove died Serf from the List
+procedure TKMDeliveries.RemSerf(aIndex: Integer);
+begin
+  fPlayers.CleanUpUnitPointer(TKMUnit(fSerfs[aIndex].Serf));
+
+  if aIndex <> fSerfCount - 1 then
+    Move(fSerfs[aIndex+1], fSerfs[aIndex], SizeOf(fSerfs[aIndex]) * (fSerfCount - 1 - aIndex));
+
+  Dec(fSerfCount);
+end;
+
+
+function TKMDeliveries.GetIdleSerfCount:Integer;
+var I:Integer;
+begin
+  Result := 0;
+  for I := 0 to fSerfCount - 1 do
+    if fSerfs[I].Serf.IsIdle then
+      inc(Result);
+end;
+
+
+function TKMDeliveries.GetBestSerf(aPoint:TKMPoint):TKMUnitSerf;
+var I: Integer; NewBid, BestBid: single;
+begin
+  BestBid := -1;
+  Result := nil;
+  for I := 0 to fSerfCount - 1 do
+    if fSerfs[I].Serf.IsIdle and fSerfs[I].Serf.CanWalkTo(aPoint, 0) then
+    begin
+      NewBid := GetLength(fSerfs[I].Serf.GetPosition, aPoint);
+      if (BestBid = -1) or (NewBid < BestBid) then
+      begin
+        Result := fSerfs[I].Serf;
+        BestBid := NewBid;
+      end;
+    end;
+end;
+
+
+//Remove dead workers
+procedure TKMDeliveries.RemoveExtraSerfs;
+var
+  I: Integer;
+begin
+  for I := fSerfCount - 1 downto 0 do
+    if fSerfs[I].Serf.IsDeadOrDying then
+      RemSerf(I);
+end;
+
+
+procedure TKMDeliveries.UpdateState;
+var I:Integer;
+begin
+  RemoveExtraSerfs;
+  
+  for I := 0 to fSerfCount - 1 do
+    if fSerfs[I].Serf.IsIdle then
+      fQueue.AskForDelivery(fSerfs[I].Serf);
+end;
 
 
 { TKMDeliverQueue }

@@ -466,7 +466,7 @@ begin
   for i:=1 to 4 do
   begin
     Res := fResource.HouseDat[fHouseType].ResInput[i];
-    with fPlayers.Player[fOwner].DeliverList do
+    with fPlayers.Player[fOwner].Deliveries.Queue do
     case Res of
       rt_None:    ;
       rt_Warfare: AddDemand(Self, nil, Res, 1, dt_Always, di_Norm);
@@ -495,8 +495,8 @@ begin
       fSoundLib.Play(sfx_HouseDestroy, fPosition);
 
   //Dispose of delivery tasks performed in DeliverQueue unit
-  fPlayers.Player[fOwner].DeliverList.RemOffer(Self);
-  fPlayers.Player[fOwner].DeliverList.RemDemand(Self);
+  fPlayers.Player[fOwner].Deliveries.Queue.RemOffer(Self);
+  fPlayers.Player[fOwner].Deliveries.Queue.RemDemand(Self);
   fTerrain.SetHouse(fPosition,fHouseType,hsNone,-1);
 
   //Leave rubble
@@ -897,7 +897,7 @@ begin
       inc(fResourceIn[i], aCount);
       if aFromScript then
       begin
-        OrdersRemoved := fPlayers.Player[fOwner].DeliverList.TryRemoveDemand(Self, aResource, aCount);
+        OrdersRemoved := fPlayers.Player[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aResource, aCount);
         dec(fResourceDeliveryCount[i], OrdersRemoved);
       end;
     end;
@@ -912,7 +912,7 @@ begin
   if aResource = fResource.HouseDat[fHouseType].ResOutput[i] then
     begin
       inc(fResourceOut[i], aCount);
-      fPlayers.Player[fOwner].DeliverList.AddOffer(Self, aResource, aCount);
+      fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, aResource, aCount);
     end;
 end;
 
@@ -944,7 +944,7 @@ begin
     for k:=1 to aCount do
       if fResourceDeliveryCount[i] < GetResDistribution(i) then
       begin
-        fPlayers.Player[fOwner].DeliverList.AddDemand(Self,nil,aResource,1,dt_Once,di_Norm);
+        fPlayers.Player[fOwner].Deliveries.Queue.AddDemand(Self,nil,aResource,1,dt_Once,di_Norm);
         inc(fResourceDeliveryCount[i]);
       end;
     Exit;
@@ -1098,7 +1098,7 @@ begin
     if fResourceDeliveryCount[i] < GetResDistribution(i) then
     begin
       Count := GetResDistribution(i)-fResourceDeliveryCount[i];
-      fPlayers.Player[fOwner].DeliverList.AddDemand(
+      fPlayers.Player[fOwner].Deliveries.Queue.AddDemand(
         Self, nil, fResource.HouseDat[fHouseType].ResInput[i], Count, dt_Once, di_Norm);
 
       inc(fResourceDeliveryCount[i], Count);
@@ -1442,14 +1442,14 @@ begin
     if ResRequired > 0 then
     begin
       inc(fMarketDeliveryCount[aResource], Min(aCount, ResRequired));
-      fPlayers.Player[fOwner].DeliverList.AddDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dt_Once, di_Norm);
+      fPlayers.Player[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dt_Once, di_Norm);
     end;
     AttemptExchange;
   end
   else
   begin
     inc(fMarketResOut[aResource], aCount); //Place the new resource in the OUT list
-    fPlayers.Player[fOwner].DeliverList.AddOffer(Self, aResource, aCount);
+    fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, aResource, aCount);
   end;
 end;
 
@@ -1468,7 +1468,7 @@ begin
     dec(fMarketResIn[fResFrom], TradeCount * RatioFrom);
     dec(fTradeAmount, TradeCount);
     inc(fMarketResOut[fResTo], TradeCount * RatioTo);
-    fPlayers.Player[fOwner].DeliverList.AddOffer(Self, fResTo, TradeCount * RatioTo);
+    fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
 
     fSoundLib.Play(sfxn_Trade,GetEntrance);
   end;
@@ -1525,7 +1525,7 @@ begin
   if (fTradeAmount = 0) and (fMarketResIn[fResFrom] > 0) then
   begin
     inc(fMarketResOut[fResFrom], fMarketResIn[fResFrom]);
-    fPlayers.Player[fOwner].DeliverList.AddOffer(Self, fResFrom, fMarketResIn[fResFrom]);
+    fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, fResFrom, fMarketResIn[fResFrom]);
     fMarketResIn[fResFrom] := 0;
   end;
 
@@ -1546,13 +1546,13 @@ begin
   if (ResRequired > 0) and (OrdersAllowed > 0) then
   begin
     inc(fMarketDeliveryCount[fResFrom], Min(ResRequired,OrdersAllowed));
-    fPlayers.Player[fOwner].DeliverList.AddDemand(Self, nil, fResFrom, Min(ResRequired,OrdersAllowed), dt_Once, di_Norm)
+    fPlayers.Player[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(ResRequired,OrdersAllowed), dt_Once, di_Norm)
   end
   else
     //There are too many resources ordered, so remove as many as we can from the delivery list (some will be being performed)
     if (ResRequired < 0) then
     begin
-      OrdersRemoved := fPlayers.Player[fOwner].DeliverList.TryRemoveDemand(Self, fResFrom, -ResRequired);
+      OrdersRemoved := fPlayers.Player[fOwner].Deliveries.Queue.TryRemoveDemand(Self, fResFrom, -ResRequired);
       dec(fMarketDeliveryCount[fResFrom], OrdersRemoved);
     end;
 end;
@@ -1781,12 +1781,12 @@ begin
   case aResource of
     rt_All:     for i:=Low(ResourceCount) to High(ResourceCount) do begin
                   ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount, 0, High(Word));
-                  fPlayers.Player[fOwner].DeliverList.AddOffer(Self, i, aCount);
+                  fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, i, aCount);
                 end;
     WARE_MIN..
     WARE_MAX:   begin
                   ResourceCount[aResource]:=EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
-                  fPlayers.Player[fOwner].DeliverList.AddOffer(Self,aResource,aCount);
+                  fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self,aResource,aCount);
                 end;
     else        raise ELocError.Create('Cant''t add '+fResource.Resources[aResource].Name, GetPosition);
   end;

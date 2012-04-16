@@ -621,12 +621,14 @@ end;
 
 procedure TKMUnitSerf.Deliver(aFrom, toHouse: TKMHouse; Res: TResourceType; aID: integer);
 begin
+  fThought := th_None; //Clear ? thought
   fUnitTask := TTaskDeliver.Create(Self, aFrom, toHouse, Res, aID);
 end;
 
 
 procedure TKMUnitSerf.Deliver(aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: integer);
 begin
+  fThought := th_None; //Clear ? thought
   fUnitTask := TTaskDeliver.Create(Self, aFrom, toUnit, Res, aID);
 end;
 
@@ -637,7 +639,7 @@ begin
   //Remember current task
   T := fUnitTask;
   //Try to get a new one
-  fPlayers.Player[GetOwner].DeliverList.AskForDelivery(Self, aFrom);
+  fPlayers.Player[GetOwner].Deliveries.Queue.AskForDelivery(Self, aFrom);
 
   //Return True if we've got a new deliery
   Result := fUnitTask <> T;
@@ -704,9 +706,6 @@ begin
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self);
   end;
-
-  if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
-    fPlayers.Player[fOwner].DeliverList.AskForDelivery(Self);
 
   //Only show quest thought if we are idle and not thinking anything else (e.g. death)
   if fUnitTask=nil then begin

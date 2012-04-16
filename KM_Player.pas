@@ -39,7 +39,7 @@ type
   private
     fAI: TKMPlayerAI;
     fBuildList: TKMBuildList; //Not the best name for buildingManagement
-    fDeliverList: TKMDeliverQueue;
+    fDeliveries: TKMDeliveries;
     fHouses: TKMHousesCollection;
     fRoadsList: TKMPointList; //Used only once to speedup mission loading, then freed
     fStats: TKMPlayerStats;
@@ -63,7 +63,7 @@ type
 
     property AI: TKMPlayerAI read fAI;
     property BuildList: TKMBuildList read fBuildList;
-    property DeliverList: TKMDeliverQueue read fDeliverList;
+    property Deliveries: TKMDeliveries read fDeliveries;
     property Houses: TKMHousesCollection read fHouses;
     property Stats: TKMPlayerStats read fStats;
     property Goals: TKMGoals read fGoals;
@@ -215,7 +215,7 @@ begin
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
   fHouses       := TKMHousesCollection.Create;
-  fDeliverList  := TKMDeliverQueue.Create;
+  fDeliveries   := TKMDeliveries.Create;
   fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
 
@@ -241,7 +241,7 @@ begin
   FreeThenNil(fStats);
   FreeThenNil(fGoals);
   FreeThenNil(fFogOfWar);
-  FreeThenNil(fDeliverList);
+  FreeThenNil(fDeliveries);
   FreeThenNil(fBuildList);
   FreeThenNil(fAI);
 end;
@@ -258,6 +258,8 @@ begin
   begin
     if aUnitType = ut_Worker then
       fBuildList.AddWorker(TKMUnitWorker(Result));
+    if aUnitType = ut_Serf then
+      fDeliveries.AddSerf(TKMUnitSerf(Result));
 
     fStats.UnitCreated(aUnitType, WasTrained);
   end;
@@ -294,6 +296,8 @@ procedure TKMPlayer.TrainingDone(aUnit: TKMUnit);
 begin
   if aUnit.UnitType = ut_Worker then
     fBuildList.AddWorker(TKMUnitWorker(aUnit));
+  if aUnit.UnitType = ut_Serf then
+    fDeliveries.AddSerf(TKMUnitSerf(aUnit));
 
   fStats.UnitCreated(aUnit.UnitType, True);
 end;
@@ -799,7 +803,7 @@ begin
   inherited;
   fAI.Save(SaveStream);
   fBuildList.Save(SaveStream);
-  fDeliverList.Save(SaveStream);
+  fDeliveries.Save(SaveStream);
   fFogOfWar.Save(SaveStream);
   fGoals.Save(SaveStream);
   fHouses.Save(SaveStream);
@@ -818,7 +822,7 @@ begin
   inherited;
   fAI.Load(LoadStream);
   fBuildList.Load(LoadStream);
-  fDeliverList.Load(LoadStream);
+  fDeliveries.Load(LoadStream);
   fFogOfWar.Load(LoadStream);
   fGoals.Load(LoadStream);
   fHouses.Load(LoadStream);
@@ -836,7 +840,7 @@ procedure TKMPlayer.SyncLoad;
 begin
   inherited;
   fHouses.SyncLoad;
-  fDeliverList.SyncLoad;
+  fDeliveries.SyncLoad;
   fBuildList.SyncLoad;
   fAI.SyncLoad;
 end;
@@ -857,7 +861,10 @@ begin
 
   //Distribute AI updates among different Ticks to avoid slowdowns
   if (aTick + Byte(fPlayerIndex)) mod 10 = 0 then
+  begin
     fBuildList.UpdateState;
+    fDeliveries.UpdateState;
+  end;
 
   if (aTick + Byte(fPlayerIndex)) mod 20 = 0 then
   begin

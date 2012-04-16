@@ -261,7 +261,7 @@ begin
         if WorkPlan.ActCount >= fPhase2 then begin
           GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
           //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
-          SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk);
+          SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk);
         end else begin
           fPhase := SkipWork; //Skip to step 31
           SetActionLockedStay(0,ua_Walk);
@@ -271,14 +271,14 @@ begin
     10..30: begin //Allow for 20 different "house work" phases
            inc(fPhase2);
            if (fPhase2 = 2)and(WorkPlan.GatheringScript = gs_HorseBreeder) then
-             fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts; //Feed a horse
+             fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts; //Feed a horse/pig
            if WorkPlan.ActCount >= fPhase2 then
            begin
              GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
              if WorkPlan.ActCount > fPhase2 then
-               SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk) //-1 to compensate units UpdateState run
+               SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk) //-1 to compensate units UpdateState run
              else
-               SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-2,ua_Walk) //-2 to compensate 2 UpdateStates of a unit in last Act
+               SetActionLockedStay(WorkPlan.HouseAct[fPhase2].TimeToWork-2,ua_Walk) //-2 to compensate 2 UpdateStates of a unit in last Act
            end else begin
              fPhase := SkipWork; //Skip to step 31
              SetActionLockedStay(0,ua_Walk);
@@ -308,7 +308,7 @@ begin
           end;
 
           GetHome.SetState(hst_Idle);
-          SetActionStay(WorkPlan.AfterWorkIdle-1, ua_Walk);
+          SetActionLockedStay(WorkPlan.AfterWorkIdle-1, ua_Walk);
         end;
     else Result := TaskDone;
   end;

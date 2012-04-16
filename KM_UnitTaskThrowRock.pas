@@ -79,9 +79,9 @@ begin
          if not FREE_ROCK_THROWING then GetHome.ResTakeFromIn(rt_Stone, 1);
          fFlightTime := fGame.Projectiles.AimTarget(fUnit.PositionF, fTarget, pt_TowerRock, fUnit.GetOwner, RANGE_WATCHTOWER_MAX, RANGE_WATCHTOWER_MIN);
          fPlayers.CleanUpUnitPointer(fTarget); //We don't need it anymore
-         SetActionStay(1,ua_Walk);
+         SetActionLockedStay(1,ua_Walk);
        end;
-    2: SetActionStay(fFlightTime,ua_Walk); //look how it goes
+    2: SetActionLockedStay(fFlightTime,ua_Walk); //look how it goes
     3: begin
          GetHome.SetState(hst_Idle);
          SetActionStay(20,ua_Walk); //Idle before throwing another rock
