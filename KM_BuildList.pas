@@ -11,8 +11,6 @@ type
         js_Open,    //Open - job is free to take by anyone
         js_Taken);  //Taken - job is taken by some worker
 
-  TGetBestWorkerEvent = procedure (aPoint:TKMPoint; out aWorker:TKMUnitWorker) of object;
-
   TKMHouseList = class
   private
     fHousesCount: Integer;
@@ -28,7 +26,7 @@ type
     procedure RemWorker(aIndex: Integer);
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
-
+    function GetAvailableJobsCount:Integer;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -56,6 +54,7 @@ type
 
     //Game events
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
+    function GetAvailableJobsCount:Integer;
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker); //Assign worker to a field
     procedure ReOpenPlan(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
     procedure ClosePlan(aIndex: Integer); //Worker has finished the task
@@ -103,7 +102,6 @@ type
     //Game events
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
     function GetAvailableJobsCount:Integer;
-    procedure MatchToWorkers(aGetBestWorker: TGetBestWorkerEvent);
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker); //Assign worker to a field
     procedure ReOpenField(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
     procedure CloseField(aIndex: Integer); //Worker has finished the task
@@ -133,6 +131,7 @@ type
 
     procedure AddHouse(aHouse: TKMHouse);
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
+    function GetAvailableJobsCount:Integer;
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
     procedure RemWorker(aIndex: Integer);
 
@@ -157,7 +156,12 @@ type
     procedure RemWorker(aIndex: Integer);
     procedure RemoveExtraWorkers;
     function GetIdleWorkerCount:Integer;
-    procedure GetBestWorker(aPoint:TKMPoint; out aWorker:TKMUnitWorker);
+    function GetBestWorker(aPoint:TKMPoint):TKMUnitWorker;
+
+    procedure AssignFieldworks;
+    procedure AssignHousePlans;
+    procedure AssignHouses;
+    procedure AssignRepairs;
   public
     constructor Create;
     destructor Destroy; override;
@@ -182,7 +186,7 @@ uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse;
 
 const
   LENGTH_INC = 32; //Increment array lengths by this value
-  BID_MODIF = 30; //Modificator for every next assigned worker
+  BID_MODIF = 5; //Modificator for every next assigned worker
 
 
 {TKMHouseList}
@@ -241,6 +245,16 @@ begin
       Result := I;
     end;
   end;
+end;
+
+
+function TKMHouseList.GetAvailableJobsCount:Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to fHousesCount - 1 do
+    if (fHouses[i].House <> nil) and fHouses[i].House.CheckResToBuild then
+      inc(Result);
 end;
 
 
@@ -345,18 +359,6 @@ begin
   for I := 0 to fFieldsCount - 1 do
     if fFields[I].JobStatus = js_Open then
       inc(Result);
-end;
-
-
-procedure TKMFieldworksList.MatchToWorkers(aGetBestWorker: TGetBestWorkerEvent);
-var I:Integer; BestWorker:TKMUnitWorker;
-begin
-  for I := 0 to fFieldsCount - 1 do
-    if fFields[I].JobStatus = js_Open then
-    begin
-      aGetBestWorker(fFields[I].Loc, BestWorker);
-      if BestWorker <> nil then GiveTask(I, BestWorker);
-    end;
 end;
 
 
@@ -646,6 +648,16 @@ begin
 end;
 
 
+function TKMHousePlanList.GetAvailableJobsCount:Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to fPlansCount - 1 do
+    if fPlans[I].JobStatus = js_Open then
+      inc(Result);
+end;
+
+
 procedure TKMHousePlanList.ClosePlan(aIndex: Integer);
 begin
   fPlans[aIndex].HouseType := ht_None;
@@ -900,6 +912,16 @@ begin
 end;
 
 
+function TKMRepairList.GetAvailableJobsCount:Integer;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to fHousesCount - 1 do
+    if fHouses[i].House <> nil then
+      inc(Result);
+end;
+
+
 procedure TKMRepairList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
 begin
   aWorker.BuildHouseRepair(fHouses[aIndex].House, aIndex);
@@ -1099,28 +1121,133 @@ begin
 end;
 
 
-procedure TKMBuildList.GetBestWorker(aPoint:TKMPoint; out aWorker:TKMUnitWorker);
+function TKMBuildList.GetBestWorker(aPoint:TKMPoint):TKMUnitWorker;
 var I: Integer; NewBid, BestBid: single;
 begin
   BestBid := -1;
-  aWorker := nil;
+  Result := nil;
   for I := 0 to fWorkersCount - 1 do
     if fWorkers[I].Worker.IsIdle and fWorkers[I].Worker.CanWalkTo(aPoint, 0) then
     begin
       NewBid := GetLength(fWorkers[I].Worker.GetPosition, aPoint);
       if (BestBid = -1) or (NewBid < BestBid) then
       begin
-        aWorker := fWorkers[I].Worker;
+        Result := fWorkers[I].Worker;
         BestBid := NewBid;
       end;
     end;
 end;
 
 
+procedure TKMBuildList.AssignFieldworks;
+var
+  I, AvailableWorkers, AvailableJobs, JobID: Integer;
+  MyBid: Single;
+  BestWorker:TKMUnitWorker;
+begin
+  AvailableWorkers := GetIdleWorkerCount;
+  AvailableJobs := fFieldworksList.GetAvailableJobsCount;
+  if AvailableJobs > AvailableWorkers then
+  begin
+    for I := 0 to fWorkersCount - 1 do
+      if fWorkers[I].Worker.IsIdle then
+      begin
+        JobID := fFieldworksList.BestBid(fWorkers[I].Worker, MyBid);
+        if JobID <> -1 then fFieldworksList.GiveTask(JobID, fWorkers[I].Worker);
+      end;
+  end
+  else
+    for I := 0 to fFieldworksList.fFieldsCount - 1 do
+      if fFieldworksList.fFields[I].JobStatus = js_Open then
+      begin
+        BestWorker := GetBestWorker(fFieldworksList.fFields[I].Loc);
+        if BestWorker <> nil then fFieldworksList.GiveTask(I, BestWorker);
+      end;
+end;
+
+
+procedure TKMBuildList.AssignHousePlans;
+var
+  I, AvailableWorkers, AvailableJobs, JobID: Integer;
+  MyBid: Single;
+  BestWorker:TKMUnitWorker;
+begin
+  AvailableWorkers := GetIdleWorkerCount;
+  AvailableJobs := fHousePlanList.GetAvailableJobsCount;
+  if AvailableJobs > AvailableWorkers then
+  begin
+    for I := 0 to fWorkersCount - 1 do
+      if fWorkers[I].Worker.IsIdle then
+      begin
+        JobID := fHousePlanList.BestBid(fWorkers[I].Worker, MyBid);
+        if JobID <> -1 then fHousePlanList.GiveTask(JobID, fWorkers[I].Worker);
+      end;
+  end
+  else
+    for I := 0 to fHousePlanList.fPlansCount - 1 do
+      if fHousePlanList.fPlans[I].JobStatus = js_Open then
+      begin
+        BestWorker := GetBestWorker(fHousePlanList.fPlans[I].Loc);
+        if BestWorker <> nil then fHousePlanList.GiveTask(I, BestWorker);
+      end;
+end;
+
+
+procedure TKMBuildList.AssignHouses;
+var
+  I, AvailableWorkers, AvailableJobs, JobID: Integer;
+  MyBid: Single;
+  BestWorker:TKMUnitWorker;
+begin
+  AvailableWorkers := GetIdleWorkerCount;
+  AvailableJobs := fHouseList.GetAvailableJobsCount;
+  if AvailableJobs > AvailableWorkers then
+  begin
+    for I := 0 to fWorkersCount - 1 do
+      if fWorkers[I].Worker.IsIdle then
+      begin
+        JobID := fHouseList.BestBid(fWorkers[I].Worker, MyBid);
+        if JobID <> -1 then fHouseList.GiveTask(JobID, fWorkers[I].Worker);
+      end;
+  end
+  else
+    for I := 0 to fHouseList.fHousesCount - 1 do
+      if (fHouseList.fHouses[i].House <> nil) and fHouseList.fHouses[i].House.CheckResToBuild then
+      begin
+        BestWorker := GetBestWorker(KMPointBelow(fHouseList.fHouses[I].House.GetEntrance));
+        if BestWorker <> nil then fHouseList.GiveTask(I, BestWorker);
+      end;
+end;
+
+
+procedure TKMBuildList.AssignRepairs;
+var
+  I, AvailableWorkers, AvailableJobs, JobID: Integer;
+  MyBid: Single;
+  BestWorker:TKMUnitWorker;
+begin
+  AvailableWorkers := GetIdleWorkerCount;
+  AvailableJobs := fRepairList.GetAvailableJobsCount;
+  if AvailableJobs > AvailableWorkers then
+  begin
+    for I := 0 to fWorkersCount - 1 do
+      if fWorkers[I].Worker.IsIdle then
+      begin
+        JobID := fRepairList.BestBid(fWorkers[I].Worker, MyBid);
+        if JobID <> -1 then fRepairList.GiveTask(JobID, fWorkers[I].Worker);
+      end;
+  end
+  else
+    for I := 0 to fRepairList.fHousesCount - 1 do
+      if fRepairList.fHouses[i].House <> nil then
+      begin
+        BestWorker := GetBestWorker(KMPointBelow(fRepairList.fHouses[I].House.GetEntrance));
+        if BestWorker <> nil then fRepairList.GiveTask(I, BestWorker);
+      end;
+end;
+
+
 procedure TKMBuildList.UpdateState;
-var I, AvailableWorkers, AvailableJobs, JobID: Integer; MyBid: Single;
-  Idx: array [0..3] of Integer;
-  Bid: array [0..3] of Single;
 begin
   HouseList.UpdateState;
   fRepairList.UpdateState;
@@ -1137,49 +1264,15 @@ begin
   //keep in mind that it will only be more efficient when BOTH IdleWorkerCount and JobCount are > 1,
   //which is very rare (only when ordering a large number of jobs within 2 seconds)
 
-  AvailableWorkers := GetIdleWorkerCount;
-  AvailableJobs := fFieldworksList.GetAvailableJobsCount;
-  if AvailableJobs > AvailableWorkers then
-  begin
-    for I := 0 to fWorkersCount - 1 do
-      if fWorkers[I].Worker.IsIdle then
-      begin
-        JobID := fFieldworksList.BestBid(fWorkers[I].Worker, MyBid);
-        if JobID <> -1 then fFieldworksList.GiveTask(JobID, fWorkers[I].Worker);
-      end;
-  end
-  else
-    fFieldworksList.MatchToWorkers(GetBestWorker);
-
-
-
-  //Old soltion, it can handle things other than fieldworks while testing
-
-
-  //We can weight the repairs by distance, severity, etc..
-  //For now, each worker will go for the house closest to him
-  for I := 0 to fWorkersCount - 1 do
-    //Maybe we can add reassignment code later on
-    if fWorkers[I].Worker.IsIdle then
-    begin
-
-      Idx[0] := fFieldworksList.BestBid(fWorkers[I].Worker, Bid[0]);
-      Idx[1] := fHouseList.BestBid(fWorkers[I].Worker, Bid[1]);
-      Idx[2] := fHousePlanList.BestBid(fWorkers[I].Worker, Bid[2]);
-      Idx[3] := fRepairList.BestBid(fWorkers[I].Worker, Bid[3]);
-
-      if Idx[3] <> -1 then
-        fRepairList.GiveTask(Idx[3], fWorkers[I].Worker)
-      else
-      if Idx[2] <> -1 then
-        fHousePlanList.GiveTask(Idx[2], fWorkers[I].Worker)
-      else
-      if Idx[1] <> -1 then
-        fHouseList.GiveTask(Idx[1], fWorkers[I].Worker)
-      else
-      if Idx[0] <> -1 then
-        fFieldworksList.GiveTask(Idx[0], fWorkers[I].Worker);
-    end;
+  //In KaM the order is:
+  //1. Fieldworks
+  //2. House plans
+  //3. Houses
+  //4. Repairs
+  AssignHousePlans;
+  AssignFieldworks;
+  AssignHouses;
+  AssignRepairs;
 end;
 
 

@@ -531,8 +531,8 @@ procedure TKMMainMenuInterface.Fill_ResultsMP;
 var
   i,k: Integer;
   UnitsMax, HousesMax, GoodsMax, WeaponsMax, MaxValue: Integer;
-  Bests: array[0..9] of Integer;
-  Totals: array[0..9] of Integer;
+  Bests: array[0..9] of Cardinal;
+  Totals: array[0..9] of Cardinal;
 begin
   Label_ResultsMPTime.Caption := fGame.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
 
@@ -548,18 +548,13 @@ begin
     end;
   end;
 
-  //Calculate bests for each "section"
-  Bests[0] := -1;
-  Bests[1] := MaxInt;
-  Bests[2] := -1;
-  Bests[3] := MaxInt;
-  Bests[4] := -1;
-  Bests[5] := -1;
-  Bests[6] := MaxInt;
-  Bests[7] := -1;
-  Bests[8] := -1;
-  Bests[9] := -1;
+  ZeroMemory(@Bests,SizeOf(Bests));
+  //These are a special case: Less is better so we initialized them high
+  Bests[1] := High(Cardinal);
+  Bests[3] := High(Cardinal);
+  Bests[6] := High(Cardinal);
   ZeroMemory(@Totals,SizeOf(Totals));
+  //Calculate bests for each "section"
   for i:=0 to fPlayers.Count-1 do
     with fPlayers[i].Stats do
     begin

@@ -11,7 +11,7 @@ ger,    German,               1252,     6,            ,                The Knigh
 hun,    Hungarian,            1250,     17,           ,                Jecy
 ita,    Italian,              1252,     10,           ,                Paolo Castelvetere
 pol,    Polish,               1250,     7,            ,                Przemyslaw Pietras
-rom,    Romanian,             1250,     26,           ,                Bogdan Ionut
+rom,    Romanian,             1250,     26,           ,                mucormucedo
 rus,    Russian,              1251,     14,           ,                Krom
 svk,    Slovak,               1250,     12,           cze,             Robert Marko
 spa,    Spanish,              1252,     13,           ,                Oscar
