@@ -47,6 +47,7 @@ begin
   Result := False;
 
   case aHouse of
+    //ht_Store:     Result := NextToHouse(ht_Store, aHouse, aLoc);
     ht_School:    Result := NextToHouse(ht_Store, aHouse, aLoc);
     ht_Inn:       Result := NextToHouse(ht_Store, aHouse, aLoc);
     ht_Sawmill:   Result := NextToHouse(ht_Woodcutters, aHouse, aLoc);
@@ -118,21 +119,19 @@ function TKMCityPlanner.NextToHouse(aTarget, aHouse: THouseType; out aLoc: TKMPo
     end;
   end;
 var
-  S: TKMHouse;
+  TargetH: TKMHouse;
   I, K: Integer;
   Bid, BestBid: Single;
   TargetLoc: TKMPoint;
 begin
   Result := False;
-  S := fPlayers[fOwner].Houses.FindHouse(aTarget, 0, 0, 1, True);
-  if S = nil then
-    S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
+  TargetH := fPlayers[fOwner].Houses.FindHouse(aTarget, 0, 0, 1, True);
 
-  if S = nil then
+  if TargetH = nil then
     Exit;
 
   BestBid := MaxSingle;
-  TargetLoc := S.GetEntrance;
+  TargetLoc := TargetH.GetEntrance;
 
   for I := Max(TargetLoc.Y - 10, 1) to Min(TargetLoc.Y + 10, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - 10, 1) to Min(TargetLoc.X + 10, fTerrain.MapX - 1) do

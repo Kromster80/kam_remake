@@ -169,9 +169,9 @@ var
   RoadExists: Boolean;
 begin
   P := fPlayers[fOwner];
-  //P.FogOfWar.RevealEverything;
   Result := False;
 
+  //Number of simultaneous WIP houses is limited to 3
   if ((P.Stats.GetHouseQty(ht_Any) < 3) and (P.Stats.GetHouseWip(ht_Any) >= 1))
   or (P.Stats.GetHouseWip(ht_Any) >= 3) then
     Exit;
