@@ -5,7 +5,7 @@ uses
   Controls, Forms,
   KM_Points, KM_Defaults, KM_CommonClasses, Classes, KromUtils,
   KM_Game, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary, KM_Terrain, KM_Units_Warrior, KM_Utils, Math,
-  Vcl.StdCtrls;
+  StdCtrls;
 
 type
   TForm1 = class(TForm)

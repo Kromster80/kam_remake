@@ -77,7 +77,7 @@ var
   SHOW_UNIT_ROUTES      :Boolean = False; //Draw unit routes
   SHOW_PROJECTILES      :Boolean = False; //Shows projectiles trajectory
   SHOW_POINTER_DOTS     :Boolean = False; //Show pointer count as small dots below unit/houses
-  SHOW_GROUND_LINES     :Boolean = False; //Show a line below all sprites to mark the ground height used in Z-Order
+  SHOW_GROUND_LINES     :Boolean = True; //Show a line below all sprites to mark the ground height used in Z-Order
   SHOW_UNIT_MOVEMENT    :Boolean = False; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
   SHOW_WALK_CONNECT     :Boolean = False; //Show floodfill areas of interconnected areas
   TEST_VIEW_CLIP_INSET  :Boolean = False; //Renders smaller area to see if everything gets clipped well

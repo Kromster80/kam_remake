@@ -494,7 +494,7 @@ var
   Kind:TKMessageKind;
   M:TKMemoryStream;
   Param:integer;
-  Msg:string;
+  Msg: AnsiString;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message');
 

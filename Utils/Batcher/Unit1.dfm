@@ -16,9 +16,9 @@ object Form1: TForm1
   object Button1: TButton
     Left = 24
     Top = 16
-    Width = 75
+    Width = 105
     Height = 25
-    Caption = 'Button1'
+    Caption = 'Deliveries test'
     TabOrder = 0
   end
   object Button2: TButton

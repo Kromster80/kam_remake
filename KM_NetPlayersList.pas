@@ -13,14 +13,14 @@ type
 type
   TKMPlayerInfo = class
   private
-    fNikname:String;
-    fLangCode:String;
+    fNikname:AnsiString;
+    fLangCode:AnsiString;
     fIndexOnServer:integer;
     fFlagColorID:integer;    //Flag color, 0 means random
     fPings: array[0..PING_COUNT-1] of word; //Ring buffer
     fPingPos:byte;
     function GetFlagColor:cardinal;
-    procedure SetLangCode(const aCode:String);
+    procedure SetLangCode(const aCode: AnsiString);
   public
     PlayerNetType:TNetPlayerType; //Human, Computer, Closed
     StartLocation:integer;  //Start location, 0 means random
@@ -38,8 +38,8 @@ type
     function IsClosed:boolean;
     function GetPlayerType:TPlayerType;
     function GetNickname:string;
-    property Nikname:string read fNikname;
-    property LangCode:String read fLangCode write SetLangCode;
+    property Nikname: AnsiString read fNikname;
+    property LangCode: AnsiString read fLangCode write SetLangCode;
     property IndexOnServer:integer read fIndexOnServer;
     property SetIndexOnServer:integer write fIndexOnServer;
     property FlagColor:cardinal read GetFlagColor;
@@ -128,7 +128,7 @@ begin
 end;
 
 
-procedure TKMPlayerInfo.SetLangCode(const aCode:String);
+procedure TKMPlayerInfo.SetLangCode(const aCode: AnsiString);
 begin
   if fLocales.GetIDFromCode(aCode) <> -1 then
     fLangCode := aCode;

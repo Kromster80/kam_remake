@@ -17,6 +17,7 @@ type
     procedure TestStone;
     procedure TestFight95;
     procedure TestAIBuild;
+    procedure Test3Cities;
   end;
 
 implementation
@@ -50,7 +51,7 @@ begin
 
   for I := 1 to 100000 do
   begin
-    fGame.UpdateState;
+    fGame.UpdateState(nil);
     if fGame.GameState = gsOnHold then
       fGame.GameHold(False, gr_Win);
   end;
@@ -76,7 +77,7 @@ begin
 
     for I := 1 to 1000 do
     begin
-      fGame.UpdateState;
+      fGame.UpdateState(nil);
       if fGame.GameState = gsOnHold then
         fGame.GameHold(False, gr_Win);
     end;
@@ -98,13 +99,28 @@ begin
 
   for I := 1 to 60*60*10 do
   begin
-    fGame.UpdateState;
+    fGame.UpdateState(nil);
     if fGame.GameState = gsOnHold then
       fGame.GameHold(False, gr_Win);
   end;
 
   fGame.Save('AcrossDesert');
-  //Check(fPlayers[0].Stats.GetGoodsProduced >= 3810, 'StoneMining got broken');
+end;
+
+
+procedure TestTKMGame.Test3Cities;
+var I: Integer;
+begin
+  fGame.StartSingleMap(ExtractFilePath(ParamStr(0)) + '..\Maps\Test by Rayzel\Test by Rayzel.dat', 'Test by Rayzel');
+
+  for I := 1 to 60*60*10 do
+  begin
+    fGame.UpdateState(nil);
+    if fGame.GameState = gsOnHold then
+      fGame.GameHold(False, gr_Win);
+  end;
+
+  fGame.Save('Test by Rayzel');
 end;
 
 

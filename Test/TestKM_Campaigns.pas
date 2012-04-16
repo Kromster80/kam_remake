@@ -218,7 +218,7 @@ end;
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest(TestTKMCampaign.Suite);
-  RegisterTest(TestTKMCampaignsCollection.Suite);
+  RegisterTest('Campaigns', TestTKMCampaign.Suite);
+  RegisterTest('Campaigns', TestTKMCampaignsCollection.Suite);
 end.
 

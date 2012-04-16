@@ -11,7 +11,7 @@ type
   public
     procedure Write(const Value: AnsiString); reintroduce; overload;
     {$IFDEF UNICODE}
-    procedure Write(const Value: UnicodeString); reintroduce; overload;
+    //procedure Write(const Value: UnicodeString); reintroduce; overload;
     {$ENDIF}
     procedure Write(const Value:TKMPointDir ); reintroduce; overload;
     function Write(const Value:TKMDirection): Longint; reintroduce; overload;
@@ -28,7 +28,7 @@ type
 
     procedure Read(out Value: AnsiString); reintroduce; overload;
     {$IFDEF UNICODE}
-    procedure Read(out Value: UnicodeString); reintroduce; overload;
+    //procedure Read(out Value: UnicodeString); reintroduce; overload;
     {$ENDIF}
     procedure Read(out Value:TKMPointDir); reintroduce; overload;
     function Read(out Value:TKMDirection): Longint; reintroduce; overload;
@@ -53,13 +53,13 @@ type
   public
     GameState:TMPGameState;
     PlayerCount: byte;
-    Players:string;
-    Map:string;
-    GameTime:TDateTime;
-    function GetFormattedTime:string;
-    procedure LoadFromText(aText:string);
-    function GetAsText:string;
-    function GetAsHTML:string;
+    Players: AnsiString;
+    Map: AnsiString;
+    GameTime: TDateTime;
+    function GetFormattedTime: string;
+    procedure LoadFromText(aText: string);
+    function GetAsText: string;
+    function GetAsHTML: string;
   end;
 
 
@@ -147,7 +147,7 @@ end;
 
 { TMPGameInfo }
 procedure TMPGameInfo.LoadFromText(aText:string);
-var M:TKMemoryStream;
+var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   try
@@ -220,14 +220,14 @@ begin
 end;
 
 {$IFDEF UNICODE}
-procedure TKMemoryStream.Write(const Value: UnicodeString);
+{procedure TKMemoryStream.Write(const Value: UnicodeString);
 var I: Word;
 begin
   I := Length(Value);
   inherited Write(I, SizeOf(I));
   if I = 0 then Exit;
   inherited Write(Pointer(Value)^, I * SizeOf(Char));
-end;
+end;}
 {$ENDIF}
 
 procedure TKMemoryStream.Write(const Value:TKMPointDir);
@@ -276,14 +276,14 @@ begin
 end;
 
 {$IFDEF UNICODE}
-procedure TKMemoryStream.Read(out Value: UnicodeString);
+{procedure TKMemoryStream.Read(out Value: UnicodeString);
 var I: Word;
 begin
   Read(I, SizeOf(I));
   SetLength(Value, I);
   if I=0 then exit;
   Read(Pointer(Value)^, I * SizeOf(Char));
-end;
+end;}
 {$ENDIF}
 
 

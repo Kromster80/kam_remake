@@ -163,7 +163,7 @@ end;
 
 
 procedure TKMRoomList.LoadData(aServerID:integer; M:TKMemoryStream);
-var i, RoomCount, RoomID: Integer; GameInfoText: string;
+var i, RoomCount, RoomID: Integer; GameInfoText: AnsiString;
 begin
   M.Position := 0;
   M.Read(RoomCount);
@@ -305,7 +305,7 @@ var
   Kind:TKMessageKind;
   M:TKMemoryStream;
   Param:integer;
-  Msg:string;
+  Msg: AnsiString;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
 

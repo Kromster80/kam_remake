@@ -33,7 +33,7 @@ type
     fSaves: TKMSavesCollection;
 
     //Saved
-    fLastSaveName:string; //The file name we last used to save this file (used as default in Save menu)
+    fLastSaveName: AnsiString; //The file name we last used to save this file (used as default in Save menu)
     fSave_Selected:integer; //Save selected from list (needed because of scanning)
     LastSchoolUnit:byte;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:byte; //Last unit that was selected in Barracks, global for all barracks player owns
@@ -333,7 +333,7 @@ type
     procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
     property ShownUnit: TKMUnit read fShownUnit;
     property ShownHouse: TKMHouse read fShownHouse;
-    property LastSaveName:string read fLastSaveName write fLastSaveName;
+    property LastSaveName: AnsiString read fLastSaveName write fLastSaveName;
     procedure ClearShownUnit;
     procedure ClearSelectedUnitOrHouse;
     procedure ReleaseDirectionSelector;

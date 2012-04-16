@@ -90,7 +90,7 @@ type
   TGameInputCommand = record
     CommandType:TGameInputCommandType;
     Params:array[1..MAX_PARAMS]of integer;
-    TextParam: string;
+    TextParam: AnsiString;
     PlayerIndex: TPlayerIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
   end;
 
@@ -112,7 +112,7 @@ type
     end;
 
     function MakeCommand(aGIC:TGameInputCommandType; const aParam:array of integer): TGameInputCommand; overload;
-    function MakeCommand(aGIC:TGameInputCommandType; const aTextParam: string): TGameInputCommand; overload;
+    function MakeCommand(aGIC:TGameInputCommandType; const aTextParam: AnsiString): TGameInputCommand; overload;
     procedure TakeCommand(aCommand:TGameInputCommand); virtual; abstract;
     procedure ExecCommand(aCommand: TGameInputCommand);
     procedure StoreCommand(aCommand: TGameInputCommand);
@@ -140,7 +140,7 @@ type
     procedure CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouseType:THouseType; aValue:integer);
 
     procedure CmdGame(aCommandType:TGameInputCommandType; aValue:boolean); overload;
-    procedure CmdGame(aCommandType:TGameInputCommandType; aValue:string); overload;
+    procedure CmdGame(aCommandType:TGameInputCommandType; aValue: AnsiString); overload;
     procedure CmdGame(aCommandType:TGameInputCommandType; aPlayer, aTeam:integer); overload;
 
     procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
@@ -208,7 +208,7 @@ begin
 end;
 
 
-function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aParam:array of integer):TGameInputCommand;
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aParam: array of integer): TGameInputCommand;
 var
   I: Integer;
 begin
@@ -224,7 +224,7 @@ begin
 end;
 
 
-function TGameInputProcess.MakeCommand(aGIC:TGameInputCommandType; const aTextParam: string):TGameInputCommand;
+function TGameInputProcess.MakeCommand(aGIC:TGameInputCommandType; const aTextParam: AnsiString): TGameInputCommand;
 var i:integer;
 begin
   Result.CommandType := aGIC;
@@ -459,21 +459,21 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: string);
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: AnsiString);
 begin
   Assert(aCommandType = gic_GameSave);
   TakeCommand(MakeCommand(aCommandType, aValue));
 end;
 
 
-procedure TGameInputProcess.CmdGame(aCommandType:TGameInputCommandType; aPlayer, aTeam:integer);
+procedure TGameInputProcess.CmdGame(aCommandType:TGameInputCommandType; aPlayer, aTeam: integer);
 begin
   Assert(aCommandType = gic_GameTeamChange);
   TakeCommand(MakeCommand(aCommandType, [aPlayer,aTeam]));
 end;
 
 
-procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint);
+procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aLoc: TKMPoint);
 begin
   Assert(aCommandType = gic_TempAddScout);
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));

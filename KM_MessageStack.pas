@@ -12,7 +12,7 @@ type
   TKMMessage = class
     fKind: TKMMessageKind;
     fLoc: TKMPoint;
-    fText: string;
+    fText: AnsiString;
   public
     constructor Create(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
     constructor CreateFromStream(LoadStream: TKMemoryStream);
@@ -20,7 +20,7 @@ type
     function IsGoto: Boolean;
     function Icon: Word;
     property Loc: TKMPoint read fLoc;
-    property Text: string read fText;
+    property Text: AnsiString read fText;
     property Kind: TKMMessageKind read fKind;
 
     procedure Save(SaveStream: TKMemoryStream);

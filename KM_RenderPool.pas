@@ -15,8 +15,8 @@ type
     fCount: Word;
     RenderOrder: array of smallint; //Order in which sprites will be drawn ()
     RenderList: array of record
-      Loc: TKMPointF;
-      Ground: Single;
+      Loc: TKMPointF; //Where sprite corner is located
+      Feet: TKMPointF; //Feet of the sprite for FOW calculation (X;Y) and Z ordering (Y only) 
       RX: TRXType;
       ID: Word;
       NewInst: Boolean;
@@ -455,8 +455,6 @@ var
   ShiftX,ShiftY: Single;
   Ground: Single;
 begin
-  Assert(InRange(aFlight, 0, 1));
-
   //We don't care about off-map arrows, but still we get TKMPoint error if X/Y gets negative
   if not fTerrain.TileInMapCoords(Round(aPos.X), Round(aPos.Y)) then Exit;
 
@@ -465,11 +463,11 @@ begin
 
   case aProj of
     pt_Arrow:     with fResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
-                    ID := Step[round(aFlight * Count) + 1] + 1;
+                    ID := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
     pt_Bolt:      with fResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
-                    ID := Step[round(aFlight * Count) + 1] + 1;
+                    ID := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
     pt_SlingRock: with fResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
-                    ID := Step[round(aFlight * Count) + 1] + 1;
+                    ID := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
     pt_TowerRock: ID := ProjectileBounds[aProj, 1] + 1;
     else          ID := 1; //Nothing?
   end;
@@ -478,8 +476,8 @@ begin
   ShiftY := (fRXData[rxUnits].Pivot[ID].y + fRXData[rxUnits].Size[ID].Y) / CELL_SIZE_PX;
 
   case aProj of
-    pt_Arrow, pt_Bolt, pt_SlingRock:  Ground := aPos.Y + ShiftY + (0.5 - Abs(aFlight - 0.5)) + 0.5;
-    pt_TowerRock:                     Ground := aPos.Y + ShiftY + (1 - aFlight) + 0.5;
+    pt_Arrow, pt_Bolt, pt_SlingRock:  Ground := aPos.Y + ShiftY + (0.5 - Abs(Min(aFlight, 1) - 0.5)) + 0.5;
+    pt_TowerRock:                     Ground := aPos.Y + ShiftY + (1 - Min(aFlight, 1)) + 0.5;
     else                              Ground := aPos.Y + ShiftY; //Nothing?
   end;
 
@@ -498,28 +496,34 @@ end;
 
 
 procedure TRenderPool.RenderObject(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
-var ShiftX,ShiftY:single; ID:integer; FOW:byte;
+var
+  ShiftX, ShiftY, Ground: Single;
+  ID: Integer;
+  FOW: Byte;
 begin
   if MapElem[aIndex].Count=0 then exit;
 
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX,pY,true);
   if FOW = 0 then exit; //Don't render objects which are unexplored
   if FOW <=128 then AnimStep:=0; //Stop animation
-  ID:=MapElem[aIndex].Step[AnimStep mod MapElem[aIndex].Count +1]+1;
-  if ID<=0 then exit;
+  ID := MapElem[aIndex].Step[AnimStep mod MapElem[aIndex].Count +1]+1;
+  if ID <= 0 then exit;
 
   if aIndex=61 then begin //Invisible wall
     ShiftX := 0; //Required if DoImmediateRender = true
     ShiftY := 0;
+    Ground := 0;
     fRenderAux.Quad(pX,pY,$800000FF);
     RenderCursorWireQuad(KMPoint(pX,pY),$FF0000FF);
   end else begin
-    ShiftX:=fRXData[rxTrees].Pivot[ID].x/CELL_SIZE_PX;
-    ShiftY:=(fRXData[rxTrees].Pivot[ID].y+fRXData[rxTrees].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxTrees, ID, pX+ShiftX, pY+ShiftY, pY+ShiftY, True);
-    {RenderDot(pX,pY);
-    glRasterPos2f(pX-1+0.1,pY-1+0.1);
-    glPrint(inttostr(aIndex)+':'+inttostr(ID));}
+    ShiftX := fRXData[rxTrees].Pivot[ID].X / CELL_SIZE_PX;
+    ShiftY := (fRXData[rxTrees].Pivot[ID].Y + fRXData[rxTrees].Size[ID].Y) / CELL_SIZE_PX - fTerrain.Land[pY, pX].Height / CELL_HEIGHT_DIV;
+    Ground := (fRXData[rxTrees].Pivot[ID].Y + fRXData[rxTrees].Size[ID].Y) / CELL_SIZE_PX;// - fTerrain.Land[pY, pX].Height / CELL_HEIGHT_DIV;
+    fRenderList.AddSprite(rxTrees, ID, pX + ShiftX, pY + ShiftY, pY + Ground, true);
+
+    //fRenderAux.Dot(pX+ShiftX, pY+ShiftY, $FFFF00FF);
+    //glRasterPos2f(pX - 1 + 0.1, pY - 1 + 0.1);
+    //glPrint(inttostr(aIndex) + ':' + inttostr(ID));
   end;
 
   if DoImmediateRender then RenderSprite(rxTrees,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255,Deleting);
@@ -1201,7 +1205,7 @@ end;
 
 
 procedure TRenderList.ClipRenderList;
-var I: Integer; PX,PY: Word;
+var I: Integer;
 begin
   SetLength(RenderOrder, fCount);
 
@@ -1209,12 +1213,7 @@ begin
   if RenderList[I].NewInst then
   begin
     RenderOrder[I] := I;
-    PX := Max(Round(RenderList[I].Loc.X), 0);
-    PY := Max(Round(RenderList[I].Loc.Y), 0);
-    //RenderQuad(P.X,P.Y);
-    //RenderList[I].FOWvalue := MyPlayer.FogOfWar.CheckTileRevelation(PX, PY, True);
-    RenderList[I].FOWvalue := MyPlayer.FogOfWar.CheckRevelation(
-                                KMPointF(RenderList[I].Loc.X, RenderList[I].Ground), True);
+    RenderList[I].FOWvalue := MyPlayer.FogOfWar.CheckRevelation(RenderList[I].Feet, True);
 
     //We rendered only houses under FOW to see their rooftops
     //But we might as well render everything for consistency
@@ -1235,8 +1234,8 @@ begin
     if RenderOrder[I] <> -1 then //Exclude child sprites from comparison
       for K := I + 1 to fCount - 1 do
         if RenderOrder[K] <> -1 then
-          if (RenderList[RenderOrder[K]].Ground < RenderList[RenderOrder[I]].Ground)
-          or((RenderList[RenderOrder[K]].Ground = RenderList[RenderOrder[I]].Ground)
+          if (RenderList[RenderOrder[K]].Feet.Y < RenderList[RenderOrder[I]].Feet.Y)
+          or((RenderList[RenderOrder[K]].Feet.Y = RenderList[RenderOrder[I]].Feet.Y)
           and(RenderList[RenderOrder[K]].Loc.X > RenderList[RenderOrder[I]].Loc.X))
           then //TopMost Rightmost
             SwapInt(RenderOrder[K], RenderOrder[I])
@@ -1248,7 +1247,7 @@ begin
   if fCount >= Length(RenderList) then SetLength(RenderList, fCount + 256); //Book some space
 
   RenderList[fCount].Loc        := KMPointF(pX,pY); //Position of sprite, floating-point
-  RenderList[fCount].Ground     := aGround;         //Ground position of sprite for Z-sorting
+  RenderList[fCount].Feet       := KMPointF(pX + GFXData[aRX, aID].PxWidth/CELL_SIZE_PX/2, aGround);         //Ground position of sprite for Z-sorting
   RenderList[fCount].RX         := aRX;             //RX library
   RenderList[fCount].ID         := aID;             //Texture ID
   RenderList[fCount].NewInst    := aNew;            //Is this a new item (can be occluded), or a child one (always on top of it's parent)
@@ -1295,8 +1294,8 @@ begin
           begin
             glBegin(GL_LINES);
               glColor3f(1,1,0.5);
-              glVertex2f(Loc.X - 1, Ground - 1);
-              glVertex2f(Loc.X - 1 + GFXData[RX, ID].PxWidth/CELL_SIZE_PX, Ground - 1);
+              glVertex2f(Feet.X - 1.05, Loc.Y - 1);
+              glVertex2f(Feet.X - 0.95, Loc.Y - 1);
             glEnd;
           end;
         end;

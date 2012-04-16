@@ -529,8 +529,8 @@ end;
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest(TestTKMPointList.Suite);
-  RegisterTest(TestTKMPointTagList.Suite);
-  RegisterTest(TestTKMPointDirList.Suite);
+  RegisterTest('CommonClasses', TestTKMPointList.Suite);
+  RegisterTest('CommonClasses', TestTKMPointTagList.Suite);
+  RegisterTest('CommonClasses', TestTKMPointDirList.Suite);
 end.
 

@@ -850,8 +850,8 @@ var
   Kind:TKMessageKind;
   M:TKMemoryStream;
   Param:integer;
-  Msg:string;
-  ReMsg:string;
+  Msg: AnsiString;
+  ReMsg: AnsiString;
   LocID,TeamID,ColorID,PlayerIndex:integer;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
