@@ -1618,7 +1618,6 @@ var
   I, K: Integer;
   L1, L2, L3: TKMPointList;
   TempUnit: TKMUnit;
-  PusherLocValid: Boolean;
 begin
   //List 1 holds all available walkable positions except self
   L1 := TKMPointList.Create;
@@ -1636,27 +1635,23 @@ begin
     if Land[L1[I].Y, L1[I].X].IsUnit = nil then
       L2.AddEntry(L1[I]);
 
-  PusherLocValid := false;
   //List 3 holds the second best positions, ones which are occupied with an idle unit
   L3 := TKMPointList.Create;
   for I := 0 to L1.Count - 1 do
     if Land[L1[I].Y, L1[I].X].IsUnit <> nil then
     begin
-      if KMSamePoint(L1[I], PusherLoc) then PusherLocValid := True; //Make sure unit that pushed us is a valid tile before we use it
       TempUnit := UnitsHitTest(L1[I].X, L1[I].Y);
-      if TempUnit <> nil then
-        if (TempUnit.GetUnitAction is TUnitActionStay) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
-          L3.AddEntry(L1[I]);
+      //Always include the pushers loc in the possibilities, otherwise we can get two units swapping places forever
+      if KMSamePoint(L1[I],PusherLoc)
+      or ((TempUnit <> nil) and (TempUnit.GetUnitAction is TUnitActionStay)
+          and (not TUnitActionStay(TempUnit.GetUnitAction).Locked)) then
+        L3.AddEntry(L1[I]);
     end;
 
   if not(L2.GetRandom(Result)) then
-    //If there are no free tiles we must take the pusher's tile otherwise we can get two units swapping places forever
-    if PusherLocValid then
-      Result := PusherLoc
-    else
-      if not(L3.GetRandom(Result)) then
-        if not(L1.GetRandom(Result)) then
-          Result := Loc;
+    if not(L3.GetRandom(Result)) then
+      if not(L1.GetRandom(Result)) then
+        Result := Loc;
 
   L1.Free;
   L2.Free;

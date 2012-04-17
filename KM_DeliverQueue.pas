@@ -292,7 +292,7 @@ begin
           if fSerfs[K].Serf.IsIdle then
             if fQueue.SerfCanDoDelivery(FoundO,FoundD,fSerfs[K].Serf) then
             begin
-              Bid := KMLength(fSerfs[K].Serf.GetPosition, fQueue.fOffer[FoundO].Loc_House.GetEntrance);
+              Bid := GetLength(fSerfs[K].Serf.GetPosition, fQueue.fOffer[FoundO].Loc_House.GetEntrance);
               if (BestBid = -1) or (Bid < BestBid) then
               begin
                 BestBid := Bid;
@@ -473,7 +473,7 @@ begin
   //If Demand and Offer are different HouseTypes, means forbid Store<->Store deliveries except the case where 2nd store is being built and requires building materials
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fOffer[iO].Loc_House.HouseType<>fDemand[iD].Loc_House.HouseType)or(fOffer[iO].Loc_House.IsComplete<>fDemand[iD].Loc_House.IsComplete));
 
-  Result := Result and
+  Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
             (fDemand[iD].Loc_House<>nil)and
             (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), CanWalkRoad, 0))
@@ -482,7 +482,7 @@ begin
             ( //House-Unit delivery can be performed without connecting road
             (fDemand[iD].Loc_Unit<>nil)and
             (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, CanWalk, 1))
-            );
+            ));
 end;
 
 
@@ -544,6 +544,14 @@ begin
     Result := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
   else
     Result := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
+
+  //For weapons production in cases with little resources available, they should be distributed
+  //evenly between places rather than caring about route length.
+  //This means weapon and armour smiths should get same amount of iron, even if one is closer to the smelter.
+  if (fDemand[iD].Loc_House<>nil) and fResource.HouseDat[fDemand[iD].Loc_House.HouseType].DoesOrders
+  and (fOffer[iO].Count < 3) //Little resources to share around
+  and (fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource) < 2) then //Few resources already delivered
+    Result := 10 + KaMRandom(20);
 
   //Also prefer deliveries near to the serf
   if KMSerf <> nil then
