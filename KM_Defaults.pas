@@ -843,12 +843,12 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
   ProjectileSpeeds:array[TProjectileType] of single = (0.75, 0.75, 0.6, 0.8);
   ProjectileArcs:array[TProjectileType,1..2] of single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
-  ProjectileJitter:array[TProjectileType] of single = (0.05, 0.05, 0.05, 0.025); //Jitter added according to distance
-  ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 6); //Jitter added according to target's speed (moving target harder to hit)
-  ProjectileMissChance:array[TProjectileType] of single = (0.33, 0.33, 0.33, 0.2);
+  ProjectileJitter:array[TProjectileType] of single = (0.5, 0.5, 0.5, 0.2); //Fixed Jitter added every time
+  //Jitter added according to target's speed (moving target harder to hit) Note: Walking = 0.1, so the added jitter is 0.1*X
+  ProjectilePredictJitter:array[TProjectileType] of single = (3, 3, 3, 6);
 
   const STORM_SPEEDUP=1.5;
-  
+
 
 type
   //@Krom: Sketch of the goal and message displaying system used in KaM (from scripting point of view anyway)

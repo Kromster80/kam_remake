@@ -126,7 +126,7 @@ begin
 
   if TimeToHit <> 0 then
   begin
-    Jitter := GetLength(aStart, aTarget.PositionF) * ProjectileJitter[aProjType]
+    Jitter := ProjectileJitter[aProjType]
             + GetLength(KMPointF(0,0),TargetVector) * ProjectilePredictJitter[aProjType];
 
     //Calculate the target position relative to start position (the 0;0)
@@ -235,10 +235,12 @@ begin
           if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks-1)*fSpeed) then
             fSoundLib.Play(ProjectileHitSounds[fType], fTarget);
 
-        if fPosition >= fLength then begin
-          if KaMRandom >= ProjectileMissChance[fType] then
+        if fPosition >= fLength then
+        begin
+          U := fTerrain.UnitsHitTestF(fTarget);
+          //Projectile can miss depending on the distance to the unit
+          if (U = nil) or ((1-Math.min(GetLength(U.PositionF,fTarget),1)) > KaMRandom) then
           begin
-            U := fTerrain.UnitsHitTestF(fTarget);
             case fType of
               pt_Arrow,
               pt_SlingRock,
@@ -248,8 +250,6 @@ begin
                               if fType = pt_Arrow then Damage := fResource.UnitDat[ut_Bowman].Attack;
                               if fType = pt_Bolt then Damage := fResource.UnitDat[ut_Arbaletman].Attack;
                               if fType = pt_SlingRock then Damage := fResource.UnitDat[ut_Slingshot].Attack;
-                              //Arrows are more likely to cause damage when the unit is closer
-                              Damage := Round(Damage * 2 * (1-Math.min(GetLength(U.PositionF,fTarget),1)));
                               Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].Defence, 1); //Not needed, but animals have 0 defence
                               if (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy))
                               and (Damage >= KaMRandom(101))
