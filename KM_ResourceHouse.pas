@@ -7,11 +7,13 @@ uses
 
 
 type
-  THouseAnim = array[THouseActionType] of packed record
-      Step:array[1..30]of smallint;
-      Count:smallint;
-      MoveX,MoveY:integer;
+  TKMHouseAnim = packed record
+      Step: array[1..30]of smallint;
+      Count: smallint;
+      MoveX, MoveY: integer;
     end;
+
+  THouseAnim = array[THouseActionType] of TKMHouseAnim;
 
   THouseBuildSupply = array[1..2,1..6] of packed record MoveX,MoveY:integer; end;
   THouseSupply = array[1..4,1..5]of smallint;

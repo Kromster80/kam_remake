@@ -202,9 +202,9 @@ begin
   fItems[i].fTarget := aEnd;
 
   fItems[i].fScreenStart.X := aStart.X + OffsetX[aProjType];
-  fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart)/CELL_HEIGHT_DIV + OffsetY[aProjType];
+  fItems[i].fScreenStart.Y := aStart.Y - fTerrain.HeightAt(aStart)/CELL_HEIGHT_DIV + OffsetY[aProjType];
   fItems[i].fScreenEnd.X := fItems[i].fTarget.X + 0.5; //projectile hits on Unit's chest height
-  fItems[i].fScreenEnd.Y := fItems[i].fTarget.Y + 0.5 - fTerrain.InterpolateLandHeight(aEnd)/CELL_HEIGHT_DIV;
+  fItems[i].fScreenEnd.Y := fItems[i].fTarget.Y + 0.5 - fTerrain.HeightAt(aEnd)/CELL_HEIGHT_DIV;
 
   fItems[i].fPosition := 0; //projectile position on its route
   fItems[i].fLength   := GetLength(fItems[i].fScreenStart.X - fItems[i].fScreenEnd.X, fItems[i].fScreenStart.Y - fItems[i].fScreenEnd.Y); //route length

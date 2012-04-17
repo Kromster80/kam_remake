@@ -171,9 +171,8 @@ type
 
     function GetVertexCursorPosition: TKMPoint;
     function ConvertCursorToMapCoord(inX,inY:single): Single;
-    function HeightAt(inX,inY:single): Single; overload;
-    function InterpolateLandHeight(aPoint:TKMPointF): Single; overload;
-    function MixLandHeight(inX,inY:byte):byte;
+    function HeightAt(inX, inY: Single): Single; overload;
+    function HeightAt(aPoint: TKMPointF): Single; overload;
 
     procedure MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
     procedure MapEdTile(aLoc:TKMPoint; aTile,aRotation:byte);
@@ -1062,7 +1061,7 @@ begin
     for i:=-1 to 0 do for k:=-1 to 0 do
     if Route_CanBeMade(aLoc, KMPoint(T.X+k, T.Y+i), CanWalk, 0) then
     begin
-      Slope := MixLandHeight(T.X+k, T.Y+i) - Land[T.Y, T.X].Height;
+      Slope := Round(HeightAt(T.X+k+0.5, T.Y+i+0.5)) - Land[T.Y, T.X].Height;
       //Cutting trees which are higher than us from the front looks visually poor, (axe hits ground) so avoid it where possible
       if (i = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
       if Abs(Slope) < BestSlope then
@@ -2409,34 +2408,29 @@ end;
 
 
 //Return height within cell interpolating node heights
-function TTerrain.HeightAt(inX,inY: Single): Single;
-var Xc,Yc:integer; Tmp1,Tmp2:single;
+function TTerrain.HeightAt(inX, inY: Single): Single;
+var
+  Xc, Yc: Integer;
+  Tmp1, Tmp2: single;
 begin
   //todo: Make this match KaM by creating some comparision screenshots of slopes, hills, etc.
   Xc := Trunc(inX);
   Yc := Trunc(inY);
   Result := 0;
-  if not VerticeInMapCoords(Xc,Yc) then exit;
+  if not VerticeInMapCoords(Xc, Yc) then exit;
 
-  Tmp1 := mix(Land[Yc  ,Xc+1].Height, Land[Yc  ,Xc].Height, frac(inX));
+  Tmp1 := mix(Land[Yc  , Xc+1].Height, Land[Yc  , Xc].Height, frac(inX));
   if Yc >= MAX_MAP_SIZE then
     Tmp2 := 0
   else
-    Tmp2 := mix(Land[Yc+1,Xc+1].Height, Land[Yc+1,Xc].Height, frac(inX));
+    Tmp2 := mix(Land[Yc+1, Xc+1].Height, Land[Yc+1, Xc].Height, frac(inX));
   Result := mix(Tmp2, Tmp1, frac(inY));
 end;
 
 
-function TTerrain.InterpolateLandHeight(aPoint:TKMPointF):single;
+function TTerrain.HeightAt(aPoint: TKMPointF): Single;
 begin
-  Result := HeightAt(aPoint.X,aPoint.Y);
-end;
-
-
-{ Like above but just a mix of the 4 cells, no factional parts }
-function TTerrain.MixLandHeight(inX,inY:byte):byte;
-begin
-  Result := (Land[inY,inX].Height+Land[inY,inX+1].Height+Land[inY+1,inX].Height+Land[inY+1,inX+1].Height) div 4;
+  Result := HeightAt(aPoint.X, aPoint.Y);
 end;
 
 
