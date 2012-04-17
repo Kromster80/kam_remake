@@ -171,7 +171,7 @@ type
 
     function GetVertexCursorPosition: TKMPoint;
     function ConvertCursorToMapCoord(inX,inY:single): Single;
-    function InterpolateLandHeight(inX,inY:single): Single; overload;
+    function HeightAt(inX,inY:single): Single; overload;
     function InterpolateLandHeight(aPoint:TKMPointF): Single; overload;
     function MixLandHeight(inX,inY:byte):byte;
 
@@ -2408,13 +2408,13 @@ begin
 end;
 
 
-{Return height within cell interpolating node heights}
-function TTerrain.InterpolateLandHeight(inX,inY:single):single;
+//Return height within cell interpolating node heights
+function TTerrain.HeightAt(inX,inY: Single): Single;
 var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
   //todo: Make this match KaM by creating some comparision screenshots of slopes, hills, etc.
-  Xc := trunc(inX);
-  Yc := trunc(inY);
+  Xc := Trunc(inX);
+  Yc := Trunc(inY);
   Result := 0;
   if not VerticeInMapCoords(Xc,Yc) then exit;
 
@@ -2429,7 +2429,7 @@ end;
 
 function TTerrain.InterpolateLandHeight(aPoint:TKMPointF):single;
 begin
-  Result := InterpolateLandHeight(aPoint.X,aPoint.Y);
+  Result := HeightAt(aPoint.X,aPoint.Y);
 end;
 
 

@@ -16,7 +16,7 @@ type
     RenderOrder: array of smallint; //Order in which sprites will be drawn ()
     RenderList: array of record
       Loc: TKMPointF; //Where sprite corner is located
-      Feet: TKMPointF; //Feet of the sprite for FOW calculation (X;Y) and Z ordering (Y only) 
+      Feet: TKMPointF; //Feet of the sprite for FOW calculation (X;Y) and Z ordering (Y only)
       RX: TRXType;
       ID: Word;
       NewInst: Boolean;
@@ -32,7 +32,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure AddSprite(aRX: TRXType; aID: Word; pX,pY,aGround: Single; aNew: Boolean; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+    procedure AddSprite(aRX: TRXType; aID: Word; pX,pY,aGround: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1); overload;
+    procedure AddSprite(aRX: TRXType; aID: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1); overload;
     property Stat_Sprites: Integer read fStat_Sprites;
     property Stat_Sprites2: Integer read fStat_Sprites2;
     procedure Render;
@@ -481,7 +482,7 @@ begin
     else                              Ground := aPos.Y + ShiftY; //Nothing?
   end;
 
-  fRenderList.AddSprite(rxUnits, ID, aPos.X + ShiftX, aPos.Y + ShiftY, Ground, True);
+  fRenderList.AddSprite(rxUnits, ID, aPos.X + ShiftX, aPos.Y + ShiftY, Ground);
 end;
 
 
@@ -509,17 +510,16 @@ begin
   ID := MapElem[aIndex].Step[AnimStep mod MapElem[aIndex].Count +1]+1;
   if ID <= 0 then exit;
 
-  if aIndex=61 then begin //Invisible wall
+  if aIndex = 61 then begin //Invisible wall
     ShiftX := 0; //Required if DoImmediateRender = true
     ShiftY := 0;
-    Ground := 0;
     fRenderAux.Quad(pX,pY,$800000FF);
     RenderCursorWireQuad(KMPoint(pX,pY),$FF0000FF);
   end else begin
     ShiftX := fRXData[rxTrees].Pivot[ID].X / CELL_SIZE_PX;
     ShiftY := (fRXData[rxTrees].Pivot[ID].Y + fRXData[rxTrees].Size[ID].Y) / CELL_SIZE_PX - fTerrain.Land[pY, pX].Height / CELL_HEIGHT_DIV;
     Ground := (fRXData[rxTrees].Pivot[ID].Y + fRXData[rxTrees].Size[ID].Y) / CELL_SIZE_PX;// - fTerrain.Land[pY, pX].Height / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxTrees, ID, pX + ShiftX, pY + ShiftY, pY + Ground, true);
+    fRenderList.AddSprite(rxTrees, ID, pX + ShiftX, pY + ShiftY, pY + Ground);
 
     //fRenderAux.Dot(pX+ShiftX, pY+ShiftY, $FFFF00FF);
     //glRasterPos2f(pX - 1 + 0.1, pY - 1 + 0.1);
@@ -532,37 +532,44 @@ end;
 
 { 4 objects packed on 1 tile for Corn and Grapes }
 procedure TRenderPool.RenderObjectQuad(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-var FOW:byte;
-  procedure AddSpriteBy(aID:integer; aAnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
-  var ID:integer;
+  procedure AddSpriteBy(aID: Integer; aAnimStep: Integer; pX,pY: Single);
+  var ID: Integer; Ground: Single;
   begin
-    ID := MapElem[aID].Step[aAnimStep mod MapElem[aID].Count +1 ] +1;
-    ShiftY := ShiftY + (fRXData[rxTrees].Size[ID].Y) / CELL_SIZE_PX;
-    ShiftY := ShiftY - fTerrain.InterpolateLandHeight(pX+ShiftX, pY+ShiftY)/CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxTrees, ID, pX+ShiftX, pY+ShiftY, pY+ShiftY, True);
-    if DoImmediateRender then RenderSprite(rxTrees,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255,Deleting);
+    ID := MapElem[aID].Step[aAnimStep mod MapElem[aID].Count + 1] + 1;
+    Ground := pY + (fRXData[rxTrees].Size[ID].Y) / CELL_SIZE_PX;
+    pY := Ground - fTerrain.HeightAt(pX, Ground)/CELL_HEIGHT_DIV;
+
+    fRenderList.AddSprite(rxTrees, ID, pX, pY, Ground);
+
+    if DoImmediateRender then
+      RenderSprite(rxTrees, ID, pX, pY, $FFFFFFFF, 255, Deleting);
   end;
+
+var
+  FOW: Byte;
 begin
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX,pY,true);
   if FOW <=128 then AnimStep := 0; //Stop animation
 
-  AddSpriteBy(aIndex, AnimStep  , pX, pY, 0  , -0.4);
-  AddSpriteBy(aIndex, AnimStep+1, pX, pY, 0.5, -0.4);
-  if IsDouble then exit;
-  AddSpriteBy(aIndex, AnimStep+1, pX, pY, 0  , 0.1);
-  AddSpriteBy(aIndex, AnimStep  , pX, pY, 0.5, 0.1);
+  AddSpriteBy(aIndex, AnimStep  , pX,       pY - 0.4);
+  AddSpriteBy(aIndex, AnimStep+1, pX + 0.5, pY - 0.4);
+  if IsDouble then Exit;
+  AddSpriteBy(aIndex, AnimStep+1, pX,       pY + 0.1);
+  AddSpriteBy(aIndex, AnimStep  , pX + 0.5, pY + 0.1);
 end;
 
 
 {Render house WIP tablet}
-procedure TRenderPool.AddHouseTablet(Index:THouseType; Loc:TKMPoint);
-var ShiftX,ShiftY: Single; ID: Integer;
+procedure TRenderPool.AddHouseTablet(Index: THouseType; Loc: TKMPoint);
+var
+  ID: Integer;
+  pX, pY, Ground: Single;
 begin
   ID := fResource.HouseDat[Index].TabletIcon;
-  ShiftX := Loc.X +  fRXData[rxGui].Pivot[ID].x/CELL_SIZE_PX + 0.6;
-  ShiftY := Loc.Y + (fRXData[rxGui].Pivot[ID].y + fRXData[rxGui].Size[ID].Y)/CELL_SIZE_PX + 0.5 -
-                    ((fTerrain.Land[Loc.Y+1, Loc.X].Height+fTerrain.Land[Loc.Y+1, Loc.X+1].Height) div 2)/CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(rxGui, ID, ShiftX, ShiftY, ShiftY, true);
+  pX := Loc.X + fRXData[rxGui].Pivot[ID].x/CELL_SIZE_PX + 0.6;
+  Ground := Loc.Y + (fRXData[rxGui].Pivot[ID].y + fRXData[rxGui].Size[ID].Y)/CELL_SIZE_PX + 0.5;
+  pY := Ground - ((fTerrain.Land[Loc.Y+1, Loc.X].Height+fTerrain.Land[Loc.Y+1, Loc.X+1].Height) div 2)/CELL_HEIGHT_DIV;
+  fRenderList.AddSprite(rxGui, ID, pX, pY, Ground);
 end;
 
 
@@ -574,37 +581,42 @@ begin
     ID := 260+Wood-1;
     ShiftX := Loc.X + fResource.HouseDat[Index].BuildSupply[1, Wood].MoveX/CELL_SIZE_PX;
     ShiftY := Loc.Y + (fResource.HouseDat[Index].BuildSupply[1, Wood].MoveY+fRXData[rxHouses].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxHouses,ID,ShiftX,ShiftY,ShiftY,false);
+    fRenderList.AddSprite(rxHouses,ID,ShiftX,ShiftY);
   end;
   if Stone<>0 then begin
     ID := 267+Stone-1;
     ShiftX := Loc.X + fResource.HouseDat[Index].BuildSupply[2, Stone].MoveX/CELL_SIZE_PX;
     ShiftY := Loc.Y + (fResource.HouseDat[Index].BuildSupply[2, Stone].MoveY+fRXData[rxHouses].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxHouses,ID,ShiftX,ShiftY,ShiftY,false);
+    fRenderList.AddSprite(rxHouses,ID,ShiftX,ShiftY);
   end;
 end;
 
 
 {Render house in wood}
 procedure TRenderPool.AddHouseWood(Index: THouseType; Step: Single; Loc: TKMPoint);
-var ShiftX,ShiftY: Single; ID: Integer;
+var
+  ID: Integer;
+  ShiftX, ShiftY, Ground: Single;
 begin
   ID := fResource.HouseDat[Index].WoodPic + 1;
-  ShiftX := Loc.X + fRXData[rxHouses].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY := Loc.Y + (fRXData[rxHouses].Pivot[ID].y+fRXData[rxHouses].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(rxHouses,ID,ShiftX,ShiftY,ShiftY,true,0,Step);
+  ShiftX := Loc.X + fRXData[rxHouses].Pivot[ID].X / CELL_SIZE_PX;
+  Ground := Loc.Y + (fRXData[rxHouses].Pivot[ID].Y + fRXData[rxHouses].Size[ID].Y) / CELL_SIZE_PX;
+  ShiftY := Ground - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
+  fRenderList.AddSprite(rxHouses, ID, ShiftX, ShiftY, Ground, 0, Step);
 end;
 
 
 {Render house in stone}
 procedure TRenderPool.AddHouseStone(Index: THouseType; Step: Single; Loc: TKMPoint);
-var ShiftX,ShiftY: Single; ID: Integer;
+var
+  ID: Integer;
+  ShiftX, ShiftY: Single;
 begin
-  AddHouseWood(Index, 1, Loc); //Render Wood part of it, opaque
+  AddHouseWood(Index, 1, Loc); // Render Wood part of it, opaque
   ID := fResource.HouseDat[Index].StonePic + 1;
-  ShiftX := Loc.X + fRXData[rxHouses].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY := Loc.Y + (fRXData[rxHouses].Pivot[ID].y+fRXData[rxHouses].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(rxHouses,ID,ShiftX,ShiftY,ShiftY,false,0,Step);
+  ShiftX := Loc.X + fRXData[rxHouses].Pivot[ID].X / CELL_SIZE_PX;
+  ShiftY := Loc.Y + (fRXData[rxHouses].Pivot[ID].Y + fRXData[rxHouses].Size[ID].Y) / CELL_SIZE_PX - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
+  fRenderList.AddSprite(rxHouses, ID, ShiftX, ShiftY, 0, Step);
 end;
 
 
@@ -623,10 +635,11 @@ begin
       ID := fResource.HouseDat[aHouse].Anim[AT].Step[AnimStep mod AnimCount + 1]+1;
       ShiftX := fRXData[rxHouses].Pivot[ID].x/CELL_SIZE_PX;
       ShiftY := (fRXData[rxHouses].Pivot[ID].y+fRXData[rxHouses].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-      ShiftX := ShiftX+fResource.HouseDat[aHouse].Anim[AT].MoveX/CELL_SIZE_PX;
-      ShiftY := ShiftY+fResource.HouseDat[aHouse].Anim[AT].MoveY/CELL_SIZE_PX;
-      fRenderList.AddSprite(rxHouses,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.Y+ShiftY,false,FlagColor);
-    end;
+        ShiftX := ShiftX + fResource.HouseDat[aHouse].Anim[AT].MoveX / CELL_SIZE_PX;
+        ShiftY := ShiftY + fResource.HouseDat[aHouse].Anim[AT].MoveY / CELL_SIZE_PX;
+        fRenderList.AddSprite(rxHouses, ID, Loc.X + ShiftX, Loc.Y + ShiftY,
+          FlagColor);
+      end;
   end;
 end;
 
@@ -641,7 +654,7 @@ var ID,i,k:integer;
     begin
       ShiftX := Loc.X + fRXData[rxHouses].Pivot[aID].x/CELL_SIZE_PX;
       ShiftY := Loc.Y + (fRXData[rxHouses].Pivot[aID].y+fRXData[rxHouses].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-      fRenderList.AddSprite(rxHouses,aID,ShiftX,ShiftY,ShiftY,false);
+      fRenderList.AddSprite(rxHouses,aID,ShiftX,ShiftY);
     end;
   end;
 
@@ -681,7 +694,7 @@ var i,ID: Integer;
     begin
       ShiftX := Loc.X + (fRXData[rxGame].Pivot[aID].x + MarketWaresOffsetX)/CELL_SIZE_PX;
       ShiftY := Loc.Y + (fRXData[rxGame].Pivot[aID].y + MarketWaresOffsetY+fRXData[rxGame].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-      fRenderList.AddSprite(rxGame,aID,ShiftX,ShiftY,ShiftY,false);
+      fRenderList.AddSprite(rxGame,aID,ShiftX,ShiftY);
     end;
   end;
 
@@ -709,28 +722,34 @@ begin
 
   ShiftX := ShiftX + fRXData[aRX].Pivot[ID].X / CELL_SIZE_PX;
   ShiftY := ShiftY + (fRXData[aRX].Pivot[ID].Y + fRXData[aRX].Size[ID].Y) / CELL_SIZE_PX - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(aRX, ID, Loc.X + ShiftX, Loc.Y + ShiftY, Loc.Y + ShiftY, False);
+  fRenderList.AddSprite(aRX, ID, Loc.X + ShiftX, Loc.Y + ShiftY);
 end;
 
 
 procedure TRenderPool.AddUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-var ShiftX,ShiftY,Interpolation:single; ID:integer; A:TKMUnitsAnim;
+var
+  ShiftX, ShiftY, Ground: Single;
+  ID: Integer;
+  a: TKMUnitsAnim;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   ID := A.Step[StepID mod A.Count + 1] + 1;
   if ID <= 0 then exit;
 
-  ShiftX := fRXData[rxUnits].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY := (fRXData[rxUnits].Pivot[ID].y+fRXData[rxUnits].Size[ID].Y)/CELL_SIZE_PX;
+  ShiftX := fRXData[rxUnits].Pivot[ID].X / CELL_SIZE_PX;
+  Ground := (fRXData[rxUnits].Pivot[ID].Y + fRXData[rxUnits].Size[ID].Y) / CELL_SIZE_PX - 0.4;
+  ShiftY := Ground - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV;
 
-  Interpolation := fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV + 0.4;
-  ShiftY := ShiftY - Interpolation;
+  if NewInst then
+    fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, pY + Ground, FlagColor)
+  else
+    fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, FlagColor);
 
-  fRenderList.AddSprite(rxUnits,ID,pX+ShiftX,pY+ShiftY,pY-Interpolation,NewInst,FlagColor);
-  if DoImmediateRender then RenderSprite(rxUnits,ID,pX+ShiftX,pY+ShiftY,FlagColor,255,Deleting);
+  if DoImmediateRender then
+    RenderSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, FlagColor, 255, Deleting);
 
   if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
-    fRenderAux.Dot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV, FlagColor);
+    fRenderAux.Dot(pX-0.5,pY-1-fTerrain.HeightAt(pX,pY)/CELL_HEIGHT_DIV, FlagColor);
 end;
 
 
@@ -745,7 +764,7 @@ begin
   ShiftX:=OffX+fRXData[rxUnits].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=OffY+(fRXData[rxUnits].Pivot[ID].y+fRXData[rxUnits].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
 
-  fRenderList.AddSprite(rxUnits,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.Y+ShiftY,False,FlagColor);
+  fRenderList.AddSprite(rxUnits, ID, Loc.X + ShiftX, Loc.Y + ShiftY, FlagColor);
 end;
 
 
@@ -758,10 +777,10 @@ begin
 
   ShiftX := fRXData[rxUnits].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY := (fRXData[rxUnits].Pivot[ID].y + fRXData[rxUnits].Size[ID].Y)/CELL_SIZE_PX;
-  ShiftY := ShiftY - fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
+  ShiftY := ShiftY - fTerrain.HeightAt(pX,pY)/CELL_HEIGHT_DIV-0.4;
   ShiftX := ShiftX + A.MoveX/CELL_SIZE_PX;
   ShiftY := ShiftY + A.MoveY/CELL_SIZE_PX;
-  fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, pY + ShiftY, false);
+  fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY);
 end;
 
 
@@ -776,31 +795,36 @@ begin
   ID := ThoughtBounds[Thought, 2] + 1 -
        (fGame.GameTickCount mod word(ThoughtBounds[Thought, 2] - ThoughtBounds[Thought, 1]));
 
-  ShiftX:=fRXData[rxUnits].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(fRXData[rxUnits].Pivot[ID].y+fRXData[rxUnits].Size[ID].Y)/CELL_SIZE_PX;
-  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 - 1.5;
-  fRenderList.AddSprite(rxUnits,ID,pX+ShiftX,pY+ShiftY,pY+ShiftY,false);
+  ShiftX := fRXData[rxUnits].Pivot[ID].X / CELL_SIZE_PX;
+  ShiftY := (fRXData[rxUnits].Pivot[ID].Y + fRXData[rxUnits].Size[ID].Y) / CELL_SIZE_PX
+            - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV - 0.4 - 1.5;
+  fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY);
 end;
 
 
 procedure TRenderPool.AddUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
-var ShiftX,ShiftY,Interpolation:single; ID:integer; A:TKMUnitsAnim;
+var
+  ShiftX, ShiftY, Interpolation: Single;
+  ID: Integer;
+  A: TKMUnitsAnim;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   ID := A.Step[StepID mod A.Count + 1] + 1;
   if ID <= 0 then exit;
 
-  ShiftX:=fRXData[rxUnits].Pivot[ID].x/CELL_SIZE_PX -0.5;
-  ShiftY:=(fRXData[rxUnits].Pivot[ID].y+fRXData[rxUnits].Size[ID].Y)/CELL_SIZE_PX;
-
-  Interpolation := fTerrain.InterpolateLandHeight(UnitX,UnitY)/CELL_HEIGHT_DIV+0.4;
-  ShiftY:=ShiftY-Interpolation-2.25;
+  ShiftX := fRXData[rxUnits].Pivot[ID].X / CELL_SIZE_PX - 0.5;
+  ShiftY := (fRXData[rxUnits].Pivot[ID].Y + fRXData[rxUnits].Size[ID].Y) / CELL_SIZE_PX;
+  Interpolation := fTerrain.HeightAt(UnitX, UnitY) / CELL_HEIGHT_DIV + 0.4;
+  ShiftY := ShiftY - Interpolation - 2.25;
 
   //Flags should use a Ground value identical to the unit, because we render flags on top for certain directions
-  fRenderList.AddSprite(rxUnits,ID,pX+ShiftX,pY+ShiftY,UnitY-Interpolation,NewInst,FlagColor);
+  if NewInst then
+    fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, UnitY - Interpolation, FlagColor)
+  else
+    fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, FlagColor);
 
   if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
-    fRenderAux.Dot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV, FlagColor); //Render dot where unit is
+    fRenderAux.Dot(pX,pY-fTerrain.HeightAt(pX,pY)/CELL_HEIGHT_DIV, FlagColor); //Render dot where unit is
 end;
 
 
@@ -1080,7 +1104,7 @@ end;
 procedure TRenderPool.RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
 begin
   if fTerrain.TileInMapCoords(P.X,P.Y) then
-    RenderSprite(rxGui,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV,$FFFFFFFF,255);
+    RenderSprite(rxGui,id,P.X+0.2,P.Y+1-0.2-fTerrain.HeightAt(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV,$FFFFFFFF,255);
 end;
 
 
@@ -1242,7 +1266,8 @@ begin
 end;
 
 
-procedure TRenderList.AddSprite(aRX: TRXType; aID: Word; pX,pY,aGround: Single; aNew: Boolean; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+//New items must provide their ground level
+procedure TRenderList.AddSprite(aRX: TRXType; aID: Word; pX,pY,aGround: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
   if fCount >= Length(RenderList) then SetLength(RenderList, fCount + 256); //Book some space
 
@@ -1250,7 +1275,25 @@ begin
   RenderList[fCount].Feet       := KMPointF(pX + GFXData[aRX, aID].PxWidth/CELL_SIZE_PX/2, aGround);         //Ground position of sprite for Z-sorting
   RenderList[fCount].RX         := aRX;             //RX library
   RenderList[fCount].ID         := aID;             //Texture ID
-  RenderList[fCount].NewInst    := aNew;            //Is this a new item (can be occluded), or a child one (always on top of it's parent)
+  RenderList[fCount].NewInst    := True;            //Is this a new item (can be occluded), or a child one (always on top of it's parent)
+  RenderList[fCount].TeamColor  := aTeam;           //Team ID (determines color)
+  RenderList[fCount].AlphaStep  := aAlphaStep;      //Alpha step for wip buildings
+  RenderList[fCount].FOWvalue   := 255;             //Visibility recomputed in ClipRender anyway
+
+  inc(fCount); //New item added
+end;
+
+
+//Child items don't need ground level
+procedure TRenderList.AddSprite(aRX: TRXType; aID: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+begin
+  if fCount >= Length(RenderList) then SetLength(RenderList, fCount + 256); //Book some space
+
+  RenderList[fCount].Loc        := KMPointF(pX,pY); //Position of sprite, floating-point
+  RenderList[fCount].Feet       := KMPointF(0, 0);  //Ground position of sprite for Z-sorting
+  RenderList[fCount].RX         := aRX;             //RX library
+  RenderList[fCount].ID         := aID;             //Texture ID
+  RenderList[fCount].NewInst    := False;            //Is this a new item (can be occluded), or a child one (always on top of it's parent)
   RenderList[fCount].TeamColor  := aTeam;           //Team ID (determines color)
   RenderList[fCount].AlphaStep  := aAlphaStep;      //Alpha step for wip buildings
   RenderList[fCount].FOWvalue   := 255;             //Visibility recomputed in ClipRender anyway
