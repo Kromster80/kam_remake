@@ -3,11 +3,11 @@ Essential:
  +	Hide wip unit dismiss button
  +	Smarter delivery assignment to serfs
  +	The market should be blocked in the original campaigns/tutorial
- wip	All main menu pages to support 1024x576
+ +	All main menu pages to support 1024x576
+ +	Improve look of MP results screen (smaller font in bars)
  wip	Add maps by Janosiczek/PAKER [Lewin]
  wip	Sort out sprite visibility at FOW edge. Currently sprites appear visible or black in cases where the shouldn't, especially trees and units
 	Make sure AI city planner is stable (incomplete but doesn't cause crashes) and included in release as limited tech preview, or disable it for release
-	Improve look of MP results screen (smaller font in bars) and allow chat over results
 
 	Send new/changed text to be translated [Lewin]
 	Make release candidates and send to trusted testers to find new bugs we've introduced [Lewin]

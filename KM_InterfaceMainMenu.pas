@@ -771,7 +771,7 @@ begin
     Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 675, 45, 320, 120);
       TKMBevel.Create(Panel_MPPlayerName, 0, 0, 320, 120);
       TKMLabel.Create(Panel_MPPlayerName, 8, 10, 304, 20, fTextLibrary[TX_MP_MENU_PLAYERNAME], fnt_Outline, taLeft);
-      Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 30, 120, 20, fnt_Grey);
+      Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 30, 140, 20, fnt_Grey);
       TKMLabel.Create(Panel_MPPlayerName, 8, 60, 304, 20, fTextLibrary[TX_MP_MENU_STATUS], fnt_Outline, taLeft);
       Label_MP_Status := TKMLabel.Create(Panel_MPPlayerName, 8, 80, 304, 36, '', fnt_Grey, taLeft);
       Label_MP_Status.AutoWrap := True;
@@ -828,7 +828,7 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Lobby_Page;
-const CW = 690; C1 = 35; C2 = 215; C3 = 395; C4 = 485; C5 = 590; C6 = 650;
+const CW = 690; C1 = 35; C2 = 195; C3 = 355; C4 = 445; C5 = 570; C6 = 650;
 var i,k,top:integer;
 begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
@@ -846,31 +846,32 @@ begin
       CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbyPlayers, 10, 10, 450, 20, fTextLibrary[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
       CheckBox_LobbyHostControl.OnClick := Lobby_PlayersSetupChange;
 
-      TKMLabel.Create(Panel_LobbyPlayers, C1, 40, 170,  20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C2, 40, 170,  20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C1, 40, 150,  20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C2, 40, 150,  20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_LobbyPlayers, C3, 40,  80,  20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_LobbyPlayers, C4, 40,  80,  20, fTextLibrary[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, C5, 40,  100,  20, fTextLibrary[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_LobbyPlayers, C6, 40,  70,  20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 60+i*24;
         Image_LobbyFlag[i] := TKMImage.Create(Panel_LobbyPlayers, 10, top+3, 16, 11, 0, rxMenu);
 
-        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, C1, top+2, 170, 20, '', fnt_Metal, taLeft);
+        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, C1, top+2, 150, 20, '', fnt_Grey, taLeft);
         Label_LobbyPlayer[i].Hide;
 
-        DropBox_LobbyPlayerSlot[i] := TKMDropList.Create(Panel_LobbyPlayers, C1, top, 170, 20, fnt_Metal, '');
+        DropBox_LobbyPlayerSlot[i] := TKMDropList.Create(Panel_LobbyPlayers, C1, top, 150, 20, fnt_Grey, '');
         DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
         DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_CLOSED]); //Closed, nobody can join it
         DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
         DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyLoc[i] := TKMDropList.Create(Panel_LobbyPlayers, C2, top, 170, 20, fnt_Metal, '');
+        DropBox_LobbyLoc[i] := TKMDropList.Create(Panel_LobbyPlayers, C2, top, 150, 20, fnt_Grey, '');
         DropBox_LobbyLoc[i].Add(fTextLibrary[TX_LOBBY_RANDOM]);
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyTeam[i] := TKMDropList.Create(Panel_LobbyPlayers, C3, top, 80, 20, fnt_Metal, '');
+        DropBox_LobbyTeam[i] := TKMDropList.Create(Panel_LobbyPlayers, C3, top, 80, 20, fnt_Grey, '');
         DropBox_LobbyTeam[i].Add('-');
         for k:=1 to 4 do DropBox_LobbyTeam[i].Add(IntToStr(k));
         DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
@@ -884,7 +885,7 @@ begin
           Drop_LobbyColors[i].Add(MakeListRow([''], [MP_TEAM_COLORS[K]], [MakePic(rxMenu, 20)]));
         Drop_LobbyColors[i].OnChange := Lobby_PlayersSetupChange;
 
-        Image_LobbyReady[i] := TKMImage.Create(Panel_LobbyPlayers, C5, top, 16, 16, 23, rxMenu);
+        Image_LobbyReady[i] := TKMImage.Create(Panel_LobbyPlayers, C5-8, top, 16, 16, 23, rxMenu);
         Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, C6, top, 50, 20, '', fnt_Metal, taCenter);
       end;
 
@@ -2268,6 +2269,7 @@ begin
   for I := 0 to MAX_PLAYERS - 1 do
   begin
     Label_LobbyPlayer[I].Caption := '.';
+    Label_LobbyPlayer[I].FontColor := $FFFFFFFF;
     Image_LobbyFlag[I].TexID := 0;
     Label_LobbyPlayer[I].Hide;
     DropBox_LobbyPlayerSlot[I].Show;
@@ -2445,6 +2447,10 @@ begin
     else
     begin
       Label_LobbyPlayer[I].Caption := fGame.Networking.NetPlayers[I+1].GetNickname;
+      if fGame.Networking.NetPlayers[I+1].FlagColorID = 0 then
+        Label_LobbyPlayer[I].FontColor := $FFFFFFFF
+      else
+        Label_LobbyPlayer[I].FontColor := FlagColorToTextColor(fGame.Networking.NetPlayers[I+1].FlagColor);
       Label_LobbyPlayer[I].Show;
       DropBox_LobbyPlayerSlot[I].Disable;
       DropBox_LobbyPlayerSlot[I].Hide;

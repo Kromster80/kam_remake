@@ -693,10 +693,10 @@ function TKMUnitSerf.UpdateState:boolean;
 var
   H:TKMHouseInn;
   OldThought:TUnitThought;
-  HadTask:Boolean;
+  WasIdle:Boolean;
 begin
   Result:=true; //Required for override compatibility
-  HadTask := fUnitTask <> nil;
+  WasIdle := IsIdle;
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitSerf.UpdateState',fCurrPosition);
   if Inherited UpdateState then exit;
 
@@ -712,7 +712,7 @@ begin
   //Only show quest thought if we have been idle since the last update (not HadTask)
   //and not thinking anything else (e.g. death)
   if fUnitTask=nil then begin
-    if (not HadTask) and (OldThought=th_None) and (KaMRandom(2)=0) then
+    if WasIdle and (OldThought=th_None) and (KaMRandom(2)=0) then
       fThought:=th_Quest;
     SetActionStay(60,ua_Walk); //Stay idle
   end;

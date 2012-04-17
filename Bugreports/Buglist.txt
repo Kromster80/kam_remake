@@ -59,9 +59,9 @@ Improvements:
  +	Colors for chat to highlight player names and whether it is team/all channel
  +	Smarter job assignment to workers
  +	Smarter delivery assignment to serfs
+ +	Add support for 1024x600 (1280x720) resolution
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
- wip	Add support for 1024x600 (1280x720) resolution
 	High quality alpha-blended shadows for houses (only once constructed?)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
@@ -81,7 +81,8 @@ Improvements:
 	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
 	Some way to delete multiplayer saves from within the KaM Remake
 	Keyboard shortcuts to zoom for people without a scrollwheel
-	Improve look of MP results screen (smaller font in bars) and allow chat over results
+	Allow chat over multiplayer results screen
+	Add support for 1024x600 (1280x720) resolution in the map editor
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

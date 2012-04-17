@@ -897,6 +897,7 @@ begin
       inc(fResourceIn[i], aCount);
       if aFromScript then
       begin
+        inc(fResourceDeliveryCount[i], aCount);
         OrdersRemoved := fPlayers.Player[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aResource, aCount);
         dec(fResourceDeliveryCount[i], OrdersRemoved);
       end;

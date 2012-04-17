@@ -216,7 +216,6 @@ end;
 procedure TUnitActionGoInOut.WalkIn;
 begin
   fUnit.Direction := dir_N;  //one cell up
-  fUnit.Thought := th_None;
   fUnit.UpdateNextPosition(KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y-1));
   fTerrain.UnitRem(fUnit.GetPosition); //Unit does not occupy a tile while inside
 
