@@ -284,6 +284,7 @@ begin
   fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
   if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeAndNil(fCampaigns);
+  fActiveInterface := nil; //Otherwise it will hold a pointer to freed memory
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fSoundLib);
   FreeAndNil(fTextLibrary);
@@ -297,6 +298,7 @@ begin
   fCampaigns.LoadProgress(ExeDir + 'Saves\Campaigns.dat');
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
   fMainMenuInterface.ShowScreen(msOptions);
+  fActiveInterface := fMainMenuInterface;
   Resize(fScreenX,fScreenY); //Force the recreated main menu to resize to the user's screen
 end;
 
@@ -354,7 +356,9 @@ procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
   if not InRange(X,1,fScreenX-1) or not InRange(Y,1,fScreenY-1) then exit; //Exit if Cursor is outside of frame
 
-  fActiveInterface.MouseMove(Shift, X,Y);
+  //fActiveInterface = nil while loading a new locale
+  if fActiveInterface <> nil then
+    fActiveInterface.MouseMove(Shift, X,Y);
 
   if Assigned(OnCursorUpdate) then
     OnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
@@ -378,10 +382,9 @@ begin
   //Allow to zoom only when curor is over map. Controls handle zoom on their own
   //todo: allow to zoom in Replay (remove overlay panels and allow to "read-only" mode for everything)
   //Eventually it would be cool if you could view the contents of storehouses, barracks, watchtowers, etc. in replays (read only of course)
-  if MOUSEWHEEL_ZOOM_ENABLE and ((fActiveInterface.MyControls.CtrlOver = nil) or (fGameState = gsReplay)) then
+  if MOUSEWHEEL_ZOOM_ENABLE and (fGameState <> gsNoGame)
+  and ((fActiveInterface.MyControls.CtrlOver = nil) or (fGameState = gsReplay)) then
   begin
-    //todo: @Krom: Crashes here when using scrollwheel over the splash screen. TBH I don't think it's
-    //             a good idea to rely on (fActiveInterface.MyControls.CtrlOver = nil)
     UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;
     fViewport.Zoom := fViewport.Zoom + WheelDelta/2000;

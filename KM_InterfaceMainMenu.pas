@@ -337,7 +337,7 @@ uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_PlayersCollection, KM
   KM_Utils, KM_Log, KM_Sound, KM_Networking;
 
 const
-  MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
+  MENU_SP_MAPS_COUNT    = 12;           //Number of single player maps to display in menu
   MENU_SP_MAPS_HEIGHT   = 40;
 
 
@@ -987,22 +987,26 @@ end;
 
 procedure TKMMainMenuInterface.Create_Single_Page;
 var i:integer;
+const C1=0;  C2=50; C3=100; C4=380; CS=440;
+      W1=50; W2=50; W3=280;W4=60;
 begin
   Panel_Single:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
-    Panel_SingleList:=TKMPanel.Create(Panel_Single,512+22,84,445,600);
+  Panel_Single.Stretch;
+    Panel_SingleList:=TKMPanel.Create(Panel_Single,524,135,465,520);
+    Panel_SingleList.Anchors := [];
 
-      ScrollBar_SingleMaps := TKMScrollBar.Create(Panel_SingleList,420,40,25,MENU_SP_MAPS_COUNT*40, sa_Vertical, bsMenu);
+      ScrollBar_SingleMaps := TKMScrollBar.Create(Panel_SingleList,CS,40,25,MENU_SP_MAPS_COUNT*40, sa_Vertical, bsMenu);
       ScrollBar_SingleMaps.OnChange := SingleMap_ScrollChange;
 
-      Button_SingleHeadMode  := TKMButton.Create(Panel_SingleList,  0,0, 40,40,42,rxGui,bsMenu);
+      Button_SingleHeadMode  := TKMButton.Create(Panel_SingleList, C1,0, W1,40,42,rxGui,bsMenu);
       Button_SingleHeadMode.OnClick := SingleMap_Sort;
-      Button_SingleHeadTeams := TKMButton.Create(Panel_SingleList, 40,0, 40,40,31,rxGui,bsMenu);
+      Button_SingleHeadTeams := TKMButton.Create(Panel_SingleList, C2,0, W2,40,31,rxGui,bsMenu);
       Button_SingleHeadTeams.OnClick := SingleMap_Sort;
-      Button_SingleHeadTitle := TKMButton.Create(Panel_SingleList, 80,0,300,40,fTextLibrary[TX_MENU_TITLE],fnt_Metal,bsMenu);
+      Button_SingleHeadTitle := TKMButton.Create(Panel_SingleList, C3,0, W3,40,fTextLibrary[TX_MENU_TITLE],fnt_Metal,bsMenu);
       Button_SingleHeadTitle.OnClick := SingleMap_Sort;
-      Button_SingleHeadSize  := TKMButton.Create(Panel_SingleList,380,0, 40,40,fTextLibrary[TX_MENU_SIZE],fnt_Metal,bsMenu);
+      Button_SingleHeadSize  := TKMButton.Create(Panel_SingleList, C4,0, W4,40,fTextLibrary[TX_MENU_SIZE],fnt_Metal,bsMenu);
       Button_SingleHeadSize.OnClick := SingleMap_Sort;
-      with TKMButton.Create(Panel_SingleList,420,0, 25,40,'',fnt_Metal,bsMenu) do Disable;
+      with TKMButton.Create(Panel_SingleList,CS,0, 25,40,'',fnt_Metal,bsMenu) do Disable;
 
       SetLength(Bevel_SingleBG, MENU_SP_MAPS_COUNT);
       SetLength(Image_SingleMode, MENU_SP_MAPS_COUNT);
@@ -1014,20 +1018,20 @@ begin
 
       for i := 0 to MENU_SP_MAPS_COUNT - 1 do
       begin
-        Bevel_SingleBG[i,1] := TKMBevel.Create(Panel_SingleList,0,  40+i*40, 40,40);
-        Bevel_SingleBG[i,2] := TKMBevel.Create(Panel_SingleList,40, 40+i*40, 40,40);
-        Bevel_SingleBG[i,3] := TKMBevel.Create(Panel_SingleList,80, 40+i*40,300,40);
-        Bevel_SingleBG[i,4] := TKMBevel.Create(Panel_SingleList,380,40+i*40, 40,40);
+        Bevel_SingleBG[i,1] := TKMBevel.Create(Panel_SingleList,C1, 40+i*40, W1,40);
+        Bevel_SingleBG[i,2] := TKMBevel.Create(Panel_SingleList,C2, 40+i*40, W2,40);
+        Bevel_SingleBG[i,3] := TKMBevel.Create(Panel_SingleList,C3, 40+i*40, W3,40);
+        Bevel_SingleBG[i,4] := TKMBevel.Create(Panel_SingleList,C4, 40+i*40, W4,40);
 
-        Image_SingleMode[i]    := TKMImage.Create(Panel_SingleList,  0   ,40+i*40,40,40,28);
+        Image_SingleMode[i]    := TKMImage.Create(Panel_SingleList,  0   ,40+i*40,50,40,28);
         Image_SingleMode[i].ImageCenter;
-        Label_SinglePlayers[i] := TKMLabel.Create(Panel_SingleList, 40+20, 40+i*40+14, 40,20,'0',fnt_Metal, taCenter);
-        Label_SingleTitle1[i]  := TKMLabel.Create(Panel_SingleList, 80+ 6, 40+i*40+ 5, 288,0,'<<<LEER>>>',fnt_Metal, taLeft);
-        Label_SingleTitle2[i]  := TKMLabel.Create(Panel_SingleList, 80+ 6, 40+i*40+22, 288,0,'<<<LEER>>>',fnt_Game, taLeft);
+        Label_SinglePlayers[i] := TKMLabel.Create(Panel_SingleList, C2+25, 40+i*40+14, 40,20,'0',fnt_Metal, taCenter);
+        Label_SingleTitle1[i]  := TKMLabel.Create(Panel_SingleList, C3+ 6, 40+i*40+ 5, 268,0,'<<<LEER>>>',fnt_Metal, taLeft);
+        Label_SingleTitle2[i]  := TKMLabel.Create(Panel_SingleList, C3+ 6, 40+i*40+22, 268,0,'<<<LEER>>>',fnt_Game, taLeft);
         Label_SingleTitle2[i].FontColor := $FFD0D0D0; //Grey for minor description
-        Label_SingleSize[i]    := TKMLabel.Create(Panel_SingleList,380+20, 40+i*40+14, 40,20,'0',fnt_Metal, taCenter);
+        Label_SingleSize[i]    := TKMLabel.Create(Panel_SingleList,C4+30, 40+i*40+14, 50,20,'0',fnt_Metal, taCenter);
 
-        Shape_SingleOverlay[i] := TKMShape.Create(Panel_SingleList, 0, 40+i*40, 420, 40, $00000000);
+        Shape_SingleOverlay[i] := TKMShape.Create(Panel_SingleList, 0, 40+i*40, CS, 40, $00000000);
         Shape_SingleOverlay[i].LineWidth := 0;
         Shape_SingleOverlay[i].Tag := i;
         Shape_SingleOverlay[i].OnClick := SingleMap_MapClick;
@@ -1035,32 +1039,35 @@ begin
         Shape_SingleOverlay[i].OnMouseWheel := ScrollBar_SingleMaps.MouseWheel;
       end;
 
-      Shape_SingleMap:=TKMShape.Create(Panel_SingleList,0,40,420,40, $FFFFFF00);
+      Shape_SingleMap:=TKMShape.Create(Panel_SingleList,0,40,CS,40, $FFFFFF00);
       Shape_SingleMap.Hitable := false; //All hits should go to Shape_SingleOverlay[i] not this
 
-    Panel_SingleDesc:=TKMPanel.Create(Panel_Single,45,84,445,600);
+    Panel_SingleDesc:=TKMPanel.Create(Panel_Single,45,135,445,520);
+    Panel_SingleDesc.Anchors := [];
 
       Label_SingleTitle := TKMLabel.Create(Panel_SingleDesc,445 div 2,0,433,20,'',fnt_Outline, taCenter);
-      Memo_SingleDesc  := TKMMemo.Create(Panel_SingleDesc,15,25,415,189,fnt_Metal);
+      Memo_SingleDesc  := TKMMemo.Create(Panel_SingleDesc,15,25,415,129,fnt_Metal);
       Memo_SingleDesc.AutoWrap := True;
 
-      TKMBevel.Create(Panel_SingleDesc, 121, 220, 199, 199);
-      Minimap_SinglePreview := TKMMinimap.Create(Panel_SingleDesc, 125, 224, 191, 191);
+      TKMBevel.Create(Panel_SingleDesc, 121, 160, 199, 199);
+      Minimap_SinglePreview := TKMMinimap.Create(Panel_SingleDesc, 125, 164, 191, 191);
 
-      TKMBevel.Create(Panel_SingleDesc,0,428,445,20);
-      Label_SingleCondTyp:=TKMLabel.Create(Panel_SingleDesc,8,431,429,20,fTextLibrary[TX_MENU_MISSION_TYPE],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,450,445,20);
-      Label_SingleCondWin:=TKMLabel.Create(Panel_SingleDesc,8,453,429,20,fTextLibrary[TX_MENU_WIN_CONDITION],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,472,445,20);
-      Label_SingleCondDef:=TKMLabel.Create(Panel_SingleDesc,8,475,429,20,fTextLibrary[TX_MENU_DEFEAT_CONDITION],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,494,445,20);
-      Label_SingleAllies:=TKMLabel.Create(Panel_SingleDesc,8,497,429,20,fTextLibrary[TX_MENU_ALLIES],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,516,445,20);
-      Label_SingleEnemies:=TKMLabel.Create(Panel_SingleDesc,8,519,429,20,fTextLibrary[TX_MENU_ENEMIES],fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc,0,368,445,20);
+      Label_SingleCondTyp:=TKMLabel.Create(Panel_SingleDesc,8,371,429,20,fTextLibrary[TX_MENU_MISSION_TYPE],fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc,0,390,445,20);
+      Label_SingleCondWin:=TKMLabel.Create(Panel_SingleDesc,8,393,429,20,fTextLibrary[TX_MENU_WIN_CONDITION],fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc,0,412,445,20);
+      Label_SingleCondDef:=TKMLabel.Create(Panel_SingleDesc,8,415,429,20,fTextLibrary[TX_MENU_DEFEAT_CONDITION],fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc,0,434,445,20);
+      Label_SingleAllies:=TKMLabel.Create(Panel_SingleDesc,8,437,429,20,fTextLibrary[TX_MENU_ALLIES],fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc,0,456,445,20);
+      Label_SingleEnemies:=TKMLabel.Create(Panel_SingleDesc,8,459,429,20,fTextLibrary[TX_MENU_ENEMIES],fnt_Metal, taLeft);
 
-    Button_SingleBack := TKMButton.Create(Panel_Single, 45, 650, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_SingleBack := TKMButton.Create(Panel_Single, 45, 625, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_SingleBack.Anchors := [];
     Button_SingleBack.OnClick := SwitchMenuPage;
-    Button_SingleStart := TKMButton.Create(Panel_Single, 270, 650, 220, 30, fTextLibrary[TX_MENU_SINGLE_START_MAP], fnt_Metal, bsMenu);
+    Button_SingleStart := TKMButton.Create(Panel_Single, 270, 625, 220, 30, fTextLibrary[TX_MENU_SINGLE_START_MAP], fnt_Metal, bsMenu);
+    Button_SingleStart.Anchors := [];
     Button_SingleStart.OnClick := SingleMap_Start;
 end;
 

@@ -32,6 +32,7 @@
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
 	Players that have intentionally quit (not just disconnected) should count as defeated
+	Clicking on the splash screen registers the click on the main menu once it is loaded
 
 	Dots and lines displaying on tile edges [Krom]
 	Sandhills cause water next to shore tiles to appear darker with square edges
