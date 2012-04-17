@@ -827,7 +827,8 @@ begin
                             Land[Loc.Y,Loc.X].Terrain  := 60;
                           end;
                       59: begin  //Full-grown Corn 1
-                            Land[Loc.Y,Loc.X].FieldAge := CORN_AGE_FULL;
+                            //-1 because it is increased in update state, otherwise it wouldn't be noticed
+                            Land[Loc.Y,Loc.X].FieldAge := CORN_AGE_FULL-1;
                             Land[Loc.Y,Loc.X].Terrain  := 60;
                           end;
                     end;

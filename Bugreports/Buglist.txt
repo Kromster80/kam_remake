@@ -19,6 +19,8 @@
  +	Pressing CTRL+ALT+DEL with a game running caused a "System error code 5" or "call to OS function failed" due to Windows denying accesss to Mouse.CursorPos for a moment
  +	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
  +	Issue with empty saves names and misused whitespaces
+ +	The market should be blocked in the original campaigns/tutorial (maybe have an option to enable it starting at later missions, but it still ruins the balance IMO)
+	If I play a campaign up to mission say 9, then load an old save of mission 5, quit and press restart, it will load basesave which is mission 9 (we should make a basesave after loading saves?)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
@@ -30,7 +32,6 @@
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
 	Players that have intentionally quit (not just disconnected) should count as defeated
-	The market should be blocked in the original campaigns/tutorial (maybe have an option to enable it starting at later missions, but it still ruins the balance IMO)
 
 	Dots and lines displaying on tile edges [Krom]
 	Sandhills cause water next to shore tiles to appear darker with square edges
@@ -56,10 +57,10 @@ Improvements:
  +	Support color tags in text
  +	Colors for chat to highlight player names and whether it is team/all channel
  +	Smarter job assignment to workers
+ +	Smarter delivery assignment to serfs
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
  wip	Add support for 1024x600 (1280x720) resolution
- wip	Smarter delivery assignment to serfs
 	High quality alpha-blended shadows for houses (only once constructed?)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes

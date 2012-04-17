@@ -366,7 +366,8 @@ end;
 
 function TKMCampaign.MissionFile(aIndex: byte): string;
 begin
-  Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + '.dat';
+  Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + '\' +
+            fShortTitle + Format('%.2d', [aIndex+1]) + '.dat';
 end;
 
 

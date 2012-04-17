@@ -93,7 +93,7 @@ type
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
     procedure StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
-    procedure StartSingleMap(aMissionFile, aGameName:string);
+    procedure StartSingleMap(aMissionFile, aGameName:string; aBlockMarket:Boolean=False);
     procedure StartSingleSave(aFileName:string);
     procedure StartLastMap;
     procedure StartMultiplayerSave(const aFileName: string);
@@ -380,6 +380,8 @@ begin
   //Eventually it would be cool if you could view the contents of storehouses, barracks, watchtowers, etc. in replays (read only of course)
   if MOUSEWHEEL_ZOOM_ENABLE and ((fActiveInterface.MyControls.CtrlOver = nil) or (fGameState = gsReplay)) then
   begin
+    //todo: @Krom: Crashes here when using scrollwheel over the splash screen. TBH I don't think it's
+    //             a good idea to rely on (fActiveInterface.MyControls.CtrlOver = nil)
     UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;
     fViewport.Zoom := fViewport.Zoom + WheelDelta/2000;
@@ -435,6 +437,7 @@ end;
 
 
 procedure TKMGame.StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
+var I:Integer;
 begin
   Stop(gr_Silent); //Stop everything silently
 
@@ -442,10 +445,16 @@ begin
 
   GameInit(false);
   GameStart(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap));
+
+  //Hack to block the market in TSK/TPR campaigns
+  if (aCampaign.ShortTitle = 'TSK') or (aCampaign.ShortTitle = 'TPR') then
+    for I:=0 to fPlayers.Count-1 do
+      fPlayers[I].Stats.AllowToBuild[ht_Marketplace] := False;
 end;
 
 
-procedure TKMGame.StartSingleMap(aMissionFile, aGameName:string);
+procedure TKMGame.StartSingleMap(aMissionFile, aGameName:string; aBlockMarket:Boolean=False);
+var I:Integer;
 begin
   Stop(gr_Silent); //Stop everything silently
 
@@ -453,6 +462,11 @@ begin
 
   GameInit(false);
   GameStart(aMissionFile, aGameName);
+
+  //Market needs to be blocked for e.g. tutorials
+  if aBlockMarket then
+    for I:=0 to fPlayers.Count-1 do
+      fPlayers[I].Stats.AllowToBuild[ht_Marketplace] := False;
 end;
 
 
