@@ -1227,53 +1227,34 @@ end;
 
 
 procedure TKMUnitWarrior.Paint;
-
-  procedure PaintFlag(UnitPos: TKMPointF; AnimDir: TKMDirection; UnitTyp: TUnitType; NewInst: Boolean);
-  var
-    TeamColor: cardinal;
-    FlagPos: TKMPointF;
-  begin
-    FlagPos.X := UnitPos.X + FlagXOffset[UnitGroups[UnitTyp], AnimDir] / CELL_SIZE_PX;
-    FlagPos.Y := UnitPos.Y + FlagYOffset[UnitGroups[UnitTyp], AnimDir] / CELL_SIZE_PX;
-
-    if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then
-      TeamColor := $FFFFFFFF //Highlight with White color
-    else
-      TeamColor := fPlayers.Player[fOwner].FlagColor; //Normal color
-
-    //In MapEd mode we borrow the anim step from terrain, as fFlagAnim is not updated
-    if fGame.GameState = gsEditor then
-      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fTerrain.AnimStep, FlagPos.X, FlagPos.Y, TeamColor, UnitPos.X, UnitPos.Y, NewInst)
-    else
-      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fFlagAnim, FlagPos.X, FlagPos.Y, TeamColor, UnitPos.X, UnitPos.Y, NewInst);
-  end;
-
 var
   Act:TUnitActionType;
   UnitPos: TKMPointF;
+  FlagColor: cardinal;
+  FlagStep: Integer;
   i,k:integer;
   UnitPosition: TKMPoint;
   DoesFit:boolean;
 begin
-  Inherited;
+  inherited;
   if not fVisible then exit;
-  Act  := fCurrentAction.ActionType;
+  Act := fCurrentAction.ActionType;
 
   UnitPos.X := fPosition.X + 0.5 + GetSlide(ax_X);
   UnitPos.Y := fPosition.Y + 1   + GetSlide(ax_Y);
 
   if IsCommander and not IsDeadOrDying then
   begin
-    if Direction in [dir_SE, dir_S, dir_SW, dir_W] then
-    begin
-      PaintFlag(UnitPos, Direction, fUnitType, True); //Paint flag over the top of the unit
-      fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers.Player[fOwner].FlagColor, False);
-    end
+    if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then
+      FlagColor := $FFFFFFFF //Highlight with White color
     else
-    begin
-      fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers.Player[fOwner].FlagColor, True);
-      PaintFlag(UnitPos, Direction, fUnitType, False); //Paint flag under the unit
-    end;
+      FlagColor := fPlayers.Player[fOwner].FlagColor; //Normal color
+
+    if fGame.GameState = gsEditor then
+      FlagStep := fTerrain.AnimStep
+    else
+      FlagStep := fFlagAnim;
+    fRenderPool.AddUnitFlag(fUnitType, Act, Direction, AnimStep, FlagStep, UnitPos.X, UnitPos.Y, FlagColor, fPlayers.Player[fOwner].FlagColor);
   end
   else
     fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers.Player[fOwner].FlagColor, True);

@@ -677,10 +677,10 @@ begin
       Bmp.Canvas.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
 
     //Mark pivot location with a dot
-    {K := SizeX + RXData[RT].Pivot[ID].x;
-    I := SizeY + RXData[RT].Pivot[ID].y;
+    {K := SizeX + fRXData.Pivot[ID].x;
+    I := SizeY + fRXData.Pivot[ID].y;
     if InRange(I, 0, SizeY-1) and InRange(K, 0, SizeX-1) then
-      Bmp.Canvas.Pixels[K,I] := $FF00FF;}
+      Bmp.Canvas.Pixels[K,I] := $FF00FF;//}
 
     Bmp.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + '.bmp');
 

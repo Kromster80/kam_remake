@@ -91,7 +91,7 @@ type
     procedure AddUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure AddUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
     procedure AddUnitThought(Thought:TUnitThought; pX,pY:single);
-    procedure AddUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
+    procedure AddUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; UnitAnim, FlagAnim:integer; pX,pY:single; FlagColor, TeamColor:TColor4);
     procedure AddUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; DoImmediateRender:boolean=false; Deleting:boolean=false);
   end;
 
@@ -498,11 +498,12 @@ end;
 
 procedure TRenderPool.RenderObject(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var
+  R: TRXData;
   ShiftX, ShiftY, Ground: Single;
   ID: Integer;
   FOW: Byte;
 begin
-  if MapElem[aIndex].Count=0 then exit;
+  if MapElem[aIndex].Count = 0 then exit;
 
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX,pY,true);
   if FOW = 0 then exit; //Don't render objects which are unexplored
@@ -511,32 +512,37 @@ begin
   if ID <= 0 then exit;
 
   if aIndex = 61 then begin //Invisible wall
-    ShiftX := 0; //Required if DoImmediateRender = true
-    ShiftY := 0;
-    fRenderAux.Quad(pX,pY,$800000FF);
-    RenderCursorWireQuad(KMPoint(pX,pY),$FF0000FF);
+    ShiftX := pX; //Required if DoImmediateRender = true
+    ShiftY := pY;
+    fRenderAux.Quad(pX, pY, $800000FF);
+    RenderCursorWireQuad(KMPoint(pX, pY), $FF0000FF);
   end else begin
-    ShiftX := fRXData[rxTrees].Pivot[ID].X / CELL_SIZE_PX;
-    Ground := (fRXData[rxTrees].Pivot[ID].Y + fRXData[rxTrees].Size[ID].Y) / CELL_SIZE_PX;
-    ShiftY := Ground - fTerrain.Land[pY, pX].Height / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxTrees, ID, pX + ShiftX, pY + ShiftY, pY + Ground);
+    R := fRXData[rxTrees];
+    ShiftX := pX + R.Pivot[ID].X / CELL_SIZE_PX;
+    Ground := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX;
+    ShiftY := Ground - fTerrain.HeightAt(pX, Ground) / CELL_HEIGHT_DIV;
+    fRenderList.AddSprite(rxTrees, ID, ShiftX, ShiftY, Ground);
 
-    //fRenderAux.Dot(pX+ShiftX, pY+ShiftY, $FFFF00FF);
+    //fRenderAux.Dot(pX, pY - fTerrain.Land[pY, pX].Height / CELL_HEIGHT_DIV, $FFFF0080);
+    //fRenderAux.Dot(ShiftX, ShiftY, $FFFF00FF);
     //glRasterPos2f(pX - 1 + 0.1, pY - 1 + 0.1);
     //glPrint(inttostr(aIndex) + ':' + inttostr(ID));
   end;
 
-  if DoImmediateRender then RenderSprite(rxTrees,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255,Deleting);
+  if DoImmediateRender then
+    RenderSprite(rxTrees, ID, ShiftX, ShiftY, $FFFFFFFF, 255, Deleting);
 end;
 
 
-{ 4 objects packed on 1 tile for Corn and Grapes }
+//4 objects packed on 1 tile for Corn and Grapes
 procedure TRenderPool.RenderObjectQuad(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
   procedure AddSpriteBy(aID: Integer; aAnimStep: Integer; pX,pY: Single);
-  var ID: Integer; Ground: Single;
+  var ID: Integer; Ground: Single; R: TRXData;
   begin
+    R := fRXData[rxTrees];
+    //todo: This place looks fishy (no pivots)
     ID := MapElem[aID].Step[aAnimStep mod MapElem[aID].Count + 1] + 1;
-    Ground := pY + (fRXData[rxTrees].Size[ID].Y) / CELL_SIZE_PX;
+    Ground := pY + (R.Size[ID].Y) / CELL_SIZE_PX;
     pY := Ground - fTerrain.HeightAt(pX, Ground)/CELL_HEIGHT_DIV;
 
     fRenderList.AddSprite(rxTrees, ID, pX, pY, Ground);
@@ -597,12 +603,14 @@ end;
 {Render house in wood}
 procedure TRenderPool.AddHouseWood(Index: THouseType; Step: Single; Loc: TKMPoint);
 var
+  R: TRXData;
   ID: Integer;
   ShiftX, ShiftY, Ground: Single;
 begin
+  R := fRXData[rxHouses];
   ID := fResource.HouseDat[Index].WoodPic + 1;
-  ShiftX := Loc.X + fRXData[rxHouses].Pivot[ID].X / CELL_SIZE_PX;
-  Ground := Loc.Y + (fRXData[rxHouses].Pivot[ID].Y + fRXData[rxHouses].Size[ID].Y) / CELL_SIZE_PX;
+  ShiftX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX;
+  Ground := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX;
   ShiftY := Ground - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
   fRenderList.AddSprite(rxHouses, ID, ShiftX, ShiftY, Ground, 0, Step);
 end;
@@ -732,13 +740,13 @@ begin
   with fResource.HouseDat.BeastAnim[Index,BeastID,BeastAge] do
   begin
     ID := Step[AnimStep mod Count + 1]+1;
-    ShiftX := MoveX / CELL_SIZE_PX;
-    ShiftY := MoveY / CELL_SIZE_PX;
+    ShiftX := Loc.X + MoveX / CELL_SIZE_PX;
+    ShiftY := Loc.Y + MoveY / CELL_SIZE_PX;
   end;
 
   ShiftX := ShiftX + R.Pivot[ID].X / CELL_SIZE_PX;
   ShiftY := ShiftY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(aRX, ID, Loc.X + ShiftX, Loc.Y + ShiftY);
+  fRenderList.AddSprite(aRX, ID, ShiftX, ShiftY);
 end;
 
 
@@ -754,17 +762,17 @@ begin
   if ID <= 0 then exit;
   R := fRXData[rxUnits];
 
-  ShiftX := R.Pivot[ID].X / CELL_SIZE_PX;
-  Ground := (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 0.4;
-  ShiftY := Ground - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV;
+  ShiftX := pX + R.Pivot[ID].X / CELL_SIZE_PX;
+  Ground := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 0.4;
+  ShiftY := Ground - fTerrain.HeightAt(pX, Ground) / CELL_HEIGHT_DIV;
 
   if NewInst then
-    fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, pY + Ground, FlagColor)
+    fRenderList.AddSprite(rxUnits, ID, ShiftX, ShiftY, Ground, FlagColor)
   else
-    fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, FlagColor);
+    fRenderList.AddSprite(rxUnits, ID, ShiftX, ShiftY, FlagColor);
 
   if DoImmediateRender then
-    RenderSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, FlagColor, 255, Deleting);
+    RenderSprite(rxUnits, ID, ShiftX, ShiftY, FlagColor, 255, Deleting);
 
   if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
     fRenderAux.Dot(pX - 0.5, pY - 1 - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, FlagColor);
@@ -804,6 +812,7 @@ begin
   if ID <= 0 then Exit;
   R := fRXData[rxUnits];
 
+  //todo: AddUnit uses HeightAt(pX, Ground), should be same here
   ShiftX := (R.Pivot[ID].X + a.MoveX) / CELL_SIZE_PX;
   ShiftY := (R.Pivot[ID].Y + R.Size[ID].Y + a.MoveY) / CELL_SIZE_PX -
             fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV - 0.4;
@@ -831,31 +840,45 @@ begin
 end;
 
 
-procedure TRenderPool.AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepID: Integer; pX,pY: Single; FlagColor: TColor4; UnitX,UnitY: Single; NewInst: Boolean);
+procedure TRenderPool.AddUnitFlag(
+  aUnit: TUnitType; aAct: TUnitActionType;
+  aDir: TKMDirection; UnitAnim, FlagAnim: Integer;
+  pX, pY: Single; FlagColor, TeamColor: TColor4);
 var
-  ShiftX, ShiftY, Interpolation: Single;
-  ID: Integer;
-  A: TKMUnitsAnim;
   R: TRXData;
+  A: TKMUnitsAnim;
+  IDUnit, IDFlag: Integer;
+  FlagX, FlagY, UnitX, UnitY, Ground: Single;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
-  ID := A.Step[StepID mod A.Count + 1] + 1;
-  if ID <= 0 then exit;
+  IDUnit := A.Step[UnitAnim mod A.Count + 1] + 1;
+  if IDUnit <= 0 then Exit;
 
   R := fRXData[rxUnits];
 
-  //UnitY := (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
+  UnitX := pX + R.Pivot[IDUnit].X / CELL_SIZE_PX;
+  Ground := pY + (R.Pivot[IDUnit].Y + R.Size[IDUnit].Y) / CELL_SIZE_PX - 0.4;
+  UnitY := Ground - fTerrain.HeightAt(pX, Ground) / CELL_HEIGHT_DIV;
 
-  ShiftX := R.Pivot[ID].X / CELL_SIZE_PX - 0.5;
-  ShiftY := (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX -
-            fTerrain.HeightAt(UnitX, UnitY) / CELL_HEIGHT_DIV - 0.4 - 2.25;
+  //Flag
+  A := fResource.UnitDat[aUnit].UnitAnim[ua_WalkArm, aDir];
+  IDFlag := A.Step[FlagAnim mod A.Count + 1] + 1;
+  if IDFlag <= 0 then Exit;
 
+  FlagX := pX + (R.Pivot[IDFlag].X + FlagXOffset[UnitGroups[aUnit], aDir]) / CELL_SIZE_PX - 0.5;
+  FlagY := pY + (R.Pivot[IDFlag].Y + FlagXOffset[UnitGroups[aUnit], aDir] + R.Size[IDFlag].Y) / CELL_SIZE_PX -
+           fTerrain.HeightAt(pX, Ground) / CELL_HEIGHT_DIV - 2.25;
 
-  //Flags should use a Ground value identical to the unit, because we render flags on top for certain directions
-  if NewInst then
-    fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, UnitY, FlagColor)
+  if aDir in [dir_SE, dir_S, dir_SW, dir_W] then
+  begin
+    fRenderList.AddSprite(rxUnits, IDFlag, FlagX, FlagY, Ground, FlagColor);
+    fRenderList.AddSprite(rxUnits, IDUnit, UnitX, UnitY, TeamColor);
+  end
   else
-    fRenderList.AddSprite(rxUnits, ID, pX + ShiftX, pY + ShiftY, FlagColor);
+  begin
+    fRenderList.AddSprite(rxUnits, IDUnit, UnitX, UnitY, Ground, TeamColor);
+    fRenderList.AddSprite(rxUnits, IDFlag, FlagX, FlagY, FlagColor);
+  end;
 
   if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
     fRenderAux.Dot(pX, pY - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, FlagColor); // Render dot where unit is
