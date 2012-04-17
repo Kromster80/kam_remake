@@ -1,0 +1,16 @@
+Results taken after 1 hour on "Test By RAYZEL Idle".
+Before = KM_DeliverQueue from r3205
+After  = KM_DeliverQueue from r3210
+
+
+GDPs before:	6296, 4403, 2282
+GDPs after:	6366, 4444, 2176
+
+Weapons before:	781, 489, 338
+Weapons after:	819, 507, 343
+
+Total steps taken by serfs before: 843770
+Total steps taken by serfs after:  546062
+
+Average idle serfs before:  5.15,  6.45, 29.42
+Average idle serfs after:  48.24, 43.37, 47.98

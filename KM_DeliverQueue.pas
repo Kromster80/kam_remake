@@ -113,7 +113,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Utils, KM_PlayersCollection, KM_Resource, KM_Log;
+uses KM_Game, KM_Utils, KM_PlayersCollection, KM_Resource, KM_Log, KM_Terrain;
 
 
 const
@@ -224,6 +224,19 @@ end;
 
 
 procedure TKMDeliveries.UpdateState;
+
+  function AnySerfCanDoDelivery(iO,iD:Integer):Boolean;
+  var I: Integer;
+  begin
+    Result := False;
+    for I := 0 to fSerfCount - 1 do
+      if fSerfs[I].Serf.IsIdle and fQueue.SerfCanDoDelivery(iO,iD,fSerfs[I].Serf) then
+      begin
+        Result := True;
+        Exit;
+      end;
+  end;
+
 var
   I,K,iD,iO,FoundO,FoundD:Integer;
   Bid,BestBid:Single;
@@ -259,7 +272,8 @@ begin
         if fQueue.fDemand[iD].Resource <> rt_None then
           for iO:=1 to fQueue.OfferCount do
             if (fQueue.fOffer[iO].Resource <> rt_None)
-            and fQueue.ValidDelivery(iO,iD) then
+            and fQueue.ValidDelivery(iO,iD)
+            and AnySerfCanDoDelivery(iO,iD) then //Only choose this delivery if at least one of the serfs can do it
             begin
               Bid := fQueue.CalculateBid(iO,iD,nil);
               if (BestBid = -1) or (Bid < BestBid) then
@@ -458,22 +472,23 @@ begin
 
   //If Demand and Offer are different HouseTypes, means forbid Store<->Store deliveries except the case where 2nd store is being built and requires building materials
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fOffer[iO].Loc_House.HouseType<>fDemand[iD].Loc_House.HouseType)or(fOffer[iO].Loc_House.IsComplete<>fDemand[iD].Loc_House.IsComplete));
+
+  Result := Result and
+            ( //House-House delivery should be performed only if there's a connecting road
+            (fDemand[iD].Loc_House<>nil)and
+            (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), CanWalkRoad, 0))
+            )
+            or
+            ( //House-Unit delivery can be performed without connecting road
+            (fDemand[iD].Loc_Unit<>nil)and
+            (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, CanWalk, 1))
+            );
 end;
 
 
 function TKMDeliverQueue.SerfCanDoDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
 begin
-  Result := ( //House-House delivery should be performed only if there's a connecting road
-            (fDemand[iD].Loc_House<>nil)and
-            (KMSerf.CanWalkTo(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), CanWalkRoad, 0))
-            )
-            or
-            ( //House-Unit delivery can be performed without connecting road
-            (fDemand[iD].Loc_Unit<>nil)and
-            (KMSerf.CanWalkTo(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, CanWalk, 1))
-            );
-
-  Result := Result and //Delivery is only permitted if the serf can access the from house. If the serf is inside (invisible) test from point below.
+  Result := //Delivery is only permitted if the serf can access the from house. If the serf is inside (invisible) test from point below.
            ((    KMSerf.Visible and KMSerf.CanWalkTo(KMSerf.GetPosition, KMPointBelow(fOffer[iO].Loc_House.GetEntrance), CanWalk, 0)) or
             (not KMSerf.Visible and KMSerf.CanWalkTo(KMPointBelow(KMSerf.GetPosition), KMPointBelow(fOffer[iO].Loc_House.GetEntrance), CanWalk, 0)));
 end;
