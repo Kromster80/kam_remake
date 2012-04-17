@@ -1228,13 +1228,13 @@ end;
 
 procedure TKMUnitWarrior.Paint;
 
-  procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir:TKMDirection; UnitTyp:TUnitType; NewInst:Boolean);
+  procedure PaintFlag(UnitPos: TKMPointF; AnimDir: TKMDirection; UnitTyp: TUnitType; NewInst: Boolean);
   var
     TeamColor: cardinal;
-    FlagXPaintPos, FlagYPaintPos: single;
+    FlagPos: TKMPointF;
   begin
-    FlagXPaintPos := XPaintPos + FlagXOffset[UnitGroups[UnitTyp],AnimDir]/CELL_SIZE_PX;
-    FlagYPaintPos := YPaintPos + FlagYOffset[UnitGroups[UnitTyp],AnimDir]/CELL_SIZE_PX;
+    FlagPos.X := UnitPos.X + FlagXOffset[UnitGroups[UnitTyp], AnimDir] / CELL_SIZE_PX;
+    FlagPos.Y := UnitPos.Y + FlagYOffset[UnitGroups[UnitTyp], AnimDir] / CELL_SIZE_PX;
 
     if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then
       TeamColor := $FFFFFFFF //Highlight with White color
@@ -1243,14 +1243,14 @@ procedure TKMUnitWarrior.Paint;
 
     //In MapEd mode we borrow the anim step from terrain, as fFlagAnim is not updated
     if fGame.GameState = gsEditor then
-      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fTerrain.AnimStep, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, NewInst)
+      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fTerrain.AnimStep, FlagPos.X, FlagPos.Y, TeamColor, UnitPos.X, UnitPos.Y, NewInst)
     else
-      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fFlagAnim, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, NewInst);
+      fRenderPool.AddUnitFlag(UnitTyp, ua_WalkArm, AnimDir, fFlagAnim, FlagPos.X, FlagPos.Y, TeamColor, UnitPos.X, UnitPos.Y, NewInst);
   end;
 
 var
   Act:TUnitActionType;
-  XPaintPos, YPaintPos: single;
+  UnitPos: TKMPointF;
   i,k:integer;
   UnitPosition: TKMPoint;
   DoesFit:boolean;
@@ -1259,36 +1259,37 @@ begin
   if not fVisible then exit;
   Act  := fCurrentAction.ActionType;
 
-  XPaintPos := fPosition.X + 0.5 + GetSlide(ax_X);
-  YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);
+  UnitPos.X := fPosition.X + 0.5 + GetSlide(ax_X);
+  UnitPos.Y := fPosition.Y + 1   + GetSlide(ax_Y);
 
   if IsCommander and not IsDeadOrDying then
   begin
     if Direction in [dir_SE, dir_S, dir_SW, dir_W] then
     begin
-      PaintFlag(XPaintPos, YPaintPos, Direction, fUnitType, True); //Paint flag over the top of the unit
-      fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, False);
+      PaintFlag(UnitPos, Direction, fUnitType, True); //Paint flag over the top of the unit
+      fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers.Player[fOwner].FlagColor, False);
     end
     else
     begin
-      fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, True);
-      PaintFlag(XPaintPos, YPaintPos, Direction, fUnitType, False); //Paint flag under the unit
+      fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers.Player[fOwner].FlagColor, True);
+      PaintFlag(UnitPos, Direction, fUnitType, False); //Paint flag under the unit
     end;
   end
   else
-    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, True);
+    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers.Player[fOwner].FlagColor, True);
 
-  if fThought<>th_None then
-    fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
+  if fThought <> th_None then
+    fRenderPool.AddUnitThought(fThought, UnitPos.X, UnitPos.Y);
 
   //Paint members in MapEd mode
-  if fMapEdMembersCount<>0 then
-  for i:=1 to fMapEdMembersCount do begin
+  if fMapEdMembersCount <> 0 then
+  for i:=1 to fMapEdMembersCount do
+  begin
     UnitPosition := GetPositionInGroup2(GetPosition.X, GetPosition.Y, Direction, i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
     if not DoesFit then continue; //Don't render units that are off the map in the map editor
-    XPaintPos := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
-    YPaintPos := UnitPosition.Y + 1  ;
-    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+    UnitPos.X := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
+    UnitPos.Y := UnitPosition.Y + 1  ;
+    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers.Player[fOwner].FlagColor, true);
   end;
 
   if SHOW_ATTACK_RADIUS then
