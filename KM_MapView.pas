@@ -2,7 +2,7 @@ unit KM_MapView;
 {$I KaM_Remake.inc}
 interface
 uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, SysUtils,
-  KM_MissionScript, KM_Render, KM_Terrain, KM_Points, KM_Utils, KM_CommonClasses;
+  KM_Defaults, KM_MissionScript, KM_Render, KM_Terrain, KM_Points, KM_Utils, KM_CommonClasses;
 
 
 type
@@ -13,6 +13,7 @@ type
     fFromParser: Boolean;
     fIsMapEditor: Boolean;
     fSepia: Boolean;
+    fUseCustomColors: Boolean;
     fParser: TMissionParserPreview;
     fMyTerrain: TTerrain;
     fMapY: Word;
@@ -26,6 +27,7 @@ type
     procedure SepiaFilter;
     procedure GenerateTexture;
   public
+    PlayerColors:array[1..MAX_PLAYERS] of Cardinal;
     constructor Create(aTerrain: TTerrain; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
@@ -34,6 +36,7 @@ type
     property MapX: Word read fMapX;
     property MapY: Word read fMapY;
     property MapTex: TTexture read fMapTex;
+    property UseCustomColors: Boolean read fUseCustomColors write fUseCustomColors;
     function GetPlayerLoc(aIndex: Byte): TKMPoint;
     procedure Update(aRevealAll: Boolean);
     procedure UpdateMapSize(aX, aY: Word);
@@ -47,7 +50,7 @@ type
 
 
 implementation
-uses KM_TGATexture, KM_Defaults, KM_Resource, KM_PlayersCollection, KM_Units, KM_Units_Warrior;
+uses KM_TGATexture, KM_Resource, KM_PlayersCollection, KM_Units, KM_Units_Warrior;
 
 
 { TKMMinimap }
@@ -126,7 +129,12 @@ begin
         fBase[N] := $FF000000
       else
         if TileOwner <> 0 then
-          fBase[N] := fParser.PlayerPreview[TileOwner].Color
+        begin
+          if fUseCustomColors then
+            fBase[N] := PlayerColors[TileOwner]
+          else
+            fBase[N] := fParser.PlayerPreview[TileOwner].Color;
+        end
         else
         begin
           //Formulua for lighting same as in TTerrain.RebuildLighting

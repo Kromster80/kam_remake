@@ -20,6 +20,7 @@ type
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
     procedure WriteText         (X,Y,W,H: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
     procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
+    procedure WriteCircle       (PosX,PosY,Rad:smallint; Col:TColor4);
   end;
 
 
@@ -582,6 +583,21 @@ begin
   glEnd;
 
   glBindTexture(GL_TEXTURE_2D, 0);
+end;
+
+
+procedure TRenderUI.WriteCircle(PosX,PosY,Rad:smallint; Col:TColor4);
+var Ang: Single; I: Byte;
+begin
+  if Rad=0 then exit;
+  glColor4ubv(@Col);
+  glBegin(GL_POLYGON);
+    for I := 0 to 15 do
+    begin
+      Ang := I/8*pi;
+      glVertex2f(PosX + Sin(Ang) * Rad, PosY + Cos(Ang) * Rad);
+    end;
+  glEnd;
 end;
 
 

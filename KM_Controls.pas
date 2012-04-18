@@ -886,6 +886,7 @@ type
     fViewArea: TKMRect;
     fOnChange: TPointEvent;
     fPlayerLocs: array[1..MAX_PLAYERS] of TKMPoint;
+    fPlayerColors:array[1..MAX_PLAYERS] of Cardinal;
     fShowLocs: Boolean;
     function GetPlayerLoc(aIndex:byte):TKMPoint;
     procedure SetPlayerLoc(aIndex:byte; aLoc:TKMPoint);
@@ -2265,7 +2266,9 @@ begin
     fScrollInc := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 3, rxGui, aStyle);
   end;
   fScrollDec.OnClick := DecPosition;
+  fScrollDec.OnMouseWheel := MouseWheel;
   fScrollInc.OnClick := IncPosition;
+  fScrollInc.OnMouseWheel := MouseWheel;
   UpdateThumbSize;
 end;
 
@@ -3674,8 +3677,13 @@ begin
   fMapSize.Y := aMapView.MapY;
   fMapTex := aMapView.MapTex;
   if fShowLocs then
+  begin
     for i:=1 to MAX_PLAYERS do
-      fPlayerLocs[i] := aMapView.GetPlayerLoc(i)
+    begin
+      fPlayerLocs[i] := aMapView.GetPlayerLoc(i);
+      fPlayerColors[i] := aMapView.PlayerColors[i];
+    end;
+  end
   else
     FillChar(fPlayerLocs, SizeOf(fPlayerLocs), #0);
 end;
@@ -3728,6 +3736,7 @@ end;
 
 procedure TKMMinimap.Paint;
 var i, PaintWidth, PaintHeight, NewLeft, NewTop:integer;
+const LOC_RAD = 8; //Radius of circle around player location
 begin
   inherited;
 
@@ -3764,9 +3773,17 @@ begin
                         NewTop  + Round(fViewArea.Top*PaintHeight / fMapSize.Y),
                         Round((fViewArea.Right - fViewArea.Left)*PaintWidth / fMapSize.X),
                         Round((fViewArea.Bottom - fViewArea.Top)*PaintHeight / fMapSize.Y), 1, $FFFFFFFF);
+  //Draw all the circles, THEN all the numbers so the numbers are not covered by circles when they are close
   for i:=1 to MAX_PLAYERS do
     if not KMSamePoint(fPlayerLocs[i], KMPoint(0,0)) then
-      fRenderUI.WriteText(NewLeft+Round(fPlayerLocs[i].X*PaintWidth / fMapSize.X), NewTop+Round(fPlayerLocs[i].Y*PaintHeight / fMapSize.Y)-8, 16, 16, IntToStr(i), fnt_Outline, taCenter);
+      fRenderUI.WriteCircle(NewLeft+EnsureRange(Round(fPlayerLocs[i].X*PaintWidth / fMapSize.X),LOC_RAD,Width-LOC_RAD),
+                            NewTop +EnsureRange(Round(fPlayerLocs[i].Y*PaintHeight / fMapSize.Y),LOC_RAD,Width-LOC_RAD),
+                            LOC_RAD, fPlayerColors[i]);
+  for i:=1 to MAX_PLAYERS do
+    if not KMSamePoint(fPlayerLocs[i], KMPoint(0,0)) then
+      fRenderUI.WriteText(NewLeft+EnsureRange(Round(fPlayerLocs[i].X*PaintWidth / fMapSize.X),LOC_RAD,Width-LOC_RAD),
+                          NewTop +EnsureRange(Round(fPlayerLocs[i].Y*PaintHeight / fMapSize.Y),LOC_RAD,Width-LOC_RAD)-6,
+                          16, 16, IntToStr(i), fnt_Outline, taCenter);
 end;
 
 

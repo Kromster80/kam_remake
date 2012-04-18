@@ -1823,6 +1823,7 @@ begin
     Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[fMap_Selected].Info.DefeatCondition]);
 
     Minimap_SinglePreview.Show;
+    fMapView.UseCustomColors := False;
     fMapView.LoadTerrain(MapNameToPath(fMaps[fMap_Selected].FileName, 'dat', False));
     fMapView.Update(False);
     Minimap_SinglePreview.UpdateFrom(fMapView);
@@ -2416,7 +2417,7 @@ end;
 //We should reflect it to UI
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
 var
-  I: Integer;
+  I,ID: Integer;
   MyNik, CanEdit, HostCanEdit, IsSave, IsValid: Boolean;
 begin
   IsSave := fGame.Networking.SelectGameKind = ngk_Save;
@@ -2512,6 +2513,22 @@ begin
     DropBox_LobbyLoc[I].Disable;
     DropBox_LobbyTeam[I].Disable;
     Drop_LobbyColors[I].Disable;
+  end;
+
+  //Update the minimap preivew with player colors
+  for I := 1 to MAX_PLAYERS do
+  begin
+    ID := fGame.Networking.NetPlayers.StartingLocToLocal(I);
+    if ID <> -1 then
+      fMapView.PlayerColors[I] := fGame.Networking.NetPlayers[ID].FlagColor
+    else
+      fMapView.PlayerColors[I] := $FF000000;
+  end;
+  //If we have a map selected update the preview
+  if fGame.Networking.SelectGameKind = ngk_Map then
+  begin
+    fMapView.Update(True);
+    Minimap_LobbyPreview.UpdateFrom(fMapView);
   end;
 
   CheckBox_LobbyHostControl.Checked := fGame.Networking.NetPlayers.HostDoesSetup;
@@ -2637,6 +2654,7 @@ begin
                       Radio_LobbyMapType.ItemIndex := 0;
                 end;
 
+                fMapView.UseCustomColors := True;
                 fMapView.LoadTerrain(MapNameToPath(fGame.Networking.MapInfo.FileName, 'dat', True));
                 fMapView.Update(True);
                 Minimap_LobbyPreview.UpdateFrom(fMapView);
@@ -3038,6 +3056,7 @@ begin
   Button_MapEd_Load.Enabled := InRange(List_MapEd.ItemIndex,0,List_MapEd.Count-1);
   if Button_MapEd_Load.Enabled then
   begin
+    fMapView.UseCustomColors := False;
     fMapView.LoadTerrain(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1));
     fMapView.Update(True);
     Minimap_MapEd.UpdateFrom(fMapView);
