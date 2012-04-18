@@ -353,13 +353,13 @@ const
     (ut_Cavalry,      ut_HorseScout, ut_None));
 
   //Offsets for flags rendering in pixels
-  FlagXOffset: array[TGroupType, TKMDirection] of shortint = (
+  FlagXOffset: array [TGroupType, TKMDirection] of shortint = (
     ( 0, 10, -1,  2,  1, -6,-10,  4, 13),  //gt_Melee
     ( 0,  6,  5,  7, -3,-10, -4, 10,  9),  //gt_AntiHorse
     ( 0,  8,  6,  6, -6, -8, -3,  8,  6),  //gt_Ranged
     ( 0,  6,  2,  3, -5,-10, -8,  5,  6)); //gt_Mounted
 
-  FlagYOffset: array[TGroupType, TKMDirection] of shortint = (
+  FlagYOffset: array [TGroupType, TKMDirection] of shortint = (
     ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Melee
     ( 0, 23, 25, 25, 21, 20, 19, 20, 22),  //gt_AntiHorse
     ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Ranged
@@ -376,6 +376,9 @@ const //Corresponding indices in units.rx
   ThoughtBounds: array [TUnitThought, 1..2] of Word = (
   (0,0), (6250,6257), (6258,6265), (6266,6273), (6274,6281), (6282,6289), (6290,6297), (6298,6305)
   );
+
+  UNIT_OFF_X = -0.5;
+  UNIT_OFF_Y = -0.25;
 
 type
   TUnitTaskName = ( utn_Unknown, //Uninitialized task to detect bugs
@@ -411,7 +414,8 @@ type
     ws_Engage //One or more of our group members are in combat and we are on our way to help them.
   );
 
-const FishCountAct:array[1..5]of TUnitActionType = (ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Work1);
+const
+  FishCountAct: array [1..5] of TUnitActionType = (ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Work1);
 
 {Walk to somewhere}
 type

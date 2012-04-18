@@ -38,7 +38,7 @@ uses KM_Terrain;
 procedure TRenderAux.RenderDot(pX,pY:single; Size:single = 0.05);
 begin
   glBegin(GL_QUADS);
-    glkRect(pX-1-Size,pY-1+Size,pX-1+Size,pY-1-Size);
+    glkRect(pX-Size,pY+Size,pX+Size,pY-Size);
   glEnd;
 end;
 
@@ -47,7 +47,7 @@ procedure TRenderAux.RenderDotOnTile(pX,pY:single);
 begin
   pY := pY-fTerrain.HeightAt(pX,pY)/CELL_HEIGHT_DIV;
   glBegin(GL_QUADS);
-    glkRect(pX-1,pY-1,pX-1+0.1,pY-1-0.1);
+    glkRect(pX,pY,pX+0.1,pY-0.1);
   glEnd;
 end;
 
@@ -55,8 +55,8 @@ end;
 procedure TRenderAux.RenderLine(x1,y1,x2,y2:single);
 begin
   glBegin(GL_LINES);
-    glVertex2f(x1-1, y1-1 - fTerrain.HeightAt(x1,y1)/CELL_HEIGHT_DIV);
-    glVertex2f(x2-1, y2-1 - fTerrain.HeightAt(x2,y2)/CELL_HEIGHT_DIV);
+    glVertex2f(x1, y1 - fTerrain.HeightAt(x1,y1)/CELL_HEIGHT_DIV);
+    glVertex2f(x2, y2 - fTerrain.HeightAt(x2,y2)/CELL_HEIGHT_DIV);
   glEnd;
 end;
 

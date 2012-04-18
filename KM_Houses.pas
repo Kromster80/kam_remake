@@ -1343,7 +1343,7 @@ begin
 
     AnimStep := FlagAnimStep - Eater[i].EatStep; //Delta is our AnimStep
 
-    fRenderPool.AddEater(Eater[i].UnitType, ua_Eat, AnimDir(i), AnimStep, fPosition,
+    fRenderPool.AddHouseEater(Eater[i].UnitType, ua_Eat, AnimDir(i), AnimStep, fPosition,
                         OffX[(i-1) mod 3],
                         OffY[(i-1) mod 3], fPlayers.Player[fOwner].FlagColor);
   end;

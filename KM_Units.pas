@@ -317,13 +317,13 @@ end;
 procedure TKMUnitCitizen.Paint;
 var Act:TUnitActionType; XPaintPos, YPaintPos: single;
 begin
-  Inherited;
+  inherited;
   if not fVisible then exit;
   if fCurrentAction = nil then exit;
   Act := fCurrentAction.fActionType;
 
-  XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
-  YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
+  XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
+  YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
   case fCurrentAction.fActionType of
     ua_Walk:
@@ -341,7 +341,7 @@ begin
       end;
   end;
 
-  if fThought<>th_None then
+  if fThought <> th_None then
     fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
 end;
 
@@ -498,23 +498,23 @@ begin
   if fCurrentAction = nil then exit;
   Act := fCurrentAction.fActionType;
 
-  XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
-  YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
+  XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
+  YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
   case fCurrentAction.fActionType of
-  ua_Walk:
-    begin
-      fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-      if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
-        fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
-    end;
-  ua_Work..ua_Eat:
-      fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-  ua_WalkArm .. ua_WalkBooty2:
-    begin
-      fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-      fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
-    end;
+    ua_Walk:
+      begin
+        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+        if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
+          fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+      end;
+    ua_Work..ua_Eat:
+        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+    ua_WalkArm .. ua_WalkBooty2:
+      begin
+        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+      end;
   end;
 
   if fThought<>th_None then
@@ -665,8 +665,8 @@ begin
   if fCurrentAction = nil then exit;
   Act := fCurrentAction.fActionType;
 
-  XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
-  YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
+  XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
+  YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
   fRenderPool.AddUnit(UnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
@@ -783,12 +783,12 @@ begin
   if not fVisible then exit;
   if fCurrentAction = nil then exit;
 
-  XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
-  YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
+  XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
+  YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
   fRenderPool.AddUnit(UnitType, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
-  if fThought<>th_None then
+  if fThought <> th_None then
     fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
 end;
 
@@ -914,7 +914,7 @@ end;
 procedure TKMUnitAnimal.Paint;
 var Act:TUnitActionType;
 begin
-  Inherited;
+  inherited;
   if fCurrentAction = nil then exit;
   if fUnitType = ut_Fish then
     Act := FishCountAct[fFishCount]

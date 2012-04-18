@@ -2417,6 +2417,7 @@ end;
 
 
 //Return height within cell interpolating node heights
+//Note that input parameters are 0 based
 function TTerrain.HeightAt(inX, inY: Single): Single;
 var
   Xc, Yc: Integer;
@@ -2428,11 +2429,11 @@ begin
   Result := 0;
   if not VerticeInMapCoords(Xc, Yc) then exit;
 
-  Tmp1 := mix(Land[Yc  , Xc+1].Height, Land[Yc  , Xc].Height, frac(inX));
+  Tmp1 := mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, frac(inX));
   if Yc >= MAX_MAP_SIZE then
     Tmp2 := 0
   else
-    Tmp2 := mix(Land[Yc+1, Xc+1].Height, Land[Yc+1, Xc].Height, frac(inX));
+    Tmp2 := mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, frac(inX));
   Result := mix(Tmp2, Tmp1, frac(inY));
 end;
 

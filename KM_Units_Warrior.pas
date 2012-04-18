@@ -1240,8 +1240,8 @@ begin
   if not fVisible then exit;
   Act := fCurrentAction.ActionType;
 
-  UnitPos.X := fPosition.X + 0.5 + GetSlide(ax_X);
-  UnitPos.Y := fPosition.Y + 1   + GetSlide(ax_Y);
+  UnitPos.X := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
+  UnitPos.Y := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
   if IsCommander and not IsDeadOrDying then
   begin
