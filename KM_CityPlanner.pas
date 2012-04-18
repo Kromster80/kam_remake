@@ -3,7 +3,7 @@ unit KM_CityPlanner;
 interface
 uses
   Classes, Graphics, KromUtils, Math, SysUtils, TypInfo,
-  KM_Defaults, KM_Points;
+  KM_Defaults, KM_Points, KM_CommonClasses;
 
 
 type
@@ -25,6 +25,8 @@ type
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
 
     procedure UpdateInfluence;
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
@@ -272,6 +274,18 @@ begin
 
   //Halt;
 
+end;
+
+
+procedure TKMCityPlanner.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.Write(fOwner);
+end;
+
+
+procedure TKMCityPlanner.Load(LoadStream: TKMemoryStream);
+begin
+  LoadStream.Read(fOwner);
 end;
 
 end.

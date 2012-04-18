@@ -339,21 +339,27 @@ end;
 
 procedure TKMayor.Save(SaveStream: TKMemoryStream);
 begin
+  SaveStream.Write(fOwner);
   SaveStream.Write(fAutobuild);
   SaveStream.Write(fSerfFactor);
   SaveStream.Write(fWorkerFactor);
   SaveStream.Write(fRecruitFactor);
   SaveStream.Write(fRecruitDelay);
+
+  fCityPlanner.Save(SaveStream);
 end;
 
 
 procedure TKMayor.Load(LoadStream: TKMemoryStream);
 begin
+  LoadStream.Read(fOwner);
   LoadStream.Read(fAutobuild);
   LoadStream.Read(fSerfFactor);
   LoadStream.Read(fWorkerFactor);
   LoadStream.Read(fRecruitFactor);
   LoadStream.Read(fRecruitDelay);
+
+  fCityPlanner.Load(LoadStream);
 end;
 
 

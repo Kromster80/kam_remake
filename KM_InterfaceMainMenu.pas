@@ -928,7 +928,7 @@ begin
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
 
-      with TKMLabel.Create(Panel_LobbySetup, 10, 626, 280, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft) do Anchors := [akLeft,akBottom];
+      with TKMLabel.Create(Panel_LobbySetup, 10, 626, 250, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft) do Anchors := [akLeft,akBottom];
       TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 10, 648, 250, 0, 120);
       TrackBar_LobbyPeacetime.Anchors := [akLeft,akBottom];
       TrackBar_LobbyPeacetime.Caption := fTextLibrary[TX_LOBBY_PEACETIME];
