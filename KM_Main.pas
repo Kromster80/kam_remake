@@ -12,6 +12,7 @@ type
     fMainSettings: TMainSettings;
     fResolutions: TKMResolutions;
 
+    procedure DoRestore(Sender: TObject);
     procedure DoDeactivate(Sender: TObject);
     procedure DoIdle(Sender: TObject; var Done: Boolean);
   public
@@ -93,6 +94,7 @@ begin
 
   Application.OnIdle := DoIdle;
   Application.OnDeactivate := DoDeactivate;
+  Application.OnRestore := DoRestore; //OnActivate seems to happen at the wrong times, OnRestore happens when alt-tabbing back in full screen mode
 
   FormLoading.Hide;
 end;
@@ -124,6 +126,14 @@ begin
 end;
 
 
+//Apply the cursor restriction when alt-tabbing back
+procedure TKMMain.DoRestore(Sender: TObject);
+begin
+  if Application.Active and (fMainSettings <> nil) then
+    ApplyCursorRestriction; //Cursor restriction is lost when alt-tabbing out, so we need to apply it again
+end;
+
+
 procedure TKMMain.DoDeactivate(Sender: TObject);
 begin
   //Occurs during Toggle to fullscreen, should be ignored
@@ -131,7 +141,10 @@ begin
 
   //Prevent the game window from being in the way by minimizing when alt-tabbing
   if (fMainSettings <> nil) and fMainSettings.FullScreen then
+  begin
+    ClipCursor(nil); //Remove all cursor clipping just in case Windows doesn't automatically
     Application.Minimize;
+  end;
 end;
 
 
@@ -311,8 +324,7 @@ end;
 procedure TKMMain.ApplyCursorRestriction;
 var Rect: TRect;
 begin
-  //todo: But I think this restriction will still apply when you alt-tab out, so we should disable it
-  //then so the player can use both screens. Needs testing.
+  //This restriction is removed when alt-tabbing out, and added again when alt-tabbing back
   {$IFDEF MSWindows}
   if fMainSettings.FullScreen then
   begin
