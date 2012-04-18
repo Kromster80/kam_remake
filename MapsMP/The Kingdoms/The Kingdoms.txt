@@ -1,0 +1,2 @@
+BigDesc
+Is the XIII century. Germany broke the peace treaty, and Poland knows what could happen now. Will the Czech Empire join the war? Who will be on the battlefield last?||Teams should be:|Poland Loc: 1,2,3|Czech Empire Loc: 4,5|Germany Loc: 6,7,8||Made by Janosiczek & PAKER|Final fix by Woloszek
