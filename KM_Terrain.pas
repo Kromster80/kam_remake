@@ -2011,37 +2011,46 @@ var
   AllowDiag: Boolean;
   Count: Integer;
   Pass: TPassability;
+  FillID:Byte; //The ID to be filled, don't pass it into FillArea each time when it doesn't change
 
-  procedure FillArea(X,Y: Word; ID: Byte);
+  procedure FillArea(X,Y: Word);
   begin
     if (Land[Y,X].WalkConnect[WC] = 0) //Untested area
     and (Pass in Land[Y,X].Passability) then //Matches passability
     begin
-      Land[Y,X].WalkConnect[WC] := ID;
+      Land[Y,X].WalkConnect[WC] := FillID;
       Inc(Count);
       //Using custom TileInMapCoords replacement gives ~40% speed improvement
       //Using custom CanWalkDiagonally is also much faster
       if X-1 >= 1 then
       begin
         if AllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X].Obj+1].DiagonalBlocked then
-          FillArea(X-1, Y-1, ID);
-        FillArea(X-1, Y, ID);
+          FillArea(X-1, Y-1);
+        FillArea(X-1, Y);
         if AllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj+1].DiagonalBlocked then
-          FillArea(X-1,Y+1,ID);
+          FillArea(X-1,Y+1);
       end;
 
-      if Y-1 >= 1 then     FillArea(X, Y-1, ID);
-      if Y+1 <= fMapY then FillArea(X, Y+1, ID);
+      if Y-1 >= 1 then     FillArea(X, Y-1);
+      if Y+1 <= fMapY then FillArea(X, Y+1);
 
       if X+1 <= fMapX then
       begin
         if AllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj+1].DiagonalBlocked then
-          FillArea(X+1, Y-1, ID);
-        FillArea(X+1, Y, ID);
+          FillArea(X+1, Y-1);
+        FillArea(X+1, Y);
         if AllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj+1].DiagonalBlocked then
-          FillArea(X+1, Y+1, ID);
+          FillArea(X+1, Y+1);
       end;
     end;
+  end;
+
+  //Split into a seperate function to save CPU time pushing and popping ID off the stack
+  //when it never changes in subsequent runs
+  procedure StartFillArea(aX,aY: Word; aID: Byte);
+  begin
+    FillID := aID;
+    FillArea(aX,aY);
   end;
 
 //const MinSize=9; //Minimum size that is treated as new area
@@ -2071,7 +2080,7 @@ begin
     begin
       Inc(AreaID);
       Count := 0;
-      FillArea(K,I,AreaID);
+      StartFillArea(K,I,AreaID);
 
       if Count = 1 {<MinSize} then //Revert
       begin
