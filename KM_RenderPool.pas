@@ -567,13 +567,13 @@ var
   FOW: Byte;
 begin
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX,pY,true);
-  if FOW <=128 then AnimStep := 0; //Stop animation
+  if FOW <= 128 then AnimStep := 0; //Stop animation
 
-  AddSpriteBy(aIndex, AnimStep  , pX,       pY - 0.4);
-  AddSpriteBy(aIndex, AnimStep+1, pX + 0.5, pY - 0.4);
+  AddSpriteBy(aIndex, AnimStep  , pX - 0.75, pY - 0.75);
+  AddSpriteBy(aIndex, AnimStep+1, pX - 0.25, pY - 0.75);
   if IsDouble then Exit;
-  AddSpriteBy(aIndex, AnimStep+1, pX,       pY + 0.1);
-  AddSpriteBy(aIndex, AnimStep  , pX + 0.5, pY + 0.1);
+  AddSpriteBy(aIndex, AnimStep+1, pX - 0.75, pY - 0.25);
+  AddSpriteBy(aIndex, AnimStep  , pX - 0.25, pY - 0.25);
 end;
 
 
@@ -609,16 +609,16 @@ begin
   if Wood <> 0 then
   begin
     ID := 260 + Wood - 1;
-    CornerX := Loc.X + BS[1, Wood].MoveX / CELL_SIZE_PX;
-    CornerY := Loc.Y + (BS[1, Wood].MoveY + R.Size[ID].Y) / CELL_SIZE_PX
+    CornerX := Loc.X + BS[1, Wood].MoveX / CELL_SIZE_PX - 1;
+    CornerY := Loc.Y + (BS[1, Wood].MoveY + R.Size[ID].Y) / CELL_SIZE_PX - 1
                      - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxHouses, ID, CornerX, CornerY);
   end;
   if Stone <> 0 then
   begin
     ID := 267 + Stone - 1;
-    CornerX := Loc.X + BS[2, Stone].MoveX / CELL_SIZE_PX;
-    CornerY := Loc.Y + (BS[2, Stone].MoveY + R.Size[ID].Y) / CELL_SIZE_PX
+    CornerX := Loc.X + BS[2, Stone].MoveX / CELL_SIZE_PX - 1;
+    CornerY := Loc.Y + (BS[2, Stone].MoveY + R.Size[ID].Y) / CELL_SIZE_PX - 1
                      - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxHouses, ID, CornerX, CornerY);
   end;
@@ -681,8 +681,8 @@ begin
     if A.Count <> 0 then
     begin
       ID := A.Step[AnimStep mod A.Count + 1] + 1;
-      CornerX := Loc.X + (R.Pivot[ID].X + A.MoveX) / CELL_SIZE_PX;
-      CornerY := Loc.Y + (R.Pivot[ID].Y + A.MoveY + R.Size[ID].Y) / CELL_SIZE_PX
+      CornerX := Loc.X + (R.Pivot[ID].X + A.MoveX) / CELL_SIZE_PX - 1;
+      CornerY := Loc.Y + (R.Pivot[ID].Y + A.MoveY + R.Size[ID].Y) / CELL_SIZE_PX - 1
                        - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
       fRenderList.AddSprite(rxHouses, ID, CornerX, CornerY, FlagColor);
     end;
@@ -699,8 +699,8 @@ var ID,i,k: Integer;
   begin
     if aID > 0 then
     begin
-      CornerX := Loc.X + R.Pivot[aID].X / CELL_SIZE_PX;
-      CornerY := Loc.Y + (R.Pivot[aID].Y + R.Size[aID].Y) / CELL_SIZE_PX
+      CornerX := Loc.X + R.Pivot[aID].X / CELL_SIZE_PX - 1;
+      CornerY := Loc.Y + (R.Pivot[aID].Y + R.Size[aID].Y) / CELL_SIZE_PX - 1
                        - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
       fRenderList.AddSprite(rxHouses, aID, CornerX, CornerY);
     end;
@@ -737,18 +737,7 @@ end;
 
 procedure TRenderPool.AddHouseMarketSupply(Loc: TKMPoint; ResType: TResourceType; ResCount:word; AnimStep: Integer);
 var i,ID: Integer;
-
-  procedure AddHouseSupplySprite(aID: Integer);
-  var CornerX,CornerY: Single;
-  begin
-    if aID <> 0 then
-    begin
-      CornerX := Loc.X + (fRXData[rxGame].Pivot[aID].x + MarketWaresOffsetX)/CELL_SIZE_PX;
-      CornerY := Loc.Y + (fRXData[rxGame].Pivot[aID].y + MarketWaresOffsetY+fRXData[rxGame].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-      fRenderList.AddSprite(rxGame, aID, CornerX, CornerY);
-    end;
-  end;
-
+  CornerX,CornerY: Single; R: TRXData;
 begin
   if ResType = rt_Horse then //Horses are a beast, BeastID is the count, age is 1
     for i:=1 to Min(ResCount, MarketWares[ResType].Count) do //Render each beast
@@ -757,7 +746,13 @@ begin
   begin
     if MarketWares[ResType].Count = 0 then exit;
     ID := (MarketWares[ResType].TexStart-1) + Min(ResCount, MarketWares[ResType].Count);
-    AddHouseSupplySprite(ID);
+    if ID = 0 then Exit;
+
+    R := fRXData[rxGame];
+    CornerX := Loc.X + (R.Pivot[ID].X + MarketWaresOffsetX) / CELL_SIZE_PX - 1;
+    CornerY := Loc.Y + (R.Pivot[ID].Y + MarketWaresOffsetY + R.Size[ID].Y) / CELL_SIZE_PX - 1
+                     - fTerrain.Land[Loc.Y+1,Loc.X].Height / CELL_HEIGHT_DIV;
+    fRenderList.AddSprite(rxGame, ID, CornerX, CornerY);
   end;
 end;
 
@@ -774,8 +769,8 @@ begin
   BA := fResource.HouseDat.BeastAnim[aHouse,BeastID,BeastAge];
 
   ID := BA.Step[AnimStep mod BA.Count + 1] + 1;
-  CornerX := Loc.X + (BA.MoveX + R.Pivot[ID].X) / CELL_SIZE_PX;
-  CornerY := Loc.Y + (BA.MoveY + R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
+  CornerX := Loc.X + (BA.MoveX + R.Pivot[ID].X) / CELL_SIZE_PX - 1;
+  CornerY := Loc.Y + (BA.MoveY + R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1
                    - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
   fRenderList.AddSprite(aRX, ID, CornerX, CornerY);
 end;

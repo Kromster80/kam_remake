@@ -62,7 +62,7 @@ end;
 
 
 {Used for internal things like overlays, etc..}
-procedure TRenderAux.RenderQuad(pX,pY:integer);
+procedure TRenderAux.RenderQuad(pX,pY:Integer);
 begin
   if not fTerrain.TileInMapCoords(pX,pY) then exit;
 
@@ -76,25 +76,25 @@ begin
 end;
 
 
-procedure TRenderAux.Circle(x,y,rad:single; Fill,Line:TColor4);
-const SEC_COUNT=20;
-var i:integer;
+procedure TRenderAux.Circle(X,Y,Rad: Single; Fill,Line: TColor4);
+const SEC_COUNT = 20;
+var I: Integer;
 begin
   glPushMatrix;
-    glTranslatef(x,y,0);
+    glTranslatef(X,Y,0);
     glColor4ubv(@Fill);
     glBegin(GL_POLYGON);
-      for i:=-SEC_COUNT to SEC_COUNT do
-        glvertex3f(cos(i/SEC_COUNT*pi)*rad,sin(i/SEC_COUNT*pi)*rad,0);//-1..1
+      for I := -SEC_COUNT to SEC_COUNT do
+        glVertex3f(Cos(I/SEC_COUNT*pi)*Rad, Sin(I/SEC_COUNT*pi)*Rad,0);//-1..1
     glEnd;
     glBegin(GL_POLYGON);
-      for i:=-SEC_COUNT to SEC_COUNT do
-        glvertex3f(cos(i/SEC_COUNT*pi)*rad/3,sin(i/SEC_COUNT*pi)*rad/3,0);//-1..1
+      for I := -SEC_COUNT to SEC_COUNT do
+        glVertex3f(Cos(I/SEC_COUNT*pi)*Rad/3, Sin(I/SEC_COUNT*pi)*Rad/3,0);//-1..1
     glEnd;
     glColor4ubv(@Line);
     glBegin(GL_LINE_STRIP);
-      for i:=-SEC_COUNT to SEC_COUNT do
-        glvertex3f(cos(i/SEC_COUNT*pi)*rad,sin(i/SEC_COUNT*pi)*rad,0);//-1..1
+      for I := -SEC_COUNT to SEC_COUNT do
+        glVertex3f(Cos(I/SEC_COUNT*pi)*Rad, Sin(I/SEC_COUNT*pi)*Rad,0);//-1..1
     glEnd;
   glPopMatrix;
 end;

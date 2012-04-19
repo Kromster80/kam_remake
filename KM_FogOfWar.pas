@@ -142,6 +142,14 @@ begin
     Exit;
   end;
 
+  if (aPoint.X < 0) or (aPoint.X > MapX - 1)
+  or (aPoint.Y < 0) or (aPoint.Y > MapY - 1) then
+  begin
+    Result := 0;
+    Exit;
+  end;
+
+
   //Interpolate as follows:
   //A-B
   //C-D

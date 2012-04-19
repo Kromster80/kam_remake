@@ -315,7 +315,9 @@ end;
 
 
 procedure TKMUnitCitizen.Paint;
-var Act:TUnitActionType; XPaintPos, YPaintPos: single;
+var
+  Act: TUnitActionType;
+  XPaintPos, YPaintPos: single;
 begin
   inherited;
   if not fVisible then exit;
@@ -912,7 +914,9 @@ end;
 
 //For fish the action is the number of fish in the group
 procedure TKMUnitAnimal.Paint;
-var Act:TUnitActionType;
+var
+  Act: TUnitActionType;
+  XPaintPos, YPaintPos: single;
 begin
   inherited;
   if fCurrentAction = nil then exit;
@@ -921,12 +925,17 @@ begin
   else
     Act := fCurrentAction.fActionType;
 
+  XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
+  YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
+
   //Make fish/watersnakes to be more visible in the MapEd
   if (fGame.GameState = gsEditor) and (fUnitType in [ut_Fish, ut_Watersnake, ut_Seastar]) then
-    fRenderAux.Circle(fPosition.X-0.5, fPosition.Y - fTerrain.HeightAt(fPosition.X+0.5,fPosition.Y+1)/CELL_HEIGHT_DIV - 0.5, 0.5, $30FF8000, $60FF8000);
+    fRenderAux.Circle(fPosition.X - 0.5,
+                      fPosition.Y - fTerrain.HeightAt(fPosition.X - 0.5, fPosition.Y - 0.5) / CELL_HEIGHT_DIV - 0.5,
+                      0.5, $30FF8000, $60FF8000);
 
   //Animals share the same WalkTo logic as other units and they exchange places if necessary
-  fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, True);
+  fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, $FFFFFFFF, True);
 end;
 
 
