@@ -982,6 +982,7 @@ end;
 procedure TRenderPool.RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
 var
   Lay, TopLay: Byte;
+  F: TColor4;
 begin
   //If there's AltID - render 2 layers instead of ordinary 1
   TopLay := 1 + Byte(GFXData[aRX,aID].AltID <> 0);
@@ -996,7 +997,12 @@ begin
     end else
     if (Lay = 2) and (aFOW <> 0) then  //Don't render colorflags if they aren't visible cos of FOW
     begin
-      glColor4ubv(@Col);
+      //Multiply RGB component of flag color by FOW
+      F := ((Col and $FF) * aFOW shr 8) or
+           ((((Col shr 8) and $FF) * aFOW shr 8) shl 8) or
+           ((((Col shr 16) and $FF) * aFOW shr 8) shl 16) or
+           Col and $FF000000;
+      glColor4ubv(@F);
       glBindTexture(GL_TEXTURE_2D, AltID);
     end;
 
