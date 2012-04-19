@@ -800,7 +800,7 @@ var
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   ID := A.Step[StepID mod A.Count + 1] + 1;
-  ID0 := A.Step[1] + 1;
+  ID0 := A.Step[UnitStillFrames[aDir] mod A.Count + 1] + 1;
   if ID <= 0 then exit;
   R := fRXData[rxUnits];
 
@@ -901,7 +901,7 @@ begin
   //Unit position
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   IDUnit := A.Step[UnitAnim mod A.Count + 1] + 1;
-  ID0 := A.Step[1] + 1;
+  ID0 := A.Step[UnitStillFrames[aDir] mod A.Count+1] + 1;
   if IDUnit <= 0 then Exit;
 
   CornerX := pX + R.Pivot[IDUnit].X / CELL_SIZE_PX;
@@ -1314,12 +1314,13 @@ begin
                 else
                   RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, (fTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
     cm_Objects: begin
-                  RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true); //Make entire object red
+                  //If there's object below - paint it in Red
+                  RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true);
                   RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);
                 end;
     cm_Height:  fRenderAux.Circle(GameCursor.Float.X,GameCursor.Float.Y - fTerrain.HeightAt(GameCursor.Float)/CELL_HEIGHT_DIV, (GameCursor.Tag1 and $F) div 2, $00000000,  $FFFFFFFF);
     cm_Units:   if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
-                  AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true)
+                  AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],GameCursor.Cell.X-0.5,GameCursor.Cell.Y,MyPlayer.FlagColor,true)
                 else
                   RenderCursorBuildIcon(GameCursor.Cell);       //Red X
   end;

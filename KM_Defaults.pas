@@ -599,7 +599,7 @@ type
 
 //The frame shown when a unit is standing still in ua_Walk. Same for all units!
 const
-  UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
+  UnitStillFrames: array [TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
 
   
 type
