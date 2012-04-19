@@ -453,6 +453,7 @@ procedure TRenderPool.AddProjectile(aProj: TProjectileType; aPos: TKMPointF; aDi
 var
   FOW: Byte;
   ID: Integer;
+  R: TRXData;
   CornerX,CornerY: Single;
   Ground: Single;
 begin
@@ -473,16 +474,18 @@ begin
     else          ID := 1; //Nothing?
   end;
 
-  CornerX := fRXData[rxUnits].Pivot[ID].x / CELL_SIZE_PX;
-  CornerY := (fRXData[rxUnits].Pivot[ID].y + fRXData[rxUnits].Size[ID].Y) / CELL_SIZE_PX;
+  R := fRXData[rxUnits];
+
+  CornerX := R.Pivot[ID].x / CELL_SIZE_PX - 1;
+  CornerY := (R.Pivot[ID].y + R.Size[ID].Y) / CELL_SIZE_PX - 1;
 
   case aProj of
-    pt_Arrow, pt_Bolt, pt_SlingRock:  Ground := aPos.Y + (0.5 - Abs(Min(aFlight, 1) - 0.5)) + 0.5;
-    pt_TowerRock:                     Ground := aPos.Y + (1 - Min(aFlight, 1)) + 0.5;
-    else                              Ground := aPos.Y; //Nothing?
+    pt_Arrow, pt_Bolt, pt_SlingRock:  Ground := aPos.Y + (0.5 - Abs(Min(aFlight, 1) - 0.5)) - 0.5;
+    pt_TowerRock:                     Ground := aPos.Y + (1 - Min(aFlight, 1)) - 0.5;
+    else                              Ground := aPos.Y - 1; //Nothing?
   end;
 
-  fRenderList.AddSprite(rxUnits, ID, aPos.X + CornerX, aPos.Y + CornerY, aPos.X, Ground);
+  fRenderList.AddSprite(rxUnits, ID, aPos.X + CornerX, aPos.Y + CornerY, aPos.X - 1, Ground);
 end;
 
 
