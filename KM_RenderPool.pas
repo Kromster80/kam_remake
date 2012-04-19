@@ -476,8 +476,8 @@ begin
 
   R := fRXData[rxUnits];
 
-  CornerX := R.Pivot[ID].x / CELL_SIZE_PX - 1;
-  CornerY := (R.Pivot[ID].y + R.Size[ID].Y) / CELL_SIZE_PX - 1;
+  CornerX := R.Pivot[ID].X / CELL_SIZE_PX - 1;
+  CornerY := (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1;
 
   case aProj of
     pt_Arrow, pt_Bolt, pt_SlingRock:  Ground := aPos.Y + (0.5 - Abs(Min(aFlight, 1) - 0.5)) - 0.5;
@@ -651,7 +651,7 @@ begin
   gY := Loc.Y + Max(gW, gS) / CELL_SIZE_PX - 1;
   CornerX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX;
   CornerY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
-                   - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
+                   - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
   fRenderList.AddSprite(rxHouses, ID, CornerX, CornerY, gX, gY, $0, Step);
 end;
 
