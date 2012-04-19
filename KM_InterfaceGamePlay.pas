@@ -354,7 +354,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure SaveMapview(SaveStream: TKMemoryStream);
     procedure LoadMapview(LoadStream: TKMemoryStream);
-    procedure UpdateState; override;
+    procedure UpdateState(aTickCount: Cardinal); override;
   end;
 
 
@@ -3607,11 +3607,11 @@ end;
 
 {Should update any items changed by game (resource counts, hp, etc..)}
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
-procedure TKMGamePlayInterface.UpdateState;
+procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var I: Integer; S: string;
 begin
   //Every 1000ms
-  if fGame.GlobalTickCount mod 10 = 0 then
+  if aTickCount mod 10 = 0 then
     if (fGame.GameState in [gsRunning, gsReplay]) then
       fMapView.Update(False);
 
@@ -3675,7 +3675,7 @@ begin
   end;
 
   //Flash unread message display
-  Label_MPChatUnread.Visible := fGame.MultiplayerMode and (Label_MPChatUnread.Caption <> '') and not (fGame.GlobalTickCount mod 10 < 5);
+  Label_MPChatUnread.Visible := fGame.MultiplayerMode and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
 

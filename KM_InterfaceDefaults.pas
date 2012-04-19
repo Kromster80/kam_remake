@@ -25,7 +25,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual;
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure UpdateState; virtual; abstract;
+    procedure UpdateState(aTickCount: Cardinal); virtual; abstract;
     procedure Paint;
   end;
 

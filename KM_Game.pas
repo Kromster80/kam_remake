@@ -130,7 +130,6 @@ type
     function IsPeaceTime:boolean;
     procedure UpdatePeaceTime;
     property GameTickCount:cardinal read fGameTickCount;
-    property GlobalTickCount:cardinal read fGlobalTickCount;
     property GameName:string read fGameName;
     property MultiplayerMode:boolean read fMultiplayerMode;
     property ReplayMode:boolean read fReplayMode;
@@ -1533,7 +1532,7 @@ end;
 
 
 procedure TKMGame.UpdateGame(Sender: TObject);
-var I: Integer; T: Cardinal;
+var T: Cardinal;
 begin
   case fGameState of
     gsPaused:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
@@ -1632,7 +1631,7 @@ begin
     gsOnHold:   ;
     gsNoGame:   begin
                   if fNetworking <> nil then fNetworking.UpdateState(fGlobalTickCount); //Measures pings
-                  fMainMenuInterface.UpdateState;
+                  fMainMenuInterface.UpdateState(fGlobalTickCount);
                 end;
     gsRunning:  begin
                   if fMultiplayerMode then fNetworking.UpdateState(fGlobalTickCount); //Measures pings
@@ -1640,15 +1639,15 @@ begin
                     SendMPGameInfo(Self); //Send status to the server every 10 seconds
 
                   //Update minimap
-                  fGamePlayInterface.UpdateState;
+                  fGamePlayInterface.UpdateState(fGlobalTickCount);
                 end;
     gsReplay:   begin
                   //Update minimap
-                  fGamePlayInterface.UpdateState;
+                  fGamePlayInterface.UpdateState(fGlobalTickCount);
                 end;
     gsEditor:   begin
                   //Update minimap
-                  fMapEditorInterface.UpdateState;
+                  fMapEditorInterface.UpdateState(fGlobalTickCount);
                 end;
   end;
 
@@ -1660,8 +1659,7 @@ begin
       fMusicLib.PlayNextTrack; //Feed new music track
 
     //StatusBar
-    if (fGameState in [gsRunning, gsReplay]) then
-    if Assigned(OnCursorUpdate) then
+    if (fGameState in [gsRunning, gsReplay]) and Assigned(OnCursorUpdate) then
       OnCursorUpdate(2, 'Time: ' + FormatDateTime('hh:nn:ss', GetMissionTime));
   end;
 end;

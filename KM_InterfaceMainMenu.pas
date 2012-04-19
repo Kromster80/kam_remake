@@ -327,7 +327,7 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
-    procedure UpdateState; override;
+    procedure UpdateState(aTickCount: Cardinal); override;
   end;
 
 
@@ -3279,7 +3279,7 @@ end;
 
 
 //Should update anything we want to be updated, obviously
-procedure TKMMainMenuInterface.UpdateState;
+procedure TKMMainMenuInterface.UpdateState(aTickCount: Cardinal);
 begin
   //
 end;

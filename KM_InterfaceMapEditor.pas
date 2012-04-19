@@ -196,7 +196,7 @@ type
     function GetShownPage: TKMMapEdShownPage;
     procedure SetTileDirection(aTileDirection: byte);
     procedure SetLoadMode(aMultiplayer:boolean);
-    procedure UpdateState; override;
+    procedure UpdateState(aTickCount: Cardinal); override;
   end;
 
 
@@ -893,10 +893,10 @@ end;
 
 {Should update any items changed by game (resource counts, hp, etc..)}
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
-procedure TKMapEdInterface.UpdateState;
+procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 begin
   //Every 1000ms
-  if fGame.GlobalTickCount mod 10 = 0 then
+  if aTickCount mod 10 = 0 then
     fMapView.Update(False);
 
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
