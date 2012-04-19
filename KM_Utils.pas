@@ -40,18 +40,6 @@ begin
 end;
 
 
-function int2fix(Number,Len:integer):string;
-var ss:string; x:byte;
-begin
-  ss := inttostr(Number);
-  for x:=length(ss) to Len-1 do
-    ss := '0' + ss;
-  if length(ss)>Len then
-    ss:='**********';//ss[99999999]:='0'; //generating an error in lame way
-  setlength(ss, Len);
-  Result := ss;
-end;
-
 //This is a fake GetTickCount for Linux (Linux does not have one)
 {$IFDEF Unix}
 function FakeGetTickCount: DWord;
@@ -59,20 +47,6 @@ begin
   Result := DWord(Trunc(Now * 24 * 60 * 60 * 1000));
 end;
 {$ENDIF}
-
-
-//Look for last dot and truncate it
-function TruncateExt(FileName:string): string;
-var i:word; DotPlace:word;
-begin
-
-  DotPlace := length(FileName) + 1; //In case there's no Extension
-  for i:=1 to length(FileName) do
-    if FileName[i] = '.' then //FileExtension separator is always a .
-      DotPlace := i;
-
-  Result := Copy(FileName, 1, DotPlace - 1);
-end;
 
 
 function KMGetCursorDirection(X,Y: integer): TKMDirection;

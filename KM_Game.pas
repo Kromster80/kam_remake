@@ -30,7 +30,8 @@ type
     fFormPassability:integer;
     fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fGlobalTickCount:cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
-    fTimer: TTimer;
+    fTimerGame: TTimer;
+    fTimerUI: TTimer;
     fGameSpeed:word;
     fGameState:TGameState;
     fMultiplayerMode:boolean;
@@ -160,6 +161,7 @@ type
     procedure PrintScreen;
 
     procedure Render;
+    procedure UpdateGame(Sender: TObject);
     procedure UpdateState(Sender: TObject);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
   end;
@@ -215,10 +217,15 @@ begin
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
   fActiveInterface := fMainMenuInterface;
 
-  fTimer := TTimer.Create(nil);
-  fTimer.Interval := fGameSettings.SpeedPace;
-  fTimer.OnTimer := UpdateState;
-  fTimer.Enabled := True;
+  fTimerGame := TTimer.Create(nil);
+  fTimerGame.Interval := fGameSettings.SpeedPace;
+  fTimerGame.OnTimer := UpdateGame;
+  fTimerGame.Enabled := True;
+
+  fTimerUI := TTimer.Create(nil);
+  fTimerUI.Interval := 100;
+  fTimerUI.OnTimer := UpdateState;
+  fTimerUI.Enabled := True;
 
   //Start the Music playback as soon as loading is complete
   if (not NoMusic) and not fGameSettings.MusicOff then
@@ -243,12 +250,14 @@ end;
 { Destroy what was created }
 destructor TKMGame.Destroy;
 begin
-  fTimer.Enabled := False;
+  fTimerGame.Enabled := False;
+  fTimerUI.Enabled := False;
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
   fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
 
   fCampaigns.SaveProgress(ExeDir + 'Saves\Campaigns.dat');
-  FreeAndNil(fTimer);
+  FreeAndNil(fTimerGame);
+  FreeAndNil(fTimerUI);
   FreeThenNil(fCampaigns);
   if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeThenNil(fGameSettings);
@@ -406,7 +415,7 @@ end;
 
 procedure TKMGame.GameInit(aMultiplayerMode: Boolean);
 begin
-  fGameSpeed := 1; //In case it was set in last run mission
+  SetGameSpeed(1); //In case it was set in last run mission
   PlayOnState := gr_Cancel;
   SkipReplayEndCheck := False; //Reset before each mission
   fMultiplayerMode := aMultiplayerMode;
@@ -881,16 +890,22 @@ begin
 end;
 
 
-procedure TKMGame.GameWaitingForNetwork(aWaiting:boolean);
+//Display the overlay "Waiting for players"
+procedure TKMGame.GameWaitingForNetwork(aWaiting: Boolean);
 var WaitingPlayers: TStringList;
 begin
   fWaitingForNetwork := aWaiting;
 
   WaitingPlayers := TStringList.Create;
   case fNetworking.NetGameState of
-    lgs_Game,lgs_Reconnecting:    TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers); //GIP is waiting for next tick
-    lgs_Loading: fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers); //We are waiting during inital loading
-    else assert(false, 'GameWaitingForNetwork from wrong state '+GetEnumName(TypeInfo(TNetGameState), Integer(fNetworking.NetGameState)));
+    lgs_Game, lgs_Reconnecting:
+        //GIP is waiting for next tick
+        TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers);
+    lgs_Loading:
+        //We are waiting during inital loading
+        fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers);
+    else
+        Assert(false, 'GameWaitingForNetwork from wrong state '+GetEnumName(TypeInfo(TNetGameState), Integer(fNetworking.NetGameState)));
   end;
 
   fGamePlayInterface.ShowNetworkLag(aWaiting, WaitingPlayers, fNetworking.IsHost);
@@ -998,7 +1013,7 @@ begin
   fLog.AppendLog('Starting Map Editor');
 
   SetKaMSeed(4); //Every time MapEd will be the same as previous. Good for debug.
-  fGameSpeed := 1; //In case it was set in last run mission
+  SetGameSpeed(1); //In case it was set in last run mission
   fMultiplayerMode := false;
 
   //Load the resources if necessary
@@ -1295,7 +1310,10 @@ begin
   else
     fGameSpeed := aSpeed;
 
-  fGamePlayInterface.ShowClock(fGameSpeed);
+  fTimerGame.Interval := Round(fGameSettings.SpeedPace / fGameSpeed);
+
+  if fGamePlayInterface <> nil then
+    fGamePlayInterface.ShowClock(fGameSpeed);
 end;
 
 
@@ -1514,108 +1532,81 @@ begin
 end;
 
 
-procedure TKMGame.UpdateState(Sender: TObject);
+procedure TKMGame.UpdateGame(Sender: TObject);
 var I: Integer; T: Cardinal;
 begin
-  Inc(fGlobalTickCount);
   case fGameState of
     gsPaused:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
     gsOnHold:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
-    gsNoGame:   begin
-                  if fNetworking <> nil then fNetworking.UpdateState(fGlobalTickCount); //Measures pings
-                  fMainMenuInterface.UpdateState;
-                end;
+    gsNoGame:   ;
     gsRunning:  begin
-                  if fMultiplayerMode then fNetworking.UpdateState(fGlobalTickCount); //Measures pings
-                  if fMultiplayerMode and (fGameTickCount mod 100 = 0) then
-                    SendMPGameInfo(Self); //Send status to the server every 10 seconds
                   if not fMultiplayerMode or (fNetworking.NetGameState <> lgs_Loading) then
-                  begin
                   try //Catch exceptions during update state
-
-                    for i:=1 to fGameSpeed do
+                    if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
                     begin
-                      if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
-                      begin
-                        T := TimeGet;
+                      T := TimeGet;
 
-                        if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
-                        inc(fGameTickCount); //Thats our tick counter for gameplay events
-                        if fMultiplayerMode then fNetworking.LastProcessedTick := fGameTickCount;
-                        fEventsManager.ProcTime(fGameTickCount);
-                        UpdatePeacetime; //Send warning messages about peacetime if required
-                        fTerrain.UpdateState;
-                        fPlayers.UpdateState(fGameTickCount); //Quite slow
-                        if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
-                        fProjectiles.UpdateState; //If game has stopped it's NIL
-
-                        fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
-                        //In aggressive mode store a command every tick so we can find exactly when a replay mismatch occurs
-                        if AGGRESSIVE_REPLAYS then
-                          fGameInputProcess.CmdTemp(gic_TempDoNothing);
-
-                        //Each 1min of gameplay time
-                        //Don't autosave if the game was put on hold during this tick
-                        if (fGameTickCount mod 600 = 0) and fGameSettings.Autosave and not (GameState = gsOnHold) then
-                          AutoSave;
-
-                        fPerfLog.AddTime(TimeGet - T);
-
-                        //During this tick we were requested to GameHold
-                        if DoGameHold then break; //Break the for loop (if we are using speed up)
-                      end
-                      else
-                      begin
-                        fGameInputProcess.WaitingForConfirmation(fGameTickCount);
-                        if TGameInputProcess_Multi(fGameInputProcess).GetNumberConsecutiveWaits > 5 then
-                          GameWaitingForNetwork(true);
-                      end;
-                      fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
-                    end;
-
-                  except
-                    //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                    on E : ELocError do
-                    begin
-                      GameError(E.Loc, E.ClassName+': '+E.Message);
-                      Exit; //Exit because the game could have been stopped
-                    end;
-                    on E : Exception do
-                    begin
-                      GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
-                      Exit; //Exit because the game could have been stopped
-                    end;
-                  end;
-                  end;
-                  fGamePlayInterface.UpdateState;
-                end;
-    gsReplay:   begin
-                  try //Catch exceptions during update state
-
-                    for i:=1 to fGameSpeed do
-                    begin
+                      if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                       inc(fGameTickCount); //Thats our tick counter for gameplay events
+                      if fMultiplayerMode then fNetworking.LastProcessedTick := fGameTickCount;
+                      fEventsManager.ProcTime(fGameTickCount);
+                      UpdatePeacetime; //Send warning messages about peacetime if required
                       fTerrain.UpdateState;
                       fPlayers.UpdateState(fGameTickCount); //Quite slow
                       if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                       fProjectiles.UpdateState; //If game has stopped it's NIL
 
-                      //Issue stored commands
-                      fGameInputProcess.ReplayTimer(fGameTickCount);
-                      if fGameState = gsNoGame then exit; //Quit if the game was stopped by a replay mismatch
-                      if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
-                        RequestGameHold(gr_ReplayEnd);
+                      fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
+                      //In aggressive mode store a command every tick so we can find exactly when a replay mismatch occurs
+                      if AGGRESSIVE_REPLAYS then
+                        fGameInputProcess.CmdTemp(gic_TempDoNothing);
 
-                      if fAdvanceFrame then begin
-                        fAdvanceFrame := false;
-                        SetGameState(gsPaused);
-                      end;
+                      //Each 1min of gameplay time
+                      //Don't autosave if the game was put on hold during this tick
+                      if (fGameTickCount mod 600 = 0) and fGameSettings.Autosave and not (GameState = gsOnHold) then
+                        AutoSave;
 
-                      //During this tick we were requested to GameHold
-                      if DoGameHold then break; //Break the for loop (if we are using speed up)
+                      fPerfLog.AddTime(TimeGet - T);
+                    end
+                    else
+                    begin
+                      fGameInputProcess.WaitingForConfirmation(fGameTickCount);
+                      if TGameInputProcess_Multi(fGameInputProcess).GetNumberConsecutiveWaits > 5 then
+                        GameWaitingForNetwork(true);
                     end;
+                    fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
+                  except
+                    //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+                    on E: ELocError do
+                    begin
+                      GameError(E.Loc, E.ClassName+': '+E.Message);
+                      Exit; //Exit because the game could have been stopped
+                    end;
+                    on E: Exception do
+                    begin
+                      GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
+                      Exit; //Exit because the game could have been stopped
+                    end;
+                  end;
+                end;
+    gsReplay:   begin
+                  try //Catch exceptions during update state
+                    inc(fGameTickCount); //Thats our tick counter for gameplay events
+                    fTerrain.UpdateState;
+                    fPlayers.UpdateState(fGameTickCount); //Quite slow
+                    if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
+                    fProjectiles.UpdateState; //If game has stopped it's NIL
 
-                    fGamePlayInterface.UpdateState;
+                    //Issue stored commands
+                    fGameInputProcess.ReplayTimer(fGameTickCount);
+                    if fGameState = gsNoGame then exit; //Quit if the game was stopped by a replay mismatch
+                    if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
+                      RequestGameHold(gr_ReplayEnd);
+
+                    if fAdvanceFrame then begin
+                      fAdvanceFrame := false;
+                      SetGameState(gsPaused);
+                    end;
 
                   except
                     //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
@@ -1624,11 +1615,42 @@ begin
                   end;
                 end;
     gsEditor:   begin
-                  fMapEditorInterface.UpdateState;
                   fTerrain.IncAnimStep;
                   fPlayers.IncAnimStep;
                 end;
-    end;
+  end;
+
+  if DoGameHold then GameHold(true,DoGameHoldState);
+end;
+
+
+procedure TKMGame.UpdateState(Sender: TObject);
+begin
+  Inc(fGlobalTickCount);
+  case fGameState of
+    gsPaused:   ;
+    gsOnHold:   ;
+    gsNoGame:   begin
+                  if fNetworking <> nil then fNetworking.UpdateState(fGlobalTickCount); //Measures pings
+                  fMainMenuInterface.UpdateState;
+                end;
+    gsRunning:  begin
+                  if fMultiplayerMode then fNetworking.UpdateState(fGlobalTickCount); //Measures pings
+                  if fMultiplayerMode and (fGlobalTickCount mod 100 = 0) then
+                    SendMPGameInfo(Self); //Send status to the server every 10 seconds
+
+                  //Update minimap
+                  fGamePlayInterface.UpdateState;
+                end;
+    gsReplay:   begin
+                  //Update minimap
+                  fGamePlayInterface.UpdateState;
+                end;
+    gsEditor:   begin
+                  //Update minimap
+                  fMapEditorInterface.UpdateState;
+                end;
+  end;
 
   //Every 1000ms
   if fGlobalTickCount mod 10 = 0 then
@@ -1642,7 +1664,6 @@ begin
     if Assigned(OnCursorUpdate) then
       OnCursorUpdate(2, 'Time: ' + FormatDateTime('hh:nn:ss', GetMissionTime));
   end;
-  if DoGameHold then GameHold(true,DoGameHoldState);
 end;
 
 

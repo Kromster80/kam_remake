@@ -3608,7 +3608,7 @@ end;
 {Should update any items changed by game (resource counts, hp, etc..)}
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMGamePlayInterface.UpdateState;
-var i:Integer; S:String;
+var I: Integer; S: string;
 begin
   //Every 1000ms
   if fGame.GlobalTickCount mod 10 = 0 then
