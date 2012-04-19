@@ -1137,26 +1137,26 @@ end;
 
 
 procedure TKMHouse.Paint;
+var H: TKMHouseDatClass;
 begin
+  H := fResource.HouseDat[fHouseType];
   case fBuildState of
     hbs_NoGlyph:; //Nothing
     hbs_Wood:   begin
-                  fRenderPool.AddHouseWood(fHouseType,
-                    fBuildingProgress/50/fResource.HouseDat[fHouseType].WoodCost, //0...1 range
-                    fPosition);
-                  fRenderPool.AddHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
+                  fRenderPool.AddHouseWood(fHouseType, fPosition,
+                    fBuildingProgress/50/H.WoodCost); //0...1 range
+                  fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     hbs_Stone:  begin
-                  fRenderPool.AddHouseStone(fHouseType,
-                    (fBuildingProgress/50-fResource.HouseDat[fHouseType].WoodCost)/fResource.HouseDat[fHouseType].StoneCost, //0...1 range
-                    fPosition);
-                  fRenderPool.AddHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
+                  fRenderPool.AddHouseStone(fHouseType, fPosition,
+                    (fBuildingProgress/50-H.WoodCost)/H.StoneCost); //0...1 range
+                  fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     else        begin
-                  fRenderPool.AddHouseStone(fHouseType, 1, fPosition);
-                  fRenderPool.AddHouseSupply(fHouseType, fResourceIn, fResourceOut, fPosition);
+                  fRenderPool.AddHouseStone(fHouseType, fPosition, 1);
+                  fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
                   if fCurrentAction <> nil then
-                    fRenderPool.AddHouseWork(fHouseType, fCurrentAction.SubAction, WorkAnimStep, fPosition, fPlayers.Player[fOwner].FlagColor);
+                    fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, fPlayers.Player[fOwner].FlagColor);
                 end;
   end;
 
@@ -1231,13 +1231,13 @@ begin
   if fBuildState=hbs_Done then
     for i:=1 to 5 do
       if BeastAge[i]>0 then
-        fRenderPool.AddHouseStableBeasts(fHouseType, i, min(BeastAge[i],3), WorkAnimStep, fPosition);
+        fRenderPool.AddHouseStableBeasts(fHouseType, fPosition, i, min(BeastAge[i],3), WorkAnimStep);
 
   //But Animal Breeders should be on top of beasts
   if fCurrentAction<>nil then
-    fRenderPool.AddHouseWork(fHouseType,
+    fRenderPool.AddHouseWork(fHouseType, fPosition,
                             fCurrentAction.SubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5],
-                            WorkAnimStep,fPosition,fPlayers.Player[fOwner].FlagColor);
+                            WorkAnimStep, fPlayers.Player[fOwner].FlagColor);
 end;
 
 
@@ -1343,9 +1343,10 @@ begin
 
     AnimStep := FlagAnimStep - Eater[i].EatStep; //Delta is our AnimStep
 
-    fRenderPool.AddHouseEater(Eater[i].UnitType, ua_Eat, AnimDir(i), AnimStep, fPosition,
-                        OffX[(i-1) mod 3],
-                        OffY[(i-1) mod 3], fPlayers.Player[fOwner].FlagColor);
+    fRenderPool.AddHouseEater(fPosition, Eater[i].UnitType, ua_Eat,
+                              AnimDir(i), AnimStep,
+                              OffX[(i-1) mod 3], OffY[(i-1) mod 3],
+                              fPlayers.Player[fOwner].FlagColor);
   end;
 end;
 
@@ -1606,7 +1607,7 @@ begin
   //Render special market wares display
   if fBuildState = hbs_Done then
     if GetInResource(ResType, ResCount) then
-      fRenderPool.AddMarketSupply(ResType,ResCount,fPosition,FlagAnimStep); //FlagAnimStep is required for horses
+      fRenderPool.AddHouseMarketSupply(fPosition,ResType,ResCount,FlagAnimStep); //FlagAnimStep is required for horses
 end;
 
 
