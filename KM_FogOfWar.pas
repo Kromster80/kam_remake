@@ -153,10 +153,10 @@ begin
   //Interpolate as follows:
   //A-B
   //C-D
-  A := CheckVerticeRevelation(Trunc(aPoint.X), Trunc(aPoint.Y), aSkipForReplay);
-  B := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y), aSkipForReplay);
-  C := CheckVerticeRevelation(Trunc(aPoint.X), Trunc(aPoint.Y)+1, aSkipForReplay);
-  D := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y)+1, aSkipForReplay);
+  A := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y)+1, aSkipForReplay);
+  B := CheckVerticeRevelation(Trunc(aPoint.X)+2, Trunc(aPoint.Y)+1, aSkipForReplay);
+  C := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y)+2, aSkipForReplay);
+  D := CheckVerticeRevelation(Trunc(aPoint.X)+2, Trunc(aPoint.Y)+2, aSkipForReplay);
 
   Y1 := Round(A + (B - A) * Frac(aPoint.X));
   Y2 := Round(C + (D - C) * Frac(aPoint.X));

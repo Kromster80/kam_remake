@@ -378,7 +378,7 @@ const //Corresponding indices in units.rx
   );
 
   UNIT_OFF_X = -0.5;
-  UNIT_OFF_Y = -0.25;
+  UNIT_OFF_Y = -0.3;
 
 type
   TUnitTaskName = ( utn_Unknown, //Uninitialized task to detect bugs

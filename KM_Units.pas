@@ -367,12 +367,12 @@ begin
     fPlayers.CleanUpHousePointer(fHome);
   end;
 
-  if Inherited UpdateState then exit;
+  if inherited UpdateState then exit;
   if IsDead then exit; //Caused by SelfTrain.Abandoned
 
   fThought := th_None;
 
-{  if fUnitTask=nil then //Which is always nil if 'Inherited UpdateState' works properly
+{  if fUnitTask=nil then //Which is always nil if 'inherited UpdateState' works properly
   if not TestHunger then
   if not TestHasHome then
   if not TestAtHome then
@@ -495,7 +495,7 @@ end;
 procedure TKMUnitRecruit.Paint;
 var Act:TUnitActionType; XPaintPos, YPaintPos: single;
 begin
-  Inherited;
+  inherited;
   if not fVisible then exit;
   if fCurrentAction = nil then exit;
   Act := fCurrentAction.fActionType;
@@ -552,7 +552,7 @@ begin
     fPlayers.CleanUpHousePointer(fHome);
   end;
 
-  if Inherited UpdateState then exit;
+  if inherited UpdateState then exit;
   if IsDead then exit; //Caused by SelfTrain.Abandoned
 
   fThought := th_None;
@@ -654,7 +654,7 @@ end;
 
 constructor TKMUnitSerf.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(fCarry, SizeOf(fCarry));
 end;
 
@@ -662,7 +662,7 @@ end;
 procedure TKMUnitSerf.Paint;
 var Act:TUnitActionType; XPaintPos, YPaintPos: single;
 begin
-  Inherited;
+  inherited;
   if not fVisible then exit;
   if fCurrentAction = nil then exit;
   Act := fCurrentAction.fActionType;
@@ -686,7 +686,7 @@ end;
 
 procedure TKMUnitSerf.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   SaveStream.Write(fCarry, SizeOf(fCarry));
 end;
 
@@ -700,7 +700,7 @@ begin
   Result:=true; //Required for override compatibility
   WasIdle := IsIdle;
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitSerf.UpdateState',fCurrPosition);
-  if Inherited UpdateState then exit;
+  if inherited UpdateState then exit;
 
   OldThought:=fThought;
   fThought:=th_None;
@@ -781,7 +781,7 @@ end;
 procedure TKMUnitWorker.Paint;
 var XPaintPos, YPaintPos: single;
 begin
-  Inherited;
+  inherited;
   if not fVisible then exit;
   if fCurrentAction = nil then exit;
 
@@ -801,7 +801,7 @@ var
 begin
   Result:=true; //Required for override compatibility
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitWorker.UpdateState',fCurrPosition);
-  if Inherited UpdateState then exit;
+  if inherited UpdateState then exit;
 
   if fCondition < UNIT_MIN_CONDITION then
   begin
@@ -826,37 +826,35 @@ end;
 constructor TKMUnitAnimal.Create(aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   inherited;
-  if aUnitType = ut_Fish then fFishCount := 5;  //Always start with 5 fish in the group
+
+  //Always start with 5 fish in the group
+  if aUnitType = ut_Fish then
+    fFishCount := 5;
 end;
 
 
-constructor TKMUnitAnimal.Load(LoadStream:TKMemoryStream);
+constructor TKMUnitAnimal.Load(LoadStream: TKMemoryStream);
 begin
-  Inherited;
-  LoadStream.Read(fFishCount)
+  inherited;
+  LoadStream.Read(fFishCount);
 end;
 
 
-function TKMUnitAnimal.ReduceFish:boolean;
+function TKMUnitAnimal.ReduceFish: Boolean;
 begin
-  Result := false;
-  if fUnitType <> ut_Fish then exit;
+  Result := fUnitType = ut_Fish;
+  if not Result then Exit;
+
   if fFishCount > 1 then
-  begin
-    fFishCount := fFishCount-1;
-    Result := true;
-  end
-  else if fFishCount = 1 then
-  begin
+    Dec(fFishCount)
+  else
     KillUnit;
-    Result := true;
-  end;
 end;
 
 
-procedure TKMUnitAnimal.Save(SaveStream:TKMemoryStream);
+procedure TKMUnitAnimal.Save(SaveStream: TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   SaveStream.Write(fFishCount);
 end;
 
@@ -942,7 +940,7 @@ end;
 { TKMUnit }
 constructor TKMUnit.Create(aOwner:TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
 begin
-  Inherited Create;
+  inherited Create;
   fID           := fGame.GetNewID;
   fPointerCount := 0;
   fIsDead       := false;
@@ -981,14 +979,14 @@ begin
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
   SetInHouse(nil); //Free pointer
-  Inherited;
+  inherited;
 end;
 
 
 constructor TKMUnit.Load(LoadStream:TKMemoryStream);
 var HasTask,HasAct:boolean; TaskName:TUnitTaskName; ActName: TUnitActionName;
 begin
-  Inherited Create;
+  inherited Create;
   LoadStream.Read(fUnitType, SizeOf(fUnitType));
   LoadStream.Read(HasTask);
   if HasTask then
@@ -1881,7 +1879,7 @@ end;
 { TUnitTask }
 constructor TUnitTask.Create(aUnit: TKMUnit);
 begin
-  Inherited Create;
+  inherited Create;
   fTaskName := utn_Unknown;
   Assert(aUnit <> nil);
   fUnit := aUnit.GetUnitPointer;
@@ -1893,7 +1891,7 @@ end;
 
 constructor TUnitTask.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited Create;
+  inherited Create;
   LoadStream.Read(fTaskName, SizeOf(fTaskName));
   LoadStream.Read(fUnit, 4);//Substitute it with reference on SyncLoad
   LoadStream.Read(fPhase);
@@ -1913,7 +1911,7 @@ begin
   fPlayers.CleanUpUnitPointer(fUnit);
   fPhase        := high(byte)-1; //-1 so that if it is increased on the next run it won't overrun before exiting
   fPhase2       := high(byte)-1;
-  Inherited;
+  inherited;
 end;
 
 
@@ -1938,7 +1936,7 @@ end;
 { TUnitAction }
 constructor TUnitAction.Create(aUnit: TKMUnit; aActionType: TUnitActionType; aLocked: Boolean);
 begin
-  Inherited Create;
+  inherited Create;
 
   //Unit who will be performing the action
   //Does not require pointer tracking because action should always be destroyed before the unit that owns it
@@ -1951,7 +1949,7 @@ end;
 
 constructor TUnitAction.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited Create;
+  inherited Create;
   LoadStream.Read(fActionType, SizeOf(fActionType));
   LoadStream.Read(fUnit, 4);
   LoadStream.Read(Locked);
@@ -2036,17 +2034,17 @@ begin
   end;
 
   case aUnitType of
-    ut_Serf:    U := Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
-    ut_Worker:  U := Inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Serf:    U := inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Worker:  U := inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
 
     ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                U := Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
+                U := inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_Recruit: U := Inherited Add(TKMUnitRecruit.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Recruit: U := inherited Add(TKMUnitRecruit.Create(aOwner,PosX,PosY,aUnitType));
 
-    WARRIOR_MIN..WARRIOR_MAX: U := Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
+    WARRIOR_MIN..WARRIOR_MAX: U := inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
 
-    ANIMAL_MIN..ANIMAL_MAX:   U := Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
+    ANIMAL_MIN..ANIMAL_MAX:   U := inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
 
     else                      raise ELocError.Create('Add '+fResource.UnitDat[aUnitType].UnitName,KMPoint(PosX, PosY));
   end;
@@ -2205,13 +2203,13 @@ begin
   begin
     LoadStream.Read(UnitType, SizeOf(UnitType));
     case UnitType of
-      ut_Serf:                  Inherited Add(TKMUnitSerf.Load(LoadStream));
-      ut_Worker:                Inherited Add(TKMUnitWorker.Load(LoadStream));
+      ut_Serf:                  inherited Add(TKMUnitSerf.Load(LoadStream));
+      ut_Worker:                inherited Add(TKMUnitWorker.Load(LoadStream));
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                                Inherited Add(TKMUnitCitizen.Load(LoadStream));
-      ut_Recruit:               Inherited Add(TKMUnitRecruit.Load(LoadStream));
-      WARRIOR_MIN..WARRIOR_MAX: Inherited Add(TKMUnitWarrior.Load(LoadStream));
-      ANIMAL_MIN..ANIMAL_MAX:   Inherited Add(TKMUnitAnimal.Load(LoadStream));
+                                inherited Add(TKMUnitCitizen.Load(LoadStream));
+      ut_Recruit:               inherited Add(TKMUnitRecruit.Load(LoadStream));
+      WARRIOR_MIN..WARRIOR_MAX: inherited Add(TKMUnitWarrior.Load(LoadStream));
+      ANIMAL_MIN..ANIMAL_MAX:   inherited Add(TKMUnitAnimal.Load(LoadStream));
       else fLog.AssertToLog(false, 'Unknown unit type in Savegame')
     end;
   end;

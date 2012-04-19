@@ -546,18 +546,24 @@ end;
 
 //4 objects packed on 1 tile for Corn and Grapes
 procedure TRenderPool.RenderObjectQuad(aIndex: Integer; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
-  procedure AddSpriteBy(aID: Integer; aAnimStep: Integer; pX,pY: Single);
-  var ID: Integer; CornerX, CornerY: Single; R: TRXData;
-  begin
-    R := fRXData[rxTrees];
-    //todo: This place looks fishy (no pivots)
-    ID := MapElem[aID].Step[aAnimStep mod MapElem[aID].Count + 1] + 1;
+var
+  R: TRXData;
 
+  procedure AddSpriteBy(aAnimStep: Integer; pX,pY: Single);
+  var
+    ID, ID0: Integer;
+    CornerX, CornerY, gX, gY: Single;
+  begin
+    ID := MapElem[aIndex].Step[aAnimStep mod MapElem[aIndex].Count + 1] + 1;
+    ID0 := MapElem[aIndex].Step[1] + 1;
+
+    gX := pX + (R.Pivot[ID0].X + R.Size[ID0].X/2) / CELL_SIZE_PX;
+    gY := pY + (R.Pivot[ID0].Y + R.Size[ID0].Y) / CELL_SIZE_PX;
     CornerX := pX + R.Pivot[ID].X / CELL_SIZE_PX;
     CornerY := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
-                  - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV;
+             - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
 
-    fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, pX, pY);
+    fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, gX, gY);
 
     if DoImmediateRender then
       RenderSprite(rxTrees, ID, CornerX, CornerY, $FFFFFFFF, 255, Deleting);
@@ -566,14 +572,15 @@ procedure TRenderPool.RenderObjectQuad(aIndex: Integer; AnimStep: Cardinal; pX,p
 var
   FOW: Byte;
 begin
-  FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX,pY,true);
+  FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX, pY, True);
   if FOW <= 128 then AnimStep := 0; //Stop animation
 
-  AddSpriteBy(aIndex, AnimStep  , pX - 0.75, pY - 0.75);
-  AddSpriteBy(aIndex, AnimStep+1, pX - 0.25, pY - 0.75);
+  R := fRXData[rxTrees];
+  AddSpriteBy(AnimStep  , pX - 0.75, pY - 0.75);
+  AddSpriteBy(AnimStep+1, pX - 0.25, pY - 0.75);
   if IsDouble then Exit;
-  AddSpriteBy(aIndex, AnimStep+1, pX - 0.75, pY - 0.25);
-  AddSpriteBy(aIndex, AnimStep  , pX - 0.25, pY - 0.25);
+  AddSpriteBy(AnimStep+1, pX - 0.75, pY - 0.25);
+  AddSpriteBy(AnimStep  , pX - 0.25, pY - 0.25);
 end;
 
 
@@ -629,15 +636,20 @@ end;
 procedure TRenderPool.AddHouseWood(aHouse: THouseType; Loc: TKMPoint; Step: Single);
 var
   R: TRXData;
-  ID: Integer;
-  CornerX, CornerY: Single;
+  ID,ID2: Integer;
+  CornerX, CornerY, gW, gS, gX, gY: Single;
 begin
   R := fRXData[rxHouses];
   ID := fResource.HouseDat[aHouse].WoodPic + 1;
+  ID2 := fResource.HouseDat[aHouse].StonePic + 1;
+  gW := R.Pivot[ID].Y + R.Size[ID].Y;
+  gS := R.Pivot[ID2].Y + R.Size[ID2].Y;
+  gX := Loc.X + (R.Pivot[ID].X + R.Size[ID].X / 2) / CELL_SIZE_PX - 1;
+  gY := Loc.Y + Max(gW, gS) / CELL_SIZE_PX - 1;
   CornerX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX;
   CornerY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
-                   - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(rxHouses, ID, CornerX, CornerY, Loc.X, Loc.Y, $0, Step);
+                   - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
+  fRenderList.AddSprite(rxHouses, ID, CornerX, CornerY, gX, gY, $0, Step);
 end;
 
 
