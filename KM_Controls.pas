@@ -2755,7 +2755,7 @@ begin
   then begin
     NewIndex := TopIndex + (Y-Top) div fItemHeight;
 
-    if NewIndex > fItems.Count - 1 then NewIndex := -1;
+    if NewIndex > fItems.Count - 1 then NewIndex := fItems.Count - 1;
 
     if (NewIndex<>fItemIndex) then begin
       fItemIndex := NewIndex;

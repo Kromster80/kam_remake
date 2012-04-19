@@ -31,7 +31,7 @@ type
 
 
 implementation
-uses KM_Houses, KM_Terrain, KM_PlayersCollection;
+uses KM_Houses, KM_Terrain, KM_PlayersCollection, KM_Utils;
 
 
 { TKMCityPlanner }
@@ -139,7 +139,7 @@ begin
   for K := Max(TargetLoc.X - 10, 1) to Min(TargetLoc.X + 10, fTerrain.MapX - 1) do
     if CanPlaceHouse(aHouse, KMPoint(K,I)) then
     begin
-      Bid := GetLength(KMPoint(K,I), TargetLoc) + Random * 3;
+      Bid := GetLength(KMPoint(K,I), TargetLoc) + KaMRandom * 3;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -173,7 +173,7 @@ begin
   for K := Max(StoneLoc.Loc.X - 5, 1) to Min(StoneLoc.Loc.X + 5, fTerrain.MapX - 1) do
     if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse) then
     begin
-      Bid := GetLength(KMPoint(K,I), StoreLoc) + Random * 4;
+      Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -208,7 +208,7 @@ begin
   for K := Max(TreeLoc.Loc.X - 7, 1) to Min(TreeLoc.Loc.X + 7, fTerrain.MapX - 1) do
     if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse) then
     begin
-      Bid := GetLength(KMPoint(K,I), StoreLoc) + Random * 4;
+      Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);

@@ -1309,7 +1309,7 @@ begin
   else
     fGameSpeed := aSpeed;
 
-  fTimerGame.Interval := Round(fGameSettings.SpeedPace / fGameSpeed);
+  fTimerGame.Interval := Max(Round(fGameSettings.SpeedPace / fGameSpeed),1);
 
   if fGamePlayInterface <> nil then
     fGamePlayInterface.ShowClock(fGameSpeed);

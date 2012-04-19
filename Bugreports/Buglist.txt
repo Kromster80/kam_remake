@@ -60,6 +60,7 @@ Improvements:
  +	Smarter job assignment to workers
  +	Smarter delivery assignment to serfs
  +	Add support for 1024x600 (1280x720) resolution
+ +	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	High quality alpha-blended shadows for houses (only once constructed?)
@@ -69,7 +70,6 @@ Improvements:
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Mutltiplayer spectator mode
-	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
 	256x256 icons for EXE (for vista/7/8 users)
 	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
 	Play campaign briefing WAV files (and fade music while it plays)
