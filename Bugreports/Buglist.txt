@@ -83,6 +83,8 @@ Improvements:
 	Keyboard shortcuts to zoom for people without a scrollwheel
 	Allow chat over multiplayer results screen
 	Add support for 1024x600 (1280x720) resolution in the map editor
+	RXXPacker to make soft shadowed RXX files in 1 click rather than by hand
+	RXXEditor tool for the public
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

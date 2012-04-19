@@ -373,7 +373,7 @@ end;
 
 function TKMCampaign.MissionTitle(aIndex: byte): AnsiString;
 begin
-  Result := Format(fTextLibrary[fFirstTextIndex + 1], [aIndex]);
+  Result := Format(fTextLibrary[fFirstTextIndex + 1], [aIndex+1]);
 end;
 
 

@@ -26,7 +26,6 @@ type
 
     fJumpToSelectedMap: Boolean;
     fJumpToSelectedSave: Boolean;
-    fJumpToSelectedServer: Boolean;
 
     fMap_Selected: Integer; //Selected map
     fMapCRC_Selected: Cardinal; //CRC of selected map
@@ -1080,7 +1079,7 @@ begin
 
     TKMLabel.Create(Panel_Load, Panel_Main.Width div 2, 50, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
-    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 86, 700, 480, fnt_Metal);
+    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 86, 700, 485, fnt_Metal);
     List_Load.Anchors := [akLeft,akTop,akBottom];
     List_Load.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Load.OnColumnClick := Load_SavesSort;
@@ -1179,7 +1178,7 @@ begin
     Radio_Replays_Type.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Replays_Type.OnChange := Replay_TypeChange;
 
-    List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 150, 700, 480, fnt_Metal);
+    List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 150, 700, 485, fnt_Metal);
     List_Replays.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Replays.Anchors := [akLeft,akTop,akBottom];
     List_Replays.OnChange := Replays_ListClick;
@@ -1568,20 +1567,17 @@ begin
     Load_RefreshList(nil); //call it at least one time, so GUI is prepared even if there are no saves
     //Initiate refresh and process each new save added
     fSaves.Refresh(Load_RefreshList, False);
+    Load_SavesSort(List_Load.SortIndex); //Apply sorting from last time we were on this page
     Panel_Load.Show;
   end;
 
   {Show replays menu}
   if Sender=Button_MM_Replays then begin
-
-    Radio_Replays_Type.ItemIndex := 0; //we always show SP replays on start
-    //Stop current scan so it can't add a replay after we clear the list
-    fSaves.TerminateScan;
     fSave_Selected := -1;
     fSaveCRC_Selected := 0;
-    Replays_RefreshList(nil); //call it at least one time, so GUI is prepared even if there are no replays
-    //Initiate refresh and process each new replay added
-    fSaves.Refresh(Replays_RefreshList, False);
+    Radio_Replays_Type.ItemIndex := 0; //we always show SP replays on start
+    Replay_TypeChange(nil); //Select SP as this will refresh everything
+    Replays_SavesSort(List_Replays.SortIndex); //Apply sorting from last time we were on this page
     Panel_Replays.Show;
   end;
 
@@ -2017,12 +2013,14 @@ procedure TKMMainMenuInterface.MP_ServersUpdateList(Sender: TObject);
 const
   GameStateTextIDs: array [TMPGameState] of Integer = (TX_MP_STATE_NONE, TX_MP_STATE_LOBBY, TX_MP_STATE_LOADING, TX_MP_STATE_GAME);
 var
-  I: Integer;
+  I, OldTopIndex: Integer;
   DisplayName: string;
   S: TKMServerInfo;
   R: TKMRoomInfo;
 begin
+  OldTopIndex := ColList_Servers.TopIndex;
   ColList_Servers.Clear;
+  ColList_Servers.ItemIndex := -1;
 
   if fGame.Networking.ServerQuery.Rooms.Count = 0 then
   begin
@@ -2053,17 +2051,17 @@ begin
       begin
         ColList_Servers.ItemIndex := I;
         MP_ServersClick(nil); //Shows info about this selected server
-        if fJumpToSelectedServer
-        and not InRange(I - ColList_Servers.TopIndex, 0, (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1) then
-        begin
-          if I < ColList_Servers.TopIndex + (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1 then
-            ColList_Servers.TopIndex := I
-          else
-          if I > ColList_Servers.TopIndex + (ColList_Servers.Height div ColList_Servers.ItemHeight) - 1 then
-            ColList_Servers.TopIndex := I - (ColList_Servers.Height div ColList_Servers.ItemHeight) + 1;
-          fJumpToSelectedServer := False;
-        end;
       end;
+    end;
+
+    ColList_Servers.TopIndex := OldTopIndex;
+    if not InRange(ColList_Servers.ItemIndex - ColList_Servers.TopIndex, 0, ColList_Servers.GetVisibleRows - 1) then
+    begin
+      if ColList_Servers.ItemIndex < ColList_Servers.TopIndex + ColList_Servers.GetVisibleRows - 1 then
+        ColList_Servers.TopIndex := ColList_Servers.ItemIndex
+      else
+      if ColList_Servers.ItemIndex > ColList_Servers.TopIndex + ColList_Servers.GetVisibleRows - 1 then
+        ColList_Servers.TopIndex := ColList_Servers.ItemIndex - ColList_Servers.GetVisibleRows + 1;
     end;
   end;
 end;
@@ -2082,28 +2080,25 @@ begin
   case ColList_Servers.SortIndex of
     //Sorting by name goes A..Z by default
     0:  if ColList_Servers.SortDirection = sdDown then
-          fGame.Networking.ServerQuery.SortMethod := ssmByNameDesc
+          fGame.Networking.ServerQuery.SortMethod := ssmByNameAsc
         else
-          fGame.Networking.ServerQuery.SortMethod := ssmByNameAsc;
+          fGame.Networking.ServerQuery.SortMethod := ssmByNameDesc;
     //Sorting by state goes Lobby,Loading,Game,None by default
     1:  if ColList_Servers.SortDirection = sdDown then
-          fGame.Networking.ServerQuery.SortMethod := ssmByStateDesc
+          fGame.Networking.ServerQuery.SortMethod := ssmByStateAsc
         else
-          fGame.Networking.ServerQuery.SortMethod := ssmByStateAsc;
+          fGame.Networking.ServerQuery.SortMethod := ssmByStateDesc;
     //Sorting by player count goes 8..0 by default
     2:  if ColList_Servers.SortDirection = sdDown then
-          fGame.Networking.ServerQuery.SortMethod := ssmByPlayersAsc
+          fGame.Networking.ServerQuery.SortMethod := ssmByPlayersDesc
         else
-          fGame.Networking.ServerQuery.SortMethod := ssmByPlayersDesc;
+          fGame.Networking.ServerQuery.SortMethod := ssmByPlayersAsc;
     //Sorting by ping goes 0 ... 1000 by default
     3:  if ColList_Servers.SortDirection = sdDown then
-          fGame.Networking.ServerQuery.SortMethod := ssmByPingDesc
+          fGame.Networking.ServerQuery.SortMethod := ssmByPingAsc
         else
-          fGame.Networking.ServerQuery.SortMethod := ssmByPingAsc;
+          fGame.Networking.ServerQuery.SortMethod := ssmByPingDesc;
   end;
-
-  //scroll to selected server, so it will be shown on the screen
-  fJumpToSelectedServer := True;
 
   //Refresh the display only if there are rooms to be sorted (otherwise it shows "no servers found" immediately)
   if fGame.Networking.ServerQuery.Rooms.Count > 0 then
@@ -2778,16 +2773,18 @@ begin
   Button_Delete.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1);
   Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1)
                          and fSaves[List_Load.ItemIndex].IsValid;
-  if Button_Load.Enabled then
+
+  if InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then
   begin
     fSave_Selected := List_Load.ItemIndex;
     fSaveCRC_Selected := fSaves[List_Load.ItemIndex].CRC;
-    fSaves[List_Load.ItemIndex].LoadMinimap(fMapView);
+  end;
+  Minimap_LoadPreview.Hide; //Hide by default, then show it if we load the map successfully
+  if Button_Load.Enabled and fSaves[List_Load.ItemIndex].LoadMinimap(fMapView) then
+  begin
     Minimap_LoadPreview.UpdateFrom(fMapView);
     Minimap_LoadPreview.Show;
-  end
-  else
-    Minimap_LoadPreview.Hide;
+  end;
 end;
 
 
@@ -2828,9 +2825,11 @@ end;
 
 
 procedure TKMMainMenuInterface.Load_RefreshList(Sender: TObject);
-var i:integer;
+var I, OldTopIndex:integer;
 begin
+  OldTopIndex := List_Load.TopIndex;
   List_Load.Clear;
+  fSave_Selected := -1;
 
   if (Sender = fSaves) then
   begin
@@ -2850,13 +2849,14 @@ begin
     end;
 
   List_Load.ItemIndex := fSave_Selected;
+  List_Load.TopIndex := OldTopIndex;
 
-  if not InRange(fSave_Selected - List_Load.TopIndex, 0, (List_Load.Height div List_Load.ItemHeight) - 1) and
+  if not InRange(fSave_Selected - List_Load.TopIndex, 0, List_Load.GetVisibleRows - 1) and
          (fJumpToSelectedSave) then begin
-            if fSave_Selected < List_Load.TopIndex + (List_Load.Height div List_Load.ItemHeight) - 1 then
+            if fSave_Selected < List_Load.TopIndex + List_Load.GetVisibleRows - 1 then
               List_Load.TopIndex := fSave_Selected
-            else if fSave_Selected > List_Load.TopIndex + (List_Load.Height div List_Load.ItemHeight) - 1 then
-              List_Load.TopIndex := fSave_Selected - (List_Load.Height div List_Load.ItemHeight) + 1;
+            else if fSave_Selected > List_Load.TopIndex + List_Load.GetVisibleRows - 1 then
+              List_Load.TopIndex := fSave_Selected - List_Load.GetVisibleRows + 1;
             fJumpToSelectedSave := False;
          end;
 
@@ -2869,6 +2869,9 @@ end;
 
 procedure TKMMainMenuInterface.Load_SavesSort(aIndex: Integer);
 begin
+  //scroll to selected save, so it will be shown on the screen
+  fJumpToSelectedSave := True;
+
   case List_Load.SortIndex of
     //Sorting by filename goes A..Z by default
     0:  if List_Load.SortDirection = sdDown then
@@ -2881,13 +2884,6 @@ begin
         else
           fSaves.Sort(smByDescriptionAsc, Load_RefreshList);
   end;
-
-  //scroll to selected save, so it will be shown on the screen
-  fJumpToSelectedSave := True;
-
-  //Refresh the display only if there are saves to be sorted
-  if fSaves.Count > 0 then
-    Load_RefreshList(fSaves);
 end;
 
 
@@ -2907,16 +2903,18 @@ begin
   Button_ReplaysPlay.Enabled := InRange(List_Replays.ItemIndex, 0, fSaves.Count-1)
                                 and fSaves[List_Replays.ItemIndex].IsValid
                                 and fGame.ReplayExists(fSaves[List_Replays.ItemIndex].FileName, (Radio_Replays_Type.ItemIndex = 1));
-  if Button_ReplaysPlay.Enabled then
+  
+  if InRange(List_Replays.ItemIndex, 0, fSaves.Count-1) then
   begin
     fSave_Selected := List_Replays.ItemIndex;
     fSaveCRC_Selected := fSaves[List_Replays.ItemIndex].CRC;
-    fSaves[List_Replays.ItemIndex].LoadMinimap(fMapView);
+  end;
+  Minimap_ReplayPreview.Hide; //Hide by default, then show it if we load the map successfully
+  if Button_ReplaysPlay.Enabled and fSaves[List_Replays.ItemIndex].LoadMinimap(fMapView) then
+  begin
     Minimap_ReplayPreview.UpdateFrom(fMapView);
     Minimap_ReplayPreview.Show;
-  end
-  else
-    Minimap_ReplayPreview.Hide;
+  end;
 end;
 
 
@@ -2925,15 +2923,17 @@ begin
   fSaves.TerminateScan;
   fSave_Selected := -1;
   fSaveCRC_Selected := 0;
+  Replays_RefreshList(nil); //call it at least one time, so GUI is prepared even if there are no saves
   fSaves.Refresh(Replays_RefreshList, (Radio_Replays_Type.ItemIndex = 1));
-  Replays_RefreshList(nil);  //we need to refresh immediately
 end;
 
 
 procedure TKMMainMenuInterface.Replays_RefreshList(Sender: TObject);
-var I: Integer;
+var I, OldTopIndex: Integer;
 begin
+  OldTopIndex := List_Replays.TopIndex;
   List_Replays.Clear;
+  fSave_Selected := -1;
 
   if (Sender = fSaves) then
   begin
@@ -2951,13 +2951,14 @@ begin
   end;
 
   List_Replays.ItemIndex := fSave_Selected;
+  List_Replays.TopIndex := OldTopIndex;
 
-  if not InRange(fSave_Selected - List_Replays.TopIndex, 0, (List_Replays.Height div List_Replays.ItemHeight) - 1) and
+  if not InRange(fSave_Selected - List_Replays.TopIndex, 0, List_Replays.GetVisibleRows-1) and
          (fJumpToSelectedSave) then begin
-            if fSave_Selected < List_Replays.TopIndex + (List_Replays.Height div List_Replays.ItemHeight) - 1 then
+            if fSave_Selected < List_Replays.TopIndex then
               List_Replays.TopIndex := fSave_Selected
-            else if fSave_Selected > List_Replays.TopIndex + (List_Replays.Height div List_Replays.ItemHeight) - 1 then
-              List_Replays.TopIndex := fSave_Selected - (List_Replays.Height div List_Replays.ItemHeight) + 1;
+            else if fSave_Selected > List_Replays.TopIndex + List_Replays.GetVisibleRows - 1 then
+              List_Replays.TopIndex := fSave_Selected - List_Replays.GetVisibleRows + 1;
             fJumpToSelectedSave := False;
          end;
 
@@ -2967,6 +2968,9 @@ end;
 
 procedure TKMMainMenuInterface.Replays_SavesSort(aIndex: Integer);
 begin
+  //scroll to selected save, so it will be shown on the screen
+  fJumpToSelectedSave := True;
+
   case List_Replays.SortIndex of
     //Sorting by filename goes A..Z by default
     0:  if List_Replays.SortDirection = sdDown then
@@ -2979,13 +2983,6 @@ begin
         else
           fSaves.Sort(smByDescriptionAsc, Replays_RefreshList);
   end;
-
-  //scroll to selected save, so it will be shown on the screen
-  fJumpToSelectedSave := True;
-
-  //Refresh the display only if there are saves to be sorted
-  if fSaves.Count > 0 then
-    Replays_RefreshList(fSaves);
 end;
 
 

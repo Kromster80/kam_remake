@@ -674,6 +674,7 @@ type
     procedure AddItem(aItem: TKMListRow);
     procedure Clear;
     function HeaderHeight: Integer;
+    function GetVisibleRows:Integer;
     property ShowHeader: Boolean read fShowHeader write SetHeaderVisible;
 
     property Rows[aIndex: Integer]: TKMListRow read GetRow;
@@ -2970,6 +2971,12 @@ begin
 end;
 
 
+function TKMColumnListBox.GetVisibleRows: Integer;
+begin
+  Result := (fHeight - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
+end;
+
+
 procedure TKMColumnListBox.SetTopIndex(aIndex: Integer);
 begin
   fScrollBar.Position := aIndex;
@@ -3154,7 +3161,7 @@ begin
   fHeader.Width := PaintWidth;
 
   Y := Top + fHeader.Height * Byte(fShowHeader);
-  MaxItem := (fHeight - fHeader.Height * Byte(fShowHeader)) div fItemHeight - 1;
+  MaxItem := GetVisibleRows-1;
 
   fRenderUI.WriteBevel(Left, Y, PaintWidth, Height - fHeader.Height * Byte(fShowHeader), false, fBackAlpha);
 

@@ -35,7 +35,7 @@ type
     property CRC: Cardinal read fCRC;
 
     function IsValid:boolean;
-    procedure LoadMinimap(aMapView:TKMMapView);
+    function LoadMinimap(aMapView:TKMMapView):Boolean;
   end;
 
   TTSavesScanner = class(TThread)
@@ -139,13 +139,14 @@ begin
 end;
 
 
-procedure TKMSaveInfo.LoadMinimap(aMapView:TKMMapView);
+function TKMSaveInfo.LoadMinimap(aMapView:TKMMapView):Boolean;
 var
   LoadStream: TKMemoryStream;
   DummyInfo: TKMGameInfo;
   DummyOptions: TKMGameOptions;
   IsMultiplayer: Boolean;
 begin
+  Result := False;
   if not FileExists(fPath + fFileName + '.sav') then Exit;
 
   DummyInfo := TKMGameInfo.Create;
@@ -158,7 +159,10 @@ begin
     DummyOptions.Load(LoadStream); //We don't care, we just need to skip past it correctly
     LoadStream.Read(IsMultiplayer);
     if not IsMultiplayer then
+    begin
       aMapView.Load(LoadStream);
+      Result := True;
+    end;
 
   finally
     DummyInfo.Free;
