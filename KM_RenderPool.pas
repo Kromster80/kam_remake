@@ -410,21 +410,21 @@ begin
 
   //Fieldplans
   FieldsList := TKMPointTagList.Create;
-  MyPlayer.GetFieldPlans(FieldsList, aRect, True); //Include fake field plans for painting
+  MyPlayer.GetFieldPlans(FieldsList, aRect, True, fGame.ReplayMode); //Include fake field plans for painting
   for i := 0 to FieldsList.Count - 1 do
     RenderTerrainMarkup(FieldsList[i].X, FieldsList[i].Y, TFieldType(FieldsList.Tag[i]));
   FreeAndNil(FieldsList);
 
   //Borders
   BordersList := TKMPointDirList.Create;
-  MyPlayer.GetPlansBorders(BordersList, aRect);
+  MyPlayer.GetPlansBorders(BordersList, aRect, fGame.ReplayMode);
   for i := 0 to BordersList.Count - 1 do
     RenderTerrainBorder(bt_HousePlan, BordersList[i].Dir, BordersList[i].Loc.X, BordersList[i].Loc.Y);
   FreeAndNil(BordersList);
 
   //Tablets
   TabletsList := TKMPointTagList.Create;
-  MyPlayer.GetPlansTablets(TabletsList, aRect);
+  MyPlayer.GetPlansTablets(TabletsList, aRect, fGame.ReplayMode);
   for i := 0 to TabletsList.Count - 1 do
     AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList[i]);
   FreeAndNil(TabletsList);
@@ -579,11 +579,18 @@ begin
   if FOW <= 128 then AnimStep := 0; //Stop animation
 
   R := fRXData[rxTrees];
-  AddSpriteBy(AnimStep  , pX - 0.75, pY - 0.75);
-  AddSpriteBy(AnimStep+1, pX - 0.25, pY - 0.75);
-  if IsDouble then Exit;
-  AddSpriteBy(AnimStep+1, pX - 0.75, pY - 0.25);
-  AddSpriteBy(AnimStep  , pX - 0.25, pY - 0.25);
+  if IsDouble then
+  begin
+    AddSpriteBy(AnimStep  , pX - 0.75, pY - 0.6);
+    AddSpriteBy(AnimStep+1, pX - 0.25, pY - 0.6);
+  end
+  else
+  begin
+    AddSpriteBy(AnimStep  , pX - 0.75, pY - 0.75);
+    AddSpriteBy(AnimStep+1, pX - 0.25, pY - 0.75);
+    AddSpriteBy(AnimStep+1, pX - 0.75, pY - 0.25);
+    AddSpriteBy(AnimStep  , pX - 0.25, pY - 0.25);
+  end;
 end;
 
 

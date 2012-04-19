@@ -111,9 +111,9 @@ type
     procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
 
     function GetFieldsCount: Integer;
-    procedure GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean);
-    procedure GetPlansBorders(aList: TKMPointDirList; aRect: TKMRect);
-    procedure GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect);
+    procedure GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean; aAllPlayers:Boolean);
+    procedure GetPlansBorders(aList: TKMPointDirList; aRect: TKMRect; aAllPlayers:Boolean);
+    procedure GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect; aAllPlayers:Boolean);
 
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure Load(LoadStream: TKMemoryStream); override;
@@ -696,38 +696,38 @@ begin
 end;
 
 
-procedure TKMPlayer.GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean);
+procedure TKMPlayer.GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean; aAllPlayers:Boolean);
 var
   I: TPlayerIndex;
 begin
   fBuildList.FieldworksList.GetFields(aList, aRect, aIncludeFake);
 
   for I := 0 to fPlayers.Count - 1 do
-    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+    if (I <> fPlayerIndex) and (aAllPlayers or (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally)) then
       fPlayers[I].BuildList.FieldworksList.GetFields(aList, aRect, aIncludeFake);
 end;
 
 
-procedure TKMPlayer.GetPlansBorders(aList: TKMPointDirList; aRect: TKMRect);
+procedure TKMPlayer.GetPlansBorders(aList: TKMPointDirList; aRect: TKMRect; aAllPlayers:Boolean);
 var
   I: TPlayerIndex;
 begin
   fBuildList.HousePlanList.GetBorders(aList, aRect);
 
   for I := 0 to fPlayers.Count - 1 do
-    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+    if (I <> fPlayerIndex) and (aAllPlayers or (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally)) then
       fPlayers[I].BuildList.HousePlanList.GetBorders(aList, aRect);
 end;
 
 
-procedure TKMPlayer.GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect);
+procedure TKMPlayer.GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect; aAllPlayers:Boolean);
 var
   I: TPlayerIndex;
 begin
   fBuildList.HousePlanList.GetTablets(aList, aRect);
 
   for I := 0 to fPlayers.Count - 1 do
-    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+    if (I <> fPlayerIndex) and (aAllPlayers or (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally)) then
       fPlayers[I].BuildList.HousePlanList.GetTablets(aList, aRect);
 end;
 
