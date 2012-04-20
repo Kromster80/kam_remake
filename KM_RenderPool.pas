@@ -78,7 +78,7 @@ type
 
     procedure Render;
 
-    procedure AddProjectile(aProj: TProjectileType; aPos: TKMPointF; aDir: TKMDirection; aFlight: Single);
+    procedure AddProjectile(aProj: TProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
     procedure AddHouseTablet(aHouse: THouseType; Loc: TKMPoint);
     procedure AddHouseBuildSupply(aHouse: THouseType; Loc: TKMPoint; Wood,Stone: Byte);
     procedure AddHouseWood(aHouse: THouseType; Loc: TKMPoint; Step: Single);
@@ -449,7 +449,8 @@ begin
 end;
 
 
-procedure TRenderPool.AddProjectile(aProj: TProjectileType; aPos: TKMPointF; aDir: TKMDirection; aFlight: Single);
+//aRenderPos has fTerrain.HeightAt factored in already, aTilePos is on tile coordinates for Z ordering
+procedure TRenderPool.AddProjectile(aProj: TProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
 var
   FOW: Byte;
   ID: Integer;
@@ -458,9 +459,9 @@ var
   Ground: Single;
 begin
   //We don't care about off-map arrows, but still we get TKMPoint error if X/Y gets negative
-  if not fTerrain.TileInMapCoords(Round(aPos.X), Round(aPos.Y)) then Exit;
+  if not fTerrain.TileInMapCoords(Round(aRenderPos.X), Round(aRenderPos.Y)) then Exit;
 
-  FOW := MyPlayer.FogOfWar.CheckTileRevelation(Round(aPos.X), Round(aPos.Y), True);
+  FOW := MyPlayer.FogOfWar.CheckTileRevelation(Round(aRenderPos.X), Round(aRenderPos.Y), True);
   if FOW <= 128 then Exit; //Don't render objects which are behind FOW
 
   case aProj of
@@ -480,12 +481,12 @@ begin
   CornerY := (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1;
 
   case aProj of
-    pt_Arrow, pt_Bolt, pt_SlingRock:  Ground := aPos.Y + (0.5 - Abs(Min(aFlight, 1) - 0.5)) - 0.5;
-    pt_TowerRock:                     Ground := aPos.Y + (1 - Min(aFlight, 1)) - 0.5;
-    else                              Ground := aPos.Y - 1; //Nothing?
+    pt_Arrow, pt_Bolt, pt_SlingRock:  Ground := aTilePos.Y + (0.5 - Abs(Min(aFlight, 1) - 0.5)) - 0.5;
+    pt_TowerRock:                     Ground := aTilePos.Y + Min(aFlight, 1)/5 - 0.4;
+    else                              Ground := aTilePos.Y - 1; //Nothing?
   end;
 
-  fRenderList.AddSprite(rxUnits, ID, aPos.X + CornerX, aPos.Y + CornerY, aPos.X - 1, Ground);
+  fRenderList.AddSprite(rxUnits, ID, aRenderPos.X + CornerX, aRenderPos.Y + CornerY, aTilePos.X - 1, Ground);
 end;
 
 

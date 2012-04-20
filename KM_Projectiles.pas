@@ -15,6 +15,7 @@ type
 
       fAim:TKMPointF;  //Where we were aiming to hit
       fTarget:TKMPointF; //Where projectile will hit
+      fShotFrom:TKMPointF; //Where the projectile was launched from
 
       fType:TProjectileType; //type of projectile (arrow, bolt, rocks, etc..)
       fOwner:TPlayerIndex; //The ID of the player who launched the projectile, used for kill statistics
@@ -200,6 +201,7 @@ begin
   fItems[i].fOwner  := aOwner;
   fItems[i].fAim    := aAim;
   fItems[i].fTarget := aEnd;
+  fItems[i].fShotFrom := aStart;
 
   fItems[i].fScreenStart.X := aStart.X + OffsetX[aProjType];
   fItems[i].fScreenStart.Y := aStart.Y - fTerrain.HeightAt(aStart)/CELL_HEIGHT_DIV + OffsetY[aProjType];
@@ -294,6 +296,7 @@ var
   MixValue,MixValueMax:single;
   MixArc:single; //mix Arc shape
   P: TKMPointF; //Arrows and bolts send 2 points for head and tail
+  PTileBased: TKMPointF;
   Dir: TKMDirection;
 begin
   for i:=0 to length(fItems)-1 do
@@ -303,6 +306,7 @@ begin
       MixValue := fItems[i].fPosition / fItems[i].fLength; // 0 >> 1
       MixValueMax := fItems[i].fPosition / fItems[i].fMaxLength; // 0 >> 1
       P := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
+      PTileBased := mix(fItems[i].fTarget, fItems[i].fShotFrom, MixValue);
       case fItems[i].fType of
         pt_Arrow, pt_SlingRock, pt_Bolt:
           begin
@@ -310,7 +314,7 @@ begin
             //Looks better moved up, launches from the bow not feet and lands in target's body
             P.Y := P.Y - fItems[i].fArc * MixArc - 0.4;
             Dir := KMGetDirection(fItems[i].fScreenStart, fItems[i].fScreenEnd);
-            fRenderPool.AddProjectile(fItems[i].fType, P, Dir, MixValueMax);
+            fRenderPool.AddProjectile(fItems[i].fType, P, PTileBased, Dir, MixValueMax);
           end;
 
         pt_TowerRock:
@@ -318,7 +322,7 @@ begin
             MixArc := cos(MixValue*pi/2); // 1 >> 0      Half-parabola
             //Looks better moved up, lands on the target's body not at his feet
             P.Y := P.Y - fItems[i].fArc * MixArc - 0.4;
-            fRenderPool.AddProjectile(fItems[i].fType, P, dir_N, MixValue); //Direction will be ignored
+            fRenderPool.AddProjectile(fItems[i].fType, P, PTileBased, dir_N, MixValue); //Direction will be ignored
           end;
       end;
 
