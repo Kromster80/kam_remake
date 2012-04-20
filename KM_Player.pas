@@ -439,7 +439,7 @@ begin
     Ty := aLoc.Y + I - 4;
 
     //Make sure tile in map coords and there's no road below
-    Result := fTerrain.TileInMapCoords(Tx, Ty, 1) and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
+    Result := Result and fTerrain.TileInMapCoords(Tx, Ty, 1) and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
 
     //Make sure we can add road below house, full width
     if (I = 4) then

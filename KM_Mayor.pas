@@ -213,6 +213,23 @@ begin
       NodeTagList.Free;
     end;
   end;
+
+  if aHouse = ht_Wineyard then
+  begin
+    NodeTagList := TKMPointTagList.Create;
+    try
+      for I := Min(Loc.Y + 1, fTerrain.MapY - 1) to Min(Loc.Y + 1 + RAD - 1, fTerrain.MapY - 1) do
+      for K := Max(Loc.X - RAD, 1) to Min(Loc.X + RAD, fTerrain.MapX - 1) do
+        if P.CanAddFieldPlan(KMPoint(K,I), ft_Wine) then
+          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X) + Abs(I + 1 - Loc.Y) * 2, 0);
+
+      NodeTagList.SortByTag;
+      for I := 0 to Min(NodeTagList.Count - 1, 12) do
+        P.BuildList.FieldworksList.AddField(NodeTagList[I], ft_Wine);
+    finally
+      NodeTagList.Free;
+    end;
+  end;
 end;
 
 
@@ -242,7 +259,7 @@ begin
     if (HouseCount(ht_Quary) = 0) then
       TryBuildHouse(ht_Quary);
 
-    if (HouseCount(ht_Sawmill) > 1) and (HouseCount(ht_Quary) < 2) then
+    if (HouseCount(ht_Sawmill) > 0) and (HouseCount(ht_Quary) < 2) then
       TryBuildHouse(ht_Quary);
   end;
 
@@ -251,7 +268,7 @@ begin
     if (HouseCount(ht_Woodcutters) = 0) then
       TryBuildHouse(ht_Woodcutters);
 
-    if (HouseCount(ht_Sawmill) > 1) and (HouseCount(ht_Woodcutters) < 2) then
+    if (HouseCount(ht_Sawmill) > 0) and (HouseCount(ht_Woodcutters) < 2) then
       TryBuildHouse(ht_Woodcutters);
   end;
 
@@ -273,7 +290,12 @@ begin
 
 
   if (fPlayers[fOwner].Stats.HouseReleased[ht_Swine]) and (HouseCount(ht_Swine) < 1) then
+  begin
     TryBuildHouse(ht_Swine);
+
+    if (HouseCount(ht_Farm) < 3) then
+      TryBuildHouse(ht_Farm);
+  end;
 
   if (fPlayers[fOwner].Stats.HouseReleased[ht_Butchers]) and (HouseCount(ht_Butchers) = 0) then
     TryBuildHouse(ht_Butchers);
