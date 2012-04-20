@@ -19,7 +19,7 @@ type
     function NextToHouse(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToTrees(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-    function NextToGrass(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+    //function NextToGrass(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
   public
     constructor Create(aPlayer: TPlayerIndex);
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
@@ -67,18 +67,18 @@ begin
 end;
 
 
-function TKMCityPlanner.NextToGrass(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-{var
+{function TKMCityPlanner.NextToGrass(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+var
   S: TKMHouse;
   I, K: Integer;
   Bid, BestBid: Single;
   StoreLoc: TKMPoint;
   TreeLoc: TKMPointDir;
-  TA: TPlantAct;}
+  TA: TPlantAct;
 begin
   Result := False;
 
-  {S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
+  S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
   if S = nil then Exit;
 
   StoreLoc := S.GetPosition;
@@ -98,8 +98,8 @@ begin
         BestBid := Bid;
         Result := True;
       end;
-    end;}
-end;
+    end;
+end;}
 
 
 function TKMCityPlanner.NextToHouse(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
@@ -228,7 +228,7 @@ var
   I, K, M, N: Integer;
   T: Integer;
   Tmp: array of array of byte;
-  Bmp: TBitmap;
+  //Bmp: TBitmap;
 begin
   SetLength(fInfluenceMap, fTerrain.MapY, fTerrain.MapX);
   SetLength(Tmp, fTerrain.MapY, fTerrain.MapX);
@@ -271,9 +271,6 @@ begin
     Bmp.SaveToFile(ExeDir + GetEnumName(TypeInfo(TCityInfluence), Integer(CI)) + '.bmp');
     Bmp.Free;}
   end;
-
-  //Halt;
-
 end;
 
 

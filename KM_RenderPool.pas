@@ -847,8 +847,8 @@ begin
   R := fRXData[rxUnits];
 
   //Eaters need to interpolate land height the same as the inn otherwise they are rendered at the wrong place
-  CornerX := Loc.X + OffX + R.Pivot[ID].X / CELL_SIZE_PX;
-  CornerY := Loc.Y + OffY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
+  CornerX := Loc.X + OffX + R.Pivot[ID].X / CELL_SIZE_PX - 1;
+  CornerY := Loc.Y + OffY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1
                    - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
 
   fRenderList.AddSprite(rxUnits, ID, CornerX, CornerY, FlagColor);

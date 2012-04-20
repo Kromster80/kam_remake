@@ -32,7 +32,8 @@ type
     fGlobalTickCount:cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
     fTimerGame: TTimer;
     fTimerUI: TTimer;
-    fGameSpeed:word;
+    fGameSpeed: Word; //Actual speedup value
+    fGameSpeedMultiplier: Word; //how many ticks are compressed in one
     fGameState:TGameState;
     fMultiplayerMode:boolean;
     fReplayMode:boolean;
@@ -187,6 +188,7 @@ begin
   PlayOnState   := gr_Cancel;
   DoGameHold    := false;
   fGameSpeed    := 1;
+  fGameSpeedMultiplier := 1;
   fGameState    := gsNoGame;
   SkipReplayEndCheck := false;
   fWaitingForNetwork := false;
@@ -1294,7 +1296,7 @@ end;
 
 function TKMGame.GetNewID:cardinal;
 begin
-  inc(ID_Tracker);
+  Inc(ID_Tracker);
   Result := ID_Tracker;
 end;
 
@@ -1309,7 +1311,17 @@ begin
   else
     fGameSpeed := aSpeed;
 
-  fTimerGame.Interval := Max(Round(fGameSettings.SpeedPace / fGameSpeed),1);
+
+  if fGameSpeed > 5 then
+  begin
+    fGameSpeedMultiplier := Round(fGameSpeed / 4);
+    fTimerGame.Interval := Round(fGameSettings.SpeedPace / fGameSpeed * fGameSpeedMultiplier);
+  end
+  else
+  begin
+    fGameSpeedMultiplier := 1;
+    fTimerGame.Interval := Round(fGameSettings.SpeedPace / fGameSpeed);
+  end;
 
   if fGamePlayInterface <> nil then
     fGamePlayInterface.ShowClock(fGameSpeed);
@@ -1532,15 +1544,16 @@ end;
 
 
 procedure TKMGame.UpdateGame(Sender: TObject);
-var T: Cardinal;
+var I: Integer; T: Cardinal;
 begin
   case fGameState of
     gsPaused:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
     gsOnHold:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
     gsNoGame:   ;
-    gsRunning:  begin
-                  if not fMultiplayerMode or (fNetworking.NetGameState <> lgs_Loading) then
-                  try //Catch exceptions during update state
+    gsRunning:  if not fMultiplayerMode or (fNetworking.NetGameState <> lgs_Loading) then
+                try //Catch exceptions during update state
+                  for I := 1 to fGameSpeedMultiplier do
+                  begin
                     if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
                     begin
                       T := TimeGet;
@@ -1566,6 +1579,9 @@ begin
                         AutoSave;
 
                       fPerfLog.AddTime(TimeGet - T);
+
+                      //Break the for loop (if we are using speed up)
+                      if DoGameHold then break;
                     end
                     else
                     begin
@@ -1574,23 +1590,24 @@ begin
                         GameWaitingForNetwork(true);
                     end;
                     fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
-                  except
-                    //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                    on E: ELocError do
-                    begin
-                      GameError(E.Loc, E.ClassName+': '+E.Message);
-                      Exit; //Exit because the game could have been stopped
-                    end;
-                    on E: Exception do
-                    begin
-                      GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
-                      Exit; //Exit because the game could have been stopped
-                    end;
+                  end;
+                except
+                  //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+                  on E: ELocError do
+                  begin
+                    GameError(E.Loc, E.ClassName+': '+E.Message);
+                    Exit; //Exit because the game could have been stopped
+                  end;
+                  on E: Exception do
+                  begin
+                    GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
+                    Exit; //Exit because the game could have been stopped
                   end;
                 end;
-    gsReplay:   begin
-                  try //Catch exceptions during update state
-                    inc(fGameTickCount); //Thats our tick counter for gameplay events
+    gsReplay:   try //Catch exceptions during update state
+                  for I := 1 to fGameSpeedMultiplier do
+                  begin
+                    Inc(fGameTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(fGameTickCount); //Quite slow
                     if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
@@ -1607,11 +1624,13 @@ begin
                       SetGameState(gsPaused);
                     end;
 
-                  except
-                    //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                    on E : ELocError do GameError(E.Loc, E.ClassName+': '+E.Message);
-                    on E : Exception do GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
+                    //Break the for loop (if we are using speed up)
+                    if DoGameHold then break;
                   end;
+                except
+                  //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+                  on E : ELocError do GameError(E.Loc, E.ClassName+': '+E.Message);
+                  on E : Exception do GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
                 end;
     gsEditor:   begin
                   fTerrain.IncAnimStep;

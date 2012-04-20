@@ -660,7 +660,6 @@ type
     procedure ColumnClick(aValue: Integer);
     procedure UpdateScrollBar;
     procedure SetHeaderVisible(aValue: Boolean);
-    function GetHeaderVisible: Boolean;
   protected
     procedure SetTop(aValue: Integer); override;
     procedure SetHeight(aValue: Integer); override;
@@ -2996,12 +2995,6 @@ begin
   inherited;
   fHeader.Enabled := aValue;
   fScrollBar.Enabled := aValue;
-end;
-
-
-function TKMColumnListBox.GetHeaderVisible: Boolean;
-begin
-  Result := fHeader.Visible;
 end;
 
 
