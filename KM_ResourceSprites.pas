@@ -674,7 +674,10 @@ begin
     //Export RGB values
     for I := 0 to SizeY - 1 do
     for K := 0 to SizeX - 1 do
-      Bmp.Canvas.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
+      if fRXData.RGBA[ID, I*SizeX + K] and $FF000000 = $0 then
+        Bmp.Canvas.Pixels[K,I] := $AF6B6B //Always use the same color for transparency (in custom sprites)
+      else
+        Bmp.Canvas.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
 
     //Mark pivot location with a dot
     {K := SizeX + fRXData.Pivot[ID].x;
@@ -756,8 +759,8 @@ begin
     if (RXInfo[RT].Usage = ruMenu) and (RT <> rxTiles) then
     begin
       fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
-      LoadSprites(RT, False); //Menu resources never need alpha shadows
-      fSprites[RT].MakeGFX(False);
+      LoadSprites(RT, RT = rxGUI); //Only GUI needs alpha shadows
+      fSprites[RT].MakeGFX(RT = rxGUI);
       fStepProgress;
     end;
 end;
@@ -1045,7 +1048,7 @@ end;
 
 procedure TKMSprites.ExportToBMP(aRT: TRXType);
 begin
-  LoadSprites(aRT, True); //BMP can't show the alpha channel so don't load alpha shadows
+  LoadSprites(aRT, False); //BMP can't show the alpha channel so don't load alpha shadows
   fSprites[aRT].ExportToBMP(ExeDir + 'Export\' + RXInfo[aRT].FileName + '.rx\');
   ClearTemp;
 end;

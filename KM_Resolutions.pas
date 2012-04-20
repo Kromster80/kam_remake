@@ -18,6 +18,7 @@ type
   private
     fCount: Integer;
     fItems: array of TScreenResData;
+    fNeedsRestoring: Boolean;
 
     function GetItem(aIndex: Integer): TScreenResData;
     procedure ReadAvailable;
@@ -177,9 +178,11 @@ end;
 
 procedure TKMResolutions.Restore;
 begin
+  if not fNeedsRestoring then Exit;
   {$IFDEF MSWindows}
     ChangeDisplaySettings(DEVMODE(nil^), 0);
   {$ENDIF}
+  fNeedsRestoring := False;
 end;
 
 
@@ -212,6 +215,7 @@ begin
 
   ChangeDisplaySettings(DeviceMode, CDS_FULLSCREEN);
   {$ENDIF}
+  fNeedsRestoring := True; //Resolution was changed so we must restore it when we exit
 end;
 
 

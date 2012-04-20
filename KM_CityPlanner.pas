@@ -91,7 +91,7 @@ begin
   for K := Max(TreeLoc.Loc.X - 7, 1) to Min(TreeLoc.Loc.X + 7, fTerrain.MapX - 1) do
     if fPlayers[fOwner].CanAddHousePlan(KMPoint(K,I), aHouse) then
     begin
-      Bid := GetLength(KMPoint(K,I), StoreLoc) + Random * 4;
+      Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -260,7 +260,7 @@ begin
         fInfluenceMap[I, K, CI] := fInfluenceMap[I, K, CI] or Tmp[I, K] or Min(T shl 2 div BLen, 255);
       end;
 
-    Bmp := TBitmap.Create;
+    {Bmp := TBitmap.Create;
     Bmp.PixelFormat := pf32bit;
     Bmp.Width := fTerrain.MapX;
     Bmp.Height := fTerrain.MapY;
@@ -269,7 +269,7 @@ begin
         Bmp.Canvas.Pixels[K,I] := fInfluenceMap[I,K,CI] * 65793;// or $FF000000;
 
     Bmp.SaveToFile(ExeDir + GetEnumName(TypeInfo(TCityInfluence), Integer(CI)) + '.bmp');
-    Bmp.Free;
+    Bmp.Free;}
   end;
 
   //Halt;
