@@ -20,6 +20,7 @@
  +	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
  +	Issue with empty saves names and misused whitespaces
  +	The market should be blocked in the original campaigns/tutorial (maybe have an option to enable it starting at later missions, but it still ruins the balance IMO)
+ +	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	If I play a campaign up to mission say 9, then load an old save of mission 5, quit and press restart, it will load basesave which is mission 9 (we should make a basesave after loading saves?)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
@@ -29,7 +30,6 @@
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Replays sometimes end up with a mismatch while watching them, cause unknown
 	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
-	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
 	Players that have intentionally quit (not just disconnected) should count as defeated
 	Clicking on the splash screen registers the click on the main menu once it is loaded
