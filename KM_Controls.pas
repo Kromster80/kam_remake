@@ -3776,13 +3776,13 @@ begin
   //Draw all the circles, THEN all the numbers so the numbers are not covered by circles when they are close
   for i:=1 to MAX_PLAYERS do
     if not KMSamePoint(fPlayerLocs[i], KMPoint(0,0)) then
-      fRenderUI.WriteCircle(NewLeft+EnsureRange(Round(fPlayerLocs[i].X*PaintWidth / fMapSize.X),LOC_RAD,Width-LOC_RAD),
-                            NewTop +EnsureRange(Round(fPlayerLocs[i].Y*PaintHeight / fMapSize.Y),LOC_RAD,Width-LOC_RAD),
+      fRenderUI.WriteCircle(NewLeft+EnsureRange(Round(fPlayerLocs[i].X*PaintWidth / fMapSize.X),LOC_RAD,PaintWidth-LOC_RAD),
+                            NewTop +EnsureRange(Round(fPlayerLocs[i].Y*PaintHeight / fMapSize.Y),LOC_RAD,PaintHeight-LOC_RAD),
                             LOC_RAD, fPlayerColors[i]);
   for i:=1 to MAX_PLAYERS do
     if not KMSamePoint(fPlayerLocs[i], KMPoint(0,0)) then
-      fRenderUI.WriteText(NewLeft+EnsureRange(Round(fPlayerLocs[i].X*PaintWidth / fMapSize.X),LOC_RAD,Width-LOC_RAD),
-                          NewTop +EnsureRange(Round(fPlayerLocs[i].Y*PaintHeight / fMapSize.Y),LOC_RAD,Width-LOC_RAD)-6,
+      fRenderUI.WriteText(NewLeft+EnsureRange(Round(fPlayerLocs[i].X*PaintWidth / fMapSize.X),LOC_RAD,PaintWidth-LOC_RAD),
+                          NewTop +EnsureRange(Round(fPlayerLocs[i].Y*PaintHeight / fMapSize.Y),LOC_RAD,PaintHeight-LOC_RAD)-6,
                           16, 16, IntToStr(i), fnt_Outline, taCenter);
 end;
 

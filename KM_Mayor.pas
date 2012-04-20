@@ -41,6 +41,8 @@ type
     property RecruitFactor: Word read fRecruitFactor write fRecruitFactor;
     property RecruitDelay: Cardinal read fRecruitDelay write fRecruitDelay;
 
+    procedure OwnerUpdate(aPlayer:TPlayerIndex);
+
     procedure UpdateState;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -290,15 +292,13 @@ begin
 
 
   if (fPlayers[fOwner].Stats.HouseReleased[ht_Swine]) and (HouseCount(ht_Swine) < 1) then
-  begin
     TryBuildHouse(ht_Swine);
-
-    if (HouseCount(ht_Farm) < 3) then
-      TryBuildHouse(ht_Farm);
-  end;
 
   if (fPlayers[fOwner].Stats.HouseReleased[ht_Butchers]) and (HouseCount(ht_Butchers) = 0) then
     TryBuildHouse(ht_Butchers);
+
+  if (HouseCount(ht_Swine) > 0) and (HouseCount(ht_Farm) < 3) then
+    TryBuildHouse(ht_Farm);
 
 
   if (fPlayers[fOwner].Stats.HouseReleased[ht_Wineyard]) and (HouseCount(ht_Wineyard) < 2) then
@@ -350,6 +350,14 @@ begin
 end;
 
 
+procedure TKMayor.OwnerUpdate(aPlayer: TPlayerIndex);
+begin
+  fOwner := aPlayer;
+  fCityPlanner.OwnerUpdate(aPlayer);
+  fPathFindingRoad.OwnerUpdate(aPlayer);
+end;
+
+
 procedure TKMayor.UpdateState;
 begin
   CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
@@ -369,6 +377,7 @@ begin
   SaveStream.Write(fRecruitDelay);
 
   fCityPlanner.Save(SaveStream);
+  fPathFindingRoad.Save(SaveStream);
 end;
 
 
@@ -382,6 +391,7 @@ begin
   LoadStream.Read(fRecruitDelay);
 
   fCityPlanner.Load(LoadStream);
+  fPathFindingRoad.Load(LoadStream);
 end;
 
 

@@ -563,6 +563,7 @@ procedure TKMFieldworksList.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
 begin
+  //Note: Fakes should not be saved, they are just temporary and saves must be consistent acorss all networked computers
   SaveStream.Write('FieldworksList');
 
   SaveStream.Write(fFieldsCount);

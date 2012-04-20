@@ -7,8 +7,8 @@ Essential:
  +	Improve look of MP results screen (smaller font in bars)
  +	Sort out sprite visibility at FOW edge. Currently sprites appear visible or black in cases where the shouldn't, especially trees and units
  +	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
+ +	Make sure AI city planner is stable (incomplete but doesn't cause crashes) and included in release as limited preview
  wip	Add maps by Janosiczek/PAKER [Lewin]
-	Make sure AI city planner is stable (incomplete but doesn't cause crashes) and included in release as limited tech preview, or disable it for release
 
 	Send new/changed text to be translated [Lewin]
 	Make release candidates and send to trusted testers to find new bugs we've introduced [Lewin]

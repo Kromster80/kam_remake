@@ -15,6 +15,10 @@ type
     function IsWalkableTile(aX, aY: Word): Boolean; override;
   public
     constructor Create(aOwner: TPlayerIndex);
+
+    procedure OwnerUpdate(aPlayer:TPlayerIndex);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
@@ -26,6 +30,24 @@ uses KM_PlayersCollection;
 constructor TPathFindingRoad.Create(aOwner: TPlayerIndex);
 begin
   fOwner := aOwner;
+end;
+
+
+procedure TPathFindingRoad.OwnerUpdate(aPlayer: TPlayerIndex);
+begin
+  fOwner := aPlayer;
+end;
+
+
+procedure TPathFindingRoad.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.Write(fOwner);
+end;
+
+
+procedure TPathFindingRoad.Load(LoadStream: TKMemoryStream);
+begin
+  LoadStream.Read(fOwner);
 end;
 
 

@@ -1274,7 +1274,7 @@ begin
                       begin
                         U := fTerrain.UnitsHitTest(P.X, P.Y);
                         if U <> nil then
-                          AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,P.X+0.5,P.Y+1,MyPlayer.FlagColor,true,true);
+                          AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,MyPlayer.FlagColor,true,true);
                       end
                       else
                       if (

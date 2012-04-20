@@ -24,6 +24,8 @@ type
     constructor Create(aPlayer: TPlayerIndex);
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
 
+    procedure OwnerUpdate(aPlayer:TPlayerIndex);
+
     procedure UpdateInfluence;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -216,6 +218,12 @@ begin
         Result := True;
       end;
     end;
+end;
+
+
+procedure TKMCityPlanner.OwnerUpdate(aPlayer: TPlayerIndex);
+begin
+  fOwner := aPlayer;
 end;
 
 

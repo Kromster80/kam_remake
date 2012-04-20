@@ -604,6 +604,7 @@ end;
 procedure TKMPlayerAI.OwnerUpdate(aPlayer: TPlayerIndex);
 begin
   fPlayerIndex := aPlayer;
+  fMayor.OwnerUpdate(aPlayer);
 end;
 
 
