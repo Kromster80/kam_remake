@@ -554,9 +554,12 @@ begin
   end;
 
   //If someone else has this index, switch them (only when HostDoesSetup)
-  NetPlayerIndex := fNetPlayers.StartingLocToLocal(aIndex);
-  if (NetPlayerIndex <> -1) and IsHost and fNetPlayers.HostDoesSetup then
-    fNetPlayers[NetPlayerIndex].StartLocation := fNetPlayers[aPlayerIndex].StartLocation;
+  if IsHost and fNetPlayers.HostDoesSetup and (aIndex <> 0) then //0 means random, don't switch that
+  begin
+    NetPlayerIndex := fNetPlayers.StartingLocToLocal(aIndex);
+    if NetPlayerIndex <> -1 then
+      fNetPlayers[NetPlayerIndex].StartLocation := fNetPlayers[aPlayerIndex].StartLocation;
+  end;
 
   //Host makes rules, Joiner will get confirmation from Host
   fNetPlayers[aPlayerIndex].StartLocation := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
