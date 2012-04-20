@@ -61,6 +61,7 @@ type
     procedure Store_SelectWare(Sender:TObject);
     procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
     procedure Player_ChangeActive(Sender: TObject);
+    procedure SetActivePlayer(aIndex: TPlayerIndex);
     procedure Player_ColorClick(Sender:TObject);
     procedure Mission_AlliancesChange(Sender:TObject);
     procedure Mission_PlayerTypesChange(Sender:TObject);
@@ -929,21 +930,31 @@ end;
 
 
 procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
-var i:integer;
 begin
-  if Sender <> nil then
-    MyPlayer := fPlayers.Player[TKMControl(Sender).Tag]
-  else
-    MyPlayer := fPlayers.Player[0];
-
-  for i:=0 to MAX_PLAYERS-1 do
-    Button_PlayerSelect[i].Down := (i = MyPlayer.PlayerIndex);
-
   if (fShownHouse <> nil) or (fShownUnit <> nil) then SwitchPage(nil);
 
   fShownHouse := nil; //Drop selection
   fShownUnit := nil;
   fPlayers.Selected := nil;
+
+  if Sender <> nil then
+    SetActivePlayer(TKMControl(Sender).Tag)
+  else
+    SetActivePlayer(-1);
+end;
+
+
+procedure TKMapEdInterface.SetActivePlayer(aIndex: TPlayerIndex);
+var I: Integer;
+begin
+  if aIndex <> -1 then
+    MyPlayer := fPlayers.Player[aIndex]
+  else
+    MyPlayer := fPlayers.Player[0];
+
+  for I := 0 to MAX_PLAYERS - 1 do
+    Button_PlayerSelect[I].Down := (I = MyPlayer.PlayerIndex);
+
   Player_UpdateColors;
 end;
 
@@ -1157,6 +1168,8 @@ begin
     exit;
   end;
 
+  SetActivePlayer(Sender.GetOwner);
+
   {Common data}
   Label_House.Caption:=fResource.HouseDat[Sender.HouseType].HouseName;
   Image_House_Logo.TexID:=fResource.HouseDat[Sender.HouseType].GUIIcon;
@@ -1198,6 +1211,9 @@ begin
     fShownUnit:=nil; //Make sure it doesn't come back again, especially if it's dead!
     exit;
   end;
+
+  SetActivePlayer(Sender.GetOwner);
+
   SwitchPage(Panel_Unit);
   Label_UnitName.Caption:=fResource.UnitDat[Sender.UnitType].UnitName;
   Image_UnitPic.TexID:=fResource.UnitDat[Sender.UnitType].GUIScroll;
@@ -1687,9 +1703,9 @@ begin
   end;
 
   fGame.UpdateGameCursor(X,Y,Shift);
-  if GameCursor.Mode=cm_None then
-    if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
-       (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
+  if GameCursor.Mode = cm_None then
+    if (fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
+       (fPlayers.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
       fResource.Cursors.Cursor := kmc_Info
     else
       if not fGame.Viewport.Scrolling then
@@ -1759,9 +1775,7 @@ begin
   if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
     case GameCursor.Mode of
       cm_None:  begin
-                  OldSelected := fPlayers.Selected;
-                  if not fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y) then
-                    fPlayers.Selected := OldSelected; //Reselect the previous item, so left clicking on the map does not select nil
+                  fPlayers.SelectHitTest(GameCursor.Cell.X, GameCursor.Cell.Y, False);
 
                   if fPlayers.Selected is TKMHouse then
                     ShowHouseInfo(TKMHouse(fPlayers.Selected));

@@ -3502,11 +3502,7 @@ begin
   case GameCursor.Mode of
     cm_None:  begin
                 //You cannot select nil (or unit/house from other team) simply by clicking on the terrain
-                OldSelected := fPlayers.Selected;
-                if (not fPlayers.HitTest(P.X, P.Y)) or
-                  ((fPlayers.Selected is TKMHouse) and (TKMHouse(fPlayers.Selected).GetOwner <> MyPlayer.PlayerIndex))or
-                  ((fPlayers.Selected is TKMUnit) and (TKMUnit(fPlayers.Selected).GetOwner <> MyPlayer.PlayerIndex)) then
-                  fPlayers.Selected := OldSelected;
+                fPlayers.SelectHitTest(P.X, P.Y, True);
 
                 if (fPlayers.Selected is TKMHouse) then
                   ShowHouseInfo(TKMHouse(fPlayers.Selected));

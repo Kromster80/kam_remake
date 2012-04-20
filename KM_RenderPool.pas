@@ -535,9 +535,9 @@ begin
                   - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, gX, gY);
 
-    fRenderAux.Dot(pX, pY - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, $FFFF0000);
-    fRenderAux.Dot(pX + R.Pivot[ID].X / CELL_SIZE_PX,
-                   pY + R.Pivot[ID].Y / CELL_SIZE_PX - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, $FFFFFF00);
+    //fRenderAux.Dot(pX, pY - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, $FFFF0000);
+    //fRenderAux.Dot(pX + R.Pivot[ID].X / CELL_SIZE_PX,
+    //               pY + R.Pivot[ID].Y / CELL_SIZE_PX - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, $FFFFFF00);
     //fRenderAux.Dot(CornerX, CornerY, $FFFF00FF);
     //glRasterPos2f(pX - 1 + 0.1, pY - 1 + 0.1);
     //glPrint(inttostr(aIndex) + ':' + inttostr(ID));
@@ -825,7 +825,7 @@ begin
   if DoImmediateRender then
     RenderSprite(rxUnits, ID, CornerX, CornerY, FlagColor, 255, Deleting);
 
-  //if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
+  if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
   if NewInst then
   begin
     fRenderAux.Dot(pX, pY - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, FlagColor);

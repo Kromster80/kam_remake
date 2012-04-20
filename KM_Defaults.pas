@@ -68,7 +68,7 @@ var
   SHOW_TEXT_OUTLINES    :Boolean = False; //Display text areas outlines
   ENABLE_DESIGN_CONTORLS:Boolean = False; //Enable special mode to allow to move/edit controls
   MODE_DESIGN_CONTORLS  :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
-  OVERLAY_RESOLUTIONS   :Boolean = True; //Render constraining frame
+  OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   {Gameplay display}
   SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic
   SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic
@@ -77,7 +77,7 @@ var
   SHOW_UNIT_ROUTES      :Boolean = False; //Draw unit routes
   SHOW_PROJECTILES      :Boolean = False; //Shows projectiles trajectory
   SHOW_POINTER_DOTS     :Boolean = False; //Show pointer count as small dots below unit/houses
-  SHOW_GROUND_LINES     :Boolean = True; //Show a line below all sprites to mark the ground height used in Z-Order
+  SHOW_GROUND_LINES     :Boolean = False; //Show a line below all sprites to mark the ground height used in Z-Order
   SHOW_UNIT_MOVEMENT    :Boolean = False; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
   SHOW_WALK_CONNECT     :Boolean = False; //Show floodfill areas of interconnected areas
   TEST_VIEW_CLIP_INSET  :Boolean = False; //Renders smaller area to see if everything gets clipped well
@@ -87,7 +87,7 @@ var
   RENDER_3D             :Boolean = False; //Experimental 3D render
   {Stats}
   SHOW_SPRITE_COUNT     :Boolean = False; //display rendered controls/sprites count
-  SHOW_POINTER_COUNT    :Boolean = True; //Show debug total count of unit/house pointers being tracked
+  SHOW_POINTER_COUNT    :Boolean = False; //Show debug total count of unit/house pointers being tracked
   SHOW_CMDQUEUE_COUNT   :Boolean = False; //Show how many commands were processed and stored by TGameInputProcess
   SHOW_NETWORK_DELAY    :Boolean = False; //Show the current delay in multiplayer game
   SHOW_ARMYEVALS        :Boolean = False; //Show result of enemy armies evaluation
@@ -956,13 +956,23 @@ const
   3,   //Black
   3,   //Black
   255  //White}
-  DefaultTeamColors:array[0..7]of cardinal = (
+  DefaultTeamColors:array[0..MAX_PLAYERS-1]of cardinal = (
   $FF0707FF, //Red
   $FFE3BB5B, //Cyan
   $FF27A700, //Green
   $FFFF67FF, //Magenta
   $FF07FFFF, //Yellow
   $FF577B7B, //Grey
+  $FF000000, //Black
+  $FF000000, //Black
+  $FF000000, //Black
+  $FF000000, //Black
+  $FF000000, //Black
+  $FF000000, //Black
+  $FF000000, //Black
+  $FF000000, //Black
+  $FF000000, //Black
+  $FF000000, //Black
   $FF000000, //Black
   $FF000000  //Black
   );

@@ -30,11 +30,12 @@ type
     procedure RemovePlayer(aIndex:TPlayerIndex);
     procedure AfterMissionInit(aFlattenRoads:boolean);
     function HousesHitTest(X,Y:Integer): TKMHouse;
+    function UnitsHitTest(X, Y: Integer): TKMUnit;
     function GetClosestUnit(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMUnit;
     function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
-    function HitTest(X,Y:Integer):boolean;
+    procedure SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
     function GetUnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
     function CheckAlliance(aPlay1,aPlay2:TPlayerIndex):TAllianceType;
@@ -159,13 +160,29 @@ end;
 
 
 function TKMPlayersCollection.HousesHitTest(X, Y: Integer): TKMHouse;
-var i:integer;
+var
+  I: Integer;
 begin
-  Result:=nil;
-  for i:=0 to fCount-1 do
+  Result := nil;
+  for I := 0 to fCount - 1 do
   begin
-    Result := fPlayerList[i].HousesHitTest(X,Y);
-    if Result<>nil then Exit; //There can't be 2 houses on one tile
+    Result := fPlayerList[I].HousesHitTest(X, Y);
+    if Result <> nil then
+      Exit; //There can't be 2 houses on one tile
+  end;
+end;
+
+
+function TKMPlayersCollection.UnitsHitTest(X, Y: Integer): TKMUnit;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to fCount - 1 do
+  begin
+    Result := fPlayerList[I].UnitsHitTest(X, Y);
+    if Result <> nil then
+      Exit; //There can't be 2 units on one tile
   end;
 end;
 
@@ -233,25 +250,45 @@ begin
 end;
 
 
-{ HitTest for houses/units altogether
-  Houses have priority over units, so you can't select an occupant.
-  (however, this is only true if the house is built)
-  Player should not be able to select dying units either }
-function TKMPlayersCollection.HitTest(X,Y: Integer):boolean;
-var H:TKMHouse; U:TKMUnit;
+//Houses have priority over units, so you can't select an occupant
+//Selection priority is as follows:
+//BuiltHouses > Units > IncompleteHouses
+procedure TKMPlayersCollection.SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
+var
+  H: TKMHouse;
+  U: TKMUnit;
+  OldSelected: TObject;
 begin
-  H := MyPlayer.HousesHitTest(X,Y);
-  if (H<>nil) and (H.BuildingState in [hbs_Stone,hbs_Done]) then
-    fPlayers.Selected := H
-  else begin
-    U := MyPlayer.UnitsHitTest(X,Y);
-    if (U<>nil) and (not U.IsDeadOrDying) then
-      fPlayers.Selected := U
-    else
-      fPlayers.Selected := H;
+  OldSelected := Selected;
+  if aOnlyMyPlayer then
+  begin
+    H := MyPlayer.HousesHitTest(X,Y);
+    if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
+      Selected := H
+    else begin
+      U := MyPlayer.UnitsHitTest(X,Y);
+      if (U <> nil) and (not U.IsDeadOrDying) then
+        Selected := U
+      else
+        Selected := H;
+    end
+  end
+  else
+  begin
+    H := HousesHitTest(X,Y);
+    if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
+      Selected := H
+    else begin
+      U := UnitsHitTest(X,Y);
+      if (U <> nil) and (not U.IsDeadOrDying) then
+        Selected := U
+      else
+        Selected := H;
+    end;
   end;
 
-  Result := fPlayers.Selected <> nil;
+  if Selected = nil then
+    Selected := OldSelected;
 end;
 
 
