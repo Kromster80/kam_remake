@@ -1268,8 +1268,8 @@ begin
   begin
     UnitPosition := GetPositionInGroup2(GetPosition.X, GetPosition.Y, Direction, i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
     if not DoesFit then continue; //Don't render units that are off the map in the map editor
-    UnitPos.X := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
-    UnitPos.Y := UnitPosition.Y + 1  ;
+    UnitPos.X := UnitPosition.X + UNIT_OFF_X; //MapEd units don't have sliding
+    UnitPos.Y := UnitPosition.Y + UNIT_OFF_Y;
     fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers.Player[fOwner].FlagColor, true);
   end;
 

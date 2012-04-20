@@ -1331,7 +1331,7 @@ begin
                 end;
     cm_Height:  fRenderAux.Circle(GameCursor.Float.X,GameCursor.Float.Y - fTerrain.HeightAt(GameCursor.Float)/CELL_HEIGHT_DIV, (GameCursor.Tag1 and $F) div 2, $00000000,  $FFFFFFFF);
     cm_Units:   if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
-                  AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],P.X-0.5,P.Y,MyPlayer.FlagColor,true)
+                  AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,MyPlayer.FlagColor,true)
                 else
                   RenderCursorBuildIcon(P); //Red X
   end;
