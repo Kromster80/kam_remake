@@ -18,7 +18,7 @@ type
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
-    procedure WriteText         (X,Y,W,H: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
+    procedure WriteText         (X,Y,W,H: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
     procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
     procedure WriteCircle       (PosX,PosY,Rad:smallint; Col:TColor4);
   end;
@@ -399,7 +399,7 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-procedure TRenderUI.WriteText(X,Y,W,H: smallint; aText: string; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean = False);
+procedure TRenderUI.WriteText(X,Y,W,H: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean = False);
 var
   I, K: Integer;
   LineCount,AdvX,LineHeight,BlockWidth: Integer;
