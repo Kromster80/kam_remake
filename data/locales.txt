@@ -10,6 +10,7 @@ fre,    French,               1252,     11,           ,                Sylvain D
 ger,    German,               1252,     6,            ,                The Knight
 hun,    Hungarian,            1250,     17,           ,                Jecy
 ita,    Italian,              1252,     10,           ,                Paolo Castelvetere
+lit,    Lithuanian,           LITH,     27,           ,                Audrius Arlauskas (Zaero)
 pol,    Polish,               1250,     7,            ,                Przemyslaw Pietras
 rom,    Romanian,             1250,     26,           ,                mucormucedo
 rus,    Russian,              1251,     14,           ,                Krom
