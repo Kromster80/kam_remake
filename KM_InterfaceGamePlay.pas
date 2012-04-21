@@ -3501,6 +3501,7 @@ begin
   if MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) > 0 then
   case GameCursor.Mode of
     cm_None:  begin
+                OldSelected := fPlayers.Selected;
                 //You cannot select nil (or unit/house from other team) simply by clicking on the terrain
                 fPlayers.SelectHitTest(P.X, P.Y, True);
 

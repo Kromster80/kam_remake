@@ -1739,7 +1739,7 @@ end;
 
 
 procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-var P: TKMPoint; OldSelected: TObject;
+var P: TKMPoint;
 begin
   inherited;
 

@@ -1,26 +1,5 @@
-﻿Since r2736:
+﻿Since r3251:
 <===================================================================================>
- +	Range Check Error occurs when a woodcutter considers chopping a tree on the topmost or leftmost edge of the map
- +	Click server A, then quickly click server B. This is incorrectly interpreted as double clicking and you join server B
- +	Units should eat a maximum of 2 food items at the inn
- +	Exporting GUI.rx gives a Range Check Error
- +	Woodcutter would occasionally not cut certain trees
- +	Falling trees sometimes looped back to the first frame of the animation making them appear standing again
- +	Houses from script could be placed at invalid tiles or overlapping, causing duplicate watchertower in TSK 7
- +	The breifing for TPR mission 14 was blank due to an error with loading the last string from a LIB file
- +	Major A* pathfinding mistake from r1220 causing long/inefficient routes to be calculated
- +	On slow computers first-time loading takes >20 seconds, meaning you are kicked from multiplayer games by the server
- +	Fixed crash occurring on replay end
- +	Chat button in multiplayer replay viewer was not properly disabled and upon click caused a crash
- +	See-through hills (lighting flaw)
- +	Server selection highlight in MP menu disappears when sorting by any column
- +	Putting a "/" in a save name causes an error (probably other characters like \ ? | too, we should restrict allowed chars)
- +	Entering text into port/room fields. They should accept only digits
- +	Pressing CTRL+ALT+DEL with a game running caused a "System error code 5" or "call to OS function failed" due to Windows denying accesss to Mouse.CursorPos for a moment
- +	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
- +	Issue with empty saves names and misused whitespaces
- +	The market should be blocked in the original campaigns/tutorial (maybe have an option to enable it starting at later missions, but it still ruins the balance IMO)
- +	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	If I play a campaign up to mission say 9, then load an old save of mission 5, quit and press restart, it will load basesave which is mission 9 (we should make a basesave after loading saves?)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
@@ -39,28 +18,6 @@
 	Colored rectangle below cursor
 
 Improvements:
- +	Switching to fullscreen causes banding if drivers report unsupported refresh rates (add manual refresh rate selector to options) [Maciej]
- +	Maps scan should be done in separate thread to unlock GUI
- +	Roads/field plans should only be visible on you and your allies screen to prevent exploiting (move markups from terrain to player)
- +	Allow listboxes to handle up/down arrows
- +	Add sort indicators to listboxes
- +	Minimap preview in lobby, singleplayer and map editor menus
- +	Placing road/field in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
- +	Locales list is stored in a file rather than hard coded
- +	Locales have a fallback option for very similar languages (e.g. Slovak uses Czech voices)
- +	Make fishes/watersnake to be more visible in MapEd
- +	High quality alpha-blended shadows for units and trees
- +	Logs older than 14 days are automatically deleted
- +	Minimap preview for saves (store raw color data at the begining of the save so it's fast)
- +	Saves/Replays scan should be done in separate thread to unlock GUI [Maciej]
- +	Saves/Replays can be sorted
- +	Custom in-game messages for fan-made campaigns and missions (could be stored in new custom .libx file for the mission)
- +	Support color tags in text
- +	Colors for chat to highlight player names and whether it is team/all channel
- +	Smarter job assignment to workers
- +	Smarter delivery assignment to serfs
- +	Add support for 1024x600 (1280x720) resolution
- +	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	High quality alpha-blended shadows for houses (only once constructed?)
@@ -92,6 +49,56 @@ Improvements:
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
  - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
  -	Many texts will not change if I change the language in options menu (we are always working on it)
+
+
+
+Fixed in r3251:
+<===================================================================================>
+ +	Range Check Error occurs when a woodcutter considers chopping a tree on the topmost or leftmost edge of the map
+ +	Click server A, then quickly click server B. This is incorrectly interpreted as double clicking and you join server B
+ +	Units should eat a maximum of 2 food items at the inn
+ +	Exporting GUI.rx gives a Range Check Error
+ +	Woodcutter would occasionally not cut certain trees
+ +	Falling trees sometimes looped back to the first frame of the animation making them appear standing again
+ +	Houses from script could be placed at invalid tiles or overlapping, causing duplicate watchertower in TSK 7
+ +	The breifing for TPR mission 14 was blank due to an error with loading the last string from a LIB file
+ +	Major A* pathfinding mistake from r1220 causing long/inefficient routes to be calculated
+ +	On slow computers first-time loading takes >20 seconds, meaning you are kicked from multiplayer games by the server
+ +	Fixed crash occurring on replay end
+ +	Chat button in multiplayer replay viewer was not properly disabled and upon click caused a crash
+ +	See-through hills (lighting flaw)
+ +	Server selection highlight in MP menu disappears when sorting by any column
+ +	Putting a "/" in a save name causes an error (probably other characters like \ ? | too, we should restrict allowed chars)
+ +	Entering text into port/room fields. They should accept only digits
+ +	Pressing CTRL+ALT+DEL with a game running caused a "System error code 5" or "call to OS function failed" due to Windows denying accesss to Mouse.CursorPos for a moment
+ +	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
+ +	Issue with empty saves names and misused whitespaces
+ +	The market should be blocked in the original campaigns/tutorial (maybe have an option to enable it starting at later missions, but it still ruins the balance IMO)
+ +	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
+
+Improvements:
+ +	Switching to fullscreen causes banding if drivers report unsupported refresh rates (add manual refresh rate selector to options) [Maciej]
+ +	Maps scan should be done in separate thread to unlock GUI
+ +	Roads/field plans should only be visible on you and your allies screen to prevent exploiting (move markups from terrain to player)
+ +	Allow listboxes to handle up/down arrows
+ +	Add sort indicators to listboxes
+ +	Minimap preview in lobby, singleplayer and map editor menus
+ +	Placing road/field in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
+ +	Locales list is stored in a file rather than hard coded
+ +	Locales have a fallback option for very similar languages (e.g. Slovak uses Czech voices)
+ +	Make fishes/watersnake to be more visible in MapEd
+ +	High quality alpha-blended shadows for units and trees
+ +	Logs older than 14 days are automatically deleted
+ +	Minimap preview for saves (store raw color data at the begining of the save so it's fast)
+ +	Saves/Replays scan should be done in separate thread to unlock GUI [Maciej]
+ +	Saves/Replays can be sorted
+ +	Custom in-game messages for fan-made campaigns and missions (could be stored in new custom .libx file for the mission)
+ +	Support color tags in text
+ +	Colors for chat to highlight player names and whether it is team/all channel
+ +	Smarter job assignment to workers
+ +	Smarter delivery assignment to serfs
+ +	Add support for 1024x600 (1280x720) resolution
+ +	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
 
 
 

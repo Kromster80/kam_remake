@@ -5,9 +5,9 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
-if($Rev == "r3015")
+if($Rev == "r3251")
 {
-  die('[$B700FF]KaM[] [$E88700]Remake[]: Now in [$0000E0]COLOR[]!');
+  die('[$B700FF]KaM[] [$4040F0]R[$40F0F0]e[$40F040]m[$F0F040]a[$F04040]k[$F040F0]e[]: Now in [$0000E0]COLOR[]!||Hello playtesters,|Thanks for downloading the Release Candidate :)|Please report any issues.');
 }
 
 //First see if they are up to date
