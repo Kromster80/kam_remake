@@ -327,6 +327,7 @@ MaxID:2699
 1787:Lista jucãtorilor
 1788:Locatii de început
 1789:Echipa
+1790:Culoarea
 1791:Gata
 1792:Ping
 1793:Înlãturã
@@ -440,7 +441,14 @@ MaxID:2699
 1905:tileset
 2687:Creazã server
 2688:CAUTÃ SERVER
-2689:Cautã Server
-2690:Cautã Server
+2689:Conecteazã-te
+2690:Cautã Server dupa IP
 2691:Anuleazã
 2692:Anuleazã
+2693:Nu este suportat
+2694:Nu este suportat
+2695:Eroare: Numele jucãtorului nu trebuie sã fie mai mare de %d caractere
+2696:Eroare: Numele jucãtorului contine caractere invalide
+2697:Calitatea umbrelor:
+2698:Mic
+2699:Mare

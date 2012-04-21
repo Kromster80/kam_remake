@@ -197,6 +197,10 @@ MaxID:2699
 433:Entree
 434:Deep Blue
 435:Struggle
+436:Koninklijke vertrekken
+437:Aristocratie
+438:Bij de Haven
+439:Reis
 847:Campagne 'The Shattered Kingdom'
 848:Campagne 'The Peasants Rebellion'
 849:Speel Enkelvoudige Kaart
@@ -323,6 +327,7 @@ MaxID:2699
 1787:Spelerslijst
 1788:Startlocatie
 1789:Team
+1790:Kleur
 1791:Gereed
 1792:Ping
 1793:Kick
@@ -434,5 +439,16 @@ MaxID:2699
 1903:bomen
 1904:definities
 1905:tegelset
+2687:Server aanmaken
+2688:VIND SERVER
+2689:Verbinden
+2690:Vind server met IP
 2691:Annuleren
 2692:Annuleren
+2693:Niet ondersteund
+2694:Niet ondersteund
+2695:Fout: spelernaam mag niet langer dan %d tekens zijn
+2696:Fout: spelernaam bevat verboden karakters
+2697:Schaduw kwaliteit:
+2698:Laag
+2699:Hoog
