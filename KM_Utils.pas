@@ -25,6 +25,13 @@ uses Classes, Math, SysUtils, KM_Defaults, KM_Points;
   {$IFDEF Unix}
   function FakeGetTickCount: DWord;
   {$ENDIF}
+  //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linux without using Controls)
+  procedure KMSwapInt(var A,B:byte); overload;
+  procedure KMSwapInt(var A,B:shortint); overload;
+  procedure KMSwapInt(var A,B:smallint); overload;
+  procedure KMSwapInt(var A,B:word); overload;
+  procedure KMSwapInt(var A,B:integer); overload;
+  procedure KMSwapInt(var A,B:cardinal); overload;
 
 implementation
 
@@ -33,10 +40,48 @@ var
   fKaMSeed: Integer;
 
 
-//Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linu without using Controls)
+//Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linux without using Controls)
 function GetLength(A, B: Single): Single;
 begin
   Result := Sqrt(Sqr(A) + Sqr(B));
+end;
+
+procedure KMSwapInt(var A, B: byte);
+var
+  S: byte;
+begin
+  S := A; A := B; B := S;
+end;
+
+procedure KMSwapInt(var A, B: shortint);
+var
+  S: shortint;
+begin
+  S := A; A := B; B := S;
+end;
+
+procedure KMSwapInt(var A,B:smallint);
+var s:smallint;
+begin
+  s:=A; A:=B; B:=s;
+end;
+
+procedure KMSwapInt(var A,B:word);
+var s:word;
+begin
+  s:=A; A:=B; B:=s;
+end;
+
+procedure KMSwapInt(var A,B:integer);
+var s:integer;
+begin
+  s:=A; A:=B; B:=s;
+end;
+
+procedure KMSwapInt(var A,B:cardinal);
+var s:cardinal;
+begin
+  s:=A; A:=B; B:=s;
 end;
 
 

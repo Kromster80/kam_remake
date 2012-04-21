@@ -2,7 +2,7 @@ unit KM_CommonClasses;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, KM_NetworkTypes, KM_Points;
+  Classes, Math, SysUtils, KM_NetworkTypes, KM_Points;
 
 
 type
@@ -531,8 +531,8 @@ begin
       if Tag[K] < Tag[I] then
       begin
         KMSwapPoints(fItems[I], fItems[K]);
-        SwapInt(Tag[I], Tag[K]);
-        SwapInt(Tag2[I], Tag2[K]);
+        KMSwapInt(Tag[I], Tag[K]);
+        KMSwapInt(Tag2[I], Tag2[K]);
       end;
 end;
 

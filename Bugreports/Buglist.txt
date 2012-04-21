@@ -1,4 +1,4 @@
-﻿Since r3251:
+﻿Since r3252:
 <===================================================================================>
 	If I play a campaign up to mission say 9, then load an old save of mission 5, quit and press restart, it will load basesave which is mission 9 (we should make a basesave after loading saves?)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -52,7 +52,7 @@ Improvements:
 
 
 
-Fixed in r3251:
+Fixed in r3252:
 <===================================================================================>
  +	Range Check Error occurs when a woodcutter considers chopping a tree on the topmost or leftmost edge of the map
  +	Click server A, then quickly click server B. This is incorrectly interpreted as double clicking and you join server B
