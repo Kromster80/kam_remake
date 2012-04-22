@@ -27,6 +27,7 @@ MaxID:2699
 23:Warsztat Wojenny
 24:Rzeünia
 25:Garbarnia
+26:Sala treningowa
 27:Gospoda
 28:Winnica
 29:Targ
@@ -196,6 +197,10 @@ MaxID:2699
 433:Entree
 434:Deep Blue
 435:Struggle
+436:Royal Quarters
+437:Aristocracy
+438:At the Harbor
+439:Journey
 847:Kampania 'The Shattered Kingdom'
 848:Kampania 'The Peasants Rebellion'
 849:Rozegraj jednπ misjÍ
@@ -322,6 +327,7 @@ MaxID:2699
 1787:Lista graczy
 1788:Lokalizacja poczπtkowa
 1789:Druøyna
+1790:Kolor
 1791:Gotowy
 1792:Ping
 1793:WyrzuÊ
@@ -433,5 +439,16 @@ MaxID:2699
 1903:drzewa
 1904:definicje
 1905:grafiki terenu
+2687:UtwÛrz Serwer
+2688:ZNAJDè SERWER
+2689:Po≥πcz
+2690:Znajdü Serwer przez IP
 2691:Anuluj
 2692:Anuluj
+2693:Nie obs≥ugiwane
+2694:Nie obs≥ugiwane
+2695:B≥πd: Nazwa gracza nie moøe byÊ d≥uøsza niø %d znakÛw
+2696:B≥πd: Nazwa gracza zawiera niedozwolone znaki
+2697:JakoúÊ cieni:
+2698:Niska
+2699:Wysoka

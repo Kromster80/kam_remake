@@ -15,6 +15,7 @@
 
 	Dots and lines displaying on tile edges [Krom]
 	Sandhills cause water next to shore tiles to appear darker with square edges
+	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing might help?)
 	Colored rectangle below cursor
 
 Improvements:
@@ -31,7 +32,7 @@ Improvements:
 	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
 	Play campaign briefing WAV files (and fade music while it plays)
 	Master server use MySQL for storage rather than .txt files
-	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team does not require acceptance. We need a "lock teams" option in the lobby for this to work.
+	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
 	Chat logs
 	Selecting a map in multiplayer should show columns with name, size, player count, etc. rather than dumb drop down
 	Wares need to be taken out of the barracks for trading at the market
@@ -42,6 +43,7 @@ Improvements:
 	Add support for 1024x600 (1280x720) resolution in the map editor
 	RXXPacker to make soft shadowed RXX files in 1 click rather than by hand
 	RXXEditor tool for the public
+	Economic goals such as produce X amount of resource A
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
