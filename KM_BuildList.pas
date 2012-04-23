@@ -388,7 +388,9 @@ begin
   if aIncludeFake then
   begin
     for I := 0 to Length(fFakeFields) - 1 do
-      if fFakeFields[I].Active then
+      //It is possible to have a fake fieldplans at the position of a real fieldplan temporarily when
+      //clicking on one tile repeatly due to network delay. Don't add duplicate points to the list.
+      if fFakeFields[I].Active and not aList.Contains(fFakeFields[I].Loc) then
         aList.AddEntry(fFakeFields[I].Loc, Byte(fFakeFields[I].FieldType), 0);
     //Fields that have been deleted should not be painted
     for I := 0 to Length(fFakeDeletedFields) - 1 do

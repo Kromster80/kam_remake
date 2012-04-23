@@ -88,6 +88,7 @@ type
     procedure Insert(ID: Integer; aLoc: TKMPoint);
     function  GetRandom(out Point: TKMPoint): Boolean;
     function  GetClosest(aLoc: TKMPoint; out Point: TKMPoint): Boolean;
+    function Contains(aLoc: TKMPoint): Boolean;
     procedure Inverse;
     function  GetBounds(out Bounds: TKMRect): Boolean;
     procedure SaveToStream(SaveStream: TKMemoryStream); virtual;
@@ -342,7 +343,11 @@ end;
 
 
 procedure TKMPointList.AddEntry(aLoc: TKMPoint);
+var I: Integer;
 begin
+  //Detect duplicate entries when they are added (not just when removing) so we can detect bugs reliably
+  Assert(AllowDuplicates or not Contains(aLoc));
+
   if fCount >= Length(fItems) then
     SetLength(fItems, fCount + 32);
   fItems[fCount] := aLoc;
@@ -415,6 +420,19 @@ begin
       Point := fItems[I];
     Result := True;
   end;
+end;
+
+
+function TKMPointList.Contains(aLoc: TKMPoint): Boolean;
+var
+  I: Integer;
+begin
+  for I := 0 to fCount - 1 do
+  begin
+    Result := KMSamePoint(aLoc,fItems[I]);
+    if Result then Exit;
+  end;
+  Result := False;
 end;
 
 

@@ -3499,6 +3499,7 @@ begin
 
   if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
   if MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) > 0 then
+  begin
   case GameCursor.Mode of
     cm_None:  begin
                 OldSelected := fPlayers.Selected;
@@ -3554,6 +3555,11 @@ begin
                 end;
               end;
   end;
+  end
+  else //CheckTileRevelation
+    if GameCursor.Mode in [cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses] then
+      fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Can't place noise when clicking on unexplored areas
+
   LastDragPoint := KMPoint(0,0);
 end;
 

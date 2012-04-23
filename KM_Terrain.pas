@@ -2427,7 +2427,10 @@ begin
   Xc := Trunc(inX);
   Yc := Trunc(inY);
   Result := 0;
-  if not VerticeInMapCoords(Xc, Yc) then exit;
+  //For example (0.1, 0.1) is valid place to get height, so check X+1 Y+1 vertex is in map.
+  //Similarly (192.9, 192.9) is NOT a valid place to get height, but without X+1 Y+1 it would be allowed
+  //because a vertex exists at (192, 192)
+  if not VerticeInMapCoords(Xc+1, Yc+1) then exit;
 
   Tmp1 := mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, frac(inX));
   if Yc >= MAX_MAP_SIZE then
