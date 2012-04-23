@@ -12,6 +12,7 @@ type
         js_Open,    //Open - job is free to take by anyone
         js_Taken);  //Taken - job is taken by some worker
 
+  TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
   TDemandImportance = (di_Norm, di_High);
 
 type

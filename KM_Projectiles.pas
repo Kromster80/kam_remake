@@ -46,6 +46,16 @@ implementation
 uses KM_Sound, KM_RenderPool, KM_RenderAux, KM_PlayersCollection, KM_Resource;
 
 
+const
+  ProjectileLaunchSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_None, sfx_RockThrow);
+  ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
+  ProjectileSpeeds:array[TProjectileType] of single = (0.75, 0.75, 0.6, 0.8);
+  ProjectileArcs:array[TProjectileType,1..2] of single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
+  ProjectileJitter:array[TProjectileType] of single = (0.3, 0.3, 0.3, 0.2); //Fixed Jitter added every time
+  //Jitter added according to target's speed (moving target harder to hit) Note: Walking = 0.1, so the added jitter is 0.1*X
+  ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 6);
+
+
 { TKMProjectiles }
 constructor TKMProjectiles.Create;
 begin

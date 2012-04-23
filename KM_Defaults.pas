@@ -585,274 +585,19 @@ const
   WINE_AGE_FULL = 64; //Wine ready to be harvested
 
 
-//   1      //Select road tile and rotation
-//  8*2     //depending on surrounding tiles
-//   4      //Bitfield
-RoadsConnectivity: array [0..15, 1..2] of Byte = (
-  (248,0),(248,0),(248,1),(250,3),
-  (248,0),(248,0),(250,0),(252,0),
-  (248,1),(250,2),(248,1),(252,3),
-  (250,1),(252,2),(252,1),(254,0));
 
-{DeliverList}
-type
-  TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
 
 //The frame shown when a unit is standing still in ua_Walk. Same for all units!
 const
   UnitStillFrames: array [TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
 
-  
+
 type
-  TSoundFX = (
-    sfx_None=0,
-    sfx_CornCut=1,
-    sfx_Dig,
-    sfx_Pave,
-    sfx_MineStone,
-    sfx_CornSow,
-    sfx_ChopTree,
-    sfx_housebuild,
-    sfx_placemarker,
-    sfx_Click,
-    sfx_mill,
-    sfx_saw,
-    sfx_wineStep,
-    sfx_wineDrain,
-    sfx_metallurgists,
-    sfx_coalDown,
-    sfx_Pig1,sfx_Pig2,sfx_Pig3,sfx_Pig4,
-    sfx_Mine,
-    sfx_unknown21, //Pig?
-    sfx_Leather,
-    sfx_BakerSlap,
-    sfx_CoalMineThud,
-    sfx_ButcherCut,
-    sfx_SausageString,
-    sfx_QuarryClink,
-    sfx_TreeDown,
-    sfx_WoodcutterDig,
-    sfx_CantPlace,
-    sfx_MessageOpen,
-    sfx_MessageClose,
-    sfx_MessageNotice,
-    sfx_Melee34, //Usage of melee sounds can be found in Docs\Melee sounds in KaM.csv
-    sfx_Melee35,
-    sfx_Melee36,
-    sfx_Melee37,
-    sfx_Melee38,
-    sfx_Melee39,
-    sfx_Melee40,
-    sfx_Melee41,
-    sfx_Melee42,
-    sfx_Melee43,
-    sfx_Melee44,
-    sfx_Melee45,
-    sfx_Melee46,
-    sfx_Melee47,
-    sfx_Melee48,
-    sfx_Melee49,
-    sfx_Melee50,
-    sfx_Melee51,
-    sfx_Melee52,
-    sfx_Melee53,
-    sfx_Melee54,
-    sfx_Melee55,
-    sfx_Melee56,
-    sfx_Melee57,
-    sfx_BowDraw,
-    sfx_ArrowHit,
-    sfx_CrossbowShoot,  //60
-    sfx_CrossbowDraw,
-    sfx_BowShoot,       //62
-    sfx_BlacksmithBang,
-    sfx_BlacksmithFire,
-    sfx_CarpenterHammer, //65
-    sfx_Horse1,sfx_Horse2,sfx_Horse3,sfx_Horse4,
-    sfx_RockThrow,
-    sfx_HouseDestroy,
-    sfx_SchoolDing,
-    //Below are TPR sounds ...
-    sfx_SlingerShoot,
-    sfx_BalistaShoot,
-    sfx_CatapultShoot,
-    sfx_unknown76,
-    sfx_CatapultReload,
-    sfx_SiegeBuildingSmash
-        );
-
-  TSoundFXNew = (
-    sfxn_ButtonClick,
-    sfxn_Trade,
-    sfxn_MPChatMessage,
-    sfxn_MPChatOpen,
-    sfxn_MPChatClose,
-    sfxn_Victory,
-    sfxn_Defeat,
-    sfxn_Error1,
-    sfxn_Error2,
-    sfxn_Peacetime
-
-  );
-
-const
-  NewSFXFolder = 'Sounds\';
-  NewSFXFile:array[TSoundFXNew] of string = (
-    'UI\ButtonClick.wav',
-    'Buildings\MarketPlace\Trade.wav',
-    'Chat\ChatArrive.wav',
-    'Chat\ChatOpen.wav',
-    'Chat\ChatClose.wav',
-    'Misc\Victory.wav',
-    'Misc\Defeat.wav',
-    'UI\Error001.wav',
-    'UI\Error002.wav',
-    'Misc\PeaceTime.wav'
-    );
-
-const MeleeSoundsHit:array[0..14] of TSoundFX = (
-    sfx_Melee34,
-    sfx_Melee35,
-    sfx_Melee36,
-    sfx_Melee41,
-    sfx_Melee42,
-    sfx_Melee44,
-    sfx_Melee45,
-    sfx_Melee46,
-    sfx_Melee47,
-    sfx_Melee48,
-    sfx_Melee49,
-    sfx_Melee50,
-    sfx_Melee55,
-    sfx_Melee56,
-    sfx_Melee57
-        );
-
-const MeleeSoundsMiss:array[0..8] of TSoundFX = (
-    sfx_Melee37,
-    sfx_Melee38,
-    sfx_Melee39,
-    sfx_Melee40,
-    sfx_Melee43,
-    sfx_Melee51,
-    sfx_Melee52,
-    sfx_Melee53,
-    sfx_Melee54
-        );
-
-const MeleeSoundsHouse:array[0..12] of TSoundFX = (
-    sfx_Melee37,
-    sfx_Melee38,
-    sfx_Melee39,
-    sfx_Melee40,
-    sfx_Melee41,
-    sfx_Melee42,
-    sfx_Melee43,
-    sfx_Melee47,
-    sfx_Melee51,
-    sfx_Melee52,
-    sfx_Melee53,
-    sfx_Melee54,
-    sfx_Melee57
-        );
-
-const SSoundFX:array[TSoundFX] of string = (
-    'sfx_None',
-    'sfx_CornCut',
-    'sfx_Dig',
-    'sfx_Pave',
-    'sfx_MineStone',
-    'sfx_CornSow',
-    'sfx_ChopTree',
-    'sfx_housebuild',
-    'sfx_placemarker',
-    'sfx_Click',
-    'sfx_mill',
-    'sfx_saw',
-    'sfx_wineStep',
-    'sfx_wineDrain',
-    'sfx_metallurgists',
-    'sfx_coalDown',
-    'sfx_Pig1','sfx_Pig2','sfx_Pig3','sfx_Pig4',
-    'sfx_Mine',
-    'sfx_unknown21', //Pig?
-    'sfx_Leather',
-    'sfx_BakerSlap',
-    'sfx_CoalMineThud',
-    'sfx_ButcherCut',
-    'sfx_SausageString',
-    'sfx_QuarryClink',
-    'sfx_TreeDown',
-    'sfx_WoodcutterDig',
-    'sfx_CantPlace',
-    'sfx_MessageOpen',
-    'sfx_MessageClose',
-    'sfx_MessageNotice',
-    'sfx_Melee34', //Killed by shot?
-    'sfx_Melee35', //Killed by stone?
-    'sfx_Melee36', //Killed by stone?
-    'sfx_Melee37', //Smacked?
-    'sfx_Melee38',
-    'sfx_Melee39',
-    'sfx_Melee40',
-    'sfx_Melee41', //House hit
-    'sfx_Melee42', //Clung?
-    'sfx_Melee43',
-    'sfx_Melee44', //Killed
-    'sfx_Melee45', //Killed
-    'sfx_Melee46', //Killed
-    'sfx_Melee47', //House hit
-    'sfx_Melee48', //injured?
-    'sfx_Melee49', //injured?
-    'sfx_Melee50',
-    'sfx_Melee51', //Sword-sword', hit blocked?
-    'sfx_Melee52', //Sword-sword', hit blocked?
-    'sfx_Melee53', //Sword-sword', hit blocked?
-    'sfx_Melee54', //Sword-sword', hit blocked?
-    'sfx_Melee55', //Killed?
-    'sfx_Melee56', //Barbarian Killed?
-    'sfx_Melee57', //House hit?
-    'sfx_BowDraw',
-    'sfx_ArrowHit',
-    'sfx_CrossbowShoot',  //60
-    'sfx_CrossbowDraw',
-    'sfx_BowShoot',       //62
-    'sfx_BlacksmithBang',
-    'sfx_BlacksmithFire',
-    'sfx_CarpenterHammer', //65
-    'sfx_Horse1','sfx_Horse2','sfx_Horse3','sfx_Horse4',
-    'sfx_RockThrow',
-    'sfx_HouseDestroy',
-    'sfx_SchoolDing',
-    //Below are TPR sounds ...
-    'sfx_SlingerShoot',
-    'sfx_BalistaShoot',
-    'sfx_CatapultShoot',
-    'sfx_unknown76',
-    'sfx_CatapultReload',
-    'sfx_SiegeBuildingSmash');
-
-
-//Sounds to play on different warrior orders
-type
-  TWarriorSpeech = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Join, sp_Halt, sp_Move, sp_Attack,
-                  sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
-
-  TAttackNotification = (an_Citizens, an_Town, an_Troops);
-
   TProjectileType = (pt_Arrow, pt_Bolt, pt_SlingRock, pt_TowerRock); {pt_BallistaRock, }
 
 const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileBounds:array[TProjectileType,1..2] of word = ( (0,0),(0,0),(0,0),(4186,4190) );
-  ProjectileLaunchSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_None, sfx_RockThrow);
-  ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
-  ProjectileSpeeds:array[TProjectileType] of single = (0.75, 0.75, 0.6, 0.8);
-  ProjectileArcs:array[TProjectileType,1..2] of single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
-  ProjectileJitter:array[TProjectileType] of single = (0.3, 0.3, 0.3, 0.2); //Fixed Jitter added every time
-  //Jitter added according to target's speed (moving target harder to hit) Note: Walking = 0.1, so the added jitter is 0.1*X
-  ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 6);
 
-  const STORM_SPEEDUP=1.5;
 
 
 type
@@ -893,16 +638,6 @@ const
   ('True', 'False');
 
 
-//Pixel positions (waypoints) for sliding around other units. Uses a lookup to save on-the-fly calculations.
-//Follows a sort of a bell curve (normal distribution) shape for realistic acceleration/deceleration.
-//I tweaked it by hand to look similar to KaM.
-//1st row for straight, 2nd for diagonal sliding
-const
-  SlideLookup: array[1..2, 0..Round(CELL_SIZE_PX*1.42)] of byte = ( //1.42 instead of 1.41 because we want to round up just in case (it was causing a crash because Round(40*sqrt(2)) = 57 but Round(40*1.41) = 56)
-    (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9,9,9,8,8,7,7,6,5,4,3,3,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,7,6,6,6,5,5,5,4,4,4,3,3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0,0));
-
-
 //Lowest supported resolution
 const
   MIN_RESOLUTION_WIDTH  = 1024;
@@ -918,13 +653,7 @@ type
   TResIndex = record ResID, RefID: Integer; end;
 
 
-
-
 const
-  MAPSIZES_COUNT = 11;
-  MapSize: array [1..MAPSIZES_COUNT] of Word = (32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192);
-
-
   //Colors available for selection in multiplayer
   MP_COLOR_COUNT = 15;
   MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
@@ -968,6 +697,7 @@ const
   $FF000000  //Black
   );
 
+  //Intarface Colors used for coloring status messages
   icWhite  = $FFFFFFFF;
   icGreen  = $FF00C000;
   icYellow = $FF07FFFF;
@@ -976,8 +706,6 @@ const
 
 
 var
-  OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
-
   ExeDir:string;
 
   GameCursor: record

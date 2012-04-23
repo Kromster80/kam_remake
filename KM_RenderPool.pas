@@ -181,6 +181,16 @@ procedure TRenderPool.RenderTerrainTiles(aRect: TKMRect; AnimStep: Integer);
     glColor4f(A / 1.5 + 0.5, A / 1.5 + 0.5, A / 1.5 + 0.5, Abs(A * 2)); // Balanced looks
     //glColor4f(a*2,a*2,a*2,Abs(a*2)); //Deeper shadows
   end;
+
+//   1      //Select road tile and rotation
+//  8*2     //depending on surrounding tiles
+//   4      //Bitfield
+const
+  RoadsConnectivity: array [0..15, 1..2] of Byte = (
+    (248,0),(248,0),(248,1),(250,3),
+    (248,0),(248,0),(250,0),(252,0),
+    (248,1),(250,2),(248,1),(252,3),
+    (250,1),(252,2),(252,1),(254,0));
 var
   i,k,iW: Integer;
   ID,rd,Rot: Byte;
@@ -1123,8 +1133,6 @@ begin
     bt_Wine:          if Pos in [dir_N,dir_S] then ID:=462 else ID:=466; //Fence (Wood)
     bt_Field:         if Pos in [dir_N,dir_S] then ID:=461 else ID:=465; //Fence (Stones)
   end;
-
-
 
   if Pos=dir_S then pY:=pY+1;
   if Pos=dir_W then pX:=pX+1;

@@ -1,7 +1,7 @@
 unit KM_Sound;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Dialogs, Forms, SysUtils,
+uses Classes, Dialogs, Forms, SysUtils, TypInfo,
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   OpenAL, KromUtils, KM_Defaults, KM_Points;
@@ -9,10 +9,86 @@ uses Classes, Dialogs, Forms, SysUtils,
 
 const
   MAX_SOUNDS = 16; //64 looks like the limit, depends on hardware
-  MAX_ATTENUATED_SOUNDS = (3/4)*MAX_SOUNDS; //Attenuated sounds are less important, always save space for others
-  MAX_FAR_SOUNDS = (1/2)*MAX_SOUNDS; //Sounds that are too far away can only access this many slots
 
 type
+  TAttackNotification = (an_Citizens, an_Town, an_Troops);
+
+  TSoundFX = (
+    sfx_None=0,
+    sfx_CornCut,
+    sfx_Dig,
+    sfx_Pave,
+    sfx_MineStone,
+    sfx_CornSow,
+    sfx_ChopTree,
+    sfx_housebuild,
+    sfx_placemarker,
+    sfx_Click,
+    sfx_mill,
+    sfx_saw,
+    sfx_wineStep,
+    sfx_wineDrain,
+    sfx_metallurgists,
+    sfx_coalDown,
+    sfx_Pig1,sfx_Pig2,sfx_Pig3,sfx_Pig4,
+    sfx_Mine,
+    sfx_unknown21, //Pig?
+    sfx_Leather,
+    sfx_BakerSlap,
+    sfx_CoalMineThud,
+    sfx_ButcherCut,
+    sfx_SausageString,
+    sfx_QuarryClink,
+    sfx_TreeDown,
+    sfx_WoodcutterDig,
+    sfx_CantPlace,
+    sfx_MessageOpen,
+    sfx_MessageClose,
+    sfx_MessageNotice,
+    //Usage of melee sounds can be found in Docs\Melee sounds in KaM.csv
+    sfx_Melee34, sfx_Melee35, sfx_Melee36, sfx_Melee37, sfx_Melee38,
+    sfx_Melee39, sfx_Melee40, sfx_Melee41, sfx_Melee42, sfx_Melee43,
+    sfx_Melee44, sfx_Melee45, sfx_Melee46, sfx_Melee47, sfx_Melee48,
+    sfx_Melee49, sfx_Melee50, sfx_Melee51, sfx_Melee52, sfx_Melee53,
+    sfx_Melee54, sfx_Melee55, sfx_Melee56, sfx_Melee57,
+    sfx_BowDraw,
+    sfx_ArrowHit,
+    sfx_CrossbowShoot,  //60
+    sfx_CrossbowDraw,
+    sfx_BowShoot,       //62
+    sfx_BlacksmithBang,
+    sfx_BlacksmithFire,
+    sfx_CarpenterHammer, //65
+    sfx_Horse1,sfx_Horse2,sfx_Horse3,sfx_Horse4,
+    sfx_RockThrow,
+    sfx_HouseDestroy,
+    sfx_SchoolDing,
+    //Below are TPR sounds ...
+    sfx_SlingerShoot,
+    sfx_BalistaShoot,
+    sfx_CatapultShoot,
+    sfx_unknown76,
+    sfx_CatapultReload,
+    sfx_SiegeBuildingSmash);
+
+  TSoundFXNew = (
+    sfxn_ButtonClick,
+    sfxn_Trade,
+    sfxn_MPChatMessage,
+    sfxn_MPChatOpen,
+    sfxn_MPChatClose,
+    sfxn_Victory,
+    sfxn_Defeat,
+    sfxn_Error1,
+    sfxn_Error2,
+    sfxn_Peacetime);
+
+  //Sounds to play on different warrior orders
+  TWarriorSpeech = (
+    sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split,
+    sp_Join, sp_Halt, sp_Move, sp_Attack, sp_Formation,
+    sp_Death, sp_BattleCry, sp_StormAttack);
+
   TWAVHeaderEx = record
     RIFFHeader: array [1..4] of AnsiChar;
     FileSize: Integer;
@@ -126,6 +202,9 @@ uses KM_CommonClasses, KM_RenderAux, KM_Log, KM_Locales;
 
 
 const
+  MAX_ATTENUATED_SOUNDS = (3/4)*MAX_SOUNDS; //Attenuated sounds are less important, always save space for others
+  MAX_FAR_SOUNDS = (1/2)*MAX_SOUNDS; //Sounds that are too far away can only access this many slots
+
   MAX_BUFFERS = 16; //16/24/32 looks like the limit, depends on hardware
   MAX_SOURCES = 32; //depends on hardware as well
   MAX_DISTANCE = 32; //After this distance sounds are completely mute
@@ -169,6 +248,19 @@ const
     (WarriorVoice: ut_Hallebardman; SelectID:3; DeathID:2), //ut_Metallurgist
     (WarriorVoice: ut_Bowman;       SelectID:3; DeathID:0)  //ut_Recruit
     );
+
+  NewSFXFolder = 'Sounds\';
+  NewSFXFile: array [TSoundFXNew] of string = (
+    'UI\ButtonClick.wav',
+    'Buildings\MarketPlace\Trade.wav',
+    'Chat\ChatArrive.wav',
+    'Chat\ChatOpen.wav',
+    'Chat\ChatClose.wav',
+    'Misc\Victory.wav',
+    'Misc\Defeat.wav',
+    'UI\Error001.wav',
+    'UI\Error002.wav',
+    'Misc\PeaceTime.wav');
 
 
 { TSoundLib }
@@ -346,8 +438,9 @@ begin
     S.Write(fWaves[i].Head, SizeOf(fWaves[i].Head));
     S.Write(fWaves[i].Data[0], Length(fWaves[i].Data));
     S.Write(fWaves[i].Foot[0], Length(fWaves[i].Foot));
-      S.SaveToFile(ExeDir + 'Export\SoundsDat\sound_' + int2fix(i, 3) + '_' + SSoundFX[TSoundFX(i)] + '.wav');
-    S.Free;
+      S.SaveToFile(ExeDir + 'Export\SoundsDat\sound_' + int2fix(I, 3) + '_' +
+                   GetEnumName(TypeInfo(TSoundFX), I) + '.wav');
+      S.Free;
   end;
 end;
 
@@ -532,7 +625,7 @@ begin
   //Start playing
   AlSourcePlay(fSound[FreeBuf].ALSource);
   if SoundID <> sfx_None then
-    fSound[FreeBuf].Name := SSoundFX[SoundID]
+    fSound[FreeBuf].Name := GetEnumName(TypeInfo(TSoundFX), Integer(SoundID))
   else
     fSound[FreeBuf].Name := ExtractFileName(aFile);
   fSound[FreeBuf].Position := Loc;

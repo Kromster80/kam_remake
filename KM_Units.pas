@@ -1661,6 +1661,14 @@ end;
 
 
 function TKMUnit.GetSlide(aCheck:TCheckAxis): single;
+//Pixel positions (waypoints) for sliding around other units. Uses a lookup to save on-the-fly calculations.
+//Follows a sort of a bell curve (normal distribution) shape for realistic acceleration/deceleration.
+//I tweaked it by hand to look similar to KaM.
+//1st row for straight, 2nd for diagonal sliding
+const
+  SlideLookup: array[1..2, 0..Round(CELL_SIZE_PX * 1.42)] of byte = ( //1.42 instead of 1.41 because we want to round up just in case (it was causing a crash because Round(40*sqrt(2)) = 57 but Round(40*1.41) = 56)
+    (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9,9,9,8,8,7,7,6,5,4,3,3,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,7,6,6,6,5,5,5,4,4,4,3,3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0,0));
 var DY,DX, PixelPos, LookupDiagonal: shortint;
 begin
   Result := 0;

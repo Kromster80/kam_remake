@@ -32,6 +32,9 @@ implementation
 uses KM_Units_Warrior, KM_Resource;
 
 
+const STORM_SPEEDUP = 1.5;
+
+
 { TUnitActionStormAttack }
 constructor TUnitActionStormAttack.Create(aUnit: TKMUnit; aActionType: TUnitActionType; aRow: Integer);
 const MIN_STAMINA=8; MAX_STAMINA=6; //8..13

@@ -38,6 +38,18 @@ uses KM_PlayersCollection, KM_Sound, KM_Units_Warrior, KM_Game, KM_Resource;
 
 const STRIKE_STEP = 5; //Melee units place hit on step 5
 
+const
+  MeleeSoundsHit:array[0..14] of TSoundFX = (
+    sfx_Melee34, sfx_Melee35, sfx_Melee36, sfx_Melee41, sfx_Melee42,
+    sfx_Melee44, sfx_Melee45, sfx_Melee46, sfx_Melee47, sfx_Melee48,
+    sfx_Melee49, sfx_Melee50, sfx_Melee55, sfx_Melee56, sfx_Melee57);
+
+  MeleeSoundsMiss: array [0..8] of TSoundFX = (
+    sfx_Melee37, sfx_Melee38, sfx_Melee39,
+    sfx_Melee40, sfx_Melee43, sfx_Melee51,
+    sfx_Melee52, sfx_Melee53, sfx_Melee54);
+
+
 { TUnitActionFight }
 constructor TUnitActionFight.Create(aUnit: TKMUnit; aActionType: TUnitActionType; aOpponent: TKMUnit);
 begin

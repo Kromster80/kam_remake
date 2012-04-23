@@ -26,6 +26,23 @@ implementation
 uses KM_Game, KM_PlayersCollection, KM_Sound, KM_Resource;
 
 
+const
+  MeleeSoundsHouse: array [0..12] of TSoundFX = (
+    sfx_Melee37,
+    sfx_Melee38,
+    sfx_Melee39,
+    sfx_Melee40,
+    sfx_Melee41,
+    sfx_Melee42,
+    sfx_Melee43,
+    sfx_Melee47,
+    sfx_Melee51,
+    sfx_Melee52,
+    sfx_Melee53,
+    sfx_Melee54,
+    sfx_Melee57);
+
+
 { TTaskAttackHouse }
 constructor TTaskAttackHouse.Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
 begin

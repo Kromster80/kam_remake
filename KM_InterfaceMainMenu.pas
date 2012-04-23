@@ -339,6 +339,9 @@ const
   MENU_SP_MAPS_COUNT    = 12;           //Number of single player maps to display in menu
   MENU_SP_MAPS_HEIGHT   = 40;
 
+  MAPSIZES_COUNT = 11;
+  MapSize: array [1..MAPSIZES_COUNT] of Word = (32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192);
+
 
 { TKMMainMenuInterface }
 constructor TKMMainMenuInterface.Create(X,Y: Word);

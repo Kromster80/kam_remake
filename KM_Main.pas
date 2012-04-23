@@ -9,6 +9,8 @@ uses
 type
   TKMMain = class
   private
+    fOldTimeFPS, fOldFrameTimes, fFrameCount: Cardinal;
+
     fMainSettings: TMainSettings;
     fResolutions: TKMResolutions;
 
@@ -165,8 +167,8 @@ begin
 
   //Counting FPS
   begin
-    FrameTime  := TimeGet - OldTimeFPS;
-    OldTimeFPS := TimeGet;
+    FrameTime  := TimeGet - fOldTimeFPS;
+    fOldTimeFPS := TimeGet;
 
     if CAP_MAX_FPS and (FPS_LAG <> 1) and (FrameTime < FPS_LAG) then
     begin
@@ -174,14 +176,14 @@ begin
       FrameTime := FPS_LAG;
     end;
 
-    inc(OldFrameTimes, FrameTime);
-    inc(FrameCount);
-    if OldFrameTimes >= FPS_INTERVAL then
+    inc(fOldFrameTimes, FrameTime);
+    inc(fFrameCount);
+    if fOldFrameTimes >= FPS_INTERVAL then
     begin
-      StatusBarText(3, Format('%.1f fps', [1000 / (OldFrameTimes / FrameCount)]) +
+      StatusBarText(3, Format('%.1f fps', [1000 / (fOldFrameTimes / fFrameCount)]) +
                        IfThen(CAP_MAX_FPS, ' (' + inttostr(FPS_LAG) + ')'));
-      OldFrameTimes := 0;
-      FrameCount := 0;
+      fOldFrameTimes := 0;
+      fFrameCount := 0;
     end;
   end;
   //FPS calculation complete
