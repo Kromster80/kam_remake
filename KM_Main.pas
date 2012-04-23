@@ -2,7 +2,7 @@ unit KM_Main;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Forms, Math, SysUtils, StrUtils,
+  Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
   KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions;
 
@@ -57,6 +57,15 @@ end;
 
 procedure TKMMain.Start;
 begin
+  //Random GUID generated in Delphi by Ctrl+G
+  if BLOCK_DUPLICATE_APP
+  and CheckDuplicateApplication('07BB7CC6-33F2-44ED-AD04-1E255E0EDF0D') then
+  begin
+    ShowMessage('Another copy of the Application is already running');
+    Free; //Release fMain memory
+    Halt; //Immmediately close the application
+  end;
+
   SetKaMSeed(4); //Used for gameplay events so the order is important
   Randomize; //Random is only used for cases where order does not matter, e.g. shuffle tracks
 

@@ -70,6 +70,8 @@ function RunSaveDialog(Sender:TSaveDialog; FileName, FilePath, Filter:string; co
 
 procedure DoClientAreaResize(aForm:TForm);
 
+function CheckDuplicateApplication(aGUID: string): Boolean;
+
 function BrowseURL(const URL: string) : boolean;
 procedure MailTo(Address,Subject,Body:string);
 procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
@@ -529,6 +531,17 @@ begin
   Result            := Sender.Execute; //Returns "false" if user pressed "Cancel"
   if not Result then exit;
   Sender.FileName   := AssureFileExt(Sender.FileName, FileExt);
+end;
+
+
+//Each time we run the check we create an unique Mutex
+//Thus we can check the Mutex and see if another copy of our application is run
+//Win will automatically release the Mutex on application exit
+function CheckDuplicateApplication(aGUID: string): Boolean;
+begin
+  if CreateMutex(nil, True, PChar(aGUID)) = 0 then
+    RaiseLastOSError;
+  Result := (GetLastError = ERROR_ALREADY_EXISTS);
 end;
 
 
