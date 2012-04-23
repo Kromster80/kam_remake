@@ -311,8 +311,10 @@ end;
 
 procedure TKMMain.Resize(X, Y: Integer);
 begin
-  if fLog <> nil then
-    fLog.AppendLog('FormResize X/Y: '+inttostr(X)+':'+inttostr(Y));
+  //Don't log this by default, resizing can happen lots of times per second (~30ms between log entries)
+  //when dragging the screen edge and that means lots of file open-write-close which is slow.
+  //if fLog <> nil then
+  //  fLog.AppendLog('FormResize X/Y: '+inttostr(X)+':'+inttostr(Y));
 
   if fGame <> nil then
     fGame.Resize(X, Y);
