@@ -6,7 +6,6 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
-  {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet -> FPReadJPEG?
   KM_Defaults, KM_CommonClasses, KM_Pics, KM_Render, KM_ResourceSprites, KM_Points, KM_Terrain;
 
 type
@@ -74,7 +73,6 @@ type
     property RenderList: TRenderList read fRenderList;
 
     procedure SetRotation(aH,aP,aB: Integer);
-    procedure DoPrintScreen(FileName: string);
 
     procedure Render;
 
@@ -175,44 +173,6 @@ begin
   glPopAttrib;
 end;
 
-
-procedure TRenderPool.DoPrintScreen(FileName: String);
-{$IFDEF WDC}
-var
-  i, k, W, H: integer;
-  jpg: TJpegImage;
-  mkbmp: TBitMap;
-  bmp: array of Cardinal;
-{$ENDIF}
-begin
-{$IFDEF WDC}
-  W := fRender.ScreenX;
-  H := fRender.ScreenY;
-
-  SetLength(bmp, W * H + 1);
-  glReadPixels(0, 0, W, H, GL_BGRA, GL_UNSIGNED_BYTE, @bmp[0]);
-
-  //Mirror verticaly
-  for i := 0 to (H div 2) - 1 do
-    for k := 0 to W - 1 do
-      SwapInt(bmp[i * W + k], bmp[((H - 1) - i) * W + k]);
-
-  mkbmp := TBitmap.Create;
-  mkbmp.Handle := CreateBitmap(W, H, 1, 32, @bmp[0]);
-
-  jpg := TJpegImage.Create;
-  jpg.assign(mkbmp);
-  jpg.ProgressiveEncoding := true;
-  jpg.ProgressiveDisplay  := true;
-  jpg.Performance         := jpBestQuality;
-  jpg.CompressionQuality  := 90;
-  jpg.Compress;
-  jpg.SaveToFile(FileName);
-
-  jpg.Free;
-  mkbmp.Free;
-{$ENDIF}
-end;
 
 
 procedure TRenderPool.RenderTerrainTiles(aRect: TKMRect; AnimStep: Integer);

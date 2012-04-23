@@ -1725,7 +1725,7 @@ var
   s: string;
 begin
   DateTimeToString(s, 'yyyy-mm-dd hh-nn-ss', Now); //2007-12-23 15-24-33
-  fRenderPool.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
+  fRender.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
 end;
 
 

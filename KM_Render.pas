@@ -3,6 +3,7 @@ unit KM_Render;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF WDC} Graphics, JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet -> FPReadJPEG?
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   dglOpenGL, KromOGLUtils, KromUtils, Math, KM_TGATexture;
 
@@ -33,6 +34,7 @@ type
 
     property RendererVersion: AnsiString read fOpenGL_Version;
     function IsOldGLVersion: Boolean;
+    procedure DoPrintScreen(FileName: string);
     procedure Resize(Width,Height: Integer);
 
     property ScreenX: Word read fScreenX;
@@ -155,6 +157,45 @@ end;
 function TRender.IsOldGLVersion: Boolean;
 begin
   Result := not fBlind and not GL_VERSION_1_4;
+end;
+
+
+procedure TRender.DoPrintScreen(FileName: string);
+{$IFDEF WDC}
+var
+  i, k, W, H: integer;
+  jpg: TJpegImage;
+  mkbmp: TBitMap;
+  bmp: array of Cardinal;
+{$ENDIF}
+begin
+{$IFDEF WDC}
+  W := ScreenX;
+  H := ScreenY;
+
+  SetLength(bmp, W * H + 1);
+  glReadPixels(0, 0, W, H, GL_BGRA, GL_UNSIGNED_BYTE, @bmp[0]);
+
+  //Mirror verticaly
+  for i := 0 to (H div 2) - 1 do
+    for k := 0 to W - 1 do
+      SwapInt(bmp[i * W + k], bmp[((H - 1) - i) * W + k]);
+
+  mkbmp := TBitmap.Create;
+  mkbmp.Handle := CreateBitmap(W, H, 1, 32, @bmp[0]);
+
+  jpg := TJpegImage.Create;
+  jpg.assign(mkbmp);
+  jpg.ProgressiveEncoding := true;
+  jpg.ProgressiveDisplay  := true;
+  jpg.Performance         := jpBestQuality;
+  jpg.CompressionQuality  := 90;
+  jpg.Compress;
+  jpg.SaveToFile(FileName);
+
+  jpg.Free;
+  mkbmp.Free;
+{$ENDIF}
 end;
 
 
