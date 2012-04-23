@@ -244,7 +244,7 @@ procedure TKMPlayerAI.CheckGoals;
     case aGoal.GoalCondition of
       gc_BuildTutorial:     Result := Stat.GetHouseQty(ht_Tannery) = 0; //For some reason this goal is gs_False in KaM, that's why check is =0 not  > 0
       //gc_Time is disabled as we process messages in Event system now
-      gc_Time:              Result := False; //fGame.CheckTime(aGoal.GoalTime);
+      gc_Time:              Result := fGame.CheckTime(aGoal.GoalTime);
       gc_Buildings:         Result := (Stat.GetHouseQty(ht_Store) > 0) or (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetHouseQty(ht_Barracks) > 0);
       gc_Troops:            Result := (Stat.GetArmyCount > 0);
       gc_MilitaryAssets:    Result := (Stat.GetArmyCount > 0) or (Stat.GetHouseQty(ht_Barracks) > 0) or (Stat.GetHouseQty(ht_CoalMine) > 0) or
@@ -275,16 +275,18 @@ begin
   for I := 0 to Goals.Count - 1 do //Test each goal to see if it has occured
     if GoalConditionSatisfied(Goals[I]) then
     begin
+      //Messages in goals have been replaced by EVT files, so this code is disabled now,
+      //but kept in case we need it for something later. (conversion process?)
+
       //Display message if set and not already shown and not a blank text
-      if (Goals[I].MessageToShow <> 0)
+      {if (Goals[I].MessageToShow <> 0)
       and not Goals[I].MessageHasShown
-      //todo: replace with EVT files
       and (fTextLibrary[Goals[I].MessageToShow] <> '') then
       begin
         if MyPlayer = fPlayers[fPlayerIndex] then
           fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary[Goals[I].MessageToShow], KMPoint(0,0));
         Goals.SetMessageHasShown(I);
-      end;
+      end;}
     end
     else
     begin
