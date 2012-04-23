@@ -9,7 +9,7 @@ uses Classes,
 type
   TKMPlayerStats = class
   private
-    fBuildReqDone: array [THouseType] of Boolean; //If building requirements performed or assigned from script
+    fHouseUnlocked: array [THouseType] of Boolean; //If building requirements performed
     Houses: array [THouseType] of packed record
       Planned,          //Houseplans were placed
       PlanRemoved,      //Houseplans were removed
@@ -31,13 +31,13 @@ type
       Produced: Word;
     end;
     fResourceRatios: array [1..4, 1..4]of Byte;
-    function GetHouseReleased(aType: THouseType): Boolean;
-    procedure SetHouseReleased(aType: THouseType; aValue: Boolean);
     function GetRatio(aRes: TResourceType; aHouse: THouseType): Byte;
     procedure SetRatio(aRes: TResourceType; aHouse: THouseType; aValue: Byte);
     procedure UpdateReqDone(aType: THouseType);
   public
-    AllowToBuild: array [THouseType] of Boolean; //Allowance derived from mission script
+    HouseBlocked: array [THouseType] of Boolean; //Allowance derived from mission script
+    HouseGranted: array [THouseType] of Boolean; //Allowance derived from mission script
+
     AllowToTrade: array [WARE_MIN..WARE_MAX] of Boolean; //Allowance derived from mission script
     constructor Create;
 
@@ -55,7 +55,6 @@ type
     procedure UnitLost(aType: TUnitType);
     procedure UnitKilled(aType: TUnitType);
 
-    property HouseReleased[aType: THouseType]: boolean read GetHouseReleased write SetHouseReleased;
     property Ratio[aRes: TResourceType; aHouse: THouseType]: Byte read GetRatio write SetRatio;
 
     //Output
@@ -99,17 +98,18 @@ const
 
 { TKMPlayerStats }
 constructor TKMPlayerStats.Create;
-var H: THouseType; W: TResourceType; i,k:integer;
+var
+  H: THouseType;
+  W: TResourceType;
+  i,k: Integer;
 begin
   inherited;
-  for H:=Low(THouseType) to High(THouseType) do
-    AllowToBuild[H] := True;
 
-  for W:=WARE_MIN to WARE_MAX do
+  for W := WARE_MIN to WARE_MAX do
     AllowToTrade[W] := True;
 
   //Release Store at the start of the game by default
-  HouseReleased[ht_Store] := True;
+  fHouseUnlocked[ht_Store] := True;
 
   for i:=1 to 4 do for k:=1 to 4 do
     fResourceRatios[i,k] := DistributionDefaults[i,k];
@@ -117,11 +117,11 @@ end;
 
 
 procedure TKMPlayerStats.UpdateReqDone(aType: THouseType);
-var i: THouseType;
+var H: THouseType;
 begin
-  for i:=Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat[i].ReleasedBy = aType then
-      HouseReleased[i] := true;
+  for H := Low(THouseType) to High(THouseType) do
+    if fResource.HouseDat[H].ReleasedBy = aType then
+      fHouseUnlocked[H] := True;
 end;
 
 
@@ -270,7 +270,7 @@ end;
 //Houses might be blocked by mission script
 function TKMPlayerStats.GetCanBuild(aType: THouseType): Boolean;
 begin
-  Result := HouseReleased[aType] AND AllowToBuild[aType];
+  Result := (fHouseUnlocked[aType] or HouseGranted[aType]) and not HouseBlocked[aType];
 end;
 
 
@@ -426,9 +426,10 @@ begin
   SaveStream.Write(Units, SizeOf(Units));
   SaveStream.Write(Goods, SizeOf(Goods));
   SaveStream.Write(fResourceRatios, SizeOf(fResourceRatios));
-  SaveStream.Write(AllowToBuild, SizeOf(AllowToBuild));
+  SaveStream.Write(HouseBlocked, SizeOf(HouseBlocked));
+  SaveStream.Write(HouseGranted, SizeOf(HouseGranted));
   SaveStream.Write(AllowToTrade, SizeOf(AllowToTrade));
-  SaveStream.Write(fBuildReqDone, SizeOf(fBuildReqDone));
+  SaveStream.Write(fHouseUnlocked, SizeOf(fHouseUnlocked));
 end;
 
 
@@ -439,21 +440,10 @@ begin
   LoadStream.Read(Units, SizeOf(Units));
   LoadStream.Read(Goods, SizeOf(Goods));
   LoadStream.Read(fResourceRatios, SizeOf(fResourceRatios));
-  LoadStream.Read(AllowToBuild, SizeOf(AllowToBuild));
+  LoadStream.Read(HouseBlocked, SizeOf(HouseBlocked));
+  LoadStream.Read(HouseGranted, SizeOf(HouseGranted));
   LoadStream.Read(AllowToTrade, SizeOf(AllowToTrade));
-  LoadStream.Read(fBuildReqDone, SizeOf(fBuildReqDone));
-end;
-
-
-function TKMPlayerStats.GetHouseReleased(aType: THouseType): boolean;
-begin
-  Result := fBuildReqDone[aType];
-end;
-
-
-procedure TKMPlayerStats.SetHouseReleased(aType: THouseType; aValue: boolean);
-begin
-  fBuildReqDone[aType] := aValue;
+  LoadStream.Read(fHouseUnlocked, SizeOf(fHouseUnlocked));
 end;
 
 

@@ -5,8 +5,8 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils,
-     KM_Controls, KM_Defaults, KM_Pics, KM_MapView, KM_Maps, KM_Houses, KM_Units, KM_Points, KM_InterfaceDefaults,
-     KM_Terrain;
+     KM_Controls, KM_Defaults, KM_Pics, KM_MapView, KM_Maps, KM_Houses, KM_Units,
+     KM_Points, KM_InterfaceDefaults, KM_Terrain;
 
 type
   TKMapEdInterface = class (TKMUserInterface)
@@ -63,6 +63,8 @@ type
     procedure Player_ChangeActive(Sender: TObject);
     procedure SetActivePlayer(aIndex: TPlayerIndex);
     procedure Player_ColorClick(Sender:TObject);
+    procedure Player_BlockRefresh;
+    procedure Player_BlockClick(Sender:TObject);
     procedure Mission_AlliancesChange(Sender:TObject);
     procedure Mission_PlayerTypesChange(Sender:TObject);
     procedure View_Passability(Sender:TObject);
@@ -113,10 +115,13 @@ type
       Panel_Script:TKMPanel;
 
     Panel_Player:TKMPanel;
-      Button_Player:array[1..2]of TKMButton;
+      Button_Player:array[1..3]of TKMButton;
       Panel_Goals:TKMPanel;
       Panel_Color:TKMPanel;
         ColorSwatch_Color:TKMColorSwatch;
+      Panel_Block: TKMPanel;
+        Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
+        Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
 
     Panel_Mission:TKMPanel;
       Button_Mission:array[1..2]of TKMButton;
@@ -303,6 +308,13 @@ begin
     Panel_Player.Show;
     Panel_Color.Show;
     Label_MenuTitle.Caption:='Player - Color';
+  end else
+
+  if (Sender = Button_Main[3])or(Sender = Button_Player[3]) then begin
+    Player_BlockRefresh;
+    Panel_Player.Show;
+    Panel_Block.Show;
+    Label_MenuTitle.Caption:='Player - Block houses';
   end else
 
   if (Sender = Button_Main[4])or(Sender = Button_Mission[1]) then begin
@@ -638,12 +650,13 @@ end;
 
 
 procedure TKMapEdInterface.Create_Player_Page;
-var i:integer; Col:array[0..255] of TColor4;
+var I: Integer; Col: array [0..255] of TColor4;
 begin
   Panel_Player := TKMPanel.Create(Panel_Common,0,128,196,28);
-    Button_Player[1] := TKMButton.Create(Panel_Player,   8, 4, 36, 24, 41);
+    Button_Player[1] := TKMButton.Create(Panel_Player,   8, 4, 36, 24,  41);
     Button_Player[2] := TKMButton.Create(Panel_Player,  48, 4, 36, 24, 382);
-    for i:=1 to 2 do Button_Player[i].OnClick := SwitchPage;
+    Button_Player[3] := TKMButton.Create(Panel_Player,  88, 4, 36, 24,  38);
+    for I := 1 to 3 do Button_Player[I].OnClick := SwitchPage;
 
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,196,400);
       TKMLabel.Create(Panel_Goals,100,10,184,0,'Goals',fnt_Outline,taCenter);
@@ -652,9 +665,23 @@ begin
       TKMLabel.Create(Panel_Color,100,10,184,0,'Colors',fnt_Outline,taCenter);
       TKMBevel.Create(Panel_Color,8,30,180,210);
       ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 10, 32, 16, 16, 11);
-      for i:=0 to 255 do Col[i] := fResource.Palettes.DefDal.Color32(i);
+      for I:=0 to 255 do Col[I] := fResource.Palettes.DefDal.Color32(I);
       ColorSwatch_Color.SetColors(Col);
       ColorSwatch_Color.OnClick := Player_ColorClick;
+
+    Panel_Block := TKMPanel.Create(Panel_Player,0,28,196,400);
+      TKMLabel.Create(Panel_Goals, 100, 10, 184, 0, 'Block houses', fnt_Outline, taCenter);
+
+      for I := 1 to GUI_HOUSE_COUNT do
+      if GUIHouseOrder[I] <> ht_None then begin
+        Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_Block, 8+((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
+        Button_BlockHouse[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
+        Button_BlockHouse[I].OnClick := Player_BlockClick;
+        Button_BlockHouse[I].Tag := I;
+        Image_BlockHouse[I] := TKMImage.Create(Panel_Block, 8+((I-1) mod 5)*37 + 5, 83+((I-1) div 5)*37 + 5, 33, 33, 0, rxMenu);
+        Image_BlockHouse[I].Hitable := False;
+        Image_BlockHouse[I].ImageCenter;
+      end;
 end;
 
 
@@ -941,6 +968,8 @@ begin
     SetActivePlayer(TKMControl(Sender).Tag)
   else
     SetActivePlayer(-1);
+
+  Player_BlockRefresh;
 end;
 
 
@@ -1551,6 +1580,57 @@ begin
   if not (Sender = ColorSwatch_Color) then exit;
   MyPlayer.FlagColor := ColorSwatch_Color.GetColor;
   Player_UpdateColors;
+end;
+
+
+procedure TKMapEdInterface.Player_BlockClick(Sender:TObject);
+var
+  I: Integer;
+  H: THouseType;
+begin
+  I := TKMButtonFlat(Sender).Tag;
+  H := GUIHouseOrder[I];
+
+  //Loop through states CanBuild > CantBuild > Released
+  if not MyPlayer.Stats.HouseBlocked[H] and not MyPlayer.Stats.HouseGranted[H] then
+  begin
+    MyPlayer.Stats.HouseBlocked[H] := True;
+    MyPlayer.Stats.HouseGranted[H] := False;
+    Image_BlockHouse[I].TexID := 23;
+  end else
+  if MyPlayer.Stats.HouseBlocked[H] and not MyPlayer.Stats.HouseGranted[H] then
+  begin
+    MyPlayer.Stats.HouseBlocked[H] := False;
+    MyPlayer.Stats.HouseGranted[H] := True;
+    Image_BlockHouse[I].TexID := 24;
+  end else
+  begin
+    MyPlayer.Stats.HouseBlocked[H] := False;
+    MyPlayer.Stats.HouseGranted[H] := False;
+    Image_BlockHouse[I].TexID := 0;
+  end;
+end;
+
+
+procedure TKMapEdInterface.Player_BlockRefresh;
+var
+  I: Integer;
+  H: THouseType;
+begin
+  for I := 1 to GUI_HOUSE_COUNT do
+  begin
+    H := GUIHouseOrder[I];
+    if MyPlayer.Stats.HouseBlocked[H] and not MyPlayer.Stats.HouseGranted[H] then
+      Image_BlockHouse[I].TexID := 23
+    else
+    if MyPlayer.Stats.HouseGranted[H] and not MyPlayer.Stats.HouseBlocked[H] then
+      Image_BlockHouse[I].TexID := 24
+    else
+    if not MyPlayer.Stats.HouseGranted[H] and not MyPlayer.Stats.HouseBlocked[H] then
+      Image_BlockHouse[I].TexID := 0
+    else
+      Image_BlockHouse[I].TexID := 22;
+  end;
 end;
 
 

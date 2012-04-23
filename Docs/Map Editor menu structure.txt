@@ -17,7 +17,8 @@ MainMenu
 	Non-Visuals (PerPlayer)
 		AI mode (NoBuild, unit count restrictions, town defence mode)
 		House restrictions
-		Messages
+		Trading permissions (for marketplace)
+		Messages (all EVT events?)
 		Player color
 		Goals (AI can ignore them, but it's required for multiplayer maps)
 

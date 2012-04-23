@@ -462,7 +462,7 @@ begin
   //Hack to block the market in TSK/TPR campaigns
   if (aCampaign.ShortTitle = 'TSK') or (aCampaign.ShortTitle = 'TPR') then
     for I:=0 to fPlayers.Count-1 do
-      fPlayers[I].Stats.AllowToBuild[ht_Marketplace] := False;
+      fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;
 end;
 
 
@@ -479,7 +479,7 @@ begin
   //Market needs to be blocked for e.g. tutorials
   if aBlockMarket then
     for I:=0 to fPlayers.Count-1 do
-      fPlayers[I].Stats.AllowToBuild[ht_Marketplace] := False;
+      fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;
 end;
 
 

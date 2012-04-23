@@ -710,18 +710,18 @@ begin
                         if fLastPlayer >= 0 then
                         begin
                           if InRange(P[0], Low(HouseKaMType), High(HouseKaMType)) then
-                            fPlayers.Player[fLastPlayer].Stats.AllowToBuild[HouseKaMType[P[0]]] := false;
+                            fPlayers.Player[fLastPlayer].Stats.HouseBlocked[HouseKaMType[P[0]]] := True;
                         end;
     ct_ReleaseHouse:    if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >= 0 then
                         begin
                           if InRange(P[0], Low(HouseKaMType), High(HouseKaMType)) then
-                            fPlayers.Player[fLastPlayer].Stats.HouseReleased[HouseKaMType[P[0]]] := true;
+                            fPlayers.Player[fLastPlayer].Stats.HouseGranted[HouseKaMType[P[0]]] := True;
                         end;
     ct_ReleaseAllHouses:if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >= 0 then
                           for HT:=Low(THouseType) to High(THouseType) do
-                            fPlayers.Player[fLastPlayer].Stats.HouseReleased[HT] := True;
+                            fPlayers.Player[fLastPlayer].Stats.HouseGranted[HT] := True;
     ct_SetGroup:        if fLastPlayer >= 0 then
                           if InRange(P[0], Low(TroopsRemap), High(TroopsRemap)) and (TroopsRemap[P[0]] <> ut_None) then
                             fLastTroop := TKMUnitWarrior(fPlayers.Player[fLastPlayer].AddUnitGroup(
@@ -1049,17 +1049,17 @@ begin
     AddData(''); //NL
 
     //Release/block houses
-    ReleaseAllHouses := true;
+    ReleaseAllHouses := True;
     for HT := Low(THouseType) to High(THouseType) do
     if fResource.HouseDat[HT].IsValid then //Exclude ht_None / ht_Any
     begin
-      if not fPlayers.Player[i].Stats.AllowToBuild[HT] then
+      if fPlayers.Player[i].Stats.HouseBlocked[HT] then
       begin
         AddCommand(ct_BlockHouse, [HouseKaMOrder[HT]-1]);
         ReleaseAllHouses := false;
       end
       else
-        if fPlayers.Player[i].Stats.HouseReleased[HT] then
+        if fPlayers.Player[i].Stats.HouseGranted[HT] then
           AddCommand(ct_ReleaseHouse, [HouseKaMOrder[HT]-1])
         else
           ReleaseAllHouses := false;

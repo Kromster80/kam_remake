@@ -401,7 +401,7 @@ begin
   begin
     HT := ResRatioHouse[RatioTab, i];
     //Do not allow player to see yet unreleased houses. Though house may be prebuilt and unreleased
-    if MyPlayer.Stats.HouseReleased[HT] or (MyPlayer.Stats.GetHouseQty(HT)>0) then
+    if MyPlayer.Stats.GetCanBuild(HT) or (MyPlayer.Stats.GetHouseQty(HT) > 0) then
     begin
       Image_RatioPic[i].TexID := fResource.HouseDat[HT].GUIIcon;
       TrackBar_RatioRat[i].Caption := fResource.HouseDat[HT].HouseName;

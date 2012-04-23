@@ -256,7 +256,7 @@ end;
 
 procedure TKMayor.CheckHouseMiningCount;
 begin
-  if (fPlayers[fOwner].Stats.HouseReleased[ht_Quary]) then
+  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Quary)) then
   begin
     if (HouseCount(ht_Quary) = 0) then
       TryBuildHouse(ht_Quary);
@@ -265,7 +265,7 @@ begin
       TryBuildHouse(ht_Quary);
   end;
 
-  if (fPlayers[fOwner].Stats.HouseReleased[ht_Woodcutters]) then
+  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Woodcutters)) then
   begin
     if (HouseCount(ht_Woodcutters) = 0) then
       TryBuildHouse(ht_Woodcutters);
@@ -274,34 +274,34 @@ begin
       TryBuildHouse(ht_Woodcutters);
   end;
 
-  if (fPlayers[fOwner].Stats.HouseReleased[ht_Sawmill]) and (HouseCount(ht_Sawmill) = 0) then
+  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Sawmill)) and (HouseCount(ht_Sawmill) = 0) then
     TryBuildHouse(ht_Sawmill);
 end;
 
 
 procedure TKMayor.CheckHouseFoodCount;
 begin
-  if (fPlayers[fOwner].Stats.HouseReleased[ht_Farm]) and (HouseCount(ht_Farm) < 2) then
+  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Farm)) and (HouseCount(ht_Farm) < 2) then
     TryBuildHouse(ht_Farm);
 
-  if (fPlayers[fOwner].Stats.HouseReleased[ht_Mill]) and (HouseCount(ht_Mill) = 0) then
+  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Mill)) and (HouseCount(ht_Mill) = 0) then
     TryBuildHouse(ht_Mill);
 
-  if (fPlayers[fOwner].Stats.HouseReleased[ht_Bakery]) and (HouseCount(ht_Bakery) = 0) then
+  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Bakery)) and (HouseCount(ht_Bakery) = 0) then
     TryBuildHouse(ht_Bakery);
 
 
-  if (fPlayers[fOwner].Stats.HouseReleased[ht_Swine]) and (HouseCount(ht_Swine) < 1) then
+  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Swine)) and (HouseCount(ht_Swine) < 1) then
     TryBuildHouse(ht_Swine);
 
-  if (fPlayers[fOwner].Stats.HouseReleased[ht_Butchers]) and (HouseCount(ht_Butchers) = 0) then
+  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Butchers)) and (HouseCount(ht_Butchers) = 0) then
     TryBuildHouse(ht_Butchers);
 
   if (HouseCount(ht_Swine) > 0) and (HouseCount(ht_Farm) < 3) then
     TryBuildHouse(ht_Farm);
 
 
-  if (fPlayers[fOwner].Stats.HouseReleased[ht_Wineyard]) and (HouseCount(ht_Wineyard) < 2) then
+  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Wineyard)) and (HouseCount(ht_Wineyard) < 2) then
     TryBuildHouse(ht_Wineyard);
 end;
 
@@ -314,7 +314,7 @@ end;
 
 procedure TKMayor.CheckHouseWeaponryCount;
 begin
-  if (fPlayers[fOwner].Stats.HouseReleased[ht_Tannery]) and (HouseCount(ht_Tannery) = 0) then
+  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Tannery)) and (HouseCount(ht_Tannery) = 0) then
     TryBuildHouse(ht_Tannery);
 end;
 
