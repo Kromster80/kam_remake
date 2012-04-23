@@ -99,7 +99,6 @@ const
 { TKMPlayerStats }
 constructor TKMPlayerStats.Create;
 var
-  H: THouseType;
   W: TResourceType;
   i,k: Integer;
 begin

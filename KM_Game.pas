@@ -1074,6 +1074,7 @@ begin
 
   fMapEditorInterface.Player_UpdateColors;
   fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
+  fMapEditorInterface.UpdateMapName(fGameName);
   if FileExists(aFileName) then fMapEditorInterface.SetLoadMode(aMultiplayer);
   fPlayers.AfterMissionInit(false);
 

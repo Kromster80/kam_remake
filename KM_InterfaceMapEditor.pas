@@ -191,6 +191,7 @@ type
     procedure ShowUnitInfo(Sender:TKMUnit);
     property ShowPassability:byte read fShowPassability;
     procedure UpdateMapSize(X,Y:integer);
+    procedure UpdateMapName(const aName:string);
     procedure RightClick_Cancel;
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
@@ -938,6 +939,12 @@ begin
   Minimap.UpdateFrom(fMapView);
   Minimap.MapSize := KMPoint(X, Y);
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+end;
+
+
+procedure TKMapEdInterface.UpdateMapName(const aName:string);
+begin
+  Label_MissionName.Caption := aName;
 end;
 
 

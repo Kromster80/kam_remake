@@ -2455,7 +2455,7 @@ begin
   Slope := aSize SHR 4; //High bits
 
   for I := Max((round(aLoc.Y) - Rad), 1) to Min((round(aLoc.Y) + Rad), fMapY) do
-  for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), fMapY) do
+  for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), fMapX) do
   begin
     case aShape of
       MAPED_HEIGHT_CIRCLE: Tmp := 1 - GetLength(I-aLoc.Y, K-aLoc.X) / Rad;
