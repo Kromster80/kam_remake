@@ -165,7 +165,7 @@ procedure TTextManager.LoadConsts(aConstPath: string);
 var
   SL: TStringList;
   Line: string;
-  I, CenterPos: Integer;
+  I, K, CenterPos: Integer;
 begin
   SL := TStringList.Create;
   SL.LoadFromFile(aConstPath);
@@ -189,6 +189,12 @@ begin
       fConsts[I].ConstName := Copy(Line, 1, CenterPos - 1);
     end;
   end;
+
+  //Ensure there are no duplicates, because that's a very bad situation
+  for I := 0 to SL.Count - 1 do
+    for K := I+1 to SL.Count - 1 do
+      if (fConsts[I].TextID <> -1) and (fConsts[I].TextID = fConsts[K].TextID) then
+        ShowMessage('Error: Two constants have the same ID!: '+fConsts[I].ConstName+' & '+fConsts[K].ConstName+' = '+IntToStr(fConsts[I].TextID));
 
   SL.Free;
 end;
