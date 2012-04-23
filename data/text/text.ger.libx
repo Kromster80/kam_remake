@@ -197,6 +197,10 @@ MaxID:2699
 433:Entree
 434:Deep Blue
 435:Struggle
+436:Quartier des Königs
+437:Aristokratie
+438:Am Hafen
+439:Reise
 847:Kampagne 'The Shattered Kingdom'
 848:Kampagne 'The Peasants Rebellion'
 849:Einzelmission spielen
@@ -323,6 +327,7 @@ MaxID:2699
 1787:Spieler
 1788:Startposition
 1789:Team
+1790:Farbe
 1791:Bereit
 1792:Ping
 1793:Kick
@@ -434,5 +439,16 @@ MaxID:2699
 1903:Bäume
 1904:Definitionen
 1905:Texturen
+2687:Erstelle Server
+2688:FINDE SERVER
+2689:Verbinde
+2690:Finde Server über IP
 2691:Abbrechen
 2692:Abbrechen
+2693:Nicht unterstützt
+2694:Nicht unterstützt
+2695:Fehler: Der Spielername muss länger sein als %d Zeichen.
+2696:Fehler: Spielername enthält nicht erlaubte Zeichen.
+2697:Schatten Qualität:
+2698:Niedrig
+2699:Hoch

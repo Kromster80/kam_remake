@@ -197,6 +197,10 @@ MaxID:2699
 433:Entrata
 434:Profondo Blu
 435:Lotta
+436:Alloggi Reali
+437:Aristocrazia
+438:Al Porto
+439:Viaggio
 847:Campagna 'The Shattered Kingdom'
 848:Campagna 'The Peasants Rebellion'
 849:Giocatore Singolo
@@ -323,6 +327,7 @@ MaxID:2699
 1787:Giocatori
 1788:Posizione
 1789:Squadra
+1790:Colore
 1791:Pronto
 1792:Ping
 1793:Caccia
@@ -434,5 +439,16 @@ MaxID:2699
 1903:alberi
 1904:definizioni
 1905:tileset
+2687:Crea Server
+2688:TROVA SERVER
+2689:Connetti
+2690:Trova Server per IP
 2691:Annulla
 2692:Annulla
+2693:Non supportata
+2694:Non supportata
+2695:Errore: il nome non dev'essere più lungo di %d caratteri
+2696:Errore: il nome contiene caratteri non supportati
+2697:Qualità delle ombre:
+2698:Bassa
+2699:Alta
