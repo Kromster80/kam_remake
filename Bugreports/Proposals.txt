@@ -9,3 +9,4 @@ Ideas that have not been decided. Should be moved to Bugslist.txt when a decisio
 	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
 	AI warriors should automatically engage enemies within 3-4 tiles (happens in KaM?)
 	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile) {not sure about this one. Probably ruins balance and feel of KaM}
+	Separate script command for AI to repair its houses
