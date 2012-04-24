@@ -31,10 +31,13 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     procedure AddSprite(aRX: TRXType; aID: Word; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1); overload;
     procedure AddSprite(aRX: TRXType; aID: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1); overload;
+
     property Stat_Sprites: Integer read fStat_Sprites;
     property Stat_Sprites2: Integer read fStat_Sprites2;
+
     procedure Render;
   end;
 
@@ -60,21 +63,16 @@ type
     procedure RenderTerrainFieldBorders(aRect: TKMRect);
     procedure RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
 
-    //Terrain overlay cursors rendering (incl. sprites highlighting)
-    procedure RenderCursorHighlights;
-    procedure RenderCursorWireQuad(P: TKMPoint; Col: TColor4);
-    procedure RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer=479);
-    procedure RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
+    procedure RenderSprites;
 
+    //Terrain overlay cursors rendering (incl. sprites highlighting)
+    procedure RenderCursors;
+    procedure RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer=479);
+    procedure RenderCursorWireQuad(P: TKMPoint; Col: TColor4);
+    procedure RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
   public
     constructor Create(aRender: TRender);
     destructor Destroy; override;
-
-    property RenderList: TRenderList read fRenderList;
-
-    procedure SetRotation(aH,aP,aB: Integer);
-
-    procedure Render;
 
     procedure AddProjectile(aProj: TProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
     procedure AddHouseTablet(aHouse: THouseType; Loc: TKMPoint);
@@ -91,6 +89,11 @@ type
     procedure AddUnitThought(Thought: TUnitThought; pX,pY: Single);
     procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; UnitAnim, FlagAnim: Integer; pX,pY: Single; FlagColor, TeamColor: TColor4);
     procedure AddUnitWithDefaultArm(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepID: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+
+    property RenderList: TRenderList read fRenderList;
+    procedure SetRotation(aH,aP,aB: Integer);
+
+    procedure Render;
   end;
 
 
@@ -105,7 +108,7 @@ uses KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_Reso
 constructor TRenderPool.Create(aRender: TRender);
 var RT: TRXType;
 begin
-  Inherited Create;
+  inherited Create;
 
   for RT := Low(TRXType) to High(TRXType) do
     fRXData[RT] := fResource.Sprites[RT].RXData;
@@ -160,19 +163,18 @@ begin
     glLineWidth(fGame.Viewport.Zoom * 2);
     glPointSize(fGame.Viewport.Zoom * 5);
 
+    //Background
     RenderTerrain;
-    fPlayers.Paint; //Quite slow           //Units and houses
-    if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay] then
-      fGame.Projectiles.Paint; //Render all arrows and etc..
 
-    fRenderList.Render;
+    //Sprites are added by Terrain/Players/Projectiles, then sorted by position
+    RenderSprites;
 
-    RenderCursorHighlights; //Will be on-top of everything
+    //Cursor overlays (including wire plans)
+    RenderCursors;
 
     if DISPLAY_SOUNDS then fSoundLib.Paint;
   glPopAttrib;
 end;
-
 
 
 procedure TRenderPool.RenderTerrainTiles(aRect: TKMRect; AnimStep: Integer);
@@ -410,53 +412,13 @@ begin
     if fTerrain.Land[I, K].Obj <> 255 then
       RenderObjectOrQuad(fTerrain.Land[I, K].Obj + 1, AnimStep, K, I);
 
+  //Falling trees are in a separate list
   with fTerrain do
     for I := 0 to FallingTrees.Count - 1 do
     begin
       RenderObject(FallingTrees.Tag[I] + 1, AnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
       Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
     end;
-end;
-
-
-//aRenderPos has fTerrain.HeightAt factored in already, aTilePos is on tile coordinates for Z ordering
-procedure TRenderPool.AddProjectile(aProj: TProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
-var
-  FOW: Byte;
-  ID: Integer;
-  R: TRXData;
-  CornerX,CornerY: Single;
-  Ground: Single;
-begin
-  //We don't care about off-map arrows, but still we get TKMPoint error if X/Y gets negative
-  if not fTerrain.TileInMapCoords(Round(aRenderPos.X), Round(aRenderPos.Y)) then Exit;
-
-  FOW := MyPlayer.FogOfWar.CheckTileRevelation(Round(aRenderPos.X), Round(aRenderPos.Y), True);
-  if FOW <= 128 then Exit; //Don't render objects which are behind FOW
-
-  case aProj of
-    pt_Arrow:     with fResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
-                    ID := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
-    pt_Bolt:      with fResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
-                    ID := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
-    pt_SlingRock: with fResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
-                    ID := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
-    pt_TowerRock: ID := ProjectileBounds[aProj, 1] + 1;
-    else          ID := 1; //Nothing?
-  end;
-
-  R := fRXData[rxUnits];
-
-  CornerX := R.Pivot[ID].X / CELL_SIZE_PX - 1;
-  CornerY := (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1;
-
-  case aProj of
-    pt_Arrow, pt_Bolt, pt_SlingRock:  Ground := aTilePos.Y + (0.5 - Abs(Min(aFlight, 1) - 0.5)) - 0.5;
-    pt_TowerRock:                     Ground := aTilePos.Y + Min(aFlight, 1)/5 - 0.4;
-    else                              Ground := aTilePos.Y - 1; //Nothing?
-  end;
-
-  fRenderList.AddSprite(rxUnits, ID, aRenderPos.X + CornerX, aRenderPos.Y + CornerY, aTilePos.X - 1, Ground);
 end;
 
 
@@ -769,6 +731,47 @@ begin
 end;
 
 
+//aRenderPos has fTerrain.HeightAt factored in already, aTilePos is on tile coordinates for Z ordering
+procedure TRenderPool.AddProjectile(aProj: TProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
+var
+  FOW: Byte;
+  ID: Integer;
+  R: TRXData;
+  CornerX,CornerY: Single;
+  Ground: Single;
+begin
+  //We don't care about off-map arrows, but still we get TKMPoint error if X/Y gets negative
+  if not fTerrain.TileInMapCoords(Round(aRenderPos.X), Round(aRenderPos.Y)) then Exit;
+
+  FOW := MyPlayer.FogOfWar.CheckTileRevelation(Round(aRenderPos.X), Round(aRenderPos.Y), True);
+  if FOW <= 128 then Exit; //Don't render objects which are behind FOW
+
+  case aProj of
+    pt_Arrow:     with fResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, aDir] do
+                    ID := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
+    pt_Bolt:      with fResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, aDir] do
+                    ID := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
+    pt_SlingRock: with fResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, aDir] do
+                    ID := Step[Round(Min(aFlight, 1) * Count) + 1] + 1;
+    pt_TowerRock: ID := ProjectileBounds[aProj, 1] + 1;
+    else          ID := 1; //Nothing?
+  end;
+
+  R := fRXData[rxUnits];
+
+  CornerX := R.Pivot[ID].X / CELL_SIZE_PX - 1;
+  CornerY := (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1;
+
+  case aProj of
+    pt_Arrow, pt_Bolt, pt_SlingRock:  Ground := aTilePos.Y + (0.5 - Abs(Min(aFlight, 1) - 0.5)) - 0.5;
+    pt_TowerRock:                     Ground := aTilePos.Y + Min(aFlight, 1)/5 - 0.4;
+    else                              Ground := aTilePos.Y - 1; //Nothing?
+  end;
+
+  fRenderList.AddSprite(rxUnits, ID, aRenderPos.X + CornerX, aRenderPos.Y + CornerY, aTilePos.X - 1, Ground);
+end;
+
+
 procedure TRenderPool.AddUnit(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepID: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 var
   CornerX, CornerY, Ground: Single;
@@ -1062,24 +1065,39 @@ begin
 
   RenderTerrainTiles(Rect, fTerrain.AnimStep);
   RenderTerrainFieldBorders(Rect);
-  RenderTerrainObjects(Rect, fTerrain.AnimStep);
 
-  if not fGame.AllowDebugRendering then
-    exit;
-
-  if SHOW_TERRAIN_WIRES then
-    fRenderAux.Wires(Rect);
-
-  if SHOW_TERRAIN_WIRES then
+  if fGame.AllowDebugRendering then
   begin
-    Passability := fGame.FormPassability;
-    if fGame.fMapEditorInterface <> nil then
-      Passability := max(Passability, fGame.fMapEditorInterface.ShowPassability);
-    fRenderAux.Passability(Rect, Passability);
-  end;
+    if SHOW_TERRAIN_WIRES then
+      fRenderAux.Wires(Rect);
 
-  if SHOW_UNIT_MOVEMENT then
-    fRenderAux.UnitMoves(Rect);
+    if SHOW_TERRAIN_WIRES then
+    begin
+      Passability := fGame.FormPassability;
+      if fGame.fMapEditorInterface <> nil then
+        Passability := max(Passability, fGame.fMapEditorInterface.ShowPassability);
+      fRenderAux.Passability(Rect, Passability);
+    end;
+
+    if SHOW_UNIT_MOVEMENT then
+      fRenderAux.UnitMoves(Rect);
+  end;
+end;
+
+
+//Sprites are rendered with regard to their Z position
+procedure TRenderPool.RenderSprites;
+var
+  Rect: TKMRect;
+begin
+  Rect := fGame.Viewport.GetClip;
+
+  RenderTerrainObjects(Rect, fTerrain.AnimStep);
+  fPlayers.Paint; //Quite slow           //Units and houses
+  if fGame.Projectiles <> nil then
+    fGame.Projectiles.Paint; //Render all arrows and etc..
+
+  fRenderList.Render;
 end;
 
 
@@ -1217,7 +1235,7 @@ begin
 end;
 
 
-procedure TRenderPool.RenderCursorHighlights;
+procedure TRenderPool.RenderCursors;
 var
   P: TKMPoint;
   F: TKMPointF;
