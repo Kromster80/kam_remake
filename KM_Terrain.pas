@@ -1061,7 +1061,7 @@ begin
     for i:=-1 to 0 do for k:=-1 to 0 do
     if Route_CanBeMade(aLoc, KMPoint(T.X+k, T.Y+i), CanWalk, 0) then
     begin
-      Slope := Round(HeightAt(T.X+k+0.5, T.Y+i+0.5)) - Land[T.Y, T.X].Height;
+      Slope := Round(HeightAt(T.X+k-0.5, T.Y+i-0.5)) - Land[T.Y, T.X].Height;
       //Cutting trees which are higher than us from the front looks visually poor, (axe hits ground) so avoid it where possible
       if (i = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
       if Abs(Slope) < BestSlope then
@@ -2426,17 +2426,14 @@ begin
   //todo: Make this match KaM by creating some comparision screenshots of slopes, hills, etc.
   Xc := Trunc(inX);
   Yc := Trunc(inY);
-  Result := 0;
-  //For example (0.1, 0.1) is valid place to get height, so check X+1 Y+1 vertex is in map.
-  //Similarly (192.9, 192.9) is NOT a valid place to get height, but without X+1 Y+1 it would be allowed
-  //because a vertex exists at (192, 192)
-  if not VerticeInMapCoords(Xc+1, Yc+1) then exit;
+  //Valid range of tiles is 0..MapXY-2 because we check height from (Xc+1,Yc+1) to (Xc+2,Yc+2)
+  //We cannot ask for height at the bottom row (MapY-1) because that row is not on the visible map,
+  //and does not have a vertex below it
+  Xc := EnsureRange(Xc, 0, fMapX-2);
+  Yc := EnsureRange(Yc, 0, fMapY-2);
 
   Tmp1 := mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, frac(inX));
-  if Yc >= MAX_MAP_SIZE then
-    Tmp2 := 0
-  else
-    Tmp2 := mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, frac(inX));
+  Tmp2 := mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, frac(inX));
   Result := mix(Tmp2, Tmp1, frac(inY));
 end;
 

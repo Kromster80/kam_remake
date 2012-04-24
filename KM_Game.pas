@@ -1268,8 +1268,9 @@ begin
     Float.Y := fViewport.Position.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
     Float.Y := fTerrain.ConvertCursorToMapCoord(Float.X,Float.Y);
 
-    Cell.X := EnsureRange(round(Float.X+0.5), 1, fTerrain.MapX); //Cell below cursor in map bounds
-    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, fTerrain.MapY);
+    //Cursor cannot reach row MapY or column MapX, they're not part of the map (only used for vertex height)
+    Cell.X := EnsureRange(round(Float.X+0.5), 1, fTerrain.MapX-1); //Cell below cursor in map bounds
+    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, fTerrain.MapY-1);
 
     SState := Shift;
   end;
