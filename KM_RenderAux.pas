@@ -14,10 +14,13 @@ type
     procedure RenderQuad(pX,pY:integer);
   public
     procedure Circle(x,y,rad:single; Fill,Line:TColor4);
+    procedure CircleOnTerrain(X, Y, Rad: Single; Fill, Line: TColor4);
     procedure Dot(X,Y:single; aCol:TColor4);
+    procedure DotOnTerrain(X,Y:single; aCol:TColor4);
     procedure Passability(aRect: TKMRect; aPass: Integer);
     procedure Projectile(x1,y1,x2,y2:single);
     procedure Quad(pX,pY:integer; aCol:TColor4);
+    procedure SquareOnTerrain(X1, Y1, X2, Y2: Single; Fill, Line: TColor4);
     procedure Text(pX,pY:integer; aText:string; aCol:TColor4);
     procedure UnitMoves(aRect: TKMRect);
     procedure UnitPointers(pX,pY:single; Count:integer);
@@ -85,18 +88,52 @@ begin
     glColor4ubv(@Fill);
     glBegin(GL_POLYGON);
       for I := -SEC_COUNT to SEC_COUNT do
-        glVertex3f(Cos(I/SEC_COUNT*pi)*Rad, Sin(I/SEC_COUNT*pi)*Rad,0);//-1..1
+        glVertex2f(Cos(I/SEC_COUNT*pi)*Rad, Sin(I/SEC_COUNT*pi)*Rad);//-1..1
     glEnd;
     glBegin(GL_POLYGON);
       for I := -SEC_COUNT to SEC_COUNT do
-        glVertex3f(Cos(I/SEC_COUNT*pi)*Rad/3, Sin(I/SEC_COUNT*pi)*Rad/3,0);//-1..1
+        glVertex2f(Cos(I/SEC_COUNT*pi)*Rad/3, Sin(I/SEC_COUNT*pi)*Rad/3);//-1..1
     glEnd;
     glColor4ubv(@Line);
     glBegin(GL_LINE_STRIP);
       for I := -SEC_COUNT to SEC_COUNT do
-        glVertex3f(Cos(I/SEC_COUNT*pi)*Rad, Sin(I/SEC_COUNT*pi)*Rad,0);//-1..1
+        glVertex2f(Cos(I/SEC_COUNT*pi)*Rad, Sin(I/SEC_COUNT*pi)*Rad);//-1..1
     glEnd;
   glPopMatrix;
+end;
+
+
+procedure TRenderAux.CircleOnTerrain(X, Y, Rad: Single; Fill, Line: TColor4);
+const SEC_COUNT = 24;
+var I: Integer; C,S: Single;
+begin
+  glColor4ubv(@Line);
+  glBegin(GL_LINE_LOOP);
+    for I := -SEC_COUNT to SEC_COUNT - 1 do
+    begin
+      C := Cos(I / SEC_COUNT * Pi) * Rad;
+      S := Sin(I / SEC_COUNT * Pi) * Rad;
+      glVertex2f(X + C, Y + S - fTerrain.HeightAt(X + C, Y + S) / CELL_HEIGHT_DIV);
+    end;
+  glEnd;
+end;
+
+
+procedure TRenderAux.SquareOnTerrain(X1, Y1, X2, Y2: Single; Fill, Line: TColor4);
+var I: Integer;
+begin
+  glColor4ubv(@Line);
+  glBegin(GL_LINE_LOOP);
+    glVertex2f(X1, Y1 - fTerrain.HeightAt(X1, Y1) / CELL_HEIGHT_DIV);
+    for I := Ceil(X1) to Trunc(X2) do
+      glVertex2f(I, Y1 - fTerrain.HeightAt(I, Y1) / CELL_HEIGHT_DIV);
+    glVertex2f(X2, Y1 - fTerrain.HeightAt(X2, Y1) / CELL_HEIGHT_DIV);
+
+    glVertex2f(X2, Y2 - fTerrain.HeightAt(X2, Y2) / CELL_HEIGHT_DIV);
+    for I := Trunc(X2) downto Ceil(X1) do
+      glVertex2f(I, Y2 - fTerrain.HeightAt(I, Y2) / CELL_HEIGHT_DIV);
+    glVertex2f(X1, Y2 - fTerrain.HeightAt(X1, Y2) / CELL_HEIGHT_DIV);
+  glEnd;
 end;
 
 
@@ -104,6 +141,13 @@ procedure TRenderAux.Dot(X,Y:single; aCol:TColor4);
 begin
   glColor4ubv(@aCol);
   RenderDot(X,Y);
+end;
+
+
+procedure TRenderAux.DotOnTerrain(X,Y:single; aCol:TColor4);
+begin
+  glColor4ubv(@aCol);
+  RenderDot(X,Y - fTerrain.HeightAt(X, Y) / CELL_HEIGHT_DIV);
 end;
 
 

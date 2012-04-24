@@ -2647,7 +2647,7 @@ begin
   case GameCursor.Mode of
     cm_Height:
               if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
-              MapEdHeight(KMPointF(GameCursor.Float.X+1,GameCursor.Float.Y+1), GameCursor.Tag1, GameCursor.Tag2, ssLeft in GameCursor.SState);
+                MapEdHeight(KMPointF(GameCursor.Float.X+1,GameCursor.Float.Y+1), GameCursor.Tag1, GameCursor.Tag2, ssLeft in GameCursor.SState);
     cm_Tiles:
               if (ssLeft in GameCursor.SState) then
                 if GameCursor.Tag2 in [0..3] then //Defined direction

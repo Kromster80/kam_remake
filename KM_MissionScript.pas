@@ -557,30 +557,30 @@ begin
   Result := false; //Set it right from the start. There are several Exit points below
 
   case CommandType of
-    ct_SetMap:         begin
-                         MapFileName := RemoveQuotes(String(TextParam));
-                         //Check for same filename.map in same folder first - Remake format
-                         if FileExists(ChangeFileExt(fMissionFileName,'.map')) then
-                           fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName,'.map'), fParsingMode = mpm_Editor)
-                         else
-                         //Check for KaM format map path
-                         if FileExists(ExeDir+MapFileName) then
-                           fTerrain.LoadFromFile(ExeDir+MapFileName, fParsingMode = mpm_Editor)
-                         else
-                         begin
-                           //Else abort loading and fail
-                           AddError('Map file couldn''t be found',true);
-                           Exit;
-                         end;
-                       end;
-    ct_SetMaxPlayer:   begin
-                         if fPlayers=nil then
-                           fPlayers := TKMPlayersCollection.Create;
-                         if fParsingMode = mpm_Single then
-                           fPlayers.AddPlayers(P[0])
-                         else
-                           fPlayers.AddPlayers(fRemapCount);
-                       end;
+    ct_SetMap:          begin
+                          MapFileName := RemoveQuotes(String(TextParam));
+                          //Check for same filename.map in same folder first - Remake format
+                          if FileExists(ChangeFileExt(fMissionFileName,'.map')) then
+                            fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName,'.map'), fParsingMode = mpm_Editor)
+                          else
+                          //Check for KaM format map path
+                          if FileExists(ExeDir+MapFileName) then
+                            fTerrain.LoadFromFile(ExeDir+MapFileName, fParsingMode = mpm_Editor)
+                          else
+                          begin
+                            //Else abort loading and fail
+                            AddError('Map file couldn''t be found',true);
+                            Exit;
+                          end;
+                        end;
+    ct_SetMaxPlayer:    begin
+                          if fPlayers=nil then
+                            fPlayers := TKMPlayersCollection.Create;
+                          if fParsingMode = mpm_Single then
+                            fPlayers.AddPlayers(P[0])
+                          else
+                            fPlayers.AddPlayers(fRemapCount);
+                        end;
     ct_SetTactic:       begin
                           if fPlayers = nil then
                             fPlayers := TKMPlayersCollection.Create;

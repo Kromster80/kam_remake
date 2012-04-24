@@ -735,11 +735,11 @@ end;
 procedure TSoundLib.Paint;
 var i:integer;
 begin
-  fRenderAux.Circle(fListener.Pos[1], fListener.Pos[2], MAX_DISTANCE, $00000000, $FFFFFFFF);
+  fRenderAux.CircleOnTerrain(fListener.Pos[1], fListener.Pos[2], MAX_DISTANCE, $00000000, $FFFFFFFF);
   for i:=1 to MAX_SOUNDS do
   if (fSound[i].PlaySince<>0) and (fSound[i].PlaySince+fSound[i].Duration > GetTickCount) then
   begin
-    fRenderAux.Circle(fSound[i].Position.X, fSound[i].Position.Y, 5, $4000FFFF, $FFFFFFFF);
+    fRenderAux.CircleOnTerrain(fSound[i].Position.X, fSound[i].Position.Y, 5, $4000FFFF, $FFFFFFFF);
     fRenderAux.Text(Round(fSound[i].Position.X), Round(fSound[i].Position.Y), fSound[i].Name, $FFFFFFFF);
   end else
     fSound[i].PlaySince := 0;

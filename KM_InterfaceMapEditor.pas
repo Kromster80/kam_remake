@@ -670,15 +670,15 @@ begin
       ColorSwatch_Color.OnClick := Player_ColorClick;
 
     Panel_Block := TKMPanel.Create(Panel_Player,0,28,196,400);
-      TKMLabel.Create(Panel_Goals, 100, 10, 184, 0, 'Block houses', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Block, 100, 10, 184, 0, 'Block houses', fnt_Outline, taCenter);
 
       for I := 1 to GUI_HOUSE_COUNT do
       if GUIHouseOrder[I] <> ht_None then begin
-        Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_Block, 8+((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
+        Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_Block, 8+((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
         Button_BlockHouse[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
         Button_BlockHouse[I].OnClick := Player_BlockClick;
         Button_BlockHouse[I].Tag := I;
-        Image_BlockHouse[I] := TKMImage.Create(Panel_Block, 8+((I-1) mod 5)*37 + 5, 83+((I-1) div 5)*37 + 5, 33, 33, 0, rxMenu);
+        Image_BlockHouse[I] := TKMImage.Create(Panel_Block, 8+((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxMenu);
         Image_BlockHouse[I].Hitable := False;
         Image_BlockHouse[I].ImageCenter;
       end;

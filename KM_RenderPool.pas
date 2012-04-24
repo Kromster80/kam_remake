@@ -505,7 +505,7 @@ begin
                   - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
     fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, gX, gY);
 
-    //fRenderAux.Dot(pX, pY - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, $FFFF0000);
+    //fRenderAux.DotOnTerrain(pX, pY, $FFFF0000);
     //fRenderAux.Dot(pX + R.Pivot[ID].X / CELL_SIZE_PX,
     //               pY + R.Pivot[ID].Y / CELL_SIZE_PX - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, $FFFFFF00);
     //fRenderAux.Dot(CornerX, CornerY, $FFFF00FF);
@@ -798,7 +798,7 @@ begin
   if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
   if NewInst then
   begin
-    fRenderAux.Dot(pX, pY - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, FlagColor);
+    fRenderAux.DotOnTerrain(pX, pY, FlagColor);
     fRenderAux.Dot(CornerX, CornerY, $FF000080);
   end;
 end;
@@ -908,7 +908,7 @@ begin
   end;
 
   if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
-    fRenderAux.Dot(pX, pY - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, FlagColor); // Render dot where unit is
+    fRenderAux.DotOnTerrain(pX, pY, FlagColor); // Render dot where unit is
 end;
 
 
@@ -1220,11 +1220,16 @@ end;
 procedure TRenderPool.RenderCursorHighlights;
 var
   P: TKMPoint;
+  F: TKMPointF;
   U: TKMUnit;
+  I,K: Integer;
+  Tmp: Single;
+  Rad, Slope: Byte;
 begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
 
   P := GameCursor.Cell;
+  F := GameCursor.Float;
 
   if (GameCursor.Mode <> cm_None) and (GameCursor.Mode <> cm_Houses) and
      (MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) = 0) then
@@ -1297,9 +1302,28 @@ begin
                   RenderObjectOrQuad(fTerrain.Land[P.Y,P.X].Obj+1, fTerrain.AnimStep, P.X, P.Y, true, true);
                   RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, P.X, P.Y, true);
                 end;
-    cm_Height:  fRenderAux.Circle(GameCursor.Float.X,GameCursor.Float.Y - fTerrain.HeightAt(GameCursor.Float)/CELL_HEIGHT_DIV, (GameCursor.Tag1 and $F) div 2, $00000000,  $FFFFFFFF);
+    cm_Height:  begin
+                  Rad := (GameCursor.Tag1 AND $F) div 2; //Low bits
+                  Slope := GameCursor.Tag1 SHR 4; //High bits
+                  for I := Max((Trunc(F.Y) - Rad), 1) to Min((Ceil(F.Y) + Rad), fTerrain.MapY) do
+                  for K := Max((Trunc(F.X) - Rad), 1) to Min((Ceil(F.X) + Rad), fTerrain.MapX) do
+                  begin
+                    case GameCursor.Tag2 of
+                      MAPED_HEIGHT_CIRCLE: Tmp := 1 - GetLength(I-F.Y, K-F.X) / Rad;
+                      MAPED_HEIGHT_SQUARE: Tmp := 1 - Math.max(abs(I-F.Y), abs(K-F.X)) / Rad;
+                      else                 Tmp := 0;
+                    end;
+                    Tmp := Power(Abs(Tmp), (Slope + 1) / 6) * Sign(Tmp); //Modify slopes curve
+                    Tmp := EnsureRange(Tmp * 1.5, 0, 1); //*1.5 makes dots more visible
+                    fRenderAux.DotOnTerrain(K, I, $FF or (Round(Tmp*255) shl 24));
+                  end;
+                  case GameCursor.Tag2 of
+                    MAPED_HEIGHT_CIRCLE: fRenderAux.CircleOnTerrain(F.X, F.Y, Rad, $00000000,  $FFFFFFFF);
+                    MAPED_HEIGHT_SQUARE: fRenderAux.SquareOnTerrain(F.X - Rad, F.Y - Rad, F.X + Rad, F.Y + Rad, $00000000,  $FFFFFFFF);
+                  end;
+                end;
     cm_Units:   if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
-                  AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,MyPlayer.FlagColor,true)
+                  AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, MyPlayer.FlagColor, True)
                 else
                   RenderCursorBuildIcon(P); //Red X
   end;
