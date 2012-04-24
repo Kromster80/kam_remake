@@ -99,7 +99,7 @@ type
         TilesRandom:TKMCheckBox;
       Panel_Objects:TKMPanel;
         ObjectErase:TKMButtonFlat;
-        ObjectsTable:array[1..4] of TKMButtonFlat;
+        ObjectsTable:array[0..8] of TKMButtonFlat;
         ObjectsScroll:TKMScrollBar;
 
     Panel_Village:TKMPanel;
@@ -555,26 +555,25 @@ begin
       Terrain_TilesChange(TilesTable[1]);
 
     Panel_Objects := TKMPanel.Create(Panel_Terrain,0,28,196,400);
-      ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 8, 268, 180, 20, sa_Horizontal, bsGame);
-      ObjectsScroll.MinValue := 1;
-      ObjectsScroll.MaxValue := ActualMapElemQty div 2;
-      ObjectsScroll.Position := 1;
+      ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 8, 295, 180, 20, sa_Horizontal, bsGame);
+      ObjectsScroll.MinValue := 0;
+      ObjectsScroll.MaxValue := ActualMapElemQty div 3 - 2;
+      ObjectsScroll.Position := 0;
       ObjectsScroll.OnChange := Terrain_ObjectsChange;
       ObjectErase := TKMButtonFlat.Create(Panel_Objects, 8, 8,32,32,340);
-      ObjectsTable[1] := TKMButtonFlat.Create(Panel_Objects, 8, 40,90,110,1,rxTrees); //RXid=1  // 1 2
-      ObjectsTable[2] := TKMButtonFlat.Create(Panel_Objects, 8,150,90,110,1,rxTrees); //RXid=1  // 3 4
-      ObjectsTable[3] := TKMButtonFlat.Create(Panel_Objects,98, 40,90,110,1,rxTrees); //RXid=1
-      ObjectsTable[4] := TKMButtonFlat.Create(Panel_Objects,98,150,90,110,1,rxTrees); //RXid=1
-      for i:=1 to 4 do begin
-        ObjectsTable[i].Tag := i; //Store ID
-        ObjectsTable[i].OnClick := Terrain_ObjectsChange;
-        ObjectsTable[i].OnMouseWheel := ObjectsScroll.MouseWheel;
+      for I := 0 to 2 do for K := 0 to 2 do
+      begin
+        ObjectsTable[I*3+K] := TKMButtonFlat.Create(Panel_Objects, 8+I*65, 40+K*85,64,84,1,rxTrees); //RXid=1  // 1 2
+        ObjectsTable[I*3+K].Tag := I*3+K; //Store ID
+        ObjectsTable[I*3+K].OnClick := Terrain_ObjectsChange;
+        ObjectsTable[I*3+K].OnMouseWheel := ObjectsScroll.MouseWheel;
       end;
       ObjectErase.Tag := 255; //no object
       ObjectErase.OnClick := Terrain_ObjectsChange;
     Terrain_ObjectsChange(ObjectsScroll); //This ensures that the displayed images get updated the first time
-    Terrain_ObjectsChange(ObjectsTable[1]);
+    Terrain_ObjectsChange(ObjectsTable[0]);
 end;
+
 
 {Build page}
 procedure TKMapEdInterface.Create_Village_Page;
@@ -1065,46 +1064,49 @@ end;
 
 
 procedure TKMapEdInterface.Terrain_ObjectsChange(Sender: TObject);
-var i,ObjID:integer;
+var I, ObjID: Integer;
 begin
-  for i:=1 to 4 do
-    ObjectsTable[i].Down := false;
-  ObjectErase.Down := false;
+  for I := 0 to 8 do
+    ObjectsTable[i].Down := False;
+
+  ObjectErase.Down := False;
 
   if Sender = ObjectsScroll then
   begin
-    for i:=1 to 4 do
+    for I := 0 to 8 do
     begin
-      ObjID := ObjectsScroll.Position*2 - 2 + i;
-      if ActualMapElem[ObjID]<>0 then
+      ObjID := ObjectsScroll.Position * 3 + I + 1;
+      if ActualMapElem[ObjID] <> 0 then
       begin
-        ObjectsTable[i].TexID := MapElem[ActualMapElem[ObjID]].Step[1] + 1;
-        ObjectsTable[i].Caption := inttostr(ObjID);
-        ObjectsTable[i].Enable;
+        ObjectsTable[I].TexID := MapElem[ActualMapElem[ObjID]].Step[1] + 1;
+        ObjectsTable[I].Caption := inttostr(ObjID);
+        ObjectsTable[I].Enable;
       end
       else
       begin
-        ObjectsTable[i].TexID := 0;
-        ObjectsTable[i].Caption := '';
-        ObjectsTable[i].Disable;
+        ObjectsTable[I].TexID := 0;
+        ObjectsTable[I].Caption := '';
+        ObjectsTable[I].Disable;
       end;
-      ObjectsTable[i].Down := ObjID = OriginalMapElem[GameCursor.Tag1+1]; //Mark the selected one using reverse lookup
+      ObjectsTable[I].Down := ObjID = OriginalMapElem[GameCursor.Tag1+1]; //Mark the selected one using reverse lookup
     end;
     ObjectErase.Down := (GameCursor.Tag1 = 255); //or delete button
   end;
 
   if Sender is TKMButtonFlat then
   begin
-    ObjID := ObjectsScroll.Position*2-1 + (TKMButtonFlat(Sender).Tag-1); //1..n
-    if (not InRange(ObjID,1,ActualMapElemQty)) and not (TKMButtonFlat(Sender).Tag = 255) then exit; //Don't let them click if it is out of range
+    ObjID := ObjectsScroll.Position * 3 + TKMButtonFlat(Sender).Tag + 1; //1..n
+    if (not InRange(ObjID, 1, ActualMapElemQty))
+    and not (TKMButtonFlat(Sender).Tag = 255) then
+      Exit; //Don't let them click if it is out of range
     GameCursor.Mode := cm_Objects;
     if TKMButtonFlat(Sender).Tag = 255 then
       GameCursor.Tag1 := 255 //erase object
     else
       GameCursor.Tag1 := ActualMapElem[ObjID]-1; //0..n
     GameCursor.Tag2 := 0;
-    for i:=1 to 4 do
-      ObjectsTable[i].Down := (Sender = ObjectsTable[i]); //Mark the selected one
+    for I := 0 to 8 do
+      ObjectsTable[I].Down := (Sender = ObjectsTable[I]); //Mark the selected one
     ObjectErase.Down := (Sender = ObjectErase); //or delete button
   end;
 end;
