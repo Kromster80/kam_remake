@@ -178,7 +178,7 @@ MaxID:2699
 219:|Váš zlatý dùl se zdá být vyèerpaný.
 220:|Tato budova není obydlena.
 221:|Tito vojáci jsou hladoví, mìli by dostat co nejrychleji nìco k jídlu!
-222:PAUSE
+222:PAUZE
 223:Zmìnit hlasitost
 224:Vypnout/Zapnout dodávku zboží
 418:Pøízrak
@@ -199,6 +199,10 @@ MaxID:2699
 433:Hlavní pochod
 434:Tmavì modrá
 435:Zápas
+436:Na zámku
+437:U šlechty
+438:V pøístavu
+439:Na cestì
 847:Kampaò 'The Shattered Kingdom'
 848:Kampaò 'The Peasants Rebellion'
 849:Hrát samostatnou mapu
@@ -247,7 +251,7 @@ MaxID:2699
 1707:Ovládání:
 1708:Hra:
 1709:Zvuk:
-1710:Zakázat hudbu
+1710:Vypnout hudbu
 1711:Grafika:
 1712:Jas
 1713:Celá obrazovka
@@ -317,7 +321,7 @@ MaxID:2699
 1779:Seznam hráèù:
 1780:IP Adresa
 1781:Port
-1782:Místo:
+1782:Místnost:
 1783:Pøipojit
 1784:Pøipojuji se, prosím èekejte...
 1785:Naèítám...
@@ -325,6 +329,7 @@ MaxID:2699
 1787:Seznam hráèù
 1788:Pozice
 1789:Tým
+1790:Barva
 1791:Pøipraven
 1792:Ping
 1793:Pryè
@@ -436,5 +441,16 @@ MaxID:2699
 1903:stromy
 1904:skripty
 1905:textury terénu
+2687:Založit Server
+2688:NAJÍT SERVER
+2689:Pøipojit se
+2690:Pøipojit se pomocí IP
 2691:Cancel
 2692:Cancel
+2693:Není podporováno
+2694:Není podporována
+2695:Chyba: Jméno hráèe nesmí mít více než %d znakù
+2696:Chyba: Jméno hráèe obsahuje nepovolené znaky
+2697:Kvalita stínù:
+2698:Nízká
+2699:Vysoká
