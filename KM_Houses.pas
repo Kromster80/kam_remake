@@ -848,13 +848,18 @@ end;
 
 
 function TKMHouse.PickOrder:byte;
-var i, Res: byte;
+var i, Res: byte; Ware: TResourceType;
 begin
   Result := 0;
   for i:=0 to 3 do
   begin
     Res := ((fLastOrderProduced+i) mod 4)+1; //1..4
-    if CheckResOrder(Res) > 0 then
+    Ware := fResource.HouseDat[fHouseType].ResOutput[Res];
+    if (CheckResOrder(Res) > 0) //Player has ordered some of this
+    //Check we have wares to produce this weapon. If both are the same type check > 1 not > 0
+    and ((WarfareCosts[Ware,1] <> WarfareCosts[Ware,2]) or (CheckResIn(WarfareCosts[Ware,1]) > 1))
+    and ((WarfareCosts[Ware,1] = rt_None) or (CheckResIn(WarfareCosts[Ware,1]) > 0))
+    and ((WarfareCosts[Ware,2] = rt_None) or (CheckResIn(WarfareCosts[Ware,2]) > 0)) then
     begin
       Result := Res;
       exit;

@@ -1,7 +1,7 @@
 
-MaxID:2703
+MaxID:2699
 
-0:Fabricã de blãni
+0:Tâmplãrie
 1:Fierãrie
 2:Fierãrie de arme
 3:Minã de cãrbune
@@ -10,7 +10,7 @@ MaxID:2703
 6:Pescãrie
 7:Brutãrie
 8:Fermã
-9:Tãietorie de lemne
+9:Canton
 10:Fierãrie de armuri
 11:Depozit
 12:Grajduri
@@ -98,7 +98,7 @@ MaxID:2703
 105:Brutarul macinã grâul|în fãinã la moarã.||De asemenea coace|pâinea la brutãrie.
 106:Mãcelarul face|cârnati la mãcelãrie|si piei la tãbãcãrie.
 107:Pescarul prinde pesti|în apele din apropiere.
-108:Muncitorul construieste|clãdiri si drumuri.|Doar selectezi locatia|doritã si el iti va|indeplini automat|ordinele. De asemenea| el reparã si||clãdirile deteriorate.
+108:Muncitorul construieste|clãdiri si drumuri.|Doar selectezi locatia|doritã si el iti va|indeplini automat|ordinele. De asemenea| el reparã si clãdirile deteriorate.
 109:Pentru a aproviziona|muncitorii cu suficiente|materiale pentru construirea|drumurilor si clãdirilor,|pietrarul va tãia si|ciopli pietre.
 110:Fierarul fãureste arme|si armuri de fier in|fierãriile de armuri|si arme.
 111:Metalurgistul foloseste|cãrbune pentru a rafina|minereul de fier si aur.
@@ -139,7 +139,7 @@ MaxID:2703
 180:Anuleazã
 181:Necesitã:
 182:Conditie:
-183:Livreazã
+183:Produce
 184:Casa sub|constructie
 185:Distruge
 186:Esti sigur cã vrei sa|demolezi aceastã clãdire?
@@ -152,7 +152,7 @@ MaxID:2703
 193:Profesia urmãtoare
 194:Profesia anterioarã
 195:Adaugã in listã
-196:Costuri:
+196:Inchide/Deschide clãdirea
 197:Schimbã pornit/oprit reparatia aceste case
 198:Clãdire nedisponibilã în acest moment
 199:Conditie
@@ -380,7 +380,7 @@ MaxID:2703
 1842:Nu sunt gata toti jucãtorii
 1843:Numãrul jucãtorilor depãseste limita hãrtii
 1844:Versiune de protocol gresitã: %s. Serverul foloseste: %s
-1845:Serverul a alocat drepturile de gazdã nouã
+1845:Serverul a alocat drepturile de gazdã
 1846:Mãreste comertul
 1847:Micsoreazã comertul
 1848:Salvare joc...
