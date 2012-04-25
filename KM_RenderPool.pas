@@ -591,7 +591,7 @@ begin
   gW := R.Pivot[ID].Y + R.Size[ID].Y;
   gS := R.Pivot[ID2].Y + R.Size[ID2].Y;
   gX := Loc.X + (R.Pivot[ID].X + R.Size[ID].X / 2) / CELL_SIZE_PX - 1;
-  gY := Loc.Y + Max(gW, gS) / CELL_SIZE_PX - 1;
+  gY := Loc.Y + Max(gW, gS) / CELL_SIZE_PX - 1.5;
   CornerX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX;
   CornerY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
                    - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
