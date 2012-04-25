@@ -4,6 +4,9 @@ interface
 uses Classes, Math,
   KM_CommonClasses, KM_Points;
 
+//todo: @Krom: Return 128 for off map tiles so trees/units at the map edge are not 90% dark.
+//             Terrain should stay the same (darkening at map edges)
+
 
 { FOW state for each player }
 type

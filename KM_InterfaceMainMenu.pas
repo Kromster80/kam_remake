@@ -2360,7 +2360,9 @@ begin
     if (Sender = DropBox_LobbyLoc[i]) and DropBox_LobbyLoc[i].Enabled then
     begin
       fGame.Networking.SelectLoc(DropBox_LobbyLoc[i].ItemIndex, i+1);
-      DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
+      //Host with HostDoesSetup could have given us some location we don't know about from a map/save we don't have
+      if fGame.Networking.SelectGameKind <> ngk_None then
+        DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
     end;
 
     //Team
