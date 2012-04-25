@@ -1,7 +1,7 @@
 unit TestKM_Game;
 interface
 uses
-  TestFramework,
+  TestFramework, Windows,
   SysUtils, KM_Points, KM_Defaults, KM_CommonClasses, Classes, KromUtils,
   KM_Game, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary, KM_Terrain, KM_Units_Warrior, KM_Utils, Math;
 
@@ -44,18 +44,20 @@ begin
 end;
 
 procedure TestTKMGame.TestStone;
-var I: Integer;
+var I: Integer; T: Cardinal;
 begin
   fGame.StartSingleMap(ExtractFilePath(ParamStr(0)) + 'StoneTest.dat', 'Stone Test');
   Check(fPlayers[0].Stats.GetGoodsProduced = 0);
 
-  for I := 1 to 100000 do
+  T := GetTickCount;
+
+  for I := 1 to 2*60*60*10 do
   begin
-    fGame.UpdateState(nil);
+    fGame.UpdateGame(nil);
     if fGame.GameState = gsOnHold then
       fGame.GameHold(False, gr_Win);
   end;
-  Status('7');
+  Status('Done in ' + IntToStr(GetTickCount - T) + ' ms');
 
   fGame.Save('StoneTest');
   Check(fPlayers[0].Stats.GetGoodsProduced >= 3800, 'StoneMining got broken? Mined '+IntToStr(fPlayers[0].Stats.GetGoodsProduced)+'/3800');
@@ -77,7 +79,7 @@ begin
 
     for I := 1 to 1000 do
     begin
-      fGame.UpdateState(nil);
+      fGame.UpdateGame(nil);
       if fGame.GameState = gsOnHold then
         fGame.GameHold(False, gr_Win);
     end;
@@ -93,16 +95,19 @@ end;
 
 
 procedure TestTKMGame.TestAIBuild;
-var I: Integer;
+var I: Integer; T: Cardinal;
 begin
   fGame.StartSingleMap(ExtractFilePath(ParamStr(0)) + 'AcrossDesert.dat', 'AcrossDesert');
 
+  T := GetTickCount;
+
   for I := 1 to 60*60*10 do
   begin
-    fGame.UpdateState(nil);
+    fGame.UpdateGame(nil);
     if fGame.GameState = gsOnHold then
       fGame.GameHold(False, gr_Win);
   end;
+  Status('Done in ' + IntToStr(GetTickCount - T) + ' ms');
 
   fGame.Save('AcrossDesert');
 end;
@@ -115,7 +120,7 @@ begin
 
   for I := 1 to 60*60*10 do
   begin
-    fGame.UpdateState(nil);
+    fGame.UpdateGame(nil);
     if fGame.GameState = gsOnHold then
       fGame.GameHold(False, gr_Win);
   end;
