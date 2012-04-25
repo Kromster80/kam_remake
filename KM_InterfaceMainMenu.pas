@@ -2523,7 +2523,7 @@ begin
       fMapView.PlayerColors[I] := $FF000000;
   end;
   //If we have a map selected update the preview
-  if fGame.Networking.SelectGameKind = ngk_Map then
+  if (fGame.Networking.SelectGameKind = ngk_Map) and fGame.Networking.MapInfo.IsValid then
   begin
     fMapView.Update(True);
     Minimap_LobbyPreview.UpdateFrom(fMapView);
@@ -2555,6 +2555,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
 begin
+  List_Lobby.SetItems(''); //Clear previous items in case scanning finds no maps/saves
   case Radio_LobbyMapType.ItemIndex of
     0:  //Build Map
         begin
@@ -2615,15 +2616,19 @@ procedure TKMMainMenuInterface.Lobby_OnMapName(const aData: string);
 var I: Integer; DropText: string;
 begin
   //Common settings
-  Minimap_LobbyPreview.Visible := (fGame.Networking.SelectGameKind = ngk_Map);
-  TrackBar_LobbyPeacetime.Enabled := fGame.Networking.IsHost and (fGame.Networking.SelectGameKind = ngk_Map);
+  Minimap_LobbyPreview.Visible := (fGame.Networking.SelectGameKind = ngk_Map) and fGame.Networking.MapInfo.IsValid;
+  TrackBar_LobbyPeacetime.Enabled := fGame.Networking.IsHost and (fGame.Networking.SelectGameKind = ngk_Map) and fGame.Networking.MapInfo.IsValid;
 
   case  fGame.Networking.SelectGameKind of
     ngk_None: begin
-                Label_LobbyMapName.Caption := aData; //aData is some error message
                 Memo_LobbyMapDesc.Clear;
-                if aData <> fTextLibrary[TX_LOBBY_MAP_NONE] then
-                  Memo_LobbyMapDesc.Text := aData;
+                if aData = fTextLibrary[TX_LOBBY_MAP_NONE] then
+                  Label_LobbyMapName.Caption := aData
+                else
+                begin
+                  Label_LobbyMapName.Caption := '';
+                  Memo_LobbyMapDesc.Text := aData; //aData is some error message
+                end;
 
                 //Starting locations text
                 DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
@@ -2652,10 +2657,14 @@ begin
                       Radio_LobbyMapType.ItemIndex := 0;
                 end;
 
-                fMapView.UseCustomColors := True;
-                fMapView.LoadTerrain(MapNameToPath(fGame.Networking.MapInfo.FileName, 'dat', True));
-                fMapView.Update(True);
-                Minimap_LobbyPreview.UpdateFrom(fMapView);
+                //Only load the minimap preview if the map is valid
+                if fGame.Networking.MapInfo.IsValid then
+                begin
+                  fMapView.UseCustomColors := True;
+                  fMapView.LoadTerrain(MapNameToPath(fGame.Networking.MapInfo.FileName, 'dat', True));
+                  fMapView.Update(True);
+                  Minimap_LobbyPreview.UpdateFrom(fMapView);
+                end;
 
                 Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
                 Memo_LobbyMapDesc.Text := fGame.Networking.MapInfo.BigDesc;

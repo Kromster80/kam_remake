@@ -112,6 +112,7 @@ type
     procedure SetEnabled(aValue: Boolean); virtual;
   public
     Hitable: Boolean; //Can this control be hit with the cursor?
+    Focusable: Boolean; //Can this control have focus (e.g. TKMEdit sets this true)
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
     Scale: Single; //Child controls position is scaled
 
@@ -1813,6 +1814,7 @@ begin
   fFont := aFont;
   fAllowedChars := acText; //Set to the widest by default
   CursorPos := 0;
+  Focusable := True;
 end;
 
 
@@ -2604,6 +2606,7 @@ begin
   fItems := TStringList.Create;
   fFont := aFont;
   fAutoHideScrollBar := False; //Always show the scrollbar by default, then it can be turned off if required
+  Focusable := True; //For up/down keys
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, bsGame);
   UpdateScrollBar; //Initialise the scrollbar
@@ -2903,6 +2906,7 @@ begin
   fItemHeight := 20;
   fItemIndex  := -1;
   fShowHeader := True;
+  Focusable := True;
 
   fHeader := TKMListHeader.Create(aParent, aLeft, aTop, aWidth - fItemHeight, DEF_HEADER_HEIGHT);
   fHeader.OnColumnClick := ColumnClick;
@@ -3277,6 +3281,7 @@ begin
   fList.AutoHideScrollBar := True; //A drop box should only have a scrollbar if required
   fList.BackAlpha := 0.85;
   fList.fOnClick := ListClick;
+  fList.Focusable := False; //For drop downs we don't want the list to be focusable
 
   ListHide(nil);
 end;
@@ -3421,6 +3426,7 @@ begin
   fList := TKMColumnListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont);
   fList.BackAlpha := 0.85;
   fList.OnClick := ListClick;
+  fList.Focusable := False; //For drop downs we don't want the list to be focusable
 
   ListHide(nil);
 end;
@@ -3907,9 +3913,8 @@ end;
 procedure TKMMasterControl.SetCtrlUp(aCtrl: TKMControl);
 begin
   fCtrlUp := aCtrl;
-  //Only TKMEdit can have focus so far,
-  //when we need more focusable controls we might invent a better solution than this
-  if (fCtrlUp is TKMEdit) or (fCtrlUp is TKMListBox) or (fCtrlUp is TKMColumnListBox) then
+  //Give focus only to controls with Focusable=True
+  if (fCtrlUp <> nil) and fCtrlUp.Focusable then
     if fCtrlDown = fCtrlUp then
       CtrlFocus := fCtrlUp
     else

@@ -431,7 +431,11 @@ begin
   begin
     //If we are matching all then reset them all first so we don't get clashes
     for i:=1 to fNetPlayers.Count do
+    begin
       fNetPlayers[i].StartLocation := 0;
+      //Remove all closed players so we have space to fill with AIs (unused slots are closed below)
+      if fNetPlayers[i].IsClosed then fNetPlayers.RemClosedPlayer(i);
+    end;
 
     //Add enough AI players automatically (when we are matching all)
     for i:=fNetPlayers.GetAICount to fSaveInfo.Info.AICount-1 do
@@ -669,6 +673,7 @@ begin
     PostLocalMessage(Format(fTextLibrary[TX_LOBBY_CANNOT_START], [ErrorMessage]));
     Exit;
   end;
+  fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname); //ValidateSetup removes closed players if successful, so our index changes
 
   //Let everyone start with final version of fNetPlayers and fNetGameOptions
   SendGameOptions;
@@ -1145,7 +1150,7 @@ begin
               FreeAndNil(fMapInfo);
               FreeAndNil(fSaveInfo);
               fNetPlayers.ResetLocAndReady;
-              if Assigned(fOnMapName) then fOnMapName('None');
+              if Assigned(fOnMapName) then fOnMapName(fTextLibrary[TX_LOBBY_MAP_NONE]);
             end;
 
     mk_MapSelect:
@@ -1165,14 +1170,20 @@ begin
               if Integer(fMapInfo.CRC) <> Param then
               begin
                 if fMapInfo.IsValid then
-                  PostMessage('Error: '+fMyNikname+' has a different version of the map '+fMapInfo.FileName)
+                begin
+                  PostMessage('Error: '+fMyNikname+' has a different version of the map '+fMapInfo.FileName);
+                  ReMsg := Format(fTextLibrary[TX_MAP_WRONG_VERSION],[fMapInfo.FileName]);
+                end
                 else
+                begin
                   PostMessage('Error: '+fMyNikname+' does not have the map '+fMapInfo.FileName);
+                  ReMsg := Format(fTextLibrary[TX_MAP_DOESNT_EXIST],[fMapInfo.FileName]);
+                end;
                 FreeAndNil(fMapInfo);
                 fSelectGameKind := ngk_None;
                 if fMyIndex <> -1 then //In the process of joining
                   fNetPlayers[fMyIndex].ReadyToStart := false;
-                if Assigned(fOnMapName) then fOnMapName('None');
+                if Assigned(fOnMapName) then fOnMapName(ReMsg);
               end
             end;
 
@@ -1191,14 +1202,20 @@ begin
               if Integer(fSaveInfo.CRC) <> Param then
               begin
                 if fSaveInfo.IsValid then
-                  PostMessage('Error: '+fMyNikname+' has a different version of the save '+fSaveInfo.FileName)
+                begin
+                  PostMessage('Error: '+fMyNikname+' has a different version of the save '+fSaveInfo.FileName);
+                  ReMsg := Format(fTextLibrary[TX_SAVE_WRONG_VERSION],[fSaveInfo.FileName]);
+                end
                 else
+                begin
                   PostMessage('Error: '+fMyNikname+' does not have the save '+fSaveInfo.FileName);
+                  ReMsg := Format(fTextLibrary[TX_SAVE_DOESNT_EXIST],[fSaveInfo.FileName]);
+                end;
                 FreeAndNil(fSaveInfo);
                 fSelectGameKind := ngk_None;
                 if fMyIndex <> -1 then //In the process of joining
                   fNetPlayers[fMyIndex].ReadyToStart := False;
-                if Assigned(fOnMapName) then fOnMapName('None');
+                if Assigned(fOnMapName) then fOnMapName(ReMsg);
               end;
 
     mk_StartingLocQuery:

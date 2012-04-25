@@ -1,5 +1,5 @@
 
-MaxID:2699
+MaxID:2703
 
 0:Sawmill
 1:Iron smithy
@@ -454,3 +454,7 @@ MaxID:2699
 2697:Shadow quality:
 2698:Low
 2699:High
+2700:Map not found: %s
+2701:Map files do not match the host for the map: %s
+2702:Save not found: %s
+2703:Save file does not match the host for the save: %s

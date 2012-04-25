@@ -31,6 +31,7 @@ type
     Connected:boolean;      //Player is still connected
     Dropped:boolean;        //Host elected to continue play without this player
     procedure AddPing(aPing:word);
+    procedure ResetPingRecord;
     function GetInstantPing:word;
     function GetMaxPing:word;
     function IsHuman:boolean;
@@ -116,6 +117,13 @@ procedure TKMPlayerInfo.AddPing(aPing:word);
 begin
   fPingPos := (fPingPos+1) mod PING_COUNT;
   fPings[fPingPos] := aPing;
+end;
+
+
+procedure TKMPlayerInfo.ResetPingRecord;
+begin
+  fPingPos := 0;
+  FillChar(fPings, SizeOf(fPings), #0);
 end;
 
 
@@ -236,6 +244,7 @@ end;
 
 procedure TKMPlayersList.Clear;
 begin
+  HostDoesSetup := False;
   fCount := 0;
 end;
 
@@ -367,6 +376,7 @@ begin
   fPlayers[fCount].ReadyToPlay := false;
   fPlayers[fCount].Connected := true;
   fPlayers[fCount].Dropped := false;
+  fPlayers[fCount].ResetPingRecord;
 end;
 
 
@@ -390,6 +400,7 @@ begin
   fPlayers[aSlot].ReadyToPlay := true;
   fPlayers[aSlot].Connected := true;
   fPlayers[aSlot].Dropped := false;
+  fPlayers[aSlot].ResetPingRecord;
   UpdateAIPlayerNames;
 end;
 
@@ -414,6 +425,7 @@ begin
   fPlayers[aSlot].ReadyToPlay := true;
   fPlayers[aSlot].Connected := true;
   fPlayers[aSlot].Dropped := false;
+  fPlayers[aSlot].ResetPingRecord;
 end;
 
 
