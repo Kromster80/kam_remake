@@ -2163,6 +2163,8 @@ begin
     end;
     Button_Army_Storm.Enabled := (UnitGroups[Sender.UnitType] = gt_Melee) and Commander.ArmyCanTakeOrders; //Only melee groups may charge
     Button_Army_Split.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
+    Button_Army_ForUp.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
+    Button_Army_ForDown.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
   end
   else
   begin //Citizen specific

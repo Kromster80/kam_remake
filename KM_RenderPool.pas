@@ -465,7 +465,8 @@ begin
     CornerX := pX + R.Pivot[ID].X / CELL_SIZE_PX;
     CornerY := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
                   - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, gX, gY);
+    if not DoImmediateRender then
+      fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, gX, gY);
 
     //fRenderAux.DotOnTerrain(pX, pY, $FFFF0000);
     //fRenderAux.Dot(pX + R.Pivot[ID].X / CELL_SIZE_PX,
@@ -499,9 +500,9 @@ var
     CornerY := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
              - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
 
-    fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, gX, gY);
-
-    if DoImmediateRender then
+    if not DoImmediateRender then
+      fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, gX, gY)
+    else
       RenderSprite(rxTrees, ID, CornerX, CornerY, $FFFFFFFF, 255, Deleting);
   end;
 

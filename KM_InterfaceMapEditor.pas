@@ -557,7 +557,7 @@ begin
     Panel_Objects := TKMPanel.Create(Panel_Terrain,0,28,196,400);
       ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 8, 295, 180, 20, sa_Horizontal, bsGame);
       ObjectsScroll.MinValue := 0;
-      ObjectsScroll.MaxValue := ActualMapElemQty div 3 - 2;
+      ObjectsScroll.MaxValue := ActualMapElemQty div 3 - 3;
       ObjectsScroll.Position := 0;
       ObjectsScroll.OnChange := Terrain_ObjectsChange;
       ObjectErase := TKMButtonFlat.Create(Panel_Objects, 8, 8,32,32,340);
