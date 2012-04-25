@@ -65,10 +65,10 @@ type
     property RXData: TRXData read fRXData;
 
     procedure LoadFromRXFile(const aFileName: string);
-    procedure LoadFromRXXFile(const aFileName: string);
+    procedure LoadFromRXXFile(const aFileName: string; aStartingIndex: Integer = 1);
     procedure LoadFromFolder(const aFolder: string);
     procedure OverloadFromFolder(const aFolder: string);
-    procedure MakeGFX(aAlphaShadows: Boolean);
+    procedure MakeGFX(aAlphaShadows: Boolean; aStartingIndex: Integer = 1);
     procedure MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection);
 
     procedure SaveToRXXFile(const aFileName: string);
@@ -372,9 +372,10 @@ begin
 end;
 
 
-procedure TKMSpritePack.LoadFromRXXFile(const aFileName: string);
+procedure TKMSpritePack.LoadFromRXXFile(const aFileName: string; aStartingIndex: Integer = 1);
 var
-  i: Integer;
+  I: Integer;
+  RXXCount: Integer;
   InputStream: TFileStream;
   DecompressionStream: TDecompressionStream;
 begin
@@ -385,17 +386,17 @@ begin
   DecompressionStream := TDecompressionStream.Create(InputStream);
 
   try
-    DecompressionStream.Read(fRXData.Count, 4);
-    fLog.AppendLog(RXInfo[fRT].FileName + ' -', fRXData.Count);
+    DecompressionStream.Read(RXXCount, 4);
+    fLog.AppendLog(RXInfo[fRT].FileName + ' -', RXXCount);
 
-    if fRXData.Count = 0 then
+    if RXXCount = 0 then
       Exit;
 
-    Allocate(fRXData.Count);
+    Allocate(aStartingIndex + RXXCount);
 
-    DecompressionStream.Read(fRXData.Flag[1], fRXData.Count);
+    DecompressionStream.Read(fRXData.Flag[aStartingIndex], RXXCount);
 
-    for I := 1 to fRXData.Count do
+    for I := aStartingIndex to aStartingIndex + RXXCount do
       if fRXData.Flag[I] = 1 then
       begin
         DecompressionStream.Read(fRXData.Size[I].X, 4);
@@ -820,7 +821,7 @@ end;
 {Take RX data and make nice textures out of it.
 Textures should be POT to improve performance and avoid driver bugs
 In result we have GFXData filled.}
-procedure TKMSpritePack.MakeGFX(aAlphaShadows: Boolean);
+procedure TKMSpritePack.MakeGFX(aAlphaShadows: Boolean; aStartingIndex: Integer = 1);
 var
   ci,j,i,k,LeftIndex,RightIndex,TexCount,SpanCount:integer;
   AllocatedRAM,RequiredRAM,ColorsRAM:cardinal;
@@ -838,7 +839,7 @@ begin
   else
     TexType := tf_Normal;
 
-  LeftIndex := 0;
+  LeftIndex := aStartingIndex - 1;
   AllocatedRAM := 0;
   RequiredRAM := 0;
   ColorsRAM := 0;
@@ -934,7 +935,6 @@ begin
   fLog.AddToLog(IntToStr(AllocatedRAM div 1024) + '/' + IntToStr((AllocatedRAM - RequiredRAM) div 1024) + ' Kbytes allocated/wasted for units GFX when using Packing');
   fLog.AddToLog(IntToStr(ColorsRAM div 1024) + ' KBytes for team colors');
 end;
-
 
 
 {Take RX data and make nice textures out of it.

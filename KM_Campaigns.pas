@@ -3,7 +3,7 @@ unit KM_Campaigns;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Pics, KM_ResourceSprites, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Pics, KM_Resource, KM_ResourceSprites, KM_Points;
 
 
 const
@@ -16,6 +16,7 @@ type
     //Runtime variables
     fPath: string;
     fFirstTextIndex: Word;
+    fFirstSpriteIndex: Word;
     fUnlockedMap: Byte;
     fSprites: TKMSpritePack;
 
@@ -132,8 +133,8 @@ begin
   C := CampaignByTitle('TSK');
   if C <> nil then
   begin
-    C.fBackGroundPic.RX := rxGuiMainH;
-    C.fBackGroundPic.ID := 12;
+    //C.fBackGroundPic.RX := rxGuiMainH;
+    //C.fBackGroundPic.ID := 12;
     //C.fFirstTextIndex := 340; //+10 added later on
   end;
 
@@ -141,8 +142,8 @@ begin
   C := CampaignByTitle('TPR');
   if C <> nil then
   begin
-    C.fBackGroundPic.RX := rxGuiMain;
-    C.fBackGroundPic.ID := 20;
+    //C.fBackGroundPic.RX := rxGuiMain;
+    //C.fBackGroundPic.ID := 20;
     //C.fFirstTextIndex := 240; //+10 added later on
   end;
 end;
@@ -343,6 +344,7 @@ end;
 
 
 procedure TKMCampaign.LoadFromPath(aPath: string);
+var SP: TKMSpritePack;
 begin
   fPath := aPath;
 
@@ -350,7 +352,13 @@ begin
 
   fFirstTextIndex := fTextLibrary.AppendCampaign(fPath + 'text.%s.libx');
 
-  //LoadRX(fPath + '\info.cmp');
+  SP := fResource.Sprites[rxGuiMain];
+  fFirstSpriteIndex := SP.RXData.Count;
+  SP.LoadFromRXXFile(fPath + 'images.rxx', SP.RXData.Count);
+  SP.MakeGFX(False, fFirstSpriteIndex);
+
+  fBackGroundPic.RX := rxGuiMain;
+  fBackGroundPic.ID := fFirstSpriteIndex;
 
   if UNLOCK_CAMPAIGN_MAPS then //Unlock more maps for debug
     fUnlockedMap := 5;
