@@ -101,6 +101,7 @@ var
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
   MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
   DEBUG_CHEATS          :Boolean = False; //Cheats for debug (place scout and reveal map) which can be turned On from menu
+  MULTIPLAYER_SPEEDUP   :Boolean = False; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
   {Data output}
   WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
@@ -152,6 +153,8 @@ const //Here we store options that are hidden somewhere in code
   FRIENDLY_FIRE = True; //Whenever archers could kill fellow men with their arrows
 
   NET_DROP_PLAYER_MIN_WAIT = 30; //Host must wait at least this long before dropping disconnected players
+  ANNOUNCE_BUILD_MAP = 30*60*10; //30 minutes
+  ANNOUNCE_BATTLE_MAP = 2*60*10; //2 minutes
 
 type
   TPlayerIndex = shortint;

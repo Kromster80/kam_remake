@@ -651,7 +651,7 @@ begin
   fItems[ht_Marketplace].fHouseDat.StonePicSteps := 140;
   fItems[ht_Marketplace].fHouseDat.EntranceOffsetX := 1;
   fItems[ht_Marketplace].fHouseDat.EntranceOffsetXpx := 4; //Enterance is slightly to the left
-  fItems[ht_Marketplace].fHouseDat.EntranceOffsetYpx := 15; //todo: When we've fixed the render order bugs, move the enterance up to "10". It's temporarily moved down now so serfs don't go under the market sprite while walking inside.
+  fItems[ht_Marketplace].fHouseDat.EntranceOffsetYpx := 10;
   fItems[ht_Marketplace].fHouseDat.WoodCost := 5;
   fItems[ht_Marketplace].fHouseDat.StoneCost := 6;
   for I := 1 to 6 do begin

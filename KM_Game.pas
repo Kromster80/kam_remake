@@ -1563,6 +1563,12 @@ begin
                       if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                       inc(fGameTickCount); //Thats our tick counter for gameplay events
                       if fMultiplayerMode then fNetworking.LastProcessedTick := fGameTickCount;
+                      //Tell the master server about our game on the specific tick
+                      if fMultiplayerMode and (
+                         ((fMissionMode = mm_Normal) and (fGameTickCount = ANNOUNCE_BUILD_MAP)) or
+                         ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
+                        fNetworking.ServerQuery.SendMapInfo(fGameName, fNetworking.NetPlayers.GetConnectedCount);
+
                       fEventsManager.ProcTime(fGameTickCount);
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       fTerrain.UpdateState;

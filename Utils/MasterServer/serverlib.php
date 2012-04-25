@@ -60,6 +60,13 @@ function GetDataFileName($Rev)
 	Return "servers.$Rev.txt";
 }
 
+function GetMapFileName($Rev)
+{
+	global $MAIN_VERSION;
+	if($Rev == "") $Rev = $MAIN_VERSION;
+	Return "maps.$Rev.txt";
+}
+
 function CheckVersion($aRev)
 {
 	$Result = ctype_alnum($aRev); //Protect against injection attacks by only allowing alphanumeric characters
@@ -72,6 +79,46 @@ function plural($count, $singular, $plural = 's') {
         $plural = $singular . $plural;
     }
     return ($count == 1 ? $singular : $plural);
+}
+
+function AddMap($aMapName, $aPlayerCount, $aRev)
+{
+	if(($aPlayerCount > 0) && ($aPlayerCount <= 8))
+	{
+		$aMapName = str_replace("|", "", $aMapName); //don't allow seperator
+		$FileName = GetMapFileName($aRev);
+		if(file_exists($FileName))
+		{
+			$Output = "";
+			$Found = False;
+			$lines = file($FileName);
+			foreach($lines as $line)
+			{
+				list($Map, $TotalPlayers, $PlayedCounter) = explode("|",trim($line));
+				if($Map != "")
+				{
+					if($Map == $aMapName)
+					{
+						$PlayedCounter += 1;
+						$TotalPlayers += $aPlayerCount;
+						$Found = True;
+					}
+					$Output .= $Map."|".$TotalPlayers."|".$PlayedCounter."\n";
+				}
+			}
+			if(!$Found)
+			{
+				$Output .= $aMapName."|".$aPlayerCount."|1\n";
+			}
+		}
+		else
+		{
+			$Output = $aMapName."|".$aPlayerCount."|1";
+		}
+		$fh = fopen($FileName, 'w') or die("can't open file");
+		fwrite($fh, $Output);
+		fclose($fh);
+	}
 }
 
 function GetTime($Format)
@@ -236,7 +283,18 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
 	$aTTL = min($aTTL,$MAX_TTL);
 	$Servers = "";
 	$Exists = false;
-	$aAlive = (file_get_contents('http://beta.nonsenseinc.de/portcheck.php?ip='.$aIP.'&port='.$aPort.'') == 'TRUE');
+	//My server (lewin.hodgman.id.au) can do outgoing connections on port 56789 (99% of servers use this) because we asked for permission
+	if($aPort == "56789")
+	{
+      $fp = @fsockopen($aIP, $aPort, $errnum, $errstr, 6); //@ means suppress errors such as "failed to connect"
+	  if($fp)
+	  {
+	    $aAlive = true;
+	    fclose($fp);
+	  } else $aAlive = false;
+	}
+	else
+	  $aAlive = (file_get_contents('http://46.4.113.186/portcheckbool.php?ip='.$aIP.'&port='.$aPort.'') == 'TRUE');
 	
 	//Only record statistics about the main revision (for now)
 	if (($DO_STATS) && ($aRev == $MAIN_VERSION)) StatsUpdate($aName,$aPlayerCount);

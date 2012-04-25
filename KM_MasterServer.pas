@@ -11,8 +11,9 @@ uses Classes, SysUtils,
 type
   TKMMasterServer = class
   private
-    fHTTPClient: TKMHTTPClient;
+    fHTTPClient: TKMHTTPClient; //To update server status and fetch server list
     fHTTPAnnouncementsClient: TKMHTTPClient; //To fetch the annoucenemnts at the same time as the server list
+    fHTTPMapsClient: TKMHTTPClient; //To tell master server about the map we played
     fMasterServerAddress: string;
     fOnError:TGetStrProc;
     fOnServerList:TGetStrProc;
@@ -31,6 +32,7 @@ type
     procedure AnnounceServer(aName, aPort:string; aPlayerCount, aTTL:integer);
     procedure QueryServer;
     procedure FetchAnnouncements(const aLang: string);
+    procedure SendMapInfo(const aMapName: string; aPlayerCount: Integer);
     procedure UpdateStateIdle;
 
     property MasterServerAddress: string write fMasterServerAddress;
@@ -45,6 +47,7 @@ begin
   Inherited Create;
   fHTTPClient := TKMHTTPClient.Create;
   fHTTPAnnouncementsClient := TKMHTTPClient.Create;
+  fHTTPMapsClient := TKMHTTPClient.Create;
   fHTTPClient.OnReceive := nil;
   fHTTPClient.OnError := Error;
   fMasterServerAddress := aMasterServerAddress;
@@ -55,6 +58,7 @@ destructor TKMMasterServer.Destroy;
 begin
   fHTTPClient.Free;
   fHTTPAnnouncementsClient.Free;
+  fHTTPMapsClient.Free;
   Inherited;
 end;
 
@@ -100,10 +104,21 @@ begin
 end;
 
 
+procedure TKMMasterServer.SendMapInfo(const aMapName: string; aPlayerCount: Integer);
+begin
+  fHTTPMapsClient.OnReceive := nil; //We don't care about the response
+  fHTTPMapsClient.GetURL(fMasterServerAddress+'maps.php?map='+UrlEncode(aMapName)
+                         +'&playercount='+UrlEncode(IntToStr(aPlayerCount))
+                         +'&rev='+UrlEncode(NET_PROTOCOL_REVISON)
+                         +'&coderev='+UrlEncode(GAME_REVISION));
+end;
+
+
 procedure TKMMasterServer.UpdateStateIdle;
 begin
   fHTTPClient.UpdateStateIdle;
   fHTTPAnnouncementsClient.UpdateStateIdle;
+  fHTTPMapsClient.UpdateStateIdle;
 end;
 
 

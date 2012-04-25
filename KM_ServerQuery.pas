@@ -119,6 +119,7 @@ type
 
     procedure RefreshList;
     procedure FetchAnnouncements(const aLang: string);
+    procedure SendMapInfo(const aMapName: string; aPlayerCount: Integer);
     procedure UpdateStateIdle;
   end;
 
@@ -441,6 +442,12 @@ end;
 procedure TKMServerQuery.FetchAnnouncements(const aLang: string);
 begin
   fMasterServer.FetchAnnouncements(aLang);
+end;
+
+
+procedure TKMServerQuery.SendMapInfo(const aMapName: string; aPlayerCount: Integer);
+begin
+  fMasterServer.SendMapInfo(aMapName, aPlayerCount);
 end;
 
 

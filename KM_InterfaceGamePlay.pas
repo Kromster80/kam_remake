@@ -3172,14 +3172,15 @@ begin
                   if Key = VK_BACK then  fGame.Viewport.ResetZoom;
 
                   //Game speed/pause: Not available in multiplayer mode yet
-                  if not fGame.MultiplayerMode then
+                  if (not fGame.MultiplayerMode) or MULTIPLAYER_SPEEDUP then
                   begin
                     if (Key = VK_F5) then fGame.SetGameSpeed(1);
                     if (Key = VK_F6) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedMedium);
                     if (Key = VK_F7) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedFast);
                     if (Key = VK_F8) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedVeryFast);
-                    if (Key = ord('P')) then SetPause(true); //Display pause overlay
                   end;
+                  if not fGame.MultiplayerMode then
+                    if (Key = ord('P')) then SetPause(true); //Display pause overlay
 
                   //Menu shortcuts
                   if Key in [ord('1')..ord('4')] then Button_Main[Key-48].Click;

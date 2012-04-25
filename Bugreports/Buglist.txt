@@ -22,6 +22,7 @@
 Improvements:
  +	Do not allow to run multiple application instances at once
  +	Display height shapes outlines in MapEd
+ +	Master server records information about which maps are played
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	High quality alpha-blended shadows for houses (only once constructed?)
