@@ -102,7 +102,7 @@ var
 
 
 implementation
-uses KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_Units;
+uses KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_Units, KM_FogOfWar;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -197,6 +197,7 @@ var
   i,k,iW: Integer;
   ID,rd,Rot: Byte;
   xt,A: Integer;
+  FOW: TKMFogOfWar;
   TexC: array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO: array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
@@ -317,6 +318,7 @@ begin
   glEnd;
 
   //Render shadows and FOW at once
+  FOW := MyPlayer.FogOfWar;
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
   glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextD);
   glBegin(GL_QUADS);
@@ -324,22 +326,22 @@ begin
     for i := aRect.Top to aRect.Bottom do
     for k := aRect.Left to aRect.Right do
     if RENDER_3D then begin
-      glTexCoord1f(kromutils.max(0,-Land[i  ,k  ].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i,true)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i  ,k  ].Light,1-FOW.CheckVerticeRevelation(k-1,i-1,true)/255));
       glVertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0,-Land[i+1,k  ].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i+1,true)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i+1,k  ].Light,1-FOW.CheckVerticeRevelation(k-1,i,true)/255));
       glVertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0,-Land[i+1,k+1].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i+1,true)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i+1,k+1].Light,1-FOW.CheckVerticeRevelation(k,i,true)/255));
       glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0,-Land[i  ,k+1].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i,true)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i  ,k+1].Light,1-FOW.CheckVerticeRevelation(k,i-1,true)/255));
       glVertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
-      glTexCoord1f(max(-Land[i  ,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i,true)/255));
+      glTexCoord1f(max(-Land[i  ,k  ].Light, 1-FOW.CheckVerticeRevelation(k-1,i-1,true)/255));
       glVertex3f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV, -i);
-      glTexCoord1f(max(-Land[i+1,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i+1,true)/255));
+      glTexCoord1f(max(-Land[i+1,k  ].Light, 1-FOW.CheckVerticeRevelation(k-1,i,true)/255));
       glVertex3f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV, -i);
-      glTexCoord1f(max(-Land[i+1,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i+1,true)/255));
+      glTexCoord1f(max(-Land[i+1,k+1].Light, 1-FOW.CheckVerticeRevelation(k,i,true)/255));
       glVertex3f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV, -i);
-      glTexCoord1f(max(-Land[i  ,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i,true)/255));
+      glTexCoord1f(max(-Land[i  ,k+1].Light, 1-FOW.CheckVerticeRevelation(k,i-1,true)/255));
       glVertex3f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV, -i);
     end;
   glEnd;
@@ -1143,50 +1145,58 @@ end;
 
 
 procedure TRenderPool.RenderTerrainBorder(Border: TBorderType; Pos: TKMDirection; pX,pY: Integer);
-var a,b: TKMPointF; ID: Integer; t: Single; HeightInPx: Integer; FOW: Byte;
+var
+  A, b: TKMPointF;
+  ID: Integer;
+  BorderWidth: Single;
+  HeightInPx: Integer;
+  FOW: Byte;
 begin
-  ID:=1;
   case Border of
     bt_HouseBuilding: if Pos in [dir_N,dir_S] then ID:=463 else ID:=467; //WIP (Wood planks)
     bt_HousePlan:     if Pos in [dir_N,dir_S] then ID:=105 else ID:=117; //Plan (Ropes)
     bt_Wine:          if Pos in [dir_N,dir_S] then ID:=462 else ID:=466; //Fence (Wood)
     bt_Field:         if Pos in [dir_N,dir_S] then ID:=461 else ID:=465; //Fence (Stones)
+    else              ID := 0;
   end;
 
-  if Pos=dir_S then pY:=pY+1;
-  if Pos=dir_W then pX:=pX+1;
-  if Pos in [dir_N,dir_S] then
+  //With these directions render borders on next tile
+  if Pos = dir_S then Inc(pY);
+  if Pos = dir_W then Inc(pX);
+
+  if Pos in [dir_N, dir_S] then
   begin //Horizontal border
     glBindTexture(GL_TEXTURE_2D,GFXData[rxGui,ID].TexID);
     a.x:=GFXData[rxGui,ID].u1; a.y:=GFXData[rxGui,ID].v1;
     b.x:=GFXData[rxGui,ID].u2; b.y:=GFXData[rxGui,ID].v2;
-    t:=GFXData[rxGui,ID].PxWidth/CELL_SIZE_PX; //Height of border
+    BorderWidth := GFXData[rxGui,ID].PxWidth / CELL_SIZE_PX;
     glBegin(GL_QUADS);
-      FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX,pY,true);
+      FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX-1, pY-1, True);
       glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(b.x,a.y); glVertex2f(pX-1, pY-1+t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(a.x,a.y); glVertex2f(pX-1, pY-1-t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX+1,pY,true);
+      glTexCoord2f(b.x,a.y); glVertex2f(pX-1, pY-1+BorderWidth/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,a.y); glVertex2f(pX-1, pY-1-BorderWidth/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX, pY-1, True);
       glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(a.x,b.y); glVertex2f(pX  , pY-1-t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(b.x,b.y); glVertex2f(pX  , pY-1+t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,b.y); glVertex2f(pX  , pY-1-BorderWidth/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,b.y); glVertex2f(pX  , pY-1+BorderWidth/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
     glEnd;
   end
-  else begin //Vertical border
+  else
+  begin //Vertical border
     glBindTexture(GL_TEXTURE_2D,GFXData[rxGui,ID].TexID);
-    HeightInPx := Round ( CELL_SIZE_PX * (1 + (fTerrain.Land[pY,pX].Height - fTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV) );
+    HeightInPx := Round(CELL_SIZE_PX * (1 + (fTerrain.Land[pY,pX].Height - fTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV));
     a.x:=GFXData[rxGui,ID].u1; a.y:=GFXData[rxGui,ID].v1;
     b.x:=GFXData[rxGui,ID].u2; b.y:=GFXData[rxGui,ID].v2 * (HeightInPx / GFXData[rxGui,ID].PxHeight);
-    t:=GFXData[rxGui,ID].PxWidth/CELL_SIZE_PX; //Width of border
+    BorderWidth := GFXData[rxGui,ID].PxWidth / CELL_SIZE_PX;
     glBegin(GL_QUADS);
-      FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX,pY,true);
+      FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX-1, pY-1, True);
       glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(a.x,a.y); glVertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(b.x,a.y); glVertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX,pY+1,true);
+      glTexCoord2f(a.x,a.y); glVertex2f(pX-1-BorderWidth/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,a.y); glVertex2f(pX-1+BorderWidth/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX-1, pY, True);
       glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(b.x,b.y); glVertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(a.x,b.y); glVertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,b.y); glVertex2f(pX-1+BorderWidth/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,b.y); glVertex2f(pX-1-BorderWidth/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
     glEnd;
   end;
   glBindTexture(GL_TEXTURE_2D, 0);

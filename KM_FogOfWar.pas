@@ -4,9 +4,6 @@ interface
 uses Classes, Math,
   KM_CommonClasses, KM_Points;
 
-//todo: @Krom: Return 128 for off map tiles so trees/units at the map edge are not 90% dark.
-//             Terrain should stay the same (darkening at map edges)
-
 
 { FOW state for each player }
 type
@@ -58,7 +55,7 @@ procedure TKMFogOfWar.SetMapSize(X,Y: Word);
 begin
   MapX := X;
   MapY := Y;
-  SetLength(Revelation, Y+1, X+1);
+  SetLength(Revelation, Y, X);
 end;
 
 
@@ -68,10 +65,13 @@ procedure TKMFogOfWar.RevealCircle(Pos: TKMPoint; Radius, Amount: Word);
 var I,K: Integer;
 begin
   //We inline maths here to gain performance
-  for I := max(Pos.Y-Radius, 2) to min(Pos.Y+Radius, MapY-1) do //Keep map edges unrevealed
-  for K := max(Pos.X-Radius, 2) to min(Pos.X+Radius, MapX-1) do
+  for I := max(Pos.Y-Radius, 0) to min(Pos.Y+Radius, MapY-1) do //Keep map edges unrevealed
+  for K := max(Pos.X-Radius, 0) to min(Pos.X+Radius, MapX-1) do
   if (sqr(Pos.x-K) + sqr(Pos.y-I)) <= sqr(Radius) then
-    Revelation[I,K].Visibility := min(Revelation[I,K].Visibility + Amount, FOG_OF_WAR_MAX);
+    if (I = 0) or (K = 0) or (I = MapY - 1) or (K = MapX - 1) then
+      Revelation[I,K].Visibility := min(Revelation[I,K].Visibility + Amount, FOG_OF_WAR_MIN)
+    else
+      Revelation[I,K].Visibility := min(Revelation[I,K].Visibility + Amount, FOG_OF_WAR_MAX);
 end;
 
 
@@ -79,8 +79,11 @@ end;
 procedure TKMFogOfWar.RevealEverything;
 var I,K: Integer;
 begin
-  for I := 1 to MapY do
-    for K := 1 to MapX do
+  for I := 0 to MapY - 1 do
+    for K := 0 to MapX - 1 do
+    if (I = 0) or (K = 0) or (I = MapY - 1) or (K = MapX - 1) then
+      Revelation[I, K].Visibility := FOG_OF_WAR_MIN
+    else
       Revelation[I, K].Visibility := FOG_OF_WAR_MAX;
 end;
 
@@ -112,9 +115,9 @@ begin
 end;
 
 
-{Check if requested tile is revealed for given player}
-{Return value of revelation is 0..255}
-//0 unrevealed, 255 revealed completely
+//Check if requested tile is revealed for given player
+//Input values for tiles (X,Y) are in 1..N range
+//Return value of revelation within 0..255 (0 unrevealed, 255 fully revealed)
 //aSkipForReplay should be true in cases where replay should always return revealed (e.g. sounds, render)
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
 function TKMFogOfWar.CheckTileRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
@@ -125,17 +128,17 @@ begin
     exit;
   end;
   //Check all four corners and choose max
-  Result := CheckVerticeRevelation(X,Y,aSkipForReplay);
+  Result := CheckVerticeRevelation(X-1,Y-1,aSkipForReplay);
   if Result = 255 then exit;
-  if X+1 <= MapX-1 then Result := max(Result, CheckVerticeRevelation(X+1,Y,aSkipForReplay));
+  if X <= MapX-1 then Result := max(Result, CheckVerticeRevelation(X,Y-1,aSkipForReplay));
   if Result = 255 then exit;
-  if (X+1 <= MapX-1) and (Y+1 <= MapY-1) then Result := max(Result, CheckVerticeRevelation(X+1,Y+1,aSkipForReplay));
+  if (X <= MapX-1) and (Y <= MapY-1) then Result := max(Result, CheckVerticeRevelation(X,Y,aSkipForReplay));
   if Result = 255 then exit;
-  if Y+1 <= MapY-1 then Result := max(Result, CheckVerticeRevelation(X,Y+1,aSkipForReplay));
+  if Y <= MapY-1 then Result := max(Result, CheckVerticeRevelation(X-1,Y,aSkipForReplay));
 end;
 
 
-//
+//Check exact revelation of the point (interpolate between vertices)
 function TKMFogOfWar.CheckRevelation(const aPoint: TKMPointF; aSkipForReplay: Boolean): Byte;
 var A, B, C, D, Y1, Y2: Byte;
 begin
@@ -152,14 +155,13 @@ begin
     Exit;
   end;
 
-
   //Interpolate as follows:
   //A-B
   //C-D
-  A := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y)+1, aSkipForReplay);
-  B := CheckVerticeRevelation(Trunc(aPoint.X)+2, Trunc(aPoint.Y)+1, aSkipForReplay);
-  C := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y)+2, aSkipForReplay);
-  D := CheckVerticeRevelation(Trunc(aPoint.X)+2, Trunc(aPoint.Y)+2, aSkipForReplay);
+  A := CheckVerticeRevelation(Trunc(aPoint.X),   Trunc(aPoint.Y),   aSkipForReplay);
+  B := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y),   aSkipForReplay);
+  C := CheckVerticeRevelation(Trunc(aPoint.X),   Trunc(aPoint.Y)+1, aSkipForReplay);
+  D := CheckVerticeRevelation(Trunc(aPoint.X)+1, Trunc(aPoint.Y)+1, aSkipForReplay);
 
   Y1 := Round(A + (B - A) * Frac(aPoint.X));
   Y2 := Round(C + (D - C) * Frac(aPoint.X));
@@ -168,11 +170,12 @@ begin
 end;
 
 
+//Synchronize FOW revelation between players
 procedure TKMFogOfWar.SyncFOW(aFOW: TKMFogOfWar);
 var I,K: Integer;
 begin
-  for I := 1 to MapY do
-    for K := 1 to MapX do
+  for I := 0 to MapY - 1 do
+    for K := 0 to MapX - 1 do
       Revelation[I, K].Visibility := Math.max(Revelation[I, K].Visibility, aFOW.Revelation[I, K].Visibility);
 end;
 
@@ -185,8 +188,8 @@ begin
   SaveStream.Write(MapX);
   SaveStream.Write(MapY);
   SaveStream.Write(fAnimStep);
-  for I := 1 to MapY do
-    for K := 1 to MapX do
+  for I := 0 to MapY - 1 do
+    for K := 0 to MapX - 1 do
       SaveStream.Write(Revelation[I, K], SizeOf(Revelation[I, K]));
 end;
 
@@ -200,24 +203,26 @@ begin
   LoadStream.Read(MapY);
   LoadStream.Read(fAnimStep);
   SetMapSize(MapX, MapY);
-  for I := 1 to MapY do
-    for K := 1 to MapX do
+  for I := 0 to MapY - 1 do
+    for K := 0 to MapX - 1 do
       LoadStream.Read(Revelation[I, K], SizeOf(Revelation[I, K]));
 end;
 
 
+//Decrease FOW revelation as time goes
 procedure TKMFogOfWar.UpdateState;
 var
   I, K: Word;
 begin
+  if not FOG_OF_WAR_ENABLE then Exit;
+
   Inc(fAnimStep);
 
-  if FOG_OF_WAR_ENABLE then
-    for I := 1 to MapY do
-      for K := 1 to MapX do
-        if (I * MapX + K + fAnimStep) mod FOW_PACE = 0 then
-          if Revelation[I, K].Visibility > FOG_OF_WAR_MIN then
-            Dec(Revelation[I, K].Visibility, FOG_OF_WAR_DEC);
+  for I := 0 to MapY - 1 do
+    for K := 0 to MapX - 1 do
+      if (I * MapX + K + fAnimStep) mod FOW_PACE = 0 then
+        if Revelation[I, K].Visibility > FOG_OF_WAR_MIN then
+          Dec(Revelation[I, K].Visibility, FOG_OF_WAR_DEC);
 end;
 
 
