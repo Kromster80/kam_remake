@@ -100,33 +100,37 @@ begin
       //Fish     = +50%
       if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
         fInn.ResTakeFromIn(rt_Bread);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Bread, 1);
         inc(fFoodsEaten);
         SetActionLockedStay(29*4,ua_Eat,false);
-        Feed(UNIT_MAX_CONDITION*0.4);
+        Feed(UNIT_MAX_CONDITION * 0.4);
         fInn.UpdateEater(PlaceID, rt_Bread); //Order is Wine-Bread-Sausages-Fish
       end else
         SetActionLockedStay(0,ua_Walk);
    4: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
         fInn.ResTakeFromIn(rt_Sausages);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Sausages, 1);
         inc(fFoodsEaten);
         SetActionLockedStay(29*4,ua_Eat,false);
-        Feed(UNIT_MAX_CONDITION*0.6);
+        Feed(UNIT_MAX_CONDITION * 0.6);
         fInn.UpdateEater(PlaceID, rt_Sausages);
       end else
         SetActionLockedStay(0,ua_Walk);
    5: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
         fInn.ResTakeFromIn(rt_Wine);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Wine, 1);
         inc(fFoodsEaten);
         SetActionLockedStay(29*4,ua_Eat,false);
-        Feed(UNIT_MAX_CONDITION*0.2);
+        Feed(UNIT_MAX_CONDITION * 0.2);
         fInn.UpdateEater(PlaceID, rt_Wine);
       end else
         SetActionLockedStay(0,ua_Walk);
    6: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
         fInn.ResTakeFromIn(rt_Fish);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Fish, 1);
         inc(fFoodsEaten);
         SetActionLockedStay(29*4,ua_Eat,false);
-        Feed(UNIT_MAX_CONDITION*0.5);
+        Feed(UNIT_MAX_CONDITION * 0.5);
         fInn.UpdateEater(PlaceID, rt_Fish);
       end else
         SetActionLockedStay(0,ua_Walk);

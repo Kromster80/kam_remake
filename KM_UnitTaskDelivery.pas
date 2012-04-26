@@ -99,7 +99,11 @@ begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
 
   if fDeliverID<>0 then fPlayers.Player[fUnit.GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
-  if TKMUnitSerf(fUnit).Carry <> rt_None then TKMUnitSerf(fUnit).CarryTake; //empty hands
+  if TKMUnitSerf(fUnit).Carry <> rt_None then
+  begin
+    fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(TKMUnitSerf(fUnit).Carry, 1);
+    TKMUnitSerf(fUnit).CarryTake; //empty hands
+  end;
 
   fPlayers.CleanUpHousePointer(fFrom);
   fPlayers.CleanUpHousePointer(fToHouse);
@@ -209,6 +213,7 @@ begin
           CarryTake;
           fPlayers.Player[GetOwner].Deliveries.Queue.GaveDemand(fDeliverID);
           fPlayers.Player[GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry, 1);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
           SetActionStay(1, ua_Walk);
         end;
@@ -244,6 +249,7 @@ begin
           CarryTake;
           fPlayers.Player[GetOwner].Deliveries.Queue.GaveDemand(fDeliverID);
           fPlayers.Player[GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry, 1);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
           SetActionLockedStay(5, ua_Walk); //Pause breifly (like we are handing over the goods)
         end;

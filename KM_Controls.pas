@@ -879,6 +879,31 @@ type
     procedure Paint; override;
   end;
 
+
+  TKMGraph = class(TKMControl)
+  private
+    fCaption: string;
+    fGraphArea: TKMRect;
+    fCount: Integer;
+    fLines: array of record
+      Title: string;
+      Color: TColor4;
+      Values: array of Word;
+    end;
+    fMaxLength: Word;
+    fMaxValue: Word;
+  public
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
+
+    procedure AddLine(aTitle: string; aColor: TColor4; const aValues: array of Word);
+    property Caption: string read fCaption write fCaption;
+    procedure Clear;
+    property Count: Integer read fCount;
+    property MaxLength: Word read fMaxLength write fMaxLength;
+
+    procedure Paint; override;
+  end;
+
   { Minimap as stand-alone control }
   TKMMinimap = class(TKMControl)
   private
@@ -3859,6 +3884,53 @@ begin
     StateSet := StateSet + [bsDisabled];
 
   fRenderUI.Write3DButton(Left, Top, Width, Height, rxGui, 0, $FFFF00FF, StateSet, bsGame);
+end;
+
+
+{ TKMGraph }
+constructor TKMGraph.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+begin
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+
+  fMaxValue := 0;
+end;
+
+
+procedure TKMGraph.AddLine(aTitle: string; aColor: TColor4; const aValues: array of Word);
+var K: Integer;
+begin
+  SetLength(fLines, fCount + 1);
+
+  fLines[fCount].Title := aTitle;
+  fLines[fCount].Color := aColor;
+  SetLength(fLines[fCount].Values, Length(aValues));
+  if SizeOf(aValues) <> 0 then
+    Move(aValues[0], fLines[fCount].Values[0], SizeOf(aValues[0]) * fMaxLength);
+
+  for K := 0 to High(fLines[fCount].Values) do
+    if fLines[fCount].Values[K] > fMaxValue then
+      fMaxValue := fLines[fCount].Values[K];
+
+  Inc(fCount);
+end;
+
+
+procedure TKMGraph.Clear;
+begin
+  SetLength(fLines, 0);
+  fMaxValue := 0;
+end;
+
+
+procedure TKMGraph.Paint;
+var I: Integer;
+begin
+  inherited;
+  fRenderUI.WriteText(Left+Width div 2, Top, 0, 20, fCaption, fnt_Outline, taCenter);
+  fRenderUI.WriteRect(Left, Top+20, Width, Height-20, 1, $FFFFFFFF);
+
+  for I := 0 to fCount - 1 do
+    fRenderUI.WritePlot(Left, Top+20, Width, Height-20, fLines[I].Values, fMaxValue, fLines[I].Color);
 end;
 
 

@@ -59,6 +59,7 @@ var
   CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
   KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
   //Not fully implemented yet
+  DISPLAY_CHARTS_RESULT :Boolean = False; //Show charts in game resultst screen
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
 
@@ -238,6 +239,16 @@ const
   WEAPON_MIN = rt_Shield;
   WEAPON_MAX = rt_Arbalet;
   WARFARE_MAX = rt_Horse;
+
+  ResourceColor: array [TResourceType] of Cardinal = (
+    $FF00FF,
+    $8090A0, $808080, $8090D0, $D08080, $80D0D0,
+    $8090A0, $808080, $8090D0, $D08080, $80D0D0,
+    $8090A0, $808080, $8090D0, $D08080, $80D0D0,
+    $8090A0, $808080, $8090D0, $D08080, $80D0D0,
+    $8090A0, $808080, $8090D0, $D08080, $80D0D0,
+    $8090A0, $808080, $8090D0,
+    $FF00FF, $FF00FF, $FF00FF);
 
 const //Using shortints instead of bools makes it look much neater in code-view
   CheatStorePattern: array[WARE_MIN..WARE_MAX]of byte = (

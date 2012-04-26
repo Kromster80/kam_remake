@@ -25,6 +25,7 @@ Improvements:
  +	Master server records information about which maps are played
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
+ wip	Display charts in game results screens (army, wares cuont, etc.)
 	High quality alpha-blended shadows for houses (only once constructed?)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes

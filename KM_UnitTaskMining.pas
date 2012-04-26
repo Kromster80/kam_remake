@@ -253,6 +253,8 @@ begin
         GetHome.SetState(hst_Work); //Set house to Work state
         if WorkPlan.Resource1 <> rt_None then GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
         if WorkPlan.Resource2 <> rt_None then GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(WorkPlan.Resource1, WorkPlan.Count1);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(WorkPlan.Resource2, WorkPlan.Count2);
         GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
         if WorkPlan.GatheringScript = gs_SwineBreeder then begin //Swines get feed and taken immediately
           fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts;

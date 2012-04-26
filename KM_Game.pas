@@ -951,9 +951,9 @@ begin
     //Take results from MyPlayer before data is flushed
     if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
       if fMultiplayerMode then
-        fMainMenuInterface.Fill_ResultsMP
+        fMainMenuInterface.ResultsMP_Fill
       else
-        fMainMenuInterface.Fill_Results;
+        fMainMenuInterface.Results_Fill;
 
     if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
       fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl'));

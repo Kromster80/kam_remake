@@ -303,6 +303,8 @@ type
       Label_Results:TKMLabel;
       Panel_Stats: TKMPanel;
       Label_Stat:array[1..9]of TKMLabel;
+      Graph_Army: TKMGraph;
+      Graph_Wares: TKMGraph;
       Button_ResultsBack,Button_ResultsRepeat,Button_ResultsContinue:TKMButton;
     Panel_ResultsMP:TKMPanel;
       Label_ResultsMP, Label_ResultsMPTime: TKMLabel;
@@ -317,8 +319,8 @@ type
     procedure Resize(X,Y:word);
     procedure ShowScreen(aScreen: TMenuScreen; const aText: string=''; aMsg: TGameResultMsg=gr_Silent);
     procedure AppendLoadingText(const aText:string);
-    procedure Fill_Results;
-    procedure Fill_ResultsMP;
+    procedure Results_Fill;
+    procedure ResultsMP_Fill;
     function GetChatText:string;
     function GetChatMessages:string;
 
@@ -510,9 +512,12 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Fill_Results;
+procedure TKMMainMenuInterface.Results_Fill;
+var
+  I: Integer;
+  R: TResourceType;
 begin
-  if (MyPlayer=nil) or (MyPlayer.Stats=nil) then exit;
+  if (MyPlayer = nil) or (MyPlayer.Stats = nil) then Exit;
 
   with MyPlayer.Stats do
   begin
@@ -526,10 +531,22 @@ begin
     Label_Stat[8].Caption := inttostr(GetWarriorsTrained);
     Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
   end;
+
+  Graph_Army.Clear;
+  Graph_Wares.Clear;
+  Graph_Army.MaxLength := MyPlayer.Stats.GraphCount;
+  Graph_Wares.MaxLength := MyPlayer.Stats.GraphCount;
+
+  for I := 0 to fPlayers.Count - 1 do
+  with fPlayers[I] do
+    Graph_Army.AddLine(PlayerName, FlagColor, Stats.GraphArmy);
+
+  for R := WARE_MIN to WARE_MAX do
+    Graph_Wares.AddLine('', ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
 end;
 
 
-procedure TKMMainMenuInterface.Fill_ResultsMP;
+procedure TKMMainMenuInterface.ResultsMP_Fill;
 var
   i,k: Integer;
   UnitsMax, HousesMax, GoodsMax, WeaponsMax, MaxValue: Integer;
@@ -1381,10 +1398,10 @@ begin
     Label_Results := TKMLabel.Create(Panel_Results,512,160,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_Results.Anchors := [akLeft];
 
-    Panel_Stats := TKMPanel.Create(Panel_Results,80,200,400,400);
+    Panel_Stats := TKMPanel.Create(Panel_Results, 80, 200, 400, 400);
     Panel_Stats.Anchors := [akLeft];
     Adv := 0;
-    for i:=1 to 9 do
+    for i := 1 to 9 do
     begin
       inc(Adv, 25);
       if i in [3,6,7,9] then inc(Adv, 15);
@@ -1392,15 +1409,27 @@ begin
       Label_Stat[i] := TKMLabel.Create(Panel_Stats,340,Adv,100,20,'00',fnt_Metal,taRight);
     end;
 
-    Button_ResultsBack := TKMButton.Create(Panel_Results,100,610,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
-    Button_ResultsBack.Anchors := [akLeft];
-    Button_ResultsBack.OnClick := SwitchMenuPage;
-    Button_ResultsRepeat := TKMButton.Create(Panel_Results,340,610,220,30,fTextLibrary[TX_MENU_MISSION_REPEAT],fnt_Metal,bsMenu);
-    Button_ResultsRepeat.Anchors := [akLeft];
-    Button_ResultsRepeat.OnClick := MainMenu_ReplayLastMap;
-    Button_ResultsContinue := TKMButton.Create(Panel_Results,580,610,220,30,fTextLibrary[TX_MENU_MISSION_NEXT],fnt_Metal,bsMenu);
-    Button_ResultsContinue.Anchors := [akLeft];
-    Button_ResultsContinue.OnClick := SwitchMenuPage;
+    Graph_Army.Visible := DISPLAY_CHARTS_RESULT;
+    Graph_Wares.Visible := DISPLAY_CHARTS_RESULT;
+
+    if DISPLAY_CHARTS_RESULT then
+    begin
+      Graph_Army := TKMGraph.Create(Panel_Results, 500, 200, 450, 200);
+      Graph_Army.Caption := 'Army';
+
+      Graph_Wares := TKMGraph.Create(Panel_Results, 500, 420, 450, 200);
+      Graph_Wares.Caption := 'Wares';
+
+      Button_ResultsBack := TKMButton.Create(Panel_Results,100,700,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+      Button_ResultsBack.Anchors := [akLeft];
+      Button_ResultsBack.OnClick := SwitchMenuPage;
+      Button_ResultsRepeat := TKMButton.Create(Panel_Results,340,700,220,30,fTextLibrary[TX_MENU_MISSION_REPEAT],fnt_Metal,bsMenu);
+      Button_ResultsRepeat.Anchors := [akLeft];
+      Button_ResultsRepeat.OnClick := MainMenu_ReplayLastMap;
+      Button_ResultsContinue := TKMButton.Create(Panel_Results,580,700,220,30,fTextLibrary[TX_MENU_MISSION_NEXT],fnt_Metal,bsMenu);
+      Button_ResultsContinue.Anchors := [akLeft];
+      Button_ResultsContinue.OnClick := SwitchMenuPage;
+    end;
 end;
 
 

@@ -658,7 +658,11 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
                           H := fPlayers.Player[fLastPlayer].FindHouse(ht_Store,1);
                           if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
+                          begin
                             H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
+                            fPlayers.Player[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
+                          end;
+
                         end;
     ct_AddWareToAll:    if (fParsingMode <> mpm_Preview) then
                         begin
@@ -668,7 +672,10 @@ begin
                           begin
                             H := fPlayers.Player[i].FindHouse(ht_Store,1);
                             if (H<>nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
+                            begin
                               H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
+                              fPlayers.Player[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
+                            end;
                           end;
                         end;
     ct_AddWareToSecond: if (fParsingMode <> mpm_Preview) then
@@ -679,7 +686,10 @@ begin
 
                           H := TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store, 2));
                           if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
+                          begin
                             H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
+                            fPlayers.Player[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
+                          end;
                         end;
     ct_AddWareTo:       if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >= 0 then
@@ -689,7 +699,10 @@ begin
 
                           H := fPlayers.Player[fLastPlayer].FindHouse(HouseKaMType[P[0]], P[1]);
                           if (H <> nil) and (ResourceKaMIndex[P[2]] in [WARE_MIN..WARE_MAX]) then
+                          begin
                             H.ResAddToIn(ResourceKaMIndex[P[2]], Qty, True);
+                            fPlayers.Player[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
+                          end;
                         end;
     ct_AddWeapon:       if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >= 0 then
@@ -698,7 +711,10 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
                           H := TKMHouseBarracks(fPlayers.Player[fLastPlayer].FindHouse(ht_Barracks, 1));
                           if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARFARE_MIN..WARFARE_MAX]) then
+                          begin
                             H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
+                            fPlayers.Player[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
+                          end;
                         end;
     ct_BlockTrade:      if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >= 0 then

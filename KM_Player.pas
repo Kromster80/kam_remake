@@ -874,6 +874,12 @@ begin
     fAI.UpdateState;
     //fArmyEval.UpdateState;
   end;
+
+  if aTick mod 60 = 0 then
+  begin
+    fStats.UpdateState;
+    //fArmyEval.UpdateState;
+  end;
 end;
 
 

@@ -1723,11 +1723,13 @@ end;
 procedure TKMHouseSchool.UnitTrainingComplete;
 begin
   UnitWIP := nil;
-  UnitQueue[1]:=ut_None; //Clear the unit in training
+  UnitQueue[1] := ut_None; //Clear the unit in training
   ResTakeFromIn(rt_Gold); //Do the goldtaking
-  fHideOneGold:=false;
-  if UnitQueue[2]<>ut_None then StartTrainingUnit;
-  UnitTrainProgress:=0;
+  fPlayers.Player[fOwner].Stats.GoodConsumed(rt_Gold, 1);
+  fHideOneGold := False;
+  if UnitQueue[2] <> ut_None then
+    StartTrainingUnit;
+  UnitTrainProgress := 0;
 end;
 
 

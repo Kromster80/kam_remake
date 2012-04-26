@@ -7,8 +7,14 @@ uses Classes,
 
 {These are mission specific settings and stats for each player}
 type
+  TWordArray = array of Word;
+
   TKMPlayerStats = class
   private
+    fGraphCount: Integer;
+    fGraphCapacity: Integer;
+    fGraphHouses, fGraphCitizens, fGraphArmy: TWordArray;
+    fGraphGoods: array [WARE_MIN..WARE_MAX] of TWordArray;
     fHouseUnlocked: array [THouseType] of Boolean; //If building requirements performed
     Houses: array [THouseType] of packed record
       Planned,          //Houseplans were placed
@@ -28,9 +34,12 @@ type
       Killed: Word;     //Killed (incl. self)
     end;
     Goods: array [WARE_MIN..WARE_MAX] of packed record
+      Initial: Word;
       Produced: Word;
+      Consumed: Word;
     end;
     fResourceRatios: array [1..4, 1..4]of Byte;
+    function GetGraphGoods(aWare: TresourceType): TWordArray;
     function GetRatio(aRes: TResourceType; aHouse: THouseType): Byte;
     procedure SetRatio(aRes: TResourceType; aHouse: THouseType; aValue: Byte);
     procedure UpdateReqDone(aType: THouseType);
@@ -42,7 +51,9 @@ type
     constructor Create;
 
     //Input reported by Player
+    procedure GoodInitial(aRes: TResourceType; aCount: Integer);
     procedure GoodProduced(aRes: TResourceType; aCount: Integer);
+    procedure GoodConsumed(aRes: TResourceType; aCount: Integer);
     procedure HousePlanned(aType: THouseType);
     procedure HousePlanRemoved(aType: THouseType);
     procedure HouseStarted(aType: THouseType);
@@ -76,8 +87,16 @@ type
     function GetGoodsProduced:cardinal;
     function GetWeaponsProduced:cardinal;
 
+    property GraphCount: Integer read fGraphCount;
+    property GraphHouses: TWordArray read fGraphHouses;
+    property GraphCitizens: TWordArray read fGraphCitizens;
+    property GraphArmy: TWordArray read fGraphArmy;
+    property GraphGoods[aWare: TResourceType]: TWordArray read GetGraphGoods;
+
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
+
+    procedure UpdateState;
   end;
 
 
@@ -203,10 +222,24 @@ begin
 end;
 
 
+procedure TKMPlayerStats.GoodInitial(aRes: TResourceType; aCount:integer);
+begin
+  if aRes <> rt_None then
+    Inc(Goods[aRes].Initial, aCount);
+end;
+
+
 procedure TKMPlayerStats.GoodProduced(aRes: TResourceType; aCount:integer);
 begin
-  if aRes<>rt_None then
-    inc(Goods[aRes].Produced, aCount);
+  if aRes <> rt_None then
+    Inc(Goods[aRes].Produced, aCount);
+end;
+
+
+procedure TKMPlayerStats.GoodConsumed(aRes: TResourceType; aCount:integer);
+begin
+  if aRes <> rt_None then
+    Inc(Goods[aRes].Consumed, aCount);
 end;
 
 
@@ -418,7 +451,14 @@ begin
 end;
 
 
+function TKMPlayerStats.GetGraphGoods(aWare: TresourceType): TWordArray;
+begin
+  Result := fGraphGoods[aWare];
+end;
+
+
 procedure TKMPlayerStats.Save(SaveStream: TKMemoryStream);
+var R: TResourceType;
 begin
   SaveStream.Write('PlayerStats');
   SaveStream.Write(Houses, SizeOf(Houses));
@@ -429,10 +469,21 @@ begin
   SaveStream.Write(HouseGranted, SizeOf(HouseGranted));
   SaveStream.Write(AllowToTrade, SizeOf(AllowToTrade));
   SaveStream.Write(fHouseUnlocked, SizeOf(fHouseUnlocked));
+
+  SaveStream.Write(fGraphCount);
+  if fGraphCount <> 0 then
+  begin
+    SaveStream.Write(fGraphHouses[0], SizeOf(fGraphHouses[0]) * fGraphCount);
+    SaveStream.Write(fGraphCitizens[0], SizeOf(fGraphCitizens[0]) * fGraphCount);
+    SaveStream.Write(fGraphArmy[0], SizeOf(fGraphArmy[0]) * fGraphCount);
+    for R := WARE_MIN to WARE_MAX do
+      SaveStream.Write(fGraphGoods[R][0], SizeOf(fGraphGoods[R][0]) * fGraphCount);
+  end;
 end;
 
 
 procedure TKMPlayerStats.Load(LoadStream: TKMemoryStream);
+var R: TResourceType;
 begin
   LoadStream.ReadAssert('PlayerStats');
   LoadStream.Read(Houses, SizeOf(Houses));
@@ -443,7 +494,53 @@ begin
   LoadStream.Read(HouseGranted, SizeOf(HouseGranted));
   LoadStream.Read(AllowToTrade, SizeOf(AllowToTrade));
   LoadStream.Read(fHouseUnlocked, SizeOf(fHouseUnlocked));
+
+  LoadStream.Read(fGraphCount);
+  if fGraphCount <> 0 then
+  begin
+    fGraphCapacity := fGraphCount;
+    SetLength(fGraphHouses, fGraphCount);
+    SetLength(fGraphCitizens, fGraphCount);
+    SetLength(fGraphArmy, fGraphCount);
+    LoadStream.Read(fGraphHouses[0], SizeOf(fGraphHouses[0]) * fGraphCount);
+    LoadStream.Read(fGraphCitizens[0], SizeOf(fGraphCitizens[0]) * fGraphCount);
+    LoadStream.Read(fGraphArmy[0], SizeOf(fGraphArmy[0]) * fGraphCount);
+    for R := WARE_MIN to WARE_MAX do
+    begin
+      SetLength(fGraphGoods[R], fGraphCount);
+      LoadStream.Read(fGraphGoods[R][0], SizeOf(fGraphGoods[R][0]) * fGraphCount);
+    end;
+  end;
 end;
+
+
+procedure TKMPlayerStats.UpdateState;
+var I: TResourceType;
+begin
+  if not DISPLAY_CHARTS_RESULT then Exit;
+
+
+  //Store player stats in graph
+
+  //Grow the list
+  if fGraphCount >= fGraphCapacity then
+  begin
+    fGraphCapacity := fGraphCount + 32;
+    SetLength(fGraphHouses, fGraphCapacity);
+    SetLength(fGraphCitizens, fGraphCapacity);
+    SetLength(fGraphArmy, fGraphCapacity);
+    for I := WARE_MIN to WARE_MAX do
+      SetLength(fGraphGoods[I], fGraphCapacity);
+  end;
+
+  fGraphHouses[fGraphCount] := GetHouseQty(ht_Any);
+  fGraphArmy[fGraphCount] := GetArmyCount;
+  for I := WARE_MIN to WARE_MAX do
+    fGraphGoods[I, fGraphCount] := Goods[I].Initial + Goods[I].Produced - Goods[I].Consumed;
+
+  Inc(fGraphCount);
+end;
+
 
 
 end.
