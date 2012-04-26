@@ -1174,10 +1174,10 @@ begin
       end;
 
       //Check surrounding tiles in +/- 1 range for other houses pressence
-      if not (CanBuild in Land[P2.Y,P2.X].Passability) then
+      if not AllowBuild then
       for s:=-1 to 1 do for t:=-1 to 1 do
       if (s<>0) or (t<>0) then  //This is a surrounding tile, not the actual tile
-      if Land[P2.Y+t,P2.X+s].TileLock <> tlNone then
+      if Land[P2.Y+t,P2.X+s].TileLock in [tlFenced,tlDigged,tlHouse] then
       begin
         MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
         AllowBuild := false;
