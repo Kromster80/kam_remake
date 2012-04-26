@@ -483,6 +483,7 @@ end;
 
 
 procedure TKMHouse.DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
+var I: Integer; R: TResourceType;
 begin
   if fPlayers.Selected = Self then
     fPlayers.Selected := nil;
@@ -497,6 +498,19 @@ begin
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[fOwner].Deliveries.Queue.RemOffer(Self);
   fPlayers.Player[fOwner].Deliveries.Queue.RemDemand(Self);
+
+  fPlayers.Player[fOwner].Stats.GoodConsumed(rt_Wood, fBuildSupplyWood);
+  fPlayers.Player[fOwner].Stats.GoodConsumed(rt_Stone, fBuildSupplyStone);
+
+  for I := 1 to 4 do
+  begin
+    R := fResource.HouseDat[fHouseType].ResInput[I];
+    fPlayers.Player[fOwner].Stats.GoodConsumed(R, fResourceIn[I]);
+    R := fResource.HouseDat[fHouseType].ResOutput[I];
+    fPlayers.Player[fOwner].Stats.GoodConsumed(R, fResourceOut[I]);
+  end;
+
+
   fTerrain.SetHouse(fPosition,fHouseType,hsNone,-1);
 
   //Leave rubble
@@ -1473,8 +1487,10 @@ begin
     TradeCount := Min((fMarketResIn[fResFrom] div RatioFrom), fTradeAmount);
 
     dec(fMarketResIn[fResFrom], TradeCount * RatioFrom);
+    fPlayers.Player[fOwner].Stats.GoodConsumed(fResFrom, TradeCount * RatioFrom);
     dec(fTradeAmount, TradeCount);
     inc(fMarketResOut[fResTo], TradeCount * RatioTo);
+    fPlayers.Player[fOwner].Stats.GoodConsumed(fResTo, TradeCount * RatioTo);
     fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
 
     fSoundLib.Play(sfxn_Trade,GetEntrance);
@@ -1951,11 +1967,15 @@ begin
     if not CanEquip(aUnitType) then Exit;
 
     //Take resources
-    for i:=1 to 4 do
+    for I := 1 to 4 do
       if TroopCost[aUnitType,i] <> rt_None then
-        dec(ResourceCount[TroopCost[aUnitType,i]]);
+      begin
+        Dec(ResourceCount[TroopCost[aUnitType, I]]);
+        fPlayers.Player[fOwner].Stats.GoodConsumed(TroopCost[aUnitType, I], 1);
+      end;
 
-    TKMUnitRecruit(RecruitsList.Items[0]).DestroyInBarracks; //Special way to kill the unit because it is in a house
+    //Special way to kill the Recruit because it is in a house
+    TKMUnitRecruit(RecruitsList.Items[0]).DestroyInBarracks;
     RecruitsList.Delete(0); //Delete first recruit in the list
 
     //Make new unit

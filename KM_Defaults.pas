@@ -59,7 +59,7 @@ var
   CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
   KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
   //Not fully implemented yet
-  DISPLAY_CHARTS_RESULT :Boolean = False; //Show charts in game resultst screen
+  DISPLAY_CHARTS_RESULT :Boolean = True; //Show charts in game resultst screen
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
 
@@ -156,6 +156,9 @@ const //Here we store options that are hidden somewhere in code
   NET_DROP_PLAYER_MIN_WAIT = 30; //Host must wait at least this long before dropping disconnected players
   ANNOUNCE_BUILD_MAP = 30*60*10; //30 minutes
   ANNOUNCE_BATTLE_MAP = 2*60*10; //2 minutes
+
+  CHARTS_SAMPLING_FOR_ECONOMY = 450; //Each 45sec
+  CHARTS_SAMPLING_FOR_TACTICS = 50; //Each 5sec, cos average game length is much shorter
 
 type
   TPlayerIndex = shortint;

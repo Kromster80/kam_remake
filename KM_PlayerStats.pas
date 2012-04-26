@@ -257,6 +257,7 @@ begin
   end;
 end;
 
+
 //How many houses are planned and in progress
 function TKMPlayerStats.GetHouseWip(aType: THouseType): Integer;
 var H: THouseType;
@@ -519,7 +520,6 @@ var I: TResourceType;
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
 
-
   //Store player stats in graph
 
   //Grow the list
@@ -535,6 +535,7 @@ begin
 
   fGraphHouses[fGraphCount] := GetHouseQty(ht_Any);
   fGraphArmy[fGraphCount] := GetArmyCount;
+
   for I := WARE_MIN to WARE_MAX do
     fGraphGoods[I, fGraphCount] := Goods[I].Initial + Goods[I].Produced - Goods[I].Consumed;
 

@@ -3899,15 +3899,17 @@ end;
 procedure TKMGraph.AddLine(aTitle: string; aColor: TColor4; const aValues: array of Word);
 var K: Integer;
 begin
+  Assert(Length(aValues) >= fMaxLength);
+
   SetLength(fLines, fCount + 1);
 
   fLines[fCount].Title := aTitle;
   fLines[fCount].Color := aColor;
-  SetLength(fLines[fCount].Values, Length(aValues));
+  SetLength(fLines[fCount].Values, fMaxLength);
   if SizeOf(aValues) <> 0 then
     Move(aValues[0], fLines[fCount].Values[0], SizeOf(aValues[0]) * fMaxLength);
 
-  for K := 0 to High(fLines[fCount].Values) do
+  for K := 0 to fMaxLength - 1 do
     if fLines[fCount].Values[K] > fMaxValue then
       fMaxValue := fLines[fCount].Values[K];
 

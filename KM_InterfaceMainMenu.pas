@@ -532,17 +532,20 @@ begin
     Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
   end;
 
-  Graph_Army.Clear;
-  Graph_Wares.Clear;
-  Graph_Army.MaxLength := MyPlayer.Stats.GraphCount;
-  Graph_Wares.MaxLength := MyPlayer.Stats.GraphCount;
+  if DISPLAY_CHARTS_RESULT then
+  begin
+    Graph_Army.Clear;
+    Graph_Wares.Clear;
+    Graph_Army.MaxLength := MyPlayer.Stats.GraphCount;
+    Graph_Wares.MaxLength := MyPlayer.Stats.GraphCount;
 
-  for I := 0 to fPlayers.Count - 1 do
-  with fPlayers[I] do
-    Graph_Army.AddLine(PlayerName, FlagColor, Stats.GraphArmy);
+    for I := 0 to fPlayers.Count - 1 do
+    with fPlayers[I] do
+      Graph_Army.AddLine(PlayerName, FlagColor, Stats.GraphArmy);
 
-  for R := WARE_MIN to WARE_MAX do
-    Graph_Wares.AddLine('', ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
+    for R := WARE_MIN to WARE_MAX do
+      Graph_Wares.AddLine('', ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
+  end;
 end;
 
 
@@ -1408,9 +1411,6 @@ begin
       TKMLabel.Create(Panel_Stats,0,Adv,232,20,fTextLibrary[StatText[i]],fnt_Metal,taLeft);
       Label_Stat[i] := TKMLabel.Create(Panel_Stats,340,Adv,100,20,'00',fnt_Metal,taRight);
     end;
-
-    Graph_Army.Visible := DISPLAY_CHARTS_RESULT;
-    Graph_Wares.Visible := DISPLAY_CHARTS_RESULT;
 
     if DISPLAY_CHARTS_RESULT then
     begin

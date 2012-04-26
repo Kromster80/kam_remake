@@ -131,7 +131,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound,
+uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game,
   KM_Units_Warrior;
 
 
@@ -875,11 +875,9 @@ begin
     //fArmyEval.UpdateState;
   end;
 
-  if aTick mod 60 = 0 then
-  begin
+  if (fGame.MissionMode = mm_Normal) and (aTick mod CHARTS_SAMPLING_FOR_ECONOMY = 0)
+  or (fGame.MissionMode = mm_Tactic) and (aTick mod CHARTS_SAMPLING_FOR_TACTICS = 0) then
     fStats.UpdateState;
-    //fArmyEval.UpdateState;
-  end;
 end;
 
 
