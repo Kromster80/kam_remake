@@ -1414,19 +1414,21 @@ begin
 
     if DISPLAY_CHARTS_RESULT then
     begin
-      Graph_Army := TKMGraph.Create(Panel_Results, 500, 200, 450, 200);
+      Graph_Army := TKMGraph.Create(Panel_Results, 500, 200, 450, 170);
       Graph_Army.Caption := 'Army';
+      Graph_Army.Anchors := [akLeft];
 
-      Graph_Wares := TKMGraph.Create(Panel_Results, 500, 420, 450, 200);
+      Graph_Wares := TKMGraph.Create(Panel_Results, 500, 390, 450, 170);
       Graph_Wares.Caption := 'Wares';
+      Graph_Wares.Anchors := [akLeft];
 
-      Button_ResultsBack := TKMButton.Create(Panel_Results,100,700,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+      Button_ResultsBack := TKMButton.Create(Panel_Results,80,610,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
       Button_ResultsBack.Anchors := [akLeft];
       Button_ResultsBack.OnClick := SwitchMenuPage;
-      Button_ResultsRepeat := TKMButton.Create(Panel_Results,340,700,220,30,fTextLibrary[TX_MENU_MISSION_REPEAT],fnt_Metal,bsMenu);
+      Button_ResultsRepeat := TKMButton.Create(Panel_Results,320,610,220,30,fTextLibrary[TX_MENU_MISSION_REPEAT],fnt_Metal,bsMenu);
       Button_ResultsRepeat.Anchors := [akLeft];
       Button_ResultsRepeat.OnClick := MainMenu_ReplayLastMap;
-      Button_ResultsContinue := TKMButton.Create(Panel_Results,580,700,220,30,fTextLibrary[TX_MENU_MISSION_NEXT],fnt_Metal,bsMenu);
+      Button_ResultsContinue := TKMButton.Create(Panel_Results,560,610,220,30,fTextLibrary[TX_MENU_MISSION_NEXT],fnt_Metal,bsMenu);
       Button_ResultsContinue.Anchors := [akLeft];
       Button_ResultsContinue.OnClick := SwitchMenuPage;
     end;
