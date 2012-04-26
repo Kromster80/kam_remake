@@ -82,7 +82,7 @@ type
     procedure ReleaseHousePointer; //Decreases the pointer counter
     property PointerCount:integer read fPointerCount;
 
-    procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
+    procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); virtual;
     property ID:integer read fID;
 
     property GetPosition:TKMPoint read fPosition;
@@ -188,21 +188,21 @@ type
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
 
+    procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); override;
     property ResFrom:TResourceType read fResFrom write SetResFrom;
     property ResTo:TResourceType read fResTo write SetResTo;
     function RatioFrom: Byte;
     function RatioTo: Byte;
 
     function AllowedToTrade(Value: TResourceType):boolean;
-    function GetResTotal(aResource:TResourceType):word; overload;
-    function GetResTotal:word; overload;
+    function GetResTotal(aResource: TResourceType): Word; overload;
     function CheckResIn(aResource:TResourceType):word; override;
     function CheckResOrder(aID:byte):word; override;
     procedure ResAddToIn(aResource: TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
     procedure ResEditOrder(aID:byte; aAmount:integer); override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
 
-    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
     procedure Paint; override;
   end;
 
@@ -239,6 +239,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
+    procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); override;
     procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
     function CheckResIn(aResource:TResourceType):word; override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
@@ -255,6 +256,7 @@ type
   public
     NotAcceptFlag:array[WARE_MIN..WARE_MAX]of boolean;
     constructor Load(LoadStream:TKMemoryStream); override;
+    procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); override;
     procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
     function CheckResIn(aResource: TResourceType): Word; override;
@@ -271,7 +273,7 @@ type
 
   TKMHouseWoodcutters = class(TKMHouse)
   public
-    WoodcutterMode:TWoodcutterMode;
+    WoodcutterMode: TWoodcutterMode;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -509,7 +511,6 @@ begin
     R := fResource.HouseDat[fHouseType].ResOutput[I];
     fPlayers.Player[fOwner].Stats.GoodConsumed(R, fResourceOut[I]);
   end;
-
 
   fTerrain.SetHouse(fPosition,fHouseType,hsNone,-1);
 
@@ -1380,12 +1381,14 @@ begin
 end;
 
 
-function TKMHouseMarket.GetResTotal:word;
-var i:TResourceType;
+procedure TKMHouseMarket.DemolishHouse(DoSilent, NoRubble: boolean);
+var
+  R: TResourceType;
 begin
-  Result := 0;
-  for i:=WARE_MIN to WARE_MAX do
-    inc(Result, fMarketResIn[i] + fMarketResOut[i]);
+  inherited;
+
+  for R := WARE_MIN to WARE_MAX do
+    fPlayers.Player[fOwner].Stats.GoodConsumed(R, fMarketResIn[R] + fMarketResOut[R]);
 end;
 
 
@@ -1490,7 +1493,7 @@ begin
     fPlayers.Player[fOwner].Stats.GoodConsumed(fResFrom, TradeCount * RatioFrom);
     dec(fTradeAmount, TradeCount);
     inc(fMarketResOut[fResTo], TradeCount * RatioTo);
-    fPlayers.Player[fOwner].Stats.GoodConsumed(fResTo, TradeCount * RatioTo);
+    fPlayers.Player[fOwner].Stats.GoodProduced(fResTo, TradeCount * RatioTo);
     fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
 
     fSoundLib.Play(sfxn_Trade,GetEntrance);
@@ -1830,6 +1833,17 @@ begin
 end;
 
 
+procedure TKMHouseStore.DemolishHouse(DoSilent, NoRubble: boolean);
+var
+  R: TResourceType;
+begin
+  inherited;
+
+  for R := WARE_MIN to WARE_MAX do
+    fPlayers.Player[fOwner].Stats.GoodConsumed(R, ResourceCount[R]);
+end;
+
+
 procedure TKMHouseStore.ResTakeFromOut(aResource:TResourceType; const aCount: Word=1);
 begin
   Assert(aCount <= ResourceCount[aResource]);
@@ -1914,16 +1928,24 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
-var i:TResourceType;
+procedure TKMHouseBarracks.DemolishHouse(DoSilent, NoRubble: boolean);
+var
+  R: TResourceType;
 begin
-  case aResource of
-    rt_Warfare:   for i:=Low(ResourceCount) to High(ResourceCount) do
-                    ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount, 0, High(Word));
-    WARFARE_MIN..
-    WARFARE_MAX:  ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
-    else          raise ELocError.Create('Cant''t add ' + fResource.Resources[aResource].Name, GetPosition);
-  end;
+  inherited;
+
+  for R := WARFARE_MIN to WARFARE_MAX do
+    fPlayers.Player[fOwner].Stats.GoodConsumed(R, ResourceCount[R]);
+end;
+
+
+procedure TKMHouseBarracks.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
+var
+  R: TResourceType;
+begin
+  Assert(aResource in [WARFARE_MIN..WARFARE_MAX]);
+
+  ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
 end;
 
 

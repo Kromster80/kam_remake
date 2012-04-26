@@ -543,6 +543,7 @@ begin
     with fPlayers[I] do
       Graph_Army.AddLine(PlayerName, FlagColor, Stats.GraphArmy);
 
+      //todo: Add ware name
     for R := WARE_MIN to WARE_MAX do
       Graph_Wares.AddLine('', ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
   end;
