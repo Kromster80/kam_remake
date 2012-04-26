@@ -123,7 +123,7 @@ MaxID:2703
 164:Keisto garsà
 165:Muzika
 166:Muzika áj./iðj.
-167:Automatinis iðsaugojimas
+167:Autoiðsaugojimas
 168:Muzikos Grotuvas
 169:Ankstesnis takelis
 170:Sekantis takelis
@@ -446,3 +446,10 @@ MaxID:2703
 2690:Rasti Serverá
 2691:Atðaukti
 2692:Atðaukti
+2693:Nepalaikoma
+2694:Nepalaikoma
+2695:Klaida: Þaidëjo vardas neturi bûti ilgesnis nei %d simboliai
+2696:Klaida: Þaidëjo varde yra negalimi simboliai
+2697:Ðeðëliø Kokybë:
+2698:Þema
+2699:Aukðta

@@ -181,8 +181,8 @@ MaxID:2703
 222:SZÜNET
 223:Hangerõ
 224:Áruszállítás be/ki
-418:Spirit
-419:Busy
+418:Szellem
+419:Munka
 420:Középkori kürt
 421:Tavasz
 422:Lant
@@ -199,6 +199,10 @@ MaxID:2703
 433:Föfogás
 434:Mélykék
 435:Csata
+436:Királyi Negyedek
+437:Arisztokrácia
+438:A kikötõnél
+439:Utazás
 847:,Az elveszett királyság' hadjárat
 848:,Parasztfelkelés' hadjárat
 849:Egyéni küldetés
@@ -325,6 +329,7 @@ MaxID:2703
 1787:Játékosok
 1788:Kezdõhely
 1789:Csapat
+1790:Szín
 1791:Kész
 1792:Ping
 1793:Kirúg
@@ -436,5 +441,16 @@ MaxID:2703
 1903:fák
 1904:definíciók
 1905:terep grafikák
+2687:Szerver Készítése
+2688:SZERVER KERESÉSE
+2689:Kapcsolódás
+2690:Szerver keresése IP alapján
 2691:Mégsem
 2692:Mégsem
+2693:Nem támogatott
+2694:Nem támogatott
+2695:Hiba: A Játékos neve nem lehet %d karakternél hosszabb
+2696:Hiba: A játékos neve érvénytelen karaktereket tartalmaz
+2697:Árnyék Minõsége:
+2698:Alacsony
+2699:Magas
