@@ -8,14 +8,15 @@ type
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
 
 type
-  TKMPoint = record X,Y: Word; end;
-  TKMPointDir = record Loc: TKMPoint; Dir: TKMDirection; end;
-  TKMPointF = record X,Y: Single; end;
-  TKMPointI = record X,Y: Integer; end; //Allows negative values
+  //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
+  TKMPoint = packed record X,Y: Word; end;
+  TKMPointDir = packed record Loc: TKMPoint; Dir: TKMDirection; end;
+  TKMPointF = packed record X,Y: Single; end;
+  TKMPointI = packed record X,Y: Integer; end; //Allows negative values
 
   //We have our own TKMRect that consistently matches TKMPoint range
   //Rects are often used without range checking and include negative off-map coords
-  TKMRect = record Left, Top, Right, Bottom: SmallInt end;
+  TKMRect = packed record Left, Top, Right, Bottom: SmallInt end;
 
   function KMPoint(X,Y:word): TKMPoint; overload;
   function KMPoint(P:TKMPointI): TKMPoint; overload;

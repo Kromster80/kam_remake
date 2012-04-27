@@ -20,7 +20,8 @@ type
                      att_CustomPosition=3); //Custom point defined with CustomPosition
 
 
-  TAIAttack = record
+  //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
+  TAIAttack = packed record
     AttackType: TAIAttackType; //Once or repeating
     HasOccured: boolean; //Has this attack happened already?
     Delay: Cardinal; //The attack will not occur before this time has passed

@@ -33,13 +33,15 @@ type
     eaShowMessage,    //[MsgIndex]
     eaVictory);       //[]
 
-  TKMTrigger = record
+  //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
+  TKMTrigger = packed record
     Trigger: TEventTrigger;
     Player: Integer; //We use Integer because of TryStrToInt
     Params: array [0..MAX_EVENT_PARAMS-1] of Integer;
   end;
 
-  TKMAction = record
+  //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
+  TKMAction = packed record
     Action: TEventAction;
     Player: Integer; //We use Integer because of TryStrToInt
     Params: array [0..MAX_EVENT_PARAMS-1] of Integer;
