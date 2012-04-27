@@ -424,20 +424,20 @@ end;
 
 procedure TSoundLib.ExportSounds;
 var
-  i: Integer;
+  I: Integer;
   S: TMemoryStream;
 begin
   if not fIsSoundInitialized then Exit;
 
   ForceDirectories(ExeDir + 'Export\SoundsDat\');
 
-  for i:=1 to fWavesCount do
-  if Length(fWaves[i].Data) > 0 then
+  for I := 1 to fWavesCount do
+  if Length(fWaves[I].Data) > 0 then
   begin
     S := TMemoryStream.Create;
-    S.Write(fWaves[i].Head, SizeOf(fWaves[i].Head));
-    S.Write(fWaves[i].Data[0], Length(fWaves[i].Data));
-    S.Write(fWaves[i].Foot[0], Length(fWaves[i].Foot));
+    S.Write(fWaves[I].Head, SizeOf(fWaves[I].Head));
+    S.Write(fWaves[I].Data[0], Length(fWaves[I].Data));
+    S.Write(fWaves[I].Foot[0], Length(fWaves[I].Foot));
       S.SaveToFile(ExeDir + 'Export\SoundsDat\sound_' + int2fix(I, 3) + '_' +
                    GetEnumName(TypeInfo(TSoundFX), I) + '.wav');
       S.Free;
@@ -686,8 +686,8 @@ begin
 end;
 
 
-procedure TSoundLib.PlayNotification(aSound:TAttackNotification);
-var Wave:string; Count:byte;
+procedure TSoundLib.PlayNotification(aSound: TAttackNotification);
+var Wave: string; Count: Byte;
 begin
   if not fIsSoundInitialized then Exit;
 
@@ -706,7 +706,10 @@ end;
 
 
 procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF);
-var Wave:string; HasLoc:boolean; Count:byte;
+var
+  Wave: string;
+  HasLoc: Boolean;
+  Count: Byte;
 begin
   if not fIsSoundInitialized then Exit;
   if not (aUnitType in [WARRIOR_MIN..WARRIOR_MAX]) then Exit;
@@ -720,50 +723,51 @@ begin
 end;
 
 
-function TSoundLib.ActiveCount:byte;
-var i:integer;
+function TSoundLib.ActiveCount: Byte;
+var I: Integer;
 begin
   Result := 0;
-  for i:=1 to MAX_SOUNDS do
-  if (fSound[i].PlaySince<>0) and (fSound[i].PlaySince+fSound[i].Duration > GetTickCount) then
-    inc(Result)
+  for I := 1 to MAX_SOUNDS do
+  if (fSound[I].PlaySince <> 0) and (fSound[I].PlaySince + fSound[I].Duration > GetTickCount) then
+    Inc(Result)
   else
-    fSound[i].PlaySince := 0;
+    fSound[I].PlaySince := 0;
 end;
 
 
 procedure TSoundLib.Paint;
-var i:integer;
+var I: Integer;
 begin
   fRenderAux.CircleOnTerrain(fListener.Pos[1], fListener.Pos[2], MAX_DISTANCE, $00000000, $FFFFFFFF);
-  for i:=1 to MAX_SOUNDS do
-  if (fSound[i].PlaySince<>0) and (fSound[i].PlaySince+fSound[i].Duration > GetTickCount) then
+  for I := 1 to MAX_SOUNDS do
+  if (fSound[I].PlaySince <> 0) and (fSound[I].PlaySince + fSound[I].Duration > GetTickCount) then
   begin
-    fRenderAux.CircleOnTerrain(fSound[i].Position.X, fSound[i].Position.Y, 5, $4000FFFF, $FFFFFFFF);
-    fRenderAux.Text(Round(fSound[i].Position.X), Round(fSound[i].Position.Y), fSound[i].Name, $FFFFFFFF);
+    fRenderAux.CircleOnTerrain(fSound[I].Position.X, fSound[I].Position.Y, 5, $4000FFFF, $FFFFFFFF);
+    fRenderAux.Text(Round(fSound[I].Position.X), Round(fSound[I].Position.Y), fSound[I].Name, $FFFFFFFF);
   end else
-    fSound[i].PlaySince := 0;
+    fSound[I].PlaySince := 0;
 end;
 
 
 procedure TSoundLib.UpdateStateIdle;
-var i:integer; FoundFaded:boolean;
+var I: Integer; FoundFaded: Boolean;
 begin
-  if not fMusicIsFaded then exit;
+  if not fMusicIsFaded then Exit;
 
-  FoundFaded := false;
-  for i:=1 to MAX_SOUNDS do
-    if fSound[i].FadesMusic then
+  FoundFaded := False;
+  for I := 1 to MAX_SOUNDS do
+    if fSound[I].FadesMusic then
     begin
       FoundFaded := true;
-      if (fSound[i].PlaySince<>0) and (fSound[i].PlaySince+fSound[i].Duration > GetTickCount) then
-        exit //There is still a faded sound playing
+      if (fSound[I].PlaySince <> 0) and (fSound[I].PlaySince + fSound[I].Duration > GetTickCount) then
+        Exit //There is still a faded sound playing
       else
-        fSound[i].FadesMusic := false; //Make sure we don't resume more than once for this sound
+        fSound[I].FadesMusic := False; //Make sure we don't resume more than once for this sound
     end;
   //If we reached the end without exiting then we need to resume the music
-  fMusicIsFaded := false;
-  if FoundFaded and Assigned(fOnUnfadeMusic) then  fOnUnfadeMusic(Self);
+  fMusicIsFaded := False;
+  if FoundFaded and Assigned(fOnUnfadeMusic) then
+    fOnUnfadeMusic(Self);
 end;
 
 
@@ -776,7 +780,7 @@ var
   AN: TAttackNotification;
   SpeechPath: string;
 begin
-  SpeechPath := ExeDir + 'data\sfx\speech.'+fLocale+'\';
+  SpeechPath := ExeDir + 'data\sfx\speech.' + fLocale + '\';
 
   //Reset counts from previous locale/unsuccessful load
   FillChar(fWarriorSoundCount, SizeOf(fWarriorSoundCount), #0);
@@ -792,7 +796,7 @@ begin
 
   //First inspect folders, if the prefered ones don't exist use the backups
   for U := WARRIOR_MIN to WARRIOR_MAX do
-    if not DirectoryExists(SpeechPath + WarriorSFXFolder[U]+'\') then
+    if not DirectoryExists(SpeechPath + WarriorSFXFolder[U] + '\') then
       fWarriorUseBackup[U] := True;
 
   //If the folder exists it is likely all the sounds are there
@@ -849,12 +853,15 @@ var
   MS: TKMemoryStream;
 begin
   MS := TKMemoryStream.Create;
-  MS.Write(AnsiString(GAME_VERSION));
-  MS.Write(fWarriorSoundCount, SizeOf(fWarriorSoundCount));
-  MS.Write(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
-  MS.Write(fNotificationSoundCount, SizeOf(fNotificationSoundCount));
-  MS.SaveToFile(aFile);
-  MS.Free;
+  try
+    MS.Write(AnsiString(GAME_VERSION));
+    MS.Write(fWarriorSoundCount, SizeOf(fWarriorSoundCount));
+    MS.Write(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
+    MS.Write(fNotificationSoundCount, SizeOf(fNotificationSoundCount));
+    MS.SaveToFile(aFile);
+  finally
+    MS.Free;
+  end;
 end;
 
 
