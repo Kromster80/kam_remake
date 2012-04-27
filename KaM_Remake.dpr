@@ -105,10 +105,12 @@ uses
 
 {$IFDEF WDC}
   {$R *.RES}
+  {$R KaM_Manifest.RES}
 {$ENDIF}
 {$IFDEF MSWindows}
   {$IFDEF FPC}
     {$R KaM_Remake_Icon.rc}
+    {$R KaM_Manifest.rc}
   {$ENDIF}
 {$ENDIF}
 
