@@ -476,6 +476,7 @@ begin
                     else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
 
+                  Button_ResultsRepeat.Visible := aMsg <> gr_ReplayEnd;
                   Button_ResultsRepeat.Enabled := aMsg in [gr_Defeat, gr_Cancel];
 
                   //Even if the campaign is complete Player can now return to it's screen to replay any of the maps

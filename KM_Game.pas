@@ -984,14 +984,14 @@ begin
                         fCampaigns.UnlockNextMap;
                     end;
       gr_Defeat,
-      gr_Cancel:    if fMultiplayerMode then
+      gr_Cancel,
+      gr_ReplayEnd: if fMultiplayerMode then
                       fMainMenuInterface.ShowScreen(msResultsMP, '', Msg)
                     else
                       fMainMenuInterface.ShowScreen(msResults, '', Msg);
       gr_Error:     fMainMenuInterface.ShowScreen(msError, TextMsg);
       gr_Disconnect:fMainMenuInterface.ShowScreen(msError, TextMsg);
       gr_Silent:    ;//Used when loading new savegame from gameplay UI
-      gr_ReplayEnd: fMainMenuInterface.ShowScreen(msMain);
       gr_MapEdEnd:  fMainMenuInterface.ShowScreen(msMain);
     end;
   finally

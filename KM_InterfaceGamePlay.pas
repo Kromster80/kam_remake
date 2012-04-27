@@ -2758,7 +2758,7 @@ begin
   //No loading during multiplayer games
   Button_Menu_Load.Enabled := not fGame.MultiplayerMode and (fGame.GameState <> gsReplay);
   Button_Menu_Save.Enabled := (fGame.GameState <> gsReplay);
-
+  Button_Menu_Quit.Enabled := (fGame.GameState <> gsReplay);
 
   if fGame.GlobalSettings.MusicOff then
     Label_Menu_Track.Caption := '-'
