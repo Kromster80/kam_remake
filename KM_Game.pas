@@ -393,7 +393,7 @@ begin
   //todo: allow to zoom in Replay (remove overlay panels and allow to "read-only" mode for everything)
   //Eventually it would be cool if you could view the contents of storehouses, barracks, watchtowers, etc. in replays (read only of course)
   if MOUSEWHEEL_ZOOM_ENABLE and (fGameState <> gsNoGame)
-  and ((fActiveInterface.MyControls.CtrlOver = nil) or (fGameState = gsReplay)) then
+  and (fActiveInterface.MyControls.CtrlOver = nil) then
   begin
     UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;

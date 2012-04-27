@@ -45,9 +45,6 @@ type
     procedure Load(LoadStream:TKMemoryStream);
   end;
 
-  //todo: Add Starting positions (Position, PlayerID, FlagColor, Alliances?)
-  //todo: For tactic missions add (Armies, FlagColors)
-
 
 implementation
 uses KM_TGATexture, KM_Resource, KM_PlayersCollection, KM_Units, KM_Units_Warrior;

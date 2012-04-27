@@ -77,7 +77,7 @@ begin
   if TextD <> 0 then
   begin
     for I := 0 to 255 do
-      pData[I] := EnsureRange(Round((255 - I) * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
+      pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, @pData[0]);
   end;
 
