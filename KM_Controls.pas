@@ -883,11 +883,11 @@ type
   TKMGraph = class(TKMControl)
   private
     fCaption: string;
-    fGraphArea: TKMRect;
     fCount: Integer;
     fLines: array of record
       Title: string;
       Color: TColor4;
+      Visible: Boolean;
       Values: array of Word;
     end;
     fMaxLength: Word;
@@ -898,8 +898,9 @@ type
     procedure AddLine(aTitle: string; aColor: TColor4; const aValues: array of Word);
     property Caption: string read fCaption write fCaption;
     procedure Clear;
-    property Count: Integer read fCount;
     property MaxLength: Word read fMaxLength write fMaxLength;
+
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
 
     procedure Paint; override;
   end;
@@ -3913,8 +3914,9 @@ begin
 
   SetLength(fLines, fCount + 1);
 
-  fLines[fCount].Title := aTitle;
   fLines[fCount].Color := aColor;
+  fLines[fCount].Title := aTitle;
+  fLines[fCount].Visible := True;
   SetLength(fLines[fCount].Values, fMaxLength);
   if SizeOf(aValues) <> 0 then
     Move(aValues[0], fLines[fCount].Values[0], SizeOf(aValues[0]) * fMaxLength);
@@ -3934,15 +3936,58 @@ begin
 end;
 
 
-procedure TKMGraph.Paint;
+procedure TKMGraph.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var I: Integer;
 begin
   inherited;
+
+  if X < Left + Width-55 then Exit;
+
+  I := (Y - Top - 20) div 12;
+  if not InRange(I, 0, fCount - 1) then Exit;
+
+  fLines[I].Visible := not fLines[I].Visible;
+end;
+
+
+procedure TKMGraph.Paint;
+const Intervals: array [0..9] of Word = (1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
+var I, Best: Integer;
+begin
+  inherited;
   fRenderUI.WriteText(Left+Width div 2, Top, 0, 20, fCaption, fnt_Outline, taCenter);
-  fRenderUI.WriteRect(Left, Top+20, Width, Height-20, 1, $FFFFFFFF);
+  fRenderUI.WriteRect(Left+25, Top+20, Width-25-60, Height-20, 1, $FFFFFFFF);
 
   for I := 0 to fCount - 1 do
-    fRenderUI.WritePlot(Left, Top+20, Width, Height-20, fLines[I].Values, fMaxValue, fLines[I].Color);
+  begin
+    if fLines[I].Visible then
+      fRenderUI.WritePlot(Left+25, Top+20, Width-25-60, Height-20, fLines[I].Values, fMaxValue, fLines[I].Color);
+
+    fRenderUI.WriteLayer(Left+Width-55, Top + 20 + I*12+2, 11, 10, fLines[I].Color, $00000000);
+
+    if fLines[I].Visible then
+      fRenderUI.WriteText(Left+Width-55, Top + 20 + I*12 - 1, 0, 0, 'v', fnt_Game, taLeft);
+
+    fRenderUI.WriteText(Left+Width-43, Top + 20 + I*12, 0, 0, fLines[I].Title, fnt_Game, taLeft);
+  end;
+
+  fRenderUI.WriteText(Left+20, Top + Height, 0, 0, IntToStr(0), fnt_Game, taRight);
+  //fRenderUI.WriteText(Left+20, Top + 20, 0, 0, IntToStr(fMaxValue), fnt_Game, taRight);
+
+  Best := 0;
+  for I := 0 to 9 do
+    if fMaxValue div Intervals[I] < 10 then
+    begin
+      Best := Intervals[I];
+      Break;
+    end;
+
+  if Best <> 0 then
+  for I := 1 to (fMaxValue div Best) do
+  begin
+    fRenderUI.WriteText(Left+20, Top + Height - Round(I * Best / fMaxValue * (Height-20)) - 6, 0, 0, IntToStr(I * Best), fnt_Game, taRight);
+    fRenderUI.WriteLayer(Left+22, Top + Height - Round(I * Best / fMaxValue * (Height-20)), 5, 2, $FFFFFFFF, $00000000);
+  end;
 end;
 
 

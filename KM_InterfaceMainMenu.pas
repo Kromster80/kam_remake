@@ -306,6 +306,7 @@ type
       Panel_Stats: TKMPanel;
       Label_Stat:array[1..9]of TKMLabel;
       Graph_Army: TKMGraph;
+      Graph_Citizens: TKMGraph;
       Graph_Wares: TKMGraph;
       Button_ResultsBack,Button_ResultsRepeat,Button_ResultsContinue:TKMButton;
     Panel_ResultsMP:TKMPanel;
@@ -337,7 +338,7 @@ type
 
 implementation
 uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_Locales,
-  KM_Utils, KM_Log, KM_Sound, KM_Networking;
+  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_Resource;
 
 const
   MENU_SP_MAPS_COUNT    = 12;           //Number of single player maps to display in menu
@@ -537,17 +538,22 @@ begin
   if DISPLAY_CHARTS_RESULT then
   begin
     Graph_Army.Clear;
+    Graph_Citizens.Clear;
     Graph_Wares.Clear;
-    Graph_Army.MaxLength := MyPlayer.Stats.GraphCount;
-    Graph_Wares.MaxLength := MyPlayer.Stats.GraphCount;
+    Graph_Army.MaxLength      := MyPlayer.Stats.GraphCount;
+    Graph_Citizens.MaxLength  := MyPlayer.Stats.GraphCount;
+    Graph_Wares.MaxLength     := MyPlayer.Stats.GraphCount;
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
       Graph_Army.AddLine(PlayerName, FlagColor, Stats.GraphArmy);
 
-      //todo: Add ware name
+    for I := 0 to fPlayers.Count - 1 do
+    with fPlayers[I] do
+      Graph_Citizens.AddLine(PlayerName, FlagColor, Stats.GraphCitizens);
+
     for R := WARE_MIN to WARE_MAX do
-      Graph_Wares.AddLine('', ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
+      Graph_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
   end;
 end;
 
@@ -1386,7 +1392,7 @@ const StatText: array [1..9] of Word = (
     TX_RESULTS_UNITS_LOST,      TX_RESULTS_UNITS_DEFEATED,  TX_RESULTS_HOUSES_LOST,
     TX_RESULTS_HOUSES_DESTROYED,TX_RESULTS_HOUSES_BUILT,    TX_RESULTS_UNITS_TRAINED,
     TX_RESULTS_WEAPONS_MADE,    TX_RESULTS_SOLDIERS_TRAINED,TX_RESULTS_MISSION_TIME);
-var i, Adv: Integer;
+var I, Adv: Integer;
 begin
   Panel_Results := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Results.Stretch;
@@ -1407,21 +1413,25 @@ begin
     Panel_Stats := TKMPanel.Create(Panel_Results, 80, 200, 400, 400);
     Panel_Stats.Anchors := [akLeft];
     Adv := 0;
-    for i := 1 to 9 do
+    for I := 1 to 9 do
     begin
       inc(Adv, 25);
-      if i in [3,6,7,9] then inc(Adv, 15);
-      TKMLabel.Create(Panel_Stats,0,Adv,232,20,fTextLibrary[StatText[i]],fnt_Metal,taLeft);
-      Label_Stat[i] := TKMLabel.Create(Panel_Stats,340,Adv,100,20,'00',fnt_Metal,taRight);
+      if I in [3,6,7,9] then inc(Adv, 15);
+      TKMLabel.Create(Panel_Stats,0,Adv,232,20,fTextLibrary[StatText[I]],fnt_Metal,taLeft);
+      Label_Stat[I] := TKMLabel.Create(Panel_Stats,340,Adv,100,20,'00',fnt_Metal,taRight);
     end;
 
     if DISPLAY_CHARTS_RESULT then
     begin
-      Graph_Army := TKMGraph.Create(Panel_Results, 500, 200, 450, 170);
+      Graph_Army := TKMGraph.Create(Panel_Results, 80, 180, 400, 120);
       Graph_Army.Caption := 'Army';
       Graph_Army.Anchors := [akLeft];
 
-      Graph_Wares := TKMGraph.Create(Panel_Results, 500, 390, 450, 170);
+      Graph_Citizens := TKMGraph.Create(Panel_Results, 80, 320, 400, 120);
+      Graph_Citizens.Caption := 'Citizens';
+      Graph_Citizens.Anchors := [akLeft];
+
+      Graph_Wares := TKMGraph.Create(Panel_Results, 512, 180, 400, 400);
       Graph_Wares.Caption := 'Wares';
       Graph_Wares.Anchors := [akLeft];
     end;

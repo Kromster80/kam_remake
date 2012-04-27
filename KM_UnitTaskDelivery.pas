@@ -210,10 +210,10 @@ begin
     5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
     6:  begin
           fToHouse.ResAddToBuild(Carry);
+          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry, 1);
           CarryTake;
           fPlayers.Player[GetOwner].Deliveries.Queue.GaveDemand(fDeliverID);
           fPlayers.Player[GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
-          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry, 1);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
           SetActionStay(1, ua_Walk);
         end;
@@ -246,10 +246,10 @@ begin
             fToUnit.SetFullCondition; //Feed the warrior
             TKMUnitWarrior(fToUnit).RequestedFood := false;
           end;
+          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry, 1);
           CarryTake;
           fPlayers.Player[GetOwner].Deliveries.Queue.GaveDemand(fDeliverID);
           fPlayers.Player[GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
-          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry, 1);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
           SetActionLockedStay(5, ua_Walk); //Pause breifly (like we are handing over the goods)
         end;

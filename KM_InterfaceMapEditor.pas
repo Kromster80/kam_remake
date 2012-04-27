@@ -867,7 +867,7 @@ begin
       Button_Store[i] := TKMButtonFlat.Create(Panel_HouseStore, 8+((i-1)mod 5)*36,8+((i-1)div 5)*42,32,36,0);
       Button_Store[i].TexID := fResource.Resources[StoreResType[i]].GUIIcon;
       Button_Store[i].Tag := i;
-      Button_Store[i].Hint := fResource.Resources[StoreResType[i]].Name;
+      Button_Store[i].Hint := fResource.Resources[StoreResType[i]].Title;
       Button_Store[i].OnClick := Store_SelectWare;
     end;
 
@@ -900,7 +900,7 @@ begin
       Button_Barracks[i].TexOffsetX := 1;
       Button_Barracks[i].TexOffsetY := 1;
       Button_Barracks[i].CapOffsetY := 2;
-      Button_Barracks[i].Hint := fResource.Resources[BarracksResType[i]].Name;
+      Button_Barracks[i].Hint := fResource.Resources[BarracksResType[i]].Title;
       Button_Barracks[i].OnClick := Barracks_SelectWare;
     end;
     Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,116,218,20,20,'<', fnt_Metal);

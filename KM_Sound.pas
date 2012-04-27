@@ -369,20 +369,20 @@ end;
 
 
 procedure TSoundLib.CheckOpenALError;
-var ErrCode:integer;
+var ErrCode: Integer;
 begin
   ErrCode := alcGetError(fALDevice);
   if ErrCode <> ALC_NO_ERROR then begin
     fLog.AddToLog('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
     Application.MessageBox(PChar('There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.'),'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
-    fIsSoundInitialized := false;
+    fIsSoundInitialized := False;
   end;
 end;
 
 
 procedure TSoundLib.LoadSoundsDAT;
 var
-  S:TMemoryStream;
+  S: TMemoryStream;
   Head:record Size,Count:word; end;
   Tab1:array[1..200]of integer;
   Tab2:array[1..200]of smallint;
@@ -438,9 +438,9 @@ begin
     S.Write(fWaves[I].Head, SizeOf(fWaves[I].Head));
     S.Write(fWaves[I].Data[0], Length(fWaves[I].Data));
     S.Write(fWaves[I].Foot[0], Length(fWaves[I].Foot));
-      S.SaveToFile(ExeDir + 'Export\SoundsDat\sound_' + int2fix(I, 3) + '_' +
-                   GetEnumName(TypeInfo(TSoundFX), I) + '.wav');
-      S.Free;
+    S.SaveToFile(ExeDir + 'Export\SoundsDat\sound_' + int2fix(I, 3) + '_' +
+                 GetEnumName(TypeInfo(TSoundFX), I) + '.wav');
+    S.Free;
   end;
 end;
 

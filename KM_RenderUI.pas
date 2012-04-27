@@ -403,15 +403,15 @@ end;
 procedure TRenderUI.WriteLayer(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
 begin
   glPushAttrib(GL_LINE_BIT);
-  glLineWidth(1);
-  glColor4ubv(@Col);
-  glBegin(GL_QUADS);
-    glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
-  glEnd;
-  glColor4ubv(@Outline);
-  glBegin(GL_LINE_LOOP);
-    glkRect(PosX+0.5,PosY+0.5,PosX+SizeX-0.5,PosY+SizeY-0.5);
-  glEnd;
+    glColor4ubv(@Col);
+    glBegin(GL_QUADS);
+      glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
+    glEnd;
+    glLineWidth(1);
+    glColor4ubv(@Outline);
+    glBegin(GL_LINE_LOOP);
+      glkRect(PosX+0.5,PosY+0.5,PosX+SizeX-0.5,PosY+SizeY-0.5);
+    glEnd;
   glPopAttrib;
 end;
 

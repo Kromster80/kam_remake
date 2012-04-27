@@ -856,7 +856,7 @@ begin
     s:=s+#9;
     if fDemand[i].Loc_House<>nil then s:=s+fResource.HouseDat[fDemand[i].Loc_House.HouseType].HouseName+#9+#9;
     if fDemand[i].Loc_Unit<>nil then s:=s+fResource.UnitDat[fDemand[i].Loc_Unit.UnitType].UnitName+#9+#9;
-    s:=s+fResource.Resources[fDemand[i].Resource].Name;
+    s:=s+fResource.Resources[fDemand[i].Resource].Title;
     if fDemand[i].Importance=di_High then s:=s+'^';
     s:=s+eol;
   end;
@@ -864,7 +864,7 @@ begin
   for i:=1 to OfferCount do if fOffer[i].Resource<>rt_None then begin
     s:=s+#9;
     if fOffer[i].Loc_House<>nil then s:=s+fResource.HouseDat[fOffer[i].Loc_House.HouseType].HouseName+#9+#9;
-    s:=s+fResource.Resources[fOffer[i].Resource].Name+#9;
+    s:=s+fResource.Resources[fOffer[i].Resource].Title+#9;
     s:=s+IntToStr(fOffer[i].Count);
     s:=s+eol;
   end;
@@ -873,7 +873,7 @@ begin
   for i:=1 to QueueCount do if fQueue[i].OfferID<>0 then begin
 
     s:=s+'id '+inttostr(i)+'.'+#9;
-    s:=s+fResource.Resources[fOffer[fQueue[i].OfferID].Resource].Name+#9;
+    s:=s+fResource.Resources[fOffer[fQueue[i].OfferID].Resource].Title+#9;
 
     if fOffer[fQueue[i].OfferID].Loc_House = nil then
       s:=s+'Destroyed'+' >>> '

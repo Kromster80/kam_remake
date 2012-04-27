@@ -946,7 +946,7 @@ begin
   case aResource of
     rt_Wood: inc(fBuildSupplyWood);
     rt_Stone: inc(fBuildSupplyStone);
-  else raise ELocError.Create('WIP house is not supposed to recieve '+fResource.Resources[aResource].Name+', right?', fPosition);
+  else raise ELocError.Create('WIP house is not supposed to recieve '+fResource.Resources[aResource].Title+', right?', fPosition);
   end;
 end;
 
@@ -1818,7 +1818,7 @@ begin
                   ResourceCount[aResource]:=EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
                   fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self,aResource,aCount);
                 end;
-    else        raise ELocError.Create('Cant''t add '+fResource.Resources[aResource].Name, GetPosition);
+    else        raise ELocError.Create('Cant''t add '+fResource.Resources[aResource].Title, GetPosition);
   end;
 end;
 
@@ -1942,8 +1942,6 @@ end;
 
 
 procedure TKMHouseBarracks.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
-var
-  R: TResourceType;
 begin
   Assert(aResource in [WARFARE_MIN..WARFARE_MAX]);
 
