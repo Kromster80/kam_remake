@@ -11,7 +11,6 @@ const
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
-  //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
   TERRAIN_PACE          = 100;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
   FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
 
@@ -243,6 +242,7 @@ const
   WEAPON_MAX = rt_Arbalet;
   WARFARE_MAX = rt_Horse;
 
+  //Resources colors for Results charts
   ResourceColor: array [TResourceType] of Cardinal = (
     $FF00FF,
     $804000, $BFBFBF, $BF8000, $4040BF, $FFFF00,
@@ -263,17 +263,17 @@ const //Using shortints instead of bools makes it look much neater in code-view
   0,0,0);
 
 const {Aligned to right to use them in GUI costs display as well}
-  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX,1..2]of TResourceType = (
-    (rt_None,rt_Wood),    //rt_Shield
-    (rt_Coal,rt_Steel),   //rt_MetalShield
+  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX, 1..2]of TResourceType = (
+    (rt_None,   rt_Wood), //rt_Shield
+    (rt_Coal,  rt_Steel), //rt_MetalShield
     (rt_None,rt_Leather), //rt_Armor
-    (rt_Coal,rt_Steel),   //rt_MetalArmor
-    (rt_Wood,rt_Wood),    //rt_Axe
-    (rt_Coal,rt_Steel),   //rt_Sword
-    (rt_Wood,rt_Wood),    //rt_Pike
-    (rt_Coal,rt_Steel),   //rt_Hallebard
-    (rt_Wood,rt_Wood),    //rt_Bow
-    (rt_Coal,rt_Steel)    //rt_Arbalet
+    (rt_Coal,  rt_Steel), //rt_MetalArmor
+    (rt_Wood,   rt_Wood), //rt_Axe
+    (rt_Coal,  rt_Steel), //rt_Sword
+    (rt_Wood,   rt_Wood), //rt_Pike
+    (rt_Coal,  rt_Steel), //rt_Hallebard
+    (rt_Wood,   rt_Wood), //rt_Bow
+    (rt_Coal,  rt_Steel)  //rt_Arbalet
   );
 
 { Terrain }
@@ -294,6 +294,7 @@ type
   );
 
 const
+  //todo: Replace with GetEnumName
   PassabilityStr: array [TPassability] of string = (
     'CanWalk',      // General passability of tile for any walking units
     'CanWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
