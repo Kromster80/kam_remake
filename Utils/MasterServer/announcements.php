@@ -7,7 +7,11 @@ $Rev = $_REQUEST["rev"];
 
 if($Rev == "r3252")
 {
-  die('[$B700FF]KaM[] [$4040F0]R[$40F0F0]e[$40F040]m[$F0F040]a[$F04040]k[$F040F0]e[]: Now in [$0000E0]COLOR[]!||Hello playtesters,|Thanks for downloading the Release Candidate :)|Please report any issues.');
+  die('[$0000FF]THIS RELEASE CANDIDATE IS OLD AND BUGGY.[]||There is a new release candidate r3311 available, please contact Lewin if I have\'t sent it to you already.');
+}
+if($Rev == "r3311")
+{
+  die('[$FF6699]Welcome to the second release candidate.[] Hopefully this one will be far less buggy than the first!|Enjoy, and please keep those bug reports coming!||Thank you for your help.');
 }
 
 //First see if they are up to date

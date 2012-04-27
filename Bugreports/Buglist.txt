@@ -1,6 +1,5 @@
-﻿Since r3252:
+﻿Since r3311:
 <===================================================================================>
- +	Improved units/objects visibility along map edges
 	If I play a campaign up to mission say 9, then load an old save of mission 5, quit and press restart, it will load basesave which is mission 9 (we should make a basesave after loading saves?)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
@@ -21,9 +20,6 @@
 	Colored rectangle below cursor
 
 Improvements:
- +	Do not allow to run multiple application instances at once to prevent multiplayer cheating
- +	Display height shapes outlines in MapEd
- +	Master server records information about which maps are played
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
  wip	Display charts in game results screens (army, wares cuont, etc.)
@@ -60,7 +56,7 @@ Improvements:
 
 
 
-Fixed in r3252:
+Fixed in r3311:
 <===================================================================================>
  +	Range Check Error occurs when a woodcutter considers chopping a tree on the topmost or leftmost edge of the map
  +	Click server A, then quickly click server B. This is incorrectly interpreted as double clicking and you join server B
@@ -85,6 +81,9 @@ Fixed in r3252:
  +	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 
 Improvements:
+ +	Do not allow to run multiple application instances at once to prevent multiplayer cheating
+ +	Display height shapes outlines in MapEd
+ +	Master server records information about which maps are played
  +	Switching to fullscreen causes banding if drivers report unsupported refresh rates (add manual refresh rate selector to options) [Maciej]
  +	Maps scan should be done in separate thread to unlock GUI
  +	Roads/field plans should only be visible on you and your allies screen to prevent exploiting (move markups from terrain to player)

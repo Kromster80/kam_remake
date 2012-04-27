@@ -31,7 +31,7 @@ const
   MENU_SIZE_MIN_X       = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_SIZE_MIN_Y       = 576;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r3252';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r3311';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '4th Multiplayer Demo Release Candidate ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -59,7 +59,7 @@ var
   CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
   KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
   //Not fully implemented yet
-  DISPLAY_CHARTS_RESULT :Boolean = True; //Show charts in game resultst screen
+  DISPLAY_CHARTS_RESULT :Boolean = False; //Show charts in game resultst screen
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
 
