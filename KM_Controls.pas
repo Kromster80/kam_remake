@@ -2782,7 +2782,12 @@ begin
   then begin
     NewIndex := TopIndex + (Y-Top) div fItemHeight;
 
-    if NewIndex > fItems.Count - 1 then NewIndex := fItems.Count - 1;
+    if NewIndex > fItems.Count - 1 then
+    begin
+      //Double clicking not allowed if we are clicking past the end of the list, but keep last item selected
+      fTimeOfLastClick := 0;
+      NewIndex := fItems.Count - 1;
+    end;
 
     if (NewIndex<>fItemIndex) then begin
       fItemIndex := NewIndex;
@@ -3148,7 +3153,12 @@ begin
   then begin
     NewIndex := TopIndex + (Y - Top - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
 
-    if NewIndex >= fRowCount then NewIndex := -1;
+    if NewIndex >= fRowCount then
+    begin
+      //Double clicking not allowed if we are clicking past the end of the list, but keep last item selected
+      fTimeOfLastClick := 0;
+      NewIndex := -1;
+    end;
 
     if InRange(NewIndex, 0, fRowCount - 1) and (NewIndex <> fItemIndex) then
     begin

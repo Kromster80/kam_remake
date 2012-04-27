@@ -26,6 +26,7 @@ type
 
     fJumpToSelectedMap: Boolean;
     fJumpToSelectedSave: Boolean;
+    fLobbyBusy: Boolean;
 
     fMap_Selected: Integer; //Selected map
     fMapCRC_Selected: Cardinal; //CRC of selected map
@@ -87,6 +88,7 @@ type
     procedure MP_ServersDoubleClick(Sender: TObject);
     procedure MP_GetInClick(Sender: TObject);
     function MP_ValidatePlayerName(const aName:string):Boolean;
+    function MP_GetInEnabled:Boolean;
     procedure MP_Join(aServerAddress, aPort: string; aRoom: Integer);
     procedure MP_JoinSuccess(Sender: TObject);
     procedure MP_JoinFail(const aData:string);
@@ -2011,6 +2013,8 @@ end;
 //When user tries to Join some server disable joining controls for that time
 procedure TKMMainMenuInterface.MP_Update(const aStatus: string; aColor: TColor4; aBusy: Boolean);
 begin
+  fLobbyBusy := aBusy;
+
   //Toggle server creation
   Button_MP_CreateServer.Enabled := not aBusy;
   Button_MP_CreateLAN.Enabled := not aBusy;
@@ -2019,7 +2023,7 @@ begin
   //Toggle server joining
   Button_MP_FindServerIP.Enabled := not aBusy;
   Button_MP_FindCancel.Enabled := not aBusy;
-  //Button_MP_GetIn.Enabled := not aBusy;
+  Button_MP_GetIn.Enabled := MP_GetInEnabled;
 
   Label_MP_Status.Caption := aStatus;
   Label_MP_Status.FontColor := aColor;
@@ -2156,7 +2160,7 @@ begin
   end;
 
   fServerSelected := True;
-  Button_MP_GetIn.Enable;
+  Button_MP_GetIn.Enabled := MP_GetInEnabled;
 
   fSelectedRoomInfo := fGame.Networking.ServerQuery.Rooms[ColList_Servers.Rows[ID].Tag];
   fSelectedServerInfo := fGame.Networking.ServerQuery.Servers[fSelectedRoomInfo.ServerIndex];
@@ -2220,6 +2224,15 @@ begin
   end
   else
     Result := True;
+end;
+
+
+//Join button is enabled if valid server is selected and the lobby is not busy
+function TKMMainMenuInterface.MP_GetInEnabled:Boolean;
+var ID: Integer;
+begin
+  ID := ColList_Servers.ItemIndex;
+  Result := (not fLobbyBusy) and (ID <> -1) and (ColList_Servers.Rows[ID].Tag <> -1);
 end;
 
 

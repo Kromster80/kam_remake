@@ -659,6 +659,7 @@ procedure TKMNetworking.StartClick;
 var PlayerCount: byte; ErrorMessage: String;
 begin
   Assert(IsHost, 'Only host can start the game');
+  Assert(CanStart, 'Can''t start the game now');
 
   //Define random parameters (start locations and flag colors)
   //This will also remove odd players from the List, they will lose Host in few seconds
