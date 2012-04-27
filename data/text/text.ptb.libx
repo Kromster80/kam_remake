@@ -1,5 +1,5 @@
 
-MaxID:2703
+MaxID:2705
 
 0:Serraria
 1:Forjador de ferro
@@ -438,3 +438,5 @@ MaxID:2703
 1905:tileset
 2691:Cancel
 2692:Cancel
+2704:AVISO: Continuar a jogar depois desse erro pode causar várias falhas e instabilidades. Gostaria de correr esse risco e continuar jogando?
+2705:Por favor atualize os seus drivers gráficos para ter um melhor desempenho

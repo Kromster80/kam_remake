@@ -1,5 +1,5 @@
 
-MaxID:2703
+MaxID:2705
 
 0:Segheria
 1:Fonderia
@@ -454,3 +454,5 @@ MaxID:2703
 2697:Qualità delle ombre:
 2698:Bassa
 2699:Alta
+2704:ATTENZIONE: Continuare la partita dopo questo errore potrebbe causare ulteriori crash ed instabilità. Vuoi comunque rischiare e continuare a giocare?
+2705:Per favore, aggiorna i tuoi driver video per migliorare le prestazioni.

@@ -1,5 +1,5 @@
 
-MaxID:2703
+MaxID:2705
 
 0:Scierie
 1:Fonderie
@@ -438,3 +438,5 @@ MaxID:2703
 1905:tileset
 2691:Annuler
 2692:Annuler
+2704:ATTENTION: Continuer à jouer après cette erreur peut causer des crashes et des instabilités supplémentaires. Voulez-vous prendre ce risque et continuer à jouer?
+2705:Veuillez mettre à jour vos pilotes graphiques pour avoir une meilleure performance.

@@ -1,5 +1,5 @@
 
-MaxID:2703
+MaxID:2705
 
 0:Houtzagerij
 1:IJzersmelterij
@@ -454,3 +454,5 @@ MaxID:2703
 2697:Schaduw kwaliteit:
 2698:Laag
 2699:Hoog
+2704:WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?
+2705:Update A.U.B de drivers voor betere prestaties.

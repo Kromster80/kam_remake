@@ -1,5 +1,5 @@
 
-MaxID:2703
+MaxID:2705
 
 0:Sägewerk
 1:Eisenschmelze
@@ -454,3 +454,5 @@ MaxID:2703
 2697:Schatten Qualität:
 2698:Niedrig
 2699:Hoch
+2704:WARNUNG: Wenn du weiterspielst riskierst du weitere Abstürze oder Fehler. Willst du auf eigene Gefahr weiterspielen?
+2705:Bitte Grafikkartentreiber aktualisieren!

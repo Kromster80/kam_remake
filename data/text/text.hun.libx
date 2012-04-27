@@ -1,5 +1,5 @@
 
-MaxID:2703
+MaxID:2705
 
 0:Fûrészmalom
 1:Vasolvasztó
@@ -454,3 +454,5 @@ MaxID:2703
 2697:Árnyék Minõsége:
 2698:Alacsony
 2699:Magas
+2704:VIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??
+2705:Kérlek frissítsd a videokártya drivereidet a jobb teljesítményért

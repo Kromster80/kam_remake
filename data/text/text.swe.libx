@@ -1,5 +1,5 @@
 
-MaxID:2703
+MaxID:2705
 
 0:Sågverk
 1:Järnsmedja
@@ -438,3 +438,5 @@ MaxID:2703
 1905:terrängtexturer
 2691:Avbryt
 2692:Avbryt
+2704:VARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare?
+2705:Var god uppdatera grafikdrivrutinerna för bättre prestanda

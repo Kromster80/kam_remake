@@ -1,5 +1,5 @@
 
-MaxID:2703
+MaxID:2705
 
 0:Aserradero
 1:Fundición de hierro
@@ -438,3 +438,4 @@ MaxID:2703
 1905:tileset
 2691:Cancelar
 2692:Cancelar
+2705:Por favor, actualice los controladores de gráficos para obtener un mejor rendimiento

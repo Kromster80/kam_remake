@@ -1,5 +1,5 @@
 
-MaxID:2703
+MaxID:2705
 
 0:Sawmill
 1:Iron smithy
@@ -458,3 +458,5 @@ MaxID:2703
 2701:Map files do not match the host for the map: %s
 2702:Save not found: %s
 2703:Save file does not match the host for the save: %s
+2704:WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
+2705:Please update your graphic drivers to get better performance
