@@ -674,7 +674,7 @@ begin
                             if (H<>nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
                             begin
                               H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
-                              fPlayers.Player[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
+                              fPlayers.Player[i].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
                             end;
                           end;
                         end;

@@ -224,6 +224,7 @@ end;
 
 procedure TKMPlayerStats.GoodInitial(aRes: TResourceType; aCount:integer);
 begin
+  if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> rt_None then
     Inc(Goods[aRes].Initial, aCount);
 end;
@@ -238,6 +239,7 @@ end;
 
 procedure TKMPlayerStats.GoodConsumed(aRes: TResourceType; aCount:integer);
 begin
+  if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> rt_None then
     Inc(Goods[aRes].Consumed, aCount);
 end;
