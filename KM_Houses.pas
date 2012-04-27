@@ -507,9 +507,11 @@ begin
   for I := 1 to 4 do
   begin
     R := fResource.HouseDat[fHouseType].ResInput[I];
-    fPlayers.Player[fOwner].Stats.GoodConsumed(R, fResourceIn[I]);
+    if R in [WARE_MIN..WARE_MAX] then
+      fPlayers.Player[fOwner].Stats.GoodConsumed(R, fResourceIn[I]);
     R := fResource.HouseDat[fHouseType].ResOutput[I];
-    fPlayers.Player[fOwner].Stats.GoodConsumed(R, fResourceOut[I]);
+    if R in [WARE_MIN..WARE_MAX] then
+      fPlayers.Player[fOwner].Stats.GoodConsumed(R, fResourceOut[I]);
   end;
 
   fTerrain.SetHouse(fPosition,fHouseType,hsNone,-1);

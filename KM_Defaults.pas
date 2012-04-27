@@ -245,12 +245,12 @@ const
 
   ResourceColor: array [TResourceType] of Cardinal = (
     $FF00FF,
-    $8090A0, $808080, $8090D0, $D08080, $80D0D0,
-    $8090A0, $808080, $8090D0, $D08080, $80D0D0,
-    $8090A0, $808080, $8090D0, $D08080, $80D0D0,
-    $8090A0, $808080, $8090D0, $D08080, $80D0D0,
-    $8090A0, $808080, $8090D0, $D08080, $80D0D0,
-    $8090A0, $808080, $8090D0,
+    $804000, $BFBFBF, $BF8000, $4040BF, $FFFF00,
+    $606060, $0000BF, $FFBF00, $FF8000, $FFFF80,
+    $FFBF80, $FFFFFF, $BF4040, $FF0000, $BF4000,
+    $808000, $00BF00, $00BF00, $00BFFF, $400000,
+    $4000FF, $40FF00, $40FFFF, $8000FF, $80FFFF,
+    $BF00FF, $FF40FF, $00BFFF,
     $FF00FF, $FF00FF, $FF00FF);
 
 const //Using shortints instead of bools makes it look much neater in code-view
