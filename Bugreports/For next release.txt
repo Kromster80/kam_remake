@@ -1,3 +1,40 @@
+==============
+ SINCE r3252:
+==============
+ +	Some text IDs were duplicate so the text "Switch delivery of wares on/off" showed "Cost:" instead
+ +	Screenshot button in menu didn't work
+ +	Don't log form resizing
+ +	Can't win campaign missions
+ +	Blocked stonemason and released woodcutter on the map Europe, there is no stone on the map and you start with 1500
+ +	Elevating in the map editor in non-square maps was buggy
+ +	Removed two fan-made maps with terrain which has been partially copied from the original campaigns, we don't accept copy-paste maps
+ +	Block icons when building a house near the left/top edge of the map are now rendered in the correct position
+ +	"Duplicate points in list" error in multiplayer sometimes when placing a road, deleting it and placing it again
+ +	Crash with "range check error" when a woodcutter tried to chop a tree near the bottom of the map
+ +	Host does setup didn't reset to false if you created a new lobby, it used the value from the last lobby
+ +	Focus in the chat edit in the lobby is lost when you use a drop down
+ +	If the host selects a map/save you don't have (or have a different version) the lobby freezes
+ +	Crash when starting if there is a closed slot above the host (due to host being reassigned)
+ +	Units/trees on the edge of the map were rendered dark
+ +	If a armour workshop ordered to produce shields and armour ran out of wood they would not produce armour
+ +	If you try to build a mine with road being built underneth, it would show that you can't build it even though you could
+ +	When installed to Program Files you no longer need administrator rights to run the game
+ +	Host was never able to drop players who had disconnected, even after the 30 seconds (button stayed disabled)
+ +	Join button on the multiplayer page would sometimes be enabled at the wrong times meaning you could click twice and cause a crash
+ +	Double clicking in empty space on the server list would make you join the selected server
+ +	Multiplayer saves were often created differently between computers
+ +	It was often possible to place plans over your ally's plans, which caused a crash
+ +	If two enemies placed plans over each other's, it would crash the replay
+ +	Restored 4P versions of Border Rivers, Wilderness and Stranded so you can play 4P FFA with random starts
+
+	Access violation when clicking start in lobby (after reassigning host?)
+
+
+
+==================
+  RELEASE PLANS
+==================
+
 Essential:
  +	Write "short story" descriptions for all multiplayer maps [Lewin]
  +	Hide wip unit dismiss button
@@ -10,8 +47,8 @@ Essential:
  +	Make sure AI city planner is stable (incomplete but doesn't cause crashes) and included in release as limited preview
  wip	Add maps by Janosiczek/PAKER [Lewin]
 
-	Send new/changed text to be translated [Lewin]
-	Make release candidates and send to trusted testers to find new bugs we've introduced [Lewin]
+ wip	Send new/changed text to be translated [Lewin]
+ wip	Make release candidates and send to trusted testers to find new bugs we've introduced [Lewin]
 
 
 Not essential:

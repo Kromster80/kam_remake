@@ -1,7 +1,7 @@
 //Code, Title,                Codepage, FlagSpriteID, Fallback Locale, TranslatorCredit
 
 ptb,    Brazilian Portuguese, 1252,     8,            ,                Vinycius Maia
-bul,    Bulgarian,            1251,     18,           ,                Christian
+bul,    Bulgarian,            1251,     18,           ,                Christian & Boyan
 cze,    Czech,                1250,     9,            svk,             Jolinar_CZ & Milan Molnar
 dut,    Dutch,                1252,     15,           ,                xzaz & Tom
 eng,    English,              1252,     5,            ,
