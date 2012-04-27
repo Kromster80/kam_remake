@@ -1087,6 +1087,7 @@ begin
     Button_Main[5].OnClick := SwitchPage;
     Button_Main[5].Hint := fTextLibrary[TX_MENU_TAB_HINT_GO_BACK];
     Label_MenuTitle := TKMLabel.Create(Panel_Controls, 54, 4, 138, 36, '', fnt_Metal, taLeft);
+    Label_MenuTitle.AutoWrap := True;
 
   Create_Build_Page;
   Create_Ratios_Page;
@@ -2956,7 +2957,6 @@ begin
       S := S + aPlayers.Strings[i] + IfThen(i<>aPlayers.Count-1, ', ');
 
     Button_NetDropPlayers.Visible := IsHost;
-    Button_NetDropPlayers.Disable; //Must wait the minimum time before enabling it
 
     if not DoShow then
       fNetWaitDropPlayersDelayStarted := 0
@@ -2965,6 +2965,7 @@ begin
       begin
         Label_NetDropPlayersDelay.Caption := '';
         fNetWaitDropPlayersDelayStarted := GetTickCount; //Initialise it
+        Button_NetDropPlayers.Disable; //Must wait the minimum time before enabling it
       end;
   end;
 
