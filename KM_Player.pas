@@ -372,8 +372,8 @@ begin
   if Result then
     for I := 0 to fPlayers.Count - 1 do
       if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
-        Result := (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
-                   and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
+        Result := Result and (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
+                         and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
 end;
 
 
@@ -390,8 +390,8 @@ begin
   if Result then
     for I := 0 to fPlayers.Count - 1 do
       if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
-        Result := (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
-                   and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
+        Result := Result and (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
+                         and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
 end;
 
 
