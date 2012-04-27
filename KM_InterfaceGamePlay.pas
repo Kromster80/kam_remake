@@ -947,12 +947,19 @@ begin
   end;
 
   //Chat and Allies setup should be accessible only in Multiplayer
-  if not fGame.MultiplayerMode then begin
+  if not fGame.MultiplayerMode then
+  begin
     Image_MPChat.Hide;
     Label_MPChatUnread.Hide;
     Image_MPAllies.Hide;
   end;
 end;
+
+  //todo: Allow to select all players units and houses in Replay
+  //todo: Disable unit voices on selection and orders in Replay
+  //todo: Disable build menu in Replay
+  //todo: Disable chat/alliances in Replay
+  //todo: Show peacetime information in MP replays
 
 
 procedure TKMGamePlayInterface.Create_Replay_Page;

@@ -11,3 +11,4 @@ Ideas that have not been decided. Should be moved to Bugslist.txt when a decisio
 	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile) {not sure about this one. Probably ruins balance and feel of KaM}
 	Separate script command for AI to repair its houses
 	New column in load/replays menus: Date/time (from file modified date?)
+	Add buttons to Replay to see FOW as each player or everything
