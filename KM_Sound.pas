@@ -770,48 +770,52 @@ end;
 //Scan and count the number of warrior sounds
 procedure TSoundLib.ScanWarriorSounds;
 var
-  i:integer;
-  U:TUnitType;
-  WS:TWarriorSpeech;
-  AN:TAttackNotification;
+  I: Integer;
+  U: TUnitType;
+  WS: TWarriorSpeech;
+  AN: TAttackNotification;
+  SpeechPath: string;
 begin
-  //Try to load counts from file
-  if LoadWarriorSoundsFromFile(ExeDir + 'data\sfx\speech.'+fLocale+'\count.dat') then
-    Exit;
+  SpeechPath := ExeDir + 'data\sfx\speech.'+fLocale+'\';
 
   //Reset counts from previous locale/unsuccessful load
   FillChar(fWarriorSoundCount, SizeOf(fWarriorSoundCount), #0);
   FillChar(fNotificationSoundCount, SizeOf(fNotificationSoundCount), #0);
   FillChar(fWarriorUseBackup, SizeOf(fWarriorUseBackup), #0);
 
-  if not DirectoryExists(ExeDir + 'data\sfx\speech.'+fLocale+'\') then Exit;
+  if not DirectoryExists(SpeechPath) then Exit;
+
+  //Try to load counts from DAT,
+  //otherwise we will rescan all the WAV files and write a new DAT
+  if LoadWarriorSoundsFromFile(SpeechPath + 'count.dat') then
+    Exit;
 
   //First inspect folders, if the prefered ones don't exist use the backups
-  for U:=WARRIOR_MIN to WARRIOR_MAX do
-    if not DirectoryExists(ExeDir+'data\sfx\speech.'+fLocale+'\'+WarriorSFXFolder[U]+'\') then
-      fWarriorUseBackup[U] := true;
+  for U := WARRIOR_MIN to WARRIOR_MAX do
+    if not DirectoryExists(SpeechPath + WarriorSFXFolder[U]+'\') then
+      fWarriorUseBackup[U] := True;
 
   //If the folder exists it is likely all the sounds are there
-  for U:=WARRIOR_MIN to WARRIOR_MAX do
-    for WS:=Low(TWarriorSpeech) to High(TWarriorSpeech) do
-      for i:=0 to 255 do
-        if not FileExists(WarriorSoundFile(U, WS, i)) then
+  for U := WARRIOR_MIN to WARRIOR_MAX do
+    for WS := Low(TWarriorSpeech) to High(TWarriorSpeech) do
+      for I := 0 to 255 do
+        if not FileExists(WarriorSoundFile(U, WS, I)) then
         begin
-          fWarriorSoundCount[U,WS] := i;
-          break;
+          fWarriorSoundCount[U, WS] := I;
+          Break;
         end;
 
   //Scan warning messages (e.g. under attack)
-  for AN:=Low(TAttackNotification) to High(TAttackNotification) do
-    for i:=0 to 255 do
-      if not FileExists(NotificationSoundFile(AN, i)) then
+  for AN := Low(TAttackNotification) to High(TAttackNotification) do
+    for I := 0 to 255 do
+      if not FileExists(NotificationSoundFile(AN, I)) then
       begin
-        fNotificationSoundCount[AN] := i;
-        break;
+        fNotificationSoundCount[AN] := I;
+        Break;
       end;
 
-  //Save counts to file for faster access next time
-  SaveWarriorSoundsToFile(ExeDir + 'data\sfx\speech.'+fLocale+'\count.dat');
+  //Save counts to DAT file for faster access next time
+  SaveWarriorSoundsToFile(SpeechPath + 'count.dat');
 end;
 
 
