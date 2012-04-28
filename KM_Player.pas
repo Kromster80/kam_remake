@@ -324,7 +324,11 @@ end;
 procedure TKMPlayer.AddRoadToList(aLoc: TKMPoint);
 begin
   Assert(fRoadsList <> nil);
-  fRoadsList.AddEntry(aLoc);
+
+  //Sometimes maps can have roads placed outside of map bounds - ignore them
+  //(on 80x80 map Loc range is 1..79, which is not obvious when placing roads manually in script)
+  if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
+    fRoadsList.AddEntry(aLoc);
 end;
 
 
