@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_InterfaceDefaults, KM_MapView, KM_Terrain, KM_Pics,
-  KM_Controls, KM_Houses, KM_Units, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
+  KM_Controls, KM_Houses, KM_Units, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
 const MAX_VISIBLE_MSGS = 32;
@@ -65,7 +65,7 @@ type
     procedure Create_Barracks_Page;
     procedure Create_Woodcutter_Page;
 
-    procedure Army_ActivateControls(aActive:boolean);
+    procedure Army_ActivateControls(aCommander: TKMUnitWarrior);
     procedure Army_HideJoinMenu(Sender:TObject);
     procedure Army_Issue_Order(Sender:TObject);
     procedure Unit_Dismiss(Sender:TObject);
@@ -359,7 +359,7 @@ type
 
 
 implementation
-uses KM_Main, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
+uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi,
   KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game, KM_Utils, KM_Locales,
   KM_Sound, KM_Resource, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
@@ -945,7 +945,6 @@ begin
   end;
 end;
 
-  //todo: Disable unit voices on selection and orders in Replay
   //todo: Show peacetime information in MP replays
 
 procedure TKMGamePlayInterface.Create_Replay_Page;
@@ -2099,7 +2098,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
+procedure TKMGamePlayInterface.ShowUnitInfo(Sender: TKMUnit; aAskDismiss: Boolean = False);
 var Commander: TKMUnitWarrior;
 begin
   fShownUnit  := Sender;
@@ -2112,61 +2111,38 @@ begin
   end;
 
   SwitchPage(Panel_Unit);
-  Label_UnitName.Caption:= fResource.UnitDat[Sender.UnitType].UnitName;
-  Image_UnitPic.TexID:=fResource.UnitDat[Sender.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
-  ConditionBar_Unit.Position:=EnsureRange(round(Sender.Condition / UNIT_MAX_CONDITION * 100),-10,110);
-  Label_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
 
+  //Common properties
+  Label_UnitName.Caption      := fResource.UnitDat[Sender.UnitType].UnitName;
+  Image_UnitPic.TexID         := fResource.UnitDat[Sender.UnitType].GUIScroll;
+  Image_UnitPic.FlagColor     := fPlayers[Sender.GetOwner].FlagColor;
+  ConditionBar_Unit.Position  := EnsureRange(Round(Sender.Condition / UNIT_MAX_CONDITION * 100), -10, 110);
+  Label_UnitTask.Caption      := 'Task: ' + Sender.GetUnitTaskText;
+
+  //While selecting target to join we could get attacked
+  //Then we must cancel the dialog
   if Sender is TKMUnitWarrior then
   begin
-    Label_UnitDescription.Hide;
-    if fAskDismiss then
-    begin
-      Panel_Army.Hide;
-      Panel_Army_JoinGroups.Hide;
-      Panel_Unit_Dismiss.Show;
-      Button_Unit_Dismiss.Hide;
-      exit;
-    end;
-    Panel_Unit_Dismiss.Hide;
-    Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON;
     Commander := TKMUnitWarrior(Sender).GetCommander;
     if not Commander.ArmyCanTakeOrders then
       Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
-    if fJoiningGroups then
-    begin
-      Panel_Army_JoinGroups.Show;
-      Panel_Army.Hide;
-    end
-    else
-    begin
-      Panel_Army.Show;
-      ImageStack_Army.SetCount(Commander.GetMemberCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1); //Count+commander, Columns
-      Panel_Army_JoinGroups.Hide;
-      Army_ActivateControls(Commander.ArmyCanTakeOrders);
-    end;
-    Button_Army_Storm.Enabled := (UnitGroups[Sender.UnitType] = gt_Melee) and Commander.ArmyCanTakeOrders; //Only melee groups may charge
-    Button_Army_Split.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
-    Button_Army_ForUp.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
-    Button_Army_ForDown.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
-  end
-  else
-  begin //Citizen specific
-    Panel_Army.Hide;
-    Panel_Army_JoinGroups.Hide;
-    if fAskDismiss then
-    begin
-      Panel_Unit_Dismiss.Show;
-      Button_Unit_Dismiss.Hide;
-      Label_UnitDescription.Hide;
-      exit;
-    end;
-    Panel_Unit_Dismiss.Hide;
-    Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON;
-    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
-    Label_UnitDescription.Show;
   end;
+
+  Label_UnitDescription.Visible := not (Sender is TKMUnitWarrior);
+  Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and not fAskDismiss and not fJoiningGroups;
+  Panel_Army.Visible := (Sender is TKMUnitWarrior) and not fAskDismiss and not fJoiningGroups;
+  Panel_Army_JoinGroups.Visible := (Sender is TKMUnitWarrior) and not fAskDismiss and fJoiningGroups;
+  Panel_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and fAskDismiss and not fJoiningGroups;
+
+  //Update army controls if required
+  if Panel_Army.Visible then
+  begin
+    ImageStack_Army.SetCount(Commander.GetMemberCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1); //Count+commander, Columns
+    Army_ActivateControls(Commander);
+  end;
+
+  if not (Sender is TKMUnitWarrior) then
+    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
 end;
 
 
@@ -2436,17 +2412,24 @@ begin
 end;
 
 
-{Quit the mission and return to main menu}
+//Quit the mission and return to main menu
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender:TObject);
 begin
   //Show outcome depending on actual situation. By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
-  //todo: Block the "Restart" button when quitting from replay?
   fGame.Stop(fGame.PlayOnState);
 end;
 
 
-procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); begin fGame.MusicLib.PlayNextTrack; end;
-procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject); begin fGame.MusicLib.PlayPreviousTrack; end;
+procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); 
+begin
+  fGame.MusicLib.PlayNextTrack;
+end;
+
+
+procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject);
+begin
+  fGame.MusicLib.PlayPreviousTrack;
+end;
 
 
 procedure TKMGamePlayInterface.Army_Issue_Order(Sender:TObject);
@@ -2513,6 +2496,7 @@ begin
   end;
 end;
 
+
 procedure TKMGamePlayInterface.Unit_Dismiss(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
@@ -2529,7 +2513,8 @@ begin
     end;
 end;
 
-procedure TKMGamePlayInterface.Army_HideJoinMenu(Sender:TObject);
+
+procedure TKMGamePlayInterface.Army_HideJoinMenu(Sender: TObject);
 begin
   fJoiningGroups := false;
   if fResource.Cursors.Cursor in [kmc_JoinYes, kmc_JoinNo] then //Do not override non-joining cursors
@@ -2792,19 +2777,22 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Army_ActivateControls(aActive:boolean);
+procedure TKMGamePlayInterface.Army_ActivateControls(aCommander: TKMUnitWarrior);
+var AcceptOrders: Boolean;
 begin
-  //Button_Army_GoTo.Enabled := aActive;
-  Button_Army_Stop.Enabled := aActive;
-  //Button_Army_Attack.Enabled := aActive;
-  Button_Army_RotCW.Enabled := aActive;
-  Button_Army_Storm.Enabled := aActive;
-  Button_Army_RotCCW.Enabled := aActive;
-  Button_Army_ForUp.Enabled := aActive;
-  Button_Army_ForDown.Enabled := aActive;
-  Button_Army_Split.Enabled := aActive;
-  Button_Army_Join.Enabled := aActive;
-  Button_Army_Feed.Enabled := aActive;
+  AcceptOrders := aCommander.ArmyCanTakeOrders and not fGame.ReplayMode;
+
+  //Button_Army_GoTo.Enabled    := AcceptOrders;
+  Button_Army_Stop.Enabled    := AcceptOrders;
+  //Button_Army_Attack.Enabled  := AcceptOrders;
+  Button_Army_RotCW.Enabled   := AcceptOrders;
+  Button_Army_Storm.Enabled   := AcceptOrders and (UnitGroups[aCommander.UnitType] = gt_Melee);
+  Button_Army_RotCCW.Enabled  := AcceptOrders;
+  Button_Army_ForUp.Enabled   := AcceptOrders and (aCommander.GetMemberCount > 0);
+  Button_Army_ForDown.Enabled := AcceptOrders and (aCommander.GetMemberCount > 0);
+  Button_Army_Split.Enabled   := AcceptOrders and (aCommander.GetMemberCount > 0);
+  Button_Army_Join.Enabled    := AcceptOrders;
+  Button_Army_Feed.Enabled    := AcceptOrders;
 end;
 
 
