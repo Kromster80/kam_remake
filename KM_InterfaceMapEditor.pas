@@ -1793,8 +1793,7 @@ begin
 
   fGame.UpdateGameCursor(X,Y,Shift);
   if GameCursor.Mode = cm_None then
-    if (fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
-       (fPlayers.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
+    if fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y, False) <> nil then
       fResource.Cursors.Cursor := kmc_Info
     else
       if not fGame.Viewport.Scrolling then

@@ -35,6 +35,7 @@ type
     function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
+    function HitTest(X,Y: Integer; aOnlyMyPlayer: Boolean): TObject;
     procedure SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
     function GetUnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
@@ -253,42 +254,48 @@ end;
 //Houses have priority over units, so you can't select an occupant
 //Selection priority is as follows:
 //BuiltHouses > Units > IncompleteHouses
-procedure TKMPlayersCollection.SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
+function TKMPlayersCollection.HitTest(X,Y: Integer; aOnlyMyPlayer: Boolean): TObject;
 var
   H: TKMHouse;
   U: TKMUnit;
-  OldSelected: TObject;
 begin
-  OldSelected := Selected;
   if aOnlyMyPlayer then
   begin
     H := MyPlayer.HousesHitTest(X,Y);
     if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
-      Selected := H
+      Result := H
     else begin
       U := MyPlayer.UnitsHitTest(X,Y);
       if (U <> nil) and (not U.IsDeadOrDying) then
-        Selected := U
+        Result := U
       else
-        Selected := H;
+        Result := H;
     end
   end
   else
   begin
     H := HousesHitTest(X,Y);
     if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
-      Selected := H
+      Result := H
     else begin
       U := UnitsHitTest(X,Y);
       if (U <> nil) and (not U.IsDeadOrDying) then
-        Selected := U
+        Result := U
       else
-        Selected := H;
+        Result := H;
     end;
   end;
+end;
 
-  if Selected = nil then
-    Selected := OldSelected;
+
+procedure TKMPlayersCollection.SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
+var
+  Obj: TObject;
+begin
+  Obj := HitTest(X, Y, aOnlyMyPlayer);
+
+  if Obj <> nil then
+    Selected := Obj;
 end;
 
 

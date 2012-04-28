@@ -945,16 +945,13 @@ begin
   end;
 end;
 
-  //todo: Allow to select all players units and houses in Replay
   //todo: Disable unit voices on selection and orders in Replay
   //todo: Show peacetime information in MP replays
-
 
 procedure TKMGamePlayInterface.Create_Replay_Page;
 begin
   Panel_Replay := TKMPanel.Create(Panel_Main, 0, 0, 1024, 768);
   Panel_Replay.Stretch;
-  Panel_Replay.Hide; //Initially hidden
 
     Panel_ReplayCtrl := TKMPanel.Create(Panel_Replay, 320, 8, 160, 60);
       PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20);
@@ -2755,6 +2752,8 @@ begin
   else
     Label_Menu_Track.Caption := fGame.MusicLib.GetTrackTitle;
 
+  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME], [FormatDateTime('h:nn:ss', fGame.GetMissionTime)]);
+
   Label_Menu_Track.Enabled      := not fGame.GlobalSettings.MusicOff;
   Button_Menu_TrackUp.Enabled   := not fGame.GlobalSettings.MusicOff;
   Button_Menu_TrackDown.Enabled := not fGame.GlobalSettings.MusicOff;
@@ -2824,6 +2823,8 @@ begin
   Image_MPChat.Visible       := fGame.MultiplayerMode and not aReplay;
   Label_MPChatUnread.Visible := fGame.MultiplayerMode and not aReplay;
   Image_MPAllies.Visible     := fGame.MultiplayerMode and not aReplay;
+
+  Panel_Replay.Visible := aReplay;
 end;
 
 
@@ -3303,16 +3304,6 @@ begin
   else
     DisplayHint(nil); //Clear shown hint
 
-  {if fGame.GameState = gsReplay then
-  begin
-    fGame.UpdateGameCursor(X,Y,Shift); //To show coords in status bar
-    if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)
-    or (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
-      fResource.Cursors.Cursor := kmc_Info;
-
-    Exit;
-  end;}
-
   if not (fGame.GameState in [gsRunning, gsReplay]) then
     Exit;
 
@@ -3402,8 +3393,7 @@ begin
     Exit;
   end;
 
-  if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil)
-  or (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil) then
+  if fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y, not fGame.ReplayMode) <> nil then
   begin
     fResource.Cursors.Cursor := kmc_Info;
     Exit;
@@ -3514,9 +3504,11 @@ begin
   begin
   case GameCursor.Mode of
     cm_None:  begin
+                //Remember previous selection to play sound if it changes
                 OldSelected := fPlayers.Selected;
-                //You cannot select nil (or unit/house from other team) simply by clicking on the terrain
-                fPlayers.SelectHitTest(P.X, P.Y, True);
+
+                //Allow to select any players assets in replay
+                fPlayers.SelectHitTest(P.X, P.Y, not fGame.ReplayMode);
 
                 if (fPlayers.Selected is TKMHouse) then
                   ShowHouseInfo(TKMHouse(fPlayers.Selected));
@@ -3625,41 +3617,69 @@ end;
 procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var I: Integer; S: string;
 begin
-  //Every 1000ms
+  //Update minimap every 1000ms
   if aTickCount mod 10 = 0 then
     if (fGame.GameState in [gsRunning, gsReplay]) then
       fMapView.Update(False);
 
+  //Minimap viewport gets updated eact tick
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 
-  if fShownUnit<>nil then ShowUnitInfo(fShownUnit,fAskDismiss) else
-  if fShownHouse<>nil then ShowHouseInfo(fShownHouse,fAskDemolish);
+  //Update unit/house information
+  if fShownUnit <> nil then
+    ShowUnitInfo(fShownUnit,fAskDismiss)
+  else
+  begin
+    fJoiningGroups := False;
+    if fShownHouse <> nil then
+      ShowHouseInfo(fShownHouse,fAskDemolish);
+  end;
 
-  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME],[FormatDateTime('h:nn:ss', fGame.GetMissionTime)]);
+  //Update peacetime counter
   if fGame.GameOptions.Peacetime <> 0 then
     Label_PeacetimeRemaining.Caption := Format(fTextLibrary[TX_MP_PEACETIME_REMAINING],
                                                [FormatDateTime('h:nn:ss', fGame.GetPeacetimeRemaining)])
   else Label_PeacetimeRemaining.Caption := '';
 
-  if fShownUnit=nil then fJoiningGroups := false;
-
-  if fGame.GameInputProcess.ReplayState = gipReplaying then
+  //Update replay counters
+  if fGame.ReplayMode then
   begin
-    Panel_Replay.Show;
     PercentBar_Replay.Position := EnsureRange(Round(fGame.GameTickCount / fGame.GameInputProcess.GetLastTick * 100), 0, 100);
     Label_Replay.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime) + ' / ' +
                             FormatDateTime('hh:nn:ss', fGame.GameInputProcess.GetLastTick/24/60/60/10);
-  end else
-    Panel_Replay.Hide;
+  end;
 
+  //Update speedup clocks
   if Image_Clock.Visible then begin
     Image_Clock.TexID := ((Image_Clock.TexID - 556) + 1) mod 16 + 556;
     Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
   end;
 
+  //Keep on updating these menu pages as game data keeps on changing
   if Panel_Build.Visible then Build_Fill(nil);
   if Panel_Stats.Visible then Stats_Fill(nil);
   if Panel_Menu.Visible then Menu_Fill(nil);
+
+  //Flash unread message display
+  Label_MPChatUnread.Visible := fGame.MultiplayerMode and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
+  Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
+  Image_MPAllies.Highlight := Panel_Allies.Visible;
+
+  //Update info on awaited players
+  if Panel_NetWait.Visible then
+  begin
+    if fGame.Networking.IsReconnecting then
+      Label_NetDropPlayersDelay.Caption := ''
+    else
+    begin
+      i := NET_DROP_PLAYER_MIN_WAIT - EnsureRange((GetTickCount-fNetWaitDropPlayersDelayStarted) div 1000, 0, NET_DROP_PLAYER_MIN_WAIT);
+      if i > 0 then
+        Label_NetDropPlayersDelay.Caption := Format(fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_DELAY], [i])
+      else
+        Label_NetDropPlayersDelay.Caption := fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_ALLOWED];
+      Button_NetDropPlayers.Enabled := i = 0;
+    end;
+  end;
 
   //Debug info
   if SHOW_SPRITE_COUNT then
@@ -3680,33 +3700,13 @@ begin
   if DISPLAY_SOUNDS then
     Label_SoundsCount.Caption := inttostr(fSoundLib.ActiveCount)+' sounds playing';
 
-  // Temporary inteface (By @Crow)
+  //Temporary inteface (by @Crow)
   if SHOW_ARMYEVALS then begin
     S := '';
     for i := 0 to fPlayers.Count-1 do
     if i <> MyPlayer.PlayerIndex then
       S := S+Format('Enemy %d: %f|', [i, RoundTo(MyPlayer.ArmyEval.Evaluations[i].fPower,-3)]);
     Label_VictoryChance.Caption := S;
-  end;
-
-  //Flash unread message display
-  Label_MPChatUnread.Visible := fGame.MultiplayerMode and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
-  Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
-  Image_MPAllies.Highlight := Panel_Allies.Visible;
-
-  if Panel_NetWait.Visible then
-  begin
-    if fGame.Networking.IsReconnecting then
-      Label_NetDropPlayersDelay.Caption := ''
-    else
-    begin
-      i := NET_DROP_PLAYER_MIN_WAIT - EnsureRange((GetTickCount-fNetWaitDropPlayersDelayStarted) div 1000, 0, NET_DROP_PLAYER_MIN_WAIT);
-      if i > 0 then
-        Label_NetDropPlayersDelay.Caption := Format(fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_DELAY], [i])
-      else
-        Label_NetDropPlayersDelay.Caption := fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_ALLOWED];
-      Button_NetDropPlayers.Enabled := i = 0;
-    end;
   end;
 end;
 
