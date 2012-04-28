@@ -199,6 +199,10 @@ MaxID:2705
 433:Entree
 434:Deep Blue
 435:Struggle
+436:Royal Quarters
+437:Aristocracy
+438:At the Harbor
+439:Journey
 847:Kampanj 'The Shattered Kingdom'
 848:Kampanj 'The Peasants Rebellion'
 849:Spela enskild karta
@@ -325,6 +329,7 @@ MaxID:2705
 1787:Spelarlista
 1788:Startplats
 1789:Lag
+1790:Färg
 1791:Redo
 1792:Ping
 1793:Kicka
@@ -436,7 +441,16 @@ MaxID:2705
 1903:träd
 1904:definitioner
 1905:terrängtexturer
+2687:Skapa server
+2688:HITTA SERVER
+2689:Anslut
+2690:Hitta server via IP
 2691:Avbryt
 2692:Avbryt
-2704:VARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare?
-2705:Var god uppdatera grafikdrivrutinerna för bättre prestanda
+2693:Stöds inte
+2694:Stöds inte
+2695:Fel: Spelarnamnet får inte vara längre än %d tecken långt
+2696:Fel: Spelarnamnet innehåller förbjudna tecken
+2697:Skuggkvalitet:
+2698:Låg
+2699:Hög

@@ -8,7 +8,7 @@ eng,    English,              1252,     5,            ,
 est,    Estonian,             1252,     19,           ,                Ingvar & Eva
 fre,    French,               1252,     11,           ,                Sylvain Domange
 ger,    German,               1252,     6,            ,                The Knight
-hun,    Hungarian,            1250,     17,           ,                Jecy
+hun,    Hungarian,            1250,     17,           ,                Osi Attila (Jecy)
 ita,    Italian,              1252,     10,           ,                Paolo Castelvetere
 lit,    Lithuanian,           LITH,     27,           ,                Audrius Arlauskas (Zaero)
 pol,    Polish,               1250,     7,            ,                Przemyslaw Pietras
