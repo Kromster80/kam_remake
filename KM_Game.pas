@@ -36,6 +36,7 @@ type
     fGameSpeedMultiplier: Word; //how many ticks are compressed in one
     fGameState:TGameState;
     fMultiplayerMode:boolean;
+    fReplayMode: Boolean; //Separate flag since Replay can change fGameState
     fReplayFile:string;
     fWaitingForNetwork:boolean;
     fGameOptions:TKMGameOptions;
@@ -132,7 +133,7 @@ type
     property GameTickCount:cardinal read fGameTickCount;
     property GameName:string read fGameName;
     property MultiplayerMode:boolean read fMultiplayerMode;
-    function ReplayMode: Boolean;
+    property ReplayMode: Boolean read fReplayMode;
     property FormPassability:integer read fFormPassability write fFormPassability;
     property IsExiting:boolean read fIsExiting;
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
@@ -453,6 +454,7 @@ var I:Integer;
 begin
   Stop(gr_Silent); //Stop everything silently
 
+  fReplayMode := False;
   fCampaigns.SetActive(aCampaign, aMap);
 
   GameInit(false);
@@ -474,6 +476,7 @@ begin
 
   GameInit(false);
   GameStart(aMissionFile, aGameName);
+  fReplayMode := False;
 
   //Market needs to be blocked for e.g. tutorials
   if aBlockMarket then
@@ -491,7 +494,8 @@ begin
   GameInit(false);
   Load(aFileName);
   SetGameState(gsRunning);
-  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
+  fReplayMode := False;
+  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, fReplayMode);
 end;
 
 
@@ -586,6 +590,7 @@ begin
 
   //Load mission file
   fGameName := aFileName;
+  fReplayMode := False;
 
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_SCRIPT]);
 
@@ -638,6 +643,7 @@ begin
 
   GameInit(true);
   Load(aFileName);
+  fReplayMode := False;
   fGamePlayInterface.LastSaveName := aFileName; //Next time they go to save it will have this name entered
 
   MultiplayerRig;
@@ -937,7 +943,7 @@ begin
 
   fIsExiting := True;
   try
-    if fMultiplayerMode and not ReplayMode then
+    if fMultiplayerMode and not fReplayMode then
     begin
       if fNetworking.Connected then fNetworking.AnnounceDisconnect;
       fNetworking.Disconnect;
@@ -1012,7 +1018,8 @@ begin
 
   SetKaMSeed(4); //Every time MapEd will be the same as previous. Good for debug.
   SetGameSpeed(1); //In case it was set in last run mission
-  fMultiplayerMode := false;
+  fMultiplayerMode := False;
+  fReplayMode := False;
 
   //Load the resources if necessary
   fMainMenuInterface.ShowScreen(msLoading, '');
@@ -1180,12 +1187,6 @@ begin
 end;
 
 
-function TKMGame.ReplayMode: Boolean;
-begin
-  Result := fGameState = gsReplay;
-end;
-
-
 //Restart the replay but do not change the viewport position/zoom
 procedure TKMGame.RestartReplay;
 var OldCenter: TKMPointF; OldZoom: single;
@@ -1214,7 +1215,8 @@ begin
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
   SetGameState(gsReplay);
-  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, True);
+  fReplayMode := True;
+  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, fReplayMode);
   fReplayFile := aSaveName;
 end;
 
