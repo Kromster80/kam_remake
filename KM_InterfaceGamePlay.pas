@@ -3084,7 +3084,10 @@ begin
     if fGame.Networking.NetPlayers[i+1].LangCode <> '' then
       Image_AlliesLang[i].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[i+1].LangCode).FlagSpriteID
     else
-      Image_AlliesLang[i].TexID := 0;
+      if fGame.Networking.NetPlayers[i+1].IsComputer then
+        Image_AlliesLang[I].TexID := 22 //PC icon
+      else
+        Image_AlliesLang[i].TexID := 0;
 
     Label_AlliesPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
     Label_AlliesPlayer[i].FontColor := fPlayers[fGame.Networking.NetPlayers[i+1].PlayerIndex.PlayerIndex].FlagColor;

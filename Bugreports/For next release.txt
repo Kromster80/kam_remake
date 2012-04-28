@@ -3,6 +3,7 @@
 ==============
  +	Crash "GameWaitingForNetwork from wrong state lgs_None" if you quit a multiplayer game while waiting for players and start a single player game
  +	All players reported the map being played to the master server, it should have only been the host
+ +	PC icon was not shown as the flag for AI players in-game (only in lobby)
 
 	Access violation when clicking start in lobby (after reassigning host?)
 

@@ -2782,15 +2782,20 @@ end;
 
 //Post what user has typed
 procedure TKMMainMenuInterface.Lobby_PostKey(Sender: TObject; Key: Word);
+var ChatMessage: string;
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
-
+  ChatMessage := Edit_LobbyPost.Text;
   //Check for console commands
-  if (Length(Edit_LobbyPost.Text) > 1) and (Edit_LobbyPost.Text[1] = '/')
-  and (Edit_LobbyPost.Text[2] <> '/') then //double slash is the escape to place a slash at the start of a sentence
-    fGame.Networking.ConsoleCommand(Edit_LobbyPost.Text)
+  if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/')
+  and (ChatMessage[2] <> '/') then //double slash is the escape to place a slash at the start of a sentence
+    fGame.Networking.ConsoleCommand(ChatMessage)
   else
-    fGame.Networking.PostMessage(Edit_LobbyPost.Text, True);
+  begin
+    if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/') and (ChatMessage[2] = '/') then
+      Delete(ChatMessage, 1, 1); //Remove one of the /'s
+    fGame.Networking.PostMessage(ChatMessage, True);
+  end;
 
   Edit_LobbyPost.Text := '';
 end;
