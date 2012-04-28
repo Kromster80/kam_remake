@@ -325,7 +325,7 @@ type
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
     procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
-    procedure MenuIconsEnabled(NewValue:boolean);
+    procedure UpdateMenuState(aTactic, aReplay: Boolean);
     procedure UpdateMapSize(X,Y:integer);
     procedure ShowClock(aSpeed: Word);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
@@ -494,8 +494,6 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Save_Click(Sender: TObject);
 begin
-  if (fGame.GameState = gsReplay) then Exit;
-
   LastSaveName := Edit_Save.Text; //Do this before saving so it is included in the save
   if fGame.MultiplayerMode then
     //Don't tell everyone in the game that we are saving yet, as the command hasn't been processed
@@ -945,20 +943,10 @@ begin
     Image_Message[I].Tag := I;
     Image_Message[I].OnClick := Message_Click;
   end;
-
-  //Chat and Allies setup should be accessible only in Multiplayer
-  if not fGame.MultiplayerMode then
-  begin
-    Image_MPChat.Hide;
-    Label_MPChatUnread.Hide;
-    Image_MPAllies.Hide;
-  end;
 end;
 
   //todo: Allow to select all players units and houses in Replay
   //todo: Disable unit voices on selection and orders in Replay
-  //todo: Disable build menu in Replay
-  //todo: Disable chat/alliances in Replay
   //todo: Show peacetime information in MP replays
 
 
@@ -2762,11 +2750,6 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
 begin
-  //No loading during multiplayer games
-  Button_Menu_Load.Enabled := not fGame.MultiplayerMode and (fGame.GameState <> gsReplay);
-  Button_Menu_Save.Enabled := (fGame.GameState <> gsReplay);
-  Button_Menu_Quit.Enabled := (fGame.GameState <> gsReplay);
-
   if fGame.GlobalSettings.MusicOff then
     Label_Menu_Track.Caption := '-'
   else
@@ -2826,11 +2809,21 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.MenuIconsEnabled(NewValue:boolean);
+procedure TKMGamePlayInterface.UpdateMenuState(aTactic, aReplay: Boolean);
 begin
-  Button_Main[1].Enabled := NewValue;
-  Button_Main[2].Enabled := NewValue;
-  Button_Main[3].Enabled := NewValue;
+  Button_Main[1].Enabled := not aTactic and not aReplay;
+  Button_Main[2].Enabled := not aTactic and not aReplay;
+  Button_Main[3].Enabled := not aTactic;
+
+  //No loading during multiplayer games
+  Button_Menu_Load.Enabled := not fGame.MultiplayerMode and not aReplay;
+  Button_Menu_Save.Enabled := not aReplay;
+  Button_Menu_Quit.Enabled := not aReplay;
+
+  //Chat and Allies setup should be accessible only in Multiplayer
+  Image_MPChat.Visible       := not fGame.MultiplayerMode and not aReplay;
+  Label_MPChatUnread.Visible := not fGame.MultiplayerMode and not aReplay;
+  Image_MPAllies.Visible     := not fGame.MultiplayerMode and not aReplay;
 end;
 
 
@@ -3409,8 +3402,9 @@ begin
     Exit;
   end;
 
-  if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
-     (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then begin
+  if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil)
+  or (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil) then
+  begin
     fResource.Cursors.Cursor := kmc_Info;
     Exit;
   end;

@@ -36,7 +36,6 @@ type
     fGameSpeedMultiplier: Word; //how many ticks are compressed in one
     fGameState:TGameState;
     fMultiplayerMode:boolean;
-    fReplayMode:boolean;
     fReplayFile:string;
     fWaitingForNetwork:boolean;
     fGameOptions:TKMGameOptions;
@@ -133,7 +132,7 @@ type
     property GameTickCount:cardinal read fGameTickCount;
     property GameName:string read fGameName;
     property MultiplayerMode:boolean read fMultiplayerMode;
-    property ReplayMode:boolean read fReplayMode;
+    function ReplayMode: Boolean;
     property FormPassability:integer read fFormPassability write fFormPassability;
     property IsExiting:boolean read fIsExiting;
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
@@ -492,7 +491,7 @@ begin
   GameInit(false);
   Load(aFileName);
   SetGameState(gsRunning);
-  fReplayMode := false;
+  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
 end;
 
 
@@ -554,13 +553,12 @@ begin
   fViewport.Position := KMPointF(MyPlayer.CenterScreen);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
 
-  fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
   fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
 
   fLog.AppendLog('Gameplay initialized', true);
 
   SetGameState(gsRunning);
-  fReplayMode := false;
+  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
 
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
   BaseSave;
@@ -701,13 +699,12 @@ begin
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
   Render;
 
-  fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
   fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
 
   fLog.AppendLog('Gameplay initialized', true);
 
   SetGameState(gsRunning);
-  fReplayMode := false;
+  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
 
   fNetworking.OnPlay           := GameMPPlay;
   fNetworking.OnReadyToPlay    := GameMPReadyToPlay;
@@ -940,13 +937,13 @@ begin
 
   fIsExiting := True;
   try
-    SetGameState(gsNoGame);
-
-    if fMultiplayerMode and not fReplayMode then
+    if fMultiplayerMode and not ReplayMode then
     begin
       if fNetworking.Connected then fNetworking.AnnounceDisconnect;
       fNetworking.Disconnect;
     end;
+
+    SetGameState(gsNoGame);
 
     //Take results from MyPlayer before data is flushed
     if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
@@ -1084,8 +1081,6 @@ begin
   fLog.AppendLog('Gameplay initialized', True);
 
   fGameTickCount := 0; //Restart counter
-
-  fReplayMode := false;
 end;
 
 
@@ -1185,6 +1180,12 @@ begin
 end;
 
 
+function TKMGame.ReplayMode: Boolean;
+begin
+  Result := fGameState = gsReplay;
+end;
+
+
 //Restart the replay but do not change the viewport position/zoom
 procedure TKMGame.RestartReplay;
 var OldCenter: TKMPointF; OldZoom: single;
@@ -1202,11 +1203,10 @@ end;
 procedure TKMGame.StartReplay(const aSaveName: string; aMultiplayer: boolean);
 begin
   Stop(gr_Silent);
-  fReplayMode := true;
 
   GameInit(aMultiplayer);
 
-  Load(aSaveName,true); //We load what was saved right before starting Recording
+  Load(aSaveName, True); //We load what was saved right before starting Recording
 
   FreeAndNil(fGameInputProcess); //Override GIP from savegame
   fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying);
@@ -1214,7 +1214,7 @@ begin
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
   SetGameState(gsReplay);
-  fReplayMode := true;
+  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, True);
   fReplayFile := aSaveName;
 end;
 
@@ -1517,8 +1517,6 @@ begin
 
     if not aReplay then
       CopyFile(PChar(SaveName(aFileName,'bas')), PChar(SaveName('basesave','bas')), false); //replace Replay base savegame
-
-    fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic); //Preserve disabled icons
 
     fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
     fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
