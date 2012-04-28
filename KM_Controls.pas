@@ -884,6 +884,7 @@ type
   private
     fCaption: string;
     fCount: Integer;
+    fItemHeight: Byte;
     fLines: array of record
       Title: string;
       Color: TColor4;
@@ -3903,7 +3904,7 @@ constructor TKMGraph.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Int
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
 
-  fMaxValue := 0;
+  fItemHeight := 13;
 end;
 
 
@@ -3931,6 +3932,7 @@ end;
 
 procedure TKMGraph.Clear;
 begin
+  fCount := 0;
   SetLength(fLines, 0);
   fMaxValue := 0;
 end;
@@ -3943,7 +3945,7 @@ begin
 
   if X < Left + Width-55 then Exit;
 
-  I := (Y - Top - 20) div 12;
+  I := (Y - Top - 20) div fItemHeight;
   if not InRange(I, 0, fCount - 1) then Exit;
 
   fLines[I].Visible := not fLines[I].Visible;
@@ -3963,12 +3965,12 @@ begin
     if fLines[I].Visible then
       fRenderUI.WritePlot(Left+25, Top+20, Width-25-60, Height-20, fLines[I].Values, fMaxValue, fLines[I].Color);
 
-    fRenderUI.WriteLayer(Left+Width-55, Top + 20 + I*12+2, 11, 10, fLines[I].Color, $00000000);
+    fRenderUI.WriteLayer(Left+Width-55, Top + 20 + I*fItemHeight+2, 11, 11, fLines[I].Color, $00000000);
 
     if fLines[I].Visible then
-      fRenderUI.WriteText(Left+Width-55, Top + 20 + I*12 - 1, 0, 0, 'v', fnt_Game, taLeft);
+      fRenderUI.WriteText(Left+Width-55, Top + 20 + I*fItemHeight - 1, 0, 0, 'v', fnt_Game, taLeft);
 
-    fRenderUI.WriteText(Left+Width-43, Top + 20 + I*12, 0, 0, fLines[I].Title, fnt_Game, taLeft);
+    fRenderUI.WriteText(Left+Width-43, Top + 20 + I*fItemHeight, 0, 0, fLines[I].Title, fnt_Game, taLeft);
   end;
 
   fRenderUI.WriteText(Left+20, Top + Height, 0, 0, IntToStr(0), fnt_Game, taRight);

@@ -243,15 +243,14 @@ const
   WARFARE_MAX = rt_Horse;
 
   //Resources colors for Results charts
-  ResourceColor: array [TResourceType] of Cardinal = (
-    $FF00FF,
-    $804000, $BFBFBF, $BF8000, $4040BF, $FFFF00,
-    $606060, $0000BF, $FFBF00, $FF8000, $FFFF80,
-    $FFBF80, $FFFFFF, $BF4040, $FF0000, $BF4000,
-    $808000, $00BF00, $7FFF00, $00BFFF, $400000,
-    $4000FF, $40FF00, $40FFFF, $8000FF, $80FFFF,
-    $BF00FF, $FF8000, $00BFFF,
-    $FF00FF, $FF00FF, $FF00FF);
+  //Made by naospor from kamclub.ru
+  ResourceColor: array [WARE_MIN..WARE_MAX] of Cardinal = (
+    $004080, $BFBFBF, $0080BF, $BF4040, $00FFFF,
+    $606060, $BF0000, $00BFFF, $FF40FF, $80FFFF,
+    $80BFFF, $FFFFFF, $4040BF, $0000FF, $0040BF,
+    $008080, $00BF00, $00FF7F, $FFBF00, $BF0080,
+    $FF0040, $00FF40, $FFFF40, $FF0080, $FFFF80,
+    $FF00BF, $0080FF, $FFBF00);
 
 const //Using shortints instead of bools makes it look much neater in code-view
   CheatStorePattern: array[WARE_MIN..WARE_MAX]of byte = (

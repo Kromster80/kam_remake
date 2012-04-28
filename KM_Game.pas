@@ -946,7 +946,7 @@ begin
     SetGameState(gsNoGame);
 
     //Take results from MyPlayer before data is flushed
-    if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
+    if Msg in [gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd] then
       if fMultiplayerMode then
         fMainMenuInterface.ResultsMP_Fill
       else

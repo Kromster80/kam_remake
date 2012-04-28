@@ -473,6 +473,7 @@ begin
                     gr_Win:       Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
                     gr_Defeat:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
                     gr_Cancel:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+                    gr_ReplayEnd: Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
                     else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
 
@@ -480,7 +481,7 @@ begin
                   Button_ResultsRepeat.Enabled := aMsg in [gr_Defeat, gr_Cancel];
 
                   //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
-                  Button_ResultsContinue.Visible := fGame.Campaigns.ActiveCampaign <> nil;
+                  Button_ResultsContinue.Visible := (fGame.Campaigns.ActiveCampaign <> nil) and (aMsg <> gr_ReplayEnd);
                   Button_ResultsContinue.Enabled := aMsg = gr_Win;
 
                   SwitchMenuPage(Panel_Results);
@@ -490,6 +491,7 @@ begin
                     gr_Win:       Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
                     gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
                     gr_Cancel:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+                    gr_ReplayEnd: Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
                     else          Label_ResultsMP.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
                   SwitchMenuPage(Panel_ResultsMP);
