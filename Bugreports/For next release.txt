@@ -1,5 +1,13 @@
 ==============
- SINCE r3252:
+ SINCE r3311:
+==============
+ +	Crash "GameWaitingForNetwork from wrong state lgs_None" if you quit a multiplayer game while waiting for players and start a single player game
+ +	All players reported the map being played to the master server, it should have only been the host
+
+	Access violation when clicking start in lobby (after reassigning host?)
+
+==============
+FIXED IN r3311
 ==============
  +	Some text IDs were duplicate so the text "Switch delivery of wares on/off" showed "Cost:" instead
  +	Screenshot button in menu didn't work
@@ -27,7 +35,6 @@
  +	If two enemies placed plans over each other's, it would crash the replay
  +	Restored 4P versions of Border Rivers, Wilderness and Stranded so you can play 4P FFA with random starts
 
-	Access violation when clicking start in lobby (after reassigning host?)
 
 
 

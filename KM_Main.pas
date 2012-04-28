@@ -63,7 +63,7 @@ begin
   if BLOCK_DUPLICATE_APP
   and CheckDuplicateApplication('07BB7CC6-33F2-44ED-AD04-1E255E0EDF0D') then
   begin
-    ShowMessage('Another copy of the Application is already running');
+    ShowMessage('Another copy of the application is already running');
     Free; //Release fMain memory
     Halt; //Immmediately close the application
   end;

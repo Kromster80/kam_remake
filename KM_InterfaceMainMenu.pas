@@ -2031,6 +2031,7 @@ begin
   Button_MP_CreateWAN.Enabled := not aBusy;
 
   //Toggle server joining
+  Button_MP_FindServer.Enabled := not aBusy;
   Button_MP_FindServerIP.Enabled := not aBusy;
   Button_MP_FindCancel.Enabled := not aBusy;
   Button_MP_GetIn.Enabled := MP_GetInEnabled;

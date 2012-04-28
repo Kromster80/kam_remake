@@ -420,6 +420,7 @@ begin
   PlayOnState := gr_Cancel;
   SkipReplayEndCheck := False; //Reset before each mission
   fMultiplayerMode := aMultiplayerMode;
+  fWaitingForNetwork := False; //Must get reset between games
   //Reset the game options from the last game
   fGameOptions.Free;
   fGameOptions := TKMGameOptions.Create;
@@ -1563,8 +1564,8 @@ begin
                       if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                       inc(fGameTickCount); //Thats our tick counter for gameplay events
                       if fMultiplayerMode then fNetworking.LastProcessedTick := fGameTickCount;
-                      //Tell the master server about our game on the specific tick
-                      if fMultiplayerMode and (
+                      //Tell the master server about our game on the specific tick (host only)
+                      if fMultiplayerMode and fNetworking.IsHost and (
                          ((fMissionMode = mm_Normal) and (fGameTickCount = ANNOUNCE_BUILD_MAP)) or
                          ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
                         fNetworking.ServerQuery.SendMapInfo(fGameName, fNetworking.NetPlayers.GetConnectedCount);
