@@ -454,11 +454,14 @@ begin
   assignfile(f,filename);
   reset(f,1);
   blockread(f, Head, 8);
-  if (Head.X > MaxMapSize) or (Head.Y > MaxMapSize) then begin
+
+  if (Head.X > MaxMapSize) or (Head.Y > MaxMapSize) then
+  begin
     closefile(f);
     MessageBox(Form1.Handle,'Too big map or not a KaM map.', 'Error', MB_OK);
     exit;
   end;
+
   reset(f,1);
   blockread(f,Map,8);
   for i:=1 to Map.Y do blockread(f,Land[i],Map.X*23);
@@ -468,8 +471,9 @@ begin
 
   blockread(f,c,4,NumRead);
   if NumRead=4 then begin
-    blockread(f,c,4,NumRead); c[5]:=#0; //ADDN
-    if StrPas(PAnsiChar(c[1]))='TILE' then begin
+    blockread(f,c,4,NumRead); c[5] := #0; //ADDN
+    if StrPas(PAnsiChar(@c[1]))='TILE' then
+    begin
       blockread(f,i,4,NumRead); //Chunk size
       blockread(f,i,4,NumRead); //Cypher - ommited
       for i:=1 to Map.Y do
