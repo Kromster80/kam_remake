@@ -2821,9 +2821,9 @@ begin
   Button_Menu_Quit.Enabled := not aReplay;
 
   //Chat and Allies setup should be accessible only in Multiplayer
-  Image_MPChat.Visible       := not fGame.MultiplayerMode and not aReplay;
-  Label_MPChatUnread.Visible := not fGame.MultiplayerMode and not aReplay;
-  Image_MPAllies.Visible     := not fGame.MultiplayerMode and not aReplay;
+  Image_MPChat.Visible       := fGame.MultiplayerMode and not aReplay;
+  Label_MPChatUnread.Visible := fGame.MultiplayerMode and not aReplay;
+  Image_MPAllies.Visible     := fGame.MultiplayerMode and not aReplay;
 end;
 
 
