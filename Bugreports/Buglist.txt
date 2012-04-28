@@ -1,6 +1,7 @@
 ﻿Since r3252:
 <===================================================================================>
  +	Improved units/objects visibility along map edges
+ +	Fixed assert fail when loading map that has roads placed outside of map bounds
 	If I play a campaign up to mission say 9, then load an old save of mission 5, quit and press restart, it will load basesave which is mission 9 (we should make a basesave after loading saves?)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
