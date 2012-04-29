@@ -180,6 +180,7 @@ MaxID:2705
 221:|Acestei trupe chiar îi este foame, trebuie sã mãnânce repede ceva!
 222:PAUZÃ
 223:Modificã volumul
+224:Porneste/Opreste livrarea de marfã
 418:Spiritul
 419:Ocupat
 420:Cornul Evului Mediu
@@ -451,5 +452,11 @@ MaxID:2705
 2695:Eroare: Numele jucãtorului nu trebuie sã fie mai mare de %d caractere
 2696:Eroare: Numele jucãtorului contine caractere invalide
 2697:Calitatea umbrelor:
-2698:Mic
+2698:Micã
 2699:Mare
+2700:Harta nu a fost gãsitã: %s
+2701:Fisierele hãrtii tale nu se potrivesc cu cele ale gazdei: %s
+2702:Salvarea nu a fost gãsitã: %s
+2703:Salvarea ta nu se potriveste cu cea a hostului: %s
+2704:AVERTISMENT: Dacã continui sã joci dupa aceastã eroare, pot apãrea alte instabilitati si erori. Vrei sã îti asumi riscul si sã joci în continuare?
+2705:Te rugãm sã îti upgradezi driverl video pentru o performatã mai bunã.

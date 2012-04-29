@@ -7,7 +7,7 @@ MaxID:2705
 3:Söekaevandus
 4:Rauakaevandus
 5:Kullakaevandus
-6:Kaluri
+6:Kaluri onn
 7:Pagariäri
 8:Talu
 9:Puuraiduri onn
@@ -25,28 +25,28 @@ MaxID:2705
 21:Kasarmu
 22:Veski
 23:Vallutusseadmetekoda
-24:Lihunikäri
+24:Lihunikuäri
 25:Nahaparkimiskoda
 26:Treening saal
 27:Kõrts
 28:Viinamarjaistandus
 29:Turuplats
-39:Palk
-40:Kivi
+39:Puu palk
+40:Kivid
 41:Laudpuit
 42:Raua maak
 43:Kulla maak
 44:Süsi
 45:Raud
 46:Kuld
-47:Veini tünn
+47:Veini tünnid
 48:Rukkis
-49:Leib
+49:Leivad
 50:Jahu
 51:Parknahk
-52:Vorst
-53:Siga
-54:Nahk
+52:Vorstid
+53:Sead
+54:Nahad
 55:Puukilp
 56:Raudkilp
 57:Nahkturvis
@@ -57,11 +57,11 @@ MaxID:2705
 62:Piik
 63:Vibu
 64:Amb
-65:Hobune
+65:Hobused
 66:Kala
 69:Pärisori
 70:Puuraidur
-71:Kaevandaja
+71:Kaevur
 72:Tõuaretaja
 73:Talupoeg
 74:Puusepp
@@ -74,8 +74,8 @@ MaxID:2705
 81:Kullassepp
 82:Nekrut
 83:Rahvaväelane
-84:Kirve võitleja
-85:Mõõga võitleja
+84:Kirve kandja
+85:Mõõga kandja
 86:Vibukütt
 87:Ambur
 88:Oda kandja
@@ -199,6 +199,10 @@ MaxID:2705
 433:Sisseastumine
 434:Sügav sinine
 435:Rabelema
+436:Kuninglik koda
+437:Aristokraatia
+438:Sadamas
+439:Rännak
 847:Kampaania 'The Shattered Kingdom'
 848:Kampaania 'The Peasants Rebellion'
 849:Mängi üksikkaarti
@@ -325,6 +329,7 @@ MaxID:2705
 1787:Mängijate nimekiri
 1788:Alustamise asukoht
 1789:Meeskond
+1790:Värv
 1791:Valmis
 1792:Ping
 1793:Eemalda
@@ -436,5 +441,22 @@ MaxID:2705
 1903:puud
 1904:definitsioonid
 1905:ruudustik
+2687:Loo Server
+2688:LEIA SERVER
+2689:Ühenda
+2690:Leia Server IP Järgi
 2691:Tühista
 2692:Tühista
+2693:Pole toetatud
+2694:Pole toetatud
+2695:Viga: Mängija nimi ei tohi olla pikem kui %d tähemärki
+2696:Viga: Mängija nimi sisaldab keelatud tähemärke
+2697:Varju kvaliteet:
+2698:Madal
+2699:Kõrge
+2700:Kaarti ei leitud: %s
+2701:Kaardi failid ei ühildu mängujuhi kaardi failidega: %s
+2702:Salvestist ei leitud: %s
+2703:Salvestise failid ei ühildu mängujuhi salvestise failidega: %s
+2704:HOIATUS!: Edasi mängimine pärast seda süsteemi viga võib põhjustada edasiseid süsteemi kokkujooksmiseid ja ebastabiilsuseid. Kas soovite edasi mängida?
+2705:Palun uuendage oma videokaardi drivereid, et saada parem jõudlus.

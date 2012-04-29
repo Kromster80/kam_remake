@@ -199,6 +199,10 @@ MaxID:2705
 433:Entrada
 434:Azul profundo
 435:Esfuerzo
+436:Sala Real
+437:Aristocracia
+438:En el Puerto
+439:Viaje
 847:Jugar a 'The Shattered Kingdom'
 848:Jugar a 'The Peasants Rebellion'
 849:Jugar en un mapa simple
@@ -325,6 +329,7 @@ MaxID:2705
 1787:Lista de jugadores
 1788:Empezar localización
 1789:Equipo
+1790:Color
 1791:Listo
 1792:Retraso
 1793:Exulsar
@@ -436,6 +441,22 @@ MaxID:2705
 1903:trees
 1904:definitions
 1905:tileset
+2687:Crear Servidor
+2688:ENCONTRAR SERVIDOR
+2689:Conectar
+2690:Encuentra servidor por IP
 2691:Cancelar
 2692:Cancelar
+2693:No soportada
+2694:No soportada
+2695:Error: El nombre no debe tener más %d caracteres de largo
+2696:Error: El nombre del jugador tiene caracteres  no permitidos
+2697:Calidad de sombras
+2698:Bajo
+2699:Alto
+2700:Mapa no encontrado: %s
+2701:El archivo del mapa no corresponde con el del Anfitrión: %s
+2702:Partida guardada no encontrada: %s
+2703:El archivo guardado no coincide con el archivo guardado del Anfitrión: %s
+2704:ADVERTENCIA: Continuar jugando después de este error puede provocar mas fallos y inestabilidades. ¿Te gustaría seguir jugando y tomar este riesgo?
 2705:Por favor, actualice los controladores de gráficos para obtener un mejor rendimiento

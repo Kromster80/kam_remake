@@ -454,5 +454,9 @@ MaxID:2705
 2697:Qualità delle ombre:
 2698:Bassa
 2699:Alta
+2700:Mappa non trovata: %s
+2701:File non compatibili con l'host per la mappa: %s
+2702:Salvataggio non trovato: %s
+2703:File non compatibile con l'host per il salvataggio: %s
 2704:ATTENZIONE: Continuare la partita dopo questo errore potrebbe causare ulteriori crash ed instabilità. Vuoi comunque rischiare e continuare a giocare?
 2705:Per favore, aggiorna i tuoi driver video per migliorare le prestazioni.

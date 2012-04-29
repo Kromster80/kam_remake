@@ -454,3 +454,9 @@ MaxID:2705
 2697:Skuggkvalitet:
 2698:Låg
 2699:Hög
+2700:Hittar inte kartan: %s
+2701:Kartfilerna stämmer inte överens med värdens karta: %s
+2702:Hittar inte sparningen: %s
+2703:Sparfilen stämmer inte överens med värdens fil: %s
+2704:VARNING: Att fortsätta spela efter detta fel kan innebära fler krascher och instabiliteter. Fortsätta spela ändå?
+2705:Var god uppdatera dina grafikkortsdrivrutiner för bättre prestanda
