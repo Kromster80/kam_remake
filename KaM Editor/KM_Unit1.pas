@@ -238,22 +238,20 @@ type
 
   procedure BuildMiniMap;
 
-const
-MaxMapSize=1024;         //Max map dimension
-CellSize=40;            //Single cell size in pixels
-Overlap=0.25/256;       //UV position overlap
-MaxUndoSteps=32+1;      //Undo steps + 1 for last redo
-FPSLag=1;//33;              //lag between frames, 1000/FPSLag = max allowed FPS
-FPS_INTERVAL=1000;      //time between FPS measurements, more=accurate
+  const
+    MaxMapSize = 1024;      //Max map dimension
+    CellSize = 40;          //Single cell size in pixels
+    Overlap = 0.25 / 256;   //UV position overlap
+    MaxUndoSteps = 32 + 1;  //Undo steps + 1 for last redo
+    FPSLag = 1; //33;       //lag between frames, 1000/FPSLag = max allowed FPS
+    FPS_INTERVAL = 1000;    //time between FPS measurements, more=accurate
 
-MaxPlayers=6;           //Maximum players per map
-MaxHouses=255;          //Maximum houses one player can own
+    MaxPlayers = 6;   //Maximum players per map
+    MaxHouses = 255;  //Maximum houses one player can own
 
 var
   h_DC: HDC;
   h_RC: HGLRC;
-  LightPos:Array[0..3] of GLfloat = (-20,40,40,0);
-  LightDiff:Array[0..3] of GLfloat = (1,1,0.97,1);
   Text1,TextG,TextA:GLuint;
   Tree:array[1..256]of GLuint;     //Object textures
   House:array[1..32]of GLuint;     //Object textures
@@ -284,7 +282,7 @@ var
   MapXn2,MapYn2:integer; //keeps previous node position
   MapXc2,MapYc2:integer; //keeps previous cell position
 
-  
+
 
   CopyArea:array[1..2,1..2]of integer; //CopyRectangle
 
@@ -302,7 +300,7 @@ var
   LandCopy:array[1..MaxMapSize+1,1..MaxMapSize+1]of packed record
     Terrain,Height1,Rot,Obj:byte;
     TerType:shortint;
-  end;    
+  end;
 
   UndoStep:integer=1;
   RedoStep:integer=0;
@@ -495,10 +493,6 @@ begin
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
-  glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, @LightDiff);
   glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
   glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
   LoadTextureTGA(ExeDir+'Resource\Tiles1.tga', Text1);    // Load the Textures
@@ -512,7 +506,7 @@ procedure TForm1.RenderResize(Sender:TObject);
 begin
   if Panel1.Height=0 then Panel1.Height:=1;
   if Panel1.Width=0  then Panel1.Width :=1;        // Panel1.Height/Panel1.Width
-//  if not then exit;
+
   glViewport(0, 0, Panel1.Width, Panel1.Height);
   glMatrixMode(GL_PROJECTION);        // Change Matrix Mode to Projection
   glLoadIdentity;                   // Reset View
@@ -521,39 +515,35 @@ begin
   glMatrixMode(GL_MODELVIEW);         // Return to the modelview matrix
   glLoadIdentity;                   // Reset View
   ZoomChange(nil);
-end;      
+end;
 
 procedure TForm1.RenderFrame(Sender:TObject);
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen And The Depth Buffer
   glLoadIdentity;                                       // Reset The View
   glScalef(Zoom/10,Zoom/10,Zoom/10);
-  //glEnable(GL_LIGHTING);
-  glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);  //can make
   glTranslatef(-ScrollBar1.Position,-ScrollBar2.Position,0);
 
   glLineWidth(Zoom/4);
   glPointSize(Zoom/2);
 
-  glDisable(GL_LIGHTING);
+  RenderTerrainAndRoads;
 
-RenderTerrainAndRoads;
-    
-if ShowWires.Checked then RenderWires;
+  if ShowWires.Checked then RenderWires;
 
-RenderObjects;
-RenderBuildings;
-RenderCursorPosition(Form1.Pallete.ActivePage.Caption);
+  RenderObjects;
+  RenderBuildings;
+  RenderCursorPosition(Form1.Pallete.ActivePage.Caption);
 
-RenderArrows;
-{$IFDEF MSWindows}
-SwapBuffers(h_DC);
-{$ENDIF}
-{$IFDEF Unix}
-//Hopefully it swaps correct thing or something at all;
-glutSwapBuffers;
-//MessageBox(Form1.Handle,'SwapBuffers not working', 'Error', MB_OK);
-{$ENDIF}
+  RenderArrows;
+  {$IFDEF MSWindows}
+  SwapBuffers(h_DC);
+  {$ENDIF}
+  {$IFDEF Unix}
+  //Hopefully it swaps correct thing or something at all;
+  glutSwapBuffers;
+  //MessageBox(Form1.Handle,'SwapBuffers not working', 'Error', MB_OK);
+  {$ENDIF}
 end;
 
 
@@ -665,7 +655,7 @@ begin
     PlayerColors[j,2]*256+
     PlayerColors[j,3]*65536;
 
-  //Change aspect  
+  //Change aspect
   //(Form1.MiniMap.Height/Form1.MiniMap.Width)=0.92
   if Map.X>=Map.Y then begin
     Form1.MiniMap.Width:=208;
@@ -891,9 +881,9 @@ end;
 
 procedure TForm1.Pl1Click(Sender: TObject);
 begin
-s:=(TSpeedButton(Sender)).Name;
-Mission.ActivePlayer:=strtoint(s[3]);
-Label4.Caption:='Player: '+s[3];
+  s := (TSpeedButton(Sender)).Name;
+  Mission.ActivePlayer := strtoint(s[3]);
+  Label4.Caption := 'Player: ' + s[3];
 end;
 
 procedure TForm1.ObjPalleteDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
@@ -916,11 +906,12 @@ end;
 
 procedure TForm1.ObjPalleteClick(Sender: TObject);
 begin
-  ObjBlock.Down:=false;
-  ObjErase.Down:=false;
-  LandBrush:=ObjPalleteTable[ObjPallete.Row+1,ObjPallete.Col+1];
-  BrushMode:=bmObjects;
-  StatusBar1.Panels[3].Text:='Object: '+inttostr(LandBrush)+' '+inttostr(ObjIndexGFX[LandBrush])+' ('+inttostr(ObjIndex[LandBrush])+')';
+  ObjBlock.Down := false;
+  ObjErase.Down := false;
+  LandBrush := ObjPalleteTable[ObjPallete.Row + 1, ObjPallete.Col + 1];
+  BrushMode := bmObjects;
+  StatusBar1.Panels[3].Text := 'Object: ' + inttostr(LandBrush) + ' ' + inttostr(ObjIndexGFX[LandBrush]) + ' (' +
+    inttostr(ObjIndex[LandBrush]) + ')';
 end;
 
 
@@ -943,27 +934,33 @@ begin
   FormNewMap.Show;
 end;
 
-procedure TForm1.BrushTerrainTile(Y,X,Index:integer);
-var xx,yy,T:integer;
+procedure TForm1.BrushTerrainTile(Y, X, Index: integer);
+var
+  xx, yy, T: integer;
 begin
-if (Y<1)or(X<1) then exit;
-if (Y>Map.Y)or(X>Map.X) then exit;
-Land[Y,X].Terrain:=Index;
-xx:=EnsureRange(X,1,Map.X-1);
-yy:=EnsureRange(Y,1,Map.Y-1);
-Land2[yy,  xx].TerType:=Index;
-Land2[yy,  xx+1].TerType:=Index;
-Land2[yy+1,xx+1].TerType:=Index;
-Land2[yy+1,xx].TerType:=Index;
+  if (Y < 1) or (X < 1) then
+    exit;
+  if (Y > Map.Y) or (X > Map.X) then
+    exit;
+  Land[Y, X].Terrain := Index;
+  xx := EnsureRange(X, 1, Map.X - 1);
+  yy := EnsureRange(Y, 1, Map.Y - 1);
+  Land2[yy, xx].TerType := Index;
+  Land2[yy, xx + 1].TerType := Index;
+  Land2[yy + 1, xx + 1].TerType := Index;
+  Land2[yy + 1, xx].TerType := Index;
 
-    T:=abs(Combo[Index,Index,1]); //Pick a tile ID from table
-    if (CBRandomizeTiling.Checked) then
+  T := abs(Combo[Index, Index, 1]); //Pick a tile ID from table
+  if (CBRandomizeTiling.Checked) then
     case LandBrush of
-    1..17,21..23: if random(6)=1 then T:=RandomTiling[Index,random(RandomTiling[Index,0])+1]; // chance of 1/6
-    18..20,24..26: T:=RandomTiling[Index,random(RandomTiling[Index,0])+1]; //equal chance
+      1 .. 17, 21 .. 23:
+        if random(6) = 1 then
+          T := RandomTiling[Index, random(RandomTiling[Index, 0]) + 1]; // chance of 1/6
+      18 .. 20, 24 .. 26:
+        T := RandomTiling[Index, random(RandomTiling[Index, 0]) + 1]; //equal chance
     end;
-    Land[yy,xx].Terrain:=T;
-    Land[yy,xx].Rot:=random(4); //random direction for all plain tiles
+  Land[yy, xx].Terrain := T;
+  Land[yy, xx].Rot := random(4); //random direction for all plain tiles
 end;
 
 procedure TForm1.RebuildMap(X,Y,Rad:integer);
@@ -1035,44 +1032,52 @@ end;
 
 procedure TForm1.PalletePageChange(Sender: TObject);
 begin //
-if ActiveTileName<>nil then
-TSpeedButton(ActiveTileName).Down:=false; //Relese last pressed button
-LandBrush:=0;
-BrushMode:=bmNone;
-CopyAreaMenu.Checked:=false;
-PasteAreaMenu.Checked:=false;
+  if ActiveTileName <> nil then
+    TSpeedButton(ActiveTileName).Down := false; //Relese last pressed button
+  LandBrush := 0;
+  BrushMode := bmNone;
+  CopyAreaMenu.Checked := false;
+  PasteAreaMenu.Checked := false;
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
 {$IFDEF MSWindows}
-wglMakeCurrent(h_DC, 0);
-wglDeleteContext(h_RC);
+  wglMakeCurrent(h_DC, 0);
+  wglDeleteContext(h_RC);
 {$ENDIF}
 {$IFDEF Unix}
-//do not know how to fix them :(
-//glXMakeCurrent(display, wid, util_glctx);
-//glXDestroyContext(h_RC);
-  MessageBox(Form1.Handle,'glXMakeCurrent and glXDestroyContext not working', 'Error', MB_OK);
+  //do not know how to fix them :(
+  //glXMakeCurrent(display, wid, util_glctx);
+  //glXDestroyContext(h_RC);
+  MessageBox(Form1.Handle, 'glXMakeCurrent and glXDestroyContext not working', 'Error', MB_OK);
 {$ENDIF}
 end;
 
 procedure TForm1.ObjBlockClick(Sender: TObject);
 begin
-if not TSpeedButton(Sender).Down then begin LandBrush:=0; exit; end;
-ActiveTileName:=Sender;
-LandBrush:=30; //aka 42 block passage
-BrushMode:=bmObjects;
-StatusBar1.Panels[3].Text:='Object: Block Passage';
+  if not TSpeedButton(Sender).Down then
+  begin
+    LandBrush := 0;
+    exit;
+  end;
+  ActiveTileName := Sender;
+  LandBrush := 30; //aka 42 block passage
+  BrushMode := bmObjects;
+  StatusBar1.Panels[3].Text := 'Object: Block Passage';
 end;
 
 procedure TForm1.ObjEraseClick(Sender: TObject);
 begin
-if not TSpeedButton(Sender).Down then begin LandBrush:=0; exit; end;
-ActiveTileName:=Sender;
-LandBrush:=255;
-BrushMode:=bmObjects;
-StatusBar1.Panels[3].Text:='Object: Erase';
+  if not TSpeedButton(Sender).Down then
+  begin
+    LandBrush := 0;
+    exit;
+  end;
+  ActiveTileName := Sender;
+  LandBrush := 255;
+  BrushMode := bmObjects;
+  StatusBar1.Panels[3].Text := 'Object: Erase';
 end;
 
 procedure TForm1.HelpClick(Sender: TObject);
@@ -1080,13 +1085,13 @@ begin
   //Application.HelpJump('HelpContents');
 end;
 
-procedure TForm1.ImageMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TForm1.ImageMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 begin
-Shape2.Left:=TImage(Sender).Left + X div 32 * 32;
-Shape2.Top:=TImage(Sender).Top + Y div 32 * 32;
-LandBrush:=TileRemap[(Y div 32)*32+(X div 32)+1];
-BrushMode:=bmTiles;
-StatusBar1.Panels[3].Text:='Brush: '+inttostr(LandBrush);
+  Shape2.Left := TImage(Sender).Left + X div 32 * 32;
+  Shape2.Top := TImage(Sender).Top + Y div 32 * 32;
+  LandBrush := TileRemap[(Y div 32) * 32 + (X div 32) + 1];
+  BrushMode := bmTiles;
+  StatusBar1.Panels[3].Text := 'Brush: ' + inttostr(LandBrush);
 end;
 
 
@@ -1112,43 +1117,49 @@ begin TBZoomControl.Position:=20; end;
 procedure TForm1.UndoClick(Sender: TObject);
 var i,k,ID:integer;
 begin
-ID:=(UndoCounter-1) mod MaxUndoSteps + 1; //1..Max
-  for i:=1 to Map.Y do for k:=1 to Map.X do begin
-  Land[i,k].Terrain:=UndoLand[ID,i,k].Terrain;
-  Land2[i,k].Height:=UndoLand[ID,i,k].Height;
-  Land[i,k].Rot:=UndoLand[ID,i,k].Rot;
-  Land[i,k].Obj:=UndoLand[ID,i,k].Obj;
-  Land2[i,k].TerType:=UndoLand[ID,i,k].TerType;
-  Land2[i,k].Tiles:=UndoLand[ID,i,k].Tiles;
-  end;
-  UpdateLight(0,0);
-dec(UndoStep);
-dec(UndoCounter);
-Redo.Enabled:=true;
-inc(RedoStep);
-if UndoStep=1 then Undo.Enabled:=false; //last one is occupied by actual map. Needed for Redo functional
-BuildMiniMap;
+  ID := (UndoCounter - 1) mod MaxUndoSteps + 1; //1..Max
+  for i := 1 to Map.Y do
+    for k := 1 to Map.X do
+    begin
+      Land[i, k].Terrain := UndoLand[ID, i, k].Terrain;
+      Land2[i, k].Height := UndoLand[ID, i, k].Height;
+      Land[i, k].Rot := UndoLand[ID, i, k].Rot;
+      Land[i, k].Obj := UndoLand[ID, i, k].Obj;
+      Land2[i, k].TerType := UndoLand[ID, i, k].TerType;
+      Land2[i, k].Tiles := UndoLand[ID, i, k].Tiles;
+    end;
+  UpdateLight(0, 0);
+  dec(UndoStep);
+  dec(UndoCounter);
+  Redo.Enabled := true;
+  inc(RedoStep);
+  if UndoStep = 1 then
+    Undo.Enabled := false; //last one is occupied by actual map. Needed for Redo functional
+  BuildMiniMap;
 end;
 
 procedure TForm1.RedoClick(Sender: TObject);
 var i,k,ID:integer;
 begin
-inc(UndoCounter);
-ID:=(UndoCounter+1-1) mod MaxUndoSteps + 1; //1..Max
-  for i:=1 to Map.Y do for k:=1 to Map.X do begin
-  Land[i,k].Terrain:=UndoLand[ID,i,k].Terrain;
-  Land2[i,k].Height:=UndoLand[ID,i,k].Height;
-  Land[i,k].Rot:=UndoLand[ID,i,k].Rot;
-  Land[i,k].Obj:=UndoLand[ID,i,k].Obj;
-  Land2[i,k].TerType:=UndoLand[ID,i,k].TerType;
-  Land2[i,k].Tiles:=UndoLand[ID,i,k].Tiles;
-  end;
-  UpdateLight(0,0);
-inc(UndoStep);
-dec(RedoStep);
-if RedoStep=0 then Redo.Enabled:=false;
-Undo.Enabled:=true;
-BuildMiniMap;
+  inc(UndoCounter);
+  ID := (UndoCounter + 1 - 1) mod MaxUndoSteps + 1; //1..Max
+  for i := 1 to Map.Y do
+    for k := 1 to Map.X do
+    begin
+      Land[i, k].Terrain := UndoLand[ID, i, k].Terrain;
+      Land2[i, k].Height := UndoLand[ID, i, k].Height;
+      Land[i, k].Rot := UndoLand[ID, i, k].Rot;
+      Land[i, k].Obj := UndoLand[ID, i, k].Obj;
+      Land2[i, k].TerType := UndoLand[ID, i, k].TerType;
+      Land2[i, k].Tiles := UndoLand[ID, i, k].Tiles;
+    end;
+  UpdateLight(0, 0);
+  inc(UndoStep);
+  dec(RedoStep);
+  if RedoStep = 0 then
+    Redo.Enabled := false;
+  Undo.Enabled := true;
+  BuildMiniMap;
 end;
 
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -1160,28 +1171,35 @@ end;
 procedure TForm1.LoadReliefFromBMPClick(Sender: TObject);
 var bm:TBitmap; i,k:integer;
 begin
-if not RunOpenDialog(OpenDialog1,'','','Windows Bitmap files (*.bmp)|*.bmp') then exit;
-bm:=TBitmap.Create;
-bm.LoadFromFile(OpenDialog1.FileName);
-MakeUndoPoint(nil);
-if (Map.Y<>bm.Height)or(Map.X<>bm.Width) then ShowMessage('Bitmap size doesn''t match scenery size');
-for i:=1 to min(Map.Y-1,bm.Height) do for k:=1 to min(Map.X-1,bm.Width) do
-Land2[i,k].Height:=round(((bm.Canvas.Pixels[k,i] mod 256)+(bm.Canvas.Pixels[k,i] div 256 mod 256)+(bm.Canvas.Pixels[k,i] div 65536))/3/2.55);
-UpdateLight(0,0);
-BuildMiniMap;
+  if not RunOpenDialog(OpenDialog1, '', '', 'Windows Bitmap files (*.bmp)|*.bmp') then
+    exit;
+  bm := TBitmap.Create;
+  bm.LoadFromFile(OpenDialog1.filename);
+  MakeUndoPoint(nil);
+  if (Map.Y <> bm.Height) or (Map.X <> bm.Width) then
+    ShowMessage('Bitmap size doesn''t match scenery size');
+  for i := 1 to min(Map.Y - 1, bm.Height) do
+    for k := 1 to min(Map.X - 1, bm.Width) do
+      Land2[i, k].Height := round(((bm.Canvas.Pixels[k, i] mod 256) + (bm.Canvas.Pixels[k, i] div 256 mod 256) +
+        (bm.Canvas.Pixels[k, i] div 65536)) / 3 / 2.55);
+  UpdateLight(0, 0);
+  BuildMiniMap;
 end;
 
 procedure TForm1.MakeUndoPoint(Sender: TObject);
 var i,k,ID:integer;
 begin
-AnyChangesMade:=true;
-Undo.Enabled:=true;
-RedoStep:=0;
-Redo.Enabled:=false;
-inc(UndoCounter);
-if UndoStep<MaxUndoSteps then inc(UndoStep) else UndoStep:=MaxUndoSteps;
+  AnyChangesMade := true;
+  Undo.Enabled := true;
+  RedoStep := 0;
+  Redo.Enabled := false;
+  inc(UndoCounter);
+  if UndoStep < MaxUndoSteps then
+    inc(UndoStep)
+  else
+    UndoStep := MaxUndoSteps;
 
-ID:=(UndoCounter-1) mod MaxUndoSteps + 1; //1..Max
+  ID:=(UndoCounter-1) mod MaxUndoSteps + 1; //1..Max
 
   for i:=1 to Map.Y do for k:=1 to Map.X do begin
   UndoLand[ID,i,k].Terrain:=Land[i,k].Terrain;
@@ -1191,21 +1209,21 @@ ID:=(UndoCounter-1) mod MaxUndoSteps + 1; //1..Max
   UndoLand[ID,i,k].TerType:=Land2[i,k].TerType;
   UndoLand[ID,i,k].Tiles:=Land2[i,k].Tiles;
   end;
-end;              
+end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 //var i,k,ci:integer;
 begin
-{SaveMapButton.Enabled:=true;
-SaveMapMenu.Enabled:=true;
-AllowToSaveMap:=true;
-ci:=0;
-//Renders all objects into two lines
-//for k:=1 to 45 do begin Land[75,k*2].Obj:=ObjIndex[ci+1]; inc(ci); end;
-//for k:=1 to 45 do begin Land[79,k*2].Obj:=ObjIndex[ci+1]; inc(ci); end;
-//Render all tiles into block
-for i:=75 to 90 do for k:=75 to 90 do begin
-Land[i,k].Terrain:=ci; Land2[i,k].Height:=0; Land[i,k].Rot:=0; Land[i,k].Obj:=255; inc(ci); end;}
+  {SaveMapButton.Enabled:=true;
+  SaveMapMenu.Enabled:=true;
+  AllowToSaveMap:=true;
+  ci:=0;
+  //Renders all objects into two lines
+  //for k:=1 to 45 do begin Land[75,k*2].Obj:=ObjIndex[ci+1]; inc(ci); end;
+  //for k:=1 to 45 do begin Land[79,k*2].Obj:=ObjIndex[ci+1]; inc(ci); end;
+  //Render all tiles into block
+  for i:=75 to 90 do for k:=75 to 90 do begin
+  Land[i,k].Terrain:=ci; Land2[i,k].Height:=0; Land[i,k].Rot:=0; Land[i,k].Obj:=255; inc(ci); end;}
 end;
 
 procedure TForm1.OpenProClick(Sender: TObject);
@@ -1220,63 +1238,66 @@ end;
 procedure TForm1.OpenPro(filename:string);
 var i,k:integer; Head:record X,Y:integer; end;
 begin
-assignfile(f,filename); reset(f,1);
-blockread(f,Head,8);
-if (Head.X>MaxMapSize)or(Head.Y>MaxMapSize) then begin
+  assignfile(f,filename); reset(f,1);
+  blockread(f,Head,8);
+  if (Head.X>MaxMapSize)or(Head.Y>MaxMapSize) then begin
+    closefile(f);
+    MessageBox(Form1.Handle,'Too big map or not KaM map.', 'Error', MB_OK);
+    exit;
+  end;
+  reset(f,1);
+  blockread(f,Map,8);
+  for i:=1 to Map.Y do for k:=1 to Map.X do begin
+  blockread(f,Land[i,k].Terrain,1);
+  Land[i,k].Light:=16;
+  blockread(f,Land[i,k].Height1,1);
+  blockread(f,Land[i,k].Rot,1);
+  Land[i,k].x3:=0;
+  blockread(f,Land[i,k].Obj,1);
+  blockread(f,Land[i,k].Pass,1);
+  blockread(f,c,3);
+  Land[i,k].Pass:=255; //allow anything
+  Land[i,k].c1:=255;
+  Land[i,k].c2:=255;
+  Land[i,k].c3:=255;
+  Land[i,k].c4:=255;
+  Land[i,k].y1:=0;
+  Land[i,k].y2:=0;
+  Land[i,k].y3:=0;
+  Land[i,k].Border:=255;//
+  Land[i,k].y5:=255;
+  Land[i,k].y6:=205;
+  Land[i,k].y7:=0;
+  Land[i,k].y8:=0;
+  Land[i,k].y9:=0;
+  Land[i,k].y10:=0;
+  Land[i,k].y11:=0;
+  Land[i,k].y12:=0;
+  blockread(f,Land2[i,k].TerType,1);
+  blockread(f,c,7);
+  end;
   closefile(f);
-  MessageBox(Form1.Handle,'Too big map or not KaM map.', 'Error', MB_OK);
-  exit;
-end;
-reset(f,1);
-blockread(f,Map,8);
-for i:=1 to Map.Y do for k:=1 to Map.X do begin
-blockread(f,Land[i,k].Terrain,1);
-Land[i,k].Light:=16;
-blockread(f,Land[i,k].Height1,1);
-blockread(f,Land[i,k].Rot,1);
-Land[i,k].x3:=0;
-blockread(f,Land[i,k].Obj,1);
-blockread(f,Land[i,k].Pass,1);
-blockread(f,c,3);
-Land[i,k].Pass:=255; //allow anything
-Land[i,k].c1:=255;
-Land[i,k].c2:=255;
-Land[i,k].c3:=255;
-Land[i,k].c4:=255;
-Land[i,k].y1:=0;
-Land[i,k].y2:=0;
-Land[i,k].y3:=0;
-Land[i,k].Border:=255;//
-Land[i,k].y5:=255;
-Land[i,k].y6:=205;
-Land[i,k].y7:=0;
-Land[i,k].y8:=0;
-Land[i,k].y9:=0;
-Land[i,k].y10:=0;
-Land[i,k].y11:=0;
-Land[i,k].y12:=0;
-blockread(f,Land2[i,k].TerType,1);
-blockread(f,c,7);
-end;
-closefile(f);
 
-ResHead.x1:=0;
-ResHead.Allocated:=Map.X+Map.Y;
-ResHead.Qty1:=0;
-ResHead.Qty2:=ResHead.Qty1;
-if ResHead.Qty1>0 then
-ResHead.x5:=ResHead.Qty1-1
-else
-ResHead.x5:=0;
-ResHead.Len17:=17;
+  ResHead.x1:=0;
+  ResHead.Allocated:=Map.X+Map.Y;
+  ResHead.Qty1:=0;
+  ResHead.Qty2:=ResHead.Qty1;
+  if ResHead.Qty1>0 then
+  ResHead.x5:=ResHead.Qty1-1
+  else
+  ResHead.x5:=0;
+  ResHead.Len17:=17;
 
-for i:=1 to ResHead.Allocated do begin
-Res[i].X1:=-842150451; Res[i].Y1:=-842150451;
-Res[i].X2:=-842150451; Res[i].Y2:=-842150451;
-Res[i].Typ:=255;
-end;
+  for i := 1 to ResHead.Allocated do
+  begin
+    Res[i].x1 := -842150451;
+    Res[i].Y1 := -842150451;
+    Res[i].X2 := -842150451;
+    Res[i].Y2 := -842150451;
+    Res[i].Typ := 255;
+  end;
 
-PrepareLoadedMap(filename);
+  PrepareLoadedMap(filename);
 end;
 
 procedure TForm1.PrepareLoadedMap(filename:string);
@@ -1285,54 +1306,55 @@ begin
   UndoStep:=1;
   RedoStep:=0;
   UndoCounter:=0;
-Form1.Redo.Enabled:=false;
-Form1.Undo.Enabled:=false;
-BrushMode:=bmNone;
-CopyAreaMenu.Checked:=false;
-PasteAreaMenu.Checked:=false;
+  Form1.Redo.Enabled:=false;
+  Form1.Undo.Enabled:=false;
+  BrushMode:=bmNone;
+  CopyAreaMenu.Checked:=false;
+  PasteAreaMenu.Checked:=false;
 
-//Reset all mission data
-Mission:=TMission.Create;
+  //Reset all mission data
+  Mission:=TMission.Create;
 
-RemWrong:=false;
-for i:=1 to Map.Y do for k:=1 to Map.X do begin
-  Land2[i,k].Height:=Land[i,k].Height1;
+  RemWrong:=false;
+  for i:=1 to Map.Y do for k:=1 to Map.X do begin
+    Land2[i,k].Height:=Land[i,k].Height1;
 
-  if Land[i,k].Obj<>255 then
-  if ObjIndexInv[Land[i,k].Obj]=0 then begin
-    if not RemWrong then
-    begin
-      ErrS := 'Wrong object used at '+inttostr(k)+':'+inttostr(i)+' it will be removed'+eol+'Remove all wrong objects silently?';
-      if MessageBox(Form1.Handle,@(ErrS[1]),'Warning', mb_yesno)=IDYES then RemWrong:=true;
+    if Land[i,k].Obj<>255 then
+    if ObjIndexInv[Land[i,k].Obj]=0 then begin
+      if not RemWrong then
+      begin
+        ErrS := 'Wrong object used at '+inttostr(k)+':'+inttostr(i)+' it will be removed'+eol+'Remove all wrong objects silently?';
+        if MessageBox(Form1.Handle,@(ErrS[1]),'Warning', mb_yesno)=IDYES then RemWrong:=true;
+      end;
+      Land[i,k].Obj:=255
     end;
-    Land[i,k].Obj:=255
   end;
-end;
 
-UpdateLight(0,0);
+  UpdateLight(0,0);
 
-ScrollBar1.Max:=Map.X;
-ScrollBar2.Max:=Map.Y;
-ScrollBar1.Position:=Map.X div 2; //Set view to center of map
-ScrollBar2.Position:=Map.Y div 2; //Set view to center of map
-StatusBar1.Panels.Items[0].Text:='Map size: '+inttostr(Map.X)+' x '+inttostr(Map.Y);
+  ScrollBar1.Max:=Map.X;
+  ScrollBar2.Max:=Map.Y;
+  ScrollBar1.Position:=Map.X div 2; //Set view to center of map
+  ScrollBar2.Position:=Map.Y div 2; //Set view to center of map
+  StatusBar1.Panels.Items[0].Text:='Map size: '+inttostr(Map.X)+' x '+inttostr(Map.Y);
 
-BuildMiniMap;
-ZoomChange(nil);
-RenderResize(nil);
-Form1.Caption:='KaM Editor - '+filename;
+  BuildMiniMap;
+  ZoomChange(nil);
+  RenderResize(nil);
+  Form1.Caption:='KaM Editor - '+filename;
 end;
 
 procedure TForm1.BBClick(Sender: TObject);
 begin
-LandBrush:=0;
-BrushMode:=bmNone;
-if not TSpeedButton(Sender).Down then exit;
-ActiveTileName:=Sender;
-s:=(TSpeedButton(Sender)).Name;
-LandBrush:=strtoint(s[3]+s[4]);
-BrushMode:=bmHouses;
-end;                     
+  LandBrush := 0;
+  BrushMode := bmNone;
+  if not TSpeedButton(Sender).Down then
+    exit;
+  ActiveTileName := Sender;
+  s := (TSpeedButton(Sender)).Name;
+  LandBrush := strtoint(s[3] + s[4]);
+  BrushMode := bmHouses;
+end;
 
 procedure TForm1.SaveMapClick(Sender: TObject);
 var i,k:integer;
@@ -1361,7 +1383,7 @@ begin
   blockwrite(f,Land2[i,k].TerType,1);
 
   closefile(f);
-  
+
   Form1.Caption:='KaM Editor - '+SaveDialog1.FileName;
 end;
 
