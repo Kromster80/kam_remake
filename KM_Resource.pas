@@ -75,7 +75,7 @@ uses KromUtils, KM_Log, KM_Points;
 { TResource }
 constructor TResource.Create(aRender: TRender; aLS: TEvent; aLT: TStringEvent);
 begin
-  Inherited Create;
+  inherited Create;
   fDataState := dls_None;
   fLog.AppendLog('Resource loading state - None');
 
@@ -95,7 +95,7 @@ begin
   if fSprites <> nil then FreeAndNil(fSprites);
   if fTileset <> nil then FreeAndNil(fTileset);
   if fCursors <> nil then FreeAndNil(fCursors);
-  Inherited;
+  inherited;
 end;
 
 

@@ -2,7 +2,7 @@ unit TestKM_Campaigns;
 interface
 uses
   TestFramework, SysUtils, KM_Points, KM_Defaults, KM_CommonClasses, Classes, KromUtils,
-  KM_Campaigns, KM_Locales, KM_Log, KM_Pics, KM_TextLibrary, Math;
+  KM_Campaigns, KM_Locales, KM_Log, KM_Pics, KM_TextLibrary, KM_Resource, Math;
 
 type
   // Test methods for class TKMCampaign
@@ -46,10 +46,14 @@ procedure TestTKMCampaign.SetUp;
 begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   FKMCampaign := TKMCampaign.Create;
+  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
+  fResource := TResource.Create(nil, nil, nil);
 end;
 
 procedure TestTKMCampaign.TearDown;
 begin
+  fResource.Free;
+  fLog.Free;
   FKMCampaign.Free;
   FKMCampaign := nil;
 end;
@@ -114,12 +118,17 @@ begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\log.tmp');
   fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
+  fResource := TResource.Create(nil, nil, nil);
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
   FKMCampaignsCollection := TKMCampaignsCollection.Create;
 end;
 
 procedure TestTKMCampaignsCollection.TearDown;
 begin
+  fTextLibrary.Free;
+  fResource.Free;
+  fLocales.Free;
+  fLog.Free;
   FKMCampaignsCollection.Free;
   FKMCampaignsCollection := nil;
 end;
