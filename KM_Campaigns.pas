@@ -352,10 +352,13 @@ begin
 
   fFirstTextIndex := fTextLibrary.AppendCampaign(fPath + 'text.%s.libx');
 
-  SP := fResource.Sprites[rxGuiMain];
-  fFirstSpriteIndex := SP.RXData.Count;
-  SP.LoadFromRXXFile(fPath + 'images.rxx', SP.RXData.Count);
-  SP.MakeGFX(False, fFirstSpriteIndex);
+  if fResource.Sprites <> nil then
+  begin
+    SP := fResource.Sprites[rxGuiMain];
+    fFirstSpriteIndex := SP.RXData.Count;
+    SP.LoadFromRXXFile(fPath + 'images.rxx', SP.RXData.Count);
+    SP.MakeGFX(False, fFirstSpriteIndex);
+  end;
 
   fBackGroundPic.RX := rxGuiMain;
   fBackGroundPic.ID := fFirstSpriteIndex;
