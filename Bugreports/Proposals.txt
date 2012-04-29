@@ -12,3 +12,5 @@ Ideas that have not been decided. Should be moved to Bugslist.txt when a decisio
 	Separate script command for AI to repair its houses
 	New column in load/replays menus: Date/time (from file modified date?)
 	Add buttons to Replay to see FOW as each player or everything
+	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay)
+	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
