@@ -1806,12 +1806,12 @@ end;
 
 
 procedure TKMHouseStore.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
-var i:TResourceType;
+var R: TResourceType;
 begin
   case aResource of
-    rt_All:     for i:=Low(ResourceCount) to High(ResourceCount) do begin
-                  ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount, 0, High(Word));
-                  fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, i, aCount);
+    rt_All:     for R := Low(ResourceCount) to High(ResourceCount) do begin
+                  ResourceCount[R] := EnsureRange(ResourceCount[R]+aCount, 0, High(Word));
+                  fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, R, aCount);
                 end;
     WARE_MIN..
     WARE_MAX:   begin
@@ -1854,28 +1854,36 @@ begin
 end;
 
 
-procedure TKMHouseStore.ToggleAcceptFlag(aRes:TResourceType);
-var i:TResourceType; ApplyCheat:boolean;
+procedure TKMHouseStore.ToggleAcceptFlag(aRes: TResourceType);
+var
+  R: TResourceType;
+  ApplyCheat: Boolean;
 begin
   Assert(aRes in [WARE_MIN .. WARE_MAX]); //Dunno why thats happening sometimes..
 
-  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then begin
-    ApplyCheat := true;
+  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
+  begin
+    ApplyCheat := True;
 
-    for i:=Low(ResourceCount) to High(ResourceCount) do
-      ApplyCheat := ApplyCheat and (NotAcceptFlag[i] = boolean(CheatStorePattern[i]));
+    //Check the cheat pattern
+    for R := Low(ResourceCount) to High(ResourceCount) do
+      ApplyCheat := ApplyCheat and (NotAcceptFlag[R] = boolean(CheatStorePattern[R]));
 
-    if ApplyCheat and (aRes = rt_Arbalet) then begin
-      ResAddToIn(rt_All, 10);
-      exit;
-    end;
-    if ApplyCheat and (aRes = rt_Horse) and not fGame.MultiplayerMode then begin
-      fGame.RequestGameHold(gr_Win);
-      exit;
-    end;
-    if ApplyCheat and (aRes = rt_Fish) and not fGame.MultiplayerMode then begin
-      fGame.RequestGameHold(gr_Defeat);
-      exit;
+    if ApplyCheat then
+    case aRes of
+      rt_Arbalet: begin
+                    ResAddToIn(rt_All, 10);
+                    fPlayers[fOwner].Stats.GoodProduced(rt_All, 10);
+                    Exit;
+                  end;
+      rt_Horse:   begin
+                    fGame.RequestGameHold(gr_Win);
+                    Exit;
+                  end;
+      rt_Fish:    begin
+                    fGame.RequestGameHold(gr_Defeat);
+                    Exit;
+                  end;
     end;
   end;
 

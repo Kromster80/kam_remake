@@ -2137,6 +2137,7 @@ begin
   //Update army controls if required
   if Panel_Army.Visible then
   begin
+    Commander := TKMUnitWarrior(Sender).GetCommander;
     ImageStack_Army.SetCount(Commander.GetMemberCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1); //Count+commander, Columns
     Army_ActivateControls(Commander);
   end;
