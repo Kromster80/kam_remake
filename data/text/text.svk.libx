@@ -2,12 +2,12 @@
 MaxID:2705
 
 0:Píla
-1:Zlievaròa
+1:Zlievareò
 2:Zbrojáròa
 3:Uho¾ná baòa
 4:elezná baòa
 5:Zlatá baòa
-6:Rybárska chatka
+6:Rybárska chatrè
 7:Pekáreò
 8:Farma
 9:Dreváreò
@@ -18,7 +18,7 @@ MaxID:2705
 14:Kameòolom
 15:Zlatnícka dielòa
 16:Prasacia farma
-17:Strána ve
+17:Strána vea
 18:Radnica
 19:Vıroba zbraní
 20:Vıroba brnenia
@@ -172,7 +172,7 @@ MaxID:2705
 213:Prejs na miesto v správe
 214:Zatvori
 215:Zatvori okno
-216:|Váš kamenník nemôe zohna ïa¾šie zásoby kameòa.
+216:|Váš kamenník nemôe zohna ïalšie zásoby kameòa.
 217:|Zásoby uhlia sa zdajú by vyèerpané.
 218:|Vaše ily so eleznou rudou sú vyèerpané.
 219:|Vaše zlaté ily sú vyèerpané.
@@ -199,6 +199,10 @@ MaxID:2705
 433:Hlavnı vchod
 434:Hlboká modrá
 435:Zápas
+436:Krá¾ovské obydlie
+437:Aristokracia
+438:V prístave
+439:Jazda
 847:Kampaò 'The Shattered Kingdom'
 848:Kampaò 'The Peasants Rebellion'
 849:Hra samostatnú mapu
@@ -223,7 +227,7 @@ MaxID:2705
 868:Vyrobenıch zbraní:
 869:Vycvièenıch vojakov:
 870:Èas misie:
-1000:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||INGAME GRAPHICS:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||INGAME MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||CUTSCENES:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|ADDITIONAL 3D-MODELLING:|Niels Horstmann||POÏAKOVANIE:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer||1.60 PATCH|'SERVICE RELEASE 3'||COORDINATION:|Tommi Räsänen (Litude)||PROGRAMMING:|Lewin Hodgman|Stephen Hodgman|Tommi Räsänen (Litude)||MISSION EDITING:|Joost Bandsma (The Dark Lord)|Lewin Hodgman|Tommi Räsänen (Litude)||GRAPHICAL EDITING:|Harold Aptroot||SOUND EFFECTS:|Lewin Hodgman|Mitchell Hodgman||TEXTUAL FIXES:|Jakub Z. (kuba11100)|Jeroen Bos (JBSnorro)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|Lewin Hodgman|Tommi Räsänen (Litude)||TRANSLATING:|Alexander B. (AZA)|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|'Merchator'|'Nick'|'M4RC0'||BETA TESTING:|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Lars Stienen (Thunderwolf)|'Michailoff'
+1000:JOYMANIA ENTERTAINMENT||PROGRAMOVANIE:|Peter Ohlmann||GRAFIKA HRY:|Adam Sprys||NÁVRH MISIÍ:|Adam Sprys|Andre Quaß||EDITÁCIA ZVUKU A MIXOVANIE:|Tonstudio Mannheim||HUDBA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRÁCIE:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Schäfer||MANUÁL:|Peter Ohlmann|Uwe Schäfer||BETA TESTOVANIE:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||HERNİ REISÉR:|Achim Heidelauf||PUBLIKOVANÉ:|TopWare Interactive||VIDEA:||RÉIA:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||DABING:|Claus Boyen (Rozprávaè)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||ÚVODNÉ VIDEO:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||POÏAKOVANIE:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt||1.60 PATCH|'SERVICE RELEASE 3'||KOORDINÁCIA:|Tommi Räsänen (Litude)||PROGRAMOVANIE:|Lewin Hodgman|Stephen Hodgman|Tommi Räsänen (Litude)||ÚPRAVA MISIÍ:|Joost Bandsma (The Dark Lord)|Lewin Hodgman|Tommi Räsänen (Litude)||ÚPRAVA GRAFIKY:|Harold Aptroot||ZVUKOVÉ EFEKTY:|Lewin Hodgman|Mitchell Hodgman||OPRAVY TEXTOV:|Jakub Z. (kuba11100)|Jeroen Bos (JBSnorro)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|Lewin Hodgman|Tommi Räsänen (Litude)||PREKLAD:|Alexander B. (AZA)|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|'Merchator'|'Nick'|'M4RC0'||BETA TESTOVANIE:|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Lars Stienen (Thunderwolf)|'Michailoff'
 1686:Misia ukonèená
 1687:Vıuka stavby
 1688:Vıuka boja
@@ -325,6 +329,7 @@ MaxID:2705
 1787:Zoznam hráèov
 1788:Pozícia
 1789:Tım
+1790:Farba
 1791:Pripravenı
 1792:Ping
 1793:Preè
@@ -365,8 +370,8 @@ MaxID:2705
 1831:Lobby
 1832:Naèítavanie
 1833:Hra
-1834:Lokácia %d
-1835:Stavanie a bojovanie
+1834:Pozícia %d
+1835:Vıstavba a boj
 1836:Bojovanie
 1837:Nepripravenı
 1838:Pripravenı
@@ -384,8 +389,8 @@ MaxID:2705
 1850:OSTATNÉ ZVUKY:
 1851:Vyhodi hráèa
 1852:Hos bude môc vyhodi tyto hráèa za %d sekúnd
-1853:Hos teraz môe vyhodi tıchto hráèov
-1854:Hos (%s) sa odpojil
+1853:Hostite¾ teraz môe vyhodi tıchto hráèov
+1854:Hostite¾ (%s) sa odpojil
 1855:Spojenie zo serverem sa stratilo. Pokúšam sa opä naviaza spojenie...
 1856:Naozaj chcete skonèi?
 1857:Ste si istı, e chcete vyhodi tıchto hráèov z hry?
@@ -401,7 +406,7 @@ MaxID:2705
 1867:Vytvorenıch|produktov
 1868:Vyrobenıch|zbraní
 1869:Obchodovanie s tımto tovarom v tejto misii nie je moné.
-1870:sadi a stína
+1870:Sadi a stína
 1871:Iba stína
 1872:Hra u zaèala
 1873:Stavanie
@@ -429,12 +434,23 @@ MaxID:2705
 1896:Nová misia
 1897:Nastala chyba pri analıze súboru %s
 1898:Zatvorené
-1899:Správa vykonáva nastavenia
-1900:Naèítava prídavné súèasti
+1899:Hostite¾ vykonáva nastavnia hráèov
+1900:Naèítavam prídavné súèasti
 1901:Naèítavam jednotky
 1902:Naèítavam budovy
 1903:Naèítavam stromy
 1904:Naèítavam definície
 1905:Naèítavam prvky krajiny
+2687:Vytvori server
+2688:H¼ADA SERVER
+2689:Pripoji
+2690:H¾ada server pod¾a IP
 2691:Storno
 2692:Storno
+2693:Nie je podporované
+2694:Nie je podporované
+2695:Chyba: Meno hráèa nesmie by dlhšie ako %d znakov
+2696:Chyba: Meno hráèa obsahuje zakázané znaky
+2697:Kvalita tieòovania:
+2698:Nízka
+2699:Vysoká

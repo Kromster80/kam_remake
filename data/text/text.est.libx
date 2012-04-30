@@ -139,7 +139,7 @@ MaxID:2705
 180:Tühista hetkeline treening
 181:Vaja minev:
 182:Olek:
-183:Kohale toimetab:
+183:Valmistab:
 184:Maja|ehitamisel
 185:Hävita
 186:Kas oled kindel et soovid |lammutada seda maja?
@@ -255,7 +255,7 @@ MaxID:2705
 1711:Graafika:
 1712:Heledus
 1713:Täisekraan
-1714:Lisa
+1714:Kinnita
 1715:Keel:
 1716:Toimub laadimine... Palun oodake
 1717:Viga on esinenud!
@@ -318,7 +318,7 @@ MaxID:2705
 1776:Ping
 1777:Värskenda Serverite nimekirja
 1778:SERVERI DETAILID
-1779:Mängijate nimekiri:
+1779:Mängijad:
 1780:Aadress
 1781:Port
 1782:Tuba
@@ -326,8 +326,8 @@ MaxID:2705
 1784:Toimub ühendamine, palun oodake ...
 1785:Toimub teadete laadimine...
 1786:Uuendamine...
-1787:Mängijate nimekiri
-1788:Alustamise asukoht
+1787:Mängijad
+1788:Algne asukoht
 1789:Meeskond
 1790:Värv
 1791:Valmis

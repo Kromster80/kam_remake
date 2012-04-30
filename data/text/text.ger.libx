@@ -454,5 +454,9 @@ MaxID:2705
 2697:Schatten Qualität:
 2698:Niedrig
 2699:Hoch
+2700:Karte nicht gefunden: %s
+2701:Kartendateien stimmen nicht mit denen des Hosts überein: %s
+2702:Spielstand nicht gefunden: %s
+2703:Spielstanddatei stimmt nicht mit der des Hosts überein: %s
 2704:WARNUNG: Wenn du weiterspielst riskierst du weitere Abstürze oder Fehler. Willst du auf eigene Gefahr weiterspielen?
 2705:Bitte Grafikkartentreiber aktualisieren!

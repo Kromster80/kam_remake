@@ -3,28 +3,28 @@ MaxID:2705
 
 0:Scierie
 1:Fonderie
-2:Armurerie
+2:Forge d'Armes
 3:Mine de Charbon
 4:Mine de Fer
 5:Mine d'Or
-6:Pêcheur
+6:Hutte du Pêcheur
 7:Fournil
 8:Ferme
 9:Cabane du Bûcheron
-10:Fabrique d'Armures
+10:Forge d'Armures
 11:Entrepôt
-12:Ecuries
-13:Ecole
+12:Écuries
+13:École
 14:Carrière
-15:Hôtel de la Monnaie
+15:Atelier Monétaire
 16:Porcherie
 17:Tour de Guet
-18:Mairie
+18:Hôtel de Ville
 19:Atelier d'Armes
 20:Atelier d'Armures
 21:Château
 22:Moulin
-23:Fabrique de Catapultes
+23:Atelier de Siège
 24:Charcuterie
 25:Tannerie
 26:Salle d'Armes
@@ -52,7 +52,7 @@ MaxID:2705
 57:Armure Cuir
 58:Cuirasse
 59:Hache
-60:Epée
+60:Épée
 61:Lance
 62:Hallebarde
 63:Arc
@@ -62,7 +62,7 @@ MaxID:2705
 69:Serf
 70:Bûcheron
 71:Mineur
-72:Eleveur
+72:Éleveur
 73:Paysan
 74:Charpentier
 75:Boulanger
@@ -75,72 +75,72 @@ MaxID:2705
 82:Recrue
 83:Milicien
 84:Fantassin
-85:Epéiste
+85:Épéiste
 86:Archer
 87:Arbalétrier
 88:Lancier
 89:Hallebardier
-90:Cav. Légère
+90:Cavalerie Légère
 91:Chevalier
 92:Barbare
 93:Rebelle
-94:Assassin
+94:Manant
 95:Guerrier
 96:Vagabond
 97:Catapulte
-98:Balliste
-99:Les serfs livrent les|matières premières|nécessaires à vos|constructions.||Notez qu'il doit exister|une route reliant les|différents bâtiments.
+98:Baliste
+99:Les Serfs livrent les|matières premières|nécessaires à vos|constructions.||Notez qu'il doit exister|une route reliant les|différents bâtiments.
 100:Pour obtenir les troncs|d'arbres qui seront|utilisés par la Scierie,|il faut un Bûcheron.||Le Bûcheron assure|par ailleurs|le reboisement.
-101:Le Mineur extrait du|Charbon, minerais de Fer|et d'Or dans les Mines.
-102:A la Porcherie et aux|Ecuries, l'Eleveur|nourrit les bêtes|avec du Blé.
+101:Le Mineur extrait du|Charbon, des minerais de|Fer et d'Or dans les Mines.
+102:À la Porcherie et aux|Écuries, l'Éleveur|nourrit les bêtes|avec du Blé.
 103:Le Paysan sème et récolte|le Blé à la Ferme.||Il fait aussi du Vin|dans le Chai.
-104:Le Charpentier travaille|à la Scierie, à l'Atelier| d'Armement et à|l'Atelier d'Armures.
+104:Le Charpentier travaille|à la Scierie, à l'Atelier|d'Armement et à|l'Atelier d'Armures.||Il construit également des|Catapultes et des Balistes|dans l'Atelier de Siège.
 105:Le Boulanger cuit|du pain au Fournil.||Il fait aussi de la|Farine au Moulin.
 106:Le Charcutier fait|des Saucisses à la|Charcuterie et du Cuir|à la Tannerie.
-107:Le Pêcheur pêche |des poissons dans |les coins d'eaux voisins.
-108:Le Maçon construit des|bâtiments et des routes.|Sélectionnez simplement l'emplacement que vous| avez choisi et il exécutera|automatiquement|vos ordres.||Il répare également les|bâtiments endommagés.
-109:Afin de fournir| suffisamment de| Pierres à vos Maçons|pour construire des|routes et des bâtiments,|le Tailleur de Pierres|extrait des blocs de pierres|et les taille.
-110:Les armures et les armes|lourdes sont fabriquées|par les Forgerons à la|Fabrique d'Armures et|à l'Armurerie.
-111:Le Métallurgiste produit| des Caisses d'Or et des| barres de Fer à partir| du minerai extrait dans| les Mines d'Or et de Fer.
+107:Le Pêcheur pêche du|poisson dans les eaux|environnantes.
+108:Le Maçon construit des|bâtiments et des routes.|Sélectionnez simplement|l'emplacement que vous|avez choisi et il exécutera|automatiquement|vos ordres.||Il répare également les|bâtiments endommagés.
+109:Afin de fournir|suffisamment de|Pierres à vos Maçons|pour construire des|routes et des bâtiments,|le Tailleur de Pierres|extrait des blocs de pierres|et les taille.
+110:Les armures et les armes|lourdes sont fabriquées|par les Forgerons à la|Forge d'Armures et|à la Forge d'Armes.
+111:Le Métallurgiste produit|des Caisses d'Or et des|barres de Fer à partir|du minerai extrait dans|les Mines d'Or et de Fer.
 112:Dans l'enceinte du|Château, la Recrue est|équipée et entraînée.||Elle se poste également|dans la Tour de Guet.
-147:Bâtiments
+147:Sélection des Bâtiments
 148:Répartition des Matières Premières
 149:Statistiques
 150:Options
 151:Retour
-152:Choisir|Bâtiment
-153:Répartition|Matières|Premières
+152:Sélection d'un|Bâtiment
+153:Répartition|des Matières|Premières
 154:Statistiques
 155:Options
 156:Charger Partie
 157:Enregistrer Partie
-158:Etes-vous sûr(e)|de vouloir quitter|cette mission ?
-159:Quitter mission
+158:Êtes-vous sûr(e)|de vouloir quitter|cette mission ?
+159:Quitter la Mission
 160:Retour
 161:Paramètres
-162:Quitter mission
+162:Quitter la Mission
 163:Effets Sonores
-164:Régler volume
+164:Régler le volume
 165:Musique
-166:Musique on/off
+166:Musique Oui/Non
 167:Sauvegarde Auto.
-168:Lecteur de CD
+168:Lecteur de Musique
 169:Morceau précédent
 170:Morceau suivant
 171:Démolir
 172:Démolition/Annulation
-173:Construire Route
-174:Route
+173:Construire une Route
+174:Construire des Routes
 175:Labourer un Champ
-176:Champ
-177:Planter Vigne
-178:Vigne
+176:Labourer des Champs
+177:Planter une Vigne
+178:Planter des Vignes
 179:Annuler
 180:Annuler l'apprentissage en cours
 181:Besoins :
-182:ETAT
-183:Produit
-184:Bâtiment en|construction.
+182:État :
+183:Produits
+184:Bâtiment en|construction
 185:Démolir
 186:Voulez-vous vraiment|démolir ce bâtiment ?
 187:Démolir le bâtiment sélectionné
@@ -148,24 +148,24 @@ MaxID:2705
 189:Augmenter le volume de la commande
 190:Unité précédente
 191:Unité suivante
-192:Former Unité sélectionnée
+192:Équiper l'unité sélectionnée
 193:Catégorie suivante
 194:Catégorie précédente
 195:Ajouter à la liste
 196:Coût :
-197:Réparation du bâtiment oui/non
+197:Réparation du bâtiment Oui/Non
 198:Bâtiment indisponible actuellement
 199:Santé
 200:Pivoter à gauche
 201:Pivoter à droite
-202:Attaquer  ('A')
-203:Envoyer Troupes  ('D')
+202:Attaquer ('a')
+203:Envoyer les Troupes ('d')
 204:Ravitailler les Troupes
-205:Charger
-206:Changer Formation : Ajouter un rang
-207:Changer Formation : Enlever un rang
-208:Sélectionner|l'autre|unité
-209:Quitter
+205:Attaquer : Charger !
+206:Changer la Formation : Ajouter un rang
+207:Changer la Formation : Enlever un rang
+208:Sélectionner|l'autre unité
+209:Annuler
 210:Supprimer
 211:Supprimer ce message
 212:Centrer
@@ -177,33 +177,37 @@ MaxID:2705
 218:|Vos gisements de fer sont épuisés.
 219:|Vos gisements d'or sont épuisés.
 220:|Ce bâtiment est inoccupé.
-221:|Ces troupes sont affamées, vous devriez les|nourrir très rapidement !
-222:PAUSE
-223:Régler volume
-224:Livraison de marchandises oui/non
-418:Esprit
-419:Animation
-420:Cors du Moyen-Age
-421:Printemps
-422:Luth
-423:Mercenaire
-424:La Princesse
-425:La Reine
-426:La Place du Marché
-427:Le Champ de Bataille
-428:Danse à la Cour
-429:L'Armée
-430:Au Château
+221:|Ces troupes sont affamées, vous devriez les nourrir très rapidement !
+222:Pause
+223:Régler le volume
+224:Livraison de marchandises Oui/Non
+418:Spirit
+419:Busy
+420:Middle Ages Horn
+421:Spring
+422:Lute
+423:Mercenary
+424:The Princess
+425:The Queen
+426:In the Marketplace
+427:On the Battlefield
+428:Court Dance
+429:The Army
+430:In the Castle
 431:Fanfares
-432:A la Cour
+432:At Court
 433:Entree
-434:Bleu Profond
-435:Lutte
+434:Deep Blue
+435:Struggle
+436:Royal Quarters
+437:Aristocracy
+438:At the Harbor
+439:Journey
 847:Campagne 'Un Royaume en Péril'
 848:Campagne 'La Révolte des Paysans'
 849:Sélectionner une Mission
 850:Débuter !
-851:Retour
+851:Retour au Menu
 852:Charger une Partie Enregistrée
 853:Multijoueur
 854:Options
@@ -223,12 +227,12 @@ MaxID:2705
 868:Armes fabriquées :
 869:Soldats entraînés :
 870:Mission accomplie en :
-1000:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES DU JEU :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre Quaß||ÉDITION ET MIXAGE DU SON :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schäfer||CONCEPTION DU MANUEL :|Peter Ohlmann|Uwe Schäfer||BETA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRECTEUR DU JEU :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINEMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATIONS :|Uwe Schäfer|Christian Bigalk||MODÉLISATION 3D :|Niels Horstmann||REMERCIMENTS PARTICULIERS :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+1000:JOYMANIA ENTERTAINMENT||PROGRAMMATION :|Peter Ohlmann||GRAPHISMES :|Adam Sprys||CONCEPTION DES NIVEAUX :|Adam Sprys|Andre Quaß||MIXAGE ET ÉDITION AUDIO :|Tonstudio Mannheim||MUSIQUE D'AMBIANCE :|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS :|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCTEUR :|Uwe Schäfer||MANUEL :|Peter Ohlmann|Uwe Schäfer||BÊTA TEST :|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||RESPONSABLE DU DÉVELOPPEMENT :|Achim Heidelauf||PUBLICATION :|TopWare Interactive||CINÉMATIQUES :||DIRECTION :|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOIX :|Claus Boyen (Narrateur)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK :|Boleslaw Kasza|Adam Sprys||ANIMATION :|Uwe Schäfer|Christian Bigalk|Modélisation 3D Additionnelle :|Niels Horstmann||REMERCIEMENTS PARTICULIERS À :|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
 1686:Mission Annulée
 1687:Tutoriel de Construction
 1688:Tutoriel de Bataille
 1689:Joueur Solo
-1690:Éditeur de cartes
+1690:Éditeur de Cartes
 1691:Voir le Dernier Replay
 1692:Débuter !
 1693:Titre
@@ -238,12 +242,12 @@ MaxID:2705
 1697:Condition de Défaite : %s
 1698:Alliés :
 1699:Ennemis :
-1701:Taille de la carte :
+1701:Taille de la Carte :
 1702:Largeur
 1703:Hauteur
-1704:Créer une Mission
-1705:Missions Existantes :
-1706:Charger une Mission Existante
+1704:Créer une Carte
+1705:Cartes Existantes :
+1706:Charger une Carte Existante
 1707:Contrôles :
 1708:Jouabilité :
 1709:Effets Sonores :
@@ -254,14 +258,14 @@ MaxID:2705
 1714:Appliquer
 1715:Langage :
 1716:Chargement... Veuillez patienter
-1717:Une Erreur s'est Produite !
-1718:Chargement du nouveau local...
+1717:Une Erreur S'est Produite !
+1718:Chargement du nouveau local
 1719:Liste des Sauvegardes :
 1720:Nom du Fichier
 1721:Description
 1722:Charger
 1723:Supprimer
-1724:Êtes-vous sûr(e) de vouloir supprimer ce fichier ?
+1724:Êtes-vous sûr(e) de vouloir supprimer cette sauvegarde ?
 1725:Supprimer
 1726:Annuler
 1728:Vous avez Gagné !
@@ -275,39 +279,39 @@ MaxID:2705
 1736:Quitter au Menu
 1737:Non disponible
 1738:Appuyer sur %s pour reprendre le jeu
-1739:Pour l'Alliance
+1739:Pour l'alliance
 1740:Infos sur les joueurs
 1741:Chat
-1742:Fichier déjà existant
+1742:Save. déjà existante
 1743:Écraser
 1744:Enregistrer
 1745:Charger
 1746:Une erreur s'est produite durant la partie.
-1747:Veuillez envoyer le fichier %s se trouvant dans le dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent se trouver dans le fichier Readme. Merci beaucoup de votre petite aide!
+1747:Veuillez envoyer le fichier %s se trouvant dans votre dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent se trouver dans le fichier Readme. Merci beaucoup pour votre petite aide !
 1748:Une ancienne version d'OpenGL a été détectée, le jeu peut être lent et/ou avec des défauts graphiques.
 1749:Erreur réseau :
-1750:Erreur : Le nom du joueur doit contenir au moins un caractère
-1751:Connexion échoué : %s
-1752:Vous vous êtes déconnecté
+1750:Erreur : Le nom du joueur doit contenir au moins un caractère.
+1751:Connexion échouée : %s.
+1752:Vous vous êtes déconnecté.
 1753:Mission %d
-1754:La Hutte de votre Pêcheur est trop éloignée de l'eau.
-1755:Votre Pêcheur ne peut plus pêcher dans les eaux environnantes..
+1754:|La Hutte de votre Pêcheur est trop éloignée de l'eau.
+1755:|Votre Pêcheur ne peut plus pêcher de poissons dans les eaux environnantes.
 1757:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
 1758:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
-1759:Échanger x%d
-1760:Contre x%d
-1761:Édition du terrain
-1762:Planification du village
-1763:Scripts visuels
-1764:Scripts globaux
+1759:Échanger : (x%d)
+1760:Contre : (x%d)
+1761:Édition du Terrain
+1762:Planification du Village
+1763:Scripts Visuels
+1764:Scripts Globaux
 1765:Menu
 1766:Status :
-1767:Nom du Joueur
+1767:Nom du Joueur :
 1768:CRÉER UN SERVEUR
-1769:Nom
-1770:Port
-1771:Créer un Server Local
-1772:Créer un Server en Réseau
+1769:Nom :
+1770:Port :
+1771:Créer un Serveur Local
+1772:Créer un Serveur Réseau
 1773:Nom du Serveur
 1774:État
 1775:Joueurs
@@ -315,16 +319,17 @@ MaxID:2705
 1777:Rafraichir la Liste des Serveurs
 1778:DÉTAILS DU SERVEUR
 1779:Liste des Joueurs :
-1780:Adresse
-1781:Port
-1782:Salle
+1780:Adresse :
+1781:Port :
+1782:Salle :
 1783:Joindre
 1784:Connexion, veuillez patienter...
 1785:Chargement des annonces...
 1786:Rafraichissement...
 1787:Liste des Joueurs
-1788:Positions de Départ
+1788:Position de Départ
 1789:Alliance
+1790:Couleur
 1791:Prêt
 1792:Ping
 1793:Éjecter
@@ -334,13 +339,13 @@ MaxID:2705
 1797:Aléatoire
 1799:Aucune
 1802:Envoyer un Message :
-1803:Type de Mission
-1804:Mission Solo
+1803:Type de Carte :
+1804:Carte Solo
 1805:Partie Enregistrée
-1806:Sélect. une mission...
+1806:Sélect. une carte...
 1807:Sélect. une sauvegarde...
-1808:Informations sur la Mission :
-1809:Nombre de Joueurs : %d
+1808:Informations sur la Carte :
+1809:Joueurs : %d
 1810:Mode :
 1811:Conditions :
 1812:Taille :
@@ -349,15 +354,15 @@ MaxID:2705
 1815:Débuter !
 1816:Attente des Joueurs :
 1817:Crédits de KaM Remake
-1818:Crédits originaux de Knights & Merchants
+1818:Crédits Originaux de Knights & Merchants
 1819:PROGRAMMATION :
 1820:PROGRAMMATION ADDITIONNELLE :
 1821:GRAPHISMES ADDITIONNELS :
 1822:TRADUCTIONS ADDITIONNELLES :
-1823:REMERCIEMENTS PARTICULIERS :
-1824:Missions Multijoueur
-1825:Missions Solo
-1826:Vitesse de défilement.
+1823:REMERCIMENTS SPÉCIAUX À :
+1824:Cartes Multijoueur
+1825:Cartes Solo
+1826:Vitesse du Scroll.
 1827:Aucun serveur n'a été trouvé
 1828:Lecture aléatoire
 1829:Informations sur la Partie :
@@ -366,29 +371,29 @@ MaxID:2705
 1832:Chargement
 1833:Partie
 1834:Position %d
-1835:Troupes et Bâtiments
-1836:Troupes
+1835:Développement
+1836:Bataille
 1837:Non Prêt
 1838:Prêt
-1839:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler
-1840:Erreur : Le chargement de la mission a échoué ou aucune mission n'a été sélectionnée
-1841:Impossible de débuter : %s
-1842:Tout le monde n'est pas prêt pour débuter
-1843:Le nombre de joueurs dépasse la limite de la mission
+1839:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler.
+1840:Erreur : Le chargement de la carte a échoué ou aucune carte n'a été sélectionnée.
+1841:Impossible de débuter : %s.
+1842:Tout le monde n'est pas prêt pour débuter.
+1843:Le nombre de joueurs dépasse la limite de la carte.
 1844:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
-1845:Le Serveur vous a attribué les droits d'hebergement
+1845:Le Serveur vous a attribué les droits d'hébergement.
 1846:Augmenter le nombre d'échanges
 1847:Réduire le nombre d'échanges
 1848:Enregistrement de la partie...
 1849:%s a perdu !
 1850:EFFETS SONORES ADDITIONNELS :
 1851:Abandonner les Joueurs
-1852:L'hôte sera autorisé à abandonner ces joueurs après %d secondes.
-1853:L'hôte est désormais autorisé à abandonner ces joueurs.
-1854:L'hôte (%s) a quitté
+1852:L'hôte sera autorisé à abandonner les joueurs après %d secondes.
+1853:L'hôte est désormais autorisé à abandonner les joueurs.
+1854:L'hôte (%s) a quitté.
 1855:La connexion vers le serveur a été perdue. Tentative de reconnexion...
 1856:Êtes-vous sûr(e) de vouloir quitter ?
-1857:Êtes-vous sûr(e) de vouloir définitivement abandonner ces joueurs ?
+1857:Êtes-vous sûr(e) de vouloir abandonner les joueurs ?
 1858:Annuler
 1859:Unités|formées
 1860:Unités|perdues
@@ -404,10 +409,10 @@ MaxID:2705
 1870:Planter et Abattre
 1871:Abattre Seulement
 1872:La partie a débuté !
-1873:Construction
+1873:Développement
 1874:Bataille
-1875:Mission Coopérative
-1876:Vous n'êtes pas autorisé à faire cela pendant le temps de paix
+1875:Carte Coopérative
+1876:Vous n'êtes pas autorisé à faire cela pendant le temps de paix.
 1877:Temps de Paix restant : %s
 1878:Le temps de paix est terminé. À vos armes !
 1879:Temps de Jeu :|%s
@@ -416,11 +421,11 @@ MaxID:2705
 1882:L
 1883:S
 1884:Halte ('%s')
-1885:Regrouper les unités ('%s')
-1886:Scinder les unités ('%s')
+1885:Regrouper les Unités ('%s')
+1886:Scinder les Unités ('%s')
 1887:Lecteur de Replay
 1888:Voir le Replay
-1889:Temps de Paix (min.)
+1889:Temps de Paix (minutes)
 1890:Format non supporté %s
 1891:Version non supportée %s
 1893:initialisation
@@ -436,7 +441,22 @@ MaxID:2705
 1903:arbres
 1904:définitions
 1905:tileset
+2687:Créer un Serveur
+2688:TROUVER UN SERVEUR
+2689:Connexion
+2690:Trouver un Serveur par IP
 2691:Annuler
 2692:Annuler
-2704:ATTENTION: Continuer à jouer après cette erreur peut causer des crashes et des instabilités supplémentaires. Voulez-vous prendre ce risque et continuer à jouer?
-2705:Veuillez mettre à jour vos pilotes graphiques pour avoir une meilleure performance.
+2693:Non supportée
+2694:Non supporté
+2695:Erreur : Le nom du joueur ne peut pas contenir plus de %d caractères.
+2696:Erreur : Le nom du joueur ne peut pas contenir de caractères illégaux.
+2697:Qualité de l'Ombre :
+2698:Basse
+2699:Haute
+2700:Carte non trouvée : %s
+2701:Les fichiers de la mission ne sont pas les mêmes que ceux de l'hôte : %s
+2702:Sauvegarde non trouvée : %s
+2703:Le fichier de sauvegarde n'est pas le même que celui de l'hôte : %s
+2704:ATTENTION : Continuer à jouer après cette erreur peut causer crashs et instabilités.\nVoulez-vous prendre ce risque est continuer à jouer ?
+2705:Veuillez mettre à jour votre pilote graphique pour obtenir une meilleure performance.
