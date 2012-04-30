@@ -85,8 +85,13 @@ function AddMap($aMapName, $aPlayerCount, $aRev)
 {
 	if(($aPlayerCount > 0) && ($aPlayerCount <= 8))
 	{
-		$aMapName = str_replace("|", "", $aMapName); //don't allow seperator
 		$FileName = GetMapFileName($aRev);
+
+		//Mutex lock a .mutex file
+		$lock = fopen($FileName.'.mutex', 'w') or die("can't open file");
+		flock($lock, LOCK_EX);
+
+		$aMapName = str_replace("|", "", $aMapName); //don't allow seperator
 		if(file_exists($FileName))
 		{
 			$Output = "";
@@ -118,6 +123,7 @@ function AddMap($aMapName, $aPlayerCount, $aRev)
 		$fh = fopen($FileName, 'w') or die("can't open file");
 		fwrite($fh, $Output);
 		fclose($fh);
+		fclose($lock);
 	}
 }
 
@@ -299,6 +305,10 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
 	//Only record statistics about the main revision (for now)
 	if (($DO_STATS) && ($aRev == $MAIN_VERSION)) StatsUpdate($aName,$aPlayerCount);
 	
+	//Mutex lock a .mutex file
+	$lock = fopen($DATA_FILE.'.mutex', 'w') or die("can't open file");
+	flock($lock, LOCK_EX);
+	
 	if(file_exists($DATA_FILE))
 	{
 		$Lines = file($DATA_FILE);
@@ -328,6 +338,7 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
 	$fh = fopen($DATA_FILE, 'w') or die("can't open file");
 	fwrite($fh, $Servers);
 	fclose($fh);
+	fclose($lock);
 	return 'Success';
 }
 

@@ -594,6 +594,8 @@ var
   U,C,W: TKMUnit; //CurrentUnit, BestWarrior, BestCitizen
   P: TKMPoint;
 begin
+  //todo: Ideally we should chose a random unit out of the ones available. Currently archers facing
+  //      one way will always chose the closer unit, archers facing the other way choose the furtherst unit.
   W := nil;
   C := nil;
 
