@@ -893,6 +893,7 @@ type
     end;
     fMaxLength: Word;
     fMaxValue: Word;
+    procedure UpdateMaxValue;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
@@ -3938,6 +3939,18 @@ begin
 end;
 
 
+procedure TKMGraph.UpdateMaxValue;
+var I, K: Integer;
+begin
+  fMaxValue := 0;
+  for I := 0 to fCount - 1 do
+    if fLines[I].Visible then
+      for K := 0 to fMaxLength - 1 do
+        if fLines[I].Values[K] > fMaxValue then
+          fMaxValue := fLines[I].Values[K];
+end;
+
+
 procedure TKMGraph.MouseUp(X, Y: Integer; Shift: TShiftState; Button: TMouseButton);
 var I: Integer;
 begin
@@ -3949,6 +3962,8 @@ begin
   if not InRange(I, 0, fCount - 1) then Exit;
 
   fLines[I].Visible := not fLines[I].Visible;
+
+  UpdateMaxValue;
 end;
 
 
