@@ -218,9 +218,9 @@ end;
 
 procedure TGameInputProcess_Multi.AdjustDelay;
 begin
-  //Half of the maximum round trip is a good guess for delay.
-  //This could be improved by averaging the latency rather than using the instantanious measurement
-  SetDelay( Ceil((fNetworking.NetPlayers.GetMaxHighestRoundTripLatency+20)/200) );
+  //Half of the maximum round trip is a good guess for delay. +60 is our safety net to account
+  //for processing the packet
+  SetDelay( Ceil((fNetworking.NetPlayers.GetMaxHighestRoundTripLatency+60)/200) );
 end;
 
 

@@ -210,7 +210,9 @@ begin
   fItems[i].fArc    := aArc;
   fItems[i].fOwner  := aOwner;
   fItems[i].fAim    := aAim;
-  fItems[i].fTarget := aEnd;
+  //Don't allow projectile to land off map, (we use fTaret for hit tests, FOW, etc.) but on borders is fine
+  fItems[i].fTarget.X := EnsureRange(aEnd.X, 0, fTerrain.MapX-0.01);
+  fItems[i].fTarget.Y := EnsureRange(aEnd.Y, 0, fTerrain.MapY-0.01);
   fItems[i].fShotFrom := aStart;
 
   fItems[i].fScreenStart.X := aStart.X + OffsetX[aProjType];
@@ -243,7 +245,7 @@ begin
 
         //Will hit the target in X..X-1 ticks (this ensures it only happens once)
         //Can't use InRange cos it might get called twice due to <= X <= comparison
-        if MyPlayer.FogOfWar.CheckTileRevelation(Round(fTarget.X), Round(fTarget.Y), true) >= 255 then
+        if MyPlayer.FogOfWar.CheckRevelation(fTarget, true) >= 255 then
           if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks-1)*fSpeed) then
             fSoundLib.Play(ProjectileHitSounds[fType], fTarget);
 
