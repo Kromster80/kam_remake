@@ -1705,9 +1705,8 @@ begin
 
   if aID = 1 then begin
     SetState(hst_Idle);
-    if UnitWIP<>nil then begin
-      fTerrain.UnitAdd(GetEntrance, UnitWIP); //We removed it on StartTraining and must restore so CloseUnit properly removes it
-      TKMUnit(UnitWIP).CloseUnit; //Make sure unit started training
+    if UnitWIP<>nil then begin //Make sure unit started training
+      TKMUnit(UnitWIP).CloseUnit(False); //Don't remove tile usage, we are inside the school
       fHideOneGold := false;
     end;
     UnitWIP := nil;
