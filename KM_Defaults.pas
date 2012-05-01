@@ -170,12 +170,9 @@ const
 {Cursors}
 type
   TCursorMode = ( cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
-                  cm_Height, cm_Tiles, cm_Objects, cm_Units); //MapEditor
+                  cm_Elevate, cm_Equalize, cm_Tiles, cm_Objects, cm_Units); //MapEditor
 
 const
-  MAPED_HEIGHT_CIRCLE = 0;
-  MAPED_HEIGHT_SQUARE = 1;
-
   MAPED_TILES_COLS = 6;
   MAPED_TILES_ROWS = 8;
 
@@ -730,8 +727,12 @@ var
     Cell:TKMPoint;      //Cursor position cell
     SState:TShiftState; //Thats actually used to see if Left or Right mouse button is pressed
     Mode:TCursorMode;   //Modes used in game (building, unit, road, etc..)
-    Tag1:byte;          //Tag to know building type, unit type, brush size
-    Tag2:byte;          //Additional tag for MapEd (brush shape)
+    Tag1:byte;    //Tag to know building type, unit type etc.
+
+    MapEdDir: Byte;
+    MapEdShape: (hsCircle, hsSquare);
+    MapEdSlope: Byte;
+    MapEdSize: Byte;
   end;
 
 

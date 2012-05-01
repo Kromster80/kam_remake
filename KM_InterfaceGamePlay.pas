@@ -1831,7 +1831,7 @@ begin
   //Reset cursor and see if it needs to be changed
   GameCursor.Mode := cm_None;
   GameCursor.Tag1 := 0;
-  GameCursor.Tag2 := 0;
+
   Label_BuildCost_Wood.Caption  := '-';
   Label_BuildCost_Stone.Caption := '-';
   Label_Build.Caption := '';

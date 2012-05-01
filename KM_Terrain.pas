@@ -174,7 +174,7 @@ type
     function HeightAt(inX, inY: Single): Single; overload;
     function HeightAt(aPoint: TKMPointF): Single; overload;
 
-    procedure MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
+    procedure MapEdHeight;
     procedure MapEdTile(aLoc:TKMPoint; aTile,aRotation:byte);
 
     procedure IncAnimStep; //Lite-weight UpdateState for MapEd
@@ -2444,26 +2444,56 @@ begin
 end;
 
 
-procedure TTerrain.MapEdHeight(aLoc: TKMPointF; aSize, aShape: Byte; aRaise: Boolean);
+procedure TTerrain.MapEdHeight();
 var
   I, K: Integer;
   Rad, Slope: Byte;
   Tmp: Single;
   R: TKMRect;
+  aLoc : TKMPointF;
+  aRaise: Boolean;
 begin
-  Rad := (aSize AND $F) div 2; //Low bits
-  Slope := aSize SHR 4; //High bits
+  aLoc    := KMPointF(GameCursor.Float.X+1, GameCursor.Float.Y+1); // Mouse point
+  aRaise  := ssLeft in GameCursor.SState;         // Raise or Lowered
+  Rad     := GameCursor.MapEdSize;
+  Slope   := GameCursor.MapEdSlope;
 
   for I := Max((round(aLoc.Y) - Rad), 1) to Min((round(aLoc.Y) + Rad), fMapY) do
   for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), fMapX) do
   begin
-    case aShape of
-      MAPED_HEIGHT_CIRCLE: Tmp := 1 - GetLength(I-aLoc.Y, K-aLoc.X) / Rad;
-      MAPED_HEIGHT_SQUARE: Tmp := 1 - Math.max(abs(I-aLoc.Y), abs(K-aLoc.X)) / Rad;
-      else                 Tmp := 0;
+    case GameCursor.MapEdShape of
+      hsCircle: Tmp := 1 - GetLength(I-aLoc.Y, K-aLoc.X) / Rad;
+      hsSquare: Tmp := 1 - Math.max(abs(I-aLoc.Y), abs(K-aLoc.X)) / Rad;
+      else      Tmp := 0;
     end;
-    Tmp := power(abs(Tmp),(Slope+1)/6)*sign(Tmp); //Modify slopes curve
+    if GameCursor.Mode = cm_Equalize then
+    begin
+      if aRaise then   // Unequalize
+      begin
+        if (i > 1) and (k >1) and (i < fMapY-1) and (k < fMapX-1) then
+        begin
+          if (Land[I,K].Height < Land[I-1,K+1].Height) then
+            Tmp := -min(Land[I-1,K+1].Height-Land[i,k].Height,tmp)
+          else 
+            if (Land[I,K].Height > Land[I-1,K+1].Height) then
+              Tmp := min(Land[i,k].Height-Land[I-1,K+1].Height,tmp) 
+            else
+              Tmp := 0;
+        end;
+      end else         // Flatten
+      begin
+        if (Land[I,K].Height < Land[trunc(aLoc.Y),trunc(aLoc.X)].Height) then
+          Tmp := -min(Land[trunc(aLoc.Y),trunc(aLoc.X)].Height-Land[i,k].Height,tmp)
+        else 
+          if (Land[I,K].Height > Land[trunc(aLoc.Y),trunc(aLoc.X)].Height) then
+            Tmp := min(Land[i,k].Height-Land[trunc(aLoc.Y),trunc(aLoc.X)].Height,tmp) 
+          else
+            Tmp := 0;
+      end;
+    end;
+
     //Compute resulting floating-point height
+    Tmp := power(abs(Tmp),(Slope+1)/6)*sign(Tmp); //Modify slopes curve
     Tmp := EnsureRange(Land[I,K].Height + Land[I,K].HeightAdd/255 + Math.max(0,Tmp) * (Byte(aRaise)*2-1), 0, 100);
     Land[I,K].Height := trunc(Tmp);
     Land[I,K].HeightAdd := round(frac(Tmp)*255); //write fractional part in 0..255 range (1Byte) to save us mem
@@ -2645,15 +2675,14 @@ end;
 procedure TTerrain.UpdateStateIdle;
 begin
   case GameCursor.Mode of
-    cm_Height:
-              if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
-                MapEdHeight(KMPointF(GameCursor.Float.X+1,GameCursor.Float.Y+1), GameCursor.Tag1, GameCursor.Tag2, ssLeft in GameCursor.SState);
-    cm_Tiles:
-              if (ssLeft in GameCursor.SState) then
-                if GameCursor.Tag2 in [0..3] then //Defined direction
-                  MapEdTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.Tag2)
-                else //Random direction
-                  MapEdTile(GameCursor.Cell, GameCursor.Tag1, KaMRandom(4));
+    cm_Elevate,
+    cm_Equalize:  if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
+                    MapEdHeight;
+    cm_Tiles:     if (ssLeft in GameCursor.SState) then
+                    if GameCursor.MapEdDir in [0..3] then //Defined direction
+                      MapEdTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.MapEdDir)
+                    else //Random direction
+                      MapEdTile(GameCursor.Cell, GameCursor.Tag1, KaMRandom(4));
   end;
 end;
 

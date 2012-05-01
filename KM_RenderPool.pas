@@ -1324,8 +1324,8 @@ begin
                 else
                   RenderCursorBuildIcon(P);       //Red X
     cm_Houses:  RenderCursorWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
-    cm_Tiles:   if GameCursor.Tag2 in [0..3] then
-                  RenderTile(GameCursor.Tag1, P.X, P.Y, GameCursor.Tag2)
+    cm_Tiles:   if GameCursor.MapEdDir in [0..3] then
+                  RenderTile(GameCursor.Tag1, P.X, P.Y, GameCursor.MapEdDir)
                 else
                   RenderTile(GameCursor.Tag1, P.X, P.Y, (fTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
     cm_Objects: begin
@@ -1333,24 +1333,25 @@ begin
                   RenderObjectOrQuad(fTerrain.Land[P.Y,P.X].Obj+1, fTerrain.AnimStep, P.X, P.Y, true, true);
                   RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, P.X, P.Y, true);
                 end;
-    cm_Height:  begin
-                  Rad := (GameCursor.Tag1 AND $F) div 2; //Low bits
-                  Slope := GameCursor.Tag1 SHR 4; //High bits
+    cm_Elevate,
+    cm_Equalize:begin
+                  Rad := GameCursor.MapEdSize;
+                  Slope := GameCursor.MapEdSlope;
                   for I := Max((Trunc(F.Y) - Rad), 1) to Min((Ceil(F.Y) + Rad), fTerrain.MapY) do
                   for K := Max((Trunc(F.X) - Rad), 1) to Min((Ceil(F.X) + Rad), fTerrain.MapX) do
                   begin
-                    case GameCursor.Tag2 of
-                      MAPED_HEIGHT_CIRCLE: Tmp := 1 - GetLength(I-F.Y, K-F.X) / Rad;
-                      MAPED_HEIGHT_SQUARE: Tmp := 1 - Math.max(abs(I-F.Y), abs(K-F.X)) / Rad;
+                    case GameCursor.MapEdShape of
+                      hsCircle: Tmp := 1 - GetLength(I-F.Y, K-F.X) / Rad;
+                      hsSquare: Tmp := 1 - Math.max(abs(I-F.Y), abs(K-F.X)) / Rad;
                       else                 Tmp := 0;
                     end;
                     Tmp := Power(Abs(Tmp), (Slope + 1) / 6) * Sign(Tmp); //Modify slopes curve
                     Tmp := EnsureRange(Tmp * 1.5, 0, 1); //*1.5 makes dots more visible
                     fRenderAux.DotOnTerrain(K, I, $FF or (Round(Tmp*255) shl 24));
                   end;
-                  case GameCursor.Tag2 of
-                    MAPED_HEIGHT_CIRCLE: fRenderAux.CircleOnTerrain(F.X, F.Y, Rad, $00000000,  $FFFFFFFF);
-                    MAPED_HEIGHT_SQUARE: fRenderAux.SquareOnTerrain(F.X - Rad, F.Y - Rad, F.X + Rad, F.Y + Rad, $00000000,  $FFFFFFFF);
+                  case GameCursor.MapEdShape of
+                    hsCircle: fRenderAux.CircleOnTerrain(F.X, F.Y, Rad, $00000000,  $FFFFFFFF);
+                    hsSquare: fRenderAux.SquareOnTerrain(F.X - Rad, F.Y - Rad, F.X + Rad, F.Y + Rad, $00000000,  $FFFFFFFF);
                   end;
                 end;
     cm_Units:   if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then

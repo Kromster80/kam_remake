@@ -90,9 +90,11 @@ type
       Panel_Brushes:TKMPanel;
         BrushSize:TKMTrackBar;
         BrushCircle,BrushSquare:TKMButtonFlat;
+        //BrushesTable:array[1..27] of TKMButtonFlat; // todo
       Panel_Heights:TKMPanel;
         HeightSize,HeightShape:TKMTrackBar;
         HeightCircle,HeightSquare:TKMButtonFlat;
+        HeightElevate, HeightUnequalize: TKMButtonFlat;
       Panel_Tiles:TKMPanel;
         TilesTable:array[1..MAPED_TILES_COLS*MAPED_TILES_ROWS] of TKMButtonFlat; //how many are visible?
         TilesScroll:TKMScrollBar;
@@ -214,13 +216,13 @@ uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary,
 
 {Switch between pages}
 procedure TKMapEdInterface.SwitchPage(Sender: TObject);
-var i,k:integer;
+var
+  i, k:integer;
 begin
 
   //Reset cursor mode
   GameCursor.Mode := cm_None;
   GameCursor.Tag1 := 0;
-  GameCursor.Tag2 := 0;
 
   //If the user clicks on the tab that is open, it closes it (main buttons only)
   if ((Sender = Button_Main[1]) and Panel_Terrain.Visible) or
@@ -521,7 +523,12 @@ begin
       BrushSize   := TKMTrackBar.Create(Panel_Brushes, 8, 10, 100, 1, 12);
       BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 114, 8, 24, 24, 359);
       BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 142, 8, 24, 24, 352);
-      TKMButtonFlat.Create(Panel_Brushes, 8, 30, 32, 32, 1, rxTiles);
+
+      TKMButtonFlat.Create(Panel_Brushes, 8, 30, 32, 32, 1, rxTiles);   // grass
+
+      
+      {TKMButtonFlat.Create(Panel_Brushes, 40, 30, 32, 32, 9, rxTiles);  // grass 2
+      TKMButtonFlat.Create(Panel_Brushes, 8, 62, 32, 32, 35, rxTiles);  // dirt
 
       {BrushSize.OnChange   := TerrainBrush_Change;
       BrushCircle.OnChange := TerrainBrush_Change;
@@ -532,6 +539,17 @@ begin
       HeightCircle := TKMButtonFlat.Create(Panel_Heights, 114, 8, 24, 24, 359);
       HeightSquare := TKMButtonFlat.Create(Panel_Heights, 142, 8, 24, 24, 352);
       HeightShape  := TKMTrackBar.Create(Panel_Heights, 8, 30, 100, 1, 15); //1..15(4bit) for slope shape
+
+      HeightElevate             := TKMButtonFlat.Create(Panel_Heights,8,70,180,20,0);
+      HeightElevate.OnClick     := Terrain_HeightChange;
+      HeightElevate.Down        := True;
+      HeightElevate.Caption     := 'Elevate';
+      HeightElevate.CapOffsetY  := -12;
+      HeightUnequalize          := TKMButtonFlat.Create(Panel_Heights,8,100,180,20,0);
+      HeightUnequalize.OnClick  := Terrain_HeightChange;
+      HeightUnequalize.Caption  := 'Uniqualize/flat';
+      HeightUnequalize.CapOffsetY  := -12;
+
       HeightSize.OnChange   := Terrain_HeightChange;
       HeightShape.OnChange  := Terrain_HeightChange;
       HeightCircle.OnClick  := Terrain_HeightChange;
@@ -996,21 +1014,32 @@ end;
 
 procedure TKMapEdInterface.Terrain_HeightChange(Sender: TObject);
 begin
-  GameCursor.Tag1 := (HeightShape.Position AND $F) shl 4 +  HeightSize.Position AND $F;
+  GameCursor.MapEdSize := HeightSize.Position;
+  GameCursor.MapEdSlope := HeightShape.Position;
 
   if Sender = HeightCircle then
   begin
     HeightCircle.Down := true;
     HeightSquare.Down := false;
-    GameCursor.Mode  := cm_Height;
-    GameCursor.Tag2 := MAPED_HEIGHT_CIRCLE;
+    GameCursor.MapEdShape := hsCircle;
   end else
   if Sender = HeightSquare then
   begin
     HeightSquare.Down := true;
     HeightCircle.Down := false;
-    GameCursor.Mode  := cm_Height;
-    GameCursor.Tag2 := MAPED_HEIGHT_SQUARE;
+    GameCursor.MapEdShape := hsSquare;
+  end else
+  if Sender = HeightElevate then
+  begin
+    HeightElevate.Down := True;
+    HeightUnequalize.Down:=false;
+    GameCursor.Mode := cm_Elevate;
+  end;
+  if Sender = HeightUnequalize then
+  begin
+    HeightElevate.Down  := false;
+    HeightUnequalize.Down := true;
+    GameCursor.Mode := cm_Equalize;
   end;
 end;
 
@@ -1027,7 +1056,7 @@ procedure TKMapEdInterface.Terrain_TilesChange(Sender: TObject);
 var i,k,TileID:integer;
 begin
   if Sender = TilesRandom then
-    GameCursor.Tag2 := 4 * byte(TilesRandom.Checked); //Defined=0..3 or Random=4
+    GameCursor.MapEdDir := 4 * byte(TilesRandom.Checked); //Defined=0..3 or Random=4
 
   if Sender = TilesScroll then //Shift tiles
     for i:=1 to MAPED_TILES_COLS do
@@ -1054,7 +1083,7 @@ begin
       GameCursor.Mode := cm_Tiles;
       GameCursor.Tag1 := TileID-1; //MapEdTileRemap is 1 based, tag is 0 based
       if TilesRandom.Checked then
-        GameCursor.Tag2 := 4;
+        GameCursor.MapEdDir := 4;
       for i:=1 to MAPED_TILES_COLS do
       for k:=1 to MAPED_TILES_ROWS do
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (Sender = TilesTable[(i-1)*MAPED_TILES_ROWS+k]);
@@ -1104,7 +1133,6 @@ begin
       GameCursor.Tag1 := 255 //erase object
     else
       GameCursor.Tag1 := ActualMapElem[ObjID]-1; //0..n
-    GameCursor.Tag2 := 0;
     for I := 0 to 8 do
       ObjectsTable[I].Down := (Sender = ObjectsTable[I]); //Mark the selected one
     ObjectErase.Down := (Sender = ObjectErase); //or delete button
@@ -1126,7 +1154,6 @@ begin
   //Reset cursor and see if it needs to be changed
   GameCursor.Mode:=cm_None;
   GameCursor.Tag1:=0;
-  GameCursor.Tag2:=0;
 
   if Button_BuildCancel.Down then begin
     GameCursor.Mode:=cm_Erase;
@@ -1169,7 +1196,6 @@ begin
   //Reset cursor and see if it needs to be changed
   GameCursor.Mode:=cm_None;
   GameCursor.Tag1:=0;
-  GameCursor.Tag2:=0;
   //Label_Build.Caption := '';
 
   if Button_UnitCancel.Down then begin
@@ -1361,14 +1387,13 @@ begin
   if GetShownPage = esp_Terrain then exit; //Terrain uses both buttons for relief changing, tile rotation etc.
   GameCursor.Mode:=cm_None;
   GameCursor.Tag1:=0;
-  GameCursor.Tag2:=0;
 end;
 
 
 procedure TKMapEdInterface.SetTileDirection(aTileDirection: byte);
 begin
   TileDirection := aTileDirection mod 4; //0..3
-  GameCursor.Tag2 := TileDirection;
+  GameCursor.MapEdDir := TileDirection;
 end;
 
 
@@ -1845,7 +1870,7 @@ begin
     //Right click performs some special functions and shortcuts
     case GameCursor.Mode of
       cm_Tiles:   begin
-                    SetTileDirection(GameCursor.Tag2+1); //Rotate tile direction
+                    SetTileDirection(GameCursor.MapEdDir+1); //Rotate tile direction
                     TilesRandom.Checked := false; //Reset
                   end;
       cm_Objects: fTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
@@ -1879,7 +1904,8 @@ begin
                   MyPlayer.AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
                   Build_ButtonClick(Button_BuildRoad);
                 end;
-      cm_Height:; //handled in UpdateStateIdle
+      cm_Elevate,
+      cm_Equalize:; //handled in UpdateStateIdle
       cm_Objects: fTerrain.SetTree(P, GameCursor.Tag1);
       cm_Units: if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                 begin //Check if we can really add a unit
