@@ -454,5 +454,9 @@ MaxID:2705
 2697:Schaduw kwaliteit:
 2698:Laag
 2699:Hoog
+2700:Kaart niet gevonden: %s
+2701:Kaartbestanden zijn niet gelijk aan die van de host: %s
+2702:Opgeslagen spel niet gevonden: %s
+2703:Opgeslagen bestand is niet gelijk aan dat van de host: %s
 2704:WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?
 2705:Update A.U.B de drivers voor betere prestaties.
