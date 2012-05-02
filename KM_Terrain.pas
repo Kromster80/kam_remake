@@ -25,7 +25,7 @@ type
     procedure UpdatePassabilityAround(Loc: TKMPoint);
     procedure UpdateWalkConnect(const aSet: array of TWalkConnect);
 
-    procedure CCLFind(aPass: TPassability; aWC: TWalkConnect);
+    //procedure CCLFind(aPass: TPassability; aWC: TWalkConnect);
   public
     Land: array[1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE]of record
       Terrain:byte;
@@ -2680,8 +2680,7 @@ begin
 end;
 
 
-
-procedure TTerrain.CCLFind(aPass: TPassability; aWC: TWalkConnect);
+{procedure TTerrain.CCLFind(aPass: TPassability; aWC: TWalkConnect);
 var
   I,K,H,J: Integer;
   NCount: Byte;
@@ -2786,7 +2785,7 @@ begin
     end;
 end;
 
-end;
+end;}
 
 
 end.
