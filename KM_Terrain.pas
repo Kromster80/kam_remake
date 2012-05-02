@@ -2011,14 +2011,14 @@ var
   AllowDiag: Boolean;
   Count: Integer;
   Pass: TPassability;
-  FillID:Byte; //The ID to be filled, don't pass it into FillArea each time when it doesn't change
+  AreaID: Byte;
 
   procedure FillArea(X,Y: Word);
   begin
     if (Land[Y,X].WalkConnect[WC] = 0) //Untested area
     and (Pass in Land[Y,X].Passability) then //Matches passability
     begin
-      Land[Y,X].WalkConnect[WC] := FillID;
+      Land[Y,X].WalkConnect[WC] := AreaID;
       Inc(Count);
       //Using custom TileInMapCoords replacement gives ~40% speed improvement
       //Using custom CanWalkDiagonally is also much faster
@@ -2045,21 +2045,12 @@ var
     end;
   end;
 
-  //Split into a seperate function to save CPU time pushing and popping ID off the stack
-  //when it never changes in subsequent runs
-  procedure StartFillArea(aX,aY: Word; aID: Byte);
-  begin
-    FillID := aID;
-    FillArea(aX,aY);
-  end;
-
 //const MinSize=9; //Minimum size that is treated as new area
 const
   WCSet: array [TWalkConnect] of TPassability = (
     CanWalk, CanWalkRoad, CanFish, CanWolf, CanCrab, CanWorker);
 var
   I,J,K: Integer;
-  AreaID: Byte;
 begin
   //Process all items from set
   for J := Low(aSet) to High(aSet) do
@@ -2080,7 +2071,7 @@ begin
     begin
       Inc(AreaID);
       Count := 0;
-      StartFillArea(K,I,AreaID);
+      FillArea(K,I);
 
       if Count = 1 {<MinSize} then //Revert
       begin
