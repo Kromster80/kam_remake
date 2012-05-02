@@ -1876,11 +1876,17 @@ begin
                     fPlayers[fOwner].Stats.GoodProduced(rt_All, 10);
                     Exit;
                   end;
-      rt_Horse:   begin
+      rt_Horse:   if not fGame.MultiplayerMode then
+                  begin
+                    //Game results cheats should not be used in MP even in debug
+                    //MP does Win/Defeat differently (without Hold)
                     fGame.RequestGameHold(gr_Win);
                     Exit;
                   end;
-      rt_Fish:    begin
+      rt_Fish:    if not fGame.MultiplayerMode then
+                  begin
+                    //Game results cheats should not be used in MP even in debug
+                    //MP does Win/Defeat differently (without Hold)
                     fGame.RequestGameHold(gr_Defeat);
                     Exit;
                   end;
