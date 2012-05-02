@@ -25,7 +25,7 @@ type
     procedure UpdatePassabilityAround(Loc: TKMPoint);
     procedure UpdateWalkConnect(const aSet: array of TWalkConnect);
 
-    //procedure CCLFind(aPass: TPassability; aWC: TWalkConnect);
+    procedure CCLFind(aPass: TPassability; aWC: TWalkConnect; aAllowDiag: Boolean);
   public
     Land: array[1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE]of record
       Terrain:byte;
@@ -2047,7 +2047,7 @@ var
     end;
   end;
 
-//const MinSize=9; //Minimum size that is treated as new area
+const MinSize = 1; //Minimum size that is treated as new area
 const
   WCSet: array [TWalkConnect] of TPassability = (
     CanWalk, CanWalkRoad, CanFish, CanWolf, CanCrab, CanWorker);
@@ -2067,6 +2067,11 @@ begin
     for I := 1 to fMapY do for K := 1 to fMapX do
       Land[I,K].WalkConnect[WC] := 0;
 
+  if USE_NEW_WALKCONNECT then
+    CCLFind(Pass, WC, AllowDiag)
+  else 
+  begin
+
     AreaID := 0;
     for I := 1 to fMapY do for K := 1 to fMapX do
     if (Land[I,K].WalkConnect[WC] = 0) and (Pass in Land[I,K].Passability) then
@@ -2075,7 +2080,7 @@ begin
       Count := 0;
       FillArea(K,I);
 
-      if Count = 1 {<MinSize} then //Revert
+      if Count <= MinSize then //Revert
       begin
         Dec(AreaID);
         Count := 0;
@@ -2084,6 +2089,8 @@ begin
 
       Assert(AreaID < 255, 'UpdateWalkConnect failed due too many unconnected areas');
     end;
+  end;
+
   end;
 end;
 
@@ -2680,112 +2687,75 @@ begin
 end;
 
 
-{procedure TTerrain.CCLFind(aPass: TPassability; aWC: TWalkConnect);
+procedure TTerrain.CCLFind(aPass: TPassability; aWC: TWalkConnect; aAllowDiag: Boolean);
+var
+  Parent: array [1..256] of Byte;
+
+  procedure AddAlias(Area1, Area2: Word);
+  var I, A, B: Integer;
+  begin
+    //Make sure Area1 is smaller, so we append to it
+    if Area1 > Area2 then
+      SwapInt(Area1, Area2);
+
+    Parent[Area2] := Area1;
+
+    {for I := 0 to EquivAreas[Area1].Count - 1 do
+      if EquivAreas[Area1].Equiv[I] = Area2 then Exit;
+
+    //Grow
+    if EquivAreas[Area1].Count >= Length(EquivAreas[Area1].Equiv) then
+      SetLength(EquivAreas[Area1].Equiv, EquivAreas[Area1].Count + 16);
+
+    //Append
+    EquivAreas[Area1].Equiv[EquivAreas[Area1].Count] := Area2;
+    Inc(EquivAreas[Area1].Count);}
+  end;
 var
   I,K,H,J: Integer;
-  NCount: Byte;
   AreaID: Byte;
-  EquivAreas: array of Word;
-  BestArea: Integer;
-
-  AreaSet
+  NCount: Byte;
 begin
+  for I := 1 to 256 do
+    Parent[I] := 0;
 
   AreaID := 1;
-  for I := 0 to fMapY - 1 do
-  for K := 0 to fMapX - 1 do
+  for I := 1 to fMapY do
+  for K := 1 to fMapX do
+  if (aPass in Land[I,K].Passability) then
   begin
 
     //Check 8 neighbors, if there is ID we will take it
     NCount := 0;
     for H := I - 1 to I + 1 do
     for J := K - 1 to K + 1 do
-    if InRange(I, 0, fMapY - 1) and InRange(K, 0, fMapX - 1)
-    and (Land[I,K].WalkConnect <> 0)
-    //and not DiagBlocked
-    and (aPass in Land[H, J].Passability) then
+    if ((H <> I) or (J <> K))
+    and InRange(H, 1, fMapY) and InRange(J, 1, fMapX)
+    and (Land[H,J].WalkConnect[aWC] <> 0)
+    //and (aAllowDiag and not MapElem[Land[Y+1,X].Obj+1].DiagonalBlocked)
+    and (aPass in Land[H,J].Passability) then
     begin
-      if True then
+      //Remember alias
+      if (NCount > 0) and (Land[I,K].WalkConnect[aWC] <> Land[H,J].WalkConnect[aWC]) then
+        AddAlias(Land[I,K].WalkConnect[aWC], Land[H,J].WalkConnect[aWC]);
 
+      if (NCount = 0) then
+        Land[I,K].WalkConnect[aWC] := Land[H,J].WalkConnect[aWC];
 
+      Inc(NCount);
     end;
-
-    //Assign best Area
-    if NCount > 0 then
-    begin
-      Land[I,K].WalkConnect := BestArea;
-    end;
-
 
     //If there's no Area we create new one
     if NCount = 0 then
     begin
-      Land[I,K].WalkConnect := AreaID;
+      Land[I,K].WalkConnect[aWC] := AreaID;
       Inc(AreaID);
-
-      //Grow EquivAreas
-    end;
-
-
-
-      currentPixel = new Pixel(new Point(j, i), input.GetPixel(j, i));
-
-      neighboringLabels = GetNeighboringLabels(currentPixel);
-      if (neighboringLabels.Count == 0)
-      begin
-        currentLabel.Name = ++labelCount;
-        allLabels.Add(currentLabel.Name, new Label(currentLabel.Name));
-      end;
-      else
-      begin
-        foreach (int label in neighboringLabels.Keys)
-        begin
-          currentLabel.Name = label;//set currentLabel to the first label found in neighboring cells
-          break;
-        end;
-        MergeLabels(currentLabel.Name, neighboringLabels, allLabels);
-      end;
-      board[j, i] = currentLabel.Name;
     end;
   end;
 
-  Dictionary<int, List<Pixel>> Patterns = AggregatePatterns(allLabels);
+  //Merge areas
 
-  return Patterns;
 end;
-
-procedure TTerrain.GetNeighboringLabels(x,y: Integer): TByteArray;
-begin
-
-  Dictionary<int, int> neighboringLabels = new Dictionary<int, int>();
-  int x = pix.Position.Y;
-  int y = pix.Position.X;
-  for I := Max(x - 1, 0) to Min(x + 1, h - 1) do
-  for J := Max(y - 1, 0) to Min(y + 1, w - 1) do
-  if (board[j, i] <> 0) and not neighboringLabels.ContainsKey(board[j, i]) then
-    neighboringLabels.Add(board[j, i], 0);
-
-  return neighboringLabels;
-end;
-
-procedure TTerrain.MergeLabels(int currentLabel, Dictionary<int, int> neighboringLabels, Dictionary<int, Label> labels)
-begin
-    Label root = labels[currentLabel].GetRoot();
-    Label neighbor;
-    foreach (int key in neighboringLabels.Keys)
-    begin
-        if (key != currentLabel)
-        begin
-            neighbor = labels[key];
-            if (neighbor.GetRoot() != root)
-            begin
-                neighbor.Root = root;
-            end;
-        end;
-    end;
-end;
-
-end;}
 
 
 end.

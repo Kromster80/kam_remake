@@ -349,6 +349,15 @@ begin
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBindTexture(GL_TEXTURE_2D, 0);
 
+  glPushAttrib(GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
+
+    for i := aRect.Top to aRect.Bottom do
+    for k := aRect.Left to aRect.Right do
+      fRenderAux.Text(k, i, IntToStr(fTerrain.Land[i,k].WalkConnect[wcFish]), $FFFFFFFF);
+
+  glPopAttrib;
+
   if SHOW_WALK_CONNECT then
   for i := aRect.Top to aRect.Bottom do
   for k := aRect.Left to aRect.Right do
