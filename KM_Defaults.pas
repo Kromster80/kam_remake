@@ -59,6 +59,7 @@ var
   KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
   //Not fully implemented yet
   DISPLAY_CHARTS_RESULT :Boolean = True; //Show charts in game resultst screen
+  USE_NEW_WALKCONNECT   :Boolean = True;
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
 
