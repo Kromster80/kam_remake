@@ -24,6 +24,8 @@ type
     procedure UpdatePassability(Loc: TKMPoint); overload;
     procedure UpdatePassabilityAround(Loc: TKMPoint);
     procedure UpdateWalkConnect(const aSet: array of TWalkConnect);
+
+    procedure CCLFind(aPass: TPassability; aWC: TWalkConnect);
   public
     Land: array[1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE]of record
       Terrain:byte;
@@ -2675,6 +2677,115 @@ begin
                     else //Random direction
                       MapEdTile(GameCursor.Cell, GameCursor.Tag1, KaMRandom(4));
   end;
+end;
+
+
+
+procedure TTerrain.CCLFind(aPass: TPassability; aWC: TWalkConnect);
+var
+  I,K,H,J: Integer;
+  NCount: Byte;
+  AreaID: Byte;
+  EquivAreas: array of Word;
+  BestArea: Integer;
+
+  AreaSet
+begin
+
+  AreaID := 1;
+  for I := 0 to fMapY - 1 do
+  for K := 0 to fMapX - 1 do
+  begin
+
+    //Check 8 neighbors, if there is ID we will take it
+    NCount := 0;
+    for H := I - 1 to I + 1 do
+    for J := K - 1 to K + 1 do
+    if InRange(I, 0, fMapY - 1) and InRange(K, 0, fMapX - 1)
+    and (Land[I,K].WalkConnect <> 0)
+    //and not DiagBlocked
+    and (aPass in Land[H, J].Passability) then
+    begin
+      if True then
+
+
+    end;
+
+    //Assign best Area
+    if NCount > 0 then
+    begin
+      Land[I,K].WalkConnect := BestArea;
+    end;
+
+
+    //If there's no Area we create new one
+    if NCount = 0 then
+    begin
+      Land[I,K].WalkConnect := AreaID;
+      Inc(AreaID);
+
+      //Grow EquivAreas
+    end;
+
+
+
+      currentPixel = new Pixel(new Point(j, i), input.GetPixel(j, i));
+
+      neighboringLabels = GetNeighboringLabels(currentPixel);
+      if (neighboringLabels.Count == 0)
+      begin
+        currentLabel.Name = ++labelCount;
+        allLabels.Add(currentLabel.Name, new Label(currentLabel.Name));
+      end;
+      else
+      begin
+        foreach (int label in neighboringLabels.Keys)
+        begin
+          currentLabel.Name = label;//set currentLabel to the first label found in neighboring cells
+          break;
+        end;
+        MergeLabels(currentLabel.Name, neighboringLabels, allLabels);
+      end;
+      board[j, i] = currentLabel.Name;
+    end;
+  end;
+
+  Dictionary<int, List<Pixel>> Patterns = AggregatePatterns(allLabels);
+
+  return Patterns;
+end;
+
+procedure TTerrain.GetNeighboringLabels(x,y: Integer): TByteArray;
+begin
+
+  Dictionary<int, int> neighboringLabels = new Dictionary<int, int>();
+  int x = pix.Position.Y;
+  int y = pix.Position.X;
+  for I := Max(x - 1, 0) to Min(x + 1, h - 1) do
+  for J := Max(y - 1, 0) to Min(y + 1, w - 1) do
+  if (board[j, i] <> 0) and not neighboringLabels.ContainsKey(board[j, i]) then
+    neighboringLabels.Add(board[j, i], 0);
+
+  return neighboringLabels;
+end;
+
+procedure TTerrain.MergeLabels(int currentLabel, Dictionary<int, int> neighboringLabels, Dictionary<int, Label> labels)
+begin
+    Label root = labels[currentLabel].GetRoot();
+    Label neighbor;
+    foreach (int key in neighboringLabels.Keys)
+    begin
+        if (key != currentLabel)
+        begin
+            neighbor = labels[key];
+            if (neighbor.GetRoot() != root)
+            begin
+                neighbor.Root = root;
+            end;
+        end;
+    end;
+end;
+
 end;
 
 
