@@ -18,36 +18,38 @@ type
     fMapX: Word; //Terrain width and height
     fMapY: Word; //Terrain width and height
 
+    fBoundsWC: TKMRect; //WC rebuild bounds used in FlattenTerrain
+
     procedure UpdateBorders(Loc: TKMPoint; CheckSurrounding: Boolean = True);
     procedure UpdateLighting(aRect: TKMRect);
     procedure UpdatePassability(aRect: TKMRect); overload;
     procedure UpdatePassability(Loc: TKMPoint); overload;
-    procedure UpdatePassabilityAround(Loc: TKMPoint);
-    procedure UpdateWalkConnect(const aSet: array of TWalkConnect);
 
-    procedure CCLFind(aPass: TPassability; aWC: TWalkConnect; aAllowDiag: Boolean);
+    procedure UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect);
+
+    procedure CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean; aRect: TKMRect);
   public
     Land: array[1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE]of record
-      Terrain:byte;
-      Height:byte;
-      Rotation:byte;
-      Obj:byte;
+      Terrain: Byte;
+      Height: Byte;
+      Rotation: Byte;
+      Obj: Byte;
 
       //Age of tree, another independent variable since trees can grow on fields
-      TreeAge:word; //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
+      TreeAge: Word; //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
 
       //Age of field/wine, another independent variable
-      FieldAge:word; //Empty=0, 1, 2, 3, 4, Full=65535  Depending on this special object maybe rendered (straw, grapes)
+      FieldAge: Word; //Empty=0, 1, 2, 3, 4, Full=65535  Depending on this special object maybe rendered (straw, grapes)
 
       //Tells us the stage of house construction or workers making a road
       TileLock: TTileLock;
 
       //Used to display half-dug road
-      TileOverlay:TTileOverlay; //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
+      TileOverlay: TTileOverlay; //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
-      TileOwner:TPlayerIndex; //Who owns the tile by having a house/road/field on it
+      TileOwner: TPlayerIndex; //Who owns the tile by having a house/road/field on it
       IsUnit: Pointer; //Whenever there's a unit on that tile mark the tile as occupied and count the number
-      IsVertexUnit:TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
+      IsVertexUnit: TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
 
 
       //MAPEDITOR
@@ -62,7 +64,7 @@ type
       WalkConnect: array [TWalkConnect] of byte; //Whole map is painted into interconnected areas
 
       Border: TBorderType; //Borders (ropes, planks, stones)
-      BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
+      BorderSide: Byte; //Bitfield whether the borders are enabled
     end;
 
     FallingTrees: TKMPointTagList;
@@ -245,17 +247,14 @@ begin
     TreeAge      := 0;
     if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge := TREE_AGE_FULL;
     Border       := bt_None;
-    BorderTop    := false;
-    BorderLeft   := false;
-    BorderBottom := false;
-    BorderRight  := false;
+    BorderSide   := 0;
   end;
 
   UpdateLighting(KMRect(1, 1, fMapX, fMapY));
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
   //Everything except roads
-  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY));
 end;
 
 
@@ -279,9 +278,21 @@ begin
     Assert((NewX <= MAX_MAP_SIZE) and (NewY <= MAX_MAP_SIZE), 'Can''t open the map cos it has too big dimensions');
     fMapX := NewX;
     fMapY := NewY;
-    MakeNewMap(fMapX, fMapY, aMapEditor); //Reset whole map to default
     for i:=1 to fMapY do for k:=1 to fMapX do
     begin
+      Land[i,k].OldTerrain   := 0;
+      Land[i,k].OldRotation  := 0;
+      Land[i,k].TileOverlay  := to_None;
+      Land[i,k].TileLock     := tlNone;
+      Land[i,k].Passability  := []; //Gets recalculated later
+      Land[i,k].TileOwner    := -1;
+      Land[i,k].IsUnit       := nil;
+      Land[i,k].IsVertexUnit := vu_None;
+      Land[i,k].FieldAge     := 0;
+      Land[i,k].TreeAge      := 0;
+      Land[i,k].Border       := bt_None;
+      Land[i,k].BorderSide   := 0;
+
       S.Read(Land[i,k].Terrain); //1
       S.Seek(1, soFromCurrent);
       S.Read(Land[i,k].Height); //3
@@ -303,7 +314,7 @@ begin
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
   //Everything except roads
-  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY));
   fLog.AppendLog('Map file loaded');
 end;
 
@@ -701,14 +712,14 @@ begin
 end;
 
 
-{Place lock on tile, any new TileLock replaces old one, thats okay}
+//Place lock on tile, any new TileLock replaces old one, thats okay}
 procedure TTerrain.SetTileLock(aLoc: TKMPoint; aTileLock: TTileLock);
 begin
   Land[aLoc.Y, aLoc.X].TileLock := aTileLock;
-  UpdatePassabilityAround(aLoc);
+  UpdatePassability(KMRectGrow(KMRect(aLoc), 1));
 
   //TileLocks affect passability so therefore also floodfill
-  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(aLoc), 1));
 end;
 
 
@@ -716,10 +727,10 @@ end;
 procedure TTerrain.UnlockTile(Loc: TKMPoint);
 begin
   Land[Loc.Y, Loc.X].TileLock := tlNone;
-  UpdatePassabilityAround(Loc);
+  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //TileLocks affect passability so therefore also floodfill
-  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc), 1));
 end;
 
 
@@ -747,20 +758,20 @@ begin
   UpdatePassability(KMRectGrow(Bounds, 1));
 
   //Roads don't affect wcWalk or wcFish
-  UpdateWalkConnect([wcRoad, wcWolf, wcCrab]);
+  UpdateWalkConnect([wcRoad, wcWolf, wcCrab], KMRectGrow(Bounds, 1));
 end;
 
 
-procedure TTerrain.RemRoad(Loc:TKMPoint);
+procedure TTerrain.RemRoad(Loc: TKMPoint);
 begin
   Land[Loc.Y,Loc.X].TileOwner := -1;
   Land[Loc.Y,Loc.X].TileOverlay := to_None;
   Land[Loc.Y,Loc.X].FieldAge  := 0;
   UpdateBorders(Loc);
-  UpdatePassabilityAround(Loc);
+  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Roads don't affect wcWalk or wcFish
-  UpdateWalkConnect([wcRoad, wcWolf, wcCrab]);
+  UpdateWalkConnect([wcRoad, wcWolf, wcCrab], KMRectGrow(KMRect(Loc), 1));
 end;
 
 
@@ -774,10 +785,10 @@ begin
     Land[Loc.Y,Loc.X].Obj := 255; //Remove corn/wine
   Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
-  UpdatePassabilityAround(Loc);
+  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Update affected WalkConnect's
-  UpdateWalkConnect([wcWalk, wcWolf, wcCrab]);
+  UpdateWalkConnect([wcWalk, wcWolf, wcCrab], KMRectGrow(KMRect(Loc), 1));
 end;
 
 
@@ -793,14 +804,14 @@ begin
 end;
 
 
-procedure TTerrain.SetWall(Loc:TKMPoint; aOwner:TPlayerIndex);
+procedure TTerrain.SetWall(Loc: TKMPoint; aOwner: TPlayerIndex);
 begin
   Land[Loc.Y,Loc.X].TileOwner :=aOwner;
   Land[Loc.Y,Loc.X].TileOverlay := to_Wall;
   Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
-  UpdatePassabilityAround(Loc);
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc), 1));
 end;
 
 
@@ -846,9 +857,9 @@ begin
   end;
 
   UpdateBorders(Loc);
-  UpdatePassabilityAround(Loc);
+  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
   //Walk and Road because Grapes are blocking diagonal moves
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab], KMRectGrow(KMRect(Loc), 1));
 end;
 
 
@@ -1232,7 +1243,10 @@ begin
   Land[Loc.Y,Loc.X].TreeAge :=  1;
 
   //Add 1 tile on sides because surrounding tiles will be affected (CanPlantTrees)
-  UpdatePassabilityAround(Loc);
+  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
+
+  //Tree could have blocked the only diagonal passage
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc), 1));
 end;
 
 
@@ -1246,7 +1260,7 @@ begin
       Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];                        //Set stump object
       FallingTrees.AddEntry(Loc,ChopableTrees[h,5],fAnimStep);  //along with falling tree
       fSoundLib.Play(sfx_TreeDown,Loc,true);
-      exit;
+      Exit;
     end;
 end;
 
@@ -1256,10 +1270,10 @@ procedure TTerrain.ChopTree(Loc: TKMPoint);
 begin
   Land[Loc.Y,Loc.X].TreeAge := 0;
   FallingTrees.RemoveEntry(Loc);
-  UpdatePassabilityAround(Loc); //Because surrounding tiles will be affected (CanPlantTrees)
+  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //WalkConnect takes diagonal passability into account
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc), 1));
 end;
 
 
@@ -1267,7 +1281,7 @@ procedure TTerrain.SowCorn(Loc: TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge := 1;
   Land[Loc.Y,Loc.X].Terrain  := 61; //Plant it right away, don't wait for update state
-  UpdatePassability(Loc);
+  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 end;
 
 
@@ -1376,12 +1390,6 @@ begin
   end;
   Land[Loc.Y,Loc.X].Rotation:=KaMRandom(4);
   UpdatePassability(Loc);
-end;
-
-
-procedure TTerrain.UpdatePassabilityAround(Loc:TKMPoint);
-begin
-  UpdatePassability(KMRect(Loc.X - 1, Loc.Y - 1, Loc.X + 1, Loc.Y + 1));
 end;
 
 
@@ -1922,7 +1930,7 @@ var TilesFactored: Integer;
     if TileInMapCoords(aX,aY) and (not Neighbour or (canFactor in Land[aY,aX].Passability)) then
     begin
       Result := Land[aY,aX].Height;
-      inc(TilesFactored);
+      Inc(TilesFactored);
     end
     else
       Result := 0;
@@ -1932,6 +1940,14 @@ var
   I, K: Word;
   Avg: Word;
 begin
+  if aUpdateWalkConnects then
+    fBoundsWC := KMRect(Loc.X, Loc.Y, Loc.X, Loc.Y);
+
+  if fBoundsWC.Left > Loc.X - 1 then fBoundsWC.Left := Loc.X - 1;
+  if fBoundsWC.Top > Loc.Y - 1 then fBoundsWC.Top := Loc.Y - 1;
+  if fBoundsWC.Right < Loc.X + 1 then fBoundsWC.Right := Loc.X + 1;
+  if fBoundsWC.Bottom > Loc.Y + 1 then fBoundsWC.Bottom := Loc.Y + 1;
+
   Assert(TileInMapCoords(Loc.X, Loc.Y), 'Can''t flatten tile outside map coordinates');
 
   TilesFactored := 0; //GetHeight will add to this
@@ -1953,23 +1969,27 @@ begin
       EnsureWalkable(K, I);
 
   UpdateLighting(KMRect(Loc.X-2, Loc.Y-2, Loc.X+3, Loc.Y+3));
-  UpdatePassabilityAround(Loc); //Changing height will affect the cells around this one
+  //Changing height will affect the cells around this one
+  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   if aUpdateWalkConnects then
-    UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+    UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], fBoundsWC);
 end;
 
 
-{Flatten a list of points in the mission init}
-procedure TTerrain.FlattenTerrain(LocList:TKMPointList);
+//Flatten a list of points on mission init
+procedure TTerrain.FlattenTerrain(LocList: TKMPointList);
 var
   I: Integer;
 begin
+  if not LocList.GetBounds(fBoundsWC) then
+    Exit;
+
   for I := 0 to LocList.Count - 1 do
     FlattenTerrain(LocList[I], False); //Rebuild the Walk Connect at the end, rather than every time
 
   //All 5 are affected by height
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], fBoundsWC);
 end;
 
 
@@ -2007,52 +2027,80 @@ end;
 
 
 //Rebuilds connected areas using flood fill algorithm
-procedure TTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect);
-var
-  WC: TWalkConnect;
-  AllowDiag: Boolean;
-  Count: Integer;
-  Pass: TPassability;
-  AreaID: Byte;
+procedure TTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect);
 
-  procedure FillArea(X,Y: Word);
-  begin
-    if (Land[Y,X].WalkConnect[WC] = 0) //Untested area
-    and (Pass in Land[Y,X].Passability) then //Matches passability
+  procedure FloodFill(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean; aRect: TKMRect);
+  var
+    AreaID: Byte;
+    Count: Integer;
+
+    procedure FillArea(X,Y: Word);
     begin
-      Land[Y,X].WalkConnect[WC] := AreaID;
-      Inc(Count);
-      //Using custom TileInMapCoords replacement gives ~40% speed improvement
-      //Using custom CanWalkDiagonally is also much faster
-      if X-1 >= 1 then
+      if (Land[Y,X].WalkConnect[aWC] = 0) //Untested area
+      and (aPass in Land[Y,X].Passability) then //Matches passability
       begin
-        if AllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X].Obj+1].DiagonalBlocked then
-          FillArea(X-1, Y-1);
-        FillArea(X-1, Y);
-        if AllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj+1].DiagonalBlocked then
-          FillArea(X-1,Y+1);
+        Land[Y,X].WalkConnect[aWC] := AreaID;
+        Inc(Count);
+        //Using custom TileInMapCoords replacement gives ~40% speed improvement
+        //Using custom CanWalkDiagonally is also much faster
+        if X-1 >= 1 then
+        begin
+          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X].Obj+1].DiagonalBlocked then
+            FillArea(X-1, Y-1);
+          FillArea(X-1, Y);
+          if aAllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj+1].DiagonalBlocked then
+            FillArea(X-1,Y+1);
+        end;
+
+        if Y-1 >= 1 then     FillArea(X, Y-1);
+        if Y+1 <= fMapY then FillArea(X, Y+1);
+
+        if X+1 <= fMapX then
+        begin
+          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj+1].DiagonalBlocked then
+            FillArea(X+1, Y-1);
+          FillArea(X+1, Y);
+          if aAllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj+1].DiagonalBlocked then
+            FillArea(X+1, Y+1);
+        end;
+      end;
+    end;
+  //const MinSize = 1; //Minimum size that is treated as new area
+  var I,K: Integer;
+  begin
+    //Reset everything
+    for I := 1 to fMapY do for K := 1 to fMapX do
+      Land[I,K].WalkConnect[aWC] := 0;
+
+    AreaID := 0;
+    for I := 1 to fMapY do for K := 1 to fMapX do
+    if (Land[I,K].WalkConnect[aWC] = 0)
+    and (aPass in Land[I,K].Passability) then
+    begin
+      Inc(AreaID);
+      Count := 0;
+      FillArea(K,I);
+
+      if Count <= 1 then //Revert
+      begin
+        Dec(AreaID);
+        Count := 0;
+        Land[I,K].WalkConnect[aWC] := 0;
       end;
 
-      if Y-1 >= 1 then     FillArea(X, Y-1);
-      if Y+1 <= fMapY then FillArea(X, Y+1);
-
-      if X+1 <= fMapX then
-      begin
-        if AllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj+1].DiagonalBlocked then
-          FillArea(X+1, Y-1);
-        FillArea(X+1, Y);
-        if AllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj+1].DiagonalBlocked then
-          FillArea(X+1, Y+1);
-      end;
+      Assert(AreaID < 255, 'UpdateWalkConnect failed due too many unconnected areas');
     end;
   end;
 
-const MinSize = 1; //Minimum size that is treated as new area
 const
   WCSet: array [TWalkConnect] of TPassability = (
     CanWalk, CanWalkRoad, CanFish, CanWolf, CanCrab, CanWorker);
 var
-  I,J,K: Integer;
+  Early: Boolean;
+  I,K,J: Integer;
+  WC: TWalkConnect;
+  AllowDiag: Boolean;
+  Pass: TPassability;
 begin
   //Process all items from set
   for J := Low(aSet) to High(aSet) do
@@ -2063,34 +2111,24 @@ begin
 
     //todo: Can be optimized if we know from which Tile to rebuild, and if that tile makes no difference - skip the thing
 
-    //Reset everything
-    for I := 1 to fMapY do for K := 1 to fMapX do
-      Land[I,K].WalkConnect[WC] := 0;
+    //Allow to exit early if there are no relevant passability tiles in Rect
 
-  if USE_NEW_WALKCONNECT then
-    CCLFind(Pass, WC, AllowDiag)
-  else 
-  begin
+    //See if we were asked to update whole map
+    Early := (aRect.Left > 1) and (aRect.Right < fMapX) and (aRect.Top > 1) and (aRect.Bottom < fMapY);
 
-    AreaID := 0;
-    for I := 1 to fMapY do for K := 1 to fMapX do
-    if (Land[I,K].WalkConnect[WC] = 0) and (Pass in Land[I,K].Passability) then
-    begin
-      Inc(AreaID);
-      Count := 0;
-      FillArea(K,I);
+    if Early then
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+      Early := Early and not (Pass in Land[I,K].Passability);
 
-      if Count <= MinSize then //Revert
-      begin
-        Dec(AreaID);
-        Count := 0;
-        Land[I,K].WalkConnect[WC] := 0;
-      end;
+    //We can't rely on((Land[I,K].WalkConnect<>0) and (Pass in Land[I,K].Passability)) check
+    //because BlockDiag objects don't affect it, still they can cause two areas to be separate 
 
-      Assert(AreaID < 255, 'UpdateWalkConnect failed due too many unconnected areas');
-    end;
-  end;
-
+    if not Early then
+      if USE_NEW_WALKCONNECT then
+        CCLFind(WC, Pass, AllowDiag, aRect)
+      else
+        FloodFill(WC, Pass, AllowDiag, aRect);
   end;
 end;
 
@@ -2151,7 +2189,7 @@ begin
 
   //Recalculate Passability for tiles around the house so that they can't be built on too
   UpdatePassability(KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
 end;
 
 
@@ -2327,7 +2365,7 @@ begin
   end;
 
   UpdatePassability(KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
 end;
 
 
@@ -2346,31 +2384,29 @@ procedure TTerrain.UpdateBorders(Loc: TKMPoint; CheckSurrounding: Boolean = True
     else
       Result := bt_None;
   end;
-  function GetBorderEnabled(Loc2: TKMPoint): Boolean;
+  function GetBorderEnabled(X, Y: SmallInt): Boolean;
   begin
     Result := True;
-    if not TileInMapCoords(Loc2.X,Loc2.Y) then exit;
-    if (TileIsCornField(Loc) and TileIsCornField(Loc2))or //Both are Corn
-       (TileIsWineField(Loc) and TileIsWineField(Loc2))or //Both are Wine
-      ((Land[Loc.Y,Loc.X].TileLock in [tlFenced, tlDigged]) and (Land[Loc2.Y,Loc2.X].TileLock in [tlFenced, tlDigged])) then //Both are either house fence
+    if not TileInMapCoords(X,Y) then exit;
+    if (TileIsCornField(Loc) and TileIsCornField(KMPoint(X,Y)))or //Both are Corn
+       (TileIsWineField(Loc) and TileIsWineField(KMPoint(X,Y)))or //Both are Wine
+      ((Land[Loc.Y,Loc.X].TileLock in [tlFenced, tlDigged]) and (Land[Y,X].TileLock in [tlFenced, tlDigged])) then //Both are either house fence
       Result := False;
   end;
 begin
  if not TileInMapCoords(Loc.X,Loc.Y) then exit;
 
   Land[Loc.Y,Loc.X].Border:=GetBorderType;
-  if Land[Loc.Y,Loc.X].Border = bt_None then begin
-    Land[Loc.Y,Loc.X].BorderTop    := false;
-    Land[Loc.Y,Loc.X].BorderLeft   := false;
-    Land[Loc.Y,Loc.X].BorderBottom := false;
-    Land[Loc.Y,Loc.X].BorderRight  := false;
-  end
-  else begin
-    Land[Loc.Y,Loc.X].BorderTop    := GetBorderEnabled(KMPoint(Loc.X,Loc.Y-1));
-    Land[Loc.Y,Loc.X].BorderLeft   := GetBorderEnabled(KMPoint(Loc.X-1,Loc.Y));
-    Land[Loc.Y,Loc.X].BorderBottom := GetBorderEnabled(KMPoint(Loc.X,Loc.Y+1));
-    Land[Loc.Y,Loc.X].BorderRight  := GetBorderEnabled(KMPoint(Loc.X+1,Loc.Y));
+  if Land[Loc.Y,Loc.X].Border = bt_None then
+    Land[Loc.Y,Loc.X].BorderSide := 0
+  else
+  begin
+    Land[Loc.Y,Loc.X].BorderSide := Byte(GetBorderEnabled(Loc.X,Loc.Y-1)) + //N
+                                    Byte(GetBorderEnabled(Loc.X-1,Loc.Y)) * 2 + //E
+                                    Byte(GetBorderEnabled(Loc.X+1,Loc.Y)) * 4 + //W
+                                    Byte(GetBorderEnabled(Loc.X,Loc.Y+1)) * 8; //S
   end;
+
   if CheckSurrounding then
   begin
     UpdateBorders(KMPoint(Loc.X-1,Loc.Y),false);
@@ -2586,7 +2622,7 @@ begin
   UpdateLighting(KMRect(1, 1, fMapX, fMapY));
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
-  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY));
 
   fLog.AppendLog('Terrain loaded');
 end;
@@ -2687,37 +2723,35 @@ begin
 end;
 
 
-procedure TTerrain.CCLFind(aPass: TPassability; aWC: TWalkConnect; aAllowDiag: Boolean);
+procedure TTerrain.CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean; aRect: TKMRect);
 var
-  Parent: array [1..256] of Byte;
+  Parent: array[0..255] of Byte;
 
-  procedure AddAlias(Area1, Area2: Word);
-  var I, A, B: Integer;
+  function TopParent(const Area: Byte): Byte;
   begin
-    //Make sure Area1 is smaller, so we append to it
-    if Area1 > Area2 then
-      SwapInt(Area1, Area2);
-
-    Parent[Area2] := Area1;
-
-    {for I := 0 to EquivAreas[Area1].Count - 1 do
-      if EquivAreas[Area1].Equiv[I] = Area2 then Exit;
-
-    //Grow
-    if EquivAreas[Area1].Count >= Length(EquivAreas[Area1].Equiv) then
-      SetLength(EquivAreas[Area1].Equiv, EquivAreas[Area1].Count + 16);
-
-    //Append
-    EquivAreas[Area1].Equiv[EquivAreas[Area1].Count] := Area2;
-    Inc(EquivAreas[Area1].Count);}
+    Result := Area;
+    while Parent[Result] <> Result do
+      Result := Parent[Result];
   end;
+
+  procedure AddAlias(const Area1, Area2: Byte);
+  begin
+    //See if there are common parents
+    if Area2 <> Area1 then
+      Parent[Area2] := Area1;
+  end;
+const Samples: array [0..3, 0..1] of ShortInt = ((-1,-1),(0,-1),(1,-1),(-1,0));
 var
-  I,K,H,J: Integer;
+  I,K,H: Word;
+  X,Y: Smallint;
   AreaID: Byte;
   NCount: Byte;
 begin
-  for I := 1 to 256 do
-    Parent[I] := 0;
+  //Reset everything
+  for I := 1 to fMapY do for K := 1 to fMapX do
+    Land[I,K].WalkConnect[aWC] := 0;
+
+  FillChar(Parent, SizeOf(Parent), #0);
 
   AreaID := 1;
   for I := 1 to fMapY do
@@ -2725,36 +2759,61 @@ begin
   if (aPass in Land[I,K].Passability) then
   begin
 
-    //Check 8 neighbors, if there is ID we will take it
+    //Check 4 preceeding neighbors, if there is ID we will take it
     NCount := 0;
-    for H := I - 1 to I + 1 do
-    for J := K - 1 to K + 1 do
-    if ((H <> I) or (J <> K))
-    and InRange(H, 1, fMapY) and InRange(J, 1, fMapX)
-    and (Land[H,J].WalkConnect[aWC] <> 0)
-    //and (aAllowDiag and not MapElem[Land[Y+1,X].Obj+1].DiagonalBlocked)
-    and (aPass in Land[H,J].Passability) then
+    for H := 0 to 3 do
     begin
-      //Remember alias
-      if (NCount > 0) and (Land[I,K].WalkConnect[aWC] <> Land[H,J].WalkConnect[aWC]) then
-        AddAlias(Land[I,K].WalkConnect[aWC], Land[H,J].WalkConnect[aWC]);
+      X := K + Samples[H,0];
+      Y := I + Samples[H,1];
 
-      if (NCount = 0) then
-        Land[I,K].WalkConnect[aWC] := Land[H,J].WalkConnect[aWC];
+      if (Y >= 1) and InRange(X, 1, fMapX) and (aPass in Land[Y,X].Passability) then
+      if (H = 1) or (H = 3) or (aAllowDiag and (
+                                 ((H = 0) and not MapElem[Land[I,K].Obj+1].DiagonalBlocked) or
+                                 ((H = 2) and not MapElem[Land[I,K+1].Obj+1].DiagonalBlocked)))
+      then
+      begin
+        //Assert(Land[Y,X].WalkConnect[aWC] <> 0, 'Unprocessed tile?');
 
-      Inc(NCount);
+        if (NCount = 0) then
+          Land[I,K].WalkConnect[aWC] := Land[Y,X].WalkConnect[aWC]
+        else
+          //Remember alias
+          if (Parent[Land[Y,X].WalkConnect[aWC]] <> Parent[Land[I,K].WalkConnect[aWC]]) then
+            AddAlias(TopParent(Land[Y,X].WalkConnect[aWC]), TopParent(Land[I,K].WalkConnect[aWC]));
+
+        Inc(NCount);
+      end;
     end;
 
     //If there's no Area we create new one
     if NCount = 0 then
     begin
       Land[I,K].WalkConnect[aWC] := AreaID;
+      Parent[AreaID] := AreaID;
       Inc(AreaID);
+      Assert(AreaID < 255, 'UpdateWalkConnect failed due too many unconnected areas');
     end;
   end;
 
-  //Merge areas
+  //Merge parents
+  for I := 1 to AreaID - 1 do
+    while Parent[I] <> Parent[Parent[I]] do
+      Parent[I] := Parent[Parent[I]];
 
+  //Compress parents (we may need it on big maps if we do CCL in Words, but write results in Byte)
+  NCount := 1;
+  for I := 1 to AreaID - 1 do
+    if Parent[I] = I then
+    begin
+      Parent[I] := NCount;
+      Inc(NCount);
+    end;
+
+  //Merge areas
+  for I := 1 to fMapY do
+  for K := 1 to fMapX do
+  if (Land[I,K].WalkConnect[aWC] <> 0) then
+    Land[I,K].WalkConnect[aWC] := Parent[Land[I,K].WalkConnect[aWC]];
 end;
 
 

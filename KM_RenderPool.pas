@@ -378,10 +378,10 @@ begin
   for K := aRect.Left to aRect.Right do
   with fTerrain do
   begin
-    if Land[I,K].BorderTop then RenderTerrainBorder(Land[I,K].Border, dir_N, K, I);
-    if Land[I,K].BorderLeft then RenderTerrainBorder(Land[I,K].Border, dir_E, K, I);
-    if Land[I,K].BorderRight then RenderTerrainBorder(Land[I,K].Border, dir_W, K, I);
-    if Land[I,K].BorderBottom then RenderTerrainBorder(Land[I,K].Border, dir_S, K, I);
+    if Land[I,K].BorderSide and 1 = 1 then RenderTerrainBorder(Land[I,K].Border, dir_N, K, I);
+    if Land[I,K].BorderSide and 2 = 2 then RenderTerrainBorder(Land[I,K].Border, dir_E, K, I);
+    if Land[I,K].BorderSide and 4 = 4 then RenderTerrainBorder(Land[I,K].Border, dir_W, K, I);
+    if Land[I,K].BorderSide and 8 = 8 then RenderTerrainBorder(Land[I,K].Border, dir_S, K, I);
   end;
 
   //@Lewin: Since plans are per-player now, what do we do about allies that:

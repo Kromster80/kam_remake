@@ -34,6 +34,7 @@ type
   function KMSamePointDir(P1,P2:TKMPointDir): boolean;
 
   function KMRect(aLeft, aTop, aRight, aBottom: SmallInt): TKMRect; overload;
+  function KMRect(aPoint: TKMPoint): TKMRect; overload;
   function KMRect(aPoint: TKMPointF): TKMRect; overload;
   function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
   function KMInRect(aPoint: TKMPoint; aRect: TKMRect): Boolean; overload;
@@ -164,6 +165,16 @@ begin
   Result.Right  := aRight;
   Result.Top    := aTop;
   Result.Bottom := aBottom;
+end;
+
+
+//Make rect with single point
+function KMRect(aPoint: TKMPoint): TKMRect;
+begin
+  Result.Left   := aPoint.X;
+  Result.Right  := aPoint.X;
+  Result.Top    := aPoint.Y;
+  Result.Bottom := aPoint.Y;
 end;
 
 
