@@ -34,10 +34,12 @@ end;
 
 procedure TestKMTerrain.TestLoadAllMaps;
 var
-  I: Integer;
+  I, Count: Integer;
   SearchRec: TSearchRec;
   PathToMaps: string;
 begin
+  Count := 0;
+
   for I := 0 to 3 do
   begin
     case I of
@@ -56,15 +58,18 @@ begin
         begin
           fTerrain.LoadFromFile(PathToMaps + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
           Check(fTerrain.MapX * fTerrain.MapY <> 0, 'Map did not load: ' + SearchRec.Name);
+          Inc(Count);
         end;
       until (FindNext(SearchRec) <> 0);
       FindClose(SearchRec);
     end;
   end;
+
+  Status(IntToStr(Count) + ' maps checked')
 end;
 
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest(TestKMTerrain.Suite);
+  RegisterTest('Functional', TestKMTerrain.Suite);
 end.

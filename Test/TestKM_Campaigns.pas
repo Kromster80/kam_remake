@@ -60,7 +60,7 @@ end;
 
 procedure TestTKMCampaign.TestLoadFromFile;
 begin
-  FKMCampaign.LoadFromFile('tsk_campaign.cmp');
+  FKMCampaign.LoadFromFile('..\Campaigns\The Shattered Kingdom\info.cmp');
 
   Check(FKMCampaign.MapCount = 20);
   Check(FKMCampaign.Maps[0].NodeCount > 0);
@@ -76,7 +76,7 @@ var
   FileLoad, FileSave: string;
 begin
   //Test with sample file
-  FileLoad := ExtractFilePath(ParamStr(0)) + 'tsk_campaign.cmp';
+  FileLoad := ExtractFilePath(ParamStr(0)) + '..\Campaigns\The Shattered Kingdom\info.cmp';
   FileSave := ExtractFilePath(ParamStr(0)) + 'Temp\campaign.tmp';
   ForceDirectories(ExtractFilePath(FileSave));
   FKMCampaign.LoadFromFile(FileLoad);

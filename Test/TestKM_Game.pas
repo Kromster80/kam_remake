@@ -6,7 +6,6 @@ uses
   KM_Game, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary, KM_Terrain, KM_Units_Warrior, KM_Utils, Math;
 
 type
-  // Test methods for class TKMCampaign
   TestTKMGame = class(TTestCase)
   strict private
     //FKMGame: TKMGame;
