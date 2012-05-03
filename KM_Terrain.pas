@@ -2099,7 +2099,7 @@ const
   WCSet: array [TWalkConnect] of TPassability = (
     CanWalk, CanWalkRoad, CanFish, CanWolf, CanCrab, CanWorker);
 var
-  Early: Boolean;
+  CanSkip: Boolean;
   I,K,J: Integer;
   WC: TWalkConnect;
   AllowDiag: Boolean;
@@ -2114,20 +2114,20 @@ begin
 
     //todo: Can be optimized if we know from which Tile to rebuild, and if that tile makes no difference - skip the thing
 
-    //Allow to exit early if there are no relevant passability tiles in Rect
 
-    //See if we were asked to update whole map
-    Early := (aRect.Left > 1) and (aRect.Right < fMapX) and (aRect.Top > 1) and (aRect.Bottom < fMapY);
+    //Early test is allowed only if we don't need to update large portion (or even whole map)
+    CanSkip := (aRect.Right - aRect.Left < 8) and (aRect.Bottom  - aRect.Top < 8);
 
-    if Early then
+    //Verify that we can exit early if there are no relevant passability tiles in Rect
+    if CanSkip then
     for I := aRect.Top to aRect.Bottom do
     for K := aRect.Left to aRect.Right do
-      Early := Early and not (Pass in Land[I,K].Passability);
+      CanSkip := CanSkip and not (Pass in Land[I,K].Passability);
 
     //We can't rely on((Land[I,K].WalkConnect<>0) and (Pass in Land[I,K].Passability)) check
     //because BlockDiag objects don't affect it, still they can cause two areas to be separate 
 
-    if not Early then
+    if not CanSkip then
       if USE_NEW_WALKCONNECT then
         CCLFind(WC, Pass, AllowDiag, aRect)
       else
