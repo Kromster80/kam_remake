@@ -99,8 +99,10 @@ end;
 
 procedure TestTKMCampaign.TestMissionFile;
 begin
-  FKMCampaign.LoadFromFile('tsk_campaign.cmp');
-  Check(FKMCampaign.MissionFile(0) = 'TSK01.dat');
+  FKMCampaign.LoadFromFile('..\Campaigns\The Shattered Kingdom\info.cmp');
+  Check(FKMCampaign.MissionFile(0) = 'TSK01\TSK01.dat', 'Unexpected result: ' + FKMCampaign.MissionFile(0));
+  FKMCampaign.LoadFromFile('..\Campaigns\The Peasants Rebellion\info.cmp');
+  Check(FKMCampaign.MissionFile(0) = 'TPR01\TPR01.dat', 'Unexpected result: ' + FKMCampaign.MissionFile(0));
 end;
 
 procedure TestTKMCampaign.TestMissionTitle;

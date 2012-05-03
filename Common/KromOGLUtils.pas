@@ -29,7 +29,7 @@ type
     procedure SetRenderDefaults;
     procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
     procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
-    procedure glPrint(text: string);
+    procedure glPrint(text: AnsiString);
     procedure glkScale(x:single);
     procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
     procedure glkRect(Ax,Ay,Bx,By:single);
@@ -275,7 +275,7 @@ begin
 end;
 
 
-procedure glPrint(text: string);
+procedure glPrint(text: AnsiString);
 begin
   if text = '' then exit;
   glPushAttrib(GL_LIST_BIT);

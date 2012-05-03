@@ -61,7 +61,7 @@ type
       Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
       Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 
-      WalkConnect: array [TWalkConnect] of byte; //Whole map is painted into interconnected areas
+      WalkConnect: array [TWalkConnect] of Word; //Whole map is painted into interconnected areas
 
       Border: TBorderType; //Borders (ropes, planks, stones)
       BorderSide: Byte; //Bitfield whether the borders are enabled
@@ -264,6 +264,9 @@ var
   S:TKMemoryStream;
   NewX,NewY:integer;
 begin
+  fMapX := 0;
+  fMapY := 0;
+
   if not CheckFileExists(FileName) then Exit;
 
   fMapEditor := aMapEditor;
@@ -432,7 +435,7 @@ end;
 
 {Ensure that requested tile is within Map boundaries}
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
-function TTerrain.EnsureTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
+function TTerrain.EnsureTileInMapCoords(X,Y: Integer; Inset: Byte = 0):TKMPoint;
 begin
   Result.X := EnsureRange(X,1+Inset,fMapX-1-Inset);
   Result.Y := EnsureRange(Y,1+Inset,fMapY-1-Inset);
@@ -440,7 +443,7 @@ end;
 
 
 {Check if requested tile is water suitable for fish and/or sail. No waterfalls, but swamps/shallow water allowed}
-function TTerrain.TileIsWater(Loc:TKMPoint):boolean;
+function TTerrain.TileIsWater(Loc: TKMPoint): Boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
   Result := Land[Loc.Y,Loc.X].Terrain in [48,114,115,119,192,193,194,196, 200, 208..211, 235,236, 240,244];
@@ -448,7 +451,7 @@ end;
 
 
 {Check if requested tile has any water, including ground-water transitions}
-function TTerrain.TileHasWater(Loc:TKMPoint):boolean;
+function TTerrain.TileHasWater(Loc: TKMPoint): Boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
   Result := (Land[Loc.Y,Loc.X].Terrain in [4,10,12,22,23,44,48,105..107,114..127,142,143,192..194,196,198..200,208..211,230,232..244]);
@@ -456,7 +459,7 @@ end;
 
 
 {Check if requested tile is sand suitable for crabs}
-function TTerrain.TileIsSand(Loc:TKMPoint):boolean;
+function TTerrain.TileIsSand(Loc: TKMPoint): Boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
   Result := Land[Loc.Y,Loc.X].Terrain in [31..33, 70,71, 99,100,102,103, 108,109, 112,113, 116,117, 169, 173, 181, 189];
@@ -464,7 +467,7 @@ end;
 
 
 {Check if requested tile is Stone and returns Stone deposit}
-function TTerrain.TileIsStone(X,Y:Word):byte;
+function TTerrain.TileIsStone(X,Y: Word): Byte;
 begin
   //Should be Tileset property, especially if we allow different tilesets
   case Land[Y, X].Terrain of
@@ -479,7 +482,7 @@ end;
 
 
 {Check if requested tile is soil suitable for fields and trees}
-function TTerrain.TileIsSoil(Loc:TKMPoint):boolean;
+function TTerrain.TileIsSoil(Loc: TKMPoint): Boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
   Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26..28, 34..39, 47, 49, 55..58, 64..69, 72..80, 84..87, 88,89, 93..98,180,182..183,188,190..191,220,247];
@@ -487,7 +490,7 @@ end;
 
 
 {Check if requested tile is generally walkable}
-function TTerrain.TileIsWalkable(Loc:TKMPoint):boolean;
+function TTerrain.TileIsWalkable(Loc: TKMPoint): Boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
   //Include 1/2 and 3/4 walkable as walkable
@@ -2725,16 +2728,16 @@ end;
 
 procedure TTerrain.CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean; aRect: TKMRect);
 var
-  Parent: array[0..255] of Byte;
+  Parent: array[0..512] of Word;
 
-  function TopParent(const Area: Byte): Byte;
+  function TopParent(const Area: Word): Word;
   begin
     Result := Area;
     while Parent[Result] <> Result do
       Result := Parent[Result];
   end;
 
-  procedure AddAlias(const Area1, Area2: Byte);
+  procedure AddAlias(const Area1, Area2: Word);
   begin
     //See if there are common parents
     if Area2 <> Area1 then
@@ -2744,7 +2747,7 @@ const Samples: array [0..3, 0..1] of ShortInt = ((-1,-1),(0,-1),(1,-1),(-1,0));
 var
   I,K,H: Word;
   X,Y: Smallint;
-  AreaID: Byte;
+  AreaID: Word;
   NCount: Byte;
 begin
   //Reset everything
@@ -2791,7 +2794,7 @@ begin
       Land[I,K].WalkConnect[aWC] := AreaID;
       Parent[AreaID] := AreaID;
       Inc(AreaID);
-      Assert(AreaID < 255, 'UpdateWalkConnect failed due too many unconnected areas');
+      Assert(AreaID < 32767, 'UpdateWalkConnect failed due too many unconnected areas');
     end;
   end;
 
@@ -2800,6 +2803,7 @@ begin
     while Parent[I] <> Parent[Parent[I]] do
       Parent[I] := Parent[Parent[I]];
 
+  //todo: bugfix
   //Compress parents (we may need it on big maps if we do CCL in Words, but write results in Byte)
   NCount := 1;
   for I := 1 to AreaID - 1 do

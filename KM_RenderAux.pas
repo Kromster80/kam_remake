@@ -21,7 +21,7 @@ type
     procedure Projectile(x1,y1,x2,y2:single);
     procedure Quad(pX,pY:integer; aCol:TColor4);
     procedure SquareOnTerrain(X1, Y1, X2, Y2: Single; Fill, Line: TColor4);
-    procedure Text(pX, pY: Integer; const aText: string; aCol: TColor4);
+    procedure Text(pX, pY: Integer; const aText: AnsiString; aCol: TColor4);
     procedure UnitMoves(aRect: TKMRect);
     procedure UnitPointers(pX,pY:single; Count:integer);
     procedure UnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
@@ -182,7 +182,7 @@ begin
 end;
 
 
-procedure TRenderAux.Text(pX, pY: Integer; const aText: string; aCol: TColor4);
+procedure TRenderAux.Text(pX, pY: Integer; const aText: AnsiString; aCol: TColor4);
 begin
   glColor4ubv(@aCol);
   glRasterPos2f(pX - 0.5, pY - 0.5 - fTerrain.HeightAt(pX-0.5, pY-0.5) / CELL_HEIGHT_DIV);

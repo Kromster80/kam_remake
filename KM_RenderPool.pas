@@ -354,7 +354,7 @@ begin
 
     for i := aRect.Top to aRect.Bottom do
     for k := aRect.Left to aRect.Right do
-      fRenderAux.Text(k, i, IntToStr(fTerrain.Land[i,k].WalkConnect[wcFish]), $FFFFFFFF);
+      fRenderAux.Text(k, i, IntToStr(fTerrain.Land[i,k].WalkConnect[wcWalk]), $FFFFFFFF);
 
   glPopAttrib;
 

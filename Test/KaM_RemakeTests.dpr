@@ -13,7 +13,8 @@ uses
   TestKM_CommonClasses in 'TestKM_CommonClasses.pas',
   TestKM_Campaigns in 'TestKM_Campaigns.pas',
   TestKM_Game in 'TestKM_Game.pas',
-  TestKM_Points in 'TestKM_Points.pas';
+  TestKM_Points in 'TestKM_Points.pas',
+  TestKM_Terrain in 'TestKM_Terrain.pas';
 
 {$R *.RES}
 
