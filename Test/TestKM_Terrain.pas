@@ -40,13 +40,14 @@ var
 begin
   Count := 0;
 
-  for I := 0 to 3 do
+  for I := 0 to 4 do
   begin
     case I of
       0: PathToMaps := ExtractFilePath(ParamStr(0)) + '..\Maps\';
       1: PathToMaps := ExtractFilePath(ParamStr(0)) + '..\MapsMP\';
       2: PathToMaps := ExtractFilePath(ParamStr(0)) + '..\Campaigns\The Shattered Kingdom\';
       3: PathToMaps := ExtractFilePath(ParamStr(0)) + '..\Campaigns\The Peasants Rebellion\';
+      4: PathToMaps := ExtractFilePath(ParamStr(0)) + '..\Tutorials\';
     end;
 
     if DirectoryExists(PathToMaps) then
