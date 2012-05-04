@@ -5,6 +5,8 @@
  +	All players reported the map being played to the master server, it should have only been the host
  +	PC icon was not shown as the flag for AI players in-game (only in lobby)
  +	Rare range check error when equipping a soldier due to dead recruit in the barracks
+ +	Range check error due to projectiles landing off map (happens in Another Day in Hell around 2 minutes)
+ +	"Assertion Failed, KM_CommonClasses.pas, line 349" caused by duplicate points in walking NodeList
 
 	Range check error once upon MP game start
 	Kicked when the host selects a map you don't have?

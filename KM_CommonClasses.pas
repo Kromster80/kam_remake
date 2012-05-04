@@ -483,6 +483,7 @@ end;
 
 procedure TKMPointList.SaveToStream(SaveStream: TKMemoryStream);
 begin
+  SaveStream.Write(AllowDuplicates);
   SaveStream.Write(fCount);
   if fCount > 0 then
     SaveStream.Write(fItems[0], SizeOf(fItems[0]) * fCount);
@@ -491,6 +492,7 @@ end;
 
 procedure TKMPointList.LoadFromStream(LoadStream:TKMemoryStream);
 begin
+  LoadStream.Read(AllowDuplicates);
   LoadStream.Read(fCount);
   SetLength(fItems, fCount);
   if fCount > 0 then
