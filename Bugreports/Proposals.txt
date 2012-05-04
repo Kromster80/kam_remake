@@ -14,3 +14,4 @@ Ideas that have not been decided. Should be moved to Bugslist.txt when a decisio
 	Add buttons to Replay to see FOW as each player or everything
 	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay)
 	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
+	When player leaves allow his aalies to take control over his village and army
