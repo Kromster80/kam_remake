@@ -2,6 +2,10 @@ program KaM_Remake;
 {$I KaM_Remake.inc}
 
 uses
+  madExcept,
+  madLinkDisAsm,
+  madListHardware,
+  madListModules,
   {$IFDEF UNIX} cthreads, {$ENDIF} //Required for thread support on Unix/Linux
   //{$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
   Forms,

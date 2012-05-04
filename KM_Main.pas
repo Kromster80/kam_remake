@@ -2,7 +2,7 @@ unit KM_Main;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs,
+  Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs, MadExcept,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
   KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions;
 
@@ -17,6 +17,8 @@ type
     procedure DoRestore(Sender: TObject);
     procedure DoDeactivate(Sender: TObject);
     procedure DoIdle(Sender: TObject; var Done: Boolean);
+    procedure DoExceptionAction(Action: TExceptAction; const ExceptIntf: IMEException; var Handled: boolean);
+    procedure DoException(const ExceptIntf: IMEException; var Handled: boolean);
   public
     constructor Create;
 
@@ -53,7 +55,8 @@ uses KM_Defaults, KM_Game, KM_Utils, KM_Log;
 constructor TKMMain.Create;
 begin
   inherited;
-
+  RegisterExceptionHandler(DoException, stTrySyncCallAlways);
+  RegisterExceptActionHandler(DoExceptionAction, stTrySyncCallAlways);
 end;
 
 
@@ -195,6 +198,35 @@ begin
   end;
 
   Done := False; //Repeats OnIdle asap without performing Form-specific idle code
+end;
+
+
+procedure TKMMain.DoExceptionAction(Action: TExceptAction; const ExceptIntf: IMEException; var Handled: boolean);
+var CrashFile: string;
+begin
+  //We want to add some of our own files...
+  if (Action = eaSendBugReport) or (Action = eaSaveBugReport) then
+  begin
+    CrashFile := 'KaM_Crash_' + GAME_REVISION + '_' + FormatDateTime('yyyy-mm-dd hh-nn-ss', Now) + '.zip';
+    MESettings.BugReportZip := CrashFile; //Exception info also goes in the zip
+    MESettings.ScreenShotZip := CrashFile; //Screenshot also goes in the zip
+
+    if fGame <> nil then fGame.AttachCrashReport(ExceptIntf, CrashFile);
+
+    //Do the log after fGame because fGame adds stuff to the log
+    if fLog <> nil then ExceptIntf.AdditionalAttachments.Add(fLog.LogPath, '', CrashFile);
+
+    //Do settings here not in fGame because we could crash before the game is created
+    if FileExists(ExeDir + SETTINGS_FILE) then
+      ExceptIntf.AdditionalAttachments.Add(ExeDir + SETTINGS_FILE, '', CrashFile);
+  end;
+end;
+
+
+procedure TKMMain.DoException(const ExceptIntf: IMEException; var Handled: boolean);
+begin
+  //It's nice to know when the exception happened in our log if the user decides to play on
+  fLog.AppendLog('Exception occured: '+ExceptIntf.ExceptClass+': '+ExceptIntf.ExceptMessage);
 end;
 
 

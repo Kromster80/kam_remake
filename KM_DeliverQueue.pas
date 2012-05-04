@@ -418,8 +418,7 @@ end;
 procedure TKMDeliverQueue.AddDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
 var i,k,j:integer;
 begin
-  if aResource = rt_None then
-    fGame.GameError(KMPoint(0,0), 'Demanding rt_None');
+  Assert(aResource <> rt_None, 'Demanding rt_None');
 
   for k:=1 to aCount do begin
     i:=1; while (i<=DemandCount)and(fDemand[i].Resource<>rt_None) do inc(i);

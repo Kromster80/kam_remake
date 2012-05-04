@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} MPlayer, {$ENDIF}
-  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo, Zippit,
+  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo, MadExcept,
   KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
   KM_Networking,
   KM_MapEditor, KM_Campaigns, KM_EventProcess,
@@ -105,7 +105,6 @@ type
 
     procedure GameMPPlay(Sender:TObject);
     procedure GameMPReadyToPlay(Sender:TObject);
-    procedure GameError(aLoc: TKMPoint; aText: string); //Stop the game because of an error
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg:TGameResultMsg);
@@ -159,6 +158,7 @@ type
 
     procedure Save(const aFileName: string);
     procedure PrintScreen;
+    procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
 
     procedure Render;
     procedure UpdateGame(Sender: TObject);
@@ -764,53 +764,35 @@ begin
 end;
 
 
-{ Set viewport and save command log }
-procedure TKMGame.GameError(aLoc: TKMPoint; aText: string);
-var
-  PreviousState: TGameState;
-  MyZip: TZippit;
-  CrashFile: string;
-  i: integer;
-begin
-  //Handle duplicate calls for GameError
-  if fGameState = gsNoGame then exit;
+procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
 
-  PreviousState := GameState; //Could be running, replay, map editor, etc.
-  SetGameState(gsPaused);
-  if not KMSamePoint(aLoc, KMPoint(0,0)) then
+  procedure AttachFile(const aFile:string);
   begin
-    fViewport.Position := KMPointF(aLoc);
-    SHOW_UNIT_ROUTES := True;
-    SHOW_UNIT_MOVEMENT := True;
+    if (aFile = '') or not FileExists(aFile) then Exit;
+    ExceptIntf.AdditionalAttachments.Add(aFile, '', aZipFile);
   end;
 
-  fLog.AppendLog('Gameplay Error: "' + aText + '" at location ' + TypeToString(aLoc));
+var I: Integer;
+begin
+  fLog.AppendLog('Creating crash report...');
 
   if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
     fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl')); //Save replay data ourselves
 
-  MyZip := TZippit.Create;
-  //Include in the bug report:
-  MyZip.AddFiles(SaveName('basesave', '*')); //Replay files
-  MyZip.AddFile(fLog.LogPath); //Log file
-  MyZip.AddFile(fMissionFile); //Mission script
-  for I := 1 to AUTOSAVE_COUNT do
-    MyZip.AddFiles(SaveName('autosave' + Int2Fix(I, 2), '*')); //All autosaves
+  AttachFile(SaveName('basesave', 'rpl'));
+  AttachFile(SaveName('basesave', 'bas'));
+  AttachFile(SaveName('basesave', 'sav'));
 
-  //Save it as: KaM Crash r1830 2007-12-23 15-24-33.zip
-  CrashFile := 'KaM Crash ' + GAME_REVISION + ' ' + FormatDateTime('yyyy-mm-dd hh-nn-ss', Now) + '.zip';
-  CreateDir(ExeDir + 'Crash Reports');
-  MyZip.SaveToFile(ExeDir + 'Crash Reports\' + CrashFile);
-  FreeAndNil(MyZip); //Free the memory
+  AttachFile(fMissionFile);
 
-  if MessageDlg(
-    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary[TX_GAME_ERROR_SEND_REPORT],[CrashFile])+eol+eol+fTextLibrary[TX_GAME_ERROR_WARNING_CONTINUE],
-    mtWarning, [mbYes, mbNo], 0) <> mrYes then
+  for I := 1 to AUTOSAVE_COUNT do //All autosaves
+  begin
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'rpl'));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'bas'));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'sav'));
+  end;
 
-    Stop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
-  else
-    //If they choose to play on, start the game again because the player cannot tell that the game is paused
-    SetGameState(PreviousState);
+  fLog.AppendLog('Crash report created');
 end;
 
 
@@ -1554,7 +1536,6 @@ begin
     gsOnHold:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
     gsNoGame:   ;
     gsRunning:  if not fMultiplayerMode or (fNetworking.NetGameState <> lgs_Loading) then
-                try //Catch exceptions during update state
                   for I := 1 to fGameSpeedMultiplier do
                   begin
                     if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
@@ -1600,21 +1581,7 @@ begin
                     end;
                     fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                   end;
-                except
-                  //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                  on E: ELocError do
-                  begin
-                    GameError(E.Loc, E.ClassName+': '+E.Message);
-                    Exit; //Exit because the game could have been stopped
-                  end;
-                  on E: Exception do
-                  begin
-                    GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
-                    Exit; //Exit because the game could have been stopped
-                  end;
-                end;
-    gsReplay:   try //Catch exceptions during update state
-                  for I := 1 to fGameSpeedMultiplier do
+    gsReplay:     for I := 1 to fGameSpeedMultiplier do
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
@@ -1636,11 +1603,6 @@ begin
                     //Break the for loop (if we are using speed up)
                     if DoGameHold then break;
                   end;
-                except
-                  //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                  on E : ELocError do GameError(E.Loc, E.ClassName+': '+E.Message);
-                  on E : Exception do GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
-                end;
     gsEditor:   begin
                   fTerrain.IncAnimStep;
                   fPlayers.IncAnimStep;
