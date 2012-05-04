@@ -148,7 +148,6 @@ begin
     raise ELocError.Create('WalkTo 0:0', fWalkTo);
 
   NodeList := TKMPointList.Create; //Freed on destroy
-  NodeList.AllowDuplicates := True; //When we append a change to the route, it may loop-back on itself
   SetInitValues;
 
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
@@ -355,7 +354,6 @@ begin
   else //Append route to existing part
   begin
     NodeList2 := TKMPointList.Create;
-    NodeList2.AllowDuplicates := True; //Route can loop back on our old route
     try
       //Make a route
       if CanWalkToTarget(NodeList[NodeList.Count-1], fPass) then
@@ -697,7 +695,6 @@ begin
     and (fDestBlocked or fOpponent.GetUnitAction.Locked) then
     begin
       NewNodeList := TKMPointList.Create;
-      NewNodeList.AllowDuplicates := True; //When we append a change to the route, it may loop-back on itself
       //Make a new route avoiding tiles with busy units
       if fGame.Pathfinding.Route_MakeAvoid(fUnit.GetPosition, fWalkTo, [GetEffectivePassability], fDistance, fTargetHouse, NewNodeList) then
         //Check if the new route still goes through busy units (no other route exists)
