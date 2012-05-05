@@ -68,7 +68,7 @@ uses KM_Game, KM_Log, KM_Resource;
 {TKMAllPlayers}
 constructor TKMPlayersCollection.Create;
 begin
-  Inherited Create;
+  inherited Create;
 
   fPlayerAnimals := TKMPlayerAnimals.Create(PLAYER_ANIMAL); //Always create Animals
 end;
@@ -84,7 +84,7 @@ begin
 
   MyPlayer := nil;
   Selected := nil;
-  Inherited;
+  inherited;
 end;
 
 

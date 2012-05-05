@@ -255,7 +255,7 @@ end;
 //WasTrained - the uniot was trained by player and therefor counted by Stats
 function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean=false): TKMUnit;
 begin
-  Result := Inherited AddUnit(aUnitType, Position, AutoPlace);
+  Result := inherited AddUnit(aUnitType, Position, AutoPlace);
 
   if Result <> nil then
   begin

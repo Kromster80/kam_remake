@@ -33,7 +33,7 @@ uses KM_TGATexture;
 constructor TKMTileset.Create(const aPath: string; aSprites: TKMSpritePack);
 var I: Integer;
 begin
-  Inherited Create;
+  inherited Create;
 
   LoadTileSet(aPath);
 

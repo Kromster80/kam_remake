@@ -46,7 +46,7 @@ const
 { TTaskAttackHouse }
 constructor TTaskAttackHouse.Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
 begin
-  Inherited Create(aWarrior);
+  inherited Create(aWarrior);
   fTaskName := utn_AttackHouse;
   fHouse := aHouse.GetHousePointer;
   fDestroyingHouse := false;
@@ -56,7 +56,7 @@ end;
 
 constructor TTaskAttackHouse.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fDestroyingHouse);
   LoadStream.Read(LocID);
@@ -65,7 +65,7 @@ end;
 
 procedure TTaskAttackHouse.SyncLoad;
 begin
-  Inherited;
+  inherited;
   fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
 end;
 
@@ -73,7 +73,7 @@ end;
 destructor TTaskAttackHouse.Destroy;
 begin
   fPlayers.CleanUpHousePointer(fHouse);
-  Inherited;
+  inherited;
 end;
 
 
@@ -174,7 +174,7 @@ end;
 
 procedure TTaskAttackHouse.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID
   else

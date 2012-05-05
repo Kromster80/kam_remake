@@ -161,7 +161,7 @@ end;
 constructor TResourceFont.Create(aRender: TRender);
 var F: TKMFont;
 begin
-  Inherited Create;
+  inherited Create;
   fRender := aRender;
 
   for F := Low(TKMFont) to High(TKMFont) do
@@ -175,7 +175,7 @@ begin
   for F := Low(TKMFont) to High(TKMFont) do
     fFontData[F].Free;
 
-  Inherited;
+  inherited;
 end;
 
 

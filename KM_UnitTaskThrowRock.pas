@@ -28,7 +28,7 @@ uses KM_PlayersCollection, KM_Game;
 { TTaskThrowRock }
 constructor TTaskThrowRock.Create(aUnit,aTarget:TKMUnit);
 begin
-  Inherited Create(aUnit);
+  inherited Create(aUnit);
   fTaskName := utn_ThrowRock;
   fTarget := aTarget.GetUnitPointer;
 end;
@@ -39,13 +39,13 @@ begin
   if (not fUnit.GetHome.IsDestroyed) and (fUnit.GetHome.GetState = hst_Work) then
     fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our tower with "working" animations
   fPlayers.CleanUpUnitPointer(fTarget);
-  Inherited;
+  inherited;
 end;
 
 
 constructor TTaskThrowRock.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(fTarget, 4);
   LoadStream.Read(fFlightTime);
 end;
@@ -53,7 +53,7 @@ end;
 
 procedure TTaskThrowRock.SyncLoad;
 begin
-  Inherited;
+  inherited;
   fTarget := fPlayers.GetUnitByID(cardinal(fTarget));
 end;
 
@@ -98,7 +98,7 @@ end;
 
 procedure TTaskThrowRock.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   if fTarget <> nil then
     SaveStream.Write(fTarget.ID) //Store ID, then substitute it with reference on SyncLoad
   else

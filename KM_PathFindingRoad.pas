@@ -2,7 +2,7 @@ unit KM_PathFindingRoad;
 {$I KaM_Remake.inc}
 interface
 uses SysUtils, Math, KromUtils,
-  KM_CommonClasses, KM_Defaults, KM_Houses, KM_PathFinding, KM_Terrain, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_PathFinding, KM_Points;
 
 
 type
@@ -29,6 +29,7 @@ uses KM_PlayersCollection;
 { TPathFindingRoad }
 constructor TPathFindingRoad.Create(aOwner: TPlayerIndex);
 begin
+  inherited;
   fOwner := aOwner;
 end;
 

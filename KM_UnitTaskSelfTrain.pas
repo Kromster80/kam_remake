@@ -26,7 +26,7 @@ uses KM_PlayersCollection;
 { TTaskSelfTrain }
 constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
-  Inherited Create(aUnit);
+  inherited Create(aUnit);
   fTaskName := utn_SelfTrain;
   fSchool   := TKMHouseSchool(aSchool.GetHousePointer);
   fUnit.Visible := false;
@@ -35,14 +35,14 @@ end;
 
 constructor TTaskSelfTrain.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(fSchool, 4);
 end;
 
 
 procedure TTaskSelfTrain.SyncLoad;
 begin
-  Inherited;
+  inherited;
   fSchool := TKMHouseSchool(fPlayers.GetHouseByID(cardinal(fSchool)));
 end;
 
@@ -51,7 +51,7 @@ destructor TTaskSelfTrain.Destroy;
 begin
   if (fPhase <= 5) and not fSchool.IsDestroyed then fSchool.SetState(hst_Idle); //If we abandon for some reason, clear the school animation
   fPlayers.CleanUpHousePointer(TKMHouse(fSchool));
-  Inherited;
+  inherited;
 end;
 
 
@@ -108,7 +108,7 @@ end;
 
 procedure TTaskSelfTrain.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   if fSchool <> nil then
     SaveStream.Write(fSchool.ID) //Store ID, then substitute it with reference on SyncLoad
   else

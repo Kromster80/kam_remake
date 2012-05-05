@@ -45,7 +45,7 @@ constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout, aPingInterval, aA
                                       const aMasterServerAddress:string; const aHTMLStatusFile:string;
                                       const aWelcomeMessage:string);
 begin
-  Inherited Create;
+  inherited Create;
   fNetServer := TKMNetServer.Create(aMaxRooms, aKickTimeout, aHTMLStatusFile, aWelcomeMessage);
   fMasterServer := TKMMasterServer.Create(aMasterServerAddress);
   fMasterServer.OnError := MasterServerError;
@@ -61,7 +61,7 @@ begin
   fNetServer.Free;
   fMasterServer.Free;
   StatusMessage('Server destroyed');
-  Inherited;
+  inherited;
 end;
 
 

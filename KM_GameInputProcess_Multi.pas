@@ -110,7 +110,7 @@ end;
 function TCommandsPack.CRC:cardinal;
 var i:integer;
 begin
-  Result := 0;    
+  Result := 0;
   for i:=1 to fCount do
     Result := Result xor Adler32CRC(@fItems[i], SizeOf(fItems[i]))
 end;
@@ -140,7 +140,7 @@ end;
 constructor TGameInputProcess_Multi.Create(aReplayState:TGIPReplayState; aNetworking:TKMNetworking);
 var i:integer; k:TPlayerIndex;
 begin
-  Inherited Create(aReplayState);
+  inherited Create(aReplayState);
   fNetworking := aNetworking;
   fNetworking.OnCommands := RecieveCommands;
   fNetworking.OnResyncFromTick := ResyncFromTick;
@@ -156,11 +156,14 @@ end;
 
 
 destructor TGameInputProcess_Multi.Destroy;
-var i:integer; k:TPlayerIndex;
+var
+  I: integer;
+  K: TPlayerIndex;
 begin
-  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to MAX_PLAYERS-1 do
-    fSchedule[i,k].Free;
-  Inherited;
+  for I := 0 to MAX_SCHEDULE - 1 do
+    for K := 0 to MAX_PLAYERS - 1 do
+      fSchedule[I, K].Free;
+  inherited;
 end;
 
 

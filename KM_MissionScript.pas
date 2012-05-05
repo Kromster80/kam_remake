@@ -190,7 +190,7 @@ const
 { TMissionParserGeneric }
 constructor TMissionParserGeneric.Create(aStrictParsing: boolean);
 begin
-  Inherited Create;
+  inherited Create;
   fStrictParsing := aStrictParsing;
 end;
 
@@ -314,7 +314,7 @@ var
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
-  Inherited LoadMission(aFileName);
+  inherited LoadMission(aFileName);
 
   Result := false;
 
@@ -436,7 +436,7 @@ end;
 constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aStrictParsing: boolean);
 var i:integer;
 begin
-  Inherited Create(aStrictParsing);
+  inherited Create(aStrictParsing);
   fParsingMode := aMode;
 
   for i:=0 to High(fRemap) do
@@ -449,7 +449,7 @@ end;
 constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersRemap: TPlayerArray; aStrictParsing:boolean);
 var i:integer;
 begin
-  Inherited Create(aStrictParsing);
+  inherited Create(aStrictParsing);
   fParsingMode := aMode;
 
   //PlayerRemap tells us which player should be used for which index
@@ -468,7 +468,7 @@ var
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
-  Inherited LoadMission(aFileName);
+  inherited LoadMission(aFileName);
 
   Assert(fTerrain <> nil);
 
@@ -1324,7 +1324,7 @@ var
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
-  Inherited LoadMission(aFileName);
+  inherited LoadMission(aFileName);
 
   fLastPlayer := 0;
   fHumanPlayer := 0;

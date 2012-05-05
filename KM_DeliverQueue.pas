@@ -123,7 +123,7 @@ const
 
 constructor TKMDeliveries.Create;
 begin
-  Inherited;
+  inherited;
   fQueue := TKMDeliverQueue.Create;
 end;
 
@@ -131,7 +131,7 @@ end;
 destructor TKMDeliveries.Destroy;
 begin
   fQueue.Free;
-  Inherited;
+  inherited;
 end;
 
 
@@ -249,7 +249,6 @@ begin
   AvailableDeliveries := fQueue.GetAvailableDeliveriesCount;
   AvailableSerfs := GetIdleSerfCount;
   if AvailableSerfs*AvailableDeliveries = 0 then Exit;
-
 
   if AvailableDeliveries > AvailableSerfs then
   begin

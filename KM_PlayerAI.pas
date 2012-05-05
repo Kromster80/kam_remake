@@ -80,8 +80,8 @@ type //For now IDs must match with KaM
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
-     KM_Sound, KM_MessageStack, KM_EventProcess;
+uses KM_Game, KM_PlayersCollection, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
+     KM_Sound, KM_EventProcess;
 
 
 const
@@ -93,7 +93,7 @@ const
 
 constructor TAIDefencePosition.Create(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
 begin
-  Inherited Create;
+  inherited Create;
   Position := aPos;
   GroupType := aGroupType;
   DefenceRadius := aDefenceRadius;
@@ -105,7 +105,7 @@ end;
 destructor TAIDefencePosition.Destroy;
 begin
   ClearCurrentCommander; //Ensure pointer is removed
-  Inherited;
+  inherited;
 end;
 
 
@@ -138,7 +138,7 @@ end;
 
 constructor TAIDefencePosition.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited Create;
+  inherited Create;
   LoadStream.Read(Position);
   LoadStream.Read(GroupType, SizeOf(GroupType));
   LoadStream.Read(DefenceRadius);

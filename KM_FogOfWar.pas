@@ -46,7 +46,7 @@ uses KM_Defaults, KM_Game;
 //Init with Terrain size only once on creation as terrain size never change during the game
 constructor TKMFogOfWar.Create(X,Y: Word);
 begin
-  Inherited Create;
+  inherited Create;
   SetMapSize(X,Y);
 end;
 

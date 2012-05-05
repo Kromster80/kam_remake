@@ -30,7 +30,7 @@ uses KM_Resource;
 constructor TUnitActionAbandonWalk.Create(aUnit: TKMUnit; LocB, aVertexOccupied: TKMPoint; aActionType: TUnitActionType);
 begin
   Assert(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
-  Inherited Create(aUnit, aActionType, False);
+  inherited Create(aUnit, aActionType, False);
 
   fWalkTo         := LocB;
   fVertexOccupied := aVertexOccupied;
@@ -44,13 +44,13 @@ begin
     fUnit.VertexRem(fVertexOccupied); //Unoccupy vertex
     fVertexOccupied := KMPoint(0,0);
   end;
-  Inherited;
+  inherited;
 end;
 
 
 constructor TUnitActionAbandonWalk.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fVertexOccupied);
 end;
@@ -108,7 +108,7 @@ end;
 
 procedure TUnitActionAbandonWalk.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   SaveStream.Write(fWalkTo);
   SaveStream.Write(fVertexOccupied);
 end;

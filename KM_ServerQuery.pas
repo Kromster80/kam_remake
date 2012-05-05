@@ -254,7 +254,7 @@ end;
 { TKMQuery }
 constructor TKMQuery.Create;
 begin
-  Inherited;
+  inherited;
   fNetClient := TKMNetClient.Create;
   fQueryIsDone := false;
   fQueryActive := false;
@@ -264,7 +264,7 @@ end;
 destructor TKMQuery.Destroy;
 begin
   fNetClient.Free;
-  Inherited;
+  inherited;
 end;
 
 
@@ -361,7 +361,7 @@ end;
 constructor TKMServerQuery.Create(aMasterServerAddress: string);
 var i: integer;
 begin
-  Inherited Create;
+  inherited Create;
   fMasterServer := TKMMasterServer.Create(aMasterServerAddress);
   fMasterServer.OnServerList := ReceiveServerList;
   fMasterServer.OnAnnouncements := ReceiveAnnouncements;
@@ -387,7 +387,7 @@ begin
   fRoomList.Free;
   for i:=0 to MAX_QUERIES-1 do
     fQuery[i].Free;
-  Inherited;
+  inherited;
 end;
 
 

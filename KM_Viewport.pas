@@ -49,7 +49,7 @@ uses KM_Defaults, KM_Sound, KM_Game, KM_Main, KM_Resource, KM_ResourceCursors;
 
 constructor TViewport.Create(aWidth, aHeight: Integer);
 begin
-  Inherited Create;
+  inherited Create;
   fMapX := 1; //Avoid division by 0
   fMapY := 1; //Avoid division by 0
 

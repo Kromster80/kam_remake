@@ -498,7 +498,7 @@ begin
   if (Msg.CmdType = SC_SCREENSAVE) or (Msg.CmdType = SC_MONITORPOWER) then
     Msg.Result := -1
   else
-    Inherited;
+    inherited;
 end;
 {$ENDIF}
 

@@ -180,7 +180,7 @@ uses
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
 constructor TKMGame.Create(aHandle: HWND; aScreenX,aScreenY:integer; aVSync:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
 begin
-  Inherited Create;
+  inherited Create;
   fScreenX := aScreenX;
   fScreenY := aScreenY;
   fAdvanceFrame := false;
@@ -276,7 +276,7 @@ begin
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fGameOptions);
   fPerfLog.Free;
-  Inherited;
+  inherited;
 end;
 
 

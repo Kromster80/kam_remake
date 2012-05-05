@@ -89,17 +89,10 @@ end;
 constructor TKMPalettes.Create;
 var i:TKMPal;
 begin
-  Inherited Create;
+  inherited Create;
 
   for i:=Low(TKMPal) to High(TKMPal) do
     fPalData[i] := TKMPalData.Create;
-end;
-
-
-function TKMPalettes.DefDal: TKMPalData;
-begin
-  //Default palette to use when generating full-color RGB textures
-  Result := fPalData[pal_0];
 end;
 
 
@@ -110,6 +103,13 @@ begin
     fPalData[i].Free;
 
   inherited;
+end;
+
+
+function TKMPalettes.DefDal: TKMPalData;
+begin
+  //Default palette to use when generating full-color RGB textures
+  Result := fPalData[pal_0];
 end;
 
 

@@ -504,7 +504,7 @@ const
 { TKMHouseDatClass }
 constructor TKMHouseDatClass.Create(aHouseType: THouseType);
 begin
-  Inherited Create;
+  inherited Create;
   fHouseType := aHouseType;
   fNameTextID := TX_HOUSES_NAMES__29 + HouseKaMOrder[fHouseType] - 1; //May be overridden for new houses
 end;
@@ -629,7 +629,7 @@ constructor TKMHouseDatCollection.Create;
 
 var H: THouseType; I: Integer;
 begin
-  Inherited;
+  inherited;
 
   for H := Low(THouseType) to High(THouseType) do
     fItems[H] := TKMHouseDatClass.Create(H);
@@ -700,7 +700,7 @@ begin
   for H := Low(THouseType) to High(THouseType) do
     FreeAndNil(fItems[H]);
 
-  Inherited;
+  inherited;
 end;
 
 

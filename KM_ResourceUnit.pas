@@ -138,7 +138,7 @@ var
 { TKMUnitsDatClass }
 constructor TKMUnitDatClass.Create(aType: TUnitType);
 begin
-  Inherited Create;
+  inherited Create;
   fUnitType := aType;
 end;
 
@@ -337,7 +337,7 @@ end;
 constructor TKMUnitDatCollection.Create;
 var U:TUnitType;
 begin
-  Inherited;
+  inherited;
 
   for U := Low(TUnitType) to High(TUnitType) do
     fItems[U] := TKMUnitDatClass.Create(U);

@@ -364,7 +364,7 @@ begin
     end;
     AlutExit;
   end;
-  Inherited;
+  inherited;
 end;
 
 

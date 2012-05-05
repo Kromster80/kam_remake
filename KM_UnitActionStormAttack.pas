@@ -39,7 +39,7 @@ const STORM_SPEEDUP = 1.5;
 constructor TUnitActionStormAttack.Create(aUnit: TKMUnit; aActionType: TUnitActionType; aRow: Integer);
 const MIN_STAMINA=8; MAX_STAMINA=6; //8..13
 begin
-  Inherited Create(aUnit, aActionType, True);
+  inherited Create(aUnit, aActionType, True);
   fTileSteps      := -1; //-1 so the first initializing step makes it 0
   fDelay          := (aRow-1)*5; //No delay for the first row
   fStamina        := MIN_STAMINA + KaMRandom(MAX_STAMINA);
@@ -52,13 +52,13 @@ destructor TUnitActionStormAttack.Destroy;
 begin
   if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
     DecVertex;
-  Inherited;
+  inherited;
 end;
 
 
 constructor TUnitActionStormAttack.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(fDelay);
   LoadStream.Read(fTileSteps);
   LoadStream.Read(fStamina);
@@ -192,7 +192,7 @@ end;
 
 procedure TUnitActionStormAttack.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   SaveStream.Write(fDelay);
   SaveStream.Write(fTileSteps);
   SaveStream.Write(fStamina);

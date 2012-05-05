@@ -185,7 +185,7 @@ uses KM_TextLibrary, KM_Sound, KM_Log, KM_Utils, StrUtils, Math;
 { TKMNetworking }
 constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang:string);
 begin
-  Inherited Create;
+  inherited Create;
   SetGameState(lgs_None);
   fMyLang := aLang;
   fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '');
@@ -205,7 +205,7 @@ begin
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
   FreeAndNil(fNetGameOptions);
-  Inherited;
+  inherited;
 end;
 
 

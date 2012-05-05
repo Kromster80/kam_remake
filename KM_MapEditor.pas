@@ -19,7 +19,7 @@ implementation
 { TKMMapEditor }
 constructor TKMMapEditor.Create;
 begin
-  Inherited Create;
+  inherited Create;
 end;
 
 

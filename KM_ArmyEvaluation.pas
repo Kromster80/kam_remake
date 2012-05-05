@@ -59,7 +59,7 @@ var
   { TKMArmyEvaluation }
 constructor TKMEvaluation.Create;
 begin
-  Inherited;
+  inherited;
   fEnemyIndex := 0;
   //Reset; //No need to reset - all fields are initialized empty by constructor
 end;

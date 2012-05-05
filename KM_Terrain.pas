@@ -2463,17 +2463,17 @@ var
   Tmp1, Tmp2: single;
 begin
   //todo: Make this match KaM by creating some comparision screenshots of slopes, hills, etc.
-  Xc := Trunc(inX);
-  Yc := Trunc(inY);
+  //@Lewin: I'm not sure this todo item is clear enough, if you remember what it means, could you please formulate it better?
+
   //Valid range of tiles is 0..MapXY-2 because we check height from (Xc+1,Yc+1) to (Xc+2,Yc+2)
   //We cannot ask for height at the bottom row (MapY-1) because that row is not on the visible map,
   //and does not have a vertex below it
-  Xc := EnsureRange(Xc, 0, fMapX-2);
-  Yc := EnsureRange(Yc, 0, fMapY-2);
+  Xc := EnsureRange(Trunc(inX), 0, fMapX-2);
+  Yc := EnsureRange(Trunc(inY), 0, fMapY-2);
 
-  Tmp1 := mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, frac(inX));
-  Tmp2 := mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, frac(inX));
-  Result := mix(Tmp2, Tmp1, frac(inY));
+  Tmp1 := mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, Frac(inX));
+  Tmp2 := mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, Frac(inX));
+  Result := mix(Tmp2, Tmp1, Frac(inY));
 end;
 
 
@@ -2483,7 +2483,7 @@ begin
 end;
 
 
-procedure TTerrain.MapEdHeight();
+procedure TTerrain.MapEdHeight;
 var
   I, K: Integer;
   Rad, Slope: Byte;

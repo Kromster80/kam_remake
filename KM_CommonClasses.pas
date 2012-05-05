@@ -141,7 +141,7 @@ uses KM_Utils;
 { ELocError }
 constructor ELocError.Create(const Msg: string; aLoc:TKMPoint);
 begin
-  Inherited Create(Msg);
+  inherited Create(Msg);
   Loc := aLoc;
 end;
 
@@ -206,7 +206,7 @@ begin
     TObject(Items[i]).Free;
     Items[i]:=nil;
   end;
-  Inherited;
+  inherited;
 end;
 
 
@@ -295,25 +295,25 @@ begin
 end;
 
 function TKMemoryStream.Read(out Value:TKMDirection): Longint;
-begin Result := Inherited Read(Value, SizeOf(Value)); end;
+begin Result := inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:TKMPoint): Longint;
-begin Result := Inherited Read(Value, SizeOf(Value)); end;
+begin Result := inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:TKMPointF): Longint;
-begin Result := Inherited Read(Value, SizeOf(Value)); end;
+begin Result := inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:single): Longint;
-begin Result := Inherited Read(Value, SizeOf(Value)); end;
+begin Result := inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:integer): Longint;
-begin Result := Inherited Read(Value, SizeOf(Value)); end;
+begin Result := inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:cardinal): Longint;
-begin Result := Inherited Read(Value, SizeOf(Value)); end;
+begin Result := inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:byte): Longint;
-begin Result := Inherited Read(Value, SizeOf(Value)); end;
+begin Result := inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:boolean): Longint;
-begin Result := Inherited Read(Value, SizeOf(Value)); end;
+begin Result := inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:word): Longint;
-begin Result := Inherited Read(Value, SizeOf(Value)); end;
+begin Result := inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:shortint): Longint;
-begin Result := Inherited Read(Value, SizeOf(Value)); end;
+begin Result := inherited Read(Value, SizeOf(Value)); end;
 
 
 procedure TKMemoryStream.ReadAssert(const Value: string);

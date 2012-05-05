@@ -70,7 +70,7 @@ const FADE_TIME = 2000; //Time that a fade takes to occur in ms
 constructor TMusicLib.Create(aVolume:single);
 var i: byte;
 begin
-  Inherited Create;
+  inherited Create;
   IsMusicInitialized := true;
   ScanMusicTracks(ExeDir + 'Music\');
 
@@ -112,7 +112,7 @@ begin
   BASS_Free(); //Frees this usage of BASS, allowing it to be recreated successfully
   {$ENDIF}
 
-  Inherited;
+  inherited;
 end;
 
 

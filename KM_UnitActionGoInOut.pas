@@ -49,7 +49,7 @@ uses KM_Player, KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay
 
 constructor TUnitActionGoInOut.Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
 begin
-  Inherited Create(aUnit, aAction, True);
+  inherited Create(aUnit, aAction, True);
 
   //We might stuck trying to exit when house gets destroyed (1)
   //and we might be dying in destroyed house (2)
@@ -67,7 +67,7 @@ end;
 
 constructor TUnitActionGoInOut.Load(LoadStream: TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(fStep);
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fPushedUnit, 4);
@@ -82,7 +82,7 @@ end;
 
 procedure TUnitActionGoInOut.SyncLoad;
 begin
-  Inherited;
+  inherited;
   fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
   fPushedUnit := fPlayers.GetUnitByID(cardinal(fPushedUnit));
 end;
@@ -112,7 +112,7 @@ begin
   if (fDirection = gd_GoOutside) and fUnit.Visible then
     fUnit.SetInHouse(nil); //We are not in any house now
 
-  Inherited;
+  inherited;
 end;
 
 
@@ -383,7 +383,7 @@ end;
 
 procedure TUnitActionGoInOut.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   SaveStream.Write(fStep);
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad

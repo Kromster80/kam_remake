@@ -88,7 +88,7 @@ type
 
 
 implementation
-uses KM_Log;
+
 
 { TKMSaveInfo }
 constructor TKMSaveInfo.Create(const aPath, aFileName: String);

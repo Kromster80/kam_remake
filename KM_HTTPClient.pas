@@ -31,7 +31,7 @@ implementation
 
 constructor TKMHTTPClient.Create;
 begin
-  Inherited;
+  inherited;
   {$IFDEF WDC} fClient := TKMHTTPClientOverbyte.Create; {$ENDIF}
   {$IFDEF FPC} fClient := TKMHTTPClientLNet.Create;     {$ENDIF}
   fClient.OnGetCompleted := GetCompleted;
@@ -42,7 +42,7 @@ end;
 destructor TKMHTTPClient.Destroy;
 begin
   fClient.Free;
-  Inherited;
+  inherited;
 end;
 
 

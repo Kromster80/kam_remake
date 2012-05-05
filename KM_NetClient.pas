@@ -71,7 +71,7 @@ implementation
 
 constructor TKMNetClient.Create;
 begin
-  Inherited;
+  inherited;
   {$IFDEF WDC} fClient := TKMNetClientOverbyte.Create; {$ENDIF}
   {$IFDEF FPC} fClient := TKMNetClientLNet.Create;     {$ENDIF}
   fConnected := false;
@@ -83,7 +83,7 @@ end;
 destructor TKMNetClient.Destroy;
 begin
   fClient.Free;
-  Inherited;
+  inherited;
 end;
 
 
