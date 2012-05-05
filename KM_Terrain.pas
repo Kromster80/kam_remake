@@ -2128,7 +2128,7 @@ begin
     //because BlockDiag objects don't affect it, still they can cause two areas to be separate 
 
     if not CanSkip then
-      if USE_NEW_WALKCONNECT then
+      if USE_CCL_WALKCONNECT then
         CCLFind(WC, Pass, AllowDiag, aRect)
       else
         FloodFill(WC, Pass, AllowDiag, aRect);

@@ -103,8 +103,8 @@ function TViewport.GetPosition:TKMPointF;
 begin
   Result.X := EnsureRange(fPosition.X, 1, fMapX);
   Result.Y := EnsureRange(fPosition.Y, 1, fMapY);
-  if not SMOOTH_SCROLLING then Result.X := round(Result.X);
-  if not SMOOTH_SCROLLING then Result.Y := round(Result.Y);
+  if not SMOOTH_SCROLLING then Result.X := Round(Result.X);
+  if not SMOOTH_SCROLLING then Result.Y := Round(Result.Y);
 end;
 
 
