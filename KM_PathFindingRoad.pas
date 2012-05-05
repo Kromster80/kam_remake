@@ -29,7 +29,7 @@ uses KM_PlayersCollection;
 { TPathFindingRoad }
 constructor TPathFindingRoad.Create(aOwner: TPlayerIndex);
 begin
-  inherited;
+  inherited Create;
   fOwner := aOwner;
 end;
 

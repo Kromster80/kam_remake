@@ -2,9 +2,13 @@ program KaM_Remake;
 {$I KaM_Remake.inc}
 
 uses
+  {$IFDEF UNIX} cthreads, {$ENDIF} //Required for thread support on Unix/Linux
+  //{$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
   Forms,
+  {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_FormMain in 'KM_FormMain.pas' {FormMain},
   KM_FormLoading in 'KM_FormLoading.pas' {FormLoading},
+
   KM_AIAttacks in 'KM_AIAttacks.pas',
   KM_ArmyEvaluation in 'KM_ArmyEvaluation.pas',
   KM_BuildList in 'KM_BuildList.pas',
@@ -59,6 +63,7 @@ uses
   KM_Render in 'KM_Render.pas',
   KM_RenderAux in 'KM_RenderAux.pas',
   KM_RenderPool in 'KM_RenderPool.pas',
+  KM_RenderTerrain in 'KM_RenderTerrain.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_Resolutions in 'KM_Resolutions.pas',
   KM_Resource in 'KM_Resource.pas',
@@ -97,8 +102,7 @@ uses
   KM_UnitTaskSelfTrain in 'KM_UnitTaskSelfTrain.pas',
   KM_UnitTaskThrowRock in 'KM_UnitTaskThrowRock.pas',
   KM_Utils in 'KM_Utils.pas',
-  KM_Viewport in 'KM_Viewport.pas',
-  KM_RenderTerrain in 'KM_RenderTerrain.pas';
+  KM_Viewport in 'KM_Viewport.pas';
 
 {$IFDEF WDC}
   {$R *.RES}
@@ -117,6 +121,7 @@ begin
 
   Application.CreateForm(TFormMain, FormMain);
   Application.CreateForm(TFormLoading, FormLoading);
+
   fMain := TKMMain.Create;
   fMain.Start;
 
