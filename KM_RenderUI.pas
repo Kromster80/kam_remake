@@ -88,6 +88,7 @@ begin
   with GFXData[BackRX,BackID] do
   if PxWidth*PxHeight<>0 then //Make sure data was loaded properly
   begin
+    //todo: Refactor
     a.x := u1 + (u2-u1) * (PosX         - byte(bsDown in State)) /2/ PxWidth;
     b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bsDown in State)) /2/ PxWidth;
     a.y := v1 + (v2-v1) * (PosY         - byte(bsDown in State)) /2/ PxHeight;

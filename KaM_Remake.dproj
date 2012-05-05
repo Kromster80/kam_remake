@@ -186,6 +186,7 @@
 			<DCCReference Include="KM_UnitTaskThrowRock.pas"/>
 			<DCCReference Include="KM_Utils.pas"/>
 			<DCCReference Include="KM_Viewport.pas"/>
+			<DCCReference Include="KM_RenderTerrain.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
