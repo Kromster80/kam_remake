@@ -788,19 +788,19 @@ begin
           if ((j = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, j) = at_Ally))
           and fPlayers[j].fBuildList.HousePlanList.HasPlan(KMPoint(P2.X+s,P2.Y+t)) then
           begin
-            BlockPoint(KMPoint(P2.X+s,P2.Y+t), 479); //Block surrounding points
+            BlockPoint(KMPoint(P2.X+s,P2.Y+t), TC_BLOCK); //Block surrounding points
             AllowBuild := False;
           end;
 
     //Mark the tile according to previous check results
     if not AllowBuild then
       if HA[i,k] = 2 then
-        BlockPoint(P2, 482)
+        BlockPoint(P2, TC_BLOCK_ENTRANCE)
       else
         if aHouseType in [ht_GoldMine, ht_IronMine] then
-          BlockPoint(P2, 480)
+          BlockPoint(P2, TC_BLOCK_MINE)
         else
-          BlockPoint(P2, 479);
+          BlockPoint(P2, TC_BLOCK);
   end;
 end;
 

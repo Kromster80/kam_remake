@@ -396,6 +396,12 @@ const //Corresponding indices in units.rx
   UNIT_OFF_X = -0.5;
   UNIT_OFF_Y = -0.4;
 
+  //TileCursors
+  TC_BLOCK = 479;
+  TC_BLOCK_MINE = 480;
+  TC_ENTRANCE = 481;
+  TC_BLOCK_ENTRANCE = 482;
+
 type
   TUnitTaskName = ( utn_Unknown, //Uninitialized task to detect bugs
         utn_SelfTrain, utn_Deliver,        utn_BuildRoad,  utn_BuildWine,        utn_BuildField,

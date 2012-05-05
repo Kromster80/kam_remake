@@ -66,7 +66,7 @@ type
 
     //Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderCursors;
-    procedure RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer=479);
+    procedure RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK);
     procedure RenderCursorWireQuad(P: TKMPoint; Col: TColor4);
     procedure RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
   public
@@ -1001,7 +1001,7 @@ begin
 end;
 
 
-procedure TRenderPool.RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer=479);
+procedure TRenderPool.RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK);
 begin
   if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
     RenderSprite(rxGui, aID, aLoc.X - 0.8, aLoc.Y - 0.2 -

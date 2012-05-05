@@ -1097,17 +1097,17 @@ end;
 
 function TTerrain.CanFindFishingWater(aLoc: TKMPoint; aRadius: Integer): Boolean;
 const Ins=2; //2..Map-2
-var i,k:integer;
+var I,K:integer;
 begin
-  Result := false;
-  for i:=max(aLoc.Y-aRadius,Ins) to min(aLoc.Y+aRadius,fMapY-Ins) do
-  for k:=max(aLoc.X-aRadius,Ins) to min(aLoc.X+aRadius,fMapX-Ins) do
-    if (KMLength(aLoc,KMPoint(k,i)) <= aRadius) then
-      if TileIsWater(KMPoint(k,i)) then
-      begin
-        Result := true;
-        exit;
-      end;
+  Result := False;
+  for I := max(aLoc.Y - aRadius, Ins) to Min(aLoc.Y + aRadius, fMapY - Ins) do
+  for K := max(aLoc.X - aRadius, Ins) to Min(aLoc.X + aRadius, fMapX - Ins) do
+    if KMLength(aLoc, KMPoint(K,I)) <= aRadius
+    and TileIsWater(KMPoint(K,I)) then
+    begin
+      Result := True;
+      Exit;
+    end;
 end;
 
 
@@ -1123,7 +1123,7 @@ begin
 end;
 
 
-procedure TTerrain.GetHouseMarks(aLoc:TKMPoint; aHouseType:THouseType; aList:TKMPointTagList);
+procedure TTerrain.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
   procedure MarkPoint(aPoint: TKMPoint; aID: Integer);
   var I: Integer;
   begin
@@ -1139,10 +1139,11 @@ var
   AllowBuild: Boolean;
   HA: THouseArea;
 begin
+  Assert(aList.Count = 0);
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
   for i:=1 to 4 do for k:=1 to 4 do
-  if HA[i,k]<>0 then
+  if HA[i,k] <> 0 then
   begin
 
     if TileInMapCoords(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4,1) then
@@ -1163,7 +1164,7 @@ begin
       if (s<>0) or (t<>0) then  //This is a surrounding tile, not the actual tile
       if Land[P2.Y+t,P2.X+s].TileLock in [tlFenced,tlDigged,tlHouse] then
       begin
-        MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
+        MarkPoint(KMPoint(P2.X+s,P2.Y+t), TC_BLOCK);
         AllowBuild := false;
       end;
 
@@ -1171,22 +1172,23 @@ begin
       if AllowBuild then
       begin
         aList.AddEntry(P2, 0, 0);
-        if HA[i,k]=2 then
-          MarkPoint(P2,481);
+        if HA[i,k] = 2 then
+          MarkPoint(P2, TC_ENTRANCE);
       end else
       begin
         if HA[i,k]=2 then
-          MarkPoint(P2,482)
+          MarkPoint(P2, TC_BLOCK_ENTRANCE)
         else
           if aHouseType in [ht_GoldMine,ht_IronMine] then
-            MarkPoint(P2,480)
+            MarkPoint(P2, TC_BLOCK_MINE)
           else
-            MarkPoint(P2,479);
+            MarkPoint(P2, TC_BLOCK);
       end;
 
-    end else
-    if TileInMapCoords(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4,0) then
-      MarkPoint(KMPoint(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4),479);
+    end
+    else
+      if TileInMapCoords(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4, 0) then
+        MarkPoint(KMPoint(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4), 479);
   end;
 end;
 
