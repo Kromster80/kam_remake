@@ -89,17 +89,17 @@ MaxID:2705
 96:Tulák
 97:Katapult
 98:Ballista
-99:Nevolníci zásobují vaše|budovy nezbytnımi|surovinami.||Nezapomeòte, e budovy|musí bıt propojeny|cestami.
-100:Abyste mohl tìit døevo|pro pilu, potøebujete|døevorubce.||Døevorubec se nezávisle|stará o znovuzalesòování|vytìenıch ploch.
+99:Nevo¾níci zásobujú vaše|budovy potrebnımi|surovinami.||Nezabudnite, e budovy|musia by prepojené|cestami.
+100:Aby ste mohol ai drevo|pre pílu, potrebujete|drevorubèa.||Drevorubaè sa nezávisle|stará o znovuzalesòovenie|vyaenıch plôch.
 101:Baník aí nerasty|z uho¾nıch, eleznıch|a zlatıch baní.
-102:Ve strediskách chovu|prasiec a koní|vykrmuje váš chovate¾|zvieratá obilím.
-103:Farmáø pestuje|a zberá obilie|na farme.||Lisuje tie víno|vypestované vo vinici.
-104:Tesár pracuje|na píle, v|zbrojárskej dielni a|vo vırobni brnenia||Stavia tie katapulty|a pracuje v dielni |a obliehacie vrhaèe.
-105:Pekár peèie chlieb|v pekárne.||Melie tie|múku z obilia|v vetrnom mlyne.
+102:V strediskách chovu|prasiec a koní|vykrmuje váš chovate¾|zvieratá obilím.
+103:Farmár pestuje|a zberá obilie|na farme.||Lisuje tie víno|vypestované vo vinici.
+104:Tesár pracuje|na píle, v|zbrojárskej dielni a|vo vırobni brnenia||Stavia tie katapulty|a obliehacie vrhaèe| a pracuje v dielni.
+105:Pekár peèie chlieb|v pekárne.||Melie tie|múku z obilia|vo vetrnom mlyne.
 106:Mäsiar vyrába klobásy|v mäsiarstve|a koe v koiarni.
 107:Rybár chytá ryby|v tesnej blízkosti|vodnıch plôch.
 108:Robotník stavia|budovy a cesty.|Staèí mu ukáza|vybrané miesto|a o splnenie vášho|rozkazu sa u|postará sám.||Opravuje tie|poškodené budovy.
-109:Aby mali robotníci|dostatek materiálu|na stavbu ciest a domov,|kamenár pre nich aí|a brúsi kameò.
+109:Aby mali robotníci|dostatok materiálu|na stavbu ciest a domov,|kamenár pre nich aí|a brúsi kameò.
 110:aké brnenia a zbrane|sú vyrábané|kováèom v zbrojárni|a kováèni brnenia.
 111:Hutník vyrába|truhlice zlata a oce¾|z príslušnıch rúd.
 112:Regrút môe by|vybavenı ako vojak|v hrade.||Obıva taktie|stránu veu.
@@ -114,11 +114,11 @@ MaxID:2705
 155:Vo¾by
 156:Nahranie hry
 157:Uloenie hry
-158:Ste si istı|e chte ukonèi|túto misiu?
+158:Ste si istı|e chcete ukonèi|túto misiu?
 159:Koniec misie
 160:Spä
 161:Nastavenia
-162:Ukonèneie misie
+162:Ukonèenie misie
 163:Zvukové efekty
 164:Zmena hlasitosti
 165:Hudba
@@ -126,7 +126,7 @@ MaxID:2705
 167:Autouloenie
 168:CD prehrávaè
 169:Predchádzajúca skladba
-170:Ïa¾šia skladba
+170:Ïalšia skladba
 171:Zbúra
 172:Odstráni budovú/zvıraznenie
 173:Postavi cestu
@@ -147,9 +147,9 @@ MaxID:2705
 188:Znii objednané mnostvo
 189:Zvıši objednané mnostvo
 190:Predchádzajúci typ vojaka
-191:Ïa¾ší typ vojaka
+191:Ïalší typ vojaka
 192:Vybavi súèanı typ jednotky
-193:Ïašie povolanie
+193:Ïalšie povolanie
 194:Predchádzajúce povolanie
 195:Prida do fronty
 196:Cena:
@@ -349,7 +349,7 @@ MaxID:2705
 1810:Mód:
 1811:Podmienky k víazstvu:
 1812:Ve¾kos:
-1813:Opusti ponuku:
+1813:Opusti ponuku
 1814:Pripravenı
 1815:Štart!
 1816:Èakanie na ostatnıch hráèov:
@@ -364,7 +364,7 @@ MaxID:2705
 1825:Singleplayerové mapy
 1826:Rıchlos obrazu
 1827:Nenájdenı iadny server
-1828:Prechádza skladby
+1828:Vybra skladby
 1829:Info o hre:
 1830:-
 1831:Lobby
