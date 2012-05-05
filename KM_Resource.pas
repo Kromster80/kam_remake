@@ -39,7 +39,6 @@ type
     procedure StepCaption(const aCaption: string);
 
     function LoadMapElemDAT(const FileName: string): Boolean;
-    function LoadPatternDAT(const FileName: string): Boolean;
   public
     OnLoadingStep: TEvent;
     OnLoadingText: TStringEvent;
@@ -65,8 +64,10 @@ type
     procedure ExportUnitAnim;
   end;
 
+
   var
     fResource: TResource;
+
 
 implementation
 uses KromUtils, KM_Log, KM_Points;
@@ -133,9 +134,8 @@ begin
   fResourceFont.LoadFonts(aLocale);
   fLog.AppendLog('Read fonts is done');
 
-  fTileset := TKMTileset.Create(ExeDir + 'Resource\', fResource.Sprites[rxTiles]);
+  fTileset := TKMTileset.Create(ExeDir + 'Resource\', ExeDir + 'data\defines\pattern.dat', fResource.Sprites[rxTiles]);
   LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
-  LoadPatternDAT(ExeDir + 'data\defines\pattern.dat');
 
   fResources := TKMResourceCollection.Create;
   fHouseDat := TKMHouseDatCollection.Create;
@@ -196,55 +196,6 @@ begin
 //      write(ft,MapElem[ii].CuttableTree,''); //Those are 1/0 so we can ommit space between them
 
       write(ft,' =',MapElem[ii].CanBeRemoved);
-      writeln(ft);
-    end;
-    closefile(ft);
-  end;
-
-  Result:=true;
-end;
-
-
-//Reading pattern data (tile info)
-function TResource.LoadPatternDAT(const FileName: string): Boolean;
-var ii,kk:integer; ft:textfile; f:file; s:byte;
-begin
-  Result:=false;
-  if not CheckFileExists(FileName) then exit;
-  assignfile(f,FileName); reset(f,1);
-  blockread(f,PatternDAT[1],6*256);
-  for ii:=1 to 30 do begin
-    blockread(f,TileTable[ii,1],30*10);
-    blockread(f,s,1);
-    if s<>0 then
-      s:=s;
-  end;
-
-  closefile(f);
-
-  if WriteResourceInfoToTXT then begin
-    assignfile(ft,ExeDir+'Pattern.csv');
-    rewrite(ft);
-    writeln(ft,'PatternDAT');
-    for ii:=0 to 15 do begin
-      for kk:=1 to 16 do
-        write(ft,inttostr(ii*16+kk),' ',PatternDAT[ii*16+kk].TileType,';');
-      writeln(ft);
-    end;
-    writeln(ft,'TileTable');
-    for ii:=1 to 30 do begin
-      for kk:=1 to 30 do begin
-      write(ft,inttostr(TileTable[ii,kk].Tile1)+'_'+inttostr(TileTable[ii,kk].Tile2)+'_'+inttostr(TileTable[ii,kk].Tile3)+' ');
-      write(ft,inttostr(byte(TileTable[ii,kk].b1)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b2)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b3)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b4)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b5)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b6)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b7)));
-      write(ft,';');
-      end;
-
       writeln(ft);
     end;
     closefile(ft);

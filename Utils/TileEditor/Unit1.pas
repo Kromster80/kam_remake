@@ -1,10 +1,9 @@
 unit Unit1;
-
+{$I ..\..\KaM_Remake.inc}
 interface
-
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, Math;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, StdCtrls, Math, KM_ResourceTileset;
 
 type
   TForm1 = class(TForm)
@@ -17,7 +16,8 @@ type
     procedure RadioGroup1Click(Sender: TObject);
   end;
 
-type TProperty = (
+type
+  TProperty = (
        tpWater=0,
        tpSand,     //Animals, Trees, Fields
        tpSoil,     //Animals, Trees, Fields
@@ -31,6 +31,7 @@ var
   Form1: TForm1;
   Bits:array[0..255]of TShape;
   Tiles:array[0..255]of TPropertySet;
+  fTileset: TKMTileset;
 
 implementation
 
@@ -46,7 +47,7 @@ begin
     Bits[i].Top := Image1.Top + (i div 16) *32;
     Bits[i].Width := 33;
     Bits[i].Height := 33;
-    Bits[i].Brush.Style := bsDiagCross;
+    Bits[i].Brush.Style := bsFDiagonal;
     Bits[i].Brush.Color := $FF00;
     Bits[i].Pen.Color := $8800;
     Bits[i].Tag := i;
@@ -54,6 +55,8 @@ begin
     Bits[i].OnMouseMove := MouseMove;
     Bits[i].OnMouseUp   := MouseUp;
   end;
+
+  fTileset := TKMTileset.Create('', '..\..\data\defines\pattern.dat', nil);
 end;
 
 
@@ -93,7 +96,29 @@ procedure TForm1.RadioGroup1Click(Sender: TObject);
 var i:integer;
 begin
   for i:=0 to 255 do
-    Bits[i].Visible := TProperty(RadioGroup1.ItemIndex) in Tiles[i];
+  {case RadioGroup1.ItemIndex of
+    0: Bits[i].Visible := fTileset.PatternDAT[i+1].Walkable and 1 = 1;
+    1: Bits[i].Visible := fTileset.PatternDAT[i+1].Walkable and 2 = 2;
+    2: Bits[i].Visible := fTileset.PatternDAT[i+1].Walkable and 4 = 4;
+    3: Bits[i].Visible := fTileset.PatternDAT[i+1].Walkable and 8 = 8;
+    4: Bits[i].Visible := fTileset.PatternDAT[i+1].Walkable and 16 = 16;
+    5: Bits[i].Visible := fTileset.PatternDAT[i+1].Walkable and 32 = 32;
+    6: Bits[i].Visible := fTileset.PatternDAT[i+1].Walkable and 64 = 64;
+    7: Bits[i].Visible := fTileset.PatternDAT[i+1].Walkable and 128 = 128;
+  end;}
+  case RadioGroup1.ItemIndex of
+    0: Bits[i].Visible := fTileset.PatternDAT[i+1].u3 and 1 = 1;
+    1: Bits[i].Visible := fTileset.PatternDAT[i+1].u3 and 2 = 2;
+    2: Bits[i].Visible := fTileset.PatternDAT[i+1].u3 and 4 = 4;
+    3: Bits[i].Visible := fTileset.PatternDAT[i+1].u3 and 8 = 8;
+    4: Bits[i].Visible := fTileset.PatternDAT[i+1].u3 and 16 = 16;
+    5: Bits[i].Visible := fTileset.PatternDAT[i+1].u3 and 32 = 32;
+    6: Bits[i].Visible := fTileset.PatternDAT[i+1].u3 and 64 = 64;
+    7: Bits[i].Visible := fTileset.PatternDAT[i+1].u3 and 128 = 128;
+  end;
+
+  //Bits[i].Visible := TProperty(RadioGroup1.ItemIndex) in Tiles[i];
 end;
+
 
 end.

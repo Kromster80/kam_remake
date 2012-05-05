@@ -1,8 +1,9 @@
 program TileEditor;
-
+{$I ..\..\KaM_Remake.inc}
 uses
   Forms,
-  Unit1 in 'Unit1.pas' {Form1};
+  Unit1 in 'Unit1.pas', {Form1}
+  KM_ResourceTileset in '..\..\KM_ResourceTileset.pas';
 
 {$R *.res}
 

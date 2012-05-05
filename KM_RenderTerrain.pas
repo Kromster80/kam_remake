@@ -108,7 +108,7 @@ begin
           glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height/CELL_HEIGHT_DIV, -I);
           glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, -I);
 
-          if KAM_WATER_DRAW and (iW=1) and fTerrain.TileIsWater(KMPoint(K,I)) then
+          if KAM_WATER_DRAW and (iW=1) and TileIsWater(KMPoint(K,I)) then
           begin
             TexC := GetTileUV(32, 0);
 

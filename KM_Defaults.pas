@@ -736,8 +736,6 @@ var
     MapEdSize: Byte;
   end;
 
-
-
   //Trees and other terrain elements properties
   MapElemQty:integer=254; //Default qty
   ActualMapElemQty:integer; //Usable qty read from RX file
@@ -755,20 +753,6 @@ var
     DontPlantNear:longbool;                 //This object can't be planted within one tile of
     Stump:shortint;                         //95 Tree stump
     CanBeRemoved:longbool;                  //99 //Can be removed in favor of building house
-  end;
-
-  //Unused by KaM Remake
-  PatternDAT:array[1..256]of packed record
-    MinimapColor:byte;
-    Walkable:byte;  //This looks like a bitfield, but everything besides <>0 seems to have no logical explanation
-    Buildable:byte; //This looks like a bitfield, but everything besides <>0 seems to have no logical explanation
-    TileType:byte;  //This looks like a 0..31 bitfield, --||--
-    u1:byte; //Boolean IsTransitionTile?
-    u2:byte;
-  end;
-  TileTable:array[1..30,1..30]of packed record
-    Tile1,Tile2,Tile3:byte;
-    b1,b2,b3,b4,b5,b6,b7:boolean;
   end;
 
 

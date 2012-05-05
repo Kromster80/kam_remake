@@ -30,6 +30,9 @@
 			<Projects Include="KaM Editor\KM_Editor.dproj">
 				<Dependencies/>
 			</Projects>
+			<Projects Include="Utils\TileEditor\TileEditor.dproj">
+				<Dependencies/>
+			</Projects>
 		</ItemGroup>
 		<ProjectExtensions>
 			<Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -119,14 +122,23 @@
 		<Target Name="KM_Editor:Make">
 			<MSBuild Projects="KaM Editor\KM_Editor.dproj" Targets="Make"/>
 		</Target>
+		<Target Name="TileEditor">
+			<MSBuild Projects="Utils\TileEditor\TileEditor.dproj"/>
+		</Target>
+		<Target Name="TileEditor:Clean">
+			<MSBuild Projects="Utils\TileEditor\TileEditor.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="TileEditor:Make">
+			<MSBuild Projects="Utils\TileEditor\TileEditor.dproj" Targets="Make"/>
+		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="KaM_Remake;KaM_RemakeTests;CampaignBuilder;RXXPacker;TranslationManager;Batcher;KaM_DedicatedServerGUI;FontEditor;KM_Editor"/>
+			<CallTarget Targets="KaM_Remake;KaM_RemakeTests;CampaignBuilder;RXXPacker;TranslationManager;Batcher;KaM_DedicatedServerGUI;FontEditor;KM_Editor;TileEditor"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="KaM_Remake:Clean;KaM_RemakeTests:Clean;CampaignBuilder:Clean;RXXPacker:Clean;TranslationManager:Clean;Batcher:Clean;KaM_DedicatedServerGUI:Clean;FontEditor:Clean;KM_Editor:Clean"/>
+			<CallTarget Targets="KaM_Remake:Clean;KaM_RemakeTests:Clean;CampaignBuilder:Clean;RXXPacker:Clean;TranslationManager:Clean;Batcher:Clean;KaM_DedicatedServerGUI:Clean;FontEditor:Clean;KM_Editor:Clean;TileEditor:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="KaM_Remake:Make;KaM_RemakeTests:Make;CampaignBuilder:Make;RXXPacker:Make;TranslationManager:Make;Batcher:Make;KaM_DedicatedServerGUI:Make;FontEditor:Make;KM_Editor:Make"/>
+			<CallTarget Targets="KaM_Remake:Make;KaM_RemakeTests:Make;CampaignBuilder:Make;RXXPacker:Make;TranslationManager:Make;Batcher:Make;KaM_DedicatedServerGUI:Make;FontEditor:Make;KM_Editor:Make;TileEditor:Make"/>
 		</Target>
 		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
 	</Project>
