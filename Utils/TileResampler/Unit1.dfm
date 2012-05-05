@@ -1,9 +1,9 @@
 object Form1: TForm1
   Left = 192
   Top = 107
-  Width = 361
-  Height = 292
   Caption = 'Form1'
+  ClientHeight = 254
+  ClientWidth = 345
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -50,8 +50,17 @@ object Form1: TForm1
     TabOrder = 3
     OnClick = Button4Click
   end
+  object Button5: TButton
+    Left = 88
+    Top = 200
+    Width = 161
+    Height = 25
+    Caption = 'Split'
+    TabOrder = 4
+    OnClick = Button5Click
+  end
   object OpenDialog1: TOpenDialog
-    Left = 16
+    Left = 24
     Top = 24
   end
 end

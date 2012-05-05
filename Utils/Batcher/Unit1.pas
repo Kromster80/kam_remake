@@ -9,16 +9,12 @@ uses
 
 type
   TForm1 = class(TForm)
-    Button1: TButton;
-    Button2: TButton;
     Button3: TButton;
     procedure Button3Click(Sender: TObject);
   private
     procedure SetUp;
     procedure TearDown;
     procedure ControlsEnable(aFlag: Boolean);
-  public
-    { Public declarations }
   end;
 
 var

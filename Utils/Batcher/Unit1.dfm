@@ -13,29 +13,13 @@ object Form1: TForm1
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
-  object Button1: TButton
-    Left = 24
-    Top = 16
-    Width = 105
-    Height = 25
-    Caption = 'Deliveries test'
-    TabOrder = 0
-  end
-  object Button2: TButton
-    Left = 24
-    Top = 48
-    Width = 75
-    Height = 25
-    Caption = 'Button1'
-    TabOrder = 1
-  end
   object Button3: TButton
     Left = 24
-    Top = 80
+    Top = 24
     Width = 185
     Height = 25
-    Caption = 'Export Campaign Tests to EVT'
-    TabOrder = 2
+    Caption = 'Export Campaign Texts to EVT'
+    TabOrder = 0
     OnClick = Button3Click
   end
 end
