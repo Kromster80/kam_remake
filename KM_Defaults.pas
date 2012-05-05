@@ -563,7 +563,7 @@ type
         tlRoadWork  // -        X         X       X          -     X      -
         );
 
-  TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);
+  TBorderType = (bt_None, bt_Field, bt_Wine, bt_HousePlan, bt_HouseBuilding);
 
 
   TKMVertexUsage = (vu_None=0,  //Nobody is on this vertex
@@ -572,22 +572,22 @@ type
 
 const
   //Chopable tree, Chopdown animation,
-  //Grow1, Grow2, Grow3, Grow4, Chop, Remainder
-  ChopableTrees:array[1..13,1..6]of byte = (
+  //Age1, Age2, Age3, Age4, Falling, Stomp
+  ChopableTrees: array [1..13, 1..6] of byte = (
   //For grass
-  (  88,  89,  90,  90,  91,  37), //duplicate
-  (  97,  98,  99, 100, 101,  41),
+  (  88,  89,  90,  90,  91,  37), //These two are very look alike
+  (  97,  98,  99, 100, 101,  41), //yet different in small detail and fall direction
   ( 102, 103, 104, 105, 106,  45),
   ( 107, 108, 109, 110, 111,  41),
-  ( 112, 113, 114, 114, 115,  25), //duplicate
-  ( 116, 117, 118, 119, 120,  25),
+  ( 112, 113, 114, 114, 115,  25), //These two are very look alike
+  ( 116, 117, 118, 119, 120,  25), //yet different in small detail and fall direction
   //For grass and yellow
   (  92,  93,  94,  95,  96,  49),
   //For yellow soil only
   ( 121, 122, 123, 124, 125,  64),
   //For dirt (pine trees)
-  ( 149, 150, 151, 151, 152,  29), //duplicate
-  ( 153, 154, 155, 155, 156,  29), //duplicate
+  ( 149, 150, 151, 151, 152,  29),
+  ( 153, 154, 155, 155, 156,  29),
   ( 157, 158, 159, 160, 161,  33),
   ( 162, 163, 164, 165, 166,  33),
   ( 167, 168, 169, 170, 171,  33));
@@ -606,8 +606,6 @@ const
   WINE_AGE_FULL = 64; //Wine ready to be harvested
 
 
-
-
 //The frame shown when a unit is standing still in ua_Walk. Same for all units!
 const
   UnitStillFrames: array [TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
@@ -617,7 +615,7 @@ type
   TProjectileType = (pt_Arrow, pt_Bolt, pt_SlingRock, pt_TowerRock); {pt_BallistaRock, }
 
 const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
-  ProjectileBounds:array[TProjectileType,1..2] of word = ( (0,0),(0,0),(0,0),(4186,4190) );
+  ProjectileBounds: array [TProjectileType, 1..2] of word = ((0,0), (0,0), (0,0), (4186,4190));
 
 
 
@@ -727,14 +725,14 @@ const
 
 
 var
-  ExeDir:string;
+  ExeDir: string;
 
   GameCursor: record
-    Float:TKMPointF;    //Precise cursor position in map coords
-    Cell:TKMPoint;      //Cursor position cell
-    SState:TShiftState; //Thats actually used to see if Left or Right mouse button is pressed
-    Mode:TCursorMode;   //Modes used in game (building, unit, road, etc..)
-    Tag1:byte;    //Tag to know building type, unit type etc.
+    Float: TKMPointF;    //Precise cursor position in map coords
+    Cell: TKMPoint;      //Cursor position cell
+    SState: TShiftState; //Thats actually used to see if Left or Right mouse button is pressed
+    Mode: TCursorMode;   //Modes used in game (building, unit, road, etc..)
+    Tag1: Byte;    //Tag to know building type, unit type etc.
 
     MapEdDir: Byte;
     MapEdShape: (hsCircle, hsSquare);
