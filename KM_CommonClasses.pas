@@ -343,7 +343,6 @@ end;
 
 
 procedure TKMPointList.AddEntry(aLoc: TKMPoint);
-var I: Integer;
 begin
   //Detect duplicate entries when they are added (not just when removing) so we can detect bugs reliably
   Assert(AllowDuplicates or not Contains(aLoc));

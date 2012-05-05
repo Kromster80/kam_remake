@@ -175,7 +175,6 @@ type
     procedure FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects: Boolean=true); overload;
     procedure FlattenTerrain(LocList:TKMPointList); overload;
 
-    function GetVertexCursorPosition: TKMPoint;
     function ConvertCursorToMapCoord(inX,inY:single): Single;
     function HeightAt(inX, inY: Single): Single; overload;
     function HeightAt(aPoint: TKMPointF): Single; overload;
@@ -445,7 +444,7 @@ begin
 end;
 
 
-{Check if requested tile is water suitable for fish and/or sail. No waterfalls, but swamps/shallow water allowed}
+//Check if requested tile is water suitable for fish and/or sail. No waterfalls, but swamps/shallow water allowed
 function TTerrain.TileIsWater(Loc: TKMPoint): Boolean;
 begin
   Result := fTileset.TileIsWater(Land[Loc.Y, Loc.X].Terrain);
@@ -473,21 +472,21 @@ begin
 end;
 
 
-{Check if requested tile is generally walkable}
+//Check if requested tile is generally walkable
 function TTerrain.TileIsWalkable(Loc: TKMPoint): Boolean;
 begin
   Result := fTileset.TileIsWalkable(Land[Loc.Y, Loc.X].Terrain);
 end;
 
 
-{Check if requested tile is generally suitable for road building}
+//Check if requested tile is generally suitable for road building
 function TTerrain.TileIsRoadable(Loc: TKMPoint): Boolean;
 begin
   Result := fTileset.TileIsRoadable(Land[Loc.Y, Loc.X].Terrain);
 end;
 
 
-{Check if the tile is a corn field}
+//Check if the tile is a corn field
 function TTerrain.TileIsCornField(Loc: TKMPoint): Boolean;
 begin
   Result := fTileset.TileIsCornField(Land[Loc.Y, Loc.X].Terrain)
@@ -495,7 +494,7 @@ begin
 end;
 
 
-{Check if the tile is a wine field}
+//Check if the tile is a wine field
 function TTerrain.TileIsWineField(Loc: TKMPoint): Boolean;
 begin
   Result := fTileset.TileIsWineField(Land[Loc.Y, Loc.X].Terrain)
@@ -504,6 +503,7 @@ begin
 end;
 
 
+//Check if this tile can be factored
 function TTerrain.TileIsFactorable(Loc: TKMPoint): Boolean;
 begin
   Result := TileInMapCoords(Loc.X,Loc.Y) and fTileset.TileIsFactorable(Land[Loc.Y, Loc.X].Terrain);
@@ -1365,16 +1365,12 @@ end;
 
 
 procedure TTerrain.UpdatePassability(Loc:TKMPoint);
-var
-  i,k:integer;
-  HousesNearBy: Boolean;
-
-  procedure AddPassability(aLoc:TKMPoint; aPass:TPassabilitySet);
+  procedure AddPassability(aPass: TPassability);
   begin
-    Land[aLoc.Y,aLoc.X].Passability:=Land[aLoc.Y,aLoc.X].Passability + aPass;
+    Land[Loc.Y,Loc.X].Passability := Land[Loc.Y,Loc.X].Passability + [aPass];
   end;
 
-  function IsObjectsNearby(X,Y:integer): Boolean;
+  function IsObjectsNearby(X,Y: Integer): Boolean;
   var I,K: Integer; P: TKMPoint;
   begin
     Result := False;
@@ -1399,6 +1395,9 @@ var
           if Result then Exit;
         end;
   end;
+var
+  I, K: Integer;
+  HousesNearBy: Boolean;
 begin
   Assert(TileInMapCoords(Loc.X, Loc.Y)); //First of all exclude all tiles outside of actual map
 
@@ -1411,11 +1410,11 @@ begin
     if TileIsWalkable(Loc)
     and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
     and CheckHeightPass(Loc, CanWalk) then
-      AddPassability(Loc, [CanWalk]);
+      AddPassability(CanWalk);
 
     if (Land[Loc.Y,Loc.X].TileOverlay = to_Road)
     and (CanWalk in Land[Loc.Y,Loc.X].Passability) then //Not all roads are walkable, they must also have CanWalk passability
-      AddPassability(Loc, [CanWalkRoad]);
+      AddPassability(CanWalkRoad);
 
     //Check for houses around this tile
     HousesNearBy := False;
@@ -1433,7 +1432,7 @@ begin
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and TileInMapCoords(Loc.X, Loc.Y, 1)
     and CheckHeightPass(Loc, CanBuild) then //No houses nearby
-      AddPassability(Loc, [CanBuild]);
+      AddPassability(CanBuild);
 
     if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])
     and (Land[Loc.Y,Loc.X].Rotation mod 4 = 0) //only horizontal mountain edges allowed
@@ -1444,7 +1443,7 @@ begin
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and TileInMapCoords(Loc.X,Loc.Y, 1)
     and CheckHeightPass(Loc, CanBuildIron) then
-      AddPassability(Loc, [CanBuildIron]);
+      AddPassability(CanBuildIron);
 
     if (Land[Loc.Y,Loc.X].Terrain in [171..175])
     and (Land[Loc.Y,Loc.X].Rotation mod 4 = 0)
@@ -1455,14 +1454,14 @@ begin
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and TileInMapCoords(Loc.X,Loc.Y, 1)
     and CheckHeightPass(Loc,CanBuildGold) then
-      AddPassability(Loc, [CanBuildGold]);
+      AddPassability(CanBuildGold);
 
     if TileIsRoadable(Loc)
     and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
     and CheckHeightPass(Loc,CanMakeRoads) then
-      AddPassability(Loc, [CanMakeRoads]);
+      AddPassability(CanMakeRoads);
 
     if TileIsSoil(Loc)
     and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
@@ -1471,7 +1470,7 @@ begin
     and not TileIsWineField(Loc)
     and not TileIsCornField(Loc)
     and CheckHeightPass(Loc,CanMakeFields) then
-      AddPassability(Loc, [CanMakeFields]);
+      AddPassability(CanMakeFields);
 
     if TileIsSoil(Loc)
     and not IsObjectsNearby(Loc.X,Loc.Y) //This function checks surrounding tiles
@@ -1481,10 +1480,10 @@ begin
     and not HousesNearBy
     and ((Land[Loc.Y,Loc.X].Obj=255) or ObjectIsChopableTree(KMPoint(Loc.X,Loc.Y),6))
     and CheckHeightPass(Loc, CanPlantTrees) then
-      AddPassability(Loc, [CanPlantTrees]);
+      AddPassability(CanPlantTrees);
 
     if TileIsWater(Loc) then
-      AddPassability(Loc, [CanFish]);
+      AddPassability(CanFish);
 
     if TileIsSand(Loc)
     and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
@@ -1493,7 +1492,7 @@ begin
     and not TileIsCornField(Loc)
     and not TileIsWineField(Loc)
     and CheckHeightPass(Loc, CanCrab) then //Can't crab on houses, fields and roads (can walk on fenced house so you can't kill them by placing a house on top of them)
-      AddPassability(Loc, [CanCrab]);
+      AddPassability(CanCrab);
 
     if TileIsSoil(Loc)
     and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
@@ -1502,21 +1501,21 @@ begin
     and not TileIsCornField(Loc)
     and not TileIsWineField(Loc)
     and CheckHeightPass(Loc,CanWolf) then
-      AddPassability(Loc, [CanWolf]);
+      AddPassability(CanWolf);
   end;
 
   if TileIsWalkable(Loc)
   and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
   and CheckHeightPass(Loc, CanWalk)
   and (Land[Loc.Y,Loc.X].TileLock <> tlHouse) then
-    AddPassability(Loc, [CanWorker]);
+    AddPassability(CanWorker);
 
   //Check all 4 tiles that border with this vertex
   if TileIsFactorable(KMPoint(Loc.X  ,Loc.Y))
   and TileIsFactorable(KMPoint(Loc.X-1,Loc.Y))
   and TileIsFactorable(KMPoint(Loc.X  ,Loc.Y-1))
   and TileIsFactorable(KMPoint(Loc.X-1,Loc.Y-1)) then
-    AddPassability(Loc, [canFactor]);
+    AddPassability(canFactor);
 
   //Check for houses around this vertice(!)
   //Use only with CanElevate since it's vertice-based!
@@ -1530,7 +1529,7 @@ begin
 
   if VerticeInMapCoords(Loc.X,Loc.Y)
   and not HousesNearBy then
-    AddPassability(Loc, [CanElevate]);
+    AddPassability(CanElevate);
 end;
 
 
@@ -1540,51 +1539,53 @@ begin
 end;
 
 
-function TTerrain.HasUnit(Loc:TKMPoint): Boolean;
+function TTerrain.HasUnit(Loc: TKMPoint): Boolean;
 begin
-  Result := TileInMapCoords(Loc.X,Loc.Y) and (Land[Loc.Y,Loc.X].IsUnit <> nil); //Second condition won't get checked if first is false
+  Assert(TileInMapCoords(Loc.X,Loc.Y));
+  Result := Land[Loc.Y,Loc.X].IsUnit <> nil;
 end;
 
 
 function TTerrain.HasVertexUnit(Loc:TKMPoint): Boolean;
 begin
-  Result := TileInMapCoords(Loc.X,Loc.Y) and (Land[Loc.Y,Loc.X].IsVertexUnit <> vu_None); //Second condition won't get checked if first is false
+  Assert(TileInMapCoords(Loc.X,Loc.Y));
+  Result := Land[Loc.Y,Loc.X].IsVertexUnit <> vu_None;
 end;
 
 
 //Check which road connect ID the tile has (to which road network does it belongs to)
-function TTerrain.GetRoadConnectID(Loc:TKMPoint): Byte;
+function TTerrain.GetRoadConnectID(Loc: TKMPoint): Byte;
 begin
   Result := GetConnectID(wcRoad, Loc);
 end;
 
 
 //Check which walk connect ID the tile has (to which walk network does it belongs to)
-function TTerrain.GetWalkConnectID(Loc:TKMPoint): Byte;
+function TTerrain.GetWalkConnectID(Loc: TKMPoint): Byte;
 begin
   Result := GetConnectID(wcWalk, Loc);
 end;
 
 
-function TTerrain.GetConnectID(aWalkConnect: TWalkConnect; Loc:TKMPoint): Byte;
+function TTerrain.GetConnectID(aWalkConnect: TWalkConnect; Loc: TKMPoint): Byte;
 begin
   if TileInMapCoords(Loc.X,Loc.Y) then
     Result := Land[Loc.Y,Loc.X].WalkConnect[aWalkConnect]
   else
-    Result:=0; //No network
+    Result := 0; //No network
 end;
 
 
 function TTerrain.CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability; aCheckUnits: Boolean=true): Boolean;
-var i,k: integer;
+var I,K: integer;
 begin
   Result := true; //Assume we are stuck
-  for i:=-1 to 1 do for k:=-1 to 1 do
-    if (i<>0)or(k<>0) then
-      if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-        if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then
-          if (Land[Loc.Y+i,Loc.X+k].IsUnit = nil) or (not aCheckUnits) then
-            if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
+  for I := -1 to 1 do for K := -1 to 1 do
+    if (I <> 0) or (K <> 0) then
+      if TileInMapCoords(Loc.X+K,Loc.Y+I) then
+        if CanWalkDiagonaly(Loc,KMPoint(Loc.X+K, Loc.Y+I)) then
+          if (Land[Loc.Y+I,Loc.X+K].IsUnit = nil) or (not aCheckUnits) then
+            if aPass in Land[Loc.Y+I,Loc.X+K].Passability then
             begin
               Result := false; //at least one tile is empty, so unit is not stuck
               exit;
@@ -2093,7 +2094,7 @@ begin
       CanSkip := CanSkip and not (Pass in Land[I,K].Passability);
 
     //We can't rely on((Land[I,K].WalkConnect<>0) and (Pass in Land[I,K].Passability)) check
-    //because BlockDiag objects don't affect it, still they can cause two areas to be separate 
+    //because BlockDiag objects don't affect it, still they can cause two areas to be separate
 
     if not CanSkip then
       if USE_CCL_WALKCONNECT then
@@ -2388,14 +2389,6 @@ begin
 end;
 
 
-{ Returns a rounded vertex based cursor position, maybe we'll need it later. }
-function TTerrain.GetVertexCursorPosition:TKMPoint;
-begin
-  Result.X := EnsureRange(round(GameCursor.Float.X + 1), 1, fMapX);
-  Result.Y := EnsureRange(round(GameCursor.Float.Y + 1), 1, fMapY);
-end;
-
-
 {Cursor position should be converted to tile-coords respecting tile heights}
 function TTerrain.ConvertCursorToMapCoord(inX,inY:single):single;
 var ii:integer; Xc,Yc:integer; Tmp:integer; Ycoef:array[-2..4]of single;
@@ -2481,9 +2474,9 @@ begin
         begin
           if (Land[I,K].Height < Land[I-1,K+1].Height) then
             Tmp := -min(Land[I-1,K+1].Height-Land[i,k].Height,tmp)
-          else 
+          else
             if (Land[I,K].Height > Land[I-1,K+1].Height) then
-              Tmp := min(Land[i,k].Height-Land[I-1,K+1].Height,tmp) 
+              Tmp := min(Land[i,k].Height-Land[I-1,K+1].Height,tmp)
             else
               Tmp := 0;
         end;
@@ -2491,9 +2484,9 @@ begin
       begin
         if (Land[I,K].Height < Land[trunc(aLoc.Y),trunc(aLoc.X)].Height) then
           Tmp := -min(Land[trunc(aLoc.Y),trunc(aLoc.X)].Height-Land[i,k].Height,tmp)
-        else 
+        else
           if (Land[I,K].Height > Land[trunc(aLoc.Y),trunc(aLoc.X)].Height) then
-            Tmp := min(Land[i,k].Height-Land[trunc(aLoc.Y),trunc(aLoc.X)].Height,tmp) 
+            Tmp := min(Land[i,k].Height-Land[trunc(aLoc.Y),trunc(aLoc.X)].Height,tmp)
           else
             Tmp := 0;
       end;

@@ -13,23 +13,16 @@ type
 
   TKMTileset = class
   private
-    TileTable:array[1..30,1..30]of packed record
-      Tile1,Tile2,Tile3:byte;
-      b1,b2,b3,b4,b5,b6,b7:boolean;
+    TileTable: array [1 .. 30, 1 .. 30] of packed record
+      Tile1, Tile2, Tile3: byte;
+      b1, b2, b3, b4, b5, b6, b7: boolean;
     end;
 
     function LoadPatternDAT(const FileName: string): Boolean;
-    procedure LoadTileSet(const aPath: string);
+    procedure LoadTextures(const aPath: string);
+    procedure GenerateGFX;
     procedure MakeMiniMapColors(const FileName: string);
   public
-    TextL: Cardinal; //Shading gradient for lighting
-    TextD: Cardinal; //Shading gradient for darkening (same as light but reversed)
-    TextT: Cardinal; //Tiles
-    TextW: array [1..8] of Cardinal; //Water
-    TextS: array [1..3] of Cardinal; //Swamps
-    TextF: array [1..5] of Cardinal; //WaterFalls
-    TileColor: array [0..255] of record R,G,B: Byte end;
-
     PatternDAT: array [1..256] of packed record
       MinimapColor: byte;
       Walkable: byte;  //This looks like a bitfield, but everything besides <>0 seems to have no logical explanation
@@ -39,7 +32,17 @@ type
       u3: byte; // 1/2/4/8 bitfield, seems to have no logical explanation
     end;
 
+    TextL: Cardinal; //Shading gradient for lighting
+    TextD: Cardinal; //Shading gradient for darkening (same as light but reversed)
+    TextT: Cardinal; //Tiles
+    TextW: array [1..8] of Cardinal; //Water
+    TextS: array [1..3] of Cardinal; //Swamps
+    TextF: array [1..5] of Cardinal; //WaterFalls
+    TileColor: array [Byte] of record R,G,B: Byte end;
+
     constructor Create(const aPath, aPatternPath: string; aSprites: TKMSpritePack);
+
+    procedure ExportPatternDat(const aFilename: string);
 
     function TileIsWater(aTile: Byte): Boolean;
     //function TileHasWater(aTile: Byte): Boolean;
@@ -60,34 +63,20 @@ uses KM_TGATexture;
 
 { TKMTileset }
 constructor TKMTileset.Create(const aPath, aPatternPath: string; aSprites: TKMSpritePack);
-var I: Integer;
 begin
   inherited Create;
 
-  LoadTileSet(aPath);
   LoadPatternDAT(aPatternPath);
 
-  //Special case for Tileset for MapEd menu
-  SetLength(GFXData[rxTiles], 256 + 1);
-  //Generate UV coords
-  for I := 0 to 255 do
-  with GFXData[rxTiles, I+1] do
-  begin
-    TexID := TextT;
-    v1 := (I div 16  ) / 16; //There are 16 tiles across the line
-    u1 := (I mod 16  ) / 16;
-    v2 := (I div 16+1) / 16;
-    u2 := (I mod 16+1) / 16;
-    PxWidth := 32;
-    PxHeight := 32;
-  end;
+  LoadTextures(aPath);
+  GenerateGFX;
 
   MakeMiniMapColors(aPath + 'Tiles1.tga');
 end;
 
 
 // Load the Textures
-procedure TKMTileset.LoadTileSet(const aPath: string);
+procedure TKMTileset.LoadTextures(const aPath: string);
 var
   I: Integer;
   pData: array [0..255] of Cardinal;
@@ -127,52 +116,86 @@ end;
 
 //Reading pattern data (tile info)
 function TKMTileset.LoadPatternDAT(const FileName: string): Boolean;
-var ii,kk:integer; ft:textfile; f:file; s:byte;
+var
+  I: Integer;
+  f: file;
+  s: byte;
 begin
-  Result:=false;
-  if not FileExists(FileName) then Exit;
-  assignfile(f,FileName); reset(f,1);
-  blockread(f,PatternDAT[1],6*256);
-  for ii:=1 to 30 do begin
-    blockread(f,TileTable[ii,1],30*10);
-    blockread(f,s,1);
-    if s<>0 then
-      s:=s;
+  Result := false;
+  if not FileExists(FileName) then
+    Exit;
+  assignfile(f, FileName);
+  reset(f, 1);
+  blockread(f, PatternDAT[1], 6 * 256);
+  for I := 1 to 30 do
+  begin
+    blockread(f, TileTable[I, 1], 30 * 10);
+    blockread(f, s, 1);
   end;
 
   closefile(f);
 
-  if WriteResourceInfoToTXT then begin
-    assignfile(ft,ExeDir+'Pattern.csv');
-    rewrite(ft);
-    writeln(ft,'PatternDAT');
-    for ii:=0 to 15 do begin
-      for kk:=1 to 16 do
-        write(ft,inttostr(ii*16+kk),' ',PatternDAT[ii*16+kk].u1,';');
-      writeln(ft);
-    end;
-    writeln(ft,'TileTable');
-    for ii:=1 to 30 do begin
-      for kk:=1 to 30 do begin
-      write(ft,inttostr(TileTable[ii,kk].Tile1)+'_'+inttostr(TileTable[ii,kk].Tile2)+'_'+inttostr(TileTable[ii,kk].Tile3)+' ');
-      write(ft,inttostr(byte(TileTable[ii,kk].b1)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b2)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b3)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b4)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b5)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b6)));
-      write(ft,inttostr(byte(TileTable[ii,kk].b7)));
-      write(ft,';');
-      end;
+  if WriteResourceInfoToTXT then
+    ExportPatternDat(ExeDir + 'Export\Pattern.csv');
 
-      writeln(ft);
-    end;
-    closefile(ft);
-  end;
-
-  Result:=true;
+  Result := true;
 end;
 
+
+procedure TKMTileset.ExportPatternDat(const aFileName: string);
+var
+  I, K: Integer;
+  ft: TextFile;
+begin
+  AssignFile(ft, ExeDir + 'Pattern.csv');
+  Rewrite(ft);
+  Writeln(ft, 'PatternDAT');
+  for I := 0 to 15 do
+  begin
+    for K := 1 to 16 do
+      write(ft, inttostr(I * 16 + K), ' ', PatternDAT[I * 16 + K].u1, ';');
+    writeln(ft);
+  end;
+  writeln(ft, 'TileTable');
+  for I := 1 to 30 do
+  begin
+    for K := 1 to 30 do
+    begin
+      write(ft, inttostr(TileTable[I, K].Tile1) + '_' + inttostr(TileTable[I, K].Tile2) + '_' +
+        inttostr(TileTable[I, K].Tile3) + ' ');
+      write(ft, inttostr(byte(TileTable[I, K].b1)));
+      write(ft, inttostr(byte(TileTable[I, K].b2)));
+      write(ft, inttostr(byte(TileTable[I, K].b3)));
+      write(ft, inttostr(byte(TileTable[I, K].b4)));
+      write(ft, inttostr(byte(TileTable[I, K].b5)));
+      write(ft, inttostr(byte(TileTable[I, K].b6)));
+      write(ft, inttostr(byte(TileTable[I, K].b7)));
+      write(ft, ';');
+    end;
+
+    writeln(ft);
+  end;
+  closefile(ft);
+end;
+
+
+procedure TKMTileset.GenerateGFX;
+var I: Integer;
+begin
+  SetLength(GFXData[rxTiles], 256 + 1);
+  //Generate UV coords
+  for I := 0 to 255 do
+  with GFXData[rxTiles, I+1] do
+  begin
+    TexID := TextT;
+    v1 := (I div 16  ) / 16; //There are 16 tiles across the line
+    u1 := (I mod 16  ) / 16;
+    v2 := (I div 16+1) / 16;
+    u2 := (I mod 16+1) / 16;
+    PxWidth := 32;
+    PxHeight := 32;
+  end;
+end;
 
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
 thus it's better to spend few ms and generate minimap colors from actual data}
