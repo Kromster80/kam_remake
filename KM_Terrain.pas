@@ -1102,7 +1102,7 @@ begin
   Result := False;
   for I := max(aLoc.Y - aRadius, Ins) to Min(aLoc.Y + aRadius, fMapY - Ins) do
   for K := max(aLoc.X - aRadius, Ins) to Min(aLoc.X + aRadius, fMapX - Ins) do
-    if KMLength(aLoc, KMPoint(K,I)) <= aRadius
+    if (KMLength(aLoc, KMPoint(K,I)) <= aRadius)
     and TileIsWater(KMPoint(K,I)) then
     begin
       Result := True;
