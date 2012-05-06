@@ -1,6 +1,5 @@
-﻿Since r3311:
+﻿Since r3374:
 <===================================================================================>
- +	Fixed assert fail when loading map that has roads placed outside of map bounds
 	If I play a campaign up to mission say 9, then load an old save of mission 5, quit and press restart, it will load basesave which is mission 9 (we should make a basesave after loading saves?)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
@@ -57,7 +56,7 @@ Improvements:
 
 
 
-Fixed in r3311:
+Fixed in r3374:
 <===================================================================================>
  +	Range Check Error occurs when a woodcutter considers chopping a tree on the topmost or leftmost edge of the map
  +	Click server A, then quickly click server B. This is incorrectly interpreted as double clicking and you join server B
@@ -80,6 +79,7 @@ Fixed in r3311:
  +	Issue with empty saves names and misused whitespaces
  +	The market should be blocked in the original campaigns/tutorial (maybe have an option to enable it starting at later missions, but it still ruins the balance IMO)
  +	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
+ +	Fixed assert fail when loading map that has roads placed outside of map bounds
 
 Improvements:
  +	Do not allow to run multiple application instances at once to prevent multiplayer cheating

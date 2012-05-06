@@ -1,17 +1,23 @@
 ==============
- SINCE r3311:
+ SINCE r3374:
 ==============
+	Range check error once upon MP game start
+ ?	Kicked when the host selects a map you don't have
+ ?	"Call to OS function failed" if you sleep the computer with KaM running
+ ?	Access violation when clicking start in lobby (after reassigning host?)
+
+
+==============
+FIXED IN r3374
+==============
+ +	We are now using MadExcept to report crashes. When an error occurs you can send a highly detailed crash report to us.
  +	Crash "GameWaitingForNetwork from wrong state lgs_None" if you quit a multiplayer game while waiting for players and start a single player game
  +	All players reported the map being played to the master server, it should have only been the host
  +	PC icon was not shown as the flag for AI players in-game (only in lobby)
  +	Rare range check error when equipping a soldier due to dead recruit in the barracks
  +	Range check error due to projectiles landing off map (happens in Another Day in Hell around 2 minutes)
- +	"Assertion Failed, KM_CommonClasses.pas, line 349" caused by duplicate points in walking NodeList
+ +	"Assertion Failed, KM_CommonClasses.pas, line 349" caused by duplicate points in walking NodeList (rare)
 
-	Range check error once upon MP game start
-	Kicked when the host selects a map you don't have?
-
- ?	Access violation when clicking start in lobby (after reassigning host?)
 
 ==============
 FIXED IN r3311
