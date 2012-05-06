@@ -2085,6 +2085,10 @@ begin
 
     //todo: Can be optimized if we know from which Tile to rebuild, and if that tile makes no difference - skip the thing
 
+    aRect.Left := EnsureRange(aRect.Left, 1, fMapX-1);
+    aRect.Right := EnsureRange(aRect.Right, 1, fMapX-1);
+    aRect.Top := EnsureRange(aRect.Top, 1, fMapY-1);
+    aRect.Bottom := EnsureRange(aRect.Bottom, 1, fMapY-1);
 
     //Early test is allowed only if we don't need to update large portion (or even whole map)
     CanSkip := (aRect.Right - aRect.Left < 8) and (aRect.Bottom  - aRect.Top < 8);

@@ -84,8 +84,9 @@ begin
   if aPath = '' then Exit;
 
   //Generate gradients programmatically
-  //todo: Compare gradients with KaM
-  //[16-gradient]
+
+  //KaM uses [0..255] gradients
+  //We use slightly smoothed gradients [16..255] for Remake cos it shows much more of terrain on screen and it looks too contrast
   TextL := GenerateTextureCommon;
   if TextL <> 0 then
   begin
@@ -103,8 +104,8 @@ begin
   end;
 
   LoadTextureTGA(aPath + 'Tiles1.tga', TextT);
-  LoadTextureTGA(aPath + 'gradient.tga', TextL);
-  LoadTextureTGA(aPath + 'gradient.tga', TextD);
+  //LoadTextureTGA(aPath + 'gradient.tga', TextL);
+  //LoadTextureTGA(aPath + 'gradient.tga', TextD);
 
   if MAKE_ANIM_TERRAIN then begin
     for i:=1 to 8 do LoadTextureTGA(aPath + 'Water'+inttostr(i)+'.tga', TextW[i]);

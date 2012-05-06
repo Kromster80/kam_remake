@@ -42,9 +42,12 @@ begin
   blockread(f,h,18);
   h[13]:=#0; h[15]:=#0; //512x512
   blockwrite(f2,h,18);
-  for i:=1 to 640 do for k:=1 to 16 do begin
+  for i:=1 to 640 do
+  for k:=1 to 16 do
+  begin
     blockread(f,b,160);
-    if (i-1) mod 40 in [4,9,14,19,24,29,34,39] then else begin
+    if not ((i-1) mod 40 in [4,9,14,19,24,29,34,39]) then
+    begin
       blockwrite(f2,b[0*4+1],4*4);
       blockwrite(f2,b[5*4+1],3*4);
       blockwrite(f2,b[9*4+1],4*4);
@@ -193,7 +196,7 @@ end;
 
 procedure TForm1.Button5Click(Sender: TObject);
 var
-  ii,kk,h,j,pX: Integer;
+  L, ii,kk,h,j,pX: Integer;
   c:array of byte;
   SizeX,SizeY: Integer;
   f: file;
@@ -209,68 +212,75 @@ var
   {$ENDIF}
   PNG: TPNGObject;
 begin
-  if not FileExists('Tiles1.tga') then exit;
-  AssignFile(f, 'Tiles1.tga');
-  FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
+  OpenDialog1.Options := OpenDialog1.Options + [ofAllowMultiSelect];
+  OpenDialog1.InitialDir := ExtractFilePath(ParamStr(0));
 
-  SetLength(c,18+1);
-  blockread(f,c[1],18); //SizeOf(TGAHeader)
-  SizeX := c[13]+c[14]*256;
-  SizeY := c[15]+c[16]*256;
+  if not OpenDialog1.Execute then Exit;
 
-  if c[1]=120 then
+  CreateDir('Split');
+  for L := 0 to OpenDialog1.Files.Count - 1 do
   begin
-    closefile(f);
-    InputStream := TFileStream.Create('Tiles1.tga', fmOpenRead or fmShareDenyNone);
-    OutputStream := TMemoryStream.Create;
-    {$IFDEF WDC}
-     DecompressionStream := TZDecompressionStream.Create(InputStream);
-     OutputStream.CopyFrom(DecompressionStream, 0);
-    {$ENDIF}
-    {$IFDEF FPC}
-     DecompressionStream := TDecompressionStream.Create(InputStream);
-     repeat
-       i:=DecompressionStream.Read(Buf, SizeOf(Buf));
-       if i <> 0 then OutputStream.Write(Buf, i);
-     until i <= 0;
-    {$ENDIF}
-    OutputStream.Position := 0;
-    OutputStream.ReadBuffer(c[1], 18); //SizeOf(TGAHeader)
+    AssignFile(f, OpenDialog1.Files[L]);
+    FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
+
+    SetLength(c,18+1);
+    blockread(f,c[1],18); //SizeOf(TGAHeader)
     SizeX := c[13]+c[14]*256;
     SizeY := c[15]+c[16]*256;
-    SetLength(c,SizeX*SizeY*4+1);
-    OutputStream.ReadBuffer(c[1], SizeX*SizeY*4);
-    InputStream.Free;
-    OutputStream.Free;
-    DecompressionStream.Free;
-  end
-  else
-  begin
-    SetLength(c,SizeX*SizeY*4+1);
-    blockread(f,c[1],SizeX*SizeY*4);
-    closefile(f);
-  end;
 
-  PNG := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 32, 32);
-  CreateDir('Split');
-
-  for ii := 0 to 15 do
-  for kk := 0 to 15 do
-  begin
-
-    for j := 0 to 31 do
-    for h := 0 to 31 do
+    if c[1]=120 then
     begin
-      //TGA comes flipped upside down
-      pX := (((SizeX - 1) - (ii * 32 + j)) * SizeX + kk * 32 + h) * 4;
-      PNG.Pixels[h,j] := c[pX+3] + c[pX+2] shl 8 + c[pX+1] shl 16;
-      PNG.AlphaScanline[j]^[h] := c[pX+4];
+      closefile(f);
+      InputStream := TFileStream.Create(OpenDialog1.Files[L], fmOpenRead or fmShareDenyNone);
+      OutputStream := TMemoryStream.Create;
+      {$IFDEF WDC}
+       DecompressionStream := TZDecompressionStream.Create(InputStream);
+       OutputStream.CopyFrom(DecompressionStream, 0);
+      {$ENDIF}
+      {$IFDEF FPC}
+       DecompressionStream := TDecompressionStream.Create(InputStream);
+       repeat
+         i:=DecompressionStream.Read(Buf, SizeOf(Buf));
+         if i <> 0 then OutputStream.Write(Buf, i);
+       until i <= 0;
+      {$ENDIF}
+      OutputStream.Position := 0;
+      OutputStream.ReadBuffer(c[1], 18); //SizeOf(TGAHeader)
+      SizeX := c[13]+c[14]*256;
+      SizeY := c[15]+c[16]*256;
+      SetLength(c,SizeX*SizeY*4+1);
+      OutputStream.ReadBuffer(c[1], SizeX*SizeY*4);
+      InputStream.Free;
+      OutputStream.Free;
+      DecompressionStream.Free;
+    end
+    else
+    begin
+      SetLength(c,SizeX*SizeY*4+1);
+      blockread(f,c[1],SizeX*SizeY*4);
+      closefile(f);
     end;
 
-    PNG.SaveToFile('Split\' + IntToStr(ii * 16 + kk) + '.png');
-  end;
+    PNG := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 32, 32);
 
-  PNG.Free;
+    for ii := 0 to 15 do
+    for kk := 0 to 15 do
+    begin
+
+      for j := 0 to 31 do
+      for h := 0 to 31 do
+      begin
+        //TGA comes flipped upside down
+        pX := (((SizeX - 1) - (ii * 32 + j)) * SizeX + kk * 32 + h) * 4;
+        PNG.Pixels[h,j] := c[pX+3] + c[pX+2] shl 8 + c[pX+1] shl 16;
+        PNG.AlphaScanline[j]^[h] := c[pX+4];
+      end;
+
+      PNG.SaveToFile('Split\' + ExtractFileName(OpenDialog1.Files[L]) + IntToStr(ii * 16 + kk) + '.png');
+    end;
+
+    PNG.Free;
+  end;
 
 end;
 
