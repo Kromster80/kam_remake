@@ -111,8 +111,8 @@ rom.OpenAL=Vrei sг instalezi OpenAL?(Recomandat) Este necesar pentru sunetele di
 rom.ViewReadme=Vizualizeazp fisierul Citeste-ma
 
 ;Ukrainian
-ukr.CreateStartShortcut=Create a Start Menu shortcut
+ukr.CreateStartShortcut=Створити ярлик стартового меню
 ukr.NoKaM=Майстер встановлення программи не знайшов оригіналу Knights and Merchants: The Peasants Rebellion на вашому комп`ютері. Ви маєте встановити оригінал для того , щоб грат в KaM Remake. Інсталяцію скасовано.
 ukr.CantUpdate=Майстер встановлення програми не зміг знайти KaM Remake на компютері для того, щоб оновити його. Будь ласка , в першу чергу , завантажте і встановіть повну версію перш ніж встановлювати апдейт . Інсталяцію скасовано.
-ukr.OpenAL=Чи ви хочете щоби майстер встановив OpenAL? (Дуже рекомендується) Він необхідний для роботи звуку у KaM Remake
+ukr.OpenAL=Чи хочете ви щоби майстер встановив OpenAL? (Дуже рекомендується) Він необхідний для роботи звуку у KaM Remake
 ukr.ViewReadme=Відкрити Readme

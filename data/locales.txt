@@ -17,4 +17,4 @@ rus,    Russian,              1251,     14,           ,                Krom
 svk,    Slovak,               1250,     12,           cze,             Robert Marko
 spa,    Spanish,              1252,     13,           ,                Oscar
 swe,    Swedish,              1252,     16,           ,                Edvin Linge
-ukr,    Ukrainian,            1251,     28,           ,
+ukr,    Ukrainian,            1251,     28,           ,                Mulberry
