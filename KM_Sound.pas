@@ -576,7 +576,7 @@ begin
       alutUnloadWAV(WAVformat,WAVdata,WAVsize,WAVfreq);
     except
       //This happens regularly if you run two copies of the game out of one folder and they share the MP chat sound.
-      //We ignore the error to make it possible to run two copies out of one folder (especially for debugging without
+      //We ignore the error to make it possible to run two copies out of one folder (especially for debugging) without
       //continual clashes over sound files.
       on E: EFOpenError do
       begin

@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} MPlayer, {$ENDIF}
   Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo, MadExcept,
-  KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
+  KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils, KM_Exceptions,
   KM_Networking,
   KM_MapEditor, KM_Campaigns, KM_EventProcess,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
@@ -159,6 +159,7 @@ type
     procedure Save(const aFileName: string);
     procedure PrintScreen;
     procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
+    procedure ReplayInconsistancy;
 
     procedure Render;
     procedure UpdateGame(Sender: TObject);
@@ -204,6 +205,7 @@ begin
 
   fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
+  fExceptions.LoadTranslation;
   fSoundLib         := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume); //Required for button click sounds
   fMusicLib         := TMusicLib.Create(fGameSettings.MusicVolume);
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
@@ -299,6 +301,7 @@ begin
   FreeAndNil(fSoundLib);
   FreeAndNil(fTextLibrary);
   fTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
+  fExceptions.LoadTranslation;
   fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume);
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
   fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
@@ -793,6 +796,20 @@ begin
   end;
 
   fLog.AppendLog('Crash report created');
+end;
+
+
+//Occasional replay inconsistencies are a known bug, we don't need reports of it
+procedure TKMGame.ReplayInconsistancy;
+var PreviousState: TGameState;
+begin
+  PreviousState := GameState;
+  SetGameState(gsPaused); //Stop game from executing while the user views the message
+  fLog.AppendLog('Replay failed a consistency check at tick '+IntToStr(fGameTickCount));
+  if MessageDlg(fTextLibrary[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
+    Stop(gr_Error, '')
+  else
+    SetGameState(PreviousState);
 end;
 
 

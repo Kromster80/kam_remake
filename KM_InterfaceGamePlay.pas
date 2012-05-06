@@ -1387,7 +1387,8 @@ end;
 procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
   Panel_Quit := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
-    TKMLabel.Create(Panel_Quit, 100, 30, 180, 70, fTextLibrary[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter);
+    with TKMLabel.Create(Panel_Quit, 100, 30, 180, 70, fTextLibrary[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter) do
+      AutoWrap := True;
     Button_Quit_Yes := TKMButton.Create(Panel_Quit, 8, 100, 180, 30, fTextLibrary[TX_MENU_QUIT_MISSION], fnt_Metal);
     Button_Quit_No := TKMButton.Create(Panel_Quit, 8, 140, 180, 30, fTextLibrary[TX_MENU_DONT_QUIT_MISSION], fnt_Metal);
     Button_Quit_Yes.Hint := fTextLibrary[TX_MENU_QUIT_MISSION];
@@ -1505,6 +1506,7 @@ begin
     Label_House_UnderConstruction := TKMLabel.Create(Panel_House,100,170,184,100,fTextLibrary[TX_HOUSE_UNDER_CONSTRUCTION],fnt_Grey,taCenter);
 
     Label_House_Demolish := TKMLabel.Create(Panel_House,100,130,184,55,fTextLibrary[TX_HOUSE_DEMOLISH],fnt_Grey,taCenter);
+    Label_House_Demolish.AutoWrap := True;
     Button_House_DemolishYes := TKMButton.Create(Panel_House,8,185,180,30,fTextLibrary[TX_HOUSE_DEMOLISH_YES],fnt_Metal);
     Button_House_DemolishNo  := TKMButton.Create(Panel_House,8,220,180,30,fTextLibrary[TX_HOUSE_DEMOLISH_NO],fnt_Metal);
     Button_House_DemolishYes.Hint := fTextLibrary[TX_HOUSE_DEMOLISH_YES_HINT];

@@ -1,5 +1,5 @@
 
-MaxID:2705
+MaxID:2727
 
 0:Sawmill
 1:Iron smithy
@@ -460,3 +460,25 @@ MaxID:2705
 2703:Save file does not match the host for the save: %s
 2704:WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
 2705:Please update your graphic drivers to get better performance
+2706:An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!
+2707:Send Bug Report
+2708:Show Raw Data
+2709:The replay failed a consistency check. This is a known bug which effects playback of some replays. Do you want to continue watching?
+2710:Your name: (optional)
+2711:Your email: (optional)
+2712:Remember me
+2713:In what situation did the error occur? Can you provide any additional information?
+2714:Attach a screenshot to the bug report
+2715:(click to edit image)
+2716:Terminate Application
+2717:Resume Application
+2718:Next
+2719:Send Report
+2720:Cancel
+2721:Contact Details
+2722:Error Details
+2723:Screenshot
+2724:Sending bug report...
+2725:Connecting to server...
+2726:Sending data...
+2727:Sending the bug report failed! Please email the file bugreport.txt from your KaM Remake folder to contact@kamremake.com

@@ -25,6 +25,7 @@ uses
   KM_Defaults in 'KM_Defaults.pas',
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
   KM_EventProcess in 'KM_EventProcess.pas',
+  KM_Exceptions in 'KM_Exceptions.pas',
   KM_FogOfWar in 'KM_FogOfWar.pas',
   KM_Houses in 'KM_Houses.pas',
   KM_InterfaceDefaults in 'KM_InterfaceDefaults.pas',
