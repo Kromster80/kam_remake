@@ -1,5 +1,5 @@
 
-MaxID:2727
+MaxID:2730
 
 0:Sawmill
 1:Iron smithy
@@ -482,3 +482,5 @@ MaxID:2727
 2725:Connecting to server...
 2726:Sending data...
 2727:Sending the crash report failed! Our server might be busy, please try sending it again.
+2728:Information
+2729:Please wait a moment...

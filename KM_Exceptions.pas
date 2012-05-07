@@ -48,6 +48,8 @@ begin
   MESettings.ConnectMsg := fTextLibrary[TX_ERROR_SENDING_CONNECTING];
   MESettings.AuthMsg := fTextLibrary[TX_ERROR_SENDING_CONNECTING];
   MESettings.SendFailureMsg := fTextLibrary[TX_ERROR_SENDING_FAILED];
+  MESettings.PleaseWaitTitle := fTextLibrary[TX_ERROR_WAIT_TITLEBAR];
+  MESettings.PleaseWaitText := fTextLibrary[TX_ERROR_WAIT_MESSAGE];
 end;
 
 
