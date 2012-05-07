@@ -316,7 +316,7 @@ begin
   fLastRoom               := f.ReadString ('Multiplayer','LastRoom','0');
   fServerPort             := f.ReadString ('Server','ServerPort','56789');
   fMasterServerAddress    := f.ReadString ('Server','MasterServerAddress','http://lewin.hodgman.id.au/kam_remake_master_server/');
-  fMasterAnnounceInterval := f.ReadInteger('Server','MasterServerAnnounceInterval',120);
+  fMasterAnnounceInterval := f.ReadInteger('Server','MasterServerAnnounceInterval',180);
   fAnnounceServer         := f.ReadBool   ('Server','AnnounceDedicatedServer',True);
   fServerName             := f.ReadString ('Server','ServerName','KaM Remake Server');
   fMaxRooms               := f.ReadInteger('Server','MaxRooms',16);
