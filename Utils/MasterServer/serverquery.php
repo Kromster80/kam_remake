@@ -1,5 +1,7 @@
 <?php
-if ($_REQUEST["format"] == "ajaxupdate") {
+$format = "";
+if(isset($_REQUEST["format"])) $format = $_REQUEST["format"];
+if ($format == "ajaxupdate") {
 /*
 * the requester expects to receive a json object
 * some browsers withdraw the standard text/html that php returns by default
@@ -8,18 +10,13 @@ header('Cache-Control: no-cache, must-revalidate');
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); //expired in the past to prevent caching
 header('Content-type: application/json');
 }
+$rev = "";
+if(isset($_REQUEST["rev"])) $rev = $_REQUEST["rev"];
+
 include("serverlib.php");
-if((!CheckVersion($_REQUEST["rev"])) && (!isset($_REQUEST["format"])))
+if((!isset($_REQUEST["format"])) && (!CheckVersion($rev)))
 {
 	die("Invalid revision");
 }
-if(isset($_REQUEST["format"]))
-{
-	$Format = $_REQUEST["format"];
-}
-else
-{
-	$Format = "";
-}
-echo GetServers($Format,$_REQUEST["rev"]);
+echo GetServers($format,$rev);
 ?>

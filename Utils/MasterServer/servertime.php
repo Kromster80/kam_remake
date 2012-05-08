@@ -1,5 +1,7 @@
 <?
-if ($_REQUEST["format"] == "ajaxupdate") {
+$format = "";
+if(isset($_REQUEST["format"])) $format = $_REQUEST["format"];
+if ($format == "ajaxupdate") {
 /*
 * the requester expects to receive a json object
 * some browsers withdraw the standard text/html that php returns by default
@@ -10,6 +12,6 @@ header('Content-type: application/json');
 }
 include("serverlib.php");
 
-echo GetTime($_REQUEST["format"]);
+echo GetTime($format);
 
 ?>

@@ -11,7 +11,7 @@ if(($Rev == "r3252") || ($Rev == "r3311"))
 }
 if($Rev == "r3374")
 {
-  die('[$FF6699]Welcome to the [$00D00]THIRD[$FF6699] release candidate.[] We now have a new system to report crashes, which should speed up the bug fixes.|Enjoy, and please keep those bug reports coming!||Thank you for your help.');
+  die('[$FF6699]Welcome to the [$00D000]THIRD[$FF6699] release candidate.[] We now have a new system to report crashes, which should speed up the bug fixes.|Enjoy, and please keep those bug reports coming!||Thank you for your help.');
 }
 
 //First see if they are up to date
