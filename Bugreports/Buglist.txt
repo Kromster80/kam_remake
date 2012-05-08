@@ -16,6 +16,7 @@
 	Players that have intentionally quit (not just disconnected) should count as defeated
 	Clicking on the splash screen registers the click on the main menu once it is loaded
 	Attacking a house from the bottom right, soldiers will stack up rather than choosing a different free cell (WalkToHouse should avoid other units attacking the house?)
+	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
 
 	Dots and lines displaying on tile edges [Krom]
 	Sandhills cause water next to shore tiles to appear darker with square edges
@@ -41,6 +42,7 @@ Improvements:
 	Play campaign briefing WAV files (and fade music while it plays)
 	Master server use MySQL for storage rather than .txt files
 	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
+	Pause button in multiplayer (only host can use it? Or majority of players must press it?)
 	Chat logs
 	Selecting a map in multiplayer should show columns with name, size, player count, etc. rather than dumb drop down
 	Wares need to be taken out of the barracks for trading at the market
@@ -52,6 +54,7 @@ Improvements:
 	RXXPacker to make soft shadowed RXX files in 1 click rather than by hand
 	RXXEditor tool for the public
 	Economic goals such as produce X amount of resource A
+	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

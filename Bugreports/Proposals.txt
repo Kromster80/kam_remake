@@ -15,3 +15,5 @@ Ideas that have not been decided. Should be moved to Bugslist.txt when a decisio
 	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay)
 	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
 	When player leaves allow his aalies to take control over his village and army
+	Try extending height to 0..255 rather than 0..100 so it's easier to have multiple "levels" on a map (e.g. plateau with a hill on it)
+	Make lobby flag selection using list of countries that speak that language. With English you could choose USA, UK, AU, NZ. With Spanish you could choose Spain, Argininia, Chille.
