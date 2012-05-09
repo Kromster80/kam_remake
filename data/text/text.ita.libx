@@ -460,3 +460,27 @@ MaxID:2730
 2703:File non compatibile con l'host per il salvataggio: %s
 2704:ATTENZIONE: Continuare la partita dopo questo errore potrebbe causare ulteriori crash ed instabilità. Vuoi comunque rischiare e continuare a giocare?
 2705:Per favore, aggiorna i tuoi driver video per migliorare le prestazioni.
+2706:Si è verificato un errore. Per favore, clicca su "Invia segnalazione" per permetterci di sapere del problema e risolverlo. Grazie per l'aiuto!
+2707:Invia segnalazione
+2708:Mostra dati grezzi
+2709:Il replay ha fallito un controllo di coerenza. Questo è un problema noto che affligge alcuni replay. Vuoi continuare a guardarlo?
+2710:Il tuo nome: (facoltativo)
+2711:La tua email: (facoltativo)
+2712:Ricordati di me
+2713:In che situazione si è verificato l'errore? Potresti fornire informazioni aggiuntive?
+2714:Allega uno screenshot alla segnalazione
+2715:(clicca per modificare l'immagine)
+2716:Termina applicazione
+2717:Riprendi applicazione
+2718:Prossimo
+2719:Invia
+2720:Cancella
+2721:Dettagli di contatto
+2722:Dettagli dell'errore
+2723:Screenshot
+2724:Invio in corso...
+2725:Connessione al server in corso...
+2726:Invio dati...
+2727:Invio della segnalazione fallito! Il nostro server potrebbe essere occupato; per favore, prova ad inviarla nuovamente.
+2728:Informazioni
+2729:Per favore, attendi un momento...
