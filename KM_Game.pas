@@ -438,6 +438,10 @@ begin
 
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
 
+  //todo: Maybe we should reset the GameCursor? If I play 192x192 map, quit, and play a 64x64 map
+  //      my cursor could be at (190,190) if the player starts with his cursor over the controls panel...
+  //      This caused a crash in RenderCursors which I fixed by adding range checking to CheckTileRevelation
+  //      (good idea anyway) There could be other crashes caused by this.
   fViewport := TViewport.Create(fScreenX, fScreenY);
 
   //Here comes terrain/mission init

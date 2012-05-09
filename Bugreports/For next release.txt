@@ -3,7 +3,10 @@
 ==============
  +	Access Violation in TPR3 after 0:01:40 due to an error in the script
  +	Enforced a minimum dedicated server announce interval of 3 minutes to stop people spamming our server every 30 seconds
-	Range check error once upon MP game start
+ +	Range check error at the moment a multiplayer game starts (rare)
+
+	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
+
  ?	Kicked when the host selects a map you don't have
  ?	"Call to OS function failed" if you sleep the computer with KaM running
  ?	Access violation when clicking start in lobby (after reassigning host?)

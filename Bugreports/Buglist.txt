@@ -81,6 +81,7 @@ Fixed in r3374:
  +	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
  +	Fixed assert fail when loading map that has roads placed outside of map bounds
 
+
 Improvements:
  +	Do not allow to run multiple application instances at once to prevent multiplayer cheating
  +	Display height shapes outlines in MapEd
@@ -107,6 +108,7 @@ Improvements:
  +	Smarter delivery assignment to serfs
  +	Add support for 1024x600 (1280x720) resolution
  +	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
+ +	Now using MadExcept for bug reporting which provides much more detailed error information and simple report sending
 
 
 
