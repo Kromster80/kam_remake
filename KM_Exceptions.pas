@@ -29,7 +29,7 @@ begin
   inherited;
   OnAssistantCreate := DoCreateAssistant;
   RegisterExceptionHandler(DoException, stTrySyncCallAlways);
-  MESettings.HttpServer := 'http://lewin.hodgman.id.au/kam_remake_master_server/crashupload.php?rev='+GAME_REVISION;
+  MESettings.HttpServer := 'http://kam.hodgman.id.au/crashupload.php?rev='+GAME_REVISION;
 end;
 
 
