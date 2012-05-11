@@ -198,13 +198,17 @@ begin
   fLocales        := TKMLocales.Create(ExeDir + 'data\locales.txt');
   fGameSettings   := TGameSettings.Create;
 
+  //Texts must be loaded BEFORE we check OpenGL version so the message is translated!
+  fTextLibrary      := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
+
   fRender         := TRender.Create(aHandle, fScreenX, fScreenY, aVSync);
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
-    Application.MessageBox(PChar(String(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+fTextLibrary[TX_GAME_ERROR_OLD_OPENGL_2])), 'Warning', MB_OK or MB_ICONWARNING);
+    //MessageDlg works better than Application.MessageBox or others, it stays on top and
+    //pauses here until the user clicks ok.
+    MessageDlg(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+fTextLibrary[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
 
   fRenderAux        := TRenderAux.Create;
-  fTextLibrary      := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
   fExceptions.LoadTranslation;
   fSoundLib         := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume); //Required for button click sounds
   fMusicLib         := TMusicLib.Create(fGameSettings.MusicVolume);

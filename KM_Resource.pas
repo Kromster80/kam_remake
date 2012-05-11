@@ -301,6 +301,7 @@ begin
 
       for y:=0 to sy-1 do
       for x:=0 to sx-1 do
+        //@Krom: Crashes here when you export unit anim
         MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci, y*sx+x] AND $FFFFFF;
 
       if sy > 0 then
@@ -389,6 +390,7 @@ begin
         MyBitMap.Height:=sy;
 
         for y:=0 to sy-1 do for x:=0 to sx-1 do
+          //@Krom: Crashes here when you export house anim
           MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
         if sy>0 then MyBitMap.SaveToFile(
@@ -459,6 +461,7 @@ begin
       MyBitMap.Height := sy;
 
       for y:=0 to sy-1 do for x:=0 to sx-1 do
+        //@Krom: Crashes here when you export tree anim
         MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
       //We can insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
