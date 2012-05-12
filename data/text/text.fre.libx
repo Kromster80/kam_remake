@@ -460,3 +460,25 @@ MaxID:2730
 2703:Le fichier de sauvegarde n'est pas le même que celui de l'hôte : %s
 2704:ATTENTION : Continuer à jouer après cette erreur peut causer crashs et instabilités.\nVoulez-vous prendre ce risque est continuer à jouer ?
 2705:Veuillez mettre à jour votre pilote graphique pour obtenir une meilleure performance.
+2706:Une erreur s'est produite dans l'application. Veuillez cliquer sur Envoyer le Rapport du Bogue pour que nous puissions examiner ce problème. Merci pour votre aide !
+2707:Envoyer le Rapport du Bogue
+2708:Afficher les Données Brutes
+2709:Le replay a échoué à une vérification de consistance. C'est un bogue connu qui affecte la lecture de plusieurs replays. Voulez-vous continuer à le regarder ?
+2710:Votre nom : (optionnel)
+2711:Votre email : (optionnel)
+2712:Se souvenir de moi
+2713:Dans quelle situation l'erreur se produit-elle ? Pouvez-vous fournir toute information supplémentaire ?
+2714:Joindre une capture d'écran au rapport du bogue
+2715:(cliquez pour modifier l'image)
+2716:Quitter l'Application
+2717:Reprendre l'Application
+2718:Suivant
+2719:Envoyer le Rapport
+2720:Annuler
+2721:Détails de Contact
+2722:Détails de l'Erreur
+2723:Capture d'écran
+2724:Envoi du rapport du bogue...
+2725:Connexion au serveur...
+2726:Envoi des données...
+2727:L'envoi du rapport du crash a échoué ! Notre serveur peut être occupé, veuillez réessayer l'envoi à nouveau.

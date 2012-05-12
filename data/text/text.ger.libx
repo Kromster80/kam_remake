@@ -460,3 +460,27 @@ MaxID:2730
 2703:Spielstanddatei stimmt nicht mit der des Hosts überein: %s
 2704:WARNUNG: Wenn du weiterspielst riskierst du weitere Abstürze oder Fehler. Willst du auf eigene Gefahr weiterspielen?
 2705:Bitte Grafikkartentreiber aktualisieren!
+2706:Ein Fehler trat innerhalb des Programms auf. Bitte klicke auf "Bug Report senden", damit wir das Problem näher betrachten können. Danke für Deine Hilfe!
+2707:Bug Report senden
+2708:Zeige unbearbeite Daten
+2709:Das Replay läuft instabil wegen einem Konsistenz Check. Das ist ein bekannter Fehler, der sich auf die Wiedergabe von Replays auswirkt. Möchtest du dennoch weiterhin zuschauen?
+2710:Dein Name (optional): 
+2711:Deine Email (optional): 
+2712:Mich erinnern
+2713:In welcher Situation trat der Fehler auf? Kannst du uns weitere Informationen geben?
+2714:Screenshot zum Bug Report anhängen
+2715:(klicken um Bild zu ändern)
+2716:Programm beenden
+2717:Programm fortsetzen
+2718:Weiter
+2719:Report senden
+2720:Abbrechen
+2721:Kontakt Details
+2722:Fehler Details
+2723:Screenshot
+2724:Bug Report wird gesendet...
+2725:Verbinde zu Server...
+2726:Daten werden gesendet...
+2727:Der Bug Report konnte nicht gesendet werden! Unsere Server scheinen alle überlastet zu sein. Bitte versuche es später erneut.
+2728:Information
+2729:Bitte gedulde Dich einen Augenblick...
