@@ -2075,7 +2075,10 @@ var
   WC: TWalkConnect;
   AllowDiag: Boolean;
   Pass: TPassability;
+  WorkRect: TKMRect;
 begin
+  WorkRect := KMClipRect(aRect, 1, 1, fMapX-1, fMapY-1);
+
   //Process all items from set
   for J := Low(aSet) to High(aSet) do
   begin
@@ -2085,18 +2088,13 @@ begin
 
     //todo: Can be optimized if we know from which Tile to rebuild, and if that tile makes no difference - skip the thing
 
-    aRect.Left := EnsureRange(aRect.Left, 1, fMapX-1);
-    aRect.Right := EnsureRange(aRect.Right, 1, fMapX-1);
-    aRect.Top := EnsureRange(aRect.Top, 1, fMapY-1);
-    aRect.Bottom := EnsureRange(aRect.Bottom, 1, fMapY-1);
-
     //Early test is allowed only if we don't need to update large portion (or even whole map)
-    CanSkip := (aRect.Right - aRect.Left < 8) and (aRect.Bottom  - aRect.Top < 8);
+    CanSkip := (WorkRect.Right - WorkRect.Left < 8) and (WorkRect.Bottom  - WorkRect.Top < 8);
 
     //Verify that we can exit early if there are no relevant passability tiles in Rect
     if CanSkip then
-    for I := aRect.Top to aRect.Bottom do
-    for K := aRect.Left to aRect.Right do
+    for I := WorkRect.Top to WorkRect.Bottom do
+    for K := WorkRect.Left to WorkRect.Right do
       CanSkip := CanSkip and not (Pass in Land[I,K].Passability);
 
     //We can't rely on((Land[I,K].WalkConnect<>0) and (Pass in Land[I,K].Passability)) check
@@ -2104,9 +2102,9 @@ begin
 
     if not CanSkip then
       if USE_CCL_WALKCONNECT then
-        CCLFind(WC, Pass, AllowDiag, aRect)
+        CCLFind(WC, Pass, AllowDiag, WorkRect)
       else
-        FloodFill(WC, Pass, AllowDiag, aRect);
+        FloodFill(WC, Pass, AllowDiag, WorkRect);
   end;
 end;
 

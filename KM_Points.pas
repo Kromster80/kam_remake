@@ -37,6 +37,7 @@ type
   function KMRect(aPoint: TKMPoint): TKMRect; overload;
   function KMRect(aPoint: TKMPointF): TKMRect; overload;
   function KMRectGrow(aRect: TKMRect; aInset: Integer): TKMRect;
+  function KMClipRect(aRect: TKMRect; X1,Y1,X2,Y2: Word): TKMRect;
   function KMInRect(aPoint: TKMPoint; aRect: TKMRect): Boolean; overload;
   function KMInRect(aPoint: TKMPointF; aRect: TKMRect): Boolean; overload;
 
@@ -194,6 +195,15 @@ begin
   Result.Right  := Math.Max(aRect.Right  + aInset, 0);
   Result.Top    := Math.Max(aRect.Top    - aInset, 0);
   Result.Bottom := Math.Max(aRect.Bottom + aInset, 0);
+end;
+
+
+function KMClipRect(aRect: TKMRect; X1,Y1,X2,Y2: Word): TKMRect;
+begin
+  Result.Left   := EnsureRange(aRect.Left, X1, X2);
+  Result.Right  := EnsureRange(aRect.Right, X1, X2);
+  Result.Top    := EnsureRange(aRect.Top, Y1, Y2);
+  Result.Bottom := EnsureRange(aRect.Bottom, Y1, Y2);
 end;
 
 

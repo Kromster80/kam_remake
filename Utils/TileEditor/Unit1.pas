@@ -10,9 +10,9 @@ type
     RadioGroup1: TRadioGroup;
     Image1: TImage;
     procedure FormCreate(Sender: TObject);
-    procedure MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-    procedure MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure ImageMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure ImageMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure ImageMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure RadioGroup1Click(Sender: TObject);
   end;
 
@@ -51,22 +51,22 @@ begin
     Bits[i].Brush.Color := $FF00;
     Bits[i].Pen.Color := $8800;
     Bits[i].Tag := i;
-    Bits[i].OnMouseDown := MouseDown;
-    Bits[i].OnMouseMove := MouseMove;
-    Bits[i].OnMouseUp   := MouseUp;
+    Bits[i].OnMouseDown := ImageMouseDown;
+    Bits[i].OnMouseMove := ImageMouseMove;
+    Bits[i].OnMouseUp   := ImageMouseUp;
   end;
 
   fTileset := TKMTileset.Create('', '..\..\data\defines\pattern.dat', nil);
 end;
 
 
-procedure TForm1.MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TForm1.ImageMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if Button = mbLeft then MouseMove(Sender, [ssLeft], X, Y);
+  if Button = mbLeft then ImageMouseMove(Sender, [ssLeft], X, Y);
 end;
 
 
-procedure TForm1.MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+procedure TForm1.ImageMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 var i:integer; xx,yy:integer;
 begin
   if not (ssLeft in Shift) then exit;
@@ -86,7 +86,7 @@ begin
 end;
 
 
-procedure TForm1.MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TForm1.ImageMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   //nothing
 end;
