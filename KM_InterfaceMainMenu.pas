@@ -1007,6 +1007,7 @@ begin
     TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 280, 0, 0, fTextLibrary[TX_MENU_CAMP_CUSTOM], fnt_Outline, taCenter);
     List_Camps := TKMColumnListBox.Create(Panel_CampSelect, 312, 300, 400, 300, fnt_Grey);
     List_Camps.SetColumns(fnt_Grey, ['Title', 'Maps', ''], [0, 300, 400]);
+    //todo: List_Camps.OnChange
 
     Button_Camp_Back := TKMButton.Create(Panel_CampSelect, 30, 712, 230, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
     Button_Camp_Back.Anchors := [akLeft, akBottom];
@@ -1623,6 +1624,7 @@ begin
   {Show campaign selection menu}
   if (Sender = Button_SP_Camp) then
   begin
+    //todo: FillCampaignsList;
     Panel_CampSelect.Show;
   end;
 
