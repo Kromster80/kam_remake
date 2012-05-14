@@ -20,7 +20,7 @@ Next Demo:
 	Support custom campaigns
 
 
-4th Multiplayer Demo (r3391) - 14/05/12:
+4th Multiplayer Demo (r3392) - 14/05/12:
  +	Reworked deliveries
  +	Support custom mission texts
  +	Minimap in menu
