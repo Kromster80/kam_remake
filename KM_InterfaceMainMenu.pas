@@ -42,8 +42,9 @@ type
 
     procedure Create_MainMenu_Page;
     procedure Create_SinglePlayer_Page;
+    procedure Create_CampSelect_Page;
     procedure Create_Campaign_Page;
-    procedure Create_Single_Page;
+    procedure Create_SingleMap_Page;
     procedure Create_Load_Page;
     procedure Create_MultiPlayer_Page;
     procedure Create_Lobby_Page;
@@ -154,8 +155,9 @@ type
       Panel_SPButtons:TKMPanel;
       Button_SP_Tutor,
       Button_SP_Fight,
-      Button_SP_TSK,
-      Button_SP_TPR,
+      Button_SP_Camp,
+      //Button_SP_TSK,
+      //Button_SP_TPR,
       Button_SP_Single,
       Button_SP_Load: TKMButton;
       Button_SP_Back: TKMButton;
@@ -222,6 +224,11 @@ type
 
       Button_LobbyBack:TKMButton;
       Button_LobbyStart:TKMButton;
+
+    Panel_CampSelect: TKMPanel;
+      Button_Camp_TSK, Button_Camp_TPR: TKMButton;
+      List_Camps: TKMColumnListBox;
+      Button_Camp_Start, Button_Camp_Back: TKMButton;
 
     Panel_Campaign:TKMPanel;
       Image_CampaignBG:TKMImage;
@@ -378,8 +385,9 @@ begin
 
   Create_MainMenu_Page;
   Create_SinglePlayer_Page;
-    Create_Campaign_Page;
-    Create_Single_Page;
+    Create_CampSelect_Page;
+      Create_Campaign_Page;
+    Create_SingleMap_Page;
     Create_Load_Page;
   Create_MultiPlayer_Page;
     Create_Lobby_Page;
@@ -724,6 +732,7 @@ begin
 end;
 
 
+//Single player menu
 procedure TKMMainMenuInterface.Create_SinglePlayer_Page;
 begin
   //Without anchors this page is centered on resize
@@ -737,16 +746,20 @@ begin
     Panel_SPButtons := TKMPanel.Create(Panel_SinglePlayer,337,340,350,400);
       Button_SP_Tutor  := TKMButton.Create(Panel_SPButtons,0,  0,350,30,fTextLibrary[TX_MENU_TUTORIAL_TOWN],fnt_Metal,bsMenu);
       Button_SP_Fight  := TKMButton.Create(Panel_SPButtons,0, 34,350,30,fTextLibrary[TX_MENU_TUTORIAL_BATTLE],fnt_Metal,bsMenu);
-      Button_SP_TSK    := TKMButton.Create(Panel_SPButtons,0, 88,350,30,fTextLibrary[TX_MENU_CAMP_TSK],fnt_Metal,bsMenu);
-      Button_SP_TPR    := TKMButton.Create(Panel_SPButtons,0,122,350,30,fTextLibrary[TX_MENU_CAMP_TPR],fnt_Metal,bsMenu);
+
+      Button_SP_Camp   := TKMButton.Create(Panel_SPButtons,0, 88,350,30,fTextLibrary[TX_MENU_CAMPAIGNS],fnt_Metal,bsMenu);
+
+      //Button_SP_TSK    := TKMButton.Create(Panel_SPButtons,0, 88,350,30,fTextLibrary[TX_MENU_CAMP_TSK],fnt_Metal,bsMenu);
+      //Button_SP_TPR    := TKMButton.Create(Panel_SPButtons,0,122,350,30,fTextLibrary[TX_MENU_CAMP_TPR],fnt_Metal,bsMenu);
       Button_SP_Single := TKMButton.Create(Panel_SPButtons,0,176,350,30,fTextLibrary[TX_MENU_SINGLE_MAP],fnt_Metal,bsMenu);
       Button_SP_Load   := TKMButton.Create(Panel_SPButtons,0,210,350,30,fTextLibrary[TX_MENU_LOAD_SAVEGAME],fnt_Metal,bsMenu);
       Button_SP_Back   := TKMButton.Create(Panel_SPButtons,0,290,350,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
 
       Button_SP_Tutor.OnClick  := MainMenu_PlayTutorial;
       Button_SP_Fight.OnClick  := MainMenu_PlayBattle;
-      Button_SP_TSK.OnClick    := SwitchMenuPage;
-      Button_SP_TPR.OnClick    := SwitchMenuPage;
+      Button_SP_Camp.OnClick   := SwitchMenuPage;
+      //Button_SP_TSK.OnClick    := SwitchMenuPage;
+      //Button_SP_TPR.OnClick    := SwitchMenuPage;
       Button_SP_Single.OnClick := SwitchMenuPage;
       Button_SP_Load.OnClick   := SwitchMenuPage;
       Button_SP_Back.OnClick   := SwitchMenuPage;
@@ -978,10 +991,36 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.Create_CampSelect_Page;
+begin
+  Panel_CampSelect := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
+  Panel_CampSelect.Stretch;
+
+    TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2 - 150, 80, 0, 0, fTextLibrary[TX_MENU_CAMP_TSK], fnt_Outline, taCenter);
+    Button_Camp_TSK := TKMButton.Create(Panel_CampSelect, Panel_Main.Width div 2 - 240, 100, 200, 150, 26, rxGuiMain, bsMenu);
+    Button_Camp_TSK.OnClick := SwitchMenuPage;
+
+    TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2 + 150, 80, 0, 0, fTextLibrary[TX_MENU_CAMP_TPR], fnt_Outline, taCenter);
+    Button_Camp_TPR := TKMButton.Create(Panel_CampSelect, Panel_Main.Width div 2 + 40, 100, 200, 150, 27, rxGuiMain, bsMenu);
+    Button_Camp_TPR.OnClick := SwitchMenuPage;
+
+    TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 280, 0, 0, fTextLibrary[TX_MENU_CAMP_CUSTOM], fnt_Outline, taCenter);
+    List_Camps := TKMColumnListBox.Create(Panel_CampSelect, 312, 300, 400, 300, fnt_Grey);
+    List_Camps.SetColumns(fnt_Grey, ['Title', 'Maps', ''], [0, 300, 400]);
+
+    Button_Camp_Back := TKMButton.Create(Panel_CampSelect, 30, 712, 230, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
+    Button_Camp_Back.Anchors := [akLeft, akBottom];
+    Button_Camp_Back.OnClick := SwitchMenuPage;
+    Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 285, 712, 230, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
+    Button_Camp_Start.Anchors := [akLeft, akBottom];
+    Button_Camp_Start.OnClick := SwitchMenuPage;
+end;
+
+
 procedure TKMMainMenuInterface.Create_Campaign_Page;
 var I: Integer;
 begin
-  Panel_Campaign:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
+  Panel_Campaign := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Campaign.Stretch;
     Image_CampaignBG := TKMImage.Create(Panel_Campaign,0,0,Panel_Main.Width, Panel_Main.Height,0,rxGuiMain);
     Image_CampaignBG.ImageStretch;
@@ -1020,10 +1059,11 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Single_Page;
+procedure TKMMainMenuInterface.Create_SingleMap_Page;
 var i:integer;
-const C1=0;  C2=50; C3=100; C4=380; CS=440;
-      W1=50; W2=50; W3=280;W4=60;
+const
+  C1 =  0; C2 = 50; C3 = 100; C4 = 380; CS = 440; // Columns offsets
+  W1 = 50; W2 = 50; W3 = 280; W4 = 60; // Columns widths
 begin
   Panel_Single:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Single.Stretch;
@@ -1580,16 +1620,26 @@ begin
        Panel_SinglePlayer.Show;
   end;
 
-  {Show campaign menu}
-  if (Sender = Button_SP_TSK)
-  or (Sender = Button_SP_TPR)
+  {Show campaign selection menu}
+  if (Sender = Button_SP_Camp) then
+  begin
+    Panel_CampSelect.Show;
+  end;
+
+  {Show campaign screen}
+  if (Sender = Button_Camp_TSK)
+  or (Sender = Button_Camp_TPR)
+  or (Sender = Button_Camp_Start)
   or (Sender = Button_ResultsContinue) then
   begin
-    if (Sender = Button_SP_TPR) then
+    if (Sender = Button_Camp_TSK) then
+      Campaign_Set(fGame.Campaigns.CampaignByTitle('TSK'))
+    else
+    if (Sender = Button_Camp_TPR) then
       Campaign_Set(fGame.Campaigns.CampaignByTitle('TPR'))
     else
-    if (Sender = Button_SP_TSK) then
-      Campaign_Set(fGame.Campaigns.CampaignByTitle('TSK'))
+    if (Sender = Button_Camp_Start) then
+      Campaign_Set(fGame.Campaigns.CampaignByTitle(List_Camps.Rows[0].Cells[0].Caption))
     else
       Campaign_Set(fGame.Campaigns.ActiveCampaign);
     Panel_Campaign.Show;
@@ -2975,7 +3025,7 @@ begin
   Button_ReplaysPlay.Enabled := InRange(List_Replays.ItemIndex, 0, fSaves.Count-1)
                                 and fSaves[List_Replays.ItemIndex].IsValid
                                 and fGame.ReplayExists(fSaves[List_Replays.ItemIndex].FileName, (Radio_Replays_Type.ItemIndex = 1));
-  
+
   if InRange(List_Replays.ItemIndex, 0, fSaves.Count-1) then
   begin
     fSave_Selected := List_Replays.ItemIndex;
