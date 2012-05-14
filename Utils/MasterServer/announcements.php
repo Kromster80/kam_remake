@@ -5,13 +5,9 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
-if(($Rev == "r3252") || ($Rev == "r3311"))
+if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311"))
 {
-  die('[$0000FF]THIS RELEASE CANDIDATE IS OLD AND BUGGY.[]||There is a new release candidate r3374 available, please contact Lewin if I have\'t sent it to you already.');
-}
-if($Rev == "r3374")
-{
-  die('[$FF6699]Welcome to the [$00D000]THIRD[$FF6699] release candidate.[] We now have a new system to report crashes, which should speed up the bug fixes.|Enjoy, and please keep those bug reports coming!||Thank you for your help.');
+  die('[$0000FF]THE 4TH MULTIPLAYER DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
 //First see if they are up to date
@@ -87,7 +83,7 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-	echo "The new release has been delayed by some bugs/crashes found in the release candidate. We will be releasing the new version as soon as they are fixed.";
+	echo "Welcome to the 4th multiplayer demo :)|Please report any issues.";
 	//echo "We will hopefully be releasing an update to the KaM Remake soon! (around 29th of April if testing goes well)||Check the news story on our website for more information: www.kamremake.com";
 	//echo "The recent '500 Internal Server Errors' seem to be resolved, it was a problem at the hosting provider.|Please let us know if you have problems refreshing the server list or these announcements.||Thanks for your patience :)";
 	//echo "We're getting some '500 Internal Server Errors' on our master server which we will try to fix as soon as possible.||If you can't see any servers in the list, please press Refresh Server List to try again.||Updated 19/02/2012.";

@@ -2,9 +2,9 @@ unit KM_InterfaceMainMenu;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF MSWindows} Windows, ShellAPI, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
+  StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
   KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
   KM_InterfaceDefaults, KM_MapView, KM_ServerQuery;
 
@@ -59,6 +59,7 @@ type
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
     procedure MainMenu_ReplayLastMap(Sender: TObject);
+    procedure Credits_LinkClick(Sender: TObject);
     procedure Campaign_Set(aCampaign:TKMCampaign);
     procedure Campaign_SelectMap(Sender: TObject);
     procedure Campaign_StartMap(Sender: TObject);
@@ -295,6 +296,8 @@ type
     Panel_Credits:TKMPanel;
       Label_Credits_KaM:TKMLabelScroll;
       Label_Credits_Remake:TKMLabelScroll;
+      Button_CreditsHomepage,
+      Button_CreditsFacebook,
       Button_CreditsBack:TKMButton;
     Panel_Loading:TKMPanel;
       Label_Loading:TKMLabel;
@@ -1355,6 +1358,14 @@ begin
     Label_Credits_KaM := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 110, 400, Panel_Main.Height - 130, fTextLibrary[TX_CREDITS_TEXT], fnt_Grey, taCenter);
     Label_Credits_KaM.Anchors := [akLeft,akTop,akBottom];
 
+    Button_CreditsHomepage:=TKMButton.Create(Panel_Credits,400,610,224,30,'[$F8A070]www.kamremake.com[]',fnt_Metal,bsMenu);
+    Button_CreditsHomepage.Anchors := [akLeft,akBottom];
+    Button_CreditsHomepage.OnClick:=Credits_LinkClick;
+
+    Button_CreditsFacebook:=TKMButton.Create(Panel_Credits,400,646,224,30,'[$F8A070]Facebook[]',fnt_Metal,bsMenu);
+    Button_CreditsFacebook.Anchors := [akLeft,akBottom];
+    Button_CreditsFacebook.OnClick:=Credits_LinkClick;
+
     Button_CreditsBack:=TKMButton.Create(Panel_Credits,400,700,224,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
     Button_CreditsBack.Anchors := [akLeft,akBottom];
     Button_CreditsBack.OnClick:=SwitchMenuPage;
@@ -1702,6 +1713,20 @@ end;
 procedure TKMMainMenuInterface.MainMenu_ReplayLastMap(Sender: TObject);
 begin
   fGame.StartLastMap; //Means replay last map
+end;
+
+
+procedure TKMMainMenuInterface.Credits_LinkClick(Sender: TObject);
+
+  //This can't be moved to e.g. KM_Utils because the dedicated server needs that, and it must be Linux compatible
+  procedure GoToURL(aUrl:string);
+  begin
+    ShellExecute(Application.Handle, 'open', PChar(aUrl),nil,nil, SW_SHOWNORMAL)
+  end;
+
+begin
+  if Sender = Button_CreditsHomepage then GoToURL('http://www.kamremake.com/redirect.php?page=homepage&rev='+GAME_REVISION);
+  if Sender = Button_CreditsFacebook then GoToURL('http://www.kamremake.com/redirect.php?page=facebook&rev='+GAME_REVISION);
 end;
 
 

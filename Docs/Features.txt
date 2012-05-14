@@ -16,10 +16,12 @@ Future
 Doable:
 	Hotkeys for armies (Ctrl+1,2,etc)
 
+Next Demo:
+	Support custom campaigns
 
-Next demo:
+
+4th Multiplayer Demo (r3391) - 14/05/12:
  +	Reworked deliveries
- +	Support custom campaigns
  +	Support custom mission texts
  +	Minimap in menu
  +	Tutorial missions texts, simple events
