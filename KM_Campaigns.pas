@@ -122,30 +122,18 @@ end;
 
 //Scan custom campaigns folders
 procedure TKMCampaignsCollection.ScanFolder(const aPath: string);
-var C: TKMCampaign;
+var
+  SearchRec: TSearchRec;
 begin
-  AddCampaign(aPath + 'The Shattered Kingdom\');
-  AddCampaign(aPath + 'The Peasants Rebellion\');
+  if not DirectoryExists(aPath) then Exit;
 
-  //todo: So far TSK and TPR are hardcoded, but we need to switch to real Scan later
-
-  //Hardcoded for now
-  C := CampaignByTitle('TSK');
-  if C <> nil then
-  begin
-    //C.fBackGroundPic.RX := rxGuiMainH;
-    //C.fBackGroundPic.ID := 12;
-    //C.fFirstTextIndex := 340; //+10 added later on
-  end;
-
-  //Hardcoded for now
-  C := CampaignByTitle('TPR');
-  if C <> nil then
-  begin
-    //C.fBackGroundPic.RX := rxGuiMain;
-    //C.fBackGroundPic.ID := 20;
-    //C.fFirstTextIndex := 240; //+10 added later on
-  end;
+  FindFirst(aPath + '*', faDirectory, SearchRec);
+  repeat
+    if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+    and (SearchRec.Attr and faDirectory = faDirectory) then
+      AddCampaign(aPath + SearchRec.Name + '\');
+  until (FindNext(SearchRec) <> 0);
+  FindClose(SearchRec);
 end;
 
 
