@@ -14,6 +14,7 @@
   if($_REQUEST["rev"] == "") die("Incorrect parameters");
   $ToSend = "New crash report for revision ".$_REQUEST["rev"]." uploaded:\n";
   $FoundFile = False;
+  $Failed = False;
   if (!is_dir('crashes')) {
     mkdir('crashes');
   }
@@ -24,17 +25,23 @@
     $uploadfile = "crashes/".$file['name'];
     if(!move_uploaded_file($file['tmp_name'], $uploadfile))
 	{
+	  $Failed = True;
 	  $ToSend .= " MOVE FAILED!";
 	}
 	$ToSend .= "\n";
     $FoundFile = True;
   }
+  if($Failed || !$FoundFile)
+  {
+    header("HTTP/1.1 500 Upload Failed");
+	echo "ERROR: Upload failed";
+  }
   if($FoundFile)
   {
     $headers = 'Content-Type: text/plain; charset="iso-8859-2"'."\n".
              "Content-Transfer-Encoding: 8bit"."\n".
-			 "From: KaM Remake Server <contact@kamremake.com>"."\n";
-    mail ("contact@kamremake.com", "Crash Report ".$_REQUEST["rev"], $ToSend, $headers);
-	echo "Success";
+			 "From: KaM Remake Server <lewin@hodgman.id.au>"."\n";
+    mail ("contact@kamremake.com,lewin@hodgman.id.au", "Crash Report ".$_REQUEST["rev"], $ToSend, $headers);
+	echo "Done";
   }
 ?>
