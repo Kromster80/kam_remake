@@ -464,8 +464,8 @@ MaxID:2730
 2707:Bug Report senden
 2708:Zeige unbearbeite Daten
 2709:Das Replay läuft instabil wegen einem Konsistenz Check. Das ist ein bekannter Fehler, der sich auf die Wiedergabe von Replays auswirkt. Möchtest du dennoch weiterhin zuschauen?
-2710:Dein Name (optional): 
-2711:Deine Email (optional): 
+2710:Dein Name (optional):
+2711:Deine Email (optional):
 2712:Mich erinnern
 2713:In welcher Situation trat der Fehler auf? Kannst du uns weitere Informationen geben?
 2714:Screenshot zum Bug Report anhängen
