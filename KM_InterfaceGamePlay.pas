@@ -450,7 +450,7 @@ begin
   begin
     List_Save.ItemIndex := -1;
     fSave_Selected := -1;
-    CheckBox_SaveExists.Enabled := FileExists(fGame.SaveName(Edit_Save.Text,'sav'));
+    CheckBox_SaveExists.Enabled := FileExists(fGame.SaveName(Edit_Save.Text, 'sav', fGame.MultiplayerMode));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := False;
     //we should protect ourselves from empty names and whitespaces at beggining and at end of name

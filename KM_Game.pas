@@ -142,7 +142,7 @@ type
     property GameState: TGameState read fGameState;
     procedure SetGameSpeed(aSpeed: word);
     procedure StepOneFrame;
-    function SaveName(const aName, aExt: string):string;
+    function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
     function RenderVersion: string;
     procedure UpdateGameCursor(X,Y: Integer; Shift: TShiftState);
 
@@ -789,15 +789,15 @@ begin
   fLog.AppendLog('Gameplay Error: "' + aText + '" at location ' + TypeToString(aLoc));
 
   if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
-    fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl')); //Save replay data ourselves
+    fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fMultiplayerMode)); //Save replay data ourselves
 
   MyZip := TZippit.Create;
   //Include in the bug report:
-  MyZip.AddFiles(SaveName('basesave', '*')); //Replay files
+  MyZip.AddFiles(SaveName('basesave', '*', fMultiplayerMode)); //Replay files
   MyZip.AddFile(fLog.LogPath); //Log file
   MyZip.AddFile(fMissionFile); //Mission script
   for I := 1 to AUTOSAVE_COUNT do
-    MyZip.AddFiles(SaveName('autosave' + Int2Fix(I, 2), '*')); //All autosaves
+    MyZip.AddFiles(SaveName('autosave' + Int2Fix(I, 2), '*', fMultiplayerMode)); //All autosaves
 
   //Save it as: KaM Crash r1830 2007-12-23 15-24-33.zip
   CrashFile := 'KaM Crash ' + GAME_REVISION + ' ' + FormatDateTime('yyyy-mm-dd hh-nn-ss', Now) + '.zip';
@@ -959,7 +959,7 @@ begin
         fMainMenuInterface.Results_Fill;
 
     if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
-      fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl'));
+      fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fMultiplayerMode));
 
     FreeThenNil(fEventsManager);
     FreeThenNil(fGameInputProcess);
@@ -1094,21 +1094,23 @@ end;
 procedure TKMGame.AutoSave;
 var i: integer;
 begin
-  Save('autosave'); //Temp file
+  Save('autosave'); //Save to temp file
 
-  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'sav'));
-  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'rpl'));
-  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'bas'));
+  //Delete last autosave and shift remaining by 1 position back
+  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'sav', fMultiplayerMode));
+  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'rpl', fMultiplayerMode));
+  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'bas', fMultiplayerMode));
   for i:=AUTOSAVE_COUNT downto 2 do //03 to 01
   begin
-    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'sav'), SaveName('autosave'+int2fix(i,2), 'sav'));
-    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'rpl'), SaveName('autosave'+int2fix(i,2), 'rpl'));
-    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'bas'), SaveName('autosave'+int2fix(i,2), 'bas'));
+    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'sav', fMultiplayerMode), SaveName('autosave'+int2fix(i,2), 'sav', fMultiplayerMode));
+    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'rpl', fMultiplayerMode), SaveName('autosave'+int2fix(i,2), 'rpl', fMultiplayerMode));
+    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'bas', fMultiplayerMode), SaveName('autosave'+int2fix(i,2), 'bas', fMultiplayerMode));
   end;
 
-  RenameFile(SaveName('autosave', 'sav'), SaveName('autosave01', 'sav'));
-  RenameFile(SaveName('autosave', 'rpl'), SaveName('autosave01', 'rpl'));
-  RenameFile(SaveName('autosave', 'bas'), SaveName('autosave01', 'bas'));
+  //Rename temp to be first in list
+  RenameFile(SaveName('autosave', 'sav', fMultiplayerMode), SaveName('autosave01', 'sav', fMultiplayerMode));
+  RenameFile(SaveName('autosave', 'rpl', fMultiplayerMode), SaveName('autosave01', 'rpl', fMultiplayerMode));
+  RenameFile(SaveName('autosave', 'bas', fMultiplayerMode), SaveName('autosave01', 'bas', fMultiplayerMode));
 end;
 
 
@@ -1117,8 +1119,9 @@ begin
   Save('basesave'); //Temp file
 
   //In Linux CopyFile does not overwrite
-  if FileExists(SaveName('basesave', 'bas')) then DeleteFile(SaveName('basesave','bas'));
-  CopyFile(PChar(SaveName('basesave','sav')), PChar(SaveName('basesave','bas')), false);
+  if FileExists(SaveName('basesave', 'bas', fMultiplayerMode)) then
+    DeleteFile(SaveName('basesave','bas', fMultiplayerMode));
+  CopyFile(PChar(SaveName('basesave','sav', fMultiplayerMode)), PChar(SaveName('basesave','bas', fMultiplayerMode)), False);
 end;
 
 
@@ -1177,13 +1180,9 @@ end;
 
 //Check if replay files exist at location
 function TKMGame.ReplayExists(const aSaveName: string; aMultiplayer:boolean):boolean;
-var OldMultiplayerMode:boolean;
 begin
-  OldMultiplayerMode := fMultiplayerMode;
-  fMultiplayerMode := aMultiplayer;
-  Result := FileExists(SaveName(aSaveName, 'bas')) and
-            FileExists(SaveName(aSaveName, 'rpl'));
-  fMultiplayerMode := OldMultiplayerMode;
+  Result := FileExists(SaveName(aSaveName, 'bas', aMultiplayer)) and
+            FileExists(SaveName(aSaveName, 'rpl', aMultiplayer));
 end;
 
 
@@ -1211,7 +1210,7 @@ begin
 
   FreeAndNil(fGameInputProcess); //Override GIP from savegame
   fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying);
-  fGameInputProcess.LoadFromFile(SaveName(aSaveName,'rpl'));
+  fGameInputProcess.LoadFromFile(SaveName(aSaveName, 'rpl', fMultiplayerMode));
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
   SetGameState(gsReplay);
@@ -1434,13 +1433,13 @@ begin
   //we must send those "commands" through the GIP so all players know about them and they're in sync.
   //There is a comment in fGame.Load about MessageList on this topic.
 
-  SaveStream.SaveToFile(SaveName(aFileName,'sav')); //Some 70ms for TPR7 map
+  SaveStream.SaveToFile(SaveName(aFileName,'sav', fMultiplayerMode)); //Some 70ms for TPR7 map
   SaveStream.Free;
 
   fLog.AppendLog('Save done');
 
-  CopyFile(PChar(SaveName('basesave','bas')), PChar(SaveName(aFileName,'bas')), false); //replace Replay base savegame
-  fGameInputProcess.SaveToFile(SaveName(aFileName,'rpl')); //Adds command queue to savegame
+  CopyFile(PChar(SaveName('basesave','bas', fMultiplayerMode)), PChar(SaveName(aFileName,'bas', fMultiplayerMode)), false); //replace Replay base savegame
+  fGameInputProcess.SaveToFile(SaveName(aFileName,'rpl', fMultiplayerMode)); //Adds command queue to savegame
 
   fLog.AppendLog('Saving game', true);
 end;
@@ -1455,15 +1454,19 @@ var
   LoadedSeed: Longint;
   SaveIsMultiplayer: boolean;
 begin
-  fLog.AppendLog('Loading game: '+aFileName);
-  if aReplay then LoadFileExt := 'bas' else LoadFileExt := 'sav';
+  fLog.AppendLog('Loading game: ' + aFileName);
+  if aReplay then
+    LoadFileExt := 'bas'
+  else
+    LoadFileExt := 'sav';
 
   LoadStream := TKMemoryStream.Create;
   GameInfo := TKMGameInfo.Create;
   try //Catch exceptions
-    if not FileExists(SaveName(aFileName, LoadFileExt)) then Raise Exception.Create('Savegame could not be found');
+    if not FileExists(SaveName(aFileName, LoadFileExt, fMultiplayerMode)) then
+      raise Exception.Create('Savegame could not be found');
 
-    LoadStream.LoadFromFile(SaveName(aFileName, LoadFileExt));
+    LoadStream.LoadFromFile(SaveName(aFileName, LoadFileExt, fMultiplayerMode));
 
     //We need only few essential parts from GameInfo, the rest is duplicate from fTerrain and fPlayers
 
@@ -1515,10 +1518,10 @@ begin
       fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
     else
       fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-    fGameInputProcess.LoadFromFile(SaveName(aFileName,'rpl'));
+    fGameInputProcess.LoadFromFile(SaveName(aFileName, 'rpl', fMultiplayerMode));
 
     if not aReplay then
-      CopyFile(PChar(SaveName(aFileName,'bas')), PChar(SaveName('basesave','bas')), false); //replace Replay base savegame
+      CopyFile(PChar(SaveName(aFileName,'bas', fMultiplayerMode)), PChar(SaveName('basesave','bas', fMultiplayerMode)), false); //replace Replay base savegame
 
     fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
     fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
@@ -1710,9 +1713,9 @@ begin
 end;
 
 
-function TKMGame.SaveName(const aName, aExt: string): string;
+function TKMGame.SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
 begin
-  if fMultiplayerMode then
+  if aMultiPlayer then
     Result := ExeDir + 'SavesMP\' + aName + '.' + aExt
   else
     Result := ExeDir + 'Saves\' + aName + '.' + aExt;
