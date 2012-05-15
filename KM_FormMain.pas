@@ -59,21 +59,23 @@ type
     Debug_ShowOverlay: TMenuItem;
     AnimData1: TMenuItem;
     Other1: TMenuItem;
-    Debug_ShowPanel1: TMenuItem;
+    Debug_ShowPanel: TMenuItem;
     Export_TreeAnim1: TMenuItem;
     Export_GUIMainHRX: TMenuItem;
     TB_Angle: TTrackBar;
     Label3: TLabel;
-    ExportMainMenu1: TMenuItem;
+    ExportMainMenu: TMenuItem;
     Button_CalcArmy: TButton;
     Debug_EnableCheats: TMenuItem;
     ShowAIAttacks1: TMenuItem;
+    ExportGamePages: TMenuItem;
+    ExportMenuPages: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure ExportMainMenu1Click(Sender: TObject);
+    procedure Debug_ExportMenuClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
@@ -106,10 +108,12 @@ type
     procedure Open_MissionMenuClick(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
     procedure Debug_ShowUnitClick(Sender: TObject);
-    procedure Debug_ShowPanel1Click(Sender: TObject);
+    procedure Debug_ShowPanelClick(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure Panel5MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure ShowAIAttacks1Click(Sender: TObject);
+    procedure Debug_ExportGamePagesClick(Sender: TObject);
+    procedure Debug_ExportMenuPagesClick(Sender: TObject);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -138,8 +142,11 @@ uses
   //Use these units directly to avoid pass-through methods in fMain
   KM_Resource,
   KM_ResourceSprites,
-  KM_Game, KM_PlayersCollection,
-  KM_Sound, KM_Pics,
+  KM_Controls,
+  KM_Game, 
+  KM_PlayersCollection,
+  KM_Sound, 
+  KM_Pics,
   KM_RenderPool,
   KM_TextLibrary,
   KM_GameInputProcess,
@@ -341,7 +348,7 @@ begin
 end;
 
 
-procedure TFormMain.Debug_ShowPanel1Click(Sender: TObject);
+procedure TFormMain.Debug_ShowPanelClick(Sender: TObject);
 begin GroupBox1.Visible := not GroupBox1.Visible; end;
 
 
@@ -503,11 +510,61 @@ end;
 {$ENDIF}
 
 
-procedure TFormMain.ExportMainMenu1Click(Sender: TObject);
+procedure TFormMain.Debug_ExportMenuClick(Sender: TObject);
 begin
   fGame.fMainMenuInterface.MyControls.SaveToFile(ExeDir + 'Export\MainMenu.txt');
 end;
 
+
+procedure TFormMain.Debug_ExportMenuPagesClick(Sender: TObject);
+var
+  I, K: Integer;
+  MC: TKMMasterControl;
+begin
+  if fGame.fMainMenuInterface = nil then Exit;
+
+  MC := fGame.fMainMenuInterface.MyControls;
+  ForceDirectories(ExeDir + 'Export\MainMenu\');
+
+  for I := 1 to MC.MainPanel.ChildCount do
+    if MC.MainPanel.Childs[I] is TKMPanel then
+    begin
+      //Hide all other panels
+      for K := 1 to MC.MainPanel.ChildCount do
+        if MC.MainPanel.Childs[K] is TKMPanel then
+          MC.MainPanel.Childs[K].Hide;
+
+      MC.MainPanel.Childs[I].Show;
+
+      fGame.Render;
+      fGame.PrintScreen(ExeDir + 'Export\MainMenu\Panel' + int2fix(I, 3) + '.jpg');
+    end;
+end;
+
+procedure TFormMain.Debug_ExportGamePagesClick(Sender: TObject);
+var
+  I, K: Integer;
+  MC: TKMMasterControl;
+begin
+  if fGame.fGamePlayInterface = nil then Exit;
+
+  MC := fGame.fGamePlayInterface.MyControls;
+  ForceDirectories(ExeDir + 'Export\GamePlay\');
+
+  for I := 1 to MC.MainPanel.ChildCount do
+    if MC.MainPanel.Childs[I] is TKMPanel then
+    begin
+      //Hide all other panels
+      for K := 1 to MC.MainPanel.ChildCount do
+        if MC.MainPanel.Childs[K] is TKMPanel then
+          MC.MainPanel.Childs[K].Hide;
+
+      MC.MainPanel.Childs[I].Show;
+
+      fGame.Render;
+      fGame.PrintScreen(ExeDir + 'Export\GamePlay\Panel' + int2fix(I, 3) + '.jpg');
+    end;
+end;
 
 //Consult with the fGame if we can shut down the program
 procedure TFormMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);

@@ -172,24 +172,6 @@ object FormMain: TFormMain
   object MainMenu1: TMainMenu
     Left = 16
     Top = 192
-    object File1: TMenuItem
-      Caption = 'File'
-      object OpenMissionMenu: TMenuItem
-        Caption = 'Open mission...'
-        OnClick = Open_MissionMenuClick
-      end
-      object MenuItem1: TMenuItem
-        Caption = 'Edit mission...'
-        OnClick = MenuItem1Click
-      end
-      object N1: TMenuItem
-        Caption = '-'
-      end
-      object Exit1: TMenuItem
-        Caption = 'Exit'
-        OnClick = ExitClick
-      end
-    end
     object Debug1: TMenuItem
       Caption = 'Debug'
       object Debug_ShowWires: TMenuItem
@@ -204,21 +186,29 @@ object FormMain: TFormMain
         Caption = 'Show Overlay'
         OnClick = Debug_ShowOverlayClick
       end
-      object Debug_ShowPanel1: TMenuItem
+      object Debug_ShowPanel: TMenuItem
         Caption = 'Show Debug panel'
-        OnClick = Debug_ShowPanel1Click
+        OnClick = Debug_ShowPanelClick
       end
       object Debug_ShowUnits: TMenuItem
         Caption = 'Show Units'
         OnClick = Debug_ShowUnitClick
       end
+      object ExportMainMenu: TMenuItem
+        Caption = 'Export MainMenu'
+        OnClick = Debug_ExportMenuClick
+      end
       object Debug_EnableCheats: TMenuItem
         Caption = 'Debug Cheats'
         OnClick = Debug_EnableCheatsClick
       end
-      object ExportMainMenu1: TMenuItem
-        Caption = 'Export MainMenu'
-        OnClick = ExportMainMenu1Click
+      object ExportMenuPages: TMenuItem
+        Caption = 'Export Menu Pages'
+        OnClick = Debug_ExportMenuPagesClick
+      end
+      object ExportGamePages: TMenuItem
+        Caption = 'Export Game Pages'
+        OnClick = Debug_ExportGamePagesClick
       end
     end
     object Export1: TMenuItem
@@ -274,6 +264,24 @@ object FormMain: TFormMain
       object Export_Text: TMenuItem
         Caption = 'Texts'
         OnClick = Export_TextClick
+      end
+      object File1: TMenuItem
+        Caption = 'File'
+        object OpenMissionMenu: TMenuItem
+          Caption = 'Open mission...'
+          OnClick = Open_MissionMenuClick
+        end
+        object MenuItem1: TMenuItem
+          Caption = 'Edit mission...'
+          OnClick = MenuItem1Click
+        end
+        object N1: TMenuItem
+          Caption = '-'
+        end
+        object Exit1: TMenuItem
+          Caption = 'Exit'
+          OnClick = ExitClick
+        end
       end
       object Export_Sounds1: TMenuItem
         Caption = 'Sounds'

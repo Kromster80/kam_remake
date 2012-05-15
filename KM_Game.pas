@@ -34,21 +34,21 @@ type
     fTimerUI: TTimer;
     fGameSpeed: Word; //Actual speedup value
     fGameSpeedMultiplier: Word; //how many ticks are compressed in one
-    fGameState:TGameState;
-    fMultiplayerMode:boolean;
+    fGameState: TGameState;
+    fMultiplayerMode: Boolean;
     fReplayMode: Boolean; //Separate flag since Replay can change fGameState
-    fReplayFile:string;
-    fWaitingForNetwork:boolean;
-    fGameOptions:TKMGameOptions;
-    fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
+    fReplayFile: string;
+    fWaitingForNetwork: Boolean;
+    fGameOptions: TKMGameOptions;
+    fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
     fGameSettings: TGameSettings;
     fRender: TRender;
     fCampaigns: TKMCampaignsCollection;
     fMusicLib: TMusicLib;
     fMapEditor: TKMMapEditor;
-    fProjectiles:TKMProjectiles;
-    fGameInputProcess:TGameInputProcess;
-    fNetworking:TKMNetworking;
+    fProjectiles: TKMProjectiles;
+    fGameInputProcess: TGameInputProcess;
+    fNetworking: TKMNetworking;
     fPathfinding: TPathFinding;
 
     fViewport: TViewport;
@@ -158,7 +158,7 @@ type
     property Viewport: TViewport read fViewport;
 
     procedure Save(const aFileName: string);
-    procedure PrintScreen;
+    procedure PrintScreen(aFilename: string = '');
 
     procedure Render;
     procedure UpdateGame(Sender: TObject);
@@ -1394,7 +1394,7 @@ begin
   fGameInfo.Save(SaveStream);
   fGameInfo.Free;
   fGameOptions.Save(SaveStream);
-  
+
   //Because some stuff is only saved in singleplayer we need to know whether it is included in this save,
   //so we can load multiplayer saves in single player and vice versa.
   SaveStream.Write(fMultiplayerMode);
@@ -1466,7 +1466,7 @@ begin
     LoadStream.LoadFromFile(SaveName(aFileName, LoadFileExt));
 
     //We need only few essential parts from GameInfo, the rest is duplicate from fTerrain and fPlayers
-    
+
     GameInfo.Load(LoadStream);
     fGameName := GameInfo.Title;
     fGameTickCount := GameInfo.TickCount;
@@ -1728,12 +1728,17 @@ begin
 end;
 
 
-procedure TKMGame.PrintScreen;
+procedure TKMGame.PrintScreen(aFilename: string = '');
 var
   s: string;
 begin
-  DateTimeToString(s, 'yyyy-mm-dd hh-nn-ss', Now); //2007-12-23 15-24-33
-  fRender.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
+  if aFilename = '' then
+  begin
+    DateTimeToString(s, 'yyyy-mm-dd hh-nn-ss', Now); //2007-12-23 15-24-33
+    fRender.DoPrintScreen(ExeDir + 'KaM ' + s + '.jpg');
+  end
+  else
+    fRender.DoPrintScreen(aFilename);
 end;
 
 

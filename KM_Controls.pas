@@ -45,6 +45,8 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    property MainPanel: TKMPanel read fCtrl;
+
     property CtrlDown: TKMControl read fCtrlDown write SetCtrlDown;
     property CtrlFocus: TKMControl read fCtrlFocus write SetCtrlFocus;
     property CtrlOver: TKMControl read fCtrlOver write SetCtrlOver;
@@ -74,7 +76,7 @@ type
 
     //Left and Top are floating-point to allow to precisely store controls position
     //when Anchors [] are used. Cos that means that control must be centered
-    //even if the Parent resized by 1px. Otherwise error quickly accumylates on
+    //even if the Parent resized by 1px. Otherwise error quickly accumulates on
     //multiple 1px resizes
     //Everywhere else Top and Left are accessed through Get/Set and treated as Integers
     fLeft: Single;
@@ -103,6 +105,8 @@ type
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
 
     function GetVisible: Boolean;
+    procedure SetTopF(aValue: Single);
+    procedure SetLeftF(aValue: Single);
   protected
     procedure SetLeft(aValue: Integer); virtual;
     procedure SetTop(aValue: Integer); virtual;
@@ -660,7 +664,7 @@ type
     function GetRow(aIndex: Integer): TKMListRow;
     procedure ColumnClick(aValue: Integer);
     procedure UpdateScrollBar;
-    procedure SetHeaderVisible(aValue: Boolean);
+    procedure SetShowHeader(aValue: Boolean);
   protected
     procedure SetTop(aValue: Integer); override;
     procedure SetHeight(aValue: Integer); override;
@@ -674,16 +678,18 @@ type
     procedure AddItem(aItem: TKMListRow);
     procedure Clear;
     function HeaderHeight: Integer;
-    function GetVisibleRows:Integer;
-    property ShowHeader: Boolean read fShowHeader write SetHeaderVisible;
+    function GetVisibleRows: Integer;
+    property ShowHeader: Boolean read fShowHeader write SetShowHeader;
 
     property Rows[aIndex: Integer]: TKMListRow read GetRow;
 
-    property BackAlpha: single read fBackAlpha write SetBackAlpha;
+    property BackAlpha: Single read fBackAlpha write SetBackAlpha;
     property RowCount: Integer read fRowCount;
     property ItemHeight: Byte read fItemHeight;
     property ItemIndex: Smallint read fItemIndex write fItemIndex;
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
+
+    //Sort properties are just hints to render Up/Down arrows. Actual sorting is done by client
     property SortIndex: Integer read GetSortIndex write SetSortIndex;
     property SortDirection: TSortDirection read GetSortDirection write SetSortDirection;
 
@@ -1145,6 +1151,24 @@ begin
   fTop := aValue;
 end;
 
+procedure TKMControl.SetTopF(aValue: Single);
+begin
+  //Call child classes SetTop methods
+  SetTop(Round(aValue));
+
+  //Assign actual FP value
+  fTop := aValue;
+end;
+
+procedure TKMControl.SetLeftF(aValue: Single);
+begin
+  //Call child classes SetTop methods
+  SetLeft(Round(aValue));
+
+  //Assign actual FP value
+  fLeft := aValue;
+end;
+
 //Overriden in child classes
 procedure TKMControl.SetHeight(aValue: Integer);
 begin
@@ -1289,9 +1313,9 @@ begin
       //Do nothing
     else
     if akBottom in Childs[I].Anchors then
-      Childs[I].fTop := Childs[I].fTop + (aValue - fHeight)
+      Childs[I].SetTopF(Childs[I].fTop + (aValue - fHeight))
     else
-      Childs[I].fTop := Childs[I].fTop + (aValue - fHeight) / 2;
+      Childs[I].SetTopF(Childs[I].fTop + (aValue - fHeight) / 2);
 
   inherited;
 end;
@@ -1308,9 +1332,9 @@ begin
       //Do nothing
     else
     if akRight in Childs[I].Anchors then
-      Childs[I].fLeft := Childs[I].fLeft + (aValue - fWidth)
+      Childs[I].SetLeftF(Childs[I].fLeft + (aValue - fWidth))
     else
-      Childs[I].fLeft := Childs[I].fLeft + (aValue - fWidth) / 2;
+      Childs[I].SetLeftF(Childs[I].fLeft + (aValue - fWidth) / 2);
 
   inherited;
 end;
@@ -1466,7 +1490,7 @@ procedure TKMLabelScroll.Paint;
 var NewTop: Integer; Col: Cardinal;
 begin
   fRenderUI.SetupClipY(Top, Top+Height);
-  NewTop := Top + Height - Integer(TimeGet - SmoothScrollToTop) div 50; //Compute delta and shift by it upwards (Credits page)
+  NewTop := EnsureRange(Top + Height - Integer(TimeGet - SmoothScrollToTop) div 50, -MINSHORT, MAXSHORT); //Compute delta and shift by it upwards (Credits page)
 
   if fEnabled then Col := FontColor
               else Col := $FF888888;
@@ -2955,12 +2979,14 @@ end;
 procedure TKMColumnListBox.SetTop(aValue: Integer);
 begin
   inherited;
+
+  //Update header and scrollbar so that their Top matched
   fHeader.Top := aValue;
   fScrollBar.Top := aValue;
 end;
 
 
-procedure TKMColumnListBox.SetHeaderVisible(aValue: Boolean);
+procedure TKMColumnListBox.SetShowHeader(aValue: Boolean);
 begin
   fHeader.Visible := aValue;
   fShowHeader := aValue;
@@ -2992,7 +3018,7 @@ procedure TKMColumnListBox.SetVisible(aValue: Boolean);
 begin
   inherited;
   fHeader.Visible := fVisible and fShowHeader;
-  fScrollBar.Visible := fVisible and (fScrollBar.Enabled); //Hide scrollbar and its buttons
+  fScrollBar.Visible := fVisible and fScrollBar.Enabled; //Hide scrollbar and its buttons
 end;
 
 

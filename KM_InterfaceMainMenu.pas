@@ -994,29 +994,37 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_CampSelect_Page;
+var L: TKMLabel;
 begin
   Panel_CampSelect := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_CampSelect.Stretch;
 
-    TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2 - 150, 80, 0, 0, fTextLibrary[TX_MENU_CAMP_TSK], fnt_Outline, taCenter);
-    Button_Camp_TSK := TKMButton.Create(Panel_CampSelect, Panel_Main.Width div 2 - 240, 100, 200, 150, 26, rxGuiMain, bsMenu);
+    L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2 - 150, 140, 0, 0, fTextLibrary[TX_MENU_CAMP_TSK], fnt_Outline, taCenter);
+    L.Anchors := [];
+    Button_Camp_TSK := TKMButton.Create(Panel_CampSelect, Panel_Main.Width div 2 - 240, 160, 200, 150, 26, rxGuiMain, bsMenu);
+    Button_Camp_TSK.Anchors := [];
     Button_Camp_TSK.OnClick := SwitchMenuPage;
 
-    TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2 + 150, 80, 0, 0, fTextLibrary[TX_MENU_CAMP_TPR], fnt_Outline, taCenter);
-    Button_Camp_TPR := TKMButton.Create(Panel_CampSelect, Panel_Main.Width div 2 + 40, 100, 200, 150, 27, rxGuiMain, bsMenu);
+    L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2 + 150, 140, 0, 0, fTextLibrary[TX_MENU_CAMP_TPR], fnt_Outline, taCenter);
+    L.Anchors := [];
+    Button_Camp_TPR := TKMButton.Create(Panel_CampSelect, Panel_Main.Width div 2 + 40, 160, 200, 150, 27, rxGuiMain, bsMenu);
+    Button_Camp_TPR.Anchors := [];
     Button_Camp_TPR.OnClick := SwitchMenuPage;
 
-    TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 280, 0, 0, fTextLibrary[TX_MENU_CAMP_CUSTOM], fnt_Outline, taCenter);
-    List_Camps := TKMColumnListBox.Create(Panel_CampSelect, 312, 300, 400, 300, fnt_Grey);
+    L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 340, 0, 0, fTextLibrary[TX_MENU_CAMP_CUSTOM], fnt_Outline, taCenter);
+    L.Anchors := [];
+    List_Camps := TKMColumnListBox.Create(Panel_CampSelect, 312, 360, 400, 200, fnt_Grey);
     List_Camps.SetColumns(fnt_Grey, ['Title', 'Maps', ''], [0, 320, 400]);
+    List_Camps.Anchors := [];
     List_Camps.OnChange := Campaign_ListChange;
 
-    Button_Camp_Back := TKMButton.Create(Panel_CampSelect, 30, 712, 230, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
+    Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 412, 570, 200, 30, fTextLibrary[TX_MENU_CAMP_START], fnt_Metal, bsMenu);
+    Button_Camp_Start.Anchors := [];
+    Button_Camp_Start.OnClick := SwitchMenuPage;
+
+    Button_Camp_Back := TKMButton.Create(Panel_CampSelect, 30, 712, 230, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
     Button_Camp_Back.Anchors := [akLeft, akBottom];
     Button_Camp_Back.OnClick := SwitchMenuPage;
-    Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 285, 712, 230, 30, fTextLibrary[TX_MENU_CAMP_START], fnt_Metal, bsMenu);
-    Button_Camp_Start.Anchors := [akLeft, akBottom];
-    Button_Camp_Start.OnClick := SwitchMenuPage;
 end;
 
 
@@ -1047,9 +1055,9 @@ begin
 
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}2,rxGuiMainH);
     Image_Scroll.ImageStretch;
-    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 180, 18,100,20, '', fnt_Outline, taCenter);
+    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 180, 18,100,20, '<<<LEER>>>', fnt_Outline, taCenter);
 
-    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 50, 325, 310, '', fnt_Briefing, taLeft);
+    Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 50, 325, 310, '<<<LEER>>>', fnt_Briefing, taLeft);
     Label_CampaignText.AutoWrap := true;
 
   Button_CampaignStart := TKMButton.Create(Panel_Campaign, Panel_Main.Width-220-20, Panel_Main.Height-50, 220, 30, fTextLibrary[TX_MENU_START_MISSION], fnt_Metal, bsMenu);
@@ -1152,7 +1160,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_Load_Page;
 begin
-  Panel_Load:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
+  Panel_Load := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Load.Stretch;
 
     TKMLabel.Create(Panel_Load, Panel_Main.Width div 2, 50, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
