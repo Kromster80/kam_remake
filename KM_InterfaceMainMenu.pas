@@ -60,7 +60,9 @@ type
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
     procedure MainMenu_ReplayLastMap(Sender: TObject);
-    procedure Campaign_Set(aCampaign:TKMCampaign);
+    procedure Campaign_FillList;
+    procedure Campaign_ListChange(Sender: TObject);
+    procedure Campaign_Set(aCampaign: TKMCampaign);
     procedure Campaign_SelectMap(Sender: TObject);
     procedure Campaign_StartMap(Sender: TObject);
 
@@ -1006,13 +1008,13 @@ begin
 
     TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 280, 0, 0, fTextLibrary[TX_MENU_CAMP_CUSTOM], fnt_Outline, taCenter);
     List_Camps := TKMColumnListBox.Create(Panel_CampSelect, 312, 300, 400, 300, fnt_Grey);
-    List_Camps.SetColumns(fnt_Grey, ['Title', 'Maps', ''], [0, 300, 400]);
-    //todo: List_Camps.OnChange
+    List_Camps.SetColumns(fnt_Grey, ['Title', 'Maps', ''], [0, 320, 400]);
+    List_Camps.OnChange := Campaign_ListChange;
 
     Button_Camp_Back := TKMButton.Create(Panel_CampSelect, 30, 712, 230, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
     Button_Camp_Back.Anchors := [akLeft, akBottom];
     Button_Camp_Back.OnClick := SwitchMenuPage;
-    Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 285, 712, 230, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
+    Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 285, 712, 230, 30, fTextLibrary[TX_MENU_CAMP_START], fnt_Metal, bsMenu);
     Button_Camp_Start.Anchors := [akLeft, akBottom];
     Button_Camp_Start.OnClick := SwitchMenuPage;
 end;
@@ -1567,40 +1569,41 @@ end;
 
 
 procedure TKMMainMenuInterface.SwitchMenuPage(Sender: TObject);
-var i:integer;
+var I: Integer;
 begin
   if fGame <> nil then
     Label_Version.Caption := GAME_VERSION + ' / ' + fGame.RenderVersion;
 
   //First thing - hide all existing pages
-  for i:=1 to Panel_Main.ChildCount do
+  for I := 1 to Panel_Main.ChildCount do
     if Panel_Main.Childs[i] is TKMPanel then
       Panel_Main.Childs[i].Hide;
 
   {Return to MainMenu}
-  if (Sender = nil) or
-     (Sender = Button_SP_Back) or
-     (Sender = Button_MP_Back) or
-     (Sender = Button_CreditsBack) or
-     (Sender = Button_MapEdBack) or
-     (Sender = Button_ErrorBack) or
-     (Sender = Button_ResultsBack) or
-     (Sender = Button_ReplaysBack) then begin
-       if Sender = Button_ReplaysBack then
-         //scan should be terminated, it is no longer needed
-         fSaves.TerminateScan;
-       Panel_MainMenu.Show;
-     end;
+  if (Sender = nil)
+  or (Sender = Button_SP_Back)
+  or (Sender = Button_MP_Back)
+  or (Sender = Button_CreditsBack)
+  or (Sender = Button_MapEdBack)
+  or (Sender = Button_ErrorBack)
+  or (Sender = Button_ResultsBack)
+  or (Sender = Button_ReplaysBack) then
+  begin
+    //Scan should be terminated, it is no longer needed
+    if Sender = Button_ReplaysBack then
+      fSaves.TerminateScan;
+    Panel_MainMenu.Show;
+end;
 
   {Player leaves lobby (LAN text is updated)}
-  if Sender=Button_LobbyBack then
+  if Sender = Button_LobbyBack then
   begin
     Panel_MultiPlayer.Show;
     MP_ServersRefresh(Sender);
   end;
 
   {Return to MainMenu and restore resolution changes}
-  if Sender=Button_Options_Back then
+  if Sender = Button_Options_Back then
   begin
     fMain.Settings.SaveSettings;
     Panel_MainMenu.Show;
@@ -1608,23 +1611,25 @@ begin
 
   {Show SinglePlayer menu}
   {Return to SinglePlayerMenu}
-  if (Sender=Button_MM_SinglePlayer)or
-     (Sender=Button_CampaignBack)or
-     (Sender=Button_SingleBack)or
-     (Sender=Button_LoadBack) then begin
-       if (Sender=Button_SingleBack) then
-         //scan should be terminated, it is no longer needed
-         fMaps.TerminateScan;
-       if (Sender=Button_LoadBack) then
-         //scan should be terminated, it is no longer needed
-         fSaves.TerminateScan;
-       Panel_SinglePlayer.Show;
+  if (Sender = Button_MM_SinglePlayer)
+  or (Sender = Button_Camp_Back)
+  or (Sender = Button_SingleBack)
+  or (Sender = Button_LoadBack) then
+  begin
+    if (Sender = Button_SingleBack) then
+      //scan should be terminated, it is no longer needed
+      fMaps.TerminateScan;
+    if (Sender = Button_LoadBack) then
+      //scan should be terminated, it is no longer needed
+      fSaves.TerminateScan;
+    Panel_SinglePlayer.Show;
   end;
 
   {Show campaign selection menu}
-  if (Sender = Button_SP_Camp) then
+  if (Sender = Button_SP_Camp)
+  or (Sender = Button_CampaignBack) then
   begin
-    //todo: FillCampaignsList;
+    Campaign_FillList;
     Panel_CampSelect.Show;
   end;
 
@@ -1641,7 +1646,7 @@ begin
       Campaign_Set(fGame.Campaigns.CampaignByTitle('TPR'))
     else
     if (Sender = Button_Camp_Start) then
-      Campaign_Set(fGame.Campaigns.CampaignByTitle(List_Camps.Rows[0].Cells[0].Caption))
+      Campaign_Set(fGame.Campaigns.CampaignByTitle(List_Camps.Rows[List_Camps.ItemIndex].Cells[2].Caption))
     else
       Campaign_Set(fGame.Campaigns.ActiveCampaign);
     Panel_Campaign.Show;
@@ -1757,6 +1762,30 @@ end;
 procedure TKMMainMenuInterface.MainMenu_ReplayLastMap(Sender: TObject);
 begin
   fGame.StartLastMap; //Means replay last map
+end;
+
+
+procedure TKMMainMenuInterface.Campaign_FillList;
+var
+  I: Integer;
+  Camps: TKMCampaignsCollection;
+begin
+  List_Camps.Clear;
+
+  Camps := fGame.Campaigns;
+
+  for I := 0 to Camps.Count - 1 do
+    List_Camps.AddItem(MakeListRow(
+                        [Camps[I].CampaignTitle, IntToStr(Camps[I].MapCount), Camps[I].ShortTitle],
+                        [$FFFFFFFF, $FFFFFFFF, $00FFFFFF]));
+
+  Button_Camp_Start.Disable;
+end;
+
+
+procedure TKMMainMenuInterface.Campaign_ListChange(Sender: TObject);
+begin
+  Button_Camp_Start.Enable;
 end;
 
 

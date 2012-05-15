@@ -1,5 +1,5 @@
 
-MaxID:2705
+MaxID:2706
 
 0:Sawmill
 1:Iron smithy
@@ -460,3 +460,4 @@ MaxID:2705
 2703:Save file does not match the host for the save: %s
 2704:Custom campaigns
 2705:Campaigns
+2706:Start Campaign

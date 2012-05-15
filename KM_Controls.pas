@@ -1241,7 +1241,6 @@ begin
 end;
 
 
-
 { TKMPanel } //virtual panels to contain child items
 constructor TKMPanel.Create(aParent: TKMMasterControl; aLeft,aTop,aWidth,aHeight: Integer);
 begin
@@ -2915,6 +2914,8 @@ begin
       ColumnWidth := fColumnOffsets[I+1] - fColumnOffsets[I]
     else
       ColumnWidth := Width - fColumnOffsets[I];
+
+    if ColumnWidth <= 0 then Break;
 
     fRenderUI.WriteBevel(Left + fColumnOffsets[I], Top, ColumnWidth, Height, True, fBackAlpha);
     if Assigned(OnColumnClick) and (csOver in State) and (fColumnHighlight = I) then

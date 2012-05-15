@@ -45,6 +45,7 @@ type
     property ShortTitle: AnsiString read fShortTitle write fShortTitle;
     property UnlockedMap: byte read fUnlockedMap write SetUnlockedMap;
 
+    function CampaignTitle: string;
     function MissionFile(aIndex: byte): string;
     function MissionTitle(aIndex: byte): AnsiString;
     function MissionText(aIndex: byte): AnsiString;
@@ -360,6 +361,12 @@ procedure TKMCampaign.SetMapCount(aValue: byte);
 begin
   fMapCount := aValue;
   SetLength(Maps, fMapCount);
+end;
+
+
+function TKMCampaign.CampaignTitle: string;
+begin
+  Result := fTextLibrary[fFirstTextIndex];
 end;
 
 
