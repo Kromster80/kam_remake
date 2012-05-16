@@ -7,39 +7,46 @@ uses
 
 
 type
+  TKMMayorType = (mtCustom, mtWarrior);
+
+  TKMMayorSetup = class
+    AutoBuild: Boolean;
+    AutoRepair: Boolean;
+    QuaryCount: Byte;
+    RecruitDelay: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
+    RecruitFactor: Byte;
+    SchoolCount: Byte;
+    SerfFactor: Byte;
+    WoodCount: Byte;
+    WorkerFactor: Byte;
+    constructor Create;
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
+  end;
+
   TKMayor = class
   private
     fOwner: TPlayerIndex;
     fCityPlanner: TKMCityPlanner;
     fPathFindingRoad: TPathFindingRoad;
 
-    fAutobuild: Boolean;
-
-    fSerfFactor: Word;
-    fWorkerFactor: Word;
-    fRecruitFactor: Word;
-    fRecruitDelay: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
+    fMayorSetup: TKMMayorSetup;
 
     function HouseCount(aHouse: THouseType): Integer;
+    procedure TryBuildHouse(aHouse: THouseType);
 
     procedure CheckUnitCount;
-
     procedure CheckHouseVitalCount;
     procedure CheckHouseMiningCount;
     procedure CheckHouseFoodCount;
     procedure CheckHouseDefenceCount;
     procedure CheckHouseWeaponryCount;
     procedure CheckHouseCount;
-    function TryBuildHouse(aHouse: THouseType): Boolean;
   public
     constructor Create(aPlayer: TPlayerIndex);
     destructor Destroy; override;
 
-    property Autobuild: Boolean read fAutobuild write fAutobuild;
-    property SerfFactor: Word read fSerfFactor write fSerfFactor;
-    property WorkerFactor: Word read fWorkerFactor write fWorkerFactor;
-    property RecruitFactor: Word read fRecruitFactor write fRecruitFactor;
-    property RecruitDelay: Cardinal read fRecruitDelay write fRecruitDelay;
+    property MayorSetup: TKMMayorSetup read fMayorSetup;
 
     procedure OwnerUpdate(aPlayer:TPlayerIndex);
 
@@ -53,6 +60,20 @@ implementation
 uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource;
 
 
+const //Sample list made by AntonP
+  WarriorHouses: array [0..44] of THouseType = (
+  ht_School, ht_Inn, ht_Quary, ht_Quary, ht_Quary,
+  ht_Woodcutters, ht_Woodcutters, ht_Woodcutters, ht_Woodcutters, ht_Woodcutters,
+  ht_Sawmill, ht_Sawmill, ht_Woodcutters, ht_GoldMine, ht_CoalMine,
+  ht_GoldMine, ht_CoalMine, ht_Metallurgists, ht_CoalMine, ht_CoalMine,
+  ht_IronMine, ht_IronMine, ht_CoalMine, ht_IronMine, ht_WeaponSmithy,
+  ht_WeaponSmithy, ht_Wineyard, ht_Wineyard, ht_Wineyard, ht_Store,
+  ht_Barracks, ht_Farm, ht_Farm, ht_Farm, ht_Mill,
+  ht_Mill, ht_Bakery, ht_Bakery, ht_School, ht_IronSmithy,
+  ht_IronSmithy, ht_Farm, ht_Swine, ht_WeaponSmithy, ht_ArmorSmithy
+  );
+
+
 { TKMayor }
 constructor TKMayor.Create(aPlayer: TPlayerIndex);
 begin
@@ -60,12 +81,7 @@ begin
   fOwner := aPlayer;
   fCityPlanner := TKMCityPlanner.Create(fOwner);
   fPathFindingRoad := TPathFindingRoad.Create(fOwner);
-
-  fAutobuild := True; //In KaM it is on by default, and most missions turn it off
-  fSerfFactor := 10; //Means 1 serf per building
-  fWorkerFactor := 6;
-  fRecruitFactor := 5; //This means the number in the barracks, watchtowers are counted seperately
-  fRecruitDelay := 0; //Can train at start
+  fMayorSetup := TKMMayorSetup.Create;
 end;
 
 
@@ -73,6 +89,7 @@ destructor TKMayor.Destroy;
 begin
   fCityPlanner.Free;
   fPathFindingRoad.Free;
+  fMayorSetup.Free;
   inherited;
 end;
 
@@ -149,17 +166,17 @@ begin
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
       if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
-        if not CheckUnitRequirements(Round((10/fSerfFactor) * P.Stats.GetHouseQty(ht_Any)), ut_Serf) then
-          if not CheckUnitRequirements(fWorkerFactor, ut_Worker) then
-            if fGame.CheckTime(fRecruitDelay) then //Recruits can only be trained after this time
-              if not CheckUnitRequirements(fRecruitFactor * P.Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
+        if not CheckUnitRequirements(Round((10/fMayorSetup.SerfFactor) * P.Stats.GetHouseQty(ht_Any)), ut_Serf) then
+          if not CheckUnitRequirements(fMayorSetup.WorkerFactor, ut_Worker) then
+            if fGame.CheckTime(fMayorSetup.RecruitDelay) then //Recruits can only be trained after this time
+              if not CheckUnitRequirements(fMayorSetup.RecruitFactor * P.Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
                 Break; //There's no unit demand at all
     end;
   end;
 end;
 
 
-function TKMayor.TryBuildHouse(aHouse: THouseType): Boolean;
+procedure TKMayor.TryBuildHouse(aHouse: THouseType);
 const RAD = 4;
 var
   I, K: Integer;
@@ -171,15 +188,14 @@ var
   RoadExists: Boolean;
 begin
   P := fPlayers[fOwner];
-  Result := False;
+
+  //Skip disabled houses
+  if not P.Stats.GetCanBuild(aHouse) then Exit;
 
   //Number of simultaneous WIP houses is limited to 3
-  if ((P.Stats.GetHouseQty(ht_Any) < 3) and (P.Stats.GetHouseWip(ht_Any) >= 1))
-  or (P.Stats.GetHouseWip(ht_Any) >= 3) then
-    Exit;
+  if (P.Stats.GetHouseWip(ht_Any) >= 3) then Exit;
 
-  Result := fCityPlanner.FindPlaceForHouse(aHouse, Loc);
-  if not Result then Exit;
+  if not fCityPlanner.FindPlaceForHouse(aHouse, Loc) then Exit;
 
   P.AddHousePlan(aHouse, Loc);
   Loc := KMPointBelow(Loc);
@@ -199,6 +215,7 @@ begin
     NodeList.Free;
   end;
 
+  //Build fields for Farm
   if aHouse = ht_Farm then
   begin
     NodeTagList := TKMPointTagList.Create;
@@ -216,6 +233,7 @@ begin
     end;
   end;
 
+  //Build fields for Wineyard
   if aHouse = ht_Wineyard then
   begin
     NodeTagList := TKMPointTagList.Create;
@@ -243,65 +261,61 @@ end;
 
 procedure TKMayor.CheckHouseVitalCount;
 begin
-  if HouseCount(ht_Store) = 0 then
+  //Build at least one Store and add one more for each 40 houses
+  if (HouseCount(ht_Store) = 0)
+  or (HouseCount(ht_Any) div 40 - HouseCount(ht_Store) + 1 > 0) then
     TryBuildHouse(ht_Store);
 
-  if HouseCount(ht_School) = 0 then
+  //Build at least one School and one more if Barracks are built
+  if (HouseCount(ht_School) = 0)
+  or (HouseCount(ht_Barracks) - HouseCount(ht_School) + 1 > 0) then
     TryBuildHouse(ht_School);
 
-  if HouseCount(ht_Inn) = 0 then
+  //Build at least one Inn and one more for every 60 citizens
+  if (HouseCount(ht_Inn) = 0)
+  or (fPlayers[fOwner].Stats.GetCitizensCount div 60 - HouseCount(ht_Inn) + 1 > 0) then
     TryBuildHouse(ht_Inn);
 end;
 
 
 procedure TKMayor.CheckHouseMiningCount;
 begin
-  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Quary)) then
-  begin
-    if (HouseCount(ht_Quary) = 0) then
-      TryBuildHouse(ht_Quary);
+  if (HouseCount(ht_Quary) = 0)
+  or ((HouseCount(ht_Sawmill) > 0) and (HouseCount(ht_Quary) < 2)) then
+    TryBuildHouse(ht_Quary);
 
-    if (HouseCount(ht_Sawmill) > 0) and (HouseCount(ht_Quary) < 2) then
-      TryBuildHouse(ht_Quary);
-  end;
+  if (HouseCount(ht_Woodcutters) = 0)
+  or ((HouseCount(ht_Sawmill) > 0) and (HouseCount(ht_Woodcutters) < 2)) then
+    TryBuildHouse(ht_Woodcutters);
 
-  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Woodcutters)) then
-  begin
-    if (HouseCount(ht_Woodcutters) = 0) then
-      TryBuildHouse(ht_Woodcutters);
-
-    if (HouseCount(ht_Sawmill) > 0) and (HouseCount(ht_Woodcutters) < 2) then
-      TryBuildHouse(ht_Woodcutters);
-  end;
-
-  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Sawmill)) and (HouseCount(ht_Sawmill) = 0) then
+  if (HouseCount(ht_Sawmill) = 0)
+  or (HouseCount(ht_Woodcutters) div 2 > HouseCount(ht_Sawmill)) then
     TryBuildHouse(ht_Sawmill);
+
+  if (HouseCount(ht_GoldMine) = 0) then
+    TryBuildHouse(ht_GoldMine);
 end;
 
 
 procedure TKMayor.CheckHouseFoodCount;
 begin
-  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Farm)) and (HouseCount(ht_Farm) < 2) then
+  if (HouseCount(ht_Farm) < 2)
+  or ((HouseCount(ht_Swine) > 0) and (HouseCount(ht_Farm) < 3)) then
     TryBuildHouse(ht_Farm);
 
-  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Mill)) and (HouseCount(ht_Mill) = 0) then
+  if (HouseCount(ht_Mill) = 0) then
     TryBuildHouse(ht_Mill);
 
-  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Bakery)) and (HouseCount(ht_Bakery) = 0) then
+  if (HouseCount(ht_Bakery) = 0) then
     TryBuildHouse(ht_Bakery);
 
-
-  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Swine)) and (HouseCount(ht_Swine) < 1) then
+  if (HouseCount(ht_Swine) < 1) then
     TryBuildHouse(ht_Swine);
 
-  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Butchers)) and (HouseCount(ht_Butchers) = 0) then
+  if (HouseCount(ht_Butchers) = 0) then
     TryBuildHouse(ht_Butchers);
 
-  if (HouseCount(ht_Swine) > 0) and (HouseCount(ht_Farm) < 3) then
-    TryBuildHouse(ht_Farm);
-
-
-  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Wineyard)) and (HouseCount(ht_Wineyard) < 2) then
+  if (HouseCount(ht_Wineyard) < 2) then
     TryBuildHouse(ht_Wineyard);
 end;
 
@@ -314,7 +328,7 @@ end;
 
 procedure TKMayor.CheckHouseWeaponryCount;
 begin
-  if (fPlayers[fOwner].Stats.GetCanBuild(ht_Tannery)) and (HouseCount(ht_Tannery) = 0) then
+  if (HouseCount(ht_Tannery) = 0) then
     TryBuildHouse(ht_Tannery);
 end;
 
@@ -336,17 +350,8 @@ begin
   //Check if we make enough weaponry
   CheckHouseWeaponryCount;
 
-  //Pick best house to build
-  {BestHouse := ht_None;
-  for H := Low(THouseType) to High(THouseType) do
-  begin
-    if fHouseImportance[H] > Max(fHouseImportance[BestHouse], 0.5) then
-      BestHouse := H;
-  end;
+  //Check if we need to demolish depleted mining houses
 
-  if BestHouse <> ht_None then
-    if fCityPlanner.FindPlaceForHouse(BestHouse, Loc) then
-      BuildHouse(BestHouse, Loc);}
 end;
 
 
@@ -362,7 +367,7 @@ procedure TKMayor.UpdateState;
 begin
   CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
 
-  if fAutobuild then
+  if fMayorSetup.AutoBuild then
     CheckHouseCount;
 end;
 
@@ -370,28 +375,68 @@ end;
 procedure TKMayor.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fOwner);
-  SaveStream.Write(fAutobuild);
-  SaveStream.Write(fSerfFactor);
-  SaveStream.Write(fWorkerFactor);
-  SaveStream.Write(fRecruitFactor);
-  SaveStream.Write(fRecruitDelay);
 
   fCityPlanner.Save(SaveStream);
   fPathFindingRoad.Save(SaveStream);
+  fMayorSetup.Save(SaveStream);
 end;
 
 
 procedure TKMayor.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fOwner);
-  LoadStream.Read(fAutobuild);
-  LoadStream.Read(fSerfFactor);
-  LoadStream.Read(fWorkerFactor);
-  LoadStream.Read(fRecruitFactor);
-  LoadStream.Read(fRecruitDelay);
 
   fCityPlanner.Load(LoadStream);
   fPathFindingRoad.Load(LoadStream);
+  fMayorSetup.Load(LoadStream);
+end;
+
+
+{ TKMMayorSetup }
+constructor TKMMayorSetup.Create;
+begin
+  inherited;
+  AutoBuild := True; //In KaM it is On by default, and most missions turn it off
+  AutoRepair := False; //In KaM it is Off by default
+
+  SerfFactor := 10; //Means 1 serf per building
+  WorkerFactor := 6;
+  RecruitFactor := 5; //This means the number in the barracks, watchtowers are counted seperately
+  RecruitDelay := 0; //Can train at start
+
+  QuaryCount := 3;
+  SchoolCount := 1;
+  WoodCount := 3;
+end;
+
+
+procedure TKMMayorSetup.Load(LoadStream: TKMemoryStream);
+begin
+  LoadStream.Read(AutoBuild);
+  LoadStream.Read(AutoRepair);
+  LoadStream.Read(SerfFactor);
+  LoadStream.Read(RecruitDelay);
+  LoadStream.Read(RecruitFactor);
+  LoadStream.Read(WorkerFactor);
+
+  LoadStream.Read(QuaryCount);
+  LoadStream.Read(SchoolCount);
+  LoadStream.Read(WoodCount);
+end;
+
+
+procedure TKMMayorSetup.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.Write(AutoBuild);
+  SaveStream.Write(AutoRepair);
+  SaveStream.Write(SerfFactor);
+  SaveStream.Write(RecruitDelay);
+  SaveStream.Write(RecruitFactor);
+  SaveStream.Write(WorkerFactor);
+
+  SaveStream.Write(QuaryCount);
+  SaveStream.Write(SchoolCount);
+  SaveStream.Write(WoodCount);
 end;
 
 

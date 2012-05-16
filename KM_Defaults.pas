@@ -45,7 +45,7 @@ var
   DO_UNIT_HUNGER        :Boolean = True;  //Wherever units get hungry or not
   CHEATS_ENABLED        :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
-  CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
+  CAP_MAX_FPS           :Boolean = False;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
   BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiplae games at once (to prevent MP cheating)
 

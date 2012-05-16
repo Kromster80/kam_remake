@@ -702,7 +702,7 @@ end;
 //Also could be changed later to disable repairing when under attack? (only repair if the enemy goes away?)
 function TKMPlayerAI.HouseAutoRepair: Boolean;
 begin
-  Result := fMayor.Autobuild;
+  Result := fMayor.MayorSetup.AutoBuild;
 end;
 
 
