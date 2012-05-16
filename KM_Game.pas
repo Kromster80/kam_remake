@@ -85,7 +85,6 @@ type
     function CanClose: Boolean;
     procedure ToggleLocale(aLocale:shortstring);
     procedure Resize(X,Y: Integer);
-    function MapSizeText: string;
     procedure KeyDown(Key: Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
     procedure KeyUp(Key: Word; Shift: TShiftState);
@@ -506,6 +505,13 @@ end;
 
 
 procedure TKMGame.GameStart(aMissionFile, aGameName: string);
+  function MapSizeText: string;
+  begin
+    if fTerrain <> nil then
+      Result := 'Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY)
+    else
+      Result := 'No map';
+  end;
 var
   LoadError: string;
   fMissionParser: TMissionParserStandard;
@@ -735,7 +741,7 @@ end;
 procedure TKMGame.GameMPPlay(Sender:TObject);
 begin
   GameWaitingForNetwork(false); //Finished waiting for players
-  fNetworking.SendMPGameInfo(GetMissionTime,GameName);
+  SendMPGameInfo(Self);
   fLog.AppendLog('Net game began');
 end;
 
@@ -895,6 +901,7 @@ end;
 
 
 //Display the overlay "Waiting for players"
+//todo: Move to fNetworking and query GIP from there
 procedure TKMGame.GameWaitingForNetwork(aWaiting: Boolean);
 var WaitingPlayers: TStringList;
 begin
@@ -917,20 +924,25 @@ begin
 end;
 
 
+//todo: Move to fNetworking and query GIP from there
 procedure TKMGame.GameDropWaitingPlayers;
 var WaitingPlayers: TStringList;
 begin
   WaitingPlayers := TStringList.Create;
   case fNetworking.NetGameState of
-    lgs_Game,lgs_Reconnecting:    TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers); //GIP is waiting for next tick
-    lgs_Loading: fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers); //We are waiting during inital loading
-    else assert(false); //Should not be waiting for players from any other GameState
+    lgs_Game,lgs_Reconnecting:
+        TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers); //GIP is waiting for next tick
+    lgs_Loading:
+        fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers); //We are waiting during inital loading
+    else
+        Assert(False); //Should not be waiting for players from any other GameState
   end;
   fNetworking.DropWaitingPlayers(WaitingPlayers);
   WaitingPlayers.Free;
 end;
 
 
+//Called by fNetworking to access MissionTime/GameName
 procedure TKMGame.SendMPGameInfo(Sender: TObject);
 begin
   fNetworking.SendMPGameInfo(GetMissionTime, GameName);
@@ -1228,7 +1240,7 @@ begin
                                         fGameSettings.PingInterval,
                                         fGameSettings.MasterAnnounceInterval,
                                         fGameSettings.Locale);
-  fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
+  SendMPGameInfo(Self);
 end;
 
 
@@ -1719,15 +1731,6 @@ begin
     Result := ExeDir + 'SavesMP\' + aName + '.' + aExt
   else
     Result := ExeDir + 'Saves\' + aName + '.' + aExt;
-end;
-
-
-function TKMGame.MapSizeText: string;
-begin
-  if fTerrain <> nil then
-    Result := 'Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY)
-  else
-    Result := 'No map';
 end;
 
 

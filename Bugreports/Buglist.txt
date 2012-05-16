@@ -17,6 +17,7 @@
 	Clicking on the splash screen registers the click on the main menu once it is loaded
 	Attacking a house from the bottom right, soldiers will stack up rather than choosing a different free cell (WalkToHouse should avoid other units attacking the house?)
 	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
+	Screen resolution selecting is not enabled (see jpg). Win lists resolutions 800х600 .. 1366х768
 
 	Dots and lines displaying on tile edges [Krom]
 	Sandhills cause water next to shore tiles to appear darker with square edges
