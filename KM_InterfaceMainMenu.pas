@@ -455,7 +455,7 @@ begin
   Image_CampaignBG.Width := Round(1024*Panel_Campaign_Flags.Scale);
   //Special rule to keep campaign flags pivoted at the right place (so the flagpole doesn't move when you resize)
   if Campaign_Selected <> nil then
-    for I := 0 to High(Image_CampaignFlags) do
+    for I := 0 to Campaign_Selected.MapCount - 1 do
       with Image_CampaignFlags[I] do
       begin
         //Pivot flags around Y=bottom X=middle, that's where the flag pole is
