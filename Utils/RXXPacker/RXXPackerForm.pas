@@ -2,7 +2,7 @@ unit RXXPackerForm;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Dialogs, Forms, Graphics, StdCtrls, SysUtils, TypInfo,
+  Classes, Controls, Dialogs, Forms, Graphics, StdCtrls, SysUtils, TypInfo, PNGImage,
   {$IFDEF FPC} LResources, {$ENDIF}
   KM_Defaults, KM_Log, KM_Pics, KM_ResourcePalettes, KM_ResourceSprites,
   ExtCtrls;
@@ -20,7 +20,8 @@ type
     btnLoadRXX: TButton;
     Image1: TImage;
     btnDelete: TButton;
-    btnReplace: TButton;
+    btnImport: TButton;
+    btnExport: TButton;
     procedure btnPackRXXClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure OpenDialog1Show(Sender: TObject);
@@ -30,10 +31,12 @@ type
     procedure btnSaveRXXClick(Sender: TObject);
     procedure lbSpritesListClick(Sender: TObject);
     procedure btnDeleteClick(Sender: TObject);
-    procedure btnReplaceClick(Sender: TObject);
+    procedure btnImportClick(Sender: TObject);
+    procedure btnExportClick(Sender: TObject);
   private
     fPalettes: TKMPalettes;
     fSprites: TKMSpritePack;
+    procedure GetImageToBitmap(aIndex: Integer; aPNG: TPNGObject);
     procedure UpdateList;
   end;
 
@@ -66,12 +69,31 @@ begin
 end;
 
 
+procedure TRXXForm1.GetImageToBitmap(aIndex: Integer; aPNG: TPNGObject);
+var
+  I, K, W, H: Integer;
+  T: Cardinal;
+begin
+  W := fSprites.RXData.Size[aIndex].X;
+  H := fSprites.RXData.Size[aIndex].Y;
+
+  aPNG.Resize(W, H);
+
+  for I := 0 to H - 1 do
+  for K := 0 to W - 1 do
+  begin
+    T := fSprites.RXData.RGBA[aIndex, I * W + K];
+    //Invert Alpha
+    T := (T and $FFFFFF) or ((255 - T shr 24) shl 24);
+    aPNG.Canvas.Pixels[K,I] := T;
+  end;
+end;
+
+
 procedure TRXXForm1.lbSpritesListClick(Sender: TObject);
 var
   ID: Integer;
-  I, K: Integer;
-  T: Cardinal;
-  BM: TBitmap;
+  PNG: TPNGObject;
 begin
   Image1.Picture.Bitmap.Canvas.Brush.Color := 0;
   Image1.Picture.Bitmap.Canvas.FillRect(Image1.Picture.Bitmap.Canvas.ClipRect);
@@ -80,27 +102,13 @@ begin
   if ID = 0 then Exit;
   if fSprites.RXData.Flag[ID] = 0 then Exit;
 
-  BM := TBitmap.Create;
+  PNG := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
   try
-    BM.PixelFormat := pf32bit;
-    BM.Width := fSprites.RXData.Size[ID].X;
-    BM.Height := fSprites.RXData.Size[ID].Y;
-    BM.Transparent := True;
-    //@Krom: BM.AlphaFormat not found in D7
-    BM.AlphaFormat := afDefined;
+    GetImageToBitmap(ID, PNG);
 
-    for I := 0 to BM.Height - 1 do
-    for K := 0 to BM.Width - 1 do
-    begin
-      T := fSprites.RXData.RGBA[ID, I*BM.Width+K];
-      //Invert Alpha
-      T := (T and $FFFFFF) or ((255 - T shr 24) shl 24);
-      BM.Canvas.Pixels[K,I] := T;
-    end;
-
-    Image1.Picture.Assign(BM);
+    Image1.Picture.Assign(PNG);
   finally
-    BM.Free;
+    PNG.Free;
   end;
 end;
 
@@ -151,7 +159,7 @@ begin
 end;
 
 
-procedure TRXXForm1.btnReplaceClick(Sender: TObject);
+procedure TRXXForm1.btnImportClick(Sender: TObject);
 var
   ID: Integer;
 begin
@@ -181,6 +189,30 @@ begin
   fSprites.Delete(ID);
 
   UpdateList;
+end;
+
+
+procedure TRXXForm1.btnExportClick(Sender: TObject);
+var
+  ID: Integer;
+  PNG: TPNGObject;
+begin
+  ID := lbSpritesList.ItemIndex + 1;
+  if ID = 0 then Exit;
+
+  SaveDialog1.InitialDir := ExeDir;
+  SaveDialog1.Filter := 'PNG image (*.png)|*.png';
+  SaveDialog1.Options := SaveDialog1.Options - [ofAllowMultiSelect];
+  if not SaveDialog1.Execute then Exit;
+
+  PNG := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 1, 1);
+  try
+    GetImageToBitmap(ID, PNG);
+
+    PNG.SaveToFile(SaveDialog1.FileName);
+  finally
+    PNG.Free;
+  end;
 end;
 
 

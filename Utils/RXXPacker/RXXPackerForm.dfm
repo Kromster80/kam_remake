@@ -24,19 +24,19 @@ object RXXForm1: TRXXForm1
     Transparent = True
   end
   object btnPackRXX: TButton
-    Left = 496
-    Top = 432
-    Width = 185
-    Height = 49
+    Left = 552
+    Top = 456
+    Width = 129
+    Height = 25
     Caption = 'Pack to RXX File'
     TabOrder = 0
     OnClick = btnPackRXXClick
   end
   object ListBox1: TListBox
-    Left = 496
-    Top = 216
-    Width = 185
-    Height = 201
+    Left = 552
+    Top = 264
+    Width = 129
+    Height = 185
     ItemHeight = 13
     MultiSelect = True
     TabOrder = 1
@@ -46,7 +46,7 @@ object RXXForm1: TRXXForm1
     Top = 8
     Width = 81
     Height = 25
-    Caption = 'Add ...'
+    Caption = 'Add Image ...'
     TabOrder = 2
     OnClick = btnAddClick
   end
@@ -79,22 +79,31 @@ object RXXForm1: TRXXForm1
     OnClick = btnLoadRXXClick
   end
   object btnDelete: TButton
+    Left = 360
+    Top = 8
+    Width = 81
+    Height = 25
+    Caption = 'Delete Image'
+    TabOrder = 6
+    OnClick = btnDeleteClick
+  end
+  object btnImport: TButton
     Left = 272
     Top = 72
     Width = 81
     Height = 25
-    Caption = 'Delete'
-    TabOrder = 6
-    OnClick = btnDeleteClick
+    Caption = 'Import ...'
+    TabOrder = 7
+    OnClick = btnImportClick
   end
-  object btnReplace: TButton
-    Left = 272
-    Top = 40
+  object btnExport: TButton
+    Left = 360
+    Top = 72
     Width = 81
     Height = 25
-    Caption = 'Replace ...'
-    TabOrder = 7
-    OnClick = btnReplaceClick
+    Caption = 'Export ...'
+    TabOrder = 8
+    OnClick = btnExportClick
   end
   object OpenDialog1: TOpenDialog
     OnShow = OpenDialog1Show
