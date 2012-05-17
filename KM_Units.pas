@@ -2018,11 +2018,14 @@ end;
 
 { AutoPlace means should we find a spot for this unit or just place it where we are told.
   Used for creating units still inside schools }
-function TKMUnitsCollection.Add(aOwner: shortint; aUnitType: TUnitType; PosX, PosY:integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0):TKMUnit;
-var U:Integer; P:TKMPoint;
+function TKMUnitsCollection.Add(aOwner: shortint; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0): TKMUnit;
+var
+  U: Integer;
+  P: TKMPoint;
 begin
-  P := KMPoint(0,0); // Will have 0:0 if no place found
-  if AutoPlace then begin
+  if AutoPlace then
+  begin
+    P := KMPoint(0,0); // Will have 0:0 if no place found
     if RequiredWalkConnect = 0 then
       RequiredWalkConnect := fTerrain.GetWalkConnectID(KMPoint(PosX,PosY));
     fPlayers.FindPlaceForUnit(PosX,PosY,aUnitType, P, RequiredWalkConnect);
@@ -2030,16 +2033,17 @@ begin
     PosY := P.Y;
   end;
 
-  if fTerrain.HasUnit(KMPoint(PosX,PosY)) then
-    raise ELocError.Create('No space for '+fResource.UnitDat[aUnitType].UnitName +
-                           ', tile occupied by '{+fResource.UnitDat[fTerrain.Land[PosY,PosX].IsUnit.UnitType].UnitName},
-                           KMPoint(PosX,PosY));
-
+  //Check if Pos is within map coords first, as other checks rely on this
   if not fTerrain.TileInMapCoords(PosX, PosY) then begin
     fLog.AppendLog('Unable to add unit to '+KM_Points.TypeToString(KMPoint(PosX,PosY)));
     Result := nil;
     exit;
   end;
+
+  if fTerrain.HasUnit(KMPoint(PosX,PosY)) then
+    raise ELocError.Create('No space for ' + fResource.UnitDat[aUnitType].UnitName +
+                           ', tile occupied by ' + fResource.UnitDat[TKMUnit(fTerrain.Land[PosY,PosX].IsUnit).UnitType].UnitName,
+                           KMPoint(PosX,PosY));
 
   case aUnitType of
     ut_Serf:    U := inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
