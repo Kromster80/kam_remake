@@ -338,7 +338,7 @@ type
     Caption: string;
     Down: Boolean;
     HideHighlight: Boolean;
-  public
+
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID: Integer; aRX: TRXType = rxGui);
     property FlagColor: TColor4 read fFlagColor write fFlagColor;
 
@@ -897,8 +897,9 @@ type
       Visible: Boolean;
       Values: array of Word;
     end;
-    fMaxLength: Word;
-    fMaxValue: Word;
+    fMaxLength: Word; //Maximum samples (by horizontal axis)
+    fMaxTime: Cardinal; //Maximum time (in sec), used only for Rendering time ticks
+    fMaxValue: Word; //Maximum value (by vertical axis)
     procedure UpdateMaxValue;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
@@ -907,6 +908,7 @@ type
     property Caption: string read fCaption write fCaption;
     procedure Clear;
     property MaxLength: Word read fMaxLength write fMaxLength;
+    property MaxTime: Cardinal read fMaxTime write fMaxTime;
 
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
 
@@ -3985,7 +3987,7 @@ begin
 
   if X < Left + Width-55 then Exit;
 
-  I := (Y - Top - 20) div fItemHeight;
+  I := (Y - Top - 18) div fItemHeight;
   if not InRange(I, 0, fCount - 1) then Exit;
 
   fLines[I].Visible := not fLines[I].Visible;
@@ -3995,42 +3997,72 @@ end;
 
 
 procedure TKMGraph.Paint;
-const Intervals: array [0..9] of Word = (1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
-var I, Best: Integer;
+const
+  IntervalCount: array [0..9] of Word = (1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
+  IntervalTime: array [0..9] of Word = (30, 1*60, 5*60, 15*60, 30*60, 1*60*60, 2*60*60, 3*60*60, 4*60*60, 5*60*60);
+var
+  I: Integer;
+  G: TKMRect;
+  Best: Integer;
 begin
   inherited;
-  fRenderUI.WriteText(Left+Width div 2, Top, 0, 20, fCaption, fnt_Outline, taCenter);
-  fRenderUI.WriteRect(Left+25, Top+20, Width-25-60, Height-20, 1, $FFFFFFFF);
 
+  G := KMRect(Left + 25, Top + 20, Left + Width - 60, Top + Height - 16);
+
+  fRenderUI.WriteText(Left+Width div 2, Top, 0, 20, fCaption, fnt_Outline, taCenter);
+  fRenderUI.WriteRect(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, $FFFFFFFF);
+
+  //Charts and legend
   for I := 0 to fCount - 1 do
   begin
+    //Charts
     if fLines[I].Visible then
-      fRenderUI.WritePlot(Left+25, Top+20, Width-25-60, Height-20, fLines[I].Values, fMaxValue, fLines[I].Color);
+      fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, fMaxValue, fLines[I].Color);
 
-    fRenderUI.WriteLayer(Left+Width-55, Top + 20 + I*fItemHeight+2, 11, 11, fLines[I].Color, $00000000);
-
+    //Checkboxes
+    fRenderUI.WriteLayer(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, fLines[I].Color, $00000000);
     if fLines[I].Visible then
-      fRenderUI.WriteText(Left+Width-55, Top + 20 + I*fItemHeight - 1, 0, 0, 'v', fnt_Game, taLeft);
+      fRenderUI.WriteText(G.Right + 5, G.Top - 2 + I*fItemHeight - 1, 0, 0, 'v', fnt_Game, taLeft);
 
-    fRenderUI.WriteText(Left+Width-43, Top + 20 + I*fItemHeight, 0, 0, fLines[I].Title, fnt_Game, taLeft);
+    //Legend
+    fRenderUI.WriteText(G.Right + 18, G.Top - 2 + I*fItemHeight, 0, 0, fLines[I].Title, fnt_Game, taLeft);
   end;
 
-  fRenderUI.WriteText(Left+20, Top + Height, 0, 0, IntToStr(0), fnt_Game, taRight);
+  //Render vertical axis captions
+  fRenderUI.WriteText(G.Left - 5, G.Bottom + 5, 0, 0, IntToStr(0), fnt_Game, taRight);
   //fRenderUI.WriteText(Left+20, Top + 20, 0, 0, IntToStr(fMaxValue), fnt_Game, taRight);
 
+  //Find first interval that will have less than 10 ticks
   Best := 0;
   for I := 0 to 9 do
-    if fMaxValue div Intervals[I] < 10 then
+    if fMaxValue div IntervalCount[I] < 10 then
     begin
-      Best := Intervals[I];
+      Best := IntervalCount[I];
       Break;
     end;
 
   if Best <> 0 then
   for I := 1 to (fMaxValue div Best) do
   begin
-    fRenderUI.WriteText(Left+20, Top + Height - Round(I * Best / fMaxValue * (Height-20)) - 6, 0, 0, IntToStr(I * Best), fnt_Game, taRight);
-    fRenderUI.WriteLayer(Left+22, Top + Height - Round(I * Best / fMaxValue * (Height-20)), 5, 2, $FFFFFFFF, $00000000);
+    fRenderUI.WriteText(G.Left - 5, Top + Height - Round(I * Best / fMaxValue * (Height-20)) - 6, 0, 0, IntToStr(I * Best), fnt_Game, taRight);
+    fRenderUI.WriteLayer(G.Left - 2, Top + Height - Round(I * Best / fMaxValue * (Height-20)), 5, 2, $FFFFFFFF, $00000000);
+  end;
+
+  //Render horizontal axis ticks
+  //Find first interval that will have less than 10 ticks
+  Best := 0;
+  for I := 0 to 9 do
+    if fMaxTime div IntervalTime[I] < 6 then
+    begin
+      Best := IntervalTime[I];
+      Break;
+    end;
+
+  if Best <> 0 then
+  for I := 1 to (fMaxTime div Best) do
+  begin
+    fRenderUI.WriteLayer(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom - 2, 2, 5, $FFFFFFFF, $00000000);
+    fRenderUI.WriteText(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom + 5, 0, 0, FormatDateTime('hh:nn:ss', (I * Best) / 60 / 60 / 24), fnt_Game, taLeft);
   end;
 end;
 

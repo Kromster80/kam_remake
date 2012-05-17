@@ -141,6 +141,7 @@ type
     procedure Options_ApplyRes(Sender: TObject);
     procedure Options_FlagClick(Sender: TObject);
     procedure Options_Refresh_DropBoxes;
+    procedure Results_GraphToggle(Sender: TObject);
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -310,14 +311,17 @@ type
     Panel_Error:TKMPanel;
       Label_Error:TKMLabel;
       Button_ErrorBack:TKMButton;
-    Panel_Results:TKMPanel;
-      Label_Results:TKMLabel;
+    Panel_Results: TKMPanel;
+      Label_Results: TKMLabel;
       Panel_Stats: TKMPanel;
-      Label_Stat:array[1..9]of TKMLabel;
+      Label_Stat: array[1..9]of TKMLabel;
+      Button_Graph1: TKMButtonFlat;
+      Button_Graph2: TKMButtonFlat;
       Graph_Army: TKMGraph;
       Graph_Citizens: TKMGraph;
+      Graph_Houses: TKMGraph;
       Graph_Wares: TKMGraph;
-      Button_ResultsBack,Button_ResultsRepeat,Button_ResultsContinue:TKMButton;
+      Button_ResultsBack,Button_ResultsRepeat,Button_ResultsContinue: TKMButton;
     Panel_ResultsMP:TKMPanel;
       Label_ResultsMP, Label_ResultsMPTime: TKMLabel;
       Panel_StatsMP1, Panel_StatsMP2: TKMPanel;
@@ -439,7 +443,7 @@ end;
 
 //Keep Panel_Main centered
 procedure TKMMainMenuInterface.Resize(X, Y: Word);
-var I:Integer;
+var I: Integer;
 begin
   Panel_Main.Width  := Min(X, MENU_DESIGN_X);
   Panel_Main.Height := Min(Y, MENU_DESIGN_Y);
@@ -516,13 +520,13 @@ begin
 end;
 
 
-function TKMMainMenuInterface.GetChatText:string;
+function TKMMainMenuInterface.GetChatText: string;
 begin
   Result := Edit_LobbyPost.Text;
 end;
 
 
-function TKMMainMenuInterface.GetChatMessages:string;
+function TKMMainMenuInterface.GetChatMessages: string;
 begin
   Result := Memo_LobbyPosts.Text;
 end;
@@ -552,10 +556,17 @@ begin
   begin
     Graph_Army.Clear;
     Graph_Citizens.Clear;
+    Graph_Houses.Clear;
     Graph_Wares.Clear;
     Graph_Army.MaxLength      := MyPlayer.Stats.GraphCount;
     Graph_Citizens.MaxLength  := MyPlayer.Stats.GraphCount;
+    Graph_Houses.MaxLength    := MyPlayer.Stats.GraphCount;
     Graph_Wares.MaxLength     := MyPlayer.Stats.GraphCount;
+
+    Graph_Army.MaxTime      := fGame.GameTickCount div 10;
+    Graph_Citizens.MaxTime  := fGame.GameTickCount div 10;
+    Graph_Houses.MaxTime    := fGame.GameTickCount div 10;
+    Graph_Wares.MaxTime     := fGame.GameTickCount div 10;
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
@@ -565,9 +576,29 @@ begin
     with fPlayers[I] do
       Graph_Citizens.AddLine(PlayerName, FlagColor, Stats.GraphCitizens);
 
+    for I := 0 to fPlayers.Count - 1 do
+    with fPlayers[I] do
+      Graph_Houses.AddLine(PlayerName, FlagColor, Stats.GraphHouses);
+
     for R := WARE_MIN to WARE_MAX do
       Graph_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
+
+    Results_GraphToggle(Button_Graph1);
   end;
+end;
+
+
+procedure TKMMainMenuInterface.Results_GraphToggle(Sender: TObject);
+begin
+  Graph_Army.Visible := Sender = Button_Graph1;
+  Graph_Citizens.Visible := Sender = Button_Graph1;
+  Graph_Houses.Visible := Sender = Button_Graph1;
+
+  Graph_Wares.Visible := Sender = Button_Graph2;
+
+  Button_Graph1.Down := Sender = Button_Graph1;
+  Button_Graph2.Down := Sender = Button_Graph2;
+  Button_Graph2.Enabled := fGame.MissionMode = mm_Normal;
 end;
 
 
@@ -1461,7 +1492,7 @@ begin
       BackAlpha := 0.6;
     end;
 
-    Label_Results := TKMLabel.Create(Panel_Results,512,160,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_Results := TKMLabel.Create(Panel_Results,512,150,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_Results.Anchors := [akLeft];
 
     Panel_Stats := TKMPanel.Create(Panel_Results, 80, 200, 400, 400);
@@ -1477,15 +1508,31 @@ begin
 
     if DISPLAY_CHARTS_RESULT then
     begin
-      Graph_Army := TKMGraph.Create(Panel_Results, 80, 180, 400, 120);
+      Button_Graph1 := TKMButtonFlat.Create(Panel_Results, 524, 170, 160, 20, 0, rxGuiMain);
+      Button_Graph1.Anchors := [akLeft];
+      Button_Graph1.Caption := 'Units and Houses';
+      Button_Graph1.CapOffsetY := -12;
+      Button_Graph1.OnClick := Results_GraphToggle;
+
+      Button_Graph2 := TKMButtonFlat.Create(Panel_Results, 694, 170, 160, 20, 0, rxGuiMain);
+      Button_Graph2.Anchors := [akLeft];
+      Button_Graph2.Caption := 'Wares';
+      Button_Graph2.CapOffsetY := -12;
+      Button_Graph2.OnClick := Results_GraphToggle;
+
+      Graph_Army := TKMGraph.Create(Panel_Results, 524, 190, 400, 110);
       Graph_Army.Caption := 'Army';
       Graph_Army.Anchors := [akLeft];
 
-      Graph_Citizens := TKMGraph.Create(Panel_Results, 80, 320, 400, 120);
+      Graph_Citizens := TKMGraph.Create(Panel_Results, 524, 320, 400, 110);
       Graph_Citizens.Caption := 'Citizens';
       Graph_Citizens.Anchors := [akLeft];
 
-      Graph_Wares := TKMGraph.Create(Panel_Results, 512, 180, 400, 400);
+      Graph_Houses := TKMGraph.Create(Panel_Results, 524, 450, 400, 110);
+      Graph_Houses.Caption := 'Houses';
+      Graph_Houses.Anchors := [akLeft];
+
+      Graph_Wares := TKMGraph.Create(Panel_Results, 524, 190, 400, 370);
       Graph_Wares.Caption := 'Wares';
       Graph_Wares.Anchors := [akLeft];
     end;
@@ -1778,13 +1825,12 @@ var
   I: Integer;
   Camps: TKMCampaignsCollection;
 begin
-  Button_Camp_TSK.Enabled := fGame.Campaigns.CampaignByTitle('TSK') <> nil;
-  Button_Camp_TPR.Enabled := fGame.Campaigns.CampaignByTitle('TPR') <> nil;
-
-  List_Camps.Clear;
-
   Camps := fGame.Campaigns;
 
+  Button_Camp_TSK.Enabled := Camps.CampaignByTitle('TSK') <> nil;
+  Button_Camp_TPR.Enabled := Camps.CampaignByTitle('TPR') <> nil;
+
+  List_Camps.Clear;
   for I := 0 to Camps.Count - 1 do
     List_Camps.AddItem(MakeListRow(
                         [Camps[I].CampaignTitle, IntToStr(Camps[I].MapCount), Camps[I].ShortTitle],

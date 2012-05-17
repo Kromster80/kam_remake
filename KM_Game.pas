@@ -1246,16 +1246,16 @@ end;
 
 //TDateTime stores days/months/years as 1 and hours/minutes/seconds as fractions of a 1
 //Treat 10 ticks as 1 sec irregardless of user-set pace
-function TKMGame.GetMissionTime:TDateTime;
+function TKMGame.GetMissionTime: TDateTime;
 begin
   //Convert cardinal into TDateTime, where 1hour = 1/24 and so on..
   Result := fGameTickCount/24/60/60/10;
 end;
 
 
-function TKMGame.GetPeacetimeRemaining:TDateTime;
+function TKMGame.GetPeacetimeRemaining: TDateTime;
 begin
-  Result := Max(0,Int64(fGame.GameOptions.Peacetime*600)-fGame.GameTickCount)/24/60/60/10;
+  Result := Max(0, Int64(fGame.GameOptions.Peacetime*600)-fGame.GameTickCount)/24/60/60/10;
 end;
 
 

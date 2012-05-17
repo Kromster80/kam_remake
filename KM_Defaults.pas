@@ -101,7 +101,7 @@ var
   FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
   MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
-  DEBUG_CHEATS          :Boolean = False; //Cheats for debug (place scout and reveal map) which can be turned On from menu
+  DEBUG_CHEATS          :Boolean = True; //Cheats for debug (place scout and reveal map) which can be turned On from menu
   MULTIPLAYER_SPEEDUP   :Boolean = False; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
   {Data output}
   WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
