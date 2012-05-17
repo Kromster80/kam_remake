@@ -1778,6 +1778,9 @@ var
   I: Integer;
   Camps: TKMCampaignsCollection;
 begin
+  Button_Camp_TSK.Enabled := fGame.Campaigns.CampaignByTitle('TSK') <> nil;
+  Button_Camp_TPR.Enabled := fGame.Campaigns.CampaignByTitle('TPR') <> nil;
+
   List_Camps.Clear;
 
   Camps := fGame.Campaigns;

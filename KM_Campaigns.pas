@@ -16,9 +16,7 @@ type
     //Runtime variables
     fPath: string;
     fFirstTextIndex: Word;
-    fFirstSpriteIndex: Word;
     fUnlockedMap: Byte;
-    fSprites: TKMSpritePack;
 
     //Saved in CMP
     fShortTitle: AnsiString; //Used to identify the campaign
@@ -121,7 +119,7 @@ begin
 end;
 
 
-//Scan custom campaigns folders
+//Scan campaigns folder
 procedure TKMCampaignsCollection.ScanFolder(const aPath: string);
 var
   SearchRec: TSearchRec;
@@ -131,7 +129,8 @@ begin
   FindFirst(aPath + '*', faDirectory, SearchRec);
   repeat
     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-    and (SearchRec.Attr and faDirectory = faDirectory) then
+    and (SearchRec.Attr and faDirectory = faDirectory)
+    and FileExists(aPath + SearchRec.Name + '\info.cmp') then
       AddCampaign(aPath + SearchRec.Name + '\');
   until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
@@ -263,13 +262,12 @@ begin
   //1st map is always unlocked to allow to start campaign
   fUnlockedMap := 0;
 
-  fSprites := TKMSpritePack.Create;
 end;
 
 
 destructor TKMCampaign.Destroy;
 begin
-  fSprites.Free;
+
   inherited;
 end;
 
@@ -287,8 +285,8 @@ begin
   M.LoadFromFile(aFileName);
 
   M.Read(fShortTitle);
-  M.Read(Byte(fBackGroundPic.RX));
-  M.Read(fBackGroundPic.ID);
+  M.Read(Byte(fBackGroundPic.RX)); //Unused
+  M.Read(fBackGroundPic.ID);       //Unused
   M.Read(fMapCount);
   SetLength(Maps, fMapCount);
 
@@ -314,8 +312,8 @@ begin
 
   M := TKMemoryStream.Create;
   M.Write(fShortTitle);
-  M.Write(Byte(fBackGroundPic.RX));
-  M.Write(fBackGroundPic.ID);
+  M.Write(Byte(fBackGroundPic.RX)); //Unused
+  M.Write(fBackGroundPic.ID);       //Unused
   M.Write(fMapCount);
 
   for I := 0 to fMapCount - 1 do
@@ -333,7 +331,9 @@ end;
 
 
 procedure TKMCampaign.LoadFromPath(aPath: string);
-var SP: TKMSpritePack;
+var
+  SP: TKMSpritePack;
+  FirstSpriteIndex: Word;
 begin
   fPath := aPath;
 
@@ -344,13 +344,23 @@ begin
   if fResource.Sprites <> nil then
   begin
     SP := fResource.Sprites[rxGuiMain];
-    fFirstSpriteIndex := SP.RXData.Count;
+    FirstSpriteIndex := SP.RXData.Count;
     SP.LoadFromRXXFile(fPath + 'images.rxx', SP.RXData.Count);
-    SP.MakeGFX(False, fFirstSpriteIndex);
+    
+    if FirstSpriteIndex < SP.RXData.Count then
+    begin
+      //Images were successfuly loaded
+      SP.MakeGFX(False, FirstSpriteIndex);
+      fBackGroundPic.RX := rxGuiMain;
+      fBackGroundPic.ID := FirstSpriteIndex;
+    end
+    else
+    begin
+      //Images were not found - use blank
+      fBackGroundPic.RX := rxGuiMain;
+      fBackGroundPic.ID := 0;
+    end;
   end;
-
-  fBackGroundPic.RX := rxGuiMain;
-  fBackGroundPic.ID := fFirstSpriteIndex;
 
   if UNLOCK_CAMPAIGN_MAPS then //Unlock more maps for debug
     fUnlockedMap := 5;

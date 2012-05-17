@@ -379,8 +379,7 @@ var
   InputStream: TFileStream;
   DecompressionStream: TDecompressionStream;
 begin
-  if not CheckFileExists(aFileName) then
-    Exit;
+  if not FileExists(aFileName) then Exit;
 
   InputStream := TFileStream.Create(aFileName, fmOpenRead or fmShareDenyNone);
   DecompressionStream := TDecompressionStream.Create(InputStream);
