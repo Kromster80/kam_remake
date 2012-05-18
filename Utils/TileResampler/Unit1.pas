@@ -211,6 +211,7 @@ var
   Buf: array[0..1023]of Byte;
   {$ENDIF}
   PNG: TPNGObject;
+  Blank: Boolean;
 begin
   OpenDialog1.Options := OpenDialog1.Options + [ofAllowMultiSelect];
   OpenDialog1.InitialDir := ExtractFilePath(ParamStr(0));
@@ -267,6 +268,7 @@ begin
     for kk := 0 to 15 do
     begin
 
+      Blank := True;
       for j := 0 to 31 do
       for h := 0 to 31 do
       begin
@@ -274,9 +276,11 @@ begin
         pX := (((SizeX - 1) - (ii * 32 + j)) * SizeX + kk * 32 + h) * 4;
         PNG.Pixels[h,j] := c[pX+3] + c[pX+2] shl 8 + c[pX+1] shl 16;
         PNG.AlphaScanline[j]^[h] := c[pX+4];
+        Blank := Blank and (PCardinal(@c[pX+1])^ = 0);
       end;
 
-      PNG.SaveToFile('Split\' + ExtractFileName(OpenDialog1.Files[L]) + IntToStr(ii * 16 + kk) + '.png');
+      if not Blank then
+        PNG.SaveToFile('Split\' + Int2Fix(ii * 16 + kk, 3) + '__' + ExtractFileName(OpenDialog1.Files[L]) + '.png');
     end;
 
     PNG.Free;
