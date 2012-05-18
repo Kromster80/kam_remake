@@ -31,7 +31,7 @@ const
   );
 
   JOIN_TIMEOUT = 8000; //8 sec. Timeout for join queries
-  RECONNECT_PAUSE = 2000; //Time in ms which we wait before attempting to reconnect (stops the socket from becoming overloaded)
+  RECONNECT_PAUSE = 3000; //Time in ms which we wait before attempting to reconnect (stops the socket from becoming overloaded)
 
 
 type
@@ -660,6 +660,7 @@ var PlayerCount: byte; ErrorMessage: String;
 begin
   Assert(IsHost, 'Only host can start the game');
   Assert(CanStart, 'Can''t start the game now');
+  Assert(fNetGameState = lgs_Lobby, 'Can only start from lobby');
 
   //Define random parameters (start locations and flag colors)
   //This will also remove odd players from the List, they will lose Host in few seconds

@@ -85,8 +85,13 @@ function AddMap($aMapName, $aPlayerCount, $aRev)
 {
 	if(($aPlayerCount > 0) && ($aPlayerCount <= 8))
 	{
-		$aMapName = str_replace("|", "", $aMapName); //don't allow seperator
 		$FileName = GetMapFileName($aRev);
+
+		//Mutex lock a .mutex file
+		$lock = fopen($FileName.'.mutex', 'w') or die("can't open file");
+		flock($lock, LOCK_EX);
+
+		$aMapName = str_replace("|", "", $aMapName); //don't allow seperator
 		if(file_exists($FileName))
 		{
 			$Output = "";
@@ -118,6 +123,7 @@ function AddMap($aMapName, $aPlayerCount, $aRev)
 		$fh = fopen($FileName, 'w') or die("can't open file");
 		fwrite($fh, $Output);
 		fclose($fh);
+		fclose($lock);
 	}
 }
 
@@ -144,7 +150,7 @@ function GetTime($Format)
 			$result .= "<span id=\"days\">$days</span> ".plural($days,"day").", ";
 			$result .= "<span id=\"hours\">$hours</span> ".plural($hours,"hour")."";
 			$startscript = '<script type="text/javascript">'."\n".
-			'function uppt(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://lewin.hodgman.id.au/kam_remake_master_server/servertime.php?format=ajaxupdate",success: function (data){jQuery("#years").empty().append(data.yr);jQuery("#days").empty().append(data.dy);jQuery("#hours").empty().append(data.hr);uppt();}});}, 30000);}'."\n".
+			'function uppt(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://kam.hodgman.id.au/servertime.php?format=ajaxupdate",success: function (data){jQuery("#years").empty().append(data.yr);jQuery("#days").empty().append(data.dy);jQuery("#hours").empty().append(data.hr);uppt();}});}, 300000);}'."\n".
 			'jQuery(document).ready(function($){uppt();});</script>'."\n";
 			$result = $startscript.$result;
 		break;
@@ -175,7 +181,7 @@ function GetStats($Format)
 	switch ($Format)
 	{
 		case "kamclub":
-			return '<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"><meta http-equiv="refresh" content="30"></head><body><div style="font-size:11px; font-family:Arial,Tahoma"><b>Кол-во серверов:</b> '.$ServerCount.'<BR><b>Кол-во игроков:</b> '.$TotalPlayerCount.'</font></div></body></html>';
+			return '<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"><meta http-equiv="refresh" content="65"></head><body><div style="font-size:11px; font-family:Arial,Tahoma"><b>Кол-во серверов:</b> '.$ServerCount.'<BR><b>Кол-во игроков:</b> '.$TotalPlayerCount.'</font></div></body></html>';
 		case "ajaxupdate":
 			$data = json_encode(Array("pct"=>$TotalPlayerCount,"sct"=>$ServerCount));
 			return $_GET['jsonp_callback']."(".$data.")";
@@ -186,7 +192,7 @@ function GetStats($Format)
 			* user-side request after 30s with parameter ?format=ajaxupdate which then updates the numbers
 			*/
 			$startscript = '<script type="text/javascript">'."\n".
-			'function updnr(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://lewin.hodgman.id.au/kam_remake_master_server/serverstats.php?format=ajaxupdate",success: function (data){jQuery("#scount").empty().append(data.sct);jQuery("#pcount").empty().append(data.pct);updnr();}});}, 30000);}'."\n".
+			'function updnr(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://kam.hodgman.id.au/serverstats.php?format=ajaxupdate",success: function (data){jQuery("#scount").empty().append(data.sct);jQuery("#pcount").empty().append(data.pct);updnr();}});}, 65000);}'."\n".
 			'jQuery(document).ready(function($){updnr();});</script>'."\n";
 			return $startscript.'There '.plural($ServerCount,'is','are',true).' <span id="scount">'.$ServerCount.'</span> '.plural($ServerCount,'server').' running and <span id="pcount">'.$TotalPlayerCount.'</span> '.plural($TotalPlayerCount,'player').' online';
 		default:
@@ -209,8 +215,8 @@ function GetServers($aFormat,$aRev)
 		break;
 		case "refresh":
 			$Result = '<script type="text/javascript">'."\n".
-			'function srvlsttim(dat){var x="<tr><td><strong>Name</strong></td><td><strong>Address</strong></td><td style=\"text-align: center\"><strong>Players</strong></td></tr>";for(var n=0;n<dat.cnt;n++){x+="<tr><td><img src=\"http://lewin.hodgman.id.au/kam_remake_master_server/flags/"+dat.srvs[n].c+".gif\" alt=\""+dat.srvs[n].c+"\" />&nbsp;"+dat.srvs[n].n+"</td><td>"+(dat.srvs[n].a=="0"?" <img src=\"http://lewin.hodgman.id.au/kam_remake_master_server/error.png\" alt=\"Server unreachable\" style=\"vertical-align:middle\" />":"")+dat.srvs[n].i+"</td><td style=\"text-align: center\">"+dat.srvs[n].p+"</td></tr>";jQuery("#ajxtbl").empty().append(x);}}'."\n".
-			'function updsr(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://lewin.hodgman.id.au/kam_remake_master_server/serverquery.php?format=ajaxupdate",success: function (data){srvlsttim(data);updsr();}});}, 30000);}'."\n".
+			'function srvlsttim(dat){var x="<tr><td><strong>Name</strong></td><td><strong>Address</strong></td><td style=\"text-align: center\"><strong>Players</strong></td></tr>";for(var n=0;n<dat.cnt;n++){x+="<tr><td><img src=\"http://kam.hodgman.id.au/flags/"+dat.srvs[n].c+".gif\" alt=\""+dat.srvs[n].c+"\" />&nbsp;"+dat.srvs[n].n+"</td><td>"+(dat.srvs[n].a=="0"?" <img src=\"http://kam.hodgman.id.au/error.png\" alt=\"Server unreachable\" style=\"vertical-align:middle\" />":"")+dat.srvs[n].i+"</td><td style=\"text-align: center\">"+dat.srvs[n].p+"</td></tr>";jQuery("#ajxtbl").empty().append(x);}}'."\n".
+			'function updsr(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://kam.hodgman.id.au/serverquery.php?format=ajaxupdate",success: function (data){srvlsttim(data);updsr();}});}, 35000);}'."\n".
 			'jQuery(document).ready(function($){updsr();});</script>'."\n";
 		case "table":
 			$Result .= '<table border="1" width="100%" id="ajxtbl"><tr><td><strong>Name</strong></td><td><strong>Address</strong></td><td style="text-align: center"><strong>Players</strong></td></tr>';
@@ -235,8 +241,8 @@ function GetServers($aFormat,$aRev)
 				case "table":
 					$Country = IPToCountry($IP);
 					$Warning = '';
-					if(!$Alive) $Warning = ' <IMG src="http://lewin.hodgman.id.au/kam_remake_master_server/error.png" alt="Server unreachable" style="vertical-align:middle">';
-					$Result .= "<TR><TD><IMG src=\"http://lewin.hodgman.id.au/kam_remake_master_server/flags/".strtolower($Country).".gif\" alt=\"".GetCountryName($Country)."\">&nbsp;$Name</TD><TD>$Warning$IP</TD><TD style=\"text-align: center\">$PlayerCount</TD></TR>\n";
+					if(!$Alive) $Warning = ' <IMG src="http://kam.hodgman.id.au/error.png" alt="Server unreachable" style="vertical-align:middle">';
+					$Result .= "<TR><TD><IMG src=\"http://kam.hodgman.id.au/flags/".strtolower($Country).".gif\" alt=\"".GetCountryName($Country)."\">&nbsp;$Name</TD><TD>$Warning$IP</TD><TD style=\"text-align: center\">$PlayerCount</TD></TR>\n";
 					break;
 				case "ajaxupdate":
 					$srvsgl = array();
@@ -283,7 +289,7 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
 	$aTTL = min($aTTL,$MAX_TTL);
 	$Servers = "";
 	$Exists = false;
-	//My server (lewin.hodgman.id.au) can do outgoing connections on port 56789 (99% of servers use this) because we asked for permission
+	//My server (kam.hodgman.id.au) can do outgoing connections on port 56789 (99% of servers use this) because we asked for permission
 	if($aPort == "56789")
 	{
       $fp = @fsockopen($aIP, $aPort, $errnum, $errstr, 6); //@ means suppress errors such as "failed to connect"
@@ -298,6 +304,10 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
 	
 	//Only record statistics about the main revision (for now)
 	if (($DO_STATS) && ($aRev == $MAIN_VERSION)) StatsUpdate($aName,$aPlayerCount);
+	
+	//Mutex lock a .mutex file
+	$lock = fopen($DATA_FILE.'.mutex', 'w') or die("can't open file");
+	flock($lock, LOCK_EX);
 	
 	if(file_exists($DATA_FILE))
 	{
@@ -328,6 +338,7 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
 	$fh = fopen($DATA_FILE, 'w') or die("can't open file");
 	fwrite($fh, $Servers);
 	fclose($fh);
+	fclose($lock);
 	return 'Success';
 }
 

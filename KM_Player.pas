@@ -214,9 +214,6 @@ begin
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
-  //People sometimes put two roads on the same tile, which is safely ignored when trying to add the second one.
-  //So we shouldn't crash in that case.
-  fRoadsList.AllowDuplicates := True;
   fHouses       := TKMHousesCollection.Create;
   fDeliveries   := TKMDeliveries.Create;
   fBuildList    := TKMBuildList.Create;

@@ -7,3 +7,6 @@
 {$IFDEF FPC}
   {$MODE Delphi}
 {$ENDIF}
+
+
+{.$DEFINE USE_MAD_EXCEPT}

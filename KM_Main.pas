@@ -4,7 +4,7 @@ interface
 uses
   Classes, Controls, Forms, Math, SysUtils, StrUtils, Dialogs,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
-  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions;
+  KromUtils, KM_FormLoading, KM_FormMain, KM_Settings, KM_Resolutions{$IFDEF USE_MAD_EXCEPT}, KM_Exceptions{$ENDIF};
 
 type
   TKMMain = class
@@ -19,6 +19,7 @@ type
     procedure DoIdle(Sender: TObject; var Done: Boolean);
   public
     constructor Create;
+    destructor Destroy; override;
 
     procedure Start;
     procedure Stop(Sender: TObject);
@@ -53,7 +54,15 @@ uses KM_Defaults, KM_Game, KM_Utils, KM_Log;
 constructor TKMMain.Create;
 begin
   inherited;
+  //Create exception handler as soon as possible in case it crashes early on
+  {$IFDEF USE_MAD_EXCEPT}fExceptions := TKMExceptions.Create;{$ENDIF}
+end;
 
+
+destructor TKMMain.Destroy;
+begin
+  {$IFDEF USE_MAD_EXCEPT}fExceptions.Free;{$ENDIF}
+  inherited;
 end;
 
 
@@ -63,7 +72,7 @@ begin
   if BLOCK_DUPLICATE_APP
   and CheckDuplicateApplication('07BB7CC6-33F2-44ED-AD04-1E255E0EDF0D') then
   begin
-    ShowMessage('Another copy of the Application is already running');
+    ShowMessage('Another copy of the application is already running');
     Free; //Release fMain memory
     Halt; //Immmediately close the application
   end;

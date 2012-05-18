@@ -315,8 +315,10 @@ begin
   fLastPort               := f.ReadString ('Multiplayer','LastPort','56789');
   fLastRoom               := f.ReadString ('Multiplayer','LastRoom','0');
   fServerPort             := f.ReadString ('Server','ServerPort','56789');
-  fMasterServerAddress    := f.ReadString ('Server','MasterServerAddress','http://lewin.hodgman.id.au/kam_remake_master_server/');
-  fMasterAnnounceInterval := f.ReadInteger('Server','MasterServerAnnounceInterval',120);
+  //We call it MasterServerAddressNew to force it to update in everyone's .ini file when we changed address.
+  //If the key stayed the same then everyone would still be using the old value from their settings.
+  fMasterServerAddress    := f.ReadString ('Server','MasterServerAddressNew','http://kam.hodgman.id.au/');
+  fMasterAnnounceInterval := f.ReadInteger('Server','MasterServerAnnounceInterval',180);
   fAnnounceServer         := f.ReadBool   ('Server','AnnounceDedicatedServer',True);
   fServerName             := f.ReadString ('Server','ServerName','KaM Remake Server');
   fMaxRooms               := f.ReadInteger('Server','MaxRooms',16);
@@ -367,7 +369,7 @@ begin
   F.WriteInteger('Server','MaxRooms',fMaxRooms);
   F.WriteString ('Server','HTMLStatusFile',fHTMLStatusFile);
   F.WriteInteger('Server','MasterServerAnnounceInterval',fMasterAnnounceInterval);
-  F.WriteString ('Server','MasterServerAddress',fMasterServerAddress);
+  F.WriteString ('Server','MasterServerAddressNew',fMasterServerAddress);
   F.WriteInteger('Server','AutoKickTimeout',fAutoKickTimeout);
   F.WriteInteger('Server','PingMeasurementInterval',fPingInterval);
 

@@ -76,7 +76,6 @@ type
     function GetPoint(aIndex: Integer): TKMPoint;
     procedure SetPoint(aIndex: Integer; const aValue: TKMPoint); //1..Count
   public
-    AllowDuplicates: Boolean; //Sometimes we want duplicates
     constructor Create;
 
     property Count: Integer read fCount;
@@ -344,9 +343,6 @@ end;
 
 procedure TKMPointList.AddEntry(aLoc: TKMPoint);
 begin
-  //Detect duplicate entries when they are added (not just when removing) so we can detect bugs reliably
-  Assert(AllowDuplicates or not Contains(aLoc));
-
   if fCount >= Length(fItems) then
     SetLength(fItems, fCount + 32);
   fItems[fCount] := aLoc;
@@ -363,11 +359,8 @@ begin
 
   //Scan whole list to detect duplicate entries
   for I := 0 to fCount - 1 do
-  if KMSamePoint(fItems[I], aLoc) then
-  begin
-    Assert(AllowDuplicates or (Result = -1), 'Duplicate points in list');
-    Result := I;
-  end;
+    if KMSamePoint(fItems[I], aLoc) then
+      Result := I;
 
   //Remove found entry
   if (Result <> -1) then

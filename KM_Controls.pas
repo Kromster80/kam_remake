@@ -4165,7 +4165,8 @@ end;
 
 function TKMMasterControl.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
-  if CtrlFocus <> nil then
+  //CtrlFocus could be on another menu page and no longer visible
+  if (CtrlFocus <> nil) and CtrlFocus.Visible then
     Result := CtrlFocus.KeyDown(Key, Shift)
   else
     Result := false;
@@ -4174,14 +4175,16 @@ end;
 
 procedure TKMMasterControl.KeyPress(Key: Char);
 begin
-  if CtrlFocus <> nil then
+  //CtrlFocus could be on another menu page and no longer visible
+  if (CtrlFocus <> nil) and CtrlFocus.Visible then
     CtrlFocus.KeyPress(Key);
 end;
 
 
 function TKMMasterControl.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
-  if CtrlFocus <> nil then
+  //CtrlFocus could be on another menu page and no longer visible
+  if (CtrlFocus <> nil) and CtrlFocus.Visible then
     Result := CtrlFocus.KeyUp(Key, Shift)
   else
     Result := false;

@@ -5,7 +5,8 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} MPlayer, {$ENDIF}
-  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo, Zippit,
+  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo,
+  {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
   KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
   KM_Networking,
   KM_MapEditor, KM_Campaigns, KM_EventProcess,
@@ -104,7 +105,6 @@ type
 
     procedure GameMPPlay(Sender:TObject);
     procedure GameMPReadyToPlay(Sender:TObject);
-    procedure GameError(aLoc: TKMPoint; aText: string); //Stop the game because of an error
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg:TGameResultMsg);
@@ -158,6 +158,10 @@ type
 
     procedure Save(const aFileName: string);
     procedure PrintScreen(aFilename: string = '');
+    {$IFDEF USE_MAD_EXCEPT}
+    procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
+    {$ENDIF}
+    procedure ReplayInconsistancy;
 
     procedure Render;
     procedure UpdateGame(Sender: TObject);
@@ -196,13 +200,18 @@ begin
   fLocales        := TKMLocales.Create(ExeDir + 'data\locales.txt');
   fGameSettings   := TGameSettings.Create;
 
+  //Texts must be loaded BEFORE we check OpenGL version so the message is translated!
+  fTextLibrary      := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
+
   fRender         := TRender.Create(aHandle, fScreenX, fScreenY, aVSync);
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
-    Application.MessageBox(PChar(String(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL])), 'Warning', MB_OK or MB_ICONWARNING);
+    //MessageDlg works better than Application.MessageBox or others, it stays on top and
+    //pauses here until the user clicks ok.
+    MessageDlg(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+fTextLibrary[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
 
   fRenderAux        := TRenderAux.Create;
-  fTextLibrary      := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
+  {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   fSoundLib         := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume); //Required for button click sounds
   fMusicLib         := TMusicLib.Create(fGameSettings.MusicVolume);
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
@@ -298,6 +307,7 @@ begin
   FreeAndNil(fSoundLib);
   FreeAndNil(fTextLibrary);
   fTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
+  {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume);
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
   fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
@@ -419,6 +429,7 @@ begin
   PlayOnState := gr_Cancel;
   SkipReplayEndCheck := False; //Reset before each mission
   fMultiplayerMode := aMultiplayerMode;
+  fWaitingForNetwork := False; //Must get reset between games
   //Reset the game options from the last game
   fGameOptions.Free;
   fGameOptions := TKMGameOptions.Create;
@@ -433,6 +444,10 @@ begin
 
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
 
+  //todo: Maybe we should reset the GameCursor? If I play 192x192 map, quit, and play a 64x64 map
+  //      my cursor could be at (190,190) if the player starts with his cursor over the controls panel...
+  //      This caused a crash in RenderCursors which I fixed by adding range checking to CheckTileRevelation
+  //      (good idea anyway) There could be other crashes caused by this.
   fViewport := TViewport.Create(fScreenX, fScreenY);
 
   //Here comes terrain/mission init
@@ -771,53 +786,50 @@ begin
   end;
 end;
 
+{$IFDEF USE_MAD_EXCEPT}
+procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
 
-{ Set viewport and save command log }
-procedure TKMGame.GameError(aLoc: TKMPoint; aText: string);
-var
-  PreviousState: TGameState;
-  MyZip: TZippit;
-  CrashFile: string;
-  i: integer;
-begin
-  //Handle duplicate calls for GameError
-  if fGameState = gsNoGame then exit;
-
-  PreviousState := GameState; //Could be running, replay, map editor, etc.
-  SetGameState(gsPaused);
-  if not KMSamePoint(aLoc, KMPoint(0,0)) then
+  procedure AttachFile(const aFile:string);
   begin
-    fViewport.Position := KMPointF(aLoc);
-    SHOW_UNIT_ROUTES := True;
-    SHOW_UNIT_MOVEMENT := True;
+    if (aFile = '') or not FileExists(aFile) then Exit;
+    ExceptIntf.AdditionalAttachments.Add(aFile, '', aZipFile);
   end;
 
-  fLog.AppendLog('Gameplay Error: "' + aText + '" at location ' + TypeToString(aLoc));
+var I: Integer;
+begin
+  fLog.AppendLog('Creating crash report...');
 
   if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
     fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fMultiplayerMode)); //Save replay data ourselves
 
-  MyZip := TZippit.Create;
-  //Include in the bug report:
-  MyZip.AddFiles(SaveName('basesave', '*', fMultiplayerMode)); //Replay files
-  MyZip.AddFile(fLog.LogPath); //Log file
-  MyZip.AddFile(fMissionFile); //Mission script
-  for I := 1 to AUTOSAVE_COUNT do
-    MyZip.AddFiles(SaveName('autosave' + Int2Fix(I, 2), '*', fMultiplayerMode)); //All autosaves
+  AttachFile(SaveName('basesave', 'rpl'));
+  AttachFile(SaveName('basesave', 'bas'));
+  AttachFile(SaveName('basesave', 'sav'));
 
-  //Save it as: KaM Crash r1830 2007-12-23 15-24-33.zip
-  CrashFile := 'KaM Crash ' + GAME_REVISION + ' ' + FormatDateTime('yyyy-mm-dd hh-nn-ss', Now) + '.zip';
-  CreateDir(ExeDir + 'Crash Reports');
-  MyZip.SaveToFile(ExeDir + 'Crash Reports\' + CrashFile);
-  FreeAndNil(MyZip); //Free the memory
+  AttachFile(fMissionFile);
 
-  if MessageDlg(
-    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary[TX_GAME_ERROR_SEND_REPORT],[CrashFile]),
-    mtWarning, [mbYes, mbNo], 0) <> mrYes then
+  for I := 1 to AUTOSAVE_COUNT do //All autosaves
+  begin
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'rpl'));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'bas'));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'sav'));
+  end;
 
-    Stop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
+  fLog.AppendLog('Crash report created');
+end;
+{$ENDIF}
+
+
+//Occasional replay inconsistencies are a known bug, we don't need reports of it
+procedure TKMGame.ReplayInconsistancy;
+var PreviousState: TGameState;
+begin
+  PreviousState := GameState;
+  SetGameState(gsPaused); //Stop game from executing while the user views the message
+  fLog.AppendLog('Replay failed a consistency check at tick '+IntToStr(fGameTickCount));
+  if MessageDlg(fTextLibrary[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
+    Stop(gr_Error, '')
   else
-    //If they choose to play on, start the game again because the player cannot tell that the game is paused
     SetGameState(PreviousState);
 end;
 
@@ -1568,7 +1580,6 @@ begin
     gsOnHold:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
     gsNoGame:   ;
     gsRunning:  if not fMultiplayerMode or (fNetworking.NetGameState <> lgs_Loading) then
-                try //Catch exceptions during update state
                   for I := 1 to fGameSpeedMultiplier do
                   begin
                     if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
@@ -1578,8 +1589,8 @@ begin
                       if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                       inc(fGameTickCount); //Thats our tick counter for gameplay events
                       if fMultiplayerMode then fNetworking.LastProcessedTick := fGameTickCount;
-                      //Tell the master server about our game on the specific tick
-                      if fMultiplayerMode and (
+                      //Tell the master server about our game on the specific tick (host only)
+                      if fMultiplayerMode and fNetworking.IsHost and (
                          ((fMissionMode = mm_Normal) and (fGameTickCount = ANNOUNCE_BUILD_MAP)) or
                          ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
                         fNetworking.ServerQuery.SendMapInfo(fGameName, fNetworking.NetPlayers.GetConnectedCount);
@@ -1614,21 +1625,7 @@ begin
                     end;
                     fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                   end;
-                except
-                  //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                  on E: ELocError do
-                  begin
-                    GameError(E.Loc, E.ClassName+': '+E.Message);
-                    Exit; //Exit because the game could have been stopped
-                  end;
-                  on E: Exception do
-                  begin
-                    GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
-                    Exit; //Exit because the game could have been stopped
-                  end;
-                end;
-    gsReplay:   try //Catch exceptions during update state
-                  for I := 1 to fGameSpeedMultiplier do
+    gsReplay:     for I := 1 to fGameSpeedMultiplier do
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
@@ -1650,11 +1647,6 @@ begin
                     //Break the for loop (if we are using speed up)
                     if DoGameHold then break;
                   end;
-                except
-                  //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                  on E : ELocError do GameError(E.Loc, E.ClassName+': '+E.Message);
-                  on E : Exception do GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
-                end;
     gsEditor:   begin
                   fTerrain.IncAnimStep;
                   fPlayers.IncAnimStep;

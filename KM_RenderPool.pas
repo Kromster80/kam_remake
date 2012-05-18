@@ -203,7 +203,6 @@ begin
 
   //Fieldplans
   FieldsList := TKMPointTagList.Create;
-  FieldsList.AllowDuplicates := True; //During replay enemies can build over each other's plans
   MyPlayer.GetFieldPlans(FieldsList, aRect, True, fGame.ReplayMode); //Include fake field plans for painting
   for i := 0 to FieldsList.Count - 1 do
     RenderTerrainMarkup(FieldsList[i].X, FieldsList[i].Y, TFieldType(FieldsList.Tag[i]));
@@ -218,7 +217,6 @@ begin
 
   //Tablets
   TabletsList := TKMPointTagList.Create;
-  TabletsList.AllowDuplicates := True; //During replay enemies can build over each other's plans
   MyPlayer.GetPlansTablets(TabletsList, aRect, fGame.ReplayMode);
   for i := 0 to TabletsList.Count - 1 do
     AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList[i]);
@@ -1016,7 +1014,6 @@ var
   MarksList: TKMPointTagList;
 begin
   MarksList := TKMPointTagList.Create;
-  MarksList.AllowDuplicates := True; //Enterance can have duplicates: cyan quad + door icon
   MyPlayer.GetHouseMarks(P, aHouseType, MarksList);
 
   for I := 0 to MarksList.Count - 1 do

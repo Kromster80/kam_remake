@@ -2,9 +2,9 @@ unit KM_InterfaceMainMenu;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF MSWindows} Windows, ShellAPI, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
+  StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
   KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
   KM_InterfaceDefaults, KM_MapView, KM_ServerQuery;
 
@@ -65,6 +65,7 @@ type
     procedure Campaign_Set(aCampaign: TKMCampaign);
     procedure Campaign_SelectMap(Sender: TObject);
     procedure Campaign_StartMap(Sender: TObject);
+    procedure Credits_LinkClick(Sender: TObject);
 
     procedure SingleMap_Clear;
     procedure SingleMap_RefreshList(Sender: TObject);
@@ -159,8 +160,6 @@ type
       Button_SP_Tutor,
       Button_SP_Fight,
       Button_SP_Camp,
-      //Button_SP_TSK,
-      //Button_SP_TPR,
       Button_SP_Single,
       Button_SP_Load: TKMButton;
       Button_SP_Back: TKMButton;
@@ -305,6 +304,8 @@ type
     Panel_Credits:TKMPanel;
       Label_Credits_KaM:TKMLabelScroll;
       Label_Credits_Remake:TKMLabelScroll;
+      Button_CreditsHomepage,
+      Button_CreditsFacebook,
       Button_CreditsBack:TKMButton;
     Panel_Loading:TKMPanel;
       Label_Loading:TKMLabel;
@@ -783,8 +784,6 @@ begin
 
       Button_SP_Camp   := TKMButton.Create(Panel_SPButtons,0, 88,350,30,fTextLibrary[TX_MENU_CAMPAIGNS],fnt_Metal,bsMenu);
 
-      //Button_SP_TSK    := TKMButton.Create(Panel_SPButtons,0, 88,350,30,fTextLibrary[TX_MENU_CAMP_TSK],fnt_Metal,bsMenu);
-      //Button_SP_TPR    := TKMButton.Create(Panel_SPButtons,0,122,350,30,fTextLibrary[TX_MENU_CAMP_TPR],fnt_Metal,bsMenu);
       Button_SP_Single := TKMButton.Create(Panel_SPButtons,0,176,350,30,fTextLibrary[TX_MENU_SINGLE_MAP],fnt_Metal,bsMenu);
       Button_SP_Load   := TKMButton.Create(Panel_SPButtons,0,210,350,30,fTextLibrary[TX_MENU_LOAD_SAVEGAME],fnt_Metal,bsMenu);
       Button_SP_Back   := TKMButton.Create(Panel_SPButtons,0,290,350,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
@@ -792,8 +791,6 @@ begin
       Button_SP_Tutor.OnClick  := MainMenu_PlayTutorial;
       Button_SP_Fight.OnClick  := MainMenu_PlayBattle;
       Button_SP_Camp.OnClick   := SwitchMenuPage;
-      //Button_SP_TSK.OnClick    := SwitchMenuPage;
-      //Button_SP_TPR.OnClick    := SwitchMenuPage;
       Button_SP_Single.OnClick := SwitchMenuPage;
       Button_SP_Load.OnClick   := SwitchMenuPage;
       Button_SP_Back.OnClick   := SwitchMenuPage;
@@ -1441,6 +1438,14 @@ begin
     Label_Credits_KaM := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 110, 400, Panel_Main.Height - 130, fTextLibrary[TX_CREDITS_TEXT], fnt_Grey, taCenter);
     Label_Credits_KaM.Anchors := [akLeft,akTop,akBottom];
 
+    Button_CreditsHomepage:=TKMButton.Create(Panel_Credits,400,610,224,30,'[$F8A070]www.kamremake.com[]',fnt_Metal,bsMenu);
+    Button_CreditsHomepage.Anchors := [akLeft,akBottom];
+    Button_CreditsHomepage.OnClick:=Credits_LinkClick;
+
+    Button_CreditsFacebook:=TKMButton.Create(Panel_Credits,400,646,224,30,'[$F8A070]Facebook[]',fnt_Metal,bsMenu);
+    Button_CreditsFacebook.Anchors := [akLeft,akBottom];
+    Button_CreditsFacebook.OnClick:=Credits_LinkClick;
+
     Button_CreditsBack:=TKMButton.Create(Panel_Credits,400,700,224,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
     Button_CreditsBack.Anchors := [akLeft,akBottom];
     Button_CreditsBack.OnClick:=SwitchMenuPage;
@@ -1920,6 +1925,20 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.Credits_LinkClick(Sender: TObject);
+
+  //This can't be moved to e.g. KM_Utils because the dedicated server needs that, and it must be Linux compatible
+  procedure GoToURL(aUrl:string);
+  begin
+    ShellExecute(Application.Handle, 'open', PChar(aUrl),nil,nil, SW_SHOWNORMAL)
+  end;
+
+begin
+  if Sender = Button_CreditsHomepage then GoToURL('http://www.kamremake.com/redirect.php?page=homepage&rev='+GAME_REVISION);
+  if Sender = Button_CreditsFacebook then GoToURL('http://www.kamremake.com/redirect.php?page=facebook&rev='+GAME_REVISION);
+end;
+
+
 procedure TKMMainMenuInterface.SingleMap_Clear;
 var I: Integer;
 begin
@@ -2180,6 +2199,7 @@ begin
   Button_MP_CreateWAN.Enabled := not aBusy;
 
   //Toggle server joining
+  Button_MP_FindServer.Enabled := not aBusy;
   Button_MP_FindServerIP.Enabled := not aBusy;
   Button_MP_FindCancel.Enabled := not aBusy;
   Button_MP_GetIn.Enabled := MP_GetInEnabled;
@@ -2930,15 +2950,20 @@ end;
 
 //Post what user has typed
 procedure TKMMainMenuInterface.Lobby_PostKey(Sender: TObject; Key: Word);
+var ChatMessage: string;
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
-
+  ChatMessage := Edit_LobbyPost.Text;
   //Check for console commands
-  if (Length(Edit_LobbyPost.Text) > 1) and (Edit_LobbyPost.Text[1] = '/')
-  and (Edit_LobbyPost.Text[2] <> '/') then //double slash is the escape to place a slash at the start of a sentence
-    fGame.Networking.ConsoleCommand(Edit_LobbyPost.Text)
+  if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/')
+  and (ChatMessage[2] <> '/') then //double slash is the escape to place a slash at the start of a sentence
+    fGame.Networking.ConsoleCommand(ChatMessage)
   else
-    fGame.Networking.PostMessage(Edit_LobbyPost.Text, True);
+  begin
+    if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/') and (ChatMessage[2] = '/') then
+      Delete(ChatMessage, 1, 1); //Remove one of the /'s
+    fGame.Networking.PostMessage(ChatMessage, True);
+  end;
 
   Edit_LobbyPost.Text := '';
 end;

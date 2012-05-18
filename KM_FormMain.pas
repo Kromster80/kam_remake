@@ -373,18 +373,20 @@ procedure TFormMain.Export_GUIRXClick(Sender: TObject);     begin fResource.Spri
 procedure TFormMain.Export_GUIMainRXClick(Sender: TObject); begin fResource.Sprites.ExportToBMP(rxGUIMain); end;
 procedure TFormMain.Export_GUIMainHRXClick(Sender: TObject);begin fResource.Sprites.ExportToBMP(rxGUIMainH); end;
 procedure TFormMain.Export_Sounds1Click(Sender: TObject);   begin fSoundLib.ExportSounds; end;
-procedure TFormMain.Export_TreeAnim1Click(Sender: TObject); begin fResource.ExportTreeAnim; end;
-procedure TFormMain.Export_HouseAnim1Click(Sender: TObject);begin fResource.ExportHouseAnim; end;
-procedure TFormMain.Export_UnitAnim1Click(Sender: TObject); begin fResource.ExportUnitAnim;  end;
+//The three below are disabled for now because they crash the game
+procedure TFormMain.Export_TreeAnim1Click(Sender: TObject); begin {fResource.ExportTreeAnim;} end;
+procedure TFormMain.Export_HouseAnim1Click(Sender: TObject);begin {fResource.ExportHouseAnim;} end;
+procedure TFormMain.Export_UnitAnim1Click(Sender: TObject); begin {fResource.ExportUnitAnim;}  end;
 
 procedure TFormMain.Export_TextClick(Sender: TObject);
-var I: Integer;
+var I: Integer; MyTextLibrary: TTextLibrary;
 begin
   for I := 0 to fLocales.Count-1 do
   begin
-    fTextLibrary.Free;
-    fTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', fLocales[i].Code);
-    fTextLibrary.ExportTextLibraries;
+    //Don't mess up the actual text library by loading other locales
+    MyTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', fLocales[i].Code);
+    MyTextLibrary.ExportTextLibraries;
+    MyTextLibrary.Free;
   end;
 end;
 
@@ -399,6 +401,8 @@ procedure TFormMain.Export_DeliverLists1Click(Sender: TObject);
 var i:integer;
 begin
   if fPlayers=nil then exit;
+  //You could possibly cheat in multiplayer by seeing what supplies your enemy has
+  if fGame.MultiplayerMode and not MULTIPLAYER_CHEATS then Exit;
   for i:=0 to fPlayers.Count-1 do
     fPlayers[i].Deliveries.Queue.ExportToFile(ExeDir+'Player_'+inttostr(i)+'_Deliver_List.txt');
 end;
@@ -440,6 +444,7 @@ end;
 
 procedure TFormMain.TB_Angle_Change(Sender: TObject);
 begin
+  if fRenderPool = nil then Exit; //Otherwise it crashes on the main menu?
   RENDER_3D := TB_Angle.Position <> 0;
   Label3.Caption := IntToStr(TB_Angle.Position) + ' 3D';
   fRenderPool.SetRotation(-TB_Angle.Position, 0, 0);
@@ -512,6 +517,7 @@ end;
 
 procedure TFormMain.Debug_ExportMenuClick(Sender: TObject);
 begin
+  ForceDirectories(ExeDir + 'Export\');
   fGame.fMainMenuInterface.MyControls.SaveToFile(ExeDir + 'Export\MainMenu.txt');
 end;
 
@@ -569,6 +575,8 @@ end;
 //Consult with the fGame if we can shut down the program
 procedure TFormMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
+  //MessageDlg works better than Application.MessageBox or others, it stays on top and
+  //pauses here until the user clicks ok.
   CanClose := (fGame = nil) or fGame.CanClose or
               (MessageDlg('Any unsaved changes will be lost. Exit?', mtWarning, [mbYes, mbNo], 0) = mrYes);
   if CanClose then
@@ -579,6 +587,7 @@ end;
 procedure TFormMain.ShowAIAttacks1Click(Sender: TObject);
 var i: Integer; s: string;
 begin
+  if fPlayers = nil then Exit;
   s := '';
 
   for i:=0 to fPlayers.Count-1 do

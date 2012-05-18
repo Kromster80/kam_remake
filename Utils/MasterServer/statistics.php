@@ -11,6 +11,10 @@ function StatsUpdate($Server, $PlayerCount) {
 
 	$TempEntries = array();
 
+	//Mutex lock a .mutex file
+	$lock = fopen($STATS_TEMP_FILE.'.mutex', 'w') or die("can't open file");
+	flock($lock, LOCK_EX);
+
 	if (file_exists($STATS_TEMP_FILE)) {
 		$StatsTemp = file($STATS_TEMP_FILE, FILE_SKIP_EMPTY_LINES);
 
@@ -42,6 +46,7 @@ function StatsUpdate($Server, $PlayerCount) {
 		fwrite($fh, $Key.','.$Val."\n");
 
 	fclose($fh);
+	fclose($lock);
 }
 
 function StatsMajUpdate($TempEntries, $SecondsSinceLastUpdate) {
@@ -53,9 +58,14 @@ function StatsMajUpdate($TempEntries, $SecondsSinceLastUpdate) {
 		$Servers++; $Players += $PlayerCount;
 	}
 
+	//Mutex lock a .mutex file
+	$lock = fopen($STATS_FILE.'.mutex', 'w') or die("can't open file");
+	flock($lock, LOCK_EX);
+
 	$fh = fopen($STATS_FILE, 'a');
 	fwrite($fh, time().','.$Servers.','.$Players."\n");
 	fclose($fh);
+	fclose($lock);
 	
 	//update player time
 	$PlayerSeconds = 0;
@@ -64,9 +74,14 @@ function StatsMajUpdate($TempEntries, $SecondsSinceLastUpdate) {
 	}
 	$PlayerSeconds += $SecondsSinceLastUpdate*$Players;
 
+	//Mutex lock a .mutex file
+	$lock = fopen($PLAYER_TIME_FILE.'.mutex', 'w') or die("can't open file");
+	flock($lock, LOCK_EX);
+
 	$fh = fopen($PLAYER_TIME_FILE, 'w');
 	fwrite($fh, $PlayerSeconds);
 	fclose($fh);
+	fclose($lock);
 }
 
 function GetServerGraph($size = array(500, 200), $timespan = array(0, 0), $period = 1, $Format='') {
@@ -155,6 +170,9 @@ function GetServerGraph($size = array(500, 200), $timespan = array(0, 0), $perio
     </script>';	
 }
 
+$format = "";
+if(isset($_REQUEST['format'])) $format = $_REQUEST['format'];
+
 if (count(get_included_files()) == 1) { //if we have been called directly
 	if (
 		isset($_REQUEST["since"]) &&
@@ -168,14 +186,14 @@ if (count(get_included_files()) == 1) { //if we have been called directly
 			<script src="RGraph/libraries/RGraph.common.core.js" ></script><script src="RGraph/libraries/RGraph.line.js">
 			</script><!--[if IE 8]><script src="RGraph/excanvas/excanvas.original.js"></script><![endif]--></head><body>';
 		echo GetServerGraph(array($_REQUEST["width"], $_REQUEST["height"]), 
-			array($_REQUEST["since"], $_REQUEST["to"]), $_REQUEST["period"], $_REQUEST['format']);
+			array($_REQUEST["since"], $_REQUEST["to"]), $_REQUEST["period"], $format);
 		if (isset($_REQUEST["html"])) echo '</body></html>';
 	} 
 	else if (isset($_REQUEST["default"])) {
 		echo '<!doctype html><html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 		<script src="RGraph/libraries/RGraph.common.core.js" ></script><script src="RGraph/libraries/RGraph.line.js">
 		</script><!--[if IE 8]><script src="RGraph/excanvas/excanvas.original.js"></script><![endif]--></head><body>';
-		echo GetServerGraph(array(512,256), array(time() - 24*60*60, time()), 18, $_REQUEST['format']);
+		echo GetServerGraph(array(512,256), array(time() - 24*60*60, time()), 18, $format);
 		echo '</body></html>';
 	} 
 	else echo '<!doctype html><html><head></head><body><form><p>All textfields are mandatory!</p>

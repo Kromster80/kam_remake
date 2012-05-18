@@ -127,6 +127,14 @@ begin
     Result := 255;
     exit;
   end;
+
+  if (X < 1) or (X >= MapX)
+  or (Y < 1) or (Y >= MapY) then
+  begin
+    Result := 0;
+    Exit;
+  end;
+
   //Check all four corners and choose max
   Result := CheckVerticeRevelation(X-1,Y-1,aSkipForReplay);
   if Result = 255 then exit;

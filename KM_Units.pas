@@ -528,8 +528,13 @@ procedure TKMUnitRecruit.DestroyInBarracks;
 begin
   if fPlayers.Selected = Self then fPlayers.Selected := nil;
   if fGame.fGamePlayInterface.ShownUnit = Self then fGame.fGamePlayInterface.ShowUnitInfo(nil);
-  fTerrain.UnitAdd(NextPosition, Self); //CloseUnit removes it, and as we are currently in a house we must first add it
-  CloseUnit;
+
+  //Dispose of current action/task BEFORE we close the unit (action might need to check fPosition if recruit was about to walk out to eat)
+  //Normally this isn't required because TTaskDie takes care of it all, but recruits in barracks don't use TaskDie.
+  SetAction(nil);
+  FreeAndNil(fUnitTask);
+
+  CloseUnit(False); //Don't remove tile usage, we are inside the barracks
 end;
 
 
