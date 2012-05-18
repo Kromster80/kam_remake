@@ -109,3 +109,10 @@ rom.NoKaM=Instalarea a detectat ca nu ai instalat Knights and Merchants: The Pea
 rom.CantUpdate=Instalarea nu a putut gгsi o versiune care va putea fi updatг. Te rog sг downloadezi fisierul de instalare complet. Instalarea se va оntrerupe.
 rom.OpenAL=Vrei sг instalezi OpenAL?(Recomandat) Este necesar pentru sunetele din KaM Remake
 rom.ViewReadme=Vizualizeazp fisierul Citeste-ma
+
+;Ukrainian
+ukr.CreateStartShortcut=Створити ярлик стартового меню
+ukr.NoKaM=Майстер встановлення программи не знайшов оригіналу Knights and Merchants: The Peasants Rebellion на вашому комп`ютері. Ви маєте встановити оригінал для того , щоб грат в KaM Remake. Інсталяцію скасовано.
+ukr.CantUpdate=Майстер встановлення програми не зміг знайти KaM Remake на компютері для того, щоб оновити його. Будь ласка , в першу чергу , завантажте і встановіть повну версію перш ніж встановлювати апдейт . Інсталяцію скасовано.
+ukr.OpenAL=Чи хочете ви щоби майстер встановив OpenAL? (Дуже рекомендується) Він необхідний для роботи звуку у KaM Remake
+ukr.ViewReadme=Відкрити Readme
