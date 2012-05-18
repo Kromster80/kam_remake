@@ -2,6 +2,7 @@
 MaxID:23
 
 0:Kampaò 'The Peasants Rebellion'
+1:TPR %d
 10:Nieko¾ko odpadlıch dedinèanov, ktorí zostali vernı krá¾ovi, sa ešte pokúsia vzoprie tyranii. Pred krá¾ovskım palácom boli napadnutí nevinní sedliaci. To predsa nesmiete necha iba tak! Zaeòte tıch biednikov naspä!
 11:Nako¾ko nám naši sedliaci dopomohli k víazstvu, musíme teraz splati dlh a tie im pomáha. Ve¾ká armáda nepriate¾ov prichádza priamo zo severu smerom k nám. Do boja!
 12:Po víaznej bytke ste získali trochu èasu. Rıchlo obnovte spustošené mesto a vaše zásobovanie. Potom by ste mal obsadi osadu na severe a oslobodit š¾achticov od miestnej tyranie. Ušetrite miestnych vidieèanov a bojujte len s miestnymi nepriaste¾skımi vojakmi.
@@ -14,5 +15,5 @@ MaxID:23
 19:V poslednej bitke ste získal naspä váš hrad. Bolo tie zajatıch nieko¾ko vzbúrencov, ktorí boli vypoèúvaní. Prozradili, e existuje tunel, ktorı vedie naprieè severnım pohorím. Vchod do tunelu je údajne stráenı nieko¾kımi nepriate¾skımi vojakmi. Ak ich premôete, môete bezpeène vstúpi do tunelu.
 20:Jaskyòa je väèšia, ne ste oèakávali. Vaši špehovia zistili, e nepriate¾ské stráe stráia nejaké ily rudy, nachádzajúce sa v tomto podzemnom komplexe. Dostaòte sa k vıstupu na druhú stranu pohoria.
 21:Nepriate¾ sa dozvedel o vašom plánovanom útoku. Jeho silné a roz¾ahlé vojsko se nachádza na severe a chystá sa vás zanedlho napadnú. Rıchlo postavte obranné vee, ktoré by mohli nepriate¾ské hordy aspoò èiastoène oslabi. Ak sa dokáete úspešne ubráni, môete potom prejs priesmykom na severe.
-22:Zrada! Nepriate¾ si na vás poèíhal. Teraz sa nachádzate vo ve¾mi strategicky nevıhodnej situácii. Pošlite toho úskoèného padúcha tam, kam patrí!
-23:Koneène ste dobyl posledné hradby vašich nepriate¾ov. Nepriate¾ stiahol posledné zbytky svojej armády a zabarikádoval sa severovıchodne odtia¾. Vïaka treskúcemu mrazu je rieka èiastoène zamrznutá a ponúka vám monos, ako protivníka neèakane prekvapi. Porazte teda zostávajúce nepriate¾ské vojsko, aby mohol v zemi opä zavládnu mier!
+22:Zrada! Nepriate¾ si na vás poèkal. Teraz sa nachádzate strategicky vo ve¾mi nevıhodnej situácii. Pošlite toho úskoèného padúcha tam, kam patrí!
+23:Koneène ste dobil posledné hradby vašich nepriate¾ov. Nepriate¾ stiahol posledné zbytky svojej armády a zabarikádoval sa severovıchodne odtia¾. Vïaka treskúcemu mrazu je rieka èiastoène zamrznutá a ponúka vám monos, ako protivníka neèakane prekvapi. Porazte teda zostávajúce nepriate¾ské vojsko, aby mohol v zemi opä zavládnu mier!
