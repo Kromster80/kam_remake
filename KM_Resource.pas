@@ -114,7 +114,7 @@ end;
 
 procedure TResource.LoadMenuResources(const aLocale: AnsiString);
 begin
-  Assert(fRender <> nil, 'fRenderSetup should be init before ReadGFX to be able access OpenGL');
+  Assert(SKIP_RENDER or (fRender <> nil), 'fRenderSetup should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
   fPalettes := TKMPalettes.Create;

@@ -232,7 +232,7 @@ begin
 
   for i:=1 to fMapY do for k:=1 to fMapX do with Land[i,k] do begin
     Terrain      := 0;
-    Height       := KaMRandom(7);    //variation in height
+    Height       := KaMRandom(7);  //variation in height
     Rotation     := KaMRandom(4);  //Make it random
     OldTerrain   := 0;
     OldRotation  := 0;
@@ -330,10 +330,9 @@ var f:file; i,k:integer; c0,cF:cardinal; light,b205: Byte; SizeX,SizeY:Integer;
     ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
     Res:array[1..MAX_MAP_SIZE*2]of packed record X1,Y1,X2,Y2:integer; Typ: Byte; end;
 begin
-
   ForceDirectories(ExtractFilePath(aFile));
 
-  assignfile(f,aFile); rewrite(f,1);
+  AssignFile(f,aFile); rewrite(f,1);
 
   //Dimensions must be stored as 4 byte integers
   SizeX := fMapX;

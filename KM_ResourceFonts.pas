@@ -190,6 +190,8 @@ var
   F: TKMFont;
   CodePage: AnsiString;
 begin
+  if fLocales = nil then Exit;
+
   CodePage := fLocales.GetLocale(aLocale).FontCodepage;
   for F := Low(TKMFont) to High(TKMFont) do
     if FileExists(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt') then

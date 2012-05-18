@@ -7,8 +7,6 @@ uses
 
 type
   TestTKMGame = class(TTestCase)
-  strict private
-    //FKMGame: TKMGame;
   public
     procedure SetUp; override;
     procedure TearDown; override;

@@ -1,16 +1,12 @@
 unit TestKM_Terrain;
 interface
 uses
-  TestFramework, StrUtils,
-  SysUtils, KM_Terrain, KM_Log, KM_Utils;
+  TestFramework, StrUtils, Classes,
+  SysUtils,
+  KM_Defaults, KM_Terrain, KM_Resource, KM_ResourceTileset, KM_Log, KM_Utils;
 
 type
-  // Test methods for Points
   TestKMTerrain = class(TTestCase)
-  strict private
-
-  private
-
   public
     procedure SetUp; override;
     procedure TearDown; override;
@@ -22,48 +18,65 @@ implementation
 
 procedure TestKMTerrain.SetUp;
 begin
+  SKIP_RENDER := True;
+  ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
+
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
+  fResource := TResource.Create(nil, nil, nil);
+  fResource.LoadMenuResources('');
   fTerrain := TTerrain.Create;
 end;
 
 procedure TestKMTerrain.TearDown;
 begin
   fTerrain.Free;
+  fResource.Free;
   fLog.Free;
 end;
 
+//See if all maps load into Terrain
 procedure TestKMTerrain.TestLoadAllMaps;
 var
   I, Count: Integer;
   SearchRec: TSearchRec;
-  PathToMaps: string;
+  PathToMaps: TStringList;
 begin
   Count := 0;
 
-  for I := 0 to 4 do
-  begin
-    case I of
-      0: PathToMaps := ExtractFilePath(ParamStr(0)) + '..\Maps\';
-      1: PathToMaps := ExtractFilePath(ParamStr(0)) + '..\MapsMP\';
-      2: PathToMaps := ExtractFilePath(ParamStr(0)) + '..\Campaigns\The Shattered Kingdom\';
-      3: PathToMaps := ExtractFilePath(ParamStr(0)) + '..\Campaigns\The Peasants Rebellion\';
-      4: PathToMaps := ExtractFilePath(ParamStr(0)) + '..\Tutorials\';
-    end;
+  PathToMaps := TStringList.Create;
+  try
+    PathToMaps.Add(ExeDir + 'Maps\');
+    PathToMaps.Add(ExeDir + 'MapsMP\');
+    PathToMaps.Add(ExeDir + 'Tutorials\');
 
-    if DirectoryExists(PathToMaps) then
+    //Include all campaigns maps
+    FindFirst(ExeDir + 'Campaigns\*', faDirectory, SearchRec);
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+      PathToMaps.Add(ExeDir + 'Campaigns\' + SearchRec.Name + '\');
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
+
+    for I := 0 to PathToMaps.Count - 1 do
+
+    if DirectoryExists(PathToMaps[I]) then
     begin
-      FindFirst(PathToMaps + '*', faDirectory, SearchRec);
+      FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
       repeat
         if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-        and FileExists(PathToMaps + SearchRec.Name + '\' + SearchRec.Name + '.map') then
+        and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map') then
         begin
-          fTerrain.LoadFromFile(PathToMaps + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
+          fTerrain.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
           Check(fTerrain.MapX * fTerrain.MapY <> 0, 'Map did not load: ' + SearchRec.Name);
           Inc(Count);
+          //Status(IntToStr(Count) + '. ' + SearchRec.Name + ' loaded successfully')
         end;
       until (FindNext(SearchRec) <> 0);
       FindClose(SearchRec);
     end;
+
+  finally
+    PathToMaps.Free;
   end;
 
   Status(IntToStr(Count) + ' maps checked')
