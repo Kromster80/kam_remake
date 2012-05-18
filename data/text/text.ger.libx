@@ -1,5 +1,5 @@
 
-MaxID:2706
+MaxID:2730
 
 0:Sägewerk
 1:Eisenschmelze
@@ -142,7 +142,7 @@ MaxID:2706
 183:Liefert
 184:Das Gebäude wird|derzeit noch errichtet
 185:Zerstören
-186:Wollen Sie das Gebäude|wirklich abreissen?
+186:Wollen Sie das Gebäude|wirklich abreißen?
 187:Zerstört ausgewähltes Gebäude
 188:Bestellmenge erniedrigen
 189:Bestellmenge erhöhen
@@ -278,7 +278,7 @@ MaxID:2706
 1735:Weiter betrachten
 1736:Zurück zum Menü
 1737:Nicht verfügbar
-1738:%s drücken zum weiterspielen.
+1738:%s drücken zum Weiterspielen.
 1739:Ans Team senden
 1740:Spielerinfo
 1741:Chat
@@ -406,7 +406,7 @@ MaxID:2706
 1867:Waren|produziert
 1868:Waffen|produziert
 1869:Mit dieser Ware kann in dieser Mission nicht gehandelt werden.
-1870:Pflanzen & Fällen
+1870:Pflanzen & fällen
 1871:Nur fällen
 1872:Spiel gestartet
 1873:Aufbau
@@ -454,3 +454,33 @@ MaxID:2706
 2697:Schatten Qualität:
 2698:Niedrig
 2699:Hoch
+2700:Karte nicht gefunden: %s
+2701:Kartendateien stimmen nicht mit denen des Hosts überein: %s
+2702:Spielstand nicht gefunden: %s
+2703:Spielstanddatei stimmt nicht mit der des Hosts überein: %s
+2704:WARNUNG: Wenn du weiterspielst riskierst du weitere Abstürze oder Fehler. Willst du auf eigene Gefahr weiterspielen?
+2705:Bitte Grafikkartentreiber aktualisieren!
+2706:Ein Fehler trat innerhalb des Programms auf. Bitte klicke auf "Bug Report senden", damit wir das Problem näher betrachten können. Danke für Deine Hilfe!
+2707:Bug Report senden
+2708:Zeige unbearbeite Daten
+2709:Das Replay läuft instabil wegen einem Konsistenz Check. Das ist ein bekannter Fehler, der sich auf die Wiedergabe von Replays auswirkt. Möchtest du dennoch weiterhin zuschauen?
+2710:Dein Name (optional):
+2711:Deine Email (optional):
+2712:Mich erinnern
+2713:In welcher Situation trat der Fehler auf? Kannst du uns weitere Informationen geben?
+2714:Screenshot zum Bug Report anhängen
+2715:(klicken um Bild zu ändern)
+2716:Programm beenden
+2717:Programm fortsetzen
+2718:Weiter
+2719:Report senden
+2720:Abbrechen
+2721:Kontakt Details
+2722:Fehler Details
+2723:Screenshot
+2724:Bug Report wird gesendet...
+2725:Verbinde zu Server...
+2726:Daten werden gesendet...
+2727:Der Bug Report konnte nicht gesendet werden! Unsere Server scheinen alle überlastet zu sein. Bitte versuche es später erneut.
+2728:Information
+2729:Bitte gedulde Dich einen Augenblick...

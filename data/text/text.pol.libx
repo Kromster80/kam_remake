@@ -1,5 +1,5 @@
 
-MaxID:2706
+MaxID:2730
 
 0:Tartak
 1:Dymarka
@@ -454,3 +454,33 @@ MaxID:2706
 2697:Jakoœæ cieni:
 2698:Niska
 2699:Wysoka
+2700:Mapy nie odnaleziono: %s
+2701:Pliki mapy nie zgadzaj¹ siê z map¹ hosta: %s
+2702:Zapisu nie odnaleziono: %s
+2703:Plik zapisu nie zgadza siê z zapisem hosta: %s
+2704:UWAGA: Kontynuacja gry po tym b³êdzie mo¿e spowodowaæ dalsze awarie i niestabilnoœci. Chcesz ponieœæ to ryzyko i kontynuowaæ grê?
+2705:Proszê zaktualizuj sterowniki karty graficznej aby uzyskaæ wiêksz¹ wydajnoœæ.
+2706:Wyst¹pi³ b³¹d w aplikacji. Proszê klikn¹æ Wyœlij Raport o B³êdach, abyœmy mogli zbadaæ ten problem. Dziêkujemy za pomoc!
+2707:Wyœlij Raport o B³êdach
+2708:Poka¿ Dane Pierwotne
+2709:Powtórka wykaza³a niespójnoœæ podczas sprawdzania. Jest to znany b³¹d, który wp³ywa na odtwarzanie niektórych powtórek. Czy chcesz kontynuowaæ ogl¹danie?
+2710:Twoje imiê: (opcjonalnie)
+2711:Twój email: (opcjonalnie)
+2712:Zapamiêtaj mnie
+2713:W jakiej sytuacji wystêpuje b³¹d? Mo¿esz podaæ dodatkowe informacje?
+2714:Do³¹cz zrzut ekranu do raportu o b³êdzie
+2715:(kliknij, aby edytowaæ obraz)
+2716:Zakoñcz Aplikacjê
+2717:Wznów Aplikacjê
+2718:Nastêpny
+2719:Wyœlij Raport
+2720:Anuluj
+2721:Dane Kontaktowe
+2722:Szczegó³y B³êdu
+2723:Zrzut Ekranu
+2724:Wysy³anie raportu o b³êdzie...
+2725:£¹czenie z serwerem...
+2726:Wysy³anie danych...
+2727:Wysy³anie raportu o awarii nie powiod³o siê! Nasz serwer mo¿e byæ zajêty, proszê spróbowaæ wys³aæ go ponownie.
+2728:Informacja
+2729:Proszê czekaæ...

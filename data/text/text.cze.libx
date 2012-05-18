@@ -1,5 +1,5 @@
 
-MaxID:2706
+MaxID:2730
 
 0:Pila
 1:Hu na elezo
@@ -454,3 +454,33 @@ MaxID:2706
 2697:Kvalita stínù:
 2698:Nízká
 2699:Vysoká
+2700:Mapa nenalezena: %s
+2701:Mapa se neshoduje s hostitelem: %s
+2702:Uloená hra nenalezena: %s
+2703:Uloená hra se neshoduje s hostitelem: %s
+2704:VAROVÁNÍ: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
+2705:Prosím aktualizujte svoje ovladaèe pro dosaení lepšího vıkonu.
+2706:Nastala chyba. Prosím kliknìte na tlaèítko Poslat zprávu o chybì abychom zjistili, co se stalo
+2707:Poslat zprávu o chybì
+2708:Ukázat nezpracovaná data
+2709:Záznam ze hry neprošel testem celistvosti. Toto je známá chyba, která mùe ovlivnit pøehrávání nìkterıch záznamù. Chcete pokraèovat v pøehrávání?
+2710:Vaše jméno: (nepovinné)
+2711:Váš email: (nepovinnı)
+2712:Pamatovat mì
+2713:Pøi jaké situaci tato chyba nastala? Mùete poskytnout další informace?
+2714:Pøipojit snímek obrazovky k hlášení o chybì
+2715:(kliknout pro úpravu obrázku)
+2716:Ukonèit Aplikaci
+2717:Zpìt do aplikace
+2718:Další
+2719:Podat Zprávu
+2720:Cancel
+2721:Detaily kontaktu
+2722:Detaily chyby
+2723:Sejmutí obrazovky
+2724:Odesílám hlášení o chybì
+2725:Pøipojuji se k serveru...
+2726:Odesílám data...
+2727:Odesílání hlášení o chybì bylo neúspìšné! Náš server mùe bıt zaneprázdnìn, prosím zkuste to odeslat znovu.
+2728:Informace
+2729:Prosím èekejte...

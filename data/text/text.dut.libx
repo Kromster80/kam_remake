@@ -1,5 +1,5 @@
 
-MaxID:2706
+MaxID:2730
 
 0:Houtzagerij
 1:IJzersmelterij
@@ -135,14 +135,14 @@ MaxID:2706
 176:Akkerbouw
 177:Wijngaard bouwen
 178:Wijngaard
-179:Afbreken
+179:Annuleren
 180:Huidige opleiding afbreken
 181:Voorradig:
 182:Toestand:
 183:Levert
 184:Huis in aanbouw
 185:Vernietigen
-186:Wilt u het gebouw|werkelijk afbreken?
+186:Wilt u het gebouw|werkelijk vernietigen?
 187:Vernietig gekozen gebouw
 188:Bestellingen verlagen
 189:Bestellingen verhogen
@@ -454,3 +454,33 @@ MaxID:2706
 2697:Schaduw kwaliteit:
 2698:Laag
 2699:Hoog
+2700:Kaart niet gevonden: %s
+2701:Kaartbestanden zijn niet gelijk aan die van de host: %s
+2702:Opgeslagen spel niet gevonden: %s
+2703:Opgeslagen bestand is niet gelijk aan dat van de host: %s
+2704:WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?
+2705:Update A.U.B de drivers voor betere prestaties.
+2706:Er is een fout opgetreden in de applicatie. Klik op "Foutenrapport verzenden" zodat we de fout kunnen onderzoeken. Bedankt voor je hulp!
+2707:Foutenrapport verzenden
+2708:Ruwe data weergeven
+2709:De herhaling is gefaald op een consistentie controle. Dit is een bekende fout die effect heeft op het afspelen van sommige herhalingen. Wil je doorgaan met het kijken van de herhaling?
+2710:Je naam (optioneel):
+2711:Je e-mail (optioneel):
+2712:Onthoud mij
+2713:In welke situatie deed de fout zich voor? Kun je ons van extra informatie voorzien?
+2714:Een screenshot toevoegen aan het foutenrapport
+2715:(klik om afbeelding aan te passen)
+2716:Applicatie beëindigen
+2717:Applicatie hervatten
+2718:Volgende
+2719:Rapport verzenden
+2720:Annuleren
+2721:Contact details
+2722:Fout details
+2723:Screenshot
+2724:Foutenrapport verzenden...
+2725:Verbinden met de server...
+2726:Data verzenden...
+2727:Het versturen van het foutenrapport is mislukt! Het kan zijn dat onze server druk bezig is. Probeer het alstublieft opnieuw.
+2728:Informatie
+2729:Een ogenblik geduld...

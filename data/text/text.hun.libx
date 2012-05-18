@@ -1,5 +1,5 @@
 
-MaxID:2706
+MaxID:2730
 
 0:Fûrészmalom
 1:Vasolvasztó
@@ -454,3 +454,33 @@ MaxID:2706
 2697:Árnyék Minõsége:
 2698:Alacsony
 2699:Magas
+2700:Térkép nem található: %s
+2701:A térkép verziószáma nem egyezik a szerver térképverziójával: %s
+2702:Mentés nem található: %s
+2703:A mentés nem egyezik a szerver mentésével: %s
+2704:VIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??
+2705:Kérlek frissítsd a videokártya drivereidet a jobb teljesítményért
+2706:Hiba történt az alkalmazásban. Kérlek kattints Hibajelentés Küldésére, hogy utánajárhassunk a problémának. Köszönjük a segítséged!
+2707:Hibajelentés Küldése
+2708:Nyers Adatok Megtekintése
+2709:Az összetétel ellenõrzés nem sikerült a visszajátszásnál. Ez egy ismert hiba, ami hatással van némelyik visszajátszásra. Szeretnéd folytatni a megtekintést?
+2710:A neved: (opcionális)
+2711:Az email címed: (opcionális)
+2712:Emlékezz rám
+2713:Milyen helyzetben történt a hiba? Meg tudnál adni további információkat?
+2714:Képernyõmentés hozzáadása a hibajelentéshez
+2715:(kattints a kép szerkesztéséhez)
+2716:Alkalmazás Bezárása
+2717:Alkalmazás Folytatása
+2718:Következõ
+2719:Jelentés Küldése
+2720:Mégsem
+2721:Kapcsolati Adatok
+2722:Hiba Részletei
+2723:Képernyõmentés
+2724:Hibajelentés küldése folyamatban...
+2725:Kapcsolódás a szerverhez...
+2726:Adatok küldése...
+2727:A hibajelentés elküldése sikertelen! A szerverünk valószínûleg túlterhelt, kérlek próbáld meg újra.
+2728:Információ
+2729:Kérlek várj egy pillanatot...
