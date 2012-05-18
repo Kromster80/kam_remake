@@ -17,6 +17,7 @@ type
     procedure DoTiles(AnimStep: Integer);
     procedure DoOverlays;
     procedure DoLighting;
+    procedure DoWater(AnimStep: Integer);
     procedure DoShadows;
   public
     procedure Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar);
@@ -73,13 +74,68 @@ procedure TRenderTerrain.DoTiles(AnimStep: Integer);
   end;
 var
   TexC: TUVRect;
-  I,K,iW: Integer;
+  I,K: Integer;
 begin
   //First we render base layer, then we do animated layers for Water/Swamps/Waterfalls
   //They all run at different speeds so we can't adjoin them in one layer
 
   //Each new layer inflicts 10% fps drop
-  for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do
+  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextT);
+    glBegin(GL_QUADS);
+      with fTerrain do
+      for I := fRect.Top to fRect.Bottom do
+      for K := fRect.Left to fRect.Right do
+      begin
+        TexC := GetTileUV(Land[I,K].Terrain, Land[I,K].Rotation);
+
+        glColor4f(1,1,1,1);
+        if RENDER_3D then begin
+          glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1,-Land[I,K].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  ,-Land[I+1,K].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  ,-Land[I+1,K+1].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1,-Land[I,K+1].Height/CELL_HEIGHT_DIV);
+        end else begin
+
+          glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height/CELL_HEIGHT_DIV, -I);
+          glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height/CELL_HEIGHT_DIV, -I);
+          glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height/CELL_HEIGHT_DIV, -I);
+          glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, -I);
+
+          {if KAM_WATER_DRAW and (iW=1) and TileIsWater(KMPoint(K,I)) then
+          begin
+            TexC := GetTileUV(32, 0);
+
+            LandLight(Land[I  ,K  ].Light);
+            glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height/CELL_HEIGHT_DIV, -I);
+            LandLight(Land[I+1,K  ].Light);
+            glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height/CELL_HEIGHT_DIV, -I);
+            LandLight(Land[I+1,K+1].Light);
+            glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height/CELL_HEIGHT_DIV, -I);
+            LandLight(Land[I  ,K+1].Light);
+            glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, -I);
+          end;}
+        end;
+      end;
+    glEnd;
+end;
+
+
+procedure TRenderTerrain.DoWater(AnimStep: Integer);
+  procedure LandLight(A: Single);
+  begin
+    glColor4f(A / 1.5 + 0.5, A / 1.5 + 0.5, A / 1.5 + 0.5, Abs(A * 2)); // Balanced looks
+    //glColor4f(a*2,a*2,a*2,Abs(a*2)); //Deeper shadows
+  end;
+var
+  TexC: TUVRect;
+  I,K,iW: Integer;
+begin
+  //First we render base layer, then we do animated layers for Water/Swamps/Waterfalls
+  //They all run at different speeds so we can't adjoin them in one layer
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  //Each new layer inflicts 10% fps drop
+  for iW:=2 to 4 do
   begin
     case iW of
       1: glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextT);
@@ -108,19 +164,6 @@ begin
           glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height/CELL_HEIGHT_DIV, -I);
           glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, -I);
 
-          if KAM_WATER_DRAW and (iW=1) and TileIsWater(KMPoint(K,I)) then
-          begin
-            TexC := GetTileUV(32, 0);
-
-            LandLight(Land[I  ,K  ].Light);
-            glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height/CELL_HEIGHT_DIV, -I);
-            LandLight(Land[I+1,K  ].Light);
-            glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height/CELL_HEIGHT_DIV, -I);
-            LandLight(Land[I+1,K+1].Light);
-            glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height/CELL_HEIGHT_DIV, -I);
-            LandLight(Land[I  ,K+1].Light);
-            glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, -I);
-          end;
         end;
       end;
     glEnd;
@@ -263,7 +306,11 @@ begin
 
     DoOverlays;
 
+    //DoWater(AnimStep); //Old
+
     DoLighting;
+
+    DoWater(AnimStep); //New
 
     DoShadows;
 
