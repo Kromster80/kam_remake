@@ -375,8 +375,9 @@ var
 begin
   glPushAttrib(GL_LINE_BIT);
   glPushMatrix;
-    glLineWidth(2);
+    //glEnable(GL_LINE_SMOOTH); //Smooth lines actually look odd in KaM
     glTranslatef(PosX, PosY, 0);
+    glLineWidth(2);
     glColor4ubv(@aColor);
     glBegin(GL_LINE_STRIP);
       for I := 0 to High(aValues) do

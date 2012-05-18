@@ -3987,7 +3987,7 @@ begin
 
   if X < Left + Width-55 then Exit;
 
-  I := (Y - Top - 18) div fItemHeight;
+  I := (Y - Top + 2) div fItemHeight;
   if not InRange(I, 0, fCount - 1) then Exit;
 
   fLines[I].Visible := not fLines[I].Visible;
@@ -3997,6 +3997,12 @@ end;
 
 
 procedure TKMGraph.Paint;
+  function EnsureColorBlend(aColor: TColor4): TColor4;
+  begin
+    Result := Max(aColor and $FF, 48) +
+              Max((aColor shr 8) and $FF, 48) shl 8 +
+              Max((aColor shr 16) and $FF, 48) shl 16 + aColor and $FF000000;
+  end;
 const
   IntervalCount: array [0..9] of Word = (1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
   IntervalTime: array [0..9] of Word = (30, 1*60, 5*60, 15*60, 30*60, 1*60*60, 2*60*60, 3*60*60, 4*60*60, 5*60*60);
@@ -4004,29 +4010,37 @@ var
   I: Integer;
   G: TKMRect;
   Best: Integer;
+  NewColor: TColor4;
 begin
   inherited;
 
-  G := KMRect(Left + 25, Top + 20, Left + Width - 60, Top + Height - 16);
+  G := KMRect(Left + 25, Top, Left + Width - 60, Top + Height - 16);
 
-  fRenderUI.WriteText(Left+Width div 2, Top, 0, 20, fCaption, fnt_Outline, taCenter);
-  fRenderUI.WriteRect(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, $FFFFFFFF);
 
   //Charts and legend
   for I := 0 to fCount - 1 do
   begin
+    //Adjust the color if it blends with black background
+    NewColor := EnsureColorBlend(fLines[I].Color);
+
     //Charts
     if fLines[I].Visible then
-      fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, fMaxValue, fLines[I].Color);
+      fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, fMaxValue, NewColor);
 
     //Checkboxes
-    fRenderUI.WriteLayer(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, fLines[I].Color, $00000000);
+    fRenderUI.WriteLayer(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, NewColor, $00000000);
     if fLines[I].Visible then
       fRenderUI.WriteText(G.Right + 5, G.Top - 2 + I*fItemHeight - 1, 0, 0, 'v', fnt_Game, taLeft);
 
     //Legend
     fRenderUI.WriteText(G.Right + 18, G.Top - 2 + I*fItemHeight, 0, 0, fLines[I].Title, fnt_Game, taLeft);
   end;
+
+  //Outline
+  fRenderUI.WriteRect(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, $FFFFFFFF);
+
+  //Title
+  fRenderUI.WriteText(G.Left + 5, G.Top + 5, 0, 20, fCaption, fnt_Outline, taLeft);
 
   //Render vertical axis captions
   fRenderUI.WriteText(G.Left - 5, G.Bottom + 5, 0, 0, IntToStr(0), fnt_Game, taRight);
@@ -4044,8 +4058,8 @@ begin
   if Best <> 0 then
   for I := 1 to (fMaxValue div Best) do
   begin
-    fRenderUI.WriteText(G.Left - 5, Top + Height - Round(I * Best / fMaxValue * (Height-20)) - 6, 0, 0, IntToStr(I * Best), fnt_Game, taRight);
-    fRenderUI.WriteLayer(G.Left - 2, Top + Height - Round(I * Best / fMaxValue * (Height-20)), 5, 2, $FFFFFFFF, $00000000);
+    fRenderUI.WriteText(G.Left - 5, G.Top + Round((1 - I * Best / fMaxValue) * (G.Bottom - G.Top)) - 6, 0, 0, IntToStr(I * Best), fnt_Game, taRight);
+    fRenderUI.WriteLayer(G.Left - 2, G.Top + Round((1 - I * Best / fMaxValue) * (G.Bottom - G.Top)), 5, 2, $FFFFFFFF, $00000000);
   end;
 
   //Render horizontal axis ticks

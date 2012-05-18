@@ -711,7 +711,7 @@ const
   $FF000000  //Black
   );
 
-  //Intarface Colors used for coloring status messages
+  //Interface Colors used for coloring status messages
   icWhite  = $FFFFFFFF;
   icGreen  = $FF00C000;
   icYellow = $FF07FFFF;
