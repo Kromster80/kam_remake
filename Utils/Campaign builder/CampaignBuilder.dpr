@@ -2,7 +2,8 @@ program CampaignBuilder;
 {$I ..\..\KaM_Remake.inc}
 uses
   Forms,
-  Unit1 in 'Unit1.pas' {Form1};
+  Unit1 in 'Unit1.pas' {Form1},
+  KM_Campaigns in '..\..\KM_Campaigns.pas';
 
 
 {$R *.res}

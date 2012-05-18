@@ -67,8 +67,10 @@ begin
   Check(FKMCampaign.ShortTitle <> '');
   Check(FKMCampaign.UnlockedMap = 0);
   Check(FKMCampaign.MissionFile(0) <> '');
-  Check(FKMCampaign.BackGroundPic.RX <> rxTrees);
-  Check(FKMCampaign.BackGroundPic.ID <> 0);
+
+  //Pic is assigned in LoadFromPath
+  Check(FKMCampaign.BackGroundPic.RX = rxTrees);
+  Check(FKMCampaign.BackGroundPic.ID = 0);
 end;
 
 procedure TestTKMCampaign.TestSaveToFile;
@@ -85,16 +87,8 @@ begin
 end;
 
 procedure TestTKMCampaign.TestLoadFromPath;
-var
-  FileSave: string;
 begin
-  FileSave := ExtractFilePath(ParamStr(0)) + 'Temp\campaign.tmp';
-
-  //Test empty file
-  FKMCampaign.SaveToFile(FileSave);
-  FKMCampaign.LoadFromFile(FileSave);
-  Check(FKMCampaign.MapCount = 0);
-  Check(FKMCampaign.ShortTitle = '');
+  //
 end;
 
 procedure TestTKMCampaign.TestMissionFile;

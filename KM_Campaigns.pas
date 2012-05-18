@@ -285,8 +285,6 @@ begin
   M.LoadFromFile(aFileName);
 
   M.Read(fShortTitle);
-  M.Read(Byte(fBackGroundPic.RX)); //Unused
-  M.Read(fBackGroundPic.ID);       //Unused
   M.Read(fMapCount);
   SetLength(Maps, fMapCount);
 
@@ -312,8 +310,6 @@ begin
 
   M := TKMemoryStream.Create;
   M.Write(fShortTitle);
-  M.Write(Byte(fBackGroundPic.RX)); //Unused
-  M.Write(fBackGroundPic.ID);       //Unused
   M.Write(fMapCount);
 
   for I := 0 to fMapCount - 1 do
