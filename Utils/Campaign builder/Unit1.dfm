@@ -5,6 +5,8 @@ object Form1: TForm1
   ClientHeight = 492
   ClientWidth = 689
   Color = clBtnFace
+  Constraints.MinHeight = 492
+  Constraints.MinWidth = 689
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

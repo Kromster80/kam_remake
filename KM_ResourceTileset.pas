@@ -32,8 +32,7 @@ type
       u3: byte; // 1/2/4/8 bitfield, seems to have no logical explanation
     end;
 
-    TextL: Cardinal; //Shading gradient for lighting
-    TextD: Cardinal; //Shading gradient for darkening (same as light but reversed)
+    TextG: Cardinal; //Shading gradient for lighting
     TextT: Cardinal; //Tiles
     TextW: array [1..8] of Cardinal; //Water
     TextS: array [1..3] of Cardinal; //Swamps
@@ -86,17 +85,10 @@ begin
   //Generate gradients programmatically
 
   //KaM uses [0..255] gradients
-  //We use slightly smoothed gradients [16..255] for Remake cos it shows much more of terrain on screen and it looks too contrast
-  TextL := GenerateTextureCommon;
-  if TextL <> 0 then
-  begin
-    for I := 0 to 255 do
-      pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, @pData[0]);
-  end;
-
-  TextD := GenerateTextureCommon;
-  if TextD <> 0 then
+  //We use slightly smoothed gradients [16..255] for Remake
+  //cos it shows much more of terrain on screen and it looks too contrast
+  TextG := GenerateTextureCommon;
+  if TextG <> 0 then
   begin
     for I := 0 to 255 do
       pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
@@ -104,8 +96,6 @@ begin
   end;
 
   LoadTextureTGA(aPath + 'Tiles1.tga', TextT);
-  //LoadTextureTGA(aPath + 'gradient.tga', TextL);
-  //LoadTextureTGA(aPath + 'gradient.tga', TextD);
 
   if MAKE_ANIM_TERRAIN then begin
     for i:=1 to 8 do LoadTextureTGA(aPath + 'Water'+inttostr(i)+'.tga', TextW[i]);

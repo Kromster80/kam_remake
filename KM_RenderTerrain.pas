@@ -178,7 +178,7 @@ begin
   glColor4f(1, 1, 1, 1);
   //Render highlights
   glBlendFunc(GL_DST_COLOR, GL_ONE);
-  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextL);
+  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextG);
   glBegin(GL_QUADS);
     with fTerrain do
     if RENDER_3D then
@@ -209,7 +209,7 @@ var
   I,K: Integer;
 begin
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextD);
+  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextG);
   glBegin(GL_QUADS);
     with fTerrain do
     if RENDER_3D then
