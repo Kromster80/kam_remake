@@ -2,7 +2,7 @@ unit KM_FormMain;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils,
+  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, TypInfo,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
@@ -354,10 +354,10 @@ begin GroupBox1.Visible := not GroupBox1.Visible; end;
 
 procedure TFormMain.Debug_PassabilityTrackChange(Sender: TObject);
 begin
-  SHOW_TERRAIN_WIRES:=Debug_PassabilityTrack.Position<>0;
-  Debug_PassabilityTrack.Max:=length(PassabilityStr);
+  SHOW_TERRAIN_WIRES := Debug_PassabilityTrack.Position <> 0;
+  Debug_PassabilityTrack.Max := Byte(High(TPassability));
   if Debug_PassabilityTrack.Position <> 0 then
-    Label2.Caption := PassabilityStr[TPassability(Debug_PassabilityTrack.Position)]
+    Label2.Caption := GetEnumName(TypeInfo(TPassability), Debug_PassabilityTrack.Position)
   else
     Label2.Caption := '';
   if fGame<> nil then

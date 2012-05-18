@@ -4,7 +4,7 @@ interface
 uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-     Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils,
+     Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
      KM_Controls, KM_Defaults, KM_Pics, KM_MapView, KM_Maps, KM_Houses, KM_Units,
      KM_Points, KM_InterfaceDefaults, KM_Terrain;
 
@@ -428,7 +428,7 @@ begin
     Minimap.OnChange := Minimap_Update;
 
     Label_Coordinates := TKMLabel.Create(Panel_Main,8,192,184,0,'X: Y:',fnt_Outline,taLeft);
-    TrackBar_Passability := TKMTrackBar.Create(Panel_Main, 8, 210, 184, 0, Length(PassabilityStr));
+    TrackBar_Passability := TKMTrackBar.Create(Panel_Main, 8, 210, 184, 0, Byte(High(TPassability)));
     TrackBar_Passability.Caption := 'View passability';
     TrackBar_Passability.Position := 0; //Disabled by default
     TrackBar_Passability.OnChange := View_Passability;
@@ -1211,12 +1211,12 @@ begin
 end;
 
 
-procedure TKMapEdInterface.View_Passability(Sender:TObject);
+procedure TKMapEdInterface.View_Passability(Sender: TObject);
 begin
   SHOW_TERRAIN_WIRES := TKMTrackBar(Sender).Position <> 0;
   fShowPassability := TKMTrackBar(Sender).Position;
   if TKMTrackBar(Sender).Position <> 0 then
-    Label_Passability.Caption := PassabilityStr[TPassability(TKMTrackBar(Sender).Position)]
+    Label_Passability.Caption := GetEnumName(TypeInfo(TPassability), TKMTrackBar(Sender).Position)
   else
     Label_Passability.Caption := 'Off';
 end;

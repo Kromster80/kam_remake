@@ -2,7 +2,7 @@ unit KM_CityPlanner;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, KromUtils, Math, SysUtils, TypInfo,
+  Classes, Graphics, KromUtils, Math, SysUtils,
   KM_Defaults, KM_Points, KM_CommonClasses;
 
 

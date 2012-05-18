@@ -1535,6 +1535,7 @@ begin
       Graph_Wares := TKMGraph.Create(Panel_Results, 524, 190, 400, 370);
       Graph_Wares.Caption := 'Wares';
       Graph_Wares.Anchors := [akLeft];
+      Graph_Wares.Hide;
     end;
 
     Button_ResultsBack := TKMButton.Create(Panel_Results,80,610,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
@@ -1789,12 +1790,15 @@ end;
     Panel_Loading.Show;
 
   {Show Error... screen}
-  if Sender=Panel_Error then
+  if Sender = Panel_Error then
     Panel_Error.Show;
 
   {Show Results screen}
-  if Sender=Panel_Results then //This page can be accessed only by itself
+  if Sender = Panel_Results then //This page can be accessed only by itself
+  begin
+    Results_GraphToggle(Button_Graph1);
     Panel_Results.Show;
+  end;
 
   {Show ResultsMP screen}
   if Sender=Panel_ResultsMP then //This page can be accessed only by itself

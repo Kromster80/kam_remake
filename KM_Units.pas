@@ -2,7 +2,7 @@ unit KM_Units;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KromUtils,
+  Classes, Math, SysUtils, KromUtils, TypInfo,
   KM_CommonClasses, KM_Defaults, KM_Utils, KM_Terrain, KM_Houses, KM_Points;
 
 //Memo on directives:
@@ -1815,7 +1815,7 @@ begin
         raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk',fNextPosition);
     end else
     if not fTerrain.CheckPassability(fNextPosition, GetDesiredPassability) then
-      raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+PassabilityStr[GetDesiredPassability],fNextPosition);
+      raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+GetEnumName(TypeInfo(TPassability), Byte(GetDesiredPassability)),fNextPosition);
 
 
   //

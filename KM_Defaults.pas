@@ -275,38 +275,33 @@ const {Aligned to right to use them in GUI costs display as well}
 
 { Terrain }
 type
-  TPassability = (CanWalk=1, CanWalkRoad, CanBuild, CanBuildIron, CanBuildGold,
-                  CanMakeRoads, CanMakeFields, CanPlantTrees, CanFish, CanCrab,
-                  CanWolf, CanElevate, CanWorker, CanFactor);
+  TPassability = (
+    CanUnused,
+    CanWalk,        // General passability of tile for any walking units
+    CanWalkRoad,    // Type of passability for Serfs when transporting goods, only roads have it
+    CanBuild,       // Can we build a house on this tile?
+    CanBuildIron,   // Special allowance for Iron Mines
+    CanBuildGold,   // Special allowance for Gold Mines
+    CanMakeRoads,   // Thats less strict than house building, roads Can be placed almost everywhere where units Can walk, except e.g. bridges
+    CanMakeFields,  // Thats more strict than roads, cos e.g. on beaches you Can't make fields
+    CanPlantTrees,  // If Forester Can plant a tree here, dunno if it's the same as fields
+    CanFish,        // Water tiles where fish Can move around
+    CanCrab,        // Sand tiles where crabs Can move around
+    CanWolf,        // Soil tiles where wolfs Can move around
+    CanElevate,     // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
+    CanWorker,      // Like CanWalk but allows walking on building sites
+    CanFactor       // Allows vertex (top left) to be factored as a neighbour in flattening algorithm
+    );
   TPassabilitySet = set of TPassability;
 
 type
   TWalkConnect = (
-    wcWalk, 
+    wcWalk,
     wcRoad,
     wcFish,
     wcWolf,
     wcCrab, //These things are used often but changed rarely
     wcWork  //CanWorker areas
-  );
-
-const
-  //todo: Replace with GetEnumName
-  PassabilityStr: array [TPassability] of string = (
-    'CanWalk',      // General passability of tile for any walking units
-    'CanWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
-    'CanBuild',     // Can we build a house on this tile?
-    'CanBuildIron', // Special allowance for Iron Mines
-    'CanBuildGold', // Special allowance for Gold Mines
-    'CanMakeRoads', // Thats less strict than house building, roads Can be placed almost everywhere where units Can walk, except e.g. bridges
-    'CanMakeFields',// Thats more strict than roads, cos e.g. on beaches you Can't make fields
-    'CanPlantTrees',// If Forester Can plant a tree here, dunno if it's the same as fields
-    'CanFish',      // Water tiles where fish Can move around
-    'CanCrab',      // Sand tiles where crabs Can move around
-    'CanWolf',      // Soil tiles where wolfs Can move around
-    'CanElevate',   // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
-    'CanWorker',    // Like CanWalk but allows walking on building sites
-    'CanFactor'     // Allows vertex (top left) to be factored as a neighbour in flattening algorithm
   );
 
 {Units}

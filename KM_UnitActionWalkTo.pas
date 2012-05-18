@@ -1,7 +1,7 @@
 unit KM_UnitActionWalkTo;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, SysUtils,
+uses Classes, KromUtils, Math, SysUtils, TypInfo,
   KM_Defaults, KM_CommonClasses, KM_Points,
   KM_Houses, KM_Units;
 
@@ -164,7 +164,7 @@ begin
 
   //If route fails to build that's a serious issue, (consumes CPU) Can*** should mean that never happens
   if not RouteBuilt then //NoList.Count = 0, means it will exit in Execute
-    fLog.AddToLog('Unable to make a route for '+fResource.UnitDat[aUnit.UnitType].UnitName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with pass '+PassabilityStr[fPass]);
+    fLog.AddToLog('Unable to make a route for '+fResource.UnitDat[aUnit.UnitType].UnitName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with pass '+GetEnumName(TypeInfo(TPassability), Byte(fPass)));
 end;
 
 
