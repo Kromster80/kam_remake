@@ -9,6 +9,7 @@ Future
 	Fog of war
 	Lookout tower [Krom]
 	Select units by shape
+	Reworked tileset render
 	Refactor warriors into TGroups
 	File transfer in multiplayer for missions and saves [Lewin]
 	Multiplayer trading (from a new building "Trading Post"?)
@@ -16,10 +17,12 @@ Future
 Doable:
 	Hotkeys for armies (Ctrl+1,2,etc)
 
+Next Demo:
+	Support custom campaigns
+	Charts of game results
 
-Next demo:
+4th Multiplayer Demo (r3392) - 14/05/12:
  +	Reworked deliveries
- +	Support custom campaigns
  +	Support custom mission texts
  +	Minimap in menu
  +	Tutorial missions texts, simple events
