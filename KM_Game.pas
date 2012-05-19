@@ -1252,7 +1252,7 @@ begin
                                         fGameSettings.PingInterval,
                                         fGameSettings.MasterAnnounceInterval,
                                         fGameSettings.Locale);
-  SendMPGameInfo(Self);
+  fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
 end;
 
 
