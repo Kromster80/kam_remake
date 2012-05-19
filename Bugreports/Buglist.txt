@@ -18,6 +18,9 @@
 	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
 	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
 	Screen resolution selecting is not enabled (see jpg). Win lists resolutions 800х600 .. 1366х768
+	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2)
+	It would be nice if campaign progress was not lost between updates (that should be easier to keep compatible than saves)
+	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
 
 	Dots and lines displaying on tile edges [Krom]
 	Sandhills cause water next to shore tiles to appear darker with square edges
@@ -53,6 +56,7 @@ Improvements:
 	RXXEditor tool for the public
 	Economic goals such as produce X amount of resource A
 	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
+	Duplicate app block means you can't run the editor twice, or edit and test your map at the same time
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

@@ -229,7 +229,7 @@ begin
   LoadStream.Read(fInteractionStatus, SizeOf(fInteractionStatus));
 
   LoadStream.Read(fVertexOccupied);
-  NodeList := TKMPointList.Create; //AllowDuplicates will be loaded from the stream
+  NodeList := TKMPointList.Create;
   NodeList.LoadFromStream(LoadStream);
   LoadStream.Read(NodePos);
 end;

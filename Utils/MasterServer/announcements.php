@@ -56,7 +56,7 @@ if($Rev != $MAIN_VERSION)
 			//Nemùžete hrát online dokud neaktualizujete.
 			break;
 		case 'fre':
-			echo "Votre version de KaM Remake n'est pas mise à jour ! Vous avez la version ".$Rev." mais la version la plus récente est la ".$MAIN_VERSION.".||Veuillez télécharger la mise à jour sur: www.kamremake.com";
+			echo "La version de KaM Remake que vous utilisez n'est pas mise à jour !|Vous avez la version ".$Rev." alors que la version la plus récente est la ".$MAIN_VERSION.".||Veuillez télécharger la mise à jour sur www.kamremake.com.";
 			//Vous ne pouvez pas jouer en ligne tant que vous n'avez pas mis à jour votre version.
 			break;
 		case 'pol':
@@ -83,7 +83,7 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-	echo "Welcome to the 4th multiplayer demo :)|Please report any issues.";
+	echo '[$FF6EAF]Welcome to the 4th multiplayer demo[] :)|Please report any issues.';
 	//echo "We will hopefully be releasing an update to the KaM Remake soon! (around 29th of April if testing goes well)||Check the news story on our website for more information: www.kamremake.com";
 	//echo "The recent '500 Internal Server Errors' seem to be resolved, it was a problem at the hosting provider.|Please let us know if you have problems refreshing the server list or these announcements.||Thanks for your patience :)";
 	//echo "We're getting some '500 Internal Server Errors' on our master server which we will try to fix as soon as possible.||If you can't see any servers in the list, please press Refresh Server List to try again.||Updated 19/02/2012.";
