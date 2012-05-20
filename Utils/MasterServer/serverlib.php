@@ -81,6 +81,58 @@ function plural($count, $singular, $plural = 's') {
     return ($count == 1 ? $singular : $plural);
 }
 
+function GetMaps($aFormat, $aRev, $aNum)
+{
+	$result = "";
+	
+	switch($aFormat)
+	{
+		default:
+			$result .= '<table border="1" width="100%"><tr><td><strong>#</strong></td><td><strong>Map</strong></td><td style="text-align: center"><strong>Games played</strong></td><td style="text-align: center"><strong>Average players per game</strong></td></tr>'."\n";
+	}
+	
+	$FileName = GetMapFileName($aRev);
+	if(file_exists($FileName))
+	{
+		$Output = "";
+		$Found = False;
+		//Mutex lock a .mutex file
+		$lock = fopen($FileName.'.mutex', 'w') or die("can't open file");
+		flock($lock, LOCK_EX);
+		$lines = file($FileName);
+		fclose($lock);
+		
+		$mapsPlays = array();
+		$mapsAvgPlayers = array();
+		foreach($lines as $line)
+		{
+			list($Map, $TotalPlayers, $PlayedCounter) = explode("|",trim($line));
+			$mapsPlays[$Map] = $PlayedCounter;
+			$mapsAvgPlayers[$Map] = $TotalPlayers / $PlayedCounter;
+		}
+		arsort($mapsPlays,SORT_NUMERIC);
+		$count = 0;
+		foreach ($mapsPlays as $Map => $Plays)
+		{
+			$count++;
+			switch($aFormat)
+			{
+				default:
+					$result .= "<tr class=\"no_translate\"><td>$count</td><td style=\"white-space: nowrap;\">$Map</td><td style=\"text-align: center\">$Plays</td><td style=\"text-align: center\">".number_format($mapsAvgPlayers[$Map],2)."</td></tr>\n";
+			}
+			if($count == $aNum) break;
+		}
+	}
+	
+	switch($aFormat)
+	{
+		default:
+			$result .= "</table>\n";
+	}
+
+	echo $result;
+}
+
 function AddMap($aMapName, $aPlayerCount, $aRev)
 {
 	if(($aPlayerCount > 0) && ($aPlayerCount <= 8))
@@ -242,7 +294,7 @@ function GetServers($aFormat,$aRev)
 					$Country = IPToCountry($IP);
 					$Warning = '';
 					if(!$Alive) $Warning = ' <IMG src="http://kam.hodgman.id.au/error.png" alt="Server unreachable" style="vertical-align:middle">';
-					$Result .= "<TR><TD><IMG src=\"http://kam.hodgman.id.au/flags/".strtolower($Country).".gif\" alt=\"".GetCountryName($Country)."\">&nbsp;$Name</TD><TD>$Warning$IP</TD><TD style=\"text-align: center\">$PlayerCount</TD></TR>\n";
+					$Result .= "<TR class=\"no_translate\"><TD><IMG src=\"http://kam.hodgman.id.au/flags/".strtolower($Country).".gif\" alt=\"".GetCountryName($Country)."\">&nbsp;$Name</TD><TD>$Warning$IP</TD><TD style=\"text-align: center\">$PlayerCount</TD></TR>\n";
 					break;
 				case "ajaxupdate":
 					$srvsgl = array();
