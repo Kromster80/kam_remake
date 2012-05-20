@@ -54,15 +54,15 @@ LazarusResources.Add('TFormMain','FORMDATA',[
   +'TMenuItem'#17'Debug_PrintScreen'#7'Caption'#6#11'PrintScreen'#7'OnClick'#7
   +#22'Debug_PrintScreenClick'#0#0#9'TMenuItem'#17'Debug_ShowOverlay'#7'Caption'
   +#6#12'Show Overlay'#7'OnClick'#7#22'Debug_ShowOverlayClick'#0#0#9'TMenuItem'
-  +#16'Debug_ShowPanel1'#7'Caption'#6#16'Show Debug panel'#7'OnClick'#7#21'Debu'
-  +'g_ShowPanel1Click'#0#0#9'TMenuItem'#15'Debug_ShowUnits'#7'Caption'#6#10'Sho'
-  +'w Units'#7'OnClick'#7#19'Debug_ShowUnitClick'#0#0#9'TMenuItem'#18'Debug_Ena'
-  +'bleCheats'#7'Caption'#6#12'Debug Cheats'#7'OnClick'#7#23'Debug_EnableCheats'
-  +'Click'#0#0#9'TMenuItem'#15'ExportMainMenu1'#7'Caption'#6#15'Export MainMenu'
-  +#7'OnClick'#7#20'ExportMainMenu1Click'#0#0#0#9'TMenuItem'#7'Export1'#7'Capti'
-  +'on'#6#11'Export Data'#0#9'TMenuItem'#14'Export_TreesRX'#7'Caption'#6#8'Tree'
-  +'s.rx'#7'OnClick'#7#19'Export_TreesRXClick'#0#0#9'TMenuItem'#15'Export_House'
-  +'sRX'#7'Caption'#6#9'Houses.rx'#7'OnClick'#7#20'Export_HousesRXClick'#0#0#9
+  +#16'Debug_ShowPanel1'#7'Caption'#6#16'Show Debug panel'#7'OnClick'#7#20'Debu'
+  +'g_ShowPanelClick'#0#0#9'TMenuItem'#15'Debug_ShowUnits'#7'Caption'#6#10'Show'
+  +' Units'#7'OnClick'#7#19'Debug_ShowUnitClick'#0#0#9'TMenuItem'#18'Debug_Enab'
+  +'leCheats'#7'Caption'#6#12'Debug Cheats'#7'OnClick'#7#23'Debug_EnableCheatsC'
+  +'lick'#0#0#9'TMenuItem'#15'ExportMainMenu1'#7'Caption'#6#15'Export MainMenu'
+  +#7'OnClick'#7#21'Debug_ExportMenuClick'#0#0#0#9'TMenuItem'#7'Export1'#7'Capt'
+  +'ion'#6#11'Export Data'#0#9'TMenuItem'#14'Export_TreesRX'#7'Caption'#6#8'Tre'
+  +'es.rx'#7'OnClick'#7#19'Export_TreesRXClick'#0#0#9'TMenuItem'#15'Export_Hous'
+  +'esRX'#7'Caption'#6#9'Houses.rx'#7'OnClick'#7#20'Export_HousesRXClick'#0#0#9
   ,'TMenuItem'#14'Export_UnitsRX'#7'Caption'#6#8'Units.rx'#7'OnClick'#7#19'Expo'
   +'rt_UnitsRXClick'#0#0#9'TMenuItem'#12'Export_GUIRX'#7'Caption'#6#6'GUI.rx'#7
   +'OnClick'#7#17'Export_GUIRXClick'#0#0#9'TMenuItem'#16'Export_GUIMainRX'#7'Ca'

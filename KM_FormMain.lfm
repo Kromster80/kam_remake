@@ -203,7 +203,7 @@ object FormMain: TFormMain
       end
       object Debug_ShowPanel1: TMenuItem
         Caption = 'Show Debug panel'
-        OnClick = Debug_ShowPanel1Click
+        OnClick = Debug_ShowPanelClick
       end
       object Debug_ShowUnits: TMenuItem
         Caption = 'Show Units'
@@ -215,7 +215,7 @@ object FormMain: TFormMain
       end
       object ExportMainMenu1: TMenuItem
         Caption = 'Export MainMenu'
-        OnClick = ExportMainMenu1Click
+        OnClick = Debug_ExportMenuClick
       end
     end
     object Export1: TMenuItem

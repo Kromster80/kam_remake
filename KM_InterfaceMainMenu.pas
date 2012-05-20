@@ -4,6 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, ShellAPI, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
   KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
   KM_InterfaceDefaults, KM_MapView, KM_ServerQuery;
@@ -1930,7 +1931,12 @@ procedure TKMMainMenuInterface.Credits_LinkClick(Sender: TObject);
   //This can't be moved to e.g. KM_Utils because the dedicated server needs that, and it must be Linux compatible
   procedure GoToURL(aUrl:string);
   begin
-    ShellExecute(Application.Handle, 'open', PChar(aUrl),nil,nil, SW_SHOWNORMAL)
+    {$IFDEF WDC}
+    ShellExecute(Application.Handle, 'open', PChar(aUrl),nil,nil, SW_SHOWNORMAL);
+    {$ENDIF}
+    {$IFDEF FPC}
+    OpenURL(aUrl);
+    {$ENDIF}
   end;
 
 begin
