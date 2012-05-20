@@ -285,7 +285,8 @@ begin
   fIsSoundInitialized := InitOpenAL;
   if not fIsSoundInitialized then begin
     fLog.AddToLog('OpenAL warning. OpenAL could not be initialized.');
-    Application.MessageBox('OpenAL could not be initialized. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
+    MessageDlg('OpenAL could not be initialized. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
     Exit;
   end;
@@ -294,7 +295,8 @@ begin
   fALDevice := alcOpenDevice(nil); // this is supposed to select the "preferred device"
   if fALDevice = nil then begin
     fLog.AddToLog('OpenAL warning. Device could not be opened.');
-    Application.MessageBox('Device could not be opened. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
+    MessageDlg('OpenAL device could not be opened. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
     Exit;
   end;
@@ -303,7 +305,8 @@ begin
   Context := alcCreateContext(fALDevice, nil);
   if Context = nil then begin
     fLog.AddToLog('OpenAL warning. Context could not be created.');
-    Application.MessageBox('Context could not be created. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
+    MessageDlg('OpenAL context could not be created. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
     Exit;
   end;
@@ -311,7 +314,8 @@ begin
   //Set active context
   if alcMakeContextCurrent(Context) > 1 then begin //valid returns are AL_NO_ERROR=0 and AL_TRUE=1
     fLog.AddToLog('OpenAL warning. Context could not be made current.');
-    Application.MessageBox('Context could not be made current. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
+    MessageDlg('OpenAL context could not be made current. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
     Exit;
   end;
@@ -374,7 +378,8 @@ begin
   ErrCode := alcGetError(fALDevice);
   if ErrCode <> ALC_NO_ERROR then begin
     fLog.AddToLog('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
-    Application.MessageBox(PChar('There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.'),'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
+    //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
+    MessageDlg('There is OpenAL error '+IntToStr(ErrCode)+' raised. Sound will be disabled.', mtWarning, [mbOk], 0);
     fIsSoundInitialized := False;
   end;
 end;
