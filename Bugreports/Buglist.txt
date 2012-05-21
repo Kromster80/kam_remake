@@ -1,6 +1,7 @@
 ﻿Since r3392:
 <===================================================================================>
  +	Improved units/objects visibility along map edges
+ +	Add link to kamremake.com (and email?) from inside the game (e.g. from main menu) so that ppl who got Remake from someplace else still had a clear way to our place
  +	Crash if you change locale and don't have OpenAL installed due to using non-blocking Application.MessageBox instead of MessageDlg
 	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	If I play a campaign up to mission say 9, then load an old save of mission 5, quit and press restart, it will load basesave which is mission 9 (we should make a basesave after loading saves?)

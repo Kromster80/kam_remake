@@ -4,8 +4,10 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	The multiplayer in-game player list could be ordered (grouped) by teams
 	Show the player's name above each group (flag holder) while some key is kept pressed (conflicts with per-locale army controls)
 		Krom: I think we can discount per-locale army controls (see comment in code and link to GameDev.StackExchange) and implement it
+		Lewin: I agree
 	Scrolling around the map using middle mouse click, as in TPR
 		Krom: Don't have anything against it
+		Lewin: Me either
 	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
 	Show the mining radius of the selected house or house that you are placing
 		Krom: Idea is okay. We need to display mining "strength" (think coalmine) as well, in some nice way, also show ranges of all houses of the same king to allow player to plan his mining better (e.g. avoid overlaps). Iron/Gold don't need this mostly, but Coal/Fish/Towers - do.
@@ -16,6 +18,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Separate script command for AI to repair its houses
 	New column in load/replays menus: Date/time (from file modified date?)
 		Krom: Think we can write/read the data to/from replay/save files as modified date is not very trustworthy
+		Lewin: Sounds good
 	Add buttons to Replay to see FOW as each player or everything
 	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay)
 	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
@@ -24,4 +27,5 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Krom: I disagree. This is not as simple as a matter of just extending it. We need to discuss
 	Make lobby flag selection using list of countries that speak that language. With English you could choose USA, UK, AU, NZ. With Spanish you could choose Spain, Argininia, Chille.
 		Krom: Maybe we can add country selection to options or MP menu, irregardless of options locale
-	Add link to kamremake.com (and email?) from inside the game (e.g. from main menu) so that ppl who got Remake from someplace else still had a clear way to our place
+		Lewin: Sounds ok. Means we need to include ~200 flags I guess, but with RXX packing that's no big problem.
+	Units start with more health on average in the KaM Remake than in TPR/TSK? (hunger is less of a problem near the start)
