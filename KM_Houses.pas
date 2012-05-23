@@ -1113,6 +1113,10 @@ end;
 
 
 //Request more resources (if distribution of wares has changed)
+//todo: Situation: I have timber set to 5 for the weapons workshop, and no timber in my village.
+//      I change timber to 0 for the weapons workshop. My woodcutter starts again and 5 timber is still
+//      taken to the weapons workshop because the request doesn't get canceled.
+//      Maybe it's possible to cancel the current requests if no serf has taken them yet?
 procedure TKMHouse.UpdateResRequest;
 var i:byte; Count:shortint;
 begin

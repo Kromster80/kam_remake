@@ -1342,7 +1342,7 @@ begin
       TKMLabel.Create(Panel_Options_Game,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Game,0,20,220,30);
 
-      CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,176,20,fTextLibrary[TX_MENU_OPTIONS_AUTOSAVE], fnt_Metal);
+      CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,196,20,fTextLibrary[TX_MENU_OPTIONS_AUTOSAVE], fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
     //Graphics section
@@ -1367,8 +1367,8 @@ begin
 
       TrackBar_Options_SFX       := TKMTrackBar.Create(Panel_Options_Sound, 10, 27, 180, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
       TrackBar_Options_Music     := TKMTrackBar.Create(Panel_Options_Sound, 10, 77, 180, OPT_SLIDER_MIN, OPT_SLIDER_MAX);
-      CheckBox_Options_MusicOff  := TKMCheckBox.Create(Panel_Options_Sound, 12, 127, 176, 20, fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
-      CheckBox_Options_ShuffleOn := TKMCheckBox.Create(Panel_Options_Sound, 12, 147, 184, 20, fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
+      CheckBox_Options_MusicOff  := TKMCheckBox.Create(Panel_Options_Sound, 12, 127, 196, 20, fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
+      CheckBox_Options_ShuffleOn := TKMCheckBox.Create(Panel_Options_Sound, 12, 147, 196, 20, fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
       TrackBar_Options_SFX.Caption   := fTextLibrary[TX_MENU_SFX_VOLUME];
       TrackBar_Options_Music.Caption := fTextLibrary[TX_MENU_MUSIC_VOLUME];
       TrackBar_Options_SFX.OnChange      := Options_Change;

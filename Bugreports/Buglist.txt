@@ -3,6 +3,7 @@
  +	Improved units/objects visibility along map edges
  +	Add link to kamremake.com (and email?) from inside the game (e.g. from main menu) so that ppl who got Remake from someplace else still had a clear way to our place
  +	Crash if you change locale and don't have OpenAL installed due to using non-blocking Application.MessageBox instead of MessageDlg
+	Placing a group so a member is under a house causes a crash. The unit under the house should be placed nearby instead.
 	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	If I play a campaign up to mission say 9, then load an old save of mission 5, quit and press restart, it will load basesave which is mission 9 (we should make a basesave after loading saves?)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -23,6 +24,8 @@
 	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2)
 	It would be nice if campaign progress was not lost between updates (that should be easier to keep compatible than saves)
 	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
+	RCE in TKMFogOfWar.CheckVerticeRevelation called from TKMProjectiles.UpdateState. Lots of bug reports uploaded with this error (e.g. 23/05/12)
+	Fix function of the "Restart" button so it always restarts the mission you were playing, not just loads basesave
 
 	Dots and lines displaying on tile edges [Krom]
 	Sandhills cause water next to shore tiles to appear darker with square edges
