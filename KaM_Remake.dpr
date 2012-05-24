@@ -17,6 +17,7 @@ uses
 
   KM_AIAttacks in 'KM_AIAttacks.pas',
   KM_ArmyEvaluation in 'KM_ArmyEvaluation.pas',
+  KM_BinPacking in 'KM_BinPacking.pas',
   KM_BuildList in 'KM_BuildList.pas',
   KM_Campaigns in 'KM_Campaigns.pas',
   KM_CityPlanner in 'KM_CityPlanner.pas',

@@ -95,6 +95,7 @@
 			</DCCReference>
 			<DCCReference Include="KM_AIAttacks.pas"/>
 			<DCCReference Include="KM_ArmyEvaluation.pas"/>
+			<DCCReference Include="KM_BinPacking.pas"/>
 			<DCCReference Include="KM_BuildList.pas"/>
 			<DCCReference Include="KM_Campaigns.pas"/>
 			<DCCReference Include="KM_CityPlanner.pas"/>

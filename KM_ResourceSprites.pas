@@ -58,7 +58,7 @@ type
     procedure Expand;
     procedure MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; out BaseRAM, ColorRAM, TexCount: Cardinal);
     procedure MakeGFX_StripPacking(aTexType: TTexFormat; aStartingIndex: Word; out BaseRAM, ColorRAM, TexCount: Cardinal);
-    procedure SaveTextureToBMP(aWidth, aHeight: Word; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
+    procedure SaveTextureToBMP(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray; aSaveAlpha: Boolean);
   public
     constructor Create; overload;
     constructor Create(aRT: TRXType; aPalettes: TKMPalettes; aRender: TRender); overload;
@@ -929,9 +929,9 @@ begin
     else
       GFXData[fRT, LeftIndex].TexID := fRender.GenTexture(WidthPOT, HeightPOT, @TD[0], aTexType);
 
-    SaveTextureToBMP(WidthPOT, HeightPOT, GFXData[fRT, LeftIndex].TexID, @TD[0], False);
+    SaveTextureToBMP(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_Strip' + IntToStr(LeftIndex) + '-' + IntToStr(RightIndex), @TD[0], False);
     if HasMsk then
-      SaveTextureToBMP(WidthPOT, HeightPOT, GFXData[fRT, LeftIndex].TexID, @TA[0], False);
+      SaveTextureToBMP(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_StripMask' + IntToStr(LeftIndex) + '-' + IntToStr(RightIndex), @TA[0], False);
 
     SetLength(TD, 0);
     SetLength(TA, 0);
@@ -964,6 +964,7 @@ var
   ID, I, K, L, M: Integer;
   TD: array of Cardinal;
   TA: array of Cardinal;
+  CT, CL, Pixel: Cardinal;
   Tx, Al: Cardinal;
   SpriteSizes: TIndexSizeArray;
   SpriteInfo: TBinArray;
@@ -981,6 +982,9 @@ begin
   //Prepare atlases
   for I := 0 to High(SpriteInfo) do
   begin
+    //todo: Assert that atlas dimensions are POT
+    SetLength(TD, 0);
+    SetLength(TA, 0);
     SetLength(TD, SpriteInfo[I].Width * SpriteInfo[I].Height);
     SetLength(TA, SpriteInfo[I].Width * SpriteInfo[I].Height);
 
@@ -988,12 +992,15 @@ begin
     //todo: Add padding to the sprite if necessary
     for K := 0 to High(SpriteInfo[I].Sprites) do
     begin
-      ID := SpriteInfo[I].Sprites[K].SpriteID + aStartingIndex;
+      ID := SpriteInfo[I].Sprites[K].SpriteID;
       for L := 0 to fRXData.Size[ID].Y - 1 do
       for M := 0 to fRXData.Size[ID].X - 1 do
       begin
-        TD[(SpriteInfo[I].Sprites[K].PosY + L) * SpriteInfo[I].Width + SpriteInfo[I].Sprites[K].PosX + M] := fRXData.RGBA[ID, L * fRXData.Size[ID].X + M];
-        TA[(SpriteInfo[I].Sprites[K].PosY + L) * SpriteInfo[I].Width + SpriteInfo[I].Sprites[K].PosX + M] := (fRXData.Mask[ID, L * fRXData.Size[ID].X + M] shl 24) or $FFFFFF;
+        CT := SpriteInfo[I].Sprites[K].PosY;
+        CL := SpriteInfo[I].Sprites[K].PosX;
+        Pixel := (CT + L) * SpriteInfo[I].Width + CL + M;
+        TD[Pixel] := fRXData.RGBA[ID, L * fRXData.Size[ID].X + M];
+        TA[Pixel] := (fRXData.Mask[ID, L * fRXData.Size[ID].X + M] shl 24) or $FFFFFF;
       end;
     end;
 
@@ -1004,7 +1011,7 @@ begin
     //Now that we know texture IDs we can fill GFXData structure
     for K := 0 to High(SpriteInfo[I].Sprites) do
     begin
-      ID := SpriteInfo[I].Sprites[K].SpriteID + aStartingIndex;
+      ID := SpriteInfo[I].Sprites[K].SpriteID;
 
       GFXData[fRT, ID].TexID := Tx;
       GFXData[fRT, ID].AltID := Al;
@@ -1020,7 +1027,9 @@ begin
     Inc(ColorRAM, (SpriteInfo[I].Width * SpriteInfo[I].Height) div 2); //GL_ALPHA4
     Inc(TexCount);
 
-    SaveTextureToBMP(SpriteInfo[I].Width, SpriteInfo[I].Height, I, @TD[0], False);
+    SaveTextureToBMP(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_Atlas' + IntToStr(I), @TD[0], False);
+    //todo: Optimize Alpha
+    SaveTextureToBMP(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_AtlasAlpha' + IntToStr(I), @TA[0], False);
   end;
 end;
 
@@ -1086,7 +1095,7 @@ begin
 
     GFXData[fRT, ID1].TexID := fRender.GenTexture(WidthPOT, HeightPOT, @TD[0], tf_AlphaTest);
 
-    SaveTextureToBMP(WidthPOT, HeightPOT, GFXData[fRT, ID1].TexID, @TD[0], True);
+    SaveTextureToBMP(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_AlphaTest' + IntToStr(ID1), @TD[0], True);
 
     SetLength(TD, 0);
     GFXData[fRT,ID1].AltID := 0;
@@ -1100,13 +1109,13 @@ begin
 end;
 
 
-procedure TKMSpritePack.SaveTextureToBMP(aWidth, aHeight: Word; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
+procedure TKMSpritePack.SaveTextureToBMP(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray; aSaveAlpha: Boolean);
 var
   I, K: Word;
   Bmp: TBitmap;
   Folder: string;
 begin
-  if WriteAllTexturesToBMP then
+  if EXPORT_SPRITE_ATLASES then
   begin
     Folder := ExeDir + 'Export\GenTextures\';
     ForceDirectories(Folder);
@@ -1118,7 +1127,7 @@ begin
     for I := 0 to aHeight - 1 do
       for K := 0 to aWidth - 1 do
         Bmp.Canvas.Pixels[K, I] := ((PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^) AND $FFFFFF; //Ignore alpha
-    Bmp.SaveToFile(Folder + Int2Fix(aIndex, 4) + '.bmp');
+    Bmp.SaveToFile(Folder + aFilename + '.bmp');
 
     //these Alphas are worth looking at
     if aSaveAlpha then
@@ -1126,7 +1135,7 @@ begin
       for I := 0 to aHeight - 1 do
         for K := 0 to aWidth - 1 do
           Bmp.Canvas.Pixels[K, I] := ((PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^) SHR 24 * 65793; // convert A to RGB Greyscale
-      Bmp.SaveToFile(Folder + Int2Fix(aIndex, 4) + 'a.bmp');
+      Bmp.SaveToFile(Folder + aFilename + 'a.bmp');
     end;
 
     Bmp.Free;
