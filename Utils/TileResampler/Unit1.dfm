@@ -17,7 +17,7 @@ object Form1: TForm1
   object Button1: TButton
     Left = 88
     Top = 24
-    Width = 163
+    Width = 161
     Height = 25
     Caption = 'Resample 640 > 512'
     TabOrder = 0
@@ -25,7 +25,7 @@ object Form1: TForm1
   end
   object Button2: TButton
     Left = 88
-    Top = 56
+    Top = 48
     Width = 161
     Height = 25
     Caption = 'Exclude Common From Set'
@@ -34,7 +34,7 @@ object Form1: TForm1
   end
   object Button3: TButton
     Left = 88
-    Top = 120
+    Top = 88
     Width = 161
     Height = 25
     Caption = 'Compress file ZLibEx'
@@ -43,7 +43,7 @@ object Form1: TForm1
   end
   object Button4: TButton
     Left = 88
-    Top = 152
+    Top = 112
     Width = 161
     Height = 25
     Caption = 'Decompress file ZLibEx'
@@ -52,7 +52,7 @@ object Form1: TForm1
   end
   object Button5: TButton
     Left = 88
-    Top = 200
+    Top = 152
     Width = 161
     Height = 25
     Caption = 'Split'

@@ -83,9 +83,10 @@ begin
   for K := 0 to W - 1 do
   begin
     T := fSprites.RXData.RGBA[aIndex, I * W + K];
-    //Invert Alpha
-    T := (T and $FFFFFF) or ((255 - T shr 24) shl 24);
-    aPNG.Canvas.Pixels[K,I] := T;
+
+    //RGB and Alpha components are stored in two separate places
+    aPNG.Pixels[K,I] := T and $FFFFFF;
+    aPNG.AlphaScanline[I]^[K] := T shr 24;
   end;
 end;
 
