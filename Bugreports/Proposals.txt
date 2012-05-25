@@ -30,3 +30,5 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Lewin: Sounds ok. Means we need to include ~200 flags I guess, but with RXX packing that's no big problem.
 	Units start with more health on average in the KaM Remake than in TPR/TSK? (hunger is less of a problem near the start)
 		Krom: Thats an interesting thought. Could you check it with TPR/TSK?
+	Do not send a Recruit to WatchTower when Player has built it but did not connected it with road
+		Krom: I think that makes good sense. But if Player made 10 towers and 10 recruits and only then connected them with roads - will/should recruits walk from Barracks to Towers?
