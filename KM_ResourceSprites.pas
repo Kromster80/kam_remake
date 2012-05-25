@@ -120,6 +120,7 @@ type
 
 var
   GFXData: array [TRXType] of array of record
+    //todo: Split into separate Tex and Alt entries to allow to pack Alt's better
     TexID, AltID: Cardinal; //AltID used for team colors
     u1,v1,u2,v2: Single; //Top-Left, Bottom-Right uv coords
     PxWidth, PxHeight: Word;
@@ -200,13 +201,16 @@ end;
 //Convert paletted data into RGBA and select Team color layer from it
 procedure TKMSpritePack.Expand;
   function HousesPal(aID: Integer): TKMPalData;
-  const wip: array[0..55] of word = (3,4,25,43,44,116,118,119,120,121,123,126,127,136,137,140,141,144,145,148,149,213,214,237,238,241,242,243,246,247,252,253,257,258,275,276,336,338,360,361,365,366,370,371,380,381,399,400,665,666,670,671,1658,1660,1682,1684);
-  var I: Byte;
+  const
+    //These are sprites with house building steps
+    WIP: array[0..55] of word = (3,4,25,43,44,116,118,119,120,121,123,126,127,136,137,140,141,144,145,148,149,213,214,237,238,241,242,243,246,247,252,253,257,258,275,276,336,338,360,361,365,366,370,371,380,381,399,400,665,666,670,671,1658,1660,1682,1684);
+  var
+    I: Byte;
   begin
     Result := fPalettes.DefDal;
 
-    for I := 0 to High(wip) do
-    if aID = wip[I] then
+    for I := 0 to High(WIP) do
+    if aID = WIP[I] then
     begin
       Result := fPalettes[pal_lin];
       Exit;
@@ -242,6 +246,7 @@ begin
         L := Data[H, Pixel]; //0..255
 
         if RXInfo[fRT].TeamColors and (L in [24..30])
+        //todo: Check this one and ((fRT <> rxHouses) or (Palette <> fPalettes[pal_lin]))
         and ((fRT <> rxHouses) or (H > 400))  //Skip the Inn Weapon Smithy and the rest
         and ((fRT <> rxGui) or InRange(H, 141, 154) or InRange(H, 521, 550)) then //Unit icons and scrolls
         begin
@@ -960,6 +965,10 @@ end;
 
 //This algorithm is planned to take advantage of more efficient 2D bin packing
 procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; out BaseRAM, ColorRAM, TexCount: Cardinal);
+  function UseThisSprite(I: Integer): Boolean;
+  begin
+    Result := (fRXData.Size[I].X * fRXData.Size[I].Y <> 0);
+  end;
 var
   ID, I, K, L, M: Integer;
   TD: array of Cardinal;
@@ -970,12 +979,16 @@ var
   SpriteInfo: TBinArray;
 begin
   SetLength(SpriteSizes, fRXData.Count - aStartingIndex);
+  K := 0;
   for I := aStartingIndex to fRXData.Count - 1 do
+  if UseThisSprite(I) then
   begin
-    SpriteSizes[I - aStartingIndex].ID := I;
-    SpriteSizes[I - aStartingIndex].X := fRXData.Size[I].X;
-    SpriteSizes[I - aStartingIndex].Y := fRXData.Size[I].Y;
+    SpriteSizes[K].ID := I;
+    SpriteSizes[K].X := fRXData.Size[I].X;
+    SpriteSizes[K].Y := fRXData.Size[I].Y;
+    Inc(K);
   end;
+  SetLength(SpriteSizes, K);
 
   BinPack(SpriteSizes, fPad, SpriteInfo);
 
@@ -1043,7 +1056,7 @@ var
   ID1, ID2: Integer; //RGB and A index
   I, K, Lay, StepCount: Integer;
   T, tx, ty: Integer;
-  alpha: Byte;
+  Alpha: Byte;
   WidthPOT, HeightPOT: Integer;
   TD: array of Cardinal;
 begin
@@ -1074,16 +1087,20 @@ begin
     for I := 0 to fRXData.Size[ID1].Y - 1 do
       for K := 0 to fRXData.Size[ID1].X - 1 do
         TD[I * WidthPOT + K] := fRXData.RGBA[ID1, I * fRXData.Size[ID1].X + K];
+    GFXData[fRT, ID1].TexID := fRender.GenTexture(WidthPOT, HeightPOT, @TD[0], tf_AlphaTest);
+    SaveTextureToBMP(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_AlphaTest' + IntToStr(ID1), @TD[0], True);
 
+
+    //Fill in alpha RXData
     //Apply mask to where colors are (yes, it needs to be done in 2 steps, since offsets can mismatch)
     tx := fRXData.Pivot[ID2].x - fRXData.Pivot[ID1].x;
     ty := (fRXData.Pivot[ID2].y - fRXData.Pivot[ID1].y)*WidthPOT;
-    for i := 0 to fRXData.Size[ID2].Y-1 do
-    for k := 0 to fRXData.Size[ID2].X-1 do
-    begin
+    for I := 0 to fRXData.Size[ID2].Y - 1 do
+      for K := 0 to fRXData.Size[ID2].X - 1 do
+      begin
       t := i*WidthPOT+k + tx + ty; //Shift by pivot, always positive
 
-      Alpha := fRXData.RGBA[ID2, i * fRXData.Size[ID2].X + k] AND $FF;
+      Alpha := fRXData.RGBA[ID2, I * fRXData.Size[ID2].X + K] and $FF;
 
       //Steps are going in normal order 1..n, but that last step has Alpha=0
       if TD[t] <> 0 then
@@ -1093,12 +1110,10 @@ begin
           TD[t] := TD[t] AND $01FFFFFF; //Place it as last step
     end;
 
-    GFXData[fRT, ID1].TexID := fRender.GenTexture(WidthPOT, HeightPOT, @TD[0], tf_AlphaTest);
-
-    SaveTextureToBMP(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_AlphaTest' + IntToStr(ID1), @TD[0], True);
+    GFXData[fRT, ID1].AltID := fRender.GenTexture(WidthPOT, HeightPOT, @TD[0], tf_AlphaTest);
+    SaveTextureToBMP(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_AlphaTest' + IntToStr(ID2), @TD[0], True);
 
     SetLength(TD, 0);
-    GFXData[fRT,ID1].AltID := 0;
     GFXData[fRT,ID1].u1    := 0;
     GFXData[fRT,ID1].v1    := 0;
     GFXData[fRT,ID1].u2    := fRXData.Size[ID1].X/WidthPOT;

@@ -801,12 +801,39 @@ end;
 
 procedure TRenderPool.RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX,pY: Single; aFOW: Byte);
 begin
-  //NOTION: This function does not work on some GPUs will need to replace it with simplier more complicated way
-  //glDisable(GL_BLEND);
-  glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_GREATER, 1-Param);
-  glBlendFunc(GL_ONE, GL_ZERO);
+  //Setup stencil mask
+  glEnable(GL_STENCIL_TEST);
+  glStencilFunc(GL_ALWAYS, 1, 1);
+  glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 
+  //Do not render anything on screen while setting up stencil mask
+  glColorMask(False, False, False, False);
+
+  //Render stencil mask
+  glEnable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_GREATER, 1 - Param);
+  glBlendFunc(GL_ONE, GL_ZERO);
+    with GFXData[aRX,aID] do
+    begin
+      glColor3f(1, 1, 1);
+      glBindTexture(GL_TEXTURE_2D, AltID);
+      glBegin(GL_QUADS);
+        glTexCoord2f(u1,v2); glVertex2f(pX-1                     ,pY-1         );
+        glTexCoord2f(u2,v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
+        glTexCoord2f(u2,v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(u1,v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+      glEnd;
+      glBindTexture(GL_TEXTURE_2D, 0);
+    end;
+  glDisable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_ALWAYS, 0);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Revert alpha mode
+
+  glStencilFunc(GL_EQUAL, 1, 1);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+  glColorMask(True, True, True, True);
+
+  //Render sprite
   with GFXData[aRX,aID] do
   begin
     glColor3ub(aFOW, aFOW, aFOW);
@@ -820,22 +847,7 @@ begin
     glBindTexture(GL_TEXTURE_2D, 0);
   end;
 
-  glDisable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_ALWAYS,0);
-  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
-  //glEnable(GL_BLEND);
-
-  if SHOW_SPRITES_RECT then
-  begin
-    glPushAttrib(GL_LINE_BIT);
-    glLineWidth(1);
-    glColor3f(1,1,1);
-    glBegin(GL_LINE_LOOP);
-      with GFXData[aRX,aID] do
-        glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-    glEnd;
-    glPopAttrib;
-  end;
+  glDisable(GL_STENCIL_TEST);
 end;
 
 

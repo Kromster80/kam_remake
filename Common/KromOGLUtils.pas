@@ -71,7 +71,7 @@ begin
     cAccumBlueBits  := 0;                    // Number of blue bits in a-buffer
     cAccumAlphaBits := 0;                    // Number of alpha bits in a-buffer
     cDepthBits      := 16;                   // Specifies the depth of the depth buffer
-    cStencilBits    := 0;                    // Turn off stencil buffer
+    cStencilBits    := 8;                    // Turn off stencil buffer
     cAuxBuffers     := 0;                    // Not supported
     iLayerType      := PFD_MAIN_PLANE;       // Ignored
     bReserved       := 0;                    // Number of overlay and underlay planes
@@ -225,7 +225,7 @@ end;
 procedure SetRenderDefaults;
 begin
   glClearColor(0, 0, 0, 0); 	   //Background
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClearStencil(0);
   glShadeModel(GL_SMOOTH);                 //Enables Smooth Color Shading
   glPolygonMode(GL_FRONT, GL_FILL);
   glEnable(GL_NORMALIZE);

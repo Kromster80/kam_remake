@@ -1,4 +1,4 @@
-Make sure these are checked:	//Assigned to Krom
+Make sure these are checked:
 
 	Remove FastMM from 'uses'
 	True/false switches in KM_Defaults
