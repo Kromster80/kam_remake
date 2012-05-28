@@ -58,10 +58,10 @@ begin
 
   with GFXData[rxTiles, Index+1] do
   begin
-    Result[TexO[1], 1] := u1; Result[TexO[1], 2] := v1;
-    Result[TexO[2], 1] := u1; Result[TexO[2], 2] := v2;
-    Result[TexO[3], 1] := u2; Result[TexO[3], 2] := v2;
-    Result[TexO[4], 1] := u2; Result[TexO[4], 2] := v1;
+    Result[TexO[1], 1] := Tex.u1; Result[TexO[1], 2] := Tex.v1;
+    Result[TexO[2], 1] := Tex.u1; Result[TexO[2], 2] := Tex.v2;
+    Result[TexO[3], 1] := Tex.u2; Result[TexO[3], 2] := Tex.v2;
+    Result[TexO[4], 1] := Tex.u2; Result[TexO[4], 2] := Tex.v1;
   end;
 end;
 

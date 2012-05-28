@@ -7,13 +7,18 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   dglOpenGL, KromOGLUtils, KromUtils, Math, KM_TGATexture;
 
-const
-  MAX_TEX_RESOLUTION  = 512; //Maximum texture resolution client can handle (used for packing sprites)
+
+type
+  TTexFormat = (
+    tf_RGB5A1,
+    tf_RGBA8,
+    tf_Alpha8 //Mask used for team colors and house construction steps (GL_ALPHA)
+    );
+  const
+  TexFormatSize: array [TTexFormat] of Byte = (2, 4, 1);
 
 type
   TCardinalArray = array of Cardinal;
-  TTexFormat = (tf_Normal, tf_NormalAlpha, tf_AltID, tf_AlphaTest);
-
   TRenderMode = (rm2D, rm3D);
 
   //General OpenGL handling
@@ -131,24 +136,18 @@ begin
 
   Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
 
-  //@Krom: Make textures support an alpha channel for nice shadows. How does it work for houses on top of AlphaTest?
-  //@Lewin: AlphaTest does not supports semitransparency, because it uses A chanel to do the testing
-  //we will need to use something else
-  //@Krom: I'd like to at least make fully built houses have smooth shadows if we can't make it for them all.
-
+  //GL_ALPHA4  (0-0-0-4 bit) - used only for flags, but may bring unexpected bugs
   //GL_ALPHA   (0-0-0-8 bit) - used only for flags, but may bring unexpected bugs
   //GL_RGB5_A1 (5-5-5-1 bit) - uses 185mb GPURAM
   //GL_RGBA    (8-8-8-8 bit) - uses 323mb GPURAM (but allows fuzzy shadows)
   //Figures are before trimming - only ratio matters
   case Mode of
-    //Houses under construction
-    tf_AlphaTest:   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Base layer
-    tf_Normal:      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tf_RGB5A1:        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Base layer with alpha channel for shadows
-    tf_NormalAlpha: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
-    //Team color layer
-    tf_AltID:       glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA4,  DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tf_RGBA8:   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    //Team color layer (4 bit would be okay), but house construction steps need 8bit resolution
+    tf_Alpha8: glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA,  DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
   end;
 end;
 

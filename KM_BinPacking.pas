@@ -68,8 +68,8 @@ var
   I, K: Integer;
   BinManager: TBinManager;
 begin
-  {//Stub method - fit each sprite into own POT texture
-  SetLength(aOut, Length(aItems));
+  //Stub method - fit each sprite into own POT texture
+  {SetLength(aOut, Length(aItems));
   for I := 0 to High(aItems) do
   begin
     aOut[I].Width := MakePOT(aItems[I].X + aPad * 2);
@@ -92,7 +92,7 @@ begin
         SwapInt(aItems[I].Y, aItems[K].Y);
       end;
 
-  BinManager := TBinManager.Create(1024, 1024);
+  BinManager := TBinManager.Create(512, 512);
   try
     for I := 0 to High(aItems) do
       if (aItems[I].X * aItems[I].Y <> 0) then

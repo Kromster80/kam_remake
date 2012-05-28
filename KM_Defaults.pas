@@ -84,7 +84,7 @@ var
   SHOW_UNIT_MOVEMENT    :Boolean = False; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
   SHOW_WALK_CONNECT     :Boolean = False; //Show floodfill areas of interconnected areas
   TEST_VIEW_CLIP_INSET  :Boolean = False; //Renders smaller area to see if everything gets clipped well
-  SHOW_SPRITES_RECT     :Boolean = False; //Render outline around every sprite
+  OUTLINE_ALL_SPRITES   :Boolean = False; //Render outline around every sprite
   SHOW_ATTACK_RADIUS    :Boolean = False; //Render towers/archers attack radius
   DISPLAY_SOUNDS        :Boolean = False; //Display sounds on map
   RENDER_3D             :Boolean = False; //Experimental 3D render
@@ -110,7 +110,7 @@ var
   WRITE_WALKTO_LOG      :Boolean = False; //Write even more output into log + slows down game noticably
   WRITE_RECONNECT_LOG   :Boolean = True;
   WriteResourceInfoToTXT:Boolean = False; //Whenever to write txt files with defines data properties on loading
-  EXPORT_SPRITE_ATLASES :Boolean = False; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
+  EXPORT_SPRITE_ATLASES :Boolean = True; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
   //Statistic
   CtrlPaintCount: Word; //How many Controls were painted in last frame
 
@@ -722,6 +722,7 @@ const
 
 var
   ExeDir: string;
+  HOUSE_PROGRESS: Single;
 
   GameCursor: record
     Float: TKMPointF;    //Precise cursor position in map coords

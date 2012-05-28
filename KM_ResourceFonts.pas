@@ -136,7 +136,7 @@ begin
         inc(AdvX, 1+Width+1);
       end;
 
-  TexID := aRender.GenTexture(TexWidth, TexWidth, @TD[0], tf_Normal);
+  TexID := aRender.GenTexture(TexWidth, TexWidth, @TD[0], tf_RGB5A1);
 
   if ExportToBMP then
   begin

@@ -19,16 +19,16 @@ type
 
   //Individual palette
   TKMPalData = class
-    fData: array [0..255,1..3] of byte;
+    fData: array [0..255,1..3] of Byte;
   public
     procedure LoadFromFile(const aFileName: string);
-    function Color32(aIdx:byte):Cardinal;
+    function Color32(aIdx: Byte): Cardinal;
   end;
 
   //All the palettes
   TKMPalettes = class
   private
-    fPalData:array [TKMPal] of TKMPalData;
+    fPalData: array [TKMPal] of TKMPalData;
     function GetPalData(aIndex: TKMPal): TKMPalData;
   public
     constructor Create;
@@ -46,7 +46,7 @@ implementation
 
 const
   //Palette filenames, except pal_lin which is generated proceduraly
-  PalFiles:array[TKMPal]of string = (
+  PalFiles: array [TKMPal] of string = (
     'map.bbm',
     'pal0.bbm', //'pal1.bbm', 'pal2.bbm', 'pal3.bbm', 'pal4.bbm', 'pal5.bbm', unused
     'setup.bbm',
@@ -57,9 +57,13 @@ const
 
 
 { TKMPalData }
-function TKMPalData.Color32(aIdx:byte): Cardinal;
+function TKMPalData.Color32(aIdx: Byte): Cardinal;
 begin
-  Result := fData[aIdx,1] + fData[aIdx,2] shl 8 + fData[aIdx,3] shl 16 + (byte(aIdx<>0)*255 shl 24);
+  //Index 0 means that pixel is transparent
+  if aIdx = 0 then
+    Result := $00000000
+  else
+    Result := fData[aIdx,1] + fData[aIdx,2] shl 8 + fData[aIdx,3] shl 16 or $FF000000;
 end;
 
 

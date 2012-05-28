@@ -752,7 +752,7 @@ var
   F: TColor4;
 begin
   //If there's AltID - render 2 layers instead of ordinary 1
-  TopLay := 1 + Byte(GFXData[aRX,aID].AltID <> 0);
+  TopLay := 1 + Byte(GFXData[aRX, aID].Alt.ID <> 0);
 
   for Lay := 1 to TopLay do
   with GFXData[aRX, aID] do
@@ -760,7 +760,14 @@ begin
     if Lay = 1 then
     begin
       glColor3ub(aFOW, aFOW, aFOW);
-      glBindTexture(GL_TEXTURE_2D, TexID);
+      glBindTexture(GL_TEXTURE_2D, Tex.ID);
+      if HighlightRed then glColor3f(1,0,0);
+      glBegin(GL_QUADS);
+        glTexCoord2f(Tex.u1, Tex.v2); glVertex2f(pX                     , pY                      );
+        glTexCoord2f(Tex.u2, Tex.v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX, pY                      );
+        glTexCoord2f(Tex.u2, Tex.v1); glVertex2f(pX+pxWidth/CELL_SIZE_PX, pY-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(Tex.u1, Tex.v1); glVertex2f(pX                     , pY-pxHeight/CELL_SIZE_PX);
+      glEnd;
     end else
     if (Lay = 2) and (aFOW <> 0) then  //Don't render colorflags if they aren't visible cos of FOW
     begin
@@ -770,37 +777,24 @@ begin
            ((((Col shr 16) and $FF) * aFOW shr 8) shl 16) or
            Col and $FF000000;
       glColor4ubv(@F);
-      glBindTexture(GL_TEXTURE_2D, AltID);
+      glBindTexture(GL_TEXTURE_2D, Alt.ID);
+      glBegin(GL_QUADS);
+        glTexCoord2f(Alt.u1, Alt.v2); glVertex2f(pX                     , pY                      );
+        glTexCoord2f(Alt.u2, Alt.v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX, pY                      );
+        glTexCoord2f(Alt.u2, Alt.v1); glVertex2f(pX+pxWidth/CELL_SIZE_PX, pY-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(Alt.u1, Alt.v1); glVertex2f(pX                     , pY-pxHeight/CELL_SIZE_PX);
+      glEnd;
     end;
-
-    if HighlightRed then glColor4f(1,0,0,1);
-
-    glBegin(GL_QUADS);
-      glTexCoord2f(u1, v2); glVertex2f(pX                     , pY                      );
-      glTexCoord2f(u2, v2); glVertex2f(pX+pxWidth/CELL_SIZE_PX, pY                      );
-      glTexCoord2f(u2, v1); glVertex2f(pX+pxWidth/CELL_SIZE_PX, pY-pxHeight/CELL_SIZE_PX);
-      glTexCoord2f(u1, v1); glVertex2f(pX                     , pY-pxHeight/CELL_SIZE_PX);
-    glEnd;
   end;
 
   glBindTexture(GL_TEXTURE_2D, 0);
-
-  if SHOW_SPRITES_RECT then
-  begin
-    glPushAttrib(GL_LINE_BIT);
-      glLineWidth(1);
-      glColor4f(1,1,1,0.5);
-      glBegin(GL_LINE_LOOP);
-        with GFXData[aRX, aID] do
-          glkRect(pX, pY, pX+pxWidth/CELL_SIZE_PX, pY-pxHeight/CELL_SIZE_PX);
-      glEnd;
-    glPopAttrib;
-  end;
 end;
 
 
 procedure TRenderPool.RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX,pY: Single; aFOW: Byte);
 begin
+  glClear(GL_STENCIL_BUFFER_BIT);
+
   //Setup stencil mask
   glEnable(GL_STENCIL_TEST);
   glStencilFunc(GL_ALWAYS, 1, 1);
@@ -811,17 +805,17 @@ begin
 
   //Render stencil mask
   glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_GREATER, 1 - Param);
+  glAlphaFunc(GL_GREATER, 1 - HOUSE_PROGRESS {Param});
   glBlendFunc(GL_ONE, GL_ZERO);
     with GFXData[aRX,aID] do
     begin
       glColor3f(1, 1, 1);
-      glBindTexture(GL_TEXTURE_2D, AltID);
+      glBindTexture(GL_TEXTURE_2D, Alt.ID);
       glBegin(GL_QUADS);
-        glTexCoord2f(u1,v2); glVertex2f(pX-1                     ,pY-1         );
-        glTexCoord2f(u2,v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
-        glTexCoord2f(u2,v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-        glTexCoord2f(u1,v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(pX-1                     ,pY-1         );
+        glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
+        glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
       glEnd;
       glBindTexture(GL_TEXTURE_2D, 0);
     end;
@@ -837,12 +831,12 @@ begin
   with GFXData[aRX,aID] do
   begin
     glColor3ub(aFOW, aFOW, aFOW);
-    glBindTexture(GL_TEXTURE_2D, TexID);
+    glBindTexture(GL_TEXTURE_2D, Tex.ID);
     glBegin(GL_QUADS);
-      glTexCoord2f(u1,v2); glVertex2f(pX-1                     ,pY-1         );
-      glTexCoord2f(u2,v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
-      glTexCoord2f(u2,v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-      glTexCoord2f(u1,v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+      glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(pX-1                     ,pY-1         );
+      glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
+      glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+      glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
   end;
@@ -915,12 +909,12 @@ begin
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(aLocX, aLocY, true);
 
   glColor3ub(FOW, FOW, FOW);
-  glBindTexture(GL_TEXTURE_2D, GFXData[rxGui, ID].TexID);
+  glBindTexture(GL_TEXTURE_2D, GFXData[rxGui, ID].Tex.ID);
 
-  a.X := GFXData[rxGui, ID].u1;
-  a.Y := GFXData[rxGui, ID].v1;
-  b.X := GFXData[rxGui, ID].u2;
-  b.Y := GFXData[rxGui, ID].v2;
+  a.X := GFXData[rxGui, ID].Tex.u1;
+  a.Y := GFXData[rxGui, ID].Tex.v1;
+  b.X := GFXData[rxGui, ID].Tex.u2;
+  b.Y := GFXData[rxGui, ID].Tex.v2;
 
   glBegin(GL_QUADS);
     glTexCoord2f(b.x,a.y); glVertex2f(aLocX-1, aLocY-1 - fTerrain.Land[aLocY  ,aLocX  ].Height/CELL_HEIGHT_DIV+0.10);
@@ -959,9 +953,12 @@ begin
 
   if Pos in [dir_N, dir_S] then
   begin //Horizontal border
-    glBindTexture(GL_TEXTURE_2D,GFXData[rxGui,ID].TexID);
-    a.x:=GFXData[rxGui,ID].u1; a.y:=GFXData[rxGui,ID].v1;
-    b.x:=GFXData[rxGui,ID].u2; b.y:=GFXData[rxGui,ID].v2;
+    glBindTexture(GL_TEXTURE_2D,GFXData[rxGui,ID].Tex.ID);
+    A.X := GFXData[rxGui, ID].Tex.u1;
+    A.Y := GFXData[rxGui, ID].Tex.v1;
+    b.X := GFXData[rxGui, ID].Tex.u2;
+    b.Y := GFXData[rxGui, ID].Tex.v2;
+
     BorderWidth := GFXData[rxGui,ID].PxWidth / CELL_SIZE_PX;
     glBegin(GL_QUADS);
       FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX-1, pY-1, True);
@@ -976,10 +973,12 @@ begin
   end
   else
   begin //Vertical border
-    glBindTexture(GL_TEXTURE_2D,GFXData[rxGui,ID].TexID);
+    glBindTexture(GL_TEXTURE_2D,GFXData[rxGui,ID].Tex.ID);
     HeightInPx := Round(CELL_SIZE_PX * (1 + (fTerrain.Land[pY,pX].Height - fTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV));
-    a.x:=GFXData[rxGui,ID].u1; a.y:=GFXData[rxGui,ID].v1;
-    b.x:=GFXData[rxGui,ID].u2; b.y:=GFXData[rxGui,ID].v2 * (HeightInPx / GFXData[rxGui,ID].PxHeight);
+    A.X := GFXData[rxGui, ID].Tex.u1;
+    A.Y := GFXData[rxGui, ID].Tex.v1;
+    b.X := GFXData[rxGui, ID].Tex.u2;
+    b.Y := GFXData[rxGui, ID].Tex.v2 * (HeightInPx / GFXData[rxGui, ID].pxHeight);
     BorderWidth := GFXData[rxGui,ID].PxWidth / CELL_SIZE_PX;
     glBegin(GL_QUADS);
       FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX-1, pY-1, True);

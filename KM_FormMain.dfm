@@ -163,6 +163,15 @@ object FormMain: TFormMain
       OnClick = Button_CalcArmyClick
     end
   end
+  object TrackBar1: TTrackBar
+    Left = 360
+    Top = 112
+    Width = 150
+    Height = 45
+    Max = 255
+    TabOrder = 3
+    OnChange = TrackBar1Change
+  end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]

@@ -178,11 +178,11 @@ begin
   for I := 0 to 255 do
   with GFXData[rxTiles, I+1] do
   begin
-    TexID := TextT;
-    v1 := (I div 16  ) / 16; //There are 16 tiles across the line
-    u1 := (I mod 16  ) / 16;
-    v2 := (I div 16+1) / 16;
-    u2 := (I mod 16+1) / 16;
+    Tex.ID := TextT;
+    Tex.v1 := (I div 16  ) / 16; //There are 16 tiles across the line
+    Tex.u1 := (I mod 16  ) / 16;
+    Tex.v2 := (I div 16+1) / 16;
+    Tex.u2 := (I mod 16+1) / 16;
     PxWidth := 32;
     PxHeight := 32;
   end;

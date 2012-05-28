@@ -86,6 +86,7 @@ begin
   end;
 
   with GFXData[BackRX,BackID] do
+  with GFXData[BackRX,BackID].Tex do
   if PxWidth*PxHeight<>0 then //Make sure data was loaded properly
   begin
     //todo: Refactor
@@ -104,7 +105,7 @@ begin
 
       //Background
       glColor4f(1,1,1,1);
-      glBindTexture(GL_TEXTURE_2D, GFXData[BackRX,BackID].TexID);
+      glBindTexture(GL_TEXTURE_2D, GFXData[BackRX,BackID].Tex.ID);
       glBegin(GL_QUADS);
         glTexCoord2f(a.x,a.y); glVertex2f(0,0);
         glTexCoord2f(b.x,a.y); glVertex2f(SizeX,0);
@@ -287,42 +288,42 @@ begin
       glTranslatef(PosX, PosY, 0);
 
       //Base layer
-      glBindTexture(GL_TEXTURE_2D, TexID);
+      glBindTexture(GL_TEXTURE_2D, Tex.ID);
       if Enabled then glColor3f(1,1,1) else glColor3f(0.33,0.33,0.33);
       glBegin(GL_QUADS);
-        glTexCoord2f(u1,v1); glVertex2f(0        , 0         );
-        glTexCoord2f(u2,v1); glVertex2f(0+PxWidth, 0         );
-        glTexCoord2f(u2,v2); glVertex2f(0+PxWidth, 0+PxHeight);
-        glTexCoord2f(u1,v2); glVertex2f(0        , 0+PxHeight);
+        glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0        , 0         );
+        glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0+PxWidth, 0         );
+        glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(0+PxWidth, 0+PxHeight);
+        glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(0        , 0+PxHeight);
       glEnd;
 
       //Color overlay for unit icons and scrolls
-      if AltID <> 0 then
+      if Alt.ID <> 0 then
       begin
-        glBindTexture(GL_TEXTURE_2D, AltID);
+        glBindTexture(GL_TEXTURE_2D, Alt.ID);
         if Enabled then
           glColor3ub(aColor AND $FF, aColor SHR 8 AND $FF, aColor SHR 16 AND $FF)
         else
           glColor3f(aColor AND $FF / 768, aColor SHR 8 AND $FF / 768, aColor SHR 16 AND $FF / 768);
         glBegin(GL_QUADS);
-          glTexCoord2f(u1,v1); glVertex2f(0        , 0         );
-          glTexCoord2f(u2,v1); glVertex2f(0+PxWidth, 0         );
-          glTexCoord2f(u2,v2); glVertex2f(0+PxWidth, 0+PxHeight);
-          glTexCoord2f(u1,v2); glVertex2f(0        , 0+PxHeight);
+          glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(0        , 0         );
+          glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(0+PxWidth, 0         );
+          glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(0+PxWidth, 0+PxHeight);
+          glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(0        , 0+PxHeight);
         glEnd;
       end;
 
       //Highlight for active/focused/mouseOver images
       if Highlight then
       begin
-        glBindTexture(GL_TEXTURE_2D, TexID); //Replace AltID if it was used
+        glBindTexture(GL_TEXTURE_2D, Tex.ID); //Replace AltID if it was used
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         glColor3f(0.5, 0.5, 0.5);
         glBegin(GL_QUADS);
-          glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
-          glTexCoord2f(u2,v1); glVertex2f(0+PxWidth ,0         );
-          glTexCoord2f(u2,v2); glVertex2f(0+PxWidth ,0+PxHeight);
-          glTexCoord2f(u1,v2); glVertex2f(0         ,0+PxHeight);
+          glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0         ,0         );
+          glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0+PxWidth ,0         );
+          glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(0+PxWidth ,0+PxHeight);
+          glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(0         ,0+PxHeight);
         glEnd;
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       end;
@@ -339,16 +340,16 @@ begin
   if aID <> 0 then
   with GFXData[aRX, aID] do
   begin
-    glBindTexture(GL_TEXTURE_2D, TexID);
+    glBindTexture(GL_TEXTURE_2D, Tex.ID);
     glPushMatrix;
       glTranslatef(PosX, PosY, 0);
       if Enabled then glColor4f(1,1,1,1) else glColor4f(0.33,0.33,0.33,1);
 
       glBegin(GL_QUADS);
-        glTexCoord2f(u1,v1); glVertex2f(0      , 0      );
-        glTexCoord2f(u2,v1); glVertex2f(0+SizeX, 0      );
-        glTexCoord2f(u2,v2); glVertex2f(0+SizeX, 0+SizeY);
-        glTexCoord2f(u1,v2); glVertex2f(0      , 0+SizeY);
+        glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0      , 0      );
+        glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0+SizeX, 0      );
+        glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(0+SizeX, 0+SizeY);
+        glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(0      , 0+SizeY);
       glEnd;
 
       if Highlight then
@@ -356,10 +357,10 @@ begin
         glBlendFunc(GL_DST_COLOR,GL_ONE);
         glColor4f(0.5, 0.5, 0.5, 0.5);
         glBegin(GL_QUADS);
-          glTexCoord2f(u1,v1); glVertex2f(0      , 0      );
-          glTexCoord2f(u2,v1); glVertex2f(0+SizeX, 0      );
-          glTexCoord2f(u2,v2); glVertex2f(0+SizeX, 0+SizeY);
-          glTexCoord2f(u1,v2); glVertex2f(0      , 0+SizeY);
+          glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0      , 0      );
+          glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0+SizeX, 0      );
+          glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(0+SizeX, 0+SizeY);
+          glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(0      , 0+SizeY);
         glEnd;
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       end;

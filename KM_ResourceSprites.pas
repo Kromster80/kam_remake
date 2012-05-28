@@ -56,9 +56,10 @@ type
     fPad: Byte; //Force padding between sprites to avoid neighbour edge visibility
     procedure Allocate(aCount: Integer); //Allocate space for data that is being loaded
     procedure Expand;
-    procedure MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; out BaseRAM, ColorRAM, TexCount: Cardinal);
-    procedure MakeGFX_StripPacking(aTexType: TTexFormat; aStartingIndex: Word; out BaseRAM, ColorRAM, TexCount: Cardinal);
+    procedure MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
+    procedure MakeGFX_StripPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
     procedure SaveTextureToBMP(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray; aSaveAlpha: Boolean);
+    procedure SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray);
   public
     constructor Create; overload;
     constructor Create(aRT: TRXType; aPalettes: TKMPalettes; aRender: TRender); overload;
@@ -118,11 +119,14 @@ type
   end;
 
 
+  TKMTexCoords = record
+                  ID: Cardinal;
+                  u1,v1,u2,v2: Single; //Top-Left, Bottom-Right uv coords
+                end;
+
 var
   GFXData: array [TRXType] of array of record
-    //todo: Split into separate Tex and Alt entries to allow to pack Alt's better
-    TexID, AltID: Cardinal; //AltID used for team colors
-    u1,v1,u2,v2: Single; //Top-Left, Bottom-Right uv coords
+    Tex, Alt: TKMTexCoords; //AltID used for team colors and house building steps
     PxWidth, PxHeight: Word;
   end;
 
@@ -200,7 +204,7 @@ end;
 
 //Convert paletted data into RGBA and select Team color layer from it
 procedure TKMSpritePack.Expand;
-  function HousesPal(aID: Integer): TKMPalData;
+  function HouseWIP(aID: Integer): TKMPalData;
   const
     //These are sprites with house building steps
     WIP: array[0..55] of word = (3,4,25,43,44,116,118,119,120,121,123,126,127,136,137,140,141,144,145,148,149,213,214,237,238,241,242,243,246,247,252,253,257,258,275,276,336,338,360,361,365,366,370,371,380,381,399,400,665,666,670,671,1658,1660,1682,1684);
@@ -212,7 +216,7 @@ procedure TKMSpritePack.Expand;
     for I := 0 to High(WIP) do
     if aID = WIP[I] then
     begin
-      Result := fPalettes[pal_lin];
+      Result := fPalettes.PalData[pal_lin];
       Exit;
     end;
   end;
@@ -228,7 +232,7 @@ begin
   begin
     //Choose proper palette
     case fRT of
-      rxHouses:   Palette := HousesPal(H);
+      rxHouses:   Palette := HouseWIP(H);
       rxGuiMain:  Palette := fPalettes[RX5Pal[H]];
       rxGuiMainH: Palette := fPalettes[RX6Pal[H]];
       else        Palette := fPalettes.DefDal;
@@ -246,7 +250,7 @@ begin
         L := Data[H, Pixel]; //0..255
 
         if RXInfo[fRT].TeamColors and (L in [24..30])
-        //todo: Check this one and ((fRT <> rxHouses) or (Palette <> fPalettes[pal_lin]))
+        and (Palette <> fPalettes.PalData[pal_lin])
         and ((fRT <> rxHouses) or (H > 400))  //Skip the Inn Weapon Smithy and the rest
         and ((fRT <> rxGui) or InRange(H, 141, 154) or InRange(H, 521, 550)) then //Unit icons and scrolls
         begin
@@ -675,7 +679,7 @@ begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf24bit;
 
-  for ID:=1 to fRXData.Count do
+  for ID := 1 to fRXData.Count do
   if fRXData.Flag[ID] = 1 then
   begin
     SizeX := fRXData.Size[ID].X;
@@ -790,10 +794,13 @@ begin
     fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
     fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');
     LoadSprites(RT, aAlphaShadows);
+
+    //House building steps need some special treatment to adapt to GL_ALPHA_TEST that we use
+    if RT = rxHouses then
+      fSprites[RT].MakeGFX_AlphaTest(aHouseDat);
+
     fSprites[RT].MakeGFX(aAlphaShadows);
   end;
-  //Alpha_tested sprites for houses. They come after MakeGFX cos they will replace above data
-  fSprites[rxHouses].MakeGFX_AlphaTest(aHouseDat);
 end;
 
 
@@ -842,9 +849,9 @@ begin
   if fRXData.Count = 0 then Exit;
 
   if aAlphaShadows and (fRT in [rxTrees,rxHouses,rxUnits,rxGui,rxGame]) then
-    TexType := tf_NormalAlpha
+    TexType := tf_RGBA8
   else
-    TexType := tf_Normal;
+    TexType := tf_RGB5A1;
 
   //Second algorithm is kept until we implement better one
   if USE_BIN_PACKING then
@@ -854,17 +861,20 @@ begin
 
   IdealRAM := 0;
   for I := aStartingIndex to fRXData.Count - 1 do
-    Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * 4);
+  if fRXData.Flag[I] <> 0 then
+    Inc(IdealRAM, fRXData.Size[I].X * fRXData.Size[I].Y * TexFormatSize[TexType]);
 
-  //fLog.AppendLog(IntToStr(TexCount) + ' Textures created');
-  fLog.AddToLog(Format('%d/%d', [BaseRAM div 1024, (BaseRAM - IdealRAM) div 1024]) +
-                ' Kbytes allocated/wasted for ' + RXInfo[fRT].FileName + ' GFX when using Packing');
+  fLog.AppendLog(IntToStr(TexCount) + ' Textures created');
+  fLog.AddToLog(Format('%d/%d', [BaseRAM div 1024, IdealRAM div 1024]) +
+                ' Kbytes allocated/ideal for ' + RXInfo[fRT].FileName + ' GFX when using Packing');
   fLog.AddToLog(IntToStr(ColorRAM div 1024) + ' KBytes for team colors');
 end;
 
 
 //This algorithm tries to stack sprites into strips of nearest POT length
-procedure TKMSpritePack.MakeGFX_StripPacking(aTexType: TTexFormat; aStartingIndex: Word; out BaseRAM, ColorRAM, TexCount: Cardinal);
+procedure TKMSpritePack.MakeGFX_StripPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
+const
+  MAX_TEX_RESOLUTION  = 512; //Maximum texture resolution client can handle (used for packing sprites)
 var
   ci, J, I, K, LeftIndex, RightIndex, SpanCount: Integer;
   WidthPOT, HeightPOT: Word;
@@ -924,15 +934,17 @@ begin
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
     if MAKE_TEAM_COLORS and RXInfo[fRT].TeamColors and (not ((fRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
     begin
-      GFXData[fRT,LeftIndex].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],aTexType);
+      GFXData[fRT,LeftIndex].Tex.ID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],aTexType);
       //TeamColors are done through alternative plain colored texture
       if HasMsk then begin
-        GFXData[fRT,LeftIndex].AltID := fRender.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_AltID);
-        inc(ColorRAM, (WidthPOT * HeightPOT) div 2); //GL_ALPHA4
+        GFXData[fRT,LeftIndex].Alt.ID := fRender.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_Alpha8);
+        Inc(ColorRAM, WidthPOT * HeightPOT * TexFormatSize[aTexType]); //GL_ALPHA4
       end;
     end
     else
-      GFXData[fRT, LeftIndex].TexID := fRender.GenTexture(WidthPOT, HeightPOT, @TD[0], aTexType);
+      GFXData[fRT, LeftIndex].Tex.ID := fRender.GenTexture(WidthPOT, HeightPOT, @TD[0], aTexType);
+
+    Inc(BaseRAM, WidthPOT * HeightPOT * TexFormatSize[aTexType]);
 
     SaveTextureToBMP(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_Strip' + IntToStr(LeftIndex) + '-' + IntToStr(RightIndex), @TD[0], False);
     if HasMsk then
@@ -944,18 +956,21 @@ begin
     K := 0;
     for J := LeftIndex to RightIndex do
     begin
-      GFXData[fRT, J].TexID := GFXData[fRT, LeftIndex].TexID;
-      GFXData[fRT, J].AltID := GFXData[fRT, LeftIndex].AltID;
-      GFXData[fRT, J].u1 := K / WidthPOT;
-      GFXData[fRT, J].v1 := 0;
+      GFXData[fRT, J].Tex.ID := GFXData[fRT, LeftIndex].Tex.ID;
+      GFXData[fRT, J].Alt.ID := GFXData[fRT, LeftIndex].Alt.ID;
+      GFXData[fRT, J].Tex.u1 := K / WidthPOT;
+      GFXData[fRT, J].Tex.v1 := 0;
       Inc(K, fRXData.Size[J].X);
-      GFXData[fRT, J].u2 := K / WidthPOT;
-      GFXData[fRT, J].v2 := fRXData.Size[J].Y / HeightPOT;
+      GFXData[fRT, J].Tex.u2 := K / WidthPOT;
+      GFXData[fRT, J].Tex.v2 := fRXData.Size[J].Y / HeightPOT;
+      GFXData[fRT, J].Alt.u1 := GFXData[fRT, J].Tex.u1;
+      GFXData[fRT, J].Alt.v1 := GFXData[fRT, J].Tex.v1;
+      GFXData[fRT, J].Alt.u2 := GFXData[fRT, J].Tex.u2;
+      GFXData[fRT, J].Alt.v2 := GFXData[fRT, J].Tex.v2;
       GFXData[fRT, J].PxWidth := fRXData.Size[J].X;
       GFXData[fRT, J].PxHeight := fRXData.Size[J].Y;
     end;
 
-    Inc(BaseRAM, WidthPOT * HeightPOT * 4);
     Inc(LeftIndex, SpanCount - 1);
     Inc(TexCount);
 
@@ -964,24 +979,95 @@ end;
 
 
 //This algorithm is planned to take advantage of more efficient 2D bin packing
-procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; out BaseRAM, ColorRAM, TexCount: Cardinal);
-  function UseThisSprite(I: Integer): Boolean;
+procedure TKMSpritePack.MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
+type
+  TSpriteAtlas = (saBase, saMask);
+  procedure PrepareAtlases(SpriteInfo: TBinArray; aMode: TSpriteAtlas; aTexType: TTexFormat);
+  const ExportName: array [TSpriteAtlas] of string = ('Base', 'Mask');
+  var
+    I, K, L, M: Integer;
+    CT, CL, Pixel: Cardinal;
+    Tx: Cardinal;
+    ID: Word;
+    TxCoords: TKMTexCoords;
+    TD: array of Cardinal;
   begin
-    Result := (fRXData.Size[I].X * fRXData.Size[I].Y <> 0);
+    //Prepare atlases
+    for I := 0 to High(SpriteInfo) do
+    begin
+      //todo: Assert that atlas dimensions are POT
+      SetLength(TD, 0);
+      SetLength(TD, SpriteInfo[I].Width * SpriteInfo[I].Height);
+
+      //Copy sprite to Atlas
+      //todo: Add padding to the sprite if necessary
+      for K := 0 to High(SpriteInfo[I].Sprites) do
+      begin
+        ID := SpriteInfo[I].Sprites[K].SpriteID;
+        for L := 0 to fRXData.Size[ID].Y - 1 do
+        for M := 0 to fRXData.Size[ID].X - 1 do
+        begin
+          CT := SpriteInfo[I].Sprites[K].PosY;
+          CL := SpriteInfo[I].Sprites[K].PosX;
+          Pixel := (CT + L) * SpriteInfo[I].Width + CL + M;
+          if aMode = saBase then
+            TD[Pixel] := fRXData.RGBA[ID, L * fRXData.Size[ID].X + M]
+          else
+            TD[Pixel] := (fRXData.Mask[ID, L * fRXData.Size[ID].X + M] shl 24) or $FFFFFF;
+
+          //Sprite outline
+          if OUTLINE_ALL_SPRITES and (
+            (L = 0) or (M = 0)
+            or (L = fRXData.Size[ID].Y - 1)
+            or (M = fRXData.Size[ID].X - 1)) then
+            TD[Pixel] := $FF0000FF;
+        end;
+      end;
+
+      //Generate texture once
+      Tx := fRender.GenTexture(SpriteInfo[I].Width, SpriteInfo[I].Height, @TD[0], aTexType);
+
+      //Now that we know texture IDs we can fill GFXData structure
+      for K := 0 to High(SpriteInfo[I].Sprites) do
+      begin
+        ID := SpriteInfo[I].Sprites[K].SpriteID;
+
+        TxCoords.ID := Tx;
+        TxCoords.u1 := SpriteInfo[I].Sprites[K].PosX / SpriteInfo[I].Width;
+        TxCoords.v1 := SpriteInfo[I].Sprites[K].PosY / SpriteInfo[I].Height;
+        TxCoords.u2 := (SpriteInfo[I].Sprites[K].PosX + fRXData.Size[ID].X) / SpriteInfo[I].Width;
+        TxCoords.v2 := (SpriteInfo[I].Sprites[K].PosY + fRXData.Size[ID].Y) / SpriteInfo[I].Height;
+
+        if aMode = saBase then
+        begin
+          GFXData[fRT, ID].Tex := TxCoords;
+          GFXData[fRT, ID].PxWidth := fRXData.Size[ID].X;
+          GFXData[fRT, ID].PxHeight := fRXData.Size[ID].Y;
+        end
+        else
+          GFXData[fRT, ID].Alt := TxCoords;
+      end;
+
+      if aMode = saBase then
+        Inc(BaseRAM, SpriteInfo[I].Width * SpriteInfo[I].Height * TexFormatSize[aTexType])
+      else
+        Inc(ColorRAM, SpriteInfo[I].Width * SpriteInfo[I].Height * TexFormatSize[aTexType]); //GL_ALPHA4
+
+      Inc(TexCount);
+
+      if fRT in [rxHouses] then
+        SaveTextureToPNG(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_' + ExportName[aMode] + IntToStr(I), @TD[0]);
+    end;
   end;
 var
-  ID, I, K, L, M: Integer;
-  TD: array of Cardinal;
-  TA: array of Cardinal;
-  CT, CL, Pixel: Cardinal;
-  Tx, Al: Cardinal;
+  I, K: Integer;
   SpriteSizes: TIndexSizeArray;
   SpriteInfo: TBinArray;
 begin
   SetLength(SpriteSizes, fRXData.Count - aStartingIndex);
   K := 0;
   for I := aStartingIndex to fRXData.Count - 1 do
-  if UseThisSprite(I) then
+  if (fRXData.Size[I].X * fRXData.Size[I].Y <> 0) then
   begin
     SpriteSizes[K].ID := I;
     SpriteSizes[K].X := fRXData.Size[I].X;
@@ -990,75 +1076,38 @@ begin
   end;
   SetLength(SpriteSizes, K);
 
+  SetLength(SpriteInfo, 0);
   BinPack(SpriteSizes, fPad, SpriteInfo);
+  PrepareAtlases(SpriteInfo, saBase, aTexType);
 
-  //Prepare atlases
-  for I := 0 to High(SpriteInfo) do
+  SetLength(SpriteSizes, fRXData.Count - aStartingIndex);
+  K := 0;
+  for I := aStartingIndex to fRXData.Count - 1 do
+  if (fRXData.Size[I].X * fRXData.Size[I].Y <> 0) and fRXData.HasMask[I] then
   begin
-    //todo: Assert that atlas dimensions are POT
-    SetLength(TD, 0);
-    SetLength(TA, 0);
-    SetLength(TD, SpriteInfo[I].Width * SpriteInfo[I].Height);
-    SetLength(TA, SpriteInfo[I].Width * SpriteInfo[I].Height);
-
-    //Copy sprite to Atlas
-    //todo: Add padding to the sprite if necessary
-    for K := 0 to High(SpriteInfo[I].Sprites) do
-    begin
-      ID := SpriteInfo[I].Sprites[K].SpriteID;
-      for L := 0 to fRXData.Size[ID].Y - 1 do
-      for M := 0 to fRXData.Size[ID].X - 1 do
-      begin
-        CT := SpriteInfo[I].Sprites[K].PosY;
-        CL := SpriteInfo[I].Sprites[K].PosX;
-        Pixel := (CT + L) * SpriteInfo[I].Width + CL + M;
-        TD[Pixel] := fRXData.RGBA[ID, L * fRXData.Size[ID].X + M];
-        TA[Pixel] := (fRXData.Mask[ID, L * fRXData.Size[ID].X + M] shl 24) or $FFFFFF;
-      end;
-    end;
-
-    //Generate textures only once
-    Tx := fRender.GenTexture(SpriteInfo[I].Width, SpriteInfo[I].Height, @TD[0], aTexType);
-    Al := fRender.GenTexture(SpriteInfo[I].Width, SpriteInfo[I].Height, @TA[0], tf_AltID);
-
-    //Now that we know texture IDs we can fill GFXData structure
-    for K := 0 to High(SpriteInfo[I].Sprites) do
-    begin
-      ID := SpriteInfo[I].Sprites[K].SpriteID;
-
-      GFXData[fRT, ID].TexID := Tx;
-      GFXData[fRT, ID].AltID := Al;
-      GFXData[fRT, ID].u1 := SpriteInfo[I].Sprites[K].PosX / SpriteInfo[I].Width;
-      GFXData[fRT, ID].v1 := SpriteInfo[I].Sprites[K].PosY / SpriteInfo[I].Height;
-      GFXData[fRT, ID].u2 := (SpriteInfo[I].Sprites[K].PosX + fRXData.Size[ID].X) / SpriteInfo[I].Width;
-      GFXData[fRT, ID].v2 := (SpriteInfo[I].Sprites[K].PosY + fRXData.Size[ID].Y) / SpriteInfo[I].Height;
-      GFXData[fRT, ID].PxWidth := fRXData.Size[ID].X;
-      GFXData[fRT, ID].PxHeight := fRXData.Size[ID].Y;
-    end;
-
-    Inc(BaseRAM, SpriteInfo[I].Width * SpriteInfo[I].Height * 4);
-    Inc(ColorRAM, (SpriteInfo[I].Width * SpriteInfo[I].Height) div 2); //GL_ALPHA4
-    Inc(TexCount);
-
-    SaveTextureToBMP(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_Atlas' + IntToStr(I), @TD[0], False);
-    //todo: Optimize Alpha
-    SaveTextureToBMP(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_AtlasAlpha' + IntToStr(I), @TA[0], False);
+    SpriteSizes[K].ID := I;
+    SpriteSizes[K].X := fRXData.Size[I].X;
+    SpriteSizes[K].Y := fRXData.Size[I].Y;
+    Inc(K);
   end;
+  SetLength(SpriteSizes, K);
+
+  SetLength(SpriteInfo, 0);
+  BinPack(SpriteSizes, fPad, SpriteInfo);
+  PrepareAtlases(SpriteInfo, saMask, tf_Alpha8);
 end;
 
 
 {Take RX data and make nice textures out of it.
 Textures should be POT to improve performance and avoid drivers bugs
-In result we have GFXData filled.}
+In result we have GFXData filled}
 procedure TKMSpritePack.MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection);
 var
   HT: THouseType;
   ID1, ID2: Integer; //RGB and A index
   I, K, Lay, StepCount: Integer;
-  T, tx, ty: Integer;
+  T1, T2, tx, ty: Integer;
   Alpha: Byte;
-  WidthPOT, HeightPOT: Integer;
-  TD: array of Cardinal;
 begin
   if SKIP_RENDER then Exit;
 
@@ -1067,59 +1116,31 @@ begin
   for Lay := 1 to 2 do //House is rendered in two layers since Stone does not covers Wood parts in e.g. Sawmill
   begin
     if Lay = 1 then begin
-      ID1 := aHouseDat[HT].WoodPic+1;
-      ID2 := aHouseDat[HT].WoodPal+1;
+      ID1 := aHouseDat[HT].WoodPic + 1;
+      ID2 := aHouseDat[HT].WoodPal + 1;
       StepCount := aHouseDat[HT].WoodPicSteps;
     end else begin
-      ID1 := aHouseDat[HT].StonePic+1;
-      ID2 := aHouseDat[HT].StonePal+1;
+      ID1 := aHouseDat[HT].StonePic + 1;
+      ID2 := aHouseDat[HT].StonePal + 1;
       StepCount := aHouseDat[HT].StonePicSteps;
     end;
 
-    Assert((fRXData.Size[ID1].X >= fRXData.Size[ID2].X) and (fRXData.Size[ID1].Y >= fRXData.Size[ID2].Y),
-            Format('Mismatched sprites %d:%d - %d:%d', [Byte(fRT), ID1, Byte(fRT), ID2]));
-
-    WidthPOT  := MakePOT(fRXData.Size[ID1].X);
-    HeightPOT := MakePOT(fRXData.Size[ID1].Y);
-    SetLength(TD, WidthPOT*HeightPOT);
-
-    //Fill in colors RXData
-    for I := 0 to fRXData.Size[ID1].Y - 1 do
-      for K := 0 to fRXData.Size[ID1].X - 1 do
-        TD[I * WidthPOT + K] := fRXData.RGBA[ID1, I * fRXData.Size[ID1].X + K];
-    GFXData[fRT, ID1].TexID := fRender.GenTexture(WidthPOT, HeightPOT, @TD[0], tf_AlphaTest);
-    SaveTextureToBMP(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_AlphaTest' + IntToStr(ID1), @TD[0], True);
-
-
     //Fill in alpha RXData
-    //Apply mask to where colors are (yes, it needs to be done in 2 steps, since offsets can mismatch)
     tx := fRXData.Pivot[ID2].x - fRXData.Pivot[ID1].x;
-    ty := (fRXData.Pivot[ID2].y - fRXData.Pivot[ID1].y)*WidthPOT;
+    ty := fRXData.Pivot[ID2].y - fRXData.Pivot[ID1].y;
     for I := 0 to fRXData.Size[ID2].Y - 1 do
-      for K := 0 to fRXData.Size[ID2].X - 1 do
-      begin
-      t := i*WidthPOT+k + tx + ty; //Shift by pivot, always positive
+    for K := 0 to fRXData.Size[ID2].X - 1 do
+    begin
+      T2 := I * fRXData.Size[ID2].X + K;
+      T1 := (I + ty) * fRXData.Size[ID1].X + K + tx;
 
-      Alpha := fRXData.RGBA[ID2, I * fRXData.Size[ID2].X + K] and $FF;
-
-      //Steps are going in normal order 1..n, but that last step has Alpha=0
-      if TD[t] <> 0 then
-        if Alpha <> 0 then //Default case
-          TD[t] := TD[t] AND ($FFFFFF OR (255-round(Alpha*(255/StepCount))) shl 24)
-        else
-          TD[t] := TD[t] AND $01FFFFFF; //Place it as last step
+      Alpha := fRXData.RGBA[ID2, T2] and $FF;
+      fRXData.Mask[ID1, T1] := 255 - Round(Alpha / StepCount * 255);
     end;
 
-    GFXData[fRT, ID1].AltID := fRender.GenTexture(WidthPOT, HeightPOT, @TD[0], tf_AlphaTest);
-    SaveTextureToBMP(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_AlphaTest' + IntToStr(ID2), @TD[0], True);
-
-    SetLength(TD, 0);
-    GFXData[fRT,ID1].u1    := 0;
-    GFXData[fRT,ID1].v1    := 0;
-    GFXData[fRT,ID1].u2    := fRXData.Size[ID1].X/WidthPOT;
-    GFXData[fRT,ID1].v2    := fRXData.Size[ID1].Y/HeightPOT;
-    GFXData[fRT,ID1].PxWidth := fRXData.Size[ID1].X;
-    GFXData[fRT,ID1].PxHeight:= fRXData.Size[ID1].Y;
+    //Now we can discard building steps sprite
+    fRXData.HasMask[ID1] := True;
+    fRXData.Flag[ID2] := 0;
   end;
 end;
 
@@ -1154,6 +1175,36 @@ begin
     end;
 
     Bmp.Free;
+  end;
+end;
+
+
+procedure TKMSpritePack.SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray);
+var
+  I, K: Word;
+  T: Cardinal;
+  Png: TPNGObject;
+  Folder: string;
+begin
+  if EXPORT_SPRITE_ATLASES then
+  begin
+    Folder := ExeDir + 'Export\GenTextures\';
+    ForceDirectories(Folder);
+
+    Png := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, aWidth, aHeight);
+    try
+      for I := 0 to aHeight - 1 do
+      for K := 0 to aWidth - 1 do
+      begin
+        T := (PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^;
+        Png.Canvas.Pixels[K, I] := T and $FFFFFF; //Ignore alpha
+        Png.AlphaScanline[I]^[K] := T shr 24; //Alpha
+      end;
+
+      Png.SaveToFile(Folder + aFilename + '.png');
+    finally
+      Png.Free;
+    end;
   end;
 end;
 
