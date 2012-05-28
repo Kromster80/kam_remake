@@ -222,7 +222,7 @@ const
 
 const
   {ZLIB constants}
-  ZLIBErrors: Array[-6..2] of string = ('incompatible version (-6)',
+  ZLIBErrors: Array[-6..2] of AnsiString = ('incompatible version (-6)',
     'buffer error (-5)', 'insufficient memory (-4)', 'data error (-3)',
     'stream error (-2)', 'file error (-1)', '(0)', 'stream end (1)',
     'need dictionary (2)');
@@ -249,7 +249,7 @@ type
   {$IFNDEF UseDelphi}
     {Custom exception handler}
     Exception = class(TObject)
-      constructor Create(Msg: String);
+      constructor Create(Msg: AnsiString);
     end;
     ExceptClass = class of Exception;
     TColor = ColorRef;
@@ -314,7 +314,7 @@ type
   TPNGPointerList = class
   private
     fOwner: TPNGObject;
-    fCount : Cardinal;
+    fCount: Integer;
     fMemory: pPointerArray;
     function GetItem(Index: Cardinal): Pointer;
     procedure SetItem(Index: Cardinal; const Value: Pointer);
@@ -328,12 +328,12 @@ type
     {Returns an item}
     property Item[Index: Cardinal]: Pointer read GetItem write SetItem;
     {Set the size of the list}
-    procedure SetSize(const Size: Cardinal);
+    procedure SetSize(const Size: Integer);
     {Returns owner}
     property Owner: TPNGObject read fOwner;
   public
     {Returns number of items}
-    property Count: Cardinal read fCount write SetSize;
+    property Count: Integer read fCount write SetSize;
     {Object being either created or destroyed}
     constructor Create(AOwner: TPNGObject);
     destructor Destroy; override;
@@ -415,13 +415,13 @@ type
       function Read(var Buffer; Count: Longint): Cardinal; override;
       function Write(const Buffer; Count: Longint): Cardinal; override;
       {Stream being created and destroy}
-      constructor Create(Filename: String; Mode: TFileStreamModeSet);
+      constructor Create(Filename: AnsiString; Mode: TFileStreamModeSet);
       destructor Destroy; override;
     end;
 
     {Stream for reading from resources}
     TResourceStream = class(TStream)
-      constructor Create(Instance: HInst; const ResName: String; ResType:PChar);
+      constructor Create(Instance: HInst; const ResName: AnsiString; ResType: PAnsiChar);
     private
       {Variables for reading}
       Size: Integer;
@@ -485,7 +485,7 @@ type
     function GetTransparentColor: TColor;
     procedure SetTransparentColor(const Value: TColor);
     {Returns the version}
-    function GetLibraryVersion: String;
+    function GetLibraryVersion: AnsiString;
   protected
     {Being created}
     BeingCreated: Boolean;
@@ -526,8 +526,8 @@ type
     property TransparentColor: TColor read GetTransparentColor write
       SetTransparentColor;
     {Add text chunk, TChunkTEXT, TChunkzTXT}
-    procedure AddtEXt(const Keyword, Text: String);
-    procedure AddzTXt(const Keyword, Text: String);
+    procedure AddtEXt(const Keyword, Text: AnsiString);
+    procedure AddzTXt(const Keyword, Text: AnsiString);
     {$IFDEF UseDelphi}
     {Saves to clipboard format (thanks to Antoine Pottern)}
     procedure SaveToClipboardFormat(var AFormat: Word; var AData: THandle;
@@ -536,7 +536,7 @@ type
       APalette: HPalette); override;
     {$ENDIF}
     {Calling errors}
-    procedure RaiseError(ExceptionClass: ExceptClass; Text: String);
+    procedure RaiseError(ExceptionClass: ExceptClass; Text: AnsiString);
     {Returns a scanline from png}
     property Scanline[const Index: Integer]: Pointer read GetScanline;
     {$IFDEF Store16bits}
@@ -592,7 +592,7 @@ type
       {$IFDEF UseDelphi}override;{$ENDIF}
     procedure SaveToStream(Stream: TStream); {$IFDEF UseDelphi}override;{$ENDIF}
     {Loading the image from resources}
-    procedure LoadFromResourceName(Instance: HInst; const Name: String);
+    procedure LoadFromResourceName(Instance: HInst; const Name: AnsiString);
     procedure LoadFromResourceID(Instance: HInst; ResID: Integer);
     {Access to the png pixels}
     property Pixels[const X, Y: Integer]: TColor read GetPixels write SetPixels;
@@ -600,7 +600,7 @@ type
     {$IFNDEF UseDelphi}property Palette: HPalette read GetPalette write
       SetPalette;{$ENDIF}
     {Returns the version}
-    property Version: String read GetLibraryVersion;
+    property Version: AnsiString read GetLibraryVersion;
   end;
 
   {Chunk name object}
@@ -621,9 +621,9 @@ type
     {Used with property index}
     function GetIndex: Integer;
     {Should return chunk class/name}
-    class function GetName: String; virtual;
+    class function GetName: AnsiString; virtual;
     {Returns the chunk name}
-    function GetChunkName: String;
+    function GetChunkName: AnsiString;
   public
     {Returns index from list}
     property Index: Integer read GetIndex;
@@ -642,7 +642,7 @@ type
     constructor Create(Owner: TPngObject); virtual;
     destructor Destroy; override;
     {Returns chunk class/name}
-    property Name: String read GetChunkName;
+    property Name: AnsiString read GetChunkName;
     {Loads the chunk from a stream}
     function LoadFromStream(Stream: TStream; const ChunkName: TChunkName;
       Size: Integer): Boolean; virtual;
@@ -956,11 +956,11 @@ type
   {Textual data}
   TChunktEXt = class(TChunk)
   private
-    fKeyword, fText: String;
+    fKeyword, fText: AnsiString;
   public
     {Keyword and text}
-    property Keyword: String read fKeyword write fKeyword;
-    property Text: String read fText write fText;
+    property Keyword: AnsiString read fKeyword write fKeyword;
+    property Text: AnsiString read fText write fText;
     {Loads the chunk from a stream}
     function LoadFromStream(Stream: TStream; const ChunkName: TChunkName;
       Size: Integer): Boolean; override;
@@ -1161,7 +1161,7 @@ end;
 
 {$IFNDEF UseDelphi}
   {Exception implementation}
-  constructor Exception.Create(Msg: String);
+  constructor Exception.Create(Msg: AnsiString);
   begin
   end;
 {$ENDIF}
@@ -1361,7 +1361,7 @@ end;
 {Decompresses ZLIB into a memory address}
 function DecompressZLIB(const Input: Pointer; InputSize: Integer;
   var Output: Pointer; var OutputSize: Integer;
-  var ErrorOutput: String): Boolean;
+  var ErrorOutput: AnsiString): Boolean;
 var
   StreamRec : TZStreamRec;
   Buffer    : Array[Byte] of Byte;
@@ -1419,7 +1419,7 @@ end;
 {Compresses ZLIB into a memory address}
 function CompressZLIB(Input: Pointer; InputSize, CompressionLevel: Integer;
   var Output: Pointer; var OutputSize: Integer;
-  var ErrorOutput: String): Boolean;
+  var ErrorOutput: AnsiString): Boolean;
 var
   StreamRec : TZStreamRec;
   Buffer    : Array[Byte] of Byte;
@@ -1566,7 +1566,7 @@ begin
 end;
 
 {This method resizes the list}
-procedure TPngPointerList.SetSize(const Size: Cardinal);
+procedure TPngPointerList.SetSize(const Size: Integer);
 begin
   {Sets the size}
   if (fMemory = nil) and (Size > 0) then
@@ -1751,7 +1751,7 @@ function TStream.GetSize: Longint;
   {TFileStream implementation}
 
   {Filestream object being created}
-  constructor TFileStream.Create(Filename: String; Mode: TFileStreamModeSet);
+  constructor TFileStream.Create(Filename: AnsiString; Mode: TFileStreamModeSet);
     {Makes file mode}
     function OpenMode: DWORD;
     begin
@@ -1815,14 +1815,14 @@ function TStream.GetSize: Longint;
   {TResourceStream implementation}
 
   {Creates the resource stream}
-  constructor TResourceStream.Create(Instance: HInst; const ResName: String;
-    ResType: PChar);
+  constructor TResourceStream.Create(Instance: HInst; const ResName: AnsiString;
+    ResType: PAnsiChar);
   var
     ResID: HRSRC;
     ResGlobal: HGlobal;
   begin
     {Obtains the resource ID}
-    ResID := FindResource(hInstance, PChar(ResName), RT_RCDATA);
+    ResID := FindResource(hInstance, PAnsiChar(ResName), RT_RCDATA);
     if ResID = 0 then raise EPNGError.Create('');
     {Obtains memory and size}
     ResGlobal := LoadResource(hInstance, ResID);
@@ -1916,7 +1916,7 @@ end;
 {Chunk being created}
 constructor TChunk.Create(Owner: TPngObject);
 var
-  ChunkName: String;
+  ChunkName: AnsiString;
 begin
   {Ancestor create}
   inherited Create;
@@ -1944,13 +1944,13 @@ begin
 end;
 
 {Returns the chunk name 1}
-function TChunk.GetChunkName: String;
+function TChunk.GetChunkName: AnsiString;
 begin
   Result := fName
 end;
 
 {Returns the chunk name 2}
-class function TChunk.GetName: String;
+class function TChunk.GetName: AnsiString;
 begin
   {For avoid writing GetName for each TChunk descendent, by default for}
   {classes which don't declare GetName, it will look for the class name}
@@ -2070,7 +2070,7 @@ end;
 function TChunkzTXt.LoadFromStream(Stream: TStream;
   const ChunkName: TChunkName; Size: Integer): Boolean;
 var
-  ErrorOutput: String;
+  ErrorOutput: AnsiString;
   CompressionMethod: Byte;
   Output: Pointer;
   OutputSize: Integer;
@@ -2078,7 +2078,7 @@ begin
   {Load data from stream and validate}
   Result := inherited LoadFromStream(Stream, ChunkName, Size);
   if not Result or (Size < 4) then exit;
-  fKeyword := PChar(Data);  {Get keyword and compression method bellow}
+  fKeyword := PAnsiChar(Data);  {Get keyword and compression method bellow}
   if Longint(fKeyword) = 0 then
     CompressionMethod := pByte(Data)^
   else
@@ -2089,7 +2089,7 @@ begin
   if CompressionMethod = 0 then
   begin
     Output := nil;
-    if DecompressZLIB(PChar(Longint(Data) + Length(fKeyword) + 2),
+    if DecompressZLIB(PAnsiChar(Longint(Data) + Length(fKeyword) + 2),
       Size - Length(fKeyword) - 2, Output, OutputSize, ErrorOutput) then
     begin
       SetLength(fText, OutputSize);
@@ -2105,7 +2105,7 @@ function TChunkztXt.SaveToStream(Stream: TStream): Boolean;
 var
   Output: Pointer;
   OutputSize: Integer;
-  ErrorOutput: String;
+  ErrorOutput: AnsiString;
 begin
   Output := nil; {Initializes output}
   if fText = '' then fText := ' ';
@@ -2152,7 +2152,7 @@ begin
   Result := inherited LoadFromStream(Stream, ChunkName, Size);
   if not Result or (Size < 3) then exit;
   {Get text}
-  fKeyword := PChar(Data);
+  fKeyword := PAnsiChar(Data);
   SetLength(fText, Size - Length(fKeyword) - 1);
   CopyMemory(@fText[1], Ptr(Longint(Data) + Length(fKeyword) + 1),
     Length(fText));
@@ -4562,7 +4562,7 @@ begin
 end;
 
 {Raises an error}
-procedure TPngObject.RaiseError(ExceptionClass: ExceptClass; Text: String);
+procedure TPngObject.RaiseError(ExceptionClass: ExceptClass; Text: AnsiString);
 begin
   raise ExceptionClass.Create(Text);
 end;
@@ -4630,7 +4630,7 @@ end;
   end;
 
   {Saves the current png image to a file}
-  procedure TPngObject.SaveToFile(const Filename: String);
+  procedure TPngObject.SaveToFile(const Filename: AnsiString);
   var
     FileStream: TFileStream;
   begin
@@ -5134,7 +5134,7 @@ end;
 
 {Loads the image from a resource}
 procedure TPngObject.LoadFromResourceName(Instance: HInst;
-  const Name: String);
+  const Name: AnsiString);
 var
   ResStream: TResourceStream;
 begin
@@ -5370,7 +5370,7 @@ begin
 end;
 
 {Add a text chunk}
-procedure TPngObject.AddtEXt(const Keyword, Text: String);
+procedure TPngObject.AddtEXt(const Keyword, Text: AnsiString);
 var
   TextChunk: TChunkTEXT;
 begin
@@ -5380,7 +5380,7 @@ begin
 end;
 
 {Add a text chunk}
-procedure TPngObject.AddzTXt(const Keyword, Text: String);
+procedure TPngObject.AddzTXt(const Keyword, Text: AnsiString);
 var
   TextChunk: TChunkzTXt;
 begin
@@ -5797,7 +5797,7 @@ begin
 end;
 
 {Returns the library version}
-function TPNGObject.GetLibraryVersion: String;
+function TPNGObject.GetLibraryVersion: AnsiString;
 begin
   Result := LibraryVersion
 end;
