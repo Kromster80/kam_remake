@@ -18,10 +18,12 @@ type
     btnSaveRXX: TButton;
     lbSpritesList: TListBox;
     btnLoadRXX: TButton;
-    Image1: TImage;
     btnDelete: TButton;
     btnImport: TButton;
     btnExport: TButton;
+    Panel1: TPanel;
+    Image1: TImage;
+    Label1: TLabel;
     procedure btnPackRXXClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure OpenDialog1Show(Sender: TObject);
@@ -33,6 +35,7 @@ type
     procedure btnDeleteClick(Sender: TObject);
     procedure btnImportClick(Sender: TObject);
     procedure btnExportClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     fPalettes: TKMPalettes;
     fSprites: TKMSpritePack;
@@ -60,12 +63,17 @@ begin
 
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes;
-  fSprites := TKMSpritePack.Create(rxGame, fPalettes, nil);
 
   for RT := Low(TRXType) to High(TRXType) do
     ListBox1.Items.Add(GetEnumName(TypeInfo(TRXType), Integer(RT)));
 
   ListBox1.ItemIndex := 0;
+end;
+
+
+procedure TRXXForm1.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(fSprites);
 end;
 
 
@@ -129,12 +137,27 @@ end;
 
 
 procedure TRXXForm1.btnLoadRXXClick(Sender: TObject);
+var RT: TRXType;
 begin
   //WinXP needs InitialDir to be set before Execute
   OpenDialog1.Filter := 'RX, RXXX packages (*.rx;*.rxx)|*.rxx;*.rx;';
   OpenDialog1.InitialDir := ExeDir + 'data\sprites\';
   OpenDialog1.Options := OpenDialog1.Options - [ofAllowMultiSelect];
   if not OpenDialog1.Execute then Exit;
+
+  //GuiMain/GuiMainH needs to know it's type to use special palette mappings
+  if SameText(ExtractFileName(OpenDialog1.FileName), 'guimain.rx') then
+    RT := rxGuiMain
+  else
+  if SameText(ExtractFileName(OpenDialog1.FileName), 'guimainh.rx') then
+    RT := rxGuiMainH
+  else
+    RT := rxGame;
+
+  FreeAndNil(fSprites);
+  fSprites := TKMSpritePack.Create(RT, fPalettes, nil);
+
+  Label1.Caption := ExtractFileName(OpenDialog1.FileName);
 
   if SameText(ExtractFileExt(OpenDialog1.FileName), '.rx') then
     fSprites.LoadFromRXFile(OpenDialog1.FileName)

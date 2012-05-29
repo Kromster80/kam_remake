@@ -12,16 +12,21 @@ object RXXForm1: TRXXForm1
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
-  object Image1: TImage
-    Left = 272
-    Top = 104
-    Width = 209
-    Height = 169
-    Proportional = True
-    Stretch = True
-    Transparent = True
+  object Label1: TLabel
+    Left = 16
+    Top = 24
+    Width = 37
+    Height = 13
+    Caption = 'Label1'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
   end
   object btnPackRXX: TButton
     Left = 552
@@ -42,7 +47,7 @@ object RXXForm1: TRXXForm1
     TabOrder = 1
   end
   object btnAdd: TButton
-    Left = 272
+    Left = 224
     Top = 8
     Width = 81
     Height = 25
@@ -51,7 +56,7 @@ object RXXForm1: TRXXForm1
     OnClick = btnAddClick
   end
   object btnSaveRXX: TButton
-    Left = 184
+    Left = 136
     Top = 456
     Width = 81
     Height = 25
@@ -61,9 +66,9 @@ object RXXForm1: TRXXForm1
   end
   object lbSpritesList: TListBox
     Left = 8
-    Top = 8
-    Width = 257
-    Height = 441
+    Top = 40
+    Width = 209
+    Height = 409
     ItemHeight = 13
     MultiSelect = True
     TabOrder = 4
@@ -79,7 +84,7 @@ object RXXForm1: TRXXForm1
     OnClick = btnLoadRXXClick
   end
   object btnDelete: TButton
-    Left = 360
+    Left = 488
     Top = 8
     Width = 81
     Height = 25
@@ -88,8 +93,8 @@ object RXXForm1: TRXXForm1
     OnClick = btnDeleteClick
   end
   object btnImport: TButton
-    Left = 272
-    Top = 72
+    Left = 312
+    Top = 8
     Width = 81
     Height = 25
     Caption = 'Import ...'
@@ -97,28 +102,50 @@ object RXXForm1: TRXXForm1
     OnClick = btnImportClick
   end
   object btnExport: TButton
-    Left = 360
-    Top = 72
+    Left = 400
+    Top = 8
     Width = 81
     Height = 25
     Caption = 'Export ...'
     TabOrder = 8
     OnClick = btnExportClick
   end
+  object Panel1: TPanel
+    Left = 224
+    Top = 40
+    Width = 242
+    Height = 162
+    BevelOuter = bvLowered
+    TabOrder = 9
+    object Image1: TImage
+      Left = 1
+      Top = 1
+      Width = 240
+      Height = 160
+      Align = alClient
+      Proportional = True
+      Stretch = True
+      Transparent = True
+      ExplicitLeft = 24
+      ExplicitTop = -56
+      ExplicitWidth = 209
+      ExplicitHeight = 169
+    end
+  end
   object OpenDialog1: TOpenDialog
     OnShow = OpenDialog1Show
     Filter = 'Supported images (*.bmp;*.png)|*.bmp;*.png'
     Options = [ofAllowMultiSelect, ofPathMustExist, ofFileMustExist, ofEnableSizing]
     Title = 'Select images'
-    Left = 112
-    Top = 8
+    Left = 32
+    Top = 48
   end
   object SaveDialog1: TSaveDialog
     OnShow = SaveDialog1Show
     DefaultExt = '*.rxx'
     Filter = 'RXX packages (*.rxx)|*.rxx'
     Options = [ofHideReadOnly, ofPathMustExist, ofEnableSizing]
-    Left = 176
-    Top = 8
+    Left = 96
+    Top = 48
   end
 end
