@@ -1034,7 +1034,7 @@ begin
     CheckBox_SendToAllies.Checked := true;
     CheckBox_SendToAllies.Anchors := [akRight, akBottom];
 
-    Image_ChatClose:=TKMImage.Create(Panel_Chat,800-35,20,32,32,24,rxGame);
+    Image_ChatClose:=TKMImage.Create(Panel_Chat,800-35,20,32,32,52,rxGui);
     Image_ChatClose.Anchors := [akTop, akRight];
     Image_ChatClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_ChatClose.OnClick := Chat_Close;
@@ -1126,7 +1126,7 @@ begin
       Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 60, 20, '', fnt_Grey, taCenter);
     end;
 
-    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,32,32,24,rxGame);
+    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,32,32,52,rxGui);
     Image_AlliesClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := true;
@@ -1698,7 +1698,7 @@ begin
     Radio_Woodcutter.Items.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_CHOP_ONLY]);
     Radio_Woodcutter.OnChange := House_WoodcutterChange;
 
-    Button_Woodcutter := TKMButtonFlat.Create(Panel_HouseWoodcutter,8,64,32,32,23,rxGame);
+    Button_Woodcutter := TKMButtonFlat.Create(Panel_HouseWoodcutter,8,64,32,32,51,rxGui);
     Button_Woodcutter.OnClick := House_WoodcutterChange; //Clicking the button cycles it
 end;
 

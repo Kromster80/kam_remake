@@ -11,7 +11,7 @@ type
     rxUnits,
     rxGui,
     rxGuiMain,
-    rxGuiMainH,
+    rxGuiMainH, //Unused, I have moved all used sprites into rxGuiMain
     rxMenu, //Remake menu elements
     rxTiles, //Tiles
     rxGame); //Remake game sprites

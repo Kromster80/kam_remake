@@ -18,10 +18,12 @@ type
     btnSaveRXX: TButton;
     lbSpritesList: TListBox;
     btnLoadRXX: TButton;
-    Image1: TImage;
     btnDelete: TButton;
     btnImport: TButton;
     btnExport: TButton;
+    Panel1: TPanel;
+    Image1: TImage;
+    Label1: TLabel;
     procedure btnPackRXXClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure OpenDialog1Show(Sender: TObject);
@@ -33,6 +35,7 @@ type
     procedure btnDeleteClick(Sender: TObject);
     procedure btnImportClick(Sender: TObject);
     procedure btnExportClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     fPalettes: TKMPalettes;
     fSprites: TKMSpritePack;
@@ -60,12 +63,17 @@ begin
 
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes;
-  fSprites := TKMSpritePack.Create(rxGame, fPalettes, nil);
 
   for RT := Low(TRXType) to High(TRXType) do
     ListBox1.Items.Add(GetEnumName(TypeInfo(TRXType), Integer(RT)));
 
   ListBox1.ItemIndex := 0;
+end;
+
+
+procedure TRXXForm1.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(fSprites);
 end;
 
 
@@ -129,13 +137,33 @@ end;
 
 
 procedure TRXXForm1.btnLoadRXXClick(Sender: TObject);
+var RT: TRXType;
 begin
   //WinXP needs InitialDir to be set before Execute
-  OpenDialog1.Filter := 'RXX packages (*.rxx)|*.rxx';
+  OpenDialog1.Filter := 'RX, RXXX packages (*.rx;*.rxx)|*.rxx;*.rx;';
   OpenDialog1.InitialDir := ExeDir + 'data\sprites\';
   OpenDialog1.Options := OpenDialog1.Options - [ofAllowMultiSelect];
   if not OpenDialog1.Execute then Exit;
-  fSprites.LoadFromRXXFile(OpenDialog1.FileName);
+
+  //GuiMain/GuiMainH needs to know it's type to use special palette mappings
+  if SameText(ExtractFileName(OpenDialog1.FileName), 'guimain.rx') then
+    RT := rxGuiMain
+  else
+  if SameText(ExtractFileName(OpenDialog1.FileName), 'guimainh.rx') then
+    RT := rxGuiMainH
+  else
+    RT := rxGame;
+
+  FreeAndNil(fSprites);
+  fSprites := TKMSpritePack.Create(RT, fPalettes, nil);
+
+  Label1.Caption := ExtractFileName(OpenDialog1.FileName);
+
+  if SameText(ExtractFileExt(OpenDialog1.FileName), '.rx') then
+    fSprites.LoadFromRXFile(OpenDialog1.FileName)
+  else
+  if SameText(ExtractFileExt(OpenDialog1.FileName), '.rxx') then
+    fSprites.LoadFromRXXFile(OpenDialog1.FileName);
 
   UpdateList;
 end;
@@ -245,7 +273,26 @@ end;
 
 
 procedure TRXXForm1.btnPackRXXClick(Sender: TObject);
-var SpritePack: TKMSpritePack; RT: TRXType; I: Integer;
+  procedure SkipUnusedSprites(aPack: TKMSpritePack; RT: TRXType);
+  const
+    SkipGui:      array [0.. 9] of Word = (403,405,406,408,410,411,552,553,555,581);
+    SkipGuiMain:  array [0..16] of Word = (1,2,7,8,12,17,18,19,20,22,31,32,33,34,35,36,37);
+    SkipGuiMainH: array [0..10] of Word = (1,8,10,11,12,13,14,15,16,17,18);
+  var I: Integer;
+  begin
+    case RT of
+      rxGui:      for I := 0 to High(SkipGui) do
+                    aPack.RXData.Flag[SkipGui[I]] := 0;
+      rxGuiMain:  for I := 0 to High(SkipGuiMain) do
+                    aPack.RXData.Flag[SkipGuiMain[I]] := 0;
+      rxGuiMainH: for I := 0 to High(SkipGuiMainH) do
+                    aPack.RXData.Flag[SkipGuiMainH[I]] := 0;
+    end;
+  end;
+var
+  SpritePack: TKMSpritePack;
+  RT: TRXType;
+  I: Integer;
 begin
   btnPackRXX.Enabled := False;
 
@@ -257,15 +304,10 @@ begin
     SpritePack := TKMSpritePack.Create(RT, fPalettes, nil);
 
     //Load
-    {if FileExists(ExeDir + 'data\gfx\res\' + RXInfo[RT].FileName + '.rxx') then
-    begin
-      fSprites.LoadFromRXXFile(ExeDir + 'data\gfx\res\' + RXInfo[RT].FileName + '.rxx');
-      fSprites.OverloadFromFolder(ExeDir + 'Sprites\');
-    end
-    else}
     if FileExists(ExeDir + 'data\gfx\res\' + RXInfo[RT].FileName + '.rx') then
     begin
       SpritePack.LoadFromRXFile(ExeDir + 'data\gfx\res\' + RXInfo[RT].FileName + '.rx');
+      SkipUnusedSprites(SpritePack, RT);
       SpritePack.OverloadFromFolder(ExeDir + 'Sprites\');
     end
     else
@@ -273,8 +315,6 @@ begin
       SpritePack.LoadFromFolder(ExeDir + 'Sprites\');
 
     fLog.AddToLog('Trimmed ' + IntToStr(SpritePack.TrimSprites));
-
-    //fSprites.ExportToBMP(ExeDir + 'Export\'+RXInfo[RT].FileName);
 
     //Save
     ForceDirectories(ExeDir + 'Data\Sprites\');
