@@ -58,7 +58,6 @@ type
     procedure Expand;
     procedure MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
     procedure MakeGFX_StripPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
-    procedure SaveTextureToBMP(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray; aSaveAlpha: Boolean);
     procedure SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray);
   public
     constructor Create; overload;
@@ -77,7 +76,7 @@ type
     procedure MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection);
 
     procedure SaveToRXXFile(const aFileName: string);
-    procedure ExportToBMP(const aFolder: string);
+    procedure ExportToPNG(const aFolder: string);
     function TrimSprites: Cardinal; //For debug
 
     procedure ClearTemp; //Release non-required data
@@ -668,32 +667,30 @@ end;
 
 
 //Export RX to Bitmaps without need to have GraphicsEditor, also this way we preserve image indexes
-procedure TKMSpritePack.ExportToBMP(const aFolder: string);
+procedure TKMSpritePack.ExportToPNG(const aFolder: string);
 var
-  Bmp: TBitmap;
+  Png: TPNGObject;
   ID, I, K: Integer;
   SizeX, SizeY: Integer;
 begin
   ForceDirectories(aFolder);
 
-  Bmp := TBitmap.Create;
-  Bmp.PixelFormat := pf24bit;
+  Png := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
 
   for ID := 1 to fRXData.Count do
   if fRXData.Flag[ID] = 1 then
   begin
     SizeX := fRXData.Size[ID].X;
     SizeY := fRXData.Size[ID].Y;
-    Bmp.Width  := SizeX;
-    Bmp.Height := SizeY;
+    Png.Resize(SizeX, SizeY);
 
     //Export RGB values
     for I := 0 to SizeY - 1 do
     for K := 0 to SizeX - 1 do
-      if fRXData.RGBA[ID, I*SizeX + K] and $FF000000 = $0 then
-        Bmp.Canvas.Pixels[K,I] := $AF6B6B //Always use the same color for transparency (in custom sprites)
-      else
-        Bmp.Canvas.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
+    begin
+      Png.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
+      Png.AlphaScanline[I]^[K] := fRXData.RGBA[ID, I*SizeX + K] shr 24
+    end;
 
     //Mark pivot location with a dot
     {K := SizeX + fRXData.Pivot[ID].x;
@@ -701,20 +698,20 @@ begin
     if InRange(I, 0, SizeY-1) and InRange(K, 0, SizeX-1) then
       Bmp.Canvas.Pixels[K,I] := $FF00FF;//}
 
-    Bmp.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + '.bmp');
+    Png.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + '.png');
 
     //Export Flag values
     if fRXData.HasMask[ID] then
     begin
       for I := 0 to SizeY - 1 do
       for K := 0 to SizeX - 1 do
-        Bmp.Canvas.Pixels[K,I] := fRXData.Mask[ID, I*SizeX + K] * 65793;
+        Png.Pixels[K,I] := fRXData.Mask[ID, I*SizeX + K] * 65793;
 
-      Bmp.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + 'a.bmp');
+      Png.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + 'a.png');
     end;
   end;
 
-  Bmp.Free;
+  Png.Free;
 end;
 
 
@@ -946,9 +943,9 @@ begin
 
     Inc(BaseRAM, WidthPOT * HeightPOT * TexFormatSize[aTexType]);
 
-    SaveTextureToBMP(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_Strip' + IntToStr(LeftIndex) + '-' + IntToStr(RightIndex), @TD[0], False);
+    SaveTextureToPNG(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_Strip' + IntToStr(LeftIndex) + '-' + IntToStr(RightIndex), @TD[0]);
     if HasMsk then
-      SaveTextureToBMP(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_StripMask' + IntToStr(LeftIndex) + '-' + IntToStr(RightIndex), @TA[0], False);
+      SaveTextureToPNG(WidthPOT, HeightPOT, RXInfo[fRT].FileName + '_StripMask' + IntToStr(LeftIndex) + '-' + IntToStr(RightIndex), @TA[0]);
 
     SetLength(TD, 0);
     SetLength(TA, 0);
@@ -1055,8 +1052,7 @@ type
 
       Inc(TexCount);
 
-      if fRT in [rxHouses] then
-        SaveTextureToPNG(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_' + ExportName[aMode] + IntToStr(I), @TD[0]);
+      SaveTextureToPNG(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_' + ExportName[aMode] + IntToStr(aStartingIndex+I), @TD[0]);
     end;
   end;
 var
@@ -1145,40 +1141,6 @@ begin
 end;
 
 
-procedure TKMSpritePack.SaveTextureToBMP(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray; aSaveAlpha: Boolean);
-var
-  I, K: Word;
-  Bmp: TBitmap;
-  Folder: string;
-begin
-  if EXPORT_SPRITE_ATLASES then
-  begin
-    Folder := ExeDir + 'Export\GenTextures\';
-    ForceDirectories(Folder);
-    Bmp := TBitmap.Create;
-    Bmp.PixelFormat := pf24bit;
-    Bmp.Width  := aWidth;
-    Bmp.Height := aHeight;
-
-    for I := 0 to aHeight - 1 do
-      for K := 0 to aWidth - 1 do
-        Bmp.Canvas.Pixels[K, I] := ((PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^) AND $FFFFFF; //Ignore alpha
-    Bmp.SaveToFile(Folder + aFilename + '.bmp');
-
-    //these Alphas are worth looking at
-    if aSaveAlpha then
-    begin
-      for I := 0 to aHeight - 1 do
-        for K := 0 to aWidth - 1 do
-          Bmp.Canvas.Pixels[K, I] := ((PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^) SHR 24 * 65793; // convert A to RGB Greyscale
-      Bmp.SaveToFile(Folder + aFilename + 'a.bmp');
-    end;
-
-    Bmp.Free;
-  end;
-end;
-
-
 procedure TKMSpritePack.SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray);
 var
   I, K: Word;
@@ -1212,7 +1174,7 @@ end;
 procedure TKMSprites.ExportToBMP(aRT: TRXType);
 begin
   LoadSprites(aRT, False); //BMP can't show the alpha channel so don't load alpha shadows
-  fSprites[aRT].ExportToBMP(ExeDir + 'Export\' + RXInfo[aRT].FileName + '.rx\');
+  fSprites[aRT].ExportToPNG(ExeDir + 'Export\' + RXInfo[aRT].FileName + '.rx\');
   ClearTemp;
 end;
 
