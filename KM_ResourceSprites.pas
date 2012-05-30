@@ -170,6 +170,9 @@ begin
   fRender := aRender;
   fRT := aRT;
   //fRXData := @RXData[fRT];
+
+  if fRT = rxTiles then
+    fPad := 1;
 end;
 
 
@@ -733,7 +736,7 @@ var
   RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
-    if (RXInfo[RT].Usage = ruMenu) and (RT <> rxTiles) then
+    if (RXInfo[RT].Usage = ruMenu) then
     begin
       fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
       LoadSprites(RT, RT = rxGUI); //Only GUI needs alpha shadows
@@ -750,7 +753,7 @@ begin
   fAlphaShadows := aAlphaShadows;
 
   for RT := Low(TRXType) to High(TRXType) do
-  if (RXInfo[RT].Usage = ruGame) and (RT <> rxTiles) then
+  if (RXInfo[RT].Usage = ruGame) then
   begin
     fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
     fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');
@@ -786,13 +789,15 @@ begin
   begin
     fSprites[aRT].LoadFromRXFile(ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rx');
     fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
-    fLog.AddToLog('Trimmed ' + IntToStr(fSprites[aRT].TrimSprites));
+    if aRT <> rxTiles then
+      fLog.AddToLog('Trimmed ' + IntToStr(fSprites[aRT].TrimSprites));
   end
   else
   if DirectoryExists(ExeDir + 'Sprites\') then
   begin
     fSprites[aRT].LoadFromFolder(ExeDir + 'Sprites\');
-    fLog.AddToLog('Trimmed ' + IntToStr(fSprites[aRT].TrimSprites));
+    if aRT <> rxTiles then
+      fLog.AddToLog('Trimmed ' + IntToStr(fSprites[aRT].TrimSprites));
   end;
 end;
 
@@ -959,7 +964,7 @@ type
       SetLength(TD, SpriteInfo[I].Width * SpriteInfo[I].Height);
 
       //Copy sprite to Atlas
-      //todo: Add padding to the sprite if necessary
+      //todo: Fill padding with edge color
       for K := 0 to High(SpriteInfo[I].Sprites) do
       begin
         ID := SpriteInfo[I].Sprites[K].SpriteID;

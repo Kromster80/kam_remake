@@ -316,7 +316,8 @@ begin
     if DirectoryExists(ExeDir + 'SpriteResource\') then
       SpritePack.LoadFromFolder(ExeDir + 'SpriteResource\');
 
-    fLog.AddToLog('Trimmed ' + IntToStr(SpritePack.TrimSprites));
+    if RT <> rxTiles then
+      fLog.AddToLog('Trimmed ' + IntToStr(SpritePack.TrimSprites));
 
     //Save
     ForceDirectories(ExeDir + 'Data\Sprites\');
