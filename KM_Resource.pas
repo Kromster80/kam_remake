@@ -209,7 +209,7 @@ end;
 procedure TResource.ExportUnitAnim;
 var
   Folder: string;
-  MyBitMap: TBitmap;
+  Bmp: TBitmap;
   U: TUnitType;
   A: TUnitActionType;
   D: TKMDirection;
@@ -225,8 +225,8 @@ begin
   Folder := ExeDir + 'Export\UnitAnim\';
   ForceDirectories(Folder);
 
-  MyBitMap := TBitmap.Create;
-  MyBitMap.PixelFormat := pf24bit;
+  Bmp := TBitmap.Create;
+  Bmp.PixelFormat := pf24bit;
 
   if fUnitDat = nil then
     fUnitDat := TKMUnitDatCollection.Create;
@@ -247,16 +247,16 @@ begin
 
       sx := RXData.Size[ci].X;
       sy := RXData.Size[ci].Y;
-      MyBitMap.Width := sx;
-      MyBitMap.Height := sy;
+      Bmp.Width := sx;
+      Bmp.Height := sy;
 
       for y:=0 to sy-1 do
       for x:=0 to sx-1 do
         //@Krom: Crashes here when you export unit anim
-        MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci, y*sx+x] AND $FFFFFF;
+        Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci, y*sx+x] AND $FFFFFF;
 
       if sy > 0 then
-        MyBitMap.SaveToFile(Folder +
+        Bmp.SaveToFile(Folder +
           fUnitDat[U].UnitName + '\' + UnitAct[A] + '\' +
           'Dir' + IntToStr(Byte(D)) + '_' + int2fix(i, 2) + '.bmp');
     end;
@@ -290,17 +290,17 @@ begin
   begin
     sx := RXData.Size[ci].X;
     sy := RXData.Size[ci].Y;
-    MyBitMap.Width := sx;
-    MyBitMap.Height := sy;
+    Bmp.Width := sx;
+    Bmp.Height := sy;
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do
-      MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci, y*sx+x] AND $FFFFFF;
+      Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci, y*sx+x] AND $FFFFFF;
 
-    if sy>0 then MyBitMap.SaveToFile(Folder + '_Unused\_'+int2fix(ci,4) + '.bmp');
+    if sy>0 then Bmp.SaveToFile(Folder + '_Unused\_'+int2fix(ci,4) + '.bmp');
   end;
 
   fSprites.ClearTemp;
-  MyBitMap.Free;
+  Bmp.Free;
 end;
 
 
@@ -308,7 +308,7 @@ end;
 procedure TResource.ExportHouseAnim;
 var
   Folder: string;
-  MyBitMap:TBitmap;
+  Bmp:TBitmap;
   ID:THouseType;
   Ac:THouseActionType;
   Q,Beast,i,k,ci:integer;
@@ -320,8 +320,8 @@ begin
   Folder := ExeDir + 'Export\HouseAnim\';
   ForceDirectories(Folder);
 
-  MyBitMap := TBitmap.Create;
-  MyBitMap.PixelFormat := pf24bit;
+  Bmp := TBitmap.Create;
+  Bmp.PixelFormat := pf24bit;
 
   fHouseDat := TKMHouseDatCollection.Create;
   fSprites.LoadSprites(rxHouses, False); //BMP can't show alpha shadows
@@ -337,14 +337,14 @@ begin
 
         sx := RXData.Size[ci].X;
         sy := RXData.Size[ci].Y;
-        MyBitMap.Width:=sx;
-        MyBitMap.Height:=sy;
+        Bmp.Width:=sx;
+        Bmp.Height:=sy;
 
         for y:=0 to sy-1 do for x:=0 to sx-1 do
           //@Krom: Crashes here when you export house anim
-          MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
+          Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
-        if sy>0 then MyBitMap.SaveToFile(
+        if sy>0 then Bmp.SaveToFile(
         Folder+fHouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\_'+int2fix(k,2)+'.bmp');
       end;
 
@@ -364,18 +364,18 @@ begin
 
           sx:=RXData.Size[ci].X;
           sy:=RXData.Size[ci].Y;
-          MyBitMap.Width:=sx;
-          MyBitMap.Height:=sy;
+          Bmp.Width:=sx;
+          Bmp.Height:=sy;
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do
-            MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
+            Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
-          if sy>0 then MyBitMap.SaveToFile(Folder+'_'+fHouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
+          if sy>0 then Bmp.SaveToFile(Folder+'_'+fHouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
         end;
   end;
 
   fSprites.ClearTemp;
-  MyBitMap.Free;
+  Bmp.Free;
 end;
 
 

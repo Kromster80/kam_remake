@@ -69,7 +69,7 @@ var
   MaxHeight:integer;
   AdvX,AdvY:integer;
   TD:array of cardinal;
-  MyBitMap:TBitMap;
+  Bmp:TBitMap;
 begin
   MaxHeight := 0;
   if not FileExists(aFileName) then exit;
@@ -140,17 +140,17 @@ begin
 
   if ExportToBMP then
   begin
-    MyBitMap := TBitMap.Create;
-    MyBitMap.PixelFormat := pf24bit;
-    MyBitMap.Width  := TexWidth;
-    MyBitMap.Height := TexWidth;
+    Bmp := TBitMap.Create;
+    Bmp.PixelFormat := pf24bit;
+    Bmp.Width  := TexWidth;
+    Bmp.Height := TexWidth;
 
     for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do
-      MyBitMap.Canvas.Pixels[ck,ci]:= TD[ci*TexWidth+ck] AND $FFFFFF;
+      Bmp.Canvas.Pixels[ck,ci]:= TD[ci*TexWidth+ck] AND $FFFFFF;
 
     ForceDirectories(ExeDir + 'Export\Fonts\');
-    MyBitMap.SaveToFile(ExeDir + 'Export\Fonts\'+ExtractFileName(aFileName)+fResource.Palettes.PalFile(FontPal[aFont])+'.bmp');
-    MyBitMap.Free;
+    Bmp.SaveToFile(ExeDir + 'Export\Fonts\'+ExtractFileName(aFileName)+fResource.Palettes.PalFile(FontPal[aFont])+'.bmp');
+    Bmp.Free;
   end;
 
   SetLength(TD, 0);

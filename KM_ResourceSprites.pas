@@ -109,7 +109,7 @@ type
 
     //Used externally to access raw RGBA data (e.g. by ExportAnim)
     procedure LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
-    procedure ExportToBMP(aRT: TRXType);
+    procedure ExportToPNG(aRT: TRXType);
 
     property AlphaShadows: Boolean read fAlphaShadows;
     property FileName[aRX: TRXType]: string read GetRXFileName;
@@ -448,7 +448,6 @@ var
   x,y:integer;
   T: Byte;
   ft: TextFile;
-  Bmp: TBitmap;
   {$IFDEF WDC}
   p: Cardinal;
   po: TPNGObject;
@@ -457,78 +456,60 @@ var
   po: TBGRABitmap;
   {$ENDIF}
 begin
+  Assert(SameText(ExtractFileExt(aFilename), '.png'));
+
   if aIndex >= fRXData.Count then
     Allocate(aIndex);
 
-  fRXData.HasMask[aIndex] := FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.png') or
-                             FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.bmp');
+  fRXData.HasMask[aIndex] := FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.png');
 
-  if SameText(ExtractFileExt(aFilename), '.png') then
-  begin
+  {$IFDEF WDC}
+  po := TPNGObject.Create;
+  po.LoadFromFile(aFolder + aFilename);
+  {$ENDIF}
+  {$IFDEF FPC}
+  po := TBGRABitmap.Create(aFolder + aFilename);
+  {$ENDIF}
+  try
+    fRXData.Flag[aIndex] := Byte(po.Width * po.Height <> 0); //Mark as used (required for saving RXX)
+    fRXData.Size[aIndex].X := po.Width;
+    fRXData.Size[aIndex].Y := po.Height;
+
+    SetLength(fRXData.RGBA[aIndex], po.Width * po.Height);
+    SetLength(fRXData.Mask[aIndex], po.Width * po.Height); //Should allocate space for it's always comes along
+
+    if aFilename = '2_1752.png' then
+      sleep(0);
+
     {$IFDEF WDC}
-    po := TPNGObject.Create;
-    po.LoadFromFile(aFolder + aFilename);
+    //There are ways to process PNG transparency
+    case po.TransparencyMode of
+      ptmNone:
+        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+          fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+      ptmBit:
+        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+          if po.Pixels[x,y] = po.TransparentColor then
+            fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
+          else
+            fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+      ptmPartial:
+        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+        begin
+          p := po.AlphaScanline[y]^[x]; //semitransparency is killed by render later-on
+          fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR (p shl 24);
+        end;
+      else
+        Assert(false, 'Unknown PNG transparency mode')
+    end;
     {$ENDIF}
     {$IFDEF FPC}
-    po := TBGRABitmap.Create(aFolder + aFilename);
+    for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+      fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.GetPixel(x,y).red) OR (cardinal(po.GetPixel(x,y).green) shl 8) OR
+                                           (cardinal(po.GetPixel(x,y).blue) shl 16) OR (cardinal(po.GetPixel(x,y).alpha) shl 24);
     {$ENDIF}
-    try
-      fRXData.Flag[aIndex] := Byte(po.Width * po.Height <> 0); //Mark as used (required for saving RXX)
-      fRXData.Size[aIndex].X := po.Width;
-      fRXData.Size[aIndex].Y := po.Height;
-
-      SetLength(fRXData.RGBA[aIndex], po.Width * po.Height);
-      SetLength(fRXData.Mask[aIndex], po.Width * po.Height); //Should allocate space for it's always comes along
-
-      if aFilename = '2_1752.png' then
-        sleep(0);
-
-      {$IFDEF WDC}
-      //There are ways to process PNG transparency
-      case po.TransparencyMode of
-        ptmNone:
-          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-            fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
-        ptmBit:
-          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-            if po.Pixels[x,y] = po.TransparentColor then
-              fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
-            else
-              fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
-        ptmPartial:
-          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-          begin
-            p := po.AlphaScanline[y]^[x]; //semitransparency is killed by render later-on
-            fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR (p shl 24);
-          end;
-        else
-          Assert(false, 'Unknown PNG transparency mode')
-      end;
-      {$ENDIF}
-      {$IFDEF FPC}
-      for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-        fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.GetPixel(x,y).red) OR (cardinal(po.GetPixel(x,y).green) shl 8) OR
-                                             (cardinal(po.GetPixel(x,y).blue) shl 16) OR (cardinal(po.GetPixel(x,y).alpha) shl 24);
-      {$ENDIF}
-    finally
-      po.Free;
-    end;
-  end;
-
-  if SameText(ExtractFileExt(aFilename), 'bmp') then
-  begin
-    Bmp :=TBitmap.Create;
-    Bmp.LoadFromFile(aFolder + aFilename);
-
-    fRXData.Flag[aIndex] := Byte(Bmp.Width * Bmp.Height <> 0); //Mark as used (required for saving RXX)
-    fRXData.Size[aIndex].X := Bmp.Width;
-    fRXData.Size[aIndex].Y := Bmp.Height;
-
-    SetLength(fRXData.RGBA[aIndex], Bmp.Width*Bmp.Height);
-    SetLength(fRXData.Mask[aIndex], Bmp.Width*Bmp.Height); //Should allocate space for it's always comes along
-
-    for y:=0 to Bmp.Height-1 do for x:=0 to Bmp.Width-1 do
-      fRXData.RGBA[aIndex, y*Bmp.Width+x] := cardinal(Bmp.Canvas.Pixels[x,y]) OR $FF000000;
+  finally
+    po.Free;
   end;
 
   //Load and process the mask if it exists
@@ -569,20 +550,6 @@ begin
       end;
       po.Free;
     end;
-
-    //BMP masks are not like PNG masks, they take the raw pixel value.
-    //We use them for creating soft shadows: BMP masks are exported from Remake then imported again
-    if FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.bmp') then
-    begin
-      Bmp := TBitmap.Create;
-      Bmp.LoadFromFile(aFolder + Copy(aFilename, 1, 6) + 'a.bmp');
-
-      if (fRXData.Size[aIndex].X = Bmp.Width) and (fRXData.Size[aIndex].Y = Bmp.Height) then
-        for y:=0 to Bmp.Height-1 do for x:=0 to Bmp.Width-1 do
-          fRXData.Mask[aIndex, y*Bmp.Width+x] := Byte(Bmp.Canvas.Pixels[x,y] AND $FF); //Take red, although it doesn't matter as we assume the input is greyscale
-
-      Bmp.Free;
-    end;
   end;
 
   //Read pivot info
@@ -609,11 +576,9 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
     FileList := TStringList.Create;
     try
       //PNGs
-      FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????.???', faAnyFile - faDirectory, SearchRec);
+      FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????.png', faAnyFile - faDirectory, SearchRec);
       repeat
-        if SameText(ExtractFileExt(SearchRec.Name), '.png')
-        or SameText(ExtractFileExt(SearchRec.Name), '.bmp') then
-          FileList.Add(SearchRec.Name);
+        FileList.Add(SearchRec.Name);
       until (FindNext(SearchRec)<>0);
       FindClose(SearchRec);
 
@@ -695,7 +660,7 @@ begin
     {K := SizeX + fRXData.Pivot[ID].x;
     I := SizeY + fRXData.Pivot[ID].y;
     if InRange(I, 0, SizeY-1) and InRange(K, 0, SizeX-1) then
-      Bmp.Canvas.Pixels[K,I] := $FF00FF;//}
+      Png.Pixels[K,I] := $FF00FF;//}
 
     Png.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + '.png');
 
@@ -1168,7 +1133,7 @@ begin
 end;
 
 
-procedure TKMSprites.ExportToBMP(aRT: TRXType);
+procedure TKMSprites.ExportToPNG(aRT: TRXType);
 begin
   LoadSprites(aRT, False); //BMP can't show the alpha channel so don't load alpha shadows
   fSprites[aRT].ExportToPNG(ExeDir + 'Export\' + RXInfo[aRT].FileName + '.rx\');
