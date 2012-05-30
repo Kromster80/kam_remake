@@ -1114,7 +1114,7 @@ begin
         TKMLabel.Create(Panel_Allies, 220+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
         TKMLabel.Create(Panel_Allies, 350+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
       end;
-      Image_AlliesLang[i] := TKMImage.Create(Panel_Allies,      50+(i div 4)*380, 82+(i mod 4)*24, 16,  11,  0, rxMenu);
+      Image_AlliesLang[i] := TKMImage.Create(Panel_Allies,      50+(i div 4)*380, 82+(i mod 4)*24, 16,  11,  0, rxGuiMain);
       Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    70+(i div 4)*380, 80+(i mod 4)*24, 140, 20, '', fnt_Grey, taLeft);
       Label_AlliesTeam[i]   := TKMLabel.Create(Panel_Allies,   220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, '', fnt_Grey, taLeft);
       DropBox_AlliesTeam[i] := TKMDropList.Create(Panel_Allies, 220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey, '');
@@ -2237,8 +2237,8 @@ begin
                         Radio_Woodcutter.ItemIndex := 0;
                       end;
     wcm_Chop:         begin
-                        Button_Woodcutter.TexID := 23;
-                        Button_Woodcutter.RX := rxGame;
+                        Button_Woodcutter.TexID := 51;
+                        Button_Woodcutter.RX := rxGui;
                         Radio_Woodcutter.ItemIndex := 1;
                       end;
   end;
@@ -3078,7 +3078,7 @@ begin
       Image_AlliesLang[i].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[i+1].LangCode).FlagSpriteID
     else
       if fGame.Networking.NetPlayers[i+1].IsComputer then
-        Image_AlliesLang[I].TexID := 22 //PC icon
+        Image_AlliesLang[I].TexID := 62 //PC icon
       else
         Image_AlliesLang[i].TexID := 0;
 

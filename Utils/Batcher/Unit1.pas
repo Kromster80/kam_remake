@@ -1,27 +1,31 @@
 unit Unit1;
 interface
 uses
-  SysUtils,
-  Controls, Forms,
-  KM_Points, KM_Defaults, KM_CommonClasses, Classes, KromUtils,
-  KM_Game, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary, KM_Terrain, KM_Units_Warrior, KM_Utils, Math,
-  StdCtrls;
+  Windows, Classes, Controls, Forms, Math, StdCtrls, SysUtils,
+  KM_Points, KM_Defaults, KM_CommonClasses, KromUtils,
+  KM_Game, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary, KM_Terrain, KM_Units_Warrior, KM_Utils;
+
 
 type
   TForm1 = class(TForm)
     Button3: TButton;
+    Button1: TButton;
     procedure Button3Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     procedure SetUp;
     procedure TearDown;
     procedure ControlsEnable(aFlag: Boolean);
   end;
 
+
 var
   Form1: TForm1;
 
+
 implementation
 {$R *.dfm}
+
 
 procedure TForm1.ControlsEnable(aFlag: Boolean);
 var I: Integer;
@@ -52,6 +56,29 @@ begin
   FreeAndNil(fTextLibrary);
   FreeAndNil(fLocales);
   FreeAndNil(fLog);
+end;
+
+
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  SearchRec: TSearchRec;
+  NewName: string;
+  B: Boolean;
+begin
+  begin
+    FindFirst('..\..\SpriteResource\9\9*.png', faAnyFile, SearchRec);
+    repeat
+      NewName := SearchRec.Name;
+      NewName := StringReplace(NewName, '9_00', '2_17', [rfReplaceAll, rfIgnoreCase]);
+      NewName := StringReplace(NewName, '9_01', '2_18', [rfReplaceAll, rfIgnoreCase]);
+      NewName := StringReplace(NewName, '9_02', '2_19', [rfReplaceAll, rfIgnoreCase]);
+      NewName := StringReplace(NewName, '9_03', '2_20', [rfReplaceAll, rfIgnoreCase]);
+      B := RenameFile(ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + SearchRec.Name,
+                      ExtractFilePath(ParamStr(0)) + '..\..\SpriteResource\9\' + NewName);
+      Assert(B);
+    until (FindNext(SearchRec) <> 0);
+    FindClose(SearchRec);
+  end;
 end;
 
 

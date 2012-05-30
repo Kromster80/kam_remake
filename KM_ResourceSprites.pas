@@ -29,9 +29,7 @@ var
     (FileName: 'GUI';        TeamColors: True;  Usage: ruMenu; LoadingTextID: 0;),
     (FileName: 'GUIMain';    TeamColors: False; Usage: ruMenu; LoadingTextID: 0;),
     (FileName: 'GUIMainH';   TeamColors: False; Usage: ruMenu; LoadingTextID: 0;),
-    (FileName: 'RemakeMenu'; TeamColors: True;  Usage: ruMenu; LoadingTextID: 0;),
-    (FileName: 'Tileset';    TeamColors: False; Usage: ruGame; LoadingTextID: TX_MENU_LOADING_TILESET;),
-    (FileName: 'RemakeGame'; TeamColors: True;  Usage: ruGame; LoadingTextID: TX_MENU_LOADING_ADDITIONAL_SPRITES;));
+    (FileName: 'Tileset';    TeamColors: False; Usage: ruGame; LoadingTextID: TX_MENU_LOADING_TILESET;));
 
 type
   TRXData = record
@@ -474,42 +472,47 @@ begin
     {$IFDEF FPC}
     po := TBGRABitmap.Create(aFolder + aFilename);
     {$ENDIF}
+    try
+      fRXData.Flag[aIndex] := Byte(po.Width * po.Height <> 0); //Mark as used (required for saving RXX)
+      fRXData.Size[aIndex].X := po.Width;
+      fRXData.Size[aIndex].Y := po.Height;
 
-    fRXData.Flag[aIndex] := 1; //Mark as used (required for saving RXX)
-    fRXData.Size[aIndex].X := po.Width;
-    fRXData.Size[aIndex].Y := po.Height;
+      SetLength(fRXData.RGBA[aIndex], po.Width * po.Height);
+      SetLength(fRXData.Mask[aIndex], po.Width * po.Height); //Should allocate space for it's always comes along
 
-    SetLength(fRXData.RGBA[aIndex], po.Width * po.Height);
-    SetLength(fRXData.Mask[aIndex], po.Width * po.Height); //Should allocate space for it's always comes along
+      if aFilename = '2_1752.png' then
+        sleep(0);
 
-    {$IFDEF WDC}
-    //There are ways to process PNG transparency
-    case po.TransparencyMode of
-      ptmNone:
-        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-          fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
-      ptmBit:
-        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-          if po.Pixels[x,y] = po.TransparentColor then
-            fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
-          else
+      {$IFDEF WDC}
+      //There are ways to process PNG transparency
+      case po.TransparencyMode of
+        ptmNone:
+          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
             fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
-      ptmPartial:
-        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-        begin
-          p := (po.AlphaScanline[y]^[x]) shl 24; //semitransparency is killed by render later-on
-          fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR p;
-        end;
-      else
-        Assert(false, 'Unknown PNG transparency mode')
+        ptmBit:
+          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+            if po.Pixels[x,y] = po.TransparentColor then
+              fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
+            else
+              fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+        ptmPartial:
+          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+          begin
+            p := po.AlphaScanline[y]^[x]; //semitransparency is killed by render later-on
+            fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR (p shl 24);
+          end;
+        else
+          Assert(false, 'Unknown PNG transparency mode')
+      end;
+      {$ENDIF}
+      {$IFDEF FPC}
+      for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+        fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.GetPixel(x,y).red) OR (cardinal(po.GetPixel(x,y).green) shl 8) OR
+                                             (cardinal(po.GetPixel(x,y).blue) shl 16) OR (cardinal(po.GetPixel(x,y).alpha) shl 24);
+      {$ENDIF}
+    finally
+      po.Free;
     end;
-    {$ENDIF}
-    {$IFDEF FPC}
-    for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-      fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.GetPixel(x,y).red) OR (cardinal(po.GetPixel(x,y).green) shl 8) OR
-                                           (cardinal(po.GetPixel(x,y).blue) shl 16) OR (cardinal(po.GetPixel(x,y).alpha) shl 24);
-    {$ENDIF}
-    po.Free;
   end;
 
   if SameText(ExtractFileExt(aFilename), 'bmp') then
@@ -517,7 +520,7 @@ begin
     Bmp :=TBitmap.Create;
     Bmp.LoadFromFile(aFolder + aFilename);
 
-    fRXData.Flag[aIndex] := 1; //Mark as used (required for saving RXX)
+    fRXData.Flag[aIndex] := Byte(Bmp.Width * Bmp.Height <> 0); //Mark as used (required for saving RXX)
     fRXData.Size[aIndex].X := Bmp.Width;
     fRXData.Size[aIndex].Y := Bmp.Height;
 
@@ -596,41 +599,37 @@ end;
 
 //Parse all valid files in Sprites folder and load them additionaly to or replacing original sprites
 procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
-var
-  FileList: TStringList;
-  SearchRec: TSearchRec;
-  I, ID: Integer;
-  RX: Byte;
-begin
-  RX := Byte(fRT) + 1;
-
-  if not DirectoryExists(aFolder) then Exit;
-
-  FileList := TStringList.Create;
-  //PNGs
-  FindFirst(aFolder + inttostr(RX)+'_????.png', faAnyFile AND NOT faDirectory, SearchRec);
-  repeat
-    FileList.Add(SearchRec.Name);
-  until (FindNext(SearchRec)<>0);
-  FindClose(SearchRec);
-  //BMPs
-  FindFirst(aFolder + inttostr(RX)+'_????.bmp', faAnyFile AND NOT faDirectory, SearchRec);
-  repeat
-    FileList.Add(SearchRec.Name);
-  until (FindNext(SearchRec)<>0);
-  FindClose(SearchRec);
-
-  //#_####.png - Default texture
-  //#_####a.png - Flag colors areas
-  //#_####.txt - Pivot info
-
-  for I := 0 to FileList.Count - 1 do
+  procedure ProcessFolder(const aProcFolder: string);
+  var
+    FileList: TStringList;
+    SearchRec: TSearchRec;
+    I, ID: Integer;
   begin
-    if TryStrToInt(Copy(FileList.Strings[I], 3, 4), ID) then
-      AddImage(aFolder, FileList.Strings[I], ID);
-  end;
+    if not DirectoryExists(aFolder) then Exit;
+    FileList := TStringList.Create;
+    try
+      //PNGs
+      FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????.???', faAnyFile - faDirectory, SearchRec);
+      repeat
+        if SameText(ExtractFileExt(SearchRec.Name), '.png')
+        or SameText(ExtractFileExt(SearchRec.Name), '.bmp') then
+          FileList.Add(SearchRec.Name);
+      until (FindNext(SearchRec)<>0);
+      FindClose(SearchRec);
 
-  FileList.Free;
+      //#_####.png - Base texture
+      //#_####a.png - Flag color mask
+      //#_####.txt - Pivot info (optional)
+      for I := 0 to FileList.Count - 1 do
+        if TryStrToInt(Copy(FileList.Strings[I], 3, 4), ID) then
+          AddImage(aProcFolder, FileList.Strings[I], ID);
+    finally
+      FileList.Free;
+    end;
+  end;
+begin
+  ProcessFolder(aFolder);
+  ProcessFolder(aFolder + IntToStr(Byte(fRT) + 1) + '\');
 end;
 
 
@@ -845,7 +844,7 @@ begin
   if SKIP_RENDER then Exit;
   if fRXData.Count = 0 then Exit;
 
-  if aAlphaShadows and (fRT in [rxTrees,rxHouses,rxUnits,rxGui,rxGame]) then
+  if aAlphaShadows and (fRT in [rxTrees,rxHouses,rxUnits,rxGui]) then
     TexType := tf_RGBA8
   else
     TexType := tf_RGB5A1;

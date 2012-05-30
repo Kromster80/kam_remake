@@ -85,7 +85,7 @@ begin
   //Sort Items by size to improve packing efficiency
   for I := 0 to High(aItems) do
     for K := I + 1 to High(aItems) do
-      if (aItems[K].X * aItems[K].Y) > (aItems[I].X * aItems[I].Y) then
+      if (aItems[K].X + aItems[K].Y) > (aItems[I].X + aItems[I].Y) then
       begin
         SwapInt(aItems[I].ID, aItems[K].ID);
         SwapInt(aItems[I].X, aItems[K].X);

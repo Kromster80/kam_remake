@@ -74,6 +74,8 @@ end;
 procedure TRXXForm1.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(fSprites);
+  FreeAndNil(fPalettes);
+  FreeAndNil(fLog);
 end;
 
 
@@ -152,7 +154,7 @@ begin
   if SameText(ExtractFileName(OpenDialog1.FileName), 'guimainh.rx') then
     RT := rxGuiMainH
   else
-    RT := rxGame;
+    RT := rxTrees;
 
   FreeAndNil(fSprites);
   fSprites := TKMSpritePack.Create(RT, fPalettes, nil);
@@ -285,8 +287,8 @@ procedure TRXXForm1.btnPackRXXClick(Sender: TObject);
                     aPack.RXData.Flag[SkipGui[I]] := 0;
       rxGuiMain:  for I := 0 to High(SkipGuiMain) do
                     aPack.RXData.Flag[SkipGuiMain[I]] := 0;
-      rxGuiMainH: for I := 0 to High(SkipGuiMainH) do
-                    aPack.RXData.Flag[SkipGuiMainH[I]] := 0;
+      rxGuiMainH: for I := 1 to aPack.RXData.Count do
+                    aPack.RXData.Flag[I] := 0;
     end;
   end;
 var
@@ -304,15 +306,15 @@ begin
     SpritePack := TKMSpritePack.Create(RT, fPalettes, nil);
 
     //Load
-    if FileExists(ExeDir + 'data\gfx\res\' + RXInfo[RT].FileName + '.rx') then
+    if FileExists(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx') then
     begin
-      SpritePack.LoadFromRXFile(ExeDir + 'data\gfx\res\' + RXInfo[RT].FileName + '.rx');
+      SpritePack.LoadFromRXFile(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx');
       SkipUnusedSprites(SpritePack, RT);
-      SpritePack.OverloadFromFolder(ExeDir + 'Sprites\');
+      SpritePack.OverloadFromFolder(ExeDir + 'SpriteResource\');
     end
     else
-    if DirectoryExists(ExeDir + 'Sprites\') then
-      SpritePack.LoadFromFolder(ExeDir + 'Sprites\');
+    if DirectoryExists(ExeDir + 'SpriteResource\') then
+      SpritePack.LoadFromFolder(ExeDir + 'SpriteResource\');
 
     fLog.AddToLog('Trimmed ' + IntToStr(SpritePack.TrimSprites));
 
