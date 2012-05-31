@@ -20,7 +20,6 @@ type
 
     function LoadPatternDAT(const FileName: string): Boolean;
     procedure LoadTextures(const aPath: string);
-    procedure GenerateGFX;
     procedure MakeMiniMapColors(const FileName: string);
   public
     PatternDAT: array [1..256] of packed record
@@ -33,10 +32,6 @@ type
     end;
 
     TextG: Cardinal; //Shading gradient for lighting
-    TextT: Cardinal; //Tiles
-    TextW: array [1..8] of Cardinal; //Water
-    TextS: array [1..3] of Cardinal; //Swamps
-    TextF: array [1..5] of Cardinal; //WaterFalls
     TileColor: array [Byte] of record R,G,B: Byte end;
 
     constructor Create(const aPath, aPatternPath: string; aSprites: TKMSpritePack);
@@ -68,7 +63,6 @@ begin
   LoadPatternDAT(aPatternPath);
 
   LoadTextures(aPath);
-  GenerateGFX;
 
   MakeMiniMapColors(aPath + 'Tiles1.tga');
 end;
@@ -93,14 +87,6 @@ begin
     for I := 0 to 255 do
       pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, @pData[0]);
-  end;
-
-  LoadTextureTGA(aPath + 'Tiles1.tga', TextT);
-
-  if MAKE_ANIM_TERRAIN then begin
-    for i:=1 to 8 do LoadTextureTGA(aPath + 'Water'+inttostr(i)+'.tga', TextW[i]);
-    for i:=1 to 3 do LoadTextureTGA(aPath + 'Swamp'+inttostr(i)+'.tga', TextS[i]);
-    for i:=1 to 5 do LoadTextureTGA(aPath + 'Falls'+inttostr(i)+'.tga', TextF[i]);
   end;
 end;
 
@@ -169,24 +155,6 @@ begin
   closefile(ft);
 end;
 
-
-procedure TKMTileset.GenerateGFX;
-var I: Integer;
-begin
-  SetLength(GFXData[rxTiles], 256 + 1);
-  //Generate UV coords
-  for I := 0 to 255 do
-  with GFXData[rxTiles, I+1] do
-  begin
-    Tex.ID := TextT;
-    Tex.v1 := (I div 16  ) / 16; //There are 16 tiles across the line
-    Tex.u1 := (I mod 16  ) / 16;
-    Tex.v2 := (I div 16+1) / 16;
-    Tex.u2 := (I mod 16+1) / 16;
-    PxWidth := 32;
-    PxHeight := 32;
-  end;
-end;
 
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
 thus it's better to spend few ms and generate minimap colors from actual data}

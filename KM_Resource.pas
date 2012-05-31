@@ -154,7 +154,7 @@ begin
 
   if (fDataState <> dls_All) or (aAlphaShadows <> fSprites.AlphaShadows) then
   begin
-    fSprites.LoadGameResources(fHouseDat, fTileset.TextT, aAlphaShadows);
+    fSprites.LoadGameResources(fHouseDat, aAlphaShadows);
 
     fSprites.ClearTemp;
   end;

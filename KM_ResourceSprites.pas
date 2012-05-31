@@ -102,7 +102,7 @@ type
     destructor Destroy; override;
 
     procedure LoadMenuResources;
-    procedure LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal; aAlphaShadows:boolean);
+    procedure LoadGameResources(aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
     procedure ClearTemp;
 
     property Sprites[aRT: TRXType]: TKMSpritePack read GetSprites; default;
@@ -746,7 +746,7 @@ begin
 end;
 
 
-procedure TKMSprites.LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal; aAlphaShadows:boolean);
+procedure TKMSprites.LoadGameResources(aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
 var RT: TRXType;
 begin
   //Remember which version we load
