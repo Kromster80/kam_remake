@@ -26,6 +26,7 @@
 	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
 	RCE in TKMFogOfWar.CheckVerticeRevelation called from TKMProjectiles.UpdateState. Lots of bug reports uploaded with this error (e.g. 23/05/12)
 	Fix function of the "Restart" button so it always restarts the mission you were playing, not just loads basesave
+	Producing more than 65k resources causes an integer overflow because PlayerStats uses Words. 65k was reached in 16 hours building a huge village. We should also limit it to not overflow but stay at maximum forever.
 
 	Dots and lines displaying on tile edges [Krom]
 	Sandhills cause water next to shore tiles to appear darker with square edges
