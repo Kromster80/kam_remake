@@ -132,6 +132,26 @@ object RXXForm1: TRXXForm1
       ExplicitHeight = 169
     end
   end
+  object Panel2: TPanel
+    Left = 224
+    Top = 208
+    Width = 242
+    Height = 162
+    BevelOuter = bvLowered
+    TabOrder = 10
+    object Image2: TImage
+      Left = 1
+      Top = 1
+      Width = 240
+      Height = 160
+      Align = alClient
+      Proportional = True
+      Stretch = True
+      Transparent = True
+      ExplicitLeft = 233
+      ExplicitTop = 33
+    end
+  end
   object OpenDialog1: TOpenDialog
     OnShow = OpenDialog1Show
     Filter = 'Supported images (*.bmp;*.png)|*.bmp;*.png'

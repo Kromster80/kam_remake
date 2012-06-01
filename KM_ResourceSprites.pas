@@ -5,7 +5,7 @@ uses
   {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics, Math, SysUtils,
-  KM_CommonEvents, KM_Defaults, KM_Pics, KM_ResourceHouse, KM_ResourcePalettes, KM_Render, KM_TextLibrary
+  KM_CommonEvents, KM_Defaults, KM_Pics, KM_Render, KM_TextLibrary
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF}
   {$IFDEF FPC}, BGRABitmap {$ENDIF};
@@ -40,57 +40,45 @@ type
     Data: array of array of Byte;
     RGBA: array of array of Cardinal; //Expanded image
     Mask: array of array of Byte; //Mask for team colors
-    HasMask: array of Boolean; //Mask for team colors
+    HasMask: array of Boolean; //Flag if Mask for team colors is used
   end;
   PRXData = ^TRXData;
 
   //Base class for Sprite loading
   TKMSpritePack = class
   private
-    fPalettes: TKMPalettes;
     fRender: TRender;
-    fRT: TRXType;
-    fRXData: TRXData; //OOP wrapper for global variable
     fPad: Byte; //Force padding between sprites to avoid neighbour edge visibility
-    procedure Allocate(aCount: Integer); //Allocate space for data that is being loaded
-    procedure Expand;
     procedure MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
     procedure MakeGFX_StripPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
     procedure SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray);
+  protected
+    fRT: TRXType;
+    fRXData: TRXData;
+    procedure Allocate(aCount: Integer); virtual; //Allocate space for data that is being loaded
   public
-    constructor Create; overload;
-    constructor Create(aRT: TRXType; aPalettes: TKMPalettes; aRender: TRender); overload;
+    constructor Create(aRT: TRXType; aRender: TRender);
 
     procedure AddImage(aFolder, aFilename: string; aIndex: Integer);
-    procedure Delete(aIndex: Integer);
     property RXData: TRXData read fRXData;
     property Padding: Byte read fPad write fPad;
 
-    procedure LoadFromRXFile(const aFileName: string);
     procedure LoadFromRXXFile(const aFileName: string; aStartingIndex: Integer = 1);
-    procedure LoadFromFolder(const aFolder: string);
     procedure OverloadFromFolder(const aFolder: string);
     procedure MakeGFX(aAlphaShadows: Boolean; aStartingIndex: Integer = 1);
-    procedure MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection);
 
-    procedure SaveToRXXFile(const aFileName: string);
     procedure ExportToPNG(const aFolder: string);
-    function TrimSprites: Cardinal; //For debug
 
-    procedure ClearTemp; //Release non-required data
+    procedure ClearTemp; virtual;//Release non-required data
   end;
 
   //Overrides for:
   //GUI: Cursors
-  //Houses: AlphaTest
-  //Tiles: TGA file
-  //
 
   TKMSprites = class
   private
     fAlphaShadows: Boolean; //Remember which state we loaded
     fRender: TRender;
-    fPalettes: TKMPalettes;
     fSprites: array[TRXType] of TKMSpritePack;
     fStepProgress: TEvent;
     fStepCaption: TStringEvent;
@@ -98,11 +86,11 @@ type
     function GetRXFileName(aRX: TRXType): string;
     function GetSprites(aRT: TRXType): TKMSpritePack;
   public
-    constructor Create(aRender: TRender; aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
+    constructor Create(aRender: TRender; aStepProgress: TEvent; aStepCaption: TStringEvent);
     destructor Destroy; override;
 
     procedure LoadMenuResources;
-    procedure LoadGameResources(aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
+    procedure LoadGameResources(aAlphaShadows: Boolean);
     procedure ClearTemp;
 
     property Sprites[aRT: TRXType]: TKMSpritePack read GetSprites; default;
@@ -132,57 +120,17 @@ implementation
 uses KromUtils, KM_Log, Types, StrUtils, KM_BinPacking;
 
 
-var
-  RX5Pal: array [1 .. 40] of TKMPal = (
-    pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,
-    pal2_setup,   pal_set2,     pal_set2,     pal_set2,     pal_map,
-    pal_map,      pal_map,      pal_map,      pal_map,      pal_map,
-    pal_map,      pal2_setup,   pal2_setup,   pal2_setup,   pal2_mapgold,
-    pal2_mapgold, pal2_mapgold, pal2_mapgold, pal2_mapgold, pal2_setup,
-    pal_map,      pal_map,      pal_map,      pal_map,      pal_map,
-    pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,
-    pal2_setup,   pal2_setup,   pal_lin,      pal_lin,      pal_lin
-  );
-
-  // I couldn't find matching palettes for the 17th and 18th entries
-  RX6Pal: array [1 .. 20] of TKMPal = (
-    pal_set,  pal_set,  pal_set,  pal_set,  pal_set,
-    pal_set,  pal_set2, pal_set2, pal_set2, pal_map,
-    pal_map,  pal_map,  pal_map,  pal_map,  pal_map,
-    pal_map,  pal_lin,  pal_lin,  pal_lin,  pal_lin
-  );
-
-
 { TKMSpritePack }
-constructor TKMSpritePack.Create;
-begin
-  inherited Create;
-
-end;
-
-
 //We need to access to palettes to properly Expand RX files
-constructor TKMSpritePack.Create(aRT: TRXType; aPalettes: TKMPalettes; aRender: TRender);
+constructor TKMSpritePack.Create(aRT: TRXType; aRender: TRender);
 begin
   inherited Create;
 
-  fPalettes := aPalettes;
   fRender := aRender;
   fRT := aRT;
-  //fRXData := @RXData[fRT];
 
   if fRT = rxTiles then
     fPad := 1;
-end;
-
-
-procedure TKMSpritePack.Delete(aIndex: Integer);
-begin
-  Assert(aIndex <= fRXData.Count);
-  fRXData.Flag[aIndex] := 0;
-
-  while (fRXData.Count > 0) and (fRXData.Flag[fRXData.Count] = 0) do
-    Dec(fRXData.Count);
 end;
 
 
@@ -195,147 +143,9 @@ begin
   SetLength(fRXData.Flag,     aCount);
   SetLength(fRXData.Size,     aCount);
   SetLength(fRXData.Pivot,    aCount);
-  SetLength(fRXData.Data,     aCount);
   SetLength(fRXData.RGBA,     aCount);
   SetLength(fRXData.Mask,     aCount);
   SetLength(fRXData.HasMask,  aCount);
-end;
-
-
-//Convert paletted data into RGBA and select Team color layer from it
-procedure TKMSpritePack.Expand;
-  function HouseWIP(aID: Integer): TKMPalData;
-  const
-    //These are sprites with house building steps
-    WIP: array[0..55] of word = (3,4,25,43,44,116,118,119,120,121,123,126,127,136,137,140,141,144,145,148,149,213,214,237,238,241,242,243,246,247,252,253,257,258,275,276,336,338,360,361,365,366,370,371,380,381,399,400,665,666,670,671,1658,1660,1682,1684);
-  var
-    I: Byte;
-  begin
-    Result := fPalettes.DefDal;
-
-    for I := 0 to High(WIP) do
-    if aID = WIP[I] then
-    begin
-      Result := fPalettes.PalData[pal_lin];
-      Exit;
-    end;
-  end;
-var
-  H: Integer;
-  K, I: Integer;
-  Palette: TKMPalData;
-  L: byte;
-  Pixel: Integer;
-begin
-  with fRXData do
-  for H := 1 to Count do
-  begin
-    //Choose proper palette
-    case fRT of
-      rxHouses:   Palette := HouseWIP(H);
-      rxGuiMain:  Palette := fPalettes[RX5Pal[H]];
-      rxGuiMainH: Palette := fPalettes[RX6Pal[H]];
-      else        Palette := fPalettes.DefDal;
-    end;
-
-    if Flag[H] = 1 then
-    begin
-      SetLength(RGBA[H], Size[H].X * Size[H].Y);
-      SetLength(Mask[H], Size[H].X * Size[H].Y);
-
-      for I := 0 to Size[H].Y - 1 do
-      for K := 0 to Size[H].X - 1 do
-      begin
-        Pixel := I * Size[H].X + K;
-        L := Data[H, Pixel]; //0..255
-
-        if RXInfo[fRT].TeamColors and (L in [24..30])
-        and (Palette <> fPalettes.PalData[pal_lin])
-        and ((fRT <> rxHouses) or (H > 400))  //Skip the Inn Weapon Smithy and the rest
-        and ((fRT <> rxGui) or InRange(H, 141, 154) or InRange(H, 521, 550)) then //Unit icons and scrolls
-        begin
-          RGBA[H, Pixel] := cardinal(((L - 27) * 42 + 128) * 65793) OR $FF000000;
-          case L of //Maybe it makes sense to convert to 8bit?
-            24, 30: Mask[H, Pixel] := $60;   //7  //6
-            25, 29: Mask[H, Pixel] := $90;   //11 //9
-            26, 28: Mask[H, Pixel] := $C0;   //14 //12
-            27:     Mask[H, Pixel] := $FF;   //16 //16
-          end;
-          HasMask[H] := True;
-        end else
-          RGBA[H, Pixel] := Palette.Color32(L);
-      end;
-    end;
-  end;
-end;
-
-
-//Cut off empty pixels on sides
-function TKMSpritePack.TrimSprites: Cardinal;
-var
-  I,J,K: Integer;
-  Right,Left,Bottom,Top: Word;
-  OffX, OffY, NewX, NewY: Word;
-  FoundPixel: Boolean;
-begin
-  Result := 0;
-
-  for I := 1 to fRXData.Count do
-  if (fRXData.Flag[I] <> 0) then
-  begin
-    if fRXData.Size[I].X * fRXData.Size[I].Y = 0 then Continue;
-    //Check bounds
-    Right  := 0;
-    Bottom := 0;
-    Left   := fRXData.Size[I].X - 1;
-    Top    := fRXData.Size[I].Y - 1;
-    FoundPixel := False;
-    for J := 0 to fRXData.Size[I].Y - 1 do
-    for K := 0 to fRXData.Size[I].X - 1 do
-    if fRXData.RGBA[I, J * fRXData.Size[I].X + K] and $FF000000 <> 0 then
-    begin
-      Right  := Max(Right,  K);
-      Bottom := Max(Bottom, J);
-      Left   := Min(Left,   K);
-      Top    := Min(Top,    J);
-      FoundPixel := True;
-    end;
-
-    if not FoundPixel then //Entire image is transparent
-    begin
-      fRXData.Size[I].X := 1;
-      fRXData.Size[I].Y := 1;
-      Continue;
-    end;
-
-    Inc(Right);
-    Inc(Bottom);
-    Assert((Left <= Right) and (Top <= Bottom),'Left > Right or Top > Bottom');
-    OffX := Left;
-    OffY := Top;
-    NewX := Right  - Left;
-    NewY := Bottom - Top;
-
-    Result := Result + (fRXData.Size[I].Y * fRXData.Size[I].X) - NewX * NewY;
-
-    //Do the trimming
-    for J := 0 to NewY - 1 do
-    begin
-      Move(
-        fRXData.RGBA[I, (J + OffY) * fRXData.Size[I].X + OffX],
-        fRXData.RGBA[I, J * NewX],
-        NewX * 4); //RGBA is 4 bytes per pixel
-      Move(
-        fRXData.Mask[I, (J + OffY) * fRXData.Size[I].X + OffX],
-        fRXData.Mask[I, J * NewX],
-        NewX * 1); //Mask is 1 byte per pixel
-    end;
-
-    fRXData.Size[I].X := NewX;
-    fRXData.Size[I].Y := NewY;
-    fRXData.Pivot[I].X := fRXData.Pivot[I].X + OffX;
-    fRXData.Pivot[I].Y := fRXData.Pivot[I].Y + OffY;
-  end;
 end;
 
 
@@ -345,104 +155,9 @@ var I: Integer;
 begin
   for I := 1 to fRXData.Count do
   begin
-    SetLength(fRXData.Data[I], 0);
     SetLength(fRXData.RGBA[I], 0);
     SetLength(fRXData.Mask[I], 0);
   end;
-end;
-
-
-procedure TKMSpritePack.LoadFromRXFile(const aFileName: string);
-var
-  I: Integer;
-  S: TMemoryStream;
-begin
-  if not CheckFileExists(aFileName) then
-    Exit;
-
-  S := TMemoryStream.Create;
-
-  S.LoadFromFile(aFileName);
-  S.ReadBuffer(fRXData.Count, 4);
-
-  Allocate(fRXData.Count);
-
-  S.ReadBuffer(fRXData.Flag[1], fRXData.Count);
-
-  for I := 1 to fRXData.Count do
-    if fRXData.Flag[I] = 1 then
-    begin
-      S.ReadBuffer(fRXData.Size[I].X, 4);
-      S.ReadBuffer(fRXData.Pivot[I].X, 8);
-      //Data part of each sprite is 8BPP palleted in KaM RX
-      SetLength(fRXData.Data[I], fRXData.Size[I].X * fRXData.Size[I].Y);
-      S.ReadBuffer(fRXData.Data[I,0], fRXData.Size[I].X * fRXData.Size[I].Y);
-    end;
-  S.Free;
-  fLog.AppendLog(RXInfo[fRT].FileName + ' -', fRXData.Count);
-
-  Expand; //Only KaM's rx needs expanding
-end;
-
-
-procedure TKMSpritePack.LoadFromRXXFile(const aFileName: string; aStartingIndex: Integer = 1);
-var
-  I: Integer;
-  RXXCount: Integer;
-  InputStream: TFileStream;
-  DecompressionStream: TDecompressionStream;
-begin
-  if not FileExists(aFileName) then Exit;
-
-  InputStream := TFileStream.Create(aFileName, fmOpenRead or fmShareDenyNone);
-  DecompressionStream := TDecompressionStream.Create(InputStream);
-
-  try
-    DecompressionStream.Read(RXXCount, 4);
-    fLog.AppendLog(RXInfo[fRT].FileName + ' -', RXXCount);
-
-    if RXXCount = 0 then
-      Exit;
-
-    Allocate(aStartingIndex + RXXCount);
-
-    DecompressionStream.Read(fRXData.Flag[aStartingIndex], RXXCount);
-
-    for I := aStartingIndex to aStartingIndex + RXXCount do
-      if fRXData.Flag[I] = 1 then
-      begin
-        DecompressionStream.Read(fRXData.Size[I].X, 4);
-        DecompressionStream.Read(fRXData.Pivot[I].X, 8);
-        //Data part of each sprite is 32BPP RGBA in Remake RXX files
-        SetLength(fRXData.RGBA[I], fRXData.Size[I].X * fRXData.Size[I].Y);
-        SetLength(fRXData.Mask[I], fRXData.Size[I].X * fRXData.Size[I].Y);
-        DecompressionStream.Read(fRXData.RGBA[I, 0], 4 * fRXData.Size[I].X * fRXData.Size[I].Y);
-        DecompressionStream.Read(fRXData.HasMask[I], 1);
-        if fRXData.HasMask[I] then
-          DecompressionStream.Read(fRXData.Mask[I, 0], fRXData.Size[I].X * fRXData.Size[I].Y);
-      end;
-  finally
-    DecompressionStream.Free;
-    InputStream.Free;
-  end;
-end;
-
-
-//Load sprites from folder
-procedure TKMSpritePack.LoadFromFolder(const aFolder: string);
-var ft: TextFile;
-begin
-  if not DirectoryExists(aFolder) then Exit;
-  if not FileExists(aFolder + IntToStr(Byte(fRT) + 1) + '.txt') then Exit;
-
-  AssignFile(ft, aFolder + IntToStr(Byte(fRT) + 1) + '.txt');
-    Reset(ft);
-    ReadLn(ft, fRXData.Count);
-  CloseFile(ft);
-
-  Allocate(fRXData.Count);
-
-  OverloadFromFolder(aFolder);
 end;
 
 
@@ -480,9 +195,6 @@ begin
 
     SetLength(fRXData.RGBA[aIndex], po.Width * po.Height);
     SetLength(fRXData.Mask[aIndex], po.Width * po.Height); //Should allocate space for it's always comes along
-
-    if aFilename = '2_1752.png' then
-      sleep(0);
 
     {$IFDEF WDC}
     //There are ways to process PNG transparency
@@ -567,6 +279,49 @@ begin
 end;
 
 
+procedure TKMSpritePack.LoadFromRXXFile(const aFileName: string; aStartingIndex: Integer = 1);
+var
+  I: Integer;
+  RXXCount: Integer;
+  InputStream: TFileStream;
+  DecompressionStream: TDecompressionStream;
+begin
+  if not FileExists(aFileName) then Exit;
+
+  InputStream := TFileStream.Create(aFileName, fmOpenRead or fmShareDenyNone);
+  DecompressionStream := TDecompressionStream.Create(InputStream);
+
+  try
+    DecompressionStream.Read(RXXCount, 4);
+    fLog.AppendLog(RXInfo[fRT].FileName + ' -', RXXCount);
+
+    if RXXCount = 0 then
+      Exit;
+
+    Allocate(aStartingIndex + RXXCount);
+
+    DecompressionStream.Read(fRXData.Flag[aStartingIndex], RXXCount);
+
+    for I := aStartingIndex to aStartingIndex + RXXCount do
+      if fRXData.Flag[I] = 1 then
+      begin
+        DecompressionStream.Read(fRXData.Size[I].X, 4);
+        DecompressionStream.Read(fRXData.Pivot[I].X, 8);
+        //Data part of each sprite is 32BPP RGBA in Remake RXX files
+        SetLength(fRXData.RGBA[I], fRXData.Size[I].X * fRXData.Size[I].Y);
+        SetLength(fRXData.Mask[I], fRXData.Size[I].X * fRXData.Size[I].Y);
+        DecompressionStream.Read(fRXData.RGBA[I, 0], 4 * fRXData.Size[I].X * fRXData.Size[I].Y);
+        DecompressionStream.Read(fRXData.HasMask[I], 1);
+        if fRXData.HasMask[I] then
+          DecompressionStream.Read(fRXData.Mask[I, 0], fRXData.Size[I].X * fRXData.Size[I].Y);
+      end;
+  finally
+    DecompressionStream.Free;
+    InputStream.Free;
+  end;
+end;
+
+
 //Parse all valid files in Sprites folder and load them additionaly to or replacing original sprites
 procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
   procedure ProcessFolder(const aProcFolder: string);
@@ -598,38 +353,6 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
 begin
   ProcessFolder(aFolder);
   ProcessFolder(aFolder + IntToStr(Byte(fRT) + 1) + '\');
-end;
-
-
-procedure TKMSpritePack.SaveToRXXFile(const aFileName: string);
-var
-  i:integer;
-  InputStream: TMemoryStream;
-  OutputStream: TFileStream;
-  CompressionStream: TCompressionStream;
-begin
-  InputStream := TMemoryStream.Create;
-
-  InputStream.Write(fRXData.Count, 4);
-  InputStream.Write(fRXData.Flag[1], fRXData.Count);
-
-  for I := 1 to fRXData.Count do
-    if fRXData.Flag[I] = 1 then
-    begin
-      InputStream.Write(fRXData.Size[I].X, 4);
-      InputStream.Write(fRXData.Pivot[I].X, 8);
-      InputStream.Write(fRXData.RGBA[I, 0], 4 * fRXData.Size[I].X * fRXData.Size[I].Y);
-      InputStream.Write(fRXData.HasMask[I], 1);
-      if fRXData.HasMask[I] then
-        InputStream.Write(fRXData.Mask[I, 0], fRXData.Size[I].X * fRXData.Size[I].Y);
-    end;
-  OutputStream := TFileStream.Create(aFileName,fmCreate);
-  CompressionStream := TCompressionStream.Create(clMax, OutputStream);
-  InputStream.Position := 0;
-  CompressionStream.CopyFrom(InputStream, InputStream.Size);
-  CompressionStream.Free;
-  OutputStream.Free;
-  InputStream.Free;
 end;
 
 
@@ -665,7 +388,7 @@ begin
     if InRange(I, 0, SizeY-1) and InRange(K, 0, SizeX-1) then
       Png.Pixels[K,I] := $FF00FF;//}
 
-    Png.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + '.png');
+    Png.SaveToFile(aFolder + Format('%d_%.4d.png', [Byte(fRT)+1, ID]));
 
     //Export Flag values
     if fRXData.HasMask[ID] then
@@ -674,131 +397,11 @@ begin
       for K := 0 to SizeX - 1 do
         Png.Pixels[K,I] := fRXData.Mask[ID, I*SizeX + K] * 65793;
 
-      Png.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + 'a.png');
+      Png.SaveToFile(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, ID]));
     end;
   end;
 
   Png.Free;
-end;
-
-
-{ TKMSprites }
-constructor TKMSprites.Create(aRender: TRender; aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
-var
-  RT: TRXType;
-begin
-  inherited Create;
-  fRender := aRender;
-  fPalettes := aPalettes;
-
-  for RT := Low(TRXType) to High(TRXType) do
-    fSprites[RT] := TKMSpritePack.Create(RT, fPalettes, fRender);
-
-  fStepProgress := aStepProgress;
-  fStepCaption := aStepCaption;
-end;
-
-
-destructor TKMSprites.Destroy;
-var
-  RT: TRXType;
-begin
-  for RT := Low(TRXType) to High(TRXType) do
-    fSprites[RT].Free;
-
-  inherited;
-end;
-
-
-//Clear unused RAM
-procedure TKMSprites.ClearTemp;
-var RT: TRXType;
-begin
-  for RT := Low(TRXType) to High(TRXType) do
-    fSprites[RT].ClearTemp;
-end;
-
-
-function TKMSprites.GetRXFileName(aRX: TRXType): string;
-begin
-  Result := RXInfo[aRX].FileName;
-end;
-
-
-function TKMSprites.GetSprites(aRT: TRXType): TKMSpritePack;
-begin
-  Result := fSprites[aRT];
-end;
-
-
-procedure TKMSprites.LoadMenuResources;
-var
-  RT: TRXType;
-begin
-  for RT := Low(TRXType) to High(TRXType) do
-    if (RXInfo[RT].Usage = ruMenu) then
-    begin
-      fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
-      LoadSprites(RT, RT = rxGUI); //Only GUI needs alpha shadows
-      fSprites[RT].MakeGFX(RT = rxGUI);
-      fStepProgress;
-    end;
-end;
-
-
-procedure TKMSprites.LoadGameResources(aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
-var RT: TRXType;
-begin
-  //Remember which version we load
-  fAlphaShadows := aAlphaShadows;
-
-  for RT := Low(TRXType) to High(TRXType) do
-  if (RXInfo[RT].Usage = ruGame) then
-  begin
-    fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
-    fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');
-    LoadSprites(RT, aAlphaShadows);
-
-    //House building steps need some special treatment to adapt to GL_ALPHA_TEST that we use
-    if RT = rxHouses then
-      fSprites[RT].MakeGFX_AlphaTest(aHouseDat);
-
-    fSprites[RT].MakeGFX(aAlphaShadows);
-  end;
-end;
-
-
-//Try to load RXX first, then RX, then use Folder
-procedure TKMSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
-begin
-  if aAlphaShadows and FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx') then
-  begin
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx');
-    //fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
-    //Don't need trimming either
-  end
-  else
-  if FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx') then
-  begin
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx');
-    //fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
-    //Don't need trimming either
-  end
-  else
-  if FileExists(ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rx') then
-  begin
-    fSprites[aRT].LoadFromRXFile(ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rx');
-    fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
-    if aRT <> rxTiles then
-      fLog.AddToLog('Trimmed ' + IntToStr(fSprites[aRT].TrimSprites));
-  end
-  else
-  if DirectoryExists(ExeDir + 'Sprites\') then
-  begin
-    fSprites[aRT].LoadFromFolder(ExeDir + 'Sprites\');
-    if aRT <> rxTiles then
-      fLog.AddToLog('Trimmed ' + IntToStr(fSprites[aRT].TrimSprites));
-  end;
 end;
 
 
@@ -1027,6 +630,7 @@ var
   SpriteSizes: TIndexSizeArray;
   SpriteInfo: TBinArray;
 begin
+  //Prepare base atlases
   SetLength(SpriteSizes, fRXData.Count - aStartingIndex);
   K := 0;
   for I := aStartingIndex to fRXData.Count - 1 do
@@ -1043,6 +647,7 @@ begin
   BinPack(SpriteSizes, fPad, SpriteInfo);
   PrepareAtlases(SpriteInfo, saBase, aTexType);
 
+  //Prepare masking atlases
   SetLength(SpriteSizes, fRXData.Count - aStartingIndex);
   K := 0;
   for I := aStartingIndex to fRXData.Count - 1 do
@@ -1058,53 +663,6 @@ begin
   SetLength(SpriteInfo, 0);
   BinPack(SpriteSizes, fPad, SpriteInfo);
   PrepareAtlases(SpriteInfo, saMask, tf_Alpha8);
-end;
-
-
-{Take RX data and make nice textures out of it.
-Textures should be POT to improve performance and avoid drivers bugs
-In result we have GFXData filled}
-procedure TKMSpritePack.MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection);
-var
-  HT: THouseType;
-  ID1, ID2: Integer; //RGB and A index
-  I, K, Lay, StepCount: Integer;
-  T1, T2, tx, ty: Integer;
-  Alpha: Byte;
-begin
-  if SKIP_RENDER then Exit;
-
-  for HT := Low(THouseType) to High(THouseType) do
-  if aHouseDat[HT].IsValid then
-  for Lay := 1 to 2 do //House is rendered in two layers since Stone does not covers Wood parts in e.g. Sawmill
-  begin
-    if Lay = 1 then begin
-      ID1 := aHouseDat[HT].WoodPic + 1;
-      ID2 := aHouseDat[HT].WoodPal + 1;
-      StepCount := aHouseDat[HT].WoodPicSteps;
-    end else begin
-      ID1 := aHouseDat[HT].StonePic + 1;
-      ID2 := aHouseDat[HT].StonePal + 1;
-      StepCount := aHouseDat[HT].StonePicSteps;
-    end;
-
-    //Fill in alpha RXData
-    tx := fRXData.Pivot[ID2].x - fRXData.Pivot[ID1].x;
-    ty := fRXData.Pivot[ID2].y - fRXData.Pivot[ID1].y;
-    for I := 0 to fRXData.Size[ID2].Y - 1 do
-    for K := 0 to fRXData.Size[ID2].X - 1 do
-    begin
-      T2 := I * fRXData.Size[ID2].X + K;
-      T1 := (I + ty) * fRXData.Size[ID1].X + K + tx;
-
-      Alpha := fRXData.RGBA[ID2, T2] and $FF;
-      fRXData.Mask[ID1, T1] := 255 - Round(Alpha / StepCount * 255);
-    end;
-
-    //Now we can discard building steps sprite
-    fRXData.HasMask[ID1] := True;
-    fRXData.Flag[ID2] := 0;
-  end;
 end;
 
 
@@ -1138,9 +696,106 @@ begin
 end;
 
 
+{ TKMSprites }
+constructor TKMSprites.Create(aRender: TRender; aStepProgress: TEvent; aStepCaption: TStringEvent);
+var
+  RT: TRXType;
+begin
+  inherited Create;
+  fRender := aRender;
+
+  for RT := Low(TRXType) to High(TRXType) do
+    fSprites[RT] := TKMSpritePack.Create(RT, fRender);
+
+  fStepProgress := aStepProgress;
+  fStepCaption := aStepCaption;
+end;
+
+
+destructor TKMSprites.Destroy;
+var
+  RT: TRXType;
+begin
+  for RT := Low(TRXType) to High(TRXType) do
+    fSprites[RT].Free;
+
+  inherited;
+end;
+
+
+//Clear unused RAM
+procedure TKMSprites.ClearTemp;
+var RT: TRXType;
+begin
+  for RT := Low(TRXType) to High(TRXType) do
+    fSprites[RT].ClearTemp;
+end;
+
+
+function TKMSprites.GetRXFileName(aRX: TRXType): string;
+begin
+  Result := RXInfo[aRX].FileName;
+end;
+
+
+function TKMSprites.GetSprites(aRT: TRXType): TKMSpritePack;
+begin
+  Result := fSprites[aRT];
+end;
+
+
+procedure TKMSprites.LoadMenuResources;
+var
+  RT: TRXType;
+begin
+  for RT := Low(TRXType) to High(TRXType) do
+    if (RXInfo[RT].Usage = ruMenu) then
+    begin
+      fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
+      LoadSprites(RT, RT = rxGUI); //Only GUI needs alpha shadows
+      fSprites[RT].MakeGFX(RT = rxGUI);
+      fStepProgress;
+    end;
+end;
+
+
+procedure TKMSprites.LoadGameResources(aAlphaShadows: Boolean);
+var RT: TRXType;
+begin
+  //Remember which version we load
+  fAlphaShadows := aAlphaShadows;
+
+  for RT := Low(TRXType) to High(TRXType) do
+  if (RXInfo[RT].Usage = ruGame) then
+  begin
+    fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
+    fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');
+    LoadSprites(RT, fAlphaShadows);
+    fSprites[RT].MakeGFX(fAlphaShadows);
+  end;
+end;
+
+
+//Try to load RXX first, then RX, then use Folder
+procedure TKMSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
+begin
+  if aAlphaShadows and FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx') then
+  begin
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx');
+    //fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
+  end
+  else
+  if FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx') then
+  begin
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx');
+    //fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
+  end;
+end;
+
+
 procedure TKMSprites.ExportToPNG(aRT: TRXType);
 begin
-  LoadSprites(aRT, False); //BMP can't show the alpha channel so don't load alpha shadows
+  LoadSprites(aRT, False);
   fSprites[aRT].ExportToPNG(ExeDir + 'Export\' + RXInfo[aRT].FileName + '.rx\');
   ClearTemp;
 end;

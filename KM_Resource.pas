@@ -121,7 +121,7 @@ begin
   fPalettes.LoadPalettes;
   fLog.AppendLog('Reading palettes', True);
 
-  fSprites := TKMSprites.Create(fRender, fPalettes, StepRefresh, StepCaption);
+  fSprites := TKMSprites.Create(fRender, StepRefresh, StepCaption);
 
   fCursors := TKMCursors.Create;
   fSprites.LoadMenuResources;
@@ -134,7 +134,7 @@ begin
   fResourceFont.LoadFonts(aLocale);
   fLog.AppendLog('Read fonts is done');
 
-  fTileset := TKMTileset.Create(ExeDir + 'Resource\', ExeDir + 'data\defines\pattern.dat', fResource.Sprites[rxTiles]);
+  fTileset := TKMTileset.Create(ExeDir + 'Resource\', ExeDir + 'data\defines\pattern.dat');
   LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
 
   fResources := TKMResourceCollection.Create;
@@ -154,8 +154,7 @@ begin
 
   if (fDataState <> dls_All) or (aAlphaShadows <> fSprites.AlphaShadows) then
   begin
-    fSprites.LoadGameResources(fHouseDat, aAlphaShadows);
-
+    fSprites.LoadGameResources(aAlphaShadows);
     fSprites.ClearTemp;
   end;
 

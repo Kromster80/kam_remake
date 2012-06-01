@@ -2,10 +2,10 @@ unit RXXPackerForm;
 {$I ..\..\KaM_Remake.inc}
 interface
 uses
-  Classes, Controls, Dialogs, Forms, Graphics, StdCtrls, SysUtils, TypInfo, PNGImage,
+  Classes, Controls, Dialogs,
+  ExtCtrls, Forms, Graphics, StdCtrls, SysUtils, TypInfo, PNGImage,
   {$IFDEF FPC} LResources, {$ENDIF}
-  KM_Defaults, KM_Log, KM_Pics, KM_ResourcePalettes, KM_ResourceSprites,
-  ExtCtrls;
+  KM_Defaults, KM_Log, KM_Pics, KM_ResourcePalettes, KM_ResourceSprites, KM_ResourceSpritesEdit;
 
 
 type
@@ -24,6 +24,8 @@ type
     Panel1: TPanel;
     Image1: TImage;
     Label1: TLabel;
+    Panel2: TPanel;
+    Image2: TImage;
     procedure btnPackRXXClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure OpenDialog1Show(Sender: TObject);
@@ -38,8 +40,8 @@ type
     procedure FormDestroy(Sender: TObject);
   private
     fPalettes: TKMPalettes;
-    fSprites: TKMSpritePack;
-    procedure GetImageToBitmap(aIndex: Integer; aPNG: TPNGObject);
+    fSprites: TKMSpritePackEdit;
+    procedure GetImageToBitmap(aIndex: Integer; aPNG, aMask: TPNGObject);
     procedure UpdateList;
   end;
 
@@ -50,6 +52,7 @@ var
 
 implementation
 {$R *.dfm}
+uses KM_ResourceHouse;
 
 
 procedure TRXXForm1.FormCreate(Sender: TObject);
@@ -79,7 +82,7 @@ begin
 end;
 
 
-procedure TRXXForm1.GetImageToBitmap(aIndex: Integer; aPNG: TPNGObject);
+procedure TRXXForm1.GetImageToBitmap(aIndex: Integer; aPNG, aMask: TPNGObject);
 var
   I, K, W, H: Integer;
   T: Cardinal;
@@ -88,6 +91,7 @@ begin
   H := fSprites.RXData.Size[aIndex].Y;
 
   aPNG.Resize(W, H);
+  aMask.Resize(W, H);
 
   for I := 0 to H - 1 do
   for K := 0 to W - 1 do
@@ -97,6 +101,12 @@ begin
     //RGB and Alpha components are stored in two separate places
     aPNG.Pixels[K,I] := T and $FFFFFF;
     aPNG.AlphaScanline[I]^[K] := T shr 24;
+
+    if fSprites.RXData.HasMask[aIndex] then
+    begin
+      T := fSprites.RXData.Mask[aIndex, I * W + K];
+      aMask.Pixels[K,I] := T * 65793;
+    end;
   end;
 end;
 
@@ -104,22 +114,28 @@ end;
 procedure TRXXForm1.lbSpritesListClick(Sender: TObject);
 var
   ID: Integer;
-  PNG: TPNGObject;
+  PNGBase: TPNGObject;
+  PNGMask: TPNGObject;
 begin
   Image1.Picture.Bitmap.Canvas.Brush.Color := 0;
   Image1.Picture.Bitmap.Canvas.FillRect(Image1.Picture.Bitmap.Canvas.ClipRect);
+  Image2.Picture.Bitmap.Canvas.Brush.Color := 0;
+  Image2.Picture.Bitmap.Canvas.FillRect(Image1.Picture.Bitmap.Canvas.ClipRect);
 
   ID := lbSpritesList.ItemIndex + 1;
   if ID = 0 then Exit;
   if fSprites.RXData.Flag[ID] = 0 then Exit;
 
-  PNG := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
+  PNGBase := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
+  PNGMask := TPNGObject.CreateBlank(COLOR_GRAYSCALE, 8, 0, 0);
   try
-    GetImageToBitmap(ID, PNG);
-
-    Image1.Picture.Assign(PNG);
+    GetImageToBitmap(ID, PNGBase, PNGMask);
+    Image1.Picture.Assign(PNGBase);
+    if PNGMask.Width * PNGMask.Height <> 0 then
+      Image2.Picture.Assign(PNGMask);
   finally
-    PNG.Free;
+    PNGBase.Free;
+    PNGMask.Free;
   end;
 end;
 
@@ -157,7 +173,7 @@ begin
     RT := rxTrees;
 
   FreeAndNil(fSprites);
-  fSprites := TKMSpritePack.Create(RT, fPalettes, nil);
+  fSprites := TKMSpritePackEdit.Create(RT, fPalettes);
 
   Label1.Caption := ExtractFileName(OpenDialog1.FileName);
 
@@ -226,7 +242,9 @@ end;
 procedure TRXXForm1.btnExportClick(Sender: TObject);
 var
   ID: Integer;
-  PNG: TPNGObject;
+  PNGBase: TPNGObject;
+  PNGMask: TPNGObject;
+  FileName, FileNameA: string;
 begin
   ID := lbSpritesList.ItemIndex + 1;
   if ID = 0 then Exit;
@@ -236,13 +254,20 @@ begin
   SaveDialog1.Options := SaveDialog1.Options - [ofAllowMultiSelect];
   if not SaveDialog1.Execute then Exit;
 
-  PNG := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 1, 1);
-  try
-    GetImageToBitmap(ID, PNG);
+  FileName := SaveDialog1.FileName;
+  FileNameA := StringReplace(FileName, '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]);
 
-    PNG.SaveToFile(SaveDialog1.FileName);
+  PNGBase := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
+  PNGMask := TPNGObject.CreateBlank(COLOR_GRAYSCALE, 8, 0, 0);
+  try
+    GetImageToBitmap(ID, PNGBase, PNGMask);
+
+    PNGBase.SaveToFile(FileName);
+    if PNGMask.Width * PNGMask.Height <> 0 then
+      PNGMask.SaveToFile(FileNameA);
   finally
-    PNG.Free;
+    PNGBase.Free;
+    PNGMask.Free;
   end;
 end;
 
@@ -275,7 +300,7 @@ end;
 
 
 procedure TRXXForm1.btnPackRXXClick(Sender: TObject);
-  procedure SkipUnusedSprites(aPack: TKMSpritePack; RT: TRXType);
+  procedure SkipUnusedSprites(aPack: TKMSpritePackEdit; RT: TRXType);
   const
     SkipGui:      array [0.. 9] of Word = (403,405,406,408,410,411,552,553,555,581);
     SkipGuiMain:  array [0..16] of Word = (1,2,7,8,12,17,18,19,20,22,31,32,33,34,35,36,37);
@@ -292,9 +317,10 @@ procedure TRXXForm1.btnPackRXXClick(Sender: TObject);
     end;
   end;
 var
-  SpritePack: TKMSpritePack;
+  SpritePack: TKMSpritePackEdit;
   RT: TRXType;
   I: Integer;
+  HouseDat: TKMHouseDatCollection;
 begin
   btnPackRXX.Enabled := False;
 
@@ -303,7 +329,7 @@ begin
   begin
     RT := TRXType(I);
 
-    SpritePack := TKMSpritePack.Create(RT, fPalettes, nil);
+    SpritePack := TKMSpritePackEdit.Create(RT, fPalettes);
 
     //Load
     if FileExists(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx') then
@@ -318,6 +344,14 @@ begin
 
     if RT <> rxTiles then
       fLog.AddToLog('Trimmed ' + IntToStr(SpritePack.TrimSprites));
+
+    //House building steps need some special treatment to adapt to GL_ALPHA_TEST that we use
+    if RT = rxHouses then
+    begin
+      HouseDat := TKMHouseDatCollection.Create;
+      SpritePack.AdjoinHouseMasks(HouseDat);
+      HouseDat.Free;
+    end;
 
     //Save
     ForceDirectories(ExeDir + 'Data\Sprites\');

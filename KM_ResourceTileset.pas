@@ -5,7 +5,7 @@ uses
   Classes, Math, SysUtils, dglOpenGL,
   {$IFDEF WDC} ZLibEx, {$ENDIF}
   {$IFDEF FPC} ZStream, {$ENDIF}
-  KM_Defaults, KM_Pics, KM_Points, KM_ResourceSprites;
+  KM_Defaults{, KM_ResourceSprites};
 
 
 type
@@ -34,7 +34,7 @@ type
     TextG: Cardinal; //Shading gradient for lighting
     TileColor: array [Byte] of record R,G,B: Byte end;
 
-    constructor Create(const aPath, aPatternPath: string; aSprites: TKMSpritePack);
+    constructor Create(const aPath, aPatternPath: string);
 
     procedure ExportPatternDat(const aFilename: string);
 
@@ -56,7 +56,7 @@ uses KM_TGATexture;
 
 
 { TKMTileset }
-constructor TKMTileset.Create(const aPath, aPatternPath: string; aSprites: TKMSpritePack);
+constructor TKMTileset.Create(const aPath, aPatternPath: string);
 begin
   inherited Create;
 

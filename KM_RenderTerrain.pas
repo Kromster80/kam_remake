@@ -120,9 +120,11 @@ end;
 
 
 procedure TRenderTerrain.DoWater(AnimStep: Integer);
+type TAnimLayer = (alWater, alFalls, alSwamp);
 var
+  AL: TAnimLayer;
+  I,K: Integer;
   TexC: TUVRect;
-  I,K,iW: Integer;
   TexOffset: Word;
 begin
   //First we render base layer, then we do animated layers for Water/Swamps/Waterfalls
@@ -130,12 +132,12 @@ begin
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   //Each new layer inflicts 10% fps drop
-  for iW := 1 to 3 do
+  for AL := Low(TAnimLayer) to High(TAnimLayer) do
   begin
-    case iW of
-      1: TexOffset := 300 * (AnimStep mod 8 + 1);       //Water 300..2400
-      2: TexOffset := 300 * (AnimStep mod 5 + 1 + 8);   //Falls 2700..3900
-      3: TexOffset := 300 * ((AnimStep mod 24) div 8 + 1 + 8 + 5); //Swamp 4200..4800
+    case AL of
+      alWater: TexOffset := 300 * (AnimStep mod 8 + 1);       // 300..2400
+      alFalls: TexOffset := 300 * (AnimStep mod 5 + 1 + 8);   // 2700..3900
+      alSwamp: TexOffset := 300 * ((AnimStep mod 24) div 8 + 1 + 8 + 5); // 4200..4800
     end;
 
     with fTerrain do

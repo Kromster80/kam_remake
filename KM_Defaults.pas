@@ -110,7 +110,7 @@ var
   WRITE_WALKTO_LOG      :Boolean = False; //Write even more output into log + slows down game noticably
   WRITE_RECONNECT_LOG   :Boolean = True;
   WriteResourceInfoToTXT:Boolean = False; //Whenever to write txt files with defines data properties on loading
-  EXPORT_SPRITE_ATLASES :Boolean = True; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
+  EXPORT_SPRITE_ATLASES :Boolean = False; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
   //Statistic
   CtrlPaintCount: Word; //How many Controls were painted in last frame
 
