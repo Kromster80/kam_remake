@@ -173,13 +173,12 @@ var
   {$IFDEF FPC}
   po: TBGRABitmap;
   {$ENDIF}
+  FileNameA: string;
 begin
   Assert(SameText(ExtractFileExt(aFilename), '.png'));
 
   if aIndex >= fRXData.Count then
     Allocate(aIndex);
-
-  fRXData.HasMask[aIndex] := FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.png');
 
   {$IFDEF WDC}
   po := TPNGObject.Create;
@@ -227,44 +226,44 @@ begin
     po.Free;
   end;
 
+  FileNameA := StringReplace(aFilename, '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]);
+  fRXData.HasMask[aIndex] := FileExists(aFolder + FileNameA);
+
   //Load and process the mask if it exists
   if fRXData.HasMask[aIndex] then
   begin
     //PNG masks are designed for the artist, they take standard KaM reds so it's easier
-    if FileExists(aFolder + Copy(aFilename, 1, 6) + 'a.png') then
+    {$IFDEF WDC}
+    po := TPNGObject.Create;
+    po.LoadFromFile(aFolder + FileNameA);
+    {$ENDIF}
+    {$IFDEF FPC}
+    po := TBGRABitmap.Create(aFolder + FileNameA);
+    {$ENDIF}
+
+    if (fRXData.Size[aIndex].X = po.Width) and (fRXData.Size[aIndex].Y = po.Height) then
     begin
+      //We don't handle transparency in Masks
       {$IFDEF WDC}
-      po := TPNGObject.Create;
-      po.LoadFromFile(aFolder + Copy(aFilename, 1, 6) + 'a.png');
+      for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+      if cardinal(po.Pixels[x,y] AND $FF) <> 0 then
+      begin
+        T := fRXData.RGBA[aIndex, y*po.Width+x] AND $FF; //Take red component
+        fRXData.Mask[aIndex, y*po.Width+x] := Byte(255-Abs(255-T*2));
+        fRXData.RGBA[aIndex, y*po.Width+x] := T*65793 OR $FF000000;
+      end;
       {$ENDIF}
       {$IFDEF FPC}
-      po := TBGRABitmap.Create(aFolder + Copy(aFilename, 1, 6) + 'a.png');
-      {$ENDIF}
-
-      if (fRXData.Size[aIndex].X = po.Width) and (fRXData.Size[aIndex].Y = po.Height) then
+      for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+      if cardinal(po.GetPixel(x,y).red) <> 0 then
       begin
-        //We don't handle transparency in Masks
-        {$IFDEF WDC}
-        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-        if cardinal(po.Pixels[x,y] AND $FF) <> 0 then
-        begin
-          T := fRXData.RGBA[aIndex, y*po.Width+x] AND $FF; //Take red component
-          fRXData.Mask[aIndex, y*po.Width+x] := Byte(255-Abs(255-T*2));
-          fRXData.RGBA[aIndex, y*po.Width+x] := T*65793 OR $FF000000;
-        end;
-        {$ENDIF}
-        {$IFDEF FPC}
-        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-        if cardinal(po.GetPixel(x,y).red) <> 0 then
-        begin
-          T := fRXData.RGBA[aIndex, y*po.Width+x] AND $FF; //Take red component
-          fRXData.Mask[aIndex, y*po.Width+x] := Byte(255-Abs(255-T*2));
-          fRXData.RGBA[aIndex, y*po.Width+x] := T*65793 OR $FF000000;
-        end;
-        {$ENDIF}
+        T := fRXData.RGBA[aIndex, y*po.Width+x] AND $FF; //Take red component
+        fRXData.Mask[aIndex, y*po.Width+x] := Byte(255-Abs(255-T*2));
+        fRXData.RGBA[aIndex, y*po.Width+x] := T*65793 OR $FF000000;
       end;
-      po.Free;
+      {$ENDIF}
     end;
+    po.Free;
   end;
 
   //Read pivot info
@@ -562,12 +561,12 @@ type
     //Prepare atlases
     for I := 0 to High(SpriteInfo) do
     begin
-      //todo: Assert that atlas dimensions are POT
+      Assert(MakePOT(SpriteInfo[I].Width) = SpriteInfo[I].Width);
+      Assert(MakePOT(SpriteInfo[I].Height) = SpriteInfo[I].Height);
       SetLength(TD, 0);
       SetLength(TD, SpriteInfo[I].Width * SpriteInfo[I].Height);
 
       //Copy sprite to Atlas
-      //todo: Fill padding with edge color
       for K := 0 to High(SpriteInfo[I].Sprites) do
       begin
         ID := SpriteInfo[I].Sprites[K].SpriteID;
@@ -580,7 +579,34 @@ type
           if aMode = saBase then
             TD[Pixel] := fRXData.RGBA[ID, L * fRXData.Size[ID].X + M]
           else
-            TD[Pixel] := (fRXData.Mask[ID, L * fRXData.Size[ID].X + M] shl 24) or $FFFFFF;
+            TD[Pixel] := $FFFFFF or (fRXData.Mask[ID, L * fRXData.Size[ID].X + M] shl 24);
+
+          //Fill padding with edge pixels
+          if fPad > 0 then
+          begin
+            if (M = 0) then
+            begin
+              TD[Pixel - 1] := TD[Pixel];
+              if (L = 0) then
+                TD[Pixel - SpriteInfo[I].Width - 1] := TD[Pixel]
+              else
+              if (L = fRXData.Size[ID].Y - 1) then
+                TD[Pixel + SpriteInfo[I].Width - 1] := TD[Pixel];
+            end;
+
+            if (M = fRXData.Size[ID].X - 1) then
+            begin
+              TD[Pixel + 1] := TD[Pixel];
+              if (L = 0) then
+                TD[Pixel - SpriteInfo[I].Width + 1] := TD[Pixel]
+              else
+              if (L = fRXData.Size[ID].Y - 1) then
+                TD[Pixel + SpriteInfo[I].Width + 1] := TD[Pixel];
+            end;
+
+            if (L = 0) then                       TD[Pixel - SpriteInfo[I].Width] := TD[Pixel];
+            if (L = fRXData.Size[ID].Y - 1) then  TD[Pixel + SpriteInfo[I].Width] := TD[Pixel];
+          end;
 
           //Sprite outline
           if OUTLINE_ALL_SPRITES and (
