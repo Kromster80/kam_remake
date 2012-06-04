@@ -281,7 +281,7 @@ var Distance:single; U:TKMUnit;
 begin
   Result := ActContinues;
 
-  if not fHasStarted then 
+  if not fHasStarted then
   begin
     //Set Door and Street locations
     fDoor := KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y - round(fStep));
@@ -338,37 +338,40 @@ begin
   //IsExchanging can be updated while we have completed less than 20% of the move. If it is changed after that
   //the unit makes a noticable "jump". This needs to be updated after starting because we don't know about an
   //exchanging unit until they have also started walking (otherwise only 1 of the units will have IsExchanging = true)
-  if ((fDirection = gd_GoOutside) and (fStep < 0.2)) or ((fDirection = gd_GoInside) and (fStep > 0.8)) and
-     (fStreet.X = fDoor.X) and //We are walking straight
-     (fHouse <> nil) then
-     fUnit.IsExchanging := (fHouse.DoorwayUse > 1);
+  if (
+      ((fDirection = gd_GoOutside) and (fStep < 0.2)) or
+      ((fDirection = gd_GoInside) and (fStep > 0.8))
+      )
+  and (fStreet.X = fDoor.X) //We are walking straight
+  and (fHouse <> nil) then
+    fUnit.IsExchanging := (fHouse.DoorwayUse > 1);
 
   Assert((fHouse = nil) or KMSamePoint(fDoor,fHouse.GetEntrance)); //Must always go in/out the entrance of the house
   Distance := fResource.UnitDat[fUnit.UnitType].Speed;
 
   //Actual speed is slower if we are moving diagonally, due to the fact we are moving in X and Y
-  if (fStreet.X-fDoor.X <> 0) then
+  if (fStreet.X - fDoor.X <> 0) then
     Distance := Distance / 1.41; {sqrt (2) = 1.41421 }
 
   fStep := fStep - Distance * shortint(fDirection);
-  fUnit.PositionF := KMPointF(Mix(KMPointF(fStreet).X,KMPointF(fDoor).X,fStep),Mix(single(KMPointF(fStreet).Y),KMPointF(fDoor).Y,fStep));
-  fUnit.Visible := (fHouse=nil) or (fHouse.IsDestroyed) or (fStep > 0); //Make unit invisible when it's inside of House
+  fUnit.PositionF := Mix(fStreet, fDoor, fStep);
+  fUnit.Visible := (fHouse = nil) or (fHouse.IsDestroyed) or (fStep > 0); //Make unit invisible when it's inside of House
 
-  if (fStep<=0)or(fStep>=1) then
+  if (fStep <= 0) or (fStep >= 1) then
   begin
     Result := ActDone;
-    fUnit.IsExchanging := false;
+    fUnit.IsExchanging := False;
     if fUsedDoorway then DecDoorway;
     if fDirection = gd_GoInside then
     begin
       fUnit.PositionF := KMPointF(fDoor);
-      if (fUnit.GetHome<>nil)
-      and (fUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
+      if (fUnit.GetHome <> nil)
       and (fUnit.GetHome = fHouse)
+      and (fUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
       and not fUnit.GetHome.IsDestroyed then //And is the house we are walking into and it's not destroyed
         TKMHouseBarracks(fUnit.GetHome).RecruitsList.Add(fUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
       //Set us as inside even if the house is destroyed. In that case UpdateVisibility will sort things out.
-      if fHouse<>nil then fUnit.SetInHouse(fHouse);
+      if fHouse <> nil then fUnit.SetInHouse(fHouse);
     end
     else
     begin
@@ -381,7 +384,7 @@ begin
 end;
 
 
-procedure TUnitActionGoInOut.Save(SaveStream:TKMemoryStream);
+procedure TUnitActionGoInOut.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(fStep);
