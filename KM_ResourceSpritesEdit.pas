@@ -69,9 +69,6 @@ procedure TKMSpritePackEdit.Delete(aIndex: Integer);
 begin
   Assert(aIndex <= fRXData.Count);
   fRXData.Flag[aIndex] := 0;
-
-  while (fRXData.Count > 0) and (fRXData.Flag[fRXData.Count] = 0) do
-    Dec(fRXData.Count);
 end;
 
 

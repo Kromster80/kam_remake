@@ -302,14 +302,11 @@ end;
 procedure TRXXForm1.btnPackRXXClick(Sender: TObject);
   procedure SkipUnusedSprites(aPack: TKMSpritePackEdit; RT: TRXType);
   const
-    SkipGui:      array [0.. 9] of Word = (403,405,406,408,410,411,552,553,555,581);
     SkipGuiMain:  array [0..16] of Word = (1,2,7,8,12,17,18,19,20,22,31,32,33,34,35,36,37);
     SkipGuiMainH: array [0..10] of Word = (1,8,10,11,12,13,14,15,16,17,18);
   var I: Integer;
   begin
     case RT of
-      rxGui:      for I := 0 to High(SkipGui) do
-                    aPack.RXData.Flag[SkipGui[I]] := 0;
       rxGuiMain:  for I := 0 to High(SkipGuiMain) do
                     aPack.RXData.Flag[SkipGuiMain[I]] := 0;
       rxGuiMainH: for I := 1 to aPack.RXData.Count do

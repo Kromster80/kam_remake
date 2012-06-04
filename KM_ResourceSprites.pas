@@ -336,15 +336,24 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
       FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????.png', faAnyFile - faDirectory, SearchRec);
       repeat
         FileList.Add(SearchRec.Name);
-      until (FindNext(SearchRec)<>0);
+      until (FindNext(SearchRec) <> 0);
       FindClose(SearchRec);
 
+      //PNG may be accompanied by some more files
       //#_####.png - Base texture
       //#_####a.png - Flag color mask
       //#_####.txt - Pivot info (optional)
       for I := 0 to FileList.Count - 1 do
         if TryStrToInt(Copy(FileList.Strings[I], 3, 4), ID) then
           AddImage(aProcFolder, FileList.Strings[I], ID);
+
+      //Delete following sprites
+      FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????', faAnyFile - faDirectory, SearchRec);
+      repeat
+        if TryStrToInt(Copy(SearchRec.Name, 3, 4), ID) then
+          fRXData.Flag[ID] := 0;
+      until (FindNext(SearchRec) <> 0);
+      FindClose(SearchRec);
     finally
       FileList.Free;
     end;

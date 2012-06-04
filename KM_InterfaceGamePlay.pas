@@ -172,8 +172,9 @@ type
       Edit_ChatMsg: TKMEdit;
       CheckBox_SendToAllies: TKMCheckBox;
       Image_ChatClose: TKMImage;
-    Panel_Message:TKMPanel;
-      Label_MessageText:TKMLabel;
+    Panel_Message: TKMPanel;
+      Image_Scroll: TKMImage;
+      Label_MessageText: TKMLabel;
       Button_MessageGoTo: TKMButton;
       Button_MessageDelete: TKMButton;
       Button_MessageClose: TKMButton;
@@ -977,8 +978,8 @@ begin
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
-    TKMImage.Create(Panel_Message,0, 0,600, 20,551);
-    TKMImage.Create(Panel_Message,0,20,600,170,409);
+    Image_Scroll := TKMImage.Create(Panel_Message,0,0,600,190,409);
+    Image_Scroll.ImageStretch;
 
     Label_MessageText:=TKMLabel.Create(Panel_Message,47,67,432,122,'',fnt_Antiqua,taLeft);
     Label_MessageText.AutoWrap := true;
