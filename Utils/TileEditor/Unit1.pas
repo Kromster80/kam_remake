@@ -56,7 +56,7 @@ begin
     Bits[i].OnMouseUp   := ImageMouseUp;
   end;
 
-  fTileset := TKMTileset.Create('', '..\..\data\defines\pattern.dat', nil);
+  fTileset := TKMTileset.Create('', '..\..\data\defines\pattern.dat');
 end;
 
 
