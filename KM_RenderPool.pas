@@ -978,7 +978,7 @@ begin
     A.X := GFXData[rxGui, ID].Tex.u1;
     A.Y := GFXData[rxGui, ID].Tex.v1;
     b.X := GFXData[rxGui, ID].Tex.u2;
-    b.Y := GFXData[rxGui, ID].Tex.v2 * (HeightInPx / GFXData[rxGui, ID].pxHeight);
+    b.Y := mix(GFXData[rxGui, ID].Tex.v2, GFXData[rxGui, ID].Tex.v1, HeightInPx / GFXData[rxGui, ID].pxHeight);
     BorderWidth := GFXData[rxGui,ID].PxWidth / CELL_SIZE_PX;
     glBegin(GL_QUADS);
       FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX-1, pY-1, True);
