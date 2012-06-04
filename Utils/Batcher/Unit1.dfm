@@ -22,4 +22,13 @@ object Form1: TForm1
     TabOrder = 0
     OnClick = Button3Click
   end
+  object Button1: TButton
+    Left = 24
+    Top = 72
+    Width = 185
+    Height = 25
+    Caption = 'Mass rename'
+    TabOrder = 1
+    OnClick = Button1Click
+  end
 end

@@ -172,8 +172,9 @@ type
       Edit_ChatMsg: TKMEdit;
       CheckBox_SendToAllies: TKMCheckBox;
       Image_ChatClose: TKMImage;
-    Panel_Message:TKMPanel;
-      Label_MessageText:TKMLabel;
+    Panel_Message: TKMPanel;
+      Image_Scroll: TKMImage;
+      Label_MessageText: TKMLabel;
       Button_MessageGoTo: TKMButton;
       Button_MessageDelete: TKMButton;
       Button_MessageClose: TKMButton;
@@ -977,8 +978,8 @@ begin
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
-    TKMImage.Create(Panel_Message,0, 0,600, 20,551);
-    TKMImage.Create(Panel_Message,0,20,600,170,409);
+    Image_Scroll := TKMImage.Create(Panel_Message,0,0,600,190,409);
+    Image_Scroll.ImageStretch;
 
     Label_MessageText:=TKMLabel.Create(Panel_Message,47,67,432,122,'',fnt_Antiqua,taLeft);
     Label_MessageText.AutoWrap := true;
@@ -1034,7 +1035,7 @@ begin
     CheckBox_SendToAllies.Checked := true;
     CheckBox_SendToAllies.Anchors := [akRight, akBottom];
 
-    Image_ChatClose:=TKMImage.Create(Panel_Chat,800-35,20,32,32,24,rxGame);
+    Image_ChatClose:=TKMImage.Create(Panel_Chat,800-35,20,32,32,52,rxGui);
     Image_ChatClose.Anchors := [akTop, akRight];
     Image_ChatClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_ChatClose.OnClick := Chat_Close;
@@ -1114,7 +1115,7 @@ begin
         TKMLabel.Create(Panel_Allies, 220+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
         TKMLabel.Create(Panel_Allies, 350+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
       end;
-      Image_AlliesLang[i] := TKMImage.Create(Panel_Allies,      50+(i div 4)*380, 82+(i mod 4)*24, 16,  11,  0, rxMenu);
+      Image_AlliesLang[i] := TKMImage.Create(Panel_Allies,      50+(i div 4)*380, 82+(i mod 4)*24, 16,  11,  0, rxGuiMain);
       Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    70+(i div 4)*380, 80+(i mod 4)*24, 140, 20, '', fnt_Grey, taLeft);
       Label_AlliesTeam[i]   := TKMLabel.Create(Panel_Allies,   220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, '', fnt_Grey, taLeft);
       DropBox_AlliesTeam[i] := TKMDropList.Create(Panel_Allies, 220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey, '');
@@ -1126,7 +1127,7 @@ begin
       Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 60, 20, '', fnt_Grey, taCenter);
     end;
 
-    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,32,32,24,rxGame);
+    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,32,32,52,rxGui);
     Image_AlliesClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := true;
@@ -1698,7 +1699,7 @@ begin
     Radio_Woodcutter.Items.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_CHOP_ONLY]);
     Radio_Woodcutter.OnChange := House_WoodcutterChange;
 
-    Button_Woodcutter := TKMButtonFlat.Create(Panel_HouseWoodcutter,8,64,32,32,23,rxGame);
+    Button_Woodcutter := TKMButtonFlat.Create(Panel_HouseWoodcutter,8,64,32,32,51,rxGui);
     Button_Woodcutter.OnClick := House_WoodcutterChange; //Clicking the button cycles it
 end;
 
@@ -2237,8 +2238,8 @@ begin
                         Radio_Woodcutter.ItemIndex := 0;
                       end;
     wcm_Chop:         begin
-                        Button_Woodcutter.TexID := 23;
-                        Button_Woodcutter.RX := rxGame;
+                        Button_Woodcutter.TexID := 51;
+                        Button_Woodcutter.RX := rxGui;
                         Radio_Woodcutter.ItemIndex := 1;
                       end;
   end;
@@ -3078,7 +3079,7 @@ begin
       Image_AlliesLang[i].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[i+1].LangCode).FlagSpriteID
     else
       if fGame.Networking.NetPlayers[i+1].IsComputer then
-        Image_AlliesLang[I].TexID := 22 //PC icon
+        Image_AlliesLang[I].TexID := 62 //PC icon
       else
         Image_AlliesLang[i].TexID := 0;
 

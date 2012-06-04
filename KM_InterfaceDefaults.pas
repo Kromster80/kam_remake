@@ -95,17 +95,17 @@ const
     ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman);
 
   MapEd_Icon:array[0..13] of word = (
-    1, 2, 3, 4, 5,
-    6, 7, 8, 9, 10,
-    19, 20, 21, 22);
+    61, 62, 63, 64, 65,
+    66, 67, 68, 69, 70,
+    79, 80, 81, 82);
 
   Animal_Order:array[0..7] of TUnitType = (
     ut_Wolf, ut_Fish,        ut_Watersnake, ut_Seastar,
     ut_Crab, ut_Waterflower, ut_Waterleaf,  ut_Duck);
 
   Animal_Icon:array[0..7] of word = (
-    11, 12, 13, 14,
-    15, 16, 17, 18);
+    71, 72, 73, 74,
+    75, 76, 77, 78);
 
 
 implementation

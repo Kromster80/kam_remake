@@ -426,7 +426,7 @@ const
   //Sprites in the marketplace
   MarketWaresOffsetX = -93;
   MarketWaresOffsetY = -88;
-  MarketWareTexStart = 24; //ID of where market ware sprites start. Allows us to relocate them easily.
+  MarketWareTexStart = 1724; //ID of where market ware sprites start. Allows us to relocate them easily.
   MarketWares: array[TResourceType] of record
                                          TexStart: Integer; //Tex ID for first sprite
                                          Count: Integer; //Total sprites for this resource

@@ -1982,6 +1982,10 @@ begin
     y2 := Min(I+1, fMapY);
     Land[I,K].Light := EnsureRange((Land[I,K].Height-(Land[y2,K].Height+Land[I,x0].Height)/2)/22,-1,1); //  1.33*16 ~=22
 
+    //Use more contrast lighting for Waterbeds
+    if fTileset.TileIsWater(Land[I, K].Terrain) then
+      Land[I,K].Light := Land[I,K].Light * 1.5 - 0.1;
+
     //Map borders always fade to black
     if (I = 1) or (I = fMapY) or (K = 1) or (K = fMapX) then
       Land[I,K].Light := -1;

@@ -198,7 +198,7 @@ procedure TForm1.Button5Click(Sender: TObject);
 var
   L, ii,kk,h,j,pX: Integer;
   c:array of byte;
-  SizeX,SizeY: Integer;
+  SizeX,SizeY, ID: Integer;
   f: file;
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
@@ -212,6 +212,7 @@ var
   {$ENDIF}
   PNG: TPNGObject;
   Blank: Boolean;
+  Filename: string;
 begin
   OpenDialog1.Options := OpenDialog1.Options + [ofAllowMultiSelect];
   OpenDialog1.InitialDir := ExtractFilePath(ParamStr(0));
@@ -221,7 +222,8 @@ begin
   CreateDir('Split');
   for L := 0 to OpenDialog1.Files.Count - 1 do
   begin
-    AssignFile(f, OpenDialog1.Files[L]);
+    Filename := ExtractFileName(OpenDialog1.Files[L]);
+    AssignFile(f, Filename);
     FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
 
     SetLength(c,18+1);
@@ -279,8 +281,16 @@ begin
         Blank := Blank and (PCardinal(@c[pX+1])^ = 0);
       end;
 
+      ID := ii * 16 + kk + 1;
+      if Copy(Filename, 0, 5) = 'Water' then
+        Inc(ID, 300 * StrToInt(Filename[6]));
+      if Copy(Filename, 0, 5) = 'Falls' then
+        Inc(ID, 300 * (8 + StrToInt(Filename[6])));
+      if Copy(Filename, 0, 5) = 'Swamp' then
+        Inc(ID, 300 * (8 + 5 + StrToInt(Filename[6])));
+
       if not Blank then
-        PNG.SaveToFile('Split\' + Int2Fix(ii * 16 + kk, 3) + '__' + ExtractFileName(OpenDialog1.Files[L]) + '.png');
+        PNG.SaveToFile('Split\7_' + Int2Fix(ID, 4) + '.png');
     end;
 
     PNG.Free;

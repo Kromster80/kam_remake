@@ -1,20 +1,20 @@
 //Code, Title,                Codepage, FlagSpriteID, Fallback Locale, TranslatorCredit
 
-ptb,    Brazilian Portuguese, 1252,     8,            ,                Vinycius Maia
-bul,    Bulgarian,            1251,     18,           ,                Christian & Boyan
-cze,    Czech,                1250,     9,            svk,             Jolinar_CZ & Milan Molnar
-dut,    Dutch,                1252,     15,           ,                xzaz & Tom
-eng,    English,              1252,     5,            ,
-est,    Estonian,             1252,     19,           ,                Ingvar & Eva
-fre,    French,               1252,     11,           ,                Sylvain Domange
-ger,    German,               1252,     6,            ,                The Knight
-hun,    Hungarian,            1250,     17,           ,                Osi Attila (Jecy)
-ita,    Italian,              1252,     10,           ,                Paolo Castelvetere
-lit,    Lithuanian,           LITH,     27,           ,                Audrius Arlauskas (Zaero)
-pol,    Polish,               1250,     7,            ,                Przemyslaw Pietras
-rom,    Romanian,             1250,     26,           ,                mucormucedo
-rus,    Russian,              1251,     14,           ,                Krom
-svk,    Slovak,               1250,     12,           cze,             Robert Marko
-spa,    Spanish,              1252,     13,           ,                Oscar
-swe,    Swedish,              1252,     16,           ,                Edvin Linge
-ukr,    Ukrainian,            1251,     28,           ,                Mulberry
+ptb,    Brazilian Portuguese, 1252,     48,           ,                Vinycius Maia
+bul,    Bulgarian,            1251,     58,           ,                Christian & Boyan
+cze,    Czech,                1250,     49,           svk,             Jolinar_CZ & Milan Molnar
+dut,    Dutch,                1252,     55,           ,                xzaz & Tom
+eng,    English,              1252,     45,           ,
+est,    Estonian,             1252,     59,           ,                Ingvar & Eva
+fre,    French,               1252,     51,           ,                Sylvain Domange
+ger,    German,               1252,     46,           ,                The Knight
+hun,    Hungarian,            1250,     57,           ,                Osi Attila (Jecy)
+ita,    Italian,              1252,     50,           ,                Paolo Castelvetere
+lit,    Lithuanian,           LITH,     67,           ,                Audrius Arlauskas (Zaero)
+pol,    Polish,               1250,     47,           ,                Przemyslaw Pietras
+rom,    Romanian,             1250,     66,           ,                mucormucedo
+rus,    Russian,              1251,     54,           ,                Krom
+svk,    Slovak,               1250,     52,           cze,             Robert Marko
+spa,    Spanish,              1252,     53,           ,                Oscar
+swe,    Swedish,              1252,     56,           ,                Edvin Linge
+ukr,    Ukrainian,            1251,     68,           ,                Mulberry

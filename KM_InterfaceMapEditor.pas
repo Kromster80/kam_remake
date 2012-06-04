@@ -643,7 +643,7 @@ begin
       //TKMLabel.Create(Panel_Units,100,140,0,0,'Warriors',fnt_Outline,taCenter);
       for i:=0 to High(Button_Warriors) do
       begin
-        Button_Warriors[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,124+(i div 5)*37,33,33, MapEd_Icon[i], rxGame);
+        Button_Warriors[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,124+(i div 5)*37,33,33, MapEd_Icon[i], rxGui);
         Button_Warriors[i].Hint := fResource.UnitDat[MapEd_Order[i]].UnitName;
         Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
         Button_Warriors[i].OnClick := Unit_ButtonClick;
@@ -652,7 +652,7 @@ begin
       //TKMLabel.Create(Panel_Units,100,230,0,0,'Animals',fnt_Outline,taCenter);
       for i:=0 to High(Button_Animals) do
       begin
-        Button_Animals[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,240+(i div 5)*37,33,33, Animal_Icon[i], rxGame);
+        Button_Animals[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,240+(i div 5)*37,33,33, Animal_Icon[i], rxGui);
         Button_Animals[i].Hint := fResource.UnitDat[Animal_Order[i]].UnitName;
         Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
         Button_Animals[i].OnClick := Unit_ButtonClick;
@@ -696,7 +696,7 @@ begin
         Button_BlockHouse[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
         Button_BlockHouse[I].OnClick := Player_BlockClick;
         Button_BlockHouse[I].Tag := I;
-        Image_BlockHouse[I] := TKMImage.Create(Panel_Block, 8+((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxMenu);
+        Image_BlockHouse[I] := TKMImage.Create(Panel_Block, 8+((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
         Image_BlockHouse[I].Hitable := False;
         Image_BlockHouse[I].ImageCenter;
       end;
@@ -1630,13 +1630,13 @@ begin
   begin
     MyPlayer.Stats.HouseBlocked[H] := True;
     MyPlayer.Stats.HouseGranted[H] := False;
-    Image_BlockHouse[I].TexID := 23;
+    Image_BlockHouse[I].TexID := 32;
   end else
   if MyPlayer.Stats.HouseBlocked[H] and not MyPlayer.Stats.HouseGranted[H] then
   begin
     MyPlayer.Stats.HouseBlocked[H] := False;
     MyPlayer.Stats.HouseGranted[H] := True;
-    Image_BlockHouse[I].TexID := 24;
+    Image_BlockHouse[I].TexID := 33;
   end else
   begin
     MyPlayer.Stats.HouseBlocked[H] := False;
@@ -1655,15 +1655,15 @@ begin
   begin
     H := GUIHouseOrder[I];
     if MyPlayer.Stats.HouseBlocked[H] and not MyPlayer.Stats.HouseGranted[H] then
-      Image_BlockHouse[I].TexID := 23
+      Image_BlockHouse[I].TexID := 32
     else
     if MyPlayer.Stats.HouseGranted[H] and not MyPlayer.Stats.HouseBlocked[H] then
-      Image_BlockHouse[I].TexID := 24
+      Image_BlockHouse[I].TexID := 33
     else
     if not MyPlayer.Stats.HouseGranted[H] and not MyPlayer.Stats.HouseBlocked[H] then
       Image_BlockHouse[I].TexID := 0
     else
-      Image_BlockHouse[I].TexID := 22;
+      Image_BlockHouse[I].TexID := 24; //Some erroneous value
   end;
 end;
 

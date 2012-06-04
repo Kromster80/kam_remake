@@ -11,10 +11,9 @@ type
     rxUnits,
     rxGui,
     rxGuiMain,
-    rxGuiMainH,
-    rxMenu, //Remake menu elements
-    rxTiles, //Tiles
-    rxGame); //Remake game sprites
+    rxGuiMainH, //Unused, I have moved all used sprites into rxGuiMain
+    rxTiles //Tiles
+    );
 
   TKMPic = record
     RX: TRXType;

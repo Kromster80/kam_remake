@@ -27,8 +27,9 @@ type
     fChild2: TBin;
     fImageID: Word; //Image that is using this bin (0 if unused)
     fRect: TBinRect; //Our dimensions
+    fPad: Byte;
   public
-    constructor Create(aRect: TBinRect; aImageID: Word);
+    constructor Create(aRect: TBinRect; aPad: Byte; aImageID: Word);
     function Insert(aItem: TIndexItem): TBin; //Return bin that has accepted the sprite, or nil of Bin is full
     function Width: Word;
     function Height: Word;
@@ -38,10 +39,11 @@ type
   TBinManager = class
     fWidth: Word;
     fHeight: Word;
+    fPad: Byte;
     fBins: TList;
     function CreateNew(aWidth: Word; aHeight: Word): TBin;
   public
-    constructor Create(aWidth, aHeight: Word);
+    constructor Create(aWidth, aHeight: Word; aPad: Byte);
     destructor Destroy; override;
     procedure Insert(aItem: TIndexItem);
     procedure GetAllItems(var aOut: TBinArray);
@@ -85,14 +87,14 @@ begin
   //Sort Items by size to improve packing efficiency
   for I := 0 to High(aItems) do
     for K := I + 1 to High(aItems) do
-      if (aItems[K].X * aItems[K].Y) > (aItems[I].X * aItems[I].Y) then
+      if (aItems[K].X + aItems[K].Y) > (aItems[I].X + aItems[I].Y) then
       begin
         SwapInt(aItems[I].ID, aItems[K].ID);
         SwapInt(aItems[I].X, aItems[K].X);
         SwapInt(aItems[I].Y, aItems[K].Y);
       end;
 
-  BinManager := TBinManager.Create(512, 512);
+  BinManager := TBinManager.Create(512, 512, aPad);
   try
     for I := 0 to High(aItems) do
       if (aItems[I].X * aItems[I].Y <> 0) then
@@ -106,19 +108,20 @@ end;
 
 
 { TBin }
-constructor TBin.Create(aRect: TBinRect; aImageID: Word);
+constructor TBin.Create(aRect: TBinRect; aPad: Byte; aImageID: Word);
 begin
   inherited Create;
 
   fRect := aRect; //Our dimensions
   fImageID := aImageID;
+  fPad := aPad;
 end;
 
 
 function TBin.Insert(aItem: TIndexItem): TBin;
 begin
   //We can't possibly fit the Item (and our Childs can't either)
-  if (aItem.X > fRect.Width) or (aItem.Y > fRect.Height) or (fImageID <> 0) then
+  if (aItem.X + fPad*2 > fRect.Width) or (aItem.Y + fPad*2 > fRect.Height) or (fImageID <> 0) then
   begin
     Result := nil;
     Exit;
@@ -129,7 +132,7 @@ begin
   begin
 
     //If we can perfectly fit the Item
-    if (fRect.Width = aItem.X) and (fRect.Height = aItem.Y) then
+    if (fRect.Width = aItem.X + fPad*2) and (fRect.Height = aItem.Y + fPad*2) then
     begin
       fImageID := aItem.ID;
       Result := Self;
@@ -137,16 +140,16 @@ begin
     end;
 
     //Choose axis by which to split (Doc suggest we favor largest free area)
-    if (fRect.Width - aItem.X) * fRect.Height > (fRect.Height - aItem.Y) * fRect.Width then
+    if (fRect.Width - aItem.X - fPad*2) * fRect.Height > (fRect.Height - aItem.Y - fPad*2) * fRect.Width then
     begin
       //Vertical split
-      fChild1 := TBin.Create(BinRect(fRect.X, fRect.Y, aItem.X, fRect.Height), 0);
-      fChild2 := TBin.Create(BinRect(fRect.X + aItem.X, fRect.Y, fRect.Width - aItem.X, fRect.Height), 0);
+      fChild1 := TBin.Create(BinRect(fRect.X, fRect.Y, aItem.X + fPad*2, fRect.Height), fPad, 0);
+      fChild2 := TBin.Create(BinRect(fRect.X + aItem.X + fPad*2, fRect.Y, fRect.Width - aItem.X - fPad*2, fRect.Height), fPad, 0);
     end else
     begin
       //Horizontal split
-      fChild1 := TBin.Create(BinRect(fRect.X, fRect.Y, fRect.Width, aItem.Y), 0);
-      fChild2 := TBin.Create(BinRect(fRect.X, fRect.Y + aItem.Y, fRect.Width, fRect.Height - aItem.Y), 0);
+      fChild1 := TBin.Create(BinRect(fRect.X, fRect.Y, fRect.Width, aItem.Y + fPad*2), fPad, 0);
+      fChild2 := TBin.Create(BinRect(fRect.X, fRect.Y + aItem.Y + fPad*2, fRect.Width, fRect.Height - aItem.Y - fPad*2), fPad, 0);
     end;
 
     //Now let the Child1 handle the Item
@@ -186,20 +189,21 @@ begin
     begin
       SetLength(aItems.Sprites, Length(aItems.Sprites) + 1);
       aItems.Sprites[High(aItems.Sprites)].SpriteID := fImageID;
-      aItems.Sprites[High(aItems.Sprites)].PosX := fRect.X;
-      aItems.Sprites[High(aItems.Sprites)].PosY := fRect.Y;
+      aItems.Sprites[High(aItems.Sprites)].PosX := fRect.X + fPad;
+      aItems.Sprites[High(aItems.Sprites)].PosY := fRect.Y + fPad;
     end;
 end;
 
 
 { TBinManager }
-constructor TBinManager.Create(aWidth, aHeight: Word);
+constructor TBinManager.Create(aWidth, aHeight: Word; aPad: Byte);
 begin
   inherited Create;
 
   Assert((aWidth > 0) and (aHeight > 0));
   fWidth := aWidth;
   fHeight := aHeight;
+  fPad := aPad;
 
   fBins := TList.Create;
 end;
@@ -219,7 +223,7 @@ end;
 
 function TBinManager.CreateNew(aWidth: Word; aHeight: Word): TBin;
 begin
-  Result := TBin.Create(BinRect(0, 0, aWidth, aHeight), 0);
+  Result := TBin.Create(BinRect(0, 0, aWidth, aHeight), fPad, 0);
   fBins.Add(Result);
 end;
 
@@ -241,7 +245,7 @@ begin
   //Create new Bin
   if (aItem.X > fWidth) or (aItem.Y > fHeight) then
     //Create new Bin especially for this big item
-    B := CreateNew(MakePOT(aItem.X), MakePOT(aItem.Y))
+    B := CreateNew(MakePOT(aItem.X + fPad * 2), MakePOT(aItem.Y + fPad * 2))
   else
     //Use standard Bin size
     B := CreateNew(fWidth, fHeight);

@@ -518,18 +518,18 @@ var i,ID: Integer;
 begin
   if ResType = rt_Horse then //Horses are a beast, BeastID is the count, age is 1
     for i:=1 to Min(ResCount, MarketWares[ResType].Count) do //Render each beast
-      AddHouseStableBeasts(ht_Marketplace, Loc, i, 1, AnimStep, rxGame) //Use RXGame
+      AddHouseStableBeasts(ht_Marketplace, Loc, i, 1, AnimStep, rxHouses)
   else
   begin
     if MarketWares[ResType].Count = 0 then exit;
     ID := (MarketWares[ResType].TexStart-1) + Min(ResCount, MarketWares[ResType].Count);
     if ID = 0 then Exit;
 
-    R := fRXData[rxGame];
+    R := fRXData[rxHouses];
     CornerX := Loc.X + (R.Pivot[ID].X + MarketWaresOffsetX) / CELL_SIZE_PX - 1;
     CornerY := Loc.Y + (R.Pivot[ID].Y + MarketWaresOffsetY + R.Size[ID].Y) / CELL_SIZE_PX - 1
                      - fTerrain.Land[Loc.Y+1,Loc.X].Height / CELL_HEIGHT_DIV;
-    fRenderList.AddSprite(rxGame, ID, CornerX, CornerY);
+    fRenderList.AddSprite(rxHouses, ID, CornerX, CornerY);
   end;
 end;
 
@@ -978,7 +978,7 @@ begin
     A.X := GFXData[rxGui, ID].Tex.u1;
     A.Y := GFXData[rxGui, ID].Tex.v1;
     b.X := GFXData[rxGui, ID].Tex.u2;
-    b.Y := GFXData[rxGui, ID].Tex.v2 * (HeightInPx / GFXData[rxGui, ID].pxHeight);
+    b.Y := mix(GFXData[rxGui, ID].Tex.v2, GFXData[rxGui, ID].Tex.v1, HeightInPx / GFXData[rxGui, ID].pxHeight);
     BorderWidth := GFXData[rxGui,ID].PxWidth / CELL_SIZE_PX;
     glBegin(GL_QUADS);
       FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX-1, pY-1, True);

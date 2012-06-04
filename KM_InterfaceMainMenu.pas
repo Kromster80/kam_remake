@@ -387,10 +387,10 @@ begin
                                              MENU_DESIGN_Y); //Parent Panel for whole menu
 
   //Background is the same for all pages, except Results/Campaign, which will render ontop
-  with TKMImage.Create(Panel_Main,-448,-216,960,600,1,rxMenu) do Anchors := [];
-  with TKMImage.Create(Panel_Main, 512,-216,960,600,2,rxMenu) do Anchors := [];
-  with TKMImage.Create(Panel_Main,-448, 384,960,600,3,rxMenu) do Anchors := [];
-  with TKMImage.Create(Panel_Main, 512, 384,960,600,4,rxMenu) do Anchors := [];
+  with TKMImage.Create(Panel_Main,-448,-216,960,600,17,rxGuiMain) do Anchors := [];
+  with TKMImage.Create(Panel_Main, 512,-216,960,600,18,rxGuiMain) do Anchors := [];
+  with TKMImage.Create(Panel_Main,-448, 384,960,600,19,rxGuiMain) do Anchors := [];
+  with TKMImage.Create(Panel_Main, 512, 384,960,600,20,rxGuiMain) do Anchors := [];
 
   Create_MainMenu_Page;
   Create_SinglePlayer_Page;
@@ -744,11 +744,10 @@ begin
   Panel_MainMenu := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_MainMenu.Anchors := [];
     TKMImage.Create(Panel_MainMenu, 300, 120, 423, 164, 4, rxGuiMain);
-    TKMLabel.Create(Panel_MainMenu, 512, 300,   0,   0,
-    'Remake', fnt_Metal, taCenter);
+    TKMLabel.Create(Panel_MainMenu, 512, 300,   0,   0, 'Remake', fnt_Metal, taCenter);
 
-    with TKMImage.Create(Panel_MainMenu,  50, 220, round(218*1.3), round(291*1.3), 5, rxGuiMainH) do ImageStretch;
-    with TKMImage.Create(Panel_MainMenu, 705, 220, round(207*1.3), round(295*1.3), 6, rxGuiMainH) do ImageStretch;
+    with TKMImage.Create(Panel_MainMenu,  50, 220, round(218*1.3), round(291*1.3), 5, rxGuiMain) do ImageStretch;
+    with TKMImage.Create(Panel_MainMenu, 705, 220, round(207*1.3), round(295*1.3), 6, rxGuiMain) do ImageStretch;
 
     Panel_MMButtons := TKMPanel.Create(Panel_MainMenu, 337, 340, 350, 400);
       Button_MM_SinglePlayer := TKMButton.Create(Panel_MMButtons,0,  0,350,30,fTextLibrary[TX_MENU_SINGLEPLAYER],fnt_Metal,bsMenu);
@@ -776,8 +775,8 @@ begin
   Panel_SinglePlayer.Anchors := [];
     TKMImage.Create(Panel_SinglePlayer, 300, 120, 423, 164, 4, rxGuiMain);
     TKMLabel.Create(Panel_SinglePlayer, 512, 300, 0, 0, 'Remake', fnt_Metal, taCenter);
-    with TKMImage.Create(Panel_SinglePlayer, 50, 220, Round(218 * 1.3), Round(291 * 1.3), 5, rxGuiMainH) do ImageStretch;
-    with TKMImage.Create(Panel_SinglePlayer, 705, 220, Round(207 * 1.3), Round(295 * 1.3), 6, rxGuiMainH) do ImageStretch;
+    with TKMImage.Create(Panel_SinglePlayer, 50, 220, Round(218 * 1.3), Round(291 * 1.3), 5, rxGuiMain) do ImageStretch;
+    with TKMImage.Create(Panel_SinglePlayer, 705, 220, Round(207 * 1.3), Round(295 * 1.3), 6, rxGuiMain) do ImageStretch;
 
     Panel_SPButtons := TKMPanel.Create(Panel_SinglePlayer,337,340,350,400);
       Button_SP_Tutor  := TKMButton.Create(Panel_SPButtons,0,  0,350,30,fTextLibrary[TX_MENU_TUTORIAL_TOWN],fnt_Metal,bsMenu);
@@ -934,7 +933,7 @@ begin
 
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 60+i*24;
-        Image_LobbyFlag[i] := TKMImage.Create(Panel_LobbyPlayers, 10, top+3, 16, 11, 0, rxMenu);
+        Image_LobbyFlag[i] := TKMImage.Create(Panel_LobbyPlayers, 10, top+3, 16, 11, 0, rxGuiMain);
 
         Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, C1, top+2, 150, 20, '', fnt_Grey, taLeft);
         Label_LobbyPlayer[i].Hide;
@@ -959,12 +958,12 @@ begin
         Drop_LobbyColors[i].SetColumns(fnt_Outline, [''], [0]);
         Drop_LobbyColors[i].ShowHeader := False;
         Drop_LobbyColors[i].FadeImageWhenDisabled := False;
-        Drop_LobbyColors[i].Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxMenu, 21)], 0));
+        Drop_LobbyColors[i].Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
         for K := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
-          Drop_LobbyColors[i].Add(MakeListRow([''], [MP_TEAM_COLORS[K]], [MakePic(rxMenu, 20)]));
+          Drop_LobbyColors[i].Add(MakeListRow([''], [MP_TEAM_COLORS[K]], [MakePic(rxGuiMain, 30)]));
         Drop_LobbyColors[i].OnChange := Lobby_PlayersSetupChange;
 
-        Image_LobbyReady[i] := TKMImage.Create(Panel_LobbyPlayers, C5-8, top, 16, 16, 23, rxMenu);
+        Image_LobbyReady[i] := TKMImage.Create(Panel_LobbyPlayers, C5-8, top, 16, 16, 32, rxGuiMain);
         Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, C6, top, 50, 20, '', fnt_Metal, taCenter);
       end;
 
@@ -1083,7 +1082,7 @@ begin
   Panel_CampScroll := TKMPanel.Create(Panel_Campaign,Panel_Main.Width-360,Panel_Main.Height-430,360,430);
   Panel_CampScroll.Anchors := [akLeft,akBottom];
 
-    Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}2,rxGuiMainH);
+    Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}3,rxGuiMain);
     Image_Scroll.ImageStretch;
     Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 180, 18,100,20, '<<<LEER>>>', fnt_Outline, taCenter);
 
@@ -1320,7 +1319,7 @@ var I: Integer;
 begin
   Panel_Options:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Options.Stretch;
-    with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do
+    with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,rxGuiMain) do
     begin
       ImageStretch;
       Anchors := [akLeft];
@@ -1405,7 +1404,7 @@ begin
       for i := 0 to fLocales.Count - 1 do
       begin
         Radio_Options_Lang.Items.Add(fLocales[i].Title);
-        Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,28+(i*20),16,11,fLocales[i].FlagSpriteID,rxMenu);
+        Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,28+(i*20),16,11,fLocales[i].FlagSpriteID,rxGuiMain);
         Image_Options_Lang_Flags[i].Tag := i;
         Image_Options_Lang_Flags[i].OnClick := Options_FlagClick;
       end;
@@ -1488,7 +1487,7 @@ var I, Adv: Integer;
 begin
   Panel_Results := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Results.Stretch;
-    with TKMImage.Create(Panel_Results,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMainH) do
+    with TKMImage.Create(Panel_Results,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMain) do
     begin
       ImageStretch;
       Center;
@@ -1576,7 +1575,7 @@ var i,k: Integer;
 begin
   Panel_ResultsMP := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_ResultsMP.Stretch;
-    with TKMImage.Create(Panel_ResultsMP,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMainH) do
+    with TKMImage.Create(Panel_ResultsMP,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMain) do
     begin
       ImageStretch;
       Center;
@@ -1606,7 +1605,7 @@ begin
         begin
           Bar_Results[i,k] := TKMPercentBar.Create(Panel_StatsMP1, 160 + k*BarStep, 35+i*RowHeight, BarWidth, 20, fnt_Grey);
           Bar_Results[i,k].TextYOffset := -3;
-          Image_ResultsRosette[i,k] := TKMImage.Create(Panel_StatsMP1, 164 + k*BarStep, 38+i*RowHeight, 16, 16, 25, rxMenu);
+          Image_ResultsRosette[i,k] := TKMImage.Create(Panel_StatsMP1, 164 + k*BarStep, 38+i*RowHeight, 16, 16, 8, rxGuiMain);
         end;
       end;
 
@@ -1624,7 +1623,7 @@ begin
         begin
           Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 160 + k*BarStep, 35+i*RowHeight, BarWidth, 20, fnt_Grey);
           Bar_Results[i,k+5].TextYOffset := -3;
-          Image_ResultsRosette[i,k+5] := TKMImage.Create(Panel_StatsMP2, 164 + k*BarStep, 38+i*RowHeight, 16, 16, 25, rxMenu);
+          Image_ResultsRosette[i,k+5] := TKMImage.Create(Panel_StatsMP2, 164 + k*BarStep, 38+i*RowHeight, 16, 16, 8, rxGuiMain);
         end;
       end;
 
@@ -2660,7 +2659,7 @@ begin
       Image_LobbyFlag[I].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[I+1].LangCode).FlagSpriteID
     else
       if fGame.Networking.NetPlayers[I+1].IsComputer then
-        Image_LobbyFlag[I].TexID := 22 //PC icon
+        Image_LobbyFlag[I].TexID := 62 //PC icon
       else
         Image_LobbyFlag[I].TexID := 0;
 
@@ -2704,7 +2703,7 @@ begin
     if fGame.Networking.NetPlayers[I+1].IsClosed then
       Image_LobbyReady[I].TexID := 0
     else
-      Image_LobbyReady[I].TexID := 23+Byte(fGame.Networking.NetPlayers[I+1].ReadyToStart);
+      Image_LobbyReady[I].TexID := 32+Byte(fGame.Networking.NetPlayers[I+1].ReadyToStart);
 
     MyNik := (I+1 = fGame.Networking.MyIndex); //Our index
     //We are allowed to edit if it is our nickname and we are set as NOT ready,
