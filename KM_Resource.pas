@@ -134,7 +134,7 @@ begin
   fResourceFont.LoadFonts(aLocale);
   fLog.AppendLog('Read fonts is done');
 
-  fTileset := TKMTileset.Create(ExeDir + 'Resource\', ExeDir + 'data\defines\pattern.dat');
+  fTileset := TKMTileset.Create(ExeDir + 'data\defines\pattern.dat');
   LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
 
   fResources := TKMResourceCollection.Create;

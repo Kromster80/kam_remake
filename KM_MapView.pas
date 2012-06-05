@@ -9,7 +9,7 @@ type
   //Intermediary class between TTerrain/Players and UI
   TKMMapView = class
   private
-    //fRender: TRender; //todo: Should be used to Gen and Update texture
+    //todo: TRender should be used to Update texture
     fFromParser: Boolean;
     fIsMapEditor: Boolean;
     fSepia: Boolean;
@@ -47,7 +47,7 @@ type
 
 
 implementation
-uses KM_TGATexture, KM_Resource, KM_PlayersCollection, KM_Units, KM_Units_Warrior;
+uses KM_Resource, KM_PlayersCollection, KM_Units, KM_Units_Warrior;
 
 
 { TKMMinimap }
@@ -56,9 +56,8 @@ begin
   inherited Create;
 
   fIsMapEditor := aIsMapEditor;
-  //fRender := aRender;
   fSepia := aSepia;
-  fMapTex.Tex := GenerateTextureCommon;
+  fMapTex.Tex := TRender.GenerateTextureCommon;
 
   //We don't need terrain on main menu, just a parser
   //Otherwise access synced Game terrain

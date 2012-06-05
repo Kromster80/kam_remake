@@ -166,7 +166,6 @@
 			<DCCReference Include="KM_Sound.pas"/>
 			<DCCReference Include="KM_Terrain.pas"/>
 			<DCCReference Include="KM_TextLibrary.pas"/>
-			<DCCReference Include="Common\KM_TGATexture.pas"/>
 			<DCCReference Include="KM_UnitActionAbandonWalk.pas"/>
 			<DCCReference Include="KM_UnitActionFight.pas"/>
 			<DCCReference Include="KM_UnitActionGoInOut.pas"/>

@@ -2,7 +2,7 @@ unit KM_ResourceTileset;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, dglOpenGL,
+  Classes, Math, SysUtils,
   {$IFDEF WDC} ZLibEx, {$ENDIF}
   {$IFDEF FPC} ZStream, {$ENDIF}
   KM_Defaults, KM_CommonTypes;
@@ -19,7 +19,6 @@ type
     end;
 
     function LoadPatternDAT(const FileName: string): Boolean;
-    procedure LoadTextures(const aPath: string);
   public
     PatternDAT: array [1..256] of packed record
       MinimapColor: byte;
@@ -30,10 +29,9 @@ type
       u3: byte; // 1/2/4/8 bitfield, seems to have no logical explanation
     end;
 
-    TextG: Cardinal; //Shading gradient for lighting
     TileColor: TRGBArray;
 
-    constructor Create(const aPath, aPatternPath: string);
+    constructor Create(const aPatternPath: string);
 
     procedure ExportPatternDat(const aFilename: string);
 
@@ -51,40 +49,14 @@ type
 
 
 implementation
-uses KM_TGATexture;
 
 
 { TKMTileset }
-constructor TKMTileset.Create(const aPath, aPatternPath: string);
+constructor TKMTileset.Create(const aPatternPath: string);
 begin
   inherited Create;
 
   LoadPatternDAT(aPatternPath);
-
-  LoadTextures(aPath);
-end;
-
-
-// Load the Textures
-procedure TKMTileset.LoadTextures(const aPath: string);
-var
-  I: Integer;
-  pData: array [0..255] of Cardinal;
-begin
-  if aPath = '' then Exit;
-
-  //Generate gradients programmatically
-
-  //KaM uses [0..255] gradients
-  //We use slightly smoothed gradients [16..255] for Remake
-  //cos it shows much more of terrain on screen and it looks too contrast
-  TextG := GenerateTextureCommon;
-  if TextG <> 0 then
-  begin
-    for I := 0 to 255 do
-      pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, @pData[0]);
-  end;
 end;
 
 

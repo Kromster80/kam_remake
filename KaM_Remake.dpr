@@ -89,7 +89,6 @@ uses
   KM_Sound in 'KM_Sound.pas',
   KM_Terrain in 'KM_Terrain.pas',
   KM_TextLibrary in 'KM_TextLibrary.pas',
-  KM_TGATexture in 'Common\KM_TGATexture.pas',
   KM_UnitActionAbandonWalk in 'KM_UnitActionAbandonWalk.pas',
   KM_UnitActionFight in 'KM_UnitActionFight.pas',
   KM_UnitActionGoInOut in 'KM_UnitActionGoInOut.pas',

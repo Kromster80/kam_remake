@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF WDC} Graphics, JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet -> FPReadJPEG?
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  dglOpenGL, KromOGLUtils, KromUtils, Math, KM_TGATexture;
+  dglOpenGL, KromOGLUtils, KromUtils, Math;
 
 
 type
@@ -35,7 +35,8 @@ type
 
     procedure SetRenderMode(aRenderMode: TRenderMode); //Switch between 2D and 3D perspectives
 
-    function GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
+    class function GenerateTextureCommon: GLuint;
+    class function GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
 
     property RendererVersion: AnsiString read fOpenGL_Version;
     function IsOldGLVersion: Boolean;
@@ -124,15 +125,40 @@ begin
 end;
 
 
-//Generate texture out of TCardinalArray
-function TRender.GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
+class function TRender.GenerateTextureCommon: GLuint;
+var Texture: GLuint;
 begin
   Result := 0;
-  if fBlind then Exit;
+  if not Assigned(glGenTextures) then Exit;
 
-  DestX := MakePOT(DestX);
-  DestY := MakePOT(DestY);
-  if DestX*DestY = 0 then exit; //Do not generate zeroed textures
+  glGenTextures(1, @Texture);
+  glBindTexture(GL_TEXTURE_2D, Texture);
+
+  {Enable color blending into texture}
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  //GL_MODULATE is our choice
+  //GL_REPLACE is also available since version 1.1
+  //can't use GL_REPLACE cos it disallows blending of texture with custom color (e.g. trees in FOW)
+
+  {Keep original KaM grainy look}
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+  {Clamping UVs solves edge artifacts}
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  Result := Texture;
+end;
+
+
+//Generate texture out of TCardinalArray
+class function TRender.GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
+begin
+  Result := 0;
+  if not Assigned(glTexImage2D) then Exit;
+
+  Assert((DestX * DestY > 0) and (DestX = MakePOT(DestX)) and (DestY = MakePOT(DestY)), 'Game designed to handle only POT textures');
 
   Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
 
@@ -143,11 +169,11 @@ begin
   //Figures are before trimming - only ratio matters
   case Mode of
     //Base layer
-    tf_RGB5A1:        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tf_RGB5A1:  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Base layer with alpha channel for shadows
     tf_RGBA8:   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Team color layer (4 bit would be okay), but house construction steps need 8bit resolution
-    tf_Alpha8: glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA,  DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tf_Alpha8:  glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA,  DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
   end;
 end;
 

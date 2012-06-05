@@ -13,6 +13,7 @@ type
   private
     fRect: TKMRect;
     fFOW: TKMFogOfWar;
+    fTextG: GLuint; //Shading gradient for lighting
     function GetTileUV(Index: Word; Rot: Byte): TUVRect;
     procedure DoTiles(AnimStep: Integer);
     procedure DoOverlays;
@@ -20,13 +21,32 @@ type
     procedure DoWater(AnimStep: Integer);
     procedure DoShadows;
   public
+    constructor Create;
     procedure Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
   end;
 
 
 implementation
-uses KM_RenderAux, KM_Resource;
+uses KM_Render, KM_RenderAux, KM_Resource;
+
+
+constructor TRenderTerrain.Create;
+var
+  I: Integer;
+  pData: array [0..255] of Cardinal;
+begin
+  inherited;
+
+  //Generate gradient programmatically
+  //KaM uses [0..255] gradients
+  //We use slightly smoothed gradients [16..255] for Remake
+  //cos it shows much more of terrain on screen and it looks too contrast
+  for I := 0 to 255 do
+    pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
+
+  fTextG := TRender.GenTexture(256, 1, @pData[0], tf_RGBA8);
+end;
 
 
 function TRenderTerrain.GetTileUV(Index: Word; Rot: Byte): TUVRect;
@@ -221,7 +241,7 @@ begin
   glColor4f(1, 1, 1, 1);
   //Render highlights
   glBlendFunc(GL_DST_COLOR, GL_ONE);
-  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextG);
+  glBindTexture(GL_TEXTURE_2D, fTextG);
   glBegin(GL_QUADS);
     with fTerrain do
     if RENDER_3D then
@@ -252,7 +272,7 @@ var
   I,K: Integer;
 begin
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextG);
+  glBindTexture(GL_TEXTURE_2D, fTextG);
   glBegin(GL_QUADS);
     with fTerrain do
     if RENDER_3D then
