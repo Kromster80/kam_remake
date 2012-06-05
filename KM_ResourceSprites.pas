@@ -67,6 +67,8 @@ type
     procedure OverloadFromFolder(const aFolder: string);
     procedure MakeGFX(aAlphaShadows: Boolean; aStartingIndex: Integer = 1);
 
+    function GetSpriteColors(aCount: Byte): TRGBArray;
+
     procedure ExportToPNG(const aFolder: string);
 
     procedure ClearTemp; virtual;//Release non-required data
@@ -410,6 +412,34 @@ begin
   end;
 
   Png.Free;
+end;
+
+
+function TKMSpritePack.GetSpriteColors(aCount: Byte): TRGBArray;
+var
+  I, L, M: Integer;
+  PixelCount: Word;
+  R,G,B: Integer;
+begin
+  SetLength(Result, Min(fRXData.Count, aCount));
+
+  for I := 1 to Min(fRXData.Count, aCount) do
+  begin
+    R := 0;
+    G := 0;
+    B := 0;
+    for L := 0 to fRXData.Size[I].Y - 1 do
+    for M := 0 to fRXData.Size[I].X - 1 do
+    begin
+      Inc(R, fRXData.RGBA[I, L * fRXData.Size[I].X + M] and $FF);
+      Inc(G, fRXData.RGBA[I, L * fRXData.Size[I].X + M] shr 8 and $FF);
+      Inc(B, fRXData.RGBA[I, L * fRXData.Size[I].X + M] shr 16 and $FF);
+    end;
+    PixelCount := fRXData.Size[I].X * fRXData.Size[I].Y;
+    Result[I-1].R := Round(R / PixelCount);
+    Result[I-1].G := Round(G / PixelCount);
+    Result[I-1].B := Round(B / PixelCount);
+  end;
 end;
 
 
@@ -784,7 +814,7 @@ var
   RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
-    if (RXInfo[RT].Usage = ruMenu) then
+    if RXInfo[RT].Usage = ruMenu then
     begin
       fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
       LoadSprites(RT, RT = rxGUI); //Only GUI needs alpha shadows
@@ -797,11 +827,11 @@ end;
 procedure TKMSprites.LoadGameResources(aAlphaShadows: Boolean);
 var RT: TRXType;
 begin
-  //Remember which version we load
+  //Remember which version we load, so if it changes inbetween games we reload it
   fAlphaShadows := aAlphaShadows;
 
   for RT := Low(TRXType) to High(TRXType) do
-  if (RXInfo[RT].Usage = ruGame) then
+  if RXInfo[RT].Usage = ruGame then
   begin
     fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
     fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');

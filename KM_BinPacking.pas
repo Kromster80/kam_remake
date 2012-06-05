@@ -30,6 +30,7 @@ type
     fPad: Byte;
   public
     constructor Create(aRect: TBinRect; aPad: Byte; aImageID: Word);
+    destructor Destroy; override;
     function Insert(aItem: TIndexItem): TBin; //Return bin that has accepted the sprite, or nil of Bin is full
     function Width: Word;
     function Height: Word;
@@ -117,6 +118,15 @@ begin
   fRect := aRect; //Our dimensions
   fImageID := aImageID;
   fPad := aPad;
+end;
+
+
+destructor TBin.Destroy;
+begin
+  if fChild1 <> nil then fChild1.Free;
+  if fChild2 <> nil then fChild2.Free;
+
+  inherited;
 end;
 
 

@@ -5,7 +5,7 @@ uses
   Classes, Math, SysUtils, dglOpenGL,
   {$IFDEF WDC} ZLibEx, {$ENDIF}
   {$IFDEF FPC} ZStream, {$ENDIF}
-  KM_Defaults{, KM_ResourceSprites};
+  KM_Defaults, KM_CommonTypes;
 
 
 type
@@ -20,7 +20,6 @@ type
 
     function LoadPatternDAT(const FileName: string): Boolean;
     procedure LoadTextures(const aPath: string);
-    procedure MakeMiniMapColors(const FileName: string);
   public
     PatternDAT: array [1..256] of packed record
       MinimapColor: byte;
@@ -32,7 +31,7 @@ type
     end;
 
     TextG: Cardinal; //Shading gradient for lighting
-    TileColor: array [Byte] of record R,G,B: Byte end;
+    TileColor: TRGBArray;
 
     constructor Create(const aPath, aPatternPath: string);
 
@@ -63,8 +62,6 @@ begin
   LoadPatternDAT(aPatternPath);
 
   LoadTextures(aPath);
-
-  MakeMiniMapColors(aPath + 'Tiles1.tga');
 end;
 
 
@@ -153,91 +150,6 @@ begin
     writeln(ft);
   end;
   closefile(ft);
-end;
-
-
-{Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
-thus it's better to spend few ms and generate minimap colors from actual data}
-procedure TKMTileset.MakeMiniMapColors(const FileName: string);
-var
-  ii,kk,h,j,pX: Integer;
-  c:array of byte;
-  R,G,B,SizeX,SizeY: Integer;
-  f: file;
-  InputStream: TFileStream;
-  OutputStream: TMemoryStream;
-  {$IFDEF WDC}
-  DecompressionStream: TZDecompressionStream;
-  {$ENDIF}
-  {$IFDEF FPC}
-  DecompressionStream: TDecompressionStream;
-  i: Integer;
-  Buf: array[0..1023]of Byte;
-  {$ENDIF}
-begin
-  if not FileExists(FileName) then exit;
-  AssignFile(f, FileName);
-  FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
-
-  SetLength(c,18+1);
-  blockread(f,c[1],18); //SizeOf(TGAHeader)
-  SizeX := c[13]+c[14]*256;
-  SizeY := c[15]+c[16]*256;
-
-  if c[1]=120 then
-  begin
-    closefile(f);
-    InputStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
-    OutputStream := TMemoryStream.Create;
-    {$IFDEF WDC}
-     DecompressionStream := TZDecompressionStream.Create(InputStream);
-     OutputStream.CopyFrom(DecompressionStream, 0);
-    {$ENDIF}
-    {$IFDEF FPC}
-     DecompressionStream := TDecompressionStream.Create(InputStream);
-     repeat
-       i:=DecompressionStream.Read(Buf, SizeOf(Buf));
-       if i <> 0 then OutputStream.Write(Buf, i);
-     until i <= 0;
-    {$ENDIF}
-    OutputStream.Position := 0;
-    OutputStream.ReadBuffer(c[1], 18); //SizeOf(TGAHeader)
-    SizeX := c[13]+c[14]*256;
-    SizeY := c[15]+c[16]*256;
-    SetLength(c,SizeX*SizeY*4+1);
-    OutputStream.ReadBuffer(c[1], SizeX*SizeY*4);
-    InputStream.Free;
-    OutputStream.Free;
-    DecompressionStream.Free;
-  end
-  else
-  begin
-    SetLength(c,SizeX*SizeY*4+1);
-    blockread(f,c[1],SizeX*SizeY*4);
-    closefile(f);
-  end;
-
-  for ii:=0 to 15 do for kk:=0 to 15 do
-  begin
-
-    R:=0; G:=0; B:=0;
-
-    for j:=0 to (SizeY div 16 - 1) do
-    for h:=0 to (SizeX div 16 - 1) do
-    begin
-      pX := (((SizeX-1)-(ii*(SizeY div 16)+j))*SizeX+kk*(SizeX div 16)+h)*4; //TGA comes flipped upside down
-      inc(B, c[pX+1]);
-      inc(G, c[pX+2]);
-      inc(R, c[pX+3]);
-    end;
-
-    pX := ii*16+kk;
-
-    TileColor[pX].R := round(R / (SizeX*SizeY div 256)); //each tile is 32x32 px
-    TileColor[pX].G := round(G / (SizeX*SizeY div 256));
-    TileColor[pX].B := round(B / (SizeX*SizeY div 256));
-  end;
-
 end;
 
 

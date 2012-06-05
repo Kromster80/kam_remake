@@ -155,6 +155,7 @@ begin
   if (fDataState <> dls_All) or (aAlphaShadows <> fSprites.AlphaShadows) then
   begin
     fSprites.LoadGameResources(aAlphaShadows);
+    fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
     fSprites.ClearTemp;
   end;
 

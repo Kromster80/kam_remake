@@ -5,7 +5,7 @@ interface
 
 type
   TCardinalArray = array of Cardinal;
-
+  TRGBArray = array of record R,G,B: Byte end;
 
   TEvent = procedure of object;
   TPointEvent = procedure (Sender:TObject; const X,Y: integer) of object;
