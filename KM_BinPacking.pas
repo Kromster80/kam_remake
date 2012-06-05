@@ -49,7 +49,7 @@ type
     procedure GetAllItems(var aOut: TBinArray);
   end;
 
-  procedure BinPack(aItems: TIndexSizeArray; aPad: Byte; var aOut: TBinArray);
+  procedure BinPack(aItems: TIndexSizeArray; aMaxSize: Word; aPad: Byte; var aOut: TBinArray);
 
 
 implementation
@@ -65,7 +65,7 @@ begin
 end;
 
 
-procedure BinPack(aItems: TIndexSizeArray; aPad: Byte; var aOut: TBinArray);
+procedure BinPack(aItems: TIndexSizeArray; aMaxSize: Word; aPad: Byte; var aOut: TBinArray);
 var
   I, K: Integer;
   BinManager: TBinManager;
@@ -84,6 +84,8 @@ begin
     aOut[I].Sprites[0].PosY := aPad;
   end;}
 
+  Assert(MakePOT(aMaxSize) = aMaxSize);
+
   //Sort Items by size to improve packing efficiency
   for I := 0 to High(aItems) do
     for K := I + 1 to High(aItems) do
@@ -94,7 +96,7 @@ begin
         SwapInt(aItems[I].Y, aItems[K].Y);
       end;
 
-  BinManager := TBinManager.Create(512, 512, aPad);
+  BinManager := TBinManager.Create(aMaxSize, aMaxSize, aPad);
   try
     for I := 0 to High(aItems) do
       if (aItems[I].X * aItems[I].Y <> 0) then

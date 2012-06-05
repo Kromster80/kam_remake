@@ -7,7 +7,7 @@ uses
   {$IFDEF WDC} MPlayer, {$ENDIF}
   Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
-  KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Utils,
   KM_Networking,
   KM_MapEditor, KM_Campaigns, KM_EventProcess,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
@@ -214,8 +214,8 @@ begin
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   fSoundLib         := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume); //Required for button click sounds
   fMusicLib         := TMusicLib.Create(fGameSettings.MusicVolume);
-  fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
-  fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
+  fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
+  fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
   fResource         := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources(fGameSettings.Locale);
   fCampaigns        := TKMCampaignsCollection.Create;
@@ -297,20 +297,24 @@ begin
 end;
 
 
-procedure TKMGame.ToggleLocale(aLocale:shortstring);
+procedure TKMGame.ToggleLocale(aLocale: shortstring);
 begin
   fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
-  if fNetworking <> nil then FreeAndNil(fNetworking);
+
+  //Release resources that use Locale info
+  FreeAndNil(fNetworking);
   FreeAndNil(fCampaigns);
   fActiveInterface := nil; //Otherwise it will hold a pointer to freed memory
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fSoundLib);
   FreeAndNil(fTextLibrary);
-  fTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
+
+  //Recreate resources that use Locale info
+  fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
   fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume);
-  fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
-  fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
+  fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
+  fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
   fResource.ResourceFont.LoadFonts(fGameSettings.Locale);
   fCampaigns := TKMCampaignsCollection.Create; //Campaigns load text into TextLibrary
   fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
@@ -318,7 +322,7 @@ begin
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
   fMainMenuInterface.ShowScreen(msOptions);
   fActiveInterface := fMainMenuInterface;
-  Resize(fScreenX,fScreenY); //Force the recreated main menu to resize to the user's screen
+  Resize(fScreenX, fScreenY); //Force the recreated main menu to resize to the user's screen
 end;
 
 
@@ -1272,7 +1276,7 @@ end;
 
 
 //Tests whether time has past
-function TKMGame.CheckTime(aTimeTicks:cardinal):boolean;
+function TKMGame.CheckTime(aTimeTicks: Cardinal): Boolean;
 begin
   Result := (fGameTickCount >= aTimeTicks);
 end;
@@ -1280,7 +1284,7 @@ end;
 
 function TKMGame.IsPeaceTime:boolean;
 begin
-  Result := not CheckTime(fGameOptions.Peacetime*600);
+  Result := not CheckTime(fGameOptions.Peacetime * 600);
 end;
 
 

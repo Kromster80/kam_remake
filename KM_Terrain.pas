@@ -2774,22 +2774,6 @@ begin
     while Parent[I] <> Parent[Parent[I]] do
       Parent[I] := Parent[Parent[I]];
 
-
-  //1 -> 2
-  //2 -> 2   1
-  //3 -> 5
-  //4 -> 5
-  //5 -> 5   2
-  //todo: bugfix
-  //Compress parents (we may need it on big maps if we do CCL in Words, but write results in Byte)
-  {NCount := 1;
-  for I := 1 to AreaID - 1 do
-    if Parent[I] = I then
-    begin
-      Parent[I] := NCount;
-      Inc(NCount);
-    end;}
-
   //Merge areas
   for I := 1 to fMapY do
   for K := 1 to fMapX do

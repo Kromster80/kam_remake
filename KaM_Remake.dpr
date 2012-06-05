@@ -22,7 +22,7 @@ uses
   KM_Campaigns in 'KM_Campaigns.pas',
   KM_CityPlanner in 'KM_CityPlanner.pas',
   KM_CommonClasses in 'KM_CommonClasses.pas',
-  KM_CommonEvents in 'KM_CommonEvents.pas',
+  KM_CommonTypes in 'KM_CommonTypes.pas',
   KM_Controls in 'KM_Controls.pas',
   KM_DedicatedServer in 'KM_DedicatedServer.pas',
   KM_Defaults in 'KM_Defaults.pas',

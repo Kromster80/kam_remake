@@ -5,7 +5,7 @@ uses
     {$IFDEF MSWindows} Windows, {$ENDIF}
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
     Classes, Controls,  Math, SysUtils, Clipbrd,
-    KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonEvents, KM_Pics,
+    KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes, KM_Pics,
     KM_ResourceSprites, KM_MapView;
 
 type
@@ -895,19 +895,19 @@ type
       Title: string;
       Color: TColor4;
       Visible: Boolean;
-      Values: array of Word;
+      Values: TCardinalArray;
     end;
-    fMaxLength: Word; //Maximum samples (by horizontal axis)
+    fMaxLength: Cardinal; //Maximum samples (by horizontal axis)
     fMaxTime: Cardinal; //Maximum time (in sec), used only for Rendering time ticks
-    fMaxValue: Word; //Maximum value (by vertical axis)
+    fMaxValue: Cardinal; //Maximum value (by vertical axis)
     procedure UpdateMaxValue;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
-    procedure AddLine(aTitle: string; aColor: TColor4; const aValues: array of Word);
+    procedure AddLine(aTitle: string; aColor: TColor4; const aValues: TCardinalArray);
     property Caption: string read fCaption write fCaption;
     procedure Clear;
-    property MaxLength: Word read fMaxLength write fMaxLength;
+    property MaxLength: Cardinal read fMaxLength write fMaxLength;
     property MaxTime: Cardinal read fMaxTime write fMaxTime;
 
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -925,12 +925,12 @@ type
     fPlayerLocs: array[1..MAX_PLAYERS] of TKMPoint;
     fPlayerColors:array[1..MAX_PLAYERS] of Cardinal;
     fShowLocs: Boolean;
-    function GetPlayerLoc(aIndex:byte):TKMPoint;
-    procedure SetPlayerLoc(aIndex:byte; aLoc:TKMPoint);
+    function GetPlayerLoc(aIndex: Byte):TKMPoint;
+    procedure SetPlayerLoc(aIndex: Byte; aLoc:TKMPoint);
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
-    procedure UpdateFrom(aMapView:TKMMapView);
+    procedure UpdateFrom(aMapView: TKMMapView);
     function LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
     property MapSize: TKMPoint read fMapSize write fMapSize;
     property ViewArea: TKMRect read fViewArea write fViewArea;
@@ -3938,7 +3938,7 @@ begin
 end;
 
 
-procedure TKMGraph.AddLine(aTitle: string; aColor: TColor4; const aValues: array of Word);
+procedure TKMGraph.AddLine(aTitle: string; aColor: TColor4; const aValues: TCardinalArray);
 var K: Integer;
 begin
   Assert(Length(aValues) >= fMaxLength);

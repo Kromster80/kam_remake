@@ -2,19 +2,17 @@ unit KM_PlayerStats;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_CommonClasses, KM_Defaults;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults;
 
 
 {These are mission specific settings and stats for each player}
 type
-  TWordArray = array of Word;
-
   TKMPlayerStats = class
   private
     fGraphCount: Integer;
     fGraphCapacity: Integer;
-    fGraphHouses, fGraphCitizens, fGraphArmy: TWordArray;
-    fGraphGoods: array [WARE_MIN..WARE_MAX] of TWordArray;
+    fGraphHouses, fGraphCitizens, fGraphArmy: TCardinalArray;
+    fGraphGoods: array [WARE_MIN..WARE_MAX] of TCardinalArray;
     fHouseUnlocked: array [THouseType] of Boolean; //If building requirements performed
     Houses: array [THouseType] of packed record
       Planned,          //Houseplans were placed
@@ -34,12 +32,12 @@ type
       Killed: Word;     //Killed (incl. self)
     end;
     Goods: array [WARE_MIN..WARE_MAX] of packed record
-      Initial: Word;
-      Produced: Word;
-      Consumed: Word;
+      Initial: Cardinal;
+      Produced: Cardinal;
+      Consumed: Cardinal;
     end;
     fResourceRatios: array [1..4, 1..4]of Byte;
-    function GetGraphGoods(aWare: TresourceType): TWordArray;
+    function GetGraphGoods(aWare: TresourceType): TCardinalArray;
     function GetRatio(aRes: TResourceType; aHouse: THouseType): Byte;
     procedure SetRatio(aRes: TResourceType; aHouse: THouseType; aValue: Byte);
     procedure UpdateReqDone(aType: THouseType);
@@ -89,10 +87,10 @@ type
     function GetWeaponsProduced:cardinal;
 
     property GraphCount: Integer read fGraphCount;
-    property GraphHouses: TWordArray read fGraphHouses;
-    property GraphCitizens: TWordArray read fGraphCitizens;
-    property GraphArmy: TWordArray read fGraphArmy;
-    property GraphGoods[aWare: TResourceType]: TWordArray read GetGraphGoods;
+    property GraphHouses: TCardinalArray read fGraphHouses;
+    property GraphCitizens: TCardinalArray read fGraphCitizens;
+    property GraphArmy: TCardinalArray read fGraphArmy;
+    property GraphGoods[aWare: TResourceType]: TCardinalArray read GetGraphGoods;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -471,7 +469,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetGraphGoods(aWare: TresourceType): TWordArray;
+function TKMPlayerStats.GetGraphGoods(aWare: TresourceType): TCardinalArray;
 begin
   Result := fGraphGoods[aWare];
 end;

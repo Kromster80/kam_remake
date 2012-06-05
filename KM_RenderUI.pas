@@ -2,7 +2,7 @@ unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
 uses dglOpenGL, Graphics, Math, KromOGLUtils, StrUtils, SysUtils,
-  KM_Defaults, KM_Controls, KM_Points, KM_Pics, KM_ResourceSprites;
+  KM_Defaults, KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Points, KM_Pics, KM_ResourceSprites;
 
 type
   TRenderUI = class
@@ -16,7 +16,7 @@ type
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
     procedure WritePicture      (PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; Highlight: Boolean = False); overload;
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false); overload;
-    procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: array of word; aMaxValue: Word; aColor: TColor4);
+    procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TCardinalArray; aMaxValue: Cardinal; aColor: TColor4);
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
     procedure WriteText         (X,Y,W,H: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
@@ -370,7 +370,7 @@ begin
 end;
 
 
-procedure TRenderUI.WritePlot(PosX,PosY,SizeX,SizeY: SmallInt; aValues: array of word; aMaxValue: Word; aColor: TColor4);
+procedure TRenderUI.WritePlot(PosX,PosY,SizeX,SizeY: SmallInt; aValues: TCardinalArray; aMaxValue: Cardinal; aColor: TColor4);
 var
   I: Integer;
 begin

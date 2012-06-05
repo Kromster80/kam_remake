@@ -5,7 +5,7 @@ uses
   {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics, Math, SysUtils,
-  KM_CommonEvents, KM_Defaults, KM_Pics, KM_Render, KM_TextLibrary
+  KM_CommonTypes, KM_Defaults, KM_Pics, KM_Render, KM_TextLibrary
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF}
   {$IFDEF FPC}, BGRABitmap {$ENDIF};
@@ -679,7 +679,7 @@ begin
   SetLength(SpriteSizes, K);
 
   SetLength(SpriteInfo, 0);
-  BinPack(SpriteSizes, fPad, SpriteInfo);
+  BinPack(SpriteSizes, 512, fPad, SpriteInfo);
   PrepareAtlases(SpriteInfo, saBase, aTexType);
 
   //Prepare masking atlases
@@ -696,7 +696,7 @@ begin
   SetLength(SpriteSizes, K);
 
   SetLength(SpriteInfo, 0);
-  BinPack(SpriteSizes, fPad, SpriteInfo);
+  BinPack(SpriteSizes, 512, fPad, SpriteInfo);
   PrepareAtlases(SpriteInfo, saMask, tf_Alpha8);
 end;
 

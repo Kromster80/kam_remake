@@ -2,7 +2,7 @@ unit KM_ServerQuery;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, Windows,
-  KM_Defaults, KM_CommonClasses, KM_CommonEvents, KM_NetworkTypes, KM_Utils, KM_MasterServer, KM_NetClient;
+  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_NetworkTypes, KM_Utils, KM_MasterServer, KM_NetClient;
 
 const
   MAX_QUERIES = 16; //The maximum number of individual server queries that can be happening at once
