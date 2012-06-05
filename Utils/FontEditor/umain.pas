@@ -366,6 +366,7 @@ end;
 
 procedure TfrmMain.btnExportBigClick(Sender: TObject);
 begin
+  Assert(fCharCount = 256);
   ShowBigImage(CheckCells.Checked, true);
   fPaintBox.Repaint;
 end;
@@ -519,6 +520,7 @@ var
   Pixels:array[1..512,1..512]of byte;
   ErrS:string;
 begin
+  Assert(fCharCount = 256);
 
   if FontData.Title = fnt_Nil then begin
     ErrS := 'Please select editing font first';
