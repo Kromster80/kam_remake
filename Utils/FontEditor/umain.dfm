@@ -1,18 +1,19 @@
 object frmMain: TfrmMain
   Left = 185
   Top = 94
-  Width = 841
-  Height = 680
   Caption = 'KaM Font Editor'
+  ClientHeight = 650
+  ClientWidth = 833
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  Scaled = False
   OldCreateOrder = True
+  Scaled = False
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object Image1: TImage
@@ -24,7 +25,7 @@ object frmMain: TfrmMain
     OnMouseUp = Image1MouseUp
   end
   object Image3: TImage
-    Left = 680
+    Left = 696
     Top = 16
     Width = 128
     Height = 512
@@ -32,13 +33,13 @@ object frmMain: TfrmMain
   object Image4: TImage
     Left = 312
     Top = 536
-    Width = 497
+    Width = 513
     Height = 30
   end
   object Image5: TImage
     Left = 160
     Top = 565
-    Width = 649
+    Width = 665
     Height = 60
   end
   object Label3: TLabel
@@ -124,7 +125,7 @@ object frmMain: TfrmMain
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 633
+    Top = 630
     Width = 833
     Height = 20
     Panels = <
@@ -140,6 +141,8 @@ object frmMain: TfrmMain
         Text = 'Font Hex Code'
         Width = 50
       end>
+    ExplicitTop = 622
+    ExplicitWidth = 825
   end
   object Edit1: TEdit
     Left = 160
@@ -256,6 +259,17 @@ object frmMain: TfrmMain
     TabOrder = 13
     Value = 0
     OnChange = SpinEdit5Change
+  end
+  object ScrollBar1: TScrollBar
+    Left = 672
+    Top = 16
+    Width = 17
+    Height = 513
+    Kind = sbVertical
+    Max = 2000
+    PageSize = 0
+    TabOrder = 14
+    OnChange = ScrollBar1Change
   end
   object OpenDialog1: TOpenDialog
     Left = 88
