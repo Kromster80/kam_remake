@@ -152,12 +152,13 @@ begin
   if not RunSaveDialog(SaveDialog1, ListBox1.Items[ListBox1.ItemIndex], DataDir + 'Data\Gfx\Fonts\', 'KaM Fonts|*.fnt', 'fnt') then
     Exit;
 
-  assignfile(f,SaveDialog1.FileName); rewrite(f,1);
-  blockwrite(f,FontData.Unk1,8);
-  blockwrite(f,FontData.Pal[0],256);
+  assignfile(f,SaveDialog1.FileName);
+  rewrite(f,1);
+  blockwrite(f,FontData.Unk1, 8);
+  blockwrite(f,FontData.Pal[0], fCharCount);
 
   //Write font data
-  for I := 0 to 255 do
+  for I := 0 to fCharCount - 1 do
     if FontData.Pal[I] <> 0 then
       with FontData.Letters[I] do
       begin
@@ -366,7 +367,7 @@ end;
 procedure TfrmMain.btnExportBigClick(Sender: TObject);
 begin
   ShowBigImage(CheckCells.Checked, true);
-  PaintBox(nil);
+  fPaintBox.Repaint;
 end;
 
 
@@ -395,34 +396,34 @@ end;
 
 
 procedure TfrmMain.ShowPalette(aPal: Integer);
-var MyBitmap: TBitmap; I: Integer; MyRect: TRect;
+var Bmp: TBitmap; I: Integer; MyRect: TRect;
 begin
-  MyBitmap := TBitmap.Create;
-  MyBitmap.PixelFormat := pf24bit;
-  MyBitmap.Width := 8;
-  MyBitmap.Height := 32;
+  Bmp := TBitmap.Create;
+  Bmp.PixelFormat := pf24bit;
+  Bmp.Width := 8;
+  Bmp.Height := 32;
 
   for I := 0 to 255 do
-    MyBitmap.Canvas.Pixels[I mod 8, I div 8] := PalData[aPal,I+1,1] + PalData[aPal,I+1,2] shl 8 + PalData[aPal,I+1,3] shl 16;
+    Bmp.Canvas.Pixels[I mod 8, I div 8] := PalData[aPal,I+1,1] + PalData[aPal,I+1,2] shl 8 + PalData[aPal,I+1,3] shl 16;
 
   MyRect := Image3.Canvas.ClipRect;
-  Image3.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into Image1
-  MyBitmap.Free;
+  Image3.Canvas.StretchDraw(MyRect, Bmp); //Draw MyBitmap into Image1
+  Bmp.Free;
 end;
 
 
 procedure TfrmMain.Edit1Change(Sender: TObject);
 var
-  MyBitmap: TBitmap;
+  Bmp: TBitmap;
   I, ci, ck: integer;
   AdvX, Pal, t: integer;
   MyRect: TRect;
   Text: string;
 begin
-  MyBitmap := TBitmap.Create;
-  MyBitmap.PixelFormat := pf24bit;
-  MyBitmap.Width := 512;
-  MyBitmap.Height := 20;
+  Bmp := TBitmap.Create;
+  Bmp.PixelFormat := pf24bit;
+  Bmp.Width := 512;
+  Bmp.Height := 20;
 
   AdvX := 0;
 
@@ -435,8 +436,8 @@ begin
 
   //Fill area
   Pal := FontPal[FontData.Title];
-  MyBitmap.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
-  MyBitmap.Canvas.FillRect(MyBitmap.Canvas.ClipRect);
+  Bmp.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
+  Bmp.Canvas.FillRect(Bmp.Canvas.ClipRect);
 
   for I:=1 to length(Text) do
   if Text[i]<>' ' then
@@ -444,31 +445,30 @@ begin
     for ci:=0 to FontData.Letters[ord(Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Text[i])].Width-1 do begin
       t := FontData.Letters[ord(Text[i])].Data[ci*FontData.Letters[ord(Text[i])].Width+ck+1]+1;
       if t<>1 then //don't bother for clear pixels, speed-up
-      MyBitmap.Canvas.Pixels[ck+AdvX,ci+FontData.Letters[ord(Text[i])].YOffset] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
+      Bmp.Canvas.Pixels[ck+AdvX,ci+FontData.Letters[ord(Text[i])].YOffset] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
     end;
     inc(AdvX,FontData.Letters[ord(Text[i])].Width+FontData.CharOffset);
   end else
     inc(AdvX,FontData.WordSpacing);
 
-
   //Match phrase bounds
-  MyBitmap.Width := AdvX+1;
-  MyBitmap.Height := 20;
+  Bmp.Width := AdvX+1;
+  Bmp.Height := 20;
 
   Image4.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
   Image4.Canvas.FillRect(Image4.Canvas.ClipRect);
-  Image4.Canvas.Draw( (Image4.Width - MyBitmap.Width) div 2 , (Image4.Height - MyBitmap.Height) div 2 + 2, MyBitmap); //Draw MyBitmap into Image1
+  Image4.Canvas.Draw( (Image4.Width - Bmp.Width) div 2 , (Image4.Height - Bmp.Height) div 2 + 2, Bmp); //Draw MyBitmap into Image1
 
-  MyRect.Left := (Image5.Width  - MyBitmap.Width*2 ) div 2;
-  MyRect.Top  := (Image5.Height - MyBitmap.Height*2) div 2;
-  MyRect.Right  := MyRect.Left + MyBitmap.Width*2;
-  MyRect.Bottom := MyRect.Top + MyBitmap.Height*2;
+  MyRect.Left := (Image5.Width  - Bmp.Width*2 ) div 2;
+  MyRect.Top  := (Image5.Height - Bmp.Height*2) div 2;
+  MyRect.Right  := MyRect.Left + Bmp.Width*2;
+  MyRect.Bottom := MyRect.Top + Bmp.Height*2;
 
   Image5.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
   Image5.Canvas.FillRect(Image5.Canvas.ClipRect);
-  Image5.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into Image1
+  Image5.Canvas.StretchDraw(MyRect, Bmp); //Draw MyBitmap into Image1
 
-  MyBitmap.Free;
+  Bmp.Free;
 end;
 
 
@@ -476,7 +476,7 @@ function TfrmMain.GetFontFromFileName(const aFile: string): TKMFont;
 var I: TKMFont;
 begin
   Result := fnt_Nil; //Deliberate error
-  for I := Low(TKMFont) to High(TKMFont) do
+  for I := High(TKMFont) downto Low(TKMFont) do
     if LeftStr(aFile, Length(FontFileNames[I])) = FontFileNames[I] then
     begin
       Result := I;
@@ -537,14 +537,14 @@ begin
   MyBitmap.LoadFromFile(OpenDialog1.FileName);
   MyBitmap.PixelFormat := pf24bit;
 
-  if MyBitmap.Width<>512 then begin
-    MessageBox(Handle,'Image should be 512 pixels wide.','Error',MB_OK);
+  if MyBitmap.Width <> TexWidth then begin
+    MessageBox(Handle, PWideChar(Format('Image should be %d pixels wide', [TexWidth])),'Error',MB_OK);
     MyBitmap.Free;
     Exit;
   end;
 
   //Convert 24bit to palette colors
-  for I:=1 to 512 do for k:=1 to 512 do
+  for I:=1 to TexWidth do for k:=1 to TexWidth do
     Pixels[i,k] := FindBestPaletteColor(MyBitmap.Canvas.Pixels[k-1,i-1]); //Canvas uses [X:Y] addressing, while I prefer [Y:X] order
 
   MyBitmap.Free;
