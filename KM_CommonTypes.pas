@@ -14,6 +14,12 @@ type
   TResyncEvent = procedure (aSender:Integer; aTick: cardinal) of object;
   TIntegerStringEvent = procedure (aValue: Integer; const aText: string) of object;
 
+  TKMAnimLoop = packed record
+                  Step: array [1 .. 30] of SmallInt;
+                  Count: SmallInt;
+                  MoveX, MoveY: Integer;
+                end;
+
 
 implementation
 

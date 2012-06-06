@@ -737,24 +737,7 @@ var
     MapEdSize: Byte;
   end;
 
-  //Trees and other terrain elements properties
-  MapElemQty:integer=254; //Default qty
-  ActualMapElemQty:integer; //Usable qty read from RX file
-  ActualMapElem:array[1..254]of integer; //pointers to usable MapElem's
-  OriginalMapElem:array[1..256]of integer; //pointers of usable MapElem's back to map objects. (reverse lookup to one above) 256 is no object.
-  MapElem:array[1..512]of packed record
-    Step:array[1..30]of smallint;           //60
-    Count:word;                             //62
-    MoveX,MoveY:integer;                    //70
-    CuttableTree:longbool;                  //This tree can be cut by a woodcutter
-    DiagonalBlocked:longbool;               //Can't walk diagonally accross this object (mainly trees)
-    AllBlocked:longbool;                    //All passibility blocked. Can't walk, build, swim, etc.
-    WineOrCorn:longbool;                    //Draw multiple (4 or 2) sprites per object (corn or grapes)
-    CanGrow:longbool;                       //This object can grow (i.e. change to another object)
-    DontPlantNear:longbool;                 //This object can't be planted within one tile of
-    Stump:shortint;                         //95 Tree stump
-    CanBeRemoved:longbool;                  //99 //Can be removed in favor of building house
-  end;
+
 
 
 implementation

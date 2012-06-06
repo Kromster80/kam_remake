@@ -101,7 +101,7 @@ var
 
 
 implementation
-uses KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_Units, KM_FogOfWar;
+uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_Units, KM_FogOfWar;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -442,7 +442,7 @@ procedure TRenderPool.AddHouseWork(aHouse: THouseType; Loc: TKMPoint; aActSet: T
 var
   ID: Cardinal;
   AT: THouseActionType;
-  A: TKMHouseAnim;
+  A: TKMAnimLoop;
   R: TRXData;
   CornerX, CornerY: Single;
 begin
@@ -539,15 +539,15 @@ var
   CornerX, CornerY: Single;
   ID: Integer;
   R: TRXData;
-  BA: TKMHouseBeastAnim;
+  A: TKMAnimLoop;
 begin
   R := fRXData[aRX];
 
-  BA := fResource.HouseDat.BeastAnim[aHouse,BeastID,BeastAge];
+  A := fResource.HouseDat.BeastAnim[aHouse,BeastID,BeastAge];
 
-  ID := BA.Step[AnimStep mod BA.Count + 1] + 1;
-  CornerX := Loc.X + (BA.MoveX + R.Pivot[ID].X) / CELL_SIZE_PX - 1;
-  CornerY := Loc.Y + (BA.MoveY + R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1
+  ID := A.Step[AnimStep mod A.Count + 1] + 1;
+  CornerX := Loc.X + (A.MoveX + R.Pivot[ID].X) / CELL_SIZE_PX - 1;
+  CornerY := Loc.Y + (A.MoveY + R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1
                    - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
   fRenderList.AddSprite(aRX, ID, CornerX, CornerY);
 end;
@@ -598,7 +598,7 @@ procedure TRenderPool.AddUnit(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKM
 var
   CornerX, CornerY, Ground: Single;
   ID, ID0: Integer;
-  A: TKMUnitsAnim;
+  A: TKMAnimLoop;
   R: TRXData;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
@@ -633,7 +633,7 @@ procedure TRenderPool.AddHouseEater(Loc: TKMPoint; aUnit: TUnitType; aAct: TUnit
 var
   CornerX, CornerY: Single;
   ID: Integer;
-  A: TKMUnitsAnim;
+  A: TKMAnimLoop;
   R: TRXData;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
@@ -654,7 +654,7 @@ procedure TRenderPool.AddUnitCarry(aCarry: TResourceType; aDir: TKMDirection; St
 var
   CornerX, CornerY: Single;
   ID: Integer;
-  A: TKMUnitsAnim;
+  A: TKMAnimLoop;
   R: TRXData;
 begin
   A := fResource.UnitDat.SerfCarry[aCarry, aDir];
@@ -695,7 +695,7 @@ procedure TRenderPool.AddUnitFlag(
   pX, pY: Single; FlagColor, TeamColor: TColor4);
 var
   R: TRXData;
-  A: TKMUnitsAnim;
+  A: TKMAnimLoop;
   ID0, IDUnit, IDFlag: Integer;
   FlagX, FlagY, CornerX, CornerY, Ground: Single;
 begin

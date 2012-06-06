@@ -3,18 +3,12 @@ unit KM_ResourceUnit;
 interface
 uses
   Classes, SysUtils, TypInfo,
-  KM_CommonClasses, KM_Defaults, KM_Points;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points;
 
 
 //Used to separate close-combat units from archers (they use different fighting logic)
 type
   TFightType = (ft_Melee, ft_Ranged);
-
-  TKMUnitsAnim = packed record
-    Step:array[1..30]of smallint;
-    Count:smallint;
-    MoveX,MoveY:integer;
-  end;
 
   TKMUnitDat = packed record
     HitPoints,Attack,AttackHorse,x4,Defence,Speed,x7,Sight:smallint;
@@ -23,8 +17,8 @@ type
   end;
 
   TKMUnitSprite = packed record
-    Act:array[TUnitActionType]of packed record
-      Dir:array[dir_N..dir_NW]of TKMUnitsAnim;
+    Act: array [TUnitActionType] of packed record
+      Dir: array [dir_N..dir_NW] of TKMAnimLoop;
     end;
   end;
 
@@ -45,7 +39,7 @@ type
     function GetMinimapColor: Cardinal;
     function GetMiningRange: byte;
     function GetSpeed:single;
-    function GetUnitAnim(aAction:TUnitActionType; aDir:TKMDirection):TKMUnitsAnim;
+    function GetUnitAnim(aAction: TUnitActionType; aDir: TKMDirection): TKMAnimLoop;
     function GetUnitName: string;
   public
     constructor Create(aType:TUnitType);
@@ -69,7 +63,7 @@ type
     property MiningRange:byte read GetMiningRange;
     property Speed:single read GetSpeed;
     function SupportsAction(aAct: TUnitActionType):boolean;
-    property UnitAnim[aAction:TUnitActionType; aDir:TKMDirection]:TKMUnitsAnim read GetUnitAnim;
+    property UnitAnim[aAction:TUnitActionType; aDir:TKMDirection]: TKMAnimLoop read GetUnitAnim;
     property UnitName:string read GetUnitName;
   end;
 
@@ -77,18 +71,18 @@ type
   TKMUnitDatCollection = class
   private
     fCRC:cardinal;
-    fItems: array[TUnitType] of TKMUnitDatClass;
-    fSerfCarry: array[WARE_MIN..WARE_MAX, dir_N..dir_NW] of TKMUnitsAnim;
-    function LoadUnitsDat(aPath: string):Cardinal;
-    function GetUnitDat(aType:TUnitType):TKMUnitDatClass;
-    function GetSerfCarry(aType:TResourceType; aDir:TKMDirection):TKMUnitsAnim;
+    fItems: array [TUnitType] of TKMUnitDatClass;
+    fSerfCarry: array [WARE_MIN..WARE_MAX, dir_N..dir_NW] of TKMAnimLoop;
+    function LoadUnitsDat(aPath: string): Cardinal;
+    function GetUnitDat(aType: TUnitType): TKMUnitDatClass;
+    function GetSerfCarry(aType: TResourceType; aDir: TKMDirection): TKMAnimLoop;
   public
     constructor Create;
     destructor Destroy; override;
 
-    property UnitsDat[aType:TUnitType]:TKMUnitDatClass read GetUnitDat; default;
-    property SerfCarry[aType:TResourceType; aDir:TKMDirection]:TKMUnitsAnim read GetSerfCarry;
-    property CRC:cardinal read fCRC; //Return hash of all values
+    property UnitsDat[aType: TUnitType]: TKMUnitDatClass read GetUnitDat; default;
+    property SerfCarry[aType: TResourceType; aDir: TKMDirection]: TKMAnimLoop read GetSerfCarry;
+    property CRC: Cardinal read fCRC; //Return hash of all values
 
     procedure ExportCSV(aPath: string);
   end;
@@ -296,7 +290,7 @@ begin
 end;
 
 
-function TKMUnitDatClass.GetUnitAnim(aAction: TUnitActionType; aDir: TKMDirection): TKMUnitsAnim;
+function TKMUnitDatClass.GetUnitAnim(aAction: TUnitActionType; aDir: TKMDirection): TKMAnimLoop;
 begin
   Assert(aDir <> dir_NA);
   Assert(aAction in [Low(TUnitActionType)..High(TUnitActionType)]);
@@ -409,9 +403,9 @@ begin
 end;
 
 
-function TKMUnitDatCollection.GetSerfCarry(aType: TResourceType; aDir: TKMDirection): TKMUnitsAnim;
+function TKMUnitDatCollection.GetSerfCarry(aType: TResourceType; aDir: TKMDirection): TKMAnimLoop;
 begin
-  //Assert(aType in )
+  Assert(aType in [WARE_MIN .. WARE_MAX]);
   Result := fSerfCarry[aType, aDir];
 end;
 

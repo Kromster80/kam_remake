@@ -3,20 +3,14 @@ unit KM_ResourceHouse;
 interface
 uses
   Classes, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults;
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults;
 
 
 type
-  TKMHouseAnim = packed record
-      Step: array[1..30]of smallint;
-      Count: smallint;
-      MoveX, MoveY: integer;
-    end;
+  THouseAnim = array [THouseActionType] of TKMAnimLoop;
 
-  THouseAnim = array[THouseActionType] of TKMHouseAnim;
-
-  THouseBuildSupply = array[1..2,1..6] of packed record MoveX,MoveY:integer; end;
-  THouseSupply = array[1..4,1..5]of smallint;
+  THouseBuildSupply = array [1..2,1..6] of packed record MoveX, MoveY: Integer; end;
+  THouseSupply = array [1..4, 1..5] of SmallInt;
 
   TKMHouseDat = packed record
     StonePic,WoodPic,WoodPal,StonePal:smallint;
@@ -100,29 +94,26 @@ type
     property TabletIcon:word read GetTabletIcon;
   end;
 
-  //Swine&Horses, 5 beasts in each house, 3 ages for each beast
-  TKMHouseBeastAnim = packed record
-    Step:array[1..30]of smallint;
-    Count:smallint;
-    MoveX,MoveY:integer;
-  end;
+
+
 
   TKMHouseDatCollection = class
   private
     fCRC:cardinal;
     fItems: array[THouseType] of TKMHouseDatClass;
-    fBeastAnim: array[1..2,1..5,1..3] of TKMHouseBeastAnim;
-    fMarketBeastAnim: array[1..3] of TKMHouseBeastAnim;
-    function LoadHouseDat(aPath: string):Cardinal;
-    function GetHouseDat(aType:THouseType):TKMHouseDatClass;
-    function GetBeastAnim(aType:THouseType; aBeast, aAge:integer):TKMHouseBeastAnim;
+    //Swine&Horses, 5 beasts in each house, 3 ages for each beast
+    fBeastAnim: array[1..2,1..5,1..3] of TKMAnimLoop;
+    fMarketBeastAnim: array[1..3] of TKMAnimLoop;
+    function LoadHouseDat(aPath: string): Cardinal;
+    function GetHouseDat(aType:THouseType): TKMHouseDatClass;
+    function GetBeastAnim(aType:THouseType; aBeast, aAge:integer): TKMAnimLoop;
   public
     constructor Create;
     destructor Destroy; override;
 
-    property HouseDat[aType:THouseType]:TKMHouseDatClass read GetHouseDat; default;
-    property BeastAnim[aType:THouseType; aBeast, aAge:integer]:TKMHouseBeastAnim read GetBeastAnim;
-    property CRC:cardinal read fCRC; //Return hash of all values
+    property HouseDat[aType: THouseType]: TKMHouseDatClass read GetHouseDat; default;
+    property BeastAnim[aType: THouseType; aBeast, aAge: Integer]: TKMAnimLoop read GetBeastAnim;
+    property CRC: Cardinal read fCRC; //Return hash of all values
 
     procedure ExportCSV(aPath: string);
   end;
@@ -704,13 +695,13 @@ begin
 end;
 
 
-function TKMHouseDatCollection.GetHouseDat(aType:THouseType): TKMHouseDatClass;
+function TKMHouseDatCollection.GetHouseDat(aType: THouseType): TKMHouseDatClass;
 begin
   Result := fItems[aType];
 end;
 
 
-function TKMHouseDatCollection.GetBeastAnim(aType:THouseType; aBeast, aAge: integer): TKMHouseBeastAnim;
+function TKMHouseDatCollection.GetBeastAnim(aType: THouseType; aBeast, aAge: Integer): TKMAnimLoop;
 begin
   Assert(aType in [ht_Swine, ht_Stables, ht_Marketplace]);
   Assert(InRange(aBeast, 1, 5));
@@ -725,7 +716,7 @@ end;
 
 //Return CRC of loaded file
 //CRC should be calculated right away, cos file may be swapped after loading
-function TKMHouseDatCollection.LoadHouseDat(aPath: string):Cardinal;
+function TKMHouseDatCollection.LoadHouseDat(aPath: string): Cardinal;
 var
   S:TKMemoryStream;
   i:integer;

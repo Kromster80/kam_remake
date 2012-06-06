@@ -9,6 +9,7 @@ uses
   KM_ResourceCursors,
   KM_ResourceFonts,
   KM_ResourceHouse,
+  KM_ResourceMapElements,
   KM_ResourcePalettes,
   KM_ResourceResource,
   KM_ResourceSprites,
@@ -34,6 +35,7 @@ type
     fResources: TKMResourceCollection;
     fSprites: TKMSprites;
     fTileset: TKMTileset;
+    fMapElem: TKMMapElements;
 
     procedure StepRefresh;
     procedure StepCaption(const aCaption: string);
@@ -52,12 +54,13 @@ type
     property DataState: TDataLoadingState read fDataState;
     property Cursors: TKMCursors read fCursors;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
-    property UnitDat: TKMUnitDatCollection read fUnitDat;
+    property MapElem: TKMMapElements read fMapElem;
     property Palettes: TKMPalettes read fPalettes;
     property ResourceFont: TResourceFont read fResourceFont;
     property Resources: TKMResourceCollection read fResources;
     property Sprites: TKMSprites read fSprites;
     property Tileset: TKMTileset read fTileset;
+    property UnitDat: TKMUnitDatCollection read fUnitDat;
 
     procedure ExportTreeAnim;
     procedure ExportHouseAnim;
@@ -88,14 +91,15 @@ end;
 
 destructor TResource.Destroy;
 begin
-  if fHouseDat <> nil then FreeAndNil(fHouseDat);
-  if fUnitDat <> nil then FreeAndNil(fUnitDat);
-  if fPalettes <> nil then FreeAndNil(fPalettes);
-  if fResourceFont <> nil then FreeAndNil(fResourceFont);
-  if fResources <> nil then FreeAndNil(fResources);
-  if fSprites <> nil then FreeAndNil(fSprites);
-  if fTileset <> nil then FreeAndNil(fTileset);
-  if fCursors <> nil then FreeAndNil(fCursors);
+  FreeAndNil(fCursors);
+  FreeAndNil(fHouseDat);
+  FreeAndNil(fMapElem);
+  FreeAndNil(fPalettes);
+  FreeAndNil(fResourceFont);
+  FreeAndNil(fResources);
+  FreeAndNil(fSprites);
+  FreeAndNil(fTileset);
+  FreeAndNil(fUnitDat);
   inherited;
 end;
 
@@ -162,47 +166,6 @@ begin
 
   fDataState := dls_All;
   fLog.AppendLog('Resource loading state - Game');
-end;
-
-
-//Reading map elements (has animation data)
-function TResource.LoadMapElemDAT(const FileName: string): Boolean;
-var ii,kk:integer; ft:textfile; f:file;
-begin
-  Result:=false;
-  if not CheckFileExists(FileName) then exit;
-  assignfile(f,FileName); reset(f,1);
-  blockread(f,MapElem[1],MapElemQty*99);
-  closefile(f);
-
-  ActualMapElemQty:=0;
-  for ii:=1 to MapElemQty do
-  if (MapElem[ii].Count>0)and(MapElem[ii].Step[1]>0) then
-  begin
-    inc(ActualMapElemQty);
-    ActualMapElem[ActualMapElemQty] := ii; //pointer
-    OriginalMapElem[ii] := ActualMapElemQty; //Reverse lookup
-  end;
-
-  if WriteResourceInfoToTXT then begin
-    assignfile(ft,ExeDir+'Trees.txt'); rewrite(ft);
-    for ii:=1 to MapElemQty do begin
-    writeln(ft);
-    writeln(ft,inttostr(ii)+' :'+inttostr(MapElem[ii].Count));
-      for kk:=1 to 30 do if MapElem[ii].Step[kk]>0 then
-      write(ft,MapElem[ii].Step[kk],'.') else write(ft,'_.');
-
-      writeln(ft);
-//      for kk:=1 to 16 do
-//      write(ft,MapElem[ii].CuttableTree,''); //Those are 1/0 so we can ommit space between them
-
-      write(ft,' =',MapElem[ii].CanBeRemoved);
-      writeln(ft);
-    end;
-    closefile(ft);
-  end;
-
-  Result:=true;
 end;
 
 
