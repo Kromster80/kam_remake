@@ -270,7 +270,7 @@ const
     0,0,0,0,0,0,0,0,0,0,
     $B0B0B0,$B08000,$B08000,$80B0B0,$00B0B0,$B080B0,$00B000,$80B0B0); //Exact colors can be tweaked
 begin
-  Result := MMColor[fUnitType];
+  Result := MMColor[fUnitType] or $FF000000;
 end;
 
 

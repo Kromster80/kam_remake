@@ -29,7 +29,7 @@ var
     (FileName: 'GUI';        TeamColors: True;  Usage: ruMenu; LoadingTextID: 0;),
     (FileName: 'GUIMain';    TeamColors: False; Usage: ruMenu; LoadingTextID: 0;),
     (FileName: 'GUIMainH';   TeamColors: False; Usage: ruMenu; LoadingTextID: 0;),
-    (FileName: 'Tileset';    TeamColors: False; Usage: ruGame; LoadingTextID: TX_MENU_LOADING_TILESET;));
+    (FileName: 'Tileset';    TeamColors: False; Usage: ruMenu; LoadingTextID: TX_MENU_LOADING_TILESET;));
 
 type
   TRXData = record
@@ -47,7 +47,6 @@ type
   //Base class for Sprite loading
   TKMSpritePack = class
   private
-    fRender: TRender;
     fPad: Byte; //Force padding between sprites to avoid neighbour edge visibility
     procedure MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
     procedure MakeGFX_StripPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
@@ -57,7 +56,7 @@ type
     fRXData: TRXData;
     procedure Allocate(aCount: Integer); virtual; //Allocate space for data that is being loaded
   public
-    constructor Create(aRT: TRXType; aRender: TRender);
+    constructor Create(aRT: TRXType);
 
     procedure AddImage(aFolder, aFilename: string; aIndex: Integer);
     property RXData: TRXData read fRXData;
@@ -80,7 +79,6 @@ type
   TKMSprites = class
   private
     fAlphaShadows: Boolean; //Remember which state we loaded
-    fRender: TRender;
     fSprites: array[TRXType] of TKMSpritePack;
     fStepProgress: TEvent;
     fStepCaption: TStringEvent;
@@ -88,7 +86,7 @@ type
     function GetRXFileName(aRX: TRXType): string;
     function GetSprites(aRT: TRXType): TKMSpritePack;
   public
-    constructor Create(aRender: TRender; aStepProgress: TEvent; aStepCaption: TStringEvent);
+    constructor Create(aStepProgress: TEvent; aStepCaption: TStringEvent);
     destructor Destroy; override;
 
     procedure LoadMenuResources;
@@ -123,12 +121,10 @@ uses KromUtils, KM_Log, Types, StrUtils, KM_BinPacking;
 
 
 { TKMSpritePack }
-//We need to access to palettes to properly Expand RX files
-constructor TKMSpritePack.Create(aRT: TRXType; aRender: TRender);
+constructor TKMSpritePack.Create(aRT: TRXType);
 begin
   inherited Create;
 
-  fRender := aRender;
   fRT := aRT;
 
   if fRT = rxTiles then
@@ -539,15 +535,15 @@ begin
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
     if MAKE_TEAM_COLORS and RXInfo[fRT].TeamColors and (not ((fRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
     begin
-      GFXData[fRT,LeftIndex].Tex.ID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],aTexType);
+      GFXData[fRT,LeftIndex].Tex.ID := TRender.GenTexture(WidthPOT,HeightPOT,@TD[0],aTexType);
       //TeamColors are done through alternative plain colored texture
       if HasMsk then begin
-        GFXData[fRT,LeftIndex].Alt.ID := fRender.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_Alpha8);
+        GFXData[fRT,LeftIndex].Alt.ID := TRender.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_Alpha8);
         Inc(ColorRAM, WidthPOT * HeightPOT * TexFormatSize[aTexType]); //GL_ALPHA4
       end;
     end
     else
-      GFXData[fRT, LeftIndex].Tex.ID := fRender.GenTexture(WidthPOT, HeightPOT, @TD[0], aTexType);
+      GFXData[fRT, LeftIndex].Tex.ID := TRender.GenTexture(WidthPOT, HeightPOT, @TD[0], aTexType);
 
     Inc(BaseRAM, WidthPOT * HeightPOT * TexFormatSize[aTexType]);
 
@@ -657,7 +653,7 @@ type
       end;
 
       //Generate texture once
-      Tx := fRender.GenTexture(SpriteInfo[I].Width, SpriteInfo[I].Height, @TD[0], aTexType);
+      Tx := TRender.GenTexture(SpriteInfo[I].Width, SpriteInfo[I].Height, @TD[0], aTexType);
 
       //Now that we know texture IDs we can fill GFXData structure
       for K := 0 to High(SpriteInfo[I].Sprites) do
@@ -762,15 +758,14 @@ end;
 
 
 { TKMSprites }
-constructor TKMSprites.Create(aRender: TRender; aStepProgress: TEvent; aStepCaption: TStringEvent);
+constructor TKMSprites.Create(aStepProgress: TEvent; aStepCaption: TStringEvent);
 var
   RT: TRXType;
 begin
   inherited Create;
-  fRender := aRender;
 
   for RT := Low(TRXType) to High(TRXType) do
-    fSprites[RT] := TKMSpritePack.Create(RT, fRender);
+    fSprites[RT] := TKMSpritePack.Create(RT);
 
   fStepProgress := aStepProgress;
   fStepCaption := aStepCaption;

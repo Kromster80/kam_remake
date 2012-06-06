@@ -121,13 +121,12 @@ begin
   fPalettes.LoadPalettes;
   fLog.AppendLog('Reading palettes', True);
 
-  fSprites := TKMSprites.Create(fRender, StepRefresh, StepCaption);
+  fSprites := TKMSprites.Create(StepRefresh, StepCaption);
 
   fCursors := TKMCursors.Create;
   fSprites.LoadMenuResources;
   fCursors.MakeCursors(fSprites[rxGui]);
   fCursors.Cursor := kmc_Default;
-  fSprites.ClearTemp;
 
   StepCaption('Reading fonts ...');
   fResourceFont := TResourceFont.Create(fRender);
@@ -135,7 +134,10 @@ begin
   fLog.AppendLog('Read fonts is done');
 
   fTileset := TKMTileset.Create(ExeDir + 'data\defines\pattern.dat');
+  fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
   LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
+
+  fSprites.ClearTemp;
 
   fResources := TKMResourceCollection.Create;
   fHouseDat := TKMHouseDatCollection.Create;
@@ -155,7 +157,6 @@ begin
   if (fDataState <> dls_All) or (aAlphaShadows <> fSprites.AlphaShadows) then
   begin
     fSprites.LoadGameResources(aAlphaShadows);
-    fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
     fSprites.ClearTemp;
   end;
 

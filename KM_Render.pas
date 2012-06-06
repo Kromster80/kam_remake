@@ -36,7 +36,8 @@ type
     procedure SetRenderMode(aRenderMode: TRenderMode); //Switch between 2D and 3D perspectives
 
     class function GenerateTextureCommon: GLuint;
-    class function GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
+    class function GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TTexFormat): GLUint;
+    class procedure UpdateTexture(aTexture: GLuint; DestX, DestY: Word; Mode: TTexFormat; const Data: Pointer);
 
     property RendererVersion: AnsiString read fOpenGL_Version;
     function IsOldGLVersion: Boolean;
@@ -153,19 +154,24 @@ end;
 
 
 //Generate texture out of TCardinalArray
-class function TRender.GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
+class function TRender.GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TTexFormat): GLUint;
 begin
-  Result := 0;
-  if not Assigned(glTexImage2D) then Exit;
+  Result := GenerateTextureCommon;
+  UpdateTexture(Result, DestX, DestY, Mode, Data);
+end;
 
+
+//Update texture with TCardinalArray
+class procedure TRender.UpdateTexture(aTexture: GLuint; DestX, DestY: Word; Mode: TTexFormat; const Data: Pointer);
+begin
+  if not Assigned(glTexImage2D) then Exit;
   Assert((DestX * DestY > 0) and (DestX = MakePOT(DestX)) and (DestY = MakePOT(DestY)), 'Game designed to handle only POT textures');
 
-  Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
+  glBindTexture(GL_TEXTURE_2D, aTexture);
 
-  //GL_ALPHA4  (0-0-0-4 bit) - used only for flags, but may bring unexpected bugs
-  //GL_ALPHA   (0-0-0-8 bit) - used only for flags, but may bring unexpected bugs
-  //GL_RGB5_A1 (5-5-5-1 bit) - uses 185mb GPURAM
-  //GL_RGBA    (8-8-8-8 bit) - uses 323mb GPURAM (but allows fuzzy shadows)
+  //GL_ALPHA   (0-0-0-8 bit) - 
+  //GL_RGB5_A1 (5-5-5-1 bit) - 
+  //GL_RGBA    (8-8-8-8 bit) - allows fuzzy shadows
   //Figures are before trimming - only ratio matters
   case Mode of
     //Base layer
@@ -175,6 +181,7 @@ begin
     //Team color layer (4 bit would be okay), but house construction steps need 8bit resolution
     tf_Alpha8:  glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA,  DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
   end;
+  glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 

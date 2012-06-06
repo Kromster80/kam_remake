@@ -598,10 +598,10 @@ begin
 
   glColor4ubv(@aCol);
   glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex2f(PosX, PosY);
-    glTexCoord2f(aTexture.U, 0); glVertex2f(PosX+SizeX,PosY);
-    glTexCoord2f(aTexture.U, aTexture.V); glVertex2f(PosX+SizeX,PosY+SizeY);
-    glTexCoord2f(0, aTexture.V); glVertex2f(PosX,PosY+SizeY);
+    glTexCoord2f(0, 0);                   glVertex2f(PosX, PosY);
+    glTexCoord2f(aTexture.U, 0);          glVertex2f(PosX+SizeX, PosY);
+    glTexCoord2f(aTexture.U, aTexture.V); glVertex2f(PosX+SizeX, PosY+SizeY);
+    glTexCoord2f(0, aTexture.V);          glVertex2f(PosX, PosY+SizeY);
   glEnd;
 
   glBindTexture(GL_TEXTURE_2D, 0);

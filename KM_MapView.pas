@@ -25,7 +25,7 @@ type
     procedure UpdateMinimapFromGame;
     procedure UpdateMinimapFromParser(aRevealAll:Boolean);
     procedure SepiaFilter;
-    procedure GenerateTexture;
+    procedure UpdateTexture;
   public
     PlayerColors:array[1..MAX_PLAYERS] of Cardinal;
     constructor Create(aTerrain: TTerrain; aIsMapEditor: Boolean; aSepia: Boolean);
@@ -110,7 +110,7 @@ begin
 end;
 
 
-procedure TKMMapView.UpdateMinimapFromParser(aRevealAll:Boolean);
+procedure TKMMapView.UpdateMinimapFromParser(aRevealAll: Boolean);
 var
   I, K, N: Integer;
   Light: SmallInt;
@@ -122,7 +122,7 @@ begin
     begin
       N := (I-1)*fMapX + (K-1);
       if not aRevealAll and not Revealed then
-        fBase[N] := $FF000000
+        fBase[N] := $E0000000
       else
         if TileOwner <> 0 then
         begin
@@ -133,44 +133,49 @@ begin
         end
         else
         begin
-          //Formulua for lighting same as in TTerrain.RebuildLighting
+          //Formula for lighting is the same as in TTerrain.RebuildLighting
           x0 := Max(K-1, 1);
           y2 := Min(I+1, fMapY);
           Light := Round(EnsureRange((TileHeight - (fParser.MapPreview[K,y2].TileHeight + fParser.MapPreview[x0,I].TileHeight)/2)/22, -1, 1)*64);
           fBase[N] := EnsureRange(fResource.Tileset.TileColor[TileID].R+Light, 0, 255) +
                       EnsureRange(fResource.Tileset.TileColor[TileID].G+Light, 0, 255) shl 8 +
-                      EnsureRange(fResource.Tileset.TileColor[TileID].B+Light, 0, 255) shl 16;
+                      EnsureRange(fResource.Tileset.TileColor[TileID].B+Light, 0, 255) shl 16 or $FF000000;
         end;
     end;
 end;
 
 
-//Sepia method taken from: http://www.techrepublic.com/blog/howdoi/how-do-i-convert-images-to-grayscale-and-sepia-tone-using-c/120
+//Sepia method taken from:
+//http://www.techrepublic.com/blog/howdoi/how-do-i-convert-images-to-grayscale-and-sepia-tone-using-c/120
 procedure TKMMapView.SepiaFilter;
 const SEPIA_VAL = 0.4;
-var i:integer; R,G,B,R2,G2,B2:byte;
+var
+  I: Integer;
+  R, G, B, R2, G2, B2: Byte;
 begin
-  for i:=0 to fMapX*fMapY - 1 do
+  for I := 0 to fMapX * fMapY - 1 do
   begin
-    R :=  fBase[i] AND $000000FF;
-    G := (fBase[i] AND $0000FF00) shr 8;
-    B := (fBase[i] AND $00FF0000) shr 16;
+    //We split color to RGB values
+    R := fBase[I] and $FF;
+    G := fBase[I] shr 8 and $FF;
+    B := fBase[I] shr 16 and $FF;
 
-    R2 := Min(Round(0.393*R + 0.769*G + 0.189*B),255);
-    R2 := Round(SEPIA_VAL*R2 + (1-SEPIA_VAL)*R);
+    //Apply sepia coefficients and merge back with SEPIA_VAL factor
+    R2 := Min(Round(0.393 * R + 0.769 * G + 0.189 * B), 255);
+    R2 := Mix(R2, R, SEPIA_VAL);
 
-    G2 := Min(Round(0.349*R + 0.686*G + 0.168*B),255);
-    G2 := Round(SEPIA_VAL*G2 + (1-SEPIA_VAL)*G);
+    G2 := Min(Round(0.349 * R + 0.686 * G + 0.168 * B), 255);
+    G2 := Mix(G2, G, SEPIA_VAL);
 
-    B2 := Min(Round(0.272*R + 0.534*G + 0.131*B),255);
-    B2 := Round(SEPIA_VAL*B2 + (1-SEPIA_VAL)*B);
+    B2 := Min(Round(0.272 * R + 0.534 * G + 0.131 * B), 255);
+    B2 := Mix(B2, B, SEPIA_VAL);
 
-    fBase[i] := (R2 + (G2 shl 8) + (B2 shl 16)) AND $FFFFFFFF;
+    fBase[I] := (R2 + G2 shl 8 + B2 shl 16) or $FF000000;
   end;
 end;
 
 
-function TKMMapView.GetPlayerLoc(aIndex:byte):TKMPoint;
+function TKMMapView.GetPlayerLoc(aIndex:byte): TKMPoint;
 begin
   Assert(fFromParser); //Should only be used in parser mode
   Result := fParser.PlayerPreview[aIndex].StartingLoc;
@@ -196,7 +201,7 @@ begin
     else
       FOW := 255;
     if FOW = 0 then
-      fBase[I*fMapX + K] := 0
+      fBase[I*fMapX + K] := $E0000000
     else
       if fMyTerrain.Land[I+1,K+1].TileOwner <> -1 then
         fBase[I*fMapX + K] := fPlayers.Player[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
@@ -214,7 +219,7 @@ begin
           Light := Round(fMyTerrain.Land[I+1,K+1].Light*64)-(255-FOW); //it's -255..255 range now
           fBase[I*fMapX + K] := EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
                                 EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
-                                EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;
+                                EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16 or $FF000000;
         end;
       end;
   end;
@@ -247,33 +252,27 @@ begin
 
   if fSepia then SepiaFilter;
 
-  GenerateTexture;
+  UpdateTexture;
 end;
 
 
-procedure TKMMapView.GenerateTexture;
+procedure TKMMapView.UpdateTexture;
 var
   wData: Pointer;
   I: Word;
 begin
-  if not Assigned(glBindTexture) then Exit;
-
   GetMem(wData, fWidthPOT * fHeightPOT * 4);
 
   for I := 0 to fMapY - 1 do
     Move(Pointer(Cardinal(fBase) + I * fMapX * 4)^,
          Pointer(Cardinal(wData) + I * fWidthPOT * 4)^, fMapX * 4);
 
-  glBindTexture(GL_TEXTURE_2D, fMapTex.Tex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fWidthPOT, fHeightPOT, 0, GL_RGBA, GL_UNSIGNED_BYTE, wData);
-
+  TRender.UpdateTexture(fMapTex.Tex, fWidthPOT, fHeightPOT, tf_RGBA8, wData);
   FreeMem(wData);
-
-  glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 
-procedure TKMMapView.Save(SaveStream:TKMemoryStream);
+procedure TKMMapView.Save(SaveStream: TKMemoryStream);
 var L: Cardinal;
 begin
   SaveStream.Write('Minimap');
@@ -305,7 +304,7 @@ begin
     LoadStream.Read(fBase[0], L * SizeOf(Cardinal));
 
   if fSepia then SepiaFilter;
-  GenerateTexture;
+  UpdateTexture;
 end;
 
 
