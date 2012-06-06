@@ -22,7 +22,7 @@
 	Attacking a house from the bottom right, soldiers will stack up rather than choosing a different free cell (WalkToHouse should avoid other units attacking the house?)
 	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
 	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
-	Screen resolution selecting is not enabled (see jpg). Win lists resolutions 800х600 .. 1366х768
+	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800х600 .. 1366х768
 	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
 	It would be nice if campaign progress was not lost between updates (that should be easier to keep compatible than saves)
 	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.

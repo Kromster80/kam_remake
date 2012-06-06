@@ -49,27 +49,27 @@ type
 
   TMissionParserGeneric = class
   private
-    fStrictParsing: boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
+    fStrictParsing: Boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
     fMissionFileName: string;
     fErrorMessage: string; //Errors descriptions accumulate here
     fMissionInfo: TKMMissionInfo;
     function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
-    function ReadMissionFile(const aFileName:string): AnsiString;
-    procedure AddError(const ErrorMsg:string; aFatal:boolean=false);
+    function ReadMissionFile(const aFileName: string): AnsiString;
+    procedure AddError(const ErrorMsg: string; aFatal: Boolean = False);
   public
-    constructor Create(aStrictParsing: boolean);
-    property ErrorMessage:string read fErrorMessage;
-    property MissionInfo:TKMMissionInfo read fMissionInfo;
-    function LoadMission(const aFileName: string):boolean; overload; virtual;
+    constructor Create(aStrictParsing: Boolean);
+    property ErrorMessage: string read fErrorMessage;
+    property MissionInfo: TKMMissionInfo read fMissionInfo;
+    function LoadMission(const aFileName: string): Boolean; overload; virtual;
   end;
 
 
   TMissionParserInfo = class(TMissionParserGeneric)
   private
-    function LoadMapInfo(const aFileName:string):boolean;
+    function LoadMapInfo(const aFileName: string): Boolean;
     procedure ProcessCommand(CommandType: TKMCommandType; const P: array of integer; TextParam:AnsiString);
   public
-    function LoadMission(const aFileName: string):boolean; override;
+    function LoadMission(const aFileName: string): Boolean; override;
   end;
 
 
@@ -108,26 +108,27 @@ type
                          StartingLoc: TKMPoint;
                        end;
 
+  //Specially optimized mission parser for map previews
   TMissionParserPreview = class(TMissionParserGeneric)
   private
-    fMapX:Integer;
-    fMapY:Integer;
+    fMapX: Integer;
+    fMapY: Integer;
     fPlayerPreview: array [1..MAX_PLAYERS] of TPlayerPreviewInfo;
     fMapPreview: array[1..MAX_MAP_SIZE*MAX_MAP_SIZE] of TTilePreviewInfo;
 
     fLastPlayer: Integer;
     fHumanPlayer: Integer;
 
-    function GetTileInfo(X,Y:integer):TTilePreviewInfo;
-    function GetPlayerInfo(aIndex:byte):TPlayerPreviewInfo;
+    function GetTileInfo(X,Y: Integer): TTilePreviewInfo;
+    function GetPlayerInfo(aIndex: Byte): TPlayerPreviewInfo;
     procedure LoadMapData(const aFileName: string);
     procedure ProcessCommand(CommandType: TKMCommandType; const P: array of integer);
   public
-    property MapPreview[X,Y:integer]: TTilePreviewInfo read GetTileInfo;
-    property PlayerPreview[Index:byte]: TPlayerPreviewInfo read GetPlayerInfo;
+    property MapPreview[X,Y: Integer]: TTilePreviewInfo read GetTileInfo;
+    property PlayerPreview[Index: Byte]: TPlayerPreviewInfo read GetPlayerInfo;
     property MapX: integer read fMapX;
     property MapY: integer read fMapY;
-    function LoadMission(const aFileName: string):boolean; override;
+    function LoadMission(const aFileName: string): boolean; override;
   end;
 
 
