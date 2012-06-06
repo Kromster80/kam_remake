@@ -35,3 +35,4 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Pause button in multiplayer (only host can use it? Or majority of players must press it?)
 	Separate crash situations into gameplay (stop the game because recovery is impossible due to wrongful game state after unfinished UpdateState) and UI (where recovery is much more likely)
 	Add a button into MapEd to allow quickplay the map
+	Increase Towers accuracy slightly, see watchtowers_test.txt
