@@ -1,7 +1,8 @@
-Watchtowers	TPR	KaM r2736	KaM r3392
-6		9	12		16
-8		3	9		13
-10		0	3		6
-12		0	0		5
+Watchtowers	TPR	r2736	r3392
+6		9	12	16
+8		3	9	13
+10		0	3	6
+12		0	0	5
 
-Test was made with 30 warriors approaching watchtowers from top at safe range and then were ordered to storm.
+Test was made with 30 warriors approaching watchtowers from top at safe range and then were ordered to storm. Number says how many warriors left alive.
+Sergjiei proposal is to make towers accuracy inbetween r2736 and TPR
