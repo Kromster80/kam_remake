@@ -30,6 +30,8 @@
 	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
 	RCE in TKMFogOfWar.CheckVerticeRevelation called from TKMProjectiles.UpdateState. Lots of bug reports uploaded with this error (e.g. 23/05/12)
 	Fix function of the "Restart" button so it always restarts the mission you were playing, not just loads basesave
+	TSK 19 crashes due to an AI attack target being off map
+	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 
 	Sandhills cause water next to shore tiles to appear darker with square edges
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing might help?)
