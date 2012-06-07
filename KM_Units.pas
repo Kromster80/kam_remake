@@ -964,10 +964,10 @@ begin
   fVisible      := true;
   IsExchanging  := false;
   AnimStep      := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
-  //Units start with a random amount of condition ranging from 3/4 to full.
-  //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
+  //Units start with a random amount of condition ranging from 0.5 to 0.7 (KaM uses 0.6 for all units)
+  //By adding the random amount they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   if fGame.GameState <> gsEditor then
-    fCondition    := UNIT_MAX_CONDITION - KaMRandom(UNIT_MAX_CONDITION div 4)
+    fCondition    := Round(UNIT_MAX_CONDITION*(UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)))
   else
     fCondition    := UNIT_MAX_CONDITION div 2;
   fHitPoints    := GetMaxHitPoints;

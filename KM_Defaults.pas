@@ -131,7 +131,9 @@ const //Here we store options that are hidden somewhere in code
   TIME_ATTACK_WARNINGS = 200;             //Time between audio messages saying you are being attacked
   DISTANCE_FOR_WARNINGS = 30;             //The distance you must be from an event to recieve a warning about it
   TROOPS_FEED_MAX = 0.75;                 //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
-  TROOPS_TRAINED_CONDITION = 0.75;        //Condition troops start with when trained
+  UNIT_CONDITION_BASE = 0.6;              //Base amount of health a unit starts with (measured in KaM)
+  UNIT_CONDITION_RANDOM = 0.1;            //Random jitter of unit's starting health (KaM did not have this, all units started the same)
+  TROOPS_TRAINED_CONDITION = 0.6;         //Condition troops start with when trained (measured from KaM)
   DEFAULT_HITPOINT_RESTORE = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
 
 
