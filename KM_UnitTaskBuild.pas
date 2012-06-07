@@ -221,15 +221,11 @@ begin
     7: begin
          fTerrain.IncDigState(fLoc);
          fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
-         //Remove fields and other quads as they won't fit with road
-         if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
-           fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255;
+         //Removing all objects from roadworks
+         fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255;
          SetActionLockedStay(11,ua_Work2,false);
        end;
     8: begin
-         //Remove the object again, in case it grew while we were building (I saw this in-game)
-         if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
-           fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255;
          fTerrain.SetField(fLoc, GetOwner, ft_Road);
          SetActionStay(5, ua_Walk);
          fTerrain.UnlockTile(fLoc);
@@ -418,7 +414,7 @@ begin
 end;
 
 
-function TTaskBuildField.Execute:TTaskResult;
+function TTaskBuildField.Execute: TTaskResult;
 begin
   Result := TaskContinues;
 
@@ -445,8 +441,8 @@ begin
         SetActionLockedStay(11,ua_Work1,false);
         inc(fPhase2);
         if fPhase2 = 2 then fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        if (fPhase2 = 6) and MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
-          fTerrain.Land[fLoc.Y,fLoc.X].Obj:=255; //Remove fields/grasses/other quads as they won't fit with the new field
+        if (fPhase2 = 6) then
+          fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255; //Other objects won't fit with the new field
         if fPhase2 in [6,8] then fTerrain.IncDigState(fLoc);
        end;
     3: begin

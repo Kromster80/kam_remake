@@ -35,12 +35,10 @@ type
     fResources: TKMResourceCollection;
     fSprites: TKMSprites;
     fTileset: TKMTileset;
-    fMapElem: TKMMapElements;
+    fMapElements: TKMMapElements;
 
     procedure StepRefresh;
     procedure StepCaption(const aCaption: string);
-
-    function LoadMapElemDAT(const FileName: string): Boolean;
   public
     OnLoadingStep: TEvent;
     OnLoadingText: TStringEvent;
@@ -54,7 +52,7 @@ type
     property DataState: TDataLoadingState read fDataState;
     property Cursors: TKMCursors read fCursors;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
-    property MapElem: TKMMapElements read fMapElem;
+    property MapElements: TKMMapElements read fMapElements;
     property Palettes: TKMPalettes read fPalettes;
     property ResourceFont: TResourceFont read fResourceFont;
     property Resources: TKMResourceCollection read fResources;
@@ -93,7 +91,7 @@ destructor TResource.Destroy;
 begin
   FreeAndNil(fCursors);
   FreeAndNil(fHouseDat);
-  FreeAndNil(fMapElem);
+  FreeAndNil(fMapElements);
   FreeAndNil(fPalettes);
   FreeAndNil(fResourceFont);
   FreeAndNil(fResources);
@@ -139,7 +137,9 @@ begin
 
   fTileset := TKMTileset.Create(ExeDir + 'data\defines\pattern.dat');
   fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
-  LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
+
+  fMapElements := TKMMapElements.Create;
+  fMapElements.LoadMapElements(ExeDir + 'data\defines\mapelem.dat');
 
   fSprites.ClearTemp;
 
@@ -346,47 +346,51 @@ end;
 //Export Trees graphics categorized by ID
 procedure TResource.ExportTreeAnim;
 var
-  Folder: string;
-  MyBitMap: TBitmap;
-  i,k,ci:integer;
-  sy,sx,y,x:integer;
   RXData: TRXData;
+  Folder: string;
+  Bmp: TBitmap;
+  I, K, L, M: Integer;
+  ElemID: Integer;
+  SpriteID: Integer;
+  SizeY,SizeX: Integer;
 begin
+  fSprites.LoadSprites(rxTrees, False);
   RXData := fSprites[rxTrees].RXData;
 
   Folder := ExeDir + 'Export\TreeAnim\';
   ForceDirectories(Folder);
 
-  MyBitMap := TBitmap.Create;
-  MyBitMap.PixelFormat := pf24bit;
+  Bmp := TBitmap.Create;
+  Bmp.PixelFormat := pf24bit;
 
-  LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
-  fSprites.LoadSprites(rxTrees, False); //BMP can't show alpha shadows
+  SpriteID:=0;
+  for I := 0 to fMapElements.ValidCount - 1 do
+  begin
+    ElemID := fMapElements.ValidToObject[I];
 
-  ci:=0;
-  for i:=1 to MapElemQty do
-    for k:=1 to MapElem[i].Count do
+    for K := 1 to MapElem[ElemID].Anim.Count do
+    if MapElem[ElemID].Anim.Step[K]+1 <> 0 then
     begin
-      if MapElem[i].Step[k]+1 <> 0 then
-        ci := MapElem[i].Step[k]+1;
+      SpriteID := MapElem[ElemID].Anim.Step[K]+1;
 
-      sx := RXData.Size[ci].X;
-      sy := RXData.Size[ci].Y;
-      MyBitMap.Width := sx;
-      MyBitMap.Height := sy;
+      SizeX := RXData.Size[SpriteID].X;
+      SizeY := RXData.Size[SpriteID].Y;
+      Bmp.Width := SizeX;
+      Bmp.Height := SizeY;
 
-      for y:=0 to sy-1 do for x:=0 to sx-1 do
-        //@Krom: Crashes here when you export tree anim
-        MyBitMap.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
+      for L := 0 to SizeY - 1 do
+      for M := 0 to SizeX - 1 do
+        Bmp.Canvas.Pixels[M,L] := RXData.RGBA[SpriteID, L * SizeX + M] and $FFFFFF;
 
       //We can insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting
-      if sy>0 then MyBitMap.SaveToFile(
-        Folder+{inttostr(word(MapElem[i].DiagonalBlocked))+'_'+}int2fix(i,3)+'_'+int2fix(k,2)+'.bmp');
+      if SizeX * SizeY > 0 then
+        Bmp.SaveToFile(Folder + Format('%.3d_%.2d', [I, K]) + '.bmp');
     end;
+  end;
 
   fSprites.ClearTemp;
-  MyBitMap.Free;
+  Bmp.Free;
 end;
 
 

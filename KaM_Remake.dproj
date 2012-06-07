@@ -155,6 +155,7 @@
 			<DCCReference Include="KM_ResourceCursors.pas"/>
 			<DCCReference Include="KM_ResourceFonts.pas"/>
 			<DCCReference Include="KM_ResourceHouse.pas"/>
+			<DCCReference Include="KM_ResourceMapElements.pas"/>
 			<DCCReference Include="KM_ResourcePalettes.pas"/>
 			<DCCReference Include="KM_ResourceResource.pas"/>
 			<DCCReference Include="KM_ResourceSprites.pas"/>

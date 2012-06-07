@@ -53,9 +53,9 @@ type
     procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX,pY: Single; aFOW: Byte);
     procedure RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
     procedure RenderTerrainBorder(Border: TBorderType; Pos: TKMDirection; pX,pY: Integer);
-    procedure RenderObjectOrQuad(aIndex,AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
-    procedure RenderObject(aIndex: Integer; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
-    procedure RenderObjectQuad(aIndex: Integer; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+    procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+    procedure RenderObject(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+    procedure RenderObjectQuad(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
     //Terrain rendering sub-class
     procedure RenderTerrain;
@@ -101,7 +101,7 @@ var
 
 
 implementation
-uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_Units, KM_FogOfWar;
+uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_FogOfWar;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -231,29 +231,29 @@ begin
   for I := aRect.Top to aRect.Bottom do
   for K := aRect.Left to aRect.Right do
     if fTerrain.Land[I, K].Obj <> 255 then
-      RenderObjectOrQuad(fTerrain.Land[I, K].Obj + 1, AnimStep, K, I);
+      RenderObjectOrQuad(fTerrain.Land[I, K].Obj, AnimStep, K, I);
 
   //Falling trees are in a separate list
   with fTerrain do
     for I := 0 to FallingTrees.Count - 1 do
     begin
-      RenderObject(FallingTrees.Tag[I] + 1, AnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
+      RenderObject(FallingTrees.Tag[I], AnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
       Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
     end;
 end;
 
 
-procedure TRenderPool.RenderObjectOrQuad(aIndex,AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+procedure TRenderPool.RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 begin
   //Render either normal object or quad depending on what it is
   if MapElem[aIndex].WineOrCorn then
-    RenderObjectQuad(aIndex,AnimStep,pX,pY,(aIndex-1 in [54..57]),DoImmediateRender,Deleting) //54..57 are grapes, all others are doubles
+    RenderObjectQuad(aIndex,AnimStep,pX,pY,(aIndex in [54..57]),DoImmediateRender,Deleting) //54..57 are grapes, all others are doubles
   else
     RenderObject(aIndex,AnimStep,pX,pY,DoImmediateRender,Deleting);
 end;
 
 
-procedure TRenderPool.RenderObject(aIndex: Integer; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+procedure TRenderPool.RenderObject(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 var
   R: TRXData;
   pX,pY: Integer;
@@ -261,14 +261,17 @@ var
   gX, gY: Single;
   ID, ID0: Integer;
   FOW: Byte;
+  A: TKMAnimLoop;
 begin
-  if MapElem[aIndex].Count = 0 then exit;
+  if MapElem[aIndex].Anim.Count = 0 then Exit;
+
+  A := MapElem[aIndex].Anim;
 
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(LocX,LocY,true);
   if FOW = 0 then exit; //Don't render objects which are unexplored
   if FOW <=128 then AnimStep:=0; //Stop animation
-  ID := MapElem[aIndex].Step[AnimStep mod MapElem[aIndex].Count +1]+1;
-  ID0 := MapElem[aIndex].Step[1] + 1;
+  ID := A.Step[AnimStep mod A.Count +1]+1;
+  ID0 := A.Step[1] + 1;
   if ID <= 0 then exit;
 
   pX := LocX - 1;
@@ -303,7 +306,7 @@ end;
 
 
 //4 objects packed on 1 tile for Corn and Grapes
-procedure TRenderPool.RenderObjectQuad(aIndex: Integer; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+procedure TRenderPool.RenderObjectQuad(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 var
   R: TRXData;
 
@@ -311,9 +314,11 @@ var
   var
     ID, ID0: Integer;
     CornerX, CornerY, gX, gY: Single;
+    A: TKMAnimLoop;
   begin
-    ID := MapElem[aIndex].Step[aAnimStep mod MapElem[aIndex].Count + 1] + 1;
-    ID0 := MapElem[aIndex].Step[1] + 1;
+    A := MapElem[aIndex].Anim;
+    ID := A.Step[aAnimStep mod A.Count + 1] + 1;
+    ID0 := A.Step[1] + 1;
 
     gX := pX + (R.Pivot[ID0].X + R.Size[ID0].X/2) / CELL_SIZE_PX;
     gY := pY + (R.Pivot[ID0].Y + R.Size[ID0].Y) / CELL_SIZE_PX;
@@ -1119,8 +1124,8 @@ begin
                   fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, (fTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
     cm_Objects: begin
                   //If there's object below - paint it in Red
-                  RenderObjectOrQuad(fTerrain.Land[P.Y,P.X].Obj+1, fTerrain.AnimStep, P.X, P.Y, true, true);
-                  RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, P.X, P.Y, true);
+                  RenderObjectOrQuad(fTerrain.Land[P.Y,P.X].Obj, fTerrain.AnimStep, P.X, P.Y, true, true);
+                  RenderObjectOrQuad(GameCursor.Tag1, fTerrain.AnimStep, P.X, P.Y, true);
                 end;
     cm_Elevate,
     cm_Equalize:begin

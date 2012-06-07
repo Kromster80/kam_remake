@@ -211,7 +211,7 @@ type
 
 implementation
 uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary,
-     KM_Utils, KM_Game, KM_Resource, KM_ResourceUnit, KM_ResourceCursors;
+     KM_Utils, KM_Game, KM_Resource, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceMapElements;
 
 
 {Switch between pages}
@@ -575,7 +575,7 @@ begin
     Panel_Objects := TKMPanel.Create(Panel_Terrain,0,28,196,400);
       ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 8, 295, 180, 20, sa_Horizontal, bsGame);
       ObjectsScroll.MinValue := 0;
-      ObjectsScroll.MaxValue := ActualMapElemQty div 3 - 3;
+      ObjectsScroll.MaxValue := fResource.MapElements.ValidCount div 3 - 2;
       ObjectsScroll.Position := 0;
       ObjectsScroll.OnChange := Terrain_ObjectsChange;
       ObjectErase := TKMButtonFlat.Create(Panel_Objects, 8, 8,32,32,340);
@@ -1104,11 +1104,11 @@ begin
   begin
     for I := 0 to 8 do
     begin
-      ObjID := ObjectsScroll.Position * 3 + I + 1;
-      if ActualMapElem[ObjID] <> 0 then
+      ObjID := ObjectsScroll.Position * 3 + I;
+      if ObjID < fResource.MapElements.ValidCount then
       begin
-        ObjectsTable[I].TexID := MapElem[ActualMapElem[ObjID]].Step[1] + 1;
-        ObjectsTable[I].Caption := inttostr(ObjID);
+        ObjectsTable[I].TexID := MapElem[fResource.MapElements.ValidToObject[ObjID]].Anim.Step[1] + 1;
+        ObjectsTable[I].Caption := IntToStr(ObjID);
         ObjectsTable[I].Enable;
       end
       else
@@ -1117,22 +1117,24 @@ begin
         ObjectsTable[I].Caption := '';
         ObjectsTable[I].Disable;
       end;
-      ObjectsTable[I].Down := ObjID = OriginalMapElem[GameCursor.Tag1+1]; //Mark the selected one using reverse lookup
+      ObjectsTable[I].Down := ObjID = fResource.MapElements.ObjectToValid[GameCursor.Tag1]; //Mark the selected one using reverse lookup
     end;
     ObjectErase.Down := (GameCursor.Tag1 = 255); //or delete button
   end;
 
   if Sender is TKMButtonFlat then
   begin
-    ObjID := ObjectsScroll.Position * 3 + TKMButtonFlat(Sender).Tag + 1; //1..n
-    if (not InRange(ObjID, 1, ActualMapElemQty))
+    ObjID := ObjectsScroll.Position * 3 + TKMButtonFlat(Sender).Tag; //0..n-1
+
+    if (not InRange(ObjID, 0, fResource.MapElements.ValidCount - 1))
     and not (TKMButtonFlat(Sender).Tag = 255) then
       Exit; //Don't let them click if it is out of range
+
     GameCursor.Mode := cm_Objects;
     if TKMButtonFlat(Sender).Tag = 255 then
       GameCursor.Tag1 := 255 //erase object
     else
-      GameCursor.Tag1 := ActualMapElem[ObjID]-1; //0..n
+      GameCursor.Tag1 := fResource.MapElements.ValidToObject[ObjID]; //0..n-1
     for I := 0 to 8 do
       ObjectsTable[I].Down := (Sender = ObjectsTable[I]); //Mark the selected one
     ObjectErase.Down := (Sender = ObjectErase); //or delete button

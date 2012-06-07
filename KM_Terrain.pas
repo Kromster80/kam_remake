@@ -202,7 +202,7 @@ var
 
 implementation
 uses KM_Log, KM_PlayersCollection,
-  KM_Resource, KM_Units, KM_ResourceHouse, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
+  KM_Resource, KM_Units, KM_ResourceHouse, KM_ResourceMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
 { TTerrain }
@@ -668,17 +668,17 @@ begin
   if (abs(A.X-B.X)<>1) or (abs(A.Y-B.Y)<>1) then exit; //Tiles are not diagonal to each other
 
                                                                  //Relative tiles locations
-  if (A.X<B.X)and(A.Y<B.Y) then                                  //   A
-    Result := not MapElem[Land[B.Y,B.X].Obj+1].DiagonalBlocked   //     B
+  if (A.X<B.X)and(A.Y<B.Y) then                                                 //   A
+    Result := not MapElem[Land[B.Y,B.X].Obj].DiagonalBlocked    //     B
   else
-  if (A.X<B.X)and(A.Y>B.Y) then                                  //     B
-    Result := not MapElem[Land[B.Y+1,B.X].Obj+1].DiagonalBlocked //   A
+  if (A.X<B.X)and(A.Y>B.Y) then                                                 //     B
+    Result := not MapElem[Land[B.Y+1,B.X].Obj].DiagonalBlocked  //   A
   else
-  if (A.X>B.X)and(A.Y>B.Y) then                                  //   B
-    Result := not MapElem[Land[A.Y,A.X].Obj+1].DiagonalBlocked   //     A
+  if (A.X>B.X)and(A.Y>B.Y) then                                                 //   B
+    Result := not MapElem[Land[A.Y,A.X].Obj].DiagonalBlocked    //     A
   else
-  if (A.X>B.X)and(A.Y<B.Y) then                                  //     A
-    Result := not MapElem[Land[A.Y+1,A.X].Obj+1].DiagonalBlocked;//   B
+  if (A.X>B.X)and(A.Y<B.Y) then                                                 //     A
+    Result := not MapElem[Land[A.Y+1,A.X].Obj].DiagonalBlocked; //   B
 end;
 
 
@@ -1382,7 +1382,7 @@ procedure TTerrain.UpdatePassability(Loc:TKMPoint);
           P := KMPoint(X+I, Y+K);
 
           //Tiles next to it can't be trees/stumps
-          if MapElem[Land[P.Y,P.X].Obj+1].DontPlantNear then
+          if MapElem[Land[P.Y,P.X].Obj].DontPlantNear then
             Result := True;
 
           //Tiles above or to the left can't be road/field/locked
@@ -1409,7 +1409,7 @@ begin
   begin
 
     if TileIsWalkable(Loc)
-    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
+    and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
     and CheckHeightPass(Loc, CanWalk) then
       AddPassability(CanWalk);
 
@@ -1426,7 +1426,7 @@ begin
         HousesNearBy := True;
 
     if TileIsRoadable(Loc)
-    and ((Land[Loc.Y,Loc.X].Obj = 255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved)) //Only certain objects are excluded
+    and ((Land[Loc.Y,Loc.X].Obj = 255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved)) //Only certain objects are excluded
     and not HousesNearBy
     and not TileIsCornField(Loc) //Can't build houses on fields
     and not TileIsWineField(Loc)
@@ -1437,7 +1437,7 @@ begin
 
     if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])
     and (Land[Loc.Y,Loc.X].Rotation mod 4 = 0) //only horizontal mountain edges allowed
-    and ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))
+    and ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved))
     and not HousesNearBy
     and not TileIsCornField(Loc) //Can't build houses on fields
     and not TileIsWineField(Loc)
@@ -1448,7 +1448,7 @@ begin
 
     if (Land[Loc.Y,Loc.X].Terrain in [171..175])
     and (Land[Loc.Y,Loc.X].Rotation mod 4 = 0)
-    and ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))
+    and ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved))
     and not HousesNearBy
     and not TileIsCornField(Loc) //Can't build houses on fields
     and not TileIsWineField(Loc)
@@ -1458,14 +1458,14 @@ begin
       AddPassability(CanBuildGold);
 
     if TileIsRoadable(Loc)
-    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
+    and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
     and CheckHeightPass(Loc,CanMakeRoads) then
       AddPassability(CanMakeRoads);
 
     if TileIsSoil(Loc)
-    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
+    and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
     and not TileIsWineField(Loc)
@@ -1487,7 +1487,7 @@ begin
       AddPassability(CanFish);
 
     if TileIsSand(Loc)
-    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
+    and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
     //TileLock checked in outer begin/end
     and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
     and not TileIsCornField(Loc)
@@ -1496,7 +1496,7 @@ begin
       AddPassability(CanCrab);
 
     if TileIsSoil(Loc)
-    and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
+    and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
     //TileLock checked in outer begin/end
     //Wolf are big enough to run over roads, right?
     and not TileIsCornField(Loc)
@@ -1506,7 +1506,7 @@ begin
   end;
 
   if TileIsWalkable(Loc)
-  and not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked
+  and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
   and CheckHeightPass(Loc, CanWalk)
   and (Land[Loc.Y,Loc.X].TileLock <> tlHouse) then
     AddPassability(CanWorker);
@@ -2005,7 +2005,6 @@ end;
 
 //Rebuilds connected areas using flood fill algorithm
 procedure TTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect);
-
   procedure FloodFill(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean; aRect: TKMRect);
   var
     AreaID: Byte;
@@ -2022,10 +2021,10 @@ procedure TTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: T
         //Using custom CanWalkDiagonally is also much faster
         if X-1 >= 1 then
         begin
-          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X].Obj+1].DiagonalBlocked then
+          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X].Obj].DiagonalBlocked then
             FillArea(X-1, Y-1);
           FillArea(X-1, Y);
-          if aAllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj+1].DiagonalBlocked then
+          if aAllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj].DiagonalBlocked then
             FillArea(X-1,Y+1);
         end;
 
@@ -2034,10 +2033,10 @@ procedure TTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: T
 
         if X+1 <= fMapX then
         begin
-          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj+1].DiagonalBlocked then
+          if aAllowDiag and (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj].DiagonalBlocked then
             FillArea(X+1, Y-1);
           FillArea(X+1, Y);
-          if aAllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj+1].DiagonalBlocked then
+          if aAllowDiag and (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj].DiagonalBlocked then
             FillArea(X+1, Y+1);
         end;
       end;
@@ -2081,6 +2080,7 @@ var
   WorkRect: TKMRect;
 begin
   WorkRect := KMClipRect(aRect, 1, 1, fMapX-1, fMapY-1);
+
 
   //Process all items from set
   for J := Low(aSet) to High(aSet) do
@@ -2623,8 +2623,9 @@ var
 begin
   inc(fAnimStep);
 
+  //Update falling trees animation
   for T := FallingTrees.Count - 1 downto 0 do
-  if fAnimStep - FallingTrees.Tag2[T]+1 >= MapElem[FallingTrees.Tag[T]+1].Count then
+  if fAnimStep - FallingTrees.Tag2[T]+1 >= MapElem[FallingTrees.Tag[T]].Anim.Count then
     ChopTree(FallingTrees[T]); //Make the tree turn into a stump
 
   for I := 1 to fMapY do
@@ -2739,8 +2740,8 @@ begin
 
       if (Y >= 1) and InRange(X, 1, fMapX) and (aPass in Land[Y,X].Passability) then
       if (H = 1) or (H = 3) or (aAllowDiag and (
-                                 ((H = 0) and not MapElem[Land[I,K].Obj+1].DiagonalBlocked) or
-                                 ((H = 2) and not MapElem[Land[I,K+1].Obj+1].DiagonalBlocked)))
+                                 ((H = 0) and not MapElem[Land[I,K].Obj].DiagonalBlocked) or
+                                 ((H = 2) and not MapElem[Land[I,K+1].Obj].DiagonalBlocked)))
       then
       begin
         if (NCount = 0) then

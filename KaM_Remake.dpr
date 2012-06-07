@@ -78,6 +78,7 @@ uses
   KM_ResourceCursors in 'KM_ResourceCursors.pas',
   KM_ResourceFonts in 'KM_ResourceFonts.pas',
   KM_ResourceHouse in 'KM_ResourceHouse.pas',
+  KM_ResourceMapElements in 'KM_ResourceMapElements.pas',
   KM_ResourcePalettes in 'KM_ResourcePalettes.pas',
   KM_ResourceResource in 'KM_ResourceResource.pas',
   KM_ResourceSprites in 'KM_ResourceSprites.pas',
