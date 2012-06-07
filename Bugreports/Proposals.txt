@@ -39,4 +39,5 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Increase Towers accuracy slightly, see watchtowers_test.txt
 	Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
 	It doesn't make sense for sausages to be cheaper than bread in the market when sauasges are better food
+	Blocking duplicate app is annoying if you want to run map editor twice or something. We should only block it when it could be cheating (MP game/replay)
 

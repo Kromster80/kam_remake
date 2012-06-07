@@ -5,6 +5,7 @@
  +	Crash if you change locale and don't have OpenAL installed due to using non-blocking Application.MessageBox instead of MessageDlg
  +	Dots and lines displaying on tile edges [Krom]
  +	Producing more than 65k resources causes an integer overflow in PlayerStats
+ +	Decreasing the resource distribution removes demands immediately when nobody has taken the task yet
 	Placing a group so a member is under a house causes a crash. The unit under the house should be placed nearby instead.
 	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	If I play a campaign up to mission say 9, then load an old save of mission 5, quit and press restart, it will load basesave which is mission 9 (we should make a basesave after loading saves?)
