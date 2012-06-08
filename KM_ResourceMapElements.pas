@@ -20,7 +20,7 @@ type
   end;
 
   TKMMapElements = class
-  private
+  public
     ValidCount: Byte;
     ValidToObject: array [Byte] of Byte; //Pointers to valid MapElem's
     ObjectToValid: array [Byte] of Byte; //Pointers of valid MapElem's back to map objects. (reverse lookup to one above) 256 is no object.

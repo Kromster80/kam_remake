@@ -686,6 +686,8 @@ type
       SaveTextureToPNG(SpriteInfo[I].Width, SpriteInfo[I].Height, RXInfo[fRT].FileName + '_' + ExportName[aMode] + IntToStr(aStartingIndex+I), @TD[0]);
     end;
   end;
+const
+  AtlasSize = 512;
 var
   I, K: Integer;
   SpriteSizes: TIndexSizeArray;
@@ -705,7 +707,7 @@ begin
   SetLength(SpriteSizes, K);
 
   SetLength(SpriteInfo, 0);
-  BinPack(SpriteSizes, 512, fPad, SpriteInfo);
+  BinPack(SpriteSizes, AtlasSize, fPad, SpriteInfo);
   PrepareAtlases(SpriteInfo, saBase, aTexType);
 
   //Prepare masking atlases
@@ -722,7 +724,7 @@ begin
   SetLength(SpriteSizes, K);
 
   SetLength(SpriteInfo, 0);
-  BinPack(SpriteSizes, 512, fPad, SpriteInfo);
+  BinPack(SpriteSizes, AtlasSize, fPad, SpriteInfo);
   PrepareAtlases(SpriteInfo, saMask, tf_Alpha8);
 end;
 

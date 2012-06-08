@@ -2,14 +2,14 @@ unit KM_MapView;
 {$I KaM_Remake.inc}
 interface
 uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, SysUtils,
-  KM_Defaults, KM_MissionScript, KM_Render, KM_Terrain, KM_Points, KM_Utils, KM_CommonClasses;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
+  KM_MissionScript, KM_Render, KM_Terrain;
 
 
 type
   //Intermediary class between TTerrain/Players and UI
   TKMMapView = class
   private
-    //todo: TRender should be used to Update texture
     fFromParser: Boolean;
     fIsMapEditor: Boolean;
     fSepia: Boolean;
@@ -41,13 +41,13 @@ type
     procedure Update(aRevealAll: Boolean);
     procedure UpdateMapSize(aX, aY: Word);
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
 implementation
-uses KM_Resource, KM_PlayersCollection, KM_Units, KM_Units_Warrior;
+uses KM_PlayersCollection, KM_Resource, KM_Units, KM_Units_Warrior;
 
 
 { TKMMinimap }

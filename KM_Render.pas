@@ -35,6 +35,7 @@ type
 
     procedure SetRenderMode(aRenderMode: TRenderMode); //Switch between 2D and 3D perspectives
 
+    class function GetMaxTexSize: Integer;
     class function GenerateTextureCommon: GLuint;
     class function GenTexture(DestX, DestY: Word; const Data: Pointer; Mode: TTexFormat): GLUint;
     class procedure UpdateTexture(aTexture: GLuint; DestX, DestY: Word; Mode: TTexFormat; const Data: Pointer);
@@ -158,6 +159,12 @@ class function TRender.GenTexture(DestX, DestY: Word; const Data: Pointer; Mode:
 begin
   Result := GenerateTextureCommon;
   UpdateTexture(Result, DestX, DestY, Mode, Data);
+end;
+
+
+class function TRender.GetMaxTexSize: Integer;
+begin
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, @Result);
 end;
 
 

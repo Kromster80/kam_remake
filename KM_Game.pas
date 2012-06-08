@@ -403,14 +403,12 @@ begin
   if (X < 0) or (Y < 0) then Exit; //This occours when you use the mouse wheel on the window frame
 
   //Allow to zoom only when curor is over map. Controls handle zoom on their own
-  //todo: allow to zoom in Replay (remove overlay panels and allow to "read-only" mode for everything)
-  //Eventually it would be cool if you could view the contents of storehouses, barracks, watchtowers, etc. in replays (read only of course)
   if MOUSEWHEEL_ZOOM_ENABLE and (fGameState <> gsNoGame)
   and (fActiveInterface.MyControls.CtrlOver = nil) then
   begin
     UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;
-    fViewport.Zoom := fViewport.Zoom + WheelDelta/2000;
+    fViewport.Zoom := fViewport.Zoom + WheelDelta / 2000;
     UpdateGameCursor(X, Y, Shift); //Zooming changes the cursor position
     //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
     fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-GameCursor.Float.X,
