@@ -533,6 +533,11 @@ begin
   //   + savegame.bas always exists
   //In my opinion both have their advantages and weak points
 
+  //@Krom: I agree basesave can be discarded. I suggest that we create a
+  //"crashsave" when generating the crash report because that was the only
+  //really useful feature of baseave (I used it in crash reports)
+  //I don't have a strong opinion between 1. and 2. I think I prefer 1.
+
   StartSingleSave('basesave');
 end;
 
