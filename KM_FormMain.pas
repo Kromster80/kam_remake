@@ -70,7 +70,6 @@ type
     ShowAIAttacks1: TMenuItem;
     ExportGamePages: TMenuItem;
     ExportMenuPages: TMenuItem;
-    TrackBar1: TTrackBar;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
@@ -115,7 +114,6 @@ type
     procedure ShowAIAttacks1Click(Sender: TObject);
     procedure Debug_ExportGamePagesClick(Sender: TObject);
     procedure Debug_ExportMenuPagesClick(Sender: TObject);
-    procedure TrackBar1Change(Sender: TObject);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -504,11 +502,6 @@ begin
   Panel5.Align := alClient;
 end;
 
-
-procedure TFormMain.TrackBar1Change(Sender: TObject);
-begin
-  HOUSE_PROGRESS := TrackBar1.Position / TrackBar1.Max;
-end;
 
 {$IFDEF MSWindows}
 procedure TFormMain.WMSysCommand(var Msg: TWMSysCommand);

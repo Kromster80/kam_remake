@@ -7,6 +7,7 @@ uses
 
 {Messages}
 type
+  //Message kind determines icon and available actions
   TKMMessageKind = (mkText, mkHouse, mkUnit, mkQuill);
 
   TKMMessage = class
@@ -77,7 +78,7 @@ end;
 
 //GUIMain icon index associated with that message kind
 function TKMMessage.Icon: Word;
-const MsgIcon: array [TKMMessageKind] of word = (491, 492, 493, 495);
+const MsgIcon: array [TKMMessageKind] of Word = (491, 492, 493, 495);
 begin
   Result := MsgIcon[fKind];
 end;

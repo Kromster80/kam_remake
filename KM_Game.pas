@@ -517,6 +517,22 @@ end;
 
 procedure TKMGame.StartLastMap;
 begin
+  //@Lewin: Overall "basesave" is outdated and we can discard it.
+  //Earlier it was used for "View last replay" mechanism, but now as we have
+  //replay manager the only use for it is RestartLastMap which can be made
+  //just by loading current map .bas file (or reload mission?)
+  //The only other use is saving RPL info on crash,
+  //which certainly can go to latest autosave.rpl
+
+  //There are two options to restart a map:
+  //1. Restart mission script
+  //   - files may be gone
+  //   + mission may be intentionally updated by mapmaker
+  //2. Load savegame.bas
+  //   - mission may be intentionally updated by mapmaker
+  //   + savegame.bas always exists
+  //In my opinion both have their advantages and weak points
+
   StartSingleSave('basesave');
 end;
 
@@ -1471,14 +1487,14 @@ begin
 end;
 
 
-procedure TKMGame.Load(const aFileName: string; aReplay:boolean=false);
+procedure TKMGame.Load(const aFileName: string; aReplay: Boolean = False);
 var
   LoadStream: TKMemoryStream;
   GameInfo: TKMGameInfo;
   LoadError,LoadFileExt: string;
   LibxPath: AnsiString;
   LoadedSeed: Longint;
-  SaveIsMultiplayer: boolean;
+  SaveIsMultiplayer: Boolean;
 begin
   fLog.AppendLog('Loading game: ' + aFileName);
   if aReplay then

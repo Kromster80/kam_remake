@@ -34,7 +34,8 @@ const
   GAME_VERSION          = '4th Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
-  FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
+  SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
+  FONTS_FOLDER          = 'data' + PathDelim + 'gfx' + PathDelim + 'fonts' + PathDelim;
 
   DEL_LOGS_OLDER_THAN   = 14;           //in days
 
@@ -182,8 +183,6 @@ const
 
 
 const
-  SETTINGS_FILE = 'KaM_Remake_Settings.ini';
-
   DirCursorCircleRadius  = 32; //Radius of the direction selector cursor restriction area
   DirCursorNARadius = 15;  //Radius of centeral part that has no direction
 
@@ -198,7 +197,7 @@ type TGameResultMsg = ( //Game result
         gr_ReplayEnd,   //Replay was cancelled - return to menu without screens
         gr_MapEdEnd);   //Map Editor was closed - return to menu without screens
 
-               
+
 {Fonts}
 type //Indexing should start from 1.
   TKMFont = (fnt_Antiqua,  fnt_Briefing,    fnt_Game,     fnt_Grey,
@@ -673,7 +672,7 @@ type
 const
   //Colors available for selection in multiplayer
   MP_COLOR_COUNT = 15;
-  MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
+  MP_TEAM_COLORS: array [1..MP_COLOR_COUNT] of Cardinal = (
   $FF0707FF, //Red
   $FF0061FF, //Orange
   $FF07FFFF, //Yellow
@@ -703,7 +702,7 @@ const
   3,   //Black
   3,   //Black
   255  //White}
-  DefaultTeamColors:array[0..MAX_PLAYERS-1]of cardinal = (
+  DefaultTeamColors: array [0..MAX_PLAYERS-1] of Cardinal = (
   $FF0707FF, //Red
   $FFE3BB5B, //Cyan
   $FF27A700, //Green
@@ -715,7 +714,7 @@ const
   );
 
   //Interface Colors used for coloring status messages
-  icWhite  = $FFFFFFFF;
+  //icWhite  = $FFFFFFFF;
   icGreen  = $FF00C000;
   icYellow = $FF07FFFF;
   icOrange = $FF0099FF;
@@ -724,7 +723,6 @@ const
 
 var
   ExeDir: string;
-  HOUSE_PROGRESS: Single;
 
   GameCursor: record
     Float: TKMPointF;    //Precise cursor position in map coords

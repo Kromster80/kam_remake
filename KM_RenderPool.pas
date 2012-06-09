@@ -810,7 +810,7 @@ begin
 
   //Render stencil mask
   glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_GREATER, 1 - HOUSE_PROGRESS {Param});
+  glAlphaFunc(GL_GREATER, 1 - Param);
   glBlendFunc(GL_ONE, GL_ZERO);
     with GFXData[aRX,aID] do
     begin
