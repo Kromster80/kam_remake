@@ -615,7 +615,6 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileBounds: array [TProjectileType, 1..2] of word = ((0,0), (0,0), (0,0), (4186,4190));
 
 
-
 type
   //@Krom: Sketch of the goal and message displaying system used in KaM (from scripting point of view anyway)
   //       Please let me know your thoughts. This is very similar to that used in KaM and is quite flexable/expandable. (we can add more parameters/conditions as well as existing KaM ones, possibly using a new script command)

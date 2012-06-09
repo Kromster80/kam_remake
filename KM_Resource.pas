@@ -154,7 +154,7 @@ begin
 end;
 
 
-procedure TResource.LoadGameResources(aAlphaShadows: boolean);
+procedure TResource.LoadGameResources(aAlphaShadows: Boolean);
 begin
   Assert(fRender <> nil, 'fRender inits OpenGL and we need OpenGL to make textures');
 
@@ -184,6 +184,7 @@ var
   Used:array of Boolean;
   RXData: TRXData;
 begin
+  fSprites.LoadSprites(rxUnits, False); //BMP can't show alpha shadows anyways
   RXData := fSprites[rxUnits].RXData;
 
   Folder := ExeDir + 'Export\UnitAnim\';
@@ -194,8 +195,6 @@ begin
 
   if fUnitDat = nil then
     fUnitDat := TKMUnitDatCollection.Create;
-
-  fSprites.LoadSprites(rxUnits, False); //BMP can't show alpha shadows
 
   for U := ut_Serf to ut_Serf do
   for A := Low(TUnitActionType) to High(TUnitActionType) do
@@ -216,7 +215,6 @@ begin
 
       for y:=0 to sy-1 do
       for x:=0 to sx-1 do
-        //@Krom: Crashes here when you export unit anim
         Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci, y*sx+x] AND $FFFFFF;
 
       if sy > 0 then
@@ -272,13 +270,14 @@ end;
 procedure TResource.ExportHouseAnim;
 var
   Folder: string;
-  Bmp:TBitmap;
-  ID:THouseType;
-  Ac:THouseActionType;
-  Q,Beast,i,k,ci:integer;
-  sy,sx,y,x:integer;
+  Bmp: TBitmap;
+  ID: THouseType;
+  Ac: THouseActionType;
+  Q, Beast, i, k, ci: Integer;
+  sy, sx, y, x: Integer;
   RXData: TRXData;
 begin
+  fSprites.LoadSprites(rxHouses, False); //BMP can't show alpha shadows anyways
   RXData := fSprites[rxHouses].RXData;
 
   Folder := ExeDir + 'Export\HouseAnim\';
@@ -288,7 +287,6 @@ begin
   Bmp.PixelFormat := pf24bit;
 
   fHouseDat := TKMHouseDatCollection.Create;
-  fSprites.LoadSprites(rxHouses, False); //BMP can't show alpha shadows
 
   ci:=0;
   for ID:=Low(THouseType) to High(THouseType) do
@@ -305,7 +303,6 @@ begin
         Bmp.Height:=sy;
 
         for y:=0 to sy-1 do for x:=0 to sx-1 do
-          //@Krom: Crashes here when you export house anim
           Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
         if sy>0 then Bmp.SaveToFile(

@@ -1421,18 +1421,18 @@ begin
     Button_Army_Feed   := TKMButton.Create(Panel_Army,132,138, 56, 34, 29);
 
     //All one-click-action (i.e. not attack, move, link up) army controls have a single procedure that decides what to do based on Sender
-    Button_Army_GoTo.OnClick   := Army_Issue_Order;
-    Button_Army_Stop.OnClick   := Army_Issue_Order;
-    Button_Army_Attack.OnClick := Army_Issue_Order;
-    Button_Army_RotCW.OnClick  := Army_Issue_Order;
-    Button_Army_Storm.OnClick  := Army_Issue_Order;
-    Button_Army_RotCCW.OnClick := Army_Issue_Order;
-    Button_Army_ForDown.OnClick:= Army_Issue_Order;
-    Button_Army_ForUp.OnClick  := Army_Issue_Order;
-    Button_Army_Split.OnClick  := Army_Issue_Order;
-    Button_Army_Join.OnClick   := Army_Issue_Order;
-    Button_Army_Feed.OnClick   := Army_Issue_Order;
-    Button_Unit_Dismiss.OnClick:= Army_Issue_Order;
+    Button_Army_GoTo.OnClick    := Army_Issue_Order;
+    Button_Army_Stop.OnClick    := Army_Issue_Order;
+    Button_Army_Attack.OnClick  := Army_Issue_Order;
+    Button_Army_RotCW.OnClick   := Army_Issue_Order;
+    Button_Army_Storm.OnClick   := Army_Issue_Order;
+    Button_Army_RotCCW.OnClick  := Army_Issue_Order;
+    Button_Army_ForDown.OnClick := Army_Issue_Order;
+    Button_Army_ForUp.OnClick   := Army_Issue_Order;
+    Button_Army_Split.OnClick   := Army_Issue_Order;
+    Button_Army_Join.OnClick    := Army_Issue_Order;
+    Button_Army_Feed.OnClick    := Army_Issue_Order;
+    Button_Unit_Dismiss.OnClick := Army_Issue_Order;
 
     //Disable not working buttons
     Button_Army_GoTo.Disable;
