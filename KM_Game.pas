@@ -9,7 +9,7 @@ uses
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Utils,
   KM_Networking,
-  KM_MapEditor, KM_Campaigns, KM_EventProcess,
+  KM_Campaigns, KM_EventProcess,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
   KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_Resource, KM_Terrain, KM_PathFinding, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
@@ -46,7 +46,6 @@ type
     fRender: TRender;
     fCampaigns: TKMCampaignsCollection;
     fMusicLib: TMusicLib;
-    fMapEditor: TKMMapEditor;
     fProjectiles: TKMProjectiles;
     fGameInputProcess: TGameInputProcess;
     fNetworking: TKMNetworking;
@@ -147,7 +146,6 @@ type
 
     property GlobalSettings: TGameSettings read fGameSettings;
     property Campaigns: TKMCampaignsCollection read fCampaigns;
-    property MapEditor: TKMMapEditor read fMapEditor;
     property MusicLib: TMusicLib read fMusicLib;
     property Pathfinding: TPathFinding read fPathfinding;
     property Projectiles: TKMProjectiles read fProjectiles;
@@ -1018,7 +1016,6 @@ begin
     FreeThenNil(fRenderPool);
     FreeThenNil(fPathfinding);
     FreeThenNil(fTerrain);
-    FreeThenNil(fMapEditor);
 
     FreeThenNil(fGamePlayInterface);  //Free both interfaces
     FreeThenNil(fMapEditorInterface); //Free both interfaces
@@ -1080,7 +1077,6 @@ begin
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
 
   fViewport := TViewport.Create(fScreenX, fScreenY);
-  fMapEditor := TKMMapEditor.Create;
 
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
