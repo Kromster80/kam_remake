@@ -371,7 +371,7 @@ procedure TFormMain.Export_HousesRXClick(Sender: TObject);  begin fResource.Spri
 procedure TFormMain.Export_UnitsRXClick(Sender: TObject);   begin fResource.Sprites.ExportToPNG(rxUnits); end;
 procedure TFormMain.Export_GUIRXClick(Sender: TObject);     begin fResource.Sprites.ExportToPNG(rxGUI); end;
 procedure TFormMain.Export_GUIMainRXClick(Sender: TObject); begin fResource.Sprites.ExportToPNG(rxGUIMain); end;
-procedure TFormMain.Export_GUIMainHRXClick(Sender: TObject);begin fResource.Sprites.ExportToPNG(rxGUIMainH); end;
+procedure TFormMain.Export_GUIMainHRXClick(Sender: TObject);begin {fResource.Sprites.ExportToPNG(rxGUIMainH);} end;
 procedure TFormMain.Export_Sounds1Click(Sender: TObject);   begin fSoundLib.ExportSounds; end;
 //The three below are disabled for now because they crash the game
 procedure TFormMain.Export_TreeAnim1Click(Sender: TObject); begin fResource.ExportTreeAnim; end;

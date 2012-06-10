@@ -59,7 +59,7 @@ var
 //We need to access to palettes to properly Expand RX files
 constructor TKMSpritePackEdit.Create(aRT: TRXType; aPalettes: TKMPalettes);
 begin
-  inherited Create(aRT, nil);
+  inherited Create(aRT);
 
   fPalettes := aPalettes;
 end;
@@ -334,6 +334,8 @@ var
   OutputStream: TFileStream;
   CompressionStream: TCompressionStream;
 begin
+  ForceDirectories(ExtractFilePath(aFileName));
+
   InputStream := TMemoryStream.Create;
 
   InputStream.Write(fRXData.Count, 4);

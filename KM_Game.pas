@@ -212,12 +212,15 @@ begin
 
   fRenderAux        := TRenderAux.Create;
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
+
   fSoundLib         := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume); //Required for button click sounds
   fMusicLib         := TMusicLib.Create(fGameSettings.MusicVolume);
   fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
+
   fResource         := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources(fGameSettings.Locale);
+
   fCampaigns        := TKMCampaignsCollection.Create;
   fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
   fCampaigns.LoadProgress(ExeDir + 'Saves\Campaigns.dat');

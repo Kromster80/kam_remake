@@ -300,19 +300,6 @@ end;
 
 
 procedure TRXXForm1.btnPackRXXClick(Sender: TObject);
-  procedure SkipUnusedSprites(aPack: TKMSpritePackEdit; RT: TRXType);
-  const
-    SkipGuiMain:  array [0..16] of Word = (1,2,7,8,12,17,18,19,20,22,31,32,33,34,35,36,37);
-    SkipGuiMainH: array [0..10] of Word = (1,8,10,11,12,13,14,15,16,17,18);
-  var I: Integer;
-  begin
-    case RT of
-      rxGuiMain:  for I := 0 to High(SkipGuiMain) do
-                    aPack.RXData.Flag[SkipGuiMain[I]] := 0;
-      rxGuiMainH: for I := 1 to aPack.RXData.Count do
-                    aPack.RXData.Flag[I] := 0;
-    end;
-  end;
 var
   SpritePack: TKMSpritePackEdit;
   RT: TRXType;
@@ -327,34 +314,34 @@ begin
     RT := TRXType(I);
 
     SpritePack := TKMSpritePackEdit.Create(RT, fPalettes);
+    try
+      //Load
+      if FileExists(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx') then
+      begin
+        SpritePack.LoadFromRXFile(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx');
+        SpritePack.OverloadFromFolder(ExeDir + 'SpriteResource\');
+      end
+      else
+      if DirectoryExists(ExeDir + 'SpriteResource\') then
+        SpritePack.LoadFromFolder(ExeDir + 'SpriteResource\');
 
-    //Load
-    if FileExists(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx') then
-    begin
-      SpritePack.LoadFromRXFile(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx');
-      SkipUnusedSprites(SpritePack, RT);
-      SpritePack.OverloadFromFolder(ExeDir + 'SpriteResource\');
-    end
-    else
-    if DirectoryExists(ExeDir + 'SpriteResource\') then
-      SpritePack.LoadFromFolder(ExeDir + 'SpriteResource\');
+      //Tiles must stay in the same size as they can't use pivots
+      if RT <> rxTiles then
+        fLog.AddToLog('Trimmed ' + IntToStr(SpritePack.TrimSprites));
 
-    if RT <> rxTiles then
-      fLog.AddToLog('Trimmed ' + IntToStr(SpritePack.TrimSprites));
+      //Houses need some special treatment to adapt to GL_ALPHA_TEST that we use for construction steps
+      if RT = rxHouses then
+      begin
+        HouseDat := TKMHouseDatCollection.Create;
+        SpritePack.AdjoinHouseMasks(HouseDat);
+        HouseDat.Free;
+      end;
 
-    //House building steps need some special treatment to adapt to GL_ALPHA_TEST that we use
-    if RT = rxHouses then
-    begin
-      HouseDat := TKMHouseDatCollection.Create;
-      SpritePack.AdjoinHouseMasks(HouseDat);
-      HouseDat.Free;
+      //Save
+      SpritePack.SaveToRXXFile(ExeDir + 'Data\Sprites\' + RXInfo[RT].FileName + '.rxx');
+    finally
+      SpritePack.Free;
     end;
-
-    //Save
-    ForceDirectories(ExeDir + 'Data\Sprites\');
-    SpritePack.SaveToRXXFile(ExeDir + 'Data\Sprites\' + RXInfo[RT].FileName + '.rxx');
-
-    SpritePack.Free;
 
     ListBox1.Selected[I] := False;
     ListBox1.Refresh;

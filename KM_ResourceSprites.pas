@@ -159,6 +159,7 @@ begin
 end;
 
 
+//Add PNG images to spritepack if user has any addons in Sprites folder
 procedure TKMSpritePack.AddImage(aFolder, aFilename: string; aIndex: Integer);
 var
   x,y:integer;

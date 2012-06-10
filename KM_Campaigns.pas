@@ -339,7 +339,7 @@ begin
 
   if fResource.Sprites <> nil then
   begin
-    SP := fResource.Sprites[rxGuiMain];
+    SP := fResource.Sprites[rxGuiMainH];
     FirstSpriteIndex := SP.RXData.Count;
     SP.LoadFromRXXFile(fPath + 'images.rxx', SP.RXData.Count);
     
@@ -347,13 +347,13 @@ begin
     begin
       //Images were successfuly loaded
       SP.MakeGFX(False, FirstSpriteIndex);
-      fBackGroundPic.RX := rxGuiMain;
+      fBackGroundPic.RX := rxGuiMainH;
       fBackGroundPic.ID := FirstSpriteIndex;
     end
     else
     begin
       //Images were not found - use blank
-      fBackGroundPic.RX := rxGuiMain;
+      fBackGroundPic.RX := rxGuiMainH;
       fBackGroundPic.ID := 0;
     end;
   end;

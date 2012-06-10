@@ -229,7 +229,6 @@ type
       Button_LobbyStart:TKMButton;
 
     Panel_CampSelect: TKMPanel;
-      Button_Camp_TSK, Button_Camp_TPR: TKMButton;
       List_Camps: TKMColumnListBox;
       Button_Camp_Start, Button_Camp_Back: TKMButton;
 
@@ -1028,18 +1027,6 @@ begin
   Panel_CampSelect := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_CampSelect.Stretch;
 
-    L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2 - 150, 140, 0, 0, fTextLibrary[TX_MENU_CAMP_TSK], fnt_Outline, taCenter);
-    L.Anchors := [];
-    Button_Camp_TSK := TKMButton.Create(Panel_CampSelect, Panel_Main.Width div 2 - 240, 160, 200, 150, 26, rxGuiMain, bsMenu);
-    Button_Camp_TSK.Anchors := [];
-    Button_Camp_TSK.OnClick := SwitchMenuPage;
-
-    L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2 + 150, 140, 0, 0, fTextLibrary[TX_MENU_CAMP_TPR], fnt_Outline, taCenter);
-    L.Anchors := [];
-    Button_Camp_TPR := TKMButton.Create(Panel_CampSelect, Panel_Main.Width div 2 + 40, 160, 200, 150, 27, rxGuiMain, bsMenu);
-    Button_Camp_TPR.Anchors := [];
-    Button_Camp_TPR.OnClick := SwitchMenuPage;
-
     L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 340, 0, 0, fTextLibrary[TX_MENU_CAMP_CUSTOM], fnt_Outline, taCenter);
     L.Anchors := [];
     List_Camps := TKMColumnListBox.Create(Panel_CampSelect, 312, 360, 400, 200, fnt_Grey);
@@ -1699,17 +1686,9 @@ end;
   end;
 
   {Show campaign screen}
-  if (Sender = Button_Camp_TSK)
-  or (Sender = Button_Camp_TPR)
-  or (Sender = Button_Camp_Start)
+  if (Sender = Button_Camp_Start)
   or (Sender = Button_ResultsContinue) then
   begin
-    if (Sender = Button_Camp_TSK) then
-      Campaign_Set(fGame.Campaigns.CampaignByTitle('TSK'))
-    else
-    if (Sender = Button_Camp_TPR) then
-      Campaign_Set(fGame.Campaigns.CampaignByTitle('TPR'))
-    else
     if (Sender = Button_Camp_Start) then
       Campaign_Set(fGame.Campaigns.CampaignByTitle(List_Camps.Rows[List_Camps.ItemIndex].Cells[2].Caption))
     else
@@ -1839,9 +1818,6 @@ var
   Camps: TKMCampaignsCollection;
 begin
   Camps := fGame.Campaigns;
-
-  Button_Camp_TSK.Enabled := Camps.CampaignByTitle('TSK') <> nil;
-  Button_Camp_TPR.Enabled := Camps.CampaignByTitle('TPR') <> nil;
 
   List_Camps.Clear;
   for I := 0 to Camps.Count - 1 do

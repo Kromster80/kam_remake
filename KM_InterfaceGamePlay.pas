@@ -17,19 +17,19 @@ type
     fMapView: TKMMapView;
 
     //Not saved
-    fShownUnit:TKMUnit;
-    fShownHouse:TKMHouse;
-    LastDragPoint:TKMPoint; //Last mouse point that we drag placed/removed a road/field
-    PrevHint:TObject;
+    fShownUnit: TKMUnit;
+    fShownHouse: TKMHouse;
+    LastDragPoint: TKMPoint; //Last mouse point that we drag placed/removed a road/field
+    PrevHint: TObject;
     ShownMessage: Integer;
-    PlayMoreMsg:TGameResultMsg; //Remember which message we are showing
-    fJoiningGroups: boolean;
+    PlayMoreMsg: TGameResultMsg; //Remember which message we are showing
+    fJoiningGroups: Boolean;
     fAskDemolish, fAskDismiss: Boolean;
-    fNetWaitDropPlayersDelayStarted:cardinal;
+    fNetWaitDropPlayersDelayStarted: Cardinal;
     SelectedDirection: TKMDirection;
-    SelectingTroopDirection:boolean;
+    SelectingTroopDirection: Boolean;
     SelectingDirPosition: TPoint;
-    RatioTab:byte; //Active resource distribution tab
+    RatioTab: Byte; //Active resource distribution tab
     fSaves: TKMSavesCollection;
 
     //Saved
