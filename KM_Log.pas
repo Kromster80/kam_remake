@@ -84,17 +84,16 @@ end;
 
 
 procedure TKMOldLogsDeleter.Execute;
-var SearchRec:TSearchRec;
+var SearchRec: TSearchRec;
 begin
   if not DirectoryExists(fPathToLogs) then Exit;
 
-  FindFirst(fPathToLogs+'KaM*.log', faAnyFile, SearchRec);
+  FindFirst(fPathToLogs + 'KaM*.log', faAnyFile, SearchRec);
   repeat
     if (SearchRec.Attr and faDirectory <> faDirectory) //Only files
-    and(SearchRec.Name<>'.')and(SearchRec.Name<>'..')
-    and(abs(Now - FileDateToDateTime(FileAge(fPathToLogs+SearchRec.Name))) > DEL_LOGS_OLDER_THAN)
+    and(Abs(Now - FileDateToDateTime(FileAge(fPathToLogs + SearchRec.Name))) > DEL_LOGS_OLDER_THAN)
     then
-      DeleteFile(fPathToLogs+SearchRec.Name);
+      DeleteFile(fPathToLogs + SearchRec.Name);
   until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
 end;

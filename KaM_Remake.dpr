@@ -47,7 +47,6 @@ uses
   KM_Locales in 'KM_Locales.pas',
   KM_Log in 'KM_Log.pas',
   KM_Main in 'KM_Main.pas',
-  KM_MapEditor in 'KM_MapEditor.pas',
   KM_Maps in 'KM_Maps.pas',
   KM_MapView in 'KM_MapView.pas',
   KM_MasterServer in 'KM_MasterServer.pas',

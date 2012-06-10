@@ -124,7 +124,6 @@
 			<DCCReference Include="KM_Locales.pas"/>
 			<DCCReference Include="KM_Log.pas"/>
 			<DCCReference Include="KM_Main.pas"/>
-			<DCCReference Include="KM_MapEditor.pas"/>
 			<DCCReference Include="KM_Maps.pas"/>
 			<DCCReference Include="KM_MapView.pas"/>
 			<DCCReference Include="KM_MasterServer.pas"/>
