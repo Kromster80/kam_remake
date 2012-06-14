@@ -168,8 +168,8 @@ type
     destructor Destroy; override;
     function ActiveCount:byte;
 
-    property OnRequestFade:TNotifyEvent write fOnFadeMusic;
-    property OnRequestUnfade:TNotifyEvent write fOnUnfadeMusic;
+    property OnRequestFade: TNotifyEvent write fOnFadeMusic;
+    property OnRequestUnfade: TNotifyEvent write fOnUnfadeMusic;
 
     procedure ExportSounds;
     procedure UpdateListener(X,Y:single);

@@ -37,6 +37,7 @@ uses
   KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',
   KM_MessageStack in 'KM_MessageStack.pas',
   KM_Game in 'KM_Game.pas',
+  KM_GameApp in 'KM_GameApp.pas',
   KM_GameInfo in 'KM_GameInfo.pas',
   KM_GameOptions in 'KM_GameOptions.pas',
   KM_GameInputProcess in 'KM_GameInputProcess.pas',

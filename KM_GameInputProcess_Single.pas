@@ -15,12 +15,12 @@ type
 
 
 implementation
-uses KM_Game, KM_Defaults, KM_Points, KM_Utils;
+uses KM_GameApp, KM_Defaults, KM_Points, KM_Utils;
 
 
 procedure TGameInputProcess_Single.TakeCommand(aCommand: TGameInputCommand);
 begin
-  if fGame.GameState = gsReplay then Exit;
+  if fGameApp.GameState = gsReplay then Exit;
 
   StoreCommand(aCommand); //Store the command for the replay (store it first in case Exec crashes and we want to debug it)
   ExecCommand(aCommand); //Execute the command now

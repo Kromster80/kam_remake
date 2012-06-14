@@ -114,6 +114,7 @@
 			<DCCReference Include="KM_InterfaceMapEditor.pas"/>
 			<DCCReference Include="KM_MessageStack.pas"/>
 			<DCCReference Include="KM_Game.pas"/>
+			<DCCReference Include="KM_GameApp.pas"/>
 			<DCCReference Include="KM_GameInfo.pas"/>
 			<DCCReference Include="KM_GameOptions.pas"/>
 			<DCCReference Include="KM_GameInputProcess.pas"/>
