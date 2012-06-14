@@ -80,7 +80,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Utils, KM_Sound, KM_TextLibrary;
+uses KM_Game, KM_GameApp, KM_PlayersCollection, KM_Utils, KM_Sound, KM_TextLibrary;
 
 
 { TCommandsPack }
@@ -173,7 +173,7 @@ var i,Tick:Cardinal;
 begin
   Assert(fDelay < MAX_SCHEDULE, 'Error, fDelay >= MAX_SCHEDULE');
 
-  if fGame.IsPeaceTime and (aCommand.CommandType in BlockedByPeaceTime) then
+  if fGameG.IsPeaceTime and (aCommand.CommandType in BlockedByPeaceTime) then
   begin
     fGameApp.Networking.PostLocalMessage(fTextLibrary[TX_MP_BLOCKED_BY_PEACETIME],false);
     fSoundLib.Play(sfx_CantPlace);
@@ -182,10 +182,10 @@ begin
 
   //Find first unsent pack
   Tick := MAX_SCHEDULE; //Out of range value
-  for i:=fGame.GameTickCount + fDelay to fGame.GameTickCount + MAX_SCHEDULE-1 do
-  if not fSent[i mod MAX_SCHEDULE] then
+  for I := fGameG.GameTickCount + fDelay to fGameG.GameTickCount + MAX_SCHEDULE-1 do
+  if not fSent[I mod MAX_SCHEDULE] then
   begin
-    Tick := i mod MAX_SCHEDULE; //Place in a ring buffer
+    Tick := I mod MAX_SCHEDULE; //Place in a ring buffer
     Break;
   end;
   Assert(Tick < MAX_SCHEDULE, 'Could not find place for new commands');
@@ -264,7 +264,7 @@ begin
   with fRandomCheck[aTick mod MAX_SCHEDULE] do
   begin
     Assert(OurCheck = PlayerCheck[aPlayerIndex],Format('Random check mismatch for tick %d from player %d processed at tick %d',
-                                                       [aTick, aPlayerIndex, fGame.GameTickCount]));
+                                                       [aTick, aPlayerIndex, fGameG.GameTickCount]));
     PlayerCheckPending[aPlayerIndex] := false;
   end;
 end;
@@ -285,7 +285,7 @@ begin
       kdp_Commands:
           begin
             //Recieving commands too late will happen during reconnections, so just ignore it
-            if Tick > fGame.GameTickCount then
+            if Tick > fGameG.GameTickCount then
             begin
               fSchedule[Tick mod MAX_SCHEDULE, PlayerIndex].Load(M);
               fRecievedData[Tick mod MAX_SCHEDULE, PlayerIndex] := true;
@@ -297,7 +297,7 @@ begin
             fRandomCheck[Tick mod MAX_SCHEDULE].PlayerCheck[PlayerIndex] := CRC; //Store it for this player
             fRandomCheck[Tick mod MAX_SCHEDULE].PlayerCheckPending[PlayerIndex] := true;
             //If we have processed this tick already, check now
-            if Tick <= fGame.GameTickCount then
+            if Tick <= fGameG.GameTickCount then
               DoRandomCheck(Tick, PlayerIndex);
           end;
     end;

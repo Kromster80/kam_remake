@@ -44,25 +44,23 @@ type
     fMissionMode: TKMissionMode;
     ID_Tracker: Cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
 
-    procedure GameLoadingStep(const aText: String);
 
-    procedure GameInit(aMultiplayerMode:boolean);
-    procedure GameStart(aMissionFile, aGameName:string);
     procedure GameMPDisconnect(const aData:string);
     procedure MultiplayerRig;
 
-    procedure Load(const aFileName: string; aReplay:boolean=false);
   public
     PlayOnState: TGameResultMsg;
     DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState: TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
     SkipReplayEndCheck:boolean;
-    constructor Create(aSpeedPace: Word);
+    constructor Create(aMultiplayerMode, aReplayMode: Boolean; aRender: TRender);
     destructor Destroy; override;
 
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
+    procedure GameStart(aMissionFile, aGameName:string);
+    procedure Load(const aFileName: string; aReplay:boolean=false);
+
     procedure StartSingleMap(aMissionFile, aGameName:string; aBlockMarket:Boolean=False);
     procedure StartSingleSave(aFileName:string);
     procedure StartLastMap;
@@ -108,7 +106,7 @@ type
     procedure SetGameSpeed(aSpeed: word);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
-    function RenderVersion: string;
+
     procedure UpdateGameCursor(X,Y: Integer; Shift: TShiftState);
 
     property Pathfinding: TPathFinding read fPathfinding;
@@ -142,28 +140,48 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGame.Create(aSpeedPace: Word);
+//aMultiplayer - is this a multiplayer game
+//aRender - who will be rendering the Game session
+constructor TKMGame.Create(aMultiplayerMode, aReplayMode: Boolean; aRender: TRender);
 begin
   inherited Create;
 
-  fAdvanceFrame := false;
+  fMultiplayerMode := aMultiplayerMode;
+  fReplayMode := aReplayMode;
+  fAdvanceFrame := False;
   ID_Tracker    := 0;
   PlayOnState   := gr_Cancel;
-  DoGameHold    := false;
-  fGameSpeed    := 1;
-  fGameSpeedMultiplier := 1;
-  SkipReplayEndCheck := false;
-  fWaitingForNetwork := false;
+  DoGameHold    := False;
+  SkipReplayEndCheck := False;
+  fWaitingForNetwork := False;
   fGameOptions  := TKMGameOptions.Create;
 
+  //todo: Maybe we should reset the GameCursor? If I play 192x192 map, quit, and play a 64x64 map
+  //      my cursor could be at (190,190) if the player starts with his cursor over the controls panel...
+  //      This caused a crash in RenderCursors which I fixed by adding range checking to CheckTileRevelation
+  //      (good idea anyway) There could be other crashes caused by this.
+  fViewport := TViewport.Create(aRender.ScreenX, aRender.ScreenY);
 
   fTimerGame := TTimer.Create(nil);
-  fTimerGame.Interval := aSpeedPace;
+  SetGameSpeed(1); //Initialize relevant variables
   fTimerGame.OnTimer := UpdateGame;
   fTimerGame.Enabled := True;
 
+  //Here comes terrain/mission init
+  SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
+  fTerrain := TTerrain.Create;
+
+  InitUnitStatEvals; //Army
+
   fPerfLog := TKMPerfLog.Create;
   fLog.AppendLog('<== Game creation is done ==>');
+  fPathfinding := TPathfinding.Create;
+  fProjectiles := TKMProjectiles.Create;
+  fEventsManager := TKMEventsManager.Create;
+
+  fRenderPool := TRenderPool.Create(aRender);
+
+  fGameTickCount := 0; //Restart counter
 end;
 
 
@@ -171,12 +189,16 @@ end;
 destructor TKMGame.Destroy;
 begin
   fTimerGame.Enabled := False;
+
+  if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
+    fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fMultiplayerMode));
+
   fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
 
   FreeAndNil(fTimerGame);
-  if fNetworking <> nil then FreeAndNil(fNetworking);
 
   FreeAndNil(fGameInputProcess);
+  FreeAndNil(fRenderPool);
   FreeAndNil(fGameOptions);
   fPerfLog.Free;
   inherited;
@@ -194,103 +216,6 @@ begin
     fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-GameCursor.Float.X,
                                    fViewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
     UpdateGameCursor(X, Y, Shift); //Recentering the map changes the cursor position
-end;
-
-
-procedure TKMGame.GameLoadingStep(const aText: String);
-begin
-  fMainMenuInterface.AppendLoadingText(aText);
-  Render;
-end;
-
-
-procedure TKMGame.GameInit(aMultiplayerMode: Boolean);
-begin
-  SetGameSpeed(1); //In case it was set in last run mission
-  PlayOnState := gr_Cancel;
-  SkipReplayEndCheck := False; //Reset before each mission
-  fMultiplayerMode := aMultiplayerMode;
-  fWaitingForNetwork := False; //Must get reset between games
-  //Reset the game options from the last game
-  fGameOptions.Free;
-  fGameOptions := TKMGameOptions.Create;
-
-  //Load the resources if necessary
-  fMainMenuInterface.ShowScreen(msLoading, '');
-  Render;
-  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
-  fResource.OnLoadingText := GameLoadingStep;
-  fResource.LoadGameResources(fGameSettings.AlphaShadows);
-  InitUnitStatEvals; //Army
-
-  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
-
-  //todo: Maybe we should reset the GameCursor? If I play 192x192 map, quit, and play a 64x64 map
-  //      my cursor could be at (190,190) if the player starts with his cursor over the controls panel...
-  //      This caused a crash in RenderCursors which I fixed by adding range checking to CheckTileRevelation
-  //      (good idea anyway) There could be other crashes caused by this.
-  fViewport := TViewport.Create(fScreenX, fScreenY);
-
-  //Here comes terrain/mission init
-  SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
-  fTerrain := TTerrain.Create;
-  fGamePlayInterface := TKMGamePlayInterface.Create(fScreenX, fScreenY);
-  fPathfinding := TPathfinding.Create;
-  fRenderPool := TRenderPool.Create(fRender);
-  fProjectiles := TKMProjectiles.Create;
-  fEventsManager := TKMEventsManager.Create;
-
-  fGameTickCount := 0; //Restart counter
-end;
-
-
-procedure TKMGame.StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
-var I:Integer;
-begin
-  Stop(gr_Silent); //Stop everything silently
-
-  fReplayMode := False;
-  fCampaigns.SetActive(aCampaign, aMap);
-
-  GameInit(false);
-  GameStart(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap));
-
-  //Hack to block the market in TSK/TPR campaigns
-  if (aCampaign.ShortTitle = 'TSK') or (aCampaign.ShortTitle = 'TPR') then
-    for I:=0 to fPlayers.Count-1 do
-      fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;
-end;
-
-
-procedure TKMGame.StartSingleMap(aMissionFile, aGameName:string; aBlockMarket:Boolean=False);
-var I:Integer;
-begin
-  Stop(gr_Silent); //Stop everything silently
-
-  fCampaigns.SetActive(nil, 0);
-
-  GameInit(false);
-  GameStart(aMissionFile, aGameName);
-  fReplayMode := False;
-
-  //Market needs to be blocked for e.g. tutorials
-  if aBlockMarket then
-    for I:=0 to fPlayers.Count-1 do
-      fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;
-end;
-
-
-procedure TKMGame.StartSingleSave(aFileName: string);
-begin
-  Stop(gr_Silent); //Stop everything silently
-
-  fCampaigns.SetActive(nil, 0);
-
-  GameInit(false);
-  Load(aFileName);
-  SetGameState(gsRunning);
-  fReplayMode := False;
-  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, fReplayMode);
 end;
 
 
@@ -338,7 +263,6 @@ begin
   fGameName := aGameName;
   fMissionFile := aMissionFile;
 
-  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_SCRIPT]);
 
   if aMissionFile <> '' then
   try //Catch exceptions
@@ -384,7 +308,7 @@ begin
 
   fLog.AppendLog('Gameplay initialized', true);
 
-  SetGameState(gsRunning);
+
   fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
 
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
@@ -750,8 +674,6 @@ end;
 
 procedure TKMGame.Stop(Msg: TGameResultMsg; TextMsg: string='');
 begin
-  if fGameState = gsNoGame then Exit;
-
   fIsExiting := True;
   try
     if fMultiplayerMode and not fReplayMode then
@@ -963,21 +885,7 @@ end;
 
 procedure TKMGame.Render;
 begin
-  if SKIP_RENDER then Exit;
-
-  fRender.BeginFrame;
-
-  if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then
-    fRenderPool.Render;
-
-  fRender.SetRenderMode(rm2D);
-
-  if not fRender.Blind then
-    fActiveInterface.Paint;
-
-  fRender.RenderBrightness(GlobalSettings.Brightness);
-
-  fRender.EndFrame;
+  fRenderPool.Render;
 end;
 
 
@@ -1443,7 +1351,7 @@ end;
 
 
 //This is our real-time "thread", use it wisely
-procedure TKMGame.UpdateStateIdle(aFrameTime:cardinal);
+procedure TKMGame.UpdateStateIdle(aFrameTime: Cardinal);
 begin
   case fGameState of
     gsRunning,
@@ -1453,10 +1361,6 @@ begin
                   fTerrain.UpdateStateIdle;
                 end;
   end;
-  if fMusicLib <> nil then fMusicLib.UpdateStateIdle;
-  if fSoundLib <> nil then fSoundLib.UpdateStateIdle;
-  if fNetworking <> nil then
-    fNetworking.UpdateStateIdle;
 end;
 
 

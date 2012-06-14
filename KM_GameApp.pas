@@ -1,8 +1,8 @@
 unit KM_GameApp;
 {$I KaM_Remake.inc}
 interface
-uses Windows, Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils,
-  KM_CommonTypes,
+uses Windows, Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
+  KM_CommonTypes, KM_Defaults,
   KM_Campaigns, KM_Game,
   KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_Locales, KM_Music, KM_Networking, KM_Settings, KM_TextLibrary, KM_Render;
@@ -36,6 +36,9 @@ type
     fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
 
+    procedure GameLoadingStep(const aText: String);
+    procedure GameInit;
+    procedure Stop(Msg: TGameResultMsg; TextMsg: string='');
   public
     OnCursorUpdate: TIntegerStringEvent;
 
@@ -48,6 +51,9 @@ type
     property GameState: TGameState read fGameState;
     procedure Resize(X,Y: Integer);
     procedure ToggleLocale(aLocale: ShortString);
+    procedure StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
+    procedure StartSingleMap(aMissionFile, aGameName: string);
+    procedure StartSingleSave(aFileName: string);
 
     property GlobalSettings: TGameSettings read fGameSettings;
     property Campaigns: TKMCampaignsCollection read fCampaigns;
@@ -62,6 +68,9 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
+    function RenderVersion: string;
+    procedure Render;
+
     procedure UpdateState(Sender: TObject);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
   end;
@@ -73,7 +82,7 @@ var
 
 implementation
 uses
-  KM_Defaults, KM_GameInfo, KM_RenderAux, KM_RenderPool, KM_Resource, KM_Sound, KM_Utils;
+  KM_GameInfo, KM_Log, KM_RenderAux, KM_Resource, KM_Sound, KM_Utils;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -156,8 +165,8 @@ begin
   FreeThenNil(fSoundLib);
   FreeThenNil(fMusicLib);
   FreeThenNil(fTextLibrary);
+  FreeAndNil(fNetworking);
 
-  FreeThenNil(fRenderPool);
   FreeThenNil(fRenderAux);
   FreeThenNil(fRender);
 
@@ -236,6 +245,140 @@ begin
 end;
 
 
+procedure TKMGameApp.GameLoadingStep(const aText: String);
+begin
+  fMainMenuInterface.AppendLoadingText(aText);
+  Render;
+end;
+
+
+//todo: Rename to LoadGameassets
+procedure TKMGameApp.GameInit;
+begin
+  //Load the resources if necessary
+  fMainMenuInterface.ShowScreen(msLoading, '');
+  Render;
+
+  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
+  fResource.OnLoadingText := GameLoadingStep;
+  fResource.LoadGameResources(fGameSettings.AlphaShadows);
+
+  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
+
+  //Create required UI (gameplay or MapEd)
+  fGamePlayInterface := TKMGamePlayInterface.Create(fScreenX, fScreenY);
+
+  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_SCRIPT]);
+end;
+
+
+//Game needs to be stopped
+//1. Disconnect from network
+//2. Save games replay
+//3. Fill in game results
+//4. Fill in menu message if needed
+//5. Free the game object
+//6. Switch to MainMenu
+procedure TKMGameApp.Stop(Msg: TGameResultMsg; TextMsg: string='');
+begin
+  if fGameState = gsNoGame then Exit;
+
+    if fGame.MultiplayerMode and not fGame.ReplayMode then
+    begin
+      if fNetworking.Connected then
+        fNetworking.AnnounceDisconnect;
+      fNetworking.Disconnect;
+    end;
+
+    //Take results from MyPlayer before data is flushed
+    if Msg in [gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd] then
+      if fGame.MultiplayerMode then
+        fMainMenuInterface.ResultsMP_Fill
+      else
+        fMainMenuInterface.Results_Fill;
+
+    FreeThenNil(fGame);
+    FreeThenNil(fGamePlayInterface);
+    FreeThenNil(fMapEditorInterface);
+
+    fLog.AppendLog('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(Msg)) + ' /' + TextMsg);
+
+    case Msg of
+      gr_Win:       if fGame.MultiplayerMode then
+                      fMainMenuInterface.ShowScreen(msResultsMP, '', Msg)
+                    else
+                    begin
+                      fMainMenuInterface.ShowScreen(msResults, '', Msg);
+                      if fCampaigns.ActiveCampaign <> nil then
+                        fCampaigns.UnlockNextMap;
+                    end;
+      gr_Defeat,
+      gr_Cancel,
+      gr_ReplayEnd: if fGame.MultiplayerMode then
+                      fMainMenuInterface.ShowScreen(msResultsMP, '', Msg)
+                    else
+                      fMainMenuInterface.ShowScreen(msResults, '', Msg);
+      gr_Error:     fMainMenuInterface.ShowScreen(msError, TextMsg);
+      gr_Disconnect:fMainMenuInterface.ShowScreen(msError, TextMsg);
+      gr_Silent:    ;//Used when loading new savegame from gameplay UI
+      gr_MapEdEnd:  fMainMenuInterface.ShowScreen(msMain);
+    end;
+
+    SetGameState(gsNoGame);
+end;
+
+
+procedure TKMGameApp.StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
+begin
+  Stop(gr_Silent); //Stop everything silently
+  fCampaigns.SetActive(aCampaign, aMap);
+  GameInit;
+
+  fGame := TKMGame.Create(False, False, fRender);
+  fGame.GameStart(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap));
+
+  //todo: Do that in mission scripts! Hack to block the market in TSK/TPR campaigns
+  {if (aCampaign.ShortTitle = 'TSK') or (aCampaign.ShortTitle = 'TPR') then
+    for I:=0 to fPlayers.Count-1 do
+      fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;}
+
+  SetGameState(gsRunning);
+end;
+
+
+procedure TKMGameApp.StartSingleMap(aMissionFile, aGameName: string);
+begin
+  Stop(gr_Silent); //Stop everything silently
+  fCampaigns.SetActive(nil, 0);
+  GameInit;
+
+  fGame := TKMGame.Create(False, False, fRender);
+  fGame.GameStart(aMissionFile, aGameName);
+
+  //todo: Do that in mission scripts! Market needs to be blocked for e.g. tutorials
+  {if aBlockMarket then
+    for I:=0 to fPlayers.Count-1 do
+      fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;}
+
+  SetGameState(gsRunning);
+end;
+
+
+procedure TKMGameApp.StartSingleSave(aFileName: string);
+begin
+  Stop(gr_Silent); //Stop everything silently
+  fCampaigns.SetActive(nil, 0);
+  GameInit;
+
+  fGame := TKMGame.Create(False, False, fRender);
+  fGame.Load(aFileName);
+
+  fGamePlayInterface.UpdateMenuState(fGame.MissionMode = mm_Tactic, False);
+
+  SetGameState(gsRunning);
+end;
+
+
 procedure TKMGameApp.KeyDown(Key: Word; Shift: TShiftState);
 begin
   fActiveInterface.KeyDown(Key, Shift);
@@ -304,6 +447,32 @@ begin
 end;
 
 
+procedure TKMGameApp.Render;
+begin
+  if SKIP_RENDER then Exit;
+
+  fRender.BeginFrame;
+
+  if fGameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then
+    fGame.Render;
+
+  fRender.SetRenderMode(rm2D);
+
+  if not fRender.Blind then
+    fActiveInterface.Paint;
+
+  fRender.RenderBrightness(GlobalSettings.Brightness);
+
+  fRender.EndFrame;
+end;
+
+
+function TKMGameApp.RenderVersion: string;
+begin
+  Result := 'OpenGL '+ fRender.RendererVersion;
+end;
+
+
 procedure TKMGameApp.UpdateState(Sender: TObject);
 begin
   Inc(fGlobalTickCount);
@@ -343,6 +512,18 @@ begin
     if (fGameState in [gsRunning, gsReplay]) and Assigned(OnCursorUpdate) then
       OnCursorUpdate(2, 'Time: ' + FormatDateTime('hh:nn:ss', fGame.GetMissionTime));
   end;
+end;
+
+
+//This is our real-time "thread", use it wisely
+procedure TKMGameApp.UpdateStateIdle(aFrameTime: Cardinal);
+begin
+  if fGame <> nil then
+    fGame.UpdateStateIdle(aFrameTime);
+
+  if fMusicLib <> nil then fMusicLib.UpdateStateIdle;
+  if fSoundLib <> nil then fSoundLib.UpdateStateIdle;
+  if fNetworking <> nil then fNetworking.UpdateStateIdle;
 end;
 
 

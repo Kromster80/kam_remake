@@ -15,7 +15,7 @@ type
 
 
 implementation
-uses KM_GameApp, KM_Defaults, KM_Points, KM_Utils;
+uses KM_GameApp, KM_Game, KM_Defaults, KM_Points, KM_Utils;
 
 
 procedure TGameInputProcess_Single.TakeCommand(aCommand: TGameInputCommand);
@@ -44,7 +44,7 @@ begin
       //CRC check after the command
       if CRASH_ON_REPLAY and (fQueue[fCursor].Rand <> MyRand) then //Should always be called to maintain randoms flow
       begin
-        fGame.ReplayInconsistancy;
+        fGameG.ReplayInconsistancy;
         Exit; //ReplayInconsistancy sometimes calls GIP.Free, so exit immidiately
       end;
       Inc(fCursor);
