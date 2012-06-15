@@ -20,7 +20,7 @@ uses KM_GameApp, KM_Game, KM_Defaults, KM_Points, KM_Utils;
 
 procedure TGameInputProcess_Single.TakeCommand(aCommand: TGameInputCommand);
 begin
-  if fGameApp.GameState = gsReplay then Exit;
+  if fGameG.GameMode = gmReplay then Exit;
 
   StoreCommand(aCommand); //Store the command for the replay (store it first in case Exec crashes and we want to debug it)
   ExecCommand(aCommand); //Execute the command now
