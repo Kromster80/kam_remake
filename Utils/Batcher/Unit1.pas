@@ -3,7 +3,7 @@ interface
 uses
   Windows, Classes, Controls, Forms, Math, StdCtrls, SysUtils,
   KM_Points, KM_Defaults, KM_CommonClasses, KromUtils,
-  KM_Game, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary, KM_Terrain, KM_Units_Warrior, KM_Utils;
+  KM_GameApp, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary, KM_Terrain, KM_Units_Warrior, KM_Utils;
 
 
 type
@@ -44,15 +44,15 @@ begin
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
   fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
-  fGame := TKMGame.Create(0, 1024, 768, False, nil, nil, True);
-  fGame.GlobalSettings.Autosave := False;
+  fGameApp := TKMGameApp.Create(0, 1024, 768, False, nil, nil, nil, True);
+  fGameApp.GlobalSettings.Autosave := False;
 end;
 
 
 procedure TForm1.TearDown;
 begin
-  fGame.Stop(gr_Silent);
-  FreeAndNil(fGame);
+  fGameApp.Stop(gr_Silent);
+  FreeAndNil(fGameApp);
   FreeAndNil(fTextLibrary);
   FreeAndNil(fLocales);
   FreeAndNil(fLog);
@@ -89,13 +89,13 @@ begin
   ControlsEnable(False);
   SetUp;
 
-  for I := 0 to fGame.Campaigns.CampaignByTitle('TPR').MapCount - 1 do
+  for I := 0 to fGameApp.Campaigns.CampaignByTitle('TPR').MapCount - 1 do
   begin
-    fGame.StartCampaignMap(fGame.Campaigns.CampaignByTitle('TPR'), I);
+    fGameApp.NewCampaignMap(fGameApp.Campaigns.CampaignByTitle('TPR'), I);
 
     fPlayers[0].Goals.ExportMessages(ExtractFilePath(ParamStr(0)) + Format('TPR%.2d.evt', [I+1]));
 
-    fGame.Stop(gr_Silent);
+    fGameApp.Stop(gr_Silent);
   end;
 
   TearDown;
