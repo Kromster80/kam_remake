@@ -56,74 +56,72 @@ type
     fServerPort: string;
     fMasterServerAddress: string;
     fServerName: string;
-    fMasterAnnounceInterval: integer;
-    fMaxRooms: integer;
-    fAutoKickTimeout: integer;
-    fPingInterval: integer;
+    fMasterAnnounceInterval: Integer;
+    fMaxRooms: Integer;
+    fAutoKickTimeout: Integer;
+    fPingInterval: Integer;
     fAnnounceServer: Boolean;
     fHTMLStatusFile: string;
     fServerWelcomeMessage: string;
     function LoadFromINI(FileName: string): Boolean;
-    procedure SaveToINI(FileName:string);
+    procedure SaveToINI(FileName: string);
 
-    procedure SetAutosave(aValue:boolean);
-    procedure SetBrightness(aValue:byte);
-    procedure SetScrollSpeed(aValue:byte);
-    procedure SetAlphaShadows(aValue:boolean);
-    procedure SetLocale(aLocale:shortstring);
+    procedure SetAutosave(aValue: Boolean);
+    procedure SetBrightness(aValue: Byte);
+    procedure SetScrollSpeed(aValue: Byte);
+    procedure SetAlphaShadows(aValue: Boolean);
+    procedure SetLocale(aLocale: shortstring);
     procedure SetMusicOff(aValue: Boolean);
-    procedure SetShuffleOn(aValue:boolean);
+    procedure SetShuffleOn(aValue: Boolean);
     procedure SetMusicVolume(aValue: Single);
     procedure SetSoundFXVolume(aValue: Single);
-    procedure SetMultiplayerName(aValue:string);
-    procedure SetLastIP(aValue:string);
-    procedure SetMasterServerAddress(aValue:string);
-    procedure SetServerName(aValue:string);
-    procedure SetLastPort(aValue:string);
-    procedure SetLastRoom(aValue:string);
-    procedure SetServerPort(aValue:string);
+    procedure SetMultiplayerName(aValue: string);
+    procedure SetLastIP(aValue: string);
+    procedure SetMasterServerAddress(aValue: string);
+    procedure SetServerName(aValue: string);
+    procedure SetLastPort(aValue: string);
+    procedure SetLastRoom(aValue: string);
+    procedure SetServerPort(aValue: string);
     procedure SetServerWelcomeMessage(aValue: string);
-    procedure SetAnnounceServer(aValue:Boolean);
-    procedure SetAutoKickTimeout(aValue:integer);
-    procedure SetPingInterval(aValue:integer);
-    procedure SetMasterAnnounceInterval(eValue:integer);
-    procedure SetHTMLStatusFile(eValue:string);
-    procedure SetMaxRooms(eValue:integer);
+    procedure SetAnnounceServer(aValue: Boolean);
+    procedure SetAutoKickTimeout(aValue: Integer);
+    procedure SetPingInterval(aValue: Integer);
+    procedure SetMasterAnnounceInterval(eValue: Integer);
+    procedure SetHTMLStatusFile(eValue: string);
+    procedure SetMaxRooms(eValue: Integer);
   public
-    //Temp for fight simulator
-    fHitPointRestorePace:word;
     constructor Create;
     destructor Destroy; override;
-    procedure SaveSettings(aForce:boolean=False);
+    procedure SaveSettings(aForce: Boolean=False);
     procedure ReloadSettings;
 
-    property Autosave:boolean read fAutosave write SetAutosave;
-    property Brightness:byte read fBrightness write SetBrightness;
-    property ScrollSpeed:byte read fScrollSpeed write SetScrollSpeed;
-    property AlphaShadows:boolean read fAlphaShadows write SetAlphaShadows;
-    property Locale:shortstring read fLocale write SetLocale;
-    property MusicOff:boolean read fMusicOff write SetMusicOff;
-    property ShuffleOn:boolean read fShuffleOn write SetShuffleOn;
+    property Autosave: Boolean read fAutosave write SetAutosave;
+    property Brightness: Byte read fBrightness write SetBrightness;
+    property ScrollSpeed: Byte read fScrollSpeed write SetScrollSpeed;
+    property AlphaShadows: Boolean read fAlphaShadows write SetAlphaShadows;
+    property Locale: shortstring read fLocale write SetLocale;
+    property MusicOff: Boolean read fMusicOff write SetMusicOff;
+    property ShuffleOn: Boolean read fShuffleOn write SetShuffleOn;
     property MusicVolume: Single read fMusicVolume write SetMusicVolume;
     property SoundFXVolume: Single read fSoundFXVolume write SetSoundFXVolume;
-    property SpeedPace:word read fSpeedPace;
-    property SpeedMedium:word read fSpeedMedium;
-    property SpeedFast:word read fSpeedFast;
-    property SpeedVeryFast:word read fSpeedVeryFast;
-    property MultiplayerName:string read fMultiplayerName write SetMultiplayerName;
-    property LastIP:string read fLastIP write SetLastIP;
-    property LastPort:string read fLastPort write SetLastPort;
-    property LastRoom:string read fLastRoom write SetLastRoom;
-    property ServerPort:string read fServerPort write SetServerPort;
-    property MasterServerAddress:string read fMasterServerAddress write SetMasterServerAddress;
-    property ServerName:string read fServerName write SetServerName;
-    property MasterAnnounceInterval:integer read fMasterAnnounceInterval write SetMasterAnnounceInterval;
-    property AnnounceServer:boolean read fAnnounceServer write SetAnnounceServer;
-    property MaxRooms:integer read fMaxRooms write SetMaxRooms;
-    property AutoKickTimeout:integer read fAutoKickTimeout write SetAutoKickTimeout;
-    property PingInterval:integer read fPingInterval write SetPingInterval;
-    property HTMLStatusFile:string read fHTMLStatusFile write SetHTMLStatusFile;
-    property ServerWelcomeMessage:string read fServerWelcomeMessage write SetServerWelcomeMessage;
+    property SpeedPace: Word read fSpeedPace;
+    property SpeedMedium: Word read fSpeedMedium;
+    property SpeedFast: Word read fSpeedFast;
+    property SpeedVeryFast: Word read fSpeedVeryFast;
+    property MultiplayerName: string read fMultiplayerName write SetMultiplayerName;
+    property LastIP: string read fLastIP write SetLastIP;
+    property LastPort: string read fLastPort write SetLastPort;
+    property LastRoom: string read fLastRoom write SetLastRoom;
+    property ServerPort: string read fServerPort write SetServerPort;
+    property MasterServerAddress: string read fMasterServerAddress write SetMasterServerAddress;
+    property ServerName: string read fServerName write SetServerName;
+    property MasterAnnounceInterval: Integer read fMasterAnnounceInterval write SetMasterAnnounceInterval;
+    property AnnounceServer: Boolean read fAnnounceServer write SetAnnounceServer;
+    property MaxRooms: Integer read fMaxRooms write SetMaxRooms;
+    property AutoKickTimeout: Integer read fAutoKickTimeout write SetAutoKickTimeout;
+    property PingInterval: Integer read fPingInterval write SetPingInterval;
+    property HTMLStatusFile: string read fHTMLStatusFile write SetHTMLStatusFile;
+    property ServerWelcomeMessage: string read fServerWelcomeMessage write SetServerWelcomeMessage;
   end;
 
 
@@ -182,37 +180,37 @@ begin
   fNeedsSave := False;
 end;
 
-procedure TGameSettings.SetMaxRooms(eValue:integer);
+procedure TGameSettings.SetMaxRooms(eValue: Integer);
 begin
   fMaxRooms   := eValue;
   fNeedsSave  := True;
 end;
 
-procedure TGameSettings.SetHTMLStatusFile(eValue:string);
+procedure TGameSettings.SetHTMLStatusFile(eValue: string);
 begin
   fHTMLStatusFile   := eValue;
   fNeedsSave        := True;
 end;
 
-procedure TGameSettings.SetMasterAnnounceInterval(eValue:integer);
+procedure TGameSettings.SetMasterAnnounceInterval(eValue: Integer);
 begin
   fMasterAnnounceInterval := eValue;
   fNeedsSave              := True;
 end;
 
-procedure TGameSettings.SetPingInterval(aValue:integer);
+procedure TGameSettings.SetPingInterval(aValue: Integer);
 begin
   fPingInterval    := aValue;
   fNeedsSave       := True;
 end;
 
-procedure TGameSettings.SetAutoKickTimeout(aValue:integer);
+procedure TGameSettings.SetAutoKickTimeout(aValue: Integer);
 begin
   fAutoKickTimeout := aValue;
   fNeedsSave       := True;
 end;
 
-procedure TGameSettings.SetAnnounceServer(aValue:Boolean);
+procedure TGameSettings.SetAnnounceServer(aValue: Boolean);
 begin
   fAnnounceServer := aValue;
   fNeedsSave      := True;
@@ -268,7 +266,7 @@ end;
 
 
 //Save only when needed
-procedure TGameSettings.SaveSettings(aForce:boolean=False);
+procedure TGameSettings.SaveSettings(aForce: Boolean=False);
 begin
   if fNeedsSave or aForce then
     SaveToINI(ExeDir + SETTINGS_FILE);
@@ -283,7 +281,7 @@ end;
 
 
 function TGameSettings.LoadFromINI(FileName: string): Boolean;
-var f:TMemIniFile;
+var f: TMemIniFile;
 begin
   Result := FileExists(FileName);
 
@@ -306,9 +304,9 @@ begin
   fShuffleOn      := f.ReadBool   ('SFX',  'ShuffleEnabled', False);
 
   if INI_HITPOINT_RESTORE then
-    fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',DEFAULT_HITPOINT_RESTORE)
+    HITPOINT_RESTORE_PACE := f.ReadInteger('Fights', 'HitPointRestorePace', DEFAULT_HITPOINT_RESTORE)
   else
-    fHitPointRestorePace := DEFAULT_HITPOINT_RESTORE;
+    HITPOINT_RESTORE_PACE := DEFAULT_HITPOINT_RESTORE;
 
   fMultiplayerName        := f.ReadString ('Multiplayer','Name','NoName');
   fLastIP                 := f.ReadString ('Multiplayer','LastIP','127.0.0.1');
@@ -341,12 +339,12 @@ begin
   F.WriteInteger('GFX','Brightness',      fBrightness);
   F.WriteBool   ('GFX','AlphaShadows',    fAlphaShadows);
 
-  F.WriteBool   ('Game','Autosave',   fAutosave);
-  F.WriteInteger('Game','ScrollSpeed',fScrollSpeed);
-  F.WriteString ('Game','Locale',     fLocale);
-  F.WriteInteger('Game','SpeedPace',  fSpeedPace);
-  F.WriteInteger('Game','SpeedMedium',fSpeedMedium);
-  F.WriteInteger('Game','SpeedFast',  fSpeedFast);
+  F.WriteBool   ('Game','Autosave',     fAutosave);
+  F.WriteInteger('Game','ScrollSpeed',  fScrollSpeed);
+  F.WriteString ('Game','Locale',       fLocale);
+  F.WriteInteger('Game','SpeedPace',    fSpeedPace);
+  F.WriteInteger('Game','SpeedMedium',  fSpeedMedium);
+  F.WriteInteger('Game','SpeedFast',    fSpeedFast);
   F.WriteInteger('Game','SpeedVeryFast',fSpeedVeryFast);
 
   F.WriteFloat  ('SFX','SFXVolume',     fSoundFXVolume);
@@ -355,7 +353,7 @@ begin
   F.WriteBool   ('SFX','ShuffleEnabled',fShuffleOn);
 
   if INI_HITPOINT_RESTORE then
-    F.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
+    F.WriteInteger('Fights','HitPointRestorePace', HITPOINT_RESTORE_PACE);
 
   F.WriteString ('Multiplayer','Name',    fMultiplayerName);
   F.WriteString ('Multiplayer','LastIP',  fLastIP);
@@ -397,21 +395,21 @@ begin
 end;
 
 
-procedure TGameSettings.SetAutosave(aValue:boolean);
+procedure TGameSettings.SetAutosave(aValue: Boolean);
 begin
   fAutosave  := aValue;
   fNeedsSave := True;
 end;
 
 
-procedure TGameSettings.SetScrollSpeed(aValue:byte);
+procedure TGameSettings.SetScrollSpeed(aValue: Byte);
 begin
   fScrollSpeed := aValue;
   fNeedsSave  := True;
 end;
 
 
-procedure TGameSettings.SetAlphaShadows(aValue:boolean);
+procedure TGameSettings.SetAlphaShadows(aValue: Boolean);
 begin
   fAlphaShadows := aValue;
   fNeedsSave  := True;
@@ -425,7 +423,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetMultiplayerName(aValue:string);
+procedure TGameSettings.SetMultiplayerName(aValue: string);
 begin
   fMultiplayerName := aValue;
   fNeedsSave := True;
@@ -439,35 +437,35 @@ begin
 end;
 
 
-procedure TGameSettings.SetMasterServerAddress(aValue:string);
+procedure TGameSettings.SetMasterServerAddress(aValue: string);
 begin
   fMasterServerAddress := aValue;
   fNeedsSave := True;
 end;
 
 
-procedure TGameSettings.SetServerName(aValue:string);
+procedure TGameSettings.SetServerName(aValue: string);
 begin
   fServerName := aValue;
   fNeedsSave := True;
 end;
 
 
-procedure TGameSettings.SetLastPort(aValue:string);
+procedure TGameSettings.SetLastPort(aValue: string);
 begin
   fLastPort := aValue;
   fNeedsSave := True;
 end;
 
 
-procedure TGameSettings.SetLastRoom(aValue:string);
+procedure TGameSettings.SetLastRoom(aValue: string);
 begin
   fLastRoom := aValue;
   fNeedsSave := True;
 end;
 
 
-procedure TGameSettings.SetServerPort(aValue:string);
+procedure TGameSettings.SetServerPort(aValue: string);
 begin
   fServerPort := aValue;
   fNeedsSave := True;
@@ -488,7 +486,7 @@ begin
 end;
 
 
-procedure TGameSettings.SetShuffleOn(aValue:boolean);
+procedure TGameSettings.SetShuffleOn(aValue: Boolean);
 begin
   fShuffleOn := aValue;
   fNeedsSave := True;

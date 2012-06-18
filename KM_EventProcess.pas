@@ -97,7 +97,7 @@ var
 
 
 implementation
-uses KM_Game, KM_MessageStack, KM_PlayersCollection, KM_TextLibrary, KM_Log;
+uses KM_Game, KM_CommonTypes,  KM_PlayersCollection, KM_TextLibrary, KM_Log;
 
 
 const

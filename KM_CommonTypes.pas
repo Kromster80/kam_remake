@@ -20,6 +20,9 @@ type
                   MoveX, MoveY: Integer;
                 end;
 
+  //Message kind determines icon and available actions for Message
+  TKMMessageKind = (mkText, mkHouse, mkUnit, mkQuill);
+
 
 implementation
 

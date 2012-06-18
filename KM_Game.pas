@@ -4,16 +4,13 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
-  {$IFDEF WDC} MPlayer, {$ENDIF}
   Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Utils,
-  KM_Networking,
-  KM_Campaigns, KM_EventProcess,
-  KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
-  KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
-  KM_Resource, KM_Terrain, KM_PathFinding, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
-  KM_ArmyEvaluation, KM_GameOptions, KM_PerfLog, KM_Locales, KM_MessageStack;
+  KM_CommonTypes, KM_Defaults, KM_Points,
+  KM_GameInputProcess, KM_GameOptions,
+  KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
+  KM_Networking, KM_PathFinding, KM_PerfLog, KM_Projectiles, KM_Render,
+  KM_Viewport;
 
 type
   TGameMode = (
@@ -153,8 +150,11 @@ var
 
 implementation
 uses
-  KM_GameApp, KM_Player, KM_GameInfo, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log,
-  KM_ResourceCursors;
+  KM_CommonClasses, KM_Log, KM_Utils,
+  KM_ArmyEvaluation, KM_EventProcess, KM_GameApp, KM_GameInfo, KM_MissionScript,
+  KM_Player, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceCursors,
+  KM_Settings, KM_Sound, KM_Terrain, KM_TextLibrary,
+  KM_GameInputProcess_Single, KM_GameInputProcess_Multi;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }

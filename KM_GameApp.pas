@@ -1,26 +1,18 @@
 unit KM_GameApp;
 {$I KaM_Remake.inc}
 interface
-uses Windows, Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
+uses
+  Windows, Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
   KM_CommonTypes, KM_Defaults,
   KM_Campaigns, KM_Game,
-  KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_InterfaceDefaults, KM_InterfaceMainMenu,
   KM_Locales, KM_Music, KM_Networking, KM_Settings, KM_TextLibrary, KM_Render;
 
 type
-
-    {gsNoGame,  //No game running at all, MainMenu
-    gsPaused,  //Game is paused and responds to 'P' key only
-    gsOnHold,  //Game is paused, shows victory options (resume, win) and responds to mouse clicks only
-    gsRunning, //Game is running normally
-    gsReplay,  //Game is showing replay, no player input allowed
-    gsEditor); //Game is in MapEditor mode}
-
   //Methods relevant to gameplay
   TKMGameApp = class
   private
-    fGlobalTickCount: Cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
-    fScreenX, fScreenY: Word;
+    fGlobalTickCount: Cardinal;
 
     fCampaigns: TKMCampaignsCollection;
     fGameSettings: TGameSettings;
@@ -28,7 +20,6 @@ type
     fNetworking: TKMNetworking;
     fRender: TRender;
     fTimerUI: TTimer;
-
     fMainMenuInterface: TKMMainMenuInterface;
 
     fOnCursorUpdate: TIntegerStringEvent;
@@ -50,6 +41,8 @@ type
     procedure NetworkInit;
     procedure SendMPGameInfo(Sender: TObject);
     function AllowDebugRendering: Boolean;
+    function RenderVersion: string;
+    procedure PrintScreen(aFilename: string = '');
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
@@ -76,10 +69,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    function RenderVersion: string;
     procedure Render;
-    procedure PrintScreen(aFilename: string = '');
-
     procedure UpdateState(Sender: TObject);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
   end;
@@ -91,7 +81,7 @@ var
 
 implementation
 uses
-  KM_GameInfo, KM_Log, KM_RenderAux, KM_Resource, KM_Sound, KM_Utils;
+  KM_Log, KM_RenderAux, KM_Resource, KM_Sound;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -99,14 +89,12 @@ constructor TKMGameApp.Create(aHandle: HWND; aScreenX, aScreenY: Word; aVSync: B
 begin
   inherited Create;
 
-  fScreenX := aScreenX;
-  fScreenY := aScreenY;
   fOnCursorUpdate := aOnCursorUpdate;
 
   fLocales      := TKMLocales.Create(ExeDir + 'data\locales.txt');
   fGameSettings := TGameSettings.Create;
   fTextLibrary  := TTextLibrary.Create(ExeDir + 'data\text\', fGameSettings.Locale);
-  fRender       := TRender.Create(aHandle, fScreenX, fScreenY, aVSync);
+  fRender       := TRender.Create(aHandle, aScreenX, aScreenY, aVSync);
   fRenderAux    := TRenderAux.Create;
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
@@ -129,7 +117,7 @@ begin
   fCampaigns.LoadProgress(ExeDir + 'Saves\Campaigns.dat');
 
   //If game was reinitialized from options menu then we should return there
-  fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
+  fMainMenuInterface := TKMMainMenuInterface.Create(aScreenX, aScreenY);
 
   fTimerUI := TTimer.Create(nil);
   fTimerUI.Interval := 100;
@@ -212,23 +200,21 @@ begin
   fCampaigns := TKMCampaignsCollection.Create; //Campaigns load text into TextLibrary
   fCampaigns.ScanFolder(ExeDir + 'Campaigns\');
   fCampaigns.LoadProgress(ExeDir + 'Saves\Campaigns.dat');
-  fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
+  fMainMenuInterface := TKMMainMenuInterface.Create(fRender.ScreenX, fRender.ScreenY);
   fMainMenuInterface.ShowScreen(msOptions);
-  Resize(fScreenX, fScreenY); //Force the recreated main menu to resize to the user's screen
+  Resize(fRender.ScreenX, fRender.ScreenY); //Force the recreated main menu to resize to the user's screen
 end;
 
 
 procedure TKMGameApp.Resize(X,Y: Integer);
 begin
-  fScreenX := X;
-  fScreenY := Y;
-  fRender.Resize(fScreenX, fScreenY);
+  fRender.Resize(X, Y);
 
   //Main menu is invisible while in game, but it still exists and when we return to it
   //it must be properly sized (player could resize the screen while playing)
-  if fMainMenuInterface<>nil then fMainMenuInterface.Resize(fScreenX, fScreenY);
+  fMainMenuInterface.Resize(X, Y);
 
-  if fGameG <> nil then fGameG.Resize(fScreenX, fScreenY);
+  if fGameG <> nil then fGameG.Resize(X, Y);
 end;
 
 
@@ -280,7 +266,9 @@ end;
 
 procedure TKMGameApp.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
-  if not InRange(X,1,fScreenX-1) or not InRange(Y,1,fScreenY-1) then Exit; //Exit if Cursor is outside of frame
+  if not InRange(X, 1, fRender.ScreenX - 1)
+  or not InRange(Y, 1, fRender.ScreenY - 1) then
+    Exit; // Exit if Cursor is outside of frame
 
   if fGameG <> nil then
     fGameG.MouseMove(Shift,X,Y)

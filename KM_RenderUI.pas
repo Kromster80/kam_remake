@@ -2,7 +2,7 @@ unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
 uses dglOpenGL, Graphics, Math, KromOGLUtils, StrUtils, SysUtils,
-  KM_Defaults, KM_Controls, KM_CommonClasses, KM_CommonTypes, KM_Points, KM_Pics, KM_ResourceSprites;
+  KM_Defaults, KM_Controls, KM_CommonTypes, KM_Points, KM_Pics, KM_ResourceSprites;
 
 type
   TRenderUI = class

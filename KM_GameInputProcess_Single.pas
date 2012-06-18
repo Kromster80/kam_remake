@@ -15,7 +15,7 @@ type
 
 
 implementation
-uses KM_GameApp, KM_Game, KM_Defaults, KM_Points, KM_Utils;
+uses KM_Game, KM_Defaults, KM_Utils;
 
 
 procedure TGameInputProcess_Single.TakeCommand(aCommand: TGameInputCommand);

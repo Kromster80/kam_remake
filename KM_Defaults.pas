@@ -124,6 +124,9 @@ const
   MAX_PLAYERS       = 8;    //Maximum players per map
   AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
+var
+  HITPOINT_RESTORE_PACE: Word = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
+
 const //Here we store options that are hidden somewhere in code
   GOLD_TO_SCHOOLS_IMPORTANT = True;       //Whenever gold delivery to schools is highly important
   FOOD_TO_INN_IMPORTANT = True;           //Whenever food delivery to inns is highly important
@@ -137,7 +140,6 @@ const //Here we store options that are hidden somewhere in code
   UNIT_CONDITION_RANDOM = 0.1;            //Random jitter of unit's starting health (KaM did not have this, all units started the same)
   TROOPS_TRAINED_CONDITION = 0.6;         //Condition troops start with when trained (measured from KaM)
   DEFAULT_HITPOINT_RESTORE = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
-
 
   //Archer properties
   RANGE_ARBALETMAN_MAX  = 10.99; //KaM: Unit standing 10 tiles from us will be shot, 11 tiles not

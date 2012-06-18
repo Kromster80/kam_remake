@@ -278,8 +278,9 @@ type
 
 implementation
 uses
-  KM_Game, KM_GameApp, KM_RenderPool, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection,
-  KM_Units_Warrior, KM_Resource, KM_Log, KM_MessageStack,
+  KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_TextLibrary,
+  KM_PlayersCollection,
+  KM_Units_Warrior, KM_Resource, KM_Log,
 
   KM_UnitActionAbandonWalk,
   KM_UnitActionFight,
@@ -1660,14 +1661,14 @@ begin
   fTerrain.UnitWalk(aFrom, aTo, Self)
 end;
 
+
 procedure TKMUnit.UpdateHitPoints;
 begin
   //Use fHitPointCounter as a counter to restore hit points every X ticks (Humbelum says even when in fights)
-  if fGameApp.GlobalSettings.fHitPointRestorePace = 0 then exit; //0 pace means don't restore
-  if fHitPointCounter mod fGameApp.GlobalSettings.fHitPointRestorePace = 0 then
+  if HITPOINT_RESTORE_PACE = 0 then Exit; //0 pace means don't restore
+  if fHitPointCounter mod HITPOINT_RESTORE_PACE = 0 then
     HitPointsIncrease(1);
-  inc(fHitPointCounter);
-  if fHitPointCounter = high(Cardinal)-1 then fHitPointCounter := 1;
+  fHitPointCounter := fHitPointCounter mod High(Cardinal) + 1;
 end;
 
 
