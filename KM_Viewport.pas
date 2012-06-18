@@ -96,6 +96,7 @@ procedure TViewport.ResizeMap(aMapX, aMapY: Integer);
 begin
   fMapX := aMapX;
   fMapY := aMapY;
+  SetPosition(fPosition); //EnsureRanges
 end;
 
 
@@ -235,21 +236,19 @@ end;
 procedure TViewport.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write('Viewport');
-  SaveStream.Write(fMapX);
-  SaveStream.Write(fMapY);
   SaveStream.Write(fPosition);
-  SaveStream.Write(fZoom);
+  //Everything but Position gets initialized from fTerrain dimensions anyway
+  //Zoom is reset to 1 by default
+  //SaveStream.Write(fZoom);
 end;
 
 
 procedure TViewport.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.ReadAssert('Viewport');
-  LoadStream.Read(fMapX);
-  LoadStream.Read(fMapY);
   LoadStream.Read(fPosition);
-  LoadStream.Read(fZoom);
-  fSoundLib.UpdateListener(fPosition.X, fPosition.Y);
+  //LoadStream.Read(fZoom);
+  SetPosition(fPosition); //EnsureRanges
 end;
 
 

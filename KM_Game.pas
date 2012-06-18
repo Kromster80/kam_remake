@@ -26,32 +26,28 @@ type
   //Methods relevant to gameplay
   TKMGame = class
   private //Irrelevant to savegame
-    fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
-    fIsEnded: Boolean; //The game has ended/crashed and further UpdateStates are not required/impossible
     fTimerGame: TTimer;
-    fGameSpeed: Word; //Actual speedup value
-    fGameSpeedMultiplier: Word; //how many ticks are compressed in one
-
-
-    fGameMode: TGameMode;
-    fIsPaused: Boolean;
-
-    fMissionFile: string; //Path to mission we are playing, so it gets saved to crashreport
-    fReplayFile: string;
-    fWaitingForNetwork: Boolean;
     fGameOptions: TKMGameOptions;
     fNetworking: TKMNetworking;
-    fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
     fProjectiles: TKMProjectiles;
     fGameInputProcess: TGameInputProcess;
     fPathfinding: TPathFinding;
-
     fViewport: TViewport;
     fPerfLog: TKMPerfLog;
-
     fActiveInterface: TKMUserInterface; //Shortcut for both of UI
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
+
+    fIsExiting: Boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
+    fIsEnded: Boolean; //The game has ended/crashed and further UpdateStates are not required/impossible
+    fIsPaused: Boolean;
+    fGameSpeed: Word; //Actual speedup value
+    fGameSpeedMultiplier: Word; //How many ticks are compressed into one
+    fGameMode: TGameMode;
+    fMissionFile: string; //Path to mission we are playing, so it gets saved to crashreport
+    fReplayFile: string;
+    fWaitingForNetwork: Boolean;
+    fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
 
   //Should be saved
     fGameTickCount: Cardinal;
@@ -59,13 +55,14 @@ type
     fCampaignName: AnsiString; //Is this a game part of some campaign
     fCampaignMap: Byte; //Which campaign map it is, so we can unlock next one on victory
     fMissionMode: TKMissionMode;
-    ID_Tracker: Cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
+    fIDTracker: Cardinal; //Units-Houses tracker, to issue unique IDs
 
     procedure GameMPDisconnect(const aData:string);
     procedure MultiplayerRig;
+    procedure UpdateUI;
   public
     PlayOnState: TGameResultMsg;
-    DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
+    DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState: TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
     SkipReplayEndCheck: Boolean;
     constructor Create(aGameMode: TGameMode; aRender: TRender; aNetworking: TKMNetworking);
@@ -103,7 +100,7 @@ type
 
     procedure RestartReplay;
 
-    function GetMissionTime:TDateTime;
+    function MissionTime:TDateTime;
     function GetPeacetimeRemaining:TDateTime;
     function CheckTime(aTimeTicks:cardinal):boolean;
     function IsPeaceTime:boolean;
@@ -171,7 +168,7 @@ begin
   fNetworking := aNetworking;
 
   fAdvanceFrame := False;
-  ID_Tracker    := 0;
+  fIDTracker    := 0;
   PlayOnState   := gr_Cancel;
   DoGameHold    := False;
   SkipReplayEndCheck := False;
@@ -186,7 +183,7 @@ begin
   else
   begin
     //Create required UI (gameplay or MapEd)
-    fGamePlayInterface := TKMGamePlayInterface.Create(aRender.ScreenX, aRender.ScreenY, fGameMode = gmMulti);
+    fGamePlayInterface := TKMGamePlayInterface.Create(aRender.ScreenX, aRender.ScreenY, IsMultiplayer);
     fActiveInterface := fGamePlayInterface;
   end;
 
@@ -244,10 +241,7 @@ end;
 
 procedure TKMGame.Resize(X,Y: Integer);
 begin
-  //Main menu is invisible while in game, but it still exists and when we return to it
-  //it must be properly sized (player could resize the screen while playing)
-  if fMapEditorInterface<>nil then fMapEditorInterface.Resize(X, Y);
-  if fGamePlayInterface<>nil then fGamePlayInterface.Resize(X, Y);
+  fActiveInterface.Resize(X, Y);
 
   fViewport.Resize(X, Y);
 end;
@@ -327,7 +321,7 @@ var
   I: Integer;
   ParseMode: TMissionParsingMode;
   PlayerRemap: TPlayerArray;
-  fMissionParser: TMissionParserStandard;
+  Parser: TMissionParserStandard;
 begin
   fLog.AppendLog('GameStart');
 
@@ -359,13 +353,17 @@ begin
     else      Assert(False);
   end;
 
-  fMissionParser := TMissionParserStandard.Create(ParseMode, PlayerRemap, False);
-  if not fMissionParser.LoadMission(aMissionFile) then
-    raise Exception.Create(fMissionParser.ErrorMessage);
-  MyPlayer := fPlayers.Player[fMissionParser.MissionInfo.HumanPlayerID];
-  Assert(MyPlayer.PlayerType = pt_Human);
-  fMissionMode := fMissionParser.MissionInfo.MissionMode;
-  FreeAndNil(fMissionParser);
+  Parser := TMissionParserStandard.Create(ParseMode, PlayerRemap, False);
+  try
+    if not Parser.LoadMission(aMissionFile) then
+      raise Exception.Create(Parser.ErrorMessage);
+
+    MyPlayer := fPlayers.Player[Parser.MissionInfo.HumanPlayerID];
+    Assert(MyPlayer.PlayerType = pt_Human);
+    fMissionMode := Parser.MissionInfo.MissionMode;
+  finally
+    Parser.Free;
+  end;
 
   fEventsManager.LoadFromFile(ChangeFileExt(aMissionFile, '.evt'));
   fTextLibrary.LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
@@ -378,10 +376,6 @@ begin
     fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
   end;
 
-  fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
-  fViewport.Position := KMPointF(MyPlayer.CenterScreen);
-  fViewport.ResetZoom; //This ensures the viewport is centered on the map
-
   fLog.AppendLog('Gameplay initialized', true);
 
   if fGameMode = gmMulti then
@@ -392,18 +386,10 @@ begin
   if fGameMode = gmMulti then
     MultiplayerRig;
 
-  BaseSave;
+  //When everything is ready we can update UI
+  UpdateUI;
 
-  if fGameMode = gmMapEd then
-  begin
-    fMapEditorInterface.UpdateMapName(fGameName);
-    fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
-  end
-  else
-  begin
-    fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
-    fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
-  end;
+  BaseSave;
   fLog.AppendLog('Gameplay recording initialized',true);
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 end;
@@ -486,7 +472,7 @@ end;
 procedure TKMGame.GameMPPlay(Sender:TObject);
 begin
   GameWaitingForNetwork(false); //Finished waiting for players
-  fNetworking.SendMPGameInfo(GetMissionTime, GameName);
+  fNetworking.AnnounceGameInfo(MissionTime, GameName);
   fLog.AppendLog('Net game began');
 end;
 
@@ -677,22 +663,16 @@ begin
   MyPlayer := fPlayers.Player[0];
   MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
 
-  fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
-  fViewport.ResetZoom;
-
-  fMapEditorInterface.Player_UpdateColors;
-  fMapEditorInterface.UpdateMapName(fGameName);
-  fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
-
   //if FileExists(aFileName) then fMapEditorInterface.SetLoadMode(aMultiplayer);
   fPlayers.AfterMissionInit(false);
 
   for I := 0 to fPlayers.Count - 1 do //Reveal all players since we'll swap between them in MapEd
     fPlayers[I].FogOfWar.RevealEverything;
 
-  fLog.AppendLog('Gameplay initialized', True);
+  //When everything is ready we can update UI
+  UpdateUI;
 
-  fGameTickCount := 0; //Restart counter
+  fLog.AppendLog('Gameplay initialized', True);
 end;
 
 
@@ -768,12 +748,12 @@ end;
 
 //Restart the replay but do not change the viewport position/zoom
 procedure TKMGame.RestartReplay;
-var OldCenter: TKMPointF; OldZoom: single;
+var OldCenter: TKMPointF; OldZoom: Single;
 begin
   OldCenter := fViewport.Position;
   OldZoom := fViewport.Zoom;
 
-  fGameApp.StartReplay(fReplayFile);
+  fGameApp.NewReplay(fReplayFile);
 
   fViewport.Position := OldCenter;
   fViewport.Zoom := OldZoom;
@@ -782,7 +762,7 @@ end;
 
 //TDateTime stores days/months/years as 1 and hours/minutes/seconds as fractions of a 1
 //Treat 10 ticks as 1 sec irregardless of user-set pace
-function TKMGame.GetMissionTime: TDateTime;
+function TKMGame.MissionTime: TDateTime;
 begin
   //Convert cardinal into TDateTime, where 1hour = 1/24 and so on..
   Result := fGameTickCount/24/60/60/10;
@@ -860,8 +840,8 @@ end;
 
 function TKMGame.GetNewID:cardinal;
 begin
-  Inc(ID_Tracker);
-  Result := ID_Tracker;
+  Inc(fIDTracker);
+  Result := fIDTracker;
 end;
 
 
@@ -963,7 +943,7 @@ begin
   SaveStream.Write(fCampaignName); //When we load that save we will need to know which campaign to display after victory
   SaveStream.Write(fCampaignMap); //When we load that save we will need to know which campaign to display after victory
 
-  SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
+  SaveStream.Write(fIDTracker); //Units-Houses ID tracker
   SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
   if fGameMode <> gmMulti then
@@ -1013,7 +993,7 @@ procedure TKMGame.Load(const aFileName: string; aReplay: Boolean = False);
 var
   LoadStream: TKMemoryStream;
   GameInfo: TKMGameInfo;
-  LoadError,LoadFileExt: string;
+  LoadFileExt: string;
   LibxPath: AnsiString;
   LoadedSeed: Longint;
   SaveIsMultiplayer: Boolean;
@@ -1050,7 +1030,7 @@ begin
   LoadStream.Read(fCampaignName); //When we load that save we will need to know which campaign to display after victory
   LoadStream.Read(fCampaignMap); //When we load that save we will need to know which campaign to display after victory
 
-  LoadStream.Read(ID_Tracker);
+  LoadStream.Read(fIDTracker);
   LoadStream.Read(LoadedSeed);
 
   if not SaveIsMultiplayer then
@@ -1092,17 +1072,14 @@ begin
   fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
   fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
 
-  fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY); //Must be updated after SyncLoad so IsUnit pointers are correct for minimap update
-  fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
-  fViewport.ResetZoom; //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
-
   if fGameMode = gmMulti then
     MultiplayerRig;
 
+  //When everything is ready we can update UI
+  UpdateUI;
+
   SetKaMSeed(LoadedSeed);
 
-  fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
-  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
   fLog.AppendLog('Loading game', True);
 end;
 
@@ -1210,6 +1187,28 @@ begin
     fTerrain.UpdateStateIdle;
 end;
 
+
+procedure TKMGame.UpdateUI;
+begin
+  if fGameMode = gmMapEd then
+  begin
+    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
+    fViewport.ResetZoom;
+
+    fMapEditorInterface.Player_UpdateColors;
+    fMapEditorInterface.UpdateMapName(fGameName);
+    fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
+  end
+  else
+  begin
+    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
+    fViewport.Position := KMPointF(MyPlayer.CenterScreen);
+    fViewport.ResetZoom; //This ensures the viewport is centered on the map
+
+    fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
+    fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
+  end;
+end;
 
 function TKMGame.SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
 begin

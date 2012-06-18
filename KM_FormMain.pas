@@ -285,14 +285,14 @@ begin if fGameApp <> nil then fGameApp.MouseWheel(Shift, WheelDelta, MousePos.X,
 procedure TFormMain.Open_MissionMenuClick(Sender: TObject);
 begin
   if RunOpenDialog(OpenDialog1, '', ExeDir, 'Knights & Merchants Mission (*.dat)|*.dat') then
-    fGameApp.StartSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
+    fGameApp.NewSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
 end;
 
 
 procedure TFormMain.MenuItem1Click(Sender: TObject);
 begin
   if RunOpenDialog(OpenDialog1, '', ExeDir, 'Knights & Merchants Mission (*.dat)|*.dat') then
-    fGameApp.StartMapEditor(OpenDialog1.FileName, 0, 0);
+    fGameApp.NewMapEditor(OpenDialog1.FileName, 0, 0);
 end;
 
 
@@ -432,7 +432,7 @@ end;
 
 procedure TFormMain.Button_CalcArmyClick(Sender: TObject);
 begin // For test Army evaluation
-  fGameApp.StartSingleMap('', 'TestCalcArmy');
+  fGameApp.NewSingleMap('', 'TestCalcArmy');
   Assert(MyPlayer<>nil);
   {Point.X := 10; Point.Y := 10;
   MyPlayer.AddUnitGroup(ut_Bowman, Point, dir_E, 3, 50);}

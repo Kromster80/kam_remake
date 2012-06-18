@@ -853,7 +853,6 @@ end;
 procedure TRenderPool.RenderTerrain;
 var
   Rect: TKMRect;
-  Passability: integer;
 begin
   Rect := fGameG.Viewport.GetClip;
 

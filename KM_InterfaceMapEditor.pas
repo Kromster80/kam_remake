@@ -188,13 +188,15 @@ type
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
     procedure Player_UpdateColors;
-    procedure Resize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
     property ShowPassability:byte read fShowPassability;
     procedure UpdateMapSize(X,Y:integer);
     procedure UpdateMapName(const aName:string);
     procedure RightClick_Cancel;
+    function GetShownPage: TKMMapEdShownPage;
+    procedure SetTileDirection(aTileDirection: byte);
+    procedure SetLoadMode(aMultiplayer:boolean);
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
     procedure KeyUp(Key:Word; Shift: TShiftState); override;
@@ -202,9 +204,7 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
-    function GetShownPage: TKMMapEdShownPage;
-    procedure SetTileDirection(aTileDirection: byte);
-    procedure SetLoadMode(aMultiplayer:boolean);
+    procedure Resize(X,Y: Word); override;
     procedure UpdateState(aTickCount: Cardinal); override;
   end;
 
@@ -499,7 +499,7 @@ end;
 
 
 //Update Hint position and etc..
-procedure TKMapEdInterface.Resize(X,Y:word);
+procedure TKMapEdInterface.Resize(X,Y: Word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
@@ -524,7 +524,6 @@ begin
 
       TKMButtonFlat.Create(Panel_Brushes, 8, 30, 32, 32, 1, rxTiles);   // grass
 
-      
       {TKMButtonFlat.Create(Panel_Brushes, 40, 30, 32, 32, 9, rxTiles);  // grass 2
       TKMButtonFlat.Create(Panel_Brushes, 8, 62, 32, 32, 35, rxTiles);  // dirt
 
@@ -1338,7 +1337,7 @@ begin
 
   MapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
   IsMulti := Radio_Load_MapType.ItemIndex = 1;
-  fGameApp.StartMapEditor(MapNameToPath(MapName, 'dat', IsMulti), 0, 0);
+  fGameApp.NewMapEditor(MapNameToPath(MapName, 'dat', IsMulti), 0, 0);
 end;
 
 

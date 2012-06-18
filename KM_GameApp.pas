@@ -31,15 +31,15 @@ type
 
     fMainMenuInterface: TKMMainMenuInterface;
 
+    fOnCursorUpdate: TIntegerStringEvent;
+
     procedure GameLoadingStep(const aText: string);
     procedure LoadGameAssets;
     procedure LoadGameFromSave(aFileName: string; aGameMode: TGameMode);
     procedure LoadGameFromScript(aMissionFile, aGameName: string; aCampaignName: string; aMap: Byte; aGameMode: TGameMode);
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
   public
-    OnCursorUpdate: TIntegerStringEvent;
-
-    constructor Create(aHandle: HWND; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TStringEvent; NoMusic: Boolean = False);
+    constructor Create(aHandle: HWND; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
     destructor Destroy; override;
     procedure AfterConstruction(aReturnToOptions: Boolean); reintroduce;
 
@@ -51,14 +51,15 @@ type
     procedure SendMPGameInfo(Sender: TObject);
     function AllowDebugRendering: Boolean;
 
-    procedure StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
-    procedure StartSingleMap(aMissionFile, aGameName: string);
-    procedure StartSingleSave(aFileName: string);
-    procedure StartMultiplayerMap(const aFileName: string);
-    procedure StartMultiplayerSave(const aFileName: string);
-    procedure StartLastGame;
-    procedure StartMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
-    procedure StartReplay(const aSaveName: string);
+    //These are all different game kinds we can start
+    procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
+    procedure NewSingleMap(aMissionFile, aGameName: string);
+    procedure NewSingleSave(aFileName: string);
+    procedure NewMultiplayerMap(const aFileName: string);
+    procedure NewMultiplayerSave(const aFileName: string);
+    procedure NewRestartLast;
+    procedure NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
+    procedure NewReplay(const aSaveName: string);
 
     property Campaigns: TKMCampaignsCollection read fCampaigns;
     function Game: TKMGame;
@@ -94,12 +95,13 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGameApp.Create(aHandle: HWND; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TStringEvent; NoMusic: Boolean = False);
+constructor TKMGameApp.Create(aHandle: HWND; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
 begin
   inherited Create;
 
   fScreenX := aScreenX;
   fScreenY := aScreenY;
+  fOnCursorUpdate := aOnCursorUpdate;
 
   fLocales      := TKMLocales.Create(ExeDir + 'data\locales.txt');
   fGameSettings := TGameSettings.Create;
@@ -287,9 +289,8 @@ begin
     if fMainMenuInterface <> nil then
       fMainMenuInterface.MouseMove(Shift, X,Y);
 
-  if Assigned(OnCursorUpdate) then
-    OnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
-                                                           GameCursor.Cell.X, GameCursor.Cell.Y]));
+  fOnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
+                                                          GameCursor.Cell.X, GameCursor.Cell.Y]));
 end;
 
 
@@ -351,48 +352,42 @@ procedure TKMGameApp.Stop(Msg: TGameResultMsg; TextMsg: string='');
 begin
   if fGameG = nil then Exit;
 
-  if (fGameG.GameMode = gmMulti) then
+  if fGameG.GameMode = gmMulti then
   begin
     if fNetworking.Connected then
       fNetworking.AnnounceDisconnect;
     fNetworking.Disconnect;
   end;
 
-  //Take results from MyPlayer before data is flushed
-  if Msg in [gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd] then
-    if fGameG.GameMode = gmMulti then
-      fMainMenuInterface.ResultsMP_Fill
-    else
-      fMainMenuInterface.Results_Fill;
-
-  //If the game was a part of a campaign, select that campaign,
-  //so we know which menu to show next and unlock next map
-  fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGameG.CampaignName), fGameG.CampaignMap);
-
-  FreeThenNil(fGameG);
-
-  fLog.AppendLog('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(Msg)) + ' /' + TextMsg);
-
   case Msg of
-    gr_Win:         if fGameG.GameMode = gmMulti then
-                      fMainMenuInterface.ShowScreen(msResultsMP, '', Msg)
-                    else
+    gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd:
                     begin
-                      fMainMenuInterface.ShowScreen(msResults, '', Msg);
-                      if fCampaigns.ActiveCampaign <> nil then
+                      if fGameG.GameMode = gmMulti then
+                      begin
+                        fMainMenuInterface.ResultsMP_Fill;
+                        fMainMenuInterface.ShowScreen(msResultsMP, '', Msg);
+                      end
+                      else
+                      begin
+                        fMainMenuInterface.Results_Fill;
+                        fMainMenuInterface.ShowScreen(msResults, '', Msg);
+                      end;
+
+                      //If the game was a part of a campaign, select that campaign,
+                      //so we know which menu to show next and unlock next map
+                      fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGameG.CampaignName), fGameG.CampaignMap);
+
+                      if (Msg = gr_Win) and (fCampaigns.ActiveCampaign <> nil) then
                         fCampaigns.UnlockNextMap;
                     end;
-    gr_Defeat,
-    gr_Cancel,
-    gr_ReplayEnd:   if fGameG.GameMode = gmMulti then
-                      fMainMenuInterface.ShowScreen(msResultsMP, '', Msg)
-                    else
-                      fMainMenuInterface.ShowScreen(msResults, '', Msg);
-    gr_Error:       fMainMenuInterface.ShowScreen(msError, TextMsg);
-    gr_Disconnect:  fMainMenuInterface.ShowScreen(msError, TextMsg);
+    gr_Error, gr_Disconnect:
+                    fMainMenuInterface.ShowScreen(msError, TextMsg);
     gr_Silent:      ;//Used when loading new savegame from gameplay UI
     gr_MapEdEnd:    fMainMenuInterface.ShowScreen(msMain);
   end;
+
+  FreeThenNil(fGameG);
+  fLog.AppendLog('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(Msg)) + ' /' + TextMsg);
 end;
 
 
@@ -420,7 +415,7 @@ begin
     end;
   end;
 
-  if Assigned(OnCursorUpdate) then OnCursorUpdate(0, 'Map size: '+inttostr(fGameG.MapX)+' x '+inttostr(fGameG.MapY));
+  fOnCursorUpdate(0, 'Map size: '+inttostr(fGameG.MapX)+' x '+inttostr(fGameG.MapY));
 end;
 
 
@@ -453,7 +448,7 @@ begin
     for I:=0 to fPlayers.Count-1 do
       fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;}
 
-  if Assigned(OnCursorUpdate) then OnCursorUpdate(0, 'Map size: '+inttostr(fGameG.MapX)+' x '+inttostr(fGameG.MapY));
+  fOnCursorUpdate(0, 'Map size: '+inttostr(fGameG.MapX)+' x '+inttostr(fGameG.MapY));
 end;
 
 
@@ -486,41 +481,41 @@ begin
     for I:=0 to fPlayers.Count-1 do
       fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;}
 
-  if Assigned(OnCursorUpdate) then OnCursorUpdate(0, 'Map size: '+inttostr(fGameG.MapX)+' x '+inttostr(fGameG.MapY));
+  fOnCursorUpdate(0, 'Map size: '+inttostr(fGameG.MapX)+' x '+inttostr(fGameG.MapY));
 end;
 
 
-procedure TKMGameApp.StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
+procedure TKMGameApp.NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
 begin
   LoadGameFromScript(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap), aCampaign.ShortTitle, aMap, gmSingle);
 end;
 
 
-procedure TKMGameApp.StartSingleMap(aMissionFile, aGameName: string);
+procedure TKMGameApp.NewSingleMap(aMissionFile, aGameName: string);
 begin
   LoadGameFromScript(aMissionFile, aGameName, '', 0, gmSingle);
 end;
 
 
-procedure TKMGameApp.StartSingleSave(aFileName: string);
+procedure TKMGameApp.NewSingleSave(aFileName: string);
 begin
   LoadGameFromSave(aFileName, gmSingle);
 end;
 
 
-procedure TKMGameApp.StartMultiplayerMap(const aFileName: string);
+procedure TKMGameApp.NewMultiplayerMap(const aFileName: string);
 begin
   LoadGameFromScript(aFileName, aFileName, '', 0, gmMulti);
 end;
 
 
-procedure TKMGameApp.StartMultiplayerSave(const aFileName: string);
+procedure TKMGameApp.NewMultiplayerSave(const aFileName: string);
 begin
   LoadGameFromSave(aFileName, gmMulti);
 end;
 
 
-procedure TKMGameApp.StartLastGame;
+procedure TKMGameApp.NewRestartLast;
 begin
   //@Lewin: Overall "basesave" is outdated and we can discard it.
   //Earlier it was used for "View last replay" mechanism, but now as we have
@@ -543,11 +538,11 @@ begin
   //really useful feature of baseave (I used it in crash reports)
   //I don't have a strong opinion between 1. and 2. I think I prefer 1.
 
-  //LoadGameFromSave(aFileName, gmMulti);
+  //todo: LoadGameFromSave(aFileName, gmMulti);
 end;
 
 
-procedure TKMGameApp.StartMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
+procedure TKMGameApp.NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
 begin
   if aFileName <> '' then
     LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), '', 0, gmMapEd)
@@ -556,7 +551,7 @@ begin
 end;
 
 
-procedure TKMGameApp.StartReplay(const aSaveName: string);
+procedure TKMGameApp.NewReplay(const aSaveName: string);
 begin
   LoadGameFromSave(aSaveName, gmReplay);
 end;
@@ -574,10 +569,12 @@ begin
 end;
 
 
-//Called by fNetworking to access MissionTime/GameName
+//Called by fNetworking to access MissionTime/GameName if they are valid
+//fNetworking knows nothing about fGame
 procedure TKMGameApp.SendMPGameInfo(Sender: TObject);
 begin
-  fNetworking.SendMPGameInfo(fGameG.GetMissionTime, fGameG.GameName);
+  if fGameG <> nil then
+    fNetworking.AnnounceGameInfo(fGameG.MissionTime, fGameG.GameName);
 end;
 
 
@@ -649,8 +646,8 @@ begin
       fMusicLib.PlayNextTrack; //Feed new music track
 
     //StatusBar
-    if (fGameG <> nil) and not fGameG.IsPaused and Assigned(OnCursorUpdate) then
-      OnCursorUpdate(2, 'Time: ' + FormatDateTime('hh:nn:ss', fGameG.GetMissionTime));
+    if (fGameG <> nil) and not fGameG.IsPaused then
+      fOnCursorUpdate(2, 'Time: ' + FormatDateTime('hh:nn:ss', fGameG.MissionTime));
   end;
 end;
 

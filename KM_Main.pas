@@ -227,10 +227,9 @@ begin
                                 FormMain.Panel5.Height,
                                 fMainSettings.VSync,
                                 FormLoading.LoadingStep,
-                                FormLoading.LoadingText
-                                );
+                                FormLoading.LoadingText,
+                                StatusBarText);
   fGameApp.AfterConstruction(aReturnToOptions);
-  fGameApp.OnCursorUpdate := StatusBarText;
 
   fLog.AppendLog('ToggleFullscreen');
   fLog.AppendLog('Form Width/Height: '+inttostr(FormMain.Width)+':'+inttostr(FormMain.Height));

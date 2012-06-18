@@ -323,7 +323,6 @@ type
   public
     constructor Create(aScreenX, aScreenY: Word; aMultiplayer: Boolean); reintroduce;
     destructor Destroy; override;
-    procedure Resize(X,Y: Word);
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
     procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
@@ -346,16 +345,18 @@ type
     procedure AlliesOnPingInfo(Sender: TObject);
     procedure AlliesTeamChange(Sender: TObject);
 
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
+    procedure SaveMapview(SaveStream: TKMemoryStream);
+    procedure LoadMapview(LoadStream: TKMemoryStream);
+
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
     procedure KeyUp(Key:Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
-    procedure Save(SaveStream: TKMemoryStream);
-    procedure Load(LoadStream: TKMemoryStream);
-    procedure SaveMapview(SaveStream: TKMemoryStream);
-    procedure LoadMapview(LoadStream: TKMemoryStream);
+    procedure Resize(X,Y: Word); override;
     procedure UpdateState(aTickCount: Cardinal); override;
   end;
 
@@ -524,7 +525,7 @@ procedure TKMGamePlayInterface.Menu_Load_Click(Sender: TObject);
 begin
   if not InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
-  fGameApp.StartSingleSave(fSaves[List_Load.ItemIndex].FileName);
+  fGameApp.NewSingleSave(fSaves[List_Load.ItemIndex].FileName);
 end;
 
 
@@ -2746,7 +2747,7 @@ begin
   else
     Label_Menu_Track.Caption := fGameApp.MusicLib.GetTrackTitle;
 
-  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME], [FormatDateTime('h:nn:ss', fGameG.GetMissionTime)]);
+  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME], [FormatDateTime('h:nn:ss', fGameG.MissionTime)]);
 
   Label_Menu_Track.Enabled      := not fGameApp.GlobalSettings.MusicOff;
   Button_Menu_TrackUp.Enabled   := not fGameApp.GlobalSettings.MusicOff;
@@ -2835,7 +2836,7 @@ begin
   //With slow GPUs it will keep old values till next frame, that can take some seconds
   //Thats why we refresh Clock.Caption here
   if aSpeed <> 1 then
-    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGameG.GetMissionTime);
+    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGameG.MissionTime);
 end;
 
 
@@ -3637,14 +3638,14 @@ begin
   if fGameG.IsReplay then
   begin
     PercentBar_Replay.Position := EnsureRange(Round(fGameG.GameTickCount / fGameG.GameInputProcess.GetLastTick * 100), 0, 100);
-    Label_Replay.Caption := FormatDateTime('hh:nn:ss', fGameG.GetMissionTime) + ' / ' +
+    Label_Replay.Caption := FormatDateTime('hh:nn:ss', fGameG.MissionTime) + ' / ' +
                             FormatDateTime('hh:nn:ss', fGameG.GameInputProcess.GetLastTick/24/60/60/10);
   end;
 
   //Update speedup clocks
   if Image_Clock.Visible then begin
     Image_Clock.TexID := ((Image_Clock.TexID - 556) + 1) mod 16 + 556;
-    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGameG.GetMissionTime);
+    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGameG.MissionTime);
   end;
 
   //Keep on updating these menu pages as game data keeps on changing

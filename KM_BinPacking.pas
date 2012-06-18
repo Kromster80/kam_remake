@@ -1,7 +1,7 @@
 unit KM_BinPacking;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Types;
+uses Classes, Math, Types;
 
 type
   TBinRect = record X, Y, Width, Height: Word; end;
@@ -38,6 +38,7 @@ type
   end;
 
   TBinManager = class
+  private
     fWidth: Word;
     fHeight: Word;
     fPad: Byte;
@@ -246,7 +247,7 @@ var
   B: TBin;
 begin
   //Check all Bins (older Bins may still have space for small items)
-  for I := 0 to fBins.Count - 1 do
+  for I := Max(fBins.Count - 5, 0) to fBins.Count - 1 do
   begin
     //Try to insert into a bin
     B := TBin(fBins[I]).Insert(aItem);

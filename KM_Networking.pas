@@ -136,7 +136,7 @@ type
     procedure ConsoleCommand(aText:string);
     procedure PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
     procedure PostLocalMessage(aText:string; aMakeSound:boolean=true);
-    procedure SendMPGameInfo(aGameTime:TDateTime; aMap:string);
+    procedure AnnounceGameInfo(aGameTime: TDateTime; aMap: string);
 
     //Gameplay
     property MapInfo:TKMapInfo read fMapInfo;
@@ -685,7 +685,7 @@ begin
 end;
 
 
-procedure TKMNetworking.SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
+procedure TKMNetworking.SendPlayerListAndRefreshPlayersSetup(aPlayerIndex: Integer = NET_ADDRESS_OTHERS);
 var i:integer;
 begin
   Assert(IsHost, 'Only host can send player list');
@@ -1370,7 +1370,7 @@ begin
 end;
 
 
-procedure TKMNetworking.SetGameState(aState:TNetGameState);
+procedure TKMNetworking.SetGameState(aState: TNetGameState);
 begin
   fNetGameState := aState;
   if (fNetGameState in [lgs_Lobby,lgs_Loading,lgs_Game]) and IsHost and (fMyIndexOnServer <> -1) then
@@ -1378,26 +1378,32 @@ begin
 end;
 
 
-procedure TKMNetworking.SendMPGameInfo(aGameTime:TDateTime; aMap:string);
+//Tell the MasterServer what we know about the game
+procedure TKMNetworking.AnnounceGameInfo(aGameTime: TDateTime; aMap: string);
 var MPGameInfo: TMPGameInfo;
 begin
-  if not IsHost then exit;
+  //Only one player per game should send the info - Host
+  if not IsHost then Exit;
+
   MPGameInfo := TMPGameInfo.Create;
-  if (fNetGameState in [lgs_Lobby,lgs_Loading]) then
-  begin
-    if GameInfo <> nil then
-      aMap := GameInfo.Title
-    else
-      aMap := '';
+  try
+    if (fNetGameState in [lgs_Lobby, lgs_Loading]) then
+    begin
+      if GameInfo <> nil then
+        aMap := GameInfo.Title
+      else
+        aMap := '';
+    end;
+    if (fNetGameState in [lgs_Lobby,lgs_Loading]) then aGameTime := -1;
+    MPGameInfo.Map := aMap;
+    MPGameInfo.GameTime := aGameTime;
+    MPGameInfo.GameState := NetMPGameState[fNetGameState];
+    MPGameInfo.Players := fNetPlayers.GetSimpleAsText;
+    MPGameInfo.PlayerCount := fNetPlayers.GetConnectedCount;
+    PacketSend(NET_ADDRESS_SERVER,mk_SetGameInfo,MPGameInfo.GetAsText,0);
+  finally
+    MPGameInfo.Free;
   end;
-  if (fNetGameState in [lgs_Lobby,lgs_Loading]) then aGameTime := -1;
-  MPGameInfo.Map := aMap;
-  MPGameInfo.GameTime := aGameTime;
-  MPGameInfo.GameState := NetMPGameState[fNetGameState];
-  MPGameInfo.Players := fNetPlayers.GetSimpleAsText;
-  MPGameInfo.PlayerCount := fNetPlayers.GetConnectedCount;
-  PacketSend(NET_ADDRESS_SERVER,mk_SetGameInfo,MPGameInfo.GetAsText,0);
-  MPGameInfo.Free;
 end;
 
 

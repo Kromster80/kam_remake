@@ -60,7 +60,7 @@ type
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
-    procedure MainMenu_ReplayLastMap(Sender: TObject);
+    procedure Results_RepeatLastMap(Sender: TObject);
     procedure Campaign_FillList;
     procedure Campaign_ListChange(Sender: TObject);
     procedure Campaign_Set(aCampaign: TKMCampaign);
@@ -332,21 +332,21 @@ type
       Image_ResultsRosette:array[0..MAX_PLAYERS-1, 0..9] of TKMImage;
       Button_ResultsMPBack:TKMButton;
   public
-    constructor Create(X,Y:word);
+    constructor Create(X,Y: Word);
     destructor Destroy; override;
-    procedure Resize(X,Y:word);
-    procedure ShowScreen(aScreen: TMenuScreen; const aText: string=''; aMsg: TGameResultMsg=gr_Silent);
-    procedure AppendLoadingText(const aText:string);
+    procedure ShowScreen(aScreen: TMenuScreen; const aText: string = ''; aMsg: TGameResultMsg=gr_Silent);
+    procedure AppendLoadingText(const aText: string);
     procedure Results_Fill;
     procedure ResultsMP_Fill;
-    function GetChatText:string;
-    function GetChatMessages:string;
+    function GetChatText: string;
+    function GetChatMessages: string;
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
     procedure KeyUp(Key:Word; Shift: TShiftState); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
+    procedure Resize(X,Y: Word); override;
     procedure UpdateState(aTickCount: Cardinal); override;
   end;
 
@@ -551,7 +551,7 @@ begin
     Label_Stat[6].Caption := inttostr(GetCitizensTrained);
     Label_Stat[7].Caption := inttostr(GetWeaponsProduced);
     Label_Stat[8].Caption := inttostr(GetWarriorsTrained);
-    Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGameG.GetMissionTime);
+    Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGameG.MissionTime);
   end;
 
   if DISPLAY_CHARTS_RESULT then
@@ -585,6 +585,7 @@ begin
     for R := WARE_MIN to WARE_MAX do
       Graph_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
 
+    Button_Graph2.Enabled := (fGameG.MissionMode = mm_Normal);
     Results_GraphToggle(Button_Graph1);
   end;
 end;
@@ -600,40 +601,49 @@ begin
 
   Button_Graph1.Down := Sender = Button_Graph1;
   Button_Graph2.Down := Sender = Button_Graph2;
-  Button_Graph2.Enabled := fGameG.MissionMode = mm_Normal;
 end;
 
 
 procedure TKMMainMenuInterface.ResultsMP_Fill;
 var
-  i,k: Integer;
+  I,K: Integer;
   UnitsMax, HousesMax, GoodsMax, WeaponsMax, MaxValue: Integer;
-  Bests: array[0..9] of Cardinal;
-  Totals: array[0..9] of Cardinal;
+  Bests: array [0..9] of Cardinal;
+  Totals: array [0..9] of Cardinal;
 begin
-  Label_ResultsMPTime.Caption := fGameG.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGameG.GetMissionTime);
+  Label_ResultsMPTime.Caption := fGameG.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGameG.MissionTime);
 
   //Update visibility depending on players count
-  for i:=0 to MAX_PLAYERS-1 do
+  for I := 0 to MAX_PLAYERS - 1 do
   begin
-    Label_ResultsPlayerName1[i].Visible := (i <= fPlayers.Count-1);
-    Label_ResultsPlayerName2[i].Visible := (i <= fPlayers.Count-1);
-    for k:=0 to 9 do
+    Label_ResultsPlayerName1[I].Visible := (I < fPlayers.Count);
+    Label_ResultsPlayerName2[I].Visible := (I < fPlayers.Count);
+    for K := 0 to 9 do
     begin
-      Bar_Results[i,k].Visible := (i <= fPlayers.Count-1);
-      Image_ResultsRosette[i,k].Visible := (i <= fPlayers.Count-1);
+      Bar_Results[I,K].Visible := (I < fPlayers.Count);
+      Image_ResultsRosette[I,K].Visible := (I < fPlayers.Count);
     end;
   end;
 
-  ZeroMemory(@Bests,SizeOf(Bests));
+  //Update positioning
+  Panel_StatsMP1.Height := 40 + fPlayers.Count * 22;
+  Panel_StatsMP2.Height := 40 + fPlayers.Count * 22;
+
+  Panel_StatsMP1.Top := 134 + (520 - Panel_StatsMP1.Height * 2) div 2 -
+                        (768 - Min(Panel_ResultsMP.Height,768)) div 2; //Manually apply anchoring
+  //Second panel does not move from the middle of the screen: results always go above and below the middle
+
+  //Calculate best scores
+  ZeroMemory(@Bests, SizeOf(Bests));
   //These are a special case: Less is better so we initialized them high
   Bests[1] := High(Cardinal);
   Bests[3] := High(Cardinal);
   Bests[6] := High(Cardinal);
-  ZeroMemory(@Totals,SizeOf(Totals));
+  ZeroMemory(@Totals, SizeOf(Totals));
+
   //Calculate bests for each "section"
-  for i:=0 to fPlayers.Count-1 do
-    with fPlayers[i].Stats do
+  for I := 0 to fPlayers.Count - 1 do
+    with fPlayers[I].Stats do
     begin
       if Bests[0] < GetCitizensTrained then Bests[0] := GetCitizensTrained;
       if Bests[1] > GetCitizensLost    then Bests[1] := GetCitizensLost;
@@ -645,93 +655,88 @@ begin
       if Bests[7] < GetHousesDestroyed then Bests[7] := GetHousesDestroyed;
       if Bests[8] < GetGoodsProduced   then Bests[8] := GetGoodsProduced;
       if Bests[9] < GetWeaponsProduced then Bests[9] := GetWeaponsProduced;
-      inc(Totals[0],GetCitizensTrained);
-      inc(Totals[1],GetCitizensLost);
-      inc(Totals[2],GetWarriorsTrained);
-      inc(Totals[3],GetWarriorsLost);
-      inc(Totals[4],GetCitizensKilled + GetWarriorsKilled);
-      inc(Totals[5],GetHousesBuilt);
-      inc(Totals[6],GetHousesLost);
-      inc(Totals[7],GetHousesDestroyed);
-      inc(Totals[8],GetGoodsProduced);
-      inc(Totals[9],GetWeaponsProduced);
+
+      //If Totals is 0 the category skipped and does not have "Best" icon on it
+      inc(Totals[0], GetCitizensTrained);
+      inc(Totals[1], GetCitizensLost);
+      inc(Totals[2], GetWarriorsTrained);
+      inc(Totals[3], GetWarriorsLost);
+      inc(Totals[4], GetCitizensKilled + GetWarriorsKilled);
+      inc(Totals[5], GetHousesBuilt);
+      inc(Totals[6], GetHousesLost);
+      inc(Totals[7], GetHousesDestroyed);
+      inc(Totals[8], GetGoodsProduced);
+      inc(Totals[9], GetWeaponsProduced);
     end;
 
-  //Update positioning
-  Panel_StatsMP1.Height := 40 + fPlayers.Count * 22;
-  Panel_StatsMP2.Height := 40 + fPlayers.Count * 22;
-
-  Panel_StatsMP1.Top := 134 + (520 - Panel_StatsMP1.Height * 2) div 2 -
-                        (768 - Min(Panel_ResultsMP.Height,768)) div 2; //Manually apply anchoring
-  //Second panel does not move from the middle of the screen: results always go above and below the middle
-
   //Fill in raw values
-  for i:=0 to fPlayers.Count-1 do
+  for I := 0 to fPlayers.Count - 1 do
   begin
-    Label_ResultsPlayerName1[i].Caption   := fPlayers[i].PlayerName;
-    Label_ResultsPlayerName1[i].FontColor := FlagColorToTextColor(fPlayers[i].FlagColor);
-    Label_ResultsPlayerName2[i].Caption   := fPlayers[i].PlayerName;
-    Label_ResultsPlayerName2[i].FontColor := FlagColorToTextColor(fPlayers[i].FlagColor);
+    Label_ResultsPlayerName1[I].Caption   := fPlayers[I].PlayerName;
+    Label_ResultsPlayerName1[I].FontColor := FlagColorToTextColor(fPlayers[I].FlagColor);
+    Label_ResultsPlayerName2[I].Caption   := fPlayers[I].PlayerName;
+    Label_ResultsPlayerName2[I].FontColor := FlagColorToTextColor(fPlayers[I].FlagColor);
 
-    with fPlayers[i].Stats do
+    with fPlayers[I].Stats do
     begin
       //Living things
-      Bar_Results[i,0].Tag := GetCitizensTrained;
-      Bar_Results[i,1].Tag := GetCitizensLost;
-      Bar_Results[i,2].Tag := GetWarriorsTrained;
-      Bar_Results[i,3].Tag := GetWarriorsLost;
-      Bar_Results[i,4].Tag := GetCitizensKilled + GetWarriorsKilled;
-      Image_ResultsRosette[i,0].Visible := (GetCitizensTrained >= Bests[0]) and (Totals[0] > 0);
-      Image_ResultsRosette[i,1].Visible := (GetCitizensLost    <= Bests[1]) and (Totals[1] > 0);
-      Image_ResultsRosette[i,2].Visible := (GetWarriorsTrained >= Bests[2]) and (Totals[2] > 0);
-      Image_ResultsRosette[i,3].Visible := (GetWarriorsLost    <= Bests[3]) and (Totals[3] > 0);
-      Image_ResultsRosette[i,4].Visible := (GetCitizensKilled + GetWarriorsKilled >= Bests[4]) and (Totals[4] > 0);
+      Bar_Results[I,0].Tag := GetCitizensTrained;
+      Bar_Results[I,1].Tag := GetCitizensLost;
+      Bar_Results[I,2].Tag := GetWarriorsTrained;
+      Bar_Results[I,3].Tag := GetWarriorsLost;
+      Bar_Results[I,4].Tag := GetCitizensKilled + GetWarriorsKilled;
+      Image_ResultsRosette[I,0].Visible := (GetCitizensTrained >= Bests[0]) and (Totals[0] > 0);
+      Image_ResultsRosette[I,1].Visible := (GetCitizensLost    <= Bests[1]) and (Totals[1] > 0);
+      Image_ResultsRosette[I,2].Visible := (GetWarriorsTrained >= Bests[2]) and (Totals[2] > 0);
+      Image_ResultsRosette[I,3].Visible := (GetWarriorsLost    <= Bests[3]) and (Totals[3] > 0);
+      Image_ResultsRosette[I,4].Visible := (GetCitizensKilled + GetWarriorsKilled >= Bests[4]) and (Totals[4] > 0);
       //Objects
-      Bar_Results[i,5].Tag := GetHousesBuilt;
-      Bar_Results[i,6].Tag := GetHousesLost;
-      Bar_Results[i,7].Tag := GetHousesDestroyed;
-      Bar_Results[i,8].Tag := GetGoodsProduced;
-      Bar_Results[i,9].Tag := GetWeaponsProduced;
-      Image_ResultsRosette[i,5].Visible := (GetHousesBuilt     >= Bests[5]) and (Totals[5] > 0);
-      Image_ResultsRosette[i,6].Visible := (GetHousesLost      <= Bests[6]) and (Totals[6] > 0);
-      Image_ResultsRosette[i,7].Visible := (GetHousesDestroyed >= Bests[7]) and (Totals[7] > 0);
-      Image_ResultsRosette[i,8].Visible := (GetGoodsProduced   >= Bests[8]) and (Totals[8] > 0);
-      Image_ResultsRosette[i,9].Visible := (GetWeaponsProduced >= Bests[9]) and (Totals[9] > 0);
+      Bar_Results[I,5].Tag := GetHousesBuilt;
+      Bar_Results[I,6].Tag := GetHousesLost;
+      Bar_Results[I,7].Tag := GetHousesDestroyed;
+      Bar_Results[I,8].Tag := GetGoodsProduced;
+      Bar_Results[I,9].Tag := GetWeaponsProduced;
+      Image_ResultsRosette[I,5].Visible := (GetHousesBuilt     >= Bests[5]) and (Totals[5] > 0);
+      Image_ResultsRosette[I,6].Visible := (GetHousesLost      <= Bests[6]) and (Totals[6] > 0);
+      Image_ResultsRosette[I,7].Visible := (GetHousesDestroyed >= Bests[7]) and (Totals[7] > 0);
+      Image_ResultsRosette[I,8].Visible := (GetGoodsProduced   >= Bests[8]) and (Totals[8] > 0);
+      Image_ResultsRosette[I,9].Visible := (GetWeaponsProduced >= Bests[9]) and (Totals[9] > 0);
     end;
   end;
 
-  //Update percent bars
+  //Update percent bars for each category
   UnitsMax := 0;
-  for k:=0 to 4 do for i:=0 to fPlayers.Count-1 do
-    UnitsMax := Max(Bar_Results[i,k].Tag, UnitsMax);
+  for K := 0 to 4 do for I := 0 to fPlayers.Count - 1 do
+    UnitsMax := Max(Bar_Results[I,K].Tag, UnitsMax);
 
   HousesMax := 0;
-  for k:=5 to 7 do for i:=0 to fPlayers.Count-1 do
-    HousesMax := Max(Bar_Results[i,k].Tag, HousesMax);
+  for K := 5 to 7 do for I := 0 to fPlayers.Count - 1 do
+    HousesMax := Max(Bar_Results[I,K].Tag, HousesMax);
 
   GoodsMax := 0;
-  for i:=0 to fPlayers.Count-1 do
-    GoodsMax := Max(Bar_Results[i,8].Tag, GoodsMax);
+  for I := 0 to fPlayers.Count - 1 do
+    GoodsMax := Max(Bar_Results[I,8].Tag, GoodsMax);
 
   WeaponsMax := 0;
-  for i:=0 to fPlayers.Count-1 do
-    WeaponsMax := Max(Bar_Results[i,9].Tag, WeaponsMax);
+  for I := 0 to fPlayers.Count - 1 do
+    WeaponsMax := Max(Bar_Results[I,9].Tag, WeaponsMax);
 
-  for k:=0 to 9 do
+  //Knowing Max in each category we may fill bars properly
+  for K := 0 to 9 do
   begin
-    case k of
+    case K of
       0..4: MaxValue := UnitsMax;
       5..7: MaxValue := HousesMax;
       8:    MaxValue := GoodsMax;
       else  MaxValue := WeaponsMax;
     end;
-    for i:=0 to fPlayers.Count-1 do
+    for I := 0 to fPlayers.Count - 1 do
     begin
       if MaxValue <> 0 then
-        Bar_Results[i,k].Position := Round(Bar_Results[i,k].Tag / MaxValue * 100)
+        Bar_Results[I,K].Position := Round(Bar_Results[I,K].Tag / MaxValue * 100)
       else
-        Bar_Results[i,k].Position := 0;
-      Bar_Results[i,k].Caption := IfThen(Bar_Results[i,k].Tag <> 0, IntToStr(Bar_Results[i,k].Tag), '-');
+        Bar_Results[I,K].Position := 0;
+      Bar_Results[I,K].Caption := IfThen(Bar_Results[I,K].Tag <> 0, IntToStr(Bar_Results[I,K].Tag), '-');
     end;
   end;
 end;
@@ -1539,7 +1544,7 @@ begin
     Button_ResultsBack.OnClick := SwitchMenuPage;
     Button_ResultsRepeat := TKMButton.Create(Panel_Results,320,610,220,30,fTextLibrary[TX_MENU_MISSION_REPEAT],fnt_Metal,bsMenu);
     Button_ResultsRepeat.Anchors := [akLeft];
-    Button_ResultsRepeat.OnClick := MainMenu_ReplayLastMap;
+    Button_ResultsRepeat.OnClick := Results_RepeatLastMap;
     Button_ResultsContinue := TKMButton.Create(Panel_Results,560,610,220,30,fTextLibrary[TX_MENU_MISSION_NEXT],fnt_Metal,bsMenu);
     Button_ResultsContinue.Anchors := [akLeft];
     Button_ResultsContinue.OnClick := SwitchMenuPage;
@@ -1795,19 +1800,19 @@ end;
 
 procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
 begin
-  fGameApp.StartSingleMap(ExeDir + 'Tutorials\Town Tutorial\Town Tutorial.dat', fTextLibrary[TX_MENU_TUTORIAL_TOWN]);
+  fGameApp.NewSingleMap(ExeDir + 'Tutorials\Town Tutorial\Town Tutorial.dat', fTextLibrary[TX_MENU_TUTORIAL_TOWN]);
 end;
 
 
 procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
 begin
-  fGameApp.StartSingleMap(ExeDir + 'Tutorials\Battle Tutorial\Battle Tutorial.dat', fTextLibrary[TX_MENU_TUTORIAL_BATTLE]);
+  fGameApp.NewSingleMap(ExeDir + 'Tutorials\Battle Tutorial\Battle Tutorial.dat', fTextLibrary[TX_MENU_TUTORIAL_BATTLE]);
 end;
 
 
-procedure TKMMainMenuInterface.MainMenu_ReplayLastMap(Sender: TObject);
+procedure TKMMainMenuInterface.Results_RepeatLastMap(Sender: TObject);
 begin
-  fGameApp.StartLastGame; //Means replay last map
+  fGameApp.NewRestartLast; //Means replay last map
 end;
 
 
@@ -1896,7 +1901,7 @@ end;
 
 procedure TKMMainMenuInterface.Campaign_StartMap(Sender: TObject);
 begin
-  fGameApp.StartCampaignMap(Campaign_Selected, Campaign_MapIndex);
+  fGameApp.NewCampaignMap(Campaign_Selected, Campaign_MapIndex);
 end;
 
 
@@ -2035,7 +2040,7 @@ begin
   if not InRange(fMap_Selected, 0, fMaps.Count-1) then exit; //Some odd index
   //scan should be terminated, as it is no longer needed
   fMaps.TerminateScan;
-  fGameApp.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].FileName,'dat',false),fMaps[fMap_Selected].FileName); //Provide mission FileName mask and title here
+  fGameApp.NewSingleMap(MapNameToPath(fMaps[fMap_Selected].FileName,'dat',false),fMaps[fMap_Selected].FileName); //Provide mission FileName mask and title here
 end;
 
 
@@ -2113,8 +2118,8 @@ begin
   fGameApp.Networking.OnGameOptions  := Lobby_OnGameOptions;
   fGameApp.Networking.OnMapName      := Lobby_OnMapName;
   fGameApp.Networking.OnPingInfo     := Lobby_OnPingInfo;
-  fGameApp.Networking.OnStartMap     := fGameApp.StartMultiplayerMap;
-  fGameApp.Networking.OnStartSave    := fGameApp.StartMultiplayerSave;
+  fGameApp.Networking.OnStartMap     := fGameApp.NewMultiplayerMap;
+  fGameApp.Networking.OnStartSave    := fGameApp.NewMultiplayerSave;
   fGameApp.Networking.OnDisconnect   := Lobby_OnDisconnect;
   fGameApp.Networking.OnReassignedHost := Lobby_OnReassignedToHost;
 end;
@@ -3016,7 +3021,7 @@ begin
   if not Button_Load.Enabled then exit; //This is also called by double clicking
   if not InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then Exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
-  fGameApp.StartSingleSave(fSaves[List_Load.ItemIndex].FileName);
+  fGameApp.NewSingleSave(fSaves[List_Load.ItemIndex].FileName);
 end;
 
 
@@ -3218,7 +3223,7 @@ begin
   if not Button_ReplaysPlay.Enabled then exit; //This is also called by double clicking
   if not InRange(List_Replays.ItemIndex, 0, fSaves.Count-1) then Exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
-  fGameApp.StartReplay(fSaves[List_Replays.ItemIndex].FileName);
+  fGameApp.NewReplay(fSaves[List_Replays.ItemIndex].FileName);
 end;
 
 
@@ -3226,14 +3231,14 @@ procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
 var MapName: string;
 begin
   if Sender = Button_MapEd_Create then
-    fGameApp.StartMapEditor('', MapEdSizeX, MapEdSizeY);
+    fGameApp.NewMapEditor('', MapEdSizeX, MapEdSizeY);
 
   //This is also called by double clicking on a map in the list
   if ((Sender = Button_MapEd_Load) or (Sender = List_MapEd)) and
      Button_MapEd_Load.Enabled and (List_MapEd.ItemIndex <> -1) then
   begin
     MapName := MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1);
-    fGameApp.StartMapEditor(MapName, 0, 0);
+    fGameApp.NewMapEditor(MapName, 0, 0);
   end;
 end;
 
