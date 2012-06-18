@@ -347,7 +347,7 @@ begin
   end;
 
   if Sender = Button_Menu_Save then begin
-    Edit_SaveName.Text := fGame.GameName;
+    Edit_SaveName.Text := fGameG.GameName;
     Menu_Save(Edit_SaveName);
     Panel_Save.Show;
   end;

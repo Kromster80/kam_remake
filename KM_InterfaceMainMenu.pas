@@ -352,7 +352,7 @@ type
 
 
 implementation
-uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_Locales,
+uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_GameApp, KM_PlayersCollection, KM_Locales,
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_Resource;
 
 const
@@ -497,7 +497,7 @@ begin
                   Button_ResultsRepeat.Enabled := aMsg in [gr_Defeat, gr_Cancel];
 
                   //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
-                  Button_ResultsContinue.Visible := (fGame.Campaigns.ActiveCampaign <> nil) and (aMsg <> gr_ReplayEnd);
+                  Button_ResultsContinue.Visible := (fGameApp.Campaigns.ActiveCampaign <> nil) and (aMsg <> gr_ReplayEnd);
                   Button_ResultsContinue.Enabled := aMsg = gr_Win;
 
                   SwitchMenuPage(Panel_Results);
@@ -551,7 +551,7 @@ begin
     Label_Stat[6].Caption := inttostr(GetCitizensTrained);
     Label_Stat[7].Caption := inttostr(GetWeaponsProduced);
     Label_Stat[8].Caption := inttostr(GetWarriorsTrained);
-    Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
+    Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGameG.GetMissionTime);
   end;
 
   if DISPLAY_CHARTS_RESULT then
@@ -565,10 +565,10 @@ begin
     Graph_Houses.MaxLength    := MyPlayer.Stats.GraphCount;
     Graph_Wares.MaxLength     := MyPlayer.Stats.GraphCount;
 
-    Graph_Army.MaxTime      := fGame.GameTickCount div 10;
-    Graph_Citizens.MaxTime  := fGame.GameTickCount div 10;
-    Graph_Houses.MaxTime    := fGame.GameTickCount div 10;
-    Graph_Wares.MaxTime     := fGame.GameTickCount div 10;
+    Graph_Army.MaxTime      := fGameG.GameTickCount div 10;
+    Graph_Citizens.MaxTime  := fGameG.GameTickCount div 10;
+    Graph_Houses.MaxTime    := fGameG.GameTickCount div 10;
+    Graph_Wares.MaxTime     := fGameG.GameTickCount div 10;
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
@@ -600,7 +600,7 @@ begin
 
   Button_Graph1.Down := Sender = Button_Graph1;
   Button_Graph2.Down := Sender = Button_Graph2;
-  Button_Graph2.Enabled := fGame.MissionMode = mm_Normal;
+  Button_Graph2.Enabled := fGameG.MissionMode = mm_Normal;
 end;
 
 
@@ -611,7 +611,7 @@ var
   Bests: array[0..9] of Cardinal;
   Totals: array[0..9] of Cardinal;
 begin
-  Label_ResultsMPTime.Caption := fGame.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
+  Label_ResultsMPTime.Caption := fGameG.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGameG.GetMissionTime);
 
   //Update visibility depending on players count
   for i:=0 to MAX_PLAYERS-1 do
@@ -1904,7 +1904,7 @@ end;
 procedure TKMMainMenuInterface.Credits_LinkClick(Sender: TObject);
 
   //This can't be moved to e.g. KM_Utils because the dedicated server needs that, and it must be Linux compatible
-  procedure GoToURL(aUrl:string);
+  procedure GoToURL(aUrl: string);
   begin
     {$IFDEF WDC}
     ShellExecute(Application.Handle, 'open', PChar(aUrl),nil,nil, SW_SHOWNORMAL);

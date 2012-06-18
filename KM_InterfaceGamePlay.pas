@@ -361,7 +361,7 @@ type
 
 implementation
 uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi,
-  KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game, KM_Utils, KM_Locales,
+  KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game,  KM_GameApp, KM_Utils, KM_Locales,
   KM_Sound, KM_Resource, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
 
@@ -427,7 +427,7 @@ begin
   RT := ResRatioType[RatioTab];
   HT := ResRatioHouse[RatioTab, TKMTrackBar(Sender).Tag];
 
-  fGame.GameInputProcess.CmdRatio(gic_RatioChange, RT, HT, TKMTrackBar(Sender).Position);
+  fGameG.GameInputProcess.CmdRatio(gic_RatioChange, RT, HT, TKMTrackBar(Sender).Position);
 end;
 
 
@@ -451,7 +451,7 @@ begin
   begin
     List_Save.ItemIndex := -1;
     fSave_Selected := -1;
-    CheckBox_SaveExists.Enabled := FileExists(fGame.SaveName(Edit_Save.Text, 'sav', fGame.MultiplayerMode));
+    CheckBox_SaveExists.Enabled := FileExists(fGameG.SaveName(Edit_Save.Text, 'sav', fGameG.IsMultiplayer));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := False;
     //we should protect ourselves from empty names and whitespaces at beggining and at end of name
@@ -475,7 +475,7 @@ begin
   if fSaves.ScanFinished then
   begin
     if LastSaveName = '' then
-      Edit_Save.Text := fGame.GameName
+      Edit_Save.Text := fGameG.GameName
     else
       Edit_Save.Text := LastSaveName;
   end;
@@ -496,11 +496,11 @@ end;
 procedure TKMGamePlayInterface.Menu_Save_Click(Sender: TObject);
 begin
   LastSaveName := Edit_Save.Text; //Do this before saving so it is included in the save
-  if fGame.MultiplayerMode then
+  if fGameG.IsMultiplayer then
     //Don't tell everyone in the game that we are saving yet, as the command hasn't been processed
-    fGame.GameInputProcess.CmdGame(gic_GameSave, Edit_Save.Text)
+    fGameG.GameInputProcess.CmdGame(gic_GameSave, Edit_Save.Text)
   else
-    fGame.Save(Edit_Save.Text);
+    fGameG.Save(Edit_Save.Text);
 
   fSaves.TerminateScan; //stop scan as it is no longer needed
   SwitchPage(nil); //Close save menu after saving
@@ -523,7 +523,7 @@ procedure TKMGamePlayInterface.Menu_Load_Click(Sender: TObject);
 begin
   if not InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
-  fGame.StartSingleSave(fSaves[List_Load.ItemIndex].FileName);
+  fGameApp.StartSingleSave(fSaves[List_Load.ItemIndex].FileName);
 end;
 
 
@@ -579,7 +579,7 @@ begin
 
   //If they just closed settings then we should save them (if something has changed)
   if LastVisiblePage = Panel_Settings then
-    fGame.GlobalSettings.SaveSettings;
+    fGameApp.GlobalSettings.SaveSettings;
 
   //Ensure, that saves scanning will be stopped when user leaves save/load page
   if (LastVisiblePage = Panel_Save) or (LastVisiblePage = Panel_Load) then
@@ -631,7 +631,7 @@ begin
     fSaves.TerminateScan;
     Menu_Save_RefreshList(nil); //need to call it at last one time to setup GUI even if there are no saves
     //Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Save_RefreshList, fGame.MultiplayerMode);
+    fSaves.Refresh(Menu_Save_RefreshList, fGameG.IsMultiplayer);
     Panel_Save.Show;
     fMyControls.CtrlFocus := Edit_Save;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_SAVE_GAME];
@@ -643,7 +643,7 @@ begin
     fSaves.TerminateScan;
     Menu_Load_RefreshList(nil); //need to call it at least one time to setup GUI even if there are no saves
     //Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Load_RefreshList, fGame.MultiplayerMode);
+    fSaves.Refresh(Menu_Load_RefreshList, fGameG.IsMultiplayer);
     Panel_Load.Show;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_LOAD_GAME];
   end else
@@ -684,8 +684,8 @@ end;
 {Update minimap data}
 procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject; const X,Y:integer);
 begin
-  fGame.Viewport.Position := KMPointF(X,Y);
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  fGameG.Viewport.Position := KMPointF(X,Y);
+  Minimap.ViewArea := fGameG.Viewport.GetMinimapClip;
 end;
 
 
@@ -700,7 +700,7 @@ begin
   if (fShownUnit is TKMUnitWarrior) and (not fJoiningGroups)
   and fShownUnit.CanWalkTo(KMP, 0) then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), KMP, TKMUnitWarrior(fShownUnit).Direction);
+    fGameG.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), KMP, TKMUnitWarrior(fShownUnit).Direction);
     fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
   end;
 end;
@@ -724,7 +724,7 @@ begin
   LastSchoolUnit   := 0;
   LastBarracksUnit := 0;
   fMessageList := TKMMessageList.Create;
-  fSaves := TKMSavesCollection.Create(fGame.MultiplayerMode);
+  fSaves := TKMSavesCollection.Create(fGameG.IsMultiplayer);
 
 {Parent Page for whole toolbar in-game}
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
@@ -936,7 +936,7 @@ begin
   for I := 0 to MAX_VISIBLE_MSGS do
   begin
     Image_Message[I] := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,0,30,48,495);
-    Image_Message[I].Top := Panel_Main.Height - (I+1)*48 - IfThen(fGame.MultiplayerMode, 48*2);
+    Image_Message[I].Top := Panel_Main.Height - (I+1)*48 - IfThen(fGameG.IsMultiplayer, 48*2);
     Image_Message[I].Anchors := [akLeft, akBottom];
     Image_Message[I].Disable;
     Image_Message[I].Hide;
@@ -1720,7 +1720,7 @@ begin
   Allies_Close(nil);
   Panel_Chat.Show;
   Message_Close(nil);
-  if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team = 0 then
+  if fGameG.Networking.NetPlayers[fGameG.Networking.MyIndex].Team = 0 then
   begin
     CheckBox_SendToAllies.Checked := false;
     CheckBox_SendToAllies.Enabled := false;
@@ -1802,7 +1802,7 @@ end;
 
 procedure TKMGamePlayInterface.Message_GoTo(Sender: TObject);
 begin
-  fGame.Viewport.Position := KMPointF(fMessageList[ShownMessage].Loc);
+  fGameG.Viewport.Position := KMPointF(fMessageList[ShownMessage].Loc);
 end;
 
 
@@ -2159,7 +2159,7 @@ begin
   if not (fPlayers.Selected is TKMHouse) then exit;
 
   if Sender=Button_House_DemolishYes then begin
-    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, TKMHouse(fPlayers.Selected).GetPosition);
+    fGameG.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, TKMHouse(fPlayers.Selected).GetPosition);
     ShowHouseInfo(nil, false); //Simpliest way to reset page and ShownHouse
     SwitchPage(Button_Main[1]); //Return to build menu after demolishing
   end else begin
@@ -2173,7 +2173,7 @@ procedure TKMGamePlayInterface.House_RepairToggle(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouse) then exit;
-  fGame.GameInputProcess.CmdHouse(gic_HouseRepairToggle, TKMHouse(fPlayers.Selected));
+  fGameG.GameInputProcess.CmdHouse(gic_HouseRepairToggle, TKMHouse(fPlayers.Selected));
   case TKMHouse(fPlayers.Selected).BuildingRepair of
     true:   Button_House_Repair.TexID := 39;
     false:  Button_House_Repair.TexID := 40;
@@ -2186,7 +2186,7 @@ begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouse) then exit;
 
-  fGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(fPlayers.Selected));
+  fGameG.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(fPlayers.Selected));
   case TKMHouse(fPlayers.Selected).WareDelivery of
     true:   Button_House_Goods.TexID := 37;
     false:  Button_House_Goods.TexID := 38;
@@ -2206,9 +2206,9 @@ begin
 
   for i:=1 to 4 do begin
     if Sender = ResRow_Order[i].OrderRem then
-      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, TKMHouse(fPlayers.Selected), i, -Amt);
+      fGameG.GameInputProcess.CmdHouse(gic_HouseOrderProduct, TKMHouse(fPlayers.Selected), i, -Amt);
     if Sender = ResRow_Order[i].OrderAdd then
-      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, TKMHouse(fPlayers.Selected), i, Amt);
+      fGameG.GameInputProcess.CmdHouse(gic_HouseOrderProduct, TKMHouse(fPlayers.Selected), i, Amt);
   end;
 end;
 
@@ -2228,7 +2228,7 @@ begin
       WMode := wcm_ChopAndPlant
     else
       WMode := wcm_Chop;
-    fGame.GameInputProcess.CmdHouse(gic_HouseWoodcutterMode, W, WMode);
+    fGameG.GameInputProcess.CmdHouse(gic_HouseWoodcutterMode, W, WMode);
   end;
 
   case W.WoodcutterMode of
@@ -2262,9 +2262,9 @@ begin
 
   if Sender=Button_Barracks_Train then //Equip unit
     if AButton = mbLeft then
-      fGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[LastBarracksUnit], 1)
+      fGameG.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[LastBarracksUnit], 1)
     else if AButton = mbRight then
-      fGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[LastBarracksUnit], 10);
+      fGameG.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[LastBarracksUnit], 10);
 
   for i:=1 to BARRACKS_RES_COUNT do begin
     Tmp := Barracks.CheckResIn(BarracksResType[i]);
@@ -2313,9 +2313,9 @@ begin
 
   if Sender=Button_School_Train then //Add unit to training queue
     if AButton = mbLeft then
-      fGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[LastSchoolUnit], 1)
+      fGameG.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[LastSchoolUnit], 1)
     else if AButton = mbRight then
-      fGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[LastSchoolUnit], 6);
+      fGameG.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[LastSchoolUnit], 6);
 
   if School.UnitQueue[1]<>ut_None then
     Button_School_UnitWIP.TexID := fResource.UnitDat[School.UnitQueue[1]].GUIIcon
@@ -2357,7 +2357,7 @@ end;
 procedure TKMGamePlayInterface.House_SchoolUnitRemove(Sender:TObject);
 begin
   if not (TKMControl(Sender).Tag in [1..6]) then exit;
-  fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, TKMHouseSchool(fPlayers.Selected), TKMControl(Sender).Tag);
+  fGameG.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, TKMHouseSchool(fPlayers.Selected), TKMControl(Sender).Tag);
   House_SchoolUnitChange(nil, mbLeft);
 end;
 
@@ -2368,19 +2368,19 @@ procedure TKMGamePlayInterface.House_StoreAcceptFlag(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouseStore) then exit;
-  fGame.GameInputProcess.CmdHouse(gic_HouseStoreAcceptFlag, TKMHouse(fPlayers.Selected), StoreResType[(Sender as TKMControl).Tag]);
+  fGameG.GameInputProcess.CmdHouse(gic_HouseStoreAcceptFlag, TKMHouse(fPlayers.Selected), StoreResType[(Sender as TKMControl).Tag]);
 end;
 
 
 procedure TKMGamePlayInterface.Menu_Settings_Fill;
 begin
-  TrackBar_Settings_Brightness.Position   := fGame.GlobalSettings.Brightness;
-  CheckBox_Settings_Autosave.Checked      := fGame.GlobalSettings.Autosave;
-  TrackBar_Settings_ScrollSpeed.Position  := fGame.GlobalSettings.ScrollSpeed;
-  TrackBar_Settings_SFX.Position          := Round(fGame.GlobalSettings.SoundFXVolume * TrackBar_Settings_SFX.MaxValue);
-  TrackBar_Settings_Music.Position        := Round(fGame.GlobalSettings.MusicVolume * TrackBar_Settings_Music.MaxValue);
-  CheckBox_Settings_MusicOff.Checked      := fGame.GlobalSettings.MusicOff;
-  CheckBox_Settings_ShuffleOn.Checked     := fGame.GlobalSettings.ShuffleOn;
+  TrackBar_Settings_Brightness.Position   := fGameApp.GlobalSettings.Brightness;
+  CheckBox_Settings_Autosave.Checked      := fGameApp.GlobalSettings.Autosave;
+  TrackBar_Settings_ScrollSpeed.Position  := fGameApp.GlobalSettings.ScrollSpeed;
+  TrackBar_Settings_SFX.Position          := Round(fGameApp.GlobalSettings.SoundFXVolume * TrackBar_Settings_SFX.MaxValue);
+  TrackBar_Settings_Music.Position        := Round(fGameApp.GlobalSettings.MusicVolume * TrackBar_Settings_Music.MaxValue);
+  CheckBox_Settings_MusicOff.Checked      := fGameApp.GlobalSettings.MusicOff;
+  CheckBox_Settings_ShuffleOn.Checked     := fGameApp.GlobalSettings.ShuffleOn;
 
   TrackBar_Settings_Music.Enabled     := not CheckBox_Settings_MusicOff.Checked;
   CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOff.Checked;
@@ -2392,27 +2392,27 @@ var
   MusicToggled, ShuffleToggled: Boolean;
 begin
   //Change these options only if they changed state since last time
-  MusicToggled   := (fGame.GlobalSettings.MusicOff <> CheckBox_Settings_MusicOff.Checked);
-  ShuffleToggled := (fGame.GlobalSettings.ShuffleOn <> CheckBox_Settings_ShuffleOn.Checked);
+  MusicToggled   := (fGameApp.GlobalSettings.MusicOff <> CheckBox_Settings_MusicOff.Checked);
+  ShuffleToggled := (fGameApp.GlobalSettings.ShuffleOn <> CheckBox_Settings_ShuffleOn.Checked);
 
-  fGame.GlobalSettings.Brightness    := TrackBar_Settings_Brightness.Position;
-  fGame.GlobalSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
-  fGame.GlobalSettings.ScrollSpeed   := TrackBar_Settings_ScrollSpeed.Position;
-  fGame.GlobalSettings.SoundFXVolume := TrackBar_Settings_SFX.Position / TrackBar_Settings_SFX.MaxValue;
-  fGame.GlobalSettings.MusicVolume   := TrackBar_Settings_Music.Position / TrackBar_Settings_Music.MaxValue;
-  fGame.GlobalSettings.MusicOff      := CheckBox_Settings_MusicOff.Checked;
-  fGame.GlobalSettings.ShuffleOn     := CheckBox_Settings_ShuffleOn.Checked;
+  fGameApp.GlobalSettings.Brightness    := TrackBar_Settings_Brightness.Position;
+  fGameApp.GlobalSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
+  fGameApp.GlobalSettings.ScrollSpeed   := TrackBar_Settings_ScrollSpeed.Position;
+  fGameApp.GlobalSettings.SoundFXVolume := TrackBar_Settings_SFX.Position / TrackBar_Settings_SFX.MaxValue;
+  fGameApp.GlobalSettings.MusicVolume   := TrackBar_Settings_Music.Position / TrackBar_Settings_Music.MaxValue;
+  fGameApp.GlobalSettings.MusicOff      := CheckBox_Settings_MusicOff.Checked;
+  fGameApp.GlobalSettings.ShuffleOn     := CheckBox_Settings_ShuffleOn.Checked;
 
-  fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume);
-  fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume);
+  fSoundLib.UpdateSoundVolume(fGameApp.GlobalSettings.SoundFXVolume);
+  fGameApp.MusicLib.UpdateMusicVolume(fGameApp.GlobalSettings.MusicVolume);
   if MusicToggled then
   begin
-    fGame.MusicLib.ToggleMusic(not fGame.GlobalSettings.MusicOff);
-    if not fGame.GlobalSettings.MusicOff then
+    fGameApp.MusicLib.ToggleMusic(not fGameApp.GlobalSettings.MusicOff);
+    if not fGameApp.GlobalSettings.MusicOff then
       ShuffleToggled := True; //Re-shuffle songs if music has been enabled
   end;
   if ShuffleToggled then
-    fGame.MusicLib.ToggleShuffle(fGame.GlobalSettings.ShuffleOn);
+    fGameApp.MusicLib.ToggleShuffle(fGameApp.GlobalSettings.ShuffleOn);
 
   TrackBar_Settings_Music.Enabled := not CheckBox_Settings_MusicOff.Checked;
   CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOff.Checked;
@@ -2423,19 +2423,19 @@ end;
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender:TObject);
 begin
   //Show outcome depending on actual situation. By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
-  fGame.Stop(fGame.PlayOnState);
+  fGameApp.Stop(fGameG.PlayOnState);
 end;
 
 
 procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); 
 begin
-  fGame.MusicLib.PlayNextTrack;
+  fGameApp.MusicLib.PlayNextTrack;
 end;
 
 
 procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject);
 begin
-  fGame.MusicLib.PlayPreviousTrack;
+  fGameApp.MusicLib.PlayPreviousTrack;
 end;
 
 
@@ -2456,38 +2456,38 @@ begin
   //if Sender = Button_Army_GoTo    then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_Stop    then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, 0);
+    fGameG.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, 0);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_Halt);
   end;
   //if Sender = Button_Army_Attack  then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_RotCW   then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdCW, 0);
+    fGameG.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdCW, 0);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_RotRight);
   end;
   if Sender = Button_Army_Storm   then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyStorm, Commander);
+    fGameG.GameInputProcess.CmdArmy(gic_ArmyStorm, Commander);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_StormAttack);
   end;
   if Sender = Button_Army_RotCCW  then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdCCW, 0);
+    fGameG.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdCCW, 0);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_RotLeft);
   end;
   if Sender = Button_Army_ForDown then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, 1);
+    fGameG.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, 1);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_Formation);
   end;
   if Sender = Button_Army_ForUp   then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, -1);
+    fGameG.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, -1);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_Formation);
   end;
   if Sender = Button_Army_Split   then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmySplit, Commander);
+    fGameG.GameInputProcess.CmdArmy(gic_ArmySplit, Commander);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_Split);
   end;
   if Sender = Button_Army_Join    then
@@ -2498,7 +2498,7 @@ begin
   end;
   if Sender = Button_Army_Feed    then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyFeed, Commander);
+    fGameG.GameInputProcess.CmdArmy(gic_ArmyFeed, Commander);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_Eat);
   end;
 end;
@@ -2568,9 +2568,9 @@ end;
 
 procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
 begin
-  if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (fGame.Networking <> nil) then
+  if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (fGameG.Networking <> nil) then
   begin
-    fGame.Networking.PostMessage(Edit_ChatMsg.Text, true, CheckBox_SendToAllies.Checked);
+    fGameG.Networking.PostMessage(Edit_ChatMsg.Text, true, CheckBox_SendToAllies.Checked);
     Edit_ChatMsg.Text := '';
   end;
 end;
@@ -2594,26 +2594,26 @@ procedure TKMGamePlayInterface.ReplayClick;
   end;
 begin
   if (Sender = Button_ReplayRestart) then
-    fGame.RestartReplay; //reload it once again
+    fGameG.RestartReplay; //reload it once again
 
   if (Sender = Button_ReplayPause) then begin
-    fGame.SetGameState(gsPaused);
+    fGameG.IsPaused := True;
     SetButtons(false);
   end;
 
   if (Sender = Button_ReplayStep) then begin
-    fGame.StepOneFrame;
-    fGame.SetGameState(gsReplay);
+    fGameG.StepOneFrame;
+    fGameG.IsPaused := False;
     SetButtons(false);
   end;
 
   if (Sender = Button_ReplayResume) then begin
-    fGame.SetGameState(gsReplay);
+    fGameG.IsPaused := False;
     SetButtons(true);
   end;
 
   if (Sender = Button_ReplayExit) then
-    fGame.GameHold(true, gr_ReplayEnd);
+    fGameG.GameHold(true, gr_ReplayEnd);
 end;
 
 
@@ -2698,9 +2698,9 @@ begin
   if AButton = mbRight then Amt := 10;
 
   if Sender = Button_Market_Remove then
-    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -Amt);
+    fGameG.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -Amt);
   if Sender = Button_Market_Add then
-    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, Amt);
+    fGameG.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, Amt);
 end;
 
 
@@ -2715,9 +2715,9 @@ begin
   //todo: We need to tell player that he must cancel previous order first instead of silently refusing
 
   if aButton = mbLeft then
-    fGame.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TResourceType(TKMButtonFlat(Sender).Tag));
+    fGameG.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TResourceType(TKMButtonFlat(Sender).Tag));
   if aButton = mbRight then
-    fGame.GameInputProcess.CmdHouse(gic_HouseMarketTo, M, TResourceType(TKMButtonFlat(Sender).Tag));
+    fGameG.GameInputProcess.CmdHouse(gic_HouseMarketTo, M, TResourceType(TKMButtonFlat(Sender).Tag));
 
   House_MarketFill; //Update costs and order count
 end;
@@ -2739,16 +2739,16 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
 begin
-  if fGame.GlobalSettings.MusicOff then
+  if fGameApp.GlobalSettings.MusicOff then
     Label_Menu_Track.Caption := '-'
   else
-    Label_Menu_Track.Caption := fGame.MusicLib.GetTrackTitle;
+    Label_Menu_Track.Caption := fGameApp.MusicLib.GetTrackTitle;
 
-  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME], [FormatDateTime('h:nn:ss', fGame.GetMissionTime)]);
+  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME], [FormatDateTime('h:nn:ss', fGameG.GetMissionTime)]);
 
-  Label_Menu_Track.Enabled      := not fGame.GlobalSettings.MusicOff;
-  Button_Menu_TrackUp.Enabled   := not fGame.GlobalSettings.MusicOff;
-  Button_Menu_TrackDown.Enabled := not fGame.GlobalSettings.MusicOff;
+  Label_Menu_Track.Enabled      := not fGameApp.GlobalSettings.MusicOff;
+  Button_Menu_TrackUp.Enabled   := not fGameApp.GlobalSettings.MusicOff;
+  Button_Menu_TrackDown.Enabled := not fGameApp.GlobalSettings.MusicOff;
 end;
 
 
@@ -2787,7 +2787,7 @@ end;
 procedure TKMGamePlayInterface.Army_ActivateControls(aCommander: TKMUnitWarrior);
 var AcceptOrders: Boolean;
 begin
-  AcceptOrders := aCommander.ArmyCanTakeOrders and not fGame.ReplayMode;
+  AcceptOrders := aCommander.ArmyCanTakeOrders and (fGameG.GameMode <> gmReplay);
 
   //Button_Army_GoTo.Enabled    := AcceptOrders;
   Button_Army_Stop.Enabled    := AcceptOrders;
@@ -2810,14 +2810,14 @@ begin
   Button_Main[3].Enabled := not aTactic;
 
   //No loading during multiplayer games
-  Button_Menu_Load.Enabled := not fGame.MultiplayerMode and not aReplay;
+  Button_Menu_Load.Enabled := not fGameG.IsMultiplayer and not aReplay;
   Button_Menu_Save.Enabled := not aReplay;
   Button_Menu_Quit.Enabled := not aReplay;
 
   //Chat and Allies setup should be accessible only in Multiplayer
-  Image_MPChat.Visible       := fGame.MultiplayerMode and not aReplay;
-  Label_MPChatUnread.Visible := fGame.MultiplayerMode and not aReplay;
-  Image_MPAllies.Visible     := fGame.MultiplayerMode and not aReplay;
+  Image_MPChat.Visible       := fGameG.IsMultiplayer and not aReplay;
+  Label_MPChatUnread.Visible := fGameG.IsMultiplayer and not aReplay;
+  Image_MPAllies.Visible     := fGameG.IsMultiplayer and not aReplay;
 
   Panel_Replay.Visible := aReplay;
 end;
@@ -2833,16 +2833,15 @@ begin
   //With slow GPUs it will keep old values till next frame, that can take some seconds
   //Thats why we refresh Clock.Caption here
   if aSpeed <> 1 then
-    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
+    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGameG.GetMissionTime);
 end;
 
 
 procedure TKMGamePlayInterface.SetPause(aValue:boolean);
 begin
   ReleaseDirectionSelector; //Don't restrict cursor movement to direction selection while paused
-  fGame.Viewport.ReleaseScrollKeys;
-  if aValue then fGame.SetGameState(gsPaused)
-            else fGame.SetGameState(gsRunning);
+  fGameG.Viewport.ReleaseScrollKeys;
+  fGameG.IsPaused := aValue;
   Panel_Pause.Visible := aValue;
 end;
 
@@ -2900,16 +2899,16 @@ begin
 
   if Sender = Button_PlayQuit then
     case PlayMoreMsg of
-      gr_Win:       fGame.Stop(gr_Win);
-      gr_Defeat:    fGame.Stop(gr_Defeat);
-      gr_ReplayEnd: fGame.Stop(gr_ReplayEnd);
+      gr_Win:       fGameApp.Stop(gr_Win);
+      gr_Defeat:    fGameApp.Stop(gr_Defeat);
+      gr_ReplayEnd: fGameApp.Stop(gr_ReplayEnd);
     end
   else //GameStop has Destroyed our Sender by now
   if Sender = Button_PlayMore then
     case PlayMoreMsg of
-      gr_Win:       begin fGame.GameHold(false, gr_Win); end;
-      gr_Defeat:    begin fGame.GameHold(false, gr_Defeat); end;
-      gr_ReplayEnd: begin fGame.SkipReplayEndCheck := true; fGame.GameHold(false, gr_ReplayEnd); end;
+      gr_Win:       begin fGameG.GameHold(false, gr_Win); end;
+      gr_Defeat:    begin fGameG.GameHold(false, gr_Defeat); end;
+      gr_ReplayEnd: begin fGameg.SkipReplayEndCheck := true; fGameG.GameHold(false, gr_ReplayEnd); end;
     end;
 end;
 
@@ -2920,9 +2919,9 @@ begin
 
   if Sender = Button_MPPlayQuit then
     case PlayMoreMsg of
-      gr_Win:       fGame.Stop(gr_Win);
-      gr_Defeat:    fGame.Stop(gr_Defeat);
-      gr_ReplayEnd: fGame.Stop(gr_ReplayEnd);
+      gr_Win:       fGameApp.Stop(gr_Win);
+      gr_Defeat:    fGameApp.Stop(gr_Defeat);
+      gr_ReplayEnd: fGameApp.Stop(gr_ReplayEnd);
     end
   //If they click continue no other action is necessary, the game is still running
 end;
@@ -2937,7 +2936,7 @@ begin
     Panel_NetWaitConfirm.Hide;
     Panel_NetWaitButtons.Show;
   end;
-  if fGame.Networking.IsReconnecting then
+  if fGameG.Networking.IsReconnecting then
   begin
     S := fTextLibrary[TX_MULTIPLAYER_ATTEMPT_RECONNECTING];
     Button_NetDropPlayers.Visible := false;
@@ -2993,9 +2992,9 @@ begin
   begin
     Panel_NetWaitConfirm.Hide;
     if Button_NetConfirmYes.Caption = fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS] then
-      fGame.GameDropWaitingPlayers else
+      fGameG.GameDropWaitingPlayers else
     if Button_NetConfirmYes.Caption = fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU] then
-      fGame.Stop(gr_Cancel);
+      fGameApp.Stop(gr_Cancel);
   end
   else Assert(false, 'Wrong Sender in NetWaitClick');
 end;
@@ -3072,34 +3071,34 @@ end;
 procedure TKMGamePlayInterface.AlliesOnPlayerSetup(Sender: TObject);
 var i:integer;
 begin
-  for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
+  for i:=0 to fGameG.Networking.NetPlayers.Count - 1 do
   begin
     //Show players locale flag
-    if fGame.Networking.NetPlayers[i+1].LangCode <> '' then
-      Image_AlliesLang[i].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[i+1].LangCode).FlagSpriteID
+    if fGameG.Networking.NetPlayers[i+1].LangCode <> '' then
+      Image_AlliesLang[i].TexID := fLocales.GetLocale(fGameG.Networking.NetPlayers[i+1].LangCode).FlagSpriteID
     else
-      if fGame.Networking.NetPlayers[i+1].IsComputer then
+      if fGameG.Networking.NetPlayers[i+1].IsComputer then
         Image_AlliesLang[I].TexID := 62 //PC icon
       else
         Image_AlliesLang[i].TexID := 0;
 
-    Label_AlliesPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
-    Label_AlliesPlayer[i].FontColor := fPlayers[fGame.Networking.NetPlayers[i+1].PlayerIndex.PlayerIndex].FlagColor;
-    DropBox_AlliesTeam[i].ItemIndex := fGame.Networking.NetPlayers[i+1].Team;
+    Label_AlliesPlayer[i].Caption := fGameG.Networking.NetPlayers[i+1].Nikname;
+    Label_AlliesPlayer[i].FontColor := fPlayers[fGameG.Networking.NetPlayers[i+1].PlayerIndex.PlayerIndex].FlagColor;
+    DropBox_AlliesTeam[i].ItemIndex := fGameG.Networking.NetPlayers[i+1].Team;
     //Strikethrough for disconnected players
-    Image_AlliesLang[i].Enabled := not fGame.Networking.NetPlayers[i+1].Dropped;
-    Label_AlliesPlayer[i].Strikethrough := fGame.Networking.NetPlayers[i+1].Dropped;
-    Label_AlliesTeam[i].Strikethrough := fGame.Networking.NetPlayers[i+1].Dropped;
-    Label_AlliesPing[i].Strikethrough := fGame.Networking.NetPlayers[i+1].Dropped;
-    if fGame.Networking.NetPlayers[i+1].Team = 0 then
+    Image_AlliesLang[i].Enabled := not fGameG.Networking.NetPlayers[i+1].Dropped;
+    Label_AlliesPlayer[i].Strikethrough := fGameG.Networking.NetPlayers[i+1].Dropped;
+    Label_AlliesTeam[i].Strikethrough := fGameG.Networking.NetPlayers[i+1].Dropped;
+    Label_AlliesPing[i].Strikethrough := fGameG.Networking.NetPlayers[i+1].Dropped;
+    if fGameG.Networking.NetPlayers[i+1].Team = 0 then
       Label_AlliesTeam[i].Caption := '-'
     else
-      Label_AlliesTeam[i].Caption := IntToStr(fGame.Networking.NetPlayers[i+1].Team);
-    DropBox_AlliesTeam[i].Enabled := (i+1 = fGame.Networking.MyIndex); //Our index
+      Label_AlliesTeam[i].Caption := IntToStr(fGameG.Networking.NetPlayers[i+1].Team);
+    DropBox_AlliesTeam[i].Enabled := (i+1 = fGameG.Networking.MyIndex); //Our index
     DropBox_AlliesTeam[i].Hide; //Use label for demos until we fix exploits
   end;
 
-  for i:=fGame.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
+  for i:=fGameG.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
   begin
     Label_AlliesPlayer[i].Hide;
     DropBox_AlliesTeam[i].Hide;
@@ -3112,10 +3111,10 @@ procedure TKMGamePlayInterface.AlliesOnPingInfo(Sender: TObject);
 var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do
-    if (i < fGame.Networking.NetPlayers.Count) and (fGame.Networking.NetPlayers[i+1].IsHuman) then
+    if (i < fGameG.Networking.NetPlayers.Count) and (fGameG.Networking.NetPlayers[i+1].IsHuman) then
     begin
-      Label_AlliesPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].GetInstantPing);
-      Label_AlliesPing[i].FontColor := GetPingColor(fGame.Networking.NetPlayers[i+1].GetInstantPing);
+      Label_AlliesPing[i].Caption := inttostr(fGameG.Networking.NetPlayers[i+1].GetInstantPing);
+      Label_AlliesPing[i].FontColor := GetPingColor(fGameG.Networking.NetPlayers[i+1].GetInstantPing);
     end
     else
       Label_AlliesPing[i].Caption := '';
@@ -3127,25 +3126,24 @@ var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do
     if (Sender = DropBox_AlliesTeam[i]) and DropBox_AlliesTeam[i].Enabled then
-      fGame.GameInputProcess.CmdGame(gic_GameTeamChange, i+1, DropBox_AlliesTeam[i].ItemIndex);
+      fGameG.GameInputProcess.CmdGame(gic_GameTeamChange, i+1, DropBox_AlliesTeam[i].ItemIndex);
 end;
 
 
 procedure TKMGamePlayInterface.KeyDown(Key: Word; Shift: TShiftState);
 begin
-  if (fGame.GameState = gsRunning) and fMyControls.KeyDown(Key, Shift) then
+  if fGameG.IsPaused then Exit;
+
+  if fMyControls.KeyDown(Key, Shift) then
   begin
-    fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
+    fGameG.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
     Exit;
   end;
 
-  if fGame.GameState in [gsRunning, gsReplay] then
-  begin
-    if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := true;
-    if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := true;
-    if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := true;
-    if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := true;
-  end;
+  if Key = VK_LEFT  then fGameG.Viewport.ScrollKeyLeft  := true;
+  if Key = VK_RIGHT then fGameG.Viewport.ScrollKeyRight := true;
+  if Key = VK_UP    then fGameG.Viewport.ScrollKeyUp    := true;
+  if Key = VK_DOWN  then fGameG.Viewport.ScrollKeyDown  := true;
 end;
 
 
@@ -3154,8 +3152,11 @@ end;
 //Ignore all keys if game is on 'Pause'
 procedure TKMGamePlayInterface.KeyUp(Key:Word; Shift: TShiftState);
 begin
+  if fGameG.IsPaused and not fGameG.IsMultiplayer and not fGameG.DoGameHoldState then
+
+
   case fGame.GameState of
-    gsPaused:   if (Key = ord('P')) and not fGame.MultiplayerMode then SetPause(false);
+    gsPaused:   if (Key = ord('P')) and not fGameG.IsMultiplayer then SetPause(false);
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
                   if (Key=VK_ESCAPE) and (Image_ChatClose.Click or Image_AlliesClose.Click) then exit; //Escape from chat/allies page
@@ -3170,14 +3171,14 @@ begin
                   if Key = VK_BACK then  fGame.Viewport.ResetZoom;
 
                   //Game speed/pause: Not available in multiplayer mode yet
-                  if (not fGame.MultiplayerMode) or MULTIPLAYER_SPEEDUP then
+                  if (not fGameG.IsMultiplayer) or MULTIPLAYER_SPEEDUP then
                   begin
                     if (Key = VK_F5) then fGame.SetGameSpeed(1);
                     if (Key = VK_F6) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedMedium);
                     if (Key = VK_F7) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedFast);
                     if (Key = VK_F8) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedVeryFast);
                   end;
-                  if not fGame.MultiplayerMode then
+                  if not fGameG.IsMultiplayer then
                     if (Key = ord('P')) then SetPause(true); //Display pause overlay
 
                   //Menu shortcuts
@@ -3190,7 +3191,7 @@ begin
                   //Messages
                   if Key=VK_SPACE  then Button_MessageGoTo.Click; //In KaM spacebar centers you on the message
                   if Key=VK_DELETE then Button_MessageDelete.Click;
-                  if (Key=VK_RETURN) and fGame.MultiplayerMode and not Panel_Chat.Visible then
+                  if (Key=VK_RETURN) and fGameG.IsMultiplayer and not Panel_Chat.Visible then
                     Chat_Show(Self); //Enter is the shortcut to bring up chat in multiplayer
 
                   //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
@@ -3199,17 +3200,17 @@ begin
                   if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT][1])) and (Panel_Army.Visible) then Button_Army_Split.Click;
 
                   {Temporary cheat codes}
-                  if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
+                  if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGameG.IsMultiplayer) then
                   begin
                     if Key=ord('5') then MessageIssue(mkText, '123', KMPoint(0,0));
                     if Key=ord('6') then MessageIssue(mkHouse,'123', KMPointRound(fGame.Viewport.Position));
                     if Key=ord('7') then MessageIssue(mkUnit, '123', KMPoint(0,0));
                     if Key=ord('8') then MessageIssue(mkQuill,'123', KMPoint(0,0));
 
-                    if Key=ord('W') then fGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
+                    if Key=ord('W') then fGameG.GameInputProcess.CmdTemp(gic_TempRevealMap);
                     if Key=ord('V') then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
                     if Key=ord('D') then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
-                    if Key=ord('Q') then fGame.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell); //Usefull when mouse has no middle-button
+                    if Key=ord('Q') then fGameG.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell); //Usefull when mouse has no middle-button
                   end;
 
                 end;
@@ -3342,30 +3343,30 @@ begin
     case GameCursor.Mode of
       cm_Road:  if MyPlayer.CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
                 begin
-                  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
+                  fGameG.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
                   LastDragPoint := GameCursor.Cell;
                 end;
       cm_Field: if MyPlayer.CanAddFakeFieldPlan(P, ft_Corn) and not KMSamePoint(LastDragPoint, P) then
                 begin
-                  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
+                  fGameG.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
                   LastDragPoint := GameCursor.Cell;
                 end;
       cm_Wine:  if MyPlayer.CanAddFakeFieldPlan(P, ft_Wine) and not KMSamePoint(LastDragPoint, P) then
                 begin
-                  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
+                  fGameG.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
                   LastDragPoint := GameCursor.Cell;
                 end;
       cm_Erase: if not KMSamePoint(LastDragPoint, P) then
                 begin
                   if MyPlayer.BuildList.HousePlanList.HasPlan(P) then
                   begin
-                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
+                    fGameG.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
                     LastDragPoint := GameCursor.Cell;
                   end
                   else
                     if (MyPlayer.BuildList.FieldworksList.HasFakeField(P) <> ft_None) then
                     begin
-                      fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); //Remove any plans
+                      fGameG.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); //Remove any plans
                       LastDragPoint := GameCursor.Cell;
                     end;
                 end;
@@ -3454,7 +3455,7 @@ begin
                      (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit))) and
                      (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
                   begin
-                    fGame.GameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fShownUnit), U);
+                    fGameG.GameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fShownUnit), U);
                     fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Join);
                     Army_HideJoinMenu(nil);
                   end;
@@ -3491,13 +3492,13 @@ begin
                                   end;
                                 end;
                               end;
-                    cm_Road:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
-                    cm_Field: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
-                    cm_Wine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
-                    cm_Wall:  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
+                    cm_Road:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGameG.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
+                    cm_Field: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGameG.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
+                    cm_Wine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGameG.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
+                    cm_Wall:  fGameG.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
                     cm_Houses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
                               begin
-                                fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
+                                fGameG.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
                                 Build_ButtonClick(Button_BuildRoad);
                               end
                               else
@@ -3516,10 +3517,10 @@ begin
                                 begin
                                   //Now remove houses that are not started
                                   if MyPlayer.BuildList.HousePlanList.HasPlan(P) then
-                                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
+                                    fGameG.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
                                   else
                                     if MyPlayer.BuildList.FieldworksList.HasFakeField(P) <> ft_None then
-                                      fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
+                                      fGameG.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
                                     else
                                       fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
                                 end;
@@ -3540,7 +3541,7 @@ begin
                   if (U <> nil) and (not U.IsDeadOrDying) and
                   (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy) then
                   begin
-                    fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fShownUnit).GetCommander, U);
+                    fGameG.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fShownUnit).GetCommander, U);
                     fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
                   end
                   else
@@ -3549,13 +3550,13 @@ begin
                     if (H <> nil) and (not H.IsDestroyed) and
                     (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy) then
                     begin
-                      fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fShownUnit).GetCommander, H);
+                      fGameG.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fShownUnit).GetCommander, H);
                       fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
                     end
                     else //If there's no house - Walk to spot
                       if fShownUnit.CanWalkTo(P, 0) then
                       begin
-                        fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
+                        fGameG.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
                         fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
                       end;
                   end;
@@ -3568,8 +3569,8 @@ begin
                   Army_HideJoinMenu(nil);
 
               end;
-    mbMiddle: if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
-                fGame.GameInputProcess.CmdTemp(gic_TempAddScout, P);
+    mbMiddle: if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGameG.IsMultiplayer) then
+                fGameG.GameInputProcess.CmdTemp(gic_TempAddScout, P);
   end;
 
   LastDragPoint := KMPoint(0,0);
@@ -3652,9 +3653,9 @@ begin
   //Update replay counters
   if fGame.ReplayMode then
   begin
-    PercentBar_Replay.Position := EnsureRange(Round(fGame.GameTickCount / fGame.GameInputProcess.GetLastTick * 100), 0, 100);
+    PercentBar_Replay.Position := EnsureRange(Round(fGame.GameTickCount / fGameG.GameInputProcess.GetLastTick * 100), 0, 100);
     Label_Replay.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime) + ' / ' +
-                            FormatDateTime('hh:nn:ss', fGame.GameInputProcess.GetLastTick/24/60/60/10);
+                            FormatDateTime('hh:nn:ss', fGameG.GameInputProcess.GetLastTick/24/60/60/10);
   end;
 
   //Update speedup clocks
@@ -3669,14 +3670,14 @@ begin
   if Panel_Menu.Visible then Menu_Fill(nil);
 
   //Flash unread message display
-  Label_MPChatUnread.Visible := fGame.MultiplayerMode and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
+  Label_MPChatUnread.Visible := fGameG.IsMultiplayer and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
 
   //Update info on awaited players
   if Panel_NetWait.Visible then
   begin
-    if fGame.Networking.IsReconnecting then
+    if fGameG.Networking.IsReconnecting then
       Label_NetDropPlayersDelay.Caption := ''
     else
     begin
@@ -3700,10 +3701,10 @@ begin
     Label_PointerCount.Caption := Format('Pointers: %d units, %d houses', [MyPlayer.Units.GetTotalPointers, MyPlayer.Houses.GetTotalPointers]);
 
   if SHOW_CMDQUEUE_COUNT then
-    Label_CmdQueueCount.Caption := inttostr(fGame.GameInputProcess.Count)+' commands stored';
+    Label_CmdQueueCount.Caption := inttostr(fGameG.GameInputProcess.Count)+' commands stored';
 
-  if SHOW_NETWORK_DELAY and fGame.MultiplayerMode then
-    Label_NetworkDelay.Caption := 'Network delay: '+inttostr(TGameInputProcess_Multi(fGame.GameInputProcess).GetNetworkDelay);
+  if SHOW_NETWORK_DELAY and fGameG.IsMultiplayer then
+    Label_NetworkDelay.Caption := 'Network delay: '+inttostr(TGameInputProcess_Multi(fGameG.GameInputProcess).GetNetworkDelay);
 
   if DISPLAY_SOUNDS then
     Label_SoundsCount.Caption := inttostr(fSoundLib.ActiveCount)+' sounds playing';

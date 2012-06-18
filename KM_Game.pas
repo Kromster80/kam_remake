@@ -28,6 +28,7 @@ type
   private //Irrelevant to savegame
     fFormPassability: Integer;
     fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
+    fIsEnded: Boolean; //The game has ended/crashed and further UpdateStates are not required/impossible
     fTimerGame: TTimer;
     fGameSpeed: Word; //Actual speedup value
     fGameSpeedMultiplier: Word; //how many ticks are compressed in one
@@ -49,20 +50,20 @@ type
     fViewport: TViewport;
     fPerfLog: TKMPerfLog;
 
-    fActiveInterface: TKMUserInterface;
+    fActiveInterface: TKMUserInterface; //Shortcut for both of UI
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
 
   //Should be saved
     fGameTickCount: Cardinal;
     fGameName: string;
+    fCampaignName: AnsiString; //Is this a game part of some campaign
+    fCampaignMap: Byte; //Which campaign map it is, so we can unlock next one on victory
     fMissionMode: TKMissionMode;
     ID_Tracker: Cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
 
     procedure GameMPDisconnect(const aData:string);
     procedure MultiplayerRig;
-    function RenderVersion: string;
-
   public
     PlayOnState: TGameResultMsg;
     DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
@@ -79,18 +80,14 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure GameStart(aMissionFile, aGameName:string);
+    procedure GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte); overload;
+    procedure GameStart(aSizeX, aSizeY: Integer); overload;
     procedure Load(const aFileName: string; aReplay:boolean=false);
 
     function MapX: Word;
     function MapY: Word;
 
     procedure Resize(X,Y: Integer);
-
-    procedure StartLastMap;
-    procedure StartMultiplayerSave(const aFileName: string);
-    procedure StartMultiplayerMap(const aFileName: string);
-    procedure StartMapEditor(const aFileName: string; aMultiplayer:boolean; aSizeX:integer=64; aSizeY:integer=64);
 
     procedure GameMPPlay(Sender:TObject);
     procedure GameMPReadyToPlay(Sender:TObject);
@@ -100,7 +97,6 @@ type
     procedure PlayerDefeat(aPlayerIndex:TPlayerIndex);
     procedure GameWaitingForNetwork(aWaiting:boolean);
     procedure GameDropWaitingPlayers;
-    procedure SendMPGameInfo(Sender:TObject);
 
     procedure AutoSave;
     procedure BaseSave;
@@ -108,25 +104,24 @@ type
 
     function  ReplayExists(const aSaveName:string; aMultiplayer:boolean):boolean;
     procedure RestartReplay;
-    procedure StartReplay(const aSaveName:string; aMultiplayer:boolean);
-
-    procedure NetworkInit;
 
     function GetMissionTime:TDateTime;
     function GetPeacetimeRemaining:TDateTime;
     function CheckTime(aTimeTicks:cardinal):boolean;
     function IsPeaceTime:boolean;
+    function IsMultiplayer: Boolean;
     procedure UpdatePeaceTime;
     property GameTickCount:cardinal read fGameTickCount;
-    property GameName:string read fGameName;
+    property GameName: string read fGameName;
+    property CampaignName: AnsiString read fCampaignName;
+    property CampaignMap: Byte read fCampaignMap;
 
     property GameMode: TGameMode read fGameMode;
 
     property FormPassability:integer read fFormPassability write fFormPassability;
     property IsExiting:boolean read fIsExiting;
-    property IsPaused:boolean read fIsPaused;
+    property IsPaused:boolean read fIsPaused write fIsPaused;
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
-    function AllowDebugRendering:boolean;
     function GetNewID:cardinal;
     procedure SetGameSpeed(aSpeed: word);
     procedure StepOneFrame;
@@ -134,14 +129,15 @@ type
 
     procedure UpdateGameCursor(X,Y: Integer; Shift: TShiftState);
 
+    property Networking: TKMNetworking read fNetworking;
     property Pathfinding: TPathFinding read fPathfinding;
     property Projectiles: TKMProjectiles read fProjectiles;
     property GameInputProcess: TGameInputProcess read fGameInputProcess;
     property GameOptions: TKMGameOptions read fGameOptions;
+    property GamePlayInterface: TKMGamePlayInterface read fGamePlayInterface;
     property Viewport: TViewport read fViewport;
 
     procedure Save(const aFileName: string);
-    procedure PrintScreen(aFilename: string = '');
     {$IFDEF USE_MAD_EXCEPT}
     procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
     {$ENDIF}
@@ -258,6 +254,18 @@ begin
 end;
 
 
+function TKMGame.MapX: Word;
+begin
+  Result := fTerrain.MapX;
+end;
+
+
+function TKMGame.MapY: Word;
+begin
+  Result := fTerrain.MapY;
+end;
+
+
 procedure TKMGame.KeyDown(Key: Word; Shift: TShiftState);
 begin
   fActiveInterface.KeyDown(Key, Shift);
@@ -315,7 +323,7 @@ begin
 end;
 
 
-procedure TKMGame.GameStart(aMissionFile, aGameName: string);
+procedure TKMGame.GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte);
 var
   I: Integer;
   ParseMode: TMissionParsingMode;
@@ -325,9 +333,11 @@ begin
   fLog.AppendLog('GameStart');
 
   fGameName := aGameName;
+  fCampaignName := aCampName;
+  fCampaignMap := aCampMap;
   fMissionFile := aMissionFile;
 
-  fLog.AppendLog('Loading DAT file: '+aMissionFile);
+  fLog.AppendLog('Loading DAT file: ' + aMissionFile);
 
   if fGameMode = gmMulti then
   begin
@@ -338,16 +348,19 @@ begin
       PlayerRemap[fNetworking.NetPlayers[i].StartLocation - 1] := i-1; //PlayerID is 0 based
       fNetworking.NetPlayers[i].StartLocation := i;
     end;
-  end;
+  end
+  else
+    for i:=0 to High(PlayerRemap) do
+      PlayerRemap[i] := i; //Init with empty values
 
   case fGameMode of
     gmMulti:  ParseMode := mpm_Multi;
     gmMapEd:  ParseMode := mpm_Editor;
     gmSingle: ParseMode := mpm_Single;
-    else Assert(False);
+    else      Assert(False);
   end;
 
-  fMissionParser := TMissionParserStandard.Create(ParseMode, false);
+  fMissionParser := TMissionParserStandard.Create(ParseMode, PlayerRemap, False);
   if not fMissionParser.LoadMission(aMissionFile) then
     raise Exception.Create(fMissionParser.ErrorMessage);
   MyPlayer := fPlayers.Player[fMissionParser.MissionInfo.HumanPlayerID];
@@ -466,7 +479,7 @@ end;
 procedure TKMGame.GameMPPlay(Sender:TObject);
 begin
   GameWaitingForNetwork(false); //Finished waiting for players
-  SendMPGameInfo(Self);
+  fNetworking.SendMPGameInfo(GetMissionTime, GameName);
   fLog.AppendLog('Net game began');
 end;
 
@@ -645,14 +658,7 @@ begin
 end;
 
 
-//Called by fNetworking to access MissionTime/GameName
-procedure TKMGame.SendMPGameInfo(Sender: TObject);
-begin
-  fNetworking.SendMPGameInfo(GetMissionTime, GameName);
-end;
-
-
-procedure TKMGame.GameCreateNew(aSizeX, aSizeY: Integer);
+procedure TKMGame.GameStart(aSizeX, aSizeY: Integer);
 var
   I: Integer;
   LoadError: string;
@@ -671,7 +677,7 @@ begin
   fMapEditorInterface.Player_UpdateColors;
   fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
   fMapEditorInterface.UpdateMapName(fGameName);
-  if FileExists(aFileName) then fMapEditorInterface.SetLoadMode(aMultiplayer);
+  //if FileExists(aFileName) then fMapEditorInterface.SetLoadMode(aMultiplayer);
   fPlayers.AfterMissionInit(false);
 
   for i:=0 to fPlayers.Count-1 do //Reveal all players since we'll swap between them in MapEd
@@ -689,20 +695,20 @@ begin
   Save('autosave'); //Save to temp file
 
   //Delete last autosave and shift remaining by 1 position back
-  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'sav', fMultiplayerMode));
-  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'rpl', fMultiplayerMode));
-  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'bas', fMultiplayerMode));
+  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'sav', fGameMode = gmMulti));
+  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'rpl', fGameMode = gmMulti));
+  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'bas', fGameMode = gmMulti));
   for i:=AUTOSAVE_COUNT downto 2 do //03 to 01
   begin
-    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'sav', fMultiplayerMode), SaveName('autosave'+int2fix(i,2), 'sav', fMultiplayerMode));
-    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'rpl', fMultiplayerMode), SaveName('autosave'+int2fix(i,2), 'rpl', fMultiplayerMode));
-    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'bas', fMultiplayerMode), SaveName('autosave'+int2fix(i,2), 'bas', fMultiplayerMode));
+    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'sav', fGameMode = gmMulti), SaveName('autosave'+int2fix(i,2), 'sav', fGameMode = gmMulti));
+    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'rpl', fGameMode = gmMulti), SaveName('autosave'+int2fix(i,2), 'rpl', fGameMode = gmMulti));
+    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'bas', fGameMode = gmMulti), SaveName('autosave'+int2fix(i,2), 'bas', fGameMode = gmMulti));
   end;
 
   //Rename temp to be first in list
-  RenameFile(SaveName('autosave', 'sav', fMultiplayerMode), SaveName('autosave01', 'sav', fMultiplayerMode));
-  RenameFile(SaveName('autosave', 'rpl', fMultiplayerMode), SaveName('autosave01', 'rpl', fMultiplayerMode));
-  RenameFile(SaveName('autosave', 'bas', fMultiplayerMode), SaveName('autosave01', 'bas', fMultiplayerMode));
+  RenameFile(SaveName('autosave', 'sav', fGameMode = gmMulti), SaveName('autosave01', 'sav', fGameMode = gmMulti));
+  RenameFile(SaveName('autosave', 'rpl', fGameMode = gmMulti), SaveName('autosave01', 'rpl', fGameMode = gmMulti));
+  RenameFile(SaveName('autosave', 'bas', fGameMode = gmMulti), SaveName('autosave01', 'bas', fGameMode = gmMulti));
 end;
 
 
@@ -711,9 +717,9 @@ begin
   Save('basesave'); //Temp file
 
   //In Linux CopyFile does not overwrite
-  if FileExists(SaveName('basesave', 'bas', fMultiplayerMode)) then
-    DeleteFile(SaveName('basesave','bas', fMultiplayerMode));
-  CopyFile(PChar(SaveName('basesave','sav', fMultiplayerMode)), PChar(SaveName('basesave','bas', fMultiplayerMode)), False);
+  if FileExists(SaveName('basesave', 'bas', fGameMode = gmMulti)) then
+    DeleteFile(SaveName('basesave','bas', fGameMode = gmMulti));
+  CopyFile(PChar(SaveName('basesave','sav', fGameMode = gmMulti)), PChar(SaveName('basesave','bas', fGameMode = gmMulti)), False);
 end;
 
 
@@ -748,16 +754,10 @@ procedure TKMGame.Render(aRender: TRender);
 begin
   fRenderPool.Render;
 
-  fRender.SetRenderMode(rm2D);
+  aRender.SetRenderMode(rm2D);
 
-  if not fRender.Blind then
+  if not aRender.Blind then
     fActiveInterface.Paint;
-end;
-
-
-function TKMGame.RenderVersion: string;
-begin
-  Result := 'OpenGL '+ fRender.RendererVersion;
 end;
 
 
@@ -776,42 +776,10 @@ begin
   OldCenter := fViewport.Position;
   OldZoom := fViewport.Zoom;
 
-  StartReplay(fReplayFile,fMultiplayerMode);
+  fGameApp.StartReplay(fReplayFile);
 
   fViewport.Position := OldCenter;
   fViewport.Zoom := OldZoom;
-end;
-
-
-procedure TKMGame.StartReplay(const aSaveName: string; aMultiplayer: boolean);
-begin
-  Stop(gr_Silent);
-
-  GameInit(aMultiplayer);
-
-  Load(aSaveName, True); //We load what was saved right before starting Recording
-
-  FreeAndNil(fGameInputProcess); //Override GIP from savegame
-  fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying);
-  fGameInputProcess.LoadFromFile(SaveName(aSaveName, 'rpl', fMultiplayerMode));
-
-  SetKaMSeed(4); //Random after StartGame and ViewReplay should match
-  SetGameState(gsReplay);
-  fReplayMode := True;
-  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, fReplayMode);
-  fReplayFile := aSaveName;
-end;
-
-
-procedure TKMGame.NetworkInit;
-begin
-  if fNetworking = nil then
-    fNetworking := TKMNetworking.Create(fGameSettings.MasterServerAddress,
-                                        fGameSettings.AutoKickTimeout,
-                                        fGameSettings.PingInterval,
-                                        fGameSettings.MasterAnnounceInterval,
-                                        fGameSettings.Locale);
-  fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
 end;
 
 
@@ -826,7 +794,7 @@ end;
 
 function TKMGame.GetPeacetimeRemaining: TDateTime;
 begin
-  Result := Max(0, Int64(fGame.GameOptions.Peacetime*600)-fGame.GameTickCount)/24/60/60/10;
+  Result := Max(0, Int64(fGameOptions.Peacetime*600)-fGameTickCount)/24/60/60/10;
 end;
 
 
@@ -834,6 +802,13 @@ end;
 function TKMGame.CheckTime(aTimeTicks: Cardinal): Boolean;
 begin
   Result := (fGameTickCount >= aTimeTicks);
+end;
+
+
+//We often need to see if game is MP
+function TKMGame.IsMultiplayer: Boolean;
+begin
+  Result := fGameMode = gmMulti;
 end;
 
 
@@ -861,22 +836,16 @@ begin
 end;
 
 
-procedure TKMGame.UpdatePeacetime;
-var PeaceTicksRemaining:cardinal;
+procedure TKMGame.UpdatePeaceTime;
+var
+  PeaceTicksRemaining: Cardinal;
 begin
-  PeaceTicksRemaining := Max(0,Int64((fGame.GameOptions.Peacetime*600))-fGame.GameTickCount);
-  if (PeaceTicksRemaining = 1) and MultiplayerMode then
+  PeaceTicksRemaining := Max(0, Int64((fGameOptions.Peacetime * 600)) - fGameTickCount);
+  if (PeaceTicksRemaining = 1) and (fGameMode = gmMulti) then
   begin
-    Networking.PostLocalMessage(fTextLibrary[TX_MP_PEACETIME_OVER],false);
-    fSoundLib.Play(sfxn_Peacetime,1.0,true); //Fades music
+    fNetworking.PostLocalMessage(fTextLibrary[TX_MP_PEACETIME_OVER], false);
+    fSoundLib.Play(sfxn_Peacetime, 1.0, True); //Fades music
   end;
-end;
-
-
-function TKMGame.AllowDebugRendering:boolean;
-begin
-  Result := not (fGameState in [gsRunning,gsPaused,gsOnHold]) or
-            MULTIPLAYER_CHEATS or not MultiplayerMode;
 end;
 
 
@@ -897,16 +866,15 @@ begin
   else
     fGameSpeed := aSpeed;
 
-
   if fGameSpeed > 5 then
   begin
     fGameSpeedMultiplier := Round(fGameSpeed / 4);
-    fTimerGame.Interval := Round(fGameSettings.SpeedPace / fGameSpeed * fGameSpeedMultiplier);
+    fTimerGame.Interval := Round(fGameApp.GlobalSettings.SpeedPace / fGameSpeed * fGameSpeedMultiplier);
   end
   else
   begin
     fGameSpeedMultiplier := 1;
-    fTimerGame.Interval := Round(fGameSettings.SpeedPace / fGameSpeed);
+    fTimerGame.Interval := Round(fGameApp.GlobalSettings.SpeedPace / fGameSpeed);
   end;
 
   if fGamePlayInterface <> nil then
@@ -914,10 +882,11 @@ begin
 end;
 
 
+//In replay mode we can step the game by exactly one frame and then pause again
 procedure TKMGame.StepOneFrame;
 begin
-  Assert(fGameState in [gsPaused, gsReplay], 'We can work step-by-step only in Replay');
-  SetGameSpeed(1); //Do not allow multiple updates in UpdateState loop
+  Assert(fGameMode = gmReplay, 'We can work step-by-step only in Replay');
+  SetGameSpeed(1); //Make sure we step only one tick. Do not allow multiple updates in UpdateState loop
   fAdvanceFrame := True;
 end;
 
@@ -933,14 +902,12 @@ var
   s: string;
 begin
   fLog.AppendLog('Saving game');
-  if not (fGameState in [gsPaused, gsRunning]) then begin
+
+  if (fGameMode in [gmSingle, gmMulti]) then
+  begin
     Assert(false, 'Saving from wrong state?');
     Exit;
   end;
-
-  //Makes the folders incase they were deleted
-  CreateDir(ExeDir + 'Saves\');
-  CreateDir(ExeDir + 'SavesMP\');
 
   SaveStream := TKMemoryStream.Create;
 
@@ -979,20 +946,22 @@ begin
 
   //Because some stuff is only saved in singleplayer we need to know whether it is included in this save,
   //so we can load multiplayer saves in single player and vice versa.
-  SaveStream.Write(fMultiplayerMode);
+  SaveStream.Write(fGameMode = gmMulti);
 
-  if not fMultiplayerMode then
+  if fGameMode <> gmMulti then
     fGamePlayInterface.SaveMapview(SaveStream); //Minimap is near the start so it can be accessed quickly
 
-  fCampaigns.Save(SaveStream);
+  SaveStream.Write(fCampaignName); //When we load that save we will need to know which campaign to display after victory
+  SaveStream.Write(fCampaignMap); //When we load that save we will need to know which campaign to display after victory
+
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
   SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
-  if not fMultiplayerMode then
+  if fGameMode <> gmMulti then
     SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
 
   fTerrain.Save(SaveStream); //Saves the map
-  fPlayers.Save(SaveStream, fMultiplayerMode); //Saves all players properties individually
+  fPlayers.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
   fProjectiles.Save(SaveStream);
   fEventsManager.Save(SaveStream);
 
@@ -1004,7 +973,7 @@ begin
   //created identically on all player's computers. Eventually these things can go through the GIP
 
   //For multiplayer consistency we compare all saves CRCs, they should be created identical on all player's computers.
-  if not fMultiplayerMode then
+  if fGameMode <> gmMulti then
   begin
     //Viewport settings are unique for each player
     fViewport.Save(SaveStream);
@@ -1016,13 +985,16 @@ begin
   //we must send those "commands" through the GIP so all players know about them and they're in sync.
   //There is a comment in fGame.Load about MessageList on this topic.
 
-  SaveStream.SaveToFile(SaveName(aFileName,'sav', fMultiplayerMode)); //Some 70ms for TPR7 map
+  //Makes the folders incase they were deleted
+  s := SaveName(aFileName,'sav', fGameMode = gmMulti);
+  ForceDirectories(ExtractFilePath(s));
+  SaveStream.SaveToFile(SaveName(aFileName,'sav', fGameMode = gmMulti)); //Some 70ms for TPR7 map
   SaveStream.Free;
 
   fLog.AppendLog('Save done');
 
-  CopyFile(PChar(SaveName('basesave','bas', fMultiplayerMode)), PChar(SaveName(aFileName,'bas', fMultiplayerMode)), false); //replace Replay base savegame
-  fGameInputProcess.SaveToFile(SaveName(aFileName,'rpl', fMultiplayerMode)); //Adds command queue to savegame
+  CopyFile(PChar(SaveName('basesave','bas', fGameMode = gmMulti)), PChar(SaveName(aFileName,'bas', fGameMode = gmMulti)), false); //replace Replay base savegame
+  fGameInputProcess.SaveToFile(SaveName(aFileName,'rpl', fGameMode = gmMulti)); //Adds command queue to savegame
 
   fLog.AppendLog('Saving game', true);
 end;
@@ -1045,87 +1017,77 @@ begin
 
   LoadStream := TKMemoryStream.Create;
   GameInfo := TKMGameInfo.Create;
-  try //Catch exceptions
-    if not FileExists(SaveName(aFileName, LoadFileExt, fMultiplayerMode)) then
-      raise Exception.Create('Savegame could not be found');
 
-    LoadStream.LoadFromFile(SaveName(aFileName, LoadFileExt, fMultiplayerMode));
+  if not FileExists(SaveName(aFileName, LoadFileExt, fGameMode = gmMulti)) then
+    raise Exception.Create('Savegame could not be found');
 
-    //We need only few essential parts from GameInfo, the rest is duplicate from fTerrain and fPlayers
+  LoadStream.LoadFromFile(SaveName(aFileName, LoadFileExt, fGameMode = gmMulti));
 
-    GameInfo.Load(LoadStream);
-    fGameName := GameInfo.Title;
-    fGameTickCount := GameInfo.TickCount;
-    fMissionMode := GameInfo.MissionMode;
-    FreeAndNil(GameInfo);
-    fGameOptions.Load(LoadStream);
+  //We need only few essential parts from GameInfo, the rest is duplicate from fTerrain and fPlayers
 
-    //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is
-    LoadStream.Read(SaveIsMultiplayer);
+  GameInfo.Load(LoadStream);
+  fGameName := GameInfo.Title;
+  fGameTickCount := GameInfo.TickCount;
+  fMissionMode := GameInfo.MissionMode;
+  FreeAndNil(GameInfo);
+  fGameOptions.Load(LoadStream);
 
-    if not SaveIsMultiplayer then
-      fGamePlayInterface.LoadMapview(LoadStream); //Not used, (only stored for preview) but it's easiest way to skip past it
+  //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is
+  LoadStream.Read(SaveIsMultiplayer);
 
-    fCampaigns.Load(LoadStream);
-    LoadStream.Read(ID_Tracker);
-    LoadStream.Read(LoadedSeed);
+  if not SaveIsMultiplayer then
+    fGamePlayInterface.LoadMapview(LoadStream); //Not used, (only stored for preview) but it's easiest way to skip past it
 
-    if not SaveIsMultiplayer then
-      LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
+  LoadStream.Read(fCampaignName); //When we load that save we will need to know which campaign to display after victory
+  LoadStream.Read(fCampaignMap); //When we load that save we will need to know which campaign to display after victory
 
-    //Load the data into the game
-    fTerrain.Load(LoadStream);
+  LoadStream.Read(ID_Tracker);
+  LoadStream.Read(LoadedSeed);
 
-    fPlayers := TKMPlayersCollection.Create;
-    fPlayers.Load(LoadStream);
-    fProjectiles.Load(LoadStream);
-    fEventsManager.Load(LoadStream);
+  if not SaveIsMultiplayer then
+    LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 
-    //Load LIBX strings used in a mission by their relative path to ExeDir
-    //Relative path should be the same across all MP players,
-    //locale info shuold not be a problem as it is represented by %s
-    LoadStream.Read(LibxPath);
-    fTextLibrary.LoadMissionStrings(ExeDir + LibxPath);
+  //Load the data into the game
+  fTerrain.Load(LoadStream);
 
-    //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
-    //todo: Send all message commands through GIP
-    if not SaveIsMultiplayer then
-    begin
-      fViewport.Load(LoadStream);
-      fGamePlayInterface.Load(LoadStream);
-    end;
+  fPlayers := TKMPlayersCollection.Create;
+  fPlayers.Load(LoadStream);
+  fProjectiles.Load(LoadStream);
+  fEventsManager.Load(LoadStream);
 
-    FreeAndNil(LoadStream);
+  //Load LIBX strings used in a mission by their relative path to ExeDir
+  //Relative path should be the same across all MP players,
+  //locale info shuold not be a problem as it is represented by %s
+  LoadStream.Read(LibxPath);
+  fTextLibrary.LoadMissionStrings(ExeDir + LibxPath);
 
-    if fMultiplayerMode and not aReplay then
-      fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
-    else
-      fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-    fGameInputProcess.LoadFromFile(SaveName(aFileName, 'rpl', fMultiplayerMode));
-
-    if not aReplay then
-      CopyFile(PChar(SaveName(aFileName,'bas', fMultiplayerMode)), PChar(SaveName('basesave','bas', fMultiplayerMode)), false); //replace Replay base savegame
-
-    fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
-    fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
-
-    fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY); //Must be updated after SyncLoad so IsUnit pointers are correct for minimap update
-    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
-    fViewport.ResetZoom; //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
-  except
-    on E : Exception do
-    begin
-      if GameInfo <> nil   then GameInfo.Free;
-      if LoadStream <> nil then LoadStream.Free;
-
-      //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFileName])+'||'+E.ClassName+': '+E.Message;
-      fMainMenuInterface.ShowScreen(msError, LoadError); //This will show an option to return back to menu
-      Exit;
-    end;
+  //Multiplayer saves don't have this piece of information. Its valid only for MyPlayer
+  //todo: Send all message commands through GIP
+  if not SaveIsMultiplayer then
+  begin
+    fViewport.Load(LoadStream);
+    fGamePlayInterface.Load(LoadStream);
   end;
 
-  if fMultiplayerMode then
+  FreeAndNil(LoadStream);
+
+  if (fGameMode = gmMulti) and not aReplay then
+    fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
+  else
+    fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
+  fGameInputProcess.LoadFromFile(SaveName(aFileName, 'rpl', fGameMode = gmMulti));
+
+  if not aReplay then
+    CopyFile(PChar(SaveName(aFileName,'bas', fGameMode = gmMulti)), PChar(SaveName('basesave','bas', fGameMode = gmMulti)), false); //replace Replay base savegame
+
+  fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
+  fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
+
+  fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY); //Must be updated after SyncLoad so IsUnit pointers are correct for minimap update
+  fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
+  fViewport.ResetZoom; //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
+
+  if fGameMode = gmMulti then
     MultiplayerRig;
 
   SetKaMSeed(LoadedSeed);
@@ -1139,11 +1101,11 @@ end;
 procedure TKMGame.UpdateGame(Sender: TObject);
 var I: Integer; T: Cardinal;
 begin
-  case fGameState of
-    gsPaused:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
-    gsOnHold:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
-    gsNoGame:   ;
-    gsRunning:  if not fMultiplayerMode or (fNetworking.NetGameState <> lgs_Loading) then
+  if fIsPaused then Exit;
+
+  case fGameMode of
+    gmSingle, gmMulti:
+                  if not (fGameMode = gmMulti) or (fNetworking.NetGameState <> lgs_Loading) then
                   for I := 1 to fGameSpeedMultiplier do
                   begin
                     if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
@@ -1152,9 +1114,9 @@ begin
 
                       if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                       inc(fGameTickCount); //Thats our tick counter for gameplay events
-                      if fMultiplayerMode then fNetworking.LastProcessedTick := fGameTickCount;
+                      if (fGameMode = gmMulti) then fNetworking.LastProcessedTick := fGameTickCount;
                       //Tell the master server about our game on the specific tick (host only)
-                      if fMultiplayerMode and fNetworking.IsHost and (
+                      if (fGameMode = gmMulti) and fNetworking.IsHost and (
                          ((fMissionMode = mm_Normal) and (fGameTickCount = ANNOUNCE_BUILD_MAP)) or
                          ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
                         fNetworking.ServerQuery.SendMapInfo(fGameName, fNetworking.NetPlayers.GetConnectedCount);
@@ -1163,7 +1125,7 @@ begin
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       fTerrain.UpdateState;
                       fPlayers.UpdateState(fGameTickCount); //Quite slow
-                      if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
+                      if fIsEnded then Exit; //Quit the update if game was stopped by MyPlayer defeat
                       fProjectiles.UpdateState; //If game has stopped it's NIL
 
                       fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
@@ -1173,7 +1135,7 @@ begin
 
                       //Each 1min of gameplay time
                       //Don't autosave if the game was put on hold during this tick
-                      if (fGameTickCount mod 600 = 0) and fGameSettings.Autosave and not (GameState = gsOnHold) then
+                      if (fGameTickCount mod 600 = 0) and fGameApp.GlobalSettings.Autosave then
                         AutoSave;
 
                       fPerfLog.AddTime(TimeGet - T);
@@ -1189,29 +1151,29 @@ begin
                     end;
                     fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                   end;
-    gsReplay:     for I := 1 to fGameSpeedMultiplier do
+    gmReplay:     for I := 1 to fGameSpeedMultiplier do
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(fGameTickCount); //Quite slow
-                    if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
+                    if fIsEnded then exit; //Quit the update if game was stopped by MyPlayer defeat
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
                     //Issue stored commands
                     fGameInputProcess.ReplayTimer(fGameTickCount);
-                    if fGameState = gsNoGame then exit; //Quit if the game was stopped by a replay mismatch
+                    if fIsEnded then Exit; //Quit if the game was stopped by a replay mismatch
                     if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
                       RequestGameHold(gr_ReplayEnd);
 
                     if fAdvanceFrame then begin
-                      fAdvanceFrame := false;
-                      SetGameState(gsPaused);
+                      fAdvanceFrame := False;
+                      fIsPaused := True;
                     end;
 
                     //Break the for loop (if we are using speed up)
                     if DoGameHold then break;
                   end;
-    gsEditor:   begin
+    gmMapEd:   begin
                   fTerrain.IncAnimStep;
                   fPlayers.IncAnimStep;
                 end;
@@ -1223,26 +1185,20 @@ end;
 
 procedure TKMGame.UpdateState(aGlobalTickCount: Cardinal);
 begin
-  if fMultiplayerMode and (fGlobalTickCount mod 100 = 0) then
-    SendMPGameInfo(Self); //Send status to the server every 10 seconds
-
   if not fIsPaused then
-    fActiveInterface.UpdateState(fGlobalTickCount);
-
+    fActiveInterface.UpdateState(aGlobalTickCount);
 end;
 
 
 //This is our real-time "thread", use it wisely
 procedure TKMGame.UpdateStateIdle(aFrameTime: Cardinal);
 begin
-  case fGameState of
-    gsRunning,
-    gsReplay:   fViewport.UpdateStateIdle(aFrameTime); //Check to see if we need to scroll
-    gsEditor:   begin
-                  fViewport.UpdateStateIdle(aFrameTime); //Check to see if we need to scroll
-                  fTerrain.UpdateStateIdle;
-                end;
-  end;
+  if not fIsPaused then
+    fViewport.UpdateStateIdle(aFrameTime); //Check to see if we need to scroll
+
+  //Terrain should be updated in real time when user applies brushes
+  if fGameMode = gmMapEd then
+    fTerrain.UpdateStateIdle;
 end;
 
 
@@ -1252,20 +1208,6 @@ begin
     Result := ExeDir + 'SavesMP\' + aName + '.' + aExt
   else
     Result := ExeDir + 'Saves\' + aName + '.' + aExt;
-end;
-
-
-procedure TKMGame.PrintScreen(aFilename: string = '');
-var
-  s: string;
-begin
-  if aFilename = '' then
-  begin
-    DateTimeToString(s, 'yyyy-mm-dd hh-nn-ss', Now); //2007-12-23 15-24-33
-    fRender.DoPrintScreen(ExeDir + 'KaM ' + s + '.jpg');
-  end
-  else
-    fRender.DoPrintScreen(aFilename);
 end;
 
 

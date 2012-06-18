@@ -36,7 +36,7 @@ type
     procedure LoadGameAssets;
     procedure LoadGameFromSave(aFileName: string; aGameMode: TGameMode);
     procedure LoadGameFromScript(aMissionFile, aGameName: string; aCampaign: TKMCampaign; aMap: Byte; aGameMode: TGameMode);
-    procedure LoadGameFromScratch(aSizeX, aSizeY: Integer);
+    procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
   public
     OnCursorUpdate: TIntegerStringEvent;
 
@@ -48,14 +48,18 @@ type
     function CanClose: Boolean;
     procedure Resize(X,Y: Integer);
     procedure ToggleLocale(aLocale: ShortString);
-    procedure StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
+    procedure NetworkInit;
+    procedure SendMPGameInfo(Sender: TObject);
+    function AllowDebugRendering: Boolean;
 
+    procedure StartCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
     procedure StartSingleMap(aMissionFile, aGameName: string);
     procedure StartSingleSave(aFileName: string);
     procedure StartMultiplayerMap(const aFileName: string);
     procedure StartMultiplayerSave(const aFileName: string);
     procedure StartLastGame;
     procedure StartMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
+    procedure StartReplay(const aSaveName: string);
 
     property GlobalSettings: TGameSettings read fGameSettings;
     property Campaigns: TKMCampaignsCollection read fCampaigns;
@@ -72,6 +76,7 @@ type
 
     function RenderVersion: string;
     procedure Render;
+    procedure PrintScreen(aFilename: string = '');
 
     procedure UpdateState(Sender: TObject);
     procedure UpdateStateIdle(aFrameTime: Cardinal);
@@ -338,6 +343,7 @@ end;
 //5. Free the game object
 //6. Switch to MainMenu
 procedure TKMGameApp.Stop(Msg: TGameResultMsg; TextMsg: string='');
+var CampName: string; CampMap: Byte;
 begin
   if fGame = nil then Exit;
 
@@ -354,6 +360,10 @@ begin
       fMainMenuInterface.ResultsMP_Fill
     else
       fMainMenuInterface.Results_Fill;
+
+  //If the game was a part of a campaign, select that campaign,
+  //so we know which menu to show next and unlock next map
+  fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGame.CampaignName), fGame.CampaignMap);
 
   FreeThenNil(fGame);
 
@@ -383,13 +393,28 @@ end;
 
 
 procedure TKMGameApp.LoadGameFromSave(aFileName: string; aGameMode: TGameMode);
+var
+  LoadError: string;
 begin
   Stop(gr_Silent); //Stop everything silently
-  fCampaigns.SetActive(nil, 0);
   LoadGameAssets;
 
   fGame := TKMGame.Create(aGameMode, fRender, fNetworking);
-  fGame.Load(aFileName);
+  try
+    fGame.Load(aFileName);
+  except
+    on E : Exception do
+    begin
+      //Trap the exception and show it to the user in nicer form.
+      //Note: While debugging, Delphi will still stop execution for the exception,
+      //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
+      //But to normal player the dialog won't show.
+      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFileName])+'||'+E.ClassName+': '+E.Message;
+      Stop(gr_Error, LoadError);
+      fLog.AppendLog('Game creation Exception: ' + LoadError);
+      Exit;
+    end;
+  end;
 
   if Assigned(OnCursorUpdate) then OnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
@@ -400,12 +425,11 @@ var
   LoadError: string;
 begin
   Stop(gr_Silent); //Stop everything silently
-  fCampaigns.SetActive(aCampaign, aMap);
   LoadGameAssets;
 
   fGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
-    fGame.GameStart(aMissionFile, aGameName);
+    fGame.GameStart(aMissionFile, aGameName, aCampaign.ShortTitle, aMap);
   except
     on E : Exception do
     begin
@@ -429,15 +453,16 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromScratch(aSizeX, aSizeY: Integer);
+procedure TKMGameApp.LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
+var
+  LoadError: string;
 begin
   Stop(gr_Silent); //Stop everything silently
-  fCampaigns.SetActive(nil, 0);
   LoadGameAssets;
 
-  fGame := TKMGame.Create(gmMapEd, fRender, fNetworking);
+  fGame := TKMGame.Create(gmMapEd, fRender, nil);
   try
-    fGame.GameStart(aMissionFile, aGameName);
+    fGame.GameStart(aSizeX, aSizeY);
   except
     on E : Exception do
     begin
@@ -445,7 +470,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], ['-'])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
       fLog.AppendLog('Game creation Exception: ' + LoadError);
       Exit;
@@ -527,6 +552,38 @@ begin
 end;
 
 
+procedure TKMGameApp.StartReplay(const aSaveName: string);
+begin
+  LoadGameFromSave(aSaveName, gmReplay);
+end;
+
+
+procedure TKMGameApp.NetworkInit;
+begin
+  if fNetworking = nil then
+    fNetworking := TKMNetworking.Create(fGameSettings.MasterServerAddress,
+                                        fGameSettings.AutoKickTimeout,
+                                        fGameSettings.PingInterval,
+                                        fGameSettings.MasterAnnounceInterval,
+                                        fGameSettings.Locale);
+  fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
+end;
+
+
+//Called by fNetworking to access MissionTime/GameName
+procedure TKMGameApp.SendMPGameInfo(Sender: TObject);
+begin
+  fNetworking.SendMPGameInfo(fGame.GetMissionTime, fGame.GameName);
+end;
+
+
+//Debug rendering may be used as a cheat in MP to see unrevealed areas, thats why we block it there
+function TKMGameApp.AllowDebugRendering: Boolean;
+begin
+  Result := (fGame.GameMode in [gmSingle, gmMapEd, gmReplay]) or (MULTIPLAYER_CHEATS and (fGame.GameMode = gmMulti));
+end;
+
+
 procedure TKMGameApp.Render;
 begin
   if SKIP_RENDER then Exit;
@@ -551,11 +608,29 @@ begin
 end;
 
 
+procedure TKMGameApp.PrintScreen(aFilename: string = '');
+var
+  s: string;
+begin
+  if aFilename = '' then
+  begin
+    DateTimeToString(s, 'yyyy-mm-dd hh-nn-ss', Now); //2007-12-23 15-24-33
+    fRender.DoPrintScreen(ExeDir + 'KaM ' + s + '.jpg');
+  end
+  else
+    fRender.DoPrintScreen(aFilename);
+end;
+
+
 procedure TKMGameApp.UpdateState(Sender: TObject);
 begin
   Inc(fGlobalTickCount);
   if fGame <> nil then
-    fGame.UpdateState(fGlobalTickCount)
+  begin
+    fGame.UpdateState(fGlobalTickCount);
+    if (fGame.GameMode = gmMulti) and (fGlobalTickCount mod 100 = 0) then
+      SendMPGameInfo(Self); //Send status to the server every 10 seconds
+  end
   else
   begin
     if fNetworking <> nil then fNetworking.UpdateState(fGlobalTickCount); //Measures pings

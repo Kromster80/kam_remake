@@ -44,7 +44,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Sound, KM_Game, KM_Main, KM_Resource, KM_ResourceCursors;
+uses KM_Defaults, KM_Sound, KM_Game, KM_GameApp, KM_Main, KM_Resource, KM_ResourceCursors;
 
 
 constructor TViewport.Create(aWidth, aHeight: Integer);
@@ -196,7 +196,7 @@ begin
     Exit;
   end;
 
-  ScrollAdv := (SCROLLSPEED + fGame.GlobalSettings.ScrollSpeed / 3) * aFrameTime / 100; //1-5 tiles per second
+  ScrollAdv := (SCROLLSPEED + fGameApp.GlobalSettings.ScrollSpeed / 3) * aFrameTime / 100; //1-5 tiles per second
 
   PrevScrollPos := (PrevScrollPos + 1) mod length(PrevScrollAdv) + 1; //Position in ring-buffer
   PrevScrollAdv[PrevScrollPos] := ScrollAdv; //Replace oldest value
