@@ -211,7 +211,7 @@ type
 
 implementation
 uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary,
-     KM_Utils, KM_Game, KM_Resource, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceMapElements;
+     KM_Utils, KM_Game, KM_GameApp, KM_Resource, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceMapElements;
 
 
 {Switch between pages}
@@ -393,8 +393,8 @@ end;
 {Update minimap data}
 procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: integer);
 begin
-  fGame.Viewport.Position := KMPointF(X,Y);
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  fGameG.Viewport.Position := KMPointF(X,Y);
+  Minimap.ViewArea := fGameG.Viewport.GetMinimapClip;
 end;
 
 
@@ -403,10 +403,8 @@ var
   i: integer;
 begin
   inherited;
-  Assert(fTerrain <> nil, 'We need valid pointer to Terrain for MapView/Minimap');
-  Assert(fGame.Viewport<>nil, 'fGame.Viewport required to be init first');
 
-  fMapView := TKMMapView.Create(fTerrain, True, False);
+  fMapView := TKMMapView.Create(False, True, False);
 
   fShownUnit  := nil;
   fShownHouse := nil;
@@ -416,7 +414,7 @@ begin
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(True);
 
-{Parent Page for whole toolbar in-game}
+  //Parent Page for whole toolbar in-game
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
 
     TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
@@ -442,7 +440,7 @@ begin
       Button_PlayerSelect[i].OnClick := Player_ChangeActive;
     end;
 
-    Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 184, 10, fGame.GameName, fnt_Metal, taLeft);
+    Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 184, 10, '<<<LEER>>>', fnt_Metal, taLeft);
 
     Label_Stat:=TKMLabel.Create(Panel_Main,224+8,16,0,0,'',fnt_Outline,taLeft);
     Label_Hint:=TKMLabel.Create(Panel_Main,224+8,Panel_Main.Height-16,0,0,'',fnt_Outline,taLeft);
@@ -945,21 +943,21 @@ begin
   if aTickCount mod 10 = 0 then
     fMapView.Update(False);
 
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  Minimap.ViewArea := fGameG.Viewport.GetMinimapClip;
 end;
 
 
 procedure TKMapEdInterface.UpdateMapSize(X,Y: Integer);
 begin
-  fMapView.UpdateMapSize(X,Y);
+  fMapView.UpdateMapSize;
   fMapView.Update(False);
   Minimap.UpdateFrom(fMapView);
   Minimap.MapSize := KMPoint(X, Y);
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  Minimap.ViewArea := fGameG.Viewport.GetMinimapClip;
 end;
 
 
-procedure TKMapEdInterface.UpdateMapName(const aName:string);
+procedure TKMapEdInterface.UpdateMapName(const aName: string);
 begin
   Label_MissionName.Caption := aName;
 end;
@@ -1215,7 +1213,7 @@ end;
 
 procedure TKMapEdInterface.View_Passability(Sender: TObject);
 begin
-  SHOW_TERRAIN_WIRES := TKMTrackBar(Sender).Position <> 0;
+  SHOW_TERRAIN_WIRES := (TKMTrackBar(Sender).Position <> 0);
   fShowPassability := TKMTrackBar(Sender).Position;
   if TKMTrackBar(Sender).Position <> 0 then
     Label_Passability.Caption := GetEnumName(TypeInfo(TPassability), TKMTrackBar(Sender).Position)
@@ -1321,29 +1319,33 @@ begin
 
   if Sender = Button_SaveSave then begin
     //Should we expand the path here? It depends.. since we are passing mask for map/dat files/folder
-    fGame.SaveMapEditor(Edit_SaveName.Text, Radio_Save_MapType.ItemIndex = 1);
+    fGameG.SaveMapEditor(Edit_SaveName.Text, Radio_Save_MapType.ItemIndex = 1);
 
     Player_UpdateColors;
     Player_ChangeActive(nil);
-    Label_MissionName.Caption := fGame.GameName;
+    Label_MissionName.Caption := fGameG.GameName;
 
     SwitchPage(Button_SaveCancel); //return to previous menu
   end;
 end;
 
 
-{Show mission loading dialogue}
-procedure TKMapEdInterface.Menu_Load(Sender:TObject);
+//Mmission loading dialog
+procedure TKMapEdInterface.Menu_Load(Sender: TObject);
+var MapName: string; IsMulti: Boolean;
 begin
-  if ListBox_Load.ItemIndex <> -1 then
-    fGame.StartMapEditor(MapNameToPath(ListBox_Load.Item[ListBox_Load.ItemIndex], 'dat', Radio_Load_MapType.ItemIndex = 1), Radio_Load_MapType.ItemIndex = 1, 0, 0);
+  if ListBox_Load.ItemIndex = -1 then Exit;
+
+  MapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
+  IsMulti := Radio_Load_MapType.ItemIndex = 1;
+  fGameApp.StartMapEditor(MapNameToPath(MapName, 'dat', IsMulti), 0, 0);
 end;
 
 
 {Quit the mission and return to main menu}
 procedure TKMapEdInterface.Menu_QuitMission(Sender:TObject);
 begin
-  fGame.Stop(gr_MapEdEnd);
+  fGameApp.Stop(gr_MapEdEnd);
 end;
 
 
@@ -1756,11 +1758,11 @@ begin
 end;
 
 
-procedure TKMapEdInterface.KeyDown(Key:Word; Shift: TShiftState);
+procedure TKMapEdInterface.KeyDown(Key: Word; Shift: TShiftState);
 begin
   if fMyControls.KeyDown(Key, Shift) then
   begin
-    fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
+    fGameG.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
     Exit; //Handled by Controls
   end;
 
@@ -1770,14 +1772,14 @@ begin
   //  Button_Main[Key-48].DoPress;
 
   //Scrolling
-  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := true;
-  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := true;
-  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := true;
-  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := true;
+  if Key = VK_LEFT  then fGameG.Viewport.ScrollKeyLeft  := true;
+  if Key = VK_RIGHT then fGameG.Viewport.ScrollKeyRight := true;
+  if Key = VK_UP    then fGameG.Viewport.ScrollKeyUp    := true;
+  if Key = VK_DOWN  then fGameG.Viewport.ScrollKeyDown  := true;
 end;
 
 
-procedure TKMapEdInterface.KeyUp(Key:Word; Shift: TShiftState);
+procedure TKMapEdInterface.KeyUp(Key: Word; Shift: TShiftState);
 begin
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 
@@ -1786,14 +1788,14 @@ begin
     Button_Main[Key-48].Click;
 
   //Scrolling
-  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := false;
-  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := false;
-  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := false;
-  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := false;
+  if Key = VK_LEFT  then fGameG.Viewport.ScrollKeyLeft  := false;
+  if Key = VK_RIGHT then fGameG.Viewport.ScrollKeyRight := false;
+  if Key = VK_UP    then fGameG.Viewport.ScrollKeyUp    := false;
+  if Key = VK_DOWN  then fGameG.Viewport.ScrollKeyDown  := false;
 
   //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
   //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-  if Key = VK_BACK  then fGame.Viewport.ResetZoom;
+  if Key = VK_BACK  then fGameG.Viewport.ResetZoom;
 end;
 
 
@@ -1803,7 +1805,7 @@ begin
 
   //So terrain brushes start on mouse down not mouse move
   if fMyControls.CtrlOver = nil then
-    fGame.UpdateGameCursor(X,Y,Shift);
+    fGameG.UpdateGameCursor(X,Y,Shift);
 end;
 
 
@@ -1818,12 +1820,12 @@ begin
     Exit;
   end;
 
-  fGame.UpdateGameCursor(X,Y,Shift);
+  fGameG.UpdateGameCursor(X,Y,Shift);
   if GameCursor.Mode = cm_None then
     if fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y, False) <> nil then
       fResource.Cursors.Cursor := kmc_Info
     else
-      if not fGame.Viewport.Scrolling then
+      if not fGameG.Viewport.Scrolling then
         fResource.Cursors.Cursor := kmc_Default;
 
   Label_Coordinates.Caption := Format('X: %d, Y: %d',[GameCursor.Cell.X,GameCursor.Cell.Y]);
@@ -1863,7 +1865,7 @@ begin
     exit; //We could have caused fGame reinit, so exit at once
   end;
 
-  fGame.UpdateGameCursor(X, Y, Shift); //Updates the shift state
+  fGameG.UpdateGameCursor(X, Y, Shift); //Updates the shift state
   P := GameCursor.Cell; //Get cursor position tile-wise
   if Button = mbRight then
   begin

@@ -47,7 +47,7 @@ var
 
 
 implementation
-uses KM_Defaults, KM_Game, KM_Utils, KM_Log;
+uses KM_Defaults, KM_GameApp, KM_Utils, KM_Log;
 
 
 { TKMRemake }
@@ -131,8 +131,7 @@ begin
   //Reset the resolution
   if fResolutions<>nil then FreeThenNil(fResolutions);
   if fMainSettings<>nil then FreeThenNil(fMainSettings);
-  if fGame<>nil then fGame.Stop(gr_Silent);
-  if fGame<>nil then FreeThenNil(fGame);
+  FreeThenNil(fGameApp);
   if fLog<>nil then FreeThenNil(fLog);
   {$IFDEF MSWindows}
   TimeEndPeriod(1);
@@ -197,10 +196,10 @@ begin
   end;
   //FPS calculation complete
 
-  if fGame <> nil then
+  if fGameApp <> nil then
   begin
-    fGame.UpdateStateIdle(FrameTime);
-    fGame.Render;
+    fGameApp.UpdateStateIdle(FrameTime);
+    fGameApp.Render;
   end;
 
   Done := False; //Repeats OnIdle asap without performing Form-specific idle code
@@ -221,17 +220,17 @@ begin
   FormMain.ToggleFullscreen(fMainSettings.FullScreen);
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
-  FreeThenNil(fGame); //Saves all settings into ini file in midst
-  fGame := TKMGame.Create(
-                          FormMain.Panel5.Handle,
-                          FormMain.Panel5.Width,
-                          FormMain.Panel5.Height,
-                          fMainSettings.VSync,
-                          FormLoading.LoadingStep,
-                          FormLoading.LoadingText
-                          );
-  fGame.AfterConstruction(aReturnToOptions);
-  fGame.OnCursorUpdate := StatusBarText;
+  FreeThenNil(fGameApp); //Saves all settings into ini file in midst
+  fGameApp := TKMGameApp.Create(
+                                FormMain.Panel5.Handle,
+                                FormMain.Panel5.Width,
+                                FormMain.Panel5.Height,
+                                fMainSettings.VSync,
+                                FormLoading.LoadingStep,
+                                FormLoading.LoadingText
+                                );
+  fGameApp.AfterConstruction(aReturnToOptions);
+  fGameApp.OnCursorUpdate := StatusBarText;
 
   fLog.AppendLog('ToggleFullscreen');
   fLog.AppendLog('Form Width/Height: '+inttostr(FormMain.Width)+':'+inttostr(FormMain.Height));
@@ -315,8 +314,8 @@ end;
 
 procedure TKMMain.Render;
 begin
-  if fGame <> nil then
-    fGame.Render;
+  if fGameApp <> nil then
+    fGameApp.Render;
 end;
 
 
@@ -327,8 +326,8 @@ begin
   //if fLog <> nil then
   //  fLog.AppendLog('FormResize X/Y: '+inttostr(X)+':'+inttostr(Y));
 
-  if fGame <> nil then
-    fGame.Resize(X, Y);
+  if fGameApp <> nil then
+    fGameApp.Resize(X, Y);
 end;
 
 

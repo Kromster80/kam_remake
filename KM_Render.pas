@@ -242,7 +242,8 @@ procedure TRender.BeginFrame;
 begin
   if fBlind then Exit;
 
-  glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT); //Clear The Screen, can save some FPS on this one
+  glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT);
+  SetRenderMode(rm2D);
 
   //RC.Activate for OSX
 end;

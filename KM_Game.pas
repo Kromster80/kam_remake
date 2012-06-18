@@ -13,7 +13,7 @@ uses
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
   KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_Resource, KM_Terrain, KM_PathFinding, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
-  KM_ArmyEvaluation, KM_GameOptions, KM_PerfLog, KM_Locales;
+  KM_ArmyEvaluation, KM_GameOptions, KM_PerfLog, KM_Locales, KM_MessageStack;
 
 type
   TGameMode = (
@@ -26,7 +26,6 @@ type
   //Methods relevant to gameplay
   TKMGame = class
   private //Irrelevant to savegame
-    fFormPassability: Integer;
     fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fIsEnded: Boolean; //The game has ended/crashed and further UpdateStates are not required/impossible
     fTimerGame: TTimer;
@@ -102,7 +101,6 @@ type
     procedure BaseSave;
     procedure SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
 
-    function  ReplayExists(const aSaveName:string; aMultiplayer:boolean):boolean;
     procedure RestartReplay;
 
     function GetMissionTime:TDateTime;
@@ -110,6 +108,8 @@ type
     function CheckTime(aTimeTicks:cardinal):boolean;
     function IsPeaceTime:boolean;
     function IsMultiplayer: Boolean;
+    function IsReplay: Boolean;
+    procedure ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
     procedure UpdatePeaceTime;
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: string read fGameName;
@@ -118,7 +118,6 @@ type
 
     property GameMode: TGameMode read fGameMode;
 
-    property FormPassability:integer read fFormPassability write fFormPassability;
     property IsExiting:boolean read fIsExiting;
     property IsPaused:boolean read fIsPaused write fIsPaused;
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
@@ -135,6 +134,7 @@ type
     property GameInputProcess: TGameInputProcess read fGameInputProcess;
     property GameOptions: TKMGameOptions read fGameOptions;
     property GamePlayInterface: TKMGamePlayInterface read fGamePlayInterface;
+    property MapEditorInterface: TKMapEdInterface read fMapEditorInterface;
     property Viewport: TViewport read fViewport;
 
     procedure Save(const aFileName: string);
@@ -186,10 +186,9 @@ begin
   else
   begin
     //Create required UI (gameplay or MapEd)
-    fGamePlayInterface := TKMGamePlayInterface.Create(aRender.ScreenX, aRender.ScreenY);
+    fGamePlayInterface := TKMGamePlayInterface.Create(aRender.ScreenX, aRender.ScreenY, fGameMode = gmMulti);
     fActiveInterface := fGamePlayInterface;
   end;
-
 
   //todo: Maybe we should reset the GameCursor? If I play 192x192 map, quit, and play a 64x64 map
   //      my cursor could be at (190,190) if the player starts with his cursor over the controls panel...
@@ -395,8 +394,16 @@ begin
 
   BaseSave;
 
-  fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
-  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
+  if fGameMode = gmMapEd then
+  begin
+    fMapEditorInterface.UpdateMapName(fGameName);
+    fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
+  end
+  else
+  begin
+    fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
+    fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
+  end;
   fLog.AppendLog('Gameplay recording initialized',true);
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 end;
@@ -661,27 +668,27 @@ end;
 procedure TKMGame.GameStart(aSizeX, aSizeY: Integer);
 var
   I: Integer;
-  LoadError: string;
-  fMissionParser: TMissionParserStandard;
 begin
+  fGameName := fTextLibrary[TX_MAP_ED_NEW_MISSION];
+
   fTerrain.MakeNewMap(aSizeX, aSizeY, True);
   fPlayers := TKMPlayersCollection.Create;
   fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
   MyPlayer := fPlayers.Player[0];
   MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
-  fGameName := fTextLibrary[TX_MAP_ED_NEW_MISSION];
 
   fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
   fViewport.ResetZoom;
 
   fMapEditorInterface.Player_UpdateColors;
-  fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
   fMapEditorInterface.UpdateMapName(fGameName);
+  fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
+
   //if FileExists(aFileName) then fMapEditorInterface.SetLoadMode(aMultiplayer);
   fPlayers.AfterMissionInit(false);
 
-  for i:=0 to fPlayers.Count-1 do //Reveal all players since we'll swap between them in MapEd
-    fPlayers[i].FogOfWar.RevealEverything;
+  for I := 0 to fPlayers.Count - 1 do //Reveal all players since we'll swap between them in MapEd
+    fPlayers[I].FogOfWar.RevealEverything;
 
   fLog.AppendLog('Gameplay initialized', True);
 
@@ -755,17 +762,7 @@ begin
   fRenderPool.Render;
 
   aRender.SetRenderMode(rm2D);
-
-  if not aRender.Blind then
-    fActiveInterface.Paint;
-end;
-
-
-//Check if replay files exist at location
-function TKMGame.ReplayExists(const aSaveName: string; aMultiplayer:boolean):boolean;
-begin
-  Result := FileExists(SaveName(aSaveName, 'bas', aMultiplayer)) and
-            FileExists(SaveName(aSaveName, 'rpl', aMultiplayer));
+  fActiveInterface.Paint;
 end;
 
 
@@ -809,6 +806,18 @@ end;
 function TKMGame.IsMultiplayer: Boolean;
 begin
   Result := fGameMode = gmMulti;
+end;
+
+
+function TKMGame.IsReplay: Boolean;
+begin
+  Result := fGameMode = gmReplay;
+end;
+
+
+procedure TKMGame.ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+begin
+  fGamePlayInterface.MessageIssue(aKind, aText, aLoc);
 end;
 
 
@@ -903,7 +912,7 @@ var
 begin
   fLog.AppendLog('Saving game');
 
-  if (fGameMode in [gmSingle, gmMulti]) then
+  if (fGameMode in [gmMapEd, gmReplay]) then
   begin
     Assert(false, 'Saving from wrong state?');
     Exit;

@@ -15,6 +15,7 @@ type
   TKMGamePlayInterface = class (TKMUserInterface)
   private
     fMapView: TKMMapView;
+    fMultiplayer: Boolean; //Multiplayer UI has slightly different layout
 
     //Not saved
     fShownUnit: TKMUnit;
@@ -34,10 +35,10 @@ type
 
     //Saved
     fLastSaveName: AnsiString; //The file name we last used to save this file (used as default in Save menu)
-    fSave_Selected:integer; //Save selected from list (needed because of scanning)
-    LastSchoolUnit:byte;  //Last unit that was selected in School, global for all schools player owns
-    LastBarracksUnit:byte; //Last unit that was selected in Barracks, global for all barracks player owns
-    fMessageList:TKMMessageList;
+    fSave_Selected: Integer; //Save selected from list (needed because of scanning)
+    LastSchoolUnit: Byte;  //Last unit that was selected in School, global for all schools player owns
+    LastBarracksUnit: Byte; //Last unit that was selected in Barracks, global for all barracks player owns
+    fMessageList: TKMMessageList;
 
     procedure Create_Controls_Page;
     procedure Create_Replay_Page;
@@ -320,7 +321,7 @@ type
       Button_Woodcutter:TKMButtonFlat;
 
   public
-    constructor Create(aScreenX, aScreenY: word); reintroduce;
+    constructor Create(aScreenX, aScreenY: Word; aMultiplayer: Boolean); reintroduce;
     destructor Destroy; override;
     procedure Resize(X,Y: Word);
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
@@ -451,7 +452,7 @@ begin
   begin
     List_Save.ItemIndex := -1;
     fSave_Selected := -1;
-    CheckBox_SaveExists.Enabled := FileExists(fGameG.SaveName(Edit_Save.Text, 'sav', fGameG.IsMultiplayer));
+    CheckBox_SaveExists.Enabled := FileExists(fGameG.SaveName(Edit_Save.Text, 'sav', fMultiplayer));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := False;
     //we should protect ourselves from empty names and whitespaces at beggining and at end of name
@@ -496,7 +497,7 @@ end;
 procedure TKMGamePlayInterface.Menu_Save_Click(Sender: TObject);
 begin
   LastSaveName := Edit_Save.Text; //Do this before saving so it is included in the save
-  if fGameG.IsMultiplayer then
+  if fMultiplayer then
     //Don't tell everyone in the game that we are saving yet, as the command hasn't been processed
     fGameG.GameInputProcess.CmdGame(gic_GameSave, Edit_Save.Text)
   else
@@ -631,7 +632,7 @@ begin
     fSaves.TerminateScan;
     Menu_Save_RefreshList(nil); //need to call it at last one time to setup GUI even if there are no saves
     //Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Save_RefreshList, fGameG.IsMultiplayer);
+    fSaves.Refresh(Menu_Save_RefreshList, fMultiplayer);
     Panel_Save.Show;
     fMyControls.CtrlFocus := Edit_Save;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_SAVE_GAME];
@@ -643,7 +644,7 @@ begin
     fSaves.TerminateScan;
     Menu_Load_RefreshList(nil); //need to call it at least one time to setup GUI even if there are no saves
     //Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Load_RefreshList, fGameG.IsMultiplayer);
+    fSaves.Refresh(Menu_Load_RefreshList, fMultiplayer);
     Panel_Load.Show;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_LOAD_GAME];
   end else
@@ -706,12 +707,13 @@ begin
 end;
 
 
-constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: word);
+constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: Word; aMultiplayer: Boolean);
 begin
   inherited Create(aScreenX, aScreenY);
 
+  fMultiplayer := aMultiplayer;
   //Instruct to use global Terrain
-  fMapView := TKMMapView.Create(fTerrain, False, False);
+  fMapView := TKMMapView.Create(False, False, False);
   LastSaveName := '';
   fShownUnit:=nil;
   fShownHouse:=nil;
@@ -724,7 +726,7 @@ begin
   LastSchoolUnit   := 0;
   LastBarracksUnit := 0;
   fMessageList := TKMMessageList.Create;
-  fSaves := TKMSavesCollection.Create(fGameG.IsMultiplayer);
+  fSaves := TKMSavesCollection.Create;
 
 {Parent Page for whole toolbar in-game}
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
@@ -936,7 +938,7 @@ begin
   for I := 0 to MAX_VISIBLE_MSGS do
   begin
     Image_Message[I] := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,0,30,48,495);
-    Image_Message[I].Top := Panel_Main.Height - (I+1)*48 - IfThen(fGameG.IsMultiplayer, 48*2);
+    Image_Message[I].Top := Panel_Main.Height - (I+1)*48 - IfThen(fMultiplayer, 48*2);
     Image_Message[I].Anchors := [akLeft, akBottom];
     Image_Message[I].Disable;
     Image_Message[I].Hide;
@@ -2810,14 +2812,14 @@ begin
   Button_Main[3].Enabled := not aTactic;
 
   //No loading during multiplayer games
-  Button_Menu_Load.Enabled := not fGameG.IsMultiplayer and not aReplay;
+  Button_Menu_Load.Enabled := not fMultiplayer and not aReplay;
   Button_Menu_Save.Enabled := not aReplay;
   Button_Menu_Quit.Enabled := not aReplay;
 
   //Chat and Allies setup should be accessible only in Multiplayer
-  Image_MPChat.Visible       := fGameG.IsMultiplayer and not aReplay;
-  Label_MPChatUnread.Visible := fGameG.IsMultiplayer and not aReplay;
-  Image_MPAllies.Visible     := fGameG.IsMultiplayer and not aReplay;
+  Image_MPChat.Visible       := fMultiplayer and not aReplay;
+  Label_MPChatUnread.Visible := fMultiplayer and not aReplay;
+  Image_MPAllies.Visible     := fMultiplayer and not aReplay;
 
   Panel_Replay.Visible := aReplay;
 end;
@@ -3150,85 +3152,69 @@ end;
 //Note: we deliberately don't pass any Keys to MyControls when game is not running
 //thats why MyControls.KeyUp is only in gsRunning clause
 //Ignore all keys if game is on 'Pause'
-procedure TKMGamePlayInterface.KeyUp(Key:Word; Shift: TShiftState);
+procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
 begin
-  if fGameG.IsPaused and not fGameG.IsMultiplayer and not fGameG.DoGameHoldState then
+  if fGameG.IsPaused and not fMultiplayer then
+  begin
+    if (Key = ord('P')) then
+      SetPause(False);
+    Exit;
+  end;
 
+  if fMyControls.KeyUp(Key, Shift) then Exit;
 
-  case fGame.GameState of
-    gsPaused:   if (Key = ord('P')) and not fGameG.IsMultiplayer then SetPause(false);
-    gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
-    gsRunning:  begin //Game is running normally
-                  if (Key=VK_ESCAPE) and (Image_ChatClose.Click or Image_AlliesClose.Click) then exit; //Escape from chat/allies page
-                  if fMyControls.KeyUp(Key, Shift) then Exit;
+  //Scrolling
+  if Key = VK_LEFT  then fGameG.Viewport.ScrollKeyLeft  := False;
+  if Key = VK_RIGHT then fGameG.Viewport.ScrollKeyRight := False;
+  if Key = VK_UP    then fGameG.Viewport.ScrollKeyUp    := False;
+  if Key = VK_DOWN  then fGameG.Viewport.ScrollKeyDown  := False;
 
-                  //Scrolling
-                  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := False;
-                  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := False;
-                  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := False;
-                  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := False;
+  if Key = VK_BACK then  fGameG.Viewport.ResetZoom;
 
-                  if Key = VK_BACK then  fGame.Viewport.ResetZoom;
+  //Game speed/pause: Not available in multiplayer mode yet
+  if not fMultiplayer or MULTIPLAYER_SPEEDUP then
+  begin
+    if (Key = VK_F5) then fGameG.SetGameSpeed(1);
+    if (Key = VK_F6) then fGameG.SetGameSpeed(fGameApp.GlobalSettings.SpeedMedium);
+    if (Key = VK_F7) then fGameG.SetGameSpeed(fGameApp.GlobalSettings.SpeedFast);
+    if (Key = VK_F8) then fGameG.SetGameSpeed(fGameApp.GlobalSettings.SpeedVeryFast);
+  end;
 
-                  //Game speed/pause: Not available in multiplayer mode yet
-                  if (not fGameG.IsMultiplayer) or MULTIPLAYER_SPEEDUP then
-                  begin
-                    if (Key = VK_F5) then fGame.SetGameSpeed(1);
-                    if (Key = VK_F6) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedMedium);
-                    if (Key = VK_F7) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedFast);
-                    if (Key = VK_F8) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedVeryFast);
-                  end;
-                  if not fGameG.IsMultiplayer then
-                    if (Key = ord('P')) then SetPause(true); //Display pause overlay
+  if fGameG.IsReplay then Exit;
 
-                  //Menu shortcuts
-                  if Key in [ord('1')..ord('4')] then Button_Main[Key-48].Click;
-                  if Key=VK_ESCAPE then if Button_Army_Join_Cancel.Click then exit
-                                        else if Button_MessageClose.Click then exit
-                                        else if Image_ChatClose.Click then exit
-                                        else if Image_AlliesClose.Click then exit
-                                        else if Button_Main[5].Click then exit;
-                  //Messages
-                  if Key=VK_SPACE  then Button_MessageGoTo.Click; //In KaM spacebar centers you on the message
-                  if Key=VK_DELETE then Button_MessageDelete.Click;
-                  if (Key=VK_RETURN) and fGameG.IsMultiplayer and not Panel_Chat.Visible then
-                    Chat_Show(Self); //Enter is the shortcut to bring up chat in multiplayer
+  if (Key = ord('P')) and not fMultiplayer then SetPause(True); //Display pause overlay
 
-                  //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
-                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_HALT][1])) and (Panel_Army.Visible) then Button_Army_Stop.Click;
-                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_LINK][1])) and (Panel_Army.Visible) then Button_Army_Join.Click;
-                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT][1])) and (Panel_Army.Visible) then Button_Army_Split.Click;
+  //Menu shortcuts
+  if Key in [ord('1')..ord('4')] then Button_Main[Key-48].Click;
+  if (Key = VK_ESCAPE) and (   Button_Army_Join_Cancel.Click
+                            or Button_MessageClose.Click
+                            or Image_ChatClose.Click
+                            or Image_AlliesClose.Click
+                            or Button_Main[5].Click) then Exit;
+  //Messages
+  if Key = VK_SPACE  then Button_MessageGoTo.Click; //In KaM spacebar centers you on the message
+  if Key = VK_DELETE then Button_MessageDelete.Click;
+  if (Key = VK_RETURN) and fMultiplayer and not Panel_Chat.Visible then
+    Chat_Show(Self); //Enter is the shortcut to bring up chat in multiplayer
 
-                  {Temporary cheat codes}
-                  if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGameG.IsMultiplayer) then
-                  begin
-                    if Key=ord('5') then MessageIssue(mkText, '123', KMPoint(0,0));
-                    if Key=ord('6') then MessageIssue(mkHouse,'123', KMPointRound(fGame.Viewport.Position));
-                    if Key=ord('7') then MessageIssue(mkUnit, '123', KMPoint(0,0));
-                    if Key=ord('8') then MessageIssue(mkQuill,'123', KMPoint(0,0));
+  //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
+  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_HALT][1])) and (Panel_Army.Visible) then Button_Army_Stop.Click;
+  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_LINK][1])) and (Panel_Army.Visible) then Button_Army_Join.Click;
+  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT][1])) and (Panel_Army.Visible) then Button_Army_Split.Click;
 
-                    if Key=ord('W') then fGameG.GameInputProcess.CmdTemp(gic_TempRevealMap);
-                    if Key=ord('V') then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
-                    if Key=ord('D') then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
-                    if Key=ord('Q') then fGameG.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell); //Usefull when mouse has no middle-button
-                  end;
+  {Temporary cheat codes}
+  if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
+  begin
+    if Key=ord('5') then MessageIssue(mkText, '123', KMPoint(0,0));
+    if Key=ord('6') then MessageIssue(mkHouse,'123', KMPointRound(fGameG.Viewport.Position));
+    if Key=ord('7') then MessageIssue(mkUnit, '123', KMPoint(0,0));
+    if Key=ord('8') then MessageIssue(mkQuill,'123', KMPoint(0,0));
 
-                end;
-    gsReplay:   begin
-                  //Scrolling
-                  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := false;
-                  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := false;
-                  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := false;
-                  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := false;
-
-                  if Key = VK_BACK then fGame.Viewport.ResetZoom;
-
-                  if Key = VK_F5 then fGame.SetGameSpeed(1);
-                  if Key = VK_F6 then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedMedium);
-                  if Key = VK_F7 then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedFast);
-                  if Key = VK_F8 then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedVeryFast);
-                end;
-   end;
+    if Key=ord('W') then fGameG.GameInputProcess.CmdTemp(gic_TempRevealMap);
+    if Key=ord('V') then begin fGameG.GameHold(true, gr_Win); exit; end; //Instant victory
+    if Key=ord('D') then begin fGameG.GameHold(true, gr_Defeat); exit; end; //Instant defeat
+    if Key=ord('Q') then fGameG.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell); //Usefull when mouse has no middle-button
+  end;
 end;
 
 
@@ -3242,7 +3228,7 @@ var
 begin
   inherited;
 
-  if (fGame.GameState <> gsRunning) or (fMyControls.CtrlOver <> nil) then
+  if fGameG.IsPaused or (fMyControls.CtrlOver <> nil) then
     Exit;
 
   if SelectingTroopDirection then
@@ -3300,15 +3286,14 @@ begin
   and not SelectingTroopDirection then
   begin
     //kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
-    if not fGame.Viewport.Scrolling and not (fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
+    if not fGameG.Viewport.Scrolling and not (fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
       fResource.Cursors.Cursor := kmc_Default;
     Exit;
   end
   else
     DisplayHint(nil); //Clear shown hint
 
-  if not (fGame.GameState in [gsRunning, gsReplay]) then
-    Exit;
+  if fGameG.IsPaused then Exit;
 
   if SelectingTroopDirection then
   begin
@@ -3334,7 +3319,7 @@ begin
     Exit;
   end;
 
-  fGame.UpdateGameCursor(X,Y,Shift);
+  fGameG.UpdateGameCursor(X,Y,Shift);
 
   if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
   begin
@@ -3376,7 +3361,7 @@ begin
   if GameCursor.Mode <> cm_None then
   begin
     //Use the default cursor while placing roads, don't become stuck on c_Info or others
-    if not fGame.Viewport.Scrolling then
+    if not fGameG.Viewport.Scrolling then
       fResource.Cursors.Cursor := kmc_Default;
     Exit;
   end;
@@ -3396,13 +3381,13 @@ begin
     Exit;
   end;
 
-  if fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y, not fGame.ReplayMode) <> nil then
+  if fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y, not fGameG.IsReplay) <> nil then
   begin
     fResource.Cursors.Cursor := kmc_Info;
     Exit;
   end;
 
-  if (fShownUnit is TKMUnitWarrior) and not fGame.ReplayMode then
+  if (fShownUnit is TKMUnitWarrior) and not fGameG.IsReplay then
   begin
     if (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, false) > 0) then
     begin
@@ -3412,13 +3397,13 @@ begin
          ((H<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy)) then
         fResource.Cursors.Cursor := kmc_Attack
       else
-      if not fGame.Viewport.Scrolling then
+      if not fGameG.Viewport.Scrolling then
         fResource.Cursors.Cursor := kmc_Default;
       Exit;
     end;
   end;
 
-  if not fGame.Viewport.Scrolling then
+  if not fGameG.Viewport.Scrolling then
     fResource.Cursors.Cursor := kmc_Default;
 end;
 
@@ -3440,8 +3425,7 @@ begin
     Exit;
   end;
 
-  if not (fGame.GameState in [gsRunning, gsReplay]) then
-    Exit;
+  if fGameG.IsPaused then Exit;
 
   P := GameCursor.Cell; //It's used in many places here
 
@@ -3475,7 +3459,7 @@ begin
                                 OldSelected := fPlayers.Selected;
 
                                 //Allow to select any players assets in replay
-                                fPlayers.SelectHitTest(P.X, P.Y, not fGame.ReplayMode);
+                                fPlayers.SelectHitTest(P.X, P.Y, not fGameG.IsReplay);
 
                                 if (fPlayers.Selected is TKMHouse) then
                                   ShowHouseInfo(TKMHouse(fPlayers.Selected));
@@ -3483,7 +3467,7 @@ begin
                                 if (fPlayers.Selected is TKMUnit) then
                                 begin
                                   ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                                  if (OldSelected <> fPlayers.Selected) and not fGame.ReplayMode then
+                                  if (OldSelected <> fPlayers.Selected) and not fGameG.IsReplay then
                                   begin
                                     if fPlayers.Selected is TKMUnitWarrior then
                                       fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select)
@@ -3532,7 +3516,7 @@ begin
                 ReleaseDirectionSelector;
 
                 //Attack or Walk
-                if not fGame.ReplayMode and not fJoiningGroups and (fShownUnit is TKMUnitWarrior)
+                if not fGameG.IsReplay and not fJoiningGroups and (fShownUnit is TKMUnitWarrior)
                 and TKMUnitWarrior(fShownUnit).GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
                 and (fShownUnit.GetOwner = MyPlayer.PlayerIndex) then
                 begin
@@ -3569,7 +3553,7 @@ begin
                   Army_HideJoinMenu(nil);
 
               end;
-    mbMiddle: if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGameG.IsMultiplayer) then
+    mbMiddle: if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
                 fGameG.GameInputProcess.CmdTemp(gic_TempAddScout, P);
   end;
 
@@ -3613,11 +3597,11 @@ end;
 
 procedure TKMGamePlayInterface.UpdateMapSize(X, Y: Integer);
 begin
-  fMapView.UpdateMapSize(X,Y);
+  fMapView.UpdateMapSize;
   fMapView.Update(False);
   Minimap.UpdateFrom(fMapView);
   Minimap.MapSize := KMPoint(X, Y);
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  Minimap.ViewArea := fGameG.Viewport.GetMinimapClip;
 end;
 
 
@@ -3627,12 +3611,11 @@ procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var I: Integer; S: string;
 begin
   //Update minimap every 1000ms
-  if aTickCount mod 10 = 0 then
-    if (fGame.GameState in [gsRunning, gsReplay]) then
-      fMapView.Update(False);
+  if (aTickCount mod 10 = 0) and not fGameG.IsPaused then
+    fMapView.Update(False);
 
   //Minimap viewport gets updated eact tick
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  Minimap.ViewArea := fGameG.Viewport.GetMinimapClip;
 
   //Update unit/house information
   if fShownUnit <> nil then
@@ -3645,23 +3628,23 @@ begin
   end;
 
   //Update peacetime counter
-  if fGame.GameOptions.Peacetime <> 0 then
+  if fGameG.GameOptions.Peacetime <> 0 then
     Label_PeacetimeRemaining.Caption := Format(fTextLibrary[TX_MP_PEACETIME_REMAINING],
-                                               [FormatDateTime('h:nn:ss', fGame.GetPeacetimeRemaining)])
+                                               [FormatDateTime('h:nn:ss', fGameG.GetPeacetimeRemaining)])
   else Label_PeacetimeRemaining.Caption := '';
 
   //Update replay counters
-  if fGame.ReplayMode then
+  if fGameG.IsReplay then
   begin
-    PercentBar_Replay.Position := EnsureRange(Round(fGame.GameTickCount / fGameG.GameInputProcess.GetLastTick * 100), 0, 100);
-    Label_Replay.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime) + ' / ' +
+    PercentBar_Replay.Position := EnsureRange(Round(fGameG.GameTickCount / fGameG.GameInputProcess.GetLastTick * 100), 0, 100);
+    Label_Replay.Caption := FormatDateTime('hh:nn:ss', fGameG.GetMissionTime) + ' / ' +
                             FormatDateTime('hh:nn:ss', fGameG.GameInputProcess.GetLastTick/24/60/60/10);
   end;
 
   //Update speedup clocks
   if Image_Clock.Visible then begin
     Image_Clock.TexID := ((Image_Clock.TexID - 556) + 1) mod 16 + 556;
-    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
+    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGameG.GetMissionTime);
   end;
 
   //Keep on updating these menu pages as game data keeps on changing
@@ -3670,7 +3653,7 @@ begin
   if Panel_Menu.Visible then Menu_Fill(nil);
 
   //Flash unread message display
-  Label_MPChatUnread.Visible := fGameG.IsMultiplayer and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
+  Label_MPChatUnread.Visible := fMultiplayer and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
 
@@ -3703,7 +3686,7 @@ begin
   if SHOW_CMDQUEUE_COUNT then
     Label_CmdQueueCount.Caption := inttostr(fGameG.GameInputProcess.Count)+' commands stored';
 
-  if SHOW_NETWORK_DELAY and fGameG.IsMultiplayer then
+  if SHOW_NETWORK_DELAY and fMultiplayer then
     Label_NetworkDelay.Caption := 'Network delay: '+inttostr(TGameInputProcess_Multi(fGameG.GameInputProcess).GetNetworkDelay);
 
   if DISPLAY_SOUNDS then

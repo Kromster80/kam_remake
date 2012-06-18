@@ -244,7 +244,7 @@ procedure TKMPlayerAI.CheckGoals;
     case aGoal.GoalCondition of
       gc_BuildTutorial:     Result := Stat.GetHouseQty(ht_Tannery) = 0; //For some reason this goal is gs_False in KaM, that's why check is =0 not  > 0
       //gc_Time is disabled as we process messages in Event system now
-      gc_Time:              Result := fGame.CheckTime(aGoal.GoalTime);
+      gc_Time:              Result := fGameG.CheckTime(aGoal.GoalTime);
       gc_Buildings:         Result := (Stat.GetHouseQty(ht_Store) > 0) or (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetHouseQty(ht_Barracks) > 0);
       gc_Troops:            Result := (Stat.GetArmyCount > 0);
       gc_MilitaryAssets:    Result := (Stat.GetArmyCount > 0) or (Stat.GetHouseQty(ht_Barracks) > 0) or (Stat.GetHouseQty(ht_CoalMine) > 0) or
@@ -284,7 +284,7 @@ begin
       and (fTextLibrary[Goals[I].MessageToShow] <> '') then
       begin
         if MyPlayer = fPlayers[fPlayerIndex] then
-          fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary[Goals[I].MessageToShow], KMPoint(0,0));
+          fGameG.ShowMessage(mkText, fTextLibrary[Goals[I].MessageToShow], KMPoint(0,0));
         Goals.SetMessageHasShown(I);
       end;}
     end
@@ -305,13 +305,13 @@ begin
   //win battle missions by waiting for your troops to simultainiously starve to death.
 
   //Let everyone know in MP mode
-  if (fGame.GameState <> gsReplay)
-  and (fGame.MultiplayerMode or (MyPlayer = fPlayers[fPlayerIndex])) then
+  if not fGameG.IsReplay
+  and (fGameG.IsMultiplayer or (MyPlayer = fPlayers[fPlayerIndex])) then
     if not SurvivalSatisfied then
-      fGame.PlayerDefeat(fPlayerIndex)
+      fGameG.PlayerDefeat(fPlayerIndex)
     else
     if VictorySatisfied then
-      fGame.PlayerVictory(fPlayerIndex);
+      fGameG.PlayerVictory(fPlayerIndex);
 end;
 
 
@@ -324,10 +324,10 @@ var
   TrainedSomething:boolean;
   GroupReq: array[TGroupType] of integer;
 begin
-  if fGame.IsPeaceTime then Exit; //Do not process train soldiers during peacetime
+  if fGameG.IsPeaceTime then Exit; //Do not process train soldiers during peacetime
   if fPlayers[fPlayerIndex].Stats.GetArmyCount >= MaxSoldiers then Exit; //Don't train if we have reached our limit
-  if not fGame.CheckTime(fLastEquippedTime+EquipRate) then Exit; //Delay between equipping soldiers for KaM compatibility
-  fLastEquippedTime := fGame.GameTickCount;
+  if not fGameG.CheckTime(fLastEquippedTime+EquipRate) then Exit; //Delay between equipping soldiers for KaM compatibility
+  fLastEquippedTime := fGameG.GameTickCount;
 
   //Create a list of troops that need to be trained based on defence position requirements
   FillChar(GroupReq, SizeOf(GroupReq), #0); //Clear up
@@ -522,7 +522,7 @@ begin
             Continue;
           end;
 
-          if fGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
+          if fGameG.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
 
           //Check formation. If the script has defined a group with more units per row than there should be, do not change it
           if UnitsPerRow < TroopFormations[UnitGroups[UnitType]].UnitsPerRow then
@@ -581,9 +581,9 @@ begin
   end;
 
   //Now process AI attacks (we have compiled a list of warriors available to attack)
-  if not fGame.IsPeaceTime then
+  if not fGameG.IsPeaceTime then
     for i:=0 to Attacks.Count - 1 do
-    if Attacks.MayOccur(i, AttackTotalAvailable, AttackGroupsCount, fGame.GameTickCount) then //Check conditions are right
+    if Attacks.MayOccur(i, AttackTotalAvailable, AttackGroupsCount, fGameG.GameTickCount) then //Check conditions are right
     begin
       //Order groups to attack
       if Attacks[i].TakeAll then
@@ -652,13 +652,13 @@ begin
   case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
       begin
-        if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
+        if fGameG.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
         begin
           //Process anyway for multiplayer consistency
           //(and it is desired behaviour: if player saw attack,
           //don't notify him as soon as he looks away)
-          fTimeOfLastAttackMessage := fGame.GameTickCount;
-          if (MyPlayer = fPlayers[fPlayerIndex]) and (GetLength(fGame.Viewport.Position, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+          fTimeOfLastAttackMessage := fGameG.GameTickCount;
+          if (MyPlayer = fPlayers[fPlayerIndex]) and (GetLength(fGameG.Viewport.Position, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
             fSoundLib.PlayNotification(an_Town);
         end;
       end;
@@ -673,10 +673,10 @@ procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWa
 begin
   case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
-      if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
+      if fGameG.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
       begin
-        fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
-        if (MyPlayer = fPlayers[fPlayerIndex]) and (GetLength(fGame.Viewport.Position, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+        fTimeOfLastAttackMessage := fGameG.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
+        if (MyPlayer = fPlayers[fPlayerIndex]) and (GetLength(fGameG.Viewport.Position, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
         begin
           if aUnit is TKMUnitWarrior then
             fSoundLib.PlayNotification(an_Troops)

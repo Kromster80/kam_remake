@@ -353,14 +353,14 @@ begin
   fPointerCount     := 0;
   fTimeSinceUnoccupiedReminder   := TIME_BETWEEN_MESSAGES;
 
-  fID := fGame.GetNewID;
+  fID := fGameG.GetNewID;
   ResourceDepletedMsgIssued := false;
 
   if aBuildState = hbs_Done then //House was placed on map already Built e.g. in mission maker
   begin
     Activate(False);
     fBuildingProgress := fResource.HouseDat[fHouseType].MaxHealth;
-    fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, fGame.GameState <> gsEditor); //Sets passability and flattens terrain if we're not in the map editor
+    fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, fGameG.GameMode <> gmMapEd); //Sets passability and flattens terrain if we're not in the map editor
   end else
     fTerrain.SetHouse(fPosition, fHouseType, hsFence, fOwner); //Terrain remains neutral yet
 end;
@@ -490,8 +490,8 @@ begin
   if fPlayers.Selected = Self then
     fPlayers.Selected := nil;
 
-  if (fGame.fGamePlayInterface <> nil) and (fGame.fGamePlayInterface.ShownHouse = Self) then
-    fGame.fGamePlayInterface.ShowHouseInfo(nil);
+  if (fGameG.GamePlayInterface <> nil) and (fGameG.GamePlayInterface.ShownHouse = Self) then
+    fGameG.GamePlayInterface.ShowHouseInfo(nil);
 
   if not DoSilent then
     if not NoRubble then
@@ -528,7 +528,7 @@ end;
 //Used by MapEditor
 procedure TKMHouse.SetPosition(aPos: TKMPoint);
 begin
-  Assert(fGame.GameState = gsEditor);
+  Assert(fGameG.GameMode = gmMapEd);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   fTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
   fTerrain.RemRoad(GetEntrance);
@@ -1161,7 +1161,7 @@ begin
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
       if fOwner = MyPlayer.PlayerIndex then
-        fGame.fGamePlayInterface.MessageIssue(mkHouse, fTextLibrary[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
+        fGameG.ShowMessage(mkHouse, fTextLibrary[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end
@@ -1198,7 +1198,7 @@ begin
                 end;
   end;
 
-  if SHOW_POINTER_DOTS and fGame.AllowDebugRendering then
+  if SHOW_POINTER_DOTS then
     fRenderAux.UnitPointers(fPosition.X + 0.5, fPosition.Y + 1, fPointerCount);
 end;
 
@@ -1876,7 +1876,7 @@ var
 begin
   Assert(aRes in [WARE_MIN .. WARE_MAX]); //Dunno why thats happening sometimes..
 
-  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
+  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGameG.IsMultiplayer) then
   begin
     ApplyCheat := True;
 
@@ -1891,18 +1891,18 @@ begin
                     fPlayers[fOwner].Stats.GoodProduced(rt_All, 10);
                     Exit;
                   end;
-      rt_Horse:   if not fGame.MultiplayerMode then
+      rt_Horse:   if not fGameG.IsMultiplayer then
                   begin
                     //Game results cheats should not be used in MP even in debug
                     //MP does Win/Defeat differently (without Hold)
-                    fGame.RequestGameHold(gr_Win);
+                    fGameG.RequestGameHold(gr_Win);
                     Exit;
                   end;
-      rt_Fish:    if not fGame.MultiplayerMode then
+      rt_Fish:    if not fGameG.IsMultiplayer then
                   begin
                     //Game results cheats should not be used in MP even in debug
                     //MP does Win/Defeat differently (without Hold)
-                    fGame.RequestGameHold(gr_Defeat);
+                    fGameG.RequestGameHold(gr_Defeat);
                     Exit;
                   end;
     end;
@@ -2006,7 +2006,7 @@ end;
 
 
 //Equip a new soldier and make him walk out of the house
-procedure TKMHouseBarracks.Equip(aUnitType: TUnitType; aCount:byte);
+procedure TKMHouseBarracks.Equip(aUnitType: TUnitType; aCount: Byte);
 var i,k:integer;
     Soldier:TKMUnitWarrior;
 begin
@@ -2335,7 +2335,7 @@ var I: Integer;
 begin
   SaveStream.Write('Houses');
   //Multiplayer saves must be identical, thus we force that no house is selected
-  if (fSelectedHouse <> nil) and not fGame.MultiplayerMode then
+  if (fSelectedHouse <> nil) and not fGameG.IsMultiplayer then
     SaveStream.Write(fSelectedHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
@@ -2438,7 +2438,7 @@ var
   Rect: TKMRect;
 begin
   //Compensate for big houses near borders or standing on hills
-  Rect := KMRectGrow(fGame.Viewport.GetClip, Margin);
+  Rect := KMRectGrow(fGameG.Viewport.GetClip, Margin);
 
   for I := 0 to Count - 1 do
   if not Houses[I].IsDestroyed and KMInRect(Houses[I].fPosition, Rect) then

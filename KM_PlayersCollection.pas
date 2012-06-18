@@ -350,7 +350,7 @@ end;
 
 procedure TKMPlayersCollection.CleanUpUnitPointer(var aUnit: TKMUnit);
 begin
-  if (aUnit <> nil) and not fGame.IsExiting then
+  if (aUnit <> nil) and not fGameG.IsExiting then
     aUnit.ReleaseUnitPointer;
   aUnit := nil;
 end;
@@ -358,7 +358,7 @@ end;
 
 procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouse);
 begin
-  if (aHouse <> nil) and not fGame.IsExiting then
+  if (aHouse <> nil) and not fGameG.IsExiting then
     aHouse.ReleaseHousePointer;
   aHouse := nil;
 end;
@@ -494,7 +494,7 @@ var
 begin
   //Update AI every 2sec for different player to even the CPU load
   for I := 0 to fCount - 1 do
-    if fGame.GameState in [gsRunning, gsReplay] then
+    if not fGameG.IsPaused and not fGameG.IsExiting then
       fPlayerList[I].UpdateState(aTick)
     else
       //PlayerAI can stop the game and clear everything

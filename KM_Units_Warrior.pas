@@ -901,7 +901,7 @@ begin
       if fTimeSinceHungryReminder < 1 then
       begin
         if (fOwner = MyPlayer.PlayerIndex) then
-          fGame.fGamePlayInterface.MessageIssue(mkUnit, fTextLibrary[TX_MSG_TROOP_HUNGRY], GetPosition);
+          fGameG.ShowMessage(mkUnit, fTextLibrary[TX_MSG_TROOP_HUNGRY], GetPosition);
         fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
       end;
     end
@@ -1250,7 +1250,7 @@ begin
     else
       FlagColor := fPlayers.Player[fOwner].FlagColor; //Normal color
 
-    if fGame.GameState = gsEditor then
+    if fGameG.GameMode = gmMapEd then
       FlagStep := fTerrain.AnimStep
     else
       FlagStep := fFlagAnim;

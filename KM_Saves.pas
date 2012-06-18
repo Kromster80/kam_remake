@@ -34,7 +34,8 @@ type
     property FileName: string read fFileName;
     property CRC: Cardinal read fCRC;
 
-    function IsValid:boolean;
+    function IsValid: Boolean;
+    function IsReplayValid: Boolean;
     function LoadMinimap(aMapView:TKMMapView):Boolean;
   end;
 
@@ -53,7 +54,6 @@ type
   private
     fCount: Word;
     fSaves: array of TKMSaveInfo;
-    fMultiplayerPath: Boolean;
     fSortMethod: TSavesSortMethod;
     CS: TCriticalSection;
     fScanner: TTSavesScanner;
@@ -69,7 +69,7 @@ type
     procedure DoSort;
     function GetSave(aIndex: Integer): TKMSaveInfo;
   public
-    constructor Create(aMultiplayerPath: Boolean; aSortMethod: TSavesSortMethod = smByFileNameDesc);
+    constructor Create(aSortMethod: TSavesSortMethod = smByFileNameDesc);
     destructor Destroy; override;
 
     property Count: Word read fCount;
@@ -180,11 +180,18 @@ begin
 end;
 
 
+//Check if replay files exist at location
+function TKMSaveInfo.IsReplayValid: Boolean;
+begin
+  Result := FileExists(fPath + fFileName + 'bas') and
+            FileExists(fPath + fFileName + 'rpl');
+end;
+
+
 { TKMSavesCollection }
-constructor TKMSavesCollection.Create(aMultiplayerPath: Boolean; aSortMethod: TSavesSortMethod = smByFileNameDesc);
+constructor TKMSavesCollection.Create(aSortMethod: TSavesSortMethod = smByFileNameDesc);
 begin
   inherited Create;
-  fMultiplayerPath := aMultiplayerPath;
   fSortMethod := aSortMethod;
   fScanFInished := True;
 
@@ -340,11 +347,10 @@ begin
 
   fScanFinished := False;
   fOnRefresh := aOnRefresh;
-  fMultiplayerPath := aMultiplayerPath;
 
   //Scan will launch upon create automatcally
   fScanning := True;
-  fScanner := TTSavesScanner.Create(fMultiplayerPath, SaveAdd, SaveAddDone, ScanComplete);
+  fScanner := TTSavesScanner.Create(aMultiplayerPath, SaveAdd, SaveAddDone, ScanComplete);
 end;
 
 
