@@ -26,9 +26,10 @@ type
 
     procedure GameLoadingStep(const aText: string);
     procedure LoadGameAssets;
-    procedure LoadGameFromSave(aFileName: string; aGameMode: TGameMode);
+    procedure LoadGameFromSave(aFilePath: string; aGameMode: TGameMode);
     procedure LoadGameFromScript(aMissionFile, aGameName: string; aCampaignName: string; aMap: Byte; aGameMode: TGameMode);
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
+    function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
   public
     constructor Create(aHandle: HWND; aScreenX, aScreenY: Word; aVSync: Boolean; aLS: TEvent; aLT: TStringEvent; aOnCursorUpdate: TIntegerStringEvent; NoMusic: Boolean = False);
     destructor Destroy; override;
@@ -47,9 +48,9 @@ type
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
     procedure NewSingleMap(aMissionFile, aGameName: string);
-    procedure NewSingleSave(aFileName: string);
+    procedure NewSingleSave(aSaveName: string);
     procedure NewMultiplayerMap(const aFileName: string);
-    procedure NewMultiplayerSave(const aFileName: string);
+    procedure NewMultiplayerSave(const aSaveName: string);
     procedure NewRestartLast;
     procedure NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
     procedure NewReplay(const aSaveName: string);
@@ -379,7 +380,7 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromSave(aFileName: string; aGameMode: TGameMode);
+procedure TKMGameApp.LoadGameFromSave(aFilePath: string; aGameMode: TGameMode);
 var
   LoadError: string;
 begin
@@ -388,7 +389,7 @@ begin
 
   fGameG := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
-    fGameG.Load(aFileName);
+    fGameG.Load(aFilePath);
   except
     on E : Exception do
     begin
@@ -396,7 +397,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFileName])+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFilePath])+'||'+E.ClassName+': '+E.Message;
       Stop(gr_Error, LoadError);
       fLog.AppendLog('Game creation Exception: ' + LoadError);
       Exit;
@@ -485,9 +486,10 @@ begin
 end;
 
 
-procedure TKMGameApp.NewSingleSave(aFileName: string);
+procedure TKMGameApp.NewSingleSave(aSaveName: string);
 begin
-  LoadGameFromSave(aFileName, gmSingle);
+  //Convert SaveName to local FilePath
+  LoadGameFromSave(SaveName(aSaveName, 'sav', False), gmSingle);
 end;
 
 
@@ -497,9 +499,11 @@ begin
 end;
 
 
-procedure TKMGameApp.NewMultiplayerSave(const aFileName: string);
+procedure TKMGameApp.NewMultiplayerSave(const aSaveName: string);
 begin
-  LoadGameFromSave(aFileName, gmMulti);
+  //Convert SaveName to local FilePath
+  //aFileName is the same for all players, but Path to it is different
+  LoadGameFromSave(SaveName(aSaveName, 'sav', False), gmMulti);
 end;
 
 
@@ -541,7 +545,17 @@ end;
 
 procedure TKMGameApp.NewReplay(const aSaveName: string);
 begin
-  LoadGameFromSave(aSaveName, gmReplay);
+  //Convert SaveName to local FilePath with proper extension
+  LoadGameFromSave(SaveName(aSaveName, 'rpl', False), gmReplay);
+end;
+
+
+function TKMGameApp.SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
+begin
+  if aMultiPlayer then
+    Result := ExeDir + 'SavesMP\' + aName + '.' + aExt
+  else
+    Result := ExeDir + 'Saves\' + aName + '.' + aExt;
 end;
 
 

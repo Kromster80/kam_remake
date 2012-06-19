@@ -75,7 +75,7 @@ type
 
     procedure GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte); overload;
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
-    procedure Load(const aFileName: string; aReplay:boolean=false);
+    procedure Load(const aPathName: string; aReplay:boolean=false);
 
     function MapX: Word;
     function MapY: Word;
@@ -92,7 +92,6 @@ type
     procedure GameDropWaitingPlayers;
 
     procedure AutoSave;
-    procedure BaseSave;
     procedure SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
 
     procedure RestartReplay;
@@ -183,7 +182,7 @@ begin
   else
   begin
     //Create required UI (gameplay or MapEd)
-    fGamePlayInterface := TKMGamePlayInterface.Create(aRender.ScreenX, aRender.ScreenY, IsMultiplayer);
+    fGamePlayInterface := TKMGamePlayInterface.Create(aRender.ScreenX, aRender.ScreenY, IsMultiplayer, IsReplay);
     fActiveInterface := fGamePlayInterface;
   end;
 
@@ -221,8 +220,8 @@ destructor TKMGame.Destroy;
 begin
   fTimerGame.Enabled := False;
 
-  if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
-    fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fGameMode = gmMulti));
+  //if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
+  //  fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fGameMode = gmMulti));
 
   fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
 
@@ -334,17 +333,17 @@ begin
 
   if fGameMode = gmMulti then
   begin
-    for i:=0 to High(PlayerRemap) do
-      PlayerRemap[i] := PLAYER_NONE; //Init with empty values
-    for i:=1 to fNetworking.NetPlayers.Count do
+    for I := 0 to High(PlayerRemap) do
+      PlayerRemap[I] := PLAYER_NONE; //Init with empty values
+    for I := 1 to fNetworking.NetPlayers.Count do
     begin
-      PlayerRemap[fNetworking.NetPlayers[i].StartLocation - 1] := i-1; //PlayerID is 0 based
-      fNetworking.NetPlayers[i].StartLocation := i;
+      PlayerRemap[fNetworking.NetPlayers[I].StartLocation - 1] := I - 1; //PlayerID is 0 based
+      fNetworking.NetPlayers[I].StartLocation := I;
     end;
   end
   else
-    for i:=0 to High(PlayerRemap) do
-      PlayerRemap[i] := i; //Init with empty values
+    for I := 0 to High(PlayerRemap) do
+      PlayerRemap[I] := I; //Init with empty values
 
   case fGameMode of
     gmMulti:  ParseMode := mpm_Multi;
@@ -389,8 +388,7 @@ begin
   //When everything is ready we can update UI
   UpdateUI;
 
-  BaseSave;
-  fLog.AppendLog('Gameplay recording initialized',true);
+  fLog.AppendLog('Gameplay recording initialized', True);
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 end;
 
@@ -505,7 +503,7 @@ end;
 {$IFDEF USE_MAD_EXCEPT}
 procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
 
-  procedure AttachFile(const aFile:string);
+  procedure AttachFile(const aFile: string);
   begin
     if (aFile = '') or not FileExists(aFile) then Exit;
     ExceptIntf.AdditionalAttachments.Add(aFile, '', aZipFile);
@@ -515,12 +513,9 @@ var I: Integer;
 begin
   fLog.AppendLog('Creating crash report...');
 
+  //Save latest replay data
   if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
-    fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fMultiplayerMode)); //Save replay data ourselves
-
-  AttachFile(SaveName('basesave', 'rpl'));
-  AttachFile(SaveName('basesave', 'bas'));
-  AttachFile(SaveName('basesave', 'sav'));
+    fGameInputProcess.SaveToFile(SaveName('crashreport', 'rpl', IsMultiplayer));
 
   AttachFile(fMissionFile);
 
@@ -677,7 +672,7 @@ end;
 
 
 procedure TKMGame.AutoSave;
-var i: integer;
+var I: Integer;
 begin
   Save('autosave'); //Save to temp file
 
@@ -696,17 +691,6 @@ begin
   RenameFile(SaveName('autosave', 'sav', fGameMode = gmMulti), SaveName('autosave01', 'sav', fGameMode = gmMulti));
   RenameFile(SaveName('autosave', 'rpl', fGameMode = gmMulti), SaveName('autosave01', 'rpl', fGameMode = gmMulti));
   RenameFile(SaveName('autosave', 'bas', fGameMode = gmMulti), SaveName('autosave01', 'bas', fGameMode = gmMulti));
-end;
-
-
-procedure TKMGame.BaseSave;
-begin
-  Save('basesave'); //Temp file
-
-  //In Linux CopyFile does not overwrite
-  if FileExists(SaveName('basesave', 'bas', fGameMode = gmMulti)) then
-    DeleteFile(SaveName('basesave','bas', fGameMode = gmMulti));
-  CopyFile(PChar(SaveName('basesave','sav', fGameMode = gmMulti)), PChar(SaveName('basesave','bas', fGameMode = gmMulti)), False);
 end;
 
 
@@ -977,48 +961,47 @@ begin
   //Makes the folders incase they were deleted
   s := SaveName(aFileName,'sav', fGameMode = gmMulti);
   ForceDirectories(ExtractFilePath(s));
-  SaveStream.SaveToFile(SaveName(aFileName,'sav', fGameMode = gmMulti)); //Some 70ms for TPR7 map
+  SaveStream.SaveToFile(SaveName(aFileName, 'sav', fGameMode = gmMulti)); //Some 70ms for TPR7 map
   SaveStream.Free;
 
-  fLog.AppendLog('Save done');
-
-  CopyFile(PChar(SaveName('basesave','bas', fGameMode = gmMulti)), PChar(SaveName(aFileName,'bas', fGameMode = gmMulti)), false); //replace Replay base savegame
-  fGameInputProcess.SaveToFile(SaveName(aFileName,'rpl', fGameMode = gmMulti)); //Adds command queue to savegame
+  fLog.AppendLog('Saving replay info');
+  fGameInputProcess.SaveToFile(SaveName(aFileName, 'rpl', fGameMode = gmMulti)); //Adds command queue to savegame
 
   fLog.AppendLog('Saving game', true);
 end;
 
 
-procedure TKMGame.Load(const aFileName: string; aReplay: Boolean = False);
+procedure TKMGame.Load(const aPathName: string; aReplay: Boolean = False);
 var
   LoadStream: TKMemoryStream;
   GameInfo: TKMGameInfo;
-  LoadFileExt: string;
   LibxPath: AnsiString;
   LoadedSeed: Longint;
   SaveIsMultiplayer: Boolean;
 begin
-  fLog.AppendLog('Loading game: ' + aFileName);
-  if aReplay then
-    LoadFileExt := 'bas'
-  else
-    LoadFileExt := 'sav';
+  fReplayFile := aPathName;
+  fMissionFile := aPathName;
+
+  fLog.AppendLog('Loading game from: ' + aPathName);
 
   LoadStream := TKMemoryStream.Create;
-  GameInfo := TKMGameInfo.Create;
 
-  if not FileExists(SaveName(aFileName, LoadFileExt, fGameMode = gmMulti)) then
+  if not FileExists(aPathName) then
     raise Exception.Create('Savegame could not be found');
 
-  LoadStream.LoadFromFile(SaveName(aFileName, LoadFileExt, fGameMode = gmMulti));
+  LoadStream.LoadFromFile(aPathName);
 
   //We need only few essential parts from GameInfo, the rest is duplicate from fTerrain and fPlayers
+  GameInfo := TKMGameInfo.Create;
+  try
+    GameInfo.Load(LoadStream);
+    fGameName := GameInfo.Title;
+    fGameTickCount := GameInfo.TickCount;
+    fMissionMode := GameInfo.MissionMode;
+  finally
+    FreeAndNil(GameInfo);
+  end;
 
-  GameInfo.Load(LoadStream);
-  fGameName := GameInfo.Title;
-  fGameTickCount := GameInfo.TickCount;
-  fMissionMode := GameInfo.MissionMode;
-  FreeAndNil(GameInfo);
   fGameOptions.Load(LoadStream);
 
   //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is
@@ -1064,10 +1047,7 @@ begin
     fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
   else
     fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-  fGameInputProcess.LoadFromFile(SaveName(aFileName, 'rpl', fGameMode = gmMulti));
-
-  if not aReplay then
-    CopyFile(PChar(SaveName(aFileName,'bas', fGameMode = gmMulti)), PChar(SaveName('basesave','bas', fGameMode = gmMulti)), false); //replace Replay base savegame
+  fGameInputProcess.LoadFromFile(SaveName(aPathName, 'rpl', fGameMode = gmMulti));
 
   fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
   fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
@@ -1206,7 +1186,7 @@ begin
     fViewport.ResetZoom; //This ensures the viewport is centered on the map
 
     fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
-    fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
+    fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic);
   end;
 end;
 

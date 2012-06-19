@@ -183,8 +183,8 @@ end;
 //Check if replay files exist at location
 function TKMSaveInfo.IsReplayValid: Boolean;
 begin
-  Result := FileExists(fPath + fFileName + 'bas') and
-            FileExists(fPath + fFileName + 'rpl');
+  Result := FileExists(fPath + fFileName + '.bas') and
+            FileExists(fPath + fFileName + '.rpl');
 end;
 
 
@@ -443,8 +443,7 @@ begin
   FindFirst(PathToSaves + '*.sav', faAnyFile, SearchRec);
   repeat
     if (SearchRec.Attr and faDirectory <> faDirectory) //Only files
-      and (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-      and(TruncateExt(SearchRec.Name) <> 'basesave') //Ignore basesave - it is only used for crash reports
+    and (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
     then
     begin
       Save :=  TKMSaveInfo.Create(PathToSaves, TruncateExt(SearchRec.Name));
