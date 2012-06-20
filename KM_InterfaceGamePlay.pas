@@ -1543,57 +1543,59 @@ procedure TKMGamePlayInterface.Create_Market_Page;
 var I: Integer; LineH:integer;
 begin
   Panel_HouseMarket := TKMPanel.Create(Panel_House,0,76,200,266);
-    for i:=0 to STORE_RES_COUNT-1 do
+
+    for I := 0 to STORE_RES_COUNT - 1 do
     begin
-      Button_Market[i] := TKMButtonFlat.Create(Panel_HouseMarket, 8+(i mod 6)*30,12+(i div 6)*34,26,30,0);
-      Button_Market[i].TexID := fResource.Resources[StoreResType[i+1]].GUIIcon;
-      Button_Market[i].Hint := fResource.Resources[StoreResType[i+1]].Title;
-      Button_Market[i].Tag := Byte(StoreResType[i+1]);
-      Button_Market[i].OnClickEither := House_MarketSelect;
+      Button_Market[I] := TKMButtonFlat.Create(Panel_HouseMarket, 8+(I mod 6)*30,12+(I div 6)*34,26,30,0);
+      Button_Market[I].TexID := fResource.Resources[StoreResType[I+1]].GUIIcon;
+      Button_Market[I].Hint := fResource.Resources[StoreResType[I+1]].Title;
+      Button_Market[I].Tag := Byte(StoreResType[I+1]);
+      Button_Market[I].OnClickEither := House_MarketSelect;
     end;
-  Shape_Market_From := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 30, $FF00B000);
-  Shape_Market_From.LineWidth := 2;
-  Shape_Market_From.Hitable := False;
-  Shape_Market_From.Hide;
-  Shape_Market_To := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 30, $FF0000B0);
-  Shape_Market_To.LineWidth := 2;
-  Shape_Market_To.Hitable := False;
-  Shape_Market_To.Hide;
 
-  LineH := 12+((STORE_RES_COUNT-1) div 6 + 1)*34;
-  Label_Market_In  := TKMLabel.Create(Panel_HouseMarket, 8,LineH,85,30,'',fnt_Grey,taLeft);
-  Label_Market_Out := TKMLabel.Create(Panel_HouseMarket,184,LineH,85,30,'',fnt_Grey,taRight);
+    Shape_Market_From := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 30, $FF00B000);
+    Shape_Market_From.LineWidth := 2;
+    Shape_Market_From.Hitable := False;
+    Shape_Market_From.Hide;
+    Shape_Market_To := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 30, $FF0000B0);
+    Shape_Market_To.LineWidth := 2;
+    Shape_Market_To.Hitable := False;
+    Shape_Market_To.Hide;
 
-  inc(LineH, 20);
-  Button_Market_In  := TKMButtonFlat.Create(Panel_HouseMarket,  8, LineH, 36, 40, 0);
-  Button_Market_In.HideHighlight := True;
-  Button_Market_In.Disable;
-  Button_Market_In.Hint := fTextLibrary[TX_HOUSES_MARKET_SELECT_LEFT];
-  Button_Market_Out := TKMButtonFlat.Create(Panel_HouseMarket, 148, LineH, 36, 40, 0);
-  Button_Market_Out.Disable;
-  Button_Market_Out.Hint := fTextLibrary[TX_HOUSES_MARKET_SELECT_RIGHT];
+    LineH := 12+((STORE_RES_COUNT-1) div 6 + 1)*34;
+    Label_Market_In  := TKMLabel.Create(Panel_HouseMarket, 8,LineH,85,30,'',fnt_Grey,taLeft);
+    Label_Market_Out := TKMLabel.Create(Panel_HouseMarket,184,LineH,85,30,'',fnt_Grey,taRight);
 
-  with TKMShape.Create(Panel_HouseMarket,  8, LineH, 36, 40, $FF00B000) do
-  begin
-    LineWidth := 2;
-    Hitable := False;
-  end;
-  with TKMShape.Create(Panel_HouseMarket, 148, LineH, 36, 40, $FF0000B0) do
-  begin
-    LineWidth := 2;
-    Hitable := False;
-  end;
+    Inc(LineH, 20);
+    Button_Market_In  := TKMButtonFlat.Create(Panel_HouseMarket,  8, LineH, 36, 40, 0);
+    Button_Market_In.HideHighlight := True;
+    Button_Market_In.Disable;
+    Button_Market_In.Hint := fTextLibrary[TX_HOUSES_MARKET_SELECT_LEFT];
+    Button_Market_Out := TKMButtonFlat.Create(Panel_HouseMarket, 148, LineH, 36, 40, 0);
+    Button_Market_Out.Disable;
+    Button_Market_Out.Hint := fTextLibrary[TX_HOUSES_MARKET_SELECT_RIGHT];
 
-  inc(LineH, 10);
+    with TKMShape.Create(Panel_HouseMarket,  8, LineH, 36, 40, $FF00B000) do
+    begin
+      LineWidth := 2;
+      Hitable := False;
+    end;
+    with TKMShape.Create(Panel_HouseMarket, 148, LineH, 36, 40, $FF0000B0) do
+    begin
+      LineWidth := 2;
+      Hitable := False;
+    end;
 
-  Label_Market_FromAmount := TKMLabel.Create(Panel_HouseMarket,60,LineH,31,30,'',fnt_Grey,taCenter);
-  Button_Market_Remove := TKMButton.Create(Panel_HouseMarket,76,LineH,20,20,'-',fnt_Metal,bsGame);
-  Button_Market_Remove.OnClickEither := House_MarketOrderClick;
-  Button_Market_Remove.Hint := fTextLibrary[TX_HOUSES_MARKET_HINT_REM];
-  Button_Market_Add := TKMButton.Create(Panel_HouseMarket,97,LineH,20,20,'+',fnt_Metal,bsGame);
-  Button_Market_Add.Hint := fTextLibrary[TX_HOUSES_MARKET_HINT_ADD];
-  Button_Market_Add.OnClickEither := House_MarketOrderClick;
-  Label_Market_ToAmount := TKMLabel.Create(Panel_HouseMarket, 132,LineH,31,30,'',fnt_Grey,taCenter);
+    Inc(LineH, 10);
+
+    Label_Market_FromAmount := TKMLabel.Create(Panel_HouseMarket,60,LineH,31,30,'',fnt_Grey,taCenter);
+    Button_Market_Remove := TKMButton.Create(Panel_HouseMarket,76,LineH,20,20,'-',fnt_Metal,bsGame);
+    Button_Market_Remove.OnClickEither := House_MarketOrderClick;
+    Button_Market_Remove.Hint := fTextLibrary[TX_HOUSES_MARKET_HINT_REM];
+    Button_Market_Add := TKMButton.Create(Panel_HouseMarket,97,LineH,20,20,'+',fnt_Metal,bsGame);
+    Button_Market_Add.Hint := fTextLibrary[TX_HOUSES_MARKET_HINT_ADD];
+    Button_Market_Add.OnClickEither := House_MarketOrderClick;
+    Label_Market_ToAmount := TKMLabel.Create(Panel_HouseMarket, 132,LineH,31,30,'',fnt_Grey,taCenter);
 end;
 
 
@@ -1602,18 +1604,16 @@ procedure TKMGamePlayInterface.Create_Store_Page;
 var I: Integer;
 begin
   Panel_HouseStore:=TKMPanel.Create(Panel_House,0,76,200,266);
-    for i:=1 to STORE_RES_COUNT do
+    for I := 1 to STORE_RES_COUNT do
     begin
-      Button_Store[i] := TKMButtonFlat.Create(Panel_HouseStore, 8+((i-1)mod 5)*36,19+((i-1)div 5)*42,32,36,0);
-      Button_Store[i].TexID := fResource.Resources[StoreResType[i]].GUIIcon;
-      Button_Store[i].Tag := i;
-      Button_Store[i].Hint := fResource.Resources[StoreResType[i]].Title;
-      Button_Store[i].OnClick := House_StoreAcceptFlag;
+      Button_Store[I] := TKMButtonFlat.Create(Panel_HouseStore, 8+((I-1)mod 5)*36,19+((I-1)div 5)*42,32,36,0);
+      Button_Store[I].TexID := fResource.Resources[StoreResType[I]].GUIIcon;
+      Button_Store[I].Tag := I;
+      Button_Store[I].Hint := fResource.Resources[StoreResType[I]].Title;
+      Button_Store[I].OnClick := House_StoreAcceptFlag;
 
-      Image_Store_Accept[i] := TKMImage.Create(Panel_HouseStore, 8+((i-1)mod 5)*36+20,18+((i-1)div 5)*42+1,12,12,49);
-      Image_Store_Accept[i].Tag := i;
-      Image_Store_Accept[i].Hint := fResource.Resources[StoreResType[i]].Title;
-      Image_Store_Accept[i].OnClick := House_StoreAcceptFlag;
+      Image_Store_Accept[I] := TKMImage.Create(Panel_HouseStore, 8+((I-1)mod 5)*36+20,18+((I-1)div 5)*42+1,12,12,49);
+      Image_Store_Accept[I].Hitable := False;
     end;
 end;
 

@@ -20,7 +20,9 @@ type
     gmReplay //No input
     );
 
-  //Methods relevant to gameplay
+  ///	<summary>
+  ///	  Class that manages single game session
+  ///	</summary>
   TKMGame = class
   private //Irrelevant to savegame
     fTimerGame: TTimer;
@@ -41,18 +43,18 @@ type
     fGameSpeed: Word; //Actual speedup value
     fGameSpeedMultiplier: Word; //How many ticks are compressed into one
     fGameMode: TGameMode;
-    fMissionFile: string; //Path to mission we are playing, so it gets saved to crashreport
-    fReplayFile: string;
     fWaitingForNetwork: Boolean;
     fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
 
   //Should be saved
-    fGameTickCount: Cardinal;
+    fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
+    fCampaignName: AnsiString;  //Is this a game part of some campaign
     fGameName: string;
-    fCampaignName: AnsiString; //Is this a game part of some campaign
-    fCampaignMap: Byte; //Which campaign map it is, so we can unlock next one on victory
+    fGameTickCount: Cardinal;
+    fIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
+    fMissionFile: AnsiString;       //Relative pathname to mission we are playing, so it gets saved to crashreport
     fMissionMode: TKMissionMode;
-    fIDTracker: Cardinal; //Units-Houses tracker, to issue unique IDs
+    fSaveFile: AnsiString;          //Relative pathname to savegame we are playing, so it gets saved to crashreport
 
     procedure GameMPDisconnect(const aData:string);
     procedure MultiplayerRig;
@@ -62,6 +64,14 @@ type
     DoGameHold: Boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState: TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
     SkipReplayEndCheck: Boolean;
+
+    ///	<param name="aRender">
+    ///	  Pointer to Render class, that will execute our rendering requests
+    ///	  performed via RenderPool we create.
+    ///	</param>
+    ///	<param name="aNetworking">
+    ///	  Pointer to networking class, required if this is a multiplayer game.
+    ///	</param>
     constructor Create(aGameMode: TGameMode; aRender: TRender; aNetworking: TKMNetworking);
     destructor Destroy; override;
 
@@ -94,12 +104,15 @@ type
     procedure AutoSave;
     procedure SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
 
+    ///	<summary>
+    ///	  Restart the replay but keep current viewport position/zoom
+    ///	</summary>
     procedure RestartReplay;
 
-    function MissionTime:TDateTime;
-    function GetPeacetimeRemaining:TDateTime;
-    function CheckTime(aTimeTicks:cardinal):boolean;
-    function IsPeaceTime:boolean;
+    function MissionTime: TDateTime;
+    function GetPeacetimeRemaining: TDateTime;
+    function CheckTime(aTimeTicks: Cardinal): Boolean;
+    function IsPeaceTime: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
@@ -110,11 +123,13 @@ type
     property CampaignMap: Byte read fCampaignMap;
 
     property GameMode: TGameMode read fGameMode;
+    property MissionFile: AnsiString read fMissionFile;
+    property SaveFile: AnsiString read fSaveFile;
 
-    property IsExiting:boolean read fIsExiting;
-    property IsPaused:boolean read fIsPaused write fIsPaused;
-    property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
-    function GetNewID:cardinal;
+    property IsExiting: Boolean read fIsExiting;
+    property IsPaused: Boolean read fIsPaused write fIsPaused;
+    property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
+    function GetNewID: Cardinal;
     procedure SetGameSpeed(aSpeed: word);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
@@ -327,7 +342,8 @@ begin
   fGameName := aGameName;
   fCampaignName := aCampName;
   fCampaignMap := aCampMap;
-  fMissionFile := aMissionFile;
+  fMissionFile := ExtractRelativePath(ExeDir, aMissionFile);
+  fSaveFile := '';
 
   fLog.AppendLog('Loading DAT file: ' + aMissionFile);
 
@@ -517,7 +533,7 @@ begin
   if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
     fGameInputProcess.SaveToFile(SaveName('crashreport', 'rpl', IsMultiplayer));
 
-  AttachFile(fMissionFile);
+  AttachFile(ExeDir + fMissionFile);
 
   for I := 1 to AUTOSAVE_COUNT do //All autosaves
   begin
@@ -652,6 +668,9 @@ var
 begin
   fGameName := fTextLibrary[TX_MAP_ED_NEW_MISSION];
 
+  fMissionFile := '';
+  fSaveFile := '';
+
   fTerrain.MakeNewMap(aSizeX, aSizeY, True);
   fPlayers := TKMPlayersCollection.Create;
   fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
@@ -694,7 +713,7 @@ begin
 end;
 
 
-procedure TKMGame.SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
+procedure TKMGame.SaveMapEditor(const aMissionName: string; aMultiplayer: Boolean);
 var
   i: integer;
   fMissionParser: TMissionParserStandard;
@@ -732,12 +751,14 @@ end;
 
 //Restart the replay but do not change the viewport position/zoom
 procedure TKMGame.RestartReplay;
-var OldCenter: TKMPointF; OldZoom: Single;
+var
+  OldCenter: TKMPointF;
+  OldZoom: Single;
 begin
   OldCenter := fViewport.Position;
   OldZoom := fViewport.Zoom;
 
-  fGameApp.NewReplay(fReplayFile);
+  fGameApp.NewReplay(ExeDir + fSaveFile);
 
   fViewport.Position := OldCenter;
   fViewport.Zoom := OldZoom;
@@ -924,8 +945,14 @@ begin
   if fGameMode <> gmMulti then
     fGamePlayInterface.SaveMapview(SaveStream); //Minimap is near the start so it can be accessed quickly
 
-  SaveStream.Write(fCampaignName); //When we load that save we will need to know which campaign to display after victory
-  SaveStream.Write(fCampaignMap); //When we load that save we will need to know which campaign to display after victory
+  //We need to know which campaign to display after victory
+  SaveStream.Write(fCampaignName);
+  SaveStream.Write(fCampaignMap);
+
+  //We need to know which mission/savegame to try to restart
+  //(paths are relative and thus - MP safe)
+  SaveStream.Write(fMissionFile);
+  SaveStream.Write(fSaveFile);
 
   SaveStream.Write(fIDTracker); //Units-Houses ID tracker
   SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
@@ -959,13 +986,15 @@ begin
   //There is a comment in fGame.Load about MessageList on this topic.
 
   //Makes the folders incase they were deleted
-  s := SaveName(aFileName,'sav', fGameMode = gmMulti);
+  s := SaveName(aFileName, 'sav', fGameMode = gmMulti);
   ForceDirectories(ExtractFilePath(s));
-  SaveStream.SaveToFile(SaveName(aFileName, 'sav', fGameMode = gmMulti)); //Some 70ms for TPR7 map
+  SaveStream.SaveToFile(s); //Some 70ms for TPR7 map
   SaveStream.Free;
 
+  fSaveFile := ExtractRelativePath(ExeDir, s);
+
   fLog.AppendLog('Saving replay info');
-  fGameInputProcess.SaveToFile(SaveName(aFileName, 'rpl', fGameMode = gmMulti)); //Adds command queue to savegame
+  fGameInputProcess.SaveToFile(ChangeFileExt(s, '.rpl')); //Adds command queue to savegame
 
   fLog.AppendLog('Saving game', true);
 end;
@@ -979,8 +1008,8 @@ var
   LoadedSeed: Longint;
   SaveIsMultiplayer: Boolean;
 begin
-  fReplayFile := aPathName;
-  fMissionFile := aPathName;
+  fMissionFile := '';
+  fSaveFile := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), '.sav');
 
   fLog.AppendLog('Loading game from: ' + aPathName);
 
@@ -1010,8 +1039,14 @@ begin
   if not SaveIsMultiplayer then
     fGamePlayInterface.LoadMapview(LoadStream); //Not used, (only stored for preview) but it's easiest way to skip past it
 
-  LoadStream.Read(fCampaignName); //When we load that save we will need to know which campaign to display after victory
-  LoadStream.Read(fCampaignMap); //When we load that save we will need to know which campaign to display after victory
+  //We need to know which campaign to display after victory
+  LoadStream.Read(fCampaignName);
+  LoadStream.Read(fCampaignMap);
+
+  //We need to know which mission/savegame to try to restart
+  //(paths are relative and thus - MP safe)
+  LoadStream.Read(fMissionFile);
+  LoadStream.Read(fSaveFile);
 
   LoadStream.Read(fIDTracker);
   LoadStream.Read(LoadedSeed);

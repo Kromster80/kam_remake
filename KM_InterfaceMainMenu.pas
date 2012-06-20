@@ -1825,8 +1825,9 @@ begin
 
   List_Camps.Clear;
   for I := 0 to Camps.Count - 1 do
+  with Camps[I] do
     List_Camps.AddItem(MakeListRow(
-                        [Camps[I].CampaignTitle, IntToStr(Camps[I].MapCount), Camps[I].ShortTitle],
+                        [CampaignTitle, IntToStr(MapCount), ShortTitle],
                         [$FFFFFFFF, $FFFFFFFF, $00FFFFFF]));
 
   Button_Camp_Start.Disable;

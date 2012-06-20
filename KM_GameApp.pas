@@ -530,7 +530,14 @@ begin
   //really useful feature of baseave (I used it in crash reports)
   //I don't have a strong opinion between 1. and 2. I think I prefer 1.
 
-  //todo: LoadGameFromSave(aFileName, gmMulti);
+  //todo: The game is nilled already, one more reason to move results screen to Gameplay UI
+  {if FileExists(ExeDir + fGameG.MissionFile) then
+    LoadGameFromScript(ExeDir + fGameG.MissionFile, fGameG.GameName, fGameG.CampaignName, fGameG.CampaignMap, fGameG.GameMode)
+  else
+  if FileExists(ChangeFileExt(ExeDir + fGameG.SaveFile, '.bas')) then
+    LoadGameFromSave(ChangeFileExt(ExeDir + fGameG.SaveFile, '.bas'), fGameG.GameMode)
+  else
+    //Show error}
 end;
 
 

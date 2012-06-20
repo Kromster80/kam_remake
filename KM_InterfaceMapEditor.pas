@@ -874,16 +874,16 @@ end;
 
 {Store page}
 procedure TKMapEdInterface.Create_Store_Page;
-var i:integer;
+var I: Integer;
 begin
   Panel_HouseStore := TKMPanel.Create(Panel_House,0,76,200,400);
-    for i:=1 to STORE_RES_COUNT do
+    for I := 1 to STORE_RES_COUNT do
     begin
-      Button_Store[i] := TKMButtonFlat.Create(Panel_HouseStore, 8+((i-1)mod 5)*36,8+((i-1)div 5)*42,32,36,0);
-      Button_Store[i].TexID := fResource.Resources[StoreResType[i]].GUIIcon;
-      Button_Store[i].Tag := i;
-      Button_Store[i].Hint := fResource.Resources[StoreResType[i]].Title;
-      Button_Store[i].OnClick := Store_SelectWare;
+      Button_Store[I] := TKMButtonFlat.Create(Panel_HouseStore, 8+((I-1)mod 5)*36,8+((I-1)div 5)*42,32,36,0);
+      Button_Store[I].TexID := fResource.Resources[StoreResType[I]].GUIIcon;
+      Button_Store[I].Tag := I;
+      Button_Store[I].Hint := fResource.Resources[StoreResType[I]].Title;
+      Button_Store[I].OnClick := Store_SelectWare;
     end;
 
     Button_StoreDec100      := TKMButton.Create(Panel_HouseStore,116,218,20,20,'<', fnt_Metal);

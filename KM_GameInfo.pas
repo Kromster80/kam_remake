@@ -69,18 +69,18 @@ begin
   LoadStream.Read(DefeatCondition);
 
   LoadStream.Read(PlayerCount);
-  for i:=0 to PlayerCount-1 do
+  for I:=0 to PlayerCount-1 do
   begin
-    LoadStream.Read(LocationName[i]);
-    LoadStream.Read(PlayerTypes[i], SizeOf(PlayerTypes[i]));
-    LoadStream.Read(ColorID[i]);
-    LoadStream.Read(Team[i]);
+    LoadStream.Read(LocationName[I]);
+    LoadStream.Read(PlayerTypes[I], SizeOf(PlayerTypes[I]));
+    LoadStream.Read(ColorID[I]);
+    LoadStream.Read(Team[I]);
   end;
 end;
 
 
 procedure TKMGameInfo.Save(SaveStream: TKMemoryStream);
-var i:integer;
+var I: Integer;
 begin
   SaveStream.Write('KaM_GameInfo');
   SaveStream.Write(AnsiString(GAME_REVISION)); //Save current revision
@@ -94,12 +94,12 @@ begin
   SaveStream.Write(DefeatCondition);
 
   SaveStream.Write(PlayerCount);
-  for i:=0 to PlayerCount-1 do
+  for I := 0 to PlayerCount - 1 do
   begin
-    SaveStream.Write(LocationName[i]);
-    SaveStream.Write(PlayerTypes[i], SizeOf(PlayerTypes[i]));
-    SaveStream.Write(ColorID[i]);
-    SaveStream.Write(Team[i]);
+    SaveStream.Write(LocationName[I]);
+    SaveStream.Write(PlayerTypes[I], SizeOf(PlayerTypes[I]));
+    SaveStream.Write(ColorID[I]);
+    SaveStream.Write(Team[I]);
   end;
 end;
 
@@ -113,11 +113,11 @@ end;
 //How many AI players are in this game,
 //so that Lobby could automatically create this much AIs when the save is selected
 function TKMGameInfo.AICount:integer;
-var i:integer;
+var I:integer;
 begin
   Result := 0;
-  for i:=0 to PlayerCount-1 do
-    if PlayerTypes[i] = pt_Computer then
+  for I:=0 to PlayerCount-1 do
+    if PlayerTypes[I] = pt_Computer then
       inc(Result);
 end;
 
