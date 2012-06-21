@@ -14,6 +14,17 @@ type
   private
     fGlobalTickCount: Cardinal;
 
+    //Story behind these seemingly superflous elements that
+    //we need to carry on from previous Game:
+    //- Mission scropt does not knows GameName
+    //- Mission does not knows to which CampaignName/Map it belongs
+    //- PathName to mission and savegame (incase mission is missing we can load .bas)
+    fRepeatGameName: string;
+    fRepeatMission: string;
+    fRepeatSave: string;
+    fRepeatCampName: AnsiString;
+    fRepeatCampMap: Byte;
+
     fCampaigns: TKMCampaignsCollection;
     fGameSettings: TGameSettings;
     fMusicLib: TMusicLib;
@@ -95,6 +106,8 @@ begin
   fLocales      := TKMLocales.Create(ExeDir + 'data\locales.txt');
   fGameSettings := TGameSettings.Create;
   fTextLibrary  := TTextLibrary.Create(ExeDir + 'data\text\', fGameSettings.Locale);
+  {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
+
   fRender       := TRender.Create(aHandle, aScreenX, aScreenY, aVSync);
   fRenderAux    := TRenderAux.Create;
   //Show the message if user has old OpenGL drivers (pre-1.4)
@@ -102,8 +115,6 @@ begin
     //MessageDlg works better than Application.MessageBox or others, it stays on top and
     //pauses here until the user clicks ok.
     MessageDlg(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+fTextLibrary[TX_GAME_ERROR_OLD_OPENGL_2], mtWarning, [mbOk], 0);
-
-  {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
   fResource     := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources(fGameSettings.Locale);
@@ -348,6 +359,12 @@ begin
     fNetworking.Disconnect;
   end;
 
+  fRepeatGameName := '';
+  fRepeatMission := '';
+  fRepeatSave := '';
+  fRepeatCampName := '';
+  fRepeatCampMap := 0;
+
   case Msg of
     gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd:
                     begin
@@ -358,6 +375,13 @@ begin
                       end
                       else
                       begin
+                        //Remember which map we played so we could restart it
+                        fRepeatGameName := fGameG.GameName;
+                        fRepeatMission := fGameG.MissionFile;
+                        fRepeatSave := fGameG.SaveFile;
+                        fRepeatCampName := fGameG.CampaignName;
+                        fRepeatCampMap := fGameG.CampaignMap;
+
                         fMainMenuInterface.Results_Fill;
                         fMainMenuInterface.ShowScreen(msResults, '', Msg);
                       end;
@@ -509,35 +533,13 @@ end;
 
 procedure TKMGameApp.NewRestartLast;
 begin
-  //@Lewin: Overall "basesave" is outdated and we can discard it.
-  //Earlier it was used for "View last replay" mechanism, but now as we have
-  //replay manager the only use for it is RestartLastMap which can be made
-  //just by loading current map .bas file (or reload mission?)
-  //The only other use is saving RPL info on crash,
-  //which certainly can go to latest autosave.rpl
-
-  //There are two options to restart a map:
-  //1. Restart mission script
-  //   - files may be gone
-  //   + mission may be intentionally updated by mapmaker
-  //2. Load savegame.bas
-  //   - mission may be intentionally updated by mapmaker
-  //   + savegame.bas always exists
-  //In my opinion both have their advantages and weak points
-
-  //@Krom: I agree basesave can be discarded. I suggest that we create a
-  //"crashsave" when generating the crash report because that was the only
-  //really useful feature of baseave (I used it in crash reports)
-  //I don't have a strong opinion between 1. and 2. I think I prefer 1.
-
-  //todo: The game is nilled already, one more reason to move results screen to Gameplay UI
-  {if FileExists(ExeDir + fGameG.MissionFile) then
-    LoadGameFromScript(ExeDir + fGameG.MissionFile, fGameG.GameName, fGameG.CampaignName, fGameG.CampaignMap, fGameG.GameMode)
+  if FileExists(ExeDir + fRepeatMission) then
+    LoadGameFromScript(ExeDir + fRepeatMission, fRepeatGameName, fRepeatCampName, fRepeatCampMap, gmSingle)
   else
-  if FileExists(ChangeFileExt(ExeDir + fGameG.SaveFile, '.bas')) then
-    LoadGameFromSave(ChangeFileExt(ExeDir + fGameG.SaveFile, '.bas'), fGameG.GameMode)
+  if FileExists(ChangeFileExt(ExeDir + fRepeatSave, '.bas')) then
+    LoadGameFromSave(ChangeFileExt(ExeDir + fRepeatSave, '.bas'), gmSingle)
   else
-    //Show error}
+    fMainMenuInterface.ShowScreen(msError, 'Can not repeat last mission');
 end;
 
 

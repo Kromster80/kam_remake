@@ -541,6 +541,7 @@ var
 begin
   if (MyPlayer = nil) or (MyPlayer.Stats = nil) then Exit;
 
+  //Fill in table values (like old KaM did)
   with MyPlayer.Stats do
   begin
     Label_Stat[1].Caption := inttostr(GetCitizensLost + GetWarriorsLost);
@@ -554,6 +555,7 @@ begin
     Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGameG.MissionTime);
   end;
 
+  //Fill in chart values
   if DISPLAY_CHARTS_RESULT then
   begin
     Graph_Army.Clear;

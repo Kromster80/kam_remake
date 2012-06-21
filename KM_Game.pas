@@ -45,6 +45,7 @@ type
     fGameMode: TGameMode;
     fWaitingForNetwork: Boolean;
     fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
+    fSaveFile: AnsiString;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
 
   //Should be saved
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
@@ -52,9 +53,8 @@ type
     fGameName: string;
     fGameTickCount: Cardinal;
     fIDTracker: Cardinal;       //Units-Houses tracker, to issue unique IDs
-    fMissionFile: AnsiString;       //Relative pathname to mission we are playing, so it gets saved to crashreport
+    fMissionFile: AnsiString;   //Relative pathname to mission we are playing, so it gets saved to crashreport
     fMissionMode: TKMissionMode;
-    fSaveFile: AnsiString;          //Relative pathname to savegame we are playing, so it gets saved to crashreport
 
     procedure GameMPDisconnect(const aData:string);
     procedure MultiplayerRig;
@@ -147,7 +147,7 @@ type
 
     procedure Save(const aFileName: string);
     {$IFDEF USE_MAD_EXCEPT}
-    procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
+    procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile: string);
     {$ENDIF}
     procedure ReplayInconsistancy;
 
@@ -528,6 +528,8 @@ procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile:str
 var I: Integer;
 begin
   fLog.AppendLog('Creating crash report...');
+
+  //todo: Create a "crashsave" when generating the crash report
 
   //Save latest replay data
   if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
@@ -952,7 +954,6 @@ begin
   //We need to know which mission/savegame to try to restart
   //(paths are relative and thus - MP safe)
   SaveStream.Write(fMissionFile);
-  SaveStream.Write(fSaveFile);
 
   SaveStream.Write(fIDTracker); //Units-Houses ID tracker
   SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
@@ -1008,7 +1009,6 @@ var
   LoadedSeed: Longint;
   SaveIsMultiplayer: Boolean;
 begin
-  fMissionFile := '';
   fSaveFile := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), '.sav');
 
   fLog.AppendLog('Loading game from: ' + aPathName);
@@ -1046,7 +1046,6 @@ begin
   //We need to know which mission/savegame to try to restart
   //(paths are relative and thus - MP safe)
   LoadStream.Read(fMissionFile);
-  LoadStream.Read(fSaveFile);
 
   LoadStream.Read(fIDTracker);
   LoadStream.Read(LoadedSeed);
