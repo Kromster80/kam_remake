@@ -26,7 +26,7 @@ type
   TResourceFont = class
   private
     fRender: TRender;
-    fFontData:array [TKMFont] of TKMFontData;
+    fFontData: array [TKMFont] of TKMFontData;
     function GetFontData(aIndex: TKMFont): TKMFontData;
   public
     constructor Create(aRender: TRender);
@@ -34,9 +34,9 @@ type
 
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
 
-    function WordWrap(aText: string; aFont: TKMFont; aMaxPxWidth: integer; aForced: boolean): string;
-    function CharsThatFit(const aText: string; aFont: TKMFont; aMaxPxWidth: integer): integer;
-    function GetTextSize(const aText: string; Fnt: TKMFont): TKMPoint;
+    function WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer; aForced: boolean): AnsiString;
+    function CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer): integer;
+    function GetTextSize(const aText: AnsiString; Fnt: TKMFont): TKMPoint;
 
     procedure LoadFonts(aLocale: AnsiString);
     procedure ExportFonts(aLocale: AnsiString);
@@ -215,7 +215,7 @@ begin
 end;
 
 
-function TResourceFont.WordWrap(aText: string; aFont: TKMFont; aMaxPxWidth:integer; aForced:boolean): string;
+function TResourceFont.WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: Integer; aForced: Boolean): AnsiString;
 var
   i, CharSpacing, AdvX, PrevX, LastSpace, TmpColor: integer;
 begin
@@ -265,7 +265,7 @@ begin
 end;
 
 
-function TResourceFont.CharsThatFit(const aText: string; aFont: TKMFont; aMaxPxWidth:integer):integer;
+function TResourceFont.CharsThatFit(const aText: AnsiString; aFont: TKMFont; aMaxPxWidth:integer):integer;
 var i,CharSpacing,AdvX:integer;
 begin
   AdvX := 0;
@@ -286,40 +286,44 @@ begin
 end;
 
 
-function TResourceFont.GetTextSize(const aText: string; Fnt:TKMFont):TKMPoint;
+function TResourceFont.GetTextSize(const aText: AnsiString; Fnt: TKMFont): TKMPoint;
 var
-  i:integer;
-  CharSpacing,LineCount:integer;
-  LineWidth:array of integer; //Some fonts may have negative CharSpacing
+  I: Integer;
+  CharSpacing, LineCount: Integer;
+  LineWidth: array of Integer; // Some fonts may have negative CharSpacing
 begin
   Result.X := 0;
   Result.Y := 0;
 
-  if aText='' then Exit;
+  if aText = '' then Exit;
 
   LineCount := 1;
-  for i:=1 to length(aText) do
-    if aText[i]=#124 then inc(LineCount);
+  for I := 1 to Length(aText) do
+    if aText[I] = #124 then Inc(LineCount);
 
   SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
 
   LineCount := 1;
-  CharSpacing := fFontData[Fnt].CharSpacing; //Spacing between letters, this varies between fonts
-  for i:=1 to length(aText) do begin
-    if aText[i]<>#124 then
-      if aText[i]=#32 then inc(LineWidth[LineCount], fFontData[Fnt].WordSpacing)
-                     else inc(LineWidth[LineCount], fFontData[Fnt].Letters[byte(aText[i])].Width+CharSpacing);
-    if (aText[i]=#124)or(i=length(aText)) then
-    begin //If EOL or aText end
-      LineWidth[LineCount] := Math.max(0, LineWidth[LineCount]-CharSpacing); //Remove last interletter space and negate double EOLs
-      inc(LineCount);
+  CharSpacing := fFontData[Fnt].CharSpacing; //Spacing between letters varies between fonts
+  for I := 1 to Length(aText) do
+  begin
+    if aText[I] <> #124 then
+      if aText[I] = #32 then
+        Inc(LineWidth[LineCount], fFontData[Fnt].WordSpacing)
+      else
+        Inc(LineWidth[LineCount], fFontData[Fnt].Letters[byte(aText[I])].Width + CharSpacing);
+    if (aText[I] = #124) or (I = Length(aText)) then
+    begin // If EOL or aText end
+      LineWidth[LineCount] := Math.max(0, LineWidth[LineCount] - CharSpacing);
+      // Remove last interletter space and negate double EOLs
+      Inc(LineCount);
     end;
   end;
 
   dec(LineCount);
   Result.Y := (fFontData[Fnt].Unk1 + FONT_INTERLINE)*LineCount;
-  for i:=1 to LineCount do
-    Result.X := Math.max(Result.X, LineWidth[i]);
+  for I:=1 to LineCount do
+    Result.X := Math.max(Result.X, LineWidth[I]);
 end;
 
 
