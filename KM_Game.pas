@@ -373,8 +373,6 @@ begin
     if not Parser.LoadMission(aMissionFile) then
       raise Exception.Create(Parser.ErrorMessage);
 
-    MyPlayer := fPlayers.Player[Parser.MissionInfo.HumanPlayerID];
-    Assert(MyPlayer.PlayerType = pt_Human);
     fMissionMode := Parser.MissionInfo.MissionMode;
   finally
     Parser.Free;
@@ -389,6 +387,12 @@ begin
   begin
     MyPlayer := fPlayers.Player[0];
     fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
+  end
+  else
+  if fGameMode = gmSingle then
+  begin
+    MyPlayer := fPlayers.Player[Parser.MissionInfo.HumanPlayerID];
+    Assert(MyPlayer.PlayerType = pt_Human);
   end;
 
   fLog.AppendLog('Gameplay initialized', true);

@@ -93,7 +93,7 @@ var
 
 implementation
 uses
-  KM_Log, KM_RenderAux, KM_Resource, KM_Sound;
+  KM_Log, KM_RenderAux, KM_Resource, KM_Sound, KM_Utils;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -519,7 +519,7 @@ end;
 
 procedure TKMGameApp.NewMultiplayerMap(const aFileName: string);
 begin
-  LoadGameFromScript(aFileName, aFileName, '', 0, gmMulti);
+  LoadGameFromScript(MapNameToPath(aFileName, 'dat', true), aFileName, '', 0, gmMulti);
 end;
 
 

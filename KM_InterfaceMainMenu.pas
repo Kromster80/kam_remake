@@ -2043,7 +2043,7 @@ begin
   if not InRange(fMap_Selected, 0, fMaps.Count-1) then exit; //Some odd index
   //scan should be terminated, as it is no longer needed
   fMaps.TerminateScan;
-  fGameApp.NewSingleMap(MapNameToPath(fMaps[fMap_Selected].FileName,'dat',false),fMaps[fMap_Selected].FileName); //Provide mission FileName mask and title here
+  fGameApp.NewSingleMap(MapNameToPath(fMaps[fMap_Selected].FileName, 'dat', False), fMaps[fMap_Selected].FileName); //Provide mission FileName mask and title here
 end;
 
 
