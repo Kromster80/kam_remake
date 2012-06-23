@@ -32,8 +32,8 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure AddSprite(aRX: TRXType; aID: Word; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1); overload;
-    procedure AddSprite(aRX: TRXType; aID: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1); overload;
+    procedure AddSprite(aRX: TRXType; aID: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+    procedure AddSpriteG(aRX: TRXType; aID: Word; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 
     property Stat_Sprites: Integer read fStat_Sprites;
     property Stat_Sprites2: Integer read fStat_Sprites2;
@@ -290,7 +290,7 @@ begin
     CornerY := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
                   - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
     if not DoImmediateRender then
-      fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, gX, gY);
+      fRenderList.AddSpriteG(rxTrees, ID, CornerX, CornerY, gX, gY);
 
     //fRenderAux.DotOnTerrain(pX, pY, $FFFF0000);
     //fRenderAux.Dot(pX + R.Pivot[ID].X / CELL_SIZE_PX,
@@ -327,7 +327,7 @@ var
              - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
 
     if not DoImmediateRender then
-      fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, gX, gY)
+      fRenderList.AddSpriteG(rxTrees, ID, CornerX, CornerY, gX, gY)
     else
       RenderSprite(rxTrees, ID, CornerX, CornerY, $FFFFFFFF, 255, Deleting);
   end;
@@ -369,7 +369,7 @@ begin
   CornerX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX - 0.25;
   CornerY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 0.45
                    - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(rxGui, ID, CornerX, CornerY, gX, gY);
+  fRenderList.AddSpriteG(rxGui, ID, CornerX, CornerY, gX, gY);
 end;
 
 
@@ -419,7 +419,7 @@ begin
   CornerX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX;
   CornerY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
                    - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(rxHouses, ID, CornerX, CornerY, gX, gY, $0, Step);
+  fRenderList.AddSpriteG(rxHouses, ID, CornerX, CornerY, gX, gY, $0, Step);
 end;
 
 
@@ -595,7 +595,7 @@ begin
     else                              Ground := aTilePos.Y - 1; //Nothing?
   end;
 
-  fRenderList.AddSprite(rxUnits, ID, aRenderPos.X + CornerX, aRenderPos.Y + CornerY, aTilePos.X - 1, Ground);
+  fRenderList.AddSpriteG(rxUnits, ID, aRenderPos.X + CornerX, aRenderPos.Y + CornerY, aTilePos.X - 1, Ground);
 end;
 
 
@@ -618,7 +618,7 @@ begin
   Ground := pY + (R.Pivot[ID0].Y + R.Size[ID0].Y) / CELL_SIZE_PX;
 
   if NewInst then
-    fRenderList.AddSprite(rxUnits, ID, CornerX, CornerY, pX, Ground, FlagColor)
+    fRenderList.AddSpriteG(rxUnits, ID, CornerX, CornerY, pX, Ground, FlagColor)
   else
     fRenderList.AddSprite(rxUnits, ID, CornerX, CornerY, FlagColor);
 
@@ -728,12 +728,12 @@ begin
 
   if aDir in [dir_SE, dir_S, dir_SW, dir_W] then
   begin
-    fRenderList.AddSprite(rxUnits, IDFlag, FlagX, FlagY, pX, Ground, FlagColor);
+    fRenderList.AddSpriteG(rxUnits, IDFlag, FlagX, FlagY, pX, Ground, FlagColor);
     fRenderList.AddSprite(rxUnits, IDUnit, CornerX, CornerY, TeamColor);
   end
   else
   begin
-    fRenderList.AddSprite(rxUnits, IDUnit, CornerX, CornerY, pX, Ground, TeamColor);
+    fRenderList.AddSpriteG(rxUnits, IDUnit, CornerX, CornerY, pX, Ground, TeamColor);
     fRenderList.AddSprite(rxUnits, IDFlag, FlagX, FlagY, FlagColor);
   end;
 
@@ -1198,7 +1198,7 @@ end;
 
 
 //New items must provide their ground level
-procedure TRenderList.AddSprite(aRX: TRXType; aID: Word; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+procedure TRenderList.AddSpriteG(aRX: TRXType; aID: Word; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
   if fCount >= Length(RenderList) then SetLength(RenderList, fCount + 256); //Book some space
 
