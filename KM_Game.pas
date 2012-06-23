@@ -373,6 +373,18 @@ begin
     if not Parser.LoadMission(aMissionFile) then
       raise Exception.Create(Parser.ErrorMessage);
 
+    if fGameMode = gmMapEd then
+    begin
+      MyPlayer := fPlayers.Player[0];
+      fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
+    end
+    else
+    if fGameMode = gmSingle then
+    begin
+      MyPlayer := fPlayers.Player[Parser.MissionInfo.HumanPlayerID];
+      Assert(MyPlayer.PlayerType = pt_Human);
+    end;
+
     fMissionMode := Parser.MissionInfo.MissionMode;
   finally
     Parser.Free;
@@ -382,18 +394,6 @@ begin
   fTextLibrary.LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
 
   fPlayers.AfterMissionInit(true);
-
-  if fGameMode = gmMapEd then
-  begin
-    MyPlayer := fPlayers.Player[0];
-    fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
-  end
-  else
-  if fGameMode = gmSingle then
-  begin
-    MyPlayer := fPlayers.Player[Parser.MissionInfo.HumanPlayerID];
-    Assert(MyPlayer.PlayerType = pt_Human);
-  end;
 
   fLog.AppendLog('Gameplay initialized', true);
 
@@ -543,9 +543,9 @@ begin
 
   for I := 1 to AUTOSAVE_COUNT do //All autosaves
   begin
-    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'rpl'));
-    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'bas'));
-    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'sav'));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'rpl', IsMultiplayer));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'bas', IsMultiplayer));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'sav', IsMultiplayer));
   end;
 
   fLog.AppendLog('Crash report created');

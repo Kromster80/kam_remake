@@ -93,7 +93,7 @@ var
 
 implementation
 uses
-  KM_Log, KM_RenderAux, KM_Resource, KM_Sound, KM_Utils;
+  KM_Log, KM_Exceptions, KM_RenderAux, KM_Resource, KM_Sound, KM_Utils;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -519,7 +519,7 @@ end;
 
 procedure TKMGameApp.NewMultiplayerMap(const aFileName: string);
 begin
-  LoadGameFromScript(MapNameToPath(aFileName, 'dat', true), aFileName, '', 0, gmMulti);
+  LoadGameFromScript(MapNameToPath(aFileName, 'dat', True), aFileName, '', 0, gmMulti);
 end;
 
 
@@ -527,7 +527,7 @@ procedure TKMGameApp.NewMultiplayerSave(const aSaveName: string);
 begin
   //Convert SaveName to local FilePath
   //aFileName is the same for all players, but Path to it is different
-  LoadGameFromSave(SaveName(aSaveName, 'sav', False), gmMulti);
+  LoadGameFromSave(SaveName(aSaveName, 'sav', True), gmMulti);
 end;
 
 
