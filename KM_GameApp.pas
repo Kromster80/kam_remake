@@ -93,7 +93,9 @@ var
 
 implementation
 uses
-  KM_Log, KM_Exceptions, KM_RenderAux, KM_Resource, KM_Sound, KM_Utils;
+  KM_Log,
+  {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
+  KM_RenderAux, KM_Resource, KM_Sound, KM_Utils;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
