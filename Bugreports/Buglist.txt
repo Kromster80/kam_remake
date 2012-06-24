@@ -7,6 +7,7 @@
  +	Producing more than 65k resources causes an integer overflow in PlayerStats
  +	Decreasing the resource distribution removes demands immediately when nobody has taken the task yet
  +	Units now start with the same condition as in TPR (~12 minutes less condition than the last KaM Remake version)
+ +	Fix function of the "Restart" button so it always restarts the mission you were playing, not just loads basesave
 	Placing a group so a member is under a house causes a crash. The unit under the house should be placed nearby instead.
 	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	If I play a campaign up to mission say 9, then load an old save of mission 5, quit and press restart, it will load basesave which is mission 9 (we should make a basesave after loading saves?)
@@ -29,7 +30,6 @@
 	It would be nice if campaign progress was not lost between updates (that should be easier to keep compatible than saves)
 	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
 	RCE in TKMFogOfWar.CheckVerticeRevelation called from TKMProjectiles.UpdateState. Lots of bug reports uploaded with this error (e.g. 23/05/12)
-	Fix function of the "Restart" button so it always restarts the mission you were playing, not just loads basesave
 	TSK 19 crashes due to an AI attack target being off map
 	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 	Farmer should not sow corn on tiles left after demolished houses that were built ontop fields 
@@ -42,7 +42,7 @@ Improvements:
  +	High quality alpha-blended shadows for houses (only once constructed?)
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
- wip	Display charts in game results screens (army, wares cuont, etc.)
+ +	Display charts in game results screens (army, wares cuont, etc.)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth

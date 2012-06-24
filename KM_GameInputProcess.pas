@@ -266,7 +266,7 @@ begin
     end;
 
     //Some commands are blocked by peacetime (this is a fall back in case players try to cheat)
-    if fGameG.IsPeaceTime and (CommandType in BlockedByPeaceTime) then
+    if fGame.IsPeaceTime and (CommandType in BlockedByPeaceTime) then
        exit;
 
     case CommandType of
@@ -279,8 +279,8 @@ begin
       gic_ArmyHalt:         TKMUnitWarrior(U).OrderHalt(TKMTurnDirection(Params[2]),Params[3]);
       gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
-      gic_BuildAddFieldPlan:      P.ToggleFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3]), not fGameG.IsMultiplayer); //Make sound in singleplayer mode only
-      gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]), not fGameG.IsMultiplayer); //Make sound in singleplayer mode only
+      gic_BuildAddFieldPlan:      P.ToggleFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3]), not fGame.IsMultiplayer); //Make sound in singleplayer mode only
+      gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]), not fGame.IsMultiplayer); //Make sound in singleplayer mode only
       gic_BuildRemoveHouse:       P.RemHouse(KMPoint(Params[1],Params[2]), IsSilent);
       gic_BuildRemoveHousePlan:   P.RemHousePlan(KMPoint(Params[1],Params[2]));
       gic_BuildHousePlan:         if P.CanAddHousePlan(KMPoint(Params[2],Params[3]), THouseType(Params[1])) then
@@ -302,12 +302,12 @@ begin
                                     P.Houses.UpdateResRequest
                                   end;
 
-      gic_TempAddScout:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGameG.IsMultiplayer) then
+      gic_TempAddScout:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
                                     P.AddUnitAndLink(ut_HorseScout, KMPoint(Params[1],Params[2]));
-      gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGameG.IsMultiplayer) then
+      gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
                                     P.FogOfWar.RevealEverything;
       gic_TempChangeMyPlayer:     begin
-                                    fGameG.GamePlayInterface.ClearSelectedUnitOrHouse;
+                                    fGame.GamePlayInterface.ClearSelectedUnitOrHouse;
                                     MyPlayer := fPlayers.Player[Params[1]];
                                   end;
       gic_TempDoNothing:          ;
@@ -315,17 +315,17 @@ begin
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
       gic_GameSave:               if fReplayState = gipRecording then
                                   begin
-                                    fGameG.Save(TextParam);
-                                    if fGameG.IsMultiplayer then
+                                    fGame.Save(TextParam);
+                                    if fGame.IsMultiplayer then
                                       //Tell the player we have saved the game
-                                      fGameG.Networking.PostLocalMessage(fTextLibrary[TX_MULTIPLAYER_SAVING_GAME]);
+                                      fGame.Networking.PostLocalMessage(fTextLibrary[TX_MULTIPLAYER_SAVING_GAME]);
                                   end;
       gic_GameTeamChange:         begin
-                                    fGameG.Networking.NetPlayers[Params[1]].Team := Params[2];
-                                    fGameG.Networking.UpdateMultiplayerTeams;
+                                    fGame.Networking.NetPlayers[Params[1]].Team := Params[2];
+                                    fGame.Networking.UpdateMultiplayerTeams;
                                     fPlayers.SyncFogOfWar;
-                                    if fGameG.Networking.IsHost then
-                                      fGameG.Networking.SendPlayerListAndRefreshPlayersSetup;
+                                    if fGame.Networking.IsHost then
+                                      fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
                                   end;
       else                        Assert(false);
     end;
@@ -375,7 +375,7 @@ begin
   //Remove fake markup that will be visible only to MyPlayer until Server verifies it.
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
-  if fGameG.IsMultiplayer and (aCommandType = gic_BuildRemoveFieldPlan) then
+  if fGame.IsMultiplayer and (aCommandType = gic_BuildRemoveFieldPlan) then
     MyPlayer.RemFakeFieldPlan(aLoc);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
@@ -389,7 +389,7 @@ begin
   //Add fake markup that will be visible only to MyPlayer until Server verifies it.
   //Must go before TakeCommand as it could execute command immediately (in singleplayer)
   //and the fake markup must be added first otherwise our logic in FieldsList fails
-  if fGameG.IsMultiplayer then
+  if fGame.IsMultiplayer then
     MyPlayer.ToggleFakeFieldPlan(aLoc, aFieldType);
 
   TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
@@ -570,7 +570,7 @@ begin
   inc(fCount);
   if Length(fQueue) <= fCount then SetLength(fQueue, fCount+128);
 
-  fQueue[fCount].Tick    := fGameG.GameTickCount;
+  fQueue[fCount].Tick    := fGame.GameTickCount;
   fQueue[fCount].Command := aCommand;
   fQueue[fCount].Rand    := Cardinal(KaMRandom(maxint)); //This will be our check to ensure everything is consistent
 end;

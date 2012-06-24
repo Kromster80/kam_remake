@@ -68,7 +68,7 @@ type
 
     property Campaigns: TKMCampaignsCollection read fCampaigns;
     function Game: TKMGame;
-    property GlobalSettings: TGameSettings read fGameSettings;
+    property GameSettings: TGameSettings read fGameSettings;
     property MainMenuInterface: TKMMainMenuInterface read fMainMenuInterface;
     property MusicLib: TMusicLib read fMusicLib;
     property Networking: TKMNetworking read fNetworking;
@@ -186,13 +186,13 @@ function TKMGameApp.CanClose: Boolean;
 begin
   //There are no unsaved changes in MainMenu and in Replay.
   //In all other cases (maybe except gsOnHold?) there are potentially unsaved changes
-  Result := (fGameG = nil) or (fGameG.GameMode = gmReplay);
+  Result := (fGame = nil) or (fGame.GameMode = gmReplay);
 end;
 
 
 procedure TKMGameApp.ToggleLocale(aLocale: ShortString);
 begin
-  Assert(fGameG = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
+  Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
   fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
 
@@ -227,14 +227,14 @@ begin
   //it must be properly sized (player could resize the screen while playing)
   fMainMenuInterface.Resize(X, Y);
 
-  if fGameG <> nil then fGameG.Resize(X, Y);
+  if fGame <> nil then fGame.Resize(X, Y);
 end;
 
 
 procedure TKMGameApp.KeyDown(Key: Word; Shift: TShiftState);
 begin
-  if fGameG <> nil then
-    fGameG.KeyDown(Key, Shift)
+  if fGame <> nil then
+    fGame.KeyDown(Key, Shift)
   else
     fMainMenuInterface.KeyDown(Key, Shift);
 end;
@@ -242,8 +242,8 @@ end;
 
 procedure TKMGameApp.KeyPress(Key: Char);
 begin
-  if fGameG <> nil then
-    fGameG.KeyPress(Key)
+  if fGame <> nil then
+    fGame.KeyPress(Key)
   else
     fMainMenuInterface.KeyPress(Key);
 end;
@@ -261,8 +261,8 @@ begin
   //GLOBAL KEYS
   if Key = VK_F3 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
 
-  if fGameG <> nil then
-    fGameG.KeyUp(Key, Shift)
+  if fGame <> nil then
+    fGame.KeyUp(Key, Shift)
   else
     fMainMenuInterface.KeyUp(Key, Shift);
 end;
@@ -270,8 +270,8 @@ end;
 
 procedure TKMGameApp.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if fGameG <> nil then
-    fGameG.MouseDown(Button,Shift,X,Y)
+  if fGame <> nil then
+    fGame.MouseDown(Button,Shift,X,Y)
   else
     fMainMenuInterface.MouseDown(Button,Shift,X,Y);
 end;
@@ -283,8 +283,8 @@ begin
   or not InRange(Y, 1, fRender.ScreenY - 1) then
     Exit; // Exit if Cursor is outside of frame
 
-  if fGameG <> nil then
-    fGameG.MouseMove(Shift,X,Y)
+  if fGame <> nil then
+    fGame.MouseMove(Shift,X,Y)
   else
     //fMainMenuInterface = nil while loading a new locale
     if fMainMenuInterface <> nil then
@@ -297,8 +297,8 @@ end;
 
 procedure TKMGameApp.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if fGameG <> nil then
-    fGameG.MouseUp(Button,Shift,X,Y)
+  if fGame <> nil then
+    fGame.MouseUp(Button,Shift,X,Y)
   else
     fMainMenuInterface.MouseUp(Button, Shift, X,Y);
 end;
@@ -306,8 +306,8 @@ end;
 
 procedure TKMGameApp.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer);
 begin
-  if fGameG <> nil then
-    fGameG.MouseWheel(Shift, WheelDelta, X, Y)
+  if fGame <> nil then
+    fGame.MouseWheel(Shift, WheelDelta, X, Y)
   else
     fMainMenuInterface.MouseWheel(Shift, WheelDelta, X, Y);
 end;
@@ -315,7 +315,7 @@ end;
 
 function TKMGameApp.Game: TKMGame;
 begin
-  Result := fGameG;
+  Result := fGame;
 end;
 
 
@@ -351,9 +351,9 @@ end;
 //6. Switch to MainMenu
 procedure TKMGameApp.Stop(Msg: TGameResultMsg; TextMsg: string='');
 begin
-  if fGameG = nil then Exit;
+  if fGame = nil then Exit;
 
-  if fGameG.GameMode = gmMulti then
+  if fGame.GameMode = gmMulti then
   begin
     if fNetworking.Connected then
       fNetworking.AnnounceDisconnect;
@@ -369,7 +369,7 @@ begin
   case Msg of
     gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd:
                     begin
-                      if fGameG.GameMode = gmMulti then
+                      if fGame.GameMode = gmMulti then
                       begin
                         fMainMenuInterface.ResultsMP_Fill;
                         fMainMenuInterface.ShowScreen(msResultsMP, '', Msg);
@@ -377,11 +377,11 @@ begin
                       else
                       begin
                         //Remember which map we played so we could restart it
-                        fRepeatGameName := fGameG.GameName;
-                        fRepeatMission := fGameG.MissionFile;
-                        fRepeatSave := fGameG.SaveFile;
-                        fRepeatCampName := fGameG.CampaignName;
-                        fRepeatCampMap := fGameG.CampaignMap;
+                        fRepeatGameName := fGame.GameName;
+                        fRepeatMission := fGame.MissionFile;
+                        fRepeatSave := fGame.SaveFile;
+                        fRepeatCampName := fGame.CampaignName;
+                        fRepeatCampMap := fGame.CampaignMap;
 
                         fMainMenuInterface.Results_Fill;
                         fMainMenuInterface.ShowScreen(msResults, '', Msg);
@@ -389,7 +389,7 @@ begin
 
                       //If the game was a part of a campaign, select that campaign,
                       //so we know which menu to show next and unlock next map
-                      fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGameG.CampaignName), fGameG.CampaignMap);
+                      fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGame.CampaignName), fGame.CampaignMap);
 
                       if (Msg = gr_Win) and (fCampaigns.ActiveCampaign <> nil) then
                         fCampaigns.UnlockNextMap;
@@ -400,7 +400,7 @@ begin
     gr_MapEdEnd:    fMainMenuInterface.ShowScreen(msMain);
   end;
 
-  FreeThenNil(fGameG);
+  FreeThenNil(fGame);
   fLog.AppendLog('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(Msg)) + ' /' + TextMsg);
 end;
 
@@ -412,9 +412,9 @@ begin
   Stop(gr_Silent); //Stop everything silently
   LoadGameAssets;
 
-  fGameG := TKMGame.Create(aGameMode, fRender, fNetworking);
+  fGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
-    fGameG.Load(aFilePath);
+    fGame.Load(aFilePath);
   except
     on E : Exception do
     begin
@@ -429,7 +429,7 @@ begin
     end;
   end;
 
-  fOnCursorUpdate(0, 'Map size: '+inttostr(fGameG.MapX)+' x '+inttostr(fGameG.MapY));
+  fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
 
 
@@ -440,9 +440,9 @@ begin
   Stop(gr_Silent); //Stop everything silently
   LoadGameAssets;
 
-  fGameG := TKMGame.Create(aGameMode, fRender, fNetworking);
+  fGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
-    fGameG.GameStart(aMissionFile, aGameName, aCampaignName, aMap);
+    fGame.GameStart(aMissionFile, aGameName, aCampaignName, aMap);
   except
     on E : Exception do
     begin
@@ -462,7 +462,7 @@ begin
     for I:=0 to fPlayers.Count-1 do
       fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;}
 
-  fOnCursorUpdate(0, 'Map size: '+inttostr(fGameG.MapX)+' x '+inttostr(fGameG.MapY));
+  fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
 
 
@@ -473,9 +473,9 @@ begin
   Stop(gr_Silent); //Stop everything silently
   LoadGameAssets;
 
-  fGameG := TKMGame.Create(gmMapEd, fRender, nil);
+  fGame := TKMGame.Create(gmMapEd, fRender, nil);
   try
-    fGameG.GameStart(aSizeX, aSizeY);
+    fGame.GameStart(aSizeX, aSizeY);
   except
     on E : Exception do
     begin
@@ -495,7 +495,7 @@ begin
     for I:=0 to fPlayers.Count-1 do
       fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;}
 
-  fOnCursorUpdate(0, 'Map size: '+inttostr(fGameG.MapX)+' x '+inttostr(fGameG.MapY));
+  fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
 
 
@@ -585,15 +585,15 @@ end;
 //fNetworking knows nothing about fGame
 procedure TKMGameApp.SendMPGameInfo(Sender: TObject);
 begin
-  if fGameG <> nil then
-    fNetworking.AnnounceGameInfo(fGameG.MissionTime, fGameG.GameName);
+  if fGame <> nil then
+    fNetworking.AnnounceGameInfo(fGame.MissionTime, fGame.GameName);
 end;
 
 
 //Debug rendering may be used as a cheat in MP to see unrevealed areas, thats why we block it there
 function TKMGameApp.AllowDebugRendering: Boolean;
 begin
-  Result := (fGameG.GameMode in [gmSingle, gmMapEd, gmReplay]) or (MULTIPLAYER_CHEATS and (fGameG.GameMode = gmMulti));
+  Result := (fGame.GameMode in [gmSingle, gmMapEd, gmReplay]) or (MULTIPLAYER_CHEATS and (fGame.GameMode = gmMulti));
 end;
 
 
@@ -604,12 +604,12 @@ begin
 
   fRender.BeginFrame;
 
-  if fGameG <> nil then
-    fGameG.Render(fRender)
+  if fGame <> nil then
+    fGame.Render(fRender)
   else
     fMainMenuInterface.Paint;
 
-  fRender.RenderBrightness(GlobalSettings.Brightness);
+  fRender.RenderBrightness(GameSettings.Brightness);
 
   fRender.EndFrame;
 end;
@@ -638,10 +638,10 @@ end;
 procedure TKMGameApp.UpdateState(Sender: TObject);
 begin
   Inc(fGlobalTickCount);
-  if fGameG <> nil then
+  if fGame <> nil then
   begin
-    fGameG.UpdateState(fGlobalTickCount);
-    if (fGameG.GameMode = gmMulti) and (fGlobalTickCount mod 100 = 0) then
+    fGame.UpdateState(fGlobalTickCount);
+    if (fGame.GameMode = gmMulti) and (fGlobalTickCount mod 100 = 0) then
       SendMPGameInfo(Self); //Send status to the server every 10 seconds
   end
   else
@@ -654,12 +654,12 @@ begin
   if fGlobalTickCount mod 10 = 0 then
   begin
     //Music
-    if not GlobalSettings.MusicOff and fMusicLib.IsMusicEnded then
+    if not GameSettings.MusicOff and fMusicLib.IsMusicEnded then
       fMusicLib.PlayNextTrack; //Feed new music track
 
     //StatusBar
-    if (fGameG <> nil) and not fGameG.IsPaused then
-      fOnCursorUpdate(2, 'Time: ' + FormatDateTime('hh:nn:ss', fGameG.MissionTime));
+    if (fGame <> nil) and not fGame.IsPaused then
+      fOnCursorUpdate(2, 'Time: ' + FormatDateTime('hh:nn:ss', fGame.MissionTime));
   end;
 end;
 
@@ -667,8 +667,8 @@ end;
 //This is our real-time "thread", use it wisely
 procedure TKMGameApp.UpdateStateIdle(aFrameTime: Cardinal);
 begin
-  if fGameG <> nil then
-    fGameG.UpdateStateIdle(aFrameTime);
+  if fGame <> nil then
+    fGame.UpdateStateIdle(aFrameTime);
 
   if fMusicLib <> nil then fMusicLib.UpdateStateIdle;
   if fSoundLib <> nil then fSoundLib.UpdateStateIdle;

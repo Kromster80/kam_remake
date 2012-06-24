@@ -159,7 +159,7 @@ type
 
 
 var
-  fGameG: TKMGame;
+  fGame: TKMGame;
 
 
 implementation
@@ -377,6 +377,8 @@ begin
     begin
       MyPlayer := fPlayers.Player[0];
       fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
+      for I := 0 to MAX_PLAYERS - 1 do
+        fPlayers[I].FogOfWar.RevealEverything;
     end
     else
     if fGameMode = gmSingle then
@@ -869,12 +871,12 @@ begin
   if fGameSpeed > 5 then
   begin
     fGameSpeedMultiplier := Round(fGameSpeed / 4);
-    fTimerGame.Interval := Round(fGameApp.GlobalSettings.SpeedPace / fGameSpeed * fGameSpeedMultiplier);
+    fTimerGame.Interval := Round(fGameApp.GameSettings.SpeedPace / fGameSpeed * fGameSpeedMultiplier);
   end
   else
   begin
     fGameSpeedMultiplier := 1;
-    fTimerGame.Interval := Round(fGameApp.GlobalSettings.SpeedPace / fGameSpeed);
+    fTimerGame.Interval := Round(fGameApp.GameSettings.SpeedPace / fGameSpeed);
   end;
 
   if fGamePlayInterface <> nil then
@@ -1139,7 +1141,7 @@ begin
 
                       //Each 1min of gameplay time
                       //Don't autosave if the game was put on hold during this tick
-                      if (fGameTickCount mod 600 = 0) and fGameApp.GlobalSettings.Autosave then
+                      if (fGameTickCount mod 600 = 0) and fGameApp.GameSettings.Autosave then
                         AutoSave;
 
                       fPerfLog.AddTime(TimeGet - T);

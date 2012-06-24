@@ -197,7 +197,7 @@ begin
     Exit;
   end;
 
-  ScrollAdv := (SCROLLSPEED + fGameApp.GlobalSettings.ScrollSpeed / 3) * aFrameTime / 100; //1-5 tiles per second
+  ScrollAdv := (SCROLLSPEED + fGameApp.GameSettings.ScrollSpeed / 3) * aFrameTime / 100; //1-5 tiles per second
 
   PrevScrollPos := (PrevScrollPos + 1) mod length(PrevScrollAdv) + 1; //Position in ring-buffer
   PrevScrollAdv[PrevScrollPos] := ScrollAdv; //Replace oldest value

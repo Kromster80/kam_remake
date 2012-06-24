@@ -202,8 +202,8 @@ procedure TKMList.Clear;
 var I: Integer;
 begin
   for I := 0 to Count - 1 do begin
-    TObject(Items[i]).Free;
-    Items[i] := nil;
+    TObject(Items[I]).Free;
+    Items[I] := nil;
   end;
   inherited;
 end;

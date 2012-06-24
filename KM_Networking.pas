@@ -952,7 +952,7 @@ begin
                       begin
                         fNetPlayers.AddPlayer(fMyNikname, fMyIndexOnServer, fMyLang);
                         fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
-                        fNetPlayers[fMyIndex].ReadyToStart := true;
+                        fNetPlayers[fMyIndex].ReadyToStart := True;
                         if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                         SetGameState(lgs_Lobby);
                         fSoundLib.Play(sfxn_MPChatMessage); //Sound for joining the lobby
@@ -976,7 +976,7 @@ begin
               begin
                 PostMessage(Msg+' has reconnected');
                 fNetPlayers[PlayerIndex].SetIndexOnServer := aSenderIndex; //They will have a new index
-                fNetPlayers[PlayerIndex].Connected := true; //This player is now back online
+                fNetPlayers[PlayerIndex].Connected := True; //This player is now back online
                 SendPlayerListAndRefreshPlayersSetup;
                 PacketSend(aSenderIndex, mk_ReconnectionAccepted, '', Integer(fLastProcessedTick)); //Tell this client they are back in the game
                 PacketSend(NET_ADDRESS_OTHERS, mk_ClientReconnected, '', aSenderIndex); //Tell everyone to ask him to resync
@@ -1109,7 +1109,7 @@ begin
 
               case fNetGameState of
                 lgs_Lobby:   begin
-                               fNetPlayers[fMyIndex].ReadyToStart := true; //The host is always ready
+                               fNetPlayers[fMyIndex].ReadyToStart := True; //The host is always ready
                                fNetPlayers.SetAIReady; //Set all AI players to ready
                                SendGameOptions; //Only needs to be sent when in the lobby. Our version becomes standard.
                              end;

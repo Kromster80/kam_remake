@@ -435,7 +435,7 @@ begin
   Assert(Msg <> 0, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
   if fOwner = MyPlayer.PlayerIndex then //Don't show message for other players
-    fGameG.ShowMessage(mkHouse, fTextLibrary[Msg], fHome.GetEntrance);
+    fGame.ShowMessage(mkHouse, fTextLibrary[Msg], fHome.GetEntrance);
 
   fHome.ResourceDepletedMsgIssued := True;
 end;
@@ -935,7 +935,7 @@ begin
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
   //Make fish/watersnakes to be more visible in the MapEd
-  if (fGameG.GameMode = gmMapEd) and (fUnitType in [ut_Fish, ut_Watersnake, ut_Seastar]) then
+  if (fGame.GameMode = gmMapEd) and (fUnitType in [ut_Fish, ut_Watersnake, ut_Seastar]) then
     fRenderAux.Circle(fPosition.X - 0.5,
                       fPosition.Y - fTerrain.HeightAt(fPosition.X - 0.5, fPosition.Y - 0.5) / CELL_HEIGHT_DIV - 0.5,
                       0.5, $30FF8000, $60FF8000);
@@ -949,7 +949,7 @@ end;
 constructor TKMUnit.Create(aOwner:TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   inherited Create;
-  fID           := fGameG.GetNewID;
+  fID           := fGame.GetNewID;
   fPointerCount := 0;
   fIsDead       := false;
   fKillASAP     := false;
@@ -969,7 +969,7 @@ begin
   AnimStep      := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 0.5 to 0.7 (KaM uses 0.6 for all units)
   //By adding the random amount they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
-  if fGameG.GameMode <> gmMapEd then
+  if fGame.GameMode <> gmMapEd then
     fCondition    := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)))
   else
     fCondition    := Round(UNIT_MAX_CONDITION * UNIT_CONDITION_BASE);
@@ -1120,8 +1120,8 @@ begin
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
 
-  if (fGameG.GamePlayInterface <> nil) and (fGameG.GamePlayInterface.ShownUnit = Self) then
-    fGameG.GamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
+  if (fGame.GamePlayInterface <> nil) and (fGame.GamePlayInterface.ShownUnit = Self) then
+    fGame.GamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
   //MapEd doesn't need this yet
 end;
 
@@ -1134,7 +1134,7 @@ end;
 procedure TKMUnit.KillUnit;
 begin
   if fPlayers.Selected = Self then fPlayers.Selected := nil;
-  if fGameG.GamePlayInterface.ShownUnit = Self then fGameG.GamePlayInterface.ShowUnitInfo(nil);
+  if fGame.GamePlayInterface.ShownUnit = Self then fGame.GamePlayInterface.ShowUnitInfo(nil);
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
   //Wait till units exchange (1 tick) and then do the killing
@@ -1159,7 +1159,7 @@ end;
 procedure TKMUnit.SetPosition(aPos: TKMPoint);
 begin
   //This is only used by the map editor, set all positions to aPos
-  Assert(fGameG.GameMode = gmMapEd);
+  Assert(fGame.GameMode = gmMapEd);
   fTerrain.UnitRem(fCurrPosition);
   fCurrPosition := aPos;
   fNextPosition := aPos;
@@ -2300,7 +2300,7 @@ var
   Rect: TKMRect;
 begin
   //Add additional margin to compensate for units height
-  Rect := KMRectGrow(fGameG.Viewport.GetClip, Margin);
+  Rect := KMRectGrow(fGame.Viewport.GetClip, Margin);
 
   for I := 0 to Count - 1 do
   if (Items[I] <> nil) and not Units[I].IsDead and KMInRect(Units[I].fPosition, Rect) then

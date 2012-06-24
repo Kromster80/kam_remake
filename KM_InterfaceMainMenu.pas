@@ -552,7 +552,7 @@ begin
     Label_Stat[6].Caption := inttostr(GetCitizensTrained);
     Label_Stat[7].Caption := inttostr(GetWeaponsProduced);
     Label_Stat[8].Caption := inttostr(GetWarriorsTrained);
-    Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGameG.MissionTime);
+    Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGame.MissionTime);
   end;
 
   //Fill in chart values
@@ -567,10 +567,10 @@ begin
     Graph_Houses.MaxLength    := MyPlayer.Stats.GraphCount;
     Graph_Wares.MaxLength     := MyPlayer.Stats.GraphCount;
 
-    Graph_Army.MaxTime      := fGameG.GameTickCount div 10;
-    Graph_Citizens.MaxTime  := fGameG.GameTickCount div 10;
-    Graph_Houses.MaxTime    := fGameG.GameTickCount div 10;
-    Graph_Wares.MaxTime     := fGameG.GameTickCount div 10;
+    Graph_Army.MaxTime      := fGame.GameTickCount div 10;
+    Graph_Citizens.MaxTime  := fGame.GameTickCount div 10;
+    Graph_Houses.MaxTime    := fGame.GameTickCount div 10;
+    Graph_Wares.MaxTime     := fGame.GameTickCount div 10;
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
@@ -587,7 +587,7 @@ begin
     for R := WARE_MIN to WARE_MAX do
       Graph_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
 
-    Button_Graph2.Enabled := (fGameG.MissionMode = mm_Normal);
+    Button_Graph2.Enabled := (fGame.MissionMode = mm_Normal);
     Results_GraphToggle(Button_Graph1);
   end;
 end;
@@ -613,7 +613,7 @@ var
   Bests: array [0..9] of Cardinal;
   Totals: array [0..9] of Cardinal;
 begin
-  Label_ResultsMPTime.Caption := fGameG.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGameG.MissionTime);
+  Label_ResultsMPTime.Caption := fGame.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGame.MissionTime);
 
   //Update visibility depending on players count
   for I := 0 to MAX_PLAYERS - 1 do
@@ -1768,7 +1768,7 @@ end;
   {Show Options menu}
   if Sender=Button_MM_Options then
   begin
-    Options_Fill(fMain.Settings, fGameApp.GlobalSettings);
+    Options_Fill(fMain.Settings, fGameApp.GameSettings);
     Panel_Options.Show;
   end;
 
@@ -2093,20 +2093,20 @@ begin
   //Refresh the list when they first open the multiplayer page
   MP_ServersRefresh(Sender);
 
-  Edit_MP_PlayerName.Text := fGameApp.GlobalSettings.MultiplayerName;
+  Edit_MP_PlayerName.Text := fGameApp.GameSettings.MultiplayerName;
 
-  Edit_MP_ServerName.Text := fGameApp.GlobalSettings.ServerName;
-  Edit_MP_ServerPort.Text := fGameApp.GlobalSettings.ServerPort;
+  Edit_MP_ServerName.Text := fGameApp.GameSettings.ServerName;
+  Edit_MP_ServerPort.Text := fGameApp.GameSettings.ServerPort;
 
-  Edit_MP_FindIP.Text := fGameApp.GlobalSettings.LastIP;
-  Edit_MP_FindPort.Text := fGameApp.GlobalSettings.LastPort;
-  Edit_MP_FindRoom.Text := fGameApp.GlobalSettings.LastRoom;
+  Edit_MP_FindIP.Text := fGameApp.GameSettings.LastIP;
+  Edit_MP_FindPort.Text := fGameApp.GameSettings.LastPort;
+  Edit_MP_FindRoom.Text := fGameApp.GameSettings.LastRoom;
 
   Button_MP_GetIn.Disable;
 
   //Fetch the announcements display
   fGameApp.Networking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
-  fGameApp.Networking.ServerQuery.FetchAnnouncements(fGameApp.GlobalSettings.Locale);
+  fGameApp.Networking.ServerQuery.FetchAnnouncements(fGameApp.GameSettings.Locale);
   Memo_MP_Announcement.Clear;
   Memo_MP_Announcement.Add(fTextLibrary[TX_MP_MENU_LOADING_ANNOUNCEMENTS]);
 end;
@@ -2162,16 +2162,16 @@ end;
 procedure TKMMainMenuInterface.MP_SaveSettings;
 begin
   //Player name
-  fGameApp.GlobalSettings.MultiplayerName := Edit_MP_PlayerName.Text;
+  fGameApp.GameSettings.MultiplayerName := Edit_MP_PlayerName.Text;
 
   //Create Server popup
-  fGameApp.GlobalSettings.ServerName := Edit_MP_ServerName.Text;
-  fGameApp.GlobalSettings.ServerPort := Edit_MP_ServerPort.Text;
+  fGameApp.GameSettings.ServerName := Edit_MP_ServerName.Text;
+  fGameApp.GameSettings.ServerPort := Edit_MP_ServerPort.Text;
 
   //Join server popup
-  fGameApp.GlobalSettings.LastPort := Edit_MP_FindPort.Text;
-  fGameApp.GlobalSettings.LastRoom := Edit_MP_FindRoom.Text;
-  fGameApp.GlobalSettings.LastIP   := Edit_MP_FindIP.Text;
+  fGameApp.GameSettings.LastPort := Edit_MP_FindPort.Text;
+  fGameApp.GameSettings.LastRoom := Edit_MP_FindRoom.Text;
+  fGameApp.GameSettings.LastIP   := Edit_MP_FindIP.Text;
 end;
 
 
@@ -3332,30 +3332,30 @@ var
   MusicToggled, ShuffleToggled: Boolean;
 begin
   //Change these options only if they changed state since last time
-  MusicToggled := (fGameApp.GlobalSettings.MusicOff <> CheckBox_Options_MusicOff.Checked);
-  ShuffleToggled := (fGameApp.GlobalSettings.ShuffleOn <> CheckBox_Options_ShuffleOn.Checked);
+  MusicToggled := (fGameApp.GameSettings.MusicOff <> CheckBox_Options_MusicOff.Checked);
+  ShuffleToggled := (fGameApp.GameSettings.ShuffleOn <> CheckBox_Options_ShuffleOn.Checked);
 
-  fGameApp.GlobalSettings.Autosave         := CheckBox_Options_Autosave.Checked;
-  fGameApp.GlobalSettings.Brightness       := TrackBar_Options_Brightness.Position;
-  fGameApp.GlobalSettings.AlphaShadows     := RadioGroup_Options_Shadows.ItemIndex = 1;
-  fGameApp.GlobalSettings.ScrollSpeed      := TrackBar_Options_ScrollSpeed.Position;
-  fGameApp.GlobalSettings.SoundFXVolume    := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
-  fGameApp.GlobalSettings.MusicVolume      := TrackBar_Options_Music.Position / TrackBar_Options_Music.MaxValue;
-  fGameApp.GlobalSettings.MusicOff         := CheckBox_Options_MusicOff.Checked;
-  fGameApp.GlobalSettings.ShuffleOn        := CheckBox_Options_ShuffleOn.Checked;
+  fGameApp.GameSettings.Autosave         := CheckBox_Options_Autosave.Checked;
+  fGameApp.GameSettings.Brightness       := TrackBar_Options_Brightness.Position;
+  fGameApp.GameSettings.AlphaShadows     := RadioGroup_Options_Shadows.ItemIndex = 1;
+  fGameApp.GameSettings.ScrollSpeed      := TrackBar_Options_ScrollSpeed.Position;
+  fGameApp.GameSettings.SoundFXVolume    := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
+  fGameApp.GameSettings.MusicVolume      := TrackBar_Options_Music.Position / TrackBar_Options_Music.MaxValue;
+  fGameApp.GameSettings.MusicOff         := CheckBox_Options_MusicOff.Checked;
+  fGameApp.GameSettings.ShuffleOn        := CheckBox_Options_ShuffleOn.Checked;
   TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOff.Checked;
   CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOff.Checked;
 
-  fSoundLib.UpdateSoundVolume(fGameApp.GlobalSettings.SoundFXVolume);
-  fGameApp.MusicLib.UpdateMusicVolume(fGameApp.GlobalSettings.MusicVolume);
+  fSoundLib.UpdateSoundVolume(fGameApp.GameSettings.SoundFXVolume);
+  fGameApp.MusicLib.UpdateMusicVolume(fGameApp.GameSettings.MusicVolume);
   if MusicToggled then
   begin
-    fGameApp.MusicLib.ToggleMusic(not fGameApp.GlobalSettings.MusicOff);
-    if not fGameApp.GlobalSettings.MusicOff then
+    fGameApp.MusicLib.ToggleMusic(not fGameApp.GameSettings.MusicOff);
+    if not fGameApp.GameSettings.MusicOff then
       ShuffleToggled := True; //Re-shuffle songs if music has been enabled
   end;
   if ShuffleToggled then
-    fGameApp.MusicLib.ToggleShuffle(fGameApp.GlobalSettings.ShuffleOn);
+    fGameApp.MusicLib.ToggleShuffle(fGameApp.GameSettings.ShuffleOn);
 
   if Sender = Radio_Options_Lang then
   begin

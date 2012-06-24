@@ -347,7 +347,7 @@ begin
   end;
 
   if Sender = Button_Menu_Save then begin
-    Edit_SaveName.Text := fGameG.GameName;
+    Edit_SaveName.Text := fGame.GameName;
     Menu_Save(Edit_SaveName);
     Panel_Save.Show;
   end;
@@ -393,8 +393,8 @@ end;
 {Update minimap data}
 procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: integer);
 begin
-  fGameG.Viewport.Position := KMPointF(X,Y);
-  Minimap.ViewArea := fGameG.Viewport.GetMinimapClip;
+  fGame.Viewport.Position := KMPointF(X,Y);
+  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -942,7 +942,7 @@ begin
   if aTickCount mod 10 = 0 then
     fMapView.Update(False);
 
-  Minimap.ViewArea := fGameG.Viewport.GetMinimapClip;
+  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -952,7 +952,7 @@ begin
   fMapView.Update(False);
   Minimap.UpdateFrom(fMapView);
   Minimap.MapSize := KMPoint(X, Y);
-  Minimap.ViewArea := fGameG.Viewport.GetMinimapClip;
+  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -1318,11 +1318,11 @@ begin
 
   if Sender = Button_SaveSave then begin
     //Should we expand the path here? It depends.. since we are passing mask for map/dat files/folder
-    fGameG.SaveMapEditor(Edit_SaveName.Text, Radio_Save_MapType.ItemIndex = 1);
+    fGame.SaveMapEditor(Edit_SaveName.Text, Radio_Save_MapType.ItemIndex = 1);
 
     Player_UpdateColors;
     Player_ChangeActive(nil);
-    Label_MissionName.Caption := fGameG.GameName;
+    Label_MissionName.Caption := fGame.GameName;
 
     SwitchPage(Button_SaveCancel); //return to previous menu
   end;
@@ -1761,7 +1761,7 @@ procedure TKMapEdInterface.KeyDown(Key: Word; Shift: TShiftState);
 begin
   if fMyControls.KeyDown(Key, Shift) then
   begin
-    fGameG.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
+    fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
     Exit; //Handled by Controls
   end;
 
@@ -1771,10 +1771,10 @@ begin
   //  Button_Main[Key-48].DoPress;
 
   //Scrolling
-  if Key = VK_LEFT  then fGameG.Viewport.ScrollKeyLeft  := true;
-  if Key = VK_RIGHT then fGameG.Viewport.ScrollKeyRight := true;
-  if Key = VK_UP    then fGameG.Viewport.ScrollKeyUp    := true;
-  if Key = VK_DOWN  then fGameG.Viewport.ScrollKeyDown  := true;
+  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := true;
+  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := true;
+  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := true;
+  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := true;
 end;
 
 
@@ -1787,14 +1787,14 @@ begin
     Button_Main[Key-48].Click;
 
   //Scrolling
-  if Key = VK_LEFT  then fGameG.Viewport.ScrollKeyLeft  := false;
-  if Key = VK_RIGHT then fGameG.Viewport.ScrollKeyRight := false;
-  if Key = VK_UP    then fGameG.Viewport.ScrollKeyUp    := false;
-  if Key = VK_DOWN  then fGameG.Viewport.ScrollKeyDown  := false;
+  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := false;
+  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := false;
+  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := false;
+  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := false;
 
   //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
   //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-  if Key = VK_BACK  then fGameG.Viewport.ResetZoom;
+  if Key = VK_BACK  then fGame.Viewport.ResetZoom;
 end;
 
 
@@ -1804,7 +1804,7 @@ begin
 
   //So terrain brushes start on mouse down not mouse move
   if fMyControls.CtrlOver = nil then
-    fGameG.UpdateGameCursor(X,Y,Shift);
+    fGame.UpdateGameCursor(X,Y,Shift);
 end;
 
 
@@ -1819,12 +1819,12 @@ begin
     Exit;
   end;
 
-  fGameG.UpdateGameCursor(X,Y,Shift);
+  fGame.UpdateGameCursor(X,Y,Shift);
   if GameCursor.Mode = cm_None then
     if fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y, False) <> nil then
       fResource.Cursors.Cursor := kmc_Info
     else
-      if not fGameG.Viewport.Scrolling then
+      if not fGame.Viewport.Scrolling then
         fResource.Cursors.Cursor := kmc_Default;
 
   Label_Coordinates.Caption := Format('X: %d, Y: %d',[GameCursor.Cell.X,GameCursor.Cell.Y]);
@@ -1864,7 +1864,7 @@ begin
     exit; //We could have caused fGame reinit, so exit at once
   end;
 
-  fGameG.UpdateGameCursor(X, Y, Shift); //Updates the shift state
+  fGame.UpdateGameCursor(X, Y, Shift); //Updates the shift state
   P := GameCursor.Cell; //Get cursor position tile-wise
   if Button = mbRight then
   begin

@@ -147,9 +147,9 @@ begin
 
   glLoadIdentity; // Reset The View
   //glRotate(-15,0,0,1); //Funny thing
-  glTranslatef(fGameG.Viewport.ViewportClip.X/2, fGameG.Viewport.ViewportClip.Y/2, 0);
-  glScalef(fGameG.Viewport.Zoom*CELL_SIZE_PX, fGameG.Viewport.Zoom*CELL_SIZE_PX, 1);
-  glTranslatef(-fGameG.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGameG.Viewport.Zoom, -fGameG.Viewport.Position.Y, 0);
+  glTranslatef(fGame.Viewport.ViewportClip.X/2, fGame.Viewport.ViewportClip.Y/2, 0);
+  glScalef(fGame.Viewport.Zoom*CELL_SIZE_PX, fGame.Viewport.Zoom*CELL_SIZE_PX, 1);
+  glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y, 0);
   if RENDER_3D then
   begin
     fRender.SetRenderMode(rm3D);
@@ -158,13 +158,13 @@ begin
     glRotatef(rHeading,1,0,0);
     glRotatef(rPitch  ,0,1,0);
     glRotatef(rBank   ,0,0,1);
-    glTranslatef(-fGameG.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGameG.Viewport.Zoom, -fGameG.Viewport.Position.Y-8, 10);
-    glScalef(fGameG.Viewport.Zoom, fGameG.Viewport.Zoom, 1);
+    glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y-8, 10);
+    glScalef(fGame.Viewport.Zoom, fGame.Viewport.Zoom, 1);
   end;
 
   glPushAttrib(GL_LINE_BIT or GL_POINT_BIT);
-    glLineWidth(fGameG.Viewport.Zoom * 2);
-    glPointSize(fGameG.Viewport.Zoom * 5);
+    glLineWidth(fGame.Viewport.Zoom * 2);
+    glPointSize(fGame.Viewport.Zoom * 5);
 
     //Background
     RenderTerrain;
@@ -205,21 +205,21 @@ begin
 
   //Fieldplans
   FieldsList := TKMPointTagList.Create;
-  MyPlayer.GetFieldPlans(FieldsList, aRect, True, fGameG.IsReplay); //Include fake field plans for painting
+  MyPlayer.GetFieldPlans(FieldsList, aRect, True, fGame.IsReplay); //Include fake field plans for painting
   for i := 0 to FieldsList.Count - 1 do
     RenderTerrainMarkup(FieldsList[i].X, FieldsList[i].Y, TFieldType(FieldsList.Tag[i]));
   FreeAndNil(FieldsList);
 
   //Borders
   BordersList := TKMPointDirList.Create;
-  MyPlayer.GetPlansBorders(BordersList, aRect, fGameG.IsReplay);
+  MyPlayer.GetPlansBorders(BordersList, aRect, fGame.IsReplay);
   for i := 0 to BordersList.Count - 1 do
     RenderTerrainBorder(bt_HousePlan, BordersList[i].Dir, BordersList[i].Loc.X, BordersList[i].Loc.Y);
   FreeAndNil(BordersList);
 
   //Tablets
   TabletsList := TKMPointTagList.Create;
-  MyPlayer.GetPlansTablets(TabletsList, aRect, fGameG.IsReplay);
+  MyPlayer.GetPlansTablets(TabletsList, aRect, fGame.IsReplay);
   for i := 0 to TabletsList.Count - 1 do
     AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList[i]);
   FreeAndNil(TabletsList);
@@ -687,7 +687,7 @@ begin
 
   //Thought bubbles are animated in reverse
   ID := ThoughtBounds[Thought, 2] + 1 -
-       (fGameG.GameTickCount mod word(ThoughtBounds[Thought, 2] - ThoughtBounds[Thought, 1]));
+       (fGame.GameTickCount mod word(ThoughtBounds[Thought, 2] - ThoughtBounds[Thought, 1]));
 
   CornerX := pX + R.Pivot[ID].X / CELL_SIZE_PX;
   CornerY := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1.5
@@ -856,7 +856,7 @@ procedure TRenderPool.RenderTerrain;
 var
   Rect: TKMRect;
 begin
-  Rect := fGameG.Viewport.GetClip;
+  Rect := fGame.Viewport.GetClip;
 
   fRenderTerrain.Render(Rect, fTerrain.AnimStep, MyPlayer.FogOfWar);
 
@@ -878,11 +878,11 @@ procedure TRenderPool.RenderSprites;
 var
   Rect: TKMRect;
 begin
-  Rect := fGameG.Viewport.GetClip;
+  Rect := fGame.Viewport.GetClip;
 
   RenderTerrainObjects(Rect, fTerrain.AnimStep);
   fPlayers.Paint; //Quite slow           //Units and houses
-  fGameG.Projectiles.Paint;
+  fGame.Projectiles.Paint;
 
   fRenderList.Render;
 end;
@@ -1056,11 +1056,11 @@ begin
   with fTerrain do
   case GameCursor.Mode of
     cm_None:   ;
-    cm_Erase:   case fGameG.GameMode of
+    cm_Erase:   case fGame.GameMode of
                   gmMapEd:
                     begin
                       //With Units tab see if there's a unit below cursor
-                      if (fGameG.MapEditorInterface.GetShownPage = esp_Units) then
+                      if (fGame.MapEditorInterface.GetShownPage = esp_Units) then
                       begin
                         U := fTerrain.UnitsHitTest(P.X, P.Y);
                         if U <> nil then
@@ -1068,7 +1068,7 @@ begin
                       end
                       else
                         //With Buildings tab see if we can remove Fields or Houses
-                        if (fGameG.MapEditorInterface.GetShownPage = esp_Buildings)
+                        if (fGame.MapEditorInterface.GetShownPage = esp_Buildings)
                            and (    TileIsCornField(P)
                                  or TileIsWineField(P)
                                  or (Land[P.Y,P.X].TileOverlay=to_Road)

@@ -353,14 +353,14 @@ begin
   fPointerCount     := 0;
   fTimeSinceUnoccupiedReminder   := TIME_BETWEEN_MESSAGES;
 
-  fID := fGameG.GetNewID;
+  fID := fGame.GetNewID;
   ResourceDepletedMsgIssued := false;
 
   if aBuildState = hbs_Done then //House was placed on map already Built e.g. in mission maker
   begin
     Activate(False);
     fBuildingProgress := fResource.HouseDat[fHouseType].MaxHealth;
-    fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, fGameG.GameMode <> gmMapEd); //Sets passability and flattens terrain if we're not in the map editor
+    fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, fGame.GameMode <> gmMapEd); //Sets passability and flattens terrain if we're not in the map editor
   end else
     fTerrain.SetHouse(fPosition, fHouseType, hsFence, fOwner); //Terrain remains neutral yet
 end;
@@ -490,8 +490,8 @@ begin
   if fPlayers.Selected = Self then
     fPlayers.Selected := nil;
 
-  if (fGameG.GamePlayInterface <> nil) and (fGameG.GamePlayInterface.ShownHouse = Self) then
-    fGameG.GamePlayInterface.ShowHouseInfo(nil);
+  if (fGame.GamePlayInterface <> nil) and (fGame.GamePlayInterface.ShownHouse = Self) then
+    fGame.GamePlayInterface.ShowHouseInfo(nil);
 
   if not DoSilent then
     if not NoRubble then
@@ -528,7 +528,7 @@ end;
 //Used by MapEditor
 procedure TKMHouse.SetPosition(aPos: TKMPoint);
 begin
-  Assert(fGameG.GameMode = gmMapEd);
+  Assert(fGame.GameMode = gmMapEd);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   fTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
   fTerrain.RemRoad(GetEntrance);
@@ -1161,7 +1161,7 @@ begin
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
       if fOwner = MyPlayer.PlayerIndex then
-        fGameG.ShowMessage(mkHouse, fTextLibrary[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
+        fGame.ShowMessage(mkHouse, fTextLibrary[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end
@@ -1876,7 +1876,7 @@ var
 begin
   Assert(aRes in [WARE_MIN .. WARE_MAX]); //Dunno why thats happening sometimes..
 
-  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGameG.IsMultiplayer) then
+  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
   begin
     ApplyCheat := True;
 
@@ -1891,18 +1891,18 @@ begin
                     fPlayers[fOwner].Stats.GoodProduced(rt_All, 10);
                     Exit;
                   end;
-      rt_Horse:   if not fGameG.IsMultiplayer then
+      rt_Horse:   if not fGame.IsMultiplayer then
                   begin
                     //Game results cheats should not be used in MP even in debug
                     //MP does Win/Defeat differently (without Hold)
-                    fGameG.RequestGameHold(gr_Win);
+                    fGame.RequestGameHold(gr_Win);
                     Exit;
                   end;
-      rt_Fish:    if not fGameG.IsMultiplayer then
+      rt_Fish:    if not fGame.IsMultiplayer then
                   begin
                     //Game results cheats should not be used in MP even in debug
                     //MP does Win/Defeat differently (without Hold)
-                    fGameG.RequestGameHold(gr_Defeat);
+                    fGame.RequestGameHold(gr_Defeat);
                     Exit;
                   end;
     end;
@@ -2335,7 +2335,7 @@ var I: Integer;
 begin
   SaveStream.Write('Houses');
   //Multiplayer saves must be identical, thus we force that no house is selected
-  if (fSelectedHouse <> nil) and not fGameG.IsMultiplayer then
+  if (fSelectedHouse <> nil) and not fGame.IsMultiplayer then
     SaveStream.Write(fSelectedHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
@@ -2438,7 +2438,7 @@ var
   Rect: TKMRect;
 begin
   //Compensate for big houses near borders or standing on hills
-  Rect := KMRectGrow(fGameG.Viewport.GetClip, Margin);
+  Rect := KMRectGrow(fGame.Viewport.GetClip, Margin);
 
   for I := 0 to Count - 1 do
   if not Houses[I].IsDestroyed and KMInRect(Houses[I].fPosition, Rect) then

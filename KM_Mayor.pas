@@ -168,7 +168,7 @@ begin
       if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
         if not CheckUnitRequirements(Round((10/fMayorSetup.SerfFactor) * P.Stats.GetHouseQty(ht_Any)), ut_Serf) then
           if not CheckUnitRequirements(fMayorSetup.WorkerFactor, ut_Worker) then
-            if fGameG.CheckTime(fMayorSetup.RecruitDelay) then //Recruits can only be trained after this time
+            if fGame.CheckTime(fMayorSetup.RecruitDelay) then //Recruits can only be trained after this time
               if not CheckUnitRequirements(fMayorSetup.RecruitFactor * P.Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
                 Break; //There's no unit demand at all
     end;
