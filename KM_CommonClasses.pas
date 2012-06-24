@@ -51,7 +51,7 @@ type
   //Stores information about a multiplayer game to be sent: host -> server -> queriers
   TMPGameInfo = class
   public
-    GameState:TMPGameState;
+    GameState: TMPGameState;
     PlayerCount: byte;
     Players: AnsiString;
     Map: AnsiString;
@@ -129,7 +129,7 @@ type
   //Custom Exception that includes a TKMPoint
   ELocError = class(Exception)
     Loc: TKMPoint;
-    constructor Create(const Msg: string; aLoc:TKMPoint);
+    constructor Create(const Msg: string; aLoc: TKMPoint);
   end;
 
 
@@ -138,7 +138,7 @@ uses KM_Utils;
 
 
 { ELocError }
-constructor ELocError.Create(const Msg: string; aLoc:TKMPoint);
+constructor ELocError.Create(const Msg: string; aLoc: TKMPoint);
 begin
   inherited Create(Msg);
   Loc := aLoc;
@@ -146,7 +146,7 @@ end;
 
 
 { TMPGameInfo }
-procedure TMPGameInfo.LoadFromText(aText:string);
+procedure TMPGameInfo.LoadFromText(aText: string);
 var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
@@ -172,7 +172,7 @@ begin
 end;
 
 
-function TMPGameInfo.GetAsText:string;
+function TMPGameInfo.GetAsText: string;
 var M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
@@ -188,7 +188,7 @@ begin
 end;
 
 
-function TMPGameInfo.GetAsHTML:string;
+function TMPGameInfo.GetAsHTML: string;
 begin
   Result := '';
   Result := Result + Map;
@@ -199,11 +199,11 @@ end;
 
 { TKMList }
 procedure TKMList.Clear;
-var i:integer;
+var I: Integer;
 begin
-  for i:=0 to Count-1 do begin
+  for I := 0 to Count - 1 do begin
     TObject(Items[i]).Free;
-    Items[i]:=nil;
+    Items[i] := nil;
   end;
   inherited;
 end;
@@ -258,7 +258,7 @@ function TKMemoryStream.Write(const Value:shortint): Longint;
 begin Result := inherited Write(Value, SizeOf(Value)); end;
 
 
-procedure TKMemoryStream.WriteAsText(const aText:string);
+procedure TKMemoryStream.WriteAsText(const aText: string);
 begin
   Position := 0;
   Write(Pointer(aText)^, Length(aText) * SizeOf(Char));
@@ -287,7 +287,7 @@ end;}
 {$ENDIF}
 
 
-procedure TKMemoryStream.Read(out Value:TKMPointDir);
+procedure TKMemoryStream.Read(out Value: TKMPointDir);
 begin
   Read(Value.Loc);
   Read(Value.Dir, SizeOf(Value.Dir));
