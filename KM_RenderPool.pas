@@ -113,8 +113,9 @@ begin
     fRXData[RT] := fResource.Sprites[RT].RXData;
 
   fRender := aRender;
-  fRenderList := TRenderList.Create;
-  fRenderTerrain := TRenderTerrain.Create;
+  fRenderList     := TRenderList.Create;
+  fRenderTerrain  := TRenderTerrain.Create;
+  fRenderAux      := TRenderAux.Create;
 end;
 
 
@@ -122,6 +123,7 @@ destructor TRenderPool.Destroy;
 begin
   fRenderList.Free;
   fRenderTerrain.Free;
+  FreeThenNil(fRenderAux);
   inherited;
 end;
 

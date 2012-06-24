@@ -24,7 +24,7 @@ type
     function Write(const Value:boolean  ): Longint; reintroduce; overload;
     function Write(const Value:word     ): Longint; reintroduce; overload;
     function Write(const Value:shortint ): Longint; reintroduce; overload;
-    procedure WriteAsText(const aText: string);
+    procedure WriteAsText(const aText: AnsiString); deprecated; //todo: Using text for data exchange is flawed idea. remove
 
     procedure Read(out Value: AnsiString); reintroduce; overload;
     {$IFDEF UNICODE}
@@ -42,7 +42,7 @@ type
     function Read(out Value:word        ): Longint; reintroduce; overload;
     function Read(out Value:shortint    ): Longint; reintroduce; overload;
     procedure ReadAssert(const Value: string);
-    function ReadAsText: string;
+    function ReadAsText: AnsiString; deprecated; //todo: Using text for data exchange is flawed idea. remove
   end;
 
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
@@ -152,11 +152,11 @@ begin
   M := TKMemoryStream.Create;
   try
     M.WriteAsText(aText);
-    M.Read(GameState, SizeOf(GameState));
-    M.Read(PlayerCount);
-    M.Read(Players);
-    M.Read(Map);
-    M.Read(GameTime, SizeOf(GameTime));
+  M.Read(GameState, SizeOf(GameState));
+  M.Read(PlayerCount);
+  M.Read(Players);
+  M.Read(Map);
+  M.Read(GameTime, SizeOf(GameTime));
   finally
     M.Free;
   end;
@@ -258,10 +258,10 @@ function TKMemoryStream.Write(const Value:shortint): Longint;
 begin Result := inherited Write(Value, SizeOf(Value)); end;
 
 
-procedure TKMemoryStream.WriteAsText(const aText: string);
+procedure TKMemoryStream.WriteAsText(const aText: AnsiString);
 begin
   Position := 0;
-  Write(Pointer(aText)^, Length(aText) * SizeOf(Char));
+  Write(Pointer(aText)^, Length(aText) * SizeOf(AnsiChar));
   Position := 0;
 end;
 
@@ -322,9 +322,9 @@ begin
   Assert(s = Value, 'TKMemoryStream.Read <> Value: '+Value);
 end;
 
-function TKMemoryStream.ReadAsText: string;
+function TKMemoryStream.ReadAsText: AnsiString;
 begin
-  SetString(Result, PChar(Memory), Size div SizeOf(Char));
+  SetString(Result, PChar(Memory), Size div SizeOf(AnsiChar));
 end;
 
 

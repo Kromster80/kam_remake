@@ -95,7 +95,7 @@ implementation
 uses
   KM_Log,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
-  KM_RenderAux, KM_Resource, KM_Sound, KM_Utils;
+  KM_Resource, KM_Sound, KM_Utils;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -111,7 +111,7 @@ begin
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
 
   fRender       := TRender.Create(aHandle, aScreenX, aScreenY, aVSync);
-  fRenderAux    := TRenderAux.Create;
+
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
     //MessageDlg works better than Application.MessageBox or others, it stays on top and
@@ -123,7 +123,7 @@ begin
 
   fSoundLib     := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume); //Required for button click sounds
   fMusicLib     := TMusicLib.Create(fGameSettings.MusicVolume);
-  fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
+  fSoundLib.OnRequestFade   := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
 
   fCampaigns    := TKMCampaignsCollection.Create;
@@ -135,8 +135,8 @@ begin
 
   fTimerUI := TTimer.Create(nil);
   fTimerUI.Interval := 100;
-  fTimerUI.OnTimer := UpdateState;
-  fTimerUI.Enabled := True;
+  fTimerUI.OnTimer  := UpdateState;
+  fTimerUI.Enabled  := True;
 
   //Start the Music playback as soon as loading is complete
   if (not NoMusic) and not fGameSettings.MusicOff then
@@ -175,7 +175,6 @@ begin
   FreeThenNil(fTextLibrary);
   FreeAndNil(fNetworking);
 
-  FreeThenNil(fRenderAux);
   FreeThenNil(fRender);
 
   inherited;
