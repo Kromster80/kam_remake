@@ -16,8 +16,8 @@ type
 
   TKMMainMenuInterface = class (TKMUserInterface)
   private
-    Campaign_Selected:TKMCampaign;
-    Campaign_MapIndex:byte;
+    Campaign_Selected: TKMCampaign;
+    Campaign_MapIndex: Byte;
 
     fServerSelected: Boolean;
     fSelectedRoomInfo: TKMRoomInfo;
@@ -37,7 +37,7 @@ type
     fSaveCRC_Selected: Cardinal; //CRC of selected save
     fSaves: TKMSavesCollection;
     fSavesMP: TKMSavesCollection;
-    MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
+    MapEdSizeX, MapEdSizeY: Integer; //Map Editor map size
     //We remember old values to enable "Apply" button dynamicaly
     OldResolutionID: TResIndex;
 
@@ -79,7 +79,7 @@ type
     procedure MP_Init(Sender: TObject);
     procedure MP_BindEvents;
     procedure MP_SaveSettings;
-    procedure MP_Update(const aStatus:string; aColor:TColor4; aBusy:boolean);
+    procedure MP_Update(const aStatus: string; aColor: TColor4; aBusy: Boolean);
     procedure MP_ServersUpdateList(Sender: TObject);
     procedure MP_AnnouncementsUpdated(const S: string);
     procedure MP_CreateServerClick(Sender: TObject);
@@ -92,17 +92,17 @@ type
     procedure MP_ServersClick(Sender: TObject);
     procedure MP_ServersDoubleClick(Sender: TObject);
     procedure MP_GetInClick(Sender: TObject);
-    function MP_ValidatePlayerName(const aName:string):Boolean;
-    function MP_GetInEnabled:Boolean;
+    function MP_ValidatePlayerName(const aName: string): Boolean;
+    function MP_GetInEnabled: Boolean;
     procedure MP_Join(aServerAddress, aPort: string; aRoom: Integer);
     procedure MP_JoinSuccess(Sender: TObject);
-    procedure MP_JoinFail(const aData:string);
+    procedure MP_JoinFail(const aData: string);
     procedure MP_JoinAssignedHost(Sender: TObject);
     procedure MP_HostClick(Sender: TObject);
-    procedure MP_HostFail(const aData:string);
+    procedure MP_HostFail(const aData: string);
     procedure MP_BackClick(Sender: TObject);
 
-    procedure Lobby_Reset(Sender: TObject; aPreserveMessage:boolean=false);
+    procedure Lobby_Reset(Sender: TObject; aPreserveMessage: Boolean = False);
     procedure Lobby_GameOptionsChange(Sender: TObject);
     procedure Lobby_OnGameOptions(Sender: TObject);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
@@ -1007,7 +1007,7 @@ begin
       Minimap_LobbyPreview := TKMMinimap.Create(Panel_LobbySetup, 39, 128, 191, 191);
       Minimap_LobbyPreview.ShowLocs := True; //In the minimap we want player locations to be shown
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 324, 250, 292, fnt_Game);
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 328, 250, 288, fnt_Game);
       Memo_LobbyMapDesc.Anchors := [akLeft,akTop,akBottom];
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
@@ -1224,7 +1224,7 @@ end;
 
 //Should contain options to make a map from scratch, load map from file, generate new one
 procedure TKMMainMenuInterface.Create_MapEditor_Page;
-var i:integer;
+var I: Integer;
 begin
   Panel_MapEd:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_MapEd.Stretch;
@@ -1242,9 +1242,9 @@ begin
       Radio_MapEd_SizeX.OnChange := MapEditor_SizeChange;
       Radio_MapEd_SizeY.OnChange := MapEditor_SizeChange;
 
-      for i:=1 to MAPSIZES_COUNT do begin
-        Radio_MapEd_SizeX.Items.Add(inttostr(MapSize[i]));
-        Radio_MapEd_SizeY.Items.Add(inttostr(MapSize[i]));
+      for I := 1 to MAPSIZES_COUNT do begin
+        Radio_MapEd_SizeX.Items.Add(inttostr(MapSize[I]));
+        Radio_MapEd_SizeY.Items.Add(inttostr(MapSize[I]));
       end;
 
       Button_MapEd_Create := TKMButton.Create(Panel_MapEd_SizeXY, 0, 335, 200, 30, fTextLibrary[TX_MENU_MAP_CREATE_NEW_MAP], fnt_Metal, bsMenu);

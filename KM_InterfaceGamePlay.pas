@@ -172,7 +172,7 @@ type
       Image_AlliesClose:TKMImage;
     Panel_Chat: TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
       Dragger_Chat: TKMDragger;
-      Image_ChatHead, Image_ChatBody: TKMImage;
+      Image_Chat: TKMImage;
       Memo_ChatText: TKMMemo;
       Edit_ChatMsg: TKMEdit;
       CheckBox_SendToAllies: TKMCheckBox;
@@ -995,7 +995,7 @@ begin
     Image_Scroll.ImageStretch;
 
     Label_MessageText:=TKMLabel.Create(Panel_Message,47,67,432,122,'',fnt_Antiqua,taLeft);
-    Label_MessageText.AutoWrap := true;
+    Label_MessageText.AutoWrap := True;
 
     Button_MessageGoTo:=TKMButton.Create(Panel_Message,490,74,100,24,fTextLibrary[TX_MSG_GOTO],fnt_Antiqua);
     Button_MessageGoTo.Hint := fTextLibrary[TX_MSG_GOTO_HINT];
@@ -1004,12 +1004,12 @@ begin
     Button_MessageDelete:=TKMButton.Create(Panel_Message,490,104,100,24,fTextLibrary[TX_MSG_DELETE],fnt_Antiqua);
     Button_MessageDelete.Hint := fTextLibrary[TX_MSG_DELETE_HINT];
     Button_MessageDelete.OnClick := Message_Delete;
-    Button_MessageDelete.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
+    Button_MessageDelete.MakesSound := False; //Don't play default Click as these buttons use sfx_MessageClose
 
     Button_MessageClose:=TKMButton.Create(Panel_Message,490,134,100,24,fTextLibrary[TX_MSG_CLOSE],fnt_Antiqua);
     Button_MessageClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Button_MessageClose.OnClick := Message_Close;
-    Button_MessageClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
+    Button_MessageClose.MakesSound := False; //Don't play default Click as these buttons use sfx_MessageClose
 end;
 
 
@@ -1020,12 +1020,8 @@ begin
   Panel_Chat.Anchors := [akLeft, akBottom];
   Panel_Chat.Hide;
 
-    Image_ChatHead := TKMImage.Create(Panel_Chat,0,0,800,17,552);
-    Image_ChatHead.Anchors := [akLeft, akTop, akRight];
-    Image_ChatHead.ImageStretch;
-    Image_ChatBody := TKMImage.Create(Panel_Chat,0,17,800,173,410);
-    Image_ChatBody.Anchors := [akLeft, akTop, akRight, akBottom];
-    Image_ChatBody.ImageStretch;
+    Image_Chat := TKMImage.Create(Panel_Message,0,0,800,190,409);
+    Image_Chat.ImageStretch;
 
     //Allow to resize chat area height
     Dragger_Chat := TKMDragger.Create(Panel_Chat, 45, 36, 800-85, 10);
@@ -1045,14 +1041,14 @@ begin
     Edit_ChatMsg.ShowColors := True;
 
     CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,645,154,155,20,fTextLibrary[TX_GAMEPLAY_CHAT_TOTEAM],fnt_Outline);
-    CheckBox_SendToAllies.Checked := true;
+    CheckBox_SendToAllies.Checked := True;
     CheckBox_SendToAllies.Anchors := [akRight, akBottom];
 
-    Image_ChatClose:=TKMImage.Create(Panel_Chat,800-35,20,32,32,52,rxGui);
+    Image_ChatClose:=TKMImage.Create(Panel_Chat, 800-35, 20, 32, 32, 52, rxGui);
     Image_ChatClose.Anchors := [akTop, akRight];
     Image_ChatClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_ChatClose.OnClick := Chat_Close;
-    Image_ChatClose.HighlightOnMouseOver := true;
+    Image_ChatClose.HighlightOnMouseOver := True;
 end;
 
 
@@ -1071,9 +1067,9 @@ begin
     TKMImage.Create(Panel_Controls, 0, 2000, 224, 400, 404);
 
     //Main 4 buttons
-    for i := 0 to 3 do begin
-      Button_Main[i+1] := TKMButton.Create(Panel_Controls,  8+46*i, 4, 42, 36, 439+i);
-      Button_Main[i+1].OnClick := SwitchPage;
+    for I := 0 to 3 do begin
+      Button_Main[I+1] := TKMButton.Create(Panel_Controls,  8+46*I, 4, 42, 36, 439+I);
+      Button_Main[I+1].OnClick := SwitchPage;
     end;
     Button_Main[1].Hint := fTextLibrary[TX_MENU_TAB_HINT_BUILD];
     Button_Main[2].Hint := fTextLibrary[TX_MENU_TAB_HINT_DISTRIBUTE];
@@ -1109,7 +1105,7 @@ end;
 
 {Allies page}
 procedure TKMGamePlayInterface.Create_Allies_Page;
-var i,k:integer;
+var I,K: Integer;
 begin
   Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Allies.Anchors := [akLeft, akRight, akBottom];
@@ -1120,30 +1116,30 @@ begin
 
     Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,20,800,20,'',fnt_Outline,taCenter);
 
-    for i:=0 to MAX_PLAYERS-1 do
+    for I := 0 to MAX_PLAYERS - 1 do
     begin
-      if (i mod 4) = 0 then //Header for each column
+      if (I mod 4) = 0 then //Header for each column
       begin
-        TKMLabel.Create(Panel_Allies,  70+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, 220+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, 350+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
+        TKMLabel.Create(Panel_Allies,  70+(I div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
+        TKMLabel.Create(Panel_Allies, 220+(I div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
+        TKMLabel.Create(Panel_Allies, 350+(I div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
       end;
-      Image_AlliesLang[i] := TKMImage.Create(Panel_Allies,      50+(i div 4)*380, 82+(i mod 4)*24, 16,  11,  0, rxGuiMain);
-      Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    70+(i div 4)*380, 80+(i mod 4)*24, 140, 20, '', fnt_Grey, taLeft);
-      Label_AlliesTeam[i]   := TKMLabel.Create(Panel_Allies,   220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, '', fnt_Grey, taLeft);
-      DropBox_AlliesTeam[i] := TKMDropList.Create(Panel_Allies, 220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey, '');
-      DropBox_AlliesTeam[i].Hide; //Use label for demos until we fix exploits
-      DropBox_AlliesTeam[i].Add('-');
-      for k:=1 to 4 do DropBox_AlliesTeam[i].Add(IntToStr(k));
-      DropBox_AlliesTeam[i].OnChange := AlliesTeamChange;
-      DropBox_AlliesTeam[i].DropUp := true; //Doesn't fit if it drops down
-      Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 60, 20, '', fnt_Grey, taCenter);
+      Image_AlliesLang[I] := TKMImage.Create(Panel_Allies,       50+(I div 4)*380, 82+(I mod 4)*24, 16,  11,  0, rxGuiMain);
+      Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,     70+(I div 4)*380, 80+(I mod 4)*24, 140, 20, '', fnt_Grey, taLeft);
+      Label_AlliesTeam[I]   := TKMLabel.Create(Panel_Allies,    220+(I div 4)*380, 80+(I mod 4)*24, 120, 20, '', fnt_Grey, taLeft);
+      DropBox_AlliesTeam[I] := TKMDropList.Create(Panel_Allies, 220+(I div 4)*380, 80+(I mod 4)*24, 120, 20, fnt_Grey, '');
+      DropBox_AlliesTeam[I].Hide; //Use label for demos until we fix exploits
+      DropBox_AlliesTeam[I].Add('-');
+      for K := 1 to 4 do DropBox_AlliesTeam[I].Add(IntToStr(K));
+      DropBox_AlliesTeam[I].OnChange := AlliesTeamChange;
+      DropBox_AlliesTeam[I].DropUp := True; //Doesn't fit if it drops down
+      Label_AlliesPing[I]   := TKMLabel.Create(Panel_Allies,   350+(I div 4)*380, 80+(I mod 4)*24, 60, 20, '', fnt_Grey, taCenter);
     end;
 
     Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,32,32,52,rxGui);
     Image_AlliesClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_AlliesClose.OnClick := Allies_Close;
-    Image_AlliesClose.HighlightOnMouseOver := true;
+    Image_AlliesClose.HighlightOnMouseOver := True;
 end;
 
 
