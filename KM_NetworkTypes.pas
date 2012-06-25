@@ -76,6 +76,8 @@ type
     );
 
 
+  //todo: Replace pfText with pfAnsiText (and use it only for utility 1 string packets)
+  //todo: Add pfBinary for data that is composed of TKMMemoryStream
   TKMPacketFormat = (pfNoData, pfNumber, pfText);
 
 const

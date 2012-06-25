@@ -2081,7 +2081,6 @@ var
 begin
   WorkRect := KMClipRect(aRect, 1, 1, fMapX-1, fMapY-1);
 
-
   //Process all items from set
   for J := Low(aSet) to High(aSet) do
   begin

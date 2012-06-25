@@ -494,7 +494,7 @@ var
 begin
   //Update AI every 2sec for different player to even the CPU load
   for I := 0 to fCount - 1 do
-    if fGame.GameState in [gsRunning, gsReplay] then
+    if not fGame.IsPaused and not fGame.IsExiting then
       fPlayerList[I].UpdateState(aTick)
     else
       //PlayerAI can stop the game and clear everything

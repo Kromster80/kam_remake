@@ -52,7 +52,7 @@ end;
 
 
 procedure TKMHTTPClientOverbyte.RequestDone(Sender: TObject; RqType: THttpRequest; ErrCode: Word);
-var RcvdText: string;
+var RcvdText: AnsiString;
 begin
   if RqType <> httpGET then exit;
   if ErrCode <> 0 then

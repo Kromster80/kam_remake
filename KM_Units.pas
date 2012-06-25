@@ -278,8 +278,9 @@ type
 
 implementation
 uses
-  KM_Game, KM_RenderPool, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection,
-  KM_Units_Warrior, KM_Resource, KM_Log, KM_MessageStack,
+  KM_CommonTypes, KM_Game, KM_RenderPool, KM_RenderAux, KM_TextLibrary,
+  KM_PlayersCollection,
+  KM_Units_Warrior, KM_Resource, KM_Log,
 
   KM_UnitActionAbandonWalk,
   KM_UnitActionFight,
@@ -434,7 +435,7 @@ begin
   Assert(Msg <> 0, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
   if fOwner = MyPlayer.PlayerIndex then //Don't show message for other players
-    fGame.fGamePlayInterface.MessageIssue(mkHouse, fTextLibrary[Msg], fHome.GetEntrance);
+    fGame.ShowMessage(mkHouse, fTextLibrary[Msg], fHome.GetEntrance);
 
   fHome.ResourceDepletedMsgIssued := True;
 end;
@@ -526,8 +527,10 @@ end;
 
 procedure TKMUnitRecruit.DestroyInBarracks;
 begin
-  if fPlayers.Selected = Self then fPlayers.Selected := nil;
-  if fGame.fGamePlayInterface.ShownUnit = Self then fGame.fGamePlayInterface.ShowUnitInfo(nil);
+  //@Lewin: Hows that possible to have Recruit selected when equipping him in Barracks?
+  {if fPlayers.Selected = Self then fPlayers.Selected := nil;
+  if fGame.fGamePlayInterface.ShownUnit = Self then
+    fGame.fGamePlayInterface.ShowUnitInfo(nil);}
 
   //Dispose of current action/task BEFORE we close the unit (action might need to check fPosition if recruit was about to walk out to eat)
   //Normally this isn't required because TTaskDie takes care of it all, but recruits in barracks don't use TaskDie.
@@ -932,7 +935,7 @@ begin
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
   //Make fish/watersnakes to be more visible in the MapEd
-  if (fGame.GameState = gsEditor) and (fUnitType in [ut_Fish, ut_Watersnake, ut_Seastar]) then
+  if (fGame.GameMode = gmMapEd) and (fUnitType in [ut_Fish, ut_Watersnake, ut_Seastar]) then
     fRenderAux.Circle(fPosition.X - 0.5,
                       fPosition.Y - fTerrain.HeightAt(fPosition.X - 0.5, fPosition.Y - 0.5) / CELL_HEIGHT_DIV - 0.5,
                       0.5, $30FF8000, $60FF8000);
@@ -966,10 +969,10 @@ begin
   AnimStep      := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 0.5 to 0.7 (KaM uses 0.6 for all units)
   //By adding the random amount they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
-  if fGame.GameState <> gsEditor then
-    fCondition    := Round(UNIT_MAX_CONDITION*(UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)))
+  if fGame.GameMode <> gmMapEd then
+    fCondition    := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)))
   else
-    fCondition    := UNIT_MAX_CONDITION div 2;
+    fCondition    := Round(UNIT_MAX_CONDITION * UNIT_CONDITION_BASE);
   fHitPoints    := GetMaxHitPoints;
   fHitPointCounter := 1;
 
@@ -1117,8 +1120,8 @@ begin
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
 
-  if (fGame.fGamePlayInterface <> nil) and (Self = fGame.fGamePlayInterface.ShownUnit) then
-    fGame.fGamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
+  if (fGame.GamePlayInterface <> nil) and (fGame.GamePlayInterface.ShownUnit = Self) then
+    fGame.GamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
   //MapEd doesn't need this yet
 end;
 
@@ -1131,7 +1134,7 @@ end;
 procedure TKMUnit.KillUnit;
 begin
   if fPlayers.Selected = Self then fPlayers.Selected := nil;
-  if fGame.fGamePlayInterface.ShownUnit = Self then fGame.fGamePlayInterface.ShowUnitInfo(nil);
+  if fGame.GamePlayInterface.ShownUnit = Self then fGame.GamePlayInterface.ShowUnitInfo(nil);
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
   //Wait till units exchange (1 tick) and then do the killing
@@ -1153,9 +1156,10 @@ begin
 end;
 
 
-procedure TKMUnit.SetPosition(aPos:TKMPoint);
+procedure TKMUnit.SetPosition(aPos: TKMPoint);
 begin
-  Assert(fGame.GameState=gsEditor); //This is only used by the map editor, set all positions to aPos
+  //This is only used by the map editor, set all positions to aPos
+  Assert(fGame.GameMode = gmMapEd);
   fTerrain.UnitRem(fCurrPosition);
   fCurrPosition := aPos;
   fNextPosition := aPos;
@@ -1657,14 +1661,14 @@ begin
   fTerrain.UnitWalk(aFrom, aTo, Self)
 end;
 
+
 procedure TKMUnit.UpdateHitPoints;
 begin
   //Use fHitPointCounter as a counter to restore hit points every X ticks (Humbelum says even when in fights)
-  if fGame.GlobalSettings.fHitPointRestorePace = 0 then exit; //0 pace means don't restore
-  if fHitPointCounter mod fGame.GlobalSettings.fHitPointRestorePace = 0 then
+  if HITPOINT_RESTORE_PACE = 0 then Exit; //0 pace means don't restore
+  if fHitPointCounter mod HITPOINT_RESTORE_PACE = 0 then
     HitPointsIncrease(1);
-  inc(fHitPointCounter);
-  if fHitPointCounter = high(Cardinal)-1 then fHitPointCounter := 1;
+  fHitPointCounter := fHitPointCounter mod High(Cardinal) + 1;
 end;
 
 
@@ -1863,7 +1867,7 @@ begin
   if fCurrentAction <> nil then
     fCurrentAction.Paint;
 
-  if SHOW_POINTER_DOTS and fGame.AllowDebugRendering then
+  if SHOW_POINTER_DOTS then
     fRenderAux.UnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), fPointerCount);
 end;
 

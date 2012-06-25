@@ -97,7 +97,7 @@ var
 
 
 implementation
-uses KM_Game, KM_MessageStack, KM_PlayersCollection, KM_TextLibrary, KM_Log;
+uses KM_Game, KM_CommonTypes,  KM_PlayersCollection, KM_TextLibrary, KM_Log;
 
 
 const
@@ -385,7 +385,7 @@ begin
   case fAction.Action of
     eaDelayedMessage: fOwner.AddEvent(MakeTrigger(etTime, -1, [fGame.GameTickCount + Cardinal(fAction.Params[0])]), MakeAction(eaShowMessage, fAction.Player, [fAction.Params[1]]));
     eaShowMessage:    if MyPlayer.PlayerIndex = fAction.Player then
-                        fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary.GetMissionString(fAction.Params[0]), KMPoint(0,0));
+                        fGame.ShowMessage(mkText, fTextLibrary.GetMissionString(fAction.Params[0]), KMPoint(0,0));
     eaVictory:        fGame.PlayerVictory(fAction.Player);
   end;
 end;

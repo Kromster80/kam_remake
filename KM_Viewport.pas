@@ -44,7 +44,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Sound, KM_Game, KM_Main, KM_Resource, KM_ResourceCursors;
+uses KM_Defaults, KM_Sound, KM_GameApp, KM_Main, KM_Resource, KM_ResourceCursors;
 
 
 constructor TViewport.Create(aWidth, aHeight: Integer);
@@ -96,6 +96,7 @@ procedure TViewport.ResizeMap(aMapX, aMapY: Integer);
 begin
   fMapX := aMapX;
   fMapY := aMapY;
+  SetPosition(fPosition); //EnsureRanges
 end;
 
 
@@ -196,7 +197,7 @@ begin
     Exit;
   end;
 
-  ScrollAdv := (SCROLLSPEED + fGame.GlobalSettings.ScrollSpeed / 3) * aFrameTime / 100; //1-5 tiles per second
+  ScrollAdv := (SCROLLSPEED + fGameApp.GameSettings.ScrollSpeed / 3) * aFrameTime / 100; //1-5 tiles per second
 
   PrevScrollPos := (PrevScrollPos + 1) mod length(PrevScrollAdv) + 1; //Position in ring-buffer
   PrevScrollAdv[PrevScrollPos] := ScrollAdv; //Replace oldest value
@@ -235,21 +236,19 @@ end;
 procedure TViewport.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write('Viewport');
-  SaveStream.Write(fMapX);
-  SaveStream.Write(fMapY);
   SaveStream.Write(fPosition);
-  SaveStream.Write(fZoom);
+  //Everything but Position gets initialized from fTerrain dimensions anyway
+  //Zoom is reset to 1 by default
+  //SaveStream.Write(fZoom);
 end;
 
 
 procedure TViewport.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.ReadAssert('Viewport');
-  LoadStream.Read(fMapX);
-  LoadStream.Read(fMapY);
   LoadStream.Read(fPosition);
-  LoadStream.Read(fZoom);
-  fSoundLib.UpdateListener(fPosition.X, fPosition.Y);
+  //LoadStream.Read(fZoom);
+  SetPosition(fPosition); //EnsureRanges
 end;
 
 

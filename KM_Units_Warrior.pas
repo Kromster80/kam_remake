@@ -95,8 +95,8 @@ type
 
 
 implementation
-uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux,
-  KM_UnitTaskAttackHouse, KM_MessageStack,
+uses KM_CommonTypes, KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux,
+  KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit;
 
@@ -901,7 +901,7 @@ begin
       if fTimeSinceHungryReminder < 1 then
       begin
         if (fOwner = MyPlayer.PlayerIndex) then
-          fGame.fGamePlayInterface.MessageIssue(mkUnit, fTextLibrary[TX_MSG_TROOP_HUNGRY], GetPosition);
+          fGame.ShowMessage(mkUnit, fTextLibrary[TX_MSG_TROOP_HUNGRY], GetPosition);
         fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
       end;
     end
@@ -1250,7 +1250,7 @@ begin
     else
       FlagColor := fPlayers.Player[fOwner].FlagColor; //Normal color
 
-    if fGame.GameState = gsEditor then
+    if fGame.GameMode = gmMapEd then
       FlagStep := fTerrain.AnimStep
     else
       FlagStep := fFlagAnim;

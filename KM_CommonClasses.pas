@@ -24,7 +24,7 @@ type
     function Write(const Value:boolean  ): Longint; reintroduce; overload;
     function Write(const Value:word     ): Longint; reintroduce; overload;
     function Write(const Value:shortint ): Longint; reintroduce; overload;
-    procedure WriteAsText(const aText: string);
+    procedure WriteAsText(const aText: AnsiString); deprecated; //todo: Using text for data exchange is flawed idea. remove
 
     procedure Read(out Value: AnsiString); reintroduce; overload;
     {$IFDEF UNICODE}
@@ -42,7 +42,7 @@ type
     function Read(out Value:word        ): Longint; reintroduce; overload;
     function Read(out Value:shortint    ): Longint; reintroduce; overload;
     procedure ReadAssert(const Value: string);
-    function ReadAsText: string;
+    function ReadAsText: AnsiString; deprecated; //todo: Using text for data exchange is flawed idea. remove
   end;
 
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
@@ -51,7 +51,7 @@ type
   //Stores information about a multiplayer game to be sent: host -> server -> queriers
   TMPGameInfo = class
   public
-    GameState:TMPGameState;
+    GameState: TMPGameState;
     PlayerCount: byte;
     Players: AnsiString;
     Map: AnsiString;
@@ -129,7 +129,7 @@ type
   //Custom Exception that includes a TKMPoint
   ELocError = class(Exception)
     Loc: TKMPoint;
-    constructor Create(const Msg: string; aLoc:TKMPoint);
+    constructor Create(const Msg: string; aLoc: TKMPoint);
   end;
 
 
@@ -138,7 +138,7 @@ uses KM_Utils;
 
 
 { ELocError }
-constructor ELocError.Create(const Msg: string; aLoc:TKMPoint);
+constructor ELocError.Create(const Msg: string; aLoc: TKMPoint);
 begin
   inherited Create(Msg);
   Loc := aLoc;
@@ -146,17 +146,17 @@ end;
 
 
 { TMPGameInfo }
-procedure TMPGameInfo.LoadFromText(aText:string);
+procedure TMPGameInfo.LoadFromText(aText: string);
 var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   try
     M.WriteAsText(aText);
-    M.Read(GameState, SizeOf(GameState));
-    M.Read(PlayerCount);
-    M.Read(Players);
-    M.Read(Map);
-    M.Read(GameTime, SizeOf(GameTime));
+  M.Read(GameState, SizeOf(GameState));
+  M.Read(PlayerCount);
+  M.Read(Players);
+  M.Read(Map);
+  M.Read(GameTime, SizeOf(GameTime));
   finally
     M.Free;
   end;
@@ -172,7 +172,7 @@ begin
 end;
 
 
-function TMPGameInfo.GetAsText:string;
+function TMPGameInfo.GetAsText: string;
 var M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
@@ -188,7 +188,7 @@ begin
 end;
 
 
-function TMPGameInfo.GetAsHTML:string;
+function TMPGameInfo.GetAsHTML: string;
 begin
   Result := '';
   Result := Result + Map;
@@ -199,11 +199,11 @@ end;
 
 { TKMList }
 procedure TKMList.Clear;
-var i:integer;
+var I: Integer;
 begin
-  for i:=0 to Count-1 do begin
-    TObject(Items[i]).Free;
-    Items[i]:=nil;
+  for I := 0 to Count - 1 do begin
+    TObject(Items[I]).Free;
+    Items[I] := nil;
   end;
   inherited;
 end;
@@ -258,10 +258,10 @@ function TKMemoryStream.Write(const Value:shortint): Longint;
 begin Result := inherited Write(Value, SizeOf(Value)); end;
 
 
-procedure TKMemoryStream.WriteAsText(const aText:string);
+procedure TKMemoryStream.WriteAsText(const aText: AnsiString);
 begin
   Position := 0;
-  Write(Pointer(aText)^, Length(aText) * SizeOf(Char));
+  Write(Pointer(aText)^, Length(aText) * SizeOf(AnsiChar));
   Position := 0;
 end;
 
@@ -287,7 +287,7 @@ end;}
 {$ENDIF}
 
 
-procedure TKMemoryStream.Read(out Value:TKMPointDir);
+procedure TKMemoryStream.Read(out Value: TKMPointDir);
 begin
   Read(Value.Loc);
   Read(Value.Dir, SizeOf(Value.Dir));
@@ -322,9 +322,9 @@ begin
   Assert(s = Value, 'TKMemoryStream.Read <> Value: '+Value);
 end;
 
-function TKMemoryStream.ReadAsText: string;
+function TKMemoryStream.ReadAsText: AnsiString;
 begin
-  SetString(Result, PChar(Memory), Size div SizeOf(Char));
+  SetString(Result, PChar(Memory), Size div SizeOf(AnsiChar));
 end;
 
 

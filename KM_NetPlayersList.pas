@@ -225,7 +225,7 @@ end;
 
 { TKMPlayersList }
 constructor TKMPlayersList.Create;
-var i:integer;
+var I: Integer;
 begin
   inherited;
   for i:=1 to MAX_PLAYERS do
@@ -234,7 +234,7 @@ end;
 
 
 destructor TKMPlayersList.Destroy;
-var i:integer;
+var I: Integer;
 begin
   for i:=1 to MAX_PLAYERS do
     fPlayers[i].Free;
@@ -352,7 +352,7 @@ end;
 
 
 procedure TKMPlayersList.RemAllClosedPlayers;
-var i:integer;
+var I: Integer;
 begin
   for i:=fCount downto 1 do
     if Player[i].IsClosed then
@@ -440,7 +440,7 @@ end;
 
 //Mark all human players as disconnected (used when reconnecting if all clients were lost)
 procedure TKMPlayersList.DisconnectAllClients(aOwnNikname:string);
-var i:integer;
+var I: Integer;
 begin
   for i:=1 to fCount do
     if (fPlayers[i].IsHuman) and (fPlayers[i].Nikname <> aOwnNikname) then
@@ -460,7 +460,7 @@ end;
 
 
 procedure TKMPlayersList.RemPlayer(aIndexOnServer:integer);
-var ID,i:integer;
+var ID,I: Integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
   Assert(ID <> -1, 'Cannot remove player');
@@ -474,7 +474,7 @@ end;
 
 
 procedure TKMPlayersList.RemAIPlayer(ID:integer);
-var i:integer;
+var I: Integer;
 begin
   fPlayers[ID].Free;
   for i:=ID to fCount-1 do
@@ -487,7 +487,7 @@ end;
 
 
 procedure TKMPlayersList.RemClosedPlayer(ID:integer);
-var i:integer;
+var I: Integer;
 begin
   fPlayers[ID].Free;
   for i:=ID to fCount-1 do
@@ -512,7 +512,7 @@ end;
 
 
 function TKMPlayersList.ServerToLocal(aIndexOnServer:integer):integer;
-var i:integer;
+var I: Integer;
 begin
   Result := -1;
   for i:=1 to fCount do
@@ -526,7 +526,7 @@ end;
 
 //Networking needs to convert Nikname to local index in players list
 function TKMPlayersList.NiknameToLocal(aNikname:string):integer;
-var i:integer;
+var I: Integer;
 begin
   Result := -1;
   for i:=1 to fCount do
@@ -536,7 +536,7 @@ end;
 
 
 function TKMPlayersList.StartingLocToLocal(aLoc:integer):integer;
-var i:integer;
+var I: Integer;
 begin
   Result := -1;
   for i:=1 to fCount do
@@ -546,7 +546,7 @@ end;
 
 
 function TKMPlayersList.PlayerIndexToLocal(aIndex:TPlayerIndex):integer;
-var i:integer;
+var I: Integer;
 begin
   Result := -1;
   for i:=1 to fCount do
@@ -591,7 +591,7 @@ end;
 
 
 function TKMPlayersList.LocAvailable(aIndex:integer):boolean;
-var i:integer;
+var I: Integer;
 begin
   Result := true;
   if aIndex=0 then exit;
@@ -602,7 +602,7 @@ end;
 
 
 function TKMPlayersList.ColorAvailable(aIndex:integer):boolean;
-var i:integer;
+var I: Integer;
 begin
   Result := true;
   if aIndex=0 then exit;
@@ -613,7 +613,7 @@ end;
 
 
 function TKMPlayersList.AllReady:boolean;
-var i:integer;
+var I: Integer;
 begin
   Result := true;
   for i:=1 to fCount do
@@ -623,7 +623,7 @@ end;
 
 
 function TKMPlayersList.AllReadyToPlay:boolean;
-var i:integer;
+var I: Integer;
 begin
   Result := true;
   for i:=1 to fCount do
@@ -633,7 +633,7 @@ end;
 
 
 function TKMPlayersList.GetMaxHighestRoundTripLatency:word;
-var i:integer; Highest, Highest2: word;
+var I: Integer; Highest, Highest2: word;
 begin
   Highest := 0;
   Highest2 := 0;
@@ -651,7 +651,7 @@ end;
 
 
 procedure TKMPlayersList.GetNotReadyToPlayPlayers(aPlayerList:TStringList);
-var i:integer;
+var I: Integer;
 begin
   for i:=1 to fCount do
     if (not fPlayers[i].ReadyToPlay) and fPlayers[i].IsHuman and fPlayers[i].Connected then
@@ -660,7 +660,7 @@ end;
 
 
 function TKMPlayersList.GetAICount:integer;
-var i:integer;
+var I: Integer;
 begin
   Result := 0;
   for i:=1 to fCount do
@@ -670,7 +670,7 @@ end;
 
 
 function TKMPlayersList.GetClosedCount:integer;
-var i:integer;
+var I: Integer;
 begin
   Result := 0;
   for i:=1 to fCount do
@@ -680,7 +680,7 @@ end;
 
 
 function TKMPlayersList.GetConnectedCount:integer;
-var i:integer;
+var I: Integer;
 begin
   Result := 0;
   for i:=1 to fCount do
@@ -690,7 +690,7 @@ end;
 
 
 procedure TKMPlayersList.ResetLocAndReady;
-var i:integer;
+var I: Integer;
 begin
   for i:=1 to fCount do
   begin
@@ -702,7 +702,7 @@ end;
 
 
 procedure TKMPlayersList.SetAIReady;
-var i:integer;
+var I: Integer;
 begin
   for i:=1 to fCount do
     if fPlayers[i].PlayerNetType in [npt_Computer,npt_Closed] then
@@ -737,7 +737,7 @@ end;
 //I estimate it ~50bytes per player at max
 //later it will be byte array?
 function TKMPlayersList.GetAsText:string;
-var i:integer; M:TKMemoryStream;
+var I: Integer; M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
 
@@ -752,7 +752,7 @@ end;
 
 
 procedure TKMPlayersList.SetAsText(const aText:string);
-var i:integer; M:TKMemoryStream;
+var I: Integer; M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   try
@@ -768,7 +768,7 @@ end;
 
 
 function TKMPlayersList.GetSimpleAsText:string;
-var i:integer;
+var I: Integer;
 begin
   for i:=1 to fCount do
   begin
@@ -779,7 +779,7 @@ end;
 
 
 function TKMPlayersList.GetPlayersWithIDs:string;
-var i:integer;
+var I: Integer;
 begin
   for i:=1 to fCount do
   begin

@@ -28,7 +28,7 @@ type
     procedure UpdateTexture;
   public
     PlayerColors:array[1..MAX_PLAYERS] of Cardinal;
-    constructor Create(aTerrain: TTerrain; aIsMapEditor: Boolean; aSepia: Boolean);
+    constructor Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
     procedure LoadTerrain(aMissionPath: string);
@@ -39,7 +39,7 @@ type
     property UseCustomColors: Boolean read fUseCustomColors write fUseCustomColors;
     function GetPlayerLoc(aIndex: Byte): TKMPoint;
     procedure Update(aRevealAll: Boolean);
-    procedure UpdateMapSize(aX, aY: Word);
+    procedure UpdateMapSize;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -51,7 +51,7 @@ uses KM_PlayersCollection, KM_Resource, KM_Units, KM_Units_Warrior;
 
 
 { TKMMinimap }
-constructor TKMMapView.Create(aTerrain: TTerrain; aIsMapEditor: Boolean; aSepia: Boolean);
+constructor TKMMapView.Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
 begin
   inherited Create;
 
@@ -61,24 +61,16 @@ begin
 
   //We don't need terrain on main menu, just a parser
   //Otherwise access synced Game terrain
-  fFromParser := (aTerrain = nil);
+  fFromParser := aFromParser;
 
   if fFromParser then
-  begin
-    fMyTerrain := nil;
     fParser := TMissionParserPreview.Create(False);
-  end
-  else
-  begin
-    fMyTerrain := aTerrain;
-    fParser := nil;
-  end;
 end;
 
 
 destructor TKMMapView.Destroy;
 begin
-  if fFromParser then fParser.Free;
+  FreeAndNil(fParser);
   inherited;
 end;
 
@@ -98,10 +90,11 @@ begin
 end;
 
 
-procedure TKMMapView.UpdateMapSize(aX, aY: Word);
+procedure TKMMapView.UpdateMapSize;
 begin
-  fMapX := aX - 1;
-  fMapY := aY - 1;
+  fMyTerrain := fTerrain;
+  fMapX := fTerrain.MapX - 1;
+  fMapY := fTerrain.MapY - 1;
   SetLength(fBase, fMapX * fMapY);
   fWidthPOT := MakePOT(fMapX);
   fHeightPOT := MakePOT(fMapY);
@@ -286,7 +279,7 @@ begin
 end;
 
 
-procedure TKMMapView.Load(LoadStream:TKMemoryStream);
+procedure TKMMapView.Load(LoadStream: TKMemoryStream);
 var L: Cardinal;
 begin
   LoadStream.ReadAssert('Minimap');

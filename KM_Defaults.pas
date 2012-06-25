@@ -48,7 +48,7 @@ var
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :Boolean = False;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
-  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple games at once (to prevent MP cheating)
+  BLOCK_DUPLICATE_APP   :Boolean = False;  //Do not allow to run multiple games at once (to prevent MP cheating)
 
   //Implemented
   MOUSEWHEEL_ZOOM_ENABLE:Boolean = True; //Should we allow to zoom in game or not
@@ -78,6 +78,7 @@ var
   SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic
   AGGRESSIVE_REPLAYS    :Boolean = False; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_TERRAIN_WIRES    :Boolean = False; //Makes terrain height visible
+  SHOW_TERRAIN_PASS     :Byte = 0; //Byte(TPassability)
   SHOW_UNIT_ROUTES      :Boolean = False; //Draw unit routes
   SHOW_PROJECTILES      :Boolean = False; //Shows projectiles trajectory
   SHOW_POINTER_DOTS     :Boolean = False; //Show pointer count as small dots below unit/houses
@@ -98,6 +99,7 @@ var
   INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
   SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_SAVE_SCAN        :Boolean = False; //Scan saves with a pause to emulate uncached file access
+  DO_PERF_LOGGING       :Boolean = False; //Write each ticks time to log
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm
@@ -123,6 +125,9 @@ const
   MAX_PLAYERS       = 8;    //Maximum players per map
   AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
+var
+  HITPOINT_RESTORE_PACE: Word = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
+
 const //Here we store options that are hidden somewhere in code
   GOLD_TO_SCHOOLS_IMPORTANT = True;       //Whenever gold delivery to schools is highly important
   FOOD_TO_INN_IMPORTANT = True;           //Whenever food delivery to inns is highly important
@@ -136,7 +141,6 @@ const //Here we store options that are hidden somewhere in code
   UNIT_CONDITION_RANDOM = 0.1;            //Random jitter of unit's starting health (KaM did not have this, all units started the same)
   TROOPS_TRAINED_CONDITION = 0.6;         //Condition troops start with when trained (measured from KaM)
   DEFAULT_HITPOINT_RESTORE = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
-
 
   //Archer properties
   RANGE_ARBALETMAN_MAX  = 10.99; //KaM: Unit standing 10 tiles from us will be shot, 11 tiles not

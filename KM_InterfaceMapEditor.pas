@@ -188,13 +188,15 @@ type
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
     procedure Player_UpdateColors;
-    procedure Resize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
     property ShowPassability:byte read fShowPassability;
     procedure UpdateMapSize(X,Y:integer);
     procedure UpdateMapName(const aName:string);
     procedure RightClick_Cancel;
+    function GetShownPage: TKMMapEdShownPage;
+    procedure SetTileDirection(aTileDirection: byte);
+    procedure SetLoadMode(aMultiplayer:boolean);
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
     procedure KeyUp(Key:Word; Shift: TShiftState); override;
@@ -202,16 +204,14 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
-    function GetShownPage: TKMMapEdShownPage;
-    procedure SetTileDirection(aTileDirection: byte);
-    procedure SetLoadMode(aMultiplayer:boolean);
+    procedure Resize(X,Y: Word); override;
     procedure UpdateState(aTickCount: Cardinal); override;
   end;
 
 
 implementation
 uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary,
-     KM_Utils, KM_Game, KM_Resource, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceMapElements;
+     KM_Utils, KM_Game, KM_GameApp, KM_Resource, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceMapElements;
 
 
 {Switch between pages}
@@ -403,10 +403,8 @@ var
   i: integer;
 begin
   inherited;
-  Assert(fTerrain <> nil, 'We need valid pointer to Terrain for MapView/Minimap');
-  Assert(fGame.Viewport<>nil, 'fGame.Viewport required to be init first');
 
-  fMapView := TKMMapView.Create(fTerrain, True, False);
+  fMapView := TKMMapView.Create(False, True, False);
 
   fShownUnit  := nil;
   fShownHouse := nil;
@@ -416,7 +414,7 @@ begin
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(True);
 
-{Parent Page for whole toolbar in-game}
+  //Parent Page for whole toolbar in-game
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
 
     TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
@@ -442,7 +440,7 @@ begin
       Button_PlayerSelect[i].OnClick := Player_ChangeActive;
     end;
 
-    Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 184, 10, fGame.GameName, fnt_Metal, taLeft);
+    Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 184, 10, '<<<LEER>>>', fnt_Metal, taLeft);
 
     Label_Stat:=TKMLabel.Create(Panel_Main,224+8,16,0,0,'',fnt_Outline,taLeft);
     Label_Hint:=TKMLabel.Create(Panel_Main,224+8,Panel_Main.Height-16,0,0,'',fnt_Outline,taLeft);
@@ -501,7 +499,7 @@ end;
 
 
 //Update Hint position and etc..
-procedure TKMapEdInterface.Resize(X,Y:word);
+procedure TKMapEdInterface.Resize(X,Y: Word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
@@ -526,7 +524,6 @@ begin
 
       TKMButtonFlat.Create(Panel_Brushes, 8, 30, 32, 32, 1, rxTiles);   // grass
 
-      
       {TKMButtonFlat.Create(Panel_Brushes, 40, 30, 32, 32, 9, rxTiles);  // grass 2
       TKMButtonFlat.Create(Panel_Brushes, 8, 62, 32, 32, 35, rxTiles);  // dirt
 
@@ -877,16 +874,16 @@ end;
 
 {Store page}
 procedure TKMapEdInterface.Create_Store_Page;
-var i:integer;
+var I: Integer;
 begin
   Panel_HouseStore := TKMPanel.Create(Panel_House,0,76,200,400);
-    for i:=1 to STORE_RES_COUNT do
+    for I := 1 to STORE_RES_COUNT do
     begin
-      Button_Store[i] := TKMButtonFlat.Create(Panel_HouseStore, 8+((i-1)mod 5)*36,8+((i-1)div 5)*42,32,36,0);
-      Button_Store[i].TexID := fResource.Resources[StoreResType[i]].GUIIcon;
-      Button_Store[i].Tag := i;
-      Button_Store[i].Hint := fResource.Resources[StoreResType[i]].Title;
-      Button_Store[i].OnClick := Store_SelectWare;
+      Button_Store[I] := TKMButtonFlat.Create(Panel_HouseStore, 8+((I-1)mod 5)*36,8+((I-1)div 5)*42,32,36,0);
+      Button_Store[I].TexID := fResource.Resources[StoreResType[I]].GUIIcon;
+      Button_Store[I].Tag := I;
+      Button_Store[I].Hint := fResource.Resources[StoreResType[I]].Title;
+      Button_Store[I].OnClick := Store_SelectWare;
     end;
 
     Button_StoreDec100      := TKMButton.Create(Panel_HouseStore,116,218,20,20,'<', fnt_Metal);
@@ -951,7 +948,7 @@ end;
 
 procedure TKMapEdInterface.UpdateMapSize(X,Y: Integer);
 begin
-  fMapView.UpdateMapSize(X,Y);
+  fMapView.UpdateMapSize;
   fMapView.Update(False);
   Minimap.UpdateFrom(fMapView);
   Minimap.MapSize := KMPoint(X, Y);
@@ -959,7 +956,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.UpdateMapName(const aName:string);
+procedure TKMapEdInterface.UpdateMapName(const aName: string);
 begin
   Label_MissionName.Caption := aName;
 end;
@@ -1215,7 +1212,7 @@ end;
 
 procedure TKMapEdInterface.View_Passability(Sender: TObject);
 begin
-  SHOW_TERRAIN_WIRES := TKMTrackBar(Sender).Position <> 0;
+  SHOW_TERRAIN_WIRES := (TKMTrackBar(Sender).Position <> 0);
   fShowPassability := TKMTrackBar(Sender).Position;
   if TKMTrackBar(Sender).Position <> 0 then
     Label_Passability.Caption := GetEnumName(TypeInfo(TPassability), TKMTrackBar(Sender).Position)
@@ -1332,18 +1329,22 @@ begin
 end;
 
 
-{Show mission loading dialogue}
-procedure TKMapEdInterface.Menu_Load(Sender:TObject);
+//Mmission loading dialog
+procedure TKMapEdInterface.Menu_Load(Sender: TObject);
+var MapName: string; IsMulti: Boolean;
 begin
-  if ListBox_Load.ItemIndex <> -1 then
-    fGame.StartMapEditor(MapNameToPath(ListBox_Load.Item[ListBox_Load.ItemIndex], 'dat', Radio_Load_MapType.ItemIndex = 1), Radio_Load_MapType.ItemIndex = 1, 0, 0);
+  if ListBox_Load.ItemIndex = -1 then Exit;
+
+  MapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
+  IsMulti := Radio_Load_MapType.ItemIndex = 1;
+  fGameApp.NewMapEditor(MapNameToPath(MapName, 'dat', IsMulti), 0, 0);
 end;
 
 
 {Quit the mission and return to main menu}
 procedure TKMapEdInterface.Menu_QuitMission(Sender:TObject);
 begin
-  fGame.Stop(gr_MapEdEnd);
+  fGameApp.Stop(gr_MapEdEnd);
 end;
 
 
@@ -1756,7 +1757,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.KeyDown(Key:Word; Shift: TShiftState);
+procedure TKMapEdInterface.KeyDown(Key: Word; Shift: TShiftState);
 begin
   if fMyControls.KeyDown(Key, Shift) then
   begin
@@ -1777,7 +1778,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.KeyUp(Key:Word; Shift: TShiftState);
+procedure TKMapEdInterface.KeyUp(Key: Word; Shift: TShiftState);
 begin
   if fMyControls.KeyUp(Key, Shift) then Exit; //Handled by Controls
 

@@ -32,8 +32,8 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure AddSprite(aRX: TRXType; aID: Word; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1); overload;
-    procedure AddSprite(aRX: TRXType; aID: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1); overload;
+    procedure AddSprite(aRX: TRXType; aID: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+    procedure AddSpriteG(aRX: TRXType; aID: Word; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 
     property Stat_Sprites: Integer read fStat_Sprites;
     property Stat_Sprites2: Integer read fStat_Sprites2;
@@ -113,8 +113,9 @@ begin
     fRXData[RT] := fResource.Sprites[RT].RXData;
 
   fRender := aRender;
-  fRenderList := TRenderList.Create;
-  fRenderTerrain := TRenderTerrain.Create;
+  fRenderList     := TRenderList.Create;
+  fRenderTerrain  := TRenderTerrain.Create;
+  fRenderAux      := TRenderAux.Create;
 end;
 
 
@@ -122,6 +123,7 @@ destructor TRenderPool.Destroy;
 begin
   fRenderList.Free;
   fRenderTerrain.Free;
+  FreeThenNil(fRenderAux);
   inherited;
 end;
 
@@ -203,21 +205,21 @@ begin
 
   //Fieldplans
   FieldsList := TKMPointTagList.Create;
-  MyPlayer.GetFieldPlans(FieldsList, aRect, True, fGame.ReplayMode); //Include fake field plans for painting
+  MyPlayer.GetFieldPlans(FieldsList, aRect, True, fGame.IsReplay); //Include fake field plans for painting
   for i := 0 to FieldsList.Count - 1 do
     RenderTerrainMarkup(FieldsList[i].X, FieldsList[i].Y, TFieldType(FieldsList.Tag[i]));
   FreeAndNil(FieldsList);
 
   //Borders
   BordersList := TKMPointDirList.Create;
-  MyPlayer.GetPlansBorders(BordersList, aRect, fGame.ReplayMode);
+  MyPlayer.GetPlansBorders(BordersList, aRect, fGame.IsReplay);
   for i := 0 to BordersList.Count - 1 do
     RenderTerrainBorder(bt_HousePlan, BordersList[i].Dir, BordersList[i].Loc.X, BordersList[i].Loc.Y);
   FreeAndNil(BordersList);
 
   //Tablets
   TabletsList := TKMPointTagList.Create;
-  MyPlayer.GetPlansTablets(TabletsList, aRect, fGame.ReplayMode);
+  MyPlayer.GetPlansTablets(TabletsList, aRect, fGame.IsReplay);
   for i := 0 to TabletsList.Count - 1 do
     AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList[i]);
   FreeAndNil(TabletsList);
@@ -290,7 +292,7 @@ begin
     CornerY := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
                   - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
     if not DoImmediateRender then
-      fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, gX, gY);
+      fRenderList.AddSpriteG(rxTrees, ID, CornerX, CornerY, gX, gY);
 
     //fRenderAux.DotOnTerrain(pX, pY, $FFFF0000);
     //fRenderAux.Dot(pX + R.Pivot[ID].X / CELL_SIZE_PX,
@@ -327,7 +329,7 @@ var
              - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
 
     if not DoImmediateRender then
-      fRenderList.AddSprite(rxTrees, ID, CornerX, CornerY, gX, gY)
+      fRenderList.AddSpriteG(rxTrees, ID, CornerX, CornerY, gX, gY)
     else
       RenderSprite(rxTrees, ID, CornerX, CornerY, $FFFFFFFF, 255, Deleting);
   end;
@@ -369,7 +371,7 @@ begin
   CornerX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX - 0.25;
   CornerY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 0.45
                    - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(rxGui, ID, CornerX, CornerY, gX, gY);
+  fRenderList.AddSpriteG(rxGui, ID, CornerX, CornerY, gX, gY);
 end;
 
 
@@ -419,7 +421,7 @@ begin
   CornerX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX;
   CornerY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
                    - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(rxHouses, ID, CornerX, CornerY, gX, gY, $0, Step);
+  fRenderList.AddSpriteG(rxHouses, ID, CornerX, CornerY, gX, gY, $0, Step);
 end;
 
 
@@ -595,7 +597,7 @@ begin
     else                              Ground := aTilePos.Y - 1; //Nothing?
   end;
 
-  fRenderList.AddSprite(rxUnits, ID, aRenderPos.X + CornerX, aRenderPos.Y + CornerY, aTilePos.X - 1, Ground);
+  fRenderList.AddSpriteG(rxUnits, ID, aRenderPos.X + CornerX, aRenderPos.Y + CornerY, aTilePos.X - 1, Ground);
 end;
 
 
@@ -618,14 +620,14 @@ begin
   Ground := pY + (R.Pivot[ID0].Y + R.Size[ID0].Y) / CELL_SIZE_PX;
 
   if NewInst then
-    fRenderList.AddSprite(rxUnits, ID, CornerX, CornerY, pX, Ground, FlagColor)
+    fRenderList.AddSpriteG(rxUnits, ID, CornerX, CornerY, pX, Ground, FlagColor)
   else
     fRenderList.AddSprite(rxUnits, ID, CornerX, CornerY, FlagColor);
 
   if DoImmediateRender then
     RenderSprite(rxUnits, ID, CornerX, CornerY, FlagColor, 255, Deleting);
 
-  if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
+  if SHOW_UNIT_MOVEMENT then
   if NewInst then
   begin
     fRenderAux.DotOnTerrain(pX, pY, FlagColor);
@@ -728,16 +730,16 @@ begin
 
   if aDir in [dir_SE, dir_S, dir_SW, dir_W] then
   begin
-    fRenderList.AddSprite(rxUnits, IDFlag, FlagX, FlagY, pX, Ground, FlagColor);
+    fRenderList.AddSpriteG(rxUnits, IDFlag, FlagX, FlagY, pX, Ground, FlagColor);
     fRenderList.AddSprite(rxUnits, IDUnit, CornerX, CornerY, TeamColor);
   end
   else
   begin
-    fRenderList.AddSprite(rxUnits, IDUnit, CornerX, CornerY, pX, Ground, TeamColor);
+    fRenderList.AddSpriteG(rxUnits, IDUnit, CornerX, CornerY, pX, Ground, TeamColor);
     fRenderList.AddSprite(rxUnits, IDFlag, FlagX, FlagY, FlagColor);
   end;
 
-  if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
+  if SHOW_UNIT_MOVEMENT then
     fRenderAux.DotOnTerrain(pX, pY, FlagColor); // Render dot where unit is
 end;
 
@@ -853,7 +855,6 @@ end;
 procedure TRenderPool.RenderTerrain;
 var
   Rect: TKMRect;
-  Passability: integer;
 begin
   Rect := fGame.Viewport.GetClip;
 
@@ -861,22 +862,14 @@ begin
 
   RenderTerrainFieldBorders(Rect);
 
-  if fGame.AllowDebugRendering then
-  begin
-    if SHOW_TERRAIN_WIRES then
-      fRenderAux.Wires(Rect);
+  if SHOW_TERRAIN_WIRES then
+    fRenderAux.Wires(Rect);
 
-    if SHOW_TERRAIN_WIRES then
-    begin
-      Passability := fGame.FormPassability;
-      if fGame.fMapEditorInterface <> nil then
-        Passability := max(Passability, fGame.fMapEditorInterface.ShowPassability);
-      fRenderAux.Passability(Rect, Passability);
-    end;
+  if SHOW_TERRAIN_PASS <> 0 then
+    fRenderAux.Passability(Rect, SHOW_TERRAIN_PASS);
 
-    if SHOW_UNIT_MOVEMENT then
-      fRenderAux.UnitMoves(Rect);
-  end;
+  if SHOW_UNIT_MOVEMENT then
+    fRenderAux.UnitMoves(Rect);
 end;
 
 
@@ -889,8 +882,7 @@ begin
 
   RenderTerrainObjects(Rect, fTerrain.AnimStep);
   fPlayers.Paint; //Quite slow           //Units and houses
-  if fGame.Projectiles <> nil then
-    fGame.Projectiles.Paint; //Render all arrows and etc..
+  fGame.Projectiles.Paint;
 
   fRenderList.Render;
 end;
@@ -1064,33 +1056,30 @@ begin
   with fTerrain do
   case GameCursor.Mode of
     cm_None:   ;
-    cm_Erase:   case fGame.GameState of
-                  gsEditor:
+    cm_Erase:   case fGame.GameMode of
+                  gmMapEd:
                     begin
                       //With Units tab see if there's a unit below cursor
-                      if (fGame.fMapEditorInterface.GetShownPage = esp_Units) then
+                      if (fGame.MapEditorInterface.GetShownPage = esp_Units) then
                       begin
                         U := fTerrain.UnitsHitTest(P.X, P.Y);
                         if U <> nil then
                           AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,MyPlayer.FlagColor,true,true);
                       end
                       else
-                      if (
-                            //With Buildings tab see if we can remove Fields or Houses
-                             (fGame.fMapEditorInterface.GetShownPage = esp_Buildings)
-                             and (    TileIsCornField(P)
-                                   or TileIsWineField(P)
-                                   or (Land[P.Y,P.X].TileOverlay=to_Road)
-                                   or (fPlayers.HousesHitTest(P.X, P.Y) <> nil))
-                         )
-                      //And of course it is visible
-                      then
-                        RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
-                      else
-                        RenderCursorBuildIcon(P); //Red X
+                        //With Buildings tab see if we can remove Fields or Houses
+                        if (fGame.MapEditorInterface.GetShownPage = esp_Buildings)
+                           and (    TileIsCornField(P)
+                                 or TileIsWineField(P)
+                                 or (Land[P.Y,P.X].TileOverlay=to_Road)
+                                 or (fPlayers.HousesHitTest(P.X, P.Y) <> nil))
+                        then
+                          RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
+                        else
+                          RenderCursorBuildIcon(P); //Red X
                     end;
 
-                  gsPaused, gsOnHold, gsRunning:
+                  gmSingle, gmMulti, gmReplay:
                     begin
                       if ((MyPlayer.BuildList.FieldworksList.HasFakeField(P) <> ft_None)
                           or MyPlayer.BuildList.HousePlanList.HasPlan(P)
@@ -1211,7 +1200,7 @@ end;
 
 
 //New items must provide their ground level
-procedure TRenderList.AddSprite(aRX: TRXType; aID: Word; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
+procedure TRenderList.AddSpriteG(aRX: TRXType; aID: Word; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
   if fCount >= Length(RenderList) then SetLength(RenderList, fCount + 256); //Book some space
 

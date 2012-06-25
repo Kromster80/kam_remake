@@ -80,7 +80,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Utils, KM_Sound, KM_TextLibrary;
+uses KM_Game, KM_GameApp, KM_PlayersCollection, KM_Utils, KM_Sound, KM_TextLibrary;
 
 
 { TCommandsPack }
@@ -175,17 +175,17 @@ begin
 
   if fGame.IsPeaceTime and (aCommand.CommandType in BlockedByPeaceTime) then
   begin
-    fGame.Networking.PostLocalMessage(fTextLibrary[TX_MP_BLOCKED_BY_PEACETIME],false);
+    fGameApp.Networking.PostLocalMessage(fTextLibrary[TX_MP_BLOCKED_BY_PEACETIME],false);
     fSoundLib.Play(sfx_CantPlace);
     exit;
   end;
 
   //Find first unsent pack
   Tick := MAX_SCHEDULE; //Out of range value
-  for i:=fGame.GameTickCount + fDelay to fGame.GameTickCount + MAX_SCHEDULE-1 do
-  if not fSent[i mod MAX_SCHEDULE] then
+  for I := fGame.GameTickCount + fDelay to fGame.GameTickCount + MAX_SCHEDULE-1 do
+  if not fSent[I mod MAX_SCHEDULE] then
   begin
-    Tick := i mod MAX_SCHEDULE; //Place in a ring buffer
+    Tick := I mod MAX_SCHEDULE; //Place in a ring buffer
     Break;
   end;
   Assert(Tick < MAX_SCHEDULE, 'Could not find place for new commands');

@@ -77,7 +77,7 @@ type
     procedure AddServer(aIP, aPort, aName: string; aPing: word);
     function GetServer(aIndex: Integer): TKMServerInfo;
     procedure Clear;
-    procedure LoadFromText(const aText: string);
+    procedure LoadFromText(const aText: AnsiString);
   public
     property Servers[aIndex: Integer]: TKMServerInfo read GetServer; default;
     property Count: Integer read fCount;
@@ -163,7 +163,7 @@ begin
 end;
 
 
-procedure TKMRoomList.LoadData(aServerID:integer; M:TKMemoryStream);
+procedure TKMRoomList.LoadData(aServerID:integer; M: TKMemoryStream);
 var i, RoomCount, RoomID: Integer; GameInfoText: AnsiString;
 begin
   M.Position := 0;
@@ -211,7 +211,7 @@ begin
 end;
 
 
-procedure TKMServerList.LoadFromText(const aText: string);
+procedure TKMServerList.LoadFromText(const aText: AnsiString);
 var
   Strings, Items: TStringList;
   i: integer;
@@ -301,11 +301,11 @@ begin
 end;
 
 
-procedure TKMQuery.NetClientReceive(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal);
+procedure TKMQuery.NetClientReceive(aNetClient: TKMNetClient; aSenderIndex: Integer; aData: Pointer; aLength: Cardinal);
 var
   Kind:TKMessageKind;
-  M:TKMemoryStream;
-  Param:integer;
+  M: TKMemoryStream;
+  Param: Integer;
   Msg: AnsiString;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
@@ -329,7 +329,7 @@ begin
     begin
       fIndexOnServer := Param;
       fPingStarted := GetTickCount;
-      PacketSend(NET_ADDRESS_SERVER,mk_GetServerInfo,'',0);
+      PacketSend(NET_ADDRESS_SERVER, mk_GetServerInfo, '', 0);
     end;
 
     mk_ServerInfo:

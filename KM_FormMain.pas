@@ -143,7 +143,7 @@ uses
   KM_Resource,
   KM_ResourceSprites,
   KM_Controls,
-  KM_Game, 
+  KM_GameApp,
   KM_PlayersCollection,
   KM_Sound, 
   KM_Pics,
@@ -238,15 +238,14 @@ end;
 procedure TFormMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
-  if fGame<>nil then
-    fGame.KeyDown(Key, Shift);
+  if fGameApp <> nil then fGameApp.KeyDown(Key, Shift);
 end;
 
 
 procedure TFormMain.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');
-  if fGame<>nil then fGame.KeyPress(Key);
+  if fGameApp <> nil then fGameApp.KeyPress(Key);
 end;
 
 
@@ -259,41 +258,41 @@ begin
     ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
   end;
 
-  if fGame<>nil then fGame.KeyUp(Key, Shift);
+  if fGameApp <> nil then fGameApp.KeyUp(Key, Shift);
 end;
 
 
 procedure TFormMain.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin if fGame<>nil then fGame.MouseDown(Button, Shift, X, Y); end;
+begin if fGameApp <> nil then fGameApp.MouseDown(Button, Shift, X, Y); end;
 
 
 procedure TFormMain.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-begin if fGame<>nil then fGame.MouseMove(Shift, X, Y); end;
+begin if fGameApp <> nil then fGameApp.MouseMove(Shift, X, Y); end;
 
 
 procedure TFormMain.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin if fGame<>nil then fGame.MouseUp(Button, Shift, X, Y); end;
+begin if fGameApp <> nil then fGameApp.MouseUp(Button, Shift, X, Y); end;
 
 
 procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-begin if fGame<>nil then fGame.MouseWheel(Shift, WheelDelta, Panel5.ScreenToClient(MousePos).X, Panel5.ScreenToClient(MousePos).Y); end;
+begin if fGameApp <> nil then fGameApp.MouseWheel(Shift, WheelDelta, Panel5.ScreenToClient(MousePos).X, Panel5.ScreenToClient(MousePos).Y); end;
 
 procedure TFormMain.Panel5MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-begin if fGame<>nil then fGame.MouseWheel(Shift, WheelDelta, MousePos.X, MousePos.Y); end;
+begin if fGameApp <> nil then fGameApp.MouseWheel(Shift, WheelDelta, MousePos.X, MousePos.Y); end;
 
 
 //Open
 procedure TFormMain.Open_MissionMenuClick(Sender: TObject);
 begin
   if RunOpenDialog(OpenDialog1, '', ExeDir, 'Knights & Merchants Mission (*.dat)|*.dat') then
-    fGame.StartSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
+    fGameApp.NewSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
 end;
 
 
 procedure TFormMain.MenuItem1Click(Sender: TObject);
 begin
   if RunOpenDialog(OpenDialog1, '', ExeDir, 'Knights & Merchants Mission (*.dat)|*.dat') then
-    fGame.StartMapEditor(OpenDialog1.FileName, false, 0, 0);
+    fGameApp.NewMapEditor(OpenDialog1.FileName, 0, 0);
 end;
 
 
@@ -314,8 +313,8 @@ end;
 //Debug Options
 procedure TFormMain.Debug_ShowWiresClick(Sender: TObject);
 begin
-  Debug_ShowWires.Checked := not Debug_ShowWires.Checked;
-  SHOW_TERRAIN_WIRES := Debug_ShowWires.Checked;
+  Debug_ShowWires.Checked := not Debug_ShowWires.Checked and fGameApp.AllowDebugRendering;
+  SHOW_TERRAIN_WIRES := Debug_ShowWires.Checked and fGameApp.AllowDebugRendering;
 end;
 
 
@@ -328,9 +327,9 @@ end;
 
 procedure TFormMain.Debug_ShowUnitClick(Sender: TObject);
 begin
-  Debug_ShowUnits.Checked := not Debug_ShowUnits.Checked;
-  SHOW_UNIT_MOVEMENT := Debug_ShowUnits.Checked;
-  SHOW_UNIT_ROUTES   := Debug_ShowUnits.Checked;
+  Debug_ShowUnits.Checked := not Debug_ShowUnits.Checked and fGameApp.AllowDebugRendering;
+  SHOW_UNIT_MOVEMENT := Debug_ShowUnits.Checked and fGameApp.AllowDebugRendering;
+  SHOW_UNIT_ROUTES   := Debug_ShowUnits.Checked and fGameApp.AllowDebugRendering;
 end;
 
 
@@ -343,8 +342,8 @@ end;
 
 procedure TFormMain.Debug_PrintScreenClick(Sender: TObject);
 begin
-  if fGame <> nil then
-    fGame.PrintScreen;
+  if fGameApp <> nil then
+    fGameApp.PrintScreen;
 end;
 
 
@@ -354,14 +353,16 @@ begin GroupBox1.Visible := not GroupBox1.Visible; end;
 
 procedure TFormMain.Debug_PassabilityTrackChange(Sender: TObject);
 begin
-  SHOW_TERRAIN_WIRES := Debug_PassabilityTrack.Position <> 0;
+  SHOW_TERRAIN_WIRES := (Debug_PassabilityTrack.Position <> 0) and fGameApp.AllowDebugRendering;
   Debug_PassabilityTrack.Max := Byte(High(TPassability));
   if Debug_PassabilityTrack.Position <> 0 then
     Label2.Caption := GetEnumName(TypeInfo(TPassability), Debug_PassabilityTrack.Position)
   else
     Label2.Caption := '';
-  if fGame<> nil then
-    fGame.FormPassability := Debug_PassabilityTrack.Position;
+  if (fGameApp <> nil) and fGameApp.AllowDebugRendering then
+    SHOW_TERRAIN_PASS := Debug_PassabilityTrack.Position
+  else
+    SHOW_TERRAIN_PASS := 0;
 end;
 
 
@@ -393,16 +394,16 @@ end;
 procedure TFormMain.Export_Fonts1Click(Sender: TObject);
 begin
   fLog.AssertToLog(fResource<>nil, 'Can''t export Fonts cos they aren''t loaded yet');
-  fResource.ResourceFont.ExportFonts(fGame.GlobalSettings.Locale);
+  fResource.ResourceFont.ExportFonts(fGameApp.GameSettings.Locale);
 end;
 
 
 procedure TFormMain.Export_DeliverLists1Click(Sender: TObject);
 var i:integer;
 begin
-  if fPlayers=nil then exit;
+  if fPlayers = nil then Exit;
   //You could possibly cheat in multiplayer by seeing what supplies your enemy has
-  if fGame.MultiplayerMode and not MULTIPLAYER_CHEATS then Exit;
+  if fGameApp.AllowDebugRendering then Exit;
   for i:=0 to fPlayers.Count-1 do
     fPlayers[i].Deliveries.Queue.ExportToFile(ExeDir+'Player_'+inttostr(i)+'_Deliver_List.txt');
 end;
@@ -410,28 +411,28 @@ end;
 
 procedure TFormMain.RGPlayerClick(Sender: TObject);
 begin
-  if (fGame.GameState in [gsNoGame, gsEditor]) or fGame.MultiplayerMode then exit;
+  {if (fGame.GameState in [gsNoGame, gsEditor]) or fGame.MultiplayerMode then exit;
   if (fPlayers<>nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
-    fGame.GameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex);
+    fGame.GameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex);}
 end;
 
 
 procedure TFormMain.CheckBox2Click(Sender: TObject);
 begin
-  if (fGame.GameState in [gsNoGame, gsEditor]) or (fGame.MultiplayerMode and not MULTIPLAYER_SPEEDUP and not fGame.ReplayMode) then exit;
-  if CheckBox2.Checked then fGame.SetGameSpeed(300) else fGame.SetGameSpeed(1);
+  {if (fGame.GameState in [gsNoGame, gsEditor]) or (fGame.MultiplayerMode and not MULTIPLAYER_SPEEDUP and not fGame.ReplayMode) then exit;
+  if CheckBox2.Checked then fGame.SetGameSpeed(300) else fGame.SetGameSpeed(1);}
 end;
 
 
 procedure TFormMain.Button_StopClick(Sender: TObject);
 begin
-  fGame.Stop(gr_Cancel);
+  fGameApp.Stop(gr_Cancel);
 end;
 
 
 procedure TFormMain.Button_CalcArmyClick(Sender: TObject);
 begin // For test Army evaluation
-  fGame.StartSingleMap('', 'TestCalcArmy');
+  fGameApp.NewSingleMap('', 'TestCalcArmy');
   Assert(MyPlayer<>nil);
   {Point.X := 10; Point.Y := 10;
   MyPlayer.AddUnitGroup(ut_Bowman, Point, dir_E, 3, 50);}
@@ -518,7 +519,7 @@ end;
 procedure TFormMain.Debug_ExportMenuClick(Sender: TObject);
 begin
   ForceDirectories(ExeDir + 'Export\');
-  fGame.fMainMenuInterface.MyControls.SaveToFile(ExeDir + 'Export\MainMenu.txt');
+  fGameApp.MainMenuInterface.MyControls.SaveToFile(ExeDir + 'Export\MainMenu.txt');
 end;
 
 
@@ -527,9 +528,9 @@ var
   I, K: Integer;
   MC: TKMMasterControl;
 begin
-  if fGame.fMainMenuInterface = nil then Exit;
+  if fGameApp.MainMenuInterface = nil then Exit;
 
-  MC := fGame.fMainMenuInterface.MyControls;
+  MC := fGameApp.MainMenuInterface.MyControls;
   ForceDirectories(ExeDir + 'Export\MainMenu\');
 
   for I := 1 to MC.MainPanel.ChildCount do
@@ -542,8 +543,8 @@ begin
 
       MC.MainPanel.Childs[I].Show;
 
-      fGame.Render;
-      fGame.PrintScreen(ExeDir + 'Export\MainMenu\Panel' + int2fix(I, 3) + '.jpg');
+      fGameApp.Render;
+      fGameApp.PrintScreen(ExeDir + 'Export\MainMenu\Panel' + int2fix(I, 3) + '.jpg');
     end;
 end;
 
@@ -552,9 +553,9 @@ var
   I, K: Integer;
   MC: TKMMasterControl;
 begin
-  if fGame.fGamePlayInterface = nil then Exit;
+  if (fGameApp.Game = nil) or (fGameApp.Game.GamePlayInterface = nil) then Exit;
 
-  MC := fGame.fGamePlayInterface.MyControls;
+  MC := fGameApp.Game.GamePlayInterface.MyControls;
   ForceDirectories(ExeDir + 'Export\GamePlay\');
 
   for I := 1 to MC.MainPanel.ChildCount do
@@ -567,8 +568,8 @@ begin
 
       MC.MainPanel.Childs[I].Show;
 
-      fGame.Render;
-      fGame.PrintScreen(ExeDir + 'Export\GamePlay\Panel' + int2fix(I, 3) + '.jpg');
+      fGameApp.Render;
+      fGameApp.PrintScreen(ExeDir + 'Export\GamePlay\Panel' + int2fix(I, 3) + '.jpg');
     end;
 end;
 
@@ -577,7 +578,7 @@ procedure TFormMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   //MessageDlg works better than Application.MessageBox or others, it stays on top and
   //pauses here until the user clicks ok.
-  CanClose := (fGame = nil) or fGame.CanClose or
+  CanClose := (fGameApp = nil) or fGameApp.CanClose or
               (MessageDlg('Any unsaved changes will be lost. Exit?', mtWarning, [mbYes, mbNo], 0) = mrYes);
   if CanClose then
     fMain.Stop(Self);

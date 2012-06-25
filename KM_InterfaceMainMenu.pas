@@ -16,8 +16,8 @@ type
 
   TKMMainMenuInterface = class (TKMUserInterface)
   private
-    Campaign_Selected:TKMCampaign;
-    Campaign_MapIndex:byte;
+    Campaign_Selected: TKMCampaign;
+    Campaign_MapIndex: Byte;
 
     fServerSelected: Boolean;
     fSelectedRoomInfo: TKMRoomInfo;
@@ -37,7 +37,7 @@ type
     fSaveCRC_Selected: Cardinal; //CRC of selected save
     fSaves: TKMSavesCollection;
     fSavesMP: TKMSavesCollection;
-    MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
+    MapEdSizeX, MapEdSizeY: Integer; //Map Editor map size
     //We remember old values to enable "Apply" button dynamicaly
     OldResolutionID: TResIndex;
 
@@ -60,7 +60,7 @@ type
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
-    procedure MainMenu_ReplayLastMap(Sender: TObject);
+    procedure Results_RepeatLastMap(Sender: TObject);
     procedure Campaign_FillList;
     procedure Campaign_ListChange(Sender: TObject);
     procedure Campaign_Set(aCampaign: TKMCampaign);
@@ -79,7 +79,7 @@ type
     procedure MP_Init(Sender: TObject);
     procedure MP_BindEvents;
     procedure MP_SaveSettings;
-    procedure MP_Update(const aStatus:string; aColor:TColor4; aBusy:boolean);
+    procedure MP_Update(const aStatus: string; aColor: TColor4; aBusy: Boolean);
     procedure MP_ServersUpdateList(Sender: TObject);
     procedure MP_AnnouncementsUpdated(const S: string);
     procedure MP_CreateServerClick(Sender: TObject);
@@ -92,17 +92,17 @@ type
     procedure MP_ServersClick(Sender: TObject);
     procedure MP_ServersDoubleClick(Sender: TObject);
     procedure MP_GetInClick(Sender: TObject);
-    function MP_ValidatePlayerName(const aName:string):Boolean;
-    function MP_GetInEnabled:Boolean;
+    function MP_ValidatePlayerName(const aName: string): Boolean;
+    function MP_GetInEnabled: Boolean;
     procedure MP_Join(aServerAddress, aPort: string; aRoom: Integer);
     procedure MP_JoinSuccess(Sender: TObject);
-    procedure MP_JoinFail(const aData:string);
+    procedure MP_JoinFail(const aData: string);
     procedure MP_JoinAssignedHost(Sender: TObject);
     procedure MP_HostClick(Sender: TObject);
-    procedure MP_HostFail(const aData:string);
+    procedure MP_HostFail(const aData: string);
     procedure MP_BackClick(Sender: TObject);
 
-    procedure Lobby_Reset(Sender: TObject; aPreserveMessage:boolean=false);
+    procedure Lobby_Reset(Sender: TObject; aPreserveMessage: Boolean = False);
     procedure Lobby_GameOptionsChange(Sender: TObject);
     procedure Lobby_OnGameOptions(Sender: TObject);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
@@ -332,27 +332,27 @@ type
       Image_ResultsRosette:array[0..MAX_PLAYERS-1, 0..9] of TKMImage;
       Button_ResultsMPBack:TKMButton;
   public
-    constructor Create(X,Y:word);
+    constructor Create(X,Y: Word);
     destructor Destroy; override;
-    procedure Resize(X,Y:word);
-    procedure ShowScreen(aScreen: TMenuScreen; const aText: string=''; aMsg: TGameResultMsg=gr_Silent);
-    procedure AppendLoadingText(const aText:string);
+    procedure ShowScreen(aScreen: TMenuScreen; const aText: string = ''; aMsg: TGameResultMsg=gr_Silent);
+    procedure AppendLoadingText(const aText: string);
     procedure Results_Fill;
     procedure ResultsMP_Fill;
-    function GetChatText:string;
-    function GetChatMessages:string;
+    function GetChatText: string;
+    function GetChatMessages: string;
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
     procedure KeyUp(Key:Word; Shift: TShiftState); override;
     procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
 
+    procedure Resize(X,Y: Word); override;
     procedure UpdateState(aTickCount: Cardinal); override;
   end;
 
 
 implementation
-uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_Locales,
+uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_GameApp, KM_PlayersCollection, KM_Locales,
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_Resource;
 
 const
@@ -372,13 +372,13 @@ begin
 
   Campaign_MapIndex := 1;
 
-  fMapView := TKMMapView.Create(nil, False, True);
+  fMapView := TKMMapView.Create(True, False, True);
 
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(True);
   fMap_Selected := -1; //None
-  fSaves := TKMSavesCollection.Create(False);
-  fSavesMP := TKMSavesCollection.Create(True);
+  fSaves := TKMSavesCollection.Create;
+  fSavesMP := TKMSavesCollection.Create;
 
   Panel_Main := TKMPanel.Create(fMyControls, 0,
                                              0,
@@ -497,7 +497,7 @@ begin
                   Button_ResultsRepeat.Enabled := aMsg in [gr_Defeat, gr_Cancel];
 
                   //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
-                  Button_ResultsContinue.Visible := (fGame.Campaigns.ActiveCampaign <> nil) and (aMsg <> gr_ReplayEnd);
+                  Button_ResultsContinue.Visible := (fGameApp.Campaigns.ActiveCampaign <> nil) and (aMsg <> gr_ReplayEnd);
                   Button_ResultsContinue.Enabled := aMsg = gr_Win;
 
                   SwitchMenuPage(Panel_Results);
@@ -541,6 +541,7 @@ var
 begin
   if (MyPlayer = nil) or (MyPlayer.Stats = nil) then Exit;
 
+  //Fill in table values (like old KaM did)
   with MyPlayer.Stats do
   begin
     Label_Stat[1].Caption := inttostr(GetCitizensLost + GetWarriorsLost);
@@ -551,9 +552,10 @@ begin
     Label_Stat[6].Caption := inttostr(GetCitizensTrained);
     Label_Stat[7].Caption := inttostr(GetWeaponsProduced);
     Label_Stat[8].Caption := inttostr(GetWarriorsTrained);
-    Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
+    Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGame.MissionTime);
   end;
 
+  //Fill in chart values
   if DISPLAY_CHARTS_RESULT then
   begin
     Graph_Army.Clear;
@@ -585,6 +587,7 @@ begin
     for R := WARE_MIN to WARE_MAX do
       Graph_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
 
+    Button_Graph2.Enabled := (fGame.MissionMode = mm_Normal);
     Results_GraphToggle(Button_Graph1);
   end;
 end;
@@ -600,40 +603,49 @@ begin
 
   Button_Graph1.Down := Sender = Button_Graph1;
   Button_Graph2.Down := Sender = Button_Graph2;
-  Button_Graph2.Enabled := fGame.MissionMode = mm_Normal;
 end;
 
 
 procedure TKMMainMenuInterface.ResultsMP_Fill;
 var
-  i,k: Integer;
+  I,K: Integer;
   UnitsMax, HousesMax, GoodsMax, WeaponsMax, MaxValue: Integer;
-  Bests: array[0..9] of Cardinal;
-  Totals: array[0..9] of Cardinal;
+  Bests: array [0..9] of Cardinal;
+  Totals: array [0..9] of Cardinal;
 begin
-  Label_ResultsMPTime.Caption := fGame.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
+  Label_ResultsMPTime.Caption := fGame.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGame.MissionTime);
 
   //Update visibility depending on players count
-  for i:=0 to MAX_PLAYERS-1 do
+  for I := 0 to MAX_PLAYERS - 1 do
   begin
-    Label_ResultsPlayerName1[i].Visible := (i <= fPlayers.Count-1);
-    Label_ResultsPlayerName2[i].Visible := (i <= fPlayers.Count-1);
-    for k:=0 to 9 do
+    Label_ResultsPlayerName1[I].Visible := (I < fPlayers.Count);
+    Label_ResultsPlayerName2[I].Visible := (I < fPlayers.Count);
+    for K := 0 to 9 do
     begin
-      Bar_Results[i,k].Visible := (i <= fPlayers.Count-1);
-      Image_ResultsRosette[i,k].Visible := (i <= fPlayers.Count-1);
+      Bar_Results[I,K].Visible := (I < fPlayers.Count);
+      Image_ResultsRosette[I,K].Visible := (I < fPlayers.Count);
     end;
   end;
 
-  ZeroMemory(@Bests,SizeOf(Bests));
+  //Update positioning
+  Panel_StatsMP1.Height := 40 + fPlayers.Count * 22;
+  Panel_StatsMP2.Height := 40 + fPlayers.Count * 22;
+
+  Panel_StatsMP1.Top := 134 + (520 - Panel_StatsMP1.Height * 2) div 2 -
+                        (768 - Min(Panel_ResultsMP.Height,768)) div 2; //Manually apply anchoring
+  //Second panel does not move from the middle of the screen: results always go above and below the middle
+
+  //Calculate best scores
+  ZeroMemory(@Bests, SizeOf(Bests));
   //These are a special case: Less is better so we initialized them high
   Bests[1] := High(Cardinal);
   Bests[3] := High(Cardinal);
   Bests[6] := High(Cardinal);
-  ZeroMemory(@Totals,SizeOf(Totals));
+  ZeroMemory(@Totals, SizeOf(Totals));
+
   //Calculate bests for each "section"
-  for i:=0 to fPlayers.Count-1 do
-    with fPlayers[i].Stats do
+  for I := 0 to fPlayers.Count - 1 do
+    with fPlayers[I].Stats do
     begin
       if Bests[0] < GetCitizensTrained then Bests[0] := GetCitizensTrained;
       if Bests[1] > GetCitizensLost    then Bests[1] := GetCitizensLost;
@@ -645,93 +657,88 @@ begin
       if Bests[7] < GetHousesDestroyed then Bests[7] := GetHousesDestroyed;
       if Bests[8] < GetGoodsProduced   then Bests[8] := GetGoodsProduced;
       if Bests[9] < GetWeaponsProduced then Bests[9] := GetWeaponsProduced;
-      inc(Totals[0],GetCitizensTrained);
-      inc(Totals[1],GetCitizensLost);
-      inc(Totals[2],GetWarriorsTrained);
-      inc(Totals[3],GetWarriorsLost);
-      inc(Totals[4],GetCitizensKilled + GetWarriorsKilled);
-      inc(Totals[5],GetHousesBuilt);
-      inc(Totals[6],GetHousesLost);
-      inc(Totals[7],GetHousesDestroyed);
-      inc(Totals[8],GetGoodsProduced);
-      inc(Totals[9],GetWeaponsProduced);
+
+      //If Totals is 0 the category skipped and does not have "Best" icon on it
+      inc(Totals[0], GetCitizensTrained);
+      inc(Totals[1], GetCitizensLost);
+      inc(Totals[2], GetWarriorsTrained);
+      inc(Totals[3], GetWarriorsLost);
+      inc(Totals[4], GetCitizensKilled + GetWarriorsKilled);
+      inc(Totals[5], GetHousesBuilt);
+      inc(Totals[6], GetHousesLost);
+      inc(Totals[7], GetHousesDestroyed);
+      inc(Totals[8], GetGoodsProduced);
+      inc(Totals[9], GetWeaponsProduced);
     end;
 
-  //Update positioning
-  Panel_StatsMP1.Height := 40 + fPlayers.Count * 22;
-  Panel_StatsMP2.Height := 40 + fPlayers.Count * 22;
-
-  Panel_StatsMP1.Top := 134 + (520 - Panel_StatsMP1.Height * 2) div 2 -
-                        (768 - Min(Panel_ResultsMP.Height,768)) div 2; //Manually apply anchoring
-  //Second panel does not move from the middle of the screen: results always go above and below the middle
-
   //Fill in raw values
-  for i:=0 to fPlayers.Count-1 do
+  for I := 0 to fPlayers.Count - 1 do
   begin
-    Label_ResultsPlayerName1[i].Caption   := fPlayers[i].PlayerName;
-    Label_ResultsPlayerName1[i].FontColor := FlagColorToTextColor(fPlayers[i].FlagColor);
-    Label_ResultsPlayerName2[i].Caption   := fPlayers[i].PlayerName;
-    Label_ResultsPlayerName2[i].FontColor := FlagColorToTextColor(fPlayers[i].FlagColor);
+    Label_ResultsPlayerName1[I].Caption   := fPlayers[I].PlayerName;
+    Label_ResultsPlayerName1[I].FontColor := FlagColorToTextColor(fPlayers[I].FlagColor);
+    Label_ResultsPlayerName2[I].Caption   := fPlayers[I].PlayerName;
+    Label_ResultsPlayerName2[I].FontColor := FlagColorToTextColor(fPlayers[I].FlagColor);
 
-    with fPlayers[i].Stats do
+    with fPlayers[I].Stats do
     begin
       //Living things
-      Bar_Results[i,0].Tag := GetCitizensTrained;
-      Bar_Results[i,1].Tag := GetCitizensLost;
-      Bar_Results[i,2].Tag := GetWarriorsTrained;
-      Bar_Results[i,3].Tag := GetWarriorsLost;
-      Bar_Results[i,4].Tag := GetCitizensKilled + GetWarriorsKilled;
-      Image_ResultsRosette[i,0].Visible := (GetCitizensTrained >= Bests[0]) and (Totals[0] > 0);
-      Image_ResultsRosette[i,1].Visible := (GetCitizensLost    <= Bests[1]) and (Totals[1] > 0);
-      Image_ResultsRosette[i,2].Visible := (GetWarriorsTrained >= Bests[2]) and (Totals[2] > 0);
-      Image_ResultsRosette[i,3].Visible := (GetWarriorsLost    <= Bests[3]) and (Totals[3] > 0);
-      Image_ResultsRosette[i,4].Visible := (GetCitizensKilled + GetWarriorsKilled >= Bests[4]) and (Totals[4] > 0);
+      Bar_Results[I,0].Tag := GetCitizensTrained;
+      Bar_Results[I,1].Tag := GetCitizensLost;
+      Bar_Results[I,2].Tag := GetWarriorsTrained;
+      Bar_Results[I,3].Tag := GetWarriorsLost;
+      Bar_Results[I,4].Tag := GetCitizensKilled + GetWarriorsKilled;
+      Image_ResultsRosette[I,0].Visible := (GetCitizensTrained >= Bests[0]) and (Totals[0] > 0);
+      Image_ResultsRosette[I,1].Visible := (GetCitizensLost    <= Bests[1]) and (Totals[1] > 0);
+      Image_ResultsRosette[I,2].Visible := (GetWarriorsTrained >= Bests[2]) and (Totals[2] > 0);
+      Image_ResultsRosette[I,3].Visible := (GetWarriorsLost    <= Bests[3]) and (Totals[3] > 0);
+      Image_ResultsRosette[I,4].Visible := (GetCitizensKilled + GetWarriorsKilled >= Bests[4]) and (Totals[4] > 0);
       //Objects
-      Bar_Results[i,5].Tag := GetHousesBuilt;
-      Bar_Results[i,6].Tag := GetHousesLost;
-      Bar_Results[i,7].Tag := GetHousesDestroyed;
-      Bar_Results[i,8].Tag := GetGoodsProduced;
-      Bar_Results[i,9].Tag := GetWeaponsProduced;
-      Image_ResultsRosette[i,5].Visible := (GetHousesBuilt     >= Bests[5]) and (Totals[5] > 0);
-      Image_ResultsRosette[i,6].Visible := (GetHousesLost      <= Bests[6]) and (Totals[6] > 0);
-      Image_ResultsRosette[i,7].Visible := (GetHousesDestroyed >= Bests[7]) and (Totals[7] > 0);
-      Image_ResultsRosette[i,8].Visible := (GetGoodsProduced   >= Bests[8]) and (Totals[8] > 0);
-      Image_ResultsRosette[i,9].Visible := (GetWeaponsProduced >= Bests[9]) and (Totals[9] > 0);
+      Bar_Results[I,5].Tag := GetHousesBuilt;
+      Bar_Results[I,6].Tag := GetHousesLost;
+      Bar_Results[I,7].Tag := GetHousesDestroyed;
+      Bar_Results[I,8].Tag := GetGoodsProduced;
+      Bar_Results[I,9].Tag := GetWeaponsProduced;
+      Image_ResultsRosette[I,5].Visible := (GetHousesBuilt     >= Bests[5]) and (Totals[5] > 0);
+      Image_ResultsRosette[I,6].Visible := (GetHousesLost      <= Bests[6]) and (Totals[6] > 0);
+      Image_ResultsRosette[I,7].Visible := (GetHousesDestroyed >= Bests[7]) and (Totals[7] > 0);
+      Image_ResultsRosette[I,8].Visible := (GetGoodsProduced   >= Bests[8]) and (Totals[8] > 0);
+      Image_ResultsRosette[I,9].Visible := (GetWeaponsProduced >= Bests[9]) and (Totals[9] > 0);
     end;
   end;
 
-  //Update percent bars
+  //Update percent bars for each category
   UnitsMax := 0;
-  for k:=0 to 4 do for i:=0 to fPlayers.Count-1 do
-    UnitsMax := Max(Bar_Results[i,k].Tag, UnitsMax);
+  for K := 0 to 4 do for I := 0 to fPlayers.Count - 1 do
+    UnitsMax := Max(Bar_Results[I,K].Tag, UnitsMax);
 
   HousesMax := 0;
-  for k:=5 to 7 do for i:=0 to fPlayers.Count-1 do
-    HousesMax := Max(Bar_Results[i,k].Tag, HousesMax);
+  for K := 5 to 7 do for I := 0 to fPlayers.Count - 1 do
+    HousesMax := Max(Bar_Results[I,K].Tag, HousesMax);
 
   GoodsMax := 0;
-  for i:=0 to fPlayers.Count-1 do
-    GoodsMax := Max(Bar_Results[i,8].Tag, GoodsMax);
+  for I := 0 to fPlayers.Count - 1 do
+    GoodsMax := Max(Bar_Results[I,8].Tag, GoodsMax);
 
   WeaponsMax := 0;
-  for i:=0 to fPlayers.Count-1 do
-    WeaponsMax := Max(Bar_Results[i,9].Tag, WeaponsMax);
+  for I := 0 to fPlayers.Count - 1 do
+    WeaponsMax := Max(Bar_Results[I,9].Tag, WeaponsMax);
 
-  for k:=0 to 9 do
+  //Knowing Max in each category we may fill bars properly
+  for K := 0 to 9 do
   begin
-    case k of
+    case K of
       0..4: MaxValue := UnitsMax;
       5..7: MaxValue := HousesMax;
       8:    MaxValue := GoodsMax;
       else  MaxValue := WeaponsMax;
     end;
-    for i:=0 to fPlayers.Count-1 do
+    for I := 0 to fPlayers.Count - 1 do
     begin
       if MaxValue <> 0 then
-        Bar_Results[i,k].Position := Round(Bar_Results[i,k].Tag / MaxValue * 100)
+        Bar_Results[I,K].Position := Round(Bar_Results[I,K].Tag / MaxValue * 100)
       else
-        Bar_Results[i,k].Position := 0;
-      Bar_Results[i,k].Caption := IfThen(Bar_Results[i,k].Tag <> 0, IntToStr(Bar_Results[i,k].Tag), '-');
+        Bar_Results[I,K].Position := 0;
+      Bar_Results[I,K].Caption := IfThen(Bar_Results[I,K].Tag <> 0, IntToStr(Bar_Results[I,K].Tag), '-');
     end;
   end;
 end;
@@ -1000,7 +1007,7 @@ begin
       Minimap_LobbyPreview := TKMMinimap.Create(Panel_LobbySetup, 39, 128, 191, 191);
       Minimap_LobbyPreview.ShowLocs := True; //In the minimap we want player locations to be shown
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 324, 250, 292, fnt_Game);
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 328, 250, 288, fnt_Game);
       Memo_LobbyMapDesc.Anchors := [akLeft,akTop,akBottom];
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
@@ -1217,7 +1224,7 @@ end;
 
 //Should contain options to make a map from scratch, load map from file, generate new one
 procedure TKMMainMenuInterface.Create_MapEditor_Page;
-var i:integer;
+var I: Integer;
 begin
   Panel_MapEd:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_MapEd.Stretch;
@@ -1235,9 +1242,9 @@ begin
       Radio_MapEd_SizeX.OnChange := MapEditor_SizeChange;
       Radio_MapEd_SizeY.OnChange := MapEditor_SizeChange;
 
-      for i:=1 to MAPSIZES_COUNT do begin
-        Radio_MapEd_SizeX.Items.Add(inttostr(MapSize[i]));
-        Radio_MapEd_SizeY.Items.Add(inttostr(MapSize[i]));
+      for I := 1 to MAPSIZES_COUNT do begin
+        Radio_MapEd_SizeX.Items.Add(inttostr(MapSize[I]));
+        Radio_MapEd_SizeY.Items.Add(inttostr(MapSize[I]));
       end;
 
       Button_MapEd_Create := TKMButton.Create(Panel_MapEd_SizeXY, 0, 335, 200, 30, fTextLibrary[TX_MENU_MAP_CREATE_NEW_MAP], fnt_Metal, bsMenu);
@@ -1539,7 +1546,7 @@ begin
     Button_ResultsBack.OnClick := SwitchMenuPage;
     Button_ResultsRepeat := TKMButton.Create(Panel_Results,320,610,220,30,fTextLibrary[TX_MENU_MISSION_REPEAT],fnt_Metal,bsMenu);
     Button_ResultsRepeat.Anchors := [akLeft];
-    Button_ResultsRepeat.OnClick := MainMenu_ReplayLastMap;
+    Button_ResultsRepeat.OnClick := Results_RepeatLastMap;
     Button_ResultsContinue := TKMButton.Create(Panel_Results,560,610,220,30,fTextLibrary[TX_MENU_MISSION_NEXT],fnt_Metal,bsMenu);
     Button_ResultsContinue.Anchors := [akLeft];
     Button_ResultsContinue.OnClick := SwitchMenuPage;
@@ -1623,8 +1630,7 @@ end;
 procedure TKMMainMenuInterface.SwitchMenuPage(Sender: TObject);
 var I: Integer;
 begin
-  if fGame <> nil then
-    Label_Version.Caption := GAME_VERSION + ' / ' + fGame.RenderVersion;
+  Label_Version.Caption := GAME_VERSION + ' / ' + fGameApp.RenderVersion;
 
   //First thing - hide all existing pages
   for I := 1 to Panel_Main.ChildCount do
@@ -1686,13 +1692,14 @@ end;
   end;
 
   {Show campaign screen}
-  if (Sender = Button_Camp_Start)
-  or (Sender = Button_ResultsContinue) then
+  if (Sender = Button_Camp_Start) then
   begin
-    if (Sender = Button_Camp_Start) then
-      Campaign_Set(fGame.Campaigns.CampaignByTitle(List_Camps.Rows[List_Camps.ItemIndex].Cells[2].Caption))
-    else
-      Campaign_Set(fGame.Campaigns.ActiveCampaign);
+    Campaign_Set(fGameApp.Campaigns.CampaignByTitle(List_Camps.Rows[List_Camps.ItemIndex].Cells[2].Caption));
+    Panel_Campaign.Show;
+  end;
+  if (Sender = Button_ResultsContinue) then
+  begin
+    Campaign_Set(fGameApp.Campaigns.ActiveCampaign);
     Panel_Campaign.Show;
   end;
 
@@ -1710,7 +1717,6 @@ end;
 
   {Show Load menu}
   if Sender=Button_SP_Load then begin
-
     //Stop current scan so it can't add a save after we clear the list
     fSaves.TerminateScan;
     fSave_Selected := -1;
@@ -1735,7 +1741,7 @@ end;
   {Show MultiPlayer menu}
   if (Sender=Button_MM_MultiPlayer) or (Sender=Button_ResultsMPBack) then
   begin
-    fGame.NetworkInit;
+    fGameApp.NetworkInit;
     MP_Init(Sender);
     MP_Update(fTextLibrary[TX_MP_MENU_STATUS_READY],icGreen,false);
     Panel_MultiPlayer.Show;
@@ -1762,7 +1768,7 @@ end;
   {Show Options menu}
   if Sender=Button_MM_Options then
   begin
-    Options_Fill(fMain.Settings, fGame.GlobalSettings);
+    Options_Fill(fMain.Settings, fGameApp.GameSettings);
     Panel_Options.Show;
   end;
 
@@ -1796,19 +1802,19 @@ end;
 
 procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
 begin
-  fGame.StartSingleMap(ExeDir + 'Tutorials\Town Tutorial\Town Tutorial.dat', fTextLibrary[TX_MENU_TUTORIAL_TOWN], True);
+  fGameApp.NewSingleMap(ExeDir + 'Tutorials\Town Tutorial\Town Tutorial.dat', fTextLibrary[TX_MENU_TUTORIAL_TOWN]);
 end;
 
 
 procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
 begin
-  fGame.StartSingleMap(ExeDir + 'Tutorials\Battle Tutorial\Battle Tutorial.dat', fTextLibrary[TX_MENU_TUTORIAL_BATTLE], True);
+  fGameApp.NewSingleMap(ExeDir + 'Tutorials\Battle Tutorial\Battle Tutorial.dat', fTextLibrary[TX_MENU_TUTORIAL_BATTLE]);
 end;
 
 
-procedure TKMMainMenuInterface.MainMenu_ReplayLastMap(Sender: TObject);
+procedure TKMMainMenuInterface.Results_RepeatLastMap(Sender: TObject);
 begin
-  fGame.StartLastMap; //Means replay last map
+  fGameApp.NewRestartLast; //Means replay last map
 end;
 
 
@@ -1817,12 +1823,13 @@ var
   I: Integer;
   Camps: TKMCampaignsCollection;
 begin
-  Camps := fGame.Campaigns;
+  Camps := fGameApp.Campaigns;
 
   List_Camps.Clear;
   for I := 0 to Camps.Count - 1 do
+  with Camps[I] do
     List_Camps.AddItem(MakeListRow(
-                        [Camps[I].CampaignTitle, IntToStr(Camps[I].MapCount), Camps[I].ShortTitle],
+                        [CampaignTitle, IntToStr(MapCount), ShortTitle],
                         [$FFFFFFFF, $FFFFFFFF, $00FFFFFF]));
 
   Button_Camp_Start.Disable;
@@ -1897,14 +1904,14 @@ end;
 
 procedure TKMMainMenuInterface.Campaign_StartMap(Sender: TObject);
 begin
-  fGame.StartCampaignMap(Campaign_Selected, Campaign_MapIndex);
+  fGameApp.NewCampaignMap(Campaign_Selected, Campaign_MapIndex);
 end;
 
 
 procedure TKMMainMenuInterface.Credits_LinkClick(Sender: TObject);
 
   //This can't be moved to e.g. KM_Utils because the dedicated server needs that, and it must be Linux compatible
-  procedure GoToURL(aUrl:string);
+  procedure GoToURL(aUrl: string);
   begin
     {$IFDEF WDC}
     ShellExecute(Application.Handle, 'open', PChar(aUrl),nil,nil, SW_SHOWNORMAL);
@@ -2036,7 +2043,7 @@ begin
   if not InRange(fMap_Selected, 0, fMaps.Count-1) then exit; //Some odd index
   //scan should be terminated, as it is no longer needed
   fMaps.TerminateScan;
-  fGame.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].FileName,'dat',false),fMaps[fMap_Selected].FileName); //Provide mission FileName mask and title here
+  fGameApp.NewSingleMap(MapNameToPath(fMaps[fMap_Selected].FileName, 'dat', False), fMaps[fMap_Selected].FileName); //Provide mission FileName mask and title here
 end;
 
 
@@ -2086,20 +2093,20 @@ begin
   //Refresh the list when they first open the multiplayer page
   MP_ServersRefresh(Sender);
 
-  Edit_MP_PlayerName.Text := fGame.GlobalSettings.MultiplayerName;
+  Edit_MP_PlayerName.Text := fGameApp.GameSettings.MultiplayerName;
 
-  Edit_MP_ServerName.Text := fGame.GlobalSettings.ServerName;
-  Edit_MP_ServerPort.Text := fGame.GlobalSettings.ServerPort;
+  Edit_MP_ServerName.Text := fGameApp.GameSettings.ServerName;
+  Edit_MP_ServerPort.Text := fGameApp.GameSettings.ServerPort;
 
-  Edit_MP_FindIP.Text := fGame.GlobalSettings.LastIP;
-  Edit_MP_FindPort.Text := fGame.GlobalSettings.LastPort;
-  Edit_MP_FindRoom.Text := fGame.GlobalSettings.LastRoom;
+  Edit_MP_FindIP.Text := fGameApp.GameSettings.LastIP;
+  Edit_MP_FindPort.Text := fGameApp.GameSettings.LastPort;
+  Edit_MP_FindRoom.Text := fGameApp.GameSettings.LastRoom;
 
   Button_MP_GetIn.Disable;
 
   //Fetch the announcements display
-  fGame.Networking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
-  fGame.Networking.ServerQuery.FetchAnnouncements(fGame.GlobalSettings.Locale);
+  fGameApp.Networking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
+  fGameApp.Networking.ServerQuery.FetchAnnouncements(fGameApp.GameSettings.Locale);
   Memo_MP_Announcement.Clear;
   Memo_MP_Announcement.Add(fTextLibrary[TX_MP_MENU_LOADING_ANNOUNCEMENTS]);
 end;
@@ -2109,15 +2116,15 @@ end;
 //E.g. If Server fails, Host can be disconnected from it as well as a Joiner
 procedure TKMMainMenuInterface.MP_BindEvents;
 begin
-  fGame.Networking.OnTextMessage  := Lobby_OnMessage;
-  fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
-  fGame.Networking.OnGameOptions  := Lobby_OnGameOptions;
-  fGame.Networking.OnMapName      := Lobby_OnMapName;
-  fGame.Networking.OnPingInfo     := Lobby_OnPingInfo;
-  fGame.Networking.OnStartMap     := fGame.StartMultiplayerMap;
-  fGame.Networking.OnStartSave    := fGame.StartMultiplayerSave;
-  fGame.Networking.OnDisconnect   := Lobby_OnDisconnect;
-  fGame.Networking.OnReassignedHost := Lobby_OnReassignedToHost;
+  fGameApp.Networking.OnTextMessage  := Lobby_OnMessage;
+  fGameApp.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
+  fGameApp.Networking.OnGameOptions  := Lobby_OnGameOptions;
+  fGameApp.Networking.OnMapName      := Lobby_OnMapName;
+  fGameApp.Networking.OnPingInfo     := Lobby_OnPingInfo;
+  fGameApp.Networking.OnStartMap     := fGameApp.NewMultiplayerMap;
+  fGameApp.Networking.OnStartSave    := fGameApp.NewMultiplayerSave;
+  fGameApp.Networking.OnDisconnect   := Lobby_OnDisconnect;
+  fGameApp.Networking.OnReassignedHost := Lobby_OnReassignedToHost;
 end;
 
 
@@ -2155,16 +2162,16 @@ end;
 procedure TKMMainMenuInterface.MP_SaveSettings;
 begin
   //Player name
-  fGame.GlobalSettings.MultiplayerName := Edit_MP_PlayerName.Text;
+  fGameApp.GameSettings.MultiplayerName := Edit_MP_PlayerName.Text;
 
   //Create Server popup
-  fGame.GlobalSettings.ServerName := Edit_MP_ServerName.Text;
-  fGame.GlobalSettings.ServerPort := Edit_MP_ServerPort.Text;
+  fGameApp.GameSettings.ServerName := Edit_MP_ServerName.Text;
+  fGameApp.GameSettings.ServerPort := Edit_MP_ServerPort.Text;
 
   //Join server popup
-  fGame.GlobalSettings.LastPort := Edit_MP_FindPort.Text;
-  fGame.GlobalSettings.LastRoom := Edit_MP_FindRoom.Text;
-  fGame.GlobalSettings.LastIP   := Edit_MP_FindIP.Text;
+  fGameApp.GameSettings.LastPort := Edit_MP_FindPort.Text;
+  fGameApp.GameSettings.LastRoom := Edit_MP_FindRoom.Text;
+  fGameApp.GameSettings.LastIP   := Edit_MP_FindIP.Text;
 end;
 
 
@@ -2192,8 +2199,8 @@ end;
 
 procedure TKMMainMenuInterface.MP_ServersRefresh(Sender: TObject);
 begin
-  fGame.Networking.ServerQuery.OnListUpdated := MP_ServersUpdateList;
-  fGame.Networking.ServerQuery.RefreshList;
+  fGameApp.Networking.ServerQuery.OnListUpdated := MP_ServersUpdateList;
+  fGameApp.Networking.ServerQuery.RefreshList;
   ColList_Servers.Clear;
   Label_MP_Players.Caption := '';
   Label_MP_GameTime.Caption := '';
@@ -2221,7 +2228,7 @@ begin
   ColList_Servers.Clear;
   ColList_Servers.ItemIndex := -1;
 
-  if fGame.Networking.ServerQuery.Rooms.Count = 0 then
+  if fGameApp.Networking.ServerQuery.Rooms.Count = 0 then
   begin
     //Do not use 'Show' here as it will also make the parent panel visible
     //which could be already hidden if player switched pages
@@ -2231,10 +2238,10 @@ begin
   else
   begin
     Label_Servers_Status.Hide;
-    for I := 0 to fGame.Networking.ServerQuery.Rooms.Count - 1 do
+    for I := 0 to fGameApp.Networking.ServerQuery.Rooms.Count - 1 do
     begin
-      R := fGame.Networking.ServerQuery.Rooms[I];
-      S := fGame.Networking.ServerQuery.Servers[R.ServerIndex];
+      R := fGameApp.Networking.ServerQuery.Rooms[I];
+      S := fGameApp.Networking.ServerQuery.Servers[R.ServerIndex];
 
       //Only show # if Server has more than 1 Room
       DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
@@ -2279,28 +2286,28 @@ begin
   case ColList_Servers.SortIndex of
     //Sorting by name goes A..Z by default
     0:  if ColList_Servers.SortDirection = sdDown then
-          fGame.Networking.ServerQuery.SortMethod := ssmByNameAsc
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByNameAsc
         else
-          fGame.Networking.ServerQuery.SortMethod := ssmByNameDesc;
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByNameDesc;
     //Sorting by state goes Lobby,Loading,Game,None by default
     1:  if ColList_Servers.SortDirection = sdDown then
-          fGame.Networking.ServerQuery.SortMethod := ssmByStateAsc
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByStateAsc
         else
-          fGame.Networking.ServerQuery.SortMethod := ssmByStateDesc;
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByStateDesc;
     //Sorting by player count goes 8..0 by default
     2:  if ColList_Servers.SortDirection = sdDown then
-          fGame.Networking.ServerQuery.SortMethod := ssmByPlayersDesc
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByPlayersDesc
         else
-          fGame.Networking.ServerQuery.SortMethod := ssmByPlayersAsc;
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByPlayersAsc;
     //Sorting by ping goes 0 ... 1000 by default
     3:  if ColList_Servers.SortDirection = sdDown then
-          fGame.Networking.ServerQuery.SortMethod := ssmByPingAsc
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByPingAsc
         else
-          fGame.Networking.ServerQuery.SortMethod := ssmByPingDesc;
+          fGameApp.Networking.ServerQuery.SortMethod := ssmByPingDesc;
   end;
 
   //Refresh the display only if there are rooms to be sorted (otherwise it shows "no servers found" immediately)
-  if fGame.Networking.ServerQuery.Rooms.Count > 0 then
+  if fGameApp.Networking.ServerQuery.Rooms.Count > 0 then
     MP_ServersUpdateList(nil);
 end;
 
@@ -2322,8 +2329,8 @@ begin
   fServerSelected := True;
   Button_MP_GetIn.Enabled := MP_GetInEnabled;
 
-  fSelectedRoomInfo := fGame.Networking.ServerQuery.Rooms[ColList_Servers.Rows[ID].Tag];
-  fSelectedServerInfo := fGame.Networking.ServerQuery.Servers[fSelectedRoomInfo.ServerIndex];
+  fSelectedRoomInfo := fGameApp.Networking.ServerQuery.Rooms[ColList_Servers.Rows[ID].Tag];
+  fSelectedServerInfo := fGameApp.Networking.ServerQuery.Servers[fSelectedRoomInfo.ServerIndex];
 
   Label_MP_Players.Caption := fSelectedRoomInfo.GameInfo.Players;
   Label_MP_GameTime.Caption := fSelectedRoomInfo.GameInfo.GetFormattedTime;
@@ -2335,7 +2342,7 @@ procedure TKMMainMenuInterface.MP_ServersDoubleClick(Sender: TObject);
 begin
   //MP_SelectServer gets called by first Click
   if Button_MP_GetIn.Enabled and (ColList_Servers.ItemIndex <> -1)
-  and InRange(ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag, 0, fGame.Networking.ServerQuery.Rooms.Count-1) then
+  and InRange(ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag, 0, fGameApp.Networking.ServerQuery.Rooms.Count-1) then
     MP_GetInClick(Sender);
 end;
 
@@ -2351,8 +2358,8 @@ begin
   SwitchMenuPage(Sender); //Open lobby page
 
   MP_BindEvents;
-  fGame.Networking.OnHostFail := MP_HostFail;
-  fGame.Networking.Host(Edit_MP_PlayerName.Text, Edit_MP_ServerName.Text, Edit_MP_ServerPort.Text, (Sender = Button_MP_CreateWAN));
+  fGameApp.Networking.OnHostFail := MP_HostFail;
+  fGameApp.Networking.Host(Edit_MP_PlayerName.Text, Edit_MP_ServerName.Text, Edit_MP_ServerPort.Text, (Sender = Button_MP_CreateWAN));
 end;
 
 
@@ -2407,10 +2414,10 @@ begin
   MP_Update(fTextLibrary[TX_MP_MENU_STATUS_CONNECTING],icGreen, True);
 
   //Send request to join
-  fGame.Networking.OnJoinSucc := MP_JoinSuccess;
-  fGame.Networking.OnJoinFail := MP_JoinFail;
-  fGame.Networking.OnJoinAssignedHost := MP_JoinAssignedHost;
-  fGame.Networking.Join(aServerAddress, aPort, Edit_MP_PlayerName.Text, aRoom); //Init lobby
+  fGameApp.Networking.OnJoinSucc := MP_JoinSuccess;
+  fGameApp.Networking.OnJoinFail := MP_JoinFail;
+  fGameApp.Networking.OnJoinAssignedHost := MP_JoinAssignedHost;
+  fGameApp.Networking.Join(aServerAddress, aPort, Edit_MP_PlayerName.Text, aRoom); //Init lobby
 end;
 
 
@@ -2419,16 +2426,16 @@ procedure TKMMainMenuInterface.MP_JoinSuccess(Sender: TObject);
 begin
   SwitchMenuPage(Button_MP_GetIn); //Open lobby page
 
-  fGame.Networking.OnJoinSucc := nil;
-  fGame.Networking.OnJoinFail := nil;
-  fGame.Networking.OnJoinAssignedHost := nil;
+  fGameApp.Networking.OnJoinSucc := nil;
+  fGameApp.Networking.OnJoinFail := nil;
+  fGameApp.Networking.OnJoinAssignedHost := nil;
   MP_BindEvents;
 end;
 
 
 procedure TKMMainMenuInterface.MP_JoinFail(const aData: string);
 begin
-  fGame.Networking.Disconnect;
+  fGameApp.Networking.Disconnect;
   MP_Update(Format(fTextLibrary[TX_GAME_ERROR_CONNECTION_FAILED],[aData]),icYellow,false);
   fSoundLib.Play(sfxn_Error2);
 end;
@@ -2439,17 +2446,17 @@ begin
   //We were joining a game and the server assigned hosting rights to us
   SwitchMenuPage(Button_MP_CreateLAN); //Open lobby page in host mode
 
-  fGame.Networking.OnJoinSucc := nil;
-  fGame.Networking.OnJoinFail := nil;
-  fGame.Networking.OnJoinAssignedHost := nil;
-  fGame.Networking.OnHostFail := MP_HostFail;
+  fGameApp.Networking.OnJoinSucc := nil;
+  fGameApp.Networking.OnJoinFail := nil;
+  fGameApp.Networking.OnJoinAssignedHost := nil;
+  fGameApp.Networking.OnHostFail := MP_HostFail;
   MP_BindEvents;
 end;
 
 
 procedure TKMMainMenuInterface.MP_BackClick(Sender: TObject);
 begin
-  fGame.Networking.Disconnect;
+  fGameApp.Networking.Disconnect;
   MP_SaveSettings;
   SwitchMenuPage(Sender);
 end;
@@ -2457,7 +2464,7 @@ end;
 
 procedure TKMMainMenuInterface.MP_HostFail(const aData: string);
 begin
-  fGame.Networking.Disconnect;
+  fGameApp.Networking.Disconnect;
   SwitchMenuPage(Button_LobbyBack);
   MP_Update(aData, icYellow, False);
   fSoundLib.Play(sfxn_Error2);
@@ -2531,8 +2538,8 @@ end;
 procedure TKMMainMenuInterface.Lobby_GameOptionsChange(Sender: TObject);
 begin
   //Set the peacetime
-  fGame.Networking.NetGameOptions.Peacetime := EnsureRange(TrackBar_LobbyPeacetime.Position, 0, 300);
-  fGame.Networking.SendGameOptions;
+  fGameApp.Networking.NetGameOptions.Peacetime := EnsureRange(TrackBar_LobbyPeacetime.Position, 0, 300);
+  fGameApp.Networking.SendGameOptions;
 
   //Refresh the data to controls
   Lobby_OnGameOptions(nil);
@@ -2541,7 +2548,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_OnGameOptions(Sender: TObject);
 begin
-  TrackBar_LobbyPeacetime.Position := fGame.Networking.NetGameOptions.Peacetime;
+  TrackBar_LobbyPeacetime.Position := fGameApp.Networking.NetGameOptions.Peacetime;
 end;
 
 
@@ -2555,8 +2562,8 @@ begin
   //Host control toggle
   if Sender = CheckBox_LobbyHostControl then
   begin
-    fGame.Networking.NetPlayers.HostDoesSetup := CheckBox_LobbyHostControl.Checked;
-    fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
+    fGameApp.Networking.NetPlayers.HostDoesSetup := CheckBox_LobbyHostControl.Checked;
+    fGameApp.Networking.SendPlayerListAndRefreshPlayersSetup;
   end;
 
   for i:=0 to MAX_PLAYERS-1 do
@@ -2564,55 +2571,55 @@ begin
     //Starting location
     if (Sender = DropBox_LobbyLoc[i]) and DropBox_LobbyLoc[i].Enabled then
     begin
-      fGame.Networking.SelectLoc(DropBox_LobbyLoc[i].ItemIndex, i+1);
+      fGameApp.Networking.SelectLoc(DropBox_LobbyLoc[i].ItemIndex, i+1);
       //Host with HostDoesSetup could have given us some location we don't know about from a map/save we don't have
-      if fGame.Networking.SelectGameKind <> ngk_None then
-        DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
+      if fGameApp.Networking.SelectGameKind <> ngk_None then
+        DropBox_LobbyLoc[i].ItemIndex := fGameApp.Networking.NetPlayers[i+1].StartLocation;
     end;
 
     //Team
     if (Sender = DropBox_LobbyTeam[i]) and DropBox_LobbyTeam[i].Enabled then
-      fGame.Networking.SelectTeam(DropBox_LobbyTeam[i].ItemIndex, i+1);
+      fGameApp.Networking.SelectTeam(DropBox_LobbyTeam[i].ItemIndex, i+1);
 
     //Color
     if (Sender = Drop_LobbyColors[i]) and Drop_LobbyColors[i].Enabled then
     begin
-      fGame.Networking.SelectColor(Drop_LobbyColors[i].ItemIndex, i+1);
-      Drop_LobbyColors[i].ItemIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
+      fGameApp.Networking.SelectColor(Drop_LobbyColors[i].ItemIndex, i+1);
+      Drop_LobbyColors[i].ItemIndex := fGameApp.Networking.NetPlayers[i+1].FlagColorID;
     end;
 
     if Sender = DropBox_LobbyPlayerSlot[i] then
     begin
       //Modify an existing player
-      if (i < fGame.Networking.NetPlayers.Count) then
+      if (i < fGameApp.Networking.NetPlayers.Count) then
       begin
         case DropBox_LobbyPlayerSlot[i].ItemIndex of
           0: //Open
             begin
-              if fGame.Networking.NetPlayers[i+1].IsComputer then
-                fGame.Networking.NetPlayers.RemAIPlayer(i+1)
-              else if fGame.Networking.NetPlayers[i+1].IsClosed then
-                fGame.Networking.NetPlayers.RemClosedPlayer(i+1);
+              if fGameApp.Networking.NetPlayers[i+1].IsComputer then
+                fGameApp.Networking.NetPlayers.RemAIPlayer(i+1)
+              else if fGameApp.Networking.NetPlayers[i+1].IsClosed then
+                fGameApp.Networking.NetPlayers.RemClosedPlayer(i+1);
             end;
           1: //Closed
-            fGame.Networking.NetPlayers.AddClosedPlayer(i+1); //Replace it
+            fGameApp.Networking.NetPlayers.AddClosedPlayer(i+1); //Replace it
           2: //AI
-            fGame.Networking.NetPlayers.AddAIPlayer(i+1); //Replace it
+            fGameApp.Networking.NetPlayers.AddAIPlayer(i+1); //Replace it
         end;
       end
       else
       begin
         //Add a new player
         if DropBox_LobbyPlayerSlot[i].ItemIndex = 1 then //Closed
-          fGame.Networking.NetPlayers.AddClosedPlayer;
+          fGameApp.Networking.NetPlayers.AddClosedPlayer;
         if DropBox_LobbyPlayerSlot[i].ItemIndex = 2 then //AI
         begin
-          fGame.Networking.NetPlayers.AddAIPlayer;
-          if fGame.Networking.SelectGameKind = ngk_Save then
-            fGame.Networking.MatchPlayersToSave(fGame.Networking.NetPlayers.Count); //Match new AI player in save
+          fGameApp.Networking.NetPlayers.AddAIPlayer;
+          if fGameApp.Networking.SelectGameKind = ngk_Save then
+            fGameApp.Networking.MatchPlayersToSave(fGameApp.Networking.NetPlayers.Count); //Match new AI player in save
         end;
       end;
-      fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
+      fGameApp.Networking.SendPlayerListAndRefreshPlayersSetup;
     end;
   end;
 end;
@@ -2625,38 +2632,38 @@ var
   I,ID: Integer;
   MyNik, CanEdit, HostCanEdit, IsSave, IsValid: Boolean;
 begin
-  IsSave := fGame.Networking.SelectGameKind = ngk_Save;
+  IsSave := fGameApp.Networking.SelectGameKind = ngk_Save;
 
   //Go through active players first
-  for I:=0 to fGame.Networking.NetPlayers.Count - 1 do
+  for I:=0 to fGameApp.Networking.NetPlayers.Count - 1 do
   begin
     //Flag icon
-    if fGame.Networking.NetPlayers[I+1].LangCode <> '' then
-      Image_LobbyFlag[I].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[I+1].LangCode).FlagSpriteID
+    if fGameApp.Networking.NetPlayers[I+1].LangCode <> '' then
+      Image_LobbyFlag[I].TexID := fLocales.GetLocale(fGameApp.Networking.NetPlayers[I+1].LangCode).FlagSpriteID
     else
-      if fGame.Networking.NetPlayers[I+1].IsComputer then
+      if fGameApp.Networking.NetPlayers[I+1].IsComputer then
         Image_LobbyFlag[I].TexID := 62 //PC icon
       else
         Image_LobbyFlag[I].TexID := 0;
 
     //Players list
-    if fGame.Networking.IsHost and (not fGame.Networking.NetPlayers[I+1].IsHuman) then
+    if fGameApp.Networking.IsHost and (not fGameApp.Networking.NetPlayers[I+1].IsHuman) then
     begin
       Label_LobbyPlayer[I].Hide;
       DropBox_LobbyPlayerSlot[I].Enable;
       DropBox_LobbyPlayerSlot[I].Show;
-      if fGame.Networking.NetPlayers[I+1].IsComputer then
+      if fGameApp.Networking.NetPlayers[I+1].IsComputer then
         DropBox_LobbyPlayerSlot[I].ItemIndex := 2 //AI
       else
         DropBox_LobbyPlayerSlot[I].ItemIndex := 1; //Closed
     end
     else
     begin
-      Label_LobbyPlayer[I].Caption := fGame.Networking.NetPlayers[I+1].GetNickname;
-      if fGame.Networking.NetPlayers[I+1].FlagColorID = 0 then
+      Label_LobbyPlayer[I].Caption := fGameApp.Networking.NetPlayers[I+1].GetNickname;
+      if fGameApp.Networking.NetPlayers[I+1].FlagColorID = 0 then
         Label_LobbyPlayer[I].FontColor := $FFFFFFFF
       else
-        Label_LobbyPlayer[I].FontColor := FlagColorToTextColor(fGame.Networking.NetPlayers[I+1].FlagColor);
+        Label_LobbyPlayer[I].FontColor := FlagColorToTextColor(fGameApp.Networking.NetPlayers[I+1].FlagColor);
       Label_LobbyPlayer[I].Show;
       DropBox_LobbyPlayerSlot[I].Disable;
       DropBox_LobbyPlayerSlot[I].Hide;
@@ -2665,36 +2672,36 @@ begin
 
     //If we can't load the map, don't attempt to show starting locations
     IsValid := false;
-    if fGame.Networking.SelectGameKind = ngk_Save then
-      IsValid := fGame.Networking.SaveInfo.IsValid;
-    if fGame.Networking.SelectGameKind = ngk_Map then
-      IsValid := fGame.Networking.MapInfo.IsValid;
+    if fGameApp.Networking.SelectGameKind = ngk_Save then
+      IsValid := fGameApp.Networking.SaveInfo.IsValid;
+    if fGameApp.Networking.SelectGameKind = ngk_Map then
+      IsValid := fGameApp.Networking.MapInfo.IsValid;
     if IsValid then
-      DropBox_LobbyLoc[I].ItemIndex := fGame.Networking.NetPlayers[I+1].StartLocation
+      DropBox_LobbyLoc[I].ItemIndex := fGameApp.Networking.NetPlayers[I+1].StartLocation
     else
       DropBox_LobbyLoc[I].ItemIndex := 0;
 
-    DropBox_LobbyTeam[I].ItemIndex := fGame.Networking.NetPlayers[I+1].Team;
-    Drop_LobbyColors[I].ItemIndex := fGame.Networking.NetPlayers[I+1].FlagColorID;
-    if fGame.Networking.NetPlayers[I+1].IsClosed then
+    DropBox_LobbyTeam[I].ItemIndex := fGameApp.Networking.NetPlayers[I+1].Team;
+    Drop_LobbyColors[I].ItemIndex := fGameApp.Networking.NetPlayers[I+1].FlagColorID;
+    if fGameApp.Networking.NetPlayers[I+1].IsClosed then
       Image_LobbyReady[I].TexID := 0
     else
-      Image_LobbyReady[I].TexID := 32+Byte(fGame.Networking.NetPlayers[I+1].ReadyToStart);
+      Image_LobbyReady[I].TexID := 32+Byte(fGameApp.Networking.NetPlayers[I+1].ReadyToStart);
 
-    MyNik := (I+1 = fGame.Networking.MyIndex); //Our index
+    MyNik := (I+1 = fGameApp.Networking.MyIndex); //Our index
     //We are allowed to edit if it is our nickname and we are set as NOT ready,
     //or we are the host and this player is an AI
-    CanEdit := (MyNik and (fGame.Networking.IsHost or not fGame.Networking.NetPlayers.HostDoesSetup) and
-                          (fGame.Networking.IsHost or not fGame.Networking.NetPlayers[I+1].ReadyToStart)) or
-               (fGame.Networking.IsHost and fGame.Networking.NetPlayers[I+1].IsComputer);
-    HostCanEdit := (fGame.Networking.IsHost and fGame.Networking.NetPlayers.HostDoesSetup and
-                    not fGame.Networking.NetPlayers[I+1].IsClosed);
+    CanEdit := (MyNik and (fGameApp.Networking.IsHost or not fGameApp.Networking.NetPlayers.HostDoesSetup) and
+                          (fGameApp.Networking.IsHost or not fGameApp.Networking.NetPlayers[I+1].ReadyToStart)) or
+               (fGameApp.Networking.IsHost and fGameApp.Networking.NetPlayers[I+1].IsComputer);
+    HostCanEdit := (fGameApp.Networking.IsHost and fGameApp.Networking.NetPlayers.HostDoesSetup and
+                    not fGameApp.Networking.NetPlayers[I+1].IsClosed);
     DropBox_LobbyLoc[I].Enabled := (CanEdit or HostCanEdit);
     DropBox_LobbyTeam[I].Enabled := (CanEdit or HostCanEdit) and not IsSave; //Can't change color or teams in a loaded save
-    Drop_LobbyColors[I].Enabled := (CanEdit or (MyNik and not fGame.Networking.NetPlayers[I+1].ReadyToStart)) and not IsSave;
-    if MyNik and not fGame.Networking.IsHost then
+    Drop_LobbyColors[I].Enabled := (CanEdit or (MyNik and not fGameApp.Networking.NetPlayers[I+1].ReadyToStart)) and not IsSave;
+    if MyNik and not fGameApp.Networking.IsHost then
     begin
-      if fGame.Networking.NetPlayers[I+1].ReadyToStart then
+      if fGameApp.Networking.NetPlayers[I+1].ReadyToStart then
         Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_NOT_READY]
       else
         Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY];
@@ -2702,7 +2709,7 @@ begin
   end;
 
   //Disable rest of the players
-  for I := fGame.Networking.NetPlayers.Count to MAX_PLAYERS - 1 do
+  for I := fGameApp.Networking.NetPlayers.Count to MAX_PLAYERS - 1 do
   begin
     Label_LobbyPlayer[I].Caption := '';
     Image_LobbyFlag[I].TexID := 0;
@@ -2713,7 +2720,7 @@ begin
     DropBox_LobbyTeam[I].ItemIndex := 0;
     Drop_LobbyColors[I].ItemIndex := 0;
     //Only host may change player slots, and only the first unused slot may be changed (so there are no gaps in net players list)
-    DropBox_LobbyPlayerSlot[I].Enabled := fGame.Networking.IsHost and (I = fGame.Networking.NetPlayers.Count);
+    DropBox_LobbyPlayerSlot[I].Enabled := fGameApp.Networking.IsHost and (I = fGameApp.Networking.NetPlayers.Count);
     Image_LobbyReady[I].TexID := 0; //Hidden
     DropBox_LobbyLoc[I].Disable;
     DropBox_LobbyTeam[I].Disable;
@@ -2723,22 +2730,22 @@ begin
   //Update the minimap preivew with player colors
   for I := 1 to MAX_PLAYERS do
   begin
-    ID := fGame.Networking.NetPlayers.StartingLocToLocal(I);
+    ID := fGameApp.Networking.NetPlayers.StartingLocToLocal(I);
     if ID <> -1 then
-      fMapView.PlayerColors[I] := fGame.Networking.NetPlayers[ID].FlagColor
+      fMapView.PlayerColors[I] := fGameApp.Networking.NetPlayers[ID].FlagColor
     else
       fMapView.PlayerColors[I] := $FF000000;
   end;
   //If we have a map selected update the preview
-  if (fGame.Networking.SelectGameKind = ngk_Map) and fGame.Networking.MapInfo.IsValid then
+  if (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid then
   begin
     fMapView.Update(True);
     Minimap_LobbyPreview.UpdateFrom(fMapView);
   end;
 
-  CheckBox_LobbyHostControl.Checked := fGame.Networking.NetPlayers.HostDoesSetup;
-  if fGame.Networking.IsHost then
-    Button_LobbyStart.Enabled := fGame.Networking.CanStart;
+  CheckBox_LobbyHostControl.Checked := fGameApp.Networking.NetPlayers.HostDoesSetup;
+  if fGameApp.Networking.IsHost then
+    Button_LobbyStart.Enabled := fGameApp.Networking.CanStart;
   //If the game can't be started the text message with explanation will appear in chat area
 end;
 
@@ -2747,16 +2754,16 @@ procedure TKMMainMenuInterface.Lobby_OnPingInfo(Sender: TObject);
 var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do
-  if (fGame.Networking.Connected) and (i < fGame.Networking.NetPlayers.Count) and
-     (fGame.Networking.NetPlayers[i+1].IsHuman) then
+  if (fGameApp.Networking.Connected) and (i < fGameApp.Networking.NetPlayers.Count) and
+     (fGameApp.Networking.NetPlayers[i+1].IsHuman) then
   begin
-    Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].GetInstantPing);
-    Label_LobbyPing[i].FontColor := GetPingColor(fGame.Networking.NetPlayers[i+1].GetInstantPing);
+    Label_LobbyPing[i].Caption := inttostr(fGameApp.Networking.NetPlayers[i+1].GetInstantPing);
+    Label_LobbyPing[i].FontColor := GetPingColor(fGameApp.Networking.NetPlayers[i+1].GetInstantPing);
   end
   else
     Label_LobbyPing[i].Caption := '';
-  Label_LobbyServerName.Caption := fGame.Networking.ServerName+' #'+IntToStr(fGame.Networking.ServerRoom+1)+
-                                   '  '+fGame.Networking.ServerAddress+' : '+fGame.Networking.ServerPort;
+  Label_LobbyServerName.Caption := fGameApp.Networking.ServerName+' #'+IntToStr(fGameApp.Networking.ServerRoom+1)+
+                                   '  '+fGameApp.Networking.ServerAddress+' : '+fGameApp.Networking.ServerPort;
 end;
 
 
@@ -2794,7 +2801,7 @@ begin
 
   //The Sender is nil in Reset_Lobby when we are not connected
   if Sender <> nil then
-    fGame.Networking.SelectNoMap(fTextLibrary[TX_LOBBY_MAP_NONE]);
+    fGameApp.Networking.SelectNoMap(fTextLibrary[TX_LOBBY_MAP_NONE]);
 end;
 
 
@@ -2813,9 +2820,9 @@ end;
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
 begin
   if Radio_LobbyMapType.ItemIndex < 3 then
-    fGame.Networking.SelectMap(List_Lobby.Item[List_Lobby.ItemIndex])
+    fGameApp.Networking.SelectMap(List_Lobby.Item[List_Lobby.ItemIndex])
   else
-    fGame.Networking.SelectSave(List_Lobby.Item[List_Lobby.ItemIndex]);
+    fGameApp.Networking.SelectSave(List_Lobby.Item[List_Lobby.ItemIndex]);
 end;
 
 
@@ -2823,10 +2830,10 @@ procedure TKMMainMenuInterface.Lobby_OnMapName(const aData: string);
 var I: Integer; DropText: string;
 begin
   //Common settings
-  Minimap_LobbyPreview.Visible := (fGame.Networking.SelectGameKind = ngk_Map) and fGame.Networking.MapInfo.IsValid;
-  TrackBar_LobbyPeacetime.Enabled := fGame.Networking.IsHost and (fGame.Networking.SelectGameKind = ngk_Map) and fGame.Networking.MapInfo.IsValid;
+  Minimap_LobbyPreview.Visible := (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
+  TrackBar_LobbyPeacetime.Enabled := fGameApp.Networking.IsHost and (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
 
-  case  fGame.Networking.SelectGameKind of
+  case  fGameApp.Networking.SelectGameKind of
     ngk_None: begin
                 Memo_LobbyMapDesc.Clear;
                 if aData = fTextLibrary[TX_LOBBY_MAP_NONE] then
@@ -2841,45 +2848,45 @@ begin
                 DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
               end;
     ngk_Save: begin
-                if not fGame.Networking.IsHost then
+                if not fGameApp.Networking.IsHost then
                   Radio_LobbyMapType.ItemIndex := 3;
 
-                Label_LobbyMapName.Caption := fGame.Networking.SaveInfo.FileName;
-                Memo_LobbyMapDesc.Text := fGame.Networking.GameInfo.GetTitleWithTime;
+                Label_LobbyMapName.Caption := fGameApp.Networking.SaveInfo.FileName;
+                Memo_LobbyMapDesc.Text := fGameApp.Networking.GameInfo.GetTitleWithTime;
 
                 //Starting locations text
                 DropText := fTextLibrary[TX_LOBBY_SELECT] + eol;
-                for I := 0 to fGame.Networking.GameInfo.PlayerCount - 1 do
-                  DropText := DropText + fGame.Networking.GameInfo.LocationName[I] + eol;
+                for I := 0 to fGameApp.Networking.GameInfo.PlayerCount - 1 do
+                  DropText := DropText + fGameApp.Networking.GameInfo.LocationName[I] + eol;
               end;
     ngk_Map:  begin
-                if not fGame.Networking.IsHost then
+                if not fGameApp.Networking.IsHost then
                 begin
-                  if fGame.Networking.MapInfo.IsCoop then
+                  if fGameApp.Networking.MapInfo.IsCoop then
                     Radio_LobbyMapType.ItemIndex := 2
                   else
-                    if fGame.Networking.MapInfo.Info.MissionMode = mm_Tactic then
+                    if fGameApp.Networking.MapInfo.Info.MissionMode = mm_Tactic then
                       Radio_LobbyMapType.ItemIndex := 1
                     else
                       Radio_LobbyMapType.ItemIndex := 0;
                 end;
 
                 //Only load the minimap preview if the map is valid
-                if fGame.Networking.MapInfo.IsValid then
+                if fGameApp.Networking.MapInfo.IsValid then
                 begin
                   fMapView.UseCustomColors := True;
-                  fMapView.LoadTerrain(MapNameToPath(fGame.Networking.MapInfo.FileName, 'dat', True));
+                  fMapView.LoadTerrain(MapNameToPath(fGameApp.Networking.MapInfo.FileName, 'dat', True));
                   fMapView.Update(True);
                   Minimap_LobbyPreview.UpdateFrom(fMapView);
                 end;
 
-                Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
-                Memo_LobbyMapDesc.Text := fGame.Networking.MapInfo.BigDesc;
+                Label_LobbyMapName.Caption := fGameApp.Networking.GameInfo.Title;
+                Memo_LobbyMapDesc.Text := fGameApp.Networking.MapInfo.BigDesc;
 
               //Starting locations text
               DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
-              for I := 0 to fGame.Networking.GameInfo.PlayerCount - 1 do
-                DropText := DropText + fGame.Networking.GameInfo.LocationName[I] + eol;
+              for I := 0 to fGameApp.Networking.GameInfo.PlayerCount - 1 do
+                DropText := DropText + fGameApp.Networking.GameInfo.LocationName[I] + eol;
             end;
   end;
 
@@ -2898,34 +2905,34 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
 begin
   Lobby_Reset(Button_MP_CreateLAN, True); //Will reset the lobby page into host mode, preserving messages
-  if fGame.Networking.SelectGameKind = ngk_None then
+  if fGameApp.Networking.SelectGameKind = ngk_None then
     Radio_LobbyMapType.ItemIndex := 0 //Default
   else
-    if fGame.Networking.SelectGameKind = ngk_Save then
+    if fGameApp.Networking.SelectGameKind = ngk_Save then
       Radio_LobbyMapType.ItemIndex := 3
     else
-      if fGame.Networking.MapInfo.IsCoop then
+      if fGameApp.Networking.MapInfo.IsCoop then
         Radio_LobbyMapType.ItemIndex := 2
       else
-        if fGame.Networking.MapInfo.Info.MissionMode = mm_Tactic then
+        if fGameApp.Networking.MapInfo.Info.MissionMode = mm_Tactic then
           Radio_LobbyMapType.ItemIndex := 1
         else
           Radio_LobbyMapType.ItemIndex := 0;
 
 
   Lobby_MapTypeSelect(nil);
-  if fGame.Networking.SelectGameKind = ngk_Save then
-    List_Lobby.SelectByName(fGame.Networking.SaveInfo.FileName) //Select the map
+  if fGameApp.Networking.SelectGameKind = ngk_Save then
+    List_Lobby.SelectByName(fGameApp.Networking.SaveInfo.FileName) //Select the map
   else
-    if fGame.Networking.SelectGameKind = ngk_Map then
-      List_Lobby.SelectByName(fGame.Networking.MapInfo.FileName); //Select the map
+    if fGameApp.Networking.SelectGameKind = ngk_Map then
+      List_Lobby.SelectByName(fGameApp.Networking.MapInfo.FileName); //Select the map
 
   Lobby_OnGameOptions(nil);
-  if fGame.Networking.SelectGameKind = ngk_Save then
-    Lobby_OnMapName(fGame.Networking.SaveInfo.FileName)
+  if fGameApp.Networking.SelectGameKind = ngk_Save then
+    Lobby_OnMapName(fGameApp.Networking.SaveInfo.FileName)
   else
-    if fGame.Networking.SelectGameKind = ngk_Map then
-      Lobby_OnMapName(fGame.Networking.MapInfo.FileName);
+    if fGameApp.Networking.SelectGameKind = ngk_Map then
+      Lobby_OnMapName(fGameApp.Networking.MapInfo.FileName);
 end;
 
 
@@ -2938,12 +2945,12 @@ begin
   //Check for console commands
   if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/')
   and (ChatMessage[2] <> '/') then //double slash is the escape to place a slash at the start of a sentence
-    fGame.Networking.ConsoleCommand(ChatMessage)
+    fGameApp.Networking.ConsoleCommand(ChatMessage)
   else
   begin
     if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/') and (ChatMessage[2] = '/') then
       Delete(ChatMessage, 1, 1); //Remove one of the /'s
-    fGame.Networking.PostMessage(ChatMessage, True);
+    fGameApp.Networking.PostMessage(ChatMessage, True);
   end;
 
   Edit_LobbyPost.Text := '';
@@ -2959,7 +2966,7 @@ end;
 //We were disconnected from Server. Either we were kicked, or connection broke down
 procedure TKMMainMenuInterface.Lobby_OnDisconnect(const aData:string);
 begin
-  fGame.Networking.Disconnect;
+  fGameApp.Networking.Disconnect;
   MP_Update(aData,icYellow,false);
   fSoundLib.Play(sfxn_Error2);
   SwitchMenuPage(Button_LobbyBack);
@@ -2968,8 +2975,8 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_BackClick(Sender: TObject);
 begin
-  fGame.Networking.AnnounceDisconnect;
-  fGame.Networking.Disconnect;
+  fGameApp.Networking.AnnounceDisconnect;
+  fGameApp.Networking.Disconnect;
   MP_Update(fTextLibrary[TX_GAME_ERROR_DISCONNECT],icYellow,false);
   SwitchMenuPage(Button_LobbyBack);
 end;
@@ -2977,11 +2984,11 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_StartClick(Sender: TObject);
 begin
-  if fGame.Networking.IsHost then
-    fGame.Networking.StartClick
+  if fGameApp.Networking.IsHost then
+    fGameApp.Networking.StartClick
   else
   begin
-    if fGame.Networking.ReadyToStart then
+    if fGameApp.Networking.ReadyToStart then
       Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_NOT_READY]
     else
       Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY];
@@ -3017,7 +3024,7 @@ begin
   if not Button_Load.Enabled then exit; //This is also called by double clicking
   if not InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then Exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
-  fGame.StartSingleSave(fSaves[List_Load.ItemIndex].FileName);
+  fGameApp.NewSingleSave(fSaves[List_Load.ItemIndex].FileName);
 end;
 
 
@@ -3123,18 +3130,22 @@ end;
 
 
 procedure TKMMainMenuInterface.Replays_ListClick(Sender: TObject);
+var ID: Integer;
 begin
-  Button_ReplaysPlay.Enabled := InRange(List_Replays.ItemIndex, 0, fSaves.Count-1)
-                                and fSaves[List_Replays.ItemIndex].IsValid
-                                and fGame.ReplayExists(fSaves[List_Replays.ItemIndex].FileName, (Radio_Replays_Type.ItemIndex = 1));
+  ID := List_Replays.ItemIndex;
 
-  if InRange(List_Replays.ItemIndex, 0, fSaves.Count-1) then
+
+  Button_ReplaysPlay.Enabled := InRange(ID, 0, fSaves.Count-1)
+                                and fSaves[ID].IsValid
+                                and fSaves[ID].IsReplayValid;
+
+  if InRange(ID, 0, fSaves.Count-1) then
   begin
-    fSave_Selected := List_Replays.ItemIndex;
-    fSaveCRC_Selected := fSaves[List_Replays.ItemIndex].CRC;
+    fSave_Selected := ID;
+    fSaveCRC_Selected := fSaves[ID].CRC;
   end;
   Minimap_ReplayPreview.Hide; //Hide by default, then show it if we load the map successfully
-  if Button_ReplaysPlay.Enabled and fSaves[List_Replays.ItemIndex].LoadMinimap(fMapView) then
+  if Button_ReplaysPlay.Enabled and fSaves[ID].LoadMinimap(fMapView) then
   begin
     Minimap_ReplayPreview.UpdateFrom(fMapView);
     Minimap_ReplayPreview.Show;
@@ -3215,18 +3226,23 @@ begin
   if not Button_ReplaysPlay.Enabled then exit; //This is also called by double clicking
   if not InRange(List_Replays.ItemIndex, 0, fSaves.Count-1) then Exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
-  fGame.StartReplay(fSaves[List_Replays.ItemIndex].FileName,(Radio_Replays_Type.ItemIndex = 1));
+  fGameApp.NewReplay(fSaves[List_Replays.ItemIndex].FileName);
 end;
 
 
 procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
+var MapName: string;
 begin
   if Sender = Button_MapEd_Create then
-    fGame.StartMapEditor('', false, MapEdSizeX, MapEdSizeY); //Provide mission FileName here, Mapsize will be ignored if map exists
+    fGameApp.NewMapEditor('', MapEdSizeX, MapEdSizeY);
+
   //This is also called by double clicking on a map in the list
   if ((Sender = Button_MapEd_Load) or (Sender = List_MapEd)) and
      Button_MapEd_Load.Enabled and (List_MapEd.ItemIndex <> -1) then
-    fGame.StartMapEditor(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1), Radio_MapEd_MapType.ItemIndex = 1, 0, 0); //Provide mission FileName here, Mapsize will be ignored if map exists
+  begin
+    MapName := MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1);
+    fGameApp.NewMapEditor(MapName, 0, 0);
+  end;
 end;
 
 
@@ -3289,7 +3305,7 @@ end;
 
 
 //This is called when the options page is shown, so update all the values
-//Note: Options can be required to fill before fGame is completely initialized, hence we need to pass either fGame.Settings or a direct Settings link
+//Note: Options can be required to fill before fGameApp is completely initialized, hence we need to pass either fGameApp.Settings or a direct Settings link
 procedure TKMMainMenuInterface.Options_Fill(aMainSettings: TMainSettings; aGameSettings: TGameSettings);
 begin
   CheckBox_Options_Autosave.Checked     := aGameSettings.Autosave;
@@ -3316,36 +3332,36 @@ var
   MusicToggled, ShuffleToggled: Boolean;
 begin
   //Change these options only if they changed state since last time
-  MusicToggled := (fGame.GlobalSettings.MusicOff <> CheckBox_Options_MusicOff.Checked);
-  ShuffleToggled := (fGame.GlobalSettings.ShuffleOn <> CheckBox_Options_ShuffleOn.Checked);
+  MusicToggled := (fGameApp.GameSettings.MusicOff <> CheckBox_Options_MusicOff.Checked);
+  ShuffleToggled := (fGameApp.GameSettings.ShuffleOn <> CheckBox_Options_ShuffleOn.Checked);
 
-  fGame.GlobalSettings.Autosave         := CheckBox_Options_Autosave.Checked;
-  fGame.GlobalSettings.Brightness       := TrackBar_Options_Brightness.Position;
-  fGame.GlobalSettings.AlphaShadows     := RadioGroup_Options_Shadows.ItemIndex = 1;
-  fGame.GlobalSettings.ScrollSpeed      := TrackBar_Options_ScrollSpeed.Position;
-  fGame.GlobalSettings.SoundFXVolume    := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
-  fGame.GlobalSettings.MusicVolume      := TrackBar_Options_Music.Position / TrackBar_Options_Music.MaxValue;
-  fGame.GlobalSettings.MusicOff         := CheckBox_Options_MusicOff.Checked;
-  fGame.GlobalSettings.ShuffleOn        := CheckBox_Options_ShuffleOn.Checked;
+  fGameApp.GameSettings.Autosave         := CheckBox_Options_Autosave.Checked;
+  fGameApp.GameSettings.Brightness       := TrackBar_Options_Brightness.Position;
+  fGameApp.GameSettings.AlphaShadows     := RadioGroup_Options_Shadows.ItemIndex = 1;
+  fGameApp.GameSettings.ScrollSpeed      := TrackBar_Options_ScrollSpeed.Position;
+  fGameApp.GameSettings.SoundFXVolume    := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
+  fGameApp.GameSettings.MusicVolume      := TrackBar_Options_Music.Position / TrackBar_Options_Music.MaxValue;
+  fGameApp.GameSettings.MusicOff         := CheckBox_Options_MusicOff.Checked;
+  fGameApp.GameSettings.ShuffleOn        := CheckBox_Options_ShuffleOn.Checked;
   TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOff.Checked;
   CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOff.Checked;
 
-  fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume);
-  fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume);
+  fSoundLib.UpdateSoundVolume(fGameApp.GameSettings.SoundFXVolume);
+  fGameApp.MusicLib.UpdateMusicVolume(fGameApp.GameSettings.MusicVolume);
   if MusicToggled then
   begin
-    fGame.MusicLib.ToggleMusic(not fGame.GlobalSettings.MusicOff);
-    if not fGame.GlobalSettings.MusicOff then
+    fGameApp.MusicLib.ToggleMusic(not fGameApp.GameSettings.MusicOff);
+    if not fGameApp.GameSettings.MusicOff then
       ShuffleToggled := True; //Re-shuffle songs if music has been enabled
   end;
   if ShuffleToggled then
-    fGame.MusicLib.ToggleShuffle(fGame.GlobalSettings.ShuffleOn);
+    fGameApp.MusicLib.ToggleShuffle(fGameApp.GameSettings.ShuffleOn);
 
   if Sender = Radio_Options_Lang then
   begin
     ShowScreen(msLoading, fTextLibrary[TX_MENU_NEW_LOCALE]);
-    fGame.Render; //Force to repaint loading screen
-    fGame.ToggleLocale(fLocales[Radio_Options_Lang.ItemIndex].Code);
+    fGameApp.Render; //Force to repaint loading screen
+    fGameApp.ToggleLocale(fLocales[Radio_Options_Lang.ItemIndex].Code);
     exit; //Whole interface will be recreated
   end;
 end;
@@ -3498,7 +3514,7 @@ begin
   inherited;
 
   fMyControls.MouseUp(X,Y,Shift,Button);
-  Exit; //We could have caused fGame reinit, so exit at once
+  Exit; //We could have caused fGameApp reinit, so exit at once
 end;
 
 

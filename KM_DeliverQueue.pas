@@ -114,7 +114,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Utils, KM_PlayersCollection, KM_Resource, KM_Log, KM_Terrain;
+uses KM_Utils, KM_PlayersCollection, KM_Resource, KM_Log, KM_Terrain;
 
 
 const

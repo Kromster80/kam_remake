@@ -1993,7 +1993,10 @@ end;
 
 
 procedure TKMEdit.Paint;
-var Col: TColor4; RText: string; OffX: Integer;
+var
+  Col: TColor4;
+  RText: string;
+  OffX: Integer;
 begin
   inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
@@ -2004,14 +2007,14 @@ begin
   else
     RText := fText;
 
-  RText := Copy(RText, fLeftIndex+1, length(RText)); //Remove characters to the left of fLeftIndex
+  RText := Copy(RText, fLeftIndex+1, Length(RText)); //Remove characters to the left of fLeftIndex
 
   fRenderUI.WriteText(Left+4, Top+3, Width-8, 0, RText, fFont, taLeft, Col, not ShowColors, True); //Characters that do not fit are trimmed
 
   //Render text cursor
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
   begin
-    SetLength(RText, CursorPos-fLeftIndex);
+    SetLength(RText, CursorPos - fLeftIndex);
     OffX := Left + 2 + fResource.ResourceFont.GetTextSize(RText, fFont).X;
     fRenderUI.WriteLayer(OffX, Top+2, 3, Height-4, Col, $FF000000);
   end;

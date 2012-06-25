@@ -311,10 +311,10 @@ type
 
 implementation
 uses
-  KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_RenderPool, KM_RenderAux, KM_Units,
+  KM_CommonTypes, KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_RenderPool, KM_RenderAux, KM_Units,
   KM_EventProcess,
   KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary, KM_Player,
-  KM_Resource, KM_ResourceResource, KM_ResourceHouse, KM_MessageStack, KM_Utils;
+  KM_Resource, KM_ResourceResource, KM_ResourceHouse, KM_Utils;
 
 
 { TKMHouse }
@@ -360,7 +360,7 @@ begin
   begin
     Activate(False);
     fBuildingProgress := fResource.HouseDat[fHouseType].MaxHealth;
-    fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, fGame.GameState <> gsEditor); //Sets passability and flattens terrain if we're not in the map editor
+    fTerrain.SetHouse(fPosition, fHouseType, hsBuilt, fOwner, fGame.GameMode <> gmMapEd); //Sets passability and flattens terrain if we're not in the map editor
   end else
     fTerrain.SetHouse(fPosition, fHouseType, hsFence, fOwner); //Terrain remains neutral yet
 end;
@@ -490,8 +490,8 @@ begin
   if fPlayers.Selected = Self then
     fPlayers.Selected := nil;
 
-  if (fGame.fGamePlayInterface <> nil) and (fGame.fGamePlayInterface.ShownHouse = Self) then
-    fGame.fGamePlayInterface.ShowHouseInfo(nil);
+  if (fGame.GamePlayInterface <> nil) and (fGame.GamePlayInterface.ShownHouse = Self) then
+    fGame.GamePlayInterface.ShowHouseInfo(nil);
 
   if not DoSilent then
     if not NoRubble then
@@ -528,7 +528,7 @@ end;
 //Used by MapEditor
 procedure TKMHouse.SetPosition(aPos: TKMPoint);
 begin
-  Assert(fGame.GameState = gsEditor);
+  Assert(fGame.GameMode = gmMapEd);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   fTerrain.SetHouse(fPosition, fHouseType, hsNone, -1);
   fTerrain.RemRoad(GetEntrance);
@@ -1161,7 +1161,7 @@ begin
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
       if fOwner = MyPlayer.PlayerIndex then
-        fGame.fGamePlayInterface.MessageIssue(mkHouse, fTextLibrary[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
+        fGame.ShowMessage(mkHouse, fTextLibrary[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end
@@ -1198,7 +1198,7 @@ begin
                 end;
   end;
 
-  if SHOW_POINTER_DOTS and fGame.AllowDebugRendering then
+  if SHOW_POINTER_DOTS then
     fRenderAux.UnitPointers(fPosition.X + 0.5, fPosition.Y + 1, fPointerCount);
 end;
 
@@ -1876,7 +1876,7 @@ var
 begin
   Assert(aRes in [WARE_MIN .. WARE_MAX]); //Dunno why thats happening sometimes..
 
-  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
+  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
   begin
     ApplyCheat := True;
 
@@ -1891,14 +1891,14 @@ begin
                     fPlayers[fOwner].Stats.GoodProduced(rt_All, 10);
                     Exit;
                   end;
-      rt_Horse:   if not fGame.MultiplayerMode then
+      rt_Horse:   if not fGame.IsMultiplayer then
                   begin
                     //Game results cheats should not be used in MP even in debug
                     //MP does Win/Defeat differently (without Hold)
                     fGame.RequestGameHold(gr_Win);
                     Exit;
                   end;
-      rt_Fish:    if not fGame.MultiplayerMode then
+      rt_Fish:    if not fGame.IsMultiplayer then
                   begin
                     //Game results cheats should not be used in MP even in debug
                     //MP does Win/Defeat differently (without Hold)
@@ -1912,7 +1912,7 @@ begin
 end;
 
 
-procedure TKMHouseStore.Save(SaveStream:TKMemoryStream);
+procedure TKMHouseStore.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
@@ -1921,34 +1921,33 @@ end;
 
 
 { TKMHouseBarracks }
-constructor TKMHouseBarracks.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
+constructor TKMHouseBarracks.Create(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 begin
   inherited;
   RecruitsList := TList.Create;
 end;
 
 
-constructor TKMHouseBarracks.Load(LoadStream:TKMemoryStream);
-var i,aCount:integer; U:TKMUnit;
+constructor TKMHouseBarracks.Load(LoadStream: TKMemoryStream);
+var I,aCount: Integer; U: TKMUnit;
 begin
   inherited;
   LoadStream.Read(ResourceCount, SizeOf(ResourceCount));
   RecruitsList := TList.Create;
   LoadStream.Read(aCount);
-  if aCount <> 0 then
-    for i := 1 to aCount do
-    begin
-      LoadStream.Read(U, 4); //subst on syncload
-      RecruitsList.Add(U);
-    end;
+  for I := 0 to aCount - 1 do
+  begin
+    LoadStream.Read(U, 4); //subst on syncload
+    RecruitsList.Add(U);
+  end;
 end;
 
 
 procedure TKMHouseBarracks.SyncLoad;
-var i:integer;
+var I: Integer;
 begin
-  for i:=0 to RecruitsList.Count-1 do
-    RecruitsList.Items[i] := fPlayers.GetUnitByID(cardinal(RecruitsList.Items[i]));
+  for I:=0 to RecruitsList.Count - 1 do
+    RecruitsList.Items[I] := fPlayers.GetUnitByID(Cardinal(RecruitsList.Items[I]));
 end;
 
 
@@ -1959,7 +1958,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.DemolishHouse(DoSilent, NoRubble: boolean);
+procedure TKMHouseBarracks.DemolishHouse(DoSilent, NoRubble: Boolean);
 var
   R: TResourceType;
 begin
@@ -1994,32 +1993,33 @@ begin
 end;
 
 
-function TKMHouseBarracks.CanEquip(aUnitType: TUnitType):boolean;
-var i:integer;
+function TKMHouseBarracks.CanEquip(aUnitType: TUnitType): Boolean;
+var I: Integer;
 begin
   Result := RecruitsList.Count > 0; //Can't equip anything without recruits
 
-  for i:=1 to 4 do
-  if TroopCost[aUnitType,i] <> rt_None then //Can't equip if we don't have a required resource
-    Result := Result and (ResourceCount[TroopCost[aUnitType,i]] > 0);
+  for I := 1 to 4 do
+  if TroopCost[aUnitType, I] <> rt_None then //Can't equip if we don't have a required resource
+    Result := Result and (ResourceCount[TroopCost[aUnitType, I]] > 0);
 end;
 
 
 //Equip a new soldier and make him walk out of the house
-procedure TKMHouseBarracks.Equip(aUnitType: TUnitType; aCount:byte);
-var i,k:integer;
-    Soldier:TKMUnitWarrior;
+procedure TKMHouseBarracks.Equip(aUnitType: TUnitType; aCount: Byte);
+var
+  I, K: Integer;
+  Soldier: TKMUnitWarrior;
 begin
   Assert(aUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX]);
 
-  for k := 1 to aCount do
+  for K := 1 to aCount do
   begin
     //Make sure we have enough resources to equip a unit
     if not CanEquip(aUnitType) then Exit;
 
     //Take resources
     for I := 1 to 4 do
-      if TroopCost[aUnitType,i] <> rt_None then
+      if TroopCost[aUnitType,I] <> rt_None then
       begin
         Dec(ResourceCount[TroopCost[aUnitType, I]]);
         fPlayers.Player[fOwner].Stats.GoodConsumed(TroopCost[aUnitType, I], 1);
@@ -2041,14 +2041,14 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.Save(SaveStream:TKMemoryStream);
-var i:integer;
+procedure TKMHouseBarracks.Save(SaveStream: TKMemoryStream);
+var I: Integer;
 begin
   inherited;
   SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
   SaveStream.Write(RecruitsList.Count);
-  for i:=1 to RecruitsList.Count do
-    SaveStream.Write(TKMUnit(RecruitsList.Items[i-1]).ID) //Store ID
+  for I := 0 to RecruitsList.Count - 1 do
+    SaveStream.Write(TKMUnit(RecruitsList.Items[I]).ID) //Store ID
 end;
 
 
@@ -2335,7 +2335,7 @@ var I: Integer;
 begin
   SaveStream.Write('Houses');
   //Multiplayer saves must be identical, thus we force that no house is selected
-  if (fSelectedHouse <> nil) and not fGame.MultiplayerMode then
+  if (fSelectedHouse <> nil) and not fGame.IsMultiplayer then
     SaveStream.Write(fSelectedHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));

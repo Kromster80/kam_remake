@@ -284,7 +284,7 @@ begin
       and (fTextLibrary[Goals[I].MessageToShow] <> '') then
       begin
         if MyPlayer = fPlayers[fPlayerIndex] then
-          fGame.fGamePlayInterface.MessageIssue(mkText, fTextLibrary[Goals[I].MessageToShow], KMPoint(0,0));
+          fGameG.ShowMessage(mkText, fTextLibrary[Goals[I].MessageToShow], KMPoint(0,0));
         Goals.SetMessageHasShown(I);
       end;}
     end
@@ -305,8 +305,8 @@ begin
   //win battle missions by waiting for your troops to simultainiously starve to death.
 
   //Let everyone know in MP mode
-  if (fGame.GameState <> gsReplay)
-  and (fGame.MultiplayerMode or (MyPlayer = fPlayers[fPlayerIndex])) then
+  if not fGame.IsReplay
+  and (fGame.IsMultiplayer or (MyPlayer = fPlayers[fPlayerIndex])) then
     if not SurvivalSatisfied then
       fGame.PlayerDefeat(fPlayerIndex)
     else

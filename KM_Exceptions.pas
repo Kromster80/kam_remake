@@ -1,8 +1,8 @@
 unit KM_Exceptions;
-
 interface
 uses
   SysUtils, MadExcept, madNVAssistant;
+
 
 type
   TKMExceptions = class
@@ -24,6 +24,8 @@ implementation
 uses
   KM_Log, KM_Defaults, KM_TextLibrary, KM_Points, KM_Game, KM_CommonClasses;
 
+
+{ TKMExceptions }
 constructor TKMExceptions.Create;
 begin
   inherited;
@@ -35,21 +37,21 @@ end;
 
 procedure TKMExceptions.LoadTranslation;
 begin
-  MESettings.ExceptMsg := fTextLibrary[TX_ERROR_MESSAGE];
-  MESettings.SendBtnCaption := fTextLibrary[TX_ERROR_SEND];
-  MESettings.ShowBtnCaption := fTextLibrary[TX_ERROR_SHOW_DATA];
-  MESettings.CloseBtnCaption := fTextLibrary[TX_ERROR_TERMINATE];
+  MESettings.ExceptMsg          := fTextLibrary[TX_ERROR_MESSAGE];
+  MESettings.SendBtnCaption     := fTextLibrary[TX_ERROR_SEND];
+  MESettings.ShowBtnCaption     := fTextLibrary[TX_ERROR_SHOW_DATA];
+  MESettings.CloseBtnCaption    := fTextLibrary[TX_ERROR_TERMINATE];
   MESettings.ContinueBtnCaption := fTextLibrary[TX_ERROR_RESUME];
-  MESettings.SendBoxTitle := fTextLibrary[TX_ERROR_SENDING_TITLE];
-  MESettings.SendMailMsg := fTextLibrary[TX_ERROR_SENDING_DATA];
-  MESettings.SendAttachMsg := fTextLibrary[TX_ERROR_SENDING_DATA];
-  MESettings.SendFinalizeMsg := fTextLibrary[TX_ERROR_SENDING_DATA];
-  MESettings.PrepareAttachMsg := fTextLibrary[TX_ERROR_SENDING_CONNECTING];
-  MESettings.ConnectMsg := fTextLibrary[TX_ERROR_SENDING_CONNECTING];
-  MESettings.AuthMsg := fTextLibrary[TX_ERROR_SENDING_CONNECTING];
-  MESettings.SendFailureMsg := fTextLibrary[TX_ERROR_SENDING_FAILED];
-  MESettings.PleaseWaitTitle := fTextLibrary[TX_ERROR_WAIT_TITLEBAR];
-  MESettings.PleaseWaitText := fTextLibrary[TX_ERROR_WAIT_MESSAGE];
+  MESettings.SendBoxTitle       := fTextLibrary[TX_ERROR_SENDING_TITLE];
+  MESettings.SendMailMsg        := fTextLibrary[TX_ERROR_SENDING_DATA];
+  MESettings.SendAttachMsg      := fTextLibrary[TX_ERROR_SENDING_DATA];
+  MESettings.SendFinalizeMsg    := fTextLibrary[TX_ERROR_SENDING_DATA];
+  MESettings.PrepareAttachMsg   := fTextLibrary[TX_ERROR_SENDING_CONNECTING];
+  MESettings.ConnectMsg         := fTextLibrary[TX_ERROR_SENDING_CONNECTING];
+  MESettings.AuthMsg            := fTextLibrary[TX_ERROR_SENDING_CONNECTING];
+  MESettings.SendFailureMsg     := fTextLibrary[TX_ERROR_SENDING_FAILED];
+  MESettings.PleaseWaitTitle    := fTextLibrary[TX_ERROR_WAIT_TITLEBAR];
+  MESettings.PleaseWaitText     := fTextLibrary[TX_ERROR_WAIT_MESSAGE];
 end;
 
 
@@ -88,19 +90,19 @@ procedure TKMExceptions.DoException(const ExceptIntf: IMEException; var Handled:
 var LogMessage, CrashFile: string;
 begin
   if fLog = nil then Exit; //Could crash very early before even the log file is created
-  //It's nice to know when the exception happened in our log if the user decides to play on and sends the report later
-  LogMessage := 'Exception occured: '+ExceptIntf.ExceptClass+': '+ExceptIntf.ExceptMessage;
-  if ExceptIntf.ExceptObject is ELocError then
-    LogMessage := LogMessage + ' at location '+TypeToString(ELocError(ExceptIntf.ExceptObject).Loc);
-  fLog.AppendLog(LogMessage);
 
+  //It's nice to know when the exception happened in our log if the user decides to play on and sends the report later
+  LogMessage := 'Exception occured: ' + ExceptIntf.ExceptClass + ': ' + ExceptIntf.ExceptMessage;
+  if ExceptIntf.ExceptObject is ELocError then
+    LogMessage := LogMessage + ' at location ' + TypeToString(ELocError(ExceptIntf.ExceptObject).Loc);
+  fLog.AppendLog(LogMessage);
 
   //We want to add some of our own files to the report
   CrashFile := 'KaM_Crash_' + GAME_REVISION + '_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss', Now) + '.zip';
   MESettings.BugReportZip := CrashFile; //Exception info also goes in the zip
   MESettings.ScreenShotZip := CrashFile; //Screenshot also goes in the zip
 
-  if fGame <> nil then fGame.AttachCrashReport(ExceptIntf, CrashFile);
+  if fGameG <> nil then fGameG.AttachCrashReport(ExceptIntf, CrashFile);
 
   //Do the log after fGame because fGame adds stuff to the log
   if fLog <> nil then ExceptIntf.AdditionalAttachments.Add(fLog.LogPath, '', CrashFile);

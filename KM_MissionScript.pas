@@ -447,7 +447,7 @@ begin
 end;
 
 
-constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersRemap: TPlayerArray; aStrictParsing:boolean);
+constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersRemap: TPlayerArray; aStrictParsing: Boolean);
 var i:integer;
 begin
   inherited Create(aStrictParsing);

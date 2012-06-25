@@ -2,14 +2,11 @@ unit KM_MessageStack;
 {$I KaM_Remake.inc}
 interface
 uses
-  Math, SysUtils, KM_CommonClasses, KM_Points;
+  Math, SysUtils, KM_CommonClasses, KM_CommonTypes, KM_Points;
 
 
 {Messages}
 type
-  //Message kind determines icon and available actions
-  TKMMessageKind = (mkText, mkHouse, mkUnit, mkQuill);
-
   TKMMessage = class
     fKind: TKMMessageKind;
     fLoc: TKMPoint;

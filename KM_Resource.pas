@@ -360,7 +360,6 @@ begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf24bit;
 
-  SpriteID:=0;
   for I := 0 to fMapElements.ValidCount - 1 do
   begin
     ElemID := fMapElements.ValidToObject[I];

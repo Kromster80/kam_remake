@@ -23,7 +23,7 @@ uses Classes, SysUtils, KM_NetworkTypes
 }
 type
   TKMNetClient = class;
-  TNotifySenderDataEvent = procedure(aNetClient: TKMNetClient; aSenderIndex: Integer; aData: Pointer; aLength: Cardinal)of object;
+  TNotifySenderDataEvent = procedure (aNetClient: TKMNetClient; aSenderIndex: Integer; aData: Pointer; aLength: Cardinal) of object;
 
   TKMNetClient = class
   private
@@ -43,7 +43,7 @@ type
     procedure ConnectSucceed(Sender: TObject);
     procedure ConnectFailed(const S: string);
     procedure ForcedDisconnect(Sender: TObject);
-    procedure RecieveData(aData:pointer; aLength: Cardinal);
+    procedure RecieveData(aData: Pointer; aLength: Cardinal);
   public
     constructor Create;
     destructor Destroy; override;
@@ -58,7 +58,7 @@ type
     procedure Disconnect; //Disconnect from server
     property OnForcedDisconnect: TGetStrProc write fOnForcedDisconnect; //Signal we were forcelly disconnected
 
-    property OnRecieveData:TNotifySenderDataEvent write fOnRecieveData;
+    property OnRecieveData: TNotifySenderDataEvent write fOnRecieveData;
     procedure SendData(aSender, aRecepient: Integer; aData: Pointer; aLength: Cardinal);
     procedure UpdateStateIdle;
 
@@ -74,8 +74,8 @@ begin
   inherited;
   {$IFDEF WDC} fClient := TKMNetClientOverbyte.Create; {$ENDIF}
   {$IFDEF FPC} fClient := TKMNetClientLNet.Create;     {$ENDIF}
-  fConnected := false;
-  SetLength(fBuffer,0);
+  fConnected := False;
+  SetLength(fBuffer, 0);
   fBufferSize := 0;
 end;
 
@@ -95,7 +95,7 @@ end;
 
 procedure TKMNetClient.Error(const S: string);
 begin
-  if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Error '+S);
+  if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Error ' + S);
 end;
 
 
@@ -179,8 +179,10 @@ end;
 
 
 //Split recieved data into single packets
-procedure TKMNetClient.RecieveData(aData:pointer; aLength:cardinal);
-var PacketSender:integer; PacketLength:Cardinal;
+procedure TKMNetClient.RecieveData(aData: Pointer; aLength: Cardinal);
+var
+  PacketSender: Integer;
+  PacketLength: Cardinal;
 begin
   //Append new data to buffer
   SetLength(fBuffer, fBufferSize + aLength);
@@ -196,7 +198,11 @@ begin
     if PacketLength <= fBufferSize-12 then
     begin
       fOnRecieveData(Self, PacketSender, @fBuffer[12], PacketLength); //Skip packet header
-      if not Assigned(fOnRecieveData) then exit; //Network was stopped by processing above packet (e.g. version mismatch)
+
+      //Check if Network was stopped by processing above packet (e.g. version mismatch)
+      if not Assigned(fOnRecieveData) then
+        Exit;
+
       if 12+PacketLength < fBufferSize then //Check range
         Move(fBuffer[12+PacketLength], fBuffer[0], fBufferSize-PacketLength-12);
       fBufferSize := fBufferSize - PacketLength - 12;
