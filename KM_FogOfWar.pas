@@ -128,8 +128,8 @@ begin
     exit;
   end;
 
-  if (X < 1) or (X >= MapX)
-  or (Y < 1) or (Y >= MapY) then
+  if (X <= 0) or (X >= MapX)
+  or (Y <= 0) or (Y >= MapY) then
   begin
     Result := 0;
     Exit;
@@ -156,8 +156,8 @@ begin
     Exit;
   end;
 
-  if (aPoint.X < 0) or (aPoint.X > MapX - 1)
-  or (aPoint.Y < 0) or (aPoint.Y > MapY - 1) then
+  if (aPoint.X <= 0) or (aPoint.X >= MapX - 1)
+  or (aPoint.Y <= 0) or (aPoint.Y >= MapY - 1) then
   begin
     Result := 0;
     Exit;

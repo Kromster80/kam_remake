@@ -1912,7 +1912,7 @@ begin
 end;
 
 
-procedure TKMHouseStore.Save(SaveStream:TKMemoryStream);
+procedure TKMHouseStore.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
@@ -1921,34 +1921,33 @@ end;
 
 
 { TKMHouseBarracks }
-constructor TKMHouseBarracks.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
+constructor TKMHouseBarracks.Create(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 begin
   inherited;
   RecruitsList := TList.Create;
 end;
 
 
-constructor TKMHouseBarracks.Load(LoadStream:TKMemoryStream);
-var i,aCount:integer; U:TKMUnit;
+constructor TKMHouseBarracks.Load(LoadStream: TKMemoryStream);
+var I,aCount: Integer; U: TKMUnit;
 begin
   inherited;
   LoadStream.Read(ResourceCount, SizeOf(ResourceCount));
   RecruitsList := TList.Create;
   LoadStream.Read(aCount);
-  if aCount <> 0 then
-    for i := 1 to aCount do
-    begin
-      LoadStream.Read(U, 4); //subst on syncload
-      RecruitsList.Add(U);
-    end;
+  for I := 0 to aCount - 1 do
+  begin
+    LoadStream.Read(U, 4); //subst on syncload
+    RecruitsList.Add(U);
+  end;
 end;
 
 
 procedure TKMHouseBarracks.SyncLoad;
-var i:integer;
+var I: Integer;
 begin
-  for i:=0 to RecruitsList.Count-1 do
-    RecruitsList.Items[i] := fPlayers.GetUnitByID(cardinal(RecruitsList.Items[i]));
+  for I:=0 to RecruitsList.Count - 1 do
+    RecruitsList.Items[I] := fPlayers.GetUnitByID(Cardinal(RecruitsList.Items[I]));
 end;
 
 
@@ -1959,7 +1958,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.DemolishHouse(DoSilent, NoRubble: boolean);
+procedure TKMHouseBarracks.DemolishHouse(DoSilent, NoRubble: Boolean);
 var
   R: TResourceType;
 begin
@@ -1994,32 +1993,33 @@ begin
 end;
 
 
-function TKMHouseBarracks.CanEquip(aUnitType: TUnitType):boolean;
-var i:integer;
+function TKMHouseBarracks.CanEquip(aUnitType: TUnitType): Boolean;
+var I: Integer;
 begin
   Result := RecruitsList.Count > 0; //Can't equip anything without recruits
 
-  for i:=1 to 4 do
-  if TroopCost[aUnitType,i] <> rt_None then //Can't equip if we don't have a required resource
-    Result := Result and (ResourceCount[TroopCost[aUnitType,i]] > 0);
+  for I := 1 to 4 do
+  if TroopCost[aUnitType, I] <> rt_None then //Can't equip if we don't have a required resource
+    Result := Result and (ResourceCount[TroopCost[aUnitType, I]] > 0);
 end;
 
 
 //Equip a new soldier and make him walk out of the house
 procedure TKMHouseBarracks.Equip(aUnitType: TUnitType; aCount: Byte);
-var i,k:integer;
-    Soldier:TKMUnitWarrior;
+var
+  I, K: Integer;
+  Soldier: TKMUnitWarrior;
 begin
   Assert(aUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX]);
 
-  for k := 1 to aCount do
+  for K := 1 to aCount do
   begin
     //Make sure we have enough resources to equip a unit
     if not CanEquip(aUnitType) then Exit;
 
     //Take resources
     for I := 1 to 4 do
-      if TroopCost[aUnitType,i] <> rt_None then
+      if TroopCost[aUnitType,I] <> rt_None then
       begin
         Dec(ResourceCount[TroopCost[aUnitType, I]]);
         fPlayers.Player[fOwner].Stats.GoodConsumed(TroopCost[aUnitType, I], 1);
@@ -2041,14 +2041,14 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.Save(SaveStream:TKMemoryStream);
-var i:integer;
+procedure TKMHouseBarracks.Save(SaveStream: TKMemoryStream);
+var I: Integer;
 begin
   inherited;
   SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
   SaveStream.Write(RecruitsList.Count);
-  for i:=1 to RecruitsList.Count do
-    SaveStream.Write(TKMUnit(RecruitsList.Items[i-1]).ID) //Store ID
+  for I := 0 to RecruitsList.Count - 1 do
+    SaveStream.Write(TKMUnit(RecruitsList.Items[I]).ID) //Store ID
 end;
 
 

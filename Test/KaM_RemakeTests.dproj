@@ -95,6 +95,8 @@
 			<DCCReference Include="TestKM_Game.pas"/>
 			<DCCReference Include="TestKM_Points.pas"/>
 			<DCCReference Include="TestKM_Terrain.pas"/>
+			<DCCReference Include="TestKM_FogOfWar.pas"/>
+			<DCCReference Include="..\KM_FogOfWar.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

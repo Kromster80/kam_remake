@@ -218,7 +218,7 @@ begin
 
   InitUnitStatEvals; //Army
 
-  fPerfLog := TKMPerfLog.Create;
+  if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
   fLog.AppendLog('<== Game creation is done ==>');
   fPathfinding := TPathfinding.Create;
   fProjectiles := TKMProjectiles.Create;
@@ -238,7 +238,7 @@ begin
   //if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
   //  fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fGameMode = gmMulti));
 
-  fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
+  if DO_PERF_LOGGING then fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
 
   FreeAndNil(fTimerGame);
 
@@ -248,7 +248,7 @@ begin
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fRenderPool);
   FreeAndNil(fGameOptions);
-  fPerfLog.Free;
+  if DO_PERF_LOGGING then fPerfLog.Free;
   inherited;
 end;
 
@@ -1144,7 +1144,7 @@ begin
                       if (fGameTickCount mod 600 = 0) and fGameApp.GameSettings.Autosave then
                         AutoSave;
 
-                      fPerfLog.AddTime(TimeGet - T);
+                      if DO_PERF_LOGGING then fPerfLog.AddTime(TimeGet - T);
 
                       //Break the for loop (if we are using speed up)
                       if DoGameHold then break;

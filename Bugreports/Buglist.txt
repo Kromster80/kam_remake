@@ -30,7 +30,7 @@
 	It would be nice if campaign progress was not lost between updates (that should be easier to keep compatible than saves)
 	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
 	RCE in TKMFogOfWar.CheckVerticeRevelation called from TKMProjectiles.UpdateState. Lots of bug reports uploaded with this error (e.g. 23/05/12)
-	TSK 19 crashes due to an AI attack target being off map
+	TSK 19 crashes due to an AI attack (at 06:38) target being off map
 	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 	Farmer should not sow corn on tiles left after demolished houses that were built ontop fields 
 
