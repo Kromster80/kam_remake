@@ -39,4 +39,8 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	It doesn't make sense for sausages to be cheaper than bread in the market when sauasges are better food
 	Blocking duplicate app is annoying if you want to run map editor twice or something. We should only block it when it could be cheating (MP game/replay)
 	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
+	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (saves entire game state which can be loaded) Using compression can keep the save file tiny.
+	Way to place roads/fields/destroyed buildings belonging to no player (for maps like Battle In The Ruined City where currently the roads don't always show depending on which locations are played)
+	Value of resources at the market increases as you buy them and decreases as you sell them to prevent exploiting? (Age of Empries style)
+		Lewin: With peacetime of at least 1 hour I haven't heard of market exploits being more profitable than normal play
 
