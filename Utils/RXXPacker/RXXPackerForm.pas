@@ -304,21 +304,30 @@ var
   SpritePack: TKMSpritePackEdit;
   RT: TRXType;
   I: Integer;
+  RXName: string;
   HouseDat: TKMHouseDatCollection;
 begin
   btnPackRXX.Enabled := False;
+
+  Assert(DirectoryExists(ExeDir + 'SpriteResource\'),
+         'Cannot find ' + ExeDir + 'SpriteResource\ folder.'+#10#13+
+         'Please make sure this folder exists.');
 
   for I := 0 to ListBox1.Items.Count - 1 do
   if ListBox1.Selected[I] then
   begin
     RT := TRXType(I);
+    RXName := ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx';
+    Assert((RT = rxTiles) or FileExists(RXName),
+           'Cannot find ' + RXName + ' file.'+#10#13+
+           'Please copy the file from your KaM\data\gfx\res\ folder.');
 
     SpritePack := TKMSpritePackEdit.Create(RT, fPalettes);
     try
       //Load
-      if FileExists(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx') then
+      if RT <> rxTiles then
       begin
-        SpritePack.LoadFromRXFile(ExeDir + 'SpriteResource\' + RXInfo[RT].FileName + '.rx');
+        SpritePack.LoadFromRXFile(RXName);
         SpritePack.OverloadFromFolder(ExeDir + 'SpriteResource\');
       end
       else
