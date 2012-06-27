@@ -38,7 +38,6 @@ type
     fLastReplayCRC: Cardinal; //CRC of selected replay
     fJumpToSelectedReplay: Boolean;
 
-    MapEdSizeX, MapEdSizeY: Integer; //Map Editor map size
     //We remember old values to enable "Apply" button dynamicaly
     OldResolutionID: TResIndex;
 
@@ -133,7 +132,6 @@ type
     procedure Replays_Sort(aIndex: Integer);
     procedure Replays_Play(Sender: TObject);
     procedure MapEditor_Start(Sender: TObject);
-    procedure MapEditor_SizeChange(Sender: TObject);
     procedure MapEditor_MapTypeChange(Sender: TObject);
     procedure MapEditor_ListUpdate;
     procedure MapEditor_ListUpdateDone(Sender: TObject);
@@ -1237,15 +1235,12 @@ begin
 
       Radio_MapEd_SizeX := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 8, 52, 88, 260, fnt_Metal);
       Radio_MapEd_SizeY := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 108, 52, 88, 260, fnt_Metal);
+      for I := 1 to MAPSIZES_COUNT do begin
+        Radio_MapEd_SizeX.Items.Add(IntToStr(MapSize[I]));
+        Radio_MapEd_SizeY.Items.Add(IntToStr(MapSize[I]));
+      end;
       Radio_MapEd_SizeX.ItemIndex := 2; //64
       Radio_MapEd_SizeY.ItemIndex := 2; //64
-      Radio_MapEd_SizeX.OnChange := MapEditor_SizeChange;
-      Radio_MapEd_SizeY.OnChange := MapEditor_SizeChange;
-
-      for I := 1 to MAPSIZES_COUNT do begin
-        Radio_MapEd_SizeX.Items.Add(inttostr(MapSize[I]));
-        Radio_MapEd_SizeY.Items.Add(inttostr(MapSize[I]));
-      end;
 
       Button_MapEd_Create := TKMButton.Create(Panel_MapEd_SizeXY, 0, 335, 200, 30, fTextLibrary[TX_MENU_MAP_CREATE_NEW_MAP], fnt_Metal, bsMenu);
       Button_MapEd_Create.OnClick := MapEditor_Start;
@@ -1759,7 +1754,6 @@ end;
   {Show MapEditor menu}
   if Sender=Button_MM_MapEd then begin
     MapEditor_ListUpdate;
-    MapEditor_SizeChange(nil);
     Panel_MapEd.Show;
   end;
 
@@ -3220,10 +3214,16 @@ end;
 
 
 procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
-var MapName: string;
+var
+  MapName: string;
+  MapEdSizeX, MapEdSizeY: Integer;
 begin
   if Sender = Button_MapEd_Create then
+  begin
+    MapEdSizeX := MapSize[Radio_MapEd_SizeX.ItemIndex+1];
+    MapEdSizeY := MapSize[Radio_MapEd_SizeY.ItemIndex+1];
     fGameApp.NewMapEditor('', MapEdSizeX, MapEdSizeY);
+  end;
 
   //This is also called by double clicking on a map in the list
   if ((Sender = Button_MapEd_Load) or (Sender = List_MapEd)) and
@@ -3232,14 +3232,6 @@ begin
     MapName := MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1);
     fGameApp.NewMapEditor(MapName, 0, 0);
   end;
-end;
-
-
-procedure TKMMainMenuInterface.MapEditor_SizeChange(Sender: TObject);
-begin
-  //Find out new map dimensions
-  MapEdSizeX := MapSize[Radio_MapEd_SizeX.ItemIndex+1];
-  MapEdSizeY := MapSize[Radio_MapEd_SizeY.ItemIndex+1];
 end;
 
 

@@ -14,23 +14,23 @@ type
 
   TCommandsPack = class
   private
-    fCount:integer;
-    fItems:array of TGameInputCommand; //1..n
-    function GetItem(aIndex:integer):TGameInputCommand;
+    fCount: Integer;
+    fItems: array of TGameInputCommand; //1..n
+    function GetItem(aIndex: Integer): TGameInputCommand;
   public
-    property  Count:integer read fCount;
+    property  Count: Integer read fCount;
     procedure Clear;
-    procedure Add(aCommand:TGameInputCommand);
-    function CRC:cardinal;
-    property Items[aIndex:integer]:TGameInputCommand read GetItem;
-    procedure Save(aStream:TKMemoryStream);
-    procedure Load(aStream:TKMemoryStream);
+    procedure Add(aCommand: TGameInputCommand);
+    function CRC: Cardinal;
+    property Items[aIndex: Integer]: TGameInputCommand read GetItem;
+    procedure Save(aStream: TKMemoryStream);
+    procedure Load(aStream: TKMemoryStream);
   end;
 
   TRandomCheck = record
-    OurCheck: cardinal;
-    PlayerCheck:array[TPlayerIndex] of cardinal;
-    PlayerCheckPending:array[TPlayerIndex] of boolean;
+    OurCheck: Cardinal;
+    PlayerCheck: array [TPlayerIndex] of Cardinal;
+    PlayerCheckPending: array [TPlayerIndex] of Boolean;
   end;
 
   TGameInputProcess_Multi = class (TGameInputProcess)
@@ -93,8 +93,8 @@ end;
 procedure TCommandsPack.Add(aCommand:TGameInputCommand);
 begin
   inc(fCount);
-  if fCount >= length(fItems) then
-    SetLength(fItems, fCount+8);
+  if fCount >= Length(fItems) then
+    SetLength(fItems, fCount + 8);
 
   fItems[fCount] := aCommand;
 end;
@@ -107,21 +107,21 @@ end;
 
 
 //Return CRC of the pack
-function TCommandsPack.CRC:cardinal;
-var i:integer;
+function TCommandsPack.CRC: Cardinal;
+var I: Integer;
 begin
   Result := 0;
-  for i:=1 to fCount do
-    Result := Result xor Adler32CRC(@fItems[i], SizeOf(fItems[i]))
+  for I := 1 to fCount do
+    Result := Result xor Adler32CRC(@fItems[I], SizeOf(fItems[I]))
 end;
 
 
-procedure TCommandsPack.Save(aStream:TKMemoryStream);
-var i:integer;
+procedure TCommandsPack.Save(aStream: TKMemoryStream);
+var I: Integer;
 begin
   aStream.Write(fCount);
-  for i:=1 to fCount do
-    SaveCommandToMemoryStream(fItems[i], aStream);
+  for I := 1 to fCount do
+    SaveCommandToMemoryStream(fItems[I], aStream);
 end;
 
 
@@ -271,8 +271,13 @@ end;
 
 
 //Decode recieved messages (Commands from other players, Confirmations, Errors)
-procedure TGameInputProcess_Multi.RecieveCommands(const aData:string);
-var M:TKMemoryStream; D:TKMDataType; Tick:Cardinal; PlayerIndex:TPlayerIndex; CRC:cardinal;
+procedure TGameInputProcess_Multi.RecieveCommands(const aData: string);
+var
+  M: TKMemoryStream;
+  D: TKMDataType;
+  Tick: cardinal;
+  PlayerIndex: TPlayerIndex;
+  CRC: cardinal;
 begin
   M := TKMemoryStream.Create;
   try
@@ -308,28 +313,31 @@ end;
 
 
 //We must resend the commands from aTick to the last sent tick to the specified player
-procedure TGameInputProcess_Multi.ResyncFromTick(aSender:Integer; aTick:cardinal);
-var i:cardinal;
+procedure TGameInputProcess_Multi.ResyncFromTick(aSender: Integer; aTick: Cardinal);
+var
+  I: Cardinal;
 begin
-  for i:=aTick to fLastSentTick do SendCommands(i, aSender);
+  for I := aTick to fLastSentTick do
+    SendCommands(I, aSender);
 end;
 
 
 //Are all the commands are confirmed?
-function TGameInputProcess_Multi.CommandsConfirmed(aTick:cardinal):boolean;
-var i:integer;
+function TGameInputProcess_Multi.CommandsConfirmed(aTick: Cardinal): Boolean;
+var
+  I: Integer;
 begin
-  Result := True;
-  for i:=1 to fNetworking.NetPlayers.Count do
-    Result := Result and (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] or
-                         (not fNetworking.NetPlayers[i].IsHuman) or fNetworking.NetPlayers[i].Dropped);
+  Result := true;
+  for I := 1 to fNetworking.NetPlayers.Count do
+    Result := Result and (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[I].PlayerIndex.PlayerIndex]
+              or not fNetworking.NetPlayers[I].IsHuman or fNetworking.NetPlayers[I].Dropped);
 end;
 
 
-procedure TGameInputProcess_Multi.GetWaitingPlayers(aTick:cardinal; aPlayersList:TStringList);
-var i: integer;
+procedure TGameInputProcess_Multi.GetWaitingPlayers(aTick: Cardinal; aPlayersList: TStringList);
+var I: Integer;
 begin
-  for i:=1 to fNetworking.NetPlayers.Count do
+  for I := 1 to fNetworking.NetPlayers.Count do
     if not (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] or
            (not fNetworking.NetPlayers[i].IsHuman) or fNetworking.NetPlayers[i].Dropped) then
       aPlayersList.Add(fNetworking.NetPlayers[i].Nikname);
@@ -338,60 +346,62 @@ end;
 
 //Timer is called after all commands from player are taken,
 //upcoming commands will be stacked into next batch
-procedure TGameInputProcess_Multi.RunningTimer(aTick:cardinal);
-var i,k,Tick:Cardinal; NetplayersIndex:integer;
+procedure TGameInputProcess_Multi.RunningTimer(aTick: Cardinal);
+var
+  I, K, Tick: cardinal;
+  NetplayersIndex: integer;
 begin
   fNumberConsecutiveWaits := 0; //We are not waiting if the game is running
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
-  fRandomCheck[Tick].OurCheck := cardinal(KaMRandom(maxint)); //thats our CRC (must go before commands for replay compatibility)
+  fRandomCheck[Tick].OurCheck := Cardinal(KaMRandom(maxint)); //thats our CRC (must go before commands for replay compatibility)
 
   //Execute commands, in order players go (1,2,3..)
-  for i:=0 to fPlayers.Count-1 do
-    for k:=1 to fSchedule[Tick, i].Count do
+  for I := 0 to fPlayers.Count - 1 do
+    for K := 1 to fSchedule[Tick, I].Count do
     begin
-      NetplayersIndex := fNetworking.NetPlayers.PlayerIndexToLocal(i);
+      NetplayersIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I);
       // In the case where a player was removed from a save, NetplayersIndex = -1
       if (NetplayersIndex <> -1) and not fNetworking.NetPlayers[NetplayersIndex].Dropped then
       begin
-        StoreCommand(fSchedule[Tick, i].Items[k]); //Store the command first so if Exec fails we still have it in the replay
-        ExecCommand(fSchedule[Tick, i].Items[k]);
+        StoreCommand(fSchedule[Tick, I].Items[K]); //Store the command first so if Exec fails we still have it in the replay
+        ExecCommand(fSchedule[Tick, I].Items[K]);
       end;
     end;
 
   //If we miss a few random checks during reconnections no one cares, inconsistencies will be detected as soon as it is over
   if fNetworking.Connected then SendRandomCheck(aTick);
   //It is possible that we have already recieved other player's random checks, if so check them now
-  for i:=0 to fPlayers.Count-1 do
+  for I := 0 to fPlayers.Count-1 do
   begin
-    NetplayersIndex := fNetworking.NetPlayers.PlayerIndexToLocal(i);
+    NetplayersIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I);
     // In the case where a player was removed from a save, NetplayersIndex = -1
     if (NetplayersIndex <> -1) and not fNetworking.NetPlayers[NetplayersIndex].Dropped
-    and fRandomCheck[Tick].PlayerCheckPending[i] then
-        DoRandomCheck(aTick, i);
+    and fRandomCheck[Tick].PlayerCheckPending[I] then
+        DoRandomCheck(aTick, I);
   end;
 
   FillChar(fRecievedData[Tick], SizeOf(fRecievedData[Tick]), #0); //Reset
-  fSent[Tick] := false;
+  fSent[Tick] := False;
 
   if aTick mod DELAY_ADJUST = 0 then AdjustDelay; //Adjust fDelay every X ticks
 end;
 
 
-procedure TGameInputProcess_Multi.UpdateState(aTick:cardinal);
-var i:integer;
+procedure TGameInputProcess_Multi.UpdateState(aTick: Cardinal);
+var I: Integer;
 begin
-  for i:=aTick+1 to aTick+fDelay do
+  for I := aTick + 1 to aTick + fDelay do
   //If the network is not connected then we must send the commands later (fSent will remain false)
-  if (not fSent[i mod MAX_SCHEDULE]) and (fNetworking.Connected) then
+  if (not fSent[I mod MAX_SCHEDULE]) and (fNetworking.Connected) then
   begin
-    if not fCommandIssued[i mod MAX_SCHEDULE] then
-      fSchedule[i mod MAX_SCHEDULE, MyPlayer.PlayerIndex].Clear; //No one has used it since last time through the ring buffer
-    fCommandIssued[i mod MAX_SCHEDULE] := false; //Make it as requiring clearing next time around
+    if not fCommandIssued[I mod MAX_SCHEDULE] then
+      fSchedule[I mod MAX_SCHEDULE, MyPlayer.PlayerIndex].Clear; //No one has used it since last time through the ring buffer
+    fCommandIssued[I mod MAX_SCHEDULE] := False; //Make it as requiring clearing next time around
 
-    fLastSentTick := i;
-    SendCommands(i);
-    fSent[i mod MAX_SCHEDULE] := true;
-    fRecievedData[i mod MAX_SCHEDULE, MyPlayer.PlayerIndex] := true; //Recieved commands from self
+    fLastSentTick := I;
+    SendCommands(I);
+    fSent[I mod MAX_SCHEDULE] := true;
+    fRecievedData[I mod MAX_SCHEDULE, MyPlayer.PlayerIndex] := True; //Recieved commands from self
   end;
 end;
 
