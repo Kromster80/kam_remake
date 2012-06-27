@@ -139,7 +139,7 @@ begin
 end;
 
 
-function TKMSaveInfo.LoadMinimap(aMapView:TKMMapView):Boolean;
+function TKMSaveInfo.LoadMinimap(aMapView: TKMMapView): Boolean;
 var
   LoadStream: TKMemoryStream;
   DummyInfo: TKMGameInfo;
@@ -431,16 +431,18 @@ end;
 
 procedure TTSavesScanner.Execute;
 var
-  PathToSaves: String;
+  PathToSaves: string;
   SearchRec: TSearchRec;
   Save: TKMSaveInfo;
 begin
-  if fMultiplayerPath then PathToSaves := ExeDir + 'SavesMP\'
-                   else PathToSaves := ExeDir + 'Saves\';
+  if fMultiplayerPath then
+    PathToSaves := ExeDir + 'SavesMP\'
+  else
+    PathToSaves := ExeDir + 'Saves\';
 
   if not DirectoryExists(PathToSaves) then Exit;
 
-  FindFirst(PathToSaves + '*.sav', faAnyFile, SearchRec);
+  if FindFirst(PathToSaves + '*.sav', faAnyFile, SearchRec) = 0 then
   repeat
     if (SearchRec.Attr and faDirectory <> faDirectory) //Only files
     and (SearchRec.Name <> '.') and (SearchRec.Name <> '..')

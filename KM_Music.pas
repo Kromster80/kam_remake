@@ -164,17 +164,17 @@ begin
 end;
 
 
-procedure TMusicLib.ScanMusicTracks(Path:string);
+procedure TMusicLib.ScanMusicTracks(Path: string);
 var SearchRec:TSearchRec;
 begin
   if not IsMusicInitialized then exit;
   MusicCount:=0;
   if not DirectoryExists(Path) then exit;
 
-  ChDir(Path);
-  FindFirst('*', faDirectory, SearchRec);
+  FindFirst(Path + '*', faDirectory, SearchRec);
   repeat
-    if (SearchRec.Attr and faDirectory <> faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
+    if (SearchRec.Attr and faDirectory <> faDirectory)
+    and (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
     if (GetFileExt(SearchRec.Name) = 'MP3') or //Allow all formats supported by both libraries
        (GetFileExt(SearchRec.Name) = 'MP2') or
        (GetFileExt(SearchRec.Name) = 'MP1') or
@@ -190,16 +190,16 @@ begin
        or (GetFileExt(SearchRec.Name) = 'AAC')
        or (GetFileExt(SearchRec.Name) = 'OGA')
        {$ENDIF} then begin
-      inc(MusicCount);
+      Inc(MusicCount);
       MusicTracks[MusicCount] := Path + SearchRec.Name;
     end;
     {if GetFileExt(SearchRec.Name)='MID' then begin
       inc(MIDICount);
       MIDITracks[MIDICount] := Path + SearchRec.Name;
     end;}
-  until (FindNext(SearchRec)<>0);
+  until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
-  MusicIndex:=0;
+  MusicIndex := 0;
 end;
 
 

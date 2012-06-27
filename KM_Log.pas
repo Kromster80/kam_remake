@@ -88,7 +88,7 @@ var SearchRec: TSearchRec;
 begin
   if not DirectoryExists(fPathToLogs) then Exit;
 
-  FindFirst(fPathToLogs + 'KaM*.log', faAnyFile, SearchRec);
+  if FindFirst(fPathToLogs + 'KaM*.log', faAnyFile, SearchRec) = 0 then
   repeat
     if (SearchRec.Attr and faDirectory <> faDirectory) //Only files
     and(Abs(Now - FileDateToDateTime(FileAge(fPathToLogs + SearchRec.Name))) > DEL_LOGS_OLDER_THAN)

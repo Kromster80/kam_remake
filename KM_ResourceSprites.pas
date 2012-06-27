@@ -332,7 +332,7 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
     FileList := TStringList.Create;
     try
       //PNGs
-      FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????.png', faAnyFile - faDirectory, SearchRec);
+      if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????.png', faAnyFile - faDirectory, SearchRec) = 0 then
       repeat
         FileList.Add(SearchRec.Name);
       until (FindNext(SearchRec) <> 0);
@@ -347,7 +347,7 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
           AddImage(aProcFolder, FileList.Strings[I], ID);
 
       //Delete following sprites
-      FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????', faAnyFile - faDirectory, SearchRec);
+      if FindFirst(aProcFolder + IntToStr(Byte(fRT) + 1) + '_????', faAnyFile - faDirectory, SearchRec) = 0 then
       repeat
         if TryStrToInt(Copy(SearchRec.Name, 3, 4), ID) then
           fRXData.Flag[ID] := 0;

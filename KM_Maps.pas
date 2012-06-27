@@ -512,24 +512,23 @@ begin
   else
     PathToMaps := ExeDir + 'Maps\';
 
-  if DirectoryExists(PathToMaps) then
-  begin
-    FindFirst(PathToMaps + '*', faDirectory, SearchRec);
-    repeat
-      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-      and FileExists(MapNameToPath(SearchRec.Name, 'dat', fMultiplayerPath))
-      and FileExists(MapNameToPath(SearchRec.Name, 'map', fMultiplayerPath)) then
-      begin
-        Map := TKMapInfo.Create;
-        Map.Load(SearchRec.Name, false, fMultiplayerPath);
-        if SLOW_MAP_SCAN then
-          Sleep(50);
-        fOnMapAdd(Map);
-        Synchronize(MapAddDone); //Updates UI controls in main thread (to avoid clashes with e.g. Painting)
-      end;
-    until (FindNext(SearchRec) <> 0) or Terminated;
-    FindClose(SearchRec);
-  end;
+  if not DirectoryExists(PathToMaps) then Exit;
+
+  FindFirst(PathToMaps + '*', faDirectory, SearchRec);
+  repeat
+    if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+    and FileExists(MapNameToPath(SearchRec.Name, 'dat', fMultiplayerPath))
+    and FileExists(MapNameToPath(SearchRec.Name, 'map', fMultiplayerPath)) then
+    begin
+      Map := TKMapInfo.Create;
+      Map.Load(SearchRec.Name, false, fMultiplayerPath);
+      if SLOW_MAP_SCAN then
+        Sleep(50);
+      fOnMapAdd(Map);
+      Synchronize(MapAddDone); //Updates UI controls in main thread (to avoid clashes with e.g. Painting)
+    end;
+  until (FindNext(SearchRec) <> 0) or Terminated;
+  FindClose(SearchRec);
 end;
 
 
