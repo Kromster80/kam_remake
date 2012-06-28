@@ -49,9 +49,9 @@ type
     constructor Create;
 
     //Input reported by Player
-    procedure GoodInitial(aRes: TResourceType; aCount: Integer);
-    procedure GoodProduced(aRes: TResourceType; aCount: Integer);
-    procedure GoodConsumed(aRes: TResourceType; aCount: Integer);
+    procedure GoodInitial(aRes: TResourceType; aCount: Cardinal);
+    procedure GoodProduced(aRes: TResourceType; aCount: Cardinal);
+    procedure GoodConsumed(aRes: TResourceType; aCount: Cardinal = 1);
     procedure HousePlanned(aType: THouseType);
     procedure HousePlanRemoved(aType: THouseType);
     procedure HouseStarted(aType: THouseType);
@@ -221,7 +221,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.GoodInitial(aRes: TResourceType; aCount: Integer);
+procedure TKMPlayerStats.GoodInitial(aRes: TResourceType; aCount: Cardinal);
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> rt_None then
@@ -229,7 +229,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.GoodProduced(aRes: TResourceType; aCount: Integer);
+procedure TKMPlayerStats.GoodProduced(aRes: TResourceType; aCount: Cardinal);
 var R: TResourceType;
 begin
   if aRes <> rt_None then
@@ -243,7 +243,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.GoodConsumed(aRes: TResourceType; aCount:integer);
+procedure TKMPlayerStats.GoodConsumed(aRes: TResourceType; aCount: Cardinal = 1);
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> rt_None then

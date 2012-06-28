@@ -101,7 +101,7 @@ begin
   if fDeliverID<>0 then fPlayers.Player[fUnit.GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
   if TKMUnitSerf(fUnit).Carry <> rt_None then
   begin
-    fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(TKMUnitSerf(fUnit).Carry, 1);
+    fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(TKMUnitSerf(fUnit).Carry);
     TKMUnitSerf(fUnit).CarryTake; //empty hands
   end;
 
@@ -210,7 +210,7 @@ begin
     5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
     6:  begin
           fToHouse.ResAddToBuild(Carry);
-          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry, 1);
+          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry);
           CarryTake;
           fPlayers.Player[GetOwner].Deliveries.Queue.GaveDemand(fDeliverID);
           fPlayers.Player[GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
@@ -246,7 +246,7 @@ begin
             fToUnit.SetFullCondition; //Feed the warrior
             TKMUnitWarrior(fToUnit).RequestedFood := false;
           end;
-          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry, 1);
+          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry);
           CarryTake;
           fPlayers.Player[GetOwner].Deliveries.Queue.GaveDemand(fDeliverID);
           fPlayers.Player[GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);

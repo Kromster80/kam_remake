@@ -4,21 +4,21 @@ interface
 uses Classes, KM_CommonClasses, KM_Defaults, KM_Units, KM_Houses, SysUtils, KM_Points;
 
 
-{Throw a rock}
 type
+  //Go to eat
   TTaskGoEat = class(TUnitTask)
     private
-      fInn:TKMHouseInn;
-      PlaceID:byte; //Units place in Inn
-      fFoodsEaten:byte;
+      fInn: TKMHouseInn;
+      PlaceID: Byte; //Units place in Inn
+      fFoodsEaten: Byte;
     public
-      constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
-      constructor Load(LoadStream:TKMemoryStream); override;
+      constructor Create(aInn: TKMHouseInn; aUnit: TKMUnit);
+      constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
-      function Eating:boolean;
-      function Execute:TTaskResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
+      function Eating: Boolean;
+      function Execute: TTaskResult; override;
+      procedure Save(SaveStream: TKMemoryStream); override;
     end;
 
 
@@ -27,7 +27,7 @@ uses KM_PlayersCollection;
 
 
 { TTaskGoEat }
-constructor TTaskGoEat.Create(aInn:TKMHouseInn; aUnit:TKMUnit);
+constructor TTaskGoEat.Create(aInn: TKMHouseInn; aUnit: TKMUnit);
 begin
   inherited Create(aUnit);
   fTaskName := utn_GoEat;
@@ -37,7 +37,7 @@ begin
 end;
 
 
-constructor TTaskGoEat.Load(LoadStream:TKMemoryStream);
+constructor TTaskGoEat.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fInn, 4);
@@ -49,106 +49,125 @@ end;
 procedure TTaskGoEat.SyncLoad;
 begin
   inherited;
-  fInn := TKMHouseInn(fPlayers.GetHouseByID(cardinal(fInn)));
+  fInn := TKMHouseInn(fPlayers.GetHouseByID(Cardinal(fInn)));
 end;
 
 
-//May happen when we die while desperatley trying to get some food
 destructor TTaskGoEat.Destroy;
 begin
-  if PlaceID <> 0 then
+  //May happen when we die while desperatley trying to get some food
+  if Eating then
     fInn.EatersGoesOut(PlaceID);
+
   fPlayers.CleanUpHousePointer(TKMHouse(fInn));
   inherited;
 end;
 
 
-function TTaskGoEat.Eating:boolean;
+function TTaskGoEat.Eating: Boolean;
 begin
   Result := PlaceID <> 0;
 end;
 
 
-function TTaskGoEat.Execute:TTaskResult;
+function TTaskGoEat.Execute: TTaskResult;
 begin
   Result := TaskContinues;
 
   if fInn.IsDestroyed then
   begin
     Result := TaskDone;
-    exit;
+    Exit;
   end;
 
   with fUnit do
   case fPhase of
    0: begin
         Thought := th_Eat;
-        if (GetHome<>nil) and not GetHome.IsDestroyed then GetHome.SetState(hst_Empty);
-        if (not Visible) and (GetInHouse <> nil) and not GetInHouse.IsDestroyed then
-          SetActionGoIn(ua_Walk,gd_GoOutside,GetInHouse) //Walk outside the house
-        else SetActionLockedStay(0,ua_Walk); //Skip this step
+        if (GetHome <> nil) and not GetHome.IsDestroyed then GetHome.SetState(hst_Empty);
+        if not Visible and (GetInHouse <> nil) and not GetInHouse.IsDestroyed then
+          SetActionGoIn(ua_Walk, gd_GoOutside, GetInHouse) //Walk outside the house
+        else
+          SetActionLockedStay(0, ua_Walk); //Skip this step
       end;
    1: SetActionWalkToSpot(KMPointBelow(fInn.GetEntrance));
    2: begin
-        SetActionGoIn(ua_Walk,gd_GoInside,fInn); //Enter Inn
+        SetActionGoIn(ua_Walk, gd_GoInside, fInn); //Enter Inn
         PlaceID := fInn.EaterGetsInside(UnitType);
+        //If there's no free place in the Inn skip to the step where we go out hungry
+        if PlaceID = 0 then begin
+          fPhase := 7;
+          Exit;
+        end;
       end;
-   3: //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
+   3: //Typically when unit comes to Inn he is at 13%
+      //Order is Bread-Sausages-Wine-Fish
+      //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
       //Bread    = +40%
       //Sausages = +60%
       //Wine     = +20%
       //Fish     = +50%
-      if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
+      //We allow unit to eat 2 foods at most and only until he is at full condition
+      //@Lewin: Why do we allow only 2 foods at max? Bread+Wine are going to fed him to 70% at most
+      //My proposed change is to use (Condition < UNIT_MAX_CONDITION * 0.9)
+      //and remove fFoodsEaten at all
+      if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Bread)>0)and(fFoodsEaten<2) then
+      begin
         fInn.ResTakeFromIn(rt_Bread);
-        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Bread, 1);
-        inc(fFoodsEaten);
-        SetActionLockedStay(29*4,ua_Eat,false);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Bread);
+        Inc(fFoodsEaten);
+        SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * 0.4);
-        fInn.UpdateEater(PlaceID, rt_Bread); //Order is Wine-Bread-Sausages-Fish
+        fInn.UpdateEater(PlaceID, rt_Bread);
       end else
         SetActionLockedStay(0,ua_Walk);
-   4: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
+   4: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(fFoodsEaten<2) then begin
         fInn.ResTakeFromIn(rt_Sausages);
-        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Sausages, 1);
-        inc(fFoodsEaten);
-        SetActionLockedStay(29*4,ua_Eat,false);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Sausages);
+        Inc(fFoodsEaten);
+        SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * 0.6);
         fInn.UpdateEater(PlaceID, rt_Sausages);
       end else
         SetActionLockedStay(0,ua_Walk);
-   5: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
+   5: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(fFoodsEaten<2) then begin
         fInn.ResTakeFromIn(rt_Wine);
-        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Wine, 1);
-        inc(fFoodsEaten);
-        SetActionLockedStay(29*4,ua_Eat,false);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Wine);
+        Inc(fFoodsEaten);
+        SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * 0.2);
         fInn.UpdateEater(PlaceID, rt_Wine);
       end else
         SetActionLockedStay(0,ua_Walk);
-   6: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
+   6: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(fFoodsEaten<2) then begin
         fInn.ResTakeFromIn(rt_Fish);
-        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Fish, 1);
-        inc(fFoodsEaten);
-        SetActionLockedStay(29*4,ua_Eat,false);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Fish);
+        Inc(fFoodsEaten);
+        SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * 0.5);
         fInn.UpdateEater(PlaceID, rt_Fish);
       end else
         SetActionLockedStay(0,ua_Walk);
    7: begin
-        //Stop showing hungry if we no longer are, but if we are then walk out of the inn thinking hungry so that the player will know that we haven't been fed
-        if Condition<UNIT_MAX_CONDITION then
-          Thought := th_Eat else Thought := th_None;
-        SetActionGoIn(ua_Walk,gd_GoOutside,fInn); //Exit Inn
+        //Stop showing hungry if we no longer are,
+        //but if we are then walk out of the inn thinking hungry
+        //so that the player will know that we haven't been fed
+        if Condition < UNIT_MAX_CONDITION * 0.9 then
+          Thought := th_Eat
+        else
+          Thought := th_None;
+        SetActionGoIn(ua_Walk, gd_GoOutside, fInn); //Exit Inn
         fInn.EatersGoesOut(PlaceID);
-        PlaceID:=0;
+        PlaceID := 0;
       end;
-   else Result := TaskDone;
+   else
+      Result := TaskDone;
   end;
-  inc(fPhase);
+  Inc(fPhase);
 end;
 
 
-procedure TTaskGoEat.Save(SaveStream:TKMemoryStream);
+procedure TTaskGoEat.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   if fInn <> nil then
@@ -158,7 +177,6 @@ begin
   SaveStream.Write(PlaceID);
   SaveStream.Write(fFoodsEaten);
 end;
-
 
 
 end.

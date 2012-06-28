@@ -1323,10 +1323,10 @@ begin
 end;
 
 
-procedure TKMHouseInn.EatersGoesOut(aID:byte);
+procedure TKMHouseInn.EatersGoesOut(aID: Byte);
 begin
-  if aID=0 then exit;
-  Eater[aID].UnitType:=ut_None;
+  if aID <> 0 then
+    Eater[aID].UnitType := ut_None;
 end;
 
 
@@ -1761,7 +1761,7 @@ begin
   UnitWIP := nil;
   UnitQueue[1] := ut_None; //Clear the unit in training
   ResTakeFromIn(rt_Gold); //Do the goldtaking
-  fPlayers.Player[fOwner].Stats.GoodConsumed(rt_Gold, 1);
+  fPlayers.Player[fOwner].Stats.GoodConsumed(rt_Gold);
   fHideOneGold := False;
   if UnitQueue[2] <> ut_None then
     StartTrainingUnit;
@@ -2022,7 +2022,7 @@ begin
       if TroopCost[aUnitType,I] <> rt_None then
       begin
         Dec(ResourceCount[TroopCost[aUnitType, I]]);
-        fPlayers.Player[fOwner].Stats.GoodConsumed(TroopCost[aUnitType, I], 1);
+        fPlayers.Player[fOwner].Stats.GoodConsumed(TroopCost[aUnitType, I]);
       end;
 
     //Special way to kill the Recruit because it is in a house
