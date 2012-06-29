@@ -58,6 +58,7 @@ type
 
     procedure GameMPDisconnect(const aData:string);
     procedure MultiplayerRig;
+    procedure SaveGame(const aPathName: string);
     procedure UpdateUI;
   public
     PlayOnState: TGameResultMsg;
@@ -113,6 +114,7 @@ type
     function GetPeacetimeRemaining: TDateTime;
     function CheckTime(aTimeTicks: Cardinal): Boolean;
     function IsPeaceTime: Boolean;
+    function IsMapEditor: Boolean;
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
@@ -145,7 +147,7 @@ type
     property MapEditorInterface: TKMapEdInterface read fMapEditorInterface;
     property Viewport: TViewport read fViewport;
 
-    procedure Save(const aFileName: string);
+    procedure Save(const aName: string);
     {$IFDEF USE_MAD_EXCEPT}
     procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile: string);
     {$ENDIF}
@@ -406,6 +408,11 @@ begin
 
   if fGameMode = gmMulti then
     MultiplayerRig;
+
+  //We need to make basesave.bas since we don't know the savegame name
+  //until after user saves it, but we need to attach replay base to it.
+  //Basesave is sort of temp we save to HDD instead of keeping in RAM
+  SaveGame(SaveName('basesave', 'bas', IsMultiplayer));
 
   //When everything is ready we can update UI
   UpdateUI;
@@ -757,7 +764,7 @@ begin
 end;
 
 
-//Restart the replay but do not change the viewport position/zoom
+//Restart the replay but keep the viewport position/zoom
 procedure TKMGame.RestartReplay;
 var
   OldCenter: TKMPointF;
@@ -766,7 +773,7 @@ begin
   OldCenter := fViewport.Position;
   OldZoom := fViewport.Zoom;
 
-  fGameApp.NewReplay(ExeDir + fSaveFile);
+  fGameApp.NewReplay(ChangeFileExt(ExeDir + fSaveFile, '.bas'));
 
   fViewport.Position := OldCenter;
   fViewport.Zoom := OldZoom;
@@ -792,6 +799,12 @@ end;
 function TKMGame.CheckTime(aTimeTicks: Cardinal): Boolean;
 begin
   Result := (fGameTickCount >= aTimeTicks);
+end;
+
+
+function TKMGame.IsMapEditor: Boolean;
+begin
+  Result := fGameMode = gmMapEd;
 end;
 
 
@@ -860,6 +873,8 @@ end;
 
 procedure TKMGame.SetGameSpeed(aSpeed: Word);
 begin
+  if fGameMode = gmMapEd then Exit;
+
   Assert(aSpeed > 0);
 
   //Make the speed toggle between 1 and desired value
@@ -894,9 +909,7 @@ end;
 
 
 //Saves the game in all its glory
-//Base savegame gets copied from save99.bas
-//Saves command log to RPL file
-procedure TKMGame.Save(const aFileName: string);
+procedure TKMGame.SaveGame(const aPathName: string);
 var
   SaveStream: TKMemoryStream;
   fGameInfo: TKMGameInfo;
@@ -905,105 +918,124 @@ var
 begin
   fLog.AppendLog('Saving game');
 
-  if (fGameMode in [gmMapEd, gmReplay]) then
+  if fGameMode in [gmMapEd, gmReplay] then
   begin
-    Assert(false, 'Saving from wrong state?');
+    Assert(false, 'Saving from wrong state');
     Exit;
   end;
 
   SaveStream := TKMemoryStream.Create;
+  try
+    fGameInfo := TKMGameInfo.Create;
+    fGameInfo.Title := fGameName;
+    fGameInfo.TickCount := fGameTickCount;
+    fGameInfo.MissionMode := fMissionMode;
+    fGameInfo.MapSizeX := fTerrain.MapX;
+    fGameInfo.MapSizeY := fTerrain.MapY;
+    fGameInfo.VictoryCondition := 'Win';
+    fGameInfo.DefeatCondition := 'Lose';
+    fGameInfo.PlayerCount := fPlayers.Count;
+    for i:=0 to fPlayers.Count-1 do
+    begin
+      if fNetworking <> nil then
+        NetIndex := fNetworking.NetPlayers.PlayerIndexToLocal(i)
+      else
+        NetIndex := -1;
 
-  fGameInfo := TKMGameInfo.Create;
-  fGameInfo.Title := fGameName;
-  fGameInfo.TickCount := fGameTickCount;
-  fGameInfo.MissionMode := fMissionMode;
-  fGameInfo.MapSizeX := fTerrain.MapX;
-  fGameInfo.MapSizeY := fTerrain.MapY;
-  fGameInfo.VictoryCondition := 'Win';
-  fGameInfo.DefeatCondition := 'Lose';
-  fGameInfo.PlayerCount := fPlayers.Count;
-  for i:=0 to fPlayers.Count-1 do
-  begin
-    if fNetworking <> nil then
-      NetIndex := fNetworking.NetPlayers.PlayerIndexToLocal(i)
-    else
-      NetIndex := -1;
+      if NetIndex = -1 then begin
+        fGameInfo.LocationName[i] := 'Unknown';
+        fGameInfo.PlayerTypes[i] := pt_Human;
+        fGameInfo.ColorID[i] := 0;
+        fGameInfo.Team[i] := 0;
+      end else begin
+        fGameInfo.LocationName[i] := fNetworking.NetPlayers[NetIndex].Nikname;
+        fGameInfo.PlayerTypes[i] := fNetworking.NetPlayers[NetIndex].GetPlayerType;
+        fGameInfo.ColorID[i] := fNetworking.NetPlayers[NetIndex].FlagColorID;
+        fGameInfo.Team[i] := fNetworking.NetPlayers[NetIndex].Team;
+      end
+    end;
 
-    if NetIndex = -1 then begin
-      fGameInfo.LocationName[i] := 'Unknown';
-      fGameInfo.PlayerTypes[i] := pt_Human;
-      fGameInfo.ColorID[i] := 0;
-      fGameInfo.Team[i] := 0;
-    end else begin
-      fGameInfo.LocationName[i] := fNetworking.NetPlayers[NetIndex].Nikname;
-      fGameInfo.PlayerTypes[i] := fNetworking.NetPlayers[NetIndex].GetPlayerType;
-      fGameInfo.ColorID[i] := fNetworking.NetPlayers[NetIndex].FlagColorID;
-      fGameInfo.Team[i] := fNetworking.NetPlayers[NetIndex].Team;
-    end
+    fGameInfo.Save(SaveStream);
+    fGameInfo.Free;
+    fGameOptions.Save(SaveStream);
+
+    //Because some stuff is only saved in singleplayer we need to know whether it is included in this save,
+    //so we can load multiplayer saves in single player and vice versa.
+    SaveStream.Write(fGameMode = gmMulti);
+
+    if fGameMode <> gmMulti then
+      fGamePlayInterface.SaveMapview(SaveStream); //Minimap is near the start so it can be accessed quickly
+
+    //We need to know which campaign to display after victory
+    SaveStream.Write(fCampaignName);
+    SaveStream.Write(fCampaignMap);
+
+    //We need to know which mission/savegame to try to restart
+    //(paths are relative and thus - MP safe)
+    SaveStream.Write(fMissionFile);
+
+    SaveStream.Write(fIDTracker); //Units-Houses ID tracker
+    SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
+
+    if fGameMode <> gmMulti then
+      SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
+
+    fTerrain.Save(SaveStream); //Saves the map
+    fPlayers.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
+    fProjectiles.Save(SaveStream);
+    fEventsManager.Save(SaveStream);
+
+    //Relative path to strings will be the same for all MP players
+    s := ExtractRelativePath(ExeDir, ChangeFileExt(fMissionFile, '.%s.libx'));
+    SaveStream.Write(s);
+
+    //Parameters that are not identical for all players should not be saved as we need saves to be
+    //created identically on all player's computers. Eventually these things can go through the GIP
+
+    //For multiplayer consistency we compare all saves CRCs, they should be created identical on all player's computers.
+    if fGameMode <> gmMulti then
+    begin
+      //Viewport settings are unique for each player
+      fViewport.Save(SaveStream);
+      fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
+      //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
+    end;
+
+    //If we want stuff like the MessageStack and screen center to be stored in multiplayer saves,
+    //we must send those "commands" through the GIP so all players know about them and they're in sync.
+    //There is a comment in fGame.Load about MessageList on this topic.
+
+    //Makes the folders incase they were deleted
+    ForceDirectories(ExtractFilePath(aPathName));
+    SaveStream.SaveToFile(aPathName); //Some 70ms for TPR7 map
+  finally
+    SaveStream.Free;
   end;
+end;
 
-  fGameInfo.Save(SaveStream);
-  fGameInfo.Free;
-  fGameOptions.Save(SaveStream);
 
-  //Because some stuff is only saved in singleplayer we need to know whether it is included in this save,
-  //so we can load multiplayer saves in single player and vice versa.
-  SaveStream.Write(fGameMode = gmMulti);
+//Saves game by provided name
+procedure TKMGame.Save(const aName: string);
+var
+  PathName: string;
+begin
+  //Convert name to full path+name
+  PathName := SaveName(aName, 'sav', IsMultiplayer);
 
-  if fGameMode <> gmMulti then
-    fGamePlayInterface.SaveMapview(SaveStream); //Minimap is near the start so it can be accessed quickly
+  SaveGame(PathName);
 
-  //We need to know which campaign to display after victory
-  SaveStream.Write(fCampaignName);
-  SaveStream.Write(fCampaignMap);
+  //Remember which savegame to try to restart (if game was not saved before)
+  fSaveFile := ExtractRelativePath(ExeDir, PathName);
 
-  //We need to know which mission/savegame to try to restart
-  //(paths are relative and thus - MP safe)
-  SaveStream.Write(fMissionFile);
+  //Copy basesave so we have a starting point for replay
+  DeleteFile(SaveName(aName, 'bas', IsMultiplayer));
+  CopyFile(PChar(SaveName('basesave', 'bas', IsMultiplayer)), PChar(SaveName(aName, 'bas', IsMultiplayer)), False);
 
-  SaveStream.Write(fIDTracker); //Units-Houses ID tracker
-  SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
-
-  if fGameMode <> gmMulti then
-    SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
-
-  fTerrain.Save(SaveStream); //Saves the map
-  fPlayers.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
-  fProjectiles.Save(SaveStream);
-  fEventsManager.Save(SaveStream);
-
-  //Relative path to strings will be the same for all MP players
-  s := ExtractRelativePath(ExeDir, ChangeFileExt(fMissionFile, '.%s.libx'));
-  SaveStream.Write(s);
-
-  //Parameters that are not identical for all players should not be saved as we need saves to be
-  //created identically on all player's computers. Eventually these things can go through the GIP
-
-  //For multiplayer consistency we compare all saves CRCs, they should be created identical on all player's computers.
-  if fGameMode <> gmMulti then
-  begin
-    //Viewport settings are unique for each player
-    fViewport.Save(SaveStream);
-    fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
-    //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
-  end;
-
-  //If we want stuff like the MessageStack and screen center to be stored in multiplayer saves,
-  //we must send those "commands" through the GIP so all players know about them and they're in sync.
-  //There is a comment in fGame.Load about MessageList on this topic.
-
-  //Makes the folders incase they were deleted
-  s := SaveName(aFileName, 'sav', fGameMode = gmMulti);
-  ForceDirectories(ExtractFilePath(s));
-  SaveStream.SaveToFile(s); //Some 70ms for TPR7 map
-  SaveStream.Free;
-
-  fSaveFile := ExtractRelativePath(ExeDir, s);
-
+  //Save replay queue
   fLog.AppendLog('Saving replay info');
-  fGameInputProcess.SaveToFile(ChangeFileExt(s, '.rpl')); //Adds command queue to savegame
+  fGameInputProcess.SaveToFile(ChangeFileExt(PathName, '.rpl'));
 
-  fLog.AppendLog('Saving game', true);
+  fLog.AppendLog('Saving game', True);
 end;
 
 
@@ -1094,6 +1126,9 @@ begin
 
   if fGameMode = gmMulti then
     MultiplayerRig;
+
+  DeleteFile(SaveName('basesave', 'bas', IsMultiplayer));
+  CopyFile(PChar(SaveName(aPathName, 'bas', IsMultiplayer)), PChar(SaveName('basesave', 'bas', IsMultiplayer)), False);
 
   //When everything is ready we can update UI
   UpdateUI;

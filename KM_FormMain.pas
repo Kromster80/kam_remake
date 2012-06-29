@@ -411,16 +411,23 @@ end;
 
 procedure TFormMain.RGPlayerClick(Sender: TObject);
 begin
-  {if (fGame.GameState in [gsNoGame, gsEditor]) or fGame.MultiplayerMode then exit;
-  if (fPlayers<>nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
-    fGame.GameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex);}
+  if (fGameApp.Game = nil)
+  or fGameApp.Game.IsMapEditor
+  or fGameApp.Game.IsMultiplayer then
+    Exit;
+
+  if (fPlayers <> nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
+    fGameApp.Game.GameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex);
 end;
 
 
 procedure TFormMain.CheckBox2Click(Sender: TObject);
 begin
-  {if (fGame.GameState in [gsNoGame, gsEditor]) or (fGame.MultiplayerMode and not MULTIPLAYER_SPEEDUP and not fGame.ReplayMode) then exit;
-  if CheckBox2.Checked then fGame.SetGameSpeed(300) else fGame.SetGameSpeed(1);}
+  if (fGameApp.Game = nil)
+  or (fGameApp.Game.IsMultiplayer and not MULTIPLAYER_SPEEDUP and not fGameApp.Game.IsReplay) then
+    Exit;
+
+  fGameApp.Game.SetGameSpeed(IfThen(CheckBox2.Checked, 300, 1));
 end;
 
 

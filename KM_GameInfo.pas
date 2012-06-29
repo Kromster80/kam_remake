@@ -39,7 +39,7 @@ type
 
 
 implementation
-uses KM_TextLibrary;
+uses KM_TextLibrary, KM_Utils;
 
 
 { TKMGameInfo }
@@ -136,7 +136,7 @@ begin
 end;
 
 
-function TKMGameInfo.MissionModeText:string;
+function TKMGameInfo.MissionModeText: string;
 begin
   case MissionMode of
     mm_Normal: Result := fTextLibrary[TX_MODE_BUILD_FIGHT];
@@ -146,10 +146,10 @@ begin
 end;
 
 
-function TKMGameInfo.GetTitleWithTime:string;
+function TKMGameInfo.GetTitleWithTime: string;
 begin
   if IsValid then
-    Result := Title + ' ' + FormatDateTime('hh:nn:ss', TickCount/24/60/60/10)
+    Result := Title + ' ' + TimeToString(TickCount/24/60/60/10)
   else
     Result := Title;
 end;

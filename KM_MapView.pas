@@ -252,7 +252,7 @@ end;
 procedure TKMMapView.UpdateTexture;
 var
   wData: Pointer;
-  I: Word;
+  I: Integer;
 begin
   GetMem(wData, fWidthPOT * fHeightPOT * 4);
 
@@ -288,13 +288,15 @@ begin
   LoadStream.Read(fMapY);
   LoadStream.Read(L);
   SetLength(fBase, L);
+  if L > 0 then
+    LoadStream.Read(fBase[0], L * SizeOf(Cardinal));
+
   fWidthPOT := MakePOT(fMapX);
   fHeightPOT := MakePOT(fMapY);
   fMapTex.U := fMapX / fWidthPOT;
   fMapTex.V := fMapY / fHeightPOT;
 
-  if L > 0 then
-    LoadStream.Read(fBase[0], L * SizeOf(Cardinal));
+  if fMapX * fMapY = 0 then Exit;
 
   if fSepia then SepiaFilter;
   UpdateTexture;

@@ -163,10 +163,11 @@ begin
 end;
 
 
+//Return string representation of games length
 function TMPGameInfo.GetFormattedTime: string;
 begin
   if GameTime >= 0 then
-    Result := FormatDateTime('hh:nn:ss', GameTime)
+    Result := TimeToString(GameTime)
   else
     Result := '';
 end;

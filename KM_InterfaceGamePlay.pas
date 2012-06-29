@@ -2848,7 +2848,7 @@ begin
   //With slow GPUs it will keep old values till next frame, that can take some seconds
   //Thats why we refresh Clock.Caption here
   if aSpeed <> 1 then
-    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGame.MissionTime);
+    Label_Clock.Caption := TimeToString(fGame.MissionTime);
 end;
 
 
@@ -3651,14 +3651,14 @@ begin
   if fReplay then
   begin
     PercentBar_Replay.Position := EnsureRange(Round(fGame.GameTickCount / fGame.GameInputProcess.GetLastTick * 100), 0, 100);
-    Label_Replay.Caption := FormatDateTime('hh:nn:ss', fGame.MissionTime) + ' / ' +
-                            FormatDateTime('hh:nn:ss', fGame.GameInputProcess.GetLastTick/24/60/60/10);
+    Label_Replay.Caption := TimeToString(fGame.MissionTime) + ' / ' +
+                            TimeToString(fGame.GameInputProcess.GetLastTick/24/60/60/10);
   end;
 
   //Update speedup clocks
   if Image_Clock.Visible then begin
     Image_Clock.TexID := ((Image_Clock.TexID - 556) + 1) mod 16 + 556;
-    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGame.MissionTime);
+    Label_Clock.Caption := TimeToString(fGame.MissionTime);
   end;
 
   //Keep on updating these menu pages as game data keeps on changing

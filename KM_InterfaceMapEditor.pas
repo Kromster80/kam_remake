@@ -1331,7 +1331,9 @@ end;
 
 //Mmission loading dialog
 procedure TKMapEdInterface.Menu_Load(Sender: TObject);
-var MapName: string; IsMulti: Boolean;
+var
+  MapName: string;
+  IsMulti: Boolean;
 begin
   if ListBox_Load.ItemIndex = -1 then Exit;
 

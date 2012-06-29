@@ -64,7 +64,7 @@ type
     procedure NewMultiplayerSave(const aSaveName: string);
     procedure NewRestartLast;
     procedure NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
-    procedure NewReplay(const aSaveName: string);
+    procedure NewReplay(const aFilePath: string);
 
     property Campaigns: TKMCampaignsCollection read fCampaigns;
     function Game: TKMGame;
@@ -553,10 +553,10 @@ begin
 end;
 
 
-procedure TKMGameApp.NewReplay(const aSaveName: string);
+procedure TKMGameApp.NewReplay(const aFilePath: string);
 begin
-  //Convert SaveName to local FilePath with proper extension
-  LoadGameFromSave(SaveName(aSaveName, 'rpl', False), gmReplay);
+  Assert(ExtractFileExt(aFilePath) = '.bas');
+  LoadGameFromSave(aFilePath, gmReplay);
 end;
 
 
@@ -659,7 +659,7 @@ begin
 
     //StatusBar
     if (fGame <> nil) and not fGame.IsPaused then
-      fOnCursorUpdate(2, 'Time: ' + FormatDateTime('hh:nn:ss', fGame.MissionTime));
+      fOnCursorUpdate(2, 'Time: ' + TimeToString(fGame.MissionTime));
   end;
 end;
 

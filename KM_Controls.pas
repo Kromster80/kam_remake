@@ -948,7 +948,7 @@ type
   function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; const aPic: array of TKMPic; aTag: Integer = 0): TKMListRow; overload;
 
 implementation
-uses KM_RenderUI, KM_Resource, KM_ResourceCursors, KM_Sound;
+uses KM_RenderUI, KM_Resource, KM_ResourceCursors, KM_Sound, KM_Utils;
 
 
 var
@@ -4079,7 +4079,7 @@ begin
   for I := 1 to (fMaxTime div Best) do
   begin
     fRenderUI.WriteLayer(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom - 2, 2, 5, $FFFFFFFF, $00000000);
-    fRenderUI.WriteText(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom + 5, 0, 0, FormatDateTime('hh:nn:ss', (I * Best) / 60 / 60 / 24), fnt_Game, taLeft);
+    fRenderUI.WriteText(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom + 5, 0, 0, TimeToString((I * Best) / 24 / 60 / 60), fnt_Game, taLeft);
   end;
 end;
 

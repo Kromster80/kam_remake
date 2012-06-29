@@ -550,7 +550,7 @@ begin
     Label_Stat[6].Caption := inttostr(GetCitizensTrained);
     Label_Stat[7].Caption := inttostr(GetWeaponsProduced);
     Label_Stat[8].Caption := inttostr(GetWarriorsTrained);
-    Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGame.MissionTime);
+    Label_Stat[9].Caption := TimeToString(fGame.MissionTime);
   end;
 
   //Fill in chart values
@@ -611,7 +611,7 @@ var
   Bests: array [0..9] of Cardinal;
   Totals: array [0..9] of Cardinal;
 begin
-  Label_ResultsMPTime.Caption := fGame.GameName + ' - ' + FormatDateTime('hh:nn:ss', fGame.MissionTime);
+  Label_ResultsMPTime.Caption := fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);
 
   //Update visibility depending on players count
   for I := 0 to MAX_PLAYERS - 1 do
@@ -3205,11 +3205,15 @@ end;
 
 
 procedure TKMMainMenuInterface.Replays_Play(Sender: TObject);
+var
+  ID: Integer;
 begin
   if not Button_ReplaysPlay.Enabled then exit; //This is also called by double clicking
-  if not InRange(List_Replays.ItemIndex, 0, fSaves.Count-1) then Exit;
+
+  ID := List_Replays.ItemIndex;
+  if not InRange(ID, 0, fSaves.Count-1) then Exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
-  fGameApp.NewReplay(fSaves[List_Replays.ItemIndex].FileName);
+  fGameApp.NewReplay(fSaves[ID].Path + fSaves[ID].FileName + '.bas');
 end;
 
 

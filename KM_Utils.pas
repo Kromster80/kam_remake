@@ -1,7 +1,7 @@
 unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils, KM_Defaults, KM_Points;
+uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points;
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
@@ -13,6 +13,7 @@ uses Classes, Math, SysUtils, KM_Defaults, KM_Points;
 
   function GetPingColor(aPing:word):cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
+  function TimeToString(aTime: TDateTime): string;
 
   procedure ParseDelimited(const SL: TStringList; const Value: string; const Delimiter: string);
 
@@ -334,6 +335,17 @@ begin
 
   //Preserve transparency value
   Result := (R + G shl 8 + B shl 16) or (aColor and $FF000000);
+end;
+
+
+//Convert DateTime to string xx:xx:xx where hours have at least 2 digits
+//F.e. we can have 72:12:34 for 3 days long game
+function TimeToString(aTime: TDateTime): string;
+begin
+  //We can't use simple Trunc(aTime * 24 * 60 * 60) maths because it is prone to rounding errors
+  //e.g. 3599 equals to 59:58 and 3600 equals to 59:59
+  //That is why we resort to DateUtils routines which are slower but much more correct
+  Result :=  Format('%.2d', [HoursBetween(aTime, 0)]) + FormatDateTime(':nn:ss', aTime);
 end;
 
 

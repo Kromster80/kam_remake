@@ -90,13 +90,13 @@
 			<DelphiCompile Include="$(MainSource)">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="TestKM_CommonClasses.pas"/>
 			<DCCReference Include="TestKM_Campaigns.pas"/>
+			<DCCReference Include="TestKM_CommonClasses.pas"/>
+			<DCCReference Include="TestKM_FogOfWar.pas"/>
 			<DCCReference Include="TestKM_Game.pas"/>
 			<DCCReference Include="TestKM_Points.pas"/>
 			<DCCReference Include="TestKM_Terrain.pas"/>
-			<DCCReference Include="TestKM_FogOfWar.pas"/>
-			<DCCReference Include="..\KM_FogOfWar.pas"/>
+			<DCCReference Include="TestKM_Utils.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
