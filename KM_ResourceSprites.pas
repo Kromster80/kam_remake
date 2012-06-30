@@ -843,16 +843,14 @@ end;
 procedure TKMSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
 begin
   if aAlphaShadows and FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx') then
-  begin
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx');
-    //fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
-  end
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx')
   else
   if FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx') then
-  begin
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx');
-    //fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
-  end;
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx')
+  else
+    Assert(False);
+
+  fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
 end;
 
 
