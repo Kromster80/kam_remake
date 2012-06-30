@@ -1796,10 +1796,10 @@ begin
   if fTexID <> 0 then Exit;
 
   //If disabled then text should be faded
-  if fEnabled then Col := $FFFFFFFF
-              else Col := $FF888888;
+  Col := IfThen(fEnabled, $FFFFFFFF, $FF888888);
 
-  fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, 0, fCaption, fFont, fTextAlign, Col);
+  fRenderUI.WriteText(Left + Width div 2 + Byte(csDown in State),
+                      (Top + Height div 2)-7 + Byte(csDown in State), Width, 0, fCaption, fFont, fTextAlign, Col);
 end;
 
 
@@ -1807,11 +1807,11 @@ end;
 constructor TKMButtonFlat.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID: Integer; aRX: TRXType = rxGui);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  RX    := aRX;
-  TexID := aTexID;
-  fFlagColor := $FFFF00FF;
-  fFont := fnt_Grey;
-  TextAlign := taLeft;
+  RX          := aRX;
+  TexID       := aTexID;
+  fFlagColor  := $FFFF00FF;
+  fFont       := fnt_Grey;
+  TextAlign   := taLeft;
 end;
 
 
