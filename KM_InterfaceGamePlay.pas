@@ -13,7 +13,7 @@ uses
 const MAX_VISIBLE_MSGS = 32;
 
 type
-  //todo: TTabButtons = (tbBuild, tbRatio, tbStats, tbMenu, tbBack);
+  TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);
 
   TKMGamePlayInterface = class (TKMUserInterface)
   private
@@ -151,7 +151,8 @@ type
       Label_VictoryChance : TKMLabel;
 
     Panel_Controls: TKMPanel;
-      Button_Main: array[1..5]of TKMButton; //4 common buttons + Return
+      Button_Main: array [TKMTabButtons] of TKMButton; //4 common buttons + Return
+      Button_Back: TKMButton;
 
     Panel_Replay:TKMPanel; //Bigger Panel to contain Shapes to block all interface below
     Panel_ReplayCtrl:TKMPanel; //Smaller Panel to contain replay controls
@@ -555,18 +556,18 @@ procedure TKMGamePlayInterface.SwitchPage(Sender: TObject);
 var I: Integer; LastVisiblePage: TKMPanel;
 
   procedure Flip4MainButtons(ShowEm: Boolean);
-  var K: Integer;
+  var T: TKMTabButtons;
   begin
-    for K := 1 to 4 do Button_Main[K].Visible := ShowEm;
-    Button_Main[5].Visible := not ShowEm;
+    for T := Low(TKMTabButtons) to High(TKMTabButtons) do Button_Main[T].Visible := ShowEm;
+    Button_Back.Visible := not ShowEm;
     Label_MenuTitle.Visible := not ShowEm;
   end;
 
 begin
   fMyControls.CtrlFocus := nil; //Panels that require control focus should set it themselves
 
-  if (Sender = Button_Main[1]) or (Sender = Button_Main[2])
-  or (Sender = Button_Main[3]) or (Sender = Button_Main[4])
+  if (Sender = Button_Main[tbBuild]) or (Sender = Button_Main[tbRatio])
+  or (Sender = Button_Main[tbStats]) or (Sender = Button_Main[tbMenu])
   or (Sender = Button_Menu_Settings) or (Sender = Button_Menu_Quit) then
   begin
     fShownHouse := nil;
@@ -603,29 +604,30 @@ begin
 
   //If Sender is one of 4 main buttons, then open the page, hide the buttons and show Return button
   Flip4MainButtons(false);
-  if Sender = Button_Main[1] then begin
+  if Sender = Button_Main[tbBuild] then begin
     Build_Fill(nil);
     Panel_Build.Show;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_BUILD];
     Build_ButtonClick(Button_BuildRoad);
   end else
 
-  if Sender = Button_Main[2] then begin
+  if Sender = Button_Main[tbRatio] then begin
     Panel_Ratios.Show;
     SwitchPage_Ratios(Button_Ratios[1]); //Open 1st tab
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_DISTRIBUTE];
   end else
 
-  if Sender = Button_Main[3] then begin
+  if Sender = Button_Main[tbStats] then begin
     Stats_Fill(nil);
     Panel_Stats.Show;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_STATISTICS];
   end else
 
-  if (Sender = Button_Main[4]) or (Sender = Button_Quit_No) or
-     ((Sender = Button_Main[5]) and (LastVisiblePage = Panel_Settings)) or
-     ((Sender = Button_Main[5]) and (LastVisiblePage = Panel_Load)) or
-     ((Sender = Button_Main[5]) and (LastVisiblePage = Panel_Save)) then begin
+  if (Sender = Button_Main[tbMenu])
+  or (Sender = Button_Quit_No)
+  or ((Sender = Button_Back) and ((LastVisiblePage = Panel_Settings)
+                               or (LastVisiblePage = Panel_Load)
+                               or (LastVisiblePage = Panel_Save))) then begin
     Menu_Fill(Sender); //Make sure updating happens before it is shown
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_OPTIONS];
     Panel_Menu.Show;
@@ -1053,7 +1055,11 @@ end;
 
 
 procedure TKMGamePlayInterface.Create_Controls_Page;
-var I: Integer;
+const
+  MainHint: array [TKMTabButtons] of Word = (TX_MENU_TAB_HINT_BUILD, TX_MENU_TAB_HINT_DISTRIBUTE,
+                                             TX_MENU_TAB_HINT_STATISTICS, TX_MENU_TAB_HINT_OPTIONS);
+var
+  T: TKMTabButtons;
 begin
   Panel_Controls := TKMPanel.Create(Panel_Main, 0, 368, 224, 376);
   Panel_Controls.Anchors := [akLeft, akTop];
@@ -1067,18 +1073,15 @@ begin
     TKMImage.Create(Panel_Controls, 0, 2000, 224, 400, 404);
 
     //Main 4 buttons
-    for I := 0 to 3 do begin
-      Button_Main[I+1] := TKMButton.Create(Panel_Controls,  8+46*I, 4, 42, 36, 439+I);
-      Button_Main[I+1].OnClick := SwitchPage;
+    for T := Low(TKMTabButtons) to High(TKMTabButtons) do begin
+      Button_Main[T] := TKMButton.Create(Panel_Controls,  8 + 46 * Byte(T), 4, 42, 36, 439 + Byte(T));
+      Button_Main[T].Hint := fTextLibrary[MainHint[T]];
+      Button_Main[T].OnClick := SwitchPage;
     end;
-    Button_Main[1].Hint := fTextLibrary[TX_MENU_TAB_HINT_BUILD];
-    Button_Main[2].Hint := fTextLibrary[TX_MENU_TAB_HINT_DISTRIBUTE];
-    Button_Main[3].Hint := fTextLibrary[TX_MENU_TAB_HINT_STATISTICS];
-    Button_Main[4].Hint := fTextLibrary[TX_MENU_TAB_HINT_OPTIONS];
+    Button_Back := TKMButton.Create(Panel_Controls, 8, 4, 42, 36, 443);
+    Button_Back.OnClick := SwitchPage;
+    Button_Back.Hint := fTextLibrary[TX_MENU_TAB_HINT_GO_BACK];
 
-    Button_Main[5] := TKMButton.Create(Panel_Controls, 8, 4, 42, 36, 443);
-    Button_Main[5].OnClick := SwitchPage;
-    Button_Main[5].Hint := fTextLibrary[TX_MENU_TAB_HINT_GO_BACK];
     Label_MenuTitle := TKMLabel.Create(Panel_Controls, 54, 4, 138, 36, '', fnt_Metal, taLeft);
     Label_MenuTitle.AutoWrap := True;
 
@@ -2164,50 +2167,41 @@ end;
 
 procedure TKMGamePlayInterface.House_Demolish(Sender:TObject);
 begin
-  if fPlayers.Selected = nil then exit;
-  if not (fPlayers.Selected is TKMHouse) then exit;
+  if (fPlayers.Selected = nil) or not (fPlayers.Selected is TKMHouse) then Exit;
 
-  if Sender=Button_House_DemolishYes then begin
+  if Sender = Button_House_DemolishYes then
+  begin
     fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, TKMHouse(fPlayers.Selected).GetPosition);
-    ShowHouseInfo(nil, false); //Simpliest way to reset page and ShownHouse
-    SwitchPage(Button_Main[1]); //Return to build menu after demolishing
-  end else begin
-    fAskDemolish:=false;
-    SwitchPage(Button_Main[1]); //Cancel and return to build menu
-  end;
+    ShowHouseInfo(nil, False); //Simpliest way to reset page and ShownHouse
+  end else
+    fAskDemolish := False;
+
+  SwitchPage(Button_Main[tbBuild]); //Return to build menu
 end;
 
 
-procedure TKMGamePlayInterface.House_RepairToggle(Sender:TObject);
+procedure TKMGamePlayInterface.House_RepairToggle(Sender: TObject);
 begin
-  if fPlayers.Selected = nil then exit;
-  if not (fPlayers.Selected is TKMHouse) then exit;
+  if (fPlayers.Selected = nil) or not (fPlayers.Selected is TKMHouse) then Exit;
+
   fGame.GameInputProcess.CmdHouse(gic_HouseRepairToggle, TKMHouse(fPlayers.Selected));
-  case TKMHouse(fPlayers.Selected).BuildingRepair of
-    true:   Button_House_Repair.TexID := 39;
-    false:  Button_House_Repair.TexID := 40;
-  end;
+  Button_House_Repair.TexID := IfThen(TKMHouse(fPlayers.Selected).BuildingRepair, 39, 40);
 end;
 
 
-procedure TKMGamePlayInterface.House_WareDeliveryToggle(Sender:TObject);
+procedure TKMGamePlayInterface.House_WareDeliveryToggle(Sender: TObject);
 begin
-  if fPlayers.Selected = nil then exit;
-  if not (fPlayers.Selected is TKMHouse) then exit;
+  if (fPlayers.Selected = nil) or not (fPlayers.Selected is TKMHouse) then Exit;
 
   fGame.GameInputProcess.CmdHouse(gic_HouseDeliveryToggle, TKMHouse(fPlayers.Selected));
-  case TKMHouse(fPlayers.Selected).WareDelivery of
-    true:   Button_House_Goods.TexID := 37;
-    false:  Button_House_Goods.TexID := 38;
-  end;
+  Button_House_Goods.TexID := IfThen(TKMHouse(fPlayers.Selected).WareDelivery, 37, 38);
 end;
 
 
-procedure TKMGamePlayInterface.House_OrderClick(Sender:TObject; AButton:TMouseButton);
+procedure TKMGamePlayInterface.House_OrderClick(Sender: TObject; AButton: TMouseButton);
 var I: Integer; Amt:byte;
 begin
-  if fPlayers.Selected = nil then exit;
-  if not (fPlayers.Selected is TKMHouse) then exit;
+  if (fPlayers.Selected = nil) or not (fPlayers.Selected is TKMHouse) then Exit;
 
   Amt := 0;
   if AButton = mbLeft then Amt := 1;
@@ -2814,9 +2808,9 @@ end;
 
 procedure TKMGamePlayInterface.UpdateMenuState(aTactic: Boolean);
 begin
-  Button_Main[1].Enabled := not aTactic and not fReplay;
-  Button_Main[2].Enabled := not aTactic and not fReplay;
-  Button_Main[3].Enabled := not aTactic;
+  Button_Main[tbBuild].Enabled := not aTactic and not fReplay;
+  Button_Main[tbRatio].Enabled := not aTactic and not fReplay;
+  Button_Main[tbStats].Enabled := not aTactic;
 
   //No loading during multiplayer games
   Button_Menu_Load.Enabled := not fMultiplayer and not fReplay;
@@ -3199,12 +3193,13 @@ begin
   if (Key = ord('P')) and not fMultiplayer then SetPause(True); //Display pause overlay
 
   //Menu shortcuts
-  if Key in [ord('1')..ord('4')] then Button_Main[Key-48].Click;
+  if InRange(Key-49, 0, 3) then Button_Main[TKMTabButtons(Key-49)].Click;
+
   if (Key = VK_ESCAPE) and (   Button_Army_Join_Cancel.Click
                             or Button_MessageClose.Click
                             or Image_ChatClose.Click
                             or Image_AlliesClose.Click
-                            or Button_Main[5].Click) then Exit;
+                            or Button_Back.Click) then Exit;
   //Messages
   if Key = VK_SPACE  then Button_MessageGoTo.Click; //In KaM spacebar centers you on the message
   if Key = VK_DELETE then Button_MessageDelete.Click;
@@ -3562,7 +3557,7 @@ begin
 
                 //Cancel build/join
                 if Panel_Build.Visible then
-                  SwitchPage(Button_Main[5]);
+                  SwitchPage(Button_Back);
                 if fJoiningGroups then
                   Army_HideJoinMenu(nil);
 
