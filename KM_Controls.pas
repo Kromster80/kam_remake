@@ -891,6 +891,7 @@ type
     fCaption: string;
     fCount: Integer;
     fItemHeight: Byte;
+    fLineOver: Integer;
     fLines: array of record
       Title: string;
       Color: TColor4;
@@ -910,6 +911,7 @@ type
     property MaxLength: Cardinal read fMaxLength write fMaxLength;
     property MaxTime: Cardinal read fMaxTime write fMaxTime;
 
+    procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
 
     procedure Paint; override;
@@ -3938,6 +3940,7 @@ begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
 
   fItemHeight := 13;
+  fLineOver := -1;
 end;
 
 
@@ -3954,12 +3957,9 @@ begin
   SetLength(fLines[fCount].Values, fMaxLength);
   if SizeOf(aValues) <> 0 then
     Move(aValues[0], fLines[fCount].Values[0], SizeOf(aValues[0]) * fMaxLength);
-
-  for K := 0 to fMaxLength - 1 do
-    if fLines[fCount].Values[K] > fMaxValue then
-      fMaxValue := fLines[fCount].Values[K];
-
   Inc(fCount);
+
+  UpdateMaxValue;
 end;
 
 
@@ -3980,6 +3980,16 @@ begin
       for K := 0 to fMaxLength - 1 do
         if fLines[I].Values[K] > fMaxValue then
           fMaxValue := fLines[I].Values[K];
+end;
+
+
+procedure TKMGraph.MouseMove(X, Y: Integer; Shift: TShiftState);
+begin
+  inherited;
+
+  fLineOver := -1;
+  if X < Left + Width - 55 then Exit;
+  fLineOver := (Y - Top + 2) div fItemHeight;
 end;
 
 
@@ -4012,13 +4022,15 @@ const
 var
   I: Integer;
   G: TKMRect;
-  Best: Integer;
+  Best, TopValue: Integer;
   NewColor: TColor4;
 begin
   inherited;
 
   G := KMRect(Left + 25, Top, Left + Width - 60, Top + Height - 16);
 
+  //Add margin to MaxValue so that it does not blends with upper border
+  TopValue := Max(Round(fMaxValue * 1.1), fMaxValue + 1);
 
   //Charts and legend
   for I := 0 to fCount - 1 do
@@ -4026,9 +4038,12 @@ begin
     //Adjust the color if it blends with black background
     NewColor := EnsureColorBlend(fLines[I].Color);
 
+    if (csOver in State) and (I = fLineOver) then
+      NewColor := $FFFF00FF;
+
     //Charts
     if fLines[I].Visible then
-      fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, fMaxValue, NewColor);
+      fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, TopValue, NewColor);
 
     //Checkboxes
     fRenderUI.WriteLayer(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, NewColor, $00000000);
@@ -4079,7 +4094,7 @@ begin
   for I := 1 to (fMaxTime div Best) do
   begin
     fRenderUI.WriteLayer(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom - 2, 2, 5, $FFFFFFFF, $00000000);
-    fRenderUI.WriteText(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom + 5, 0, 0, TimeToString((I * Best) / 24 / 60 / 60), fnt_Game, taLeft);
+    fRenderUI.WriteText(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom + 4, 0, 0, TimeToString((I * Best) / 24 / 60 / 60), fnt_Game, taLeft);
   end;
 end;
 

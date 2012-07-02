@@ -381,7 +381,7 @@ begin
     glColor4ubv(@aColor);
     glBegin(GL_LINE_STRIP);
       for I := 0 to High(aValues) do
-        glVertex2f(I/High(aValues) * SizeX, SizeY - aValues[I]/aMaxValue * SizeY);
+        glVertex2f(I / High(aValues) * SizeX, SizeY - aValues[I] / aMaxValue * SizeY);
     glEnd;
   glPopAttrib;
   glPopMatrix;
@@ -390,7 +390,7 @@ end;
 
 procedure TRenderUI.WriteRect(PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
 begin
-  if LineWidth=0 then exit;
+  if LineWidth = 0 then Exit;
   glPushAttrib(GL_LINE_BIT);
     glLineWidth(LineWidth);
     glColor4ubv(@Col);

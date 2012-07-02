@@ -352,7 +352,7 @@ type
 
 implementation
 uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_GameApp, KM_PlayersCollection, KM_Locales,
-  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_Resource;
+  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_Resource, KM_CommonTypes;
 
 const
   MENU_SP_MAPS_COUNT    = 12;           //Number of single player maps to display in menu
@@ -536,20 +536,21 @@ procedure TKMMainMenuInterface.Results_Fill;
 var
   I: Integer;
   R: TResourceType;
+  G: TCardinalArray;
 begin
   if (MyPlayer = nil) or (MyPlayer.Stats = nil) then Exit;
 
   //Fill in table values (like old KaM did)
   with MyPlayer.Stats do
   begin
-    Label_Stat[1].Caption := inttostr(GetCitizensLost + GetWarriorsLost);
-    Label_Stat[2].Caption := inttostr(GetCitizensKilled + GetWarriorsKilled);
-    Label_Stat[3].Caption := inttostr(GetHousesLost);
-    Label_Stat[4].Caption := inttostr(GetHousesDestroyed);
-    Label_Stat[5].Caption := inttostr(GetHousesBuilt);
-    Label_Stat[6].Caption := inttostr(GetCitizensTrained);
-    Label_Stat[7].Caption := inttostr(GetWeaponsProduced);
-    Label_Stat[8].Caption := inttostr(GetWarriorsTrained);
+    Label_Stat[1].Caption := IntToStr(GetCitizensLost + GetWarriorsLost);
+    Label_Stat[2].Caption := IntToStr(GetCitizensKilled + GetWarriorsKilled);
+    Label_Stat[3].Caption := IntToStr(GetHousesLost);
+    Label_Stat[4].Caption := IntToStr(GetHousesDestroyed);
+    Label_Stat[5].Caption := IntToStr(GetHousesBuilt);
+    Label_Stat[6].Caption := IntToStr(GetCitizensTrained);
+    Label_Stat[7].Caption := IntToStr(GetWeaponsProduced);
+    Label_Stat[8].Caption := IntToStr(GetWarriorsTrained);
     Label_Stat[9].Caption := TimeToString(fGame.MissionTime);
   end;
 
@@ -583,7 +584,15 @@ begin
       Graph_Houses.AddLine(PlayerName, FlagColor, Stats.GraphHouses);
 
     for R := WARE_MIN to WARE_MAX do
-      Graph_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
+    begin
+      G := MyPlayer.Stats.GraphGoods[R];
+      for I := 0 to High(G) do
+        if G[I] <> 0 then
+        begin
+          Graph_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
+          Break;
+        end;
+    end;
 
     Button_Graph2.Enabled := (fGame.MissionMode = mm_Normal);
     Results_GraphToggle(Button_Graph1);
@@ -2755,7 +2764,7 @@ begin
   if (fGameApp.Networking.Connected) and (i < fGameApp.Networking.NetPlayers.Count) and
      (fGameApp.Networking.NetPlayers[i+1].IsHuman) then
   begin
-    Label_LobbyPing[i].Caption := inttostr(fGameApp.Networking.NetPlayers[i+1].GetInstantPing);
+    Label_LobbyPing[i].Caption := IntToStr(fGameApp.Networking.NetPlayers[i+1].GetInstantPing);
     Label_LobbyPing[i].FontColor := GetPingColor(fGameApp.Networking.NetPlayers[i+1].GetInstantPing);
   end
   else
