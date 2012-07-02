@@ -330,8 +330,8 @@ type
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
     procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
-    procedure UpdateMenuState(aTactic: Boolean);
-    procedure UpdateMapSize(X,Y:integer);
+    procedure SetMenuState(aTactic: Boolean);
+    procedure SetMinimap;
     procedure ShowClock(aSpeed: Word);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
     procedure ShowMPPlayMore(Msg:TGameResultMsg);
@@ -2800,7 +2800,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.UpdateMenuState(aTactic: Boolean);
+procedure TKMGamePlayInterface.SetMenuState(aTactic: Boolean);
 begin
   Button_Main[tbBuild].Enabled := not aTactic and not fReplay;
   Button_Main[tbRatio].Enabled := not aTactic and not fReplay;
@@ -3586,7 +3586,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.UpdateMapSize(X, Y: Integer);
+procedure TKMGamePlayInterface.SetMinimap;
 begin
   MinimapView.SetMinimap(fGame.Minimap);
   MinimapView.SetViewport(fGame.Viewport);

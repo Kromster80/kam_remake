@@ -94,8 +94,8 @@ end;
 procedure TKMMinimap.UpdateMapSize;
 begin
   fMyTerrain := fTerrain;
-  fMapX := fTerrain.MapX - 1;
-  fMapY := fTerrain.MapY - 1;
+  fMapX := fMyTerrain.MapX - 1;
+  fMapY := fMyTerrain.MapY - 1;
   SetLength(fBase, fMapX * fMapY);
   fWidthPOT := MakePOT(fMapX);
   fHeightPOT := MakePOT(fMapY);

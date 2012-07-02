@@ -60,6 +60,7 @@ type
     procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
     procedure Player_ChangeActive(Sender: TObject);
     procedure SetActivePlayer(aIndex: TPlayerIndex);
+    procedure SetTileDirection(aTileDirection: byte);
     procedure Player_ColorClick(Sender:TObject);
     procedure Player_BlockRefresh;
     procedure Player_BlockClick(Sender:TObject);
@@ -189,11 +190,10 @@ type
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
     property ShowPassability:byte read fShowPassability;
-    procedure UpdateMapSize(X,Y:integer);
-    procedure UpdateMapName(const aName:string);
+    procedure SetMinimap;
+    procedure SetMapName(const aName:string);
     procedure RightClick_Cancel;
     function GetShownPage: TKMMapEdShownPage;
-    procedure SetTileDirection(aTileDirection: byte);
     procedure SetLoadMode(aMultiplayer:boolean);
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
@@ -935,14 +935,14 @@ begin
 end;
 
 
-procedure TKMapEdInterface.UpdateMapSize(X,Y: Integer);
+procedure TKMapEdInterface.SetMinimap;
 begin
   MinimapView.SetMinimap(fGame.Minimap);
   MinimapView.SetViewport(fGame.Viewport);
 end;
 
 
-procedure TKMapEdInterface.UpdateMapName(const aName: string);
+procedure TKMapEdInterface.SetMapName(const aName: string);
 begin
   Label_MissionName.Caption := aName;
 end;

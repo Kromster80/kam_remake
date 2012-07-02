@@ -1266,8 +1266,8 @@ begin
     fViewport.ResetZoom;
 
     fMapEditorInterface.Player_UpdateColors;
-    fMapEditorInterface.UpdateMapName(fGameName);
-    fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
+    fMapEditorInterface.SetMapName(fGameName);
+    fMapEditorInterface.SetMinimap;
   end
   else
   begin
@@ -1275,8 +1275,8 @@ begin
     fViewport.Position := KMPointF(MyPlayer.CenterScreen);
     fViewport.ResetZoom; //This ensures the viewport is centered on the map
 
-    fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
-    fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic);
+    fGamePlayInterface.SetMinimap;
+    fGamePlayInterface.SetMenuState(fMissionMode = mm_Tactic);
   end;
 end;
 
