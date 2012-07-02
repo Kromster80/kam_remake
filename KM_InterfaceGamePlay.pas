@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_CommonTypes,
-  KM_InterfaceDefaults, KM_Minimap, KM_Terrain, KM_Pics,
+  KM_InterfaceDefaults, KM_Terrain, KM_Pics,
   KM_Controls, KM_Houses, KM_Units, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
@@ -686,11 +686,10 @@ begin
 end;
 
 
-{Update minimap data}
-procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject; const X,Y:integer);
+//Update viewport position when user interacts with minimap
+procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject; const X,Y: Integer);
 begin
   fGame.Viewport.Position := KMPointF(X,Y);
-  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -3589,9 +3588,8 @@ end;
 
 procedure TKMGamePlayInterface.UpdateMapSize(X, Y: Integer);
 begin
-  MinimapView.UpdateFrom(fGame.Minimap);
-  MinimapView.MapSize := KMPoint(X, Y);
-  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
+  MinimapView.SetMinimap(fGame.Minimap);
+  MinimapView.SetViewport(fGame.Viewport);
 end;
 
 
@@ -3600,9 +3598,6 @@ end;
 procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var I: Integer; S: string;
 begin
-  //Minimap viewport gets updated eact tick
-  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
-
   //Update unit/house information
   if fShownUnit <> nil then
     ShowUnitInfo(fShownUnit,fAskDismiss)

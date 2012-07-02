@@ -2026,7 +2026,7 @@ begin
     fMinimap.UseCustomColors := False;
     fMinimap.LoadTerrain(MapNameToPath(fMaps[aIndex].FileName, 'dat', False));
     fMinimap.Update(False);
-    MinimapView_Single.UpdateFrom(fMinimap);
+    MinimapView_Single.SetMinimap(fMinimap);
   end;
 
   Button_SingleStart.Enabled := aIndex <> -1;
@@ -2747,7 +2747,7 @@ begin
   if (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid then
   begin
     fMinimap.Update(True);
-    MinimapView_Lobby.UpdateFrom(fMinimap);
+    MinimapView_Lobby.SetMinimap(fMinimap);
   end;
 
   CheckBox_LobbyHostControl.Checked := fGameApp.Networking.NetPlayers.HostDoesSetup;
@@ -2884,7 +2884,7 @@ begin
                   fMinimap.UseCustomColors := True;
                   fMinimap.LoadTerrain(MapNameToPath(fGameApp.Networking.MapInfo.FileName, 'dat', True));
                   fMinimap.Update(True);
-                  MinimapView_Lobby.UpdateFrom(fMinimap);
+                  MinimapView_Lobby.SetMinimap(fMinimap);
                 end;
 
                 Label_LobbyMapName.Caption := fGameApp.Networking.GameInfo.Title;
@@ -3021,7 +3021,7 @@ begin
   MinimapView_Load.Hide; //Hide by default, then show it if we load the map successfully
   if Button_Load.Enabled and fSaves[List_Load.ItemIndex].LoadMinimap(fMinimap) then
   begin
-    MinimapView_Load.UpdateFrom(fMinimap);
+    MinimapView_Load.SetMinimap(fMinimap);
     MinimapView_Load.Show;
   end;
 end;
@@ -3146,7 +3146,7 @@ begin
   MinimapView_Replay.Hide; //Hide by default, then show it if we load the map successfully
   if Button_ReplaysPlay.Enabled and fSaves[ID].LoadMinimap(fMinimap) then
   begin
-    MinimapView_Replay.UpdateFrom(fMinimap);
+    MinimapView_Replay.SetMinimap(fMinimap);
     MinimapView_Replay.Show;
   end;
 end;
@@ -3290,7 +3290,7 @@ begin
     fMinimap.UseCustomColors := False;
     fMinimap.LoadTerrain(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1));
     fMinimap.Update(True);
-    MinimapView_MapEd.UpdateFrom(fMinimap);
+    MinimapView_MapEd.SetMinimap(fMinimap);
     MinimapView_MapEd.Show;
   end
   else

@@ -5,7 +5,7 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
-     KM_Controls, KM_Defaults, KM_Pics, KM_Minimap, KM_Maps, KM_Houses, KM_Units,
+     KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units,
      KM_Points, KM_InterfaceDefaults, KM_Terrain;
 
 type
@@ -388,11 +388,10 @@ begin
 end;
 
 
-{Update minimap data}
+//Update viewport position when user interacts with minimap
 procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: integer);
 begin
   fGame.Viewport.Position := KMPointF(X,Y);
-  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -929,19 +928,17 @@ begin
 end;
 
 
-{Should update any items changed by game (resource counts, hp, etc..)}
-{If it ever gets a bottleneck then some static Controls may be excluded from update}
+//Should update any items changed by game (resource counts, hp, etc..)
 procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 begin
-  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
+  //
 end;
 
 
 procedure TKMapEdInterface.UpdateMapSize(X,Y: Integer);
 begin
-  MinimapView.UpdateFrom(fGame.Minimap);
-  MinimapView.MapSize := KMPoint(X, Y);
-  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
+  MinimapView.SetMinimap(fGame.Minimap);
+  MinimapView.SetViewport(fGame.Viewport);
 end;
 
 
