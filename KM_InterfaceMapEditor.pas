@@ -5,14 +5,12 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
-     KM_Controls, KM_Defaults, KM_Pics, KM_MapView, KM_Maps, KM_Houses, KM_Units,
+     KM_Controls, KM_Defaults, KM_Pics, KM_Minimap, KM_Maps, KM_Houses, KM_Units,
      KM_Points, KM_InterfaceDefaults, KM_Terrain;
 
 type
   TKMapEdInterface = class (TKMUserInterface)
   private
-    fMapView: TKMMapView;
-
     fShownUnit:TKMUnit;
     fShownHouse:TKMHouse;
     fShowPassability:byte;
@@ -74,7 +72,7 @@ type
     function GetSelectedUnit: TObject;
   protected
     Panel_Main:TKMPanel;
-      Minimap:TKMMinimap;
+      MinimapView: TKMMinimapView;
       Label_Coordinates:TKMLabel;
       TrackBar_Passability:TKMTrackBar;
       Label_Passability:TKMLabel;
@@ -394,7 +392,7 @@ end;
 procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: integer);
 begin
   fGame.Viewport.Position := KMPointF(X,Y);
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -403,8 +401,6 @@ var
   i: integer;
 begin
   inherited;
-
-  fMapView := TKMMapView.Create(False, True, False);
 
   fShownUnit  := nil;
   fShownHouse := nil;
@@ -422,8 +418,8 @@ begin
     TKMImage.Create(Panel_Main,0, 600,224,400,404);
     TKMImage.Create(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
 
-    Minimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
-    Minimap.OnChange := Minimap_Update;
+    MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
+    MinimapView.OnChange := Minimap_Update;
 
     Label_Coordinates := TKMLabel.Create(Panel_Main,8,192,184,0,'X: Y:',fnt_Outline,taLeft);
     TrackBar_Passability := TKMTrackBar.Create(Panel_Main, 8, 210, 184, 0, Byte(High(TPassability)));
@@ -492,7 +488,6 @@ destructor TKMapEdInterface.Destroy;
 begin
   fMaps.Free;
   fMapsMP.Free;
-  fMapView.Free;
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
   inherited;
 end;
@@ -938,21 +933,15 @@ end;
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 begin
-  //Every 1000ms
-  if aTickCount mod 10 = 0 then
-    fMapView.Update(False);
-
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
 procedure TKMapEdInterface.UpdateMapSize(X,Y: Integer);
 begin
-  fMapView.UpdateMapSize;
-  fMapView.Update(False);
-  Minimap.UpdateFrom(fMapView);
-  Minimap.MapSize := KMPoint(X, Y);
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  MinimapView.UpdateFrom(fGame.Minimap);
+  MinimapView.MapSize := KMPoint(X, Y);
+  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 

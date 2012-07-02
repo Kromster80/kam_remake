@@ -3,7 +3,7 @@ unit KM_Saves;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, SyncObjs,
-  KM_CommonClasses, KM_Defaults, KM_GameInfo, KM_GameOptions, KM_MapView;
+  KM_CommonClasses, KM_Defaults, KM_GameInfo, KM_GameOptions, KM_Minimap;
 
 
 type
@@ -36,7 +36,7 @@ type
 
     function IsValid: Boolean;
     function IsReplayValid: Boolean;
-    function LoadMinimap(aMapView:TKMMapView):Boolean;
+    function LoadMinimap(aMinimap:TKMMinimap):Boolean;
   end;
 
   TTSavesScanner = class(TThread)
@@ -139,7 +139,7 @@ begin
 end;
 
 
-function TKMSaveInfo.LoadMinimap(aMapView: TKMMapView): Boolean;
+function TKMSaveInfo.LoadMinimap(aMinimap: TKMMinimap): Boolean;
 var
   LoadStream: TKMemoryStream;
   DummyInfo: TKMGameInfo;
@@ -160,7 +160,7 @@ begin
     LoadStream.Read(IsMultiplayer);
     if not IsMultiplayer then
     begin
-      aMapView.Load(LoadStream);
+      aMinimap.Load(LoadStream);
       Result := True;
     end;
 

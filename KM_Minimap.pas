@@ -1,4 +1,4 @@
-unit KM_MapView;
+unit KM_Minimap;
 {$I KaM_Remake.inc}
 interface
 uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, SysUtils,
@@ -8,7 +8,7 @@ uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, SysUtils,
 
 type
   //Intermediary class between TTerrain/Players and UI
-  TKMMapView = class
+  TKMMinimap = class
   private
     fFromParser: Boolean;
     fIsMapEditor: Boolean;
@@ -16,6 +16,7 @@ type
     fUseCustomColors: Boolean;
     fParser: TMissionParserPreview;
     fMyTerrain: TTerrain;
+
     fMapY: Word;
     fMapX: Word;
     fBase: TCardinalArray; //Base terrain layer
@@ -27,7 +28,7 @@ type
     procedure SepiaFilter;
     procedure UpdateTexture;
   public
-    PlayerColors:array[1..MAX_PLAYERS] of Cardinal;
+    PlayerColors: array [1..MAX_PLAYERS] of Cardinal;
     constructor Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
@@ -51,7 +52,7 @@ uses KM_PlayersCollection, KM_Resource, KM_Units, KM_Units_Warrior;
 
 
 { TKMMinimap }
-constructor TKMMapView.Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
+constructor TKMMinimap.Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
 begin
   inherited Create;
 
@@ -68,7 +69,7 @@ begin
 end;
 
 
-destructor TKMMapView.Destroy;
+destructor TKMMinimap.Destroy;
 begin
   FreeAndNil(fParser);
   inherited;
@@ -76,7 +77,7 @@ end;
 
 
 //Load map in a direct way, should be used only when in Menu
-procedure TKMMapView.LoadTerrain(aMissionPath: string);
+procedure TKMMinimap.LoadTerrain(aMissionPath: string);
 begin
   fParser.LoadMission(aMissionPath);
 
@@ -90,7 +91,7 @@ begin
 end;
 
 
-procedure TKMMapView.UpdateMapSize;
+procedure TKMMinimap.UpdateMapSize;
 begin
   fMyTerrain := fTerrain;
   fMapX := fTerrain.MapX - 1;
@@ -103,7 +104,7 @@ begin
 end;
 
 
-procedure TKMMapView.UpdateMinimapFromParser(aRevealAll: Boolean);
+procedure TKMMinimap.UpdateMinimapFromParser(aRevealAll: Boolean);
 var
   I, K, N: Integer;
   Light: SmallInt;
@@ -113,7 +114,7 @@ begin
   for K := 1 to fMapX do
     with fParser.MapPreview[K,I] do
     begin
-      N := (I-1)*fMapX + (K-1);
+      N := (I-1) * fMapX + (K-1);
       if not aRevealAll and not Revealed then
         fBase[N] := $E0000000
       else
@@ -140,7 +141,7 @@ end;
 
 //Sepia method taken from:
 //http://www.techrepublic.com/blog/howdoi/how-do-i-convert-images-to-grayscale-and-sepia-tone-using-c/120
-procedure TKMMapView.SepiaFilter;
+procedure TKMMinimap.SepiaFilter;
 const SEPIA_VAL = 0.4;
 var
   I: Integer;
@@ -168,7 +169,7 @@ begin
 end;
 
 
-function TKMMapView.GetPlayerLoc(aIndex:byte): TKMPoint;
+function TKMMinimap.GetPlayerLoc(aIndex:byte): TKMPoint;
 begin
   Assert(fFromParser); //Should only be used in parser mode
   Result := fParser.PlayerPreview[aIndex].StartingLoc;
@@ -176,7 +177,7 @@ end;
 
 
 //MapEditor stores only commanders instead of all groups members
-procedure TKMMapView.UpdateMinimapFromGame;
+procedure TKMMinimap.UpdateMinimapFromGame;
 var
   FOW,ID: Byte;
   I,J,K: Integer;
@@ -217,7 +218,7 @@ begin
       end;
   end;
 
-  //Scan all players units and paint all virtual group members
+  //Scan all players units and paint all virtual group members in MapEd
   if fIsMapEditor then
     for I:=0 to fPlayers.Count-1 do
       for K:=0 to fPlayers[I].Units.Count-1 do
@@ -234,7 +235,7 @@ begin
 end;
 
 
-procedure TKMMapView.Update(aRevealAll: Boolean);
+procedure TKMMinimap.Update(aRevealAll: Boolean);
 begin
   if SKIP_RENDER then Exit;
 
@@ -249,7 +250,7 @@ begin
 end;
 
 
-procedure TKMMapView.UpdateTexture;
+procedure TKMMinimap.UpdateTexture;
 var
   wData: Pointer;
   I: Integer;
@@ -265,7 +266,7 @@ begin
 end;
 
 
-procedure TKMMapView.Save(SaveStream: TKMemoryStream);
+procedure TKMMinimap.Save(SaveStream: TKMemoryStream);
 var L: Cardinal;
 begin
   SaveStream.Write('Minimap');
@@ -279,7 +280,7 @@ begin
 end;
 
 
-procedure TKMMapView.Load(LoadStream: TKMemoryStream);
+procedure TKMMinimap.Load(LoadStream: TKMemoryStream);
 var L: Cardinal;
 begin
   LoadStream.ReadAssert('Minimap');

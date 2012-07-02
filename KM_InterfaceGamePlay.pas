@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_CommonTypes,
-  KM_InterfaceDefaults, KM_MapView, KM_Terrain, KM_Pics,
+  KM_InterfaceDefaults, KM_Minimap, KM_Terrain, KM_Pics,
   KM_Controls, KM_Houses, KM_Units, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
@@ -17,7 +17,6 @@ type
 
   TKMGamePlayInterface = class (TKMUserInterface)
   private
-    fMapView: TKMMapView;
     fMultiplayer: Boolean; //Multiplayer UI has slightly different layout
     fReplay: Boolean; //Replay UI has slightly different layout
 
@@ -136,7 +135,7 @@ type
     Panel_Main: TKMPanel;
       Sidebar_Top: TKMImage;
       Sidebar_Middle: TKMImage;
-      Minimap: TKMMinimap;
+      MinimapView: TKMMinimapView;
       Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_SoundsCount, Label_NetworkDelay, Label_Hint:TKMLabel;
 
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
@@ -352,8 +351,6 @@ type
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
-    procedure SaveMapview(SaveStream: TKMemoryStream);
-    procedure LoadMapview(LoadStream: TKMemoryStream);
 
     procedure KeyDown(Key:Word; Shift: TShiftState); override;
     procedure KeyUp(Key:Word; Shift: TShiftState); override;
@@ -693,7 +690,7 @@ end;
 procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject; const X,Y:integer);
 begin
   fGame.Viewport.Position := KMPointF(X,Y);
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -701,7 +698,7 @@ procedure TKMGamePlayInterface.Minimap_RightClick(Sender: TObject; const X,Y:int
 var
   KMP: TKMPoint;
 begin
-  KMP := Minimap.LocalToMapCoords(X, Y, -1); //Inset by 1 pixel to catch cases "outside of map"
+  KMP := MinimapView.LocalToMapCoords(X, Y, -1); //Inset by 1 pixel to catch cases "outside of map"
   if not fTerrain.TileInMapCoords(KMP.X, KMP.Y) then Exit; //Must be inside map
 
   //Send move order, if applicable
@@ -721,7 +718,6 @@ begin
   fMultiplayer := aMultiplayer;
   fReplay := aReplay;
   //Instruct to use global Terrain
-  fMapView := TKMMapView.Create(False, False, False);
   LastSaveName := '';
   fShownUnit:=nil;
   fShownHouse:=nil;
@@ -736,15 +732,15 @@ begin
   fMessageList := TKMMessageList.Create;
   fSaves := TKMSavesCollection.Create;
 
-{Parent Page for whole toolbar in-game}
+  //Parent Page for whole toolbar in-game
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
 
     Sidebar_Top       := TKMImage.Create(Panel_Main, 0,    0, 224, 200, 407);
     Sidebar_Middle    := TKMImage.Create(Panel_Main, 0,  200, 224, 168, 554);
 
-    Minimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
-    Minimap.OnChange := Minimap_Update; //Allow dragging with LMB pressed
-    Minimap.OnClickRight := Minimap_RightClick;
+    MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
+    MinimapView.OnChange := Minimap_Update; //Allow dragging with LMB pressed
+    MinimapView.OnClickRight := Minimap_RightClick;
 
     Image_Clock := TKMImage.Create(Panel_Main,232,8,67,65,556);
     Image_Clock.Hide;
@@ -809,7 +805,6 @@ begin
   ReleaseDirectionSelector; //Make sure we don't exit leaving the cursor restrained
   fMessageList.Free;
   fSaves.Free;
-  fMapView.Free;
   inherited;
 end;
 
@@ -3592,25 +3587,11 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SaveMapview(SaveStream: TKMemoryStream);
-begin
-  fMapView.Save(SaveStream);
-end;
-
-
-procedure TKMGamePlayInterface.LoadMapview(LoadStream: TKMemoryStream);
-begin
-  fMapView.Load(LoadStream);
-end;
-
-
 procedure TKMGamePlayInterface.UpdateMapSize(X, Y: Integer);
 begin
-  fMapView.UpdateMapSize;
-  fMapView.Update(False);
-  Minimap.UpdateFrom(fMapView);
-  Minimap.MapSize := KMPoint(X, Y);
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  MinimapView.UpdateFrom(fGame.Minimap);
+  MinimapView.MapSize := KMPoint(X, Y);
+  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -3619,12 +3600,8 @@ end;
 procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var I: Integer; S: string;
 begin
-  //Update minimap every 1000ms
-  if (aTickCount mod 10 = 0) and not fGame.IsPaused then
-    fMapView.Update(False);
-
   //Minimap viewport gets updated eact tick
-  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
+  MinimapView.ViewArea := fGame.Viewport.GetMinimapClip;
 
   //Update unit/house information
   if fShownUnit <> nil then

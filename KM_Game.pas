@@ -9,8 +9,8 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Points,
   KM_GameInputProcess, KM_GameOptions,
   KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
-  KM_Networking, KM_PathFinding, KM_PerfLog, KM_Projectiles, KM_Render,
-  KM_Viewport;
+  KM_Minimap, KM_Networking, KM_PathFinding, KM_PerfLog, KM_Projectiles,
+  KM_Render, KM_Viewport;
 
 type
   TGameMode = (
@@ -30,6 +30,7 @@ type
     fNetworking: TKMNetworking;
     fProjectiles: TKMProjectiles;
     fGameInputProcess: TGameInputProcess;
+    fMinimap: TKMMinimap;
     fPathfinding: TPathFinding;
     fViewport: TViewport;
     fPerfLog: TKMPerfLog;
@@ -138,6 +139,7 @@ type
 
     procedure UpdateGameCursor(X,Y: Integer; Shift: TShiftState);
 
+    property Minimap: TKMMinimap read fMinimap;
     property Networking: TKMNetworking read fNetworking;
     property Pathfinding: TPathFinding read fPathfinding;
     property Projectiles: TKMProjectiles read fProjectiles;
@@ -191,14 +193,16 @@ begin
   fWaitingForNetwork := False;
   fGameOptions  := TKMGameOptions.Create;
 
+  //Create required UI (gameplay or MapEd)
   if fGameMode = gmMapEd then
   begin
+    fMinimap := TKMMinimap.Create(False, True, False);
     fMapEditorInterface := TKMapEdInterface.Create(aRender.ScreenX, aRender.ScreenY);
     fActiveInterface := fMapEditorInterface;
   end
   else
   begin
-    //Create required UI (gameplay or MapEd)
+    fMinimap := TKMMinimap.Create(False, False, False);
     fGamePlayInterface := TKMGamePlayInterface.Create(aRender.ScreenX, aRender.ScreenY, IsMultiplayer, IsReplay);
     fActiveInterface := fGamePlayInterface;
   end;
@@ -246,6 +250,7 @@ begin
 
   FreeThenNil(fGamePlayInterface);
   FreeThenNil(fMapEditorInterface);
+  FreeThenNil(fMinimap);
 
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fRenderPool);
@@ -963,8 +968,10 @@ begin
     //so we can load multiplayer saves in single player and vice versa.
     SaveStream.Write(fGameMode = gmMulti);
 
+    //Minimap is near the start so it can be accessed quickly
+    //Each player in MP has his own minimap version ..
     if fGameMode <> gmMulti then
-      fGamePlayInterface.SaveMapview(SaveStream); //Minimap is near the start so it can be accessed quickly
+      fMinimap.Save(SaveStream);
 
     //We need to know which campaign to display after victory
     SaveStream.Write(fCampaignName);
@@ -1074,8 +1081,9 @@ begin
   //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is
   LoadStream.Read(SaveIsMultiplayer);
 
+  //Not used, (only stored for preview) but it's easiest way to skip past it
   if not SaveIsMultiplayer then
-    fGamePlayInterface.LoadMapview(LoadStream); //Not used, (only stored for preview) but it's easiest way to skip past it
+    fMinimap.Load(LoadStream);
 
   //We need to know which campaign to display after victory
   LoadStream.Read(fCampaignName);
@@ -1220,6 +1228,10 @@ begin
                 end;
   end;
 
+  //Update minimap every 1000ms
+  if fGameTickCount mod 10 = 0 then
+    fMinimap.Update(False);
+
   if DoGameHold then GameHold(true,DoGameHoldState);
 end;
 
@@ -1245,6 +1257,9 @@ end;
 
 procedure TKMGame.UpdateUI;
 begin
+  fMinimap.UpdateMapSize;
+  fMinimap.Update(False);
+
   if fGameMode = gmMapEd then
   begin
     fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
@@ -1264,6 +1279,7 @@ begin
     fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic);
   end;
 end;
+
 
 function TKMGame.SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
 begin

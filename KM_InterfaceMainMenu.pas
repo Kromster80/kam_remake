@@ -7,7 +7,7 @@ uses
   {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
   KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
-  KM_InterfaceDefaults, KM_MapView, KM_ServerQuery;
+  KM_InterfaceDefaults, KM_Minimap, KM_ServerQuery;
 
 
 type
@@ -27,7 +27,7 @@ type
     fMapsMP: TKMapsCollection;
     fSaves: TKMSavesCollection;
     fSavesMP: TKMSavesCollection;
-    fMapView: TKMMapView;
+    fMinimap: TKMMinimap;
 
     fLobbyBusy: Boolean;
 
@@ -218,7 +218,7 @@ type
         Label_LobbyMapName:TKMLabel;
         Memo_LobbyMapDesc: TKMMemo;
         TrackBar_LobbyPeacetime: TKMTrackBar;
-        Minimap_LobbyPreview: TKMMinimap;
+        MinimapView_Lobby: TKMMinimapView;
 
       Memo_LobbyPosts:TKMMemo;
       Label_LobbyPost:TKMLabel;
@@ -241,7 +241,7 @@ type
         Label_CampaignTitle,Label_CampaignText:TKMLabel;
       Button_CampaignStart,Button_CampaignBack:TKMButton;
     Panel_Single:TKMPanel;
-      Minimap_SinglePreview: TKMMinimap;
+      MinimapView_Single: TKMMinimapView;
       Panel_SingleList,Panel_SingleDesc:TKMPanel;
       Button_SingleHeadMode,Button_SingleHeadTeams,Button_SingleHeadTitle,Button_SingleHeadSize:TKMButton;
       Bevel_SingleBG: array of array[1..4]of TKMBevel;
@@ -263,20 +263,20 @@ type
       Label_DeleteConfirm: TKMLabel;
       Button_DeleteYes, Button_DeleteNo: TKMButton;
       Button_LoadBack:TKMButton;
-      Minimap_LoadPreview: TKMMinimap;
+      MinimapView_Load: TKMMinimapView;
     Panel_Replays:TKMPanel;
       Radio_Replays_Type:TKMRadioGroup;
       List_Replays: TKMColumnListBox;
       Button_ReplaysPlay: TKMButton;
       Button_ReplaysBack:TKMButton;
-      Minimap_ReplayPreview: TKMMinimap;
+      MinimapView_Replay: TKMMinimapView;
     Panel_MapEd:TKMPanel;
       Panel_MapEd_SizeXY:TKMPanel;
       Radio_MapEd_SizeX,Radio_MapEd_SizeY:TKMRadioGroup;
       Panel_MapEd_Load:TKMPanel;
       List_MapEd:TKMListBox;
       Radio_MapEd_MapType:TKMRadioGroup;
-      Minimap_MapEd:TKMMinimap;
+      MinimapView_MapEd:TKMMinimapView;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load:TKMButton;
     Panel_Options:TKMPanel;
       Panel_Options_GFX:TKMPanel;
@@ -371,7 +371,7 @@ begin
 
   Campaign_MapIndex := 1;
 
-  fMapView := TKMMapView.Create(True, False, True);
+  fMinimap := TKMMinimap.Create(True, False, True);
 
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(True);
@@ -436,7 +436,7 @@ begin
   fMapsMP.Free;
   fSaves.Free;
   fSavesMP.Free;
-  fMapView.Free;
+  fMinimap.Free;
   inherited;
 end;
 
@@ -1011,8 +1011,8 @@ begin
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 99, 250, 20, '', fnt_Metal, taLeft);
 
       TKMBevel.Create(Panel_LobbySetup, 35, 124, 199, 199);
-      Minimap_LobbyPreview := TKMMinimap.Create(Panel_LobbySetup, 39, 128, 191, 191);
-      Minimap_LobbyPreview.ShowLocs := True; //In the minimap we want player locations to be shown
+      MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetup, 39, 128, 191, 191);
+      MinimapView_Lobby.ShowLocs := True; //In the minimap we want player locations to be shown
 
       Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 328, 250, 288, fnt_Game);
       Memo_LobbyMapDesc.Anchors := [akLeft,akTop,akBottom];
@@ -1166,7 +1166,7 @@ begin
       Memo_SingleDesc.AutoWrap := True;
 
       TKMBevel.Create(Panel_SingleDesc, 121, 160, 199, 199);
-      Minimap_SinglePreview := TKMMinimap.Create(Panel_SingleDesc, 125, 164, 191, 191);
+      MinimapView_Single := TKMMinimapView.Create(Panel_SingleDesc, 125, 164, 191, 191);
 
       TKMBevel.Create(Panel_SingleDesc,0,368,445,20);
       Label_SingleCondTyp:=TKMLabel.Create(Panel_SingleDesc,8,371,429,20,fTextLibrary[TX_MENU_MISSION_TYPE],fnt_Metal, taLeft);
@@ -1224,8 +1224,8 @@ begin
     Button_LoadBack.OnClick := SwitchMenuPage;
 
     with TKMBevel.Create(Panel_Load, 785, 226, 199, 199) do Anchors := [akLeft];
-    Minimap_LoadPreview := TKMMinimap.Create(Panel_Load,789,230,191,191);
-    Minimap_LoadPreview.Anchors := [akLeft];
+    MinimapView_Load := TKMMinimapView.Create(Panel_Load,789,230,191,191);
+    MinimapView_Load.Anchors := [akLeft];
 end;
 
 
@@ -1269,7 +1269,7 @@ begin
       Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 335, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], fnt_Metal, bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
       TKMBevel.Create(Panel_MapEd_Load, 308, 80, 199, 199);
-      Minimap_MapEd := TKMMinimap.Create(Panel_MapEd_Load, 312, 84, 191, 191);
+      MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEd_Load, 312, 84, 191, 191);
 
     Button_MapEdBack := TKMButton.Create(Panel_MapEd, 100, 630, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
     Button_MapEdBack.Anchors := [akLeft];
@@ -1307,8 +1307,8 @@ begin
     Button_ReplaysBack.OnClick := SwitchMenuPage;
 
     with TKMBevel.Create(Panel_Replays, 785, 290, 199, 199) do Anchors := [akLeft];
-    Minimap_ReplayPreview := TKMMinimap.Create(Panel_Replays,789,294,191,191);
-    Minimap_ReplayPreview.Anchors := [akLeft];
+    MinimapView_Replay := TKMMinimapView.Create(Panel_Replays,789,294,191,191);
+    MinimapView_Replay.Anchors := [akLeft];
 end;
 
 
@@ -2011,7 +2011,7 @@ begin
     Label_SingleCondWin.Caption := '';
     Label_SingleCondDef.Caption := '';
 
-    Minimap_SinglePreview.Hide;
+    MinimapView_Single.Hide;
   end
   else
   begin
@@ -2022,11 +2022,11 @@ begin
     Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[aIndex].Info.VictoryCondition]);
     Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[aIndex].Info.DefeatCondition]);
 
-    Minimap_SinglePreview.Show;
-    fMapView.UseCustomColors := False;
-    fMapView.LoadTerrain(MapNameToPath(fMaps[aIndex].FileName, 'dat', False));
-    fMapView.Update(False);
-    Minimap_SinglePreview.UpdateFrom(fMapView);
+    MinimapView_Single.Show;
+    fMinimap.UseCustomColors := False;
+    fMinimap.LoadTerrain(MapNameToPath(fMaps[aIndex].FileName, 'dat', False));
+    fMinimap.Update(False);
+    MinimapView_Single.UpdateFrom(fMinimap);
   end;
 
   Button_SingleStart.Enabled := aIndex <> -1;
@@ -2739,15 +2739,15 @@ begin
   begin
     ID := fGameApp.Networking.NetPlayers.StartingLocToLocal(I);
     if ID <> -1 then
-      fMapView.PlayerColors[I] := fGameApp.Networking.NetPlayers[ID].FlagColor
+      fMinimap.PlayerColors[I] := fGameApp.Networking.NetPlayers[ID].FlagColor
     else
-      fMapView.PlayerColors[I] := $FF000000;
+      fMinimap.PlayerColors[I] := $FF000000;
   end;
   //If we have a map selected update the preview
   if (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid then
   begin
-    fMapView.Update(True);
-    Minimap_LobbyPreview.UpdateFrom(fMapView);
+    fMinimap.Update(True);
+    MinimapView_Lobby.UpdateFrom(fMinimap);
   end;
 
   CheckBox_LobbyHostControl.Checked := fGameApp.Networking.NetPlayers.HostDoesSetup;
@@ -2837,7 +2837,7 @@ procedure TKMMainMenuInterface.Lobby_OnMapName(const aData: string);
 var I: Integer; DropText: string;
 begin
   //Common settings
-  Minimap_LobbyPreview.Visible := (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
+  MinimapView_Lobby.Visible := (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
   TrackBar_LobbyPeacetime.Enabled := fGameApp.Networking.IsHost and (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
 
   case  fGameApp.Networking.SelectGameKind of
@@ -2881,10 +2881,10 @@ begin
                 //Only load the minimap preview if the map is valid
                 if fGameApp.Networking.MapInfo.IsValid then
                 begin
-                  fMapView.UseCustomColors := True;
-                  fMapView.LoadTerrain(MapNameToPath(fGameApp.Networking.MapInfo.FileName, 'dat', True));
-                  fMapView.Update(True);
-                  Minimap_LobbyPreview.UpdateFrom(fMapView);
+                  fMinimap.UseCustomColors := True;
+                  fMinimap.LoadTerrain(MapNameToPath(fGameApp.Networking.MapInfo.FileName, 'dat', True));
+                  fMinimap.Update(True);
+                  MinimapView_Lobby.UpdateFrom(fMinimap);
                 end;
 
                 Label_LobbyMapName.Caption := fGameApp.Networking.GameInfo.Title;
@@ -3018,11 +3018,11 @@ begin
   else
     fLastSaveCRC := 0;
 
-  Minimap_LoadPreview.Hide; //Hide by default, then show it if we load the map successfully
-  if Button_Load.Enabled and fSaves[List_Load.ItemIndex].LoadMinimap(fMapView) then
+  MinimapView_Load.Hide; //Hide by default, then show it if we load the map successfully
+  if Button_Load.Enabled and fSaves[List_Load.ItemIndex].LoadMinimap(fMinimap) then
   begin
-    Minimap_LoadPreview.UpdateFrom(fMapView);
-    Minimap_LoadPreview.Show;
+    MinimapView_Load.UpdateFrom(fMinimap);
+    MinimapView_Load.Show;
   end;
 end;
 
@@ -3143,11 +3143,11 @@ begin
   else
     fLastSaveCRC := 0;
 
-  Minimap_ReplayPreview.Hide; //Hide by default, then show it if we load the map successfully
-  if Button_ReplaysPlay.Enabled and fSaves[ID].LoadMinimap(fMapView) then
+  MinimapView_Replay.Hide; //Hide by default, then show it if we load the map successfully
+  if Button_ReplaysPlay.Enabled and fSaves[ID].LoadMinimap(fMinimap) then
   begin
-    Minimap_ReplayPreview.UpdateFrom(fMapView);
-    Minimap_ReplayPreview.Show;
+    MinimapView_Replay.UpdateFrom(fMinimap);
+    MinimapView_Replay.Show;
   end;
 end;
 
@@ -3287,14 +3287,14 @@ begin
   Button_MapEd_Load.Enabled := InRange(List_MapEd.ItemIndex,0,List_MapEd.Count-1);
   if Button_MapEd_Load.Enabled then
   begin
-    fMapView.UseCustomColors := False;
-    fMapView.LoadTerrain(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1));
-    fMapView.Update(True);
-    Minimap_MapEd.UpdateFrom(fMapView);
-    Minimap_MapEd.Show;
+    fMinimap.UseCustomColors := False;
+    fMinimap.LoadTerrain(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1));
+    fMinimap.Update(True);
+    MinimapView_MapEd.UpdateFrom(fMinimap);
+    MinimapView_MapEd.Show;
   end
   else
-    Minimap_MapEd.Hide;
+    MinimapView_MapEd.Hide;
 end;
 
 

@@ -6,7 +6,7 @@ uses
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
     Classes, Controls,  Math, SysUtils, Clipbrd,
     KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes, KM_Pics,
-    KM_ResourceSprites, KM_MapView;
+    KM_ResourceSprites, KM_Minimap;
 
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
@@ -918,25 +918,25 @@ type
   end;
 
   { Minimap as stand-alone control }
-  TKMMinimap = class(TKMControl)
+  TKMMinimapView = class(TKMControl)
   private
     fMapTex: TTexture;
     fMapSize: TKMPoint;
     fViewArea: TKMRect;
     fOnChange: TPointEvent;
     fPlayerLocs: array[1..MAX_PLAYERS] of TKMPoint;
-    fPlayerColors:array[1..MAX_PLAYERS] of Cardinal;
+    fPlayerColors: array[1..MAX_PLAYERS] of Cardinal;
     fShowLocs: Boolean;
-    function GetPlayerLoc(aIndex: Byte):TKMPoint;
-    procedure SetPlayerLoc(aIndex: Byte; aLoc:TKMPoint);
+    function GetPlayerLoc(aIndex: Byte): TKMPoint;
+    procedure SetPlayerLoc(aIndex: Byte; aLoc: TKMPoint);
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
-    procedure UpdateFrom(aMapView: TKMMapView);
+    procedure UpdateFrom(aMinimap: TKMMinimap);
     function LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
     property MapSize: TKMPoint read fMapSize write fMapSize;
     property ViewArea: TKMRect read fViewArea write fViewArea;
-    property PlayerLocs[Index:byte]: TKMPoint read GetPlayerLoc write SetPlayerLoc;
+    property PlayerLocs[aIndex: Byte]: TKMPoint read GetPlayerLoc write SetPlayerLoc;
     property ShowLocs: Boolean read fShowLocs write fShowLocs;
     property OnChange: TPointEvent write fOnChange;
 
@@ -3730,36 +3730,36 @@ end;
 
 
 { TKMMinimap }
-constructor TKMMinimap.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
+constructor TKMMinimapView.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 end;
 
 
-function TKMMinimap.GetPlayerLoc(aIndex:byte):TKMPoint;
+function TKMMinimapView.GetPlayerLoc(aIndex:byte):TKMPoint;
 begin
   Result := fPlayerLocs[aIndex];
 end;
 
 
-procedure TKMMinimap.SetPlayerLoc(aIndex:byte; aLoc:TKMPoint);
+procedure TKMMinimapView.SetPlayerLoc(aIndex:byte; aLoc:TKMPoint);
 begin
   fPlayerLocs[aIndex] := aLoc;
 end;
 
 
-procedure TKMMinimap.UpdateFrom(aMapView: TKMMapView);
+procedure TKMMinimapView.UpdateFrom(aMinimap: TKMMinimap);
 var i: Integer;
 begin
-  fMapSize.X := aMapView.MapX;
-  fMapSize.Y := aMapView.MapY;
-  fMapTex := aMapView.MapTex;
+  fMapSize.X := aMinimap.MapX;
+  fMapSize.Y := aMinimap.MapY;
+  fMapTex := aMinimap.MapTex;
   if fShowLocs then
   begin
     for i:=1 to MAX_PLAYERS do
     begin
-      fPlayerLocs[i] := aMapView.GetPlayerLoc(i);
-      fPlayerColors[i] := aMapView.PlayerColors[i];
+      fPlayerLocs[i] := aMinimap.GetPlayerLoc(i);
+      fPlayerColors[i] := aMinimap.PlayerColors[i];
     end;
   end
   else
@@ -3767,7 +3767,7 @@ begin
 end;
 
 
-function TKMMinimap.LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
+function TKMMinimapView.LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
 var PaintWidth, PaintHeight, NewLeft, NewTop:integer;
 begin
   if fMapSize.X > fMapSize.Y then
@@ -3791,14 +3791,14 @@ begin
 end;
 
 
-procedure TKMMinimap.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMMinimapView.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   inherited;
   MouseMove(X,Y,Shift);
 end;
 
 
-procedure TKMMinimap.MouseMove(X,Y: Integer; Shift: TShiftState);
+procedure TKMMinimapView.MouseMove(X,Y: Integer; Shift: TShiftState);
 var ViewPos: TKMPoint;
 begin
   inherited;
@@ -3812,7 +3812,7 @@ begin
 end;
 
 
-procedure TKMMinimap.Paint;
+procedure TKMMinimapView.Paint;
 var i, PaintWidth, PaintHeight, NewLeft, NewTop:integer;
 const LOC_RAD = 8; //Radius of circle around player location
 begin
@@ -3829,13 +3829,13 @@ begin
     if fMapSize.X > fMapSize.Y then
     begin
       PaintWidth := Width;
-      PaintHeight := Round(Height*fMapSize.Y/Max(fMapSize.X,1)); //X could = 0
+      PaintHeight := Round(Height * fMapSize.Y / Max(fMapSize.X, 1)); // X could = 0
       NewLeft := Left;
       NewTop := Top + (Height - PaintHeight) div 2;
     end
     else
     begin
-      PaintWidth := Round(Width*fMapSize.X/Max(fMapSize.Y,1)); //Y could = 0
+      PaintWidth := Round(Width * fMapSize.X / Max(fMapSize.Y, 1)); // Y could = 0
       PaintHeight := Height;
       NewLeft := Left + (Width - PaintWidth) div 2;
       NewTop := Top;
@@ -3846,17 +3846,20 @@ begin
   else
     fRenderUI.WriteBevel(NewLeft, NewTop, PaintWidth, PaintHeight);
 
+  //Viewport rectangle
   if (fViewArea.Right - fViewArea.Left) * (fViewArea.Bottom - fViewArea.Top) > 0 then
     fRenderUI.WriteRect(NewLeft + Round(fViewArea.Left*PaintWidth / fMapSize.X),
                         NewTop  + Round(fViewArea.Top*PaintHeight / fMapSize.Y),
                         Round((fViewArea.Right - fViewArea.Left)*PaintWidth / fMapSize.X),
                         Round((fViewArea.Bottom - fViewArea.Top)*PaintHeight / fMapSize.Y), 1, $FFFFFFFF);
+
   //Draw all the circles, THEN all the numbers so the numbers are not covered by circles when they are close
   for i:=1 to MAX_PLAYERS do
     if not KMSamePoint(fPlayerLocs[i], KMPoint(0,0)) then
       fRenderUI.WriteCircle(NewLeft+EnsureRange(Round(fPlayerLocs[i].X*PaintWidth / fMapSize.X),LOC_RAD,PaintWidth-LOC_RAD),
                             NewTop +EnsureRange(Round(fPlayerLocs[i].Y*PaintHeight / fMapSize.Y),LOC_RAD,PaintHeight-LOC_RAD),
                             LOC_RAD, fPlayerColors[i]);
+
   for i:=1 to MAX_PLAYERS do
     if not KMSamePoint(fPlayerLocs[i], KMPoint(0,0)) then
       fRenderUI.WriteText(NewLeft+EnsureRange(Round(fPlayerLocs[i].X*PaintWidth / fMapSize.X),LOC_RAD,PaintWidth-LOC_RAD),
