@@ -10,13 +10,13 @@ type
   //Intermediary class between TTerrain/Players and UI
   TKMMinimap = class
   private
-    fFromParser: Boolean;
-    fIsMapEditor: Boolean;
-    fSepia: Boolean;
-    fUseCustomColors: Boolean;
+    fIsMapEditor: Boolean; //Paint missing army memmbers
+    fSepia: Boolean; //Less saturated display for menu
     fParser: TMissionParserPreview;
     fMyTerrain: TTerrain;
 
+    //We need to store map properties locally since Minimaps come from various
+    //sources which do not have Terrain in them (TMissionParserPreview, Stream)
     fMapY: Word;
     fMapX: Word;
     fBase: TCardinalArray; //Base terrain layer
@@ -29,21 +29,20 @@ type
     procedure UpdateTexture;
   public
     PlayerColors: array [1..MAX_PLAYERS] of Cardinal;
+    PlayerLocations: array [1..MAX_PLAYERS] of TKMPoint;
     constructor Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
-
-    procedure LoadTerrain(aMissionPath: string);
 
     property MapX: Word read fMapX;
     property MapY: Word read fMapY;
     property MapTex: TTexture read fMapTex;
-    property UseCustomColors: Boolean read fUseCustomColors write fUseCustomColors;
-    function GetPlayerLoc(aIndex: Byte): TKMPoint;
-    procedure Update(aRevealAll: Boolean);
-    procedure UpdateMapSize;
 
-    procedure Save(SaveStream: TKMemoryStream);
-    procedure Load(LoadStream: TKMemoryStream);
+    procedure LoadFromMission(aMissionPath: string);
+    procedure LoadFromTerrain;
+    procedure LoadFromStream(LoadStream: TKMemoryStream);
+    procedure SaveToStream(SaveStream: TKMemoryStream);
+
+    procedure Update(aRevealAll: Boolean);
   end;
 
 
@@ -62,9 +61,7 @@ begin
 
   //We don't need terrain on main menu, just a parser
   //Otherwise access synced Game terrain
-  fFromParser := aFromParser;
-
-  if fFromParser then
+  if aFromParser then
     fParser := TMissionParserPreview.Create(False);
 end;
 
@@ -77,7 +74,8 @@ end;
 
 
 //Load map in a direct way, should be used only when in Menu
-procedure TKMMinimap.LoadTerrain(aMissionPath: string);
+procedure TKMMinimap.LoadFromMission(aMissionPath: string);
+var I: Integer;
 begin
   fParser.LoadMission(aMissionPath);
 
@@ -88,10 +86,17 @@ begin
   fHeightPOT := MakePOT(fMapY);
   fMapTex.U := fMapX / fWidthPOT;
   fMapTex.V := fMapY / fHeightPOT;
+
+  for I := 1 to MAX_PLAYERS do
+  begin
+    PlayerColors[I] := fParser.PlayerPreview[I].Color;
+    PlayerLocations[I] := fParser.PlayerPreview[I].StartingLoc;
+  end;
 end;
 
 
-procedure TKMMinimap.UpdateMapSize;
+procedure TKMMinimap.LoadFromTerrain;
+var I: Integer;
 begin
   fMyTerrain := fTerrain;
   fMapX := fMyTerrain.MapX - 1;
@@ -101,6 +106,12 @@ begin
   fHeightPOT := MakePOT(fMapY);
   fMapTex.U := fMapX / fWidthPOT;
   fMapTex.V := fMapY / fHeightPOT;
+
+  for I := 1 to MAX_PLAYERS do
+  begin
+    PlayerColors[I] := $00000000;
+    PlayerLocations[I] := KMPoint(0,0);
+  end;
 end;
 
 
@@ -119,12 +130,7 @@ begin
         fBase[N] := $E0000000
       else
         if TileOwner <> 0 then
-        begin
-          if fUseCustomColors then
-            fBase[N] := PlayerColors[TileOwner]
-          else
-            fBase[N] := fParser.PlayerPreview[TileOwner].Color;
-        end
+          fBase[N] := PlayerColors[TileOwner]
         else
         begin
           //Formula for lighting is the same as in TTerrain.RebuildLighting
@@ -166,13 +172,6 @@ begin
 
     fBase[I] := (R2 + G2 shl 8 + B2 shl 16) or $FF000000;
   end;
-end;
-
-
-function TKMMinimap.GetPlayerLoc(aIndex:byte): TKMPoint;
-begin
-  Assert(fFromParser); //Should only be used in parser mode
-  Result := fParser.PlayerPreview[aIndex].StartingLoc;
 end;
 
 
@@ -239,7 +238,7 @@ procedure TKMMinimap.Update(aRevealAll: Boolean);
 begin
   if SKIP_RENDER then Exit;
 
-  if fFromParser then
+  if fParser <> nil then
     UpdateMinimapFromParser(aRevealAll)
   else
     UpdateMinimapFromGame;
@@ -266,8 +265,10 @@ begin
 end;
 
 
-procedure TKMMinimap.Save(SaveStream: TKMemoryStream);
-var L: Cardinal;
+procedure TKMMinimap.SaveToStream(SaveStream: TKMemoryStream);
+var
+  L: Cardinal;
+  I: Integer;
 begin
   SaveStream.Write('Minimap');
 
@@ -277,11 +278,18 @@ begin
   SaveStream.Write(L);
   if L > 0 then
     SaveStream.Write(fBase[0], L * SizeOf(Cardinal));
+  for I := 1 to MAX_PLAYERS do
+  begin
+    SaveStream.Write(PlayerColors[I]);
+    SaveStream.Write(PlayerLocations[I]);
+  end;
 end;
 
 
-procedure TKMMinimap.Load(LoadStream: TKMemoryStream);
-var L: Cardinal;
+procedure TKMMinimap.LoadFromStream(LoadStream: TKMemoryStream);
+var
+  L: Cardinal;
+  I: Integer;
 begin
   LoadStream.ReadAssert('Minimap');
 
@@ -291,6 +299,11 @@ begin
   SetLength(fBase, L);
   if L > 0 then
     LoadStream.Read(fBase[0], L * SizeOf(Cardinal));
+  for I := 1 to MAX_PLAYERS do
+  begin
+    LoadStream.Read(PlayerColors[I]);
+    LoadStream.Read(PlayerLocations[I]);
+  end;
 
   fWidthPOT := MakePOT(fMapX);
   fHeightPOT := MakePOT(fMapY);

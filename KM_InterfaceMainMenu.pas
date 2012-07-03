@@ -2023,8 +2023,7 @@ begin
     Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[aIndex].Info.DefeatCondition]);
 
     MinimapView_Single.Show;
-    fMinimap.UseCustomColors := False;
-    fMinimap.LoadTerrain(MapNameToPath(fMaps[aIndex].FileName, 'dat', False));
+    fMinimap.LoadFromMission(MapNameToPath(fMaps[aIndex].FileName, 'dat', False));
     fMinimap.Update(False);
     MinimapView_Single.SetMinimap(fMinimap);
   end;
@@ -2881,8 +2880,7 @@ begin
                 //Only load the minimap preview if the map is valid
                 if fGameApp.Networking.MapInfo.IsValid then
                 begin
-                  fMinimap.UseCustomColors := True;
-                  fMinimap.LoadTerrain(MapNameToPath(fGameApp.Networking.MapInfo.FileName, 'dat', True));
+                  fMinimap.LoadFromMission(MapNameToPath(fGameApp.Networking.MapInfo.FileName, 'dat', True));
                   fMinimap.Update(True);
                   MinimapView_Lobby.SetMinimap(fMinimap);
                 end;
@@ -3287,8 +3285,7 @@ begin
   Button_MapEd_Load.Enabled := InRange(List_MapEd.ItemIndex,0,List_MapEd.Count-1);
   if Button_MapEd_Load.Enabled then
   begin
-    fMinimap.UseCustomColors := False;
-    fMinimap.LoadTerrain(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1));
+    fMinimap.LoadFromMission(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1));
     fMinimap.Update(True);
     MinimapView_MapEd.SetMinimap(fMinimap);
     MinimapView_MapEd.Show;

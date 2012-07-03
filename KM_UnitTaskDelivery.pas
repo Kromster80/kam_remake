@@ -98,7 +98,9 @@ destructor TTaskDeliver.Destroy;
 begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
 
-  if fDeliverID<>0 then fPlayers.Player[fUnit.GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+  if fDeliverID <> 0 then
+    fPlayers.Player[fUnit.GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+
   if TKMUnitSerf(fUnit).Carry <> rt_None then
   begin
     fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(TKMUnitSerf(fUnit).Carry);

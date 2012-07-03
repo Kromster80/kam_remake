@@ -240,6 +240,7 @@ end;
 destructor TKMGame.Destroy;
 begin
   fTimerGame.Enabled := False;
+  fIsExiting := True;
 
   //if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
   //  fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fGameMode = gmMulti));
@@ -248,9 +249,16 @@ begin
 
   FreeAndNil(fTimerGame);
 
+  FreeThenNil(fPlayers);
+  FreeThenNil(fTerrain);
+  FreeAndNil(fProjectiles);
+  FreeAndNil(fPathfinding);
+  FreeAndNil(fEventsManager);
+
   FreeThenNil(fGamePlayInterface);
   FreeThenNil(fMapEditorInterface);
-  FreeThenNil(fMinimap);
+  FreeAndNil(fMinimap);
+  FreeAndNil(fViewport);
 
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fRenderPool);
@@ -417,7 +425,8 @@ begin
   //We need to make basesave.bas since we don't know the savegame name
   //until after user saves it, but we need to attach replay base to it.
   //Basesave is sort of temp we save to HDD instead of keeping in RAM
-  SaveGame(SaveName('basesave', 'bas', IsMultiplayer));
+  if fGameMode in [gmSingle, gmMulti] then
+    SaveGame(SaveName('basesave', 'bas', IsMultiplayer));
 
   //When everything is ready we can update UI
   UpdateUI;
@@ -971,7 +980,7 @@ begin
     //Minimap is near the start so it can be accessed quickly
     //Each player in MP has his own minimap version ..
     if fGameMode <> gmMulti then
-      fMinimap.Save(SaveStream);
+      fMinimap.SaveToStream(SaveStream);
 
     //We need to know which campaign to display after victory
     SaveStream.Write(fCampaignName);
@@ -1083,7 +1092,7 @@ begin
 
   //Not used, (only stored for preview) but it's easiest way to skip past it
   if not SaveIsMultiplayer then
-    fMinimap.Load(LoadStream);
+    fMinimap.LoadFromStream(LoadStream);
 
   //We need to know which campaign to display after victory
   LoadStream.Read(fCampaignName);
@@ -1257,7 +1266,7 @@ end;
 
 procedure TKMGame.UpdateUI;
 begin
-  fMinimap.UpdateMapSize;
+  fMinimap.LoadFromTerrain;
   fMinimap.Update(False);
 
   if fGameMode = gmMapEd then

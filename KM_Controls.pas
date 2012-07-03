@@ -3837,17 +3837,17 @@ begin
   if not fShowLocs then Exit;
 
   //Draw all the circles, THEN all the numbers so the numbers are not covered by circles when they are close
-  for i:=1 to MAX_PLAYERS do
-    if not KMSamePoint(fMinimap.GetPlayerLoc(i), KMPoint(0,0)) then
-      fRenderUI.WriteCircle(NewLeft+EnsureRange(Round(fMinimap.GetPlayerLoc(i).X*PaintWidth / fMinimap.MapX),LOC_RAD,PaintWidth-LOC_RAD),
-                            NewTop +EnsureRange(Round(fMinimap.GetPlayerLoc(i).Y*PaintHeight / fMinimap.MapY),LOC_RAD,PaintHeight-LOC_RAD),
-                            LOC_RAD, fMinimap.PlayerColors[i]);
+  for I := 1 to MAX_PLAYERS do
+  if not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
+    fRenderUI.WriteCircle(NewLeft+EnsureRange(Round(fMinimap.PlayerLocations[I].X*PaintWidth / fMinimap.MapX),LOC_RAD,PaintWidth-LOC_RAD),
+                          NewTop +EnsureRange(Round(fMinimap.PlayerLocations[I].Y*PaintHeight / fMinimap.MapY),LOC_RAD,PaintHeight-LOC_RAD),
+                          LOC_RAD, fMinimap.PlayerColors[I]);
 
-  for i:=1 to MAX_PLAYERS do
-    if not KMSamePoint(fMinimap.GetPlayerLoc(i), KMPoint(0,0)) then
-      fRenderUI.WriteText(NewLeft+EnsureRange(Round(fMinimap.GetPlayerLoc(i).X*PaintWidth / fMinimap.MapX),LOC_RAD,PaintWidth-LOC_RAD),
-                          NewTop +EnsureRange(Round(fMinimap.GetPlayerLoc(i).Y*PaintHeight / fMinimap.MapY),LOC_RAD,PaintHeight-LOC_RAD)-6,
-                          16, 16, IntToStr(i), fnt_Outline, taCenter);
+  for I := 1 to MAX_PLAYERS do
+  if not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
+    fRenderUI.WriteText(NewLeft+EnsureRange(Round(fMinimap.PlayerLocations[I].X*PaintWidth / fMinimap.MapX),LOC_RAD,PaintWidth-LOC_RAD),
+                        NewTop +EnsureRange(Round(fMinimap.PlayerLocations[I].Y*PaintHeight / fMinimap.MapY),LOC_RAD,PaintHeight-LOC_RAD)-6,
+                        16, 16, IntToStr(I), fnt_Outline, taCenter);
 end;
 
 

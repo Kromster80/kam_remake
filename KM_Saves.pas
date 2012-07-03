@@ -160,7 +160,7 @@ begin
     LoadStream.Read(IsMultiplayer);
     if not IsMultiplayer then
     begin
-      aMinimap.Load(LoadStream);
+      aMinimap.LoadFromStream(LoadStream);
       Result := True;
     end;
 
