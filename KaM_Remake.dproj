@@ -106,6 +106,7 @@
 				<Form>FormLoading</Form>
 			</DCCReference>
 			<DCCReference Include="KM_AIAttacks.pas"/>
+			<DCCReference Include="KM_Alerts.pas"/>
 			<DCCReference Include="KM_ArmyEvaluation.pas"/>
 			<DCCReference Include="KM_BinPacking.pas"/>
 			<DCCReference Include="KM_BuildList.pas"/>

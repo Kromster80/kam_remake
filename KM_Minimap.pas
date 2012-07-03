@@ -23,9 +23,9 @@ type
     fMapTex: TTexture;
     fWidthPOT: Word;
     fHeightPOT: Word;
+    procedure ApplySepia;
     procedure UpdateMinimapFromGame;
     procedure UpdateMinimapFromParser(aRevealAll:Boolean);
-    procedure SepiaFilter;
     procedure UpdateTexture;
   public
     PlayerColors: array [1..MAX_PLAYERS] of Cardinal;
@@ -147,7 +147,7 @@ end;
 
 //Sepia method taken from:
 //http://www.techrepublic.com/blog/howdoi/how-do-i-convert-images-to-grayscale-and-sepia-tone-using-c/120
-procedure TKMMinimap.SepiaFilter;
+procedure TKMMinimap.ApplySepia;
 const SEPIA_VAL = 0.4;
 var
   I: Integer;
@@ -243,7 +243,7 @@ begin
   else
     UpdateMinimapFromGame;
 
-  if fSepia then SepiaFilter;
+  if fSepia then ApplySepia;
 
   UpdateTexture;
 end;
@@ -312,7 +312,7 @@ begin
 
   if fMapX * fMapY = 0 then Exit;
 
-  if fSepia then SepiaFilter;
+  if fSepia then ApplySepia;
   UpdateTexture;
 end;
 

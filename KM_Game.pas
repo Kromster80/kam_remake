@@ -7,7 +7,7 @@ uses
   Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo,
   {$IFDEF USE_MAD_EXCEPT} MadExcept, KM_Exceptions, {$ENDIF}
   KM_CommonTypes, KM_Defaults, KM_Points,
-  KM_GameInputProcess, KM_GameOptions,
+  KM_Alerts, KM_GameInputProcess, KM_GameOptions,
   KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
   KM_Minimap, KM_Networking, KM_PathFinding, KM_PerfLog, KM_Projectiles,
   KM_Render, KM_Viewport;
@@ -26,6 +26,7 @@ type
   TKMGame = class
   private //Irrelevant to savegame
     fTimerGame: TTimer;
+    fAlerts: TKMAlerts;
     fGameOptions: TKMGameOptions;
     fNetworking: TKMNetworking;
     fProjectiles: TKMProjectiles;
@@ -226,9 +227,10 @@ begin
 
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
   fLog.AppendLog('<== Game creation is done ==>');
+  //fAlerts := TKMAlerts.Create(fGameApp.);
+  fEventsManager := TKMEventsManager.Create;
   fPathfinding := TPathfinding.Create;
   fProjectiles := TKMProjectiles.Create;
-  fEventsManager := TKMEventsManager.Create;
 
   fRenderPool := TRenderPool.Create(aRender);
 
@@ -254,6 +256,7 @@ begin
   FreeAndNil(fProjectiles);
   FreeAndNil(fPathfinding);
   FreeAndNil(fEventsManager);
+  FreeAndNil(fAlerts);
 
   FreeThenNil(fGamePlayInterface);
   FreeThenNil(fMapEditorInterface);
@@ -887,9 +890,16 @@ end;
 
 procedure TKMGame.SetGameSpeed(aSpeed: Word);
 begin
-  if fGameMode = gmMapEd then Exit;
-
   Assert(aSpeed > 0);
+
+  //MapEd always runs at x1
+  if fGameMode = gmMapEd then
+  begin
+    fGameSpeed := 1;
+    fGameSpeedMultiplier := 1;
+    fTimerGame.Interval := Round(fGameApp.GameSettings.SpeedPace / fGameSpeed);
+    Exit;
+  end;
 
   //Make the speed toggle between 1 and desired value
   if aSpeed = fGameSpeed then
@@ -897,6 +907,8 @@ begin
   else
     fGameSpeed := aSpeed;
 
+  //When speed is above x5 we start to skip rendering frames
+  //by doing several updates per timer tick
   if fGameSpeed > 5 then
   begin
     fGameSpeedMultiplier := Round(fGameSpeed / 4);
@@ -1241,7 +1253,7 @@ begin
   if fGameTickCount mod 10 = 0 then
     fMinimap.Update(False);
 
-  if DoGameHold then GameHold(true,DoGameHoldState);
+  if DoGameHold then GameHold(True, DoGameHoldState);
 end;
 
 

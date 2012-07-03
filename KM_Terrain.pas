@@ -2524,7 +2524,7 @@ end;
 
 procedure TTerrain.IncAnimStep;
 begin
-  inc(fAnimStep);
+  Inc(fAnimStep);
 end;
 
 

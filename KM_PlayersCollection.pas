@@ -481,16 +481,16 @@ end;
 
 
 procedure TKMPlayersCollection.IncAnimStep;
-var i:byte;
+var I: Integer;
 begin
-  for i:=0 to fCount-1 do
-    fPlayerList[i].IncAnimStep;
+  for I := 0 to fCount - 1 do
+    fPlayerList[I].IncAnimStep;
 end;
 
 
 procedure TKMPlayersCollection.UpdateState(aTick: Cardinal);
 var
-  I: Byte;
+  I: Integer;
 begin
   //Update AI every 2sec for different player to even the CPU load
   for I := 0 to fCount - 1 do
@@ -505,10 +505,11 @@ end;
 
 
 procedure TKMPlayersCollection.Paint;
-var i:integer;
+var I: Integer;
 begin
-  for i:=0 to fCount-1 do
-    fPlayerList[i].Paint;
+  for I := 0 to fCount - 1 do
+    fPlayerList[I].Paint;
+
   PlayerAnimals.Paint;
 end;
 

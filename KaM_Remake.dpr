@@ -9,13 +9,14 @@ uses
   madListModules,
   {$ENDIF}
   {$IFDEF UNIX} cthreads, {$ENDIF} //Required for thread support on Unix/Linux
-  //{$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
+  {$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
   Forms,
   {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_FormMain in 'KM_FormMain.pas' {FormMain},
   KM_FormLoading in 'KM_FormLoading.pas' {FormLoading},
 
   KM_AIAttacks in 'KM_AIAttacks.pas',
+  KM_Alerts in 'KM_Alerts.pas',
   KM_ArmyEvaluation in 'KM_ArmyEvaluation.pas',
   KM_BinPacking in 'KM_BinPacking.pas',
   KM_BuildList in 'KM_BuildList.pas',
