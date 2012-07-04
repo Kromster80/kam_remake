@@ -142,9 +142,7 @@ begin
         //Stop showing hungry if we no longer are,
         //but if we are then walk out of the inn thinking hungry
         //so that the player will know that we haven't been fed
-        //@Krom: Why is it (Condition < UNIT_MAX_CONDITION * 0.9)? That means the unit
-        //       will show hungry when it is 90% full.
-        if Condition < UNIT_MAX_CONDITION * 0.9 then
+        if Condition < UNIT_MIN_CONDITION then
           Thought := th_Eat
         else
           Thought := th_None;
