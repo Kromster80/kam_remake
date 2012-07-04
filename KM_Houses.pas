@@ -1714,8 +1714,8 @@ end;
 
 
 //DoCancelTraining and remove untrained unit
-procedure TKMHouseSchool.RemUnitFromQueue(aID:integer);
-var i:integer;
+procedure TKMHouseSchool.RemUnitFromQueue(aID: Integer);
+var I: Integer;
 begin
   if UnitQueue[aID] = ut_None then exit; //Ignore clicks on empty queue items
 
@@ -1731,27 +1731,29 @@ begin
   end
   else
   begin
-    for i:=aID to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
+    for I:=aID to length(UnitQueue)-1 do UnitQueue[I]:=UnitQueue[I+1]; //Shift by one
     UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
   end;
 end;
 
 
 procedure TKMHouseSchool.StartTrainingUnit;
-var i:integer;
+var I: Integer;
 begin
   if UnitQueue[1] <> ut_None then exit; //If there's currently no unit in training
   if UnitQueue[2] = ut_None then exit; //If there is a unit waiting to be trained
   if CheckResIn(rt_Gold) = 0 then exit; //There must be enough gold to perform training
 
   fHideOneGold := true;
-  for i:=1 to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
-  UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
+  for I := 1 to High(UnitQueue) - 1 do
+    UnitQueue[I] := UnitQueue[I+1]; //Shift by one
+  UnitQueue[High(UnitQueue)] := ut_None; //Set the last one empty
 
-  UnitWIP := fPlayers.Player[fOwner].TrainUnit(UnitQueue[1],GetEntrance); //Create Unit
+  //Create the Unit
+  UnitWIP := fPlayers.Player[fOwner].TrainUnit(UnitQueue[1], GetEntrance);
+  TKMUnit(UnitWIP).TrainInHouse(Self); //Let the unit start the training task
+
   WorkAnimStep := 0;
-  fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
-  TKMUnit(UnitWIP).SetUnitTask := TTaskSelfTrain.Create(UnitWIP,Self);
 end;
 
 

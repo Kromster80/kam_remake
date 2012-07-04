@@ -778,7 +778,7 @@ begin
   BuildID   := aID;
 
   Cells := TKMPointDirList.Create;
-  fHouse.GetListOfCellsAround(Cells, aWorker.GetDesiredPassability);
+  fHouse.GetListOfCellsAround(Cells, aWorker.DesiredPassability);
 end;
 
 
@@ -899,7 +899,7 @@ begin
   fRepairID := aRepairID;
 
   Cells := TKMPointDirList.Create;
-  fHouse.GetListOfCellsAround(Cells, aWorker.GetDesiredPassability);
+  fHouse.GetListOfCellsAround(Cells, aWorker.DesiredPassability);
 end;
 
 

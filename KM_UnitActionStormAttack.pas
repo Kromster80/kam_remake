@@ -167,7 +167,7 @@ begin
     end;
     Locked := true; //Finished using FindEnemy
     //Do some house keeping because we have now stepped on a new tile
-    fUnit.UpdateNextPosition(fNextPos);
+    fUnit.NextPosition := fNextPos;
     fUnit.Walk(fUnit.PrevPosition, fUnit.NextPosition); //Pre-occupy next tile
     if KMStepIsDiag(fUnit.PrevPosition,fUnit.NextPosition) then
       IncVertex(fUnit.PrevPosition,fUnit.NextPosition);

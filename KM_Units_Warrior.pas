@@ -285,10 +285,10 @@ end;
 procedure TKMUnitWarrior.SetGroupFullCondition;
 var i:integer;
 begin
-  SetFullCondition;
+  Feed(UNIT_MAX_CONDITION);
   if (fMembers <> nil) then //If we have members then give them full condition too
     for i:=0 to fMembers.Count-1 do
-      TKMUnitWarrior(fMembers.Items[i]).SetFullCondition;
+      TKMUnitWarrior(fMembers.Items[i]).Feed(UNIT_MAX_CONDITION);
 end;
 
 
@@ -963,10 +963,10 @@ begin
   Assert(aEnemy <> nil, 'Fight no one?');
 
   //Free the task or set it up to be resumed afterwards
-  if GetUnitTask <> nil then
+  if UnitTask <> nil then
   begin
-    if (GetUnitTask is TTaskAttackHouse) and not (aEnemy is TKMUnitWarrior) then
-      TTaskAttackHouse(GetUnitTask).Phase := 0 //Reset task so it will resume after the fight
+    if (UnitTask is TTaskAttackHouse) and not (aEnemy is TKMUnitWarrior) then
+      TTaskAttackHouse(UnitTask).Phase := 0 //Reset task so it will resume after the fight
     else
       FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
   end;
@@ -994,7 +994,7 @@ function TKMUnitWarrior.CanInterruptAction:boolean;
 begin
   if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandonExternal and GetUnitAction.StepDone else //Only when unit is idling during Interaction pauses
   if(GetUnitAction is TUnitActionStay) and
-    (GetUnitTask   is TTaskAttackHouse)      then Result := true else //We can abandon attack house if the action is stay
+    (UnitTask      is TTaskAttackHouse)      then Result := true else //We can abandon attack house if the action is stay
   if GetUnitAction is TUnitActionStay        then Result := not GetUnitAction.Locked else //Initial pause before leaving barracks is locked
   if GetUnitAction is TUnitActionAbandonWalk then Result := GetUnitAction.StepDone and not GetUnitAction.Locked else //Abandon walk should never be abandoned, it will exit within 1 step anyway
   if GetUnitAction is TUnitActionGoInOut     then Result := not GetUnitAction.Locked else //Never interupt leaving barracks
@@ -1087,8 +1087,7 @@ begin
     if (GetUnitAction is TUnitActionWalkTo)
     and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
     begin
-      if GetUnitTask <> nil then
-        FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
+      FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
       TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, 0, fUseExactTarget);
       fOrder := wo_None;
       fState := ws_Walking;
@@ -1097,7 +1096,7 @@ begin
     //Set WalkTo
     if CanInterruptAction then
     begin
-      if GetUnitTask <> nil then FreeAndNil(fUnitTask);
+      FreeAndNil(fUnitTask);
       if fCommander = nil then
         SetActionWalkToSpot(fOrderLoc.Loc)
       else
@@ -1117,8 +1116,7 @@ begin
   and (GetUnitAction is TUnitActionWalkTo) //If we are already walking then change the walk to the new location
   and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
   begin
-    if GetUnitTask <> nil then
-      FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
+    FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     //If we are not the commander then walk to near
     //todo: Do not WalkTo enemies location if we are archers, stay in place
     TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget, GetFightMaxRange);
@@ -1132,7 +1130,7 @@ begin
   and (GetOrderTarget <> nil)
   and not InRange(GetLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange) then
   begin
-    if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
+    FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);
     fOrder := wo_None;
     //todo: We need a ws_AttackingUnit to make this work properly for archers, so they know to shoot the enemy after finishing the walk and follow him if he keeps moving away.
@@ -1148,8 +1146,8 @@ begin
   //Take attack house order
   if (fOrder=wo_AttackHouse) and CanInterruptAction then
   begin
-    if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-    SetUnitTask := TTaskAttackHouse.Create(Self, GetOrderHouseTarget);
+    FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
+    fUnitTask := TTaskAttackHouse.Create(Self, GetOrderHouseTarget);
     fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //Once the house is destroyed we will position where we are standing
     fOrder := wo_None;
   end;
@@ -1157,7 +1155,7 @@ begin
   //Storm
   if (fOrder=wo_Storm) and CanInterruptAction then
   begin
-    if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
+    FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     SetActionStorm(GetRow);
     fOrder := wo_None;
     fState := ws_None; //Not needed for storm attack
@@ -1175,7 +1173,7 @@ begin
   if (fState = ws_Walking) or (fState = ws_RepositionPause) then
   begin
     //Wait for self and all team members to be in position before we set fState to None (means we no longer worry about group position)
-    if (not (GetUnitTask is TTaskAttackHouse)) and (not (GetUnitAction is TUnitActionWalkTo)) and
+    if (not (UnitTask is TTaskAttackHouse)) and (not (GetUnitAction is TUnitActionWalkTo)) and
        (not KMSamePoint(GetPosition,fOrderLoc.Loc))
        and CanWalkTo(fOrderLoc.Loc, 0) then
     begin

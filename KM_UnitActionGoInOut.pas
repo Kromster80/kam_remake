@@ -199,7 +199,7 @@ begin
   Result := nil;
 
   if fTerrain.TileInMapCoords(X,Y)
-  and (fTerrain.CheckPassability(KMPoint(X,Y), fUnit.GetDesiredPassability))
+  and (fTerrain.CheckPassability(KMPoint(X,Y), fUnit.DesiredPassability))
   and (fTerrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(X,Y)))
   and (fTerrain.Land[Y,X].IsUnit <> nil) then //If there's some unit we need to do a better check on him
   begin
@@ -218,7 +218,7 @@ end;
 procedure TUnitActionGoInOut.WalkIn;
 begin
   fUnit.Direction := dir_N;  //one cell up
-  fUnit.UpdateNextPosition(KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y-1));
+  fUnit.NextPosition := KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y-1);
   fTerrain.UnitRem(fUnit.GetPosition); //Unit does not occupy a tile while inside
 
   //We are walking straight
@@ -231,7 +231,7 @@ end;
 procedure TUnitActionGoInOut.WalkOut;
 begin
   fUnit.Direction := KMGetDirection(fDoor, fStreet);
-  fUnit.UpdateNextPosition(fStreet);
+  fUnit.NextPosition := fStreet;
   fTerrain.UnitAdd(fUnit.NextPosition, fUnit); //Unit was not occupying tile while inside
 
   if (fUnit.GetHome <> nil)
@@ -241,8 +241,8 @@ begin
 
   //Woodcutter takes his axe with him when going to chop trees
   if (fUnit.UnitType = ut_Woodcutter)
-  and (fUnit.GetUnitTask.TaskName = utn_Mining)
-  and (TTaskMining(fUnit.GetUnitTask).WorkPlan.GatheringScript = gs_WoodCutterCut)
+  and (fUnit.UnitTask.TaskName = utn_Mining)
+  and (TTaskMining(fUnit.UnitTask).WorkPlan.GatheringScript = gs_WoodCutterCut)
   and (fUnit.GetHome <> nil)
   and (fUnit.GetHome.HouseType = ht_Woodcutters)
   and (fUnit.GetHome = fHouse) then //And is the house we are walking from

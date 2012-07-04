@@ -127,7 +127,7 @@ begin
 
   fWalkFrom     := fUnit.GetPosition;
   fNewWalkTo    := KMPoint(0,0);
-  fPass         := fUnit.GetDesiredPassability;
+  fPass         := fUnit.DesiredPassability;
   fUseExactTarget := aUseExactTarget;
 
   if fUseExactTarget then
@@ -455,7 +455,7 @@ begin
             or ((fTargetHouse = nil) and (round(KMLength(fUnit.GetPosition,fWalkTo)) <= fDistance))
             or ((fTargetHouse <> nil) and (fTargetHouse.GetDistance(fUnit.GetPosition) <= fDistance))
             or ((fTargetUnit <> nil) and (KMLength(fUnit.GetPosition,fTargetUnit.GetPosition) <= fDistance))
-            or ((fUnit.GetUnitTask <> nil) and fUnit.GetUnitTask.WalkShouldAbandon);
+            or ((fUnit.UnitTask <> nil) and fUnit.UnitTask.WalkShouldAbandon);
 end;
 
 
@@ -529,7 +529,7 @@ begin
       Exit;
 
     fInteractionStatus := kis_Pushing;
-    OpponentPassability := fOpponent.GetDesiredPassability;
+    OpponentPassability := fOpponent.DesiredPassability;
     if OpponentPassability = CanWalkRoad then
       OpponentPassability := CanWalk;
 
@@ -999,7 +999,7 @@ begin
     //Walk complete
     if not fDoExchange and CheckWalkComplete then
     begin
-      if (fDistance>0) and ((fUnit.GetUnitTask = nil) or (not fUnit.GetUnitTask.WalkShouldAbandon))
+      if (fDistance>0) and ((fUnit.UnitTask = nil) or (not fUnit.UnitTask.WalkShouldAbandon))
       and not KMSamePoint(NodeList[NodePos], fWalkTo) then //Happens rarely when we asked to sidestep towards our not locked target (Warrior)
         fUnit.Direction := KMGetDirection(NodeList[NodePos], fWalkTo); //Face tile (e.g. worker)
       Result := ActDone;
@@ -1048,7 +1048,7 @@ begin
 
       Inc(NodePos);
 
-      fUnit.UpdateNextPosition(NodeList[NodePos]);
+      fUnit.NextPosition := NodeList[NodePos];
 
       //Check if we are the first or second unit (has the swap already been performed?)
       if fUnit = fTerrain.Land[fUnit.PrevPosition.Y,fUnit.PrevPosition.X].IsUnit then
@@ -1077,7 +1077,7 @@ begin
         fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
 
       Inc(NodePos);
-      fUnit.UpdateNextPosition(NodeList[NodePos]);
+      fUnit.NextPosition := NodeList[NodePos];
 
       if GetLength(fUnit.PrevPosition,fUnit.NextPosition) > 1.5 then
         raise ELocError.Create('Unit walk length>1.5', fUnit.PrevPosition);

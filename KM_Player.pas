@@ -288,6 +288,10 @@ end;
 function TKMPlayer.TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
 begin
   Result := fUnits.Add(fPlayerIndex, aUnitType, Position.X, Position.Y, false);
+
+  fTerrain.UnitRem(Position); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
+
+
   //Do not add unit to statistic just yet, wait till it's training complete
 end;
 

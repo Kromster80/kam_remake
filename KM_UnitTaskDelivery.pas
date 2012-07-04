@@ -237,15 +237,15 @@ begin
             Exit;
           end;
           //Worker
-          if (fToUnit.UnitType = ut_Worker) and (fToUnit.GetUnitTask<>nil) then
+          if (fToUnit.UnitType = ut_Worker) and (fToUnit.UnitTask <> nil) then
           begin
-            fToUnit.GetUnitTask.Phase := fToUnit.GetUnitTask.Phase + 1;
+            fToUnit.UnitTask.Phase := fToUnit.UnitTask.Phase + 1;
             fToUnit.SetActionLockedStay(0, ua_Work1); //Tell the worker to resume work by resetting his action (causes task to execute)
           end;
           //Warrior
           if (fToUnit is TKMUnitWarrior) then
           begin
-            fToUnit.SetFullCondition; //Feed the warrior
+            fToUnit.Feed(UNIT_MAX_CONDITION); //Feed the warrior
             TKMUnitWarrior(fToUnit).RequestedFood := false;
           end;
           fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry);

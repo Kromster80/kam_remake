@@ -81,8 +81,11 @@ type
     fNextPosition: TKMPoint; //Where we will be. Next tile in route or same tile if stay on place
     fDirection: TKMDirection; //
 
+    function GetDesiredPassability: TPassability;
+    function GetHitPointsMax: Byte;
     procedure SetDirection(aValue:TKMDirection);
     procedure SetAction(aAction: TUnitAction; aStep:integer=0);
+    procedure SetNextPosition(aLoc: TKMPoint);
     function GetSlide(aCheck:TCheckAxis): single;
     function CanAccessHome: Boolean;
 
@@ -92,28 +95,27 @@ type
     function UpdateVisibility:boolean;
     procedure UpdateHitPoints;
   public
-    AnimStep: integer;
-    IsExchanging:boolean; //Current walk is an exchange, used for sliding
+    AnimStep: Integer;
+    IsExchanging: Boolean; //Current walk is an exchange, used for sliding
 
-    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
-    constructor Load(LoadStream:TKMemoryStream); dynamic;
+    constructor Create(aOwner: shortint; PosX, PosY: Integer; aUnitType: TUnitType);
+    constructor Load(LoadStream: TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
 
-    function GetUnitPointer:TKMUnit; //Returns self and adds one to the pointer counter
+    function GetUnitPointer: TKMUnit; //Returns self and adds one to the pointer counter
     procedure ReleaseUnitPointer;  //Decreases the pointer counter
-    property GetPointerCount:integer read fPointerCount;
+    property GetPointerCount: Integer read fPointerCount;
 
     procedure KillUnit; virtual; //Creates TTaskDie which then will Close the unit from further access
     procedure CloseUnit(aRemoveTileUsage:boolean=true); dynamic;
 
     property ID:integer read fID;
     property PrevPosition: TKMPoint read fPrevPosition;
-    property NextPosition: TKMPoint read fNextPosition;
-    property Direction:TKMDirection read fDirection write SetDirection;
+    property NextPosition: TKMPoint read fNextPosition write SetNextPosition;
+    property Direction: TKMDirection read fDirection write SetDirection;
 
-    function HitTest(X,Y:integer; const UT:TUnitType = ut_Any): Boolean;
-    procedure UpdateNextPosition(aLoc:TKMPoint);
+    function HitTest(X,Y: Integer; const UT: TUnitType = ut_Any): Boolean;
 
     procedure SetActionAbandonWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure SetActionFight(aAction: TUnitActionType; aOpponent:TKMUnit);
@@ -128,30 +130,25 @@ type
     procedure SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aUseExactTarget:boolean=true);
     procedure SetActionWalkPushed(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 
-    procedure Feed(Amount:single);
+    procedure Feed(Amount: Single);
     procedure AbandonWalk;
-    function GetDesiredPassability: TPassability;
+    property DesiredPassability: TPassability read GetDesiredPassability;
     property GetOwner:TPlayerIndex read fOwner;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
-    property GetUnitTask: TUnitTask read fUnitTask;
-    property SetUnitTask: TUnitTask read fUnitTask write fUnitTask;
+    property UnitTask: TUnitTask read fUnitTask;
     property UnitType: TUnitType read fUnitType;
     function GetUnitTaskText:string;
     function GetUnitActText:string;
     property Condition: integer read fCondition write fCondition;
-    procedure SetFullCondition;
     function  HitPointsDecrease(aAmount:integer):boolean;
-    procedure HitPointsIncrease(aAmount:integer);
-    property GetHitPoints:byte read fHitPoints;
-    function GetMaxHitPoints:byte;
+    property HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
     property Visible: boolean read fVisible write fVisible;
     procedure SetInHouse(aInHouse:TKMHouse);
     property GetInHouse: TKMHouse read fInHouse;
     property IsDead:boolean read fIsDead;
     function IsDeadOrDying:boolean;
-    function IsArmyUnit:boolean;
     function CanGoEat:boolean;
     property GetPosition:TKMPoint read fCurrPosition;
     procedure SetPosition(aPos:TKMPoint);
@@ -159,6 +156,7 @@ type
     property Thought:TUnitThought read fThought write fThought;
     function GetMovementVector: TKMPointF;
     function IsIdle: Boolean;
+    procedure TrainInHouse(aSchool: TKMHouseSchool);
 
     function PickRandomSpot(aList: TKMPointDirList; out Loc: TKMPointDir): Boolean;
 
@@ -174,9 +172,8 @@ type
     procedure VertexAdd(aFrom, aTo: TKMPoint);
     procedure Walk(aFrom, aTo: TKMPoint);
 
-
-    procedure Save(SaveStream:TKMemoryStream); virtual;
-    function UpdateState:boolean; virtual;
+    procedure Save(SaveStream: TKMemoryStream); virtual;
+    function UpdateState: Boolean; virtual;
     procedure Paint; virtual;
   end;
 
@@ -754,20 +751,20 @@ end;
 { TKMWorker }
 procedure TKMUnitWorker.BuildHouse(aHouse: TKMHouse; aIndex: Integer);
 begin
-  SetUnitTask := TTaskBuildHouse.Create(Self, aHouse, aIndex);
+  fUnitTask := TTaskBuildHouse.Create(Self, aHouse, aIndex);
 end;
 
 
 procedure TKMUnitWorker.BuildField(aField: TFieldType; aLoc: TKMPoint; aIndex: Integer);
 begin
   case aField of
-    ft_Road: SetUnitTask := TTaskBuildRoad.Create(Self, aLoc, aIndex);
-    ft_Corn: SetUnitTask := TTaskBuildField.Create(Self, aLoc, aIndex);
-    ft_Wine: SetUnitTask := TTaskBuildWine.Create(Self, aLoc, aIndex);
-    ft_Wall: SetUnitTask := TTaskBuildWall.Create(Self, aLoc, aIndex);
+    ft_Road: fUnitTask := TTaskBuildRoad.Create(Self, aLoc, aIndex);
+    ft_Corn: fUnitTask := TTaskBuildField.Create(Self, aLoc, aIndex);
+    ft_Wine: fUnitTask := TTaskBuildWine.Create(Self, aLoc, aIndex);
+    ft_Wall: fUnitTask := TTaskBuildWall.Create(Self, aLoc, aIndex);
     else     begin
               Assert(false, 'Unexpected Field Type');
-              SetUnitTask := nil;
+              fUnitTask := nil;
               Exit;
              end;
   end;
@@ -776,13 +773,13 @@ end;
 
 procedure TKMUnitWorker.BuildHouseArea(aHouseType: THouseType; aLoc: TKMPoint; aIndex: Integer);
 begin
-  SetUnitTask := TTaskBuildHouseArea.Create(Self, aHouseType, aLoc, aIndex);
+  fUnitTask := TTaskBuildHouseArea.Create(Self, aHouseType, aLoc, aIndex);
 end;
 
 
 procedure TKMUnitWorker.BuildHouseRepair(aHouse: TKMHouse; aIndex: Integer);
 begin
-  SetUnitTask := TTaskBuildHouseRepair.Create(Self, aHouse, aIndex);
+  fUnitTask := TTaskBuildHouseRepair.Create(Self, aHouse, aIndex);
 end;
 
 
@@ -896,8 +893,8 @@ begin
 
 
   //First make sure the animal isn't stuck (check passibility of our position)
-  if (not fTerrain.CheckPassability(fCurrPosition,GetDesiredPassability))
-  or fTerrain.CheckAnimalIsStuck(fCurrPosition,GetDesiredPassability) then begin
+  if (not fTerrain.CheckPassability(fCurrPosition, DesiredPassability))
+  or fTerrain.CheckAnimalIsStuck(fCurrPosition, DesiredPassability) then begin
     KillUnit; //Animal is stuck so it dies
     exit;
   end;
@@ -973,7 +970,7 @@ begin
     fCondition    := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)))
   else
     fCondition    := Round(UNIT_MAX_CONDITION * UNIT_CONDITION_BASE);
-  fHitPoints    := GetMaxHitPoints;
+  fHitPoints      := HitPointsMax;
   fHitPointCounter := 1;
 
   SetActionStay(10, ua_Walk);
@@ -1069,6 +1066,12 @@ begin
   if fCurrentAction<>nil then fCurrentAction.SyncLoad;
   fHome := fPlayers.GetHouseByID(cardinal(fHome));
   fInHouse := fPlayers.GetHouseByID(cardinal(fInHouse));
+end;
+
+
+procedure TKMUnit.TrainInHouse(aSchool: TKMHouseSchool);
+begin
+  fUnitTask := TTaskSelfTrain.Create(Self, aSchool);
 end;
 
 
@@ -1197,15 +1200,9 @@ begin
 end;
 
 
-function TKMUnit.GetUnitActText:string;
+function TKMUnit.GetUnitActText: string;
 begin
   Result := fCurrentAction.GetExplanation;
-end;
-
-
-procedure TKMUnit.SetFullCondition;
-begin
-  fCondition := UNIT_MAX_CONDITION;
 end;
 
 
@@ -1214,9 +1211,9 @@ function TKMUnit.HitPointsDecrease(aAmount:integer):boolean;
 begin
   Result := false;
   //When we are first hit reset the counter
-  if (aAmount > 0) and (fHitPoints = GetMaxHitPoints) then fHitPointCounter := 1;
+  if (aAmount > 0) and (fHitPoints = HitPointsMax) then fHitPointCounter := 1;
   // Sign of aAmount does not affect
-  fHitPoints := EnsureRange(fHitPoints - abs(aAmount), 0, GetMaxHitPoints);
+  fHitPoints := EnsureRange(fHitPoints - abs(aAmount), 0, HitPointsMax);
   if (fHitPoints = 0) and not IsDeadOrDying then begin //Kill only once
     KillUnit;
     Result := true;
@@ -1224,14 +1221,7 @@ begin
 end;
 
 
-procedure TKMUnit.HitPointsIncrease(aAmount:integer);
-begin
-  // Sign of aAmount does not affect
-  fHitPoints := EnsureRange(fHitPoints + abs(aAmount), 0, GetMaxHitPoints);
-end;
-
-
-function TKMUnit.GetMaxHitPoints:byte;
+function TKMUnit.GetHitPointsMax: Byte;
 begin
   Result := fResource.UnitDat[fUnitType].HitPoints;
 end;
@@ -1267,7 +1257,7 @@ end;
 //there can be no problems (as were occurring in GetSlide)
 //This procedure ensures that these values always get updated correctly so we don't get a problem
 //where GetLength(PrevPosition,NextPosition) > sqrt(2)
-procedure TKMUnit.UpdateNextPosition(aLoc:TKMPoint);
+procedure TKMUnit.SetNextPosition(aLoc: TKMPoint);
 begin
   fPrevPosition := NextPosition;
   fNextPosition := aLoc;
@@ -1469,27 +1459,20 @@ begin
 end;
 
 
-procedure TKMUnit.Feed(Amount:single);
+procedure TKMUnit.Feed(Amount: Single);
 begin
   fCondition := Math.min(fCondition + round(Amount), UNIT_MAX_CONDITION);
 end;
 
 
 //It's better not to start doing anything with dying units
-function TKMUnit.IsDeadOrDying:boolean;
+function TKMUnit.IsDeadOrDying: Boolean;
 begin
   Result := fIsDead or (fUnitTask is TTaskDie) or fKillASAP;
 end;
 
 
-{Check wherever this unit is armed}
-function TKMUnit.IsArmyUnit:boolean;
-begin
-  Result := fUnitType in [WARRIOR_MIN..WARRIOR_MAX];
-end;
-
-
-function TKMUnit.CanGoEat:boolean;
+function TKMUnit.CanGoEat: Boolean;
 begin
   Result := fPlayers.Player[fOwner].FindInn(fCurrPosition,Self) <> nil;
 end;
@@ -1503,7 +1486,7 @@ end;
 
 function TKMUnit.CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean;
 begin
-  Result := fTerrain.Route_CanBeMade(GetPosition, aTo, GetDesiredPassability, aDistance);
+  Result := fTerrain.Route_CanBeMade(GetPosition, aTo, DesiredPassability, aDistance);
 end;
 
 
@@ -1515,7 +1498,7 @@ end;
 
 function TKMUnit.CanWalkTo(aFrom, aTo: TKMPoint; aDistance: Single): Boolean;
 begin
-  Result := fTerrain.Route_CanBeMade(aFrom, aTo, GetDesiredPassability, aDistance);
+  Result := fTerrain.Route_CanBeMade(aFrom, aTo, DesiredPassability, aDistance);
 end;
 
 
@@ -1546,7 +1529,7 @@ end;
 function TKMUnit.CanStepTo(X,Y: Integer): Boolean;
 begin
   Result := fTerrain.TileInMapCoords(X,Y)
-        and (fTerrain.CheckPassability(KMPoint(X,Y), GetDesiredPassability))
+        and (fTerrain.CheckPassability(KMPoint(X,Y), DesiredPassability))
         and (not fTerrain.HasVertexUnit(KMGetDiagVertex(GetPosition, KMPoint(X,Y))))
         and (fTerrain.CanWalkDiagonaly(GetPosition, KMPoint(X,Y)))
         and (fTerrain.Land[Y,X].IsUnit = nil);
@@ -1590,7 +1573,7 @@ end;
 
 
 //Return true if the unit has to be killed due to lack of space
-function TKMUnit.UpdateVisibility:boolean;
+function TKMUnit.UpdateVisibility: Boolean;
 begin
   Result := false;
   if fInHouse = nil then exit; //There's nothing to update, we are always visible
@@ -1626,13 +1609,13 @@ begin
         TUnitActionGoInOut(GetUnitAction).DoLinking; //Warriors will be linked as normal
         SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
       end;
-      if (GetUnitTask is TTaskGoEat) and (TTaskGoEat(GetUnitTask).Eating) then
+      if (UnitTask is TTaskGoEat) and (TTaskGoEat(UnitTask).Eating) then
       begin
         FreeAndNil(fUnitTask); //Stop the eating animation and makes the unit appear
         SetActionStay(0, ua_Walk); //Free the current action and give the unit a temporary one
       end;
       //If we were idle abandon our action so we look for a new house immediately (rather than after 20 seconds for the fisherman)
-      if (GetUnitTask = nil) and (GetUnitAction is TUnitActionStay) and not TUnitActionStay(GetUnitAction).Locked then
+      if (UnitTask = nil) and (GetUnitAction is TUnitActionStay) and not TUnitActionStay(GetUnitAction).Locked then
         SetActionStay(0, ua_Walk); //Free the current action and give the unit a temporary one
     end;
     SetInHouse(nil); //Can't be in a destroyed house
@@ -1668,7 +1651,7 @@ begin
   //Use fHitPointCounter as a counter to restore hit points every X ticks (Humbelum says even when in fights)
   if HITPOINT_RESTORE_PACE = 0 then Exit; //0 pace means don't restore
   if fHitPointCounter mod HITPOINT_RESTORE_PACE = 0 then
-    HitPointsIncrease(1);
+    fHitPoints := Min(fHitPoints + 1, HitPointsMax);
   fHitPointCounter := fHitPointCounter mod High(Cardinal) + 1;
 end;
 
@@ -1822,13 +1805,13 @@ begin
   //Shortcut to freeze unit in place if it's on an unwalkable tile. We use fNextPosition rather than fCurrPosition
   //because once we have taken a step from a tile we no longer care about it. (fNextPosition matches up with IsUnit in terrain)
   if fCurrentAction is TUnitActionWalkTo then
-    if GetDesiredPassability = CanWalkRoad then
+    if DesiredPassability = CanWalkRoad then
     begin
       if not fTerrain.CheckPassability(fNextPosition, CanWalk) then
         raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass CanWalk',fNextPosition);
     end else
-    if not fTerrain.CheckPassability(fNextPosition, GetDesiredPassability) then
-      raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+GetEnumName(TypeInfo(TPassability), Byte(GetDesiredPassability)),fNextPosition);
+    if not fTerrain.CheckPassability(fNextPosition, DesiredPassability) then
+      raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+GetEnumName(TypeInfo(TPassability), Byte(DesiredPassability)),fNextPosition);
 
 
   //
@@ -1873,7 +1856,9 @@ begin
 end;
 
 
-//Select random point from list, excluding current location
+//Given a list check the locations in it and pick those that can be walked to
+//excluding current location. We assume that caller already made the list
+//with only walkable valid tiles
 function TKMUnit.PickRandomSpot(aList: TKMPointDirList; out Loc: TKMPointDir): Boolean;
 var
   I, MyCount: Integer;

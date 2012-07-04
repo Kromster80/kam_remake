@@ -281,7 +281,7 @@ begin
               pt_TowerRock: if (U <> nil) and not U.IsDeadOrDying and U.Visible
                             and not (U is TKMUnitAnimal)
                             and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy))
-                            and U.HitPointsDecrease(U.GetMaxHitPoints) then //Instant death
+                            and U.HitPointsDecrease(U.HitPointsMax) then //Instant death
                               fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
             end;
           end;

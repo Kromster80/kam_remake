@@ -511,7 +511,7 @@ begin
         if IsCommander then
         begin
           //If the warrior is busy then skip this group because the AI should not give orders to fighting warriors
-          if ArmyInFight or (GetUnitTask is TTaskAttackHouse) or (OrderTarget <> nil) then
+          if ArmyInFight or (UnitTask is TTaskAttackHouse) or (OrderTarget <> nil) then
           begin
             //If this group belongs to a defence position and they are too far away we should disassociate
             //them from the defence position so new warriors can take up the defence if needs be
