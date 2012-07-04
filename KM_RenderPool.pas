@@ -242,6 +242,14 @@ begin
       RenderObject(FallingTrees.Tag[I], AnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
       Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
     end;
+
+  for I := 0 to fGame.Alerts.Count - 1 do
+    if KMInRect(fGame.Alerts[I].Loc, aRect)
+    and (fPlayers.CheckAlliance(fGame.Alerts[I].Owner, MyPlayer.PlayerIndex) = at_Ally) then
+      fRenderList.AddSpriteG(rxGui, 340,
+        fGame.Alerts[I].Loc.X,
+        fGame.Alerts[I].Loc.Y - fTerrain.HeightAt(fGame.Alerts[I].Loc.X, fGame.Alerts[I].Loc.Y) / CELL_HEIGHT_DIV,
+        fGame.Alerts[I].Loc.X, fGame.Alerts[I].Loc.Y);
 end;
 
 

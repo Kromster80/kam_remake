@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_CommonTypes,
-  KM_InterfaceDefaults, KM_Terrain, KM_Pics,
+  KM_InterfaceDefaults, KM_Terrain, KM_Pics, KM_Alerts,
   KM_Controls, KM_Houses, KM_Units, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
@@ -69,6 +69,7 @@ type
     procedure Create_Barracks_Page;
     procedure Create_Woodcutter_Page;
 
+    procedure Alert_Beacon;
     procedure Army_ActivateControls(aCommander: TKMUnitWarrior);
     procedure Army_HideJoinMenu(Sender:TObject);
     procedure Army_Issue_Order(Sender:TObject);
@@ -3111,6 +3112,12 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Alert_Beacon;
+begin
+  fGame.GameInputProcess.CmdGame(gic_GameAlert, Byte(atBeacon), GameCursor.Float, MyPlayer.PlayerIndex);
+end;
+
+
 procedure TKMGamePlayInterface.AlliesOnPingInfo(Sender: TObject);
 var I: Integer;
 begin
@@ -3186,7 +3193,12 @@ begin
 
   if (Key = ord('P')) and not fMultiplayer then SetPause(True); //Display pause overlay
 
-  //Menu shortcuts
+  if (Key = ord('B'))
+  and (fMyControls.CtrlOver <> nil)
+  and not SelectingTroopDirection then
+    Alert_Beacon;
+
+  //Menu shortcuts (1-4)
   if InRange(Key-49, 0, 3) then Button_Main[TKMTabButtons(Key-49)].Click;
 
   if (Key = VK_ESCAPE) and (   Button_Army_Join_Cancel.Click

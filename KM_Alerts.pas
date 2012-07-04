@@ -11,10 +11,10 @@ type
   TKMAlert = class
   public
     AlertType: TAlertType;
-    Loc: TKMPoint;
+    Loc: TKMPointF;
     Owner: TPlayerIndex;
     Expiration: Cardinal;
-    constructor Create(aLoc: TKMPoint; aAlertType: TAlertType; aOwner: TPlayerIndex; aTick: Cardinal);
+    constructor Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
     function IsExpired(aTick: Cardinal): Boolean;
   end;
 
@@ -30,26 +30,29 @@ type
   public
     constructor Create(aTickCounter: PCardinal);
     destructor Destroy; override;
-    procedure AddAlert(aLoc: TKMPoint; aAlertType: TAlertType; aOwner: TPlayerIndex);
+    procedure AddAlert(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TPlayerIndex);
     property Count: Integer read GetCount;
     property Items[aIndex: Integer]: TKMAlert read GetAlert; default;
-    procedure UpdateState(aTick: Cardinal);
+    procedure UpdateState;
   end;
 
 
 implementation
-uses KM_PlayersCollection;
+
+
+const
+  BEACON_DURATION = 35; //Typical beacon duration after which it will be gone
 
 
 { TKMAlert }
-constructor TKMAlert.Create(aLoc: TKMPoint; aAlertType: TAlertType; aOwner: TPlayerIndex; aTick: Cardinal);
+constructor TKMAlert.Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
 begin
   inherited Create;
 
   AlertType := aAlertType;
   Loc := aLoc;
   Owner := aOwner;
-  Expiration := aTick + 30;
+  Expiration := aTick + BEACON_DURATION;
 end;
 
 
@@ -93,19 +96,19 @@ begin
 end;
 
 
-procedure TKMAlerts.AddAlert(aLoc: TKMPoint; aAlertType: TAlertType; aOwner: TPlayerIndex);
+procedure TKMAlerts.AddAlert(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TPlayerIndex);
 begin
-  fList.Add(TKMAlert.Create(aLoc, aAlertType, aOwner, fTickCounter^));
+  fList.Add(TKMAlert.Create(aAlertType, aLoc, aOwner, fTickCounter^));
 end;
 
 
-procedure TKMAlerts.UpdateState(aTick: Cardinal);
+procedure TKMAlerts.UpdateState;
 var
   I: Integer;
 begin
   //Remove expired alerts
   for I := fList.Count - 1 downto 0 do
-  if Items[I].IsExpired(aTick) then
+  if Items[I].IsExpired(fTickCounter^) then
   begin
     Items[I].Free;
     fList.Delete(I);

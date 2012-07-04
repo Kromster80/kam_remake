@@ -3789,12 +3789,15 @@ end;
 
 
 procedure TKMMinimapView.Paint;
-var i, PaintWidth, PaintHeight, NewLeft, NewTop:integer;
-  V: TKMRect;
-const LOC_RAD = 8; //Radius of circle around player location
+const
+  LOC_RAD = 8; //Radius of circle around player location
+var
+  I, PaintWidth, PaintHeight, NewLeft, NewTop: Integer;
+  C: TKMRect;
 begin
   inherited;
 
+  //Calculate actual minimap image bounds
   if fMinimap.MapX * fMinimap.MapY = 0 then
   begin
     PaintWidth := 0;
@@ -3823,16 +3826,23 @@ begin
   else
     fRenderUI.WriteBevel(NewLeft, NewTop, PaintWidth, PaintHeight);
 
-  //Viewport rectangle
+  //Paint viewport rectangle
   if fView <> nil then
   begin
-    V := fView.GetMinimapClip;
-    if (V.Right - V.Left) * (V.Bottom - V.Top) > 0 then
-      fRenderUI.WriteRect(NewLeft + Round(V.Left*PaintWidth / fMinimap.MapX),
-                          NewTop  + Round(V.Top*PaintHeight / fMinimap.MapY),
-                          Round((V.Right - V.Left)*PaintWidth / fMinimap.MapX),
-                          Round((V.Bottom - V.Top)*PaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
+    C := fView.GetMinimapClip;
+    if (C.Right - C.Left) * (C.Bottom - C.Top) > 0 then
+      fRenderUI.WriteRect(NewLeft + Round(C.Left*PaintWidth / fMinimap.MapX),
+                          NewTop  + Round(C.Top*PaintHeight / fMinimap.MapY),
+                          Round((C.Right - C.Left)*PaintWidth / fMinimap.MapX),
+                          Round((C.Bottom - C.Top)*PaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
   end;
+
+  //Paint alerts
+  for I := 0 to fMinimap.AlertsCount - 1 do
+  if fMinimap.Alert(I) <> nil then //Alert could be nil if we are not supposed to see it
+    fRenderUI.WriteText(NewLeft+EnsureRange(Round(fMinimap.Alert(I).Loc.X*PaintWidth / fMinimap.MapX), LOC_RAD, PaintWidth-LOC_RAD),
+                        NewTop +EnsureRange(Round(fMinimap.Alert(I).Loc.Y*PaintHeight / fMinimap.MapY), LOC_RAD, PaintHeight-LOC_RAD)-6,
+                        16, 16, 'x', fnt_Outline, taCenter);
 
   if not fShowLocs then Exit;
 

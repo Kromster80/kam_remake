@@ -3,7 +3,7 @@ unit KM_Minimap;
 interface
 uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
-  KM_MissionScript, KM_Render, KM_Terrain;
+  KM_MissionScript, KM_Render, KM_Terrain, KM_Alerts;
 
 
 type
@@ -14,6 +14,7 @@ type
     fSepia: Boolean; //Less saturated display for menu
     fParser: TMissionParserPreview;
     fMyTerrain: TTerrain;
+    fAlerts: TKMAlerts;
 
     //We need to store map properties locally since Minimaps come from various
     //sources which do not have Terrain in them (TMissionParserPreview, Stream)
@@ -37,8 +38,11 @@ type
     property MapY: Word read fMapY;
     property MapTex: TTexture read fMapTex;
 
+    function AlertsCount: Integer;
+    function Alert(aIndex: Integer): TKMAlert;
+
     procedure LoadFromMission(aMissionPath: string);
-    procedure LoadFromTerrain;
+    procedure LoadFromTerrain(aAlerts: TKMAlerts);
     procedure LoadFromStream(LoadStream: TKMemoryStream);
     procedure SaveToStream(SaveStream: TKMemoryStream);
 
@@ -95,7 +99,7 @@ begin
 end;
 
 
-procedure TKMMinimap.LoadFromTerrain;
+procedure TKMMinimap.LoadFromTerrain(aAlerts: TKMAlerts);
 var I: Integer;
 begin
   fMyTerrain := fTerrain;
@@ -112,6 +116,8 @@ begin
     PlayerColors[I] := $00000000;
     PlayerLocations[I] := KMPoint(0,0);
   end;
+
+  fAlerts := aAlerts;
 end;
 
 
@@ -142,6 +148,21 @@ begin
                       EnsureRange(fResource.Tileset.TileColor[TileID].B+Light, 0, 255) shl 16 or $FF000000;
         end;
     end;
+end;
+
+
+function TKMMinimap.Alert(aIndex: Integer): TKMAlert;
+begin
+  if (fPlayers.CheckAlliance(fAlerts[aIndex].Owner, MyPlayer.PlayerIndex) = at_Ally) then
+    Result := fAlerts[aIndex]
+  else
+    Result := nil;
+end;
+
+
+function TKMMinimap.AlertsCount: Integer;
+begin
+  Result := fAlerts.Count;
 end;
 
 

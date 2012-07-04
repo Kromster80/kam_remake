@@ -140,6 +140,7 @@ type
 
     procedure UpdateGameCursor(X,Y: Integer; Shift: TShiftState);
 
+    property Alerts: TKMAlerts read fAlerts;
     property Minimap: TKMMinimap read fMinimap;
     property Networking: TKMNetworking read fNetworking;
     property Pathfinding: TPathFinding read fPathfinding;
@@ -227,7 +228,7 @@ begin
 
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
   fLog.AppendLog('<== Game creation is done ==>');
-  //fAlerts := TKMAlerts.Create(fGameApp.);
+  fAlerts := TKMAlerts.Create(@fGameTickCount);
   fEventsManager := TKMEventsManager.Create;
   fPathfinding := TPathfinding.Create;
   fProjectiles := TKMProjectiles.Create;
@@ -356,6 +357,7 @@ var
   Parser: TMissionParserStandard;
 begin
   fLog.AppendLog('GameStart');
+  Assert(fGameMode in [gmMulti, gmMapEd, gmSingle]);
 
   fGameName := aGameName;
   fCampaignName := aCampName;
@@ -379,11 +381,12 @@ begin
     for I := 0 to High(PlayerRemap) do
       PlayerRemap[I] := I; //Init with empty values
 
+  //Choose how we will parse the script
   case fGameMode of
     gmMulti:  ParseMode := mpm_Multi;
     gmMapEd:  ParseMode := mpm_Editor;
     gmSingle: ParseMode := mpm_Single;
-    else      Assert(False);
+    else      ParseMode := mpm_Single; //To make compiler happy
   end;
 
   Parser := TMissionParserStandard.Create(ParseMode, PlayerRemap, False);
@@ -1249,6 +1252,8 @@ begin
                 end;
   end;
 
+  fAlerts.UpdateState;
+
   //Update minimap every 1000ms
   if fGameTickCount mod 10 = 0 then
     fMinimap.Update(False);
@@ -1278,7 +1283,7 @@ end;
 
 procedure TKMGame.UpdateUI;
 begin
-  fMinimap.LoadFromTerrain;
+  fMinimap.LoadFromTerrain(fAlerts);
   fMinimap.Update(False);
 
   if fGameMode = gmMapEd then

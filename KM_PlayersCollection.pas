@@ -12,8 +12,8 @@ type
   private
     fCount:byte;
     fPlayerList:array of TKMPlayer;
-    fPlayerAnimals:TKMPlayerAnimals;
-    function GetPlayer(Index:integer):TKMPlayer;
+    fPlayerAnimals: TKMPlayerAnimals;
+    function GetPlayer(Index:integer): TKMPlayer;
   public
     Selected: TObject; //Unit or House
 
@@ -21,30 +21,40 @@ type
     destructor Destroy; override;
 
     property Count:byte read fCount;
-    property Player[Index:integer]:TKMPlayer read GetPlayer; default;
-    property PlayerAnimals:TKMPlayerAnimals read fPlayerAnimals;
+    property Player[Index:integer]: TKMPlayer read GetPlayer; default;
+    property PlayerAnimals: TKMPlayerAnimals read fPlayerAnimals;
 
     procedure AddPlayers(aCount:byte); //Batch add several players
 
     procedure RemoveEmptyPlayers;
-    procedure RemovePlayer(aIndex:TPlayerIndex);
+    procedure RemovePlayer(aIndex: TPlayerIndex);
     procedure AfterMissionInit(aFlattenRoads:boolean);
     function HousesHitTest(X,Y:Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
-    function GetClosestUnit(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMUnit;
+    function GetClosestUnit(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType): TKMUnit;
     function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X,Y: Integer; aOnlyMyPlayer: Boolean): TObject;
     procedure SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
     function GetUnitCount:integer;
-    function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
-    function CheckAlliance(aPlay1,aPlay2:TPlayerIndex):TAllianceType;
+    function FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
+
+    ///	<summary>
+    ///	  <para>
+    ///	    Check how Player1 feels towards Player2.
+    ///	  </para>
+    ///	  <para>
+    ///	    Note: this is position dependant, e.g. Player1 may be allied with
+    ///	    Player2, but Player2 may be enemy to Player1
+    ///	  </para>
+    ///	</summary>
+    function CheckAlliance(aPlay1, aPlay2: TPlayerIndex): TAllianceType;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit);
     procedure CleanUpHousePointer(var aHouse: TKMHouse);
     procedure RemAnyHouse(Position: TKMPoint);
     procedure RemAnyUnit(Position: TKMPoint);
-    procedure RevealForTeam(aPlayer: TPlayerIndex; Pos:TKMPoint; Radius,Amount:word);
+    procedure RevealForTeam(aPlayer: TPlayerIndex; Pos: TKMPoint; Radius,Amount:word);
     procedure SyncFogOfWar;
     procedure AddDefaultMPGoals(aMissionMode: TKMissionMode);
 
@@ -88,7 +98,7 @@ begin
 end;
 
 
-function TKMPlayersCollection.GetPlayer(Index:integer):TKMPlayer;
+function TKMPlayersCollection.GetPlayer(Index:integer): TKMPlayer;
 begin
   Assert(InRange(Index, 0, fCount-1));
   Result := fPlayerList[Index];
@@ -131,7 +141,7 @@ end;
 
 //Remove player 'aIndex'
 //Accessed only by MapEditor when it needs to remove empty players before saving a map
-procedure TKMPlayersCollection.RemovePlayer(aIndex:TPlayerIndex);
+procedure TKMPlayersCollection.RemovePlayer(aIndex: TPlayerIndex);
 var i,k:integer;
 begin
   if MyPlayer = fPlayerList[aIndex] then
@@ -188,8 +198,8 @@ begin
 end;
 
 
-function TKMPlayersCollection.GetClosestUnit(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMUnit;
-var i:integer; U:TKMUnit;
+function TKMPlayersCollection.GetClosestUnit(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType): TKMUnit;
+var i:integer; U: TKMUnit;
 begin
   Result := nil;
 
@@ -310,12 +320,12 @@ end;
 
 
 {Should return closest position where unit can be placed}
-function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
+function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 var
   i:integer;
-  P:TKMPointI;
-  T:TKMPoint;
-  Pass:TPassability; //temp for required passability
+  P: TKMPointI;
+  T: TKMPoint;
+  Pass: TPassability; //temp for required passability
 begin
   Result := False; // if function fails to find valid position
   Pass := fResource.UnitDat[aUnitType].AllowedPassability;
@@ -337,7 +347,7 @@ end;
 
 { Check how Player1 feels towards Player2. Note: this is position dependant,
 e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1}
-function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2:TPlayerIndex):TAllianceType;
+function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2: TPlayerIndex): TAllianceType;
 begin
   Result := at_Ally;
 
@@ -447,7 +457,7 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.Load(LoadStream:TKMemoryStream);
+procedure TKMPlayersCollection.Load(LoadStream: TKMemoryStream);
 var
   I: Integer;
   PlayerIndex: TPlayerIndex;
