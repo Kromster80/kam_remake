@@ -205,19 +205,13 @@ var
 begin
   Stat := fPlayers[fPlayerIndex].Stats;
 
-  //@Lewin: I have wrote my own vision of "Defeated" player here,
-  //please discuss it with me if you have other ideas
-  //@Krom: I think you should have to destroy storehouses, that's how it works in KaM.
-  //Also requiring workers and recruits to be destroyed might be confusing for the player.
-  //I'd rather keep it simple and like KaM: Army, store, school, barracks.
-  //@Lewin: Simple is not good enough for MP. As with each of the items left player can
-  //rebuild his town or overcome enemy by force
+  //KaM defeat conditions are merge of two things: simplicity and objective.
+  //They imply that enemy is powerful enough to destroy all houses and units,
+  //but destroying Store-School-Barracks-Army is enough to show that.
+  //Of course opponent can rebuild with workers, but that will take a lot of time in
+  //already half-ruined city.
 
-  Defeat := (Stat.GetHouseQty(ht_School) = 0) and     //P can train workers and start rebuilding
-            (Stat.GetUnitQty(ut_Worker) = 0) and      //P can rebuild town
-            //@Krom: If the player has no barracks it doesn't matter that he has recruits.
-            //       I think you can win without searching for all the player's recruits
-            (Stat.GetUnitQty(ut_Recruit) = 0) and     //P can train soldiers
+  Defeat := (Stat.GetHouseQty(ht_School) = 0) and
             (Stat.GetArmyCount = 0) and
             (Stat.GetHouseQty(ht_Barracks) = 0) and
             (Stat.GetHouseQty(ht_Store) = 0) and
