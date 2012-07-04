@@ -368,7 +368,7 @@ end;
 
 procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouse);
 begin
-  if (aHouse <> nil) and not fGame.IsExiting then
+  if (aHouse <> nil) and (fGame <> nil) and not fGame.IsExiting then
     aHouse.ReleaseHousePointer;
   aHouse := nil;
 end;

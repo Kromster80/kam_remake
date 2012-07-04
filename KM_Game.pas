@@ -134,7 +134,7 @@ type
     property IsPaused: Boolean read fIsPaused write fIsPaused;
     property MissionMode: TKMissionMode read fMissionMode write fMissionMode;
     function GetNewID: Cardinal;
-    procedure SetGameSpeed(aSpeed: word);
+    procedure SetGameSpeed(aSpeed: Word);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
 
@@ -884,7 +884,7 @@ begin
 end;
 
 
-function TKMGame.GetNewID:cardinal;
+function TKMGame.GetNewID: Cardinal;
 begin
   Inc(fIDTracker);
   Result := fIDTracker;

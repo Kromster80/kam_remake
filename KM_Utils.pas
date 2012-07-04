@@ -377,9 +377,9 @@ end;
 
 //Quote from page 5 of 'Random Number Generators': "We recommend the construction of an initialization procedure,
 //Randomize, which prompts for an initial value of seed and forces it to be an integer between 1 and 2^31 - 2."
-procedure SetKaMSeed(aSeed:integer);
+procedure SetKaMSeed(aSeed: Integer);
 begin
-  assert(InRange(aSeed,1,2147483646),'KaMSeed initialised incorrectly: '+IntToStr(aSeed));
+  Assert(InRange(aSeed,1,2147483646),'KaMSeed initialised incorrectly: '+IntToStr(aSeed));
   if CUSTOM_RANDOM then
     fKaMSeed := aSeed
   else
@@ -398,7 +398,7 @@ end;
 
 //Taken from "Random Number Generators" by Stephen K. Park and Keith W. Miller.
 (*  Integer  Version  2  *)
-function KaMRandom:extended;
+function KaMRandom: Extended;
 const
   A = 16807;
   M = 2147483647; //Prime number 2^31 - 1

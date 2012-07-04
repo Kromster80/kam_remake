@@ -3194,7 +3194,7 @@ begin
   if (Key = ord('P')) and not fMultiplayer then SetPause(True); //Display pause overlay
 
   if (Key = ord('B'))
-  and (fMyControls.CtrlOver <> nil)
+  and (fMyControls.CtrlOver = nil)
   and not SelectingTroopDirection then
     Alert_Beacon;
 

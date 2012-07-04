@@ -98,7 +98,7 @@ type
     AnimStep: Integer;
     IsExchanging: Boolean; //Current walk is an exchange, used for sliding
 
-    constructor Create(aOwner: shortint; PosX, PosY: Integer; aUnitType: TUnitType);
+    constructor Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -204,7 +204,7 @@ type
   private
     fCarry: TResourceType;
   public
-    constructor Create(aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure Save(SaveStream:TKMemoryStream); override;
 
@@ -239,11 +239,11 @@ type
   private
     fFishCount:byte; //1-5
   public
-    constructor Create(aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType); overload;
-    constructor Load(LoadStream:TKMemoryStream); override;
+    constructor Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex); overload;
+    constructor Load(LoadStream: TKMemoryStream); override;
     property FishCount: byte read fFishCount;
     function ReduceFish:boolean;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
     function UpdateState:boolean; override;
     procedure Paint; override;
   end;
@@ -614,7 +614,7 @@ end;
 
 
 { TKMSerf }
-constructor TKMUnitSerf.Create(aOwner: TPlayerIndex; PosX, PosY: integer; aUnitType: TUnitType);
+constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
 begin
   inherited;
   fCarry := rt_None;
@@ -823,7 +823,7 @@ end;
 
 
 { TKMUnitAnimal }
-constructor TKMUnitAnimal.Create(aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
 begin
   inherited;
 
@@ -938,10 +938,10 @@ end;
 
 
 { TKMUnit }
-constructor TKMUnit.Create(aOwner:TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnit.Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
 begin
   inherited Create;
-  fID           := fGame.GetNewID;
+  fID           := aID;
   fPointerCount := 0;
   fIsDead       := false;
   fKillASAP     := false;
@@ -961,7 +961,7 @@ begin
   AnimStep      := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 0.5 to 0.7 (KaM uses 0.6 for all units)
   //By adding the random amount they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
-  if fGame.GameMode <> gmMapEd then
+  if (fGame <> nil) and (fGame.GameMode <> gmMapEd) then
     fCondition    := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)))
   else
     fCondition    := Round(UNIT_MAX_CONDITION * UNIT_CONDITION_BASE);
@@ -2013,7 +2013,7 @@ end;
   Used for creating units still inside schools }
 function TKMUnitsCollection.Add(aOwner: shortint; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0): TKMUnit;
 var
-  U: Integer;
+  ID: Cardinal;
   P: TKMPoint;
 begin
   if AutoPlace then
@@ -2038,23 +2038,21 @@ begin
                            ', tile occupied by ' + fResource.UnitDat[TKMUnit(fTerrain.Land[PosY,PosX].IsUnit).UnitType].UnitName,
                            KMPoint(PosX,PosY));
 
+  ID := fGame.GetNewID;
   case aUnitType of
-    ut_Serf:    U := inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
-    ut_Worker:  U := inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
-
-    ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                U := inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
-
-    ut_Recruit: U := inherited Add(TKMUnitRecruit.Create(aOwner,PosX,PosY,aUnitType));
-
-    WARRIOR_MIN..WARRIOR_MAX: U := inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
-
-    ANIMAL_MIN..ANIMAL_MAX:   U := inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
-
-    else                      raise ELocError.Create('Add '+fResource.UnitDat[aUnitType].UnitName,KMPoint(PosX, PosY));
+    ut_Serf:                          Result := TKMUnitSerf.Create(ID, aUnitType, PosX, PosY, aOwner);
+    ut_Worker:                        Result := TKMUnitWorker.Create(ID, aUnitType, PosX, PosY, aOwner);
+    ut_WoodCutter..ut_Fisher,
+    {ut_Worker,}
+    ut_StoneCutter..ut_Metallurgist:  Result := TKMUnitCitizen.Create(ID, aUnitType, PosX, PosY, aOwner);
+    ut_Recruit:                       Result := TKMUnitRecruit.Create(ID, aUnitType, PosX, PosY, aOwner);
+    WARRIOR_MIN..WARRIOR_MAX:         Result := TKMUnitWarrior.Create(ID, aUnitType, PosX, PosY, aOwner);
+    ANIMAL_MIN..ANIMAL_MAX:           Result := TKMUnitAnimal.Create(ID, aUnitType, PosX, PosY, aOwner);
+    else                              raise ELocError.Create('Add '+fResource.UnitDat[aUnitType].UnitName,KMPoint(PosX, PosY));
   end;
 
-  Result := Units[U];
+  if Result <> nil then
+    inherited Add(Result);
 end;
 
 

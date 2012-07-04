@@ -29,7 +29,7 @@ type
 
 
 implementation
-
+uses KM_Defaults;
 
 const
   //Screen.Cursors[0] is used by System default cursor
@@ -77,6 +77,8 @@ var
   IconInfo: TIconInfo;
   {$IFDEF Unix} IconInfoPointer:PIconInfo; {$ENDIF}
 begin
+  if SKIP_RENDER then Exit;
+
   fRXData := @aSprites.RXData;
 
   bm  := TBitmap.Create; bm.HandleType  := bmDIB; bm.PixelFormat  := pf24bit;

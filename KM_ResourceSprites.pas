@@ -848,7 +848,7 @@ begin
   if FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx') then
     fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx')
   else
-    Assert(False);
+    Exit;
 
   fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
 end;

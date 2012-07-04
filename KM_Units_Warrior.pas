@@ -38,7 +38,7 @@ type
   public
   {MapEdProperties} //Don't need to be accessed nor saved during gameplay
     fMapEdMembersCount:integer;
-    constructor Create(aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure CloseUnit(aRemoveTileUsage:boolean=true); override;
@@ -105,7 +105,7 @@ const HUNGER_CHECK_FREQ = 10; //Check warrior hunger every 1 second
 
 
 { TKMUnitWarrior }
-constructor TKMUnitWarrior.Create(aOwner: TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnitWarrior.Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
 begin
   inherited;
   fCommander         := nil;
