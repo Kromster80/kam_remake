@@ -10,7 +10,6 @@ type
     private
       fInn: TKMHouseInn;
       PlaceID: Byte; //Units place in Inn
-      fFoodsEaten: Byte;
     public
       constructor Create(aInn: TKMHouseInn; aUnit: TKMUnit);
       constructor Load(LoadStream: TKMemoryStream); override;
@@ -33,7 +32,6 @@ begin
   fTaskName := utn_GoEat;
   fInn      := TKMHouseInn(aInn.GetHousePointer);
   PlaceID   := 0;
-  fFoodsEaten := 0;
 end;
 
 
@@ -42,7 +40,6 @@ begin
   inherited;
   LoadStream.Read(fInn, 4);
   LoadStream.Read(PlaceID);
-  LoadStream.Read(fFoodsEaten);
 end;
 
 
@@ -107,47 +104,35 @@ begin
       //Sausages = +60%
       //Wine     = +20%
       //Fish     = +50%
-      //We allow unit to eat 2 foods at most and only until he is at full condition
-      //@Lewin: Why do we allow only 2 foods at max? Bread+Wine are going to fed him to 70% at most
-      //My proposed change is to use (Condition < UNIT_MAX_CONDITION * 0.9)
-      //and remove fFoodsEaten at all
-      //@Krom: I thought in KaM units never ate more than 2 food items. The problem is the third item
-      //       is often a waste, e.g. bread+wine+fish = 1.1, plus the unit already had about 0.1, so
-      //       that's wasting 0.2 of food. It would be more efficient for the unit to come back later.
-      //       Although we should test in KaM whether units eat more than two items.
-      //todo: Test whether units eat more than two items at once in TPR (bread+wine+fish)
-      if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Bread)>0)and(fFoodsEaten<2) then
+      //We allow unit to eat foods until he is over 90% condition
+      if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Bread)>0) then
       begin
         fInn.ResTakeFromIn(rt_Bread);
         fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Bread);
-        Inc(fFoodsEaten);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * 0.4);
         fInn.UpdateEater(PlaceID, rt_Bread);
       end else
         SetActionLockedStay(0,ua_Walk);
-   4: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(fFoodsEaten<2) then begin
+   4: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Sausages)>0) then begin
         fInn.ResTakeFromIn(rt_Sausages);
         fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Sausages);
-        Inc(fFoodsEaten);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * 0.6);
         fInn.UpdateEater(PlaceID, rt_Sausages);
       end else
         SetActionLockedStay(0,ua_Walk);
-   5: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(fFoodsEaten<2) then begin
+   5: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Wine)>0) then begin
         fInn.ResTakeFromIn(rt_Wine);
         fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Wine);
-        Inc(fFoodsEaten);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * 0.2);
         fInn.UpdateEater(PlaceID, rt_Wine);
       end else
         SetActionLockedStay(0,ua_Walk);
-   6: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(fFoodsEaten<2) then begin
+   6: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Fish)>0) then begin
         fInn.ResTakeFromIn(rt_Fish);
         fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Fish);
-        Inc(fFoodsEaten);
         SetActionLockedStay(29*4, ua_Eat, False);
         Feed(UNIT_MAX_CONDITION * 0.5);
         fInn.UpdateEater(PlaceID, rt_Fish);
@@ -157,6 +142,8 @@ begin
         //Stop showing hungry if we no longer are,
         //but if we are then walk out of the inn thinking hungry
         //so that the player will know that we haven't been fed
+        //@Krom: Why is it (Condition < UNIT_MAX_CONDITION * 0.9)? That means the unit
+        //       will show hungry when it is 90% full.
         if Condition < UNIT_MAX_CONDITION * 0.9 then
           Thought := th_Eat
         else
@@ -180,7 +167,6 @@ begin
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(PlaceID);
-  SaveStream.Write(fFoodsEaten);
 end;
 
 
