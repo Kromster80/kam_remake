@@ -117,7 +117,7 @@ type
     property GetDamage:word read fDamage;
 
     procedure SetState(aState: THouseState);
-    function GetState:THouseState;
+    function GetState: THouseState;
 
     function CheckResIn(aResource:TResourceType):word; virtual;
     function CheckResOut(aResource:TResourceType):byte;
@@ -461,7 +461,7 @@ begin
   fPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
-  fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
+  fCurrentAction.SubActionAdd([ha_Flagpole,ha_Flag1..ha_Flag3]);
 
   UpdateDamage; //House might have been damaged during construction, so show flames when it is built
 

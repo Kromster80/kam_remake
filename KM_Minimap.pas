@@ -40,6 +40,7 @@ type
 
     function AlertsCount: Integer;
     function Alert(aIndex: Integer): TKMAlert;
+    function ShowAlerts: Boolean;
 
     procedure LoadFromMission(aMissionPath: string);
     procedure LoadFromTerrain(aAlerts: TKMAlerts);
@@ -304,6 +305,12 @@ begin
     SaveStream.Write(PlayerColors[I]);
     SaveStream.Write(PlayerLocations[I]);
   end;
+end;
+
+
+function TKMMinimap.ShowAlerts: Boolean;
+begin
+  Result := fAlerts <> nil;
 end;
 
 

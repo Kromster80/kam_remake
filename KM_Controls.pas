@@ -3838,6 +3838,7 @@ begin
   end;
 
   //Paint alerts
+  if fMinimap.ShowAlerts then
   for I := 0 to fMinimap.AlertsCount - 1 do
   if fMinimap.Alert(I) <> nil then //Alert could be nil if we are not supposed to see it
     fRenderUI.WriteText(NewLeft+EnsureRange(Round(fMinimap.Alert(I).Loc.X*PaintWidth / fMinimap.MapX), LOC_RAD, PaintWidth-LOC_RAD),

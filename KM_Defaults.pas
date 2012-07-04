@@ -488,7 +488,7 @@ type
 
   THouseActionType = (
   ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5, //Start, InProgress, .., .., Finish
-  ha_Smoke, ha_FlagShtok, ha_Idle,
+  ha_Smoke, ha_Flagpole, ha_Idle,
   ha_Flag1, ha_Flag2, ha_Flag3,
   ha_Fire1, ha_Fire2, ha_Fire3, ha_Fire4, ha_Fire5, ha_Fire6, ha_Fire7, ha_Fire8);
   THouseActionSet = set of THouseActionType;

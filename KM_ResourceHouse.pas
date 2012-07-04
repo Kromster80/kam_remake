@@ -38,12 +38,13 @@ type
   THouseArea = array[1..4,1..4]of byte;
   THouseRes = array[1..4]of TResourceType;
 
-  //This class wraps KaM House info and hides unused fields
+  //This class wraps KaM House info
+  //it hides unused fields and adds new ones
   TKMHouseDatClass = class
   private
-    fHouseType:THouseType; //Our class
-    fNameTextID:integer;
-    fHouseDat:TKMHouseDat;
+    fHouseType: THouseType; //Our class
+    fNameTextID: Integer;
+    fHouseDat: TKMHouseDat;
     function GetArea:THouseArea;
     function GetAcceptsGoods:boolean;
     function GetDoesOrders:boolean;

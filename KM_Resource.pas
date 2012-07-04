@@ -271,6 +271,7 @@ procedure TResource.ExportHouseAnim;
 var
   Folder: string;
   Bmp: TBitmap;
+  HD: TKMHouseDatCollection;
   ID: THouseType;
   Ac: THouseActionType;
   Q, Beast, i, k, ci: Integer;
@@ -286,16 +287,16 @@ begin
   Bmp := TBitmap.Create;
   Bmp.PixelFormat := pf24bit;
 
-  fHouseDat := TKMHouseDatCollection.Create;
+  HD := TKMHouseDatCollection.Create;
 
   ci:=0;
   for ID:=Low(THouseType) to High(THouseType) do
     for Ac:=ha_Work1 to ha_Flag3 do
-      for k:=1 to fHouseDat[ID].Anim[Ac].Count do
+      for k:=1 to HD[ID].Anim[Ac].Count do
       begin
-        ForceDirectories(Folder+fHouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\');
-        if fHouseDat[ID].Anim[Ac].Step[k] <> -1 then
-          ci := fHouseDat[ID].Anim[Ac].Step[k]+1;
+        ForceDirectories(Folder+HD[ID].HouseName+'_'+HouseAction[Ac]+'\');
+        if HD[ID].Anim[Ac].Step[k] <> -1 then
+          ci := HD[ID].Anim[Ac].Step[k]+1;
 
         sx := RXData.Size[ci].X;
         sy := RXData.Size[ci].Y;
@@ -306,7 +307,7 @@ begin
           Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
         if sy>0 then Bmp.SaveToFile(
-        Folder+fHouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\_'+int2fix(k,2)+'.bmp');
+        Folder+HD[ID].HouseName+'_'+HouseAction[Ac]+'\_'+int2fix(k,2)+'.bmp');
       end;
 
   ci:=0;
@@ -314,14 +315,14 @@ begin
   begin
     if Q=1 then ID:=ht_Swine
            else ID:=ht_Stables;
-    CreateDir(Folder+'_'+fHouseDat[ID].HouseName+'\');
+    CreateDir(Folder+'_'+HD[ID].HouseName+'\');
     for Beast:=1 to 5 do
       for i:=1 to 3 do
-        for k:=1 to fHouseDat.BeastAnim[ID,Beast,i].Count do
+        for k:=1 to HD.BeastAnim[ID,Beast,i].Count do
         begin
-          CreateDir(Folder+'_'+fHouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\');
-          if fHouseDat.BeastAnim[ID,Beast,i].Step[k]+1<>0 then
-            ci := fHouseDat.BeastAnim[ID,Beast,i].Step[k]+1;
+          CreateDir(Folder+'_'+HD[ID].HouseName+'\'+int2fix(Beast,2)+'\');
+          if HD.BeastAnim[ID,Beast,i].Step[k]+1<>0 then
+            ci := HD.BeastAnim[ID,Beast,i].Step[k]+1;
 
           sx:=RXData.Size[ci].X;
           sy:=RXData.Size[ci].Y;
@@ -331,10 +332,11 @@ begin
           for y:=0 to sy-1 do for x:=0 to sx-1 do
             Bmp.Canvas.Pixels[x,y] := RXData.RGBA[ci,y*sx+x] AND $FFFFFF;
 
-          if sy>0 then Bmp.SaveToFile(Folder+'_'+fHouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
+          if sy>0 then Bmp.SaveToFile(Folder+'_'+HD[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
         end;
   end;
 
+  HD.Free;
   fSprites.ClearTemp;
   Bmp.Free;
 end;

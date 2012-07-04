@@ -1588,6 +1588,7 @@ begin
     fThought := th_None;
 end;
 
+
 //Return true if the unit has to be killed due to lack of space
 function TKMUnit.UpdateVisibility:boolean;
 begin

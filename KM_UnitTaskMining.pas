@@ -158,7 +158,7 @@ end;
 
 
 {This is execution of Resource mining}
-function TTaskMining.Execute:TTaskResult;
+function TTaskMining.Execute: TTaskResult;
 const
   SkipWalk = 9;
   SkipWork = 31; //Skip to certain Phases
@@ -178,17 +178,20 @@ begin
 
   with fUnit do
   case fPhase of
-    0: if WorkPlan.HasToWalk then begin
-         GetHome.SetState(hst_Empty);
-         SetActionGoIn(WorkPlan.ActionWalkTo, gd_GoOutside, GetHome); //Walk outside the house
-       end else begin
-         fPhase := SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
-         SetActionLockedStay(0, ua_Walk);
-         Exit;
-       end;
+    0:  if WorkPlan.HasToWalk then
+        begin
+          GetHome.SetState(hst_Empty);
+          SetActionGoIn(WorkPlan.ActionWalkTo, gd_GoOutside, GetHome); //Walk outside the house
+        end
+        else
+        begin
+          fPhase := SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
+          SetActionLockedStay(0, ua_Walk);
+          Exit;
+        end;
 
-    1: //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
-      SetActionWalkToSpot(WorkPlan.Loc, WorkPlan.ActionWalkTo);
+    1:  //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
+        SetActionWalkToSpot(WorkPlan.Loc, WorkPlan.ActionWalkTo);
 
     2: //Check if we are at the location. WalkTo could have failed or resource could have been exhausted
        if not KMSamePoint(NextPosition, WorkPlan.Loc) or not ResourceExists then
@@ -197,7 +200,8 @@ begin
          SetActionLockedStay(0, WorkPlan.ActionWalkTo);
 
     3: //Before work tasks for specific mining jobs
-       if WorkPlan.GatheringScript = gs_FisherCatch then begin
+       if WorkPlan.GatheringScript = gs_FisherCatch then
+       begin
          Direction := WorkPlan.WorkDir;
          SetActionLockedStay(13, ua_Work1, false); //Throw the line out
        end else

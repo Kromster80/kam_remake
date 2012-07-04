@@ -44,7 +44,8 @@ type
 
 
 implementation
-uses KM_Player, KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay, KM_Units_Warrior;
+uses KM_Player, KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay,
+  KM_Units_Warrior, KM_UnitTaskMining;
 
 
 constructor TUnitActionGoInOut.Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
@@ -225,6 +226,7 @@ begin
 end;
 
 
+//Start walking out of the house. unit is no longer in the house
 procedure TUnitActionGoInOut.WalkOut;
 begin
   fUnit.Direction := KMGetDirection(fDoor, fStreet);
@@ -234,7 +236,16 @@ begin
   if (fUnit.GetHome <> nil)
   and (fUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
   and (fUnit.GetHome = fHouse) then //And is the house we are walking from
-    TKMHouseBarracks(fUnit.GetHome).RecruitsList.Remove(fUnit);
+    TKMHouseBarracks(fHouse).RecruitsList.Remove(fUnit);
+
+  //Woodcutter takes his axe with him when going to chop trees
+  if (fUnit.UnitType = ut_Woodcutter)
+  and (fUnit.GetUnitTask.TaskName = utn_Mining)
+  and (TTaskMining(fUnit.GetUnitTask).WorkPlan.GatheringScript = gs_WoodCutterCut)
+  and (fUnit.GetHome <> nil)
+  and (fUnit.GetHome.HouseType = ht_Woodcutters)
+  and (fUnit.GetHome = fHouse) then //And is the house we are walking from
+    fHouse.fCurrentAction.SubActionRem([ha_Flagpole]);
 
   DoLinking; //Warriors attempt to link as they leave the house
 
@@ -371,6 +382,14 @@ begin
       and not fUnit.GetHome.IsDestroyed then //And is the house we are walking into and it's not destroyed
         TKMHouseBarracks(fUnit.GetHome).RecruitsList.Add(fUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
       //Set us as inside even if the house is destroyed. In that case UpdateVisibility will sort things out.
+
+      //When any woodcutter returns home - add an Axe
+      if (fUnit.UnitType = ut_Woodcutter)
+      and (fUnit.GetHome <> nil)
+      and (fUnit.GetHome.HouseType = ht_Woodcutters)
+      and (fUnit.GetHome = fHouse) then //And is the house we are walking from
+        fHouse.fCurrentAction.SubActionAdd([ha_Flagpole]);
+
       if fHouse <> nil then fUnit.SetInHouse(fHouse);
     end
     else

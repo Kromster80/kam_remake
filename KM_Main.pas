@@ -69,6 +69,8 @@ end;
 procedure TKMMain.Start;
 begin
   //Random GUID generated in Delphi by Ctrl+G
+  //todo: Move this code into GUI>Multiplayer and block duplicate entrance into
+  //MP area. For that CreateMutex on enter and ReleaseMutex on leaving MP
   if BLOCK_DUPLICATE_APP
   and CheckDuplicateApplication('07BB7CC6-33F2-44ED-AD04-1E255E0EDF0D') then
   begin

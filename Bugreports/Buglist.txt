@@ -11,6 +11,7 @@
  +	Fixed crash when arrows would be flying outside of map
  +	Fixed crash when watching Credits page for more than 28min
  +	The game should display days along with hours/minutes played
+ +	Woodcutter should take his axe with him from home when he is going out to chop trees
 	Placing a group so a member is under a house causes a crash. The unit under the house should be placed nearby instead.
 	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -36,7 +37,6 @@
 	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 	Farmer should not sow corn on tiles left after demolished houses that were built ontop fields 
 	"Under attack" messages should play when the loc is not visible on your screen, rather than using arbitrary >=30 rule
-	Woodcutter should take his axe with him from home when he is going out to chop trees
 
 	Sandhills cause water next to shore tiles to appear darker with square edges
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing might help?)
