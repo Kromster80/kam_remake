@@ -111,6 +111,11 @@ begin
       //@Lewin: Why do we allow only 2 foods at max? Bread+Wine are going to fed him to 70% at most
       //My proposed change is to use (Condition < UNIT_MAX_CONDITION * 0.9)
       //and remove fFoodsEaten at all
+      //@Krom: I thought in KaM units never ate more than 2 food items. The problem is the third item
+      //       is often a waste, e.g. bread+wine+fish = 1.1, plus the unit already had about 0.1, so
+      //       that's wasting 0.2 of food. It would be more efficient for the unit to come back later.
+      //       Although we should test in KaM whether units eat more than two items.
+      //todo: Test whether units eat more than two items at once in TPR (bread+wine+fish)
       if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Bread)>0)and(fFoodsEaten<2) then
       begin
         fInn.ResTakeFromIn(rt_Bread);

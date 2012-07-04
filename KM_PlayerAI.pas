@@ -215,6 +215,8 @@ begin
 
   Defeat := (Stat.GetHouseQty(ht_School) = 0) and     //P can train workers and start rebuilding
             (Stat.GetUnitQty(ut_Worker) = 0) and      //P can rebuild town
+            //@Krom: If the player has no barracks it doesn't matter that he has recruits.
+            //       I think you can win without searching for all the player's recruits
             (Stat.GetUnitQty(ut_Recruit) = 0) and     //P can train soldiers
             (Stat.GetArmyCount = 0) and
             (Stat.GetHouseQty(ht_Barracks) = 0) and
@@ -392,6 +394,8 @@ begin
     att_ClosestBuildingFromArmy:      TargetHouse := fPlayers.GetClosestHouse(aCommander.GetPosition, fPlayerIndex, at_Enemy, false);
     att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(StartPosition, fPlayerIndex, at_Enemy, false);
     att_CustomPosition:               begin
+                                        //todo: TSK 19 defines an off-map custom AI attack. KaM TSK/TPR ignores this without crashing
+                                        //      so I guess we should do the same? (currently it causes a crash)
                                         TargetHouse := fPlayers.HousesHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetHouse <> nil) and
                                            (fPlayers.CheckAlliance(fPlayerIndex, TargetHouse.GetOwner) = at_Ally) then

@@ -525,6 +525,9 @@ end;
 procedure TKMUnitRecruit.DestroyInBarracks;
 begin
   //@Lewin: Hows that possible to have Recruit selected when equipping him in Barracks?
+  //@Krom: If the player selects the recruit, the recruit walks into the barracks, (I'm not sure fPlayers.Selected is cleared)
+  //       then the player equips a soldier. Only problem is you can't train a soldier without selecting the barracks. (yet)
+  //       So I guess it's impossible as you say.
   {if fPlayers.Selected = Self then fPlayers.Selected := nil;
   if fGame.fGamePlayInterface.ShownUnit = Self then
     fGame.fGamePlayInterface.ShowUnitInfo(nil);}

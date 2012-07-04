@@ -2431,6 +2431,10 @@ var
 begin
   //todo: Make this match KaM by creating some comparision screenshots of slopes, hills, etc.
   //@Lewin: I'm not sure this todo item is clear enough, if you remember what it means, could you please formulate it better?
+  //@Krom: I don't think it is for this function, I think it's supposed to be in CheckHeightPass. (misplaced in refactored?)
+  //But IMO it's not needed. Nobody has complained about unwalkable areas on original maps
+  //which were walkable in KaM so I think our solution is fine. If someone finds a problem
+  //we can discuss it. I think the todo can be deleted.
 
   //Valid range of tiles is 0..MapXY-2 because we check height from (Xc+1,Yc+1) to (Xc+2,Yc+2)
   //We cannot ask for height at the bottom row (MapY-1) because that row is not on the visible map,

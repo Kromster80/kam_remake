@@ -127,6 +127,7 @@ begin
              end;
          end else begin
            SetActionLockedStay(0,ua_Work,false); //@Lewin: Maybe melee units can randomly pause for 1-2 frames as well?
+                                                 //@Krom: Melee units already pause after the attack in step 3 (below)
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
              Direction := KMGetDirection(GetPosition, fHouse.GetClosestCell(GetPosition)); //Look at house
          end;
