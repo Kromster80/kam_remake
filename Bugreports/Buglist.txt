@@ -71,6 +71,7 @@ Improvements:
 	Economic goals such as produce X amount of resource A
 	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
 	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
+	Allow to assign groups and houses(!) to Ctrl+1..0 keys
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

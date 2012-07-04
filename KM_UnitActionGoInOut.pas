@@ -36,7 +36,7 @@ type
     function GetExplanation:string; override;
     property GetHasStarted: boolean read fHasStarted;
     property GetWaitingForPush: boolean read fWaitingForPush;
-    function GetDoorwaySlide(aCheck:TCheckAxis):single;
+    function GetDoorwaySlide(aCheck: TCheckAxis): Single;
     procedure DoLinking; //Public because we need it when the barracks is destroyed
     function Execute: TActionResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -48,6 +48,7 @@ uses KM_Player, KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay
   KM_Units_Warrior, KM_UnitTaskMining;
 
 
+{ TUnitActionGoInOut }
 constructor TUnitActionGoInOut.Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
 begin
   inherited Create(aUnit, aAction, True);
@@ -272,8 +273,8 @@ begin
 end;
 
 
-function TUnitActionGoInOut.GetDoorwaySlide(aCheck:TCheckAxis):single;
-var Offset: integer;
+function TUnitActionGoInOut.GetDoorwaySlide(aCheck: TCheckAxis): Single;
+var Offset: Integer;
 begin
   if aCheck = ax_X then
     Offset := fResource.HouseDat[fHouse.HouseType].EntranceOffsetXpx - CELL_SIZE_PX div 2
