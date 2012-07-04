@@ -118,7 +118,7 @@
 			<DCCReference Include="KM_DedicatedServer.pas"/>
 			<DCCReference Include="KM_Defaults.pas"/>
 			<DCCReference Include="KM_DeliverQueue.pas"/>
-			<DCCReference Include="KM_EventProcess.pas"/>
+			<DCCReference Include="KM_Events.pas"/>
 			<DCCReference Include="KM_FogOfWar.pas"/>
 			<DCCReference Include="KM_Houses.pas"/>
 			<DCCReference Include="KM_InterfaceDefaults.pas"/>

@@ -1,24 +1,28 @@
-unit KM_EventProcess;
+unit KM_Events;
 {$I KaM_Remake.inc}
 interface
 uses
   Classes, Math, SysUtils, StrUtils,
   KM_CommonClasses, KM_Defaults, KM_Points;
 
+  //Events are straightforward things: When something happens (Trigger)
+  //and pre-conditions are right it fires an event that performes something (Action)
+  //When event has occurred it is simply removed from the queue.
+  //E.g. after house_built trigger has been fired for the first time it is also
+  //going to be fired each next tick if we don't remove it.
 
-const
-  MAX_EVENT_PARAMS = 2;
-
-  //Events are straightforward: trigger -> event
-  //When event has occurred it is simply removed
-
-  //Win Defeat conditions are more complicated, they can not be represented as events that easily
-  //because they usually consist of several triggers happening in different times and are reversible
-  //E.g. for victory we need to: destroy Store, School, Barracks, Town Hall, troops, builders. While
-  //at it enemy can rebuild/train them and we would need to add semaphore events for that to work ..
+  //Win Defeat conditions are more complicated, they can not be represented
+  //as events that easily because they usually consist of several triggers
+  //happening in different times and are reversible
+  //E.g. for victory we need to destroy: Store, School, Barracks, Town Hall,
+  //troops, builders. While at it enemy can rebuild/train them and we would
+  //need to revert events (add semaphore events) for that to work ..
 
   //In TSK, there are no enemies and you win when you build the tannery.
   //In TPR, you must defeat the enemies AND build the tannery.
+
+const
+  MAX_EVENT_PARAMS = 2;
 
 type
   //Triggers we handle
@@ -30,6 +34,7 @@ type
   //Actions we can do
   TEventAction = (
     eaDelayedMessage, //[Delay, MsgIndex] Adds new etTime/eaShowMessage event (usefull to display delayed messages)
+    //eaShowAlert,      //[PosX, PosY, AlertType]
     eaShowMessage,    //[MsgIndex]
     eaVictory);       //[]
 

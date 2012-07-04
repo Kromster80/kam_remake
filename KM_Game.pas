@@ -171,7 +171,7 @@ var
 implementation
 uses
   KM_CommonClasses, KM_Log, KM_Utils,
-  KM_ArmyEvaluation, KM_EventProcess, KM_GameApp, KM_GameInfo, KM_MissionScript,
+  KM_ArmyEvaluation, KM_Events, KM_GameApp, KM_GameInfo, KM_MissionScript,
   KM_Player, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceCursors,
   KM_Settings, KM_Sound, KM_Terrain, KM_TextLibrary,
   KM_GameInputProcess_Single, KM_GameInputProcess_Multi;
