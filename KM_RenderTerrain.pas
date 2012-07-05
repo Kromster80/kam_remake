@@ -158,6 +158,7 @@ begin
       alWater: TexOffset := 300 * (AnimStep mod 8 + 1);       // 300..2400
       alFalls: TexOffset := 300 * (AnimStep mod 5 + 1 + 8);   // 2700..3900
       alSwamp: TexOffset := 300 * ((AnimStep mod 24) div 8 + 1 + 8 + 5); // 4200..4800
+      else     TexOffset := 0;
     end;
 
     with fTerrain do

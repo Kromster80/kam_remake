@@ -1955,6 +1955,7 @@ begin
 
   //IDs of maps could changed, so use CRC to check
   //which one was selected
+  MapIndex := -1;
   for I := 0 to fMaps.Count-1 do
     if (fMaps[I].CRC = fLastMapCRC) then
       MapIndex := I;

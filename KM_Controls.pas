@@ -3942,8 +3942,8 @@ end;
 
 
 procedure TKMGraph.AddLine(aTitle: string; aColor: TColor4; const aValues: TCardinalArray);
-var K: Integer;
 begin
+  //Make sure there is enough Values to copy to local storage with Move procedure
   Assert(Length(aValues) >= fMaxLength);
 
   SetLength(fLines, fCount + 1);

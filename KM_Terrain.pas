@@ -8,6 +8,7 @@ uses Classes, KromUtils, Math, SysUtils, Graphics,
 type
   //Farmers/Woodcutters preferred activity
   TPlantAct = (taCut, taPlant, taAny);
+  TTileOverlay = (to_None, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall);
 
 
   {Class to store all terrain data, aswell terrain routines}
@@ -20,7 +21,7 @@ type
 
     fTileset: TKMTileset;
 
-    fBoundsWC: TKMRect; //WC rebuild bounds used in FlattenTerrain
+    fBoundsWC: TKMRect; //WC rebuild bounds used in FlattenTerrain (put outside to fight with recursion SO error?)
 
     function TileIsSand(Loc:TKMPoint): Boolean;
     function TileIsSoil(Loc:TKMPoint): Boolean;
@@ -2625,7 +2626,7 @@ begin
 
   //Update falling trees animation
   for T := FallingTrees.Count - 1 downto 0 do
-  if fAnimStep - FallingTrees.Tag2[T]+1 >= MapElem[FallingTrees.Tag[T]].Anim.Count then
+  if fAnimStep >= FallingTrees.Tag2[T] + Cardinal(MapElem[FallingTrees.Tag[T]].Anim.Count - 1) then
     ChopTree(FallingTrees[T]); //Make the tree turn into a stump
 
   for I := 1 to fMapY do

@@ -280,7 +280,7 @@ begin
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(LocX,LocY,true);
   if FOW = 0 then exit; //Don't render objects which are unexplored
   if FOW <=128 then AnimStep:=0; //Stop animation
-  ID := A.Step[AnimStep mod A.Count +1]+1;
+  ID := A.Step[AnimStep mod Byte(A.Count) +1]+1;
   ID0 := A.Step[1] + 1;
   if ID <= 0 then exit;
 
@@ -327,7 +327,7 @@ var
     A: TKMAnimLoop;
   begin
     A := MapElem[aIndex].Anim;
-    ID := A.Step[aAnimStep mod A.Count + 1] + 1;
+    ID := A.Step[aAnimStep mod Byte(A.Count) + 1] + 1;
     ID0 := A.Step[1] + 1;
 
     gX := pX + (R.Pivot[ID0].X + R.Size[ID0].X/2) / CELL_SIZE_PX;
@@ -470,9 +470,9 @@ begin
   if AT in aActSet then
   begin
     A := fResource.HouseDat[aHouse].Anim[AT];
-    if A.Count <> 0 then
+    if A.Count > 0 then
     begin
-      ID := A.Step[AnimStep mod A.Count + 1] + 1;
+      ID := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
       CornerX := Loc.X + (R.Pivot[ID].X + A.MoveX) / CELL_SIZE_PX - 1;
       CornerY := Loc.Y + (R.Pivot[ID].Y + A.MoveY + R.Size[ID].Y) / CELL_SIZE_PX - 1
                        - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
@@ -560,7 +560,7 @@ begin
 
   A := fResource.HouseDat.BeastAnim[aHouse,BeastID,BeastAge];
 
-  ID := A.Step[AnimStep mod A.Count + 1] + 1;
+  ID := A.Step[AnimStep mod Byte(A.Count) + 1] + 1;
   CornerX := Loc.X + (A.MoveX + R.Pivot[ID].X) / CELL_SIZE_PX - 1;
   CornerY := Loc.Y + (A.MoveY + R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1
                    - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
@@ -617,8 +617,8 @@ var
   R: TRXData;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
-  ID := A.Step[StepID mod A.Count + 1] + 1;
-  ID0 := A.Step[UnitStillFrames[aDir] mod A.Count + 1] + 1;
+  ID := A.Step[StepID mod Byte(A.Count) + 1] + 1;
+  ID0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
   if ID <= 0 then exit;
   R := fRXData[rxUnits];
 
@@ -652,7 +652,7 @@ var
   R: TRXData;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
-  ID := A.Step[StepID mod A.Count + 1] + 1;
+  ID := A.Step[StepID mod Byte(A.Count) + 1] + 1;
   if ID <= 0 then exit;
   R := fRXData[rxUnits];
 
@@ -673,7 +673,7 @@ var
   R: TRXData;
 begin
   A := fResource.UnitDat.SerfCarry[aCarry, aDir];
-  ID := A.Step[StepID mod A.Count + 1] + 1;
+  ID := A.Step[StepID mod Byte(A.Count) + 1] + 1;
   if ID <= 0 then Exit;
   R := fRXData[rxUnits];
 
@@ -718,8 +718,8 @@ begin
 
   //Unit position
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
-  IDUnit := A.Step[UnitAnim mod A.Count + 1] + 1;
-  ID0 := A.Step[UnitStillFrames[aDir] mod A.Count+1] + 1;
+  IDUnit := A.Step[UnitAnim mod Byte(A.Count) + 1] + 1;
+  ID0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count)+1] + 1;
   if IDUnit <= 0 then Exit;
 
   CornerX := pX + R.Pivot[IDUnit].X / CELL_SIZE_PX;
@@ -729,7 +729,7 @@ begin
 
   //Flag position
   A := fResource.UnitDat[aUnit].UnitAnim[ua_WalkArm, aDir];
-  IDFlag := A.Step[FlagAnim mod A.Count + 1] + 1;
+  IDFlag := A.Step[FlagAnim mod Byte(A.Count) + 1] + 1;
   if IDFlag <= 0 then Exit;
 
   FlagX := pX + (R.Pivot[IDFlag].X + FlagXOffset[UnitGroups[aUnit], aDir]) / CELL_SIZE_PX - 0.5;

@@ -458,7 +458,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue:boolean);
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: Boolean);
 begin
   Assert(aCommandType = gic_GamePause);
   TakeCommand(MakeCommand(aCommandType, [integer(aValue)]));

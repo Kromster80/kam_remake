@@ -144,9 +144,9 @@ begin
           x0 := Max(K-1, 1);
           y2 := Min(I+1, fMapY);
           Light := Round(EnsureRange((TileHeight - (fParser.MapPreview[K,y2].TileHeight + fParser.MapPreview[x0,I].TileHeight)/2)/22, -1, 1)*64);
-          fBase[N] := EnsureRange(fResource.Tileset.TileColor[TileID].R+Light, 0, 255) +
-                      EnsureRange(fResource.Tileset.TileColor[TileID].G+Light, 0, 255) shl 8 +
-                      EnsureRange(fResource.Tileset.TileColor[TileID].B+Light, 0, 255) shl 16 or $FF000000;
+          fBase[N] := Byte(EnsureRange(fResource.Tileset.TileColor[TileID].R+Light, 0, 255)) +
+                      Byte(EnsureRange(fResource.Tileset.TileColor[TileID].G+Light, 0, 255)) shl 8 +
+                      Byte(EnsureRange(fResource.Tileset.TileColor[TileID].B+Light, 0, 255)) shl 16 or $FF000000;
         end;
     end;
 end;
@@ -232,9 +232,9 @@ begin
         begin
           ID := fMyTerrain.Land[I+1,K+1].Terrain;
           Light := Round(fMyTerrain.Land[I+1,K+1].Light*64)-(255-FOW); //it's -255..255 range now
-          fBase[I*fMapX + K] := EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
-                                EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
-                                EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16 or $FF000000;
+          fBase[I*fMapX + K] := Byte(EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255)) +
+                                Byte(EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255)) shl 8 +
+                                Byte(EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255)) shl 16 or $FF000000;
         end;
       end;
   end;
@@ -274,10 +274,11 @@ end;
 procedure TKMMinimap.UpdateTexture;
 var
   wData: Pointer;
-  I: Integer;
+  I: Word;
 begin
   GetMem(wData, fWidthPOT * fHeightPOT * 4);
 
+  if fMapY > 0 then //if MapY = 0 then loop will overflow to MaxWord
   for I := 0 to fMapY - 1 do
     Move(Pointer(Cardinal(fBase) + I * fMapX * 4)^,
          Pointer(Cardinal(wData) + I * fWidthPOT * 4)^, fMapX * 4);
