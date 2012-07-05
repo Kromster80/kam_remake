@@ -10,18 +10,18 @@ uses
 type
   TKMPlayersCollection = class
   private
-    fCount:byte;
-    fPlayerList:array of TKMPlayer;
+    fCount: Byte;
+    fPlayerList: array of TKMPlayer;
     fPlayerAnimals: TKMPlayerAnimals;
-    function GetPlayer(Index:integer): TKMPlayer;
+    function GetPlayer(aIndex: Integer): TKMPlayer;
   public
     Selected: TObject; //Unit or House
 
     constructor Create;
     destructor Destroy; override;
 
-    property Count:byte read fCount;
-    property Player[Index:integer]: TKMPlayer read GetPlayer; default;
+    property Count: Byte read fCount;
+    property Player[aIndex: Integer]: TKMPlayer read GetPlayer; default;
     property PlayerAnimals: TKMPlayerAnimals read fPlayerAnimals;
 
     procedure AddPlayers(aCount:byte); //Batch add several players
@@ -98,10 +98,10 @@ begin
 end;
 
 
-function TKMPlayersCollection.GetPlayer(Index:integer): TKMPlayer;
+function TKMPlayersCollection.GetPlayer(aIndex: Integer): TKMPlayer;
 begin
-  Assert(InRange(Index, 0, fCount-1));
-  Result := fPlayerList[Index];
+  Assert(InRange(aIndex, 0, fCount-1));
+  Result := fPlayerList[aIndex];
 end;
 
 

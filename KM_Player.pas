@@ -38,14 +38,14 @@ type
   TKMPlayer = class(TKMPlayerCommon)
   private
     fAI: TKMPlayerAI;
+    fArmyEval: TKMArmyEvaluation; // Can used by all players
     fBuildList: TKMBuildList; //Not the best name for buildingManagement
     fDeliveries: TKMDeliveries;
+    fFogOfWar: TKMFogOfWar; //Stores FOW info for current player, which includes
+    fGoals: TKMGoals;
     fHouses: TKMHousesCollection;
     fRoadsList: TKMPointList; //Used only once to speedup mission loading, then freed
     fStats: TKMPlayerStats;
-    fGoals: TKMGoals;
-    fFogOfWar: TKMFogOfWar; //Stores FOW info for current player, which includes
-    fArmyEval: TKMArmyEvaluation; // Can used by all players
 
     fPlayerName: string;
     fPlayerType: TPlayerType;

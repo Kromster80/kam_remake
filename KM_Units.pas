@@ -1132,7 +1132,9 @@ end;
 procedure TKMUnit.KillUnit;
 begin
   if fPlayers.Selected = Self then fPlayers.Selected := nil;
-  if fGame.GamePlayInterface.ShownUnit = Self then fGame.GamePlayInterface.ShowUnitInfo(nil);
+  //todo: remove
+  if (fGame <> nil) and (fGame.GamePlayInterface.ShownUnit = Self) then
+    fGame.GamePlayInterface.ShowUnitInfo(nil);
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
   //Wait till units exchange (1 tick) and then do the killing
