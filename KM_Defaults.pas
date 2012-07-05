@@ -135,7 +135,6 @@ const //Here we store options that are hidden somewhere in code
   UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn. In KaM it's 6min
   TIME_BETWEEN_MESSAGES = 4*600;          //Time between messages saying house is unoccupied or unit is hungry. In KaM it's 4 minutes
   TIME_ATTACK_WARNINGS = 200;             //Time between audio messages saying you are being attacked
-  DISTANCE_FOR_WARNINGS = 30;             //The distance you must be from an event to recieve a warning about it
   TROOPS_FEED_MAX = 0.75;                 //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
   UNIT_CONDITION_BASE = 0.6;              //Base amount of health a unit starts with (measured in KaM)
   UNIT_CONDITION_RANDOM = 0.1;            //Random jitter of unit's starting health (KaM did not have this, all units started the same)

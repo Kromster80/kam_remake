@@ -645,7 +645,7 @@ end;
 
 
 //aHouse is our house that was attacked
-procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
+procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
 begin
   case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
@@ -656,7 +656,8 @@ begin
           //(and it is desired behaviour: if player saw attack,
           //don't notify him as soon as he looks away)
           fTimeOfLastAttackMessage := fGame.GameTickCount;
-          if (MyPlayer = fPlayers[fPlayerIndex]) and (GetLength(fGame.Viewport.Position, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+          if (MyPlayer = fPlayers[fPlayerIndex])
+          and not KMInRect(aHouse.GetPosition, fGame.Viewport.GetMinimapClip) then
             fSoundLib.PlayNotification(an_Town);
         end;
       end;
@@ -667,14 +668,15 @@ end;
 
 
 //aUnit is our unit that was attacked
-procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
+procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnitWarrior);
 begin
   case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
       if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
       begin
         fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
-        if (MyPlayer = fPlayers[fPlayerIndex]) and (GetLength(fGame.Viewport.Position, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+        if (MyPlayer = fPlayers[fPlayerIndex])
+        and not KMInRect(aUnit.GetPosition, fGame.Viewport.GetMinimapClip) then
         begin
           if aUnit is TKMUnitWarrior then
             fSoundLib.PlayNotification(an_Troops)
