@@ -33,7 +33,7 @@ MaxID:2733
 29:Turgavietë
 39:Ràstai
 40:Akmenys
-41:Mediena
+41:Lenta
 42:Geleþies rûda
 43:Aukso rûda
 44:Anglis
@@ -67,7 +67,7 @@ MaxID:2733
 74:Stalius
 75:Kepëjas
 76:Mësininkas
-77:Þvejys
+77:Þvejas
 78:Statybininkas
 79:Kalnakasys
 80:Kalvis
@@ -85,24 +85,24 @@ MaxID:2733
 92:Barbaras
 93:Sukilëlis
 94:Plëðikas
-95:Karys
+95:Kovotojas
 96:Klajoklis
 97:Katapulta
 98:Balista
-99:Neðëjas aprûpina jûsø|pastatus reikalin-|gomis þaliavomis.||Takas turi bûti tarp pastatø.
-100:Norint iðgauti ràstus|lentpjûvei, reikalingas|medkirtys.||Medkirtys atsodina medþius|savarankiðkai.
+99:Neðëjas aprûpina jûsø|pastatus reikalingomis|þaliavomis.||Takas turi bûti tarp|pastatø.
+100:Norint iðgauti ràstus|lentpjûvei, reikalingas|medkirtys.||Medkirtys sodina medþius|savarankiðkai.
 101:Ðachtininkas iðgauna|iðkasenas ið anglies,|geleþies ir aukso ðachtø.
 102:Gyvuliø augintojas|naudoja grûdus veisiant|kiaules fermoje ir|arklius arklidëse.
 103:Fermeris sodina|ir pjauna grûdus|fermoje.||Be to, jis spaudþia vynà|vyno spaudykloje.
-104:Stalius dirba|lentpjûvëje, ginklø bei|ðarvø dirbtuvëje.||Be to, jis stato|katapultas ir balistas|apgulties dirbtuvëje.
+104:Stalius dirba lentpjûvëje,|ginklø bei ðarvø|dirbtuvëje.||Be to, jis stato katapultas|ir balistas apgulties|dirbtuvëje.
 105:Kepëjas mala|grûdus malûne.||Jis taip pat kepa|duonà kepykloje.
 106:Mësininkas gamina|deðras mësinëje|ir iðdirba odà|odø gamykloje.
-107:Þvejys þvejoja þuvis|vandens telkiniuose.
-108:Statybininkas stato|pastatus ir kasa takus.|Paþymëk norimà|vietà ir jis dirbs|automatiðkai.||Be to, jis|remontuoja pastatus.
+107:Þvejas þvejoja þuvis|vandens telkiniuose.
+108:Statybininkas stato|pastatus ir kasa takus.|Paþymëk norimà vietà|ir jis dirbs automatiðkai.||Be to, jis remontuoja|pastatus.
 109:Kalnakasys aprûpina|statybininkus akmeniu|statant pastatus ir|kasant takus.
 110:Kalvis kaldina|geleþinius ginklus|ir ðarvus ginklø ir|ðarvø kalvëse.
 111:Metalurgas naudoja|anglá lydant auksà ir|geleþá.
-112:Rekrutas gali tapti|kareiviu kareivinëse.||Jis taip pat uþima|bokðtà.
+112:Rekrutas gali tapti|kareiviu kareivinëse.||Jis taip pat uþima bokðtà.
 147:Á pastatø sàraðà
 148:Á resursø paskirstymà
 149:Á statistikà
@@ -202,6 +202,8 @@ MaxID:2733
 437:Aristocracy
 438:At the Harbor
 439:Journey
+847:Kampanija 'Subyrëjusi Karalystë'
+848:Kampanija 'Valstieèiø Sukilimas'
 849:Þaisti Vienam
 851:Atgal á Meniu
 852:Ákelti Þaidimà
@@ -229,6 +231,7 @@ MaxID:2733
 1688:Mûðio Mokymas
 1689:Vieno Þaidëjo Reþimas
 1690:Þemëlapio Redaktorius
+1691:Rodyti Pakartojimà
 1692:Pradëti Misijà
 1693:Titulas
 1694:Dydis
@@ -308,7 +311,7 @@ MaxID:2733
 1771:Sukurti Vietiná Serverá
 1772:Sukurti Internetiná Serverá
 1773:Serverio pavadinimas
-1774:Ðalis
+1774:Bûsena
 1775:Þaidëjai
 1776:Pingas
 1777:Atnaujinti Serveriø Sàraðà
