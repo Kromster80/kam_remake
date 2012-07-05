@@ -544,7 +544,7 @@ type
     hsBuilt        //Done
   );
 
-  TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall);
+  TTileOverlay = (to_None, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall);
 
   //There are 4 steps in tile blocking scheme:
   // 0. Tile is normally walkable

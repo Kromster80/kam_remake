@@ -765,21 +765,22 @@ begin
 end;
 
 
-procedure TTerrain.RemovePlayer(aPlayer:TPlayerIndex);
-var i,k:word;
+procedure TTerrain.RemovePlayer(aPlayer: TPlayerIndex);
+var
+  I, K: Word;
 begin
-  for i:=1 to fMapY do for k:=1 to fMapX do
-    if Land[i,k].TileOwner > aPlayer then
-      Land[i,k].TileOwner := pred(Land[i,k].TileOwner)
-    else
-    if Land[i,k].TileOwner = aPlayer then
-      Land[i,k].TileOwner := -1;
+  for I := 1 to fMapY do
+    for K := 1 to fMapX do
+      if Land[I, K].TileOwner > aPlayer then
+        Land[I, K].TileOwner := Pred(Land[I, K].TileOwner)
+      else if Land[I, K].TileOwner = aPlayer then
+        Land[I, K].TileOwner := -1;
 end;
 
 
 procedure TTerrain.SetWall(Loc: TKMPoint; aOwner: TPlayerIndex);
 begin
-  Land[Loc.Y,Loc.X].TileOwner :=aOwner;
+  Land[Loc.Y,Loc.X].TileOwner := aOwner;
   Land[Loc.Y,Loc.X].TileOverlay := to_Wall;
   Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
@@ -836,13 +837,13 @@ begin
 end;
 
 
-procedure TTerrain.IncDigState(Loc:TKMPoint);
+procedure TTerrain.IncDigState(Loc: TKMPoint);
 begin
   case Land[Loc.Y,Loc.X].TileOverlay of
-    to_Dig3: Land[Loc.Y,Loc.X].TileOverlay:=to_Dig4;
-    to_Dig2: Land[Loc.Y,Loc.X].TileOverlay:=to_Dig3;
-    to_Dig1: Land[Loc.Y,Loc.X].TileOverlay:=to_Dig2;
-    else     Land[Loc.Y,Loc.X].TileOverlay:=to_Dig1;
+    to_Dig3: Land[Loc.Y,Loc.X].TileOverlay := to_Dig4;
+    to_Dig2: Land[Loc.Y,Loc.X].TileOverlay := to_Dig3;
+    to_Dig1: Land[Loc.Y,Loc.X].TileOverlay := to_Dig2;
+    else     Land[Loc.Y,Loc.X].TileOverlay := to_Dig1;
   end;
 end;
 
