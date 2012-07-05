@@ -488,17 +488,20 @@ end;
 //Check if the tile is a corn field
 function TTerrain.TileIsCornField(Loc: TKMPoint): Boolean;
 begin
+ //Tile can't be used as a field if there is road or any other overlay
   Result := fTileset.TileIsCornField(Land[Loc.Y, Loc.X].Terrain)
-            and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road); //Can't be if there is road here
+            and (Land[Loc.Y,Loc.X].TileOverlay = to_None);
 end;
 
 
 //Check if the tile is a wine field
 function TTerrain.TileIsWineField(Loc: TKMPoint): Boolean;
 begin
+ //Tile can't be used as a winefield if there is road or any other overlay
+ //It also must have right object on it
   Result := fTileset.TileIsWineField(Land[Loc.Y, Loc.X].Terrain)
-            and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) //Can't be if there is road here
-            and (Land[Loc.Y,Loc.X].Obj in [54..57]); //Must have object (e.g. for init when labourer is building it)
+            and (Land[Loc.Y,Loc.X].TileOverlay = to_None)
+            and (Land[Loc.Y,Loc.X].Obj in [54..57]);
 end;
 
 
