@@ -299,8 +299,8 @@ type
     function FindHouse(aType:THouseType; X,Y:word; const aIndex:byte=1; aOnlyCompleted:boolean=true): TKMHouse;
     function GetTotalPointers: integer;
     property SelectedHouse: TKMHouse read fSelectedHouse write fSelectedHouse;
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure IncAnimStep;
     procedure UpdateResRequest; //Change resource requested counts for all houses
@@ -311,7 +311,7 @@ type
 
 implementation
 uses
-  KM_CommonTypes, KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_RenderPool, KM_RenderAux, KM_Units,
+  KM_CommonTypes, KM_DeliverQueue, KM_RenderPool, KM_RenderAux, KM_Units,
   KM_Events, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary, KM_Player,
   KM_Resource, KM_ResourceResource, KM_ResourceHouse, KM_Utils;
 

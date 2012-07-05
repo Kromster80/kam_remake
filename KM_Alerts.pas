@@ -2,7 +2,7 @@ unit KM_Alerts;
 {$I KaM_Remake.inc}
 interface
 uses Classes, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points;
+  KM_Defaults, KM_Points;
 
 
 type

@@ -34,7 +34,7 @@ type
 
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
-    procedure Minimap_Update(Sender: TObject; const X,Y: integer);
+    procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
 
     procedure Menu_Save(Sender:TObject);
     procedure Menu_Load(Sender:TObject);
@@ -213,7 +213,7 @@ uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary,
 {Switch between pages}
 procedure TKMapEdInterface.SwitchPage(Sender: TObject);
 var
-  i, k:integer;
+  i, k:Integer;
 begin
 
   //Reset cursor mode
@@ -386,7 +386,7 @@ end;
 
 
 //Update viewport position when user interacts with minimap
-procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: integer);
+procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: Integer);
 begin
   fGame.Viewport.Position := KMPointF(X,Y);
 end;
@@ -394,7 +394,7 @@ end;
 
 constructor TKMapEdInterface.Create(aScreenX, aScreenY: word);
 var
-  i: integer;
+  i: Integer;
 begin
   inherited;
 
@@ -497,7 +497,7 @@ end;
 
 {Terrain page}
 procedure TKMapEdInterface.Create_Terrain_Page;
-var i,k:integer;
+var i,k:Integer;
 begin
   Panel_Terrain := TKMPanel.Create(Panel_Common,0,128,196,28);
     Button_Terrain[1] := TKMButton.Create(Panel_Terrain,   8, 4, 36, 24, 383);
@@ -581,7 +581,7 @@ end;
 
 {Build page}
 procedure TKMapEdInterface.Create_Village_Page;
-var i:integer;
+var i:Integer;
 begin
   Panel_Village := TKMPanel.Create(Panel_Common,0,128,196,28);
     Button_Village[1] := TKMButton.Create(Panel_Village,   8, 4, 36, 24, 454);
@@ -690,7 +690,7 @@ end;
 
 
 procedure TKMapEdInterface.Create_Mission_Page;
-var i,k:integer;
+var i,k:Integer;
 begin
   Panel_Mission := TKMPanel.Create(Panel_Common,0,128,196,28);
     Button_Mission[1] := TKMButton.Create(Panel_Mission,  8, 4, 36, 24, 41);
@@ -893,7 +893,7 @@ end;
 
 {Barracks page}
 procedure TKMapEdInterface.Create_Barracks_Page;
-var i:integer;
+var i:Integer;
 begin
   Panel_HouseBarracks:=TKMPanel.Create(Panel_House,0,76,200,400);
     for i:=1 to BARRACKS_RES_COUNT do
@@ -944,7 +944,7 @@ end;
 
 
 procedure TKMapEdInterface.Player_UpdateColors;
-var i:integer;
+var i:Integer;
 begin
   //Set player colors
   for i:=0 to MAX_PLAYERS-1 do
@@ -1030,7 +1030,7 @@ procedure TKMapEdInterface.Terrain_TilesChange(Sender: TObject);
     Result := MapEdTileRemap[EnsureRange(Tile+1,1,256)];
   end;
 
-var i,k,TileID:integer;
+var i,k,TileID:Integer;
 begin
   if Sender = TilesRandom then
     GameCursor.MapEdDir := 4 * byte(TilesRandom.Checked); //Defined=0..3 or Random=4
@@ -1120,7 +1120,7 @@ end;
 
 
 procedure TKMapEdInterface.Build_ButtonClick(Sender: TObject);
-var i:integer;
+var i:Integer;
 begin
   //Release all buttons
   for i:=1 to Panel_Build.ChildCount do
@@ -1160,7 +1160,7 @@ end;
 
 
 procedure TKMapEdInterface.Unit_ButtonClick(Sender: TObject);
-var i:integer;
+var i:Integer;
 begin
   if Sender=nil then begin GameCursor.Mode:=cm_None; exit; end;
 
@@ -1425,7 +1425,7 @@ end;
 
 
 procedure TKMapEdInterface.Store_Fill(Sender:TObject);
-var i,Tmp:integer;
+var i,Tmp:Integer;
 begin
   if fPlayers.Selected=nil then exit;
   if not (fPlayers.Selected is TKMHouseStore) then exit;
@@ -1437,7 +1437,7 @@ end;
 
 
 procedure TKMapEdInterface.Barracks_Fill(Sender:TObject);
-var i,Tmp:integer;
+var i,Tmp:Integer;
 begin
   if fPlayers.Selected=nil then exit;
   if not (fPlayers.Selected is TKMHouseBarracks) then exit;
@@ -1494,7 +1494,7 @@ end;
 
 procedure TKMapEdInterface.Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton);
 var
-  NewCount: integer;
+  NewCount: Integer;
   Commander: TKMUnitWarrior;
 begin
   if not (fPlayers.Selected is TKMUnitWarrior) then Exit;
@@ -1502,8 +1502,8 @@ begin
   Commander := TKMUnitWarrior(fPlayers.Selected).GetCommander;
 
   if Sender = Button_ArmyDec then //Decrease
-    NewCount := Commander.fMapEdMembersCount - ClickAmount[AButton];
-  if Sender = Button_ArmyInc then //Increase
+    NewCount := Commander.fMapEdMembersCount - ClickAmount[AButton]
+  else //Increase
     NewCount := Commander.fMapEdMembersCount + ClickAmount[AButton];
 
   Commander.fMapEdMembersCount := EnsureRange(NewCount, 0, 200); //Limit max members
@@ -1513,8 +1513,8 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Barracks_SelectWare(Sender:TObject);
-var i:integer;
+procedure TKMapEdInterface.Barracks_SelectWare(Sender: TObject);
+var I: Integer;
 begin
   if not Panel_HouseBarracks.Visible then exit;
   if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
@@ -1529,7 +1529,7 @@ end;
 
 
 procedure TKMapEdInterface.Store_SelectWare(Sender:TObject);
-var i:integer;
+var i:Integer;
 begin
   if not Panel_HouseStore.Visible then exit;
   if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
@@ -1579,15 +1579,15 @@ begin
   Res := StoreResType[StorehouseItem];
   Store := TKMHouseStore(fPlayers.Selected);
 
+  //We need to take no more than it is there, thats part of bugtracking idea
   if (Sender = Button_StoreDec100) or (Sender = Button_StoreDec) then begin
     NewCount := Math.Min(Store.CheckResIn(Res), ClickAmount[aButton]*TKMButton(Sender).Tag);
     Store.ResTakeFromOut(Res, NewCount);
   end;
 
-  if (Sender = Button_StoreInc100) or (Sender = Button_StoreInc) then begin
-    NewCount := Math.Min(High(Word) - Store.CheckResIn(Res), ClickAmount[aButton]*TKMButton(Sender).Tag);
-    Store.ResAddToIn(Res, NewCount);
-  end;
+  //We can always add any amount of resource, it will be capped by Store
+  if (Sender = Button_StoreInc100) or (Sender = Button_StoreInc) then
+    Store.ResAddToIn(Res, ClickAmount[aButton]*TKMButton(Sender).Tag);
 
   Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
   Store_Fill(nil);
@@ -1654,7 +1654,7 @@ end;
 
 
 procedure TKMapEdInterface.Mission_AlliancesChange(Sender:TObject);
-var i,k:integer;
+var i,k:Integer;
 begin
   if Sender = nil then begin
     for i:=0 to fPlayers.Count-1 do
@@ -1680,7 +1680,7 @@ end;
 
 
 procedure TKMapEdInterface.Mission_PlayerTypesChange(Sender:TObject);
-var i:integer;
+var i:Integer;
 begin
   if Sender = nil then begin
     for i:=0 to fPlayers.Count-1 do
