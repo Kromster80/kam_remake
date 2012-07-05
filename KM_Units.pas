@@ -108,7 +108,7 @@ type
     property GetPointerCount: Integer read fPointerCount;
 
     procedure KillUnit; virtual; //Creates TTaskDie which then will Close the unit from further access
-    procedure CloseUnit(aRemoveTileUsage:boolean=true); dynamic;
+    procedure CloseUnit(aRemoveTileUsage: Boolean = True); dynamic;
 
     property ID:integer read fID;
     property PrevPosition: TKMPoint read fPrevPosition;
@@ -1089,7 +1089,7 @@ end;
 
 
 {Erase everything related to unit status to exclude it from being accessed by anything but the old pointers}
-procedure TKMUnit.CloseUnit(aRemoveTileUsage:boolean=true);
+procedure TKMUnit.CloseUnit(aRemoveTileUsage: Boolean = True);
 begin
   //if not KMSamePoint(fCurrPosition,NextPosition) then
   //  Assert(false, 'Not sure where to die?');
@@ -1118,9 +1118,8 @@ begin
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
 
-  if (fGame.GamePlayInterface <> nil) and (fGame.GamePlayInterface.ShownUnit = Self) then
-    fGame.GamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
-  //MapEd doesn't need this yet
+  Assert(fPlayers.Selected <> Self,
+    'Removed units should be flushed from UI earlier inTaskDie or never appear there when training cancelled or alike');
 end;
 
 
@@ -1131,11 +1130,12 @@ end;
 // CloseUnit - erase all unit data and hide it from further access
 procedure TKMUnit.KillUnit;
 begin
-  if fPlayers.Selected = Self then fPlayers.Selected := nil;
-  //todo: remove
-  if (fGame <> nil) and (fGame.GamePlayInterface.ShownUnit = Self) then
-    fGame.GamePlayInterface.ShowUnitInfo(nil);
-  if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
+  if fPlayers.Selected = Self then
+    fPlayers.Selected := nil;
+
+  //Don't kill unit if it's already dying
+  if fUnitTask is TTaskDie then
+    Exit;
 
   //Wait till units exchange (1 tick) and then do the killing
   if (fCurrentAction is TUnitActionWalkTo)

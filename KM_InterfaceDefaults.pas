@@ -109,6 +109,10 @@ const
     75, 76, 77, 78);
 
 
+  //In FPC there are 5 TMouseButtons
+  ClickAmount: array [TMouseButton] of Byte = (1, 10, 0 {$IFDEF FPC}, 0, 0{$ENDIF});
+
+
 implementation
 
 

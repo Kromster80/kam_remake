@@ -21,8 +21,6 @@ type
     fReplay: Boolean; //Replay UI has slightly different layout
 
     //Not saved
-    fShownUnit: TKMUnit;
-    fShownHouse: TKMHouse;
     LastDragPoint: TKMPoint; //Last mouse point that we drag placed/removed a road/field
     PrevHint: TObject;
     ShownMessage: Integer;
@@ -80,7 +78,7 @@ type
     procedure House_RepairToggle(Sender:TObject);
     procedure House_WareDeliveryToggle(Sender:TObject);
     procedure House_OrderClick(Sender:TObject; AButton:TMouseButton);
-    procedure House_MarketFill;
+    procedure House_MarketFill(aMarket: TKMHouseMarket);
     procedure House_MarketOrderClick(Sender:TObject; AButton:TMouseButton);
     procedure House_MarketSelect(Sender:TObject; AButton:TMouseButton);
     procedure House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
@@ -328,7 +326,7 @@ type
   public
     constructor Create(aScreenX, aScreenY: Word; aMultiplayer, aReplay: Boolean); reintroduce;
     destructor Destroy; override;
-    procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
+    procedure ShowHouseInfo(Sender: TKMHouse; aAskDemolish: Boolean = False);
     procedure ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
     procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
     procedure SetMenuState(aTactic: Boolean);
@@ -337,11 +335,7 @@ type
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
     procedure ShowMPPlayMore(Msg:TGameResultMsg);
     procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
-    property ShownUnit: TKMUnit read fShownUnit;
-    property ShownHouse: TKMHouse read fShownHouse;
     property LastSaveName: AnsiString read fLastSaveName write fLastSaveName;
-    procedure ClearShownUnit;
-    procedure ClearSelectedUnitOrHouse;
     procedure ReleaseDirectionSelector;
     procedure SetChatText(const aString: string);
     procedure SetChatMessages(const aString: string);
@@ -567,11 +561,7 @@ begin
   if (Sender = Button_Main[tbBuild]) or (Sender = Button_Main[tbRatio])
   or (Sender = Button_Main[tbStats]) or (Sender = Button_Main[tbMenu])
   or (Sender = Button_Menu_Settings) or (Sender = Button_Menu_Quit) then
-  begin
-    fShownHouse := nil;
-    fShownUnit := nil;
     fPlayers.Selected := nil;
-  end;
 
   //Reset the CursorMode, to cm_None
   Build_ButtonClick(nil);
@@ -696,17 +686,21 @@ end;
 
 procedure TKMGamePlayInterface.Minimap_RightClick(Sender: TObject; const X,Y:integer);
 var
-  KMP: TKMPoint;
+  Loc: TKMPoint;
+  W: TKMUnitWarrior;
 begin
-  KMP := MinimapView.LocalToMapCoords(X, Y, -1); //Inset by 1 pixel to catch cases "outside of map"
-  if not fTerrain.TileInMapCoords(KMP.X, KMP.Y) then Exit; //Must be inside map
+  Loc := MinimapView.LocalToMapCoords(X, Y, -1); //Inset by 1 pixel to catch cases "outside of map"
+  if not fTerrain.TileInMapCoords(Loc.X, Loc.Y) then Exit; //Must be inside map
 
   //Send move order, if applicable
-  if (fShownUnit is TKMUnitWarrior) and (not fJoiningGroups)
-  and fShownUnit.CanWalkTo(KMP, 0) then
+  if (fPlayers.Selected is TKMUnitWarrior) and not fJoiningGroups then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), KMP, TKMUnitWarrior(fShownUnit).Direction);
-    fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
+    W := TKMUnitWarrior(fPlayers.Selected);
+    if W.CanWalkTo(Loc, 0) then
+    begin
+      fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, W, Loc, W.Direction);
+      fSoundLib.PlayWarrior(W.UnitType, sp_Move);
+    end;
   end;
 end;
 
@@ -719,9 +713,7 @@ begin
   fReplay := aReplay;
   //Instruct to use global Terrain
   LastSaveName := '';
-  fShownUnit:=nil;
-  fShownHouse:=nil;
-  fJoiningGroups := false;
+  fJoiningGroups := False;
   SelectingTroopDirection := false;
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
@@ -1885,17 +1877,17 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
+procedure TKMGamePlayInterface.ShowHouseInfo(Sender: TKMHouse; aAskDemolish: Boolean = False);
 const LineAdv = 25; //Each new Line is placed ## pixels after previous
 var i,RowRes,Base,Line:integer; Res:TResourceType;
 begin
-  fShownUnit  := nil;
-  fShownHouse := Sender;
+  Assert(fPlayers.Selected = Sender);
   fAskDemolish := aAskDemolish;
 
-  if not Assigned(Sender) then begin //=nil produces wrong result when there's no object at all
+  if Sender = nil then
+  begin
     SwitchPage(nil);
-    exit;
+    Exit;
   end;
 
   {Common data}
@@ -1957,7 +1949,7 @@ begin
   case Sender.HouseType of
     ht_Marketplace:
         begin
-          House_MarketFill;
+          House_MarketFill(TKMHouseMarket(Sender));
           SwitchPage(Panel_HouseMarket);
         end;
 
@@ -2114,13 +2106,14 @@ end;
 procedure TKMGamePlayInterface.ShowUnitInfo(Sender: TKMUnit; aAskDismiss: Boolean = False);
 var Commander: TKMUnitWarrior;
 begin
-  fShownUnit  := Sender;
-  fShownHouse := nil;
+  Assert(fPlayers.Selected = Sender);
+
   fAskDismiss  := aAskDismiss;
 
-  if (fShownUnit=nil) or (not fShownUnit.Visible) or (fShownUnit.IsDeadOrDying) then begin
+  if (Sender = nil) or not Sender.Visible or Sender.IsDeadOrDying then
+  begin
     SwitchPage(nil);
-    exit;
+    Exit;
   end;
 
   SwitchPage(Panel_Unit);
@@ -2194,19 +2187,19 @@ end;
 
 
 procedure TKMGamePlayInterface.House_OrderClick(Sender: TObject; AButton: TMouseButton);
-var I: Integer; Amt:byte;
+var
+  I: Integer;
+  H: TKMHouse;
 begin
-  if (fPlayers.Selected = nil) or not (fPlayers.Selected is TKMHouse) then Exit;
+  if not (fPlayers.Selected is TKMHouse) then Exit;
 
-  Amt := 0;
-  if AButton = mbLeft then Amt := 1;
-  if AButton = mbRight then Amt := 10;
+  H := TKMHouse(fPlayers.Selected);
 
   for i:=1 to 4 do begin
     if Sender = ResRow_Order[i].OrderRem then
-      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, TKMHouse(fPlayers.Selected), i, -Amt);
+      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, i, -ClickAmount[AButton]);
     if Sender = ResRow_Order[i].OrderAdd then
-      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, TKMHouse(fPlayers.Selected), i, Amt);
+      fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, H, i, ClickAmount[AButton]);
   end;
 end;
 
@@ -2521,11 +2514,11 @@ end;
 
 procedure TKMGamePlayInterface.Army_HideJoinMenu(Sender: TObject);
 begin
-  fJoiningGroups := false;
+  fJoiningGroups := False;
   if fResource.Cursors.Cursor in [kmc_JoinYes, kmc_JoinNo] then //Do not override non-joining cursors
     fResource.Cursors.Cursor := kmc_Default; //In case this is run with keyboard shortcut, mouse move won't happen
   Panel_Army_JoinGroups.Hide;
-  if fShownUnit <> nil then
+  if fPlayers.Selected is TKMUnitWarrior then
     Panel_Army.Show;
 end;
 
@@ -2623,21 +2616,17 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.House_MarketFill;
-var M: TKMHouseMarket; R:TResourceType; i,Tmp:integer;
+procedure TKMGamePlayInterface.House_MarketFill(aMarket: TKMHouseMarket);
+var R: TResourceType; i,Tmp: Integer;
 begin
-  if (fShownHouse = nil) or not (fShownHouse is TKMHouseMarket) then Exit;
-
-  M := TKMHouseMarket(fShownHouse);
-
   for i:=0 to STORE_RES_COUNT-1 do
   begin
     R := TResourceType(Button_Market[i].Tag);
-    if M.AllowedToTrade(R) then
+    if aMarket.AllowedToTrade(R) then
     begin
       Button_Market[i].TexID := fResource.Resources[R].GUIIcon;
       Button_Market[i].Hint := fResource.Resources[R].Title;
-      Tmp := M.GetResTotal(TResourceType(Button_Market[i].Tag));
+      Tmp := aMarket.GetResTotal(TResourceType(Button_Market[i].Tag));
       Button_Market[i].Caption := IfThen(Tmp=0, '-', IntToStr(Tmp));
     end
     else
@@ -2648,64 +2637,58 @@ begin
     end;
   end;
 
-  Shape_Market_From.Visible := M.ResFrom <> rt_None;
-  if M.ResFrom <> rt_None then
+  Shape_Market_From.Visible := aMarket.ResFrom <> rt_None;
+  if aMarket.ResFrom <> rt_None then
   begin
-    Shape_Market_From.Left := 8 + ((Byte(M.ResFrom)-1) mod 6) * 30;
-    Shape_Market_From.Top := 12 + ((Byte(M.ResFrom)-1) div 6) * 34;
-    Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[M.RatioFrom]) + ':';
-    Button_Market_In.TexID := fResource.Resources[M.ResFrom].GUIIcon;
-    Button_Market_In.Caption := IntToStr(M.GetResTotal(M.ResFrom));
+    Shape_Market_From.Left := 8 + ((Byte(aMarket.ResFrom)-1) mod 6) * 30;
+    Shape_Market_From.Top := 12 + ((Byte(aMarket.ResFrom)-1) div 6) * 34;
+    Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[aMarket.RatioFrom]) + ':';
+    Button_Market_In.TexID := fResource.Resources[aMarket.ResFrom].GUIIcon;
+    Button_Market_In.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResFrom));
   end else begin
     Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[0]) + ':';
     Button_Market_In.TexID := fResource.Resources[rt_None].GUIIcon;
     Button_Market_In.Caption := '-';
   end;
 
-  Shape_Market_To.Visible := M.ResTo <> rt_None;
-  if M.ResTo <> rt_None then
+  Shape_Market_To.Visible := aMarket.ResTo <> rt_None;
+  if aMarket.ResTo <> rt_None then
   begin
-    Shape_Market_To.Left := 8 + ((Byte(M.ResTo)-1) mod 6) * 30;
-    Shape_Market_To.Top := 12 + ((Byte(M.ResTo)-1) div 6) * 34;
-    Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO],[M.RatioTo]) + ':';
-    Button_Market_Out.Caption := IntToStr(M.GetResTotal(M.ResTo));
-    Button_Market_Out.TexID := fResource.Resources[M.ResTo].GUIIcon;
+    Shape_Market_To.Left := 8 + ((Byte(aMarket.ResTo)-1) mod 6) * 30;
+    Shape_Market_To.Top := 12 + ((Byte(aMarket.ResTo)-1) div 6) * 34;
+    Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO],[aMarket.RatioTo]) + ':';
+    Button_Market_Out.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResTo));
+    Button_Market_Out.TexID := fResource.Resources[aMarket.ResTo].GUIIcon;
   end else begin
     Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO],[0]) + ':';
     Button_Market_Out.TexID := fResource.Resources[rt_None].GUIIcon;
     Button_Market_Out.Caption := '-';
   end;
 
-  Button_Market_Remove.Enabled := (M.ResFrom <> rt_None) and (M.ResTo <> rt_None);
+  Button_Market_Remove.Enabled := (aMarket.ResFrom <> rt_None) and (aMarket.ResTo <> rt_None);
   Button_Market_Add.Enabled := Button_Market_Remove.Enabled;
-  Label_Market_FromAmount.Caption := IntToStr(M.RatioFrom * M.CheckResOrder(1));
-  Label_Market_ToAmount.Caption := IntToStr(M.RatioTo * M.CheckResOrder(1));
+  Label_Market_FromAmount.Caption := IntToStr(aMarket.RatioFrom * aMarket.CheckResOrder(1));
+  Label_Market_ToAmount.Caption := IntToStr(aMarket.RatioTo * aMarket.CheckResOrder(1));
 end;
 
 
 procedure TKMGamePlayInterface.House_MarketOrderClick(Sender:TObject; AButton:TMouseButton);
-var Amt:byte; M: TKMHouseMarket;
+var M: TKMHouseMarket;
 begin
-  if fPlayers.Selected = nil then exit;
-  if not (fPlayers.Selected is TKMHouseMarket) then exit;
+  if not (fPlayers.Selected is TKMHouseMarket) then Exit;
 
   M := TKMHouseMarket(fPlayers.Selected);
 
-  Amt := 0;
-  if AButton = mbLeft then Amt := 1;
-  if AButton = mbRight then Amt := 10;
-
   if Sender = Button_Market_Remove then
-    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -Amt);
+    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -ClickAmount[AButton]);
   if Sender = Button_Market_Add then
-    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, Amt);
+    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, ClickAmount[AButton]);
 end;
 
 
-procedure TKMGamePlayInterface.House_MarketSelect(Sender: TObject; AButton:TMouseButton);
+procedure TKMGamePlayInterface.House_MarketSelect(Sender: TObject; AButton: TMouseButton);
 var M: TKMHouseMarket;
 begin
-  if (fPlayers.Selected = nil) then Exit;
   if not (fPlayers.Selected is TKMHouseMarket) then Exit;
 
   M := TKMHouseMarket(fPlayers.Selected);
@@ -2717,7 +2700,7 @@ begin
   if aButton = mbRight then
     fGame.GameInputProcess.CmdHouse(gic_HouseMarketTo, M, TResourceType(TKMButtonFlat(Sender).Tag));
 
-  House_MarketFill; //Update costs and order count
+  House_MarketFill(M); //Update costs and order count
 end;
 
 
@@ -3019,22 +3002,6 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ClearShownUnit;
-begin
-  fShownUnit := nil;
-  SwitchPage(nil);
-end;
-
-
-procedure TKMGamePlayInterface.ClearSelectedUnitOrHouse;
-begin
-  fShownUnit := nil;
-  fShownHouse := nil;
-  fPlayers.Selected := nil;
-  SwitchPage(nil);
-end;
-
-
 procedure TKMGamePlayInterface.ReleaseDirectionSelector;
 begin
   if SelectingTroopDirection then
@@ -3255,16 +3222,16 @@ begin
 
   //See if we can show DirectionSelector
   //Can walk to ally units place, can't walk to house place anyway, unless it's a markup and allied
-  if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
-    and(fShownUnit.GetOwner = MyPlayer.PlayerIndex) then
+  if (Button = mbRight) and not fJoiningGroups and (fPlayers.Selected is TKMUnitWarrior)
+    and (TKMUnitWarrior(fPlayers.Selected).GetOwner = MyPlayer.PlayerIndex) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Ally)) and
        ((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Ally)) and
-      fShownUnit.CanWalkTo(GameCursor.Cell, 0) then
+      TKMUnitWarrior(fPlayers.Selected).CanWalkTo(GameCursor.Cell, 0) then
     begin
-      SelectingTroopDirection := true; //MouseMove will take care of cursor changing
+      SelectingTroopDirection := True; //MouseMove will take care of cursor changing
       //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
       {$IFDEF MSWindows}
       MyRect := fMain.ClientRect;
@@ -3381,15 +3348,15 @@ begin
     Exit;
   end;
 
-  if fJoiningGroups and (fShownUnit is TKMUnitWarrior) then
+  if fJoiningGroups and (fPlayers.Selected is TKMUnitWarrior) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if (U <> nil)
-    and (U.GetOwner = MyPlayer.PlayerIndex)
     and (U is TKMUnitWarrior)
+    and (U.GetOwner = MyPlayer.PlayerIndex)
     and (not U.IsDeadOrDying)
-    and (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit)))
-    and (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
+    and (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fPlayers.Selected)))
+    and (UnitGroups[U.UnitType] = UnitGroups[TKMUnitWarrior(fPlayers.Selected).UnitType]) then
       fResource.Cursors.Cursor := kmc_JoinYes
     else
       fResource.Cursors.Cursor := kmc_JoinNo;
@@ -3402,7 +3369,7 @@ begin
     Exit;
   end;
 
-  if (fShownUnit is TKMUnitWarrior) and not fReplay then
+  if (fPlayers.Selected is TKMUnitWarrior) and not fReplay then
   begin
     if (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, false) > 0) then
     begin
@@ -3428,6 +3395,7 @@ var
   P: TKMPoint;
   U: TKMUnit;
   H: TKMHouse;
+  W: TKMUnitWarrior;
   OldSelected: TObject;
 begin
   inherited;
@@ -3447,15 +3415,15 @@ begin
   case Button of
     mbLeft:   begin
                 //Process groups joining
-                if fJoiningGroups and (fShownUnit <> nil) and (fShownUnit is TKMUnitWarrior) then
+                if fJoiningGroups and (fPlayers.Selected is TKMUnitWarrior) then
                 begin
                   U  := MyPlayer.UnitsHitTest(P.X, P.Y); //Scan only teammates
                   if (U is TKMUnitWarrior) and (not U.IsDeadOrDying) and
-                     (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit))) and
-                     (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
+                     (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fPlayers.Selected))) and
+                     (UnitGroups[U.UnitType] = UnitGroups[TKMUnitWarrior(fPlayers.Selected).UnitType]) then
                   begin
-                    fGame.GameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fShownUnit), U);
-                    fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Join);
+                    fGame.GameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fPlayers.Selected), U);
+                    fSoundLib.PlayWarrior(TKMUnitWarrior(fPlayers.Selected).UnitType, sp_Join);
                     Army_HideJoinMenu(nil);
                   end;
                   exit;
@@ -3530,42 +3498,48 @@ begin
                 //Select direction
                 ReleaseDirectionSelector;
 
-                //Attack or Walk
-                if not fReplay and not fJoiningGroups and (fShownUnit is TKMUnitWarrior)
-                and TKMUnitWarrior(fShownUnit).GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
-                and (fShownUnit.GetOwner = MyPlayer.PlayerIndex) then
-                begin
-                  //Try to Attack unit
-                  U := fTerrain.UnitsHitTest(P.X, P.Y);
-                  if (U <> nil) and (not U.IsDeadOrDying) and
-                  (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy) then
-                  begin
-                    fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fShownUnit).GetCommander, U);
-                    fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
-                  end
-                  else
-                  begin //If there's no unit - try to Attack house
-                    H := fPlayers.HousesHitTest(P.X, P.Y);
-                    if (H <> nil) and (not H.IsDestroyed) and
-                    (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy) then
-                    begin
-                      fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fShownUnit).GetCommander, H);
-                      fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
-                    end
-                    else //If there's no house - Walk to spot
-                      if fShownUnit.CanWalkTo(P, 0) then
-                      begin
-                        fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
-                        fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
-                      end;
-                  end;
-                end;
-
                 //Cancel build/join
                 if Panel_Build.Visible then
                   SwitchPage(Button_Back);
                 if fJoiningGroups then
                   Army_HideJoinMenu(nil);
+
+                //Process warrior commands
+                if fPlayers.Selected is TKMUnitWarrior then
+                begin
+                  W := TKMUnitWarrior(fPlayers.Selected);
+
+                  //Attack or Walk
+                  if not fReplay and not fJoiningGroups
+                  and W.GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
+                  and (W.GetOwner = MyPlayer.PlayerIndex) then
+                  begin
+                    //Try to Attack unit
+                    U := fTerrain.UnitsHitTest(P.X, P.Y);
+                    if (U <> nil) and not U.IsDeadOrDying
+                    and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy) then
+                    begin
+                      fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, W.GetCommander, U);
+                      fSoundLib.PlayWarrior(W.UnitType, sp_Attack);
+                    end
+                    else
+                    begin //If there's no unit - try to Attack house
+                      H := fPlayers.HousesHitTest(P.X, P.Y);
+                      if (H <> nil) and not H.IsDestroyed
+                      and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy) then
+                      begin
+                        fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, W.GetCommander, H);
+                        fSoundLib.PlayWarrior(W.UnitType, sp_Attack);
+                      end
+                      else //If there's no house - Walk to spot
+                        if W.CanWalkTo(P, 0) then
+                        begin
+                          fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, W, P, SelectedDirection);
+                          fSoundLib.PlayWarrior(W.UnitType, sp_Move);
+                        end;
+                    end;
+                  end;
+                end;
 
               end;
     mbMiddle: if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
@@ -3611,13 +3585,16 @@ procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var I: Integer; S: string;
 begin
   //Update unit/house information
-  if fShownUnit <> nil then
-    ShowUnitInfo(fShownUnit,fAskDismiss)
+  if fPlayers.Selected is TKMUnit then
+    ShowUnitInfo(TKMUnit(fPlayers.Selected), fAskDismiss)
   else
   begin
     fJoiningGroups := False;
-    if fShownHouse <> nil then
-      ShowHouseInfo(fShownHouse,fAskDemolish);
+    if fPlayers.Selected is TKMHouse then
+      ShowHouseInfo(TKMHouse(fPlayers.Selected), fAskDemolish)
+    else
+    if Panel_House.Visible or Panel_Unit.Visible then
+      SwitchPage(nil);
   end;
 
   //Update peacetime counter

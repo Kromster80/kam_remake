@@ -491,12 +491,8 @@ begin
   if fPlayers.Selected = Self then
     fPlayers.Selected := nil;
 
-  if (fGame.GamePlayInterface <> nil) and (fGame.GamePlayInterface.ShownHouse = Self) then
-    fGame.GamePlayInterface.ShowHouseInfo(nil);
-
-  if not DoSilent then
-    if not NoRubble then
-      fSoundLib.Play(sfx_HouseDestroy, fPosition);
+  if not DoSilent and not NoRubble then
+    fSoundLib.Play(sfx_HouseDestroy, fPosition);
 
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[fOwner].Deliveries.Queue.RemOffer(Self);

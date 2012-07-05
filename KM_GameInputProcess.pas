@@ -309,7 +309,7 @@ begin
       gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
                                     P.FogOfWar.RevealEverything;
       gic_TempChangeMyPlayer:     begin
-                                    fGame.GamePlayInterface.ClearSelectedUnitOrHouse;
+                                    fPlayers.Selected := nil;
                                     MyPlayer := fPlayers.Player[Params[1]];
                                   end;
       gic_TempDoNothing:          ;

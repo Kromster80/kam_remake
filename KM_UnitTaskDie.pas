@@ -30,7 +30,7 @@ begin
 end;
 
 
-function TTaskDie.Execute:TTaskResult;
+function TTaskDie.Execute: TTaskResult;
 var SequenceLength:smallint;
 begin
   Result := TaskContinues;

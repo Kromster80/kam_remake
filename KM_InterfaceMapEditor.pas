@@ -11,8 +11,6 @@ uses
 type
   TKMapEdInterface = class (TKMUserInterface)
   private
-    fShownUnit:TKMUnit;
-    fShownHouse:TKMHouse;
     fShowPassability:byte;
     PrevHint:TObject;
     StorehouseItem:byte; //Selected ware in storehouse
@@ -234,9 +232,8 @@ begin
   if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
      (Sender=Button_Main[3])or(Sender=Button_Main[4])or
      (Sender=Button_Main[5])or
-     (Sender=Button_Menu_Settings)or(Sender=Button_Menu_Quit) then begin
-    fShownHouse:=nil;
-    fShownUnit:=nil;
+     (Sender=Button_Menu_Settings)or(Sender=Button_Menu_Quit) then
+  begin
     fPlayers.Selected:=nil;
   end;
 
@@ -401,8 +398,6 @@ var
 begin
   inherited;
 
-  fShownUnit  := nil;
-  fShownHouse := nil;
   BarracksItem   := 1; //First ware selected by default
   StorehouseItem := 1; //First ware selected by default
   TileDirection := 0;
@@ -965,10 +960,9 @@ end;
 
 procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 begin
-  if (fShownHouse <> nil) or (fShownUnit <> nil) then SwitchPage(nil);
+  if Panel_House.Visible or Panel_Unit.Visible then
+    SwitchPage(nil);
 
-  fShownHouse := nil; //Drop selection
-  fShownUnit := nil;
   fPlayers.Selected := nil;
 
   if Sender <> nil then
@@ -1207,12 +1201,10 @@ begin
 end;
 
 
-procedure TKMapEdInterface.ShowHouseInfo(Sender:TKMHouse);
+procedure TKMapEdInterface.ShowHouseInfo(Sender: TKMHouse);
 begin
-  fShownUnit  := nil;
-  fShownHouse := Sender;
-
-  if not Assigned(Sender) then begin //=nil produces wrong result when there's no object at all?
+  if Sender = nil then
+  begin
     SwitchPage(nil);
     exit;
   end;
@@ -1250,15 +1242,13 @@ begin
 end;
 
 
-procedure TKMapEdInterface.ShowUnitInfo(Sender:TKMUnit);
-var Commander:TKMUnitWarrior;
+procedure TKMapEdInterface.ShowUnitInfo(Sender: TKMUnit);
+var Commander: TKMUnitWarrior;
 begin
-  fShownUnit:=Sender;
-  fShownHouse:=nil;
-  if (not Assigned(Sender))or(not Sender.Visible)or((Sender<>nil)and(Sender.IsDead)) then begin
+  if (Sender = nil) or not Sender.Visible or Sender.IsDead then
+  begin
     SwitchPage(nil);
-    fShownUnit:=nil; //Make sure it doesn't come back again, especially if it's dead!
-    exit;
+    Exit;
   end;
 
   SetActivePlayer(Sender.GetOwner);
@@ -1459,29 +1449,28 @@ begin
 end;
 
 
-procedure TKMapEdInterface.House_HealthChange(Sender:TObject; AButton:TMouseButton);
-var Amt:byte;
+procedure TKMapEdInterface.House_HealthChange(Sender: TObject; AButton: TMouseButton);
+var
+  H: TKMHouse;
 begin
-  if fShownHouse = nil then exit;
-  Amt := 0;
-  if AButton = mbLeft then Amt:=1;
-  if AButton = mbRight then Amt:=50;
-  if Sender = Button_HouseHealthDec then fShownHouse.AddDamage(Amt, true);
-  if Sender = Button_HouseHealthInc then fShownHouse.AddRepair(Amt);
-  if fShownHouse.IsDestroyed then
+  if not (fPlayers.Selected is TKMHouse) then Exit;
+  H := TKMHouse(fPlayers.Selected);
+
+  if Sender = Button_HouseHealthDec then H.AddDamage(ClickAmount[AButton] * 5, True);
+  if Sender = Button_HouseHealthInc then H.AddRepair(ClickAmount[AButton] * 5);
+  if H.IsDestroyed then
     ShowHouseInfo(nil)
   else
-    ShowHouseInfo(fShownHouse);
+    ShowHouseInfo(H);
 end;
 
 
-procedure TKMapEdInterface.Unit_ArmyChange1(Sender:TObject);
+procedure TKMapEdInterface.Unit_ArmyChange1(Sender: TObject);
 var Commander:TKMUnitWarrior;
 begin
-  if fShownUnit = nil then exit;
-  if not (fShownUnit is TKMUnitWarrior) then exit;
+  if not (fPlayers.Selected is TKMUnitWarrior) then Exit;
 
-  Commander := TKMUnitWarrior(fShownUnit).GetCommander;
+  Commander := TKMUnitWarrior(fPlayers.Selected).GetCommander;
   if Sender = Button_Army_ForUp then Commander.UnitsPerRow := max(Commander.UnitsPerRow-1,1);
   if Sender = Button_Army_ForDown then Commander.UnitsPerRow := min(Commander.UnitsPerRow+1,Commander.fMapEdMembersCount+1);
   ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1);
@@ -1503,20 +1492,21 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Unit_ArmyChange2(Sender:TObject; AButton:TMouseButton);
-var Amt:shortint; Commander:TKMUnitWarrior;
+procedure TKMapEdInterface.Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton);
+var
+  NewCount: integer;
+  Commander: TKMUnitWarrior;
 begin
-  if fShownUnit = nil then exit;
-  if not (fShownUnit is TKMUnitWarrior) then exit;
+  if not (fPlayers.Selected is TKMUnitWarrior) then Exit;
 
-  Amt := 0;
-  if Sender = Button_ArmyDec then Amt := -1; //Decrease
-  if Sender = Button_ArmyInc then Amt := 1; //Increase
-  if AButton = mbLeft then Amt  := Amt * 1;
-  if AButton = mbRight then Amt := Amt * 10;
+  Commander := TKMUnitWarrior(fPlayers.Selected).GetCommander;
 
-  Commander := TKMUnitWarrior(fShownUnit).GetCommander;
-  Commander.fMapEdMembersCount := EnsureRange(Commander.fMapEdMembersCount + Amt, 0, 200); //max members
+  if Sender = Button_ArmyDec then //Decrease
+    NewCount := Commander.fMapEdMembersCount - ClickAmount[AButton];
+  if Sender = Button_ArmyInc then //Increase
+    NewCount := Commander.fMapEdMembersCount + ClickAmount[AButton];
+
+  Commander.fMapEdMembersCount := EnsureRange(NewCount, 0, 200); //Limit max members
   Commander.UnitsPerRow := min(Commander.UnitsPerRow,Commander.fMapEdMembersCount+1); //Ensure units per row is <= unit count
   ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1);
   Label_ArmyCount.Caption := IntToStr(Commander.fMapEdMembersCount + 1);
@@ -1553,46 +1543,50 @@ end;
 
 
 procedure TKMapEdInterface.Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
-const Modif:array[TMouseButton]of word = (1,10,0 {$IFDEF FPC},0,0{$ENDIF} ); //In FPC there are 5 TMouseButtons
-var Res:TResourceType; Barracks:TKMHouseBarracks; Amt:word;
+var
+  Res: TResourceType;
+  Barracks: TKMHouseBarracks;
+  NewCount: Word;
 begin
-  if not Panel_HouseBarracks.Visible then Exit;
+  if not Panel_HouseBarracks.Visible or not (fPlayers.Selected is TKMHouseBarracks) then Exit;
 
   Res := BarracksResType[BarracksItem];
-  Barracks := TKMHouseBarracks(fShownHouse);
+  Barracks := TKMHouseBarracks(fPlayers.Selected);
 
   if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then begin
-    Amt := Math.Min(Barracks.CheckResIn(Res), Modif[aButton]*TKMButton(Sender).Tag);
-    Barracks.ResTakeFromOut(Res, Amt);
+    NewCount := Math.Min(Barracks.CheckResIn(Res), ClickAmount[aButton] * TKMButton(Sender).Tag);
+    Barracks.ResTakeFromOut(Res, NewCount);
   end;
 
   if (Sender = Button_BarracksInc100) or (Sender = Button_BarracksInc) then begin
-    Amt := Math.Min(High(Word) - Barracks.CheckResIn(Res), Modif[aButton]*TKMButton(Sender).Tag);
-    Barracks.ResAddToIn(Res, Amt);
+    NewCount := Math.Min(High(Word) - Barracks.CheckResIn(Res), ClickAmount[aButton] * TKMButton(Sender).Tag);
+    Barracks.ResAddToIn(Res, NewCount);
   end;
 
-  Label_Barracks_WareCount.Caption := inttostr(Barracks.CheckResIn(Res));
+  Label_Barracks_WareCount.Caption := IntToStr(Barracks.CheckResIn(Res));
   Barracks_Fill(nil);
 end;
 
 
 procedure TKMapEdInterface.Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
-const Modif:array[TMouseButton]of word = (1,10,0 {$IFDEF FPC},0,0{$ENDIF} ); //In FPC there are 5 TMouseButtons
-var Res:TResourceType; Store:TKMHouseStore; Amt:word;
+var
+  Res: TResourceType;
+  Store: TKMHouseStore;
+  NewCount: Word;
 begin
-  if not Panel_HouseStore.Visible then Exit;
+  if not Panel_HouseStore.Visible or not (fPlayers.Selected is TKMHouseStore) then Exit;
 
   Res := StoreResType[StorehouseItem];
-  Store := TKMHouseStore(fShownHouse);
+  Store := TKMHouseStore(fPlayers.Selected);
 
   if (Sender = Button_StoreDec100) or (Sender = Button_StoreDec) then begin
-    Amt := Math.Min(Store.CheckResIn(Res), Modif[aButton]*TKMButton(Sender).Tag);
-    Store.ResTakeFromOut(Res, Amt);
+    NewCount := Math.Min(Store.CheckResIn(Res), ClickAmount[aButton]*TKMButton(Sender).Tag);
+    Store.ResTakeFromOut(Res, NewCount);
   end;
 
   if (Sender = Button_StoreInc100) or (Sender = Button_StoreInc) then begin
-    Amt := Math.Min(High(Word) - Store.CheckResIn(Res), Modif[aButton]*TKMButton(Sender).Tag);
-    Store.ResAddToIn(Res, Amt);
+    NewCount := Math.Min(High(Word) - Store.CheckResIn(Res), ClickAmount[aButton]*TKMButton(Sender).Tag);
+    Store.ResAddToIn(Res, NewCount);
   end;
 
   Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
