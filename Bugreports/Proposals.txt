@@ -43,4 +43,5 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Way to place roads/fields/destroyed buildings belonging to no player (for maps like Battle In The Ruined City where currently the roads don't always show depending on which locations are played)
 	Value of resources at the market increases as you buy them and decreases as you sell them to prevent exploiting? (Age of Empries style)
 		Lewin: With peacetime of at least 1 hour I haven't heard of market exploits being more profitable than normal play
+	Add soldiers counts to statistics page in game (take icons from MapEd)
 
