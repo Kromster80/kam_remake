@@ -348,6 +348,13 @@ begin
 
       //Save
       SpritePack.SaveToRXXFile(ExeDir + 'Data\Sprites\' + RXInfo[RT].FileName + '.rxx');
+
+      //Generate alpha shadows for the following sprite packs
+      if RT in [rxHouses,rxUnits,rxGui,rxTrees] then
+      begin
+        SpritePack.SoftenShadows;
+        SpritePack.SaveToRXXFile(ExeDir + 'Data\Sprites\' + RXInfo[RT].FileName + '_a.rxx');
+      end;
     finally
       SpritePack.Free;
     end;
