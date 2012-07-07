@@ -26,7 +26,7 @@ type
     procedure LoadFromRXFile(const aFileName: string);
     procedure LoadFromFolder(const aFolder: string);
     procedure SaveToRXXFile(const aFileName: string);
-    procedure SoftenShadows;
+    procedure SoftenShadows(aStart:Integer=1; aEnd: Integer=-1);
     function TrimSprites: Cardinal; //For debug
     procedure ClearTemp; override;
   end;
@@ -209,11 +209,12 @@ end;
 
 
 //Make old style KaM checkerboard shadows smooth and transparent
-procedure TKMSpritePackEdit.SoftenShadows;
+procedure TKMSpritePackEdit.SoftenShadows(aStart:Integer=1; aEnd: Integer=-1);
 var ShadowConverter: TKMSoftShadowConverter; I:Integer;
 begin
   ShadowConverter := TKMSoftShadowConverter.Create(Self);
-  for I := 1 to fRXData.Count do
+  if aEnd = -1 then aEnd := fRXData.Count;
+  for I := aStart to aEnd do
     if (fRXData.Flag[I] <> 0) then
       ShadowConverter.ConvertShadows(I);
 

@@ -352,7 +352,11 @@ begin
       //Generate alpha shadows for the following sprite packs
       if RT in [rxHouses,rxUnits,rxGui,rxTrees] then
       begin
-        SpritePack.SoftenShadows;
+        if RT = rxGui then
+          SpritePack.SoftenShadows(251, 281) //House tablets only (shadow softening messes up other rxGui sprites)
+        else
+          SpritePack.SoftenShadows;
+
         SpritePack.SaveToRXXFile(ExeDir + 'Data\Sprites\' + RXInfo[RT].FileName + '_a.rxx');
       end;
     finally

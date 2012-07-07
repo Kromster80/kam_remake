@@ -53,13 +53,13 @@ end;
 //Maybe the definition of black will change later (to include almost black colors?)
 function TKMSoftShadowConverter.IsBlack(Color:Cardinal):Boolean;
 begin
-  Result := (Color = $FF000000);
+  Result := (Color = $FF000000) or (Color = $FF020202); //Market sprite shadows are $FF020202
 end;
 
 //Maybe the definition of transparent will change later
 function TKMSoftShadowConverter.IsTransparent(Color:Cardinal):Boolean;
 begin
-  Result := (Color = $00000000);
+  Result := (Color and $FF000000) = $00000000;
 end;
 
 //Pixels that are not transparent and not black are an object (part of actual sprite)
