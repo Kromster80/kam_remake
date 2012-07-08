@@ -1496,10 +1496,10 @@ begin
       BackAlpha := 0.6;
     end;
 
-    Label_Results := TKMLabel.Create(Panel_Results,512,150,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_Results := TKMLabel.Create(Panel_Results,512,140,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_Results.Anchors := [akLeft];
 
-    Panel_Stats := TKMPanel.Create(Panel_Results, 80, 200, 320, 400);
+    Panel_Stats := TKMPanel.Create(Panel_Results, 30, 200, 320, 400);
     Panel_Stats.Anchors := [akLeft];
     Adv := 0;
     for I := 1 to 9 do
@@ -1512,7 +1512,7 @@ begin
 
     if DISPLAY_CHARTS_RESULT then
     begin
-      Panel_StatsCharts := TKMPanel.Create(Panel_Results, 460, 170, 460, 420);
+      Panel_StatsCharts := TKMPanel.Create(Panel_Results, 410, 170, 610, 420);
       Panel_StatsCharts.Anchors := [akLeft];
 
       Button_Graph1 := TKMButtonFlat.Create(Panel_StatsCharts, 0, 0, 205, 20, 0, rxGuiMain);
@@ -1527,31 +1527,31 @@ begin
       Button_Graph2.CapOffsetY := -12;
       Button_Graph2.OnClick := Results_GraphToggle;
 
-      Graph_Army := TKMGraph.Create(Panel_StatsCharts, 0, 30, 460, 120);
+      Graph_Army := TKMGraph.Create(Panel_StatsCharts, 0, 30, 610, 120);
       Graph_Army.Caption := 'Army';
       Graph_Army.Anchors := [akLeft];
 
-      Graph_Citizens := TKMGraph.Create(Panel_StatsCharts, 0, 165, 460, 120);
+      Graph_Citizens := TKMGraph.Create(Panel_StatsCharts, 0, 165, 610, 120);
       Graph_Citizens.Caption := 'Citizens';
       Graph_Citizens.Anchors := [akLeft];
 
-      Graph_Houses := TKMGraph.Create(Panel_StatsCharts, 0, 300, 460, 120);
+      Graph_Houses := TKMGraph.Create(Panel_StatsCharts, 0, 300, 610, 120);
       Graph_Houses.Caption := 'Houses';
       Graph_Houses.Anchors := [akLeft];
 
-      Graph_Wares := TKMGraph.Create(Panel_StatsCharts, 0, 30, 460, 390);
+      Graph_Wares := TKMGraph.Create(Panel_StatsCharts, 0, 30, 610, 390);
       Graph_Wares.Caption := 'Wares';
       Graph_Wares.Anchors := [akLeft];
       Graph_Wares.Hide;
     end;
 
-    Button_ResultsBack := TKMButton.Create(Panel_Results,80,610,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
+    Button_ResultsBack := TKMButton.Create(Panel_Results,30,610,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
     Button_ResultsBack.Anchors := [akLeft];
     Button_ResultsBack.OnClick := SwitchMenuPage;
-    Button_ResultsRepeat := TKMButton.Create(Panel_Results,320,610,220,30,fTextLibrary[TX_MENU_MISSION_REPEAT],fnt_Metal,bsMenu);
+    Button_ResultsRepeat := TKMButton.Create(Panel_Results,270,610,220,30,fTextLibrary[TX_MENU_MISSION_REPEAT],fnt_Metal,bsMenu);
     Button_ResultsRepeat.Anchors := [akLeft];
     Button_ResultsRepeat.OnClick := Results_RepeatLastMap;
-    Button_ResultsContinue := TKMButton.Create(Panel_Results,560,610,220,30,fTextLibrary[TX_MENU_MISSION_NEXT],fnt_Metal,bsMenu);
+    Button_ResultsContinue := TKMButton.Create(Panel_Results,510,610,220,30,fTextLibrary[TX_MENU_MISSION_NEXT],fnt_Metal,bsMenu);
     Button_ResultsContinue.Anchors := [akLeft];
     Button_ResultsContinue.OnClick := SwitchMenuPage;
 end;

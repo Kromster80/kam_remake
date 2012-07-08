@@ -11,6 +11,8 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points;
   function MapNameToPath(const aMapName, aExtension:string; aIsMultiplayer:boolean):string;
   function FixDelim(const aString:string):string;
 
+  procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
+  procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
   function GetPingColor(aPing:word):cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
   function TimeToString(aTime: TDateTime): string;

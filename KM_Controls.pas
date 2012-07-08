@@ -891,6 +891,7 @@ type
     fCaption: string;
     fCount: Integer;
     fItemHeight: Byte;
+    fLegendWidth: Word;
     fLineOver: Integer;
     fLines: array of record
       Title: string;
@@ -3938,6 +3939,7 @@ begin
 
   fItemHeight := 13;
   fLineOver := -1;
+  fLegendWidth := 160;
 end;
 
 
@@ -3985,7 +3987,7 @@ begin
   inherited;
 
   fLineOver := -1;
-  if X < Left + Width - 55 then Exit;
+  if X < Left + Width - fLegendWidth+5 then Exit;
   fLineOver := (Y - Top + 2) div fItemHeight;
 end;
 
@@ -3995,7 +3997,7 @@ var I: Integer;
 begin
   inherited;
 
-  if X < Left + Width-55 then Exit;
+  if X < Left + Width - fLegendWidth+5 then Exit;
 
   I := (Y - Top + 2) div fItemHeight;
   if not InRange(I, 0, fCount - 1) then Exit;
@@ -4008,10 +4010,19 @@ end;
 
 procedure TKMGraph.Paint;
   function EnsureColorBlend(aColor: TColor4): TColor4;
+  var
+    R, G, B: Byte;
+    Hue, Sat, Bri: Single;
   begin
-    Result := Max(aColor and $FF, 48) +
+    ConvertRGB2HSB(aColor and $FF, aColor shr 8 and $FF, aColor shr 16 and $FF, Hue, Sat, Bri);
+    //Lighten
+    Bri := Max(Bri, 0.2);
+    ConvertHSB2RGB(Hue, Sat, Bri, R, G, B);
+    Result := (R + G shl 8 + B shl 16) or $FF000000;
+
+    {Result := Max(aColor and $FF, 48) +
               Max((aColor shr 8) and $FF, 48) shl 8 +
-              Max((aColor shr 16) and $FF, 48) shl 16 + aColor and $FF000000;
+              Max((aColor shr 16) and $FF, 48) shl 16 + aColor and $FF000000;}
   end;
 const
   IntervalCount: array [0..9] of Word = (1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
@@ -4020,11 +4031,11 @@ var
   I: Integer;
   G: TKMRect;
   Best, TopValue: Integer;
-  NewColor: TColor4;
+  NewColor, TextColor: TColor4;
 begin
   inherited;
 
-  G := KMRect(Left + 25, Top, Left + Width - 60, Top + Height - 16);
+  G := KMRect(Left + 40, Top, Left + Width - fLegendWidth, Top + Height - 20);
 
   //Add margin to MaxValue so that it does not blends with upper border
   TopValue := Max(Round(fMaxValue * 1.1), fMaxValue + 1);
@@ -4034,22 +4045,30 @@ begin
   begin
     //Adjust the color if it blends with black background
     NewColor := EnsureColorBlend(fLines[I].Color);
+    TextColor := $FFFFFFFF;
 
     if (csOver in State) and (I = fLineOver) then
+    begin
       NewColor := $FFFF00FF;
+      TextColor := $FFFF00FF;
+    end;
 
     //Charts
     if fLines[I].Visible then
-      fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, TopValue, NewColor);
+      fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, TopValue, NewColor, 1);
 
     //Checkboxes
     fRenderUI.WriteLayer(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, NewColor, $00000000);
     if fLines[I].Visible then
-      fRenderUI.WriteText(G.Right + 5, G.Top - 2 + I*fItemHeight - 1, 0, 0, 'v', fnt_Game, taLeft);
+      fRenderUI.WriteText(G.Right + 5, G.Top - 2 + I*fItemHeight - 1, 0, 0, 'v', fnt_Game, taLeft, $FF000000);
 
     //Legend
-    fRenderUI.WriteText(G.Right + 18, G.Top - 2 + I*fItemHeight, 0, 0, fLines[I].Title, fnt_Game, taLeft);
+    fRenderUI.WriteText(G.Right + 18, G.Top - 2 + I*fItemHeight, 0, 0, fLines[I].Title, fnt_Game, taLeft, TextColor);
   end;
+
+  //Render the highlighted line above all the others and thicker so you can see where it goes under others
+  if (csOver in State) and InRange(fLineOver, 0, fCount-1) and fLines[fLineOver].Visible then
+    fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[fLineOver].Values, TopValue, $FFFF00FF, 2);
 
   //Outline
   fRenderUI.WriteRect(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, $FFFFFFFF);

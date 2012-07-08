@@ -1010,6 +1010,7 @@ begin
   Panel_Chat.Hide;
 
     Image_Chat := TKMImage.Create(Panel_Chat,0,0,800,190,409);
+    Image_Chat.Anchors := [akLeft,akTop,akBottom];
     Image_Chat.ImageStretch;
 
     //Allow to resize chat area height
