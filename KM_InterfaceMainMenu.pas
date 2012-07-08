@@ -143,6 +143,7 @@ type
     procedure Options_FlagClick(Sender: TObject);
     procedure Options_Refresh_DropBoxes;
     procedure Results_GraphToggle(Sender: TObject);
+    procedure Results_MPToggle(Sender: TObject);
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -324,11 +325,17 @@ type
         Graph_Wares: TKMGraph;
       Button_ResultsBack,Button_ResultsRepeat,Button_ResultsContinue: TKMButton;
     Panel_ResultsMP:TKMPanel;
-      Label_ResultsMP, Label_ResultsMPTime: TKMLabel;
+      Button_MPStats, Button_MPUnitsHouses, Button_MPWares: TKMButtonFlat;
+      Label_ResultsMP: TKMLabel;
       Panel_StatsMP1, Panel_StatsMP2: TKMPanel;
-      Label_ResultsPlayerName1, Label_ResultsPlayerName2:array[0..MAX_PLAYERS-1] of TKMLabel;
-      Bar_Results:array[0..MAX_PLAYERS-1, 0..9] of TKMPercentBar;
-      Image_ResultsRosette:array[0..MAX_PLAYERS-1, 0..9] of TKMImage;
+        Label_ResultsPlayerName1, Label_ResultsPlayerName2:array[0..MAX_PLAYERS-1] of TKMLabel;
+        Bar_Results:array[0..MAX_PLAYERS-1, 0..9] of TKMPercentBar;
+        Image_ResultsRosette:array[0..MAX_PLAYERS-1, 0..9] of TKMImage;
+      Panel_GraphsMP: TKMPanel;
+        Graph_MPArmy: TKMGraph;
+        Graph_MPCitizens: TKMGraph;
+        Graph_MPHouses: TKMGraph;
+        Graph_MPWares: TKMGraph;
       Button_ResultsMPBack:TKMButton;
   public
     constructor Create(X,Y: Word);
@@ -502,10 +509,10 @@ begin
                 end;
     msResultsMP:begin
                   case aMsg of
-                    gr_Win:       Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
-                    gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
-                    gr_Cancel:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
-                    gr_ReplayEnd: Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+                    gr_Win:       Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY]  + ': ' + Label_ResultsMP.Caption;
+                    gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT]   + ': ' + Label_ResultsMP.Caption;
+                    gr_Cancel:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED] + ': ' + Label_ResultsMP.Caption;
+                    gr_ReplayEnd: Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED] + ': ' + Label_ResultsMP.Caption;
                     else          Label_ResultsMP.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
                   SwitchMenuPage(Panel_ResultsMP);
@@ -613,14 +620,33 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.Results_MPToggle(Sender: TObject);
+begin
+  Panel_StatsMP1.Visible := Sender = Button_MPStats;
+  Panel_StatsMP2.Visible := Sender = Button_MPStats;
+
+  Panel_GraphsMP.Visible   :=(Sender = Button_MPUnitsHouses) or (Sender = Button_MPWares);
+  Graph_MPArmy.Visible     := Sender = Button_MPUnitsHouses;
+  Graph_MPCitizens.Visible := Sender = Button_MPUnitsHouses;
+  Graph_MPHouses.Visible   := Sender = Button_MPUnitsHouses;
+  Graph_MPWares.Visible    := Sender = Button_MPWares;
+
+  Button_MPStats.Down := Sender = Button_MPStats;
+  Button_MPUnitsHouses.Down := Sender = Button_MPUnitsHouses;
+  Button_MPWares.Down := Sender = Button_MPWares;
+end;
+
+
 procedure TKMMainMenuInterface.ResultsMP_Fill;
 var
   I,K: Integer;
   UnitsMax, HousesMax, GoodsMax, WeaponsMax, MaxValue: Integer;
   Bests: array [0..9] of Cardinal;
   Totals: array [0..9] of Cardinal;
+  R: TResourceType;
+  G: TCardinalArray;
 begin
-  Label_ResultsMPTime.Caption := fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);
+  Label_ResultsMP.Caption := fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);
 
   //Update visibility depending on players count
   for I := 0 to MAX_PLAYERS - 1 do
@@ -638,7 +664,7 @@ begin
   Panel_StatsMP1.Height := 40 + fPlayers.Count * 22;
   Panel_StatsMP2.Height := 40 + fPlayers.Count * 22;
 
-  Panel_StatsMP1.Top := 134 + (520 - Panel_StatsMP1.Height * 2) div 2 -
+  Panel_StatsMP1.Top := 144 + (520 - Panel_StatsMP1.Height * 2) div 2 -
                         (768 - Min(Panel_ResultsMP.Height,768)) div 2; //Manually apply anchoring
   //Second panel does not move from the middle of the screen: results always go above and below the middle
 
@@ -747,6 +773,50 @@ begin
         Bar_Results[I,K].Position := 0;
       Bar_Results[I,K].Caption := IfThen(Bar_Results[I,K].Tag <> 0, IntToStr(Bar_Results[I,K].Tag), '-');
     end;
+  end;
+
+  //Fill in chart values
+  if DISPLAY_CHARTS_RESULT then
+  begin
+    Graph_MPArmy.Clear;
+    Graph_MPCitizens.Clear;
+    Graph_MPHouses.Clear;
+    Graph_MPWares.Clear;
+    Graph_MPArmy.MaxLength      := MyPlayer.Stats.GraphCount;
+    Graph_MPCitizens.MaxLength  := MyPlayer.Stats.GraphCount;
+    Graph_MPHouses.MaxLength    := MyPlayer.Stats.GraphCount;
+    Graph_MPWares.MaxLength     := MyPlayer.Stats.GraphCount;
+
+    Graph_MPArmy.MaxTime      := fGame.GameTickCount div 10;
+    Graph_MPCitizens.MaxTime  := fGame.GameTickCount div 10;
+    Graph_MPHouses.MaxTime    := fGame.GameTickCount div 10;
+    Graph_MPWares.MaxTime     := fGame.GameTickCount div 10;
+
+    for I := 0 to fPlayers.Count - 1 do
+    with fPlayers[I] do
+      Graph_MPArmy.AddLine(PlayerName, FlagColor, Stats.GraphArmy);
+
+    for I := 0 to fPlayers.Count - 1 do
+    with fPlayers[I] do
+      Graph_MPCitizens.AddLine(PlayerName, FlagColor, Stats.GraphCitizens);
+
+    for I := 0 to fPlayers.Count - 1 do
+    with fPlayers[I] do
+      Graph_MPHouses.AddLine(PlayerName, FlagColor, Stats.GraphHouses);
+
+    for R := WARE_MIN to WARE_MAX do
+    begin
+      G := MyPlayer.Stats.GraphGoods[R];
+      for I := 0 to High(G) do
+        if G[I] <> 0 then
+        begin
+          Graph_MPWares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
+          Break;
+        end;
+    end;
+
+    Button_MPWares.Enabled := (fGame.MissionMode = mm_Normal);
+    Results_MPToggle(Button_MPStats); //Statistics (not graphs) page shown by default every time
   end;
 end;
 
@@ -1518,13 +1588,13 @@ begin
       Button_Graph1 := TKMButtonFlat.Create(Panel_StatsCharts, 0, 0, 205, 20, 0, rxGuiMain);
       Button_Graph1.Anchors := [akLeft];
       Button_Graph1.Caption := 'Units and Houses';
-      Button_Graph1.CapOffsetY := -12;
+      Button_Graph1.CapOffsetY := -11;
       Button_Graph1.OnClick := Results_GraphToggle;
 
       Button_Graph2 := TKMButtonFlat.Create(Panel_StatsCharts, 215, 0, 205, 20, 0, rxGuiMain);
       Button_Graph2.Anchors := [akLeft];
       Button_Graph2.Caption := 'Wares';
-      Button_Graph2.CapOffsetY := -12;
+      Button_Graph2.CapOffsetY := -11;
       Button_Graph2.OnClick := Results_GraphToggle;
 
       Graph_Army := TKMGraph.Create(Panel_StatsCharts, 0, 30, 610, 120);
@@ -1584,12 +1654,34 @@ begin
       BackAlpha := 0.6;
     end;
 
-    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,125,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,125,800,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_ResultsMP.Anchors := [akLeft];
-    Label_ResultsMPTime := TKMLabel.Create(Panel_ResultsMP,512,145,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
-    Label_ResultsMPTime.Anchors := [akLeft];
 
-    Panel_StatsMP1 := TKMPanel.Create(Panel_ResultsMP, 62, 230, 900, 180);
+    Button_MPStats := TKMButtonFlat.Create(Panel_ResultsMP, 190, 155, 210, 20, 8, rxGuiMain);
+    Button_MPStats.TexOffsetX := -94;
+    Button_MPStats.TexOffsetY := 6;
+    Button_MPStats.Anchors := [akLeft];
+    Button_MPStats.Caption := 'Statistics';
+    Button_MPStats.CapOffsetY := -11;
+    Button_MPStats.OnClick := Results_MPToggle;
+
+    Button_MPUnitsHouses := TKMButtonFlat.Create(Panel_ResultsMP, 408, 155, 210, 20, 454, rxGui);
+    Button_MPUnitsHouses.TexOffsetX := -92;
+    Button_MPUnitsHouses.TexOffsetY := 5;
+    Button_MPUnitsHouses.Anchors := [akLeft];
+    Button_MPUnitsHouses.Caption := 'Units and Houses';
+    Button_MPUnitsHouses.CapOffsetY := -11;
+    Button_MPUnitsHouses.OnClick := Results_MPToggle;
+
+    Button_MPWares := TKMButtonFlat.Create(Panel_ResultsMP, 626, 155, 210, 20, 169, rxGui);
+    Button_MPWares.TexOffsetX := -86;
+    Button_MPWares.TexOffsetY := 6;
+    Button_MPWares.Anchors := [akLeft];
+    Button_MPWares.Caption := 'Wares';
+    Button_MPWares.CapOffsetY := -11;
+    Button_MPWares.OnClick := Results_MPToggle;
+
+    Panel_StatsMP1 := TKMPanel.Create(Panel_ResultsMP, 62, 240, 900, 180);
     Panel_StatsMP1.Anchors := [akLeft];
 
       for i:=0 to 7 do
@@ -1607,7 +1699,7 @@ begin
         end;
       end;
 
-    Panel_StatsMP2 := TKMPanel.Create(Panel_ResultsMP, 62, 406, 900, 180);
+    Panel_StatsMP2 := TKMPanel.Create(Panel_ResultsMP, 62, 411, 900, 180);
     Panel_StatsMP2.Anchors := [akLeft];
 
       for i:=0 to 7 do
@@ -1624,6 +1716,25 @@ begin
           Image_ResultsRosette[i,k+5] := TKMImage.Create(Panel_StatsMP2, 164 + k*BarStep, 38+i*RowHeight, 16, 16, 8, rxGuiMain);
         end;
       end;
+
+    Panel_GraphsMP := TKMPanel.Create(Panel_ResultsMP, 0, 185, 1024, 560);
+    Panel_GraphsMP.Anchors := [akLeft];
+
+      Graph_MPArmy := TKMGraph.Create(Panel_GraphsMP, 112, 0, 800, 135);
+      Graph_MPArmy.Caption := 'Army';
+      Graph_MPArmy.Anchors := [akLeft];
+
+      Graph_MPCitizens := TKMGraph.Create(Panel_GraphsMP, 112, 155, 800, 135);
+      Graph_MPCitizens.Caption := 'Citizens';
+      Graph_MPCitizens.Anchors := [akLeft];
+
+      Graph_MPHouses := TKMGraph.Create(Panel_GraphsMP, 112, 310, 800, 135);
+      Graph_MPHouses.Caption := 'Houses';
+      Graph_MPHouses.Anchors := [akLeft];
+
+      Graph_MPWares := TKMGraph.Create(Panel_GraphsMP, 12, 0, 1000, 435);
+      Graph_MPWares.Caption := 'Wares';
+      Graph_MPWares.Anchors := [akLeft];
 
     Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,630,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
     Button_ResultsMPBack.Anchors := [akLeft];
@@ -1655,7 +1766,7 @@ begin
     if Sender = Button_ReplaysBack then
       fSaves.TerminateScan;
     Panel_MainMenu.Show;
-end;
+  end;
 
   {Player leaves lobby (LAN text is updated)}
   if Sender = Button_LobbyBack then

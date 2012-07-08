@@ -1828,8 +1828,9 @@ begin
   if (csOver in State) and fEnabled and not HideHighlight then
     StateSet := StateSet+[bsOver];
   if Down then
-    StateSet:=StateSet + [bsDown];
-  //if not Enabled then StateSet:=StateSet+[fbs_Disabled];
+    StateSet := StateSet + [bsDown];
+  if not Enabled then
+    StateSet := StateSet + [bsDisabled];
 
   fRenderUI.WriteFlatButton(Left,Top,Width,Height,RX,TexID,fFlagColor,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
 end;
@@ -3939,7 +3940,7 @@ begin
 
   fItemHeight := 13;
   fLineOver := -1;
-  fLegendWidth := 160;
+  fLegendWidth := 150;
 end;
 
 
@@ -4055,7 +4056,7 @@ begin
 
     //Charts
     if fLines[I].Visible then
-      fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, TopValue, NewColor, 1);
+      fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, TopValue, NewColor, 2);
 
     //Checkboxes
     fRenderUI.WriteLayer(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, NewColor, $00000000);
@@ -4068,7 +4069,7 @@ begin
 
   //Render the highlighted line above all the others and thicker so you can see where it goes under others
   if (csOver in State) and InRange(fLineOver, 0, fCount-1) and fLines[fLineOver].Visible then
-    fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[fLineOver].Values, TopValue, $FFFF00FF, 2);
+    fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[fLineOver].Values, TopValue, $FFFF00FF, 3);
 
   //Outline
   fRenderUI.WriteRect(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, $FFFFFFFF);

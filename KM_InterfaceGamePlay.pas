@@ -1102,8 +1102,7 @@ begin
   Panel_Allies.Anchors := [akLeft, akRight, akBottom];
   Panel_Allies.Hide;
 
-    TKMImage.Create(Panel_Allies,0,0,800,17,552);
-    TKMImage.Create(Panel_Allies,0,17,800,173,410);
+    with TKMImage.Create(Panel_Allies,0,0,800,190,409) do ImageStretch;
 
     Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,20,800,20,'',fnt_Outline,taCenter);
 
@@ -1882,6 +1881,7 @@ procedure TKMGamePlayInterface.ShowHouseInfo(Sender: TKMHouse; aAskDemolish: Boo
 const LineAdv = 25; //Each new Line is placed ## pixels after previous
 var i,RowRes,Base,Line:integer; Res:TResourceType;
 begin
+  //todo: Crash in MP when destroying a house. I guess because of network lag and fPlayers.Selected not being cleared?
   Assert(fPlayers.Selected = Sender);
   fAskDemolish := aAskDemolish;
 
