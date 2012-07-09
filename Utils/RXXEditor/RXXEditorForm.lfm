@@ -1,0 +1,33 @@
+object RXXForm1: TRXXForm1
+  Left = 192
+  Height = 344
+  Top = 148
+  Width = 256
+  Caption = 'RXX Editor'
+  ClientHeight = 223
+  ClientWidth = 256
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'Tahoma'
+  OnCreate = FormCreate
+  LCLVersion = '0.9.30.2'
+  object btnPackRXX: TButton
+    Left = 24
+    Top = 240
+    Width = 185
+    Height = 49
+    Caption = 'Pack to RXX File'
+    TabOrder = 0
+    OnClick = btnPackRXXClick
+  end
+  object ListBox1: TListBox
+    Left = 24
+    Top = 16
+    Width = 185
+    Height = 201
+    ItemHeight = 16
+    MultiSelect = True
+    TabOrder = 1
+  end
+end

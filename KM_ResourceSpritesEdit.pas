@@ -15,12 +15,14 @@ type
   TKMSpritePackEdit = class(TKMSpritePack)
   private
     fPalettes: TKMPalettes;
+    function GetLoaded: Boolean;
   protected
     procedure Allocate(aCount: Integer); override; //Allocate space for data that is being loaded
     procedure Expand;
   public
     constructor Create(aRT: TRXType; aPalettes: TKMPalettes);
 
+    property IsLoaded: Boolean read GetLoaded;
     procedure AdjoinHouseMasks(aHouseDat: TKMHouseDatCollection);
     procedure Delete(aIndex: Integer);
     procedure LoadFromRXFile(const aFileName: string);
@@ -149,6 +151,12 @@ begin
       end;
     end;
   end;
+end;
+
+
+function TKMSpritePackEdit.GetLoaded: Boolean;
+begin
+  Result := fRXData.Count > 0;
 end;
 
 
