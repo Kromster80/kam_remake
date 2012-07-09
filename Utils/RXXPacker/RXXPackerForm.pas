@@ -3,7 +3,7 @@ unit RXXPackerForm;
 interface
 uses
   Classes, Controls, Dialogs,
-  ExtCtrls, Forms, Graphics, StdCtrls, SysUtils, TypInfo, PNGImage,
+  ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils, TypInfo, PNGImage,
   {$IFDEF FPC} LResources, {$ENDIF}
   KM_Defaults, KM_Log, KM_Pics, KM_ResourcePalettes, KM_ResourceSprites, KM_ResourceSpritesEdit;
 
@@ -19,13 +19,20 @@ type
     lbSpritesList: TListBox;
     btnLoadRXX: TButton;
     btnDelete: TButton;
-    btnImport: TButton;
+    btnReplace: TButton;
     btnExport: TButton;
     Panel1: TPanel;
     Image1: TImage;
     Label1: TLabel;
     Panel2: TPanel;
     Image2: TImage;
+    Label2: TLabel;
+    Label3: TLabel;
+    btnMaskReplace: TButton;
+    btnMaskExport: TButton;
+    edtPivotX: TSpinEdit;
+    edtPivotY: TSpinEdit;
+    chkHasMask: TCheckBox;
     procedure btnPackRXXClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure OpenDialog1Show(Sender: TObject);
@@ -35,9 +42,12 @@ type
     procedure btnSaveRXXClick(Sender: TObject);
     procedure lbSpritesListClick(Sender: TObject);
     procedure btnDeleteClick(Sender: TObject);
-    procedure btnImportClick(Sender: TObject);
+    procedure btnReplaceClick(Sender: TObject);
     procedure btnExportClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure btnMaskReplaceClick(Sender: TObject);
+    procedure btnMaskExportClick(Sender: TObject);
+    procedure chkHasMaskClick(Sender: TObject);
   private
     fPalettes: TKMPalettes;
     fSprites: TKMSpritePackEdit;
@@ -112,15 +122,28 @@ end;
 
 
 procedure TRXXForm1.lbSpritesListClick(Sender: TObject);
+  procedure ToggleImageButtons(aState: Boolean);
+  begin
+    btnDelete.Enabled := aState;
+    btnReplace.Enabled := aState;
+    btnExport.Enabled := aState;
+    btnMaskReplace.Enabled := aState;
+    btnMaskExport.Enabled := aState;
+    edtPivotX.Enabled := aState;
+    edtPivotY.Enabled := aState;
+    chkHasMask.Enabled := aState;
+  end;
 var
   ID: Integer;
   PNGBase: TPNGObject;
   PNGMask: TPNGObject;
 begin
+  ToggleImageButtons(False);
   Image1.Picture.Bitmap.Canvas.Brush.Color := 0;
   Image1.Picture.Bitmap.Canvas.FillRect(Image1.Picture.Bitmap.Canvas.ClipRect);
   Image2.Picture.Bitmap.Canvas.Brush.Color := 0;
   Image2.Picture.Bitmap.Canvas.FillRect(Image1.Picture.Bitmap.Canvas.ClipRect);
+  chkHasMask.Checked := False;
 
   ID := lbSpritesList.ItemIndex + 1;
   if ID = 0 then Exit;
@@ -137,6 +160,12 @@ begin
     PNGBase.Free;
     PNGMask.Free;
   end;
+
+  edtPivotX.Value := fSprites.RXData.Pivot[ID].x;
+  edtPivotY.Value := fSprites.RXData.Pivot[ID].y;
+  chkHasMask.Checked := fSprites.RXData.HasMask[ID];
+
+  ToggleImageButtons(True);
 end;
 
 
@@ -183,7 +212,22 @@ begin
   if SameText(ExtractFileExt(OpenDialog1.FileName), '.rxx') then
     fSprites.LoadFromRXXFile(OpenDialog1.FileName);
 
+  btnSaveRXX.Enabled := fSprites.IsLoaded;
+  btnAdd.Enabled := fSprites.IsLoaded;
+
   UpdateList;
+end;
+
+
+procedure TRXXForm1.btnMaskExportClick(Sender: TObject);
+begin
+  //
+end;
+
+
+procedure TRXXForm1.btnMaskReplaceClick(Sender: TObject);
+begin
+  //
 end;
 
 
@@ -206,7 +250,7 @@ begin
 end;
 
 
-procedure TRXXForm1.btnImportClick(Sender: TObject);
+procedure TRXXForm1.btnReplaceClick(Sender: TObject);
 var
   ID: Integer;
 begin
@@ -277,6 +321,12 @@ begin
   if not SaveDialog1.Execute then Exit;
   fLog.AddToLog('Trimmed ' + IntToStr(fSprites.TrimSprites));
   fSprites.SaveToRXXFile(SaveDialog1.FileName);
+end;
+
+
+procedure TRXXForm1.chkHasMaskClick(Sender: TObject);
+begin
+  //
 end;
 
 
