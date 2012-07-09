@@ -31,8 +31,8 @@ type
     ResProductionX:shortint;
     MaxHealth,Sight:smallint;
     OwnerType:shortint;
-    Foot1:array[1..12]of shortint; //Sound indices
-    Foot2:array[1..12]of smallint; //vs sprite ID
+    Foot1: array[1..12]of shortint; //Sound indices
+    Foot2: array[1..12]of smallint; //vs sprite ID
   end;
 
   THouseArea = array[1..4,1..4]of byte;
@@ -96,8 +96,6 @@ type
   end;
 
 
-
-
   TKMHouseDatCollection = class
   private
     fCRC:cardinal;
@@ -119,6 +117,76 @@ type
     procedure ExportCSV(aPath: string);
   end;
 
+
+const
+  //Sprites in the marketplace
+  MarketWaresOffsetX = -93;
+  MarketWaresOffsetY = -88;
+  MarketWareTexStart = 1724; //ID of where market ware sprites start. Allows us to relocate them easily.
+  MarketWares: array[TResourceType] of record
+                                         TexStart: Integer; //Tex ID for first sprite
+                                         Count: Integer; //Total sprites for this resource
+                                       end
+  = (
+      (TexStart: 0; Count: 0;), //rt_None
+
+      (TexStart: MarketWareTexStart+237; Count: 20;), //rt_Trunk
+      (TexStart: MarketWareTexStart+47;  Count: 36;), //rt_Stone
+      (TexStart: MarketWareTexStart+94;  Count: 19;), //rt_Wood
+      (TexStart: MarketWareTexStart+113; Count: 11;), //rt_IronOre
+      (TexStart: MarketWareTexStart+135; Count: 12;), //rt_GoldOre
+      (TexStart: MarketWareTexStart+207; Count: 11;), //rt_Coal
+      (TexStart: MarketWareTexStart+130; Count: 5;),  //rt_Steel
+      (TexStart: MarketWareTexStart+147; Count: 9;),  //rt_Gold
+      (TexStart: MarketWareTexStart+1;   Count: 23;), //rt_Wine
+      (TexStart: MarketWareTexStart+24;  Count: 23;), //rt_Corn
+      (TexStart: MarketWareTexStart+218; Count: 12;), //rt_Bread
+      (TexStart: MarketWareTexStart+186; Count: 12;), //rt_Flour
+      (TexStart: MarketWareTexStart+156; Count: 9;),  //rt_Leather
+      (TexStart: MarketWareTexStart+283; Count: 16;), //rt_Sausages
+      (TexStart: MarketWareTexStart+299; Count: 6;),  //rt_Pig
+      (TexStart: MarketWareTexStart+230; Count: 7;),  //rt_Skin
+      (TexStart: MarketWareTexStart+85;  Count: 9;),  //rt_Shield
+      (TexStart: MarketWareTexStart+127; Count: 3;),  //rt_MetalShield
+      (TexStart: MarketWareTexStart+165; Count: 6;),  //rt_Armor
+      (TexStart: MarketWareTexStart+124; Count: 3;),  //rt_MetalArmor
+      (TexStart: MarketWareTexStart+201; Count: 6;),  //rt_Axe
+      (TexStart: MarketWareTexStart+183; Count: 3;),  //rt_Sword
+      (TexStart: MarketWareTexStart+171; Count: 6;),  //rt_Pike
+      (TexStart: MarketWareTexStart+198; Count: 3;),  //rt_Hallebard
+      (TexStart: MarketWareTexStart+177; Count: 6;),  //rt_Bow
+      (TexStart: MarketWareTexStart+83;  Count: 2;),  //rt_Arbalet
+      (TexStart: 0;                      Count: 2;),  //rt_Horse (defined in fMarketBeastAnim)
+      (TexStart: MarketWareTexStart+305; Count: 19;), //rt_Fish
+
+      (TexStart: 0; Count: 0;), //rt_All
+      (TexStart: 0; Count: 0;), //rt_Warfare
+      (TexStart: 0; Count: 0;)  //rt_Food
+    );
+
+  //These tables are used to convert between KaM script IDs and Remake enums
+  HouseDatCount = 30;
+  //KaM scripts and HouseDat address houses in this order
+  HouseKaMType: array [0..HouseDatCount-1] of THouseType = (
+  ht_Sawmill, ht_IronSmithy, ht_WeaponSmithy, ht_CoalMine, ht_IronMine,
+  ht_GoldMine, ht_FisherHut, ht_Bakery, ht_Farm, ht_Woodcutters,
+  ht_ArmorSmithy, ht_Store, ht_Stables, ht_School, ht_Quary,
+  ht_Metallurgists, ht_Swine, ht_WatchTower, ht_TownHall, ht_WeaponWorkshop,
+  ht_ArmorWorkshop, ht_Barracks, ht_Mill, ht_SiegeWorkshop, ht_Butchers,
+  ht_Tannery, ht_None, ht_Inn, ht_Wineyard, ht_Marketplace);
+
+  //THouseType corresponds to this index in KaM scripts and libs
+  //KaM scripts are 0 based, so we must use HouseKaMOrder[H]-1 in script usage. Other cases are 1 based.
+  HouseKaMOrder: array [THouseType] of byte = (0, 0,
+  11, 21, 8, 22, 25, 4, 9, 7, 6, 28,
+  5, 2, 30, 16, 23, 15, 1, 14, 24, 13, 12,
+  17, 26, 19, 18, 3, 20, 29, 10);
+
+
+implementation
+uses KromUtils, KM_TextLibrary, KM_ResourceUnit;
+
+
 type
   THouseInfo = record
     PlanYX:THouseArea;
@@ -133,7 +201,7 @@ type
 const
   //Remake stores additional house properties here. This looks like House.Dat, but hardcoded.
   //I listed all fields explicitely except for ht_None/ht_Any to be sure nothing is forgotten
-  HouseDatX:array[THouseType] of THouseInfo = (
+  HouseDatX: array[THouseType] of THouseInfo = (
     ( //None
     PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0));
     DoesOrders: 0;
@@ -415,76 +483,7 @@ const
     )
     );
 
-  //Sprites in the marketplace
-  MarketWaresOffsetX = -93;
-  MarketWaresOffsetY = -88;
-  MarketWareTexStart = 1724; //ID of where market ware sprites start. Allows us to relocate them easily.
-  MarketWares: array[TResourceType] of record
-                                         TexStart: Integer; //Tex ID for first sprite
-                                         Count: Integer; //Total sprites for this resource
-                                       end
-  = (
-      (TexStart: 0; Count: 0;), //rt_None
 
-      (TexStart: MarketWareTexStart+237; Count: 20;), //rt_Trunk
-      (TexStart: MarketWareTexStart+47;  Count: 36;), //rt_Stone
-      (TexStart: MarketWareTexStart+94;  Count: 19;), //rt_Wood
-      (TexStart: MarketWareTexStart+113; Count: 11;), //rt_IronOre
-      (TexStart: MarketWareTexStart+135; Count: 12;), //rt_GoldOre
-      (TexStart: MarketWareTexStart+207; Count: 11;), //rt_Coal
-      (TexStart: MarketWareTexStart+130; Count: 5;),  //rt_Steel
-      (TexStart: MarketWareTexStart+147; Count: 9;),  //rt_Gold
-      (TexStart: MarketWareTexStart+1;   Count: 23;), //rt_Wine
-      (TexStart: MarketWareTexStart+24;  Count: 23;), //rt_Corn
-      (TexStart: MarketWareTexStart+218; Count: 12;), //rt_Bread
-      (TexStart: MarketWareTexStart+186; Count: 12;), //rt_Flour
-      (TexStart: MarketWareTexStart+156; Count: 9;),  //rt_Leather
-      (TexStart: MarketWareTexStart+283; Count: 16;), //rt_Sausages
-      (TexStart: MarketWareTexStart+299; Count: 6;),  //rt_Pig
-      (TexStart: MarketWareTexStart+230; Count: 7;),  //rt_Skin
-      (TexStart: MarketWareTexStart+85;  Count: 9;),  //rt_Shield
-      (TexStart: MarketWareTexStart+127; Count: 3;),  //rt_MetalShield
-      (TexStart: MarketWareTexStart+165; Count: 6;),  //rt_Armor
-      (TexStart: MarketWareTexStart+124; Count: 3;),  //rt_MetalArmor
-      (TexStart: MarketWareTexStart+201; Count: 6;),  //rt_Axe
-      (TexStart: MarketWareTexStart+183; Count: 3;),  //rt_Sword
-      (TexStart: MarketWareTexStart+171; Count: 6;),  //rt_Pike
-      (TexStart: MarketWareTexStart+198; Count: 3;),  //rt_Hallebard
-      (TexStart: MarketWareTexStart+177; Count: 6;),  //rt_Bow
-      (TexStart: MarketWareTexStart+83;  Count: 2;),  //rt_Arbalet
-      (TexStart: 0;                      Count: 2;),  //rt_Horse (defined in fMarketBeastAnim)
-      (TexStart: MarketWareTexStart+305; Count: 19;), //rt_Fish
-
-      (TexStart: 0; Count: 0;), //rt_All
-      (TexStart: 0; Count: 0;), //rt_Warfare
-      (TexStart: 0; Count: 0;)  //rt_Food
-    );
-
-  //These tables are used to convert between KaM script IDs and Remake enums
-  HouseDatCount = 30;
-  //KaM scripts and HouseDat address houses in this order
-  HouseKaMType: array [0..HouseDatCount-1] of THouseType = (
-  ht_Sawmill, ht_IronSmithy, ht_WeaponSmithy, ht_CoalMine, ht_IronMine,
-  ht_GoldMine, ht_FisherHut, ht_Bakery, ht_Farm, ht_Woodcutters,
-  ht_ArmorSmithy, ht_Store, ht_Stables, ht_School, ht_Quary,
-  ht_Metallurgists, ht_Swine, ht_WatchTower, ht_TownHall, ht_WeaponWorkshop,
-  ht_ArmorWorkshop, ht_Barracks, ht_Mill, ht_SiegeWorkshop, ht_Butchers,
-  ht_Tannery, ht_None, ht_Inn, ht_Wineyard, ht_Marketplace);
-
-  //THouseType corresponds to this index in KaM scripts and libs
-  //KaM scripts are 0 based, so we must use HouseKaMOrder[H]-1 in script usage. Other cases are 1 based.
-  HouseKaMOrder: array [THouseType] of byte = (0, 0,
-  11, 21, 8, 22, 25, 4, 9, 7, 6, 28,
-  5, 2, 30, 16, 23, 15, 1, 14, 24, 13, 12,
-  17, 26, 19, 18, 3, 20, 29, 10);
-
-
-
-implementation
-uses KromUtils, KM_TextLibrary, KM_ResourceUnit;
-
-
-const
   //For some reason in KaM the piles of building supply are not aligned, each one has a different offset.
   //These values were taking from the barracks offsets and are for use with new houses.
   BuildSupplyOffsets: THouseBuildSupply = ( ((MoveX:  0; MoveY: 0), (MoveX: -7; MoveY: 0), (MoveX:-26; MoveY: 0),  //Wood 1-3
@@ -745,33 +744,43 @@ end;
 
 
 procedure TKMHouseDatCollection.ExportCSV(aPath: string);
-var i:THouseType; Ap:string; S:TStringList; j,k:integer;
-  procedure AddField(aField:string); overload; begin Ap := Ap + aField + ';'; end;
-  procedure AddField(aField:integer); overload; begin Ap := Ap + inttostr(aField) + ';'; end;
+var
+  HT: THouseType;
+  S: string;
+  SL: TStringList;
+  I, K: Integer;
+  procedure AddField(aField: string); overload;
+  begin S := S + aField + ';'; end;
+  procedure AddField(aField: Integer); overload;
+  begin S := S + IntToStr(aField) + ';'; end;
+
 begin
-  S := TStringList.Create;
+  SL := TStringList.Create;
 
-  Ap := 'House name;WoodCost;StoneCost';
-  S.Append(Ap);
+  S := 'House name;WoodCost;StoneCost;ResProductionX';
+  SL.Append(S);
 
-  for i:=Low(THouseType) to High(THouseType) do begin
-    Ap := '';
-    AddField(fItems[i].HouseName);
-    S.Append(Ap);
-    for j := 1 to 10 do
+  for HT := Low(THouseType) to High(THouseType) do
+  begin
+    S := '';
+    AddField(fItems[HT].HouseName);
+    AddField(fItems[HT].WoodCost);
+    AddField(fItems[HT].StoneCost);
+    AddField(fItems[HT].ResProductionX);
+    SL.Append(S);
+    for I := 1 to 4 do
     begin
-      Ap := '';
-      for k:=1 to 10 do
-        AddField(fItems[i].BuildArea[j,k]);
-      S.Append(Ap);
+      S := '';
+      for K := 1 to 4 do
+        AddField(fItems[HT].BuildArea[I, K]);
+      SL.Append(S);
     end;
-    Ap := '';
-    AddField(fItems[i].StoneCost);
-    S.Append(Ap);
+    S := '';
+    SL.Append(S);
   end;
 
-  S.SaveToFile(aPath);
-  S.Free;
+  SL.SaveToFile(aPath);
+  SL.Free;
 end;
 
 

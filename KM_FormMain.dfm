@@ -172,6 +172,24 @@ object FormMain: TFormMain
   object MainMenu1: TMainMenu
     Left = 16
     Top = 192
+    object File1: TMenuItem
+      Caption = 'File'
+      object OpenMissionMenu: TMenuItem
+        Caption = 'Open mission...'
+        OnClick = Open_MissionMenuClick
+      end
+      object MenuItem1: TMenuItem
+        Caption = 'Edit mission...'
+        OnClick = MenuItem1Click
+      end
+      object N1: TMenuItem
+        Caption = '-'
+      end
+      object Exit1: TMenuItem
+        Caption = 'Exit'
+        OnClick = ExitClick
+      end
+    end
     object Debug1: TMenuItem
       Caption = 'Debug'
       object Debug_ShowWires: TMenuItem
@@ -213,29 +231,48 @@ object FormMain: TFormMain
     end
     object Export1: TMenuItem
       Caption = 'Export Data'
-      object Export_TreesRX: TMenuItem
-        Caption = 'Trees.rx'
-        OnClick = Export_TreesRXClick
-      end
-      object Export_HousesRX: TMenuItem
-        Caption = 'Houses.rx'
-        OnClick = Export_HousesRXClick
-      end
-      object Export_UnitsRX: TMenuItem
-        Caption = 'Units.rx'
-        OnClick = Export_UnitsRXClick
-      end
-      object Export_GUIRX: TMenuItem
-        Caption = 'GUI.rx'
-        OnClick = Export_GUIRXClick
-      end
-      object Export_GUIMainRX: TMenuItem
-        Caption = 'GUI Main.rx'
-        OnClick = Export_GUIMainRXClick
-      end
-      object Export_GUIMainHRX: TMenuItem
-        Caption = 'GUI MainH.rx'
-        OnClick = Export_GUIMainHRXClick
+      object Resources1: TMenuItem
+        Caption = 'Resources'
+        object Export_Fonts1: TMenuItem
+          Caption = 'Fonts'
+          OnClick = Export_Fonts1Click
+        end
+        object Export_Text: TMenuItem
+          Caption = 'Texts'
+          OnClick = Export_TextClick
+        end
+        object Export_Sounds1: TMenuItem
+          Caption = 'Sounds'
+          OnClick = Export_Sounds1Click
+        end
+        object Other1: TMenuItem
+          Caption = '-'
+          Enabled = False
+        end
+        object Export_TreesRX: TMenuItem
+          Caption = 'Trees.rx'
+          OnClick = Export_TreesRXClick
+        end
+        object Export_HousesRX: TMenuItem
+          Caption = 'Houses.rx'
+          OnClick = Export_HousesRXClick
+        end
+        object Export_UnitsRX: TMenuItem
+          Caption = 'Units.rx'
+          OnClick = Export_UnitsRXClick
+        end
+        object Export_GUIRX: TMenuItem
+          Caption = 'GUI.rx'
+          OnClick = Export_GUIRXClick
+        end
+        object Export_GUIMainRX: TMenuItem
+          Caption = 'GUI Main.rx'
+          OnClick = Export_GUIMainRXClick
+        end
+        object Export_GUIMainHRX: TMenuItem
+          Caption = 'GUI MainH.rx'
+          OnClick = Export_GUIMainHRXClick
+        end
       end
       object AnimData1: TMenuItem
         Caption = '-'
@@ -253,40 +290,6 @@ object FormMain: TFormMain
         Caption = 'Unit Anim'
         OnClick = Export_UnitAnim1Click
       end
-      object Other1: TMenuItem
-        Caption = '-'
-        Enabled = False
-      end
-      object Export_Fonts1: TMenuItem
-        Caption = 'Fonts'
-        OnClick = Export_Fonts1Click
-      end
-      object Export_Text: TMenuItem
-        Caption = 'Texts'
-        OnClick = Export_TextClick
-      end
-      object File1: TMenuItem
-        Caption = 'File'
-        object OpenMissionMenu: TMenuItem
-          Caption = 'Open mission...'
-          OnClick = Open_MissionMenuClick
-        end
-        object MenuItem1: TMenuItem
-          Caption = 'Edit mission...'
-          OnClick = MenuItem1Click
-        end
-        object N1: TMenuItem
-          Caption = '-'
-        end
-        object Exit1: TMenuItem
-          Caption = 'Exit'
-          OnClick = ExitClick
-        end
-      end
-      object Export_Sounds1: TMenuItem
-        Caption = 'Sounds'
-        OnClick = Export_Sounds1Click
-      end
       object N2: TMenuItem
         Caption = '-'
       end
@@ -297,6 +300,10 @@ object FormMain: TFormMain
       object ShowAIAttacks1: TMenuItem
         Caption = 'Show AI Attacks'
         OnClick = ShowAIAttacks1Click
+      end
+      object HousesDat1: TMenuItem
+        Caption = 'Houses Dat'
+        OnClick = HousesDat1Click
       end
     end
     object About1: TMenuItem

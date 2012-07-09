@@ -70,6 +70,8 @@ type
     ShowAIAttacks1: TMenuItem;
     ExportGamePages: TMenuItem;
     ExportMenuPages: TMenuItem;
+    Resources1: TMenuItem;
+    HousesDat1: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
@@ -114,6 +116,7 @@ type
     procedure ShowAIAttacks1Click(Sender: TObject);
     procedure Debug_ExportGamePagesClick(Sender: TObject);
     procedure Debug_ExportMenuPagesClick(Sender: TObject);
+    procedure HousesDat1Click(Sender: TObject);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -378,6 +381,8 @@ procedure TFormMain.Export_Sounds1Click(Sender: TObject);   begin fSoundLib.Expo
 procedure TFormMain.Export_TreeAnim1Click(Sender: TObject); begin fResource.ExportTreeAnim; end;
 procedure TFormMain.Export_HouseAnim1Click(Sender: TObject);begin fResource.ExportHouseAnim; end;
 procedure TFormMain.Export_UnitAnim1Click(Sender: TObject); begin fResource.ExportUnitAnim;  end;
+procedure TFormMain.HousesDat1Click(Sender: TObject);       begin fResource.HouseDat.ExportCSV(ExeDir+'Export\houses.dat.csv') end;
+
 
 procedure TFormMain.Export_TextClick(Sender: TObject);
 var I: Integer; MyTextLibrary: TTextLibrary;
