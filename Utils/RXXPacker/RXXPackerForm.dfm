@@ -20,6 +20,13 @@ object RXXForm1: TRXXForm1
     225)
   PixelsPerInch = 96
   TextHeight = 13
+  object Label1: TLabel
+    Left = 16
+    Top = 176
+    Width = 31
+    Height = 13
+    Caption = 'Label1'
+  end
   object btnPackRXX: TButton
     Left = 16
     Top = 192
@@ -29,19 +36,15 @@ object RXXForm1: TRXXForm1
     Caption = 'Pack to RXX File'
     TabOrder = 0
     OnClick = btnPackRXXClick
-    ExplicitTop = 208
-    ExplicitWidth = 129
   end
   object ListBox1: TListBox
     Left = 16
     Top = 16
     Width = 257
-    Height = 169
+    Height = 153
     Anchors = [akLeft, akTop, akRight, akBottom]
     ItemHeight = 13
     MultiSelect = True
     TabOrder = 1
-    ExplicitWidth = 129
-    ExplicitHeight = 185
   end
 end

@@ -3,7 +3,7 @@ unit RXXPackerForm;
 interface
 uses
   Classes, Controls, Dialogs,
-  ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils, TypInfo, PNGImage,
+  ExtCtrls, Forms, Graphics, Spin, StdCtrls, SysUtils, TypInfo, PNGImage, Windows,
   {$IFDEF FPC} LResources, {$ENDIF}
   KM_Defaults, KM_Log, KM_Pics, KM_ResourcePalettes, KM_ResourceSprites, KM_ResourceSpritesEdit;
 
@@ -12,6 +12,7 @@ type
   TRXXForm1 = class(TForm)
     btnPackRXX: TButton;
     ListBox1: TListBox;
+    Label1: TLabel;
     procedure btnPackRXXClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -60,10 +61,12 @@ var
   SpritePack: TKMSpritePackEdit;
   RT: TRXType;
   I: Integer;
+  Tick: Cardinal;
   RXName: string;
   HouseDat: TKMHouseDatCollection;
 begin
   btnPackRXX.Enabled := False;
+  Tick := GetTickCount;
 
   Assert(DirectoryExists(ExeDir + 'SpriteResource\'),
          'Cannot find ' + ExeDir + 'SpriteResource\ folder.'+#10#13+
@@ -90,7 +93,7 @@ begin
       if DirectoryExists(ExeDir + 'SpriteResource\') then
         SpritePack.LoadFromFolder(ExeDir + 'SpriteResource\');
 
-      //Tiles must stay in the same size as they can't use pivots
+      //Tiles must stay the same size as they can't use pivots
       if RT <> rxTiles then
         fLog.AddToLog('Trimmed ' + IntToStr(SpritePack.TrimSprites));
 
@@ -123,6 +126,7 @@ begin
     ListBox1.Refresh;
   end;
 
+  Label1.Caption := IntToStr(GetTickCount - Tick) + ' ms';
   btnPackRXX.Enabled := True;
 end;
 

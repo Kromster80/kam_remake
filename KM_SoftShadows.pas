@@ -7,63 +7,55 @@ uses
 type
   TKMSoftShadowConverter = class
   private
-    fSpritePack: TKMSpritePack;
+    fRXData: TRXData;
     function ReadPixelSafe(ID, X, Y: Integer): Cardinal;
 
-    function IsBlack(Color:Cardinal):Boolean;
-    function IsTransparent(Color:Cardinal):Boolean;
-    function IsObject(Color:Cardinal):Boolean;
-    function IsTransparentOrObject(Color:Cardinal):Boolean;
-
+    function IsBlack(Color: Cardinal): Boolean;
+    function IsTransparent(Color: Cardinal): Boolean;
+    function IsObject(Color: Cardinal): Boolean;
+    function IsTransparentOrObject(Color: Cardinal): Boolean;
     function IsShadow(ID, X, Y: Integer): Boolean;
-
-    function GetRXData:TRXData;
-    property RXData:TRXData read GetRXData;
   public
     constructor Create(aSpritePack: TKMSpritePack);
-    procedure ConvertShadows(ID:Integer);
+    procedure ConvertShadows(ID: Word);
   end;
 
 
 implementation
 const
   BLUR_RADIUS = 2.0; //Amount of blurring applied on shadow edges
-  SHADING_LEVEL = 150.0; //Alpha value for full shadow (0..255)
+  SHADING_LEVEL = 150; //Alpha value for full shadow (0..255)
+
 
 constructor TKMSoftShadowConverter.Create(aSpritePack: TKMSpritePack);
 begin
-  fSpritePack := aSpritePack;
-end;
-
-
-function TKMSoftShadowConverter.GetRXData:TRXData;
-begin
-  Result := fSpritePack.RXData;
+  inherited Create;
+  fRXData := aSpritePack.RXData;
 end;
 
 
 function TKMSoftShadowConverter.ReadPixelSafe(ID, X, Y: Integer): Cardinal;
 begin
-  if (X < 0) or (Y < 0) or (X >= RXData.Size[ID].X) or (Y >= RXData.Size[ID].Y) then
+  if (X < 0) or (Y < 0) or (X >= fRXData.Size[ID].X) or (Y >= fRXData.Size[ID].Y) then
     Result := 0
   else
-    Result := RXData.RGBA[ID, Y*RXData.Size[ID].X + X];
+    Result := fRXData.RGBA[ID, Y*fRXData.Size[ID].X + X];
 end;
 
 //Maybe the definition of black will change later (to include almost black colors?)
-function TKMSoftShadowConverter.IsBlack(Color:Cardinal):Boolean;
+function TKMSoftShadowConverter.IsBlack(Color: Cardinal): Boolean;
 begin
-  Result := (Color = $FF000000) or (Color = $FF020202); //Market sprite shadows are $FF020202
+  Result := (Color = $FF000000);
 end;
 
 //Maybe the definition of transparent will change later
-function TKMSoftShadowConverter.IsTransparent(Color:Cardinal):Boolean;
+function TKMSoftShadowConverter.IsTransparent(Color: Cardinal): Boolean;
 begin
-  Result := (Color and $FF000000) = $00000000;
+  Result := (Color shr 24 = 0);
 end;
 
 //Pixels that are not transparent and not black are an object (part of actual sprite)
-function TKMSoftShadowConverter.IsObject(Color:Cardinal):Boolean;
+function TKMSoftShadowConverter.IsObject(Color: Cardinal): Boolean;
 begin
   Result := not IsTransparent(Color) and not IsBlack(Color);
 end;
@@ -109,14 +101,14 @@ begin
     end;
 end;
 
-procedure TKMSoftShadowConverter.ConvertShadows(ID:Integer);
+procedure TKMSoftShadowConverter.ConvertShadows(ID: Word);
 var
   TempShadowMap: array of array of Boolean;
   ShadowMap: array of array of Boolean;
 
   function ReadTempShadowMapSafe(X, Y: Integer): Boolean;
   begin
-    if (X < 0) or (Y < 0) or (X >= RXData.Size[ID].X) or (Y >= RXData.Size[ID].Y) then
+    if (X < 0) or (Y < 0) or (X >= fRXData.Size[ID].X) or (Y >= fRXData.Size[ID].Y) then
       Result := False
     else
       Result := TempShadowMap[X, Y];
@@ -124,7 +116,7 @@ var
 
   function IsShadowOrObject(X, Y: Integer): Boolean;
   begin
-    if (X < 0) or (Y < 0) or (X >= RXData.Size[ID].X) or (Y >= RXData.Size[ID].Y) then
+    if (X < 0) or (Y < 0) or (X >= fRXData.Size[ID].X) or (Y >= fRXData.Size[ID].Y) then
       Result := False
     else
       Result := TempShadowMap[X, Y] or IsObject(ReadPixelSafe(ID,X,Y));
@@ -143,7 +135,7 @@ var
                 Byte(IsShadowOrObject(X,   Y+1));
   end;
 
-  function GetBlurredShadow(X,Y: Integer):Single;
+  function GetBlurredShadow(X,Y: Integer): Single;
   var
     aX, aY, XDiff, YDiff, BlurCeil: Integer;
     Distance, Multiplier, Divisor, Ret: Single;
@@ -164,7 +156,7 @@ var
         if Multiplier > 0 then
         begin
           Divisor := Divisor + Multiplier;
-          if (aX < 0) or (aY < 0) or (aX >= RXData.Size[ID].X) or (aY >= RXData.Size[ID].Y) then
+          if (aX < 0) or (aY < 0) or (aX >= fRXData.Size[ID].X) or (aY >= fRXData.Size[ID].Y) then
             Continue;
           Shadow := ShadowMap[aX, aY];
           if Shadow then WasRealShadow := True;
@@ -184,36 +176,33 @@ var
   Color: Cardinal;
   RealShadow: Byte;
 begin
-  SetLength(TempShadowMap, RXData.Size[ID].X, RXData.Size[ID].Y);
-  SetLength(ShadowMap,     RXData.Size[ID].X, RXData.Size[ID].Y);
+  SetLength(TempShadowMap, fRXData.Size[ID].X, fRXData.Size[ID].Y);
+  SetLength(ShadowMap,     fRXData.Size[ID].X, fRXData.Size[ID].Y);
 
-  for X:=0 to RXData.Size[ID].X-1 do
-    for Y:=0 to RXData.Size[ID].Y-1 do
+  for X:=0 to fRXData.Size[ID].X-1 do
+    for Y:=0 to fRXData.Size[ID].Y-1 do
       TempShadowMap[X, Y] := IsShadow(ID,X,Y);
 
-  for X:=0 to RXData.Size[ID].X-1 do
-    for Y:=0 to RXData.Size[ID].Y-1 do
+  for X:=0 to fRXData.Size[ID].X-1 do
+    for Y:=0 to fRXData.Size[ID].Y-1 do
     begin
       Shadow := TempShadowMap[X, Y];
 
-      if not IsObject(ReadPixelSafe(ID, X, Y)) then
-      begin
-        if Shadow and (ShadowsNearby(X, Y) = 1) then Shadow := False
-        else
-          if Shadow and (ShadowsNearby(X, Y) = 3) then Shadow := True;
-      end;
+      if Shadow and not IsObject(ReadPixelSafe(ID, X, Y))
+      and (ShadowsNearby(X, Y) = 1) then
+        Shadow := False;
 
       ShadowMap[X, Y] := Shadow;
     end;
 
-  for X:=0 to RXData.Size[ID].X-1 do
-    for Y:=0 to RXData.Size[ID].Y-1 do
+  for X:=0 to fRXData.Size[ID].X-1 do
+    for Y:=0 to fRXData.Size[ID].Y-1 do
     begin
       Color := ReadPixelSafe(ID, X, Y);
       if (TempShadowMap[X, Y] or ShadowMap[X, Y] or IsTransparent(Color)) and not IsObject(Color) then
       begin
         RealShadow := Min(Round(GetBlurredShadow(X, Y)*SHADING_LEVEL), 255);
-        RXData.RGBA[ID, Y*RXData.Size[ID].X + X] := RealShadow shl 24;
+        fRXData.RGBA[ID, Y*fRXData.Size[ID].X + X] := RealShadow shl 24;
       end;
     end;
 end;
