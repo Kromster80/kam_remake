@@ -48,6 +48,7 @@ type
     fWaitingForNetwork: Boolean;
     fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
     fSaveFile: AnsiString;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
+    fShowTeamNames: Boolean;
 
   //Should be saved
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
@@ -129,6 +130,7 @@ type
     property GameMode: TGameMode read fGameMode;
     property MissionFile: AnsiString read fMissionFile;
     property SaveFile: AnsiString read fSaveFile;
+    property ShowTeamNames: Boolean read fShowTeamNames write fShowTeamNames;
 
     property IsExiting: Boolean read fIsExiting;
     property IsPaused: Boolean read fIsPaused write fIsPaused;
@@ -896,7 +898,7 @@ begin
   Assert(aSpeed > 0);
 
   //MapEd always runs at x1
-  if fGameMode = gmMapEd then
+  if (IsMapEditor) or (IsMultiplayer and not MULTIPLAYER_SPEEDUP) then
   begin
     fGameSpeed := 1;
     fGameSpeedMultiplier := 1;

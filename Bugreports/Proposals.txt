@@ -2,9 +2,6 @@ Ideas that have not been decided. Should be moved to Bugslist.txt when a decisio
 We can discuss them in dialog-style and maybe move to GC issues later on
 <===================================================================================>
 	The multiplayer in-game player list could be ordered (grouped) by teams
-	Show the player's name above each group (flag holder) while some key is kept pressed (conflicts with per-locale army controls)
-		Krom: I think we can discount per-locale army controls (see comment in code and link to GameDev.StackExchange) and implement it
-		Lewin: I agree
 	Scrolling around the map using middle mouse click, as in TPR
 		Krom: Don't have anything against it
 		Lewin: Me either

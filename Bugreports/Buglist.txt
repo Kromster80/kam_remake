@@ -47,6 +47,7 @@ Improvements:
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
  +	Display charts in game results screens (army, wares cuont, etc.)
+ +	Show the player's name above each group (flag holder) while 'T' key is kept pressed
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth

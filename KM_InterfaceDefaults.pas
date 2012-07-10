@@ -27,7 +27,7 @@ type
 
     procedure Resize(X,Y: Word); virtual; abstract;
     procedure UpdateState(aTickCount: Cardinal); virtual; abstract;
-    procedure Paint;
+    procedure Paint; virtual;
   end;
 
 
@@ -35,8 +35,19 @@ const
   OPT_SLIDER_MIN = 0;
   OPT_SLIDER_MAX = 20;
 
+  SHORTCUT_MENU_BUILD = Ord('1');
+  SHORTCUT_MENU_RATIO = Ord('2');
+  SHORTCUT_MENU_STATS = Ord('3');
+  SHORTCUT_MENU_MENU = Ord('4');
+  SHORTCUT_ARMY_HALT = ('H');
+  SHORTCUT_ARMY_SPLIT = ('S');
+  SHORTCUT_ARMY_LINK = ('L');
+  SHORTCUT_BEACON = Ord('B');
+  SHORTCUT_PAUSE = Ord('P');
+  SHORTCUT_SHOW_TEAMS = Ord('T');
+
   GUI_HOUSE_COUNT = 27;   //Number of KaM houses to show in GUI
-  GUIHouseOrder:array[1..GUI_HOUSE_COUNT]of THouseType = (
+  GUIHouseOrder: array [1..GUI_HOUSE_COUNT] of THouseType = (
     ht_School, ht_Inn, ht_Quary, ht_Woodcutters, ht_Sawmill,
     ht_Farm, ht_Mill, ht_Bakery, ht_Swine, ht_Butchers,
     ht_Wineyard, ht_GoldMine, ht_CoalMine, ht_Metallurgists, ht_WeaponWorkshop,
@@ -45,7 +56,7 @@ const
     ht_FisherHut, ht_Marketplace);
 
   BARRACKS_RES_COUNT = 11;
-  BarracksResType: array[1..BARRACKS_RES_COUNT] of TResourceType =
+  BarracksResType: array [1..BARRACKS_RES_COUNT] of TResourceType =
     (rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor, rt_Axe, rt_Sword,
      rt_Pike, rt_Hallebard, rt_Bow, rt_Arbalet, rt_Horse);
 

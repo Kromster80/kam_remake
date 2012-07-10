@@ -202,8 +202,6 @@ MaxID:2733
 437:Aristocracy
 438:At the Harbor
 439:Journey
-847:Kampanija 'Subyrëjusi Karalystë'
-848:Kampanija 'Valstieèiø Sukilimas'
 849:Þaisti Vienam
 851:Atgal á Meniu
 852:Ákelti Þaidimà
@@ -231,7 +229,6 @@ MaxID:2733
 1688:Mûðio Mokymas
 1689:Vieno Þaidëjo Reþimas
 1690:Þemëlapio Redaktorius
-1691:Rodyti Pakartojimà
 1692:Pradëti Misijà
 1693:Titulas
 1694:Dydis
@@ -415,9 +412,6 @@ MaxID:2733
 1878:Taikos laikas baigësi. Prie ginklø!
 1879:Þaidimo laikas:|%s
 1880:Þaidimo nustatymai:
-1881:H
-1882:L
-1883:S
 1884:Sustabdyti bûrá ('%s')
 1885:Sujungti bûrá ('%s')
 1886:Atskirti bûrá ('%s')

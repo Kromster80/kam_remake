@@ -33,6 +33,8 @@ type
     SelectingDirPosition: TPoint;
     RatioTab: Byte; //Active resource distribution tab
     fSaves: TKMSavesCollection;
+    fTeamNames: TList;
+    Label_TeamName: TKMLabel;
 
     //Saved
     fLastSaveName: AnsiString; //The file name we last used to save this file (used as default in Save menu)
@@ -355,6 +357,7 @@ type
 
     procedure Resize(X,Y: Word); override;
     procedure UpdateState(aTickCount: Cardinal); override;
+    procedure Paint; override;
   end;
 
 
@@ -724,8 +727,12 @@ begin
   fMessageList := TKMMessageList.Create;
   fSaves := TKMSavesCollection.Create;
 
+  fTeamNames := TList.Create;
+
   //Parent Page for whole toolbar in-game
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
+
+    Label_TeamName := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Outline, taCenter);
 
     Sidebar_Top       := TKMImage.Create(Panel_Main, 0,    0, 224, 200, 407);
     Sidebar_Middle    := TKMImage.Create(Panel_Main, 0,  200, 224, 168, 554);
@@ -797,6 +804,7 @@ begin
   ReleaseDirectionSelector; //Make sure we don't exit leaving the cursor restrained
   fMessageList.Free;
   fSaves.Free;
+  fTeamNames.Free;
   inherited;
 end;
 
@@ -1441,15 +1449,15 @@ begin
     //@Lewin: I suggest we check other games, but I have a feeling that using same shortcuts for every version would be better
     //@Krom: Yes we should check other games. I did it this way to match KaM TSK/TPR.
     Button_Army_GoTo.Hint   := fTextLibrary[TX_ARMY_GOTO_HINT];
-    Button_Army_Stop.Hint   := Format(fTextLibrary[TX_TROOP_HALT_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_HALT]]);
+    Button_Army_Stop.Hint   := Format(fTextLibrary[TX_TROOP_HALT_HINT], [SHORTCUT_ARMY_HALT]);
     Button_Army_Attack.Hint := fTextLibrary[TX_ARMY_ATTACK_HINT];
     Button_Army_RotCW.Hint  := fTextLibrary[TX_ARMY_ROTATE_CW_HINT];
     Button_Army_Storm.Hint  := fTextLibrary[TX_ARMY_STORM_HINT];
     Button_Army_RotCCW.Hint := fTextLibrary[TX_ARMY_ROTATE_CCW_HINT];
     Button_Army_ForDown.Hint:= fTextLibrary[TX_ARMY_LINE_ADD_HINT];
     Button_Army_ForUp.Hint  := fTextLibrary[TX_ARMY_LINE_REM_HINT];
-    Button_Army_Split.Hint  := Format(fTextLibrary[TX_TROOP_SPLIT_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT]]);
-    Button_Army_Join.Hint   := Format(fTextLibrary[TX_TROOP_LINK_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_LINK]]);
+    Button_Army_Split.Hint  := Format(fTextLibrary[TX_TROOP_SPLIT_HINT], [SHORTCUT_ARMY_SPLIT]);
+    Button_Army_Join.Hint   := Format(fTextLibrary[TX_TROOP_LINK_HINT], [SHORTCUT_ARMY_LINK]);
     Button_Army_Feed.Hint   := fTextLibrary[TX_ARMY_FEED_HINT];
     Button_Unit_Dismiss.Hint:= 'Dismiss unit';
 
@@ -2558,11 +2566,11 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
+procedure TKMGamePlayInterface.Chat_Post(Sender: TObject; Key: Word);
 begin
   if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (fGame.Networking <> nil) then
   begin
-    fGame.Networking.PostMessage(Edit_ChatMsg.Text, true, CheckBox_SendToAllies.Checked);
+    fGame.Networking.PostMessage(Edit_ChatMsg.Text, True, CheckBox_SendToAllies.Checked);
     Edit_ChatMsg.Text := '';
   end;
 end;
@@ -3119,10 +3127,14 @@ begin
     Exit;
   end;
 
-  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := true;
-  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := true;
-  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := true;
-  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := true;
+  case Key of
+    VK_LEFT:  fGame.Viewport.ScrollKeyLeft  := True;
+    VK_RIGHT: fGame.Viewport.ScrollKeyRight := True;
+    VK_UP:    fGame.Viewport.ScrollKeyUp    := True;
+    VK_DOWN:  fGame.Viewport.ScrollKeyDown  := True;
+
+    SHORTCUT_SHOW_TEAMS: fGame.ShowTeamNames := True;
+  end;
 end;
 
 
@@ -3133,57 +3145,63 @@ procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
 begin
   if fGame.IsPaused and not fMultiplayer then
   begin
-    if (Key = ord('P')) then
+    if (Key = SHORTCUT_PAUSE) then
       SetPause(False);
     Exit;
   end;
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
 
-  //Scrolling
-  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := False;
-  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := False;
-  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := False;
-  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := False;
+  case Key of
+    //Scrolling
+    VK_LEFT:  fGame.Viewport.ScrollKeyLeft  := False;
+    VK_RIGHT: fGame.Viewport.ScrollKeyRight := False;
+    VK_UP:    fGame.Viewport.ScrollKeyUp    := False;
+    VK_DOWN:  fGame.Viewport.ScrollKeyDown  := False;
+    VK_BACK:  fGame.Viewport.ResetZoom;
 
-  if Key = VK_BACK then  fGame.Viewport.ResetZoom;
-
-  //Game speed/pause: Not available in multiplayer mode yet
-  if not fMultiplayer or MULTIPLAYER_SPEEDUP then
-  begin
-    if (Key = VK_F5) then fGame.SetGameSpeed(1);
-    if (Key = VK_F6) then fGame.SetGameSpeed(fGameApp.GameSettings.SpeedMedium);
-    if (Key = VK_F7) then fGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast);
-    if (Key = VK_F8) then fGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast);
+    //Game speed/pause: Not available in multiplayer mode yet (handled in fGame)
+    VK_F5:    fGame.SetGameSpeed(1);
+    VK_F6:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedMedium);
+    VK_F7:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast);
+    VK_F8:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast);
   end;
 
+  //All the following keys don't work in Replay,
+  //thus the easy way to make that is to exit now
   if fReplay then Exit;
 
-  if (Key = ord('P')) and not fMultiplayer then SetPause(True); //Display pause overlay
-
-  if (Key = ord('B'))
-  and (fMyControls.CtrlOver = nil)
-  and not SelectingTroopDirection then
-    Alert_Beacon;
-
-  //Menu shortcuts (1-4)
-  if InRange(Key-49, 0, 3) then Button_Main[TKMTabButtons(Key-49)].Click;
-
-  if (Key = VK_ESCAPE) and (   Button_Army_Join_Cancel.Click
+  case Key of
+    //Messages
+    VK_SPACE:             //In KaM spacebar centers you on the message
+                          Button_MessageGoTo.Click;
+    VK_DELETE:            Button_MessageDelete.Click;
+    VK_RETURN:            //Enter is the shortcut to bring up chat in multiplayer
+                          if fMultiplayer and not Panel_Chat.Visible then
+                            Chat_Show(Self);
+    VK_ESCAPE:            //'or' allows us to go through Clicks one by one
+                          if Button_Army_Join_Cancel.Click
                             or Button_MessageClose.Click
                             or Image_ChatClose.Click
                             or Image_AlliesClose.Click
-                            or Button_Back.Click) then Exit;
-  //Messages
-  if Key = VK_SPACE  then Button_MessageGoTo.Click; //In KaM spacebar centers you on the message
-  if Key = VK_DELETE then Button_MessageDelete.Click;
-  if (Key = VK_RETURN) and fMultiplayer and not Panel_Chat.Visible then
-    Chat_Show(Self); //Enter is the shortcut to bring up chat in multiplayer
+                            or Button_Back.Click then ;
+    //Menu shortcuts
+    SHORTCUT_MENU_BUILD:  Button_Main[tbBuild].Click;
+    SHORTCUT_MENU_RATIO:  Button_Main[tbRatio].Click;
+    SHORTCUT_MENU_STATS:  Button_Main[tbStats].Click;
+    SHORTCUT_MENU_MENU:   Button_Main[tbMenu].Click;
 
-  //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
-  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_HALT][1])) and (Panel_Army.Visible) then Button_Army_Stop.Click;
-  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_LINK][1])) and (Panel_Army.Visible) then Button_Army_Join.Click;
-  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT][1])) and (Panel_Army.Visible) then Button_Army_Split.Click;
+    // Army shortcuts from KaM
+    Ord(SHORTCUT_ARMY_HALT):   if Panel_Army.Visible then Button_Army_Stop.Click;
+    Ord(SHORTCUT_ARMY_SPLIT):  if Panel_Army.Visible then Button_Army_Join.Click;
+    Ord(SHORTCUT_ARMY_LINK):   if Panel_Army.Visible then Button_Army_Split.Click;
+
+    //General function keys
+    SHORTCUT_PAUSE:       if not fMultiplayer then SetPause(True); //Display pause overlay
+    SHORTCUT_BEACON:      if (fMyControls.CtrlOver = nil) and not SelectingTroopDirection then
+                            Alert_Beacon;
+    SHORTCUT_SHOW_TEAMS:  fGame.ShowTeamNames := False;
+  end;
 
   {Temporary cheat codes}
   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
@@ -3583,7 +3601,10 @@ end;
 {Should update any items changed by game (resource counts, hp, etc..)}
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
-var I: Integer; S: string;
+var
+  I: Integer;
+  S: string;
+  Rect: TKMRect;
 begin
   //Update unit/house information
   if fPlayers.Selected is TKMUnit then
@@ -3644,24 +3665,35 @@ begin
     end;
   end;
 
+  if aTickCount mod 3 = 0 then //Update once every 300ms, player won't notice
+  begin
+    fTeamNames.Clear;
+    if fGame.ShowTeamNames then
+    begin
+      Rect := fGame.Viewport.GetMinimapClip;
+      fPlayers.GetUnitsInRect(Rect, fTeamNames);
+    end;
+    Label_TeamName.Visible := fGame.ShowTeamNames;
+  end;
+
   //Debug info
   if SHOW_SPRITE_COUNT then
     Label_Stat.Caption:=
-        inttostr(fPlayers.GetUnitCount)+' units on map'+#124+
-        inttostr(fRenderPool.RenderList.Stat_Sprites)+'/'+inttostr(fRenderPool.RenderList.Stat_Sprites2)+' sprites/rendered'+#124+
-        inttostr(CtrlPaintCount)+' controls rendered';
+        IntToStr(fPlayers.GetUnitCount)+' units on map'+#124+
+        IntToStr(fRenderPool.RenderList.Stat_Sprites)+'/'+IntToStr(fRenderPool.RenderList.Stat_Sprites2)+' sprites/rendered'+#124+
+        IntToStr(CtrlPaintCount)+' controls rendered';
 
   if SHOW_POINTER_COUNT then
     Label_PointerCount.Caption := Format('Pointers: %d units, %d houses', [MyPlayer.Units.GetTotalPointers, MyPlayer.Houses.GetTotalPointers]);
 
   if SHOW_CMDQUEUE_COUNT then
-    Label_CmdQueueCount.Caption := inttostr(fGame.GameInputProcess.Count)+' commands stored';
+    Label_CmdQueueCount.Caption := IntToStr(fGame.GameInputProcess.Count)+' commands stored';
 
   if SHOW_NETWORK_DELAY and fMultiplayer then
-    Label_NetworkDelay.Caption := 'Network delay: '+inttostr(TGameInputProcess_Multi(fGame.GameInputProcess).GetNetworkDelay);
+    Label_NetworkDelay.Caption := 'Network delay: '+IntToStr(TGameInputProcess_Multi(fGame.GameInputProcess).GetNetworkDelay);
 
   if DISPLAY_SOUNDS then
-    Label_SoundsCount.Caption := inttostr(fSoundLib.ActiveCount)+' sounds playing';
+    Label_SoundsCount.Caption := IntToStr(fSoundLib.ActiveCount)+' sounds playing';
 
   //Temporary inteface (by @Crow)
   if SHOW_ARMYEVALS then begin
@@ -3671,6 +3703,37 @@ begin
       S := S+Format('Enemy %d: %f|', [i, RoundTo(MyPlayer.ArmyEval.Evaluations[i].fPower,-3)]);
     Label_VictoryChance.Caption := S;
   end;
+end;
+
+
+procedure TKMGamePlayInterface.Paint;
+var
+  I: Integer;
+  X, Y: Single;
+  LocX, LocY: Integer;
+begin
+  if fGame.ShowTeamNames then
+  begin
+    for I := 0 to fTeamNames.Count - 1 do
+    begin
+      Label_TeamName.Caption := fPlayers[TKMUnit(fTeamNames[I]).GetOwner].PlayerName;
+
+      X := TKMUnit(fTeamNames[I]).PositionF.X;
+      Y := TKMUnit(fTeamNames[I]).PositionF.Y;
+
+      LocX := Round((X - fGame.Viewport.Position.X) * CELL_SIZE_PX * fGame.Viewport.Zoom +fGame.Viewport.ViewRect.Right/2+TOOLBAR_WIDTH/2);
+      LocY := Round((Y - fGame.Viewport.Position.Y) * CELL_SIZE_PX * fGame.Viewport.Zoom +fGame.Viewport.ViewRect.Bottom/2);
+
+      LocX := LocX - 20;
+      LocY := LocY - Round(fTerrain.HeightAt(X, Y)) - 20;
+
+      Label_TeamName.Left := LocX;
+      Label_TeamName.Top := LocY;
+      Label_TeamName.Paint;
+    end;
+  end;
+
+  inherited;
 end;
 
 

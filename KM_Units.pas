@@ -264,6 +264,7 @@ type
     function HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
     function GetClosestUnit(aPoint: TKMPoint): TKMUnit;
+    procedure GetUnitsInRect(aRect: TKMRect; List: TList);
     function GetTotalPointers: Integer;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -2156,15 +2157,28 @@ begin
 end;
 
 
-function TKMUnitsCollection.GetClosestUnit(aPoint: TKMPoint):TKMUnit;
+procedure TKMUnitsCollection.GetUnitsInRect(aRect: TKMRect; List: TList);
+var I: Integer;
+begin
+  for I := 0 to Count - 1 do
+    if KMInRect(Units[I].PositionF, aRect)
+    and not Units[I].IsDeadOrDying
+    and Units[I].Visible
+    and (not (Units[I] is TKMUnitWarrior) or TKMUnitWarrior(Units[I]).IsCommander)
+    and (MyPlayer.FogOfWar.CheckRevelation(Units[I].PositionF, True) > FOG_OF_WAR_MIN) then
+      List.Add(Units[I]);
+end;
+
+
+function TKMUnitsCollection.GetClosestUnit(aPoint: TKMPoint): TKMUnit;
 var
-  i: integer;
-  BestDist,Dist: single;
+  I: Integer;
+  BestDist, Dist: Single;
 begin
   Result := nil;
   BestDist := MaxSingle; //Any distance will be closer than that
-  for i:=0 to Count-1 do
-    if (not Units[i].IsDeadOrDying) and (Units[i].fVisible) then
+  for i := 0 to Count - 1 do
+    if not Units[i].IsDeadOrDying and Units[i].fVisible then
     begin
       Dist := GetLength(Units[i].GetPosition, aPoint);
       if Dist < BestDist then

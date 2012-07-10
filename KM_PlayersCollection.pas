@@ -33,6 +33,7 @@ type
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function GetClosestUnit(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType): TKMUnit;
     function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
+    procedure GetUnitsInRect(aRect: TKMRect; List: TList);
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X,Y: Integer; aOnlyMyPlayer: Boolean): TObject;
@@ -316,6 +317,16 @@ begin
   Result := 0;
   for i:=0 to fCount-1 do
     inc(Result, fPlayerList[i].Units.Count);
+end;
+
+
+procedure TKMPlayersCollection.GetUnitsInRect(aRect: TKMRect; List: TList);
+var I: Integer;
+begin
+  Assert(List.Count = 0);
+
+  for I := 0 to fCount - 1 do
+    fPlayerList[I].Units.GetUnitsInRect(aRect, List);
 end;
 
 
