@@ -173,6 +173,7 @@ var
   po: TBGRABitmap;
   {$ENDIF}
   FileNameA: string;
+  Transparent: Byte;
 begin
   Assert(SameText(ExtractFileExt(aFilename), '.png'));
 
@@ -201,15 +202,20 @@ begin
         for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
           fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
       ptmBit:
-        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-          if po.Pixels[x,y] = po.TransparentColor then
-            fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
-          else
-            fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+        begin
+          Transparent := 0;
+          if TChunktRNS(po.Chunks.ItemFromClass(TChunktRNS)).DataSize > 0 then
+            Transparent := TChunktRNS(po.Chunks.ItemFromClass(TChunktRNS)).PaletteValues[0]; //We don't handle multi-transparent palettes yet
+          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+            if PByteArray(po.Scanline[y])^[x] = Transparent then
+              fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
+            else
+              fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+        end;
       ptmPartial:
         for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
         begin
-          p := po.AlphaScanline[y]^[x]; //semitransparency is killed by render later-on
+          p := po.AlphaScanline[y]^[x];
           fRXData.RGBA[aIndex, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR (p shl 24);
         end;
       else
