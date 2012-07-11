@@ -394,7 +394,7 @@ begin
   Parser := TMissionParserStandard.Create(ParseMode, PlayerRemap, False);
   try
     if not Parser.LoadMission(aMissionFile) then
-      raise Exception.Create(Parser.ErrorMessage);
+      raise Exception.Create(Parser.FatalErrors);
 
     if fGameMode = gmMapEd then
     begin
@@ -409,6 +409,9 @@ begin
       MyPlayer := fPlayers.Player[Parser.MissionInfo.HumanPlayerID];
       Assert(MyPlayer.PlayerType = pt_Human);
     end;
+
+    if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then
+      fGamePlayInterface.MessageIssue(mkQuill, Parser.MinorErrors, KMPoint(0,0));
 
     fMissionMode := Parser.MissionInfo.MissionMode;
   finally

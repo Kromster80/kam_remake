@@ -2227,31 +2227,41 @@ end;
 
 //Simple checks when placing houses from the script:
 function TTerrain.CanPlaceHouseFromScript(aHouseType: THouseType; Loc:TKMPoint): Boolean;
-var i,k,j,l:integer; HA:THouseArea; TestLoc: TKMPoint;
+var
+  I, K, L, M: Integer;
+  HA: THouseArea;
+  TX, TY: Integer;
 begin
   Result := True;
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
-  for i:=1 to 4 do for k:=1 to 4 do
-    if Result and (HA[i,k] <> 0) then
-    begin
-      TestLoc := KMPoint(Loc.X+k-3, Loc.Y+i-4);
-      Result := Result and TileInMapCoords(TestLoc.X, TestLoc.Y, 1); //Inset one tile from map edges
-      Result := Result and TileIsWalkable(TestLoc); //Tile must be walkable
+  for I := 1 to 4 do
+  for K := 1 to 4 do
+  if (HA[I,K] <> 0) then
+  begin
+    TX := Loc.X + K - 3;
+    TY := Loc.Y + I - 4;
+    Result := Result and TileInMapCoords(TX, TY, 1); //Inset one tile from map edges
+    Result := Result and TileIsWalkable(KMPoint(TX, TY)); //Tile must be walkable
 
-      //Mines must be on a mountain edge
-      if aHouseType = ht_IronMine then
-        Result := Result and (Land[TestLoc.Y,TestLoc.X].Terrain in [109, 166..170]) and (Land[TestLoc.Y,TestLoc.X].Rotation mod 4 = 0);
-      if aHouseType = ht_GoldMine then
-        Result := Result and (Land[TestLoc.Y,TestLoc.X].Terrain in [171..175     ]) and (Land[TestLoc.Y,TestLoc.X].Rotation mod 4 = 0);
+    //Mines must be on a mountain edge
+    if aHouseType = ht_IronMine then
+      Result := Result and (Land[TY,TX].Terrain in [109, 166..170]) and (Land[TY,TX].Rotation mod 4 = 0);
+    if aHouseType = ht_GoldMine then
+      Result := Result and (Land[TY,TX].Terrain in [171..175     ]) and (Land[TY,TX].Rotation mod 4 = 0);
 
-      //Check surrounding tiles for another house that overlaps
-      for j:=-1 to 1 do
-      for l:=-1 to 1 do
-        if TileInMapCoords(TestLoc.X+l, TestLoc.Y+j)
-        and (Land[TestLoc.Y+j,TestLoc.X+l].TileLock <> tlNone) then
-          Result := False;
-    end;
+    //Check surrounding tiles for another house that overlaps
+    for L := -1 to 1 do
+    for M := -1 to 1 do
+    if TileInMapCoords(TX+M, TY+L) and (Land[TY+L, TX+M].TileLock <> tlNone) then
+      Result := False;
+
+    //Check if there are units below placed BEFORE the house is added
+    //Units added AFTER the house will be autoplaced around it
+    Result := Result and (Land[TY, TX].IsUnit = nil);
+
+    if not Result then Exit;
+  end;
 end;
 
 

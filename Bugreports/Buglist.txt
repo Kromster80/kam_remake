@@ -10,11 +10,11 @@
  +	Fixed crash when units feet were off map bounds
  +	Fixed crash when arrows would be flying outside of map
  +	Fixed crash when watching Credits page for more than 28min
- +	The game should display days along with hours/minutes played
+ +	The game should display time played without clipping it to 24hours
  +	Woodcutter should take his axe with him from home when he is going out to chop trees
  +	"Under attack" messages should play when the loc is not visible on your screen, rather than using arbitrary >=30 rule
  +	Farmer should not sow corn on tiles left after demolished houses that were built ontop of roads built ontop of fields 
-	Placing a group so a member is under a house causes a crash. The unit under the house should be placed nearby instead.
+ +	Placing a house above other players units in MapEd is now handled on mission load (it caused a crash before)
 	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
@@ -32,7 +32,6 @@
 	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
 	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800х600 .. 1366х768
 	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
-	It would be nice if campaign progress was not lost between updates (that should be easier to keep compatible than saves)
 	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
 	RCE in TKMFogOfWar.CheckVerticeRevelation called from TKMProjectiles.UpdateState. Lots of bug reports uploaded with this error (e.g. 23/05/12)
 	TSK 19 crashes due to an AI attack (at 06:38) target being off map
@@ -46,8 +45,9 @@ Improvements:
  +	High quality alpha-blended shadows for houses (only once constructed?)
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
- +	Display charts in game results screens (army, wares cuont, etc.)
+ +	Display charts in game results screens (army, wares count, etc.)
  +	Show the player's name above each group (flag holder) while 'T' key is kept pressed
+ +	Non-fatal mission script errors will be shown on start
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth

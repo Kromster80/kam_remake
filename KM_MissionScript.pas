@@ -51,14 +51,16 @@ type
   private
     fStrictParsing: Boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
     fMissionFileName: string;
-    fErrorMessage: string; //Errors descriptions accumulate here
+    fFatalErrors: string; //Fatal errors descriptions accumulate here
+    fMinorErrors: string; //Minor error descriptions accumulate here
     fMissionInfo: TKMMissionInfo;
     function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
     function ReadMissionFile(const aFileName: string): AnsiString;
     procedure AddError(const ErrorMsg: string; aFatal: Boolean = False);
   public
     constructor Create(aStrictParsing: Boolean);
-    property ErrorMessage: string read fErrorMessage;
+    property FatalErrors: string read fFatalErrors;
+    property MinorErrors: string read fMinorErrors;
     property MissionInfo: TKMMissionInfo read fMissionInfo;
     function LoadMission(const aFileName: string): Boolean; overload; virtual;
   end;
@@ -235,8 +237,8 @@ end;
 //Read mission file to a string and if necessary - decode it
 function TMissionParserGeneric.ReadMissionFile(const aFileName: string): AnsiString;
 var
-  i,Num:cardinal;
-  F:TMemoryStream;
+  I,Num: Cardinal;
+  F: TMemoryStream;
 begin
   if not FileExists(aFileName) then
   begin
@@ -260,29 +262,30 @@ begin
     //Detect whether mission is encoded so we can support decoded/encoded .DAT files
     //We can't test 1st char, it can be any. Instead see how often common chracters meet
     Num := 0;
-    for i:=0 to F.Size-1 do               //tab, eol, 0..9, space, !
-      if PByte(cardinal(F.Memory)+i)^ in [9,10,13,ord('0')..ord('9'),$20,$21] then
+    for I:=0 to F.Size-1 do               //tab, eol, 0..9, space, !
+      if PByte(Cardinal(F.Memory)+I)^ in [9,10,13,ord('0')..ord('9'),$20,$21] then
         inc(Num);
 
     //Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
     if (Num/F.Size < 0.20) then
-    for i:=0 to F.Size-1 do
-      PByte(cardinal(F.Memory)+i)^ := PByte(cardinal(F.Memory)+i)^ xor 239;
+    for I := 0 to F.Size - 1 do
+      PByte(Cardinal(F.Memory)+I)^ := PByte(Cardinal(F.Memory)+I)^ xor 239;
 
     //Save text after decoding but before cleaning
     if WRITE_DECODED_MISSION then
       F.SaveToFile(aFileName+'.txt');
 
-    for i:=0 to F.Size-1 do
-      if PByte(cardinal(F.Memory)+i)^ in [9,10,13] then //tab, eol
-        PByte(cardinal(F.Memory)+i)^ := $20; //Space
+    for I := 0 to F.Size - 1 do
+      if PByte(Cardinal(F.Memory)+I)^ in [9, 10, 13] then //tab, eol
+        PByte(Cardinal(F.Memory)+I)^ := $20; //Space
 
     Num := 0;
-    for i:=0 to F.Size-1 do begin
-      PByte(cardinal(F.Memory)+Num)^ := PByte(cardinal(F.Memory)+i)^;
-      if (Num<=0) or (
-        (PWord(cardinal(F.Memory)+Num-1)^ <> $2020) //Skip double spaces and !!
-        and (PWord(cardinal(F.Memory)+Num-1)^ <> $2121)) then
+    for I := 0 to F.Size - 1 do
+    begin
+      PByte(Cardinal(F.Memory)+Num)^ := PByte(Cardinal(F.Memory)+I)^;
+      if (Num <= 0) or (
+        (PWord(Cardinal(F.Memory)+Num-1)^ <> $2020) //Skip double spaces and !!
+        and (PWord(Cardinal(F.Memory)+Num-1)^ <> $2121)) then
         inc(Num);
     end;
 
@@ -297,10 +300,13 @@ end;
 
 //A nice way of debugging script errors.
 //Shows the error to the user so they know exactly what they did wrong.
-procedure TMissionParserGeneric.AddError(const ErrorMsg:string; aFatal:boolean=false);
+procedure TMissionParserGeneric.AddError(const ErrorMsg: string; aFatal: Boolean = False);
 begin
   if fStrictParsing or aFatal then
-    fErrorMessage := fErrorMessage + ErrorMsg + '|';
+    fFatalErrors := fFatalErrors + ErrorMsg + '|';
+
+  if not aFatal then
+    fMinorErrors := fMinorErrors + ErrorMsg + '|';
 end;
 
 
@@ -311,7 +317,7 @@ const
 var
   FileText: AnsiString;
   CommandText, Param, TextParam: AnsiString;
-  ParamList: array[1..Max_Cmd] of integer;
+  ParamList: array[1..Max_Cmd] of Integer;
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
@@ -376,7 +382,7 @@ begin
   until (k>=length(FileText));
   //Apparently it's faster to parse till file end than check if all details are filled
 
-  Result := LoadMapInfo(ChangeFileExt(fMissionFileName,'.map')) and (fErrorMessage='');
+  Result := LoadMapInfo(ChangeFileExt(fMissionFileName,'.map')) and (fFatalErrors='');
 end;
 
 
@@ -542,7 +548,7 @@ begin
   end;
 
   //If we have reach here without exiting then loading was successful if no errors were reported
-  Result := (fErrorMessage='');
+  Result := (fFatalErrors='');
 end;
 
 
@@ -615,9 +621,11 @@ begin
                             fPlayers.Player[fLastPlayer].FogOfWar.RevealCircle(KMPoint(P[0]+1,P[1]+1), P[2], 255);
     ct_SetHouse:        if fLastPlayer >= 0 then
                           if InRange(P[0], Low(HouseKaMType), High(HouseKaMType)) then
-                            if fTerrain.CanPlaceHouseFromScript(HouseKaMType[P[0]], KMPoint(P[1]+1, P[2]+1)) then //todo: If the house can't be placed, show a warning so the guy making the map knows about it
+                            if fTerrain.CanPlaceHouseFromScript(HouseKaMType[P[0]], KMPoint(P[1]+1, P[2]+1)) then
                               fLastHouse := fPlayers.Player[fLastPlayer].AddHouse(
-                                HouseKaMType[P[0]], P[1]+1, P[2]+1, false);
+                                HouseKaMType[P[0]], P[1]+1, P[2]+1, false)
+                            else
+                              AddError('ct_SetHouse failed, can not place house at ' + TypeToString(KMPoint(P[1]+1, P[2]+1)));
     ct_SetHouseDamage:  if fLastPlayer >= 0 then //Skip false-positives for skipped players
                           if fLastHouse <> nil then
                             fLastHouse.AddDamage(min(P[0],high(word)), fParsingMode = mpm_Editor)
@@ -1389,7 +1397,7 @@ begin
   until (k>=length(FileText));
   //Apparently it's faster to parse till file end than check if all details are filled
 
-  Result := (fErrorMessage='');
+  Result := (fFatalErrors='');
 end;
 
 end.

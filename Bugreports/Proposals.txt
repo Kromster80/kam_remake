@@ -52,3 +52,4 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Add soldiers counts to statistics page in game (take icons from MapEd)
 	Allow dedicated server host to do announcements (e.g. server will be closed in 5min, plz save and quit)
 	Add shortcut keys to common messsages in MP (defend here, attack, check ur base, etc.)
+	Add fan-made section where fans could add LOLCat, Welsh, Simple English, Funny and other translations with fallback to existing locale
