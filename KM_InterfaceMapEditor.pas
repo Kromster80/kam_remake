@@ -11,7 +11,6 @@ uses
 type
   TKMapEdInterface = class (TKMUserInterface)
   private
-    fShowPassability:byte;
     PrevHint:TObject;
     StorehouseItem:byte; //Selected ware in storehouse
     BarracksItem:byte; //Selected ware in barracks
@@ -187,7 +186,6 @@ type
     procedure Player_UpdateColors;
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
-    property ShowPassability:byte read fShowPassability;
     procedure SetMinimap;
     procedure SetMapName(const aName:string);
     procedure RightClick_Cancel;
@@ -1193,9 +1191,10 @@ end;
 procedure TKMapEdInterface.View_Passability(Sender: TObject);
 begin
   SHOW_TERRAIN_WIRES := (TKMTrackBar(Sender).Position <> 0);
-  fShowPassability := TKMTrackBar(Sender).Position;
+  SHOW_TERRAIN_PASS := TKMTrackBar(Sender).Position;
+
   if TKMTrackBar(Sender).Position <> 0 then
-    Label_Passability.Caption := GetEnumName(TypeInfo(TPassability), TKMTrackBar(Sender).Position)
+    Label_Passability.Caption := GetEnumName(TypeInfo(TPassability), SHOW_TERRAIN_PASS)
   else
     Label_Passability.Caption := 'Off';
 end;
