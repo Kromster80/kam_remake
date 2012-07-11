@@ -2,17 +2,21 @@ Ideas that have not been decided. Should be moved to Bugslist.txt when a decisio
 We can discuss them in dialog-style and maybe move to GC issues later on
 <===================================================================================>
 	The multiplayer in-game player list could be ordered (grouped) by teams
+		Krom: This seems rather minor feature, I dont have anything else against it
 	Scrolling around the map using middle mouse click, as in TPR
 		Krom: Don't have anything against it
 		Lewin: Me either
 	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
+		Krom: I would rather add x2 speedup to games setup
 	Show the mining radius of the selected house or house that you are placing
 		Krom: Idea is okay. We need to display mining "strength" (think coalmine) as well, in some nice way, also show ranges of all houses of the same king to allow player to plan his mining better (e.g. avoid overlaps). Iron/Gold don't need this mostly, but Coal/Fish/Towers - do.
 	Gameplay modes in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple modes.
 	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
+		Krom: Easiest implementation seems to be floodfill from towns until areas make borders
 	AI warriors should automatically engage enemies within 3-4 tiles (happens in KaM?)
-	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile) {not sure about this one. Probably ruins balance and feel of KaM}
-	Separate script command for AI to repair its houses
+		Krom: 2 tiles seems quite enough to me
+	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
+		not sure about this one. Probably ruins balance and feel of KaM
 	New column in load/replays menus: Date/time (from file modified date?)
 		Krom: Think we can write/read the data to/from replay/save files as modified date is not very trustworthy
 		Lewin: Sounds good
@@ -23,8 +27,8 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Try extending height to 0..255 rather than 0..100 so it's easier to have multiple "levels" on a map (e.g. plateau with a hill on it)
 		Krom: I disagree. This is not as simple as a matter of just extending it. We need to discuss
 	Make lobby flag selection using list of countries that speak that language. With English you could choose USA, UK, AU, NZ. With Spanish you could choose Spain, Argininia, Chille.
-		Krom: Maybe we can add country selection to options or MP menu, irregardless of options locale
 		Lewin: Sounds ok. Means we need to include ~200 flags I guess, but with RXX packing that's no big problem.
+		Krom: Flag represents locale, language that the player can read/type, not an actual location.
 	Do not send a Recruit to WatchTower when Player has built it but did not connected it with road
 		Krom: I think that makes good sense. But if Player made 10 towers and 10 recruits and only then connected them with roads - will/should recruits walk from Barracks to Towers?
 		Lewin: The only case this can happen is when the player starts with the towers right? You can't build a house without connecting it to road. I think it's ok for the recruits to go to the towers, but stones definitely should not.
@@ -35,10 +39,16 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
 	It doesn't make sense for sausages to be cheaper than bread in the market when sauasges are better food
 	Blocking duplicate app is annoying if you want to run map editor twice or something. We should only block it when it could be cheating (MP game/replay)
+		Krom: Agreed. Added suggested solution as todo in code.
 	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
+		Krom: Agreed
 	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (saves entire game state which can be loaded) Using compression can keep the save file tiny.
+		Krom: Not sure how this will cope with 29hour games
 	Way to place roads/fields/destroyed buildings belonging to no player (for maps like Battle In The Ruined City where currently the roads don't always show depending on which locations are played)
-	Value of resources at the market increases as you buy them and decreases as you sell them to prevent exploiting? (Age of Empries style)
+		Krom: Maybe we can assign them to animals player?
+	Value of resources at the market increases as you buy them and decreases as you sell them to prevent exploiting? (Age of Empires style)
 		Lewin: With peacetime of at least 1 hour I haven't heard of market exploits being more profitable than normal play
+		Krom: I think our prices are good as they are (just add some tweaks to bread/sausages cost)
 	Add soldiers counts to statistics page in game (take icons from MapEd)
-
+	Allow dedicated server host to do announcements (e.g. server will be closed in 5min, plz save and quit)
+	Add shortcut keys to common messsages in MP (defend here, attack, check ur base, etc.)
