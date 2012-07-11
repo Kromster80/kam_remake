@@ -423,15 +423,16 @@ begin
 
   fPlayers.AfterMissionInit(true);
 
-  fLog.AppendLog('Gameplay initialized', true);
-
   if fGameMode = gmMulti then
     fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
   else
     fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
+  fLog.AppendLog('Gameplay recording initialized', True);
 
   if fGameMode = gmMulti then
     MultiplayerRig;
+
+  SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 
   //We need to make basesave.bas since we don't know the savegame name
   //until after user saves it, but we need to attach replay base to it.
@@ -442,8 +443,7 @@ begin
   //When everything is ready we can update UI
   UpdateUI;
 
-  fLog.AppendLog('Gameplay recording initialized', True);
-  SetKaMSeed(4); //Random after StartGame and ViewReplay should match
+  fLog.AppendLog('Gameplay initialized', true);
 end;
 
 
@@ -506,8 +506,6 @@ begin
   fNetworking.GameCreated;
 
   if fNetworking.Connected and (fNetworking.NetGameState = lgs_Loading) then GameWaitingForNetwork(true); //Waiting for players
-
-  fLog.AppendLog('Gameplay initialized', True);
 end;
 
 
@@ -1156,13 +1154,13 @@ begin
   if fGameMode = gmMulti then
     MultiplayerRig;
 
+  SetKaMSeed(LoadedSeed);
+
   DeleteFile(SaveName('basesave', 'bas', IsMultiplayer));
   CopyFile(PChar(SaveName(aPathName, 'bas', IsMultiplayer)), PChar(SaveName('basesave', 'bas', IsMultiplayer)), False);
 
   //When everything is ready we can update UI
   UpdateUI;
-
-  SetKaMSeed(LoadedSeed);
 
   fLog.AppendLog('Loading game', True);
 end;
