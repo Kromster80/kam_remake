@@ -1118,73 +1118,69 @@ end;
 
 
 procedure TKMapEdInterface.Build_ButtonClick(Sender: TObject);
-var i:Integer;
+var I: Integer;
 begin
   //Release all buttons
-  for i:=1 to Panel_Build.ChildCount do
-    if Panel_Build.Childs[i] is TKMButtonFlat then
-      TKMButtonFlat(Panel_Build.Childs[i]).Down:=false;
+  for I := 1 to Panel_Build.ChildCount do
+    if Panel_Build.Childs[I] is TKMButtonFlat then
+      TKMButtonFlat(Panel_Build.Childs[I]).Down := False;
 
   //Press the button
-  TKMButtonFlat(Sender).Down := true;
+  TKMButtonFlat(Sender).Down := True;
 
   //Reset cursor and see if it needs to be changed
-  GameCursor.Mode:=cm_None;
-  GameCursor.Tag1:=0;
+  GameCursor.Mode := cm_None;
+  GameCursor.Tag1 := 0;
 
-  if Button_BuildCancel.Down then begin
-    GameCursor.Mode:=cm_Erase;
-  end;
-  if Button_BuildRoad.Down then begin
-    GameCursor.Mode:=cm_Road;
-  end;
-  if Button_BuildField.Down then begin
-    GameCursor.Mode:=cm_Field;
-  end;
-  if Button_BuildWine.Down then begin
-    GameCursor.Mode:=cm_Wine;
-  end;
-{  if Button_BuildWall.Down then begin
-    GameCursor.Mode:=cm_Wall;
-  end;}
-
-  for i:=1 to GUI_HOUSE_COUNT do
-  if GUIHouseOrder[i] <> ht_None then
-  if Button_Build[i].Down then begin
+  if Button_BuildCancel.Down then
+    GameCursor.Mode := cm_Erase
+  else
+  if Button_BuildRoad.Down then
+    GameCursor.Mode := cm_Road
+  else
+  if Button_BuildField.Down then
+    GameCursor.Mode := cm_Field
+  else
+  if Button_BuildWine.Down then
+    GameCursor.Mode := cm_Wine
+  else
+  //if Button_BuildWall.Down then
+  //  GameCursor.Mode:=cm_Wall;
+  //else
+  for I := 1 to GUI_HOUSE_COUNT do
+  if GUIHouseOrder[I] <> ht_None then
+  if Button_Build[I].Down then begin
      GameCursor.Mode := cm_Houses;
-     GameCursor.Tag1 := byte(GUIHouseOrder[i]);
+     GameCursor.Tag1 := Byte(GUIHouseOrder[I]);
   end;
 end;
 
 
 procedure TKMapEdInterface.Unit_ButtonClick(Sender: TObject);
-var i:Integer;
+var I: Integer;
 begin
-  if Sender=nil then begin GameCursor.Mode:=cm_None; exit; end;
+  //Reset cursor and see if it needs to be changed
+  GameCursor.Mode := cm_None;
+  GameCursor.Tag1 := 0;
+
+  if Sender = nil then Exit;
 
   //Release all buttons
-  for i:=1 to Panel_Units.ChildCount do
-    if Panel_Units.Childs[i] is TKMButtonFlat then
-      TKMButtonFlat(Panel_Units.Childs[i]).Down := false;
+  for I := 1 to Panel_Units.ChildCount do
+    if Panel_Units.Childs[I] is TKMButtonFlat then
+      TKMButtonFlat(Panel_Units.Childs[I]).Down := False;
 
-  //Press the button
-  TKMButtonFlat(Sender).Down:=true;
+  //Press the Sender button
+  TKMButtonFlat(Sender).Down := True;
 
-  //Reset cursor and see if it needs to be changed
-  GameCursor.Mode:=cm_None;
-  GameCursor.Tag1:=0;
-  //Label_Build.Caption := '';
-
-  if Button_UnitCancel.Down then begin
-    GameCursor.Mode:=cm_Erase;
-  end;
-
+  if Button_UnitCancel.Down then
+    GameCursor.Mode := cm_Erase
+  else
   if (TKMButtonFlat(Sender).Tag in [byte(UNIT_MIN)..byte(UNIT_MAX)]) then
   begin
     GameCursor.Mode := cm_Units;
     GameCursor.Tag1 := byte(TKMButtonFlat(Sender).Tag);
   end;
-
 end;
 
 
