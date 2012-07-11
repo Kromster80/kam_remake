@@ -521,6 +521,10 @@ end;
 procedure TKMGameApp.NewMultiplayerMap(const aFileName: string);
 begin
   LoadGameFromScript(MapNameToPath(aFileName, 'dat', True), aFileName, '', 0, gmMulti);
+
+  //Copy the chat and typed lobby message to the in-game chat
+  fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
+  fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
 end;
 
 
@@ -529,6 +533,10 @@ begin
   //Convert SaveName to local FilePath
   //aFileName is the same for all players, but Path to it is different
   LoadGameFromSave(SaveName(aSaveName, 'sav', True), gmMulti);
+
+  //Copy the chat and typed lobby message to the in-game chat
+  fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
+  fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
 end;
 
 

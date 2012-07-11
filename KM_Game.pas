@@ -495,12 +495,6 @@ begin
   if fNetworking.SelectGameKind = ngk_Map then
     fPlayers.AddDefaultMPGoals(fMissionMode); //Multiplayer missions don't have goals yet, so add the defaults
 
-  fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
-  fViewport.Position := KMPointF(MyPlayer.CenterScreen);
-  fViewport.ResetZoom; //This ensures the viewport is centered on the map
-
-  fLog.AppendLog('Gameplay initialized', true);
-
   fNetworking.OnPlay           := GameMPPlay;
   fNetworking.OnReadyToPlay    := GameMPReadyToPlay;
   fNetworking.OnCommands       := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
@@ -512,10 +506,8 @@ begin
   fNetworking.GameCreated;
 
   if fNetworking.Connected and (fNetworking.NetGameState = lgs_Loading) then GameWaitingForNetwork(true); //Waiting for players
-//  fGamePlayInterface.SetChatText(fMainMenuInterface.GetChatText); //Copy the typed lobby message to the in-game chat
-//  fGamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages); //Copy the old chat messages to the in-game chat
 
-  fLog.AppendLog('Gameplay recording initialized', True);
+  fLog.AppendLog('Gameplay initialized', True);
 end;
 
 
