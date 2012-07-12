@@ -596,7 +596,7 @@ end;
 
 
 //This is called by the GIP when an erase command is processed
-procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; aMakeSound:Boolean);
+procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; aMakeSound: Boolean);
 begin
   fBuildList.FieldworksList.RemFieldPlan(Position);
   if aMakeSound and (Self = MyPlayer) then fSoundLib.Play(sfx_Click);
