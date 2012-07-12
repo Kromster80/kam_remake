@@ -148,7 +148,7 @@ begin
   if aIndex < Length(GameStrings) then
     Result := GameStrings[aIndex]
   else
-    Result := '~~~String out of range!~~~';
+    Result := '~~~String '+IntToStr(aIndex)+' out of range!~~~';
 end;
 
 
@@ -157,7 +157,7 @@ begin
   if aIndex < Length(MissionStrings) then
     Result := MissionStrings[aIndex]
   else
-    Result := '~~~MissionString out of range!~~~';
+    Result := '~~~MissionString '+IntToStr(aIndex)+' out of range!~~~';
 end;
 
 
