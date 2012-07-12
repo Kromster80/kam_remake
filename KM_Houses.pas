@@ -1962,6 +1962,9 @@ var
   R: TResourceType;
 begin
   inherited;
+  //Recruits are no longer under our control so we forget about them (UpdateVisibility will sort it out)
+  //Otherwise it can cause crashes while saving under the right conditions when a recruit is then killed.
+  RecruitsList.Clear;
 
   for R := WARFARE_MIN to WARFARE_MAX do
     fPlayers.Player[fOwner].Stats.GoodConsumed(R, ResourceCount[R]);
