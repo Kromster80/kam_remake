@@ -290,8 +290,12 @@ begin
   if aIndex = 61 then begin //Invisible wall
     CornerX := pX; //Required if DoImmediateRender = true
     CornerY := pY;
-    fRenderAux.Quad(pX, pY, $800000FF);
-    RenderCursorWireQuad(KMPoint(pX, pY), $FF0000FF);
+    //Render as a red outline in map editor mode
+    if fGame.IsMapEditor then
+    begin
+      fRenderAux.Quad(pX+1, pY+1, $800000FF);
+      RenderCursorWireQuad(KMPoint(pX+1, pY+1), $FF0000FF);
+    end;
   end else begin
     R := fRXData[rxTrees];
     gX := pX + (R.Pivot[ID0].X + R.Size[ID0].X/2) / CELL_SIZE_PX;

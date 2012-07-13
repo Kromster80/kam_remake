@@ -3122,7 +3122,7 @@ end;
 
 procedure TKMGamePlayInterface.KeyDown(Key: Word; Shift: TShiftState);
 begin
-  if fGame.IsPaused then Exit;
+  if fGame.IsPaused and not fReplay then Exit;
 
   if fMyControls.KeyDown(Key, Shift) then
   begin
@@ -3146,7 +3146,7 @@ end;
 //Ignore all keys if game is on 'Pause'
 procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
 begin
-  if fGame.IsPaused and not fMultiplayer then
+  if fGame.IsPaused and not fMultiplayer and not fReplay then
   begin
     if (Key = SHORTCUT_PAUSE) then
       SetPause(False);
@@ -3232,7 +3232,7 @@ var
 begin
   inherited;
 
-  if fGame.IsPaused or (fMyControls.CtrlOver <> nil) then
+  if (fGame.IsPaused and not fReplay) or (fMyControls.CtrlOver <> nil) then
     Exit;
 
   if SelectingTroopDirection then
@@ -3244,7 +3244,7 @@ begin
 
   //See if we can show DirectionSelector
   //Can walk to ally units place, can't walk to house place anyway, unless it's a markup and allied
-  if (Button = mbRight) and not fJoiningGroups and (fPlayers.Selected is TKMUnitWarrior)
+  if (Button = mbRight) and not fReplay and not fJoiningGroups and (fPlayers.Selected is TKMUnitWarrior)
     and (TKMUnitWarrior(fPlayers.Selected).GetOwner = MyPlayer.PlayerIndex) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -3297,7 +3297,7 @@ begin
   else
     DisplayHint(nil); //Clear shown hint
 
-  if fGame.IsPaused then Exit;
+  if fGame.IsPaused and not fReplay then Exit;
 
   if SelectingTroopDirection then
   begin
@@ -3430,7 +3430,7 @@ begin
     Exit;
   end;
 
-  if fGame.IsPaused then Exit;
+  if fGame.IsPaused and not fReplay then Exit;
 
   P := GameCursor.Cell; //It's used in many places here
 
@@ -3452,7 +3452,7 @@ begin
                 end;
 
                 //Only allow placing of roads etc. with the left mouse button
-                if MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) = 0 then
+                if MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, True) = 0 then
                 begin
                   if GameCursor.Mode in [cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses] then
                     fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Can't place noise when clicking on unexplored areas
@@ -3466,6 +3466,7 @@ begin
                                 //Allow to select any players assets in replay
                                 fPlayers.SelectHitTest(P.X, P.Y, not fReplay);
 
+                                //todo: During a replay the statistics should be for the owner of the last unit/house we selected (change MyPlayer? That causes replay inconsistencies at the moment)
                                 if (fPlayers.Selected is TKMHouse) then
                                   ShowHouseInfo(TKMHouse(fPlayers.Selected));
 

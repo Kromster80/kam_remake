@@ -437,6 +437,7 @@ begin
   //We need to make basesave.bas since we don't know the savegame name
   //until after user saves it, but we need to attach replay base to it.
   //Basesave is sort of temp we save to HDD instead of keeping in RAM
+  //todo: If you load a save there is no basesave available. If there is a .bas with the save file then that should be stored as the basesave so the replay works when saved under a different name.
   if fGameMode in [gmSingle, gmMulti] then
     SaveGame(SaveName('basesave', 'bas', IsMultiplayer));
 
@@ -790,8 +791,9 @@ begin
 
   fGameApp.NewReplay(ChangeFileExt(ExeDir + fSaveFile, '.bas'));
 
-  fViewport.Position := OldCenter;
-  fViewport.Zoom := OldZoom;
+  //Self is now destroyed, so we must access the NEW fGame object
+  fGame.Viewport.Position := OldCenter;
+  fGame.Viewport.Zoom := OldZoom;
 end;
 
 
@@ -1146,7 +1148,7 @@ begin
     fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
   else
     fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-  fGameInputProcess.LoadFromFile(SaveName(aPathName, 'rpl', fGameMode = gmMulti));
+  fGameInputProcess.LoadFromFile(ChangeFileExt(aPathName, '.rpl'));
 
   fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
   fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
@@ -1267,7 +1269,7 @@ end;
 //This is our real-time "thread", use it wisely
 procedure TKMGame.UpdateStateIdle(aFrameTime: Cardinal);
 begin
-  if not fIsPaused then
+  if (not fIsPaused) or IsReplay then
     fViewport.UpdateStateIdle(aFrameTime); //Check to see if we need to scroll
 
   //Terrain should be updated in real time when user applies brushes
