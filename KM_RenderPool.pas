@@ -50,7 +50,7 @@ type
     fRenderList: TRenderList;
     fRenderTerrain: TRenderTerrain;
     procedure RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
-    procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX,pY: Single; aFOW: Byte);
+    procedure RenderSpriteAlphaTest(aRX: TRXType; aID, aID2: Word; Param, Param2: Single; pX,pY: Single; aFOW: Byte);
     procedure RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
     procedure RenderTerrainBorder(Border: TBorderType; Pos: TKMDirection; pX,pY: Integer);
     procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
@@ -421,15 +421,15 @@ procedure TRenderPool.AddHouseWood(aHouse: THouseType; Loc: TKMPoint; Step: Sing
 var
   R: TRXData;
   ID,ID2: Integer;
-  CornerX, CornerY, gW, gS, gX, gY: Single;
+  CornerX, CornerY, GroundWood, GroundStone, gX, gY: Single;
 begin
   R := fRXData[rxHouses];
   ID := fResource.HouseDat[aHouse].WoodPic + 1;
   ID2 := fResource.HouseDat[aHouse].StonePic + 1;
-  gW := R.Pivot[ID].Y + R.Size[ID].Y;
-  gS := R.Pivot[ID2].Y + R.Size[ID2].Y;
+  GroundWood := R.Pivot[ID].Y + R.Size[ID].Y;
+  GroundStone := R.Pivot[ID2].Y + R.Size[ID2].Y;
   gX := Loc.X + (R.Pivot[ID].X + R.Size[ID].X / 2) / CELL_SIZE_PX - 1;
-  gY := Loc.Y + Max(gW, gS) / CELL_SIZE_PX - 1.5;
+  gY := Loc.Y + Max(GroundWood, GroundStone) / CELL_SIZE_PX - 1.5;
   CornerX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX;
   CornerY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
                    - fTerrain.Land[Loc.Y + 1, Loc.X].Height / CELL_HEIGHT_DIV;
@@ -810,7 +810,13 @@ begin
 end;
 
 
-procedure TRenderPool.RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX,pY: Single; aFOW: Byte);
+//  Param - defines at which level alpha-test will be set (acts like a threshhold)
+//Then we render alpha-tested Mask to stencil buffer. Only those pixels that are
+//white there will have sprite rendered
+//  If there are two masks then we need to render sprite only there
+//where its mask is white AND where second mask is black
+procedure TRenderPool.RenderSpriteAlphaTest(aRX: TRXType; aID, aID2: Word;
+  Param, Param2: Single; pX, pY: Single; aFOW: Byte);
 begin
   glClear(GL_STENCIL_BUFFER_BIT);
 
@@ -822,10 +828,11 @@ begin
   //Do not render anything on screen while setting up stencil mask
   glColorMask(False, False, False, False);
 
-  //Render stencil mask
+  //Prepare stencil mask. Sprite will be rendered only where are white pixels
   glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_GREATER, 1 - Param);
   glBlendFunc(GL_ONE, GL_ZERO);
+
+  glAlphaFunc(GL_GREATER, 1 - Param);
     with GFXData[aRX,aID] do
     begin
       glColor3f(1, 1, 1);
@@ -838,6 +845,26 @@ begin
       glEnd;
       glBindTexture(GL_TEXTURE_2D, 0);
     end;
+
+  if aID2 <> 0 then
+  begin
+    glStencilOp(GL_DECR, GL_DECR, GL_DECR);
+
+    glAlphaFunc(GL_GREATER, 1 - Param2);
+      with GFXData[aRX,aID2] do
+      begin
+        glColor3f(1, 1, 1);
+        glBindTexture(GL_TEXTURE_2D, Alt.ID);
+        glBegin(GL_QUADS);
+          glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(pX-1                     ,pY-1         );
+          glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
+          glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+          glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+        glEnd;
+        glBindTexture(GL_TEXTURE_2D, 0);
+      end;
+  end;
+
   glDisable(GL_ALPHA_TEST);
   glAlphaFunc(GL_ALWAYS, 0);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Revert alpha mode
@@ -1249,34 +1276,56 @@ end;
 
 {Now render all these items from list}
 procedure TRenderList.Render;
-var i,h: Integer;
+var
+  I, K: Integer;
+  SecondID: Word;
+  SecondAlpha: Single;
 begin
-  ClipRenderList; //Clip invisible items, Mark child items (RenderOrder[i] := -1), Apply FOW
+  ClipRenderList; //Clip invisible items, Mark child items (RenderOrder[I] := -1), Apply FOW
   SortRenderList; //Sort items overlaying
 
   fStat_Sprites := fCount;
   fStat_Sprites2 := 0;
 
-  for i := 0 to fCount - 1 do
-  if RenderOrder[i] <> -1 then
+  for I := 0 to fCount - 1 do
+  if RenderOrder[I] <> -1 then
   begin
-    h := RenderOrder[i];
+    K := RenderOrder[I];
     glPushMatrix;
 
       if RENDER_3D then
       begin
-        glTranslatef(RenderList[h].Loc.X, RenderList[h].Loc.Y, 0);
+        glTranslatef(RenderList[K].Loc.X, RenderList[K].Loc.Y, 0);
         glRotatef(fRenderPool.rHeading, -1, 0, 0);
-        glTranslatef(-RenderList[h].Loc.X, -RenderList[h].Loc.Y, 0);
+        glTranslatef(-RenderList[K].Loc.X, -RenderList[K].Loc.Y, 0);
       end;
 
       repeat //Render child sprites only after their parent
-        with RenderList[h] do
+        with RenderList[K] do
         begin
           if AlphaStep = -1 then
             fRenderPool.RenderSprite(RX, ID, Loc.X, Loc.Y, TeamColor, FOWvalue)
           else
-            fRenderPool.RenderSpriteAlphaTest(RX, ID, AlphaStep, Loc.X, Loc.Y, FOWvalue);
+          begin
+            //Houses are rendered as Wood+Stone part. For Stone we want to skip
+            //Wooden part where it is occluded (so that smooth shadows dont overlay)
+
+            //Check if next comes our child, Stone layer
+            if (K+1 < fCount)
+            and not RenderList[K+1].NewInst
+            and (RenderList[K+1].AlphaStep > 0) then
+            begin
+              SecondID := RenderList[K+1].ID;
+              SecondAlpha := RenderList[K+1].AlphaStep;
+            end
+            else
+            begin
+              SecondID := 0;
+              SecondAlpha := -1;
+            end;
+
+            fRenderPool.RenderSpriteAlphaTest(RX, ID, SecondID, AlphaStep, SecondAlpha, Loc.X, Loc.Y, FOWvalue);
+          end;
 
           if SHOW_GROUND_LINES and NewInst then //Don't render child (not NewInst) ground lines, since they are unused
           begin
@@ -1287,9 +1336,9 @@ begin
             glEnd;
           end;
         end;
-        inc(h);
+        inc(K);
         inc(fStat_Sprites2);
-      until ((h = fCount) or RenderList[h].NewInst);
+      until ((K = fCount) or RenderList[K].NewInst);
     glPopMatrix;
   end;
   fCount := 0;
