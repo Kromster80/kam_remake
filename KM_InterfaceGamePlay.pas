@@ -2594,7 +2594,10 @@ procedure TKMGamePlayInterface.ReplayClick;
   end;
 begin
   if (Sender = Button_ReplayRestart) then
+  begin
     fGame.RestartReplay; //reload it once again
+    Exit; //Restarting the replay will destroy Self, so exit immediately
+  end;
 
   if (Sender = Button_ReplayPause) then begin
     fGame.IsPaused := True;
