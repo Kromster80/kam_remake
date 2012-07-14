@@ -4,12 +4,10 @@ interface
 uses
   {$IFDEF Unix} LCLIntf, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  Classes, SysUtils, TypInfo,
+  Classes, SysUtils, TypInfo, Forms, KromUtils,
   KM_CommonClasses, KM_CommonTypes, KM_NetworkTypes, KM_Defaults,
   KM_Player, KM_Saves, KM_GameInfo, KM_GameOptions,
   KM_Maps, KM_NetPlayersList, KM_DedicatedServer, KM_NetClient, KM_ServerQuery;
-
-//todo: Check CRCs of important game data files (units.dat, houses.dat, etc.) to make sure all clients match
 
 type
   TNetPlayerKind = (lpk_Host, lpk_Joiner);
@@ -19,15 +17,26 @@ type
 const
   NetMPGameState:array[TNetGameState] of TMPGameState = (mgs_None, mgs_None, mgs_None, mgs_Lobby, mgs_Loading, mgs_Game, mgs_Game);
   NetAllowedPackets:array[TNetGameState] of set of TKMessageKind = (
-  [], //lgs_None
-  [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_Kicked,mk_ServerName], //lgs_Connecting
-  [mk_AllowToJoin,mk_RefuseToJoin,mk_Ping,mk_PingInfo,mk_Kicked], //lgs_Query
-  [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
-   mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
-   mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName], //lgs_Lobby
-  [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked], //lgs_Loading
-  [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected], //lgs_Game
-  [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked] //lgs_Reconnecting
+    //lgs_None
+    [],
+    //lgs_Connecting
+    [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,
+     mk_ConnectedToRoom,mk_PingInfo,mk_Kicked,mk_ServerName],
+    //lgs_Query
+    [mk_AllowToJoin,mk_RefuseToJoin,mk_GameCRC,mk_Ping,mk_PingInfo,mk_Kicked],
+    //lgs_Lobby
+    [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
+     mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
+     mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangCode,mk_GameOptions,mk_ServerName],
+    //lgs_Loading
+    [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
+     mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked],
+    //lgs_Game
+    [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
+     mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected],
+    //lgs_Reconnecting
+    [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,
+     mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked]
   );
 
   JOIN_TIMEOUT = 8000; //8 sec. Timeout for join queries
@@ -91,6 +100,7 @@ type
     procedure SendMapOrSave;
     function GetGameInfo:TKMGameInfo;
     procedure DoReconnection;
+    function CalculateGameCRC:Cardinal;
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
@@ -837,6 +847,20 @@ begin
 end;
 
 
+function TKMNetworking.CalculateGameCRC:Cardinal;
+begin
+  Result := Adler32CRC(ExeDir+'data\defines\unit.dat') xor
+            Adler32CRC(ExeDir+'data\defines\houses.dat') xor
+            Adler32CRC(ExeDir+'data\defines\mapelem.dat') xor
+            Adler32CRC(ExeDir+'data\defines\pattern.dat');
+            //any others that can cause inconsistencies and crashes? (gfx/sfx/text doesn't matter)
+
+  //For debugging/testing it's useful to skip this check sometimes (but defines .dat files should always be checked)
+  if not SKIP_EXE_CRC then
+    Result := Result xor Adler32CRC(Application.ExeName);
+end;
+
+
 procedure TKMNetworking.GameCreated;
 begin
   case fNetPlayerKind of
@@ -999,6 +1023,7 @@ begin
                 ReMsg := 'Cannot join while the game is in progress';
               if ReMsg = '' then
               begin
+                PacketSend(NET_ADDRESS_OTHERS, mk_GameCRC, '', Integer(CalculateGameCRC));
                 fNetPlayers.AddPlayer(Msg, aSenderIndex);
                 PacketSend(aSenderIndex, mk_AllowToJoin, '', 0);
                 SendMapOrSave; //Send the map first so it doesn't override starting locs
@@ -1034,6 +1059,16 @@ begin
             if fNetPlayerKind = lpk_Joiner then begin
               fNetClient.Disconnect;
               fOnJoinFail(Msg);
+            end;
+
+    mk_GameCRC:
+            begin
+              if Cardinal(Param) <> CalculateGameCRC then
+              begin
+                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                PacketSend(NET_ADDRESS_OTHERS, mk_Text, 'Error: '+fMyNikname+' has different data files to the host and so cannot join this game', 0);
+                fOnJoinFail('Your data files do not match the host');
+              end;
             end;
 
     mk_Kicked:

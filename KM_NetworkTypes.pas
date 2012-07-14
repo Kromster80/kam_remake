@@ -35,6 +35,7 @@ type
     mk_KickPlayer,      //Host askes the server to kick someone
     mk_Kicked,          //Server tells a client they were kicked just before disconnecting then
     mk_LangCode,        //Client tells host his language code
+    mk_GameCRC,         //Client tells host his CRC of main data files
 
     mk_GetServerInfo,   //Client askes for server for the server details (for querying)
     mk_ServerInfo,      //Server sends client the server info on request
@@ -98,6 +99,7 @@ const
     pfNumber,   //mk_KickPlayer
     pfText,     //mk_Kicked
     pfText,     //mk_LangCode
+    pfNumber,   //mk_GameCRC
     pfNoData,   //mk_GetServerInfo
     pfText,     //mk_ServerInfo
     pfNoData,   //mk_Disconnect
