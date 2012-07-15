@@ -923,21 +923,29 @@ end;
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
 function TTerrain.FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir): Boolean;
-const Ins=1; //1..Map-1
-var i,k:integer; List:TKMPointDirList;
+var i: Integer;
+    ValidTiles: TKMPointList;
+    ChosenTiles: TKMPointDirList;
+    P: TKMPoint;
 begin
-  List := TKMPointDirList.Create;
-  for i:=max(aLoc.Y-aRadius,Ins) to min(aLoc.Y+aRadius,fMapY-Ins-1) do //Leave one more tile below, where Stoncutter will stand
-  for k:=max(aLoc.X-aRadius,Ins) to min(aLoc.X+aRadius,fMapX-Ins) do
-    if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i+1)) then
-      if (TileIsStone(k,i)>0) then
-        if (CanWalk in Land[i+1,k].Passability) //Now check the tile right below
-        and not TileIsLocked(KMPoint(k, i+1)) then //Taken by another stonemason
-          if Route_CanBeMade(aLoc,KMPoint(k,i+1),CanWalk,0) then
-            List.AddItem(KMPointDir(k, i+1, dir_N));
+  ValidTiles := TKMPointList.Create;
+  GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
-  Result := List.GetRandom(StonePoint);
-  List.Free;
+  ChosenTiles := TKMPointDirList.Create;
+  for i:=0 to ValidTiles.Count-1 do
+  begin
+    P := ValidTiles[i];
+    if (P.Y >= 2) then //Can't mine stone from top row of the map (don't call TileIsStone with Y=0)
+      if not KMSamePoint(aAvoidLoc,P) then
+        if (TileIsStone(P.X,P.Y-1)>0) then
+          if not TileIsLocked(P) then //Taken by another stonemason
+            if Route_CanBeMade(aLoc,P,CanWalk,0) then
+              ChosenTiles.AddItem(KMPointDir(P, dir_N));
+  end;
+
+  Result := ChosenTiles.GetRandom(StonePoint);
+  ChosenTiles.Free;
+  ValidTiles.Free;
 end;
 
 
@@ -991,8 +999,8 @@ end;
 //Result indicates if desired TreeAct place was found successfully
 function TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; out Tree: TKMPointDir; out PlantAct: TPlantAct): Boolean;
 var
-  List1, List2, List3: TKMPointList;
-  I, K: Integer;
+  ValidTiles, List1, List2, List3: TKMPointList;
+  I,K: Integer;
   T: TKMPoint;
   BestSlope, Slope: Integer;
 begin
@@ -1004,11 +1012,12 @@ begin
   List3 := TKMPointList.Create; //Clear places
 
   //Scan terrain and add all trees/spots into lists
-  for I := max(aLoc.Y-aRadius, 1) to min(aLoc.Y+aRadius, fMapY-1) do
-  for K := max(aLoc.X-aRadius, 1) to min(aLoc.X+aRadius, fMapX-1) do
+  ValidTiles := TKMPointList.Create;
+  GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
+  for I := 0 to ValidTiles.Count-1 do
   begin
      //Store in temp variable for speed
-    T := KMPoint(K, I);
+    T := ValidTiles[I];
 
     if (KMLength(aLoc, T) <= aRadius)
     and not KMSamePoint(aAvoidLoc, T) then
@@ -1017,17 +1026,17 @@ begin
       //Grownup tree
       if (aPlantAct in [taCut, taAny])
       and ObjectIsChopableTree(T, 4)
-      and (Land[I,K].TreeAge >= TREE_AGE_FULL)
+      and (Land[T.Y,T.X].TreeAge >= TREE_AGE_FULL)
       //Woodcutter could be standing on any tile surrounding this tree
       and not TileIsLocked(T)
-      and ((K = 1) or not TileIsLocked(KMPoint(K-1, I))) //if K=1, K-1 will be off map
-      and ((I = 1) or not TileIsLocked(KMPoint(K, I-1)))
-      and ((K = 1) or (I = 1) or not TileIsLocked(KMPoint(K-1, I-1)))
+      and ((T.X = 1) or not TileIsLocked(KMPoint(T.X-1, T.Y))) //if K=1, K-1 will be off map
+      and ((T.Y = 1) or not TileIsLocked(KMPoint(T.X, T.Y-1)))
+      and ((T.X = 1) or (T.Y = 1) or not TileIsLocked(KMPoint(T.X-1, T.Y-1)))
       and Route_CanBeMadeToVertex(aLoc, T, CanWalk) then
         List1.AddEntry(T);
 
       if (aPlantAct in [taPlant, taAny])
-      and (CanPlantTrees in Land[I,K].Passability)
+      and (CanPlantTrees in Land[T.Y,T.X].Passability)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
         if ObjectIsChopableTree(T, 6) then
@@ -1058,6 +1067,7 @@ begin
   List1.Free;
   List2.Free;
   List3.Free;
+  ValidTiles.Free;
 
   //Choose direction of approach based on which one is the flatest (animation looks odd if not flat)
   if (PlantAct = taCut) and Result then
@@ -2823,8 +2833,8 @@ var Visited: array of array of Byte;
   var Xt, Yt: Word;
   begin
     //Test whether this tile is valid and exit immediately if not
-    //Double the radius because of diagonal approximation (straight=2, diagonal=3)
-    if (aWalkDistance > aRadius*2) or
+    //Multiply the radius by 10 because of diagonal approximation (straight=10, diagonal=14)
+    if (aWalkDistance > aRadius*10) or
     not (aPass in Land[Y,X].Passability) then Exit;
     Xt := aStart.X-X+aRadius;
     Yt := aStart.Y-Y+aRadius;
@@ -2838,27 +2848,27 @@ var Visited: array of array of Byte;
     Visited[Xt,Yt] := aWalkDistance;
 
     //Run again on surrounding tiles
-    //We use +2 for straights and +3 for diagonals rather than +1 and +1.41 then div by 2 in
+    //We use +10 for straights and +14 for diagonals rather than +1 and +1.41 then div by 10 in
     //calculations so we can still store it as bytes to save space and time
     if X-1 >= 1 then
     begin
       if (Y-1 >= 1) and not MapElem[Land[Y,X].Obj].DiagonalBlocked then
-        Visit(X-1, Y-1, aWalkDistance+3);
-      Visit(X-1, Y, aWalkDistance+2);
+        Visit(X-1, Y-1, aWalkDistance+14);
+      Visit(X-1, Y, aWalkDistance+10);
       if (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj].DiagonalBlocked then
-        Visit(X-1,Y+1, aWalkDistance+3);
+        Visit(X-1,Y+1, aWalkDistance+14);
     end;
 
-    if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance+2);
-    if Y+1 <= fMapY then Visit(X, Y+1, aWalkDistance+2);
+    if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance+10);
+    if Y+1 <= fMapY then Visit(X, Y+1, aWalkDistance+10);
 
     if X+1 <= fMapX then
     begin
       if (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj].DiagonalBlocked then
-        Visit(X+1, Y-1, aWalkDistance+3);
-      Visit(X+1, Y, aWalkDistance+2);
+        Visit(X+1, Y-1, aWalkDistance+14);
+      Visit(X+1, Y, aWalkDistance+10);
       if (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj].DiagonalBlocked then
-        Visit(X+1, Y+1, aWalkDistance+3);
+        Visit(X+1, Y+1, aWalkDistance+14);
     end;
   end;
 
@@ -2866,6 +2876,8 @@ var i,k: Integer;
 begin
   if USE_WALKING_DISTANCE then
   begin
+    //Because we use 10 for straight and 14 for diagonal in byte storage 24 is the maximum allowed
+    Assert(aRadius <= 24, 'GetTilesWithinDistance can''t handle radii > 24');
     SetLength(Visited, 2*aRadius+1, 2*aRadius+1);
     for i:=0 to 2*aRadius do
       for k:=0 to 2*aRadius do
