@@ -77,6 +77,7 @@ type
     end;
 
     FallingTrees: TKMPointTagList;
+    procedure GetTilesWithinDistance(aStart:TKMPoint; aRadius:Byte; aPass:TPassability; aList:TKMPointList);
 
     constructor Create;
     destructor Destroy; override;
@@ -857,40 +858,58 @@ end;
 
 { Finds a winefield ready to be picked }
 function TTerrain.FindWineField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir): Boolean;
-var i,k:integer; List:TKMPointDirList;
+var i: Integer;
+    ValidTiles: TKMPointList;
+    ChosenTiles: TKMPointDirList;
+    P: TKMPoint;
 begin
-  List := TKMPointDirList.Create;
-  for i:=max(aLoc.Y-aRadius,1) to min(aLoc.Y+aRadius,fMapY-1) do
-  for k:=max(aLoc.X-aRadius,1) to min(aLoc.X+aRadius,fMapX-1) do
-    if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
-      if TileIsWineField(KMPoint(k,i)) then
-        if Land[i,k].FieldAge=65535 then
-          if not TileIsLocked(KMPoint(k,i)) then //Taken by another farmer
-            if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0) then
-              List.AddItem(KMPointDir(k, i, dir_NA));
+  ValidTiles := TKMPointList.Create;
+  GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
-  Result := List.GetRandom(FieldPoint);
-  List.Free;
+  ChosenTiles := TKMPointDirList.Create;
+  for i:=0 to ValidTiles.Count-1 do
+  begin
+    P := ValidTiles[i];
+    if not KMSamePoint(aAvoidLoc,P) then
+      if TileIsWineField(P) then
+        if Land[P.Y,P.X].FieldAge=65535 then
+          if not TileIsLocked(P) then //Taken by another farmer
+            if Route_CanBeMade(aLoc,P,CanWalk,0) then
+              ChosenTiles.AddItem(KMPointDir(P, dir_NA));
+  end;
+
+  Result := ChosenTiles.GetRandom(FieldPoint);
+  ChosenTiles.Free;
+  ValidTiles.Free;
 end;
 
 
 { Finds a corn field }
 function TTerrain.FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir): Boolean;
-var i,k:integer; List:TKMPointDirList;
+var i: Integer;
+    ValidTiles: TKMPointList;
+    ChosenTiles: TKMPointDirList;
+    P: TKMPoint;
 begin
-  List := TKMPointDirList.Create;
-  for i:=max(aLoc.Y-aRadius,1) to min(aLoc.Y+aRadius,fMapY-1) do
-  for k:=max(aLoc.X-aRadius,1) to min(aLoc.X+aRadius,fMapX-1) do
-    if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
-      if TileIsCornField(KMPoint(k,i)) then
-        if((aPlantAct in [taAny, taPlant]) and (Land[i,k].FieldAge = 0)) or
-          ((aPlantAct in [taAny, taCut]) and (Land[i,k].FieldAge = 65535)) then
-          if not TileIsLocked(KMPoint(k,i)) then //Taken by another farmer
-            if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0) then
-              List.AddItem(KMPointDir(k, i, dir_NA));
+  ValidTiles := TKMPointList.Create;
+  GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
-  Result := List.GetRandom(FieldPoint);
-  List.Free;
+  ChosenTiles := TKMPointDirList.Create;
+  for i:=0 to ValidTiles.Count-1 do
+  begin
+    P := ValidTiles[i];
+    if not KMSamePoint(aAvoidLoc,P) then
+      if TileIsCornField(P) then
+        if((aPlantAct in [taAny, taPlant]) and (Land[P.Y,P.X].FieldAge = 0)) or
+          ((aPlantAct in [taAny, taCut])   and (Land[P.Y,P.X].FieldAge = 65535)) then
+          if not TileIsLocked(P) then //Taken by another farmer
+            if Route_CanBeMade(aLoc,P,CanWalk,0) then
+              ChosenTiles.AddItem(KMPointDir(P, dir_NA));
+  end;
+
+  Result := ChosenTiles.GetRandom(FieldPoint);
+  ChosenTiles.Free;
+  ValidTiles.Free;
   if not Result then
     PlantAct := taAny
   else
@@ -2793,5 +2812,74 @@ begin
     Land[I,K].WalkConnect[aWC] := Parent[Land[I,K].WalkConnect[aWC]];
 end;
 
+
+//Fills aList with all of the tiles within aRadius of aStart with aPass using either a
+//simple radius or a floodfill walking distance calculation depending on USE_WALKING_DISTANCE
+procedure TTerrain.GetTilesWithinDistance(aStart:TKMPoint; aRadius:Byte; aPass:TPassability; aList:TKMPointList);
+var Visited: array of array of Byte;
+
+  //Uses a floodfill style algorithm but only on a small area (with aRadius)
+  procedure Visit(X,Y: Word; aWalkDistance: Byte);
+  var Xt, Yt: Word;
+  begin
+    //Test whether this tile is valid and exit immediately if not
+    //Double the radius because of diagonal approximation (straight=2, diagonal=3)
+    if (aWalkDistance > aRadius*2) or
+    not (aPass in Land[Y,X].Passability) then Exit;
+    Xt := aStart.X-X+aRadius;
+    Yt := aStart.Y-Y+aRadius;
+    if (aWalkDistance >= Visited[Xt,Yt]) then Exit;
+
+    //Only add to results once (255 is the intial value)
+    if Visited[Xt,Yt] = 255 then
+      aList.AddEntry(KMPoint(X,Y));
+    
+    //Mark this tile as visited
+    Visited[Xt,Yt] := aWalkDistance;
+
+    //Run again on surrounding tiles
+    //We use +2 for straights and +3 for diagonals rather than +1 and +1.41 then div by 2 in
+    //calculations so we can still store it as bytes to save space and time
+    if X-1 >= 1 then
+    begin
+      if (Y-1 >= 1) and not MapElem[Land[Y,X].Obj].DiagonalBlocked then
+        Visit(X-1, Y-1, aWalkDistance+3);
+      Visit(X-1, Y, aWalkDistance+2);
+      if (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj].DiagonalBlocked then
+        Visit(X-1,Y+1, aWalkDistance+3);
+    end;
+
+    if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance+2);
+    if Y+1 <= fMapY then Visit(X, Y+1, aWalkDistance+2);
+
+    if X+1 <= fMapX then
+    begin
+      if (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj].DiagonalBlocked then
+        Visit(X+1, Y-1, aWalkDistance+3);
+      Visit(X+1, Y, aWalkDistance+2);
+      if (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj].DiagonalBlocked then
+        Visit(X+1, Y+1, aWalkDistance+3);
+    end;
+  end;
+
+var i,k: Integer;
+begin
+  if USE_WALKING_DISTANCE then
+  begin
+    SetLength(Visited, 2*aRadius+1, 2*aRadius+1);
+    for i:=0 to 2*aRadius do
+      for k:=0 to 2*aRadius do
+        Visited[i,k] := 255; //Maximum distance so we will always prefer the route we find
+
+    Visit(aStart.X, aStart.Y, 0); //Starting tile is at walking distance zero
+  end
+  else
+  begin
+    for I := max(aStart.Y-aRadius, 1) to min(aStart.Y+aRadius, fMapY-1) do
+      for K := max(aStart.X-aRadius, 1) to min(aStart.X+aRadius, fMapX-1) do
+        if (aPass in Land[I,K].Passability) and (KMLength(aStart, KMPoint(K,I)) <= aRadius) then
+          aList.AddEntry(KMPoint(K,I));
+  end;
+end;
 
 end.

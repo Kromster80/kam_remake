@@ -64,6 +64,7 @@ var
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
   USE_BIN_PACKING       :Boolean = True; //Use more efficient bin packing algorithm for packing sprites into atlases
+  USE_WALKING_DISTANCE  :Boolean = True; //Use the walking distance for deciding place to mine rather than direct distance
 
   //These are debug things, should be False
   {User interface options}
