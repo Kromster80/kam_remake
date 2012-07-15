@@ -1172,32 +1172,43 @@ end;
 
 
 procedure TKMHouse.Paint;
-var H: TKMHouseDatClass;
+var
+  H: TKMHouseDatClass;
+  Progress: Single;
 begin
   H := fResource.HouseDat[fHouseType];
   case fBuildState of
     hbs_NoGlyph:; //Nothing
     hbs_Wood:   begin
-                  fRenderPool.AddHouseWood(fHouseType, fPosition,
-                    fBuildingProgress/50/H.WoodCost); //0...1 range
+                  Progress := fBuildingProgress / 50 / H.WoodCost;
+                  fRenderPool.AddHouseWood(fHouseType, fPosition, Progress); //0...1 range
                   fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     hbs_Stone:  begin
-                  fRenderPool.AddHouseStone(fHouseType, fPosition,
-                    (fBuildingProgress/50-H.WoodCost)/H.StoneCost); //0...1 range
+                  Progress := (fBuildingProgress / 50 - H.WoodCost) / H.StoneCost;
+                  fRenderPool.AddHouseStone(fHouseType, fPosition, Progress); //0...1 range
                   fRenderPool.AddHouseBuildSupply(fHouseType, fPosition, fBuildSupplyWood, fBuildSupplyStone);
                 end;
     else        begin
-                  fRenderPool.AddHouseStone(fHouseType, fPosition, 1);
-                  fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
-                  if fCurrentAction <> nil then
-                    fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, fPlayers.Player[fOwner].FlagColor);
+                  if HOUSE_BUILDING_STEP <> 0 then
+                    if HOUSE_BUILDING_STEP < 0.5 then
+                      fRenderPool.AddHouseWood(fHouseType, fPosition, HOUSE_BUILDING_STEP * 2)
+                    else
+                      fRenderPool.AddHouseStone(fHouseType, fPosition, (HOUSE_BUILDING_STEP - 0.5) * 2)
+                  else
+                  begin
+                    fRenderPool.AddHouseStone(fHouseType, fPosition, Progress);
+                    fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
+                    if fCurrentAction <> nil then
+                      fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, fPlayers.Player[fOwner].FlagColor);
+                  end;
                 end;
   end;
 
   if SHOW_POINTER_DOTS then
     fRenderAux.UnitPointers(fPosition.X + 0.5, fPosition.Y + 1, fPointerCount);
 end;
+
 
 procedure TKMHouse.SetWareDelivery(aVal:boolean);
 begin

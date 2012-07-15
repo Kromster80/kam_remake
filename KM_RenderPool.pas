@@ -50,7 +50,7 @@ type
     fRenderList: TRenderList;
     fRenderTerrain: TRenderTerrain;
     procedure RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
-    procedure RenderSpriteAlphaTest(aRX: TRXType; aID, aID2: Word; Param, Param2: Single; pX,pY: Single; aFOW: Byte);
+    procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX, pY: Single; aFOW: Byte; aID2: Word = 0; Param2: Single = 0; X2: Single = 0; Y2: Single = 0);
     procedure RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
     procedure RenderTerrainBorder(Border: TBorderType; Pos: TKMDirection; pX,pY: Integer);
     procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
@@ -815,8 +815,8 @@ end;
 //white there will have sprite rendered
 //  If there are two masks then we need to render sprite only there
 //where its mask is white AND where second mask is black
-procedure TRenderPool.RenderSpriteAlphaTest(aRX: TRXType; aID, aID2: Word;
-  Param, Param2: Single; pX, pY: Single; aFOW: Byte);
+procedure TRenderPool.RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX, pY: Single;
+  aFOW: Byte; aID2: Word = 0; Param2: Single = 0; X2: Single = 0; Y2: Single = 0);
 begin
   glClear(GL_STENCIL_BUFFER_BIT);
 
@@ -856,10 +856,10 @@ begin
         glColor3f(1, 1, 1);
         glBindTexture(GL_TEXTURE_2D, Alt.ID);
         glBegin(GL_QUADS);
-          glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(pX-1                     ,pY-1         );
-          glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
-          glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-          glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+          glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(X2-1                     ,Y2-1         );
+          glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(X2-1+pxWidth/CELL_SIZE_PX,Y2-1         );
+          glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(X2-1+pxWidth/CELL_SIZE_PX,Y2-1-pxHeight/CELL_SIZE_PX);
+          glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(X2-1                     ,Y2-1-pxHeight/CELL_SIZE_PX);
         glEnd;
         glBindTexture(GL_TEXTURE_2D, 0);
       end;
@@ -1280,6 +1280,7 @@ var
   I, K: Integer;
   SecondID: Word;
   SecondAlpha: Single;
+  X2, Y2: Single;
 begin
   ClipRenderList; //Clip invisible items, Mark child items (RenderOrder[I] := -1), Apply FOW
   SortRenderList; //Sort items overlaying
@@ -1317,14 +1318,13 @@ begin
             begin
               SecondID := RenderList[K+1].ID;
               SecondAlpha := RenderList[K+1].AlphaStep;
+              X2 := RenderList[K+1].Loc.X;
+              Y2 := RenderList[K+1].Loc.Y;
+              fRenderPool.RenderSpriteAlphaTest(RX, ID, AlphaStep, Loc.X, Loc.Y, FOWvalue, SecondID, SecondAlpha, X2, Y2);
             end
             else
-            begin
-              SecondID := 0;
-              SecondAlpha := -1;
-            end;
+              fRenderPool.RenderSpriteAlphaTest(RX, ID, AlphaStep, Loc.X, Loc.Y, FOWvalue);
 
-            fRenderPool.RenderSpriteAlphaTest(RX, ID, SecondID, AlphaStep, SecondAlpha, Loc.X, Loc.Y, FOWvalue);
           end;
 
           if SHOW_GROUND_LINES and NewInst then //Don't render child (not NewInst) ground lines, since they are unused

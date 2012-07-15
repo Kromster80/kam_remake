@@ -163,6 +163,31 @@ object FormMain: TFormMain
       OnClick = Button_CalcArmyClick
     end
   end
+  object GroupBox2: TGroupBox
+    Left = 240
+    Top = 96
+    Width = 329
+    Height = 105
+    Caption = 'GroupBox2'
+    TabOrder = 3
+    Visible = False
+    object Label1: TLabel
+      Left = 152
+      Top = 24
+      Width = 93
+      Height = 13
+      Caption = 'House building step'
+    end
+    object TrackBar1: TTrackBar
+      Left = 8
+      Top = 24
+      Width = 145
+      Height = 17
+      Max = 100
+      TabOrder = 0
+      OnChange = TrackBar1Change
+    end
+  end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]

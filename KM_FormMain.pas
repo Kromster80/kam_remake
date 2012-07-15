@@ -72,6 +72,9 @@ type
     ExportMenuPages: TMenuItem;
     Resources1: TMenuItem;
     HousesDat1: TMenuItem;
+    GroupBox2: TGroupBox;
+    TrackBar1: TTrackBar;
+    Label1: TLabel;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
@@ -117,6 +120,7 @@ type
     procedure Debug_ExportGamePagesClick(Sender: TObject);
     procedure Debug_ExportMenuPagesClick(Sender: TObject);
     procedure HousesDat1Click(Sender: TObject);
+    procedure TrackBar1Change(Sender: TObject);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -516,6 +520,12 @@ begin
 
   //Make sure Panel is properly aligned
   Panel5.Align := alClient;
+end;
+
+
+procedure TFormMain.TrackBar1Change(Sender: TObject);
+begin
+  HOUSE_BUILDING_STEP := TrackBar1.Position / TrackBar1.Max;
 end;
 
 

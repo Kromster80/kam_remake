@@ -91,6 +91,7 @@ var
   SHOW_ATTACK_RADIUS    :Boolean = False; //Render towers/archers attack radius
   DISPLAY_SOUNDS        :Boolean = False; //Display sounds on map
   RENDER_3D             :Boolean = False; //Experimental 3D render
+  HOUSE_BUILDING_STEP   :Single = 0;
   {Stats}
   SHOW_SPRITE_COUNT     :Boolean = False; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :Boolean = False; //Show debug total count of unit/house pointers being tracked
