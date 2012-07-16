@@ -11,9 +11,11 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Show the mining radius of the selected house or house that you are placing
 		Krom: Idea is okay. We need to display mining "strength" (think coalmine) as well, in some nice way, also show ranges of all houses of the same king to allow player to plan his mining better (e.g. avoid overlaps). Iron/Gold don't need this mostly, but Coal/Fish/Towers - do.
 		Krom: Another note - mining radies should show effective range with regard to walking legth.
+		Lewin: Yes showing walking length shouldn't be a problem, we can use GetTilesWithinDistance and highlight the returned tiles. We'll need to "cache" the list so we don't call GetTilesWithinDistance every time we paint (or maybe 1-2ms doesn't matter so much?)
 	Gameplay modes in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple modes.
 	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
 		Krom: Easiest implementation seems to be floodfill from towns until areas make borders
+		Lewin: Agreed.
 	AI warriors should automatically engage enemies within 3-4 tiles (happens in KaM?)
 		Krom: 2 tiles seems quite enough to me
 	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
@@ -27,9 +29,10 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	When player leaves allow his allies to take control over his village and army
 	Try extending height to 0..255 rather than 0..100 so it's easier to have multiple "levels" on a map (e.g. plateau with a hill on it)
 		Krom: I disagree. This is not as simple as a matter of just extending it. We need to discuss
-	Make lobby flag selection using list of countries that speak that language. With English you could choose USA, UK, AU, NZ. With Spanish you could choose Spain, Argininia, Chille.
+	Make lobby flag selection using list of countries that speak that language. With English you could choose USA, UK, AU, NZ. With Spanish you could choose Spain, Argentina, Chille.
 		Lewin: Sounds ok. Means we need to include ~200 flags I guess, but with RXX packing that's no big problem.
 		Krom: Flag represents locale, language that the player can read/type, not an actual location.
+		Lewin: The problem is languages don't have flags, countries do. The best we can do is use the country of origin for the flag (e.g. Spain not Argentina, UK not US) Although people use the flag to assume where you are from.
 	Do not send a Recruit to WatchTower when Player has built it but did not connected it with road
 		Krom: I think that makes good sense. But if Player made 10 towers and 10 recruits and only then connected them with roads - will/should recruits walk from Barracks to Towers?
 		Lewin: The only case this can happen is when the player starts with the towers right? You can't build a house without connecting it to road. I think it's ok for the recruits to go to the towers, but stones definitely should not.
@@ -45,6 +48,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Krom: Agreed
 	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (saves entire game state which can be loaded) Using compression can keep the save file tiny.
 		Krom: Not sure how this will cope with 29hour games
+		Lewin: We can delete save points as the game goes longer. By the time we reach 29 hours we only keep save points from every 1-2 hours. For 90 minute games we keep one every 10 minutes.
 	Way to place roads/fields/destroyed buildings belonging to no player (for maps like Battle In The Ruined City where currently the roads don't always show depending on which locations are played)
 		Krom: Maybe we can assign them to animals player?
 	Value of resources at the market increases as you buy them and decreases as you sell them to prevent exploiting? (Age of Empires style)
@@ -54,3 +58,5 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Allow dedicated server host to do announcements (e.g. server will be closed in 5min, plz save and quit)
 	Add shortcut keys to common messsages in MP (defend here, attack, check ur base, etc.)
 	Add fan-made section where fans could add LOLCat, Welsh, Simple English, Funny and other translations with fallback to existing locale
+	Armour smithy has shields as 2nd item, armour workshop has shields as first item. Would make more sense to have them the same like the weapons smithy/workshop are.
+		Lewin: I agree with this proposal

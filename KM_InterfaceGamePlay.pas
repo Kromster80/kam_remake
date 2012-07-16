@@ -3057,19 +3057,39 @@ end;
 
 
 procedure TKMGamePlayInterface.Selection_Select(aKey: Word);
-var Key: Integer;
+var Key: Integer; OldSelected: TObject;
 begin
   Key := aKey - 53;
   if not InRange(Key, 0, 9) then Exit;
 
   if fSelection[Key] <> -1 then
   begin
+    OldSelected := fPlayers.Selected;
     fPlayers.Selected := fPlayers.GetUnitByID(fSelection[Key]);
-    if fPlayers.Selected = nil then
+    if fPlayers.Selected <> nil then
+    begin
+      if (OldSelected <> fPlayers.Selected) and not fReplay then
+      begin
+        if fPlayers.Selected is TKMUnitWarrior then
+          fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select)
+        else
+          fSoundLib.PlayCitizen(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
+      end;
+      //Selecting a unit twice is the shortcut to center on that unit
+      if (fPlayers.Selected <> nil) and (OldSelected = fPlayers.Selected) then
+        fGame.Viewport.Position := TKMUnit(fPlayers.Selected).PositionF;
+    end
+    else
+    begin
       fPlayers.Selected := fPlayers.GetHouseByID(fSelection[Key]);
+      //Selecting a house twice is the shortcut to center on that house
+      if (fPlayers.Selected <> nil) and (OldSelected = fPlayers.Selected) then
+        fGame.Viewport.Position := KMPointF(TKMHouse(fPlayers.Selected).GetEntrance);
+    end;
+
   end
   else
-    fPlayers.Selected := nil
+    fPlayers.Selected := nil;
 end;
 
 
