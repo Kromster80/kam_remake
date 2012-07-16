@@ -42,6 +42,7 @@ type
     LastSchoolUnit: Byte;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit: Byte; //Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList: TKMMessageList;
+    fSelection: array [0..9] of Integer;
 
     procedure Create_Controls_Page;
     procedure Create_Replay_Page;
@@ -113,6 +114,8 @@ type
     procedure Menu_Load_RefreshList(Sender: TObject);
     procedure Menu_Load_ListClick(Sender: TObject);
     procedure Menu_Load_Click(Sender: TObject);
+    procedure Selection_Assign(aKey: Word; aObject: TObject);
+    procedure Selection_Select(aKey: Word);
     procedure SwitchPage(Sender: TObject);
     procedure SwitchPage_Ratios(Sender: TObject);
     procedure RatiosChange(Sender: TObject);
@@ -1449,15 +1452,15 @@ begin
     //@Lewin: I suggest we check other games, but I have a feeling that using same shortcuts for every version would be better
     //@Krom: Yes we should check other games. I did it this way to match KaM TSK/TPR.
     Button_Army_GoTo.Hint   := fTextLibrary[TX_ARMY_GOTO_HINT];
-    Button_Army_Stop.Hint   := Format(fTextLibrary[TX_TROOP_HALT_HINT], [SHORTCUT_ARMY_HALT]);
+    Button_Army_Stop.Hint   := Format(fTextLibrary[TX_TROOP_HALT_HINT], [SC_ARMY_HALT]);
     Button_Army_Attack.Hint := fTextLibrary[TX_ARMY_ATTACK_HINT];
     Button_Army_RotCW.Hint  := fTextLibrary[TX_ARMY_ROTATE_CW_HINT];
     Button_Army_Storm.Hint  := fTextLibrary[TX_ARMY_STORM_HINT];
     Button_Army_RotCCW.Hint := fTextLibrary[TX_ARMY_ROTATE_CCW_HINT];
     Button_Army_ForDown.Hint:= fTextLibrary[TX_ARMY_LINE_ADD_HINT];
     Button_Army_ForUp.Hint  := fTextLibrary[TX_ARMY_LINE_REM_HINT];
-    Button_Army_Split.Hint  := Format(fTextLibrary[TX_TROOP_SPLIT_HINT], [SHORTCUT_ARMY_SPLIT]);
-    Button_Army_Join.Hint   := Format(fTextLibrary[TX_TROOP_LINK_HINT], [SHORTCUT_ARMY_LINK]);
+    Button_Army_Split.Hint  := Format(fTextLibrary[TX_TROOP_SPLIT_HINT], [SC_ARMY_SPLIT]);
+    Button_Army_Join.Hint   := Format(fTextLibrary[TX_TROOP_LINK_HINT], [SC_ARMY_LINK]);
     Button_Army_Feed.Hint   := fTextLibrary[TX_ARMY_FEED_HINT];
     Button_Unit_Dismiss.Hint:= 'Dismiss unit';
 
@@ -3035,6 +3038,41 @@ begin
 end;
 
 
+//Assign Object to a Key
+//we use ID to avoid use of pointer counter
+procedure TKMGamePlayInterface.Selection_Assign(aKey: Word; aObject: TObject);
+var Key: Integer;
+begin
+  Key := aKey - 53;
+  if not InRange(Key, 0, 9) then Exit;
+
+  if aObject is TKMUnit then
+    fSelection[Key] := TKMUnit(aObject).ID
+  else
+  if aObject is TKMHouse then
+    fSelection[Key] := TKMHouse(aObject).ID
+  else
+    fSelection[Key] := -1;
+end;
+
+
+procedure TKMGamePlayInterface.Selection_Select(aKey: Word);
+var Key: Integer;
+begin
+  Key := aKey - 53;
+  if not InRange(Key, 0, 9) then Exit;
+
+  if fSelection[Key] <> -1 then
+  begin
+    fPlayers.Selected := fPlayers.GetUnitByID(fSelection[Key]);
+    if fPlayers.Selected = nil then
+      fPlayers.Selected := fPlayers.GetHouseByID(fSelection[Key]);
+  end
+  else
+    fPlayers.Selected := nil
+end;
+
+
 procedure TKMGamePlayInterface.SetChatMessages(const aString: string);
 begin
   Memo_ChatText.Text := aString;
@@ -3136,7 +3174,7 @@ begin
     VK_UP:    fGame.Viewport.ScrollKeyUp    := True;
     VK_DOWN:  fGame.Viewport.ScrollKeyDown  := True;
 
-    SHORTCUT_SHOW_TEAMS: fGame.ShowTeamNames := True;
+    SC_SHOW_TEAMS: fGame.ShowTeamNames := True;
   end;
 end;
 
@@ -3148,7 +3186,7 @@ procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
 begin
   if fGame.IsPaused and not fMultiplayer and not fReplay then
   begin
-    if (Key = SHORTCUT_PAUSE) then
+    if (Key = SC_PAUSE) then
       SetPause(False);
     Exit;
   end;
@@ -3189,35 +3227,36 @@ begin
                             or Image_AlliesClose.Click
                             or Button_Back.Click then ;
     //Menu shortcuts
-    SHORTCUT_MENU_BUILD:  Button_Main[tbBuild].Click;
-    SHORTCUT_MENU_RATIO:  Button_Main[tbRatio].Click;
-    SHORTCUT_MENU_STATS:  Button_Main[tbStats].Click;
-    SHORTCUT_MENU_MENU:   Button_Main[tbMenu].Click;
+    SC_MENU_BUILD:  Button_Main[tbBuild].Click;
+    SC_MENU_RATIO:  Button_Main[tbRatio].Click;
+    SC_MENU_STATS:  Button_Main[tbStats].Click;
+    SC_MENU_MENU:   Button_Main[tbMenu].Click;
+
+    SC_SELECT_LOW..SC_SELECT_HIGH:
+                    if (ssCtrl in Shift) then
+                      Selection_Assign(Key, fPlayers.Selected)
+                    else
+                      Selection_Select(Key);
 
     // Army shortcuts from KaM
-    Ord(SHORTCUT_ARMY_HALT):   if Panel_Army.Visible then Button_Army_Stop.Click;
-    Ord(SHORTCUT_ARMY_SPLIT):  if Panel_Army.Visible then Button_Army_Join.Click;
-    Ord(SHORTCUT_ARMY_LINK):   if Panel_Army.Visible then Button_Army_Split.Click;
+    Ord(SC_ARMY_HALT):   if Panel_Army.Visible then Button_Army_Stop.Click;
+    Ord(SC_ARMY_SPLIT):  if Panel_Army.Visible then Button_Army_Join.Click;
+    Ord(SC_ARMY_LINK):   if Panel_Army.Visible then Button_Army_Split.Click;
 
     //General function keys
-    SHORTCUT_PAUSE:       if not fMultiplayer then SetPause(True); //Display pause overlay
-    SHORTCUT_BEACON:      if (fMyControls.CtrlOver = nil) and not SelectingTroopDirection then
+    SC_PAUSE:       if not fMultiplayer then SetPause(True); //Display pause overlay
+    SC_BEACON:      if (fMyControls.CtrlOver = nil) and not SelectingTroopDirection then
                             Alert_Beacon;
-    SHORTCUT_SHOW_TEAMS:  fGame.ShowTeamNames := False;
+    SC_SHOW_TEAMS:  fGame.ShowTeamNames := False;
   end;
 
   {Temporary cheat codes}
   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
-  begin
-    if Key=ord('5') then MessageIssue(mkText, '123', KMPoint(0,0));
-    if Key=ord('6') then MessageIssue(mkHouse,'123', KMPointRound(fGame.Viewport.Position));
-    if Key=ord('7') then MessageIssue(mkUnit, '123', KMPoint(0,0));
-    if Key=ord('8') then MessageIssue(mkQuill,'123', KMPoint(0,0));
-
-    if Key=ord('W') then fGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
-    if Key=ord('V') then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
-    if Key=ord('D') then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
-    if Key=ord('Q') then fGame.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell); //Usefull when mouse has no middle-button
+  case Key of
+    Ord(SC_DEBUG_REVEALMAP): fGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
+    Ord(SC_DEBUG_VICTORY):   begin fGame.GameHold(True, gr_Win); Exit; end;
+    Ord(SC_DEBUG_DEFEAT):    begin fGame.GameHold(True, gr_Defeat); Exit; end;
+    Ord(SC_DEBUG_ADDSCOUT):  fGame.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
   end;
 end;
 

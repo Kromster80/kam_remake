@@ -35,16 +35,26 @@ const
   OPT_SLIDER_MIN = 0;
   OPT_SLIDER_MAX = 20;
 
-  SHORTCUT_MENU_BUILD = Ord('1');
-  SHORTCUT_MENU_RATIO = Ord('2');
-  SHORTCUT_MENU_STATS = Ord('3');
-  SHORTCUT_MENU_MENU = Ord('4');
-  SHORTCUT_ARMY_HALT = ('H');
-  SHORTCUT_ARMY_SPLIT = ('S');
-  SHORTCUT_ARMY_LINK = ('L');
-  SHORTCUT_BEACON = Ord('B');
-  SHORTCUT_PAUSE = Ord('P');
-  SHORTCUT_SHOW_TEAMS = Ord('T');
+  SC_MENU_BUILD = Ord('1');
+  SC_MENU_RATIO = Ord('2');
+  SC_MENU_STATS = Ord('3');
+  SC_MENU_MENU = Ord('4');
+
+  SC_SELECT_LOW = Ord('5');
+  SC_SELECT_HIGH = Ord('9');
+
+  SC_ARMY_HALT = ('H');
+  SC_ARMY_SPLIT = ('S');
+  SC_ARMY_LINK = ('L');
+
+  SC_DEBUG_REVEALMAP = ('M');
+  SC_DEBUG_VICTORY = ('V');
+  SC_DEBUG_DEFEAT = ('D');
+  SC_DEBUG_ADDSCOUT = ('C'); //Usefull when mouse has no middle-button
+
+  SC_BEACON = Ord('B');
+  SC_PAUSE = Ord('P');
+  SC_SHOW_TEAMS = Ord('T');
 
   GUI_HOUSE_COUNT = 27;   //Number of KaM houses to show in GUI
   GUIHouseOrder: array [1..GUI_HOUSE_COUNT] of THouseType = (
