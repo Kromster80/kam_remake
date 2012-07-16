@@ -65,16 +65,15 @@ type
     TB_Angle: TTrackBar;
     Label3: TLabel;
     ExportMainMenu: TMenuItem;
-    Button_CalcArmy: TButton;
     Debug_EnableCheats: TMenuItem;
     ShowAIAttacks1: TMenuItem;
     ExportGamePages: TMenuItem;
     ExportMenuPages: TMenuItem;
     Resources1: TMenuItem;
     HousesDat1: TMenuItem;
-    GroupBox2: TGroupBox;
     TrackBar1: TTrackBar;
     Label1: TLabel;
+    Button_CalcArmy: TButton;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
@@ -466,7 +465,7 @@ procedure TFormMain.TB_Angle_Change(Sender: TObject);
 begin
   if fRenderPool = nil then Exit; //Otherwise it crashes on the main menu?
   RENDER_3D := TB_Angle.Position <> 0;
-  Label3.Caption := IntToStr(TB_Angle.Position) + ' 3D';
+  Label3.Caption := 'Angle ' + IntToStr(TB_Angle.Position);
   fRenderPool.SetRotation(-TB_Angle.Position, 0, 0);
   fMain.Render;
 end;

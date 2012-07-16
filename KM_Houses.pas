@@ -1197,7 +1197,7 @@ begin
                       fRenderPool.AddHouseStone(fHouseType, fPosition, (HOUSE_BUILDING_STEP - 0.5) * 2)
                   else
                   begin
-                    fRenderPool.AddHouseStone(fHouseType, fPosition, Progress);
+                    fRenderPool.AddHouseStone(fHouseType, fPosition, 1);
                     fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
                     if fCurrentAction <> nil then
                       fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, fPlayers.Player[fOwner].FlagColor);

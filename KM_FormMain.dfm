@@ -71,11 +71,11 @@ object FormMain: TFormMain
     Width = 425
     Height = 73
     Caption = 
-      '  Additional controls   ..   Press F11 to swap controls visibili' +
-      'ty'
+      ' Additional controls   ..   Press F11 to swap controls visibilit' +
+      'y'
     TabOrder = 2
     object Label2: TLabel
-      Left = 85
+      Left = 101
       Top = 15
       Width = 49
       Height = 13
@@ -83,15 +83,22 @@ object FormMain: TFormMain
     end
     object Label3: TLabel
       Left = 101
-      Top = 35
-      Width = 6
+      Top = 33
+      Width = 27
       Height = 13
-      Caption = '0'
+      Caption = 'Angle'
+    end
+    object Label1: TLabel
+      Left = 102
+      Top = 49
+      Width = 93
+      Height = 13
+      Caption = 'House building step'
     end
     object CheckBox2: TCheckBox
-      Left = 8
-      Top = 52
-      Width = 73
+      Left = 168
+      Top = 16
+      Width = 75
       Height = 17
       Caption = 'Speed x300'
       TabOrder = 1
@@ -100,10 +107,11 @@ object FormMain: TFormMain
     object Debug_PassabilityTrack: TTrackBar
       Left = 2
       Top = 14
-      Width = 83
+      Width = 95
       Height = 17
       Max = 14
       PageSize = 1
+      ShowSelRange = False
       TabOrder = 0
       ThumbLength = 14
       TickMarks = tmBoth
@@ -131,9 +139,9 @@ object FormMain: TFormMain
       OnClick = RGPlayerClick
     end
     object Button_Stop: TButton
-      Left = 240
+      Left = 264
       Top = 16
-      Width = 25
+      Width = 33
       Height = 17
       Caption = 'Stop'
       TabOrder = 3
@@ -146,46 +154,35 @@ object FormMain: TFormMain
       Height = 17
       Max = 90
       PageSize = 1
+      ShowSelRange = False
       TabOrder = 4
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
       OnChange = TB_Angle_Change
     end
-    object Button_CalcArmy: TButton
-      Left = 126
-      Top = 45
-      Width = 103
-      Height = 16
-      Caption = 'TestCalcArmy'
-      TabOrder = 5
-      Visible = False
-      OnClick = Button_CalcArmyClick
-    end
-  end
-  object GroupBox2: TGroupBox
-    Left = 240
-    Top = 96
-    Width = 329
-    Height = 105
-    Caption = 'GroupBox2'
-    TabOrder = 3
-    Visible = False
-    object Label1: TLabel
-      Left = 152
-      Top = 24
-      Width = 93
-      Height = 13
-      Caption = 'House building step'
-    end
     object TrackBar1: TTrackBar
-      Left = 8
-      Top = 24
-      Width = 145
+      Left = 2
+      Top = 48
+      Width = 95
       Height = 17
       Max = 100
-      TabOrder = 0
+      ShowSelRange = False
+      TabOrder = 5
+      ThumbLength = 14
+      TickMarks = tmBoth
+      TickStyle = tsNone
       OnChange = TrackBar1Change
+    end
+    object Button_CalcArmy: TButton
+      Left = 216
+      Top = 51
+      Width = 81
+      Height = 16
+      Caption = 'TestCalcArmy'
+      TabOrder = 6
+      Visible = False
+      OnClick = Button_CalcArmyClick
     end
   end
   object OpenDialog1: TOpenDialog
