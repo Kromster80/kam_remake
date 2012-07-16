@@ -16,10 +16,12 @@
  +	Farmer should not sow corn on tiles left after demolished houses that were built ontop of roads built ontop of fields 
  +	Placing a house above other players units in MapEd is now handled on mission load (it caused a crash before)
  +	Pressing the "Restart" button during a replay would sometimes cause a crash
+ +	Resource harvesting now checks walking length rather than direct distance to stop e.g. woodcutters walking all the way around a mountain/river
+ +	Sandhills cause water next to shore tiles to appear darker with square edges
 	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
-	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
+	Deliveries should use the actual walking route length (opposed to Radius)
 	AIs should retaliate when the arrow is in mid flight or when it lands, not while the archer is still aiming/firing
 	Archers behave badly when you tell them to attack directly (houses and units), and they should step backwards when too close
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
@@ -34,13 +36,11 @@
 	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800х600 .. 1366х768
 	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
 	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
-	RCE in TKMFogOfWar.CheckVerticeRevelation called from TKMProjectiles.UpdateState. Lots of bug reports uploaded with this error (e.g. 23/05/12)
 	TSK 19 crashes due to an AI attack (at 06:38) target being off map
 	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 	TSK 15 the black AI (player 4) doesn't build because the script contains no !SET_AI_PLAYER (KaM assumes AI by default I guess?)
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
 
-	Sandhills cause water next to shore tiles to appear darker with square edges
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing might help?)
 	Colored rectangle below cursor
 
@@ -51,11 +51,12 @@ Improvements:
  +	Display charts in game results screens (army, wares count, etc.)
  +	Show the player's name above each group (flag holder) while 'T' key is kept pressed
  +	Non-fatal mission script errors will be shown on start
+ +	RXXPacker to make soft shadowed RXX files in 1 click rather than by hand
+ wip	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
-	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Mutltiplayer spectator mode
 	256x256 icons for EXE (for vista/7/8 users)
 	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
@@ -70,7 +71,6 @@ Improvements:
 	Keyboard shortcuts to zoom for people without a scrollwheel
 	Allow chat over multiplayer results screen
 	Add support for 1024x600 (1280x720) resolution in the map editor
-	RXXPacker to make soft shadowed RXX files in 1 click rather than by hand
 	RXXEditor tool for the public
 	Economic goals such as produce X amount of resource A
 	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
