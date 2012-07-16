@@ -10,6 +10,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Krom: I would rather add x2 speedup to games setup
 	Show the mining radius of the selected house or house that you are placing
 		Krom: Idea is okay. We need to display mining "strength" (think coalmine) as well, in some nice way, also show ranges of all houses of the same king to allow player to plan his mining better (e.g. avoid overlaps). Iron/Gold don't need this mostly, but Coal/Fish/Towers - do.
+		Krom: Another note - mining radies should show effective range with regard to walking legth.
 	Gameplay modes in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple modes.
 	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
 		Krom: Easiest implementation seems to be floodfill from towns until areas make borders
@@ -20,7 +21,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	New column in load/replays menus: Date/time (from file modified date?)
 		Krom: Think we can write/read the data to/from replay/save files as modified date is not very trustworthy
 		Lewin: Sounds good
-	Add buttons to Replay to see FOW as each player or everything
+	Some way to visualise fog of war for the selected player in replays (semi-transparent?) so you can understand player's perspective
 	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay)
 	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
 	When player leaves allow his allies to take control over his village and army
@@ -53,4 +54,3 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Allow dedicated server host to do announcements (e.g. server will be closed in 5min, plz save and quit)
 	Add shortcut keys to common messsages in MP (defend here, attack, check ur base, etc.)
 	Add fan-made section where fans could add LOLCat, Welsh, Simple English, Funny and other translations with fallback to existing locale
-	Some way to visualise fog of war for the selected player in replays (semi-transparent?) so you can understand player's perspective

@@ -11,7 +11,9 @@ Must be done:
 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Add new music tracks Market and Household
 	Campaign editor tool for the public
+	RXXEditor tool for the public (to make campaign backgrounds)
 	Update game files from SR3 where approperiate
+	Update readme with changed info (shortcuts, missing features)
 
 
 ==============================
