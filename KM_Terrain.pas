@@ -1098,37 +1098,38 @@ end;
 {Find seaside}
 {Return walkable tile nearby}
 function TTerrain.FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir): Boolean;
-const Ins=2; //2..Map-2
-var i,k,j,l:integer; List:TKMPointDirList;
+var i,j,l:integer;
+    P: TKMPoint;
+    ValidTiles: TKMPointList;
+    ChosenTiles:TKMPointDirList;
 begin
-  //Check is in stages:
-  // A) Inital checks, inside map and radius, etc.
-  // B) Limit to only tiles which are water
-  // C) Limit to tiles which have fish in the water body
-  // D) Final checks, route can be made, etc.
+  ValidTiles := TKMPointList.Create;
+  GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
-  List:=TKMPointDirList.Create;
-  for i:=max(aLoc.Y-aRadius,Ins) to min(aLoc.Y+aRadius,fMapY-Ins) do
-  for k:=max(aLoc.X-aRadius,Ins) to min(aLoc.X+aRadius,fMapX-Ins) do
-    // A) Inital checks, inside map and radius, etc.
-    if (KMLength(aLoc,KMPoint(k,i)) <= aRadius) then
-      if TileIsWater(KMPoint(k,i)) and WaterHasFish(KMPoint(k,i)) then //Limit to only tiles which are water and have fish
-        //Now find a tile around this one that can be fished from
-        for j:=-1 to 1 do
-          for l:=-1 to 1 do
-            if TileInMapCoords(k+j,i+l) and ((l <> 0) or (j <> 0)) and
-            not TileIsLocked(KMPoint(k+j, i+l)) then //Taken by another fisherman
-              // D) Final check: route can be made and isn't avoid loc
-              if Route_CanBeMade(aLoc, KMPoint(k+j, i+l), CanWalk, 0)
-              and not KMSamePoint(aAvoidLoc,KMPoint(k+j,i+l)) then
-                List.AddItem(KMPointDir(k+j, i+l, KMGetDirection(j,l)));
+  ChosenTiles:=TKMPointDirList.Create;
+  for i:=0 to ValidTiles.Count-1 do
+  begin
+    P := ValidTiles[i];
+    //Check that this tile is valid
+    if not TileIsLocked(P) //Taken by another fisherman
+    and Route_CanBeMade(aLoc, P, CanWalk, 0)
+    and not KMSamePoint(aAvoidLoc, P) then
+      //Now find a tile around this one that is water
+      for j:=-1 to 1 do
+        for l:=-1 to 1 do
+          if TileInMapCoords(P.X+j,P.Y+l) and ((l <> 0) or (j <> 0))
+          and TileIsWater(KMPoint(P.X+j,P.Y+l)) and WaterHasFish(KMPoint(P.X+j,P.Y+l)) then //Limit to only tiles which are water and have fish
+            ChosenTiles.AddItem(KMPointDir(P, KMGetDirection(-j,-l)));
+  end;
 
-  Result := List.GetRandom(FishPoint);
-  List.Free;
+  Result := ChosenTiles.GetRandom(FishPoint);
+  ChosenTiles.Free;
+  ValidTiles.Free;
 end;
 
 
 function TTerrain.CanFindFishingWater(aLoc: TKMPoint; aRadius: Integer): Boolean;
+//@Krom: Do you remember why we can't fish from map edges?
 const Ins=2; //2..Map-2
 var I,K:integer;
 begin
