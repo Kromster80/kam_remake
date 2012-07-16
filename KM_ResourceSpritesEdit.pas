@@ -24,6 +24,7 @@ type
 
     property IsLoaded: Boolean read GetLoaded;
     procedure AdjoinHouseMasks(aHouseDat: TKMHouseDatCollection);
+    procedure GrowHouseMasks(aHouseDat: TKMHouseDatCollection);
     procedure Delete(aIndex: Integer);
     procedure LoadFromRXFile(const aFileName: string);
     procedure LoadFromFolder(const aFolder: string);
@@ -169,8 +170,6 @@ var
   T1, T2, tx, ty: Integer;
   Alpha: Byte;
 begin
-  if SKIP_RENDER then Exit;
-
   for HT := Low(THouseType) to High(THouseType) do
   if aHouseDat[HT].IsValid then
   for Lay := 1 to 2 do //House is rendered in two layers since Stone does not covers Wood parts in e.g. Sawmill
@@ -201,6 +200,42 @@ begin
     //Now we can discard building steps sprite
     fRXData.HasMask[ID1] := True;
     fRXData.Flag[ID2] := 0;
+  end;
+end;
+
+
+//Grow house building masks to account for blurred shadows edges being visible
+procedure TKMSpritePackEdit.GrowHouseMasks(aHouseDat: TKMHouseDatCollection);
+var
+  HT: THouseType;
+  ID: Integer; //RGB and A index
+  I, K, Lay: Integer;
+  T: Integer;
+  A, B, C, D: Byte;
+begin
+  for HT := Low(THouseType) to High(THouseType) do
+  if aHouseDat[HT].IsValid then
+  for Lay := 1 to 2 do //House is rendered in two layers since Stone does not covers Wood parts in e.g. Sawmill
+  begin
+    ID := IfThen(Lay = 1, aHouseDat[HT].WoodPic, aHouseDat[HT].StonePic) + 1;
+
+    //Grow the masks
+    //Since shadows direction is X+ Y- we can do just one pass into that direction
+    for I := fRXData.Size[ID].Y - 1 downto 0 do
+    for K := 0 to fRXData.Size[ID].X - 1 do
+    begin
+      T := I * fRXData.Size[ID].X + K;
+      //Check 4 neighbours for now
+      if (fRXData.Mask[ID, T] = 255) then
+      begin
+        A := fRXData.Mask[ID, I * fRXData.Size[ID].X + Min(K + 1, fRXData.Size[ID].X - 1)];
+        B := fRXData.Mask[ID, I * fRXData.Size[ID].X + Max(K - 1, 0)];
+        C := fRXData.Mask[ID, Min(I + 1, fRXData.Size[ID].Y - 1) * fRXData.Size[ID].X + K];
+        D := fRXData.Mask[ID, Max(I - 1, 0) * fRXData.Size[ID].X + K];
+
+        fRXData.Mask[ID, T] := Min(Min(A, B), Min(C, D));
+      end;
+    end;
   end;
 end;
 

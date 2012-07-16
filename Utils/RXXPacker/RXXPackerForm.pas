@@ -102,6 +102,7 @@ begin
       begin
         HouseDat := TKMHouseDatCollection.Create;
         SpritePack.AdjoinHouseMasks(HouseDat);
+        SpritePack.GrowHouseMasks(HouseDat);
         HouseDat.Free;
       end;
 
