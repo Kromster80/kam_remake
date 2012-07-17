@@ -18,6 +18,7 @@
  +	Pressing the "Restart" button during a replay would sometimes cause a crash
  +	Resource harvesting now checks walking length rather than direct distance to stop e.g. woodcutters walking all the way around a mountain/river
  +	Sandhills cause water next to shore tiles to appear darker with square edges
+ +	Fixed a crash with the AI retaliating against a threat
 	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program

@@ -637,7 +637,8 @@ begin
   //Any defence position that is within their defence radius of this threat will retaliate against it
   for i := 0 to DefencePositionsCount-1 do
     with DefencePositions[i] do
-      if (CurrentCommander <> nil) and (not CurrentCommander.ArmyInFight)
+      if (CurrentCommander <> nil) and not CurrentCommander.IsDeadOrDying
+      and CurrentCommander.IsCommander and (not CurrentCommander.ArmyInFight)
       and (CurrentCommander.OrderTarget = nil)
       and (KMLength(CurrentCommander.GetPosition, aAttacker.GetPosition) <= DefenceRadius) then
         CurrentCommander.OrderAttackUnit(aAttacker);
