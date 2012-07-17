@@ -1913,9 +1913,10 @@ function TKMEdit.KeyEventHandled(Key: Word): Boolean;
 begin
   Result := True;
   if fText = '' then
+    //Don't include backspace/delete because edits should always handle those. Otherwise when you
+    //press backspace repeatedly to remove all characters it will apply other shortcuts like
+    //resetting the zoom if you press it once too many times.
     case Key of
-      VK_BACK,
-      VK_DELETE,
       VK_UP,
       VK_DOWN,
       VK_LEFT,
