@@ -2,8 +2,7 @@ unit KM_InterfaceDefaults;
 {$I KaM_Remake.inc}
 interface
 uses
-   Controls, Classes, KM_Defaults,
-   KM_Controls;
+   Controls, Classes, Windows, KM_Defaults, KM_Controls;
 
 
 type
@@ -35,12 +34,12 @@ const
   OPT_SLIDER_MIN = 0;
   OPT_SLIDER_MAX = 20;
 
-  SC_MENU_BUILD = Ord('1');
-  SC_MENU_RATIO = Ord('2');
-  SC_MENU_STATS = Ord('3');
-  SC_MENU_MENU = Ord('4');
+  SC_MENU_BUILD = VK_F1;
+  SC_MENU_RATIO = VK_F2;
+  SC_MENU_STATS = VK_F3;
+  SC_MENU_MENU = VK_F4;
 
-  SC_SELECT_LOW = Ord('5');
+  SC_SELECT_LOW = Ord('0');
   SC_SELECT_HIGH = Ord('9');
 
   SC_ARMY_HALT = ('H');

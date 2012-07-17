@@ -1923,6 +1923,8 @@ begin
       VK_HOME,
       VK_END: Result := False; //These keys have no effect when text is blank
     end;
+  //We want these keys to be ignored by chat, so game shortcuts still work
+  if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
 end;
 
 

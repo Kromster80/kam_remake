@@ -259,7 +259,7 @@ begin
   //  others.. unknown
 
   //GLOBAL KEYS
-  if Key = VK_F3 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
+  if Key = VK_F12 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
 
   if fGame <> nil then
     fGame.KeyUp(Key, Shift)

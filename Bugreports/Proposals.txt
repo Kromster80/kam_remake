@@ -60,3 +60,4 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Add fan-made section where fans could add LOLCat, Welsh, Simple English, Funny and other translations with fallback to existing locale
 	Armour smithy has shields as 2nd item, armour workshop has shields as first item. Would make more sense to have them the same like the weapons smithy/workshop are.
 		Lewin: I agree with this proposal
+	Way to make chat messages sent to only a specific player (could make it easier to play unfairly, e.g. in 1vs1vs1 two players could plan to destroy the other player)

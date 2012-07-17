@@ -3043,7 +3043,7 @@ end;
 procedure TKMGamePlayInterface.Selection_Assign(aKey: Word; aObject: TObject);
 var Key: Integer;
 begin
-  Key := aKey - 53;
+  Key := aKey - Ord('0');
   if not InRange(Key, 0, 9) then Exit;
 
   if aObject is TKMUnit then
@@ -3059,7 +3059,7 @@ end;
 procedure TKMGamePlayInterface.Selection_Select(aKey: Word);
 var Key: Integer; OldSelected: TObject;
 begin
-  Key := aKey - 53;
+  Key := aKey - Ord('0');
   if not InRange(Key, 0, 9) then Exit;
 
   if fSelection[Key] <> -1 then
