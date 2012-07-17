@@ -6,6 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Dialogs, Graphics, Math, Types, StrUtils, SysUtils,
   KM_Defaults, KM_Pics, KM_ResourceHouse, KM_ResourcePalettes, KM_ResourceSprites
+  , KM_ResourceTileset
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF}
   {$IFDEF FPC}, BGRABitmap {$ENDIF};
@@ -25,6 +26,7 @@ type
     property IsLoaded: Boolean read GetLoaded;
     procedure AdjoinHouseMasks(aHouseDat: TKMHouseDatCollection);
     procedure GrowHouseMasks(aHouseDat: TKMHouseDatCollection);
+    procedure SoftWater(aTileset: TKMTileset);
     procedure Delete(aIndex: Integer);
     procedure LoadFromRXFile(const aFileName: string);
     procedure LoadFromFolder(const aFolder: string);
@@ -235,6 +237,94 @@ begin
 
         fRXData.Mask[ID, T] := Min(Min(A, B), Min(C, D));
       end;
+    end;
+  end;
+end;
+
+
+procedure TKMSpritePackEdit.SoftWater(aTileset: TKMTileset);
+var
+  I, J, K, T: Integer;
+  AR, AG, AB: Cardinal;
+  Samples: Cardinal;
+  Tmp: array [0 .. 32 * 32 - 1] of Cardinal;
+
+  procedure AddAccum(aColor: Cardinal);
+  begin
+    if aColor = 0 then Exit;
+    AR := AR + aColor and $FF;
+    AG := AG + aColor shr 8 and $FF;
+    AB := AB + aColor shr 16 and $FF;
+    Inc(Samples);
+  end;
+begin
+  for I := 1 to 256 do
+  if fRXData.Flag[I + 300] <> 0 then
+  begin
+    for J := 0 to fRXData.Size[I].Y - 1 do
+    for K := 0 to fRXData.Size[I].X - 1 do
+    begin
+      T := J * fRXData.Size[I].X + K;
+
+      if (fRXData.RGBA[I + 300, T] <> 0) then
+      begin
+        //We take advantage of the checkerboard pattern to fill missing pixels
+        AR := 0;
+        AG := 0;
+        AB := 0;
+        Samples := 0;
+        if K > 0 then
+          AddAccum(fRXData.RGBA[I, J * fRXData.Size[I].X + K - 1]);
+        if K < fRXData.Size[I].X - 1 then
+          AddAccum(fRXData.RGBA[I, J * fRXData.Size[I].X + K + 1]);
+        if J > 0 then
+          AddAccum(fRXData.RGBA[I, (J - 1) * fRXData.Size[I].X + K]);
+        if J < fRXData.Size[I].Y - 1 then
+          AddAccum(fRXData.RGBA[I, (J + 1) * fRXData.Size[I].X + K]);
+
+        fRXData.RGBA[I, T] := (AR div Samples) or (AG div Samples) shl 8 or (AB div Samples) shr 16 or $FF000000;
+      end;
+    end;
+  end;
+
+  //Soften water
+  for I := 301 to 4200 do
+  if fRXData.Flag[I] <> 0 then
+  begin
+    for J := 0 to fRXData.Size[I].Y - 1 do
+    for K := 0 to fRXData.Size[I].X - 1 do
+    begin
+      T := J * fRXData.Size[I].X + K;
+
+      if (fRXData.RGBA[I, T] = 0) then
+      begin
+        //We take advantage of the checkerboard pattern to fill missing pixels
+        AR := 0;
+        AG := 0;
+        AB := 0;
+        Samples := 0;
+        if K > 0 then
+          AddAccum(fRXData.RGBA[I, J * fRXData.Size[I].X + K - 1]);
+        if K < fRXData.Size[I].X - 1 then
+          AddAccum(fRXData.RGBA[I, J * fRXData.Size[I].X + K + 1]);
+        if J > 0 then
+          AddAccum(fRXData.RGBA[I, (J - 1) * fRXData.Size[I].X + K]);
+        if J < fRXData.Size[I].Y - 1 then
+          AddAccum(fRXData.RGBA[I, (J + 1) * fRXData.Size[I].X + K]);
+
+        if Samples > 0 then
+          Tmp[T] := Round(AR / Samples) or (Round(AG / Samples) shl 8) or (Round(AB / Samples) shr 16) or (Samples * $30000000);
+      end
+      else
+        Tmp[T] := (fRXData.RGBA[I, T] and $FFFFFF) or $B0000000;
+    end;
+
+    for J := 0 to fRXData.Size[I].Y - 1 do
+    for K := 0 to fRXData.Size[I].X - 1 do
+    begin
+      T := J * fRXData.Size[I].X + K;
+      fRXData.RGBA[I, T] := Tmp[T];
+      Tmp[T] := 0;
     end;
   end;
 end;

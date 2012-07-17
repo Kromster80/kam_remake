@@ -463,6 +463,9 @@ begin
   else
     TexType := tf_RGB5A1;
 
+  if fRT = rxTiles then
+    TexType := tf_RGBA8;
+
   //Second algorithm is kept until we implement better one
   if USE_BIN_PACKING then
     MakeGFX_BinPacking(TexType, aStartingIndex, BaseRAM, ColorRAM, TexCount)

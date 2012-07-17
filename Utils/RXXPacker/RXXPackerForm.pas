@@ -106,6 +106,10 @@ begin
         HouseDat.Free;
       end;
 
+      //The idea was to blur the water and make it semitrasparent, but it did not worked out as expected
+      //if RT = rxTiles then
+      //  SpritePack.SoftWater(nil);
+
       //Save
       SpritePack.SaveToRXXFile(ExeDir + 'Data\Sprites\' + RXInfo[RT].FileName + '.rxx');
 
