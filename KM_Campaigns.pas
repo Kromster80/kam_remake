@@ -11,6 +11,8 @@ const
   MAX_CAMP_NODES = 20;
 
 type
+  TCorner = (cBottomRight, cBottomLeft);
+
   TKMCampaign = class
   private
     //Runtime variables
@@ -29,7 +31,7 @@ type
       Flag: TKMPoint;
       NodeCount: Byte;
       Nodes: array [0 .. MAX_CAMP_NODES - 1] of TKMPoint;
-      TextPos: Byte; //Text position (TL, TR, BL, BR corner)
+      TextPos: TCorner;
     end;
     constructor Create;
     destructor Destroy; override;
@@ -294,7 +296,7 @@ begin
     M.Read(Maps[I].NodeCount);
     for K := 0 to Maps[I].NodeCount - 1 do
       M.Read(Maps[I].Nodes[K]);
-    M.Read(Maps[I].TextPos);
+    M.Read(Maps[I].TextPos, SizeOf(TCorner));
   end;
 
   M.Free;
@@ -318,7 +320,7 @@ begin
     M.Write(Maps[I].NodeCount);
     for K := 0 to Maps[I].NodeCount - 1 do
       M.Write(Maps[I].Nodes[K]);
-    M.Write(Maps[I].TextPos);
+    M.Write(Maps[I].TextPos, SizeOf(TCorner));
   end;
 
   M.SaveToFile(aFileName);

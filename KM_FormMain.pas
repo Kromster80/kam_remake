@@ -441,10 +441,11 @@ end;
 
 procedure TFormMain.Button_StopClick(Sender: TObject);
 begin
-  if fGameApp.Game.IsMapEditor then
-    fGameApp.Stop(gr_MapEdEnd)
-  else
-    fGameApp.Stop(gr_Cancel);
+  if fGameApp.Game <> nil then
+    if fGameApp.Game.IsMapEditor then
+      fGameApp.Stop(gr_MapEdEnd)
+    else
+      fGameApp.Stop(gr_Cancel);
 end;
 
 

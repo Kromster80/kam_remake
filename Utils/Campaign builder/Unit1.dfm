@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 72
   Top = 90
   Caption = 'Form1'
-  ClientHeight = 492
+  ClientHeight = 465
   ClientWidth = 689
   Color = clBtnFace
   Constraints.MinHeight = 492
@@ -18,22 +18,22 @@ object Form1: TForm1
   OnKeyDown = FormKeyDown
   DesignSize = (
     689
-    492)
+    465)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
-    Left = 112
+    Left = 104
     Top = 80
-    Width = 50
+    Width = 55
     Height = 13
-    Caption = 'Map count'
+    Caption = 'Maps count'
   end
   object Label2: TLabel
     Left = 8
     Top = 320
-    Width = 55
+    Width = 60
     Height = 13
-    Caption = 'Node count'
+    Caption = 'Nodes count'
   end
   object Bevel1: TBevel
     Left = 8
@@ -65,7 +65,6 @@ object Form1: TForm1
     Width = 73
     Height = 25
     Caption = 'Save CMP ...'
-    Enabled = False
     TabOrder = 1
     OnClick = btnSaveCMPClick
   end
@@ -84,14 +83,13 @@ object Form1: TForm1
     Width = 153
     Height = 25
     Caption = 'Load BMP picture ...'
-    Enabled = False
     TabOrder = 3
     OnClick = btnLoadPictureClick
   end
   object seMapCount: TSpinEdit
-    Left = 112
+    Left = 104
     Top = 96
-    Width = 49
+    Width = 57
     Height = 22
     MaxValue = 32
     MinValue = 1
@@ -110,18 +108,9 @@ object Form1: TForm1
     Value = 0
     OnChange = MapChange
   end
-  object edtShortName: TEdit
-    Left = 8
-    Top = 96
-    Width = 65
-    Height = 21
-    MaxLength = 4
-    TabOrder = 6
-    OnChange = edtShortNameChange
-  end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 473
+    Top = 446
     Width = 689
     Height = 19
     Panels = <
@@ -131,24 +120,27 @@ object Form1: TForm1
       item
         Width = 50
       end>
+    ExplicitTop = 473
   end
   object ScrollBox1: TScrollBox
     Left = 168
     Top = 8
     Width = 513
-    Height = 457
+    Height = 425
+    HorzScrollBar.Position = 531
+    VertScrollBar.Position = 363
     Anchors = [akLeft, akTop, akRight, akBottom]
-    TabOrder = 8
+    TabOrder = 7
     object Image1: TImage
-      Left = 0
-      Top = 0
+      Left = -531
+      Top = -363
       Width = 1024
       Height = 768
       Stretch = True
     end
     object imgBlackFlag: TImage
-      Left = 8
-      Top = 8
+      Left = -523
+      Top = -355
       Width = 27
       Height = 29
       AutoSize = True
@@ -236,8 +228,8 @@ object Form1: TForm1
       Visible = False
     end
     object imgRedFlag: TImage
-      Left = 40
-      Top = 8
+      Left = -491
+      Top = -355
       Width = 23
       Height = 29
       AutoSize = True
@@ -314,8 +306,8 @@ object Form1: TForm1
       Visible = False
     end
     object imgNode: TImage
-      Left = 72
-      Top = 8
+      Left = -459
+      Top = -355
       Width = 11
       Height = 11
       AutoSize = True
@@ -338,20 +330,37 @@ object Form1: TForm1
       Transparent = True
       Visible = False
     end
+    object shpBriefing: TShape
+      Left = 133
+      Top = 105
+      Width = 360
+      Height = 300
+      Brush.Style = bsDiagCross
+      Pen.Color = clWhite
+    end
   end
-  object RadioGroup1: TRadioGroup
+  object rgBriefingPos: TRadioGroup
     Left = 8
-    Top = 368
+    Top = 376
     Width = 153
-    Height = 97
-    Caption = ' Mission text '
+    Height = 57
+    Caption = ' Briefing position '
     Items.Strings = (
-      'Top-left'
-      'Top-right'
-      'Bottom-left'
-      'Bottom-right')
+      'Bottom-right'
+      'Bottom-left')
+    TabOrder = 8
+    OnClick = rgBriefingPosClick
+  end
+  object edtShortName: TMaskEdit
+    Left = 8
+    Top = 96
+    Width = 57
+    Height = 21
+    EditMask = '>LLL'
+    MaxLength = 3
     TabOrder = 9
-    OnClick = RadioGroup1Click
+    Text = '   '
+    OnChange = edtShortNameChange
   end
   object dlgOpenPicture: TOpenDialog
     Filter = 'Bitmap images (*.bmp)|*.bmp'

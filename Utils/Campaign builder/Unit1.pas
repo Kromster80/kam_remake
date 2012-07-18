@@ -4,7 +4,7 @@ interface
 uses
   Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
   Graphics, Math, Spin, StdCtrls, SysUtils, Windows,
-  KM_Campaigns;
+  KM_Campaigns, Vcl.Mask;
 
 
 type
@@ -21,7 +21,6 @@ type
     dlgOpenCampaign: TOpenDialog;
     dlgSaveCampaign: TSaveDialog;
     Bevel1: TBevel;
-    edtShortName: TEdit;
     Label6: TLabel;
     StatusBar1: TStatusBar;
     ScrollBox1: TScrollBox;
@@ -29,7 +28,9 @@ type
     imgBlackFlag: TImage;
     imgRedFlag: TImage;
     imgNode: TImage;
-    RadioGroup1: TRadioGroup;
+    rgBriefingPos: TRadioGroup;
+    edtShortName: TMaskEdit;
+    shpBriefing: TShape;
     procedure btnLoadPictureClick(Sender: TObject);
     procedure btnLoadCMPClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -38,7 +39,7 @@ type
     procedure MapChange(Sender: TObject);
     procedure btnSaveCMPClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure RadioGroup1Click(Sender: TObject);
+    procedure rgBriefingPosClick(Sender: TObject);
     procedure edtShortNameChange(Sender: TObject);
   private
     imgFlags: array of TImage;
@@ -184,6 +185,18 @@ end;
 
 procedure TForm1.btnSaveCMPClick(Sender: TObject);
 begin
+  if C.MapCount < 2 then
+  begin
+    ShowMessage('Campaign must have at least 2 missions');
+    Exit;
+  end;
+
+  if Length(Trim(C.ShortTitle)) <> 3 then
+  begin
+    ShowMessage('Campaign short title must be 3 characters');
+    Exit;
+  end;
+
   dlgSaveCampaign.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
   if not dlgSaveCampaign.Execute then Exit;
 
@@ -207,9 +220,6 @@ begin
 
   fSelectedMap := -1;
   fSelectedNode := -1;
-
-  btnSaveCMP.Enabled := True;
-  btnLoadPicture.Enabled := True;
 
   UpdateList;
   UpdateFlagCount;
@@ -267,9 +277,13 @@ begin
 end;
 
 
-procedure TForm1.RadioGroup1Click(Sender: TObject);
+procedure TForm1.rgBriefingPosClick(Sender: TObject);
 begin
-  C.Maps[fSelectedMap].TextPos := RadioGroup1.ItemIndex;
+  if fUpdating or (fSelectedMap = -1) then Exit;
+
+  C.Maps[fSelectedMap].TextPos := TCorner(rgBriefingPos.ItemIndex);
+
+  RefreshFlags;
 end;
 
 
@@ -294,6 +308,9 @@ begin
     imgNodes[I].Left := C.Maps[fSelectedMap].Nodes[I].X + Image1.Left;
     imgNodes[I].Top := C.Maps[fSelectedMap].Nodes[I].Y + Image1.Top;
   end;
+
+  shpBriefing.Top := Image1.Height - shpBriefing.Height;
+  shpBriefing.Left := IfThen(C.Maps[fSelectedMap].TextPos = cBottomRight, Image1.Width - shpBriefing.Width, 0);
 end;
 
 
@@ -431,9 +448,11 @@ begin
       tvList.Items[I].Selected := True;
   end;
 
+  seNodeCount.Value := C.Maps[fSelectedMap].NodeCount;
+  rgBriefingPos.ItemIndex := Byte(C.Maps[fSelectedMap].TextPos);
+
   //Update map info
   StatusBar1.Panels[0].Text := 'Selected map: ' + IntToStr(fSelectedMap) + '/' + IntToStr(fSelectedNode);
-  seNodeCount.Value := C.Maps[fSelectedMap].NodeCount;
 
   fUpdating := False;
 
