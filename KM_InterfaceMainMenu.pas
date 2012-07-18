@@ -1982,6 +1982,10 @@ begin
 
   //Select last map to play by 'clicking' last node
   Campaign_SelectMap(Image_CampaignFlags[Campaign_Selected.UnlockedMap]);
+
+  //When opening campaign screen set the scroll initial position properly
+  //Player can move it later (to allow to select previous maps and look at camp map)
+  Panel_CampScroll.Left := IfThen(Campaign_Selected.Maps[Campaign_MapIndex].TextPos = cBottomRight, Panel_Main.Width - Panel_Campaign.Width, 0);
 end;
 
 
