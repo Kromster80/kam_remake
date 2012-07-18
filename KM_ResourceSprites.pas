@@ -187,6 +187,8 @@ begin
   {$IFDEF FPC}
   po := TBGRABitmap.Create(aFolder + aFilename);
   {$ENDIF}
+  Assert((po.Width <= 1024) and (po.Height <= 1024), 'Image size should be less than 1024x1024 pixels');
+
   try
     fRXData.Flag[aIndex] := Byte(po.Width * po.Height <> 0); //Mark as used (required for saving RXX)
     fRXData.Size[aIndex].X := po.Width;
@@ -297,7 +299,8 @@ begin
 
   try
     DecompressionStream.Read(RXXCount, 4);
-    fLog.AppendLog(RXInfo[fRT].FileName + ' -', RXXCount);
+    if fLog <> nil then
+      fLog.AppendLog(RXInfo[fRT].FileName + ' -', RXXCount);
 
     if RXXCount = 0 then
       Exit;

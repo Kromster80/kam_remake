@@ -1,8 +1,9 @@
 =============
 Must be done:
 =============
+ +	Campaign editor tool for the public [Krom]
 	Finish charts
-	Finish custom campaign support
+	Finish custom campaign support (whats left?)
 	Fix TSK 19 crash [Lewin]
 	Block market in original missions through script not code hack [Lewin]
 	Statistics screen in replays should show stats from the last player you selected [Krom]
@@ -11,8 +12,6 @@ Must be done:
 	TSK 15 the black AI (player 4) doesn't build because the script contains no !SET_AI_PLAYER (KaM assumes AI by default I guess?) [Lewin]
 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Add new music tracks Market and Household
-	Campaign editor tool for the public [Krom]
-	RXXEditor tool for the public (to make campaign backgrounds) [Krom]
 	Update game files from SR3 where approperiate [Lewin]
 	Update readme with changed info (shortcuts, missing features)
 

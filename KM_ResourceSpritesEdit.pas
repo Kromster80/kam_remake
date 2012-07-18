@@ -34,6 +34,7 @@ type
     procedure SoftenShadows(aStart:Integer=1; aEnd: Integer=-1);
     function TrimSprites: Cardinal; //For debug
     procedure ClearTemp; override;
+    procedure GetImageToBitmap(aIndex: Integer; aPNG, aMask: TPNGObject);
   end;
 
 
@@ -508,6 +509,38 @@ begin
   CompressionStream.Free;
   OutputStream.Free;
   InputStream.Free;
+end;
+
+
+procedure TKMSpritePackEdit.GetImageToBitmap(aIndex: Integer; aPNG, aMask: TPNGObject);
+var
+  I, K, W, H: Integer;
+  T: Cardinal;
+begin
+  if fRXData.Flag[aIndex] = 0 then Exit;
+
+  W := fRXData.Size[aIndex].X;
+  H := fRXData.Size[aIndex].Y;
+
+  aPNG.Resize(W, H);
+  if aMask <> nil then
+    aMask.Resize(W, H);
+
+  for I := 0 to H - 1 do
+  for K := 0 to W - 1 do
+  begin
+    T := fRXData.RGBA[aIndex, I * W + K];
+
+    //RGB and Alpha components are stored in two separate places
+    aPNG.Pixels[K,I] := T and $FFFFFF;
+    aPNG.AlphaScanline[I]^[K] := T shr 24;
+
+    if (aMask <> nil) and fRXData.HasMask[aIndex] then
+    begin
+      T := fRXData.Mask[aIndex, I * W + K];
+      aMask.Pixels[K,I] := T * 65793;
+    end;
+  end;
 end;
 
 

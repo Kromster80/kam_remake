@@ -48,7 +48,6 @@ type
   private
     fPalettes: TKMPalettes;
     fSprites: TKMSpritePackEdit;
-    procedure GetImageToBitmap(aIndex: Integer; aPNG, aMask: TPNGObject);
     procedure UpdateList;
   end;
 
@@ -83,35 +82,6 @@ begin
 end;
 
 
-procedure TRXXForm1.GetImageToBitmap(aIndex: Integer; aPNG, aMask: TPNGObject);
-var
-  I, K, W, H: Integer;
-  T: Cardinal;
-begin
-  W := fSprites.RXData.Size[aIndex].X;
-  H := fSprites.RXData.Size[aIndex].Y;
-
-  aPNG.Resize(W, H);
-  aMask.Resize(W, H);
-
-  for I := 0 to H - 1 do
-  for K := 0 to W - 1 do
-  begin
-    T := fSprites.RXData.RGBA[aIndex, I * W + K];
-
-    //RGB and Alpha components are stored in two separate places
-    aPNG.Pixels[K,I] := T and $FFFFFF;
-    aPNG.AlphaScanline[I]^[K] := T shr 24;
-
-    if fSprites.RXData.HasMask[aIndex] then
-    begin
-      T := fSprites.RXData.Mask[aIndex, I * W + K];
-      aMask.Pixels[K,I] := T * 65793;
-    end;
-  end;
-end;
-
-
 procedure TRXXForm1.lbSpritesListClick(Sender: TObject);
   procedure ToggleImageButtons(aState: Boolean);
   begin
@@ -143,7 +113,7 @@ begin
   PNGBase := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
   PNGMask := TPNGObject.CreateBlank(COLOR_GRAYSCALE, 8, 0, 0);
   try
-    GetImageToBitmap(ID, PNGBase, PNGMask);
+    fSprites.GetImageToBitmap(ID, PNGBase, PNGMask);
     Image1.Picture.Assign(PNGBase);
     if PNGMask.Width * PNGMask.Height <> 0 then
       Image2.Picture.Assign(PNGMask);
@@ -250,7 +220,7 @@ begin
 
   //WinXP needs InitialDir to be set before Execute
   OpenDialog1.InitialDir := ExeDir;
-  OpenDialog1.Filter := 'Supported images (*.bmp;*.png)|*.bmp;*.png';
+  OpenDialog1.Filter := 'Supported images (*.png)|*.png';
   OpenDialog1.Options := OpenDialog1.Options - [ofAllowMultiSelect];
   if not OpenDialog1.Execute then Exit;
 
@@ -295,7 +265,7 @@ begin
   PNGBase := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
   PNGMask := TPNGObject.CreateBlank(COLOR_GRAYSCALE, 8, 0, 0);
   try
-    GetImageToBitmap(ID, PNGBase, PNGMask);
+    fSprites.GetImageToBitmap(ID, PNGBase, PNGMask);
 
     PNGBase.SaveToFile(FileName);
     if PNGMask.Width * PNGMask.Height <> 0 then

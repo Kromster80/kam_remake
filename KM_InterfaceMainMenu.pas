@@ -1989,8 +1989,8 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Campaign_SelectMap(Sender:TObject);
-var i:integer;
+procedure TKMMainMenuInterface.Campaign_SelectMap(Sender: TObject);
+var I: Integer;
 begin
   if not (Sender is TKMImage) then exit;
   if not TKMImage(Sender).HighlightOnMouseOver then exit; //Skip closed maps
@@ -1998,15 +1998,15 @@ begin
   Campaign_MapIndex := TKMImage(Sender).Tag;
 
   //Place highlight
-  for i := 0 to High(Image_CampaignFlags) do
-    Image_CampaignFlags[i].Highlight := (Campaign_MapIndex = i);
+  for I := 0 to High(Image_CampaignFlags) do
+    Image_CampaignFlags[I].Highlight := (Campaign_MapIndex = I);
 
   //Connect by sub-nodes
-  for i := 0 to High(Image_CampaignSubNode) do
+  for I := 0 to High(Image_CampaignSubNode) do
   begin
-    Image_CampaignSubNode[i].Visible := InRange(i, 0, Campaign_Selected.Maps[Campaign_MapIndex].NodeCount-1);
-    Image_CampaignSubNode[i].Left := Campaign_Selected.Maps[Campaign_MapIndex].Nodes[i].X;
-    Image_CampaignSubNode[i].Top  := Campaign_Selected.Maps[Campaign_MapIndex].Nodes[i].Y;
+    Image_CampaignSubNode[I].Visible := InRange(I, 0, Campaign_Selected.Maps[Campaign_MapIndex].NodeCount-1);
+    Image_CampaignSubNode[I].Left := Campaign_Selected.Maps[Campaign_MapIndex].Nodes[I].X;
+    Image_CampaignSubNode[I].Top  := Campaign_Selected.Maps[Campaign_MapIndex].Nodes[I].Y;
   end;
 
   Label_CampaignTitle.Caption := Format(fTextLibrary[TX_GAME_MISSION], [Campaign_MapIndex+1]);

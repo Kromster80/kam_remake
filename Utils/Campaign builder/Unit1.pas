@@ -3,8 +3,9 @@ unit Unit1;
 interface
 uses
   Classes, ComCtrls, Controls, Dialogs, ExtCtrls, Forms,
-  Graphics, Math, Spin, StdCtrls, SysUtils, Windows,
-  KM_Campaigns, Vcl.Mask;
+  Graphics, Mask, Math, Spin, StdCtrls, SysUtils, Windows,
+  {$IFDEF WDC} PNGImage, {$ENDIF}
+  KM_Campaigns, KM_Pics, KM_ResourceSpritesEdit;
 
 
 type
@@ -41,6 +42,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure rgBriefingPosClick(Sender: TObject);
     procedure edtShortNameChange(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     imgFlags: array of TImage;
     imgNodes: array of TImage;
@@ -48,6 +50,7 @@ type
     fSelectedMap: Integer;
     fSelectedNode: Integer;
     PrevX, PrevY: Integer;
+    fSprites: TKMSpritePackEdit;
   public
     procedure FlagDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FlagMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
@@ -55,6 +58,7 @@ type
     procedure NodeMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
     procedure SelectMap;
+    procedure RefreshBackground;
     procedure RefreshFlags;
     procedure UpdateList;
     procedure UpdateFlagCount;
@@ -78,6 +82,14 @@ begin
 
   seMapCount.MaxValue := MAX_CAMP_MAPS;
   seNodeCount.MaxValue := MAX_CAMP_NODES;
+
+  fSprites := TKMSpritePackEdit.Create(rxTrees, nil);
+end;
+
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  fSprites.Free;
 end;
 
 
@@ -201,6 +213,8 @@ begin
   if not dlgSaveCampaign.Execute then Exit;
 
   C.SaveToFile(dlgSaveCampaign.FileName);
+
+  fSprites.SaveToRXXFile(ExtractFilePath(dlgOpenCampaign.FileName) + 'images.rxx');
 end;
 
 
@@ -218,11 +232,19 @@ begin
 
   C.LoadFromFile(dlgOpenCampaign.FileName);
 
+  fSprites.Free;
+  fSprites := TKMSpritePackEdit.Create(rxTrees, nil);
+  if FileExists(ExtractFilePath(dlgOpenCampaign.FileName) + 'images.rxx') then
+    fSprites.LoadFromRXXFile(ExtractFilePath(dlgOpenCampaign.FileName) + 'images.rxx')
+  else
+    ShowMessage('Campaign background image (images.rxx) could not be found');
+
   fSelectedMap := -1;
   fSelectedNode := -1;
 
   UpdateList;
   UpdateFlagCount;
+  RefreshBackground;
   RefreshFlags;
 end;
 
@@ -232,7 +254,10 @@ begin
   dlgOpenPicture.InitialDir := ExtractFilePath(dlgOpenCampaign.FileName);
   if not dlgOpenPicture.Execute then Exit;
 
-  Image1.Picture.LoadFromFile(dlgOpenPicture.FileName);
+  fSprites.AddImage(ExtractFilePath(dlgOpenPicture.FileName),
+                    ExtractFileName(dlgOpenPicture.FileName), 1);
+
+  RefreshBackground;
 end;
 
 
@@ -284,6 +309,19 @@ begin
   C.Maps[fSelectedMap].TextPos := TCorner(rgBriefingPos.ItemIndex);
 
   RefreshFlags;
+end;
+
+
+procedure TForm1.RefreshBackground;
+var PNG: TPNGObject;
+begin
+  PNG := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
+  try
+    fSprites.GetImageToBitmap(1, PNG, nil);
+    Image1.Picture.Assign(PNG);
+  finally
+    PNG.Free;
+  end;
 end;
 
 

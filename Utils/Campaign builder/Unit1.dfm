@@ -15,6 +15,7 @@ object Form1: TForm1
   KeyPreview = True
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   DesignSize = (
     689
@@ -64,7 +65,7 @@ object Form1: TForm1
     Top = 8
     Width = 73
     Height = 25
-    Caption = 'Save CMP ...'
+    Caption = 'Save ...'
     TabOrder = 1
     OnClick = btnSaveCMPClick
   end
@@ -73,7 +74,7 @@ object Form1: TForm1
     Top = 8
     Width = 73
     Height = 25
-    Caption = 'Load CMP ...'
+    Caption = 'Load ...'
     TabOrder = 2
     OnClick = btnLoadCMPClick
   end
@@ -82,7 +83,7 @@ object Form1: TForm1
     Top = 40
     Width = 153
     Height = 25
-    Caption = 'Load BMP picture ...'
+    Caption = 'Load picture ...'
     TabOrder = 3
     OnClick = btnLoadPictureClick
   end
@@ -363,7 +364,7 @@ object Form1: TForm1
     OnChange = edtShortNameChange
   end
   object dlgOpenPicture: TOpenDialog
-    Filter = 'Bitmap images (*.bmp)|*.bmp'
+    Filter = 'Supported images (*.png)|*.png'
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofNoNetworkButton, ofEnableSizing]
     Left = 320
     Top = 16
