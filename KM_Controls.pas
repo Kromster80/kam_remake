@@ -195,7 +195,7 @@ type
     LineColor: TColor4; //color of outline
     LineWidth: Byte;
   public
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aLineColor: TColor4);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
     procedure Paint; override;
   end;
 
@@ -1367,11 +1367,10 @@ end;
 
 
 { TKMShape }
-constructor TKMShape.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aLineColor: TColor4);
+constructor TKMShape.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  FillColor := $00000000;
-  LineColor := aLineColor;
+
   LineWidth := 2;
 end;
 
@@ -3282,7 +3281,7 @@ begin
   fButton.MakesSound := False;
 
   P := MasterParent;
-  fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height, $00000000);
+  fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height);
   fShape.fOnClick := ListHide;
 end;
 
@@ -3649,7 +3648,7 @@ begin
   fButton.MakesSound := false;
 
   P := MasterParent;
-  fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height, $00000000);
+  fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height);
   fShape.fOnClick := ListHide;
 
   Size := Round(Sqrt(aCount)+0.5); //Round up
@@ -3949,6 +3948,8 @@ end;
 
 procedure TKMGraph.AddLine(aTitle: string; aColor: TColor4; const aValues: TCardinalArray);
 begin
+  if fMaxLength = 0 then Exit;
+
   //Make sure there is enough Values to copy to local storage with Move procedure
   Assert(Length(aValues) >= fMaxLength);
 

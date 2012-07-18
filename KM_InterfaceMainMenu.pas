@@ -422,12 +422,12 @@ begin
 
   if OVERLAY_RESOLUTIONS then
   begin
-    S := TKMShape.Create(Panel_Main, 0, 96, 1024, 576, $FF00FFFF);
-    S.Anchors := [];
+    S := TKMShape.Create(Panel_Main, 0, 96, 1024, 576);
+    S.LineColor := $FF00FFFF;
     S.LineWidth := 1;
     S.Hitable := False;
-    S := TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00);
-    S.Anchors := [];
+    S := TKMShape.Create(Panel_Main, 0, 0, 1024, 768);
+    S.LineColor := $FF00FF00;
     S.LineWidth := 1;
     S.Hitable := False;
   end;
@@ -1217,7 +1217,7 @@ begin
         Label_SingleTitle2[i].FontColor := $FFD0D0D0; //Grey for minor description
         Label_SingleSize[i]    := TKMLabel.Create(Panel_SingleList,C4+30, 40+i*40+14, 50,20,'0',fnt_Metal, taCenter);
 
-        Shape_SingleOverlay[i] := TKMShape.Create(Panel_SingleList, 0, 40+i*40, CS, 40, $00000000);
+        Shape_SingleOverlay[i] := TKMShape.Create(Panel_SingleList, 0, 40+i*40, CS, 40);
         Shape_SingleOverlay[i].LineWidth := 0;
         Shape_SingleOverlay[i].Tag := i;
         Shape_SingleOverlay[i].OnClick := SingleMap_MapClick;
@@ -1225,8 +1225,10 @@ begin
         Shape_SingleOverlay[i].OnMouseWheel := ScrollBar_SingleMaps.MouseWheel;
       end;
 
-      Shape_SingleMap:=TKMShape.Create(Panel_SingleList,0,40,CS,40, $FFFFFF00);
-      Shape_SingleMap.Hitable := false; //All hits should go to Shape_SingleOverlay[i] not this
+      Shape_SingleMap := TKMShape.Create(Panel_SingleList,0,40,CS,40);
+      Shape_SingleMap.LineColor := $FFFFFF00;
+      Shape_SingleMap.LineWidth := 2;
+      Shape_SingleMap.Hitable := False; //All hits should go to Shape_SingleOverlay[i] not this
 
     Panel_SingleDesc:=TKMPanel.Create(Panel_Single,45,135,445,520);
     Panel_SingleDesc.Anchors := [];
@@ -1560,10 +1562,10 @@ begin
       ImageStretch;
       Center;
     end;
-    with TKMBevel.Create(Panel_Results,0,0,Panel_Main.Width, Panel_Main.Height) do
+    with TKMShape.Create(Panel_Results,0,0,Panel_Main.Width+1, Panel_Main.Height+1) do
     begin
       Center;
-      BackAlpha := 0.6;
+      FillColor := $A0000000;
     end;
 
     Label_Results := TKMLabel.Create(Panel_Results,512,140,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
@@ -1648,10 +1650,10 @@ begin
       ImageStretch;
       Center;
     end;
-    with TKMBevel.Create(Panel_ResultsMP,0,0,Panel_Main.Width, Panel_Main.Height) do
+    with TKMShape.Create(Panel_ResultsMP,0,0,Panel_Main.Width+1, Panel_Main.Height+1) do
     begin
       Center;
-      BackAlpha := 0.6;
+      FillColor := $A0000000;
     end;
 
     Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,125,800,20,'<<<LEER>>>',fnt_Metal,taCenter);

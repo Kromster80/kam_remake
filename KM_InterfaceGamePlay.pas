@@ -712,6 +712,7 @@ end;
 
 
 constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: Word; aMultiplayer, aReplay: Boolean);
+var S: TKMShape;
 begin
   inherited Create(aScreenX, aScreenY);
 
@@ -790,8 +791,14 @@ begin
 
   if OVERLAY_RESOLUTIONS then
   begin
-    with TKMShape.Create(Panel_Main, 0, 0, 1024, 576, $FF00FFFF) do Hitable := False;
-    with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable := False;
+    S := TKMShape.Create(Panel_Main, 0, 96, 1024, 576);
+    S.LineColor := $FF00FFFF;
+    S.LineWidth := 1;
+    S.Hitable := False;
+    S := TKMShape.Create(Panel_Main, 0, 0, 1024, 768);
+    S.LineColor := $FF00FF00;
+    S.LineWidth := 1;
+    S.Hitable := False;
   end;
 
   SwitchPage(nil); //Update
@@ -1550,11 +1557,13 @@ begin
       Button_Market[I].OnClickEither := House_MarketSelect;
     end;
 
-    Shape_Market_From := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 30, $FF00B000);
+    Shape_Market_From := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 30);
+    Shape_Market_From.LineColor := $FF00B000;
     Shape_Market_From.LineWidth := 2;
     Shape_Market_From.Hitable := False;
     Shape_Market_From.Hide;
-    Shape_Market_To := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 30, $FF0000B0);
+    Shape_Market_To := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 30);
+    Shape_Market_To.LineColor := $FF0000B0;
     Shape_Market_To.LineWidth := 2;
     Shape_Market_To.Hitable := False;
     Shape_Market_To.Hide;
@@ -1572,13 +1581,15 @@ begin
     Button_Market_Out.Disable;
     Button_Market_Out.Hint := fTextLibrary[TX_HOUSES_MARKET_SELECT_RIGHT];
 
-    with TKMShape.Create(Panel_HouseMarket,  8, LineH, 36, 40, $FF00B000) do
+    with TKMShape.Create(Panel_HouseMarket,  8, LineH, 36, 40) do
     begin
+      LineColor := $FF00B000;
       LineWidth := 2;
       Hitable := False;
     end;
-    with TKMShape.Create(Panel_HouseMarket, 148, LineH, 36, 40, $FF0000B0) do
+    with TKMShape.Create(Panel_HouseMarket, 148, LineH, 36, 40) do
     begin
+      LineColor := $FF0000B0;
       LineWidth := 2;
       Hitable := False;
     end;
