@@ -768,7 +768,9 @@ type
 
   TKMDropColumns = class(TKMDropCommon)
   private
+    fDefaultCaption: string;
     fList: TKMColumnListBox;
+    procedure ColumnClick(aValue: Integer);
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
     procedure ListClick(Sender: TObject); override;
@@ -784,13 +786,15 @@ type
     procedure SetVisible(aValue: Boolean); override;
   public
     FadeImageWhenDisabled: Boolean;
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+    OnColumnClick: TIntegerEvent;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
     procedure Add(aItem: TKMListRow);
     procedure Clear; override;
     function Count: Integer; override;
-    property ShowHeader: Boolean read GetShowHeader write SetShowHeader;
+    property List: TKMColumnListBox read fList;
     property Item[aIndex: Integer]: TKMListRow read GetItem;
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
+    property DefaultCaption: string read fDefaultCaption write fDefaultCaption;
 
     procedure Paint; override;
   end;
@@ -942,8 +946,10 @@ type
   end;
 
 
+  function MakeListRow(const aCaption: array of string; aTag: Integer = 0): TKMListRow; overload;
   function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; aTag: Integer = 0): TKMListRow; overload;
   function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; const aPic: array of TKMPic; aTag: Integer = 0): TKMListRow; overload;
+
 
 implementation
 uses KM_RenderUI, KM_Resource, KM_ResourceCursors, KM_Sound, KM_Utils;
@@ -951,6 +957,21 @@ uses KM_RenderUI, KM_Resource, KM_ResourceCursors, KM_Sound, KM_Utils;
 
 var
   fRenderUI: TRenderUI;
+
+
+function MakeListRow(const aCaption: array of string; aTag: Integer = 0): TKMListRow;
+var I: Integer;
+begin
+
+  SetLength(Result.Cells, Length(aCaption));
+
+  for I := 0 to High(aCaption) do
+  begin
+    Result.Cells[I].Caption := aCaption[I];
+    Result.Cells[I].Color := $FFFFFFFF;
+  end;
+  Result.Tag := aTag;
+end;
 
 
 function MakeListRow(const aCaption: array of string; const aColor: array of TColor4; aTag: Integer = 0): TKMListRow;
@@ -3486,10 +3507,12 @@ end;
 
 
 { TKMDropColumns }
-constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aFont);
+
+  fDefaultCaption := aDefaultCaption;
 
   P := MasterParent;
 
@@ -3498,6 +3521,7 @@ begin
   fList.BackAlpha := 0.85;
   fList.OnClick := ListClick;
   fList.Focusable := False; //For drop downs we don't want the list to be focusable
+  fList.OnColumnClick := ColumnClick;
 
   ListHide(nil);
 end;
@@ -3573,6 +3597,13 @@ procedure TKMDropColumns.SetVisible(aValue: Boolean);
 begin
   inherited;
   if not aValue then ListHide(Self);
+end;
+
+
+procedure TKMDropColumns.ColumnClick(aValue: Integer);
+begin
+  if Assigned(OnColumnClick) then
+    OnColumnClick(aValue);
 end;
 
 
