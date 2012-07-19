@@ -1405,7 +1405,7 @@ end;
 
 
 { TKMLabel }
-constructor TKMLabel.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign{; aColor: TColor4=$FFFFFFFF});
+constructor TKMLabel.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont := aFont;

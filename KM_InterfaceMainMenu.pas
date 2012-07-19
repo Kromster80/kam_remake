@@ -144,7 +144,7 @@ type
     procedure Options_FlagClick(Sender: TObject);
     procedure Options_Refresh_DropBoxes;
     procedure Results_GraphToggle(Sender: TObject);
-    procedure Results_MPToggle(Sender: TObject);
+    procedure ResultsMP_Toggle(Sender: TObject);
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -621,7 +621,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Results_MPToggle(Sender: TObject);
+procedure TKMMainMenuInterface.ResultsMP_Toggle(Sender: TObject);
 begin
   Panel_StatsMP1.Visible := Sender = Button_MPStats;
   Panel_StatsMP2.Visible := Sender = Button_MPStats;
@@ -817,7 +817,7 @@ begin
     end;
 
     Button_MPWares.Enabled := (fGame.MissionMode = mm_Normal);
-    Results_MPToggle(Button_MPStats); //Statistics (not graphs) page shown by default every time
+    ResultsMP_Toggle(Button_MPStats); //Statistics (not graphs) page shown by default every time
   end;
 end;
 
@@ -1667,7 +1667,7 @@ begin
     Button_MPStats.Anchors := [akLeft];
     Button_MPStats.Caption := 'Statistics';
     Button_MPStats.CapOffsetY := -11;
-    Button_MPStats.OnClick := Results_MPToggle;
+    Button_MPStats.OnClick := ResultsMP_Toggle;
 
     Button_MPUnitsHouses := TKMButtonFlat.Create(Panel_ResultsMP, 408, 155, 210, 20, 454, rxGui);
     Button_MPUnitsHouses.TexOffsetX := -92;
@@ -1675,7 +1675,7 @@ begin
     Button_MPUnitsHouses.Anchors := [akLeft];
     Button_MPUnitsHouses.Caption := 'Units and Houses';
     Button_MPUnitsHouses.CapOffsetY := -11;
-    Button_MPUnitsHouses.OnClick := Results_MPToggle;
+    Button_MPUnitsHouses.OnClick := ResultsMP_Toggle;
 
     Button_MPWares := TKMButtonFlat.Create(Panel_ResultsMP, 626, 155, 210, 20, 169, rxGui);
     Button_MPWares.TexOffsetX := -86;
@@ -1683,7 +1683,7 @@ begin
     Button_MPWares.Anchors := [akLeft];
     Button_MPWares.Caption := 'Wares';
     Button_MPWares.CapOffsetY := -11;
-    Button_MPWares.OnClick := Results_MPToggle;
+    Button_MPWares.OnClick := ResultsMP_Toggle;
 
     Panel_StatsMP1 := TKMPanel.Create(Panel_ResultsMP, 62, 240, 900, 180);
     Panel_StatsMP1.Anchors := [akLeft];
