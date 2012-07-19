@@ -361,7 +361,7 @@ begin
   end;
 
   if UNLOCK_CAMPAIGN_MAPS then //Unlock more maps for debug
-    fUnlockedMap := 5;
+    fUnlockedMap := fMapCount;
 end;
 
 
