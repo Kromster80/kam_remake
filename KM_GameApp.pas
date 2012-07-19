@@ -594,7 +594,9 @@ end;
 procedure TKMGameApp.SendMPGameInfo(Sender: TObject);
 begin
   if fGame <> nil then
-    fNetworking.AnnounceGameInfo(fGame.MissionTime, fGame.GameName);
+    fNetworking.AnnounceGameInfo(fGame.MissionTime, fGame.GameName)
+  else
+    fNetworking.AnnounceGameInfo(-1, ''); //fNetworking will fill the details from lobby
 end;
 
 
@@ -646,6 +648,8 @@ end;
 procedure TKMGameApp.UpdateState(Sender: TObject);
 begin
   Inc(fGlobalTickCount);
+  //Always update networking for auto reconnection and query timeouts
+  if fNetworking <> nil then fNetworking.UpdateState(fGlobalTickCount);
   if fGame <> nil then
   begin
     fGame.UpdateState(fGlobalTickCount);
@@ -653,10 +657,7 @@ begin
       SendMPGameInfo(Self); //Send status to the server every 10 seconds
   end
   else
-  begin
-    if fNetworking <> nil then fNetworking.UpdateState(fGlobalTickCount); //Measures pings
     fMainMenuInterface.UpdateState(fGlobalTickCount);
-  end;
 
   //Every 1000ms
   if fGlobalTickCount mod 10 = 0 then

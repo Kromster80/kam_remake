@@ -202,7 +202,8 @@ end;
 procedure TGameInputProcess_Multi.WaitingForConfirmation(aTick:cardinal);
 begin
   //This is a notification that the game is waiting for a tick to be ready
-  inc(fNumberConsecutiveWaits);
+  if fNumberConsecutiveWaits < High(fNumberConsecutiveWaits) then
+    inc(fNumberConsecutiveWaits);
   //Mostly unused at the moment, could be used later for e.g. better fDelay calculation.
 end;
 

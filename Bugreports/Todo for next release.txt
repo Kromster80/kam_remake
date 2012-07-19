@@ -8,6 +8,7 @@ Must be done:
 	Block market in original missions through script not code hack [Lewin]
 	Statistics screen in replays should show stats from the last player you selected [Krom]
 		Krom: I'm not sure this is needed. In SP we would like to see only human player, and in MP all players are equaly visible(?)
+		Lewin: In MP replays I can only see the statistics screen (3rd button on in-game panel showing unit/house counts) for the player who saved the replay, I want to see it for everyone. In SP replays I can only see the stats for the human player, and I see no harm in letting people see how many serfs/labourers/schools an AI had.
 	Remove redundant word-wrapping new lines ("|") from unit descriptions in .libx for all languages. Keep the intentional ones that break it into two paragraphs though. [Lewin]
 	TSK 15 the black AI (player 4) doesn't build because the script contains no !SET_AI_PLAYER (KaM assumes AI by default I guess?) [Lewin]
 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
