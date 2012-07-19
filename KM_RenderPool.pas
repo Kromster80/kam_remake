@@ -279,7 +279,7 @@ begin
 
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(LocX,LocY,true);
   if FOW = 0 then exit; //Don't render objects which are unexplored
-  if FOW <=128 then AnimStep:=0; //Stop animation
+  if FOW <= 128 then AnimStep := 0; //Stop animation
   ID := A.Step[AnimStep mod Byte(A.Count) +1]+1;
   ID0 := A.Step[1] + 1;
   if ID <= 0 then exit;

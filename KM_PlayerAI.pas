@@ -786,11 +786,10 @@ begin
   CheckDefeated;
 
   //Check goals for all players to maintain multiplayer consistency
+  //AI does not care if it won or lost and Human dont need Mayor and Army management
   case fPlayers[fPlayerIndex].PlayerType of
-    pt_Human:     CheckGoals; //This procedure manages victory, loss and messages all in one
-    pt_Computer:  if (MyPlayer <> fPlayers[fPlayerIndex]) then
-                  begin
-
+    pt_Human:     CheckGoals; //This procedure manages victory and loss
+    pt_Computer:  begin
                     fMayor.UpdateState;
 
                     CheckArmy; //Feed army, position defence, arrange/organise groups

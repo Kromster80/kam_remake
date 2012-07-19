@@ -75,7 +75,6 @@ type
     //VII. Temporary and debug commands
     gic_TempAddScout,
     gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
-    gic_TempChangeMyPlayer, //Make debugging easier
     gic_TempDoNothing //Used for "aggressive" replays that store a command every tick
 
     { Optional input }
@@ -147,7 +146,6 @@ type
 
     procedure CmdTemp(aCommandType: TGameInputCommandType; aLoc: TKMPoint); overload;
     procedure CmdTemp(aCommandType: TGameInputCommandType); overload;
-    procedure CmdTemp(aCommandType: TGameInputCommandType; aNewPlayerIndex: TPlayerIndex); overload;
 
     function CommandsConfirmed(aTick:cardinal):boolean; virtual;
     procedure WaitingForConfirmation(aTick:cardinal); virtual;
@@ -308,10 +306,6 @@ begin
                                     P.AddUnitAndLink(ut_HorseScout, KMPoint(Params[1],Params[2]));
       gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
                                     P.FogOfWar.RevealEverything;
-      gic_TempChangeMyPlayer:     begin
-                                    fPlayers.Selected := nil;
-                                    MyPlayer := fPlayers.Player[Params[1]];
-                                  end;
       gic_TempDoNothing:          ;
 
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
@@ -497,13 +491,6 @@ procedure TGameInputProcess.CmdTemp(aCommandType: TGameInputCommandType);
 begin
   Assert(aCommandType in [gic_TempRevealMap, gic_TempDoNothing]);
   TakeCommand(MakeCommand(aCommandType, []));
-end;
-
-
-procedure TGameInputProcess.CmdTemp(aCommandType: TGameInputCommandType; aNewPlayerIndex: TPlayerIndex);
-begin
-  Assert(aCommandType = gic_TempChangeMyPlayer);
-  TakeCommand(MakeCommand(aCommandType, [aNewPlayerIndex]));
 end;
 
 

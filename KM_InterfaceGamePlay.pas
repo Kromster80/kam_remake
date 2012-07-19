@@ -2759,34 +2759,34 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Stats_Fill(Sender:TObject);
-var i,Tmp,Tmp2:integer;
+procedure TKMGamePlayInterface.Stats_Fill(Sender: TObject);
+var I, Tmp, Tmp2: Integer;
 begin
-  for i:=low(StatHouse) to high(StatHouse) do
+  for I := Low(StatHouse) to High(StatHouse) do
   begin
-    Tmp := MyPlayer.Stats.GetHouseQty(StatHouse[i]);
-    Tmp2 := MyPlayer.Stats.GetHouseWip(StatHouse[i]);
-    Stat_HouseQty[i].Caption := IfThen(Tmp =0, '-', inttostr(Tmp));
-    Stat_HouseWip[i].Caption := IfThen(Tmp2=0, '', '+'+inttostr(Tmp2));
-    if MyPlayer.Stats.GetCanBuild(StatHouse[i]) or (Tmp > 0) then
+    Tmp := MyPlayer.Stats.GetHouseQty(StatHouse[I]);
+    Tmp2 := MyPlayer.Stats.GetHouseWip(StatHouse[I]);
+    Stat_HouseQty[I].Caption := IfThen(Tmp =0, '-', inttostr(Tmp));
+    Stat_HouseWip[I].Caption := IfThen(Tmp2=0, '', '+'+inttostr(Tmp2));
+    if MyPlayer.Stats.GetCanBuild(StatHouse[I]) or (Tmp > 0) then
     begin
-      Stat_HousePic[i].TexID := fResource.HouseDat[StatHouse[i]].GUIIcon;
-      Stat_HousePic[i].Hint := fResource.HouseDat[StatHouse[i]].HouseName;
-      Stat_HouseQty[i].Hint := fResource.HouseDat[StatHouse[i]].HouseName;
-      Stat_HouseWip[i].Hint := fResource.HouseDat[StatHouse[i]].HouseName;
+      Stat_HousePic[I].TexID := fResource.HouseDat[StatHouse[I]].GUIIcon;
+      Stat_HousePic[I].Hint := fResource.HouseDat[StatHouse[I]].HouseName;
+      Stat_HouseQty[I].Hint := fResource.HouseDat[StatHouse[I]].HouseName;
+      Stat_HouseWip[I].Hint := fResource.HouseDat[StatHouse[I]].HouseName;
     end
     else
     begin
-      Stat_HousePic[i].TexID := 41;
-      Stat_HousePic[i].Hint := fTextLibrary[TX_HOUSE_NOT_AVAIABLE]; //Building not available
+      Stat_HousePic[I].TexID := 41;
+      Stat_HousePic[I].Hint := fTextLibrary[TX_HOUSE_NOT_AVAIABLE]; //Building not available
     end;
   end;
-  for i:=low(StatUnit) to high(StatUnit) do
+  for I := Low(StatUnit) to High(StatUnit) do
   begin
-    Tmp := MyPlayer.Stats.GetUnitQty(StatUnit[i]);
-    Stat_UnitQty[i].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
-    Stat_UnitPic[i].Hint := fResource.UnitDat[StatUnit[i]].UnitName;
-    Stat_UnitPic[i].FlagColor := MyPlayer.FlagColor;
+    Tmp := MyPlayer.Stats.GetUnitQty(StatUnit[I]);
+    Stat_UnitQty[I].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
+    Stat_UnitPic[I].Hint := fResource.UnitDat[StatUnit[I]].UnitName;
+    Stat_UnitPic[I].FlagColor := MyPlayer.FlagColor;
   end;
 end;
 

@@ -425,7 +425,7 @@ begin
     Exit;
 
   if (fPlayers <> nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
-    fGameApp.Game.GameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex);
+    MyPlayer := fPlayers[RGPlayer.ItemIndex];
 end;
 
 
