@@ -89,20 +89,20 @@ MaxID:2733
 96:Tulák
 97:Katapult
 98:Balista
-99:Nevolníci zásobují|vaše budovy |nezbytnými surovinami.||Mezi budovami |musí existovat cesty.
-100:Døevorubec produkuje|kmeny stromù, které se|dále zpracovávají v pile|na prkna.||Døevorubec se také stará|o opìtovné zalesnìní.
-101:Horník tìží uhlí,|železo nebo zlato|v pøíslušném dole.
-102:Chovatel zvíøat chová|prasata nebo konì.|Krmí je obilím.
-103:Farmáøi sází a sklízejí|obilí a hrozny na|farmách a vinicích.
-104:Tesaø pracuje na pile,|ve výrobnì zbraní|a výrobnì brnìní.||Staví také katapulty|a balisty ve výrobnì|obléhacích strojù.
-105:Pekaø mele obilí|na mouku ve mlýnì|a peèe chleba|v pekárnì.
-106:Øezník vyrábí|klobásy v øeznictví|a kùži v koželužnì.
-107:Rybáø chytá ryby|v øekách a moøích.||Pozor, ne každá|voda je plná ryb.
-108:Dìlník staví budovy|a cesty. Jednoduše|zadejte co má postavit|a vše vykoná|automaticky.||Také opravuje|poškozené budovy.
-109:Kameník láme a otesává|surový kámen na kámen|vhodný ke stavbám|budov a cest.
-110:Kováø vyrábí zbranì|a zbroje v kovárnách|zbraní a brnìní.
-111:Slévaè používá uhlí|k výrobì zlata a železa|z rud.
-112:Pomocí hradu mùžete|vycvièit z rekrutù|hlavní typy vojákù.||Nebo obsluhuje vìže.
+99:Nevolníci zásobují vaše budovy nezbytnými surovinami.||Mezi budovami musí existovat cesty.
+100:Døevorubec produkuje kmeny stromù, které se dále zpracovávají v pile na prkna.||Døevorubec se také stará o opìtovné zalesnìní.
+101:Horník tìží uhlí, železo nebo zlato v pøíslušném dole.
+102:Chovatel zvíøat chová prasata nebo konì. Krmí je obilím.
+103:Farmáøi sází a sklízejí obilí a hrozny na farmách a vinicích.
+104:Tesaø pracuje na pile, ve výrobnì zbraní a výrobnì brnìní.||Staví také katapulty a balisty ve výrobnì obléhacích strojù.
+105:Pekaø mele obilí na mouku ve mlýnì a peèe chleba v pekárnì.
+106:Øezník vyrábí klobásy v øeznictví a kùži v koželužnì.
+107:Rybáø chytá ryby v øekách a moøích.||Pozor, ne každá voda je plná ryb.
+108:Dìlník staví budovy a cesty. Jednoduše zadejte co má postavit a vše vykoná automaticky.||Také opravuje poškozené budovy.
+109:Kameník láme a otesává surový kámen na kámen vhodný ke stavbám budov a cest.
+110:Kováø vyrábí zbranì a zbroje v kovárnách zbraní a brnìní.
+111:Slévaè používá uhlí k výrobì zlata a železa z rud.
+112:Pomocí hradu mùžete vycvièit z rekrutù hlavní typy vojákù.||Nebo obsluhuje vìže.
 147:Ke stavbì budov
 148:K distribuci materiálu
 149:Ke statistikám
@@ -414,7 +414,7 @@ MaxID:2733
 1878:Konec období míru. Do zbranì!
 1879:Èas hry:|%s
 1880:Nastavení hry:
-1884:Zastavit oddíl  ('%s')
+1884:Zastavit oddíl ('%s')
 1885:Spojit oddíl ('%s')
 1886:Samostatný voják ('%s')
 1887:Záznamy ze hry

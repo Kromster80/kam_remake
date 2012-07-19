@@ -89,20 +89,20 @@ MaxID:2733
 96:Vagabondi
 97:Catapulte
 98:Balliste
-99:Il servo porta ai tuoi|edifici le materie prime|necessarie.||Deve esistere una strada|di collegamento fra di|essi.
-100:Per produrre i tronchi|d'albero necessari alla|segheria ti serve il |boscaiolo, che si occupa|anche del rimboschimento.
-101:Il minatore estrae i|minerali dalle miniere|di carbone, ferro e oro.
-102:L'allevatore accudisce|e nutre con del grano|il bestiame nelle stalle|e negli allevamenti.
-103:Il contadino pianta e miete|il grano nelle fattorie.||Inoltre raccoglie l'uva dai|vigneti e si occupa della|vendemmia nella cantina.
-104:Il carpentiere lavora nella|segheria e nelle botteghe|d'armi ed armature.||Costruisce inoltre balliste|e catapulte nell'officina |d'assedio.
-105:Il fornaio cuoce il pane|nel forno.||Può anche macinare il|grano nel mulino per|ottenere la farina.
-106:Il macellaio produce|salsicce nel mattatoio e|cuoio nella conceria.
-107:Il pescatore cattura i pesci|dai vicini corsi d'acqua.
-108:L'operaio costruisce|edifici e strade. Dovrai|soltanto impartire il|comando e lui porterà|avanti automaticamente|i tuoi ordini.||Può anche riparare gli|edifici danneggiati.
-109:Per fornire ai tuoi operai|il materiale che servirà|a costruire le strade e gli|edifici, lo scalpellino taglia|e sagoma la pietra grezza.
-110:Tra il calore e le fiamme|delle forge, il fabbro crea|armi e corazze per il tuo|esercito.
-111:Il fonditore usa il carbone|per raffinare l'oro ed il |ferro grezzi.
-112:Nella caserma, la recluta|riceve l'addestramento|e l'equipaggiamento per|diventare un soldato.||Può anche presidiare le|torri di guardia.
+99:Il servo porta ai tuoi edifici le materie prime necessarie.||Deve esistere una strada di collegamento fra di essi.
+100:Per produrre i tronchi d'albero necessari alla segheria ti serve il boscaiolo, che si occupa anche del rimboschimento.
+101:Il minatore estrae i minerali dalle miniere di carbone, ferro e oro.
+102:L'allevatore accudisce e nutre con del grano il bestiame nelle stalle e negli allevamenti.
+103:Il contadino pianta e miete il grano nelle fattorie.||Inoltre raccoglie l'uva dai vigneti e si occupa della vendemmia nella cantina.
+104:Il carpentiere lavora nella segheria e nelle botteghe d'armi ed armature.||Costruisce inoltre balliste e catapulte nell'officina d'assedio.
+105:Il fornaio cuoce il pane nel forno.||Può anche macinare il grano nel mulino per ottenere la farina.
+106:Il macellaio produce salsicce nel mattatoio e cuoio nella conceria.
+107:Il pescatore cattura i pesci dai vicini corsi d'acqua.
+108:L'operaio costruisce edifici e strade. Dovrai soltanto impartire il comando e lui porterà avanti automaticamente i tuoi ordini.||Può anche riparare gli edifici danneggiati.
+109:Per fornire ai tuoi operai il materiale che servirà a costruire le strade e gli edifici, lo scalpellino taglia e sagoma la pietra grezza.
+110:Tra il calore e le fiamme delle forge, il fabbro crea armi e corazze per il tuo esercito.
+111:Il fonditore usa il carbone per raffinare l'oro ed il ferro grezzi.
+112:Nella caserma, la recluta riceve l'addestramento e l'equipaggiamento per diventare un soldato.||Può anche presidiare le torri di guardia.
 147:Pianificazione degli edifici
 148:Distribuzione delle risorse
 149:Statistiche
@@ -295,7 +295,7 @@ MaxID:2733
 1755:Il tuo pescatore non riesce a trovare altri pesci nelle vicinanze.
 1757:Usa il tasto sinistro del mouse per scegliere il prodotto da scambiare
 1758:Usa il tasto destro del mouse per scegliere il prodotto da scambiare
-1759:Da  x%d
+1759:Da x%d
 1760:A x%d
 1761:Editor del terreno
 1762:Pianificazione del villaggio

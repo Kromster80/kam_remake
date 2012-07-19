@@ -89,20 +89,20 @@ MaxID:2733
 96:Tulák
 97:Katapult
 98:Ballista
-99:Nevo¾níci zásobujú vaše|budovy potrebnımi|surovinami.||Nezabudnite, e budovy|musia by prepojené|cestami.
-100:Aby ste mohol ai drevo|pre pílu, potrebujete|drevorubèa.||Drevorubaè sa nezávisle|stará o znovuzalesòovenie|vyaenıch plôch.
-101:Baník aí nerasty|z uho¾nıch, eleznıch|a zlatıch baní.
-102:V strediskách chovu|prasiec a koní|vykrmuje váš chovate¾|zvieratá obilím.
-103:Farmár pestuje|a zberá obilie|na farme.||Lisuje tie víno|vypestované vo vinici.
-104:Tesár pracuje|na píle, v|zbrojárskej dielni a|vo vırobni brnenia||Stavia tie katapulty|a obliehacie vrhaèe| a pracuje v dielni.
-105:Pekár peèie chlieb|v pekárne.||Melie tie|múku z obilia|vo vetrnom mlyne.
-106:Mäsiar vyrába klobásy|v mäsiarstve|a koe v koiarni.
-107:Rybár chytá ryby|v tesnej blízkosti|vodnıch plôch.
-108:Robotník stavia|budovy a cesty.|Staèí mu ukáza|vybrané miesto|a o splnenie vášho|rozkazu sa u|postará sám.||Opravuje tie|poškodené budovy.
-109:Aby mali robotníci|dostatok materiálu|na stavbu ciest a domov,|kamenár pre nich aí|a brúsi kameò.
-110:aké brnenia a zbrane|sú vyrábané|kováèom v zbrojárni|a kováèni brnenia.
-111:Hutník vyrába|truhlice zlata a oce¾|z príslušnıch rúd.
-112:Regrút môe by|vybavenı ako vojak|v hrade.||Obıva taktie|stránu veu.
+99:Nevo¾níci zásobujú vaše budovy potrebnımi surovinami.||Nezabudnite, e budovy musia by prepojené cestami.
+100:Aby ste mohol ai drevo pre pílu, potrebujete drevorubèa.||Drevorubaè sa nezávisle stará o znovuzalesòovenie vyaenıch plôch.
+101:Baník aí nerasty z uho¾nıch, eleznıch a zlatıch baní.
+102:V strediskách chovu prasiec a koní vykrmuje váš chovate¾ zvieratá obilím.
+103:Farmár pestuje a zberá obilie na farme.||Lisuje tie víno vypestované vo vinici.
+104:Tesár pracuje na píle, v zbrojárskej dielni a vo vırobni brnenia||Stavia tie katapulty a obliehacie vrhaèe a pracuje v dielni.
+105:Pekár peèie chlieb v pekárne.||Melie tie múku z obilia vo vetrnom mlyne.
+106:Mäsiar vyrába klobásy v mäsiarstve a koe v koiarni.
+107:Rybár chytá ryby v tesnej blízkosti vodnıch plôch.
+108:Robotník stavia budovy a cesty. Staèí mu ukáza vybrané miesto a o splnenie vášho rozkazu sa u postará sám.||Opravuje tie poškodené budovy.
+109:Aby mali robotníci dostatok materiálu na stavbu ciest a domov, kamenár pre nich aí a brúsi kameò.
+110:aké brnenia a zbrane sú vyrábané kováèom v zbrojárni a kováèni brnenia.
+111:Hutník vyrába truhlice zlata a oce¾ z príslušnıch rúd.
+112:Regrút môe by vybavenı ako vojak v hrade.||Obıva taktie stránu veu.
 147:K vıberu budov
 148:K rozdeleniu produktov
 149:Ku štatistike
@@ -414,7 +414,7 @@ MaxID:2733
 1878:Koniec obdobia mieru. Do zbrane!
 1879:Èas hry:|%s
 1880:Nastavenia hry:
-1884:Zastavi oddiel  ('%s')
+1884:Zastavi oddiel ('%s')
 1885:Spoji oddiel ('%s')
 1886:Samostatnı vojak ('%s')
 1887:Záznamy z hry

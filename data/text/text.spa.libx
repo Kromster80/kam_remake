@@ -89,20 +89,20 @@ MaxID:2733
 96:Vagabundo
 97:Catapulta
 98:Balista
-99:El ayudante abastece los|edificios con las|materias necesarias.||Tenga en cuenta que|deberá haber un camino|construído de casa a casa.
-100:Para abastecer el|aserradero con troncos|necesita al leñador.||El leñador foresta|de nuevo el terreno.
-101:El minero extrae mine-|rales de las minas de|carbón, de hierro y de oro.
-102:En ganadero cría cerdos|y caballos en los|criaderos, alimentándolos|con cereales.
-103:El campesino siembra y|cosecha el grano en el|campo.||Además pisa la uva en|la viña.
-104:El carpintero trabaja|en el aserradero, en|el taller de armas y|en el taller de armaduras.
-105:El panadero cuece el|pan en la panadería.||Además produce harina|moliendo el grano|en el molino.
-106:El carnicero produce|chorizos en la carnicería|y cuero en la curtiduría.
-107:El pescador pesca|peces en las aguas cercanas.
-108:El albañil construye|edificios y calles.|Indíquele, situando|las marcas en el|lugar deseado, donde|ha de construír.|Además repara los|edificios dañados.
-109:Para que los albañiles|tengan suficientes|piedras para construír|calles y edificios, el| cantero labra las piedras.
-110:El herrero elabora|armaduras pesadas y|armas en la herreía|de armas y de armaduras.
-111:El fundidor produce|hierro, arcas de|oro y de hierro.
-112:El recluta en el cuartel|es equipado con las|armas necesarias para|luchar como soldado.||Además ocupa|la atalaya.
+99:El ayudante abastece los edificios con las materias necesarias.||Tenga en cuenta que deberá haber un camino construído de casa a casa.
+100:Para abastecer el aserradero con troncos necesita al leñador.||El leñador foresta de nuevo el terreno.
+101:El minero extrae mine- rales de las minas de carbón, de hierro y de oro.
+102:En ganadero cría cerdos y caballos en los criaderos, alimentándolos con cereales.
+103:El campesino siembra y cosecha el grano en el campo.||Además pisa la uva en la viña.
+104:El carpintero trabaja en el aserradero, en el taller de armas y en el taller de armaduras.
+105:El panadero cuece el pan en la panadería.||Además produce harina moliendo el grano en el molino.
+106:El carnicero produce chorizos en la carnicería y cuero en la curtiduría.
+107:El pescador pesca peces en las aguas cercanas.
+108:El albañil construye edificios y calles. Indíquele, situando las marcas en el lugar deseado, donde ha de construír. Además repara los edificios dañados.
+109:Para que los albañiles tengan suficientes piedras para construír calles y edificios, el cantero labra las piedras.
+110:El herrero elabora armaduras pesadas y armas en la herreía de armas y de armaduras.
+111:El fundidor produce hierro, arcas de oro y de hierro.
+112:El recluta en el cuartel es equipado con las armas necesarias para luchar como soldado.||Además ocupa la atalaya.
 147:Construcción
 148:Reparto de materiales
 149:Estadística
@@ -158,8 +158,8 @@ MaxID:2733
 199:Aguante
 200:Girar a la izquierda
 201:Girar a la derecha
-202:¡Asalto!  ('a')
-203:Enviar tropa.  ('d')
+202:¡Asalto! ('a')
+203:Enviar tropa. ('d')
 204:Abastecer con alimentos a la tropa.
 205:Iniciar asalto.
 206:Agregar fila.
@@ -234,9 +234,9 @@ MaxID:2733
 1692:Empezar misión
 1693:Nombre
 1694:Medida
-1695:Tipo de misión:  %s
-1696:Condiciones de Victoria:  %s
-1697:Condiciones de Derrota:  %s
+1695:Tipo de misión: %s
+1696:Condiciones de Victoria: %s
+1697:Condiciones de Derrota: %s
 1698:Alidados
 1699:Enemigos
 1701:Nueva medida de mapa
@@ -284,7 +284,7 @@ MaxID:2733
 1744:Salvar
 1745:Cargar
 1746:Se ha producido un error durante el juego
-1747:Por favor envia el archivo %s  del directorio KaM Remake\\Crash  a los desarrolladoes del juego, son archivos que informan de errores y puedan reparar los fallos. ¡Muchas gracias por su ayuda!
+1747:Por favor envia el archivo %s del directorio KaM Remake\\Crash a los desarrolladoes del juego, son archivos que informan de errores y puedan reparar los fallos. ¡Muchas gracias por su ayuda!
 1748:Se ha detectado una versión antigua de OpenGL, el juego puede ejecutarse lentamente y / o con defectos gráficos
 1749:Error en la red:
 1750:Error: Nombre del jugador no puede estar en blanco
@@ -415,7 +415,7 @@ MaxID:2733
 1879:Tiempo de juego:|%s
 1880:Opciones de juego:
 1884:Parar tropas ('%s')
-1885:Unir tropas  ('%s')
+1885:Unir tropas ('%s')
 1886:Separar tropas ('%s')
 1887:Ver Repeticiones
 1888:Ver Repetición
@@ -444,7 +444,7 @@ MaxID:2733
 2693:No soportada
 2694:No soportada
 2695:Error: El nombre no debe tener más %d caracteres de largo
-2696:Error: El nombre del jugador tiene caracteres  no permitidos
+2696:Error: El nombre del jugador tiene caracteres no permitidos
 2697:Calidad de sombras
 2698:Bajo
 2699:Alto

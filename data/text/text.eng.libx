@@ -47,16 +47,16 @@ MaxID:2733
 52:Sausages
 53:Pigs
 54:Skins
-55:Wooden shield
-56:Iron shield
+55:Wooden shields
+56:Iron shields
 57:Leather armor
 58:Iron armor
-59:Hand axe
-60:Sword
-61:Lance
-62:Pike
-63:Longbow
-64:Crossbow
+59:Hand axes
+60:Swords
+61:Lances
+62:Pikes
+63:Longbows
+64:Crossbows
 65:Horses
 66:Fish
 69:Serf
@@ -89,20 +89,20 @@ MaxID:2733
 96:Vagabond
 97:Catapult
 98:Ballista
-99:The serf supplies your|buildings with the|necessary raw materials.||Note that a connecting|road must exist between|the buildings.
-100:To produce tree trunks|for the sawmill, you need|the woodcutter.||The woodcutter carries|out reforesting|independently.
-101:The miner mines ore|from the coal, iron and|gold mines.
-102:The animal breeder|uses corn to raise pigs|in the swine farm and|horses in the stables.
-103:The farmer plants|and harvests corn|on the farm.||He also produces wine|in the vineyard.
-104:The carpenter works|in the sawmill, the|weapons workshop and|in the armory workshop.||He also builds catapults|and ballistae in the siege|workshop.
-105:The baker grinds|corn into flour in|the mill.||He also bakes|bread in the bakery.
-106:The butcher makes|sausages in the|butchery and leather|in the tannery.
-107:The fisherman catches|fish in nearby water|bodies.
-108:The laborer constructs|buildings and roads.|Simply highlight your|preferred location|and he will carry out|your commands|automatically.||He also repairs|damaged buildings.
-109:To supply your laborers|with enough material to|construct roads and|buildings, the stonemason|will hew and cut stones.
-110:The blacksmith forges|iron weapons and|armor in the weapons|and armor smithies.
-111:The metallurgist uses|coal to refine gold and|iron ore.
-112:The recruit can be|equipped as a soldier|in the barracks.||He also occupies|the watchtower.
+99:The serf supplies your buildings with the necessary raw materials.||Note that a connecting road must exist between the buildings.
+100:To produce tree trunks for the sawmill, you need the woodcutter.||The woodcutter carries out reforesting independently.
+101:The miner mines ore from the coal, iron and gold mines.
+102:The animal breeder uses corn to raise pigs in the swine farm and horses in the stables.
+103:The farmer plants and harvests corn on the farm.||He also produces wine in the vineyard.
+104:The carpenter works in the sawmill, the weapons workshop and in the armory workshop.||He also builds catapults and ballistae in the siege workshop.
+105:The baker grinds corn into flour in the mill.||He also bakes bread in the bakery.
+106:The butcher makes sausages in the butchery and leather in the tannery.
+107:The fisherman catches fish in nearby water bodies.
+108:The laborer constructs buildings and roads. Simply highlight your preferred location and he will carry out your commands automatically.||He also repairs damaged buildings.
+109:To supply your laborers with enough material to construct roads and buildings, the stonemason will hew and cut stones.
+110:The blacksmith forges iron weapons and armor in the weapons and armor smithies.
+111:The metallurgist uses coal to refine gold and iron ore.
+112:The recruit can be equipped as a soldier in the barracks.||He also occupies the watchtower.
 147:To selection of buildings
 148:To distribution of wares
 149:To statistics
@@ -172,7 +172,7 @@ MaxID:2733
 213:Jumps to current message position
 214:Close
 215:Closes window
-216:|Your stonemason cannot get any further supplies of stone.
+216:|Your stonemason cannot reach any further deposits of stone.
 217:|Your coal mine seams are exhausted.
 218:|Your iron mine veins are exhausted.
 219:|Your gold mine veins are exhausted.

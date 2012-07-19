@@ -89,20 +89,20 @@ MaxID:2733
 96:Hulkur sõdalane
 97:Katapult
 98:Ballista
-99:Pärisori veab laiali |kaubad ja resursse.||Majad peavad olema |ühendatud teedega.
-100:Palkide tootmiseks|saekaatrile, on Teil vaja|puuraidurit.||Puuraidur taasistutab |metsa ise.
-101:Kaevandaja kaevab |süsi, raua ja kulla maake|kaevandustes.
-102:Tõuaretaja|kasutab rukkist, et |kasvatada sigu|sealaudas ja|hobuseid tallides.
-103:Talupoeg istutab|ja korjab rukkist|põllul.||Lisaks toodab ta veel veini|veiniistanduses.
-104:Puusepp tötab seakaatris, |relvakojas ja |Turvisekoda.||Lisaks ta ehitab katapulte |ja balistasid |vallutusseadmetekojas.
-105:Pagar jahvatab |rukkise jahuks.||Lisaks küpsetab |leiba pagariäris.
-106:Lihunik teeb vorste |lihunikuäris ja |parknahka |nahaparkimiskojas.
-107:Kalamees püüab|kalu lähedal asuvatest|vetest.
-108:Ehitaja ehitab maju |ja teesid. Lihtsalt |märgi ehitus objekti |asukoht ja ehitaja| tegutseb automaatselt.||Ta parandab ka |kahjustatud majasid.
-109:Ehitajate varustamiseks |on vajalik kiviraidur, kes |lõikab kivid õigesse |suurusesse.
-110:Sepp sepistab |raudrelvasid ja| raudrüüsid relva |ja raudturvise |sepikodades.
-111:Kullassepp kasutab |sütt kulla ja raua maagi |töötlemiseks.
-112:Nekrutit saab |varustada kasarmus.||Lisaks töötab ta |vahitornis.
+99:Pärisori veab laiali kaubad ja resursse.||Majad peavad olema ühendatud teedega.
+100:Palkide tootmiseks saekaatrile, on Teil vaja puuraidurit.||Puuraidur taasistutab metsa ise.
+101:Kaevandaja kaevab süsi, raua ja kulla maake kaevandustes.
+102:Tõuaretaja kasutab rukkist, et kasvatada sigu sealaudas ja hobuseid tallides.
+103:Talupoeg istutab ja korjab rukkist põllul.||Lisaks toodab ta veel veini veiniistanduses.
+104:Puusepp tötab seakaatris, relvakojas ja Turvisekoda.||Lisaks ta ehitab katapulte ja balistasid vallutusseadmetekojas.
+105:Pagar jahvatab rukkise jahuks.||Lisaks küpsetab leiba pagariäris.
+106:Lihunik teeb vorste lihunikuäris ja parknahka nahaparkimiskojas.
+107:Kalamees püüab kalu lähedal asuvatest vetest.
+108:Ehitaja ehitab maju ja teesid. Lihtsalt märgi ehitus objekti asukoht ja ehitaja tegutseb automaatselt.||Ta parandab ka kahjustatud majasid.
+109:Ehitajate varustamiseks on vajalik kiviraidur, kes lõikab kivid õigesse suurusesse.
+110:Sepp sepistab raudrelvasid ja raudrüüsid relva ja raudturvise sepikodades.
+111:Kullassepp kasutab sütt kulla ja raua maagi töötlemiseks.
+112:Nekrutit saab varustada kasarmus.||Lisaks töötab ta vahitornis.
 147:Majade valikusse
 148:Kaupade jaguneminemisse
 149:Statistikasse

@@ -89,20 +89,20 @@ MaxID:2733
 96:Vagebond
 97:Katapult
 98:Ballist
-99:De bediende voorziet je|gebouwen van de nodige|grondstoffen.||Let erop, dat er een|wegenverbinding tussen|de huizen is.
-100:Om boomstammen|voor de houtzagerij te|produceren, heb je de|houthakker nodig.||De houthakker beplant|het bos vanzelf opnieuw.
-101:De mijnwerker delft|ertsen in de kolen-,|ijzer- en goudmijn.
-102:In de varkens- en|paardenfokkerij fokt de|veefokker met behulp|van koren het vee.
-103:De boer zaait en oogst het|koren op de boerderij.||Bovendien perst hij wijn|in de wijngaard.
-104:De schrijnwerker werkt|in de houtzagerij, de|wapen-, wapentuig en|schiettuigmakerij.
-105:De bakker bakt brood in|de bakkerij.||Bovendien verwerkt hij|koren tot meel in de|windmolen.
-106:De slager produceert|worsten in de slagerij|en leer in de leerlooierij.
-107:De visserman vangt|vis in nabijgelegen|wateren.
-108:De bouwvakker maakt|gebouwen en wegen.|Plaats de markeringen|en hij voert je opdrachten|automatisch uit.||Bovendien repareert|hij beschadigde huizen.
-109:Omdat je bouwvakkers|voldoende stenen voor|het maken van wegen en|huizen moeten hebben,|wint de steenhouwer|stenen.
-110:Zware wapenrustingen|en wapens worden door|de smid in de wapenen|wapentuigsmederij|vervaardigd.
-111:De smelter vervaardigt|van gouden ijzererts|kisten goud resp. ijzer.
-112:De rekruut kan in de|kazerne als soldaat|worden bewapend.||Bovendien bemant|hij de uitkijktoren.
+99:De bediende voorziet je gebouwen van de nodige grondstoffen.||Let erop, dat er een wegenverbinding tussen de huizen is.
+100:Om boomstammen voor de houtzagerij te produceren, heb je de houthakker nodig.||De houthakker beplant het bos vanzelf opnieuw.
+101:De mijnwerker delft ertsen in de kolen-, ijzer- en goudmijn.
+102:In de varkens- en paardenfokkerij fokt de veefokker met behulp van koren het vee.
+103:De boer zaait en oogst het koren op de boerderij.||Bovendien perst hij wijn in de wijngaard.
+104:De schrijnwerker werkt in de houtzagerij, de wapen-, wapentuig en schiettuigmakerij.
+105:De bakker bakt brood in de bakkerij.||Bovendien verwerkt hij koren tot meel in de windmolen.
+106:De slager produceert worsten in de slagerij en leer in de leerlooierij.
+107:De visserman vangt vis in nabijgelegen wateren.
+108:De bouwvakker maakt gebouwen en wegen. Plaats de markeringen en hij voert je opdrachten automatisch uit.||Bovendien repareert hij beschadigde huizen.
+109:Omdat je bouwvakkers voldoende stenen voor het maken van wegen en huizen moeten hebben, wint de steenhouwer stenen.
+110:Zware wapenrustingen en wapens worden door de smid in de wapenen wapentuigsmederij vervaardigd.
+111:De smelter vervaardigt van gouden ijzererts kisten goud resp. ijzer.
+112:De rekruut kan in de kazerne als soldaat worden bewapend.||Bovendien bemant hij de uitkijktoren.
 147:Naar de keuze van de bouw
 148:Naar de verdeling van de artikelen
 149:Naar de statistiek
@@ -452,7 +452,7 @@ MaxID:2733
 2701:Kaartbestanden zijn niet gelijk aan die van de host: %s
 2702:Opgeslagen spel niet gevonden: %s
 2703:Opgeslagen bestand is niet gelijk aan dat van de host: %s
-2704:WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?
+2704:WAARSCHUWING: Doorspelen na deze fout kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?
 2705:Update A.U.B de drivers voor betere prestaties.
 2706:Er is een fout opgetreden in de applicatie. Klik op "Foutenrapport verzenden" zodat we de fout kunnen onderzoeken. Bedankt voor je hulp!
 2707:Foutenrapport verzenden

@@ -89,20 +89,20 @@ MaxID:2733
 96:Csavargó
 97:Katapult
 98:Dárdavetõ
-99:Az inasok szállítják|a szükséges nyersanya-|gokat az épületek között.||Az épületeket mindig|úttal kell összekötni.
-100:A fûrészmalom részére|a favágó vágja a|farönköket.||A kivágott erdõt|önállóan újratelepíti.
-101:A bányász fejti az ércet|a szén-, vas- és arany-|bányában.
-102:Az állattenyésztõ gabona|felhasználásával neveli a|sertéseket és a lovakat a|hizlaldában és az istállóban.
-103:A földmûves gabonát|vet és arat háza környékén.||A vincellér préseli a|szõlõt a pincészetben.
-104:Az asztalos a fûrészma-|lomban, a fegyver- és|páncélmûhelyben|dolgozik.||Az asztalos a jármûké-|szítõ üzemben dárdavetõt|és katapultot készít.
-105:A pék kenyérrel |látja el a lakosságot.||A molnár lisztet |õröl a malomban.
-106:A hentes készíti a kol-|bászt a vágóhídon.||A tímár állítja elõ a |bõrt a mûhelyében.
-107:A horgász fogja ki a|halakat a közeli vizekbõl.
-108:A munkás építi az|utakat és az épületeket,|felszántja a termõföldet|és szõlõt telepít.|Egyszerûen jelöld ki a|helyet, és automatikusan|végrehajtja a parancsodat.|A megsérült épületek|javítására is képes, ha ezt|engedélyezed az adott|épületnél.
-109:A kõfaragó biztosítja|a kõutánpótlást a|munkások számára.
-110:A kovács készíti a |nehézfegyvereket és|-páncélokat a mûhelyekben.
-111:Az kohász arany-|rudakat és nyersvasat|önt az ércekbõl.
-112:Az újoncok az erõdben,|felszerelésük után|válnak katonákká.||Õk teljesítenek szolgálatot|az õrtornyokban is.
+99:Az inasok szállítják a szükséges nyersanya- gokat az épületek között.||Az épületeket mindig úttal kell összekötni.
+100:A fûrészmalom részére a favágó vágja a farönköket.||A kivágott erdõt önállóan újratelepíti.
+101:A bányász fejti az ércet a szén-, vas- és arany- bányában.
+102:Az állattenyésztõ gabona felhasználásával neveli a sertéseket és a lovakat a hizlaldában és az istállóban.
+103:A földmûves gabonát vet és arat háza környékén.||A vincellér préseli a szõlõt a pincészetben.
+104:Az asztalos a fûrészma- lomban, a fegyver- és páncélmûhelyben dolgozik.||Az asztalos a jármûké- szítõ üzemben dárdavetõt és katapultot készít.
+105:A pék kenyérrel látja el a lakosságot.||A molnár lisztet õröl a malomban.
+106:A hentes készíti a kol- bászt a vágóhídon.||A tímár állítja elõ a bõrt a mûhelyében.
+107:A horgász fogja ki a halakat a közeli vizekbõl.
+108:A munkás építi az utakat és az épületeket, felszántja a termõföldet és szõlõt telepít. Egyszerûen jelöld ki a helyet, és automatikusan végrehajtja a parancsodat. A megsérült épületek javítására is képes, ha ezt engedélyezed az adott épületnél.
+109:A kõfaragó biztosítja a kõutánpótlást a munkások számára.
+110:A kovács készíti a nehézfegyvereket és -páncélokat a mûhelyekben.
+111:Az kohász arany- rudakat és nyersvasat önt az ércekbõl.
+112:Az újoncok az erõdben, felszerelésük után válnak katonákká.||Õk teljesítenek szolgálatot az õrtornyokban is.
 147:Építmények
 148:Áruelosztás
 149:Statisztika
