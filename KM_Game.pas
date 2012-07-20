@@ -89,7 +89,7 @@ type
 
     procedure GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte); overload;
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
-    procedure Load(const aPathName: string; aReplay:boolean=false);
+    procedure Load(const aPathName: string);
 
     function MapX: Word;
     function MapY: Word;
@@ -1067,7 +1067,7 @@ begin
 end;
 
 
-procedure TKMGame.Load(const aPathName: string; aReplay: Boolean = False);
+procedure TKMGame.Load(const aPathName: string);
 var
   LoadStream: TKMemoryStream;
   GameInfo: TKMGameInfo;
@@ -1144,10 +1144,14 @@ begin
 
   FreeAndNil(LoadStream);
 
-  if (fGameMode = gmMulti) and not aReplay then
-    fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
+  if IsReplay then
+    fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying) //Replay
   else
-    fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
+    if fGameMode = gmMulti then
+      fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking) //Multiplayer
+    else
+      fGameInputProcess := TGameInputProcess_Single.Create(gipRecording); //Singleplayer
+
   fGameInputProcess.LoadFromFile(ChangeFileExt(aPathName, '.rpl'));
 
   fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
@@ -1251,10 +1255,6 @@ begin
 
   fAlerts.UpdateState;
 
-  //Update minimap every 1000ms
-  if fGameTickCount mod 10 = 0 then
-    fMinimap.Update(False);
-
   if DoGameHold then GameHold(True, DoGameHoldState);
 end;
 
@@ -1263,6 +1263,10 @@ procedure TKMGame.UpdateState(aGlobalTickCount: Cardinal);
 begin
   if not fIsPaused then
     fActiveInterface.UpdateState(aGlobalTickCount);
+
+  //Update minimap every 1000ms
+  if aGlobalTickCount mod 10 = 0 then
+    fMinimap.Update(False);
 end;
 
 

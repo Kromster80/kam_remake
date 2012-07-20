@@ -369,6 +369,10 @@ begin
   case Msg of
     gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd:
                     begin
+                      //If the game was a part of a campaign, select that campaign,
+                      //so we know which menu to show next and unlock next map
+                      fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGame.CampaignName), fGame.CampaignMap);
+
                       if fGame.GameMode = gmMulti then
                       begin
                         fMainMenuInterface.ResultsMP_Fill;
@@ -386,10 +390,6 @@ begin
                         fMainMenuInterface.Results_Fill;
                         fMainMenuInterface.ShowScreen(msResults, '', Msg);
                       end;
-
-                      //If the game was a part of a campaign, select that campaign,
-                      //so we know which menu to show next and unlock next map
-                      fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGame.CampaignName), fGame.CampaignMap);
 
                       if (Msg = gr_Win) and (fCampaigns.ActiveCampaign <> nil) then
                         fCampaigns.UnlockNextMap;

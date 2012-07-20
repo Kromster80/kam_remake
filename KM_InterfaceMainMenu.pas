@@ -500,8 +500,8 @@ begin
                     else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
 
-                  Button_ResultsRepeat.Visible := aMsg <> gr_ReplayEnd;
-                  Button_ResultsRepeat.Enabled := aMsg in [gr_Defeat, gr_Cancel];
+                  //Restart button is hidden if you won or if it is a replay
+                  Button_ResultsRepeat.Visible := not (aMsg in [gr_ReplayEnd, gr_Win]);
 
                   //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
                   Button_ResultsContinue.Visible := (fGameApp.Campaigns.ActiveCampaign <> nil) and (aMsg <> gr_ReplayEnd);
@@ -1581,7 +1581,7 @@ begin
     Label_Results := TKMLabel.Create(Panel_Results,512,140,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_Results.Anchors := [akLeft];
 
-    with TKMImage.Create(Panel_Results, 10, 190, 360, 360, 3, rxGuiMain) do
+    with TKMImage.Create(Panel_Results, 10, 190, 370, 360, 3, rxGuiMain) do
     begin
       ImageStretch;
       Center;
@@ -1782,7 +1782,6 @@ begin
   or (Sender = Button_CreditsBack)
   or (Sender = Button_MapEdBack)
   or (Sender = Button_ErrorBack)
-  or (Sender = Button_ResultsBack)
   or (Sender = Button_ReplaysBack) then
   begin
     //Scan should be terminated, it is no longer needed
@@ -1810,7 +1809,8 @@ begin
   if (Sender = Button_MM_SinglePlayer)
   or (Sender = Button_Camp_Back)
   or (Sender = Button_SingleBack)
-  or (Sender = Button_LoadBack) then
+  or (Sender = Button_LoadBack)
+  or (Sender = Button_ResultsBack) then
   begin
     if (Sender = Button_SingleBack) then
       //scan should be terminated, it is no longer needed

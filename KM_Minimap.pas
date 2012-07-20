@@ -216,7 +216,7 @@ begin
     else
       FOW := 255;
     if FOW = 0 then
-      fBase[I*fMapX + K] := $E0000000
+      fBase[I*fMapX + K] := $FF000000
     else
       if fMyTerrain.Land[I+1,K+1].TileOwner <> -1 then
         fBase[I*fMapX + K] := fPlayers.Player[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor

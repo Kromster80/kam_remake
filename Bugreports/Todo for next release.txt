@@ -7,13 +7,14 @@ Must be done:
  +	Fix TSK 19 crash [Lewin]
  +	Update game files from SR3 where approperiate [Lewin]
 	Finish charts
-	Finish custom campaign support (whats left? Sorting list, double click to start, list to show number of unlocked maps)
+	Finish custom campaign support (whats left? Sorting list)
 	Block market in original missions through script not code hack [Lewin]
 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Add new music tracks Market and Household
 	Update readme with changed info (shortcuts, missing features)
 	Add new maps and maybe delete some existing ones based on quality and popularity
 	Check if we can use smoothing when scaling menu images up/down [Krom]
+	Test all campaign missions for minor script warnings and fix them (e.g. TSK 7) [Lewin]
 
 
 ==============================
