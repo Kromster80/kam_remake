@@ -1,4 +1,4 @@
-unit KM_Controls;
+﻿unit KM_Controls;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -662,16 +662,16 @@ type
     function GetSortDirection: TSortDirection;
     procedure SetSortDirection(aDirection: TSortDirection);
     function GetRow(aIndex: Integer): TKMListRow;
-    procedure ColumnClick(aValue: Integer);
     procedure UpdateScrollBar;
     procedure SetShowHeader(aValue: Boolean);
+    function GetOnColumnClick: TIntegerEvent;
+    procedure SetOnColumnClick(const Value: TIntegerEvent);
   protected
     procedure SetTop(aValue: Integer); override;
     procedure SetHeight(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    OnColumnClick: TIntegerEvent;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
@@ -690,6 +690,7 @@ type
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
 
     //Sort properties are just hints to render Up/Down arrows. Actual sorting is done by client
+    property OnColumnClick: TIntegerEvent read GetOnColumnClick write SetOnColumnClick;
     property SortIndex: Integer read GetSortIndex write SetSortIndex;
     property SortDirection: TSortDirection read GetSortDirection write SetSortDirection;
 
@@ -770,7 +771,6 @@ type
   private
     fDefaultCaption: string;
     fList: TKMColumnListBox;
-    procedure ColumnClick(aValue: Integer);
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
     procedure ListClick(Sender: TObject); override;
@@ -781,12 +781,13 @@ type
     procedure SetItemIndex(aIndex: smallint); override;
     function GetShowHeader: Boolean;
     procedure SetShowHeader(aValue: Boolean);
+    function GetOnColumnClick: TIntegerEvent;
+    procedure SetOnColumnClick(const Value: TIntegerEvent);
   protected
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
     FadeImageWhenDisabled: Boolean;
-    OnColumnClick: TIntegerEvent;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
     procedure Add(aItem: TKMListRow);
     procedure Clear; override;
@@ -794,6 +795,7 @@ type
     property List: TKMColumnListBox read fList;
     property Item[aIndex: Integer]: TKMListRow read GetItem;
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
+    property OnColumnClick: TIntegerEvent read GetOnColumnClick write SetOnColumnClick;
     property DefaultCaption: string read fDefaultCaption write fDefaultCaption;
 
     procedure Paint; override;
@@ -2914,6 +2916,12 @@ begin
   ColumnID := GetColumnIndex(X);
   if (ColumnID <> -1) and Assigned(OnColumnClick) then
   begin
+    //We could process the clicks here (i.e. do the sorting inplace)
+    //but there are various circumstances where plain string sorting will look wrong
+    //and the listbox just misses the knowledge to do it right:
+    //MP game status (sort by type), ping (sort 1>9), playercount (sort 9>1), dates (sort by TDateTime)
+    //Let the UI communicate to Game and do it right
+
     //Apply sorting to the column, toggling the state, sdDown is default
     if fSortIndex = ColumnID then
       if fSortDirection = sdDown then
@@ -2973,7 +2981,7 @@ begin
       fRenderUI.WriteLayer(Left + fColumnOffsets[I], Top, ColumnWidth, Height, $20FFFFFF, $00000000);
     fRenderUI.WriteText(Left + fColumnOffsets[I] + 4, Top + 4, 0, 0, fColumns[I], fFont, taLeft);
 
-    if fSortIndex = I then
+    if Assigned(OnColumnClick) and (fSortIndex = I) then
       case fSortDirection of
         sdDown: fRenderUI.WritePicture(Left + fColumnOffsets[I] + ColumnWidth - 4-10, Top + 6, 10, 11, rxGui, 60, True);
         sdUp:   fRenderUI.WritePicture(Left + fColumnOffsets[I] + ColumnWidth - 4-10, Top + 6, 10, 11, rxGui, 59, True);
@@ -2994,7 +3002,6 @@ begin
   Focusable := True;
 
   fHeader := TKMListHeader.Create(aParent, aLeft, aTop, aWidth - fItemHeight, DEF_HEADER_HEIGHT);
-  fHeader.OnColumnClick := ColumnClick;
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, bsGame);
   UpdateScrollBar; //Initialise the scrollbar
@@ -3025,6 +3032,12 @@ begin
   inherited;
   fScrollBar.Height := fHeight;
   UpdateScrollBar; //Since height has changed
+end;
+
+
+procedure TKMColumnListBox.SetOnColumnClick(const Value: TIntegerEvent);
+begin
+  fHeader.OnColumnClick := Value;
 end;
 
 
@@ -3089,6 +3102,12 @@ begin
 end;
 
 
+function TKMColumnListBox.GetOnColumnClick: TIntegerEvent;
+begin
+  Result := fHeader.OnColumnClick;
+end;
+
+
 function TKMColumnListBox.GetRow(aIndex: Integer): TKMListRow;
 begin
   Assert(InRange(aIndex, 0, fRowCount - 1));
@@ -3105,18 +3124,6 @@ end;
 function TKMColumnListBox.GetSortIndex: Integer;
 begin
   Result := fHeader.SortIndex;
-end;
-
-
-//We could process the clicks here (i.e. do the sorting inplace)
-//but there are various circumstances where plain string sorting will look wrong
-//and the listbox just misses the knowledge to do it right:
-//MP game status (sort by type), ping (sort 1>9), playercount (sort 9>1), dates (sort by TDateTime)
-//Let the UI communicate to Game and do it right
-procedure TKMColumnListBox.ColumnClick(aValue: Integer);
-begin
-  if Assigned(OnColumnClick) then
-    OnColumnClick(aValue);
 end;
 
 
@@ -3521,7 +3528,6 @@ begin
   fList.BackAlpha := 0.85;
   fList.OnClick := ListClick;
   fList.Focusable := False; //For drop downs we don't want the list to be focusable
-  fList.OnColumnClick := ColumnClick;
 
   ListHide(nil);
 end;
@@ -3562,9 +3568,20 @@ begin
 end;
 
 
+function TKMDropColumns.GetOnColumnClick: TIntegerEvent;
+begin
+  Result := fList.OnColumnClick;
+end;
+
 procedure TKMDropColumns.SetItemIndex(aIndex: smallint);
 begin
   fList.ItemIndex := aIndex;
+end;
+
+
+procedure TKMDropColumns.SetOnColumnClick(const Value: TIntegerEvent);
+begin
+  fList.OnColumnClick := Value;
 end;
 
 
@@ -3597,13 +3614,6 @@ procedure TKMDropColumns.SetVisible(aValue: Boolean);
 begin
   inherited;
   if not aValue then ListHide(Self);
-end;
-
-
-procedure TKMDropColumns.ColumnClick(aValue: Integer);
-begin
-  if Assigned(OnColumnClick) then
-    OnColumnClick(aValue);
 end;
 
 
