@@ -86,9 +86,6 @@ type
 
     //Should be accessed only as a part of aOnRefresh/aOnSort events handlers
     function MapList: string;
-    function MapListBuild: string;
-    function MapListFight: string;
-    function MapListCoop: string;
   end;
 
 
@@ -295,41 +292,6 @@ begin
   Result := '';
   for I := 0 to fCount - 1 do
     Result := Result + fMaps[I].FileName + eol;
-end;
-
-
-function TKMapsCollection.MapListBuild: string;
-var I: Integer;
-begin
-  Assert(not fScanning, 'Guarding from access to inconsistent data');
-  Result := '';
-  for I := 0 to fCount - 1 do
-    if (fMaps[I].Info.MissionMode = mm_Normal) and not fMaps[I].IsCoop then
-      Result := Result + fMaps[I].FileName + eol;
-end;
-
-
-function TKMapsCollection.MapListFight: string;
-var
-  I: Integer;
-begin
-  Assert(not fScanning, 'Guarding from access to inconsistent data');
-  Result := '';
-  for I := 0 to fCount - 1 do
-    if (fMaps[I].Info.MissionMode = mm_Tactic) and not fMaps[I].IsCoop then
-      Result := Result + fMaps[I].FileName + eol;
-end;
-
-
-function TKMapsCollection.MapListCoop: string;
-var
-  I: Integer;
-begin
-  Assert(not fScanning, 'Guarding from access to inconsistent data');
-  Result := '';
-  for I := 0 to fCount - 1 do
-    if fMaps[i].IsCoop then
-      Result := Result + fMaps[I].FileName + eol;
 end;
 
 

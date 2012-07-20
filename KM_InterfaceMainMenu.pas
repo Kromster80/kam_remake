@@ -1076,8 +1076,8 @@ begin
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
 
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 99, 250, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
-      DropCol_LobbyMaps.SetColumns(fnt_Metal, ['#', 'Name', 'Size'], [0, 20, 190]);
-      DropCol_LobbyMaps.OnColumnClick := Lobby_MapColumnClick;
+      DropCol_LobbyMaps.SetColumns(fnt_Metal, ['Name', '#', 'Size'], [0, 170, 190]);
+      DropCol_LobbyMaps.List.OnColumnClick := Lobby_MapColumnClick;
       DropCol_LobbyMaps.OnChange := Lobby_MapSelect;
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 99, 250, 20, '', fnt_Metal, taLeft);
 
@@ -2958,37 +2958,62 @@ end;
 procedure TKMMainMenuInterface.Lobby_MapTypeRefreshDone(Sender: TObject);
 var
   I: Integer;
+  PrevMap: string;
+  Row: TKMListRow;
+  AddMap: Boolean;
 begin
+  //Remember previous map selected
+  if DropCol_LobbyMaps.ItemIndex <> -1 then
+    PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
+  else
+    PrevMap := '';
+
   DropCol_LobbyMaps.Clear;
+
   for I := 0 to fMapsMP.Count - 1 do
-  case Radio_LobbyMapType.ItemIndex of
-    0:  if (fMapsMP[I].Info.MissionMode = mm_Normal) and not fMapsMP[I].IsCoop then
-          DropCol_LobbyMaps.Add(MakeListRow([IntToStr(fMapsMP[I].Info.PlayerCount), fMapsMP[I].Info.Title, fMapsMP[I].Info.MapSizeText], I)); //Build Map
-    1:  if (fMapsMP[I].Info.MissionMode = mm_Tactic) and not fMapsMP[I].IsCoop then
-          DropCol_LobbyMaps.Add(MakeListRow([IntToStr(fMapsMP[I].Info.PlayerCount), fMapsMP[I].Info.Title, fMapsMP[I].Info.MapSizeText], I)); //Fight Map
-    2:  if fMapsMP[I].IsCoop then
-          DropCol_LobbyMaps.Add(MakeListRow([IntToStr(fMapsMP[I].Info.PlayerCount), fMapsMP[I].Info.Title, fMapsMP[I].Info.MapSizeText], I)); //Co-op Map
-    //Other cases are already handled in Lobby_MapTypeSelect
+  begin
+    //Different modes allow different maps
+    case Radio_LobbyMapType.ItemIndex of
+      0:    AddMap := (fMapsMP[I].Info.MissionMode = mm_Normal) and not fMapsMP[I].IsCoop; //BuildMap
+      1:    AddMap := (fMapsMP[I].Info.MissionMode = mm_Tactic) and not fMapsMP[I].IsCoop; //FightMap
+      2:    AddMap := fMapsMP[I].IsCoop; //CoopMap
+      else  AddMap := False; //Other cases are already handled in Lobby_MapTypeSelect
+    end;
+
+    if AddMap then
+      DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].Info.Title,
+                                         IntToStr(fMapsMP[I].Info.PlayerCount),
+                                         fMapsMP[I].Info.MapSizeText], I));
   end;
+
+  //Restore previously selected map
+  if PrevMap <> '' then
+    for I := 0 to DropCol_LobbyMaps.Count - 1 do
+      if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevMap then
+        DropCol_LobbyMaps.ItemIndex := I;
 end;
 
 
 procedure TKMMainMenuInterface.Lobby_MapColumnClick(aValue: Integer);
-var SM: TMapsSortMethod;
+var
+  SM: TMapsSortMethod;
 begin
-  case DropCol_LobbyMaps.List.SortIndex of
-    0:  if DropCol_LobbyMaps.List.SortDirection = sdDown then
-          SM := smByPlayersAsc
+  //Determine Sort method depending on which column user clicked
+  with DropCol_LobbyMaps.List do
+  case SortIndex of
+    0:  if SortDirection = sdDown then
+          SM := smByNameDesc
         else
-          SM := smByPlayersDesc;
-    1:  if DropCol_LobbyMaps.List.SortDirection = sdDown then
-          SM := smByNameAsc
+          SM := smByNameAsc;
+    1:  if SortDirection = sdDown then
+          SM := smByPlayersDesc
         else
-          SM := smByNameDesc;
-    2:  if DropCol_LobbyMaps.List.SortDirection = sdDown then
-          SM := smBySizeAsc
+          SM := smByPlayersAsc;
+    2:  if SortDirection = sdDown then
+          SM := smBySizeDesc
         else
-          SM := smBySizeDesc;
+          SM := smBySizeAsc;
+    else SM := smByNameAsc;
   end;
 
   fMapsMP.Sort(SM, Lobby_MapTypeRefreshDone);

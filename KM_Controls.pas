@@ -1,4 +1,4 @@
-﻿unit KM_Controls;
+unit KM_Controls;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -671,6 +671,7 @@ type
     procedure SetHeight(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
+    procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 
@@ -779,10 +780,6 @@ type
     function GetItem(aIndex: Integer): TKMListRow;
     function GetItemIndex: smallint; override;
     procedure SetItemIndex(aIndex: smallint); override;
-    function GetShowHeader: Boolean;
-    procedure SetShowHeader(aValue: Boolean);
-    function GetOnColumnClick: TIntegerEvent;
-    procedure SetOnColumnClick(const Value: TIntegerEvent);
   protected
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
@@ -795,7 +792,6 @@ type
     property List: TKMColumnListBox read fList;
     property Item[aIndex: Integer]: TKMListRow read GetItem;
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
-    property OnColumnClick: TIntegerEvent read GetOnColumnClick write SetOnColumnClick;
     property DefaultCaption: string read fDefaultCaption write fDefaultCaption;
 
     procedure Paint; override;
@@ -964,7 +960,6 @@ var
 function MakeListRow(const aCaption: array of string; aTag: Integer = 0): TKMListRow;
 var I: Integer;
 begin
-
   SetLength(Result.Cells, Length(aCaption));
 
   for I := 0 to High(aCaption) do
@@ -3243,9 +3238,30 @@ begin
 end;
 
 
+procedure TKMColumnListBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer);
+var
+  I: Integer;
+  ItemWidth: Integer;
+begin
+  for I := 0 to fHeader.ColumnCount - 1 do
+  begin
+    //Determine allowed width
+    if I = fHeader.ColumnCount - 1 then
+      ItemWidth := PaintWidth - 4 - fHeader.ColumnOffset[I] - 4
+    else
+      ItemWidth := fHeader.ColumnOffset[I + 1] - fHeader.ColumnOffset[I] - 4;
+
+    if fRows[aIndex].Cells[I].Pic.ID <> 0 then
+      fRenderUI.WritePicture(X + 4 + fHeader.ColumnOffset[I], Y + 1, fRows[aIndex].Cells[I].Pic.RX, fRows[aIndex].Cells[I].Pic.ID, fRows[aIndex].Cells[I].Color);
+    if fRows[aIndex].Cells[I].Caption <> '' then
+      fRenderUI.WriteText(X + 4 + fHeader.ColumnOffset[I], Y + 3, ItemWidth, 0, fRows[aIndex].Cells[I].Caption, fFont, taLeft, fRows[aIndex].Cells[I].Color);
+  end;
+end;
+
+
 procedure TKMColumnListBox.Paint;
 var
-  I, K, PaintWidth, ItemWidth, MaxItem, Y: Integer;
+  I, PaintWidth, MaxItem, Y: Integer;
 begin
   inherited;
 
@@ -3266,30 +3282,7 @@ begin
     fRenderUI.WriteLayer(Left, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
 
   for I := 0 to Math.min(fRowCount - 1, MaxItem) do
-    for K := 0 to fHeader.ColumnCount - 1 do
-    begin
-
-      if K = fHeader.ColumnCount - 1 then
-        ItemWidth := PaintWidth - 4 - fHeader.ColumnOffset[K] - 4
-      else
-        ItemWidth := fHeader.ColumnOffset[K+1] - fHeader.ColumnOffset[K] - 4;
-
-      if fRows[TopIndex+I].Cells[K].Pic.ID <> 0 then
-        fRenderUI.WritePicture(Left + 4 + fHeader.ColumnOffset[K],
-                               Y + I*fItemHeight + 1,
-                               fRows[TopIndex+I].Cells[K].Pic.RX,
-                               fRows[TopIndex+I].Cells[K].Pic.ID,
-                               fRows[TopIndex+I].Cells[K].Color);
-      if fRows[TopIndex+I].Cells[K].Caption <> '' then
-        fRenderUI.WriteText(Left + 4 + fHeader.ColumnOffset[K],
-                            Y + I*fItemHeight + 3,
-                            ItemWidth,
-                            0,
-                            fRows[TopIndex+I].Cells[K].Caption,
-                            fFont,
-                            taLeft,
-                            fRows[TopIndex+I].Cells[K].Color);
-    end;
+    DoPaintLine(TopIndex + I, Left, Y + I * fItemHeight, PaintWidth);
 end;
 
 
@@ -3539,6 +3532,11 @@ begin
   if ListVisible or (Count < 1) then Exit;
 
   UpdateDropPosition;
+
+  //Make sure the selected item is on top of the list when it's opened
+  if ItemIndex <> -1 then
+    fList.TopIndex := ItemIndex;
+
   fList.Show;
 end;
 
@@ -3568,20 +3566,9 @@ begin
 end;
 
 
-function TKMDropColumns.GetOnColumnClick: TIntegerEvent;
-begin
-  Result := fList.OnColumnClick;
-end;
-
 procedure TKMDropColumns.SetItemIndex(aIndex: smallint);
 begin
   fList.ItemIndex := aIndex;
-end;
-
-
-procedure TKMDropColumns.SetOnColumnClick(const Value: TIntegerEvent);
-begin
-  fList.OnColumnClick := Value;
 end;
 
 
@@ -3595,18 +3582,6 @@ procedure TKMDropColumns.SetEnabled(aValue: Boolean);
 begin
   inherited;
   fList.Enabled := aValue;
-end;
-
-
-function TKMDropColumns.GetShowHeader: Boolean;
-begin
-  Result := fList.ShowHeader;
-end;
-
-
-procedure TKMDropColumns.SetShowHeader(aValue: Boolean);
-begin
-  fList.ShowHeader := aValue;
 end;
 
 
@@ -3664,11 +3639,13 @@ begin
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   if ItemIndex <> -1 then
-    fRenderUI.WritePicture(Left + 4, Top + 1,
+    fList.DoPaintLine(ItemIndex, Left, Top, Width)
+
+    {fRenderUI.WritePicture(Left + 4, Top + 1,
                             fList.Rows[ItemIndex].Cells[0].Pic.RX,
                             fList.Rows[ItemIndex].Cells[0].Pic.ID,
                             fList.Rows[ItemIndex].Cells[0].Color,
-                            fEnabled or not FadeImageWhenDisabled)
+                            fEnabled or not FadeImageWhenDisabled)}
   else
     fRenderUI.WriteText(Left + 4, Top + 4, Width - 8, 0, '<<?>>', fFont, taLeft, Col);
 end;
