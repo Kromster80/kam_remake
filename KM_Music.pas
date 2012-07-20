@@ -34,11 +34,14 @@ type
     //MIDITracks:array[1..256]of string;
     IsMusicInitialized:boolean;
     MusicGain:single;
-    {$IFDEF USEBASS} fBassStream:cardinal; {$ENDIF}
-    {$IFDEF USELIBZPLAY} ZPlayer: ZPlay; {$ENDIF} //I dislike that it's not TZPlay... Guess they don't know Delphi conventions.
+    {$IFDEF USEBASS} fBassStream, fBassOtherStream:cardinal; {$ENDIF}
+    {$IFDEF USELIBZPLAY} ZPlayer, ZPlayerOther: ZPlay; {$ENDIF} //I dislike that it's not TZPlay... Guess they don't know Delphi conventions.
     fFadeState:TFadeState;
     fFadeStarted:cardinal;
+    fToPlayAfterFade:string;
+    fFadedToPlayOther: Boolean;
     function  PlayMusicFile(FileName:string):boolean;
+    function  PlayOtherFile(FileName:string):boolean;
     procedure ScanMusicTracks(Path:string);
     procedure ShuffleSongs; //should not be seen outside of this class
     procedure UnshuffleSongs;
@@ -50,11 +53,14 @@ type
     procedure PlayNextTrack;
     procedure PlayPreviousTrack;
     function IsMusicEnded:boolean;
+    function IsOtherEnded:boolean;
     procedure StopMusic;
     procedure ToggleMusic(aEnableMusic: Boolean);
     procedure ToggleShuffle(aEnableShuffle: Boolean);
     procedure FadeMusic(Sender:TObject);
     procedure UnfadeMusic(Sender:TObject);
+    procedure PauseMusicToPlayFile(aFileName:string);
+    procedure StopPlayingOtherFile;
     function GetTrackTitle:string;
     procedure UpdateStateIdle; //Used for fading
   end;
@@ -77,6 +83,7 @@ begin
 
   {$IFDEF USELIBZPLAY}
   ZPlayer := ZPlay.Create; //Note: They should have used TZPlay not ZPlay for a class
+  ZPlayerOther := ZPlay.Create;
   {$ENDIF}
 
   {$IFDEF USEBASS}
@@ -104,11 +111,14 @@ destructor TMusicLib.Destroy;
 begin
   {$IFDEF USELIBZPLAY}
   ZPlayer.Free;
+  ZPlayerOther.Free;
   {$ENDIF}
 
   {$IFDEF USEBASS}
   BASS_Stop(); //Stop all Bass output
-  BASS_StreamFree(fBassStream); //Free the stream we may have used (will just return false if the stream is invalid)
+  //Free the streams we may have used (will just return false if the stream is invalid)
+  BASS_StreamFree(fBassStream);
+  BASS_StreamFree(fBassOtherStream);
   BASS_Free(); //Frees this usage of BASS, allowing it to be recreated successfully
   {$ENDIF}
 
@@ -146,6 +156,38 @@ begin
   {$ENDIF}
 
   UpdateMusicVolume(MusicGain); //Need to reset music volume after starting playback
+  Result := true;
+end;
+
+
+function TMusicLib.PlayOtherFile(FileName:string):boolean;
+{$IFDEF USEBASS} var ErrorCode: integer; {$ENDIF}
+begin
+  Result:=false;
+  if not IsMusicInitialized then exit;
+
+  //Cancel previous sound
+  {$IFDEF USELIBZPLAY} ZPlayerOther.StopPlayback; {$ENDIF}
+  {$IFDEF USEBASS} BASS_ChannelStop(fBassOtherStream); {$ENDIF}
+
+  if not FileExists(FileName) then exit; //Make it silent
+
+  {$IFDEF USELIBZPLAY}
+  Result := ZPlayerOther.OpenFile(FileName, sfAutodetect); //Detect file type automatically
+  if not Result then exit; //File failed to load
+  Result := ZPlayerOther.StartPlayback;
+  if not Result then exit; //Playback failed to start
+  {$ENDIF}
+  {$IFDEF USEBASS}
+  BASS_StreamFree(fBassOtherStream); //Free the existing stream (will just return false if the stream is invalid)
+  fBassOtherStream := BASS_StreamCreateFile(FALSE, PChar(FileName), 0, 0, BASS_STREAM_AUTOFREE {$IFDEF UNICODE} or BASS_UNICODE{$ENDIF});
+
+  BASS_ChannelPlay(fBassOtherStream,true); //Start playback from the beggining
+
+  ErrorCode := BASS_ErrorGetCode();
+  if ErrorCode <> BASS_OK then exit; //Error
+  {$ENDIF}
+
   Result := true;
 end;
 
@@ -252,6 +294,21 @@ begin
 end;
 
 
+//Check if other is not playing, to know when to return to the music
+function TMusicLib.IsOtherEnded:boolean;
+{$IFDEF USELIBZPLAY} var Status: TStreamStatus; {$ENDIF}
+begin
+  {$IFDEF USELIBZPLAY} ZPlayerOther.GetStatus(Status); {$ENDIF}
+  Result := {$IFDEF USELIBZPLAY}
+            (not Status.fPlay) //Not playing and not paused due to fade
+            {$ENDIF}
+            {$IFDEF USEBASS}
+            (BASS_ChannelIsActive(fBassOtherStream) = BASS_ACTIVE_STOPPED)
+            {$ENDIF}
+            ;
+end;
+
+
 procedure TMusicLib.StopMusic;
 begin
   if not IsMusicInitialized then exit;
@@ -350,18 +407,62 @@ end;
 
 procedure TMusicLib.UpdateStateIdle;
 begin
-  if (not IsMusicInitialized) or (fFadeState in [fsNone,fsFaded]) then exit;
+  if not IsMusicInitialized then exit;
 
-  if GetTickCount-fFadeStarted > FADE_TIME then
+  if fFadeState in [fsFadeIn,fsFadeOut] then
   begin
-    if fFadeState = fsFadeOut then //Fade out is complete so pause the music
+    if GetTickCount-fFadeStarted > FADE_TIME then
     begin
-      fFadeState := fsFaded;
-      {$IFDEF USELIBZPLAY} ZPlayer.PausePlayback; {$ENDIF}
-      {$IFDEF USEBASS} BASS_ChannelPause(fBassStream); {$ENDIF}
+      if fFadeState = fsFadeOut then //Fade out is complete so pause the music
+      begin
+        fFadeState := fsFaded;
+        {$IFDEF USELIBZPLAY} ZPlayer.PausePlayback; {$ENDIF}
+        {$IFDEF USEBASS} BASS_ChannelPause(fBassStream); {$ENDIF}
+      end;
+      if fFadeState = fsFadeIn then fFadeState := fsNone;
     end;
-    if fFadeState = fsFadeIn then fFadeState := fsNone;
+    //Start playback of other file half way through the fade
+    if (fFadeState = fsFadeOut) and (GetTickCount-fFadeStarted > FADE_TIME div 2)
+    and (fToPlayAfterFade <> '') then
+    begin
+      fFadedToPlayOther := True;
+      PlayOtherFile(fToPlayAfterFade);
+      fToPlayAfterFade := '';
+    end;
   end;
+
+  if fFadedToPlayOther and (fFadeState = fsFaded) and IsOtherEnded then
+  begin
+    fFadedToPlayOther := False;
+    UnfadeMusic(nil);
+  end;
+end;
+
+
+procedure TMusicLib.PauseMusicToPlayFile(aFileName:string);
+begin
+  if fFadeState in [fsNone, fsFadeIn] then
+  begin
+    FadeMusic(nil);
+    fToPlayAfterFade := aFilename
+  end
+  else
+    if (fFadeState = fsFaded) or ((fFadeState = fsFadeOut) and fFadedToPlayOther) then
+    begin
+      fFadedToPlayOther := True;
+      PlayOtherFile(aFilename) //Switch playback immediately
+    end
+    else
+      fToPlayAfterFade := aFilename; //We're still in the process of fading out, the file hasn't started yet
+end;
+
+
+procedure TMusicLib.StopPlayingOtherFile;
+begin
+  if not IsMusicInitialized then exit;
+  {$IFDEF USELIBZPLAY} ZPlayerOther.StopPlayback; {$ENDIF}
+  {$IFDEF USEBASS} BASS_ChannelStop(fBassOtherStream); {$ENDIF}
+  fToPlayAfterFade := '';
 end;
 
 

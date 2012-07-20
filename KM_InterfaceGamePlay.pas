@@ -3285,8 +3285,8 @@ begin
   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fMultiplayer) then
   case Key of
     Ord(SC_DEBUG_REVEALMAP): fGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
-    Ord(SC_DEBUG_VICTORY):   begin fGame.GameHold(True, gr_Win); Exit; end;
-    Ord(SC_DEBUG_DEFEAT):    begin fGame.GameHold(True, gr_Defeat); Exit; end;
+    Ord(SC_DEBUG_VICTORY):   begin fGame.PlayerVictory(MyPlayer.PlayerIndex); Exit; end;
+    Ord(SC_DEBUG_DEFEAT):    begin fGame.PlayerDefeat (MyPlayer.PlayerIndex); Exit; end;
     Ord(SC_DEBUG_ADDSCOUT):  fGame.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
   end;
 end;

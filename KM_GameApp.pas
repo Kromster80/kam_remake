@@ -55,6 +55,7 @@ type
     function AllowDebugRendering: Boolean;
     function RenderVersion: string;
     procedure PrintScreen(aFilename: string = '');
+    procedure PauseMusicToPlayFile(aFileName:string);
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
@@ -642,6 +643,13 @@ begin
   end
   else
     fRender.DoPrintScreen(aFilename);
+end;
+
+
+procedure TKMGameApp.PauseMusicToPlayFile(aFileName:string);
+begin
+  fSoundLib.AbortAllFadeSounds; //Victory/defeat sounds also fade music, so stop those in the rare chance they might still be playing
+  fMusicLib.PauseMusicToPlayFile(aFileName);
 end;
 
 

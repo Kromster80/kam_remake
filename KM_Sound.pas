@@ -170,6 +170,7 @@ type
 
     property OnRequestFade: TNotifyEvent write fOnFadeMusic;
     property OnRequestUnfade: TNotifyEvent write fOnUnfadeMusic;
+    procedure AbortAllFadeSounds;
 
     procedure ExportSounds;
     procedure UpdateListener(X,Y:single);
@@ -424,6 +425,16 @@ begin
   BlockRead(f,Props[1],26*Head.Count);}
 
   S.Free;
+end;
+
+
+procedure TSoundLib.AbortAllFadeSounds;
+var I: Integer;
+begin
+  fMusicIsFaded := False;
+  for I := 1 to MAX_SOUNDS do
+    if fSound[I].FadesMusic then
+      alSourceStop(fSound[i].ALSource);
 end;
 
 
