@@ -1,5 +1,5 @@
 
-MaxID:2733
+MaxID:2738
 
 0:Sawmill
 1:Iron smithy
@@ -481,3 +481,7 @@ MaxID:2733
 2730:Campaigns
 2731:Custom Campaigns
 2732:Start Campaign!
+2734:Soldiers|defeated
+2736:Title
+2737:Maps
+2738:Unlocked

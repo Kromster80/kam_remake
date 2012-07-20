@@ -231,6 +231,7 @@ type
 
     Panel_CampSelect: TKMPanel;
       List_Camps: TKMColumnListBox;
+      Image_CampsPreview: TKMImage;
       Button_Camp_Start, Button_Camp_Back: TKMButton;
 
     Panel_Campaign:TKMPanel;
@@ -685,7 +686,7 @@ begin
       if Bests[1] > GetCitizensLost    then Bests[1] := GetCitizensLost;
       if Bests[2] < GetWarriorsTrained then Bests[2] := GetWarriorsTrained;
       if Bests[3] > GetWarriorsLost    then Bests[3] := GetWarriorsLost;
-      if Bests[4] < GetCitizensKilled + GetWarriorsKilled then Bests[4] := GetCitizensKilled + GetWarriorsKilled;
+      if Bests[4] < GetWarriorsKilled  then Bests[4] := GetWarriorsKilled;
       if Bests[5] < GetHousesBuilt     then Bests[5] := GetHousesBuilt;
       if Bests[6] > GetHousesLost      then Bests[6] := GetHousesLost;
       if Bests[7] < GetHousesDestroyed then Bests[7] := GetHousesDestroyed;
@@ -697,7 +698,7 @@ begin
       inc(Totals[1], GetCitizensLost);
       inc(Totals[2], GetWarriorsTrained);
       inc(Totals[3], GetWarriorsLost);
-      inc(Totals[4], GetCitizensKilled + GetWarriorsKilled);
+      inc(Totals[4], GetWarriorsKilled);
       inc(Totals[5], GetHousesBuilt);
       inc(Totals[6], GetHousesLost);
       inc(Totals[7], GetHousesDestroyed);
@@ -720,12 +721,12 @@ begin
       Bar_Results[I,1].Tag := GetCitizensLost;
       Bar_Results[I,2].Tag := GetWarriorsTrained;
       Bar_Results[I,3].Tag := GetWarriorsLost;
-      Bar_Results[I,4].Tag := GetCitizensKilled + GetWarriorsKilled;
+      Bar_Results[I,4].Tag := GetWarriorsKilled;
       Image_ResultsRosette[I,0].Visible := (GetCitizensTrained >= Bests[0]) and (Totals[0] > 0);
       Image_ResultsRosette[I,1].Visible := (GetCitizensLost    <= Bests[1]) and (Totals[1] > 0);
       Image_ResultsRosette[I,2].Visible := (GetWarriorsTrained >= Bests[2]) and (Totals[2] > 0);
       Image_ResultsRosette[I,3].Visible := (GetWarriorsLost    <= Bests[3]) and (Totals[3] > 0);
-      Image_ResultsRosette[I,4].Visible := (GetCitizensKilled + GetWarriorsKilled >= Bests[4]) and (Totals[4] > 0);
+      Image_ResultsRosette[I,4].Visible := (GetWarriorsKilled >= Bests[4]) and (Totals[4] > 0);
       //Objects
       Bar_Results[I,5].Tag := GetHousesBuilt;
       Bar_Results[I,6].Tag := GetHousesLost;
@@ -864,12 +865,10 @@ begin
 
     Panel_SPButtons := TKMPanel.Create(Panel_SinglePlayer,337,340,350,400);
       Button_SP_Tutor  := TKMButton.Create(Panel_SPButtons,0,  0,350,30,fTextLibrary[TX_MENU_TUTORIAL_TOWN],fnt_Metal,bsMenu);
-      Button_SP_Fight  := TKMButton.Create(Panel_SPButtons,0, 34,350,30,fTextLibrary[TX_MENU_TUTORIAL_BATTLE],fnt_Metal,bsMenu);
-
-      Button_SP_Camp   := TKMButton.Create(Panel_SPButtons,0, 88,350,30,fTextLibrary[TX_MENU_CAMPAIGNS],fnt_Metal,bsMenu);
-
-      Button_SP_Single := TKMButton.Create(Panel_SPButtons,0,176,350,30,fTextLibrary[TX_MENU_SINGLE_MAP],fnt_Metal,bsMenu);
-      Button_SP_Load   := TKMButton.Create(Panel_SPButtons,0,210,350,30,fTextLibrary[TX_MENU_LOAD_SAVEGAME],fnt_Metal,bsMenu);
+      Button_SP_Fight  := TKMButton.Create(Panel_SPButtons,0, 40,350,30,fTextLibrary[TX_MENU_TUTORIAL_BATTLE],fnt_Metal,bsMenu);
+      Button_SP_Camp   := TKMButton.Create(Panel_SPButtons,0, 80,350,30,fTextLibrary[TX_MENU_CAMPAIGNS],fnt_Metal,bsMenu);
+      Button_SP_Single := TKMButton.Create(Panel_SPButtons,0,120,350,30,fTextLibrary[TX_MENU_SINGLE_MAP],fnt_Metal,bsMenu);
+      Button_SP_Load   := TKMButton.Create(Panel_SPButtons,0,160,350,30,fTextLibrary[TX_MENU_LOAD_SAVEGAME],fnt_Metal,bsMenu);
       Button_SP_Back   := TKMButton.Create(Panel_SPButtons,0,290,350,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
 
       Button_SP_Tutor.OnClick  := MainMenu_PlayTutorial;
@@ -1113,19 +1112,28 @@ begin
   Panel_CampSelect := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_CampSelect.Stretch;
 
-    L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 340, 0, 0, fTextLibrary[TX_MENU_CAMP_CUSTOM], fnt_Outline, taCenter);
+    L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 230, 0, 0, fTextLibrary[TX_MENU_CAMP_CUSTOM], fnt_Outline, taCenter);
     L.Anchors := [];
-    List_Camps := TKMColumnListBox.Create(Panel_CampSelect, 312, 360, 400, 200, fnt_Grey);
-    List_Camps.SetColumns(fnt_Grey, ['Title', 'Maps', ''], [0, 320, 400]);
+    List_Camps := TKMColumnListBox.Create(Panel_CampSelect, 80, 260, 600, 300, fnt_Grey);
+    List_Camps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_CAMPAIGNS_TITLE],
+                                        fTextLibrary[TX_MENU_CAMPAIGNS_MAPS_COUNT],
+                                        fTextLibrary[TX_MENU_CAMPAIGNS_MAPS_UNLOCKED], ''],
+                                        [0, 320, 460, 600]);
     List_Camps.Anchors := [];
     List_Camps.OnChange := Campaign_ListChange;
+    List_Camps.OnDoubleClick := SwitchMenuPage;
 
-    Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 412, 570, 200, 30, fTextLibrary[TX_MENU_CAMP_START], fnt_Metal, bsMenu);
+    with TKMBevel.Create(Panel_CampSelect, 696, 306, 275, 208) do Anchors := [];
+    Image_CampsPreview := TKMImage.Create(Panel_CampSelect, 700, 310, 267, 200, 0, rxGuiMain);
+    Image_CampsPreview.ImageStretch;
+    Image_CampsPreview.Anchors := [];
+
+    Button_Camp_Start := TKMButton.Create(Panel_CampSelect, 362, 570, 300, 30, fTextLibrary[TX_MENU_CAMP_START], fnt_Metal, bsMenu);
     Button_Camp_Start.Anchors := [];
     Button_Camp_Start.OnClick := SwitchMenuPage;
 
-    Button_Camp_Back := TKMButton.Create(Panel_CampSelect, 30, 712, 230, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
-    Button_Camp_Back.Anchors := [akLeft, akBottom];
+    Button_Camp_Back := TKMButton.Create(Panel_CampSelect, 362, 615, 300, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_Camp_Back.Anchors := [];
     Button_Camp_Back.OnClick := SwitchMenuPage;
 end;
 
@@ -1573,8 +1581,15 @@ begin
     Label_Results := TKMLabel.Create(Panel_Results,512,140,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_Results.Anchors := [akLeft];
 
+    with TKMImage.Create(Panel_Results, 10, 190, 360, 360, 3, rxGuiMain) do
+    begin
+      ImageStretch;
+      Center;
+    end;
+
     Panel_Stats := TKMPanel.Create(Panel_Results, 30, 200, 320, 400);
     Panel_Stats.Anchors := [akLeft];
+
     Adv := 0;
     for I := 1 to 9 do
     begin
@@ -1589,13 +1604,17 @@ begin
       Panel_StatsCharts := TKMPanel.Create(Panel_Results, 410, 170, 610, 420);
       Panel_StatsCharts.Anchors := [akLeft];
 
-      Button_Graph1 := TKMButtonFlat.Create(Panel_StatsCharts, 0, 0, 205, 20, 0, rxGuiMain);
+      Button_Graph1 := TKMButtonFlat.Create(Panel_StatsCharts, 0, 0, 205, 20, 454, rxGui);
+      Button_Graph1.TexOffsetX := -90;
+      Button_Graph1.TexOffsetY := 5;
       Button_Graph1.Anchors := [akLeft];
       Button_Graph1.Caption := 'Units and Houses';
       Button_Graph1.CapOffsetY := -11;
       Button_Graph1.OnClick := Results_GraphToggle;
 
-      Button_Graph2 := TKMButtonFlat.Create(Panel_StatsCharts, 215, 0, 205, 20, 0, rxGuiMain);
+      Button_Graph2 := TKMButtonFlat.Create(Panel_StatsCharts, 215, 0, 205, 20, 169, rxGui);
+      Button_Graph2.TexOffsetX := -85;
+      Button_Graph2.TexOffsetY := 6;
       Button_Graph2.Anchors := [akLeft];
       Button_Graph2.Caption := 'Wares';
       Button_Graph2.CapOffsetY := -11;
@@ -1639,7 +1658,7 @@ const
   BarHalf = BarWidth div 2;
   Columns1: array[0..4] of integer = (TX_RESULTS_MP_CITIZENS_TRAINED, TX_RESULTS_MP_CITIZENS_LOST,
                                      TX_RESULTS_MP_SOLDIERS_EQUIPPED, TX_RESULTS_MP_SOLDIERS_LOST,
-                                     TX_RESULTS_MP_UNITS_DEFEATED);
+                                     TX_RESULTS_MP_SOLDIERS_DEFEATED);
   Columns2: array[0..4] of integer = (TX_RESULTS_MP_BUILDINGS_CONSTRUCTED, TX_RESULTS_MP_BUILDINGS_LOST,
                                      TX_RESULTS_MP_BUILDINGS_DESTROYED,
                                      TX_RESULTS_MP_WARES_PRODUCED, TX_RESULTS_MP_WEAPONS_PRODUCED);
@@ -1811,9 +1830,9 @@ begin
   end;
 
   {Show campaign screen}
-  if (Sender = Button_Camp_Start) then
+  if (Sender = Button_Camp_Start) or (Sender = List_Camps) then
   begin
-    Campaign_Set(fGameApp.Campaigns.CampaignByTitle(List_Camps.Rows[List_Camps.ItemIndex].Cells[2].Caption));
+    Campaign_Set(fGameApp.Campaigns.CampaignByTitle(List_Camps.Rows[List_Camps.ItemIndex].Cells[3].Caption));
     Panel_Campaign.Show;
   end;
   if (Sender = Button_ResultsContinue) then
@@ -1941,20 +1960,26 @@ var
 begin
   Camps := fGameApp.Campaigns;
 
+  Image_CampsPreview.TexID := 0; //Clear preview image
   List_Camps.Clear;
   for I := 0 to Camps.Count - 1 do
   with Camps[I] do
     List_Camps.AddItem(MakeListRow(
-                        [CampaignTitle, IntToStr(MapCount), ShortTitle],
-                        [$FFFFFFFF, $FFFFFFFF, $00FFFFFF]));
+                        [CampaignTitle, IntToStr(MapCount), IntToStr(UnlockedMap+1), ShortTitle],
+                        [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $00FFFFFF]));
 
   Button_Camp_Start.Disable;
 end;
 
 
 procedure TKMMainMenuInterface.Campaign_ListChange(Sender: TObject);
+var Camp: TKMCampaign;
 begin
   Button_Camp_Start.Enable;
+  Camp := fGameApp.Campaigns.CampaignByTitle(List_Camps.Rows[List_Camps.ItemIndex].Cells[3].Caption);
+
+  Image_CampsPreview.RX := Camp.BackGroundPic.RX;
+  Image_CampsPreview.TexID := Camp.BackGroundPic.ID;
 end;
 
 

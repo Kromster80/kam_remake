@@ -13,6 +13,7 @@ Must be done:
 	Add new music tracks Market and Household
 	Update readme with changed info (shortcuts, missing features)
 	Add new maps and maybe delete some existing ones based on quality and popularity
+	Check if we can use smoothing when scaling menu images up/down [Krom]
 
 
 ==============================
