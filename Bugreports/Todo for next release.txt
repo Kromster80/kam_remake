@@ -7,17 +7,18 @@ Must be done:
  +	Fix TSK 19 crash [Lewin]
  +	Update game files from SR3 where approperiate [Lewin]
 	Finish charts
-	Finish custom campaign support (whats left?)
+	Finish custom campaign support (whats left? Sorting list, double click to start, list to show number of unlocked maps)
 	Block market in original missions through script not code hack [Lewin]
 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Add new music tracks Market and Household
 	Update readme with changed info (shortcuts, missing features)
+	Add new maps and maybe delete some existing ones based on quality and popularity
 
 
 ==============================
 Could be done if we have time:
 ==============================
- +	Allow to assign groups and houses(!) to Ctrl+5..9 keys
+ +	Allow to assign groups and houses(!) to Ctrl+0..9 keys
 	Show peacetime remaining in MP replays
 	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	Attacking a house from the bottom right, soldiers will stack up rather than choosing a different free cell (WalkToHouse should avoid other units attacking the house?)

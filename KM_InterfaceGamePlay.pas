@@ -3536,7 +3536,13 @@ begin
                                 //Allow to select any players assets in replay
                                 fPlayers.SelectHitTest(P.X, P.Y, not fReplay);
 
-                                //todo: During a replay the statistics should be for the owner of the last unit/house we selected (change MyPlayer? That causes replay inconsistencies at the moment)
+                                //In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
+                                if fReplay then
+                                begin
+                                  if fPlayers.Selected is TKMHouse then MyPlayer := fPlayers[TKMHouse(fPlayers.Selected).GetOwner];
+                                  if fPlayers.Selected is TKMUnit  then MyPlayer := fPlayers[TKMUnit (fPlayers.Selected).GetOwner];
+                                end;
+
                                 if (fPlayers.Selected is TKMHouse) then
                                   ShowHouseInfo(TKMHouse(fPlayers.Selected));
 

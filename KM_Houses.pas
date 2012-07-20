@@ -225,6 +225,7 @@ type
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
     procedure UnitTrainingComplete; //This should shift queue filling rest with ut_None
     function GetTrainingProgress:byte;
+    function QueueIsEmpty:Boolean;
     property HideOneGold:boolean read fHideOneGold;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
@@ -1792,6 +1793,15 @@ begin
               byte(ha_Work5 in fCurrentAction.SubAction) * 120 +
               byte(fCurrentAction.State = hst_Work) * WorkAnimStep
               )/1.5), 0, 100);
+end;
+
+
+function TKMHouseSchool.QueueIsEmpty:Boolean;
+var i: Integer;
+begin
+  Result := True;
+  for i:=1 to 6 do
+    Result := Result and (UnitQueue[i] = ut_None);
 end;
 
 

@@ -150,7 +150,7 @@ begin
   for k:=1 to Length(Schools) do
   begin
     HS := Schools[k-1];
-    if (HS<>nil)and(HS.UnitQueue[1]=ut_None) then
+    if (HS<>nil)and(HS.QueueIsEmpty) then
     begin
       //Order citizen training
       for UT:=Low(UnitReq) to High(UnitReq) do
@@ -165,7 +165,7 @@ begin
 
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
-      if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
+      if HS.QueueIsEmpty then //Still haven't found a match...
         if not CheckUnitRequirements(Round((10/fMayorSetup.SerfFactor) * P.Stats.GetHouseQty(ht_Any)), ut_Serf) then
           if not CheckUnitRequirements(fMayorSetup.WorkerFactor, ut_Worker) then
             if fGame.CheckTime(fMayorSetup.RecruitDelay) then //Recruits can only be trained after this time
