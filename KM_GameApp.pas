@@ -648,8 +648,9 @@ end;
 
 procedure TKMGameApp.PauseMusicToPlayFile(aFileName:string);
 begin
+  if not FileExists(aFileName) then Exit;
   fSoundLib.AbortAllFadeSounds; //Victory/defeat sounds also fade music, so stop those in the rare chance they might still be playing
-  fMusicLib.PauseMusicToPlayFile(aFileName);
+  fMusicLib.PauseMusicToPlayFile(aFileName, fGameSettings.SoundFXVolume);
 end;
 
 

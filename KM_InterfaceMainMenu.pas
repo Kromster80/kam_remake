@@ -1825,6 +1825,7 @@ begin
   if (Sender = Button_SP_Camp)
   or (Sender = Button_CampaignBack) then
   begin
+    fGameApp.MusicLib.StopPlayingOtherFile; //Cancel briefing if it was playing
     Campaign_FillList;
     Panel_CampSelect.Show;
   end;
@@ -2044,11 +2045,15 @@ begin
   Panel_CampScroll.Height := 50 + Label_CampaignText.TextSize.Y + 70; //Add offset from top and space on bottom
   Panel_CampScroll.Top := Panel_Main.Height - Panel_CampScroll.Height;
   Image_Scroll.Height := Panel_CampScroll.Height;
+
+  fGameApp.MusicLib.StopPlayingOtherFile; //Stop playing the previous breifing even if this one doesn't exist
+  fGameApp.PauseMusicToPlayFile(Campaign_Selected.BreifingAudioFile(Campaign_MapIndex, fGameApp.GameSettings.Locale));
 end;
 
 
 procedure TKMMainMenuInterface.Campaign_StartMap(Sender: TObject);
 begin
+  fGameApp.MusicLib.StopPlayingOtherFile;
   fGameApp.NewCampaignMap(Campaign_Selected, Campaign_MapIndex);
 end;
 

@@ -40,6 +40,7 @@ type
     fFadeStarted:cardinal;
     fToPlayAfterFade:string;
     fFadedToPlayOther: Boolean;
+    fOtherVolume:single;
     function  PlayMusicFile(FileName:string):boolean;
     function  PlayOtherFile(FileName:string):boolean;
     procedure ScanMusicTracks(Path:string);
@@ -59,7 +60,7 @@ type
     procedure ToggleShuffle(aEnableShuffle: Boolean);
     procedure FadeMusic(Sender:TObject);
     procedure UnfadeMusic(Sender:TObject);
-    procedure PauseMusicToPlayFile(aFileName:string);
+    procedure PauseMusicToPlayFile(aFileName:string; aVolume:single);
     procedure StopPlayingOtherFile;
     function GetTrackTitle:string;
     procedure UpdateStateIdle; //Used for fading
@@ -186,6 +187,14 @@ begin
 
   ErrorCode := BASS_ErrorGetCode();
   if ErrorCode <> BASS_OK then exit; //Error
+  {$ENDIF}
+
+  //Now set the volume to the desired level
+  {$IFDEF USELIBZPLAY}
+  ZPlayerOther.SetPlayerVolume(Round(fOtherVolume*100), Round(fOtherVolume*100)); //0=silent, 100=max
+  {$ENDIF}
+  {$IFDEF USEBASS}
+  BASS_ChannelSetAttribute(fBassOtherStream, BASS_ATTRIB_VOL, fOtherVolume); //0=silent, 1=max
   {$ENDIF}
 
   Result := true;
@@ -439,8 +448,9 @@ begin
 end;
 
 
-procedure TMusicLib.PauseMusicToPlayFile(aFileName:string);
+procedure TMusicLib.PauseMusicToPlayFile(aFileName:string; aVolume:single);
 begin
+  fOtherVolume := aVolume;
   if fFadeState in [fsNone, fsFadeIn] then
   begin
     FadeMusic(nil);
@@ -463,6 +473,7 @@ begin
   {$IFDEF USELIBZPLAY} ZPlayerOther.StopPlayback; {$ENDIF}
   {$IFDEF USEBASS} BASS_ChannelStop(fBassOtherStream); {$ENDIF}
   fToPlayAfterFade := '';
+  if fFadeState = fsFadeOut then fFadedToPlayOther := True; //Make sure the music starts again if we are currently fading out
 end;
 
 

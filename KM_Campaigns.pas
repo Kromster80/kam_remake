@@ -49,6 +49,7 @@ type
     function MissionFile(aIndex: byte): string;
     function MissionTitle(aIndex: byte): AnsiString;
     function MissionText(aIndex: byte): AnsiString;
+    function BreifingAudioFile(aIndex: byte; aLang:string): string;
   end;
 
 
@@ -396,6 +397,13 @@ end;
 function TKMCampaign.MissionText(aIndex: byte): AnsiString;
 begin
   Result := fTextLibrary[fFirstTextIndex + 10 + aIndex];
+end;
+
+
+function TKMCampaign.BreifingAudioFile(aIndex: byte; aLang:string): string;
+begin
+  Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + '\' +
+            fShortTitle + Format('%.2d', [aIndex+1]) + '.' + aLang + '.mp3';
 end;
 
 
