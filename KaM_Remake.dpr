@@ -114,7 +114,7 @@ uses
   KM_Viewport in 'KM_Viewport.pas';
 
 {$IFDEF WDC}
-  {$R *.RES}
+  {$R KaM_Remake.RES}
   {$R KaM_Manifest.RES}
 {$ENDIF}
 {$IFDEF MSWindows}
