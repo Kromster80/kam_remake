@@ -6,16 +6,18 @@ Must be done:
  +	Statistics page in game in replay should show stats from the last player you selected [Krom]
  +	Fix TSK 19 crash [Lewin]
  +	Update game files from SR3 where approperiate [Lewin]
+ +	Test all campaign missions for minor script warnings and fix them (e.g. TSK 7) [Lewin]
+ +	Narrator in campaign breifings [Lewin]
+ +	Finish custom campaign support
+ +	Add new music tracks Market and Household
 	Finish charts
-	Finish custom campaign support (whats left? Sorting list)
 	Block market in original missions through script not code hack [Lewin]
 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
-	Add new music tracks Market and Household
+	Alerts on the minimap when a unit/house is under attack
 	Update readme with changed info (shortcuts, missing features)
 	Add new maps and maybe delete some existing ones based on quality and popularity
 	Check if we can use smoothing when scaling menu images up/down [Krom]
-	Test all campaign missions for minor script warnings and fix them (e.g. TSK 7) [Lewin]
-	Narrator in campaign breifings [Lewin]
+	Selecting a map in multiplayer should show columns with name, size, player count, etc. rather than dumb drop down
 
 
 ==============================

@@ -45,7 +45,7 @@
 	Colored rectangle below cursor
 
 Improvements:
- +	High quality alpha-blended shadows for houses (only once constructed?)
+ +	High quality alpha-blended shadows for houses
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
  +	Display charts in game results screens (army, wares count, etc.)
@@ -54,6 +54,7 @@ Improvements:
  +	RXXPacker to make soft shadowed RXX files in 1 click rather than by hand
  wip	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
  +	Allow to assign groups and houses(!) to Ctrl+0..9 keys
+ +	Play campaign briefing audio files (and fade music while it plays)
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
@@ -61,7 +62,6 @@ Improvements:
 	Mutltiplayer spectator mode
 	256x256 icons for EXE (for vista/7/8 users)
 	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
-	Play campaign briefing WAV files (and fade music while it plays)
 	Master server use MySQL for storage rather than .txt files
 	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
 	Chat logs
