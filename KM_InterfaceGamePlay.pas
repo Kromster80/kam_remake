@@ -473,8 +473,9 @@ end;
 
 
 procedure TKMGamePlayInterface.Menu_Save_RefreshList(Sender: TObject);
-var I: Integer;
+var I, OldTopIndex: Integer;
 begin
+  OldTopIndex := List_Save.TopIndex;
   List_Save.Clear;
 
   if fSaves.ScanFinished then
@@ -495,6 +496,7 @@ begin
       List_Save.Add(fSaves[i].FileName);
 
   List_Save.ItemIndex := fSave_Selected;
+  List_Save.TopIndex := OldTopIndex;
 end;
 
 
@@ -533,8 +535,9 @@ end;
 
 
 procedure TKMGamePlayInterface.Menu_Load_RefreshList(Sender: TObject);
-var I: Integer;
+var I, OldTopIndex: Integer;
 begin
+  OldTopIndex := List_Load.TopIndex;
   List_Load.Clear;
 
   if (Sender = fSaves) then
@@ -543,6 +546,7 @@ begin
       List_Load.Add(fSaves[i].FileName);
   end;
 
+  List_Load.TopIndex := OldTopIndex;
   List_Load.ItemIndex := fSave_Selected;
 
   Menu_Load_ListClick(nil);
@@ -981,11 +985,11 @@ begin
       Button_ReplayStep.OnClick    := ReplayClick;
       Button_ReplayResume.OnClick  := ReplayClick;
       Button_ReplayExit.OnClick    := ReplayClick;
-      Button_ReplayRestart.Hint := 'Restart replay'; //todo: Move these to LIBX
-      Button_ReplayPause.Hint   := 'Pause replay';
-      Button_ReplayStep.Hint    := 'Step 1 tick forward';
-      Button_ReplayResume.Hint  := 'Resume paused replay';
-      Button_ReplayExit.Hint    := 'Quit replay';
+      Button_ReplayRestart.Hint := fTextLibrary[TX_REPLAY_RESTART];
+      Button_ReplayPause.Hint   := fTextLibrary[TX_REPLAY_RESTART];
+      Button_ReplayStep.Hint    := fTextLibrary[TX_REPLAY_STEP];
+      Button_ReplayResume.Hint  := fTextLibrary[TX_REPLAY_RESUME];
+      Button_ReplayExit.Hint    := fTextLibrary[TX_REPLAY_QUIT];
       Button_ReplayStep.Disable; //Initial state
       Button_ReplayResume.Disable; //Initial state
 end;
@@ -1903,7 +1907,6 @@ procedure TKMGamePlayInterface.ShowHouseInfo(Sender: TKMHouse; aAskDemolish: Boo
 const LineAdv = 25; //Each new Line is placed ## pixels after previous
 var i,RowRes,Base,Line:integer; Res:TResourceType;
 begin
-  //todo: Crash in MP when destroying a house. I guess because of network lag and fPlayers.Selected not being cleared?
   Assert(fPlayers.Selected = Sender);
   fAskDemolish := aAskDemolish;
 
@@ -2183,6 +2186,7 @@ begin
   if Sender = Button_House_DemolishYes then
   begin
     fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, TKMHouse(fPlayers.Selected).GetPosition);
+    fPlayers.Selected := nil; //fPlayers.Selected MUST be reset before calling ShowHouseInfo
     ShowHouseInfo(nil, False); //Simpliest way to reset page and ShownHouse
   end else
     fAskDemolish := False;

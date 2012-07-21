@@ -1086,7 +1086,7 @@ begin
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 99, 250, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
       DropCol_LobbyMaps.DropCount := 19;
       DropCol_LobbyMaps.DropWidth := 430; //180 extra width
-      DropCol_LobbyMaps.SetColumns(fnt_Outline, ['Name', '#', 'Size'], [0, 290, 320]);
+      DropCol_LobbyMaps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 290, 320]);
       DropCol_LobbyMaps.List.OnColumnClick := Lobby_MapColumnClick;
       DropCol_LobbyMaps.OnChange := Lobby_MapSelect;
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 99, 250, 20, '', fnt_Metal, taLeft);
@@ -1208,9 +1208,9 @@ begin
       Button_SingleHeadMode.OnClick := SingleMap_Sort;
       Button_SingleHeadTeams := TKMButton.Create(Panel_SingleList, C2,0, W2,40,31,rxGui,bsMenu);
       Button_SingleHeadTeams.OnClick := SingleMap_Sort;
-      Button_SingleHeadTitle := TKMButton.Create(Panel_SingleList, C3,0, W3,40,fTextLibrary[TX_MENU_TITLE],fnt_Metal,bsMenu);
+      Button_SingleHeadTitle := TKMButton.Create(Panel_SingleList, C3,0, W3,40,fTextLibrary[TX_MENU_MAP_TITLE],fnt_Metal,bsMenu);
       Button_SingleHeadTitle.OnClick := SingleMap_Sort;
-      Button_SingleHeadSize  := TKMButton.Create(Panel_SingleList, C4,0, W4,40,fTextLibrary[TX_MENU_SIZE],fnt_Metal,bsMenu);
+      Button_SingleHeadSize  := TKMButton.Create(Panel_SingleList, C4,0, W4,40,fTextLibrary[TX_MENU_MAP_SIZE],fnt_Metal,bsMenu);
       Button_SingleHeadSize.OnClick := SingleMap_Sort;
       with TKMButton.Create(Panel_SingleList,CS,0, 25,40,'',fnt_Metal,bsMenu) do Disable;
 
@@ -1329,7 +1329,7 @@ begin
   Panel_MapEd.Stretch;
     Panel_MapEd_SizeXY := TKMPanel.Create(Panel_MapEd, 120, 200, 200, 400);
     Panel_MapEd_SizeXY.Anchors := [akLeft];
-      TKMLabel.Create(Panel_MapEd_SizeXY, 6, 0, 188, 20, fTextLibrary[TX_MENU_MAP_SIZE], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_MapEd_SizeXY, 6, 0, 188, 20, fTextLibrary[TX_MENU_NEW_MAP_SIZE], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_MapEd_SizeXY, 0, 20, 200, 20 + MAPSIZES_COUNT*26);
       TKMLabel.Create(Panel_MapEd_SizeXY, 8, 27, 88, 20, fTextLibrary[TX_MENU_MAP_WIDTH], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_MapEd_SizeXY, 108, 27, 88, 20, fTextLibrary[TX_MENU_MAP_HEIGHT], fnt_Outline, taLeft);
@@ -2954,26 +2954,30 @@ begin
         begin
           fMapsMP.Refresh(Lobby_ScanUpdate);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.List.Header.SetColumnText(2, 'Size');
+          DropCol_LobbyMaps.List.Header.SetColumnText(0, fTextLibrary[TX_MENU_MAP_TITLE]);
+          DropCol_LobbyMaps.List.Header.SetColumnText(2, fTextLibrary[TX_MENU_MAP_SIZE]);
         end;
     1:  //Fight Map
         begin
           fMapsMP.Refresh(Lobby_ScanUpdate);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.List.Header.SetColumnText(2, 'Size');
+          DropCol_LobbyMaps.List.Header.SetColumnText(0, fTextLibrary[TX_MENU_MAP_TITLE]);
+          DropCol_LobbyMaps.List.Header.SetColumnText(2, fTextLibrary[TX_MENU_MAP_SIZE]);
         end;
     2:  //Co-op Map
         begin
           fMapsMP.Refresh(Lobby_ScanUpdate);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.List.Header.SetColumnText(2, 'Size');
+          DropCol_LobbyMaps.List.Header.SetColumnText(0, fTextLibrary[TX_MENU_MAP_TITLE]);
+          DropCol_LobbyMaps.List.Header.SetColumnText(2, fTextLibrary[TX_MENU_MAP_SIZE]);
         end;
     3:  //Saved Game
         begin
           fMapsMP.TerminateScan;
           fSavesMP.Refresh(Lobby_ScanUpdate, True);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
-          DropCol_LobbyMaps.List.Header.SetColumnText(2, 'Time');
+          DropCol_LobbyMaps.List.Header.SetColumnText(0, fTextLibrary[TX_MENU_LOAD_FILE]);
+          DropCol_LobbyMaps.List.Header.SetColumnText(2, fTextLibrary[TX_MENU_SAVE_TIME]);
         end;
     else
         begin

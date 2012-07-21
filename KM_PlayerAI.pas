@@ -389,8 +389,6 @@ begin
     att_ClosestBuildingFromArmy:      TargetHouse := fPlayers.GetClosestHouse(aCommander.GetPosition, fPlayerIndex, at_Enemy, false);
     att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(StartPosition, fPlayerIndex, at_Enemy, false);
     att_CustomPosition:               begin
-                                        //todo: TSK 19 defines an off-map custom AI attack. KaM TSK/TPR ignores this without crashing
-                                        //      so I guess we should do the same? (currently it causes a crash)
                                         TargetHouse := fPlayers.HousesHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetHouse <> nil) and
                                            (fPlayers.CheckAlliance(fPlayerIndex, TargetHouse.GetOwner) = at_Ally) then

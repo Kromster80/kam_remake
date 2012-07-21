@@ -1,5 +1,5 @@
 
-MaxID:2738
+MaxID:2744
 
 0:Sawmill
 1:Iron smithy
@@ -345,7 +345,6 @@ MaxID:2738
 1809:Players: %d
 1810:Mode:
 1811:Conditions:
-1812:Size:
 1813:Quit lobby
 1814:Ready
 1815:Start!
@@ -485,3 +484,9 @@ MaxID:2738
 2736:Title
 2737:Maps
 2738:Unlocked
+2739:Time
+2740:Restart replay
+2741:Quit replay
+2742:Resume paused replay
+2743:Step 1 tick forward
+2744:Pause replay
