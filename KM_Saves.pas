@@ -9,7 +9,9 @@ uses
 type
   TSavesSortMethod = (
     smByFileNameAsc, smByFileNameDesc,
-    smByDescriptionAsc, smByDescriptionDesc);
+    smByDescriptionAsc, smByDescriptionDesc,
+    smByTimeAsc, smByTimeDesc,
+    smByPlayerCountAsc, smByPlayerCountDesc);
 
   TKMSaveInfo = class;
   TSaveEvent = procedure (aSave: TKMSaveInfo) of object;
@@ -275,6 +277,10 @@ procedure TKMSavesCollection.DoSort;
       smByFileNameDesc:    Result := CompareText(A.FileName, B.FileName) > 0;
       smByDescriptionAsc:  Result := CompareText(A.Info.GetTitleWithTime, B.Info.GetTitleWithTime) < 0;
       smByDescriptionDesc: Result := CompareText(A.Info.GetTitleWithTime, B.Info.GetTitleWithTime) > 0;
+      smByTimeAsc:         Result := A.Info.TickCount < B.Info.TickCount;
+      smByTimeDesc:        Result := A.Info.TickCount > B.Info.TickCount;
+      smByPlayerCountAsc:  Result := A.Info.PlayerCount < B.Info.PlayerCount;
+      smByPlayerCountDesc: Result := A.Info.PlayerCount > B.Info.PlayerCount;
     end;
   end;
 var
@@ -454,7 +460,7 @@ begin
       fOnSaveAdd(Save);
       Synchronize(SaveAddDone);
     end;
-  until (FindNext(SearchRec) <> 0);
+  until (FindNext(SearchRec) <> 0) or Terminated;
   FindClose(SearchRec);
 end;
 

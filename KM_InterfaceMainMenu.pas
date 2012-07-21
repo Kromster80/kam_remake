@@ -32,11 +32,7 @@ type
     fLobbyBusy: Boolean;
 
     fLastMapCRC: Cardinal; //CRC of selected map
-    fJumpToSelectedMap: Boolean;
     fLastSaveCRC: Cardinal; //CRC of selected save
-    fJumpToSelectedSave: Boolean;
-    fLastReplayCRC: Cardinal; //CRC of selected replay
-    fJumpToSelectedReplay: Boolean;
 
     //We remember old values to enable "Apply" button dynamicaly
     OldResolutionID: TResIndex;
@@ -69,7 +65,9 @@ type
     procedure Credits_LinkClick(Sender: TObject);
 
     procedure SingleMap_Clear;
-    procedure SingleMap_RefreshList(Sender: TObject);
+    procedure SingleMap_ScanUpdate(Sender: TObject);
+    procedure SingleMap_SortUpdate(Sender: TObject);
+    procedure SingleMap_RefreshList(aJumpToSelected:Boolean);
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_MapClick(Sender: TObject);
     procedure SingleMap_SelectMap(aIndex: Integer);
@@ -110,10 +108,12 @@ type
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_MapColumnClick(aValue: Integer);
     procedure Lobby_MapTypeSelect(Sender: TObject);
-    procedure Lobby_MapTypeRefreshDone(Sender: TObject);
+    procedure Lobby_SortUpdate(Sender: TObject);
+    procedure Lobby_ScanUpdate(Sender: TObject);
+    procedure Lobby_RefreshMapList(aJumpToSelected:Boolean);
+    procedure Lobby_RefreshSaveList(aJumpToSelected:Boolean);
     procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
-    procedure Lobby_SaveRefreshDone(Sender: TObject);
     procedure Lobby_OnReassignedToHost(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
     procedure Lobby_OnMessage(const aData:string);
@@ -124,25 +124,33 @@ type
     procedure Load_Click(Sender: TObject);
     procedure Load_Delete_Click(Sender: TObject);
     procedure Load_ListClick(Sender: TObject);
-    procedure Load_RefreshList(Sender: TObject);
+    procedure Load_ScanUpdate(Sender: TObject);
+    procedure Load_SortUpdate(Sender: TObject);
+    procedure Load_RefreshList(aJumpToSelected:Boolean);
     procedure Load_Sort(aIndex: Integer);
     procedure Load_DeleteConfirmation(aVisible:boolean);
+
     procedure Replays_ListClick(Sender: TObject);
     procedure Replay_TypeChange(Sender: TObject);
-    procedure Replays_RefreshList(Sender: TObject);
+    procedure Replays_ScanUpdate(Sender: TObject);
+    procedure Replays_SortUpdate(Sender: TObject);
+    procedure Replays_RefreshList(aJumpToSelected:Boolean);
     procedure Replays_Sort(aIndex: Integer);
     procedure Replays_Play(Sender: TObject);
+
     procedure MapEditor_Start(Sender: TObject);
     procedure MapEditor_MapTypeChange(Sender: TObject);
     procedure MapEditor_ListUpdate;
     procedure MapEditor_ListUpdateDone(Sender: TObject);
     procedure MapEditor_SelectMap(Sender: TObject);
+
     procedure Options_Fill(aMainSettings: TMainSettings; aGameSettings: TGameSettings);
     procedure Options_Change(Sender: TObject);
     procedure Options_ChangeRes(Sender: TObject);
     procedure Options_ApplyRes(Sender: TObject);
     procedure Options_FlagClick(Sender: TObject);
     procedure Options_Refresh_DropBoxes;
+
     procedure Results_GraphToggle(Sender: TObject);
     procedure ResultsMP_Toggle(Sender: TObject);
   protected
@@ -885,7 +893,7 @@ procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
   begin
     Panel_MPCreateServer := TKMPanel.Create(Panel_Main, 362, 250, 320, 300);
     Panel_MPCreateServer.Anchors := [];
-      TKMBevel.Create(Panel_MPCreateServer, -1000,  -1000, 2000, 2000);
+      TKMBevel.Create(Panel_MPCreateServer, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPCreateServer, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPCreateServer,   0,  0, 320, 300);
       TKMLabel.Create(Panel_MPCreateServer, 160, 10, 280, 20, fTextLibrary[TX_MP_MENU_CREATE_SERVER_HEADER], fnt_Outline, taCenter);
@@ -905,7 +913,7 @@ procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
   begin
     Panel_MPFindServer := TKMPanel.Create(Panel_Main, 362, 250, 320, 300);
     Panel_MPFindServer.Anchors := [];
-      TKMBevel.Create(Panel_MPFindServer, -1000,  -1000, 2000, 2000);
+      TKMBevel.Create(Panel_MPFindServer, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPFindServer, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPFindServer,   0,  0, 320, 300);
       TKMLabel.Create(Panel_MPFindServer, 160, 10, 280, 20, fTextLibrary[TX_MP_MENU_FIND_SERVER_HEADER], fnt_Outline, taCenter);
@@ -1076,7 +1084,9 @@ begin
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
 
       DropCol_LobbyMaps := TKMDropColumns.Create(Panel_LobbySetup, 10, 99, 250, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
-      DropCol_LobbyMaps.SetColumns(fnt_Metal, ['Name', '#', 'Size'], [0, 170, 190]);
+      DropCol_LobbyMaps.DropCount := 19;
+      DropCol_LobbyMaps.DropWidth := 430; //180 extra width
+      DropCol_LobbyMaps.SetColumns(fnt_Outline, ['Name', '#', 'Size'], [0, 290, 320]);
       DropCol_LobbyMaps.List.OnColumnClick := Lobby_MapColumnClick;
       DropCol_LobbyMaps.OnChange := Lobby_MapSelect;
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 99, 250, 20, '', fnt_Metal, taLeft);
@@ -1850,7 +1860,7 @@ begin
     //Remove any old entries from UI
     SingleMap_Clear;
     //Initiate refresh and process each new map added
-    fMaps.Refresh(SingleMap_RefreshList);
+    fMaps.Refresh(SingleMap_ScanUpdate);
     Panel_Single.Show;
   end;
 
@@ -1859,9 +1869,11 @@ begin
     //Stop current scan so it can't add a save after we clear the list
     fSaves.TerminateScan;
     fLastSaveCRC := 0;
-    Load_RefreshList(nil); //call it at least one time, so GUI is prepared even if there are no saves
+    List_Load.Clear; //clear the list
+    Load_DeleteConfirmation(False);
+    Load_ListClick(nil);
     //Initiate refresh and process each new save added
-    fSaves.Refresh(Load_RefreshList, False);
+    fSaves.Refresh(Load_ScanUpdate, False);
     Load_Sort(List_Load.SortIndex); //Apply sorting from last time we were on this page
     Panel_Load.Show;
   end;
@@ -2095,21 +2107,32 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.SingleMap_RefreshList(Sender: TObject);
+procedure TKMMainMenuInterface.SingleMap_ScanUpdate(Sender: TObject);
+begin
+  SingleMap_RefreshList(False); //Don't jump to selected with each scan update
+end;
+
+
+procedure TKMMainMenuInterface.SingleMap_SortUpdate(Sender: TObject);
+begin
+  SingleMap_RefreshList(True); //After sorting jump to the selected item
+end;
+
+
+procedure TKMMainMenuInterface.SingleMap_RefreshList(aJumpToSelected:Boolean);
 var
   I, MapID, MapIndex: Integer;
 begin
   //Updating MaxValue may change Position
   ScrollBar_SingleMaps.MaxValue := Max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
 
-  //IDs of maps could changed, so use CRC to check
-  //which one was selected
+  //IDs of maps could changed, so use CRC to check which one was selected
   MapIndex := -1;
   for I := 0 to fMaps.Count-1 do
     if (fMaps[I].CRC = fLastMapCRC) then
       MapIndex := I;
 
-  if fJumpToSelectedMap
+  if aJumpToSelected
   and not InRange(MapIndex - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1)
   then
     if MapIndex < ScrollBar_SingleMaps.Position + MENU_SP_MAPS_COUNT - 1 then
@@ -2138,8 +2161,7 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_ScrollChange(Sender: TObject);
 begin
-  fJumpToSelectedMap := False;
-  SingleMap_RefreshList(nil);
+  SingleMap_RefreshList(False);
 end;
 
 
@@ -2234,11 +2256,8 @@ begin
   else
     Method := smByNameAsc; //Default
 
-  //scroll to selected map, so it will be shown on the screen
-  fJumpToSelectedMap := True;
-
   //Start sorting and wait for SortComplete event
-  fMaps.Sort(Method, SingleMap_RefreshList);
+  fMaps.Sort(Method, SingleMap_SortUpdate);
 end;
 
 
@@ -2417,7 +2436,8 @@ begin
     end;
 
     ColList_Servers.TopIndex := OldTopIndex;
-    if not InRange(ColList_Servers.ItemIndex - ColList_Servers.TopIndex, 0, ColList_Servers.GetVisibleRows - 1) then
+    if (ColList_Servers.ItemIndex <> -1)
+    and not InRange(ColList_Servers.ItemIndex - ColList_Servers.TopIndex, 0, ColList_Servers.GetVisibleRows - 1) then
     begin
       if ColList_Servers.ItemIndex < ColList_Servers.TopIndex + ColList_Servers.GetVisibleRows - 1 then
         ColList_Servers.TopIndex := ColList_Servers.ItemIndex
@@ -2925,27 +2945,35 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
 begin
+  //Terminate any running scans otherwise they will continue to fill the drop box in the background
+  fMapsMP.TerminateScan;
+  fSavesMP.TerminateScan;
   DropCol_LobbyMaps.Clear; //Clear previous items in case scanning finds no maps/saves
   case Radio_LobbyMapType.ItemIndex of
     0:  //Build Map
         begin
-          fMapsMP.Refresh(Lobby_MapTypeRefreshDone);
+          fMapsMP.Refresh(Lobby_ScanUpdate);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
+          DropCol_LobbyMaps.List.Header.SetColumnText(2, 'Size');
         end;
     1:  //Fight Map
         begin
-          fMapsMP.Refresh(Lobby_MapTypeRefreshDone);
+          fMapsMP.Refresh(Lobby_ScanUpdate);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
+          DropCol_LobbyMaps.List.Header.SetColumnText(2, 'Size');
         end;
     2:  //Co-op Map
         begin
-          fMapsMP.Refresh(Lobby_MapTypeRefreshDone);
+          fMapsMP.Refresh(Lobby_ScanUpdate);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
+          DropCol_LobbyMaps.List.Header.SetColumnText(2, 'Size');
         end;
     3:  //Saved Game
         begin
-          fSavesMP.Refresh(Lobby_SaveRefreshDone, True);
+          fMapsMP.TerminateScan;
+          fSavesMP.Refresh(Lobby_ScanUpdate, True);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
+          DropCol_LobbyMaps.List.Header.SetColumnText(2, 'Time');
         end;
     else
         begin
@@ -2960,11 +2988,30 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_MapTypeRefreshDone(Sender: TObject);
+procedure TKMMainMenuInterface.Lobby_SortUpdate(Sender: TObject);
+begin
+  //After sorting jump to the selected item
+  if Sender = fSavesMP then
+    Lobby_RefreshSaveList(True);
+  if Sender = fMapsMP then
+    Lobby_RefreshMapList(True);
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_ScanUpdate(Sender: TObject);
+begin
+  //Don't jump to selected with each scan update
+  if Sender = fSavesMP then
+    Lobby_RefreshSaveList(False);
+  if Sender = fMapsMP then
+    Lobby_RefreshMapList(False);
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_RefreshMapList(aJumpToSelected:Boolean);
 var
-  I: Integer;
+  I, OldTopIndex: Integer;
   PrevMap: string;
-  Row: TKMListRow;
   AddMap: Boolean;
 begin
   //Remember previous map selected
@@ -2973,6 +3020,7 @@ begin
   else
     PrevMap := '';
 
+  OldTopIndex := DropCol_LobbyMaps.List.TopIndex;
   DropCol_LobbyMaps.Clear;
 
   for I := 0 to fMapsMP.Count - 1 do
@@ -2996,32 +3044,108 @@ begin
     for I := 0 to DropCol_LobbyMaps.Count - 1 do
       if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevMap then
         DropCol_LobbyMaps.ItemIndex := I;
+
+  //Restore the top index
+  DropCol_LobbyMaps.List.TopIndex := OldTopIndex;
+  if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
+  and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
+  begin
+    if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
+    else
+    if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
+  end;
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_RefreshSaveList(aJumpToSelected:Boolean);
+var I, OldTopIndex: Integer; PrevSave: string;
+begin
+  //Remember previous save selected
+  if DropCol_LobbyMaps.ItemIndex <> -1 then
+    PrevSave := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
+  else
+    PrevSave := '';
+
+  OldTopIndex := DropCol_LobbyMaps.List.TopIndex;
+  DropCol_LobbyMaps.Clear;
+  for I := 0 to fSavesMP.Count - 1 do
+    if fSavesMP[I].IsValid then
+      DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName,
+                                         IntToStr(fSavesMP[I].Info.PlayerCount),
+                                         fSavesMP[I].Info.GetTimeText], I))
+    else
+      DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName, '', ''], I));
+
+  //Restore previously selected save
+  if PrevSave <> '' then
+    for I := 0 to DropCol_LobbyMaps.Count - 1 do
+      if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevSave then
+        DropCol_LobbyMaps.ItemIndex := I;
+
+  //Restore the top index
+  DropCol_LobbyMaps.List.TopIndex := OldTopIndex;
+  if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
+  and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
+  begin
+    if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
+    else
+    if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
+  end;
 end;
 
 
 procedure TKMMainMenuInterface.Lobby_MapColumnClick(aValue: Integer);
 var
   SM: TMapsSortMethod;
+  SSM: TSavesSortMethod;
 begin
-  //Determine Sort method depending on which column user clicked
-  with DropCol_LobbyMaps.List do
-  case SortIndex of
-    0:  if SortDirection = sdDown then
-          SM := smByNameDesc
-        else
-          SM := smByNameAsc;
-    1:  if SortDirection = sdDown then
-          SM := smByPlayersDesc
-        else
-          SM := smByPlayersAsc;
-    2:  if SortDirection = sdDown then
-          SM := smBySizeDesc
-        else
-          SM := smBySizeAsc;
-    else SM := smByNameAsc;
-  end;
 
-  fMapsMP.Sort(SM, Lobby_MapTypeRefreshDone);
+  if Radio_LobbyMapType.ItemIndex < 3 then
+  begin
+    //Determine Sort method depending on which column user clicked
+    with DropCol_LobbyMaps.List do
+    case SortIndex of
+      0:  if SortDirection = sdDown then
+            SM := smByNameDesc
+          else
+            SM := smByNameAsc;
+      1:  if SortDirection = sdDown then
+            SM := smByPlayersDesc
+          else
+            SM := smByPlayersAsc;
+      2:  if SortDirection = sdDown then
+            SM := smBySizeDesc
+          else
+            SM := smBySizeAsc;
+      else SM := smByNameAsc;
+    end;
+    fMapsMP.Sort(SM, Lobby_SortUpdate);
+  end
+  else
+  begin
+    //Determine Sort method depending on which column user clicked
+    with DropCol_LobbyMaps.List do
+    case SortIndex of
+      0:  if SortDirection = sdDown then
+            SSM := smByFileNameDesc
+          else
+            SSM := smByFileNameAsc;
+      1:  if SortDirection = sdDown then
+            SSM := smByPlayerCountDesc
+          else
+            SSM := smByPlayerCountAsc;
+      2:  if SortDirection = sdDown then
+            SSM := smByTimeDesc
+          else
+            SSM := smByTimeAsc;
+      else SSM := smByFileNameAsc;
+    end;
+    fSavesMP.Sort(SSM, Lobby_SortUpdate);
+  end;
 end;
 
 
@@ -3031,7 +3155,7 @@ begin
   if Radio_LobbyMapType.ItemIndex < 3 then
     fGameApp.Networking.SelectMap(fMapsMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].Info.Title)
   else
-    fGameApp.Networking.SelectSave(fSavesMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].Info.Title);
+    fGameApp.Networking.SelectSave(fSavesMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].FileName);
 end;
 
 
@@ -3100,14 +3224,6 @@ begin
 
   for I := 0 to MAX_PLAYERS - 1 do
     DropBox_LobbyLoc[I].SetItems(DropText);
-end;
-
-
-procedure TKMMainMenuInterface.Lobby_SaveRefreshDone(Sender: TObject);
-var I: Integer;
-begin
-  for I := 0 to fSavesMP.Count - 1 do
-    DropCol_LobbyMaps.Add(MakeListRow(['', fSavesMP[I].Info.Title, ''], I));
 end;
 
 
@@ -3267,7 +3383,7 @@ begin
   begin
     PreviouslySelected := List_Load.ItemIndex;
     fSaves.DeleteSave(List_Load.ItemIndex);
-    Load_RefreshList(fSaves);
+    Load_RefreshList(False);
     if List_Load.RowCount > 0 then
       List_Load.ItemIndex := EnsureRange(PreviouslySelected, 0, List_Load.RowCount - 1)
     else
@@ -3277,13 +3393,24 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Load_RefreshList(Sender: TObject);
+procedure TKMMainMenuInterface.Load_ScanUpdate(Sender: TObject);
+begin
+  Load_RefreshList(False); //Don't jump to selected with each scan update
+end;
+
+
+procedure TKMMainMenuInterface.Load_SortUpdate(Sender: TObject);
+begin
+  Load_RefreshList(True); //After sorting jump to the selected item
+end;
+
+
+procedure TKMMainMenuInterface.Load_RefreshList(aJumpToSelected:Boolean);
 var I, OldTopIndex: Integer;
 begin
   OldTopIndex := List_Load.TopIndex;
   List_Load.Clear;
 
-  if Sender = fSaves then
   for I := 0 to fSaves.Count - 1 do
     List_Load.AddItem(MakeListRow(
                       [fSaves[i].FileName, fSaves[I].Info.GetTitleWithTime],
@@ -3296,38 +3423,34 @@ begin
 
   List_Load.TopIndex := OldTopIndex;
 
-  if fJumpToSelectedSave
+  if aJumpToSelected and (List_Load.ItemIndex <> -1)
   and not InRange(List_Load.ItemIndex - List_Load.TopIndex, 0, List_Load.GetVisibleRows - 1)
   then
+  begin
     if List_Load.ItemIndex < List_Load.TopIndex + List_Load.GetVisibleRows - 1 then
       List_Load.TopIndex := List_Load.ItemIndex
     else
-    if List_Load.ItemIndex > List_Load.TopIndex + List_Load.GetVisibleRows - 1 then
-      List_Load.TopIndex := List_Load.ItemIndex - List_Load.GetVisibleRows + 1;
+      if List_Load.ItemIndex > List_Load.TopIndex + List_Load.GetVisibleRows - 1 then
+        List_Load.TopIndex := List_Load.ItemIndex - List_Load.GetVisibleRows + 1;
+  end;
 
   Load_ListClick(nil);
-
-  if fSaves.ScanFinished then  //do only if we don't scan
-    Load_DeleteConfirmation(false);
 end;
 
 
 procedure TKMMainMenuInterface.Load_Sort(aIndex: Integer);
 begin
-  //scroll to selected save, so it will be shown on the screen
-  fJumpToSelectedSave := True;
-
   case List_Load.SortIndex of
     //Sorting by filename goes A..Z by default
     0:  if List_Load.SortDirection = sdDown then
-          fSaves.Sort(smByFileNameDesc, Load_RefreshList)
+          fSaves.Sort(smByFileNameDesc, Load_SortUpdate)
         else
-          fSaves.Sort(smByFileNameAsc, Load_RefreshList);
+          fSaves.Sort(smByFileNameAsc, Load_SortUpdate);
     //Sorting by description goes A..Z by default
     1:  if List_Load.SortDirection = sdDown then
-          fSaves.Sort(smByDescriptionDesc, Load_RefreshList)
+          fSaves.Sort(smByDescriptionDesc, Load_SortUpdate)
         else
-          fSaves.Sort(smByDescriptionAsc, Load_RefreshList);
+          fSaves.Sort(smByDescriptionAsc, Load_SortUpdate);
   end;
 end;
 
@@ -3370,31 +3493,43 @@ procedure TKMMainMenuInterface.Replay_TypeChange(Sender: TObject);
 begin
   fSaves.TerminateScan;
   fLastSaveCRC := 0;
-  Replays_RefreshList(nil); //call it at least one time, so GUI is prepared even if there are no saves
-  fSaves.Refresh(Replays_RefreshList, (Radio_Replays_Type.ItemIndex = 1));
+  List_Replays.Clear;
+  Replays_ListClick(nil);
+  fSaves.Refresh(Replays_ScanUpdate, (Radio_Replays_Type.ItemIndex = 1));
 end;
 
 
-procedure TKMMainMenuInterface.Replays_RefreshList(Sender: TObject);
+procedure TKMMainMenuInterface.Replays_ScanUpdate(Sender: TObject);
+begin
+  Replays_RefreshList(False); //Don't jump to selected with each scan update
+end;
+
+
+procedure TKMMainMenuInterface.Replays_SortUpdate(Sender: TObject);
+begin
+  Replays_RefreshList(True); //After sorting jump to the selected item
+end;
+
+
+procedure TKMMainMenuInterface.Replays_RefreshList(aJumpToSelected:Boolean);
 var
   I, OldTopIndex: Integer;
 begin
   OldTopIndex := List_Replays.TopIndex;
   List_Replays.Clear;
 
-  if Sender = fSaves then
-    for I := 0 to fSaves.Count - 1 do
-      List_Replays.AddItem(MakeListRow(
-                           [fSaves[I].FileName, fSaves[I].Info.GetTitleWithTime],
-                           [$FFFFFFFF, $FFFFFFFF]));
+  for I := 0 to fSaves.Count - 1 do
+    List_Replays.AddItem(MakeListRow(
+                         [fSaves[I].FileName, fSaves[I].Info.GetTitleWithTime],
+                         [$FFFFFFFF, $FFFFFFFF]));
 
   for I := 0 to fSaves.Count - 1 do
-    if (fSaves[I].CRC = fLastReplayCRC) then
+    if (fSaves[I].CRC = fLastSaveCRC) then
       List_Replays.ItemIndex := I;
 
   List_Replays.TopIndex := OldTopIndex;
 
-  if fJumpToSelectedReplay
+  if aJumpToSelected and (List_Replays.ItemIndex <> -1)
   and not InRange(List_Replays.ItemIndex - List_Replays.TopIndex, 0, List_Replays.GetVisibleRows-1)
   then
     if List_Replays.ItemIndex < List_Replays.TopIndex then
@@ -3403,26 +3538,23 @@ begin
     if List_Replays.ItemIndex > List_Replays.TopIndex + List_Replays.GetVisibleRows - 1 then
       List_Replays.TopIndex := List_Replays.ItemIndex - List_Replays.GetVisibleRows + 1;
 
-  Replays_ListClick(List_Replays);
+  Replays_ListClick(nil);
 end;
 
 
 procedure TKMMainMenuInterface.Replays_Sort(aIndex: Integer);
 begin
-  //scroll to selected replay, so it will be shown on the screen
-  fJumpToSelectedReplay := True;
-
   case List_Replays.SortIndex of
     //Sorting by filename goes A..Z by default
     0:  if List_Replays.SortDirection = sdDown then
-          fSaves.Sort(smByFileNameDesc, Replays_RefreshList)
+          fSaves.Sort(smByFileNameDesc, Replays_SortUpdate)
         else
-          fSaves.Sort(smByFileNameAsc, Replays_RefreshList);
+          fSaves.Sort(smByFileNameAsc, Replays_SortUpdate);
     //Sorting by description goes A..Z by default
     1:  if List_Replays.SortDirection = sdDown then
-          fSaves.Sort(smByDescriptionDesc, Replays_RefreshList)
+          fSaves.Sort(smByDescriptionDesc, Replays_SortUpdate)
         else
-          fSaves.Sort(smByDescriptionAsc, Replays_RefreshList);
+          fSaves.Sort(smByDescriptionAsc, Replays_SortUpdate);
   end;
 end;
 

@@ -55,6 +55,7 @@ Improvements:
  wip	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
  +	Allow to assign groups and houses(!) to Ctrl+0..9 keys
  +	Play campaign briefing audio files (and fade music while it plays)
+ +	Selecting a map in multiplayer should show columns with name, size, player count, etc. rather than dumb drop down
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
@@ -65,7 +66,6 @@ Improvements:
 	Master server use MySQL for storage rather than .txt files
 	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
 	Chat logs
-	Selecting a map in multiplayer should show columns with name, size, player count, etc. rather than dumb drop down
 	Wares need to be taken out of the barracks for trading at the market
 	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
 	Some way to delete multiplayer saves from within the KaM Remake

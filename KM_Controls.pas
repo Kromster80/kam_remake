@@ -628,6 +628,7 @@ type
     property SortIndex: Integer read fSortIndex write fSortIndex;
     property SortDirection: TSortDirection read fSortDirection write fSortDirection;
 
+    procedure SetColumnText(aIndex:word; aText:string);
     procedure AddColumn(aCaption: string; aOffset: Word);
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure Paint; override;
@@ -689,6 +690,7 @@ type
     property ItemHeight: Byte read fItemHeight;
     property ItemIndex: Smallint read fItemIndex write fItemIndex;
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
+    property Header: TKMListHeader read fHeader;
 
     //Sort properties are just hints to render Up/Down arrows. Actual sorting is done by client
     property OnColumnClick: TIntegerEvent read GetOnColumnClick write SetOnColumnClick;
@@ -771,6 +773,7 @@ type
   TKMDropColumns = class(TKMDropCommon)
   private
     fDefaultCaption: string;
+    fDropWidth: Integer;
     fList: TKMColumnListBox;
     procedure UpdateDropPosition; override;
     procedure ListShow(Sender: TObject); override;
@@ -780,6 +783,7 @@ type
     function GetItem(aIndex: Integer): TKMListRow;
     function GetItemIndex: smallint; override;
     procedure SetItemIndex(aIndex: smallint); override;
+    procedure SetDropWidth(aDropWidth:Integer);
   protected
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
@@ -793,6 +797,7 @@ type
     property Item[aIndex: Integer]: TKMListRow read GetItem;
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
     property DefaultCaption: string read fDefaultCaption write fDefaultCaption;
+    property DropWidth: Integer read fDropWidth write SetDropWidth;
 
     procedure Paint; override;
   end;
@@ -2933,6 +2938,12 @@ begin
 end;
 
 
+procedure TKMListHeader.SetColumnText(aIndex:word; aText:string);
+begin
+  fColumns[aIndex] := aText;
+end;
+
+
 procedure TKMListHeader.AddColumn(aCaption: string; aOffset: Word);
 begin
   if fCount >= Length(fColumns) then
@@ -3250,6 +3261,9 @@ begin
       ItemWidth := PaintWidth - 4 - fHeader.ColumnOffset[I] - 4
     else
       ItemWidth := fHeader.ColumnOffset[I + 1] - fHeader.ColumnOffset[I] - 4;
+    //Trim the width based on our allowed PaintWidth
+    ItemWidth := Min(ItemWidth, PaintWidth-fHeader.ColumnOffset[I]);
+    if ItemWidth <= 0 then Continue; //If the item overflows our allowed PaintWidth do not paint it
 
     if fRows[aIndex].Cells[I].Pic.ID <> 0 then
       fRenderUI.WritePicture(X + 4 + fHeader.ColumnOffset[I], Y + 1, fRows[aIndex].Cells[I].Pic.RX, fRows[aIndex].Cells[I].Pic.ID, fRows[aIndex].Cells[I].Color);
@@ -3353,7 +3367,6 @@ procedure TKMDropCommon.Paint;
 begin
   inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
-
 end;
 
 
@@ -3522,6 +3535,8 @@ begin
   fList.OnClick := ListClick;
   fList.Focusable := False; //For drop downs we don't want the list to be focusable
 
+  DropWidth := aWidth;
+
   ListHide(nil);
 end;
 
@@ -3569,6 +3584,15 @@ end;
 procedure TKMDropColumns.SetItemIndex(aIndex: smallint);
 begin
   fList.ItemIndex := aIndex;
+end;
+
+
+procedure TKMDropColumns.SetDropWidth(aDropWidth:Integer);
+begin
+  fList.Left := Left-MasterParent.Left-aDropWidth+Width;
+  fList.Width := aDropWidth;
+  fList.Header.Left := fList.Left;
+  fList.Header.Width := fList.Width;
 end;
 
 
@@ -3639,7 +3663,7 @@ begin
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   if ItemIndex <> -1 then
-    fList.DoPaintLine(ItemIndex, Left, Top, Width)
+    fList.DoPaintLine(ItemIndex, Left, Top, Width - fButton.Width)
 
     {fRenderUI.WritePicture(Left + 4, Top + 1,
                             fList.Rows[ItemIndex].Cells[0].Pic.RX,
@@ -3647,7 +3671,7 @@ begin
                             fList.Rows[ItemIndex].Cells[0].Color,
                             fEnabled or not FadeImageWhenDisabled)}
   else
-    fRenderUI.WriteText(Left + 4, Top + 4, Width - 8, 0, '<<?>>', fFont, taLeft, Col);
+    fRenderUI.WriteText(Left + 4, Top + 4, Width - 8 - fButton.Width, 0, fDefaultCaption, fFont, taLeft, Col);
 end;
 
 

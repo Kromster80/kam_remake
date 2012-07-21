@@ -34,6 +34,7 @@ type
     function AICount: Integer;
     function MapSizeText:string;
     function MissionModeText:string;
+    function GetTimeText:string;
     function GetTitleWithTime:string;
   end;
 
@@ -143,6 +144,12 @@ begin
     mm_Tactic: Result := fTextLibrary[TX_MODE_FIGHTING]
     else       Result := 'Unknown';
   end;
+end;
+
+
+function TKMGameInfo.GetTimeText: string;
+begin
+  Result := TimeToString(TickCount/24/60/60/10);
 end;
 
 
