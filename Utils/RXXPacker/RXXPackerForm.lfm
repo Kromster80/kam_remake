@@ -1,32 +1,45 @@
 object RXXForm1: TRXXForm1
-  Left = 192
-  Height = 344
-  Top = 148
-  Width = 256
+  Left = 72
+  Height = 225
+  Top = 90
+  Width = 289
+  BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'RXX Packer'
-  ClientHeight = 223
-  ClientWidth = 256
+  ClientHeight = 225
+  ClientWidth = 289
   Color = clBtnFace
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -11
   Font.Name = 'Tahoma'
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poDesktopCenter
   LCLVersion = '0.9.30.2'
+  object Label1: TLabel
+    Left = 16
+    Height = 14
+    Top = 176
+    Width = 32
+    Caption = 'Label1'
+    ParentColor = False
+  end
   object btnPackRXX: TButton
-    Left = 24
-    Top = 240
-    Width = 185
-    Height = 49
+    Left = 16
+    Height = 25
+    Top = 192
+    Width = 257
+    Anchors = [akLeft, akRight, akBottom]
     Caption = 'Pack to RXX File'
-    TabOrder = 0
     OnClick = btnPackRXXClick
+    TabOrder = 0
   end
   object ListBox1: TListBox
-    Left = 24
+    Left = 16
+    Height = 153
     Top = 16
-    Width = 185
-    Height = 201
-    ItemHeight = 16
+    Width = 257
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    ItemHeight = 0
     MultiSelect = True
     TabOrder = 1
   end

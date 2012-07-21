@@ -34,7 +34,7 @@ type
     procedure SoftenShadows(aStart:Integer=1; aEnd: Integer=-1);
     function TrimSprites: Cardinal; //For debug
     procedure ClearTemp; override;
-    procedure GetImageToBitmap(aIndex: Integer; aPNG, aMask: TPNGObject);
+    procedure GetImageToBitmap(aIndex: Integer; aPNG, aMask: {$IFDEF WDC}TPNGObject{$ENDIF}{$IFDEF FPC}TBGRABitmap{$ENDIF});
   end;
 
 
@@ -512,7 +512,7 @@ begin
 end;
 
 
-procedure TKMSpritePackEdit.GetImageToBitmap(aIndex: Integer; aPNG, aMask: TPNGObject);
+procedure TKMSpritePackEdit.GetImageToBitmap(aIndex: Integer; aPNG, aMask: {$IFDEF WDC}TPNGObject{$ENDIF}{$IFDEF FPC}TBGRABitmap{$ENDIF});
 var
   I, K, W, H: Integer;
   T: Cardinal;
@@ -522,23 +522,32 @@ begin
   W := fRXData.Size[aIndex].X;
   H := fRXData.Size[aIndex].Y;
 
-  aPNG.Resize(W, H);
+  {$IFDEF WDC} aPNG.Resize(W, H); {$ENDIF}
+  {$IFDEF FPC} aPNG.SetSize(W, H); {$ENDIF}
   if aMask <> nil then
-    aMask.Resize(W, H);
+    {$IFDEF WDC} aMask.Resize(W, H); {$ENDIF}
+    {$IFDEF FPC} aMask.SetSize(W, H); {$ENDIF}
 
   for I := 0 to H - 1 do
   for K := 0 to W - 1 do
   begin
     T := fRXData.RGBA[aIndex, I * W + K];
 
+    {$IFDEF WDC}
     //RGB and Alpha components are stored in two separate places
     aPNG.Pixels[K,I] := T and $FFFFFF;
     aPNG.AlphaScanline[I]^[K] := T shr 24;
+    {$ENDIF}
+    {$IFDEF FPC}
+    aPNG.CanvasBGRA.Pixels[K,I] := T and $FFFFFF;
+    //I can't figure out how to get transparency to save in PNGs, so for now everything is opaque
+    {$ENDIF}
 
     if (aMask <> nil) and fRXData.HasMask[aIndex] then
     begin
       T := fRXData.Mask[aIndex, I * W + K];
-      aMask.Pixels[K,I] := T * 65793;
+      {$IFDEF WDC} aMask.Pixels[K,I] := T * 65793; {$ENDIF}
+      {$IFDEF FPC} aMask.CanvasBGRA.Pixels[K,I] := T * 65793; {$ENDIF}
     end;
   end;
 end;
