@@ -8,7 +8,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Pics, KM_Render, KM_TextLibrary
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF}
-  {$IFDEF FPC}, BGRABitmap {$ENDIF};
+  {$IFDEF FPC}, BGRABitmap, BGRABitmapTypes {$ENDIF};
 
 type
   TRXUsage = (ruMenu, ruGame); //Where sprites are used
@@ -375,27 +375,36 @@ end;
 //Export RX to Bitmaps without need to have GraphicsEditor, also this way we preserve image indexes
 procedure TKMSpritePack.ExportToPNG(const aFolder: string);
 var
-  Png: TPNGObject;
+  {$IFDEF WDC} Png: TPNGObject; {$ENDIF}
+  {$IFDEF FPC} po: TBGRABitmap; {$ENDIF}
   ID, I, K: Integer;
   SizeX, SizeY: Integer;
 begin
   ForceDirectories(aFolder);
 
-  Png := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0);
+  {$IFDEF WDC} Png := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, 0, 0); {$ENDIF}
+  {$IFDEF FPC} po := TBGRABitmap.Create(0, 0, BGRABlack); {$ENDIF}
 
   for ID := 1 to fRXData.Count do
   if fRXData.Flag[ID] = 1 then
   begin
     SizeX := fRXData.Size[ID].X;
     SizeY := fRXData.Size[ID].Y;
-    Png.Resize(SizeX, SizeY);
+    {$IFDEF WDC} Png.Resize(SizeX, SizeY); {$ENDIF}
+    {$IFDEF FPC} po.SetSize(SizeX, SizeY); {$ENDIF}
 
     //Export RGB values
     for I := 0 to SizeY - 1 do
     for K := 0 to SizeX - 1 do
     begin
+      {$IFDEF WDC}
       Png.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
-      Png.AlphaScanline[I]^[K] := fRXData.RGBA[ID, I*SizeX + K] shr 24
+      Png.AlphaScanline[I]^[K] := fRXData.RGBA[ID, I*SizeX + K] shr 24;
+      {$ENDIF}
+      {$IFDEF FPC}
+      //I can't figure out how to get transparency to save in PNGs, so for now everything is opaque
+      po.CanvasBGRA.Pixels[K,I] := fRXData.RGBA[ID, I*SizeX + K] and $FFFFFF;
+      {$ENDIF}
     end;
 
     //Mark pivot location with a dot
@@ -404,20 +413,24 @@ begin
     if InRange(I, 0, SizeY-1) and InRange(K, 0, SizeX-1) then
       Png.Pixels[K,I] := $FF00FF;//}
 
-    Png.SaveToFile(aFolder + Format('%d_%.4d.png', [Byte(fRT)+1, ID]));
+    {$IFDEF WDC} Png.SaveToFile(aFolder + Format('%d_%.4d.png', [Byte(fRT)+1, ID])); {$ENDIF}
+    {$IFDEF FPC} po.SaveToFile(aFolder + Format('%d_%.4d.png', [Byte(fRT)+1, ID])); {$ENDIF}
 
     //Export Flag values
     if fRXData.HasMask[ID] then
     begin
       for I := 0 to SizeY - 1 do
       for K := 0 to SizeX - 1 do
-        Png.Pixels[K,I] := fRXData.Mask[ID, I*SizeX + K] * 65793;
+        {$IFDEF WDC} Png.Pixels[K,I] := fRXData.Mask[ID, I*SizeX + K] * 65793; {$ENDIF}
+        {$IFDEF WDC} po.CanvasBGRA.Pixels[K,I] := fRXData.Mask[ID, I*SizeX + K] * 65793; {$ENDIF}
 
-      Png.SaveToFile(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, ID]));
+      {$IFDEF WDC} Png.SaveToFile(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, ID])); {$ENDIF}
+      {$IFDEF FPC} po.SaveToFile(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, ID])); {$ENDIF}
     end;
   end;
 
-  Png.Free;
+  {$IFDEF WDC} Png.Free; {$ENDIF}
+  {$IFDEF FPC} po.Free; {$ENDIF}
 end;
 
 
@@ -746,7 +759,8 @@ procedure TKMSpritePack.SaveTextureToPNG(aWidth, aHeight: Word; aFilename: strin
 var
   I, K: Word;
   T: Cardinal;
-  Png: TPNGObject;
+  {$IFDEF WDC} Png: TPNGObject; {$ENDIF}
+  {$IFDEF FPC} po: TBGRABitmap; {$ENDIF}
   Folder: string;
 begin
   if EXPORT_SPRITE_ATLASES then
@@ -754,6 +768,7 @@ begin
     Folder := ExeDir + 'Export\GenTextures\';
     ForceDirectories(Folder);
 
+    {$IFDEF WDC}
     Png := TPNGObject.CreateBlank(COLOR_RGBALPHA, 8, aWidth, aHeight);
     try
       for I := 0 to aHeight - 1 do
@@ -768,6 +783,25 @@ begin
     finally
       Png.Free;
     end;
+    {$ENDIF}
+
+    {$IFDEF FPC}
+    po := TBGRABitmap.Create(aWidth, aHeight, BGRABlack);
+    try
+      for I := 0 to aHeight - 1 do
+      for K := 0 to aWidth - 1 do
+      begin
+        T := (PCardinal(Cardinal(@Data[0]) + (I * aWidth + K) * 4))^;
+        //I can't figure out how to get transparency to save in PNGs, so for now everything is opaque
+        po.CanvasBGRA.Pixels[K,I] := T and $FFFFFF;
+        po.AlphaPixel(K,I,255);
+      end;
+
+      po.SaveToFile(Folder + aFilename + '.png');
+    finally
+      po.Free;
+    end;
+    {$ENDIF}
   end;
 end;
 
