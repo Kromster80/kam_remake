@@ -1414,8 +1414,6 @@ begin
     Label_UnitTask        := TKMLabel.Create(Panel_Unit,73,80,116,30,'',fnt_Grey,taLeft);
     Label_UnitTask.AutoWrap := True;
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
-    //todo: Remove redundant word-wrapping new lines ("|") from unit descriptions in .libx for all languages.
-    //      Keep the intentional ones that break it into two paragraphs though.
     Label_UnitDescription.AutoWrap := True;
     Button_Unit_Dismiss   := TKMButton.Create(Panel_Unit,132,120,56,34,29);
 

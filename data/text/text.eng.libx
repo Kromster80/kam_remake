@@ -1,5 +1,5 @@
 
-MaxID:2744
+MaxID:2745
 
 0:Sawmill
 1:Iron smithy
@@ -490,3 +490,4 @@ MaxID:2744
 2742:Resume paused replay
 2743:Step 1 tick forward
 2744:Pause replay
+2745:You may only have one instance of the game in multiplayer mode at once

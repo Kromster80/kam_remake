@@ -1091,6 +1091,7 @@ begin
   fLog.AppendLog('Loading game from: ' + aPathName);
 
   LoadStream := TKMemoryStream.Create;
+  try
 
   if not FileExists(aPathName) then
     raise Exception.Create('Savegame could not be found');
@@ -1114,11 +1115,14 @@ begin
   LoadStream.Read(SaveIsMultiplayer);
 
   //If the player loads a multiplayer save in singleplayer or replay mode, we require a mutex lock to prevent cheating
+  //If we're loading in multiplayer mode we have already locked the mutex when entering multiplayer menu,
+  //which is better than aborting loading in a multiplayer game (spoils it for everyone else too)
   if SaveIsMultiplayer and (fGameMode in [gmSingle, gmReplay]) then
     if fMain.LockMutex then
       fGameLockedMutex := True //Remember so we unlock it in Destroy
     else
-      raise Exception.Create('You may only have one instance of the game in multiplayer mode at once');
+      //Abort loading (exception will be caught in fGameApp and shown to the user)
+      raise Exception.Create(fTextLibrary[TX_MULTIPLE_INSTANCES]);
 
   //Not used, (only stored for preview) but it's easiest way to skip past it
   if not SaveIsMultiplayer then
@@ -1160,7 +1164,6 @@ begin
     fGamePlayInterface.Load(LoadStream);
   end;
 
-  FreeAndNil(LoadStream);
 
   if IsReplay then
     fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying) //Replay
@@ -1187,6 +1190,10 @@ begin
   UpdateUI;
 
   fLog.AppendLog('Loading game', True);
+
+  finally
+    FreeAndNil(LoadStream);
+  end;
 end;
 
 

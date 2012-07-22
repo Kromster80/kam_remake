@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, ShellAPI, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
-  StrUtils, SysUtils, Dialogs, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
+  StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
   KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
   KM_InterfaceDefaults, KM_Minimap, KM_ServerQuery;
 
@@ -1956,7 +1956,7 @@ begin
   if fMain.LockMutex then
     SwitchMenuPage(Sender)
   else
-    MessageDlg('You may only have one instance of the game in multiplayer mode at once',mtInformation,[mbOK],0);
+    ShowScreen(msError, fTextLibrary[TX_MULTIPLE_INSTANCES]);
 end;
 
 
