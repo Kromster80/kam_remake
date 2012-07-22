@@ -971,7 +971,10 @@ begin
     if CanAbandonInternal
       and (fTargetUnit <> nil)
       and (not fTargetUnit.IsDeadOrDying)
-      and not KMSamePoint(fTargetUnit.GetPosition, fWalkTo) then
+      and not KMSamePoint(fTargetUnit.GetPosition, fWalkTo)
+      //It's wasteful to run pathfinding to correct route every step of the way, so if the target unit
+      //is within 8 tiles, update every step. Within 16, every 2 steps, 24, every 3 steps, etc.
+      and (NodePos mod Max((Round(KMLength(fUnit.GetPosition, fTargetUnit.GetPosition)) div 8),1) = 0) then
     begin
       //If target unit has moved then change course and keep following it
       ChangeWalkTo(fTargetUnit, fDistance);

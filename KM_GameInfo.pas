@@ -127,9 +127,9 @@ function TKMGameInfo.MapSizeText: string;
 begin
   case MapSizeX * MapSizeY of
             1.. 48* 48: Result := 'XS';
-     48* 48+1.. 72* 72: Result := 'S';
-     72* 72+1..112*112: Result := 'M';
-    112*112+1..176*176: Result := 'L';
+     48* 48+1.. 80* 80: Result := 'S';
+     80* 80+1..128*128: Result := 'M';
+    128*128+1..176*176: Result := 'L';
     176*176+1..256*256: Result := 'XL';
     256*256+1..320*320: Result := 'XXL';
     else                Result := '???';

@@ -20,6 +20,7 @@
  +	Sandhills cause water next to shore tiles to appear darker with square edges
  +	Fixed a crash with the AI retaliating against a threat
  +	TSK 19 crashes due to an AI attack (at 06:38) target being off map
+ +	Attacking a house from the bottom right, soldiers will stack up rather than choosing a different free cell (flaws in TKMHouse.InReach)
 	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
@@ -32,7 +33,6 @@
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
 	Players that have intentionally quit (not just disconnected) should count as defeated
 	Clicking on the splash screen registers the click on the main menu once it is loaded
-	Attacking a house from the bottom right, soldiers will stack up rather than choosing a different free cell (WalkToHouse should avoid other units attacking the house?)
 	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
 	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
 	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800х600 .. 1366х768

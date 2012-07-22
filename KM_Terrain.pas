@@ -1898,6 +1898,7 @@ var
   Vert: TKMPoint;
   VertUsage: TKMVertexUsage;
 begin
+  if not KMStepIsDiag(LocFrom, LocTo) then Exit;
   Vert := KMGetDiagVertex(LocFrom, LocTo);
   VertUsage := GetVertexUsageType(LocFrom, LocTo);
   Result := (Land[Vert.Y, Vert.X].IsVertexUnit in [vu_None, VertUsage]);

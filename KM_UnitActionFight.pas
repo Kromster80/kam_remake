@@ -103,19 +103,20 @@ end;
 function TUnitActionFight.UpdateVertexUsage(aFrom, aTo: TKMPoint):boolean;
 begin
   Result := true;
-  //If the vertex usage has changed we should update it
-  if not KMSamePoint(KMGetDiagVertex(aFrom, aTo), fVertexOccupied) then
+  if KMStepIsDiag(aFrom, aTo) then
   begin
+    //If the new target has the same vertex as the old one, no change is needed
+    if KMSamePoint(KMGetDiagVertex(aFrom, aTo), fVertexOccupied) then Exit;
+    //Otherwise the new target's vertex is different to the old one, so remove old vertex usage and add new
     DecVertex;
-    if KMStepIsDiag(aFrom, aTo) then
-    begin
-      if fUnit.VertexUsageCompatible(aFrom, aTo) then
-        IncVertex(aFrom, aTo)
-      else
-        //This vertex is being used so we can't fight
-        Result := false;
-    end;
-  end;
+    if fUnit.VertexUsageCompatible(aFrom, aTo) then
+      IncVertex(aFrom, aTo)
+    else
+      Result := false; //This vertex is being used so we can't fight
+  end
+  else
+    //The new target is not diagonal, make sure any old vertex usage is removed
+    DecVertex;
 end;
 
 

@@ -3275,8 +3275,8 @@ begin
 
     // Army shortcuts from KaM
     Ord(SC_ARMY_HALT):   if Panel_Army.Visible then Button_Army_Stop.Click;
-    Ord(SC_ARMY_SPLIT):  if Panel_Army.Visible then Button_Army_Join.Click;
-    Ord(SC_ARMY_LINK):   if Panel_Army.Visible then Button_Army_Split.Click;
+    Ord(SC_ARMY_LINK):   if Panel_Army.Visible then Button_Army_Join.Click;
+    Ord(SC_ARMY_SPLIT):  if Panel_Army.Visible then Button_Army_Split.Click;
 
     //General function keys
     SC_PAUSE:       if not fMultiplayer then SetPause(True); //Display pause overlay

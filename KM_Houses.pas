@@ -589,9 +589,11 @@ end;
 //Check precise distance when we are close enough
 function TKMHouse.InReach(aPos: TKMPoint; aDistance: Single): Boolean;
 begin
-  if KMLength(aPos, fPosition) >= aDistance * 1.25 + 1 then
-    Result := False
+  //+6 is the worst case with the barracks, distance from fPosition to top left tile of house could be > 5
+  if KMLength(aPos, fPosition) >= aDistance + 6 then
+    Result := False //We are sure they are not close enough to the house
   else
+    //We need to perform a precise check
     Result := GetDistance(aPos) <= aDistance;
 end;
 

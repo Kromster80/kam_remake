@@ -1528,7 +1528,8 @@ function TKMUnit.CanStepTo(X,Y: Integer): Boolean;
 begin
   Result := fTerrain.TileInMapCoords(X,Y)
         and (fTerrain.CheckPassability(KMPoint(X,Y), DesiredPassability))
-        and (not fTerrain.HasVertexUnit(KMGetDiagVertex(GetPosition, KMPoint(X,Y))))
+        and (not KMStepIsDiag(GetPosition, KMPoint(X,Y)) //Only check vertex usage if the step is diagonal
+             or (not fTerrain.HasVertexUnit(KMGetDiagVertex(GetPosition, KMPoint(X,Y)))))
         and (fTerrain.CanWalkDiagonaly(GetPosition, KMPoint(X,Y)))
         and (fTerrain.Land[Y,X].IsUnit = nil);
 end;

@@ -81,7 +81,7 @@ type //For now IDs must match with KaM
 
 implementation
 uses KM_Game, KM_PlayersCollection, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
-     KM_Sound, KM_Events;
+     KM_Sound, KM_Events, KM_UnitActionWalkTo;
 
 
 const
@@ -529,7 +529,9 @@ begin
           for k:=0 to DefencePositionsCount-1 do
             if DefencePositions[k].CurrentCommander = GetCommander then
             begin
-              if GetCommander.CanWalkTo(DefencePositions[k].Position.Loc, 0) then
+              //If they are not already walking and can reach their position, tell them to walk there
+              if not (GetCommander.GetUnitAction is TUnitActionWalkTo)
+              and GetCommander.CanWalkTo(DefencePositions[k].Position.Loc, 0) then
                 OrderWalk(DefencePositions[k].Position);
               Positioned := true; //We already have a position, finished with this group
 
