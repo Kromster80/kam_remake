@@ -102,7 +102,7 @@ begin
   MESettings.BugReportZip := CrashFile; //Exception info also goes in the zip
   MESettings.ScreenShotZip := CrashFile; //Screenshot also goes in the zip
 
-  if fGameG <> nil then fGameG.AttachCrashReport(ExceptIntf, CrashFile);
+  if fGame <> nil then fGame.AttachCrashReport(ExceptIntf, CrashFile);
 
   //Do the log after fGame because fGame adds stuff to the log
   if fLog <> nil then ExceptIntf.AdditionalAttachments.Add(fLog.LogPath, '', CrashFile);

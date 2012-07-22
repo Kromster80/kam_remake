@@ -1,6 +1,7 @@
 Make sure these are checked:
 
 	Remove FastMM from 'uses'
+	Enabled MadExcept in KaM_Remake.inc: {$DEFINE USE_MAD_EXCEPT}
 	True/false switches in KM_Defaults
 	Game version strings in KM_Defaults (include expected revision # and commit it)
 	Turn off debug data (Project > Options > Linker > DebugInfo)

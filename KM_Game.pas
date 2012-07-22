@@ -560,13 +560,22 @@ var I: Integer;
 begin
   fLog.AppendLog('Creating crash report...');
 
-  //todo: Create a "crashsave" when generating the crash report
-
-  //Save latest replay data
-  if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
-    fGameInputProcess.SaveToFile(SaveName('crashreport', 'rpl', IsMultiplayer));
-
+  //Attempt to save the game, but if the state is too messed up it might fail
+  try
+    if fGameMode in [gmSingle, gmMulti] then
+    begin
+      Save('crashreport');
+      AttachFile(SaveName('crashreport', 'sav', IsMultiplayer));
+      AttachFile(SaveName('crashreport', 'bas', IsMultiplayer));
+      AttachFile(SaveName('crashreport', 'rpl', IsMultiplayer));
+    end;
+  except
+    on E : Exception do
+      fLog.AppendLog('Exception while trying to save game for crash report: '+E.ClassName+': '+E.Message);
+  end;
+  
   AttachFile(ExeDir + fMissionFile);
+  AttachFile(ExeDir + ChangeFileExt(fMissionFile, '.map')); //Try to attach the map too if it's named like that
 
   for I := 1 to AUTOSAVE_COUNT do //All autosaves
   begin
