@@ -84,6 +84,7 @@ type
     procedure Clear; virtual;
     procedure AddEntry(aLoc: TKMPoint);
     function  RemoveEntry(aLoc: TKMPoint): Integer; virtual;
+    procedure DeleteEntry(aIndex:Integer);
     procedure Insert(ID: Integer; aLoc: TKMPoint);
     function  GetRandom(out Point: TKMPoint): Boolean;
     function  GetClosest(aLoc: TKMPoint; out Point: TKMPoint): Boolean;
@@ -121,8 +122,17 @@ type
 
     function GetRandom(out Point: TKMPointDir):Boolean;
 
-    procedure LoadFromStream(LoadStream: TKMemoryStream);
-    procedure SaveToStream(SaveStream: TKMemoryStream);
+    procedure LoadFromStream(LoadStream: TKMemoryStream); virtual;
+    procedure SaveToStream(SaveStream: TKMemoryStream); virtual;
+  end;
+
+
+  TKMPointDirTagList = class(TKMPointDirList)
+  public
+    Tag, Tag2: array of Cardinal; //0..Count-1
+    procedure AddItem(aLoc: TKMPointDir; aTag,aTag2: Cardinal); reintroduce;
+    procedure SaveToStream(SaveStream: TKMemoryStream); override;
+    procedure LoadFromStream(LoadStream: TKMemoryStream); override;
   end;
 
 
@@ -365,11 +375,16 @@ begin
 
   //Remove found entry
   if (Result <> -1) then
-  begin
-    if (Result <> fCount - 1) then
-      Move(fItems[Result+1], fItems[Result], SizeOf(fItems[Result]) * (fCount - 1 - Result));
-    Dec(fCount);
-  end;
+    DeleteEntry(Result);
+end;
+
+
+procedure TKMPointList.DeleteEntry(aIndex:Integer);
+begin
+  if not InRange(aIndex, 0, Count-1) then Exit;
+  if (aIndex <> fCount - 1) then
+    Move(fItems[aIndex+1], fItems[aIndex], SizeOf(fItems[aIndex]) * (fCount - 1 - aIndex));
+  Dec(fCount);
 end;
 
 
@@ -609,6 +624,43 @@ begin
   SetLength(fItems, fCount);
   if fCount > 0 then
     LoadStream.Read(fItems[0], SizeOf(fItems[0]) * fCount);
+end;
+
+
+procedure TKMPointDirTagList.AddItem(aLoc: TKMPointDir; aTag,aTag2: Cardinal);
+begin
+  inherited AddItem(aLoc);
+
+  if fCount >= Length(Tag) then  SetLength(Tag, fCount + 32); //Expand the list
+  if fCount >= Length(Tag2) then SetLength(Tag2, fCount + 32); //+32 is just a way to avoid further expansions
+  Tag[fCount-1]  := aTag;
+  Tag2[fCount-1] := aTag2;
+end;
+
+
+procedure TKMPointDirTagList.SaveToStream(SaveStream: TKMemoryStream);
+begin
+  inherited; //Writes Count
+
+  if fCount > 0 then
+  begin
+    SaveStream.Write(Tag[0], SizeOf(Tag[0]) * fCount);
+    SaveStream.Write(Tag2[0], SizeOf(Tag2[0]) * fCount);
+  end;
+end;
+
+
+procedure TKMPointDirTagList.LoadFromStream(LoadStream: TKMemoryStream);
+begin
+  inherited; //Reads Count
+
+  SetLength(Tag, fCount);
+  SetLength(Tag2, fCount);
+  if fCount > 0 then
+  begin
+    LoadStream.Read(Tag[0], SizeOf(Tag[0]) * fCount);
+    LoadStream.Read(Tag2[0], SizeOf(Tag2[0]) * fCount);
+  end;
 end;
 
 

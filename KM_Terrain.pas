@@ -113,7 +113,7 @@ type
     function FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir): Boolean;
     function FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir): Boolean;
     function FindOre(aLoc:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint): Boolean;
-    function FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; out Tree: TKMPointDir; out PlantAct:TPlantAct): Boolean;
+    procedure FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; Stumps,Empty: TKMPointList);
     function FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir): Boolean;
     function CanFindFishingWater(aLoc:TKMPoint; aRadius:integer): Boolean;
     function ChooseTreeToPlant(aLoc:TKMPoint):integer;
@@ -997,19 +997,38 @@ end;
 //taPlant - Woodcutter specifically wants to get an empty place to plant a Tree
 //taAny - Anything will do since Woodcutter is querying from home
 //Result indicates if desired TreeAct place was found successfully
-function TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; out Tree: TKMPointDir; out PlantAct: TPlantAct): Boolean;
+procedure TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; Stumps,Empty: TKMPointList);
+
+  function ChooseCuttingDirection(aTree:TKMPoint; out CuttingPoint:TKMPointDir):Boolean;
+  var I, K, BestSlope, Slope: Integer;
+  begin
+    BestSlope := 255;
+    Result := False; //It is already tested that we can walk to the tree, but double-check
+
+    for i:=-1 to 0 do for k:=-1 to 0 do
+    if Route_CanBeMade(aLoc, KMPoint(aTree.X+k, aTree.Y+i), CanWalk, 0) then
+    begin
+      Slope := Round(HeightAt(aTree.X+k-0.5, aTree.Y+i-0.5)) - Land[aTree.Y, aTree.X].Height;
+      //Cutting trees which are higher than us from the front looks visually poor, (axe hits ground) so avoid it where possible
+      if (i = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
+      if Abs(Slope) < BestSlope then
+      begin
+        CuttingPoint := KMPointDir(aTree.X+k, aTree.Y+i, KMGetVertexDir(k, i));
+        Result := True;
+        BestSlope := Abs(Slope);
+      end;
+    end;
+  end;
+
 var
-  ValidTiles, List1, List2, List3: TKMPointList;
-  I,K: Integer;
+  ValidTiles: TKMPointList;
+  I: Integer;
   T: TKMPoint;
-  BestSlope, Slope: Integer;
+  CuttingPoint:TKMPointDir;
 begin
   //Why do we use 3 lists instead of one like Corn does?
   //Because we should always prefer stumps over empty places
   //even if there's only 1 stump - we choose it
-  List1 := TKMPointList.Create; //Trees
-  List2 := TKMPointList.Create; //Stumps (preferred when planting a new tree)
-  List3 := TKMPointList.Create; //Clear places
 
   //Scan terrain and add all trees/spots into lists
   ValidTiles := TKMPointList.Create;
@@ -1033,65 +1052,20 @@ begin
       and ((T.Y = 1) or not TileIsLocked(KMPoint(T.X, T.Y-1)))
       and ((T.X = 1) or (T.Y = 1) or not TileIsLocked(KMPoint(T.X-1, T.Y-1)))
       and Route_CanBeMadeToVertex(aLoc, T, CanWalk) then
-        List1.AddEntry(T);
+        if ChooseCuttingDirection(T, CuttingPoint) then
+          Trees.AddItem(CuttingPoint); //Tree
 
       if (aPlantAct in [taPlant, taAny])
       and (CanPlantTrees in Land[T.Y,T.X].Passability)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
         if ObjectIsChopableTree(T, 6) then
-          List2.AddEntry(T) //Stump
+          Stumps.AddEntry(T) //Stump
         else
-          List3.AddEntry(T); //Empty place
+          Empty.AddEntry(T); //Empty place
     end;
   end;
-
-  //Convert taAny to either a Tree or a Spot
-  //Average tree uses ~9 tiles, hence we correct Places weight by some amount (15 fits good) to make choice between Plant and Chop more even. Feel free to fine-tune it
-  if (aPlantAct in [taCut, taAny])
-  and ((List1.Count > 8) //Always chop the tree if there are many
-       or (List2.Count + List3.Count = 0)
-       or ((List1.Count > 0) and (KaMRandom < List1.Count / (List1.Count + (List2.Count + List3.Count)/15)))
-      ) then
-  begin
-    PlantAct := taCut;
-    Result := List1.GetRandom(T);
-  end else begin
-    PlantAct := taPlant;
-    Result := List2.GetRandom(T);
-    if not Result then
-      Result := List3.GetRandom(T);
-  end;
-
-  //Note: Result can still be False
-  List1.Free;
-  List2.Free;
-  List3.Free;
   ValidTiles.Free;
-
-  //Choose direction of approach based on which one is the flatest (animation looks odd if not flat)
-  if (PlantAct = taCut) and Result then
-  begin
-    BestSlope := 255;
-    Result := False; //It is already tested that we can walk to the tree, but double-check
-
-    for i:=-1 to 0 do for k:=-1 to 0 do
-    if Route_CanBeMade(aLoc, KMPoint(T.X+k, T.Y+i), CanWalk, 0) then
-    begin
-      Slope := Round(HeightAt(T.X+k-0.5, T.Y+i-0.5)) - Land[T.Y, T.X].Height;
-      //Cutting trees which are higher than us from the front looks visually poor, (axe hits ground) so avoid it where possible
-      if (i = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
-      if Abs(Slope) < BestSlope then
-      begin
-        Tree := KMPointDir(T.X+k, T.Y+i, KMGetVertexDir(k, i));
-        Result := True;
-        BestSlope := Abs(Slope);
-      end;
-    end;
-  end;
-
-  if (PlantAct = taPlant) and Result then
-    Tree := KMPointDir(T, dir_N); //Trees must always be planted facing north as that is the unit DAT animation that is used
 end;
 
 
@@ -1898,7 +1872,7 @@ var
   Vert: TKMPoint;
   VertUsage: TKMVertexUsage;
 begin
-  if not KMStepIsDiag(LocFrom, LocTo) then Exit;
+  Assert(KMStepIsDiag(LocFrom, LocTo));
   Vert := KMGetDiagVertex(LocFrom, LocTo);
   VertUsage := GetVertexUsageType(LocFrom, LocTo);
   Result := (Land[Vert.Y, Vert.X].IsVertexUnit in [vu_None, VertUsage]);

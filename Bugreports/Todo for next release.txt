@@ -17,6 +17,7 @@ Must be done:
 	Update readme with changed info (shortcuts, missing features)
 	Add new maps and maybe delete some existing ones based on quality and popularity
 	Check if we can use smoothing when scaling menu images up/down [Krom]
+	Fixed TKMCityPlanner.NextToTrees (broken during FindTree refactoring)
 
 
 ==============================
@@ -25,7 +26,7 @@ Could be done if we have time:
  +	Allow to assign groups and houses(!) to Ctrl+0..9 keys
  +	Selecting a map in multiplayer should show columns with name, size, player count, etc. rather than dumb drop down
  +	Attacking a house from the bottom right, soldiers will stack up rather than choosing a different free cell (WalkToHouse should avoid other units attacking the house?)
+ +	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	Show peacetime remaining in MP replays
-	If a woodcutter plants a tree where you placed a building site, the site gets canceled (very annoying) due to AbandonWalk and conditions for multiple players building on a tile
 	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
 	Duplicate app blocking should happen for multiplayer mode only (including replays) as that's the only cheating we care about

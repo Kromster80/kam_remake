@@ -202,7 +202,9 @@ begin
 
   StoreLoc := S.GetPosition;
 
-  if not fTerrain.FindTree(KMPointBelow(S.GetPosition), 20, KMPoint(0,0), taAny, TreeLoc, TA) then Exit;
+  //todo: FindTrees has changed, not sure how it fits in here anymore...
+  Exit;
+  //if not fTerrain.FindTree(KMPointBelow(S.GetPosition), 20, KMPoint(0,0), taAny, TreeLoc, TA) then Exit;
 
   BestBid := MaxSingle;
 

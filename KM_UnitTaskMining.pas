@@ -38,7 +38,7 @@ begin
   fWorkPlan := TUnitWorkPlan.Create;
   fBeastID  := 0;
 
-  fWorkPlan.FindPlan( fUnit.UnitType,
+  fWorkPlan.FindPlan( fUnit,
                       fUnit.GetHome.HouseType,
                       aRes,
                       KMPointBelow(aUnit.GetHome.GetEntrance),
@@ -60,9 +60,11 @@ end;
 function TTaskMining.WalkShouldAbandon:boolean;
 begin
   Result := false;
+  Assert(fUnit is TKMUnitCitizen);
   if fPhase = 2 then //Unit is walking to mine-position
     Result := fTerrain.TileIsLocked(WorkPlan.Loc) or //If someone takes our place
-              not ResourceExists; //Resource has gone
+              not ResourceExists or //Resource has gone
+              not TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, WorkPlan.GatheringScript);
 end;
 
 
@@ -108,7 +110,7 @@ begin
   OldDir := WorkPlan.WorkDir;
 
   //Tell the work plan to find a new resource of the same gathering script
-  if WorkPlan.FindDifferentResource(fUnit.UnitType, KMPointBelow(fUnit.GetHome.GetEntrance), OldLoc) then
+  if WorkPlan.FindDifferentResource(fUnit, KMPointBelow(fUnit.GetHome.GetEntrance), OldLoc) then
   begin
     //Must always give us a new location (or same location but different direction)
     Assert((OldDir <> WorkPlan.WorkDir) or not KMSamePoint(OldLoc, WorkPlan.Loc));
@@ -194,7 +196,8 @@ begin
         SetActionWalkToSpot(WorkPlan.Loc, WorkPlan.ActionWalkTo);
 
     2: //Check if we are at the location. WalkTo could have failed or resource could have been exhausted
-       if not KMSamePoint(NextPosition, WorkPlan.Loc) or not ResourceExists then
+       if not KMSamePoint(NextPosition, WorkPlan.Loc) or not ResourceExists or
+          not TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, WorkPlan.GatheringScript) then
          FindAnotherWorkPlan
        else
          SetActionLockedStay(0, WorkPlan.ActionWalkTo);
@@ -237,7 +240,10 @@ begin
            gs_FarmerCorn:      fTerrain.CutCorn(WorkPlan.Loc);
            gs_FarmerWine:      fTerrain.CutGrapes(WorkPlan.Loc);
            gs_FisherCatch:     begin fTerrain.CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir)); WorkPlan.ActionWorkType := ua_WalkTool; end;
-           gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,fTerrain.ChooseTreeToPlant(WorkPlan.Loc));
+           gs_WoodCutterPlant: //If the player placed a house plan here while we were digging don't place the
+                               //tree so the house plan isn't canceled. This is actually the same as TSK/TPR IIRC
+                               if TKMUnitCitizen(fUnit).CanWorkAt(WorkPlan.Loc, gs_WoodCutterPlant) then
+                                 fTerrain.SetTree(WorkPlan.Loc,fTerrain.ChooseTreeToPlant(WorkPlan.Loc));
            gs_WoodCutterCut:   begin fTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir)); StillFrame := 5; end;
          end;
          SetActionLockedStay(WorkPlan.AfterWorkDelay, WorkPlan.ActionWorkType, True, StillFrame, StillFrame);
