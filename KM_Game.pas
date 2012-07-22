@@ -49,6 +49,7 @@ type
     fAdvanceFrame: Boolean; //Replay variable to advance 1 frame, afterwards set to false
     fSaveFile: AnsiString;  //Relative pathname to savegame we are playing, so it gets saved to crashreport
     fShowTeamNames: Boolean;
+    fGameLockedMutex: Boolean;
 
   //Should be saved
     fCampaignMap: Byte;         //Which campaign map it is, so we can unlock next one on victory
@@ -176,7 +177,7 @@ uses
   KM_ArmyEvaluation, KM_Events, KM_GameApp, KM_GameInfo, KM_MissionScript,
   KM_Player, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceCursors,
   KM_Settings, KM_Sound, KM_Terrain, KM_TextLibrary,
-  KM_GameInputProcess_Single, KM_GameInputProcess_Multi;
+  KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -244,6 +245,7 @@ end;
 { Destroy what was created }
 destructor TKMGame.Destroy;
 begin
+  if fGameLockedMutex then fMain.UnlockMutex;
   fTimerGame.Enabled := False;
   fIsExiting := True;
 
@@ -1101,6 +1103,13 @@ begin
 
   //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is
   LoadStream.Read(SaveIsMultiplayer);
+
+  //If the player loads a multiplayer save in singleplayer or replay mode, we require a mutex lock to prevent cheating
+  if SaveIsMultiplayer and (fGameMode in [gmSingle, gmReplay]) then
+    if fMain.LockMutex then
+      fGameLockedMutex := True //Remember so we unlock it in Destroy
+    else
+      raise Exception.Create('You may only have one instance of the game in multiplayer mode at once');
 
   //Not used, (only stored for preview) but it's easiest way to skip past it
   if not SaveIsMultiplayer then

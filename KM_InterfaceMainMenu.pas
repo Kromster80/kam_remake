@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, ShellAPI, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
-  StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
+  StrUtils, SysUtils, Dialogs, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
   KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
   KM_InterfaceDefaults, KM_Minimap, KM_ServerQuery;
 
@@ -54,6 +54,7 @@ type
     procedure Create_Results_Page;
     procedure Create_ResultsMP_Page;
     procedure SwitchMenuPage(Sender: TObject);
+    procedure MainMenu_MultiplayerClick(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
     procedure Results_RepeatLastMap(Sender: TObject);
@@ -851,7 +852,7 @@ begin
       Button_MM_Credits      := TKMButton.Create(Panel_MMButtons,0,200,350,30,fTextLibrary[TX_MENU_CREDITS],fnt_Metal,bsMenu);
       Button_MM_Quit         := TKMButton.Create(Panel_MMButtons,0,290,350,30,fTextLibrary[TX_MENU_QUIT],fnt_Metal,bsMenu);
       Button_MM_SinglePlayer.OnClick := SwitchMenuPage;
-      Button_MM_MultiPlayer.OnClick  := SwitchMenuPage;
+      Button_MM_MultiPlayer.OnClick  := MainMenu_MultiplayerClick;
       Button_MM_MapEd.OnClick        := SwitchMenuPage;
       Button_MM_Replays.OnClick      := SwitchMenuPage;
       Button_MM_Options.OnClick      := SwitchMenuPage;
@@ -1797,6 +1798,8 @@ begin
     //Scan should be terminated, it is no longer needed
     if Sender = Button_ReplaysBack then
       fSaves.TerminateScan;
+    if (Sender = Button_MP_Back) or (Sender = Button_ErrorBack) then
+      fMain.UnlockMutex; //Leaving MP areas
     Panel_MainMenu.Show;
   end;
 
@@ -1945,6 +1948,15 @@ begin
   {Show ResultsMP screen}
   if Sender=Panel_ResultsMP then //This page can be accessed only by itself
     Panel_ResultsMP.Show;
+end;
+
+
+procedure TKMMainMenuInterface.MainMenu_MultiplayerClick(Sender: TObject);
+begin
+  if fMain.LockMutex then
+    SwitchMenuPage(Sender)
+  else
+    MessageDlg('You may only have one instance of the game in multiplayer mode at once',mtInformation,[mbOK],0);
 end;
 
 

@@ -604,7 +604,8 @@ end;
 //Debug rendering may be used as a cheat in MP to see unrevealed areas, thats why we block it there
 function TKMGameApp.AllowDebugRendering: Boolean;
 begin
-  Result := (fGame.GameMode in [gmSingle, gmMapEd, gmReplay]) or (MULTIPLAYER_CHEATS and (fGame.GameMode = gmMulti));
+  Result := (fGame <> nil) and //Avoid crashing if using debug controls on the main menu
+            ((fGame.GameMode in [gmSingle, gmMapEd, gmReplay]) or (MULTIPLAYER_CHEATS and (fGame.GameMode = gmMulti)));
 end;
 
 

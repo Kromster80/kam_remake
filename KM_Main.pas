@@ -10,6 +10,7 @@ type
   TKMMain = class
   private
     fOldTimeFPS, fOldFrameTimes, fFrameCount: Cardinal;
+    fMutex:THandle;
 
     fMainSettings: TMainSettings;
     fResolutions: TKMResolutions;
@@ -35,6 +36,9 @@ type
     function ClientToScreen(aPoint: TPoint): TPoint;
     procedure ReinitRender(aReturnToOptions: Boolean);
 
+    function LockMutex:Boolean;
+    procedure UnlockMutex;
+
     procedure StatusBarText(aPanelIndex: Integer; const aText: string); overload;
 
     property Resolutions: TKMResolutions read fResolutions;
@@ -49,6 +53,9 @@ var
 implementation
 uses KM_Defaults, KM_GameApp, KM_Utils, KM_Log;
 
+const
+  //Random GUID generated in Delphi by Ctrl+G
+  KAM_MUTEX = '07BB7CC6-33F2-44ED-AD04-1E255E0EDF0D';
 
 { TKMRemake }
 constructor TKMMain.Create;
@@ -68,17 +75,6 @@ end;
 
 procedure TKMMain.Start;
 begin
-  //Random GUID generated in Delphi by Ctrl+G
-  //todo: Move this code into GUI>Multiplayer and block duplicate entrance into
-  //MP area. For that CreateMutex on enter and ReleaseMutex on leaving MP
-  if BLOCK_DUPLICATE_APP
-  and CheckDuplicateApplication('07BB7CC6-33F2-44ED-AD04-1E255E0EDF0D') then
-  begin
-    ShowMessage('Another copy of the application is already running');
-    Free; //Release fMain memory
-    Halt; //Immmediately close the application
-  end;
-
   SetKaMSeed(4); //Used for gameplay events so the order is important
   Randomize; //Random is only used for cases where order does not matter, e.g. shuffle tracks
 
@@ -239,6 +235,27 @@ begin
 
   Resize(FormMain.Panel5.Width, FormMain.Panel5.Height); //Force everything to resize
   ApplyCursorRestriction;
+end;
+
+
+function TKMMain.LockMutex:Boolean;
+begin
+  Result := True;
+  if not BLOCK_DUPLICATE_APP then Exit;
+  fMutex := CreateMutex(nil, True, PChar(KAM_MUTEX));
+  if fMutex = 0 then
+    RaiseLastOSError;
+  Result := (GetLastError <> ERROR_ALREADY_EXISTS);
+  if not Result then UnlockMutex; //Close our own handle on the mutex because someone else already made the mutex
+end;
+
+
+procedure TKMMain.UnlockMutex;
+begin
+  if not BLOCK_DUPLICATE_APP then Exit;
+  if fMutex = 0 then Exit; //Didn't have a mutex lock
+  CloseHandle(fMutex);
+  fMutex := 0;
 end;
 
 
