@@ -30,7 +30,7 @@ type
     procedure ShowAbout;
 
     procedure ApplyCursorRestriction;
-    function GetScreenBounds: TRect;
+    function GetScreenBounds(out Bounds: TRect):Boolean;
     function IsFormActive: Boolean;
     function ClientRect: TRect;
     function ClientToScreen(aPoint: TPoint): TPoint;
@@ -273,26 +273,27 @@ begin
 end;
 
 
-function TKMMain.GetScreenBounds: TRect;
+//Can be invalid very breifly if you change resolutions (this is possible in Windowed mode)
+function TKMMain.GetScreenBounds(out Bounds: TRect):Boolean;
 var i: integer;
-    FirstTime: boolean;
 begin
-  Result := Classes.Rect(-1,-1,-1,-1);
+  Result := False;
+  Bounds := Classes.Rect(-1,-1,-1,-1);
   FormMain.Monitor; //This forces Delphi to reload Screen.Monitors (only if necessary) and so fixes crashes when using multiple monitors
-  FirstTime := true;
   //Maximized is a special case, it can only be on one monitor. This is required because when maximized form.left = -9 (on Windows 7 anyway)
   if FormMain.WindowState = wsMaximized then
   begin
     for i:=0 to Screen.MonitorCount-1 do
       //Find the monitor with the left closest to the left of the form
       if (i = 0) or
-         ((abs(FormMain.Left - Screen.Monitors[i].Left) <= abs(FormMain.Left - Result.Left)) and
-          (abs(FormMain.Top  - Screen.Monitors[i].Top ) <= abs(FormMain.Top  - Result.Top))) then
+         ((abs(FormMain.Left - Screen.Monitors[i].Left) <= abs(FormMain.Left - Bounds.Left)) and
+          (abs(FormMain.Top  - Screen.Monitors[i].Top ) <= abs(FormMain.Top  - Bounds.Top))) then
       begin
-        Result.Left  := Screen.Monitors[i].Left;
-        Result.Right := Screen.Monitors[i].Width+Screen.Monitors[i].Left;
-        Result.Top   := Screen.Monitors[i].Top;
-        Result.Bottom:= Screen.Monitors[i].Height+Screen.Monitors[i].Top;
+        Result := True;
+        Bounds.Left  := Screen.Monitors[i].Left;
+        Bounds.Right := Screen.Monitors[i].Width+Screen.Monitors[i].Left;
+        Bounds.Top   := Screen.Monitors[i].Top;
+        Bounds.Bottom:= Screen.Monitors[i].Height+Screen.Monitors[i].Top;
       end;
   end
   else
@@ -303,22 +304,22 @@ begin
               (FormMain.Top                >= Screen.Monitors[i].Height + Screen.Monitors[i].Top) or
               (FormMain.Height + FormMain.Top <= Screen.Monitors[i].Top)) then
       begin
-        if FirstTime then
+        if not Result then
         begin
           //First time we have to initialise the result
-          FirstTime := false;
-          Result.Left  := Screen.Monitors[i].Left;
-          Result.Right := Screen.Monitors[i].Width+Screen.Monitors[i].Left;
-          Result.Top   := Screen.Monitors[i].Top;
-          Result.Bottom:= Screen.Monitors[i].Height+Screen.Monitors[i].Top;
+          Result := True;
+          Bounds.Left  := Screen.Monitors[i].Left;
+          Bounds.Right := Screen.Monitors[i].Width+Screen.Monitors[i].Left;
+          Bounds.Top   := Screen.Monitors[i].Top;
+          Bounds.Bottom:= Screen.Monitors[i].Height+Screen.Monitors[i].Top;
         end
         else
         begin
           //After the first time we compare it with the previous result and take the largest possible area
-          Result.Left  := Math.Min(Result.Left,  Screen.Monitors[i].Left);
-          Result.Right := Math.Max(Result.Right, Screen.Monitors[i].Width+Screen.Monitors[i].Left);
-          Result.Top   := Math.Min(Result.Top,   Screen.Monitors[i].Top);
-          Result.Bottom:= Math.Max(Result.Bottom,Screen.Monitors[i].Height+Screen.Monitors[i].Top);
+          Bounds.Left  := Math.Min(Bounds.Left,  Screen.Monitors[i].Left);
+          Bounds.Right := Math.Max(Bounds.Right, Screen.Monitors[i].Width+Screen.Monitors[i].Left);
+          Bounds.Top   := Math.Min(Bounds.Top,   Screen.Monitors[i].Top);
+          Bounds.Bottom:= Math.Max(Bounds.Bottom,Screen.Monitors[i].Height+Screen.Monitors[i].Top);
         end;
       end;
 end;

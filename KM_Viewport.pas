@@ -170,8 +170,9 @@ begin
   //the OS doesn't want us controling the mouse, or possibly when the mouse is reset in some way.
   //It happens for me in Windows 7 every time I press CTRL+ALT+DEL with the game running.
   //On Windows XP I get "call to an OS function failed" instead.
-  if not Windows.GetCursorPos(MousePos) then exit;
-  ScreenBounds := fMain.GetScreenBounds;
+  if not Windows.GetCursorPos(MousePos) then Exit;
+  if not fMain.GetScreenBounds(ScreenBounds) then Exit;
+
   //With multiple monitors the cursor position can be outside of this screen, which makes scrolling too fast
   CursorPoint.X := EnsureRange(MousePos.X, ScreenBounds.Left, ScreenBounds.Right );
   CursorPoint.Y := EnsureRange(MousePos.Y, ScreenBounds.Top , ScreenBounds.Bottom);
