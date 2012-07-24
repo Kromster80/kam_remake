@@ -2314,22 +2314,25 @@ function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability): Boolean;
     building than walking) and map creators should block tiles themselves with the special invisible block object.}
 
     //Sides of tile
-    Result :=            (abs(Points[1]-Points[2]) <= aHeight);
-    Result := Result AND (abs(Points[3]-Points[4]) <= aHeight);
-    Result := Result AND (abs(Points[3]-Points[1]) <= aHeight);
-    Result := Result AND (abs(Points[4]-Points[2]) <= aHeight*2); //Bottom-right to top-right is twice as tolerant
+    Result :=            (abs(Points[1]-Points[2]) < aHeight);
+    Result := Result AND (abs(Points[3]-Points[4]) < aHeight);
+    Result := Result AND (abs(Points[3]-Points[1]) < aHeight);
+    Result := Result AND (abs(Points[4]-Points[2]) < aHeight*2); //Bottom-right to top-right is twice as tolerant
 
     //Diagonals of tile
-    Result := Result AND (abs(Points[1]-Points[4]) <= aHeight);
-    Result := Result AND (abs(Points[3]-Points[2]) <= aHeight*2); //Bottom-left to top-right is twice as tolerant
+    Result := Result AND (abs(Points[1]-Points[4]) < aHeight);
+    Result := Result AND (abs(Points[3]-Points[2]) < aHeight*2); //Bottom-left to top-right is twice as tolerant
   end;
 begin
-  //Three types tested in KaM: >=25 - unwalkable/roadable; >=18 - unbuildable.
+  //Three types measured in KaM: >=25 - unwalkable/unroadable; >=25 - iron/gold mines unbuildable;
+  //>=18 - other houses unbuildable.
   Result := true;
   if not TileInMapCoords(aLoc.X,aLoc.Y) then exit;
   case aPass of
-    CanWalk,CanWalkRoad,CanMakeRoads,CanMakeFields,CanPlantTrees,CanCrab,CanWolf: Result := TestHeight(25);
-    CanBuild,CanBuildGold,CanBuildIron: Result := TestHeight(20);
+    CanWalk,CanWalkRoad,CanMakeRoads,CanMakeFields,CanPlantTrees,CanCrab,CanWolf:
+                               Result := TestHeight(25);
+    CanBuildGold,CanBuildIron: Result := TestHeight(25);
+    CanBuild:                  Result := TestHeight(18);
   end; //For other passabilities we ignore height (return default true)
 end;
 
