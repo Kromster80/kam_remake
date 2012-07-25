@@ -10,8 +10,8 @@ Must be done:
  +	Narrator in campaign breifings [Lewin]
  +	Finish custom campaign support
  +	Add new music tracks Market and Household
+ +	Block market in original missions through script not code hack [Lewin]
 	Finish charts
-	Block market in original missions through script not code hack [Lewin]
 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Alerts on the minimap when a unit/house is under attack
 	Update readme with changed info (shortcuts, missing features)

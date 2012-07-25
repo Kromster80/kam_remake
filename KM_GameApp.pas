@@ -458,11 +458,6 @@ begin
     end;
   end;
 
-  //todo: Do that in mission scripts! Hack to block the market in TSK/TPR campaigns
-  {if (aCampaign.ShortTitle = 'TSK') or (aCampaign.ShortTitle = 'TPR') then
-    for I:=0 to fPlayers.Count-1 do
-      fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;}
-
   fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
 
@@ -490,11 +485,6 @@ begin
       Exit;
     end;
   end;
-
-  //todo: Do that in mission scripts! Hack to block the market in TSK/TPR campaigns
-  {if (aCampaign.ShortTitle = 'TSK') or (aCampaign.ShortTitle = 'TPR') then
-    for I:=0 to fPlayers.Count-1 do
-      fPlayers[I].Stats.HouseBlocked[ht_Marketplace] := True;}
 
   fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
