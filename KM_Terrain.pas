@@ -164,6 +164,9 @@ type
 
     function TileIsWater(Loc:TKMPoint): Boolean;
     function TileIsStone(X,Y:Word): Byte;
+    function TileIsCoal(X,Y: Word): Byte;
+    function TileIsIron(X,Y: Word): Byte;
+    function TileIsGold(X,Y: Word): Byte;
     function TileIsCornField(Loc:TKMPoint): Boolean;
     function TileIsWineField(Loc:TKMPoint): Boolean;
     function TileIsLocked(aLoc:TKMPoint): Boolean;
@@ -463,6 +466,24 @@ end;
 function TTerrain.TileIsStone(X,Y: Word): Byte;
 begin
   Result := fTileset.TileIsStone(Land[Y, X].Terrain);
+end;
+
+
+function TTerrain.TileIsCoal(X,Y: Word): Byte;
+begin
+  Result := fTileset.TileIsCoal(Land[Y, X].Terrain);
+end;
+
+
+function TTerrain.TileIsIron(X,Y: Word): Byte;
+begin
+  Result := fTileset.TileIsIron(Land[Y, X].Terrain);
+end;
+
+
+function TTerrain.TileIsGold(X,Y: Word): Byte;
+begin
+  Result := fTileset.TileIsGold(Land[Y, X].Terrain);
 end;
 
 
@@ -2123,7 +2144,10 @@ end;
 
 {Place house plan on terrain and change terrain properties accordingly}
 procedure TTerrain.SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TPlayerIndex; const aFlattenTerrain: Boolean = False);
-var i,k,x,y:word; ToFlatten:TKMPointList; HA:THouseArea;
+var
+  I, K, X, Y: Word;
+  ToFlatten: TKMPointList;
+  HA: THouseArea;
 begin
   if aFlattenTerrain then //We will check aFlattenTerrain only once, otherwise there are compiler warnings
     ToFlatten := TKMPointList.Create
@@ -2822,7 +2846,7 @@ var Visited: array of array of Byte;
     //Only add to results once (255 is the intial value)
     if Visited[Xt,Yt] = 255 then
       aList.AddEntry(KMPoint(X,Y));
-    
+
     //Mark this tile as visited
     Visited[Xt,Yt] := aWalkDistance;
 

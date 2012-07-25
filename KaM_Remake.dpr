@@ -50,6 +50,7 @@ uses
   KM_Log in 'KM_Log.pas',
   KM_Main in 'KM_Main.pas',
   KM_Maps in 'KM_Maps.pas',
+  KM_MapEditor in 'KM_MapEditor.pas',
   KM_MasterServer in 'KM_MasterServer.pas',
   KM_Mayor in 'KM_Mayor.pas',
   KM_Minimap in 'KM_Minimap.pas',

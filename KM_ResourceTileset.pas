@@ -39,6 +39,9 @@ type
     //function TileHasWater(aTile: Byte): Boolean;
     function TileIsSand(aTile: Byte): Boolean;
     function TileIsStone(aTile: Byte): Byte;
+    function TileIsCoal(aTile: Byte): Byte;
+    function TileIsIron(aTile: Byte): Byte;
+    function TileIsGold(aTile: Byte): Byte;
     function TileIsSoil(aTile: Byte): Boolean;
     function TileIsWalkable(aTile: Byte): Boolean;
     function TileIsRoadable(aTile: Byte): Boolean;
@@ -157,6 +160,33 @@ begin
     128,133: Result := 1;
     else     Result := 0;
   end;
+end;
+
+
+function TKMTileset.TileIsCoal(aTile: Byte): Byte;
+begin
+  Result := 0;
+  if aTile > 151 then
+    if aTile < 156 then
+      Result := aTile - 151;
+end;
+
+
+function TKMTileset.TileIsIron(aTile: Byte): Byte;
+begin
+  Result := 0;
+  if aTile > 147 then
+    if aTile < 152 then
+      Result := aTile - 147;
+end;
+
+
+function TKMTileset.TileIsGold(aTile: Byte): Byte;
+begin
+  Result := 0;
+  if aTile > 143 then
+    if aTile < 148 then
+      Result := aTile - 143;
 end;
 
 

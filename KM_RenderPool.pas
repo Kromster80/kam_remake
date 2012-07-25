@@ -101,7 +101,9 @@ var
 
 
 implementation
-uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_FogOfWar;
+uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource,
+  KM_ResourceUnit, KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_FogOfWar,
+  KM_MapEditor;
 
 
 constructor TRenderPool.Create(aRender: TRender);

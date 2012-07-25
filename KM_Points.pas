@@ -20,6 +20,7 @@ type
 
   function KMPoint(X,Y:word): TKMPoint; overload;
   function KMPoint(P:TKMPointI): TKMPoint; overload;
+  function KMPointI(X,Y: Integer): TKMPointI;
   function KMPointF(X,Y:single): TKMPointF; overload;
   function KMPointF(P:TKMPoint):  TKMPointF; overload;
   function KMPointDir(X,Y: Word; Dir: TKMDirection): TKMPointDir; overload;
@@ -83,6 +84,13 @@ begin
   Assert((P.X>=0) and (P.Y>=0));
   Result.X := P.X;
   Result.Y := P.Y;
+end;
+
+
+function KMPointI(X,Y: Integer): TKMPointI;
+begin
+  Result.X := X;
+  Result.Y := Y;
 end;
 
 

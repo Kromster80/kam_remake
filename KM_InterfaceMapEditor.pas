@@ -11,10 +11,12 @@ uses
 type
   TKMapEdInterface = class (TKMUserInterface)
   private
-    PrevHint:TObject;
-    StorehouseItem:byte; //Selected ware in storehouse
-    BarracksItem:byte; //Selected ware in barracks
-    TileDirection: byte;
+    fPrevHint: TObject;
+    fStorehouseItem: Byte; //Selected ware in storehouse
+    fBarracksItem: Byte; //Selected ware in barracks
+    fTileDirection: Byte;
+    //fShowRawMaterials: Boolean; //Not sure how we will enable this and blocked tiles display
+
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
 
@@ -76,6 +78,7 @@ type
       Label_Passability:TKMLabel;
       Button_PlayerSelect:array[0..MAX_PLAYERS-1]of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint:TKMLabel;
+      Label_MatAmount: TKMLabel;
     Panel_Common:TKMPanel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu below
@@ -200,11 +203,12 @@ type
 
     procedure Resize(X,Y: Word); override;
     procedure UpdateState(aTickCount: Cardinal); override;
+    procedure Paint; override;
   end;
 
 
 implementation
-uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary,
+uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_MapEditor,
      KM_Utils, KM_Game, KM_GameApp, KM_Resource, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceMapElements;
 
 
@@ -263,7 +267,7 @@ begin
     Panel_Terrain.Show;
     Panel_Tiles.Show;
     Label_MenuTitle.Caption:='Terrain - Tiles';
-    SetTileDirection(TileDirection); //ensures tags are in allowed ranges
+    SetTileDirection(fTileDirection); //ensures tags are in allowed ranges
     Terrain_TilesChange(GetSelectedTile);
   end else
 
@@ -374,12 +378,12 @@ end;
 
 procedure TKMapEdInterface.DisplayHint(Sender: TObject);
 begin
-  if (PrevHint = Sender) then exit; //Hint didn't changed
+  if (fPrevHint = Sender) then exit; //Hint didn't changed
 
   if Sender=nil then Label_Hint.Caption:=''
                 else Label_Hint.Caption:=TKMControl(Sender).Hint;
 
-  PrevHint := Sender;
+  fPrevHint := Sender;
 end;
 
 
@@ -396,14 +400,16 @@ var
 begin
   inherited;
 
-  BarracksItem   := 1; //First ware selected by default
-  StorehouseItem := 1; //First ware selected by default
-  TileDirection := 0;
+  fBarracksItem   := 1; //First ware selected by default
+  fStorehouseItem := 1; //First ware selected by default
+  fTileDirection := 0;
   fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(True);
 
   //Parent Page for whole toolbar in-game
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
+
+    Label_MatAmount := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Metal, taCenter);
 
     TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
     TKMImage.Create(Panel_Main,0, 200,224,400,404);
@@ -928,6 +934,37 @@ begin
 end;
 
 
+procedure TKMapEdInterface.Paint;
+var
+  I: Integer;
+  X, Y: Single;
+  LocX, LocY: Integer;
+  R: TRawDeposit;
+begin
+  //if fShowRawMaterials then
+  for R := Low(TRawDeposit) to High(TRawDeposit) do
+    for I := 0 to fGame.MapEditor.AreaCount[R] - 1 do
+    begin
+      Label_MatAmount.Caption := IntToStr(fGame.MapEditor.AreaAmount[R, I]);
+
+      X := fGame.MapEditor.AreaLoc[R, I].X;
+      Y := fGame.MapEditor.AreaLoc[R, I].Y;
+
+      LocX := Round((X - fGame.Viewport.Position.X) * CELL_SIZE_PX * fGame.Viewport.Zoom +fGame.Viewport.ViewRect.Right/2+TOOLBAR_WIDTH/2);
+      LocY := Round((Y - fGame.Viewport.Position.Y) * CELL_SIZE_PX * fGame.Viewport.Zoom +fGame.Viewport.ViewRect.Bottom/2);
+
+      LocX := LocX - 20;
+      LocY := LocY - Round(fTerrain.HeightAt(X, Y)) - 30;
+
+      Label_MatAmount.Left := LocX;
+      Label_MatAmount.Top := LocY;
+      Label_MatAmount.Paint;
+    end;
+
+  inherited;
+end;
+
+
 procedure TKMapEdInterface.SetMinimap;
 begin
   MinimapView.SetMinimap(fGame.Minimap);
@@ -1222,14 +1259,14 @@ begin
     ht_Store: begin
           Store_Fill(nil);
           SwitchPage(Panel_HouseStore);
-          Store_SelectWare(Button_Store[StorehouseItem]); //Reselect the ware so the display is updated
+          Store_SelectWare(Button_Store[fStorehouseItem]); //Reselect the ware so the display is updated
         end;
 
     ht_Barracks: begin
           Barracks_Fill(nil);
           Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
           SwitchPage(Panel_HouseBarracks);
-          Barracks_SelectWare(Button_Barracks[BarracksItem]); //Reselect the ware so the display is updated
+          Barracks_SelectWare(Button_Barracks[fBarracksItem]); //Reselect the ware so the display is updated
           end;
     ht_TownHall:;
     else SwitchPage(Panel_House);
@@ -1368,8 +1405,8 @@ end;
 
 procedure TKMapEdInterface.SetTileDirection(aTileDirection: byte);
 begin
-  TileDirection := aTileDirection mod 4; //0..3
-  GameCursor.MapEdDir := TileDirection;
+  fTileDirection := aTileDirection mod 4; //0..3
+  GameCursor.MapEdDir := fTileDirection;
 end;
 
 
@@ -1518,7 +1555,7 @@ begin
   for i:=1 to BARRACKS_RES_COUNT do
     Button_Barracks[i].Down := False;
   TKMButtonFlat(Sender).Down := True;
-  BarracksItem := TKMButtonFlat(Sender).Tag;
+  fBarracksItem := TKMButtonFlat(Sender).Tag;
   Barracks_EditWareCount(Sender, mbLeft);
 end;
 
@@ -1532,7 +1569,7 @@ begin
   for i:=1 to length(Button_Store) do
     Button_Store[i].Down := false;
   TKMButtonFlat(Sender).Down := true;
-  StorehouseItem := TKMButtonFlat(Sender).Tag;
+  fStorehouseItem := TKMButtonFlat(Sender).Tag;
   Store_EditWareCount(Sender, mbLeft);
 end;
 
@@ -1545,7 +1582,7 @@ var
 begin
   if not Panel_HouseBarracks.Visible or not (fPlayers.Selected is TKMHouseBarracks) then Exit;
 
-  Res := BarracksResType[BarracksItem];
+  Res := BarracksResType[fBarracksItem];
   Barracks := TKMHouseBarracks(fPlayers.Selected);
 
   if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then begin
@@ -1571,7 +1608,7 @@ var
 begin
   if not Panel_HouseStore.Visible or not (fPlayers.Selected is TKMHouseStore) then Exit;
 
-  Res := StoreResType[StorehouseItem];
+  Res := StoreResType[fStorehouseItem];
   Store := TKMHouseStore(fPlayers.Selected);
 
   //We need to take no more than it is there, thats part of bugtracking idea

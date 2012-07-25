@@ -9,8 +9,8 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Points,
   KM_Alerts, KM_GameInputProcess, KM_GameOptions,
   KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
-  KM_Minimap, KM_Networking, KM_PathFinding, KM_PerfLog, KM_Projectiles,
-  KM_Render, KM_Viewport;
+  KM_MapEditor, KM_Minimap, KM_Networking, KM_PathFinding, KM_PerfLog,
+  KM_Projectiles, KM_Render, KM_Viewport;
 
 type
   TGameMode = (
@@ -38,6 +38,7 @@ type
     fActiveInterface: TKMUserInterface; //Shortcut for both of UI
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
+    fMapEditor: TKMMapEditor;
 
     fIsExiting: Boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fIsEnded: Boolean; //The game has ended/crashed and further UpdateStates are not required/impossible
@@ -63,6 +64,7 @@ type
     procedure GameMPDisconnect(const aData:string);
     procedure MultiplayerRig;
     procedure SaveGame(const aPathName: string);
+    procedure UpdatePeaceTime;
     procedure UpdateUI;
   public
     PlayOnState: TGameResultMsg;
@@ -122,7 +124,6 @@ type
     function IsMultiplayer: Boolean;
     function IsReplay: Boolean;
     procedure ShowMessage(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
-    procedure UpdatePeaceTime;
     property GameTickCount:cardinal read fGameTickCount;
     property GameName: string read fGameName;
     property CampaignName: AnsiString read fCampaignName;
@@ -152,6 +153,7 @@ type
     property GameOptions: TKMGameOptions read fGameOptions;
     property GamePlayInterface: TKMGamePlayInterface read fGamePlayInterface;
     property MapEditorInterface: TKMapEdInterface read fMapEditorInterface;
+    property MapEditor: TKMMapEditor read fMapEditor;
     property Viewport: TViewport read fViewport;
 
     procedure Save(const aName: string);
@@ -256,6 +258,7 @@ begin
 
   FreeAndNil(fTimerGame);
 
+  FreeThenNil(fMapEditor);
   FreeThenNil(fPlayers);
   FreeThenNil(fTerrain);
   FreeAndNil(fProjectiles);
@@ -400,6 +403,7 @@ begin
 
     if fGameMode = gmMapEd then
     begin
+      fMapEditor := TKMMapEditor.Create;
       MyPlayer := fPlayers.Player[0];
       fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
       for I := 0 to MAX_PLAYERS - 1 do
@@ -714,6 +718,7 @@ begin
   fSaveFile := '';
 
   fTerrain.MakeNewMap(aSizeX, aSizeY, True);
+  fMapEditor := TKMMapEditor.Create;
   fPlayers := TKMPlayersCollection.Create;
   fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
   MyPlayer := fPlayers.Player[0];
@@ -1292,6 +1297,9 @@ begin
   //Update minimap every 1000ms
   if aGlobalTickCount mod 10 = 0 then
     fMinimap.Update(False);
+
+  if (aGlobalTickCount mod 10 = 0) and (fMapEditor <> nil) then
+    fMapEditor.Update;
 end;
 
 

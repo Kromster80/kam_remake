@@ -139,6 +139,7 @@
 			<DCCReference Include="KM_Log.pas"/>
 			<DCCReference Include="KM_Main.pas"/>
 			<DCCReference Include="KM_Maps.pas"/>
+			<DCCReference Include="KM_MapEditor.pas"/>
 			<DCCReference Include="KM_MasterServer.pas"/>
 			<DCCReference Include="KM_Mayor.pas"/>
 			<DCCReference Include="KM_Minimap.pas"/>
