@@ -18,6 +18,7 @@ type
     fMapEditor: Boolean; //In MapEd mode some features behave differently
     fMapX: Word; //Terrain width and height
     fMapY: Word; //Terrain width and height
+    fKromsMapEditorData: array of Byte;
 
     fTileset: TKMTileset;
 
@@ -270,6 +271,7 @@ var
   i,k:integer;
   S:TKMemoryStream;
   NewX,NewY:integer;
+  ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
 begin
   fMapX := 0;
   fMapY := 0;
@@ -316,6 +318,15 @@ begin
       if ObjectIsChopableTree(KMPoint(k,i),4) then Land[i,k].TreeAge := TREE_AGE_FULL;
       //Everything else is default
     end;
+
+    //For now we just throw away the resource footer because we don't understand it (and save a blank one)
+    S.Read(ResHead,22);
+    S.Seek(17*ResHead.Allocated, soFromCurrent);
+
+    //Attempt to read addition tile data for Krom's map editor, so we can save it later (hackish)
+    SetLength(fKromsMapEditorData, 16+fMapX*fMapY);
+    i := S.Read(fKromsMapEditorData[0], 16+fMapX*fMapY);
+    SetLength(fKromsMapEditorData, i); //If part of it wasn't used, trim it
   finally
     S.Free;
   end;
@@ -411,13 +422,8 @@ begin
   blockwrite(f,ResHead,22);
   for i:=1 to ResHead.Allocated do blockwrite(f,Res[i],17);
 
-  {blockwrite(f,'ADDN',4);
-  blockwrite(f,'TILE',4); //Chunk name
-  i := 4 + fMapY*fMapX;
-  blockwrite(f,i,4); //Chunk size
-  i := 0; //contained lock in older version
-  blockwrite(f,i,4);
-  for i:=1 to Map.Y do for k:=1 to Map.X do blockwrite(f,Land2[i,k].TPoint,1);}
+  if Length(fKromsMapEditorData) > 0 then
+    blockwrite(f,fKromsMapEditorData[0],Length(fKromsMapEditorData));
 
   closefile(f);
 end;
