@@ -3164,7 +3164,7 @@ end;
 
 procedure TKMGamePlayInterface.Alert_Beacon;
 begin
-  fGame.GameInputProcess.CmdGame(gic_GameAlert, Byte(atBeacon), GameCursor.Float, MyPlayer.PlayerIndex);
+  fGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, GameCursor.Float, MyPlayer.PlayerIndex);
 end;
 
 
@@ -3747,6 +3747,7 @@ begin
     end;
   end;
 
+  //Display team names
   if aTickCount mod 3 = 0 then //Update once every 300ms, player won't notice
   begin
     fTeamNames.Clear;

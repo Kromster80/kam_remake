@@ -674,7 +674,9 @@ procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnitW
 begin
   case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
-      if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
+      fGame.Alerts.AddFight(aUnit.PositionF, fPlayerIndex, an_Troops);
+
+      {if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
       begin
         fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
         if (MyPlayer = fPlayers[fPlayerIndex])
@@ -685,7 +687,7 @@ begin
           else
             fSoundLib.PlayNotification(an_Citizens);
         end;
-      end;
+      end;}
     pt_Computer:
       begin
         //If we are attacked, then we should counter attack the attacker!

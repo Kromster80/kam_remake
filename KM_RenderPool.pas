@@ -73,6 +73,7 @@ type
     constructor Create(aRender: TRender);
     destructor Destroy; override;
 
+    procedure AddAlert(aLoc: TKMPointF; aID: Word);
     procedure AddProjectile(aProj: TProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
     procedure AddHouseTablet(aHouse: THouseType; Loc: TKMPoint);
     procedure AddHouseBuildSupply(aHouse: THouseType; Loc: TKMPoint; Wood,Stone: Byte);
@@ -245,13 +246,6 @@ begin
       Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
     end;
 
-  for I := 0 to fGame.Alerts.Count - 1 do
-    if KMInRect(fGame.Alerts[I].Loc, aRect)
-    and (fPlayers.CheckAlliance(fGame.Alerts[I].Owner, MyPlayer.PlayerIndex) = at_Ally) then
-      fRenderList.AddSpriteG(rxGui, 340,
-        fGame.Alerts[I].Loc.X,
-        fGame.Alerts[I].Loc.Y - fTerrain.HeightAt(fGame.Alerts[I].Loc.X, fGame.Alerts[I].Loc.Y) / CELL_HEIGHT_DIV,
-        fGame.Alerts[I].Loc.X, fGame.Alerts[I].Loc.Y);
 end;
 
 
@@ -367,6 +361,16 @@ begin
     AddSpriteBy(AnimStep+1, pX - 0.75, pY - 0.25);
     AddSpriteBy(AnimStep  , pX - 0.25, pY - 0.25);
   end;
+end;
+
+
+//Render alert
+procedure TRenderPool.AddAlert(aLoc: TKMPointF; aID: Word);
+begin
+  fRenderList.AddSpriteG(rxGui, aID,
+        aLoc.X,
+        aLoc.Y - fTerrain.HeightAt(aLoc.X, aLoc.Y) / CELL_HEIGHT_DIV,
+        aLoc.X, aLoc.Y);
 end;
 
 
@@ -924,6 +928,7 @@ begin
   RenderTerrainObjects(Rect, fTerrain.AnimStep);
   fPlayers.Paint; //Quite slow           //Units and houses
   fGame.Projectiles.Paint;
+  fGame.Alerts.Paint;
 
   fRenderList.Render;
 end;

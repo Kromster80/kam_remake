@@ -3884,12 +3884,12 @@ begin
   end;
 
   //Paint alerts
-  if (fMinimap <> nil) and fMinimap.ShowAlerts then
-  for I := 0 to fMinimap.AlertsCount - 1 do
-  if fMinimap.Alert(I) <> nil then //Alert could be nil if we are not supposed to see it
-    fRenderUI.WriteText(NewLeft+EnsureRange(Round(fMinimap.Alert(I).Loc.X*PaintWidth / fMinimap.MapX), LOC_RAD, PaintWidth-LOC_RAD),
-                        NewTop +EnsureRange(Round(fMinimap.Alert(I).Loc.Y*PaintHeight / fMinimap.MapY), LOC_RAD, PaintHeight-LOC_RAD)-6,
-                        16, 16, 'x', fnt_Outline, taCenter);
+  if (fMinimap <> nil) and (fMinimap.Alerts <> nil) then
+  for I := 0 to fMinimap.Alerts.Count - 1 do
+  if fMinimap.Alerts[I].Visible then
+    fRenderUI.WriteText(NewLeft+EnsureRange(Round(fMinimap.Alerts[I].Loc.X*PaintWidth / fMinimap.MapX), LOC_RAD, PaintWidth-LOC_RAD),
+                        NewTop +EnsureRange(Round(fMinimap.Alerts[I].Loc.Y*PaintHeight / fMinimap.MapY), LOC_RAD, PaintHeight-LOC_RAD)-6,
+                        16, 16, fMinimap.Alerts[I].Text, fnt_Outline, taCenter);
 
   if (fMinimap = nil) or not fShowLocs then Exit;
 

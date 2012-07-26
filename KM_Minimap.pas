@@ -1,7 +1,7 @@
 unit KM_Minimap;
 {$I KaM_Remake.inc}
 interface
-uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, SysUtils,
+uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, StrUtils, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
   KM_MissionScript, KM_Render, KM_Terrain, KM_Alerts;
 
@@ -34,13 +34,10 @@ type
     constructor Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
+    property Alerts: TKMAlerts read fAlerts;
     property MapX: Word read fMapX;
     property MapY: Word read fMapY;
     property MapTex: TTexture read fMapTex;
-
-    function AlertsCount: Integer;
-    function Alert(aIndex: Integer): TKMAlert;
-    function ShowAlerts: Boolean;
 
     procedure LoadFromMission(aMissionPath: string);
     procedure LoadFromTerrain(aAlerts: TKMAlerts);
@@ -149,21 +146,6 @@ begin
                       Byte(EnsureRange(fResource.Tileset.TileColor[TileID].B+Light, 0, 255)) shl 16 or $FF000000;
         end;
     end;
-end;
-
-
-function TKMMinimap.Alert(aIndex: Integer): TKMAlert;
-begin
-  if (fPlayers.CheckAlliance(fAlerts[aIndex].Owner, MyPlayer.PlayerIndex) = at_Ally) then
-    Result := fAlerts[aIndex]
-  else
-    Result := nil;
-end;
-
-
-function TKMMinimap.AlertsCount: Integer;
-begin
-  Result := fAlerts.Count;
 end;
 
 
@@ -308,12 +290,6 @@ begin
     SaveStream.Write(PlayerColors[I]);
     SaveStream.Write(PlayerLocations[I]);
   end;
-end;
-
-
-function TKMMinimap.ShowAlerts: Boolean;
-begin
-  Result := fAlerts <> nil;
 end;
 
 

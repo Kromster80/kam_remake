@@ -65,7 +65,7 @@ type
     gic_RatioChange,
 
     //V.      Game changes
-    gic_GameAlert,            //Signal alert (beacon, fight)
+    gic_GameAlertBeacon,            //Signal alert (beacon, fight)
     gic_GamePause,
     gic_GameSave,
     gic_GameTeamChange,
@@ -142,7 +142,7 @@ type
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue:boolean); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aValue: AnsiString); overload;
     procedure CmdGame(aCommandType: TGameInputCommandType; aPlayer, aTeam:integer); overload;
-    procedure CmdGame(aCommandType: TGameInputCommandType; aType: Byte; aLoc: TKMPointF; aPlayer: TPlayerIndex); overload;
+    procedure CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aPlayer: TPlayerIndex); overload;
 
     procedure CmdTemp(aCommandType: TGameInputCommandType; aLoc: TKMPoint); overload;
     procedure CmdTemp(aCommandType: TGameInputCommandType); overload;
@@ -323,8 +323,8 @@ begin
                                     if fGame.Networking.IsHost then
                                       fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
                                   end;
-      gic_GameAlert:              begin
-                                    fGame.Alerts.AddAlert(TAlertType(Params[1]), KMPointF(Params[2]/10,Params[3]/10), Params[4]);
+      gic_GameAlertBeacon:              begin
+                                    fGame.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
                                   end;
       else                        Assert(false);
     end;
@@ -473,10 +473,10 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aType: Byte; aLoc: TKMPointF; aPlayer: TPlayerIndex);
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aLoc: TKMPointF; aPlayer: TPlayerIndex);
 begin
-  Assert(aCommandType = gic_GameAlert);
-  TakeCommand(MakeCommand(aCommandType, [aType, Round(aLoc.X * 10), Round(aLoc.Y * 10), aPlayer]));
+  Assert(aCommandType = gic_GameAlertBeacon);
+  TakeCommand(MakeCommand(aCommandType, [Round(aLoc.X * 10), Round(aLoc.Y * 10), aPlayer]));
 end;
 
 

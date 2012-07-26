@@ -233,7 +233,7 @@ begin
 
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
   fLog.AppendLog('<== Game creation is done ==>');
-  fAlerts := TKMAlerts.Create(@fGameTickCount);
+  fAlerts := TKMAlerts.Create(@fGameTickCount, fViewport);
   fEventsManager := TKMEventsManager.Create;
   fPathfinding := TPathfinding.Create;
   fProjectiles := TKMProjectiles.Create;
