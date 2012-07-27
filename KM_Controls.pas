@@ -248,6 +248,7 @@ type
     ImageAnchors: TAnchors;
     Highlight: Boolean;
     HighlightOnMouseOver: Boolean;
+    Lightness: Single;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
     property RX: TRXType read fRX write fRX;
     property TexID: Word read fTexID write fTexID;
@@ -1569,6 +1570,7 @@ procedure TKMImage.Paint;
 var
   OffsetX, OffsetY, DrawWidth, DrawHeight: SmallInt; //variable parameters
   StretchDraw: Boolean; //Check if the picture should be stretched
+  PaintLightness: Single;
 begin
   inherited;
   if fTexID = 0 then Exit; //No picture to draw
@@ -1603,10 +1605,12 @@ begin
   else
     OffsetY := (fHeight - GFXData[fRX, fTexID].PxHeight) div 2;
 
+  PaintLightness := Lightness + 0.33 * Byte((HighlightOnMouseOver and (csOver in State)) or Highlight);
+
   if StretchDraw then
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, fRX, fTexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight)
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, fRX, fTexID, fEnabled, PaintLightness)
   else
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, fRX, fTexID, fFlagColor, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, fRX, fTexID, fFlagColor, fEnabled, PaintLightness);
 end;
 
 

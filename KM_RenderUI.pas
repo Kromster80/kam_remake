@@ -14,8 +14,8 @@ type
     procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
-    procedure WritePicture      (PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; Highlight: Boolean = False); overload;
-    procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false); overload;
+    procedure WritePicture      (PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; aLightness: Single = 0); overload;
+    procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; aLightness: Single = 0); overload;
     procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
@@ -277,7 +277,7 @@ begin
 end;
 
 
-procedure TRenderUI.WritePicture(PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; Highlight: Boolean = False);
+procedure TRenderUI.WritePicture(PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; aLightness: Single = 0);
 begin
   if aID = 0 then Exit;
 
@@ -313,11 +313,14 @@ begin
       end;
 
       //Highlight for active/focused/mouseOver images
-      if Highlight then
+      if aLightness <> 0 then
       begin
         glBindTexture(GL_TEXTURE_2D, Tex.ID); //Replace AltID if it was used
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        glColor3f(0.5, 0.5, 0.5);
+        if aLightness > 0 then
+          glBlendFunc(GL_SRC_ALPHA, GL_ONE)
+        else
+          glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
+        glColor3f(aLightness, aLightness, aLightness);
         glBegin(GL_QUADS);
           glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0         ,0         );
           glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0+PxWidth ,0         );
@@ -334,7 +337,7 @@ end;
 
 
 {Stretched pic}
-procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false);
+procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; aLightness: Single = 0);
 begin
   if aID <> 0 then
   with GFXData[aRX, aID] do
@@ -351,10 +354,13 @@ begin
         glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(0      , 0+SizeY);
       glEnd;
 
-      if Highlight then
+      if aLightness <> 0 then
       begin
-        glBlendFunc(GL_DST_COLOR,GL_ONE);
-        glColor4f(0.5, 0.5, 0.5, 0.5);
+        if aLightness > 0 then
+          glBlendFunc(GL_SRC_ALPHA, GL_ONE)
+        else
+          glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(1, 1, 1, Abs(aLightness));
         glBegin(GL_QUADS);
           glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0      , 0      );
           glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0+SizeX, 0      );
