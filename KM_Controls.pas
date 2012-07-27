@@ -3876,6 +3876,14 @@ begin
   else
     fRenderUI.WriteBevel(NewLeft, NewTop, PaintWidth, PaintHeight);
 
+  //Paint alerts (under viewport rectangle)
+  if (fMinimap <> nil) and (fMinimap.Alerts <> nil) then
+  for I := 0 to fMinimap.Alerts.Count - 1 do
+  if fMinimap.Alerts[I].VisibleMinimap then
+    fRenderUI.WritePicture(NewLeft+EnsureRange(Round(fMinimap.Alerts[I].Loc.X*PaintWidth /  fMinimap.MapX), LOC_RAD, PaintWidth -LOC_RAD)+fMinimap.Alerts[I].TexOffset.X,
+                           NewTop +EnsureRange(Round(fMinimap.Alerts[I].Loc.Y*PaintHeight / fMinimap.MapY), LOC_RAD, PaintHeight-LOC_RAD)+fMinimap.Alerts[I].TexOffset.Y,
+                           rxGuiMain, fMinimap.Alerts[I].TexID, $00000000, True, abs((TimeGet mod 1000)/500 - 1)); //0..1..0..1..
+
   //Paint viewport rectangle
   if fView <> nil then
   begin
@@ -3886,14 +3894,6 @@ begin
                           Round((C.Right - C.Left)*PaintWidth / fMinimap.MapX),
                           Round((C.Bottom - C.Top)*PaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
   end;
-
-  //Paint alerts
-  if (fMinimap <> nil) and (fMinimap.Alerts <> nil) then
-  for I := 0 to fMinimap.Alerts.Count - 1 do
-  if fMinimap.Alerts[I].VisibleMinimap then
-    fRenderUI.WriteText(NewLeft+EnsureRange(Round(fMinimap.Alerts[I].Loc.X*PaintWidth / fMinimap.MapX), LOC_RAD, PaintWidth-LOC_RAD),
-                        NewTop +EnsureRange(Round(fMinimap.Alerts[I].Loc.Y*PaintHeight / fMinimap.MapY), LOC_RAD, PaintHeight-LOC_RAD)-6,
-                        16, 16, fMinimap.Alerts[I].Text, fnt_Outline, taCenter);
 
   if (fMinimap = nil) or not fShowLocs then Exit;
 

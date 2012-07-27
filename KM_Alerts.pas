@@ -15,7 +15,8 @@ type
     fLoc: TKMPointF;
     fOwner: TPlayerIndex;
   protected
-    function GetText: string; virtual; abstract;
+    function GetTexID: Word; virtual; abstract;
+    function GetTexOffset: TKMPointI; virtual; abstract;
     function GetVisibleMinimap: Boolean; virtual; abstract;
   public
     constructor Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
@@ -23,7 +24,8 @@ type
     property AlertType: TAlertType read fAlertType;
     property Loc: TKMPointF read fLoc;
     property Owner: TPlayerIndex read fOwner;
-    property Text: string read GetText;
+    property TexID: Word read GetTexID;
+    property TexOffset: TKMPointI read GetTexOffset;
     property VisibleMinimap: Boolean read GetVisibleMinimap;
 
     function IsExpired(aTick: Cardinal): Boolean;
@@ -59,7 +61,8 @@ uses KM_PlayersCollection, KM_RenderPool;
 type
   TKMAlertBeacon = class(TKMAlert)
   protected
-    function GetText: string; override;
+    function GetTexID: Word; override;
+    function GetTexOffset: TKMPointI; override;
     function GetVisibleMinimap: Boolean; override;
   public
     constructor Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
@@ -70,7 +73,8 @@ type
     fAsset: TAttackNotification; //What was attacked?
     fLastLookedAt: Byte;
   protected
-    function GetText: string; override;
+    function GetTexID: Word; override;
+    function GetTexOffset: TKMPointI; override;
     function GetVisibleMinimap: Boolean; override;
   public
     constructor Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aAsset: TAttackNotification; aTick: Cardinal);
@@ -117,9 +121,15 @@ begin
 end;
 
 
-function TKMAlertBeacon.GetText: string;
+function TKMAlertBeacon.GetTexOffset: TKMPointI;
 begin
-  Result := '!';
+  Result := KMPointI(0,0); //Temporary until we get a proper one
+end;
+
+
+function TKMAlertBeacon.GetTexID: Word;
+begin
+  Result := 32; //Temporary until we get a proper one
 end;
 
 
@@ -140,9 +150,15 @@ begin
 end;
 
 
-function TKMAlertAttacked.GetText: string;
+function TKMAlertAttacked.GetTexID: Word;
 begin
-  Result := 'x';
+  Result := 69;
+end;
+
+
+function TKMAlertAttacked.GetTexOffset: TKMPointI;
+begin
+  Result := KMPointI(-11,-7);
 end;
 
 
