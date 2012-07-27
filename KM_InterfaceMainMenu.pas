@@ -1578,11 +1578,13 @@ var I, Adv: Integer;
 begin
   Panel_Results := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Results.Stretch;
+    //Background image
     with TKMImage.Create(Panel_Results,0,0,Panel_Main.Width, Panel_Main.Height,7,rxGuiMain) do
     begin
       ImageStretch;
       Center;
     end;
+    //Fade to black by 62.5%
     with TKMShape.Create(Panel_Results,0,0,Panel_Main.Width+1, Panel_Main.Height+1) do
     begin
       Center;
@@ -1592,23 +1594,24 @@ begin
     Label_Results := TKMLabel.Create(Panel_Results,512,140,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_Results.Anchors := [akLeft];
 
-    with TKMImage.Create(Panel_Results, 10, 190, 370, 360, 3, rxGuiMain) do
-    begin
-      ImageStretch;
-      Center;
-    end;
-
-    Panel_Stats := TKMPanel.Create(Panel_Results, 30, 200, 320, 400);
+    Panel_Stats := TKMPanel.Create(Panel_Results, 30, 200, 360, 370);
     Panel_Stats.Anchors := [akLeft];
 
-    Adv := 0;
-    for I := 1 to 9 do
-    begin
-      inc(Adv, 25);
-      if I in [3,6,7,9] then inc(Adv, 15);
-      TKMLabel.Create(Panel_Stats,0,Adv,240,20,fTextLibrary[StatText[I]],fnt_Metal,taLeft);
-      Label_Stat[I] := TKMLabel.Create(Panel_Stats,320,Adv,80,20,'00',fnt_Metal,taRight);
-    end;
+      //Backplate for column results
+      with TKMImage.Create(Panel_Stats, 0, 0, 360, 370, 3, rxGuiMain) do
+      begin
+        ImageStretch;
+        Center;
+      end;
+
+      Adv := 0;
+      for I := 1 to 9 do
+      begin
+        inc(Adv, 25);
+        if I in [3,6,7,9] then inc(Adv, 15);
+        TKMLabel.Create(Panel_Stats,20,Adv,240,20,fTextLibrary[StatText[I]],fnt_Metal,taLeft);
+        Label_Stat[I] := TKMLabel.Create(Panel_Stats,340,Adv,80,20,'00',fnt_Metal,taRight);
+      end;
 
     if DISPLAY_CHARTS_RESULT then
     begin
