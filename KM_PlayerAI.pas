@@ -650,7 +650,8 @@ begin
   case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
       begin
-        fGame.Alerts.AddFight(KMPointF(aHouse.GetPosition), fPlayerIndex, an_Town);
+        if not fGame.IsReplay then
+          fGame.Alerts.AddFight(KMPointF(aHouse.GetPosition), fPlayerIndex, an_Town);
       end;
     pt_Computer:
       RetaliateAgainstThreat(aAttacker);
@@ -665,7 +666,8 @@ const
 begin
   case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
-      fGame.Alerts.AddFight(aUnit.PositionF, fPlayerIndex, NotifyKind[aUnit is TKMUnitWarrior]);
+      if not fGame.IsReplay then
+        fGame.Alerts.AddFight(aUnit.PositionF, fPlayerIndex, NotifyKind[aUnit is TKMUnitWarrior]);
     pt_Computer:
       begin
         //If we are attacked, then we should counter attack the attacker!

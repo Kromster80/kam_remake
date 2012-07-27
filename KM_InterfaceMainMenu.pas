@@ -841,16 +841,9 @@ begin
     TKMLabel.Create(Panel_MainMenu, 512, 300,   0,   0, 'Remake', fnt_Metal, taCenter);
 
     with TKMImage.Create(Panel_MainMenu,  50, 220, round(218*1.3), round(291*1.3), 5, rxGuiMain) do
-    begin
-//@Lewin: Please remove
       ImageStretch;
-      Lightness := -0.951;
-    end;
     with TKMImage.Create(Panel_MainMenu, 705, 220, round(207*1.3), round(295*1.3), 6, rxGuiMain) do
-    begin
       ImageStretch;
-      Lightness := 0.951;
-    end;
 
     Panel_MMButtons := TKMPanel.Create(Panel_MainMenu, 337, 340, 350, 400);
       Button_MM_SinglePlayer := TKMButton.Create(Panel_MMButtons,0,  0,350,30,fTextLibrary[TX_MENU_SINGLEPLAYER],fnt_Metal,bsMenu);

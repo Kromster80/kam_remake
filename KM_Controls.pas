@@ -1605,7 +1605,7 @@ begin
   else
     OffsetY := (fHeight - GFXData[fRX, fTexID].PxHeight) div 2;
 
-  PaintLightness := Lightness + 0.33 * Byte((HighlightOnMouseOver and (csOver in State)) or Highlight);
+  PaintLightness := Lightness + 0.4 * (Byte(HighlightOnMouseOver and (csOver in State)) + Byte(Highlight));
 
   if StretchDraw then
     fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, fRX, fTexID, fEnabled, PaintLightness)
@@ -3882,7 +3882,7 @@ begin
   if fMinimap.Alerts[I].VisibleMinimap then
     fRenderUI.WritePicture(NewLeft+EnsureRange(Round(fMinimap.Alerts[I].Loc.X*PaintWidth /  fMinimap.MapX), LOC_RAD, PaintWidth -LOC_RAD)+fMinimap.Alerts[I].TexOffset.X,
                            NewTop +EnsureRange(Round(fMinimap.Alerts[I].Loc.Y*PaintHeight / fMinimap.MapY), LOC_RAD, PaintHeight-LOC_RAD)+fMinimap.Alerts[I].TexOffset.Y,
-                           rxGuiMain, fMinimap.Alerts[I].TexID, $00000000, True, abs((TimeGet mod 1000)/500 - 1)); //0..1..0..1..
+                           rxGui, fMinimap.Alerts[I].TexID, $00000000, True, abs((TimeGet mod 1000)/500 - 1)); //0..1..0..1..
 
   //Paint viewport rectangle
   if fView <> nil then

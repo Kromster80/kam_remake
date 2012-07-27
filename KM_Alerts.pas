@@ -123,15 +123,15 @@ begin
 end;
 
 
-function TKMAlertBeacon.GetTexOffset: TKMPointI;
+function TKMAlertBeacon.GetTexID: Word;
 begin
-  Result := KMPointI(0,0); //Temporary until we get a proper one
+  Result := 53; //Temporary until we get a proper one
 end;
 
 
-function TKMAlertBeacon.GetTexID: Word;
+function TKMAlertBeacon.GetTexOffset: TKMPointI;
 begin
-  Result := 32; //Temporary until we get a proper one
+  Result := KMPointI(-11,-7); //Temporary until we get a proper one
 end;
 
 
@@ -154,7 +154,7 @@ end;
 
 function TKMAlertAttacked.GetTexID: Word;
 begin
-  Result := 69;
+  Result := 53;
 end;
 
 

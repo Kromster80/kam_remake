@@ -323,9 +323,8 @@ begin
                                     if fGame.Networking.IsHost then
                                       fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
                                   end;
-      gic_GameAlertBeacon:              begin
+      gic_GameAlertBeacon:        if fReplayState = gipRecording then //Beacons don't show up in replay
                                     fGame.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
-                                  end;
       else                        Assert(false);
     end;
   end;
