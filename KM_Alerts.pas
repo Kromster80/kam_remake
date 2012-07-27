@@ -136,7 +136,7 @@ begin
   inherited Create(atFight, aLoc, aOwner, aTick);
 
   fAsset := aAsset;
-  fLastLookedAt := High(Byte);
+  fLastLookedAt := High(Byte) - 1;
 end;
 
 
