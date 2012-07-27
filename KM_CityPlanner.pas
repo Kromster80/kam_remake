@@ -191,9 +191,10 @@ var
   S: TKMHouse;
   I, K: Integer;
   Bid, BestBid: Single;
-  StoreLoc: TKMPoint;
+  Tmp, StoreLoc: TKMPoint;
   TreeLoc: TKMPointDir;
-  TA: TPlantAct;
+  Trees: TKMPointDirList;
+  Stumps,Empty: TKMPointList;
 begin
   Result := False;
 
@@ -202,9 +203,19 @@ begin
 
   StoreLoc := S.GetPosition;
 
-  //todo: FindTrees has changed, not sure how it fits in here anymore...
-  Exit;
-  //if not fTerrain.FindTree(KMPointBelow(S.GetPosition), 20, KMPoint(0,0), taAny, TreeLoc, TA) then Exit;
+  Trees := TKMPointDirList.Create;
+  Stumps := TKMPointList.Create;
+  Empty := TKMPointList.Create;
+  fTerrain.FindTree(KMPointBelow(S.GetPosition), 20, KMPoint(0,0), taAny, Trees, Stumps, Empty);
+  if not Trees.GetRandom(TreeLoc) then
+  begin
+    if not Stumps.GetRandom(Tmp) then
+      if not Empty.GetRandom(Tmp) then Exit;
+    TreeLoc := KMPointDir(Tmp,Dir_NA);
+  end;
+  Trees.Free;
+  Stumps.Free;
+  Empty.Free;
 
   BestBid := MaxSingle;
 

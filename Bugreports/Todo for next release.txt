@@ -11,12 +11,12 @@ Must be done:
  +	Finish custom campaign support
  +	Add new music tracks Market and Household
  +	Block market in original missions through script not code hack [Lewin]
+ +	Fixed TKMCityPlanner.NextToTrees (broken during FindTree refactoring)
 	Finish charts
 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Alerts on the minimap when a unit/house is under attack
 	Update readme with changed info (shortcuts, missing features)
 	Add new maps and maybe delete some existing ones based on quality and popularity
-	Fixed TKMCityPlanner.NextToTrees (broken during FindTree refactoring)
  -	Check if we can use smoothing when scaling menu images up/down [Krom] (can't be done without adding mipmaps and that will bloat textures size by 1/3)
 
 
