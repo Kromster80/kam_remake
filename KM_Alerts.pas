@@ -32,9 +32,11 @@ type
     procedure Update(const aView: TKMRect); virtual;
   end;
 
-  //Alerts collection
-  //Alerts are quick signals in game typically showing for 3-5sec
-  //Because of that they don't need to be saved between game sessions
+  //Alerts are signals in game that draw Players attention to something,
+  //Unlike simple messages that are fired-and-forget, alerts do have a lifespan
+  //and some interaction with e.g. Viewport
+  //Alerts are not saved between game sessions because by nature they are short
+  //lived and last only a few seconds
   TKMAlerts = class
   private
     fTickCounter: PCardinal;
