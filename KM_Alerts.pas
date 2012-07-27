@@ -16,7 +16,7 @@ type
     fOwner: TPlayerIndex;
   protected
     function GetText: string; virtual; abstract;
-    function GetVisible: Boolean; virtual; abstract;
+    function GetVisibleMinimap: Boolean; virtual; abstract;
   public
     constructor Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
 
@@ -24,33 +24,10 @@ type
     property Loc: TKMPointF read fLoc;
     property Owner: TPlayerIndex read fOwner;
     property Text: string read GetText;
-    property Visible: Boolean read GetVisible;
+    property VisibleMinimap: Boolean read GetVisibleMinimap;
 
     function IsExpired(aTick: Cardinal): Boolean;
     procedure Update(const aView: TKMRect); virtual;
-  end;
-
-  TKMAlertBeacon = class(TKMAlert)
-  protected
-    function GetText: string; override;
-    function GetVisible: Boolean; override;
-  public
-    constructor Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
-  end;
-
-  TKMAlertFight = class(TKMAlert)
-  private
-    fAsset: TAttackNotification; //What was attacked?
-    fLastLookedAt: Byte;
-    fLastReadAbout: Byte;
-  protected
-    function GetText: string; override;
-    function GetVisible: Boolean; override;
-  public
-    constructor Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aAsset: TAttackNotification; aTick: Cardinal);
-    property Asset: TAttackNotification read fAsset;
-    procedure Refresh(aTick: Cardinal);
-    procedure Update(const aView: TKMRect); override;
   end;
 
   //Alerts collection
@@ -78,10 +55,35 @@ type
 implementation
 uses KM_PlayersCollection, KM_RenderPool;
 
+
+type
+  TKMAlertBeacon = class(TKMAlert)
+  protected
+    function GetText: string; override;
+    function GetVisibleMinimap: Boolean; override;
+  public
+    constructor Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
+  end;
+
+  TKMAlertAttacked = class(TKMAlert)
+  private
+    fAsset: TAttackNotification; //What was attacked?
+    fLastLookedAt: Byte;
+  protected
+    function GetText: string; override;
+    function GetVisibleMinimap: Boolean; override;
+  public
+    constructor Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aAsset: TAttackNotification; aTick: Cardinal);
+    property Asset: TAttackNotification read fAsset;
+    procedure Refresh(aTick: Cardinal);
+    procedure Update(const aView: TKMRect); override;
+  end;
+
+
 const
-  BEACON_DURATION: array [TAlertType] of Byte = (35, 30); //Typical beacon duration after which it will be gone
+  ALERT_DURATION: array [TAlertType] of Byte = (35, 60); //Typical beacon duration after which it will be gone
   FIGHT_DISTANCE = 24; //Fights this far apart are treated as separate
-  FIGHT_REFRESHRATE = 30;
+  INTERVAL_ATTACKED_MSG = 20; //Time between audio messages saying you are being attacked
 
 
 { TKMAlert }
@@ -92,7 +94,7 @@ begin
   fAlertType := aAlertType;
   fLoc := aLoc;
   fOwner := aOwner;
-  fExpiration := aTick + BEACON_DURATION[fAlertType];
+  fExpiration := aTick + ALERT_DURATION[fAlertType];
 end;
 
 
@@ -121,7 +123,7 @@ begin
 end;
 
 
-function TKMAlertBeacon.GetVisible: Boolean;
+function TKMAlertBeacon.GetVisibleMinimap: Boolean;
 begin
   //Beacons placed by player are always visible until expired
   Result := True;
@@ -129,50 +131,55 @@ end;
 
 
 { TKMAlertFight }
-constructor TKMAlertFight.Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aAsset: TAttackNotification; aTick: Cardinal);
+constructor TKMAlertAttacked.Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aAsset: TAttackNotification; aTick: Cardinal);
 begin
   inherited Create(atFight, aLoc, aOwner, aTick);
 
   fAsset := aAsset;
   fLastLookedAt := High(Byte);
-  fLastReadAbout := High(Byte);
 end;
 
 
-function TKMAlertFight.GetText: string;
+function TKMAlertAttacked.GetText: string;
 begin
   Result := 'x';
 end;
 
 
-function TKMAlertFight.GetVisible: Boolean;
+function TKMAlertAttacked.GetVisibleMinimap: Boolean;
 begin
   //UnderAttack alerts are visible only when not looked at
   //When looked at alert is muted for the next 20sec
-  Result := fLastLookedAt > FIGHT_REFRESHRATE;
+  Result := fLastLookedAt >= INTERVAL_ATTACKED_MSG;
 end;
 
 
-procedure TKMAlertFight.Refresh(aTick: Cardinal);
+procedure TKMAlertAttacked.Refresh(aTick: Cardinal);
 begin
-  fExpiration := aTick + BEACON_DURATION[fAlertType];
+  fExpiration := aTick + ALERT_DURATION[fAlertType];
 end;
 
 
-procedure TKMAlertFight.Update(const aView: TKMRect);
+procedure TKMAlertAttacked.Update(const aView: TKMRect);
 begin
   inherited;
 
-  //If alerts gets into view - mute it. Alert will be unmuted when going out of view
+  //If alerts gets into view - mute it.
+  //Alert will be unmuted when going out of view
   if KMInRect(fLoc, aView) then
-  begin
-    fLastLookedAt := 0;
-    fLastReadAbout := 0;
-  end
+    fLastLookedAt := 0
   else
   begin
-    fLastLookedAt := Min(fLastLookedAt + 1, High(Byte));
-    fLastReadAbout := Min(fLastReadAbout + 1, High(Byte));
+    Inc(fLastLookedAt);
+
+    //Alert is automatically repeated
+    if fLastLookedAt >= INTERVAL_ATTACKED_MSG * 2 then
+      fLastLookedAt := INTERVAL_ATTACKED_MSG;
+
+    //Make the sound
+    if (fOwner = MyPlayer.PlayerIndex)
+    and (fLastLookedAt = INTERVAL_ATTACKED_MSG) then
+      fSoundLib.PlayNotification(fAsset);
   end;
 end;
 
@@ -225,8 +232,8 @@ var
 begin
   //Check previous alerts and see if there's one like that already
   for I := 0 to fList.Count - 1 do
-    if Items[I] is TKMAlertFight then
-      with TKMAlertFight(Items[I]) do
+    if Items[I] is TKMAlertAttacked then
+      with TKMAlertAttacked(Items[I]) do
         if (Owner = aPlayer) and (Asset = aAsset)
         and (GetLength(Loc, aLoc) < FIGHT_DISTANCE) then
         begin
@@ -235,7 +242,7 @@ begin
         end;
 
   //Otherwise create a new alert
-  fList.Add(TKMAlertFight.Create(aLoc, aPlayer, aAsset, fTickCounter^));
+  fList.Add(TKMAlertAttacked.Create(aLoc, aPlayer, aAsset, fTickCounter^));
 end;
 
 

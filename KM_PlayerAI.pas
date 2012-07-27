@@ -32,7 +32,6 @@ type //For now IDs must match with KaM
     fPlayerIndex: TPlayerIndex;
     fMayor: TKMayor;
 
-    fTimeOfLastAttackMessage: cardinal;
     fLastEquippedTime: cardinal;
     fHasWonOrLost: boolean; //Has this player won/lost? If so, do not check goals
     fAttacks: TAIAttacks;
@@ -168,7 +167,6 @@ begin
   fPlayerIndex := aPlayerIndex;
   fMayor := TKMayor.Create(fPlayerIndex);
   fHasWonOrLost := false;
-  fTimeOfLastAttackMessage := 0;
   DefencePositionsCount := 0;
 
   fAttacks := TAIAttacks.Create;
@@ -652,16 +650,7 @@ begin
   case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
       begin
-        if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
-        begin
-          //Process anyway for multiplayer consistency
-          //(and it is desired behaviour: if player saw attack,
-          //don't notify him as soon as he looks away)
-          fTimeOfLastAttackMessage := fGame.GameTickCount;
-          if (MyPlayer = fPlayers[fPlayerIndex])
-          and not KMInRect(aHouse.GetPosition, fGame.Viewport.GetMinimapClip) then
-            fSoundLib.PlayNotification(an_Town);
-        end;
+        fGame.Alerts.AddFight(KMPointF(aHouse.GetPosition), fPlayerIndex, an_Town);
       end;
     pt_Computer:
       RetaliateAgainstThreat(aAttacker);
@@ -671,23 +660,12 @@ end;
 
 //aUnit is our unit that was attacked
 procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnitWarrior);
+const
+  NotifyKind: array [Boolean] of TAttackNotification = (an_Citizens, an_Troops);
 begin
   case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
-      fGame.Alerts.AddFight(aUnit.PositionF, fPlayerIndex, an_Troops);
-
-      {if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
-      begin
-        fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
-        if (MyPlayer = fPlayers[fPlayerIndex])
-        and not KMInRect(aUnit.GetPosition, fGame.Viewport.GetMinimapClip) then
-        begin
-          if aUnit is TKMUnitWarrior then
-            fSoundLib.PlayNotification(an_Troops)
-          else
-            fSoundLib.PlayNotification(an_Citizens);
-        end;
-      end;}
+      fGame.Alerts.AddFight(aUnit.PositionF, fPlayerIndex, NotifyKind[aUnit is TKMUnitWarrior]);
     pt_Computer:
       begin
         //If we are attacked, then we should counter attack the attacker!
@@ -724,18 +702,12 @@ begin
   SaveStream.Write('PlayerAI');
   SaveStream.Write(fPlayerIndex);
   SaveStream.Write(fHasWonOrLost);
-  SaveStream.Write(fTimeOfLastAttackMessage);
   SaveStream.Write(fLastEquippedTime);
-  //SaveStream.Write(ReqWorkers);
-//  SaveStream.Write(ReqSerfFactor);
-//  SaveStream.Write(ReqRecruits);
   SaveStream.Write(EquipRate);
-//  SaveStream.Write(RecruitTrainTimeout);
   SaveStream.Write(TownDefence);
   SaveStream.Write(MaxSoldiers);
   SaveStream.Write(Aggressiveness);
   SaveStream.Write(StartPosition);
-  //SaveStream.Write(fAutobuild);
   SaveStream.Write(TroopFormations, SizeOf(TroopFormations));
   SaveStream.Write(DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
@@ -752,18 +724,12 @@ begin
   LoadStream.ReadAssert('PlayerAI');
   LoadStream.Read(fPlayerIndex);
   LoadStream.Read(fHasWonOrLost);
-  LoadStream.Read(fTimeOfLastAttackMessage);
   LoadStream.Read(fLastEquippedTime);
-//  LoadStream.Read(ReqWorkers);
-//  LoadStream.Read(ReqSerfFactor);
-//  LoadStream.Read(ReqRecruits);
   LoadStream.Read(EquipRate);
-//  LoadStream.Read(RecruitTrainTimeout);
   LoadStream.Read(TownDefence);
   LoadStream.Read(MaxSoldiers);
   LoadStream.Read(Aggressiveness);
   LoadStream.Read(StartPosition);
-  //LoadStream.Read(fAutobuild);
   LoadStream.Read(TroopFormations, SizeOf(TroopFormations));
   LoadStream.Read(DefencePositionsCount);
   SetLength(DefencePositions, DefencePositionsCount);
