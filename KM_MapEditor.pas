@@ -65,7 +65,7 @@ end;
 function TKMMapEditor.TileDeposit(aMat: TRawDeposit; X,Y: Word): Byte;
 begin
   case aMat of
-    rdStone: Result := fTerrain.TileIsStone(X+1, Y+1);
+    rdStone: Result := 3*fTerrain.TileIsStone(X+1, Y+1); //3 stone produced by each time
     rdCoal:  Result := fTerrain.TileIsCoal(X+1, Y+1);
     rdIron:  Result := fTerrain.TileIsIron(X+1, Y+1);
     rdGold:  Result := fTerrain.TileIsGold(X+1, Y+1);

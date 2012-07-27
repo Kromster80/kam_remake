@@ -79,6 +79,7 @@ type
       Button_PlayerSelect:array[0..MAX_PLAYERS-1]of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint:TKMLabel;
       Label_MatAmount: TKMLabel;
+      Rectangle_MatAmount: TKMShape;
     Panel_Common:TKMPanel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu below
@@ -410,6 +411,10 @@ begin
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
 
     Label_MatAmount := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Metal, taCenter);
+    Rectangle_MatAmount := TKMShape.Create(Panel_Main,0,0,80,20);
+    Rectangle_MatAmount.LineWidth := 2;
+    Rectangle_MatAmount.LineColor := $F000FF00;
+    Rectangle_MatAmount.FillColor := $80000000;
 
     TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
     TKMImage.Create(Panel_Main,0, 200,224,400,404);
@@ -942,6 +947,8 @@ var
   R: TRawDeposit;
 begin
   //if fShowRawMaterials then
+  Label_MatAmount.Show; //Only make it visible while we need it
+  Rectangle_MatAmount.Show;
   for R := Low(TRawDeposit) to High(TRawDeposit) do
     for I := 0 to fGame.MapEditor.AreaCount[R] - 1 do
     begin
@@ -956,11 +963,18 @@ begin
       LocX := LocX - 20;
       LocY := LocY - Round(fTerrain.HeightAt(X, Y)) - 30;
 
+      //Paint the background
+      Rectangle_MatAmount.Width := 10 + 10*Length(Label_MatAmount.Caption);
+      Rectangle_MatAmount.Left := LocX - Rectangle_MatAmount.Width div 2;
+      Rectangle_MatAmount.Top := LocY-3;
+      Rectangle_MatAmount.Paint;
+      //Paint the label on top of the background
       Label_MatAmount.Left := LocX;
       Label_MatAmount.Top := LocY;
       Label_MatAmount.Paint;
     end;
-
+  Label_MatAmount.Hide; //Only make it visible while we need it
+  Rectangle_MatAmount.Hide;
   inherited;
 end;
 
