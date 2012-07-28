@@ -2,7 +2,7 @@ unit KM_Alerts;
 {$I KaM_Remake.inc}
 interface
 uses Classes, Math, SysUtils,
-  KM_Defaults, KM_Points, KM_Sound, KM_Viewport;
+  KM_Defaults, KM_Pics, KM_Points, KM_Sound, KM_Viewport;
 
 
 type
@@ -15,18 +15,22 @@ type
     fLoc: TKMPointF;
     fOwner: TPlayerIndex;
   protected
-    function GetTexID: Word; virtual; abstract;
+    function GetTexMinimap: TKMPic; virtual; abstract;
     function GetTexOffset: TKMPointI; virtual; abstract;
+    function GetTexTerrain: TKMPic; virtual; abstract;
     function GetVisibleMinimap: Boolean; virtual; abstract;
+    function GetVisibleTerrain: Boolean; virtual; abstract;
   public
     constructor Create(aAlertType: TAlertType; aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
 
     property AlertType: TAlertType read fAlertType;
     property Loc: TKMPointF read fLoc;
     property Owner: TPlayerIndex read fOwner;
-    property TexID: Word read GetTexID;
+    property TexMinimap: TKMPic read GetTexMinimap;
     property TexOffset: TKMPointI read GetTexOffset;
+    property TexTerrain: TKMPic read GetTexTerrain;
     property VisibleMinimap: Boolean read GetVisibleMinimap;
+    property VisibleTerrain: Boolean read GetVisibleTerrain;
 
     function IsExpired(aTick: Cardinal): Boolean;
     procedure Update(const aView: TKMRect); virtual;
@@ -61,11 +65,14 @@ uses KM_PlayersCollection, KM_RenderPool;
 
 
 type
+  //These classes are only accessed locally, hence they aren't interfaced
   TKMAlertBeacon = class(TKMAlert)
   protected
-    function GetTexID: Word; override;
+    function GetTexMinimap: TKMPic; override;
     function GetTexOffset: TKMPointI; override;
+    function GetTexTerrain: TKMPic; override;
     function GetVisibleMinimap: Boolean; override;
+    function GetVisibleTerrain: Boolean; override;
   public
     constructor Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aTick: Cardinal);
   end;
@@ -75,9 +82,11 @@ type
     fAsset: TAttackNotification; //What was attacked?
     fLastLookedAt: Byte;
   protected
-    function GetTexID: Word; override;
+    function GetTexMinimap: TKMPic; override;
     function GetTexOffset: TKMPointI; override;
+    function GetTexTerrain: TKMPic; override;
     function GetVisibleMinimap: Boolean; override;
+    function GetVisibleTerrain: Boolean; override;
   public
     constructor Create(aLoc: TKMPointF; aOwner: TPlayerIndex; aAsset: TAttackNotification; aTick: Cardinal);
     property Asset: TAttackNotification read fAsset;
@@ -123,9 +132,10 @@ begin
 end;
 
 
-function TKMAlertBeacon.GetTexID: Word;
+function TKMAlertBeacon.GetTexMinimap: TKMPic;
 begin
-  Result := 53; //Temporary until we get a proper one
+  Result.RX := rxGui;
+  Result.ID := 53; //Temporary until we get a proper one
 end;
 
 
@@ -135,9 +145,22 @@ begin
 end;
 
 
+function TKMAlertBeacon.GetTexTerrain: TKMPic;
+begin
+  Result.RX := rxGui;
+  Result.ID := 54;
+end;
+
+
 function TKMAlertBeacon.GetVisibleMinimap: Boolean;
 begin
   //Beacons placed by player are always visible until expired
+  Result := True;
+end;
+
+
+function TKMAlertBeacon.GetVisibleTerrain: Boolean;
+begin
   Result := True;
 end;
 
@@ -152,9 +175,10 @@ begin
 end;
 
 
-function TKMAlertAttacked.GetTexID: Word;
+function TKMAlertAttacked.GetTexMinimap: TKMPic;
 begin
-  Result := 53;
+  Result.RX := rxGui;
+  Result.ID := 53;
 end;
 
 
@@ -164,11 +188,25 @@ begin
 end;
 
 
+function TKMAlertAttacked.GetTexTerrain: TKMPic;
+begin
+  //Has no sprite on terrain
+  Result.RX := rxTrees;
+  Result.ID := 0;
+end;
+
+
 function TKMAlertAttacked.GetVisibleMinimap: Boolean;
 begin
   //UnderAttack alerts are visible only when not looked at
   //When looked at alert is muted for the next 20sec
   Result := fLastLookedAt >= INTERVAL_ATTACKED_MSG;
+end;
+
+
+function TKMAlertAttacked.GetVisibleTerrain: Boolean;
+begin
+  Result := False;
 end;
 
 
@@ -237,13 +275,28 @@ begin
 end;
 
 
+//Ally has placed a beacon for ue
 procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: TPlayerIndex);
+  function GetBeaconCount: Byte;
+  var
+    I: Integer;
+  begin
+    Result := 0;
+    for I := 0 to fList.Count - 1 do
+      if (Items[I].AlertType = atBeacon)
+      and (Items[I].Owner = aOwner) then
+        Inc(Result);
+  end;
+
 begin
+  //Check if there are already too many beacons
+  if GetBeaconCount > 3 then Exit;
+
   fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, fTickCounter^));
 end;
 
 
-//Player signals that he is under attack
+//Player belongings signal that they are under attack
 procedure TKMAlerts.AddFight(aLoc: TKMPointF; aPlayer: TPlayerIndex; aAsset: TAttackNotification);
 var
   I: Integer;
@@ -271,13 +324,11 @@ var
 begin
   R := fViewport.GetMinimapClip;
 
-  //Only player placed beacons are shown on map
-  //Fight alerts are shown only on minimap
   for I := 0 to fList.Count - 1 do
-    if KMInRect(Items[I].Loc, R)
-    and (Items[I].AlertType = atBeacon)
+    if Items[I].VisibleTerrain
+    and KMInRect(Items[I].Loc, R)
     and (fPlayers.CheckAlliance(Items[I].Owner, MyPlayer.PlayerIndex) = at_Ally) then
-      fRenderPool.AddAlert(Items[I].Loc, 340);
+      fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, fPlayers[Items[I].Owner].FlagColor);
 end;
 
 

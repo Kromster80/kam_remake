@@ -492,7 +492,7 @@ begin
     Menu_Save_EditChange(nil);
 
   if (Sender = fSaves) then
-    for i:=0 to fSaves.Count-1 do
+    for I := 0 to fSaves.Count - 1 do
       List_Save.Add(fSaves[i].FileName);
 
   List_Save.ItemIndex := fSave_Selected;
@@ -516,7 +516,7 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Load_ListClick(Sender: TObject);
 begin
-  Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1)
+  Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count - 1)
                          and fSaves[List_Load.ItemIndex].IsValid;
   if InRange(List_Load.ItemIndex,0,fSaves.Count-1) then
   begin

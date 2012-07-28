@@ -73,7 +73,7 @@ type
     constructor Create(aRender: TRender);
     destructor Destroy; override;
 
-    procedure AddAlert(aLoc: TKMPointF; aID: Word);
+    procedure AddAlert(aLoc: TKMPointF; aID: Word; aFlagColor: TColor4);
     procedure AddProjectile(aProj: TProjectileType; aRenderPos, aTilePos: TKMPointF; aDir: TKMDirection; aFlight: Single);
     procedure AddHouseTablet(aHouse: THouseType; Loc: TKMPoint);
     procedure AddHouseBuildSupply(aHouse: THouseType; Loc: TKMPoint; Wood,Stone: Byte);
@@ -365,12 +365,17 @@ end;
 
 
 //Render alert
-procedure TRenderPool.AddAlert(aLoc: TKMPointF; aID: Word);
+procedure TRenderPool.AddAlert(aLoc: TKMPointF; aID: Word; aFlagColor: TColor4);
+var
+  CornerX, CornerY: Single;
+  R: TRXData;
 begin
-  fRenderList.AddSpriteG(rxGui, aID,
-        aLoc.X,
-        aLoc.Y - fTerrain.HeightAt(aLoc.X, aLoc.Y) / CELL_HEIGHT_DIV,
-        aLoc.X, aLoc.Y);
+  R := fRXData[rxGui];
+
+  CornerX := aLoc.X + R.Pivot[aID].X / CELL_SIZE_PX;
+  CornerY := aLoc.Y - fTerrain.HeightAt(aLoc.X, aLoc.Y) / CELL_HEIGHT_DIV;
+
+  fRenderList.AddSpriteG(rxGui, aID, CornerX, CornerY, aLoc.X, aLoc.Y, aFlagColor);
 end;
 
 

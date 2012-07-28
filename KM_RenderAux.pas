@@ -13,18 +13,18 @@ type
     procedure RenderLine(x1,y1,x2,y2:single);
     procedure RenderQuad(pX,pY:integer);
   public
-    procedure Circle(x,y,rad:single; Fill,Line:TColor4);
+    procedure Circle(x,y,rad: Single; Fill,Line: TColor4);
     procedure CircleOnTerrain(X, Y, Rad: Single; Fill, Line: TColor4);
-    procedure Dot(X,Y:single; aCol:TColor4);
-    procedure DotOnTerrain(X,Y:single; aCol:TColor4);
+    procedure Dot(X,Y: Single; aCol: TColor4);
+    procedure DotOnTerrain(X,Y: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Integer);
-    procedure Projectile(x1,y1,x2,y2:single);
-    procedure Quad(pX,pY:integer; aCol:TColor4);
+    procedure Projectile(x1,y1,x2,y2: Single);
+    procedure Quad(pX,pY: Integer; aCol: TColor4);
     procedure SquareOnTerrain(X1, Y1, X2, Y2: Single; Fill, Line: TColor4);
-    procedure Text(pX, pY: Integer; const aText: AnsiString; aCol: TColor4);
+    procedure Text(pX, pY: Integer; const aText: string; aCol: TColor4);
     procedure UnitMoves(aRect: TKMRect);
-    procedure UnitPointers(pX,pY:single; Count:integer);
-    procedure UnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
+    procedure UnitPointers(pX,pY: Single; Count: Integer);
+    procedure UnitRoute(NodeList: TKMPointList; Pos: Integer; aUnitType: Byte);
     procedure Wires(aRect: TKMRect);
   end;
 
@@ -182,11 +182,11 @@ begin
 end;
 
 
-procedure TRenderAux.Text(pX, pY: Integer; const aText: AnsiString; aCol: TColor4);
+procedure TRenderAux.Text(pX, pY: Integer; const aText: string; aCol: TColor4);
 begin
   glColor4ubv(@aCol);
   glRasterPos2f(pX - 0.5, pY - 0.5 - fTerrain.HeightAt(pX-0.5, pY-0.5) / CELL_HEIGHT_DIV);
-  glPrint(aText);
+  glPrint(AnsiString(aText));
 end;
 
 
