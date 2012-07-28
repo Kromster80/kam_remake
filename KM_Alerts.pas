@@ -16,8 +16,9 @@ type
     fOwner: TPlayerIndex;
   protected
     function GetTexMinimap: TKMPic; virtual; abstract;
-    function GetTexOffset: TKMPointI; virtual; abstract;
+    function GetTexMinimapOffset: TKMPointI; virtual; abstract;
     function GetTexTerrain: TKMPic; virtual; abstract;
+    function GetTeamColor: Cardinal; virtual; abstract;
     function GetVisibleMinimap: Boolean; virtual; abstract;
     function GetVisibleTerrain: Boolean; virtual; abstract;
   public
@@ -27,8 +28,9 @@ type
     property Loc: TKMPointF read fLoc;
     property Owner: TPlayerIndex read fOwner;
     property TexMinimap: TKMPic read GetTexMinimap;
-    property TexOffset: TKMPointI read GetTexOffset;
+    property TexMinimapOffset: TKMPointI read GetTexMinimapOffset;
     property TexTerrain: TKMPic read GetTexTerrain;
+    property TeamColor: Cardinal read GetTeamColor;
     property VisibleMinimap: Boolean read GetVisibleMinimap;
     property VisibleTerrain: Boolean read GetVisibleTerrain;
 
@@ -69,8 +71,9 @@ type
   TKMAlertBeacon = class(TKMAlert)
   protected
     function GetTexMinimap: TKMPic; override;
-    function GetTexOffset: TKMPointI; override;
+    function GetTexMinimapOffset: TKMPointI; override;
     function GetTexTerrain: TKMPic; override;
+    function GetTeamColor: Cardinal; override;
     function GetVisibleMinimap: Boolean; override;
     function GetVisibleTerrain: Boolean; override;
   public
@@ -83,8 +86,9 @@ type
     fLastLookedAt: Byte;
   protected
     function GetTexMinimap: TKMPic; override;
-    function GetTexOffset: TKMPointI; override;
+    function GetTexMinimapOffset: TKMPointI; override;
     function GetTexTerrain: TKMPic; override;
+    function GetTeamColor: Cardinal; override;
     function GetVisibleMinimap: Boolean; override;
     function GetVisibleTerrain: Boolean; override;
   public
@@ -96,9 +100,10 @@ type
 
 
 const
-  ALERT_DURATION: array [TAlertType] of Byte = (35, 60); //Typical beacon duration after which it will be gone
+  ALERT_DURATION: array [TAlertType] of Byte = (80, 60); //Typical beacon duration after which it will be gone
   FIGHT_DISTANCE = 24; //Fights this far apart are treated as separate
   INTERVAL_ATTACKED_MSG = 20; //Time between audio messages saying you are being attacked
+  MAX_BEACONS = 5; //Maximum number of simultanious beacons per player
 
 
 { TKMAlert }
@@ -135,20 +140,26 @@ end;
 function TKMAlertBeacon.GetTexMinimap: TKMPic;
 begin
   Result.RX := rxGui;
-  Result.ID := 53; //Temporary until we get a proper one
+  Result.ID := 54;
 end;
 
 
-function TKMAlertBeacon.GetTexOffset: TKMPointI;
+function TKMAlertBeacon.GetTexMinimapOffset: TKMPointI;
 begin
-  Result := KMPointI(-11,-7); //Temporary until we get a proper one
+  Result := KMPointI(-4,-9);
 end;
 
 
 function TKMAlertBeacon.GetTexTerrain: TKMPic;
 begin
   Result.RX := rxGui;
-  Result.ID := 54;
+  Result.ID := 250; //Located near the house tablets so we can include it in soft shadows range
+end;
+
+
+function TKMAlertBeacon.GetTeamColor: Cardinal;
+begin
+  Result := fPlayers[fOwner].FlagColor;
 end;
 
 
@@ -182,7 +193,7 @@ begin
 end;
 
 
-function TKMAlertAttacked.GetTexOffset: TKMPointI;
+function TKMAlertAttacked.GetTexMinimapOffset: TKMPointI;
 begin
   Result := KMPointI(-11,-7);
 end;
@@ -193,6 +204,12 @@ begin
   //Has no sprite on terrain
   Result.RX := rxTrees;
   Result.ID := 0;
+end;
+
+
+function TKMAlertAttacked.GetTeamColor: Cardinal;
+begin
+  Result := fPlayers[fOwner].FlagColor;
 end;
 
 
@@ -277,20 +294,30 @@ end;
 
 //Ally has placed a beacon for ue
 procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: TPlayerIndex);
-  function GetBeaconCount: Byte;
-  var
-    I: Integer;
+  procedure RemoveExcessBeacons;
+  var I, OldestID, OldestExpiry, Count: Integer;
   begin
-    Result := 0;
+    Count := 0;
+    OldestID := -1;
+    OldestExpiry := 0;
     for I := 0 to fList.Count - 1 do
       if (Items[I].AlertType = atBeacon)
       and (Items[I].Owner = aOwner) then
-        Inc(Result);
+      begin
+        Inc(Count);
+        if (OldestID = -1) or (Items[I].fExpiration < OldestExpiry) then
+        begin
+          OldestExpiry := Items[I].fExpiration;
+          OldestID := I;
+        end;
+      end;
+    if (Count > MAX_BEACONS) and (OldestID <> -1) then
+      fList.Delete(OldestID);
   end;
 
 begin
-  //Check if there are already too many beacons
-  if GetBeaconCount > 3 then Exit;
+  //If this player has too many beacons remove his oldest one
+  RemoveExcessBeacons;
 
   fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, fTickCounter^));
 end;
@@ -322,12 +349,11 @@ var
   I: Integer;
   R: TKMRect;
 begin
-  R := fViewport.GetMinimapClip;
+  R := KMRectGrow(fViewport.GetMinimapClip, 4); //Beacons may stick up over a few tiles
 
   for I := 0 to fList.Count - 1 do
     if Items[I].VisibleTerrain
-    and KMInRect(Items[I].Loc, R)
-    and (fPlayers.CheckAlliance(Items[I].Owner, MyPlayer.PlayerIndex) = at_Ally) then
+    and KMInRect(Items[I].Loc, R) then
       fRenderPool.AddAlert(Items[I].Loc, Items[I].TexTerrain.ID, fPlayers[Items[I].Owner].FlagColor);
 end;
 

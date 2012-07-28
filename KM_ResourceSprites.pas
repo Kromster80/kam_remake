@@ -427,7 +427,7 @@ begin
         Png.AlphaScanline[I]^[K] := $FF; //Always there
         {$ENDIF}
         {$IFDEF FPC}
-        po.CanvasBGRA.Pixels[K,I] := Byte(fRXData.Mask[ID, I*SizeX + K] > 0) * $FFFFFF;
+        po.CanvasBGRA.Pixels[K,I] := Byte(fRXData.Mask[ID, I*SizeX + K] > 0) * $FFFFFFFF;
         {$ENDIF}
       end;
 

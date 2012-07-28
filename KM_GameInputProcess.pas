@@ -324,7 +324,9 @@ begin
                                       fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
                                   end;
       gic_GameAlertBeacon:        if fReplayState = gipRecording then //Beacons don't show up in replay
-                                    fGame.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
+                                    //Beacons are only for allies
+                                    if fPlayers.CheckAlliance(Params[3], MyPlayer.PlayerIndex) = at_Ally then
+                                      fGame.Alerts.AddBeacon(KMPointF(Params[1]/10,Params[2]/10), Params[3]);
       else                        Assert(false);
     end;
   end;
