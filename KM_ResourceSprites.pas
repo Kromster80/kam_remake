@@ -421,8 +421,15 @@ begin
     begin
       for I := 0 to SizeY - 1 do
       for K := 0 to SizeX - 1 do
-        {$IFDEF WDC} Png.Pixels[K,I] := fRXData.Mask[ID, I*SizeX + K] * 65793; {$ENDIF}
-        {$IFDEF FPC} po.CanvasBGRA.Pixels[K,I] := fRXData.Mask[ID, I*SizeX + K] * 65793; {$ENDIF}
+      begin
+        {$IFDEF WDC}
+        Png.Pixels[K,I] := Byte(fRXData.Mask[ID, I*SizeX + K] > 0) * $FFFFFF;
+        Png.AlphaScanline[I]^[K] := $FF; //Always there
+        {$ENDIF}
+        {$IFDEF FPC}
+        po.CanvasBGRA.Pixels[K,I] := Byte(fRXData.Mask[ID, I*SizeX + K] > 0) * $FFFFFF;
+        {$ENDIF}
+      end;
 
       {$IFDEF WDC} Png.SaveToFile(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, ID])); {$ENDIF}
       {$IFDEF FPC} po.SaveToFile(aFolder + Format('%d_%.4da.png', [Byte(fRT)+1, ID])); {$ENDIF}
