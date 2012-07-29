@@ -992,7 +992,7 @@ begin
 
   //The area around the unit should be visible at the start of the mission
   if InRange(fOwner, 0, MAX_PLAYERS-1) then //Not animals
-    fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
+    fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_MAX);
 end;
 
 
@@ -1281,6 +1281,9 @@ procedure TKMUnit.SetNextPosition(aLoc: TKMPoint);
 begin
   fPrevPosition := NextPosition;
   fNextPosition := aLoc;
+  //If we're not using dynamic fog of war we only need to update it when the unit steps on a new tile
+  if (not FOG_OF_WAR_ENABLE) and (fOwner <> PLAYER_ANIMAL) then
+    fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
 end;
 
 
@@ -1818,7 +1821,8 @@ begin
   end;
 
   UpdateHunger;
-  UpdateFOW;
+  //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
+  if FOG_OF_WAR_ENABLE then UpdateFOW;
   UpdateThoughts;
   UpdateHitPoints;
   if UpdateVisibility then exit; //incase units home was destroyed. Returns true if the unit was killed due to lack of space

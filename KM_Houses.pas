@@ -460,7 +460,7 @@ procedure TKMHouse.Activate(aWasBuilt: Boolean);
 var I: Integer; Res: TResourceType;
 begin
   fPlayers.Player[fOwner].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
-  fPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
+  fPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_MAX);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_Flagpole,ha_Flag1..ha_Flag3]);
