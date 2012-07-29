@@ -339,7 +339,7 @@ var I: Integer;
 begin
   if fRoadsList <> nil then
   begin
-    fTerrain.SetRoads(fRoadsList, fPlayerIndex);
+    fTerrain.SetRoads(fRoadsList, fPlayerIndex, not aFlattenRoads); //If we are flattening roads that will update WalkConnect anyway
     if aFlattenRoads then
       fTerrain.FlattenTerrain(fRoadsList);
     FreeAndNil(fRoadsList);

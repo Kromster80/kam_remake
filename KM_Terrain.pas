@@ -22,7 +22,7 @@ type
 
     fTileset: TKMTileset;
 
-    fBoundsWC: TKMRect; //WC rebuild bounds used in FlattenTerrain (put outside to fight with recursion SO error?)
+    fBoundsWC: TKMRect; //WC rebuild bounds used in FlattenTerrain (put outside to fight with recursion SO error in FlattenTerrain EnsureWalkable)
 
     function TileIsSand(Loc:TKMPoint): Boolean;
     function TileIsSoil(Loc:TKMPoint): Boolean;
@@ -35,9 +35,9 @@ type
     procedure UpdatePassability(aRect: TKMRect); overload;
     procedure UpdatePassability(Loc: TKMPoint); overload;
 
-    procedure UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect);
+    procedure UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected:Boolean);
 
-    procedure CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean; aRect: TKMRect);
+    procedure CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
   public
     Land: array[1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE]of record
       Terrain: Byte;
@@ -90,8 +90,8 @@ type
     property MapY: Word read fMapY;
 
     procedure SetTileLock(aLoc: TKMPoint; aTileLock: TTileLock);
-    procedure UnlockTile(Loc:TKMPoint);
-    procedure SetRoads(aList: TKMPointList; aOwner: TPlayerIndex);
+    procedure UnlockTile(aLoc:TKMPoint);
+    procedure SetRoads(aList: TKMPointList; aOwner: TPlayerIndex; aUpdateWalkConnects: Boolean = True);
     procedure SetField(Loc: TKMPoint; aOwner: TPlayerIndex; aFieldType: TFieldType);
     procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TPlayerIndex; const aFlattenTerrain: Boolean = False);
     procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerIndex);
@@ -262,7 +262,7 @@ begin
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
   //Everything except roads
-  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY));
+  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY), True);
 end;
 
 
@@ -335,7 +335,7 @@ begin
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
   //Everything except roads
-  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY));
+  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY), True);
   fLog.AppendLog('Map file loaded');
 end;
 
@@ -721,22 +721,22 @@ begin
   UpdatePassability(KMRectGrow(KMRect(aLoc), 1));
 
   //TileLocks affect passability so therefore also floodfill
-  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(aLoc), 1));
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRect(aLoc), False);
 end;
 
 
 {Remove lock from tile}
-procedure TTerrain.UnlockTile(Loc: TKMPoint);
+procedure TTerrain.UnlockTile(aLoc: TKMPoint);
 begin
-  Land[Loc.Y, Loc.X].TileLock := tlNone;
-  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
+  Land[aLoc.Y, aLoc.X].TileLock := tlNone;
+  UpdatePassability(KMRectGrow(KMRect(aLoc), 1));
 
   //TileLocks affect passability so therefore also floodfill
-  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc), 1));
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRect(aLoc), False);
 end;
 
 
-procedure TTerrain.SetRoads(aList: TKMPointList; aOwner: TPlayerIndex);
+procedure TTerrain.SetRoads(aList: TKMPointList; aOwner: TPlayerIndex; aUpdateWalkConnects: Boolean = True);
 var
   I: Integer;
   Bounds: TKMRect;
@@ -760,7 +760,8 @@ begin
   UpdatePassability(KMRectGrow(Bounds, 1));
 
   //Roads don't affect wcWalk or wcFish
-  UpdateWalkConnect([wcRoad, wcWolf, wcCrab], KMRectGrow(Bounds, 1));
+  if aUpdateWalkConnects then
+    UpdateWalkConnect([wcRoad, wcWolf, wcCrab], Bounds, False);
 end;
 
 
@@ -773,7 +774,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Roads don't affect wcWalk or wcFish
-  UpdateWalkConnect([wcRoad, wcWolf, wcCrab], KMRectGrow(KMRect(Loc), 1));
+  UpdateWalkConnect([wcRoad, wcWolf, wcCrab], KMRect(Loc), False);
 end;
 
 
@@ -790,7 +791,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Update affected WalkConnect's
-  UpdateWalkConnect([wcWalk, wcWolf, wcCrab], KMRectGrow(KMRect(Loc), 1));
+  UpdateWalkConnect([wcWalk, wcWolf, wcCrab], KMRect(Loc), True); //Winefields object block diagonals
 end;
 
 
@@ -814,7 +815,7 @@ begin
   Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc), 1));
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc), False);
 end;
 
 
@@ -862,7 +863,7 @@ begin
   UpdateBorders(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
   //Walk and Road because Grapes are blocking diagonal moves
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab], KMRectGrow(KMRect(Loc), 1));
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab], KMRect(Loc), (aFieldType = ft_Wine)); //Grape object blocks diagonal, others don't
 end;
 
 
@@ -1254,7 +1255,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Tree could have blocked the only diagonal passage
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc), 1));
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc), True); //Trees block diagonal
 end;
 
 
@@ -1281,7 +1282,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //WalkConnect takes diagonal passability into account
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc), 1));
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc), True); //Trees block diagonals
 end;
 
 
@@ -1953,10 +1954,11 @@ begin
   if aUpdateWalkConnects then
     fBoundsWC := KMRect(Loc.X, Loc.Y, Loc.X, Loc.Y);
 
+  //Expand fBoundsWC in case we were called by EnsureWalkable, and fBoundsWC won't know about this tile
   if fBoundsWC.Left > Loc.X - 1 then fBoundsWC.Left := Loc.X - 1;
   if fBoundsWC.Top > Loc.Y - 1 then fBoundsWC.Top := Loc.Y - 1;
   if fBoundsWC.Right < Loc.X + 1 then fBoundsWC.Right := Loc.X + 1;
-  if fBoundsWC.Bottom > Loc.Y + 1 then fBoundsWC.Bottom := Loc.Y + 1;
+  if fBoundsWC.Bottom < Loc.Y + 1 then fBoundsWC.Bottom := Loc.Y + 1;
 
   Assert(TileInMapCoords(Loc.X, Loc.Y), 'Can''t flatten tile outside map coordinates');
 
@@ -1983,7 +1985,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   if aUpdateWalkConnects then
-    UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], fBoundsWC);
+    UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], fBoundsWC, False);
 end;
 
 
@@ -1992,6 +1994,7 @@ procedure TTerrain.FlattenTerrain(LocList: TKMPointList);
 var
   I: Integer;
 begin
+  //Flatten terrain will extend fBoundsWC as necessary, which cannot be predicted due to EnsureWalkable effecting a larger area
   if not LocList.GetBounds(fBoundsWC) then
     Exit;
 
@@ -1999,7 +2002,7 @@ begin
     FlattenTerrain(LocList[I], False); //Rebuild the Walk Connect at the end, rather than every time
 
   //All 5 are affected by height
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], fBoundsWC);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], fBoundsWC, False);
 end;
 
 
@@ -2041,8 +2044,8 @@ end;
 
 
 //Rebuilds connected areas using flood fill algorithm
-procedure TTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect);
-  procedure FloodFill(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean; aRect: TKMRect);
+procedure TTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: TKMRect; aDiagObjectsEffected:Boolean);
+  procedure FloodFill(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
   var
     AreaID: Byte;
     Count: Integer;
@@ -2105,12 +2108,36 @@ procedure TTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: T
     end;
   end;
 
+  function CheckCanSkip(aWorkRect:TKMRect; aWC:TWalkConnect; aPass:TPassability):Boolean;
+  var I,K: Integer;
+  begin
+    //If objects were effected we must reprocess because a tree could block the connection
+    //between two areas. Also skip this check if the area is too large because it takes too long
+    if aDiagObjectsEffected or (KMRectArea(aWorkRect) > 100) then
+    begin
+      Result := False;
+      Exit;
+    end;
+    Result := True;
+    for I := aWorkRect.Top to aWorkRect.Bottom do
+      for K := aWorkRect.Left to aWorkRect.Right do
+      begin
+        Result := Result and
+                  //First case: Last time we did WalkConnect the tile WASN'T walkable,
+                  //and Passability confirms this has not changed (tile still not walkable)
+                 (((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land[I,K].Passability)) or
+                  //Second case: Last time we did WalkConnect the tile WAS walkable,
+                  //and Passability confirms this has not changed (tile still walkable)
+                  ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land[I,K].Passability)));
+        if not Result then Exit; //If one tile has changed, we need to do the whole thing
+      end;
+  end;
+
 const
   WCSet: array [TWalkConnect] of TPassability = (
     CanWalk, CanWalkRoad, CanFish, CanWolf, CanCrab, CanWorker);
 var
-  CanSkip: Boolean;
-  I,K,J: Integer;
+  J: Integer;
   WC: TWalkConnect;
   AllowDiag: Boolean;
   Pass: TPassability;
@@ -2125,25 +2152,11 @@ begin
     Pass := WCSet[WC];
     AllowDiag := (WC <> wcRoad); //Do not consider diagonals "connected" for roads
 
-    //todo: Can be optimized if we know from which Tile to rebuild, and if that tile makes no difference - skip the thing
-
-    //Early test is allowed only if we don't need to update large portion (or even whole map)
-    CanSkip := (WorkRect.Right - WorkRect.Left < 8) and (WorkRect.Bottom  - WorkRect.Top < 8);
-
-    //Verify that we can exit early if there are no relevant passability tiles in Rect
-    if CanSkip then
-    for I := WorkRect.Top to WorkRect.Bottom do
-    for K := WorkRect.Left to WorkRect.Right do
-      CanSkip := CanSkip and not (Pass in Land[I,K].Passability);
-
-    //We can't rely on((Land[I,K].WalkConnect<>0) and (Pass in Land[I,K].Passability)) check
-    //because BlockDiag objects don't affect it, still they can cause two areas to be separate
-
-    if not CanSkip then
+    if not CheckCanSkip(WorkRect, WC, Pass) then
       if USE_CCL_WALKCONNECT then
-        CCLFind(WC, Pass, AllowDiag, WorkRect)
+        CCLFind(WC, Pass, AllowDiag)
       else
-        FloodFill(WC, Pass, AllowDiag, WorkRect);
+        FloodFill(WC, Pass, AllowDiag);
   end;
 end;
 
@@ -2207,7 +2220,7 @@ begin
 
   //Recalculate Passability for tiles around the house so that they can't be built on too
   UpdatePassability(KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1), True); //Houses can remove objects that block diagonals
 end;
 
 
@@ -2396,7 +2409,7 @@ begin
   end;
 
   UpdatePassability(KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1), True); //Rubble objects block diagonals
 end;
 
 
@@ -2642,7 +2655,7 @@ begin
   UpdateLighting(KMRect(1, 1, fMapX, fMapY));
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
-  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY));
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY), True);
 
   fLog.AppendLog('Terrain loaded');
 end;
@@ -2744,7 +2757,7 @@ begin
 end;
 
 
-procedure TTerrain.CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean; aRect: TKMRect);
+procedure TTerrain.CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
 var
   Parent: array[0..512] of Word;
 

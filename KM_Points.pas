@@ -41,6 +41,7 @@ type
   function KMClipRect(aRect: TKMRect; X1,Y1,X2,Y2: Word): TKMRect;
   function KMInRect(aPoint: TKMPoint; aRect: TKMRect): Boolean; overload;
   function KMInRect(aPoint: TKMPointF; aRect: TKMRect): Boolean; overload;
+  function KMRectArea(aRect: TKMRect):Integer;
 
   function KMGetDirection(X,Y: integer): TKMDirection; overload;
   function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload;
@@ -224,6 +225,12 @@ end;
 function KMInRect(aPoint: TKMPointF; aRect: TKMRect): Boolean;
 begin
   Result := InRange(aPoint.X, aRect.Left, aRect.Right) and InRange(aPoint.Y, aRect.Top, aRect.Bottom);
+end;
+
+
+function KMRectArea(aRect: TKMRect):Integer;
+begin
+  Result := (aRect.Right - aRect.Left) * (aRect.Bottom  - aRect.Top);
 end;
 
 
