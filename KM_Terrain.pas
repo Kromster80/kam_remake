@@ -618,11 +618,8 @@ begin
   hx := min(round(aLoc.X+(MaxRad+1)),fMapX); //1.42 gets rounded to 1
   hy := min(round(aLoc.Y+(MaxRad+1)),fMapY); //1.42 gets rounded to 1
 
-  //In KaM archers can shoot further than sight radius (shoot further into explored areas)
-  //so CheckTileRevelation is required, we can't remove it to optimise.
   for i:=ly to hy do for k:=lx to hx do
-  if (Land[i,k].IsUnit <> nil)
-  and (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i,false) = 255) then
+  if (Land[i,k].IsUnit <> nil) then
   begin
     //Check archer sector. If it's not within the 90 degree sector for this direction, then don't use this tile (continue)
     dX := k-aLoc.X;
@@ -638,16 +635,23 @@ begin
       dir_NW: if not((dX<0)        and(dY<0)) then continue;
     end;
 
+    U := Land[i,k].IsUnit;
+
+    //Alliance is the check that will invalidate most candidates, so do it early on
+    if (U = nil)
+    or U.IsDeadOrDying
+    or (fPlayers.CheckAlliance(aPlayer, U.GetOwner) <> aAlliance) //How do WE feel about enemy, not how they feel about us
+    or not U.Visible then //Inside of house
+      Continue;
+
     //Don't check tiles farther than closest Warrior
     if (W<>nil) and (GetLength(KMPoint(aLoc.X,aLoc.Y),KMPoint(k,i)) >= GetLength(KMPoint(aLoc.X,aLoc.Y),W.GetPosition)) then
       Continue; //Since we check left-to-right we can't exit just yet (there are possible better enemies below)
 
-    U := Land[i,k].IsUnit;
-
-    if (U = nil)
-    or U.IsDeadOrDying
-    or not U.Visible then //Inside of house
-      Continue;
+    //In KaM archers can shoot further than sight radius (shoot further into explored areas)
+    //so CheckTileRevelation is required, we can't remove it to optimise.
+    //But because it will not invalidate many candidates, check it late so other checks can do their work first
+    if (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i,false) <> 255) then Continue;
 
     //This unit could be on a different tile next to KMPoint(k,i), so we cannot use that anymore.
     //There was a crash caused by VertexUsageCompatible checking (k,i) instead of U.GetPosition.
@@ -660,7 +664,6 @@ begin
       RequiredMaxRad := 1.42; //Use diagonal radius sqrt(2) instead
 
     if CanWalkDiagonaly(aLoc, P) and
-       (fPlayers.CheckAlliance(aPlayer, U.GetOwner) = aAlliance) and //How do WE feel about enemy, not how they feel about us
        ((abs(aLoc.X - P.X) <> 1) or (abs(aLoc.Y - P.Y) <> 1) or VertexUsageCompatible(aLoc,P)) and
        (InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad)) //Unit's exact position must be close enough
     then

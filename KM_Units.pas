@@ -989,6 +989,10 @@ begin
 
   SetActionStay(10, ua_Walk);
   fTerrain.UnitAdd(NextPosition,Self);
+
+  //The area around the unit should be visible at the start of the mission
+  if InRange(fOwner, 0, MAX_PLAYERS-1) then //Not animals
+    fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
 end;
 
 
