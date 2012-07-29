@@ -249,8 +249,9 @@ begin
          SetActionLockedStay(WorkPlan.AfterWorkDelay, WorkPlan.ActionWorkType, True, StillFrame, StillFrame);
        end;
     7: begin
-         if WorkPlan.GatheringScript = gs_WoodCutterCut then
-           fTerrain.ChopTree(KMGetVertexTile(WorkPlan.Loc,WorkPlan.WorkDir)); //Make the tree turn into a stump
+         //Removing the tree and putting a stump is now handled in fTerrain.UpdateState from FallingTrees list
+         //if WorkPlan.GatheringScript = gs_WoodCutterCut then
+         //  fTerrain.ChopTree(KMGetVertexTile(WorkPlan.Loc,WorkPlan.WorkDir)); //Make the tree turn into a stump
          SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance), WorkPlan.ActionWalkFrom); //Go home
          Thought := th_Home;
        end;

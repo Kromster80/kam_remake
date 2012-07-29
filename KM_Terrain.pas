@@ -791,7 +791,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Update affected WalkConnect's
-  UpdateWalkConnect([wcWalk, wcWolf, wcCrab], KMRect(Loc), True); //Winefields object block diagonals
+  UpdateWalkConnect([wcWalk, wcWolf, wcCrab], KMRectGrow(KMRect(Loc),1), True); //Winefields object block diagonals
 end;
 
 
@@ -863,7 +863,7 @@ begin
   UpdateBorders(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
   //Walk and Road because Grapes are blocking diagonal moves
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab], KMRect(Loc), (aFieldType = ft_Wine)); //Grape object blocks diagonal, others don't
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab], KMRectGrow(KMRect(Loc),1), (aFieldType = ft_Wine)); //Grape object blocks diagonal, others don't
 end;
 
 
@@ -1255,7 +1255,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Tree could have blocked the only diagonal passage
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc), True); //Trees block diagonal
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc),1), True); //Trees block diagonal
 end;
 
 
@@ -1282,7 +1282,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //WalkConnect takes diagonal passability into account
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc), True); //Trees block diagonals
+  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc),1), True); //Trees block diagonals
 end;
 
 
@@ -2109,26 +2109,36 @@ procedure TTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: T
   end;
 
   function CheckCanSkip(aWorkRect:TKMRect; aWC:TWalkConnect; aPass:TPassability):Boolean;
-  var I,K: Integer;
+  var I,K: Integer; AllPass, AllFail: Boolean;
   begin
     //If objects were effected we must reprocess because a tree could block the connection
     //between two areas. Also skip this check if the area is too large because it takes too long
-    if aDiagObjectsEffected or (KMRectArea(aWorkRect) > 100) then
+    if (KMRectArea(aWorkRect) > 100) then
     begin
       Result := False;
       Exit;
     end;
     Result := True;
+    AllPass := True;
+    AllFail := True;
     for I := aWorkRect.Top to aWorkRect.Bottom do
       for K := aWorkRect.Left to aWorkRect.Right do
       begin
-        Result := Result and
-                  //First case: Last time we did WalkConnect the tile WASN'T walkable,
-                  //and Passability confirms this has not changed (tile still not walkable)
-                 (((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land[I,K].Passability)) or
-                  //Second case: Last time we did WalkConnect the tile WAS walkable,
-                  //and Passability confirms this has not changed (tile still walkable)
-                  ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land[I,K].Passability)));
+        if aDiagObjectsEffected then
+        begin
+          AllPass := AllPass and ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land[I,K].Passability));
+          AllFail := AllFail and ((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land[I,K].Passability));
+          //If all tiles that changed are walkable or not walkable currently and in our last UpdateWalkConnect, it's safe to skip
+          Result := AllPass or AllFail;
+        end else begin
+          Result := Result and
+                    //First case: Last time we did WalkConnect the tile WASN'T walkable,
+                    //and Passability confirms this has not changed (tile still not walkable)
+                   (((Land[I,K].WalkConnect[aWC] = 0) and not (aPass in Land[I,K].Passability)) or
+                    //Second case: Last time we did WalkConnect the tile WAS walkable,
+                    //and Passability confirms this has not changed (tile still walkable)
+                    ((Land[I,K].WalkConnect[aWC] <> 0) and (aPass in Land[I,K].Passability)));
+        end;
         if not Result then Exit; //If one tile has changed, we need to do the whole thing
       end;
   end;
