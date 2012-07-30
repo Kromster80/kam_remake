@@ -16,7 +16,7 @@ type
   public
     constructor Create(aOwner: TPlayerIndex);
 
-    procedure OwnerUpdate(aPlayer:TPlayerIndex);
+    procedure OwnerUpdate(aPlayer: TPlayerIndex);
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
   end;

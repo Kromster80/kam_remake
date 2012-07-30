@@ -12,12 +12,13 @@ type
   TKMMayorSetup = class
     AutoBuild: Boolean;
     AutoRepair: Boolean;
-    QuaryCount: Byte;
+    Strong: Boolean;
+    //QuaryCount: Byte;
     RecruitDelay: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
     RecruitFactor: Byte;
-    SchoolCount: Byte;
+    //SchoolCount: Byte;
     SerfFactor: Byte;
-    WoodCount: Byte;
+    //WoodCount: Byte;
     WorkerFactor: Byte;
     constructor Create;
     procedure Save(SaveStream: TKMemoryStream);
@@ -48,6 +49,7 @@ type
 
     property MayorSetup: TKMMayorSetup read fMayorSetup;
 
+    procedure AfterMissionInit;
     procedure OwnerUpdate(aPlayer:TPlayerIndex);
 
     procedure UpdateState;
@@ -79,8 +81,8 @@ constructor TKMayor.Create(aPlayer: TPlayerIndex);
 begin
   inherited Create;
   fOwner := aPlayer;
-  fCityPlanner := TKMCityPlanner.Create(fOwner);
   fPathFindingRoad := TPathFindingRoad.Create(fOwner);
+  fCityPlanner := TKMCityPlanner.Create(fOwner{, fPathFindingRoad});
   fMayorSetup := TKMMayorSetup.Create;
 end;
 
@@ -260,62 +262,76 @@ end;
 
 
 procedure TKMayor.CheckHouseVitalCount;
+var Req: Integer;
 begin
-  //Build at least one Store and add one more for each 40 houses
-  if (HouseCount(ht_Store) = 0)
-  or (HouseCount(ht_Any) div 40 - HouseCount(ht_Store) + 1 > 0) then
+  //Build at least one Store and add one more for each 30 houses
+  Req := 1 + (HouseCount(ht_Any) div 30) - HouseCount(ht_Store);
+  if Req > 0 then
     TryBuildHouse(ht_Store);
 
   //Build at least one School and one more if Barracks are built
-  if (HouseCount(ht_School) = 0)
-  or (HouseCount(ht_Barracks) - HouseCount(ht_School) + 1 > 0) then
+  Req := 1 + HouseCount(ht_Barracks) - HouseCount(ht_School);
+  if Req > 0 then
     TryBuildHouse(ht_School);
 
   //Build at least one Inn and one more for every 60 citizens
-  if (HouseCount(ht_Inn) = 0)
-  or (fPlayers[fOwner].Stats.GetCitizensCount div 60 - HouseCount(ht_Inn) + 1 > 0) then
+  Req := 1 + fPlayers[fOwner].Stats.GetCitizensCount div 60 - HouseCount(ht_Inn);
+  if Req > 0 then
     TryBuildHouse(ht_Inn);
 end;
 
 
 procedure TKMayor.CheckHouseMiningCount;
+var Req: Integer;
 begin
-  if (HouseCount(ht_Quary) = 0)
-  or ((HouseCount(ht_Sawmill) > 0) and (HouseCount(ht_Quary) < 2)) then
+  //Competitive opponent needs at least 3 quaries build early and 2 more after Sawmill
+  Req := 2 + Byte(fMayorSetup.Strong) + Byte(fMayorSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 2 - HouseCount(ht_Quary);
+  if Req > 0 then
     TryBuildHouse(ht_Quary);
 
-  if (HouseCount(ht_Woodcutters) = 0)
-  or ((HouseCount(ht_Sawmill) > 0) and (HouseCount(ht_Woodcutters) < 2)) then
+  //Competitive opponent needs at least 3 woodcutters build early and 2 more after Sawmill
+  Req := 1 + Byte(fMayorSetup.Strong) + Byte(fMayorSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 2 - HouseCount(ht_Woodcutters);
+  if Req > 0 then
     TryBuildHouse(ht_Woodcutters);
 
-  if (HouseCount(ht_Sawmill) = 0)
-  or (HouseCount(ht_Woodcutters) div 2 > HouseCount(ht_Sawmill)) then
+  //Sawmills count depends only on Woodcutters, build 1 per each two
+  Req := 1 + HouseCount(ht_Woodcutters) div 2 - HouseCount(ht_Sawmill);
+  if Req > 0 then
     TryBuildHouse(ht_Sawmill);
 
-  if (HouseCount(ht_GoldMine) = 0) then
+  //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
+  Req := 1 + Byte(HouseCount(ht_Metallurgists) > 0) - HouseCount(ht_GoldMine);
+  if Req > 0 then
     TryBuildHouse(ht_GoldMine);
 end;
 
 
 procedure TKMayor.CheckHouseFoodCount;
+var Req: Integer;
 begin
-  if (HouseCount(ht_Farm) < 2)
-  or ((HouseCount(ht_Swine) > 0) and (HouseCount(ht_Farm) < 3)) then
+  //Build at least 2 Farms early on
+  Req := 2 + Byte(fMayorSetup.Strong) * 2 * Byte(HouseCount(ht_Swine) > 0) - HouseCount(ht_Farm);
+  if Req > 0 then
     TryBuildHouse(ht_Farm);
 
-  if (HouseCount(ht_Mill) = 0) then
+  Req := 1 - HouseCount(ht_Mill);
+  if Req > 0 then
     TryBuildHouse(ht_Mill);
 
-  if (HouseCount(ht_Bakery) = 0) then
+  Req := 1 - HouseCount(ht_Bakery);
+  if Req > 0 then
     TryBuildHouse(ht_Bakery);
 
-  if (HouseCount(ht_Swine) < 1) then
+  Req := 1 - HouseCount(ht_Swine);
+  if Req > 0 then
     TryBuildHouse(ht_Swine);
 
-  if (HouseCount(ht_Butchers) = 0) then
+  Req := 1 - HouseCount(ht_Butchers);
+  if Req > 0 then
     TryBuildHouse(ht_Butchers);
 
-  if (HouseCount(ht_Wineyard) < 2) then
+  Req := 2 + Byte(fMayorSetup.Strong) * 2 - HouseCount(ht_Wineyard);
+  if Req > 0 then
     TryBuildHouse(ht_Wineyard);
 end;
 
@@ -330,6 +346,12 @@ procedure TKMayor.CheckHouseWeaponryCount;
 begin
   if (HouseCount(ht_Tannery) = 0) then
     TryBuildHouse(ht_Tannery);
+end;
+
+
+procedure TKMayor.AfterMissionInit;
+begin
+  fCityPlanner.UpdateInfluence;
 end;
 
 
@@ -404,9 +426,11 @@ begin
   RecruitFactor := 5; //This means the number in the barracks, watchtowers are counted seperately
   RecruitDelay := 0; //Can train at start
 
-  QuaryCount := 3;
-  SchoolCount := 1;
-  WoodCount := 3;
+  Strong := (Random > 0.5);
+
+  //QuaryCount := 3;
+  //SchoolCount := 1;
+  //WoodCount := 3;
 end;
 
 
@@ -419,9 +443,10 @@ begin
   LoadStream.Read(RecruitFactor);
   LoadStream.Read(WorkerFactor);
 
-  LoadStream.Read(QuaryCount);
-  LoadStream.Read(SchoolCount);
-  LoadStream.Read(WoodCount);
+  LoadStream.Read(Strong);
+  //LoadStream.Read(QuaryCount);
+  //LoadStream.Read(SchoolCount);
+  //LoadStream.Read(WoodCount);
 end;
 
 
@@ -434,9 +459,10 @@ begin
   SaveStream.Write(RecruitFactor);
   SaveStream.Write(WorkerFactor);
 
-  SaveStream.Write(QuaryCount);
-  SaveStream.Write(SchoolCount);
-  SaveStream.Write(WoodCount);
+  SaveStream.Write(Strong);
+  //SaveStream.Write(QuaryCount);
+  //SaveStream.Write(SchoolCount);
+  //SaveStream.Write(WoodCount);
 end;
 
 

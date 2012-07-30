@@ -345,6 +345,8 @@ begin
     FreeAndNil(fRoadsList);
   end;
 
+  fAI.Mayor.AfterMissionInit;
+
   for I := 0 to fPlayers.Count - 1 do
     if fPlayerIndex <> I then
       fArmyEval.AddEnemy(fPlayers[I]);
@@ -447,11 +449,16 @@ begin
     Ty := aLoc.Y + I - 4;
 
     //Make sure tile in map coords and there's no road below
-    Result := Result and fTerrain.TileInMapCoords(Tx, Ty, 1) and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
+    Result := Result and fTerrain.TileInMapCoords(Tx, Ty, 1)
+                     and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
 
     //Make sure we can add road below house, full width
     if (I = 4) then
-      Result := Result and fTerrain.TileInMapCoords(Tx, Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx, Ty + 1), CanMakeRoads);
+    begin
+      Result := Result and fTerrain.TileInMapCoords(Tx - 1, Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads);
+      Result := Result and fTerrain.TileInMapCoords(Tx    , Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads);
+      Result := Result and fTerrain.TileInMapCoords(Tx + 1, Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx + 1, Ty + 1), CanMakeRoads);
+    end;
 
     if not Result then exit;
 
