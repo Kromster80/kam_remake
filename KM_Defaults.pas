@@ -305,9 +305,7 @@ type
   TWalkConnect = (
     wcWalk,
     wcRoad,
-    wcFish,
-    wcWolf,
-    wcCrab, //These things are used often but changed rarely
+    wcFish, //Required for fisherman finding fish in a pond, NOT for fish movement (uses steering). Updated ONLY on load because water doesn't change.
     wcWork  //CanWorker areas
   );
 
@@ -412,7 +410,7 @@ type
         utn_ThrowRock);
 
 type
-  TUnitActionName = (uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack);
+  TUnitActionName = (uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack, uan_Steer);
 
 type
   TUnitActionType = (ua_Walk=120, ua_Work, ua_Spec, ua_Die, ua_Work1,
