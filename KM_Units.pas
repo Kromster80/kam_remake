@@ -450,7 +450,7 @@ begin
 
   Assert(Msg <> 0, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
 
-  if fOwner = MyPlayer.PlayerIndex then //Don't show message for other players
+  if (fOwner = MyPlayer.PlayerIndex) and not fGame.IsReplay then //Don't show message for other players or during replays
     fGame.ShowMessage(mkHouse, fTextLibrary[Msg], fHome.GetEntrance);
 
   fHome.ResourceDepletedMsgIssued := True;

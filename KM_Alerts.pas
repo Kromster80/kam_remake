@@ -295,7 +295,9 @@ end;
 //Ally has placed a beacon for ue
 procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: TPlayerIndex);
   procedure RemoveExcessBeacons;
-  var I, OldestID, OldestExpiry, Count: Integer;
+  var
+    I, OldestID, Count: Integer;
+    OldestExpiry: Cardinal;
   begin
     Count := 0;
     OldestID := -1;

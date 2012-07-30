@@ -707,7 +707,15 @@ begin
           SetActionLockedStay(2, ua_Walk);
           Thought := th_None;
         end;
-    2:  SetActionWalkToSpot(Cells[Step]);
+    2:  //The house can become too steep after we flatten one part of it
+        if CanWalkTo(Cells[Step], 0) then
+          SetActionWalkToSpot(Cells[Step])
+        else
+        begin
+          Result := TaskDone;
+          fUnit.Thought := th_None;
+          Exit;
+        end;
     3:  begin
           SetActionLockedStay(11,ua_Work1,false); //Don't flatten terrain here as we haven't started digging yet
         end;

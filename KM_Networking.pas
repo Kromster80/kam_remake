@@ -1065,7 +1065,6 @@ begin
             begin
               if Cardinal(Param) <> CalculateGameCRC then
               begin
-                PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
                 PacketSend(NET_ADDRESS_OTHERS, mk_Text, 'Error: '+fMyNikname+' has different data files to the host and so cannot join this game', 0);
                 fOnJoinFail('Your data files do not match the host');
               end;

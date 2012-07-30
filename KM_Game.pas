@@ -1258,6 +1258,7 @@ begin
     gmReplay:     for I := 1 to fGameSpeedMultiplier do
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
+                    fEventsManager.ProcTime(fGameTickCount); //In future events could effect game outcome, and maybe you want to see when a message saying "you will be attacked" appears during the replay?
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(fGameTickCount); //Quite slow
                     if fIsEnded then exit; //Quit the update if game was stopped by MyPlayer defeat

@@ -724,7 +724,8 @@ begin
 
   if fBuildState < hbs_Wood then
   begin
-    fPlayers.Player[fOwner].RemHouse(GetEntrance, True);
+    //Still make the "house destroyed" noise when an incomplete house is destroyed
+    fPlayers.Player[fOwner].RemHouse(GetEntrance, False);
     Exit;
   end;
 
@@ -1160,7 +1161,7 @@ begin
     dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
-      if fOwner = MyPlayer.PlayerIndex then
+      if (fOwner = MyPlayer.PlayerIndex) and not fGame.IsReplay then
         fGame.ShowMessage(mkHouse, fTextLibrary[TX_MSG_HOUSE_UNOCCUPIED], GetEntrance);
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;

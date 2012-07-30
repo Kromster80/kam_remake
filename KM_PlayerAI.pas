@@ -650,7 +650,8 @@ begin
   case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
       begin
-        if not fGame.IsReplay then
+        //No fight alerts in replays, and only show alerts for ourselves
+        if (not fGame.IsReplay) and (fPlayerIndex = MyPlayer.PlayerIndex) then
           fGame.Alerts.AddFight(KMPointF(aHouse.GetPosition), fPlayerIndex, an_Town);
       end;
     pt_Computer:
@@ -666,7 +667,8 @@ const
 begin
   case fPlayers[fPlayerIndex].PlayerType of
     pt_Human:
-      if not fGame.IsReplay then
+      //No fight alerts in replays, and only show alerts for ourselves
+      if (not fGame.IsReplay) and (fPlayerIndex = MyPlayer.PlayerIndex) then
         fGame.Alerts.AddFight(aUnit.PositionF, fPlayerIndex, NotifyKind[aUnit is TKMUnitWarrior]);
     pt_Computer:
       begin

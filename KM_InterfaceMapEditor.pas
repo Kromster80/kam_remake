@@ -492,6 +492,7 @@ begin
   fMaps.Free;
   fMapsMP.Free;
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
+  SHOW_TERRAIN_PASS := 0; //Don't show it in-game if they left it on in MapEd
   inherited;
 end;
 

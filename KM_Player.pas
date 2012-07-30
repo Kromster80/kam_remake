@@ -483,12 +483,12 @@ begin
   else
     if CanAddFieldPlan(aLoc, aFieldType) then
     begin
-      if aMakeSound and (Self = MyPlayer) then fSoundLib.Play(sfx_placemarker);
+      if aMakeSound and not fGame.IsReplay and (Self = MyPlayer) then fSoundLib.Play(sfx_placemarker);
       fBuildList.FieldworksList.AddField(aLoc, aFieldType)
     end
     else
     begin
-      if aMakeSound and (Self = MyPlayer) then fSoundLib.Play(sfx_CantPlace, 4.0);
+      if aMakeSound and not fGame.IsReplay and (Self = MyPlayer) then fSoundLib.Play(sfx_CantPlace, 4.0);
       if Plan = ft_None then //If we can't build because there's some other plan, that's ok
       begin
         //Can't build here anymore because something changed between click and command processing, so remove any fake plans
@@ -555,7 +555,7 @@ begin
 
   fBuildList.HousePlanList.AddPlan(aHouseType, Loc);
   fStats.HousePlanned(aHouseType);
-  if Self = MyPlayer then fSoundLib.Play(sfx_placemarker);
+  if (Self = MyPlayer) and not fGame.IsReplay then fSoundLib.Play(sfx_placemarker);
 end;
 
 
@@ -570,8 +570,7 @@ end;
 procedure TKMPlayer.RemHouse(Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean = False);
 var H: TKMHouse;
 begin
-  if not DoSilent then fSoundLib.Play(sfx_Click);
-
+  //Sound is handled in DemolishHouse
   H := fHouses.HitTest(Position.X, Position.Y);
   if H = nil then Exit; //Due to network delays the house might have already been destroyed by now
 
@@ -591,7 +590,7 @@ begin
   if not fResource.HouseDat[HT].IsValid then exit; //Due to network delays house might not exist now
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HT);
-  if Self = MyPlayer then fSoundLib.Play(sfx_Click);
+  if (Self = MyPlayer) and not fGame.IsReplay then fSoundLib.Play(sfx_Click);
 end;
 
 
@@ -599,7 +598,7 @@ end;
 procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; aMakeSound: Boolean);
 begin
   fBuildList.FieldworksList.RemFieldPlan(Position);
-  if aMakeSound and (Self = MyPlayer) then fSoundLib.Play(sfx_Click);
+  if aMakeSound and not fGame.IsReplay and (Self = MyPlayer) then fSoundLib.Play(sfx_Click);
 end;
 
 
