@@ -62,6 +62,7 @@ Improvements:
  +	Selecting a map in multiplayer should show columns with name, size, player count, etc. rather than dumb drop down
  +	Display count of raw materials of each separate area in MapEd (as number in the middle)
  +	Alerts on the minimap when a unit/house is under attack
+ +	Show peacetime remaining in MP replays
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
@@ -78,7 +79,6 @@ Improvements:
 	Keyboard shortcuts to zoom for people without a scrollwheel
 	Allow chat over multiplayer results screen
 	Add support for 1024x600 (1280x720) resolution in the map editor
-	RXXEditor tool for the public
 	Economic goals such as produce X amount of resource A
 	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
 	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
