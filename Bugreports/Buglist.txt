@@ -56,7 +56,7 @@ Improvements:
  +	Show the player's name above each group (flag holder) while 'T' key is kept pressed
  +	Non-fatal mission script errors will be shown on start
  +	RXXPacker to make soft shadowed RXX files in 1 click rather than by hand
- wip	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
+ +	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
  +	Allow to assign groups and houses(!) to Ctrl+0..9 keys
  +	Play campaign briefing audio files (and fade music while it plays)
  +	Selecting a map in multiplayer should show columns with name, size, player count, etc. rather than dumb drop down

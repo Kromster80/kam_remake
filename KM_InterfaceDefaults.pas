@@ -37,7 +37,7 @@ const
   SC_MENU_BUILD = VK_F1;
   SC_MENU_RATIO = VK_F2;
   SC_MENU_STATS = VK_F3;
-  SC_MENU_MENU = VK_F4;
+  SC_MENU_MENU  = VK_F4;
 
   SC_SELECT_LOW = Ord('0');
   SC_SELECT_HIGH = Ord('9');
