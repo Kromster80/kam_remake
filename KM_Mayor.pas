@@ -48,6 +48,7 @@ type
     destructor Destroy; override;
 
     property MayorSetup: TKMMayorSetup read fMayorSetup;
+    property CityPlanner: TKMCityPlanner read fCityPlanner;
 
     procedure AfterMissionInit;
     procedure OwnerUpdate(aPlayer:TPlayerIndex);
@@ -300,6 +301,11 @@ begin
     TryBuildHouse(ht_Sawmill);
 
   //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
+  Req := 2 + Byte(fMayorSetup.Strong) * 2 - HouseCount(ht_CoalMine);
+  if Req > 0 then
+    TryBuildHouse(ht_CoalMine);
+
+  //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
   Req := 1 + Byte(HouseCount(ht_Metallurgists) > 0) - HouseCount(ht_GoldMine);
   if Req > 0 then
     TryBuildHouse(ht_GoldMine);
@@ -343,7 +349,14 @@ end;
 
 
 procedure TKMayor.CheckHouseWeaponryCount;
+var
+  Req: Integer;
 begin
+  //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
+  Req := 1 + Byte(HouseCount(ht_Barracks) > 0) - HouseCount(ht_Metallurgists);
+  if Req > 0 then
+    TryBuildHouse(ht_Metallurgists);
+
   if (HouseCount(ht_Tannery) = 0) then
     TryBuildHouse(ht_Tannery);
 end;

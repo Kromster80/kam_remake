@@ -39,7 +39,7 @@ type
 
     procedure CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
   public
-    Land: array[1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE]of record
+    Land: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of record
       Terrain: Byte;
       Height: Byte;
       Rotation: Byte;
@@ -68,13 +68,14 @@ type
 
 
       //DEDUCTED
-      Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
-      Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
+      Light: Single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
+      Passability: TPassabilitySet; //Meant to be set of allowed actions on the tile
 
       WalkConnect: array [TWalkConnect] of Word; //Whole map is painted into interconnected areas
 
       Border: TBorderType; //Borders (ropes, planks, stones)
       BorderSide: Byte; //Bitfield whether the borders are enabled
+      Influence: Byte;
     end;
 
     FallingTrees: TKMPointTagList;

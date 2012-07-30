@@ -2,25 +2,26 @@ unit KM_CityPlanner;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Graphics, KromUtils, Math, SysUtils,
+  Classes, Graphics, KromUtils, Math, SysUtils, TypInfo,
   KM_Defaults, KM_Points, KM_CommonClasses;
 
 
 type
-  TCityInfluence = (ciAvoid, ciCoal, ciGold, ciIron);
+  //TCityInfluence = (ciAvoid, ciTrees);
 
   TKMCityPlanner = class
   private
     fOwner: TPlayerIndex;
 
-    //Stone, Wood, Farm, Wine, Coal,
-    fInfluenceMap: array of array of array [TCityInfluence] of Byte;
-
+    function NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
     function NextToHouse(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToTrees(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     //function NextToGrass(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
   public
+    //Stone, Wood, Farm, Wine, Coal,
+    //InfluenceMap: array of array of array [TCityInfluence] of Byte;
+
     constructor Create(aPlayer: TPlayerIndex);
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
 
@@ -59,7 +60,10 @@ begin
     ht_Bakery:    Result := NextToHouse(ht_Farm, aHouse, aLoc);
     ht_Swine:     Result := NextToHouse(ht_Farm, aHouse, aLoc);
     ht_Butchers:  Result := NextToHouse(ht_Swine, aHouse, aLoc);
-    ht_Tannery:   Result := NextToHouse(ht_Swine, aHouse, aLoc);
+    ht_Tannery:       Result := NextToHouse(ht_Swine, aHouse, aLoc);
+    ht_Metallurgists: Result := NextToHouse(ht_GoldMine, aHouse, aLoc);
+    ht_CoalMine:      Result := NextToOre(ht_CoalMine, rt_Coal, aLoc);
+    ht_GoldMine:      Result := NextToOre(ht_GoldMine, rt_GoldOre, aLoc);
 
     ht_Quary:         Result := NextToStone(aHouse, aLoc);
     ht_Woodcutters:   Result := NextToTrees(aHouse, aLoc);
@@ -111,7 +115,7 @@ function TKMCityPlanner.NextToHouse(aTarget, aHouse: THouseType; out aLoc: TKMPo
     I, K: Integer;
     FieldCount: Integer;
   begin
-    Result := fPlayers[fOwner].CanAddHousePlanAI(aPos, aHouse);
+    Result := fPlayers[fOwner].CanAddHousePlanAI(aPos, aHouse, False);
     if Result and (aHouse in [ht_Farm, ht_Wineyard]) then
     begin
       FieldCount := 0;
@@ -141,7 +145,7 @@ begin
   for K := Max(TargetLoc.X - 10, 1) to Min(TargetLoc.X + 10, fTerrain.MapX - 1) do
     if CanPlaceHouse(aHouse, KMPoint(K,I)) then
     begin
-      Bid := GetLength(KMPoint(K,I), TargetLoc) + KaMRandom * 3 + fInfluenceMap[I, K, ciAvoid];
+      Bid := GetLength(KMPoint(K,I), TargetLoc) + KaMRandom * 3;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -173,7 +177,50 @@ begin
 
   for I := Min(StoneLoc.Loc.Y + 2, fTerrain.MapY - 1) to Min(StoneLoc.Loc.Y + 4, fTerrain.MapY - 1) do
   for K := Max(StoneLoc.Loc.X - 5, 1) to Min(StoneLoc.Loc.X + 5, fTerrain.MapX - 1) do
-    if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse) then
+    if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse, False) then
+    begin
+      Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
+      if Bid < BestBid then
+      begin
+        aLoc := KMPoint(K,I);
+        BestBid := Bid;
+        Result := True;
+      end;
+    end;
+end;
+
+
+function TKMCityPlanner.NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
+var
+  S: TKMHouse;
+  I, K: Integer;
+  Bid, BestBid: Single;
+  P: TKMPoint;
+  FoundOre: Boolean;
+  CoalLoc: TKMPoint;
+  StoreLoc: TKMPoint;
+begin
+  Result := False;
+
+  S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
+  if S = nil then Exit;
+
+  StoreLoc := S.GetPosition;
+
+  FoundOre := False;
+  for I := -1 to 1 do
+  for K := -1 to 1 do
+  begin
+    //Look for coal within 8+7 tiles
+    P := fTerrain.EnsureTileInMapCoords(StoreLoc.X - K * 12, StoreLoc.Y + I * 12);
+    FoundOre := FoundOre or fTerrain.FindOre(P, aOreType, CoalLoc);
+  end;
+
+  BestBid := MaxSingle;
+
+  for I := Max(CoalLoc.Y - 3, 1) to Min(CoalLoc.Y + 3, fTerrain.MapY - 1) do
+  for K := Max(CoalLoc.X - 4, 1) to Min(CoalLoc.X + 4, fTerrain.MapX - 1) do
+    if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse, True) then
     begin
       Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
       if Bid < BestBid then
@@ -221,7 +268,7 @@ begin
 
   for I := Max(TreeLoc.Loc.Y - 5, 1) to Min(TreeLoc.Loc.Y + 6, fTerrain.MapY - 1) do
   for K := Max(TreeLoc.Loc.X - 7, 1) to Min(TreeLoc.Loc.X + 7, fTerrain.MapX - 1) do
-    if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse) then
+    if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse, False) then
     begin
       Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
       if Bid < BestBid then
@@ -240,67 +287,64 @@ begin
 end;
 
 
+//todo: Move terrain parts to Terrain
 procedure TKMCityPlanner.UpdateInfluence;
 const
-  BSize = 4;
+  BSize = 3;
   BLen = Sqr(BSize * 2 + 1);
 var
-  CI: TCityInfluence;
+  //CI: TCityInfluence;
   S: TKMHouse;
-  I, K, M, N: Integer;
-  T: Integer;
-  Tmp: array of array of byte;
-  //Bmp: TBitmap;
+  I, K: Integer;
+  Tmp: array of array of Byte;
+  Bmp: TBitmap;
 begin
-  SetLength(fInfluenceMap, fTerrain.MapY, fTerrain.MapX);
   SetLength(Tmp, fTerrain.MapY, fTerrain.MapX);
 
-  //Fill influences
+  //Avoid Gold/Iron
   for I := 1 to fTerrain.MapY - 1 do
   for K := 1 to fTerrain.MapX - 1 do
-  begin
-    fInfluenceMap[I, K, ciAvoid] := fTerrain.TileIsCoal(K, I) * 25;
-    fInfluenceMap[I, K, ciAvoid] := Byte(CanBuildGold in fTerrain.Land[I, K].Passability) * 100;
-    fInfluenceMap[I, K, ciAvoid] := Byte(CanBuildIron in fTerrain.Land[I, K].Passability) * 100;
-  end;
+    Tmp[I, K] := Byte((fTerrain.TileIsIron(K, I) > 1)
+                                     or (fTerrain.TileIsGold(K, I) > 1)) * $FF;
+
+  //Bleed Gold/Iron to book space around mines for roads
+  for I := 3 to fTerrain.MapY - 1 do
+  for K := 2 to fTerrain.MapX - 2 do
+    fTerrain.Land[I,K].Influence := fTerrain.Land[I,K].Influence
+                                    or Tmp[I, K]
+                                    or Tmp[I - 1, K - 1]
+                                    or Tmp[I - 1, K]
+                                    or Tmp[I - 1, K + 1]
+                                    or Tmp[I - 2, K - 1]
+                                    or Tmp[I - 2, K]
+                                    or Tmp[I - 2, K + 1];
+
+  //Avoid Coal
+  for I := 1 to fTerrain.MapY - 1 do
+  for K := 1 to fTerrain.MapX - 1 do
+    fTerrain.Land[I,K].Influence := fTerrain.Land[I,K].Influence or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
 
   //Leave some free space below Store
   S := fPlayers[fOwner].FindHouse(ht_Store);
   if S <> nil then
-  for I := S.GetEntrance.Y to Min(S.GetEntrance.Y + 2, fTerrain.MapY - 1) do
+  for I := S.GetEntrance.Y + 1 to Min(S.GetEntrance.Y + 2, fTerrain.MapY - 1) do
   for K := Max(S.GetEntrance.X - 2, 1) to Min(S.GetEntrance.X + 2, fTerrain.MapX - 1) do
-    fInfluenceMap[I, K, ciAvoid] := 100;
+    fTerrain.Land[I,K].Influence := fTerrain.Land[I,K].Influence or $FF;
 
-  for CI := Low(TCityInfluence) to High(TCityInfluence) do
+
+  if EXPORT_INFLUENCE then
+  //for CI := Low(TCityInfluence) to High(TCityInfluence) do
   begin
-    for I := 2 to fTerrain.MapY - 1 do
-    for K := 2 to fTerrain.MapX - 2 do
-      Tmp[I, K] := fInfluenceMap[I, K, CI]
-                   or fInfluenceMap[I - 1, K, CI]
-                   or fInfluenceMap[I - 1, K - 1, CI]
-                   or fInfluenceMap[I - 1, K + 1, CI];
-
-    //Blur (naive unweightened implementation)
-    for I := 1 to fTerrain.MapY - 1 do
-    for K := 1 to fTerrain.MapX - 1 do
-    begin
-      T := 0;
-      for M := Max(I - BSize, 1) to Min(I + BSize, fTerrain.MapY - 1) do
-        for N := Max(K - BSize, 1) to Min(K + BSize, fTerrain.MapX - 1) do
-          T := T + Tmp[M, N];
-      fInfluenceMap[I, K, CI] := fInfluenceMap[I, K, CI] or Tmp[I, K] or Min(T shl 2 div BLen, 255);
-    end;
-
-    {Bmp := TBitmap.Create;
+    Bmp := TBitmap.Create;
     Bmp.PixelFormat := pf32bit;
     Bmp.Width := fTerrain.MapX;
     Bmp.Height := fTerrain.MapY;
-    for I := 0 to fTerrain.MapY - 1 do
-      for K := 0 to fTerrain.MapX - 1 do
-        Bmp.Canvas.Pixels[K,I] := fInfluenceMap[I,K,CI] * 65793;// or $FF000000;
+    for I := 1 to fTerrain.MapY - 1 do
+      for K := 1 to fTerrain.MapX - 1 do
+        Bmp.Canvas.Pixels[K,I] := fTerrain.Land[I,K].Influence * 65793;// or $FF000000;
 
-    Bmp.SaveToFile(ExeDir + GetEnumName(TypeInfo(TCityInfluence), Integer(CI)) + '.bmp');
-    Bmp.Free;}
+    Bmp.SaveToFile(ExeDir + 'Influence.bmp');
+    Bmp.Free;
   end;
 end;
 

@@ -86,6 +86,7 @@ var
   SHOW_GROUND_LINES     :Boolean = False; //Show a line below all sprites to mark the ground height used in Z-Order
   SHOW_UNIT_MOVEMENT    :Boolean = False; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
   SHOW_WALK_CONNECT     :Boolean = False; //Show floodfill areas of interconnected areas
+  SHOW_INFLUENCE_MAP    :Byte = 1; //Show AI influence maps
   TEST_VIEW_CLIP_INSET  :Boolean = False; //Renders smaller area to see if everything gets clipped well
   OUTLINE_ALL_SPRITES   :Boolean = False; //Render outline around every sprite
   SHOW_ATTACK_RADIUS    :Boolean = False; //Render towers/archers attack radius
@@ -117,6 +118,7 @@ var
   WRITE_RECONNECT_LOG   :Boolean = True;
   WriteResourceInfoToTXT:Boolean = False; //Whenever to write txt files with defines data properties on loading
   EXPORT_SPRITE_ATLASES :Boolean = False; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
+  EXPORT_INFLUENCE      :Boolean = False;
   //Statistic
   CtrlPaintCount: Word; //How many Controls were painted in last frame
 

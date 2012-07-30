@@ -90,7 +90,7 @@ type
     function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
-    function CanAddHousePlanAI(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
+    function CanAddHousePlanAI(aLoc: TKMPoint; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
 
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
     procedure AddRoadToList(aLoc: TKMPoint);
@@ -434,7 +434,7 @@ begin
 end;
 
 
-function TKMPlayer.CanAddHousePlanAI(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
+function TKMPlayer.CanAddHousePlanAI(aLoc: TKMPoint; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
 var I,K,J,S,T,Tx,Ty: Integer; HA: THouseArea;
 begin
   Result := fTerrain.CanPlaceHouse(aLoc, aHouseType);
@@ -454,13 +454,11 @@ begin
 
     //Make sure we can add road below house, full width
     if (I = 4) then
-    begin
-      Result := Result and fTerrain.TileInMapCoords(Tx - 1, Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads);
-      Result := Result and fTerrain.TileInMapCoords(Tx    , Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads);
-      Result := Result and fTerrain.TileInMapCoords(Tx + 1, Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx + 1, Ty + 1), CanMakeRoads);
-    end;
+      Result := Result and fTerrain.TileInMapCoords(Tx - 1, Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
+                       and fTerrain.TileInMapCoords(Tx    , Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
+                       and fTerrain.TileInMapCoords(Tx + 1, Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx + 1, Ty + 1), CanMakeRoads);
 
-    if not Result then exit;
+    if not Result then Exit;
 
     //This tile must not contain fields/houses of allied players or self
     for J := 0 to fPlayers.Count - 1 do
@@ -472,6 +470,8 @@ begin
           for T := -1 to 1 do
             Result := Result and not fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T));
       end;
+
+    Result := Result and (aIgnoreInfluence or (fTerrain.Land[Ty,Tx].Influence = 0));
   end;
 end;
 
