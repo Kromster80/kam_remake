@@ -1647,7 +1647,7 @@ procedure TKMHouseMarket.Paint;
     ResType := rt_None;
     Result := false;
     for RT := WARE_MIN to WARE_MAX do
-      if fMarketResIn[i] > ResCount then
+      if fMarketResIn[RT] > ResCount then
       begin
         ResCount := fMarketResIn[RT];
         ResType := RT;
