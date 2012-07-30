@@ -119,6 +119,8 @@ begin
   if not fTerrain.TileInMapCoords(aLocB.X, aLocB.Y) then
     raise ELocError.Create('Invalid Walk To for '+fResource.UnitDat[aUnit.UnitType].UnitName,aLocB);
 
+  Assert(not (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX])); //Animals should using TUnitActionSteer instead
+
   fDistance     := aDistance;
   //               aSetPushed Dooesn't need to be rememberred (it is used only in Create here)
 
@@ -809,15 +811,6 @@ begin
     HighestInteractionCount := max(fInteractionCount,TUnitActionWalkTo(fOpponent.GetUnitAction).fInteractionCount)
   else HighestInteractionCount := fInteractionCount;
 
-  //Animals are low priority compared to other units, unless they are stuck (surrounded by units)
-  if (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX])
-    and not fTerrain.CheckAnimalIsStuck(fUnit.GetPosition,fPass) then
-  begin
-    Explanation:='Unit is animal and therefore has no priority in movement';
-    ExplanationLogAdd;
-    exit;
-  end;
-
   if (fOpponent.GetUnitAction is TUnitActionGoInOut) then begin //Unit is walking into house, we can wait
     Explanation:='Unit is walking into house, we can wait';
     ExplanationLogAdd;
@@ -1068,15 +1061,8 @@ begin
       U := fUnit; //Could be destroyed by DoUnitInteraction, we need to check afterwards
 
       if not DoUnitInteraction then
-      begin
-        //If ThisAction <> ThisUnit.GetUnitAction means DoUnitInteraction destroyed this action, so we must exit immediately
-        if (ThisAction = U.GetUnitAction)
-        and (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX])
-        and not fTerrain.CheckAnimalIsStuck(fUnit.GetPosition,fPass) then
-          Result := ActDone; //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
-
-        Exit; //Do no further walking until unit interaction is solved
-      end else
+        Exit //Do no further walking until unit interaction is solved
+      else
         fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
 
       Inc(NodePos);

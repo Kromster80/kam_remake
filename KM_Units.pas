@@ -122,6 +122,7 @@ type
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse: TKMHouse); virtual;
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionStorm(aRow:integer);
+    procedure SetActionSteer;
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 
     procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
@@ -285,6 +286,7 @@ uses
   KM_UnitActionFight,
   KM_UnitActionGoInOut,
   KM_UnitActionStay,
+  KM_UnitActionSteer,
   KM_UnitActionStormAttack,
   KM_UnitActionWalkTo,
 
@@ -879,9 +881,6 @@ end;
 
 
 function TKMUnitAnimal.UpdateState: Boolean;
-var
-  Spot:TKMPoint; //Target spot where unit will go
-  SpotJit:byte;
 begin
   Result:=true; //Required for override compatibility
 
@@ -913,16 +912,7 @@ begin
     exit;
   end;
 
-  SpotJit := 16; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
-  repeat //Where unit should go, keep picking until target is walkable for the unit
-    Dec(SpotJit);
-    Spot := fTerrain.EnsureTileInMapCoords(fCurrPosition.X + KaMRandomS(SpotJit), fCurrPosition.Y + KaMRandomS(SpotJit));
-  until (SpotJit = 0) or (CanWalkTo(Spot, 0));
-
-  if KMSamePoint(fCurrPosition, Spot) then
-    SetActionStay(20, ua_Walk)
-  else
-    SetActionWalkToSpot(Spot);
+  SetActionSteer;
 
   if fCurrentAction = nil then
     raise ELocError.Create(fResource.UnitDat[UnitType].UnitName + ' has no action at end of TKMUnitAnimal.UpdateState', fCurrPosition);
@@ -1350,6 +1340,12 @@ begin
 end;
 
 
+procedure TKMUnit.SetActionSteer;
+begin
+  SetAction(TUnitActionSteer.Create(Self, ua_Walk, True), 0);
+end;
+
+
 //Same as above but we will ignore get-out-of-the-way (push) requests from interaction system
 procedure TKMUnit.SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 begin
@@ -1639,7 +1635,8 @@ begin
         SetActionStay(0, ua_Walk); //Free the current action and give the unit a temporary one
       end;
       //If we were idle abandon our action so we look for a new house immediately (rather than after 20 seconds for the fisherman)
-      if (UnitTask = nil) and (GetUnitAction is TUnitActionStay) and not TUnitActionStay(GetUnitAction).Locked then
+      if ((UnitTask = nil) and (GetUnitAction is TUnitActionStay) and not TUnitActionStay(GetUnitAction).Locked)
+      or (UnitTask is TTaskMining) and (GetUnitAction is TUnitActionStay) then //If we were working inside the house stop
         SetActionStay(0, ua_Walk); //Free the current action and give the unit a temporary one
     end;
     SetInHouse(nil); //Can't be in a destroyed house
