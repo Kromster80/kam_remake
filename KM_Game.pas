@@ -417,7 +417,7 @@ begin
     end;
 
     if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then
-      fGamePlayInterface.MessageIssue(mkQuill, Parser.MinorErrors, KMPoint(0,0));
+      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|'+Parser.MinorErrors, KMPoint(0,0));
 
     fMissionMode := Parser.MissionInfo.MissionMode;
   finally

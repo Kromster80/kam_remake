@@ -382,6 +382,8 @@ begin
     if (fCurrentAction is TUnitActionWalkTo)
     and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
       AbandonWalk;
+    if (UnitTask is TTaskMining) and (GetUnitAction is TUnitActionStay) and (fInHouse = fHome) then
+      SetActionStay(0, ua_Walk); //If we were working inside the house stop
     FreeAndNil(fUnitTask);
     fPlayers.CleanUpHousePointer(fHome);
   end;
@@ -1635,8 +1637,7 @@ begin
         SetActionStay(0, ua_Walk); //Free the current action and give the unit a temporary one
       end;
       //If we were idle abandon our action so we look for a new house immediately (rather than after 20 seconds for the fisherman)
-      if ((UnitTask = nil) and (GetUnitAction is TUnitActionStay) and not TUnitActionStay(GetUnitAction).Locked)
-      or (UnitTask is TTaskMining) and (GetUnitAction is TUnitActionStay) then //If we were working inside the house stop
+      if (UnitTask = nil) and (GetUnitAction is TUnitActionStay) and not TUnitActionStay(GetUnitAction).Locked then
         SetActionStay(0, ua_Walk); //Free the current action and give the unit a temporary one
     end;
     SetInHouse(nil); //Can't be in a destroyed house
