@@ -437,13 +437,15 @@ type
   TKMPercentBar = class(TKMControl)
   private
     fFont: TKMFont;
+    fPosition: Single;
+    procedure SetPosition(aValue: Single);
   public
-    Position: Integer;
     Caption: string;
     FontColor: TColor4;
     TextAlign: TTextAlign;
     TextYOffset: Integer;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont = fnt_Mini);
+    property Position: Single read fPosition write SetPosition;
     procedure Paint; override;
   end;
 
@@ -2161,11 +2163,21 @@ begin
 end;
 
 
+procedure TKMPercentBar.SetPosition(aValue: Single);
+begin
+  fPosition := EnsureRange(aValue, 0, 1);
+end;
+
+
 procedure TKMPercentBar.Paint;
 begin
   inherited;
-  fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
-  if Caption <> '' then begin //Now draw text over bar, if required
+
+  fRenderUI.WritePercentBar(Left,Top,Width,Height, fPosition);
+
+  //Now draw text over the bar, if it is required
+  if Caption <> '' then
+  begin
     //Shadow
     fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)+TextYOffset-4, Width-4, 0, Caption, fFont, TextAlign, $FF000000);
     //Text

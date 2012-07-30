@@ -13,7 +13,7 @@ type
     procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
     procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
-    procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
+    procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aPos: Single);
     procedure WritePicture      (PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; aLightness: Single = 0); overload;
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; aLightness: Single = 0); overload;
     procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
@@ -244,19 +244,19 @@ begin
 end;
 
 
-procedure TRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:smallint);
-const BarColor: TColor4=$FF00AA26;
+procedure TRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY:SmallInt; aPos: Single);
+const BarColor: TColor4 = $FF00AA26;
 var BarWidth: Word;
 begin
   WriteBevel(PosX,PosY,SizeX,SizeY);
 
-  glPushMatrix;
-    glTranslatef(PosX, PosY, 0);
+  //Draw the bar itself, as long as it is wider than 0
+  if aPos > 0 then
+  begin
+    glPushMatrix;
+      glTranslatef(PosX, PosY, 0);
 
-    //Draw the bar itself, as long as it is wider than 0
-    if Pos > 0 then
-    begin
-      BarWidth := Round((SizeX - 2) * Pos / 100) + 2; //At least 2px wide to show up from under the shadow
+      BarWidth := Round((SizeX - 2) * aPos) + 2; //At least 2px wide to show up from under the shadow
       glColor4ubv(@BarColor);
       glBegin(GL_QUADS);
         glkRect(1, 1, BarWidth-1, SizeY-1);
@@ -271,9 +271,8 @@ begin
         glVertex2f(2.5,2.5);
         glVertex2f(2.5,SizeY-1.5);
       glEnd;
-    end;
-
-  glPopMatrix;
+    glPopMatrix;
+  end;
 end;
 
 

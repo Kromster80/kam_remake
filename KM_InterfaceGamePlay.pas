@@ -1921,7 +1921,7 @@ begin
   Image_House_Worker.Hint   := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
   Image_House_Worker.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
   HealthBar_House.Caption   := inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
-  HealthBar_House.Position  := round( Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth * 100 );
+  HealthBar_House.Position  := Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth;
 
   if fAskDemolish then
   begin
@@ -2146,7 +2146,7 @@ begin
   Label_UnitName.Caption      := fResource.UnitDat[Sender.UnitType].UnitName;
   Image_UnitPic.TexID         := fResource.UnitDat[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor     := fPlayers[Sender.GetOwner].FlagColor;
-  ConditionBar_Unit.Position  := EnsureRange(Round(Sender.Condition / UNIT_MAX_CONDITION * 100), -10, 110);
+  ConditionBar_Unit.Position  := Sender.Condition / UNIT_MAX_CONDITION;
   Label_UnitTask.Caption      := 'Task: ' + Sender.GetUnitTaskText;
 
   //While selecting target to join we could get attacked
@@ -2338,7 +2338,7 @@ begin
   else
     Button_School_UnitWIP.TexID := 41; //Question mark
 
-  Button_School_UnitWIPBar.Position:=School.GetTrainingProgress;
+  Button_School_UnitWIPBar.Position := School.GetTrainingProgress;
 
   for i:=1 to 5 do
     if School.UnitQueue[i+1]<>ut_None then
@@ -3710,7 +3710,8 @@ begin
   //Update replay counters
   if fReplay then
   begin
-    PercentBar_Replay.Position := EnsureRange(Round(fGame.GameTickCount / fGame.GameInputProcess.GetLastTick * 100), 0, 100);
+    //Replays can continue after end, keep the bar in 0..1 range
+    PercentBar_Replay.Position := Min(fGame.GameTickCount / fGame.GameInputProcess.GetLastTick, 1);
     Label_Replay.Caption := TimeToString(fGame.MissionTime) + ' / ' +
                             TimeToString(fGame.GameInputProcess.GetLastTick/24/60/60/10);
   end;

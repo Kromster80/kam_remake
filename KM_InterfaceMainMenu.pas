@@ -779,7 +779,7 @@ begin
     for I := 0 to fPlayers.Count - 1 do
     begin
       if MaxValue <> 0 then
-        Bar_Results[I,K].Position := Round(Bar_Results[I,K].Tag / MaxValue * 100)
+        Bar_Results[I,K].Position := Bar_Results[I,K].Tag / MaxValue
       else
         Bar_Results[I,K].Position := 0;
       Bar_Results[I,K].Caption := IfThen(Bar_Results[I,K].Tag <> 0, IntToStr(Bar_Results[I,K].Tag), '-');

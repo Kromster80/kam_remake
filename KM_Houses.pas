@@ -224,7 +224,7 @@ type
     procedure RemUnitFromQueue(aID:integer); //Should remove unit from queue and shift rest up
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
     procedure UnitTrainingComplete; //This should shift queue filling rest with ut_None
-    function GetTrainingProgress:byte;
+    function GetTrainingProgress: Single;
     function QueueIsEmpty:Boolean;
     property HideOneGold:boolean read fHideOneGold;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -1783,28 +1783,28 @@ begin
 end;
 
 
-//Return training progress as in 0..100% range
-function TKMHouseSchool.GetTrainingProgress:byte;
+//Return training progress as in 0 - 1.0 range
+function TKMHouseSchool.GetTrainingProgress: Single;
 begin
   if UnitWIP = nil then
     Result := 0
   else
-    Result := EnsureRange(round((
+    Result := (
               byte(ha_Work2 in fCurrentAction.SubAction) * 30 +
               byte(ha_Work3 in fCurrentAction.SubAction) * 60 +
               byte(ha_Work4 in fCurrentAction.SubAction) * 90 +
               byte(ha_Work5 in fCurrentAction.SubAction) * 120 +
               byte(fCurrentAction.State = hst_Work) * WorkAnimStep
-              )/1.5), 0, 100);
+              ) / 150;
 end;
 
 
-function TKMHouseSchool.QueueIsEmpty:Boolean;
-var i: Integer;
+function TKMHouseSchool.QueueIsEmpty: Boolean;
+var I: Integer;
 begin
   Result := True;
-  for i:=1 to 6 do
-    Result := Result and (UnitQueue[i] = ut_None);
+  for I := 1 to 6 do
+    Result := Result and (UnitQueue[I] = ut_None);
 end;
 
 

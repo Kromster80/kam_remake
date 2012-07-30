@@ -1265,7 +1265,7 @@ begin
   Image_House_Worker.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
   Image_House_Worker.Hint := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
   KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
-  KMHealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth * 100 );
+  KMHealthBar_House.Position := Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth;
 
   Image_House_Worker.Visible := fResource.HouseDat[Sender.HouseType].OwnerType <> ut_None;
 
@@ -1301,10 +1301,10 @@ begin
   SetActivePlayer(Sender.GetOwner);
 
   SwitchPage(Panel_Unit);
-  Label_UnitName.Caption:=fResource.UnitDat[Sender.UnitType].UnitName;
-  Image_UnitPic.TexID:=fResource.UnitDat[Sender.UnitType].GUIScroll;
+  Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].UnitName;
+  Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
-  KMConditionBar_Unit.Position:=EnsureRange(round(Sender.Condition / UNIT_MAX_CONDITION * 100),-10,110);
+  KMConditionBar_Unit.Position := Sender.Condition / UNIT_MAX_CONDITION;
   if Sender is TKMUnitWarrior then
   begin
     //Warrior specific
@@ -1534,7 +1534,7 @@ begin
       Commander.Condition := UNIT_MAX_CONDITION div 2
     else
       Commander.Condition := UNIT_MAX_CONDITION;
-    KMConditionBar_Unit.Position := EnsureRange(round(Commander.Condition / UNIT_MAX_CONDITION * 100),-10,110);
+    KMConditionBar_Unit.Position := Commander.Condition / UNIT_MAX_CONDITION;
   end;
 end;
 
