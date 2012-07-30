@@ -215,13 +215,13 @@ type
     fTrainProgress: Byte; //Was it 150 steps in KaM?
     procedure CloseHouse(IsEditor: Boolean = False); override;
   public
-    UnitQueue: array[1..6]of TUnitType; //Used in UI. First item is the unit currently being trained, 2..5 are the actual queue
+    Queue: array [0..5] of TUnitType; //Used in UI. First item is the unit currently being trained, 1..5 are the actual queue
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure ResAddToIn(aResource: TResourceType; const aCount: Word = 1; aFromScript: Boolean = False); override;
     procedure AddUnitToQueue(aUnit: TUnitType; aCount: Byte); //Should add unit to queue if there's a place
-    procedure RemUnitFromQueue(aID: Integer); //Should remove unit from queue and shift rest up
+    procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
     procedure UnitTrainingComplete(aUnit: Pointer); //This should shift queue filling rest with ut_None
     function GetTrainingProgress: Single;
@@ -1671,8 +1671,8 @@ var I: Integer;
 begin
   inherited;
 
-  for I := Low(UnitQueue) to High(UnitQueue) do
-    UnitQueue[I] := ut_None;
+  for I := 0 to High(Queue) do
+    Queue[I] := ut_None;
 end;
 
 
@@ -1682,7 +1682,7 @@ begin
   LoadStream.Read(UnitWIP, 4);
   LoadStream.Read(fHideOneGold);
   LoadStream.Read(fTrainProgress);
-  LoadStream.Read(UnitQueue, SizeOf(UnitQueue));
+  LoadStream.Read(Queue, SizeOf(Queue));
 end;
 
 
@@ -1697,9 +1697,9 @@ procedure TKMHouseSchool.CloseHouse(IsEditor: Boolean = False);
 var
   I: Integer;
 begin
-  for I := 2 to Length(UnitQueue) do
-    UnitQueue[I] := ut_None;
-  RemUnitFromQueue(1); //Remove WIP unit
+  for I := 1 to High(Queue) do
+    Queue[I] := ut_None;
+  RemUnitFromQueue(0); //Remove WIP unit
   inherited;
 end;
 
@@ -1720,11 +1720,11 @@ procedure TKMHouseSchool.AddUnitToQueue(aUnit: TUnitType; aCount: Byte);
 var I, K: Integer;
 begin
   for K := 1 to aCount do
-  for I := 2 to Length(UnitQueue) do
-  if UnitQueue[I] = ut_None then
+  for I := 1 to High(Queue) do
+  if Queue[I] = ut_None then
   begin
-    UnitQueue[I] := aUnit;
-    if I = 2 then
+    Queue[I] := aUnit;
+    if I = 1 then
       StartTrainingUnit; //If thats the first unit then start training it
     Break;
   end;
@@ -1732,26 +1732,28 @@ end;
 
 
 //DoCancelTraining and remove untrained unit
-procedure TKMHouseSchool.RemUnitFromQueue(aID: Integer);
+procedure TKMHouseSchool.RemUnitFromQueue(aID: Byte);
 var I: Integer;
 begin
-  if UnitQueue[aID] = ut_None then Exit; //Ignore clicks on empty queue items
+  if Queue[aID] = ut_None then Exit; //Ignore clicks on empty queue items
 
-  if aID = 1 then begin
+  if aID = 0 then
+  begin
     SetState(hst_Idle);
-    if UnitWIP<>nil then begin //Make sure unit started training
+    if UnitWIP <> nil then
+    begin //Make sure unit started training
       TKMUnit(UnitWIP).CloseUnit(False); //Don't remove tile usage, we are inside the school
       fHideOneGold := false;
     end;
     UnitWIP := nil;
-    UnitQueue[1]:=ut_None; //Removed the in training unit
+    Queue[0] := ut_None; //Removed the in training unit
     StartTrainingUnit; //Start on the next unit in the queue
   end
   else
   begin
-    for I := aID to Length(UnitQueue) - 1 do
-      UnitQueue[I] := UnitQueue[I+1]; //Shift by one
-    UnitQueue[Length(UnitQueue)] := ut_None; //Set the last one empty
+    for I := aID to High(Queue) - 1 do
+      Queue[I] := Queue[I+1]; //Shift by one
+    Queue[High(Queue)] := ut_None; //Set the last one empty
   end;
 end;
 
@@ -1759,17 +1761,17 @@ end;
 procedure TKMHouseSchool.StartTrainingUnit;
 var I: Integer;
 begin
-  if UnitQueue[1] <> ut_None then exit; //If there's currently no unit in training
-  if UnitQueue[2] = ut_None then exit; //If there is a unit waiting to be trained
+  if Queue[0] <> ut_None then exit; //If there's currently no unit in training
+  if Queue[1] = ut_None then exit; //If there is a unit waiting to be trained
   if CheckResIn(rt_Gold) = 0 then exit; //There must be enough gold to perform training
 
   fHideOneGold := true;
-  for I := 1 to High(UnitQueue) - 1 do
-    UnitQueue[I] := UnitQueue[I+1]; //Shift by one
-  UnitQueue[High(UnitQueue)] := ut_None; //Set the last one empty
+  for I := 0 to High(Queue) - 1 do
+    Queue[I] := Queue[I+1]; //Shift by one
+  Queue[High(Queue)] := ut_None; //Set the last one empty
 
   //Create the Unit
-  UnitWIP := fPlayers.Player[fOwner].TrainUnit(UnitQueue[1], GetEntrance);
+  UnitWIP := fPlayers.Player[fOwner].TrainUnit(Queue[0], GetEntrance);
   TKMUnit(UnitWIP).TrainInHouse(Self); //Let the unit start the training task
 
   WorkAnimStep := 0;
@@ -1782,7 +1784,7 @@ begin
   Assert(aUnit = UnitWIP, 'Should be called only by Unit itself when it''s trained');
 
   UnitWIP := nil;
-  UnitQueue[1] := ut_None; //Clear the unit in training
+  Queue[0] := ut_None; //Clear the unit in training
   ResTakeFromIn(rt_Gold); //Do the goldtaking
   fPlayers.Player[fOwner].Stats.GoodConsumed(rt_Gold);
   fHideOneGold := False;
@@ -1813,8 +1815,8 @@ function TKMHouseSchool.QueueIsEmpty: Boolean;
 var I: Integer;
 begin
   Result := True;
-  for I := 1 to 6 do
-    Result := Result and (UnitQueue[I] = ut_None);
+  for I := 0 to High(Queue) do
+    Result := Result and (Queue[I] = ut_None);
 end;
 
 
@@ -1827,7 +1829,7 @@ begin
     SaveStream.Write(Integer(0));
   SaveStream.Write(fHideOneGold);
   SaveStream.Write(fTrainProgress);
-  SaveStream.Write(UnitQueue, SizeOf(UnitQueue));
+  SaveStream.Write(Queue, SizeOf(Queue));
 end;
 
 

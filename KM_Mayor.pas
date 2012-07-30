@@ -134,16 +134,16 @@ begin
   //Schools
   //Count overall schools count and exclude already training units from UnitReq
   SetLength(Schools, P.Stats.GetHouseQty(ht_School));
-  k := 1;
-  HS := TKMHouseSchool(P.FindHouse(ht_School,k));
+  K := 1;
+  HS := TKMHouseSchool(P.FindHouse(ht_School,K));
   while HS <> nil do
   begin
-    Schools[k-1] := HS;
-    for i:=1 to 6 do //Decrease requirement for each unit in training
-      if HS.UnitQueue[i]<>ut_None then
-        dec(UnitReq[HS.UnitQueue[i]]); //Can be negative and compensated by e.g. ReqRecruits
-    inc(k);
-    HS := TKMHouseSchool(P.FindHouse(ht_School,k));
+    Schools[K-1] := HS;
+    for I := 0 to High(HS.Queue) do //Decrease requirement for each unit in training
+      if HS.Queue[I] <> ut_None then
+        Dec(UnitReq[HS.Queue[I]]); //Can be negative and compensated by e.g. ReqRecruits
+    inc(K);
+    HS := TKMHouseSchool(P.FindHouse(ht_School,K));
   end;
 
   //Order the training

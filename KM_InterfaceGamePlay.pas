@@ -1642,22 +1642,23 @@ begin
     Button_School_UnitWIPBar :=TKMPercentBar.Create(Panel_House_School,42,54,138,20);
     Button_School_UnitWIP := TKMButton.Create(Panel_House_School,  8,48,32,32,0);
     Button_School_UnitWIP.Hint := fTextLibrary[TX_HOUSE_SCHOOL_WIP_HINT];
-    Button_School_UnitWIP.Tag := 1;
+    Button_School_UnitWIP.Tag := 0;
     Button_School_UnitWIP.OnClick := House_SchoolUnitRemove;
-    for i:=1 to 5 do begin
-      Button_School_UnitPlan[i] := TKMButtonFlat.Create(Panel_House_School, 8+(i-1)*36,80,32,32,0);
-      Button_School_UnitPlan[i].Tag := i+1;
+    for I := 1 to 5 do
+    begin
+      Button_School_UnitPlan[i] := TKMButtonFlat.Create(Panel_House_School, 8 + (I-1) * 36, 80, 32, 32, 0);
+      Button_School_UnitPlan[i].Tag := I;
       Button_School_UnitPlan[i].OnClick := House_SchoolUnitRemove;
     end;
-    Label_School_Unit:=TKMLabel.Create(Panel_House_School,100,116,184,30,'',fnt_Outline,taCenter);
-    Image_School_Left :=TKMImage.Create(Panel_House_School,  8,136,54,80,521);
+    Label_School_Unit := TKMLabel.Create(Panel_House_School,100,116,184,30,'',fnt_Outline,taCenter);
+    Image_School_Left := TKMImage.Create(Panel_House_School,  8,136,54,80,521);
     Image_School_Left.Disable;
-    Image_School_Train:=TKMImage.Create(Panel_House_School, 70,136,54,80,522);
-    Image_School_Right:=TKMImage.Create(Panel_House_School,132,136,54,80,523);
+    Image_School_Train := TKMImage.Create(Panel_House_School, 70,136,54,80,522);
+    Image_School_Right := TKMImage.Create(Panel_House_School,132,136,54,80,523);
     Image_School_Right.Disable;
-    Button_School_Left :=TKMButton.Create(Panel_House_School,  8,222,54,40,35);
-    Button_School_Train:=TKMButton.Create(Panel_House_School, 70,222,54,40,42);
-    Button_School_Right:=TKMButton.Create(Panel_House_School,132,222,54,40,36);
+    Button_School_Left  := TKMButton.Create(Panel_House_School,  8,222,54,40,35);
+    Button_School_Train := TKMButton.Create(Panel_House_School, 70,222,54,40,42);
+    Button_School_Right := TKMButton.Create(Panel_House_School,132,222,54,40,36);
     Button_School_Left.OnClickEither:=House_SchoolUnitChange;
     Button_School_Train.OnClickEither:=House_SchoolUnitChange;
     Button_School_Right.OnClickEither:=House_SchoolUnitChange;
@@ -2315,11 +2316,13 @@ end;
 
 {Process click on Left-Train-Right buttons of School}
 procedure TKMGamePlayInterface.House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
-var i:byte; School:TKMHouseSchool;
+var
+  I: Byte;
+  School: TKMHouseSchool;
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouseSchool) then exit;
-  School:=TKMHouseSchool(fPlayers.Selected);
+  School := TKMHouseSchool(fPlayers.Selected);
 
   if (AButton = mbRight) and (Sender=Button_School_Left) then LastSchoolUnit := 0;
   if (AButton = mbRight) and (Sender=Button_School_Right) then LastSchoolUnit := High(School_Order);
@@ -2333,26 +2336,26 @@ begin
     else if AButton = mbRight then
       fGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[LastSchoolUnit], 6);
 
-  if School.UnitQueue[1]<>ut_None then
-    Button_School_UnitWIP.TexID := fResource.UnitDat[School.UnitQueue[1]].GUIIcon
+  if School.Queue[0] <> ut_None then
+    Button_School_UnitWIP.TexID := fResource.UnitDat[School.Queue[0]].GUIIcon
   else
     Button_School_UnitWIP.TexID := 41; //Question mark
 
   Button_School_UnitWIPBar.Position := School.GetTrainingProgress;
 
-  for i:=1 to 5 do
-    if School.UnitQueue[i+1]<>ut_None then
+  for I := 1 to 5 do
+    if School.Queue[I] <> ut_None then
     begin
-      Button_School_UnitPlan[i].TexID := fResource.UnitDat[School.UnitQueue[i+1]].GUIIcon;
-      Button_School_UnitPlan[i].Hint := fResource.UnitDat[School.UnitQueue[i+1]].UnitName;
+      Button_School_UnitPlan[I].TexID := fResource.UnitDat[School.Queue[I]].GUIIcon;
+      Button_School_UnitPlan[I].Hint := fResource.UnitDat[School.Queue[I]].UnitName;
     end
     else
     begin
-      Button_School_UnitPlan[i].TexID:=0;
-      Button_School_UnitPlan[i].Hint:='';
+      Button_School_UnitPlan[I].TexID:=0;
+      Button_School_UnitPlan[I].Hint:='';
     end;
 
-  Button_School_Train.Enabled := School.UnitQueue[length(School.UnitQueue)]=ut_None;
+  Button_School_Train.Enabled := School.Queue[High(School.Queue)] = ut_None;
   Button_School_Left.Enabled := LastSchoolUnit > 0;
   Button_School_Right.Enabled := LastSchoolUnit < High(School_Order);
   Image_School_Left.Visible:= Button_School_Left.Enabled;
@@ -2371,9 +2374,14 @@ end;
 
 {Process click on Remove-from-queue buttons of School}
 procedure TKMGamePlayInterface.House_SchoolUnitRemove(Sender:TObject);
+var
+  School: TKMHouseSchool;
 begin
-  if not (TKMControl(Sender).Tag in [1..6]) then exit;
-  fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, TKMHouseSchool(fPlayers.Selected), TKMControl(Sender).Tag);
+  School := TKMHouseSchool(fPlayers.Selected);
+
+  if not (TKMControl(Sender).Tag in [0..High(School.Queue)]) then Exit;
+
+  fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, TKMControl(Sender).Tag);
   House_SchoolUnitChange(nil, mbLeft);
 end;
 
