@@ -1676,7 +1676,7 @@ begin
 end;
 
 
-constructor TKMHouseSchool.Load(LoadStream:TKMemoryStream);
+constructor TKMHouseSchool.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(UnitWIP, 4);
@@ -1688,7 +1688,7 @@ end;
 
 procedure TKMHouseSchool.SyncLoad;
 begin
-  UnitWIP := fPlayers.GetUnitByID(cardinal(UnitWIP));
+  UnitWIP := fPlayers.GetUnitByID(Cardinal(UnitWIP));
 end;
 
 
@@ -1835,19 +1835,21 @@ end;
 
 { TKMHouseStore }
 procedure TKMHouseStore.Activate(aWasBuilt:boolean);
-var FirstStore: TKMHouseStore; w:TResourceType;
+var
+  FirstStore: TKMHouseStore;
+  RT: TResourceType;
 begin
   inherited;
   //A new storehouse should inherrit the accept properies of the first storehouse of that player,
   //which stops a sudden flow of unwanted resources to it as soon as it is create.
-  FirstStore := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store,1));
+  FirstStore := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store, 1));
   if (FirstStore <> nil) and not FirstStore.IsDestroyed then
-    for w:=WARE_MIN to WARE_MAX do
-      NotAcceptFlag[w] := FirstStore.NotAcceptFlag[w];
+    for RT := WARE_MIN to WARE_MAX do
+      NotAcceptFlag[RT] := FirstStore.NotAcceptFlag[RT];
 end;
 
 
-constructor TKMHouseStore.Load(LoadStream:TKMemoryStream);
+constructor TKMHouseStore.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(ResourceCount, SizeOf(ResourceCount));
@@ -1855,7 +1857,7 @@ begin
 end;
 
 
-procedure TKMHouseStore.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
+procedure TKMHouseStore.ResAddToIn(aResource: TResourceType; const aCount: Word = 1; aFromScript: Boolean = False);
 var R: TResourceType;
 begin
   case aResource of
