@@ -8,6 +8,7 @@ type
   TKMSoftShadowConverter = class
   private
     fRXData: TRXData;
+    fOnlyShadows:boolean;
     function ReadPixelSafe(ID, X, Y: Integer): Cardinal;
 
     function IsBlack(Color: Cardinal): Boolean;
@@ -17,7 +18,7 @@ type
     function IsShadow(ID, X, Y: Integer): Boolean;
   public
     constructor Create(aSpritePack: TKMSpritePack);
-    procedure ConvertShadows(ID: Word);
+    procedure ConvertShadows(ID: Word; aOnlyShadows:Boolean);
   end;
 
 
@@ -45,7 +46,10 @@ end;
 //Maybe the definition of black will change later (to include almost black colors?)
 function TKMSoftShadowConverter.IsBlack(Color: Cardinal): Boolean;
 begin
-  Result := (Color = $FF000000);
+  if fOnlyShadows then
+    Result := (Color = $FF000000) //Only black areas
+  else
+    Result := (Color and $FF000000) <> 0; //Everything that's not transparent
 end;
 
 //Maybe the definition of transparent will change later
@@ -101,7 +105,7 @@ begin
     end;
 end;
 
-procedure TKMSoftShadowConverter.ConvertShadows(ID: Word);
+procedure TKMSoftShadowConverter.ConvertShadows(ID: Word; aOnlyShadows:Boolean);
 var
   TempShadowMap: array of array of Boolean;
   ShadowMap: array of array of Boolean;
@@ -170,12 +174,38 @@ var
       Result := Ret/Divisor;
   end;
 
+  function MixColors(colors:array of Cardinal):cardinal;
+  var i, R,G,B, Count:Cardinal;
+  begin
+    R := 0;
+    B := 0;
+    G := 0;
+    count := 0;
+    for i:=0 to Length(colors)-1 do
+      if colors[i] and $FF000000 <> 0 then
+      begin
+        R := R+(colors[i] and $FF);
+        G := G+(colors[i] shr 8 and $FF);
+        B := B+(colors[i] shr 16 and $FF);
+        inc(count);
+      end;
+
+    Result := 0;
+    if count=0 then exit;
+    R := R div count;
+    B := B div count;
+    G := G div count;
+
+    Result := (R + G shl 8 + B shl 16);
+  end;
+
 var
   X,Y: Integer;
   Shadow: Boolean;
-  Color: Cardinal;
+  Color, OriginalColor: Cardinal;
   RealShadow: Byte;
 begin
+  fOnlyShadows := aOnlyShadows;
   SetLength(TempShadowMap, fRXData.Size[ID].X, fRXData.Size[ID].Y);
   SetLength(ShadowMap,     fRXData.Size[ID].X, fRXData.Size[ID].Y);
 
@@ -195,6 +225,7 @@ begin
       ShadowMap[X, Y] := Shadow;
     end;
 
+  OriginalColor := 0;
   for X:=0 to fRXData.Size[ID].X-1 do
     for Y:=0 to fRXData.Size[ID].Y-1 do
     begin
@@ -202,7 +233,28 @@ begin
       if (TempShadowMap[X, Y] or ShadowMap[X, Y] or IsTransparent(Color)) and not IsObject(Color) then
       begin
         RealShadow := Min(Round(GetBlurredShadow(X, Y)*SHADING_LEVEL), 255);
-        fRXData.RGBA[ID, Y*fRXData.Size[ID].X + X] := RealShadow shl 24;
+        //If we're doing the entire sprite consider the original color, else use black
+        if not fOnlyShadows then
+        begin
+          OriginalColor := fRXData.RGBA[ID, Y*fRXData.Size[ID].X + X];
+          if (OriginalColor and $FF000000) = 0 then
+          begin
+            //Take a blend of all the surrounding colors and use that to fill in gaps
+            OriginalColor :=
+            MixColors([fRXData.RGBA[ID, EnsureRange(Y-1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + X],
+                       fRXData.RGBA[ID, EnsureRange(Y+1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + X],
+                       fRXData.RGBA[ID, Y                                      *fRXData.Size[ID].X + EnsureRange(X-1,0,fRXData.Size[ID].X-1)],
+                       fRXData.RGBA[ID, Y                                      *fRXData.Size[ID].X + EnsureRange(X+1,0,fRXData.Size[ID].X-1)],
+                       //Diagonals
+                       fRXData.RGBA[ID, EnsureRange(Y-1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + EnsureRange(X+1,0,fRXData.Size[ID].X-1)],
+                       fRXData.RGBA[ID, EnsureRange(Y+1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + EnsureRange(X-1,0,fRXData.Size[ID].X-1)],
+                       fRXData.RGBA[ID, EnsureRange(Y-1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + EnsureRange(X-1,0,fRXData.Size[ID].X-1)],
+                       fRXData.RGBA[ID, EnsureRange(Y+1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + EnsureRange(X+1,0,fRXData.Size[ID].X-1)]]);
+          end
+          else
+            OriginalColor := OriginalColor and $00FFFFFF;
+        end;
+        fRXData.RGBA[ID, Y*fRXData.Size[ID].X + X] := (RealShadow shl 24) or OriginalColor;
       end;
     end;
 end;

@@ -28,7 +28,7 @@ var
 
 implementation
 {$R *.dfm}
-uses KM_ResourceHouse;
+uses KM_ResourceHouse, KM_ResourceUnit, KM_Points;
 
 
 procedure TRXXForm1.FormCreate(Sender: TObject);
@@ -59,12 +59,31 @@ end;
 
 procedure TRXXForm1.btnPackRXXClick(Sender: TObject);
 var
+  DeathAnimProcessed: array of Integer;
+  DeathAnimCount: Integer;
+
+  function DeathAnimAlreadyDone(aID:Integer):Boolean;
+  var I:Integer;
+  begin
+    Result := False;
+    for I:=0 to DeathAnimCount-1 do
+      if DeathAnimProcessed[I] = aID then
+      begin
+        Result := True;
+        Exit;
+      end;
+  end;
+
+var
   SpritePack: TKMSpritePackEdit;
   RT: TRXType;
-  I: Integer;
+  I, Step: Integer;
   Tick: Cardinal;
   RXName: string;
   HouseDat: TKMHouseDatCollection;
+  fUnitDat: TKMUnitDatCollection;
+  UT: TUnitType;
+  Dir: TKMDirection;
 begin
   btnPackRXX.Enabled := False;
   Tick := GetTickCount;
@@ -117,6 +136,31 @@ begin
       //Generate alpha shadows for the following sprite packs
       if RT in [rxHouses,rxUnits,rxGui,rxTrees] then
       begin
+        if RT = rxHouses then
+        begin
+          SpritePack.SoftenShadows(889, 892, False); //Smooth smoke
+          SpritePack.SoftenShadows(1615, 1638, False); //Smooth flame
+        end;
+        if RT = rxUnits then
+        begin
+          SpritePack.SoftenShadows(6251, 6314, False); //Smooth thought bubbles
+          //Smooth all death animations for all units
+          fUnitDat := TKMUnitDatCollection.Create;
+          DeathAnimCount := 0; //We need to remember which ones we've done because units reuse them
+          SetLength(DeathAnimProcessed, 1000); //Hopefully more than enough
+          for UT:=HUMANS_MIN to HUMANS_MAX do
+            for Dir:=dir_N to dir_NW do
+              for Step:=1 to 30 do
+                if (fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step] > 0)
+                and not DeathAnimAlreadyDone(fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step]) then
+                begin
+                  SpritePack.SoftenShadows(fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step], False);
+                  DeathAnimProcessed[DeathAnimCount] := fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step];
+                  inc(DeathAnimCount);
+                end;
+          fUnitDat.Free;
+        end;
+
         if RT = rxGui then
           SpritePack.SoftenShadows(251, 281) //House tablets only (shadow softening messes up other rxGui sprites)
         else
