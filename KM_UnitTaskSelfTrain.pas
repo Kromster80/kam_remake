@@ -97,7 +97,7 @@ begin
          end;
       6: begin
           SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);
-          fSchool.UnitTrainingComplete;
+          fSchool.UnitTrainingComplete(fUnit);
           fPlayers.Player[GetOwner].TrainingDone(fUnit);
          end;
       else Result := TaskDone;

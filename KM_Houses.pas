@@ -210,24 +210,24 @@ type
   {School has one unique property - queue of units to be trained, 1 wip + 5 in line}
   TKMHouseSchool = class(TKMHouse)
   private
-    UnitWIP:Pointer;  //can't replace with TKMUnit since it will lead to circular reference in KM_House-KM_Units
-    fHideOneGold:boolean; //Hide the gold incase Player cancels the training, then we won't need to tweak DeliverQueue order
-    UnitTrainProgress:byte; //Was it 150 steps in KaM?
-    procedure CloseHouse(IsEditor:boolean=false); override;
+    UnitWIP: Pointer;  //can't replace with TKMUnit since it will lead to circular reference in KM_House-KM_Units
+    fHideOneGold: Boolean; //Hide the gold incase Player cancels the training, then we won't need to tweak DeliverQueue order
+    fTrainProgress: Byte; //Was it 150 steps in KaM?
+    procedure CloseHouse(IsEditor: Boolean = False); override;
   public
-    UnitQueue:array[1..6]of TUnitType; //Used in UI. First item is the unit currently being trained, 2..5 are the actual queue
+    UnitQueue: array[1..6]of TUnitType; //Used in UI. First item is the unit currently being trained, 2..5 are the actual queue
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
-    constructor Load(LoadStream:TKMemoryStream); override;
+    constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
-    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
-    procedure AddUnitToQueue(aUnit:TUnitType; aCount:byte); //Should add unit to queue if there's a place
-    procedure RemUnitFromQueue(aID:integer); //Should remove unit from queue and shift rest up
+    procedure ResAddToIn(aResource: TResourceType; const aCount: Word = 1; aFromScript: Boolean = False); override;
+    procedure AddUnitToQueue(aUnit: TUnitType; aCount: Byte); //Should add unit to queue if there's a place
+    procedure RemUnitFromQueue(aID: Integer); //Should remove unit from queue and shift rest up
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
-    procedure UnitTrainingComplete; //This should shift queue filling rest with ut_None
+    procedure UnitTrainingComplete(aUnit: Pointer); //This should shift queue filling rest with ut_None
     function GetTrainingProgress: Single;
-    function QueueIsEmpty:Boolean;
-    property HideOneGold:boolean read fHideOneGold;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    function QueueIsEmpty: Boolean;
+    property HideOneGold: Boolean read fHideOneGold;
+    procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
   {Barracks has 11 resources and Recruits}
@@ -1641,38 +1641,38 @@ end;
 procedure TKMHouseMarket.Paint;
 
   function GetInResource(out ResType: TResourceType; out ResCount: word):boolean;
-  var i:TResourceType;
+  var RT: TResourceType;
   begin
     ResCount := 0;
     ResType := rt_None;
     Result := false;
-    for i:=WARE_MIN to WARE_MAX do
+    for RT := WARE_MIN to WARE_MAX do
       if fMarketResIn[i] > ResCount then
       begin
-        ResCount := fMarketResIn[i];
-        ResType := i;
-        Result := true;
+        ResCount := fMarketResIn[RT];
+        ResType := RT;
+        Result := True;
       end;
   end;
 
-var ResType: TResourceType; ResCount: word;
+var ResType: TResourceType; ResCount: Word;
 begin
   inherited;
   //Render special market wares display
   if fBuildState = hbs_Done then
     if GetInResource(ResType, ResCount) then
-      fRenderPool.AddHouseMarketSupply(fPosition,ResType,ResCount,FlagAnimStep); //FlagAnimStep is required for horses
+      fRenderPool.AddHouseMarketSupply(fPosition, ResType, ResCount, FlagAnimStep); //FlagAnimStep is required for horses
 end;
 
 
 { TKMHouseSchool }
 constructor TKMHouseSchool.Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
-var i:integer;
+var I: Integer;
 begin
   inherited;
 
-  for i:=Low(UnitQueue) to High(UnitQueue) do
-    UnitQueue[i] := ut_None;
+  for I := Low(UnitQueue) to High(UnitQueue) do
+    UnitQueue[I] := ut_None;
 end;
 
 
@@ -1681,7 +1681,7 @@ begin
   inherited;
   LoadStream.Read(UnitWIP, 4);
   LoadStream.Read(fHideOneGold);
-  LoadStream.Read(UnitTrainProgress);
+  LoadStream.Read(fTrainProgress);
   LoadStream.Read(UnitQueue, SizeOf(UnitQueue));
 end;
 
@@ -1693,17 +1693,19 @@ end;
 
 
 //Remove all queued units first, to avoid unnecessary shifts in queue
-procedure TKMHouseSchool.CloseHouse(IsEditor:boolean=false);
-var i:integer;
+procedure TKMHouseSchool.CloseHouse(IsEditor: Boolean = False);
+var
+  I: Integer;
 begin
-  for i:=2 to length(UnitQueue) do UnitQueue[i]:=ut_None;
+  for I := 2 to Length(UnitQueue) do
+    UnitQueue[I] := ut_None;
   RemUnitFromQueue(1); //Remove WIP unit
   inherited;
 end;
 
 
 //Add resource as usual and initiate unit training
-procedure TKMHouseSchool.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
+procedure TKMHouseSchool.ResAddToIn(aResource: TResourceType; const aCount: Word = 1; aFromScript: Boolean = False);
 begin
   inherited;
 
@@ -1712,15 +1714,19 @@ begin
 end;
 
 
-procedure TKMHouseSchool.AddUnitToQueue(aUnit:TUnitType; aCount:byte);
-var i,k:integer;
+//Add units to training queue
+//aCount allows to add several units at once (but not more than Schools queue can fit)
+procedure TKMHouseSchool.AddUnitToQueue(aUnit: TUnitType; aCount: Byte);
+var I, K: Integer;
 begin
-  for k:=1 to aCount do
-  for i:=2 to length(UnitQueue) do
-  if UnitQueue[i]=ut_None then begin
-    UnitQueue[i] := aUnit;
-    if i=2 then StartTrainingUnit; //If thats the first unit then start training it
-    break;
+  for K := 1 to aCount do
+  for I := 2 to Length(UnitQueue) do
+  if UnitQueue[I] = ut_None then
+  begin
+    UnitQueue[I] := aUnit;
+    if I = 2 then
+      StartTrainingUnit; //If thats the first unit then start training it
+    Break;
   end;
 end;
 
@@ -1729,7 +1735,7 @@ end;
 procedure TKMHouseSchool.RemUnitFromQueue(aID: Integer);
 var I: Integer;
 begin
-  if UnitQueue[aID] = ut_None then exit; //Ignore clicks on empty queue items
+  if UnitQueue[aID] = ut_None then Exit; //Ignore clicks on empty queue items
 
   if aID = 1 then begin
     SetState(hst_Idle);
@@ -1743,8 +1749,9 @@ begin
   end
   else
   begin
-    for I:=aID to length(UnitQueue)-1 do UnitQueue[I]:=UnitQueue[I+1]; //Shift by one
-    UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
+    for I := aID to Length(UnitQueue) - 1 do
+      UnitQueue[I] := UnitQueue[I+1]; //Shift by one
+    UnitQueue[Length(UnitQueue)] := ut_None; //Set the last one empty
   end;
 end;
 
@@ -1769,32 +1776,35 @@ begin
 end;
 
 
-//To be called only by Unit itself when it's trained!
-procedure TKMHouseSchool.UnitTrainingComplete;
+//Unit reports back to School that it was trained
+procedure TKMHouseSchool.UnitTrainingComplete(aUnit: Pointer);
 begin
+  Assert(aUnit = UnitWIP, 'Should be called only by Unit itself when it''s trained');
+
   UnitWIP := nil;
   UnitQueue[1] := ut_None; //Clear the unit in training
   ResTakeFromIn(rt_Gold); //Do the goldtaking
   fPlayers.Player[fOwner].Stats.GoodConsumed(rt_Gold);
   fHideOneGold := False;
-  if UnitQueue[2] <> ut_None then
-    StartTrainingUnit;
-  UnitTrainProgress := 0;
+  fTrainProgress := 0;
+
+  //Attempt to start training next unit in queue
+  StartTrainingUnit;
 end;
 
 
-//Return training progress as in 0 - 1.0 range
+//Return training progress of a unit in 0.0 - 1.0 range
 function TKMHouseSchool.GetTrainingProgress: Single;
 begin
   if UnitWIP = nil then
     Result := 0
   else
     Result := (
-              byte(ha_Work2 in fCurrentAction.SubAction) * 30 +
-              byte(ha_Work3 in fCurrentAction.SubAction) * 60 +
-              byte(ha_Work4 in fCurrentAction.SubAction) * 90 +
-              byte(ha_Work5 in fCurrentAction.SubAction) * 120 +
-              byte(fCurrentAction.State = hst_Work) * WorkAnimStep
+              Byte(ha_Work2 in fCurrentAction.SubAction) * 30 +
+              Byte(ha_Work3 in fCurrentAction.SubAction) * 60 +
+              Byte(ha_Work4 in fCurrentAction.SubAction) * 90 +
+              Byte(ha_Work5 in fCurrentAction.SubAction) * 120 +
+              Byte(fCurrentAction.State = hst_Work) * WorkAnimStep
               ) / 150;
 end;
 
@@ -1816,7 +1826,7 @@ begin
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fHideOneGold);
-  SaveStream.Write(UnitTrainProgress);
+  SaveStream.Write(fTrainProgress);
   SaveStream.Write(UnitQueue, SizeOf(UnitQueue));
 end;
 
