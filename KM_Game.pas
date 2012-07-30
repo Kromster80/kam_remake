@@ -577,7 +577,7 @@ begin
     on E : Exception do
       fLog.AppendLog('Exception while trying to save game for crash report: '+E.ClassName+': '+E.Message);
   end;
-  
+
   AttachFile(ExeDir + fMissionFile);
   AttachFile(ExeDir + ChangeFileExt(fMissionFile, '.map')); //Try to attach the map too if it's named like that
 
@@ -824,7 +824,7 @@ end;
 
 function TKMGame.GetPeacetimeRemaining: TDateTime;
 begin
-  Result := Max(0, Int64(fGameOptions.Peacetime*600)-fGameTickCount)/24/60/60/10;
+  Result := Max(0, Int64(fGameOptions.Peacetime * 600) - fGameTickCount) / 24 / 60 / 60 / 10;
 end;
 
 
@@ -860,7 +860,7 @@ begin
 end;
 
 
-function TKMGame.IsPeaceTime:boolean;
+function TKMGame.IsPeaceTime: Boolean;
 begin
   Result := not CheckTime(fGameOptions.Peacetime * 600);
 end;

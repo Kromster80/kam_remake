@@ -438,13 +438,16 @@ type
   private
     fFont: TKMFont;
     fPosition: Single;
+    fTextAlign: TTextAlign;
+    fSeam: Single;
     procedure SetPosition(aValue: Single);
+    procedure SetSeam(aValue: Single);
   public
     Caption: string;
     FontColor: TColor4;
-    TextAlign: TTextAlign;
     TextYOffset: Integer;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont = fnt_Mini);
+    property Seam: Single read fSeam write SetSeam;
     property Position: Single read fPosition write SetPosition;
     procedure Paint; override;
   end;
@@ -2159,7 +2162,7 @@ begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont := aFont;
   FontColor := $FFFFFFFF;
-  TextAlign := taCenter;
+  fTextAlign := taCenter;
 end;
 
 
@@ -2169,19 +2172,25 @@ begin
 end;
 
 
+procedure TKMPercentBar.SetSeam(aValue: Single);
+begin
+  fSeam := EnsureRange(aValue, 0, 1);
+end;
+
+
 procedure TKMPercentBar.Paint;
 begin
   inherited;
 
-  fRenderUI.WritePercentBar(Left,Top,Width,Height, fPosition);
+  fRenderUI.WritePercentBar(Left,Top,Width,Height, fSeam, fPosition);
 
   //Now draw text over the bar, if it is required
   if Caption <> '' then
   begin
     //Shadow
-    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)+TextYOffset-4, Width-4, 0, Caption, fFont, TextAlign, $FF000000);
+    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)+TextYOffset-4, Width-4, 0, Caption, fFont, fTextAlign, $FF000000);
     //Text
-    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)+TextYOffset-5, Width-4, 0, Caption, fFont, TextAlign, FontColor);
+    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)+TextYOffset-5, Width-4, 0, Caption, fFont, fTextAlign, FontColor);
   end;
 end;
 

@@ -159,7 +159,7 @@ type
 
     Panel_Replay:TKMPanel; //Bigger Panel to contain Shapes to block all interface below
     Panel_ReplayCtrl:TKMPanel; //Smaller Panel to contain replay controls
-      PercentBar_Replay:TKMPercentBar;
+      PercentBar_Replay: TKMPercentBar;
       Label_Replay:TKMLabel;
       Button_ReplayRestart:TKMButton;
       Button_ReplayPause:TKMButton;
@@ -3711,6 +3711,7 @@ begin
   if fReplay then
   begin
     //Replays can continue after end, keep the bar in 0..1 range
+    PercentBar_Replay.Seam := Min(fGame.GameOptions.Peacetime * 600 / fGame.GameInputProcess.GetLastTick, 1);
     PercentBar_Replay.Position := Min(fGame.GameTickCount / fGame.GameInputProcess.GetLastTick, 1);
     Label_Replay.Caption := TimeToString(fGame.MissionTime) + ' / ' +
                             TimeToString(fGame.GameInputProcess.GetLastTick/24/60/60/10);

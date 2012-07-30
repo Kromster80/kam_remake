@@ -13,7 +13,7 @@ type
     procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
     procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
-    procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aPos: Single);
+    procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
     procedure WritePicture      (PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; aLightness: Single = 0); overload;
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; aLightness: Single = 0); overload;
     procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
@@ -244,35 +244,50 @@ begin
 end;
 
 
-procedure TRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY:SmallInt; aPos: Single);
-const BarColor: TColor4 = $FF00AA26;
-var BarWidth: Word;
+procedure TRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
+const
+  BAR_COLOR_GREEN: TColor4 = $FF00AA26;
+  BAR_COLOR_BLUE: TColor4 = $FFBBAA00;
+var
+  BarWidth: Word;
 begin
-  WriteBevel(PosX,PosY,SizeX,SizeY);
+  glPushMatrix;
+    glTranslatef(PosX, PosY, 0);
 
-  //Draw the bar itself, as long as it is wider than 0
-  if aPos > 0 then
-  begin
-    glPushMatrix;
-      glTranslatef(PosX, PosY, 0);
+    WriteBevel(0, 0, SizeX, SizeY);
 
-      BarWidth := Round((SizeX - 2) * aPos) + 2; //At least 2px wide to show up from under the shadow
-      glColor4ubv(@BarColor);
+    //At least 2px wide to show up from under the shadow
+    BarWidth := Round((SizeX - 2) * (aPos)) + 2;
+    glColor4ubv(@BAR_COLOR_GREEN);
+    glBegin(GL_QUADS);
+      glkRect(1, 1, BarWidth-1, SizeY-1);
+    glEnd;
+
+    if (aSeam > 0) then
+    begin
+      //At least 2px wide to show up from under the shadow
+      BarWidth := Round((SizeX - 2) * Min(aPos, aSeam)) + 2;
+      glColor4ubv(@BAR_COLOR_BLUE);
       glBegin(GL_QUADS);
         glkRect(1, 1, BarWidth-1, SizeY-1);
       glEnd;
-      //Draw shadow on top and left of the bar, just like real one
-      glColor4f(0,0,0,0.5); //Set semi-transparent black
-      glBegin(GL_LINE_STRIP); //List vertices, order is important
-        glVertex2f(1.5,SizeY-1.5);
-        glVertex2f(1.5,1.5);
-        glVertex2f(BarWidth-0.5,1.5);
-        glVertex2f(BarWidth-0.5,2.5);
-        glVertex2f(2.5,2.5);
-        glVertex2f(2.5,SizeY-1.5);
-      glEnd;
-    glPopMatrix;
-  end;
+
+      //Skip the seam if it matches high border
+      if (aSeam < 1) then
+        WriteRect(Round(aSeam * (SizeX - 2)) + 1, 1, 1, SizeY-2, 1, $FFFFFFFF);
+    end;
+
+    //Draw shadow on top and left of the bar, just like real one
+    glColor4f(0,0,0,0.5); //Set semi-transparent black
+    glBegin(GL_LINE_STRIP); //List vertices, order is important
+      glVertex2f(1.5,SizeY-1.5);
+      glVertex2f(1.5,1.5);
+      glVertex2f(SizeX-1.5,1.5);
+      glVertex2f(SizeX-1.5,2.5);
+      glVertex2f(2.5,2.5);
+      glVertex2f(2.5,SizeY-1.5);
+    glEnd;
+  glPopMatrix;
 end;
 
 
