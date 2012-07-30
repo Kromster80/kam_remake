@@ -262,7 +262,7 @@ begin
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
   //Everything except roads
-  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY), True);
+  UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
 end;
 
 
@@ -335,7 +335,7 @@ begin
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
   //Everything except roads
-  UpdateWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY), True);
+  UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
   fLog.AppendLog('Map file loaded');
 end;
 
@@ -724,7 +724,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(aLoc), 1));
 
   //TileLocks affect passability so therefore also floodfill
-  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRect(aLoc), False);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(aLoc), False);
 end;
 
 
@@ -735,7 +735,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(aLoc), 1));
 
   //TileLocks affect passability so therefore also floodfill
-  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRect(aLoc), False);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(aLoc), False);
 end;
 
 
@@ -764,7 +764,7 @@ begin
 
   //Roads don't affect wcWalk or wcFish
   if aUpdateWalkConnects then
-    UpdateWalkConnect([wcRoad, wcWolf, wcCrab], Bounds, False);
+    UpdateWalkConnect([wcRoad], Bounds, False);
 end;
 
 
@@ -777,7 +777,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Roads don't affect wcWalk or wcFish
-  UpdateWalkConnect([wcRoad, wcWolf, wcCrab], KMRect(Loc), False);
+  UpdateWalkConnect([wcRoad], KMRect(Loc), False);
 end;
 
 
@@ -794,7 +794,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Update affected WalkConnect's
-  UpdateWalkConnect([wcWalk, wcWolf, wcCrab], KMRectGrow(KMRect(Loc),1), True); //Winefields object block diagonals
+  UpdateWalkConnect([wcWalk], KMRectGrow(KMRect(Loc),1), True); //Winefields object block diagonals
 end;
 
 
@@ -818,7 +818,7 @@ begin
   Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc), False);
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(Loc), False);
 end;
 
 
@@ -866,7 +866,7 @@ begin
   UpdateBorders(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
   //Walk and Road because Grapes are blocking diagonal moves
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab], KMRectGrow(KMRect(Loc),1), (aFieldType = ft_Wine)); //Grape object blocks diagonal, others don't
+  UpdateWalkConnect([wcWalk, wcRoad], KMRectGrow(KMRect(Loc),1), (aFieldType = ft_Wine)); //Grape object blocks diagonal, others don't
 end;
 
 
@@ -1258,7 +1258,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Tree could have blocked the only diagonal passage
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc),1), True); //Trees block diagonal
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrow(KMRect(Loc),1), True); //Trees block diagonal
 end;
 
 
@@ -1285,7 +1285,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //WalkConnect takes diagonal passability into account
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRectGrow(KMRect(Loc),1), True); //Trees block diagonals
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrow(KMRect(Loc),1), True); //Trees block diagonals
 end;
 
 
@@ -1742,8 +1742,6 @@ begin
     CanWalk:      WC := wcWalk;
     CanWalkRoad:  WC := wcRoad;
     CanFish:      WC := wcFish;
-    CanWolf:      WC := wcWolf;
-    CanCrab:      WC := wcCrab;
     CanWorker:    WC := wcWork;
     else Exit;
   end;
@@ -1797,8 +1795,6 @@ begin
   case aPass of
     CanWalkRoad: wcType := wcRoad;
     CanFish:     wcType := wcFish;
-    CanWolf:     wcType := wcWolf;
-    CanCrab:     wcType := wcCrab;
     else         wcType := wcWalk; //CanWalk is default
   end;
 
@@ -1988,7 +1984,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   if aUpdateWalkConnects then
-    UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], fBoundsWC, False);
+    UpdateWalkConnect([wcWalk, wcRoad, wcWork], fBoundsWC, False);
 end;
 
 
@@ -2004,8 +2000,8 @@ begin
   for I := 0 to LocList.Count - 1 do
     FlattenTerrain(LocList[I], False); //Rebuild the Walk Connect at the end, rather than every time
 
-  //All 5 are affected by height
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], fBoundsWC, False);
+  //wcFish not affected by height
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], fBoundsWC, False);
 end;
 
 
@@ -2148,7 +2144,7 @@ procedure TTerrain.UpdateWalkConnect(const aSet: array of TWalkConnect; aRect: T
 
 const
   WCSet: array [TWalkConnect] of TPassability = (
-    CanWalk, CanWalkRoad, CanFish, CanWolf, CanCrab, CanWorker);
+    CanWalk, CanWalkRoad, CanFish, CanWorker);
 var
   J: Integer;
   WC: TWalkConnect;
@@ -2233,7 +2229,7 @@ begin
 
   //Recalculate Passability for tiles around the house so that they can't be built on too
   UpdatePassability(KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1), True); //Houses can remove objects that block diagonals
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1), True); //Houses can remove objects that block diagonals
 end;
 
 
@@ -2422,7 +2418,7 @@ begin
   end;
 
   UpdatePassability(KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1), True); //Rubble objects block diagonals
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1), True); //Rubble objects block diagonals
 end;
 
 
@@ -2668,7 +2664,7 @@ begin
   UpdateLighting(KMRect(1, 1, fMapX, fMapY));
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
-  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork], KMRect(1, 1, fMapX, fMapY), True);
+  UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
 
   fLog.AppendLog('Terrain loaded');
 end;
