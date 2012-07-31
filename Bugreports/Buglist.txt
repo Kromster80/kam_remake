@@ -44,6 +44,7 @@
 	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
 	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
+	Armour smithy has shields as 2nd item, armour workshop has shields as 1st item. Would make sense to match them.
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing might help?)
 	Colored rectangle below cursor
@@ -63,15 +64,15 @@ Improvements:
  +	Display count of raw materials of each separate area in MapEd (as number in the middle)
  +	Alerts on the minimap when a unit/house is under attack
  +	Show peacetime remaining in MP replays
+ +	Add PlayerCount and Size columns to MapEd selection menu, as well allow to sort maps there
+ +	Edges of messages and other scrolls should be transparent so they look smooth
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
-	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
 	Mutltiplayer spectator mode
 	256x256 icons for EXE (for vista/7/8 users)
 	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
 	Master server use MySQL for storage rather than .txt files
-	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
 	Chat logs
 	Wares need to be taken out of the barracks for trading at the market
 	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
@@ -82,6 +83,7 @@ Improvements:
 	Economic goals such as produce X amount of resource A
 	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
 	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
+	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

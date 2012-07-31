@@ -39,13 +39,8 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Pause button in multiplayer (only host can use it? Or majority of players must press it?)
 	Separate crash situations into gameplay (stop the game because recovery is impossible due to wrongful game state after unfinished UpdateState) and UI (where recovery is much more likely)
 	Add a button into MapEd to allow quickplay the map
-	Increase Towers accuracy slightly, see watchtowers_test.txt
 	Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
 	It doesn't make sense for sausages to be cheaper than bread in the market when sauasges are better food
-	Blocking duplicate app is annoying if you want to run map editor twice or something. We should only block it when it could be cheating (MP game/replay)
-		Krom: Agreed. Added suggested solution as todo in code.
-	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
-		Krom: Agreed
 	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (saves entire game state which can be loaded) Using compression can keep the save file tiny.
 		Krom: Not sure how this will cope with 29hour games
 		Lewin: We can delete save points as the game goes longer. By the time we reach 29 hours we only keep save points from every 1-2 hours. For 90 minute games we keep one every 10 minutes.
@@ -58,6 +53,6 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Allow dedicated server host to do announcements (e.g. server will be closed in 5min, plz save and quit)
 	Add shortcut keys to common messsages in MP (defend here, attack, check ur base, etc.)
 	Add fan-made section where fans could add LOLCat, Welsh, Simple English, Funny and other translations with fallback to existing locale
-	Armour smithy has shields as 2nd item, armour workshop has shields as first item. Would make more sense to have them the same like the weapons smithy/workshop are.
-		Lewin: I agree with this proposal
 	Way to make chat messages sent to only a specific player (could make it easier to play unfairly, e.g. in 1vs1vs1 two players could plan to destroy the other player)
+	Changing teams in multiplayer
+		Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
