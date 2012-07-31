@@ -28,6 +28,7 @@ type
     fImageID: Word; //Image that is using this bin (0 if unused)
     fRect: TBinRect; //Our dimensions
     fPad: Byte;
+    fNotFit: Word; //Minimum size that does not fit
   public
     constructor Create(aRect: TBinRect; aPad: Byte; aImageID: Word);
     destructor Destroy; override;
@@ -35,6 +36,9 @@ type
     function Width: Word;
     function Height: Word;
     procedure GetAllItems(var aItems: TBinItem);
+
+    procedure DidNotFit(aItem: TIndexItem);
+    function CanFit(aItem: TIndexItem): Boolean;
   end;
 
   TBinManager = class
@@ -72,20 +76,6 @@ var
   I, K: Integer;
   BinManager: TBinManager;
 begin
-  //Stub method - fit each sprite into own POT texture
-  {SetLength(aOut, Length(aItems));
-  for I := 0 to High(aItems) do
-  begin
-    aOut[I].Width := MakePOT(aItems[I].X + aPad * 2);
-    aOut[I].Height := MakePOT(aItems[I].Y + aPad * 2);
-
-    SetLength(aOut[I].Sprites, 1);
-
-    aOut[I].Sprites[0].SpriteID := aItems[I].ID;
-    aOut[I].Sprites[0].PosX := aPad;
-    aOut[I].Sprites[0].PosY := aPad;
-  end;}
-
   Assert(MakePOT(aMaxSize) = aMaxSize);
 
   //Sort Items by size to improve packing efficiency
@@ -98,6 +88,7 @@ begin
         SwapInt(aItems[I].Y, aItems[K].Y);
       end;
 
+  //Do the packing
   BinManager := TBinManager.Create(aMaxSize, aMaxSize, aPad);
   try
     for I := 0 to High(aItems) do
@@ -119,6 +110,7 @@ begin
   fRect := aRect; //Our dimensions
   fImageID := aImageID;
   fPad := aPad;
+  fNotFit := 65535;
 end;
 
 
@@ -128,6 +120,18 @@ begin
   if fChild2 <> nil then fChild2.Free;
 
   inherited;
+end;
+
+
+function TBin.CanFit(aItem: TIndexItem): Boolean;
+begin
+  Result := (aItem.X * aItem.Y < fNotFit);
+end;
+
+
+procedure TBin.DidNotFit(aItem: TIndexItem);
+begin
+  fNotFit := Min(fNotFit, aItem.X * aItem.Y);
 end;
 
 
@@ -247,12 +251,15 @@ var
   B: TBin;
 begin
   //Check all Bins (older Bins may still have space for small items)
-  for I := Max(fBins.Count - 5, 0) to fBins.Count - 1 do
+  for I := 0 to fBins.Count - 1 do
+  if TBin(fBins[I]).CanFit(aItem) then
   begin
     //Try to insert into a bin
     B := TBin(fBins[I]).Insert(aItem);
     if B <> nil then
-      Exit;
+      Exit //aItem fit
+    else
+      TBin(fBins[I]).DidNotFit(aItem);
   end;
 
   //Create new Bin
