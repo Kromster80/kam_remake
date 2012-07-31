@@ -376,7 +376,7 @@ begin
 
                       if fGame.GameMode = gmMulti then
                       begin
-                        fMainMenuInterface.ResultsMP_Fill;
+                        fMainMenuInterface.ResultsMP_Fill(Msg);
                         fMainMenuInterface.ShowScreen(msResultsMP, '', Msg);
                       end
                       else
@@ -388,7 +388,7 @@ begin
                         fRepeatCampName := fGame.CampaignName;
                         fRepeatCampMap := fGame.CampaignMap;
 
-                        fMainMenuInterface.Results_Fill;
+                        fMainMenuInterface.Results_Fill(Msg);
                         fMainMenuInterface.ShowScreen(msResults, '', Msg);
                       end;
 

@@ -353,8 +353,8 @@ type
     destructor Destroy; override;
     procedure ShowScreen(aScreen: TMenuScreen; const aText: string = ''; aMsg: TGameResultMsg=gr_Silent);
     procedure AppendLoadingText(const aText: string);
-    procedure Results_Fill;
-    procedure ResultsMP_Fill;
+    procedure Results_Fill(aMsg: TGameResultMsg=gr_Silent);
+    procedure ResultsMP_Fill(aMsg: TGameResultMsg=gr_Silent);
     function GetChatText: string;
     function GetChatMessages: string;
 
@@ -490,44 +490,27 @@ end;
 procedure TKMMainMenuInterface.ShowScreen(aScreen: TMenuScreen; const aText: string=''; aMsg: TGameResultMsg=gr_Silent);
 begin
   case aScreen of
-    msError:    begin
-                  Label_Error.Caption := aText;
-                  SwitchMenuPage(Panel_Error);
-                end;
-    msLoading:  begin
-                  Label_Loading.Caption := aText;
-                  SwitchMenuPage(Panel_Loading);
-                end;
-    msMain:     SwitchMenuPage(nil);
-    msOptions:  SwitchMenuPage(Button_MM_Options);
-    msResults:  begin
-                  case aMsg of
-                    gr_Win:       Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
-                    gr_Defeat:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
-                    gr_Cancel:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
-                    gr_ReplayEnd: Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
-                    else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
-                  end;
+    msError:     begin
+                   Label_Error.Caption := aText;
+                   SwitchMenuPage(Panel_Error);
+                 end;
+    msLoading:   begin
+                   Label_Loading.Caption := aText;
+                   SwitchMenuPage(Panel_Loading);
+                 end;
+    msMain:      SwitchMenuPage(nil);
+    msOptions:   SwitchMenuPage(Button_MM_Options);
+    msResults:   begin
+                   //Restart button is hidden if you won or if it is a replay
+                   Button_ResultsRepeat.Visible := not (aMsg in [gr_ReplayEnd, gr_Win]);
 
-                  //Restart button is hidden if you won or if it is a replay
-                  Button_ResultsRepeat.Visible := not (aMsg in [gr_ReplayEnd, gr_Win]);
+                   //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
+                   Button_ResultsContinue.Visible := (fGameApp.Campaigns.ActiveCampaign <> nil) and (aMsg <> gr_ReplayEnd);
+                   Button_ResultsContinue.Enabled := aMsg = gr_Win;
 
-                  //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
-                  Button_ResultsContinue.Visible := (fGameApp.Campaigns.ActiveCampaign <> nil) and (aMsg <> gr_ReplayEnd);
-                  Button_ResultsContinue.Enabled := aMsg = gr_Win;
-
-                  SwitchMenuPage(Panel_Results);
-                end;
-    msResultsMP:begin
-                  case aMsg of
-                    gr_Win:       Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY]  + ': ' + Label_ResultsMP.Caption;
-                    gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT]   + ': ' + Label_ResultsMP.Caption;
-                    gr_Cancel:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED] + ': ' + Label_ResultsMP.Caption;
-                    gr_ReplayEnd: Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED] + ': ' + Label_ResultsMP.Caption;
-                    else          Label_ResultsMP.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
-                  end;
-                  SwitchMenuPage(Panel_ResultsMP);
-                end;
+                   SwitchMenuPage(Panel_Results);
+                 end;
+    msResultsMP: SwitchMenuPage(Panel_ResultsMP);
   end;
 end;
 
@@ -550,12 +533,22 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Results_Fill;
+procedure TKMMainMenuInterface.Results_Fill(aMsg: TGameResultMsg=gr_Silent);
 var
   I: Integer;
   R: TResourceType;
   G: TCardinalArray;
 begin
+  case aMsg of
+    gr_Win:       Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
+    gr_Defeat:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
+    gr_Cancel:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+    gr_ReplayEnd: Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+    else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
+  end;
+  //Append mission name and time after the result message
+  Label_Results.Caption := Label_Results.Caption + ': ' + fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);
+
   if (MyPlayer = nil) or (MyPlayer.Stats = nil) then Exit;
 
   //Fill in table values (like old KaM did)
@@ -648,7 +641,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.ResultsMP_Fill;
+procedure TKMMainMenuInterface.ResultsMP_Fill(aMsg: TGameResultMsg=gr_Silent);
 var
   I,K: Integer;
   UnitsMax, HousesMax, GoodsMax, WeaponsMax, MaxValue: Integer;
@@ -657,7 +650,15 @@ var
   R: TResourceType;
   G: TCardinalArray;
 begin
-  Label_ResultsMP.Caption := fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);
+  case aMsg of
+    gr_Win:       Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
+    gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
+    gr_Cancel:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+    gr_ReplayEnd: Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+    else          Label_ResultsMP.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
+  end;
+  //Append mission name and time after the result message
+  Label_ResultsMP.Caption := Label_ResultsMP.Caption + ': ' + fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);
 
   //Update visibility depending on players count
   for I := 0 to MAX_PLAYERS - 1 do
@@ -1593,7 +1594,7 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_Results := TKMLabel.Create(Panel_Results,512,140,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_Results := TKMLabel.Create(Panel_Results,512,140,900,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_Results.Anchors := [akLeft];
 
     Panel_Stats := TKMPanel.Create(Panel_Results, 30, 200, 360, 370);
@@ -1693,7 +1694,7 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,125,800,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,125,900,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_ResultsMP.Anchors := [akLeft];
 
     Button_MPStats := TKMButtonFlat.Create(Panel_ResultsMP, 190, 155, 210, 20, 8, rxGuiMain);
