@@ -889,10 +889,11 @@ var
   PeaceTicksRemaining: Cardinal;
 begin
   PeaceTicksRemaining := Max(0, Int64((fGameOptions.Peacetime * 600)) - fGameTickCount);
-  if (PeaceTicksRemaining = 1) and (fGameMode = gmMulti) then
+  if (PeaceTicksRemaining = 1) and (fGameMode in [gmMulti,gmReplay]) then
   begin
-    fNetworking.PostLocalMessage(fTextLibrary[TX_MP_PEACETIME_OVER], false);
     fSoundLib.Play(sfxn_Peacetime, 1.0, True); //Fades music
+    if fGameMode = gmMulti then
+      fNetworking.PostLocalMessage(fTextLibrary[TX_MP_PEACETIME_OVER], false);
   end;
 end;
 
@@ -1259,6 +1260,7 @@ begin
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
                     fEventsManager.ProcTime(fGameTickCount); //In future events could effect game outcome, and maybe you want to see when a message saying "you will be attacked" appears during the replay?
+                    UpdatePeacetime; //Send warning messages about peacetime if required (peacetime sound should still be played in replays)
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(fGameTickCount); //Quite slow
                     if fIsEnded then exit; //Quit the update if game was stopped by MyPlayer defeat

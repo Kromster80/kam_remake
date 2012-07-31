@@ -965,7 +965,6 @@ begin
   end;
 end;
 
-  //todo: Show peacetime information in MP replays
 
 procedure TKMGamePlayInterface.Create_Replay_Page;
 begin
@@ -2761,7 +2760,7 @@ begin
   else
     Label_Menu_Track.Caption := fGameApp.MusicLib.GetTrackTitle;
 
-  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME], [FormatDateTime('h:nn:ss', fGame.MissionTime)]);
+  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME], [TimeToString(fGame.MissionTime)]);
 
   Label_Menu_Track.Enabled      := not fGameApp.GameSettings.MusicOff;
   Button_Menu_TrackUp.Enabled   := not fGameApp.GameSettings.MusicOff;
@@ -3712,7 +3711,7 @@ begin
   //Update peacetime counter
   if fGame.GameOptions.Peacetime <> 0 then
     Label_PeacetimeRemaining.Caption := Format(fTextLibrary[TX_MP_PEACETIME_REMAINING],
-                                               [FormatDateTime('h:nn:ss', fGame.GetPeacetimeRemaining)])
+                                               [TimeToString(fGame.GetPeacetimeRemaining)])
   else Label_PeacetimeRemaining.Caption := '';
 
   //Update replay counters

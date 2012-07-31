@@ -60,7 +60,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource;
+uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource, KM_Utils;
 
 
 const //Sample list made by AntonP
@@ -439,7 +439,7 @@ begin
   RecruitFactor := 5; //This means the number in the barracks, watchtowers are counted seperately
   RecruitDelay := 0; //Can train at start
 
-  Strong := (Random > 0.5);
+  Strong := (KaMRandom > 0.5);
 
   //QuaryCount := 3;
   //SchoolCount := 1;
