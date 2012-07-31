@@ -241,15 +241,15 @@ begin
           begin
             //Take a blend of all the surrounding colors and use that to fill in gaps
             OriginalColor :=
-            MixColors([fRXData.RGBA[ID, EnsureRange(Y-1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + X],
-                       fRXData.RGBA[ID, EnsureRange(Y+1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + X],
-                       fRXData.RGBA[ID, Y                                      *fRXData.Size[ID].X + EnsureRange(X-1,0,fRXData.Size[ID].X-1)],
-                       fRXData.RGBA[ID, Y                                      *fRXData.Size[ID].X + EnsureRange(X+1,0,fRXData.Size[ID].X-1)],
+            MixColors([fRXData.RGBA[ID, Max(Y-1,0                   )*fRXData.Size[ID].X + X],
+                       fRXData.RGBA[ID, Min(Y+1,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + X],
+                       fRXData.RGBA[ID, Y                            *fRXData.Size[ID].X + Max(X-1,0)],
+                       fRXData.RGBA[ID, Y                            *fRXData.Size[ID].X + Min(X+1,fRXData.Size[ID].X-1)],
                        //Diagonals
-                       fRXData.RGBA[ID, EnsureRange(Y-1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + EnsureRange(X+1,0,fRXData.Size[ID].X-1)],
-                       fRXData.RGBA[ID, EnsureRange(Y+1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + EnsureRange(X-1,0,fRXData.Size[ID].X-1)],
-                       fRXData.RGBA[ID, EnsureRange(Y-1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + EnsureRange(X-1,0,fRXData.Size[ID].X-1)],
-                       fRXData.RGBA[ID, EnsureRange(Y+1,0,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + EnsureRange(X+1,0,fRXData.Size[ID].X-1)]]);
+                       fRXData.RGBA[ID, Max(Y-1,0                   )*fRXData.Size[ID].X + Min(X+1,fRXData.Size[ID].X-1)],
+                       fRXData.RGBA[ID, Min(Y+1,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + Max(X-1,0)],
+                       fRXData.RGBA[ID, Max(Y-1,0                   )*fRXData.Size[ID].X + Max(X-1,0)],
+                       fRXData.RGBA[ID, Min(Y+1,fRXData.Size[ID].Y-1)*fRXData.Size[ID].X + Min(X+1,fRXData.Size[ID].X-1)]]);
           end
           else
             OriginalColor := OriginalColor and $00FFFFFF;
