@@ -2140,18 +2140,22 @@ end;
 //Might need additional graphics to be added to gui.rx
 //Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 procedure TKMRadioGroup.Paint;
-var Col: TColor4; LineHeight: Integer; i: Integer;
+var
+  Col: TColor4;
+  LineHeight: Integer;
+  I: Integer;
 begin
   inherited;
   if ItemCount = 0 then Exit; //Avoid dividing by zero
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  LineHeight := round(fHeight / ItemCount);
-  for i:=0 to ItemCount-1 do
+  LineHeight := Round(fHeight / ItemCount);
+
+  for I := 0 to ItemCount - 1 do
   begin
-    fRenderUI.WriteText(Left, Top + i*LineHeight, Width, 0, '[ ] '+fItems.Strings[i], fFont, taLeft, Col);
-    if fItemIndex = i then
-      fRenderUI.WriteText(Left+3, Top + i*LineHeight - 1, 0, 0, 'x', fFont, taLeft, Col);
+    fRenderUI.WriteText(Left, Top + I * LineHeight, Width, 0, '[ ] ' + fItems.Strings[I], fFont, taLeft, Col);
+    if fItemIndex = I then
+      fRenderUI.WriteText(Left + 3, Top + I * LineHeight - 1, 0, 0, 'x', fFont, taLeft, Col);
   end;
 end;
 
