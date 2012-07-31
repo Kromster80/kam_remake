@@ -53,18 +53,22 @@ begin
 
   case aHouse of
     //ht_Store:     Result := NextToHouse(ht_Store, aHouse, aLoc);
-    ht_School:    Result := NextToHouse(ht_Store, aHouse, aLoc);
-    ht_Inn:       Result := NextToHouse(ht_Store, aHouse, aLoc);
-    ht_Sawmill:   Result := NextToHouse(ht_Woodcutters, aHouse, aLoc);
-    ht_Mill:      Result := NextToHouse(ht_Farm, aHouse, aLoc);
-    ht_Bakery:    Result := NextToHouse(ht_Farm, aHouse, aLoc);
-    ht_Swine:     Result := NextToHouse(ht_Farm, aHouse, aLoc);
-    ht_Butchers:  Result := NextToHouse(ht_Swine, aHouse, aLoc);
+    ht_School:        Result := NextToHouse(ht_Store, aHouse, aLoc);
+    ht_Inn:           Result := NextToHouse(ht_Store, aHouse, aLoc);
+    ht_Sawmill:       Result := NextToHouse(ht_Woodcutters, aHouse, aLoc);
+    ht_Mill:          Result := NextToHouse(ht_Farm, aHouse, aLoc);
+    ht_Bakery:        Result := NextToHouse(ht_Farm, aHouse, aLoc);
+    ht_Swine:         Result := NextToHouse(ht_Farm, aHouse, aLoc);
+    ht_Butchers:      Result := NextToHouse(ht_Swine, aHouse, aLoc);
     ht_Tannery:       Result := NextToHouse(ht_Swine, aHouse, aLoc);
     ht_Metallurgists: Result := NextToHouse(ht_GoldMine, aHouse, aLoc);
+    ht_Barracks:      Result := NextToHouse(ht_GoldMine, aHouse, aLoc);
+
+    ht_WeaponWorkshop:  Result := NextToHouse(ht_Sawmill, aHouse, aLoc);
+    ht_ArmorWorkshop:   Result := NextToHouse(ht_Tannery, aHouse, aLoc);
+
     ht_CoalMine:      Result := NextToOre(ht_CoalMine, rt_Coal, aLoc);
     ht_GoldMine:      Result := NextToOre(ht_GoldMine, rt_GoldOre, aLoc);
-
     ht_Quary:         Result := NextToStone(aHouse, aLoc);
     ht_Woodcutters:   Result := NextToTrees(aHouse, aLoc);
     ht_Farm:          Result := NextToHouse(ht_Store, aHouse, aLoc);//NextToGrass(aHouse, aLoc);

@@ -13,12 +13,9 @@ type
     AutoBuild: Boolean;
     AutoRepair: Boolean;
     Strong: Boolean;
-    //QuaryCount: Byte;
     RecruitDelay: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
     RecruitFactor: Byte;
-    //SchoolCount: Byte;
     SerfFactor: Byte;
-    //WoodCount: Byte;
     WorkerFactor: Byte;
     constructor Create;
     procedure Save(SaveStream: TKMemoryStream);
@@ -266,49 +263,55 @@ procedure TKMayor.CheckHouseVitalCount;
 var Req: Integer;
 begin
   //Build at least one Store and add one more for each 30 houses
-  Req := 1 + (HouseCount(ht_Any) div 30) - HouseCount(ht_Store);
-  if Req > 0 then
+  Req := 1 + (HouseCount(ht_Any) div 30);
+  if Req > HouseCount(ht_Store) then
     TryBuildHouse(ht_Store);
 
   //Build at least one School and one more if Barracks are built
-  Req := 1 + HouseCount(ht_Barracks) - HouseCount(ht_School);
-  if Req > 0 then
+  Req := 1 + HouseCount(ht_Barracks);
+  if Req > HouseCount(ht_School) then
     TryBuildHouse(ht_School);
 
   //Build at least one Inn and one more for every 60 citizens
-  Req := 1 + fPlayers[fOwner].Stats.GetCitizensCount div 60 - HouseCount(ht_Inn);
-  if Req > 0 then
+  Req := 1 + fPlayers[fOwner].Stats.GetCitizensCount div 60;
+  if Req > HouseCount(ht_Inn) then
     TryBuildHouse(ht_Inn);
 end;
 
 
+//Basic mining facilities
 procedure TKMayor.CheckHouseMiningCount;
 var Req: Integer;
 begin
   //Competitive opponent needs at least 3 quaries build early and 2 more after Sawmill
-  Req := 2 + Byte(fMayorSetup.Strong) + Byte(fMayorSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 2 - HouseCount(ht_Quary);
-  if Req > 0 then
+  Req := 2 + Byte(fMayorSetup.Strong) + Byte(fMayorSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 2;
+  if Req > HouseCount(ht_Quary) then
     TryBuildHouse(ht_Quary);
 
   //Competitive opponent needs at least 3 woodcutters build early and 2 more after Sawmill
-  Req := 1 + Byte(fMayorSetup.Strong) + Byte(fMayorSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 2 - HouseCount(ht_Woodcutters);
-  if Req > 0 then
+  Req := 1 + Byte(fMayorSetup.Strong) + Byte(fMayorSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 2;
+  if Req > HouseCount(ht_Woodcutters) then
     TryBuildHouse(ht_Woodcutters);
 
   //Sawmills count depends only on Woodcutters, build 1 per each two
-  Req := 1 + HouseCount(ht_Woodcutters) div 2 - HouseCount(ht_Sawmill);
-  if Req > 0 then
+  Req := 1 + HouseCount(ht_Woodcutters) div 2;
+  if Req > HouseCount(ht_Sawmill) then
     TryBuildHouse(ht_Sawmill);
 
   //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
-  Req := 2 + Byte(fMayorSetup.Strong) * 2 - HouseCount(ht_CoalMine);
-  if Req > 0 then
+  Req := 2 + Byte(fMayorSetup.Strong) * 2;
+  if Req > HouseCount(ht_CoalMine) then
     TryBuildHouse(ht_CoalMine);
 
   //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
-  Req := 1 + Byte(HouseCount(ht_Metallurgists) > 0) - HouseCount(ht_GoldMine);
-  if Req > 0 then
+  Req := 1 + Byte(HouseCount(ht_Metallurgists) > 0);
+  if Req > HouseCount(ht_GoldMine) then
     TryBuildHouse(ht_GoldMine);
+
+  //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
+  Req := 1;
+  if Req > HouseCount(ht_Metallurgists) then
+    TryBuildHouse(ht_Metallurgists);
 end;
 
 
@@ -316,28 +319,28 @@ procedure TKMayor.CheckHouseFoodCount;
 var Req: Integer;
 begin
   //Build at least 2 Farms early on
-  Req := 2 + Byte(fMayorSetup.Strong) * 2 * Byte(HouseCount(ht_Swine) > 0) - HouseCount(ht_Farm);
-  if Req > 0 then
+  Req := 2 + Byte(fMayorSetup.Strong) * 2 * Byte(HouseCount(ht_Swine) > 0);
+  if Req > HouseCount(ht_Farm) then
     TryBuildHouse(ht_Farm);
 
-  Req := 1 - HouseCount(ht_Mill);
-  if Req > 0 then
+  Req := 1;
+  if Req > HouseCount(ht_Mill) then
     TryBuildHouse(ht_Mill);
 
-  Req := 1 - HouseCount(ht_Bakery);
-  if Req > 0 then
+  Req := 1;
+  if Req > HouseCount(ht_Bakery) then
     TryBuildHouse(ht_Bakery);
 
-  Req := 1 - HouseCount(ht_Swine);
-  if Req > 0 then
+  Req := 1;
+  if Req > HouseCount(ht_Swine) then
     TryBuildHouse(ht_Swine);
 
-  Req := 1 - HouseCount(ht_Butchers);
-  if Req > 0 then
+  Req := 1;
+  if Req > HouseCount(ht_Butchers) then
     TryBuildHouse(ht_Butchers);
 
-  Req := 2 + Byte(fMayorSetup.Strong) * 2 - HouseCount(ht_Wineyard);
-  if Req > 0 then
+  Req := 2 + Byte(fMayorSetup.Strong) * 2;
+  if Req > HouseCount(ht_Wineyard) then
     TryBuildHouse(ht_Wineyard);
 end;
 
@@ -353,12 +356,29 @@ var
   Req: Integer;
 begin
   //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
-  Req := 1 + Byte(HouseCount(ht_Barracks) > 0) - HouseCount(ht_Metallurgists);
-  if Req > 0 then
+  Req := 1 + Byte(HouseCount(ht_Barracks) > 0);
+  if Req > HouseCount(ht_Metallurgists) then
     TryBuildHouse(ht_Metallurgists);
 
-  if (HouseCount(ht_Tannery) = 0) then
+  //
+  Req := 1 + Byte(fMayorSetup.Strong);
+  if Req > HouseCount(ht_Tannery) then
     TryBuildHouse(ht_Tannery);
+
+  //
+  Req := 1 + Byte(fMayorSetup.Strong);
+  if Req > HouseCount(ht_ArmorWorkshop) then
+    TryBuildHouse(ht_ArmorWorkshop);
+
+  //
+  Req := 1 + Byte(fMayorSetup.Strong);
+  if Req > HouseCount(ht_WeaponWorkshop) then
+    TryBuildHouse(ht_WeaponWorkshop);
+
+  //One barracks is enough
+  Req := 1;
+  if Req > HouseCount(ht_Barracks) then
+    TryBuildHouse(ht_Barracks);
 end;
 
 
@@ -373,17 +393,20 @@ begin
   //Check if we have Store/Inn/School in adequate counts
   CheckHouseVitalCount;
 
-  //Check if we have basic resource mining houses (stone, wood, gold)
   CheckHouseMiningCount;
 
-  //Check if produce adequate food supply
-  CheckHouseFoodCount;
-
-  //
-  CheckHouseDefenceCount;
-
-  //Check if we make enough weaponry
-  CheckHouseWeaponryCount;
+  if fMayorSetup.Strong then
+  begin
+    CheckHouseWeaponryCount;
+    CheckHouseDefenceCount;
+    CheckHouseFoodCount;
+  end
+  else
+  begin
+    CheckHouseFoodCount;
+    CheckHouseDefenceCount;
+    CheckHouseWeaponryCount;
+  end;
 
   //Check if we need to demolish depleted mining houses
 
@@ -440,10 +463,6 @@ begin
   RecruitDelay := 0; //Can train at start
 
   Strong := (KaMRandom > 0.5);
-
-  //QuaryCount := 3;
-  //SchoolCount := 1;
-  //WoodCount := 3;
 end;
 
 
@@ -457,9 +476,6 @@ begin
   LoadStream.Read(WorkerFactor);
 
   LoadStream.Read(Strong);
-  //LoadStream.Read(QuaryCount);
-  //LoadStream.Read(SchoolCount);
-  //LoadStream.Read(WoodCount);
 end;
 
 
@@ -473,9 +489,6 @@ begin
   SaveStream.Write(WorkerFactor);
 
   SaveStream.Write(Strong);
-  //SaveStream.Write(QuaryCount);
-  //SaveStream.Write(SchoolCount);
-  //SaveStream.Write(WoodCount);
 end;
 
 
