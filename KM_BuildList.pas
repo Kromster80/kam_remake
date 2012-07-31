@@ -51,6 +51,7 @@ type
     function HasPlan(aLoc: TKMPoint): Boolean;
     procedure RemPlan(aLoc: TKMPoint);
     function GetPlan(aLoc: TKMPoint): THouseType;
+    function FindPlan(aLoc: TKMPoint; out aOut: TKMPoint): Boolean;
 
     //Game events
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
@@ -667,6 +668,30 @@ begin
   fPlans[aIndex].Loc       := KMPoint(0,0);
   fPlans[aIndex].JobStatus := js_Empty;
   fPlayers.CleanUpUnitPointer(fPlans[aIndex].Worker);
+end;
+
+
+//Find plan nearest to aLoc but ecluding it
+function TKMHousePlanList.FindPlan(aLoc: TKMPoint; out aOut: TKMPoint): Boolean;
+var
+  I: Integer;
+  Entrance: TKMPoint;
+  Dist, Best: Single;
+begin
+  Result := False;
+  Best := MaxSingle;
+  for I := 0 to fPlansCount - 1 do
+  if (fPlans[I].HouseType <> ht_None) then
+  begin
+    Entrance := KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y + 1);
+    Dist := KMLength(Entrance, aLoc);
+    if (Dist <> 0) and (Dist < Best) then
+    begin
+      Best := Dist;
+      aOut := Entrance;
+      Result := True;
+    end;
+  end;
 end;
 
 

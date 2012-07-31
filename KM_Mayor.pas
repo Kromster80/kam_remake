@@ -177,15 +177,50 @@ end;
 
 
 procedure TKMayor.TryBuildHouse(aHouse: THouseType);
+  //In fact we want to connect to nearest road piece (not necessarily built yet)
+  function TryConnectToRoad(aLoc: TKMPoint): Boolean;
+  var
+    I: Integer;
+    P: TKMPlayer;
+    H: TKMHouse;
+    LocPlan, LocTo: TKMPoint;
+    NodeList: TKMPointList;
+    RoadExists: Boolean;
+  begin
+    Result := False;
+    P := fPlayers[fOwner];
+
+    //Find nearest wip or ready house
+    H := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, False);
+    if H = nil then Exit; //We are screwed, no houses left
+    LocTo := KMPointBelow(H.GetEntrance);
+    //Check building plans, maybe there's another plan nearby we can connect to with road
+    if P.BuildList.HousePlanList.FindPlan(aLoc, LocPlan) then
+      if KMLength(aLoc, LocPlan) <= KMLength(aLoc, LocTo) then
+        LocTo := LocPlan;
+
+    NodeList := TKMPointList.Create;
+    try
+      RoadExists := fPathFindingRoad.Route_Make(aLoc, LocTo, [CanMakeRoads, CanWalkRoad], 0, nil, NodeList, False);
+
+      if not RoadExists then Exit;
+
+      for I := 0 to NodeList.Count - 1 do
+        //We must check if we can add the plan ontop of plans placed earlier in this turn
+        if P.CanAddFieldPlan(NodeList[I], ft_Road) then
+          P.BuildList.FieldworksList.AddField(NodeList[I], ft_Road);
+      Result := True;
+    finally
+      NodeList.Free;
+    end;
+  end;
+
 const RAD = 4;
 var
   I, K: Integer;
   Loc: TKMPoint;
-  Store: TKMHouse;
   P: TKMPlayer;
-  NodeList: TKMPointList;
   NodeTagList: TKMPointTagList;
-  RoadExists: Boolean;
 begin
   P := fPlayers[fOwner];
 
@@ -195,35 +230,25 @@ begin
   //Number of simultaneous WIP houses is limited to 3
   if (P.Stats.GetHouseWip(ht_Any) >= 3) then Exit;
 
-  if not fCityPlanner.FindPlaceForHouse(aHouse, Loc) then Exit;
+  if not fCityPlanner.FindPlaceForHouse(aHouse, Loc) then
+    //Maybe we get more lucky next tick
+    Exit;
 
+  //Place house after road is planned
   P.AddHousePlan(aHouse, Loc);
-  Loc := KMPointBelow(Loc);
 
-  Store := P.Houses.FindHouse(ht_Any, Loc.X, Loc.Y, 1, True);
-
-  NodeList := TKMPointList.Create;
-  try
-    RoadExists := fPathFindingRoad.Route_Make(Loc, KMPointBelow(Store.GetEntrance), [CanMakeRoads, CanWalkRoad], 0, nil, NodeList, False);
-
-    if RoadExists then
-      for I := 0 to NodeList.Count - 1 do
-        //We must check if we can add the plan ontop of plans placed earlier in this turn
-        if P.CanAddFieldPlan(NodeList[I], ft_Road) then
-          P.BuildList.FieldworksList.AddField(NodeList[I], ft_Road);
-  finally
-    NodeList.Free;
-  end;
+  //Try to connect newly planned house to road network
+  if not TryConnectToRoad(KMPointBelow(Loc)) then Exit;
 
   //Build fields for Farm
   if aHouse = ht_Farm then
   begin
     NodeTagList := TKMPointTagList.Create;
     try
-      for I := Min(Loc.Y + 1, fTerrain.MapY - 1) to Min(Loc.Y + 1 + RAD - 1, fTerrain.MapY - 1) do
+      for I := Min(Loc.Y + 2, fTerrain.MapY - 1) to Min(Loc.Y + 2 + RAD - 1, fTerrain.MapY - 1) do
       for K := Max(Loc.X - RAD, 1) to Min(Loc.X + RAD, fTerrain.MapX - 1) do
         if P.CanAddFieldPlan(KMPoint(K,I), ft_Corn) then
-          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X) + Abs(I + 1 - Loc.Y) * 2, 0);
+          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X) + Abs(I + 2 - Loc.Y) * 2, 0);
 
       NodeTagList.SortByTag;
       for I := 0 to Min(NodeTagList.Count - 1, 15) do
@@ -238,10 +263,10 @@ begin
   begin
     NodeTagList := TKMPointTagList.Create;
     try
-      for I := Min(Loc.Y + 1, fTerrain.MapY - 1) to Min(Loc.Y + 1 + RAD - 1, fTerrain.MapY - 1) do
+      for I := Min(Loc.Y + 2, fTerrain.MapY - 1) to Min(Loc.Y + 2 + RAD - 1, fTerrain.MapY - 1) do
       for K := Max(Loc.X - RAD, 1) to Min(Loc.X + RAD, fTerrain.MapX - 1) do
         if P.CanAddFieldPlan(KMPoint(K,I), ft_Wine) then
-          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X) + Abs(I + 1 - Loc.Y) * 2, 0);
+          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X) + Abs(I + 2 - Loc.Y) * 2, 0);
 
       NodeTagList.SortByTag;
       for I := 0 to Min(NodeTagList.Count - 1, 12) do
@@ -390,6 +415,9 @@ end;
 
 procedure TKMayor.CheckHouseCount;
 begin
+  //Number of simultaneous WIP houses is limited to 3
+  if (fPlayers[fOwner].Stats.GetHouseWip(ht_Any) >= 3) then Exit;
+
   //Check if we have Store/Inn/School in adequate counts
   CheckHouseVitalCount;
 

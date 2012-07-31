@@ -185,6 +185,7 @@
 			<DCCReference Include="KM_UnitActionFight.pas"/>
 			<DCCReference Include="KM_UnitActionGoInOut.pas"/>
 			<DCCReference Include="KM_UnitActionStay.pas"/>
+			<DCCReference Include="KM_UnitActionSteer.pas"/>
 			<DCCReference Include="KM_UnitActionStormAttack.pas"/>
 			<DCCReference Include="KM_UnitActionWalkTo.pas"/>
 			<DCCReference Include="KM_Units.pas"/>
