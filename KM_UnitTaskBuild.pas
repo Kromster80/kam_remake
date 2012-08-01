@@ -121,7 +121,7 @@ type
 
 
 implementation
-uses KM_DeliverQueue, KM_PlayersCollection, KM_Resource, KM_ResourceHouse;
+uses KM_DeliverQueue, KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_ResourceMapElements;
 
 
 { TTaskBuildRoad }
@@ -221,8 +221,8 @@ begin
     7: begin
          fTerrain.IncDigState(fLoc);
          fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
-         //Removing all objects from roadworks
-         fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255;
+         if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
+           fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255; //Remove corn/wine/grass as they won't fit with road
          SetActionLockedStay(11,ua_Work2,false);
        end;
     8: begin
@@ -441,8 +441,8 @@ begin
         SetActionLockedStay(11,ua_Work1,false);
         inc(fPhase2);
         if fPhase2 = 2 then fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        if (fPhase2 = 6) then
-          fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255; //Other objects won't fit with the new field
+        if (fPhase2 = 6) and MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
+          fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255; //Remove grass/corn/wine as they take up most of the tile
         if fPhase2 in [6,8] then fTerrain.IncDigState(fLoc);
        end;
     3: begin
