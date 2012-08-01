@@ -11,9 +11,11 @@ interface
 //              - ZLibPlay is GPL but BASS is not, and BASS can only be used for free in non-commercial products
 
 //When running from DUnit, Bass.dll can not be found?
+//@Krom: That doesn't make sense to me, try removing both of these lines completely and then see if it complains.
+//       When I do that I can run the game without bass.dll or libzplay.dll. Are you sure DUNIT_TEST is defined here? Please test it.
 {$IFNDEF DUNIT_TEST}
-  {$DEFINE USEBASS}
-  {.DEFINE USELIBZPLAY}
+  {.DEFINE USEBASS}
+  {$DEFINE USELIBZPLAY}
 {$ENDIF}
 
 uses Classes, Windows, SysUtils, KromUtils, Math, KM_Defaults
