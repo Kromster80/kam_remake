@@ -222,7 +222,7 @@ begin
          fTerrain.IncDigState(fLoc);
          fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
          if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
-           fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255; //Remove corn/wine/grass as they won't fit with road
+           fTerrain.RemoveObject(fLoc); //Remove corn/wine/grass as they won't fit with road
          SetActionLockedStay(11,ua_Work2,false);
        end;
     8: begin
@@ -442,7 +442,7 @@ begin
         inc(fPhase2);
         if fPhase2 = 2 then fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         if (fPhase2 = 6) and MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj].WineOrCorn then
-          fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255; //Remove grass/corn/wine as they take up most of the tile
+          fTerrain.RemoveObject(fLoc); //Remove grass/corn/wine as they take up most of the tile
         if fPhase2 in [6,8] then fTerrain.IncDigState(fLoc);
        end;
     3: begin
@@ -731,10 +731,10 @@ begin
           SetActionLockedStay(11,ua_Work1,false);
           fTerrain.FlattenTerrain(Cells[Step]);
           fTerrain.FlattenTerrain(Cells[Step]); //Flatten the terrain twice now to ensure it really is flat
+          fTerrain.SetTileLock(Cells[Step], tlDigged); //Block passability on tile
           if KMSamePoint(fHouse.GetEntrance, Cells[Step]) then
             fTerrain.SetField(fHouse.GetEntrance, GetOwner, ft_Road);
-          fTerrain.Land[Cells[Step].Y,Cells[Step].X].Obj := 255; //All objects are removed
-          fTerrain.SetTileLock(Cells[Step], tlDigged); //Block passability on tile
+          fTerrain.RemoveObject(Cells[Step]); //All objects are removed
           dec(Step);
         end;
     7:  begin

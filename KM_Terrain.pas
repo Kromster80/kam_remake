@@ -127,6 +127,7 @@ type
     procedure SetTree(Loc:TKMPoint; ID:integer);
     procedure FallTree(Loc:TKMPoint);
     procedure ChopTree(Loc:TKMPoint);
+    procedure RemoveObject(Loc:TKMPoint);
 
     procedure SowCorn(Loc:TKMPoint);
     procedure CutCorn(Loc:TKMPoint);
@@ -783,19 +784,25 @@ end;
 
 
 procedure TTerrain.RemField(Loc: TKMPoint);
+var ObjectChanged: Boolean;
 begin
   Land[Loc.Y,Loc.X].TileOwner := -1;
   Land[Loc.Y,Loc.X].TileOverlay := to_None;
   Land[Loc.Y,Loc.X].Terrain := Land[Loc.Y,Loc.X].OldTerrain; //Reset terrain
   Land[Loc.Y,Loc.X].Rotation := Land[Loc.Y,Loc.X].OldRotation; //Reset terrain
   if Land[Loc.Y,Loc.X].Obj in [54..59] then
+  begin
     Land[Loc.Y,Loc.X].Obj := 255; //Remove corn/wine
+    ObjectChanged := True;
+  end
+  else
+    ObjectChanged := False;
   Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Update affected WalkConnect's
-  UpdateWalkConnect([wcWalk], KMRectGrow(KMRect(Loc),1), True); //Winefields object block diagonals
+  UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrow(KMRect(Loc),1), ObjectChanged); //Winefields object block diagonals
 end;
 
 
@@ -867,7 +874,7 @@ begin
   UpdateBorders(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
   //Walk and Road because Grapes are blocking diagonal moves
-  UpdateWalkConnect([wcWalk, wcRoad], KMRectGrow(KMRect(Loc),1), (aFieldType = ft_Wine)); //Grape object blocks diagonal, others don't
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(Loc),1), (aFieldType = ft_Wine)); //Grape object blocks diagonal, others don't
 end;
 
 
@@ -1276,7 +1283,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Tree could have blocked the only diagonal passage
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrow(KMRect(Loc),1), True); //Trees block diagonal
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(Loc),1), True); //Trees block diagonal
 end;
 
 
@@ -1303,7 +1310,20 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //WalkConnect takes diagonal passability into account
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrow(KMRect(Loc),1), True); //Trees block diagonals
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(Loc),1), True); //Trees block diagonals
+end;
+
+
+procedure TTerrain.RemoveObject(Loc:TKMPoint);
+var BlockedDiagonal: Boolean;
+begin
+  if Land[Loc.Y,Loc.X].Obj <> 255 then
+  begin
+    BlockedDiagonal := MapElem[Land[Loc.Y,Loc.X].Obj].DiagonalBlocked;
+    Land[Loc.Y,Loc.X].Obj := 255;
+    if BlockedDiagonal then
+      UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrowTopLeft(KMRect(Loc),1), True);
+  end;
 end;
 
 
@@ -2194,7 +2214,9 @@ var
   I, K, X, Y: Word;
   ToFlatten: TKMPointList;
   HA: THouseArea;
+  ObjectsEffected: Boolean; //UpdateWalkConnect cares about this for optimisation purposes
 begin
+  ObjectsEffected := False;
   if aFlattenTerrain then //We will check aFlattenTerrain only once, otherwise there are compiler warnings
     ToFlatten := TKMPointList.Create
   else
@@ -2229,7 +2251,11 @@ begin
                             if ToFlatten <> nil then
                             begin
                               //In map editor don't remove objects (remove on mission load instead)
-                              Land[y,x].Obj := 255;
+                              if Land[y,x].Obj <> 255 then
+                              begin
+                                ObjectsEffected := ObjectsEffected or MapElem[Land[y,x].Obj].DiagonalBlocked;
+                                Land[y,x].Obj := 255;
+                              end;
                               //If house was set e.g. in mission file we must flatten the terrain as no one else has
                               ToFlatten.AddEntry(KMPoint(x,y));
                             end;
@@ -2247,7 +2273,7 @@ begin
 
   //Recalculate Passability for tiles around the house so that they can't be built on too
   UpdatePassability(KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1), True); //Houses can remove objects that block diagonals
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1), ObjectsEffected);
 end;
 
 
@@ -2436,7 +2462,7 @@ begin
   end;
 
   UpdatePassability(KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1));
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1), True); //Rubble objects block diagonals
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(Loc.X - 3, Loc.Y - 4, Loc.X + 2, Loc.Y + 1), (aBuildState in [hbs_Stone, hbs_Done])); //Rubble objects block diagonals
 end;
 
 
@@ -2702,9 +2728,13 @@ end;
 //Don't use any advanced math here, only simpliest operations - + div *
 procedure TTerrain.UpdateState;
   procedure SetLand(X, Y, aTile, aObj: Byte);
+  var FloodfillNeeded: Boolean;
   begin
     Land[Y,X].Terrain := aTile;
+    FloodfillNeeded   := MapElem[Land[Y,X].Obj].DiagonalBlocked <> MapElem[aObj].DiagonalBlocked;
     Land[Y,X].Obj     := aObj;
+    if FloodfillNeeded then //When trees are removed by corn growing we need to update floodfill
+      UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrowTopLeft(KMRect(X,Y,X,Y),1), True);
   end;
 var
   H, I, J, K: Word;
