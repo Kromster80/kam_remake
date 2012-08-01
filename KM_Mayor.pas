@@ -120,6 +120,10 @@ var
   Schools:array of TKMHouseSchool;
   P: TKMPlayer;
 begin
+  //todo: When training new units make sure we have enough gold left to train
+  //stonemason-woodcutter-carpenter-2miners-metallurgist. In other words -
+  //dont waste gold if it's not producing yet
+
   P := fPlayers[fOwner];
 
   //Find school and make sure it's free of tasks
@@ -308,6 +312,10 @@ end;
 procedure TKMayor.CheckHouseMiningCount;
 var Req: Integer;
 begin
+  //todo: When building new houses make sure we have enough building materials
+  //left to build quary-woodcutters-sawmill. In other words - dont waste stone/wood
+  //if it's not producing yet
+
   //Competitive opponent needs at least 3 quaries build early and 2 more after Sawmill
   Req := 2 + Byte(fMayorSetup.Strong) + Byte(fMayorSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 2;
   if Req > HouseCount(ht_Quary) then
