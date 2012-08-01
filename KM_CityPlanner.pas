@@ -3,7 +3,7 @@ unit KM_CityPlanner;
 interface
 uses
   Classes, Graphics, KromUtils, Math, SysUtils, TypInfo,
-  KM_Defaults, KM_Points, KM_CommonClasses;
+  KM_Defaults, KM_Points, KM_CommonClasses, KM_PerfLog;
 
 
 type
@@ -12,21 +12,26 @@ type
   TKMCityPlanner = class
   private
     fOwner: TPlayerIndex;
+    fPerfLog: TKMPerfLog;
 
+    function FindNearest(aStart: TKMPoint; aMaxRange: Byte; aFunc: TKMPointFunction; out aEnd: TKMPoint): Boolean;
     function NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
     function NextToHouse(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToTrees(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     //function NextToGrass(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+    function CoalTest(aPoint: TKMPoint): Boolean;
+    function IronTest(aPoint: TKMPoint): Boolean;
+    function GoldTest(aPoint: TKMPoint): Boolean;
   public
     //Stone, Wood, Farm, Wine, Coal,
     //InfluenceMap: array of array of array [TCityInfluence] of Byte;
 
     constructor Create(aPlayer: TPlayerIndex);
+    destructor Destroy; override;
+
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-
     procedure OwnerUpdate(aPlayer:TPlayerIndex);
-
     procedure UpdateInfluence;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -43,7 +48,17 @@ begin
   inherited Create;
   fOwner := aPlayer;
 
+  if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
   //UpdateInfluence;
+end;
+
+
+destructor TKMCityPlanner.Destroy;
+begin
+  if DO_PERF_LOGGING then fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLogCity'+IntToStr(fOwner)+'.txt');
+  if DO_PERF_LOGGING then fPerfLog.Free;
+
+  inherited;
 end;
 
 
@@ -194,46 +209,84 @@ begin
 end;
 
 
+function TKMCityPlanner.CoalTest(aPoint: TKMPoint): Boolean;
+begin
+  Result := (fTerrain.TileIsCoal(aPoint.X, aPoint.Y) > 1)
+            and fPlayers[fOwner].CanAddHousePlanAI(aPoint, ht_CoalMine, True);
+end;
+
+function TKMCityPlanner.IronTest(aPoint: TKMPoint): Boolean;
+begin
+  Result := (fTerrain.TileIsIron(aPoint.X, aPoint.Y) > 1)
+            and fPlayers[fOwner].CanAddHousePlanAI(aPoint, ht_IronMine, True);
+end;
+
+function TKMCityPlanner.GoldTest(aPoint: TKMPoint): Boolean;
+begin
+  Result := (fTerrain.TileIsGold(aPoint.X, aPoint.Y) > 1)
+            and fPlayers[fOwner].CanAddHousePlanAI(aPoint, ht_GoldMine, True);
+end;
+
+
+function TKMCityPlanner.FindNearest(aStart: TKMPoint; aMaxRange: Byte; aFunc: TKMPointFunction; out aEnd: TKMPoint): Boolean;
+var
+  BestDist: Single;
+  BestLoc: TKMPoint;
+  procedure Proc(const aPoint: TKMPoint);
+  var
+    Dist: Single;
+  begin
+    Dist := KMLength(aStart, aPoint);
+    if (Dist < aMaxRange) and (Dist < BestDist) and aFunc(aPoint) then
+    begin
+      BestDist := Dist;
+      BestLoc := aPoint;
+    end;
+  end;
+var
+  I, K: Integer;
+  TopLeft: TKMPointI;
+  Rad, Span: Byte;
+begin
+  BestLoc := KMPoint(0,0);
+  BestDist := MaxSingle;
+
+  for I := Max(aStart.Y - aMaxRange div 2, 1) to Min(aStart.Y + aMaxRange div 2, fTerrain.MapY - 1) do
+  for K := Max(aStart.X - aMaxRange div 2, 1) to Min(aStart.X + aMaxRange div 2, fTerrain.MapX - 1) do
+    Proc(KMPoint(K, I));
+
+  aEnd := BestLoc;
+
+  Result := BestDist <= aMaxRange;
+end;
+
+
 function TKMCityPlanner.NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
 var
   S: TKMHouse;
-  I, K: Integer;
-  Bid, BestBid: Single;
   P: TKMPoint;
-  FoundOre: Boolean;
-  CoalLoc: TKMPoint;
   StoreLoc: TKMPoint;
+  T: Int64;
 begin
+  T := TimeGet;
   Result := False;
 
+  //Store is the center of our town
   S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
   if S = nil then Exit;
-
   StoreLoc := S.GetPosition;
 
-  FoundOre := False;
-  for I := -1 to 1 do
-  for K := -1 to 1 do
-  begin
-    //Look for coal within 8+7 tiles
-    P := fTerrain.EnsureTileInMapCoords(StoreLoc.X - K * 12, StoreLoc.Y + I * 12);
-    FoundOre := FoundOre or fTerrain.FindOre(P, aOreType, CoalLoc);
+  //Look for nearest Ore
+  case aOreType of
+    rt_Coal:    if not FindNearest(StoreLoc, 40, CoalTest, P) then Exit;
+    rt_IronOre: if not FindNearest(StoreLoc, 40, IronTest, P) then Exit;
+    rt_GoldOre: if not FindNearest(StoreLoc, 40, GoldTest, P) then Exit;
+    else Exit;
   end;
 
-  BestBid := MaxSingle;
-
-  for I := Max(CoalLoc.Y - 3, 1) to Min(CoalLoc.Y + 3, fTerrain.MapY - 1) do
-  for K := Max(CoalLoc.X - 4, 1) to Min(CoalLoc.X + 4, fTerrain.MapX - 1) do
-    if fPlayers[fOwner].CanAddHousePlanAI(KMPoint(K,I), aHouse, True) then
-    begin
-      Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
-      if Bid < BestBid then
-      begin
-        aLoc := KMPoint(K,I);
-        BestBid := Bid;
-        Result := True;
-      end;
-    end;
+  aLoc := P;
+  Result := True;
+  if DO_PERF_LOGGING then fPerfLog.AddTime(TimeGet - T);
 end;
 
 
