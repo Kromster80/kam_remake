@@ -37,9 +37,10 @@ end;
 
 
 procedure TKMPerfLog.SaveToFile(aFilename: string);
-var I: Integer;
+var
+  I: Integer;
   S: TFileStream;
-  ss: string;
+  ss: AnsiString;
 begin
   S := TFileStream.Create(aFilename, fmCreate);
 

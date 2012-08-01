@@ -114,7 +114,7 @@ type
     function FindWineField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir): Boolean;
     function FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir): Boolean;
     function FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir): Boolean;
-    function FindOre(aLoc:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint): Boolean;
+    function FindOre(aLoc: TKMPoint; aRes: TResourceType; out OrePoint: TKMPoint): Boolean;
     procedure FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; Stumps,Empty: TKMPointList);
     function FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir): Boolean;
     function CanFindFishingWater(aLoc:TKMPoint; aRadius:integer): Boolean;
@@ -955,7 +955,7 @@ end;
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
 function TTerrain.FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir): Boolean;
-var i: Integer;
+var I: Integer;
     ValidTiles: TKMPointList;
     ChosenTiles: TKMPointDirList;
     P: TKMPoint;
@@ -964,15 +964,15 @@ begin
   GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
   ChosenTiles := TKMPointDirList.Create;
-  for i:=0 to ValidTiles.Count-1 do
+  for I := 0 to ValidTiles.Count - 1 do
   begin
-    P := ValidTiles[i];
-    if (P.Y >= 2) then //Can't mine stone from top row of the map (don't call TileIsStone with Y=0)
-      if not KMSamePoint(aAvoidLoc,P) then
-        if (TileIsStone(P.X,P.Y-1)>0) then
-          if not TileIsLocked(P) then //Taken by another stonemason
-            if Route_CanBeMade(aLoc,P,CanWalk,0) then
-              ChosenTiles.AddItem(KMPointDir(P, dir_N));
+    P := ValidTiles[I];
+    if (P.Y >= 2) //Can't mine stone from top row of the map (don't call TileIsStone with Y=0)
+    and not KMSamePoint(aAvoidLoc, P)
+    and (TileIsStone(P.X, P.Y - 1) > 0)
+    and not TileIsLocked(P) //Already taken by another stonemason
+    and Route_CanBeMade(aLoc, P, CanWalk, 0) then
+      ChosenTiles.AddItem(KMPointDir(P, dir_N));
   end;
 
   Result := ChosenTiles.GetRandom(StonePoint);
@@ -981,45 +981,62 @@ begin
 end;
 
 
-function TTerrain.FindOre(aLoc:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint): Boolean;
-var i,k: Integer;
+//Given aLoc the function return location of richest ore within predefined bounds
+function TTerrain.FindOre(aLoc: TKMPoint; aRes: TResourceType; out OrePoint: TKMPoint): Boolean;
+var
+  I,K: Integer;
   RadLeft, RadRight, RadTop, RadBottom: Integer;
-  R1,R2,R3,R4: Byte;
+  R1,R2,R3,R4: Byte; //Ore densities
   L: array [1..4] of TKMPointList;
 begin
-  if not (Rt in [rt_IronOre, rt_GoldOre, rt_Coal]) then
-    raise ELocError.Create('Wrong resource as Ore',aLoc);
+  if not (aRes in [rt_IronOre, rt_GoldOre, rt_Coal]) then
+    raise ELocError.Create('Wrong resource as Ore', aLoc);
 
-  for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
+  //Create separate list for each density, to be able to pick best one
+  for I := 1 to 4 do
+    L[I] := TKMPointList.Create;
 
-  case Rt of
+  //These values have been measured from KaM
+  case aRes of
     rt_GoldOre: begin RadLeft:=7; RadRight:=6; RadTop:=11; RadBottom:=2; R1:=144; R2:=145; R3:=146; R4:=147; end;
     rt_IronOre: begin RadLeft:=7; RadRight:=5; RadTop:=11; RadBottom:=2; R1:=148; R2:=149; R3:=150; R4:=151; end;
     rt_Coal:    begin RadLeft:=4; RadRight:=5; RadTop:= 5; RadBottom:=2; R1:=152; R2:=153; R3:=154; R4:=155; end;
     else        begin RadLeft:=0; RadRight:=0; RadTop:= 0; RadBottom:=0; R1:=  0; R2:=  0; R3:=  0; R4:=  0; end;
   end;
 
-  for i:=max(aLoc.Y-RadTop,1) to min(aLoc.Y+RadBottom,fMapY-1) do
-  for k:=max(aLoc.X-RadLeft,1) to min(aLoc.X+RadRight,fMapX-1) do
+  for I := Max(aLoc.Y - RadTop, 1) to Min(aLoc.Y + RadBottom, fMapY - 1) do
+  for K := Max(aLoc.X - RadLeft, 1) to Min(aLoc.X + RadRight, fMapX - 1) do
   begin
-    if Land[i,k].Terrain = R1 then begin if InRange(i,aLoc.Y-RadTop +2,aLoc.Y+RadBottom-2) then
-                                         if InRange(k,aLoc.X-RadLeft+2,aLoc.X+RadRight -2) then
-                                         L[1].AddEntry(KMPoint(k,i)) end else
-    if Land[i,k].Terrain = R2 then begin if InRange(i,aLoc.Y-RadTop +1,aLoc.Y+RadBottom-1) then
-                                         if InRange(k,aLoc.X-RadLeft+1,aLoc.X+RadRight -1) then
-                                         L[2].AddEntry(KMPoint(k,i)) end else
-    if Land[i,k].Terrain = R3 then L[3].AddEntry(KMPoint(k,i)) else //Always mine second richest ore, it is never left in KaM
-    if Land[i,k].Terrain = R4 then L[4].AddEntry(KMPoint(k,i));     //Always mine richest ore
+    if Land[I, K].Terrain = R1 then
+    begin
+      //Poorest ore gets mined in range - 2
+      if InRange(I - aLoc.Y, - RadTop + 2, RadBottom - 2) then
+        if InRange(K - aLoc.X, - RadLeft + 2, RadRight - 2) then
+          L[1].AddEntry(KMPoint(K, I))
+    end
+    else if Land[I, K].Terrain = R2 then
+    begin
+      //Second poorest ore gets mined in range - 1
+      if InRange(I - aLoc.Y, - RadTop + 1, RadBottom - 1) then
+        if InRange(K - aLoc.X, - RadLeft + 1, RadRight - 1) then
+          L[2].AddEntry(KMPoint(K, I))
+    end
+    else if Land[I, K].Terrain = R3 then
+      //Always mine second richest ore
+      L[3].AddEntry(KMPoint(K, I))
+    else
+      if Land[I, K].Terrain = R4 then
+        // Always mine richest ore
+        L[4].AddEntry(KMPoint(K, I));
   end;
 
-  Result := True;
-  if not L[4].GetRandom(OrePoint) then
-  if not L[3].GetRandom(OrePoint) then
-  if not L[2].GetRandom(OrePoint) then
-  if not L[1].GetRandom(OrePoint) then
-    Result := False;
+  //Equation elements will be evalueated one by one until True is found
+  Result := L[4].GetRandom(OrePoint) or
+            L[3].GetRandom(OrePoint) or
+            L[2].GetRandom(OrePoint) or
+            L[1].GetRandom(OrePoint);
 
-  for i:=1 to 4 do L[i].Free;
+  for I := 1 to 4 do L[I].Free;
 end;
 
 

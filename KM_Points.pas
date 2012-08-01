@@ -18,6 +18,8 @@ type
   //Rects are often used without range checking and include negative off-map coords
   TKMRect = packed record Left, Top, Right, Bottom: SmallInt end;
 
+  TKMPointFunction = function(aPoint: TKMPoint): Boolean of object;
+
   function KMPoint(X,Y:word): TKMPoint; overload;
   function KMPoint(P:TKMPointI): TKMPoint; overload;
   function KMPointI(X,Y: Integer): TKMPointI;
@@ -400,5 +402,6 @@ const S: array [TKMDirection] of string = ('N/A', 'N', 'NE', 'E', 'SE', 'S', 'SW
 begin
   Result := S[T];
 end;
+
 
 end.

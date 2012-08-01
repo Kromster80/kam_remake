@@ -144,9 +144,12 @@ end;
 
 
 //See Docs\GetPositionFromIndex.xls for explanation
-function GetPositionFromIndex(aOrigin:TKMPoint; aIndex:byte):TKMPointI;
-const Rings:array[1..10] of word = (0, 1, 9, 25, 49, 81, 121, 169, 225, 289);
-var                        //Ring#  1  2  3  4   5   6   7    8    9    10
+function GetPositionFromIndex(aOrigin: TKMPoint; aIndex: Byte): TKMPointI;
+const
+  Rings: array[1..10] of Word =
+//Ring#  1  2  3  4   5   6   7    8    9    10
+        (0, 1, 9, 25, 49, 81, 121, 169, 225, 289);
+var
   Ring, Span, Span2, Orig:byte;
   Off1,Off2,Off3,Off4,Off5:byte;
 begin
