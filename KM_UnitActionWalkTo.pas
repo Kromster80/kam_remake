@@ -10,22 +10,6 @@ type
   TTargetDiedCheck = (tc_NoChanges, tc_TargetUpdated, tc_Died);
   TObstacleCheck = (oc_NoObstacle, oc_ReRouteMade, oc_NoRoute);
 
-//INTERACTION CONSTANTS: (may need to be tweaked for optimal performance)
-//TIMEOUT is the time after which each solution things will be checked.
-//FREQ is the frequency that it will be checked, to save CPU time.
-//     e.g. 10 means check when TIMEOUT is first reached then every 10 ticks after that.
-//     Lower FREQ will mean faster solutions but more CPU usage. Only solutions with time consuming checks have FREQ
-const
-  EXCHANGE_TIMEOUT = 0;                      //Pass with unit
-  PUSH_TIMEOUT     = 1;                      //Push unit out of the way
-  PUSHED_TIMEOUT   = 10;                     //Try a different way when pushed
-  DODGE_TIMEOUT    = 5;     DODGE_FREQ = 8;  //Pass with a unit on a tile next to our target if they want to
-  AVOID_TIMEOUT    = 10;    AVOID_FREQ = 50; //Go around busy units
-  SIDESTEP_TIMEOUT = 10; SIDESTEP_FREQ = 15; //Step to empty tile next to target
-  WAITING_TIMEOUT  = 40;                     //After this time we can be forced to exchange
-
-
-type
   TUnitActionWalkTo = class(TUnitAction)
   private
     fWalkFrom:TKMPoint; //Walking from this spot, used only in Create
@@ -101,6 +85,20 @@ uses
   KM_RenderAux, KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain,
   KM_UnitActionGoInOut, KM_UnitActionStay,
   KM_Units_Warrior, KM_Log, KM_Resource;
+
+//INTERACTION CONSTANTS: (may need to be tweaked for optimal performance)
+//TIMEOUT is the time after which each solution things will be checked.
+//FREQ is the frequency that it will be checked, to save CPU time.
+//     e.g. 10 means check when TIMEOUT is first reached then every 10 ticks after that.
+//     Lower FREQ will mean faster solutions but more CPU usage. Only solutions with time consuming checks have FREQ
+const
+  EXCHANGE_TIMEOUT = 0;                      //Pass with unit
+  PUSH_TIMEOUT     = 1;                      //Push unit out of the way
+  PUSHED_TIMEOUT   = 10;                     //Try a different way when pushed
+  DODGE_TIMEOUT    = 5;     DODGE_FREQ = 8;  //Pass with a unit on a tile next to our target if they want to
+  AVOID_TIMEOUT    = 10;    AVOID_FREQ = 50; //Go around busy units
+  SIDESTEP_TIMEOUT = 10; SIDESTEP_FREQ = 15; //Step to empty tile next to target
+  WAITING_TIMEOUT  = 40;                     //After this time we can be forced to exchange
 
 
 { TUnitActionWalkTo }
@@ -557,6 +555,15 @@ begin
   and (((HighestInteractionCount >= EXCHANGE_TIMEOUT) and (fInteractionStatus <> kis_Pushed)) or //When pushed this timeout/counter is different
      (fInteractionStatus = kis_Pushed)) then //If we get pushed then always try exchanging (if we are here then there is no free tile)
   begin //Try to exchange with the other unit if they are willing
+
+    //We must alert the opponent to our presence because it looks bad when you exchange places
+    //with the enemy instead of fighting them.
+    //CheckAlliance is for optimisation since pushing allies doesn't matter
+    if (fOpponent is TKMUnitWarrior)
+    and (fPlayers.CheckAlliance(fOpponent.GetOwner, fUnit.GetOwner) = at_Enemy)
+    and TKMUnitWarrior(fOpponent).CheckForEnemy then
+      Exit;
+
     //If Unit on the way is walking somewhere and not exchanging with someone else
     if (fOpponent.GetUnitAction is TUnitActionWalkTo)
     and (not TUnitActionWalkTo(fOpponent.GetUnitAction).fDoExchange)
