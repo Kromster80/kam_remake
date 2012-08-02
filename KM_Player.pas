@@ -90,7 +90,7 @@ type
     function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CanAddHousePlan(aLoc: TKMPoint; aHouseType: THouseType): Boolean;
-    function CanAddHousePlanAI(aLoc: TKMPoint; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
+    function CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
 
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
     procedure AddRoadToList(aLoc: TKMPoint);
@@ -434,10 +434,12 @@ begin
 end;
 
 
-function TKMPlayer.CanAddHousePlanAI(aLoc: TKMPoint; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
+function TKMPlayer.CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
 var I,K,J,S,T,Tx,Ty: Integer; HA: THouseArea;
 begin
-  Result := fTerrain.CanPlaceHouse(aLoc, aHouseType);
+  //Check if we can place house on terrain, this also makes sure the house is
+  //at least 1 tile away from map border (skip that below)
+  Result := fTerrain.CanPlaceHouse(kmPoint(aX, aY), aHouseType);
   if not Result then Exit;
 
   HA := fResource.HouseDat[aHouseType].BuildArea;
@@ -445,18 +447,17 @@ begin
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
   begin
-    Tx := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
-    Ty := aLoc.Y + I - 4;
+    Tx := aX - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
+    Ty := aY + I - 4;
 
     //Make sure tile in map coords and there's no road below
-    Result := Result and fTerrain.TileInMapCoords(Tx, Ty, 1)
-                     and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
+    Result := Result and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
 
     //Make sure we can add road below house, full width
     if (I = 4) then
-      Result := Result and fTerrain.TileInMapCoords(Tx - 1, Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
-                       and fTerrain.TileInMapCoords(Tx    , Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
-                       and fTerrain.TileInMapCoords(Tx + 1, Ty + 1, 1) and fTerrain.CheckPassability(KMPoint(Tx + 1, Ty + 1), CanMakeRoads);
+      Result := Result and fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
+                       and fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
+                       and fTerrain.CheckPassability(KMPoint(Tx + 1, Ty + 1), CanMakeRoads);
 
     if not Result then Exit;
 
