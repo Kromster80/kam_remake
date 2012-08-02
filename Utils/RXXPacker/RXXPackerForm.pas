@@ -77,7 +77,7 @@ var
 var
   SpritePack: TKMSpritePackEdit;
   RT: TRXType;
-  I, Step: Integer;
+  I, Step, SpriteID: Integer;
   Tick: Cardinal;
   RXName: string;
   HouseDat: TKMHouseDatCollection;
@@ -151,13 +151,16 @@ begin
           for UT:=HUMANS_MIN to HUMANS_MAX do
             for Dir:=dir_N to dir_NW do
               for Step:=1 to 30 do
-                if (fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step] > 0)
-                and not DeathAnimAlreadyDone(fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step]) then
+              begin
+                SpriteID := fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step]+1; //Sprites in units.dat are 0 indexed
+                if (SpriteID > 0)
+                and not DeathAnimAlreadyDone(SpriteID) then
                 begin
-                  SpritePack.SoftenShadows(fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step], False);
-                  DeathAnimProcessed[DeathAnimCount] := fUnitDat.UnitsDat[UT].UnitAnim[ua_Die,Dir].Step[Step];
+                  SpritePack.SoftenShadows(SpriteID, False);
+                  DeathAnimProcessed[DeathAnimCount] := SpriteID;
                   inc(DeathAnimCount);
                 end;
+              end;
           fUnitDat.Free;
         end;
 
