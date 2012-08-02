@@ -142,7 +142,9 @@ type
     procedure MapEditor_Start(Sender: TObject);
     procedure MapEditor_MapTypeChange(Sender: TObject);
     procedure MapEditor_ListUpdate;
-    procedure MapEditor_ListUpdateDone(Sender: TObject);
+    procedure MapEditor_ScanUpdate(Sender: TObject);
+    procedure MapEditor_SortUpdate(Sender: TObject);
+    procedure MapEditor_RefreshList(aJumpToSelected:Boolean);
     procedure MapEditor_ColumnClick(aValue: Integer);
     procedure MapEditor_SelectMap(Sender: TObject);
 
@@ -1332,10 +1334,10 @@ var I: Integer;
 begin
   Panel_MapEd:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_MapEd.Stretch;
-    Panel_MapEd_SizeXY := TKMPanel.Create(Panel_MapEd, 120, 200, 200, 400);
+    Panel_MapEd_SizeXY := TKMPanel.Create(Panel_MapEd, 80, 160, 200, 400);
     Panel_MapEd_SizeXY.Anchors := [akLeft];
       TKMLabel.Create(Panel_MapEd_SizeXY, 6, 0, 188, 20, fTextLibrary[TX_MENU_NEW_MAP_SIZE], fnt_Outline, taLeft);
-      TKMBevel.Create(Panel_MapEd_SizeXY, 0, 20, 200, 300);
+      TKMBevel.Create(Panel_MapEd_SizeXY, 0, 20, 200, 370);
       TKMLabel.Create(Panel_MapEd_SizeXY, 8, 27, 88, 20, fTextLibrary[TX_MENU_MAP_WIDTH], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_MapEd_SizeXY, 108, 27, 88, 20, fTextLibrary[TX_MENU_MAP_HEIGHT], fnt_Outline, taLeft);
 
@@ -1348,10 +1350,10 @@ begin
       Radio_MapEd_SizeX.ItemIndex := 2; //64
       Radio_MapEd_SizeY.ItemIndex := 2; //64
 
-      Button_MapEd_Create := TKMButton.Create(Panel_MapEd_SizeXY, 0, 330, 200, 30, fTextLibrary[TX_MENU_MAP_CREATE_NEW_MAP], fnt_Metal, bsMenu);
+      Button_MapEd_Create := TKMButton.Create(Panel_MapEd_SizeXY, 0, 400, 200, 30, fTextLibrary[TX_MENU_MAP_CREATE_NEW_MAP], fnt_Metal, bsMenu);
       Button_MapEd_Create.OnClick := MapEditor_Start;
 
-    Panel_MapEd_Load := TKMPanel.Create(Panel_MapEd, 340, 200, 520, 400);
+    Panel_MapEd_Load := TKMPanel.Create(Panel_MapEd, 300, 160, 620, 500);
     Panel_MapEd_Load.Anchors := [akLeft];
       TKMLabel.Create(Panel_MapEd_Load, 6, 0, 288, 20, fTextLibrary[TX_MENU_MAP_AVAILABLE], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_MapEd_Load, 0, 20, 300, 50);
@@ -1360,17 +1362,17 @@ begin
       Radio_MapEd_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
       Radio_MapEd_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
       Radio_MapEd_MapType.OnChange := MapEditor_MapTypeChange;
-      List_MapEd := TKMColumnListBox.Create(Panel_MapEd_Load, 0, 80, 350, 240, fnt_Metal);
-      List_MapEd.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 250, 280]);
+      List_MapEd := TKMColumnListBox.Create(Panel_MapEd_Load, 0, 80, 440, 310, fnt_Metal);
+      List_MapEd.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 310, 340]);
       List_MapEd.OnColumnClick := MapEditor_ColumnClick;
       List_MapEd.OnChange := MapEditor_SelectMap;
       List_MapEd.OnDoubleClick := MapEditor_Start;
-      Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 330, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], fnt_Metal, bsMenu);
+      Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 400, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], fnt_Metal, bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
-      TKMBevel.Create(Panel_MapEd_Load, 358, 80, 199, 199);
-      MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEd_Load, 362, 84, 191, 191);
+      TKMBevel.Create(Panel_MapEd_Load, 448, 80, 199, 199);
+      MinimapView_MapEd := TKMMinimapView.Create(Panel_MapEd_Load, 452, 84, 191, 191);
 
-    Button_MapEdBack := TKMButton.Create(Panel_MapEd, 100, 630, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
+    Button_MapEdBack := TKMButton.Create(Panel_MapEd, 80, 620, 220, 30, fTextLibrary[TX_MENU_BACK], fnt_Metal, bsMenu);
     Button_MapEdBack.Anchors := [akLeft];
     Button_MapEdBack.OnClick := SwitchMenuPage;
 end;
@@ -3562,8 +3564,6 @@ begin
     else
     if List_Replays.ItemIndex > List_Replays.TopIndex + List_Replays.GetVisibleRows - 1 then
       List_Replays.TopIndex := List_Replays.ItemIndex - List_Replays.GetVisibleRows + 1;
-
-  Replays_ListClick(nil);
 end;
 
 
@@ -3638,34 +3638,62 @@ begin
   fMapsMP.TerminateScan;
 
   List_MapEd.Clear;
+  fLastMapCRC := 0;
   MapEditor_SelectMap(nil);
 
   //If both Maps and MapsMP are scanning at once ListUpdateDone can be called from either one
   //meaning we can access inconsistent and trigger assertion
   if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
 
-  Maps.Refresh(MapEditor_ListUpdateDone);
+  Maps.Refresh(MapEditor_ScanUpdate);
 end;
 
 
-procedure TKMMainMenuInterface.MapEditor_ListUpdateDone(Sender: TObject);
+procedure TKMMainMenuInterface.MapEditor_ScanUpdate(Sender: TObject);
+begin
+  MapEditor_RefreshList(False); //Don't jump to selected with each scan update
+end;
+
+
+procedure TKMMainMenuInterface.MapEditor_SortUpdate(Sender: TObject);
+begin
+  MapEditor_RefreshList(True); //After sorting jump to the selected item
+end;
+
+
+procedure TKMMainMenuInterface.MapEditor_RefreshList(aJumpToSelected:Boolean);
 var
-  I: Integer;
+  I, OldTopIndex: Integer;
   Maps: TKMapsCollection;
 begin
+  OldTopIndex := List_MapEd.TopIndex;
   List_MapEd.Clear;
 
   if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
 
   for I := 0 to Maps.Count - 1 do
-    List_MapEd.AddItem(MakeListRow([Maps[I].Info.Title, IntToStr(Maps[I].Info.PlayerCount), Maps[I].Info.MapSizeText], I))
+    List_MapEd.AddItem(MakeListRow([Maps[I].Info.Title, IntToStr(Maps[I].Info.PlayerCount), Maps[I].Info.MapSizeText], I));
+
+  for I := 0 to Maps.Count - 1 do
+    if (Maps[I].CRC = fLastMapCRC) then
+      List_MapEd.ItemIndex := I;
+
+  List_MapEd.TopIndex := OldTopIndex;
+
+  if aJumpToSelected and (List_MapEd.ItemIndex <> -1)
+  and not InRange(List_MapEd.ItemIndex - List_MapEd.TopIndex, 0, List_MapEd.GetVisibleRows-1)
+  then
+    if List_MapEd.ItemIndex < List_MapEd.TopIndex then
+      List_MapEd.TopIndex := List_MapEd.ItemIndex
+    else
+    if List_MapEd.ItemIndex > List_MapEd.TopIndex + List_MapEd.GetVisibleRows - 1 then
+      List_MapEd.TopIndex := List_MapEd.ItemIndex - List_MapEd.GetVisibleRows + 1;
 end;
 
 
 procedure TKMMainMenuInterface.MapEditor_ColumnClick(aValue: Integer);
 var
   SM: TMapsSortMethod;
-  Maps: TKMapsCollection;
 begin
   //Determine Sort method depending on which column user clicked
   with List_MapEd do
@@ -3686,8 +3714,8 @@ begin
   end;
 
   //Keep both lists in sync incase user switches between them
-  fMaps.Sort(SM, MapEditor_ListUpdateDone);
-  fMapsMP.Sort(SM, MapEditor_ListUpdateDone);
+  fMaps.Sort(SM, MapEditor_SortUpdate);
+  fMapsMP.Sort(SM, MapEditor_SortUpdate);
 end;
 
 
@@ -3699,9 +3727,12 @@ var
 begin
   ID := List_MapEd.ItemIndex;
   Button_MapEd_Load.Enabled := (ID <> -1);
+
   if Button_MapEd_Load.Enabled then
   begin
     if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
+
+    fLastMapCRC := Maps[ID].CRC;
 
     MapName := MapNameToPath(Maps[List_MapEd.Rows[List_MapEd.ItemIndex].Tag].FileName, 'dat', Radio_MapEd_MapType.ItemIndex = 1);
     fMinimap.LoadFromMission(MapName);
@@ -3710,7 +3741,10 @@ begin
     MinimapView_MapEd.Show;
   end
   else
+  begin
     MinimapView_MapEd.Hide;
+    fLastMapCRC := 0;
+  end;
 end;
 
 

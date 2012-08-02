@@ -3225,8 +3225,8 @@ begin
   if InRange(NewIndex, 0, fRowCount - 1) then
   begin
     fItemIndex := NewIndex;
-    if TopIndex < fItemIndex - (Height div fItemHeight) + 1 then //Moving down
-      TopIndex := fItemIndex - (Height div fItemHeight) + 1
+    if TopIndex < fItemIndex - GetVisibleRows + 1 then //Moving down
+      TopIndex := fItemIndex - GetVisibleRows + 1
     else
     if TopIndex > fItemIndex then //Moving up
       TopIndex := fItemIndex;
