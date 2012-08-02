@@ -57,3 +57,4 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Changing teams in multiplayer
 		Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
 	The close door button in a house also stops a new occupant from taking it, so you can make recruits go to the barracks instead of walking to watchtowers, and so you can prioritize for example which mines get occupied first. It should also block the "house not occupied" message.
+	Place all the roads for all players, then all the houses for all players, then all the units for all players from the script, repositioning units that are on houses and do floodfill for houses once at the end rather than for each house

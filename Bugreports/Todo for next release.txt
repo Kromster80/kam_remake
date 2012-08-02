@@ -30,3 +30,4 @@ Could be done if we have time:
  +	Duplicate app blocking should happen for multiplayer mode only (including replays) as that's the only cheating we care about
  +	Show peacetime remaining in MP replays
 	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
+	Place all the roads for all players, then all the houses for all players, then all the units for all players from the script, repositioning units that are on houses and do floodfill for houses once at the end rather than for each house
