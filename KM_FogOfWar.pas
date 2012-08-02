@@ -122,7 +122,7 @@ end;
 //but false in cases where it will effect the gameplay (e.g. unit hit test)
 function TKMFogOfWar.CheckTileRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
 begin
-  if (fGame = nil) or (aSkipForReplay and fGame.IsReplay) then
+  if aSkipForReplay and ((fGame = nil) or fGame.IsReplay) then
   begin
     Result := 255;
     exit;

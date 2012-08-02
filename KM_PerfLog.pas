@@ -42,6 +42,7 @@ var
   S: TFileStream;
   ss: AnsiString;
 begin
+  ForceDirectories(ExtractFilePath(aFilename));
   S := TFileStream.Create(aFilename, fmCreate);
 
   for I := 0 to fCount - 1 do
