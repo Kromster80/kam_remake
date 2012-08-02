@@ -13,6 +13,7 @@ type
     AutoBuild: Boolean;
     AutoRepair: Boolean;
     Strong: Boolean;
+    Wooden: Boolean;
     RecruitDelay: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
     RecruitFactor: Byte;
     SerfFactor: Byte;
@@ -317,7 +318,7 @@ begin
   //if it's not producing yet
 
   //Competitive opponent needs at least 3 quaries build early and 2 more after Sawmill
-  Req := 2 + Byte(fMayorSetup.Strong) + Byte(fMayorSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 2;
+  Req := 2 + Byte(fMayorSetup.Strong) + Byte(fMayorSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 1;
   if Req > HouseCount(ht_Quary) then
     TryBuildHouse(ht_Quary);
 
@@ -352,27 +353,29 @@ procedure TKMayor.CheckHouseFoodCount;
 var Req: Integer;
 begin
   //Build at least 2 Farms early on
-  Req := 2 + Byte(fMayorSetup.Strong) * 2 * Byte(HouseCount(ht_Swine) > 0);
+  Req := 1 + Byte(fMayorSetup.Strong) * 2 * Byte(HouseCount(ht_Swine) > 0)
+           + fPlayers[fOwner].Stats.GetCitizensCount div 30;
   if Req > HouseCount(ht_Farm) then
     TryBuildHouse(ht_Farm);
 
-  Req := 1;
+  Req := 1 + Byte(fMayorSetup.Strong) + HouseCount(ht_Farm) div 4;
   if Req > HouseCount(ht_Mill) then
     TryBuildHouse(ht_Mill);
 
-  Req := 1;
+  Req := 1 + Byte(fMayorSetup.Strong) + HouseCount(ht_Mill) div 2;
   if Req > HouseCount(ht_Bakery) then
     TryBuildHouse(ht_Bakery);
 
-  Req := 1;
+  Req := 1 + Byte(fMayorSetup.Strong) + HouseCount(ht_Farm) div 4;
   if Req > HouseCount(ht_Swine) then
     TryBuildHouse(ht_Swine);
 
-  Req := 1;
+  Req := 1 + HouseCount(ht_Swine) div 2;
   if Req > HouseCount(ht_Butchers) then
     TryBuildHouse(ht_Butchers);
 
-  Req := 2 + Byte(fMayorSetup.Strong) * 2;
+  Req := 2 + Byte(fMayorSetup.Strong) * 2
+           + fPlayers[fOwner].Stats.GetCitizensCount div 30;
   if Req > HouseCount(ht_Wineyard) then
     TryBuildHouse(ht_Wineyard);
 end;
@@ -388,25 +391,50 @@ procedure TKMayor.CheckHouseWeaponryCount;
 var
   Req: Integer;
 begin
-  //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
+  //Metallurgists produce gold for Inns and Barracks
   Req := 1 + Byte(HouseCount(ht_Barracks) > 0);
   if Req > HouseCount(ht_Metallurgists) then
     TryBuildHouse(ht_Metallurgists);
 
-  //
-  Req := 1 + Byte(fMayorSetup.Strong);
-  if Req > HouseCount(ht_Tannery) then
-    TryBuildHouse(ht_Tannery);
+  if fMayorSetup.Wooden then
+  begin
+    //
+    Req := 1 + Byte(fMayorSetup.Strong);
+    if Req > HouseCount(ht_Tannery) then
+      TryBuildHouse(ht_Tannery);
 
-  //
-  Req := 1 + Byte(fMayorSetup.Strong);
-  if Req > HouseCount(ht_ArmorWorkshop) then
-    TryBuildHouse(ht_ArmorWorkshop);
+    //
+    Req := 1 + Byte(fMayorSetup.Strong);
+    if Req > HouseCount(ht_ArmorWorkshop) then
+      TryBuildHouse(ht_ArmorWorkshop);
 
-  //
-  Req := 1 + Byte(fMayorSetup.Strong);
-  if Req > HouseCount(ht_WeaponWorkshop) then
-    TryBuildHouse(ht_WeaponWorkshop);
+    //
+    Req := 1 + Byte(fMayorSetup.Strong);
+    if Req > HouseCount(ht_WeaponWorkshop) then
+      TryBuildHouse(ht_WeaponWorkshop);
+  end
+  else
+  begin
+    //
+    Req := 1 + Byte(fMayorSetup.Strong);
+    if Req > HouseCount(ht_IronMine) then
+      TryBuildHouse(ht_IronMine);
+
+    //
+    Req := 1 + Byte(fMayorSetup.Strong);
+    if Req > HouseCount(ht_IronSmithy) then
+      TryBuildHouse(ht_IronSmithy);
+
+    //
+    Req := 1 + Byte(fMayorSetup.Strong);
+    if Req > HouseCount(ht_WeaponSmithy) then
+      TryBuildHouse(ht_WeaponSmithy);
+
+    //
+    Req := 1 + Byte(fMayorSetup.Strong);
+    if Req > HouseCount(ht_ArmorSmithy) then
+      TryBuildHouse(ht_ArmorSmithy);
+  end;
 
   //One barracks is enough
   Req := 1;
@@ -499,6 +527,7 @@ begin
   RecruitDelay := 0; //Can train at start
 
   Strong := (KaMRandom > 0.5);
+  Wooden := (KaMRandom > 0.5);
 end;
 
 

@@ -36,7 +36,7 @@ type
 
 
 implementation
-uses KM_Houses, KM_Terrain, KM_PlayersCollection, KM_Utils;
+uses KM_Houses, KM_Terrain, KM_Player, KM_PlayersCollection, KM_Utils;
 
 
 { TKMCityPlanner }
@@ -64,23 +64,27 @@ begin
   Result := False;
 
   case aHouse of
-    //ht_Store:     Result := NextToHouse(ht_Store, aHouse, aLoc);
-    ht_School:        Result := NextToHouse(ht_Store, aHouse, aLoc);
-    ht_Inn:           Result := NextToHouse(ht_Store, aHouse, aLoc);
-    ht_Sawmill:       Result := NextToHouse(ht_Woodcutters, aHouse, aLoc);
-    ht_Mill:          Result := NextToHouse(ht_Farm, aHouse, aLoc);
-    ht_Bakery:        Result := NextToHouse(ht_Farm, aHouse, aLoc);
-    ht_Swine:         Result := NextToHouse(ht_Farm, aHouse, aLoc);
-    ht_Butchers:      Result := NextToHouse(ht_Swine, aHouse, aLoc);
-    ht_Tannery:       Result := NextToHouse(ht_Swine, aHouse, aLoc);
-    ht_Metallurgists: Result := NextToHouse(ht_GoldMine, aHouse, aLoc);
-    ht_Barracks:      Result := NextToHouse(ht_GoldMine, aHouse, aLoc);
-
-    ht_WeaponWorkshop:  Result := NextToHouse(ht_Sawmill, aHouse, aLoc);
+    //ht_Store:       Result := NextToHouse(ht_Store, aHouse, aLoc);
+    ht_ArmorSmithy:     Result := NextToHouse(ht_IronSmithy, aHouse, aLoc);
     ht_ArmorWorkshop:   Result := NextToHouse(ht_Tannery, aHouse, aLoc);
+    ht_Bakery:          Result := NextToHouse(ht_Farm, aHouse, aLoc);
+    ht_Barracks:        Result := NextToHouse(ht_GoldMine, aHouse, aLoc);
+    ht_Butchers:        Result := NextToHouse(ht_Swine, aHouse, aLoc);
+    ht_Inn:             Result := NextToHouse(ht_Store, aHouse, aLoc);
+    ht_IronSmithy:      Result := NextToHouse(ht_IronMine, aHouse, aLoc);
+    ht_Metallurgists:   Result := NextToHouse(ht_GoldMine, aHouse, aLoc);
+    ht_Mill:            Result := NextToHouse(ht_Farm, aHouse, aLoc);
+    ht_Sawmill:         Result := NextToHouse(ht_Woodcutters, aHouse, aLoc);
+    ht_School:          Result := NextToHouse(ht_Store, aHouse, aLoc);
+    ht_Swine:           Result := NextToHouse(ht_Farm, aHouse, aLoc);
+    ht_Tannery:         Result := NextToHouse(ht_Swine, aHouse, aLoc);
+    ht_WeaponSmithy:    Result := NextToHouse(ht_IronSmithy, aHouse, aLoc);
+    ht_WeaponWorkshop:  Result := NextToHouse(ht_Sawmill, aHouse, aLoc);
 
     ht_CoalMine:      Result := NextToOre(ht_CoalMine, rt_Coal, aLoc);
     ht_GoldMine:      Result := NextToOre(ht_GoldMine, rt_GoldOre, aLoc);
+    ht_IronMine:      Result := NextToOre(ht_IronMine, rt_IronOre, aLoc);
+
     ht_Quary:         Result := NextToStone(aHouse, aLoc);
     ht_Woodcutters:   Result := NextToTrees(aHouse, aLoc);
     ht_Farm:          Result := NextToHouse(ht_Store, aHouse, aLoc);//NextToGrass(aHouse, aLoc);
@@ -147,12 +151,13 @@ var
   I, K: Integer;
   Bid, BestBid: Single;
   TargetLoc: TKMPoint;
+  P: TKMPlayer;
 begin
   Result := False;
-  TargetH := fPlayers[fOwner].Houses.FindHouse(aTarget, 0, 0, 1, True);
 
-  if TargetH = nil then
-    Exit;
+  P := fPlayers[fOwner];
+  TargetH := P.Houses.FindHouse(aTarget, 0, 0, KaMRandom(P.Stats.GetHouseQty(aHouse)) + 1);
+  if TargetH = nil then Exit;
 
   BestBid := MaxSingle;
   TargetLoc := TargetH.GetEntrance;
