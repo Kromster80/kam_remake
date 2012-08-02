@@ -226,9 +226,9 @@ var
     //New path is new or better than old
     if ((aOreType = rt_Coal) and (fTerrain.TileIsCoal(X, Y) > 1)
       and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, True))
-    or ((aOreType = rt_IronOre) and (fTerrain.TileIsIron(X, Y) > 1)
+    or ((aOreType = rt_IronOre) and (fTerrain.TileIsIron(X, Max(Y-1, 1)) > 0)
       and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, True))
-    or ((aOreType = rt_GoldOre) and (fTerrain.TileIsGold(X, Y) > 1)
+    or ((aOreType = rt_GoldOre) and (fTerrain.TileIsGold(X, Max(Y-1, 1)) > 0)
       and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, True))
     then
     begin
