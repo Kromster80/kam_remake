@@ -834,6 +834,7 @@ end;
 
 
 procedure TKMPlayer.Load(LoadStream: TKMemoryStream);
+var s: AnsiString;
 begin
   inherited;
   fAI.Load(LoadStream);
@@ -845,7 +846,7 @@ begin
   fStats.Load(LoadStream);
 
   LoadStream.Read(fPlayerIndex);
-  LoadStream.Read(fPlayerName);
+  LoadStream.Read(s); fPlayerName := s;
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fCenterScreen);
