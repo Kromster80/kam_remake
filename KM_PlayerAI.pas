@@ -732,6 +732,7 @@ begin
   fAttacks.Save(SaveStream);
   fSetup.Save(SaveStream);
   fMayor.Save(SaveStream);
+  fGeneral.Save(SaveStream);
 end;
 
 
@@ -756,6 +757,7 @@ begin
   fAttacks.Load(LoadStream);
   fSetup.Load(LoadStream);
   fMayor.Load(LoadStream);
+  fGeneral.Load(LoadStream);
 end;
 
 

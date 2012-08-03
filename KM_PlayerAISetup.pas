@@ -55,6 +55,7 @@ begin
   SaveStream.Write(WorkerFactor);
 
   SaveStream.Write(Strong);
+  SaveStream.Write(Wooden);
 end;
 
 
@@ -68,6 +69,7 @@ begin
   LoadStream.Read(WorkerFactor);
 
   LoadStream.Read(Strong);
+  LoadStream.Read(Wooden);
 end;
 
 

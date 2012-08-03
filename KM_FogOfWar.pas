@@ -190,21 +190,22 @@ end;
 
 procedure TKMFogOfWar.Save(SaveStream: TKMemoryStream);
 var
-  I, K: integer;
+  I: integer;
 begin
   SaveStream.Write('FOW');
   SaveStream.Write(MapX);
   SaveStream.Write(MapY);
   SaveStream.Write(fAnimStep);
+  //Because each player has FOW it can become a bottleneck (8.7ms per run) due to autosaving (e.g. on Paradise Island)
+  //so save it out 1 row at a time (due to 2D arrays not being continguous we can't save it all at once)
   for I := 0 to MapY - 1 do
-    for K := 0 to MapX - 1 do
-      SaveStream.Write(Revelation[I, K], SizeOf(Revelation[I, K]));
+    SaveStream.Write(Revelation[I, 0], MapX*SizeOf(Revelation[I, 0]));
 end;
 
 
 procedure TKMFogOfWar.Load(LoadStream: TKMemoryStream);
 var
-  I, K: integer;
+  I: integer;
 begin
   LoadStream.ReadAssert('FOW');
   LoadStream.Read(MapX);
@@ -212,8 +213,7 @@ begin
   LoadStream.Read(fAnimStep);
   SetMapSize(MapX, MapY);
   for I := 0 to MapY - 1 do
-    for K := 0 to MapX - 1 do
-      LoadStream.Read(Revelation[I, K], SizeOf(Revelation[I, K]));
+    LoadStream.Read(Revelation[I, 0], MapX*SizeOf(Revelation[I, 0]));
 end;
 
 
