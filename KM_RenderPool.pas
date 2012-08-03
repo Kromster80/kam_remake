@@ -1134,7 +1134,7 @@ begin
                           RenderCursorBuildIcon(P); //Red X
                     end;
 
-                  gmSingle, gmMulti, gmReplay:
+                  gmSingle, gmMulti, gmReplaySingle, gmReplayMulti:
                     begin
                       if ((MyPlayer.BuildList.FieldworksList.HasFakeField(P) <> ft_None)
                           or MyPlayer.BuildList.HousePlanList.HasPlan(P)

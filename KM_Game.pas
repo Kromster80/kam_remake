@@ -15,9 +15,10 @@ uses
 type
   TGameMode = (
     gmSingle,
-    gmMulti, //Different GIP, networking,
-    gmMapEd, //Army handling, lite updates,
-    gmReplay //No input
+    gmMulti,        //Different GIP, networking,
+    gmMapEd,        //Army handling, lite updates,
+    gmReplaySingle, //No input, different results screen to gmReplayMulti
+    gmReplayMulti   //No input, different results screen to gmReplaySingle
     );
 
   ///	<summary>
@@ -850,7 +851,7 @@ end;
 
 function TKMGame.IsReplay: Boolean;
 begin
-  Result := fGameMode = gmReplay;
+  Result := fGameMode in [gmReplaySingle, gmReplayMulti];
 end;
 
 
@@ -889,7 +890,7 @@ var
   PeaceTicksRemaining: Cardinal;
 begin
   PeaceTicksRemaining := Max(0, Int64((fGameOptions.Peacetime * 600)) - fGameTickCount);
-  if (PeaceTicksRemaining = 1) and (fGameMode in [gmMulti,gmReplay]) then
+  if (PeaceTicksRemaining = 1) and (fGameMode in [gmMulti,gmReplayMulti]) then
   begin
     fSoundLib.Play(sfxn_Peacetime, 1.0, True); //Fades music
     if fGameMode = gmMulti then
@@ -945,7 +946,7 @@ end;
 //In replay mode we can step the game by exactly one frame and then pause again
 procedure TKMGame.StepOneFrame;
 begin
-  Assert(fGameMode = gmReplay, 'We can work step-by-step only in Replay');
+  Assert(fGameMode in [gmReplaySingle,gmReplayMulti], 'We can work step-by-step only in Replay');
   SetGameSpeed(1); //Make sure we step only one tick. Do not allow multiple updates in UpdateState loop
   fAdvanceFrame := True;
 end;
@@ -961,7 +962,7 @@ var
 begin
   fLog.AppendLog('Saving game');
 
-  if fGameMode in [gmMapEd, gmReplay] then
+  if fGameMode in [gmMapEd, gmReplaySingle, gmReplayMulti] then
   begin
     Assert(false, 'Saving from wrong state');
     Exit;
@@ -986,7 +987,7 @@ begin
         NetIndex := -1;
 
       if NetIndex = -1 then begin
-        fGameInfo.LocationName[i] := 'Unknown';
+        fGameInfo.LocationName[i] := 'Unknown '+IntToStr(i+1);
         fGameInfo.PlayerTypes[i] := pt_Human;
         fGameInfo.ColorID[i] := 0;
         fGameInfo.Team[i] := 0;
@@ -1119,11 +1120,13 @@ begin
 
   //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is
   LoadStream.Read(SaveIsMultiplayer);
+  if SaveIsMultiplayer and (fGameMode = gmReplaySingle) then
+    fGameMode := gmReplayMulti; //We only know which is is once we've read the save file, so update it now
 
   //If the player loads a multiplayer save in singleplayer or replay mode, we require a mutex lock to prevent cheating
   //If we're loading in multiplayer mode we have already locked the mutex when entering multiplayer menu,
   //which is better than aborting loading in a multiplayer game (spoils it for everyone else too)
-  if SaveIsMultiplayer and (fGameMode in [gmSingle, gmReplay]) then
+  if SaveIsMultiplayer and (fGameMode in [gmSingle, gmReplaySingle, gmReplayMulti]) then
     if fMain.LockMutex then
       fGameLockedMutex := True //Remember so we unlock it in Destroy
     else
@@ -1256,7 +1259,8 @@ begin
                     end;
                     fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                   end;
-    gmReplay:     for I := 1 to fGameSpeedMultiplier do
+    gmReplaySingle,gmReplayMulti:
+                  for I := 1 to fGameSpeedMultiplier do
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
                     fEventsManager.ProcTime(fGameTickCount); //In future events could effect game outcome, and maybe you want to see when a message saying "you will be attacked" appears during the replay?
@@ -1268,7 +1272,7 @@ begin
 
                     //Issue stored commands
                     fGameInputProcess.ReplayTimer(fGameTickCount);
-                    if fIsEnded then Exit; //Quit if the game was stopped by a replay mismatch
+                    if fGame = nil then Exit; //Quit if the game was stopped by a replay mismatch
                     if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
                       RequestGameHold(gr_ReplayEnd);
 

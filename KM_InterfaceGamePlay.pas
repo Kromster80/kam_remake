@@ -740,7 +740,7 @@ begin
   //Parent Page for whole toolbar in-game
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
 
-    Label_TeamName := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Outline, taCenter);
+    Label_TeamName := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Grey, taCenter);
 
     Sidebar_Top       := TKMImage.Create(Panel_Main, 0,    0, 224, 200, 407);
     Sidebar_Middle    := TKMImage.Create(Panel_Main, 0,  200, 224, 168, 554);
@@ -3214,8 +3214,8 @@ begin
     VK_RIGHT: fGame.Viewport.ScrollKeyRight := True;
     VK_UP:    fGame.Viewport.ScrollKeyUp    := True;
     VK_DOWN:  fGame.Viewport.ScrollKeyDown  := True;
-    //As we don't have names for teams in SP we only allow showing team names in MP
-    SC_SHOW_TEAMS: if fMultiplayer then
+    //As we don't have names for teams in SP we only allow showing team names in MP or MP replays
+    SC_SHOW_TEAMS: if fMultiplayer or (fGame.GameMode = gmReplayMulti) then //Only MP replays
     begin
       fGame.ShowTeamNames := True;
       //Update it immediately so there's no 300ms lag after pressing the key
@@ -3254,6 +3254,8 @@ begin
     VK_F6:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedMedium);
     VK_F7:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast);
     VK_F8:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast);
+
+    SC_SHOW_TEAMS:  fGame.ShowTeamNames := False;
   end;
 
   //All the following keys don't work in Replay,
@@ -3295,7 +3297,6 @@ begin
     SC_PAUSE:       if not fMultiplayer then SetPause(True); //Display pause overlay
     SC_BEACON:      if (fMyControls.CtrlOver = nil) and not SelectingTroopDirection then
                             Alert_Beacon;
-    SC_SHOW_TEAMS:  fGame.ShowTeamNames := False;
   end;
 
   {Temporary cheat codes}

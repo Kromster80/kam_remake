@@ -187,7 +187,7 @@ function TKMGameApp.CanClose: Boolean;
 begin
   //There are no unsaved changes in MainMenu and in Replay.
   //In all other cases (maybe except gsOnHold?) there are potentially unsaved changes
-  Result := (fGame = nil) or (fGame.GameMode = gmReplay);
+  Result := (fGame = nil) or (fGame.GameMode in [gmReplaySingle,gmReplayMulti]);
 end;
 
 
@@ -374,7 +374,7 @@ begin
                       //so we know which menu to show next and unlock next map
                       fCampaigns.SetActive(fCampaigns.CampaignByTitle(fGame.CampaignName), fGame.CampaignMap);
 
-                      if fGame.GameMode = gmMulti then
+                      if (fGame.GameMode in [gmMulti, gmReplayMulti]) then
                       begin
                         fMainMenuInterface.ResultsMP_Fill(Msg);
                         fMainMenuInterface.ShowScreen(msResultsMP, '', Msg);
@@ -555,7 +555,7 @@ end;
 procedure TKMGameApp.NewReplay(const aFilePath: string);
 begin
   Assert(ExtractFileExt(aFilePath) = '.bas');
-  LoadGameFromSave(aFilePath, gmReplay);
+  LoadGameFromSave(aFilePath, gmReplaySingle); //Will be changed to gmReplayMulti depending on save contents
 end;
 
 
@@ -595,7 +595,7 @@ end;
 function TKMGameApp.AllowDebugRendering: Boolean;
 begin
   Result := (fGame <> nil) and //Avoid crashing if using debug controls on the main menu
-            ((fGame.GameMode in [gmSingle, gmMapEd, gmReplay]) or (MULTIPLAYER_CHEATS and (fGame.GameMode = gmMulti)));
+            ((fGame.GameMode in [gmSingle, gmMapEd, gmReplaySingle, gmReplayMulti]) or (MULTIPLAYER_CHEATS and (fGame.GameMode = gmMulti)));
 end;
 
 

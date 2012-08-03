@@ -825,6 +825,7 @@ begin
   fStats.Save(SaveStream);
 
   SaveStream.Write(fPlayerIndex);
+  SaveStream.Write(fPlayerName);
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
   SaveStream.Write(fCenterScreen);
@@ -844,6 +845,7 @@ begin
   fStats.Load(LoadStream);
 
   LoadStream.Read(fPlayerIndex);
+  LoadStream.Read(fPlayerName);
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fCenterScreen);
