@@ -1064,6 +1064,7 @@ begin
       if KMStepIsDiag(fUnit.PrevPosition,fUnit.NextPosition) then IncVertex; //Occupy the vertex
     end else
     begin
+      //@Lewin: Please check these two are unused?
       ThisAction := fUnit.GetUnitAction; //We need to know whether DoUnitInteraction destroys Self (this action)
       U := fUnit; //Could be destroyed by DoUnitInteraction, we need to check afterwards
 
