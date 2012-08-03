@@ -379,8 +379,8 @@ const
   MENU_SP_MAPS_COUNT    = 12;           //Number of single player maps to display in menu
   MENU_SP_MAPS_HEIGHT   = 40;
 
-  MAPSIZES_COUNT = 11;
-  MapSize: array [1..MAPSIZES_COUNT] of Word = (32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192);
+  MAPSIZES_COUNT = 15;
+  MapSize: array [1..MAPSIZES_COUNT] of Word = (32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256);
 
 
 { TKMMainMenuInterface }
@@ -1341,8 +1341,8 @@ begin
       TKMLabel.Create(Panel_MapEd_SizeXY, 8, 27, 88, 20, fTextLibrary[TX_MENU_MAP_WIDTH], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_MapEd_SizeXY, 108, 27, 88, 20, fTextLibrary[TX_MENU_MAP_HEIGHT], fnt_Outline, taLeft);
 
-      Radio_MapEd_SizeX := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 10, 52, 88, 260, fnt_Metal);
-      Radio_MapEd_SizeY := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 110, 52, 88, 260, fnt_Metal);
+      Radio_MapEd_SizeX := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 10, 52, 88, 332, fnt_Metal);
+      Radio_MapEd_SizeY := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 110, 52, 88, 332, fnt_Metal);
       for I := 1 to MAPSIZES_COUNT do begin
         Radio_MapEd_SizeX.Items.Add(IntToStr(MapSize[I]));
         Radio_MapEd_SizeY.Items.Add(IntToStr(MapSize[I]));
