@@ -4,7 +4,7 @@ interface
 uses Classes, KromUtils, SysUtils,
     KM_CommonClasses, KM_Defaults, KM_Terrain,
     KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points,
-    KM_PlayerAISetup, KM_Mayor;
+    KM_PlayerAISetup, KM_Mayor, KM_General;
 
 
 type
@@ -36,6 +36,7 @@ type
     fPlayerIndex: TPlayerIndex;
     fSetup: TKMPlayerAISetup;
     fMayor: TKMayor;
+    fGeneral: TKMGeneral;
 
     fLastEquippedTime: cardinal;
     fHasWonOrLost: boolean; //Has this player won/lost? If so, do not check goals
@@ -46,16 +47,16 @@ type
     procedure CheckArmiesCount;
     procedure CheckArmy;
     procedure OrderAttack(aCommander: TKMUnitWarrior; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
-    procedure RestockPositionWith(aDefenceGroup, aCommander:TKMUnitWarrior);
-    function FindPlaceForWarrior(aWarrior:TKMUnitWarrior; aCanLinkToExisting, aTakeClosest:boolean):boolean;
+    procedure RestockPositionWith(aDefenceGroup, aCommander: TKMUnitWarrior);
+    function FindPlaceForWarrior(aWarrior: TKMUnitWarrior; aCanLinkToExisting, aTakeClosest:boolean):boolean;
     procedure RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
 
   public
-    EquipRate: word; //Number of ticks between soldiers being equipped
-    TownDefence, MaxSoldiers, Aggressiveness: integer; //-1 means not used or default
+    EquipRate: Word; //Number of ticks between soldiers being equipped
+    TownDefence, MaxSoldiers, Aggressiveness: Integer; //-1 means not used or default
     StartPosition: TKMPoint; //Defines roughly where to defend and build around
     TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
-                                            NumUnits, UnitsPerRow:integer;
+                                            NumUnits, UnitsPerRow: Integer;
                                           end;
     DefencePositionsCount: integer;
     DefencePositions: array of TAIDefencePosition;
@@ -66,6 +67,7 @@ type
     property Attacks: TAIAttacks read fAttacks;
     property Setup: TKMPlayerAISetup read fSetup;
     property Mayor: TKMayor read fMayor;
+    property General: TKMGeneral read fGeneral;
 
     procedure OwnerUpdate(aPlayer:TPlayerIndex);
 
@@ -173,6 +175,7 @@ begin
   fPlayerIndex := aPlayerIndex;
   fSetup := TKMPlayerAISetup.Create;
   fMayor := TKMayor.Create(fPlayerIndex, fSetup);
+  fGeneral := TKMGeneral.Create(fPlayerIndex, fSetup);
   fHasWonOrLost := false;
   DefencePositionsCount := 0;
 
@@ -195,6 +198,7 @@ end;
 destructor TKMPlayerAI.Destroy;
 var I: Integer;
 begin
+  fGeneral.Free;
   fMayor.Free;
   fSetup.Free;
   fAttacks.Free;

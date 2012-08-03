@@ -34,7 +34,7 @@ type
     property CityPlanner: TKMCityPlanner read fCityPlanner;
 
     procedure AfterMissionInit;
-    procedure OwnerUpdate(aPlayer:TPlayerIndex);
+    procedure OwnerUpdate(aPlayer: TPlayerIndex);
 
     procedure UpdateState;
     procedure Save(SaveStream: TKMemoryStream);
