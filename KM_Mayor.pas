@@ -27,9 +27,10 @@ type
   private
     fOwner: TPlayerIndex;
     fCityPlanner: TKMCityPlanner;
+    fMayorSetup: TKMMayorSetup;
     fPathFindingRoad: TPathFindingRoad;
 
-    fMayorSetup: TKMMayorSetup;
+    fRoadBelowStore: Boolean;
 
     function HouseCount(aHouse: THouseType): Integer;
     procedure TryBuildHouse(aHouse: THouseType);
@@ -41,6 +42,7 @@ type
     procedure CheckHouseDefenceCount;
     procedure CheckHouseWeaponryCount;
     procedure CheckHouseCount;
+    procedure CheckRoadsCount;
   public
     constructor Create(aPlayer: TPlayerIndex);
     destructor Destroy; override;
@@ -206,7 +208,7 @@ procedure TKMayor.TryBuildHouse(aHouse: THouseType);
 
     NodeList := TKMPointList.Create;
     try
-      RoadExists := fPathFindingRoad.Route_Make(aLoc, LocTo, [CanMakeRoads, CanWalkRoad], 0, nil, NodeList, False);
+      RoadExists := fPathFindingRoad.Route_Make(aLoc, LocTo, [CanMakeRoads, CanWalkRoad], NodeList);
 
       if not RoadExists then Exit;
 
@@ -220,7 +222,6 @@ procedure TKMayor.TryBuildHouse(aHouse: THouseType);
     end;
   end;
 
-const RAD = 4;
 var
   I, K: Integer;
   Loc: TKMPoint;
@@ -250,13 +251,13 @@ begin
   begin
     NodeTagList := TKMPointTagList.Create;
     try
-      for I := Min(Loc.Y + 2, fTerrain.MapY - 1) to Min(Loc.Y + 2 + RAD - 1, fTerrain.MapY - 1) do
-      for K := Max(Loc.X - RAD, 1) to Min(Loc.X + RAD, fTerrain.MapX - 1) do
+      for I := Min(Loc.Y + 2, fTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, fTerrain.MapY - 1) do
+      for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, fTerrain.MapX - 1) do
         if P.CanAddFieldPlan(KMPoint(K,I), ft_Corn) then
-          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X) + Abs(I + 2 - Loc.Y) * 2, 0);
+          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y), 0);
 
       NodeTagList.SortByTag;
-      for I := 0 to Min(NodeTagList.Count - 1, 15) do
+      for I := 0 to Min(NodeTagList.Count, 16) - 1 do
         P.BuildList.FieldworksList.AddField(NodeTagList[I], ft_Corn);
     finally
       NodeTagList.Free;
@@ -268,13 +269,13 @@ begin
   begin
     NodeTagList := TKMPointTagList.Create;
     try
-      for I := Min(Loc.Y + 2, fTerrain.MapY - 1) to Min(Loc.Y + 2 + RAD - 1, fTerrain.MapY - 1) do
-      for K := Max(Loc.X - RAD, 1) to Min(Loc.X + RAD, fTerrain.MapX - 1) do
+      for I := Min(Loc.Y + 2, fTerrain.MapY - 1) to Min(Loc.Y + 2 + AI_FIELD_HEIGHT - 1, fTerrain.MapY - 1) do
+      for K := Max(Loc.X - AI_FIELD_WIDTH, 1) to Min(Loc.X + AI_FIELD_WIDTH, fTerrain.MapX - 1) do
         if P.CanAddFieldPlan(KMPoint(K,I), ft_Wine) then
-          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X) + Abs(I + 2 - Loc.Y) * 2, 0);
+          NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y), 0);
 
       NodeTagList.SortByTag;
-      for I := 0 to Min(NodeTagList.Count - 1, 12) do
+      for I := 0 to Min(NodeTagList.Count, 14) - 1 do
         P.BuildList.FieldworksList.AddField(NodeTagList[I], ft_Wine);
     finally
       NodeTagList.Free;
@@ -473,7 +474,34 @@ begin
   end;
 
   //Check if we need to demolish depleted mining houses
+  //Not sure if AI should do that though
+end;
 
+
+procedure TKMayor.CheckRoadsCount;
+var
+  P: TKMPlayer;
+  Store: TKMHouse;
+  StoreLoc: TKMPoint;
+  I, K: Integer;
+begin
+  P := fPlayers[fOwner];
+
+  //This is one time task to build roads around Store
+  //When town becomes larger add road around Store to make traffic smoother
+  if not fRoadBelowStore and (P.Stats.GetCitizensCount > 20) then
+  begin
+    fRoadBelowStore := True;
+
+    Store := P.Houses.FindHouse(ht_Store, 0, 0, 1);
+    if Store = nil then Exit;
+    StoreLoc := Store.GetPosition;
+
+    for I := Max(StoreLoc.Y - 3, 1) to Min(StoreLoc.Y + 2, fTerrain.MapY - 1) do
+    for K := StoreLoc.X - 2 to StoreLoc.X + 2 do
+    if P.CanAddFieldPlan(KMPoint(K, I), ft_Road) then
+      P.BuildList.FieldworksList.AddField(KMPoint(K, I), ft_Road);
+  end;
 end;
 
 
@@ -487,10 +515,16 @@ end;
 
 procedure TKMayor.UpdateState;
 begin
-  CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
+  //Train new units (citizens, serfs, workers and recruits) if needed
+  CheckUnitCount;
 
   if fMayorSetup.AutoBuild then
+  begin
     CheckHouseCount;
+
+    //Build more roads if necessary
+    CheckRoadsCount;
+  end;
 end;
 
 

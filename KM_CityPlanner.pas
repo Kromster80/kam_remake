@@ -19,7 +19,7 @@ type
     function NextToHouse(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToTrees(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-    //function NextToGrass(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+    function NextToGrass(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
   public
     //Stone, Wood, Farm, Wine, Coal,
     //InfluenceMap: array of array of array [TCityInfluence] of Byte;
@@ -28,11 +28,17 @@ type
     destructor Destroy; override;
 
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-    procedure OwnerUpdate(aPlayer:TPlayerIndex);
+    procedure OwnerUpdate(aPlayer: TPlayerIndex);
     procedure UpdateInfluence;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
   end;
+
+
+const
+  AI_FIELD_HEIGHT = 3;
+  AI_FIELD_WIDTH = 3;
+  AI_FIELD_MAX_AREA = (AI_FIELD_WIDTH * 2 + 1) * AI_FIELD_HEIGHT;
 
 
 implementation
@@ -46,7 +52,6 @@ begin
   fOwner := aPlayer;
 
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
-  //UpdateInfluence;
 end;
 
 
@@ -81,43 +86,64 @@ begin
     ht_WeaponSmithy:    Result := NextToHouse(ht_IronSmithy, aHouse, aLoc);
     ht_WeaponWorkshop:  Result := NextToHouse(ht_Sawmill, aHouse, aLoc);
 
-    ht_CoalMine:      Result := NextToOre(ht_CoalMine, rt_Coal, aLoc);
-    ht_GoldMine:      Result := NextToOre(ht_GoldMine, rt_GoldOre, aLoc);
-    ht_IronMine:      Result := NextToOre(ht_IronMine, rt_IronOre, aLoc);
+    ht_CoalMine:      Result := NextToOre(aHouse, rt_Coal, aLoc);
+    ht_GoldMine:      Result := NextToOre(aHouse, rt_GoldOre, aLoc);
+    ht_IronMine:      Result := NextToOre(aHouse, rt_IronOre, aLoc);
 
     ht_Quary:         Result := NextToStone(aHouse, aLoc);
     ht_Woodcutters:   Result := NextToTrees(aHouse, aLoc);
-    ht_Farm:          Result := NextToHouse(ht_Store, aHouse, aLoc);//NextToGrass(aHouse, aLoc);
-    ht_Wineyard:      Result := NextToHouse(ht_Store, aHouse, aLoc);//NextToGrass(aHouse, aLoc);
+    ht_Farm:          Result := NextToGrass(ht_Any, aHouse, aLoc);//NextToGrass(aHouse, aLoc);
+    ht_Wineyard:      Result := NextToGrass(ht_Any, aHouse, aLoc);//NextToGrass(aHouse, aLoc);
   end;
 end;
 
 
-{function TKMCityPlanner.NextToGrass(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+function TKMCityPlanner.NextToGrass(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+  function CanPlaceHouse(aHouse: THouseType; aX, aY: Word): Boolean;
+  var
+    I, K: Integer;
+    FieldCount: Integer;
+  begin
+    Result := False;
+    if fPlayers[fOwner].CanAddHousePlanAI(aX, aY, aHouse, False)
+    and (aHouse in [ht_Farm, ht_Wineyard]) then
+    begin
+      FieldCount := 0;
+      for I := Min(aY + 2, fTerrain.MapY - 1) to Max(aY + 2 + AI_FIELD_HEIGHT - 1, 1) do
+      for K := Max(aX - AI_FIELD_WIDTH, 1) to Min(aX + AI_FIELD_WIDTH, fTerrain.MapX - 1) do
+      if fPlayers[fOwner].CanAddFieldPlan(KMPoint(K,I), ft_Corn) then
+      begin
+        Inc(FieldCount);
+        //Request slightly more than we need to have a good choice
+        if FieldCount >= Min(AI_FIELD_MAX_AREA, 15) then
+        begin
+          Result := True;
+          Exit;
+        end;
+      end;
+    end;
+  end;
 var
-  S: TKMHouse;
+  TargetH: TKMHouse;
   I, K: Integer;
   Bid, BestBid: Single;
-  StoreLoc: TKMPoint;
-  TreeLoc: TKMPointDir;
-  TA: TPlantAct;
+  TargetLoc: TKMPoint;
+  P: TKMPlayer;
 begin
   Result := False;
 
-  S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
-  if S = nil then Exit;
-
-  StoreLoc := S.GetPosition;
-
-  if not fTerrain.FindTree(KMPointBelow(S.GetPosition), 20, KMPoint(0,0), taAny, TreeLoc, TA) then Exit;
+  P := fPlayers[fOwner];
+  TargetH := P.Houses.FindHouse(aTarget, 0, 0, KaMRandom(P.Stats.GetHouseQty(aHouse)) + 1);
+  if TargetH = nil then Exit;
+  TargetLoc := TargetH.GetPosition;
 
   BestBid := MaxSingle;
 
-  for I := Max(TreeLoc.Loc.Y - 5, 1) to Min(TreeLoc.Loc.Y + 6, fTerrain.MapY - 1) do
-  for K := Max(TreeLoc.Loc.X - 7, 1) to Min(TreeLoc.Loc.X + 7, fTerrain.MapX - 1) do
-    if fPlayers[fOwner].CanAddHousePlan(KMPoint(K,I), aHouse) then
+  for I := Max(TargetLoc.Y - 5, 1) to Min(TargetLoc.Y + 6, fTerrain.MapY - 1) do
+  for K := Max(TargetLoc.X - 7, 1) to Min(TargetLoc.X + 7, fTerrain.MapX - 1) do
+    if CanPlaceHouse(aHouse, K, I) then
     begin
-      Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
+      Bid := GetLength(KMPoint(K,I), TargetLoc) + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -125,27 +151,10 @@ begin
         Result := True;
       end;
     end;
-end;}
+end;
 
 
 function TKMCityPlanner.NextToHouse(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-  function CanPlaceHouse(aHouse: THouseType; aX, aY: Word): Boolean;
-  const RAD = 4;
-  var
-    I, K: Integer;
-    FieldCount: Integer;
-  begin
-    Result := fPlayers[fOwner].CanAddHousePlanAI(aX, aY, aHouse, False);
-    if Result and (aHouse in [ht_Farm, ht_Wineyard]) then
-    begin
-      FieldCount := 0;
-      for I := Min(aY + 2, fTerrain.MapY - 1) to Min(aY + RAD, fTerrain.MapY - 1) do
-      for K := Max(aX - RAD, 1) to Min(aX + RAD, fTerrain.MapX - 1) do
-        if CanMakeFields in fTerrain.Land[I,K].Passability then
-          Inc(FieldCount);
-      Result := FieldCount >= 15;
-    end;
-  end;
 var
   TargetH: TKMHouse;
   I, K: Integer;
@@ -164,7 +173,7 @@ begin
 
   for I := Max(TargetLoc.Y - 10, 1) to Min(TargetLoc.Y + 10, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - 10, 1) to Min(TargetLoc.X + 10, fTerrain.MapX - 1) do
-    if CanPlaceHouse(aHouse, K, I) then
+    if P.CanAddHousePlanAI(K, I, aHouse, False) then
     begin
       Bid := GetLength(KMPoint(K,I), TargetLoc) + KaMRandom * 3;
       if Bid < BestBid then
@@ -391,11 +400,11 @@ begin
   for K := 1 to fTerrain.MapX - 1 do
     fTerrain.Land[I,K].Influence := fTerrain.Land[I,K].Influence or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
 
-  //Leave some free space below Store
+  //Leave some free space around Store
   S := fPlayers[fOwner].FindHouse(ht_Store);
   if S <> nil then
-  for I := S.GetEntrance.Y + 1 to Min(S.GetEntrance.Y + 2, fTerrain.MapY - 1) do
-  for K := Max(S.GetEntrance.X - 2, 1) to Min(S.GetEntrance.X + 2, fTerrain.MapX - 1) do
+  for I := Max(S.GetEntrance.Y - 4, 1) to Min(S.GetEntrance.Y + 3, fTerrain.MapY - 1) do
+  for K := Max(S.GetEntrance.X - 3, 1) to Min(S.GetEntrance.X + 3, fTerrain.MapX - 1) do
     fTerrain.Land[I,K].Influence := fTerrain.Land[I,K].Influence or $FF;
 
 

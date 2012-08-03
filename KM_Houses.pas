@@ -2333,38 +2333,38 @@ end;
 //Find house by index (1st, 2nd)
 function TKMHousesCollection.FindHouse(aType:THouseType; X,Y:word; const aIndex:byte=1; aOnlyCompleted:boolean=true): TKMHouse;
 var
-  i,id: integer;
-  UsePosition: boolean;
-  BestMatch,Dist: single;
+  I,ID: Integer;
+  UsePosition: Boolean;
+  BestMatch,Dist: Single;
 begin
   Result := nil;
-  id := 0;
+  ID := 0;
   BestMatch := MaxSingle; //Any distance will be closer than that
   UsePosition := X*Y <> 0; //Calculate this once to save computing lots of multiplications
   Assert((not UsePosition) or (aIndex = 1), 'Can''t find house basing both on Position and Index');
 
-  for i:=0 to Count-1 do
-  if ((Houses[i].fHouseType = aType) or (aType = ht_Any))
-  and (Houses[i].IsComplete or not aOnlyCompleted)
-  and not Houses[i].fIsDestroyed then
+  for I := 0 to Count-1 do
+  if ((Houses[I].fHouseType = aType) or (aType = ht_Any))
+  and (Houses[I].IsComplete or not aOnlyCompleted)
+  and not Houses[I].fIsDestroyed then
   begin
-    Inc(id);
+    Inc(ID);
     if UsePosition then
     begin
-      Dist := GetLength(Houses[i].GetPosition,KMPoint(X,Y));
+      Dist := GetLength(Houses[I].GetPosition,KMPoint(X,Y));
       if BestMatch = -1 then BestMatch := Dist; //Initialize for first use
       if Dist < BestMatch then
       begin
         BestMatch := Dist;
-        Result := Houses[i];
+        Result := Houses[I];
       end;
     end
     else
       //Take the N-th result
-      if aIndex = id then
+      if aIndex = ID then
       begin
-        Result := Houses[i];
-        exit;
+        Result := Houses[I];
+        Exit;
       end;
   end;
 end;

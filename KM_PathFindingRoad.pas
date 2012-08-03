@@ -17,13 +17,14 @@ type
     constructor Create(aOwner: TPlayerIndex);
 
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
+    function Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; NodeList: TKMPointList): Boolean; reintroduce;//load;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
 implementation
-uses KM_PlayersCollection;
+uses KM_PlayersCollection, KM_Terrain;
 
 
 { TPathFindingRoad }
@@ -60,8 +61,17 @@ end;
 
 function TPathFindingRoad.IsWalkableTile(aX, aY: Word): Boolean;
 begin
-  Result := inherited IsWalkableTile(aX,aY) and (fPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None,ft_Road])
+  Result := inherited IsWalkableTile(aX,aY)
+            //and not fTerrain.TileIsCornField(KMPoint(aX, aY))
+            //and not fTerrain.TileIsCornField(KMPoint(aX, aY))
+            and (fPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
             and not fPlayers[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
+end;
+
+
+function TPathFindingRoad.Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; NodeList: TKMPointList): Boolean;
+begin
+  Result := inherited Route_Make(aLocA, aLocB, aPass, 0, nil, NodeList, False);
 end;
 
 

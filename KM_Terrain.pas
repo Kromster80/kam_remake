@@ -107,7 +107,7 @@ type
     function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType): Boolean;
     function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType): Boolean;
     function CanPlaceHouseFromScript(aHouseType: THouseType; Loc:TKMPoint): Boolean;
-    function CanAddField(Loc: TKMPoint; aFieldType: TFieldType): Boolean;
+    function CanAddField(aX, aY: Word; aFieldType: TFieldType): Boolean;
     function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability): Boolean;
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
@@ -2366,15 +2366,15 @@ begin
 end;
 
 
-function TTerrain.CanAddField(Loc: TKMPoint; aFieldType: TFieldType): Boolean;
+function TTerrain.CanAddField(aX, aY: Word; aFieldType: TFieldType): Boolean;
 begin
   //Make sure it is within map, roads can be built on edge
-  Result := TileInMapCoords(Loc.X, Loc.Y);
+  Result := TileInMapCoords(aX, aY);
   case aFieldType of
-    ft_Road:  Result := Result AND (CanMakeRoads  in Land[Loc.Y, Loc.X].Passability);
-    ft_Corn:  Result := Result AND (CanMakeFields in Land[Loc.Y, Loc.X].Passability);
-    ft_Wine:  Result := Result AND (CanMakeFields in Land[Loc.Y, Loc.X].Passability);
-    ft_Wall:  Result := Result AND (CanMakeRoads  in Land[Loc.Y, Loc.X].Passability);
+    ft_Road:  Result := Result and (CanMakeRoads  in Land[aY, aX].Passability);
+    ft_Corn:  Result := Result and (CanMakeFields in Land[aY, aX].Passability);
+    ft_Wine:  Result := Result and (CanMakeFields in Land[aY, aX].Passability);
+    ft_Wall:  Result := Result and (CanMakeRoads  in Land[aY, aX].Passability);
     else      Result := False;
   end;
 end;

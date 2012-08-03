@@ -150,7 +150,7 @@ destructor TTaskBuildRoad.Destroy;
 begin
   //Yet unstarted
   if BuildID <> -1 then
-    if fTerrain.CanAddField(fLoc, ft_Road) then
+    if fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Road) then
       //Allow other workers to take this task
       fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID)
     else
@@ -166,7 +166,7 @@ end;
 function TTaskBuildRoad.WalkShouldAbandon: Boolean;
 begin
   //Walk should abandon if other player has built something there before we arrived
-  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc, ft_Road);
+  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Road);
 end;
 
 
@@ -275,7 +275,7 @@ destructor TTaskBuildWine.Destroy;
 begin
   //Yet unstarted
   if BuildID <> -1 then
-    if fTerrain.CanAddField(fLoc, ft_Wine) then
+    if fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Wine) then
       //Allow other workers to take this task
       fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID)
     else
@@ -292,7 +292,7 @@ end;
 function TTaskBuildWine.WalkShouldAbandon: Boolean;
 begin
   //Walk should abandon if other player has built something there before we arrived
-  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc, ft_Wine);
+  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Wine);
 end;
 
 
@@ -395,7 +395,7 @@ destructor TTaskBuildField.Destroy;
 begin
   //Yet unstarted
   if BuildID <> -1 then
-    if fTerrain.CanAddField(fLoc, ft_Corn) then
+    if fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Corn) then
       //Allow other workers to take this task
       fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID)
     else
@@ -410,7 +410,7 @@ end;
 function TTaskBuildField.WalkShouldAbandon: Boolean;
 begin
   //Walk should abandon if other player has built something there before we arrived
-  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc, ft_Corn);
+  Result := (BuildID <> -1) and not fTerrain.CanAddField(fLoc.X, fLoc.Y, ft_Corn);
 end;
 
 
