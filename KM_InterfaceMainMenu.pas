@@ -30,6 +30,7 @@ type
     fMinimap: TKMMinimap;
 
     fLobbyBusy: Boolean;
+    fGameResultMsg: TGameResultMsg; //So we know where to go after results screen
 
     fLastMapCRC: Cardinal; //CRC of selected map
     fLastSaveCRC: Cardinal; //CRC of selected save
@@ -542,11 +543,12 @@ var
   R: TResourceType;
   G: TCardinalArray;
 begin
+  fGameResultMsg := aMsg;
   case aMsg of
     gr_Win:       Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
     gr_Defeat:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
     gr_Cancel:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
-    gr_ReplayEnd: Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+    gr_ReplayEnd: Label_Results.Caption := fTextLibrary[TX_MENU_REPLAY_ENDED];
     else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
   end;
   //Append mission name and time after the result message
@@ -653,11 +655,12 @@ var
   R: TResourceType;
   G: TCardinalArray;
 begin
+  fGameResultMsg := aMsg;
   case aMsg of
     gr_Win:       Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
     gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
     gr_Cancel:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
-    gr_ReplayEnd: Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+    gr_ReplayEnd: Label_ResultsMP.Caption := fTextLibrary[TX_MENU_REPLAY_ENDED];
     else          Label_ResultsMP.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
   end;
   //Append mission name and time after the result message
@@ -1527,6 +1530,7 @@ begin
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex|Danjb||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer|Malin||'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_MUSIC]+'|Andre Sklenar - www.juicelab.cz||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_SOUNDS]+'|trb1914||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|'+fLocales.GetTranslatorCredits+'|'+
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
@@ -1804,7 +1808,8 @@ begin
   or (Sender = Button_CreditsBack)
   or (Sender = Button_MapEdBack)
   or (Sender = Button_ErrorBack)
-  or (Sender = Button_ReplaysBack) then
+  or (Sender = Button_ReplaysBack)
+  or (((Sender = Button_ResultsBack)or(Sender = Button_ResultsMPBack))and(fGameResultMsg = gr_ReplayEnd)) then
   begin
     //Scan should be terminated, it is no longer needed
     if Sender = Button_ReplaysBack then
@@ -1834,7 +1839,7 @@ begin
   or (Sender = Button_Camp_Back)
   or (Sender = Button_SingleBack)
   or (Sender = Button_LoadBack)
-  or (Sender = Button_ResultsBack) then
+  or ((Sender = Button_ResultsBack)and(fGameResultMsg <> gr_ReplayEnd)) then
   begin
     if (Sender = Button_SingleBack) then
       //scan should be terminated, it is no longer needed
@@ -1902,7 +1907,8 @@ begin
   end;
 
   {Show MultiPlayer menu}
-  if (Sender=Button_MM_MultiPlayer) or (Sender=Button_ResultsMPBack) then
+  if (Sender=Button_MM_MultiPlayer)
+  or ((Sender=Button_ResultsMPBack)and(fGameResultMsg <> gr_ReplayEnd)) then
   begin
     fGameApp.NetworkInit;
     MP_Init(Sender);

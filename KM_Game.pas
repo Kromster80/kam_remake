@@ -1121,7 +1121,7 @@ begin
   //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is
   LoadStream.Read(SaveIsMultiplayer);
   if SaveIsMultiplayer and (fGameMode = gmReplaySingle) then
-    fGameMode := gmReplayMulti; //We only know which is is once we've read the save file, so update it now
+    fGameMode := gmReplayMulti; //We only know which it is once we've read the save file, so update it now
 
   //If the player loads a multiplayer save in singleplayer or replay mode, we require a mutex lock to prevent cheating
   //If we're loading in multiplayer mode we have already locked the mutex when entering multiplayer menu,
