@@ -86,10 +86,10 @@ end;
 
 
 destructor TKMPlayersCollection.Destroy;
-var i:integer;
+var I: Integer;
 begin
-  for i:=0 to fCount-1 do
-    FreeThenNil(fPlayerList[i]);
+  for I := 0 to fCount - 1 do
+    FreeThenNil(fPlayerList[I]);
 
   PlayerAnimals.Free;
 
@@ -106,15 +106,15 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.AddPlayers(aCount: byte);
-var i:integer;
+procedure TKMPlayersCollection.AddPlayers(aCount: Byte);
+var I: Integer;
 begin
   Assert(fCount+aCount <= MAX_PLAYERS);
 
-  SetLength(fPlayerList, fCount+aCount);
+  SetLength(fPlayerList, fCount + aCount);
 
-  for i:=fCount to fCount+aCount-1 do
-    fPlayerList[i] := TKMPlayer.Create(i);
+  for I := fCount to fCount + aCount - 1 do
+    fPlayerList[I] := TKMPlayer.Create(I);
 
   fCount := fCount+aCount;
 end;

@@ -155,6 +155,7 @@
 			<DCCReference Include="KM_Pics.pas"/>
 			<DCCReference Include="KM_Player.pas"/>
 			<DCCReference Include="KM_PlayerAI.pas"/>
+			<DCCReference Include="KM_PlayerAISetup.pas"/>
 			<DCCReference Include="KM_PlayersCollection.pas"/>
 			<DCCReference Include="KM_PlayerStats.pas"/>
 			<DCCReference Include="KM_Projectiles.pas"/>

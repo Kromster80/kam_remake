@@ -66,6 +66,7 @@ uses
   KM_Pics in 'KM_Pics.pas',
   KM_Player in 'KM_Player.pas',
   KM_PlayerAI in 'KM_PlayerAI.pas',
+  KM_PlayerAISetup in 'KM_PlayerAISetup.pas',
   KM_PlayersCollection in 'KM_PlayersCollection.pas',
   KM_PlayerStats in 'KM_PlayerStats.pas',
   KM_Projectiles in 'KM_Projectiles.pas',

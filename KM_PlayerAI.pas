@@ -2,9 +2,13 @@ unit KM_PlayerAI;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, SysUtils,
-    KM_CommonClasses, KM_Defaults, KM_Terrain, KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points, KM_Mayor;
+    KM_CommonClasses, KM_Defaults, KM_Terrain,
+    KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points,
+    KM_PlayerAISetup, KM_Mayor;
 
-type //For now IDs must match with KaM
+
+type
+  //For now IDs must match with KaM
   TAIDefencePosType = (adt_FrontLine=0, //Front line troops may not go on attacks, they are for defence
                        adt_BackLine=1); //Back line troops may attack
 
@@ -30,6 +34,7 @@ type //For now IDs must match with KaM
   TKMPlayerAI = class
   private
     fPlayerIndex: TPlayerIndex;
+    fSetup: TKMPlayerAISetup;
     fMayor: TKMayor;
 
     fLastEquippedTime: cardinal;
@@ -59,6 +64,7 @@ type //For now IDs must match with KaM
     destructor Destroy; override;
 
     property Attacks: TAIAttacks read fAttacks;
+    property Setup: TKMPlayerAISetup read fSetup;
     property Mayor: TKMayor read fMayor;
 
     procedure OwnerUpdate(aPlayer:TPlayerIndex);
@@ -165,7 +171,8 @@ begin
   inherited Create;
 
   fPlayerIndex := aPlayerIndex;
-  fMayor := TKMayor.Create(fPlayerIndex);
+  fSetup := TKMPlayerAISetup.Create;
+  fMayor := TKMayor.Create(fPlayerIndex, fSetup);
   fHasWonOrLost := false;
   DefencePositionsCount := 0;
 
@@ -189,6 +196,7 @@ destructor TKMPlayerAI.Destroy;
 var I: Integer;
 begin
   fMayor.Free;
+  fSetup.Free;
   fAttacks.Free;
   for I := 0 to DefencePositionsCount - 1 do
     DefencePositions[I].Free;
@@ -688,7 +696,7 @@ end;
 //Also could be changed later to disable repairing when under attack? (only repair if the enemy goes away?)
 function TKMPlayerAI.HouseAutoRepair: Boolean;
 begin
-  Result := fMayor.MayorSetup.AutoBuild;
+  Result := fSetup.AutoBuild;
 end;
 
 
@@ -718,6 +726,7 @@ begin
     DefencePositions[i].Save(SaveStream);
 
   fAttacks.Save(SaveStream);
+  fSetup.Save(SaveStream);
   fMayor.Save(SaveStream);
 end;
 
@@ -741,6 +750,7 @@ begin
     DefencePositions[I] := TAIDefencePosition.Load(LoadStream);
 
   fAttacks.Load(LoadStream);
+  fSetup.Load(LoadStream);
   fMayor.Load(LoadStream);
 end;
 
