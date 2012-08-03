@@ -3199,6 +3199,7 @@ end;
 
 
 procedure TKMGamePlayInterface.KeyDown(Key: Word; Shift: TShiftState);
+var Rect: TKMRect;
 begin
   if fGame.IsPaused and not fReplay then Exit;
 
@@ -3213,8 +3214,15 @@ begin
     VK_RIGHT: fGame.Viewport.ScrollKeyRight := True;
     VK_UP:    fGame.Viewport.ScrollKeyUp    := True;
     VK_DOWN:  fGame.Viewport.ScrollKeyDown  := True;
-
-    SC_SHOW_TEAMS: fGame.ShowTeamNames := True;
+    //As we don't have names for teams in SP we only allow showing team names in MP
+    SC_SHOW_TEAMS: if fMultiplayer then
+    begin
+      fGame.ShowTeamNames := True;
+      //Update it immediately so there's no 300ms lag after pressing the key
+      fTeamNames.Clear;
+      Rect := fGame.Viewport.GetMinimapClip;
+      fPlayers.GetUnitsInRect(Rect, fTeamNames);
+    end;
   end;
 end;
 
@@ -3765,7 +3773,6 @@ begin
       Rect := fGame.Viewport.GetMinimapClip;
       fPlayers.GetUnitsInRect(Rect, fTeamNames);
     end;
-    Label_TeamName.Visible := fGame.ShowTeamNames;
   end;
 
   //Debug info
@@ -3806,9 +3813,11 @@ var
 begin
   if fGame.ShowTeamNames then
   begin
+    Label_TeamName.Visible := True; //Only visible while we're using it, otherwise it shows up in other places
     for I := 0 to fTeamNames.Count - 1 do
     begin
       Label_TeamName.Caption := fPlayers[TKMUnit(fTeamNames[I]).GetOwner].PlayerName;
+      Label_TeamName.FontColor := FlagColorToTextColor(fPlayers[TKMUnit(fTeamNames[I]).GetOwner].FlagColor);
 
       X := TKMUnit(fTeamNames[I]).PositionF.X;
       Y := TKMUnit(fTeamNames[I]).PositionF.Y;
@@ -3824,6 +3833,7 @@ begin
       Label_TeamName.Paint;
     end;
   end;
+  Label_TeamName.Visible := False; //Only visible while we're using it, otherwise it shows up in other places
 
   inherited;
 end;
