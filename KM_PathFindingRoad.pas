@@ -62,19 +62,20 @@ end;
 
 function TPathFindingRoad.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
 begin
-  Result := inherited;
+  //Since we don't allow roads to be built diagonally we can assume
+  //path is always 1 tile (10 points)
+  Result := 10;
 
+  //Building roads over fields is discouraged unless unavoidable
   if fTerrain.TileIsCornField(KMPoint(aToX, aToY))
   or fTerrain.TileIsWineField(KMPoint(aToX, aToY)) then
-    Inc(Result, 60);
+    Inc(Result, 60); //60 points equals to 6 tiles penalty
 end;
 
 
 function TPathFindingRoad.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   Result := inherited IsWalkableTile(aX,aY)
-            //and not fTerrain.TileIsCornField(KMPoint(aX, aY))
-            //and not fTerrain.TileIsCornField(KMPoint(aX, aY))
             and (fPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
             and not fPlayers[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
 end;
