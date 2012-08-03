@@ -178,7 +178,7 @@ type
     function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:TPlayerIndex; aAlliance:TAllianceType; Dir:TKMDirection): Pointer;
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage: Byte): Boolean;
-    function CanWalkDiagonaly(A,B:TKMPoint): Boolean;
+    function CanWalkDiagonaly(const A,B:TKMPoint): Boolean;
 
     procedure FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects: Boolean=true); overload;
     procedure FlattenTerrain(LocList:TKMPointList); overload;
@@ -698,7 +698,7 @@ end;
 {Check wherever unit can walk from A to B diagonaly}
 {Return true if direction is either walkable or not diagonal}
 {Maybe this can also be used later for inter-tile passability}
-function TTerrain.CanWalkDiagonaly(A,B:TKMPoint): Boolean;
+function TTerrain.CanWalkDiagonaly(const A,B:TKMPoint): Boolean;
 begin
   Result := true;
 

@@ -133,6 +133,7 @@
 			<DCCReference Include="KM_GameInputProcess.pas"/>
 			<DCCReference Include="KM_GameInputProcess_Multi.pas"/>
 			<DCCReference Include="KM_GameInputProcess_Single.pas"/>
+			<DCCReference Include="KM_General.pas"/>
 			<DCCReference Include="KM_Goals.pas"/>
 			<DCCReference Include="KM_HTTPClient.pas"/>
 			<DCCReference Include="KM_Locales.pas"/>

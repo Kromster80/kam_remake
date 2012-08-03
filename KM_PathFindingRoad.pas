@@ -11,8 +11,9 @@ type
   private
     fOwner: TPlayerIndex;
   protected
-    function CanWalkTo(aFrom, aTo: TKMPoint): Boolean; override;
+    function CanWalkTo(const aFrom, aTo: TKMPoint): Boolean; override;
     function IsWalkableTile(aX, aY: Word): Boolean; override;
+    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
   public
     constructor Create(aOwner: TPlayerIndex);
 
@@ -53,9 +54,19 @@ begin
 end;
 
 
-function TPathFindingRoad.CanWalkTo(aFrom, aTo: TKMPoint): Boolean;
+function TPathFindingRoad.CanWalkTo(const aFrom, aTo: TKMPoint): Boolean;
 begin
   Result := not KMStepIsDiag(aFrom, aTo);
+end;
+
+
+function TPathFindingRoad.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+begin
+  Result := inherited;
+
+  if fTerrain.TileIsCornField(KMPoint(aToX, aToY))
+  or fTerrain.TileIsWineField(KMPoint(aToX, aToY)) then
+    Inc(Result, 60);
 end;
 
 

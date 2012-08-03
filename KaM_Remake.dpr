@@ -44,6 +44,7 @@ uses
   KM_GameInputProcess in 'KM_GameInputProcess.pas',
   KM_GameInputProcess_Multi in 'KM_GameInputProcess_Multi.pas',
   KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',
+  KM_General in 'KM_General.pas',
   KM_Goals in 'KM_Goals.pas',
   KM_HTTPClient in 'KM_HTTPClient.pas',
   KM_Locales in 'KM_Locales.pas',

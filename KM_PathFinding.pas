@@ -46,8 +46,9 @@ type
     function MakeRoute: Boolean;
     procedure ReturnRoute(NodeList: TKMPointList);
   protected
-    function CanWalkTo(aFrom, aTo: TKMPoint): Boolean; virtual;
+    function CanWalkTo(const aFrom, aTo: TKMPoint): Boolean; virtual;
     function IsWalkableTile(aX, aY: Word): Boolean; virtual;
+    function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; virtual;
   public
     constructor Create;
     function Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList; aWeightRoutes: Boolean = True): Boolean;
@@ -145,7 +146,7 @@ begin
 end;
 
 
-function TPathFinding.CanWalkTo(aFrom, aTo: TKMPoint): Boolean;
+function TPathFinding.CanWalkTo(const aFrom, aTo: TKMPoint): Boolean;
 begin
   Result := fTerrain.CanWalkDiagonaly(aFrom, aTo);
 end;
@@ -155,6 +156,25 @@ function TPathFinding.IsWalkableTile(aX, aY: Word): Boolean;
 begin
   //If cell meets Passability then estimate it
   Result := (fPass * fTerrain.Land[aY,aX].Passability) <> [];
+end;
+
+
+//How much it costs to move From -> To
+function TPathFinding.MovementCost(aFromX, aFromY, aToX, aToY: Word): Word;
+begin
+  if Abs(aFromX-aToX) > Abs(aFromY-aToY) then
+    Result := Abs(aFromX-aToX) * 10 + Abs(aFromY-aToY) * 4
+  else
+    Result := Abs(aFromY-aToY) * 10 + Abs(aFromX-aToX) * 4;
+
+  //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
+  if (aToX <> fLocB.X) or (aToY <> fLocB.Y) then
+  begin
+    if fWeightRoutes and (fTerrain.Land[aToY,aToX].IsUnit <> nil) then
+      Inc(Result, 10); //Unit = 1 extra tile
+    if fIsInteractionAvoid and fTerrain.TileIsLocked(KMPoint(aToX,aToY)) then
+      Inc(Result, 500); //In interaction avoid mode, working unit = 50 tiles
+  end;
 end;
 
 
@@ -210,18 +230,10 @@ begin
         OList[OCount].Pos := KMPoint(x,y);
 
         if IsWalkableTile(X, Y) then
-        begin
-          ORef[y,x] := OCount;
-          OList[OCount].Parent := ORef[fMinCost.Pos.Y,fMinCost.Pos.X];
-          OList[OCount].CostTo := OList[OList[OCount].Parent].CostTo + Round(GetLength(KMPoint(x,y),fMinCost.Pos) * 10);
-          //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
-          if not KMSamePoint(fLocB, KMPoint(x,y)) then
-          begin
-            if fWeightRoutes and (fTerrain.Land[y,x].IsUnit <> nil) then
-              Inc(OList[OCount].CostTo, 10); //Unit = 1 extra tile
-            if fIsInteractionAvoid and fTerrain.TileIsLocked(KMPoint(x,y)) then
-              Inc(OList[OCount].CostTo, 500); //In interaction avoid mode, working unit = 50 tiles
-          end;
+        begin 
+          ORef[y,x] := OCount; 
+          OList[OCount].Parent := ORef[fMinCost.Pos.Y, fMinCost.Pos.X];
+          OList[OCount].CostTo := OList[OList[OCount].Parent].CostTo + MovementCost(fMinCost.Pos.X, fMinCost.Pos.Y, X, Y);
           OList[OCount].Estim := (abs(x-fLocB.X) + abs(y-fLocB.Y)) * 10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
         end
         else //If cell doen't meets Passability then mark it as Closed
@@ -236,15 +248,11 @@ begin
       if OList[ORef[y,x]].Estim <> c_closed then
       if CanWalkTo(fMinCost.Pos, KMPoint(x,y)) then
       begin
-        fNewCost := Round(GetLength(KMPoint(x,y),fMinCost.Pos) * 10);
-        if fWeightRoutes and (fTerrain.Land[y,x].IsUnit <> nil) then
-          Inc(fNewCost, 10); //Unit = 1 extra tile
-        if fIsInteractionAvoid and fTerrain.TileIsLocked(KMPoint(x,y)) then
-          Inc(fNewCost, 500); //In interaction avoid mode, working unit = 50 tiles
+        fNewCost := MovementCost(fMinCost.Pos.X, fMinCost.Pos.Y, X, Y);
         if OList[fMinCost.ID].CostTo + fNewCost < OList[ORef[y,x]].CostTo then
         begin
-          OList[ORef[y,x]].Parent:=ORef[fMinCost.Pos.Y,fMinCost.Pos.X];
-          OList[ORef[y,x]].CostTo:=OList[fMinCost.ID].CostTo + fNewCost;
+          OList[ORef[y,x]].Parent := ORef[fMinCost.Pos.Y,fMinCost.Pos.X];
+          OList[ORef[y,x]].CostTo := OList[fMinCost.ID].CostTo + fNewCost;
           //OList[ORef[y,x]].Estim:=(abs(x-fLocB.X) + abs(y-fLocB.Y))*10;
         end;
       end;

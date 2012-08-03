@@ -59,7 +59,7 @@ type
   function KMPrevDirection(aDir: TKMDirection): TKMDirection;
 
   function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
-  function KMStepIsDiag(P1,P2:TKMPoint):boolean;
+  function KMStepIsDiag(const P1,P2:TKMPoint):boolean;
 
   function GetLength(A,B:TKMPoint): single; overload;
   function GetLength(A,B:TKMPointF): single; overload;
@@ -358,7 +358,7 @@ begin
 end;
 
 
-function KMStepIsDiag(P1,P2:TKMPoint):boolean;
+function KMStepIsDiag(const P1,P2: TKMPoint): Boolean;
 begin
   Result := (sign(P2.X-P1.X) <> 0) and (sign(P2.Y-P1.Y) <> 0);
 end;
