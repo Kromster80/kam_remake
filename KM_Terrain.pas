@@ -2673,6 +2673,9 @@ begin
     else
       SaveStream.Write(Integer(0));
     SaveStream.Write(Land[i,k].IsVertexUnit, SizeOf(Land[i,k].IsVertexUnit));
+    //Influence must be saved because it is generated once at game start, so
+    //calculating it after loading could give different results and cause mismatches
+    SaveStream.Write(Land[i,k].Influence);
   end;
 end;
 
@@ -2700,6 +2703,9 @@ begin
     LoadStream.Read(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
     LoadStream.Read(Land[i,k].IsUnit, 4);
     LoadStream.Read(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
+    //Influence must be saved because it is generated once at game start, so
+    //calculating it after loading could give different results and cause mismatches
+    LoadStream.Read(Land[i,k].Influence);
   end;
 
   for i:=1 to fMapY do for k:=1 to fMapX do
