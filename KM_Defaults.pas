@@ -11,7 +11,7 @@ const
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
-  TERRAIN_PACE          = 100;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
+  TERRAIN_PACE          = 200;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
   FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
 
   FOG_OF_WAR_MIN        = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
@@ -594,17 +594,18 @@ const
   ( 167, 168, 169, 170, 171,  33));
 
   //Ages at which trees/fields grow up/change sprite multiplied by TERRAIN_PACE
-  TREE_AGE_1 = 25;
-  TREE_AGE_2 = 50;
-  TREE_AGE_FULL = 80; //Tree is old enough to be chopped
+  TREE_AGE_1 = 12;
+  TREE_AGE_2 = 25;
+  TREE_AGE_FULL = 40; //Tree is old enough to be chopped
 
-  CORN_AGE_1 = 22;   //Number measured from KaM ~195sec
-  CORN_AGE_2 = 43;
-  CORN_AGE_FULL = 64; //Corn ready to be cut
+  CORN_AGE_1 = 11;   //Number measured from KaM ~195sec
+  CORN_AGE_2 = 22;
+  CORN_AGE_FULL = 32; //Corn ready to be cut
+  CORN_AGE_MAX = 255; //We set it to this once it's fully grown
 
-  WINE_AGE_1 = 22;   //Number measured from KaM ~195sec
-  WINE_AGE_2 = 43;
-  WINE_AGE_FULL = 64; //Wine ready to be harvested
+  WINE_AGE_1 = 11;   //Number measured from KaM ~195sec
+  WINE_AGE_2 = 22;
+  WINE_AGE_FULL = 32; //Wine ready to be harvested
 
 
 //The frame shown when a unit is standing still in ua_Walk. Same for all units!

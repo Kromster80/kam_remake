@@ -46,10 +46,10 @@ type
       Obj: Byte;
 
       //Age of tree, another independent variable since trees can grow on fields
-      TreeAge: Word; //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
+      TreeAge: Byte; //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
 
       //Age of field/wine, another independent variable
-      FieldAge: Word; //Empty=0, 1, 2, 3, 4, Full=65535  Depending on this special object maybe rendered (straw, grapes)
+      FieldAge: Byte; //Empty=0, 1, 2, 3, 4, Full=CORN_AGE_MAX  Depending on this special object maybe rendered (straw, grapes)
 
       //Tells us the stage of house construction or workers making a road
       TileLock: TTileLock;
@@ -911,7 +911,7 @@ begin
     P := ValidTiles[i];
     if not KMSamePoint(aAvoidLoc,P) then
       if TileIsWineField(P) then
-        if Land[P.Y,P.X].FieldAge=65535 then
+        if Land[P.Y,P.X].FieldAge=CORN_AGE_MAX then
           if not TileIsLocked(P) then //Taken by another farmer
             if Route_CanBeMade(aLoc,P,CanWalk,0) then
               ChosenTiles.AddItem(KMPointDir(P, dir_NA));
@@ -940,7 +940,7 @@ begin
     if not KMSamePoint(aAvoidLoc,P) then
       if TileIsCornField(P) then
         if((aPlantAct in [taAny, taPlant]) and (Land[P.Y,P.X].FieldAge = 0)) or
-          ((aPlantAct in [taAny, taCut])   and (Land[P.Y,P.X].FieldAge = 65535)) then
+          ((aPlantAct in [taAny, taCut])   and (Land[P.Y,P.X].FieldAge = CORN_AGE_MAX)) then
           if not TileIsLocked(P) then //Taken by another farmer
             if Route_CanBeMade(aLoc,P,CanWalk,0) then
               ChosenTiles.AddItem(KMPointDir(P, dir_NA));
@@ -952,7 +952,7 @@ begin
   if not Result then
     PlantAct := taAny
   else
-    if Land[FieldPoint.Loc.Y,FieldPoint.Loc.X].FieldAge = 65535 then
+    if Land[FieldPoint.Loc.Y,FieldPoint.Loc.X].FieldAge = CORN_AGE_MAX then
       PlantAct := taCut
     else
       PlantAct := taPlant;
@@ -2743,7 +2743,7 @@ procedure TTerrain.UpdateState;
       UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrowTopLeft(KMRect(X,Y,X,Y),1), True);
   end;
 var
-  H, I, J, K: Word;
+  H, I, J, K, A: Word;
   T: Integer;
 begin
   inc(fAnimStep);
@@ -2753,52 +2753,58 @@ begin
   if fAnimStep >= FallingTrees.Tag2[T] + Cardinal(MapElem[FallingTrees.Tag[T]].Anim.Count - 1) then
     ChopTree(FallingTrees[T]); //Make the tree turn into a stump
 
-  for I := 1 to fMapY do
-  for K := 1 to fMapX do
-  //All those global things can be performed once a sec, or even less frequent
-  if (I*fMapX+K+fAnimStep) mod TERRAIN_PACE = 0 then
+  //Process odd then even rows each tick to save time (less loops)
+  for A := 1 to (fMapY div 2) do
   begin
-
-    if InRange(Land[I,K].FieldAge, 1, 65534) then
+    I := 2*A - (fAnimStep mod 2); //1..fMapY
+    for K := 1 to fMapX do
     begin
-      Inc(Land[I,K].FieldAge);
-      if TileIsCornField(KMPoint(K,I)) then
-        case Land[I,K].FieldAge of
-          CORN_AGE_1:     SetLand(K,I,59,255);
-          CORN_AGE_2:     SetLand(K,I,60,58);
-          CORN_AGE_FULL:  begin
-                            //Skip to the end
-                            SetLand(K,I,60,59);
-                            Land[I,K].FieldAge := 65535;
-                          end;
-        end
-      else
-      if TileIsWineField(KMPoint(K,I)) then
-        case Land[I,K].FieldAge of
-          WINE_AGE_1:     SetLand(K,I,55,55);
-          WINE_AGE_2:     SetLand(K,I,55,56);
-          WINE_AGE_FULL:  begin
-                            //Skip to the end
-                            SetLand(K,I,55,57);
-                            Land[I,K].FieldAge := 65535;
-                          end;
+      //All those global things can be performed once a sec, or even less frequent
+      if ((I*fMapX div 2)+K+(fAnimStep div 2)) mod (TERRAIN_PACE div 2) = 0 then
+      begin
+
+        if InRange(Land[I,K].FieldAge, 1, CORN_AGE_MAX-1) then
+        begin
+          Inc(Land[I,K].FieldAge);
+          if TileIsCornField(KMPoint(K,I)) then
+            case Land[I,K].FieldAge of
+              CORN_AGE_1:     SetLand(K,I,59,255);
+              CORN_AGE_2:     SetLand(K,I,60,58);
+              CORN_AGE_FULL:  begin
+                                //Skip to the end
+                                SetLand(K,I,60,59);
+                                Land[I,K].FieldAge := CORN_AGE_MAX;
+                              end;
+            end
+          else
+          if TileIsWineField(KMPoint(K,I)) then
+            case Land[I,K].FieldAge of
+              WINE_AGE_1:     SetLand(K,I,55,55);
+              WINE_AGE_2:     SetLand(K,I,55,56);
+              WINE_AGE_FULL:  begin
+                                //Skip to the end
+                                SetLand(K,I,55,57);
+                                Land[I,K].FieldAge := CORN_AGE_MAX;
+                              end;
+            end;
         end;
-    end;
 
-    if InRange(Land[I,K].TreeAge, 1, TREE_AGE_FULL) then
-    begin
-      Inc(Land[I,K].TreeAge);
-      if (Land[I,K].TreeAge = TREE_AGE_1)
-      or (Land[I,K].TreeAge = TREE_AGE_2)
-      or (Land[I,K].TreeAge = TREE_AGE_FULL) then //Speedup
-        for H := Low(ChopableTrees) to High(ChopableTrees) do
-          for J := 1 to 3 do
-            if Land[I,K].Obj = ChopableTrees[H,J] then
-              case Land[I,K].TreeAge of
-                TREE_AGE_1:    Land[I,K].Obj := ChopableTrees[H,2];
-                TREE_AGE_2:    Land[I,K].Obj := ChopableTrees[H,3];
-                TREE_AGE_FULL: Land[I,K].Obj := ChopableTrees[H,4];
-              end;
+        if InRange(Land[I,K].TreeAge, 1, TREE_AGE_FULL) then
+        begin
+          Inc(Land[I,K].TreeAge);
+          if (Land[I,K].TreeAge = TREE_AGE_1)
+          or (Land[I,K].TreeAge = TREE_AGE_2)
+          or (Land[I,K].TreeAge = TREE_AGE_FULL) then //Speedup
+            for H := Low(ChopableTrees) to High(ChopableTrees) do
+              for J := 1 to 3 do
+                if Land[I,K].Obj = ChopableTrees[H,J] then
+                  case Land[I,K].TreeAge of
+                    TREE_AGE_1:    Land[I,K].Obj := ChopableTrees[H,2];
+                    TREE_AGE_2:    Land[I,K].Obj := ChopableTrees[H,3];
+                    TREE_AGE_FULL: Land[I,K].Obj := ChopableTrees[H,4];
+                  end;
+        end;
+      end;
     end;
   end;
 end;
