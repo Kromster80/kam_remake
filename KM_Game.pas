@@ -42,7 +42,6 @@ type
     fMapEditor: TKMMapEditor;
 
     fIsExiting: Boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
-    fIsEnded: Boolean; //The game has ended/crashed and further UpdateStates are not required/impossible
     fIsPaused: Boolean;
     fGameSpeed: Word; //Actual speedup value
     fGameSpeedMultiplier: Word; //How many ticks are compressed into one
@@ -1233,7 +1232,7 @@ begin
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       fTerrain.UpdateState;
                       fPlayers.UpdateState(fGameTickCount); //Quite slow
-                      if fIsEnded then Exit; //Quit the update if game was stopped by MyPlayer defeat
+                      if fGame = nil then Exit; //Quit the update if game was stopped for some reason
                       fProjectiles.UpdateState; //If game has stopped it's NIL
 
                       fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
@@ -1267,7 +1266,7 @@ begin
                     UpdatePeacetime; //Send warning messages about peacetime if required (peacetime sound should still be played in replays)
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(fGameTickCount); //Quite slow
-                    if fIsEnded then exit; //Quit the update if game was stopped by MyPlayer defeat
+                    if fGame = nil then Exit; //Quit the update if game was stopped for some reason
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
                     //Issue stored commands
