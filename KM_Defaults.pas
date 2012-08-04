@@ -560,6 +560,7 @@ type
         tlDigged,   // -        -         X       X          X     X      X
         tlHouse,    // -        -         -       -          X     X      -
         //Used by workers making roads/fields to prevent you from building over them
+        tlFieldWork,// -        X         X       X          -     X      -
         tlRoadWork  // -        X         X       X          -     X      -
         );
 

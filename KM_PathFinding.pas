@@ -32,8 +32,6 @@ type
       Parent: Word;//Reference to parent
     end;
   private
-    fLocA: TKMPoint;
-    fLocB: TKMPoint;
     fPass: TPassabilitySet;
     fTargetWalkConnect: TWalkConnect;
     fTargetNetwork: Byte;
@@ -42,11 +40,13 @@ type
     fDestination: TDestinationPoint;
     fTargetHouse: TKMHouse;
     fWeightRoutes: Boolean;
-    function IsDestinationReached: Boolean;
     function MakeRoute: Boolean;
     procedure ReturnRoute(NodeList: TKMPointList);
   protected
+    fLocA: TKMPoint;
+    fLocB: TKMPoint;
     function CanWalkTo(const aFrom, aTo: TKMPoint): Boolean; virtual;
+    function DestinationReached(aX, aY: Word): Boolean; virtual;
     function IsWalkableTile(aX, aY: Word): Boolean; virtual;
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; virtual;
   public
@@ -178,12 +178,12 @@ begin
 end;
 
 
-function TPathFinding.IsDestinationReached: Boolean;
+function TPathFinding.DestinationReached(aX, aY: Word): Boolean;
 begin
   case fDestination of
-    dp_Location:    Result := KMLength(fMinCost.Pos, fLocB) <= fDistance;
-    dp_Passability: Result := fTerrain.GetConnectID(fTargetWalkConnect, fMinCost.Pos) = fTargetNetwork;
-    dp_House:       Result := fTargetHouse.InReach(fMinCost.Pos, fDistance);
+    dp_Location:    Result := KMLength(KMPoint(aX, aY), fLocB) <= fDistance;
+    dp_Passability: Result := fTerrain.GetConnectID(fTargetWalkConnect, KMPoint(aX, aY)) = fTargetNetwork;
+    dp_House:       Result := fTargetHouse.InReach(KMPoint(aX, aY), fDistance);
     else            Result := true;
   end;
 end;
@@ -211,7 +211,7 @@ begin
   fMinCost.ID := 1;
   fMinCost.Pos := fLocA;
 
-  while not IsDestinationReached and (fMinCost.Cost <> 65535) do
+  while not DestinationReached(fMinCost.Pos.X, fMinCost.Pos.Y) and (fMinCost.Cost <> 65535) do
   begin
 
     OList[fMinCost.ID].Estim := c_closed;
@@ -270,7 +270,7 @@ begin
         end;
   end;
 
-  Result := IsDestinationReached;
+  Result := DestinationReached(fMinCost.Pos.X, fMinCost.Pos.Y);
   //Assert(fMinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
 end;
 

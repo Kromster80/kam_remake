@@ -314,7 +314,7 @@ begin
       end;
    1: begin
         Thought := th_None;
-        fTerrain.SetTileLock(fLoc, tlRoadWork);
+        fTerrain.SetTileLock(fLoc, tlFieldWork);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := -1; //it can't be cancelled now
@@ -431,7 +431,7 @@ begin
          Thought := th_Build;
        end;
     1: begin
-        fTerrain.SetTileLock(fLoc, tlRoadWork);
+        fTerrain.SetTileLock(fLoc, tlFieldWork);
         TileLockSet := True;
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := -1;
@@ -507,7 +507,7 @@ begin
          Thought := th_Build;
        end;
     1: begin
-        fTerrain.SetTileLock(fLoc, tlRoadWork);
+        fTerrain.SetTileLock(fLoc, tlFieldWork);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := -1;

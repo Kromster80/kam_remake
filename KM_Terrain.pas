@@ -1483,7 +1483,7 @@ begin
   Land[Loc.Y,Loc.X].Passability := [];
 
   //For all passability types other than CanAll, houses and fenced houses are excluded
-  if Land[Loc.Y,Loc.X].TileLock in [tlNone, tlFenced, tlRoadWork] then
+  if Land[Loc.Y,Loc.X].TileLock in [tlNone, tlFenced, tlFieldWork, tlRoadWork] then
   begin
 
     if TileIsWalkable(Loc)

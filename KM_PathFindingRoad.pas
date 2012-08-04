@@ -12,6 +12,7 @@ type
     fOwner: TPlayerIndex;
   protected
     function CanWalkTo(const aFrom, aTo: TKMPoint): Boolean; override;
+    function DestinationReached(aX, aY: Word): Boolean; virtual;
     function IsWalkableTile(aX, aY: Word): Boolean; override;
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
   public
@@ -78,6 +79,14 @@ begin
   Result := inherited IsWalkableTile(aX,aY)
             and (fPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
             and not fPlayers[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
+end;
+
+
+function TPathFindingRoad.DestinationReached(aX, aY: Word): Boolean;
+begin
+  Result := ((aX = fLocB.X) and (aY = fLocB.Y)) //We reached destination point
+            or ((fTerrain.Land[aY, aX].TileOverlay = to_Road) and (fTerrain.Land[aY, aX].TileOwner = fOwner)) //We reached own road
+            or ((fTerrain.Land[aY, aX].TileLock = tlRoadWork) and (fTerrain.Land[aY, aX].TileOwner = fOwner));//We reached our roadplan being constructed
 end;
 
 
