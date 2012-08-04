@@ -938,8 +938,9 @@ type
     fMinimap: TKMMinimap;
     fView: TViewport;
 
-    fOnChange: TPointEvent;
+    fOnChange, fOnMinimapClick: TPointEvent;
     fShowLocs: Boolean;
+    fClickableOnce: Boolean;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
@@ -947,9 +948,12 @@ type
     procedure SetMinimap(aMinimap: TKMMinimap);
     procedure SetViewport(aViewport: TViewport);
     property ShowLocs: Boolean read fShowLocs write fShowLocs;
+    property ClickableOnce: Boolean read fClickableOnce write fClickableOnce;
     property OnChange: TPointEvent write fOnChange;
+    property OnMinimapClick: TPointEvent read fOnMinimapClick write fOnMinimapClick;
 
     procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure Paint; override;
   end;
@@ -3849,12 +3853,26 @@ begin
 end;
 
 
+procedure TKMMinimapView.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var ViewPos: TKMPoint;
+begin
+  inherited;
+  if fClickableOnce then
+  begin
+    fClickableOnce := False; //Not clickable anymore
+    ViewPos := LocalToMapCoords(X,Y);
+    if Assigned(fOnMinimapClick) then
+      fOnMinimapClick(Self, ViewPos.X, ViewPos.Y);
+  end;
+end;
+
+
 procedure TKMMinimapView.MouseMove(X,Y: Integer; Shift: TShiftState);
 var ViewPos: TKMPoint;
 begin
   inherited;
 
-  if ssLeft in Shift then
+  if (ssLeft in Shift) and not fClickableOnce then
   begin
     ViewPos := LocalToMapCoords(X,Y);
     if Assigned(fOnChange) then
@@ -3866,6 +3884,7 @@ end;
 procedure TKMMinimapView.Paint;
 const
   LOC_RAD = 8; //Radius of circle around player location
+  ALERT_RAD = 4;
 var
   I, PaintWidth, PaintHeight, NewLeft, NewTop: Integer;
   C: TKMRect;
@@ -3905,8 +3924,8 @@ begin
   if (fMinimap <> nil) and (fMinimap.Alerts <> nil) then
   for I := 0 to fMinimap.Alerts.Count - 1 do
   if fMinimap.Alerts[I].VisibleMinimap then
-    fRenderUI.WritePicture(NewLeft+EnsureRange(Round(fMinimap.Alerts[I].Loc.X*PaintWidth /  fMinimap.MapX), LOC_RAD, PaintWidth -LOC_RAD)+fMinimap.Alerts[I].TexMinimapOffset.X,
-                           NewTop +EnsureRange(Round(fMinimap.Alerts[I].Loc.Y*PaintHeight / fMinimap.MapY), LOC_RAD, PaintHeight-LOC_RAD)+fMinimap.Alerts[I].TexMinimapOffset.Y,
+    fRenderUI.WritePicture(NewLeft+EnsureRange(Round(fMinimap.Alerts[I].Loc.X*PaintWidth /  fMinimap.MapX), ALERT_RAD, PaintWidth -ALERT_RAD)+fMinimap.Alerts[I].TexMinimapOffset.X,
+                           NewTop +EnsureRange(Round(fMinimap.Alerts[I].Loc.Y*PaintHeight / fMinimap.MapY), ALERT_RAD, PaintHeight-ALERT_RAD)+fMinimap.Alerts[I].TexMinimapOffset.Y,
                            fMinimap.Alerts[I].TexMinimap.RX, fMinimap.Alerts[I].TexMinimap.ID, fMinimap.Alerts[I].TeamColor, True, abs((TimeGet mod 1000)/500 - 1)); //0..1..0..1..
 
   //Paint viewport rectangle

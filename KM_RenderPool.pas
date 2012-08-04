@@ -373,7 +373,7 @@ begin
   R := fRXData[rxGui];
 
   CornerX := aLoc.X + R.Pivot[aID].X / CELL_SIZE_PX;
-  CornerY := aLoc.Y - fTerrain.HeightAt(aLoc.X, aLoc.Y) / CELL_HEIGHT_DIV;
+  CornerY := aLoc.Y + R.Pivot[aID].Y / CELL_SIZE_PX - fTerrain.HeightAt(aLoc.X, aLoc.Y) / CELL_HEIGHT_DIV;
 
   //todo: Beacons should ignore FOW
   fRenderList.AddSpriteG(rxGui, aID, CornerX, CornerY, aLoc.X, aLoc.Y, aFlagColor);

@@ -146,7 +146,7 @@ end;
 
 function TKMAlertBeacon.GetTexMinimapOffset: TKMPointI;
 begin
-  Result := KMPointI(-4,-9);
+  Result := KMPointI(-4,-10);
 end;
 
 

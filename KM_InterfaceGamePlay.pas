@@ -25,7 +25,7 @@ type
     PrevHint: TObject;
     ShownMessage: Integer;
     PlayMoreMsg: TGameResultMsg; //Remember which message we are showing
-    fJoiningGroups: Boolean;
+    fJoiningGroups, fPlacingBeacon: Boolean;
     fAskDemolish, fAskDismiss: Boolean;
     fNetWaitDropPlayersDelayStarted: Cardinal;
     SelectedDirection: TKMDirection;
@@ -70,7 +70,7 @@ type
     procedure Create_Barracks_Page;
     procedure Create_Woodcutter_Page;
 
-    procedure Alert_Beacon;
+    procedure Beacon_Cancel;
     procedure Army_ActivateControls(aCommander: TKMUnitWarrior);
     procedure Army_HideJoinMenu(Sender:TObject);
     procedure Army_Issue_Order(Sender:TObject);
@@ -105,6 +105,7 @@ type
     procedure Message_UpdateStack;
     procedure Minimap_Update(Sender: TObject; const X,Y:integer);
     procedure Minimap_RightClick(Sender: TObject; const X,Y:integer);
+    procedure Minimap_Click(Sender: TObject; const X,Y:integer);
 
     procedure Menu_Save_RefreshList(Sender: TObject);
     procedure Menu_Save_ListChange(Sender: TObject);
@@ -703,7 +704,7 @@ begin
   if not fTerrain.TileInMapCoords(Loc.X, Loc.Y) then Exit; //Must be inside map
 
   //Send move order, if applicable
-  if (fPlayers.Selected is TKMUnitWarrior) and not fJoiningGroups then
+  if (fPlayers.Selected is TKMUnitWarrior) and not fJoiningGroups and not fPlacingBeacon then
   begin
     W := TKMUnitWarrior(fPlayers.Selected);
     if W.CanWalkTo(Loc, 0) then
@@ -712,6 +713,14 @@ begin
       fSoundLib.PlayWarrior(W.UnitType, sp_Move);
     end;
   end;
+end;
+
+
+procedure TKMGamePlayInterface.Minimap_Click(Sender: TObject; const X,Y:integer);
+begin
+  if not fPlacingBeacon then Exit;
+  fGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, KMPointF(X,Y), MyPlayer.PlayerIndex);
+  Beacon_Cancel;
 end;
 
 
@@ -725,6 +734,7 @@ begin
   //Instruct to use global Terrain
   LastSaveName := '';
   fJoiningGroups := False;
+  fPlacingBeacon := False;
   SelectingTroopDirection := false;
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
@@ -748,6 +758,7 @@ begin
     MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
     MinimapView.OnChange := Minimap_Update; //Allow dragging with LMB pressed
     MinimapView.OnClickRight := Minimap_RightClick;
+    MinimapView.OnMinimapClick := Minimap_Click; //For placing beacons
 
     Image_Clock := TKMImage.Create(Panel_Main,232,8,67,65,556);
     Image_Clock.Hide;
@@ -2800,6 +2811,15 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Beacon_Cancel;
+begin
+  fPlacingBeacon := False; //Right click cancels it
+  MinimapView.ClickableOnce := False;
+  if fResource.Cursors.Cursor = kmc_Beacon then
+    fResource.Cursors.Cursor := kmc_Default;
+end;
+
+
 procedure TKMGamePlayInterface.Army_ActivateControls(aCommander: TKMUnitWarrior);
 var AcceptOrders: Boolean;
 begin
@@ -3169,12 +3189,6 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Alert_Beacon;
-begin
-  fGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, GameCursor.Float, MyPlayer.PlayerIndex);
-end;
-
-
 procedure TKMGamePlayInterface.AlliesOnPingInfo(Sender: TObject);
 var I: Integer;
 begin
@@ -3289,14 +3303,18 @@ begin
                       Selection_Select(Key);
 
     // Army shortcuts from KaM
-    Ord(SC_ARMY_HALT):   if Panel_Army.Visible then Button_Army_Stop.Click;
-    Ord(SC_ARMY_LINK):   if Panel_Army.Visible then Button_Army_Join.Click;
-    Ord(SC_ARMY_SPLIT):  if Panel_Army.Visible then Button_Army_Split.Click;
+    Ord(SC_ARMY_HALT):   if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Stop.Click;
+    Ord(SC_ARMY_LINK):   if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Join.Click;
+    Ord(SC_ARMY_SPLIT):  if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Split.Click;
 
     //General function keys
     SC_PAUSE:       if not fMultiplayer then SetPause(True); //Display pause overlay
-    SC_BEACON:      if (fMyControls.CtrlOver = nil) and not SelectingTroopDirection then
-                            Alert_Beacon;
+    SC_BEACON:      if not SelectingTroopDirection then
+                    begin
+                      fPlacingBeacon := True;
+                      MinimapView.ClickableOnce := True;
+                      fResource.Cursors.Cursor := kmc_Beacon;
+                    end;
   end;
 
   {Temporary cheat codes}
@@ -3332,7 +3350,7 @@ begin
 
   //See if we can show DirectionSelector
   //Can walk to ally units place, can't walk to house place anyway, unless it's a markup and allied
-  if (Button = mbRight) and not fReplay and not fJoiningGroups and (fPlayers.Selected is TKMUnitWarrior)
+  if (Button = mbRight) and not fReplay and not fJoiningGroups and not fPlacingBeacon and (fPlayers.Selected is TKMUnitWarrior)
     and (TKMUnitWarrior(fPlayers.Selected).GetOwner = MyPlayer.PlayerIndex) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -3370,6 +3388,15 @@ var
   P: TKMPoint;
 begin
   inherited;
+
+  if fPlacingBeacon then
+  begin
+    //Beacons are a special case, the cursor should be shown over controls to (you can place it on the minimap)
+    if fMyControls.CtrlOver = nil then
+      fGame.UpdateGameCursor(X,Y,Shift); //Keep the game cursor up to date
+    fResource.Cursors.Cursor := kmc_Beacon;
+    Exit;
+  end;
 
   if (fMyControls.CtrlOver is TKMDragger) or (fMyControls.CtrlDown is TKMDragger) then Exit;
 
@@ -3510,6 +3537,12 @@ var
 begin
   inherited;
 
+  if fPlacingBeacon and (Button = mbRight) then
+  begin
+    Beacon_Cancel;
+    if fMyControls.CtrlOver = nil then Exit; //Don't move troops too
+  end;
+
   if (fMyControls.CtrlOver <> nil)
   and (fMyControls.CtrlOver <> Image_DirectionCursor)
   and not SelectingTroopDirection then
@@ -3537,6 +3570,13 @@ begin
                     Army_HideJoinMenu(nil);
                   end;
                   exit;
+                end;
+
+                if fPlacingBeacon then
+                begin
+                  fGame.GameInputProcess.CmdGame(gic_GameAlertBeacon, GameCursor.Float, MyPlayer.PlayerIndex);
+                  Beacon_Cancel;
+                  Exit;
                 end;
 
                 //Only allow placing of roads etc. with the left mouse button
@@ -3619,7 +3659,10 @@ begin
                 if Panel_Build.Visible then
                   SwitchPage(Button_Back);
                 if fJoiningGroups then
+                begin
                   Army_HideJoinMenu(nil);
+                  Exit; //Don't order troops too
+                end;
 
                 //Process warrior commands
                 if fPlayers.Selected is TKMUnitWarrior then
@@ -3627,7 +3670,7 @@ begin
                   W := TKMUnitWarrior(fPlayers.Selected);
 
                   //Attack or Walk
-                  if not fReplay and not fJoiningGroups
+                  if not fReplay and not fJoiningGroups and not fPlacingBeacon
                   and W.GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
                   and (W.GetOwner = MyPlayer.PlayerIndex) then
                   begin
