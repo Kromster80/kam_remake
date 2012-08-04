@@ -79,8 +79,8 @@ type
     sfxn_MPChatClose,
     sfxn_Victory,
     sfxn_Defeat,
-    sfxn_Error1,
-    sfxn_Error2,
+    sfxn_Beacon,
+    sfxn_Error,
     sfxn_Peacetime);
 
   //Sounds to play on different warrior orders
@@ -259,8 +259,8 @@ const
     'Chat\ChatClose.wav',
     'Misc\Victory.wav',
     'Misc\Defeat.wav',
-    'UI\Error001.wav',
-    'UI\Error002.wav',
+    'UI\Beacon.wav',
+    'UI\Error.wav',
     'Misc\PeaceTime.wav');
 
 

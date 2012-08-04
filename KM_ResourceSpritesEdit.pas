@@ -358,7 +358,7 @@ end;
 
 
 procedure TKMSpritePackEdit.SoftenShadows(aID:Integer; aOnlyShadows:Boolean=True);
-var ShadowConverter: TKMSoftShadowConverter; I:Integer;
+var ShadowConverter: TKMSoftShadowConverter;
 begin
   ShadowConverter := TKMSoftShadowConverter.Create(Self);
   if (fRXData.Flag[aID] <> 0) then

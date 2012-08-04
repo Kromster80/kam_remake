@@ -320,8 +320,8 @@ procedure TKMAlerts.AddBeacon(aLoc: TKMPointF; aOwner: TPlayerIndex);
 begin
   //If this player has too many beacons remove his oldest one
   RemoveExcessBeacons;
-
   fList.Add(TKMAlertBeacon.Create(aLoc, aOwner, fTickCounter^));
+  fSoundLib.Play(sfxn_Beacon);
 end;
 
 
