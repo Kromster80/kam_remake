@@ -14,10 +14,10 @@ type
     fArea: array [TRawDeposit] of array of array of Word;
     fAreaCount: array [TRawDeposit] of Integer;
     fAreaAmount: array [TRawDeposit] of array of Integer;
-    fAreaLoc: array [TRawDeposit] of array of TKMPoint;
+    fAreaLoc: array [TRawDeposit] of array of TKMPointF;
     function GetAreaCount(aMat: TRawDeposit): Integer;
     function GetAreaAmount(aMat: TRawDeposit; aIndex: Integer): Integer;
-    function GetAreaLoc(aMat: TRawDeposit; aIndex: Integer): TKMPoint;
+    function GetAreaLoc(aMat: TRawDeposit; aIndex: Integer): TKMPointF;
     function TileDeposit(aMat: TRawDeposit; X,Y: Word): Byte;
     procedure FloodFill(const aMat: array of TRawDeposit);
     procedure RecalcAmounts(const aMat: array of TRawDeposit);
@@ -26,7 +26,7 @@ type
     constructor Create;
     property AreaCount[aMat: TRawDeposit]: Integer read GetAreaCount;
     property AreaAmount[aMat: TRawDeposit; aIndex: Integer]: Integer read GetAreaAmount;
-    property AreaLoc[aMat: TRawDeposit; aIndex: Integer]: TKMPoint read GetAreaLoc;
+    property AreaLoc[aMat: TRawDeposit; aIndex: Integer]: TKMPointF read GetAreaLoc;
     procedure Update;
   end;
 
@@ -55,7 +55,7 @@ begin
 end;
 
 
-function TKMMapEditor.GetAreaLoc(aMat: TRawDeposit; aIndex: Integer): TKMPoint;
+function TKMMapEditor.GetAreaLoc(aMat: TRawDeposit; aIndex: Integer): TKMPointF;
 begin
   Result := fAreaLoc[aMat, aIndex];
 end;
@@ -165,8 +165,8 @@ begin
     //Get average locations
     for I := 0 to fAreaCount[R] - 1 do
     begin
-      fAreaLoc[R, I].X := Round(AreaPos[I].X / AreaSize[I]);
-      fAreaLoc[R, I].Y := Round(AreaPos[I].Y / AreaSize[I]);
+      fAreaLoc[R, I].X := AreaPos[I].X / AreaSize[I] - 0.5;
+      fAreaLoc[R, I].Y := AreaPos[I].Y / AreaSize[I] - 0.5;
     end;
   end;
 end;

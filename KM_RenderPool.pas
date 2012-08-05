@@ -297,14 +297,13 @@ begin
     gX := pX + (R.Pivot[ID0].X + R.Size[ID0].X/2) / CELL_SIZE_PX;
     gY := pY + (R.Pivot[ID0].Y + R.Size[ID0].Y) / CELL_SIZE_PX;
     CornerX := pX + R.Pivot[ID].X / CELL_SIZE_PX;
-    CornerY := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
-                  - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
+    CornerY := pY - fTerrain.HeightAt(gX, gY) + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX;
     if not DoImmediateRender then
       fRenderList.AddSpriteG(rxTrees, ID, CornerX, CornerY, gX, gY);
 
     //fRenderAux.DotOnTerrain(pX, pY, $FFFF0000);
     //fRenderAux.Dot(pX + R.Pivot[ID].X / CELL_SIZE_PX,
-    //               pY + R.Pivot[ID].Y / CELL_SIZE_PX - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV, $FFFFFF00);
+    //               fTerrain.FlatToHeight(pX, pY) + R.Pivot[ID].Y / CELL_SIZE_PX, $FFFFFF00);
     //fRenderAux.Dot(CornerX, CornerY, $FFFF00FF);
     //glRasterPos2f(pX - 1 + 0.1, pY - 1 + 0.1);
     //glPrint(inttostr(aIndex) + ':' + inttostr(ID));
@@ -333,8 +332,7 @@ var
     gX := pX + (R.Pivot[ID0].X + R.Size[ID0].X/2) / CELL_SIZE_PX;
     gY := pY + (R.Pivot[ID0].Y + R.Size[ID0].Y) / CELL_SIZE_PX;
     CornerX := pX + R.Pivot[ID].X / CELL_SIZE_PX;
-    CornerY := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
-             - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
+    CornerY := pY - fTerrain.HeightAt(gX, gY) + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX;
 
     if not DoImmediateRender then
       fRenderList.AddSpriteG(rxTrees, ID, CornerX, CornerY, gX, gY)
@@ -373,7 +371,7 @@ begin
   R := fRXData[rxGui];
 
   CornerX := aLoc.X + R.Pivot[aID].X / CELL_SIZE_PX;
-  CornerY := aLoc.Y + R.Pivot[aID].Y / CELL_SIZE_PX - fTerrain.HeightAt(aLoc.X, aLoc.Y) / CELL_HEIGHT_DIV;
+  CornerY := fTerrain.FlatToHeight(aLoc).Y + R.Pivot[aID].Y / CELL_SIZE_PX;
 
   //todo: Beacons should ignore FOW
   fRenderList.AddSpriteG(rxGui, aID, CornerX, CornerY, aLoc.X, aLoc.Y, aFlagColor);
@@ -639,8 +637,7 @@ begin
   R := fRXData[rxUnits];
 
   CornerX := pX + R.Pivot[ID].X / CELL_SIZE_PX;
-  CornerY := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX
-                - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV;
+  CornerY := fTerrain.FlatToHeight(pX, pY) + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX;
   Ground := pY + (R.Pivot[ID0].Y + R.Size[ID0].Y) / CELL_SIZE_PX;
 
   if NewInst then
@@ -694,8 +691,7 @@ begin
   R := fRXData[rxUnits];
 
   CornerX := pX + (R.Pivot[ID].X + a.MoveX) / CELL_SIZE_PX;
-  CornerY := pY + (R.Pivot[ID].Y + R.Size[ID].Y + a.MoveY) / CELL_SIZE_PX
-                - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV;
+  CornerY := fTerrain.FlatToHeight(pX, pY) + (R.Pivot[ID].Y + R.Size[ID].Y + a.MoveY) / CELL_SIZE_PX;
   fRenderList.AddSprite(rxUnits, ID, CornerX, CornerY);
 end;
 
@@ -714,8 +710,7 @@ begin
        (fGame.GameTickCount mod word(ThoughtBounds[Thought, 2] - ThoughtBounds[Thought, 1]));
 
   CornerX := pX + R.Pivot[ID].X / CELL_SIZE_PX;
-  CornerY := pY + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1.5
-                - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV;
+  CornerY := fTerrain.FlatToHeight(pX, pY) + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 1.5;
   fRenderList.AddSprite(rxUnits, ID, CornerX, CornerY);
 end;
 
@@ -739,8 +734,7 @@ begin
   if IDUnit <= 0 then Exit;
 
   CornerX := pX + R.Pivot[IDUnit].X / CELL_SIZE_PX;
-  CornerY := pY + (R.Pivot[IDUnit].Y + R.Size[IDUnit].Y) / CELL_SIZE_PX
-                - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV;
+  CornerY := fTerrain.FlatToHeight(pX, pY) + (R.Pivot[IDUnit].Y + R.Size[IDUnit].Y) / CELL_SIZE_PX;
   Ground := pY + (R.Pivot[ID0].Y + R.Size[ID0].Y) / CELL_SIZE_PX;
 
   //Flag position
@@ -749,8 +743,7 @@ begin
   if IDFlag <= 0 then Exit;
 
   FlagX := pX + (R.Pivot[IDFlag].X + FlagXOffset[UnitGroups[aUnit], aDir]) / CELL_SIZE_PX - 0.5;
-  FlagY := pY + (R.Pivot[IDFlag].Y + FlagYOffset[UnitGroups[aUnit], aDir] + R.Size[IDFlag].Y) / CELL_SIZE_PX
-              - fTerrain.HeightAt(pX, pY) / CELL_HEIGHT_DIV - 2.25;
+  FlagY := fTerrain.FlatToHeight(pX, pY) + (R.Pivot[IDFlag].Y + FlagYOffset[UnitGroups[aUnit], aDir] + R.Size[IDFlag].Y) / CELL_SIZE_PX - 2.25;
 
   if aDir in [dir_SE, dir_S, dir_SW, dir_W] then
   begin
@@ -1065,8 +1058,7 @@ end;
 procedure TRenderPool.RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK);
 begin
   if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
-    RenderSprite(rxGui, aID, aLoc.X - 0.8, aLoc.Y - 0.2 -
-      fTerrain.HeightAt(aLoc.X - 0.5, aLoc.Y - 0.5) / CELL_HEIGHT_DIV,
+    RenderSprite(rxGui, aID, aLoc.X - 0.8, fTerrain.FlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) - 0.2,
       $FFFFFFFF, 255);
 end;
 
@@ -1347,8 +1339,8 @@ begin
           begin
             glBegin(GL_LINES);
               glColor3f(1,1,0.5);
-              glVertex2f(Feet.X + 0.15, Feet.Y - fTerrain.HeightAt(Feet) / CELL_HEIGHT_DIV);
-              glVertex2f(Feet.X - 0.15, Feet.Y - fTerrain.HeightAt(Feet) / CELL_HEIGHT_DIV);
+              glVertex2f(Feet.X + 0.15, fTerrain.FlatToHeight(Feet).Y);
+              glVertex2f(Feet.X - 0.15, fTerrain.FlatToHeight(Feet).Y);
             glEnd;
           end;
         end;

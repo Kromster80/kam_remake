@@ -79,7 +79,10 @@ type
       Button_PlayerSelect:array[0..MAX_PLAYERS-1]of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint:TKMLabel;
       Label_MatAmount: TKMLabel;
-      Rectangle_MatAmount: TKMShape;
+      Shape_MatAmount: TKMShape;
+      Label_DefencePos: TKMLabel;
+      Shape_DefencePos: TKMShape;
+
     Panel_Common:TKMPanel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu below
@@ -411,10 +414,16 @@ begin
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
 
     Label_MatAmount := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Metal, taCenter);
-    Rectangle_MatAmount := TKMShape.Create(Panel_Main,0,0,80,20);
-    Rectangle_MatAmount.LineWidth := 2;
-    Rectangle_MatAmount.LineColor := $F000FF00;
-    Rectangle_MatAmount.FillColor := $80000000;
+    Shape_MatAmount := TKMShape.Create(Panel_Main,0,0,80,20);
+    Shape_MatAmount.LineWidth := 2;
+    Shape_MatAmount.LineColor := $F000FF00;
+    Shape_MatAmount.FillColor := $80000000;
+
+    Label_DefencePos := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Metal, taCenter);
+    Shape_DefencePos := TKMShape.Create(Panel_Main,0,0,80,20);
+    Shape_DefencePos.LineWidth := 2;
+    Shape_DefencePos.LineColor := $F0FF8000;
+    Shape_DefencePos.FillColor := $80000000;
 
     TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
     TKMImage.Create(Panel_Main,0, 200,224,400,404);
@@ -942,40 +951,63 @@ end;
 
 procedure TKMapEdInterface.Paint;
 var
-  I: Integer;
-  X, Y: Single;
-  LocX, LocY: Integer;
+  I, K: Integer;
+  MapLoc: TKMPointF;
+  ScreenLoc: TKMPointI;
   R: TRawDeposit;
 begin
   //if fShowRawMaterials then
-  Label_MatAmount.Show; //Only make it visible while we need it
-  Rectangle_MatAmount.Show;
-  for R := Low(TRawDeposit) to High(TRawDeposit) do
-    for I := 0 to fGame.MapEditor.AreaCount[R] - 1 do
-    begin
-      Label_MatAmount.Caption := IntToStr(fGame.MapEditor.AreaAmount[R, I]);
+  begin
+    Label_MatAmount.Show; //Only make it visible while we need it
+    Shape_MatAmount.Show;
+    for R := Low(TRawDeposit) to High(TRawDeposit) do
+      for I := 0 to fGame.MapEditor.AreaCount[R] - 1 do
+      begin
+        Label_MatAmount.Caption := IntToStr(fGame.MapEditor.AreaAmount[R, I]);
 
-      X := fGame.MapEditor.AreaLoc[R, I].X;
-      Y := fGame.MapEditor.AreaLoc[R, I].Y;
+        MapLoc := fTerrain.FlatToHeight(fGame.MapEditor.AreaLoc[R, I]);
+        ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
 
-      LocX := Round((X - fGame.Viewport.Position.X) * CELL_SIZE_PX * fGame.Viewport.Zoom +fGame.Viewport.ViewRect.Right/2+TOOLBAR_WIDTH/2);
-      LocY := Round((Y - fGame.Viewport.Position.Y) * CELL_SIZE_PX * fGame.Viewport.Zoom +fGame.Viewport.ViewRect.Bottom/2);
+        //Paint the background
+        Shape_MatAmount.Width := 10 + 10 * Length(Label_MatAmount.Caption);
+        Shape_MatAmount.Left := ScreenLoc.X - Shape_MatAmount.Width div 2;
+        Shape_MatAmount.Top := ScreenLoc.Y - 10;
+        Shape_MatAmount.Paint;
+        //Paint the label on top of the background
+        Label_MatAmount.Left := ScreenLoc.X;
+        Label_MatAmount.Top := ScreenLoc.Y - 7;
+        Label_MatAmount.Paint;
+      end;
+    Label_MatAmount.Hide; //Only make it visible while we need it
+    Shape_MatAmount.Hide;
+  end;
 
-      LocX := LocX - 20;
-      LocY := LocY - Round(fTerrain.HeightAt(X, Y)) - 30;
+  //if fShowDefencePositions then
+  begin
+    Label_DefencePos.Show; //Only make it visible while we need it
+    Shape_DefencePos.Show;
+    for I := 0 to fPlayers.Count - 1 do
+      for K := 0 to fPlayers[I].AI.DefencePositionsCount - 1 do
+      begin
+        Label_DefencePos.Caption := GetEnumName(TypeInfo(TGroupType), Ord(fPlayers[I].AI.DefencePositions[K].GroupType));
 
-      //Paint the background
-      Rectangle_MatAmount.Width := 10 + 10*Length(Label_MatAmount.Caption);
-      Rectangle_MatAmount.Left := LocX - Rectangle_MatAmount.Width div 2;
-      Rectangle_MatAmount.Top := LocY-3;
-      Rectangle_MatAmount.Paint;
-      //Paint the label on top of the background
-      Label_MatAmount.Left := LocX;
-      Label_MatAmount.Top := LocY;
-      Label_MatAmount.Paint;
-    end;
-  Label_MatAmount.Hide; //Only make it visible while we need it
-  Rectangle_MatAmount.Hide;
+        MapLoc := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.DefencePositions[K].Position.Loc));
+        ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
+
+        //Paint the background
+        Shape_DefencePos.Width := 10 + 10 * Length(Label_DefencePos.Caption);
+        Shape_DefencePos.Left := ScreenLoc.X - Shape_DefencePos.Width div 2;
+        Shape_DefencePos.Top := ScreenLoc.Y - 10;
+        Shape_DefencePos.Paint;
+        //Paint the label on top of the background
+        Label_DefencePos.Left := ScreenLoc.X;
+        Label_DefencePos.Top := ScreenLoc.Y - 7;
+        Label_DefencePos.Paint;
+      end;
+    Label_DefencePos.Hide; //Only make it visible while we need it
+    Shape_DefencePos.Hide;
+  end;
+
   inherited;
 end;
 

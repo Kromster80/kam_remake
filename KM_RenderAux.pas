@@ -47,9 +47,9 @@ begin
 end;
 
 
-procedure TRenderAux.RenderDotOnTile(pX,pY:single);
+procedure TRenderAux.RenderDotOnTile(pX,pY: Single);
 begin
-  pY := pY-fTerrain.HeightAt(pX,pY)/CELL_HEIGHT_DIV;
+  pY := fTerrain.FlatToHeight(pX,pY);
   glBegin(GL_QUADS);
     glkRect(pX,pY,pX+0.1,pY-0.1);
   glEnd;
@@ -59,8 +59,8 @@ end;
 procedure TRenderAux.RenderLine(x1,y1,x2,y2:single);
 begin
   glBegin(GL_LINES);
-    glVertex2f(x1, y1 - fTerrain.HeightAt(x1,y1)/CELL_HEIGHT_DIV);
-    glVertex2f(x2, y2 - fTerrain.HeightAt(x2,y2)/CELL_HEIGHT_DIV);
+    glVertex2f(x1, fTerrain.FlatToHeight(x1,y1));
+    glVertex2f(x2, fTerrain.FlatToHeight(x2,y2));
   glEnd;
 end;
 
@@ -114,7 +114,7 @@ begin
     begin
       C := Cos(I / SEC_COUNT * Pi) * Rad;
       S := Sin(I / SEC_COUNT * Pi) * Rad;
-      glVertex2f(X + C, Y + S - fTerrain.HeightAt(X + C, Y + S) / CELL_HEIGHT_DIV);
+      glVertex2f(X + C, fTerrain.FlatToHeight(X + C, Y + S));
     end;
   glEnd;
 end;
@@ -125,15 +125,15 @@ var I: Integer;
 begin
   glColor4ubv(@Line);
   glBegin(GL_LINE_LOOP);
-    glVertex2f(X1, Y1 - fTerrain.HeightAt(X1, Y1) / CELL_HEIGHT_DIV);
+    glVertex2f(X1, fTerrain.FlatToHeight(X1, Y1));
     for I := Ceil(X1) to Trunc(X2) do
-      glVertex2f(I, Y1 - fTerrain.HeightAt(I, Y1) / CELL_HEIGHT_DIV);
-    glVertex2f(X2, Y1 - fTerrain.HeightAt(X2, Y1) / CELL_HEIGHT_DIV);
+      glVertex2f(I, fTerrain.FlatToHeight(I, Y1));
+    glVertex2f(X2, fTerrain.FlatToHeight(X2, Y1));
 
-    glVertex2f(X2, Y2 - fTerrain.HeightAt(X2, Y2) / CELL_HEIGHT_DIV);
+    glVertex2f(X2, fTerrain.FlatToHeight(X2, Y2));
     for I := Trunc(X2) downto Ceil(X1) do
-      glVertex2f(I, Y2 - fTerrain.HeightAt(I, Y2) / CELL_HEIGHT_DIV);
-    glVertex2f(X1, Y2 - fTerrain.HeightAt(X1, Y2) / CELL_HEIGHT_DIV);
+      glVertex2f(I, fTerrain.FlatToHeight(I, Y2));
+    glVertex2f(X1, fTerrain.FlatToHeight(X1, Y2));
   glEnd;
 end;
 
@@ -148,7 +148,7 @@ end;
 procedure TRenderAux.DotOnTerrain(X,Y:single; aCol:TColor4);
 begin
   glColor4ubv(@aCol);
-  RenderDot(X,Y - fTerrain.HeightAt(X, Y) / CELL_HEIGHT_DIV);
+  RenderDot(X,fTerrain.FlatToHeight(X, Y));
 end;
 
 
@@ -201,7 +201,7 @@ end;
 procedure TRenderAux.Text(pX, pY: Integer; const aText: string; aCol: TColor4);
 begin
   glColor4ubv(@aCol);
-  glRasterPos2f(pX - 0.5, pY - 0.5 - fTerrain.HeightAt(pX-0.5, pY-0.5) / CELL_HEIGHT_DIV);
+  glRasterPos2f(pX - 0.5, fTerrain.FlatToHeight(pX-0.5, pY-0.5));
   glPrint(AnsiString(aText));
 end;
 
@@ -216,7 +216,7 @@ begin
     begin
       VertexUsage := byte(fTerrain.Land[I,K].IsVertexUnit);
       glColor4f(1-VertexUsage/3, VertexUsage/3, 0.6, 0.8);
-      RenderDot(K, I-fTerrain.HeightAt(K,I)/CELL_HEIGHT_DIV, 0.3);
+      RenderDot(K, fTerrain.FlatToHeight(K,I), 0.3);
     end;
     if fTerrain.Land[I,K].IsUnit <> nil then
     begin
@@ -227,11 +227,11 @@ begin
 end;
 
 
-procedure TRenderAux.UnitPointers(pX,pY:single; Count:integer);
-var i:integer;
+procedure TRenderAux.UnitPointers(pX,pY: Single; Count: Integer);
+var I: Integer;
 begin
-  for i:=1 to Count do
-    RenderDot(pX+i/5,pY-fTerrain.HeightAt(pX,pY)/CELL_HEIGHT_DIV);
+  for I := 1 to Count do
+    RenderDot(pX+I/5, fTerrain.FlatToHeight(pX,pY));
 end;
 
 
@@ -255,7 +255,7 @@ begin
 
   glBegin(GL_LINE_STRIP);
     for I := 0 to NodeList.Count - 1 do
-      glVertex2f(NodeList[I].X-0.5, NodeList[I].Y-0.5-fTerrain.HeightAt(NodeList[I].X+0.5, NodeList[I].Y+0.5)/CELL_HEIGHT_DIV);
+      glVertex2f(NodeList[I].X-0.5, fTerrain.FlatToHeight(NodeList[I].X-0.5, NodeList[I].Y-0.5));
   glEnd;
 
   glColor4f(1,1,1,1); //Vector where unit is going to
@@ -265,8 +265,8 @@ begin
   FaceY := Mix(NodeList[I].Y - 0.5, NodeList[K].Y - 0.5, 0.4) + 0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
   RenderDotOnTile(NodeList[I].X + 0.5, NodeList[I].Y + 0.5 + 0.2);
   glBegin(GL_LINES);
-    glVertex2f(NodeList[I].X-0.5, NodeList[I].Y-0.5+0.2-fTerrain.HeightAt(NodeList[I].X+0.5,NodeList[I].Y+0.5)/CELL_HEIGHT_DIV);
-    glVertex2f(FaceX, FaceY - fTerrain.HeightAt(FaceX+1, FaceY+1)/CELL_HEIGHT_DIV);
+    glVertex2f(NodeList[I].X-0.5, fTerrain.FlatToHeight(NodeList[I].X+0.5,NodeList[I].Y+0.5) + 0.2);
+    glVertex2f(FaceX, fTerrain.FlatToHeight(FaceX+1, FaceY+1));
   glEnd;
 end;
 

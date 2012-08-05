@@ -184,8 +184,9 @@ type
     procedure FlattenTerrain(LocList:TKMPointList); overload;
 
     function ConvertCursorToMapCoord(inX,inY:single): Single;
-    function HeightAt(inX, inY: Single): Single; overload;
-    function HeightAt(aPoint: TKMPointF): Single; overload;
+    function FlatToHeight(inX, inY: Single): Single; overload;
+    function FlatToHeight(aPoint: TKMPointF): TKMPointF; overload;
+    function HeightAt(inX, inY: Single): Single;
 
     procedure MapEdHeight;
     procedure MapEdTile(aLoc:TKMPoint; aTile,aRotation: Byte);
@@ -1064,7 +1065,7 @@ procedure TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; 
     for i:=-1 to 0 do for k:=-1 to 0 do
     if Route_CanBeMade(aLoc, KMPoint(aTree.X+k, aTree.Y+i), CanWalk, 0) then
     begin
-      Slope := Round(HeightAt(aTree.X+k-0.5, aTree.Y+i-0.5)) - Land[aTree.Y, aTree.X].Height;
+      Slope := Round(HeightAt(aTree.X+k-0.5, aTree.Y+i-0.5) * CELL_HEIGHT_DIV) - Land[aTree.Y, aTree.X].Height;
       //Cutting trees which are higher than us from the front looks visually poor, (axe hits ground) so avoid it where possible
       if (i = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
       if Abs(Slope) < BestSlope then
@@ -2541,6 +2542,32 @@ begin
 end;
 
 
+//Convert point from flat position to height position on terrain
+function TTerrain.FlatToHeight(inX, inY: Single): Single;
+var
+  Xc, Yc: Integer;
+  Tmp1, Tmp2: single;
+begin
+  //Valid range of tiles is 0..MapXY-2 because we check height from (Xc+1,Yc+1) to (Xc+2,Yc+2)
+  //We cannot ask for height at the bottom row (MapY-1) because that row is not on the visible map,
+  //and does not have a vertex below it
+  Xc := EnsureRange(Trunc(inX), 0, fMapX-2);
+  Yc := EnsureRange(Trunc(inY), 0, fMapY-2);
+
+  Tmp1 := mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, Frac(inX));
+  Tmp2 := mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, Frac(inX));
+  Result := inY - mix(Tmp2, Tmp1, Frac(inY)) / CELL_HEIGHT_DIV;
+end;
+
+
+//Convert point from flat position to height position on terrain
+function TTerrain.FlatToHeight(aPoint: TKMPointF): TKMPointF;
+begin
+  Result.X := aPoint.X;
+  Result.Y := FlatToHeight(aPoint.X, aPoint.Y);
+end;
+
+
 //Return height within cell interpolating node heights
 //Note that input parameters are 0 based
 function TTerrain.HeightAt(inX, inY: Single): Single;
@@ -2556,13 +2583,7 @@ begin
 
   Tmp1 := mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, Frac(inX));
   Tmp2 := mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, Frac(inX));
-  Result := mix(Tmp2, Tmp1, Frac(inY));
-end;
-
-
-function TTerrain.HeightAt(aPoint: TKMPointF): Single;
-begin
-  Result := HeightAt(aPoint.X, aPoint.Y);
+  Result := Mix(Tmp2, Tmp1, Frac(inY)) / CELL_HEIGHT_DIV;
 end;
 
 

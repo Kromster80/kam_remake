@@ -3852,28 +3852,28 @@ end;
 procedure TKMGamePlayInterface.Paint;
 var
   I: Integer;
-  X, Y: Single;
-  LocX, LocY: Integer;
+  U: TKMUnit;
+  UnitLoc: TKMPointF;
+  MapLoc: TKMPointF;
+  ScreenLoc: TKMPointI;
 begin
   if fGame.ShowTeamNames then
   begin
     Label_TeamName.Visible := True; //Only visible while we're using it, otherwise it shows up in other places
     for I := 0 to fTeamNames.Count - 1 do
     begin
-      Label_TeamName.Caption := fPlayers[TKMUnit(fTeamNames[I]).GetOwner].PlayerName;
-      Label_TeamName.FontColor := FlagColorToTextColor(fPlayers[TKMUnit(fTeamNames[I]).GetOwner].FlagColor);
+      U := TKMUnit(fTeamNames[I]);
+      Label_TeamName.Caption := fPlayers[U.GetOwner].PlayerName;
+      Label_TeamName.FontColor := FlagColorToTextColor(fPlayers[U.GetOwner].FlagColor);
 
-      X := TKMUnit(fTeamNames[I]).PositionF.X;
-      Y := TKMUnit(fTeamNames[I]).PositionF.Y;
+      UnitLoc := U.PositionF;
+      UnitLoc.X := UnitLoc.X - 0.5;
+      UnitLoc.Y := UnitLoc.Y - 1;
+      MapLoc := fTerrain.FlatToHeight(UnitLoc);
+      ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
 
-      LocX := Round((X - fGame.Viewport.Position.X) * CELL_SIZE_PX * fGame.Viewport.Zoom +fGame.Viewport.ViewRect.Right/2+TOOLBAR_WIDTH/2);
-      LocY := Round((Y - fGame.Viewport.Position.Y) * CELL_SIZE_PX * fGame.Viewport.Zoom +fGame.Viewport.ViewRect.Bottom/2);
-
-      LocX := LocX - 20;
-      LocY := LocY - Round(fTerrain.HeightAt(X, Y)) - 20;
-
-      Label_TeamName.Left := LocX;
-      Label_TeamName.Top := LocY;
+      Label_TeamName.Left := ScreenLoc.X;
+      Label_TeamName.Top := ScreenLoc.Y;
       Label_TeamName.Paint;
     end;
   end;
