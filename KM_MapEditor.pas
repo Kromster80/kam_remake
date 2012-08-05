@@ -16,6 +16,7 @@ type
     fAreaAmount: array [TRawDeposit] of array of Integer;
     fAreaLoc: array [TRawDeposit] of array of TKMPointF;
     fShowDefencePositions: Boolean;
+    fShowRawMaterials: Boolean;
     function GetAreaCount(aMat: TRawDeposit): Integer;
     function GetAreaAmount(aMat: TRawDeposit; aIndex: Integer): Integer;
     function GetAreaLoc(aMat: TRawDeposit; aIndex: Integer): TKMPointF;
@@ -28,6 +29,8 @@ type
     property AreaCount[aMat: TRawDeposit]: Integer read GetAreaCount;
     property AreaAmount[aMat: TRawDeposit; aIndex: Integer]: Integer read GetAreaAmount;
     property AreaLoc[aMat: TRawDeposit; aIndex: Integer]: TKMPointF read GetAreaLoc;
+    property ShowDefencePositions: Boolean read fShowDefencePositions;
+    property ShowRawMaterials: Boolean read fShowRawMaterials;
     procedure Update;
     procedure RenderOverlays;
   end;
@@ -43,6 +46,9 @@ begin
   inherited Create;
 
   Assert(fTerrain <> nil);
+
+  fShowDefencePositions := True;
+  fShowRawMaterials := True;
 end;
 
 
@@ -192,31 +198,17 @@ end;
 
 
 procedure TKMMapEditor.RenderOverlays;
-var I, K: Integer;
+var I, K: Integer; MapLoc: TKMPoint;
 begin
- { if fShowDefencePositions then
+  if fShowDefencePositions then
   begin
     for I := 0 to fPlayers.Count - 1 do
       for K := 0 to fPlayers[I].AI.DefencePositionsCount - 1 do
       begin
-        Label_DefencePos.Caption := GetEnumName(TypeInfo(TGroupType), Ord(fPlayers[I].AI.DefencePositions[K].GroupType));
-
-        MapLoc := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.DefencePositions[K].Position.Loc));
-        ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
-
-        //Paint the background
-        Shape_DefencePos.Width := 10 + 10 * Length(Label_DefencePos.Caption);
-        Shape_DefencePos.Left := ScreenLoc.X - Shape_DefencePos.Width div 2;
-        Shape_DefencePos.Top := ScreenLoc.Y - 10;
-        Shape_DefencePos.Paint;
-        //Paint the label on top of the background
-        Label_DefencePos.Left := ScreenLoc.X;
-        Label_DefencePos.Top := ScreenLoc.Y - 7;
-        Label_DefencePos.Paint;
+        MapLoc := fPlayers[I].AI.DefencePositions[K].Position.Loc;
+        fRenderAux.CircleOnTerrain(MapLoc.X, MapLoc.Y, fPlayers[I].AI.DefencePositions[K].DefenceRadius, $20FF8000, $FFFF8000);
       end;
-    Label_DefencePos.Hide; //Only make it visible while we need it
-    Shape_DefencePos.Hide;
-  end; }
+  end;
 end;
 
 

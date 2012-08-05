@@ -956,7 +956,7 @@ var
   ScreenLoc: TKMPointI;
   R: TRawDeposit;
 begin
-  //if fShowRawMaterials then
+  if fGame.MapEditor.ShowRawMaterials then
   begin
     Label_MatAmount.Show; //Only make it visible while we need it
     Shape_MatAmount.Show;
@@ -982,7 +982,7 @@ begin
     Shape_MatAmount.Hide;
   end;
 
-  //if fShowDefencePositions then
+  if fGame.MapEditor.ShowDefencePositions then
   begin
     Label_DefencePos.Show; //Only make it visible while we need it
     Shape_DefencePos.Show;
