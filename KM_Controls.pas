@@ -505,6 +505,7 @@ type
     fMaxValue: Word;
     fOnChange: TNotifyEvent;
     fCaption: string;
+    fFont: TKMFont;
     function ThumbWidth: Word;
     procedure SetCaption(const aValue: string);
   public
@@ -513,6 +514,7 @@ type
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aMin, aMax: Word);
 
     property Caption: string read fCaption write SetCaption;
+    property Font: TKMFont read fFont write fFont;
     property MinValue: Word read fMinValue;
     property MaxValue: Word read fMaxValue;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
@@ -2282,6 +2284,7 @@ begin
   fTrackHeight := 20;
   Position := (fMinValue + fMaxValue) div 2;
   Caption := '';
+  Font := fnt_Metal;
   Step := 1;
 end;
 
@@ -2349,7 +2352,7 @@ begin
   inherited;
 
   if fCaption <> '' then
-    fRenderUI.WriteText(Left + 2, Top, Width - 8, 20, fCaption, fnt_Metal, taLeft, TextColor[fEnabled]);
+    fRenderUI.WriteText(Left, Top, Width, 20, fCaption, fFont, taLeft, TextColor[fEnabled]);
 
   fRenderUI.WriteBevel(Left+2,Top+fTrackTop+2,Width-4,fTrackHeight-4);
   ThumbPos := Round(mix (0, Width - ThumbWidth - 4, 1-(Position-fMinValue) / (fMaxValue - fMinValue)));

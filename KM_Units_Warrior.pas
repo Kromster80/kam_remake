@@ -1031,7 +1031,7 @@ begin
 
   //Choose a random foe from our commander, then use that from here on (only if needed and not every tick)
   if GetCommander.ArmyInFight and (not (GetUnitAction is TUnitActionFight))
-  and (not (GetUnitAction is TUnitActionStormAttack)) and not (fState = ws_Engage) then
+  and not (GetUnitAction is TUnitActionStormAttack) and not (fState = ws_Engage) then
     ChosenFoe := GetCommander.GetRandomFoeFromMembers
   else
     ChosenFoe := nil;
@@ -1052,7 +1052,12 @@ begin
       if InRange(GetLength(NextPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
       and (GetUnitAction is TUnitActionWalkTo)
       and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
-        AbandonWalk;
+      begin
+        if TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
+          SetActionStay(0, ua_Walk)
+        else
+          AbandonWalk;
+      end;
       //But if we are already idle then just start shooting right away
       if InRange(GetLength(GetPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
         and(GetUnitAction is TUnitActionStay) then
@@ -1173,9 +1178,10 @@ begin
   if (fState = ws_Walking) or (fState = ws_RepositionPause) then
   begin
     //Wait for self and all team members to be in position before we set fState to None (means we no longer worry about group position)
-    if (not (UnitTask is TTaskAttackHouse)) and (not (GetUnitAction is TUnitActionWalkTo)) and
-       (not KMSamePoint(GetPosition,fOrderLoc.Loc))
-       and CanWalkTo(fOrderLoc.Loc, 0) then
+    if not (UnitTask is TTaskAttackHouse) and not (GetUnitAction is TUnitActionWalkTo)
+    and not (GetUnitAction is TUnitActionAbandonWalk)
+    and not KMSamePoint(GetPosition,fOrderLoc.Loc)
+    and CanWalkTo(fOrderLoc.Loc, 0) then
     begin
       SetActionWalkToSpot(fOrderLoc.Loc); //Walk to correct position
       fState := ws_Walking;

@@ -1223,9 +1223,10 @@ begin
   Label_RatioLab0 := TKMLabel.Create(Panel_Ratios,44,72,148,30,'<<<LEER>>>',fnt_Outline,taLeft);
 
   for i:=1 to 4 do begin
-    Image_RatioPic[i]         := TKMImage.Create(Panel_Ratios,12,124+(i-1)*50,32,32,327);
-    //Label_RatioLab[i]         := TKMLabel.Create(Panel_Ratios,50,116+(i-1)*50,148,20,'<<<LEER>>>',fnt_Grey,taLeft);
+    Image_RatioPic[i]            := TKMImage.Create(Panel_Ratios,12,124+(i-1)*50,32,32,327);
+    //Label_RatioLab[i]          := TKMLabel.Create(Panel_Ratios,50,116+(i-1)*50,148,20,'<<<LEER>>>',fnt_Grey,taLeft);
     TrackBar_RatioRat[i]         := TKMTrackBar.Create(Panel_Ratios,48,116+(i-1)*50,140,0,5);
+    TrackBar_RatioRat[i].Font    := fnt_Grey; //fnt_Metal doesn't fit the text
     TrackBar_RatioRat[i].Tag     := i;
     TrackBar_RatioRat[i].OnChange:= RatiosChange;
   end;

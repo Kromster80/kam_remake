@@ -26,6 +26,7 @@
  +	Minimap in MapEd would show group members shifted by 1 tile to south-east
  +	Messages show "MissionString out of range" after save+exit+load repeated twice (due to fMissionFile not being saved)
  +	The map editor no longer removes the terrain data used by Krom's Map Editor, so you can use terrain brushes there after saving with the Remake
+ +	Leaders of archers would sometimes not fire after walking, instead they would lock up and stand still
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
 	Deliveries should use the actual walking route length (opposed to Radius)
