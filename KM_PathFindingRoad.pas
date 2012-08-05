@@ -12,14 +12,14 @@ type
     fOwner: TPlayerIndex;
   protected
     function CanWalkTo(const aFrom, aTo: TKMPoint): Boolean; override;
-    function DestinationReached(aX, aY: Word): Boolean; virtual;
+    function DestinationReached(aX, aY: Word): Boolean; override;
     function IsWalkableTile(aX, aY: Word): Boolean; override;
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
   public
     constructor Create(aOwner: TPlayerIndex);
 
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
-    function Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; NodeList: TKMPointList): Boolean; reintroduce;//load;
+    function Route_Make(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;//load;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
   end;
@@ -76,7 +76,7 @@ end;
 
 function TPathFindingRoad.IsWalkableTile(aX, aY: Word): Boolean;
 begin
-  Result := inherited IsWalkableTile(aX,aY)
+  Result := ([CanMakeRoads, CanWalkRoad] * fTerrain.Land[aY,aX].Passability <> [])
             and (fPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) in [ft_None, ft_Road])
             and not fPlayers[fOwner].BuildList.HousePlanList.HasPlan(KMPoint(aX, aY));
 end;
@@ -86,13 +86,14 @@ function TPathFindingRoad.DestinationReached(aX, aY: Word): Boolean;
 begin
   Result := ((aX = fLocB.X) and (aY = fLocB.Y)) //We reached destination point
             or ((fTerrain.Land[aY, aX].TileOverlay = to_Road) and (fTerrain.Land[aY, aX].TileOwner = fOwner)) //We reached own road
-            or ((fTerrain.Land[aY, aX].TileLock = tlRoadWork) and (fTerrain.Land[aY, aX].TileOwner = fOwner));//We reached our roadplan being constructed
+            or ((fTerrain.Land[aY, aX].TileLock = tlRoadWork) and (fTerrain.Land[aY, aX].TileOwner = fOwner)) //We reached our roadplan being constructed
+            or (fPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) = ft_Road);
 end;
 
 
-function TPathFindingRoad.Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; NodeList: TKMPointList): Boolean;
+function TPathFindingRoad.Route_Make(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean;
 begin
-  Result := inherited Route_Make(aLocA, aLocB, aPass, 0, nil, NodeList, False);
+  Result := inherited Route_Make(aLocA, aLocB, [CanMakeRoads, CanWalkRoad], 0, nil, NodeList, False);
 end;
 
 

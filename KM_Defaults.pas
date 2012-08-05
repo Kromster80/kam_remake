@@ -342,13 +342,16 @@ const UNIT_MIN = ut_Serf;
       ANIMAL_MIN = ut_Wolf;
       ANIMAL_MAX = ut_Duck;
 
-//Used for AI defence and linking troops
-type  TGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
-const KaMGroupType: array[TGroupType] of byte = (0, 1, 2, 3);
+type
+  TCheckAxis = (ax_X, ax_Y);
 
-type TCheckAxis = (ax_X, ax_Y);
+//Used for AI defence and linking troops
+type
+  TGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
 
 const
+  KaMGroupType: array[TGroupType] of byte = (0, 1, 2, 3);
+
   UnitGroups: array[WARRIOR_MIN..WARRIOR_MAX] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
     gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman

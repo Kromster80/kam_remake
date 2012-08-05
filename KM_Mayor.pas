@@ -26,6 +26,7 @@ type
     procedure CheckHouseDefenceCount;
     procedure CheckHouseWeaponryCount;
     procedure CheckHouseCount;
+    procedure CheckHousePlans;
     procedure CheckRoadsCount;
   public
     constructor Create(aPlayer: TPlayerIndex; aSetup: TKMPlayerAISetup);
@@ -77,6 +78,12 @@ begin
   fCityPlanner.Free;
   fPathFindingRoad.Free;
   inherited;
+end;
+
+
+procedure TKMayor.AfterMissionInit;
+begin
+  fCityPlanner.UpdateInfluence;
 end;
 
 
@@ -191,9 +198,10 @@ procedure TKMayor.TryBuildHouse(aHouse: THouseType);
 
     NodeList := TKMPointList.Create;
     try
-      RoadExists := fPathFindingRoad.Route_Make(aLoc, LocTo, [CanMakeRoads, CanWalkRoad], NodeList);
+      RoadExists := fPathFindingRoad.Route_Make(aLoc, LocTo, NodeList);
 
-      if not RoadExists then Exit;
+      if not RoadExists then
+        Exit;
 
       for I := 0 to NodeList.Count - 1 do
         //We must check if we can add the plan ontop of plans placed earlier in this turn
@@ -264,6 +272,14 @@ begin
       NodeTagList.Free;
     end;
   end;
+
+  //Build more roads around Store
+  if aHouse = ht_Store then
+    for I := Max(Loc.Y - 3, 1) to Min(Loc.Y + 2, fTerrain.MapY - 1) do
+    for K := Loc.X - 2 to Loc.X + 2 do
+    if P.CanAddFieldPlan(KMPoint(K, I), ft_Road) then
+      P.BuildList.FieldworksList.AddField(KMPoint(K, I), ft_Road);
+
 end;
 
 
@@ -415,6 +431,11 @@ begin
       TryBuildHouse(ht_ArmorSmithy);
   end;
 
+  //One Stables is enough
+  Req := 1;
+  if Req > HouseCount(ht_Stables) then
+    TryBuildHouse(ht_Stables);
+
   //One barracks is enough
   Req := 1;
   if Req > HouseCount(ht_Barracks) then
@@ -422,9 +443,9 @@ begin
 end;
 
 
-procedure TKMayor.AfterMissionInit;
+procedure TKMayor.CheckHousePlans;
 begin
-  fCityPlanner.UpdateInfluence;
+  //
 end;
 
 
@@ -453,6 +474,10 @@ begin
 
   //Check if we need to demolish depleted mining houses
   //Not sure if AI should do that though
+
+  //Check if planned houses are not building
+  //(e.g. worker died while digging or elevation changed to impassable)
+  CheckHousePlans;
 end;
 
 

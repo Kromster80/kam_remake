@@ -246,7 +246,7 @@ begin
 
   fNetServer.OnMessage := fLog.AppendLog; //Log server messages in case there is a problem, but hide from user
   try
-    fNetServer.Start(aServerName, aPort, aAnnounceServer, False);
+    fNetServer.Start(aServerName, aPort, aAnnounceServer);
   except
     on E : Exception do
     begin

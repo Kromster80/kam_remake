@@ -69,7 +69,7 @@ begin
   Result := False;
 
   case aHouse of
-    //ht_Store:       Result := NextToHouse(ht_Store, aHouse, aLoc);
+    ht_Store:           Result := NextToHouse(ht_Any, aHouse, aLoc);
     ht_ArmorSmithy:     Result := NextToHouse(ht_IronSmithy, aHouse, aLoc);
     ht_ArmorWorkshop:   Result := NextToHouse(ht_Tannery, aHouse, aLoc);
     ht_Bakery:          Result := NextToHouse(ht_Farm, aHouse, aLoc);
@@ -81,6 +81,7 @@ begin
     ht_Mill:            Result := NextToHouse(ht_Farm, aHouse, aLoc);
     ht_Sawmill:         Result := NextToHouse(ht_Woodcutters, aHouse, aLoc);
     ht_School:          Result := NextToHouse(ht_Store, aHouse, aLoc);
+    ht_Stables:         Result := NextToHouse(ht_Farm, aHouse, aLoc);
     ht_Swine:           Result := NextToHouse(ht_Farm, aHouse, aLoc);
     ht_Tannery:         Result := NextToHouse(ht_Swine, aHouse, aLoc);
     ht_WeaponSmithy:    Result := NextToHouse(ht_IronSmithy, aHouse, aLoc);
@@ -92,8 +93,14 @@ begin
 
     ht_Quary:         Result := NextToStone(aHouse, aLoc);
     ht_Woodcutters:   Result := NextToTrees(aHouse, aLoc);
-    ht_Farm:          Result := NextToGrass(ht_Any, aHouse, aLoc);//NextToGrass(aHouse, aLoc);
-    ht_Wineyard:      Result := NextToGrass(ht_Any, aHouse, aLoc);//NextToGrass(aHouse, aLoc);
+    ht_Farm:          Result := NextToGrass(ht_Any, aHouse, aLoc);
+    ht_Wineyard:      Result := NextToGrass(ht_Any, aHouse, aLoc);
+    ht_FisherHut:     {Result := NextToWater(aHouse, aLoc)};
+
+    //ht_Marketplace:;
+    //ht_SiegeWorkshop:;
+    //ht_TownHall:;
+    //ht_WatchTower:;
   end;
 end;
 
@@ -133,7 +140,7 @@ begin
   Result := False;
 
   P := fPlayers[fOwner];
-  TargetH := P.Houses.FindHouse(aTarget, 0, 0, KaMRandom(P.Stats.GetHouseQty(aHouse)) + 1);
+  TargetH := P.Houses.FindHouse(aTarget, 0, 0, KaMRandom(P.Stats.GetHouseQty(aTarget)) + 1);
   if TargetH = nil then Exit;
   TargetLoc := TargetH.GetPosition;
 

@@ -26,7 +26,7 @@ type
     procedure RemWorker(aIndex: Integer);
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
-    function GetAvailableJobsCount:Integer;
+    function GetAvailableJobsCount: Integer;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -55,7 +55,7 @@ type
 
     //Game events
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
-    function GetAvailableJobsCount:Integer;
+    function GetAvailableJobsCount: Integer;
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker); //Assign worker to a field
     procedure ReOpenPlan(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
     procedure ClosePlan(aIndex: Integer); //Worker has finished the task
