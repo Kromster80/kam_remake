@@ -940,7 +940,7 @@ begin
   //Make fish/watersnakes to be more visible in the MapEd
   if (fGame.GameMode = gmMapEd) and (fUnitType in [ut_Fish, ut_Watersnake, ut_Seastar]) then
     fRenderAux.Circle(fPosition.X - 0.5,
-                      fTerrain.FlatToHeight(fPosition.X - 0.5, fPosition.Y - 0.5) - 0.5,
+                      fTerrain.FlatToHeight(fPosition.X - 0.5, fPosition.Y - 0.5),
                       0.5, $30FF8000, $60FF8000);
 
   //Animals share the same WalkTo logic as other units and they exchange places if necessary
