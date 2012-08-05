@@ -391,8 +391,7 @@ begin
   gX := Loc.X + (R.Pivot[ID].X + R.Size[ID].X / 2) / CELL_SIZE_PX - 0.5;
   gY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 0.45;
   CornerX := Loc.X + R.Pivot[ID].X / CELL_SIZE_PX - 0.25;
-  CornerY := Loc.Y + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 0.45
-                   - fTerrain.HeightAt(gX, gY) / CELL_HEIGHT_DIV;
+  CornerY := Loc.Y - fTerrain.HeightAt(gX, gY) + (R.Pivot[ID].Y + R.Size[ID].Y) / CELL_SIZE_PX - 0.55;
   fRenderList.AddSpriteG(rxGui, ID, CornerX, CornerY, gX, gY);
 end;
 
@@ -906,6 +905,8 @@ begin
 
   RenderTerrainFieldBorders(Rect);
 
+  //fMapEditor.RenderOverlays;
+
   if SHOW_TERRAIN_WIRES then
     fRenderAux.Wires(Rect);
 
@@ -1058,7 +1059,7 @@ end;
 procedure TRenderPool.RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK);
 begin
   if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
-    RenderSprite(rxGui, aID, aLoc.X - 0.8, fTerrain.FlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) - 0.2,
+    RenderSprite(rxGui, aID, aLoc.X - 0.8, fTerrain.FlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) + 0.3,
       $FFFFFFFF, 255);
 end;
 
