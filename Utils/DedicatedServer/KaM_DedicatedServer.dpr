@@ -23,7 +23,7 @@ var
   fSettingsLastModified: integer;
   TickCount, fLastSettingsFileCheck: cardinal;
 
-{$IFDEF MSWindows}
+{$IFDEF WDC}
 procedure MyProcessMessages;
 var Msg: TMsg;
 begin
@@ -46,7 +46,7 @@ begin
                                                 fSettings.HTMLStatusFile,
                                                 fSettings.ServerWelcomeMessage);
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
-  fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer, true);
+  fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer);
 
   while True do
   begin
@@ -72,12 +72,29 @@ begin
                                         fSettings.ServerWelcomeMessage);
       end;
     end;
-    {$IFDEF MSWindows}
+    //In Lazarus LNet will wait for 1ms in CallAction for the OS to respond with socket events
+    //so we don't need to do ProcessMessage or Sleep here.
+    {$IFDEF WDC}
     MyProcessMessages; //This will process network (or other) events
-    {$ENDIF}
     Sleep(1); //Don't hog CPU (this can also be used to create an artifical latency)
+    {$ENDIF}
   end;
 end;
+
+{$IFDEF FPC}
+function GetExceptionCallStack:string;
+var I: Integer; p: pointer;
+begin
+  Result := '*** STACKTRACE ***' + LineEnding;
+  Result := Result + BackTraceStrFunc(ExceptAddr);
+  for I := 0 to ExceptFrameCount - 1 do
+  begin
+    p:=(ExceptFrames+i)^;
+    Result := Result + LineEnding + BackTraceStrFunc(p);
+  end;
+  Result := Result + LineEnding + '*** END STACKTRACE ***';
+end;
+{$ENDIF}
 
 
 begin
@@ -103,8 +120,11 @@ begin
       on E : Exception do //todo: For some reason this doesn't catch exceptions that occur within network events e.g. OnReceive (once server is running errors can really only occur in these events)
       begin
         fEventHandler.ServerStatusMessage('EXCEPTION: '+E.ClassName+': '+E.Message);
+        {$IFDEF FPC} fEventHandler.ServerStatusMessage(GetExceptionCallStack()); {$ENDIF}
         fEventHandler.ServerStatusMessage('Server restarting...');
         FreeAndNil(fDedicatedServer);
+        fEventHandler.ServerStatusMessage('Sleeping for 5 seconds...');
+        Sleep(5000); //Give the OS time to close the socket before restarting
       end;
     end;
   end;

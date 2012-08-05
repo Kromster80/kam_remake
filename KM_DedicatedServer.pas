@@ -25,7 +25,7 @@ type
                        const aWelcomeMessage:string);
     destructor Destroy; override;
 
-    procedure Start(const aServerName:string; const aPort:string; aPublishServer:boolean; aHandleException:boolean);
+    procedure Start(const aServerName:string; const aPort:string; aPublishServer:boolean);
     procedure Stop;
     procedure UpdateState;
     procedure UpdateSettings(const aServerName:string; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
@@ -69,24 +69,13 @@ begin
 end;
 
 
-procedure TKMDedicatedServer.Start(const aServerName:string; const aPort:string; aPublishServer:boolean; aHandleException:boolean);
+procedure TKMDedicatedServer.Start(const aServerName:string; const aPort:string; aPublishServer:boolean);
 begin
   fPort := aPort;
   fServerName := aServerName;
   fPublishServer := aPublishServer;
   fNetServer.OnStatusMessage := StatusMessage;
-  try
-    fNetServer.StartListening(fPort,aServerName);
-  except
-    on E : Exception do
-    begin
-      //Server failed to start
-      StatusMessage('SERVER FAILED TO START! '+E.ClassName+': '+E.Message);
-      Stop;
-      if not aHandleException then
-        raise Exception.Create(E.ClassName+': '+E.Message);
-    end;
-  end;
+  fNetServer.StartListening(fPort,aServerName);
 end;
 
 

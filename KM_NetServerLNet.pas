@@ -71,7 +71,7 @@ begin
   fSocketServer.OnAccept := ClientConnect;
   fSocketServer.OnDisconnect := ClientDisconnect;
   fSocketServer.OnReceive := ReceiveData;
-  fSocketServer.Timeout := 0;
+  fSocketServer.Timeout := 1; //This is the time it will wait in CallAction for the OS to respond, it's better than calling Sleep(1)
   fSocketServer.ReuseAddress := false; //Abort if the port is in use
   if not fSocketServer.Listen(StrToInt(aPort)) then
     raise Exception.Create('Server failed to start');
@@ -79,8 +79,16 @@ end;
 
 
 procedure TKMNetServerLNet.StopListening;
+var i:Integer;
 begin
-  if fSocketServer <> nil then fSocketServer.Disconnect(true);
+  if fSocketServer <> nil then
+  begin
+    //We have to disconnect all the clients too
+    for i:=0 to fSocketServer.Count-1 do
+      fSocketServer.Socks[i].Disconnect(true);
+
+    fSocketServer.Disconnect(true);
+  end;
   FreeAndNil(fSocketServer);
   fLastTag := FIRST_TAG-1;
 end;
