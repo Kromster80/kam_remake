@@ -54,6 +54,7 @@ Name: "ukr"; MessagesFile: "compiler:Languages\Ukrainian.isl"; LicenseFile: "Lic
 Root: HKLM; Subkey: "SOFTWARE\JOYMANIA Entertainment\KnightsandMerchants TPR"; ValueType: string; ValueName: "RemakeVersion"; ValueData: {#Revision}; Flags:uninsdeletevalue;
 
 [Run]
+Filename: "{app}\PostInstallClean.bat"; WorkingDir: "{app}"; Flags: runhidden
 Filename: "{code:GetReadmeLang}";  Description: {cm:ViewReadme};  Flags: postinstall shellexec skipifsilent
 Filename: "{app}\{#MyAppExeName}"; Description: {cm:LaunchProgram,{#MyAppName}}; Flags: postinstall nowait skipifsilent unchecked
 
@@ -112,6 +113,7 @@ end;
 [Files]
 Source: "{#BuildFolder}\*"; DestDir: "{app}"; Excludes: "*.svn,*.svn\*"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "oalinst.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "PostInstallClean.bat"; DestDir: "{app}"; Flags: ignoreversion
 
 [Tasks]
 Name: programgroup; Description: {cm:CreateStartShortcut};

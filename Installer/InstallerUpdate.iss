@@ -16,6 +16,7 @@ begin
   Result := (aVersion = 'r2411') 
          or (aVersion = 'r2678')
          or (aVersion = 'r2736')
+         or (aVersion = 'r3392')
         {or (aVersion = 'r1234')
          or (aVersion = 'r1234')}
          ; 
@@ -37,9 +38,6 @@ begin
   end;
 end;
 
-[Run]
-Filename: "{app}\Clean.bat"; WorkingDir: "{app}"; Flags: runhidden
-
 [Setup]
 EnableDirDoesntExistWarning=yes
 CreateUninstallRegKey=no
@@ -54,9 +52,9 @@ begin
   if(not(
      FileExists(InstallFolder+'\KaM_Remake.exe') and
      FileExists(InstallFolder+'\data\defines\houses.dat') and
-     FileExists(InstallFolder+'\data\gfx\res\guimainh.rx') and
-     FileExists(InstallFolder+'\data\gfx\res\units.rx') and
-     FileExists(InstallFolder+'\Resource\Tiles1.tga')
+     (FileExists(InstallFolder+'\data\gfx\res\gui.rx') or FileExists(InstallFolder+'\data\Sprites\GUI.rxx')) and
+     (FileExists(InstallFolder+'\Resource\Tiles1.tga') or FileExists(InstallFolder+'\data\Sprites\Tileset.rxx')) and
+     FileExists(InstallFolder+'\data\sfx\sounds.dat')
      )) then
      Result := ExpandConstant('{cm:CantUpdate}');
 end;
