@@ -47,6 +47,7 @@ type
     function FindPlaceForWarrior(aWarrior: TKMUnitWarrior; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
     procedure RestockPositionWith(aDefenceGroup, aCommander: TKMUnitWarrior);
     function FindPositionOf(aCommander: TKMUnitWarrior): TAIDefencePosition;
+    procedure ReplaceCommander(aDeadCommander, aNewCommander: TKMUnitWarrior);
 
     property Count: Integer read fCount;
     property Positions[aIndex: Integer]: TAIDefencePosition read GetPosition; default;
@@ -209,6 +210,18 @@ begin
     else //Restock existing position
       RestockPositionWith(Positions[Matched].CurrentCommander, aWarrior.GetCommander);
   end;
+end;
+
+
+procedure TAIDefencePositions.ReplaceCommander(aDeadCommander, aNewCommander: TKMUnitWarrior);
+var
+  DP: TAIDefencePosition;
+begin
+  DP := FindPositionOf(aDeadCommander);
+
+  //DP could be nil if dead commander was not part of any DP
+  if DP <> nil then
+    DP.CurrentCommander := aNewCommander; //Don't need to use GetPointer/ReleasePointer because setting CurrentCommander does that
 end;
 
 

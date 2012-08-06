@@ -487,24 +487,20 @@ end;
 //Dead commander is the one that died, NewCommander is the one that replaced him.
 //We need to update CurrentCommander for defence positions in this case.
 procedure TKMPlayerAI.CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
-var i: integer;
 begin
-  for i:=0 to DefencePositions.Count - 1 do
-    with DefencePositions[i] do
-      if CurrentCommander = DeadCommander then
-        CurrentCommander := NewCommander; //Don't need to use GetPointer/ReleasePointer because setting CurrentCommander does that
+  DefencePositions.ReplaceCommander(DeadCommander, NewCommander);
 end;
 
 
 procedure TKMPlayerAI.WarriorEquipped(aWarrior: TKMUnitWarrior);
 begin
   Assert(aWarrior.IsCommander); //A warrior walking out of the barracks should not be linked yet
-  DefencePositions.FindPlaceForWarrior(aWarrior, true, AI_FILL_CLOSEST);
+  DefencePositions.FindPlaceForWarrior(aWarrior, True, AI_FILL_CLOSEST);
 end;
 
 
 procedure TKMPlayerAI.RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
-var i: integer;
+var I: Integer;
 begin
   if fPlayers[fPlayerIndex].PlayerType = pt_Human then Exit;
 

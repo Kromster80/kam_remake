@@ -905,7 +905,8 @@ begin
 
   RenderTerrainFieldBorders(Rect);
 
-  fGame.MapEditor.RenderOverlays;
+  if fGame.IsMapEditor then
+    fGame.MapEditor.RenderOverlays;
 
   if SHOW_TERRAIN_WIRES then
     fRenderAux.Wires(Rect);
