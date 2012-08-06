@@ -135,7 +135,8 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Player, KM_PlayerAI, KM_Resource, KM_ResourceHouse, KM_ResourceResource;
+uses KM_PlayersCollection, KM_Player, KM_PlayerAI, KM_PlayerAIDefensePos,
+  KM_Resource, KM_ResourceHouse, KM_ResourceResource;
 
 
 const
@@ -838,7 +839,7 @@ begin
     ct_AIDefence:       if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >=0 then
                         if InRange(P[3], Integer(Low(TGroupType)), Integer(High(TGroupType))) then //TPR 3 tries to set TGroupType 240 due to a missing space
-                          fPlayers.Player[fLastPlayer].AI.AddDefencePosition(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
+                          fPlayers.Player[fLastPlayer].AI.DefencePositions.AddDefencePosition(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastPlayer >=0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
                           fPlayers.Player[fLastPlayer].FlagColor := fResource.Palettes.DefDal.Color32(P[0]);
@@ -1032,8 +1033,8 @@ begin
         if fPlayers.Player[i].AI.TroopFormations[G].NumUnits <> 0 then //Must be valid and used
           AddCommand(ct_AICharacter, cpt_TroopParam, [KaMGroupType[G], fPlayers.Player[i].AI.TroopFormations[G].NumUnits, fPlayers.Player[i].AI.TroopFormations[G].UnitsPerRow]);
       AddData(''); //NL
-      for k:=0 to fPlayers.Player[i].AI.DefencePositionsCount-1 do
-        with fPlayers.Player[i].AI.DefencePositions[k] do
+      for k:=0 to fPlayers.Player[i].AI.DefencePositions.Count - 1 do
+        with fPlayers.Player[i].AI.DefencePositions.DefencePositions[k] do
           AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,KaMGroupType[GroupType],DefenceRadius,byte(DefenceType)]);
       AddData(''); //NL
       AddData(''); //NL
