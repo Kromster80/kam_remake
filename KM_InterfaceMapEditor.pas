@@ -957,7 +957,7 @@ var
   R: TRawDeposit;
   Depo: TKMDeposits;
 begin
-  if fGame.MapEditor.ShowRawMaterials then
+  if fGame.MapEditor.ShowDeposits then
   begin
     Label_MatAmount.Show; //Only make it visible while we need it
     Shape_MatAmount.Show;

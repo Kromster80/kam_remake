@@ -33,13 +33,13 @@ type
   private
     fDeposits: TKMDeposits;
     fShowDefencePositions: Boolean;
-    fShowRawMaterials: Boolean;
+    fShowDeposits: Boolean;
   public
     constructor Create;
     destructor Destroy; override;
     property Deposits: TKMDeposits read fDeposits;
     property ShowDefencePositions: Boolean read fShowDefencePositions;
-    property ShowRawMaterials: Boolean read fShowRawMaterials;
+    property ShowDeposits: Boolean read fShowDeposits;
     procedure Update;
     procedure RenderOverlays;
   end;
@@ -197,7 +197,7 @@ begin
   fDeposits := TKMDeposits.Create;
 
   fShowDefencePositions := True;
-  fShowRawMaterials := True;
+  fShowDeposits := True;
 end;
 
 
