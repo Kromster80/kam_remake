@@ -223,8 +223,8 @@ begin
     for I := 0 to fPlayers.Count - 1 do
       for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
       begin
-        MapLoc := fPlayers[I].AI.DefencePositions.DefencePositions[K].Position.Loc;
-        fRenderAux.CircleOnTerrain(MapLoc.X, MapLoc.Y, fPlayers[I].AI.DefencePositions.DefencePositions[K].DefenceRadius, $20FF8000, $FFFF8000);
+        MapLoc := fPlayers[I].AI.DefencePositions[K].Position.Loc;
+        fRenderAux.CircleOnTerrain(MapLoc.X, MapLoc.Y, fPlayers[I].AI.DefencePositions[K].Radius, $20FF8000, $FFFF8000);
       end;
   end;
 end;

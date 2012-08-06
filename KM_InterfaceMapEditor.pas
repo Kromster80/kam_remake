@@ -991,9 +991,9 @@ begin
     for I := 0 to fPlayers.Count - 1 do
       for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
       begin
-        Label_DefencePos.Caption := GetEnumName(TypeInfo(TGroupType), Ord(fPlayers[I].AI.DefencePositions.DefencePositions[K].GroupType));
+        Label_DefencePos.Caption := GetEnumName(TypeInfo(TGroupType), Ord(fPlayers[I].AI.DefencePositions[K].GroupType));
 
-        MapLoc := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.DefencePositions.DefencePositions[K].Position.Loc));
+        MapLoc := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.DefencePositions[K].Position.Loc));
         ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
 
         //Paint the background

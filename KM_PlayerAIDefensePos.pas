@@ -13,37 +13,41 @@ type
   TAIDefencePosition = class
   private
     fCurrentCommander: TKMUnitWarrior; //Commander of group currently occupying position
+    fPosition: TKMPointDir; //Position and direction the group defending will stand
+    fRadius: Integer; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
     procedure SetCurrentCommander(aCommander: TKMUnitWarrior);
     procedure ClearCurrentCommander;
   public
-    Position: TKMPointDir; //Position and direction the group defending will stand
     GroupType: TGroupType; //Type of group to defend this position (e.g. melee)
-    DefenceRadius: integer; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
     DefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
-    constructor Create(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
+    constructor Create(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
     constructor Load(LoadStream:TKMemoryStream);
     destructor Destroy; override;
     property CurrentCommander: TKMUnitWarrior read fCurrentCommander write SetCurrentCommander;
+    property Position: TKMPointDir read fPosition; //Position and direction the group defending will stand
+    property Radius: Integer read fRadius; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
+    function IsFullyStocked(aAmount: integer): Boolean;
     procedure Save(SaveStream:TKMemoryStream);
     procedure SyncLoad;
-    function IsFullyStocked(aAmount: integer):boolean;
   end;
 
   TAIDefencePositions = class
   private
     fCount: Integer;
+    fPositions: array of TAIDefencePosition;
+    function GetPosition(aIndex: Integer): TAIDefencePosition;
   public
     TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
                                             NumUnits, UnitsPerRow: Integer;
                                           end;
-    DefencePositions: array of TAIDefencePosition;
 
     constructor Create;
     destructor Destroy; override;
 
-    procedure AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
+    procedure AddDefencePosition(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
 
     property Count: Integer read fCount;
+    property Positions[aIndex: Integer]: TAIDefencePosition read GetPosition; default;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -56,12 +60,12 @@ uses KM_PlayersCollection;
 
 
 { TAIDefencePosition }
-constructor TAIDefencePosition.Create(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
+constructor TAIDefencePosition.Create(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
 begin
   inherited Create;
-  Position := aPos;
+  fPosition := aPos;
   GroupType := aGroupType;
-  DefenceRadius := aDefenceRadius;
+  fRadius := aRadius;
   DefenceType := aDefenceType;
   CurrentCommander := nil; //Unoccupied
 end;
@@ -90,9 +94,9 @@ end;
 
 procedure TAIDefencePosition.Save(SaveStream:TKMemoryStream);
 begin
-  SaveStream.Write(Position);
+  SaveStream.Write(fPosition);
   SaveStream.Write(GroupType, SizeOf(GroupType));
-  SaveStream.Write(DefenceRadius);
+  SaveStream.Write(fRadius);
   SaveStream.Write(DefenceType, SizeOf(DefenceType));
   if fCurrentCommander <> nil then
     SaveStream.Write(fCurrentCommander.ID) //Store ID
@@ -104,9 +108,9 @@ end;
 constructor TAIDefencePosition.Load(LoadStream:TKMemoryStream);
 begin
   inherited Create;
-  LoadStream.Read(Position);
+  LoadStream.Read(fPosition);
   LoadStream.Read(GroupType, SizeOf(GroupType));
-  LoadStream.Read(DefenceRadius);
+  LoadStream.Read(fRadius);
   LoadStream.Read(DefenceType, SizeOf(DefenceType));
   LoadStream.Read(fCurrentCommander, 4); //subst on syncload
 end;
@@ -118,9 +122,9 @@ begin
 end;
 
 
-function TAIDefencePosition.IsFullyStocked(aAmount: integer):boolean;
+function TAIDefencePosition.IsFullyStocked(aAmount: integer): Boolean;
 begin
-  Result := (CurrentCommander <> nil) and (CurrentCommander.GetMemberCount+1 >= aAmount);
+  Result := (CurrentCommander <> nil) and (CurrentCommander.GetMemberCount + 1 >= aAmount);
 end;
 
 
@@ -142,27 +146,34 @@ destructor TAIDefencePositions.Destroy;
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    DefencePositions[I].Free;
+    fPositions[I].Free;
   inherited;
 end;
 
 
-procedure TAIDefencePositions.AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
+function TAIDefencePositions.GetPosition(aIndex: Integer): TAIDefencePosition;
 begin
-  SetLength(DefencePositions, fCount+1);
-  DefencePositions[fCount] := TAIDefencePosition.Create(aPos,aGroupType,aDefenceRadius,aDefenceType);
+  Result := fPositions[aIndex];
+end;
+
+
+procedure TAIDefencePositions.AddDefencePosition(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
+begin
+  SetLength(fPositions, fCount + 1);
+  fPositions[fCount] := TAIDefencePosition.Create(aPos, aGroupType, aRadius, aDefenceType);
   inc(fCount);
 end;
 
 
 procedure TAIDefencePositions.Save(SaveStream:TKMemoryStream);
-var i: integer;
+var I: Integer;
 begin
   SaveStream.Write('PlayerAI');
   SaveStream.Write(TroopFormations, SizeOf(TroopFormations));
   SaveStream.Write(fCount);
-  for i:=0 to fCount-1 do
-    DefencePositions[i].Save(SaveStream);
+
+  for I := 0 to fCount - 1 do
+    fPositions[i].Save(SaveStream);
 end;
 
 
@@ -172,10 +183,10 @@ begin
   LoadStream.ReadAssert('PlayerAI');
   LoadStream.Read(TroopFormations, SizeOf(TroopFormations));
   LoadStream.Read(fCount);
-  SetLength(DefencePositions, fCount);
+  SetLength(fPositions, fCount);
 
   for I := 0 to fCount - 1 do
-    DefencePositions[I] := TAIDefencePosition.Load(LoadStream);
+    fPositions[I] := TAIDefencePosition.Load(LoadStream);
 end;
 
 
@@ -183,7 +194,7 @@ procedure TAIDefencePositions.SyncLoad;
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    DefencePositions[I].SyncLoad;
+    fPositions[I].SyncLoad;
 end;
 
 

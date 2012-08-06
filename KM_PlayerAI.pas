@@ -28,9 +28,6 @@ type
     function FindPlaceForWarrior(aWarrior: TKMUnitWarrior; aCanLinkToExisting, aTakeClosest:boolean):boolean;
     procedure RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
   public
-    TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
-                                            NumUnits, UnitsPerRow: Integer;
-                                          end;
     DefencePositions: TAIDefencePositions;
 
     constructor Create(aPlayerIndex: TPlayerIndex);
@@ -84,12 +81,6 @@ begin
   DefencePositions := TAIDefencePositions.Create();
 
   fAttacks := TAIAttacks.Create;
-
-  for i:=low(TGroupType) to high(TGroupType) do
-  begin
-    TroopFormations[i].NumUnits := 9; //These are the defaults in KaM
-    TroopFormations[i].UnitsPerRow := 3;
-  end;
 end;
 
 
@@ -236,11 +227,11 @@ begin
   //Create a list of troops that need to be trained based on defence position requirements
   FillChar(GroupReq, SizeOf(GroupReq), #0); //Clear up
   for k:=0 to DefencePositions.Count - 1 do
-    with DefencePositions.DefencePositions[k] do
+    with DefencePositions[k] do
     if CurrentCommander = nil then
-      inc(GroupReq[GroupType], TroopFormations[GroupType].NumUnits)
+      inc(GroupReq[GroupType], DefencePositions.TroopFormations[GroupType].NumUnits)
     else
-      inc(GroupReq[GroupType], TroopFormations[GroupType].NumUnits - (TKMUnitWarrior(CurrentCommander).GetMemberCount+1));
+      inc(GroupReq[GroupType], DefencePositions.TroopFormations[GroupType].NumUnits - (TKMUnitWarrior(CurrentCommander).GetMemberCount+1));
 
   //Find barracks
   SetLength(Barracks, fPlayers[fPlayerIndex].Stats.GetHouseQty(ht_Barracks));
@@ -320,7 +311,7 @@ end;
 procedure TKMPlayerAI.RestockPositionWith(aDefenceGroup, aCommander:TKMUnitWarrior);
 var Needed: integer;
 begin
-  Needed := TroopFormations[UnitGroups[aDefenceGroup.UnitType]].NumUnits - (aDefenceGroup.GetMemberCount+1);
+  Needed := DefencePositions.TroopFormations[UnitGroups[aDefenceGroup.UnitType]].NumUnits - (aDefenceGroup.GetMemberCount+1);
   if Needed <= 0 then exit;
   if aCommander.GetMemberCount+1 <= Needed then
     aCommander.OrderLinkTo(aDefenceGroup) //Link entire group
@@ -329,25 +320,30 @@ begin
 end;
 
 
-function TKMPlayerAI.FindPlaceForWarrior(aWarrior:TKMUnitWarrior; aCanLinkToExisting, aTakeClosest:boolean):boolean;
-var k, MenRequired, Matched: integer;
+function TKMPlayerAI.FindPlaceForWarrior(aWarrior: TKMUnitWarrior; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
+var I, MenRequired, Matched: integer;
     Distance, Best: single;
 begin
-  Result := false;
-  Matched := -1;  Best := 9999;
-  for k:=0 to DefencePositions.Count - 1 do
+  Result := False;
+  Matched := -1;
+  Best := MaxInt;
+
+  for I := 0 to DefencePositions.Count - 1 do
   begin
+    //If not aCanLinkToExisting then a group with 1 member or more counts as fully stocked already
     if aCanLinkToExisting then
-      MenRequired := TroopFormations[DefencePositions.DefencePositions[k].GroupType].NumUnits
-    else MenRequired := 1; //If not aCanLinkToExisting then a group with 1 member or more counts as fully stocked already
-    if (DefencePositions.DefencePositions[k].GroupType = UnitGroups[aWarrior.UnitType]) and
-       not DefencePositions.DefencePositions[k].IsFullyStocked(MenRequired) then
+      MenRequired := DefencePositions.TroopFormations[DefencePositions[I].GroupType].NumUnits
+    else
+      MenRequired := 1;
+
+    if (DefencePositions[I].GroupType = UnitGroups[aWarrior.UnitType]) and
+       not DefencePositions[I].IsFullyStocked(MenRequired) then
     begin
       //Take closest position that is empty or requries restocking
-      Distance := GetLength(aWarrior.GetPosition,DefencePositions.DefencePositions[k].Position.Loc);
+      Distance := GetLength(aWarrior.GetPosition,DefencePositions[I].Position.Loc);
       if Distance < Best then
       begin
-        Matched := k;
+        Matched := I;
         Best := Distance;
         if not aTakeClosest then break; //Take first one we find - that's what KaM does
       end;
@@ -356,13 +352,13 @@ begin
   if Matched <> -1 then
   begin
     Result := true;
-    if DefencePositions.DefencePositions[Matched].CurrentCommander = nil then
+    if DefencePositions[Matched].CurrentCommander = nil then
     begin //New position
-      DefencePositions.DefencePositions[Matched].CurrentCommander := aWarrior.GetCommander;
-      aWarrior.OrderWalk(DefencePositions.DefencePositions[Matched].Position);
+      DefencePositions[Matched].CurrentCommander := aWarrior.GetCommander;
+      aWarrior.OrderWalk(DefencePositions[Matched].Position);
     end
     else //Restock existing position
-      RestockPositionWith(DefencePositions.DefencePositions[Matched].CurrentCommander,aWarrior.GetCommander);
+      RestockPositionWith(DefencePositions[Matched].CurrentCommander,aWarrior.GetCommander);
   end;
 end;
 
@@ -398,7 +394,7 @@ begin
 
   //Hotfix until we refactor AI: Make sure no defence position commander is dead or not a commander
   for k:=0 to DefencePositions.Count - 1 do
-    with DefencePositions.DefencePositions[k] do
+    with DefencePositions[k] do
       if (CurrentCommander <> nil) and (CurrentCommander.IsDeadOrDying or not CurrentCommander.IsCommander) then
         CurrentCommander := nil;
 
@@ -420,8 +416,8 @@ begin
             //If this group belongs to a defence position and they are too far away we should disassociate
             //them from the defence position so new warriors can take up the defence if needs be
             for k:=0 to DefencePositions.Count - 1 do
-              with DefencePositions.DefencePositions[k] do
-                if (CurrentCommander = GetCommander) and (KMLength(Position.Loc, GetPosition) > DefenceRadius) then
+              with DefencePositions[k] do
+                if (CurrentCommander = GetCommander) and (KMLength(Position.Loc, GetPosition) > Radius) then
                   CurrentCommander := nil;
             Continue;
           end;
@@ -429,30 +425,30 @@ begin
           if fGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
 
           //Check formation. If the script has defined a group with more units per row than there should be, do not change it
-          if UnitsPerRow < TroopFormations[UnitGroups[UnitType]].UnitsPerRow then
-            UnitsPerRow := TroopFormations[UnitGroups[UnitType]].UnitsPerRow;
+          if UnitsPerRow < DefencePositions.TroopFormations[UnitGroups[UnitType]].UnitsPerRow then
+            UnitsPerRow := DefencePositions.TroopFormations[UnitGroups[UnitType]].UnitsPerRow;
           //Position this group to defend if they already belong to a defence position
           Positioned := false;
           for k:=0 to DefencePositions.Count - 1 do
-            if DefencePositions.DefencePositions[k].CurrentCommander = GetCommander then
+            if DefencePositions[k].CurrentCommander = GetCommander then
             begin
               //If they are not already walking and can reach their position, tell them to walk there
               if not (GetCommander.GetUnitAction is TUnitActionWalkTo)
-              and GetCommander.CanWalkTo(DefencePositions.DefencePositions[k].Position.Loc, 0) then
-                OrderWalk(DefencePositions.DefencePositions[k].Position);
+              and GetCommander.CanWalkTo(DefencePositions[k].Position.Loc, 0) then
+                OrderWalk(DefencePositions[k].Position);
               Positioned := true; //We already have a position, finished with this group
 
               //If this group is available to attack then count them
-              if DefencePositions.DefencePositions[k].DefenceType = adt_BackLine then
+              if DefencePositions[k].DefenceType = adt_BackLine then
                 AddToAvailableToAttack(GetCommander);
 
               //In KaM the order of defence positions is the priority: The first defined is higher priority
               for j:=0 to k-1 do
-                if (DefencePositions.DefencePositions[j].CurrentCommander = nil) and
-                   (DefencePositions.DefencePositions[j].GroupType = UnitGroups[UnitType]) then
+                if (DefencePositions[j].CurrentCommander = nil) and
+                   (DefencePositions[j].GroupType = UnitGroups[UnitType]) then
                    begin
-                     DefencePositions.DefencePositions[k].CurrentCommander := nil; //Leave current position
-                     DefencePositions.DefencePositions[j].CurrentCommander := GetCommander; //Take new position
+                     DefencePositions[k].CurrentCommander := nil; //Leave current position
+                     DefencePositions[j].CurrentCommander := GetCommander; //Take new position
                      break;
                    end;
 
@@ -471,13 +467,13 @@ begin
             AddToAvailableToAttack(GetCommander); //Idle groups may also attack
             if AI_LINK_IDLE then
               //If this group doesn't have enough members
-              if (GetMemberCount+1 < TroopFormations[UnitGroups[UnitType]].NumUnits) then
+              if (GetMemberCount+1 < DefencePositions.TroopFormations[UnitGroups[UnitType]].NumUnits) then
                 if NeedsLinkingTo[UnitGroups[UnitType]] = nil then
                   NeedsLinkingTo[UnitGroups[UnitType]] := GetCommander //Flag us as needing to be added to
                 else
                 begin
                   RestockPositionWith(NeedsLinkingTo[UnitGroups[UnitType]],GetCommander);
-                  if NeedsLinkingTo[UnitGroups[UnitType]].GetMemberCount+1 >= TroopFormations[UnitGroups[UnitType]].NumUnits then
+                  if NeedsLinkingTo[UnitGroups[UnitType]].GetMemberCount+1 >= DefencePositions.TroopFormations[UnitGroups[UnitType]].NumUnits then
                     NeedsLinkingTo[UnitGroups[UnitType]] := nil; //Group is now full
                 end;
           end;
@@ -523,7 +519,7 @@ procedure TKMPlayerAI.CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior)
 var i: integer;
 begin
   for i:=0 to DefencePositions.Count - 1 do
-    with DefencePositions.DefencePositions[i] do
+    with DefencePositions[i] do
       if CurrentCommander = DeadCommander then
         CurrentCommander := NewCommander; //Don't need to use GetPointer/ReleasePointer because setting CurrentCommander does that
 end;
@@ -544,11 +540,11 @@ begin
   //todo: Right now "idle" troops (without an assigned defence position) will do nothing (no attacking, defending, etc.)
   //Any defence position that is within their defence radius of this threat will retaliate against it
   for i := 0 to DefencePositions.Count - 1 do
-    with DefencePositions.DefencePositions[i] do
+    with DefencePositions[i] do
       if (CurrentCommander <> nil) and not CurrentCommander.IsDeadOrDying
       and CurrentCommander.IsCommander and (not CurrentCommander.ArmyInFight)
       and (CurrentCommander.OrderTarget = nil)
-      and (KMLength(CurrentCommander.GetPosition, aAttacker.GetPosition) <= DefenceRadius) then
+      and (KMLength(CurrentCommander.GetPosition, aAttacker.GetPosition) <= Radius) then
         CurrentCommander.OrderAttackUnit(aAttacker);
 end;
 
@@ -607,7 +603,6 @@ begin
   SaveStream.Write(fPlayerIndex);
   SaveStream.Write(fHasWonOrLost);
   SaveStream.Write(fLastEquippedTime);
-  SaveStream.Write(TroopFormations, SizeOf(TroopFormations));
 
   fSetup.Save(SaveStream);
   fAttacks.Save(SaveStream);
@@ -623,7 +618,6 @@ begin
   LoadStream.Read(fPlayerIndex);
   LoadStream.Read(fHasWonOrLost);
   LoadStream.Read(fLastEquippedTime);
-  LoadStream.Read(TroopFormations, SizeOf(TroopFormations));
 
   fSetup.Load(LoadStream);
   fAttacks.Load(LoadStream);
