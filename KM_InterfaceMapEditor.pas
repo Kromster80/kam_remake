@@ -955,17 +955,19 @@ var
   MapLoc: TKMPointF;
   ScreenLoc: TKMPointI;
   R: TRawDeposit;
+  Depo: TKMDeposits;
 begin
   if fGame.MapEditor.ShowRawMaterials then
   begin
     Label_MatAmount.Show; //Only make it visible while we need it
     Shape_MatAmount.Show;
+    Depo := fGame.MapEditor.Deposits;
     for R := Low(TRawDeposit) to High(TRawDeposit) do
-      for I := 0 to fGame.MapEditor.AreaCount[R] - 1 do
+      for I := 0 to Depo.Count[R] - 1 do
       begin
-        Label_MatAmount.Caption := IntToStr(fGame.MapEditor.AreaAmount[R, I]);
+        Label_MatAmount.Caption := IntToStr(Depo.Amount[R, I]);
 
-        MapLoc := fTerrain.FlatToHeight(fGame.MapEditor.AreaLoc[R, I]);
+        MapLoc := fTerrain.FlatToHeight(Depo.Location[R, I]);
         ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
 
         //Paint the background

@@ -1,34 +1,43 @@
 unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
-uses Classes,
+uses Classes, SysUtils,
   KM_Defaults, KM_Points, KM_Terrain;
 
 
 type
   TRawDeposit = (rdStone, rdCoal, rdIron, rdGold);
 
-  //Designed to store MapEd specific data and methods
-  TKMMapEditor = class
+  //Scans the map and reports raw resources deposits info
+  TKMDeposits = class
   private
     fArea: array [TRawDeposit] of array of array of Word;
     fAreaCount: array [TRawDeposit] of Integer;
     fAreaAmount: array [TRawDeposit] of array of Integer;
     fAreaLoc: array [TRawDeposit] of array of TKMPointF;
-    fShowDefencePositions: Boolean;
-    fShowRawMaterials: Boolean;
-    function GetAreaCount(aMat: TRawDeposit): Integer;
-    function GetAreaAmount(aMat: TRawDeposit; aIndex: Integer): Integer;
-    function GetAreaLoc(aMat: TRawDeposit; aIndex: Integer): TKMPointF;
+    function GetCount(aMat: TRawDeposit): Integer;
+    function GetAmount(aMat: TRawDeposit; aIndex: Integer): Integer;
+    function GetLocation(aMat: TRawDeposit; aIndex: Integer): TKMPointF;
     function TileDeposit(aMat: TRawDeposit; X,Y: Word): Byte;
     procedure FloodFill(const aMat: array of TRawDeposit);
     procedure RecalcAmounts(const aMat: array of TRawDeposit);
+  public
+    property Count[aMat: TRawDeposit]: Integer read GetCount;
+    property Amount[aMat: TRawDeposit; aIndex: Integer]: Integer read GetAmount;
+    property Location[aMat: TRawDeposit; aIndex: Integer]: TKMPointF read GetLocation;
     procedure UpdateAreas(const aMat: array of TRawDeposit);
+  end;
+
+  //Designed to store MapEd specific data and methods
+  TKMMapEditor = class
+  private
+    fDeposits: TKMDeposits;
+    fShowDefencePositions: Boolean;
+    fShowRawMaterials: Boolean;
   public
     constructor Create;
-    property AreaCount[aMat: TRawDeposit]: Integer read GetAreaCount;
-    property AreaAmount[aMat: TRawDeposit; aIndex: Integer]: Integer read GetAreaAmount;
-    property AreaLoc[aMat: TRawDeposit; aIndex: Integer]: TKMPointF read GetAreaLoc;
+    destructor Destroy; override;
+    property Deposits: TKMDeposits read fDeposits;
     property ShowDefencePositions: Boolean read fShowDefencePositions;
     property ShowRawMaterials: Boolean read fShowRawMaterials;
     procedure Update;
@@ -40,38 +49,26 @@ implementation
 uses  KM_PlayersCollection, KM_RenderAux;
 
 
-{ TKMMapEditor }
-constructor TKMMapEditor.Create;
-begin
-  inherited Create;
-
-  Assert(fTerrain <> nil);
-
-  fShowDefencePositions := True;
-  fShowRawMaterials := True;
-end;
-
-
-function TKMMapEditor.GetAreaAmount(aMat: TRawDeposit; aIndex: Integer): Integer;
+function TKMDeposits.GetAmount(aMat: TRawDeposit; aIndex: Integer): Integer;
 begin
   Result := fAreaAmount[aMat, aIndex];
 end;
 
 
-function TKMMapEditor.GetAreaCount(aMat: TRawDeposit): Integer;
+function TKMDeposits.GetCount(aMat: TRawDeposit): Integer;
 begin
   Result := fAreaCount[aMat];
 end;
 
 
-function TKMMapEditor.GetAreaLoc(aMat: TRawDeposit; aIndex: Integer): TKMPointF;
+function TKMDeposits.GetLocation(aMat: TRawDeposit; aIndex: Integer): TKMPointF;
 begin
   Result := fAreaLoc[aMat, aIndex];
 end;
 
 
 //Get tile resource deposit
-function TKMMapEditor.TileDeposit(aMat: TRawDeposit; X,Y: Word): Byte;
+function TKMDeposits.TileDeposit(aMat: TRawDeposit; X,Y: Word): Byte;
 begin
   case aMat of
     rdStone: Result := 3*fTerrain.TileIsStone(X+1, Y+1); //3 stone produced by each time
@@ -83,7 +80,7 @@ begin
 end;
 
 
-procedure TKMMapEditor.FloodFill(const aMat: array of TRawDeposit);
+procedure TKMDeposits.FloodFill(const aMat: array of TRawDeposit);
 var
   R: TRawDeposit;
   AreaID: Word;
@@ -105,6 +102,7 @@ var
   end;
 var I,K,J: Integer;
 begin
+  Assert(fTerrain <> nil);
   for J := Low(aMat) to High(aMat) do
   begin
     R := aMat[J];
@@ -134,7 +132,7 @@ begin
 end;
 
 
-procedure TKMMapEditor.RecalcAmounts(const aMat: array of TRawDeposit);
+procedure TKMDeposits.RecalcAmounts(const aMat: array of TRawDeposit);
 var
   I, K, J: Integer;
   R: TRawDeposit;
@@ -181,7 +179,7 @@ begin
 end;
 
 
-procedure TKMMapEditor.UpdateAreas(const aMat: array of TRawDeposit);
+procedure TKMDeposits.UpdateAreas(const aMat: array of TRawDeposit);
 begin
   //Use connected areas flood fill to detect deposit areas
   FloodFill(aMat);
@@ -191,9 +189,29 @@ begin
 end;
 
 
+{ TKMMapEditor }
+constructor TKMMapEditor.Create;
+begin
+  inherited Create;
+
+  fDeposits := TKMDeposits.Create;
+
+  fShowDefencePositions := True;
+  fShowRawMaterials := True;
+end;
+
+
+destructor TKMMapEditor.Destroy;
+begin
+  FreeAndNil(fDeposits);
+
+  inherited;
+end;
+
+
 procedure TKMMapEditor.Update;
 begin
-  UpdateAreas([rdStone, rdCoal, rdIron, rdGold]);
+  fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold]);
 end;
 
 
@@ -210,7 +228,6 @@ begin
       end;
   end;
 end;
-
 
 
 end.
