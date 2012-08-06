@@ -37,14 +37,16 @@ type
     fPositions: array of TAIDefencePosition;
     function GetPosition(aIndex: Integer): TAIDefencePosition;
   public
-    TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
-                                            NumUnits, UnitsPerRow: Integer;
-                                          end;
+    //Defines how defending troops will be formatted. 0 means leave unchanged.
+    TroopFormations: array [TGroupType] of TKMFormation;
 
     constructor Create;
     destructor Destroy; override;
 
     procedure AddDefencePosition(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
+    function FindPlaceForWarrior(aWarrior: TKMUnitWarrior; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
+    procedure RestockPositionWith(aDefenceGroup, aCommander: TKMUnitWarrior);
+    function FindPositionOf(aCommander: TKMUnitWarrior): TAIDefencePosition;
 
     property Count: Integer read fCount;
     property Positions[aIndex: Integer]: TAIDefencePosition read GetPosition; default;
@@ -165,7 +167,81 @@ begin
 end;
 
 
-procedure TAIDefencePositions.Save(SaveStream:TKMemoryStream);
+function TAIDefencePositions.FindPlaceForWarrior(aWarrior: TKMUnitWarrior; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
+var
+  I, MenRequired, Matched: Integer;
+  Distance, Best: Single;
+begin
+  Result := False;
+  Matched := -1;
+  Best := MaxInt;
+
+  for I := 0 to Count - 1 do
+  if Positions[I].GroupType = UnitGroups[aWarrior.UnitType] then
+  begin
+    //If not aCanLinkToExisting then a group with 1 member or more counts as fully stocked already
+    if aCanLinkToExisting then
+      MenRequired := TroopFormations[Positions[I].GroupType].NumUnits
+    else
+      MenRequired := 1;
+
+    if not Positions[I].IsFullyStocked(MenRequired) then
+    begin
+      //Take closest position that is empty or requries restocking
+      Distance := GetLength(aWarrior.GetPosition, Positions[I].Position.Loc);
+      if Distance < Best then
+      begin
+        Matched := I;
+        Best := Distance;
+        if not aTakeClosest then break; //Take first one we find - that's what KaM does
+      end;
+    end;
+  end;
+
+  if Matched <> -1 then
+  begin
+    Result := True;
+    if Positions[Matched].CurrentCommander = nil then
+    begin //New position
+      Positions[Matched].CurrentCommander := aWarrior.GetCommander;
+      aWarrior.OrderWalk(Positions[Matched].Position);
+    end
+    else //Restock existing position
+      RestockPositionWith(Positions[Matched].CurrentCommander, aWarrior.GetCommander);
+  end;
+end;
+
+
+procedure TAIDefencePositions.RestockPositionWith(aDefenceGroup, aCommander: TKMUnitWarrior);
+var Needed: integer;
+begin
+  Needed := TroopFormations[UnitGroups[aDefenceGroup.UnitType]].NumUnits - (aDefenceGroup.GetMemberCount+1);
+  if Needed <= 0 then exit;
+  if aCommander.GetMemberCount+1 <= Needed then
+    aCommander.OrderLinkTo(aDefenceGroup) //Link entire group
+  else
+    aCommander.OrderSplitLinkTo(aDefenceGroup,Needed); //Link only as many units as are needed
+end;
+
+
+//Find DefencePosition to which this Commander belongs
+//(Result could be nil if CommanderCount > PositionsCount
+function TAIDefencePositions.FindPositionOf(aCommander: TKMUnitWarrior): TAIDefencePosition;
+var
+  I: Integer;
+begin
+  Result := nil;
+
+  for I := 0 to fCount - 1 do
+  if Positions[I].CurrentCommander = aCommander then
+  begin
+    Result := Positions[I];
+    Break;
+  end;
+end;
+
+
+procedure TAIDefencePositions.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
   SaveStream.Write('PlayerAI');

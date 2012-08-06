@@ -349,6 +349,8 @@ type
 type
   TGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
 
+  TKMFormation = record NumUnits, UnitsPerRow: Integer; end;
+
 const
   KaMGroupType: array[TGroupType] of byte = (0, 1, 2, 3);
 
