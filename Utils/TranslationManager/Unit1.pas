@@ -33,6 +33,8 @@ type
     btnPaste: TButton;
     Label4: TLabel;
     Edit1: TEdit;
+    Label5: TLabel;
+    cbShowLang: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnSortByIndexClick(Sender: TObject);
@@ -55,6 +57,7 @@ type
     procedure btnPasteClick(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure cbShowLangChange(Sender: TObject);
   private
     fPathManager: TPathManager;
     fTextManager: TTextManager;
@@ -65,7 +68,7 @@ type
     TransLabels: array of TLabel;
     ListboxLookup: array of Integer;
     IgnoreChanges: Boolean;
-    fPreviousFolder: Integer;
+    fPreviousFolder, fPreviousShowLang: Integer;
     procedure MemoChange(Sender: TObject);
 
     procedure RefreshFolders;
@@ -128,7 +131,7 @@ var ID: Integer;
 begin
   //Let the user abort and save edited translations
   if btnSave.Enabled
-  and (MessageDlg(MSG_WARNING, mtWarning, mbOKCancel, 0) = mrCancel) then
+  and (MessageDlg(MSG_WARNING, mtWarning, mbOKCancel, 0) <> mrOK) then
   begin
     lbFolders.ItemIndex := fPreviousFolder;
     Exit;
@@ -249,37 +252,56 @@ procedure TForm1.RefreshLocales;
     if aLang = 'svk' then Result := EASTEUROPE_CHARSET;
   end;
 
-var I: Integer;
+var I, K, SelectedLang: Integer;
 begin
   for I := 0 to High(TransLabels) do
   begin
     FreeAndNil(TransLabels[I]);
     FreeAndNil(TransMemos[I]);
   end;
+  SelectedLang := cbShowLang.ItemIndex;
+  if SelectedLang = -1 then
+    SelectedLang := 0;
 
   SetLength(TransMemos, fLocales.Count);
   SetLength(TransLabels, fLocales.Count);
 
   cbShowMissing.Items.Clear;
   cbShowMissing.Items.Add('None');
+
+  cbShowLang.Items.Clear;
+  cbShowLang.Items.Add('All');
+  cbShowLang.ItemIndex := 0; //All by default
+  K := 0;
   for I := 0 to fLocales.Count - 1 do
   begin
-    TransLabels[I] := TLabel.Create(Form1);
-    TransLabels[I].Parent := ScrollBox1;
-    TransLabels[I].SetBounds(8, 4 + I * 80, 30, 30);
-    TransLabels[I].Caption := fLocales[I].Title + ' (' + fLocales[I].Code + ')';
-
     TransMemos[I] := TMemo.Create(Form1);
     TransMemos[I].Parent := ScrollBox1;
-    TransMemos[I].SetBounds(8, 22 + I * 80, ScrollBox1.Width - 16, 60);
-    TransMemos[I].Anchors := [akLeft, akRight, akTop];
-    TransMemos[I].Font.Charset := GetCharset(fLocales[I].Code);
     TransMemos[I].Tag := I;
-    TransMemos[I].OnChange := MemoChange;
-
+    TransMemos[I].Hide;
     cbShowMissing.Items.Add(fLocales[I].Code);
+    cbShowLang.Items.Add(fLocales[I].Code);
+    if SelectedLang = I+1 then cbShowLang.ItemIndex := I+1;
+    if (SelectedLang = 0) or (SelectedLang = I+1)
+    or (fLocales[I].Code = 'eng') then //Always show ENG
+    begin
+      TransLabels[I] := TLabel.Create(Form1);
+      TransLabels[I].Parent := ScrollBox1;
+      TransLabels[I].SetBounds(8, 4 + K * 80, 30, 30);
+      TransLabels[I].Caption := fLocales[I].Title + ' (' + fLocales[I].Code + ')';
+
+      TransMemos[I].Parent := ScrollBox1;
+      TransMemos[I].SetBounds(8, 22 + K * 80, ScrollBox1.Width - 16, 60);
+      TransMemos[I].Anchors := [akLeft, akRight, akTop];
+      TransMemos[I].Font.Charset := GetCharset(fLocales[I].Code);
+      TransMemos[I].OnChange := MemoChange;
+      TransMemos[I].Show;
+
+      inc(K);
+    end;
   end;
   cbShowMissing.ItemIndex := 0;
+  ListBox1Click(nil);
 end;
 
 
@@ -533,6 +555,14 @@ procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   CanClose := (not btnSave.Enabled) or
               (MessageDlg('You have unsaved changes that will be lost, are you sure you want to exit?', mtWarning, [mbYes,mbNo], 0) = mrYes);
+end;
+
+procedure TForm1.cbShowLangChange(Sender: TObject);
+begin
+  fPreviousShowLang := cbShowLang.ItemIndex;
+  FreeAndNil(fLocales);
+  fLocales := TKMLocales.Create(fWorkDir + 'data\locales.txt');
+  RefreshLocales;
 end;
 
 end.

@@ -165,7 +165,7 @@ begin
         end;
 
         if RT = rxGui then
-          SpritePack.SoftenShadows(251, 281) //House tablets only (shadow softening messes up other rxGui sprites)
+          SpritePack.SoftenShadows(250, 281) //House tablets only (shadow softening messes up other rxGui sprites)
         else
           SpritePack.SoftenShadows;
 

@@ -31,14 +31,14 @@ object Form1: TForm1
   end
   object Label2: TLabel
     Left = 336
-    Top = 320
+    Top = 374
     Width = 85
     Height = 16
     Caption = 'Show Missing:'
   end
   object LabelIncludeSameAsEnglish: TLabel
     Left = 357
-    Top = 368
+    Top = 424
     Width = 116
     Height = 49
     AutoSize = False
@@ -56,10 +56,17 @@ object Form1: TForm1
   end
   object Label4: TLabel
     Left = 336
-    Top = 432
+    Top = 488
     Width = 32
     Height = 16
     Caption = 'Filter:'
+  end
+  object Label5: TLabel
+    Left = 336
+    Top = 314
+    Width = 100
+    Height = 16
+    Caption = 'Show Language:'
   end
   object lbFolders: TListBox
     Left = 8
@@ -154,7 +161,7 @@ object Form1: TForm1
   end
   object cbShowMissing: TComboBox
     Left = 336
-    Top = 336
+    Top = 392
     Width = 145
     Height = 24
     Style = csDropDownList
@@ -164,7 +171,7 @@ object Form1: TForm1
   end
   object cbIncludeSameAsEnglish: TCheckBox
     Left = 336
-    Top = 368
+    Top = 424
     Width = 17
     Height = 17
     Enabled = False
@@ -196,6 +203,7 @@ object Form1: TForm1
     Height = 25
     Caption = 'Export TSK'
     TabOrder = 14
+    Visible = False
     OnClick = Button1Click
   end
   object btnDelete: TButton
@@ -230,10 +238,21 @@ object Form1: TForm1
   end
   object Edit1: TEdit
     Left = 336
-    Top = 448
+    Top = 504
     Width = 145
     Height = 24
     TabOrder = 18
     OnChange = Edit1Change
+  end
+  object cbShowLang: TComboBox
+    Left = 336
+    Top = 330
+    Width = 145
+    Height = 24
+    Style = csDropDownList
+    DropDownCount = 16
+    ItemHeight = 16
+    TabOrder = 19
+    OnChange = cbShowLangChange
   end
 end
