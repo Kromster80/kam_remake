@@ -185,7 +185,7 @@ begin
                                                       fSettings.HTMLStatusFile,
                                                       fSettings.ServerWelcomeMessage);
         fDedicatedServer.OnMessage := ServerStatusMessage;
-        fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer, true);
+        fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer);
 
         fServerStatus := aStatus;
         StartStopButton.Caption := 'Server is ONLINE';
