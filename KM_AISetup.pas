@@ -1,4 +1,4 @@
-unit KM_PlayerAISetup;
+unit KM_AISetup;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, SysUtils,

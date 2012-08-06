@@ -1,10 +1,10 @@
-unit KM_PlayerAI;
+unit KM_AI;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, SysUtils,
     KM_CommonClasses, KM_Defaults, KM_Terrain,
     KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points,
-    KM_PlayerAISetup, KM_Mayor, KM_General, KM_PlayerAIDefensePos;
+    KM_AISetup, KM_AIMayor, KM_AIGeneral, KM_AIDefensePos;
 
 
 type

@@ -1,10 +1,10 @@
-unit KM_Mayor;
+unit KM_AIMayor;
 {$I KaM_Remake.inc}
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
   KM_Defaults, KM_CommonClasses, KM_Points, KM_CityPlanner, KM_PathfindingRoad,
-  KM_PlayerAISetup;
+  KM_AISetup;
 
 type
   TKMayor = class

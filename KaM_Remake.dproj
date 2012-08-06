@@ -105,7 +105,12 @@
 			<DCCReference Include="KM_FormLoading.pas">
 				<Form>FormLoading</Form>
 			</DCCReference>
+			<DCCReference Include="KM_AI.pas"/>
 			<DCCReference Include="KM_AIAttacks.pas"/>
+			<DCCReference Include="KM_AIDefensePos.pas"/>
+			<DCCReference Include="KM_AIGeneral.pas"/>
+			<DCCReference Include="KM_AIMayor.pas"/>
+			<DCCReference Include="KM_AISetup.pas"/>
 			<DCCReference Include="KM_Alerts.pas"/>
 			<DCCReference Include="KM_ArmyEvaluation.pas"/>
 			<DCCReference Include="KM_BinPacking.pas"/>
@@ -133,7 +138,6 @@
 			<DCCReference Include="KM_GameInputProcess.pas"/>
 			<DCCReference Include="KM_GameInputProcess_Multi.pas"/>
 			<DCCReference Include="KM_GameInputProcess_Single.pas"/>
-			<DCCReference Include="KM_General.pas"/>
 			<DCCReference Include="KM_Goals.pas"/>
 			<DCCReference Include="KM_HTTPClient.pas"/>
 			<DCCReference Include="KM_Locales.pas"/>
@@ -142,7 +146,6 @@
 			<DCCReference Include="KM_Maps.pas"/>
 			<DCCReference Include="KM_MapEditor.pas"/>
 			<DCCReference Include="KM_MasterServer.pas"/>
-			<DCCReference Include="KM_Mayor.pas"/>
 			<DCCReference Include="KM_Minimap.pas"/>
 			<DCCReference Include="KM_MissionScript.pas"/>
 			<DCCReference Include="KM_Music.pas"/>
@@ -155,8 +158,6 @@
 			<DCCReference Include="KM_PathFindingRoad.pas"/>
 			<DCCReference Include="KM_Pics.pas"/>
 			<DCCReference Include="KM_Player.pas"/>
-			<DCCReference Include="KM_PlayerAI.pas"/>
-			<DCCReference Include="KM_PlayerAISetup.pas"/>
 			<DCCReference Include="KM_PlayersCollection.pas"/>
 			<DCCReference Include="KM_PlayerStats.pas"/>
 			<DCCReference Include="KM_Projectiles.pas"/>

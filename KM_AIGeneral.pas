@@ -1,9 +1,9 @@
-unit KM_General;
+unit KM_AIGeneral;
 {$I KaM_Remake.inc}
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_Defaults, KM_CommonClasses, KM_Points, KM_PlayerAISetup;
+  KM_Defaults, KM_CommonClasses, KM_Points, KM_AISetup;
 
 
 type
@@ -28,7 +28,6 @@ type
 
 implementation
 uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource, KM_Utils;
-
 
 
 { TKMGeneral }

@@ -135,7 +135,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Player, KM_PlayerAI, KM_PlayerAIDefensePos,
+uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos,
   KM_Resource, KM_ResourceHouse, KM_ResourceResource;
 
 

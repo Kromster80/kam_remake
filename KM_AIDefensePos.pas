@@ -1,4 +1,4 @@
-unit KM_PlayerAIDefensePos;
+unit KM_AIDefensePos;
 {$I KaM_Remake.inc}
 interface
 uses Classes,
