@@ -108,6 +108,7 @@
 			<DCCReference Include="KM_AI.pas"/>
 			<DCCReference Include="KM_AIAttacks.pas"/>
 			<DCCReference Include="KM_AIDefensePos.pas"/>
+			<DCCReference Include="KM_AIFields.pas"/>
 			<DCCReference Include="KM_AIGeneral.pas"/>
 			<DCCReference Include="KM_AIMayor.pas"/>
 			<DCCReference Include="KM_AISetup.pas"/>

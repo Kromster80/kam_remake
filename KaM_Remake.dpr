@@ -18,6 +18,7 @@ uses
   KM_AI in 'KM_AI.pas',
   KM_AIAttacks in 'KM_AIAttacks.pas',
   KM_AIDefensePos in 'KM_AIDefensePos.pas',
+  KM_AIFields in 'KM_AIFields.pas',
   KM_AIGeneral in 'KM_AIGeneral.pas',
   KM_AIMayor in 'KM_AIMayor.pas',
   KM_AISetup in 'KM_AISetup.pas',

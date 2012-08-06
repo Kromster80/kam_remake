@@ -104,7 +104,7 @@ var
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource,
   KM_ResourceUnit, KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_FogOfWar,
-  KM_MapEditor;
+  KM_MapEditor, KM_AIFields;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -907,6 +907,9 @@ begin
 
   if fGame.IsMapEditor then
     fGame.MapEditor.RenderOverlays;
+
+  if fAIFields <> nil then
+    fAIFields.Paint(Rect);
 
   if SHOW_TERRAIN_WIRES then
     fRenderAux.Wires(Rect);
