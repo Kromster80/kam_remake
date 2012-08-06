@@ -12,6 +12,7 @@ type
     fOwner: TPlayerIndex;
     fSetup: TKMPlayerAISetup;
 
+    procedure CheckDefences;
   public
     constructor Create(aPlayer: TPlayerIndex; aSetup: TKMPlayerAISetup);
     destructor Destroy; override;
@@ -31,12 +32,6 @@ uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resourc
 
 
 { TKMGeneral }
-
-procedure TKMGeneral.AfterMissionInit;
-begin
-
-end;
-
 constructor TKMGeneral.Create(aPlayer: TPlayerIndex; aSetup: TKMPlayerAISetup);
 begin
 
@@ -46,6 +41,11 @@ destructor TKMGeneral.Destroy;
 begin
 
   inherited;
+end;
+
+procedure TKMGeneral.AfterMissionInit;
+begin
+
 end;
 
 procedure TKMGeneral.Load(LoadStream: TKMemoryStream);
@@ -63,9 +63,17 @@ begin
 
 end;
 
+
+procedure TKMGeneral.CheckDefences;
+begin
+  //
+end;
+
+
 procedure TKMGeneral.UpdateState;
 begin
-
+  //Create and redistribute defence positions
+  CheckDefences;
 end;
 
 end.

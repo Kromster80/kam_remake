@@ -61,11 +61,9 @@ type
       IsUnit: Pointer; //Whenever there's a unit on that tile mark the tile as occupied and count the number
       IsVertexUnit: TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
 
-
       //MAPEDITOR
       OldTerrain, OldRotation: Byte; //Only used for map editor
       HeightAdd: Byte; //Fraction part of height, for smooth height editing
-
 
       //DEDUCTED
       Light: Single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
