@@ -52,9 +52,6 @@ type
     procedure RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
 
   public
-    EquipRate: Word; //Number of ticks between soldiers being equipped
-    TownDefence, MaxSoldiers, Aggressiveness: Integer; //-1 means not used or default
-    StartPosition: TKMPoint; //Defines roughly where to defend and build around
     TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
                                             NumUnits, UnitsPerRow: Integer;
                                           end;
@@ -181,12 +178,6 @@ begin
 
   fAttacks := TAIAttacks.Create;
 
-  //Set some defaults (these are not measured from KaM)
-  EquipRate := 1000; //Measured in KaM: AI equips 1 soldier every ~100 seconds
-  StartPosition := KMPoint(1,1);
-  MaxSoldiers := high(MaxSoldiers); //No limit by default
-  TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
-  Aggressiveness := 100; //No idea what the default for this is, it's barely used
   for i:=low(TGroupType) to high(TGroupType) do
   begin
     TroopFormations[i].NumUnits := 9; //These are the defaults in KaM
@@ -332,8 +323,8 @@ var
   GroupReq: array[TGroupType] of integer;
 begin
   if fGame.IsPeaceTime then Exit; //Do not process train soldiers during peacetime
-  if fPlayers[fPlayerIndex].Stats.GetArmyCount >= MaxSoldiers then Exit; //Don't train if we have reached our limit
-  if not fGame.CheckTime(fLastEquippedTime+EquipRate) then Exit; //Delay between equipping soldiers for KaM compatibility
+  if fPlayers[fPlayerIndex].Stats.GetArmyCount >= Setup.MaxSoldiers then Exit; //Don't train if we have reached our limit
+  if not fGame.CheckTime(fLastEquippedTime+Setup.EquipRate) then Exit; //Delay between equipping soldiers for KaM compatibility
   fLastEquippedTime := fGame.GameTickCount;
 
   //Create a list of troops that need to be trained based on defence position requirements
@@ -372,14 +363,14 @@ begin
       TrainedSomething := false;
       if AITroopTrainOrder[GType,i] <> ut_None then
         while HB.CanEquip(AITroopTrainOrder[GType,i]) and (GroupReq[GType] > 0) and
-              (fPlayers[fPlayerIndex].Stats.GetArmyCount < MaxSoldiers) do
+              (fPlayers[fPlayerIndex].Stats.GetArmyCount < Setup.MaxSoldiers) do
         begin
           HB.Equip(AITroopTrainOrder[GType,i], 1);
           dec(GroupReq[GType]);
           TrainedSomething := true;
-          if EquipRate > 0 then break; //Only equip 1 soldier when we have a restricted equip rate
+          if Setup.EquipRate > 0 then break; //Only equip 1 soldier when we have a restricted equip rate
         end;
-      if TrainedSomething and (EquipRate > 0) then break; //Only equip 1 soldier when we have a restricted equip rate
+      if TrainedSomething and (Setup.EquipRate > 0) then break; //Only equip 1 soldier when we have a restricted equip rate
     end;
   end;
 end;
@@ -397,7 +388,7 @@ begin
   case aTarget of
     att_ClosestUnit:                  TargetUnit := fPlayers.GetClosestUnit(aCommander.GetPosition, fPlayerIndex, at_Enemy);
     att_ClosestBuildingFromArmy:      TargetHouse := fPlayers.GetClosestHouse(aCommander.GetPosition, fPlayerIndex, at_Enemy, false);
-    att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(StartPosition, fPlayerIndex, at_Enemy, false);
+    att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(Setup.StartPosition, fPlayerIndex, at_Enemy, false);
     att_CustomPosition:               begin
                                         TargetHouse := fPlayers.HousesHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetHouse <> nil) and
@@ -719,11 +710,6 @@ begin
   SaveStream.Write(fPlayerIndex);
   SaveStream.Write(fHasWonOrLost);
   SaveStream.Write(fLastEquippedTime);
-  SaveStream.Write(EquipRate);
-  SaveStream.Write(TownDefence);
-  SaveStream.Write(MaxSoldiers);
-  SaveStream.Write(Aggressiveness);
-  SaveStream.Write(StartPosition);
   SaveStream.Write(TroopFormations, SizeOf(TroopFormations));
   SaveStream.Write(DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
@@ -743,11 +729,6 @@ begin
   LoadStream.Read(fPlayerIndex);
   LoadStream.Read(fHasWonOrLost);
   LoadStream.Read(fLastEquippedTime);
-  LoadStream.Read(EquipRate);
-  LoadStream.Read(TownDefence);
-  LoadStream.Read(MaxSoldiers);
-  LoadStream.Read(Aggressiveness);
-  LoadStream.Read(StartPosition);
   LoadStream.Read(TroopFormations, SizeOf(TroopFormations));
   LoadStream.Read(DefencePositionsCount);
   SetLength(DefencePositions, DefencePositionsCount);
