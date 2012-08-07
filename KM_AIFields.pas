@@ -26,6 +26,8 @@ type
         Nodes1: array of TKMPointI;
         NCountS: Integer;
         NodesS: array of TKMPointI;
+        NCountG: Integer;
+        NodesG: array of TKMPointI;
       end;
     end;
 
@@ -189,7 +191,11 @@ end;
 
 
 procedure TKMAIFields.NavMeshBaseGrid;
+var
+  I,K: Integer;
 begin
+  //for I := 1 to fTerrain.MapY - 1 do
+  //for K := 1 to fTerrain.MapX - 1 do
 
 end;
 
