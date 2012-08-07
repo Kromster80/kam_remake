@@ -111,10 +111,10 @@ begin
   //else
   //  return loop intact
 
-  Assert((aInput[0].X = aInput[N-1].X) and (aInput[0].Y = aInput[N-1].Y), 
+  N := Length(aInput);
+  Assert((aInput[0].X = aInput[N-1].X) and (aInput[0].Y = aInput[N-1].Y),
          'We need shape to be closed to properly process as a series of polylines');
 
-  N := Length(aInput);
   SetLength(Keep, N);
   for I := 0 to N - 1 do
     Keep[I] := False;
