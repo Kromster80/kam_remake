@@ -1449,7 +1449,7 @@ begin
 end;
 
 
-procedure TTerrain.UpdatePassability(Loc:TKMPoint);
+procedure TTerrain.UpdatePassability(Loc: TKMPoint);
   procedure AddPassability(aPass: TPassability);
   begin
     Land[Loc.Y,Loc.X].Passability := Land[Loc.Y,Loc.X].Passability + [aPass];
@@ -2854,7 +2854,7 @@ end;
 
 procedure TTerrain.CCLFind(aWC: TWalkConnect; aPass: TPassability; aAllowDiag: Boolean);
 var
-  Parent: array[0..512] of Word;
+  Parent: array [0..512] of Word;
 
   function TopParent(const Area: Word): Word;
   begin

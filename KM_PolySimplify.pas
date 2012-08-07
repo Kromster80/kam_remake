@@ -98,16 +98,21 @@ end;
 
 function PolySimplify(aError: Single; const aInput: array of TKMPointI; var aOutput: array of TKMPointI): Integer;
 var
-  I, N: integer;
+  I, N: Integer;
+  Prev: Integer;
   Keep: array of Boolean;
 begin
   Result := 0;
+
   //See if there's nothing to simplify
   if Length(aInput) < 4 then Exit;
   //If loop length is < Tolerance
   //  return 0
   //else
   //  return loop intact
+
+  Assert((aInput[0].X = aInput[N-1].X) and (aInput[0].Y = aInput[N-1].Y), 
+         'We need shape to be closed to properly process as a series of polylines');
 
   N := Length(aInput);
   SetLength(Keep, N);
@@ -118,10 +123,21 @@ begin
   //lines. That is because algo is aimed at polyline, not polyloop
   Keep[0] := True;
   Keep[N div 2] := True;
+  Keep[N - 1] := True;
 
-  //We use Sqr values for all comparisons for speedup
-  Simplify(Sqr(aError), aInput, Keep, 0, N div 2);
-  Simplify(Sqr(aError), aInput, Keep, N div 2, N - 1);
+  //Keep more nodes on edges
+  for I := 0 to N - 1 do
+  if (aInput[I].X = 0) or (aInput[I].Y = 0) then
+    Keep[I] := True;
+
+  Prev := 0;
+  for I := 1 to N - 1 do
+  if Keep[I] then
+  begin
+    //We use Sqr values for all comparisons for speedup
+    Simplify(Sqr(aError), aInput, Keep, Prev, I);
+    Prev := I;
+  end;
 
   //Fill resulting array with preserved points
   for I := 0 to N - 1 do

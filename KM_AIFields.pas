@@ -22,7 +22,9 @@ type
       Polies: array of record
         NCount: Integer;
         Nodes: array of TKMPointI;
-        NSCount: Integer;
+        NCount1: Integer;
+        Nodes1: array of TKMPointI;
+        NCountS: Integer;
         NodesS: array of TKMPointI;
       end;
     end;
@@ -39,7 +41,7 @@ type
 
     procedure UpdateInfluenceMaps;
     procedure UpdateNavMesh;
-    //procedure UpdateState(aTick: Cardinal);
+    procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
   end;
 
@@ -191,6 +193,7 @@ begin
 
 end;
 
+
 procedure TKMAIFields.NavMeshObstacles;
 type
   TStepDirection = (sdNone, sdUp, sdRight, sdDown, sdLeft);
@@ -285,6 +288,7 @@ var
 var
   I, K: Integer;
   C1, C2, C3, C4: Boolean;
+  P0, P1, P2: Integer;
 begin
   SetLength(Tmp, fTerrain.MapY+1, fTerrain.MapX+1);
 
@@ -296,6 +300,7 @@ begin
   for K := 1 to fTerrain.MapX - 1 do
     Tmp[I,K] := 2 - Byte(CanWalk in fTerrain.Land[I,K].Passability) * 2;
 
+  fNavMesh.PCount := 0;
   for I := 1 to fTerrain.MapY - 2 do
   for K := 1 to fTerrain.MapX - 2 do
   begin
@@ -312,22 +317,44 @@ begin
       WalkPerimeter(K,I);
   end;
 
+  //Basic simplify
   for I := 0 to fNavMesh.PCount - 1 do
   with fNavMesh.Polies[I] do
   begin
-    SetLength(Nodes, NCount);
-    SetLength(NodesS, NCount);
-    NSCount := PolySimplify(1, Nodes, NodesS);
-    SetLength(NodesS, NSCount);
+    NCount1 := 0;
+    SetLength(Nodes1, NCount+1);
+    for K := 0 to NCount - 1 do
+    begin
+      P0 := (K - 1 + NCount) mod NCount;
+      P1 := K;
+      P2 := (K + 1) mod NCount;
+      if ((Nodes[P0].X <> Nodes[P1].X) or (Nodes[P1].X <> Nodes[P2].X))
+      and ((Nodes[P0].Y <> Nodes[P1].Y) or (Nodes[P1].Y <> Nodes[P2].Y)) then
+      begin
+        Nodes1[NCount1] := Nodes[K];
+        Inc(NCount1);
+      end;
+    end;
+    Nodes1[NCount1] := Nodes1[0];
+    Inc(NCount1);
+    SetLength(Nodes1, NCount1);
+  end;
+
+  for I := 0 to fNavMesh.PCount - 1 do
+  with fNavMesh.Polies[I] do
+  begin
+    SetLength(NodesS, NCount1);
+    NCountS := PolySimplify(2, Nodes1, NodesS);
+    SetLength(NodesS, NCountS);
   end;
 end;
 
 
-{procedure TKMAIFields.UpdateState(aTick: Cardinal);
+procedure TKMAIFields.UpdateState(aTick: Cardinal);
 begin
-  UpdateInfluenceMaps;
+  //UpdateInfluenceMaps;
   NavMeshObstacles;
-end;}
+end;
 
 
 procedure TKMAIFields.Paint(aRect: TKMRect);
@@ -338,7 +365,7 @@ begin
     for K := aRect.Left to aRect.Right do
       fRenderAux.Quad(K, I, fInfluenceMap[MyPlayer.PlayerIndex, I, K] or $B0000000);
 
-  if fShowNavMesh then
+  {if fShowNavMesh then
     for I := 0 to fNavMesh.PCount - 1 do
     for K := 0 to fNavMesh.Polies[I].NCount - 1 do
     with fNavMesh.Polies[I] do
@@ -346,15 +373,25 @@ begin
       TX := Nodes[(K + 1) mod NCount].X;
       TY := Nodes[(K + 1) mod NCount].Y;
       fRenderAux.LineOnTerrain(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
+    end;}
+
+  if fShowNavMesh then
+    for I := 0 to fNavMesh.PCount - 1 do
+    for K := 0 to fNavMesh.Polies[I].NCount1 - 1 do
+    with fNavMesh.Polies[I] do
+    begin
+      TX := Nodes1[(K + 1) mod NCount1].X;
+      TY := Nodes1[(K + 1) mod NCount1].Y;
+      fRenderAux.LineOnTerrain(Nodes1[K].X, Nodes1[K].Y, TX, TY, $FFFF00FF);
     end;
 
   if fShowNavMesh then
     for I := 0 to fNavMesh.PCount - 1 do
     with fNavMesh.Polies[I] do
-    for K := 0 to NSCount - 1 do
+    for K := 0 to NCountS - 1 do
     begin
-      TX := NodesS[(K + 1) mod NSCount].X;
-      TY := NodesS[(K + 1) mod NSCount].Y;
+      TX := NodesS[(K + 1) mod NCountS].X;
+      TY := NodesS[(K + 1) mod NCountS].Y;
       fRenderAux.LineOnTerrain(NodesS[K].X, NodesS[K].Y, TX, TY, $FF00FF00);
     end;
 
