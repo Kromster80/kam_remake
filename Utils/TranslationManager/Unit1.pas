@@ -6,6 +6,8 @@ uses
   {$IFDEF MSWINDOWS} FileCtrl, {$ENDIF}
   StdCtrls, StrUtils, SysUtils, Windows, KM_Locales, Unit_Text, Unit_PathManager, ComCtrls;
 
+const
+  USER_MODE = False; //Disables insert, delete, compact, sort, etc. functions so translators don't click them by mistake
 
 type
   TForm1 = class(TForm)
@@ -103,6 +105,18 @@ begin
   fTextManager := TTextManager.Create;
 
   btnSave.Enabled := False;
+
+  btnInsert.Visible := not USER_MODE;
+  btnDelete.Visible := not USER_MODE;
+  btnInsertSeparator.Visible := not USER_MODE;
+  btnSortByIndex.Visible := not USER_MODE;
+  btnMoveUp.Visible := not USER_MODE;
+  btnMoveDown.Visible := not USER_MODE;
+  btnSortByName.Visible := not USER_MODE;
+  btnCompactIndexes.Visible := not USER_MODE;
+  btnCopy.Visible := not USER_MODE;
+  btnPaste.Visible := not USER_MODE;
+  EditConstName.Enabled := not USER_MODE; //Users can't change constants names
 end;
 
 
@@ -145,7 +159,7 @@ begin
   if SameText(lbFolders.Items[ID], 'data\text\text.%s.libx') then
   begin
     fTextManager.Load(fWorkDir + lbFolders.Items[ID], fWorkDir + 'KM_TextIDs.inc');
-    EditConstName.Enabled := True;
+    EditConstName.Enabled := not USER_MODE;
     btnInsertSeparator.Enabled := True;
     btnMoveUp.Enabled := True;
     btnMoveDown.Enabled := True;
@@ -252,7 +266,7 @@ procedure TForm1.RefreshLocales;
     if aLang = 'svk' then Result := EASTEUROPE_CHARSET;
   end;
 
-var I, K, SelectedLang: Integer;
+var I, K, SelectedLang, SelectedShowMissing: Integer;
 begin
   for I := 0 to High(TransLabels) do
   begin
@@ -266,6 +280,7 @@ begin
   SetLength(TransMemos, fLocales.Count);
   SetLength(TransLabels, fLocales.Count);
 
+  SelectedShowMissing := cbShowMissing.ItemIndex;
   cbShowMissing.Items.Clear;
   cbShowMissing.Items.Add('None');
 
@@ -300,7 +315,10 @@ begin
       inc(K);
     end;
   end;
-  cbShowMissing.ItemIndex := 0;
+  if SelectedShowMissing = -1 then
+    cbShowMissing.ItemIndex := 0
+  else
+    cbShowMissing.ItemIndex := SelectedShowMissing;
   ListBox1Click(nil);
 end;
 
@@ -524,6 +542,7 @@ begin
   //Disable buttons
   btnSortByIndex.Enabled := not Filter;
   btnSortByName.Enabled := not Filter;
+  btnCompactIndexes.Enabled := not Filter;
   btnInsert.Enabled := not Filter;
   btnDelete.Enabled := not Filter;
   btnInsertSeparator.Enabled := not Filter;
