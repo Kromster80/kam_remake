@@ -47,7 +47,7 @@ type
   end;
 
 
-  TMissionParserGeneric = class
+  TMissionParserCommon = class
   private
     fStrictParsing: Boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
     fMissionFileName: string;
@@ -66,7 +66,7 @@ type
   end;
 
 
-  TMissionParserInfo = class(TMissionParserGeneric)
+  TMissionParserInfo = class(TMissionParserCommon)
   private
     function LoadMapInfo(const aFileName: string): Boolean;
     procedure ProcessCommand(CommandType: TKMCommandType; const P: array of integer; TextParam:AnsiString);
@@ -75,7 +75,7 @@ type
   end;
 
 
-  TMissionParserStandard = class(TMissionParserGeneric)
+  TMissionParserStandard = class(TMissionParserCommon)
   private
     fParsingMode: TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
     fRemapCount: byte;
@@ -111,7 +111,7 @@ type
                        end;
 
   //Specially optimized mission parser for map previews
-  TMissionParserPreview = class(TMissionParserGeneric)
+  TMissionParserPreview = class(TMissionParserCommon)
   private
     fMapX: Integer;
     fMapY: Integer;
@@ -135,7 +135,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos,
+uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_AIFields,
   KM_Resource, KM_ResourceHouse, KM_ResourceResource;
 
 
@@ -192,14 +192,14 @@ const
 
 
 { TMissionParserGeneric }
-constructor TMissionParserGeneric.Create(aStrictParsing: boolean);
+constructor TMissionParserCommon.Create(aStrictParsing: boolean);
 begin
   inherited Create;
   fStrictParsing := aStrictParsing;
 end;
 
 
-function TMissionParserGeneric.LoadMission(const aFileName: string):boolean;
+function TMissionParserCommon.LoadMission(const aFileName: string):boolean;
 begin
   fMissionFileName := aFileName;
 
@@ -217,7 +217,7 @@ begin
 end;
 
 
-function TMissionParserGeneric.TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
+function TMissionParserCommon.TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
 var
   i: TKMCommandType;
 begin
@@ -236,7 +236,7 @@ end;
 
 
 //Read mission file to a string and if necessary - decode it
-function TMissionParserGeneric.ReadMissionFile(const aFileName: string): AnsiString;
+function TMissionParserCommon.ReadMissionFile(const aFileName: string): AnsiString;
 var
   I,Num: Cardinal;
   F: TMemoryStream;
@@ -301,7 +301,7 @@ end;
 
 //A nice way of debugging script errors.
 //Shows the error to the user so they know exactly what they did wrong.
-procedure TMissionParserGeneric.AddError(const ErrorMsg: string; aFatal: Boolean = False);
+procedure TMissionParserCommon.AddError(const ErrorMsg: string; aFatal: Boolean = False);
 begin
   if fStrictParsing or aFatal then
     fFatalErrors := fFatalErrors + ErrorMsg + '|';

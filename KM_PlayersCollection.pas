@@ -83,7 +83,6 @@ begin
 
   fPlayerAnimals := TKMPlayerAnimals.Create(PLAYER_ANIMAL); //Always create Animals
 
-  fAIFields := TKMAIFields.Create; //todo: Should be moved someplace else, but for now we can init it here
 end;
 
 
@@ -94,8 +93,6 @@ begin
     FreeThenNil(fPlayerList[I]);
 
   PlayerAnimals.Free;
-
-  FreeAndNil(fAIFields);
 
   MyPlayer := nil;
   Selected := nil;
@@ -132,7 +129,7 @@ begin
     fPlayerList[I].AfterMissionInit(aFlattenRoads);
 
   fAIFields.AfterMissionInit;
-  fAIFields.UpdateState(0);
+  fAIFields.UpdateInfluenceMaps;
 end;
 
 

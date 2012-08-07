@@ -208,7 +208,7 @@ var
 
 
 implementation
-uses KM_Log, KM_PlayersCollection,
+uses KM_Log, KM_PlayersCollection, KM_AIFields,
   KM_Resource, KM_Units, KM_ResourceHouse, KM_ResourceMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
@@ -224,6 +224,7 @@ end;
 
 destructor TTerrain.Destroy;
 begin
+  FreeAndNil(fAIFields);
   FreeAndNil(FallingTrees);
   inherited;
 end;
@@ -264,6 +265,9 @@ begin
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
+
+  fAIFields := TKMAIFields.Create; //todo: Should be moved someplace else, but for now we can init it here
+  fAIFields.UpdateNavMesh;
 end;
 
 
@@ -338,6 +342,9 @@ begin
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
   fLog.AppendLog('Map file loaded');
+
+  fAIFields := TKMAIFields.Create; //todo: Should be moved someplace else, but for now we can init it here
+  fAIFields.UpdateNavMesh;
 end;
 
 

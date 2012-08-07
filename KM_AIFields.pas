@@ -11,6 +11,9 @@ type
   TKMAIFields = class
   private
     fPlayerCount: Integer;
+    fShowInfluenceMap: Boolean;
+    fShowNavMesh: Boolean;
+
     fInfluenceMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
     fInfluenceMinMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Integer;
 
@@ -19,14 +22,14 @@ type
       Polies: array of record
         NCount: Integer;
         Nodes: array of TKMPointI;
+        NSCount: Integer;
+        NodesS: array of TKMPointI;
       end;
     end;
 
     procedure NavMeshBaseGrid;
     procedure NavMeshObstacles;
 
-    procedure UpdateInfluenceMaps;
-    procedure UpdateNavMesh;
   public
     constructor Create;
     destructor Destroy; override;
@@ -34,7 +37,9 @@ type
     procedure AfterMissionInit;
     procedure ExportInfluenceMaps;
 
-    procedure UpdateState(aTick: Cardinal);
+    procedure UpdateInfluenceMaps;
+    procedure UpdateNavMesh;
+    //procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
   end;
 
@@ -44,7 +49,7 @@ var
 
 
 implementation
-uses KM_Game, KM_Log, KM_PlayersCollection, KM_RenderAux;
+uses KM_Game, KM_Log, KM_PlayersCollection, KM_RenderAux, KM_PolySimplify;
 
 
 { TKMAIFields }
@@ -52,7 +57,7 @@ constructor TKMAIFields.Create;
 begin
   inherited Create;
 
-  //
+  fShowNavMesh := True;
 end;
 
 
@@ -142,7 +147,7 @@ end;
 
 procedure TKMAIFields.UpdateNavMesh;
 begin
-  NavMeshBaseGrid;
+  NavMeshObstacles;
 
   //1.Uniform grid
   //2.Contours around obstacles with Marching Squares
@@ -193,12 +198,13 @@ var
   Tmp: array of array of Byte;
   PrevStep, NextStep: TStepDirection;
 
-  procedure Step(X,Y: Integer);
+  procedure Step(X,Y: Word);
     function IsTilePassable(aX, aY: Word): Boolean;
     begin
       Result := InRange(aX, 1, fTerrain.MapX-1)
                 and InRange(aY, 1, fTerrain.MapY-1)
                 and (Tmp[aY,aX] > 0);
+      //Mark tiles we've been on, so they do not trigger new duplicate contour
       if Result then
         Tmp[aY,aX] := Tmp[aY,aX] - (Tmp[aY,aX] div 2);
     end;
@@ -207,29 +213,29 @@ var
   begin
     prevStep := nextStep;
 
+    //Assemble bitmask
     State :=  Byte(IsTilePassable(X  ,Y  )) +
               Byte(IsTilePassable(X+1,Y  )) * 2 +
               Byte(IsTilePassable(X  ,Y+1)) * 4 +
               Byte(IsTilePassable(X+1,Y+1)) * 8;
 
+    //Where do we go from here
     case State of
-      1: nextStep := sdUp;
-      2: nextStep := sdRight;
-      3: nextStep := sdRight;
-      4: nextStep := sdLeft;
-      5: nextStep := sdUp;
-      6:
-        if (prevStep = sdUp) then
-          nextStep := sdLeft
-        else
-          nextStep := sdRight;
-      7: nextStep := sdRight;
-      8: nextStep := sdDown;
-      9:
-        if (prevStep = sdRight) then
-          nextStep := sdUp
-        else
-          nextStep := sdDown;
+      1:  nextStep := sdUp;
+      2:  nextStep := sdRight;
+      3:  nextStep := sdRight;
+      4:  nextStep := sdLeft;
+      5:  nextStep := sdUp;
+      6:  if (prevStep = sdUp) then
+            nextStep := sdLeft
+          else
+            nextStep := sdRight;
+      7:  nextStep := sdRight;
+      8:  nextStep := sdDown;
+      9:  if (prevStep = sdRight) then
+            nextStep := sdUp
+          else
+            nextStep := sdDown;
       10: nextStep := sdDown;
       11: nextStep := sdDown;
       12: nextStep := sdLeft;
@@ -254,13 +260,14 @@ var
       Step(X, Y);
 
       case NextStep of
-        sdNone:   ;
         sdUp:     Dec(Y);
         sdRight:  Inc(X);
         sdDown:   Inc(Y);
         sdLeft:   Dec(X);
+        else
       end;
 
+      //Append new node vertice
       with fNavMesh.Polies[fNavMesh.PCount] do
       begin
         if Length(Nodes) <= NCount then
@@ -269,7 +276,10 @@ var
         Inc(NCount);
       end;
     until((X = aStartX) and (Y = aStartY));
-    Inc(fNavMesh.PCount);
+
+    //Do not include too small regions
+    if fNavMesh.Polies[fNavMesh.PCount].NCount >= 12 then
+      Inc(fNavMesh.PCount);
   end;
 
 var
@@ -278,14 +288,18 @@ var
 begin
   SetLength(Tmp, fTerrain.MapY+1, fTerrain.MapX+1);
 
+  //Copy map to temp array where we can use Keys 0-1-2 for internal purposes
+  //0 - no obstacle
+  //1 - parsed obstacle
+  //2 - non-parsed obstacle
   for I := 1 to fTerrain.MapY - 1 do
   for K := 1 to fTerrain.MapX - 1 do
-    Tmp[I,K] := Byte(CanWalk in fTerrain.Land[I,K].Passability) * 2;
+    Tmp[I,K] := 2 - Byte(CanWalk in fTerrain.Land[I,K].Passability) * 2;
 
   for I := 1 to fTerrain.MapY - 2 do
   for K := 1 to fTerrain.MapX - 2 do
   begin
-    //Find new seed
+    //Find new seed among unparsed obstacles
     //C1-C2
     //C3-C4
     C1 := (Tmp[I,K] = 2);
@@ -293,35 +307,57 @@ begin
     C3 := (Tmp[I+1,K] = 2);
     C4 := (Tmp[I+1,K+1] = 2);
 
+    //todo: Skip cases where C1..C4 are all having value of 1-2
     if (C1 or C2 or C3 or C4) <> (C1 and C2 and C3 and C4) then
       WalkPerimeter(K,I);
+  end;
+
+  for I := 0 to fNavMesh.PCount - 1 do
+  with fNavMesh.Polies[I] do
+  begin
+    SetLength(Nodes, NCount);
+    SetLength(NodesS, NCount);
+    NSCount := PolySimplify(1, Nodes, NodesS);
+    SetLength(NodesS, NSCount);
   end;
 end;
 
 
-procedure TKMAIFields.UpdateState(aTick: Cardinal);
+{procedure TKMAIFields.UpdateState(aTick: Cardinal);
 begin
   UpdateInfluenceMaps;
   NavMeshObstacles;
-end;
+end;}
 
 
 procedure TKMAIFields.Paint(aRect: TKMRect);
 var I, K: Integer; TX, TY: Single;
 begin
-  {for I := aRect.Top to aRect.Bottom do
-  for K := aRect.Left to aRect.Right do
-    fRenderAux.Quad(K, I, fInfluenceMap[MyPlayer.PlayerIndex, I, K] or $B0000000);}
-  for I := 0 to fNavMesh.PCount - 1 do
-  for K := 0 to fNavMesh.Polies[I].NCount - 1 do
-  with fNavMesh.Polies[I] do
-  if NCount <> 1 then
-  begin
-    fRenderAux.DotOnTerrain(Nodes[K].X, Nodes[K].Y, $FFF000F0);
-    TX := (Nodes[K].X + Nodes[(K + 1) mod NCount].X) / 2;
-    TY := (Nodes[K].Y + Nodes[(K + 1) mod NCount].Y) / 2;
-    fRenderAux.DotOnTerrain(TX, TY, $FFF000F0);
-  end;
+  if fShowInfluenceMap then
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+      fRenderAux.Quad(K, I, fInfluenceMap[MyPlayer.PlayerIndex, I, K] or $B0000000);
+
+  if fShowNavMesh then
+    for I := 0 to fNavMesh.PCount - 1 do
+    for K := 0 to fNavMesh.Polies[I].NCount - 1 do
+    with fNavMesh.Polies[I] do
+    begin
+      TX := Nodes[(K + 1) mod NCount].X;
+      TY := Nodes[(K + 1) mod NCount].Y;
+      fRenderAux.LineOnTerrain(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
+    end;
+
+  if fShowNavMesh then
+    for I := 0 to fNavMesh.PCount - 1 do
+    with fNavMesh.Polies[I] do
+    for K := 0 to NSCount - 1 do
+    begin
+      TX := NodesS[(K + 1) mod NSCount].X;
+      TY := NodesS[(K + 1) mod NSCount].Y;
+      fRenderAux.LineOnTerrain(NodesS[K].X, NodesS[K].Y, TX, TY, $FF00FF00);
+    end;
+
 end;
 
 
