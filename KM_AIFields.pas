@@ -33,7 +33,6 @@ type
 
     procedure NavMeshBaseGrid;
     procedure NavMeshObstacles;
-
   public
     constructor Create;
     destructor Destroy; override;
@@ -61,7 +60,7 @@ constructor TKMAIFields.Create;
 begin
   inherited Create;
 
-  fShowNavMesh := True;
+  //fShowNavMesh := True;
 end;
 
 
@@ -74,7 +73,9 @@ end;
 
 procedure TKMAIFields.AfterMissionInit;
 begin
+  //Book space for all players;
   fPlayerCount := fPlayers.Count;
+  if not AI_GEN_INFLUENCE_MAPS then Exit;
   SetLength(fInfluenceMap, fPlayerCount);
   SetLength(fInfluenceMinMap, fPlayerCount);
 end;
@@ -85,6 +86,7 @@ var
   I, J, K: Integer; T: Byte;
   H: Integer;
 begin
+  if not AI_GEN_INFLUENCE_MAPS then Exit;
   Assert(fTerrain <> nil);
 
   //Update direct influence maps
@@ -146,17 +148,6 @@ begin
       SaveToFile(ExeDir + 'InflMin'+IntToStr(J)+'.bmp');
     end;
   end;
-end;
-
-
-procedure TKMAIFields.UpdateNavMesh;
-begin
-  NavMeshObstacles;
-
-  //1.Uniform grid
-  //2.Contours around obstacles with Marching Squares
-  //3.Merge contours with grid
-  //
 end;
 
 
@@ -356,22 +347,37 @@ begin
 end;
 
 
-procedure TKMAIFields.UpdateState(aTick: Cardinal);
+procedure TKMAIFields.UpdateNavMesh;
 begin
-  //UpdateInfluenceMaps;
+  if not AI_GEN_NAVMESH then Exit;
+
   NavMeshObstacles;
+
+  //1.Uniform grid
+  //2.Contours around obstacles with Marching Squares
+  //3.Merge contours with grid
+  //
 end;
 
 
-procedure TKMAIFields.Paint(aRect: TKMRect);
-var I, K: Integer; TX, TY: Single;
+procedure TKMAIFields.UpdateState(aTick: Cardinal);
 begin
-  if fShowInfluenceMap then
+  //Naybe we recalculate Influences or navmesh sectors once in a while
+end;
+
+
+//Render debug symbols
+procedure TKMAIFields.Paint(aRect: TKMRect);
+var
+  I, K: Integer;
+  TX, TY: Single;
+begin
+  if AI_GEN_INFLUENCE_MAPS and fShowInfluenceMap then
     for I := aRect.Top to aRect.Bottom do
     for K := aRect.Left to aRect.Right do
       fRenderAux.Quad(K, I, fInfluenceMap[MyPlayer.PlayerIndex, I, K] or $B0000000);
 
-  {if fShowNavMesh then
+  {if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to fNavMesh.PCount - 1 do
     for K := 0 to fNavMesh.Polies[I].NCount - 1 do
     with fNavMesh.Polies[I] do
@@ -381,7 +387,7 @@ begin
       fRenderAux.LineOnTerrain(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
     end;}
 
-  if fShowNavMesh then
+  if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to fNavMesh.PCount - 1 do
     for K := 0 to fNavMesh.Polies[I].NCount1 - 1 do
     with fNavMesh.Polies[I] do
@@ -391,7 +397,7 @@ begin
       fRenderAux.LineOnTerrain(Nodes1[K].X, Nodes1[K].Y, TX, TY, $FFFF00FF);
     end;
 
-  if fShowNavMesh then
+  if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to fNavMesh.PCount - 1 do
     with fNavMesh.Polies[I] do
     for K := 0 to NCountS - 1 do
@@ -400,7 +406,6 @@ begin
       TY := NodesS[(K + 1) mod NCountS].Y;
       fRenderAux.LineOnTerrain(NodesS[K].X, NodesS[K].Y, TX, TY, $FF00FF00);
     end;
-
 end;
 
 

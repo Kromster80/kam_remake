@@ -9,8 +9,8 @@ uses
 type
   TKMGeneral = class
   private
-    fOwner: TPlayerIndex;
-    fSetup: TKMPlayerAISetup;
+    //fOwner: TPlayerIndex;
+    //fSetup: TKMPlayerAISetup;
 
     procedure CheckDefences;
   public
