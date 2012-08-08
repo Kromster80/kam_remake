@@ -808,6 +808,7 @@ begin
     Radio_Load_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Load_MapType.OnChange := Load_MapTypeChange;
     ListBox_Load := TKMListBox.Create(Panel_Load, 8, 75, 184, 205, fnt_Grey);
+    ListBox_Load.ItemHeight := 18;
     Button_LoadLoad     := TKMButton.Create(Panel_Load,8,290,184,30,'Load',fnt_Metal);
     Button_LoadCancel   := TKMButton.Create(Panel_Load,8,325,184,30,'Cancel',fnt_Metal);
     Button_LoadLoad.OnClick     := Menu_Load;
@@ -1397,6 +1398,9 @@ begin
   MapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
   IsMulti := Radio_Load_MapType.ItemIndex = 1;
   fGameApp.NewMapEditor(MapNameToPath(MapName, 'dat', IsMulti), 0, 0);
+  //Keep MP/SP selected in the new map editor interface (this one is destroyed already)
+  if (fGame <> nil) and (fGame.MapEditorInterface <> nil) then
+    fGame.MapEditorInterface.SetLoadMode(IsMulti);
 end;
 
 

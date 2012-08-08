@@ -3624,6 +3624,9 @@ begin
 
     MapName := MapNameToPath(Maps[List_MapEd.Rows[List_MapEd.ItemIndex].Tag].FileName, 'dat', Radio_MapEd_MapType.ItemIndex = 1);
     fGameApp.NewMapEditor(MapName, 0, 0);
+    //Keep MP/SP selected in the map editor interface
+    if (fGame <> nil) and (fGame.MapEditorInterface <> nil) then
+      fGame.MapEditorInterface.SetLoadMode(Radio_MapEd_MapType.ItemIndex = 1);
   end;
 end;
 

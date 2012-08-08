@@ -724,7 +724,6 @@ begin
   MyPlayer := fPlayers.Player[0];
   MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
 
-  //if FileExists(aFileName) then fMapEditorInterface.SetLoadMode(aMultiplayer);
   fPlayers.AfterMissionInit(false);
 
   for I := 0 to fPlayers.Count - 1 do //Reveal all players since we'll swap between them in MapEd
