@@ -354,7 +354,7 @@ type
   TKMFormation = record NumUnits, UnitsPerRow: Integer; end;
 
 const
-  KaMGroupType: array[TGroupType] of byte = (0, 1, 2, 3);
+  KaMGroupType: array [TGroupType] of Byte = (0, 1, 2, 3);
 
   UnitGroups: array[WARRIOR_MIN..WARRIOR_MAX] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman

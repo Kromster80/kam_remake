@@ -13,20 +13,23 @@ type
   TAIDefencePosition = class
   private
     fCurrentCommander: TKMUnitWarrior; //Commander of group currently occupying position
+
+    fGroupType: TGroupType; //Type of group to defend this position (e.g. melee)
     fPosition: TKMPointDir; //Position and direction the group defending will stand
     fRadius: Integer; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
     procedure SetCurrentCommander(aCommander: TKMUnitWarrior);
     procedure ClearCurrentCommander;
   public
-    GroupType: TGroupType; //Type of group to defend this position (e.g. melee)
     DefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
     constructor Create(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
     constructor Load(LoadStream:TKMemoryStream);
     destructor Destroy; override;
     property CurrentCommander: TKMUnitWarrior read fCurrentCommander write SetCurrentCommander;
+    property GroupType: TGroupType read fGroupType; //Type of group to defend this position (e.g. melee)
     property Position: TKMPointDir read fPosition; //Position and direction the group defending will stand
     property Radius: Integer read fRadius; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
     function IsFullyStocked(aAmount: integer): Boolean;
+    function UITitle: string;
     procedure Save(SaveStream:TKMemoryStream);
     procedure SyncLoad;
   end;
@@ -67,7 +70,7 @@ constructor TAIDefencePosition.Create(aPos: TKMPointDir; aGroupType: TGroupType;
 begin
   inherited Create;
   fPosition := aPos;
-  GroupType := aGroupType;
+  fGroupType := aGroupType;
   fRadius := aRadius;
   DefenceType := aDefenceType;
   CurrentCommander := nil; //Unoccupied
@@ -98,7 +101,7 @@ end;
 procedure TAIDefencePosition.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write(fPosition);
-  SaveStream.Write(GroupType, SizeOf(GroupType));
+  SaveStream.Write(fGroupType, SizeOf(fGroupType));
   SaveStream.Write(fRadius);
   SaveStream.Write(DefenceType, SizeOf(DefenceType));
   if fCurrentCommander <> nil then
@@ -112,7 +115,7 @@ constructor TAIDefencePosition.Load(LoadStream:TKMemoryStream);
 begin
   inherited Create;
   LoadStream.Read(fPosition);
-  LoadStream.Read(GroupType, SizeOf(GroupType));
+  LoadStream.Read(fGroupType, SizeOf(fGroupType));
   LoadStream.Read(fRadius);
   LoadStream.Read(DefenceType, SizeOf(DefenceType));
   LoadStream.Read(fCurrentCommander, 4); //subst on syncload
@@ -122,6 +125,13 @@ end;
 procedure TAIDefencePosition.SyncLoad;
 begin
   fCurrentCommander := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fCurrentCommander)));
+end;
+
+
+function TAIDefencePosition.UITitle: string;
+const T: array [TGroupType] of string = ('Melee', 'AntiHorse', 'Ranged', 'Mounted');
+begin
+  Result := T[fGroupType];
 end;
 
 

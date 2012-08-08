@@ -41,7 +41,7 @@ type
     property ShowDefencePositions: Boolean read fShowDefencePositions;
     property ShowDeposits: Boolean read fShowDeposits;
     procedure Update;
-    procedure RenderOverlays;
+    procedure Paint;
   end;
 
 
@@ -197,7 +197,7 @@ begin
   fDeposits := TKMDeposits.Create;
 
   //fShowDefencePositions := True;
-  //fShowDeposits := True;
+  fShowDeposits := True;
 end;
 
 
@@ -215,7 +215,7 @@ begin
 end;
 
 
-procedure TKMMapEditor.RenderOverlays;
+procedure TKMMapEditor.Paint;
 var I, K: Integer; MapLoc: TKMPoint;
 begin
   if fShowDefencePositions then

@@ -9,6 +9,9 @@ uses
      KM_Points, KM_InterfaceDefaults, KM_Terrain;
 
 type
+  TKMVillageTab = (vtHouses, vtUnits, vtScript, vtDefences);
+
+type
   TKMapEdInterface = class (TKMUserInterface)
   private
     fPrevHint: TObject;
@@ -47,10 +50,12 @@ type
     procedure Terrain_TilesChange(Sender: TObject);
     procedure Terrain_ObjectsChange(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
-    procedure House_HealthChange(Sender:TObject; AButton:TMouseButton);
+    procedure Defence_FillList;
+    procedure Defence_ItemClicked(Sender: TObject);
+    procedure House_HealthChange(Sender: TObject; AButton: TMouseButton);
     procedure Unit_ButtonClick(Sender: TObject);
-    procedure Unit_ArmyChange1(Sender:TObject); overload;
-    procedure Unit_ArmyChange2(Sender:TObject; AButton:TMouseButton); overload;
+    procedure Unit_ArmyChange1(Sender: TObject); overload;
+    procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
     procedure Barracks_Fill(Sender:TObject);
     procedure Barracks_SelectWare(Sender:TObject);
     procedure Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
@@ -80,6 +85,7 @@ type
       Label_Stat,Label_Hint:TKMLabel;
       Label_MatAmount: TKMLabel;
       Shape_MatAmount: TKMShape;
+      Label_DefenceID: TKMLabel;
       Label_DefencePos: TKMLabel;
       Shape_DefencePos: TKMShape;
 
@@ -107,17 +113,19 @@ type
         ObjectsTable:array[0..8] of TKMButtonFlat;
         ObjectsScroll:TKMScrollBar;
 
-    Panel_Village:TKMPanel;
-      Button_Village:array[1..3]of TKMButton;
-      Panel_Build:TKMPanel;
-        Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildCancel:TKMButtonFlat;
-        Button_Build:array[1..GUI_HOUSE_COUNT]of TKMButtonFlat;
+    Panel_Village: TKMPanel;
+      Button_Village: array [TKMVillageTab] of TKMButton;
+      Panel_Build: TKMPanel;
+        Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildCancel: TKMButtonFlat;
+        Button_Build: array [1..GUI_HOUSE_COUNT] of TKMButtonFlat;
       Panel_Units:TKMPanel;
         Button_UnitCancel:TKMButtonFlat;
         Button_Citizen:array[0..13]of TKMButtonFlat;
         Button_Warriors:array[0..13]of TKMButtonFlat;
         Button_Animals:array[0..7]of TKMButtonFlat;
-      Panel_Script:TKMPanel;
+      Panel_Script: TKMPanel;
+      Panel_Defence: TKMPanel;
+        List_Defences: TKMListBox;
 
     Panel_Player:TKMPanel;
       Button_Player:array[1..3]of TKMButton;
@@ -240,7 +248,7 @@ begin
      (Sender=Button_Main[5])or
      (Sender=Button_Menu_Settings)or(Sender=Button_Menu_Quit) then
   begin
-    fPlayers.Selected:=nil;
+    fPlayers.Selected := nil;
   end;
 
   Label_MenuTitle.Caption := '';
@@ -282,26 +290,37 @@ begin
     Terrain_ObjectsChange(GetSelectedObject);
   end else
 
-  if (Sender = Button_Main[2])or(Sender = Button_Village[1]) then begin
+  if (Sender = Button_Main[2])or(Sender = Button_Village[vtHouses]) then
+  begin
     Panel_Village.Show;
     Panel_Build.Show;
-    Label_MenuTitle.Caption:='Village - Buildings';
+    Label_MenuTitle.Caption := 'Village - Buildings';
     Build_ButtonClick(Button_BuildRoad);
   end else
 
-  if (Sender = Button_Main[2])or(Sender = Button_Village[2]) then begin
+  if (Sender = Button_Village[vtUnits]) then
+  begin
     Panel_Village.Show;
     Panel_Units.Show;
-    Label_MenuTitle.Caption:='Village - Units';
+    Label_MenuTitle.Caption := 'Village - Units';
     Unit_ButtonClick(GetSelectedUnit);
-  end else
-
-  if (Sender = Button_Main[2])or(Sender = Button_Village[3]) then begin
+  end
+  else
+  if (Sender = Button_Village[vtScript]) then
+  begin
     Panel_Village.Show;
     Panel_Script.Show;
-    Label_MenuTitle.Caption:='Village - Script';
-  end else
-
+    Label_MenuTitle.Caption := 'Village - Script';
+  end
+  else
+  if (Sender = Button_Village[vtDefences]) then
+  begin
+    Defence_FillList;
+    Panel_Village.Show;
+    Panel_Defence.Show;
+    Label_MenuTitle.Caption := 'Village - Defences';
+  end
+  else
   if (Sender = Button_Main[3])or(Sender = Button_Player[1]) then begin
     Panel_Player.Show;
     Panel_Goals.Show;
@@ -419,6 +438,7 @@ begin
     Shape_MatAmount.LineColor := $F000FF00;
     Shape_MatAmount.FillColor := $80000000;
 
+    Label_DefenceID := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Metal, taCenter);
     Label_DefencePos := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Metal, taCenter);
     Shape_DefencePos := TKMShape.Create(Panel_Main,0,0,80,20);
     Shape_DefencePos.LineWidth := 2;
@@ -600,13 +620,18 @@ end;
 
 {Build page}
 procedure TKMapEdInterface.Create_Village_Page;
-var i:Integer;
+const VillageTabIcon: array [TKMVillageTab] of Word = (454, 141, 327, 43);
+var
+  I: Integer;
+  VT: TKMVillageTab;
 begin
   Panel_Village := TKMPanel.Create(Panel_Common,0,128,196,28);
-    Button_Village[1] := TKMButton.Create(Panel_Village,   8, 4, 36, 24, 454);
-    Button_Village[2] := TKMButton.Create(Panel_Village,  48, 4, 36, 24, 141);
-    Button_Village[3] := TKMButton.Create(Panel_Village,  88, 4, 36, 24, 327);
-    for i:=1 to 3 do Button_Village[i].OnClick := SwitchPage;
+
+    for VT := Low(TKMVillageTab) to High(TKMVillageTab) do
+    begin
+      Button_Village[VT] := TKMButton.Create(Panel_Village, Byte(VT) * 40 + 8, 4, 36, 24, VillageTabIcon[VT]);
+      Button_Village[VT].OnClick := SwitchPage;
+    end;
 
     Panel_Build := TKMPanel.Create(Panel_Village,0,28,196,400);
       TKMLabel.Create(Panel_Build,100,10,184,0,'Roadworks',fnt_Outline,taCenter);
@@ -624,51 +649,56 @@ begin
       Button_BuildCancel.Hint   := fTextLibrary[TX_BUILD_CANCEL_HINT];
 
       TKMLabel.Create(Panel_Build,100,65,184,0,'Houses',fnt_Outline,taCenter);
-      for i:=1 to GUI_HOUSE_COUNT do
-        if GUIHouseOrder[i] <> ht_None then begin
-          Button_Build[i]:=TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,83+((i-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[i]].GUIIcon);
-          Button_Build[i].OnClick:=Build_ButtonClick;
-          Button_Build[i].Hint := fResource.HouseDat[GUIHouseOrder[i]].HouseName;
+      for I:=1 to GUI_HOUSE_COUNT do
+        if GUIHouseOrder[I] <> ht_None then begin
+          Button_Build[I]:=TKMButtonFlat.Create(Panel_Build, 8+((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
+          Button_Build[I].OnClick:=Build_ButtonClick;
+          Button_Build[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
         end;
 
     Panel_Units := TKMPanel.Create(Panel_Village,0,28,196,400);
 
       //TKMLabel.Create(Panel_Units,100,10,0,0,'Citizens',fnt_Outline,taCenter);
-      for i:=0 to High(Button_Citizen) do
+      for I:=0 to High(Button_Citizen) do
       begin
-        Button_Citizen[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,8+(i div 5)*37,33,33,fResource.UnitDat[School_Order[i]].GUIIcon); //List of tiles 5x5
-        Button_Citizen[i].Hint := fResource.UnitDat[School_Order[i]].UnitName;
-        Button_Citizen[i].Tag := byte(School_Order[i]); //Returns unit ID
-        Button_Citizen[i].OnClick := Unit_ButtonClick;
+        Button_Citizen[I] := TKMButtonFlat.Create(Panel_Units,8+(I mod 5)*37,8+(I div 5)*37,33,33,fResource.UnitDat[School_Order[I]].GUIIcon); //List of tiles 5x5
+        Button_Citizen[I].Hint := fResource.UnitDat[School_Order[I]].UnitName;
+        Button_Citizen[I].Tag := byte(School_Order[I]); //Returns unit ID
+        Button_Citizen[I].OnClick := Unit_ButtonClick;
       end;
       Button_UnitCancel := TKMButtonFlat.Create(Panel_Units,8+((High(Button_Citizen)+1) mod 5)*37,8+(length(Button_Citizen) div 5)*37,33,33,340);
       Button_UnitCancel.Hint := fTextLibrary[TX_BUILD_CANCEL_HINT];
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
       //TKMLabel.Create(Panel_Units,100,140,0,0,'Warriors',fnt_Outline,taCenter);
-      for i:=0 to High(Button_Warriors) do
+      for I:=0 to High(Button_Warriors) do
       begin
-        Button_Warriors[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,124+(i div 5)*37,33,33, MapEd_Icon[i], rxGui);
-        Button_Warriors[i].Hint := fResource.UnitDat[MapEd_Order[i]].UnitName;
-        Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
-        Button_Warriors[i].OnClick := Unit_ButtonClick;
+        Button_Warriors[I] := TKMButtonFlat.Create(Panel_Units,8+(I mod 5)*37,124+(I div 5)*37,33,33, MapEd_Icon[I], rxGui);
+        Button_Warriors[I].Hint := fResource.UnitDat[MapEd_Order[I]].UnitName;
+        Button_Warriors[I].Tag := byte(MapEd_Order[I]); //Returns unit ID
+        Button_Warriors[I].OnClick := Unit_ButtonClick;
       end;
 
       //TKMLabel.Create(Panel_Units,100,230,0,0,'Animals',fnt_Outline,taCenter);
-      for i:=0 to High(Button_Animals) do
+      for I:=0 to High(Button_Animals) do
       begin
-        Button_Animals[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,240+(i div 5)*37,33,33, Animal_Icon[i], rxGui);
-        Button_Animals[i].Hint := fResource.UnitDat[Animal_Order[i]].UnitName;
-        Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
-        Button_Animals[i].OnClick := Unit_ButtonClick;
+        Button_Animals[I] := TKMButtonFlat.Create(Panel_Units,8+(I mod 5)*37,240+(I div 5)*37,33,33, Animal_Icon[I], rxGui);
+        Button_Animals[I].Hint := fResource.UnitDat[Animal_Order[I]].UnitName;
+        Button_Animals[I].Tag := byte(Animal_Order[I]); //Returns animal ID
+        Button_Animals[I].OnClick := Unit_ButtonClick;
       end;
       Unit_ButtonClick(Button_Citizen[0]); //Select serf as default
 
-    Panel_Script := TKMPanel.Create(Panel_Village,0,28,196,400);
-      TKMLabel.Create(Panel_Script,100,10,184,0,'Scripts',fnt_Outline,taCenter);
+    Panel_Script := TKMPanel.Create(Panel_Village, 0, 28, 196, 400);
+      TKMLabel.Create(Panel_Script, 100, 10, 184, 0, 'Scripts', fnt_Outline, taCenter);
       {Button_ScriptReveal         := TKMButtonFlat.Create(Panel_Script,  8,28,33,33,335);
       Button_ScriptReveal.OnClick := Script_ButtonClick;
       Button_ScriptReveal.Hint    := 'Reveal a portion of map';}
+
+    Panel_Defence := TKMPanel.Create(Panel_Village, 0, 28, 196, 400);
+      TKMLabel.Create(Panel_Defence, 100, 10, 184, 0, 'Defence', fnt_Outline, taCenter);
+      List_Defences := TKMListBox.Create(Panel_Defence, 8, 30, 180, 160, fnt_Grey);
+      List_Defences.OnDoubleClick := Defence_ItemClicked;
 end;
 
 
@@ -987,12 +1017,15 @@ begin
 
   if fGame.MapEditor.ShowDefencePositions then
   begin
-    Label_DefencePos.Show; //Only make it visible while we need it
+    //Only make it visible while we need it
+    Label_DefenceID.Show;
+    Label_DefencePos.Show;
     Shape_DefencePos.Show;
     for I := 0 to fPlayers.Count - 1 do
       for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
       begin
-        Label_DefencePos.Caption := GetEnumName(TypeInfo(TGroupType), Ord(fPlayers[I].AI.DefencePositions[K].GroupType));
+        Label_DefenceID.Caption := IntToStr(K);
+        Label_DefencePos.Caption := fPlayers[I].AI.DefencePositions[K].UITitle;
 
         MapLoc := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.DefencePositions[K].Position.Loc));
         ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
@@ -1003,11 +1036,16 @@ begin
         Shape_DefencePos.Top := ScreenLoc.Y - 10;
         Shape_DefencePos.Paint;
         //Paint the label on top of the background
+        Label_DefenceID.Left := ScreenLoc.X;
+        Label_DefenceID.Top := ScreenLoc.Y - 22;
+        Label_DefenceID.Paint;
         Label_DefencePos.Left := ScreenLoc.X;
         Label_DefencePos.Top := ScreenLoc.Y - 7;
         Label_DefencePos.Paint;
       end;
-    Label_DefencePos.Hide; //Only make it visible while we need it
+    //Only make it visible while we need it
+    Label_DefenceID.Hide;
+    Label_DefencePos.Hide;
     Shape_DefencePos.Hide;
   end;
 
@@ -1028,24 +1066,47 @@ begin
 end;
 
 
+procedure TKMapEdInterface.Defence_FillList;
+var
+  I: Integer;
+begin
+  List_Defences.Clear;
+
+  with MyPlayer.AI.DefencePositions do
+  for I := 0 to Count - 1 do
+    List_Defences.Add(Positions[I].UITitle);
+end;
+
+
+procedure TKMapEdInterface.Defence_ItemClicked(Sender: TObject);
+var
+  I: Integer;
+begin
+  I := List_Defences.ItemIndex;
+  if I = -1 then Exit;
+
+  fGame.Viewport.Position := KMPointF(MyPlayer.AI.DefencePositions[I].Position.Loc);
+end;
+
+
 procedure TKMapEdInterface.Player_UpdateColors;
-var i:Integer;
+var I: Integer;
 begin
   //Set player colors
-  for i:=0 to MAX_PLAYERS-1 do
-    Button_PlayerSelect[i].ShapeColor := fPlayers.Player[i].FlagColor;
+  for I:=0 to MAX_PLAYERS-1 do
+    Button_PlayerSelect[I].ShapeColor := fPlayers.Player[I].FlagColor;
 
-  Button_Village[2].FlagColor := MyPlayer.FlagColor;
-  for i:=Low(Button_Citizen) to High(Button_Citizen) do
-    Button_Citizen[i].FlagColor := MyPlayer.FlagColor;
-  for i:=Low(Button_Warriors) to High(Button_Warriors) do
-    Button_Warriors[i].FlagColor := MyPlayer.FlagColor;
+  Button_Village[vtUnits].FlagColor := MyPlayer.FlagColor;
+  for I := Low(Button_Citizen) to High(Button_Citizen) do
+    Button_Citizen[I].FlagColor := MyPlayer.FlagColor;
+  for I := Low(Button_Warriors) to High(Button_Warriors) do
+    Button_Warriors[I].FlagColor := MyPlayer.FlagColor;
 end;
 
 
 procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 begin
-  if Panel_House.Visible or Panel_Unit.Visible then
+  if Panel_House.Visible or Panel_Unit.Visible or Panel_Defence.Visible then
     SwitchPage(nil);
 
   fPlayers.Selected := nil;

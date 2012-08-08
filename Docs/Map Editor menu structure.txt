@@ -9,12 +9,13 @@ MainMenu
 		Heights
 		Objects
 
-	Visuals (PerPlayer)
+	Visuals (PerPlayer, tied to terrain)
 		Houses/roads/fields (click on houses to edit damage and wares count)
 		Units/troops/animals (click on troops to set count/direction)
-		Visual scripts (Start location, defense positions, revealers, center screen)
+		AI Defence positions
+		Visual scripts (Start location, revealers, center screen)
 
-	Non-Visuals (PerPlayer)
+	Non-Visuals (PerPlayer, abstract)
 		AI mode (NoBuild, unit count restrictions, town defence mode)
 		House restrictions
 		Trading permissions (for marketplace)

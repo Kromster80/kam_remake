@@ -906,7 +906,7 @@ begin
   RenderTerrainFieldBorders(Rect);
 
   if fGame.IsMapEditor then
-    fGame.MapEditor.RenderOverlays;
+    fGame.MapEditor.Paint;
 
   if fAIFields <> nil then
     fAIFields.Paint(Rect);
