@@ -59,12 +59,12 @@ var
   CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
   KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
   USE_BIN_PACKING       :Boolean = True; //Use more efficient bin packing algorithm for packing sprites into atlases
+  USE_WALKING_DISTANCE  :Boolean = True; //Use the walking distance for deciding place to mine rather than direct distance
   //Not fully implemented yet
   DISPLAY_CHARTS_RESULT :Boolean = True; //Show charts in game results screen
   USE_CCL_WALKCONNECT   :Boolean = False; //Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
-  USE_WALKING_DISTANCE  :Boolean = True; //Use the walking distance for deciding place to mine rather than direct distance
 
   //These are debug things, should be False
   {User interface options}

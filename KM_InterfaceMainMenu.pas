@@ -884,9 +884,9 @@ begin
     Panel_SPButtons := TKMPanel.Create(Panel_SinglePlayer,337,340,350,400);
       Button_SP_Tutor  := TKMButton.Create(Panel_SPButtons,0,  0,350,30,fTextLibrary[TX_MENU_TUTORIAL_TOWN],fnt_Metal,bsMenu);
       Button_SP_Fight  := TKMButton.Create(Panel_SPButtons,0, 40,350,30,fTextLibrary[TX_MENU_TUTORIAL_BATTLE],fnt_Metal,bsMenu);
-      Button_SP_Camp   := TKMButton.Create(Panel_SPButtons,0, 80,350,30,fTextLibrary[TX_MENU_CAMPAIGNS],fnt_Metal,bsMenu);
-      Button_SP_Single := TKMButton.Create(Panel_SPButtons,0,120,350,30,fTextLibrary[TX_MENU_SINGLE_MAP],fnt_Metal,bsMenu);
-      Button_SP_Load   := TKMButton.Create(Panel_SPButtons,0,160,350,30,fTextLibrary[TX_MENU_LOAD_SAVEGAME],fnt_Metal,bsMenu);
+      Button_SP_Camp   := TKMButton.Create(Panel_SPButtons,0,100,350,30,fTextLibrary[TX_MENU_CAMPAIGNS],fnt_Metal,bsMenu);
+      Button_SP_Single := TKMButton.Create(Panel_SPButtons,0,160,350,30,fTextLibrary[TX_MENU_SINGLE_MAP],fnt_Metal,bsMenu);
+      Button_SP_Load   := TKMButton.Create(Panel_SPButtons,0,200,350,30,fTextLibrary[TX_MENU_LOAD_SAVEGAME],fnt_Metal,bsMenu);
       Button_SP_Back   := TKMButton.Create(Panel_SPButtons,0,290,350,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
 
       Button_SP_Tutor.OnClick  := MainMenu_PlayTutorial;
