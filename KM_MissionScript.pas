@@ -782,7 +782,11 @@ begin
                           if TextParam = PARAMVALUES[cpt_RecruitCount] then iPlayerAI.Setup.RecruitDelay  := P[1];
                           if TextParam = PARAMVALUES[cpt_TownDefence]  then iPlayerAI.Setup.TownDefence   := P[1];
                           if TextParam = PARAMVALUES[cpt_MaxSoldier]   then iPlayerAI.Setup.MaxSoldiers   := P[1];
-                          if TextParam = PARAMVALUES[cpt_EquipRate]    then iPlayerAI.Setup.EquipRate     := P[1];
+                          if TextParam = PARAMVALUES[cpt_EquipRate]    then
+                          begin
+                            iPlayerAI.Setup.EquipRateLeather := P[1];
+                            iPlayerAI.Setup.EquipRateIron    := P[1]; //Both the same for now, could be separate commands later
+                          end;
                           if TextParam = PARAMVALUES[cpt_AttackFactor] then iPlayerAI.Setup.Aggressiveness:= P[1];
                           if TextParam = PARAMVALUES[cpt_TroopParam]   then
                           begin
@@ -1026,7 +1030,7 @@ begin
       //Only store if a limit is in place (high is the default)
       if fPlayers.Player[i].AI.Setup.MaxSoldiers <> High(fPlayers.Player[i].AI.Setup.MaxSoldiers) then
         AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers.Player[i].AI.Setup.MaxSoldiers]);
-      AddCommand(ct_AICharacter,cpt_EquipRate,    [fPlayers.Player[i].AI.Setup.EquipRate]);
+      AddCommand(ct_AICharacter,cpt_EquipRate,    [fPlayers.Player[i].AI.Setup.EquipRateLeather]); //Iron and Leather could be made into separate commands later
       AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers.Player[i].AI.Setup.Aggressiveness]);
       AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers.Player[i].AI.Setup.RecruitDelay]);
       for G:=Low(TGroupType) to High(TGroupType) do

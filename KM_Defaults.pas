@@ -344,6 +344,8 @@ const UNIT_MIN = ut_Serf;
       ANIMAL_MIN = ut_Wolf;
       ANIMAL_MAX = ut_Duck;
 
+      WARRIORS_IRON = [ut_Swordsman, ut_Arbaletman, ut_Hallebardman, ut_Cavalry];
+
 type
   TCheckAxis = (ax_X, ax_Y);
 

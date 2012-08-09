@@ -1,7 +1,7 @@
 unit KM_AI;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils,
+uses Classes, KromUtils, SysUtils, Math,
     KM_CommonClasses, KM_Defaults, KM_Terrain,
     KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points,
     KM_AISetup, KM_AIMayor, KM_AIGeneral, KM_AIDefensePos;
@@ -214,12 +214,16 @@ var
   HB:TKMHouseBarracks;
   GType: TGroupType;
   i,k:integer;
-  TrainedSomething:boolean;
+  UT: TUnitType;
+  TrainedSomething, CanEquipIron, CanEquipLeather:boolean;
   GroupReq: array[TGroupType] of integer;
 begin
   if fGame.IsPeaceTime then Exit; //Do not process train soldiers during peacetime
   if fPlayers[fPlayerIndex].Stats.GetArmyCount >= Setup.MaxSoldiers then Exit; //Don't train if we have reached our limit
-  if not fGame.CheckTime(fLastEquippedTime+Setup.EquipRate) then Exit; //Delay between equipping soldiers for KaM compatibility
+  //Delay between equipping soldiers for KaM compatibility
+  CanEquipIron := fGame.CheckTime(fLastEquippedTime+Setup.EquipRateIron);
+  CanEquipLeather := fGame.CheckTime(fLastEquippedTime+Setup.EquipRateLeather);
+  if not CanEquipIron and not CanEquipLeather then Exit;
   fLastEquippedTime := fGame.GameTickCount;
 
   //Create a list of troops that need to be trained based on defence position requirements
@@ -256,16 +260,18 @@ begin
     for i:=1 to 3 do
     begin
       TrainedSomething := false;
-      if AITroopTrainOrder[GType,i] <> ut_None then
-        while HB.CanEquip(AITroopTrainOrder[GType,i]) and (GroupReq[GType] > 0) and
+      UT := AITroopTrainOrder[GType,i];
+      if (UT <> ut_None)
+      and ((CanEquipIron and (UT in WARRIORS_IRON)) or (CanEquipLeather and not (UT in WARRIORS_IRON))) then
+        while HB.CanEquip(UT) and (GroupReq[GType] > 0) and
               (fPlayers[fPlayerIndex].Stats.GetArmyCount < Setup.MaxSoldiers) do
         begin
-          HB.Equip(AITroopTrainOrder[GType,i], 1);
+          HB.Equip(UT, 1);
           dec(GroupReq[GType]);
           TrainedSomething := true;
-          if Setup.EquipRate > 0 then break; //Only equip 1 soldier when we have a restricted equip rate
+          if Setup.GetEquipRate(UT) > 0 then break; //Only equip 1 soldier when we have a restricted equip rate
         end;
-      if TrainedSomething and (Setup.EquipRate > 0) then break; //Only equip 1 soldier when we have a restricted equip rate
+      if TrainedSomething and (Setup.GetEquipRate(UT) > 0) then break; //Only equip 1 soldier when we have a restricted equip rate
     end;
   end;
 end;
