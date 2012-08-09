@@ -324,11 +324,9 @@ begin
 
   //Fill empty space with Delaunay triangles
   fDelaunay := TDelaunay.Create;
-  fDelaunay.AddPoint(0, 0);
-  fDelaunay.AddPoint(fTerrain.MapX-1, 0);
-  fDelaunay.AddPoint(fTerrain.MapX-1, fTerrain.MapY-1);
-  fDelaunay.AddPoint(0, fTerrain.MapY-1);
-  fDelaunay.AddPoint(fTerrain.MapX div 2, fTerrain.MapY div 2);
+  fDelaunay.AddRect(30, 30, 90, 90);
+  fDelaunay.AddPoint(50,60);
+  fDelaunay.AddPoint(70,60);
   {for I := 0 to fSimpleShapes.Count - 1 do
   with fSimpleShapes.Shape[I] do
     for K := 0 to Count - 1 do

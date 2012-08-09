@@ -57,6 +57,7 @@ type
     destructor Destroy;
     procedure Mesh;
     procedure AddPoint(x,y: Integer);
+    procedure AddRect(x1,y1,x2,y2: Integer);
   end;
 
 
@@ -74,8 +75,8 @@ type
 constructor TDelaunay.Create;
 begin
   //Initiate total points to 1, using base 0 causes problems in the functions
-  VerticeCount := 1;
-  PolyCount:=0;
+  VerticeCount := 0;
+  PolyCount := 0;
 
   //Allocate memory for arrays
   GetMem(Vertex, sizeof(Vertex^));
@@ -92,7 +93,7 @@ end;
 
 
 function TDelaunay.InCircle(xp, yp, x1, y1, x2, y2, x3, y3: Double;
-    var xc: Double; var yc: Double; var r: Double; j: Integer): Boolean;
+  var xc: Double; var yc: Double; var r: Double; j: Integer): Boolean;
 //Return TRUE if the point (xp,yp) lies inside the circumcircle
 //made up by points (x1,y1) (x2,y2) (x3,y3)
 //The circumcircle centre is returned in (xc,yc) and the radius r
@@ -112,10 +113,10 @@ var
 begin
 
   eps:= 0.000001;
-  InCircle := False;
+  Result := False;
 
   //Check if xc,yc and r have already been calculated
-  if  Triangle^[j].PreCalc=1 then
+  if  Triangle^[j].PreCalc = 1 then
   begin
     xc := Triangle^[j].xc;
     yc := Triangle^[j].yc;
@@ -126,68 +127,66 @@ begin
     drsqr := dx * dx + dy * dy;
   end else
   begin
+    If (Abs(y1 - y2) < eps) And (Abs(y2 - y3) < eps) Then
+      Assert(False, 'INCIRCUM - F - Points are coincident !!');
 
-  If (Abs(y1 - y2) < eps) And (Abs(y2 - y3) < eps) Then
-    Assert(False, 'INCIRCUM - F - Points are coincident !!');
+    If Abs(y2 - y1) < eps Then
+    begin
+      m2 := -(x3 - x2) / (y3 - y2);
+      mx2 := (x2 + x3) / 2;
+      my2 := (y2 + y3) / 2;
+      xc := (x2 + x1) / 2;
+      yc := m2 * (xc - mx2) + my2;
+    end
+    Else If Abs(y3 - y2) < eps Then
+    begin
+      m1 := -(x2 - x1) / (y2 - y1);
+      mx1 := (x1 + x2) / 2;
+      my1 := (y1 + y2) / 2;
+      xc := (x3 + x2) / 2;
+      yc := m1 * (xc - mx1) + my1;
+    end
+    Else
+    begin
+      m1 := -(x2 - x1) / (y2 - y1);
+      m2 := -(x3 - x2) / (y3 - y2);
+      mx1 := (x1 + x2) / 2;
+      mx2 := (x2 + x3) / 2;
+      my1 := (y1 + y2) / 2;
+      my2 := (y2 + y3) / 2;
+      if (m1-m2)<>0 then  //se
+      begin
+        xc := (m1 * mx1 - m2 * mx2 + my2 - my1) / (m1 - m2);
+        yc := m1 * (xc - mx1) + my1;
+      end else
+      begin
+        xc:= (x1+x2+x3)/3;
+        yc:= (y1+y2+y3)/3;
+      end;
 
-  If Abs(y2 - y1) < eps Then
-  begin
-  m2 := -(x3 - x2) / (y3 - y2);
-  mx2 := (x2 + x3) / 2;
-  my2 := (y2 + y3) / 2;
-  xc := (x2 + x1) / 2;
-  yc := m2 * (xc - mx2) + my2;
-  end
-  Else If Abs(y3 - y2) < eps Then
-  begin
-  m1 := -(x2 - x1) / (y2 - y1);
-  mx1 := (x1 + x2) / 2;
-  my1 := (y1 + y2) / 2;
-  xc := (x3 + x2) / 2;
-  yc := m1 * (xc - mx1) + my1;
-  end
-  Else
-  begin
-  m1 := -(x2 - x1) / (y2 - y1);
-  m2 := -(x3 - x2) / (y3 - y2);
-  mx1 := (x1 + x2) / 2;
-  mx2 := (x2 + x3) / 2;
-  my1 := (y1 + y2) / 2;
-  my2 := (y2 + y3) / 2;
-    if (m1-m2)<>0 then  //se
-    begin
-    xc := (m1 * mx1 - m2 * mx2 + my2 - my1) / (m1 - m2);
-    yc := m1 * (xc - mx1) + my1;
-    end else
-    begin
-    xc:= (x1+x2+x3)/3;
-    yc:= (y1+y2+y3)/3;
     end;
 
+    dx := x2 - xc;
+    dy := y2 - yc;
+    rsqr := dx * dx + dy * dy;
+    r := Sqrt(rsqr);
+    dx := xp - xc;
+    dy := yp - yc;
+    drsqr := dx * dx + dy * dy;
+
+    //store the xc,yc and r for later use
+    Triangle^[j].PreCalc:=1;
+    Triangle^[j].xc:=xc;
+    Triangle^[j].yc:=yc;
+    Triangle^[j].r:=r;
   end;
 
-  dx := x2 - xc;
-  dy := y2 - yc;
-  rsqr := dx * dx + dy * dy;
-  r := Sqrt(rsqr);
-  dx := xp - xc;
-  dy := yp - yc;
-  drsqr := dx * dx + dy * dy;
-
-  //store the xc,yc and r for later use
-  Triangle^[j].PreCalc:=1;
-  Triangle^[j].xc:=xc;
-  Triangle^[j].yc:=yc;
-  Triangle^[j].r:=r;
-  end;
-
-  If drsqr <= rsqr Then InCircle := True;
-
+  If drsqr <= rsqr then
+    Result := True;
 end;
 
 
-
-Function TDelaunay.WhichSide(xp, yp, x1, y1, x2, y2: Double): Integer;
+function TDelaunay.WhichSide(xp, yp, x1, y1, x2, y2: Double): Integer;
 //Determines which side of a line the point (xp,yp) lies.
 //The line goes from (x1,y1) to (x2,y2)
 //Returns -1 for a point to the left
@@ -207,8 +206,7 @@ begin
 End;
 
 
-
-Function TDelaunay.Triangulate(aVertCount: Integer): Integer;
+function TDelaunay.Triangulate(aVertCount: Integer): Integer;
 //Takes as input NVERT vertices in arrays Vertex()
 //Returned is a list of NTRI triangular faces in the array
 //Triangle(). These triangles are arranged in clockwise order.
@@ -244,49 +242,17 @@ begin
   GetMem(Complete, sizeof(Complete^));
   GetMem(Edges, sizeof(Edges^));
 
-  //Find the maximum and minimum vertex bounds.
-  //This is to allow calculation of the bounding triangle
-  xmin := Vertex^[0].x;
-  ymin := Vertex^[0].y;
-  xmax := xmin;
-  ymax := ymin;
-  for VertID := 1 To aVertCount - 1 do
-  begin
-    If Vertex^[VertID].x < xmin Then xmin := Vertex^[VertID].x;
-    If Vertex^[VertID].x > xmax Then xmax := Vertex^[VertID].x;
-    If Vertex^[VertID].y < ymin Then ymin := Vertex^[VertID].y;
-    If Vertex^[VertID].y > ymax Then ymax := Vertex^[VertID].y;
-  end;
-
-  dx := xmax - xmin;
-  dy := ymax - ymin;
-  if dx > dy then
-    dmax := dx
-  else
-    dmax := dy;
-
-  xmid := Trunc((xmax + xmin) / 2);
-  ymid := Trunc((ymax + ymin) / 2);
-
-  //Set up the supertriangle
-  //This is a triangle which encompasses all the sample points.
-  //The supertriangle coordinates are added to the end of the
-  //vertex list. The supertriangle is the first triangle in
-  //the triangle list.
-
-  Vertex^[aVertCount + 0].x := (xmid - 2 * dmax);
-  Vertex^[aVertCount + 0].y := (ymid - dmax);
-  Vertex^[aVertCount + 1].x := xmid;
-  Vertex^[aVertCount + 1].y := (ymid + 2 * dmax);
-  Vertex^[aVertCount + 2].x := (xmid + 2 * dmax);
-  Vertex^[aVertCount + 2].y := (ymid - dmax);
-  Triangle^[0].vv0 := aVertCount + 0;
-  Triangle^[0].vv1 := aVertCount + 1;
-  Triangle^[0].vv2 := aVertCount + 2;
+  Triangle^[0].vv0 := 0;
+  Triangle^[0].vv1 := 1;
+  Triangle^[0].vv2 := 2;
   Triangle^[0].Precalc := 0;
-
+  Triangle^[1].vv0 := 0;
+  Triangle^[1].vv1 := 2;
+  Triangle^[1].vv2 := 3;
+  Triangle^[1].Precalc := 0;
   Complete^[0] := False;
-  oPolyCount := 0;
+  Complete^[1] := False;
+  oPolyCount := 2;
 
   //Include each point one at a time into the existing mesh
   for VertID := 0 to aVertCount - 1 do
@@ -298,7 +264,7 @@ begin
     J := -1;
     repeat
       J := J + 1;
-      if not Complete^[J] then
+      //if not Complete^[J] then
       begin
         InCir := InCircle(Vertex^[VertID].x, Vertex^[VertID].y, Vertex^[Triangle^[J].vv0].x,
                           Vertex^[Triangle^[J].vv0].y, Vertex^[Triangle^[J].vv1].x,
@@ -317,20 +283,21 @@ begin
             Edges^[0, Nedge + 2] := Triangle^[J].vv2;
             Edges^[1, Nedge + 2] := Triangle^[J].vv0;
             Nedge := Nedge + 3;
-            Triangle^[J].vv0 := Triangle^[oPolyCount].vv0;
-            Triangle^[J].vv1 := Triangle^[oPolyCount].vv1;
-            Triangle^[J].vv2 := Triangle^[oPolyCount].vv2;
-            Triangle^[J].PreCalc:=Triangle^[oPolyCount].PreCalc;
-            Triangle^[J].xc:=Triangle^[oPolyCount].xc;
-            Triangle^[J].yc:=Triangle^[oPolyCount].yc;
-            Triangle^[J].r:=Triangle^[oPolyCount].r;
-            Triangle^[oPolyCount].PreCalc:=0;
-            Complete^[J] := Complete^[oPolyCount];
+            //Move last triangle to J
+            Triangle^[J].vv0 := Triangle^[oPolyCount - 1].vv0;
+            Triangle^[J].vv1 := Triangle^[oPolyCount - 1].vv1;
+            Triangle^[J].vv2 := Triangle^[oPolyCount - 1].vv2;
+            Triangle^[J].PreCalc:=Triangle^[oPolyCount - 1].PreCalc;
+            Triangle^[J].xc:=Triangle^[oPolyCount - 1].xc;
+            Triangle^[J].yc:=Triangle^[oPolyCount - 1].yc;
+            Triangle^[J].r:=Triangle^[oPolyCount - 1].r;
+            Triangle^[oPolyCount - 1].PreCalc:=0;
+            Complete^[J] := Complete^[oPolyCount - 1];
             J := J - 1;
             oPolyCount := oPolyCount - 1;
           end;
       end;
-    until(J >= oPolyCount);
+    until(J+1 >= oPolyCount);
 
     // Tag multiple edges
     // Note: if all triangles are specified anticlockwise then all
@@ -350,34 +317,17 @@ begin
     //  Form new triangles for the current point
     //  Skipping over any tagged edges.
     //  All edges are arranged in clockwise order.
-    for J := 0 To Nedge - 1 do
+    for J := 0 to Nedge - 1 do
     if not (Edges^[0, J] = 0) and not (Edges^[1, J] = 0) then
     begin
-      oPolyCount := oPolyCount + 1;
       Triangle^[oPolyCount].vv0 := Edges^[0, J];
       Triangle^[oPolyCount].vv1 := Edges^[1, J];
       Triangle^[oPolyCount].vv2 := VertID;
       Triangle^[oPolyCount].PreCalc := 0;
       Complete^[oPolyCount] := False;
+      oPolyCount := oPolyCount + 1;
     end;
   end;
-
-  //Remove triangles with supertriangle vertices
-  //These are triangles which have a vertex number greater than NVERT
-  I:= -1;
-  repeat
-    I := I + 1;
-    if (Triangle^[I].vv0 > aVertCount - 1)
-    or (Triangle^[I].vv1 > aVertCount - 1)
-    or (Triangle^[I].vv2 > aVertCount - 1) then
-    begin
-      Triangle^[I].vv0 := Triangle^[oPolyCount].vv0;
-      Triangle^[I].vv1 := Triangle^[oPolyCount].vv1;
-      Triangle^[I].vv2 := Triangle^[oPolyCount].vv2;
-      I := I - 1;
-      oPolyCount := oPolyCount - 1;
-    end;
-  until(I >= oPolyCount);
 
   Result := oPolyCount;
 
@@ -405,10 +355,19 @@ begin
      (Abs(y-Vertex^[i].y) < DUPLICATE_TOLERANCE) then
     Exit;
 
-  Vertex^[VerticeCount].x := x;
-  Vertex^[VerticeCount].y := y;
+  Vertex^[VerticeCount].x := x;//+Random;
+  Vertex^[VerticeCount].y := y;//+Random;
   //Increment the total number of points
   Inc(VerticeCount);
+end;
+
+
+procedure TDelaunay.AddRect(x1,y1,x2,y2: Integer);
+begin
+  AddPoint(x1,y1);
+  AddPoint(x1,y2);
+  AddPoint(x2,y2);
+  AddPoint(x2,y1);
 end;
 
 

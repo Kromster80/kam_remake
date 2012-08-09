@@ -15,6 +15,7 @@ uses
   KM_FormMain in 'KM_FormMain.pas' {FormMain},
   KM_FormLoading in 'KM_FormLoading.pas' {FormLoading},
 
+  Delaunay,
   KM_AI in 'KM_AI.pas',
   KM_AIAttacks in 'KM_AIAttacks.pas',
   KM_AIDefensePos in 'KM_AIDefensePos.pas',
