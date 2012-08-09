@@ -2,12 +2,24 @@ unit KM_AIFields;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_Units, KM_Terrain, KM_Houses, KM_Defaults, KM_Player, KM_Utils, KM_Points;
+  Classes, KromUtils, Math, SysUtils, Graphics, Clipper, Delaunay,
+  KM_CommonClasses, KM_Units, KM_Terrain, KM_Houses, KM_Defaults, KM_Player, KM_Utils, KM_Points, KM_PolySimplify;
 
-
-//Influence maps, navmeshes, etc
 type
+  //Strcucture to describe NavMesh layout
+  TKMNavMesh = record
+    Vertices: TKMPointArray;
+    Polygons: array of record
+      Indices: array of Byte;
+      Area: Word; //Area of this polygon
+      Neighbours: array of record //Neighbour polygons
+        Index: Word; //Index of polygon
+        Touch: Byte; //Length of border between
+      end;
+    end;
+  end;
+
+  //Influence maps, navmeshes, etc
   TKMAIFields = class
   private
     fPlayerCount: Integer;
@@ -17,19 +29,12 @@ type
     fInfluenceMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
     fInfluenceMinMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Integer;
 
-    fNavMesh: record
-      PCount: Integer;
-      Polies: array of record
-        NCount: Integer;
-        Nodes: array of TKMPointI;
-        NCount1: Integer;
-        Nodes1: array of TKMPointI;
-        NCountS: Integer;
-        NodesS: array of TKMPointI;
-        NCountG: Integer;
-        NodesG: array of TKMPointI;
-      end;
-    end;
+    fRawOutlines: TKMShapesArray;
+    fSimpleOutlines: TKMShapesArray;
+    fSimpleShapes: TKMShapesArray;
+    fDelaunay: TDelaunay;
+
+    fNavMesh: TKMNavMesh;
 
     procedure NavMeshBaseGrid;
     procedure NavMeshObstacles;
@@ -52,7 +57,7 @@ var
 
 
 implementation
-uses KM_Game, KM_Log, KM_PlayersCollection, KM_RenderAux, KM_PolySimplify;
+uses KM_Game, KM_Log, KM_PlayersCollection, KM_RenderAux;
 
 
 { TKMAIFields }
@@ -60,7 +65,7 @@ constructor TKMAIFields.Create;
 begin
   inherited Create;
 
-  //fShowNavMesh := True;
+  fShowNavMesh := True;
 end;
 
 
@@ -253,8 +258,8 @@ var
     Y := aStartY;
     nextStep := sdNone;
 
-    SetLength(fNavMesh.Polies, fNavMesh.PCount + 1);
-    fNavMesh.Polies[fNavMesh.PCount].NCount := 0;
+    SetLength(fRawOutlines.Shape, fRawOutlines.Count + 1);
+    fRawOutlines.Shape[fRawOutlines.Count].Count := 0;
 
     repeat
       Step(X, Y);
@@ -268,24 +273,23 @@ var
       end;
 
       //Append new node vertice
-      with fNavMesh.Polies[fNavMesh.PCount] do
+      with fRawOutlines.Shape[fRawOutlines.Count] do
       begin
-        if Length(Nodes) <= NCount then
-          SetLength(Nodes, NCount + 32);
-        Nodes[NCount] := KMPointI(X, Y);
-        Inc(NCount);
+        if Length(Nodes) <= Count then
+          SetLength(Nodes, Count + 32);
+        Nodes[Count] := KMPointI(X, Y);
+        Inc(Count);
       end;
     until((X = aStartX) and (Y = aStartY));
 
     //Do not include too small regions
-    if fNavMesh.Polies[fNavMesh.PCount].NCount >= 12 then
-      Inc(fNavMesh.PCount);
+    if fRawOutlines.Shape[fRawOutlines.Count].Count >= 12 then
+      Inc(fRawOutlines.Count);
   end;
 
 var
   I, K: Integer;
   C1, C2, C3, C4: Boolean;
-  P0, P1, P2: Integer;
 begin
   SetLength(Tmp, fTerrain.MapY+1, fTerrain.MapX+1);
 
@@ -297,7 +301,7 @@ begin
   for K := 1 to fTerrain.MapX - 1 do
     Tmp[I,K] := 2 - Byte(CanWalk in fTerrain.Land[I,K].Passability) * 2;
 
-  fNavMesh.PCount := 0;
+  fRawOutlines.Count := 0;
   for I := 1 to fTerrain.MapY - 2 do
   for K := 1 to fTerrain.MapX - 2 do
   begin
@@ -314,36 +318,52 @@ begin
       WalkPerimeter(K,I);
   end;
 
-  //Basic simplify
-  for I := 0 to fNavMesh.PCount - 1 do
-  with fNavMesh.Polies[I] do
-  begin
-    NCount1 := 0;
-    SetLength(Nodes1, NCount+1);
-    for K := 0 to NCount - 1 do
-    begin
-      P0 := (K - 1 + NCount) mod NCount;
-      P1 := K;
-      P2 := (K + 1) mod NCount;
-      if ((Nodes[P0].X <> Nodes[P1].X) or (Nodes[P1].X <> Nodes[P2].X))
-      and ((Nodes[P0].Y <> Nodes[P1].Y) or (Nodes[P1].Y <> Nodes[P2].Y)) then
-      begin
-        Nodes1[NCount1] := Nodes[K];
-        Inc(NCount1);
-      end;
-    end;
-    Nodes1[NCount1] := Nodes1[0];
-    Inc(NCount1);
-    SetLength(Nodes1, NCount1);
-  end;
+  SimplifyStraights(fRawOutlines, fSimpleOutlines);
 
+  SimplifyShapes(fSimpleOutlines, fSimpleShapes, 2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1));
+
+  //Fill empty space with Delaunay triangles
+  fDelaunay := TDelaunay.Create;
+  fDelaunay.AddPoint(0, 0);
+  fDelaunay.AddPoint(fTerrain.MapX-1, 0);
+  fDelaunay.AddPoint(fTerrain.MapX-1, fTerrain.MapY-1);
+  fDelaunay.AddPoint(0, fTerrain.MapY-1);
+  fDelaunay.AddPoint(fTerrain.MapX div 2, fTerrain.MapY div 2);
+  {for I := 0 to fSimpleShapes.Count - 1 do
+  with fSimpleShapes.Shape[I] do
+    for K := 0 to Count - 1 do
+      fDelaunay.AddPoint(Nodes[K].X, Nodes[K].Y);}
+  fDelaunay.Mesh;
+
+  //Add more points to perimeter
+
+  //Retriangulate obstacles
+
+  //Adjoin triangles
+
+  {SetLength(TP, fNavMesh.PCount);
   for I := 0 to fNavMesh.PCount - 1 do
   with fNavMesh.Polies[I] do
   begin
-    SetLength(NodesS, NCount1);
-    NCountS := PolySimplify(2, Nodes1, NodesS);
-    SetLength(NodesS, NCountS);
+    SetLength(TP[I], NCountS);
+    for K := 0 to NCountS - 1 do
+    begin
+      TP[I,K].X := NodesS[K].X;
+      TP[I,K].Y := NodesS[K].Y;
+    end;
   end;
+  SetLength(MP, 4);
+  MP[0] := IntPoint(0, 0);
+  MP[1] := IntPoint(fTerrain.MapX - 1, 0);
+  MP[2] := IntPoint(fTerrain.MapX - 1, fTerrain.MapY - 1);
+  MP[3] := IntPoint(0, fTerrain.MapY - 1);
+  with TClipper.Create do
+  begin
+    AddPolygon(MP, ptSubject);
+    AddPolygons(TP, ptClip);
+    Execute(ctDifference, fNavMesh.OP, pftNonZero, pftNonZero);
+  end;
+  fNavMesh.OP := SimplifyPolygons(fNavMesh.OP);}
 end;
 
 
@@ -352,17 +372,12 @@ begin
   if not AI_GEN_NAVMESH then Exit;
 
   NavMeshObstacles;
-
-  //1.Uniform grid
-  //2.Contours around obstacles with Marching Squares
-  //3.Merge contours with grid
-  //
 end;
 
 
 procedure TKMAIFields.UpdateState(aTick: Cardinal);
 begin
-  //Naybe we recalculate Influences or navmesh sectors once in a while
+  //Maybe we recalculate Influences or navmesh sectors once in a while
 end;
 
 
@@ -371,6 +386,7 @@ procedure TKMAIFields.Paint(aRect: TKMRect);
 var
   I, K: Integer;
   TX, TY: Single;
+  x1,x2,x3,y1,y2,y3: Single;
 begin
   if AI_GEN_INFLUENCE_MAPS and fShowInfluenceMap then
     for I := aRect.Top to aRect.Bottom do
@@ -388,23 +404,38 @@ begin
     end;}
 
   if AI_GEN_NAVMESH and fShowNavMesh then
-    for I := 0 to fNavMesh.PCount - 1 do
-    for K := 0 to fNavMesh.Polies[I].NCount1 - 1 do
-    with fNavMesh.Polies[I] do
+    for I := 0 to fSimpleOutlines.Count - 1 do
+    for K := 0 to fSimpleOutlines.Shape[I].Count - 1 do
+    with fSimpleOutlines.Shape[I] do
     begin
-      TX := Nodes1[(K + 1) mod NCount1].X;
-      TY := Nodes1[(K + 1) mod NCount1].Y;
-      fRenderAux.LineOnTerrain(Nodes1[K].X, Nodes1[K].Y, TX, TY, $FFFF00FF);
+      TX := Nodes[(K + 1) mod Count].X;
+      TY := Nodes[(K + 1) mod Count].Y;
+      fRenderAux.LineOnTerrain(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
     end;
 
   if AI_GEN_NAVMESH and fShowNavMesh then
-    for I := 0 to fNavMesh.PCount - 1 do
-    with fNavMesh.Polies[I] do
-    for K := 0 to NCountS - 1 do
+    for I := 0 to fSimpleShapes.Count - 1 do
+    for K := 0 to fSimpleShapes.Shape[I].Count - 1 do
+    with fSimpleShapes.Shape[I] do
     begin
-      TX := NodesS[(K + 1) mod NCountS].X;
-      TY := NodesS[(K + 1) mod NCountS].Y;
-      fRenderAux.LineOnTerrain(NodesS[K].X, NodesS[K].Y, TX, TY, $FF00FF00);
+      TX := Nodes[(K + 1) mod Count].X;
+      TY := Nodes[(K + 1) mod Count].Y;
+      fRenderAux.LineOnTerrain(Nodes[K].X, Nodes[K].Y, TX, TY, $FF00FF00);
+    end;
+
+  if AI_GEN_NAVMESH and fShowNavMesh and (fDelaunay <> nil) then
+    for I := 0 to fDelaunay.PolyCount - 1 do
+    begin
+      x1 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv0].x);
+      y1 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv0].y);
+      x2 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv1].x);
+      y2 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv1].y);
+      x3 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv2].x);
+      y3 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv2].y);
+
+      fRenderAux.LineOnTerrain(x1,y1,x2,y2, $FFFF8000);
+      fRenderAux.LineOnTerrain(x2,y2,x3,y3, $FFFF8000);
+      fRenderAux.LineOnTerrain(x3,y3,x1,y1, $FFFF8000);
     end;
 end;
 

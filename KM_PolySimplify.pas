@@ -4,12 +4,63 @@ uses
   KM_Points;
 
 
-//Based on Douglas-Peucker algorithm for polyline simplification
-//  aError - max allowed distance between resulting line and removed points
-function PolySimplify(aError: Single; const aInput: array of TKMPointI; var aOutput: array of TKMPointI): integer;
+type
+  TKMPointArray = array of TKMPointI;
+
+  TKMNodesArray = record
+    Count: Integer;
+    Nodes: TKMPointArray;
+  end;
+
+  TKMShapesArray = record
+    Count: Integer;
+    Shape: array of TKMNodesArray;
+  end;
+
+
+//Simplify shapes by removing unnecessary points from straight lines
+procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
+
+//Simplify shapes by removing points within aError
+procedure SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray; aError: Single; aRect: TKMRect);
 
 
 implementation
+
+
+procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
+  procedure SimplifyStraights2(const aIn: TKMNodesArray; var aOut: TKMNodesArray);
+  var K: Integer; P0, P1, P2: Integer;
+  begin
+    //Reserve space for worst case when nothing gets optimized
+    SetLength(aOut.Nodes, aIn.Count);
+
+    for K := 0 to aIn.Count - 1 do
+    begin
+      P0 := (K - 1 + aIn.Count) mod aIn.Count;
+      P1 := K;
+      P2 := (K + 1) mod aIn.Count;
+      if ((aIn.Nodes[P0].X <> aIn.Nodes[P1].X) or (aIn.Nodes[P1].X <> aIn.Nodes[P2].X))
+      and ((aIn.Nodes[P0].Y <> aIn.Nodes[P1].Y) or (aIn.Nodes[P1].Y <> aIn.Nodes[P2].Y)) then
+      begin
+        aOut.Nodes[aOut.Count] := aIn.Nodes[K];
+        Inc(aOut.Count);
+      end;
+    end;
+
+    //Trim to actual length
+    SetLength(aOut.Nodes, aOut.Count);
+  end;
+
+var I: Integer;
+begin
+  SetLength(aOut.Shape, aIn.Count);
+
+  for I := 0 to aIn.Count - 1 do
+    SimplifyStraights2(aIn.Shape[I], aOut.Shape[I]);
+
+  aOut.Count := aIn.Count;
+end;
 
 
 function VectorDiff(const A, B: TKMPointF): TKMPointF;
@@ -96,7 +147,9 @@ begin
 end;
 
 
-function PolySimplify(aError: Single; const aInput: array of TKMPointI; var aOutput: array of TKMPointI): Integer;
+//Based on Douglas-Peucker algorithm for polyline simplification
+//  aError - max allowed distance between resulting line and removed points
+function PolySimplify(aError: Single; aRect: TKMRect; const aInput: TKMPointArray; var aOutput: TKMPointArray): Integer;
 var
   I, N: Integer;
   Prev: Integer;
@@ -127,7 +180,8 @@ begin
 
   //Keep more nodes on edges
   for I := 0 to N - 1 do
-  if (aInput[I].X = 0) or (aInput[I].Y = 0) then
+  if (aInput[I].X = aRect.Left) or (aInput[I].Y = aRect.Top)
+  or (aInput[I].X = aRect.Right) or (aInput[I].Y = aRect.Bottom) then
     Keep[I] := True;
 
   Prev := 0;
@@ -146,6 +200,30 @@ begin
     aOutput[Result] := aInput[I];
     Inc(Result);
   end;
+end;
+
+
+procedure SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray; aError: Single; aRect: TKMRect);
+var I: Integer;
+begin
+  SetLength(aOut.Shape, aIn.Count);
+
+  for I := 0 to aIn.Count - 1 do
+  begin
+    //Duplicate last point so that Douglas-Peucker could work on loop as 2 polylines
+    SetLength(aIn.Shape[I].Nodes, aIn.Shape[I].Count + 1);
+    aIn.Shape[I].Nodes[aIn.Shape[I].Count] := aIn.Shape[I].Nodes[0];
+    Inc(aIn.Shape[I].Count);
+
+    //Reserve space for worst case when all points are kept
+    SetLength(aOut.Shape[I].Nodes, aIn.Shape[I].Count);
+    aOut.Shape[I].Count := PolySimplify(aError, aRect, aIn.Shape[I].Nodes, aOut.Shape[I].Nodes);
+
+    //Cut last point since it duplicates 0
+    Dec(aOut.Shape[I].Count);
+    SetLength(aOut.Shape[I].Nodes, aOut.Shape[I].Count);
+  end;
+  aOut.Count := aIn.Count;
 end;
 
 

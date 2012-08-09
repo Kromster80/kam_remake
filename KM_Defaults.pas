@@ -66,7 +66,7 @@ var
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
   AI_GEN_INFLUENCE_MAPS :Boolean = False; //Generate influence maps for AI to plan attacks/defenses
-  AI_GEN_NAVMESH        :Boolean = False; //Generate navmesh for AI to plan attacks/defenses
+  AI_GEN_NAVMESH        :Boolean = True; //Generate navmesh for AI to plan attacks/defenses
 
   //These are debug things, should be False
   {User interface options}

@@ -14,77 +14,68 @@
 //You can use this code however you like providing the above credits remain in tact
 
 unit Delaunay;
-
 interface
-
-uses Dialogs, Graphics, Forms, Types;
+uses Types, KM_Points;
 
 //Set these as applicable
-Const MaxVertices = 500000;
-Const MaxTriangles = 1000000;
-Const ExPtTolerance = 0.000001;
+const
+  MAX_VERTICES = 500000;
+  MAX_TRIANGLES = 1000000;
+  DUPLICATE_TOLERANCE = 0.01;
 
-//Points (Vertices)
-Type dVertex = record
-    x: Double;
-    y: Double;
-end;
 
 //Created Triangles, vv# are the vertex pointers
-Type dTriangle = record
+type
+  TDTriangle = record
     vv0: LongInt;
     vv1: LongInt;
     vv2: LongInt;
     PreCalc: Integer;
     xc,yc,r: Double;
-end;
+  end;
 
-type TDVertex = array[0..MaxVertices] of dVertex;
-type PVertex = ^TDVertex;
+  TDVertexArray = array[0..MAX_VERTICES] of TKMPointF;
+  PVertexArray = ^TDVertexArray;
 
-type TDTriangle = array[0..MaxTriangles] of dTriangle;
-type PTriangle = ^TDTriangle;
-
-type TDComplete = array [0..MaxTriangles] of Boolean;
-type PComplete = ^TDComplete;
-
-type TDEdges = array[0..2,0..MaxTriangles * 3] of LongInt;
-type PEdges = ^TDEdges;
+  TDTriangleArray = array[0..MAX_TRIANGLES] of TDTriangle;
+  PTriangleArray = ^TDTriangleArray;
 
 type
   TDelaunay = class
   private
-    { Private declarations }
-    Vertex: PVertex;
-    Triangle: PTriangle;
     function InCircle(xp, yp, x1, y1, x2, y2, x3, y3: Double;
              var xc: Double; var yc: Double; var r: Double; j: Integer): Boolean;
-    Function WhichSide(xp, yp, x1, y1, x2, y2: Double): Integer;
-    Function Triangulate(nvert: Integer): Integer;
+    function WhichSide(xp, yp, x1, y1, x2, y2: Double): Integer;
+    function Triangulate(aVertCount: Integer): Integer;
+    procedure QuickSort(var A: PVertexArray; Low,High: Integer);
   public
-    { Public declarations }
-    TempBuffer: TBitmap;
-    HowMany: Integer;
-    tPoints: Integer; //Variable for total number of points (vertices)
-    TargetForm: TForm;
+    PolyCount: Integer;
+    VerticeCount: Integer; //Variable for total number of points (vertices)
+    Vertex: PVertexArray;
+    Triangle: PTriangleArray;
     constructor Create;
     destructor Destroy;
     procedure Mesh;
-    procedure Draw;
     procedure AddPoint(x,y: Integer);
-    procedure ClearBackPage;
-    procedure FlipBackPage;
-    procedure QuickSort(var A: PVertex; Low,High: Integer);
   end;
 
+
 implementation
+
+
+type
+  TDComplete = array [0..MAX_TRIANGLES] of Boolean;
+  PComplete = ^TDComplete;
+
+  TDEdges = array[0..1, 0..MAX_TRIANGLES * 3] of LongInt;
+  PEdges = ^TDEdges;
+
 
 constructor TDelaunay.Create;
 begin
   //Initiate total points to 1, using base 0 causes problems in the functions
-  tPoints := 1;
-  HowMany:=0;
-  TempBuffer:=TBitmap.Create;
+  VerticeCount := 1;
+  PolyCount:=0;
 
   //Allocate memory for arrays
   GetMem(Vertex, sizeof(Vertex^));
@@ -136,13 +127,8 @@ begin
   end else
   begin
 
-
-
   If (Abs(y1 - y2) < eps) And (Abs(y2 - y3) < eps) Then
-  begin
-  ShowMessage('INCIRCUM - F - Points are coincident !!');
-  Exit;
-  end;
+    Assert(False, 'INCIRCUM - F - Points are coincident !!');
 
   If Abs(y2 - y1) < eps Then
   begin
@@ -218,12 +204,11 @@ begin
      WhichSide := 0
   Else
      WhichSide := 1;
-
 End;
 
 
 
-Function TDelaunay.Triangulate(nvert: Integer): Integer;
+Function TDelaunay.Triangulate(aVertCount: Integer): Integer;
 //Takes as input NVERT vertices in arrays Vertex()
 //Returned is a list of NTRI triangular faces in the array
 //Triangle(). These triangles are arranged in clockwise order.
@@ -245,168 +230,156 @@ var
   dmax: Double;
 
   //General Variables
-  i : Integer;
+  VertID : Integer;
+  I: Integer;
   j : Integer;
   k : Integer;
-  ntri : Integer;
+  oPolyCount : Integer;
   xc : Double;
   yc : Double;
   r : Double;
-  inc : Boolean;
+  InCir : Boolean;
 begin
-
   //Allocate memory
   GetMem(Complete, sizeof(Complete^));
   GetMem(Edges, sizeof(Edges^));
 
-
-//Find the maximum and minimum vertex bounds.
-//This is to allow calculation of the bounding triangle
-xmin := Vertex^[1].x;
-ymin := Vertex^[1].y;
-xmax := xmin;
-ymax := ymin;
-  For i := 2 To nvert do
+  //Find the maximum and minimum vertex bounds.
+  //This is to allow calculation of the bounding triangle
+  xmin := Vertex^[0].x;
+  ymin := Vertex^[0].y;
+  xmax := xmin;
+  ymax := ymin;
+  for VertID := 1 To aVertCount - 1 do
   begin
-  If Vertex^[i].x < xmin Then xmin := Vertex^[i].x;
-  If Vertex^[i].x > xmax Then xmax := Vertex^[i].x;
-  If Vertex^[i].y < ymin Then ymin := Vertex^[i].y;
-  If Vertex^[i].y > ymax Then ymax := Vertex^[i].y;
+    If Vertex^[VertID].x < xmin Then xmin := Vertex^[VertID].x;
+    If Vertex^[VertID].x > xmax Then xmax := Vertex^[VertID].x;
+    If Vertex^[VertID].y < ymin Then ymin := Vertex^[VertID].y;
+    If Vertex^[VertID].y > ymax Then ymax := Vertex^[VertID].y;
   end;
 
-dx := xmax - xmin;
-dy := ymax - ymin;
-If dx > dy Then
+  dx := xmax - xmin;
+  dy := ymax - ymin;
+  if dx > dy then
     dmax := dx
-Else
+  else
     dmax := dy;
 
-xmid := Trunc((xmax + xmin) / 2);
-ymid := Trunc((ymax + ymin) / 2);
+  xmid := Trunc((xmax + xmin) / 2);
+  ymid := Trunc((ymax + ymin) / 2);
 
-//Set up the supertriangle
-//This is a triangle which encompasses all the sample points.
-//The supertriangle coordinates are added to the end of the
-//vertex list. The supertriangle is the first triangle in
-//the triangle list.
+  //Set up the supertriangle
+  //This is a triangle which encompasses all the sample points.
+  //The supertriangle coordinates are added to the end of the
+  //vertex list. The supertriangle is the first triangle in
+  //the triangle list.
 
-Vertex^[nvert + 1].x := (xmid - 2 * dmax);
-Vertex^[nvert + 1].y := (ymid - dmax);
-Vertex^[nvert + 2].x := xmid;
-Vertex^[nvert + 2].y := (ymid + 2 * dmax);
-Vertex^[nvert + 3].x := (xmid + 2 * dmax);
-Vertex^[nvert + 3].y := (ymid - dmax);
-Triangle^[1].vv0 := nvert + 1;
-Triangle^[1].vv1 := nvert + 2;
-Triangle^[1].vv2 := nvert + 3;
-Triangle^[1].Precalc := 0;
+  Vertex^[aVertCount + 0].x := (xmid - 2 * dmax);
+  Vertex^[aVertCount + 0].y := (ymid - dmax);
+  Vertex^[aVertCount + 1].x := xmid;
+  Vertex^[aVertCount + 1].y := (ymid + 2 * dmax);
+  Vertex^[aVertCount + 2].x := (xmid + 2 * dmax);
+  Vertex^[aVertCount + 2].y := (ymid - dmax);
+  Triangle^[0].vv0 := aVertCount + 0;
+  Triangle^[0].vv1 := aVertCount + 1;
+  Triangle^[0].vv2 := aVertCount + 2;
+  Triangle^[0].Precalc := 0;
 
-Complete[1] := False;
-ntri := 1;
+  Complete^[0] := False;
+  oPolyCount := 0;
 
-//Include each point one at a time into the existing mesh
-For i := 1 To nvert do
-begin
-  Nedge := 0;
+  //Include each point one at a time into the existing mesh
+  for VertID := 0 to aVertCount - 1 do
+  begin
+    Nedge := 0;
     //Set up the edge buffer.
     //If the point (Vertex(i).x,Vertex(i).y) lies inside the circumcircle then the
     //three edges of that triangle are added to the edge buffer.
-    j := 0;
-      repeat
-        j := j + 1;
-        If Complete^[j] <> True Then
-        begin
-            inc := InCircle(Vertex^[i].x, Vertex^[i].y, Vertex^[Triangle^[j].vv0].x,
-                            Vertex^[Triangle^[j].vv0].y, Vertex^[Triangle^[j].vv1].x,
-                            Vertex^[Triangle^[j].vv1].y, Vertex^[Triangle^[j].vv2].x,
-                            Vertex^[Triangle^[j].vv2].y, xc, yc, r,j);
-            //Include this if points are sorted by X
-            If (xc + r) < Vertex[i].x Then  //
-               complete[j] := True          //
-            Else                            //
-            If inc Then
-            begin
-                Edges^[1, Nedge + 1] := Triangle^[j].vv0;
-                Edges^[2, Nedge + 1] := Triangle^[j].vv1;
-                Edges^[1, Nedge + 2] := Triangle^[j].vv1;
-                Edges^[2, Nedge + 2] := Triangle^[j].vv2;
-                Edges^[1, Nedge + 3] := Triangle^[j].vv2;
-                Edges^[2, Nedge + 3] := Triangle^[j].vv0;
-                Nedge := Nedge + 3;
-                Triangle^[j].vv0 := Triangle^[ntri].vv0;
-                Triangle^[j].vv1 := Triangle^[ntri].vv1;
-                Triangle^[j].vv2 := Triangle^[ntri].vv2;
-                Triangle^[j].PreCalc:=Triangle^[ntri].PreCalc;
-                Triangle^[j].xc:=Triangle^[ntri].xc;
-                Triangle^[j].yc:=Triangle^[ntri].yc;
-                Triangle^[j].r:=Triangle^[ntri].r;
-                Triangle^[ntri].PreCalc:=0;
-                Complete^[j] := Complete^[ntri];
-                j := j - 1;
-                ntri := ntri - 1;
-            End;
-        End;
-    until j>=ntri;
+    J := -1;
+    repeat
+      J := J + 1;
+      if not Complete^[J] then
+      begin
+        InCir := InCircle(Vertex^[VertID].x, Vertex^[VertID].y, Vertex^[Triangle^[J].vv0].x,
+                          Vertex^[Triangle^[J].vv0].y, Vertex^[Triangle^[J].vv1].x,
+                          Vertex^[Triangle^[J].vv1].y, Vertex^[Triangle^[J].vv2].x,
+                          Vertex^[Triangle^[J].vv2].y, xc, yc, r, J);
+        //Include this if points are sorted by X
+        if (xc + r) < Vertex[VertID].x then  //
+          Complete^[J] := True          //
+        else                            //
+          if InCir then
+          begin
+            Edges^[0, Nedge + 0] := Triangle^[J].vv0;
+            Edges^[1, Nedge + 0] := Triangle^[J].vv1;
+            Edges^[0, Nedge + 1] := Triangle^[J].vv1;
+            Edges^[1, Nedge + 1] := Triangle^[J].vv2;
+            Edges^[0, Nedge + 2] := Triangle^[J].vv2;
+            Edges^[1, Nedge + 2] := Triangle^[J].vv0;
+            Nedge := Nedge + 3;
+            Triangle^[J].vv0 := Triangle^[oPolyCount].vv0;
+            Triangle^[J].vv1 := Triangle^[oPolyCount].vv1;
+            Triangle^[J].vv2 := Triangle^[oPolyCount].vv2;
+            Triangle^[J].PreCalc:=Triangle^[oPolyCount].PreCalc;
+            Triangle^[J].xc:=Triangle^[oPolyCount].xc;
+            Triangle^[J].yc:=Triangle^[oPolyCount].yc;
+            Triangle^[J].r:=Triangle^[oPolyCount].r;
+            Triangle^[oPolyCount].PreCalc:=0;
+            Complete^[J] := Complete^[oPolyCount];
+            J := J - 1;
+            oPolyCount := oPolyCount - 1;
+          end;
+      end;
+    until(J >= oPolyCount);
 
-// Tag multiple edges
-// Note: if all triangles are specified anticlockwise then all
-// interior edges are opposite pointing in direction.
-    For j := 1 To Nedge - 1 do
+    // Tag multiple edges
+    // Note: if all triangles are specified anticlockwise then all
+    // interior edges are opposite pointing in direction.
+    for J := 0 to Nedge - 1 do
+    if not (Edges^[0, J] = 0) and not (Edges^[1, J] = 0) then
+    for K := J + 1 to Nedge - 1 do
+    if not (Edges^[0, K] = 0) and not (Edges^[1, K] = 0) then
+    if (Edges^[0, J] = Edges^[1, K]) and (Edges^[1, J] = Edges^[0, K]) then
     begin
-        If Not (Edges^[1, j] = 0) And Not (Edges^[2, j] = 0) Then
-        begin
-            For k := j + 1 To Nedge do
-            begin
-                If Not (Edges^[1, k] = 0) And Not (Edges^[2, k] = 0) Then
-                begin
-                    If Edges^[1, j] = Edges^[2, k] Then
-                    begin
-                        If Edges^[2, j] = Edges^[1, k] Then
-                         begin
-                            Edges^[1, j] := 0;
-                            Edges^[2, j] := 0;
-                            Edges^[1, k] := 0;
-                            Edges^[2, k] := 0;
-                         End;
-                     End;
-                End;
-            end;
-        End;
+      Edges^[0, J] := 0;
+      Edges^[1, J] := 0;
+      Edges^[0, K] := 0;
+      Edges^[1, K] := 0;
     end;
 
-//  Form new triangles for the current point
-//  Skipping over any tagged edges.
-//  All edges are arranged in clockwise order.
-    For j := 1 To Nedge do
+    //  Form new triangles for the current point
+    //  Skipping over any tagged edges.
+    //  All edges are arranged in clockwise order.
+    for J := 0 To Nedge - 1 do
+    if not (Edges^[0, J] = 0) and not (Edges^[1, J] = 0) then
     begin
-            If Not (Edges^[1, j] = 0) And Not (Edges^[2, j] = 0) Then
-            begin
-                ntri := ntri + 1;
-                Triangle^[ntri].vv0 := Edges^[1, j];
-                Triangle^[ntri].vv1 := Edges^[2, j];
-                Triangle^[ntri].vv2 := i;
-                Triangle^[ntri].PreCalc:=0;
-                Complete^[ntri] := False;
-            End;
+      oPolyCount := oPolyCount + 1;
+      Triangle^[oPolyCount].vv0 := Edges^[0, J];
+      Triangle^[oPolyCount].vv1 := Edges^[1, J];
+      Triangle^[oPolyCount].vv2 := VertID;
+      Triangle^[oPolyCount].PreCalc := 0;
+      Complete^[oPolyCount] := False;
     end;
-end;
+  end;
 
-//Remove triangles with supertriangle vertices
-//These are triangles which have a vertex number greater than NVERT
-i:= 0;
-repeat
-  i := i + 1;
-  If (Triangle^[i].vv0 > nvert) Or (Triangle^[i].vv1 > nvert) Or (Triangle^[i].vv2 > nvert) Then
-  begin
-     Triangle^[i].vv0 := Triangle^[ntri].vv0;
-     Triangle^[i].vv1 := Triangle^[ntri].vv1;
-     Triangle^[i].vv2 := Triangle^[ntri].vv2;
-     i := i - 1;
-     ntri := ntri - 1;
-  End;
-until i>=ntri;
+  //Remove triangles with supertriangle vertices
+  //These are triangles which have a vertex number greater than NVERT
+  I:= -1;
+  repeat
+    I := I + 1;
+    if (Triangle^[I].vv0 > aVertCount - 1)
+    or (Triangle^[I].vv1 > aVertCount - 1)
+    or (Triangle^[I].vv2 > aVertCount - 1) then
+    begin
+      Triangle^[I].vv0 := Triangle^[oPolyCount].vv0;
+      Triangle^[I].vv1 := Triangle^[oPolyCount].vv1;
+      Triangle^[I].vv2 := Triangle^[oPolyCount].vv2;
+      I := I - 1;
+      oPolyCount := oPolyCount - 1;
+    end;
+  until(I >= oPolyCount);
 
-Triangulate := ntri;
+  Result := oPolyCount;
 
   //Free memory
   FreeMem(Complete, sizeof(Complete^));
@@ -416,89 +389,36 @@ End;
 
 procedure TDelaunay.Mesh;
 begin
-  QuickSort(Vertex,1,tPoints-1);
-  If tPoints > 3 Then
-  HowMany := Triangulate(tPoints-1); //'Returns number of triangles created.
+  QuickSort(Vertex, 0, VerticeCount - 1);
+  if VerticeCount > 2 then
+    PolyCount := Triangulate(VerticeCount); //Returns number of triangles created
 end;
 
-
-
-procedure TDelaunay.Draw;
-var
-  //variable to hold how many triangles are created by the triangulate function
-  i: Integer;
-begin
-  // Clear the form canvas
-  ClearBackPage;
-
-  TempBuffer.Canvas.Brush.Color := clTeal;
-  //Draw the created triangles
-  if (HowMany > 0) then
-  begin
-    For i:= 1 To HowMany do
-    begin
-    TempBuffer.Canvas.Polygon([Point(Trunc(Vertex^[Triangle^[i].vv0].x), Trunc(Vertex^[Triangle^[i].vv0].y)),
-                                  Point(Trunc(Vertex^[Triangle^[i].vv1].x), Trunc(Vertex^[Triangle^[i].vv1].y)),
-                                  Point(Trunc(Vertex^[Triangle^[i].vv2].x), Trunc(Vertex^[Triangle^[i].vv2].y))]);
-    end;
-  end;
-
-  FlipBackPage;
-end;
 
 procedure TDelaunay.AddPoint(x,y: Integer);
 var
-i, AE: Integer;
+  I: Integer;
 begin
+  //Skip duplicate points
+  for I := 0 to VerticeCount - 1 do
+  if (Abs(x-Vertex^[i].x) < DUPLICATE_TOLERANCE) and
+     (Abs(y-Vertex^[i].y) < DUPLICATE_TOLERANCE) then
+    Exit;
 
-  //Check for duplicate points
-  AE:=0;
-  i:=1;
-  while i<tPoints do
-  begin
-  If (Abs(x-Vertex^[i].x) < ExPtTolerance) and
-     (Abs(y-Vertex^[i].y) < ExPtTolerance) Then AE:=1;
-  Inc(i);
-  end;
-
-  if AE=0 then
-  begin
-  //Set Vertex coordinates where you clicked the pic box
-  Vertex^[tPoints].x := x;
-  Vertex^[tPoints].y := y;
+  Vertex^[VerticeCount].x := x;
+  Vertex^[VerticeCount].y := y;
   //Increment the total number of points
-  tPoints := tPoints + 1;
-  end;
-
+  Inc(VerticeCount);
 end;
 
 
-
-
-procedure TDelaunay.ClearBackPage;
-begin
-  TempBuffer.Height:=TargetForm.Height;
-  TempBuffer.Width:=TargetForm.Width;
-  TempBuffer.Canvas.Brush.Color := clSilver;
-  TempBuffer.Canvas.FillRect(Rect(0,0,TargetForm.Width,TargetForm.Height));
-end;
-
-procedure TDelaunay.FlipBackPage;
-var
-  ARect : TRect;
-begin
-  ARect := Rect(0,0,TargetForm.Width,TargetForm.Height);
-  TargetForm.Canvas.CopyRect(ARect, TempBuffer.Canvas, ARect);
-end;
-
-
-procedure TDelaunay.QuickSort(var A: PVertex; Low,High: Integer);
+procedure TDelaunay.QuickSort(var A: PVertexArray; Low,High: Integer);
 //Sort all points by x
-  procedure DoQuickSort(var A: PVertex; iLo, iHi: Integer);
+  procedure DoQuickSort(var A: PVertexArray; iLo, iHi: Integer);
   var
     Lo, Hi: Integer;
     Mid: Double;
-    T: dVertex;
+    T: TKMPointF;
   begin
     Lo := iLo;
     Hi := iHi;
