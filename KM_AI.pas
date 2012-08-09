@@ -224,7 +224,6 @@ begin
   CanEquipIron := fGame.CheckTime(fLastEquippedTime+Setup.EquipRateIron);
   CanEquipLeather := fGame.CheckTime(fLastEquippedTime+Setup.EquipRateLeather);
   if not CanEquipIron and not CanEquipLeather then Exit;
-  fLastEquippedTime := fGame.GameTickCount;
 
   //Create a list of troops that need to be trained based on defence position requirements
   FillChar(GroupReq, SizeOf(GroupReq), #0); //Clear up
@@ -269,6 +268,7 @@ begin
           HB.Equip(UT, 1);
           dec(GroupReq[GType]);
           TrainedSomething := true;
+          fLastEquippedTime := fGame.GameTickCount; //Only reset it when we actually trained something
           if Setup.GetEquipRate(UT) > 0 then break; //Only equip 1 soldier when we have a restricted equip rate
         end;
       if TrainedSomething and (Setup.GetEquipRate(UT) > 0) then break; //Only equip 1 soldier when we have a restricted equip rate
