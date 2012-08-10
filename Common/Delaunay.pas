@@ -19,8 +19,8 @@ uses Types, KM_Points;
 
 //Set these as applicable
 const
-  MAX_VERTICES = 500000;
-  MAX_TRIANGLES = 1000000;
+  MAX_VERTICES = 5000;
+  MAX_TRIANGLES = 10000;
   DUPLICATE_TOLERANCE = 0.01;
 
 
@@ -43,21 +43,22 @@ type
 type
   TDelaunay = class
   private
+    fPolyCount: Integer;
+    fVerticeCount: Integer;
     function InCircle(xp, yp, x1, y1, x2, y2, x3, y3: Double;
              var xc: Double; var yc: Double; var r: Double; j: Integer): Boolean;
     function WhichSide(xp, yp, x1, y1, x2, y2: Double): Integer;
     function Triangulate(aVertCount: Integer): Integer;
-    procedure QuickSort(var A: PVertexArray; Low,High: Integer);
+    procedure QuickSort(var A: PVertexArray; aLow, aHigh: Integer);
   public
-    PolyCount: Integer;
-    VerticeCount: Integer; //Variable for total number of points (vertices)
     Vertex: PVertexArray;
     Triangle: PTriangleArray;
-    constructor Create;
-    destructor Destroy;
+    constructor Create(x1,y1,x2,y2: Single);
+    destructor Destroy; override;
+    procedure AddPoint(x,y: Single);
     procedure Mesh;
-    procedure AddPoint(x,y: Integer);
-    procedure AddRect(x1,y1,x2,y2: Integer);
+    property PolyCount: Integer read fPolyCount;
+    property VerticeCount: Integer read fVerticeCount;
   end;
 
 
@@ -72,24 +73,35 @@ type
   PEdges = ^TDEdges;
 
 
-constructor TDelaunay.Create;
+//Constructor must setup bounding rectangle for all points
+constructor TDelaunay.Create(x1,y1,x2,y2: Single);
 begin
-  //Initiate total points to 1, using base 0 causes problems in the functions
-  VerticeCount := 0;
-  PolyCount := 0;
+  inherited Create;
 
   //Allocate memory for arrays
   GetMem(Vertex, sizeof(Vertex^));
   GetMem(Triangle, sizeof(Triangle^));
+
+  Assert((x2>x1) and (y2>y1), 'Bounding rect must have positive area');
+
+  //Points added in counter-clockwise order:
+  // 1 3
+  // 2 4
+  AddPoint(x1,y1);
+  AddPoint(x1,y2);
+  AddPoint(x2,y2);
+  AddPoint(x2,y1);
 end;
+
 
 destructor TDelaunay.Destroy;
 begin
   //Free memory for arrays
-  FreeMem(Vertex, sizeof(Vertex^));
-  FreeMem(Triangle, sizeof(Triangle^));
-end;
+  FreeMem(Vertex, SizeOf(Vertex^));
+  FreeMem(Triangle, SizeOf(Triangle^));
 
+  inherited;
+end;
 
 
 function TDelaunay.InCircle(xp, yp, x1, y1, x2, y2, x3, y3: Double;
@@ -127,10 +139,10 @@ begin
     drsqr := dx * dx + dy * dy;
   end else
   begin
-    If (Abs(y1 - y2) < eps) And (Abs(y2 - y3) < eps) Then
+    if (Abs(y1 - y2) < eps) And (Abs(y2 - y3) < eps) then
       Assert(False, 'INCIRCUM - F - Points are coincident !!');
 
-    If Abs(y2 - y1) < eps Then
+    if Abs(y2 - y1) < eps then
     begin
       m2 := -(x3 - x2) / (y3 - y2);
       mx2 := (x2 + x3) / 2;
@@ -138,7 +150,7 @@ begin
       xc := (x2 + x1) / 2;
       yc := m2 * (xc - mx2) + my2;
     end
-    Else If Abs(y3 - y2) < eps Then
+    else if Abs(y3 - y2) < eps then
     begin
       m1 := -(x2 - x1) / (y2 - y1);
       mx1 := (x1 + x2) / 2;
@@ -146,7 +158,7 @@ begin
       xc := (x3 + x2) / 2;
       yc := m1 * (xc - mx1) + my1;
     end
-    Else
+    else
     begin
       m1 := -(x2 - x1) / (y2 - y1);
       m2 := -(x3 - x2) / (y3 - y2);
@@ -181,7 +193,7 @@ begin
     Triangle^[j].r:=r;
   end;
 
-  If drsqr <= rsqr then
+  if drsqr <= rsqr then
     Result := True;
 end;
 
@@ -197,13 +209,13 @@ var
 begin
   equation := ((yp - y1) * (x2 - x1)) - ((y2 - y1) * (xp - x1));
 
-  If equation > 0 Then
+  If equation > 0 then
      WhichSide := -1
-  Else If equation = 0 Then
+  else If equation = 0 then
      WhichSide := 0
-  Else
+  else
      WhichSide := 1;
-End;
+end;
 
 
 function TDelaunay.Triangulate(aVertCount: Integer): Integer;
@@ -211,25 +223,12 @@ function TDelaunay.Triangulate(aVertCount: Integer): Integer;
 //Returned is a list of NTRI triangular faces in the array
 //Triangle(). These triangles are arranged in clockwise order.
 var
-
   Complete: PComplete;
   Edges: PEdges;
   Nedge: LongInt;
 
-  //For Super Triangle
-  xmin: Double;
-  xmax: Double;
-  ymin: Double;
-  ymax: Double;
-  xmid: Double;
-  ymid: Double;
-  dx: Double;
-  dy: Double;
-  dmax: Double;
-
   //General Variables
   VertID : Integer;
-  I: Integer;
   j : Integer;
   k : Integer;
   oPolyCount : Integer;
@@ -255,23 +254,22 @@ begin
   oPolyCount := 2;
 
   //Include each point one at a time into the existing mesh
-  for VertID := 0 to aVertCount - 1 do
+  for VertID := 4 to aVertCount - 1 do
   begin
     Nedge := 0;
     //Set up the edge buffer.
     //If the point (Vertex(i).x,Vertex(i).y) lies inside the circumcircle then the
     //three edges of that triangle are added to the edge buffer.
-    J := -1;
+    J := 0;
     repeat
-      J := J + 1;
-      //if not Complete^[J] then
+      if not Complete^[J] then
       begin
         InCir := InCircle(Vertex^[VertID].x, Vertex^[VertID].y, Vertex^[Triangle^[J].vv0].x,
                           Vertex^[Triangle^[J].vv0].y, Vertex^[Triangle^[J].vv1].x,
                           Vertex^[Triangle^[J].vv1].y, Vertex^[Triangle^[J].vv2].x,
                           Vertex^[Triangle^[J].vv2].y, xc, yc, r, J);
         //Include this if points are sorted by X
-        if (xc + r) < Vertex[VertID].x then  //
+        if (xc + r) < Vertex^[VertID].x then  //
           Complete^[J] := True          //
         else                            //
           if InCir then
@@ -297,28 +295,29 @@ begin
             oPolyCount := oPolyCount - 1;
           end;
       end;
-    until(J+1 >= oPolyCount);
+      J := J + 1;
+    until(J >= oPolyCount);
 
     // Tag multiple edges
     // Note: if all triangles are specified anticlockwise then all
     // interior edges are opposite pointing in direction.
     for J := 0 to Nedge - 1 do
-    if not (Edges^[0, J] = 0) and not (Edges^[1, J] = 0) then
+    if not (Edges^[0, J] = -1) and not (Edges^[1, J] = -1) then
     for K := J + 1 to Nedge - 1 do
-    if not (Edges^[0, K] = 0) and not (Edges^[1, K] = 0) then
+    if not (Edges^[0, K] = -1) and not (Edges^[1, K] = -1) then
     if (Edges^[0, J] = Edges^[1, K]) and (Edges^[1, J] = Edges^[0, K]) then
     begin
-      Edges^[0, J] := 0;
-      Edges^[1, J] := 0;
-      Edges^[0, K] := 0;
-      Edges^[1, K] := 0;
+      Edges^[0, J] := -1;
+      Edges^[1, J] := -1;
+      Edges^[0, K] := -1;
+      Edges^[1, K] := -1;
     end;
 
     //  Form new triangles for the current point
     //  Skipping over any tagged edges.
     //  All edges are arranged in clockwise order.
     for J := 0 to Nedge - 1 do
-    if not (Edges^[0, J] = 0) and not (Edges^[1, J] = 0) then
+    if not (Edges^[0, J] = -1) and not (Edges^[1, J] = -1) then
     begin
       Triangle^[oPolyCount].vv0 := Edges^[0, J];
       Triangle^[oPolyCount].vv1 := Edges^[1, J];
@@ -334,44 +333,35 @@ begin
   //Free memory
   FreeMem(Complete, sizeof(Complete^));
   FreeMem(Edges, sizeof(Edges^));
-End;
-
-
-procedure TDelaunay.Mesh;
-begin
-  QuickSort(Vertex, 0, VerticeCount - 1);
-  if VerticeCount > 2 then
-    PolyCount := Triangulate(VerticeCount); //Returns number of triangles created
 end;
 
 
-procedure TDelaunay.AddPoint(x,y: Integer);
+procedure TDelaunay.AddPoint(x,y: Single);
 var
   I: Integer;
 begin
   //Skip duplicate points
-  for I := 0 to VerticeCount - 1 do
-  if (Abs(x-Vertex^[i].x) < DUPLICATE_TOLERANCE) and
-     (Abs(y-Vertex^[i].y) < DUPLICATE_TOLERANCE) then
+  for I := 0 to fVerticeCount - 1 do
+  if (Abs(x-Vertex^[I].x) < DUPLICATE_TOLERANCE)
+  and(Abs(y-Vertex^[I].y) < DUPLICATE_TOLERANCE) then
     Exit;
 
-  Vertex^[VerticeCount].x := x;//+Random;
-  Vertex^[VerticeCount].y := y;//+Random;
-  //Increment the total number of points
-  Inc(VerticeCount);
+  Vertex^[fVerticeCount].x := x;
+  Vertex^[fVerticeCount].y := y;
+  Inc(fVerticeCount);
 end;
 
 
-procedure TDelaunay.AddRect(x1,y1,x2,y2: Integer);
+procedure TDelaunay.Mesh;
 begin
-  AddPoint(x1,y1);
-  AddPoint(x1,y2);
-  AddPoint(x2,y2);
-  AddPoint(x2,y1);
+  if fVerticeCount < 4 then Exit;
+  //Sort added points, skip bounding rect (first 4 points)
+  QuickSort(Vertex, 4, fVerticeCount - 1);
+  fPolyCount := Triangulate(fVerticeCount); //Returns number of triangles created
 end;
 
 
-procedure TDelaunay.QuickSort(var A: PVertexArray; Low,High: Integer);
+procedure TDelaunay.QuickSort(var A: PVertexArray; aLow,aHigh: Integer);
 //Sort all points by x
   procedure DoQuickSort(var A: PVertexArray; iLo, iHi: Integer);
   var
@@ -398,9 +388,9 @@ procedure TDelaunay.QuickSort(var A: PVertexArray; Low,High: Integer);
     if Lo < iHi then DoQuickSort(A, Lo, iHi);
   end;
 begin
-  DoQuickSort(A, Low, High);
+  if aHigh > aLow then
+    DoQuickSort(A, aLow, aHigh);
 end;
-
 
 
 end.

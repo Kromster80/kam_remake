@@ -2,7 +2,7 @@ unit KM_AIFields;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, SysUtils, Graphics, Clipper, Delaunay,
+  Classes, KromUtils, Math, SysUtils, Graphics, Delaunay,
   KM_CommonClasses, KM_Units, KM_Terrain, KM_Houses, KM_Defaults, KM_Player, KM_Utils, KM_Points, KM_PolySimplify;
 
 type
@@ -30,13 +30,12 @@ type
     fInfluenceMinMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Integer;
 
     fRawOutlines: TKMShapesArray;
+    fRawOutlines2: TKMShapesArray;
     fSimpleOutlines: TKMShapesArray;
-    fSimpleShapes: TKMShapesArray;
     fDelaunay: TDelaunay;
 
     fNavMesh: TKMNavMesh;
 
-    procedure NavMeshBaseGrid;
     procedure NavMeshObstacles;
   public
     constructor Create;
@@ -186,16 +185,6 @@ begin
 end;
 
 
-procedure TKMAIFields.NavMeshBaseGrid;
-var
-  I,K: Integer;
-begin
-  //for I := 1 to fTerrain.MapY - 1 do
-  //for K := 1 to fTerrain.MapX - 1 do
-
-end;
-
-
 procedure TKMAIFields.NavMeshObstacles;
 type
   TStepDirection = (sdNone, sdUp, sdRight, sdDown, sdLeft);
@@ -318,20 +307,21 @@ begin
       WalkPerimeter(K,I);
   end;
 
-  SimplifyStraights(fRawOutlines, fSimpleOutlines);
+  SimplifyStraights(fRawOutlines, fRawOutlines2);
 
-  SimplifyShapes(fSimpleOutlines, fSimpleShapes, 2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1));
+  SimplifyShapes(fRawOutlines2, fSimpleOutlines, 2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1));
 
   //Fill empty space with Delaunay triangles
-  fDelaunay := TDelaunay.Create;
-  fDelaunay.AddRect(30, 30, 90, 90);
-  fDelaunay.AddPoint(50,60);
-  fDelaunay.AddPoint(70,60);
+  fDelaunay := TDelaunay.Create(-0.1, -0.1, fTerrain.MapX-1+0.1, fTerrain.MapY-1+0.1);
+  for I := 0 to fSimpleOutlines.Count - 1 do
+  with fSimpleOutlines.Shape[I] do
+    for K := 0 to Count - 1 do
+      fDelaunay.AddPoint(Nodes[K].X, Nodes[K].Y);
+  fDelaunay.Mesh;
+
   {for I := 0 to fSimpleShapes.Count - 1 do
   with fSimpleShapes.Shape[I] do
-    for K := 0 to Count - 1 do
-      fDelaunay.AddPoint(Nodes[K].X, Nodes[K].Y);}
-  fDelaunay.Mesh;
+    fDelaunay.Clip(Nodes);}
 
   //Add more points to perimeter
 
@@ -339,29 +329,6 @@ begin
 
   //Adjoin triangles
 
-  {SetLength(TP, fNavMesh.PCount);
-  for I := 0 to fNavMesh.PCount - 1 do
-  with fNavMesh.Polies[I] do
-  begin
-    SetLength(TP[I], NCountS);
-    for K := 0 to NCountS - 1 do
-    begin
-      TP[I,K].X := NodesS[K].X;
-      TP[I,K].Y := NodesS[K].Y;
-    end;
-  end;
-  SetLength(MP, 4);
-  MP[0] := IntPoint(0, 0);
-  MP[1] := IntPoint(fTerrain.MapX - 1, 0);
-  MP[2] := IntPoint(fTerrain.MapX - 1, fTerrain.MapY - 1);
-  MP[3] := IntPoint(0, fTerrain.MapY - 1);
-  with TClipper.Create do
-  begin
-    AddPolygon(MP, ptSubject);
-    AddPolygons(TP, ptClip);
-    Execute(ctDifference, fNavMesh.OP, pftNonZero, pftNonZero);
-  end;
-  fNavMesh.OP := SimplifyPolygons(fNavMesh.OP);}
 end;
 
 
@@ -402,9 +369,9 @@ begin
     end;}
 
   if AI_GEN_NAVMESH and fShowNavMesh then
-    for I := 0 to fSimpleOutlines.Count - 1 do
-    for K := 0 to fSimpleOutlines.Shape[I].Count - 1 do
-    with fSimpleOutlines.Shape[I] do
+    for I := 0 to fRawOutlines2.Count - 1 do
+    for K := 0 to fRawOutlines2.Shape[I].Count - 1 do
+    with fRawOutlines2.Shape[I] do
     begin
       TX := Nodes[(K + 1) mod Count].X;
       TY := Nodes[(K + 1) mod Count].Y;
@@ -412,9 +379,9 @@ begin
     end;
 
   if AI_GEN_NAVMESH and fShowNavMesh then
-    for I := 0 to fSimpleShapes.Count - 1 do
-    for K := 0 to fSimpleShapes.Shape[I].Count - 1 do
-    with fSimpleShapes.Shape[I] do
+    for I := 0 to fSimpleOutlines.Count - 1 do
+    for K := 0 to fSimpleOutlines.Shape[I].Count - 1 do
+    with fSimpleOutlines.Shape[I] do
     begin
       TX := Nodes[(K + 1) mod Count].X;
       TY := Nodes[(K + 1) mod Count].Y;
