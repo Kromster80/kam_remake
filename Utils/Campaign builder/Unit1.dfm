@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 72
   Top = 90
-  Caption = 'Form1'
+  Caption = 'Campaign Builder'
   ClientHeight = 465
   ClientWidth = 689
   Color = clBtnFace
@@ -14,6 +14,7 @@ object Form1: TForm1
   Font.Style = []
   KeyPreview = True
   OldCreateOrder = False
+  Scaled = False
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
@@ -128,20 +129,18 @@ object Form1: TForm1
     Top = 8
     Width = 513
     Height = 425
-    HorzScrollBar.Position = 531
-    VertScrollBar.Position = 363
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 7
     object Image1: TImage
-      Left = -531
-      Top = -363
+      Left = 0
+      Top = 0
       Width = 1024
       Height = 768
       Stretch = True
     end
     object imgBlackFlag: TImage
-      Left = -523
-      Top = -355
+      Left = 0
+      Top = 0
       Width = 27
       Height = 29
       AutoSize = True
@@ -229,8 +228,8 @@ object Form1: TForm1
       Visible = False
     end
     object imgRedFlag: TImage
-      Left = -491
-      Top = -355
+      Left = 0
+      Top = 0
       Width = 23
       Height = 29
       AutoSize = True
@@ -307,8 +306,8 @@ object Form1: TForm1
       Visible = False
     end
     object imgNode: TImage
-      Left = -459
-      Top = -355
+      Left = 0
+      Top = 0
       Width = 11
       Height = 11
       AutoSize = True
@@ -332,10 +331,10 @@ object Form1: TForm1
       Visible = False
     end
     object shpBriefing: TShape
-      Left = 133
-      Top = 105
+      Left = 0
+      Top = 338
       Width = 360
-      Height = 300
+      Height = 430
       Brush.Style = bsDiagCross
       Pen.Color = clWhite
     end
@@ -376,6 +375,7 @@ object Form1: TForm1
     Top = 64
   end
   object dlgSaveCampaign: TSaveDialog
+    DefaultExt = 'cmp'
     Filter = 'KaM Remake campaigns (*.cmp)|*.cmp'
     Left = 320
     Top = 112

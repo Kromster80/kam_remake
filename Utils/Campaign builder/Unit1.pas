@@ -77,6 +77,9 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  DoubleBuffered := True; //Makes images drag around smoothly
+  ScrollBox1.DoubleBuffered := True;
+
   C := TKMCampaign.Create;
   fSelectedMap := -1;
 
@@ -84,6 +87,8 @@ begin
   seNodeCount.MaxValue := MAX_CAMP_NODES;
 
   fSprites := TKMSpritePackEdit.Create(rxTrees, nil);
+
+  seMapCountChange(nil); //Initialise it to 1 map
 end;
 
 
@@ -214,11 +219,12 @@ begin
 
   C.SaveToFile(dlgSaveCampaign.FileName);
 
-  fSprites.SaveToRXXFile(ExtractFilePath(dlgOpenCampaign.FileName) + 'images.rxx');
+  fSprites.SaveToRXXFile(ExtractFilePath(dlgSaveCampaign.FileName) + 'images.rxx');
 end;
 
 
 procedure TForm1.btnLoadCMPClick(Sender: TObject);
+var I: Integer;
 begin
   if DirectoryExists(ExtractFilePath(Application.ExeName) + '..\..\Campaigns\') then
     dlgOpenCampaign.InitialDir := ExtractFilePath(Application.ExeName) + '..\..\Campaigns\'
@@ -246,6 +252,9 @@ begin
   UpdateFlagCount;
   RefreshBackground;
   RefreshFlags;
+  //Hide nodes that might have been open from the last campaign
+  for I := 0 to Length(imgNodes) - 1 do
+    imgNodes[I].Visible := False;
 end;
 
 
