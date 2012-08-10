@@ -540,7 +540,11 @@ function TKMDeliverQueue.CalculateBid(iO,iD:Integer; KMSerf: TKMUnitSerf):Single
 begin
   //Basic Bid is length of route
   if fDemand[iD].Loc_House<>nil then
+  begin
     Result := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
+    //Resource ratios are also considered
+    +fPlayers[fOffer[iO].Loc_House.GetOwner].Stats.Ratio[fDemand[iD].Resource, fDemand[iD].Loc_House.HouseType];
+  end
   else
     Result := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
 
