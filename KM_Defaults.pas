@@ -41,8 +41,8 @@ const
 
 var
   //These should be True
-  MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
-  MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
+  MAKE_ANIM_TERRAIN     :Boolean = False;  //Should we animate water and swamps
+  MAKE_TEAM_COLORS      :Boolean = False;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :Boolean = True;  //Wherever units get hungry or not
   CHEATS_ENABLED        :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
@@ -78,7 +78,7 @@ var
   OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   {Gameplay display}
   SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic
-  SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic
+  SKIP_SOUND            :Boolean = True; //Skip all the sounds in favor of faster logic
   AGGRESSIVE_REPLAYS    :Boolean = False; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_TERRAIN_WIRES    :Boolean = False; //Makes terrain height visible
   SHOW_TERRAIN_PASS     :Byte = 0; //Byte(TPassability)

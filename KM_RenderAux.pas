@@ -18,6 +18,7 @@ type
     procedure Dot(X,Y: Single; aCol: TColor4);
     procedure DotOnTerrain(X,Y: Single; aCol: TColor4);
     procedure LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4);
+    procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Byte);
     procedure InfluenceMap(aRect: TKMRect; aInfl: Byte);
     procedure Projectile(x1,y1,x2,y2: Single);
@@ -159,6 +160,20 @@ begin
   RenderLine(X1,Y1,X2,Y2);
   RenderDot(X1, fTerrain.FlatToHeight(X1, Y1));
   RenderDot(X2, fTerrain.FlatToHeight(X2, Y2));
+end;
+
+
+procedure TRenderAux.Line(X1,Y1,X2,Y2: Single; aCol: TColor4);
+begin
+  glColor4ubv(@aCol);
+
+  glBegin(GL_LINES);
+    glVertex2f(x1, y1);
+    glVertex2f(x2, y2);
+  glEnd;
+
+  RenderDot(X1, Y1);
+  RenderDot(X2, Y2);
 end;
 
 

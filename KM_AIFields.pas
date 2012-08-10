@@ -3,7 +3,7 @@ unit KM_AIFields;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics, Delaunay,
-  KM_CommonClasses, KM_Units, KM_Terrain, KM_Houses, KM_Defaults, KM_Player, KM_Utils, KM_Points, KM_PolySimplify;
+  KM_CommonClasses, KM_Terrain, KM_Defaults, KM_Player, KM_Utils, KM_Points, KM_PolySimplify;
 
 type
   //Strcucture to describe NavMesh layout
@@ -319,15 +319,27 @@ begin
       fDelaunay.AddPoint(Nodes[K].X, Nodes[K].Y);
   fDelaunay.Mesh;
 
-  {for I := 0 to fSimpleShapes.Count - 1 do
-  with fSimpleShapes.Shape[I] do
-    fDelaunay.Clip(Nodes);}
+  //Bring triangulated mesh back
+  SetLength(fNavMesh.Vertices, fDelaunay.VerticeCount);
+  for I := 0 to fDelaunay.VerticeCount - 1 do
+  begin
+    fNavMesh.Vertices[I].X := Round(fDelaunay.Vertex[I].X);
+    fNavMesh.Vertices[I].Y := Round(fDelaunay.Vertex[I].Y);
+  end;
+  SetLength(fNavMesh.Polygons, fDelaunay.PolyCount);
+  for I := 0 to fDelaunay.PolyCount - 1 do
+  begin
+    SetLength(fNavMesh.Polygons[I].Indices, 3);
+    fNavMesh.Polygons[I].Indices[0] := fDelaunay.Triangle^[I].vv0;
+    fNavMesh.Polygons[I].Indices[1] := fDelaunay.Triangle^[I].vv1;
+    fNavMesh.Polygons[I].Indices[2] := fDelaunay.Triangle^[I].vv2;
+  end;
 
-  //Add more points to perimeter
+  //todo: Cut out triangles that intersect obstacles edges and retriangulate them manualy
 
-  //Retriangulate obstacles
+  //todo: Add points to perimeter next to obstacle corners
 
-  //Adjoin triangles
+  //todo: Adjoin triangles
 
 end;
 
@@ -349,9 +361,9 @@ end;
 //Render debug symbols
 procedure TKMAIFields.Paint(aRect: TKMRect);
 var
-  I, K: Integer;
+  I, K, J: Integer;
   TX, TY: Single;
-  x1,x2,x3,y1,y2,y3: Single;
+  x1,x2,y1,y2: Single;
 begin
   if AI_GEN_INFLUENCE_MAPS and fShowInfluenceMap then
     for I := aRect.Top to aRect.Bottom do
@@ -365,9 +377,10 @@ begin
     begin
       TX := Nodes[(K + 1) mod NCount].X;
       TY := Nodes[(K + 1) mod NCount].Y;
-      fRenderAux.LineOnTerrain(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
+      fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
     end;}
 
+  //Raw obstacle outlines
   if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to fRawOutlines2.Count - 1 do
     for K := 0 to fRawOutlines2.Shape[I].Count - 1 do
@@ -375,9 +388,10 @@ begin
     begin
       TX := Nodes[(K + 1) mod Count].X;
       TY := Nodes[(K + 1) mod Count].Y;
-      fRenderAux.LineOnTerrain(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
+      fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
     end;
 
+  //Simplified obstacle outlines
   if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to fSimpleOutlines.Count - 1 do
     for K := 0 to fSimpleOutlines.Shape[I].Count - 1 do
@@ -385,22 +399,22 @@ begin
     begin
       TX := Nodes[(K + 1) mod Count].X;
       TY := Nodes[(K + 1) mod Count].Y;
-      fRenderAux.LineOnTerrain(Nodes[K].X, Nodes[K].Y, TX, TY, $FF00FF00);
+      fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FF00FF00);
     end;
 
-  if AI_GEN_NAVMESH and fShowNavMesh and (fDelaunay <> nil) then
-    for I := 0 to fDelaunay.PolyCount - 1 do
+  //Raw navmesh
+  if AI_GEN_NAVMESH and fShowNavMesh then
+    for I := 0 to High(fNavMesh.Polygons) do
+    for K := 0 to High(fNavMesh.Polygons[I].Indices) do
     begin
-      x1 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv0].x);
-      y1 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv0].y);
-      x2 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv1].x);
-      y2 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv1].y);
-      x3 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv2].x);
-      y3 := Trunc(fDelaunay.Vertex^[fDelaunay.Triangle^[i].vv2].y);
+      x1 := fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[K]].X;
+      y1 := fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[K]].Y;
 
-      fRenderAux.LineOnTerrain(x1,y1,x2,y2, $FFFF8000);
-      fRenderAux.LineOnTerrain(x2,y2,x3,y3, $FFFF8000);
-      fRenderAux.LineOnTerrain(x3,y3,x1,y1, $FFFF8000);
+      J := (K + 1) mod Length(fNavMesh.Polygons[I].Indices);
+      x2 := fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[J]].X;
+      y2 := fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[J]].Y;
+
+      fRenderAux.Line(x1,y1,x2,y2, $FFFF8000);
     end;
 end;
 
