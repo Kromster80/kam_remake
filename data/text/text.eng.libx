@@ -1,5 +1,5 @@
 
-MaxID:2747
+MaxID:2754
 
 0:Sawmill
 1:Iron smithy
@@ -493,3 +493,10 @@ MaxID:2747
 2745:You may only have one instance of the game in multiplayer mode at once
 2746:Replay ended
 2747:ADDITIONAL MUSIC:
+2748:You
+2749:Player %d
+2750:Army
+2751:Citizens
+2752:Houses
+2753:Resources
+2754:Resources produced

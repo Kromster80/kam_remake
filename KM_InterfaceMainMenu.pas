@@ -332,8 +332,10 @@ type
       Panel_Stats: TKMPanel;
         Label_Stat: array[1..9]of TKMLabel;
       Panel_StatsCharts: TKMPanel;
-        Button_Graph1: TKMButtonFlat;
-        Button_Graph2: TKMButtonFlat;
+        Button_ResultsArmy,
+        Button_ResultsCitizens,
+        Button_ResultsHouses,
+        Button_ResultsWares: TKMButtonFlat;
         Graph_Army: TKMGraph;
         Graph_Citizens: TKMGraph;
         Graph_Houses: TKMGraph;
@@ -589,15 +591,15 @@ begin
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
-      Graph_Army.AddLine(PlayerName, FlagColor, Stats.GraphArmy);
+      Graph_Army.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphArmy);
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
-      Graph_Citizens.AddLine(PlayerName, FlagColor, Stats.GraphCitizens);
+      Graph_Citizens.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphCitizens);
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
-      Graph_Houses.AddLine(PlayerName, FlagColor, Stats.GraphHouses);
+      Graph_Houses.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphHouses);
 
     for R := WARE_MIN to WARE_MAX do
     begin
@@ -605,27 +607,30 @@ begin
       for I := 0 to High(G) do
         if G[I] <> 0 then
         begin
-          Graph_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
+          Graph_Wares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, G);
           Break;
         end;
     end;
 
-    Button_Graph2.Enabled := (fGame.MissionMode = mm_Normal);
-    Results_GraphToggle(Button_Graph1);
+    Button_ResultsHouses.Enabled := (fGame.MissionMode = mm_Normal);
+    Button_ResultsCitizens.Enabled := (fGame.MissionMode = mm_Normal);
+    Button_ResultsWares.Enabled := (fGame.MissionMode = mm_Normal);
+    Results_GraphToggle(Button_ResultsArmy);
   end;
 end;
 
 
 procedure TKMMainMenuInterface.Results_GraphToggle(Sender: TObject);
 begin
-  Graph_Army.Visible := Sender = Button_Graph1;
-  Graph_Citizens.Visible := Sender = Button_Graph1;
-  Graph_Houses.Visible := Sender = Button_Graph1;
+  Graph_Army.Visible := Sender = Button_ResultsArmy;
+  Graph_Citizens.Visible := Sender = Button_ResultsCitizens;
+  Graph_Houses.Visible := Sender = Button_ResultsHouses;
+  Graph_Wares.Visible := Sender = Button_ResultsWares;
 
-  Graph_Wares.Visible := Sender = Button_Graph2;
-
-  Button_Graph1.Down := Sender = Button_Graph1;
-  Button_Graph2.Down := Sender = Button_Graph2;
+  Button_ResultsArmy.Down := Sender = Button_ResultsArmy;
+  Button_ResultsCitizens.Down := Sender = Button_ResultsCitizens;
+  Button_ResultsHouses.Down := Sender = Button_ResultsHouses;
+  Button_ResultsWares.Down := Sender = Button_ResultsWares;
 end;
 
 
@@ -1606,11 +1611,11 @@ begin
     Label_Results := TKMLabel.Create(Panel_Results,512,140,900,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_Results.Anchors := [akLeft];
 
-    Panel_Stats := TKMPanel.Create(Panel_Results, 30, 200, 360, 370);
+    Panel_Stats := TKMPanel.Create(Panel_Results, 30, 216, 360, 354);
     Panel_Stats.Anchors := [akLeft];
 
       //Backplate for column results
-      with TKMImage.Create(Panel_Stats, 0, 0, 360, 370, 3, rxGuiMain) do
+      with TKMImage.Create(Panel_Stats, 0, 0, 360, 354, 3, rxGuiMain) do
       begin
         ImageStretch;
         Center;
@@ -1620,7 +1625,8 @@ begin
       for I := 1 to 9 do
       begin
         inc(Adv, 25);
-        if I in [3,6,7,9] then inc(Adv, 15);
+        if I in [3,6,7] then inc(Adv, 15);
+        if I = 9 then inc(Adv, 45); //Last one goes right at the bottom of the scroll
         TKMLabel.Create(Panel_Stats,20,Adv,240,20,fTextLibrary[StatText[I]],fnt_Metal,taLeft);
         Label_Stat[I] := TKMLabel.Create(Panel_Stats,340,Adv,80,20,'00',fnt_Metal,taRight);
       end;
@@ -1630,38 +1636,53 @@ begin
       Panel_StatsCharts := TKMPanel.Create(Panel_Results, 410, 170, 610, 420);
       Panel_StatsCharts.Anchors := [akLeft];
 
-      Button_Graph1 := TKMButtonFlat.Create(Panel_StatsCharts, 0, 0, 205, 20, 454, rxGui);
-      Button_Graph1.TexOffsetX := -90;
-      Button_Graph1.TexOffsetY := 5;
-      Button_Graph1.Anchors := [akLeft];
-      Button_Graph1.Caption := 'Units and Houses';
-      Button_Graph1.CapOffsetY := -11;
-      Button_Graph1.OnClick := Results_GraphToggle;
+      Button_ResultsArmy := TKMButtonFlat.Create(Panel_StatsCharts, 40, 0, 208, 20, 53, rxGui);
+      Button_ResultsArmy.TexOffsetX := -91;
+      Button_ResultsArmy.TexOffsetY := 7;
+      Button_ResultsArmy.Anchors := [akLeft];
+      Button_ResultsArmy.Caption := fTextLibrary[TX_GRAPH_ARMY];
+      Button_ResultsArmy.CapOffsetY := -11;
+      Button_ResultsArmy.OnClick := Results_GraphToggle;
 
-      Button_Graph2 := TKMButtonFlat.Create(Panel_StatsCharts, 215, 0, 205, 20, 169, rxGui);
-      Button_Graph2.TexOffsetX := -85;
-      Button_Graph2.TexOffsetY := 6;
-      Button_Graph2.Anchors := [akLeft];
-      Button_Graph2.Caption := 'Wares';
-      Button_Graph2.CapOffsetY := -11;
-      Button_Graph2.OnClick := Results_GraphToggle;
+      Button_ResultsCitizens := TKMButtonFlat.Create(Panel_StatsCharts, 40, 22, 208, 20, 20, rxGui);
+      Button_ResultsCitizens.TexOffsetX := -92;
+      Button_ResultsCitizens.TexOffsetY := 6;
+      Button_ResultsCitizens.Anchors := [akLeft];
+      Button_ResultsCitizens.Caption := fTextLibrary[TX_GRAPH_CITIZENS];
+      Button_ResultsCitizens.CapOffsetY := -11;
+      Button_ResultsCitizens.OnClick := Results_GraphToggle;
 
-      Graph_Army := TKMGraph.Create(Panel_StatsCharts, 0, 30, 610, 120);
-      Graph_Army.Caption := 'Army';
+      Button_ResultsHouses := TKMButtonFlat.Create(Panel_StatsCharts, 252, 0, 208, 20, 454, rxGui);
+      Button_ResultsHouses.TexOffsetX := -90;
+      Button_ResultsHouses.TexOffsetY := 6;
+      Button_ResultsHouses.Anchors := [akLeft];
+      Button_ResultsHouses.Caption := fTextLibrary[TX_GRAPH_HOUSES];
+      Button_ResultsHouses.CapOffsetY := -11;
+      Button_ResultsHouses.OnClick := Results_GraphToggle;
+
+      Button_ResultsWares := TKMButtonFlat.Create(Panel_StatsCharts, 252, 22, 208, 20, 169, rxGui);
+      Button_ResultsWares.TexOffsetX := -87;
+      Button_ResultsWares.TexOffsetY := 5;
+      Button_ResultsWares.Anchors := [akLeft];
+      Button_ResultsWares.Caption := fTextLibrary[TX_GRAPH_RESOURCES];
+      Button_ResultsWares.CapOffsetY := -11;
+      Button_ResultsWares.OnClick := Results_GraphToggle;
+
+      Graph_Army := TKMGraph.Create(Panel_StatsCharts, 0, 46, 610, 374);
+      Graph_Army.Caption := fTextLibrary[TX_GRAPH_ARMY];
       Graph_Army.Anchors := [akLeft];
 
-      Graph_Citizens := TKMGraph.Create(Panel_StatsCharts, 0, 165, 610, 120);
-      Graph_Citizens.Caption := 'Citizens';
+      Graph_Citizens := TKMGraph.Create(Panel_StatsCharts, 0, 46, 610, 374);
+      Graph_Citizens.Caption := fTextLibrary[TX_GRAPH_CITIZENS];
       Graph_Citizens.Anchors := [akLeft];
 
-      Graph_Houses := TKMGraph.Create(Panel_StatsCharts, 0, 300, 610, 120);
-      Graph_Houses.Caption := 'Houses';
+      Graph_Houses := TKMGraph.Create(Panel_StatsCharts, 0, 46, 610, 374);
+      Graph_Houses.Caption := fTextLibrary[TX_GRAPH_HOUSES];
       Graph_Houses.Anchors := [akLeft];
 
-      Graph_Wares := TKMGraph.Create(Panel_StatsCharts, 0, 30, 610, 390);
-      Graph_Wares.Caption := 'Wares';
+      Graph_Wares := TKMGraph.Create(Panel_StatsCharts, 0, 46, 610, 374);
+      Graph_Wares.Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES];
       Graph_Wares.Anchors := [akLeft];
-      Graph_Wares.Hide;
     end;
 
     Button_ResultsBack := TKMButton.Create(Panel_Results,30,610,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
@@ -1958,7 +1979,7 @@ begin
   {Show Results screen}
   if Sender = Panel_Results then //This page can be accessed only by itself
   begin
-    Results_GraphToggle(Button_Graph1);
+    Results_GraphToggle(Button_ResultsArmy);
     Panel_Results.Show;
   end;
 

@@ -72,6 +72,7 @@ type
 
     procedure SetPlayerID(aNewIndex: TPlayerIndex);
     property PlayerName: string read fPlayerName write fPlayerName;
+    function GetFormattedPlayerName:string;
     property PlayerType: TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor: Cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex: Byte read GetColorIndex;
@@ -132,7 +133,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game,
-  KM_Units_Warrior;
+  KM_Units_Warrior, KM_TextLibrary;
 
 
 { TKMPlayerCommon }
@@ -219,7 +220,7 @@ begin
   fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
 
-  fPlayerName   := 'Player ' + IntToStr(aPlayerIndex);
+  fPlayerName   := '';
   fPlayerType   := pt_Computer;
   for I := 0 to MAX_PLAYERS - 1 do
     fAlliances[I] := at_Enemy; //Everyone is enemy by default
@@ -681,6 +682,20 @@ begin
   for i:=0 to 255 do
     if fResource.Palettes.DefDal.Color32(i) = fFlagColor then
       Result := i;
+end;
+
+
+function TKMPlayer.GetFormattedPlayerName:string;
+begin
+  if fPlayerName <> '' then
+    Result := fPlayerName
+  else
+  begin
+    if PlayerType = pt_Human then
+      Result := fTextLibrary[TX_PLAYER_YOU]
+    else
+      Result := Format(fTextLibrary[TX_PLAYER_X], [fPlayerIndex+1]);
+  end;
 end;
 
 
