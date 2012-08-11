@@ -4181,17 +4181,17 @@ begin
   //Find first interval that will have less than 10 ticks
   Best := 0;
   for I := 0 to 9 do
-    if fMaxValue div IntervalCount[I] < 10 then
+    if TopValue div IntervalCount[I] < 10 then
     begin
       Best := IntervalCount[I];
       Break;
     end;
 
   if Best <> 0 then
-  for I := 1 to (fMaxValue div Best) do
+  for I := 1 to (TopValue div Best) do
   begin
-    fRenderUI.WriteText(G.Left - 5, G.Top + Round((1 - I * Best / fMaxValue) * (G.Bottom - G.Top)) - 6, 0, 0, IntToStr(I * Best), fnt_Game, taRight);
-    fRenderUI.WriteLayer(G.Left - 2, G.Top + Round((1 - I * Best / fMaxValue) * (G.Bottom - G.Top)), 5, 2, $FFFFFFFF, $00000000);
+    fRenderUI.WriteText(G.Left - 5, G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top)) - 6, 0, 0, IntToStr(I * Best), fnt_Game, taRight);
+    fRenderUI.WriteLayer(G.Left - 2, G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top)), 5, 2, $FFFFFFFF, $00000000);
   end;
 
   //Render horizontal axis ticks

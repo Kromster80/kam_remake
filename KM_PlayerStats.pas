@@ -555,7 +555,7 @@ begin
   fGraphCitizens[fGraphCount] := GetCitizensCount;
 
   for I := WARE_MIN to WARE_MAX do
-    fGraphGoods[I, fGraphCount] := Goods[I].Initial + Goods[I].Produced - Goods[I].Consumed;
+    fGraphGoods[I, fGraphCount] := Goods[I].Produced;
 
   Inc(fGraphCount);
 end;
