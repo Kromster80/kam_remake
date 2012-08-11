@@ -342,7 +342,10 @@ type
         Graph_Wares: TKMGraph;
       Button_ResultsBack,Button_ResultsRepeat,Button_ResultsContinue: TKMButton;
     Panel_ResultsMP:TKMPanel;
-      Button_MPStats, Button_MPUnitsHouses, Button_MPWares: TKMButtonFlat;
+      Button_MPResultsStats,
+      Button_MPResultsArmy,
+      Button_MPResultsEconomy,
+      Button_MPResultsWares: TKMButtonFlat;
       Label_ResultsMP: TKMLabel;
       Panel_StatsMP1, Panel_StatsMP2: TKMPanel;
         Label_ResultsPlayerName1, Label_ResultsPlayerName2:array[0..MAX_PLAYERS-1] of TKMLabel;
@@ -636,18 +639,21 @@ end;
 
 procedure TKMMainMenuInterface.ResultsMP_Toggle(Sender: TObject);
 begin
-  Panel_StatsMP1.Visible := Sender = Button_MPStats;
-  Panel_StatsMP2.Visible := Sender = Button_MPStats;
+  Panel_StatsMP1.Visible := Sender = Button_MPResultsStats;
+  Panel_StatsMP2.Visible := Sender = Button_MPResultsStats;
 
-  Panel_GraphsMP.Visible   :=(Sender = Button_MPUnitsHouses) or (Sender = Button_MPWares);
-  Graph_MPArmy.Visible     := Sender = Button_MPUnitsHouses;
-  Graph_MPCitizens.Visible := Sender = Button_MPUnitsHouses;
-  Graph_MPHouses.Visible   := Sender = Button_MPUnitsHouses;
-  Graph_MPWares.Visible    := Sender = Button_MPWares;
+  Panel_GraphsMP.Visible   :=(Sender = Button_MPResultsArmy)
+                          or (Sender = Button_MPResultsEconomy)
+                          or (Sender = Button_MPResultsWares);
+  Graph_MPArmy.Visible     := Sender = Button_MPResultsArmy;
+  Graph_MPCitizens.Visible := Sender = Button_MPResultsEconomy;
+  Graph_MPHouses.Visible   := Sender = Button_MPResultsEconomy;
+  Graph_MPWares.Visible    := Sender = Button_MPResultsWares;
 
-  Button_MPStats.Down := Sender = Button_MPStats;
-  Button_MPUnitsHouses.Down := Sender = Button_MPUnitsHouses;
-  Button_MPWares.Down := Sender = Button_MPWares;
+  Button_MPResultsStats.Down := Sender = Button_MPResultsStats;
+  Button_MPResultsArmy.Down := Sender = Button_MPResultsArmy;
+  Button_MPResultsEconomy.Down := Sender = Button_MPResultsEconomy;
+  Button_MPResultsWares.Down := Sender = Button_MPResultsWares;
 end;
 
 
@@ -838,8 +844,9 @@ begin
         end;
     end;
 
-    Button_MPWares.Enabled := (fGame.MissionMode = mm_Normal);
-    ResultsMP_Toggle(Button_MPStats); //Statistics (not graphs) page shown by default every time
+    Button_MPResultsWares.Enabled := (fGame.MissionMode = mm_Normal);
+    Button_MPResultsEconomy.Enabled := (fGame.MissionMode = mm_Normal);
+    ResultsMP_Toggle(Button_MPResultsStats); //Statistics (not graphs) page shown by default every time
   end;
 end;
 
@@ -1661,7 +1668,7 @@ begin
       Button_ResultsHouses.OnClick := Results_GraphToggle;
 
       Button_ResultsWares := TKMButtonFlat.Create(Panel_StatsCharts, 252, 22, 208, 20, 169, rxGui);
-      Button_ResultsWares.TexOffsetX := -87;
+      Button_ResultsWares.TexOffsetX := -86;
       Button_ResultsWares.TexOffsetY := 5;
       Button_ResultsWares.Anchors := [akLeft];
       Button_ResultsWares.Caption := fTextLibrary[TX_GRAPH_RESOURCES];
@@ -1727,29 +1734,37 @@ begin
     Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,125,900,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_ResultsMP.Anchors := [akLeft];
 
-    Button_MPStats := TKMButtonFlat.Create(Panel_ResultsMP, 190, 155, 210, 20, 8, rxGuiMain);
-    Button_MPStats.TexOffsetX := -94;
-    Button_MPStats.TexOffsetY := 6;
-    Button_MPStats.Anchors := [akLeft];
-    Button_MPStats.Caption := 'Statistics';
-    Button_MPStats.CapOffsetY := -11;
-    Button_MPStats.OnClick := ResultsMP_Toggle;
+    Button_MPResultsStats := TKMButtonFlat.Create(Panel_ResultsMP, 160, 155, 176, 20, 8, rxGuiMain);
+    Button_MPResultsStats.TexOffsetX := -78;
+    Button_MPResultsStats.TexOffsetY := 6;
+    Button_MPResultsStats.Anchors := [akLeft];
+    Button_MPResultsStats.Caption := fTextLibrary[TX_RESULTS_STATISTICS];
+    Button_MPResultsStats.CapOffsetY := -11;
+    Button_MPResultsStats.OnClick := ResultsMP_Toggle;
 
-    Button_MPUnitsHouses := TKMButtonFlat.Create(Panel_ResultsMP, 408, 155, 210, 20, 454, rxGui);
-    Button_MPUnitsHouses.TexOffsetX := -92;
-    Button_MPUnitsHouses.TexOffsetY := 5;
-    Button_MPUnitsHouses.Anchors := [akLeft];
-    Button_MPUnitsHouses.Caption := 'Units and Houses';
-    Button_MPUnitsHouses.CapOffsetY := -11;
-    Button_MPUnitsHouses.OnClick := ResultsMP_Toggle;
+    Button_MPResultsArmy := TKMButtonFlat.Create(Panel_ResultsMP, 340, 155, 176, 20, 53, rxGui);
+    Button_MPResultsArmy.TexOffsetX := -76;
+    Button_MPResultsArmy.TexOffsetY := 6;
+    Button_MPResultsArmy.Anchors := [akLeft];
+    Button_MPResultsArmy.Caption := fTextLibrary[TX_GRAPH_ARMY];
+    Button_MPResultsArmy.CapOffsetY := -11;
+    Button_MPResultsArmy.OnClick := ResultsMP_Toggle;
 
-    Button_MPWares := TKMButtonFlat.Create(Panel_ResultsMP, 626, 155, 210, 20, 169, rxGui);
-    Button_MPWares.TexOffsetX := -86;
-    Button_MPWares.TexOffsetY := 6;
-    Button_MPWares.Anchors := [akLeft];
-    Button_MPWares.Caption := 'Wares';
-    Button_MPWares.CapOffsetY := -11;
-    Button_MPWares.OnClick := ResultsMP_Toggle;
+    Button_MPResultsEconomy := TKMButtonFlat.Create(Panel_ResultsMP, 520, 155, 176, 20, 454, rxGui);
+    Button_MPResultsEconomy.TexOffsetX := -75;
+    Button_MPResultsEconomy.TexOffsetY := 6;
+    Button_MPResultsEconomy.Anchors := [akLeft];
+    Button_MPResultsEconomy.Caption := fTextLibrary[TX_RESULTS_ECONOMY];
+    Button_MPResultsEconomy.CapOffsetY := -11;
+    Button_MPResultsEconomy.OnClick := ResultsMP_Toggle;
+
+    Button_MPResultsWares := TKMButtonFlat.Create(Panel_ResultsMP, 700, 155, 176, 20, 169, rxGui);
+    Button_MPResultsWares.TexOffsetX := -70;
+    Button_MPResultsWares.TexOffsetY := 6;
+    Button_MPResultsWares.Anchors := [akLeft];
+    Button_MPResultsWares.Caption := fTextLibrary[TX_GRAPH_RESOURCES];
+    Button_MPResultsWares.CapOffsetY := -11;
+    Button_MPResultsWares.OnClick := ResultsMP_Toggle;
 
     Panel_StatsMP1 := TKMPanel.Create(Panel_ResultsMP, 62, 240, 900, 180);
     Panel_StatsMP1.Anchors := [akLeft];
@@ -1790,20 +1805,20 @@ begin
     Panel_GraphsMP := TKMPanel.Create(Panel_ResultsMP, 0, 185, 1024, 560);
     Panel_GraphsMP.Anchors := [akLeft];
 
-      Graph_MPArmy := TKMGraph.Create(Panel_GraphsMP, 112, 0, 800, 135);
-      Graph_MPArmy.Caption := 'Army';
+      Graph_MPArmy := TKMGraph.Create(Panel_GraphsMP, 12, 0, 1000, 435);
+      Graph_MPArmy.Caption := fTextLibrary[TX_GRAPH_ARMY];
       Graph_MPArmy.Anchors := [akLeft];
 
-      Graph_MPCitizens := TKMGraph.Create(Panel_GraphsMP, 112, 155, 800, 135);
-      Graph_MPCitizens.Caption := 'Citizens';
+      Graph_MPCitizens := TKMGraph.Create(Panel_GraphsMP, 62, 0, 900, 200);
+      Graph_MPCitizens.Caption := fTextLibrary[TX_GRAPH_CITIZENS];
       Graph_MPCitizens.Anchors := [akLeft];
 
-      Graph_MPHouses := TKMGraph.Create(Panel_GraphsMP, 112, 310, 800, 135);
-      Graph_MPHouses.Caption := 'Houses';
+      Graph_MPHouses := TKMGraph.Create(Panel_GraphsMP, 62, 235, 900, 200);
+      Graph_MPHouses.Caption := fTextLibrary[TX_GRAPH_HOUSES];
       Graph_MPHouses.Anchors := [akLeft];
 
       Graph_MPWares := TKMGraph.Create(Panel_GraphsMP, 12, 0, 1000, 435);
-      Graph_MPWares.Caption := 'Wares';
+      Graph_MPWares.Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES];
       Graph_MPWares.Anchors := [akLeft];
 
     Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,630,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);

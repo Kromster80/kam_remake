@@ -1,5 +1,5 @@
 
-MaxID:2754
+MaxID:2756
 
 0:Sawmill
 1:Iron smithy
@@ -500,3 +500,5 @@ MaxID:2754
 2752:Houses
 2753:Resources
 2754:Resources produced
+2755:Statistics
+2756:Economy
