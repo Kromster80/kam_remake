@@ -553,7 +553,9 @@ begin
         //If we are attacked, then we should counter attack the attacker!
         if aUnit is TKMUnitWarrior then
           with TKMUnitWarrior(aUnit).GetCommander do
-            if not ArmyInFight then
+            //If we are already in the process of attacking something, don't change our minds,
+            //otherwise you can make a unit walk backwards and forwards forever between two groups of archers.
+            if not ArmyInFight and (not (GetUnitAction is TUnitActionWalkTo) or not TUnitActionWalkTo(GetUnitAction).WalkingToUnit) then
               OrderAttackUnit(aAttacker);
         RetaliateAgainstThreat(aAttacker); //Nearby soldiers should come to assist
       end;

@@ -69,6 +69,7 @@ type
     property DoesWalking:boolean read fDoesWalking;
     property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
     function GetExplanation:string; override;
+    function WalkingToUnit:Boolean; //Are we walking to a unit?
 
     //Modify route to go to this destination instead
     procedure ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True); overload;
@@ -292,6 +293,12 @@ end;
 function TUnitActionWalkTo.GetExplanation:string;
 begin
   Result := TInteractionStatusNames[fInteractionStatus] + ': '+Explanation;
+end;
+
+
+function TUnitActionWalkTo.WalkingToUnit:Boolean;
+begin
+  Result := fTargetUnit <> nil;
 end;
 
 

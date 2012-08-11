@@ -670,7 +670,8 @@ begin
     ut_Bowman:      Result := RANGE_BOWMAN_MAX / (Byte(REDUCE_SHOOTING_RANGE) + 1);
     ut_Arbaletman:  Result := RANGE_ARBALETMAN_MAX / (Byte(REDUCE_SHOOTING_RANGE) + 1);
     ut_Slingshot:   Result := RANGE_SLINGSHOT_MAX / (Byte(REDUCE_SHOOTING_RANGE) + 1);
-    else            if aTileBased then
+    //During storm attack we look for enemies 1.42 tiles away so we engage enemies easier and don't accidentially walk past them diagonally
+    else            if aTileBased and not (GetUnitAction is TUnitActionStormAttack) then
                       Result := 1 //Enemy must maximum be 1 tile away
                     else
                       Result := 1.42; //slightly bigger than sqrt(2) for diagonal fights
@@ -685,7 +686,7 @@ begin
     ut_Bowman:      Result := RANGE_BOWMAN_MIN;
     ut_Arbaletman:  Result := RANGE_ARBALETMAN_MIN;
     ut_Slingshot:   Result := RANGE_SLINGSHOT_MIN;
-    else            Result := 1; //Any tile that is not our own
+    else            Result := 0.5; //When units walk past us they can sometimes be closer than 1 tile between steps
   end;
 end;
 

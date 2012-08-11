@@ -2636,22 +2636,24 @@ begin
 
   if (Sender = Button_ReplayPause) then begin
     fGame.IsPaused := True;
-    SetButtons(false);
+    SetButtons(False);
   end;
 
   if (Sender = Button_ReplayStep) then begin
     fGame.StepOneFrame;
     fGame.IsPaused := False;
-    SetButtons(false);
+    SetButtons(False);
   end;
 
   if (Sender = Button_ReplayResume) then begin
     fGame.IsPaused := False;
-    SetButtons(true);
+    SetButtons(True);
   end;
 
-  if (Sender = Button_ReplayExit) then
+  if (Sender = Button_ReplayExit) then begin
     fGame.GameHold(true, gr_ReplayEnd);
+    SetButtons(True);
+  end;
 end;
 
 

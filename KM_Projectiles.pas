@@ -52,6 +52,7 @@ const
   ProjectileSpeeds:array[TProjectileType] of single = (0.75, 0.75, 0.6, 0.8);
   ProjectileArcs:array[TProjectileType,1..2] of single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
   ProjectileJitter:array[TProjectileType] of single = (0.3, 0.33, 0.3, 0.2); //Fixed Jitter added every time
+  ProjectileJitterHouse:array[TProjectileType] of single = (0.6, 0.6, 0.6, 0); //Fixed Jitter added every time
   //Jitter added according to target's speed (moving target harder to hit) Note: Walking = 0.1, so the added jitter is 0.1*X
   ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 3);
 
@@ -177,8 +178,8 @@ begin
   Speed := ProjectileSpeeds[aProjType] + KaMRandomS(0.05);
 
   Aim := KMPointF(aTarget.GetRandomCellWithin);
-  Target.X := Aim.X + KaMRandom; //So that arrows were within house area, without attitude to tile corners
-  Target.Y := Aim.Y + KaMRandom;
+  Target.X := Aim.X + KaMRandomS(ProjectileJitterHouse[aProjType]); //So that arrows were within house area, without attitude to tile corners
+  Target.Y := Aim.Y + KaMRandomS(ProjectileJitterHouse[aProjType]);
 
   //Calculate the arc, less for shorter flights
   DistanceToHit := GetLength(Target.X, Target.Y);
