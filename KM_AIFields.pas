@@ -3,14 +3,14 @@ unit KM_AIFields;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics, Delaunay,
-  KM_CommonClasses, KM_Terrain, KM_Defaults, KM_Player, KM_Utils, KM_Points, KM_PolySimplify;
+  KM_CommonClasses, KM_CommonTypes, KM_Terrain, KM_Defaults, KM_Player, KM_Utils, KM_Points, KM_PolySimplify;
 
 type
   //Strcucture to describe NavMesh layout
   TKMNavMesh = record
     Vertices: TKMPointArray;
     Polygons: array of record
-      Indices: array of Byte;
+      Indices: array of Word;
       Area: Word; //Area of this polygon
       Neighbours: array of record //Neighbour polygons
         Index: Word; //Index of polygon
@@ -33,6 +33,8 @@ type
     fRawOutlines2: TKMShapesArray;
     fSimpleOutlines: TKMShapesArray;
     fDelaunay: TDelaunay;
+
+    fRawDelaunay: TKMTriMesh;
 
     fNavMesh: TKMNavMesh;
 
@@ -70,7 +72,8 @@ end;
 
 destructor TKMAIFields.Destroy;
 begin
-  //
+  FreeAndNil(fDelaunay);
+
   inherited;
 end;
 
@@ -277,8 +280,13 @@ var
   end;
 
 var
-  I, K: Integer;
+  I, K, L, M: Integer;
   C1, C2, C3, C4: Boolean;
+  MeshDensityX, MeshDensityY: Byte;
+  SizeX, SizeY: Word;
+  X1,X2,Y1,Y2: Integer;
+  PX,PY,TX,TY: Integer;
+  Skip: Boolean;
 begin
   SetLength(Tmp, fTerrain.MapY+1, fTerrain.MapX+1);
 
@@ -311,36 +319,92 @@ begin
 
   SimplifyShapes(fRawOutlines2, fSimpleOutlines, 2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1));
 
-  //Fill empty space with Delaunay triangles
-  fDelaunay := TDelaunay.Create(-0.1, -0.1, fTerrain.MapX-1+0.1, fTerrain.MapY-1+0.1);
+  //todo: RemoveSelfIntersections
+
+  AddIntermediateNodes(fSimpleOutlines, 12);
+
+  //Fill Delaunay triangles
+  fDelaunay := TDelaunay.Create(-1, -1, fTerrain.MapX, fTerrain.MapY);
+  fDelaunay.Tolerance := 1;
   for I := 0 to fSimpleOutlines.Count - 1 do
   with fSimpleOutlines.Shape[I] do
     for K := 0 to Count - 1 do
       fDelaunay.AddPoint(Nodes[K].X, Nodes[K].Y);
+
+  //Add more points on edges
+  MeshDensityX := (fTerrain.MapX-1) div 16;
+  MeshDensityY := (fTerrain.MapY-1) div 16;
+  SizeX := fTerrain.MapX-1;
+  SizeY := fTerrain.MapY-1;
+  for I := 0 to MeshDensityY do
+  for K := 0 to MeshDensityX do
+  if (I = 0) or (I = MeshDensityY) or (K = 0) or (K = MeshDensityX) then
+  begin
+    Skip := False;
+    PX := Round(SizeX / MeshDensityX * K);
+    PY := Round(SizeY / MeshDensityY * I);
+
+    //Don't add point to obstacle outline if there's one below
+    for L := 0 to fSimpleOutlines.Count - 1 do
+    with fSimpleOutlines.Shape[L] do
+      for M := 0 to Count - 1 do
+      begin
+        TX := Nodes[(M + 1) mod Count].X;
+        TY := Nodes[(M + 1) mod Count].Y;
+        if InRange(PX, Nodes[M].X, TX) and InRange(PY, Nodes[M].Y, TY)
+        or InRange(PX, TX, Nodes[M].X) and InRange(PY, TY, Nodes[M].Y) then
+          Skip := True;
+      end;
+
+    if not Skip then
+      fDelaunay.AddPoint(PX, PY);
+  end;
+
+  fDelaunay.Tolerance := 5;
+  for I := 1 to MeshDensityY - 1 do
+  for K := 1 to MeshDensityX - Byte(I mod 2 = 1) - 1 do
+    fDelaunay.AddPoint(Round(SizeX / MeshDensityX * (K + Byte(I mod 2 = 1) / 2)), Round(SizeY / MeshDensityY * I));
+
   fDelaunay.Mesh;
 
   //Bring triangulated mesh back
-  SetLength(fNavMesh.Vertices, fDelaunay.VerticeCount);
+  SetLength(fRawDelaunay.Vertices, fDelaunay.VerticeCount);
   for I := 0 to fDelaunay.VerticeCount - 1 do
   begin
-    fNavMesh.Vertices[I].X := Round(fDelaunay.Vertex[I].X);
-    fNavMesh.Vertices[I].Y := Round(fDelaunay.Vertex[I].Y);
+    fRawDelaunay.Vertices[I].X := Round(fDelaunay.Vertex[I].X);
+    fRawDelaunay.Vertices[I].Y := Round(fDelaunay.Vertex[I].Y);
   end;
-  SetLength(fNavMesh.Polygons, fDelaunay.PolyCount);
+  SetLength(fRawDelaunay.Polygons, fDelaunay.PolyCount);
   for I := 0 to fDelaunay.PolyCount - 1 do
   begin
-    SetLength(fNavMesh.Polygons[I].Indices, 3);
-    fNavMesh.Polygons[I].Indices[0] := fDelaunay.Triangle^[I].vv0;
-    fNavMesh.Polygons[I].Indices[1] := fDelaunay.Triangle^[I].vv1;
-    fNavMesh.Polygons[I].Indices[2] := fDelaunay.Triangle^[I].vv2;
+    fRawDelaunay.Polygons[I,0] := fDelaunay.Triangle^[I].vv0;
+    fRawDelaunay.Polygons[I,1] := fDelaunay.Triangle^[I].vv1;
+    fRawDelaunay.Polygons[I,2] := fDelaunay.Triangle^[I].vv2;
   end;
 
-  //todo: Cut out triangles that intersect obstacles edges and retriangulate them manualy
+  ForceOutlines(fRawDelaunay, fSimpleOutlines);
 
-  //todo: Add points to perimeter next to obstacle corners
+  RemoveObstaclePolies(fRawDelaunay, fSimpleOutlines);
 
-  //todo: Adjoin triangles
+  RemoveFrame(fRawDelaunay);
 
+  RemoveDegenerates(fRawDelaunay);
+
+  //Bring triangulated mesh back
+  SetLength(fNavMesh.Vertices, Length(fRawDelaunay.Vertices));
+  for I := 0 to High(fRawDelaunay.Vertices) do
+  begin
+    fNavMesh.Vertices[I].X := Round(fRawDelaunay.Vertices[I].X);
+    fNavMesh.Vertices[I].Y := Round(fRawDelaunay.Vertices[I].Y);
+  end;
+  SetLength(fNavMesh.Polygons, Length(fRawDelaunay.Polygons));
+  for I := 0 to High(fRawDelaunay.Polygons) do
+  begin
+    SetLength(fNavMesh.Polygons[I].Indices, 3);
+    fNavMesh.Polygons[I].Indices[0] := fRawDelaunay.Polygons[I,0];
+    fNavMesh.Polygons[I].Indices[1] := fRawDelaunay.Polygons[I,1];
+    fNavMesh.Polygons[I].Indices[2] := fRawDelaunay.Polygons[I,2];
+  end;
 end;
 
 
@@ -391,15 +455,17 @@ begin
       fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
     end;
 
-  //Simplified obstacle outlines
+  //Raw navmesh
   if AI_GEN_NAVMESH and fShowNavMesh then
-    for I := 0 to fSimpleOutlines.Count - 1 do
-    for K := 0 to fSimpleOutlines.Shape[I].Count - 1 do
-    with fSimpleOutlines.Shape[I] do
+    for I := 0 to High(fNavMesh.Polygons) do
     begin
-      TX := Nodes[(K + 1) mod Count].X;
-      TY := Nodes[(K + 1) mod Count].Y;
-      fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FF00FF00);
+      fRenderAux.Triangle(
+        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[0]].X,
+        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[0]].Y,
+        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[1]].X,
+        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[1]].Y,
+        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[2]].X,
+        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[2]].Y, $40FF8000);
     end;
 
   //Raw navmesh
@@ -415,6 +481,17 @@ begin
       y2 := fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[J]].Y;
 
       fRenderAux.Line(x1,y1,x2,y2, $FFFF8000);
+    end;
+
+  //Simplified obstacle outlines
+  if AI_GEN_NAVMESH and fShowNavMesh then
+    for I := 0 to fSimpleOutlines.Count - 1 do
+    for K := 0 to fSimpleOutlines.Shape[I].Count - 1 do
+    with fSimpleOutlines.Shape[I] do
+    begin
+      TX := Nodes[(K + 1) mod Count].X;
+      TY := Nodes[(K + 1) mod Count].Y;
+      fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FF00FF00);
     end;
 end;
 

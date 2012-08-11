@@ -21,28 +21,28 @@ uses Types, KM_Points;
 const
   MAX_VERTICES = 5000;
   MAX_TRIANGLES = 10000;
-  DUPLICATE_TOLERANCE = 0.01;
 
 
 //Created Triangles, vv# are the vertex pointers
 type
   TDTriangle = record
-    vv0: LongInt;
-    vv1: LongInt;
-    vv2: LongInt;
-    PreCalc: Integer;
+    vv0: Word;
+    vv1: Word;
+    vv2: Word;
+    PreCalc: Byte;
     xc,yc,r: Double;
   end;
 
-  TDVertexArray = array[0..MAX_VERTICES] of TKMPointF;
+  TDVertexArray = array [0..MAX_VERTICES] of TKMPointI;
   PVertexArray = ^TDVertexArray;
 
-  TDTriangleArray = array[0..MAX_TRIANGLES] of TDTriangle;
+  TDTriangleArray = array [0..MAX_TRIANGLES] of TDTriangle;
   PTriangleArray = ^TDTriangleArray;
 
 type
   TDelaunay = class
   private
+    fTolerance: Single;
     fPolyCount: Integer;
     fVerticeCount: Integer;
     function InCircle(xp, yp, x1, y1, x2, y2, x3, y3: Double;
@@ -53,11 +53,12 @@ type
   public
     Vertex: PVertexArray;
     Triangle: PTriangleArray;
-    constructor Create(x1,y1,x2,y2: Single);
+    constructor Create(x1,y1,x2,y2: Integer);
     destructor Destroy; override;
-    procedure AddPoint(x,y: Single);
+    procedure AddPoint(x,y: Integer);
     procedure Mesh;
     property PolyCount: Integer read fPolyCount;
+    property Tolerance: Single read fTolerance write fTolerance;
     property VerticeCount: Integer read fVerticeCount;
   end;
 
@@ -69,20 +70,22 @@ type
   TDComplete = array [0..MAX_TRIANGLES] of Boolean;
   PComplete = ^TDComplete;
 
-  TDEdges = array[0..1, 0..MAX_TRIANGLES * 3] of LongInt;
+  TDEdges = array [0..1, 0..MAX_TRIANGLES * 3] of SmallInt;
   PEdges = ^TDEdges;
 
 
 //Constructor must setup bounding rectangle for all points
-constructor TDelaunay.Create(x1,y1,x2,y2: Single);
+constructor TDelaunay.Create(x1,y1,x2,y2: Integer);
 begin
   inherited Create;
 
   //Allocate memory for arrays
-  GetMem(Vertex, sizeof(Vertex^));
-  GetMem(Triangle, sizeof(Triangle^));
+  GetMem(Vertex, SizeOf(Vertex^));
+  GetMem(Triangle, SizeOf(Triangle^));
 
   Assert((x2>x1) and (y2>y1), 'Bounding rect must have positive area');
+
+  fTolerance := 0.01;
 
   //Points added in counter-clockwise order:
   // 1 3
@@ -336,14 +339,14 @@ begin
 end;
 
 
-procedure TDelaunay.AddPoint(x,y: Single);
+procedure TDelaunay.AddPoint(x,y: Integer);
 var
   I: Integer;
 begin
   //Skip duplicate points
   for I := 0 to fVerticeCount - 1 do
-  if (Abs(x-Vertex^[I].x) < DUPLICATE_TOLERANCE)
-  and(Abs(y-Vertex^[I].y) < DUPLICATE_TOLERANCE) then
+  if (Abs(x-Vertex^[I].x) < fTolerance)
+  and(Abs(y-Vertex^[I].y) < fTolerance) then
     Exit;
 
   Vertex^[fVerticeCount].x := x;
@@ -367,7 +370,7 @@ procedure TDelaunay.QuickSort(var A: PVertexArray; aLow,aHigh: Integer);
   var
     Lo, Hi: Integer;
     Mid: Double;
-    T: TKMPointF;
+    T: TKMPointI;
   begin
     Lo := iLo;
     Hi := iHi;

@@ -19,6 +19,7 @@ type
     procedure DotOnTerrain(X,Y: Single; aCol: TColor4);
     procedure LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4);
     procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4);
+    procedure Triangle(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Byte);
     procedure InfluenceMap(aRect: TKMRect; aInfl: Byte);
     procedure Projectile(x1,y1,x2,y2: Single);
@@ -174,6 +175,18 @@ begin
 
   RenderDot(X1, Y1);
   RenderDot(X2, Y2);
+end;
+
+
+procedure TRenderAux.Triangle(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
+begin
+  glColor4ubv(@aCol);
+
+  glBegin(GL_TRIANGLES);
+    glVertex2f(x1, y1);
+    glVertex2f(x2, y2);
+    glVertex2f(x3, y3);
+  glEnd;
 end;
 
 

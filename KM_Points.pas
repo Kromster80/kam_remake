@@ -13,6 +13,12 @@ type
   TKMPointDir = packed record Loc: TKMPoint; Dir: TKMDirection; end;
   TKMPointF = packed record X,Y: Single; end;
   TKMPointI = packed record X,Y: Integer; end; //Allows negative values
+  TKMPointArray = array of TKMPointI;
+
+  TKMTriMesh = record
+    Vertices: TKMPointArray;
+    Polygons: array of array [0..2] of Integer;
+  end;
 
   //We have our own TKMRect that consistently matches TKMPoint range
   //Rects are often used without range checking and include negative off-map coords
