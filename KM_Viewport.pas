@@ -65,7 +65,7 @@ end;
 
 procedure TViewport.SetZoom(aZoom:single);
 begin
-  fZoom := EnsureRange(aZoom, 0.1, 8);
+  fZoom := EnsureRange(aZoom, 0.01, 8);
   //Limit the zoom to within the map boundaries
   if fViewportClip.X/CELL_SIZE_PX/fZoom > fMapX then fZoom := fViewportClip.X/CELL_SIZE_PX/(fMapX-1);
   if fViewportClip.Y/CELL_SIZE_PX/fZoom > fMapY then fZoom := fViewportClip.Y/CELL_SIZE_PX/ fMapY;
