@@ -266,6 +266,7 @@ begin
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
 
+  FreeAndNil(fAIFields);
   fAIFields := TKMAIFields.Create; //todo: Should be moved someplace else, but for now we can init it here
   fAIFields.UpdateNavMesh;
 end;
@@ -343,6 +344,7 @@ begin
   UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
   fLog.AppendLog('Map file loaded');
 
+  FreeAndNil(fAIFields);
   fAIFields := TKMAIFields.Create; //todo: Should be moved someplace else, but for now we can init it here
   fAIFields.UpdateNavMesh;
 end;

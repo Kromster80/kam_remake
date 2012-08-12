@@ -71,7 +71,7 @@ type
   //Cross product of 2D vectors, pointed either Up or Down
   function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single;
   function KMInBetween(A,B,X:single): boolean;
-  procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; out PolyCount: Integer; out Polys: array of Word; out Result: Boolean);
+  function KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; var PolyCount: Integer; var Polys: array of Word): Boolean;
 
   function GetLength(A,B:TKMPoint): single; overload;
   function GetLength(A,B:TKMPointF): single; overload;
@@ -401,84 +401,76 @@ begin
 end;
 
 
-procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; out PolyCount: Integer; out Polys: array of word; out Result: Boolean);
+function KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; var PolyCount: Integer; var Polys: array of Word): Boolean;
 var
-  h,ii,ci:integer;
+  LoopCount: Integer;
   n0,n1,n2:integer;
-  SubDrop:array of byte;
+  Skip: array of Byte;
   PierceTest:boolean;
+  I, K, L: Integer;
+  LastVtx: Integer;
+  TripFound: Boolean;
 begin
+  SetLength(Skip, VerticeCount);
 
-  SetLength(SubDrop,VerticeCount+1);
-  SubDrop[0]:=1;
-
-  n0:=0; ci:=1; ii:=1;
+  LastVtx := 0;
+  PolyCount := 0;
+  LoopCount := 1;
   repeat
 
-    //Find unused vertice #1
-    h:=0;
-    repeat
-      inc(n0); inc(h);
-      if n0>(VerticeCount) then n0:=1;
-    until((SubDrop[n0]=0)or(h=VerticeCount));
-    if h=VerticeCount then break;
-
-    //Find unused vertice #2
-    h:=0; n1:=n0;
-    repeat
-      inc(n1); inc(h);
-      if n1>(VerticeCount) then n1:=1;
-    until(((n0<>n1)and(SubDrop[n1]=0))or(h=VerticeCount));
-    if h=VerticeCount then break;
-
-    //Find unused vertice #3
-    h:=0; n2:=n1;
-    repeat
-      inc(n2); inc(h);
-      if n2>(VerticeCount) then n2:=1;
-    until(((n0<>n2)and(n1<>n2)and(SubDrop[n2]=0))or(h=VerticeCount));
-    if h=VerticeCount then break;
-
-    //Check which direction poly is facing, should be Down (depends on vertice order and coords system)
-    if KMNormal2Poly(Vertice[n0],Vertice[n1],Vertice[n2]) < 0 then
+    //Find 3 aligned unused vertices starting from LastVtx
+    TripFound := False;
+    n0 := -1;  n1 := -1;  n2 := -1;
+    for I := LastVtx to LastVtx + VerticeCount - 1 - 2 do
+    if Skip[I mod VerticeCount] = 0 then
     begin
-
-      PierceTest:=false;
-      h:=n2; //Take n0 and n2 as basis and test all other vertices to be on one side
-
-      repeat
-        inc(h); //starting from n2+1
-        if h>(VerticeCount) then h:=1; //wrap
-        if h<>n0 then //ending at n0-1
-          if SubDrop[h]=0 then begin
-            if  KMInBetween(min(Vertice[n0].X,min(Vertice[n1].X,Vertice[n2].X)),max(Vertice[n0].X,max(Vertice[n1].X,Vertice[n2].X)),Vertice[h].X)
-            and KMInBetween(min(Vertice[n0].Y,min(Vertice[n1].Y,Vertice[n2].Y)),max(Vertice[n0].Y,max(Vertice[n1].Y,Vertice[n2].Y)),Vertice[h].Y) then
-            begin
-              if KMNormal2Poly(Vertice[n0],Vertice[n2],Vertice[h]) > 0 then
-                PierceTest := True;
-            end;
-          end;
-      until((PierceTest)or(h=n0));
-
-      if not PierceTest then begin
-        Polys[ci]:=n0;
-        inc(ci);
-        Polys[ci]:=n1;
-        inc(ci);
-        Polys[ci]:=n2;
-        inc(ci);
-        SubDrop[n1]:=1;
-        inc(n0);
+      n0 := I mod VerticeCount;
+      for K := I + 1 to LastVtx + VerticeCount - 1 - 1 do
+      if Skip[K mod VerticeCount] = 0 then
+      begin
+        n1 := K mod VerticeCount;
+        for L := K + 1 to LastVtx + VerticeCount - 1 do
+        if Skip[L mod VerticeCount] = 0 then
+        begin
+          n2 := L mod VerticeCount;
+          TripFound := True;
+          Break;
+        end;
+        Break;
       end;
+      Break;
     end;
 
-    inc(ii);
+    if not TripFound then Break; //There are no triplets left, our task is done
 
-  until(ii=1500); //How long to keep looking for more polys
+    //Check which direction poly is facing, should be Down (depends on vertice order and coords system)
+    Assert(KMNormal2Poly(Vertice[n0], Vertice[n1], Vertice[n2]) > 0, 'Degenerate poly triangulation?');
 
-  PolyCount := (ci-1) div 3;
+    //Take n0 and n2 as basis and test all other vertices to be on one side
+    PierceTest := False;
+    for I := 0 to VerticeCount - 1 do
+    if (Skip[I] = 0) and (I <> n0) and (I <> n1) and (I <> n2) then
+    if KMNormal2Poly(Vertice[n0], Vertice[n2], Vertice[I]) < 0 then
+    begin
+      PierceTest := True;
+      Break;
+    end;
 
-  Result := PolyCount <> VerticeCount-2;
+    if not PierceTest then begin
+      Polys[PolyCount * 3]     := n0;
+      Polys[PolyCount * 3 + 1] := n1;
+      Polys[PolyCount * 3 + 2] := n2;
+      Inc(PolyCount);
+      Skip[n1] := 1;
+      LastVtx := n2;
+    end
+    else
+      LastVtx := n1;
+
+    Inc(LoopCount);
+  until(LoopCount=1500); //How long to keep looking for more polys
+
+  Result := PolyCount = VerticeCount - 2;
 end;
 
 

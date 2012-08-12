@@ -66,10 +66,16 @@ begin
         if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
         and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map') then
         begin
-          fTerrain.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
+          try
+            fTerrain.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
+          except
+            //Report and swallow asserts
+            on E: EAssertionFailed do Status('Map did not load: ' + SearchRec.Name + '. '+ E.Message);
+            //Signal other errors loud
+            else raise;
+          end;
           Check(fTerrain.MapX * fTerrain.MapY <> 0, 'Map did not load: ' + SearchRec.Name);
           Inc(Count);
-          //Status(IntToStr(Count) + '. ' + SearchRec.Name + ' loaded successfully')
         end;
       until (FindNext(SearchRec) <> 0);
       FindClose(SearchRec);

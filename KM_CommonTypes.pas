@@ -4,6 +4,8 @@ interface
 
 
 type
+  TWordArray = array of Word;
+  PWordArray = ^TWordArray;
   TCardinalArray = array of Cardinal;
   TRGBArray = array of record R,G,B: Byte end;
 

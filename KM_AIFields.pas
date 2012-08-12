@@ -384,11 +384,11 @@ begin
 
   ForceOutlines(fRawDelaunay, fSimpleOutlines);
 
-  {RemoveObstaclePolies(fRawDelaunay, fSimpleOutlines);
+  RemoveObstaclePolies(fRawDelaunay, fSimpleOutlines);
 
   RemoveFrame(fRawDelaunay);
 
-  RemoveDegenerates(fRawDelaunay);}
+  RemoveDegenerates(fRawDelaunay);
 
   //Bring triangulated mesh back
   SetLength(fNavMesh.Vertices, Length(fRawDelaunay.Vertices));

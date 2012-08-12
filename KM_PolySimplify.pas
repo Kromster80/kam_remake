@@ -36,7 +36,7 @@ procedure RemoveFrame(var aTriMesh: TKMTriMesh);
 procedure RemoveDegenerates(var aTriMesh: TKMTriMesh);
 
 implementation
-uses KromUtils;
+uses KM_CommonTypes, KromUtils;
 
 
 procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
@@ -314,19 +314,17 @@ end;
 
 procedure ForceEdge(var aTriMesh: TKMTriMesh; X1,Y1,X2,Y2: Integer);
 var
-  I, K: Integer;
-  Vertice1, Vertice2: Integer;
-  Intersect: Boolean;
   Edges: array [0..1] of array of SmallInt;
   Loop: array of Word;
   LoopCount: Integer;
   Nedge: LongInt;
 
   procedure AssembleLoop(aStart, aEnd: Word);
-  var H: Integer;
+  var I, H: Integer;
   begin
     Loop[0] := aStart;
     LoopCount := 1;
+    I := 0;
     repeat
       for H := 0 to Nedge - 1 do
       if (Edges[0, H] = Loop[LoopCount - 1]) then
@@ -335,29 +333,36 @@ var
         Inc(LoopCount);
         Break; //We break to check = aEnd condition (otherwise we could skip it)
       end;
+      Assert(LoopCount <= Nedge, 'End is missing?');
+      Inc(I);
+      Assert(I <= 1000, 'End is missing2?');
     until(Loop[LoopCount - 1] = aEnd);
   end;
 
   procedure TriangulateLoop;
-  var L, H: Integer; V: TKMPointArray; PCount: Integer; P: array of word; Res: Boolean;
+  var L: Integer; V: TKMPointArray; PCount: Integer; Pols: array of Word; Res: Boolean;
   begin
-    SetLength(V, LoopCount+1);
-    SetLength(P, LoopCount*3+1);
+    SetLength(V, LoopCount);
+    SetLength(Pols, (LoopCount - 2) * 3);
     for L := 0 to LoopCount - 1 do
-      V[L+1] := aTriMesh.Vertices[Loop[L]];
+      V[L] := aTriMesh.Vertices[Loop[L]];
 
-    KMTriangulate(LoopCount, V, PCount, P, Res);
+    Res := KMTriangulate(LoopCount, V, PCount, Pols);
     Assert(Res, 'Triangulation failed');
 
     for L := 0 to PCount - 1 do
     begin
       SetLength(aTriMesh.Polygons, Length(aTriMesh.Polygons) + 1);
-      aTriMesh.Polygons[High(aTriMesh.Polygons),0] := Loop[P[L*3+1]-1];
-      aTriMesh.Polygons[High(aTriMesh.Polygons),1] := Loop[P[L*3+2]-1];
-      aTriMesh.Polygons[High(aTriMesh.Polygons),2] := Loop[P[L*3+3]-1];
+      aTriMesh.Polygons[High(aTriMesh.Polygons),0] := Loop[Pols[L*3+0]];
+      aTriMesh.Polygons[High(aTriMesh.Polygons),1] := Loop[Pols[L*3+1]];
+      aTriMesh.Polygons[High(aTriMesh.Polygons),2] := Loop[Pols[L*3+2]];
     end;
   end;
 
+var
+  I, K: Integer;
+  Vertice1, Vertice2: Integer;
+  Intersect: Boolean;
 begin
   with aTriMesh do
   begin
@@ -374,6 +379,8 @@ begin
         Break;
     end;
 
+    Assert((Vertice1 <> -1) and (Vertice2 <> -1), 'Vertices could not be found?');
+
     //Exit early if that edge exists
     for I := 0 to High(Polygons) do
     if ((Vertice1 = Polygons[I,0]) and (Vertice2 = Polygons[I,1]))
@@ -381,8 +388,9 @@ begin
     or ((Vertice1 = Polygons[I,2]) and (Vertice2 = Polygons[I,0])) then
       Exit;
 
-    SetLength(Edges[0], 10000);
-    SetLength(Edges[1], 10000);
+    //How many edges we could possible need?
+    SetLength(Edges[0], 1000);
+    SetLength(Edges[1], 1000);
 
     //Find triangles we cross
     I := 0;
@@ -413,6 +421,7 @@ begin
         Polygons[I,2] := Polygons[High(Polygons),2];
         Dec(I);
         SetLength(Polygons, Length(Polygons) - 1);
+        Assert(Length(Polygons) > 0, '<0?');
       end;
 
       Inc(I);
@@ -420,27 +429,26 @@ begin
 
     //Remove duplicate edges and leave only outline
     for I := 0 to Nedge - 1 do
-    if not (Edges[0, I] = -1) and not (Edges[1, I] = -1) then
+    if (Edges[0, I] > -1) and (Edges[1, I] > -1) then
     for K := I + 1 to Nedge - 1 do
-    if not (Edges[0, K] = -1) and not (Edges[1, K] = -1) then
+    if (Edges[0, K] > -1) and (Edges[1, K] > -1) then
     if (Edges[0, I] = Edges[1, K]) and (Edges[1, I] = Edges[0, K]) then
     begin
-      Edges[0, I] := -1;
-      Edges[1, I] := -1;
-      Edges[0, K] := -1;
-      Edges[1, K] := -1;
+      Edges[0, I] := -Edges[0, I];
+      Edges[1, I] := -Edges[1, I];
+      Edges[0, K] := -Edges[0, K];
+      Edges[1, K] := -Edges[1, K];
     end;
 
     //Assemble two polygons on Edge sides
     if Nedge > 0 then
     begin
-      SetLength(Loop, Nedge);
+      SetLength(Loop, Nedge*2);
       AssembleLoop(Vertice1, Vertice2);
       TriangulateLoop;
       AssembleLoop(Vertice2, Vertice1);
       TriangulateLoop;
     end;
-
   end;
 end;
 
@@ -450,7 +458,6 @@ var
   I,K: Integer;
 begin
   for I := 0 to fSimpleOutlines.Count - 1 do
-  if I = 1 then
     with fSimpleOutlines.Shape[I] do
       for K := 0 to Count - 1 do
         ForceEdge(aTriMesh, Nodes[K].X, Nodes[K].Y, Nodes[(K + 1) mod Count].X, Nodes[(K + 1) mod Count].Y);
