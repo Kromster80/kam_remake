@@ -170,19 +170,19 @@ var
   i:Integer;
   T: TKMPoint;
   TreeList: TKMPointDirList;
-  StumpList, EmptyPlaceList: TKMPointList;
+  BestToPlant,SecondBestToPlant: TKMPointList;
 begin
   TreeList := TKMPointDirList.Create;
-  StumpList := TKMPointList.Create;
-  EmptyPlaceList := TKMPointList.Create;
+  BestToPlant := TKMPointList.Create;
+  SecondBestToPlant := TKMPointList.Create;
 
-  fTerrain.FindTree(aLoc, aRadius, aAvoid, aPlantAct, TreeList, StumpList, EmptyPlaceList);
+  fTerrain.FindTree(aLoc, aRadius, aAvoid, aPlantAct, TreeList, BestToPlant, SecondBestToPlant);
 
   //Convert taAny to either a Tree or a Spot
   if (aPlantAct in [taCut, taAny])
   and ((TreeList.Count > 8) //Always chop the tree if there are many
-       or (StumpList.Count + EmptyPlaceList.Count = 0)
-       or ((TreeList.Count > 0) and (KaMRandom < TreeList.Count / (TreeList.Count + (StumpList.Count + EmptyPlaceList.Count)/15)))
+       or (BestToPlant.Count + SecondBestToPlant.Count = 0)
+       or ((TreeList.Count > 0) and (KaMRandom < TreeList.Count / (TreeList.Count + (BestToPlant.Count + SecondBestToPlant.Count)/15)))
       ) then
   begin
     PlantAct := taCut;
@@ -192,28 +192,28 @@ begin
   begin
     PlantAct := taPlant;
     //First try stumps list
-    for i:=StumpList.Count-1 downto 0 do
-      if not TKMUnitCitizen(aUnit).CanWorkAt(StumpList[i], gs_WoodCutterPlant) then
-        StumpList.DeleteEntry(i);
-    Result := StumpList.GetRandom(T);
+    for i:=BestToPlant.Count-1 downto 0 do
+      if not TKMUnitCitizen(aUnit).CanWorkAt(BestToPlant[i], gs_WoodCutterPlant) then
+        BestToPlant.DeleteEntry(i);
+    Result := BestToPlant.GetRandom(T);
     //Trees must always be planted facing north as that is the direction the animation uses
     if Result then
       Tree := KMPointDir(T, dir_N)
     else
     begin
       //Try empty places list
-      for i:=EmptyPlaceList.Count-1 downto 0 do
-        if not TKMUnitCitizen(aUnit).CanWorkAt(EmptyPlaceList[i], gs_WoodCutterPlant) then
-          EmptyPlaceList.DeleteEntry(i);
-      Result := EmptyPlaceList.GetRandom(T);
+      for i:=SecondBestToPlant.Count-1 downto 0 do
+        if not TKMUnitCitizen(aUnit).CanWorkAt(SecondBestToPlant[i], gs_WoodCutterPlant) then
+          SecondBestToPlant.DeleteEntry(i);
+      Result := SecondBestToPlant.GetRandom(T);
       //Trees must always be planted facing north as that is the direction the animation uses
       if Result then Tree := KMPointDir(T, dir_N);
     end;
   end;
 
   TreeList.Free; 
-  StumpList.Free;
-  EmptyPlaceList.Free;
+  BestToPlant.Free;
+  SecondBestToPlant.Free;
 end;
 
 

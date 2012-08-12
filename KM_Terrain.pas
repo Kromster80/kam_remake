@@ -113,7 +113,7 @@ type
     function FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir): Boolean;
     function FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir): Boolean;
     function FindOre(aLoc: TKMPoint; aRes: TResourceType; out OrePoint: TKMPoint): Boolean;
-    procedure FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; Stumps,Empty: TKMPointList);
+    procedure FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; BestToPlant,SecondBestToPlant: TKMPointList);
     function FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir): Boolean;
     function CanFindFishingWater(aLoc:TKMPoint; aRadius:integer): Boolean;
     function ChooseTreeToPlant(aLoc:TKMPoint):integer;
@@ -1059,7 +1059,7 @@ end;
 //taPlant - Woodcutter specifically wants to get an empty place to plant a Tree
 //taAny - Anything will do since Woodcutter is querying from home
 //Result indicates if desired TreeAct place was found successfully
-procedure TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; Stumps,Empty: TKMPointList);
+procedure TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; BestToPlant,SecondBestToPlant: TKMPointList);
 
   function ChooseCuttingDirection(aTree:TKMPoint; out CuttingPoint:TKMPointDir):Boolean;
   var I, K, BestSlope, Slope: Integer;
@@ -1121,10 +1121,10 @@ begin
       and (CanPlantTrees in Land[T.Y,T.X].Passability)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
-        if ObjectIsChopableTree(T, 6) then
-          Stumps.AddEntry(T) //Stump
+        if (Land[T.Y,T.X].Obj = 255) or (ObjectIsChopableTree(T, 6)) then
+          BestToPlant.AddEntry(T) //Stump/empty places
         else
-          Empty.AddEntry(T); //Empty place
+          SecondBestToPlant.AddEntry(T); //Other objects that can be dug out (e.g. mushrooms) if no other options available
     end;
   end;
   ValidTiles.Free;
@@ -1482,7 +1482,7 @@ procedure TTerrain.UpdatePassability(Loc: TKMPoint);
   end;
 var
   I, K: Integer;
-  HousesNearBy: Boolean;
+  HousesNearTile, HousesNearVertex: Boolean;
 begin
   Assert(TileInMapCoords(Loc.X, Loc.Y)); //First of all exclude all tiles outside of actual map
 
@@ -1501,17 +1501,22 @@ begin
     and (CanWalk in Land[Loc.Y,Loc.X].Passability) then //Not all roads are walkable, they must also have CanWalk passability
       AddPassability(CanWalkRoad);
 
-    //Check for houses around this tile
-    HousesNearBy := False;
+    //Check for houses around this tile/vertex
+    HousesNearTile := False;
+    HousesNearVertex := False;
     for i := -1 to 1 do
     for k := -1 to 1 do
       if TileInMapCoords(Loc.X+k, Loc.Y+i)
       and (Land[Loc.Y+i,Loc.X+k].TileLock in [tlFenced,tlDigged,tlHouse]) then
-        HousesNearBy := True;
+      begin
+        HousesNearTile := True;
+        if (i+1 in [0,1]) and (k+1 in [0,1]) then //Only houses above/left of the tile
+          HousesNearVertex := True;
+      end;
 
     if TileIsRoadable(Loc)
     and ((Land[Loc.Y,Loc.X].Obj = 255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved)) //Only certain objects are excluded
-    and not HousesNearBy
+    and not HousesNearTile
     and not TileIsCornField(Loc) //Can't build houses on fields
     and not TileIsWineField(Loc)
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
@@ -1522,7 +1527,7 @@ begin
     if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])
     and (Land[Loc.Y,Loc.X].Rotation mod 4 = 0) //only horizontal mountain edges allowed
     and ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved))
-    and not HousesNearBy
+    and not HousesNearTile
     and not TileIsCornField(Loc) //Can't build houses on fields
     and not TileIsWineField(Loc)
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
@@ -1533,7 +1538,7 @@ begin
     if (Land[Loc.Y,Loc.X].Terrain in [171..175])
     and (Land[Loc.Y,Loc.X].Rotation mod 4 = 0)
     and ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved))
-    and not HousesNearBy
+    and not HousesNearTile
     and not TileIsCornField(Loc) //Can't build houses on fields
     and not TileIsWineField(Loc)
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
@@ -1562,8 +1567,9 @@ begin
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and (Loc.X > 1) and (Loc.Y > 1) //Not top/left of map, but bottom/right is ok
     and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
-    and not HousesNearBy
-    and ((Land[Loc.Y,Loc.X].Obj=255) or ObjectIsChopableTree(KMPoint(Loc.X,Loc.Y),6))
+    and not HousesNearVertex
+    //Woodcutter will dig out other object in favour of his tree
+    and ((Land[Loc.Y,Loc.X].Obj = 255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved))
     and CheckHeightPass(Loc, CanPlantTrees) then
       AddPassability(CanPlantTrees);
 
@@ -1604,16 +1610,16 @@ begin
 
   //Check for houses around this vertice(!)
   //Use only with CanElevate since it's vertice-based!
-  HousesNearBy := False;
+  HousesNearVertex := False;
   for i := -1 to 0 do
   for k := -1 to 0 do
     if TileInMapCoords(Loc.X+k, Loc.Y+i) then
     //Can't elevate built houses, can elevate fenced and dug houses though
     if (Land[Loc.Y+i,Loc.X+k].TileLock = tlHouse) then
-      HousesNearBy := True;
+      HousesNearVertex := True;
 
   if VerticeInMapCoords(Loc.X,Loc.Y)
-  and not HousesNearBy then
+  and not HousesNearVertex then
     AddPassability(CanElevate);
 end;
 

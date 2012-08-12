@@ -324,7 +324,7 @@ var
   Tmp, StoreLoc: TKMPoint;
   TreeLoc: TKMPointDir;
   Trees: TKMPointDirList;
-  Stumps,Empty: TKMPointList;
+  BestToPlant,SecondBestToPlant: TKMPointList;
 begin
   Result := False;
 
@@ -334,18 +334,18 @@ begin
   StoreLoc := S.GetPosition;
 
   Trees := TKMPointDirList.Create;
-  Stumps := TKMPointList.Create;
-  Empty := TKMPointList.Create;
-  fTerrain.FindTree(KMPointBelow(S.GetPosition), 20, KMPoint(0,0), taAny, Trees, Stumps, Empty);
+  BestToPlant := TKMPointList.Create;
+  SecondBestToPlant := TKMPointList.Create;
+  fTerrain.FindTree(KMPointBelow(S.GetPosition), 20, KMPoint(0,0), taAny, Trees, BestToPlant, SecondBestToPlant);
   if not Trees.GetRandom(TreeLoc) then
   begin
-    if not Stumps.GetRandom(Tmp) then
-      if not Empty.GetRandom(Tmp) then Exit;
+    if not BestToPlant.GetRandom(Tmp) then
+      if not SecondBestToPlant.GetRandom(Tmp) then Exit;
     TreeLoc := KMPointDir(Tmp,Dir_NA);
   end;
   Trees.Free;
-  Stumps.Free;
-  Empty.Free;
+  BestToPlant.Free;
+  SecondBestToPlant.Free;
 
   BestBid := MaxSingle;
 
