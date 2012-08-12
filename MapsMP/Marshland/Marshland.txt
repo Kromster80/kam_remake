@@ -1,8 +1,2 @@
-Title
-Marshland
-
-SmallDesc
-Map created by Piko
-
 BigDesc
-On barren and useless marshlands, a fight to dominate the center and use the iron mountains located there...||Locations 7 and 8 are stronger than the others.||Made by Piko.
+These barren marshlands are a formidable place to maneuver an army.||Made by Piko.
