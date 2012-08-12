@@ -68,6 +68,11 @@ type
   function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
   function KMStepIsDiag(const P1,P2:TKMPoint):boolean;
 
+  //Cross product of 2D vectors, pointed either Up or Down
+  function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single;
+  function KMInBetween(A,B,X:single): boolean;
+  procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; out PolyCount: Integer; out Polys: array of Word; out Result: Boolean);
+
   function GetLength(A,B:TKMPoint): single; overload;
   function GetLength(A,B:TKMPointF): single; overload;
   function KMLength(A,B:TKMPoint): single;
@@ -375,6 +380,105 @@ end;
 function KMStepIsDiag(const P1,P2: TKMPoint): Boolean;
 begin
   Result := (sign(P2.X-P1.X) <> 0) and (sign(P2.Y-P1.Y) <> 0);
+end;
+
+
+function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single;
+begin
+  Result := (v1.Y - v2.Y) * (v1.X - v3.X) - (v1.X - v2.X) * (v1.Y - v3.Y);
+end;
+
+
+function KMInBetween(A,B,X:single): boolean;
+begin
+  if A>B then
+    Result:=(A>X)and(X>B)
+  else
+  if A<B then
+    Result:=(A<X)and(X<B)
+  else
+    Result:=false
+end;
+
+
+procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; out PolyCount: Integer; out Polys: array of word; out Result: Boolean);
+var
+  h,ii,ci:integer;
+  n0,n1,n2:integer;
+  SubDrop:array of byte;
+  PierceTest:boolean;
+begin
+
+  SetLength(SubDrop,VerticeCount+1);
+  SubDrop[0]:=1;
+
+  n0:=0; ci:=1; ii:=1;
+  repeat
+
+    //Find unused vertice #1
+    h:=0;
+    repeat
+      inc(n0); inc(h);
+      if n0>(VerticeCount) then n0:=1;
+    until((SubDrop[n0]=0)or(h=VerticeCount));
+    if h=VerticeCount then break;
+
+    //Find unused vertice #2
+    h:=0; n1:=n0;
+    repeat
+      inc(n1); inc(h);
+      if n1>(VerticeCount) then n1:=1;
+    until(((n0<>n1)and(SubDrop[n1]=0))or(h=VerticeCount));
+    if h=VerticeCount then break;
+
+    //Find unused vertice #3
+    h:=0; n2:=n1;
+    repeat
+      inc(n2); inc(h);
+      if n2>(VerticeCount) then n2:=1;
+    until(((n0<>n2)and(n1<>n2)and(SubDrop[n2]=0))or(h=VerticeCount));
+    if h=VerticeCount then break;
+
+    //Check which direction poly is facing, should be Down (depends on vertice order and coords system)
+    if KMNormal2Poly(Vertice[n0],Vertice[n1],Vertice[n2]) < 0 then
+    begin
+
+      PierceTest:=false;
+      h:=n2; //Take n0 and n2 as basis and test all other vertices to be on one side
+
+      repeat
+        inc(h); //starting from n2+1
+        if h>(VerticeCount) then h:=1; //wrap
+        if h<>n0 then //ending at n0-1
+          if SubDrop[h]=0 then begin
+            if  KMInBetween(min(Vertice[n0].X,min(Vertice[n1].X,Vertice[n2].X)),max(Vertice[n0].X,max(Vertice[n1].X,Vertice[n2].X)),Vertice[h].X)
+            and KMInBetween(min(Vertice[n0].Y,min(Vertice[n1].Y,Vertice[n2].Y)),max(Vertice[n0].Y,max(Vertice[n1].Y,Vertice[n2].Y)),Vertice[h].Y) then
+            begin
+              if KMNormal2Poly(Vertice[n0],Vertice[n2],Vertice[h]) > 0 then
+                PierceTest := True;
+            end;
+          end;
+      until((PierceTest)or(h=n0));
+
+      if not PierceTest then begin
+        Polys[ci]:=n0;
+        inc(ci);
+        Polys[ci]:=n1;
+        inc(ci);
+        Polys[ci]:=n2;
+        inc(ci);
+        SubDrop[n1]:=1;
+        inc(n0);
+      end;
+    end;
+
+    inc(ii);
+
+  until(ii=1500); //How long to keep looking for more polys
+
+  PolyCount := (ci-1) div 3;
+
+  Result := PolyCount <> VerticeCount-2;
 end;
 
 

@@ -161,11 +161,14 @@ end;
 //Based on Douglas-Peucker algorithm for polyline simplification
 //  aError - max allowed distance between resulting line and removed points
 function PolySimplify(aError: Single; aRect: TKMRect; const aInput: TKMPointArray; var aOutput: TKMPointArray): Integer;
-const MAX_LOOPS = 5;
+const MAX_TRIES = 5;
 var
-  I, N: Integer;
+  I, K: Integer;
+  KeptCount: Integer;
+  NCount: Integer;
   Prev: Integer;
   Keep: array of Boolean;
+  Kept: array of Integer;
   Loops: Byte;
   Err: Single;
 begin
@@ -173,43 +176,39 @@ begin
 
   //See if there's nothing to simplify
   if Length(aInput) < 4 then Exit;
-  //If loop length is < Tolerance
-  //  return 0
-  //else
-  //  return loop intact
 
-  N := Length(aInput);
-  Assert((aInput[0].X = aInput[N-1].X) and (aInput[0].Y = aInput[N-1].Y),
+  NCount := Length(aInput);
+  Assert((aInput[0].X = aInput[NCount-1].X) and (aInput[0].Y = aInput[NCount-1].Y),
          'We need shape to be closed to properly process as a series of polylines');
 
-  SetLength(Keep, N);
-  for I := 0 to N - 1 do
+  SetLength(Keep, NCount);
+  for I := 0 to NCount - 1 do
     Keep[I] := False;
 
   //We split loop in half and simplify both segments independently as two convex
   //lines. That is because algo is aimed at polyline, not polyloop
   Keep[0] := True;
-  Keep[N div 2] := True;
-  Keep[N - 1] := True;
+  Keep[NCount div 2] := True;
+  Keep[NCount - 1] := True;
 
   //Keep more nodes on edges
-  for I := 0 to N - 1 do
+  for I := 0 to NCount - 1 do
   if (aInput[I].X = aRect.Left) or (aInput[I].Y = aRect.Top)
   or (aInput[I].X = aRect.Right) or (aInput[I].Y = aRect.Bottom) then
     Keep[I] := True;
 
-  //Try hard to keep at leaft 4 points in the outline (first and last are the same, hence 4, not 3)
-  //With each loop decrease allowed error
+  //Try hard to keep at leaft 4 points in the outline (first and last are the same, hence 4, not 3 for convex shape)
+  //With each pass we decrease allowed Error so that algo will keep more and more points to final of all points
   Loops := 0;
   repeat
       Result := 0;
-      if (1 - MAX_LOOPS * Loops) <> 0 then
-        Err := Sqr(aError) / (1 - MAX_LOOPS * Loops)
+      if (1 - MAX_TRIES * Loops) <> 0 then
+        Err := Sqr(aError) / (1 - MAX_TRIES * Loops)
       else 
         Err := 0;
 
       Prev := 0;
-      for I := 1 to N - 1 do
+      for I := 1 to NCount - 1 do
       if Keep[I] then
       begin
         //We use Sqr values for all comparisons for speedup
@@ -217,8 +216,28 @@ begin
         Prev := I;
       end;
 
+      //Check if there are self-intersections by assembling aligned array and testing it
+      KeptCount := 0;
+      SetLength(Kept, NCount);
+      for I := 0 to NCount - 1 do
+      if Keep[I] then
+      begin
+        Kept[KeptCount] := I;
+        Inc(KeptCount);
+      end;
+
+      for I := 0 to KeptCount - 2 do
+      for K := I + 2 to KeptCount - 2 do
+      if SegmentsIntersect(aInput[Kept[I]].X, aInput[Kept[I]].Y, aInput[Kept[I+1]].X, aInput[Kept[I+1]].Y,
+                           aInput[Kept[K]].X, aInput[Kept[K]].Y, aInput[Kept[K+1]].X, aInput[Kept[K+1]].Y) then
+      begin
+        //If segments intersect we simplify them both with smaller Error
+        Simplify(Err/2, aInput, Keep, Kept[I], Kept[I+1]);
+        Simplify(Err/2, aInput, Keep, Kept[K], Kept[K+1]);
+      end;
+
       //Fill resulting array with preserved points
-      for I := 0 to N - 1 do
+      for I := 0 to NCount - 1 do
       if Keep[I] then
       begin
         aOutput[Result] := aInput[I];
@@ -226,7 +245,7 @@ begin
       end;
 
     Inc(Loops);
-  until(Result > 3) or (Loops > MAX_LOOPS);
+  until(Result > 3) or (Loops > MAX_TRIES);
 end;
 
 
@@ -246,7 +265,7 @@ begin
     SetLength(aOut.Shape[I].Nodes, aIn.Shape[I].Count);
     aOut.Shape[I].Count := PolySimplify(aError, aRect, aIn.Shape[I].Nodes, aOut.Shape[I].Nodes);
 
-    //Cut last point since it duplicates 0
+    //Cut last point since it duplicates first
     Dec(aOut.Shape[I].Count);
     SetLength(aOut.Shape[I].Nodes, aOut.Shape[I].Count);
   end;
@@ -295,11 +314,50 @@ end;
 
 procedure ForceEdge(var aTriMesh: TKMTriMesh; X1,Y1,X2,Y2: Integer);
 var
-  I, K, L: Integer;
+  I, K: Integer;
   Vertice1, Vertice2: Integer;
   Intersect: Boolean;
   Edges: array [0..1] of array of SmallInt;
+  Loop: array of Word;
+  LoopCount: Integer;
   Nedge: LongInt;
+
+  procedure AssembleLoop(aStart, aEnd: Word);
+  var H: Integer;
+  begin
+    Loop[0] := aStart;
+    LoopCount := 1;
+    repeat
+      for H := 0 to Nedge - 1 do
+      if (Edges[0, H] = Loop[LoopCount - 1]) then
+      begin
+        Loop[LoopCount] := Edges[1, H];
+        Inc(LoopCount);
+        Break; //We break to check = aEnd condition (otherwise we could skip it)
+      end;
+    until(Loop[LoopCount - 1] = aEnd);
+  end;
+
+  procedure TriangulateLoop;
+  var L, H: Integer; V: TKMPointArray; PCount: Integer; P: array of word; Res: Boolean;
+  begin
+    SetLength(V, LoopCount+1);
+    SetLength(P, LoopCount*3+1);
+    for L := 0 to LoopCount - 1 do
+      V[L+1] := aTriMesh.Vertices[Loop[L]];
+
+    KMTriangulate(LoopCount, V, PCount, P, Res);
+    Assert(Res, 'Triangulation failed');
+
+    for L := 0 to PCount - 1 do
+    begin
+      SetLength(aTriMesh.Polygons, Length(aTriMesh.Polygons) + 1);
+      aTriMesh.Polygons[High(aTriMesh.Polygons),0] := Loop[P[L*3+1]-1];
+      aTriMesh.Polygons[High(aTriMesh.Polygons),1] := Loop[P[L*3+2]-1];
+      aTriMesh.Polygons[High(aTriMesh.Polygons),2] := Loop[P[L*3+3]-1];
+    end;
+  end;
+
 begin
   with aTriMesh do
   begin
@@ -333,23 +391,21 @@ begin
       //Test each Polygons for intersection with the Edge
 
       //Eeach test checks if Edge and Polygons edge intersect
-      //Edges intersect if 2 polygons made on them are facing different ways
-
       Intersect :=
-           SegmentsIntersect(x1, y1, x2, y2, Vertices[Polygons[I,0]].X,  Vertices[Polygons[I,0]].Y, Vertices[Polygons[I,1]].X,  Vertices[Polygons[I,1]].Y)
-        or SegmentsIntersect(x1, y1, x2, y2, Vertices[Polygons[I,1]].X,  Vertices[Polygons[I,1]].Y, Vertices[Polygons[I,2]].X,  Vertices[Polygons[I,2]].Y)
-        or SegmentsIntersect(x1, y1, x2, y2, Vertices[Polygons[I,2]].X,  Vertices[Polygons[I,2]].Y, Vertices[Polygons[I,0]].X,  Vertices[Polygons[I,0]].Y);
+           SegmentsIntersect(x1, y1, x2, y2, aTriMesh.Vertices[aTriMesh.Polygons[I,0]].X, aTriMesh.Vertices[aTriMesh.Polygons[I,0]].Y, aTriMesh.Vertices[Polygons[I,1]].X,  Vertices[Polygons[I,1]].Y)
+        or SegmentsIntersect(x1, y1, x2, y2, aTriMesh.Vertices[aTriMesh.Polygons[I,1]].X, aTriMesh.Vertices[aTriMesh.Polygons[I,1]].Y, aTriMesh.Vertices[Polygons[I,2]].X,  Vertices[Polygons[I,2]].Y)
+        or SegmentsIntersect(x1, y1, x2, y2, aTriMesh.Vertices[aTriMesh.Polygons[I,2]].X, aTriMesh.Vertices[aTriMesh.Polygons[I,2]].Y, aTriMesh.Vertices[Polygons[I,0]].X,  Vertices[Polygons[I,0]].Y);
 
       //Cut the Polygons
       if Intersect then
       begin
         //Save triangles edges
-        Edges[0, Nedge + 0] := Polygons[I,0];
-        Edges[1, Nedge + 0] := Polygons[I,1];
-        Edges[0, Nedge + 1] := Polygons[I,1];
-        Edges[1, Nedge + 1] := Polygons[I,2];
-        Edges[0, Nedge + 2] := Polygons[I,2];
-        Edges[1, Nedge + 2] := Polygons[I,0];
+        Edges[0, Nedge + 0] := aTriMesh.Polygons[I,0];
+        Edges[1, Nedge + 0] := aTriMesh.Polygons[I,1];
+        Edges[0, Nedge + 1] := aTriMesh.Polygons[I,1];
+        Edges[1, Nedge + 1] := aTriMesh.Polygons[I,2];
+        Edges[0, Nedge + 2] := aTriMesh.Polygons[I,2];
+        Edges[1, Nedge + 2] := aTriMesh.Polygons[I,0];
         Nedge := Nedge + 3;
         //Move last Polygons to I
         Polygons[I,0] := Polygons[High(Polygons),0];
@@ -378,33 +434,11 @@ begin
     //Assemble two polygons on Edge sides
     if Nedge > 0 then
     begin
-      //Pick 1st edge and loop from it till Edge vertice
-      L := Vertice1;
-      repeat
-        for K := 0 to Nedge - 1 do
-        if (Edges[0, K] = L) then
-        begin
-          SetLength(Polygons, Length(Polygons) + 1);
-          Polygons[High(Polygons),0] := Vertice2;
-          Polygons[High(Polygons),1] := Edges[0, K];
-          Polygons[High(Polygons),2] := Edges[1, K];
-          L := Edges[1, K];
-          Break;
-        end;
-      until(L = Vertice2);
-      L := Vertice2;
-      repeat
-        for K := 0 to Nedge - 1 do
-        if (Edges[0, K] = L) then
-        begin
-          SetLength(Polygons, Length(Polygons) + 1);
-          Polygons[High(Polygons),0] := Vertice1;
-          Polygons[High(Polygons),1] := Edges[0, K];
-          Polygons[High(Polygons),2] := Edges[1, K];
-          L := Edges[1, K];
-          Break;
-        end;
-      until(L = Vertice1);
+      SetLength(Loop, Nedge);
+      AssembleLoop(Vertice1, Vertice2);
+      TriangulateLoop;
+      AssembleLoop(Vertice2, Vertice1);
+      TriangulateLoop;
     end;
 
   end;
@@ -416,9 +450,10 @@ var
   I,K: Integer;
 begin
   for I := 0 to fSimpleOutlines.Count - 1 do
-  with fSimpleOutlines.Shape[I] do
-    for K := 0 to Count - 1 do
-      ForceEdge(aTriMesh, Nodes[K].X, Nodes[K].Y, Nodes[(K + 1) mod Count].X, Nodes[(K + 1) mod Count].Y);
+  if I = 1 then
+    with fSimpleOutlines.Shape[I] do
+      for K := 0 to Count - 1 do
+        ForceEdge(aTriMesh, Nodes[K].X, Nodes[K].Y, Nodes[(K + 1) mod Count].X, Nodes[(K + 1) mod Count].Y);
 end;
 
 

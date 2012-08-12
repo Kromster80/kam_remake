@@ -19,8 +19,8 @@ var
   Form1: TForm1;
 
 implementation
-
 {$R *.dfm}
+
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
@@ -28,6 +28,7 @@ begin
 
   Image1Click(Self);
 end;
+
 
 procedure TForm1.Image1Click(Sender: TObject);
 var I: Integer;
@@ -54,10 +55,12 @@ begin
     Image1.Canvas.TextOut(Trunc(fDelaunay.Vertex^[I].x), Trunc(fDelaunay.Vertex^[I].y), IntToStr(I));
 end;
 
+
 procedure TForm1.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   fDelaunay.AddPoint(X, Y);
   Image1Click(nil);
 end;
+
 
 end.
