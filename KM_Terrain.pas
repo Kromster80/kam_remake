@@ -173,7 +173,7 @@ type
     function TileIsLocked(aLoc:TKMPoint): Boolean;
     function UnitsHitTest(X,Y:word): Pointer;
     function UnitsHitTestF(aLoc: TKMPointF): Pointer;
-    function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:TPlayerIndex; aAlliance:TAllianceType; Dir:TKMDirection): Pointer;
+    function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:TPlayerIndex; aAlliance:TAllianceType; Dir:TKMDirection; aClosest:Boolean): Pointer;
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage: Byte): Boolean;
     function CanWalkDiagonaly(const A,B:TKMPoint): Boolean;
@@ -604,21 +604,28 @@ begin
 end;
 
 
-//Function to use with WatchTowers/Archers/AutoLinking/
+//Function to use with WatchTowers/Archers/Warriors
 { Should scan withing given radius and return closest unit with given Alliance status
   Should be optimized versus usual UnitsHitTest
   Prefer Warriors over Citizens}
-function TTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection): Pointer;
+function TTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection; aClosest:Boolean): Pointer;
 var
   i,k: integer; //Counters
   lx,ly,hx,hy: integer; //Ranges
   dX,dY: integer;
   RequiredMaxRad: single;
   U,C,W: TKMUnit; //CurrentUnit, BestWarrior, BestCitizen
+  Warriors, Citizens: TList;
   P: TKMPoint;
 begin
   W := nil;
   C := nil;
+
+  if not aClosest then
+  begin
+    Warriors := TList.Create;
+    Citizens := TList.Create;
+  end;
 
   //Scan one tile further than the maximum radius due to rounding
   lx := max(round(aLoc.X-(MaxRad+1)),1); //1.42 gets rounded to 1
@@ -653,7 +660,7 @@ begin
       Continue;
 
     //Don't check tiles farther than closest Warrior
-    if (W<>nil) and (GetLength(KMPoint(aLoc.X,aLoc.Y),KMPoint(k,i)) >= GetLength(KMPoint(aLoc.X,aLoc.Y),W.GetPosition)) then
+    if aClosest and (W<>nil) and (GetLength(KMPoint(aLoc.X,aLoc.Y),KMPoint(k,i)) >= GetLength(KMPoint(aLoc.X,aLoc.Y),W.GetPosition)) then
       Continue; //Since we check left-to-right we can't exit just yet (there are possible better enemies below)
 
     //In KaM archers can shoot further than sight radius (shoot further into explored areas)
@@ -675,16 +682,44 @@ begin
        ((abs(aLoc.X - P.X) <> 1) or (abs(aLoc.Y - P.Y) <> 1) or VertexUsageCompatible(aLoc,P)) and
        (InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad)) //Unit's exact position must be close enough
     then
-      if U is TKMUnitWarrior then
-        W := U
+    begin
+      if aClosest then
+      begin
+        if U is TKMUnitWarrior then
+          W := U
+        else
+          C := U;
+      end
       else
-        C := U;
+      begin
+        if U is TKMUnitWarrior then
+          Warriors.Add(U)
+        else
+          Citizens.Add(U);
+      end;
+    end;
   end;
 
-  if W <> nil then
-    Result := W
+  if aClosest then
+  begin
+    if W <> nil then
+      Result := W
+    else
+      Result := C;
+  end
   else
-    Result := C;
+  begin
+    if Warriors.Count > 0 then
+      Result := Warriors[KaMRandom(Warriors.Count)]
+    else
+      if Citizens.Count > 0 then
+        Result := Citizens[KaMRandom(Citizens.Count)]
+      else
+        Result := nil;
+
+    Warriors.Free;
+    Citizens.Free;
+  end;
 end;
 
 
