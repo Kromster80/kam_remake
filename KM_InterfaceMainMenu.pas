@@ -31,6 +31,7 @@ type
 
     fLobbyBusy: Boolean;
     fGameResultMsg: TGameResultMsg; //So we know where to go after results screen
+    fWaresVisible:array[WARE_MIN..WARE_MAX] of Boolean; //For MP results page
 
     fLastMapCRC: Cardinal; //CRC of selected map
     fLastSaveCRC: Cardinal; //CRC of selected save
@@ -158,6 +159,7 @@ type
 
     procedure Results_GraphToggle(Sender: TObject);
     procedure ResultsMP_Toggle(Sender: TObject);
+    procedure ResultsMP_PlayerSelect(Sender: TObject);
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -355,7 +357,9 @@ type
         Graph_MPArmy: TKMGraph;
         Graph_MPCitizens: TKMGraph;
         Graph_MPHouses: TKMGraph;
-        Graph_MPWares: TKMGraph;
+        Graph_MPWares: array[0..MAX_PLAYERS-1] of TKMGraph; //One for each player
+        Image_MPResultsBackplate: TKMImage;
+        Radio_MPResultsWarePlayer: TKMRadioGroup;
       Button_ResultsMPBack:TKMButton;
   public
     constructor Create(X,Y: Word);
@@ -379,7 +383,7 @@ type
 
 implementation
 uses KM_Main, KM_NetworkTypes, KM_TextLibrary, KM_Game, KM_GameApp, KM_PlayersCollection, KM_Locales,
-  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_Resource, KM_CommonTypes;
+  KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_Resource, KM_Player, KM_CommonTypes;
 
 const
   MENU_SP_MAPS_COUNT    = 12;           //Number of single player maps to display in menu
@@ -638,6 +642,7 @@ end;
 
 
 procedure TKMMainMenuInterface.ResultsMP_Toggle(Sender: TObject);
+var I: Integer;
 begin
   Panel_StatsMP1.Visible := Sender = Button_MPResultsStats;
   Panel_StatsMP2.Visible := Sender = Button_MPResultsStats;
@@ -648,12 +653,37 @@ begin
   Graph_MPArmy.Visible     := Sender = Button_MPResultsArmy;
   Graph_MPCitizens.Visible := Sender = Button_MPResultsEconomy;
   Graph_MPHouses.Visible   := Sender = Button_MPResultsEconomy;
-  Graph_MPWares.Visible    := Sender = Button_MPResultsWares;
+  for I:=0 to MAX_PLAYERS-1 do
+    Graph_MPWares[I].Visible := (Sender = Button_MPResultsWares) and (Radio_MPResultsWarePlayer.ItemIndex = I);
+  Radio_MPResultsWarePlayer.Visible := Sender = Button_MPResultsWares;
+  Image_MPResultsBackplate.Visible  := Sender = Button_MPResultsWares;
 
   Button_MPResultsStats.Down := Sender = Button_MPResultsStats;
   Button_MPResultsArmy.Down := Sender = Button_MPResultsArmy;
   Button_MPResultsEconomy.Down := Sender = Button_MPResultsEconomy;
   Button_MPResultsWares.Down := Sender = Button_MPResultsWares;
+end;
+
+
+procedure TKMMainMenuInterface.ResultsMP_PlayerSelect(Sender: TObject);
+var ID, I, K: Integer;
+begin
+  ID := Radio_MPResultsWarePlayer.ItemIndex;
+  Assert(ID in [0..MAX_PLAYERS-1]);
+
+  for I:=0 to MAX_PLAYERS-1 do
+    if Graph_MPWares[I].Visible then
+    begin
+      Graph_MPWares[I].Visible := False; //Hide the old one
+      //Update the values of which lines are visible in our internal record
+      for K := 0 to Graph_MPWares[I].LineCount-1 do
+        fWaresVisible[TResourceType(Graph_MPWares[I].Lines[K].Tag)] := Graph_MPWares[I].Lines[K].Visible;
+    end;
+
+  Graph_MPWares[ID].Visible := True;
+  //Show only the line that are visible in our internal record
+  for K := 0 to Graph_MPWares[ID].LineCount-1 do
+    Graph_MPWares[ID].SetLineVisible(K,fWaresVisible[TResourceType(Graph_MPWares[ID].Lines[K].Tag)]);
 end;
 
 
@@ -807,19 +837,27 @@ begin
   //Fill in chart values
   if DISPLAY_CHARTS_RESULT then
   begin
+    Radio_MPResultsWarePlayer.Items.Clear;
+    for I := 0 to fPlayers.Count - 1 do
+      Radio_MPResultsWarePlayer.Items.Add('[$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]');
+
+    Radio_MPResultsWarePlayer.ItemIndex := 0;
+    Radio_MPResultsWarePlayer.Height := 25*fPlayers.Count;
+    Image_MPResultsBackplate.Height := 24 + 25*fPlayers.Count;
+
+    for R := WARE_MIN to WARE_MAX do
+      fWaresVisible[R] := True; //All are visible by default
+
     Graph_MPArmy.Clear;
     Graph_MPCitizens.Clear;
     Graph_MPHouses.Clear;
-    Graph_MPWares.Clear;
     Graph_MPArmy.MaxLength      := MyPlayer.Stats.GraphCount;
     Graph_MPCitizens.MaxLength  := MyPlayer.Stats.GraphCount;
     Graph_MPHouses.MaxLength    := MyPlayer.Stats.GraphCount;
-    Graph_MPWares.MaxLength     := MyPlayer.Stats.GraphCount;
 
     Graph_MPArmy.MaxTime      := fGame.GameTickCount div 10;
     Graph_MPCitizens.MaxTime  := fGame.GameTickCount div 10;
     Graph_MPHouses.MaxTime    := fGame.GameTickCount div 10;
-    Graph_MPWares.MaxTime     := fGame.GameTickCount div 10;
 
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
@@ -833,15 +871,22 @@ begin
     with fPlayers[I] do
       Graph_MPHouses.AddLine(PlayerName, FlagColor, Stats.GraphHouses);
 
-    for R := WARE_MIN to WARE_MAX do
+    for I := 0 to fPlayers.Count - 1 do
     begin
-      G := MyPlayer.Stats.GraphGoods[R];
-      for I := 0 to High(G) do
-        if G[I] <> 0 then
-        begin
-          Graph_MPWares.AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, MyPlayer.Stats.GraphGoods[R]);
-          Break;
-        end;
+      Graph_MPWares[I].Clear;
+      Graph_MPWares[I].MaxLength := MyPlayer.Stats.GraphCount;
+      Graph_MPWares[I].MaxTime := fGame.GameTickCount div 10;
+      Graph_MPWares[I].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES]+' - [$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]';
+      for R := WARE_MIN to WARE_MAX do
+      begin
+        G := fPlayers[I].Stats.GraphGoods[R];
+        for K := 0 to High(G) do
+          if G[K] <> 0 then
+          begin
+            Graph_MPWares[I].AddLine(fResource.Resources[R].Title, ResourceColor[R] or $FF000000, G, Byte(R));
+            Break;
+          end;
+      end;
     end;
 
     Button_MPResultsWares.Enabled := (fGame.MissionMode = mm_Normal);
@@ -1817,9 +1862,21 @@ begin
       Graph_MPHouses.Caption := fTextLibrary[TX_GRAPH_HOUSES];
       Graph_MPHouses.Anchors := [akLeft];
 
-      Graph_MPWares := TKMGraph.Create(Panel_GraphsMP, 12, 0, 1000, 435);
-      Graph_MPWares.Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES];
-      Graph_MPWares.Anchors := [akLeft];
+      Image_MPResultsBackplate := TKMImage.Create(Panel_GraphsMP, 12, 56, 178, 224, 3, rxGuiMain);
+      Image_MPResultsBackplate.ImageStretch;
+      Image_MPResultsBackplate.Center;
+
+      Radio_MPResultsWarePlayer := TKMRadioGroup.Create(Panel_GraphsMP, 26, 70, 150, 200, fnt_Metal);
+      Radio_MPResultsWarePlayer.Anchors := [akLeft];
+      Radio_MPResultsWarePlayer.OnChange := ResultsMP_PlayerSelect;
+
+      for I:=0 to MAX_PLAYERS-1 do
+      begin
+        Graph_MPWares[I] := TKMGraph.Create(Panel_GraphsMP, 190, 0, 822, 435);
+        Graph_MPWares[I].Caption := fTextLibrary[TX_GRAPH_TITLE_RESOURCES];
+        Graph_MPWares[I].Font := fnt_Metal; //fnt_Outline doesn't work because player names blend badly with yellow
+        Graph_MPWares[I].Anchors := [akLeft];
+      end;
 
     Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,630,220,30,fTextLibrary[TX_MENU_BACK],fnt_Metal,bsMenu);
     Button_ResultsMPBack.Anchors := [akLeft];

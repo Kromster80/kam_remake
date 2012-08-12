@@ -900,32 +900,40 @@ type
     procedure Paint; override;
   end;
 
+  TGraphLine = record
+                Title: string;
+                Tag: Integer;
+                Color: TColor4;
+                Visible: Boolean;
+                Values: TCardinalArray;
+              end;
 
   TKMGraph = class(TKMControl)
   private
     fCaption: string;
+    fFont: TKMFont;
     fCount: Integer;
     fItemHeight: Byte;
     fLegendWidth: Word;
     fLineOver: Integer;
-    fLines: array of record
-      Title: string;
-      Color: TColor4;
-      Visible: Boolean;
-      Values: TCardinalArray;
-    end;
+    fLines: array of TGraphLine;
     fMaxLength: Cardinal; //Maximum samples (by horizontal axis)
     fMaxTime: Cardinal; //Maximum time (in sec), used only for Rendering time ticks
     fMaxValue: Cardinal; //Maximum value (by vertical axis)
     procedure UpdateMaxValue;
+    function GetLine(aIndex:Integer):TGraphLine;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
-    procedure AddLine(aTitle: string; aColor: TColor4; const aValues: TCardinalArray);
+    procedure AddLine(aTitle: string; aColor: TColor4; const aValues: TCardinalArray; aTag:Integer=-1);
     property Caption: string read fCaption write fCaption;
     procedure Clear;
+    procedure SetLineVisible(aLineID:Integer; aVisible:Boolean);
     property MaxLength: Cardinal read fMaxLength write fMaxLength;
     property MaxTime: Cardinal read fMaxTime write fMaxTime;
+    property Lines[aIndex: Integer]: TGraphLine read GetLine;
+    property LineCount:Integer read fCount;
+    property Font: TKMFont read fFont write fFont;
 
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -4039,7 +4047,7 @@ begin
 end;
 
 
-procedure TKMGraph.AddLine(aTitle: string; aColor: TColor4; const aValues: TCardinalArray);
+procedure TKMGraph.AddLine(aTitle: string; aColor: TColor4; const aValues: TCardinalArray; aTag:Integer=-1);
 begin
   if fMaxLength = 0 then Exit;
 
@@ -4050,6 +4058,7 @@ begin
 
   fLines[fCount].Color := aColor;
   fLines[fCount].Title := aTitle;
+  fLines[fCount].Tag := aTag;
   fLines[fCount].Visible := True;
   SetLength(fLines[fCount].Values, fMaxLength);
   if SizeOf(aValues) <> 0 then
@@ -4068,6 +4077,13 @@ begin
 end;
 
 
+procedure TKMGraph.SetLineVisible(aLineID:Integer; aVisible:Boolean);
+begin
+  fLines[aLineID].Visible := aVisible;
+  UpdateMaxValue;
+end;
+
+
 procedure TKMGraph.UpdateMaxValue;
 var I, K: Integer;
 begin
@@ -4077,6 +4093,12 @@ begin
       for K := 0 to fMaxLength - 1 do
         if fLines[I].Values[K] > fMaxValue then
           fMaxValue := fLines[I].Values[K];
+end;
+
+
+function TKMGraph.GetLine(aIndex:Integer):TGraphLine;
+begin
+  Result := fLines[aIndex];
 end;
 
 
@@ -4172,7 +4194,7 @@ begin
   fRenderUI.WriteRect(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, $FFFFFFFF);
 
   //Title
-  fRenderUI.WriteText(G.Left + 5, G.Top + 5, 0, 20, fCaption, fnt_Outline, taLeft);
+  fRenderUI.WriteText(G.Left + 5, G.Top + 5, 0, 20, fCaption, fFont, taLeft);
 
   //Render vertical axis captions
   fRenderUI.WriteText(G.Left - 5, G.Bottom + 5, 0, 0, IntToStr(0), fnt_Game, taRight);
