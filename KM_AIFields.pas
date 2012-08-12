@@ -284,7 +284,6 @@ var
   C1, C2, C3, C4: Boolean;
   MeshDensityX, MeshDensityY: Byte;
   SizeX, SizeY: Word;
-  X1,X2,Y1,Y2: Integer;
   PX,PY,TX,TY: Integer;
   Skip: Boolean;
 begin
