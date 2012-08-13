@@ -320,8 +320,6 @@ begin
 
   //todo: RemoveSelfIntersections
 
-  AddIntermediateNodes(fSimpleOutlines, 12);
-
   //Fill Delaunay triangles
   fDelaunay := TDelaunay.Create(-1, -1, fTerrain.MapX, fTerrain.MapY);
   fDelaunay.Tolerance := 1;
@@ -387,7 +385,7 @@ begin
 
   RemoveFrame(fRawDelaunay);
 
-  RemoveDegenerates(fRawDelaunay);
+  RemoveDegenerates(fRawDelaunay);//}
 
   //Bring triangulated mesh back
   SetLength(fNavMesh.Vertices, Length(fRawDelaunay.Vertices));

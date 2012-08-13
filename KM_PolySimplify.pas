@@ -22,9 +22,6 @@ procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray)
 //Simplify shapes by removing points within aError
 procedure SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray; aError: Single; aRect: TKMRect);
 
-//If resulting outlines have too long edges insert additional points there
-procedure AddIntermediateNodes(var aArray: TKMShapesArray; aMaxSpan: Byte);
-
 procedure ForceOutlines(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArray);
 
 procedure RemoveObstaclePolies(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArray);
@@ -46,6 +43,7 @@ procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray)
     //Reserve space for worst case when nothing gets optimized
     SetLength(aOut.Nodes, aIn.Count);
 
+    aOut.Count := 0;
     for K := 0 to aIn.Count - 1 do
     begin
       P0 := (K - 1 + aIn.Count) mod aIn.Count;
@@ -147,8 +145,8 @@ begin
     end;
   end;
 
-  //See if we need to split once again
-  if MaxDistSqr > aErrorSqr then
+  //See if we need to split once again due to Error or too long span
+  if (MaxDistSqr > aErrorSqr) or (aTo - aFrom > 12) then
   begin
     aKeep[MaxDistI] := True;
 
@@ -270,45 +268,6 @@ begin
     SetLength(aOut.Shape[I].Nodes, aOut.Shape[I].Count);
   end;
   aOut.Count := aIn.Count;
-end;
-
-
-//If resulting outlines have too long edges insert additional points there
-procedure AddIntermediateNodes(var aArray: TKMShapesArray; aMaxSpan: Byte);
-var
-  I,K,L: Integer;
-  X1,X2,Y1,Y2: Word;
-  M: Byte;
-begin
-  for I := 0 to aArray.Count - 1 do
-  with aArray.Shape[I] do
-  begin
-    K := 0;
-    repeat
-      X1 := Nodes[K].X;
-      Y1 := Nodes[K].Y;
-      X2 := Nodes[(K + 1) mod Count].X;
-      Y2 := Nodes[(K + 1) mod Count].Y;
-      M := Round(Sqrt(Sqr(X1 - X2) + Sqr(Y1 - Y2)));
-      if M > aMaxSpan then
-      begin
-        M := Round(M / aMaxSpan);
-        SetLength(Nodes, Count + M);
-
-        if Count - 1 <> K then
-          Move(Nodes[K+1], Nodes[K+1+M], SizeOf(Nodes[K]) * (Count - 1 - K));
-
-        for L := 0 to M - 1 do
-        begin
-          Nodes[K+1+L].X := Round(X1 +(X2 - X1) / (M+1) * (L+1));
-          Nodes[K+1+L].Y := Round(Y1 +(Y2 - Y1) / (M+1) * (L+1));
-        end;
-
-        Inc(Count, M);
-      end;
-      Inc(K);
-    until(K >= Count);
-  end;
 end;
 
 

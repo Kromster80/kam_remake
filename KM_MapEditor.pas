@@ -46,7 +46,7 @@ type
 
 
 implementation
-uses  KM_PlayersCollection, KM_RenderAux;
+uses KM_PlayersCollection, KM_RenderAux, KM_AIFields;
 
 
 function TKMDeposits.GetAmount(aMat: TRawDeposit; aIndex: Integer): Integer;
@@ -212,6 +212,7 @@ end;
 procedure TKMMapEditor.Update;
 begin
   fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold]);
+  fAIFields.UpdateNavMesh;
 end;
 
 
