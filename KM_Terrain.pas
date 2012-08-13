@@ -173,10 +173,10 @@ type
     function TileIsLocked(aLoc:TKMPoint): Boolean;
     function UnitsHitTest(X,Y:word): Pointer;
     function UnitsHitTestF(aLoc: TKMPointF): Pointer;
-    function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:TPlayerIndex; aAlliance:TAllianceType; Dir:TKMDirection; aClosest:Boolean): Pointer;
+    function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 
-    function ObjectIsChopableTree(Loc:TKMPoint; Stage: Byte): Boolean;
-    function CanWalkDiagonaly(const A,B:TKMPoint): Boolean;
+    function ObjectIsChopableTree(Loc: TKMPoint; Stage: Byte): Boolean;
+    function CanWalkDiagonaly(const A,B: TKMPoint): Boolean;
 
     procedure FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects: Boolean=true); overload;
     procedure FlattenTerrain(LocList:TKMPointList); overload;
@@ -610,12 +610,12 @@ end;
 { Should scan withing given radius and return closest unit with given Alliance status
   Should be optimized versus usual UnitsHitTest
   Prefer Warriors over Citizens}
-function TTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection; aClosest:Boolean): Pointer;
+function TTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 var
-  i,k: integer; //Counters
-  lx,ly,hx,hy: integer; //Ranges
-  dX,dY: integer;
-  RequiredMaxRad: single;
+  I,K: Integer; //Counters
+  LowX,LowY,HighX,HighY: Integer; //Ranges
+  dX,dY: Integer;
+  RequiredMaxRad: Single;
   U,C,W: TKMUnit; //CurrentUnit, BestWarrior, BestCitizen
   Warriors, Citizens: TList;
   P: TKMPoint;
@@ -630,29 +630,30 @@ begin
   end;
 
   //Scan one tile further than the maximum radius due to rounding
-  lx := max(round(aLoc.X-(MaxRad+1)),1); //1.42 gets rounded to 1
-  ly := max(round(aLoc.Y-(MaxRad+1)),1); //1.42 gets rounded to 1
-  hx := min(round(aLoc.X+(MaxRad+1)),fMapX); //1.42 gets rounded to 1
-  hy := min(round(aLoc.Y+(MaxRad+1)),fMapY); //1.42 gets rounded to 1
+  LowX := Max(Round(aLoc.X-(MaxRad+1)), 1); //1.42 gets rounded to 1
+  LowY := Max(Round(aLoc.Y-(MaxRad+1)), 1); //1.42 gets rounded to 1
+  HighX := Min(Round(aLoc.X+(MaxRad+1)), fMapX); //1.42 gets rounded to 1
+  HighY := Min(Round(aLoc.Y+(MaxRad+1)), fMapY); //1.42 gets rounded to 1
 
-  for i:=ly to hy do for k:=lx to hx do
-  if (Land[i,k].IsUnit <> nil) then
+  for I := LowY to HighY do
+  for K := LowX to HighX do
+  if (Land[I,K].IsUnit <> nil) then
   begin
     //Check archer sector. If it's not within the 90 degree sector for this direction, then don't use this tile (continue)
-    dX := k-aLoc.X;
-    dY := i-aLoc.Y;
+    dX := K - aLoc.X;
+    dY := I - aLoc.Y;
     case Dir of
-      dir_N : if not((abs(dX)<=-dY)and(dY<0)) then continue;
-      dir_NE: if not((dX>0)        and(dY<0)) then continue;
-      dir_E:  if not((dX>0)and (abs(dY)<=dX)) then continue;
-      dir_SE: if not((dX>0)        and(dY>0)) then continue;
-      dir_S : if not((abs(dX)<=dY) and(dY>0)) then continue;
-      dir_SW: if not((dX<0)        and(dY>0)) then continue;
-      dir_W:  if not((dX<0)and(abs(dY)<=-dX)) then continue;
-      dir_NW: if not((dX<0)        and(dY<0)) then continue;
+      dir_N : if not ((Abs(dX) <= -dY) and (dY < 0)) then Continue;
+      dir_NE: if not ((dX > 0)         and (dY < 0)) then Continue;
+      dir_E:  if not ((dX > 0) and (Abs(dY) <= dX))  then Continue;
+      dir_SE: if not ((dX > 0)         and (dY > 0)) then Continue;
+      dir_S : if not ((Abs(dX) <= dY)  and (dY > 0)) then Continue;
+      dir_SW: if not ((dX < 0)         and (dY > 0)) then Continue;
+      dir_W:  if not ((dX < 0) and (Abs(dY) <= -dX)) then Continue;
+      dir_NW: if not ((dX < 0)         and (dY < 0)) then Continue;
     end;
 
-    U := Land[i,k].IsUnit;
+    U := Land[I,K].IsUnit;
 
     //Alliance is the check that will invalidate most candidates, so do it early on
     if (U = nil)
@@ -662,13 +663,14 @@ begin
       Continue;
 
     //Don't check tiles farther than closest Warrior
-    if aClosest and (W<>nil) and (GetLength(KMPoint(aLoc.X,aLoc.Y),KMPoint(k,i)) >= GetLength(KMPoint(aLoc.X,aLoc.Y),W.GetPosition)) then
+    if aClosest and (W <> nil)
+    and (GetLength(aLoc, KMPoint(K,I)) >= GetLength(aLoc, W.GetPosition)) then
       Continue; //Since we check left-to-right we can't exit just yet (there are possible better enemies below)
 
     //In KaM archers can shoot further than sight radius (shoot further into explored areas)
     //so CheckTileRevelation is required, we can't remove it to optimise.
     //But because it will not invalidate many candidates, check it late so other checks can do their work first
-    if (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i,false) <> 255) then Continue;
+    if (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(K,I,false) <> 255) then Continue;
 
     //This unit could be on a different tile next to KMPoint(k,i), so we cannot use that anymore.
     //There was a crash caused by VertexUsageCompatible checking (k,i) instead of U.GetPosition.
@@ -680,11 +682,13 @@ begin
     if (MaxRad = 1) and KMStepIsDiag(aLoc, P) then
       RequiredMaxRad := 1.42; //Use diagonal radius sqrt(2) instead
 
-    if CanWalkDiagonaly(aLoc, P) and
-       ((abs(aLoc.X - P.X) <> 1) or (abs(aLoc.Y - P.Y) <> 1) or VertexUsageCompatible(aLoc,P)) and
-       (InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad)) //Unit's exact position must be close enough
+    if CanWalkDiagonaly(aLoc, P)
+    and ((Abs(aLoc.X - P.X) <> 1)
+          or (Abs(aLoc.Y - P.Y) <> 1)
+          or VertexUsageCompatible(aLoc, P)
+        )
+    and InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad) //Unit's exact position must be close enough
     then
-    begin
       if aClosest then
       begin
         if U is TKMUnitWarrior then
@@ -699,7 +703,6 @@ begin
         else
           Citizens.Add(U);
       end;
-    end;
   end;
 
   if aClosest then
