@@ -136,6 +136,7 @@ type
     procedure SetPause(aValue:boolean);
     procedure DirectionCursorShow(X,Y: Integer; Dir:TKMDirection);
     procedure DirectionCursorHide;
+    function HasLostMPGame:Boolean;
   protected
     Panel_Main: TKMPanel;
       Sidebar_Top: TKMImage;
@@ -336,6 +337,7 @@ type
     procedure ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
     procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
     procedure SetMenuState(aTactic: Boolean);
+    procedure ClearOpenMenu;
     procedure SetMinimap;
     procedure ShowClock(aSpeed: Word);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
@@ -366,7 +368,7 @@ type
 
 
 implementation
-uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi,
+uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi, KM_AI,
   KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game,  KM_GameApp, KM_Utils, KM_Locales,
   KM_Sound, KM_Resource, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
@@ -704,7 +706,7 @@ begin
   if not fTerrain.TileInMapCoords(Loc.X, Loc.Y) then Exit; //Must be inside map
 
   //Send move order, if applicable
-  if (fPlayers.Selected is TKMUnitWarrior) and not fJoiningGroups and not fPlacingBeacon then
+  if (fPlayers.Selected is TKMUnitWarrior) and not fJoiningGroups and not fPlacingBeacon and not fReplay and not HasLostMPGame then
   begin
     W := TKMUnitWarrior(fPlayers.Selected);
     if W.CanWalkTo(Loc, 0) then
@@ -2826,7 +2828,7 @@ end;
 procedure TKMGamePlayInterface.Army_ActivateControls(aCommander: TKMUnitWarrior);
 var AcceptOrders: Boolean;
 begin
-  AcceptOrders := aCommander.ArmyCanTakeOrders and not fReplay;
+  AcceptOrders := aCommander.ArmyCanTakeOrders and not fReplay and not HasLostMPGame;
 
   //Button_Army_GoTo.Enabled    := AcceptOrders;
   Button_Army_Stop.Enabled    := AcceptOrders;
@@ -2844,8 +2846,8 @@ end;
 
 procedure TKMGamePlayInterface.SetMenuState(aTactic: Boolean);
 begin
-  Button_Main[tbBuild].Enabled := not aTactic and not fReplay;
-  Button_Main[tbRatio].Enabled := not aTactic and not fReplay;
+  Button_Main[tbBuild].Enabled := not aTactic and not fReplay and not HasLostMPGame;
+  Button_Main[tbRatio].Enabled := not aTactic and not fReplay and not HasLostMPGame;
   Button_Main[tbStats].Enabled := not aTactic;
 
   //No loading during multiplayer games
@@ -2865,6 +2867,12 @@ begin
   //and does not affect replay consistency
 
   Panel_Replay.Visible := fReplay;
+end;
+
+
+procedure TKMGamePlayInterface.ClearOpenMenu;
+begin
+  SwitchPage(Button_Back);
 end;
 
 
@@ -3074,6 +3082,12 @@ begin
 end;
 
 
+function TKMGamePlayInterface.HasLostMPGame:Boolean;
+begin
+  Result := fMultiplayer and (MyPlayer.AI.WonOrLost = wol_Lost);
+end;
+
+
 procedure TKMGamePlayInterface.SetChatText(const aString: string);
 begin
   Edit_ChatMsg.Text := aString;
@@ -3111,7 +3125,7 @@ begin
     fPlayers.Selected := fPlayers.GetUnitByID(fSelection[Key]);
     if fPlayers.Selected <> nil then
     begin
-      if (OldSelected <> fPlayers.Selected) and not fReplay then
+      if (OldSelected <> fPlayers.Selected) and not fReplay and not HasLostMPGame then
       begin
         if fPlayers.Selected is TKMUnitWarrior then
           fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select)
@@ -3353,7 +3367,7 @@ begin
 
   //See if we can show DirectionSelector
   //Can walk to ally units place, can't walk to house place anyway, unless it's a markup and allied
-  if (Button = mbRight) and not fReplay and not fJoiningGroups and not fPlacingBeacon and (fPlayers.Selected is TKMUnitWarrior)
+  if (Button = mbRight) and not fReplay and not HasLostMPGame and not fJoiningGroups and not fPlacingBeacon and (fPlayers.Selected is TKMUnitWarrior)
     and (TKMUnitWarrior(fPlayers.Selected).GetOwner = MyPlayer.PlayerIndex) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -3509,7 +3523,7 @@ begin
     Exit;
   end;
 
-  if (fPlayers.Selected is TKMUnitWarrior) and not fReplay then
+  if (fPlayers.Selected is TKMUnitWarrior) and not fReplay and not HasLostMPGame then
   begin
     if (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, false) > 0) then
     begin
@@ -3610,7 +3624,7 @@ begin
                                 if (fPlayers.Selected is TKMUnit) then
                                 begin
                                   ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                                  if (OldSelected <> fPlayers.Selected) and not fReplay then
+                                  if (OldSelected <> fPlayers.Selected) and not fReplay and not HasLostMPGame then
                                   begin
                                     if fPlayers.Selected is TKMUnitWarrior then
                                       fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select)
@@ -3673,7 +3687,7 @@ begin
                   W := TKMUnitWarrior(fPlayers.Selected);
 
                   //Attack or Walk
-                  if not fReplay and not fJoiningGroups and not fPlacingBeacon
+                  if not fReplay and not HasLostMPGame and not fJoiningGroups and not fPlacingBeacon
                   and W.GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
                   and (W.GetOwner = MyPlayer.PlayerIndex) then
                   begin

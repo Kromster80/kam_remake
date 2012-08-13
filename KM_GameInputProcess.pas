@@ -65,7 +65,7 @@ type
     gic_RatioChange,
 
     //V.      Game changes
-    gic_GameAlertBeacon,            //Signal alert (beacon, fight)
+    gic_GameAlertBeacon,            //Signal alert (beacon)
     gic_GamePause,
     gic_GameSave,
     gic_GameTeamChange,
@@ -85,6 +85,7 @@ type
 const
   BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,
                       gic_ArmyAttackHouse,gic_ArmyHalt,gic_ArmyWalk,gic_ArmyStorm,gic_HouseBarracksEquip];
+  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon,gic_GameSave];
 
 type
   TGameInputCommand = record
@@ -164,7 +165,7 @@ type
 
 
 implementation
-uses KM_Alerts, KM_Game, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Utils;
+uses KM_Alerts, KM_Game, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Utils, KM_AI;
 
 
 procedure SaveCommandToMemoryStream(aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);
@@ -267,7 +268,11 @@ begin
 
     //Some commands are blocked by peacetime (this is a fall back in case players try to cheat)
     if fGame.IsPeaceTime and (CommandType in BlockedByPeaceTime) then
-       exit;
+       Exit;
+
+    //No commands allowed after a player has lost (this is a fall back in case players try to cheat)
+    if not (aCommand.CommandType in AllowedAfterDefeat) and fGame.IsMultiplayer and (P.AI.WonOrLost = wol_Lost) then
+      Exit;
 
     case CommandType of
       gic_ArmyFeed:         TKMUnitWarrior(U).OrderFood;

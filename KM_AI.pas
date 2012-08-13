@@ -8,6 +8,8 @@ uses Classes, KromUtils, SysUtils, Math,
 
 
 type
+  TWonOrLost = (wol_None, wol_Won, wol_Lost);
+
   TKMPlayerAI = class
   private
     fPlayerIndex: TPlayerIndex;
@@ -16,7 +18,7 @@ type
     fGeneral: TKMGeneral;
 
     fLastEquippedTime: cardinal;
-    fHasWonOrLost: boolean; //Has this player won/lost? If so, do not check goals
+    fWonOrLost: TWonOrLost; //Has this player won/lost? If so, do not check goals
     fAttacks: TAIAttacks;
 
     procedure CheckDefeated;
@@ -36,6 +38,7 @@ type
     property Setup: TKMPlayerAISetup read fSetup;
     property Mayor: TKMayor read fMayor;
     property General: TKMGeneral read fGeneral;
+    property WonOrLost: TWonOrLost read fWonOrLost;
 
     procedure OwnerUpdate(aPlayer:TPlayerIndex);
 
@@ -74,7 +77,7 @@ begin
   fSetup := TKMPlayerAISetup.Create;
   fMayor := TKMayor.Create(fPlayerIndex, fSetup);
   fGeneral := TKMGeneral.Create(fPlayerIndex, fSetup);
-  fHasWonOrLost := false;
+  fWonOrLost := wol_None;
 
   DefencePositions := TAIDefencePositions.Create();
 
@@ -158,7 +161,7 @@ var
 begin
   //If player has elected to play on past victory or defeat
   //then do not check for any further goals
-  if fHasWonOrLost then Exit;
+  if fWonOrLost <> wol_None then Exit;
 
   //Assume they will win/survive, then prove it with goals
   VictorySatisfied  := True;
@@ -190,7 +193,11 @@ begin
     end;
 
   //Now we know if player has been defeated or won
-  fHasWonOrLost := not SurvivalSatisfied or VictorySatisfied;
+  if not SurvivalSatisfied then
+    fWonOrLost := wol_Lost
+  else
+    if VictorySatisfied then
+      fWonOrLost := wol_Won;
 
   //You can't win and lose at the same time. In KaM defeats override victories, except
   //when there are no goals defined, in which case you win for some weird reason...
@@ -576,7 +583,7 @@ procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write('PlayerAI');
   SaveStream.Write(fPlayerIndex);
-  SaveStream.Write(fHasWonOrLost);
+  SaveStream.Write(fWonOrLost, SizeOf(fWonOrLost));
   SaveStream.Write(fLastEquippedTime);
 
   fSetup.Save(SaveStream);
@@ -591,7 +598,7 @@ procedure TKMPlayerAI.Load(LoadStream:TKMemoryStream);
 begin
   LoadStream.ReadAssert('PlayerAI');
   LoadStream.Read(fPlayerIndex);
-  LoadStream.Read(fHasWonOrLost);
+  LoadStream.Read(fWonOrLost, SizeOf(fWonOrLost));
   LoadStream.Read(fLastEquippedTime);
 
   fSetup.Load(LoadStream);

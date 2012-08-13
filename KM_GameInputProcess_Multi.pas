@@ -80,7 +80,7 @@ type
 
 
 implementation
-uses KM_Game, KM_GameApp, KM_PlayersCollection, KM_Utils, KM_Sound, KM_TextLibrary;
+uses KM_Game, KM_GameApp, KM_PlayersCollection, KM_Utils, KM_Sound, KM_TextLibrary, KM_AI;
 
 
 { TCommandsPack }
@@ -178,6 +178,12 @@ begin
     fGameApp.Networking.PostLocalMessage(fTextLibrary[TX_MP_BLOCKED_BY_PEACETIME],false);
     fSoundLib.Play(sfx_CantPlace);
     exit;
+  end;
+
+  if (MyPlayer.AI.WonOrLost = wol_Lost) and not (aCommand.CommandType in AllowedAfterDefeat) then
+  begin
+    fSoundLib.Play(sfx_CantPlace);
+    Exit;
   end;
 
   //Find first unsent pack
