@@ -985,11 +985,11 @@ begin
     Panel_ReplayCtrl := TKMPanel.Create(Panel_Replay, 320, 8, 160, 60);
       PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20);
       Label_Replay          := TKMLabel.Create(Panel_ReplayCtrl,  80,  2, 160, 0, '<<<LEER>>>', fnt_Grey, taCenter);
-      Button_ReplayRestart  := TKMButton.Create(Panel_ReplayCtrl,  0, 24, 24, 24, 'I<', fnt_Metal);
-      Button_ReplayPause    := TKMButton.Create(Panel_ReplayCtrl, 25, 24, 24, 24, 'II', fnt_Metal);
-      Button_ReplayStep     := TKMButton.Create(Panel_ReplayCtrl, 50, 24, 24, 24, '\\', fnt_Metal);
-      Button_ReplayResume   := TKMButton.Create(Panel_ReplayCtrl, 75, 24, 24, 24, 'I>', fnt_Metal);
-      Button_ReplayExit     := TKMButton.Create(Panel_ReplayCtrl,100, 24, 24, 24, 'X',  fnt_Metal);
+      Button_ReplayRestart  := TKMButton.Create(Panel_ReplayCtrl,  0, 24, 24, 24, 582);
+      Button_ReplayPause    := TKMButton.Create(Panel_ReplayCtrl, 25, 24, 24, 24, 583);
+      Button_ReplayStep     := TKMButton.Create(Panel_ReplayCtrl, 50, 24, 24, 24, 584);
+      Button_ReplayResume   := TKMButton.Create(Panel_ReplayCtrl, 75, 24, 24, 24, 585);
+      Button_ReplayExit     := TKMButton.Create(Panel_ReplayCtrl,100, 24, 24, 24, 586);
       Button_ReplayRestart.OnClick := ReplayClick;
       Button_ReplayPause.OnClick   := ReplayClick;
       Button_ReplayStep.OnClick    := ReplayClick;
@@ -3773,8 +3773,8 @@ begin
   if fReplay then
   begin
     //Replays can continue after end, keep the bar in 0..1 range
-    PercentBar_Replay.Seam := Min(fGame.GameOptions.Peacetime * 600 / fGame.GameInputProcess.GetLastTick, 1);
-    PercentBar_Replay.Position := Min(fGame.GameTickCount / fGame.GameInputProcess.GetLastTick, 1);
+    PercentBar_Replay.Seam := Min(fGame.GameOptions.Peacetime * 600 / Max(fGame.GameInputProcess.GetLastTick,1), 1);
+    PercentBar_Replay.Position := Min(fGame.GameTickCount / Max(fGame.GameInputProcess.GetLastTick,1), 1);
     Label_Replay.Caption := TimeToString(fGame.MissionTime) + ' / ' +
                             TimeToString(fGame.GameInputProcess.GetLastTick/24/60/60/10);
   end;
