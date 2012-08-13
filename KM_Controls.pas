@@ -4041,6 +4041,7 @@ constructor TKMGraph.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Int
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
 
+  fFont := fnt_Outline;
   fItemHeight := 13;
   fLineOver := -1;
   fLegendWidth := 150;

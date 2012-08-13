@@ -561,7 +561,7 @@ begin
     else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
   end;
   //Append mission name and time after the result message
-  Label_Results.Caption := Label_Results.Caption + ': ' + fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);
+  Label_Results.Caption := Label_Results.Caption + ' - ' + fGame.GameName; //Don't show the mission time in SP because it's already shown elsewhere
 
   if (MyPlayer = nil) or (MyPlayer.Stats = nil) then Exit;
 
@@ -705,7 +705,7 @@ begin
     else          Label_ResultsMP.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
   end;
   //Append mission name and time after the result message
-  Label_ResultsMP.Caption := Label_ResultsMP.Caption + ': ' + fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);
+  Label_ResultsMP.Caption := Label_ResultsMP.Caption + ' - ' + fGame.GameName + ' - ' + TimeToString(fGame.MissionTime);
 
   //Update visibility depending on players count
   for I := 0 to MAX_PLAYERS - 1 do
