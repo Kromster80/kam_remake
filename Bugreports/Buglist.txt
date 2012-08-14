@@ -86,6 +86,7 @@ Improvements:
 	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
 	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
 	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
+	Clicking RMB in schools queue should cancel units on right
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
