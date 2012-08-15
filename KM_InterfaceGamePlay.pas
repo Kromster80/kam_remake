@@ -2389,17 +2389,19 @@ end;
 procedure TKMGamePlayInterface.House_SchoolUnitRemove(Sender: TObject; AButton: TMouseButton);
 var
   School: TKMHouseSchool;
-  i:Integer;
+  i, ID:Integer;
 begin
   School := TKMHouseSchool(fPlayers.Selected);
+  ID := TKMControl(Sender).Tag; //Item number that was clicked from the school queue
 
-  if not (TKMControl(Sender).Tag in [0..High(School.Queue)]) then Exit;
+  if not (ID in [0..High(School.Queue)]) then Exit;
 
-  //Right click clears entire queue after this item
+  //Right click clears entire queue after this item.
+  //In that case we remove the same ID repeatedly because they're automatically move along
   case AButton of
-    mbLeft:  fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, TKMControl(Sender).Tag);
-    mbRight: for i:=TKMControl(Sender).Tag to High(School.Queue) do
-               fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, TKMControl(Sender).Tag);
+    mbLeft:  fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, ID);
+    mbRight: for i:=ID to High(School.Queue) do
+               fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, ID);
   end;
   House_SchoolUnitChange(nil, mbLeft);
 end;
