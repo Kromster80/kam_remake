@@ -548,6 +548,35 @@ end;
 
 procedure TKMMainMenuInterface.Results_Fill(aMsg: TGameResultMsg=gr_Silent);
 var
+  TempGraphCount: Integer;
+  TempGraphs:array[0..MAX_PLAYERS-1] of record
+                                          Color: Cardinal;
+                                          G: TCardinalArray;
+                                        end;
+
+  procedure AddToTempGraph(aColor:Cardinal; aGraph:TCardinalArray);
+  var I, ID: Integer;
+  begin
+    ID := -1;
+    for I:=0 to TempGraphCount-1 do
+      if aColor = TempGraphs[I].Color then
+      begin
+        ID := I;
+        break;
+      end;
+    if ID = -1 then
+    begin
+      ID := TempGraphCount;
+      inc(TempGraphCount);
+      TempGraphs[ID].G := aGraph; //Overwrite existing graph
+    end
+    else
+      for I:=0 to Length(aGraph)-1 do
+        inc(TempGraphs[ID].G[I], aGraph[I]); //Add each element to the existing elements
+    TempGraphs[ID].Color := aColor;
+  end;
+
+var
   I: Integer;
   R: TResourceType;
   G: TCardinalArray;
@@ -596,17 +625,41 @@ begin
     Graph_Houses.MaxTime    := fGame.GameTickCount div 10;
     Graph_Wares.MaxTime     := fGame.GameTickCount div 10;
 
+    //Army
+    TempGraphCount := 0; //Reset
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
-      Graph_Army.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphArmy);
+      if PlayerType = pt_Computer then
+        AddToTempGraph(FlagColor, Stats.GraphArmy)
+      else
+        Graph_Army.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphArmy);
 
-    for I := 0 to fPlayers.Count - 1 do
-    with fPlayers[I] do
-      Graph_Citizens.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphCitizens);
+    for I := 0 to TempGraphCount - 1 do
+      Graph_Army.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
+    //Citizens
+    TempGraphCount := 0; //Reset
     for I := 0 to fPlayers.Count - 1 do
     with fPlayers[I] do
-      Graph_Houses.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphHouses);
+      if PlayerType = pt_Computer then
+        AddToTempGraph(FlagColor, Stats.GraphCitizens)
+      else
+        Graph_Citizens.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphCitizens);
+
+    for I := 0 to TempGraphCount - 1 do
+      Graph_Citizens.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
+
+    //Houses
+    TempGraphCount := 0; //Reset
+    for I := 0 to fPlayers.Count - 1 do
+    with fPlayers[I] do
+      if PlayerType = pt_Computer then
+        AddToTempGraph(FlagColor, Stats.GraphHouses)
+      else
+        Graph_Houses.AddLine(GetFormattedPlayerName, FlagColor, Stats.GraphHouses);
+
+    for I := 0 to TempGraphCount - 1 do
+      Graph_Houses.AddLine(Format(fTextLibrary[TX_PLAYER_X], [I+1]), TempGraphs[I].Color, TempGraphs[I].G);
 
     for R := WARE_MIN to WARE_MAX do
     begin
