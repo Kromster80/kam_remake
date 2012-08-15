@@ -15,12 +15,22 @@ type
     Shape: array of TKMNodesArray;
   end;
 
+  //Class to simplify shapes by removing points within aError
+  TKMSimplifyShapes = class
+  private
+    fError: Single;
+    fRect: TKMRect;
+
+    fIn: TKMShapesArray;
+    procedure Simplify(aErrorSqr: Single; const aInput: array of TKMPointI; var aKeep: array of Boolean; aFrom, aTo: Integer);
+    function PolySimplify(const aInput: TKMPointArray; var aOutput: TKMPointArray): Integer;
+  public
+    constructor Create(aError: Single; aRect: TKMRect);
+    procedure SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
+  end;
 
 //Simplify shapes by removing unnecessary points from straight lines
 procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
-
-//Simplify shapes by removing points within aError
-procedure SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray; aError: Single; aRect: TKMRect);
 
 procedure ForceOutlines(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArray);
 
@@ -91,7 +101,15 @@ begin
 end;
 
 
-procedure Simplify(aErrorSqr: Single; const aInput: array of TKMPointI; var aKeep: array of Boolean; aFrom, aTo: Integer);
+constructor TKMSimplifyShapes.Create(aError: Single; aRect: TKMRect);
+begin
+  inherited Create;
+
+  fError := aError;
+  fRect := aRect;
+end;
+
+procedure TKMSimplifyShapes.Simplify(aErrorSqr: Single; const aInput: array of TKMPointI; var aKeep: array of Boolean; aFrom, aTo: Integer);
 var
   I: Integer;
   MaxDistI: Integer;
@@ -106,7 +124,7 @@ begin
   if aTo <= aFrom + 1 then Exit;
 
   Node1 := KMPointF(aInput[aFrom]);
-  Node2 := KMPointF(aInput[aTo]);
+  Node2 := KMPointF(aInput[aTo mod Length(aInput)]);
   NodeVect := VectorDiff(Node2, Node1);
   NodeDistSqr := DistanceSqr(Node2, Node1);
   MaxDistI := 0;
@@ -158,11 +176,12 @@ end;
 
 //Based on Douglas-Peucker algorithm for polyline simplification
 //  aError - max allowed distance between resulting line and removed points
-function PolySimplify(aError: Single; aRect: TKMRect; const aInput: TKMPointArray; var aOutput: TKMPointArray): Integer;
+function TKMSimplifyShapes.PolySimplify(const aInput: TKMPointArray; var aOutput: TKMPointArray): Integer;
 const MAX_TRIES = 5;
 var
   I, K: Integer;
   KeptCount: Integer;
+  KeepMiddle: Boolean;
   NCount: Integer;
   Prev: Integer;
   Keep: array of Boolean;
@@ -171,29 +190,31 @@ var
   Err: Single;
 begin
   Result := 0;
-
-  //See if there's nothing to simplify
-  if Length(aInput) < 4 then Exit;
+  Assert(Length(aInput) > 3, 'There''s nothing to simplify?');
 
   NCount := Length(aInput);
-  Assert((aInput[0].X = aInput[NCount-1].X) and (aInput[0].Y = aInput[NCount-1].Y),
-         'We need shape to be closed to properly process as a series of polylines');
-
-  SetLength(Keep, NCount);
-  for I := 0 to NCount - 1 do
+  //NCount+1 because we duplicate last point to let algo work on 2 polylines
+  SetLength(Keep, NCount+1);
+  for I := 0 to NCount do
     Keep[I] := False;
 
   //We split loop in half and simplify both segments independently as two convex
   //lines. That is because algo is aimed at polyline, not polyloop
   Keep[0] := True;
-  Keep[NCount div 2] := True;
-  Keep[NCount - 1] := True;
+  Keep[NCount] := True;
+  KeepMiddle := True;
 
-  //Keep more nodes on edges
+  //Keep nodes on edges
   for I := 0 to NCount - 1 do
-  if (aInput[I].X = aRect.Left) or (aInput[I].Y = aRect.Top)
-  or (aInput[I].X = aRect.Right) or (aInput[I].Y = aRect.Bottom) then
+  if (aInput[I].X = fRect.Left) or (aInput[I].Y = fRect.Top)
+  or (aInput[I].X = fRect.Right) or (aInput[I].Y = fRect.Bottom) then
+  begin
     Keep[I] := True;
+    KeepMiddle := False;
+  end;
+
+  if KeepMiddle then
+    Keep[NCount div 2] := True;
 
   //Try hard to keep at leaft 4 points in the outline (first and last are the same, hence 4, not 3 for convex shape)
   //With each pass we decrease allowed Error so that algo will keep more and more points to final of all points
@@ -201,12 +222,12 @@ begin
   repeat
       Result := 0;
       if (1 - MAX_TRIES * Loops) <> 0 then
-        Err := Sqr(aError) / (1 - MAX_TRIES * Loops)
-      else 
+        Err := Sqr(fError) / (1 - MAX_TRIES * Loops)
+      else
         Err := 0;
 
       Prev := 0;
-      for I := 1 to NCount - 1 do
+      for I := 1 to NCount do
       if Keep[I] then
       begin
         //We use Sqr values for all comparisons for speedup
@@ -216,8 +237,8 @@ begin
 
       //Check if there are self-intersections by assembling aligned array and testing it
       KeptCount := 0;
-      SetLength(Kept, NCount);
-      for I := 0 to NCount - 1 do
+      SetLength(Kept, NCount+1);
+      for I := 0 to NCount do
       if Keep[I] then
       begin
         Kept[KeptCount] := I;
@@ -226,8 +247,8 @@ begin
 
       for I := 0 to KeptCount - 2 do
       for K := I + 2 to KeptCount - 2 do
-      if SegmentsIntersect(aInput[Kept[I]].X, aInput[Kept[I]].Y, aInput[Kept[I+1]].X, aInput[Kept[I+1]].Y,
-                           aInput[Kept[K]].X, aInput[Kept[K]].Y, aInput[Kept[K+1]].X, aInput[Kept[K+1]].Y) then
+      if SegmentsIntersect(aInput[Kept[I]].X, aInput[Kept[I]].Y, aInput[Kept[I+1] mod NCount].X, aInput[Kept[I+1] mod NCount].Y,
+                           aInput[Kept[K]].X, aInput[Kept[K]].Y, aInput[Kept[K+1] mod NCount].X, aInput[Kept[K+1] mod NCount].Y) then
       begin
         //If segments intersect we simplify them both with smaller Error
         Simplify(Err/2, aInput, Keep, Kept[I], Kept[I+1]);
@@ -247,25 +268,16 @@ begin
 end;
 
 
-procedure SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray; aError: Single; aRect: TKMRect);
+procedure TKMSimplifyShapes.SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
 var I: Integer;
 begin
   SetLength(aOut.Shape, aIn.Count);
 
   for I := 0 to aIn.Count - 1 do
   begin
-    //Duplicate last point so that Douglas-Peucker could work on loop as 2 polylines
-    SetLength(aIn.Shape[I].Nodes, aIn.Shape[I].Count + 1);
-    aIn.Shape[I].Nodes[aIn.Shape[I].Count] := aIn.Shape[I].Nodes[0];
-    Inc(aIn.Shape[I].Count);
-
     //Reserve space for worst case when all points are kept
     SetLength(aOut.Shape[I].Nodes, aIn.Shape[I].Count);
-    aOut.Shape[I].Count := PolySimplify(aError, aRect, aIn.Shape[I].Nodes, aOut.Shape[I].Nodes);
-
-    //Cut last point since it duplicates first
-    Dec(aOut.Shape[I].Count);
-    SetLength(aOut.Shape[I].Nodes, aOut.Shape[I].Count);
+    aOut.Shape[I].Count := PolySimplify(aIn.Shape[I].Nodes, aOut.Shape[I].Nodes);
   end;
   aOut.Count := aIn.Count;
 end;

@@ -316,7 +316,11 @@ begin
 
   SimplifyStraights(fRawOutlines, fRawOutlines2);
 
-  SimplifyShapes(fRawOutlines2, fSimpleOutlines, 2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1));
+  with TKMSimplifyShapes.Create(2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1)) do
+  begin
+    SimplifyShapes(fRawOutlines2, fSimpleOutlines);
+    Free;
+  end;
 
   //todo: RemoveSelfIntersections
 
@@ -379,7 +383,7 @@ begin
     fRawDelaunay.Polygons[I,2] := fDelaunay.Triangle^[I].vv2;
   end;
 
-  ForceOutlines(fRawDelaunay, fSimpleOutlines);
+  {ForceOutlines(fRawDelaunay, fSimpleOutlines);
 
   RemoveObstaclePolies(fRawDelaunay, fSimpleOutlines);
 
