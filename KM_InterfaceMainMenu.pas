@@ -1696,7 +1696,7 @@ begin
       Button_ResultsArmy.CapOffsetY := -11;
       Button_ResultsArmy.OnClick := Results_GraphToggle;
 
-      Button_ResultsCitizens := TKMButtonFlat.Create(Panel_StatsCharts, 40, 22, 208, 20, 20, rxGui);
+      Button_ResultsCitizens := TKMButtonFlat.Create(Panel_StatsCharts, 40, 22, 208, 20, 588, rxGui);
       Button_ResultsCitizens.TexOffsetX := -92;
       Button_ResultsCitizens.TexOffsetY := 6;
       Button_ResultsCitizens.Anchors := [akLeft];
@@ -1704,17 +1704,17 @@ begin
       Button_ResultsCitizens.CapOffsetY := -11;
       Button_ResultsCitizens.OnClick := Results_GraphToggle;
 
-      Button_ResultsHouses := TKMButtonFlat.Create(Panel_StatsCharts, 252, 0, 208, 20, 454, rxGui);
-      Button_ResultsHouses.TexOffsetX := -90;
+      Button_ResultsHouses := TKMButtonFlat.Create(Panel_StatsCharts, 252, 0, 208, 20, 587, rxGui);
+      Button_ResultsHouses.TexOffsetX := -93;
       Button_ResultsHouses.TexOffsetY := 6;
       Button_ResultsHouses.Anchors := [akLeft];
       Button_ResultsHouses.Caption := fTextLibrary[TX_GRAPH_HOUSES];
       Button_ResultsHouses.CapOffsetY := -11;
       Button_ResultsHouses.OnClick := Results_GraphToggle;
 
-      Button_ResultsWares := TKMButtonFlat.Create(Panel_StatsCharts, 252, 22, 208, 20, 169, rxGui);
-      Button_ResultsWares.TexOffsetX := -86;
-      Button_ResultsWares.TexOffsetY := 5;
+      Button_ResultsWares := TKMButtonFlat.Create(Panel_StatsCharts, 252, 22, 208, 20, 360, rxGui);
+      Button_ResultsWares.TexOffsetX := -93;
+      Button_ResultsWares.TexOffsetY := 6;
       Button_ResultsWares.Anchors := [akLeft];
       Button_ResultsWares.Caption := fTextLibrary[TX_GRAPH_RESOURCES];
       Button_ResultsWares.CapOffsetY := -11;
@@ -1795,16 +1795,16 @@ begin
     Button_MPResultsArmy.CapOffsetY := -11;
     Button_MPResultsArmy.OnClick := ResultsMP_Toggle;
 
-    Button_MPResultsEconomy := TKMButtonFlat.Create(Panel_ResultsMP, 520, 155, 176, 20, 454, rxGui);
-    Button_MPResultsEconomy.TexOffsetX := -75;
+    Button_MPResultsEconomy := TKMButtonFlat.Create(Panel_ResultsMP, 520, 155, 176, 20, 589, rxGui);
+    Button_MPResultsEconomy.TexOffsetX := -72;
     Button_MPResultsEconomy.TexOffsetY := 6;
     Button_MPResultsEconomy.Anchors := [akLeft];
     Button_MPResultsEconomy.Caption := fTextLibrary[TX_RESULTS_ECONOMY];
     Button_MPResultsEconomy.CapOffsetY := -11;
     Button_MPResultsEconomy.OnClick := ResultsMP_Toggle;
 
-    Button_MPResultsWares := TKMButtonFlat.Create(Panel_ResultsMP, 700, 155, 176, 20, 169, rxGui);
-    Button_MPResultsWares.TexOffsetX := -70;
+    Button_MPResultsWares := TKMButtonFlat.Create(Panel_ResultsMP, 700, 155, 176, 20, 360, rxGui);
+    Button_MPResultsWares.TexOffsetX := -77;
     Button_MPResultsWares.TexOffsetY := 6;
     Button_MPResultsWares.Anchors := [akLeft];
     Button_MPResultsWares.Caption := fTextLibrary[TX_GRAPH_RESOURCES];
