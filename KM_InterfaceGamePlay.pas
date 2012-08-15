@@ -85,7 +85,7 @@ type
     procedure House_MarketOrderClick(Sender:TObject; AButton:TMouseButton);
     procedure House_MarketSelect(Sender:TObject; AButton:TMouseButton);
     procedure House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
-    procedure House_SchoolUnitRemove(Sender:TObject);
+    procedure House_SchoolUnitRemove(Sender: TObject; AButton: TMouseButton);
     procedure House_StoreAcceptFlag(Sender:TObject);
     procedure House_StoreFill;
     procedure Menu_Settings_Fill;
@@ -1656,12 +1656,12 @@ begin
     Button_School_UnitWIP := TKMButton.Create(Panel_House_School,  8,48,32,32,0);
     Button_School_UnitWIP.Hint := fTextLibrary[TX_HOUSE_SCHOOL_WIP_HINT];
     Button_School_UnitWIP.Tag := 0;
-    Button_School_UnitWIP.OnClick := House_SchoolUnitRemove;
+    Button_School_UnitWIP.OnClickEither := House_SchoolUnitRemove;
     for I := 1 to 5 do
     begin
       Button_School_UnitPlan[i] := TKMButtonFlat.Create(Panel_House_School, 8 + (I-1) * 36, 80, 32, 32, 0);
       Button_School_UnitPlan[i].Tag := I;
-      Button_School_UnitPlan[i].OnClick := House_SchoolUnitRemove;
+      Button_School_UnitPlan[i].OnClickEither := House_SchoolUnitRemove;
     end;
     Label_School_Unit := TKMLabel.Create(Panel_House_School,100,116,184,30,'',fnt_Outline,taCenter);
     Image_School_Left := TKMImage.Create(Panel_House_School,  8,136,54,80,521);
@@ -2386,15 +2386,21 @@ end;
 
 
 {Process click on Remove-from-queue buttons of School}
-procedure TKMGamePlayInterface.House_SchoolUnitRemove(Sender:TObject);
+procedure TKMGamePlayInterface.House_SchoolUnitRemove(Sender: TObject; AButton: TMouseButton);
 var
   School: TKMHouseSchool;
+  i:Integer;
 begin
   School := TKMHouseSchool(fPlayers.Selected);
 
   if not (TKMControl(Sender).Tag in [0..High(School.Queue)]) then Exit;
 
-  fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, TKMControl(Sender).Tag);
+  //Right click clears entire queue after this item
+  case AButton of
+    mbLeft:  fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, TKMControl(Sender).Tag);
+    mbRight: for i:=TKMControl(Sender).Tag to High(School.Queue) do
+               fGame.GameInputProcess.CmdHouse(gic_HouseRemoveTrain, School, TKMControl(Sender).Tag);
+  end;
   House_SchoolUnitChange(nil, mbLeft);
 end;
 

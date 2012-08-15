@@ -68,6 +68,7 @@ Improvements:
  +	Show peacetime remaining in MP replays
  +	Add PlayerCount and Size columns to MapEd selection menu, as well allow to sort maps there
  +	Edges of messages and other scrolls should be transparent so they look smooth
+ +	Clicking RMB in schools queue should cancel units on right
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
@@ -86,7 +87,6 @@ Improvements:
 	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
 	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
 	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
-	Clicking RMB in schools queue should cancel units on right
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
