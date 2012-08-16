@@ -41,12 +41,12 @@ const
 
 var
   //These should be True
-  MAKE_ANIM_TERRAIN     :Boolean = False;  //Should we animate water and swamps
-  MAKE_TEAM_COLORS      :Boolean = False;  //Whenever to make team colors or not, saves RAM for debug
+  MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
+  MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :Boolean = True;  //Wherever units get hungry or not
   CHEATS_ENABLED        :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
-  CAP_MAX_FPS           :Boolean = False;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
+  CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
   BLOCK_DUPLICATE_APP   :Boolean = False;  //Do not allow to run multiple games at once (to prevent MP cheating)
 
@@ -67,7 +67,7 @@ var
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
   AI_GEN_INFLUENCE_MAPS :Boolean = False; //Generate influence maps for AI to plan attacks/defenses
-  AI_GEN_NAVMESH        :Boolean = True; //Generate navmesh for AI to plan attacks/defenses
+  AI_GEN_NAVMESH        :Boolean = False; //Generate navmesh for AI to plan attacks/defenses
 
   //These are debug things, should be False
   {User interface options}
@@ -79,7 +79,7 @@ var
   OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   {Gameplay display}
   SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic
-  SKIP_SOUND            :Boolean = True; //Skip all the sounds in favor of faster logic
+  SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic
   AGGRESSIVE_REPLAYS    :Boolean = False; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_TERRAIN_WIRES    :Boolean = False; //Makes terrain height visible
   SHOW_TERRAIN_PASS     :Byte = 0; //Byte(TPassability)

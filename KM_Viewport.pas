@@ -75,7 +75,7 @@ end;
 
 procedure TViewport.ResetZoom;
 begin
-  Zoom := 0.1;
+  Zoom := 1;
 end;
 
 
