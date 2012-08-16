@@ -68,14 +68,19 @@ type
   function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
   function KMStepIsDiag(const P1,P2:TKMPoint):boolean;
 
+  function KMVectorDiff(const A, B: TKMPointF): TKMPointF;
+  function KMDotProduct(const A, B: TKMPointF): Single;
+  function KMDistanceSqr(const A, B: TKMPointF): Single;
   //Cross product of 2D vectors, pointed either Up or Down
   function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single;
   function KMInBetween(A,B,X:single): boolean;
+  function KMSegmentsIntersect(A, B, C, D: TKMPointI): Boolean;
   function KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; var PolyCount: Integer; var Polys: array of Word): Boolean;
 
-  function GetLength(A,B:TKMPoint): single; overload;
-  function GetLength(A,B:TKMPointF): single; overload;
-  function KMLength(A,B:TKMPoint): single;
+  function GetLength(A, B: TKMPoint): Single; overload;
+  function GetLength(A, B: TKMPointF): Single; overload;
+  function KMLength(A, B: TKMPoint): Single;
+  function KMLengthSqr(A, B: TKMPointI): Single;
 
   function Mix(A,B:TKMPointF; MixValue:single):TKMPointF; overload;
 
@@ -383,6 +388,25 @@ begin
 end;
 
 
+function KMVectorDiff(const A, B: TKMPointF): TKMPointF;
+begin
+  Result.X := A.X - B.X;
+  Result.Y := A.Y - B.Y;
+end;
+
+
+function KMDotProduct(const A, B: TKMPointF): Single;
+begin
+  Result := A.X * B.X + A.Y * B.Y;
+end;
+
+
+function KMDistanceSqr(const A, B: TKMPointF): Single;
+begin
+  Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
+end;
+
+
 function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single;
 begin
   Result := (v1.Y - v2.Y) * (v1.X - v3.X) - (v1.X - v2.X) * (v1.Y - v3.Y);
@@ -398,6 +422,24 @@ begin
     Result:=(A<X)and(X<B)
   else
     Result:=false
+end;
+
+
+//Segments intersect
+function KMSegmentsIntersect(A, B, C, D: TKMPointI): Boolean;
+var
+  ABx, ABy, CDx, CDy: Single;
+  D2, S, T: Single;
+begin
+  ABx := B.x - A.x;     ABy := B.y - A.y;
+  CDx := D.x - C.x;     CDy := D.y - C.y;
+
+  D2 := -CDx * ABy + ABx * CDy;
+
+  S := (-ABy * (A.x - C.x) + ABx * (A.y - C.y)) / D2;
+  T := ( CDx * (A.y - C.y) - CDy * (A.x - C.x)) / D2;
+
+  Result := (S > 0) and (S < 1) and (T > 0) and(T < 1);
 end;
 
 
@@ -493,6 +535,12 @@ begin
     Result := Abs(A.X-B.X) + Abs(A.Y-B.Y) * 0.41
   else
     Result := Abs(A.Y-B.Y) + Abs(A.X-B.X) * 0.41
+end;
+
+
+function KMLengthSqr(A, B: TKMPointI): Single;
+begin
+  Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
 end;
 
 

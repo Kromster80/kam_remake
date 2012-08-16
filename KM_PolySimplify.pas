@@ -15,15 +15,22 @@ type
     Shape: array of TKMNodesArray;
   end;
 
+  PKMShapesArray = ^TKMShapesArray;
+
+
   //Class to simplify shapes by removing points within aError
   TKMSimplifyShapes = class
   private
     fError: Single;
     fRect: TKMRect;
-
     fIn: TKMShapesArray;
-    procedure Simplify(aErrorSqr: Single; const aInput: array of TKMPointI; var aKeep: array of Boolean; aFrom, aTo: Integer);
-    function PolySimplify(const aInput: TKMPointArray; var aOutput: TKMPointArray): Integer;
+    fOut: PKMShapesArray;
+    fKeep: array of array of Boolean;
+    procedure SetupKeepArray;
+    procedure Simplify(aShape, aFrom, aTo: Integer; aErrorSqr: Single);
+    procedure PolySimplify(aShape: Integer);
+    procedure WriteOutput(aShape: Integer);
+    procedure SetupOutputArray;
   public
     constructor Create(aError: Single; aRect: TKMRect);
     procedure SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
@@ -42,8 +49,275 @@ procedure RemoveFrame(var aTriMesh: TKMTriMesh);
 //Remove anything that is outside bounds
 procedure RemoveDegenerates(var aTriMesh: TKMTriMesh);
 
+
 implementation
 uses KM_CommonTypes, KromUtils;
+
+
+constructor TKMSimplifyShapes.Create(aError: Single; aRect: TKMRect);
+begin
+  inherited Create;
+
+  fError := aError;
+  fRect := aRect;
+end;
+
+procedure TKMSimplifyShapes.Simplify(aShape, aFrom, aTo: Integer; aErrorSqr: Single);
+var
+  InLoop: TKMPointArray;
+  I: Integer;
+  MaxDistI: Integer;
+  MaxDistSqr: Single;
+  NodeDistSqr, TestDot, Tmp: Single;
+  DistSqr: Single;
+  Node1, Node2: TKMPointF;
+  TestPos, NodeVect, TestVect: TKMPointF;
+  TestP: TKMPointF;
+begin
+  InLoop := fIn.Shape[aShape].Nodes;
+
+  //There is nothing to simplify
+  if aTo <= aFrom + 1 then Exit;
+
+  Node1 := KMPointF(InLoop[aFrom]);
+  Node2 := KMPointF(InLoop[aTo mod Length(InLoop)]);
+  NodeVect := KMVectorDiff(Node2, Node1);
+  NodeDistSqr := KMDistanceSqr(Node2, Node1);
+  MaxDistI := 0;
+  MaxDistSqr := 0;
+
+  //Check all points and pick farthest away
+  for I := aFrom + 1 to aTo - 1 do
+  begin
+    TestP := KMPointF(InLoop[I]);
+
+    TestVect := KMVectorDiff(TestP, Node1);
+    TestDot := KMDotProduct(TestVect, NodeVect);
+
+    //Calculate distance to segment
+    if TestDot <= 0 then
+      DistSqr := KMDistanceSqr(TestP, Node1)
+    else
+    if TestDot >= NodeDistSqr then
+      DistSqr := KMDistanceSqr(TestP, Node2)
+    else
+    begin
+      if NodeDistSqr <> 0 then
+        Tmp := TestDot / NodeDistSqr
+      else
+        Tmp := 0;
+      TestPos.X := Node1.X + Tmp * NodeVect.X;
+      TestPos.Y := Node1.Y + Tmp * NodeVect.Y;
+      DistSqr := KMDistanceSqr(TestP, TestPos);
+    end;
+
+    //Pick farthest point
+    if DistSqr > MaxDistSqr then
+    begin
+      MaxDistI  := I;
+      MaxDistSqr := DistSqr;
+    end;
+  end;
+
+  //See if we need to split once again due to Error or too long span
+  if (MaxDistSqr > aErrorSqr) or (aTo - aFrom > 12) then
+  begin
+    fKeep[aShape, MaxDistI] := True;
+
+    Simplify(aShape, aFrom, MaxDistI, aErrorSqr);
+    Simplify(aShape, MaxDistI, aTo, aErrorSqr);
+  end;
+end;
+
+
+//Based on Douglas-Peucker algorithm for polyline simplification
+//  aError - max allowed distance between resulting line and removed points
+procedure TKMSimplifyShapes.PolySimplify(aShape: Integer);
+var
+  InLoop: TKMPointArray;
+  I: Integer;
+  NCount: Integer;
+  Prev: Integer;
+begin
+  InLoop := fIn.Shape[aShape].Nodes;
+  NCount := fIn.Shape[aShape].Count;
+
+  Prev := 0;
+  for I := 1 to NCount do
+  if fKeep[aShape,I] then
+  begin
+    //We use Sqr values for all comparisons for speedup
+    Simplify(aShape, Prev, I, Sqr(fError));
+    Prev := I;
+  end;
+
+  //Fill resulting array with preserved points
+  fOut.Shape[aShape].Count := 0;
+  for I := 0 to NCount - 1 do
+  if fKeep[aShape,I] then
+  begin
+    fOut.Shape[aShape].Nodes[fOut.Shape[aShape].Count] := InLoop[I];
+    Inc(fOut.Shape[aShape].Count);
+  end;
+end;
+
+
+//Fill resulting array with preserved points
+procedure TKMSimplifyShapes.WriteOutput(aShape: Integer);
+var
+  I: Integer;
+begin
+  fOut.Shape[aShape].Count := 0;
+  for I := 0 to fIn.Shape[aShape].Count - 1 do
+  if fKeep[aShape,I] then
+  begin
+    fOut.Shape[aShape].Nodes[fOut.Shape[aShape].Count] := fIn.Shape[aShape].Nodes[I];
+    Inc(fOut.Shape[aShape].Count);
+  end;
+end;
+
+
+//Setup boolean array that tells algo which points to keep
+procedure TKMSimplifyShapes.SetupKeepArray;
+var
+  I,K: Integer;
+  KeepMiddle: Boolean;
+begin
+  SetLength(fKeep, fIn.Count);
+  for I := 0 to fIn.Count - 1 do
+  begin
+    //NCount+1 because we duplicate last point to let algo work on 2 polylines
+    SetLength(fKeep[I], fIn.Shape[I].Count + 1);
+    for K := 0 to fIn.Shape[I].Count do
+      fKeep[I,K] := False;
+    fKeep[I,0] := True;
+    fKeep[I,fIn.Shape[I].Count] := True;
+
+    //We split loop in half and simplify both segments independently as two convex
+    //lines. That is because algo is aimed at polyline, not polyloop
+    KeepMiddle := True;
+
+    //Keep nodes on edges
+    for K := 0 to fIn.Shape[I].Count - 1 do
+    if (fIn.Shape[I].Nodes[K].X = fRect.Left) or (fIn.Shape[I].Nodes[K].Y = fRect.Top)
+    or (fIn.Shape[I].Nodes[K].X = fRect.Right) or (fIn.Shape[I].Nodes[K].Y = fRect.Bottom) then
+    begin
+      fKeep[I,K] := True;
+      KeepMiddle := False;
+    end;
+
+    if KeepMiddle then
+      fKeep[I, fIn.Shape[I].Count div 2] := True;
+  end;
+end;
+
+
+procedure TKMSimplifyShapes.SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
+var
+  I, K, L, M: Integer;
+  KeptCount: array of Integer;
+  Kept: array of array of Integer;
+  A,B,C,D: TKMPointI;
+  IntCount: Integer;
+  Ints: array of array [0..2] of Byte;
+begin
+  fIn := aIn;
+  fOut := @aOut;
+
+  SetupOutputArray;
+  SetupKeepArray;
+
+  //1. simplify all the shapes
+  for I := 0 to fIn.Count - 1 do
+  begin
+    Assert(fIn.Shape[I].Count > 3, 'There''s nothing to simplify?');
+    PolySimplify(I);
+    WriteOutput(I);
+  end;
+
+  //2. check shapes for intersections
+
+  //Assemble aligned array
+  SetLength(Kept, fIn.Count);
+  SetLength(KeptCount, fIn.Count);
+  for I := 0 to fIn.Count - 1 do
+  begin
+    KeptCount[I] := 0;
+    SetLength(Kept[I], fIn.Shape[I].Count);
+    for K := 0 to fIn.Shape[I].Count - 1 do
+    if fKeep[I, K] then
+    begin
+      Kept[I, KeptCount[I]] := K;
+      Inc(KeptCount[I]);
+    end;
+  end;
+
+  IntCount := 0;
+  for I := 0 to fOut.Count - 1 do for K := 0 to KeptCount[I] - 1 do
+    for L := I to fOut.Count - 1 do for M := K + 2 to KeptCount[L] - 1 do
+    begin
+      A := fIn.Shape[I].Nodes[Kept[I,K]];
+      B := fIn.Shape[I].Nodes[Kept[I,(K+1) mod KeptCount[I]]];
+      C := fIn.Shape[L].Nodes[Kept[L,M]];
+      D := fIn.Shape[L].Nodes[Kept[L,(M+1) mod KeptCount[L]]];
+      if KMSegmentsIntersect(A, B, C, D) then
+      begin
+        //If outline intersects itself we split the longest 1 segment
+        if I = L then
+          if KMLengthSqr(A,B) > KMLengthSqr(C,D) then
+          begin
+            SetLength(Ints, IntCount + 1);
+            Ints[IntCount, 0] := I;
+            Ints[IntCount, 1] := Kept[I,K];
+            Ints[IntCount, 2] := Kept[I,(K+1) mod KeptCount[I]];
+            Inc(IntCount);
+          end
+          else
+          begin
+            SetLength(Ints, IntCount + 1);
+            Ints[IntCount, 0] := L;
+            Ints[IntCount, 1] := Kept[L,M];
+            Ints[IntCount, 2] := Kept[L,(M+1) mod KeptCount[L]];
+            Inc(IntCount);
+          end
+        else
+        //If segments belong to different lines we cant decide which split is better
+        begin
+          SetLength(Ints, IntCount + 1);
+          Ints[IntCount, 0] := I;
+          Ints[IntCount, 1] := Kept[I,K];
+          Ints[IntCount, 2] := Kept[I,(K+1) mod KeptCount[I]];
+          Inc(IntCount);
+          SetLength(Ints, IntCount + 1);
+          Ints[IntCount, 0] := L;
+          Ints[IntCount, 1] := Kept[L,M];
+          Ints[IntCount, 2] := Kept[L,(M+1) mod KeptCount[L]];
+          Inc(IntCount);
+        end;
+      end;
+    end;
+
+  for I := 0 to IntCount - 1 do
+    Simplify(Ints[I, 0],
+             Ints[I, 1],
+             Ints[I, 2],
+             1);
+
+  for I := 0 to fIn.Count - 1 do
+    WriteOutput(I);
+end;
+
+
+procedure TKMSimplifyShapes.SetupOutputArray;
+var
+  I: Integer;
+begin
+  fOut.Count := fIn.Count;
+  SetLength(fOut.Shape, fOut.Count);
+  for I := 0 to fIn.Count - 1 do
+    //Reserve space for worst case when all points are kept
+    SetLength(fOut.Shape[I].Nodes, fIn.Shape[I].Count);
+end;
 
 
 procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
@@ -82,208 +356,7 @@ begin
 end;
 
 
-function VectorDiff(const A, B: TKMPointF): TKMPointF;
-begin
-  Result.X := A.X - B.X;
-  Result.Y := A.Y - B.Y;
-end;
-
-
-function DotProduct(const A, B: TKMPointF): Single;
-begin
-  Result := A.X * B.X + A.Y * B.Y;
-end;
-
-
-function DistanceSqr(const A, B: TKMPointF): Single;
-begin
-  Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
-end;
-
-
-constructor TKMSimplifyShapes.Create(aError: Single; aRect: TKMRect);
-begin
-  inherited Create;
-
-  fError := aError;
-  fRect := aRect;
-end;
-
-procedure TKMSimplifyShapes.Simplify(aErrorSqr: Single; const aInput: array of TKMPointI; var aKeep: array of Boolean; aFrom, aTo: Integer);
-var
-  I: Integer;
-  MaxDistI: Integer;
-  MaxDistSqr: Single;
-  NodeDistSqr, TestDot, Tmp: Single;
-  DistSqr: Single;
-  Node1, Node2: TKMPointF;
-  TestPos, NodeVect, TestVect: TKMPointF;
-  TestP: TKMPointF;
-begin
-  //There is nothing to simplify
-  if aTo <= aFrom + 1 then Exit;
-
-  Node1 := KMPointF(aInput[aFrom]);
-  Node2 := KMPointF(aInput[aTo mod Length(aInput)]);
-  NodeVect := VectorDiff(Node2, Node1);
-  NodeDistSqr := DistanceSqr(Node2, Node1);
-  MaxDistI := 0;
-  MaxDistSqr := 0;
-
-  //Check all points and pick farthest away
-  for I := aFrom + 1 to aTo - 1 do
-  begin
-    TestP := KMPointF(aInput[I]);
-
-    TestVect := VectorDiff(TestP, Node1);
-    TestDot := DotProduct(TestVect, NodeVect);
-
-    //Calculate distance to segment
-    if TestDot <= 0 then
-      DistSqr := DistanceSqr(TestP, Node1)
-    else
-    if TestDot >= NodeDistSqr then
-      DistSqr := DistanceSqr(TestP, Node2)
-    else
-    begin
-      if NodeDistSqr <> 0 then
-        Tmp := TestDot / NodeDistSqr
-      else
-        Tmp := 0;
-      TestPos.X := Node1.X + Tmp * NodeVect.X;
-      TestPos.Y := Node1.Y + Tmp * NodeVect.Y;
-      DistSqr := DistanceSqr(TestP, TestPos);
-    end;
-
-    //Pick farthest point
-    if DistSqr > MaxDistSqr then
-    begin
-      MaxDistI  := I;
-      MaxDistSqr := DistSqr;
-    end;
-  end;
-
-  //See if we need to split once again due to Error or too long span
-  if (MaxDistSqr > aErrorSqr) or (aTo - aFrom > 12) then
-  begin
-    aKeep[MaxDistI] := True;
-
-    Simplify(aErrorSqr, aInput, aKeep, aFrom, MaxDistI);
-    Simplify(aErrorSqr, aInput, aKeep, MaxDistI, aTo);
-  end;
-end;
-
-
-//Based on Douglas-Peucker algorithm for polyline simplification
-//  aError - max allowed distance between resulting line and removed points
-function TKMSimplifyShapes.PolySimplify(const aInput: TKMPointArray; var aOutput: TKMPointArray): Integer;
-const MAX_TRIES = 5;
-var
-  I, K: Integer;
-  KeptCount: Integer;
-  KeepMiddle: Boolean;
-  NCount: Integer;
-  Prev: Integer;
-  Keep: array of Boolean;
-  Kept: array of Integer;
-  Loops: Byte;
-  Err: Single;
-begin
-  Result := 0;
-  Assert(Length(aInput) > 3, 'There''s nothing to simplify?');
-
-  NCount := Length(aInput);
-  //NCount+1 because we duplicate last point to let algo work on 2 polylines
-  SetLength(Keep, NCount+1);
-  for I := 0 to NCount do
-    Keep[I] := False;
-
-  //We split loop in half and simplify both segments independently as two convex
-  //lines. That is because algo is aimed at polyline, not polyloop
-  Keep[0] := True;
-  Keep[NCount] := True;
-  KeepMiddle := True;
-
-  //Keep nodes on edges
-  for I := 0 to NCount - 1 do
-  if (aInput[I].X = fRect.Left) or (aInput[I].Y = fRect.Top)
-  or (aInput[I].X = fRect.Right) or (aInput[I].Y = fRect.Bottom) then
-  begin
-    Keep[I] := True;
-    KeepMiddle := False;
-  end;
-
-  if KeepMiddle then
-    Keep[NCount div 2] := True;
-
-  //Try hard to keep at leaft 4 points in the outline (first and last are the same, hence 4, not 3 for convex shape)
-  //With each pass we decrease allowed Error so that algo will keep more and more points to final of all points
-  Loops := 0;
-  repeat
-      Result := 0;
-      if (1 - MAX_TRIES * Loops) <> 0 then
-        Err := Sqr(fError) / (1 - MAX_TRIES * Loops)
-      else
-        Err := 0;
-
-      Prev := 0;
-      for I := 1 to NCount do
-      if Keep[I] then
-      begin
-        //We use Sqr values for all comparisons for speedup
-        Simplify(Err, aInput, Keep, Prev, I);
-        Prev := I;
-      end;
-
-      //Check if there are self-intersections by assembling aligned array and testing it
-      KeptCount := 0;
-      SetLength(Kept, NCount+1);
-      for I := 0 to NCount do
-      if Keep[I] then
-      begin
-        Kept[KeptCount] := I;
-        Inc(KeptCount);
-      end;
-
-      for I := 0 to KeptCount - 2 do
-      for K := I + 2 to KeptCount - 2 do
-      if SegmentsIntersect(aInput[Kept[I]].X, aInput[Kept[I]].Y, aInput[Kept[I+1] mod NCount].X, aInput[Kept[I+1] mod NCount].Y,
-                           aInput[Kept[K]].X, aInput[Kept[K]].Y, aInput[Kept[K+1] mod NCount].X, aInput[Kept[K+1] mod NCount].Y) then
-      begin
-        //If segments intersect we simplify them both with smaller Error
-        Simplify(Err/2, aInput, Keep, Kept[I], Kept[I+1]);
-        Simplify(Err/2, aInput, Keep, Kept[K], Kept[K+1]);
-      end;
-
-      //Fill resulting array with preserved points
-      for I := 0 to NCount - 1 do
-      if Keep[I] then
-      begin
-        aOutput[Result] := aInput[I];
-        Inc(Result);
-      end;
-
-    Inc(Loops);
-  until(Result > 3) or (Loops > MAX_TRIES);
-end;
-
-
-procedure TKMSimplifyShapes.SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
-var I: Integer;
-begin
-  SetLength(aOut.Shape, aIn.Count);
-
-  for I := 0 to aIn.Count - 1 do
-  begin
-    //Reserve space for worst case when all points are kept
-    SetLength(aOut.Shape[I].Nodes, aIn.Shape[I].Count);
-    aOut.Shape[I].Count := PolySimplify(aIn.Shape[I].Nodes, aOut.Shape[I].Nodes);
-  end;
-  aOut.Count := aIn.Count;
-end;
-
-
-procedure ForceEdge(var aTriMesh: TKMTriMesh; X1,Y1,X2,Y2: Integer);
+procedure ForceEdge(var aTriMesh: TKMTriMesh; A,B: TKMPointI);
 var
   Edges: array [0..1] of array of SmallInt;
   Loop: array of Word;
@@ -342,9 +415,9 @@ begin
     //Find vertices
     for I := 0 to High(Vertices) do
     begin
-      if (x1 = Vertices[I].x) and (y1 = Vertices[I].y) then
+      if (A.X = Vertices[I].X) and (A.Y = Vertices[I].Y) then
         Vertice1 := I;
-      if (x2 = Vertices[I].x) and (y2 = Vertices[I].y) then
+      if (B.X = Vertices[I].X) and (B.Y = Vertices[I].Y) then
         Vertice2 := I;
       if (Vertice1 <> -1) and (Vertice2 <> -1) then
         Break;
@@ -371,9 +444,9 @@ begin
 
       //Eeach test checks if Edge and Polygons edge intersect
       Intersect :=
-           SegmentsIntersect(x1, y1, x2, y2, aTriMesh.Vertices[aTriMesh.Polygons[I,0]].X, aTriMesh.Vertices[aTriMesh.Polygons[I,0]].Y, aTriMesh.Vertices[Polygons[I,1]].X,  Vertices[Polygons[I,1]].Y)
-        or SegmentsIntersect(x1, y1, x2, y2, aTriMesh.Vertices[aTriMesh.Polygons[I,1]].X, aTriMesh.Vertices[aTriMesh.Polygons[I,1]].Y, aTriMesh.Vertices[Polygons[I,2]].X,  Vertices[Polygons[I,2]].Y)
-        or SegmentsIntersect(x1, y1, x2, y2, aTriMesh.Vertices[aTriMesh.Polygons[I,2]].X, aTriMesh.Vertices[aTriMesh.Polygons[I,2]].Y, aTriMesh.Vertices[Polygons[I,0]].X,  Vertices[Polygons[I,0]].Y);
+           KMSegmentsIntersect(A, B, aTriMesh.Vertices[aTriMesh.Polygons[I,0]], aTriMesh.Vertices[Polygons[I,1]])
+        or KMSegmentsIntersect(A, B, aTriMesh.Vertices[aTriMesh.Polygons[I,1]], aTriMesh.Vertices[Polygons[I,2]])
+        or KMSegmentsIntersect(A, B, aTriMesh.Vertices[aTriMesh.Polygons[I,2]], aTriMesh.Vertices[Polygons[I,0]]);
 
       //Cut the Polygons
       if Intersect then
@@ -426,12 +499,12 @@ end;
 
 procedure ForceOutlines(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArray);
 var
-  I,K: Integer;
+  I, K: Integer;
 begin
   for I := 0 to fSimpleOutlines.Count - 1 do
     with fSimpleOutlines.Shape[I] do
       for K := 0 to Count - 1 do
-        ForceEdge(aTriMesh, Nodes[K].X, Nodes[K].Y, Nodes[(K + 1) mod Count].X, Nodes[(K + 1) mod Count].Y);
+        ForceEdge(aTriMesh, Nodes[K], Nodes[(K + 1) mod Count]);
 end;
 
 

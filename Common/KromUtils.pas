@@ -45,10 +45,8 @@ function Max(const A,B,C: single):single; overload;
   function Mix(x1,x2,MixValue:single):single; overload;
   function Mix(x1,x2:integer; MixValue:single):integer; overload;
 
-function SegmentsIntersect(Ax, Ay, Bx, By, Sx, Sy, Tx, Ty: Single): Boolean;
-
 procedure decs(var AText:string; const Len:integer=1); overload;
-procedure decs(var AText:widestring; const Len:integer=1); overload;
+procedure decs(var AText:widestring; const Len:integer=1); overload;
 function  decs(AText:string; Len,RunAsFunction:integer):string; overload;
 function RemoveQuotes(Input:string):string;
 procedure SwapStr(var A,B:string);
@@ -109,7 +107,7 @@ end;
 
 
 //I re add this it is required by KM_Editor.
-function ExtractOpenedFileName(in_s: string):string;
+function ExtractOpenedFileName(in_s: string): string;
 var k:word; out_s:string; QMarks:boolean;
 begin
 k:=0; out_s:=''; QMarks:=false;
@@ -320,24 +318,6 @@ end;
 function Mix(x1, x2: integer; MixValue: single): integer; overload;
 begin
   Result := round(x1 * MixValue + x2 * (1 - MixValue));
-end;
-
-
-//Segments intersect
-function SegmentsIntersect(Ax, Ay, Bx, By, Sx, Sy, Tx, Ty: Single): Boolean;
-var
-  ABx, ABy, STx, STy: Single;
-  D, S, T: Single;
-begin
-  ABx := Bx - Ax;     ABy := By - Ay;
-  STx := Tx - Sx;     STy := Ty - Sy;
-
-  D := -STx * ABy + ABx * STy;
-
-  S := (-ABy * (Ax - Sx) + ABx * (Ay - Sy)) / D;
-  T := ( STx * (Ay - Sy) - STy * (Ax - Sx)) / D;
-
-  Result := (S > 0) and (S < 1) and (T > 0) and(T < 1);
 end;
 
 
