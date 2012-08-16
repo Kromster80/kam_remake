@@ -60,7 +60,7 @@ object FormMain: TFormMain
     Height = 355
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
-    object ListBox1: TListBox
+    object PlayersList: TListBox
       Left = 1
       Top = 1
       Width = 202
