@@ -125,7 +125,8 @@ type
     function PickOrder:byte;
     procedure SetLastOrderProduced(aResource:TResourceType);
     function CheckResToBuild:boolean;
-    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); virtual; //override for School and etc..
+    function GetMaxInRes: Word;
+    procedure ResAddToIn(aResource:TResourceType; aCount:word=1; aFromScript:boolean=false); virtual; //override for School and etc..
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToBuild(aResource:TResourceType);
     procedure ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
@@ -198,7 +199,7 @@ type
     function GetResTotal(aResource: TResourceType): Word; overload;
     function CheckResIn(aResource:TResourceType):word; override;
     function CheckResOrder(aID:byte):word; override;
-    procedure ResAddToIn(aResource: TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
+    procedure ResAddToIn(aResource: TResourceType; aCount:word=1; aFromScript:boolean=false); override;
     procedure ResEditOrder(aID:byte; aAmount:integer); override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
 
@@ -219,7 +220,7 @@ type
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
-    procedure ResAddToIn(aResource: TResourceType; const aCount: Word = 1; aFromScript: Boolean = False); override;
+    procedure ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False); override;
     procedure AddUnitToQueue(aUnit: TUnitType; aCount: Byte); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID: Byte); //Should remove unit from queue and shift rest up
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
@@ -241,7 +242,7 @@ type
     procedure SyncLoad; override;
     destructor Destroy; override;
     procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); override;
-    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
+    procedure ResAddToIn(aResource:TResourceType; aCount:word=1; aFromScript:boolean=false); override;
     function CheckResIn(aResource:TResourceType):word; override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
     function CanEquip(aUnitType: TUnitType):boolean;
@@ -259,7 +260,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); override;
     procedure ToggleAcceptFlag(aRes:TResourceType);
-    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
+    procedure ResAddToIn(aResource:TResourceType; aCount:word=1; aFromScript:boolean=false); override;
     function CheckResIn(aResource: TResourceType): Word; override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -907,9 +908,18 @@ begin
 end;
 
 
+function TKMHouse.GetMaxInRes: Word;
+begin
+  if fHouseType in [ht_Store, ht_Barracks, ht_Marketplace] then
+    Result := High(Word)
+  else
+    Result := 5; //All other houses can only stock 5 for now
+end;
+
+
 //Maybe it's better to rule out In/Out? No, it is required to separate what can be taken out of the house and what not.
 //But.. if we add "Evacuate" button to all house the separation becomes artificial..
-procedure TKMHouse.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
+procedure TKMHouse.ResAddToIn(aResource:TResourceType; aCount:word=1; aFromScript:boolean=false);
 var i,OrdersRemoved:integer;
 begin
   Assert(aResource <> rt_None);
@@ -917,6 +927,8 @@ begin
   for i:=1 to 4 do
     if aResource = fResource.HouseDat[fHouseType].ResInput[i] then
     begin
+      //Don't allow the script to overfill houses
+      if aFromScript then aCount := EnsureRange(aCount, 0, GetMaxInRes-fResourceIn[i]);
       inc(fResourceIn[i], aCount);
       if aFromScript then
       begin
@@ -1480,7 +1492,7 @@ begin
 end;
 
 
-procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; const aCount:word=1; aFromScript:boolean=false);
+procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; aCount:word=1; aFromScript:boolean=false);
 var ResRequired:integer;
 begin
   //If user cancelled the exchange (or began new one with different resources already)
@@ -1705,7 +1717,7 @@ end;
 
 
 //Add resource as usual and initiate unit training
-procedure TKMHouseSchool.ResAddToIn(aResource: TResourceType; const aCount: Word = 1; aFromScript: Boolean = False);
+procedure TKMHouseSchool.ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False);
 begin
   inherited;
 
@@ -1857,7 +1869,7 @@ begin
 end;
 
 
-procedure TKMHouseStore.ResAddToIn(aResource: TResourceType; const aCount: Word = 1; aFromScript: Boolean = False);
+procedure TKMHouseStore.ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False);
 var R: TResourceType;
 begin
   case aResource of
@@ -2009,9 +2021,9 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
+procedure TKMHouseBarracks.ResAddToIn(aResource:TResourceType; aCount:word=1; aFromScript:boolean=false);
 begin
-  Assert(aResource in [WARFARE_MIN..WARFARE_MAX]);
+  Assert(aResource in [WARFARE_MIN..WARFARE_MAX], 'Invalid resource added to barracks');
 
   ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
 end;
