@@ -486,9 +486,6 @@ begin
   else
     TexType := tf_RGB5A1;
 
-  if fRT = rxTiles then
-    TexType := tf_RGBA8; //@Krom: Why do tiles require full RGBA8? Isn't RGB5A1 enough?
-
   //Second algorithm is kept until we implement better one
   if USE_BIN_PACKING then
     MakeGFX_BinPacking(TexType, aStartingIndex, BaseRAM, ColorRAM, TexCount)
