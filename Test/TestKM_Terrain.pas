@@ -37,11 +37,13 @@ end;
 //See if all maps load into Terrain
 procedure TestKMTerrain.TestLoadAllMaps;
 var
-  I, Count: Integer;
+  I: Integer;
+  Count, Total: Integer;
   SearchRec: TSearchRec;
   PathToMaps: TStringList;
 begin
   Count := 0;
+  Total := 0;
 
   PathToMaps := TStringList.Create;
   try
@@ -53,39 +55,39 @@ begin
     FindFirst(ExeDir + 'Campaigns\*', faDirectory, SearchRec);
     repeat
       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-      PathToMaps.Add(ExeDir + 'Campaigns\' + SearchRec.Name + '\');
+        PathToMaps.Add(ExeDir + 'Campaigns\' + SearchRec.Name + '\');
     until (FindNext(SearchRec) <> 0);
     FindClose(SearchRec);
 
     for I := 0 to PathToMaps.Count - 1 do
-
-    if DirectoryExists(PathToMaps[I]) then
-    begin
-      FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
-      repeat
-        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-        and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map') then
-        begin
-          try
-            fTerrain.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
-          except
-            //Report and swallow asserts
-            on E: EAssertionFailed do Status('Map did not load: ' + SearchRec.Name + '. '+ E.Message);
-            //Signal other errors loud
-            else raise;
+      if DirectoryExists(PathToMaps[I]) then
+      begin
+        FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
+        repeat
+          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+          and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map') then
+          begin
+            try
+              fTerrain.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
+              Inc(Count);
+            except
+              //Report and swallow asserts
+              on E: EAssertionFailed do Status('Map did not load: ' + SearchRec.Name + '. '+ E.Message);
+              //Signal other errors loud
+              else raise;
+            end;
+            Check(fTerrain.MapX * fTerrain.MapY <> 0, 'Map did not load: ' + SearchRec.Name);
+            Inc(Total);
           end;
-          Check(fTerrain.MapX * fTerrain.MapY <> 0, 'Map did not load: ' + SearchRec.Name);
-          Inc(Count);
-        end;
-      until (FindNext(SearchRec) <> 0);
-      FindClose(SearchRec);
-    end;
+        until (FindNext(SearchRec) <> 0);
+        FindClose(SearchRec);
+      end;
 
   finally
     PathToMaps.Free;
   end;
 
-  Status(IntToStr(Count) + ' maps checked')
+  Status(IntToStr(Count) + '/' + IntToStr(Total) + ' maps checked')
 end;
 
 

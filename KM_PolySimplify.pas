@@ -217,9 +217,53 @@ var
   I, K, L, M: Integer;
   KeptCount: array of Integer;
   Kept: array of array of Integer;
-  A,B,C,D: TKMPointI;
   IntCount: Integer;
   Ints: array of array [0..2] of Byte;
+
+  procedure CheckIntersect(L1, N1, N2, L2, N3, N4: Integer);
+  var A,B,C,D: TKMPointI;
+  begin
+    A := fIn.Shape[L1].Nodes[N1 mod fIn.Shape[L1].Count];
+    B := fIn.Shape[L1].Nodes[N2 mod fIn.Shape[L1].Count];
+    C := fIn.Shape[L2].Nodes[N3 mod fIn.Shape[L2].Count];
+    D := fIn.Shape[L2].Nodes[N4 mod fIn.Shape[L2].Count];
+    if KMSegmentsIntersect(A, B, C, D) then
+    begin
+      //If outline intersects itself we split the longest 1 segment
+      if L1 = L2 then
+        if KMLengthSqr(A,B) > KMLengthSqr(C,D) then
+        begin
+          SetLength(Ints, IntCount + 1);
+          Ints[IntCount, 0] := L1;
+          Ints[IntCount, 1] := N1;
+          Ints[IntCount, 2] := N2;
+          Inc(IntCount);
+        end
+        else
+        begin
+          SetLength(Ints, IntCount + 1);
+          Ints[IntCount, 0] := L2;
+          Ints[IntCount, 1] := N3;
+          Ints[IntCount, 2] := N4;
+          Inc(IntCount);
+        end
+      else
+      //If segments belong to different lines we cant decide which split is better
+      begin
+        SetLength(Ints, IntCount + 1);
+        Ints[IntCount, 0] := L1;
+        Ints[IntCount, 1] := N1;
+        Ints[IntCount, 2] := N2;
+        Inc(IntCount);
+        SetLength(Ints, IntCount + 1);
+        Ints[IntCount, 0] := L2;
+        Ints[IntCount, 1] := N3;
+        Ints[IntCount, 2] := N4;
+        Inc(IntCount);
+      end;
+    end;
+  end;
+
 begin
   fIn := aIn;
   fOut := @aOut;
@@ -239,12 +283,12 @@ begin
 
   //Assemble aligned array
   SetLength(Kept, fIn.Count);
-  SetLength(KeptCount, fIn.Count);
+  SetLength(KeptCount, fIn.Count+1);
   for I := 0 to fIn.Count - 1 do
   begin
     KeptCount[I] := 0;
-    SetLength(Kept[I], fIn.Shape[I].Count);
-    for K := 0 to fIn.Shape[I].Count - 1 do
+    SetLength(Kept[I], fIn.Shape[I].Count + 1);
+    for K := 0 to fIn.Shape[I].Count do
     if fKeep[I, K] then
     begin
       Kept[I, KeptCount[I]] := K;
@@ -253,49 +297,17 @@ begin
   end;
 
   IntCount := 0;
-  for I := 0 to fOut.Count - 1 do for K := 0 to KeptCount[I] - 1 do
-    for L := I to fOut.Count - 1 do for M := K + 2 to KeptCount[L] - 1 do
-    begin
-      A := fIn.Shape[I].Nodes[Kept[I,K]];
-      B := fIn.Shape[I].Nodes[Kept[I,(K+1) mod KeptCount[I]]];
-      C := fIn.Shape[L].Nodes[Kept[L,M]];
-      D := fIn.Shape[L].Nodes[Kept[L,(M+1) mod KeptCount[L]]];
-      if KMSegmentsIntersect(A, B, C, D) then
-      begin
-        //If outline intersects itself we split the longest 1 segment
-        if I = L then
-          if KMLengthSqr(A,B) > KMLengthSqr(C,D) then
-          begin
-            SetLength(Ints, IntCount + 1);
-            Ints[IntCount, 0] := I;
-            Ints[IntCount, 1] := Kept[I,K];
-            Ints[IntCount, 2] := Kept[I,(K+1) mod KeptCount[I]];
-            Inc(IntCount);
-          end
-          else
-          begin
-            SetLength(Ints, IntCount + 1);
-            Ints[IntCount, 0] := L;
-            Ints[IntCount, 1] := Kept[L,M];
-            Ints[IntCount, 2] := Kept[L,(M+1) mod KeptCount[L]];
-            Inc(IntCount);
-          end
-        else
-        //If segments belong to different lines we cant decide which split is better
-        begin
-          SetLength(Ints, IntCount + 1);
-          Ints[IntCount, 0] := I;
-          Ints[IntCount, 1] := Kept[I,K];
-          Ints[IntCount, 2] := Kept[I,(K+1) mod KeptCount[I]];
-          Inc(IntCount);
-          SetLength(Ints, IntCount + 1);
-          Ints[IntCount, 0] := L;
-          Ints[IntCount, 1] := Kept[L,M];
-          Ints[IntCount, 2] := Kept[L,(M+1) mod KeptCount[L]];
-          Inc(IntCount);
-        end;
-      end;
-    end;
+  //Test self-intersections
+  for I := 0 to fOut.Count - 1 do
+    for K := 0 to KeptCount[I] - 2 do
+      for M := K + 2 to KeptCount[I] - 2 do
+        CheckIntersect(I, Kept[I,K], Kept[I,K+1], I, Kept[I,M], Kept[I,M+1]);
+
+  //Test intersections with other outlines
+  for I := 0 to fOut.Count - 1 do for K := 0 to KeptCount[I] - 2 do
+    for L := I + 1 to fOut.Count - 1 do for M := 0 to KeptCount[L] - 2 do
+      CheckIntersect(I, Kept[I,K], Kept[I,K+1], L, Kept[L,M], Kept[L,M+1]);
+
 
   for I := 0 to IntCount - 1 do
     Simplify(Ints[I, 0],
