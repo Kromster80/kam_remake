@@ -322,8 +322,6 @@ begin
     Free;
   end;
 
-  //todo: RemoveSelfIntersections
-
   //Fill Delaunay triangles
   fDelaunay := TDelaunay.Create(-1, -1, fTerrain.MapX, fTerrain.MapY);
   fDelaunay.Tolerance := 1;
@@ -333,10 +331,10 @@ begin
       fDelaunay.AddPoint(Nodes[K].X, Nodes[K].Y);
 
   //Add more points on edges
-  MeshDensityX := (fTerrain.MapX-1) div 16;
-  MeshDensityY := (fTerrain.MapY-1) div 16;
   SizeX := fTerrain.MapX-1;
   SizeY := fTerrain.MapY-1;
+  MeshDensityX := SizeX div 15; //once per 15 tiles
+  MeshDensityY := SizeY div 15;
   for I := 0 to MeshDensityY do
   for K := 0 to MeshDensityX do
   if (I = 0) or (I = MeshDensityY) or (K = 0) or (K = MeshDensityX) then
