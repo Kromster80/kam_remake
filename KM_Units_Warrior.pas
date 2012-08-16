@@ -206,6 +206,7 @@ begin
     if (fCommander.fState <> ws_Walking) and (not (fUnitTask is TTaskAttackHouse))
     and not fCommander.ArmyInFight then
       fCommander.OrderHalt;
+    NewCommander := fCommander; //Needed for hotkey check at the end
   end;
 
   //Kill group commander
@@ -264,6 +265,10 @@ begin
     end;
     fPlayers.Player[fOwner].AI.CommanderDied(Self, NewCommander); //Tell our AI that we have died so it can update defence positions, etc.
   end;
+
+  //We need to tell the interface in case this warrior was a hotkey, so it updates automatically to the new commander
+  if (NewCommander <> nil) and (fGame.GamePlayInterface <> nil) then
+    fGame.GamePlayInterface.WarriorCommanderDied(ID, NewCommander.ID);
 
   ClearOrderTarget; //This ensures that pointer usage tracking is reset
 
@@ -686,7 +691,10 @@ begin
     ut_Bowman:      Result := RANGE_BOWMAN_MIN;
     ut_Arbaletman:  Result := RANGE_ARBALETMAN_MIN;
     ut_Slingshot:   Result := RANGE_SLINGSHOT_MIN;
-    else            Result := 0.5; //When units walk past us they can sometimes be closer than 1 tile between steps
+    //When units walk past us diagonally they can be closer than 1 tile between steps (0.707).
+    //Must not be <=0.5 because then KMGetDirection can fail in fight action if you spam units with middle mouse
+    //(opponent appears to be on our tile if the scout is dropped on a tile that another unit only just left)
+    else            Result := 0.6;
   end;
 end;
 

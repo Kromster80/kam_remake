@@ -348,6 +348,7 @@ type
     procedure SetChatText(const aString: string);
     procedure SetChatMessages(const aString: string);
     procedure ChatMessage(const aData: string);
+    procedure WarriorCommanderDied(DeadID, NewID: Cardinal);
     procedure AlliesOnPlayerSetup(Sender: TObject);
     procedure AlliesOnPingInfo(Sender: TObject);
     procedure AlliesTeamChange(Sender: TObject);
@@ -3131,6 +3132,8 @@ begin
   begin
     OldSelected := fPlayers.Selected;
     fPlayers.Selected := fPlayers.GetUnitByID(fSelection[Key]);
+    if (fPlayers.Selected <> nil) and TKMUnit(fPlayers.Selected).IsDeadOrDying then
+      fPlayers.Selected := nil; //Don't select dying units
     if fPlayers.Selected <> nil then
     begin
       if (OldSelected <> fPlayers.Selected) and not fReplay and not HasLostMPGame then
@@ -3141,12 +3144,14 @@ begin
           fSoundLib.PlayCitizen(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
       end;
       //Selecting a unit twice is the shortcut to center on that unit
-      if (fPlayers.Selected <> nil) and (OldSelected = fPlayers.Selected) then
+      if OldSelected = fPlayers.Selected then
         fGame.Viewport.Position := TKMUnit(fPlayers.Selected).PositionF;
     end
     else
     begin
       fPlayers.Selected := fPlayers.GetHouseByID(fSelection[Key]);
+      if (fPlayers.Selected <> nil) and TKMHouse(fPlayers.Selected).IsDestroyed then
+        fPlayers.Selected := nil; //Don't select destroyed houses
       //Selecting a house twice is the shortcut to center on that house
       if (fPlayers.Selected <> nil) and (OldSelected = fPlayers.Selected) then
         fGame.Viewport.Position := KMPointF(TKMHouse(fPlayers.Selected).GetEntrance);
@@ -3171,6 +3176,15 @@ begin
 
   if not Panel_Chat.Visible then
     Label_MPChatUnread.Caption := IntToStr(StrToIntDef(Label_MPChatUnread.Caption, 0) + 1); //New message
+end;
+
+
+procedure TKMGamePlayInterface.WarriorCommanderDied(DeadID, NewID: Cardinal);
+var I: Integer;
+begin
+  for I:=0 to 9 do
+    if fSelection[I] = DeadID then
+      fSelection[I] := NewID; //If the commander dies select the new commander
 end;
 
 
