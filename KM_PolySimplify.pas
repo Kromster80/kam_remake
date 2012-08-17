@@ -233,7 +233,6 @@ end;
 //Check shapes for intersections
 procedure TKMSimplifyShapes.FixIntersectingShapes;
 var
-  I: Integer;
   IntCount: Integer;
   Ints: array of array [0..2] of Word;
   KeptCount: array of Integer;
@@ -268,7 +267,7 @@ var
     D := fIn.Shape[L2].Nodes[N4 mod fIn.Shape[L2].Count];
     if KMSegmentsIntersect(A, B, C, D) then
     begin
-      //If outline intersects itself we split the longest 1 segment
+      //If outline intersects itself we split the longest segment
       if L1 = L2 then
         if KMLengthSqr(A,B) > KMLengthSqr(C,D) then
         begin
@@ -318,7 +317,10 @@ var
         CheckIntersect(I, Kept[I,K], Kept[I,K+1], L, Kept[L,M], Kept[L,M+1]);
 
   end;
+var
+  I, LoopCount: Integer;
 begin
+  LoopCount := 0;
   repeat
     AssembleKeptReference;
     WriteIntersections;
@@ -328,6 +330,8 @@ begin
                Ints[I, 1],
                Ints[I, 2],
                Sqr(fError), True);
+
+    Assert(LoopCount <= 20, 'Can''t resolve intersections');
   until (IntCount = 0);
 end;
 
