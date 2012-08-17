@@ -448,10 +448,10 @@ var
   LoopCount: Integer;
   n0,n1,n2:integer;
   Skip: array of Byte;
-  PierceTest:boolean;
+  ValidPoly:boolean;
   I, K, L: Integer;
   LastVtx: Integer;
-  TripFound: Boolean;
+  TripletFound: Boolean;
 begin
   SetLength(Skip, VerticeCount);
 
@@ -461,7 +461,7 @@ begin
   repeat
 
     //Find 3 aligned unused vertices starting from LastVtx
-    TripFound := False;
+    TripletFound := False;
     n0 := -1;  n1 := -1;  n2 := -1;
     for I := LastVtx to LastVtx + VerticeCount - 1 - 2 do
     if Skip[I mod VerticeCount] = 0 then
@@ -475,7 +475,7 @@ begin
         if Skip[L mod VerticeCount] = 0 then
         begin
           n2 := L mod VerticeCount;
-          TripFound := True;
+          TripletFound := True;
           Break;
         end;
         Break;
@@ -483,22 +483,23 @@ begin
       Break;
     end;
 
-    if not TripFound then Break; //There are no triplets left, our task is done
+    if not TripletFound then Break; //There are no triplets left, our task is done
 
     //Check which direction poly is facing, should be Down (depends on vertice order and coords system)
-    Assert(KMNormal2Poly(Vertice[n0], Vertice[n1], Vertice[n2]) > 0, 'Degenerate poly triangulation?');
+    ValidPoly := KMNormal2Poly(Vertice[n0], Vertice[n1], Vertice[n2]) > 0;
 
-    //Take n0 and n2 as basis and test all other vertices to be on one side
-    PierceTest := False;
-    for I := 0 to VerticeCount - 1 do
-    if (Skip[I] = 0) and (I <> n0) and (I <> n1) and (I <> n2) then
-    if KMNormal2Poly(Vertice[n0], Vertice[n2], Vertice[I]) < 0 then
+    //Take n0 and n2 as basis and test all remaining vertices to be on one side
+    if ValidPoly then
+      for I := 0 to VerticeCount - 1 do
+      if (Skip[I] = 0) and (I <> n0) and (I <> n1) and (I <> n2) then
+      if KMNormal2Poly(Vertice[n0], Vertice[n2], Vertice[I]) < 0 then
+      begin
+        ValidPoly := False;
+        Break;
+      end;
+
+    if ValidPoly then
     begin
-      PierceTest := True;
-      Break;
-    end;
-
-    if not PierceTest then begin
       Polys[PolyCount * 3]     := n0;
       Polys[PolyCount * 3 + 1] := n1;
       Polys[PolyCount * 3 + 2] := n2;

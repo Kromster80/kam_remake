@@ -27,10 +27,12 @@ type
     fOut: PKMShapesArray;
     fKeep: array of array of Boolean;
     procedure SetupKeepArray;
-    procedure Simplify(aShape, aFrom, aTo: Integer; aErrorSqr: Single);
+    procedure Simplify(aShape, aFrom, aTo: Integer; aErrorSqr: Single; aForceSplit: Boolean = False);
     procedure PolySimplify(aShape: Integer);
-    procedure WriteOutput(aShape: Integer);
+    procedure WriteOutput;
     procedure SetupOutputArray;
+    procedure FixDegenerateShapes;
+    procedure FixIntersectingShapes;
   public
     constructor Create(aError: Single; aRect: TKMRect);
     procedure SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
@@ -62,7 +64,7 @@ begin
   fRect := aRect;
 end;
 
-procedure TKMSimplifyShapes.Simplify(aShape, aFrom, aTo: Integer; aErrorSqr: Single);
+procedure TKMSimplifyShapes.Simplify(aShape, aFrom, aTo: Integer; aErrorSqr: Single; aForceSplit: Boolean = False);
 var
   InLoop: TKMPointArray;
   I: Integer;
@@ -120,7 +122,7 @@ begin
   end;
 
   //See if we need to split once again due to Error or too long span
-  if (MaxDistSqr > aErrorSqr) or (aTo - aFrom > 12) then
+  if (MaxDistSqr > aErrorSqr) or (aTo - aFrom > 12) or (aForceSplit) then
   begin
     fKeep[aShape, MaxDistI] := True;
 
@@ -150,29 +152,23 @@ begin
     Simplify(aShape, Prev, I, Sqr(fError));
     Prev := I;
   end;
-
-  //Fill resulting array with preserved points
-  fOut.Shape[aShape].Count := 0;
-  for I := 0 to NCount - 1 do
-  if fKeep[aShape,I] then
-  begin
-    fOut.Shape[aShape].Nodes[fOut.Shape[aShape].Count] := InLoop[I];
-    Inc(fOut.Shape[aShape].Count);
-  end;
 end;
 
 
 //Fill resulting array with preserved points
-procedure TKMSimplifyShapes.WriteOutput(aShape: Integer);
+procedure TKMSimplifyShapes.WriteOutput;
 var
-  I: Integer;
+  I, K: Integer;
 begin
-  fOut.Shape[aShape].Count := 0;
-  for I := 0 to fIn.Shape[aShape].Count - 1 do
-  if fKeep[aShape,I] then
+  for I := 0 to fIn.Count - 1 do
   begin
-    fOut.Shape[aShape].Nodes[fOut.Shape[aShape].Count] := fIn.Shape[aShape].Nodes[I];
-    Inc(fOut.Shape[aShape].Count);
+    fOut.Shape[I].Count := 0;
+    for K := 0 to fIn.Shape[I].Count - 1 do
+    if fKeep[I,K] then
+    begin
+      fOut.Shape[I].Nodes[fOut.Shape[I].Count] := fIn.Shape[I].Nodes[K];
+      Inc(fOut.Shape[I].Count);
+    end;
   end;
 end;
 
@@ -212,13 +208,56 @@ begin
 end;
 
 
-procedure TKMSimplifyShapes.SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
+//Check that shapes have at least 3 points
+procedure TKMSimplifyShapes.FixDegenerateShapes;
 var
-  I, K, L, M: Integer;
+  I, K: Integer;
+  Prev: Integer;
+begin
+  for I := 0 to fIn.Count - 1 do
+    if fOut.Shape[I].Count < 3 then
+    begin
+      Assert(fOut.Shape[I].Count = 2, 'Two points expected');
+      Prev := 0;
+      for K := 1 to fIn.Shape[I].Count do
+        if fKeep[I, K] then
+        begin
+          //We use Sqr values for all comparisons for speedup
+          Simplify(I, Prev, K, Sqr(fError), True);
+          Prev := K;
+        end;
+    end;
+end;
+
+
+//Check shapes for intersections
+procedure TKMSimplifyShapes.FixIntersectingShapes;
+var
+  I: Integer;
+  IntCount: Integer;
+  Ints: array of array [0..2] of Word;
   KeptCount: array of Integer;
   Kept: array of array of Integer;
-  IntCount: Integer;
-  Ints: array of array [0..2] of Byte;
+
+  //Assemble aligned array
+  procedure AssembleKeptReference;
+  var
+    I, K: Integer;
+  begin
+    SetLength(Kept, fIn.Count);
+    SetLength(KeptCount, fIn.Count + 1);
+    for I := 0 to fIn.Count - 1 do
+    begin
+      KeptCount[I] := 0;
+      SetLength(Kept[I], fIn.Shape[I].Count + 1);
+      for K := 0 to fIn.Shape[I].Count do
+        if fKeep[I, K] then
+        begin
+          Kept[I, KeptCount[I]] := K;
+          Inc(KeptCount[I]);
+        end;
+    end;
+  end;
 
   procedure CheckIntersect(L1, N1, N2, L2, N3, N4: Integer);
   var A,B,C,D: TKMPointI;
@@ -248,7 +287,7 @@ var
           Inc(IntCount);
         end
       else
-      //If segments belong to different lines we cant decide which split is better
+      //If segments belong to different lines we cant yet decide which split is better
       begin
         SetLength(Ints, IntCount + 1);
         Ints[IntCount, 0] := L1;
@@ -263,7 +302,39 @@ var
       end;
     end;
   end;
+  procedure WriteIntersections;
+  var I, K, L, M: Integer;
+  begin
+    IntCount := 0;
+    //Test self-intersections
+    for I := 0 to fOut.Count - 1 do
+      for K := 0 to KeptCount[I] - 2 do
+        for M := K + 2 to KeptCount[I] - 2 do
+          CheckIntersect(I, Kept[I,K], Kept[I,K+1], I, Kept[I,M], Kept[I,M+1]);
 
+    //Test intersections with other outlines
+    for I := 0 to fOut.Count - 1 do for K := 0 to KeptCount[I] - 2 do
+      for L := I + 1 to fOut.Count - 1 do for M := 0 to KeptCount[L] - 2 do
+        CheckIntersect(I, Kept[I,K], Kept[I,K+1], L, Kept[L,M], Kept[L,M+1]);
+
+  end;
+begin
+  repeat
+    AssembleKeptReference;
+    WriteIntersections;
+
+    for I := 0 to IntCount - 1 do
+      Simplify(Ints[I, 0],
+               Ints[I, 1],
+               Ints[I, 2],
+               Sqr(fError), True);
+  until (IntCount = 0);
+end;
+
+
+procedure TKMSimplifyShapes.SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
+var
+  I: Integer;
 begin
   fIn := aIn;
   fOut := @aOut;
@@ -276,47 +347,15 @@ begin
   begin
     Assert(fIn.Shape[I].Count > 3, 'There''s nothing to simplify?');
     PolySimplify(I);
-    WriteOutput(I);
   end;
+  WriteOutput;
 
-  //2. check shapes for intersections
+  FixDegenerateShapes;
+  WriteOutput;
 
-  //Assemble aligned array
-  SetLength(Kept, fIn.Count);
-  SetLength(KeptCount, fIn.Count+1);
-  for I := 0 to fIn.Count - 1 do
-  begin
-    KeptCount[I] := 0;
-    SetLength(Kept[I], fIn.Shape[I].Count + 1);
-    for K := 0 to fIn.Shape[I].Count do
-    if fKeep[I, K] then
-    begin
-      Kept[I, KeptCount[I]] := K;
-      Inc(KeptCount[I]);
-    end;
-  end;
+  FixIntersectingShapes;
 
-  IntCount := 0;
-  //Test self-intersections
-  for I := 0 to fOut.Count - 1 do
-    for K := 0 to KeptCount[I] - 2 do
-      for M := K + 2 to KeptCount[I] - 2 do
-        CheckIntersect(I, Kept[I,K], Kept[I,K+1], I, Kept[I,M], Kept[I,M+1]);
-
-  //Test intersections with other outlines
-  for I := 0 to fOut.Count - 1 do for K := 0 to KeptCount[I] - 2 do
-    for L := I + 1 to fOut.Count - 1 do for M := 0 to KeptCount[L] - 2 do
-      CheckIntersect(I, Kept[I,K], Kept[I,K+1], L, Kept[L,M], Kept[L,M+1]);
-
-
-  for I := 0 to IntCount - 1 do
-    Simplify(Ints[I, 0],
-             Ints[I, 1],
-             Ints[I, 2],
-             1);
-
-  for I := 0 to fIn.Count - 1 do
-    WriteOutput(I);
+  WriteOutput;
 end;
 
 
@@ -510,13 +549,24 @@ end;
 
 
 procedure ForceOutlines(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArray);
+  procedure CheckAllPolysFaceUp;
+  var I: Integer;
+  begin
+    with aTriMesh do
+    for I := 0 to High(Polygons) do
+      Assert(KMNormal2Poly(Vertices[Polygons[I,0]], Vertices[Polygons[I,1]], Vertices[Polygons[I,2]]) >= 0);
+  end;
 var
   I, K: Integer;
 begin
   for I := 0 to fSimpleOutlines.Count - 1 do
     with fSimpleOutlines.Shape[I] do
       for K := 0 to Count - 1 do
+      begin
+        CheckAllPolysFaceUp;
         ForceEdge(aTriMesh, Nodes[K], Nodes[(K + 1) mod Count]);
+        CheckAllPolysFaceUp;
+      end;
 end;
 
 

@@ -381,7 +381,7 @@ begin
     fRawDelaunay.Polygons[I,2] := fDelaunay.Triangle^[I].vv2;
   end;
 
-  {ForceOutlines(fRawDelaunay, fSimpleOutlines);
+  ForceOutlines(fRawDelaunay, fSimpleOutlines);
 
   RemoveObstaclePolies(fRawDelaunay, fSimpleOutlines);
 

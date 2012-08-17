@@ -87,7 +87,7 @@ begin
     PathToMaps.Free;
   end;
 
-  Status(IntToStr(Count) + '/' + IntToStr(Total) + ' maps checked')
+  Status(IntToStr(Total - Count) + ' of ' + IntToStr(Total) + ' maps failed')
 end;
 
 
