@@ -1,0 +1,2 @@
+Todo:
+	Enforce tiles triangulation direction to NW-SE
