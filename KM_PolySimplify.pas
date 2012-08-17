@@ -529,10 +529,11 @@ begin
     if (Edges[0, K] > -1) and (Edges[1, K] > -1) then
     if (Edges[0, I] = Edges[1, K]) and (Edges[1, I] = Edges[0, K]) then
     begin
-      Edges[0, I] := -Edges[0, I];
-      Edges[1, I] := -Edges[1, I];
-      Edges[0, K] := -Edges[0, K];
-      Edges[1, K] := -Edges[1, K];
+      //Discard edges (but keep their value for debug. 0 becomes -1000)
+      Edges[0, I] := -1000 - Edges[0, I];
+      Edges[1, I] := -1000 - Edges[1, I];
+      Edges[0, K] := -1000 - Edges[0, K];
+      Edges[1, K] := -1000 - Edges[1, K];
     end;
 
     //Assemble two polygons on Edge sides
