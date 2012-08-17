@@ -195,6 +195,7 @@ procedure TKMGameApp.ToggleLocale(aLocale: ShortString);
 begin
   Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
+  fTimerUI.Enabled := False; //Disable it while switching, if an OpenAL error appears the timer should be disabled
   fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
 
   //Release resources that use Locale info
@@ -217,6 +218,7 @@ begin
   fMainMenuInterface := TKMMainMenuInterface.Create(fRender.ScreenX, fRender.ScreenY);
   fMainMenuInterface.ShowScreen(msOptions);
   Resize(fRender.ScreenX, fRender.ScreenY); //Force the recreated main menu to resize to the user's screen
+  fTimerUI.Enabled := True; //Safe to enable the timer again
 end;
 
 
@@ -603,6 +605,7 @@ procedure TKMGameApp.Render;
 begin
   if SKIP_RENDER then Exit;
   if fRender.Blind then Exit;
+  if not fTimerUI.Enabled then Exit; //Don't render while toggling locale
 
   fRender.BeginFrame;
 
