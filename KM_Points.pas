@@ -75,7 +75,7 @@ type
   function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single;
   function KMInBetween(A,B,X:single): boolean;
   function KMSegmentsIntersect(A, B, C, D: TKMPointI): Boolean;
-  function KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; var PolyCount: Integer; var Polys: array of Word): Boolean;
+  //procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; var PolyCount: Integer; var Polys: array of Word);
 
   function GetLength(A, B: TKMPoint): Single; overload;
   function GetLength(A, B: TKMPointF): Single; overload;
@@ -443,7 +443,8 @@ begin
 end;
 
 
-function KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; var PolyCount: Integer; var Polys: array of Word): Boolean;
+//This function has a bug, it fails to triangulate W-shaped polygon
+procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; var PolyCount: Integer; var Polys: array of Word);
 var
   LoopCount: Integer;
   n0,n1,n2:integer;
@@ -463,11 +464,11 @@ begin
     //Find 3 aligned unused vertices starting from LastVtx
     TripletFound := False;
     n0 := -1;  n1 := -1;  n2 := -1;
-    for I := LastVtx to LastVtx + VerticeCount - 1 - 2 do
+    for I := LastVtx to LastVtx + VerticeCount - 1 - 2 do //Keep last 2 points for n1/n2
     if Skip[I mod VerticeCount] = 0 then
     begin
       n0 := I mod VerticeCount;
-      for K := I + 1 to LastVtx + VerticeCount - 1 - 1 do
+      for K := I + 1 to LastVtx + VerticeCount - 1 - 1 do //Keep last 1 point for n2
       if Skip[K mod VerticeCount] = 0 then
       begin
         n1 := K mod VerticeCount;
@@ -483,7 +484,9 @@ begin
       Break;
     end;
 
-    if not TripletFound then Break; //There are no triplets left, our task is done
+    //There are no triplets left, our task is done
+    if not TripletFound then
+      Break;
 
     //Check which direction poly is facing, should be Down (depends on vertice order and coords system)
     ValidPoly := KMNormal2Poly(Vertice[n0], Vertice[n1], Vertice[n2]) > 0;
@@ -513,7 +516,8 @@ begin
     Inc(LoopCount);
   until(LoopCount=1500); //How long to keep looking for more polys
 
-  Result := PolyCount = VerticeCount - 2;
+  Assert(LoopCount < 1500, 'Triangulation failed');
+  Assert(PolyCount = VerticeCount - 2, 'Triangulation failed');
 end;
 
 

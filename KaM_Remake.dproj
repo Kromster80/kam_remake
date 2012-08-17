@@ -105,6 +105,7 @@
 			<DCCReference Include="KM_FormLoading.pas">
 				<Form>FormLoading</Form>
 			</DCCReference>
+			<DCCReference Include="poly_unit.pas"/>
 			<DCCReference Include="KM_AI.pas"/>
 			<DCCReference Include="KM_AIAttacks.pas"/>
 			<DCCReference Include="KM_AIDefensePos.pas"/>
@@ -186,6 +187,7 @@
 			<DCCReference Include="KM_Sound.pas"/>
 			<DCCReference Include="KM_Terrain.pas"/>
 			<DCCReference Include="KM_TextLibrary.pas"/>
+			<DCCReference Include="KM_Triangulate.pas"/>
 			<DCCReference Include="KM_UnitActionAbandonWalk.pas"/>
 			<DCCReference Include="KM_UnitActionFight.pas"/>
 			<DCCReference Include="KM_UnitActionGoInOut.pas"/>

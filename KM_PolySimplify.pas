@@ -53,7 +53,7 @@ procedure RemoveDegenerates(var aTriMesh: TKMTriMesh);
 
 
 implementation
-uses KM_CommonTypes, KromUtils;
+uses KM_CommonTypes, KromUtils, KM_Triangulate;
 
 
 constructor TKMSimplifyShapes.Create(aError: Single; aRect: TKMRect);
@@ -435,15 +435,15 @@ var
   end;
 
   procedure TriangulateLoop;
-  var L: Integer; V: TKMPointArray; PCount: Integer; Pols: array of Word; Res: Boolean;
+  var L: Integer; V: TKMPointArray; PCount: Word; Pols: array of Word;
   begin
     SetLength(V, LoopCount);
     SetLength(Pols, (LoopCount - 2) * 3);
     for L := 0 to LoopCount - 1 do
       V[L] := aTriMesh.Vertices[Loop[L]];
 
-    Res := KMTriangulate(LoopCount, V, PCount, Pols);
-    Assert(Res, 'Triangulation failed');
+    //KMTriangulate(LoopCount, V, PCount, Pols);
+    PolyTriangulate(V, LoopCount, Pols, PCount);
 
     for L := 0 to PCount - 1 do
     begin
