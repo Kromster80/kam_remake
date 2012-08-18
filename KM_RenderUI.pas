@@ -69,9 +69,11 @@ end;
 
 procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
 var
-  a,b:TKMPointF;
-  InsetX,InsetY:single;
-  c1,c2:byte;
+  Down: Byte;
+  Chamfer: Byte;
+  A,B: TKMPointF;
+  InsetX,InsetY: Single;
+  c1,c2: Byte;
   BackRX: TRXType;
   BackID: Word;
 begin
@@ -85,18 +87,20 @@ begin
     BackID := 402; //Gui-402 is a stone background
   end;
 
+  Down := Byte(bsDown in State);
+
   with GFXData[BackRX,BackID] do
   with GFXData[BackRX,BackID].Tex do
   if PxWidth*PxHeight<>0 then //Make sure data was loaded properly
   begin
-    a.x := u1 + (u2-u1) * (PosX         - byte(bsDown in State)) /2/ PxWidth;
-    b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bsDown in State)) /2/ PxWidth;
-    a.y := v1 + (v2-v1) * (PosY         - byte(bsDown in State)) /2/ PxHeight;
-    b.y := v1 + (v2-v1) * (PosY + SizeY - byte(bsDown in State)) /2/ PxHeight;
-    a.x := a.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2; b.x := b.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2;
-    a.y := a.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2; b.y := b.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2;
-    a.x := EnsureRange(a.x,u1,u2); b.x := EnsureRange(b.x,u1,u2);
-    a.y := EnsureRange(a.y,v1,v2); b.y := EnsureRange(b.y,v1,v2);
+    A.x := u1 + (u2-u1) * (PosX         - Down) /2/ PxWidth;
+    B.x := u1 + (u2-u1) * (PosX + SizeX - Down) /2/ PxWidth;
+    A.y := v1 + (v2-v1) * (PosY         - Down) /2/ PxHeight;
+    B.y := v1 + (v2-v1) * (PosY + SizeY - Down) /2/ PxHeight;
+    A.x := A.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2; B.x := B.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2;
+    A.y := A.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2; B.y := B.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2;
+    A.x := EnsureRange(A.x,u1,u2); B.x := EnsureRange(B.x,u1,u2);
+    A.y := EnsureRange(A.y,v1,v2); B.y := EnsureRange(B.y,v1,v2);
   end;
 
   glPushMatrix;
@@ -106,24 +110,24 @@ begin
       glColor4f(1,1,1,1);
       glBindTexture(GL_TEXTURE_2D, GFXData[BackRX,BackID].Tex.ID);
       glBegin(GL_QUADS);
-        glTexCoord2f(a.x,a.y); glVertex2f(0,0);
-        glTexCoord2f(b.x,a.y); glVertex2f(SizeX,0);
-        glTexCoord2f(b.x,b.y); glVertex2f(SizeX,SizeY);
-        glTexCoord2f(a.x,b.y); glVertex2f(0,SizeY);
+        glTexCoord2f(A.x,A.y); glVertex2f(0,0);
+        glTexCoord2f(B.x,A.y); glVertex2f(SizeX,0);
+        glTexCoord2f(B.x,B.y); glVertex2f(SizeX,SizeY);
+        glTexCoord2f(A.x,B.y); glVertex2f(0,SizeY);
       glEnd;
 
       //Render beveled edges
       glBindTexture(GL_TEXTURE_2D, 0);
-      if bsDown in State then begin
-        c1:=0; c2:=1; //Quick way to invert bevel lighting
-      end else begin
-        c1:=1; c2:=0;
-      end;
+
+      c1 := 1 - Down;
+      c2 := Down;
+      Chamfer := 2 + Byte(Min(SizeX, SizeY) > 25);
+
       glPushMatrix;
         //Scale to save on XY+/-Inset coordinates calculations
-        glScalef(SizeX,SizeY,0);
-        InsetX := 3/SizeX; //3px
-        InsetY := 3/SizeY; //3px
+        glScalef(SizeX, SizeY, 0);
+        InsetX := Chamfer / SizeX;
+        InsetY := Chamfer / SizeY;
         glBegin(GL_QUADS);
           glColor4f(c1,c1,c1,0.7); glkQuad(0, 0, 1,        0,        1-InsetX, 0+InsetY, 0+InsetX, 0+InsetY);
           glColor4f(c1,c1,c1,0.6); glkQuad(0, 0, 0+InsetX, 0+InsetY, 0+InsetX, 1-InsetY, 0,        1       );
@@ -136,8 +140,8 @@ begin
     if aID <> 0 then
     begin
       glColor4f(1,1,1,1);
-      WritePicture((SizeX-GFXData[aRX,aID].PxWidth ) div 2 + Byte(bsDown in State),
-                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 + Byte(bsDown in State), aRX, aID, aFlagColor);
+      WritePicture((SizeX-GFXData[aRX,aID].PxWidth ) div 2 + Down,
+                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 + Down, aRX, aID, aFlagColor);
     end;
 
     //Render MouseOver highlight
