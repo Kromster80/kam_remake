@@ -35,7 +35,7 @@ type
     mk_KickPlayer,      //Host askes the server to kick someone
     mk_Kicked,          //Server tells a client they were kicked just before disconnecting then
     mk_LangCode,        //Client tells host his language code
-    mk_GameCRC,         //Client tells host his CRC of main data files
+    mk_GameCRC,         //Host tells a joining client CRC of main data files so he can decide whether to join
 
     mk_GetServerInfo,   //Client askes for server for the server details (for querying)
     mk_ServerInfo,      //Server sends client the server info on request

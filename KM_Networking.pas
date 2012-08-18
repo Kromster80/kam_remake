@@ -1023,7 +1023,7 @@ begin
                 ReMsg := 'Cannot join while the game is in progress';
               if ReMsg = '' then
               begin
-                PacketSend(NET_ADDRESS_OTHERS, mk_GameCRC, '', Integer(CalculateGameCRC));
+                PacketSend(aSenderIndex, mk_GameCRC, '', Integer(CalculateGameCRC));
                 fNetPlayers.AddPlayer(Msg, aSenderIndex);
                 PacketSend(aSenderIndex, mk_AllowToJoin, '', 0);
                 SendMapOrSave; //Send the map first so it doesn't override starting locs
