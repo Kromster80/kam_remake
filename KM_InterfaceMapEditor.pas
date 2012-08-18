@@ -477,11 +477,11 @@ begin
   Panel_Common := TKMPanel.Create(Panel_Main,0,300,224,768);
 
     {5 big tabs}
-    Button_Main[1] := TKMButton.Create(Panel_Common,   8, 72, 36, 36, 381);
-    Button_Main[2] := TKMButton.Create(Panel_Common,  46, 72, 36, 36, 368);
-    Button_Main[3] := TKMButton.Create(Panel_Common,  84, 72, 36, 36,  41);
-    Button_Main[4] := TKMButton.Create(Panel_Common, 122, 72, 36, 36, 441);
-    Button_Main[5] := TKMButton.Create(Panel_Common, 160, 72, 36, 36, 389);
+    Button_Main[1] := TKMButton.Create(Panel_Common,   8, 72, 36, 36, 381, rxGui, bsGame);
+    Button_Main[2] := TKMButton.Create(Panel_Common,  46, 72, 36, 36, 368, rxGui, bsGame);
+    Button_Main[3] := TKMButton.Create(Panel_Common,  84, 72, 36, 36,  41, rxGui, bsGame);
+    Button_Main[4] := TKMButton.Create(Panel_Common, 122, 72, 36, 36, 441, rxGui, bsGame);
+    Button_Main[5] := TKMButton.Create(Panel_Common, 160, 72, 36, 36, 389, rxGui, bsGame);
     Button_Main[1].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN];
     Button_Main[2].Hint := fTextLibrary[TX_MAPEDITOR_VILLAGE];
     Button_Main[3].Hint := fTextLibrary[TX_MAPEDITOR_SCRIPTS_VISUAL];
@@ -539,10 +539,10 @@ procedure TKMapEdInterface.Create_Terrain_Page;
 var i,k:Integer;
 begin
   Panel_Terrain := TKMPanel.Create(Panel_Common,0,128,196,28);
-    Button_Terrain[1] := TKMButton.Create(Panel_Terrain,   8, 4, 36, 24, 383);
-    Button_Terrain[2] := TKMButton.Create(Panel_Terrain,  48, 4, 36, 24, 388);
-    Button_Terrain[3] := TKMButton.Create(Panel_Terrain,  88, 4, 36, 24, 382);
-    Button_Terrain[4] := TKMButton.Create(Panel_Terrain, 128, 4, 36, 24, 385);
+    Button_Terrain[1] := TKMButton.Create(Panel_Terrain,   8, 4, 36, 24, 383, rxGui, bsGame);
+    Button_Terrain[2] := TKMButton.Create(Panel_Terrain,  48, 4, 36, 24, 388, rxGui, bsGame);
+    Button_Terrain[3] := TKMButton.Create(Panel_Terrain,  88, 4, 36, 24, 382, rxGui, bsGame);
+    Button_Terrain[4] := TKMButton.Create(Panel_Terrain, 128, 4, 36, 24, 385, rxGui, bsGame);
     for i:=1 to 4 do Button_Terrain[i].OnClick := SwitchPage;
 
     Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,196,400);
@@ -629,7 +629,7 @@ begin
 
     for VT := Low(TKMVillageTab) to High(TKMVillageTab) do
     begin
-      Button_Village[VT] := TKMButton.Create(Panel_Village, Byte(VT) * 40 + 8, 4, 36, 24, VillageTabIcon[VT]);
+      Button_Village[VT] := TKMButton.Create(Panel_Village, Byte(VT) * 40 + 8, 4, 36, 24, VillageTabIcon[VT], rxGui, bsGame);
       Button_Village[VT].OnClick := SwitchPage;
     end;
 
@@ -697,7 +697,7 @@ begin
 
     Panel_Defence := TKMPanel.Create(Panel_Village, 0, 28, 196, 400);
       TKMLabel.Create(Panel_Defence, 100, 10, 184, 0, 'Defence', fnt_Outline, taCenter);
-      List_Defences := TKMListBox.Create(Panel_Defence, 8, 30, 180, 160, fnt_Grey);
+      List_Defences := TKMListBox.Create(Panel_Defence, 8, 30, 180, 160, fnt_Grey, bsGame);
       List_Defences.OnDoubleClick := Defence_ItemClicked;
 end;
 
@@ -706,9 +706,9 @@ procedure TKMapEdInterface.Create_Player_Page;
 var I: Integer; Col: array [0..255] of TColor4;
 begin
   Panel_Player := TKMPanel.Create(Panel_Common,0,128,196,28);
-    Button_Player[1] := TKMButton.Create(Panel_Player,   8, 4, 36, 24,  41);
-    Button_Player[2] := TKMButton.Create(Panel_Player,  48, 4, 36, 24, 382);
-    Button_Player[3] := TKMButton.Create(Panel_Player,  88, 4, 36, 24,  38);
+    Button_Player[1] := TKMButton.Create(Panel_Player,   8, 4, 36, 24,  41, rxGui, bsGame);
+    Button_Player[2] := TKMButton.Create(Panel_Player,  48, 4, 36, 24, 382, rxGui, bsGame);
+    Button_Player[3] := TKMButton.Create(Panel_Player,  88, 4, 36, 24,  38, rxGui, bsGame);
     for I := 1 to 3 do Button_Player[I].OnClick := SwitchPage;
 
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,196,400);
@@ -742,8 +742,8 @@ procedure TKMapEdInterface.Create_Mission_Page;
 var i,k:Integer;
 begin
   Panel_Mission := TKMPanel.Create(Panel_Common,0,128,196,28);
-    Button_Mission[1] := TKMButton.Create(Panel_Mission,  8, 4, 36, 24, 41);
-    Button_Mission[2] := TKMButton.Create(Panel_Mission, 48, 4, 36, 24, 41);
+    Button_Mission[1] := TKMButton.Create(Panel_Mission,  8, 4, 36, 24, 41, rxGui, bsGame);
+    Button_Mission[2] := TKMButton.Create(Panel_Mission, 48, 4, 36, 24, 41, rxGui, bsGame);
     for i:=1 to 2 do Button_Mission[i].OnClick := SwitchPage;
 
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,196,400);
@@ -787,16 +787,16 @@ end;
 procedure TKMapEdInterface.Create_Menu_Page;
 begin
   Panel_Menu:=TKMPanel.Create(Panel_Common,0,128,196,400);
-    Button_Menu_Save:=TKMButton.Create(Panel_Menu,8,20,180,30,fTextLibrary[TX_MENU_SAVE_GAME],fnt_Metal);
+    Button_Menu_Save:=TKMButton.Create(Panel_Menu,8,20,180,30,fTextLibrary[TX_MENU_SAVE_GAME],bsGame);
     Button_Menu_Save.OnClick:=SwitchPage;
     Button_Menu_Save.Hint:=fTextLibrary[TX_MENU_SAVE_GAME];
-    Button_Menu_Load:=TKMButton.Create(Panel_Menu,8,60,180,30,fTextLibrary[TX_MENU_LOAD_GAME],fnt_Metal);
+    Button_Menu_Load:=TKMButton.Create(Panel_Menu,8,60,180,30,fTextLibrary[TX_MENU_LOAD_GAME],bsGame);
     Button_Menu_Load.OnClick:=SwitchPage;
     Button_Menu_Load.Hint:=fTextLibrary[TX_MENU_LOAD_GAME];
-    Button_Menu_Settings:=TKMButton.Create(Panel_Menu,8,100,180,30,fTextLibrary[TX_MENU_SETTINGS],fnt_Metal);
+    Button_Menu_Settings:=TKMButton.Create(Panel_Menu,8,100,180,30,fTextLibrary[TX_MENU_SETTINGS],bsGame);
     Button_Menu_Settings.Hint:=fTextLibrary[TX_MENU_SETTINGS];
     Button_Menu_Settings.Disable;
-    Button_Menu_Quit:=TKMButton.Create(Panel_Menu,8,180,180,30,fTextLibrary[TX_MENU_QUIT_MAPED],fnt_Metal);
+    Button_Menu_Quit:=TKMButton.Create(Panel_Menu,8,180,180,30,fTextLibrary[TX_MENU_QUIT_MAPED],bsGame);
     Button_Menu_Quit.Hint:=fTextLibrary[TX_MENU_QUIT_MAPED];
     Button_Menu_Quit.OnClick:=SwitchPage;
 end;
@@ -817,8 +817,8 @@ begin
     Edit_SaveName.AllowedChars := acFileName;
     Label_SaveExists    := TKMLabel.Create(Panel_Save,100,140,184,0,'Map already exists',fnt_Outline,taCenter);
     CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,8,160,180,20,'Overwrite', fnt_Metal);
-    Button_SaveSave     := TKMButton.Create(Panel_Save,8,180,180,30,'Save',fnt_Metal);
-    Button_SaveCancel   := TKMButton.Create(Panel_Save,8,220,180,30,'Cancel',fnt_Metal);
+    Button_SaveSave     := TKMButton.Create(Panel_Save,8,180,180,30,'Save',bsGame);
+    Button_SaveCancel   := TKMButton.Create(Panel_Save,8,220,180,30,'Cancel',bsGame);
     Edit_SaveName.OnChange      := Menu_Save;
     CheckBox_SaveExists.OnClick := Menu_Save;
     Button_SaveSave.OnClick     := Menu_Save;
@@ -837,10 +837,10 @@ begin
     Radio_Load_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
     Radio_Load_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Load_MapType.OnChange := Load_MapTypeChange;
-    ListBox_Load := TKMListBox.Create(Panel_Load, 8, 75, 184, 205, fnt_Grey);
+    ListBox_Load := TKMListBox.Create(Panel_Load, 8, 75, 184, 205, fnt_Grey, bsGame);
     ListBox_Load.ItemHeight := 18;
-    Button_LoadLoad     := TKMButton.Create(Panel_Load,8,290,184,30,'Load',fnt_Metal);
-    Button_LoadCancel   := TKMButton.Create(Panel_Load,8,325,184,30,'Cancel',fnt_Metal);
+    Button_LoadLoad     := TKMButton.Create(Panel_Load,8,290,184,30,'Load',bsGame);
+    Button_LoadCancel   := TKMButton.Create(Panel_Load,8,325,184,30,'Cancel',bsGame);
     Button_LoadLoad.OnClick     := Menu_Load;
     Button_LoadCancel.OnClick   := SwitchPage;
 end;
@@ -851,8 +851,8 @@ procedure TKMapEdInterface.Create_MenuQuit_Page;
 begin
   Panel_Quit:=TKMPanel.Create(Panel_Common,0,128,200,400);
     TKMLabel.Create(Panel_Quit,100,40,184,60,'Any unsaved|changes will be lost',fnt_Outline,taCenter);
-    Button_Quit_Yes   := TKMButton.Create(Panel_Quit,8,100,180,30,fTextLibrary[TX_MENU_QUIT_MISSION],fnt_Metal);
-    Button_Quit_No    := TKMButton.Create(Panel_Quit,8,140,180,30,fTextLibrary[TX_MENU_DONT_QUIT_MISSION],fnt_Metal);
+    Button_Quit_Yes   := TKMButton.Create(Panel_Quit,8,100,180,30,fTextLibrary[TX_MENU_QUIT_MISSION],bsGame);
+    Button_Quit_No    := TKMButton.Create(Panel_Quit,8,140,180,30,fTextLibrary[TX_MENU_DONT_QUIT_MISSION],bsGame);
     Button_Quit_Yes.Hint      := fTextLibrary[TX_MENU_QUIT_MISSION];
     Button_Quit_No.Hint       := fTextLibrary[TX_MENU_DONT_QUIT_MISSION];
     Button_Quit_Yes.OnClick   := Menu_QuitMission;
@@ -871,20 +871,20 @@ begin
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
 
   Panel_Army:=TKMPanel.Create(Panel_Unit,0,160,200,400);
-    Button_Army_RotCCW   := TKMButton.Create(Panel_Army,  8, 0, 56, 40, 23);
-    Button_Army_RotCW  := TKMButton.Create(Panel_Army,132, 0, 56, 40, 24);
-    Button_Army_ForUp   := TKMButton.Create(Panel_Army,  8, 46, 56, 40, 33);
+    Button_Army_RotCCW   := TKMButton.Create(Panel_Army,  8, 0, 56, 40, 23, rxGui, bsGame);
+    Button_Army_RotCW  := TKMButton.Create(Panel_Army,132, 0, 56, 40, 24, rxGui, bsGame);
+    Button_Army_ForUp   := TKMButton.Create(Panel_Army,  8, 46, 56, 40, 33, rxGui, bsGame);
     ImageStack_Army     := TKMImageStack.Create(Panel_Army, 70, 46, 56, 40, 43, 50);
     Label_ArmyCount     := TKMLabel.Create(Panel_Army, 98, 60, 0, 0, '-', fnt_Outline, taCenter);
-    Button_Army_ForDown := TKMButton.Create(Panel_Army,132, 46, 56, 40, 32);
+    Button_Army_ForDown := TKMButton.Create(Panel_Army,132, 46, 56, 40, 32, rxGui, bsGame);
     Button_Army_RotCW.OnClick   := Unit_ArmyChange1;
     Button_Army_RotCCW.OnClick  := Unit_ArmyChange1;
     Button_Army_ForUp.OnClick   := Unit_ArmyChange1;
     Button_Army_ForDown.OnClick := Unit_ArmyChange1;
 
-    Button_ArmyDec      := TKMButton.Create(Panel_Army,  8,92,56,40,'-', fnt_Metal);
-    Button_ArmyFood     := TKMButton.Create(Panel_Army, 70,92,56,40,29);
-    Button_ArmyInc      := TKMButton.Create(Panel_Army,132,92,56,40,'+', fnt_Metal);
+    Button_ArmyDec      := TKMButton.Create(Panel_Army,  8,92,56,40,'-', bsGame);
+    Button_ArmyFood     := TKMButton.Create(Panel_Army, 70,92,56,40,29, rxGui, bsGame);
+    Button_ArmyInc      := TKMButton.Create(Panel_Army,132,92,56,40,'+', bsGame);
     Button_ArmyDec.OnClickEither := Unit_ArmyChange2;
     Button_ArmyFood.OnClick := Unit_ArmyChange1;
     Button_ArmyInc.OnClickEither := Unit_ArmyChange2;
@@ -904,8 +904,8 @@ begin
     Label_HouseHealth := TKMLabel.Create(Panel_House,130,41,60,20,fTextLibrary[TX_HOUSE_CONDITION],fnt_Mini,taCenter);
     Label_HouseHealth.FontColor := $FFE0E0E0;
     KMHealthBar_House := TKMPercentBar.Create(Panel_House,100,53,60,20);
-    Button_HouseHealthDec := TKMButton.Create(Panel_House,80,53,20,20,'-', fnt_Metal);
-    Button_HouseHealthInc := TKMButton.Create(Panel_House,160,53,20,20,'+', fnt_Metal);
+    Button_HouseHealthDec := TKMButton.Create(Panel_House,80,53,20,20,'-', bsGame);
+    Button_HouseHealthInc := TKMButton.Create(Panel_House,160,53,20,20,'+', bsGame);
     Button_HouseHealthDec.OnClickEither := House_HealthChange;
     Button_HouseHealthInc.OnClickEither := House_HealthChange;
 end;
@@ -925,14 +925,14 @@ begin
       Button_Store[I].OnClick := Store_SelectWare;
     end;
 
-    Button_StoreDec100      := TKMButton.Create(Panel_HouseStore,116,218,20,20,'<', fnt_Metal);
+    Button_StoreDec100      := TKMButton.Create(Panel_HouseStore,116,218,20,20,'<', bsGame);
     Button_StoreDec100.Tag  := 100;
-    Button_StoreDec       := TKMButton.Create(Panel_HouseStore,116,238,20,20,'-', fnt_Metal);
+    Button_StoreDec       := TKMButton.Create(Panel_HouseStore,116,238,20,20,'-', bsGame);
     Button_StoreDec.Tag   := 1;
     Label_Store_WareCount:= TKMLabel.Create (Panel_HouseStore,156,230,40,20,'',fnt_Metal,taCenter);
-    Button_StoreInc100      := TKMButton.Create(Panel_HouseStore,176,218,20,20,'>', fnt_Metal);
+    Button_StoreInc100      := TKMButton.Create(Panel_HouseStore,176,218,20,20,'>', bsGame);
     Button_StoreInc100.Tag  := 100;
-    Button_StoreInc       := TKMButton.Create(Panel_HouseStore,176,238,20,20,'+', fnt_Metal);
+    Button_StoreInc       := TKMButton.Create(Panel_HouseStore,176,238,20,20,'+', bsGame);
     Button_StoreInc.Tag   := 1;
     Button_StoreDec100.OnClickEither := Store_EditWareCount;
     Button_StoreDec.OnClickEither    := Store_EditWareCount;
@@ -957,14 +957,14 @@ begin
       Button_Barracks[i].Hint := fResource.Resources[BarracksResType[i]].Title;
       Button_Barracks[i].OnClick := Barracks_SelectWare;
     end;
-    Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,116,218,20,20,'<', fnt_Metal);
+    Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,116,218,20,20,'<', bsGame);
     Button_BarracksDec100.Tag := 100;
-    Button_BarracksDec      := TKMButton.Create(Panel_HouseBarracks,116,238,20,20,'-', fnt_Metal);
+    Button_BarracksDec      := TKMButton.Create(Panel_HouseBarracks,116,238,20,20,'-', bsGame);
     Button_BarracksDec.Tag  := 1;
     Label_Barracks_WareCount:= TKMLabel.Create (Panel_HouseBarracks,156,230,40,20,'',fnt_Metal,taCenter);
-    Button_BarracksInc100     := TKMButton.Create(Panel_HouseBarracks,176,218,20,20,'>', fnt_Metal);
+    Button_BarracksInc100     := TKMButton.Create(Panel_HouseBarracks,176,218,20,20,'>', bsGame);
     Button_BarracksInc100.Tag := 100;
-    Button_BarracksInc      := TKMButton.Create(Panel_HouseBarracks,176,238,20,20,'+', fnt_Metal);
+    Button_BarracksInc      := TKMButton.Create(Panel_HouseBarracks,176,238,20,20,'+', bsGame);
     Button_BarracksInc.Tag  := 1;
     Button_BarracksDec100.OnClickEither := Barracks_EditWareCount;
     Button_BarracksDec.OnClickEither    := Barracks_EditWareCount;
