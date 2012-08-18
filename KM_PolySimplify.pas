@@ -33,9 +33,10 @@ type
     procedure SetupOutputArray;
     procedure FixDegenerateShapes;
     procedure FixIntersectingShapes;
+    procedure SimplifyShapes;
   public
     constructor Create(aError: Single; aRect: TKMRect);
-    procedure SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
+    procedure Execute(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
   end;
 
 //Simplify shapes by removing unnecessary points from straight lines
@@ -72,17 +73,18 @@ var
   MaxDistSqr: Single;
   NodeDistSqr, TestDot, Tmp: Single;
   DistSqr: Single;
-  Node1, Node2: TKMPointF;
-  TestPos, NodeVect, TestVect: TKMPointF;
-  TestP: TKMPointF;
+  Node1, Node2: TKMPointI;
+  TestPos: TKMPointF;
+  NodeVect, TestVect: TKMPointI;
+  TestP: TKMPointI;
 begin
   InLoop := fIn.Shape[aShape].Nodes;
 
   //There is nothing to simplify
   if aTo <= aFrom + 1 then Exit;
 
-  Node1 := KMPointF(InLoop[aFrom]);
-  Node2 := KMPointF(InLoop[aTo mod Length(InLoop)]);
+  Node1 := InLoop[aFrom];
+  Node2 := InLoop[aTo mod Length(InLoop)];
   NodeVect := KMVectorDiff(Node2, Node1);
   NodeDistSqr := KMDistanceSqr(Node2, Node1);
   MaxDistI := 0;
@@ -91,7 +93,7 @@ begin
   //Check all points and pick farthest away
   for I := aFrom + 1 to aTo - 1 do
   begin
-    TestP := KMPointF(InLoop[I]);
+    TestP := InLoop[I];
 
     TestVect := KMVectorDiff(TestP, Node1);
     TestDot := KMDotProduct(TestVect, NodeVect);
@@ -108,9 +110,10 @@ begin
         Tmp := TestDot / NodeDistSqr
       else
         Tmp := 0;
+      //TestPos is projected on to the line and thus needs FloatingPoint position
       TestPos.X := Node1.X + Tmp * NodeVect.X;
       TestPos.Y := Node1.Y + Tmp * NodeVect.Y;
-      DistSqr := KMDistanceSqr(TestP, TestPos);
+      DistSqr := KMDistanceSqr(KMPointF(TestP), TestPos); //
     end;
 
     //Pick farthest point
@@ -121,8 +124,9 @@ begin
     end;
   end;
 
-  //See if we need to split once again due to Error or too long span
-  if (MaxDistSqr > aErrorSqr) or (aTo - aFrom > 12) or (aForceSplit) then
+  //See if we need to split once again due to Error, too long span or forced
+  //irregardless of cause - split by farthest point
+  if (MaxDistSqr > aErrorSqr) or (KMLengthSqr(Node1, Node2) > Sqr(12)) or aForceSplit then
   begin
     fKeep[aShape, MaxDistI] := True;
 
@@ -151,6 +155,19 @@ begin
     //We use Sqr values for all comparisons for speedup
     Simplify(aShape, Prev, I, Sqr(fError));
     Prev := I;
+  end;
+end;
+
+
+//Simplify all the shapes
+procedure TKMSimplifyShapes.SimplifyShapes;
+var
+  I: Integer;
+begin
+  for I := 0 to fIn.Count - 1 do
+  begin
+    Assert(fIn.Shape[I].Count > 3, 'There''s nothing to simplify?');
+    PolySimplify(I);
   end;
 end;
 
@@ -248,6 +265,7 @@ var
     for I := 0 to fIn.Count - 1 do
     begin
       KeptCount[I] := 0;
+      //We need to store last point to be able to simplify last segment
       SetLength(Kept[I], fIn.Shape[I].Count + 1);
       for K := 0 to fIn.Shape[I].Count do
         if fKeep[I, K] then
@@ -258,6 +276,7 @@ var
     end;
   end;
 
+  //Segments should not intersect or touch except for the start/end
   procedure CheckIntersect(L1, N1, N2, L2, N3, N4: Integer);
   var A,B,C,D: TKMPointI;
   begin
@@ -265,11 +284,15 @@ var
     B := fIn.Shape[L1].Nodes[N2 mod fIn.Shape[L1].Count];
     C := fIn.Shape[L2].Nodes[N3 mod fIn.Shape[L2].Count];
     D := fIn.Shape[L2].Nodes[N4 mod fIn.Shape[L2].Count];
-    if KMSegmentsIntersect(A, B, C, D) then
+
+    if KMSamePoint(A, C) or KMSamePoint(A, D) or KMSamePoint(B, C) or KMSamePoint(B, D) then
+      Exit;
+
+    if KMSegmentsIntersectOrTouch(A, B, C, D) then
     begin
       //If outline intersects itself we split the longest segment
       if L1 = L2 then
-        if KMLengthSqr(A,B) > KMLengthSqr(C,D) then
+        if (N2 - N1) > (N4 - N3) then
         begin
           SetLength(Ints, IntCount + 1);
           Ints[IntCount, 0] := L1;
@@ -331,14 +354,13 @@ begin
                Ints[I, 2],
                Sqr(fError), True);
 
+    Inc(LoopCount);
     Assert(LoopCount <= 20, 'Can''t resolve intersections');
   until (IntCount = 0);
 end;
 
 
-procedure TKMSimplifyShapes.SimplifyShapes(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
-var
-  I: Integer;
+procedure TKMSimplifyShapes.Execute(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
 begin
   fIn := aIn;
   fOut := @aOut;
@@ -346,12 +368,7 @@ begin
   SetupOutputArray;
   SetupKeepArray;
 
-  //1. simplify all the shapes
-  for I := 0 to fIn.Count - 1 do
-  begin
-    Assert(fIn.Shape[I].Count > 3, 'There''s nothing to simplify?');
-    PolySimplify(I);
-  end;
+  SimplifyShapes;
   WriteOutput;
 
   FixDegenerateShapes;
@@ -567,11 +584,8 @@ begin
   for I := 0 to fSimpleOutlines.Count - 1 do
     with fSimpleOutlines.Shape[I] do
       for K := 0 to Count - 1 do
-      begin
-        CheckAllPolysFaceUp;
         ForceEdge(aTriMesh, Nodes[K], Nodes[(K + 1) mod Count]);
-        CheckAllPolysFaceUp;
-      end;
+  CheckAllPolysFaceUp;
 end;
 
 

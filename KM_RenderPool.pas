@@ -289,8 +289,8 @@ begin
     //Render as a red outline in map editor mode
     if fGame.IsMapEditor then
     begin
-      fRenderAux.Quad(pX+1, pY+1, $800000FF);
-      RenderCursorWireQuad(KMPoint(pX+1, pY+1), $FF0000FF);
+      fRenderAux.Quad(pX+1, pY+1, $600000FF);
+      RenderCursorWireQuad(KMPoint(pX+1, pY+1), $800000FF);
     end;
   end else begin
     R := fRXData[rxTrees];

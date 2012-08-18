@@ -318,7 +318,7 @@ begin
 
   with TKMSimplifyShapes.Create(2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1)) do
   begin
-    SimplifyShapes(fRawOutlines2, fSimpleOutlines);
+    Execute(fRawOutlines2, fSimpleOutlines);
     Free;
   end;
 
@@ -479,7 +479,7 @@ begin
       x2 := fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[J]].X;
       y2 := fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[J]].Y;
 
-      fRenderAux.Line(x1,y1,x2,y2, $FFFF8000);
+      fRenderAux.Line(x1,y1,x2,y2, $FFFF8000, $F0F0);
     end;
 
   //Simplified obstacle outlines
@@ -490,7 +490,7 @@ begin
     begin
       TX := Nodes[(K + 1) mod Count].X;
       TY := Nodes[(K + 1) mod Count].Y;
-      fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FF00FF00);
+      fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FF00FF00, $FF00);
     end;
 end;
 

@@ -18,7 +18,7 @@ type
     procedure Dot(X,Y: Single; aCol: TColor4);
     procedure DotOnTerrain(X,Y: Single; aCol: TColor4);
     procedure LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4);
-    procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4);
+    procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
     procedure Triangle(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Byte);
     procedure InfluenceMap(aRect: TKMRect; aInfl: Byte);
@@ -164,14 +164,18 @@ begin
 end;
 
 
-procedure TRenderAux.Line(X1,Y1,X2,Y2: Single; aCol: TColor4);
+procedure TRenderAux.Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word);
 begin
   glColor4ubv(@aCol);
+
+  glEnable(GL_LINE_STIPPLE);
+  glLineStipple(2, aPattern);
 
   glBegin(GL_LINES);
     glVertex2f(x1, y1);
     glVertex2f(x2, y2);
   glEnd;
+  glDisable(GL_LINE_STIPPLE);
 
   RenderDot(X1, Y1);
   RenderDot(X2, Y2);

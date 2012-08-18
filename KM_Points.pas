@@ -38,10 +38,11 @@ type
   function KMPointBelow(P:TKMPoint): TKMPoint; overload;
 
   function KMPointRound(const P: TKMPointF): TKMPoint;
-  function KMSamePoint(P1,P2:TKMPoint): boolean;
-  function KMSamePointF(P1,P2:TKMPointF): boolean; overload;
-  function KMSamePointF(P1,P2:TKMPointF; Epsilon:single): boolean; overload;
-  function KMSamePointDir(P1,P2:TKMPointDir): boolean;
+  function KMSamePoint(P1,P2: TKMPoint): Boolean; overload;
+  function KMSamePoint(P1,P2: TKMPointI): Boolean; overload;
+  function KMSamePointF(P1,P2: TKMPointF): Boolean; overload;
+  function KMSamePointF(P1,P2: TKMPointF; Epsilon:single): boolean; overload;
+  function KMSamePointDir(P1,P2: TKMPointDir): boolean;
 
   function KMRect(aLeft, aTop, aRight, aBottom: SmallInt): TKMRect; overload;
   function KMRect(aPoint: TKMPoint): TKMRect; overload;
@@ -68,13 +69,16 @@ type
   function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
   function KMStepIsDiag(const P1,P2:TKMPoint):boolean;
 
-  function KMVectorDiff(const A, B: TKMPointF): TKMPointF;
-  function KMDotProduct(const A, B: TKMPointF): Single;
-  function KMDistanceSqr(const A, B: TKMPointF): Single;
+  function KMVectorDiff(const A, B: TKMPointI): TKMPointI;
+  function KMDotProduct(const A, B: TKMPointI): Single;
+  function KMDistanceSqr(const A, B: TKMPointI): Single; overload;
+  function KMDistanceSqr(const A, B: TKMPointF): Single; overload;
+
   //Cross product of 2D vectors, pointed either Up or Down
   function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single;
   function KMInBetween(A,B,X:single): boolean;
   function KMSegmentsIntersect(A, B, C, D: TKMPointI): Boolean;
+  function KMSegmentsIntersectOrTouch(A, B, C, D: TKMPointI): Boolean;
   //procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; var PolyCount: Integer; var Polys: array of Word);
 
   function GetLength(A, B: TKMPoint): Single; overload;
@@ -172,13 +176,19 @@ begin
 end;
 
 
-function KMSamePoint(P1,P2: TKMPoint): boolean;
+function KMSamePoint(P1,P2: TKMPoint): Boolean;
 begin
   Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
 end;
 
 
-function KMSamePointF(P1,P2: TKMPointF): boolean;
+function KMSamePoint(P1,P2: TKMPointI): Boolean;
+begin
+  Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
+end;
+
+
+function KMSamePointF(P1,P2: TKMPointF): Boolean;
 begin
   Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
 end;
@@ -388,16 +398,22 @@ begin
 end;
 
 
-function KMVectorDiff(const A, B: TKMPointF): TKMPointF;
+function KMVectorDiff(const A, B: TKMPointI): TKMPointI;
 begin
   Result.X := A.X - B.X;
   Result.Y := A.Y - B.Y;
 end;
 
 
-function KMDotProduct(const A, B: TKMPointF): Single;
+function KMDotProduct(const A, B: TKMPointI): Single;
 begin
   Result := A.X * B.X + A.Y * B.Y;
+end;
+
+
+function KMDistanceSqr(const A, B: TKMPointI): Single;
+begin
+  Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
 end;
 
 
@@ -439,7 +455,24 @@ begin
   S := (-ABy * (A.x - C.x) + ABx * (A.y - C.y)) / D2;
   T := ( CDx * (A.y - C.y) - CDy * (A.x - C.x)) / D2;
 
-  Result := (S > 0) and (S < 1) and (T > 0) and(T < 1);
+  Result := (S > 0) and (S < 1) and (T > 0) and (T < 1);
+end;
+
+
+function KMSegmentsIntersectOrTouch(A, B, C, D: TKMPointI): Boolean;
+var
+  ABx, ABy, CDx, CDy: Single;
+  D2, S, T: Single;
+begin
+  ABx := B.x - A.x;     ABy := B.y - A.y;
+  CDx := D.x - C.x;     CDy := D.y - C.y;
+
+  D2 := -CDx * ABy + ABx * CDy;
+
+  S := (-ABy * (A.x - C.x) + ABx * (A.y - C.y)) / D2;
+  T := ( CDx * (A.y - C.y) - CDy * (A.x - C.x)) / D2;
+
+  Result := (S >= 0) and (S <= 1) and (T >= 0) and (T <= 1);
 end;
 
 
@@ -539,7 +572,7 @@ begin
   if Abs(A.X-B.X) > Abs(A.Y-B.Y) then
     Result := Abs(A.X-B.X) + Abs(A.Y-B.Y) * 0.41
   else
-    Result := Abs(A.Y-B.Y) + Abs(A.X-B.X) * 0.41
+    Result := Abs(A.Y-B.Y) + Abs(A.X-B.X) * 0.41;
 end;
 
 
