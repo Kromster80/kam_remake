@@ -1,3 +1,6 @@
 Todo:
 	Enforce tiles triangulation direction to NW-SE
-	AI soldiers will shoot at enemies during PT in MP game
+	Crash in KMGetDirection called from SetActionFight from TUnitActionWalkTo.Execute. See crash report email on 18/08/12. (possible cause: attacking an enemy that appears to be too close to you so KMGetDirection fails?)
+	Received a packet not intended for this state mk_GameCRC (seems harmless, but the error should not be shown)
+	Map Winter Comes does not have !CENTER_SCREEN commands so the locations are not shown the lobby (check other maps by HellRacer too)
+ -	AI soldiers will shoot at enemies during PT in MP game. That's normal, peacetime does not disable fighting, it disables troop control so you can't move/train troops and the AI will not train troops, move troops, attack, etc. If you build roads in front of enemy archers, yes they will shoot you, that's a feature not a bug.

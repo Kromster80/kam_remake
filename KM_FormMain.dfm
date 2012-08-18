@@ -94,6 +94,7 @@ object FormMain: TFormMain
       Width = 93
       Height = 13
       Caption = 'House building step'
+      Visible = False
     end
     object CheckBox2: TCheckBox
       Left = 168
@@ -111,7 +112,6 @@ object FormMain: TFormMain
       Height = 17
       Max = 14
       PageSize = 1
-      ShowSelRange = False
       TabOrder = 0
       ThumbLength = 14
       TickMarks = tmBoth
@@ -154,7 +154,6 @@ object FormMain: TFormMain
       Height = 17
       Max = 90
       PageSize = 1
-      ShowSelRange = False
       TabOrder = 4
       ThumbLength = 14
       TickMarks = tmBoth
@@ -167,11 +166,11 @@ object FormMain: TFormMain
       Width = 95
       Height = 17
       Max = 100
-      ShowSelRange = False
       TabOrder = 5
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
+      Visible = False
       OnChange = TrackBar1Change
     end
     object Button_CalcArmy: TButton
