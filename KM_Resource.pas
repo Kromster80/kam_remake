@@ -14,9 +14,7 @@ uses
   KM_ResourceResource,
   KM_ResourceSprites,
   KM_ResourceTileset,
-  KM_ResourceUnit
-  {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, BGRABitmap {$ENDIF};
+  KM_ResourceUnit;
 
 
 type
