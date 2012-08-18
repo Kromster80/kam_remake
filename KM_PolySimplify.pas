@@ -1,7 +1,7 @@
 unit KM_PolySimplify;
 interface
 uses
-  KM_Points;
+  KM_Points, Math;
 
 
 type
@@ -88,7 +88,7 @@ begin
   NodeVect := KMVectorDiff(Node2, Node1);
   NodeDistSqr := KMDistanceSqr(Node2, Node1);
   MaxDistI := 0;
-  MaxDistSqr := 0;
+  MaxDistSqr := -1;
 
   //Check all points and pick farthest away
   for I := aFrom + 1 to aTo - 1 do
@@ -113,13 +113,16 @@ begin
       //TestPos is projected on to the line and thus needs FloatingPoint position
       TestPos.X := Node1.X + Tmp * NodeVect.X;
       TestPos.Y := Node1.Y + Tmp * NodeVect.Y;
-      DistSqr := KMDistanceSqr(KMPointF(TestP), TestPos); //
+      DistSqr := KMDistanceSqr(KMPointF(TestP), TestPos);
     end;
+
+    //Add slightly more weight to the middle to allow to split straight lines
+    DistSqr := DistSqr + Min(aTo - I, I - aFrom) / 100;
 
     //Pick farthest point
     if DistSqr > MaxDistSqr then
     begin
-      MaxDistI  := I;
+      MaxDistI := I;
       MaxDistSqr := DistSqr;
     end;
   end;
@@ -405,8 +408,10 @@ procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray)
       P0 := (K - 1 + aIn.Count) mod aIn.Count;
       P1 := K;
       P2 := (K + 1) mod aIn.Count;
-      if ((aIn.Nodes[P0].X <> aIn.Nodes[P1].X) or (aIn.Nodes[P1].X <> aIn.Nodes[P2].X))
-      and ((aIn.Nodes[P0].Y <> aIn.Nodes[P1].Y) or (aIn.Nodes[P1].Y <> aIn.Nodes[P2].Y)) then
+      if (((aIn.Nodes[P0].X <> aIn.Nodes[P1].X) or (aIn.Nodes[P1].X <> aIn.Nodes[P2].X))
+      and ((aIn.Nodes[P0].Y <> aIn.Nodes[P1].Y) or (aIn.Nodes[P1].Y <> aIn.Nodes[P2].Y)))
+      or (K mod 11 = 6) //Keep some points inbetween
+      then
       begin
         aOut.Nodes[aOut.Count] := aIn.Nodes[K];
         Inc(aOut.Count);
