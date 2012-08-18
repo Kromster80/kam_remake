@@ -999,7 +999,7 @@ begin
       Button_ReplayResume.OnClick  := ReplayClick;
       Button_ReplayExit.OnClick    := ReplayClick;
       Button_ReplayRestart.Hint := fTextLibrary[TX_REPLAY_RESTART];
-      Button_ReplayPause.Hint   := fTextLibrary[TX_REPLAY_RESTART];
+      Button_ReplayPause.Hint   := fTextLibrary[TX_REPLAY_PAUSE];
       Button_ReplayStep.Hint    := fTextLibrary[TX_REPLAY_STEP];
       Button_ReplayResume.Hint  := fTextLibrary[TX_REPLAY_RESUME];
       Button_ReplayExit.Hint    := fTextLibrary[TX_REPLAY_QUIT];

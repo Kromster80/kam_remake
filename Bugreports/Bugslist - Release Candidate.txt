@@ -1,5 +1,6 @@
 Todo:
  +	Received a packet not intended for this state mk_GameCRC every time another player joins the lobby
+ +	Wrong hint for replay_pause button
 	Enforce tiles triangulation direction to NW-SE
 	Crash in KMGetDirection called from SetActionFight from TUnitActionWalkTo.Execute. See crash report email on 18/08/12. (possible cause: attacking an enemy that appears to be too close to you so KMGetDirection fails?)
 	Map Winter Comes does not have !CENTER_SCREEN commands so the locations are not shown the lobby (check other maps by HellRacer too)
