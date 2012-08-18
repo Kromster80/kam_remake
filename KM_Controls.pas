@@ -312,10 +312,11 @@ type
     fTexID: Word;
     fFlagColor: TColor4; //When using an image
   public
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui; aStyle: TButtonStyle=bsGame); overload;
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aStyle: TButtonStyle=bsGame); overload;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TButtonStyle); overload;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aStyle: TButtonStyle); overload;
     property Caption: string read fCaption write fCaption;
     property FlagColor: TColor4 read fFlagColor write fFlagColor;
+    property Font: TKMFont read fFont write fFont;
     property MakesSound: Boolean read fMakesSound write fMakesSound;
     property TexID: Word read fTexID write fTexID;
     function Click: Boolean; //Try to click a button and return TRUE if succeded
@@ -585,7 +586,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
     destructor Destroy; override;
 
     property AutoHideScrollBar: boolean read fAutoHideScrollBar write SetAutoHideScrollBar;
@@ -682,7 +683,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
     procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
   public
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
 
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
     procedure AddItem(aItem: TKMListRow);
@@ -765,7 +766,7 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string; aStyle: TButtonStyle);
     procedure Clear; override;
     function Count: Integer; override;
     procedure Add(aItem: string);
@@ -797,7 +798,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
   public
     FadeImageWhenDisabled: Boolean;
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string; aStyle: TButtonStyle);
     procedure Add(aItem: TKMListRow);
     procedure Clear; override;
     function Count: Integer; override;
@@ -858,7 +859,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
     procedure SetEnabled(aValue: Boolean); override;
   public
-    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
     destructor Destroy; override;
 
     procedure Add(const aItem: string);
@@ -1769,7 +1770,7 @@ end;
 
 
 { TKMButton }
-constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui; aStyle: TButtonStyle = bsGame);
+constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TButtonStyle);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fRX         := aRX;
@@ -1782,13 +1783,13 @@ end;
 
 
 {Different version of button, with caption on it instead of image}
-constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aStyle: TButtonStyle = bsGame);
+constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aStyle: TButtonStyle);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fTexID      := 0;
   fCaption    := aCaption;
   fFlagColor := $FFFF00FF;
-  fFont       := aFont;
+  fFont       := fnt_Metal;
   fTextAlign  := taCenter; //Thats default everywhere in KaM
   fStyle      := aStyle;
   fMakesSound := True;
@@ -2230,9 +2231,9 @@ constructor TKMResourceOrderRow.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHei
 begin
   inherited Create(aParent, aLeft+68,aTop,aWidth-68,aHeight);
 
-  fOrderRem := TKMButton.Create(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal, bsGame);
+  fOrderRem := TKMButton.Create(aParent,aLeft,aTop+2,20,aHeight,'-', bsGame);
   fOrderLab := TKMLabel.Create(aParent,aLeft+33,aTop+4,'',fnt_Grey,taCenter);
-  fOrderAdd := TKMButton.Create(aParent,aLeft+46,aTop+2,20,aHeight,'+',fnt_Metal, bsGame);
+  fOrderAdd := TKMButton.Create(aParent,aLeft+46,aTop+2,20,aHeight,'+', bsGame);
 end;
 
 
@@ -2384,8 +2385,8 @@ begin
   fStyle    := aStyle;
 
   if aScrollAxis = sa_Vertical then begin
-    fScrollDec := TKMButton.Create(aParent, aLeft, aTop, aWidth, aWidth, 4, rxGui, aStyle);
-    fScrollInc := TKMButton.Create(aParent, aLeft, aTop+aHeight-aWidth, aWidth, aWidth, 5, rxGui, aStyle);
+    fScrollDec := TKMButton.Create(aParent, aLeft, aTop, aWidth, aWidth, 591, rxGui, aStyle);
+    fScrollInc := TKMButton.Create(aParent, aLeft, aTop+aHeight-aWidth, aWidth, aWidth, 590, rxGui, aStyle);
   end;
   if aScrollAxis = sa_Horizontal then begin
     fScrollDec := TKMButton.Create(aParent, aLeft, aTop, aHeight, aHeight, 2, rxGui, aStyle);
@@ -2548,14 +2549,14 @@ end;
 
 
 { TKMMemo }
-constructor TKMMemo.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+constructor TKMMemo.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fItemHeight := 20;
   fItems := TStringList.Create;
   fFont := aFont;
 
-  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, bsGame);
+  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, aStyle);
   UpdateScrollBar; //Initialise the scrollbar
 end;
 
@@ -2721,7 +2722,7 @@ end;
 
 
 { TKMListBox }
-constructor TKMListBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+constructor TKMListBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fBackAlpha := 0.5;
@@ -2732,7 +2733,7 @@ begin
   fAutoHideScrollBar := False; //Always show the scrollbar by default, then it can be turned off if required
   Focusable := True; //For up/down keys
 
-  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, bsGame);
+  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, aStyle);
   UpdateScrollBar; //Initialise the scrollbar
 end;
 
@@ -3041,7 +3042,7 @@ end;
 
 
 { TKMColumnListBox }
-constructor TKMColumnListBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+constructor TKMColumnListBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
 const DEF_HEADER_HEIGHT = 24;
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
@@ -3053,7 +3054,7 @@ begin
 
   fHeader := TKMListHeader.Create(aParent, aLeft, aTop, aWidth - fItemHeight, DEF_HEADER_HEIGHT);
 
-  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, bsGame);
+  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, aStyle);
   UpdateScrollBar; //Initialise the scrollbar
 
   SetBackAlpha(0.5);
@@ -3355,7 +3356,7 @@ begin
   fFont := aFont;
   fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
-  fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, rxGui, bsMenu);
+  fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 590, rxGui, bsMenu);
   fButton.fOnClick := ListShow;
   fButton.MakesSound := False;
 
@@ -3415,7 +3416,7 @@ end;
 
 
 { TKMDropList }
-constructor TKMDropList.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
+constructor TKMDropList.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string; aStyle: TButtonStyle);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aFont);
@@ -3425,7 +3426,7 @@ begin
   P := MasterParent;
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
-  fList := TKMListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont);
+  fList := TKMListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont, aStyle);
   fList.Height := fList.ItemHeight * fDropCount;
   fList.AutoHideScrollBar := True; //A drop box should only have a scrollbar if required
   fList.BackAlpha := 0.85;
@@ -3564,7 +3565,7 @@ end;
 
 
 { TKMDropColumns }
-constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
+constructor TKMDropColumns.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string; aStyle: TButtonStyle);
 var P: TKMPanel;
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aFont);
@@ -3574,7 +3575,7 @@ begin
   P := MasterParent;
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
-  fList := TKMColumnListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont);
+  fList := TKMColumnListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont, aStyle);
   fList.BackAlpha := 0.85;
   fList.OnClick := ListClick;
   fList.Focusable := False; //For drop downs we don't want the list to be focusable
