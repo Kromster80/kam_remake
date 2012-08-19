@@ -1569,7 +1569,8 @@ begin
 
     for I := 0 to STORE_RES_COUNT - 1 do
     begin
-      Button_Market[I] := TKMButtonFlat.Create(Panel_HouseMarket, 8+(I mod 6)*30,12+(I div 6)*34,26,30,0);
+      Button_Market[I] := TKMButtonFlat.Create(Panel_HouseMarket, 8 + (I mod 6)*30, 12 + (I div 6) * MARKET_RES_HEIGHT, 26, 31, 0);
+      Button_Market[I].TexOffsetY := 1;
       Button_Market[I].TexID := fResource.Resources[StoreResType[I+1]].GUIIcon;
       Button_Market[I].Hint := fResource.Resources[StoreResType[I+1]].Title;
       Button_Market[I].Tag := Byte(StoreResType[I+1]);
@@ -1587,7 +1588,7 @@ begin
     Shape_Market_To.Hitable := False;
     Shape_Market_To.Hide;
 
-    LineH := 12+((STORE_RES_COUNT-1) div 6 + 1)*34;
+    LineH := 12 + ((STORE_RES_COUNT - 1) div 6 + 1) * MARKET_RES_HEIGHT;
     Label_Market_In  := TKMLabel.Create(Panel_HouseMarket, 8,LineH,85,30,'',fnt_Grey,taLeft);
     Label_Market_Out := TKMLabel.Create(Panel_HouseMarket,184,LineH,85,30,'',fnt_Grey,taRight);
 
@@ -2682,7 +2683,7 @@ end;
 procedure TKMGamePlayInterface.House_MarketFill(aMarket: TKMHouseMarket);
 var R: TResourceType; i,Tmp: Integer;
 begin
-  for i:=0 to STORE_RES_COUNT-1 do
+  for i := 0 to STORE_RES_COUNT - 1 do
   begin
     R := TResourceType(Button_Market[i].Tag);
     if aMarket.AllowedToTrade(R) then
@@ -2704,7 +2705,7 @@ begin
   if aMarket.ResFrom <> rt_None then
   begin
     Shape_Market_From.Left := 8 + ((Byte(aMarket.ResFrom)-1) mod 6) * 30;
-    Shape_Market_From.Top := 12 + ((Byte(aMarket.ResFrom)-1) div 6) * 34;
+    Shape_Market_From.Top := 12 + ((Byte(aMarket.ResFrom)-1) div 6) * MARKET_RES_HEIGHT;
     Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[aMarket.RatioFrom]) + ':';
     Button_Market_In.TexID := fResource.Resources[aMarket.ResFrom].GUIIcon;
     Button_Market_In.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResFrom));
@@ -2718,7 +2719,7 @@ begin
   if aMarket.ResTo <> rt_None then
   begin
     Shape_Market_To.Left := 8 + ((Byte(aMarket.ResTo)-1) mod 6) * 30;
-    Shape_Market_To.Top := 12 + ((Byte(aMarket.ResTo)-1) div 6) * 34;
+    Shape_Market_To.Top := 12 + ((Byte(aMarket.ResTo)-1) div 6) * MARKET_RES_HEIGHT;
     Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO],[aMarket.RatioTo]) + ':';
     Button_Market_Out.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResTo));
     Button_Market_Out.TexID := fResource.Resources[aMarket.ResTo].GUIIcon;
