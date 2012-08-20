@@ -62,3 +62,4 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Select multiple saves at once to be deleted (click+drag or hold shift/ctrl)
 	Aggressive/defensive stances for soldiers, so they will attack a unit within a few tiles in aggressive mode and only start shooting when the enemy is close in defensive mode
 	Shortcuts for all soldier buttons: , & . to rotate, [ & ] to add/withdraw lines, x to charge, f for food?
+	Add a "seperate one unit from the group" button for scouting etc. (we can rearrange interface due to unused move/attack buttons)
