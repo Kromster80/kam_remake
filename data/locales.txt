@@ -12,6 +12,7 @@ ger,    German,               1252,     46,           ,                The Knigh
 hun,    Hungarian,            1250,     57,           ,                Osi Attila (Jecy)
 ita,    Italian,              1252,     50,           ,                Paolo Castelvetere
 lit,    Lithuanian,           LITH,     67,           ,                Audrius Arlauskas (Zaero)
+nor,    Norwegian,            1252,     70,           ,                Tokicchi
 pol,    Polish,               1250,     47,           ,                Przemyslaw Pietras
 rom,    Romanian,             1250,     66,           ,                mucormucedo
 rus,    Russian,              1251,     54,           ,                Krom

@@ -45,6 +45,8 @@ Name: "est"; MessagesFile: "ExtraLanguages\Estonian.isl"; LicenseFile: "License.
 Name: "rom"; MessagesFile: "ExtraLanguages\Romanian.isl"; LicenseFile: "License.rom.txt"
 Name: "lit"; MessagesFile: "ExtraLanguages\Lithuanian.isl";
 Name: "ukr"; MessagesFile: "compiler:Languages\Ukrainian.isl"; LicenseFile: "License.ukr.txt"
+Name: "chn"; MessagesFile: "ExtraLanguages\ChineseSimp.isl";
+Name: "nor"; MessagesFile: "compiler:Languages\Norwegian.isl";
 
 [CustomMessages]  
 #include "Translations.iss"
