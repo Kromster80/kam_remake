@@ -2673,14 +2673,16 @@ begin
               Tmp := min(Land[i,k].Height-Land[I-1,K+1].Height,tmp)
             else
               Tmp := 0;
-        end;
+        end
+        else
+          Tmp := 0;
       end else         // Flatten
       begin
-        if (Land[I,K].Height < Land[trunc(aLoc.Y),trunc(aLoc.X)].Height) then
-          Tmp := -min(Land[trunc(aLoc.Y),trunc(aLoc.X)].Height-Land[i,k].Height,tmp)
+        if (Land[I,K].Height < Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height) then
+          Tmp := -min(Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height-Land[i,k].Height,tmp)
         else
-          if (Land[I,K].Height > Land[trunc(aLoc.Y),trunc(aLoc.X)].Height) then
-            Tmp := min(Land[i,k].Height-Land[trunc(aLoc.Y),trunc(aLoc.X)].Height,tmp)
+          if (Land[I,K].Height > Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height) then
+            Tmp := min(Land[i,k].Height-Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height,tmp)
           else
             Tmp := 0;
       end;

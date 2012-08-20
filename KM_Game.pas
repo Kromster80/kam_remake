@@ -275,6 +275,10 @@ begin
   FreeAndNil(fRenderPool);
   FreeAndNil(fGameOptions);
   if DO_PERF_LOGGING then fPerfLog.Free;
+
+  //When leaving the game we should always reset the cursor in case the user had beacon or linking selected
+  fResource.Cursors.Cursor := kmc_Default;
+
   inherited;
 end;
 

@@ -1,6 +1,7 @@
 Todo:
  +	Received a packet not intended for this state mk_GameCRC every time another player joins the lobby
  +	Wrong hint for replay_pause button
+ +	Crash when using MapEd unequalize right click just above the top row of the map
 	Enforce tiles triangulation direction to NW-SE
 	Crash in KMGetDirection called from SetActionFight from TUnitActionWalkTo.Execute. See crash report email on 18/08/12. (possible cause: attacking an enemy that appears to be too close to you so KMGetDirection fails?)
 	Map Winter Comes does not have !CENTER_SCREEN commands so the locations are not shown the lobby (check other maps by HellRacer too)
@@ -9,4 +10,5 @@ Todo:
 	People press F12 by accident and enable UI overlays, maybe make debugging shortcuts disabled for release (they can be accessed from main menu if necessary)
 	All multiplayer maps need more starting food due to matching unit condition to original KaM
 	Tweak food values in market so most valuable foods are worth more
+	Beacon cursor is invisible in full screen mode (also some users report flickering when moving it). It looks like windows prefers cursors to be no more than 64x64 pixels. I guess we can crop 10 pixels off it.
  -	AI soldiers will shoot at enemies during PT in MP game. That's normal, peacetime does not disable fighting, it disables troop control so you can't move/train troops and the AI will not train troops, move troops, attack, etc. If you build roads in front of enemy archers, yes they will shoot you, that's a feature not a bug.
