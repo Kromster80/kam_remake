@@ -76,6 +76,7 @@ type
 
   //Cross product of 2D vectors, pointed either Up or Down
   function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single;
+  function KMPointInTriangle(const P, A, B, C: TKMPointI): Boolean;
   function KMInBetween(A,B,X:single): boolean;
   function KMSegmentsIntersect(A, B, C, D: TKMPointI): Boolean;
   function KMSegmentsIntersectOrTouch(A, B, C, D: TKMPointI): Boolean;
@@ -426,6 +427,12 @@ end;
 function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single;
 begin
   Result := (v1.Y - v2.Y) * (v1.X - v3.X) - (v1.X - v2.X) * (v1.Y - v3.Y);
+end;
+
+
+function KMPointInTriangle(const P, A, B, C: TKMPointI): Boolean;
+begin
+  Result := (KMNormal2Poly(A, B, P) > 0) and (KMNormal2Poly(B, C, P) > 0) and (KMNormal2Poly(C, A, P) > 0);
 end;
 
 

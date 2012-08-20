@@ -478,12 +478,11 @@ var
 begin
   inherited LoadMission(aFileName);
 
-  Assert(fTerrain <> nil);
+  Assert((fTerrain <> nil) and (fPlayers <> nil));
 
   Result := false; //Set it right from the start
 
   //Reset fPlayers and other stuff
-  FreeThenNil(fPlayers);
   fLastPlayer := -1;
 
   //Read the mission file into FileText
@@ -579,16 +578,12 @@ begin
                           end;
                         end;
     ct_SetMaxPlayer:    begin
-                          if fPlayers=nil then
-                            fPlayers := TKMPlayersCollection.Create;
                           if fParsingMode = mpm_Single then
                             fPlayers.AddPlayers(P[0])
                           else
                             fPlayers.AddPlayers(fRemapCount);
                         end;
     ct_SetTactic:       begin
-                          if fPlayers = nil then
-                            fPlayers := TKMPlayersCollection.Create;
                           fMissionInfo.MissionMode := mm_Tactic;
                         end;
     ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_PLAYERS-1) then

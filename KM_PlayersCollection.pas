@@ -129,7 +129,6 @@ begin
     fPlayerList[I].AfterMissionInit(aFlattenRoads);
 
   fAIFields.AfterMissionInit;
-  fAIFields.UpdateInfluenceMaps;
 end;
 
 

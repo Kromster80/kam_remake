@@ -178,7 +178,7 @@ uses
   KM_CommonClasses, KM_Log, KM_Utils,
   KM_ArmyEvaluation, KM_Events, KM_GameApp, KM_GameInfo, KM_MissionScript,
   KM_Player, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceCursors,
-  KM_Settings, KM_Sound, KM_Terrain, KM_TextLibrary,
+  KM_Settings, KM_Sound, KM_Terrain, KM_TextLibrary, KM_AIFields,
   KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
@@ -228,6 +228,8 @@ begin
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
   fTerrain := TTerrain.Create;
+  fPlayers := TKMPlayersCollection.Create;
+  fAIFields := TKMAIFields.Create;
 
   InitUnitStatEvals; //Army
 
@@ -261,6 +263,7 @@ begin
   FreeThenNil(fMapEditor);
   FreeThenNil(fPlayers);
   FreeThenNil(fTerrain);
+  FreeAndNil(fAIFields);
   FreeAndNil(fProjectiles);
   FreeAndNil(fPathfinding);
   FreeAndNil(fEventsManager);
@@ -720,8 +723,8 @@ begin
   fSaveFile := '';
 
   fTerrain.MakeNewMap(aSizeX, aSizeY, True);
+
   fMapEditor := TKMMapEditor.Create;
-  fPlayers := TKMPlayersCollection.Create;
   fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
   MyPlayer := fPlayers.Player[0];
   MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
@@ -1154,8 +1157,9 @@ begin
   //Load the data into the game
   fTerrain.Load(LoadStream);
 
-  fPlayers := TKMPlayersCollection.Create;
   fPlayers.Load(LoadStream);
+  //todo: Load fAIFields here
+
   fProjectiles.Load(LoadStream);
   fEventsManager.Load(LoadStream);
 
@@ -1291,6 +1295,7 @@ begin
   end;
 
   fAlerts.UpdateState;
+  fAIFields.UpdateState(fGameTickCount);
 
   if DoGameHold then GameHold(True, DoGameHoldState);
 end;

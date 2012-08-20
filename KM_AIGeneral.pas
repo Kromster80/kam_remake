@@ -65,7 +65,11 @@ end;
 
 procedure TKMGeneral.CheckDefences;
 begin
-  //
+  //Identify defence positions
+
+  //Check where we have weakest defence
+
+  //Add more troops to that position
 end;
 
 

@@ -224,7 +224,6 @@ end;
 
 destructor TTerrain.Destroy;
 begin
-  FreeAndNil(fAIFields);
   FreeAndNil(FallingTrees);
   inherited;
 end;
@@ -265,10 +264,6 @@ begin
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
-
-  FreeAndNil(fAIFields);
-  fAIFields := TKMAIFields.Create; //todo: Should be moved someplace else, but for now we can init it here
-  fAIFields.UpdateNavMesh;
 end;
 
 
@@ -343,10 +338,6 @@ begin
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
   fLog.AppendLog('Map file loaded');
-
-  FreeAndNil(fAIFields);
-  fAIFields := TKMAIFields.Create; //todo: Should be moved someplace else, but for now we can init it here
-  fAIFields.UpdateNavMesh;
 end;
 
 
@@ -1527,6 +1518,11 @@ begin
   Assert(TileInMapCoords(Loc.X, Loc.Y)); //First of all exclude all tiles outside of actual map
 
   Land[Loc.Y,Loc.X].Passability := [];
+
+  if TileIsWalkable(Loc)
+  and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
+  and CheckHeightPass(Loc, CanWalk) then
+    AddPassability(CanOwn);
 
   //For all passability types other than CanAll, houses and fenced houses are excluded
   if Land[Loc.Y,Loc.X].TileLock in [tlNone, tlFenced, tlFieldWork, tlRoadWork] then
@@ -3056,5 +3052,6 @@ begin
           aList.AddEntry(KMPoint(K,I));
   end;
 end;
+
 
 end.

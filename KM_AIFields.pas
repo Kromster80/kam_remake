@@ -6,17 +6,32 @@ uses
   KM_CommonClasses, KM_CommonTypes, KM_Terrain, KM_Defaults, KM_Player, KM_Utils, KM_Points, KM_PolySimplify;
 
 type
+  TKMOutline = array of record
+    Node: TKMPoint;
+    Open: Boolean;
+  end;
+
   //Strcucture to describe NavMesh layout
-  TKMNavMesh = record
-    Vertices: TKMPointArray;
+  TKMNavMesh = class
+  private
+    fVertices: TKMPointArray;
+    //Edges: array of array [0..1] of Word;
     Polygons: array of record
       Indices: array of Word;
       Area: Word; //Area of this polygon
-      Neighbours: array of record //Neighbour polygons
+      {Neighbours: array of record //Neighbour polygons
         Index: Word; //Index of polygon
         Touch: Byte; //Length of border between
-      end;
+      end;}
+      fOwner: array [0..MAX_PLAYERS-1] of TPlayerIndex;
     end;
+
+    function GetBestOwner(aIndex: Integer): TPlayerIndex;
+  public
+
+    //GetOwnerOutline:
+
+    procedure UpdateOwnership;
   end;
 
   //Influence maps, navmeshes, etc
@@ -82,9 +97,18 @@ procedure TKMAIFields.AfterMissionInit;
 begin
   //Book space for all players;
   fPlayerCount := fPlayers.Count;
-  if not AI_GEN_INFLUENCE_MAPS then Exit;
-  SetLength(fInfluenceMap, fPlayerCount);
-  SetLength(fInfluenceMinMap, fPlayerCount);
+  if AI_GEN_INFLUENCE_MAPS then
+  begin
+    SetLength(fInfluenceMap, fPlayerCount);
+    SetLength(fInfluenceMinMap, fPlayerCount);
+    UpdateInfluenceMaps;
+  end;
+
+  if AI_GEN_NAVMESH then
+  begin
+    UpdateNavMesh;
+    fNavMesh.UpdateOwnership;
+  end;
 end;
 
 
@@ -295,7 +319,7 @@ begin
   //2 - non-parsed obstacle
   for I := 1 to fTerrain.MapY - 1 do
   for K := 1 to fTerrain.MapX - 1 do
-    Tmp[I,K] := 2 - Byte(CanWalk in fTerrain.Land[I,K].Passability) * 2;
+    Tmp[I,K] := 2 - Byte(CanOwn in fTerrain.Land[I,K].Passability) * 2;
 
   fRawOutlines.Count := 0;
   for I := 1 to fTerrain.MapY - 2 do
@@ -389,12 +413,14 @@ begin
 
   CheckForDegenerates(fRawDelaunay);//}
 
+  fNavMesh := TKMNavMesh.Create;
+
   //Bring triangulated mesh back
-  SetLength(fNavMesh.Vertices, Length(fRawDelaunay.Vertices));
+  SetLength(fNavMesh.fVertices, Length(fRawDelaunay.Vertices));
   for I := 0 to High(fRawDelaunay.Vertices) do
   begin
-    fNavMesh.Vertices[I].X := Round(fRawDelaunay.Vertices[I].X);
-    fNavMesh.Vertices[I].Y := Round(fRawDelaunay.Vertices[I].Y);
+    fNavMesh.fVertices[I].X := Round(fRawDelaunay.Vertices[I].X);
+    fNavMesh.fVertices[I].Y := Round(fRawDelaunay.Vertices[I].Y);
   end;
   SetLength(fNavMesh.Polygons, Length(fRawDelaunay.Polygons));
   for I := 0 to High(fRawDelaunay.Polygons) do
@@ -418,6 +444,8 @@ end;
 procedure TKMAIFields.UpdateState(aTick: Cardinal);
 begin
   //Maybe we recalculate Influences or navmesh sectors once in a while
+
+  if (aTick mod 60 = 0) then fNavMesh.UpdateOwnership;
 end;
 
 
@@ -427,6 +455,7 @@ var
   I, K, J: Integer;
   TX, TY: Single;
   x1,x2,y1,y2: Single;
+  Col: Cardinal;
 begin
   if AI_GEN_INFLUENCE_MAPS and fShowInfluenceMap then
     for I := aRect.Top to aRect.Bottom do
@@ -458,13 +487,19 @@ begin
   if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to High(fNavMesh.Polygons) do
     begin
+
+      K := fNavMesh.GetBestOwner(I);
+      if K <> PLAYER_NONE then
+        Col := fPlayers[K].FlagColor and $FFFFFF or $80000000
+      else
+        Col := $20FF8000;
       fRenderAux.Triangle(
-        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[0]].X,
-        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[0]].Y,
-        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[1]].X,
-        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[1]].Y,
-        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[2]].X,
-        fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[2]].Y, $40FF8000);
+        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[0]].X,
+        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[0]].Y,
+        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[1]].X,
+        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[1]].Y,
+        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[2]].X,
+        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[2]].Y, Col);
     end;
 
   //Raw navmesh
@@ -472,12 +507,12 @@ begin
     for I := 0 to High(fNavMesh.Polygons) do
     for K := 0 to High(fNavMesh.Polygons[I].Indices) do
     begin
-      x1 := fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[K]].X;
-      y1 := fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[K]].Y;
+      x1 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[K]].X;
+      y1 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[K]].Y;
 
       J := (K + 1) mod Length(fNavMesh.Polygons[I].Indices);
-      x2 := fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[J]].X;
-      y2 := fNavMesh.Vertices[fNavMesh.Polygons[I].Indices[J]].Y;
+      x2 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[J]].X;
+      y2 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[J]].Y;
 
       fRenderAux.Line(x1,y1,x2,y2, $FFFF8000, $F0F0);
     end;
@@ -492,6 +527,54 @@ begin
       TY := Nodes[(K + 1) mod Count].Y;
       fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FF00FF00, $FF00);
     end;
+end;
+
+
+{ TKMNavMesh }
+
+function TKMNavMesh.GetBestOwner(aIndex: Integer): TPlayerIndex;
+var I, Best: Integer;
+begin
+  Best := 0;
+  Result := PLAYER_NONE;
+  for I := 0 to MAX_PLAYERS - 1 do
+  if Polygons[aIndex].fOwner[I] > Best then
+  begin
+    Best := I;
+    Result := I;
+  end;
+end;
+
+
+procedure TKMNavMesh.UpdateOwnership;
+  function GetPolyByTile(X,Y: Word): Integer;
+  var
+    I: Integer;
+  begin
+    Result := -1;
+    for I := 0 to High(Polygons) do
+      if KMPointInTriangle(KMPointI(X,Y), fVertices[Polygons[I].Indices[0]], fVertices[Polygons[I].Indices[1]], fVertices[Polygons[I].Indices[2]]) then
+      begin
+        Result := I;
+        Break;
+      end;
+  end;
+var
+  I, K: Integer;
+  Poly: Integer;
+begin
+  for I := 0 to High(Polygons) do
+    for K := 0 to MAX_PLAYERS - 1 do
+      Polygons[I].fOwner[K] := PLAYER_NONE;
+
+  for I := 1 to fTerrain.MapY - 1 do
+    for K := 1 to fTerrain.MapX - 1 do
+      if fTerrain.Land[I,K].TileOwner <> PLAYER_NONE then
+      begin
+        Poly := GetPolyByTile(K,I);
+        if Poly <> -1 then
+          Inc(Polygons[Poly].fOwner[fTerrain.Land[I,K].TileOwner]);
+      end;
 end;
 
 

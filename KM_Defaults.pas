@@ -302,6 +302,7 @@ type
     CanWolf,        // Soil tiles where wolfs Can move around
     CanElevate,     // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
     CanWorker,      // Like CanWalk but allows walking on building sites
+    CanOwn,         // For AI ownership
     CanFactor       // Allows vertex (top left) to be factored as a neighbour in flattening algorithm
     );
   TPassabilitySet = set of TPassability;
