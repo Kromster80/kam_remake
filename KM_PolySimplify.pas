@@ -411,6 +411,7 @@ procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray)
       if (((aIn.Nodes[P0].X <> aIn.Nodes[P1].X) or (aIn.Nodes[P1].X <> aIn.Nodes[P2].X))
       and ((aIn.Nodes[P0].Y <> aIn.Nodes[P1].Y) or (aIn.Nodes[P1].Y <> aIn.Nodes[P2].Y)))
       or (K mod 11 = 6) //Keep some points inbetween
+//todo: Don't keep points on Rect bounds
       then
       begin
         aOut.Nodes[aOut.Count] := aIn.Nodes[K];
@@ -594,77 +595,91 @@ begin
 end;
 
 
-procedure RemoveObstacle(var aTriMesh: TKMTriMesh; aNodes: TKMPointArray);
-var
-  I, K, L, M: Integer;
-  VCount: Integer;
-  Indexes: array of Integer;
-  B: Boolean;
-begin
-  with aTriMesh do
-  begin
-    VCount := Length(aNodes);
-    SetLength(Indexes, VCount);
-
-    //Find Indexes
-    for I := 0 to High(Vertices) do
-    for K := 0 to VCount - 1 do
-    if (aNodes[K].X = Vertices[I].x) and (aNodes[K].Y = Vertices[I].y) then
-      Indexes[K] := I;
-
-    //Find Indexes
-    I := 0;
-    repeat
-      B := True;
-      for K := 0 to VCount - 1 do
-      if B and (Indexes[K] = Polygons[I,0]) then
-        for L := K+1 to K+VCount - 2 do
-        if B and (Indexes[L mod VCount] = Polygons[I,1]) then
-          for M := L+1 to K+VCount - 1 do
-          if B and (Indexes[M mod VCount] = Polygons[I,2]) then
-          //Cut the triangle
-          begin
-            //Move last triangle to I
-            Polygons[I,0] := Polygons[High(Polygons),0];
-            Polygons[I,1] := Polygons[High(Polygons),1];
-            Polygons[I,2] := Polygons[High(Polygons),2];
-            Dec(I);
-            SetLength(Polygons, Length(Polygons) - 1);
-            B := False;
-          end;
-      Inc(I);
-    until(I >= Length(Polygons));
-
-    //Delete tris that lie on the outlines edge (direction is important)
-    I := 0;
-    repeat
-      for K := 0 to VCount - 1 do
-      if (Indexes[K] = Polygons[I,0]) and (Indexes[(K+1) mod VCount] = Polygons[I,1])
-      or (Indexes[K] = Polygons[I,1]) and (Indexes[(K+1) mod VCount] = Polygons[I,2])
-      or (Indexes[K] = Polygons[I,2]) and (Indexes[(K+1) mod VCount] = Polygons[I,0]) then
-      //Cut the triangle
-      begin
-        //Move last triangle to I
-        Polygons[I,0] := Polygons[High(Polygons),0];
-        Polygons[I,1] := Polygons[High(Polygons),1];
-        Polygons[I,2] := Polygons[High(Polygons),2];
-        Dec(I);
-        SetLength(Polygons, Length(Polygons) - 1);
-        Break;
-      end;
-      Inc(I);
-    until(I >= Length(Polygons));
-  end;
-end;
-
-
 procedure RemoveObstaclePolies(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArray);
+type TPolyFill = (pfUnknown, pfKeep, pfRemove);
+var
+  Mark: array of TPolyFill;
+  procedure RemoveObstacle(var aTriMesh: TKMTriMesh; aNodes: TKMNodesArray);
+    procedure DoFlood(N1, N2: Integer);
+    var I: Integer;
+    begin
+      with aTriMesh do
+      for I := 0 to High(Polygons) do
+      if Mark[I] = pfUnknown then
+      if ((Polygons[I,0] = N1) and (Polygons[I,2] = N2))
+      or ((Polygons[I,1] = N1) and (Polygons[I,0] = N2))
+      or ((Polygons[I,2] = N1) and (Polygons[I,1] = N2)) then
+      begin
+        Mark[I] := pfRemove;
+        DoFlood(Polygons[I,0], Polygons[I,1]);
+        DoFlood(Polygons[I,1], Polygons[I,2]);
+        DoFlood(Polygons[I,2], Polygons[I,0]);
+      end;
+    end;
+  var
+    I, K, L: Integer;
+    Outline: array of Integer;
+  begin
+    with aTriMesh do
+    begin
+      SetLength(Outline, aNodes.Count);
+
+      //Find Indexes
+      for I := 0 to High(Vertices) do
+      for K := 0 to aNodes.Count - 1 do
+      if (aNodes.Nodes[K].X = Vertices[I].x) and (aNodes.Nodes[K].Y = Vertices[I].y) then
+        Outline[K] := I;
+
+      for I := 0 to High(Polygons) do
+        Mark[I] := pfUnknown;
+
+      //Create outline for obstacle with Keep/Remove polys
+      for I := 0 to High(Polygons) do
+      begin
+        for K := 0 to aNodes.Count - 1 do
+        if (Outline[K] = Polygons[I,0]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,1])
+        or (Outline[K] = Polygons[I,1]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,2])
+        or (Outline[K] = Polygons[I,2]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,0]) then
+          Mark[I] := pfRemove;
+
+        for K := 0 to aNodes.Count - 1 do
+        if (Outline[K] = Polygons[I,0]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,2])
+        or (Outline[K] = Polygons[I,1]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,0])
+        or (Outline[K] = Polygons[I,2]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,1]) then
+          Mark[I] := pfKeep;
+      end;
+
+      for I := 0 to High(Polygons) do
+      if Mark[I] = pfRemove then
+      begin
+        DoFlood(Polygons[I,0], Polygons[I,1]);
+        DoFlood(Polygons[I,1], Polygons[I,2]);
+        DoFlood(Polygons[I,2], Polygons[I,0]);
+      end;
+
+      //Cut the triangles
+      I := 0;
+      repeat
+        if Mark[I] = pfRemove then
+        begin
+          //Move last triangle to I
+          Polygons[I,0] := Polygons[High(Polygons),0];
+          Polygons[I,1] := Polygons[High(Polygons),1];
+          Polygons[I,2] := Polygons[High(Polygons),2];
+          Mark[I] := Mark[High(Polygons)];
+          Dec(I);
+          SetLength(Polygons, Length(Polygons) - 1);
+        end;
+        Inc(I);
+      until(I >= Length(Polygons));
+    end;
+  end;
 var
   I: Integer;
 begin
+  SetLength(Mark, Length(aTriMesh.Polygons));
   for I := 0 to fSimpleOutlines.Count - 1 do
-  with fSimpleOutlines.Shape[I] do
-    RemoveObstacle(aTriMesh, Nodes);
+    RemoveObstacle(aTriMesh, fSimpleOutlines.Shape[I]);
 end;
 
 
@@ -675,6 +690,8 @@ begin
   I := 0;
   with aTriMesh do
   repeat
+    //We take advantage of the fact that
+    //first 4 points were added to make the Frame
     if (Polygons[I,0] < 4)
     or (Polygons[I,1] < 4)
     or (Polygons[I,2] < 4) then
