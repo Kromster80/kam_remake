@@ -1,0 +1,504 @@
+
+MaxID:2756
+
+0:Ju Mu Chang
+1:Zhi Tie Chang
+2:Wu Qi Tie Jiang Pu
+3:Mei Kuang
+4:Tie Kuang
+5:Jin Kuang
+6:Diao Yu Xiao Wu
+7:Mian Bao Fang
+8:Nong Chang
+9:Fa Mu Chang
+10:Tie Zhi Fang Ju Dian
+11:Cang Ku
+12:Ma Juan
+13:Xue Xiao
+14:Cai Shi Chang
+15:Lian Jin Shi
+16:Yang Zhu Chang
+17:Liao Wang Ta
+18:Shi Zheng Ting
+19:Mu Zhi Wu Qi Dian
+20:Pi Jia Fang Ju Dian
+21:Bing Ying
+22:Mo Fang
+23:Gong Cheng Gong Chang
+24:Xiang Chang Dian
+25:Pi Ge Chang
+26:Xun Lian Guan
+27:Can Ting
+28:Niang Jiu Chang
+29:Jiao Yi Suo
+39:Mu Cai
+40:Shi Tou
+41:Mu Ban
+42:Tie Kuang Shi
+43:Jin Kuang Shi
+44:Mei
+45:Tie
+46:Bao Xiang
+47:Pu Tao Jiu
+48:Xiao Mai
+49:Mian Bao
+50:Mian Fen
+51:Pi Ge
+52:Xiang Chang
+53:Zhu Rou
+54:Zhu Pi
+55:Mu Dun
+56:Tie Dun
+57:Pi Jia
+58:Tie Kai Jia
+59:Fu Tou
+60:Jian
+61:Chang Mao
+62:Chang Qiang
+63:Gong Jian
+64:Nu
+65:Ma
+66:Yu
+69:Ban Yun Gong
+70:Fa Mu Gong
+71:Kuang Gong
+72:Si Yang Yuan
+73:Nong Ming
+74:Mu Jiang
+75:Chu Shi
+76:Tu Fu
+77:Yu Fu
+78:Jian Zhu Gong
+79:Shi Jiang
+80:Tie Jiang
+81:Lian Jin Shi
+82:Xin Bing
+83:Fu Tou Bing
+84:Fu Dun Bing
+85:Tie Jian Bing
+86:Gong Jian Bing
+87:Tie Nu Bing
+88:Chang Mao Bing
+89:Tie Qiang Bing
+90:Qi Bing
+91:Tie Qi Bing
+92:Man Bing
+93:Nong Min Bing
+94:Tou Shi Bing
+95:Tie Man Bing
+96:Man Qi Bing
+97:Tou Shi Che
+98:Nu Che
+99:The serf supplies your buildings with the necessary raw materials.||Note that a connecting road must exist between the buildings.
+100:To produce tree trunks for the sawmill, you need the woodcutter.||The woodcutter carries out reforesting independently.
+101:The miner mines ore from the coal, iron and gold mines.
+102:The animal breeder uses corn to raise pigs in the swine farm and horses in the stables.
+103:The farmer plants and harvests corn on the farm.||He also produces wine in the vineyard.
+104:The carpenter works in the sawmill, the weapons workshop and in the armory workshop.||He also builds catapults and ballistae in the siege workshop.
+105:The baker grinds corn into flour in the mill.||He also bakes bread in the bakery.
+106:The butcher makes sausages in the butchery and leather in the tannery.
+107:The fisherman catches fish in nearby water bodies.
+108:The laborer constructs buildings and roads. Simply highlight your preferred location and he will carry out your commands automatically.||He also repairs damaged buildings.
+109:To supply your laborers with enough material to construct roads and buildings, the stonemason will hew and cut stones.
+110:The blacksmith forges iron weapons and armor in the weapons and armor smithies.
+111:The metallurgist uses coal to refine gold and iron ore.
+112:The recruit can be equipped as a soldier in the barracks.||He also occupies the watchtower.
+147:Jian Zhu Lie Biao
+148:Wu Zi Fen Pei
+149:Shu Ju Tong Ji
+150:Xi Tong She Zhi
+151:Fan Hui
+152:Jian Zhu Lie Biao
+153:Wu Zi Fen Pei
+154:Shu Ju Tong Ji
+155:Xi Tong She Zhi
+156:Du Qu You Xi
+157:Bao Cun You XI
+158:Ni Que Ding Yao Tui Chu Ren Wu Ma?
+159:Tui Chu Ren Wu
+160:Fan Hui
+161:She Zhi
+162:Tui Chu Ren Wu
+163:Yin Xiao
+164:Tiao Jie Yin Liang
+165:Yin Yue
+166:Yin Yue Kai/Guan
+167:Zi Dong Bao Cun
+168:Yin Yue Bo Fang Qi
+169:Shang Yi Shou Ge
+170:Xia Yi Shou Ge
+171:Chai Chu
+172:Chai Chu Jian Zhu/Bei Xuan Zhong
+173:Dao Lu\n
+174:Dao Lu
+175:Nong Tian
+176:Nong Tian
+177:Pu Tao Yuan
+178:Pu Tao Yuan
+179:Qu Xiao
+180:Qu Xiao Dang Qian Xun Lian
+181:Xu Qiu:
+182:Xue Liang:
+183:Cun Huo
+184:Fang Wu | Zheng Zai Jian Zao
+185:Cui Hui
+186:Ni Zhen De Xiang | Chai Chu Zhe Ge Jian Zhu Ma?
+187:Chai Chu Xuan Ze De Jian Zhu
+188:Jian Shao Shu Liang
+189:Zeng Jia Shu Liang
+190:Shang Yi Ge Shi Bing Zhong Lei
+191:Xia Yi Ge Shi Bing Zhong Lei
+192:Zhuang Bei Shi Bing
+193:Shang Yi Ge Zhi Ye
+194:Xia Yi Ge Zhi Ye
+195:Tian Jia Dao Dui Lie
+196:Xiao Hao:
+197:Da Kai / Guan Bi Fang Wu Xiu Li
+198:Jian Zhu Wu Dang Qian Bu Ke You
+199:Ji e
+200:Xiao Dui Zuo Zhuan
+201:Xiao Dui You Zhuan
+202:Gong Ji ('a')
+203:Zhi Pai ('d')
+204:Gei Jun Dui Ti Gong Shi Wu
+205:Kai Shi Chong Feng
+206:Zeng Jia Hang
+207:Jian Shao Hang
+208:Xuan Ze Xiao Dui
+209:Qu Xiao
+210:Shan Chu
+211:Shan Chu Xiao Xi
+212:Qu
+213:Qu Dang Qian Xiao Xi Chu
+214:Guan Bi
+215:Guan Bi Chuang Kou
+216:Ni De Shi Jiang Wu Fa Cai Ji Dao Ren He Shi Tou.
+217:Ni De Mei Kuang Ku Jie.
+218:Ni De Tie Kuang Ku Jie.
+219:Ni De Jin Kuang Ku Jie.
+220:Fang Wu Mei Ren Shi Yong.
+221:Zhe Dui Shi Bing Fei Chang Ji e,Ta Men Xu Yao Jin Kuai Chi Yi Xie Dong Xi!
+222:Zan Ting
+223:Tiao Jie Yin Liang
+224:Da Kai / Guan Bi Yun Shu Wu Zi
+418:Spirit
+419:Busy
+420:Middle Ages Horn
+421:Spring
+422:Lute
+423:Mercenary
+424:The Princess
+425:The Queen
+426:In the Marketplace
+427:On the Battlefield
+428:Court Dance
+429:The Army
+430:In the Castle
+431:Fanfares
+432:At Court
+433:Entree
+434:Deep Blue
+435:Struggle
+436:Royal Quarters
+437:Aristocracy
+438:At the Harbor
+439:Journey
+849:Wan Dan Ren Di Tu
+850:Kai Shi Di Tu
+851:Hui Dao Cai Dan
+852:Jia Zai Bao Cun You Xi
+853:Duo Ren You Xi
+854:She Zhi
+855:Zhi Zuo Tuan Dui
+856:Tui Chu You Xi
+857:Ji Xu
+858:Chong Qi Ren Wu
+859:Jie Jue Fang Fa:
+860:Sheng Li!
+861:Shi Bai!
+862:Ren Yuan Sun Shi Shu Liang:
+863:Sha Si Dan Wei Shu Liang:
+864:Jian Zhu Wu Sun Shi Shu Liang:
+865:Chai Hui Jian Zhu Wu Shu Liang:
+866:Jian Zao Jian Zhu Shu Liang:
+867:Xun Lian Dan Wei Shu Liang:
+868:Wu Qi Sheng Chan Shu Liang:
+869:Shi Bing Xun Lian Shu Liang:
+870:Ren Wu Wan Cheng:
+1000:1000:1000:1000:1000:1000:1000:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andr?Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||TRANSLATION:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+1686:Ren Wu Qu Xiao
+1687:Jian Zao Jiao Cheng
+1688:Zhan Dou Jiao Cheng
+1689:Dan Ren You Xi
+1690:Di Tu Bian Ji Qi
+1692:Kai Shi Ren Wu
+1693:Biao Ti
+1694:Da Xiao
+1695:Ren Wu Lei Xing: %s
+1696:Sheng Li Tiao Jian: %s
+1697:Shi Bai Tiao Jian: %s
+1698:Meng You:
+1699:Di Ren:
+1701:Xin De Di Tu Chi Cun
+1702:Kuan Du
+1703:Gao Du
+1704:Chuang Jian Xin De Di Tu
+1705:Ke Yong De Di Tu
+1706:Du Qu Xian You De Di Tu
+1707:Kong Zhi Qi
+1708:You Xi Wan Jia:
+1709:Sheng Yin:
+1710:Jin Yong Yin Yue
+1711:Tu Xing:
+1712:Liang Du
+1713:Quan Ping
+1714:Ying Yong
+1715:Yu Yan:
+1716:Jia Zai... Qing Shao Deng
+1717:You Cuo Wu Fa Sheng
+1718:Xin De Yu Yan Huan Jing Jia Zai
+1719:Cun Dang You Xi Lie Biao
+1720:Wen Jian Ming
+1721:Miao Shu
+1722:Jia Zai
+1723:Shan Chu
+1724:Ni Que Ding Shan Chu Zhe Ge Ji Lu MA?
+1725:Shan Chu
+1726:Qu Xiao
+1728:Ni Ying Le!
+1729:Ji Xu Wan
+1730:Sheng Li!
+1731:Ni Shu Le!
+1732:Ji Xu Guan Kan
+1733:Shi Bai
+1734:Lu Xiang Yi Jing Jie Shu
+1735:Ji Xu Guan Kan
+1736:Tui Chu Cai Dan
+1737:Bu Ke Yong
+1738:An %s Ji Xu You Xi
+1739:Qie Huan Dao Xiao Dui
+1740:Wan Jia Xin Xi
+1741:Liao Tian
+1742:Ji Lu Yi Jing Cun Zai
+1743:Fu Gai
+1744:Ji Lu
+1745:Du Qu
+1746:You Xi Jin Cheng Zhong Fa Sheng Le Cuo Wu.
+1747:Qing Fa Song Ni De Cuo Wu Wen Jian%Gei Kai Fa Ren Yuan. Lian Xi Xiang Qing Ke Kan Shuo Ming Wen Jian . Fei Chang Gan Xie Nin De Re Qing Bang Zhu!
+1748:Jian Ce Dao De OpenGL Ban Ben Jiao Zao,You Xi Yun Xing Ke Neng Huan Man Huo Zhe Chu Xian Tu Xing Wen Ti
+1749:Wang Luo Cuo Wu:
+1750:Cuo Wu: Wan Jia Xing Ming Bu Neng Kong Bai
+1751:Lian Jie Shi Bai: %s
+1752:Ni Yi Jing Duan Kai Lian Jie
+1753:Ren Wu %d
+1754:Ni De Yu Fu Xiao Wu Li Shui Tai Yuan.
+1755:Ni De Yu Fu Zai Fu Jin Shui Yu Nei Bu Neng Zai Zhuo Dao Geng Duo De Yu Le
+1757:Shi Yong Shu Biao Zuo Jian Xuan Ze Mao YI Zhong Lei
+1758:Shi Yong Shu Biao You Jian Xuan Ze Mao Yi Zhong Lei
+1759:Cong x%d
+1760:Huan x%d
+1761:Di Xing Bian Ji Qi
+1762:Cun Zhuang Gui Hua
+1763:Shi Jue Jiao Ben
+1764:Quan Ju Jiao Ben
+1765:Cai Dan
+1766:Zhuang Tai:
+1767:Wan Jia Xing Ming
+1768:Chuang Jian Fu Wu Qi
+1769:Ming Zi
+1770:Duan Kou
+1771:Chuang Jian Ben Di Fu Wu Qi
+1772:Chuang Jian Wang Luo Fu Wu Qin
+1773:Fu Wu Qi Ming Cheng
+1774:Zhuang Tai
+1775:Wan Jia
+1776:Ping
+1777:Shua Xin Fu Wu Qi Lie Biao
+1778:Fu Wu Qi Xi Jie
+1779:Wan Jia Lie Biao:
+1780:Di Zhi
+1781:Duan Kou
+1782:Fang Jian
+1783:Jia Ru
+1784:Lian Jie Zhong,Qing Shao Deng...
+1785:Jia Zai Gong Gao...
+1786:Shua Xin...
+1787:Wan Jia Ming
+1788:Kai Shi Wei Zhi
+1789:Dui Wu
+1790:Yan Se
+1791:Zhun Bei
+1792:Ping
+1793:Ti Chu
+1794:Da Kai
+1795:Dian Nao
+1796:Xuan Ze...
+1797:Sui Ji
+1799:Mei You
+1802:Fa Song Xin Xi:
+1803:Di Tu Lei Xing
+1804:Dan Ren Di Tu
+1805:Bao Cun You Xi
+1806:Xuan Ze Yi Ge Di Tu
+1807:Xuan Ze Yi Ge Ji Lu...
+1808:Di Tu Xin Xi:
+1809:Wan Jia: %d
+1810:Mo Shi:
+1811:Tiao Jian:
+1813:Tui Chu Da Ting
+1814:Zhun Bei
+1815:Kai Shi!
+1816:Deng Dai Wan Jia:
+1817:Qi Shi Yu Shang Ren Chong Zhi Ban Ren Yuan
+1818:Qi Shi Yu Shang Ren Yuan Zhi Zuo Ren Yuan
+1819:Bian Cheng:
+1820:E Wai De Bian Cheng:
+1821:E Wai De Tu Pian:
+1822:E Wai De Fan Yi:
+1823:Te Bie Gan Xie:
+1824:Duo Ren Di Tu
+1825:Dan Ren Di Tu
+1826:Gun Dong Su Du
+1827:Mei You Fa Xian Fu Wu Qi
+1828:Sui Ji Bo Fang Yin Yue
+1829:Di Tu Xin Xi:
+1830:-
+1831:Deng Dai 
+1832:Jia Zai Zhong
+1833:You Xi
+1834:Wei Zhi %d
+1835:Jian Zhu He Zhan Dou
+1836:Zhan Dou
+1837:Qu Xiao Zhun Bei
+1838:Zhun Bei
+1839:Cuo Wu:Xuan Ze Cun Dang Zhong De Yi Ge Wan Jia Kong Zhi
+1840:Cuo Wu:Di Tu Wei Neng Ja Zai Qing Xuan Ze Di Tu
+1841:Bu Neng Kai Shi: %s
+1842:Bu Shi Suo You Ren Dou Zhun Bei Kai Shi
+1843:Wan Jia Shu Liang Chao Guo Di Tu Xian Zhi
+1844:Cuo Wu De Xie Yi Ban Ben: %s. Fu Wu Qi Shi Yong: %s
+1845:Ni Yi Jing Cheng Wei Zhu Ji
+1846:Zeng Jia Jiao Yi E Du
+1847:Jian Shao Jiao Yi E Du
+1848:Bao Cun You Xi...
+1849:%s Bei Ji Bai Le!
+1850:E Wai De Sheng Yin:
+1851:Diu Qi Wan Jia
+1852:Zhu Ji Jiang Zai %d Miao Hou Diu Qi Zhe Xie Wan Jia
+1853:Zhu Ji Xian Zai Jiang Diu Qi Zhe Xie Wan Jia
+1854:Zhu Ji  (%s) Yi Jing Tui Chu
+1855:Dao Fu Wu Qi De Lian Jie Diu Shi.Shi Tu Chong Xin Lian Jie...
+1856:Ni Que Ding Ni Xiang Yao Tui Chu Ma?
+1857:Ni Que Ding Ni Xiang Yong Jiu Qu Chu Zhe Xie Wan Jia Ma?
+1858:Qu Xiao
+1859:Dan Wei  |Xun Lian
+1860:Dan Wei  | Si Wang
+1861:Shi Bing | Xun Lian
+1862:Shi Bing | Si Wang
+1863:Dan Wei  | Sha Di
+1864:Jian Zhu Wu | Jian Zao
+1865:Jian Zhu Wu | Sun Shi
+1866:Jian Zhu Wu | Cui Hui
+1867:Wu Zi | Sheng Chan Shu
+1868:Wu Qi | Sheng Chan
+1869:Ben Ren Wu Zhong Zi Yuan Bu Ke Mao Yi
+1870:Zhong Zhi Kan Fa
+1871:Jin Kan Fa
+1872:You Xi Kai Shi
+1873:Jian Zhu  Di Tu
+1874:Zhan Dou Di Tu
+1875:He Zuo Di Tu
+1876:Ni Bu Neng Zuo De,Zi He Ping Shi Qi
+1877:He Ping Qi Sheng Yu: %s
+1878:He Ping Shi Qi Yi Jing Jie Shu. Kai Shi Zhan Dou!
+1879:You Xi Shi Jian:|%s
+1880:You Xi Xuan Xiang:
+1884:Ting Zhi Dui Wu  ('%s')
+1885:He Bin Dui Wu  ('%s')
+1886:Dan Du Dui Wu  ('%s')
+1887:Guan Kan Lu Xiang
+1888:Lu Xiang Chong Bo
+1889:He Ping Shi Qi (Shi Jian)
+1890:Bu Zhi Chi De Ge Shi %s
+1891:Bu Zhi Chi De Ban Ben %s
+1893:Chu Shi Hua
+1894:Duo Ren Chu Shi Hua
+1895:Jiao Ben
+1896:Xin De Ren Wu
+1897:Chu Xian Yi Ge Cuo Wu Ee Jie Xi Wen Jian %s
+1898:Guan Bi
+1899:Zhu Ji Kong Zhi You Xi
+1900:additional sprites
+1901:Dan Wei
+1902:Fang Wu
+1903:Shu
+1904:Ding Yi
+1905:Que Ding
+2687:Chuang Jian Fu Wu Qi
+2688:Zhao Dao Fu Wu Qin
+2689:Lian Jie
+2690:Zhao Fu Wu Qi De IP
+2691:Qu Xiao
+2692:Qu Xiao
+2693:Bu Zhi Chi
+2694:Bu Zhi Chi
+2695:Cuo Wu: Wan Jia Xing Ming Bu Neng Chao Guo %d Zi Fu Chang Du
+2696:Cuo Wu: Wan Jia Xing Ming Bao Han Fei Fa Zi Fu
+2697:Ying Zi Zhi Liang:
+2698:Di
+2699:Gao
+2700:Di Tu Mei You Fa Xian: %s
+2701:Ying She Wen Jian Bu Pi Pei Zhu Ji De Di Tu: %s
+2702:Ji Lu Mei You Fa Xian: %s
+2703:Ji Lu Bu Pi Pei Zhu Ji De Ji Lu: %s
+2704:Jing Gao:Ji Xu Wan Hou Zhe Ge Cuo Wu Ke Neng Dao Zhi Jin Yi Bu Beng Kui He Bu Wen Ding.Ni Yuan Yi Mao Zhe Ge Xian Ji Xu Wan Ma?
+2705:Qing Geng Xin Nin De Xian Ka Qu Dong Lai Huo De Geng Hao De Xing Neng
+2706:Zai Ying Yong Cheng Xu Zhong Fa Sheng Cuo Wu. Qing Dian Ji Fa Song Cuo Wu Bao Gao,Wo Men Ke Yi Yan Jiu Zhe Ge Wen Ti. Xie Xie Ni De Bang Zhu!
+2707:Fa Sheng Cuo Wu Bao Gao
+2708:Xian Shi Yuan Shi Shu Ju
+2709:Hui Fang Shi Bai De Yi Ge Zhi Ming Cuo Wu. Zhe Shi Yi Ge Yi Jing Dw Que Xian Ying Xiang Bo Fang Yi Xie Lu Xiang.Ni Xiang Ji Xu Guan Kan Ma?
+2710:Ni De Ming Zi:(Ke Xuan)
+2711:Ni De Dian Zi You Jian:(Ke Xuan)
+2712:Ji De Wo
+2713:Zai Shen Me Qing Kuang Xia You Cuo Wu De Bao Gai?Ni Neng Ti Gong E Wai Xin Xi?(Ying Yu You Xian)
+2714:Fu Shang Yi Ge bug Bao Gao De Ping Mu Jie Tu
+2715:(Dian Ji Bian Ji Tu Xiang)
+2716:Zhong Zhi Ying Yong Cheng Xu
+2717:Hui Fu Ying Yong Cheng Xu
+2718:Xi Yi Ge
+2719:Fa Song Bao Gao
+2720:Qu Xiao
+2721:Cha Kan Xi Jie
+2722:Cuo Wu Xi Jie
+2723:Jie Tu
+2724:Fa Song Cuo Wu Bao Gao...
+2725:Lian Jie Dao Fu Wu Qi...
+2726:Fa Song Shu Ju...
+2727:Fa Song Beng Kui Bao Gao Shi Bai! Wo Men De Fu Wu Qi Ke Neng Hen Mang ,Qing Chang Shi Zai Ci Fa Song Ta.
+2728:Xin Xi
+2729:Qing Shao Deng...
+2730:Ren Wu
+2731:Zi Ding Yi Ren Wu
+2732:Kai Shi Ren Wu!
+2734:Shi Bing | Ji Bai
+2736:Biao Ti
+2737:Di Tu
+2738:Jie Suo
+2739:Shi Jian
+2740:Chong Qi Lu Xiang
+2741:Tui Chu Lu Xiang
+2742:Hui Fu Zan Ting Lu Xiang
+2743:Di Yi Bu Qian Jin
+2744:Zan Ting Lu Xiang
+2745:You may only have one instance of the game in multiplayer mode at once
+2746:Lu Xiang Jie Shu
+2747:E Wai De Yin Yue:
+2748:Ni
+2749:Wan Jia %d
+2750:Jun Dui
+2751:Dan Wei
+2752:Jian Zhu
+2753:Zi Yuan
+2754:Zi Yuan Sheng Chan
+2755:Shu Ju Tong Ji
+2756:Jing Ji
