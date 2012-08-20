@@ -40,7 +40,7 @@ type
   end;
 
 //Simplify shapes by removing unnecessary points from straight lines
-procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
+procedure SimplifyStraights(const aIn: TKMShapesArray; aRect: TKMRect; var aOut: TKMShapesArray);
 
 procedure ForceOutlines(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArray);
 
@@ -50,7 +50,7 @@ procedure RemoveObstaclePolies(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMSha
 procedure RemoveFrame(var aTriMesh: TKMTriMesh);
 
 //Remove anything that is outside bounds
-procedure RemoveDegenerates(var aTriMesh: TKMTriMesh);
+procedure CheckForDegenerates(var aTriMesh: TKMTriMesh);
 
 
 implementation
@@ -395,9 +395,14 @@ begin
 end;
 
 
-procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray);
+procedure SimplifyStraights(const aIn: TKMShapesArray; aRect: TKMRect; var aOut: TKMShapesArray);
   procedure SimplifyStraights2(const aIn: TKMNodesArray; var aOut: TKMNodesArray);
-  var K: Integer; P0, P1, P2: Integer;
+  var
+    K: Integer;
+    P0, P1, P2: TKMPointI;
+    NodesOnEdge: Boolean;
+    NodesOnLine: Boolean;
+    KeepNode: Boolean;
   begin
     //Reserve space for worst case when nothing gets optimized
     SetLength(aOut.Nodes, aIn.Count);
@@ -405,14 +410,16 @@ procedure SimplifyStraights(const aIn: TKMShapesArray; var aOut: TKMShapesArray)
     aOut.Count := 0;
     for K := 0 to aIn.Count - 1 do
     begin
-      P0 := (K - 1 + aIn.Count) mod aIn.Count;
-      P1 := K;
-      P2 := (K + 1) mod aIn.Count;
-      if (((aIn.Nodes[P0].X <> aIn.Nodes[P1].X) or (aIn.Nodes[P1].X <> aIn.Nodes[P2].X))
-      and ((aIn.Nodes[P0].Y <> aIn.Nodes[P1].Y) or (aIn.Nodes[P1].Y <> aIn.Nodes[P2].Y)))
-      or (K mod 11 = 6) //Keep some points inbetween
-//todo: Don't keep points on Rect bounds
-      then
+      P0 := aIn.Nodes[(K - 1 + aIn.Count) mod aIn.Count];
+      P1 := aIn.Nodes[K];
+      P2 := aIn.Nodes[(K + 1) mod aIn.Count];
+
+      NodesOnEdge := (P1.X = aRect.Left) or (P1.Y = aRect.Top) or (P1.X = aRect.Right) or (P1.Y = aRect.Bottom);
+      NodesOnLine := ((P0.X = P1.X) and (P1.X = P2.X)) or ((P0.Y = P1.Y) and (P1.Y = P2.Y));
+
+      KeepNode := not NodesOnLine or ((K mod 11 = 6) and not NodesOnEdge);
+
+      if KeepNode then
       begin
         aOut.Nodes[aOut.Count] := aIn.Nodes[K];
         Inc(aOut.Count);
@@ -709,8 +716,7 @@ begin
 end;
 
 
-//Remove anything that is outside bounds
-procedure RemoveDegenerates(var aTriMesh: TKMTriMesh);
+procedure CheckForDegenerates(var aTriMesh: TKMTriMesh);
 var I: Integer;
 begin
   I := 0;
@@ -721,12 +727,13 @@ begin
     or (Polygons[I,2] = Polygons[I,0]) then
     //Cut the triangle
     begin
-      //Move last triangle to I
+      Assert(False, 'Degenerate poly left');
+      {//Move last triangle to I
       Polygons[I,0] := Polygons[High(Polygons),0];
       Polygons[I,1] := Polygons[High(Polygons),1];
       Polygons[I,2] := Polygons[High(Polygons),2];
       Dec(I);
-      SetLength(Polygons, Length(Polygons) - 1);
+      SetLength(Polygons, Length(Polygons) - 1);}
     end;
     Inc(I);
   until(I >= Length(Polygons));

@@ -314,7 +314,7 @@ begin
       WalkPerimeter(K,I);
   end;
 
-  SimplifyStraights(fRawOutlines, fRawOutlines2);
+  SimplifyStraights(fRawOutlines, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fRawOutlines2);
 
   with TKMSimplifyShapes.Create(2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1)) do
   begin
@@ -387,7 +387,7 @@ begin
 
   RemoveFrame(fRawDelaunay);
 
-  RemoveDegenerates(fRawDelaunay);//}
+  CheckForDegenerates(fRawDelaunay);//}
 
   //Bring triangulated mesh back
   SetLength(fNavMesh.Vertices, Length(fRawDelaunay.Vertices));
