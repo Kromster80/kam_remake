@@ -691,10 +691,7 @@ begin
     ut_Bowman:      Result := RANGE_BOWMAN_MIN;
     ut_Arbaletman:  Result := RANGE_ARBALETMAN_MIN;
     ut_Slingshot:   Result := RANGE_SLINGSHOT_MIN;
-    //When units walk past us diagonally they can be closer than 1 tile between steps (0.707).
-    //Must not be <=0.5 because then KMGetDirection can fail in fight action if you spam units with middle mouse
-    //(opponent appears to be on our tile if the scout is dropped on a tile that another unit only just left)
-    else            Result := 0.6;
+    else            Result := 0.5;
   end;
 end;
 
@@ -1072,7 +1069,7 @@ begin
         and(GetUnitAction is TUnitActionStay) then
       begin
         //Archers - If foe is reachable then turn in that direction and CheckForEnemy
-        Direction := KMGetDirection(GetPosition, ChosenFoe.GetPosition);
+        Direction := KMGetDirection(PositionF, ChosenFoe.PositionF);
         AnimStep := UnitStillFrames[Direction];
         CheckForEnemy;
       end;
