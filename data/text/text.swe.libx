@@ -234,9 +234,9 @@ MaxID:2756
 1692:Starta uppdraget
 1693:Titel
 1694:Storlek
-1695:Uppdragstyp:
-1696:Vinstvillkor:
-1697:Förlustvillkor:
+1695:Uppdragstyp: %s
+1696:Vinstvillkor: %s
+1697:Förlustvillkor: %s
 1698:Allierade:
 1699:Fiender:
 1701:Ny kartstorlek
@@ -351,7 +351,7 @@ MaxID:2756
 1816:Väntar på spelare:
 1817:KaM Remakes skapare
 1818:Original Knights & Merchants skapare
-1819:PROGRAMMERIG:
+1819:PROGRAMMERING:
 1820:YTTERLIGARE PROGRAMMERING:
 1821:YTTERLIGARE GRAFIK:
 1822:YTTERLIGARE ÖVERSÄTTNING:
@@ -453,3 +453,6 @@ MaxID:2756
 2703:Sparfilen stämmer inte överens med värdens fil: %s
 2704:VARNING: Att fortsätta spela efter detta fel kan innebära fler krascher och instabiliteter. Fortsätta spela ändå?
 2705:Var god uppdatera dina grafikkortsdrivrutiner för bättre prestanda
+2710:Ditt namn: (valfritt)
+2711:Din e-post: (valfritt)
+2747:YTTERLIGARE MUSIK:

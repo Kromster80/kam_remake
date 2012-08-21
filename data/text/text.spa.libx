@@ -225,7 +225,7 @@ MaxID:2756
 868:Armas producidas:
 869:Soldados equipados:
 870:Duración del juego:
-1000:JOYMANIA ENTERTAINMENT||traduccion al español: el_gonzo||PROGRAMMING:|Peter Ohlmann||INGAME GRAPHICS:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||INGAME MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||CUTSCENES:||Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|ADDITIONAL 3D-MODELLING:|Niels Horstmann||THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+1000:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||INGAME GRAPHICS:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||INGAME MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||CUTSCENES:||Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|ADDITIONAL 3D-MODELLING:|Niels Horstmann||THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
 1686:Misión Cancelada
 1687:Tutorial de Construción
 1688:Tutorial de Batalla
@@ -237,8 +237,8 @@ MaxID:2756
 1695:Tipo de misión: %s
 1696:Condiciones de Victoria: %s
 1697:Condiciones de Derrota: %s
-1698:Alidados
-1699:Enemigos
+1698:Alidados:
+1699:Enemigos:
 1701:Nueva medida de mapa
 1702:Anchura
 1703:Altura
@@ -257,7 +257,7 @@ MaxID:2756
 1716:Cargando... Por favor espera
 1717:Se ha producido un error
 1718:Cargando nueva partida local
-1719:Lisa de partidas guardadas
+1719:Lista de partidas guardadas
 1720:Nombre de archivo
 1721:Descripción
 1722:Carga
@@ -284,11 +284,11 @@ MaxID:2756
 1744:Salvar
 1745:Cargar
 1746:Se ha producido un error durante el juego
-1747:Por favor envia el archivo %s del directorio KaM Remake\\Crash a los desarrolladoes del juego, son archivos que informan de errores y puedan reparar los fallos. ¡Muchas gracias por su ayuda!
+1747:Por favor envíe el archivo %s del directorio KaM Remake\\Crash Reports a los desarrolladores del juego. Los detalles de contacto están incluidos en el archivo Readme. ¡Muchas gracias por su ayuda!
 1748:Se ha detectado una versión antigua de OpenGL, el juego puede ejecutarse lentamente y / o con defectos gráficos
 1749:Error en la red:
 1750:Error: Nombre del jugador no puede estar en blanco
-1751:Conexión fallida %s
+1751:Conexión fallida: %s
 1752:Te has desconectado
 1753:Misión %d
 1754:El pescador no puede pescar tan lejos del agua.
@@ -351,9 +351,9 @@ MaxID:2756
 1816:Esperando a los jugadores:
 1817:KaM Remake Créditos
 1818:Créditos originales Knights & Merchants
-1819:PROGRAMADOR
-1820:PROGRAMADORES ADICIONALES
-1821:GRÁFICOS ADICIONALES
+1819:PROGRAMADOR:
+1820:PROGRAMADORES ADICIONALES:
+1821:GRÁFICOS ADICIONALES:
 1822:TRADUCIONES ADICIONALES:
 1823:ESPECIALES GRACIAS A:
 1824:Mapas Multijugador
@@ -372,7 +372,7 @@ MaxID:2756
 1837:No estoy listo
 1838:Listo
 1839:Error: Por favor seleciona un jugador para tomar el control
-1840:Error: el mapa no se puede cargar o no has seleccionado el mapa
+1840:Error: El mapa no se puede cargar o no has seleccionado el mapa
 1841:No se puede iniciar: %s
 1842:Todos deben estar preparados para empezar
 1843:Excedes el límite de jugadores para ese mapa
@@ -382,7 +382,7 @@ MaxID:2756
 1847:Disminuir cantidad
 1848:Guardado el juego...
 1849:¡%s ha sido derrotado!
-1850:SONIDOS ADICIONALES
+1850:SONIDOS ADICIONALES:
 1851:Caida de jugadores
 1852:El anfitrión dejará caer a los jugadores pasados %d segundos
 1853:El anfitrión permite la caida de estos jugadores
@@ -425,7 +425,7 @@ MaxID:2756
 1894:iniciando multijugador
 1895:guión
 1896:Nueva Misión
-1897:Se ha producido un error al analizar el archivo
+1897:Se ha producido un error al analizar el archivo %s
 1898:Closed
 1899:Host does player setup
 1900:additional sprites
@@ -444,7 +444,7 @@ MaxID:2756
 2694:No soportada
 2695:Error: El nombre no debe tener más %d caracteres de largo
 2696:Error: El nombre del jugador tiene caracteres no permitidos
-2697:Calidad de sombras
+2697:Calidad de sombras:
 2698:Bajo
 2699:Alto
 2700:Mapa no encontrado: %s
@@ -453,3 +453,6 @@ MaxID:2756
 2703:El archivo guardado no coincide con el archivo guardado del Anfitrión: %s
 2704:ADVERTENCIA: Continuar jugando después de este error puede provocar mas fallos y inestabilidades. ¿Te gustaría seguir jugando y tomar este riesgo?
 2705:Por favor, actualice los controladores de gráficos para obtener un mejor rendimiento
+2710:Su nombre: (opcional)
+2711:Su correo electrónico: (opcional)
+2747:MÚSICA ADICIONALES:
