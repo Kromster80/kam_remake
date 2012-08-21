@@ -4,10 +4,10 @@ Todo:
  +	Crash when using MapEd unequalize right click just above the top row of the map
  +	Crash in KMGetDirection called from SetActionFight from TUnitActionWalkTo.Execute. See crash report email on 18/08/12. (possible cause: attacking an enemy that appears to be too close to you so KMGetDirection fails?)
  +	Beacon cursor is invisible in full screen mode and on certain computers. It looks like Windows prefers cursors no more than 64x64 pixels according to internet so I trimmed it down a bit, still looks ok and bug seems to be fixed, at least for me.
+ +	If you load a game and save it there's no .bas file so you can't replay it
 	Enforce tiles triangulation direction to NW-SE
 	Map Winter Comes does not have !CENTER_SCREEN commands so the locations are not shown the lobby (check other maps by HellRacer too)
 	When pressing ALT+F4 from full screen the "Are you sure you want to exit?" dialog is stuck behind the game window and I can't see a way to make it go on top. Maybe no dialog is necessary if someone tries to close from full screen, since ALT+F4 is not something you do lightly, IMO it's different to clicking X in windowed mode.
-	Autosaves don't have .bas files so you can't use them for replays
 	People press F12 by accident and enable UI overlays, maybe make debugging shortcuts disabled for release (they can be accessed from main menu if necessary)
 	All multiplayer maps need more starting food due to matching unit condition to original KaM
 	Tweak food values in market so most valuable foods are worth more

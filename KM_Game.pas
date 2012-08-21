@@ -447,7 +447,6 @@ begin
   //We need to make basesave.bas since we don't know the savegame name
   //until after user saves it, but we need to attach replay base to it.
   //Basesave is sort of temp we save to HDD instead of keeping in RAM
-  //todo: If you load a save there is no basesave available. If there is a .bas with the save file then that should be stored as the basesave so the replay works when saved under a different name.
   if fGameMode in [gmSingle, gmMulti] then
     SaveGame(SaveName('basesave', 'bas', IsMultiplayer));
 
@@ -1196,8 +1195,11 @@ begin
 
   SetKaMSeed(LoadedSeed);
 
-  DeleteFile(SaveName('basesave', 'bas', IsMultiplayer));
-  CopyFile(PChar(SaveName(aPathName, 'bas', IsMultiplayer)), PChar(SaveName('basesave', 'bas', IsMultiplayer)), False);
+  if fGameMode in [gmSingle, gmMulti] then
+  begin
+    DeleteFile(SaveName('basesave', 'bas', IsMultiplayer));
+    CopyFile(PChar(ChangeFileExt(aPathName, '.bas')), PChar(SaveName('basesave', 'bas', IsMultiplayer)), False);
+  end;
 
   //When everything is ready we can update UI
   UpdateUI;
