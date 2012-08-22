@@ -43,12 +43,12 @@
 	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
 	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800х600 .. 1366х768
 	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
-	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
+	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window
 	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
-	Armour smithy has shields as 2nd item, armour workshop has shields as 1st item. Would make sense to match them.
+	Armour smithy has shields as 2nd item, armour workshop has shields as 1st item. Would make sense to match them
 
-	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing might help?)
+	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Colored rectangle below cursor
 
 Improvements:
@@ -71,7 +71,7 @@ Improvements:
  +	Clicking RMB in schools queue should cancel units on right
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
-	The story message on campaign map should fade between sides when you mouse over, rather than jumping
+	The story message on campaign map should fade when you move mouse over it, without jumping
 	Mutltiplayer spectator mode
 	256x256 icons for EXE (for vista/7/8 users)
 	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
