@@ -101,6 +101,8 @@
 			<DCCReference Include="TestKM_Terrain.pas"/>
 			<DCCReference Include="TestKM_Utils.pas"/>
 			<DCCReference Include="TestKM_UnitActionGoInOut.pas"/>
+			<DCCReference Include="TestKM_AIFields.pas"/>
+			<DCCReference Include="..\KM_AIFields.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

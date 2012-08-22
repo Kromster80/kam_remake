@@ -27,11 +27,10 @@ type
     end;
 
     function GetBestOwner(aIndex: Integer): TPlayerIndex;
-  public
-
-    //GetOwnerOutline:
-
     procedure UpdateOwnership;
+  public
+    //GetOwnerOutline:
+    procedure UpdateState(aTick: Cardinal);
   end;
 
   //Influence maps, navmeshes, etc
@@ -405,13 +404,15 @@ begin
     fRawDelaunay.Polygons[I,2] := fDelaunay.Triangle^[I].vv2;
   end;
 
-  ForceOutlines(fRawDelaunay, fSimpleOutlines);
+  ForceOutlines(fRawDelaunay, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fSimpleOutlines);
 
   RemoveObstaclePolies(fRawDelaunay, fSimpleOutlines);
 
   RemoveFrame(fRawDelaunay);
 
   CheckForDegenerates(fRawDelaunay);//}
+
+  //Assert(Length(fRawDelaunay.Polygons) > 12);
 
   fNavMesh := TKMNavMesh.Create;
 
@@ -445,7 +446,7 @@ procedure TKMAIFields.UpdateState(aTick: Cardinal);
 begin
   //Maybe we recalculate Influences or navmesh sectors once in a while
 
-  if (aTick mod 60 = 0) then fNavMesh.UpdateOwnership;
+  fNavMesh.UpdateState(aTick);
 end;
 
 
@@ -490,9 +491,9 @@ begin
 
       K := fNavMesh.GetBestOwner(I);
       if K <> PLAYER_NONE then
-        Col := fPlayers[K].FlagColor and $FFFFFF or $80000000
+        Col := fPlayers[K].FlagColor and $FFFFFF or $A0000000
       else
-        Col := $20FF8000;
+        Col := $60FF0000;
       fRenderAux.Triangle(
         fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[0]].X,
         fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[0]].Y,
@@ -553,11 +554,12 @@ procedure TKMNavMesh.UpdateOwnership;
   begin
     Result := -1;
     for I := 0 to High(Polygons) do
-      if KMPointInTriangle(KMPointI(X,Y), fVertices[Polygons[I].Indices[0]], fVertices[Polygons[I].Indices[1]], fVertices[Polygons[I].Indices[2]]) then
-      begin
-        Result := I;
-        Break;
-      end;
+    with Polygons[I] do
+    if KMPointInTriangle(KMPointI(X,Y), fVertices[Indices[0]], fVertices[Indices[1]], fVertices[Indices[2]]) then
+    begin
+      Result := I;
+      Break;
+    end;
   end;
 var
   I, K: Integer;
@@ -568,13 +570,21 @@ begin
       Polygons[I].fOwner[K] := PLAYER_NONE;
 
   for I := 1 to fTerrain.MapY - 1 do
-    for K := 1 to fTerrain.MapX - 1 do
-      if fTerrain.Land[I,K].TileOwner <> PLAYER_NONE then
-      begin
-        Poly := GetPolyByTile(K,I);
-        if Poly <> -1 then
-          Inc(Polygons[Poly].fOwner[fTerrain.Land[I,K].TileOwner]);
-      end;
+  for K := 1 to fTerrain.MapX - 1 do
+  if fTerrain.Land[I,K].TileOwner <> PLAYER_NONE then
+  begin
+    Poly := GetPolyByTile(K,I);
+    if Poly <> -1 then
+      Inc(Polygons[Poly].fOwner[fTerrain.Land[I,K].TileOwner]);
+  end;
+end;
+
+
+procedure TKMNavMesh.UpdateState(aTick: Cardinal);
+begin
+  //Maybe we recalculate Influences or navmesh sectors once in a while
+
+  if (aTick mod 60 = 0) then UpdateOwnership;
 end;
 
 

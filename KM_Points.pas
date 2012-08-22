@@ -89,7 +89,8 @@ type
 
   function Mix(A,B:TKMPointF; MixValue:single):TKMPointF; overload;
 
-  procedure KMSwapPoints(var A,B:TKMPoint);
+  procedure KMSwapPoints(var A,B: TKMPoint); overload;
+  procedure KMSwapPoints(var A,B: TKMPointI); overload;
 
   function TypeToString(t:TKMPoint):string; overload;
   function TypeToString(T: TKMDirection): String; overload;
@@ -596,11 +597,19 @@ begin
 end;
 
 
-procedure KMSwapPoints(var A,B:TKMPoint);
-var w:word;
+procedure KMSwapPoints(var A,B: TKMPoint);
+var T: Word;
 begin
-  w:=A.X; A.X:=B.X; B.X:=w;
-  w:=A.Y; A.Y:=B.Y; B.Y:=w;
+  T:=A.X; A.X:=B.X; B.X:=T;
+  T:=A.Y; A.Y:=B.Y; B.Y:=T;
+end;
+
+
+procedure KMSwapPoints(var A,B: TKMPointI);
+var T: Integer;
+begin
+  T:=A.X; A.X:=B.X; B.X:=T;
+  T:=A.Y; A.Y:=B.Y; B.Y:=T;
 end;
 
 

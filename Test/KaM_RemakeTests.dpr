@@ -18,7 +18,9 @@ uses
   TestKM_Points in 'TestKM_Points.pas',
   TestKM_Terrain in 'TestKM_Terrain.pas',
   TestKM_Utils in 'TestKM_Utils.pas',
-  TestKM_UnitActionGoInOut in 'TestKM_UnitActionGoInOut.pas';
+  TestKM_UnitActionGoInOut in 'TestKM_UnitActionGoInOut.pas',
+  TestKM_AIFields in 'TestKM_AIFields.pas',
+  KM_AIFields in '..\KM_AIFields.pas';
 
 {$R *.RES}
 

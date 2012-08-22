@@ -72,9 +72,8 @@ begin
               Inc(Count);
             except
               //Report and swallow asserts
-              on E: EAssertionFailed do Status('Map did not load: ' + SearchRec.Name + '. '+ E.Message);
-              //Signal other errors loud
-              else raise;
+              on E: EAssertionFailed do
+                Status('Map did not load: ' + SearchRec.Name + '. '+ E.Message);
             end;
             Check(fTerrain.MapX * fTerrain.MapY <> 0, 'Map did not load: ' + SearchRec.Name);
             Inc(Total);
@@ -87,7 +86,7 @@ begin
     PathToMaps.Free;
   end;
 
-  Status(IntToStr(Total - Count) + ' of ' + IntToStr(Total) + ' maps failed')
+  Status(IntToStr(Total - Count) + ' of ' + IntToStr(Total) + ' maps failed');
 end;
 
 

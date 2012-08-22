@@ -28,7 +28,6 @@ type
     fKeep: array of array of Boolean;
     procedure SetupKeepArray;
     procedure Simplify(aShape, aFrom, aTo: Integer; aErrorSqr: Single; aForceSplit: Boolean = False);
-    procedure PolySimplify(aShape: Integer);
     procedure WriteOutput;
     procedure SetupOutputArray;
     procedure FixDegenerateShapes;
@@ -42,7 +41,7 @@ type
 //Simplify shapes by removing unnecessary points from straight lines
 procedure SimplifyStraights(const aIn: TKMShapesArray; aRect: TKMRect; var aOut: TKMShapesArray);
 
-procedure ForceOutlines(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArray);
+procedure ForceOutlines(var aTriMesh: TKMTriMesh; aRect: TKMRect; fSimpleOutlines: TKMShapesArray);
 
 procedure RemoveObstaclePolies(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArray);
 
@@ -139,38 +138,25 @@ begin
 end;
 
 
+//Simplify all the shapes
 //Based on Douglas-Peucker algorithm for polyline simplification
 //  aError - max allowed distance between resulting line and removed points
-procedure TKMSimplifyShapes.PolySimplify(aShape: Integer);
-var
-  InLoop: TKMPointArray;
-  I: Integer;
-  NCount: Integer;
-  Prev: Integer;
-begin
-  InLoop := fIn.Shape[aShape].Nodes;
-  NCount := fIn.Shape[aShape].Count;
-
-  Prev := 0;
-  for I := 1 to NCount do
-  if fKeep[aShape,I] then
-  begin
-    //We use Sqr values for all comparisons for speedup
-    Simplify(aShape, Prev, I, Sqr(fError));
-    Prev := I;
-  end;
-end;
-
-
-//Simplify all the shapes
 procedure TKMSimplifyShapes.SimplifyShapes;
 var
-  I: Integer;
+  I, K: Integer;
+  Prev: Integer;
 begin
   for I := 0 to fIn.Count - 1 do
   begin
     Assert(fIn.Shape[I].Count > 3, 'There''s nothing to simplify?');
-    PolySimplify(I);
+    Prev := 0;
+    for K := 1 to fIn.Shape[I].Count do
+    if fKeep[I,K] then
+    begin
+      //We use Sqr values for all comparisons for speedup
+      Simplify(I, Prev, K, Sqr(fError));
+      Prev := K;
+    end;
   end;
 end;
 
@@ -233,11 +219,14 @@ procedure TKMSimplifyShapes.FixDegenerateShapes;
 var
   I, K: Integer;
   Prev: Integer;
+  Node1, Node2: TKMPointI;
+  A, B: Integer;
+  Best: Single;
 begin
   for I := 0 to fIn.Count - 1 do
     if fOut.Shape[I].Count < 3 then
     begin
-      Assert(fOut.Shape[I].Count = 2, 'Two points expected');
+      Assert(fOut.Shape[I].Count = 2, 'Each shape must have at least 2 points');
       Prev := 0;
       for K := 1 to fIn.Shape[I].Count do
         if fKeep[I, K] then
@@ -247,6 +236,28 @@ begin
           Prev := K;
         end;
     end;
+
+  {//Add 4th point to each 3 point shape (to make sure it is not degenerate)
+  for I := 0 to fIn.Count - 1 do
+    if fOut.Shape[I].Count = 3 then
+    begin
+      A := 0; B := 0; Best := -1;
+      Prev := 0;
+      for K := 1 to fIn.Shape[I].Count do
+        if fKeep[I, K] then
+        begin
+          Node1 := fIn.Shape[I].Nodes[Prev];
+          Node2 := fIn.Shape[I].Nodes[K mod fIn.Shape[I].Count];
+          if KMDistanceSqr(Node1, Node2) > Best then
+          begin
+            A := Prev;
+            B := K;
+            Best := KMDistanceSqr(Node1, Node2);
+          end;
+          Prev := K;
+        end;
+      Simplify(I, A, B, Sqr(fError), True);
+    end;}
 end;
 
 
@@ -441,7 +452,7 @@ begin
 end;
 
 
-procedure ForceEdge(var aTriMesh: TKMTriMesh; A,B: TKMPointI);
+procedure ForceEdge(var aTriMesh: TKMTriMesh; A,B: TKMPointI; aSkipMissing: Boolean);
 var
   Edges: array [0..1] of array of SmallInt;
   Loop: array of Word;
@@ -508,7 +519,7 @@ begin
         Break;
     end;
 
-    Assert((Vertice1 <> -1) and (Vertice2 <> -1), 'Vertices could not be found?');
+    Assert(aSkipMissing or ((Vertice1 <> -1) and (Vertice2 <> -1)), 'Vertices could not be found?');
 
     //Exit early if that edge exists
     for I := 0 to High(Polygons) do
@@ -583,7 +594,7 @@ begin
 end;
 
 
-procedure ForceOutlines(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArray);
+procedure ForceOutlines(var aTriMesh: TKMTriMesh; aRect: TKMRect; fSimpleOutlines: TKMShapesArray);
   procedure CheckAllPolysFaceUp;
   var I: Integer;
   begin
@@ -591,13 +602,77 @@ procedure ForceOutlines(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArra
     for I := 0 to High(Polygons) do
       Assert(KMNormal2Poly(Vertices[Polygons[I,0]], Vertices[Polygons[I,1]], Vertices[Polygons[I,2]]) >= 0);
   end;
+
+var
+  Tmp: TKMPointArray;
+
+  procedure SortAndApply(aX: Boolean);
+  var
+    I, K: Integer;
+  begin
+  //Sort
+  for I := 0 to High(Tmp) do
+    for K := I + 1 to High(Tmp) do
+      if aX and (Tmp[K].X < Tmp[I].X)
+      or not aX and (Tmp[K].Y < Tmp[I].Y) then
+        KMSwapPoints(Tmp[K], Tmp[I]);
+
+  //Apply
+  for I := 0 to High(Tmp) - 1 do
+    ForceEdge(aTriMesh, Tmp[I], Tmp[I+1], True);
+  end;
 var
   I, K: Integer;
 begin
   for I := 0 to fSimpleOutlines.Count - 1 do
     with fSimpleOutlines.Shape[I] do
       for K := 0 to Count - 1 do
-        ForceEdge(aTriMesh, Nodes[K], Nodes[(K + 1) mod Count]);
+        ForceEdge(aTriMesh, Nodes[K], Nodes[(K + 1) mod Count], False);
+
+  //Collect
+  for I := 0 to High(aTriMesh.Vertices) do
+  if aTriMesh.Vertices[I].X = aRect.Left then
+  begin
+    SetLength(Tmp, Length(Tmp)+1);
+    Tmp[High(Tmp)] := aTriMesh.Vertices[I];
+  end;
+
+  SortAndApply(False);
+  SetLength(Tmp, 0);
+
+  //Collect
+  for I := 0 to High(aTriMesh.Vertices) do
+  if aTriMesh.Vertices[I].Y = aRect.Top then
+  begin
+    SetLength(Tmp, Length(Tmp)+1);
+    Tmp[High(Tmp)] := aTriMesh.Vertices[I];
+  end;
+
+  SortAndApply(True);
+  SetLength(Tmp, 0);
+
+  //Collect
+  for I := 0 to High(aTriMesh.Vertices) do
+  if aTriMesh.Vertices[I].X = aRect.Right then
+  begin
+    SetLength(Tmp, Length(Tmp)+1);
+    Tmp[High(Tmp)] := aTriMesh.Vertices[I];
+  end;
+
+  SortAndApply(False);
+  SetLength(Tmp, 0);
+
+  //Collect
+  for I := 0 to High(aTriMesh.Vertices) do
+  if aTriMesh.Vertices[I].Y = aRect.Bottom then
+  begin
+    SetLength(Tmp, Length(Tmp)+1);
+    Tmp[High(Tmp)] := aTriMesh.Vertices[I];
+  end;
+
+  SortAndApply(True);
+  SetLength(Tmp, 0);
+
   CheckAllPolysFaceUp;
 end;
 
@@ -624,7 +699,7 @@ var
       end;
     end;
   var
-    I, K, L: Integer;
+    I, K: Integer;
     Outline: array of Integer;
   begin
     with aTriMesh do
