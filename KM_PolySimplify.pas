@@ -182,34 +182,113 @@ end;
 //Setup boolean array that tells algo which points to keep
 procedure TKMSimplifyShapes.SetupKeepArray;
 var
-  I,K: Integer;
+  I,K,L: Integer;
   KeepMiddle: Boolean;
+  Corners: array of ShortInt;
+  N0, N1, N2: Integer;
+  FirstCorner: Integer;
+  TmpNode: TKMPointI;
+  TmpCorn: ShortInt;
+  Count1, Count2: Integer;
+  Best: Single;
+  BestI: Integer;
 begin
   SetLength(fKeep, fIn.Count);
+
   for I := 0 to fIn.Count - 1 do
+  with fIn.Shape[I] do
   begin
+    //Find corner nodes
+    SetLength(Corners, Count);
+    for K := 0 to Count - 1 do
+    begin
+      N0 := (K + Count - 1) mod Count;
+      N1 := K;
+      N2 := (K + 1) mod Count;
+      Corners[K] := Sign(KMNormal2Poly(Nodes[N0], Nodes[N1], Nodes[N2]));
+    end;
+
+    //Check corner count and invert signs if we are dealing with CCW instead of CW
+    //(yes, that can happen if obstacle gets parsed from opposite side)
+    Count1 := 0;
+    Count2 := 0;
+    for K := 0 to Count - 1 do
+    begin
+      Count1 := Count1 + Byte(Corners[K] > 0);
+      Count2 := Count2 + Byte(Corners[K] < 0);
+    end;
+    Assert(Abs(Count1 - Count2) = 4);
+    if Count2 > Count1 then
+    for K := 0 to Count - 1 do
+      Corners[K] := -Corners[K];
+
+    FirstCorner := -1;
+    for K := 0 to Count - 1 do
+    begin
+      N0 := (K + Count - 1) mod Count;
+      N1 := K;
+      N2 := (K + 1) mod Count;
+      if (Corners[N1] = 1) and ((Corners[N0] > 0) or (Corners[N2] > 0)) then
+      begin
+        FirstCorner := K;
+        Break;
+      end;
+    end;
+
+    if FirstCorner = -1 then
+      Assert(False, 'Could not find corners?');
+
+    //Shift start to Corner node
+    if FirstCorner > 0 then
+    begin
+      //Do that many 1-item shifts
+      for L := 0 to FirstCorner - 1 do
+      begin
+        TmpCorn := Corners[0];
+        TmpNode := Nodes[0];
+        for K := 0 to Count - 2 do
+        begin
+          Corners[K] := Corners[K+1];
+          Nodes[K] := Nodes[K+1];
+        end;
+        Corners[Count - 1] := TmpCorn;
+        Nodes[Count - 1] := TmpNode;
+      end;
+    end;
+
     //NCount+1 because we duplicate last point to let algo work on 2 polylines
-    SetLength(fKeep[I], fIn.Shape[I].Count + 1);
-    for K := 0 to fIn.Shape[I].Count do
+    SetLength(fKeep[I], Count + 1);
+    for K := 0 to Count do
       fKeep[I,K] := False;
     fKeep[I,0] := True;
-    fKeep[I,fIn.Shape[I].Count] := True;
+    fKeep[I,Count] := True;
 
     //We split loop in half and simplify both segments independently as two convex
     //lines. That is because algo is aimed at polyline, not polyloop
     KeepMiddle := True;
 
-    //Keep nodes on edges
-    for K := 0 to fIn.Shape[I].Count - 1 do
-    if (fIn.Shape[I].Nodes[K].X = fRect.Left) or (fIn.Shape[I].Nodes[K].Y = fRect.Top)
-    or (fIn.Shape[I].Nodes[K].X = fRect.Right) or (fIn.Shape[I].Nodes[K].Y = fRect.Bottom) then
+    //Keep nodes on edges (skip 1st-last that are already marked)
+    for K := 1 to Count - 1 do
+    if (Nodes[K].X = fRect.Left) or (Nodes[K].Y = fRect.Top)
+    or (Nodes[K].X = fRect.Right) or (Nodes[K].Y = fRect.Bottom) then
     begin
       fKeep[I,K] := True;
       KeepMiddle := False;
     end;
 
+    //Find farthest corner in the middle
     if KeepMiddle then
-      fKeep[I, fIn.Shape[I].Count div 2] := True;
+    begin
+      Best := 0;
+      BestI := 0;
+      for K := 2 to Count - 2 do
+      if (Corners[K] = 1) and (Best < KMDistanceSqr(Nodes[0], Nodes[K])) then
+      begin
+        Best := KMDistanceSqr(Nodes[0], Nodes[K]);
+        BestI := K;
+      end;
+      fKeep[I, BestI] := True;
+    end;
   end;
 end;
 
@@ -225,19 +304,22 @@ var
 begin
   for I := 0 to fIn.Count - 1 do
     if fOut.Shape[I].Count < 3 then
-    begin
       Assert(fOut.Shape[I].Count = 2, 'Each shape must have at least 2 points');
-      Prev := 0;
-      for K := 1 to fIn.Shape[I].Count do
-        if fKeep[I, K] then
-        begin
-          //We use Sqr values for all comparisons for speedup
-          Simplify(I, Prev, K, Sqr(fError), True);
-          Prev := K;
-        end;
-    end;
 
-  {//Add 4th point to each 3 point shape (to make sure it is not degenerate)
+  //Forcefully split 2 node outlines each segments
+  for I := 0 to fIn.Count - 1 do
+  if fOut.Shape[I].Count = 2 then
+  begin
+    Prev := 0;
+    for K := 1 to fIn.Shape[I].Count do
+    if fKeep[I, K] then
+    begin
+      Simplify(I, Prev, K, Sqr(fError), True);
+      Prev := K;
+    end;
+  end;
+
+  //Add 4th point to each 3 point shape (to make sure it is not degenerate)
   for I := 0 to fIn.Count - 1 do
     if fOut.Shape[I].Count = 3 then
     begin
@@ -257,7 +339,7 @@ begin
           Prev := K;
         end;
       Simplify(I, A, B, Sqr(fError), True);
-    end;}
+    end;//}
 end;
 
 
@@ -700,6 +782,7 @@ var
     end;
   var
     I, K: Integer;
+    CutCount: Integer;
     Outline: array of Integer;
   begin
     with aTriMesh do
@@ -741,6 +824,7 @@ var
 
       //Cut the triangles
       I := 0;
+      CutCount := 0;
       repeat
         if Mark[I] = pfRemove then
         begin
@@ -751,9 +835,12 @@ var
           Mark[I] := Mark[High(Polygons)];
           Dec(I);
           SetLength(Polygons, Length(Polygons) - 1);
+          Inc(CutCount);
         end;
         Inc(I);
       until(I >= Length(Polygons));
+      if CutCount > Length(Polygons) then
+        Assert(False, '');
     end;
   end;
 var

@@ -412,7 +412,7 @@ begin
 
   CheckForDegenerates(fRawDelaunay);//}
 
-  //Assert(Length(fRawDelaunay.Polygons) > 12);
+  //Assert(Length(fRawDelaunay.Polygons) > 8);
 
   fNavMesh := TKMNavMesh.Create;
 
@@ -484,7 +484,7 @@ begin
       fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
     end;
 
-  //Raw navmesh
+  //Raw navmesh triangles
   if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to High(fNavMesh.Polygons) do
     begin
@@ -503,20 +503,23 @@ begin
         fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[2]].Y, Col);
     end;
 
-  //Raw navmesh
+  //Raw navmesh mesh
   if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to High(fNavMesh.Polygons) do
     for K := 0 to High(fNavMesh.Polygons[I].Indices) do
     begin
       x1 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[K]].X;
       y1 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[K]].Y;
-
       J := (K + 1) mod Length(fNavMesh.Polygons[I].Indices);
       x2 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[J]].X;
       y2 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[J]].Y;
-
       fRenderAux.Line(x1,y1,x2,y2, $FFFF8000, $F0F0);
     end;
+
+  //Raw navmesh mesh
+  if AI_GEN_NAVMESH and fShowNavMesh then
+    for I := 0 to High(fNavMesh.fVertices) do
+      fRenderAux.Text(fNavMesh.fVertices[I].X,fNavMesh.fVertices[I].Y, IntToStr(I), $FF000000);
 
   //Simplified obstacle outlines
   if AI_GEN_NAVMESH and fShowNavMesh then
