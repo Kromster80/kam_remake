@@ -604,6 +604,8 @@ begin
   //pauses here until the user clicks ok.
   CanClose := (fGameApp = nil) or fGameApp.CanClose or
               (MessageDlg('Any unsaved changes will be lost. Exit?', mtWarning, [mbYes, mbNo], 0) = mrYes);
+              //@Krom: Even with all these flags it still goes under...
+              //MessageBox(Handle, PChar('Any unsaved changes will be lost. Exit?'), PChar('Warning'), MB_YESNO or MB_ICONWARNING or MB_SETFOREGROUND or MB_TOPMOST or MB_SYSTEMMODAL) = IDYES)
   if CanClose then
     fMain.Stop(Self);
 end;
