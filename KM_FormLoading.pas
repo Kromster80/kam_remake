@@ -23,10 +23,6 @@ type
   end;
 
 
-var
-  FormLoading: TFormLoading;
-
-
 implementation
 {$IFDEF WDC}
   {$R *.dfm}

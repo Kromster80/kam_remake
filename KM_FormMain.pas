@@ -120,6 +120,7 @@ type
     procedure Debug_ExportMenuPagesClick(Sender: TObject);
     procedure HousesDat1Click(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -128,10 +129,6 @@ type
     procedure ToggleControlsVisibility(aShowCtrls: Boolean);
     procedure ToggleFullscreen(aFullscreen: Boolean);
   end;
-
-
-var
-  FormMain: TFormMain;
 
 
 implementation
@@ -509,6 +506,7 @@ begin
     WindowState  := wsNormal;
     WindowState  := wsMaximized;
     BorderStyle  := bsNone;     //and now we can make it borderless again
+    Hide; //Hide the form until we start painting on it
   end else begin
     BorderStyle  := bsSizeable;
     WindowState  := wsNormal;
@@ -597,17 +595,17 @@ begin
     end;
 end;
 
-//Consult with the fGame if we can shut down the program
+
+//Tell fMain if we want to shut down the program
 procedure TFormMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  //MessageDlg works better than Application.MessageBox or others, it stays on top and
-  //pauses here until the user clicks ok.
-  CanClose := (fGameApp = nil) or fGameApp.CanClose or
-              (MessageDlg('Any unsaved changes will be lost. Exit?', mtWarning, [mbYes, mbNo], 0) = mrYes);
-              //@Krom: Even with all these flags it still goes under...
-              //MessageBox(Handle, PChar('Any unsaved changes will be lost. Exit?'), PChar('Warning'), MB_YESNO or MB_ICONWARNING or MB_SETFOREGROUND or MB_TOPMOST or MB_SYSTEMMODAL) = IDYES)
-  if CanClose then
-    fMain.Stop(Self);
+  fMain.CloseQuery(CanClose);
+end;
+
+
+procedure TFormMain.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  fMain.Stop(Self);
 end;
 
 

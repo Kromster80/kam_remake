@@ -9,8 +9,11 @@ uses
 type
   TKMMain = class
   private
+    fFormMain: TFormMain;
+    fFormLoading: TFormLoading;
+
     fOldTimeFPS, fOldFrameTimes, fFrameCount: Cardinal;
-    fMutex:THandle;
+    fMutex: THandle;
 
     fMainSettings: TMainSettings;
     fResolutions: TKMResolutions;
@@ -23,6 +26,7 @@ type
     destructor Destroy; override;
 
     procedure Start;
+    procedure CloseQuery(var CanClose: Boolean);
     procedure Stop(Sender: TObject);
 
     procedure Resize(X,Y: Integer);
@@ -63,6 +67,10 @@ begin
   inherited;
   //Create exception handler as soon as possible in case it crashes early on
   {$IFDEF USE_MAD_EXCEPT}fExceptions := TKMExceptions.Create;{$ENDIF}
+
+  //Form created first will be on taskbar
+  Application.CreateForm(TFormMain, fFormMain);
+  Application.CreateForm(TFormLoading, fFormLoading);
 end;
 
 
@@ -78,9 +86,9 @@ begin
   SetKaMSeed(4); //Used for gameplay events so the order is important
   Randomize; //Random is only used for cases where order does not matter, e.g. shuffle tracks
 
-  FormLoading.Label5.Caption := GAME_VERSION;
-  FormLoading.Show; //This is our splash screen
-  FormLoading.Refresh;
+  fFormLoading.Label5.Caption := GAME_VERSION;
+  fFormLoading.Show; //This is our splash screen
+  fFormLoading.Refresh;
 
   {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
@@ -104,9 +112,9 @@ begin
       fMainSettings.FullScreen := False;
   end;
 
-  FormMain.Caption := 'KaM Remake - ' + GAME_VERSION;
+  fFormMain.Caption := 'KaM Remake - ' + GAME_VERSION;
   //Will make the form slightly higher, so do it before ReinitRender so it is reset
-  FormMain.ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
+  fFormMain.ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
 
   ReinitRender(False);
 
@@ -114,13 +122,40 @@ begin
   Application.OnDeactivate := DoDeactivate;
   Application.OnRestore := DoRestore; //OnActivate seems to happen at the wrong times, OnRestore happens when alt-tabbing back in full screen mode
 
-  FormLoading.Hide;
+  fFormLoading.Hide;
 end;
 
 
 procedure TKMMain.StatusBarText(aPanelIndex: Integer; const aText: string);
 begin
-  FormMain.StatusBar1.Panels[aPanelIndex].Text := aText;
+  fFormMain.StatusBar1.Panels[aPanelIndex].Text := aText;
+end;
+
+
+procedure TKMMain.CloseQuery(var CanClose: Boolean);
+begin
+  //MessageDlg works better than Application.MessageBox or others, it stays on top and
+  //pauses here until the user clicks ok.
+  CanClose := (fGameApp = nil) or fGameApp.CanClose;
+
+  if not CanClose then
+  begin
+    //todo: Pause the game
+    //if fGame.Running then fGame.Pause
+
+    //Ask the Player
+    CanClose :=
+      //(MessageDlg('Any unsaved changes will be lost. Exit?', mtWarning, [mbYes, mbNo], 0) = mrYes);
+      //@Krom: Even with all these flags it still goes under...
+      MessageBox(fFormMain.Handle, PChar('Any unsaved changes will be lost. Exit?'),
+                         PChar('Warning'),
+                         MB_YESNO or MB_ICONWARNING or MB_SETFOREGROUND
+                         or MB_TASKMODAL) = IDYES;//}
+
+    //todo: Resume the game
+    if not CanClose then
+      //if fGame.WasRunning then fGame.Resume
+  end;
 end;
 
 
@@ -138,8 +173,8 @@ begin
 
   //We could be asked to close from MainForm or from other place
   //In first case Form will take care about closing itself
-  if Sender <> FormMain then
-    FormMain.Close;
+  if Sender <> fFormMain then
+    fFormMain.Close;
 end;
 
 
@@ -214,31 +249,31 @@ begin
   else
     fResolutions.Restore;
 
-  FormLoading.Position := poScreenCenter;
-  FormMain.ToggleFullscreen(fMainSettings.FullScreen);
+  fFormLoading.Position := poScreenCenter;
+  fFormMain.ToggleFullscreen(fMainSettings.FullScreen);
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   FreeThenNil(fGameApp); //Saves all settings into ini file in midst
   fGameApp := TKMGameApp.Create(
-                                FormMain.Panel5.Handle,
-                                FormMain.Panel5.Width,
-                                FormMain.Panel5.Height,
+                                fFormMain.Panel5.Handle,
+                                fFormMain.Panel5.Width,
+                                fFormMain.Panel5.Height,
                                 fMainSettings.VSync,
-                                FormLoading.LoadingStep,
-                                FormLoading.LoadingText,
+                                fFormLoading.LoadingStep,
+                                fFormLoading.LoadingText,
                                 StatusBarText);
   fGameApp.AfterConstruction(aReturnToOptions);
 
   fLog.AppendLog('ToggleFullscreen');
-  fLog.AppendLog('Form Width/Height: '+inttostr(FormMain.Width)+':'+inttostr(FormMain.Height));
-  fLog.AppendLog('Panel Width/Height: '+inttostr(FormMain.Panel5.Width)+':'+inttostr(FormMain.Panel5.Height));
+  fLog.AppendLog('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
+  fLog.AppendLog('Panel Width/Height: '+inttostr(fFormMain.Panel5.Width)+':'+inttostr(fFormMain.Panel5.Height));
 
-  Resize(FormMain.Panel5.Width, FormMain.Panel5.Height); //Force everything to resize
+  Resize(fFormMain.Panel5.Width, fFormMain.Panel5.Height); //Force everything to resize
   ApplyCursorRestriction;
 end;
 
 
-function TKMMain.LockMutex:Boolean;
+function TKMMain.LockMutex: Boolean;
 begin
   Result := True;
   if not BLOCK_DUPLICATE_APP then Exit;
@@ -261,7 +296,7 @@ end;
 
 function TKMMain.ClientRect: TRect;
 begin
-  Result := FormMain.Panel5.ClientRect;
+  Result := fFormMain.Panel5.ClientRect;
   Result.TopLeft := ClientToScreen(Result.TopLeft);
   Result.BottomRight := ClientToScreen(Result.BottomRight);
 end;
@@ -269,57 +304,57 @@ end;
 
 function TKMMain.ClientToScreen(aPoint: TPoint): TPoint;
 begin
-  Result := FormMain.Panel5.ClientToScreen(aPoint);
+  Result := fFormMain.Panel5.ClientToScreen(aPoint);
 end;
 
 
 //Can be invalid very breifly if you change resolutions (this is possible in Windowed mode)
-function TKMMain.GetScreenBounds(out Bounds: TRect):Boolean;
-var i: integer;
+function TKMMain.GetScreenBounds(out Bounds: TRect): Boolean;
+var I: Integer;
 begin
   Result := False;
   Bounds := Classes.Rect(-1,-1,-1,-1);
-  FormMain.Monitor; //This forces Delphi to reload Screen.Monitors (only if necessary) and so fixes crashes when using multiple monitors
+  fFormMain.Monitor; //This forces Delphi to reload Screen.Monitors (only if necessary) and so fixes crashes when using multiple monitors
   //Maximized is a special case, it can only be on one monitor. This is required because when maximized form.left = -9 (on Windows 7 anyway)
-  if FormMain.WindowState = wsMaximized then
+  if fFormMain.WindowState = wsMaximized then
   begin
-    for i:=0 to Screen.MonitorCount-1 do
+    for I:=0 to Screen.MonitorCount-1 do
       //Find the monitor with the left closest to the left of the form
-      if (i = 0) or
-         ((abs(FormMain.Left - Screen.Monitors[i].Left) <= abs(FormMain.Left - Bounds.Left)) and
-          (abs(FormMain.Top  - Screen.Monitors[i].Top ) <= abs(FormMain.Top  - Bounds.Top))) then
+      if (I = 0) or
+         ((abs(fFormMain.Left - Screen.Monitors[I].Left) <= abs(fFormMain.Left - Bounds.Left)) and
+          (abs(fFormMain.Top  - Screen.Monitors[I].Top ) <= abs(fFormMain.Top  - Bounds.Top))) then
       begin
         Result := True;
-        Bounds.Left  := Screen.Monitors[i].Left;
-        Bounds.Right := Screen.Monitors[i].Width+Screen.Monitors[i].Left;
-        Bounds.Top   := Screen.Monitors[i].Top;
-        Bounds.Bottom:= Screen.Monitors[i].Height+Screen.Monitors[i].Top;
+        Bounds.Left  := Screen.Monitors[I].Left;
+        Bounds.Right := Screen.Monitors[I].Width+Screen.Monitors[I].Left;
+        Bounds.Top   := Screen.Monitors[I].Top;
+        Bounds.Bottom:= Screen.Monitors[I].Height+Screen.Monitors[I].Top;
       end;
   end
   else
-    for i:=0 to Screen.MonitorCount-1 do
-      //See if our form is within the boundaries of this monitor (i.e. when it is not outside the boundaries)
-      if not ((FormMain.Left               >= Screen.Monitors[i].Width + Screen.Monitors[i].Left) or
-              (FormMain.Width + FormMain.Left <= Screen.Monitors[i].Left) or
-              (FormMain.Top                >= Screen.Monitors[i].Height + Screen.Monitors[i].Top) or
-              (FormMain.Height + FormMain.Top <= Screen.Monitors[i].Top)) then
+    for I:=0 to Screen.MonitorCount-1 do
+      //See if our form is within the boundaries of this monitor (I.e. when it is not outside the boundaries)
+      if not ((fFormMain.Left               >= Screen.Monitors[I].Width + Screen.Monitors[I].Left) or
+              (fFormMain.Width + fFormMain.Left <= Screen.Monitors[I].Left) or
+              (fFormMain.Top                >= Screen.Monitors[I].Height + Screen.Monitors[I].Top) or
+              (fFormMain.Height + fFormMain.Top <= Screen.Monitors[I].Top)) then
       begin
         if not Result then
         begin
           //First time we have to initialise the result
           Result := True;
-          Bounds.Left  := Screen.Monitors[i].Left;
-          Bounds.Right := Screen.Monitors[i].Width+Screen.Monitors[i].Left;
-          Bounds.Top   := Screen.Monitors[i].Top;
-          Bounds.Bottom:= Screen.Monitors[i].Height+Screen.Monitors[i].Top;
+          Bounds.Left  := Screen.Monitors[I].Left;
+          Bounds.Right := Screen.Monitors[I].Width+Screen.Monitors[I].Left;
+          Bounds.Top   := Screen.Monitors[I].Top;
+          Bounds.Bottom:= Screen.Monitors[I].Height+Screen.Monitors[I].Top;
         end
         else
         begin
           //After the first time we compare it with the previous result and take the largest possible area
-          Bounds.Left  := Math.Min(Bounds.Left,  Screen.Monitors[i].Left);
-          Bounds.Right := Math.Max(Bounds.Right, Screen.Monitors[i].Width+Screen.Monitors[i].Left);
-          Bounds.Top   := Math.Min(Bounds.Top,   Screen.Monitors[i].Top);
-          Bounds.Bottom:= Math.Max(Bounds.Bottom,Screen.Monitors[i].Height+Screen.Monitors[i].Top);
+          Bounds.Left  := Math.Min(Bounds.Left,  Screen.Monitors[I].Left);
+          Bounds.Right := Math.Max(Bounds.Right, Screen.Monitors[I].Width+Screen.Monitors[I].Left);
+          Bounds.Top   := Math.Min(Bounds.Top,   Screen.Monitors[I].Top);
+          Bounds.Bottom:= Math.Max(Bounds.Bottom,Screen.Monitors[I].Height+Screen.Monitors[I].Top);
         end;
       end;
 end;
@@ -327,7 +362,7 @@ end;
 
 function TKMMain.IsFormActive: Boolean;
 begin
-  Result := FormMain.Active;
+  Result := fFormMain.Active;
 end;
 
 
@@ -352,9 +387,9 @@ end;
 
 procedure TKMMain.ShowAbout;
 begin
-  FormLoading.Bar1.Position := 0;
-  FormLoading.Label1.Caption := '';
-  FormLoading.Show;
+  fFormLoading.Bar1.Position := 0;
+  fFormLoading.Label1.Caption := '';
+  fFormLoading.Show;
 end;
 
 
@@ -368,7 +403,7 @@ begin
   {$IFDEF MSWindows}
   if fMainSettings.FullScreen then
   begin
-    Rect := FormMain.BoundsRect;
+    Rect := fFormMain.BoundsRect;
     ClipCursor(@Rect);
   end
   else

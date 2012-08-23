@@ -17,6 +17,7 @@ object FormMain: TFormMain
   Position = poScreenCenter
   Scaled = False
   OnCanResize = FormCanResize
+  OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
