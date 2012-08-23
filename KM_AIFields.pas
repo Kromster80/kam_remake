@@ -6,9 +6,9 @@ uses
   KM_CommonClasses, KM_CommonTypes, KM_Terrain, KM_Defaults, KM_Player, KM_Utils, KM_Points, KM_PolySimplify;
 
 type
-  TKMOutline = array of record
-    Node: TKMPoint;
-    Open: Boolean;
+  TKMWeightSegments = array of record
+    A,B: TKMPoint;
+    Weight: Single;
   end;
 
   //Strcucture to describe NavMesh layout
@@ -29,7 +29,7 @@ type
     function GetBestOwner(aIndex: Integer): TPlayerIndex;
     procedure UpdateOwnership;
   public
-    //GetOwnerOutline:
+    procedure GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
     procedure UpdateState(aTick: Cardinal);
   end;
 
@@ -518,10 +518,10 @@ begin
       fRenderAux.Line(x1,y1,x2,y2, $FFFF8000, $F0F0);
     end;
 
-  //Raw navmesh mesh
-  if AI_GEN_NAVMESH and fShowNavMesh then
+  //Raw navmesh vertices
+  {if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to High(fNavMesh.fVertices) do
-      fRenderAux.Text(fNavMesh.fVertices[I].X,fNavMesh.fVertices[I].Y, IntToStr(I), $FF000000);
+      fRenderAux.Text(fNavMesh.fVertices[I].X,fNavMesh.fVertices[I].Y, IntToStr(I), $FF000000); //}
 
   //Simplified obstacle outlines
   if AI_GEN_NAVMESH and fShowNavMesh then
@@ -549,6 +549,12 @@ begin
     Best := I;
     Result := I;
   end;
+end;
+
+
+procedure TKMNavMesh.GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
+begin
+  //todo: Maybe use vertices floodfill for analysis?
 end;
 
 

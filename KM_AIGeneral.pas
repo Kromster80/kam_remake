@@ -65,17 +65,18 @@ end;
 
 procedure TKMGeneral.CheckDefences;
 begin
-  //Identify defence positions
+  //Get defence outline with weights representing how important each segment is
 
-  //Check where we have weakest defence
-
-  //Add more troops to that position
+  //Compare existing defence positions with the sample
+    //Get the ratio between sample and existing troops
+    //Check all segments to have proportional troops count
+    //Add or remove defence positions
 end;
 
 
 procedure TKMGeneral.UpdateState;
 begin
-  //Create and redistribute defence positions
+  //Manage defence positions
   CheckDefences;
 end;
 
