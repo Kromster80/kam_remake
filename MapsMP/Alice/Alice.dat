@@ -865,13 +865,13 @@
 
 !ADD_WARE_TO_ALL 7 50 // Gold
 
-!ADD_WARE_TO_ALL 10 25 // Loaves
+!ADD_WARE_TO_ALL 10 45 // Loaves
 
-!ADD_WARE_TO_ALL 8 40 // Wine
+!ADD_WARE_TO_ALL 8 60 // Wine
 
-!ADD_WARE_TO_ALL 13 10 // Sausages
+!ADD_WARE_TO_ALL 13 25 // Sausages
 
-!ADD_WARE_TO_ALL 27 20 //Fishes
+!ADD_WARE_TO_ALL 27 35 //Fishes
 
 !IF MEDIUM_WARES
 !ENDIF
