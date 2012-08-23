@@ -56,6 +56,11 @@ implementation
 uses KM_CommonTypes, KromUtils, KM_Triangulate;
 
 
+const
+  MAX_STRAIGHT_SPAN = 7; //Keep just every Nth point on nonedge  straightsin raw outlines
+  MAX_SIMPLIFIED_SPAN = 12; //Allow max N span on simplified outline
+
+
 constructor TKMSimplifyShapes.Create(aError: Single; aRect: TKMRect);
 begin
   inherited Create;
@@ -128,7 +133,7 @@ begin
 
   //See if we need to split once again due to Error, too long span or forced
   //irregardless of cause - split by farthest point
-  if (MaxDistSqr > aErrorSqr) or (KMLengthSqr(Node1, Node2) > Sqr(12)) or aForceSplit then
+  if (MaxDistSqr > aErrorSqr) or (KMLengthSqr(Node1, Node2) > Sqr(MAX_SIMPLIFIED_SPAN)) or aForceSplit then
   begin
     fKeep[aShape, MaxDistI] := True;
 
@@ -228,7 +233,7 @@ begin
       N0 := (K + Count - 1) mod Count;
       N1 := K;
       N2 := (K + 1) mod Count;
-      if (Corners[N1] = 1) and ((Corners[N0] > 0) or (Corners[N2] > 0)) then
+      if (Corners[N1] = 1) and ((Corners[N0] >= 0) or (Corners[N2] >= 0)) then
       begin
         FirstCorner := K;
         Break;
@@ -510,7 +515,7 @@ procedure SimplifyStraights(const aIn: TKMShapesArray; aRect: TKMRect; var aOut:
       NodesOnEdge := (P1.X = aRect.Left) or (P1.Y = aRect.Top) or (P1.X = aRect.Right) or (P1.Y = aRect.Bottom);
       NodesOnLine := ((P0.X = P1.X) and (P1.X = P2.X)) or ((P0.Y = P1.Y) and (P1.Y = P2.Y));
 
-      KeepNode := not NodesOnLine or ((K mod 11 = 6) and not NodesOnEdge);
+      KeepNode := not NodesOnLine or ((K mod MAX_STRAIGHT_SPAN = 0) and not NodesOnEdge);
 
       if KeepNode then
       begin
@@ -557,7 +562,7 @@ var
       end;
       Assert(LoopCount <= Nedge, 'End is missing?');
       Inc(I);
-      Assert(I <= 1000, 'End is missing2?');
+      Assert(I <= 100, 'End is missing2?');
     until(Loop[LoopCount - 1] = aEnd);
   end;
 
@@ -861,12 +866,9 @@ begin
   repeat
     //We take advantage of the fact that
     //first 4 points were added to make the Frame
-    if (Polygons[I,0] < 4)
-    or (Polygons[I,1] < 4)
-    or (Polygons[I,2] < 4) then
-    //Cut the triangle
+    if (Polygons[I,0] < 4) or (Polygons[I,1] < 4) or (Polygons[I,2] < 4) then
     begin
-      //Move last triangle to I
+      //Cut the triangle (Move last triangle to I)
       Polygons[I,0] := Polygons[High(Polygons),0];
       Polygons[I,1] := Polygons[High(Polygons),1];
       Polygons[I,2] := Polygons[High(Polygons),2];

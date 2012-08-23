@@ -382,7 +382,8 @@ begin
       fDelaunay.AddPoint(PX, PY);
   end;
 
-  fDelaunay.Tolerance := 5;
+  //todo: There's a bug if point gets added right on to an outline
+  fDelaunay.Tolerance := 7;
   for I := 1 to MeshDensityY - 1 do
   for K := 1 to MeshDensityX - Byte(I mod 2 = 1) - 1 do
     fDelaunay.AddPoint(Round(SizeX / MeshDensityX * (K + Byte(I mod 2 = 1) / 2)), Round(SizeY / MeshDensityY * I));
@@ -412,7 +413,7 @@ begin
 
   CheckForDegenerates(fRawDelaunay);//}
 
-  //Assert(Length(fRawDelaunay.Polygons) > 8);
+  Assert(Length(fRawDelaunay.Polygons) > 8);
 
   fNavMesh := TKMNavMesh.Create;
 
