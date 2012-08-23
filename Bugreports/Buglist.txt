@@ -47,6 +47,8 @@
 	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
 	Armour smithy has shields as 2nd item, armour workshop has shields as 1st item. Would make sense to match them.
+	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
+	Flatten/equalise in the MapEd doesn't seem to work properly (like Krom's editor). Unequalise is ok.
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing might help?)
 	Colored rectangle below cursor
