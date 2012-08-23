@@ -283,8 +283,6 @@ MaxID:2756
 1743:Erstatt
 1744:Lagre
 1745:Last
-1746:En feil har oppstått under spillets gang.
-1747:Vennligst send filen %s fra din KaM Remake\\Crash Reports mappe til utviklerne. Kontaktinformasjon finnes i Readme-filen. Tusen takk for hjelpen!
 1748:Gammel OpenGL-versjon oppdaget, spillet kan kjøre sakte og/eller med grafiske mangler
 1749:Nettverksfeil:
 1750:Feil: Spillernavn kan ikke være blankt
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Ingen støtte for format %s
 1891:Feilaktig versjon %s
 1893:initierer
-1894:flerspillerinitiering
 1895:script
 1896:Nytt oppdrag
 1897:En feil oppstod når filen %s skulle behandles
 1898:Stengt
 1899:Verten ordner spilleroppsettet
-1900:ytterligere sprites
 1901:enheter
 1902:hus
 1903:trær
@@ -451,7 +447,6 @@ MaxID:2756
 2701:Kartfilene samsvarer ikke med vertens for kartet: %s
 2702:Lagret spill finnes ikke: %s
 2703:Lagringsfilen samsvarer ikke vertens for det lagrede spillet: %s
-2704:ADVARSEL: Dersom du fortsetter å spille etter denne feilmeldingen risikerer du å støte på ytterlige feil og ustabiliteter. Ønsker du å ta denne risikoen og fortsette å spille?
 2705:Vennligst oppdater dine grafikkdrivere for å oppnå bedre ytelse
 2706:En feil oppstod i programmet. Vennligst klikk Send feilrapport slik at vi kan undersøke problemet. Takk for hjelpen!
 2707:Send feilrapport

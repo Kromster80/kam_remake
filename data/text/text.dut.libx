@@ -283,8 +283,6 @@ MaxID:2756
 1743:Overschrijven
 1744:Opslaan
 1745:Laden
-1746:Er is een fout opgetreden tijdens het spelen.
-1747:Verstuur het bestand %s van jouw KaM Remake\\Crash Reports map naar de ontwikkelaars. Contactinformatie staat in het readme bestand. Bedankt voor je hulp!
 1748:Verouderde OpenGL versie gedetecteerd. Het spel kan mogelijk langzaam draaien en/of grafisch niet optimaal werken.
 1749:Netwerkfout:
 1750:Fout: spelernaam moet ingevuld zijn
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Niet-ondersteund formaat %s
 1891:Niet-ondersteunde versie %s
 1893:initialiseren
-1894:multiplayer initialisatie
 1895:script
 1896:Nieuwe missie
 1897:Er is een fout opgetreden tijdens het ontleden van het %s bestand
 1898:Gesloten
 1899:Host regelt spelerinstellingen
-1900:aanvullende afbeeldingen
 1901:eenheden
 1902:gebouwen
 1903:bomen
@@ -451,7 +447,6 @@ MaxID:2756
 2701:Kaartbestanden zijn niet gelijk aan die van de host: %s
 2702:Opgeslagen spel niet gevonden: %s
 2703:Opgeslagen bestand is niet gelijk aan dat van de host: %s
-2704:WAARSCHUWING: doorspelen na deze fout kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?
 2705:Update a.u.b. de drivers voor betere prestaties.
 2706:Er is een fout opgetreden in de applicatie. Klik op "Foutenrapport verzenden" zodat we de fout kunnen onderzoeken. Bedankt voor je hulp!
 2707:Foutenrapport verzenden

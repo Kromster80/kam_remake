@@ -283,8 +283,6 @@ MaxID:2756
 1743:Skriv över
 1744:Spara
 1745:Ladda
-1746:Ett fel har uppstått under spelets gång.
-1747:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!
 1748:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel
 1749:Nätverksfel:
 1750:Error: Spelarnamnet får inte vara ingenting
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Inget stöd för format %s
 1891:Felaktig version %s
 1893:initierar
-1894:flerspelarinitiering
 1895:script
 1896:Nytt uppdrag
 1897:Ett fel uppstod när filen %s skulle behandlas
 1898:Stängd
 1899:Värden gör spelaruppställningen
-1900:ny grafik
 1901:enheter
 1902:hus
 1903:träd
@@ -451,7 +447,6 @@ MaxID:2756
 2701:Kartfilerna stämmer inte överens med värdens karta: %s
 2702:Hittar inte sparningen: %s
 2703:Sparfilen stämmer inte överens med värdens fil: %s
-2704:VARNING: Att fortsätta spela efter detta fel kan innebära fler krascher och instabiliteter. Fortsätta spela ändå?
 2705:Var god uppdatera dina grafikkortsdrivrutiner för bättre prestanda
 2710:Ditt namn: (valfritt)
 2711:Din e-post: (valfritt)

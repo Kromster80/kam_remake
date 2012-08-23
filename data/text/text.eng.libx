@@ -283,8 +283,6 @@ MaxID:2756
 1743:Overwrite
 1744:Save
 1745:Load
-1746:An error has occurred during gameplay.
-1747:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!
 1748:Old OpenGL version detected, game may run slowly and/or with graphic flaws
 1749:Network error:
 1750:Error: Player name must not be blank
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Unsupported format %s
 1891:Unsupported version %s
 1893:initializing
-1894:multiplayer initialization
 1895:script
 1896:New Mission
 1897:An error has occurred while parsing the file %s
 1898:Closed
 1899:Host does player setup
-1900:additional sprites
 1901:units
 1902:houses
 1903:trees
@@ -451,7 +447,6 @@ MaxID:2756
 2701:Map files do not match the host for the map: %s
 2702:Save not found: %s
 2703:Save file does not match the host for the save: %s
-2704:WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
 2705:Please update your graphic drivers to get better performance
 2706:An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!
 2707:Send Bug Report

@@ -283,8 +283,6 @@ MaxID:2756
 1743:Pøepsat
 1744:Uloit
 1745:Naèíst
-1746:Bìhem hry došlo k chybì.
-1747:Prosím pošlete soubor %s z vašecho adresáe KaM Remake\\Crash Reports vıvojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!
 1748:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickımi chybami
 1749:Síová chyba:
 1750:Chyba: Musíte zadat svoje jméno
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Nepodporovanı formát %s
 1891:Nepodporovaná verze %s
 1893:inicializuje se
-1894:inicializace hry pro více hráèù
 1895:skript
 1896:Nová mise
 1897:Nastala chyba pøi analıze souboru %s
 1898:Zavøeno
 1899:Hostitel urèuje nastavení hráèe
-1900:další grafika
 1901:jednotky
 1902:domy
 1903:stromy
@@ -451,7 +447,6 @@ MaxID:2756
 2701:Mapa se neshoduje s hostitelem: %s
 2702:Uloená hra nenalezena: %s
 2703:Uloená hra se neshoduje s hostitelem: %s
-2704:VAROVÁNÍ: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
 2705:Prosím aktualizujte svoje ovladaèe pro dosaení lepšího vıkonu.
 2706:Nastala chyba. Prosím kliknìte na tlaèítko Poslat zprávu o chybì abychom zjistili, co se stalo
 2707:Poslat zprávu o chybì

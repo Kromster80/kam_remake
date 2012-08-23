@@ -10,7 +10,7 @@ MaxID:2756
 6:Rybárska chatrè
 7:Pekáreò
 8:Farma
-9:Drevorubaèskı zrub 
+9:Drevorubaèskı zrub
 10:Kováèòa brnenia
 11:Sklad
 12:Stajòa
@@ -283,8 +283,6 @@ MaxID:2756
 1743:Prepísa
 1744:Uloi
 1745:Naèíta
-1746:Poèas hry došlo k chybe
-1747:Prosím pošlite súbor %s z Vášho adresára KaM Remake\\Crash Reports vıvojárom. Kontaktné údaje nájdete v Readme. Ïakujeme za Vašu pomoc!
 1748:Detekovaná stará verzia OpenGL, hra môe bea pomaly alebo s grafickımi chybami
 1749:Sieová chyba:
 1750:Chyba: Musíte zada svoje meno
@@ -358,7 +356,7 @@ MaxID:2756
 1823:ŠPECIÁLNE POÏAKOVANIE:
 1824:Multiplayerové mapy
 1825:Singleplayerové mapy
-1826:Rıchlos obrazovky 
+1826:Rıchlos obrazovky
 1827:Nenájdenı iadny server
 1828:Vybra skladby
 1829:Info o hre:
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Nepodporovanı formát %s
 1891:Nepodporovaná verzia %s
 1893:inicializuje sa
-1894:Inicializácia hry pre viac hráèov
 1895:Naèítavam skripty
 1896:Nová misia
 1897:Nastala chyba pri analıze súboru %s
 1898:Zatvorené
 1899:Hostite¾ vykonáva nastavenia hráèov
-1900:Naèítavam prídavné súèasti
 1901:Naèítavam jednotky
 1902:Naèítavam budovy
 1903:Naèítavam stromy
@@ -451,7 +447,6 @@ MaxID:2756
 2701:Mapa sa nezhoduje s hostite¾om: %s
 2702:Uloená hra nenájdená: %s
 2703:Uloená hra sa nezhoduje s hostite¾om: %s
-2704:VAROVANIE: Pokraèovanie v hre môe spôsobi ïalšiu nestabilitu a pád celej hry. Chcete napriek tomu pokraèova v hre?
 2705:Aktualizujte prosím, svoje ovládaèe pre dosiahnutie lepšieho vıkonu.
 2706:V aplikácia nastala chyba. Kliknite prosím na Odosla chybovové hlásenie aby sme mohli prešetri tento problém. Ïakujeme za Vašu pomoc!
 2707:Odosla chybové hlásenie

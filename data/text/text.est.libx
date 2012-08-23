@@ -283,8 +283,6 @@ MaxID:2756
 1743:Kirjuta üle
 1744:Salvesta
 1745:Lae
-1746:Viga on esinenud mängu ajal.
-1747:Palun saatke fail %s oma KaM Remake\\Crash Reports kaustast arendajatele. Kontakti andmeid võib leida Readme failist. Suured tänud Teie abi eest!
 1748:Vana OpelGL versioon avastatud, mäng võib töötada aeglaselt ja/või graafika vigadega
 1749:Võrgu viga:
 1750:Viga: Mängija nimi ei saa olla tühi
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Toeta formaat %s
 1891:Toetamata versioon %s
 1893:alustamine
-1894:võrgumängu valmistamine
 1895:skript
 1896:Uus Missioon
 1897:Liigendamise viga on esinenud failis %s
 1898:Suletud
 1899:Mängujuht seadistab
-1900:lisa spraidid
 1901:üksused
 1902:majad
 1903:puud
@@ -451,7 +447,6 @@ MaxID:2756
 2701:Kaardi failid ei ühildu mängujuhi kaardi failidega: %s
 2702:Salvestist ei leitud: %s
 2703:Salvestise failid ei ühildu mängujuhi salvestise failidega: %s
-2704:HOIATUS!: Edasi mängimine pärast seda süsteemi viga võib põhjustada edasiseid süsteemi kokkujooksmiseid ja ebastabiilsuseid. Kas soovite edasi mängida?
 2705:Palun uuendage oma videokaardi drivereid, et saada parem jõudlus.
 2706:Viga on tekkinud programmis. Palun vajutage Saatke Vea Teade nuppu, et me saaksime uurida probleemi. Täname abi eest!
 2707:Saatke Vea Teade

@@ -283,8 +283,6 @@ MaxID:2756
 1743:Zast¹p
 1744:Zapisz
 1745:Za³aduj
-1746:Wyst¹pi³ b³¹d w trakcie gry.
-1747:Proszê wyœlij plik %s z twojego folderu KaM Remake\\Crash Reports do programistów. Dane kontaktowe mo¿esz znaleŸæ w pliku Readme. Bardzo dziêkujemy za twoj¹ ¿yczliw¹ pomoc!
 1748:Wykryto star¹ wersjê OpenGL, gra mo¿e dzia³aæ wolno i/lub z b³êdami grafiki.
 1749:B³¹d sieci:
 1750:B³¹d: Nie wpisa³eœ imienia
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Niewspierany format %s
 1891:Niewspierana wersja %s
 1893:inicjowanie
-1894:inicjowanie wielu graczy
 1895:skrypt
 1896:Nowa Misja
 1897:Wyst¹pi³ b³¹d podczas przetwarzania pliku %s
 1898:Zamkniête
 1899:Host konfiguruje gracza
-1900:dodatkowe grafiki
 1901:jednostki
 1902:domy
 1903:drzewa
@@ -451,7 +447,6 @@ MaxID:2756
 2701:Pliki mapy nie zgadzaj¹ siê z map¹ hosta: %s
 2702:Zapisu nie odnaleziono: %s
 2703:Plik zapisu nie zgadza siê z zapisem hosta: %s
-2704:UWAGA: Kontynuacja gry po tym b³êdzie mo¿e spowodowaæ dalsze awarie i niestabilnoœci. Chcesz ponieœæ to ryzyko i kontynuowaæ grê?
 2705:Proszê zaktualizuj sterowniki karty graficznej aby uzyskaæ wiêksz¹ wydajnoœæ.
 2706:Wyst¹pi³ b³¹d w aplikacji. Proszê klikn¹æ Wyœlij Raport o B³êdach, abyœmy mogli zbadaæ ten problem. Dziêkujemy za pomoc!
 2707:Wyœlij Raport o B³êdach

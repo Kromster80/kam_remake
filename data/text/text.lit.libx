@@ -281,8 +281,6 @@ MaxID:2756
 1743:Perraðyti
 1744:Iðsaugoti
 1745:Ákelti
-1746:Þaidimo metu ávyko klaida.
-1747:Praðome iðsiûsti failà %s ið KaM Remake\\Crash Reports aplanko kûrëjams. Kontaktø detales galite rasti Readme faile. Dëkojame uþ pagalbà!
 1748:Aptikta sena OpenGL versija, þaidimas gali bûti lëtas ir/arba su grafikos trikèiais
 1749:Ryðio klaida:
 1750:Klaida: Þaidëjo vardas negali bûti tuðèias
@@ -420,13 +418,11 @@ MaxID:2756
 1890:Nepalaikomas formatas %s
 1891:Nepalaikoma versija %s
 1893:inicializuojama
-1894:keliø þaidëjø reþimo inicializacija
 1895:skriptas
 1896:Nauja Misija
 1897:Ávyko klaida nagrinëjant failà %s
 1898:Uþdaryta
 1899:Kûrëjas tvarko nustatymus
-1900:papildomi sprites
 1901:vienetai
 1902:namai
 1903:medþiai
