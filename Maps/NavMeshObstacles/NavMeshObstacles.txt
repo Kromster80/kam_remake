@@ -1,0 +1,8 @@
+Title
+NavMeshObstacles
+
+SmallDesc
+-
+
+BigDesc
+Special shapes that cause degenerate results if processed without handling of edge cases

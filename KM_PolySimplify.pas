@@ -765,10 +765,45 @@ end;
 
 
 procedure RemoveObstaclePolies(var aTriMesh: TKMTriMesh; fSimpleOutlines: TKMShapesArray);
-type TPolyFill = (pfUnknown, pfKeep, pfRemove);
+type
+  TPolyFill = (pfUnknown, pfKeep, pfRemove);
 var
   Mark: array of TPolyFill;
-  procedure RemoveObstacle(var aTriMesh: TKMTriMesh; aNodes: TKMNodesArray);
+
+  procedure MarkOutlines(var aTriMesh: TKMTriMesh; aNodes: TKMNodesArray);
+  var
+    I, K: Integer;
+    Outline: array of Integer;
+  begin
+    with aTriMesh do
+    begin
+      SetLength(Outline, aNodes.Count);
+
+      //Find Indexes
+      for I := 0 to High(Vertices) do
+      for K := 0 to aNodes.Count - 1 do
+      if (aNodes.Nodes[K].X = Vertices[I].x) and (aNodes.Nodes[K].Y = Vertices[I].y) then
+        Outline[K] := I;
+
+      //Create outline for obstacle with Keep/Remove polys
+      for I := 0 to High(Polygons) do
+      begin
+        for K := 0 to aNodes.Count - 1 do
+        if (Outline[K] = Polygons[I,0]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,1])
+        or (Outline[K] = Polygons[I,1]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,2])
+        or (Outline[K] = Polygons[I,2]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,0]) then
+          Mark[I] := pfRemove;
+
+        for K := 0 to aNodes.Count - 1 do
+        if (Outline[K] = Polygons[I,0]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,2])
+        or (Outline[K] = Polygons[I,1]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,0])
+        or (Outline[K] = Polygons[I,2]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,1]) then
+          Mark[I] := pfKeep;
+      end;
+    end;
+  end;
+
+  procedure FloodFill;
     procedure DoFlood(N1, N2: Integer);
     var I: Integer;
     begin
@@ -786,47 +821,25 @@ var
       end;
     end;
   var
-    I, K: Integer;
+    I: Integer;
+  begin
+    with aTriMesh do
+    for I := 0 to High(Polygons) do
+    if Mark[I] = pfRemove then
+    begin
+      DoFlood(Polygons[I,0], Polygons[I,1]);
+      DoFlood(Polygons[I,1], Polygons[I,2]);
+      DoFlood(Polygons[I,2], Polygons[I,0]);
+    end;
+  end;
+
+  procedure CutTriangles;
+  var
+    I: Integer;
     CutCount: Integer;
-    Outline: array of Integer;
   begin
     with aTriMesh do
     begin
-      SetLength(Outline, aNodes.Count);
-
-      //Find Indexes
-      for I := 0 to High(Vertices) do
-      for K := 0 to aNodes.Count - 1 do
-      if (aNodes.Nodes[K].X = Vertices[I].x) and (aNodes.Nodes[K].Y = Vertices[I].y) then
-        Outline[K] := I;
-
-      for I := 0 to High(Polygons) do
-        Mark[I] := pfUnknown;
-
-      //Create outline for obstacle with Keep/Remove polys
-      for I := 0 to High(Polygons) do
-      begin
-        for K := 0 to aNodes.Count - 1 do
-        if (Outline[K] = Polygons[I,0]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,1])
-        or (Outline[K] = Polygons[I,1]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,2])
-        or (Outline[K] = Polygons[I,2]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,0]) then
-          Mark[I] := pfRemove;
-
-        for K := 0 to aNodes.Count - 1 do
-        if (Outline[K] = Polygons[I,0]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,2])
-        or (Outline[K] = Polygons[I,1]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,0])
-        or (Outline[K] = Polygons[I,2]) and (Outline[(K+1) mod aNodes.Count] = Polygons[I,1]) then
-          Mark[I] := pfKeep;
-      end;
-
-      for I := 0 to High(Polygons) do
-      if Mark[I] = pfRemove then
-      begin
-        DoFlood(Polygons[I,0], Polygons[I,1]);
-        DoFlood(Polygons[I,1], Polygons[I,2]);
-        DoFlood(Polygons[I,2], Polygons[I,0]);
-      end;
-
       //Cut the triangles
       I := 0;
       CutCount := 0;
@@ -852,8 +865,15 @@ var
   I: Integer;
 begin
   SetLength(Mark, Length(aTriMesh.Polygons));
+  for I := 0 to High(aTriMesh.Polygons) do
+    Mark[I] := pfUnknown;
+
   for I := 0 to fSimpleOutlines.Count - 1 do
-    RemoveObstacle(aTriMesh, fSimpleOutlines.Shape[I]);
+    MarkOutlines(aTriMesh, fSimpleOutlines.Shape[I]);
+
+  FloodFill;
+
+  CutTriangles;
 end;
 
 

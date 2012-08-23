@@ -52,7 +52,7 @@ type
 
     fNavMesh: TKMNavMesh;
 
-    procedure NavMeshObstacles;
+    procedure NavMeshGenerate;
   public
     constructor Create;
     destructor Destroy; override;
@@ -211,7 +211,7 @@ begin
 end;
 
 
-procedure TKMAIFields.NavMeshObstacles;
+procedure TKMAIFields.NavMeshGenerate;
 type
   TStepDirection = (sdNone, sdUp, sdRight, sdDown, sdLeft);
 var
@@ -382,7 +382,8 @@ begin
       fDelaunay.AddPoint(PX, PY);
   end;
 
-  //todo: There's a bug if point gets added right on to an outline
+  //Tolerance must be a little higher than longest span we expect from polysimplification
+  //so that not a single node was placed on an outline segment (otherwise RemObstaclePolys will not be able to trace outlines)
   fDelaunay.Tolerance := 7;
   for I := 1 to MeshDensityY - 1 do
   for K := 1 to MeshDensityX - Byte(I mod 2 = 1) - 1 do
@@ -439,7 +440,7 @@ procedure TKMAIFields.UpdateNavMesh;
 begin
   if not AI_GEN_NAVMESH then Exit;
 
-  NavMeshObstacles;
+  NavMeshGenerate;
 end;
 
 
