@@ -102,7 +102,7 @@ begin
       //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
       //Bread    = +40%
       //Sausages = +60%
-      //Wine     = +20%
+      //Wine     = +20% (We changed this to +30% for balance)
       //Fish     = +50%
       //We allow unit to eat foods until he is over 90% condition
       if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Bread)>0) then
@@ -126,7 +126,7 @@ begin
         fInn.ResTakeFromIn(rt_Wine);
         fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Wine);
         SetActionLockedStay(29*4, ua_Eat, False);
-        Feed(UNIT_MAX_CONDITION * 0.2);
+        Feed(UNIT_MAX_CONDITION * 0.3);
         fInn.UpdateEater(PlaceID, rt_Wine);
       end else
         SetActionLockedStay(0,ua_Walk);
