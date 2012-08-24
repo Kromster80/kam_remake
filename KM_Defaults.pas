@@ -614,9 +614,9 @@ const
   CORN_AGE_MAX = 255; //We set it to this once it's fully grown
 
   //Wine values have been tweaked for balance. In KaM they matched corn.
-  WINE_AGE_1 = 9;
+  WINE_AGE_1 = 8;
   WINE_AGE_2 = 17;
-  WINE_AGE_FULL = 26; //Wine ready to be harvested
+  WINE_AGE_FULL = 25; //Wine ready to be harvested
 
 
 //The frame shown when a unit is standing still in ua_Walk. Same for all units!
