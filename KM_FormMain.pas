@@ -506,7 +506,6 @@ begin
     WindowState  := wsNormal;
     WindowState  := wsMaximized;
     BorderStyle  := bsNone;     //and now we can make it borderless again
-    Hide; //Hide the form until we start painting on it
   end else begin
     BorderStyle  := bsSizeable;
     WindowState  := wsNormal;

@@ -268,6 +268,10 @@ begin
   fLog.AppendLog('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
   fLog.AppendLog('Panel Width/Height: '+inttostr(fFormMain.Panel5.Width)+':'+inttostr(fFormMain.Panel5.Height));
 
+  //Hide'n'show will make form go ontop of taskbar
+  fFormMain.Hide;
+  fFormMain.Show;
+
   Resize(fFormMain.Panel5.Width, fFormMain.Panel5.Height); //Force everything to resize
   ApplyCursorRestriction;
 end;
