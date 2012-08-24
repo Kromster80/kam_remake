@@ -475,13 +475,11 @@ begin
 
   GroupBox1.Visible  := aShowCtrls;
   StatusBar1.Visible := aShowCtrls;
-  for i:=1 to MainMenu1.Items.Count do
-    MainMenu1.Items[i-1].Visible := aShowCtrls;
 
   //For some reason cycling Form.Menu fixes the black bar appearing under the menu upon making it visible.
   //This is a better workaround than ClientHeight = +20 because it works on Lazarus and high DPI where Menu.Height <> 20.
   Menu := nil;
-  Menu := MainMenu1;
+  if aShowCtrls then Menu := MainMenu1;
 
   GroupBox1.Enabled  := aShowCtrls;
   StatusBar1.Enabled := aShowCtrls;
@@ -597,8 +595,14 @@ end;
 
 //Tell fMain if we want to shut down the program
 procedure TFormMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+var MenuHidden: Boolean;
 begin
+  //Hacky solution to MessageBox getting stuck under main form: In full screen we must show
+  //the menu while displaying a MessageBox otherwise it goes under the main form on some systems
+  MenuHidden := (BorderStyle = bsNone) and (Menu = nil);
+  if MenuHidden then Menu := MainMenu1;
   fMain.CloseQuery(CanClose);
+  if MenuHidden then Menu := nil;
 end;
 
 

@@ -146,7 +146,6 @@ begin
     //Ask the Player
     CanClose :=
       //(MessageDlg('Any unsaved changes will be lost. Exit?', mtWarning, [mbYes, mbNo], 0) = mrYes);
-      //@Krom: Even with all these flags it still goes under...
       MessageBox(fFormMain.Handle, PChar('Any unsaved changes will be lost. Exit?'),
                          PChar('Warning'),
                          MB_YESNO or MB_ICONWARNING or MB_SETFOREGROUND
