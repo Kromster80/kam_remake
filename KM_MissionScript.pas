@@ -136,7 +136,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_AIFields,
-  KM_Resource, KM_ResourceHouse, KM_ResourceResource;
+  KM_Resource, KM_ResourceHouse, KM_ResourceResource, KM_Game;
 
 
 const
@@ -979,6 +979,7 @@ begin
 
   //Main header, use same filename for MAP
   AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + AnsiString(ExtractFileName(TruncateExt(aFileName))) + '.map"');
+  if fGame.MissionMode = mm_Tactic then AddCommand(ct_SetTactic, []);
   AddCommand(ct_SetMaxPlayer, [fPlayers.Count]);
   AddData(''); //NL
 

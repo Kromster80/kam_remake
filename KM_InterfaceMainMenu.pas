@@ -1215,7 +1215,7 @@ begin
       MinimapView_Lobby := TKMMinimapView.Create(Panel_LobbySetup, 39, 128, 191, 191);
       MinimapView_Lobby.ShowLocs := True; //In the minimap we want player locations to be shown
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 328, 250, 288, fnt_Game, bsMenu);
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 328, 250, 294, fnt_Game, bsMenu);
       Memo_LobbyMapDesc.Anchors := [akLeft,akTop,akBottom];
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
