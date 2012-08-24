@@ -2113,7 +2113,7 @@ begin
 
     //Use more contrast lighting for Waterbeds
     if fTileset.TileIsWater(Land[I, K].Terrain) then
-      Land[I,K].Light := EnsureRange(Land[I,K].Light * 1.5 - 0.1,-1,1);
+      Land[I,K].Light := EnsureRange(Land[I,K].Light * 1.3 + 0.1, -1, 1);
 
     //Map borders always fade to black
     if (I = 1) or (I = fMapY) or (K = 1) or (K = fMapX) then
