@@ -8,14 +8,14 @@ uses
 type
   TRenderAux = class
   private
-    procedure RenderDot(pX,pY:single; Size:single = 0.05);
+    procedure RenderDot(pX, pY: Single; Size: Single = 0.05);
     procedure RenderDotOnTile(pX,pY:single);
     procedure RenderLine(x1,y1,x2,y2:single);
     procedure RenderQuad(pX,pY:integer);
   public
     procedure Circle(x,y,rad: Single; Fill,Line: TColor4);
     procedure CircleOnTerrain(X, Y, Rad: Single; Fill, Line: TColor4);
-    procedure Dot(X,Y: Single; aCol: TColor4);
+    procedure Dot(X,Y: Single; aCol: TColor4; aSize: Single = 0.05);
     procedure DotOnTerrain(X,Y: Single; aCol: TColor4);
     procedure LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4);
     procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
@@ -42,10 +42,10 @@ uses KM_Terrain;
 
 
 {Simple dot to know where it actualy is}
-procedure TRenderAux.RenderDot(pX,pY:single; Size:single = 0.05);
+procedure TRenderAux.RenderDot(pX, pY: Single; Size: Single = 0.05);
 begin
   glBegin(GL_QUADS);
-    glkRect(pX-Size,pY+Size,pX+Size,pY-Size);
+    glkRect(pX - Size, pY + Size, pX + Size, pY - Size);
   glEnd;
 end;
 
@@ -141,10 +141,10 @@ begin
 end;
 
 
-procedure TRenderAux.Dot(X,Y:single; aCol:TColor4);
+procedure TRenderAux.Dot(X,Y: Single; aCol: TColor4; aSize: Single = 0.05);
 begin
   glColor4ubv(@aCol);
-  RenderDot(X,Y);
+  RenderDot(X, Y, aSize);
 end;
 
 

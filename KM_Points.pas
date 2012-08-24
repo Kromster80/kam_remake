@@ -14,10 +14,11 @@ type
   TKMPointF = packed record X,Y: Single; end;
   TKMPointI = packed record X,Y: Integer; end; //Allows negative values
   TKMPointArray = array of TKMPointI;
+  TKMTrisArray = array of array [0..2] of Integer;
 
   TKMTriMesh = record
     Vertices: TKMPointArray;
-    Polygons: array of array [0..2] of Integer;
+    Polygons: TKMTrisArray;
   end;
 
   //We have our own TKMRect that consistently matches TKMPoint range
@@ -27,7 +28,7 @@ type
   TKMPointFunction = function(aPoint: TKMPoint): Boolean of object;
 
   function KMPoint(X,Y:word): TKMPoint; overload;
-  function KMPoint(P:TKMPointI): TKMPoint; overload;
+  function KMPoint(P: TKMPointI): TKMPoint; overload;
   function KMPointI(X,Y: Integer): TKMPointI;
   function KMPointF(X,Y:single): TKMPointF; overload;
   function KMPointF(P:TKMPoint):  TKMPointF; overload;
@@ -75,8 +76,9 @@ type
   function KMDistanceSqr(const A, B: TKMPointF): Single; overload;
 
   //Cross product of 2D vectors, pointed either Up or Down
-  function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single;
-  function KMPointInTriangle(const P, A, B, C: TKMPointI): Boolean;
+  function KMNormal2Poly(const v1,v2,v3: TKMPoint): Single; overload;
+  function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single; overload;
+  function KMPointInTriangle(const P, A, B, C: TKMPoint): Boolean;
   function KMInBetween(A,B,X:single): boolean;
   function KMSegmentsIntersect(A, B, C, D: TKMPointI): Boolean;
   function KMSegmentsIntersectOrTouch(A, B, C, D: TKMPointI): Boolean;
@@ -106,9 +108,9 @@ begin
 end;
 
 
-function KMPoint(P:TKMPointI): TKMPoint;
+function KMPoint(P: TKMPointI): TKMPoint;
 begin
-  Assert((P.X>=0) and (P.Y>=0));
+  Assert((P.X >= 0) and (P.Y >= 0));
   Result.X := P.X;
   Result.Y := P.Y;
 end;
@@ -425,13 +427,19 @@ begin
 end;
 
 
+function KMNormal2Poly(const v1,v2,v3: TKMPoint): Single;
+begin
+  Result := (v1.Y - v2.Y) * (v1.X - v3.X) - (v1.X - v2.X) * (v1.Y - v3.Y);
+end;
+
+
 function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single;
 begin
   Result := (v1.Y - v2.Y) * (v1.X - v3.X) - (v1.X - v2.X) * (v1.Y - v3.Y);
 end;
 
 
-function KMPointInTriangle(const P, A, B, C: TKMPointI): Boolean;
+function KMPointInTriangle(const P, A, B, C: TKMPoint): Boolean;
 begin
   Result := (KMNormal2Poly(A, B, P) > 0) and (KMNormal2Poly(B, C, P) > 0) and (KMNormal2Poly(C, A, P) > 0);
 end;

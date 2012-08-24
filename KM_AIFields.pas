@@ -14,21 +14,28 @@ type
   //Strcucture to describe NavMesh layout
   TKMNavMesh = class
   private
-    fVertices: TKMPointArray;
+    fNodeCount: Integer;
+    fPolyCount: Integer;
+    fNodes: array of record
+      Loc: TKMPoint;
+      Nearby: array of Word;
+      Owner: array [0..MAX_PLAYERS-1] of Byte;
+    end;
     //Edges: array of array [0..1] of Word;
-    Polygons: array of record
-      Indices: array of Word;
-      Area: Word; //Area of this polygon
+    fPolygons: array of record
+      Indices: array [0..2] of Word;
+      //Area: Word; //Area of this polygon
       {Neighbours: array of record //Neighbour polygons
         Index: Word; //Index of polygon
         Touch: Byte; //Length of border between
       end;}
-      fOwner: array [0..MAX_PLAYERS-1] of TPlayerIndex;
     end;
-
+    procedure InitConnectivity;
     function GetBestOwner(aIndex: Integer): TPlayerIndex;
     procedure UpdateOwnership;
+    procedure UpdateInfluence;
   public
+    constructor Create(const aTriMesh: TKMTriMesh);
     procedure GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
     procedure UpdateState(aTick: Cardinal);
   end;
@@ -37,11 +44,7 @@ type
   TKMAIFields = class
   private
     fPlayerCount: Integer;
-    fShowInfluenceMap: Boolean;
     fShowNavMesh: Boolean;
-
-    fInfluenceMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
-    fInfluenceMinMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Integer;
 
     fRawOutlines: TKMShapesArray;
     fRawOutlines2: TKMShapesArray;
@@ -58,9 +61,7 @@ type
     destructor Destroy; override;
 
     procedure AfterMissionInit;
-    procedure ExportInfluenceMaps;
 
-    procedure UpdateInfluenceMaps;
     procedure UpdateNavMesh;
     procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
@@ -96,117 +97,11 @@ procedure TKMAIFields.AfterMissionInit;
 begin
   //Book space for all players;
   fPlayerCount := fPlayers.Count;
-  if AI_GEN_INFLUENCE_MAPS then
-  begin
-    SetLength(fInfluenceMap, fPlayerCount);
-    SetLength(fInfluenceMinMap, fPlayerCount);
-    UpdateInfluenceMaps;
-  end;
 
   if AI_GEN_NAVMESH then
   begin
     UpdateNavMesh;
     fNavMesh.UpdateOwnership;
-  end;
-end;
-
-
-procedure TKMAIFields.UpdateInfluenceMaps;
-var
-  I, J, K: Integer; T: Byte;
-  H: Integer;
-begin
-  if not AI_GEN_INFLUENCE_MAPS then Exit;
-  Assert(fTerrain <> nil);
-
-  //Update direct influence maps
-  for J := 0 to fPlayerCount - 1 do
-  begin
-    for I := 1 to fTerrain.MapY - 1 do
-    for K := 1 to fTerrain.MapX - 1 do
-      fInfluenceMap[J, I, K] := Byte(fTerrain.Land[I, K].TileOwner = J) * 255;
-
-    for H := 0 to 255 do
-    for I := 2 to fTerrain.MapY - 2 do
-    for K := 2 to fTerrain.MapX - 2 do
-    if CanWalk in fTerrain.Land[I,K].Passability then
-    begin
-      T := Max(Max(Max(Max( fInfluenceMap[J, I-1, K],
-                            fInfluenceMap[J, I, K-1]),
-                        Max(fInfluenceMap[J, I+1, K],
-                            fInfluenceMap[J, I, K+1])) - 2,
-                    Max(Max(fInfluenceMap[J, I-1, K-1],
-                            fInfluenceMap[J, I-1, K+1]),
-                        Max(fInfluenceMap[J, I+1, K+1],
-                            fInfluenceMap[J, I+1, K-1])) - 3), 0);
-      fInfluenceMap[J, I, K] := Max(fInfluenceMap[J, I, K], T);
-    end;
-
-    with TBitmap.Create do
-    begin
-      Width := fTerrain.MapX;
-      Height:= fTerrain.MapY;
-      PixelFormat := pf32bit;
-      for I := 0 to Height-1 do
-        for K := 0 to Width-1 do
-          Canvas.Pixels[K,I] := fInfluenceMap[J, I, K];
-      SaveToFile(ExeDir + 'Infl'+IntToStr(J)+'.bmp');
-    end;
-  end;
-
-  for J := 0 to fPlayerCount - 1 do
-  begin
-    for I := 2 to fTerrain.MapY - 2 do
-    for K := 2 to fTerrain.MapX - 2 do
-    begin
-      fInfluenceMinMap[J, I, K] := fInfluenceMap[J, I, K];
-      if not (CanWalk in fTerrain.Land[I,K].Passability) then
-        fInfluenceMinMap[J, I, K] := -512;
-
-      for H := 0 to fPlayerCount - 1 do
-      if H <> J then
-        fInfluenceMinMap[J, I, K] := fInfluenceMinMap[J, I, K] - fInfluenceMap[H, I, K];
-    end;
-    with TBitmap.Create do
-    begin
-      Width := fTerrain.MapX;
-      Height:= fTerrain.MapY;
-      PixelFormat := pf32bit;
-      for I := 0 to Height-1 do
-        for K := 0 to Width-1 do
-          Canvas.Pixels[K,I] := EnsureRange((fInfluenceMinMap[J, I, K] + 255), 0, 255);
-      SaveToFile(ExeDir + 'InflMin'+IntToStr(J)+'.bmp');
-    end;
-  end;
-end;
-
-
-procedure TKMAIFields.ExportInfluenceMaps;
-var
-  I, J, K: Integer;
-begin
-  for J := 0 to fPlayerCount - 1 do
-  with TBitmap.Create do
-  begin
-    Width := fTerrain.MapX;
-    Height:= fTerrain.MapY;
-    PixelFormat := pf32bit;
-    for I := 0 to Height-1 do
-      for K := 0 to Width-1 do
-        Canvas.Pixels[K,I] := fInfluenceMap[J, I, K];
-    SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
-  end;
-
-  for J := 0 to fPlayerCount - 1 do
-  with TBitmap.Create do
-  begin
-    Width := fTerrain.MapX;
-    Height:= fTerrain.MapY;
-    PixelFormat := pf32bit;
-    for I := 0 to Height-1 do
-      for K := 0 to Width-1 do
-        Canvas.Pixels[K,I] := fInfluenceMap[J, I, K];
-    SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
   end;
 end;
 
@@ -416,23 +311,7 @@ begin
 
   Assert(Length(fRawDelaunay.Polygons) > 8);
 
-  fNavMesh := TKMNavMesh.Create;
-
-  //Bring triangulated mesh back
-  SetLength(fNavMesh.fVertices, Length(fRawDelaunay.Vertices));
-  for I := 0 to High(fRawDelaunay.Vertices) do
-  begin
-    fNavMesh.fVertices[I].X := Round(fRawDelaunay.Vertices[I].X);
-    fNavMesh.fVertices[I].Y := Round(fRawDelaunay.Vertices[I].Y);
-  end;
-  SetLength(fNavMesh.Polygons, Length(fRawDelaunay.Polygons));
-  for I := 0 to High(fRawDelaunay.Polygons) do
-  begin
-    SetLength(fNavMesh.Polygons[I].Indices, 3);
-    fNavMesh.Polygons[I].Indices[0] := fRawDelaunay.Polygons[I,0];
-    fNavMesh.Polygons[I].Indices[1] := fRawDelaunay.Polygons[I,1];
-    fNavMesh.Polygons[I].Indices[2] := fRawDelaunay.Polygons[I,2];
-  end;
+  fNavMesh := TKMNavMesh.Create(fRawDelaunay);
 end;
 
 
@@ -460,11 +339,6 @@ var
   x1,x2,y1,y2: Single;
   Col: Cardinal;
 begin
-  if AI_GEN_INFLUENCE_MAPS and fShowInfluenceMap then
-    for I := aRect.Top to aRect.Bottom do
-    for K := aRect.Left to aRect.Right do
-      fRenderAux.Quad(K, I, fInfluenceMap[MyPlayer.PlayerIndex, I, K] or $B0000000);
-
   {if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to fNavMesh.PCount - 1 do
     for K := 0 to fNavMesh.Polies[I].NCount - 1 do
@@ -486,39 +360,31 @@ begin
       fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
     end;
 
-  //Raw navmesh triangles
+  //NavMesh polys
   if AI_GEN_NAVMESH and fShowNavMesh then
-    for I := 0 to High(fNavMesh.Polygons) do
-    begin
-
-      K := fNavMesh.GetBestOwner(I);
-      if K <> PLAYER_NONE then
-        Col := fPlayers[K].FlagColor and $FFFFFF or $A0000000
-      else
-        Col := $60FF0000;
+    for I := 0 to fNavMesh.fPolyCount - 1 do
       fRenderAux.Triangle(
-        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[0]].X,
-        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[0]].Y,
-        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[1]].X,
-        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[1]].Y,
-        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[2]].X,
-        fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[2]].Y, Col);
-    end;
+        fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[0]].Loc.X,
+        fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[0]].Loc.Y,
+        fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[1]].Loc.X,
+        fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[1]].Loc.Y,
+        fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[2]].Loc.X,
+        fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[2]].Loc.Y, $60FF0000);
 
-  //Raw navmesh mesh
+  //NavMesh edges
   if AI_GEN_NAVMESH and fShowNavMesh then
-    for I := 0 to High(fNavMesh.Polygons) do
-    for K := 0 to High(fNavMesh.Polygons[I].Indices) do
+    for I := 0 to fNavMesh.fPolyCount - 1 do
+    for K := 0 to 2 do
     begin
-      x1 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[K]].X;
-      y1 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[K]].Y;
-      J := (K + 1) mod Length(fNavMesh.Polygons[I].Indices);
-      x2 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[J]].X;
-      y2 := fNavMesh.fVertices[fNavMesh.Polygons[I].Indices[J]].Y;
+      x1 := fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[K]].Loc.X;
+      y1 := fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[K]].Loc.Y;
+      J := (K + 1) mod 2;
+      x2 := fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[J]].Loc.X;
+      y2 := fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[J]].Loc.Y;
       fRenderAux.Line(x1,y1,x2,y2, $FFFF8000, $F0F0);
     end;
 
-  //Raw navmesh vertices
+  //NavMesh vertice ids
   {if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to High(fNavMesh.fVertices) do
       fRenderAux.Text(fNavMesh.fVertices[I].X,fNavMesh.fVertices[I].Y, IntToStr(I), $FF000000); //}
@@ -533,20 +399,108 @@ begin
       TY := Nodes[(K + 1) mod Count].Y;
       fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FF00FF00, $FF00);
     end;
+
+  //NavMesh influences
+  if AI_GEN_NAVMESH and fShowNavMesh then
+    for I := 0 to fNavMesh.fNodeCount - 1 do
+    begin
+      K := fNavMesh.GetBestOwner(I);
+      if K <> PLAYER_NONE then
+        Col := (fPlayers[K].FlagColor and $FFFFFF) or (fNavMesh.fNodes[I].Owner[K] shl 24)
+      else
+        Col := $FF000000;
+      fRenderAux.Dot(
+        fNavMesh.fNodes[I].Loc.X,
+        fNavMesh.fNodes[I].Loc.Y, Col, 2);
+    end;
 end;
 
 
 { TKMNavMesh }
+constructor TKMNavMesh.Create(const aTriMesh: TKMTriMesh);
+var I: Integer;
+begin
+  inherited Create;
+
+  fNodeCount := Length(aTriMesh.Vertices);
+  fPolyCount := Length(aTriMesh.Polygons);
+
+  //Bring triangulated mesh back
+  SetLength(fNodes, fNodeCount);
+  for I := 0 to fNodeCount - 1 do
+    fNodes[I].Loc := KMPoint(aTriMesh.Vertices[I]);
+
+  SetLength(fPolygons, fPolyCount);
+  for I := 0 to fPolyCount - 1 do
+  begin
+    fPolygons[I].Indices[0] := aTriMesh.Polygons[I,0];
+    fPolygons[I].Indices[1] := aTriMesh.Polygons[I,1];
+    fPolygons[I].Indices[2] := aTriMesh.Polygons[I,2];
+  end;
+
+  InitConnectivity;
+end;
+
+
+procedure TKMNavMesh.InitConnectivity;
+  procedure DoConnect(I, N1, N2: Word);
+  begin
+    with fNodes[I] do
+    begin
+      SetLength(Nearby, Length(Nearby) + 2);
+      Nearby[High(Nearby)-1] := N1;
+      Nearby[High(Nearby)] := N2;
+    end;
+  end;
+var I: Integer;
+begin
+  for I := 0 to fPolyCount - 1 do
+  with fPolygons[I] do
+  begin
+    DoConnect(Indices[0], Indices[1], Indices[2]);
+    DoConnect(Indices[1], Indices[0], Indices[2]);
+    DoConnect(Indices[2], Indices[0], Indices[1]);
+  end;
+end;
+
+
+procedure TKMNavMesh.UpdateInfluence;
+var
+  OwnerID: TPlayerIndex;
+
+  procedure DoFill(const aIndex: Integer);
+  var K: Integer; ExpectedValue: Byte;
+  begin
+    with fNodes[aIndex] do
+    for K := 0 to High(Nearby) do
+    begin
+      ExpectedValue := Max(Owner[OwnerID] - Trunc(KMLength(Loc, fNodes[Nearby[K]].Loc)) * 2, 0);
+      if ExpectedValue > fNodes[Nearby[K]].Owner[OwnerID] then
+      begin
+        fNodes[Nearby[K]].Owner[OwnerID] := ExpectedValue;
+        DoFill(Nearby[K]);
+      end;
+    end;
+  end;
+var
+  I: Integer;
+begin
+  for OwnerID := 0 to MAX_PLAYERS - 1 do
+    for I := 0 to fNodeCount - 1 do
+      if fNodes[I].Owner[OwnerID] = 255 then
+        DoFill(I);
+end;
+
 
 function TKMNavMesh.GetBestOwner(aIndex: Integer): TPlayerIndex;
-var I, Best: Integer;
+var I, Best: Byte;
 begin
   Best := 0;
   Result := PLAYER_NONE;
   for I := 0 to MAX_PLAYERS - 1 do
-  if Polygons[aIndex].fOwner[I] > Best then
+  if fNodes[aIndex].Owner[I] > Best then
   begin
-    Best := I;
+    Best := fNodes[aIndex].Owner[I];
     Result := I;
   end;
 end;
@@ -564,9 +518,9 @@ procedure TKMNavMesh.UpdateOwnership;
     I: Integer;
   begin
     Result := -1;
-    for I := 0 to High(Polygons) do
-    with Polygons[I] do
-    if KMPointInTriangle(KMPointI(X,Y), fVertices[Indices[0]], fVertices[Indices[1]], fVertices[Indices[2]]) then
+    for I := 0 to fPolyCount - 1 do
+    with fPolygons[I] do
+    if KMPointInTriangle(KMPoint(X,Y), fNodes[Indices[0]].Loc, fNodes[Indices[1]].Loc, fNodes[Indices[2]].Loc) then
     begin
       Result := I;
       Break;
@@ -576,9 +530,9 @@ var
   I, K: Integer;
   Poly: Integer;
 begin
-  for I := 0 to High(Polygons) do
+  for I := 0 to fNodeCount - 1 do
     for K := 0 to MAX_PLAYERS - 1 do
-      Polygons[I].fOwner[K] := PLAYER_NONE;
+      fNodes[I].Owner[K] := 0;
 
   for I := 1 to fTerrain.MapY - 1 do
   for K := 1 to fTerrain.MapX - 1 do
@@ -586,8 +540,14 @@ begin
   begin
     Poly := GetPolyByTile(K,I);
     if Poly <> -1 then
-      Inc(Polygons[Poly].fOwner[fTerrain.Land[I,K].TileOwner]);
+    begin
+      fNodes[fPolygons[Poly].Indices[0]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
+      fNodes[fPolygons[Poly].Indices[1]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
+      fNodes[fPolygons[Poly].Indices[2]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
+    end;
   end;
+
+  UpdateInfluence;
 end;
 
 

@@ -897,6 +897,16 @@ begin
     end;
     Inc(I);
   until(I >= Length(Polygons));
+
+  for I := 0 to High(aTriMesh.Vertices) - 4 do
+    aTriMesh.Vertices[I] := aTriMesh.Vertices[I+4];
+
+  for I := 0 to High(aTriMesh.Polygons) do
+  begin
+    aTriMesh.Polygons[I,0] := aTriMesh.Polygons[I,0] - 4;
+    aTriMesh.Polygons[I,1] := aTriMesh.Polygons[I,1] - 4;
+    aTriMesh.Polygons[I,2] := aTriMesh.Polygons[I,2] - 4;
+  end;
 end;
 
 
