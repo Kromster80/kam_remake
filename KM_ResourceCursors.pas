@@ -69,7 +69,7 @@ const
   SH = 8; //Half width/height of a scroll cursor
   //Measured manually
   CursorOffsetsX: array [TKMCursor] of Integer = (0,0,20, 0, 0,-8,9, 0, 1,1,1,0,-1,-1,-1,0, SH,SF,SF,SF,SH, 0, 0,0, 0,0);
-  CursorOffsetsY: array [TKMCursor] of Integer = (0,9,10,18,20,44,13,0,-1,0,1,1, 1, 0,-1,0, 0 ,0 ,SH,SF,SF,SF,SH,0,38,0);
+  CursorOffsetsY: array [TKMCursor] of Integer = (0,9,10,18,20,44,13,0,-1,0,1,1, 1, 0,-1,0, 0 ,0 ,SH,SF,SF,SF,SH,0,28,0);
 var
   KMC: TKMCursor;
   sx,sy,x,y: Integer;

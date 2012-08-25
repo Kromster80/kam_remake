@@ -12,7 +12,12 @@ if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311"))
 
 if(($Rev == "r3812"))
 {
-  die('[$FF00FF]Thanks for testing the release candidate![]||Please let us know of any problems you encounter :)');
+  die('[$FF00FF]Welcome to the second release candidate[] :)||Please continue to report any problems.');
+}
+
+if(($Rev == "r3812"))
+{
+  die('[$0000FF]This release candidate is now outdated![]||If you have not received the new release candidate yet please email: contact@kamremake.com');
 }
 
 //First see if they are up to date
