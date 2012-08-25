@@ -12,6 +12,7 @@ Todo:
  +	People press F12 by accident and enable UI overlays, now the shortcut only works if DEBUG_CHEATS are enabled
  +	Water shadows are too dark
  +	Rebalanced wine, now restores 30% (was 20%) and takes 9 fields to run optimally (was 11) through changed growth rate
+ +	Viewport position was not saved with MP map properly
 	Enforce tiles triangulation direction to NW-SE
 	Map Winter Comes does not have !CENTER_SCREEN commands so the locations are not shown the lobby (check other maps by HellRacer too)
 	All multiplayer maps need more starting food due to matching unit condition to original KaM

@@ -238,18 +238,21 @@ end;
 procedure TViewport.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write('Viewport');
+  SaveStream.Write(fMapX);
+  SaveStream.Write(fMapY);
   SaveStream.Write(fPosition);
-  //Everything but Position gets initialized from fTerrain dimensions anyway
   //Zoom is reset to 1 by default
-  //SaveStream.Write(fZoom);
 end;
 
 
 procedure TViewport.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.ReadAssert('Viewport');
+  //Load map dimensions then Position so it could be fit to map
+  LoadStream.Read(fMapX);
+  LoadStream.Read(fMapY);
   LoadStream.Read(fPosition);
-  //LoadStream.Read(fZoom);
+
   SetPosition(fPosition); //EnsureRanges
 end;
 

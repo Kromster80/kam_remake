@@ -1345,8 +1345,9 @@ begin
   else
   begin
     fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
-    fViewport.Position := KMPointF(MyPlayer.CenterScreen);
-    fViewport.ResetZoom; //This ensures the viewport is centered on the map
+    if fGameMode = gmMulti then //MP does not saves view position cos of save identity for all players
+      fViewport.Position := KMPointF(MyPlayer.CenterScreen);
+    fViewport.ResetZoom;
 
     fGamePlayInterface.SetMinimap;
     fGamePlayInterface.SetMenuState(fMissionMode = mm_Tactic);
