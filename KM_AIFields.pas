@@ -24,11 +24,7 @@ type
     //Edges: array of array [0..1] of Word;
     fPolygons: array of record
       Indices: array [0..2] of Word;
-      //Area: Word; //Area of this polygon
-      {Neighbours: array of record //Neighbour polygons
-        Index: Word; //Index of polygon
-        Touch: Byte; //Length of border between
-      end;}
+      //Nearby: array of Word; //Neighbour polygons
     end;
     procedure InitConnectivity;
     function GetBestOwner(aIndex: Integer): TPlayerIndex;
@@ -74,6 +70,215 @@ var
 
 implementation
 uses KM_Game, KM_Log, KM_PlayersCollection, KM_RenderAux;
+
+
+{ TKMNavMesh }
+constructor TKMNavMesh.Create(const aTriMesh: TKMTriMesh);
+var I: Integer;
+begin
+  inherited Create;
+
+  fNodeCount := Length(aTriMesh.Vertices);
+  fPolyCount := Length(aTriMesh.Polygons);
+
+  //Bring triangulated mesh back
+  SetLength(fNodes, fNodeCount);
+  for I := 0 to fNodeCount - 1 do
+    fNodes[I].Loc := KMPoint(aTriMesh.Vertices[I]);
+
+  SetLength(fPolygons, fPolyCount);
+  for I := 0 to fPolyCount - 1 do
+  begin
+    fPolygons[I].Indices[0] := aTriMesh.Polygons[I,0];
+    fPolygons[I].Indices[1] := aTriMesh.Polygons[I,1];
+    fPolygons[I].Indices[2] := aTriMesh.Polygons[I,2];
+  end;
+
+  InitConnectivity;
+end;
+
+
+procedure TKMNavMesh.InitConnectivity;
+  procedure DoConnectNodes(I, N1, N2: Word);
+  begin
+    with fNodes[I] do
+    begin
+      SetLength(Nearby, Length(Nearby) + 2);
+      Nearby[High(Nearby)-1] := N1;
+      Nearby[High(Nearby)] := N2;
+    end;
+  end;
+  {procedure DoConnectPolys(aPoly, N1, N2, N3: Word);
+  var
+    I: Integer;
+  begin
+    for I := 0 to fPolyCount - 1 do
+    with fPolygons[I] do
+    if (I <> aPoly)
+    and ((Indices[0] = N1) or (Indices[0] = N2) or (Indices[0] = N3)
+      or (Indices[0] = N1) or (Indices[0] = N2) or (Indices[0] = N3)
+      or (Indices[0] = N1) or (Indices[0] = N2) or (Indices[0] = N3))
+    then
+    begin
+      SetLength(Nearby, Length(Nearby) + 1);
+      Nearby[High(Nearby)] := aPoly;
+    end;
+  end;}
+var I: Integer;
+begin
+  //Set nodes nearbies to fill influence field
+  for I := 0 to fPolyCount - 1 do
+  with fPolygons[I] do
+  begin
+    DoConnectNodes(Indices[0], Indices[1], Indices[2]);
+    DoConnectNodes(Indices[1], Indices[0], Indices[2]);
+    DoConnectNodes(Indices[2], Indices[0], Indices[1]);
+  end;
+
+  //Set polys connectivity to be able to expand
+  {for I := 0 to fPolyCount - 1 do
+  with fPolygons[I] do
+    DoConnectPolys(I, Indices[0], Indices[1], Indices[2]);}
+end;
+
+
+procedure TKMNavMesh.UpdateInfluence;
+var
+  OwnerID: TPlayerIndex;
+
+  procedure DoFill(const aIndex: Integer);
+  var K: Integer; ExpectedValue: Byte;
+  begin
+    with fNodes[aIndex] do
+    for K := 0 to High(Nearby) do
+    begin
+      ExpectedValue := Max(Owner[OwnerID] - Trunc(KMLength(Loc, fNodes[Nearby[K]].Loc)) * 2, 0);
+      if ExpectedValue > fNodes[Nearby[K]].Owner[OwnerID] then
+      begin
+        fNodes[Nearby[K]].Owner[OwnerID] := ExpectedValue;
+        DoFill(Nearby[K]);
+      end;
+    end;
+  end;
+var
+  I: Integer;
+begin
+  for OwnerID := 0 to MAX_PLAYERS - 1 do
+    for I := 0 to fNodeCount - 1 do
+      if fNodes[I].Owner[OwnerID] = 255 then
+        DoFill(I);
+end;
+
+
+function TKMNavMesh.GetBestOwner(aIndex: Integer): TPlayerIndex;
+var I, Best: Byte;
+begin
+  Best := 0;
+  Result := PLAYER_NONE;
+  for I := 0 to MAX_PLAYERS - 1 do
+  if fNodes[aIndex].Owner[I] > Best then
+  begin
+    Best := fNodes[aIndex].Owner[I];
+    Result := I;
+  end;
+end;
+
+
+procedure TKMNavMesh.GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
+var
+  I, K: Integer;
+  ECount: Integer;
+  Edges: array of array [0..1] of Integer;
+  EdgeOpen: array of Boolean;
+begin
+  //1. Get ownership including touching polys
+  ECount := 0;
+  for I := 0 to fPolyCount - 1 do
+  with fPolygons[I] do
+  if (fNodes[Indices[0]].Owner[aOwner] = 255)
+  or (fNodes[Indices[1]].Owner[aOwner] = 255)
+  or (fNodes[Indices[2]].Owner[aOwner] = 255) then
+  begin
+    SetLength(Edges, ECount + 3);
+    Edges[ECount  , 0] := Indices[0];
+    Edges[ECount  , 1] := Indices[1];
+    Edges[ECount+1, 0] := Indices[1];
+    Edges[ECount+1, 1] := Indices[2];
+    Edges[ECount+2, 0] := Indices[2];
+    Edges[ECount+2, 1] := Indices[0];
+    Inc(ECount, 3);
+  end;
+
+  //2. Obtain suboptimal outline
+  //Remove duplicate edges and leave only outline
+  for I := 0 to ECount - 1 do
+  if (Edges[0, I] > -1) and (Edges[1, I] > -1) then
+  for K := I + 1 to ECount - 1 do
+  if (Edges[0, K] > -1) and (Edges[1, K] > -1) then
+  if (Edges[0, I] = Edges[1, K]) and (Edges[1, I] = Edges[0, K]) then
+  begin
+    //Discard edges (but keep their value for debug. 0 becomes -1000)
+    Edges[0, I] := -1000 - Edges[0, I];
+    Edges[1, I] := -1000 - Edges[1, I];
+    Edges[0, K] := -1000 - Edges[0, K];
+    Edges[1, K] := -1000 - Edges[1, K];
+  end;
+
+  //3. Separate edges into open (having 2 polys) and closed (only 1 poly)
+  //for I := 0 to ECount - 1 do
+
+
+  //4. We can return suboptimal outline now
+end;
+
+
+procedure TKMNavMesh.UpdateOwnership;
+  function GetPolyByTile(X,Y: Word): Integer;
+  var
+    I: Integer;
+  begin
+    Result := -1;
+    for I := 0 to fPolyCount - 1 do
+    with fPolygons[I] do
+    if KMPointInTriangle(KMPoint(X,Y), fNodes[Indices[0]].Loc, fNodes[Indices[1]].Loc, fNodes[Indices[2]].Loc) then
+    begin
+      Result := I;
+      Break;
+    end;
+  end;
+var
+  I, K: Integer;
+  Poly: Integer;
+begin
+  for I := 0 to fNodeCount - 1 do
+    for K := 0 to MAX_PLAYERS - 1 do
+      fNodes[I].Owner[K] := 0;
+
+  for I := 1 to fTerrain.MapY - 1 do
+  for K := 1 to fTerrain.MapX - 1 do
+  if fTerrain.Land[I,K].TileOwner <> PLAYER_NONE then
+  begin
+    Poly := GetPolyByTile(K,I);
+    if Poly <> -1 then
+    begin
+      fNodes[fPolygons[Poly].Indices[0]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
+      fNodes[fPolygons[Poly].Indices[1]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
+      fNodes[fPolygons[Poly].Indices[2]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
+    end;
+  end;
+end;
+
+
+procedure TKMNavMesh.UpdateState(aTick: Cardinal);
+begin
+  //Maybe we recalculate Influences or navmesh sectors once in a while
+
+  if (aTick mod 60 = 0) then
+  begin
+    UpdateOwnership;
+    UpdateInfluence;
+  end;
+end;
 
 
 { TKMAIFields }
@@ -413,149 +618,6 @@ begin
         fNavMesh.fNodes[I].Loc.X,
         fNavMesh.fNodes[I].Loc.Y, Col, 2);
     end;
-end;
-
-
-{ TKMNavMesh }
-constructor TKMNavMesh.Create(const aTriMesh: TKMTriMesh);
-var I: Integer;
-begin
-  inherited Create;
-
-  fNodeCount := Length(aTriMesh.Vertices);
-  fPolyCount := Length(aTriMesh.Polygons);
-
-  //Bring triangulated mesh back
-  SetLength(fNodes, fNodeCount);
-  for I := 0 to fNodeCount - 1 do
-    fNodes[I].Loc := KMPoint(aTriMesh.Vertices[I]);
-
-  SetLength(fPolygons, fPolyCount);
-  for I := 0 to fPolyCount - 1 do
-  begin
-    fPolygons[I].Indices[0] := aTriMesh.Polygons[I,0];
-    fPolygons[I].Indices[1] := aTriMesh.Polygons[I,1];
-    fPolygons[I].Indices[2] := aTriMesh.Polygons[I,2];
-  end;
-
-  InitConnectivity;
-end;
-
-
-procedure TKMNavMesh.InitConnectivity;
-  procedure DoConnect(I, N1, N2: Word);
-  begin
-    with fNodes[I] do
-    begin
-      SetLength(Nearby, Length(Nearby) + 2);
-      Nearby[High(Nearby)-1] := N1;
-      Nearby[High(Nearby)] := N2;
-    end;
-  end;
-var I: Integer;
-begin
-  for I := 0 to fPolyCount - 1 do
-  with fPolygons[I] do
-  begin
-    DoConnect(Indices[0], Indices[1], Indices[2]);
-    DoConnect(Indices[1], Indices[0], Indices[2]);
-    DoConnect(Indices[2], Indices[0], Indices[1]);
-  end;
-end;
-
-
-procedure TKMNavMesh.UpdateInfluence;
-var
-  OwnerID: TPlayerIndex;
-
-  procedure DoFill(const aIndex: Integer);
-  var K: Integer; ExpectedValue: Byte;
-  begin
-    with fNodes[aIndex] do
-    for K := 0 to High(Nearby) do
-    begin
-      ExpectedValue := Max(Owner[OwnerID] - Trunc(KMLength(Loc, fNodes[Nearby[K]].Loc)) * 2, 0);
-      if ExpectedValue > fNodes[Nearby[K]].Owner[OwnerID] then
-      begin
-        fNodes[Nearby[K]].Owner[OwnerID] := ExpectedValue;
-        DoFill(Nearby[K]);
-      end;
-    end;
-  end;
-var
-  I: Integer;
-begin
-  for OwnerID := 0 to MAX_PLAYERS - 1 do
-    for I := 0 to fNodeCount - 1 do
-      if fNodes[I].Owner[OwnerID] = 255 then
-        DoFill(I);
-end;
-
-
-function TKMNavMesh.GetBestOwner(aIndex: Integer): TPlayerIndex;
-var I, Best: Byte;
-begin
-  Best := 0;
-  Result := PLAYER_NONE;
-  for I := 0 to MAX_PLAYERS - 1 do
-  if fNodes[aIndex].Owner[I] > Best then
-  begin
-    Best := fNodes[aIndex].Owner[I];
-    Result := I;
-  end;
-end;
-
-
-procedure TKMNavMesh.GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
-begin
-  //todo: Maybe use vertices floodfill for analysis?
-end;
-
-
-procedure TKMNavMesh.UpdateOwnership;
-  function GetPolyByTile(X,Y: Word): Integer;
-  var
-    I: Integer;
-  begin
-    Result := -1;
-    for I := 0 to fPolyCount - 1 do
-    with fPolygons[I] do
-    if KMPointInTriangle(KMPoint(X,Y), fNodes[Indices[0]].Loc, fNodes[Indices[1]].Loc, fNodes[Indices[2]].Loc) then
-    begin
-      Result := I;
-      Break;
-    end;
-  end;
-var
-  I, K: Integer;
-  Poly: Integer;
-begin
-  for I := 0 to fNodeCount - 1 do
-    for K := 0 to MAX_PLAYERS - 1 do
-      fNodes[I].Owner[K] := 0;
-
-  for I := 1 to fTerrain.MapY - 1 do
-  for K := 1 to fTerrain.MapX - 1 do
-  if fTerrain.Land[I,K].TileOwner <> PLAYER_NONE then
-  begin
-    Poly := GetPolyByTile(K,I);
-    if Poly <> -1 then
-    begin
-      fNodes[fPolygons[Poly].Indices[0]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
-      fNodes[fPolygons[Poly].Indices[1]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
-      fNodes[fPolygons[Poly].Indices[2]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
-    end;
-  end;
-
-  UpdateInfluence;
-end;
-
-
-procedure TKMNavMesh.UpdateState(aTick: Cardinal);
-begin
-  //Maybe we recalculate Influences or navmesh sectors once in a while
-
-  if (aTick mod 60 = 0) then UpdateOwnership;
 end;
 
 
