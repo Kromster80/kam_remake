@@ -19,6 +19,7 @@ type
   private
     fMultiplayer: Boolean; //Multiplayer UI has slightly different layout
     fReplay: Boolean; //Replay UI has slightly different layout
+    fSave_Selected: Integer; //Save selected from list (needed because of scanning)
 
     //Not saved
     LastDragPoint: TKMPoint; //Last mouse point that we drag placed/removed a road/field
@@ -38,7 +39,6 @@ type
 
     //Saved
     fLastSaveName: AnsiString; //The file name we last used to save this file (used as default in Save menu)
-    fSave_Selected: Integer; //Save selected from list (needed because of scanning)
     LastSchoolUnit: Byte;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit: Byte; //Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList: TKMMessageList;
@@ -3758,6 +3758,7 @@ begin
   SaveStream.Write(fLastSaveName);
   SaveStream.Write(LastSchoolUnit);
   SaveStream.Write(LastBarracksUnit);
+  SaveStream.Write(fSelection, SizeOf(fSelection));
   fMessageList.Save(SaveStream);
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
 end;
@@ -3768,6 +3769,7 @@ begin
   LoadStream.Read(fLastSaveName);
   LoadStream.Read(LastSchoolUnit);
   LoadStream.Read(LastBarracksUnit);
+  LoadStream.Read(fSelection, SizeOf(fSelection));
   fMessageList.Load(LoadStream);
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
   Message_UpdateStack;

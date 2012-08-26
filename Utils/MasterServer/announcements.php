@@ -10,7 +10,7 @@ if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311"))
   die('[$0000FF]THE 4TH MULTIPLAYER DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
-if(($Rev == "r3812"))
+if(($Rev == "r3870"))
 {
   die('[$FF00FF]Welcome to the second release candidate[] :)||Please continue to report any problems.');
 }
