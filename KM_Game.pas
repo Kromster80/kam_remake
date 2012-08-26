@@ -452,6 +452,7 @@ begin
 
   //When everything is ready we can update UI
   UpdateUI;
+  fViewport.Position := KMPointF(MyPlayer.CenterScreen);
 
   fLog.AppendLog('Gameplay initialized', true);
 end;
@@ -736,6 +737,7 @@ begin
 
   //When everything is ready we can update UI
   UpdateUI;
+  fViewport.Position := KMPointF(aSizeX/2, aSizeY/2);
 
   fLog.AppendLog('Gameplay initialized', True);
 end;
@@ -1203,6 +1205,8 @@ begin
 
   //When everything is ready we can update UI
   UpdateUI;
+  if SaveIsMultiplayer then //MP does not saves view position cos of save identity for all players
+    fViewport.Position := KMPointF(MyPlayer.CenterScreen);
 
   fLog.AppendLog('Loading game', True);
 
@@ -1333,22 +1337,17 @@ begin
   fMinimap.LoadFromTerrain(fAlerts);
   fMinimap.Update(False);
 
+  fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
+  fViewport.ResetZoom;
+
   if fGameMode = gmMapEd then
   begin
-    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
-    fViewport.ResetZoom;
-
     fMapEditorInterface.Player_UpdateColors;
     fMapEditorInterface.SetMapName(fGameName);
     fMapEditorInterface.SetMinimap;
   end
   else
   begin
-    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
-    if fGameMode = gmMulti then //MP does not saves view position cos of save identity for all players
-      fViewport.Position := KMPointF(MyPlayer.CenterScreen);
-    fViewport.ResetZoom;
-
     fGamePlayInterface.SetMinimap;
     fGamePlayInterface.SetMenuState(fMissionMode = mm_Tactic);
   end;
