@@ -212,7 +212,7 @@ end;
 procedure TKMMapEditor.Update;
 begin
   fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold]);
-  fAIFields.UpdateNavMesh;
+  //fAIFields.UpdateNavMesh;
 end;
 
 
