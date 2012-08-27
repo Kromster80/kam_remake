@@ -694,14 +694,14 @@ const
   $FF00D4A8, //Olive green
   $FF00FF00, //Lime green
   $FF008000, //Dark green
-  $FF61793f, // Sea
+  $FF61793F, //Teal (Sea)
   $FFE3BB5B, //Cyan
   $FFFF0000, //Blue
-  $FFa66d83, // Amethist
+  $FFBA3468, //Violet (Amethyst)
   $FF800080, //Purple
   $FFFF67FF, //Pink
   $FF000080, //Maroon
-  $FF518fcf, // Teal
+  $FF518FCF, //Peach
   $FF004F7D, //Brown
   $FFFFFFFF, //White
   $FF808080, //Grey
