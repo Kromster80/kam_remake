@@ -1,6 +1,7 @@
 Todo:
  +	Viewport position was not saved with MP map properly
  +	Hotkeys were not saved in SP games
+ +	Make MapEd to start with default 30% height
 	Enemy tonemason in TSK 11 will not cut through the mountain below the player because of walking distance check going around his house (increase mining radiuses by +2?)
 	Enforce tiles triangulation direction to NW-SE
 	Map Winter Comes does not have !CENTER_SCREEN commands so the locations are not shown the lobby (check other maps by HellRacer too)

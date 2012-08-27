@@ -81,7 +81,7 @@ type
 
     constructor Create;
     destructor Destroy; override;
-    procedure MakeNewMap(Width, Height: Integer; aMapEditor: Boolean);
+    procedure MakeNewMap(aWidth, aHeight: Integer; aMapEditor: Boolean);
     procedure LoadFromFile(FileName: string; aMapEditor: Boolean);
     procedure SaveToFile(aFile:string);
 
@@ -231,16 +231,19 @@ end;
 
 
 //Reset whole map with default values
-procedure TTerrain.MakeNewMap(Width, Height: Integer; aMapEditor: Boolean);
-var i,k:integer;
+procedure TTerrain.MakeNewMap(aWidth, aHeight: Integer; aMapEditor: Boolean);
+var I, K: Integer;
 begin
   fMapEditor := aMapEditor;
-  fMapX := Min(Width, MAX_MAP_SIZE);
-  fMapY := Min(Height,MAX_MAP_SIZE);
+  fMapX := Min(aWidth,  MAX_MAP_SIZE);
+  fMapY := Min(aHeight, MAX_MAP_SIZE);
 
-  for i:=1 to fMapY do for k:=1 to fMapX do with Land[i,k] do begin
+  for I := 1 to fMapY do
+  for K := 1 to fMapX do
+  with Land[I,K] do
+  begin
     Terrain      := 0;
-    Height       := KaMRandom(7);  //variation in height
+    Height       := 30 + KaMRandom(7);  //variation in Height
     Rotation     := KaMRandom(4);  //Make it random
     OldTerrain   := 0;
     OldRotation  := 0;
@@ -254,8 +257,7 @@ begin
     IsUnit       := nil;
     IsVertexUnit := vu_None;
     FieldAge     := 0;
-    TreeAge      := 0;
-    if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge := TREE_AGE_FULL;
+    TreeAge      := IfThen(ObjectIsChopableTree(KMPoint(K,I),4), TREE_AGE_FULL, 0);
     Border       := bt_None;
     BorderSide   := 0;
   end;
