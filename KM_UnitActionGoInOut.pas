@@ -366,7 +366,7 @@ begin
     Distance := Distance / 1.41; {sqrt (2) = 1.41421 }
 
   fStep := fStep - Distance * shortint(fDirection);
-  fUnit.PositionF := Mix(KMPointF(fStreet), KMPointF(fDoor), fStep);
+  fUnit.PositionF := KMLerp(fDoor, fStreet, fStep);
   fUnit.Visible := (fHouse = nil) or (fHouse.IsDestroyed) or (fStep > 0); //Make unit invisible when it's inside of House
 
   if (fStep <= 0) or (fStep >= 1) then

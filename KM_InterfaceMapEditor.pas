@@ -982,7 +982,8 @@ end;
 
 
 procedure TKMapEdInterface.Paint;
-const DefColor: array [TAIDefencePosType] of TColor4 = ($FF000080, $FF008000);
+const
+  DefColor: array [TAIDefencePosType] of TColor4 = ($FF000080, $FF008000);
 var
   I, K: Integer;
   MapLoc: TKMPointF;

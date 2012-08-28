@@ -318,8 +318,8 @@ begin
 
       MixValue := fItems[i].fPosition / fItems[i].fLength; // 0 >> 1
       MixValueMax := fItems[i].fPosition / fItems[i].fMaxLength; // 0 >> 1
-      P := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
-      PTileBased := mix(fItems[i].fTarget, fItems[i].fShotFrom, MixValue);
+      P := KMLerp(fItems[i].fScreenStart, fItems[i].fScreenEnd, MixValue);
+      PTileBased := KMLerp(fItems[i].fShotFrom, fItems[i].fTarget, MixValue);
       case fItems[i].fType of
         pt_Arrow, pt_SlingRock, pt_Bolt:
           begin

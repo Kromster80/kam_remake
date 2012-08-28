@@ -1066,7 +1066,7 @@ begin
       fDoExchange := false;
       fUnit.IsExchanging := true; //So unit knows that it must slide
       fInteractionCount := 0;
-      if KMStepIsDiag(fUnit.PrevPosition,fUnit.NextPosition) then IncVertex; //Occupy the vertex
+      if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) then IncVertex; //Occupy the vertex
     end else
     begin
       if not DoUnitInteraction then
@@ -1077,10 +1077,10 @@ begin
       Inc(NodePos);
       fUnit.NextPosition := NodeList[NodePos];
 
-      if GetLength(fUnit.PrevPosition,fUnit.NextPosition) > 1.5 then
+      if GetLength(fUnit.PrevPosition, fUnit.NextPosition) > 1.5 then
         raise ELocError.Create('Unit walk length>1.5', fUnit.PrevPosition);
 
-      if fTerrain.Land[fUnit.PrevPosition.Y,fUnit.PrevPosition.X].IsUnit = nil then
+      if fTerrain.Land[fUnit.PrevPosition.Y, fUnit.PrevPosition.X].IsUnit = nil then
         raise ELocError.Create('Unit walk Prev position IsUnit = nil', fUnit.PrevPosition);
 
       fUnit.Walk(fUnit.PrevPosition, fUnit.NextPosition); //Pre-occupy next tile

@@ -55,9 +55,11 @@ type
   function KMInRect(aPoint: TKMPointF; aRect: TKMRect): Boolean; overload;
   function KMRectArea(aRect: TKMRect):Integer;
 
-  function KMGetDirection(X,Y: integer): TKMDirection; overload;
-  function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload;
-  function KMGetDirection(FromPos,ToPos: TKMPointF):TKMDirection; overload;
+  function KMGetDirection(X,Y: Integer): TKMDirection; overload;
+  function KMGetDirection(X,Y: Single): TKMDirection; overload;
+  function KMGetDirection(P: TKMPointF): TKMDirection; overload;
+  function KMGetDirection(FromPos, ToPos: TKMPoint): TKMDirection; overload;
+  function KMGetDirection(FromPos, ToPos: TKMPointF): TKMDirection; overload;
   function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
   function KMGetVertexDir(X,Y: integer):TKMDirection;
   function KMGetVertexTile(P:TKMPoint; Dir: TKMDirection):TKMPoint;
@@ -90,7 +92,8 @@ type
   function KMLength(A, B: TKMPoint): Single;
   function KMLengthSqr(A, B: TKMPointI): Single;
 
-  function Mix(A,B:TKMPointF; MixValue:single):TKMPointF; overload;
+  function KMLerp(A,B: TKMPoint; MixValue: Single): TKMPointF; overload;
+  function KMLerp(A,B: TKMPointF; MixValue: Single): TKMPointF; overload;
 
   procedure KMSwapPoints(var A,B: TKMPoint); overload;
   procedure KMSwapPoints(var A,B: TKMPointI); overload;
@@ -285,39 +288,55 @@ begin
 end;
 
 
-function KMGetDirection(X,Y: integer): TKMDirection;
-const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
-        ((dir_SE,dir_E,dir_NE),(dir_S,dir_NA,dir_N),(dir_SW,dir_W,dir_NW));
-var Scale:integer; a,b:shortint;
+function KMGetDirection(X,Y: Integer): TKMDirection;
+const
+  DirectionsBitfield: array [-1..1, -1..1] of TKMDirection =
+    ((dir_NW, dir_W,  dir_SW),
+     (dir_N,  dir_NA, dir_S),
+     (dir_NE, dir_E,  dir_SE));
+var
+  Scale: Integer;
+  A, B: ShortInt;
 begin
-  Scale := max(abs(X),abs(Y));
-  a := round(X/Scale);
-  b := round(Y/Scale);
-  Result := DirectionsBitfield[a, b]; //-1,0,1
+  Scale := Max(Abs(X), Abs(Y));
+  A := Round(X / Scale);
+  B := Round(Y / Scale);
+  Result := DirectionsBitfield[A, B]; // -1, 0, 1
 end;
 
 
-function KMGetDirection(FromPos,ToPos: TKMPoint): TKMDirection;
-const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
-        ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
-var Scale:integer; a,b:shortint;
+function KMGetDirection(X,Y: Single): TKMDirection;
+const
+  DirectionsBitfield: array [-1..1, -1..1] of TKMDirection =
+    ((dir_NW, dir_W,  dir_SW),
+     (dir_N,  dir_NA, dir_S),
+     (dir_NE, dir_E,  dir_SE));
+var
+  Scale: Single;
+  A, B: ShortInt;
 begin
-  Scale := max(abs(ToPos.X-FromPos.X),abs(ToPos.Y-FromPos.Y));
-  a := round((ToPos.X-FromPos.X)/Scale);
-  b := round((ToPos.Y-FromPos.Y)/Scale);
-  Result := DirectionsBitfield[a,b]; //-1,0,1
+  Scale := Max(Abs(X), Abs(Y));
+  A := Round(X / Scale);
+  B := Round(Y / Scale);
+  Result := DirectionsBitfield[A, B]; // -1, 0, 1
 end;
 
 
-function KMGetDirection(FromPos,ToPos: TKMPointF): TKMDirection;
-const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
-        ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
-var Scale:single; a,b:shortint;
+function KMGetDirection(P: TKMPointF): TKMDirection;
 begin
-  Scale := max(abs(ToPos.X-FromPos.X),abs(ToPos.Y-FromPos.Y));
-  a := round((ToPos.X-FromPos.X)/Scale);
-  b := round((ToPos.Y-FromPos.Y)/Scale);
-  Result := DirectionsBitfield[a,b]; //-1,0,1
+  Result := KMGetDirection(P.X, P.Y);
+end;
+
+
+function KMGetDirection(FromPos, ToPos: TKMPoint): TKMDirection;
+begin
+  Result := KMGetDirection(ToPos.X - FromPos.X, ToPos.Y - FromPos.Y);
+end;
+
+
+function KMGetDirection(FromPos, ToPos: TKMPointF): TKMDirection;
+begin
+  Result := KMGetDirection(ToPos.X - FromPos.X, ToPos.Y - FromPos.Y);
 end;
 
 
@@ -429,7 +448,9 @@ end;
 
 
 function KMPerpendecular(A,B: TKMPoint): TKMPointF;
-var Tmp: TKMPointF; D: Single;
+var
+  Tmp: TKMPointF;
+  D: Single;
 begin
   Tmp.X := B.X - A.X;
   Tmp.Y := B.Y - A.Y;
@@ -612,10 +633,17 @@ begin
 end;
 
 
-function Mix(A,B:TKMPointF; MixValue:single):TKMPointF;
+function KMLerp(A,B: TKMPoint; MixValue: Single): TKMPointF;
 begin
-  Result.X := A.X*MixValue + B.X*(1-MixValue);
-  Result.Y := A.Y*MixValue + B.Y*(1-MixValue);
+  Result.X := A.X + (B.X - A.X) * MixValue;
+  Result.Y := A.Y + (B.Y - A.Y) * MixValue;
+end;
+
+
+function KMLerp(A,B: TKMPointF; MixValue: Single): TKMPointF;
+begin
+  Result.X := A.X + (B.X - A.X) * MixValue;
+  Result.Y := A.Y + (B.Y - A.Y) * MixValue;
 end;
 
 

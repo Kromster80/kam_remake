@@ -1164,29 +1164,30 @@ end;
 
 {Find seaside}
 {Return walkable tile nearby}
-function TTerrain.FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir): Boolean;
-var i,j,l:integer;
+function TTerrain.FindFishWater(aLoc: TKMPoint; aRadius: Integer; aAvoidLoc: TKMPoint; out FishPoint: TKMPointDir): Boolean;
+var I,J,K: Integer;
     P: TKMPoint;
     ValidTiles: TKMPointList;
-    ChosenTiles:TKMPointDirList;
+    ChosenTiles: TKMPointDirList;
 begin
   ValidTiles := TKMPointList.Create;
   GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
-  ChosenTiles:=TKMPointDirList.Create;
-  for i:=0 to ValidTiles.Count-1 do
+  ChosenTiles := TKMPointDirList.Create;
+  for I := 0 to ValidTiles.Count - 1 do
   begin
-    P := ValidTiles[i];
+    P := ValidTiles[I];
     //Check that this tile is valid
     if not TileIsLocked(P) //Taken by another fisherman
     and Route_CanBeMade(aLoc, P, CanWalk, 0)
     and not KMSamePoint(aAvoidLoc, P) then
       //Now find a tile around this one that is water
-      for j:=-1 to 1 do
-        for l:=-1 to 1 do
-          if TileInMapCoords(P.X+j,P.Y+l) and ((l <> 0) or (j <> 0))
-          and TileIsWater(KMPoint(P.X+j,P.Y+l)) and WaterHasFish(KMPoint(P.X+j,P.Y+l)) then //Limit to only tiles which are water and have fish
-            ChosenTiles.AddItem(KMPointDir(P, KMGetDirection(-j,-l)));
+      for J := -1 to 1 do
+        for K := -1 to 1 do
+          if ((K <> 0) or (J <> 0))
+          and TileInMapCoords(P.X+J, P.Y+K)
+          and TileIsWater(KMPoint(P.X+J, P.Y+K)) and WaterHasFish(KMPoint(P.X+J, P.Y+K)) then //Limit to only tiles which are water and have fish
+            ChosenTiles.AddItem(KMPointDir(P, KMGetDirection(J, K)));
   end;
 
   Result := ChosenTiles.GetRandom(FishPoint);

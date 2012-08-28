@@ -626,6 +626,7 @@ begin
     pt_Human:     CheckGoals; //This procedure manages victory and loss
     pt_Computer:  begin
                     fMayor.UpdateState;
+                    fGeneral.UpdateState;
 
                     CheckArmy; //Feed army, position defence, arrange/organise groups
                     CheckCanAttack;
