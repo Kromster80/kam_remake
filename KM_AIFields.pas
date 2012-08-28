@@ -57,6 +57,7 @@ type
     destructor Destroy; override;
 
     procedure AfterMissionInit;
+    property NavMesh: TKMNavMesh read fNavMesh;
 
     procedure UpdateNavMesh;
     procedure UpdateState(aTick: Cardinal);
