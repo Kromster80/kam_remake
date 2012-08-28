@@ -2364,7 +2364,7 @@ begin
     fRenderUI.WriteText(Left, Top, Width, 20, fCaption, fFont, taLeft, TextColor[fEnabled]);
 
   fRenderUI.WriteBevel(Left+2,Top+fTrackTop+2,Width-4,fTrackHeight-4);
-  ThumbPos := Round(mix (0, Width - ThumbWidth - 4, 1-(Position-fMinValue) / (fMaxValue - fMinValue)));
+  ThumbPos := Round(Mix (0, Width - ThumbWidth - 4, 1-(Position-fMinValue) / (fMaxValue - fMinValue)));
 
   ThumbHeight := fResource.Sprites[rxGui].RXData.Size[132].Y;
 

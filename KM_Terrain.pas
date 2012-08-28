@@ -2601,9 +2601,9 @@ begin
   Xc := EnsureRange(Trunc(inX), 0, fMapX-2);
   Yc := EnsureRange(Trunc(inY), 0, fMapY-2);
 
-  Tmp1 := mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, Frac(inX));
-  Tmp2 := mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, Frac(inX));
-  Result := inY - mix(Tmp2, Tmp1, Frac(inY)) / CELL_HEIGHT_DIV;
+  Tmp1 := Mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, Frac(inX));
+  Tmp2 := Mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, Frac(inX));
+  Result := inY - Mix(Tmp2, Tmp1, Frac(inY)) / CELL_HEIGHT_DIV;
 end;
 
 
@@ -2628,8 +2628,8 @@ begin
   Xc := EnsureRange(Trunc(inX), 0, fMapX-2);
   Yc := EnsureRange(Trunc(inY), 0, fMapY-2);
 
-  Tmp1 := mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, Frac(inX));
-  Tmp2 := mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, Frac(inX));
+  Tmp1 := Mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, Frac(inX));
+  Tmp2 := Mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, Frac(inX));
   Result := Mix(Tmp2, Tmp1, Frac(inY)) / CELL_HEIGHT_DIV;
 end;
 
