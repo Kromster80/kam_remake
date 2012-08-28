@@ -2,7 +2,7 @@ unit KM_ResourceTileset;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils,
+  Classes, Math, SysUtils, KromUtils,
   {$IFDEF WDC} ZLibEx, {$ENDIF}
   {$IFDEF FPC} ZStream, {$ENDIF}
   KM_Defaults, KM_CommonTypes;
@@ -13,6 +13,7 @@ type
 
   TKMTileset = class
   private
+    fCRC: Cardinal;
     TileTable: array [1 .. 30, 1 .. 30] of packed record
       Tile1, Tile2, Tile3: byte;
       b1, b2, b3, b4, b5, b6, b7: boolean;
@@ -32,6 +33,8 @@ type
     TileColor: TRGBArray;
 
     constructor Create(const aPatternPath: string);
+
+    property CRC: Cardinal read fCRC;
 
     procedure ExportPatternDat(const aFilename: string);
 
@@ -83,6 +86,7 @@ begin
   end;
 
   closefile(f);
+  fCRC := Adler32CRC(FileName);
 
   if WriteResourceInfoToTXT then
     ExportPatternDat(ExeDir + 'Export\Pattern.csv');

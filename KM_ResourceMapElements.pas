@@ -2,7 +2,7 @@ unit KM_ResourceMapElements;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, KromUtils,
   KM_CommonTypes, KM_Defaults;
 
 
@@ -20,12 +20,15 @@ type
   end;
 
   TKMMapElements = class
+  private
+    fCRC: Cardinal;
   public
     ValidCount: Byte;
     ValidToObject: array [Byte] of Byte; //Pointers to valid MapElem's
     ObjectToValid: array [Byte] of Byte; //Pointers of valid MapElem's back to map objects. (reverse lookup to one above) 256 is no object.
     procedure LoadMapElements(const FileName: string);
     procedure ExportToText(const FileName: string);
+    property CRC: Cardinal read fCRC;
   end;
 
 var
@@ -51,6 +54,7 @@ begin
   S := TMemoryStream.Create;
   S.LoadFromFile(FileName);
   S.Read(MapElem[0], MapElemQty * SizeOf(TKMMapElement));
+  fCRC := Adler32CRC(S);
   S.Free;
 
   ValidCount := 0;
