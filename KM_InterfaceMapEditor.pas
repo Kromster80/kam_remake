@@ -221,7 +221,8 @@ type
 
 implementation
 uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_MapEditor,
-     KM_Utils, KM_Game, KM_GameApp, KM_Resource, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceMapElements;
+     KM_Utils, KM_Game, KM_GameApp, KM_Resource, KM_ResourceUnit, KM_ResourceCursors,
+     KM_ResourceMapElements, KM_AIDefensePos;
 
 
 {Switch between pages}
@@ -981,6 +982,7 @@ end;
 
 
 procedure TKMapEdInterface.Paint;
+const DefColor: array [TAIDefencePosType] of TColor4 = ($FF000080, $FF008000);
 var
   I, K: Integer;
   MapLoc: TKMPointF;
@@ -1034,6 +1036,7 @@ begin
         Shape_DefencePos.Width := 10 + 10 * Length(Label_DefencePos.Caption);
         Shape_DefencePos.Left := ScreenLoc.X - Shape_DefencePos.Width div 2;
         Shape_DefencePos.Top := ScreenLoc.Y - 10;
+        Shape_DefencePos.FillColor := DefColor[fPlayers[I].AI.DefencePositions[K].DefenceType];
         Shape_DefencePos.Paint;
         //Paint the label on top of the background
         Label_DefenceID.Left := ScreenLoc.X;

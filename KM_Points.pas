@@ -75,6 +75,7 @@ type
   function KMDistanceSqr(const A, B: TKMPointI): Single; overload;
   function KMDistanceSqr(const A, B: TKMPointF): Single; overload;
 
+  function KMPerpendecular(A,B: TKMPoint): TKMPointF;
   //Cross product of 2D vectors, pointed either Up or Down
   function KMNormal2Poly(const v1,v2,v3: TKMPoint): Single; overload;
   function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single; overload;
@@ -388,7 +389,7 @@ begin
 end;
 
 
-function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
+function KMGetDiagVertex(P1,P2: TKMPoint): TKMPoint;
 begin
   //Returns the position of the vertex inbetween the two diagonal points (points must be diagonal)
   Result.X := max(P1.X,P2.X);
@@ -424,6 +425,19 @@ end;
 function KMDistanceSqr(const A, B: TKMPointF): Single;
 begin
   Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
+end;
+
+
+function KMPerpendecular(A,B: TKMPoint): TKMPointF;
+var Tmp: TKMPointF; D: Single;
+begin
+  Tmp.X := B.X - A.X;
+  Tmp.Y := B.Y - A.Y;
+
+  D := Sqrt(Tmp.X * Tmp.X + Tmp.Y * Tmp.Y);
+
+  Result.X := A.X - Tmp.Y / D;
+  Result.Y := A.Y + Tmp.X / D;
 end;
 
 

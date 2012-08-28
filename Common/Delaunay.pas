@@ -208,7 +208,7 @@ function TDelaunay.WhichSide(xp, yp, x1, y1, x2, y2: Double): Integer;
 //         0 for a point on the line
 //        +1 for a point to the right
 var
- equation: Double;
+  equation: Double;
 begin
   equation := ((yp - y1) * (x2 - x1)) - ((y2 - y1) * (xp - x1));
 

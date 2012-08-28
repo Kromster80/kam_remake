@@ -191,13 +191,15 @@ var
   Edges: array of array [0..1] of Integer;
   EdgeOpen: array of Boolean;
 begin
-  //1. Get ownership including touching polys
+  //1. Get ownership area
+  //Collect all the edges that are within our ownership area
+  //We include small polys that are close neighbours to get moderate area coverage
   ECount := 0;
   for I := 0 to fPolyCount - 1 do
   with fPolygons[I] do
-  if (fNodes[Indices[0]].Owner[aOwner] = 255)
-  or (fNodes[Indices[1]].Owner[aOwner] = 255)
-  or (fNodes[Indices[2]].Owner[aOwner] = 255) then
+  if (fNodes[Indices[0]].Owner[aOwner] > 248)
+  or (fNodes[Indices[1]].Owner[aOwner] > 248)
+  or (fNodes[Indices[2]].Owner[aOwner] > 248) then
   begin
     SetLength(Edges, ECount + 3);
     Edges[ECount  , 0] := Indices[0];
@@ -210,25 +212,64 @@ begin
   end;
 
   //2. Obtain suboptimal outline
-  //Remove duplicate edges and leave only outline
+  //Remove duplicate edges, that will leave us with an outline
   for I := 0 to ECount - 1 do
-  if (Edges[0, I] > -1) and (Edges[1, I] > -1) then
+  if (Edges[I, 0] > -1) and (Edges[I, 1] > -1) then
   for K := I + 1 to ECount - 1 do
-  if (Edges[0, K] > -1) and (Edges[1, K] > -1) then
-  if (Edges[0, I] = Edges[1, K]) and (Edges[1, I] = Edges[0, K]) then
+  if (Edges[K, 0] > -1) and (Edges[K, 1] > -1) then
+  if (Edges[I, 0] = Edges[K, 1]) and (Edges[I, 1] = Edges[K, 0]) then
   begin
-    //Discard edges (but keep their value for debug. 0 becomes -1000)
-    Edges[0, I] := -1000 - Edges[0, I];
-    Edges[1, I] := -1000 - Edges[1, I];
-    Edges[0, K] := -1000 - Edges[0, K];
-    Edges[1, K] := -1000 - Edges[1, K];
+    Edges[I, 0] := -1;
+    Edges[I, 1] := -1;
+    Edges[K, 0] := -1;
+    Edges[K, 1] := -1;
   end;
 
-  //3. Separate edges into open (having 2 polys) and closed (only 1 poly)
-  //for I := 0 to ECount - 1 do
+  //3. Detect and dismiss inner edges
+  //Separate edges into open (having 2 polys) and closed (only 1 poly)
+  //Once again we take advantage of the fact that polys built in CW order
+  for I := 0 to fPolyCount - 1 do
+  with fPolygons[I] do
+  for K := 0 to ECount - 1 do
+  if (Edges[K, 0] <> -1) then
+  if ((Edges[K, 0] = Indices[1]) and (Edges[K, 1] = Indices[0]))
+  or ((Edges[K, 0] = Indices[2]) and (Edges[K, 1] = Indices[1]))
+  or ((Edges[K, 0] = Indices[0]) and (Edges[K, 1] = Indices[2])) then
+  begin
+    //Mark outer edges
+    Edges[K, 0] := -1000 - Edges[K, 0];
+    Edges[K, 1] := -1000 - Edges[K, 1];
+  end;
+  K := 0;
+  for I := 0 to ECount - 1 do
+  if (Edges[I, 0] >= 0) then
+  begin //Dismiss inner edges
+    Edges[I, 0] := -1;
+    Edges[I, 1] := -1;
+  end
+  else
+  if (Edges[I, 0] < -1) then
+  begin //Promote marked outer edges back
+    Edges[I, 0] := -Edges[I, 0] - 1000;
+    Edges[I, 1] := -Edges[I, 1] - 1000;
+    Inc(K);
+  end;
 
+  //4. We can assemble suboptimal outline now
+  SetLength(aOutline, K);
+  K := 0;
+  for I := 0 to ECount - 1 do
+  if (Edges[I, 0] >= 0) then
+  begin
+    aOutline[K].A := fNodes[Edges[I,0]].Loc;
+    aOutline[K].B := fNodes[Edges[I,1]].Loc;
+    aOutline[K].Weight := 1;
+    Inc(K);
+  end;
 
-  //4. We can return suboptimal outline now
+  //5. Remove spans that face isolated areas
+
+  //6. See if we can expand our area while reducing outline length
 end;
 
 
@@ -540,32 +581,18 @@ end;
 procedure TKMAIFields.Paint(aRect: TKMRect);
 var
   I, K, J: Integer;
-  TX, TY: Single;
-  x1,x2,y1,y2: Single;
+  T1, T2: TKMPointF;
   Col: Cardinal;
+  Outline: TKMWeightSegments;
 begin
-  {if AI_GEN_NAVMESH and fShowNavMesh then
-    for I := 0 to fNavMesh.PCount - 1 do
-    for K := 0 to fNavMesh.Polies[I].NCount - 1 do
-    with fNavMesh.Polies[I] do
-    begin
-      TX := Nodes[(K + 1) mod NCount].X;
-      TY := Nodes[(K + 1) mod NCount].Y;
-      fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
-    end;}
-
   //Raw obstacle outlines
   if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to fRawOutlines2.Count - 1 do
     for K := 0 to fRawOutlines2.Shape[I].Count - 1 do
     with fRawOutlines2.Shape[I] do
-    begin
-      TX := Nodes[(K + 1) mod Count].X;
-      TY := Nodes[(K + 1) mod Count].Y;
-      fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FFFF00FF);
-    end;
+      fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FFFF00FF);
 
-  //NavMesh polys
+  //NavMesh polys coverage
   if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to fNavMesh.fPolyCount - 1 do
       fRenderAux.Triangle(
@@ -579,14 +606,13 @@ begin
   //NavMesh edges
   if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to fNavMesh.fPolyCount - 1 do
+    with fNavMesh.fPolygons[I] do
     for K := 0 to 2 do
     begin
-      x1 := fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[K]].Loc.X;
-      y1 := fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[K]].Loc.Y;
+      T1 := KMPointF(fNavMesh.fNodes[Indices[K]].Loc);
       J := (K + 1) mod 2;
-      x2 := fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[J]].Loc.X;
-      y2 := fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[J]].Loc.Y;
-      fRenderAux.Line(x1,y1,x2,y2, $FFFF8000, $F0F0);
+      T2 := KMPointF(fNavMesh.fNodes[Indices[J]].Loc);
+      fRenderAux.Line(T1, T2, $FFFF8000, $F0F0);
     end;
 
   //NavMesh vertice ids
@@ -599,11 +625,7 @@ begin
     for I := 0 to fSimpleOutlines.Count - 1 do
     for K := 0 to fSimpleOutlines.Shape[I].Count - 1 do
     with fSimpleOutlines.Shape[I] do
-    begin
-      TX := Nodes[(K + 1) mod Count].X;
-      TY := Nodes[(K + 1) mod Count].Y;
-      fRenderAux.Line(Nodes[K].X, Nodes[K].Y, TX, TY, $FF00FF00, $FF00);
-    end;
+      fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FF00FF00, $FF00);
 
   //NavMesh influences
   if AI_GEN_NAVMESH and fShowNavMesh then
@@ -616,8 +638,21 @@ begin
         Col := $FF000000;
       fRenderAux.Dot(
         fNavMesh.fNodes[I].Loc.X,
-        fNavMesh.fNodes[I].Loc.Y, Col, 2);
+        fNavMesh.fNodes[I].Loc.Y, Col, 0.4);
     end;
+
+  if AI_GEN_NAVMESH and fShowNavMesh then
+  for I := 0 to MAX_PLAYERS - 1 do
+  begin
+    fNavMesh.GetDefenceOutline(I, Outline);
+    for K := 0 to High(Outline) do
+    begin
+      fRenderAux.Line(Outline[K].A, Outline[K].B, $FF00F0F0);
+      T1 := KMPointF(Outline[K].A);
+      T2 := KMPerpendecular(Outline[K].A, Outline[K].B);
+      fRenderAux.Line(T1, T2, $FF00F0F0);
+    end;
+  end;
 end;
 
 

@@ -196,8 +196,8 @@ begin
 
   fDeposits := TKMDeposits.Create;
 
-  //fShowDefencePositions := True;
-  //fShowDeposits := True;
+  fShowDefencePositions := True;
+  fShowDeposits := True;
 end;
 
 

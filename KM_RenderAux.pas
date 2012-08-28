@@ -18,7 +18,10 @@ type
     procedure Dot(X,Y: Single; aCol: TColor4; aSize: Single = 0.05);
     procedure DotOnTerrain(X,Y: Single; aCol: TColor4);
     procedure LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4);
-    procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
+    procedure Line(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure Line(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure Line(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Triangle(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Byte);
     procedure InfluenceMap(aRect: TKMRect; aInfl: Byte);
@@ -164,7 +167,25 @@ begin
 end;
 
 
-procedure TRenderAux.Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word);
+procedure TRenderAux.Line(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF);
+begin
+  Line(A.X, A.Y, B.X, B.Y, aCol, aPattern);
+end;
+
+
+procedure TRenderAux.Line(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF);
+begin
+  Line(A.X, A.Y, B.X, B.Y, aCol, aPattern);
+end;
+
+
+procedure TRenderAux.Line(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF);
+begin
+  Line(A.X, A.Y, B.X, B.Y, aCol, aPattern);
+end;
+
+
+procedure TRenderAux.Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
 begin
   glColor4ubv(@aCol);
 
