@@ -20,11 +20,13 @@ type
     procedure TryBuildHouse(aHouse: THouseType);
 
     procedure CheckUnitCount;
-    procedure CheckHouseVitalCount;
-    procedure CheckHouseMiningCount;
-    procedure CheckHouseFoodCount;
-    procedure CheckHouseDefenceCount;
-    procedure CheckHouseWeaponryCount;
+    procedure CheckHouseVital;
+    procedure CheckHouseMining;
+    procedure CheckHouseMiningAdv;
+    procedure CheckHouseFood;
+    procedure CheckHouseFoodAdv;
+    procedure CheckHouseDefence;
+    procedure CheckHouseWeaponry;
     procedure CheckHouseCount;
     procedure CheckHousePlans;
     procedure CheckRoadsCount;
@@ -266,7 +268,7 @@ begin
           NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y), 0);
 
       NodeTagList.SortByTag;
-      for I := 0 to Min(NodeTagList.Count, 14) - 1 do
+      for I := 0 to Min(NodeTagList.Count, 10) - 1 do
         P.BuildList.FieldworksList.AddField(NodeTagList[I], ft_Wine);
     finally
       NodeTagList.Free;
@@ -289,7 +291,7 @@ begin
 end;
 
 
-procedure TKMayor.CheckHouseVitalCount;
+procedure TKMayor.CheckHouseVital;
 var Req: Integer;
 begin
   //Build at least one Store and add one more for each 30 houses
@@ -310,34 +312,48 @@ end;
 
 
 //Basic mining facilities
-procedure TKMayor.CheckHouseMiningCount;
+procedure TKMayor.CheckHouseMining;
 var Req: Integer;
 begin
   //todo: When building new houses make sure we have enough building materials
   //left to build quary-woodcutters-sawmill. In other words - dont waste stone/wood
   //if it's not producing yet
 
-  //Competitive opponent needs at least 3 quaries build early and 2 more after Sawmill
-  Req := 2 + Byte(fSetup.Strong) + Byte(fSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 1;
+  //Quary
+  //Town needs at least 2 quaries build early and 1 more after Sawmill for competitive AI
+  Req := 2 +
+         Byte(fSetup.Strong) +
+         Byte(fSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 1;
   if Req > HouseCount(ht_Quary) then
     TryBuildHouse(ht_Quary);
 
-  //Competitive opponent needs at least 3 woodcutters build early and 2 more after Sawmill
-  Req := 2 + Byte(fSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 2 + Byte(fSetup.Wooden) * 2;
+  //Woodcutters
+  //Town needs at least 2 woodcutters build early and 2 more after Sawmill
+  Req := 2 +
+         Byte(fSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 2 +
+         Byte(fSetup.Wooden) * 2;
   if Req > HouseCount(ht_Woodcutters) then
     TryBuildHouse(ht_Woodcutters);
 
-  //Sawmills count depends only on Woodcutters, build 1 per each two
-  Req := 1 + HouseCount(ht_Woodcutters) div 2;
+  //Sawmills count depends only on Woodcutters, build 1 per each two, but at least 1
+  Req := Max(1, HouseCount(ht_Woodcutters) div 2);
   if Req > HouseCount(ht_Sawmill) then
     TryBuildHouse(ht_Sawmill);
+end;
 
+
+procedure TKMayor.CheckHouseMiningAdv;
+var Req: Integer;
+begin
   //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
-  Req := 2 + Byte(fSetup.Strong) * 2 + Byte(not fSetup.Wooden) * 2;
+  Req := 2 +
+         Byte(fSetup.Strong) * 2 +
+         Byte(not fSetup.Wooden) * 2; //For iron production
   if Req > HouseCount(ht_CoalMine) then
     TryBuildHouse(ht_CoalMine);
 
-  //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
+  //GoldMine
+  //Build 2 mines, one before and one after Metallurgists
   Req := 1 + Byte(HouseCount(ht_Metallurgists) > 0);
   if Req > HouseCount(ht_GoldMine) then
     TryBuildHouse(ht_GoldMine);
@@ -349,7 +365,7 @@ begin
 end;
 
 
-procedure TKMayor.CheckHouseFoodCount;
+procedure TKMayor.CheckHouseFood;
 var Req: Integer;
 begin
   //Build at least 2 Farms early on
@@ -358,36 +374,46 @@ begin
   if Req > HouseCount(ht_Farm) then
     TryBuildHouse(ht_Farm);
 
-  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Farm) div 4;
-  if Req > HouseCount(ht_Mill) then
-    TryBuildHouse(ht_Mill);
-
-  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Mill) div 2;
-  if Req > HouseCount(ht_Bakery) then
-    TryBuildHouse(ht_Bakery);
-
-  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Farm) div 4;
-  if Req > HouseCount(ht_Swine) then
-    TryBuildHouse(ht_Swine);
-
-  Req := 1 + HouseCount(ht_Swine) div 2;
-  if Req > HouseCount(ht_Butchers) then
-    TryBuildHouse(ht_Butchers);
-
+  //Wineyard
   Req := 2 + Byte(fSetup.Strong) * 2
            + fPlayers[fOwner].Stats.GetCitizensCount div 30;
   if Req > HouseCount(ht_Wineyard) then
     TryBuildHouse(ht_Wineyard);
+
+  //Mill
+  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Farm) div 4;
+  if Req > HouseCount(ht_Mill) then
+    TryBuildHouse(ht_Mill);
+
+  //Bakery
+  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Mill) div 2;
+  if Req > HouseCount(ht_Bakery) then
+    TryBuildHouse(ht_Bakery);
 end;
 
 
-procedure TKMayor.CheckHouseDefenceCount;
+procedure TKMayor.CheckHouseFoodAdv;
+var Req: Integer;
+begin
+  //Swine
+  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Farm) div 4;
+  if Req > HouseCount(ht_Swine) then
+    TryBuildHouse(ht_Swine);
+
+  //Butchers
+  Req := 1 + HouseCount(ht_Swine) div 2;
+  if Req > HouseCount(ht_Butchers) then
+    TryBuildHouse(ht_Butchers);
+end;
+
+
+procedure TKMayor.CheckHouseDefence;
 begin
 
 end;
 
 
-procedure TKMayor.CheckHouseWeaponryCount;
+procedure TKMayor.CheckHouseWeaponry;
 var
   Req: Integer;
 begin
@@ -455,21 +481,22 @@ begin
   if (fPlayers[fOwner].Stats.GetHouseWip(ht_Any) >= 3) then Exit;
 
   //Check if we have Store/Inn/School in adequate counts
-  CheckHouseVitalCount;
+  CheckHouseVital;
 
-  CheckHouseMiningCount;
+  CheckHouseMining;
+  CheckHouseFood;
+  CheckHouseMiningAdv;
+  CheckHouseFoodAdv;
 
   if fSetup.Strong then
   begin
-    CheckHouseWeaponryCount;
-    CheckHouseDefenceCount;
-    CheckHouseFoodCount;
+    CheckHouseWeaponry;
+    CheckHouseDefence;
   end
   else
   begin
-    CheckHouseFoodCount;
-    CheckHouseDefenceCount;
-    CheckHouseWeaponryCount;
+    CheckHouseDefence;
+    CheckHouseWeaponry;
   end;
 
   //Check if we need to demolish depleted mining houses

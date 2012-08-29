@@ -4,8 +4,9 @@ Todo:
  +	Make MapEd to start with default 30% height
  +	Map Winter Comes does not have !CENTER_SCREEN commands so the locations are not shown the lobby
  +	CRC check was flawed, CRC check needs to be based on what we loaded at game start, not what is on the user's HD at the time he joins the lobby
+ +	Enforce tiles triangulation direction to NW-SE
+ +	Tweak AI to food balance changes
 	Enemy stonemason in TSK 11 will not cut through the mountain below the player because of walking distance check going around his house (increase mining radiuses by +2?)
-	Enforce tiles triangulation direction to NW-SE
 	All multiplayer maps need more starting food due to matching unit condition to original KaM
 	Ask Ukr translator (Mulberry) to fix his translations and use "Kazarmy" instead of "Baraki", cos latter is a wrong term.
 	Resource sliders always unlocked at start when house will become buildable (blocked houses still disabled)
