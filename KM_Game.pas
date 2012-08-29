@@ -274,6 +274,7 @@ begin
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fRenderPool);
   FreeAndNil(fGameOptions);
+  FreeAndNil(fAlerts);
   if DO_PERF_LOGGING then fPerfLog.Free;
 
   //When leaving the game we should always reset the cursor in case the user had beacon or linking selected

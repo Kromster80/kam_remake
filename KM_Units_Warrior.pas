@@ -81,6 +81,7 @@ type
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     function IsRanged:boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
+    function GetActivityText: string; override;
 
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); override;
 
@@ -733,6 +734,28 @@ begin
       exit;
     end;
   end;
+end;
+
+
+function TKMUnitWarrior.GetActivityText: string;
+begin
+  if fCurrentAction is TUnitActionFight then
+  begin
+    if IsRanged then
+      Result := 'Firing'
+    else
+      Result := 'Fighting';
+  end
+  else if fCurrentAction is TUnitActionStormAttack then
+    Result := 'Storm attack'
+  //Sometimes only commanders are given order to walk to the unit, so check their action as well
+  else if ((fCurrentAction is TUnitActionWalkTo) and (TUnitActionWalkTo(fCurrentAction).WalkingToUnit)
+       or  (GetCommander.fCurrentAction is TUnitActionWalkTo) and (TUnitActionWalkTo(GetCommander.fCurrentAction).WalkingToUnit)) then
+    Result := 'Attacking'
+  else if (fCurrentAction is TUnitActionWalkTo) or (fCurrentAction is TUnitActionAbandonWalk) then
+    Result := 'Moving'
+  else
+    Result := 'Idle';
 end;
 
 

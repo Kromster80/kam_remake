@@ -1428,7 +1428,7 @@ begin
     Image_UnitPic         := TKMImage.Create(Panel_Unit,8,38,54,100,521);
     Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,30,fTextLibrary[TX_UNIT_CONDITION],fnt_Grey,taCenter);
     ConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,73,55,116,15);
-    Label_UnitTask        := TKMLabel.Create(Panel_Unit,73,80,116,30,'',fnt_Grey,taLeft);
+    Label_UnitTask        := TKMLabel.Create(Panel_Unit,73,80,116,50,'',fnt_Grey,taLeft);
     Label_UnitTask.AutoWrap := True;
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
     Label_UnitDescription.AutoWrap := True;
@@ -2166,7 +2166,7 @@ begin
   Image_UnitPic.TexID         := fResource.UnitDat[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor     := fPlayers[Sender.GetOwner].FlagColor;
   ConditionBar_Unit.Position  := Sender.Condition / UNIT_MAX_CONDITION;
-  Label_UnitTask.Caption      := 'Task: ' + Sender.GetUnitTaskText;
+  Label_UnitTask.Caption      := Sender.GetActivityText;
 
   //While selecting target to join we could get attacked
   //Then we must cancel the dialog

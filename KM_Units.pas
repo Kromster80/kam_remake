@@ -139,7 +139,6 @@ type
     property GetUnitAction: TUnitAction read fCurrentAction;
     property UnitTask: TUnitTask read fUnitTask;
     property UnitType: TUnitType read fUnitType;
-    function GetUnitTaskText:string;
     function GetUnitActText:string;
     property Condition: integer read fCondition write fCondition;
     function  HitPointsDecrease(aAmount:integer):boolean;
@@ -172,6 +171,7 @@ type
     function VertexUsageCompatible(aFrom, aTo: TKMPoint): Boolean;
     procedure VertexAdd(aFrom, aTo: TKMPoint);
     procedure Walk(aFrom, aTo: TKMPoint);
+    function GetActivityText: string; virtual;
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
     function UpdateState: Boolean; virtual;
@@ -186,6 +186,7 @@ type
     procedure IssueResourceDepletedMessage;
   public
     function CanWorkAt(aLoc:TKMPoint; aGatheringScript:TGatheringScript):Boolean;
+    function GetActivityText: string; override;
     function UpdateState:boolean; override;
     procedure Paint; override;
   end;
@@ -364,6 +365,14 @@ begin
                         end;
     else Result := True;
   end;
+end;
+
+
+function TKMUnitCitizen.GetActivityText: string;
+begin
+  Result := Inherited GetActivityText; //Default
+  if fUnitTask is TTaskMining then
+    Result := TTaskMining(fUnitTask).WorkPlan.GetActivityText;
 end;
 
 
@@ -1191,28 +1200,6 @@ begin
 end;
 
 
-function TKMUnit.GetUnitTaskText:string;
-begin
-  Result:='Idle';                                      {----------} //Thats allowed width
-  if fUnitTask is TTaskSelfTrain        then Result := 'Train';
-  if fUnitTask is TTaskDeliver          then Result := 'Deliver';
-  if fUnitTask is TTaskBuildRoad        then Result := 'Build road';
-  if fUnitTask is TTaskBuildWine        then Result := 'Build wine field';
-  if fUnitTask is TTaskBuildField       then Result := 'Build corn field';
-  if fUnitTask is TTaskBuildWall        then Result := 'Build wall';
-  if fUnitTask is TTaskBuildHouseArea   then Result := 'Prepare house area';
-  if fUnitTask is TTaskBuildHouse       then Result := 'Build house';
-  if fUnitTask is TTaskBuildHouseRepair then Result := 'Repair house';
-  if fUnitTask is TTaskGoHome           then Result := 'Go home';
-  if fUnitTask is TTaskGoEat            then Result := 'Go to eat';
-  if fUnitTask is TTaskMining           then Result := 'Mine resources';
-  if fUnitTask is TTaskDie              then Result := 'Die';
-  if fUnitTask is TTaskAttackHouse      then Result := 'Attack House';
-  if fUnitTask is TTaskGoOutShowHungry  then Result := 'Show hunger';
-  if fUnitTask is TTaskThrowRock        then Result := 'Throwing rock';
-end;
-
-
 function TKMUnit.GetUnitActText: string;
 begin
   Result := fCurrentAction.GetExplanation;
@@ -1666,6 +1653,33 @@ end;
 procedure TKMUnit.Walk(aFrom, aTo: TKMPoint);
 begin
   fTerrain.UnitWalk(aFrom, aTo, Self)
+end;
+
+
+function TKMUnit.GetActivityText: string;
+const TASK_TEXT: array[TUnitTaskName] of string = (
+'','', //utn_Unknown, utn_SelfTrain
+'Delivering', //utn_Deliver
+'Constructing road', //utn_BuildRoad
+'Digging field', //utn_BuildWine
+'Constructing winefield', //utn_BuildField
+'', //utn_BuildWall (unused)
+'Flattening house site', //utn_BuildHouseArea
+'Constructing house', //utn_BuildHouse
+'Repairing house', //utn_BuildHouseRepair
+'Going home', //utn_GoHome
+'Going to the inn', //utn_GoEat
+'', //utn_Mining (overridden by Citizen)
+'', //utn_Die (never visible)
+'Going to the inn', //utn_GoOutShowHungry
+'Attacking house', //utn_AttackHouse
+'' //utn_ThrowRock (never visible)
+);
+begin
+  if fUnitTask <> nil then
+    Result := TASK_TEXT[fUnitTask.TaskName]
+  else
+    Result := 'Idle';
 end;
 
 
