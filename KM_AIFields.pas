@@ -28,6 +28,7 @@ type
     end;
     procedure InitConnectivity;
     function GetBestOwner(aIndex: Integer): TPlayerIndex;
+    function GetEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
     procedure UpdateOwnership;
     procedure UpdateInfluence;
   public
@@ -164,7 +165,7 @@ var
 var
   I: Integer;
 begin
-  for OwnerID := 0 to MAX_PLAYERS - 1 do
+  for OwnerID := 0 to fPlayers.Count - 1 do
     for I := 0 to fNodeCount - 1 do
       if fNodes[I].Owner[OwnerID] = 255 then
         DoFill(I);
@@ -176,7 +177,7 @@ var I, Best: Byte;
 begin
   Best := 0;
   Result := PLAYER_NONE;
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to fPlayers.Count - 1 do
   if fNodes[aIndex].Owner[I] > Best then
   begin
     Best := fNodes[aIndex].Owner[I];
@@ -185,12 +186,21 @@ begin
 end;
 
 
+function TKMNavMesh.GetEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
+var I: Integer;
+begin
+  Result := 0;
+  for I := 0 to fPlayers.Count - 1 do
+  if (I <> aOwner) and (fPlayers.CheckAlliance(aOwner, I) = at_Enemy) then
+    Result := Result + fNodes[aIndex].Owner[I];
+end;
+
+
 procedure TKMNavMesh.GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
 var
   I, K: Integer;
   ECount: Integer;
   Edges: array of array [0..1] of Integer;
-  EdgeOpen: array of Boolean;
 begin
   //1. Get ownership area
   //Collect all the edges that are within our ownership area
@@ -260,13 +270,19 @@ begin
   SetLength(aOutline, K);
   K := 0;
   for I := 0 to ECount - 1 do
-  if (Edges[I, 0] >= 0) then
+  if (Edges[I, 0] >= 0)
+  and (GetEnemyPresence(Edges[I,0], aOwner) > 32)
+  and (GetEnemyPresence(Edges[I,1], aOwner) > 32)
+  then
   begin
     aOutline[K].A := fNodes[Edges[I,0]].Loc;
     aOutline[K].B := fNodes[Edges[I,1]].Loc;
     aOutline[K].Weight := 1;
     Inc(K);
   end;
+
+  //Temp. Remove spans that do not face enemy
+  SetLength(aOutline, K);
 
   //5. Remove spans that face isolated areas
 
@@ -643,7 +659,7 @@ begin
     end;
 
   if AI_GEN_NAVMESH and fShowNavMesh then
-  for I := 0 to MAX_PLAYERS - 1 do
+  for I := 0 to fPlayers.Count - 1 do
   begin
     fNavMesh.GetDefenceOutline(I, Outline);
     for K := 0 to High(Outline) do

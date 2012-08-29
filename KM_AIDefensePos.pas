@@ -22,15 +22,15 @@ type
   public
     DefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
     constructor Create(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
-    constructor Load(LoadStream:TKMemoryStream);
+    constructor Load(LoadStream: TKMemoryStream);
     destructor Destroy; override;
     property CurrentCommander: TKMUnitWarrior read fCurrentCommander write SetCurrentCommander;
     property GroupType: TGroupType read fGroupType; //Type of group to defend this position (e.g. melee)
     property Position: TKMPointDir read fPosition; //Position and direction the group defending will stand
     property Radius: Integer read fRadius; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
-    function IsFullyStocked(aAmount: integer): Boolean;
+    function IsFullyStocked(aAmount: Integer): Boolean;
     function UITitle: string;
-    procedure Save(SaveStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
     procedure SyncLoad;
   end;
 
@@ -46,6 +46,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure Clear;
     procedure AddDefencePosition(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
     function FindPlaceForWarrior(aWarrior: TKMUnitWarrior; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
     procedure RestockPositionWith(aDefenceGroup, aCommander: TKMUnitWarrior);
@@ -175,6 +176,12 @@ begin
   SetLength(fPositions, fCount + 1);
   fPositions[fCount] := TAIDefencePosition.Create(aPos, aGroupType, aRadius, aDefenceType);
   inc(fCount);
+end;
+
+
+procedure TAIDefencePositions.Clear;
+begin
+  fCount := 0;
 end;
 
 

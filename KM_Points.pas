@@ -62,10 +62,11 @@ type
   function KMGetDirection(FromPos, ToPos: TKMPointF): TKMDirection; overload;
   function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
   function KMGetVertexDir(X,Y: integer):TKMDirection;
-  function KMGetVertexTile(P:TKMPoint; Dir: TKMDirection):TKMPoint;
+  function KMGetVertexTile(P: TKMPoint; Dir: TKMDirection):TKMPoint;
   function KMGetVertex(Dir: TKMDirection):TKMPointF;
-  function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPointDir;
+  function KMGetPointInDir(aPoint: TKMPoint; aDir: TKMDirection; aDist: Byte = 1): TKMPointI;
 
+  function KMAddDirection(aDir: TKMDirection; aAdd: Byte): TKMDirection;
   function KMNextDirection(aDir: TKMDirection): TKMDirection;
   function KMPrevDirection(aDir: TKMDirection): TKMDirection;
 
@@ -346,7 +347,7 @@ end;
 //  3 4 3
 function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
 begin
-  Result := abs(byte(Dir1) - ((byte(Dir2)+4) mod 8));
+  Result := Abs(Byte(Dir1) - ((Byte(Dir2) + 4) mod 8));
 
   if Result > 4 then
     Result := 8 - Result; //Mirror it, as the difference must always be 0..4
@@ -379,14 +380,19 @@ begin
 end;
 
 
-function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPointDir;
+function KMGetPointInDir(aPoint: TKMPoint; aDir: TKMDirection; aDist: Byte = 1): TKMPointI;
 const
-  XBitField: array[TKMDirection] of smallint = (0, 0, 1,1,1,0,-1,-1,-1);
-  YBitField: array[TKMDirection] of smallint = (0,-1,-1,0,1,1, 1, 0,-1);
+  XBitField: array [TKMDirection] of SmallInt = (0, 0, 1, 1, 1, 0,-1,-1,-1);
+  YBitField: array [TKMDirection] of SmallInt = (0,-1,-1, 0, 1, 1, 1, 0,-1);
 begin
-  Result.Dir := aDir;
-  Result.Loc.X := aPoint.X+XBitField[aDir];
-  Result.Loc.Y := aPoint.Y+YBitField[aDir];
+  Result.X := aPoint.X + XBitField[aDir] * aDist;
+  Result.Y := aPoint.Y + YBitField[aDir] * aDist;
+end;
+
+
+function KMAddDirection(aDir: TKMDirection; aAdd: Byte): TKMDirection;
+begin
+  Result := TKMDirection((Byte(aDir) + aAdd - 1) mod 8 + 1);
 end;
 
 

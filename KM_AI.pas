@@ -52,7 +52,7 @@ type
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
-    procedure UpdateState;
+    procedure UpdateState(aTick: Cardinal);
   end;
 
 
@@ -615,22 +615,31 @@ begin
 end;
 
 
-procedure TKMPlayerAI.UpdateState;
+//todo: Updates should be well separated, maybe we can make an interleaved array or something
+//where updates will stacked to execute 1 at a tick
+//OR maybe we can collect all Updates into one list and run them from there (sounds like a better more manageble idea)
+procedure TKMPlayerAI.UpdateState(aTick: Cardinal);
 begin
   //Check if player has been defeated for Events
-  CheckDefeated;
+  if (aTick + Byte(fPlayerIndex)) mod MAX_PLAYERS = 0 then
+    CheckDefeated;
 
   //Check goals for all players to maintain multiplayer consistency
   //AI does not care if it won or lost and Human dont need Mayor and Army management
   case fPlayers[fPlayerIndex].PlayerType of
-    pt_Human:     CheckGoals; //This procedure manages victory and loss
+    pt_Human:     begin
+                    if (aTick + Byte(fPlayerIndex)) mod MAX_PLAYERS = 0 then
+                      CheckGoals; //This procedure manages victory and loss
+                  end;
     pt_Computer:  begin
-                    fMayor.UpdateState;
-                    fGeneral.UpdateState;
-
-                    CheckArmy; //Feed army, position defence, arrange/organise groups
-                    CheckCanAttack;
-                    CheckArmiesCount; //Train new soldiers if needed
+                    fMayor.UpdateState(aTick);
+                    fGeneral.UpdateState(aTick);
+                    if (aTick + Byte(fPlayerIndex)) mod MAX_PLAYERS = 0 then
+                    begin
+                      CheckArmy; //Feed army, position defence, arrange/organise groups
+                      CheckCanAttack;
+                      CheckArmiesCount; //Train new soldiers if needed
+                    end;
 
                     //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
                     //CheckAndIssueAttack; //Attack enemy

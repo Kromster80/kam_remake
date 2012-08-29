@@ -901,7 +901,7 @@ begin
 
   if (aTick + Byte(fPlayerIndex)) mod 20 = 0 then
   begin
-    fAI.UpdateState;
+    fAI.UpdateState(aTick);
     //fArmyEval.UpdateState;
   end;
 

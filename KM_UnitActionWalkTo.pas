@@ -645,8 +645,9 @@ end;
 
 
 function TUnitActionWalkTo.IntSolutionDodge(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-var i:byte; //Test 2 options really
-    TempPos, OpponentNextNextPos: TKMPoint;
+var I: Byte; //Test 2 options really
+    TempPos: TKMPointI;
+    OpponentNextNextPos: TKMPoint;
     fAltOpponent:TKMUnit;
 begin
   //If there is a unit on one of the tiles either side of target that wants to swap, do so
@@ -656,39 +657,43 @@ begin
   if CheckInteractionFreq(HighestInteractionCount,DODGE_TIMEOUT,DODGE_FREQ) then
   begin
     //Tiles to the left (-1) and right (+1) (relative to unit) of the one we are walking to
-    for i := 0 to 1 do
+    for I := 0 to 1 do
     begin
-      if i = 0 then TempPos := KMGetPointInDir(fUnit.GetPosition,KMPrevDirection((KMGetDirection(fUnit.GetPosition,NodeList[NodePos+1])))).Loc;
-      if i = 1 then TempPos := KMGetPointInDir(fUnit.GetPosition,KMNextDirection((KMGetDirection(fUnit.GetPosition,NodeList[NodePos+1])))).Loc;
-      if fTerrain.TileInMapCoords(TempPos.X,TempPos.Y) and fTerrain.CanWalkDiagonaly(fUnit.GetPosition,TempPos)
-        and (GetEffectivePassability in fTerrain.Land[TempPos.Y,TempPos.X].Passability) then //First make sure tile is on map and walkable!
-      if fTerrain.HasUnit(TempPos) then //Now see if it has a unit
-      begin
-        //There is a unit here, first find our alternate opponent
-        fAltOpponent := fTerrain.UnitsHitTest(TempPos.X, TempPos.Y);
+      if I = 0 then TempPos := KMGetPointInDir(fUnit.GetPosition, KMPrevDirection((KMGetDirection(fUnit.GetPosition,NodeList[NodePos+1]))));
+      if I = 1 then TempPos := KMGetPointInDir(fUnit.GetPosition, KMNextDirection((KMGetDirection(fUnit.GetPosition,NodeList[NodePos+1]))));
 
-        //Make sure unit really exists, is walking and has arrived on tile
-        if (fAltOpponent <> nil) and (fAltOpponent.GetUnitAction is TUnitActionWalkTo) and
-          (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoExchange)
-          and (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoesWalking)
-          and ((not KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])) //Isn't diagonal
-          or ((KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])       //...or is diagonal and...
-          and not fTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition,TempPos))))) then //...vertex is free
-          if TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetNextNextPosition(OpponentNextNextPos) then
-            if KMSamePoint(OpponentNextNextPos, fUnit.GetPosition) then //Now see if they want to exchange with us
-            begin
-              //Perform exchange from our position to TempPos
-              TUnitActionWalkTo(fAltOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
+      //First make sure tile is on map and walkable!
+      if fTerrain.TileInMapCoords(TempPos.X, TempPos.Y)
+      and fTerrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(TempPos))
+      and (GetEffectivePassability in fTerrain.Land[TempPos.Y, TempPos.X].Passability) then
 
-              Explanation:='Unit on tile next to target tile wants to swap. Performing an exchange';
-              ExplanationLogAdd;
-              fDoExchange := true;
-              ChangeStepTo(TempPos);
-              //They both will exchange next tick
-              Result := true; //Means exit DoUnitInteraction
-              exit; //Once we've found a solution, do NOT check the other alternative dodge position (when for loop i=1)
-            end;
-      end;
+        if fTerrain.HasUnit(KMPoint(TempPos)) then //Now see if it has a unit
+        begin
+          //There is a unit here, first find our alternate opponent
+          fAltOpponent := fTerrain.UnitsHitTest(TempPos.X, TempPos.Y);
+
+          //Make sure unit really exists, is walking and has arrived on tile
+          if (fAltOpponent <> nil) and (fAltOpponent.GetUnitAction is TUnitActionWalkTo) and
+            (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoExchange)
+            and (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoesWalking)
+            and ((not KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])) //Isn't diagonal
+            or ((KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])       //...or is diagonal and...
+            and not fTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition, KMPoint(TempPos)))))) then //...vertex is free
+            if TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetNextNextPosition(OpponentNextNextPos) then
+              if KMSamePoint(OpponentNextNextPos, fUnit.GetPosition) then //Now see if they want to exchange with us
+              begin
+                //Perform exchange from our position to TempPos
+                TUnitActionWalkTo(fAltOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
+
+                Explanation:='Unit on tile next to target tile wants to swap. Performing an exchange';
+                ExplanationLogAdd;
+                fDoExchange := true;
+                ChangeStepTo(KMPoint(TempPos));
+                //They both will exchange next tick
+                Result := true; //Means exit DoUnitInteraction
+                exit; //Once we've found a solution, do NOT check the other alternative dodge position (when for loop i=1)
+              end;
+        end;
     end;
   end;
 end;

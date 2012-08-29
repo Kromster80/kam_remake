@@ -127,7 +127,7 @@ begin
   end;
 
   //First and last steps are walking, inbetween are running
-  if (fTileSteps<=0) or (fTileSteps>=fStamina-1) then begin
+  if (fTileSteps <= 0) or (fTileSteps>=fStamina-1) then begin
     Distance := fResource.UnitDat[fUnit.UnitType].Speed;
     fActionType := ua_Walk;
   end else begin
@@ -146,7 +146,7 @@ begin
       DecVertex;
 
     //Begin the next step
-    fNextPos := KMGetPointInDir(fUnit.GetPosition, fUnit.Direction).Loc;
+    fNextPos := KMPoint(KMGetPointInDir(fUnit.GetPosition, fUnit.Direction));
 
     Locked := false; //So find enemy works
     FoundEnemy := TKMUnitWarrior(fUnit).FindEnemy;

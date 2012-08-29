@@ -20,7 +20,7 @@ type
     procedure AfterMissionInit;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
 
-    procedure UpdateState;
+    procedure UpdateState(aTick: Cardinal);
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
   end;
@@ -78,19 +78,29 @@ var
   DP: TAIDefencePositions;
   PairFound: Boolean;
   Loc: TKMPoint;
-  Dir: TKMDirection;
+  LocI: TKMPointI;
+  FaceDir: TKMDirection;
 begin
   //Get defence outline with weights representing how important each segment is
   fAIFields.NavMesh.GetDefenceOutline(fOwner, Outline);
 
   DP := fPlayers[fOwner].AI.DefencePositions;
+  DP.Clear;
 
   //Create missing defence positions
   for I := DP.Count to High(Outline) do
   begin
+    FaceDir := KMGetDirection(KMPointF(Outline[I].A), KMPerpendecular(Outline[I].A, Outline[I].B));
+
     Loc := KMPointRound(KMLerp(Outline[I].A, Outline[I].B, 0.5));
-    Dir := KMGetDirection(KMPointF(Outline[I].A), KMPerpendecular(Outline[I].A, Outline[I].B));
-    DP.AddDefencePosition(KMPointDir(Loc, Dir), gt_Melee, 12, adt_FrontLine);
+    LocI := KMGetPointInDir(Loc, KMAddDirection(FaceDir, 4), 1);
+    Loc := fTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
+    DP.AddDefencePosition(KMPointDir(Loc, FaceDir), gt_Melee, 12, adt_FrontLine);
+
+    Loc := KMPointRound(KMLerp(Outline[I].A, Outline[I].B, 0.5));
+    LocI := KMGetPointInDir(Loc, KMAddDirection(FaceDir, 4), 4);
+    Loc := fTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
+    DP.AddDefencePosition(KMPointDir(Loc, FaceDir), gt_Ranged, 12, adt_FrontLine);
   end;
 
   //Compare existing defence positions with the sample
@@ -100,8 +110,10 @@ begin
 end;
 
 
-procedure TKMGeneral.UpdateState;
+procedure TKMGeneral.UpdateState(aTick: Cardinal);
 begin
+  if (aTick + Byte(fOwner)) mod (MAX_PLAYERS * 20) <> 0 then Exit;
+
   //Manage defence positions
   CheckDefences;
 end;

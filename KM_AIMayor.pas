@@ -37,7 +37,7 @@ type
     procedure AfterMissionInit;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
 
-    procedure UpdateState;
+    procedure UpdateState(aTick: Cardinal);
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
   end;
@@ -266,7 +266,7 @@ begin
           NodeTagList.AddEntry(KMPoint(K, I), Abs(K - Loc.X)*3 + Abs(I - 2 - Loc.Y), 0);
 
       NodeTagList.SortByTag;
-      for I := 0 to Min(NodeTagList.Count, 14) - 1 do
+      for I := 0 to Min(NodeTagList.Count, 11) - 1 do
         P.BuildList.FieldworksList.AddField(NodeTagList[I], ft_Wine);
     finally
       NodeTagList.Free;
@@ -362,11 +362,11 @@ begin
   if Req > HouseCount(ht_Mill) then
     TryBuildHouse(ht_Mill);
 
-  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Mill) div 2;
+  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Mill);
   if Req > HouseCount(ht_Bakery) then
     TryBuildHouse(ht_Bakery);
 
-  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Farm) div 4;
+  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Farm) div 3;
   if Req > HouseCount(ht_Swine) then
     TryBuildHouse(ht_Swine);
 
@@ -374,7 +374,7 @@ begin
   if Req > HouseCount(ht_Butchers) then
     TryBuildHouse(ht_Butchers);
 
-  Req := 2 + Byte(fSetup.Strong) * 2
+  Req := 3 + Byte(fSetup.Strong) * 2
            + fPlayers[fOwner].Stats.GetCitizensCount div 30;
   if Req > HouseCount(ht_Wineyard) then
     TryBuildHouse(ht_Wineyard);
@@ -459,15 +459,15 @@ begin
 
   CheckHouseMiningCount;
 
+  CheckHouseFoodCount;
+
   if fSetup.Strong then
   begin
     CheckHouseWeaponryCount;
     CheckHouseDefenceCount;
-    CheckHouseFoodCount;
   end
   else
   begin
-    CheckHouseFoodCount;
     CheckHouseDefenceCount;
     CheckHouseWeaponryCount;
   end;
@@ -516,8 +516,10 @@ begin
 end;
 
 
-procedure TKMayor.UpdateState;
+procedure TKMayor.UpdateState(aTick: Cardinal);
 begin
+  if (aTick + Byte(fOwner)) mod (MAX_PLAYERS * 10) <> 0 then Exit;
+
   //Train new units (citizens, serfs, workers and recruits) if needed
   CheckUnitCount;
 
