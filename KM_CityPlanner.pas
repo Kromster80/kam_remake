@@ -122,7 +122,7 @@ function TKMCityPlanner.NextToGrass(aTarget, aHouse: THouseType; out aLoc: TKMPo
       begin
         Inc(FieldCount);
         //Request slightly more than we need to have a good choice
-        if FieldCount >= Min(AI_FIELD_MAX_AREA, 16) then
+        if FieldCount >= Min(AI_FIELD_MAX_AREA, IfThen(aHouse = ht_Farm, 16, 10)) then
         begin
           Result := True;
           Exit;
