@@ -66,3 +66,5 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
 	Default height in map editor to 20-33 for new maps (and allow user to set it before making the new map?)
 	Clicking on player's name/flag in lobby opens a drop down menu with options like: kick, ban, promote to host
+	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
+	Settings page allows players to save their default resource slider options (minor feature)

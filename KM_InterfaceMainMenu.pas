@@ -3085,7 +3085,7 @@ begin
     if ID <> -1 then
       fMinimap.PlayerColors[I] := fGameApp.Networking.NetPlayers[ID].FlagColor
     else
-      fMinimap.PlayerColors[I] := $FF000000;
+      fMinimap.PlayerColors[I] := $7F000000; //Semi-transparent when not selected
   end;
   //If we have a map selected update the preview
   if (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid then

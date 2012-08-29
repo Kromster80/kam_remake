@@ -90,6 +90,8 @@ Improvements:
 	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
 	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
 	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
+	Allow host to set a title for his lobby shown in a column on the server selection page ("beginners/pros only", "fight map only", etc.)
+	Clicking a location on the lobby minimap selects that location if it's available
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
