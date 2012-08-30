@@ -1,5 +1,5 @@
 
-MaxID:2756
+MaxID:2779
 
 0:Houtzagerij
 1:IJzersmelterij
@@ -51,11 +51,11 @@ MaxID:2756
 56:IJzeren schild
 57:Leren harnas
 58:IJzeren harnas
-59:Handbijl
-60:Zwaard
-61:Lans
-62:Piek
-63:Lange boog
+59:Handbijlen
+60:Zwaarden
+61:Lansen
+62:Pieken
+63:Handboog
 64:Kruisboog
 65:Paarden
 66:Vissen
@@ -67,7 +67,7 @@ MaxID:2756
 74:Schrijnwerker
 75:Bakker/Molenaar
 76:Slager/Leerlooier
-77:Visserman
+77:Visser
 78:Bouwvakker
 79:Steenhouwer
 80:Smid
@@ -88,29 +88,29 @@ MaxID:2756
 95:Krijger
 96:Vagebond
 97:Katapult
-98:Ballist
-99:De bediende voorziet je gebouwen van de nodige grondstoffen.||Let erop, dat er een wegenverbinding tussen de huizen is.
+98:Ballista
+99:De bediende voorziet je gebouwen van de nodige grondstoffen.||Let erop dat er een wegenverbinding tussen de huizen is.
 100:Om boomstammen voor de houtzagerij te produceren, heb je de houthakker nodig.||De houthakker beplant het bos vanzelf opnieuw.
 101:De mijnwerker delft ertsen in de kolen-, ijzer- en goudmijn.
-102:In de varkens- en paardenfokkerij fokt de veefokker met behulp van koren het vee.
+102:In de varkensfokkerij en de stallen fokt de veefokker met behulp van koren het vee.
 103:De boer zaait en oogst het koren op de boerderij.||Bovendien perst hij wijn in de wijngaard.
 104:De schrijnwerker werkt in de houtzagerij, de wapen-, wapentuig en schiettuigmakerij.
-105:De bakker bakt brood in de bakkerij.||Bovendien verwerkt hij koren tot meel in de windmolen.
+105:De bakker bakt brood in de bakkerij.||Bovendien verwerkt hij koren tot meel in de molen.
 106:De slager produceert worsten in de slagerij en leer in de leerlooierij.
-107:De visserman vangt vis in nabijgelegen wateren.
+107:De visser vangt vis in nabijgelegen wateren.
 108:De bouwvakker maakt gebouwen en wegen. Plaats de markeringen en hij voert je opdrachten automatisch uit.||Bovendien repareert hij beschadigde huizen.
-109:Omdat je bouwvakkers voldoende stenen voor het maken van wegen en huizen moeten hebben, wint de steenhouwer stenen.
-110:Zware wapenrustingen en wapens worden door de smid in de wapenen wapentuigsmederij vervaardigd.
-111:De smelter vervaardigt van gouden ijzererts kisten goud resp. ijzer.
+109:Omdat je bouwvakkers voldoende stenen voor het maken van wegen en huizen nodig hebben, wint de steenhouwer stenen.
+110:Zware wapenuitrustingen en wapens worden door de smid in de wapen- en wapentuigsmederij vervaardigd.
+111:De smelter vervaardigt van goud- en ijzererts kisten goud en ijzer.
 112:De rekruut kan in de kazerne als soldaat worden bewapend.||Bovendien bemant hij de uitkijktoren.
-147:Naar de keuze van de bouw
-148:Naar de verdeling van de artikelen
-149:Naar de statistiek
+147:Naar de keuze van gebouwen
+148:Naar de verdeling van producten
+149:Naar de statistieken
 150:Naar de opties
 151:Terug
 152:Keuze van de bouw
-153:Verdeling van|de artikelen
-154:Statistiek
+153:Verdeling van|de producten
+154:Statistieken
 155:Opties
 156:Spel laden
 157:Spel opslaan
@@ -123,11 +123,11 @@ MaxID:2756
 164:Volume wijzigen
 165:Muziek
 166:Muziek in-/uitschakelen
-167:AutoSave
+167:Auto-opslaan
 168:Muziekspeler
 169:Vorige lied
 170:Volgende lied
-171:Afbreken
+171:Vernietigen
 172:Afbreken van huizen/markeringen
 173:Weg aanleggen
 174:Wegenbouw
@@ -151,10 +151,10 @@ MaxID:2756
 192:Huidig type eenheid bewapenen
 193:Volgend beroep
 194:Vorig beroep
-195:Aan rij wachtenden toevoegen
+195:Aan wachtrij toevoegen
 196:Kosten:
 197:Huizenreparatie in-/uitschakelen
-198:Gebouw thans niet beschikbaar
+198:Gebouw nu niet beschikbaar
 199:Uith. vermogen
 200:Eenheid linksom draaien
 201:Eenheid rechtsom draaien
@@ -180,7 +180,7 @@ MaxID:2756
 221:|Deze eenheid heeft erg veel honger en moet zeer snel voedsel krijgen!
 222:PAUZE
 223:Volume wijzigen
-224:Artikellevering in-/uitschakelen
+224:Levering van producten in-/uitschakelen
 418:Spirit
 419:Busy
 420:Middleage Horn
@@ -203,8 +203,8 @@ MaxID:2756
 437:Aristocratie
 438:Bij de Haven
 439:Reis
-849:Speel Enkelvoudige Kaart
-850:Begin Missie
+849:Speel enkelvoudige kaart
+850:Begin missie
 851:Terug naar menu
 852:Laad opgeslagen spel
 853:Multiplayer
@@ -212,7 +212,7 @@ MaxID:2756
 855:Credits bekijken
 856:Verlaat programma
 857:Ga verder
-858:Herhaal Missie
+858:Missie herhalen
 859:Resolutie:
 860:MISSIE GEWONNEN!
 861:MISSIE VERLOREN!
@@ -283,8 +283,6 @@ MaxID:2756
 1743:Overschrijven
 1744:Opslaan
 1745:Laden
-1746:Er is een fout opgetreden tijdens het spelen.
-1747:Verstuur het bestand %s van jouw KaM Remake\\Crash Reports map naar de ontwikkelaars. Contactinformatie staat in het readme bestand. Bedankt voor je hulp!
 1748:Verouderde OpenGL versie gedetecteerd. Het spel kan mogelijk langzaam draaien en/of grafisch niet optimaal werken.
 1749:Netwerkfout:
 1750:Fout: spelernaam moet ingevuld zijn
@@ -371,7 +369,7 @@ MaxID:2756
 1836:Vechten
 1837:Niet gereed
 1838:Gereed
-1839:Fout: Kies aub een speler uit het opgeslagen spel om te besturen
+1839:Fout: kies a.u.b. een speler uit het opgeslagen spel om te besturen
 1840:Fout: laden van de kaart mislukt of er is geen map geselecteerd.
 1841:Kan niet starten: %s
 1842:Niet iedereen is gereed om te starten
@@ -395,7 +393,7 @@ MaxID:2756
 1860:Burgers|verloren
 1861:Soldaten|uitgerust
 1862:Soldaten|verloren
-1863:Soldaten|verslagen
+1863:Eenheden|verslagen
 1864:Gebouwen|opgericht
 1865:Gebouwen|verloren
 1866:Gebouwen|vernietigd
@@ -410,7 +408,7 @@ MaxID:2756
 1875:Co-op kaart
 1876:Het is niet toegestaan om dat te doen tijdens vredestijd.
 1877:Resterende vredestijd: %s
-1878:De vrede is voorbij. Grijp je wapens!
+1878:De vrede is voorbij. Grijp de wapens!
 1879:Speeltijd:|%s
 1880:Spelopties:
 1884:Troep stoppen ('%s')
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Niet-ondersteund formaat %s
 1891:Niet-ondersteunde versie %s
 1893:initialiseren
-1894:multiplayer initialisatie
 1895:script
-1896:Nieuwe Missie
+1896:Nieuwe missie
 1897:Er is een fout opgetreden tijdens het ontleden van het %s bestand
 1898:Gesloten
 1899:Host regelt spelerinstellingen
-1900:aanvullende afbeeldingen
 1901:eenheden
 1902:gebouwen
 1903:bomen
@@ -444,15 +440,14 @@ MaxID:2756
 2694:Niet ondersteund
 2695:Fout: spelernaam mag niet langer dan %d tekens zijn
 2696:Fout: spelernaam bevat verboden karakters
-2697:Schaduw kwaliteit:
+2697:Schaduwkwaliteit:
 2698:Laag
 2699:Hoog
 2700:Kaart niet gevonden: %s
 2701:Kaartbestanden zijn niet gelijk aan die van de host: %s
 2702:Opgeslagen spel niet gevonden: %s
 2703:Opgeslagen bestand is niet gelijk aan dat van de host: %s
-2704:WAARSCHUWING: Doorspelen na deze fout kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?
-2705:Update A.U.B de drivers voor betere prestaties.
+2705:Update a.u.b. de drivers voor betere prestaties.
 2706:Er is een fout opgetreden in de applicatie. Klik op "Foutenrapport verzenden" zodat we de fout kunnen onderzoeken. Bedankt voor je hulp!
 2707:Foutenrapport verzenden
 2708:Ruwe data weergeven
@@ -477,3 +472,28 @@ MaxID:2756
 2727:Het versturen van het foutenrapport is mislukt! Het kan zijn dat onze server druk bezig is. Probeer het alstublieft opnieuw.
 2728:Informatie
 2729:Een ogenblik geduld...
+2730:Campagnes
+2731:Aangepaste campagnes
+2732:Start Campagne!
+2734:Soldaten verslagen
+2736:Naam
+2737:Kaarten
+2738:Vrijgespeeld
+2739:Tijd
+2740:Herhaling herstarten
+2741:Herhaling beëindigen
+2742:Herhaling hervatten
+2743:1 Tick vooruit
+2744:Herhaling pauzeren
+2745:Je mag maar één instantie van het spel actief hebben tijdens multiplayer
+2746:Einde herhaling
+2747:AANVULLENDE MUZIEK:
+2748:Jij
+2749:Speler %d
+2750:Leger
+2751:Burgers
+2752:Gebouwen
+2753:Producten
+2754:Producten geproduceerd
+2755:Statistieken
+2756:Economie

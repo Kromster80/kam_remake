@@ -1,5 +1,5 @@
 
-MaxID:2756
+MaxID:2779
 
 0:Sägewerk
 1:Eisenschmelze
@@ -283,8 +283,6 @@ MaxID:2756
 1743:Ersetzen
 1744:Speichern
 1745:Laden
-1746:Während des Spielens ist ein Fehler aufgetreten.
-1747:Bitte die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler senden. Die Kontaktinformationen stehen in der ReadMe-Datei. Vielen Dank für die Hilfe!
 1748:Alte OpenGL Version ermittelt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.
 1749:Netzwerkfehler:
 1750:Fehler: Bitte Spielername eingeben
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Nicht unterstütztes Format %s!
 1891:Nicht unterstützte Version %s!
 1893:Initialisierung
-1894:Multiplayer Initialisierung
 1895:Skript
 1896:Neue Mission
 1897:Ein Fehler trat während der Syntaxanalyse in Datei %s auf.
 1898:Geschlossen
 1899:Host übernimmt Spieler Setup.
-1900:Zusätzliche Grafiken
 1901:Einheiten
 1902:Gebäude
 1903:Bäume
@@ -451,7 +447,6 @@ MaxID:2756
 2701:Kartendateien stimmen nicht mit denen des Hosts überein: %s
 2702:Spielstand nicht gefunden: %s
 2703:Spielstanddatei stimmt nicht mit der des Hosts überein: %s
-2704:WARNUNG: Wenn du weiterspielst riskierst du weitere Abstürze oder Fehler. Willst du auf eigene Gefahr weiterspielen?
 2705:Bitte Grafikkartentreiber aktualisieren!
 2706:Ein Fehler trat innerhalb des Programms auf. Bitte klicke auf "Bug Report senden", damit wir das Problem näher betrachten können. Danke für Deine Hilfe!
 2707:Bug Report senden

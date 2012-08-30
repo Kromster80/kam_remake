@@ -1,5 +1,5 @@
 
-MaxID:2756
+MaxID:2779
 
 0:Scierie
 1:Fonderie
@@ -283,8 +283,6 @@ MaxID:2756
 1743:Écraser
 1744:Enregistrer
 1745:Charger
-1746:Une erreur s'est produite durant la partie.
-1747:Veuillez envoyer le fichier %s se trouvant dans votre dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent se trouver dans le fichier Readme. Merci beaucoup pour votre petite aide !
 1748:Une ancienne version d'OpenGL a été détectée, le jeu peut être lent et/ou avec des défauts graphiques.
 1749:Erreur réseau :
 1750:Erreur : Le nom du joueur doit contenir au moins un caractère.
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Format non supporté %s
 1891:Version non supportée %s
 1893:initialisation
-1894:initialisation du multijoueur
 1895:script
 1896:Nouvelle Mission
 1897:Une erreur est survenue lors de l'analyse du fichier %s.
 1898:Fermé
 1899:L'hôte configure les Joueurs
-1900:sprites additionnels
 1901:unités
 1902:bâtiments
 1903:arbres
@@ -451,7 +447,6 @@ MaxID:2756
 2701:Les fichiers de la mission ne sont pas les mêmes que ceux de l'hôte : %s
 2702:Sauvegarde non trouvée : %s
 2703:Le fichier de sauvegarde n'est pas le même que celui de l'hôte : %s
-2704:ATTENTION : Continuer à jouer après cette erreur peut causer crashs et instabilités.\nVoulez-vous prendre ce risque est continuer à jouer ?
 2705:Veuillez mettre à jour votre pilote graphique pour obtenir une meilleure performance.
 2706:Une erreur s'est produite dans l'application. Veuillez cliquer sur Envoyer le Rapport du Bogue pour que nous puissions examiner ce problème. Merci pour votre aide !
 2707:Envoyer le Rapport du Bogue

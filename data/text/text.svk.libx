@@ -1,5 +1,5 @@
 
-MaxID:2756
+MaxID:2779
 
 0:Píla
 1:Zlievareò
@@ -10,26 +10,26 @@ MaxID:2756
 6:Rybárska chatrè
 7:Pekáreò
 8:Farma
-9:Dreváreò
+9:Drevorubaèskı zrub
 10:Kováèòa brnenia
 11:Sklad
 12:Stajòa
 13:Škola
-14:Kameòolom
+14:Kameneòolom
 15:Zlatnícka dielòa
 16:Prasacia farma
 17:Strána vea
 18:Radnica
-19:Vıroba zbraní
-20:Vıroba brnenia
+19:Vırobòa zbraní
+20:Vırobòa brnenia
 21:Hrad
 22:Mlyn
-23:aká zbrojáròa
+23:aká zbrojáreò
 24:Mäsiarstvo
 25:Koiarska dielòa
 26:Vıcviková miestnos
-27:Reštaurácia
-28:Vinárstvo
+27:Hostinec
+28:Vinica
 29:Trnica
 39:Kmene stromov
 40:Kamene
@@ -41,7 +41,7 @@ MaxID:2756
 46:Zlato
 47:Sudy vína
 48:Obilie
-49:Chleba
+49:Chleby
 50:Múka
 51:Koa
 52:Klobásky
@@ -51,15 +51,15 @@ MaxID:2756
 56:elezné štíty
 57:Koené brnenia
 58:elezné brnenia
-59:Sekera
+59:Sekery
 60:Meèe
-61:Kopia
+61:Kopije
 62:Halapartne
 63:Luky
 64:Kuše
 65:Kone
 66:Ryby
-69:Nevolník
+69:Nevo¾ník
 70:Drevorubaè
 71:Baník
 72:Chovate¾ zvierat
@@ -76,7 +76,7 @@ MaxID:2756
 83:Domobrana
 84:Sekerník
 85:Bojovník s meèom
-86:Luukostrelec
+86:Lukostrelec
 87:Strelec z kuše
 88:Kopijník
 89:Halapartník
@@ -88,21 +88,21 @@ MaxID:2756
 95:Bojovník
 96:Tulák
 97:Katapult
-98:Ballista
+98:Balista
 99:Nevo¾níci zásobujú vaše budovy potrebnımi surovinami.||Nezabudnite, e budovy musia by prepojené cestami.
-100:Aby ste mohol ai drevo pre pílu, potrebujete drevorubèa.||Drevorubaè sa nezávisle stará o znovuzalesòovenie vyaenıch plôch.
-101:Baník aí nerasty z uho¾nıch, eleznıch a zlatıch baní.
-102:V strediskách chovu prasiec a koní vykrmuje váš chovate¾ zvieratá obilím.
-103:Farmár pestuje a zberá obilie na farme.||Lisuje tie víno vypestované vo vinici.
-104:Tesár pracuje na píle, v zbrojárskej dielni a vo vırobni brnenia||Stavia tie katapulty a obliehacie vrhaèe a pracuje v dielni.
-105:Pekár peèie chlieb v pekárne.||Melie tie múku z obilia vo vetrnom mlyne.
-106:Mäsiar vyrába klobásy v mäsiarstve a koe v koiarni.
+100:Aby ste mohli ai drevo pre pílu, potrebujete drevorubaèa.||Drevorubaè sa nezávisle stará o znovuzalesòovenie vyaenıch plôch.
+101:Baník aí nerasty v uho¾nıch, eleznıch a zlatıch baniach.
+102:V strediskách chovu prasiat a koní vykrmuje váš chovate¾ zvieratá obilím.
+103:Farmár pestuje a ne obilie na farme.||Lisuje tie víno vypestované vo vinici.
+104:Tesár pracuje na píle, v zbrojárskej dielni a vo vırobni brnenia||Vyrába tie katapulty a balisty v dielni obliehacích strojov.
+105:Pekár peèie chlieb v pekárni.||Melie tie múku z obilia vo veternom mlyne.
+106:Mäsiar vyrába klobásky v mäsiarstve a koe v koiarskej dielni.
 107:Rybár chytá ryby v tesnej blízkosti vodnıch plôch.
 108:Robotník stavia budovy a cesty. Staèí mu ukáza vybrané miesto a o splnenie vášho rozkazu sa u postará sám.||Opravuje tie poškodené budovy.
 109:Aby mali robotníci dostatok materiálu na stavbu ciest a domov, kamenár pre nich aí a brúsi kameò.
-110:aké brnenia a zbrane sú vyrábané kováèom v zbrojárni a kováèni brnenia.
+110:elezné brnenia a zbrane sú vyrábané kováèom v akej zbrojárni a kováèni brnenia.
 111:Hutník vyrába truhlice zlata a oce¾ z príslušnıch rúd.
-112:Regrút môe by vybavenı ako vojak v hrade.||Obıva taktie stránu veu.
+112:Regrút môe by v hrade vycvièenı za vojaka.||Obıva taktie stránu veu.
 147:K vıberu budov
 148:K rozdeleniu produktov
 149:Ku štatistike
@@ -128,27 +128,27 @@ MaxID:2756
 169:Predchádzajúca skladba
 170:Ïalšia skladba
 171:Zbúra
-172:Odstráni budovú/zvıraznenie
+172:Odstráni budovu/zvıraznenie stavby
 173:Postavi cestu
-174:Stavba cesty
+174:Postavi cestu
 175:Zora pole
-176:Pole
-177:Zaloi vinicu
-178:Vinièné pole
+176:Zora pole
+177:Zasadi viniè
+178:Zasadi viniè
 179:Zruši
 180:Zruši súèasnı vıcvik
 181:Potreby:
 182:Stav:
 183:Dodávka
-184:Do vo|vıstavbe
+184:Dom vo|vıstavbe
 185:Znièi
 186:Skutoène chcete|znièi túto stavbu?
 187:Znièi vybranú budovu
-188:Znii objednané mnostvo
+188:Zníi objednané mnostvo
 189:Zvıši objednané mnostvo
 190:Predchádzajúci typ vojaka
 191:Ïalší typ vojaka
-192:Vybavi súèanı typ jednotky
+192:Vybavi aktuálny typ vojaka
 193:Ïalšie povolanie
 194:Predchádzajúce povolanie
 195:Prida do fronty
@@ -162,8 +162,8 @@ MaxID:2756
 203:Premiestni vojsko ('d')
 204:Zásobi vojsko potravinami
 205:Zaháji rıchly útok!
-206:Prida radu
-207:Zruši radu
+206:Prida rad
+207:Zruši rad
 208:Vıber|cie¾ovej|skupiny
 209:Opusti
 210:Vymaza
@@ -172,7 +172,7 @@ MaxID:2756
 213:Prejs na miesto v správe
 214:Zatvori
 215:Zatvori okno
-216:|Váš kamenník nemôe zohna ïalšie zásoby kameòa.
+216:|Váš kamenár nemôe zohna ïalšie zásoby kameòa.
 217:|Zásoby uhlia sa zdajú by vyèerpané.
 218:|Vaše ily so eleznou rudou sú vyèerpané.
 219:|Vaše zlaté ily sú vyèerpané.
@@ -184,7 +184,7 @@ MaxID:2756
 418:Prízrak
 419:Rušnı
 420:Stredovekı roh
-421:Prameò
+421:Jar
 422:Lutna
 423:oldnier
 424:Princezná
@@ -199,7 +199,7 @@ MaxID:2756
 433:Hlavnı vchod
 434:Hlboká modrá
 435:Zápas
-436:Krá¾ovské obydlie
+436:Krá¾ovské štvrte
 437:Aristokracia
 438:V prístave
 439:Jazda
@@ -209,14 +209,14 @@ MaxID:2756
 852:Naèíta uloenú hru
 853:Multiplayer
 854:Nastavenia
-855:O autoroch
+855:Autori
 856:Ukonèenie hry
 857:Pokraèova
 858:Opakova misiu
 859:Video rozlíšenie:
 860:VÍAZSTVO!
 861:PORÁKA!
-862:Straty jednotiek:
+862:Stratenıch jednotiek:
 863:Porazenıch jednotiek:
 864:Stratenıch budov:
 865:Znièenıch budov:
@@ -229,14 +229,14 @@ MaxID:2756
 1686:Misia ukonèená
 1687:Vıuka stavby
 1688:Vıuka boja
-1689:Hra jedného hráèa
-1690:Editor mapy
+1689:Hra pre jedného hráèa
+1690:Editor máp
 1692:Zaèa misiu
 1693:Názov
 1694:Ve¾kos
 1695:Typ misie: %s
 1696:Podmienky víazstva: %s
-1697:Podmienyk poráky: %s
+1697:Podmienky poráky: %s
 1698:Spojenci:
 1699:Nepriatelia:
 1701:Ve¾kos novej mapy
@@ -248,7 +248,7 @@ MaxID:2756
 1707:Ovládanie:
 1708:Hra:
 1709:Zvuk:
-1710:Zakáza hudbu
+1710:Stlmi hudbu
 1711:Grafika:
 1712:Jas
 1713:Celá obrazovka
@@ -265,9 +265,9 @@ MaxID:2756
 1724:Naozaj chcete odstráni túto uloenú hru?
 1725:Odstráni
 1726:Storno
-1728:Zvíazli ste!
+1728:Zvíazili ste!
 1729:Pokraèova v hre
-1730:Víazstvo
+1730:Víazstvo!
 1731:Prehrali ste!
 1732:Pokraèova
 1733:Poráka
@@ -275,7 +275,7 @@ MaxID:2756
 1735:Pokraèova
 1736:Spä do menu
 1737:Nedostupné
-1738:Stlaète %s na pokraèovanie v hre
+1738:Stlaète %s pre pokraèovanie v hre
 1739:Tımu
 1740:Informácie o hráèoch
 1741:Chat
@@ -283,8 +283,6 @@ MaxID:2756
 1743:Prepísa
 1744:Uloi
 1745:Naèíta
-1746:Poèas hry došlo k chybe
-1747:Prosím pošlite súbor %s z Vášho adresára KaM Remake\\Crash Reports vıvojárom. Kontaktné údaje nájdete v Readme. Ïakujeme za Vašu pomoc!
 1748:Detekovaná stará verzia OpenGL, hra môe bea pomaly alebo s grafickımi chybami
 1749:Sieová chyba:
 1750:Chyba: Musíte zada svoje meno
@@ -293,8 +291,8 @@ MaxID:2756
 1753:Misia %d
 1754:Váš rybár je príliš ïaleko od vody.
 1755:Váš rybár nemôe chyti iadne ïalšie ryby vo vode, ktorú má nablízku.
-1757:Pouite ¾avé tlaèítko myši na vıber tovaru
-1758:Pouite pravé tlaèítko myši na vıber tovaru
+1757:Pouite ¾avé tlaèidlo myši na vıber tovaru
+1758:Pouite pravé tlaèidlo myši na vıber tovaru
 1759:Dám x%d
 1760:Chcem x%d
 1761:Editácia terénu
@@ -349,16 +347,16 @@ MaxID:2756
 1814:Pripravenı
 1815:Štart!
 1816:Èakanie na ostatnıch hráèov:
-1817:O hre KaM Remake
-1818:O originálnej hre Knights & Merchants
+1817:Autori KaM Remake
+1818:Autori originálnej hry Knights & Merchants
 1819:PROGRAMOVANIE:
 1820:ÏALŠIE PROGRAMOVANIE:
-1821:ÏALŠIA GRAFIKA:
+1821:PRÍDAVNÁ GRAFIKA:
 1822:OSTATNÉ PREKLADY:
 1823:ŠPECIÁLNE POÏAKOVANIE:
 1824:Multiplayerové mapy
 1825:Singleplayerové mapy
-1826:Rıchlos obrazu
+1826:Rıchlos obrazovky
 1827:Nenájdenı iadny server
 1828:Vybra skladby
 1829:Info o hre:
@@ -373,7 +371,7 @@ MaxID:2756
 1838:Pripravenı
 1839:Chyba: Vyberte prosím hráèa z uloenej hry
 1840:Chyba: Mapa sa nedá naèíta alebo nebola iadna vybraná
-1841:Nie je moné zaèa: %s
+1841:Nie je moné zaèa: %s
 1842:Nikto nie je pripravenı na štart
 1843:Poèet hráèov prekraèuje limit mapy
 1844:Odlišná verzia: %s. Server pouíva: %s
@@ -384,10 +382,10 @@ MaxID:2756
 1849:%s bol porazenı!
 1850:OSTATNÉ ZVUKY:
 1851:Vyhodi hráèa
-1852:Hos bude môc vyhodi tyto hráèa za %d sekúnd
+1852:Hos bude môc vyhodi tohoto hráèa za %d sekúnd
 1853:Hostite¾ teraz môe vyhodi tıchto hráèov
 1854:Hostite¾ (%s) sa odpojil
-1855:Spojenie zo serverem sa stratilo. Pokúšam sa opä naviaza spojenie...
+1855:Spojenie zo serverom sa stratilo. Pokúšam sa opä naviaza spojenie...
 1856:Naozaj chcete skonèi?
 1857:Ste si istı, e chcete vyhodi tıchto hráèov z hry?
 1858:Storno
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Nepodporovanı formát %s
 1891:Nepodporovaná verzia %s
 1893:inicializuje sa
-1894:Inicializácia hry pre viac hráèov
 1895:Naèítavam skripty
 1896:Nová misia
 1897:Nastala chyba pri analıze súboru %s
 1898:Zatvorené
-1899:Hostite¾ vykonáva nastavnia hráèov
-1900:Naèítavam prídavné súèasti
+1899:Hostite¾ vykonáva nastavenia hráèov
 1901:Naèítavam jednotky
 1902:Naèítavam budovy
 1903:Naèítavam stromy
@@ -451,15 +447,15 @@ MaxID:2756
 2701:Mapa sa nezhoduje s hostite¾om: %s
 2702:Uloená hra nenájdená: %s
 2703:Uloená hra sa nezhoduje s hostite¾om: %s
-2704:VAROVANIE: Pokraèovanie v hre môe spôsobi ïalšiu nestabilitu a pád celej hry. Chcete napriek tomu pokraèova v hre?
-2705:Aktualizujte prosím svoje ovládaèe na dosiahnutie lepšieho vıkonu.
+2705:Aktualizujte prosím, svoje ovládaèe pre dosiahnutie lepšieho vıkonu.
+2706:V aplikácia nastala chyba. Kliknite prosím na Odosla chybovové hlásenie aby sme mohli prešetri tento problém. Ïakujeme za Vašu pomoc!
 2707:Odosla chybové hlásenie
 2708:Zobrazi nespracované dáta
 2709:Zlyhala kontrola konzistencie prehrávania. Je to známa chyba, ktorá ovplyvòuje prehrávanie niektorıch opakovanıch záznamov. Chcete pokraèova v sledovaní?
 2710:Vaše meno: (nepovinné)
 2711:Váš e-mail: (nepovinné)
 2712:Zapamäta si
-2713:Pri akej situácii sa vyskytla chaba? Môete poskytnú akéko¾vek ïalšie informácie?
+2713:Pri akej situácii sa chyba vyskytla? Môete poskytnú akéko¾vek ïalšie informácie?
 2714:Pripojte screenshot s hlásením o chybe
 2715:(klikni na úpravu obrázku)
 2716:Ukonèi aplikáciu
@@ -476,3 +472,28 @@ MaxID:2756
 2727:Odoslanie chybového hlásenia sa nepodarilo! Náš server môe by zaneprázdnenı, skúste to prosím posla znova.
 2728:Informácie
 2729:Èakajte prosím...
+2730:Kampane
+2731:Zvo¾te si kampaò
+2732:Zaèa kampaò!
+2734:Vojaci|porazení
+2736:Názov
+2737:Poèet máp
+2738:Odomknutıch
+2739:Èas
+2740:Prehra záznam odznova
+2741:Zastavi prehrávanie záznamu
+2742:Pokraèova v prehrávaní záznamu
+2743:Vpred o jeden krok
+2744:Pozastavi záznam
+2745:V multiplayeri môete ma naraz spustenú len jednu aplikáciu KaM Remake
+2746:Záznam ukonèenı
+2747:PRÍDAVNÚ HUDBU VYTVORIL:
+2748:Vy
+2749:Hráè %d
+2750:Armáda
+2751:Obèania
+2752:Budovy
+2753:Suroviny
+2754:Vyprodukované suroviny
+2755:Štatistiky
+2756:Ekonomika

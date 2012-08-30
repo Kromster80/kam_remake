@@ -1,5 +1,5 @@
 
-MaxID:2756
+MaxID:2779
 
 0:Serraria
 1:Forjador de ferro
@@ -279,8 +279,6 @@ MaxID:2756
 1743:Sobrescrever
 1744:Salvar
 1745:Carregar
-1746:Ocorreu um erro durante o jogo.
-1747:Por favor, envie o arquivo %s do seu KaM Remake\\Crash na pasta Reports para os desenvolvedores. Maiores informações para contato você encontra no arquivo Readme. Muito obrigado pela sua ajuda!
 1748:Uma versão antiga do OpenGL foi detectada, o jogo poderá apresentar falhas grafícas
 1749:Erro de rede
 1750:Erro: Nome do jogador não pode ficar em branco
@@ -417,13 +415,11 @@ MaxID:2756
 1890:Unsupported format %s
 1891:Unsupported version %s
 1893:initializing
-1894:multiplayer initialization
 1895:script
 1896:New Mission
 1897:An error has occurred while parsing the file %s
 1898:Closed
 1899:Host does player setup
-1900:additional sprites
 1901:units
 1902:houses
 1903:trees
@@ -431,5 +427,4 @@ MaxID:2756
 1905:tileset
 2691:Cancel
 2692:Cancel
-2704:AVISO: Continuar a jogar depois desse erro pode causar várias falhas e instabilidades. Gostaria de correr esse risco e continuar jogando?
 2705:Por favor atualize os seus drivers gráficos para ter um melhor desempenho

@@ -1,5 +1,5 @@
 
-MaxID:2756
+MaxID:2779
 
 0:Segheria
 1:Fonderia
@@ -283,8 +283,6 @@ MaxID:2756
 1743:Sovrascrivi
 1744:Salva
 1745:Carica
-1746:Si è verificato un errore durante il gioco.
-1747:Per favore, invia il file %s dalla cartella KaM Remake\\Crash Reports agli sviluppatori. Nel file Readme è possibile trovare le informazioni per contattarci. Grazie per il tuo cortese aiuto!
 1748:Rilevata una versione di OpenGL non aggiornata, il gioco potrebbe funzionare a rilento e/o con errori della grafica.
 1749:Errore di rete:
 1750:Errore: Il nome del giocatore non può essere vuoto
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Formato %s non supportato
 1891:Versione %s non supportata
 1893:inizializzando
-1894:inizializzando il multiplayer
 1895:script
 1896:Nuova Missione
 1897:Si è verificato un errore durante l'analisi del file %s
 1898:Chiuso
 1899:L'host configura i giocatori
-1900:sprite addizionali
 1901:unità
 1902:edifici
 1903:alberi
@@ -451,7 +447,6 @@ MaxID:2756
 2701:File non compatibili con l'host per la mappa: %s
 2702:Salvataggio non trovato: %s
 2703:File non compatibile con l'host per il salvataggio: %s
-2704:ATTENZIONE: Continuare la partita dopo questo errore potrebbe causare ulteriori crash ed instabilità. Vuoi comunque rischiare e continuare a giocare?
 2705:Per favore, aggiorna i tuoi driver video per migliorare le prestazioni.
 2706:Si è verificato un errore. Per favore, clicca su "Invia segnalazione" per permetterci di sapere del problema e risolverlo. Grazie per l'aiuto!
 2707:Invia segnalazione

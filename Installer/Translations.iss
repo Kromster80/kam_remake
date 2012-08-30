@@ -116,3 +116,10 @@ ukr.NoKaM=Майстер встановлення программи не знайшов оригіналу Knights and Mercha
 ukr.CantUpdate=Майстер встановлення програми не зміг знайти KaM Remake на компютері для того, щоб оновити його. Будь ласка , в першу чергу , завантажте і встановіть повну версію перш ніж встановлювати апдейт . Інсталяцію скасовано.
 ukr.OpenAL=Чи хочете ви щоби майстер встановив OpenAL? (Дуже рекомендується) Він необхідний для роботи звуку у KaM Remake
 ukr.ViewReadme=Відкрити Readme
+
+;Norwegian
+nor.CreateStartShortcut=Legg til snarvei i Start-menyen
+nor.NoKaM=Installasjonsveiviseren oppdaget at du ikke har Knights and Merchants: The Peasants Rebellion installert. Du mе ha det originale spillet installert for е spille KaM Remake. Installasjonen vil bli avbrutt.
+nor.CantUpdate=Installasjonen kunne ikke finne en eksisterende versjon av KaM Remake е oppdatere. Vennligst last ned og installer det fullstendige installasjonsprogrammet i stedet. Installasjonen vil bli avbrutt.
+nor.OpenAL=Шnsker du at installasjonsveiviseren skal installere OpenAL? (Anbefales sterkt) Det er nшdvendig for at lyder skal fungere i KaM Remake
+nor.ViewReadme=Vis Readme

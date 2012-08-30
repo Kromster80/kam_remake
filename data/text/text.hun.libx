@@ -1,5 +1,5 @@
 
-MaxID:2756
+MaxID:2779
 
 0:Fûrészmalom
 1:Vasolvasztó
@@ -283,8 +283,6 @@ MaxID:2756
 1743:Felülír
 1744:Mentés
 1745:Töltés
-1746:Egy hiba történt a játék során.
-1747:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!
 1748:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek
 1749:Hálózati hiba:
 1750:Hiba: A játékos neve nem lehet üres
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Nem támogatott formátum %s
 1891:Nem támogatott verzió %s
 1893:felkészülés
-1894:többjátékos mód indítása
 1895:szkript
 1896:Új Küldetés
 1897:Hiba történt a %s fájl beolvasása közben
 1898:Zárva
 1899:A hoszt állítja be a játékosokat
-1900:további grafikák
 1901:egységek
 1902:házak
 1903:fák
@@ -451,7 +447,6 @@ MaxID:2756
 2701:A térkép verziószáma nem egyezik a szerver térképverziójával: %s
 2702:Mentés nem található: %s
 2703:A mentés nem egyezik a szerver mentésével: %s
-2704:VIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??
 2705:Kérlek frissítsd a videokártya drivereidet a jobb teljesítményért
 2706:Hiba történt az alkalmazásban. Kérlek kattints Hibajelentés Küldésére, hogy utánajárhassunk a problémának. Köszönjük a segítséged!
 2707:Hibajelentés Küldése

@@ -1,5 +1,5 @@
 
-MaxID:2756
+MaxID:2779
 
 0:Tâmplãrie
 1:Fierãrie
@@ -283,8 +283,6 @@ MaxID:2756
 1743:Suprascrie
 1744:Salveazã
 1745:Încarcã
-1746:O eroare a apãrut in timpul jocului.
-1747:Te rugãm sa trimiti fisierul %s din folderul KaM Remake\\Crash Reports developer-ilor. Datele de contact pot fi gãsite in fisierl Readme. Multumim pentru ajutorul acordat!
 1748:Versiune veche de OpenGL detectatã, jocul poate rula incet si/sau cu erori grafice
 1749:Eroare de retea:
 1750:Eroare: Numele jucãtorului nu poate fi gol
@@ -422,13 +420,11 @@ MaxID:2756
 1890:Format nesuportat %s
 1891:Versiune nesuportatã %s
 1893:initializare
-1894:initializare multiplayer
 1895:script
 1896:Misiune Nouã
 1897:A apãrut o eroare in timp ce se parsa fisierul %s
 1898:Închis
 1899:Gazda face setarea jucãtorilor
-1900:Sprite-uri aditionale
 1901:unitãti
 1902:case
 1903:copaci
@@ -451,7 +447,6 @@ MaxID:2756
 2701:Fisierele hãrtii tale nu se potrivesc cu cele ale gazdei: %s
 2702:Salvarea nu a fost gãsitã: %s
 2703:Salvarea ta nu se potriveste cu cea a hostului: %s
-2704:AVERTISMENT: Dacã continui sã joci dupa aceastã eroare, pot apãrea alte instabilitati si erori. Vrei sã îti asumi riscul si sã joci în continuare?
 2705:Te rugãm sã îti upgradezi driverl video pentru o performatã mai bunã.
 2706:A apãrut o eroare în aplicatie. Te rugãm sã ne trimiti detaliile acestei erori pentru a o putea investiga. Multumim pentru ajutor!
 2707:Trimite datele erorii

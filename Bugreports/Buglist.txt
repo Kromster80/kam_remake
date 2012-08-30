@@ -48,8 +48,10 @@
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
 	Armour smithy has shields as 2nd item, armour workshop has shields as 1st item. Would make sense to match them
 	Few terrain tiles (4th, 14th) have noticeable seams on their side when looked closely at
-
+	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
+	Flatten/equalise in the MapEd doesn't seem to work properly (like Krom's editor). Unequalise is ok.
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
+	Heights look different on certain systems, see heights.jpg images and dxdiag report
 	Colored rectangle below cursor
 
 Improvements:
@@ -88,6 +90,8 @@ Improvements:
 	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
 	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
 	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
+	Allow host to set a title for his lobby shown in a column on the server selection page ("beginners/pros only", "fight map only", etc.)
+	Clicking a location on the lobby minimap selects that location if it's available
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
