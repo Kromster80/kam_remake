@@ -742,20 +742,22 @@ begin
   if fCurrentAction is TUnitActionFight then
   begin
     if IsRanged then
-      Result := 'Firing'
+      Result := fTextLibrary[TX_UNIT_TASK_FIRING]
     else
-      Result := 'Fighting';
+      Result := fTextLibrary[TX_UNIT_TASK_FIGHTING];
   end
   else if fCurrentAction is TUnitActionStormAttack then
-    Result := 'Storm attack'
+    Result := fTextLibrary[TX_UNIT_TASK_STORM_ATTACK]
   //Sometimes only commanders are given order to walk to the unit, so check their action as well
   else if ((fCurrentAction is TUnitActionWalkTo) and (TUnitActionWalkTo(fCurrentAction).WalkingToUnit)
        or  (GetCommander.fCurrentAction is TUnitActionWalkTo) and (TUnitActionWalkTo(GetCommander.fCurrentAction).WalkingToUnit)) then
-    Result := 'Attacking'
+    Result := fTextLibrary[TX_UNIT_TASK_ATTACKING]
   else if (fCurrentAction is TUnitActionWalkTo) or (fCurrentAction is TUnitActionAbandonWalk) then
-    Result := 'Moving'
+    Result := fTextLibrary[TX_UNIT_TASK_MOVING]
+  else if (fUnitTask is TTaskAttackHouse) then
+    Result := fTextLibrary[TX_UNIT_TASK_ATTACKING_HOUSE]
   else
-    Result := 'Idle';
+    Result := fTextLibrary[TX_UNIT_TASK_IDLE];
 end;
 
 

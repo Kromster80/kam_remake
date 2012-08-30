@@ -1,5 +1,5 @@
 
-MaxID:2756
+MaxID:2779
 
 0:Sawmill
 1:Iron smithy
@@ -497,3 +497,26 @@ MaxID:2756
 2754:Resources produced
 2755:Statistics
 2756:Economy
+2757:Constructing house
+2758:Flattening house site
+2759:Constructing winefield
+2760:Digging field
+2761:Constructing road
+2762:Delivering
+2763:Planting tree
+2764:Going home
+2765:Repairing house
+2766:Fighting
+2767:Firing
+2768:Attacking house
+2769:Going to the inn
+2770:Cutting tree
+2771:Idle
+2772:Moving
+2773:Storm attack
+2774:Fishing
+2775:Harvesting grapes
+2776:Harvesting corn
+2777:Sowing corn
+2778:Mining stone
+2779:Attacking

@@ -39,7 +39,6 @@ type
     constructor Create;
     procedure FindPlan(aUnit:TKMUnit; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint; aPlantAct: TPlantAct);
     function FindDifferentResource(aUnit:TKMUnit; aLoc, aAvoidLoc: TKMPoint):boolean;
-    function GetActivityText: string;
     property IsIssued:boolean read fIssued;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -163,21 +162,6 @@ begin
   end
   else
     Result := false;
-end;
-
-
-function TUnitWorkPlan.GetActivityText: string;
-begin
-  case GatheringScript of
-    gs_StoneCutter:     Result := 'Mining stone';
-    gs_FarmerSow:       Result := 'Sowing corn';
-    gs_FarmerCorn:      Result := 'Harvesting corn';
-    gs_FarmerWine:      Result := 'Harvesting grapes';
-    gs_FisherCatch:     Result := 'Fishing';
-    gs_WoodCutterCut:   Result := 'Cutting tree';
-    gs_WoodCutterPlant: Result := 'Planting tree';
-    else                Result := '';
-  end;
 end;
 
 

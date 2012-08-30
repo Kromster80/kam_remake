@@ -372,7 +372,7 @@ function TKMUnitCitizen.GetActivityText: string;
 begin
   Result := Inherited GetActivityText; //Default
   if fUnitTask is TTaskMining then
-    Result := TTaskMining(fUnitTask).WorkPlan.GetActivityText;
+    Result := TTaskMining(fUnitTask).GetActivityText;
 end;
 
 
@@ -1657,29 +1657,29 @@ end;
 
 
 function TKMUnit.GetActivityText: string;
-const TASK_TEXT: array[TUnitTaskName] of string = (
-'','', //utn_Unknown, utn_SelfTrain
-'Delivering', //utn_Deliver
-'Constructing road', //utn_BuildRoad
-'Digging field', //utn_BuildWine
-'Constructing winefield', //utn_BuildField
-'', //utn_BuildWall (unused)
-'Flattening house site', //utn_BuildHouseArea
-'Constructing house', //utn_BuildHouse
-'Repairing house', //utn_BuildHouseRepair
-'Going home', //utn_GoHome
-'Going to the inn', //utn_GoEat
-'', //utn_Mining (overridden by Citizen)
-'', //utn_Die (never visible)
-'Going to the inn', //utn_GoOutShowHungry
-'Attacking house', //utn_AttackHouse
-'' //utn_ThrowRock (never visible)
+const TASK_TEXT: array[TUnitTaskName] of Integer = (
+-1,-1,                   //utn_Unknown, utn_SelfTrain
+TX_UNIT_TASK_DELVERING,  //utn_Deliver
+TX_UNIT_TASK_ROAD,       //utn_BuildRoad
+TX_UNIT_TASK_FIELD,      //utn_BuildWine
+TX_UNIT_TASK_WINEFIELD,  //utn_BuildField
+-1,                      //utn_BuildWall (unused)
+TX_UNIT_TASK_HOUSE_SITE, //utn_BuildHouseArea
+TX_UNIT_TASK_HOUSE,      //utn_BuildHouse
+TX_UNIT_TASK_REPAIRING,  //utn_BuildHouseRepair
+TX_UNIT_TASK_HOME,       //utn_GoHome
+TX_UNIT_TASK_INN,        //utn_GoEat
+-1,                      //utn_Mining (overridden by Citizen)
+-1,                      //utn_Die (never visible)
+TX_UNIT_TASK_INN,        //utn_GoOutShowHungry
+-1,                      //utn_AttackHouse (overridden by Warrior)
+-1                       //utn_ThrowRock (never visible)
 );
-begin
-  if fUnitTask <> nil then
-    Result := TASK_TEXT[fUnitTask.TaskName]
+begin                  
+  if (fUnitTask <> nil) and (TASK_TEXT[fUnitTask.TaskName] <> -1) then
+    Result := fTextLibrary[TASK_TEXT[fUnitTask.TaskName]]
   else
-    Result := 'Idle';
+    Result := fTextLibrary[TX_UNIT_TASK_IDLE];
 end;
 
 
