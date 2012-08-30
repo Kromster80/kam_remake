@@ -62,15 +62,27 @@ end;
 
 
 procedure TestTKMGame.TestFight95;
-var I, K: Integer; P1, P2: Integer;
+var
+  I, K: Integer;
+  Victory1, Victory2: Integer;
+  Best1, Best2: Integer;
 begin
-  P1 := 0;
-  P2 := 0;
+  Victory1 := 0;
+  Victory2 := 0;
+  Best1 := 0;
+  Best2 := 0;
   for K := 1 to 50 do
   begin
-    fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + 'FightTest95.dat', 'Fight Test');
-
+    fGameApp.NewEmptyMap(128, 128);
     SetKaMSeed(K);
+//    fPlayers[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
+//    fPlayers[1].AddUnitGroup(ut_Hallebardman, KMPoint(65, 64), dir_W, 8, 24);
+
+    //fPlayers[0].AddUnitGroup(ut_Hallebardman, KMPoint(63, 64), dir_E, 8, 24);
+    //fPlayers[1].AddUnitGroup(ut_Cavalry, KMPoint(65, 64), dir_W, 8, 24);
+
+    fPlayers[0].AddUnitGroup(ut_Cavalry, KMPoint(63, 64), dir_E, 8, 24);
+    fPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
 
     TKMUnitWarrior(fPlayers[0].Units[0]).OrderAttackUnit(fPlayers[1].Units[0]);
 
@@ -79,15 +91,24 @@ begin
       fGameApp.Game.UpdateGame(nil);
       if fGameApp.Game.IsPaused then
         fGameApp.Game.GameHold(False, gr_Win);
+      if fPlayers[0].Stats.GetArmyCount * fPlayers[1].Stats.GetArmyCount = 0 then
+        Break;
     end;
 
     if fPlayers[0].Stats.GetWarriorsKilled > fPlayers[1].Stats.GetWarriorsKilled then
-      Inc(P1)
+    begin
+      Inc(Victory1);
+      Best1 := Max(Best1, fPlayers[0].Stats.GetWarriorsKilled - fPlayers[1].Stats.GetWarriorsKilled);
+    end
     else
-      Inc(P2);
+    if fPlayers[0].Stats.GetWarriorsKilled < fPlayers[1].Stats.GetWarriorsKilled then
+    begin
+      Inc(Victory2);
+      Best2 := Max(Best2, fPlayers[1].Stats.GetWarriorsKilled - fPlayers[0].Stats.GetWarriorsKilled);
+    end;
     fGameApp.Stop(gr_Silent);
   end;
-  Check(False, IntToStr(P1)+':'+IntToStr(P2)+'Game is unfair?');
+  Status(Format('Victories %d:%d, Best survivals %d:%d', [Victory1, Victory2, Best1, Best2]));
 end;
 
 

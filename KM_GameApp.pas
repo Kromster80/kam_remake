@@ -64,6 +64,7 @@ type
     procedure NewMultiplayerMap(const aFileName: string);
     procedure NewMultiplayerSave(const aSaveName: string);
     procedure NewRestartLast;
+    procedure NewEmptyMap(aSizeX, aSizeY: Integer);
     procedure NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
     procedure NewReplay(const aFilePath: string);
 
@@ -474,7 +475,7 @@ begin
   Stop(gr_Silent); //Stop everything silently
   LoadGameAssets;
 
-  fGame := TKMGame.Create(gmMapEd, fRender, nil);
+  fGame := TKMGame.Create(aGameMode, fRender, nil);
   try
     fGame.GameStart(aSizeX, aSizeY);
   except
@@ -546,6 +547,12 @@ begin
     LoadGameFromSave(ChangeFileExt(ExeDir + fRepeatSave, '.bas'), gmSingle)
   else
     fMainMenuInterface.ShowScreen(msError, 'Can not repeat last mission');
+end;
+
+
+procedure TKMGameApp.NewEmptyMap(aSizeX, aSizeY: Integer);
+begin
+  LoadGameFromScratch(aSizeX, aSizeY, gmSingle);
 end;
 
 

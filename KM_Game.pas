@@ -733,6 +733,9 @@ begin
 
   fPlayers.AfterMissionInit(false);
 
+  if fGameMode = gmSingle then
+    fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
+
   for I := 0 to fPlayers.Count - 1 do //Reveal all players since we'll swap between them in MapEd
     fPlayers[I].FogOfWar.RevealEverything;
 
