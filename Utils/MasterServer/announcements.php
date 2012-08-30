@@ -10,12 +10,25 @@ if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311"))
   die('[$0000FF]THE 4TH MULTIPLAYER DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
+if(($Rev == "r3870"))
+{
+  die('[$FF00FF]Welcome to the second release candidate[] :)||Please continue to report any problems.');
+}
+
+if(($Rev == "r3812"))
+{
+  die('[$0000FF]This release candidate is now outdated![]||If you have not received the new release candidate yet please email: contact@kamremake.com');
+}
+
 //First see if they are up to date
 if($Rev != $MAIN_VERSION)
 {
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|";
 	switch($Lang)
 	{
+		case 'nor':
+			echo "Din versjon av KaM Remake er utdatert! Du kjшrer ".$Rev." men den mest nylige versjonen er ".$MAIN_VERSION.".||Vennligst last ned oppdateringen pе: www.kamremake.com";
+			break;
 		case 'ukr':
 			echo "Ваша ".$Rev." версія KaM Remake застаріла! Завантажте нову ".$MAIN_VERSION." модифікацію на сайті: www.kamremake.com";
 			break;
@@ -83,7 +96,8 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-	echo 'The 2 vs 2 Powah Tournament has begun! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
+	echo 'Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to support future development. Visit [$F8A070]www.kamremake.com/donations[]';
+	//echo 'The 2 vs 2 Powah Tournament has begun! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
 	//echo 'Powah Tour (Florek, Mulberry, To) are organising a tournament! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
 	//echo '[$FF6EAF]Welcome to the 4th multiplayer demo[] :)|Please report any issues.';
 	//echo "We will hopefully be releasing an update to the KaM Remake soon! (around 29th of April if testing goes well)||Check the news story on our website for more information: www.kamremake.com";

@@ -36,6 +36,22 @@
     header("HTTP/1.1 500 Upload Failed");
 	echo "ERROR: Upload failed";
   }
+  
+  //Now try to paste the bug report file into the email body
+  if(!$Failed)
+  {
+	$zip = new ZipArchive;
+    $res = $zip->open($uploadfile);
+    if ($res === TRUE) {
+      $zip->extractTo("crashes/", "bugreport.txt");
+      $zip->close();
+	  if(file_exists("crashes/bugreport.txt")) {
+		$ToSend .= "\n\n\n".file_get_contents("crashes/bugreport.txt");
+	  }
+	  unlink("crashes/bugreport.txt");
+	}
+  }
+  
   if($FoundFile)
   {
     $headers = 'Content-Type: text/plain; charset="iso-8859-2"'."\n".

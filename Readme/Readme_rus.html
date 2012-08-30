@@ -33,7 +33,7 @@ Brought to you by Krom and Lewin</font></P>
 </blockquote>
 <p><font face="Calibri">KaM Remake (мы еще не придумали красивое название) - это попытка оживить оригинальную стратегическую игру &quot;Knights and Merchants: The Shattered Kingdom&quot; (далее просто &quot;КаМ&quot;). Наши цели - сделать игру работоспособной на современных компьютерах, а также исправить множество ошибок в движке игры. Для того чтобы это сделать мы начали &quot;с нуля&quot; писать свой движок, полагаясь на оригинальные файлы ресурсов игры. Это наша публичная технологическая демо-версия, показывающая экономическую и военную стороны игры, далее называемая &quot;игра&quot; или &quot;KaM Remake&quot;. Наша цель продемонстрировать потенциал и получить отклик по функциональности игры. Все использованные ресурсы взяты из КаМ (графика, музыка, звуки, и т.п.) и используются только для разработки и отладки. Финальная версия не будет включать в себя никаких защищенных авторских ресурсов.<br>
 Мы полагаем, что у Вы обладаете лицензионной версией КаМ, иначе вам следует ее приобрести - ее можно купить в ряде он-лайн магазинов.<br>
-Исполняемый файл KaM Remake доступен для свободного распространения и сделан энтузиастами. Использованные приложения: Delphi 6, Delphi 7, FastMM4, Lazarus, LNet, OpenGL, OpenAL, Overbyte ICS, PNGImage, zLib, MadExcept.</font><BR>&nbsp;</p>
+Исполняемый файл KaM Remake доступен для свободного распространения и сделан энтузиастами. Использованные приложения: Delphi 6, Delphi 7, FastMM4, Lazarus, LNet, OpenGL, OpenAL, Overbyte ICS, PNGImage, zLib, MadExcept, libZPlay.</font><BR>&nbsp;</p>
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
@@ -82,10 +82,10 @@ http://connect.creativelabs.com/openal/default.aspx</a> <br>
 <b>F1-F4</b> открыть соответствующий раздел игрового меню<br>
 <b>F5-F8</b> увеличить скорость игры в 10 раз<br>
 <b>F11</b> показать меню и отладочную панель<br>
-<b>1-9</b> выбрать здание или воина назначенного с помощью соответствующей комбинации Ctrl + 1-9
-<b>B</b> will place a beacon on map that your allies can see
+<b>1-9</b> выбрать здание или воина назначенного с помощью соответствующей комбинации Ctrl + 1-9<br>
+<b>B</b> will place a beacon on map that your allies can see<br>
 <b>P</b> пауза<br>
-<b>T</b> while pressed will show teamnames over units in multiplayer
+<b>T</b> while pressed will show teamnames over units in multiplayer<br>
 <b>Del</b> удалить открытое сообщение<br>
 <b>Пробел</b> перейти к месту события открытого сообщения<br>
 <b>&#8592;&#8593;&#8594;&#8595;</b> курсорные кнопки используются для перемещения по карте<br>
@@ -97,7 +97,7 @@ http://connect.creativelabs.com/openal/default.aspx</a> <br>
 <B>2.</B> Поместить в созданную папку файлы карты (назвав их соответственно &quot;Моя Карта.dat&quot; и &quot;Моя Карта.map&quot;) имена файлов должны совпадать с именем папки!.<br>
 <B>3.</B> Вы также можете создать дополнительный файл &quot;МояКарта.txt&quot; содержащий описание миссии и другую информацию. Для шаблона используйте подобные файлы из миссии Ремейка. Оффицальная информация о формате пока недоступна, так как в будущем формат может быть изменен.</font></p>
 <p><font face="Calibri"><b>Добавление собственной музыки:</b><br>
-Вы можете скопировать ваши MP3 файлы в папку &quot;KaM Remake\Music&quot; и они будут автоматически добавлены в список воспроизведения.<br>
+Вы можете скопировать ваши MP3/OGG файлы в папку &quot;KaM Remake\Music&quot; и они будут автоматически добавлены в список воспроизведения.<br>
 &nbsp;</font></p>
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
@@ -114,9 +114,7 @@ KaM Remake вылетает без каких-либо сообщений загрузки или при смене саундтрека, 
 <p><B>Низкая частота смены кадров:</B><br>
 Если у Вас в игре низкая частота смены кадров, это может быть вызвано старыми или отсутствующими драйверами OpenGL. Проверьте Вашу версию OpenGL драйверов, посмотрев в главном меню в верхний левый угол, версия должна быть как минимум 1.4.x. Если она ниже то необходимо обновить драйвера вашей карты (драйвера можно скачать на сайте производителя).<br></p>
 <p><B>Ошибки:</B><br>
-Иногда, когда в игре случается что-то непредвиденное, вы увидите ошибку типа &quot;<i>An error has occoured during gameplay</i>&quot;. Please read the message details and send the crash report ZIP file from the Crash Reports folder by email to <a href="mailto:contact@kamremake.com">contact@kamremake.com</a> с описанем того что Вы делали в игре, что могло привести к ошибке, а также любую другую информацию, которую сочтете относящейся к делу. Наличие этих файлов поможет нам исправить ошибку.<br></p>
-<p><B>Ошибки &quot;Assertion failed&quot;:</B><br>
-Иногда, когда в игре случается что-то непредвиденное, вы увидите ошибку типа &quot;Assertion failed&quot;. В этом случае Вам следует остановить процесс KaM Remake через менеджер задач (нажмите Ctrl+Alt+Del, выберете KaM Remake и нажмите кнопку "остановить процесс"). Далее, откройте папку в которую был установлен KaM Remake и найдите файл &quot;KaM.log&quot; - в нем содержится дополнительная информация об ошибке. Пожалуйста отправьте этот файл на <a href="mailto:contact@kamremake.com">contact@kamremake.com</a> с описанем того что Вы делали в игре, что могло привести к ошибке, а также любую другую информацию, которую сочтете относящейся к делу. По возможности приложите файлы с реплеем, как описано в предедущем пункте.</font><br>&nbsp;</P>
+Sometimes when something unexpected happens you will get an &quot;<i>An error has occurred in the application</i>&quot; message. Please click the <i>Send Bug Report</i> button to send the crash report to us. Enter your name and email address in the form if you would like us to be able to contact you about the crash. Having the crash report will help us to fix the bug.<br><br></p>
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
