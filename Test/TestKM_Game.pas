@@ -43,6 +43,7 @@ end;
 procedure TestTKMGame.TestStone;
 var I: Integer; T: Cardinal;
 begin
+  //Total amount of stones = 4140
   fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + 'StoneTest.dat', 'Stone Test');
   Check(fPlayers[0].Stats.GetGoodsProduced = 0);
 
@@ -57,7 +58,7 @@ begin
   Status('Done in ' + IntToStr(GetTickCount - T) + ' ms');
 
   fGameApp.Game.Save('StoneTest');
-  Check(fPlayers[0].Stats.GetGoodsProduced >= 3800, 'StoneMining got broken? Mined '+IntToStr(fPlayers[0].Stats.GetGoodsProduced)+'/3800');
+  Check(fPlayers[0].Stats.GetGoodsProduced >= 4140 * 0.9, 'StoneMining got broken? Mined '+IntToStr(fPlayers[0].Stats.GetGoodsProduced)+'/3800');
 end;
 
 
@@ -65,26 +66,28 @@ procedure TestTKMGame.TestFight95;
 var
   I, K: Integer;
   Victory1, Victory2: Integer;
-  Best1, Best2: Integer;
+  Best1, Best2, Worst1, Worst2: Integer;
 begin
   Victory1 := 0;
   Victory2 := 0;
   Best1 := 0;
   Best2 := 0;
+  Worst1 := 100;
+  Worst2 := 100;
   for K := 1 to 50 do
   begin
     fGameApp.NewEmptyMap(128, 128);
     SetKaMSeed(K);
-//    fPlayers[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
-//    fPlayers[1].AddUnitGroup(ut_Hallebardman, KMPoint(65, 64), dir_W, 8, 24);
+    //fPlayers[0].AddUnitGroup(ut_Cavalry, KMPoint(63, 64), dir_E, 8, 24);
+    //fPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
+
+    fPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
+    fPlayers[0].AddUnitGroup(ut_Hallebardman, KMPoint(65, 64), dir_W, 8, 24);
 
     //fPlayers[0].AddUnitGroup(ut_Hallebardman, KMPoint(63, 64), dir_E, 8, 24);
     //fPlayers[1].AddUnitGroup(ut_Cavalry, KMPoint(65, 64), dir_W, 8, 24);
 
-    fPlayers[0].AddUnitGroup(ut_Cavalry, KMPoint(63, 64), dir_E, 8, 24);
-    fPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
-
-    TKMUnitWarrior(fPlayers[0].Units[0]).OrderAttackUnit(fPlayers[1].Units[0]);
+    TKMUnitWarrior(fPlayers[1].Units[0]).OrderAttackUnit(fPlayers[0].Units[0]);
 
     for I := 1 to 1000 do
     begin
@@ -99,16 +102,18 @@ begin
     begin
       Inc(Victory1);
       Best1 := Max(Best1, fPlayers[0].Stats.GetWarriorsKilled - fPlayers[1].Stats.GetWarriorsKilled);
+      Worst1 := Min(Worst1, fPlayers[0].Stats.GetWarriorsKilled - fPlayers[1].Stats.GetWarriorsKilled);
     end
     else
     if fPlayers[0].Stats.GetWarriorsKilled < fPlayers[1].Stats.GetWarriorsKilled then
     begin
       Inc(Victory2);
       Best2 := Max(Best2, fPlayers[1].Stats.GetWarriorsKilled - fPlayers[0].Stats.GetWarriorsKilled);
+      Worst2 := Min(Worst2, fPlayers[1].Stats.GetWarriorsKilled - fPlayers[0].Stats.GetWarriorsKilled);
     end;
     fGameApp.Stop(gr_Silent);
   end;
-  Status(Format('Victories %d:%d, Best survivals %d:%d', [Victory1, Victory2, Best1, Best2]));
+  Status(Format('Victories %d:%d, Best survivals %d-%d:%d-%d', [Victory1, Victory2, Worst1, Best1, Worst2, Best2]));
 end;
 
 
@@ -119,7 +124,7 @@ begin
 
   T := GetTickCount;
 
-  for I := 1 to 60*60*10 do
+  for I := 1 to 2*60*60*10 do
   begin
     fGameApp.Game.UpdateGame(nil);
     if fGameApp.Game.IsPaused then
