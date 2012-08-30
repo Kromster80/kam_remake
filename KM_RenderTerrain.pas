@@ -46,6 +46,7 @@ var
   pData: array [0..255] of Cardinal;
 begin
   inherited;
+  if SKIP_RENDER then Exit;
 
   //Generate gradient programmatically
   //KaM uses [0..255] gradients

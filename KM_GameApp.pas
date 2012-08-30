@@ -293,8 +293,9 @@ begin
     if fMainMenuInterface <> nil then
       fMainMenuInterface.MouseMove(Shift, X,Y);
 
-  fOnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
-                                                          GameCursor.Cell.X, GameCursor.Cell.Y]));
+  if Assigned(fOnCursorUpdate) then
+    fOnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
+                                                            GameCursor.Cell.X, GameCursor.Cell.Y]));
 end;
 
 
@@ -432,7 +433,8 @@ begin
     end;
   end;
 
-  fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
+  if Assigned(fOnCursorUpdate) then
+    fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
 
 
@@ -460,7 +462,8 @@ begin
     end;
   end;
 
-  fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
+  if Assigned(fOnCursorUpdate) then
+    fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
 
 
@@ -488,7 +491,8 @@ begin
     end;
   end;
 
-  fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
+  if Assigned(fOnCursorUpdate) then
+    fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
 
 
@@ -670,8 +674,8 @@ begin
       fMusicLib.PlayNextTrack; //Feed new music track
 
     //StatusBar
-    if (fGame <> nil) and not fGame.IsPaused then
-      fOnCursorUpdate(2, 'Time: ' + TimeToString(fGame.MissionTime));
+    if (fGame <> nil) and not fGame.IsPaused and Assigned(fOnCursorUpdate) then
+        fOnCursorUpdate(2, 'Time: ' + TimeToString(fGame.MissionTime));
   end;
 end;
 
