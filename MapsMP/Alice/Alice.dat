@@ -1,0 +1,1013 @@
+!SET_MULTIPLAYER
+
+
+!SET_MAP "kam remake\mapsmp\Alice\Alice.map"
+
+!SET_MAX_PLAYER 8
+
+
+
+!DISTRIBUTE_MULTIPLAYER_POSITIONS
+
+
+
+
+
+!SET_CURR_PLAYER 0 //
+
+!IF VALID_PLAYER
+
+
+
+   !CENTER_SCREEN 31 161
+
+
+
+   //None (does not require an !IF)
+
+
+
+   !CLEAR_UP 31 161 25 //klärt auf
+
+
+
+   !SET_HOUSE 11 31 161 //Storehouse
+
+
+
+
+
+   // Units By Storehouse
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+
+
+   !IF MEDIUM_WARES //Troops
+
+
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+
+
+
+
+      // Troops
+
+
+
+
+   !ENDIF
+
+   !IF MANY_WARES //Troops and Buildings
+
+
+
+
+
+      // Extra Buildings
+
+
+      // Roads
+
+      !SET_STREET 29 162
+
+      !SET_STREET 30 162
+
+      !SET_STREET 31 162
+
+      !SET_STREET 29 163
+
+      !SET_STREET 30 163
+
+      !SET_STREET 31 163
+
+       (Trimmed to save space)
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+      // Troops
+
+   !ENDIF
+
+
+
+!ENDIF
+
+!SET_CURR_PLAYER 1 //
+
+!IF VALID_PLAYER
+
+
+
+   !CENTER_SCREEN 96 159
+
+
+
+   //None (does not require an !IF)
+
+
+
+   !CLEAR_UP 96 159 25 //klärt auf
+
+
+
+   !SET_HOUSE 11 96 159 //Storehouse
+
+
+
+
+
+   // Units By Storehouse
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf  
+
+
+
+   !IF MEDIUM_WARES //Troops
+
+
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+
+
+
+
+      // Troops
+
+
+
+
+   !ENDIF
+
+   !IF MANY_WARES //Troops and Buildings
+
+
+
+
+
+      // Extra Buildings
+
+
+      // Roads
+
+      !SET_STREET 94 160
+
+      !SET_STREET 95 160
+
+      !SET_STREET 96 160
+
+      !SET_STREET 94 161
+
+      !SET_STREET 95 161
+
+      !SET_STREET 96 161
+
+       (Trimmed to save space)
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+      // Troops
+
+   !ENDIF
+
+
+
+!ENDIF
+
+!SET_CURR_PLAYER 2 //
+
+!IF VALID_PLAYER
+
+
+
+   !CENTER_SCREEN 160 160
+
+
+
+   //None (does not require an !IF)
+
+
+
+   !CLEAR_UP 160 160 25 //klärt auf
+
+
+
+   !SET_HOUSE 11 160 160 //Storehouse
+
+
+
+
+
+   // Units By Storehouse
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+
+
+   !IF MEDIUM_WARES //Troops
+
+
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+
+
+
+
+      // Troops
+
+
+
+
+   !ENDIF
+
+   !IF MANY_WARES //Troops and Buildings
+
+
+
+
+
+      // Extra Buildings
+
+
+      // Roads
+
+      !SET_STREET 158 161
+
+      !SET_STREET 159 161
+
+      !SET_STREET 160 161
+
+      !SET_STREET 158 162
+
+      !SET_STREET 159 162
+
+      !SET_STREET 160 162
+
+       (Trimmed to save space)
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+      // Troops
+
+   !ENDIF
+
+
+
+!ENDIF
+
+!SET_CURR_PLAYER 3 //
+
+!IF VALID_PLAYER
+
+
+
+   !CENTER_SCREEN 160 96
+
+
+
+   //None (does not require an !IF)
+
+
+
+   !CLEAR_UP 160 96 25 //klärt auf
+
+
+
+   !SET_HOUSE 11 160 96 //Storehouse
+
+
+
+
+
+   // Units By Storehouse
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+
+
+
+   !IF MEDIUM_WARES //Troops
+
+
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+
+
+
+
+      // Troops
+
+
+
+
+   !ENDIF
+
+   !IF MANY_WARES //Troops and Buildings
+
+
+
+
+
+      // Extra Buildings
+
+
+      // Roads
+
+      !SET_STREET 158 97
+
+      !SET_STREET 159 97
+
+      !SET_STREET 160 97
+
+      !SET_STREET 158 98
+
+      !SET_STREET 159 98
+
+      !SET_STREET 160 98
+
+       (Trimmed to save space)
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+      // Troops
+
+   !ENDIF
+
+
+
+!ENDIF
+
+!SET_CURR_PLAYER 4 //
+
+!IF VALID_PLAYER
+
+
+
+   !CENTER_SCREEN 160 32
+
+
+
+   //None (does not require an !IF)
+
+
+
+   !CLEAR_UP 160 32 25 //klärt auf
+
+
+
+   !SET_HOUSE 11 160 32 //Storehouse
+
+
+
+
+
+   // Units By Storehouse
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+
+
+   !IF MEDIUM_WARES //Troops
+
+
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+
+
+
+
+      // Troops
+
+
+
+
+   !ENDIF
+
+   !IF MANY_WARES //Troops and Buildings
+
+
+
+
+
+      // Extra Buildings
+
+
+      // Roads
+
+      !SET_STREET 158 33
+
+      !SET_STREET 159 33
+
+      !SET_STREET 160 33
+
+      !SET_STREET 158 34
+
+      !SET_STREET 159 34
+
+      !SET_STREET 160 34
+
+       (Trimmed to save space)
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+      // Troops
+
+   !ENDIF
+
+
+
+!ENDIF
+
+!SET_CURR_PLAYER 5 //
+
+!IF VALID_PLAYER
+
+
+
+   !CENTER_SCREEN 96 32
+
+
+
+   //None (does not require an !IF)
+
+
+
+   !CLEAR_UP 96 32 25 //klärt auf
+
+
+
+   !SET_HOUSE 11 96 32 //Storehouse
+
+
+
+
+
+   // Units By Storehouse
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+
+
+   !IF MEDIUM_WARES //Troops
+
+
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+
+
+
+
+      // Troops
+
+
+
+
+   !ENDIF
+
+   !IF MANY_WARES //Troops and Buildings
+
+
+
+
+
+      // Extra Buildings
+
+
+      // Roads
+
+      !SET_STREET 94 33
+
+      !SET_STREET 95 33
+
+      !SET_STREET 96 33
+
+      !SET_STREET 94 34
+
+      !SET_STREET 95 34
+
+      !SET_STREET 96 34
+
+       (Trimmed to save space)
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+      // Troops
+
+   !ENDIF
+
+
+
+!ENDIF
+
+!SET_CURR_PLAYER 6 //
+
+!IF VALID_PLAYER
+
+
+
+   !CENTER_SCREEN 31 32
+
+
+
+   //None (does not require an !IF)
+
+
+
+   !CLEAR_UP 31 32 25 //klärt auf
+
+
+
+   !SET_HOUSE 11 31 32 //Storehouse
+
+
+
+
+
+   // Units By Storehouse
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+
+
+   !IF MEDIUM_WARES //Troops
+
+
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+
+
+
+
+      // Troops
+
+
+
+
+   !ENDIF
+
+   !IF MANY_WARES //Troops and Buildings
+
+
+
+
+
+      // Extra Buildings
+
+
+      // Roads
+
+      !SET_STREET 29 33
+
+      !SET_STREET 30 33
+
+      !SET_STREET 31 33
+
+      !SET_STREET 29 34
+
+      !SET_STREET 30 34
+
+      !SET_STREET 31 34
+
+       (Trimmed to save space)
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+      // Troops
+
+   !ENDIF
+
+
+
+!ENDIF
+
+!SET_CURR_PLAYER 7 //
+
+!IF VALID_PLAYER
+
+
+
+   !CENTER_SCREEN 31 95
+
+
+
+   //None (does not require an !IF)
+
+
+
+   !CLEAR_UP 31 95 25 //klärt auf
+
+
+
+   !SET_HOUSE 11 31 95 //Storehouse
+
+
+
+
+
+   // Units By Storehouse
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 9 // Laborer
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+   !SET_UNIT_BY_STOCK 0 // Serf
+
+
+
+   !IF MEDIUM_WARES //Troops
+
+
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+
+
+
+
+      // Troops
+
+
+
+
+   !ENDIF
+
+   !IF MANY_WARES //Troops and Buildings
+
+
+
+
+
+      // Extra Buildings
+
+
+      // Roads
+
+      !SET_STREET 29 96
+
+      !SET_STREET 30 96
+
+      !SET_STREET 31 96
+
+      !SET_STREET 29 97
+
+      !SET_STREET 30 97
+
+      !SET_STREET 31 97
+
+       (Trimmed to save space)
+
+
+
+
+
+      // Extra Units By Storehouse
+
+
+      // Troops
+
+   !ENDIF
+
+
+
+!ENDIF
+
+
+
+
+
+
+   (Removed to save space)
+
+
+
+
+
+
+// Wares to all
+
+!ADD_WARE_TO_ALL 1 60 // Stone
+
+!ADD_WARE_TO_ALL 2 50 // Timber
+
+!ADD_WARE_TO_ALL 7 50 // Gold
+
+!ADD_WARE_TO_ALL 10 50 // Loaves
+
+!ADD_WARE_TO_ALL 8 60 // Wine
+
+!ADD_WARE_TO_ALL 13 30 // Sausages
+
+!ADD_WARE_TO_ALL 27 40 //Fishes
+
+!IF MEDIUM_WARES
+!ENDIF
+
+
+
+!IF MANY_WARES
+!ENDIF
+
+//Animals
+!SET_UNIT 24 8 5
+!SET_UNIT 24 49 39
+!SET_UNIT 24 60 48
+!SET_UNIT 24 80 5
+!SET_UNIT 24 105 12
+!SET_UNIT 24 120 29
+!SET_UNIT 24 115 57
+!SET_UNIT 24 112 59
+!SET_UNIT 24 69 87
+!SET_UNIT 24 63 67
+!SET_UNIT 24 119 131
+!SET_UNIT 24 154 106
+!SET_UNIT 24 182 54
+!SET_UNIT 24 187 69
+!SET_UNIT 24 182 22
+!SET_UNIT 24 164 138
+!SET_UNIT 24 166 139
+!SET_UNIT 24 187 184
+!SET_UNIT 24 141 184
+!SET_UNIT 24 113 174
+!SET_UNIT 24 88 133
+!SET_UNIT 24 83 121
+!SET_UNIT 24 36 151
+!SET_UNIT 24 15 181
+!SET_UNIT 24 24 189
+!SET_UNIT 24 10 122
+!SET_UNIT 24 9 77
+!SET_UNIT 24 14 89
+!SET_UNIT 24 32 75
+!SET_UNIT 24 14 55
+!SET_UNIT 25 67 135
+!SET_UNIT 25 65 135
+!SET_UNIT 25 64 137
+!SET_UNIT 25 68 139
+!SET_UNIT 25 69 140
+!SET_UNIT 25 63 189
+!SET_UNIT 25 61 190
+!SET_UNIT 25 67 188
+!SET_UNIT 25 70 189
+!SET_UNIT 25 77 186
+!SET_UNIT 25 78 189
+!SET_UNIT 25 82 189
+!SET_UNIT 25 85 189
+!SET_UNIT 25 87 189
+!SET_UNIT 25 98 79
+!SET_UNIT 25 94 75
+!SET_UNIT 25 94 70
+!SET_UNIT 25 105 60
+!SET_UNIT 25 106 61
+!SET_UNIT 25 107 63
+!SET_UNIT 25 105 64
+!SET_UNIT 25 106 65
+!SET_UNIT 25 104 66
+!SET_UNIT 25 102 68
+!SET_UNIT 25 100 68
+!SET_UNIT 25 123 65
+!SET_UNIT 25 121 64
+!SET_UNIT 25 123 63
+!SET_UNIT 25 120 72
+!SET_UNIT 25 120 68
+!SET_UNIT 25 122 66
+!SET_UNIT 25 180 44
+!SET_UNIT 25 180 47
+!SET_UNIT 25 176 53
+!SET_UNIT 25 176 52
+!SET_UNIT 25 178 52
+!SET_UNIT 25 113 9
+!SET_UNIT 25 114 9
+!SET_UNIT 25 111 7
+!SET_UNIT 25 109 6
+!SET_UNIT 25 107 6
+!SET_UNIT 25 109 8
+!SET_UNIT 25 113 6
+!SET_UNIT 25 107 4
+!SET_UNIT 25 116 12
+!SET_UNIT 25 117 9
+!SET_UNIT 25 115 7
+
+//This mission was made with KaM Remake Map Editor version 4th Multiplayer Demo r3392 at 2012. 06. 10. 10:35:38
+
