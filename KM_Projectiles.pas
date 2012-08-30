@@ -139,7 +139,7 @@ begin
   if TimeToHit <> 0 then
   begin
     Jitter := ProjectileJitter[aProjType]
-            + GetLength(KMPointF(0,0),TargetVector) * ProjectilePredictJitter[aProjType];
+            + KMLength(KMPointF(0,0), TargetVector) * ProjectilePredictJitter[aProjType];
 
     //Calculate the target position relative to start position (the 0;0)
     Target.X := TargetPosition.X + TargetVector.X*TimeToHit + KaMRandomS(Jitter);
@@ -254,7 +254,7 @@ begin
         begin
           U := fTerrain.UnitsHitTestF(fTarget);
           //Projectile can miss depending on the distance to the unit
-          if (U = nil) or ((1-Math.min(GetLength(U.PositionF,fTarget),1)) > KaMRandom) then
+          if (U = nil) or ((1 - Math.min(KMLength(U.PositionF, fTarget), 1)) > KaMRandom) then
           begin
             case fType of
               pt_Arrow,

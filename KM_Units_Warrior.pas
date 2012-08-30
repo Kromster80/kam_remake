@@ -219,7 +219,7 @@ begin
       NewCommanderID := 0;
       Nearest := maxSingle;
       for i:=0 to fMembers.Count-1 do begin
-        Test := GetLength(GetPosition, TKMUnitWarrior(fMembers.Items[i]).GetPosition);
+        Test := KMLengthSqr(GetPosition, TKMUnitWarrior(fMembers.Items[i]).GetPosition);
         if Test < Nearest then begin
           Nearest := Test;
           NewCommanderID := i;
@@ -626,7 +626,7 @@ begin
   if Foes.Count > 0 then
     for i:=0 to Foes.Count - 1 do
     begin
-      Test := GetLength(GetPosition, TKMUnitWarrior(Foes.Items[i]).GetPosition);
+      Test := KMLengthSqr(GetPosition, TKMUnitWarrior(Foes.Items[i]).GetPosition);
       if Test < BestLength then
       begin
         BestLength := Test;
@@ -931,8 +931,8 @@ begin
 end;
 
 
-function TKMUnitWarrior.FindEnemy:TKMUnit;
-var TestDir:TKMDirection;
+function TKMUnitWarrior.FindEnemy: TKMUnit;
+var TestDir: TKMDirection;
 begin
   Result := nil; //No one to fight
   if not ENABLE_FIGHTING then exit;
@@ -948,7 +948,7 @@ begin
 
     //Archers should only look for opponents when they are idle or when they are finishing another fight (function is called by TUnitActionFight)
     if (GetUnitAction is TUnitActionWalkTo)
-    and ((GetOrderTarget = nil) or GetOrderTarget.IsDeadOrDying or not InRange(GetLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange))
+    and ((GetOrderTarget = nil) or GetOrderTarget.IsDeadOrDying or not InRange(KMLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange))
     then
       Exit;
   end;
@@ -1058,7 +1058,7 @@ begin
     if IsRanged then
     begin
       //Archers should abandon walk to start shooting if there is a foe
-      if InRange(GetLength(NextPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
+      if InRange(KMLength(NextPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
       and (GetUnitAction is TUnitActionWalkTo)
       and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
       begin
@@ -1068,7 +1068,7 @@ begin
           AbandonWalk;
       end;
       //But if we are already idle then just start shooting right away
-      if InRange(GetLength(GetPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
+      if InRange(KMLength(GetPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
         and(GetUnitAction is TUnitActionStay) then
       begin
         //Archers - If foe is reachable then turn in that direction and CheckForEnemy
@@ -1139,10 +1139,10 @@ begin
   end;
 
   //Take attack order
-  if (fOrder=wo_AttackUnit)
+  if (fOrder = wo_AttackUnit)
   and CanInterruptAction
   and (GetOrderTarget <> nil)
-  and not InRange(GetLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange) then
+  and not InRange(KMLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange) then
   begin
     FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);

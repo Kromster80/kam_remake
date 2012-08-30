@@ -192,7 +192,7 @@ var
 begin
   Result := False;
   Matched := -1;
-  Best := MaxInt;
+  Best := MaxSingle;
 
   for I := 0 to Count - 1 do
   if Positions[I].GroupType = UnitGroups[aWarrior.UnitType] then
@@ -206,7 +206,7 @@ begin
     if not Positions[I].IsFullyStocked(MenRequired) then
     begin
       //Take closest position that is empty or requries restocking
-      Distance := GetLength(aWarrior.GetPosition, Positions[I].Position.Loc);
+      Distance := KMLengthSqr(aWarrior.GetPosition, Positions[I].Position.Loc);
       if Distance < Best then
       begin
         Matched := I;

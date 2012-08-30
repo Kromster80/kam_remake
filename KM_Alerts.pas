@@ -335,7 +335,7 @@ begin
     if Items[I] is TKMAlertAttacked then
       with TKMAlertAttacked(Items[I]) do
         if (Owner = aPlayer) and (Asset = aAsset)
-        and (GetLength(Loc, aLoc) < FIGHT_DISTANCE) then
+        and (KMLength(Loc, aLoc) < FIGHT_DISTANCE) then
         begin
           Refresh(fTickCounter^);
           Exit;

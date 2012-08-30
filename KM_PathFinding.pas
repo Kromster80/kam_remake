@@ -181,7 +181,7 @@ end;
 function TPathFinding.DestinationReached(aX, aY: Word): Boolean;
 begin
   case fDestination of
-    dp_Location:    Result := KMLength(KMPoint(aX, aY), fLocB) <= fDistance;
+    dp_Location:    Result := KMLengthDiag(KMPoint(aX, aY), fLocB) <= fDistance;
     dp_Passability: Result := fTerrain.GetConnectID(fTargetWalkConnect, KMPoint(aX, aY)) = fTargetNetwork;
     dp_House:       Result := fTargetHouse.InReach(KMPoint(aX, aY), fDistance);
     else            Result := true;

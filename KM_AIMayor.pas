@@ -195,7 +195,7 @@ procedure TKMayor.TryBuildHouse(aHouse: THouseType);
     LocTo := KMPointBelow(H.GetEntrance);
     //Check building plans, maybe there's another plan nearby we can connect to with road
     if P.BuildList.HousePlanList.FindPlan(aLoc, LocPlan) then
-      if KMLength(aLoc, LocPlan) <= KMLength(aLoc, LocTo) then
+      if KMLengthSqr(aLoc, LocPlan) <= KMLengthSqr(aLoc, LocTo) then
         LocTo := LocPlan;
 
     NodeList := TKMPointList.Create;

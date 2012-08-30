@@ -83,15 +83,16 @@ type
   function KMNormal2Poly(const v1,v2,v3: TKMPoint): Single; overload;
   function KMNormal2Poly(const v1,v2,v3: TKMPointI): Single; overload;
   function KMPointInTriangle(const P, A, B, C: TKMPoint): Boolean;
-  function KMInBetween(A,B,X:single): boolean;
   function KMSegmentsIntersect(A, B, C, D: TKMPointI): Boolean;
   function KMSegmentsIntersectOrTouch(A, B, C, D: TKMPointI): Boolean;
   //procedure KMTriangulate(VerticeCount: Integer; Vertice: TKMPointArray; var PolyCount: Integer; var Polys: array of Word);
 
-  function GetLength(A, B: TKMPoint): Single; overload;
-  function GetLength(A, B: TKMPointF): Single; overload;
-  function KMLength(A, B: TKMPoint): Single;
-  function KMLengthSqr(A, B: TKMPointI): Single;
+  function KMLength(A, B: TKMPoint): Single; overload;
+  function KMLength(A, B: TKMPointF): Single; overload;
+  function KMLengthDiag(A, B: TKMPoint): Single;
+  function KMLengthSqr(A, B: TKMPoint): Single; overload;
+  function KMLengthSqr(A, B: TKMPointI): Single; overload;
+  function KMLengthSqr(A, B: TKMPointF): Single; overload;
 
   function KMLerp(A,B: TKMPoint; MixValue: Single): TKMPointF; overload;
   function KMLerp(A,B: TKMPointF; MixValue: Single): TKMPointF; overload;
@@ -99,8 +100,8 @@ type
   procedure KMSwapPoints(var A,B: TKMPoint); overload;
   procedure KMSwapPoints(var A,B: TKMPointI); overload;
 
-  function TypeToString(t:TKMPoint):string; overload;
-  function TypeToString(T: TKMDirection): String; overload;
+  function TypeToString(T: TKMPoint): string; overload;
+  function TypeToString(T: TKMDirection): string; overload;
 
 
 implementation
@@ -392,6 +393,7 @@ end;
 
 function KMAddDirection(aDir: TKMDirection; aAdd: Byte): TKMDirection;
 begin
+  Assert(aDir <> dir_NA);
   Result := TKMDirection((Byte(aDir) + aAdd - 1) mod 8 + 1);
 end;
 
@@ -483,18 +485,6 @@ end;
 function KMPointInTriangle(const P, A, B, C: TKMPoint): Boolean;
 begin
   Result := (KMNormal2Poly(A, B, P) > 0) and (KMNormal2Poly(B, C, P) > 0) and (KMNormal2Poly(C, A, P) > 0);
-end;
-
-
-function KMInBetween(A,B,X:single): boolean;
-begin
-  if A>B then
-    Result:=(A>X)and(X>B)
-  else
-  if A<B then
-    Result:=(A<X)and(X<B)
-  else
-    Result:=false
 end;
 
 
@@ -611,20 +601,20 @@ begin
 end;
 
 
-function GetLength(A,B:TKMPoint): single; overload;
+function KMLength(A,B: TKMPoint): Single; overload;
 begin
   Result := sqrt(sqr(A.x-B.x) + sqr(A.y-B.y));
 end;
 
 
-function GetLength(A,B:TKMPointF): single; overload;
+function KMLength(A,B: TKMPointF): Single; overload;
 begin
   Result := sqrt(sqr(A.x-B.x) + sqr(A.y-B.y));
 end;
 
 
 //Length as straight and diagonal
-function KMLength(A, B: TKMPoint): Single;
+function KMLengthDiag(A, B: TKMPoint): Single;
 begin
   if Abs(A.X-B.X) > Abs(A.Y-B.Y) then
     Result := Abs(A.X-B.X) + Abs(A.Y-B.Y) * 0.41
@@ -633,7 +623,19 @@ begin
 end;
 
 
+function KMLengthSqr(A, B: TKMPoint): Single;
+begin
+  Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
+end;
+
+
 function KMLengthSqr(A, B: TKMPointI): Single;
+begin
+  Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
+end;
+
+
+function KMLengthSqr(A, B: TKMPointF): Single;
 begin
   Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
 end;
@@ -669,14 +671,15 @@ begin
 end;
 
 
-function TypeToString(t:TKMPoint):string;
+function TypeToString(T: TKMPoint): string;
 begin
-  Result := '('+inttostr(t.x)+';'+inttostr(t.y)+')';
+  Result := '(' + IntToStr(T.X) + ';' + IntToStr(T.Y) + ')';
 end;
 
 
-function TypeToString(T: TKMDirection): String;
-const S: array [TKMDirection] of string = ('N/A', 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW');
+function TypeToString(T: TKMDirection): string;
+const
+  S: array [TKMDirection] of string = ('N/A', 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW');
 begin
   Result := S[T];
 end;

@@ -579,7 +579,7 @@ begin
     for K := max(Loc.X - 2, 1) to min(Loc.X + 1, fTerrain.MapX) do
       if HouseArea[I - Loc.Y + 4, K - Loc.X + 3] <> 0 then
       begin
-        Test := GetLength(aPos, KMPoint(K, I));
+        Test := KMLength(aPos, KMPoint(K, I));
         if (Result < 0) or (Test < Result) then
           Result := Test;
       end;
@@ -591,7 +591,7 @@ end;
 function TKMHouse.InReach(aPos: TKMPoint; aDistance: Single): Boolean;
 begin
   //+6 is the worst case with the barracks, distance from fPosition to top left tile of house could be > 5
-  if KMLength(aPos, fPosition) >= aDistance + 6 then
+  if KMLengthDiag(aPos, fPosition) >= aDistance + 6 then
     Result := False //We are sure they are not close enough to the house
   else
     //We need to perform a precise check
@@ -2189,16 +2189,16 @@ end;
 
 
 procedure TKMHouseTower.Paint;
-var i,k:integer;
+var I, K: Integer;
 begin
   inherited;
 
   if SHOW_ATTACK_RADIUS then
-    for i:=-round(RANGE_WATCHTOWER_MAX)-1 to round(RANGE_WATCHTOWER_MAX) do
-    for k:=-round(RANGE_WATCHTOWER_MAX)-1 to round(RANGE_WATCHTOWER_MAX) do
-    if InRange(GetLength(i,k),RANGE_WATCHTOWER_MIN,RANGE_WATCHTOWER_MAX) then
-    if fTerrain.TileInMapCoords(GetPosition.X+k,GetPosition.Y+i) then
-      fRenderAux.Quad(GetPosition.X+k,GetPosition.Y+i, $40FFFFFF);
+    for I := -Round(RANGE_WATCHTOWER_MAX)-1 to Round(RANGE_WATCHTOWER_MAX) do
+    for K := -Round(RANGE_WATCHTOWER_MAX)-1 to Round(RANGE_WATCHTOWER_MAX) do
+    if InRange(GetLength(I, K), RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX) then
+    if fTerrain.TileInMapCoords(GetPosition.X+K, GetPosition.Y+I) then
+      fRenderAux.Quad(GetPosition.X+K, GetPosition.Y+I, $40FFFFFF);
 end;
 
 
@@ -2304,14 +2304,15 @@ end;
 
 
 //Should find closest house to Loc
-function TKMHousesCollection.FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
-var i:integer;
-  Dist,Bid:single;
+function TKMHousesCollection.FindEmptyHouse(aUnitType: TUnitType; Loc: TKMPoint): TKMHouse;
+var
+  I: Integer;
+  Dist, BestBid: Single;
 begin
-  Result:= nil;
-  Bid := 0;
+  Result := nil;
+  BestBid := MaxSingle;
 
-  for i:=0 to Count-1 do
+  for I := 0 to Count - 1 do
     if (fResource.HouseDat[Houses[i].fHouseType].OwnerType = aUnitType) and //If Unit can work in here
        (not Houses[i].fHasOwner) and                              //If there's yet no owner
        (not Houses[i].IsDestroyed) and
@@ -2320,23 +2321,23 @@ begin
       //Recruits should not go to a barracks with ware delivery switched off
       if (Houses[i].HouseType = ht_Barracks) and (not Houses[i].WareDelivery) then Continue;
 
-      Dist := KMLength(Loc,Houses[i].GetPosition);
+      Dist := KMLengthSqr(Loc, Houses[i].GetPosition);
 
       //Always prefer Towers to Barracks by making Barracks Bid much less attractive
       //In case of multiple barracks, prefer the closer one (players should make multiple schools or use WareDelivery to control it)
       if Houses[i].HouseType = ht_Barracks then
         Dist := Dist * 1000;
 
-      if (Bid = 0) or (Dist < Bid) then
+      if Dist < BestBid then
       begin
-        Bid := Dist;
+        BestBid := Dist;
         Result := Houses[i];
       end;
 
     end;
 
-  if Result<>nil then
-  if Result.fHouseType<>ht_Barracks then Result.fHasOwner:=true; //Become owner except Barracks;
+  if (Result <> nil) and (Result.fHouseType <> ht_Barracks) then
+    Result.fHasOwner := True; //Become owner except Barracks;
 end;
 
 
@@ -2363,7 +2364,7 @@ begin
     Inc(ID);
     if UsePosition then
     begin
-      Dist := GetLength(Houses[I].GetPosition,KMPoint(X,Y));
+      Dist := KMLengthSqr(Houses[I].GetPosition,KMPoint(X,Y));
       if BestMatch = -1 then BestMatch := Dist; //Initialize for first use
       if Dist < BestMatch then
       begin

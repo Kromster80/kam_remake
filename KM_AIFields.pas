@@ -154,7 +154,7 @@ var
     with fNodes[aIndex] do
     for K := 0 to High(Nearby) do
     begin
-      ExpectedValue := Max(Owner[OwnerID] - Trunc(KMLength(Loc, fNodes[Nearby[K]].Loc)) * 2, 0);
+      ExpectedValue := Max(Owner[OwnerID] - Trunc(KMLengthDiag(Loc, fNodes[Nearby[K]].Loc)) * 2, 0);
       if ExpectedValue > fNodes[Nearby[K]].Owner[OwnerID] then
       begin
         fNodes[Nearby[K]].Owner[OwnerID] := ExpectedValue;

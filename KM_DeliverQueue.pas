@@ -292,7 +292,7 @@ begin
           if fSerfs[K].Serf.IsIdle then
             if fQueue.SerfCanDoDelivery(FoundO,FoundD,fSerfs[K].Serf) then
             begin
-              Bid := GetLength(fSerfs[K].Serf.GetPosition, fQueue.fOffer[FoundO].Loc_House.GetEntrance);
+              Bid := KMLength(fSerfs[K].Serf.GetPosition, fQueue.fOffer[FoundO].Loc_House.GetEntrance);
               if (BestBid = -1) or (Bid < BestBid) then
               begin
                 BestBid := Bid;
@@ -541,12 +541,12 @@ begin
   //Basic Bid is length of route
   if fDemand[iD].Loc_House<>nil then
   begin
-    Result := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
+    Result := KMLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
     //Resource ratios are also considered
     +fPlayers[fOffer[iO].Loc_House.GetOwner].Stats.Ratio[fDemand[iD].Resource, fDemand[iD].Loc_House.HouseType];
   end
   else
-    Result := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
+    Result := KMLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
 
   //For weapons production in cases with little resources available, they should be distributed
   //evenly between places rather than caring about route length.
@@ -558,7 +558,7 @@ begin
 
   //Also prefer deliveries near to the serf
   if KMSerf <> nil then
-    Result := Result + GetLength(KMSerf.GetPosition,fOffer[iO].Loc_House.GetEntrance);
+    Result := Result + KMLength(KMSerf.GetPosition,fOffer[iO].Loc_House.GetEntrance);
 
   //Add some random element so in the case of identical bids the same resource will not always be chosen (e.g. weapons storehouse->barracks should take random weapon types not sequentially)
   Result := Result + KaMRandom(5);

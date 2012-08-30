@@ -16,6 +16,7 @@ type
     procedure TestKMPoint;
     procedure TestKMPointBelow;
     procedure TestKMRect;
+    procedure TestKMAddDirection;
   end;
 
 implementation
@@ -69,6 +70,23 @@ begin
   R := KMRect(T);
   Check((R.Left = -1) and (R.Top = -1) and (R.Right = 1) and (R.Bottom = 1));
 end;
+
+
+procedure TestKMPoints.TestKMAddDirection;
+begin
+  Check(KMAddDirection(dir_N, 1) = dir_NE);
+  Check(KMAddDirection(dir_N, 2) = dir_E);
+  Check(KMAddDirection(dir_N, 3) = dir_SE);
+  Check(KMAddDirection(dir_N, 4) = dir_S);
+  Check(KMAddDirection(dir_N, 5) = dir_SW);
+  Check(KMAddDirection(dir_N, 6) = dir_W);
+  Check(KMAddDirection(dir_N, 7) = dir_NW);
+  Check(KMAddDirection(dir_N, 8) = dir_N);
+  Check(KMAddDirection(dir_N, 9) = dir_NE);
+  Check(KMAddDirection(dir_N, 160) = dir_N);
+  Check(KMAddDirection(dir_N, 161) = dir_NE);
+end;
+
 
 initialization
   // Register any test cases with the test runner

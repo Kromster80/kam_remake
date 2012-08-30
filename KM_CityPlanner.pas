@@ -150,7 +150,7 @@ begin
   for K := Max(TargetLoc.X - 7, 1) to Min(TargetLoc.X + 7, fTerrain.MapX - 1) do
     if CanPlaceHouse(aHouse, K, I) then
     begin
-      Bid := GetLength(KMPoint(K,I), TargetLoc) + KaMRandom * 4;
+      Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -186,7 +186,7 @@ begin
   for K := Max(TargetLoc.X - 10, 1) to Min(TargetLoc.X + 10, fTerrain.MapX - 1) do
     if P.CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := GetLength(KMPoint(K,I), TargetLoc) + KaMRandom * 3;
+      Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 3;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -220,7 +220,7 @@ begin
   for K := Max(StoneLoc.Loc.X - 5, 1) to Min(StoneLoc.Loc.X + 5, fTerrain.MapX - 1) do
     if fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
+      Bid := KMLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -357,7 +357,7 @@ begin
   for K := Max(TreeLoc.Loc.X - 7, 1) to Min(TreeLoc.Loc.X + 7, fTerrain.MapX - 1) do
     if fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
+      Bid := KMLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);

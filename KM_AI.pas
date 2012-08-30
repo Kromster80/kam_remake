@@ -353,7 +353,7 @@ begin
             //them from the defence position so new warriors can take up the defence if needs be
             for k:=0 to DefencePositions.Count - 1 do
               with DefencePositions[k] do
-                if (CurrentCommander = GetCommander) and (KMLength(Position.Loc, GetPosition) > Radius) then
+                if (CurrentCommander = GetCommander) and (KMLengthDiag(Position.Loc, GetPosition) > Radius) then
                   CurrentCommander := nil;
             Continue;
           end;
@@ -524,7 +524,7 @@ begin
       if (CurrentCommander <> nil) and not CurrentCommander.IsDeadOrDying
       and CurrentCommander.IsCommander and (not CurrentCommander.ArmyInFight)
       and (CurrentCommander.OrderTarget = nil)
-      and (KMLength(CurrentCommander.GetPosition, aAttacker.GetPosition) <= Radius) then
+      and (KMLengthDiag(CurrentCommander.GetPosition, aAttacker.GetPosition) <= Radius) then
         CurrentCommander.OrderAttackUnit(aAttacker);
 end;
 

@@ -2206,7 +2206,7 @@ begin
   for i := 0 to Count - 1 do
     if not Units[i].IsDeadOrDying and Units[i].fVisible then
     begin
-      Dist := GetLength(Units[i].GetPosition, aPoint);
+      Dist := KMLengthSqr(Units[i].GetPosition, aPoint);
       if Dist < BestDist then
       begin
         BestDist := Dist;

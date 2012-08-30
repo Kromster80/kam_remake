@@ -1,7 +1,7 @@
 unit KM_Player;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils,
+uses Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ArmyEvaluation, KM_BuildList, KM_DeliverQueue, KM_FogOfWar,
   KM_Goals, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units;
@@ -645,7 +645,7 @@ begin
   //Will return nil if no suitable inn is available
   Result := nil;
   I := 1;
-  BestMatch := 9999;
+  BestMatch := MaxSingle;
   if UnitIsAtHome then inc(Loc.Y); //From outside the door of the house
 
   H := TKMHouseInn(FindHouse(ht_Inn));
@@ -655,7 +655,7 @@ begin
     and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), CanWalk, 0) then
     begin
       //Take the closest inn out of the ones that are suitable
-      Dist := GetLength(H.GetPosition, Loc);
+      Dist := KMLengthSqr(H.GetPosition, Loc);
       if Dist < BestMatch then
       begin
         Result := H;

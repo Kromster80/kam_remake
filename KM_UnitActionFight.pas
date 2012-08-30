@@ -171,7 +171,7 @@ begin
   Result := ActContinues;
   //See if Opponent has walked away (i.e. Serf) or died
   if (fOpponent.IsDeadOrDying) or (not fOpponent.Visible) //Don't continue to fight dead units in units that have gone into a house
-  or not InRange(GetLength(fUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(fUnit).GetFightMinRange, TKMUnitWarrior(fUnit).GetFightMaxRange)
+  or not InRange(KMLength(fUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(fUnit).GetFightMinRange, TKMUnitWarrior(fUnit).GetFightMaxRange)
   or not fUnit.CanWalkDiagonaly(fUnit.GetPosition, fOpponent.GetPosition) then //Might be a tree between us now
   begin
     //After killing an opponent there is a very high chance that there is another enemy to be fought immediately

@@ -589,8 +589,8 @@ begin
     U := Land[I,K].IsUnit;
     if U <> nil then
     begin
-      T := GetLength(U.PositionF, aLoc);
-      if (T <= 1) and ((Result = nil) or (T < GetLength(TKMUnit(Result).PositionF, aLoc))) then
+      T := KMLengthSqr(U.PositionF, aLoc);
+      if (T <= 1) and ((Result = nil) or (T < KMLengthSqr(TKMUnit(Result).PositionF, aLoc))) then
         Result := U;
     end;
   end;
@@ -655,7 +655,7 @@ begin
 
     //Don't check tiles farther than closest Warrior
     if aClosest and (W <> nil)
-    and (GetLength(aLoc, KMPoint(K,I)) >= GetLength(aLoc, W.GetPosition)) then
+    and (KMLengthSqr(aLoc, KMPoint(K,I)) >= KMLengthSqr(aLoc, W.GetPosition)) then
       Continue; //Since we check left-to-right we can't exit just yet (there are possible better enemies below)
 
     //In KaM archers can shoot further than sight radius (shoot further into explored areas)
@@ -678,7 +678,7 @@ begin
           or (Abs(aLoc.Y - P.Y) <> 1)
           or VertexUsageCompatible(aLoc, P)
         )
-    and InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad) //Unit's exact position must be close enough
+    and InRange(KMLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad) //Unit's exact position must be close enough
     then
       if aClosest then
       begin
@@ -1131,7 +1131,7 @@ begin
      //Store in temp variable for speed
     T := ValidTiles[I];
 
-    if (KMLength(aLoc, T) <= aRadius)
+    if (KMLengthDiag(aLoc, T) <= aRadius)
     and not KMSamePoint(aAvoidLoc, T) then
     begin
 
@@ -1204,7 +1204,7 @@ begin
   Result := False;
   for I := max(aLoc.Y - aRadius, Ins) to Min(aLoc.Y + aRadius, fMapY - Ins) do
   for K := max(aLoc.X - aRadius, Ins) to Min(aLoc.X + aRadius, fMapX - Ins) do
-    if (KMLength(aLoc, KMPoint(K,I)) <= aRadius)
+    if (KMLengthDiag(aLoc, KMPoint(K,I)) <= aRadius)
     and TileIsWater(KMPoint(K,I)) then
     begin
       Result := True;
@@ -1784,7 +1784,7 @@ begin
     and (aPass in Land[Loc.Y+I,Loc.X+K].Passability)
     and CanWalkDiagonaly(Loc, KMPoint(Loc.X+K,Loc.Y+I)) //Check for trees that stop us walking on the diagonals!
     and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
-    and (KMLength(KMPoint(Loc.X+K,Loc.Y+I),Loc2) <= 1) //Right next to Loc2 (not diagonal)
+    and (KMLengthDiag(KMPoint(Loc.X+K,Loc.Y+I),Loc2) <= 1) //Right next to Loc2 (not diagonal)
     and not HasUnit(KMPoint(Loc.X+K,Loc.Y+I)) then //Doesn't have a unit
       L1.AddEntry(KMPoint(Loc.X+K,Loc.Y+I));
 
@@ -1792,7 +1792,7 @@ begin
   L2 := TKMPointList.Create;
   if not KMSamePoint(Loc3, KMPoint(0,0)) then //No Loc3 was given
   for I := 0 to L1.Count - 1 do
-    if KMLength(L1[I], Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
+    if KMLengthDiag(L1[I], Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
       L2.AddEntry(L1[I]);
 
   Result := True;
@@ -1821,7 +1821,7 @@ begin
   TestRadius := False;
   for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
   for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
-  if GetLength(LocB,KMPoint(k,i)) <= aDistance then
+  if KMLength(LocB,KMPoint(k,i)) <= aDistance then
     TestRadius := TestRadius or CheckPassability(KMPoint(k,i),aPass);
   Result := Result and TestRadius;
 
@@ -1850,7 +1850,7 @@ begin
   TestRadius := False;
   for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
   for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
-  if GetLength(LocB,KMPoint(k,i)) <= aDistance then
+  if KMLength(LocB,KMPoint(k,i)) <= aDistance then
     TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[WC] = Land[i,k].WalkConnect[WC]);
   Result := Result and TestRadius;
 end;
@@ -3049,7 +3049,7 @@ begin
   begin
     for I := max(aStart.Y-aRadius, 1) to min(aStart.Y+aRadius, fMapY-1) do
       for K := max(aStart.X-aRadius, 1) to min(aStart.X+aRadius, fMapX-1) do
-        if (aPass in Land[I,K].Passability) and (KMLength(aStart, KMPoint(K,I)) <= aRadius) then
+        if (aPass in Land[I,K].Passability) and (KMLengthDiag(aStart, KMPoint(K,I)) <= aRadius) then
           aList.AddEntry(KMPoint(K,I));
   end;
 end;

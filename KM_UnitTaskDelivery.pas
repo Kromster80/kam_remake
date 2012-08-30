@@ -230,7 +230,7 @@ begin
     5:  SetActionWalkToUnit(fToUnit, 1.42, ua_Walk); //When approaching from diagonal
     6:  begin
           //See if the unit has moved. If so we must try again
-          if KMLength(fUnit.GetPosition,fToUnit.GetPosition) > 1.5 then
+          if KMLengthDiag(fUnit.GetPosition, fToUnit.GetPosition) > 1.5 then
           begin
             SetActionWalkToUnit(fToUnit, 1.42, ua_Walk); //Walk to unit again
             fPhase := 6;
