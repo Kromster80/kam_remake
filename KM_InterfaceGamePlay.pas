@@ -19,6 +19,7 @@ type
   private
     fMultiplayer: Boolean; //Multiplayer UI has slightly different layout
     fReplay: Boolean; //Replay UI has slightly different layout
+    fSave_Selected: Integer; //Save selected from list (needed because of scanning)
 
     //Not saved
     LastDragPoint: TKMPoint; //Last mouse point that we drag placed/removed a road/field
@@ -38,7 +39,6 @@ type
 
     //Saved
     fLastSaveName: AnsiString; //The file name we last used to save this file (used as default in Save menu)
-    fSave_Selected: Integer; //Save selected from list (needed because of scanning)
     LastSchoolUnit: Byte;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit: Byte; //Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList: TKMMessageList;
@@ -999,7 +999,7 @@ begin
       Button_ReplayResume.OnClick  := ReplayClick;
       Button_ReplayExit.OnClick    := ReplayClick;
       Button_ReplayRestart.Hint := fTextLibrary[TX_REPLAY_RESTART];
-      Button_ReplayPause.Hint   := fTextLibrary[TX_REPLAY_RESTART];
+      Button_ReplayPause.Hint   := fTextLibrary[TX_REPLAY_PAUSE];
       Button_ReplayStep.Hint    := fTextLibrary[TX_REPLAY_STEP];
       Button_ReplayResume.Hint  := fTextLibrary[TX_REPLAY_RESUME];
       Button_ReplayExit.Hint    := fTextLibrary[TX_REPLAY_QUIT];
@@ -1428,7 +1428,7 @@ begin
     Image_UnitPic         := TKMImage.Create(Panel_Unit,8,38,54,100,521);
     Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,30,fTextLibrary[TX_UNIT_CONDITION],fnt_Grey,taCenter);
     ConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,73,55,116,15);
-    Label_UnitTask        := TKMLabel.Create(Panel_Unit,73,80,116,30,'',fnt_Grey,taLeft);
+    Label_UnitTask        := TKMLabel.Create(Panel_Unit,73,80,116,60,'',fnt_Grey,taLeft);
     Label_UnitTask.AutoWrap := True;
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
     Label_UnitDescription.AutoWrap := True;
@@ -1569,7 +1569,8 @@ begin
 
     for I := 0 to STORE_RES_COUNT - 1 do
     begin
-      Button_Market[I] := TKMButtonFlat.Create(Panel_HouseMarket, 8+(I mod 6)*30,12+(I div 6)*34,26,30,0);
+      Button_Market[I] := TKMButtonFlat.Create(Panel_HouseMarket, 8 + (I mod 6)*30, 12 + (I div 6) * MARKET_RES_HEIGHT, 26, 31, 0);
+      Button_Market[I].TexOffsetY := 1;
       Button_Market[I].TexID := fResource.Resources[StoreResType[I+1]].GUIIcon;
       Button_Market[I].Hint := fResource.Resources[StoreResType[I+1]].Title;
       Button_Market[I].Tag := Byte(StoreResType[I+1]);
@@ -1587,7 +1588,7 @@ begin
     Shape_Market_To.Hitable := False;
     Shape_Market_To.Hide;
 
-    LineH := 12+((STORE_RES_COUNT-1) div 6 + 1)*34;
+    LineH := 12 + ((STORE_RES_COUNT - 1) div 6 + 1) * MARKET_RES_HEIGHT;
     Label_Market_In  := TKMLabel.Create(Panel_HouseMarket, 8,LineH,85,30,'',fnt_Grey,taLeft);
     Label_Market_Out := TKMLabel.Create(Panel_HouseMarket,184,LineH,85,30,'',fnt_Grey,taRight);
 
@@ -2165,7 +2166,7 @@ begin
   Image_UnitPic.TexID         := fResource.UnitDat[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor     := fPlayers[Sender.GetOwner].FlagColor;
   ConditionBar_Unit.Position  := Sender.Condition / UNIT_MAX_CONDITION;
-  Label_UnitTask.Caption      := 'Task: ' + Sender.GetUnitTaskText;
+  Label_UnitTask.Caption      := Sender.GetActivityText;
 
   //While selecting target to join we could get attacked
   //Then we must cancel the dialog
@@ -2682,7 +2683,7 @@ end;
 procedure TKMGamePlayInterface.House_MarketFill(aMarket: TKMHouseMarket);
 var R: TResourceType; i,Tmp: Integer;
 begin
-  for i:=0 to STORE_RES_COUNT-1 do
+  for i := 0 to STORE_RES_COUNT - 1 do
   begin
     R := TResourceType(Button_Market[i].Tag);
     if aMarket.AllowedToTrade(R) then
@@ -2704,7 +2705,7 @@ begin
   if aMarket.ResFrom <> rt_None then
   begin
     Shape_Market_From.Left := 8 + ((Byte(aMarket.ResFrom)-1) mod 6) * 30;
-    Shape_Market_From.Top := 12 + ((Byte(aMarket.ResFrom)-1) div 6) * 34;
+    Shape_Market_From.Top := 12 + ((Byte(aMarket.ResFrom)-1) div 6) * MARKET_RES_HEIGHT;
     Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[aMarket.RatioFrom]) + ':';
     Button_Market_In.TexID := fResource.Resources[aMarket.ResFrom].GUIIcon;
     Button_Market_In.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResFrom));
@@ -2718,7 +2719,7 @@ begin
   if aMarket.ResTo <> rt_None then
   begin
     Shape_Market_To.Left := 8 + ((Byte(aMarket.ResTo)-1) mod 6) * 30;
-    Shape_Market_To.Top := 12 + ((Byte(aMarket.ResTo)-1) div 6) * 34;
+    Shape_Market_To.Top := 12 + ((Byte(aMarket.ResTo)-1) div 6) * MARKET_RES_HEIGHT;
     Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO],[aMarket.RatioTo]) + ':';
     Button_Market_Out.Caption := IntToStr(aMarket.GetResTotal(aMarket.ResTo));
     Button_Market_Out.TexID := fResource.Resources[aMarket.ResTo].GUIIcon;
@@ -3757,6 +3758,7 @@ begin
   SaveStream.Write(fLastSaveName);
   SaveStream.Write(LastSchoolUnit);
   SaveStream.Write(LastBarracksUnit);
+  SaveStream.Write(fSelection, SizeOf(fSelection));
   fMessageList.Save(SaveStream);
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
 end;
@@ -3767,6 +3769,7 @@ begin
   LoadStream.Read(fLastSaveName);
   LoadStream.Read(LastSchoolUnit);
   LoadStream.Read(LastBarracksUnit);
+  LoadStream.Read(fSelection, SizeOf(fSelection));
   fMessageList.Load(LoadStream);
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
   Message_UpdateStack;

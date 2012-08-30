@@ -7,6 +7,9 @@ uses
 
 type
   TUVRect = array [1 .. 4, 1 .. 2] of Single; // Texture UV coordinates
+  TVertice = record
+    X, Y, Z, ULit, UShd: Single;
+  end;
 
   //Render terrain without sprites
   TRenderTerrain = class
@@ -14,7 +17,13 @@ type
     fRect: TKMRect;
     fFOW: TKMFogOfWar;
     fTextG: GLuint; //Shading gradient for lighting
+    fPos: array of TVertice;
+    fInd: array of Integer;
+    fVtxShd: GLUint;
+    fIndShd: GLUint;
     function GetTileUV(Index: Word; Rot: Byte): TUVRect;
+    procedure BeginVBO;
+    procedure EndVBO;
     procedure DoTiles(AnimStep: Integer);
     procedure DoOverlays;
     procedure DoLighting;
@@ -37,6 +46,7 @@ var
   pData: array [0..255] of Cardinal;
 begin
   inherited;
+  if SKIP_RENDER then Exit;
 
   //Generate gradient programmatically
   //KaM uses [0..255] gradients
@@ -46,6 +56,8 @@ begin
     pData[I] := EnsureRange(Round(I * 1.0625 - 16), 0, 255) * 65793 or $FF000000;
 
   fTextG := TRender.GenTexture(256, 1, @pData[0], tf_RGBA8);
+  glGenBuffers(1, @fVtxShd);
+  glGenBuffers(1, @fIndShd);
 end;
 
 
@@ -86,12 +98,70 @@ begin
 end;
 
 
-procedure TRenderTerrain.DoTiles(AnimStep: Integer);
-  procedure LandLight(A: Single);
+procedure TRenderTerrain.BeginVBO;
+var
+  I,K,H: Integer;
+  SizeX, SizeY: Word;
+  tX, tY: Word;
+  Row: Integer;
+begin
+  SizeX := fRect.Right - fRect.Left;
+  SizeY := fRect.Bottom - fRect.Top;
+  H := 0;
+  SetLength(fPos, (SizeX + 2) * 2 * (SizeY + 1));
+  with fTerrain do
+  if (MapX > 0) and (MapY > 0) then
+  for I := 0 to SizeY do
+  for K := 0 to SizeX+1 do
   begin
-    glColor4f(A / 1.5 + 0.5, A / 1.5 + 0.5, A / 1.5 + 0.5, Abs(A * 2)); // Balanced looks
-    //glColor4f(a*2,a*2,a*2,Abs(a*2)); //Deeper shadows
+    tX := K + fRect.Left;
+    tY := I + fRect.Top;
+    fPos[H+0].X := tX-1;
+    fPos[H+0].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
+    fPos[H+0].Z := -tY;
+    fPos[H+0].ULit := Land[tY, tX].Light;
+    fPos[H+0].UShd := max(-Land[tY, tX].Light, 1 - fFOW.CheckVerticeRevelation(tX-1, tY-1, True) / 255);
+
+    tY := I + fRect.Top + 1;
+    fPos[H+1].X := tX-1;
+    fPos[H+1].Y := tY-1 - Land[tY, tX].Height / CELL_HEIGHT_DIV;
+    fPos[H+1].Z := -tY + 1;
+    fPos[H+1].ULit := Land[tY, tX].Light;
+    fPos[H+1].UShd := max(-Land[tY, tX].Light, 1 - fFOW.CheckVerticeRevelation(tX-1, tY-1, True) / 255);
+    H := H + 2;
   end;
+
+  H := 0;
+  SetLength(fInd, (SizeX+1) * (SizeY+1) * 6);
+  for I := 0 to SizeY do
+  for K := 0 to SizeX do
+  begin
+    Row := I * (SizeX + 2) * 2;
+    fInd[H+0] := Row + K * 2;
+    fInd[H+1] := Row + K * 2 + 1;
+    fInd[H+2] := Row + K * 2 + 3;
+    fInd[H+3] := Row + K * 2;
+    fInd[H+4] := Row + K * 2 + 3;
+    fInd[H+5] := Row + K * 2 + 2;
+    H := H + 6;
+  end;
+
+  glBindBuffer(GL_ARRAY_BUFFER, fVtxShd);
+  glBufferData(GL_ARRAY_BUFFER, Length(fPos) * SizeOf(TVertice), @fPos[0].X, GL_STREAM_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndShd);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, Length(fInd) * SizeOf(fInd[0]), @fInd[0], GL_STREAM_DRAW);
+end;
+
+
+procedure TRenderTerrain.EndVBO;
+begin
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+end;
+
+
+procedure TRenderTerrain.DoTiles(AnimStep: Integer);
 var
   TexC: TUVRect;
   I,K: Integer;
@@ -104,35 +174,21 @@ begin
   for K := fRect.Left to fRect.Right do
   begin
     glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, Land[I,K].Terrain+1].Tex.ID);
-    glBegin(GL_QUADS);
+    glBegin(GL_TRIANGLE_FAN);
     TexC := GetTileUV(Land[I,K].Terrain, Land[I,K].Rotation);
 
     glColor4f(1,1,1,1);
-    if RENDER_3D then begin
+    if RENDER_3D then
+    begin
       glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1,-Land[I,K].Height/CELL_HEIGHT_DIV);
       glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  ,-Land[I+1,K].Height/CELL_HEIGHT_DIV);
       glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  ,-Land[I+1,K+1].Height/CELL_HEIGHT_DIV);
       glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1,-Land[I,K+1].Height/CELL_HEIGHT_DIV);
     end else begin
-
-      glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height/CELL_HEIGHT_DIV, -I);
-      glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height/CELL_HEIGHT_DIV, -I);
-      glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height/CELL_HEIGHT_DIV, -I);
-      glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, -I);
-
-      {if KAM_WATER_DRAW and (iW=1) and TileIsWater(KMPoint(K,I)) then
-      begin
-        TexC := GetTileUV(32, 0);
-
-        LandLight(Land[I  ,K  ].Light);
-        glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height/CELL_HEIGHT_DIV, -I);
-        LandLight(Land[I+1,K  ].Light);
-        glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height/CELL_HEIGHT_DIV, -I);
-        LandLight(Land[I+1,K+1].Light);
-        glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height/CELL_HEIGHT_DIV, -I);
-        LandLight(Land[I  ,K+1].Light);
-        glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height/CELL_HEIGHT_DIV, -I);
-      end;}
+      glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1-Land[I,K].Height / CELL_HEIGHT_DIV, -I);
+      glTexCoord2fv(@TexC[2]); glVertex3f(K-1,I  -Land[I+1,K].Height / CELL_HEIGHT_DIV, -I);
+      glTexCoord2fv(@TexC[3]); glVertex3f(K  ,I  -Land[I+1,K+1].Height / CELL_HEIGHT_DIV, -I);
+      glTexCoord2fv(@TexC[4]); glVertex3f(K  ,I-1-Land[I,K+1].Height / CELL_HEIGHT_DIV, -I);
     end;
     glEnd;
   end;
@@ -173,7 +229,7 @@ begin
       glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, TexOffset + Land[I,K].Terrain + 1].Tex.ID);
       TexC := GetTileUV(TexOffset + Land[I,K].Terrain, Land[I,K].Rotation);
 
-      glBegin(GL_QUADS);
+      glBegin(GL_TRIANGLE_FAN);
         glColor4f(1,1,1,1);
         if RENDER_3D then begin
           glTexCoord2fv(@TexC[1]); glVertex3f(K-1,I-1,-Land[I,K].Height/CELL_HEIGHT_DIV);
@@ -235,74 +291,46 @@ end;
 
 
 procedure TRenderTerrain.DoLighting;
-var
-  I: Integer;
-  K: Integer;
 begin
   glColor4f(1, 1, 1, 1);
   //Render highlights
   glBlendFunc(GL_DST_COLOR, GL_ONE);
   glBindTexture(GL_TEXTURE_2D, fTextG);
-  glBegin(GL_QUADS);
-    with fTerrain do
-    if RENDER_3D then
-      for I := fRect.Top to fRect.Bottom do
-      for K := fRect.Left to fRect.Right do
-      begin
-        glTexCoord1f(Land[  I,   K].Light); glVertex3f(K-1, I-1, -Land[  I,   K].Height / CELL_HEIGHT_DIV);
-        glTexCoord1f(Land[I+1,   K].Light); glVertex3f(K-1,   I, -Land[I+1,   K].Height / CELL_HEIGHT_DIV);
-        glTexCoord1f(Land[I+1, K+1].Light); glVertex3f(  K,   I, -Land[I+1, K+1].Height / CELL_HEIGHT_DIV);
-        glTexCoord1f(Land[  I, K+1].Light); glVertex3f(  K, I-1, -Land[  I, K+1].Height / CELL_HEIGHT_DIV);
-      end
-    else
-      for I := fRect.Top to fRect.Bottom do
-      for K := fRect.Left to fRect.Right do
-      begin
-        glTexCoord1f(Land[  I,   K].Light); glVertex3f(K-1, I-1 - Land[  I,   K].Height / CELL_HEIGHT_DIV, -I);
-        glTexCoord1f(Land[I+1,   K].Light); glVertex3f(K-1,   I - Land[I+1,   K].Height / CELL_HEIGHT_DIV, -I);
-        glTexCoord1f(Land[I+1, K+1].Light); glVertex3f(  K,   I - Land[I+1, K+1].Height / CELL_HEIGHT_DIV, -I);
-        glTexCoord1f(Land[  I, K+1].Light); glVertex3f(  K, I-1 - Land[  I, K+1].Height / CELL_HEIGHT_DIV, -I);
-      end;
-  glEnd;
+
+  //Setup vertex and UV layout and offsets
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, SizeOf(TVertice), Pointer(0));
+  glClientActiveTexture(GL_TEXTURE0);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glTexCoordPointer(1, GL_FLOAT, SizeOf(TVertice), Pointer(12));
+
+//Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
+  glDrawElements(GL_TRIANGLES, Length(fInd), GL_UNSIGNED_INT, Pointer(0));
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 end;
 
 
 //Render shadows and FOW at once
 procedure TRenderTerrain.DoShadows;
-var
-  I,K: Integer;
 begin
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
   glBindTexture(GL_TEXTURE_2D, fTextG);
-  glBegin(GL_QUADS);
-    with fTerrain do
-    if RENDER_3D then
-      for I := fRect.Top to fRect.Bottom do
-      for K := fRect.Left to fRect.Right do
-      begin
-        glTexCoord1f(kromutils.max(0, -Land[I, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I - 1, true) / 255));
-        glVertex3f(K - 1, I - 1, -Land[I, K].Height / CELL_HEIGHT_DIV);
-        glTexCoord1f(kromutils.max(0, -Land[I + 1, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I, true) / 255));
-        glVertex3f(K - 1, I, -Land[I + 1, K].Height / CELL_HEIGHT_DIV);
-        glTexCoord1f(kromutils.max(0, -Land[I + 1, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I, true) / 255));
-        glVertex3f(K, I, -Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV);
-        glTexCoord1f(kromutils.max(0, -Land[I, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I - 1, true) / 255));
-        glVertex3f(K, I - 1, -Land[I, K + 1].Height / CELL_HEIGHT_DIV);
-      end
-    else
-      for I := fRect.Top to fRect.Bottom do
-      for K := fRect.Left to fRect.Right do
-      begin
-        glTexCoord1f(max(-Land[I, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I - 1, true) / 255));
-        glVertex3f(K - 1, I - 1 - Land[I, K].Height / CELL_HEIGHT_DIV, -I);
-        glTexCoord1f(max(-Land[I + 1, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I, true) / 255));
-        glVertex3f(K - 1, I - Land[I + 1, K].Height / CELL_HEIGHT_DIV, -I);
-        glTexCoord1f(max(-Land[I + 1, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I, true) / 255));
-        glVertex3f(K, I - Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV, -I);
-        glTexCoord1f(max(-Land[I, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I - 1, true) / 255));
-        glVertex3f(K, I - 1 - Land[I, K + 1].Height / CELL_HEIGHT_DIV, -I);
-      end;
-  glEnd;
+
+  //Setup vertex and UV layout and offsets
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, SizeOf(TVertice), Pointer(0));
+  glClientActiveTexture(GL_TEXTURE0);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glTexCoordPointer(1, GL_FLOAT, SizeOf(TVertice), Pointer(16));
+
+  //Here and above OGL requests Pointer, but in fact it's just a number (offset within Array)
+  glDrawElements(GL_TRIANGLES, Length(fInd), GL_UNSIGNED_INT, Pointer(0));
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBindTexture(GL_TEXTURE_2D, 0);
 end;
@@ -323,17 +351,13 @@ begin
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
-    DoTiles(AnimStep);
-
-    DoOverlays;
-
-    //DoWater(AnimStep); //Old
-
-    DoLighting;
-
-    DoWater(AnimStep); //New
-
-    DoShadows;
+    BeginVBO;
+      DoTiles(AnimStep);
+      DoOverlays;
+      DoLighting;
+      DoWater(AnimStep);
+      DoShadows;
+    EndVBO;
 
     if SHOW_WALK_CONNECT then
     begin
@@ -366,7 +390,7 @@ begin
   glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, Index + 1].Tex.ID);
   TexC := GetTileUV(Index, Rot);
 
-  glBegin(GL_QUADS);
+  glBegin(GL_TRIANGLE_FAN);
     with fTerrain do
     if RENDER_3D then
     begin

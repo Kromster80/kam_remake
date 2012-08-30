@@ -277,7 +277,12 @@ begin
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fRenderPool);
   FreeAndNil(fGameOptions);
+  FreeAndNil(fAlerts);
   if DO_PERF_LOGGING then fPerfLog.Free;
+
+  //When leaving the game we should always reset the cursor in case the user had beacon or linking selected
+  fResource.Cursors.Cursor := kmc_Default;
+
   inherited;
 end;
 
@@ -446,12 +451,12 @@ begin
   //We need to make basesave.bas since we don't know the savegame name
   //until after user saves it, but we need to attach replay base to it.
   //Basesave is sort of temp we save to HDD instead of keeping in RAM
-  //todo: If you load a save there is no basesave available. If there is a .bas with the save file then that should be stored as the basesave so the replay works when saved under a different name.
   if fGameMode in [gmSingle, gmMulti] then
     SaveGame(SaveName('basesave', 'bas', IsMultiplayer));
 
   //When everything is ready we can update UI
   UpdateUI;
+  fViewport.Position := KMPointF(MyPlayer.CenterScreen);
 
   fLog.AppendLog('Gameplay initialized', true);
 end;
@@ -731,11 +736,15 @@ begin
 
   fPlayers.AfterMissionInit(false);
 
+  if fGameMode = gmSingle then
+    fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
+
   for I := 0 to fPlayers.Count - 1 do //Reveal all players since we'll swap between them in MapEd
     fPlayers[I].FogOfWar.RevealEverything;
 
   //When everything is ready we can update UI
   UpdateUI;
+  fViewport.Position := KMPointF(aSizeX/2, aSizeY/2);
 
   fLog.AppendLog('Gameplay initialized', True);
 end;
@@ -1196,11 +1205,16 @@ begin
 
   SetKaMSeed(LoadedSeed);
 
-  DeleteFile(SaveName('basesave', 'bas', IsMultiplayer));
-  CopyFile(PChar(SaveName(aPathName, 'bas', IsMultiplayer)), PChar(SaveName('basesave', 'bas', IsMultiplayer)), False);
+  if fGameMode in [gmSingle, gmMulti] then
+  begin
+    DeleteFile(SaveName('basesave', 'bas', IsMultiplayer));
+    CopyFile(PChar(ChangeFileExt(aPathName, '.bas')), PChar(SaveName('basesave', 'bas', IsMultiplayer)), False);
+  end;
 
   //When everything is ready we can update UI
   UpdateUI;
+  if SaveIsMultiplayer then //MP does not saves view position cos of save identity for all players
+    fViewport.Position := KMPointF(MyPlayer.CenterScreen);
 
   fLog.AppendLog('Loading game', True);
 
@@ -1332,21 +1346,17 @@ begin
   fMinimap.LoadFromTerrain(fAlerts);
   fMinimap.Update(False);
 
+  fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
+  fViewport.ResetZoom;
+
   if fGameMode = gmMapEd then
   begin
-    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
-    fViewport.ResetZoom;
-
     fMapEditorInterface.Player_UpdateColors;
     fMapEditorInterface.SetMapName(fGameName);
     fMapEditorInterface.SetMinimap;
   end
   else
   begin
-    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
-    fViewport.Position := KMPointF(MyPlayer.CenterScreen);
-    fViewport.ResetZoom; //This ensures the viewport is centered on the map
-
     fGamePlayInterface.SetMinimap;
     fGamePlayInterface.SetMenuState(fMissionMode = mm_Tactic);
   end;

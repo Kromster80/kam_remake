@@ -228,9 +228,10 @@ end;
 
 procedure TGameInputProcess_Multi.AdjustDelay;
 begin
-  //Half of the maximum round trip is a good guess for delay. +60 is our safety net to account
-  //for processing the packet
-  SetDelay( Ceil((fNetworking.NetPlayers.GetMaxHighestRoundTripLatency+60)/200) );
+  //Half of the maximum round trip is a good guess for delay. +1.2 is our safety net to account
+  //for processing the packet and random variations in ping. It's always better for commands to
+  //be slightly delayed than for the game to freeze/lag regularly.
+  SetDelay( Ceil(fNetworking.NetPlayers.GetMaxHighestRoundTripLatency/200 + 1.2) );
 end;
 
 

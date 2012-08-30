@@ -30,8 +30,8 @@ const
   MENU_SIZE_MIN_X       = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_SIZE_MIN_Y       = 576;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r3559';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = '4th Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
+  GAME_REVISION         = 'r3870';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '5th Multiplayer Demo Release Candidate 2 ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
@@ -614,9 +614,10 @@ const
   CORN_AGE_FULL = 32; //Corn ready to be cut
   CORN_AGE_MAX = 255; //We set it to this once it's fully grown
 
-  WINE_AGE_1 = 11;   //Number measured from KaM ~195sec
-  WINE_AGE_2 = 22;
-  WINE_AGE_FULL = 32; //Wine ready to be harvested
+  //Wine values have been tweaked for balance. In KaM they matched corn.
+  WINE_AGE_1 = 8;
+  WINE_AGE_2 = 17;
+  WINE_AGE_FULL = 25; //Wine ready to be harvested
 
 
 //The frame shown when a unit is standing still in ua_Walk. Same for all units!
@@ -686,7 +687,7 @@ type
 
 const
   //Colors available for selection in multiplayer
-  MP_COLOR_COUNT = 15;
+  MP_COLOR_COUNT = 18;
   MP_TEAM_COLORS: array [1..MP_COLOR_COUNT] of Cardinal = (
   $FF0707FF, //Red
   $FF0061FF, //Orange
@@ -694,11 +695,14 @@ const
   $FF00D4A8, //Olive green
   $FF00FF00, //Lime green
   $FF008000, //Dark green
+  $FF61793F, //Teal (Sea)
   $FFE3BB5B, //Cyan
   $FFFF0000, //Blue
+  $FFBA3468, //Violet (Amethyst)
   $FF800080, //Purple
   $FFFF67FF, //Pink
   $FF000080, //Maroon
+  $FF518FCF, //Peach
   $FF004F7D, //Brown
   $FFFFFFFF, //White
   $FF808080, //Grey

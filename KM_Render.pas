@@ -70,6 +70,8 @@ begin
     SetRenderFrame(RenderFrame, h_DC, h_RC);
     SetRenderDefaults;
     glDisable(GL_LIGHTING); //We don't need it
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_FRONT);
 
     fOpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('OpenGL Vendor: '   + string(fOpenGL_Vendor));
     fOpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer: ' + string(fOpenGL_Renderer));

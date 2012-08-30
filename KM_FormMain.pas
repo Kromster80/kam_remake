@@ -120,6 +120,7 @@ type
     procedure Debug_ExportMenuPagesClick(Sender: TObject);
     procedure HousesDat1Click(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -128,10 +129,6 @@ type
     procedure ToggleControlsVisibility(aShowCtrls: Boolean);
     procedure ToggleFullscreen(aFullscreen: Boolean);
   end;
-
-
-var
-  FormMain: TFormMain;
 
 
 implementation
@@ -478,13 +475,11 @@ begin
 
   GroupBox1.Visible  := aShowCtrls;
   StatusBar1.Visible := aShowCtrls;
-  for i:=1 to MainMenu1.Items.Count do
-    MainMenu1.Items[i-1].Visible := aShowCtrls;
 
   //For some reason cycling Form.Menu fixes the black bar appearing under the menu upon making it visible.
   //This is a better workaround than ClientHeight = +20 because it works on Lazarus and high DPI where Menu.Height <> 20.
   Menu := nil;
-  Menu := MainMenu1;
+  if aShowCtrls then Menu := MainMenu1;
 
   GroupBox1.Enabled  := aShowCtrls;
   StatusBar1.Enabled := aShowCtrls;
@@ -597,15 +592,23 @@ begin
     end;
 end;
 
-//Consult with the fGame if we can shut down the program
+
+//Tell fMain if we want to shut down the program
 procedure TFormMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+var MenuHidden: Boolean;
 begin
-  //MessageDlg works better than Application.MessageBox or others, it stays on top and
-  //pauses here until the user clicks ok.
-  CanClose := (fGameApp = nil) or fGameApp.CanClose or
-              (MessageDlg('Any unsaved changes will be lost. Exit?', mtWarning, [mbYes, mbNo], 0) = mrYes);
-  if CanClose then
-    fMain.Stop(Self);
+  //Hacky solution to MessageBox getting stuck under main form: In full screen we must show
+  //the menu while displaying a MessageBox otherwise it goes under the main form on some systems
+  MenuHidden := (BorderStyle = bsNone) and (Menu = nil);
+  if MenuHidden then Menu := MainMenu1;
+  fMain.CloseQuery(CanClose);
+  if MenuHidden then Menu := nil;
+end;
+
+
+procedure TFormMain.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  fMain.Stop(Self);
 end;
 
 

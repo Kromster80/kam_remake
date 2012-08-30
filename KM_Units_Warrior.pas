@@ -81,6 +81,7 @@ type
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     function IsRanged:boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
+    function GetActivityText: string; override;
 
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); override;
 
@@ -691,10 +692,7 @@ begin
     ut_Bowman:      Result := RANGE_BOWMAN_MIN;
     ut_Arbaletman:  Result := RANGE_ARBALETMAN_MIN;
     ut_Slingshot:   Result := RANGE_SLINGSHOT_MIN;
-    //When units walk past us diagonally they can be closer than 1 tile between steps (0.707).
-    //Must not be <=0.5 because then KMGetDirection can fail in fight action if you spam units with middle mouse
-    //(opponent appears to be on our tile if the scout is dropped on a tile that another unit only just left)
-    else            Result := 0.6;
+    else            Result := 0.5;
   end;
 end;
 
@@ -736,6 +734,30 @@ begin
       exit;
     end;
   end;
+end;
+
+
+function TKMUnitWarrior.GetActivityText: string;
+begin
+  if fCurrentAction is TUnitActionFight then
+  begin
+    if IsRanged then
+      Result := fTextLibrary[TX_UNIT_TASK_FIRING]
+    else
+      Result := fTextLibrary[TX_UNIT_TASK_FIGHTING];
+  end
+  else if fCurrentAction is TUnitActionStormAttack then
+    Result := fTextLibrary[TX_UNIT_TASK_STORM_ATTACK]
+  //Sometimes only commanders are given order to walk to the unit, so check their action as well
+  else if ((fCurrentAction is TUnitActionWalkTo) and (TUnitActionWalkTo(fCurrentAction).WalkingToUnit)
+       or  (GetCommander.fCurrentAction is TUnitActionWalkTo) and (TUnitActionWalkTo(GetCommander.fCurrentAction).WalkingToUnit)) then
+    Result := fTextLibrary[TX_UNIT_TASK_ATTACKING]
+  else if (fCurrentAction is TUnitActionWalkTo) or (fCurrentAction is TUnitActionAbandonWalk) then
+    Result := fTextLibrary[TX_UNIT_TASK_MOVING]
+  else if (fUnitTask is TTaskAttackHouse) then
+    Result := fTextLibrary[TX_UNIT_TASK_ATTACKING_HOUSE]
+  else
+    Result := fTextLibrary[TX_UNIT_TASK_IDLE];
 end;
 
 
@@ -1072,7 +1094,7 @@ begin
         and(GetUnitAction is TUnitActionStay) then
       begin
         //Archers - If foe is reachable then turn in that direction and CheckForEnemy
-        Direction := KMGetDirection(GetPosition, ChosenFoe.GetPosition);
+        Direction := KMGetDirection(PositionF, ChosenFoe.PositionF);
         AnimStep := UnitStillFrames[Direction];
         CheckForEnemy;
       end;

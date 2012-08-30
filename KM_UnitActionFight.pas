@@ -56,7 +56,7 @@ begin
   inherited Create(aUnit, aActionType, True);
   fFightDelay     := -1;
   fOpponent       := aOpponent.GetUnitPointer;
-  aUnit.Direction := KMGetDirection(fUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
+  aUnit.Direction := KMGetDirection(fUnit.PositionF, fOpponent.PositionF); //Face the opponent from the beginning
   fVertexOccupied := KMPoint(0,0);
   if KMStepIsDiag(fUnit.GetPosition, fOpponent.GetPosition) and not TKMUnitWarrior(fUnit).IsRanged then
     IncVertex(fUnit.GetPosition, fOpponent.GetPosition);
@@ -187,7 +187,7 @@ begin
       fFightDelay := -1;
       //Ranged units should turn to face the new opponent immediately
       if TKMUnitWarrior(fUnit).IsRanged then
-        fUnit.Direction := KMGetDirection(fUnit.GetPosition, fOpponent.GetPosition)
+        fUnit.Direction := KMGetDirection(fUnit.PositionF, fOpponent.PositionF)
       else
         //Melee: If we haven't yet placed our strike, reset the animation step
         //Otherwise finish this strike then we can face the new opponent automatically
@@ -299,7 +299,7 @@ begin
 
   //Opponent can walk next to us, keep facing him
   if Step = 0 then //Only change direction between strikes, otherwise it looks odd
-    fUnit.Direction := KMGetDirection(fUnit.GetPosition, fOpponent.GetPosition);
+    fUnit.Direction := KMGetDirection(fUnit.PositionF, fOpponent.PositionF);
 
   //If the vertex usage has changed we should update it
   if not TKMUnitWarrior(fUnit).IsRanged then //Ranged units do not use verticies

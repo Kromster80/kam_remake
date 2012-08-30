@@ -137,9 +137,6 @@ begin
   Application.Initialize;
   Application.Title := 'KaM Remake';
 
-  Application.CreateForm(TFormMain, FormMain);
-  Application.CreateForm(TFormLoading, FormLoading);
-
   fMain := TKMMain.Create;
   fMain.Start;
 

@@ -64,6 +64,7 @@ type
     procedure NewMultiplayerMap(const aFileName: string);
     procedure NewMultiplayerSave(const aSaveName: string);
     procedure NewRestartLast;
+    procedure NewEmptyMap(aSizeX, aSizeY: Integer);
     procedure NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
     procedure NewReplay(const aFilePath: string);
 
@@ -195,6 +196,7 @@ procedure TKMGameApp.ToggleLocale(aLocale: ShortString);
 begin
   Assert(fGame = nil, 'We don''t want to recreate whole fGame for that. Let''s limit it only to MainMenu');
 
+  fTimerUI.Enabled := False; //Disable it while switching, if an OpenAL error appears the timer should be disabled
   fGameSettings.Locale := aLocale; //Wrong Locale will be ignored
 
   //Release resources that use Locale info
@@ -217,6 +219,7 @@ begin
   fMainMenuInterface := TKMMainMenuInterface.Create(fRender.ScreenX, fRender.ScreenY);
   fMainMenuInterface.ShowScreen(msOptions);
   Resize(fRender.ScreenX, fRender.ScreenY); //Force the recreated main menu to resize to the user's screen
+  fTimerUI.Enabled := True; //Safe to enable the timer again
 end;
 
 
@@ -260,7 +263,7 @@ begin
   //  others.. unknown
 
   //GLOBAL KEYS
-  if Key = VK_F12 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
+  if DEBUG_CHEATS and (Key = VK_F12) then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
 
   if fGame <> nil then
     fGame.KeyUp(Key, Shift)
@@ -291,8 +294,9 @@ begin
     if fMainMenuInterface <> nil then
       fMainMenuInterface.MouseMove(Shift, X,Y);
 
-  fOnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
-                                                          GameCursor.Cell.X, GameCursor.Cell.Y]));
+  if Assigned(fOnCursorUpdate) then
+    fOnCursorUpdate(1, Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
+                                                            GameCursor.Cell.X, GameCursor.Cell.Y]));
 end;
 
 
@@ -430,7 +434,8 @@ begin
     end;
   end;
 
-  fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
+  if Assigned(fOnCursorUpdate) then
+    fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
 
 
@@ -458,7 +463,8 @@ begin
     end;
   end;
 
-  fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
+  if Assigned(fOnCursorUpdate) then
+    fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
 
 
@@ -469,7 +475,7 @@ begin
   Stop(gr_Silent); //Stop everything silently
   LoadGameAssets;
 
-  fGame := TKMGame.Create(gmMapEd, fRender, nil);
+  fGame := TKMGame.Create(aGameMode, fRender, nil);
   try
     fGame.GameStart(aSizeX, aSizeY);
   except
@@ -486,7 +492,8 @@ begin
     end;
   end;
 
-  fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
+  if Assigned(fOnCursorUpdate) then
+    fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
 end;
 
 
@@ -540,6 +547,12 @@ begin
     LoadGameFromSave(ChangeFileExt(ExeDir + fRepeatSave, '.bas'), gmSingle)
   else
     fMainMenuInterface.ShowScreen(msError, 'Can not repeat last mission');
+end;
+
+
+procedure TKMGameApp.NewEmptyMap(aSizeX, aSizeY: Integer);
+begin
+  LoadGameFromScratch(aSizeX, aSizeY, gmSingle);
 end;
 
 
@@ -603,6 +616,7 @@ procedure TKMGameApp.Render;
 begin
   if SKIP_RENDER then Exit;
   if fRender.Blind then Exit;
+  if not fTimerUI.Enabled then Exit; //Don't render while toggling locale
 
   fRender.BeginFrame;
 
@@ -667,8 +681,8 @@ begin
       fMusicLib.PlayNextTrack; //Feed new music track
 
     //StatusBar
-    if (fGame <> nil) and not fGame.IsPaused then
-      fOnCursorUpdate(2, 'Time: ' + TimeToString(fGame.MissionTime));
+    if (fGame <> nil) and not fGame.IsPaused and Assigned(fOnCursorUpdate) then
+        fOnCursorUpdate(2, 'Time: ' + TimeToString(fGame.MissionTime));
   end;
 end;
 

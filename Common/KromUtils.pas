@@ -46,7 +46,7 @@ function Max(const A,B,C: single):single; overload;
   function Mix(x1,x2:integer; MixValue:single):integer; overload;
 
 procedure decs(var AText:string; const Len:integer=1); overload;
-procedure decs(var AText:widestring; const Len:integer=1); overload;
+procedure decs(var AText:widestring; const Len:integer=1); overload;
 function  decs(AText:string; Len,RunAsFunction:integer):string; overload;
 function RemoveQuotes(Input:string):string;
 procedure SwapStr(var A,B:string);
@@ -103,7 +103,6 @@ function Max(const A,B,C: single): single; overload;
 begin if A > B then if A > C then Result := A else Result := C
                else if B > C then Result := B else Result := C;
 end;
-
 
 
 //I re add this it is required by KM_Editor.

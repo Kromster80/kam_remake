@@ -196,7 +196,7 @@ end;
 
 
 procedure TKMapInfo.LoadFromFile(const aPath: string);
-var S: TKMemoryStream;
+var S: TKMemoryStream; I: Integer;
 begin
   if not FileExists(aPath) then Exit;
 
@@ -206,6 +206,9 @@ begin
   S.Read(fCRC);
   S.Read(fDatSize);
   S.Free;
+  //We need to reset all of the location names since otherwise they could be in another language (when .mi files are zipped up with the map and sent to another person)
+  for I:=Low(fInfo.LocationName) to High(fInfo.LocationName) do
+    fInfo.LocationName[I] := Format(fTextLibrary[TX_LOBBY_LOCATION_X],[I+1]);;
 end;
 
 

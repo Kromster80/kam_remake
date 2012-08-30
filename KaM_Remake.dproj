@@ -41,6 +41,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_MaxStackSize>2097152</DCC_MaxStackSize>
 			<DCC_WIDECHAR_REDUCED>false</DCC_WIDECHAR_REDUCED>
 			<DCC_IMPLICIT_STRING_CAST>false</DCC_IMPLICIT_STRING_CAST>
 			<Manifest_File>None</Manifest_File>

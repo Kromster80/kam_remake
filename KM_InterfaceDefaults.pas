@@ -132,6 +132,8 @@ const
   //In FPC there are 5 TMouseButtons
   ClickAmount: array [TMouseButton] of Byte = (1, 10, 0 {$IFDEF FPC}, 0, 0{$ENDIF});
 
+  MARKET_RES_HEIGHT = 35;
+
 
 implementation
 

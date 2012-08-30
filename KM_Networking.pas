@@ -189,7 +189,8 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Sound, KM_Log, KM_Utils, StrUtils, Math;
+uses KM_TextLibrary, KM_Sound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource,
+  KM_ResourceTileset, KM_ResourceMapElements;
 
 
 { TKMNetworking }
@@ -849,10 +850,11 @@ end;
 
 function TKMNetworking.CalculateGameCRC:Cardinal;
 begin
-  Result := Adler32CRC(ExeDir+'data\defines\unit.dat') xor
-            Adler32CRC(ExeDir+'data\defines\houses.dat') xor
-            Adler32CRC(ExeDir+'data\defines\mapelem.dat') xor
-            Adler32CRC(ExeDir+'data\defines\pattern.dat');
+  //CRC checks are done on the data we already loaded, not the source files which can change.
+  Result := fResource.HouseDat.CRC xor
+            fResource.UnitDat.CRC xor
+            fResource.MapElements.CRC xor
+            fResource.Tileset.CRC;
             //any others that can cause inconsistencies and crashes? (gfx/sfx/text doesn't matter)
 
   //For debugging/testing it's useful to skip this check sometimes (but defines .dat files should always be checked)
@@ -1023,7 +1025,7 @@ begin
                 ReMsg := 'Cannot join while the game is in progress';
               if ReMsg = '' then
               begin
-                PacketSend(NET_ADDRESS_OTHERS, mk_GameCRC, '', Integer(CalculateGameCRC));
+                PacketSend(aSenderIndex, mk_GameCRC, '', Integer(CalculateGameCRC));
                 fNetPlayers.AddPlayer(Msg, aSenderIndex);
                 PacketSend(aSenderIndex, mk_AllowToJoin, '', 0);
                 SendMapOrSave; //Send the map first so it doesn't override starting locs

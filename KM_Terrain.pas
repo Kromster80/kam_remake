@@ -81,7 +81,7 @@ type
 
     constructor Create;
     destructor Destroy; override;
-    procedure MakeNewMap(Width, Height: Integer; aMapEditor: Boolean);
+    procedure MakeNewMap(aWidth, aHeight: Integer; aMapEditor: Boolean);
     procedure LoadFromFile(FileName: string; aMapEditor: Boolean);
     procedure SaveToFile(aFile:string);
 
@@ -230,16 +230,19 @@ end;
 
 
 //Reset whole map with default values
-procedure TTerrain.MakeNewMap(Width, Height: Integer; aMapEditor: Boolean);
-var i,k:integer;
+procedure TTerrain.MakeNewMap(aWidth, aHeight: Integer; aMapEditor: Boolean);
+var I, K: Integer;
 begin
   fMapEditor := aMapEditor;
-  fMapX := Min(Width, MAX_MAP_SIZE);
-  fMapY := Min(Height,MAX_MAP_SIZE);
+  fMapX := Min(aWidth,  MAX_MAP_SIZE);
+  fMapY := Min(aHeight, MAX_MAP_SIZE);
 
-  for i:=1 to fMapY do for k:=1 to fMapX do with Land[i,k] do begin
+  for I := 1 to fMapY do
+  for K := 1 to fMapX do
+  with Land[I,K] do
+  begin
     Terrain      := 0;
-    Height       := KaMRandom(7);  //variation in height
+    Height       := 30 + KaMRandom(7);  //variation in Height
     Rotation     := KaMRandom(4);  //Make it random
     OldTerrain   := 0;
     OldRotation  := 0;
@@ -253,8 +256,7 @@ begin
     IsUnit       := nil;
     IsVertexUnit := vu_None;
     FieldAge     := 0;
-    TreeAge      := 0;
-    if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge := TREE_AGE_FULL;
+    TreeAge      := IfThen(ObjectIsChopableTree(KMPoint(K,I),4), TREE_AGE_FULL, 0);
     Border       := bt_None;
     BorderSide   := 0;
   end;
@@ -2110,7 +2112,7 @@ begin
 
     //Use more contrast lighting for Waterbeds
     if fTileset.TileIsWater(Land[I, K].Terrain) then
-      Land[I,K].Light := EnsureRange(Land[I,K].Light * 1.5 - 0.1,-1,1);
+      Land[I,K].Light := EnsureRange(Land[I,K].Light * 1.3 + 0.1, -1, 1);
 
     //Map borders always fade to black
     if (I = 1) or (I = fMapY) or (K = 1) or (K = fMapX) then
@@ -2670,14 +2672,16 @@ begin
               Tmp := min(Land[i,k].Height-Land[I-1,K+1].Height,tmp)
             else
               Tmp := 0;
-        end;
+        end
+        else
+          Tmp := 0;
       end else         // Flatten
       begin
-        if (Land[I,K].Height < Land[trunc(aLoc.Y),trunc(aLoc.X)].Height) then
-          Tmp := -min(Land[trunc(aLoc.Y),trunc(aLoc.X)].Height-Land[i,k].Height,tmp)
+        if (Land[I,K].Height < Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height) then
+          Tmp := -min(Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height-Land[i,k].Height,tmp)
         else
-          if (Land[I,K].Height > Land[trunc(aLoc.Y),trunc(aLoc.X)].Height) then
-            Tmp := min(Land[i,k].Height-Land[trunc(aLoc.Y),trunc(aLoc.X)].Height,tmp)
+          if (Land[I,K].Height > Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height) then
+            Tmp := min(Land[i,k].Height-Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height,tmp)
           else
             Tmp := 0;
       end;
