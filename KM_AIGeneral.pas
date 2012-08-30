@@ -76,7 +76,6 @@ var
   Outline: TKMWeightSegments;
   I: Integer;
   DP: TAIDefencePositions;
-  PairFound: Boolean;
   Loc: TKMPoint;
   LocI: TKMPointI;
   FaceDir: TKMDirection;

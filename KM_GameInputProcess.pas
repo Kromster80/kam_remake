@@ -165,7 +165,7 @@ type
 
 
 implementation
-uses KM_Alerts, KM_Game, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Utils, KM_AI;
+uses KM_Game, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Utils, KM_AI;
 
 
 procedure SaveCommandToMemoryStream(aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);

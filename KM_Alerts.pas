@@ -1,7 +1,7 @@
 unit KM_Alerts;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils,
+uses Classes, SysUtils,
   KM_Defaults, KM_Pics, KM_Points, KM_Sound, KM_Viewport;
 
 

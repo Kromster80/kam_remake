@@ -71,7 +71,7 @@ var
 
 
 implementation
-uses KM_Game, KM_Log, KM_PlayersCollection, KM_RenderAux;
+uses KM_PlayersCollection, KM_RenderAux;
 
 
 { TKMNavMesh }

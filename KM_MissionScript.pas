@@ -135,7 +135,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_AIFields,
+uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos,
   KM_Resource, KM_ResourceHouse, KM_ResourceResource;
 
 
@@ -158,7 +158,7 @@ const
   AI_ATTACK_PARAMS: array [TAIAttackParamType] of AnsiString = (
     'TYPE', 'TOTAL_AMOUNT', 'COUNTER', 'RANGE', 'TROUP_AMOUNT', 'TARGET', 'POSITION', 'TAKEALL');
 
-  MAXPARAMS = 8;
+  MAX_PARAMS = 8;
 
   //This is a map of the valid values for !SET_UNIT, and the corresponing unit that will be created (matches KaM behavior)
   UnitsRemap: array[0..31] of TUnitType = (ut_Serf,ut_Woodcutter,ut_Miner,ut_AnimalBreeder,
@@ -472,7 +472,7 @@ end;
 function TMissionParserStandard.LoadMission(const aFileName: string): Boolean;
 var
   FileText, CommandText, Param, TextParam: AnsiString;
-  ParamList: array[1..8] of integer;
+  ParamList: array [1..MAX_PARAMS] of integer;
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
@@ -494,7 +494,7 @@ begin
   repeat
     if FileText[k]='!' then
     begin
-      for l:=1 to 8 do
+      for l:=1 to MAX_PARAMS do
         ParamList[l]:=-1;
       TextParam:='';
       CommandText:='';
@@ -507,7 +507,7 @@ begin
       CommandType := TextToCommandType(CommandText);
       inc(k);
       //Extract parameters
-      for l:=1 to 8 do
+      for l:=1 to MAX_PARAMS do
         if (k<=length(FileText)) and (FileText[k]<>'!') then
         begin
           Param := '';

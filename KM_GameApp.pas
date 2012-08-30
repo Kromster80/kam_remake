@@ -5,7 +5,7 @@ uses
   Windows, Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
   KM_CommonTypes, KM_Defaults,
   KM_Campaigns, KM_Game,
-  KM_InterfaceDefaults, KM_InterfaceMainMenu,
+  KM_InterfaceMainMenu,
   KM_Locales, KM_Music, KM_Networking, KM_Settings, KM_TextLibrary, KM_Render;
 
 type

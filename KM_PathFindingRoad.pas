@@ -1,7 +1,7 @@
 unit KM_PathFindingRoad;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, Math, KromUtils,
+uses SysUtils, KromUtils,
   KM_CommonClasses, KM_Defaults, KM_PathFinding, KM_Points;
 
 

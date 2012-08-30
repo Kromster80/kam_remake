@@ -19,7 +19,7 @@ type
     procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
-    procedure WriteText         (X,Y,W,H: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
+    procedure WriteText         (X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
     procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
     procedure WriteCircle       (PosX,PosY,Rad:smallint; Col:TColor4);
   end;
@@ -181,9 +181,9 @@ begin
     end;
 
     if bsDisabled in State then
-      WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, taCenter, $FF808080)
+      WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, taCenter, $FF808080)
     else
-      WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, taCenter, $FFE0E0E0);
+      WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, taCenter, $FFE0E0E0);
 
     if bsOver in State then
     begin
@@ -444,7 +444,7 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-procedure TRenderUI.WriteText(X,Y,W,H: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean = False);
+procedure TRenderUI.WriteText(X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean = False);
 var
   I, K: Integer;
   LineCount,AdvX,LineHeight,BlockWidth: Integer;

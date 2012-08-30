@@ -208,7 +208,7 @@ var
 
 
 implementation
-uses KM_Log, KM_PlayersCollection, KM_AIFields,
+uses KM_Log, KM_PlayersCollection,
   KM_Resource, KM_Units, KM_ResourceHouse, KM_ResourceMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 

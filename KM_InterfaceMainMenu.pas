@@ -2,8 +2,9 @@ unit KM_InterfaceMainMenu;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF MSWindows} Windows, ShellAPI, {$ENDIF}
+  {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  {$IFDEF WDC} ShellAPI, {$ENDIF} //Required for OpenURL in Delphi
   {$IFDEF FPC} LCLIntf, {$ENDIF} //Required for OpenURL in Lazarus
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Forms, Controls,
   KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves, KM_Pics,
@@ -2251,7 +2252,7 @@ procedure TKMMainMenuInterface.Credits_LinkClick(Sender: TObject);
   procedure GoToURL(aUrl: string);
   begin
     {$IFDEF WDC}
-    ShellExecute(Application.Handle, 'open', PChar(aUrl),nil,nil, SW_SHOWNORMAL);
+    ShellExecute(Application.Handle, 'open', PChar(aUrl), nil, nil, SW_SHOWNORMAL);
     {$ENDIF}
     {$IFDEF FPC}
     OpenURL(aUrl);
@@ -3904,7 +3905,8 @@ end;
 
 
 //This is called when the options page is shown, so update all the values
-//Note: Options can be required to fill before fGameApp is completely initialized, hence we need to pass either fGameApp.Settings or a direct Settings link
+//Note: Options can be required to fill before fGameApp is completely initialized,
+//hence we need to pass either fGameApp.Settings or a direct Settings link
 procedure TKMMainMenuInterface.Options_Fill(aMainSettings: TMainSettings; aGameSettings: TGameSettings);
 begin
   CheckBox_Options_Autosave.Checked     := aGameSettings.Autosave;
@@ -3922,7 +3924,6 @@ begin
 
   //we need to reset dropboxes every time we enter Options page
   Options_Refresh_DropBoxes;
-
 end;
 
 

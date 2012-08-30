@@ -46,7 +46,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource, KM_Utils;
+uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource;
 
 
 const //Sample list made by AntonP

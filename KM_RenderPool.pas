@@ -2,7 +2,6 @@ unit KM_RenderPool;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
@@ -103,8 +102,7 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource,
-  KM_ResourceUnit, KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_FogOfWar,
-  KM_MapEditor, KM_AIFields;
+  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields;
 
 
 constructor TRenderPool.Create(aRender: TRender);

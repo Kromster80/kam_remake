@@ -46,7 +46,7 @@ type
 
 
 implementation
-uses KM_Resource, KM_CommonTypes, KM_Utils;
+uses KM_Resource, KM_Utils;
 
 
 constructor TUnitWorkPlan.Create;
