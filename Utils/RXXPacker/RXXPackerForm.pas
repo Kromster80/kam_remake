@@ -165,7 +165,11 @@ begin
         end;
 
         if RT = rxGui then
-          SpritePack.SoftenShadows(250, 281) //House tablets only (shadow softening messes up other rxGui sprites)
+        begin
+          SpritePack.SoftenShadows(105, 128); //Field plans
+          SpritePack.SoftenShadows(250, 281); //House tablets only (shadow softening messes up other rxGui sprites)
+          SpritePack.SoftenShadows(461, 468); //Field fences
+        end
         else
           SpritePack.SoftenShadows;
 
