@@ -5,6 +5,7 @@ uses
   SysUtils,
   KM_Defaults, KM_Terrain, KM_Resource, KM_ResourceTileset, KM_Log, KM_Utils;
 
+
 type
   TestKMTerrain = class(TTestCase)
   public
@@ -14,7 +15,9 @@ type
     procedure TestLoadAllMaps;
   end;
 
+
 implementation
+
 
 procedure TestKMTerrain.SetUp;
 begin
@@ -92,5 +95,7 @@ end;
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest('Functional', TestKMTerrain.Suite);
+  RegisterTest(TestKMTerrain.Suite);
+
+
 end.

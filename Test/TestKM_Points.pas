@@ -8,7 +8,7 @@ type
   // Test methods for Points
   TestKMPoints = class(TTestCase)
   strict private
-    //FKMGame: TKMGame;
+
   public
     procedure SetUp; override;
     procedure TearDown; override;

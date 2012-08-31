@@ -8,7 +8,7 @@
 			<Platform Condition="'$(Platform)'==''">Win32</Platform>
 			<TargetedPlatforms>1</TargetedPlatforms>
 			<AppType>Application</AppType>
-			<MainSource>KaM_RemakeTests.dpr</MainSource>
+			<MainSource>KaM_RemakeTestFunc.dpr</MainSource>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
 			<Base>true</Base>
@@ -93,12 +93,9 @@
 			<DelphiCompile Include="$(MainSource)">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="TestKM_Campaigns.pas"/>
-			<DCCReference Include="TestKM_CommonClasses.pas"/>
-			<DCCReference Include="TestKM_FogOfWar.pas"/>
-			<DCCReference Include="TestKM_Points.pas"/>
-			<DCCReference Include="TestKM_Utils.pas"/>
-			<DCCReference Include="TestKM_UnitActionGoInOut.pas"/>
+			<DCCReference Include="TestKM_AIFields.pas"/>
+			<DCCReference Include="TestKM_Game.pas"/>
+			<DCCReference Include="TestKM_Terrain.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
@@ -149,7 +146,7 @@
 						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>
 					<Source>
-						<Source Name="MainSource">KaM_RemakeTests.dpr</Source>
+						<Source Name="MainSource">KaM_RemakeTestFunc.dpr</Source>
 					</Source>
 				</Delphi.Personality>
 				<Deployment/>
