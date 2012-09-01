@@ -51,7 +51,7 @@ type
     function HasPlan(aLoc: TKMPoint): Boolean;
     procedure RemPlan(aLoc: TKMPoint);
     function GetPlan(aLoc: TKMPoint): THouseType;
-    function FindPlan(aLoc: TKMPoint; out aOut: TKMPoint): Boolean;
+    function FindHousePlan(aLoc: TKMPoint; aSkip: TKMPoint; out aOut: TKMPoint): Boolean;
 
     //Game events
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
@@ -671,19 +671,23 @@ begin
 end;
 
 
-//Find plan nearest to aLoc but ecluding it
-function TKMHousePlanList.FindPlan(aLoc: TKMPoint; out aOut: TKMPoint): Boolean;
+//Find plan nearest to aLoc but skip said location
+function TKMHousePlanList.FindHousePlan(aLoc: TKMPoint; aSkip: TKMPoint; out aOut: TKMPoint): Boolean;
 var
   I: Integer;
   Entrance: TKMPoint;
   Dist, Best: Single;
+  HD: TKMHouseDatCollection;
 begin
   Result := False;
   Best := MaxSingle;
+  HD := fResource.HouseDat;
+
   for I := 0 to fPlansCount - 1 do
-  if (fPlans[I].HouseType <> ht_None) then
+  if (fPlans[I].HouseType <> ht_None)
+  and ((fPlans[I].Loc.X + HD[fPlans[I].HouseType].EntranceOffsetX <> aSkip.X) or (fPlans[I].Loc.Y <> aSkip.Y)) then
   begin
-    Entrance := KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y + 1);
+    Entrance := KMPoint(fPlans[I].Loc.X + HD[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y + 1);
     Dist := KMLengthDiag(Entrance, aLoc);
     if Dist < Best then
     begin

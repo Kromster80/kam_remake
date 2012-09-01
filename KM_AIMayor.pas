@@ -193,10 +193,12 @@ procedure TKMayor.TryBuildHouse(aHouse: THouseType);
     H := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, False);
     if H = nil then Exit; //We are screwed, no houses left
     LocTo := KMPointBelow(H.GetEntrance);
+
     //Check building plans, maybe there's another plan nearby we can connect to with road
-    if P.BuildList.HousePlanList.FindPlan(aLoc, LocPlan) then
+    //(avoid parallel connection of several planned house to town)
+    if P.BuildList.HousePlanList.FindHousePlan(aLoc, KMPointAbove(aLoc), LocPlan) then
       if KMLengthSqr(aLoc, LocPlan) <= KMLengthSqr(aLoc, LocTo) then
-        LocTo := LocPlan;
+        LocTo := KMPointBelow(LocPlan);
 
     NodeList := TKMPointList.Create;
     try
@@ -233,7 +235,7 @@ begin
     //Maybe we get more lucky next tick
     Exit;
 
-  //Place house after road is planned
+  //Place house so that road was made around it
   P.AddHousePlan(aHouse, Loc);
 
   //Try to connect newly planned house to road network
