@@ -91,8 +91,8 @@ type
   function KMLength(A, B: TKMPoint): Single; overload;
   function KMLength(A, B: TKMPointF): Single; overload;
   function KMLengthDiag(A, B: TKMPoint): Single;
-  function KMLengthSqr(A, B: TKMPoint): Single; overload;
-  function KMLengthSqr(A, B: TKMPointI): Single; overload;
+  function KMLengthSqr(A, B: TKMPoint): Integer; overload;
+  function KMLengthSqr(A, B: TKMPointI): Integer; overload;
   function KMLengthSqr(A, B: TKMPointF): Single; overload;
 
   function KMLerp(A,B: TKMPoint; MixValue: Single): TKMPointF; overload;
@@ -631,13 +631,13 @@ begin
 end;
 
 
-function KMLengthSqr(A, B: TKMPoint): Single;
+function KMLengthSqr(A, B: TKMPoint): Integer;
 begin
   Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
 end;
 
 
-function KMLengthSqr(A, B: TKMPointI): Single;
+function KMLengthSqr(A, B: TKMPointI): Integer;
 begin
   Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);
 end;

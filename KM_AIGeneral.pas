@@ -111,7 +111,7 @@ end;
 
 procedure TKMGeneral.UpdateState(aTick: Cardinal);
 begin
-  if (aTick + Byte(fOwner)) mod (MAX_PLAYERS * 20) <> 0 then Exit;
+  if (aTick + Byte(fOwner)) mod (MAX_PLAYERS * 120) <> 0 then Exit;
 
   //Manage defence positions
   CheckDefences;

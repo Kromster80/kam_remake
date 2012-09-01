@@ -1250,6 +1250,7 @@ begin
                       fEventsManager.ProcTime(fGameTickCount);
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       fTerrain.UpdateState;
+                      fAIFields.UpdateState(fGameTickCount);
                       fPlayers.UpdateState(fGameTickCount); //Quite slow
                       if fGame = nil then Exit; //Quit the update if game was stopped for some reason
                       fProjectiles.UpdateState; //If game has stopped it's NIL
@@ -1309,7 +1310,6 @@ begin
   end;
 
   fAlerts.UpdateState;
-  fAIFields.UpdateState(fGameTickCount);
 
   if DoGameHold then GameHold(True, DoGameHoldState);
 end;

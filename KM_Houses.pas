@@ -85,17 +85,17 @@ type
     procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); virtual;
     property ID:integer read fID;
 
-    property GetPosition:TKMPoint read fPosition;
-    procedure SetPosition(aPos:TKMPoint); //Used only by map editor
-    function GetEntrance:TKMPoint;
-    function GetClosestCell(aPos:TKMPoint):TKMPoint;
-    function GetDistance(aPos:TKMPoint):single;
+    property GetPosition: TKMPoint read fPosition;
+    procedure SetPosition(aPos: TKMPoint); //Used only by map editor
+    function GetEntrance: TKMPoint;
+    function GetClosestCell(aPos: TKMPoint): TKMPoint;
+    function GetDistance(aPos: TKMPoint): Single;
     function InReach(aPos: TKMPoint; aDistance: Single): Boolean;
-    procedure GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
-    procedure GetListOfCellsWithin(Cells:TKMPointList);
-    function GetRandomCellWithin:TKMPoint;
+    procedure GetListOfCellsAround(Cells: TKMPointDirList; aPassability: TPassability);
+    procedure GetListOfCellsWithin(Cells: TKMPointList);
+    function GetRandomCellWithin: TKMPoint;
     function HitTest(X, Y: Integer): Boolean;
-    property HouseType:THouseType read fHouseType;
+    property HouseType: THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
@@ -288,13 +288,13 @@ type
     function AddToCollection(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; aHBS:THouseBuildState):TKMHouse;
     function GetHouse(Index: Integer): TKMHouse;
     procedure SetHouse(Index: Integer; Item: TKMHouse);
-    property Houses[Index: Integer]: TKMHouse read GetHouse write SetHouse; //Use instead of Items[.]
   public
     constructor Create;
     function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; RelativeEntrance:boolean):TKMHouse;
     function AddHouseWIP(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint):TKMHouse;
     procedure RemoveHouse(aHouse:TKMHouse);
     procedure OwnerUpdate(aOwner:TPlayerIndex);
+    property Houses[Index: Integer]: TKMHouse read GetHouse write SetHouse; default;
     function HitTest(X, Y: Integer): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;

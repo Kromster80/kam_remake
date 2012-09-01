@@ -27,6 +27,7 @@ type
       //Nearby: array of Word; //Neighbour polygons
     end;
     procedure InitConnectivity;
+    function GetPolyByTile(X,Y: Word): Integer;
     function GetBestOwner(aIndex: Integer): TPlayerIndex;
     function GetEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
     procedure UpdateOwnership;
@@ -34,6 +35,7 @@ type
   public
     constructor Create(const aTriMesh: TKMTriMesh);
     procedure GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
+    function EnemyPresence(aLoc: TKMpoint): Word;
     procedure UpdateState(aTick: Cardinal);
   end;
 
@@ -41,26 +43,29 @@ type
   TKMAIFields = class
   private
     fPlayerCount: Integer;
+    fShowInfluenceMap: Boolean;
     fShowNavMesh: Boolean;
 
-    fRawOutlines: TKMShapesArray;
-    fRawOutlines2: TKMShapesArray;
-    fSimpleOutlines: TKMShapesArray;
-    fDelaunay: TDelaunay;
+    fInfluenceMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
+    fInfluenceMinMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Integer;
 
-    fRawDelaunay: TKMTriMesh;
+    fRawOutlines: TKMShapesArray;
+    fSimpleOutlines: TKMShapesArray;
+    fRawMesh: TKMTriMesh;
 
     fNavMesh: TKMNavMesh;
 
     procedure NavMeshGenerate;
+    function GetBestOwner(X, Y: Word): TPlayerIndex;
   public
     constructor Create;
     destructor Destroy; override;
 
     procedure AfterMissionInit;
     property NavMesh: TKMNavMesh read fNavMesh;
+    procedure ExportInfluenceMaps;
 
-    procedure UpdateNavMesh;
+    procedure UpdateInfluenceMaps;
     procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
   end;
@@ -154,7 +159,7 @@ var
     with fNodes[aIndex] do
     for K := 0 to High(Nearby) do
     begin
-      ExpectedValue := Max(Owner[OwnerID] - Trunc(KMLengthDiag(Loc, fNodes[Nearby[K]].Loc)) * 2, 0);
+      ExpectedValue := Max(Owner[OwnerID] - Round(KMLengthDiag(Loc, fNodes[Nearby[K]].Loc)), 0);
       if ExpectedValue > fNodes[Nearby[K]].Owner[OwnerID] then
       begin
         fNodes[Nearby[K]].Owner[OwnerID] := ExpectedValue;
@@ -172,8 +177,25 @@ begin
 end;
 
 
+function TKMNavMesh.GetPolyByTile(X,Y: Word): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to fPolyCount - 1 do
+  with fPolygons[I] do
+  if KMPointInTriangle(KMPoint(X,Y), fNodes[Indices[0]].Loc, fNodes[Indices[1]].Loc, fNodes[Indices[2]].Loc) then
+  begin
+    Result := I;
+    Break;
+  end;
+end;
+
+
 function TKMNavMesh.GetBestOwner(aIndex: Integer): TPlayerIndex;
-var I, Best: Byte;
+var
+  I: Integer;
+  Best: Byte;
 begin
   Best := 0;
   Result := PLAYER_NONE;
@@ -196,21 +218,36 @@ begin
 end;
 
 
+function TKMNavMesh.EnemyPresence(aLoc: TKMpoint): Word;
+begin
+  //
+end;
+
+
 procedure TKMNavMesh.GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
+const
+  //Should be within 16 tiles and at least one corner within 8 tiles
+  OWN_MARGIN = 248;
+  OWN_THRESHOLD = 240;
 var
   I, K: Integer;
   ECount: Integer;
   Edges: array of array [0..1] of Integer;
 begin
   //1. Get ownership area
-  //Collect all the edges that are within our ownership area
-  //We include small polys that are close neighbours to get moderate area coverage
+  //Collect edges of polys that are well within our ownership area
   ECount := 0;
   for I := 0 to fPolyCount - 1 do
   with fPolygons[I] do
-  if (fNodes[Indices[0]].Owner[aOwner] > 248)
-  or (fNodes[Indices[1]].Owner[aOwner] > 248)
-  or (fNodes[Indices[2]].Owner[aOwner] > 248) then
+  if ((fNodes[Indices[0]].Owner[aOwner] >= OWN_MARGIN)
+    or (fNodes[Indices[1]].Owner[aOwner] >= OWN_MARGIN)
+    or (fNodes[Indices[2]].Owner[aOwner] >= OWN_MARGIN))
+  and (fNodes[Indices[0]].Owner[aOwner] >= OWN_THRESHOLD)
+  and (fNodes[Indices[1]].Owner[aOwner] >= OWN_THRESHOLD)
+  and (fNodes[Indices[2]].Owner[aOwner] >= OWN_THRESHOLD)
+  and (GetBestOwner(Indices[0]) = aOwner)
+  and (GetBestOwner(Indices[1]) = aOwner)
+  and (GetBestOwner(Indices[2]) = aOwner) then
   begin
     SetLength(Edges, ECount + 3);
     Edges[ECount  , 0] := Indices[0];
@@ -266,23 +303,17 @@ begin
     Inc(K);
   end;
 
-  //4. We can assemble suboptimal outline now
+  //4. Now we can assemble suboptimal outline from kept edges
   SetLength(aOutline, K);
   K := 0;
   for I := 0 to ECount - 1 do
-  if (Edges[I, 0] >= 0)
-  and (GetEnemyPresence(Edges[I,0], aOwner) > 32)
-  and (GetEnemyPresence(Edges[I,1], aOwner) > 32)
-  then
+  if (Edges[I, 0] >= 0) then
   begin
     aOutline[K].A := fNodes[Edges[I,0]].Loc;
     aOutline[K].B := fNodes[Edges[I,1]].Loc;
-    aOutline[K].Weight := 1;
+    aOutline[K].Weight := GetEnemyPresence(Edges[I,0], aOwner) + GetEnemyPresence(Edges[I,1], aOwner);
     Inc(K);
   end;
-
-  //Temp. Remove spans that do not face enemy
-  SetLength(aOutline, K);
 
   //5. Remove spans that face isolated areas
 
@@ -291,37 +322,25 @@ end;
 
 
 procedure TKMNavMesh.UpdateOwnership;
-  function GetPolyByTile(X,Y: Word): Integer;
-  var
-    I: Integer;
-  begin
-    Result := -1;
-    for I := 0 to fPolyCount - 1 do
-    with fPolygons[I] do
-    if KMPointInTriangle(KMPoint(X,Y), fNodes[Indices[0]].Loc, fNodes[Indices[1]].Loc, fNodes[Indices[2]].Loc) then
-    begin
-      Result := I;
-      Break;
-    end;
-  end;
 var
   I, K: Integer;
   Poly: Integer;
 begin
+  //Clear
   for I := 0 to fNodeCount - 1 do
-    for K := 0 to MAX_PLAYERS - 1 do
+    for K := 0 to fPlayers.Count - 1 do
       fNodes[I].Owner[K] := 0;
 
-  for I := 1 to fTerrain.MapY - 1 do
-  for K := 1 to fTerrain.MapX - 1 do
-  if fTerrain.Land[I,K].TileOwner <> PLAYER_NONE then
+  //Ownership are players assets (houses, maybe fields?)
+  for I := 0 to fPlayers.Count - 1 do
+  for K := 0 to fPlayers[I].Houses.Count - 1 do
   begin
-    Poly := GetPolyByTile(K,I);
+    Poly := GetPolyByTile(fPlayers[I].Houses[K].GetEntrance.X, fPlayers[I].Houses[K].GetPosition.Y - 1);
     if Poly <> -1 then
     begin
-      fNodes[fPolygons[Poly].Indices[0]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
-      fNodes[fPolygons[Poly].Indices[1]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
-      fNodes[fPolygons[Poly].Indices[2]].Owner[fTerrain.Land[I,K].TileOwner] := 255;
+      fNodes[fPolygons[Poly].Indices[0]].Owner[I] := 255;
+      fNodes[fPolygons[Poly].Indices[1]].Owner[I] := 255;
+      fNodes[fPolygons[Poly].Indices[2]].Owner[I] := 255;
     end;
   end;
 end;
@@ -344,13 +363,13 @@ constructor TKMAIFields.Create;
 begin
   inherited Create;
 
-  fShowNavMesh := True;
+  fShowInfluenceMap := True;
+  fShowNavMesh := False;
 end;
 
 
 destructor TKMAIFields.Destroy;
 begin
-  FreeAndNil(fDelaunay);
 
   inherited;
 end;
@@ -361,9 +380,16 @@ begin
   //Book space for all players;
   fPlayerCount := fPlayers.Count;
 
+  if AI_GEN_INFLUENCE_MAPS then
+  begin
+    SetLength(fInfluenceMap, fPlayerCount);
+    SetLength(fInfluenceMinMap, fPlayerCount);
+    UpdateInfluenceMaps;
+  end;
+
   if AI_GEN_NAVMESH then
   begin
-    UpdateNavMesh;
+    NavMeshGenerate;
     fNavMesh.UpdateOwnership;
   end;
 end;
@@ -373,6 +399,7 @@ procedure TKMAIFields.NavMeshGenerate;
 type
   TStepDirection = (sdNone, sdUp, sdRight, sdDown, sdLeft);
 var
+  fTileOutlines: TKMShapesArray;
   Tmp: array of array of Byte;
   PrevStep, NextStep: TStepDirection;
 
@@ -431,8 +458,8 @@ var
     Y := aStartY;
     nextStep := sdNone;
 
-    SetLength(fRawOutlines.Shape, fRawOutlines.Count + 1);
-    fRawOutlines.Shape[fRawOutlines.Count].Count := 0;
+    SetLength(fTileOutlines.Shape, fTileOutlines.Count + 1);
+    fTileOutlines.Shape[fTileOutlines.Count].Count := 0;
 
     repeat
       Step(X, Y);
@@ -446,7 +473,7 @@ var
       end;
 
       //Append new node vertice
-      with fRawOutlines.Shape[fRawOutlines.Count] do
+      with fTileOutlines.Shape[fTileOutlines.Count] do
       begin
         if Length(Nodes) <= Count then
           SetLength(Nodes, Count + 32);
@@ -456,11 +483,12 @@ var
     until((X = aStartX) and (Y = aStartY));
 
     //Do not include too small regions
-    if fRawOutlines.Shape[fRawOutlines.Count].Count >= 12 then
-      Inc(fRawOutlines.Count);
+    if fTileOutlines.Shape[fTileOutlines.Count].Count >= 12 then
+      Inc(fTileOutlines.Count);
   end;
 
 var
+  fDelaunay: TDelaunay;
   I, K, L, M: Integer;
   C1, C2, C3, C4: Boolean;
   MeshDensityX, MeshDensityY: Byte;
@@ -478,7 +506,7 @@ begin
   for K := 1 to fTerrain.MapX - 1 do
     Tmp[I,K] := 2 - Byte(CanOwn in fTerrain.Land[I,K].Passability) * 2;
 
-  fRawOutlines.Count := 0;
+  fTileOutlines.Count := 0;
   for I := 1 to fTerrain.MapY - 2 do
   for K := 1 to fTerrain.MapX - 2 do
   begin
@@ -495,100 +523,208 @@ begin
       WalkPerimeter(K,I);
   end;
 
-  SimplifyStraights(fRawOutlines, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fRawOutlines2);
+  SimplifyStraights(fTileOutlines, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fRawOutlines);
 
   with TKMSimplifyShapes.Create(2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1)) do
   begin
-    Execute(fRawOutlines2, fSimpleOutlines);
+    Execute(fRawOutlines, fSimpleOutlines);
     Free;
   end;
 
   //Fill Delaunay triangles
   fDelaunay := TDelaunay.Create(-1, -1, fTerrain.MapX, fTerrain.MapY);
-  fDelaunay.Tolerance := 1;
-  for I := 0 to fSimpleOutlines.Count - 1 do
-  with fSimpleOutlines.Shape[I] do
-    for K := 0 to Count - 1 do
-      fDelaunay.AddPoint(Nodes[K].X, Nodes[K].Y);
+  try
+    fDelaunay.Tolerance := 1;
+    for I := 0 to fSimpleOutlines.Count - 1 do
+    with fSimpleOutlines.Shape[I] do
+      for K := 0 to Count - 1 do
+        fDelaunay.AddPoint(Nodes[K].X, Nodes[K].Y);
 
-  //Add more points on edges
-  SizeX := fTerrain.MapX-1;
-  SizeY := fTerrain.MapY-1;
-  MeshDensityX := SizeX div 15; //once per 15 tiles
-  MeshDensityY := SizeY div 15;
-  for I := 0 to MeshDensityY do
-  for K := 0 to MeshDensityX do
-  if (I = 0) or (I = MeshDensityY) or (K = 0) or (K = MeshDensityX) then
-  begin
-    Skip := False;
-    PX := Round(SizeX / MeshDensityX * K);
-    PY := Round(SizeY / MeshDensityY * I);
+    //Add more points on edges
+    SizeX := fTerrain.MapX-1;
+    SizeY := fTerrain.MapY-1;
+    MeshDensityX := SizeX div 15; //once per 15 tiles
+    MeshDensityY := SizeY div 15;
+    for I := 0 to MeshDensityY do
+    for K := 0 to MeshDensityX do
+    if (I = 0) or (I = MeshDensityY) or (K = 0) or (K = MeshDensityX) then
+    begin
+      Skip := False;
+      PX := Round(SizeX / MeshDensityX * K);
+      PY := Round(SizeY / MeshDensityY * I);
 
-    //Don't add point to obstacle outline if there's one below
-    for L := 0 to fSimpleOutlines.Count - 1 do
-    with fSimpleOutlines.Shape[L] do
-      for M := 0 to Count - 1 do
-      begin
-        TX := Nodes[(M + 1) mod Count].X;
-        TY := Nodes[(M + 1) mod Count].Y;
-        if InRange(PX, Nodes[M].X, TX) and InRange(PY, Nodes[M].Y, TY)
-        or InRange(PX, TX, Nodes[M].X) and InRange(PY, TY, Nodes[M].Y) then
-          Skip := True;
-      end;
+      //Don't add point to obstacle outline if there's one below
+      for L := 0 to fSimpleOutlines.Count - 1 do
+      with fSimpleOutlines.Shape[L] do
+        for M := 0 to Count - 1 do
+        begin
+          TX := Nodes[(M + 1) mod Count].X;
+          TY := Nodes[(M + 1) mod Count].Y;
+          if InRange(PX, Nodes[M].X, TX) and InRange(PY, Nodes[M].Y, TY)
+          or InRange(PX, TX, Nodes[M].X) and InRange(PY, TY, Nodes[M].Y) then
+            Skip := True;
+        end;
 
-    if not Skip then
-      fDelaunay.AddPoint(PX, PY);
+      if not Skip then
+        fDelaunay.AddPoint(PX, PY);
+    end;
+
+    //Tolerance must be a little higher than longest span we expect from polysimplification
+    //so that not a single node was placed on an outline segment (otherwise RemObstaclePolys will not be able to trace outlines)
+    fDelaunay.Tolerance := 7;
+    for I := 1 to MeshDensityY - 1 do
+    for K := 1 to MeshDensityX - Byte(I mod 2 = 1) - 1 do
+      fDelaunay.AddPoint(Round(SizeX / MeshDensityX * (K + Byte(I mod 2 = 1) / 2)), Round(SizeY / MeshDensityY * I));
+
+    fDelaunay.Mesh;
+
+    //Bring triangulated mesh back
+    SetLength(fRawMesh.Vertices, fDelaunay.VerticeCount);
+    for I := 0 to fDelaunay.VerticeCount - 1 do
+    begin
+      fRawMesh.Vertices[I].X := Round(fDelaunay.Vertex[I].X);
+      fRawMesh.Vertices[I].Y := Round(fDelaunay.Vertex[I].Y);
+    end;
+    SetLength(fRawMesh.Polygons, fDelaunay.PolyCount);
+    for I := 0 to fDelaunay.PolyCount - 1 do
+    begin
+      fRawMesh.Polygons[I,0] := fDelaunay.Triangle^[I].vv0;
+      fRawMesh.Polygons[I,1] := fDelaunay.Triangle^[I].vv1;
+      fRawMesh.Polygons[I,2] := fDelaunay.Triangle^[I].vv2;
+    end;
+  finally
+    FreeAndNil(fDelaunay);
   end;
 
-  //Tolerance must be a little higher than longest span we expect from polysimplification
-  //so that not a single node was placed on an outline segment (otherwise RemObstaclePolys will not be able to trace outlines)
-  fDelaunay.Tolerance := 7;
-  for I := 1 to MeshDensityY - 1 do
-  for K := 1 to MeshDensityX - Byte(I mod 2 = 1) - 1 do
-    fDelaunay.AddPoint(Round(SizeX / MeshDensityX * (K + Byte(I mod 2 = 1) / 2)), Round(SizeY / MeshDensityY * I));
+  ForceOutlines(fRawMesh, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fSimpleOutlines);
 
-  fDelaunay.Mesh;
+  RemoveObstaclePolies(fRawMesh, fSimpleOutlines);
 
-  //Bring triangulated mesh back
-  SetLength(fRawDelaunay.Vertices, fDelaunay.VerticeCount);
-  for I := 0 to fDelaunay.VerticeCount - 1 do
-  begin
-    fRawDelaunay.Vertices[I].X := Round(fDelaunay.Vertex[I].X);
-    fRawDelaunay.Vertices[I].Y := Round(fDelaunay.Vertex[I].Y);
-  end;
-  SetLength(fRawDelaunay.Polygons, fDelaunay.PolyCount);
-  for I := 0 to fDelaunay.PolyCount - 1 do
-  begin
-    fRawDelaunay.Polygons[I,0] := fDelaunay.Triangle^[I].vv0;
-    fRawDelaunay.Polygons[I,1] := fDelaunay.Triangle^[I].vv1;
-    fRawDelaunay.Polygons[I,2] := fDelaunay.Triangle^[I].vv2;
-  end;
+  RemoveFrame(fRawMesh);
 
-  ForceOutlines(fRawDelaunay, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fSimpleOutlines);
+  CheckForDegenerates(fRawMesh);//}
 
-  RemoveObstaclePolies(fRawDelaunay, fSimpleOutlines);
+  Assert(Length(fRawMesh.Polygons) > 8);
 
-  RemoveFrame(fRawDelaunay);
-
-  CheckForDegenerates(fRawDelaunay);//}
-
-  Assert(Length(fRawDelaunay.Polygons) > 8);
-
-  fNavMesh := TKMNavMesh.Create(fRawDelaunay);
+  fNavMesh := TKMNavMesh.Create(fRawMesh);
 end;
 
 
-procedure TKMAIFields.UpdateNavMesh;
+function TKMAIFields.GetBestOwner(X, Y: Word): TPlayerIndex;
+var
+  I: Integer;
+  Best: Byte;
 begin
-  if not AI_GEN_NAVMESH then Exit;
+  Best := 0;
+  Result := PLAYER_NONE;
+  for I := 0 to fPlayers.Count - 1 do
+  if fInfluenceMap[I,Y,X] > Best then
+  begin
+    Best := fInfluenceMap[I,Y,X];
+    Result := I;
+  end;
+end;
 
-  NavMeshGenerate;
+
+procedure TKMAIFields.UpdateInfluenceMaps;
+var
+  J: Integer;
+  procedure DoFill(X,Y: Integer; V: Word);
+  begin
+    if (V > fInfluenceMap[J, Y, X])
+    and InRange(Y, 2, fTerrain.MapY - 2)
+    and InRange(X, 2, fTerrain.MapX - 2)
+    and (CanOwn in fTerrain.Land[Y,X].Passability) then
+    begin
+      fInfluenceMap[J, Y, X] := V;
+      DoFill(X, Y-1, Max(V - 2, 0));
+      DoFill(X-1, Y, Max(V - 2, 0));
+      DoFill(X+1, Y, Max(V - 2, 0));
+      DoFill(X, Y+1, Max(V - 2, 0));
+      {DoFill(X-1, Y-1, Max(V - 3, 0));
+      DoFill(X+1, Y-1, Max(V - 3, 0));
+      DoFill(X-1, Y+1, Max(V - 3, 0));
+      DoFill(X+1, Y+1, Max(V - 3, 0));}
+    end;
+  end;
+var
+  I, K, L: Integer;
+  H: Integer;
+begin
+  if not AI_GEN_INFLUENCE_MAPS then Exit;
+  Assert(fTerrain <> nil);
+
+  //Update direct influence maps
+  for J := 0 to fPlayerCount - 1 do
+  begin
+    for I := 1 to fTerrain.MapY - 1 do
+    for K := 1 to fTerrain.MapX - 1 do
+    begin
+      fInfluenceMap[J, I, K] := Byte(fTerrain.Land[I, K].TileOwner = J) * 254;
+    end;
+    for I := 2 to fTerrain.MapY - 2 do
+    for K := 2 to fTerrain.MapX - 2 do
+    if fInfluenceMap[J, I, K] = 254 then
+      DoFill(K,I,fInfluenceMap[J, I, K]+1);
+  end;
+
+  for J := 0 to fPlayerCount - 1 do
+  begin
+    L := -65535;
+    for I := 2 to fTerrain.MapY - 2 do
+    for K := 2 to fTerrain.MapX - 2 do
+    begin
+      fInfluenceMinMap[J, I, K] := fInfluenceMap[J, I, K];
+
+      for H := 0 to fPlayerCount - 1 do
+      if H <> J then
+        fInfluenceMinMap[J, I, K] := fInfluenceMinMap[J, I, K] - fInfluenceMap[H, I, K];
+
+      L := Max(L, fInfluenceMinMap[J, I, K]);
+    end;
+    for I := 2 to fTerrain.MapY - 2 do
+    for K := 2 to fTerrain.MapX - 2 do
+      fInfluenceMinMap[J, I, K] := fInfluenceMinMap[J, I, K] + (255 - L);
+  end;
+end;
+
+
+procedure TKMAIFields.ExportInfluenceMaps;
+var
+  I, J, K: Integer;
+begin
+  for J := 0 to fPlayerCount - 1 do
+  with TBitmap.Create do
+  begin
+    Width := fTerrain.MapX;
+    Height:= fTerrain.MapY;
+    PixelFormat := pf32bit;
+    for I := 0 to Height-1 do
+      for K := 0 to Width-1 do
+        Canvas.Pixels[K,I] := fInfluenceMap[J, I, K];
+    SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
+  end;
+
+  for J := 0 to fPlayerCount - 1 do
+  with TBitmap.Create do
+  begin
+    Width := fTerrain.MapX;
+    Height:= fTerrain.MapY;
+    PixelFormat := pf32bit;
+    for I := 0 to Height-1 do
+      for K := 0 to Width-1 do
+        Canvas.Pixels[K,I] := fInfluenceMap[J, I, K];
+    SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
+  end;
 end;
 
 
 procedure TKMAIFields.UpdateState(aTick: Cardinal);
 begin
   //Maybe we recalculate Influences or navmesh sectors once in a while
+
+  if aTick mod 60 = 0 then
+    UpdateInfluenceMaps;
 
   fNavMesh.UpdateState(aTick);
 end;
@@ -599,14 +735,28 @@ procedure TKMAIFields.Paint(aRect: TKMRect);
 var
   I, K, J: Integer;
   T1, T2: TKMPointF;
-  Col: Cardinal;
+  Col, Col2: Cardinal;
   Outline: TKMWeightSegments;
 begin
+  if AI_GEN_INFLUENCE_MAPS and fShowInfluenceMap then
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+    begin
+      Col := $80000000;
+      J := GetBestOwner(K,I);
+      if J <> PLAYER_NONE then
+      begin
+        Col := (fPlayers[J].FlagColor and $FFFFFF) or (Byte(Max(fInfluenceMinMap[J,I,K]-128, 0) * 2) shl 24);
+      end;
+
+      fRenderAux.Quad(K, I, Col);
+    end;
+
   //Raw obstacle outlines
   if AI_GEN_NAVMESH and fShowNavMesh then
-    for I := 0 to fRawOutlines2.Count - 1 do
-    for K := 0 to fRawOutlines2.Shape[I].Count - 1 do
-    with fRawOutlines2.Shape[I] do
+    for I := 0 to fRawOutlines.Count - 1 do
+    for K := 0 to fRawOutlines.Shape[I].Count - 1 do
+    with fRawOutlines.Shape[I] do
       fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FFFF00FF);
 
   //NavMesh polys coverage
@@ -648,14 +798,19 @@ begin
   if AI_GEN_NAVMESH and fShowNavMesh then
     for I := 0 to fNavMesh.fNodeCount - 1 do
     begin
+      Col := $FF000000;
+      Col2 := $00000000;
+
       K := fNavMesh.GetBestOwner(I);
       if K <> PLAYER_NONE then
-        Col := (fPlayers[K].FlagColor and $FFFFFF) or (fNavMesh.fNodes[I].Owner[K] shl 24)
-      else
-        Col := $FF000000;
-      fRenderAux.Dot(
+      begin
+        Col := (fPlayers[K].FlagColor and $FFFFFF) or (Byte(Max(fNavMesh.fNodes[I].Owner[K]-128, 0) * 2) shl 24);
+        Col2 := IfThen(fNavMesh.fNodes[I].Owner[K] = 255, $FFFFFFFF);
+      end;
+
+      fRenderAux.CircleOnTerrain(
         fNavMesh.fNodes[I].Loc.X,
-        fNavMesh.fNodes[I].Loc.Y, Col, 0.4);
+        fNavMesh.fNodes[I].Loc.Y, 0.4, Col, Col2);
     end;
 
   if AI_GEN_NAVMESH and fShowNavMesh then

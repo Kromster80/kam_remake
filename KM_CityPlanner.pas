@@ -42,7 +42,7 @@ const
 
 
 implementation
-uses KM_Houses, KM_Terrain, KM_Player, KM_PlayersCollection, KM_Utils;
+uses KM_Houses, KM_Terrain, KM_Player, KM_PlayersCollection, KM_Utils, KM_AIFields;
 
 
 { TKMCityPlanner }
@@ -172,8 +172,7 @@ var
 begin
   Result := False;
 
-  I := KaMRandom(Length(aTarget));
-  TargetHouseType := aTarget[I];
+  TargetHouseType := aTarget[KaMRandom(Length(aTarget))];
 
   P := fPlayers[fOwner];
   TargetH := P.Houses.FindHouse(TargetHouseType, 0, 0, KaMRandom(P.Stats.GetHouseQty(TargetHouseType)) + 1);
@@ -186,7 +185,7 @@ begin
   for K := Max(TargetLoc.X - 10, 1) to Min(TargetLoc.X + 10, fTerrain.MapX - 1) do
     if P.CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 3;
+      Bid := KMLengthDiag(KMPoint(K,I), TargetLoc) + KaMRandom * 3;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
