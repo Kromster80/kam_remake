@@ -133,7 +133,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game,
-  KM_Units_Warrior, KM_TextLibrary;
+  KM_Units_Warrior, KM_TextLibrary, KM_AIFields;
 
 
 { TKMPlayerCommon }
@@ -346,8 +346,6 @@ begin
     FreeAndNil(fRoadsList);
   end;
 
-  fAI.Mayor.AfterMissionInit;
-
   for I := 0 to fPlayers.Count - 1 do
     if fPlayerIndex <> I then
       fArmyEval.AddEnemy(fPlayers[I]);
@@ -436,25 +434,32 @@ end;
 
 
 function TKMPlayer.CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
-var I,K,J,S,T,Tx,Ty: Integer; HA: THouseArea;
+var
+  I, K, J, S, T, Tx, Ty: Integer;
+  HA: THouseArea;
+  EnterOff: ShortInt;
 begin
   //Check if we can place house on terrain, this also makes sure the house is
   //at least 1 tile away from map border (skip that below)
-  Result := fTerrain.CanPlaceHouse(kmPoint(aX, aY), aHouseType);
+  Result := fTerrain.CanPlaceHouse(KMPoint(aX, aY), aHouseType);
   if not Result then Exit;
 
   HA := fResource.HouseDat[aHouseType].BuildArea;
+  EnterOff := fResource.HouseDat[aHouseType].EntranceOffsetX;
   for I := 1 to 4 do
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
   begin
-    Tx := aX - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
+    Tx := aX + K - 3 - EnterOff;
     Ty := aY + I - 4;
 
     //Make sure tile in map coords and there's no road below
     Result := Result and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
 
-    //Make sure we can add road below house, full width
+    //Check if tile's blocked
+    Result := Result and (aIgnoreInfluence or (fAIFields.InfluenceAvoid[Ty, Tx] = 0));
+
+    //Make sure we can add road below house, full width + 1 on each side
     if (I = 4) then
       Result := Result and fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
                        and fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
@@ -472,8 +477,6 @@ begin
           for T := -1 to 1 do
             Result := Result and not fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T));
       end;
-
-    Result := Result and (aIgnoreInfluence or (fTerrain.Land[Ty,Tx].Influence = 0));
   end;
 end;
 

@@ -46,9 +46,6 @@ type
     fShowInfluenceMap: Boolean;
     fShowNavMesh: Boolean;
 
-    fInfluenceMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
-    fInfluenceMinMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Integer;
-
     fRawOutlines: TKMShapesArray;
     fSimpleOutlines: TKMShapesArray;
     fRawMesh: TKMTriMesh;
@@ -58,6 +55,10 @@ type
     procedure NavMeshGenerate;
     function GetBestOwner(X, Y: Word): TPlayerIndex;
   public
+    InfluenceAvoid: array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
+    InfluenceMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
+    InfluenceMinMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Integer;
+
     constructor Create;
     destructor Destroy; override;
 
@@ -65,6 +66,7 @@ type
     property NavMesh: TKMNavMesh read fNavMesh;
     procedure ExportInfluenceMaps;
 
+    procedure UpdateInfluenceAvoid;
     procedure UpdateInfluenceMaps;
     procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
@@ -76,7 +78,7 @@ var
 
 
 implementation
-uses KM_PlayersCollection, KM_RenderAux;
+uses KM_PlayersCollection, KM_RenderAux, KM_Houses;
 
 
 { TKMNavMesh }
@@ -382,8 +384,9 @@ begin
 
   if AI_GEN_INFLUENCE_MAPS then
   begin
-    SetLength(fInfluenceMap, fPlayerCount);
-    SetLength(fInfluenceMinMap, fPlayerCount);
+    SetLength(InfluenceMap, fPlayerCount);
+    SetLength(InfluenceMinMap, fPlayerCount);
+    UpdateInfluenceAvoid;
     UpdateInfluenceMaps;
   end;
 
@@ -613,15 +616,48 @@ end;
 function TKMAIFields.GetBestOwner(X, Y: Word): TPlayerIndex;
 var
   I: Integer;
-  Best: Byte;
+  Best: Integer;
 begin
   Best := 0;
   Result := PLAYER_NONE;
-  for I := 0 to fPlayers.Count - 1 do
-  if fInfluenceMap[I,Y,X] > Best then
+  for I := 0 to fPlayerCount - 1 do
+  if InfluenceMinMap[I,Y,X] > Best then
   begin
-    Best := fInfluenceMap[I,Y,X];
+    Best := InfluenceMinMap[I,Y,X];
     Result := I;
+  end;
+end;
+
+
+procedure TKMAIFields.UpdateInfluenceAvoid;
+var
+  S: TKMHouse;
+  I, K, J: Integer;
+  Bmp: TBitmap;
+  M: Integer;
+  N: Integer;
+begin
+  //Avoid Gold/Iron
+  for I := 1 to fTerrain.MapY - 1 do
+  for K := 1 to fTerrain.MapX - 1 do
+  if (fTerrain.TileIsIron(K, I) > 1) or (fTerrain.TileIsGold(K, I) > 1) then
+    for M := I to Min(I + 2, fTerrain.MapY - 1) do
+    for N := Max(K - 1, 1) to Min(K + 1, fTerrain.MapX - 1) do
+      InfluenceAvoid[M, N] := 255;
+
+  //Avoid Coal
+  for I := 1 to fTerrain.MapY - 1 do
+  for K := 1 to fTerrain.MapX - 1 do
+   InfluenceAvoid[I,K] := InfluenceAvoid[I,K] or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
+
+  //Leave some free space around Stores
+  for J := 0 to fPlayerCount - 1 do
+  begin
+    S := fPlayers[J].FindHouse(ht_Store);
+    if S <> nil then
+    for I := Max(S.GetEntrance.Y - 4, 1) to Min(S.GetEntrance.Y + 3, fTerrain.MapY - 1) do
+    for K := Max(S.GetEntrance.X - 3, 1) to Min(S.GetEntrance.X + 3, fTerrain.MapX - 1) do
+      InfluenceAvoid[I,K] := InfluenceAvoid[I,K] or $FF;
   end;
 end;
 
@@ -631,12 +667,12 @@ var
   J: Integer;
   procedure DoFill(X,Y: Integer; V: Word);
   begin
-    if (V > fInfluenceMap[J, Y, X])
+    if (V > InfluenceMap[J, Y, X])
     and InRange(Y, 2, fTerrain.MapY - 2)
     and InRange(X, 2, fTerrain.MapX - 2)
     and (CanOwn in fTerrain.Land[Y,X].Passability) then
     begin
-      fInfluenceMap[J, Y, X] := V;
+      InfluenceMap[J, Y, X] := V;
       DoFill(X, Y-1, Max(V - 2, 0));
       DoFill(X-1, Y, Max(V - 2, 0));
       DoFill(X+1, Y, Max(V - 2, 0));
@@ -659,13 +695,11 @@ begin
   begin
     for I := 1 to fTerrain.MapY - 1 do
     for K := 1 to fTerrain.MapX - 1 do
-    begin
-      fInfluenceMap[J, I, K] := Byte(fTerrain.Land[I, K].TileOwner = J) * 254;
-    end;
+      InfluenceMap[J, I, K] := Byte(fTerrain.Land[I, K].TileOwner = J) * 254;
     for I := 2 to fTerrain.MapY - 2 do
     for K := 2 to fTerrain.MapX - 2 do
-    if fInfluenceMap[J, I, K] = 254 then
-      DoFill(K,I,fInfluenceMap[J, I, K]+1);
+    if InfluenceMap[J, I, K] = 254 then
+      DoFill(K,I,InfluenceMap[J, I, K]+1);
   end;
 
   for J := 0 to fPlayerCount - 1 do
@@ -674,17 +708,23 @@ begin
     for I := 2 to fTerrain.MapY - 2 do
     for K := 2 to fTerrain.MapX - 2 do
     begin
-      fInfluenceMinMap[J, I, K] := fInfluenceMap[J, I, K];
+      if InfluenceMap[J, I, K] <> 0 then
+        InfluenceMinMap[J, I, K] := InfluenceMap[J, I, K]
+      else
+        InfluenceMinMap[J, I, K] := -65535;
+
 
       for H := 0 to fPlayerCount - 1 do
       if H <> J then
-        fInfluenceMinMap[J, I, K] := fInfluenceMinMap[J, I, K] - fInfluenceMap[H, I, K];
+      if InfluenceMap[H, I, K] <> -65535 then
+        InfluenceMinMap[J, I, K] := InfluenceMinMap[J, I, K] - InfluenceMap[H, I, K];
 
-      L := Max(L, fInfluenceMinMap[J, I, K]);
+      L := Max(L, InfluenceMinMap[J, I, K]);
     end;
+
     for I := 2 to fTerrain.MapY - 2 do
     for K := 2 to fTerrain.MapX - 2 do
-      fInfluenceMinMap[J, I, K] := fInfluenceMinMap[J, I, K] + (255 - L);
+      InfluenceMinMap[J, I, K] := Max(InfluenceMinMap[J, I, K] - L + 255, 0);
   end;
 end;
 
@@ -701,7 +741,7 @@ begin
     PixelFormat := pf32bit;
     for I := 0 to Height-1 do
       for K := 0 to Width-1 do
-        Canvas.Pixels[K,I] := fInfluenceMap[J, I, K];
+        Canvas.Pixels[K,I] := InfluenceMap[J, I, K];
     SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
   end;
 
@@ -713,7 +753,7 @@ begin
     PixelFormat := pf32bit;
     for I := 0 to Height-1 do
       for K := 0 to Width-1 do
-        Canvas.Pixels[K,I] := fInfluenceMap[J, I, K];
+        Canvas.Pixels[K,I] := InfluenceMap[J, I, K];
     SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
   end;
 end;
@@ -723,7 +763,7 @@ procedure TKMAIFields.UpdateState(aTick: Cardinal);
 begin
   //Maybe we recalculate Influences or navmesh sectors once in a while
 
-  if aTick mod 60 = 0 then
+  if aTick mod 600 = 0 then
     UpdateInfluenceMaps;
 
   fNavMesh.UpdateState(aTick);
@@ -746,8 +786,10 @@ begin
       J := GetBestOwner(K,I);
       if J <> PLAYER_NONE then
       begin
-        Col := (fPlayers[J].FlagColor and $FFFFFF) or (Byte(Max(fInfluenceMinMap[J,I,K]-128, 0) * 2) shl 24);
+        Col := (fPlayers[J].FlagColor and $FFFFFF) or (Byte(Max(InfluenceMinMap[J,I,K],0)) shl 24);
       end;
+
+      //Col := InfluenceAvoid[I,K] * 65793 or $80000000;
 
       fRenderAux.Quad(K, I, Col);
     end;

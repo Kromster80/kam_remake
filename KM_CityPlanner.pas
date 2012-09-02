@@ -29,7 +29,6 @@ type
 
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
-    procedure UpdateInfluence;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
   end;
@@ -185,8 +184,8 @@ begin
   for K := Max(TargetLoc.X - 10, 1) to Min(TargetLoc.X + 10, fTerrain.MapX - 1) do
     if P.CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := KMLengthDiag(KMPoint(K,I), TargetLoc) + KaMRandom * 3;
-      if Bid < BestBid then
+      Bid := KMLengthDiag(KMPoint(K,I), TargetLoc) - fAIFields.InfluenceMinMap[fOwner,I,K] + KaMRandom * 5;
+      if (fAIFields.InfluenceMinMap[fOwner,I,K] > 128) and (Bid < BestBid) then
       begin
         aLoc := KMPoint(K,I);
         BestBid := Bid;
@@ -219,7 +218,7 @@ begin
   for K := Max(StoneLoc.Loc.X - 5, 1) to Min(StoneLoc.Loc.X + 5, fTerrain.MapX - 1) do
     if fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := KMLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
+      Bid := KMLength(KMPoint(K,I), StoreLoc) - fAIFields.InfluenceMinMap[fOwner,I,K] + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -373,66 +372,7 @@ begin
 end;
 
 
-//todo: Move terrain parts to Terrain
-procedure TKMCityPlanner.UpdateInfluence;
-const
-  BSize = 3;
-  BLen = Sqr(BSize * 2 + 1);
-var
-  //CI: TCityInfluence;
-  S: TKMHouse;
-  I, K: Integer;
-  Tmp: array of array of Byte;
-  Bmp: TBitmap;
-begin
-  SetLength(Tmp, fTerrain.MapY, fTerrain.MapX);
 
-  //Avoid Gold/Iron
-  for I := 1 to fTerrain.MapY - 1 do
-  for K := 1 to fTerrain.MapX - 1 do
-    Tmp[I, K] := Byte((fTerrain.TileIsIron(K, I) > 1)
-                                     or (fTerrain.TileIsGold(K, I) > 1)) * $FF;
-
-  //Bleed Gold/Iron to book space around mines for roads
-  for I := 3 to fTerrain.MapY - 1 do
-  for K := 2 to fTerrain.MapX - 2 do
-    fTerrain.Land[I,K].Influence := fTerrain.Land[I,K].Influence
-                                    or Tmp[I, K]
-                                    or Tmp[I - 1, K - 1]
-                                    or Tmp[I - 1, K]
-                                    or Tmp[I - 1, K + 1]
-                                    or Tmp[I - 2, K - 1]
-                                    or Tmp[I - 2, K]
-                                    or Tmp[I - 2, K + 1];
-
-  //Avoid Coal
-  for I := 1 to fTerrain.MapY - 1 do
-  for K := 1 to fTerrain.MapX - 1 do
-    fTerrain.Land[I,K].Influence := fTerrain.Land[I,K].Influence or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
-
-  //Leave some free space around Store
-  S := fPlayers[fOwner].FindHouse(ht_Store);
-  if S <> nil then
-  for I := Max(S.GetEntrance.Y - 4, 1) to Min(S.GetEntrance.Y + 3, fTerrain.MapY - 1) do
-  for K := Max(S.GetEntrance.X - 3, 1) to Min(S.GetEntrance.X + 3, fTerrain.MapX - 1) do
-    fTerrain.Land[I,K].Influence := fTerrain.Land[I,K].Influence or $FF;
-
-
-  if EXPORT_INFLUENCE then
-  //for CI := Low(TCityInfluence) to High(TCityInfluence) do
-  begin
-    Bmp := TBitmap.Create;
-    Bmp.PixelFormat := pf32bit;
-    Bmp.Width := fTerrain.MapX;
-    Bmp.Height := fTerrain.MapY;
-    for I := 1 to fTerrain.MapY - 1 do
-      for K := 1 to fTerrain.MapX - 1 do
-        Bmp.Canvas.Pixels[K,I] := fTerrain.Land[I,K].Influence * 65793;// or $FF000000;
-
-    Bmp.SaveToFile(ExeDir + 'Influence.bmp');
-    Bmp.Free;
-  end;
-end;
 
 
 procedure TKMCityPlanner.Save(SaveStream: TKMemoryStream);

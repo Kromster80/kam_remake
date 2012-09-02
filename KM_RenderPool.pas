@@ -917,9 +917,6 @@ begin
 
   if SHOW_UNIT_MOVEMENT then
     fRenderAux.UnitMoves(Rect);
-
-  if SHOW_INFLUENCE_MAP <> 0 then
-    fRenderAux.InfluenceMap(Rect, SHOW_INFLUENCE_MAP);
 end;
 
 

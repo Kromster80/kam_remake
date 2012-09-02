@@ -24,7 +24,6 @@ type
     procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
     procedure Triangle(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Byte);
-    procedure InfluenceMap(aRect: TKMRect; aInfl: Byte);
     procedure Projectile(x1,y1,x2,y2: Single);
     procedure Quad(pX,pY: Integer; aCol: TColor4);
     procedure SquareOnTerrain(X1, Y1, X2, Y2: Single; Fill, Line: TColor4);
@@ -224,21 +223,6 @@ begin
     for I := aRect.Top to aRect.Bottom do
     for K := aRect.Left to aRect.Right do
       if TPassability(aPass) in fTerrain.Land[I,K].Passability then
-        RenderQuad(K,I);
-  end;
-end;
-
-
-procedure TRenderAux.InfluenceMap(aRect: TKMRect; aInfl: Byte);
-var I,K: Integer;
-begin
-  if aInfl <> 0 then
-  begin
-    glColor4f(0,1,0,0.25);
-    for I := aRect.Top to aRect.Bottom do
-    for K := aRect.Left to aRect.Right do
-
-      if fTerrain.Land[I,K].Influence > 0 then
         RenderQuad(K,I);
   end;
 end;

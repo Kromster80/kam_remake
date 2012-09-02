@@ -9,7 +9,7 @@ const
 //|===================| <- constant name length
   MAX_MAP_SIZE          = 256;
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
-  CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
+  CELL_HEIGHT_DIV       = 733.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
   TERRAIN_PACE          = 200;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
   FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
@@ -30,7 +30,7 @@ const
   MENU_SIZE_MIN_X       = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_SIZE_MIN_Y       = 576;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r3870';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r3918';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '5th Multiplayer Demo Release Candidate 2 ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 

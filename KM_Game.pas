@@ -435,8 +435,6 @@ begin
   fEventsManager.LoadFromFile(ChangeFileExt(aMissionFile, '.evt'));
   fTextLibrary.LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
 
-  fPlayers.AfterMissionInit(true);
-
   if fGameMode = gmMulti then
     fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
   else
@@ -445,6 +443,8 @@ begin
 
   if fGameMode = gmMulti then
     MultiplayerRig;
+
+  fPlayers.AfterMissionInit(true);
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 

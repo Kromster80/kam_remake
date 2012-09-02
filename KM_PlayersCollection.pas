@@ -121,7 +121,7 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.AfterMissionInit(aFlattenRoads:boolean);
+procedure TKMPlayersCollection.AfterMissionInit(aFlattenRoads: Boolean);
 var
   I: Integer;
 begin

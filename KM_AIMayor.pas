@@ -36,7 +36,6 @@ type
 
     property CityPlanner: TKMCityPlanner read fCityPlanner;
 
-    procedure AfterMissionInit;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
 
     procedure UpdateState(aTick: Cardinal);
@@ -80,12 +79,6 @@ begin
   fCityPlanner.Free;
   fPathFindingRoad.Free;
   inherited;
-end;
-
-
-procedure TKMayor.AfterMissionInit;
-begin
-  fCityPlanner.UpdateInfluence;
 end;
 
 
