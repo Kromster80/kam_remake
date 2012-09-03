@@ -69,3 +69,4 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Clicking on player's name/flag in lobby opens a drop down menu with options like: kick, ban, promote to host
 	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
 	Settings page allows players to save their default resource slider options (minor feature)
+	Add pause to MP. Allow each player to ask for a 1-2min pause once per match, maybe elective?
