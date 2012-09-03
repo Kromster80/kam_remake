@@ -53,9 +53,8 @@ type
     fNavMesh: TKMNavMesh;
 
     procedure NavMeshGenerate;
-    function GetBestOwner(X, Y: Word): TPlayerIndex;
   public
-    InfluenceAvoid: array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
+    AvoidBuilding: array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
     InfluenceMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
     InfluenceMinMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Integer;
 
@@ -63,6 +62,10 @@ type
     destructor Destroy; override;
 
     procedure AfterMissionInit;
+    procedure AddAvoidBuilding(X,Y: Word; aRad: Byte);
+    procedure AddInfluence(aLoc: TKMPoint; aHouseType: THouseType);
+
+    function GetBestOwner(X, Y: Word): TPlayerIndex;
     property NavMesh: TKMNavMesh read fNavMesh;
     procedure ExportInfluenceMaps;
 
@@ -398,6 +401,22 @@ begin
 end;
 
 
+procedure TKMAIFields.AddAvoidBuilding(X,Y: Word; aRad: Byte);
+var I,K: Integer;
+begin
+  for I := Max(Y - aRad, 1) to Min(Y + aRad, fTerrain.MapY - 1) do
+  for K := Max(X - aRad, 1) to Min(X + aRad, fTerrain.MapX - 1) do
+    if Sqr(X-K) + Sqr(Y-I) <= Sqr(aRAD) then
+      AvoidBuilding[I,K] := 255;
+end;
+
+
+procedure TKMAIFields.AddInfluence(aLoc: TKMPoint; aHouseType: THouseType);
+begin
+
+end;
+
+
 procedure TKMAIFields.NavMeshGenerate;
 type
   TStepDirection = (sdNone, sdUp, sdRight, sdDown, sdLeft);
@@ -643,12 +662,12 @@ begin
   if (fTerrain.TileIsIron(K, I) > 1) or (fTerrain.TileIsGold(K, I) > 1) then
     for M := I to Min(I + 2, fTerrain.MapY - 1) do
     for N := Max(K - 1, 1) to Min(K + 1, fTerrain.MapX - 1) do
-      InfluenceAvoid[M, N] := 255;
+      AvoidBuilding[M, N] := 255;
 
   //Avoid Coal
   for I := 1 to fTerrain.MapY - 1 do
   for K := 1 to fTerrain.MapX - 1 do
-   InfluenceAvoid[I,K] := InfluenceAvoid[I,K] or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
+   AvoidBuilding[I,K] := AvoidBuilding[I,K] or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
 
   //Leave some free space around Stores
   for J := 0 to fPlayerCount - 1 do
@@ -657,7 +676,7 @@ begin
     if S <> nil then
     for I := Max(S.GetEntrance.Y - 4, 1) to Min(S.GetEntrance.Y + 3, fTerrain.MapY - 1) do
     for K := Max(S.GetEntrance.X - 3, 1) to Min(S.GetEntrance.X + 3, fTerrain.MapX - 1) do
-      InfluenceAvoid[I,K] := InfluenceAvoid[I,K] or $FF;
+      AvoidBuilding[I,K] := AvoidBuilding[I,K] or $FF;
   end;
 end;
 
@@ -712,7 +731,6 @@ begin
         InfluenceMinMap[J, I, K] := InfluenceMap[J, I, K]
       else
         InfluenceMinMap[J, I, K] := -65535;
-
 
       for H := 0 to fPlayerCount - 1 do
       if H <> J then

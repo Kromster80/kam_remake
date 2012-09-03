@@ -18,6 +18,7 @@ type
 
     function HouseCount(aHouse: THouseType): Integer;
     procedure TryBuildHouse(aHouse: THouseType);
+    function TryConnectToRoad(aLoc: TKMPoint): Boolean;
 
     procedure CheckUnitCount;
     procedure CheckHouseVital;
@@ -45,7 +46,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource;
+uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain, KM_Resource, KM_AIFields;
 
 
 const //Sample list made by AntonP
@@ -60,6 +61,8 @@ const //Sample list made by AntonP
   ht_Mill, ht_Bakery, ht_Bakery, ht_School, ht_IronSmithy,
   ht_IronSmithy, ht_Farm, ht_Swine, ht_WeaponSmithy, ht_ArmorSmithy
   );
+
+  WOOD_RAD = 6;
 
 
 { TKMayor }
@@ -168,48 +171,49 @@ begin
 end;
 
 
-procedure TKMayor.TryBuildHouse(aHouse: THouseType);
-  //In fact we want to connect to nearest road piece (not necessarily built yet)
-  function TryConnectToRoad(aLoc: TKMPoint): Boolean;
-  var
-    I: Integer;
-    P: TKMPlayer;
-    H: TKMHouse;
-    LocPlan, LocTo: TKMPoint;
-    NodeList: TKMPointList;
-    RoadExists: Boolean;
-  begin
-    Result := False;
-    P := fPlayers[fOwner];
+//We want to connect to nearest road piece (not necessarily built yet)
+function TKMayor.TryConnectToRoad(aLoc: TKMPoint): Boolean;
+var
+  I: Integer;
+  P: TKMPlayer;
+  H: TKMHouse;
+  LocPlan, LocTo: TKMPoint;
+  NodeList: TKMPointList;
+  RoadExists: Boolean;
+begin
+  Result := False;
+  P := fPlayers[fOwner];
 
-    //Find nearest wip or ready house
-    H := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, False);
-    if H = nil then Exit; //We are screwed, no houses left
-    LocTo := KMPointBelow(H.GetEntrance);
+  //Find nearest wip or ready house
+  H := P.Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, False);
+  if H = nil then Exit; //We are screwed, no houses left
+  LocTo := KMPointBelow(H.GetEntrance);
 
-    //Check building plans, maybe there's another plan nearby we can connect to with road
-    //(avoid parallel connection of several planned house to town)
-    if P.BuildList.HousePlanList.FindHousePlan(aLoc, KMPointAbove(aLoc), LocPlan) then
-      if KMLengthSqr(aLoc, LocPlan) <= KMLengthSqr(aLoc, LocTo) then
-        LocTo := KMPointBelow(LocPlan);
+  //Check building plans, maybe there's another plan nearby we can connect to with road
+  //(avoid parallel connection of several planned house to town)
+  if P.BuildList.HousePlanList.FindHousePlan(aLoc, KMPointAbove(aLoc), LocPlan) then
+    if KMLengthSqr(aLoc, LocPlan) <= KMLengthSqr(aLoc, LocTo) then
+      LocTo := KMPointBelow(LocPlan);
 
-    NodeList := TKMPointList.Create;
-    try
-      RoadExists := fPathFindingRoad.Route_Make(aLoc, LocTo, NodeList);
+  NodeList := TKMPointList.Create;
+  try
+    RoadExists := fPathFindingRoad.Route_Make(aLoc, LocTo, NodeList);
 
-      if not RoadExists then
-        Exit;
+    if not RoadExists then
+      Exit;
 
-      for I := 0 to NodeList.Count - 1 do
-        //We must check if we can add the plan ontop of plans placed earlier in this turn
-        if P.CanAddFieldPlan(NodeList[I], ft_Road) then
-          P.BuildList.FieldworksList.AddField(NodeList[I], ft_Road);
-      Result := True;
-    finally
-      NodeList.Free;
-    end;
+    for I := 0 to NodeList.Count - 1 do
+      //We must check if we can add the plan ontop of plans placed earlier in this turn
+      if P.CanAddFieldPlan(NodeList[I], ft_Road) then
+        P.BuildList.FieldworksList.AddField(NodeList[I], ft_Road);
+    Result := True;
+  finally
+    NodeList.Free;
   end;
+end;
 
+
+procedure TKMayor.TryBuildHouse(aHouse: THouseType);
 var
   I, K: Integer;
   Loc: TKMPoint;
@@ -224,15 +228,19 @@ begin
   //Number of simultaneous WIP houses is limited to 3
   if (P.Stats.GetHouseWip(ht_Any) >= 3) then Exit;
 
-  if not fCityPlanner.FindPlaceForHouse(aHouse, Loc) then
-    //Maybe we get more lucky next tick
-    Exit;
+  //Maybe we get more lucky next tick
+  if not fCityPlanner.FindPlaceForHouse(aHouse, Loc) then Exit;
 
-  //Place house so that road was made around it
+  //Place house before road, so that road is made around it
   P.AddHousePlan(aHouse, Loc);
 
   //Try to connect newly planned house to road network
-  if not TryConnectToRoad(KMPointBelow(Loc)) then Exit;
+  //This is final test, if it is passed - we can place the house
+  if not TryConnectToRoad(KMPointBelow(Loc)) then
+  begin
+    P.RemHousePlan(Loc);
+    Exit;
+  end;
 
   //Build fields for Farm
   if aHouse = ht_Farm then
@@ -270,13 +278,16 @@ begin
     end;
   end;
 
-  //Build more roads around Store
+  //Block any buildings nearby
+  if aHouse = ht_Woodcutters then
+    fAIFields.AddAvoidBuilding(Loc.X-1, Loc.Y, WOOD_RAD); //X-1 because entrance is on right
+
+  //Build more roads around 2nd Store
   if aHouse = ht_Store then
     for I := Max(Loc.Y - 3, 1) to Min(Loc.Y + 2, fTerrain.MapY - 1) do
-    for K := Loc.X - 2 to Loc.X + 2 do
+    for K := Max(Loc.X - 2, 1) to Min(Loc.X + 2, fTerrain.MapY - 1) do
     if P.CanAddFieldPlan(KMPoint(K, I), ft_Road) then
       P.BuildList.FieldworksList.AddField(KMPoint(K, I), ft_Road);
-
 end;
 
 

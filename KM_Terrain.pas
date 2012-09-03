@@ -174,7 +174,8 @@ type
     function UnitsHitTestF(aLoc: TKMPointF): Pointer;
     function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 
-    function ObjectIsChopableTree(Loc: TKMPoint; Stage: Byte): Boolean;
+    function ObjectIsChopableTree(X,Y: Word): Boolean; overload;
+    function ObjectIsChopableTree(Loc: TKMPoint; aStage: TChopableAge): Boolean; overload;
     function CanWalkDiagonaly(const A,B: TKMPoint): Boolean;
 
     procedure FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects: Boolean=true); overload;
@@ -255,7 +256,7 @@ begin
     IsUnit       := nil;
     IsVertexUnit := vu_None;
     FieldAge     := 0;
-    TreeAge      := IfThen(ObjectIsChopableTree(KMPoint(K,I),4), TREE_AGE_FULL, 0);
+    TreeAge      := IfThen(ObjectIsChopableTree(KMPoint(K,I), caAgeFull), TREE_AGE_FULL, 0);
     Border       := bt_None;
     BorderSide   := 0;
   end;
@@ -314,10 +315,10 @@ begin
       S.Seek(1, soFromCurrent);
       S.Read(Land[i,k].Obj); //6
       S.Seek(17, soFromCurrent);
-      if ObjectIsChopableTree(KMPoint(k,i),1) then Land[i,k].TreeAge := 1;
-      if ObjectIsChopableTree(KMPoint(k,i),2) then Land[i,k].TreeAge := TREE_AGE_1;
-      if ObjectIsChopableTree(KMPoint(k,i),3) then Land[i,k].TreeAge := TREE_AGE_2;
-      if ObjectIsChopableTree(KMPoint(k,i),4) then Land[i,k].TreeAge := TREE_AGE_FULL;
+      if ObjectIsChopableTree(KMPoint(k,i), caAge1) then Land[i,k].TreeAge := 1;
+      if ObjectIsChopableTree(KMPoint(k,i), caAge2) then Land[i,k].TreeAge := TREE_AGE_1;
+      if ObjectIsChopableTree(KMPoint(k,i), caAge3) then Land[i,k].TreeAge := TREE_AGE_2;
+      if ObjectIsChopableTree(KMPoint(k,i), caAgeFull) then Land[i,k].TreeAge := TREE_AGE_FULL;
       //Everything else is default
     end;
 
@@ -720,16 +721,28 @@ begin
 end;
 
 
-function TTerrain.ObjectIsChopableTree(Loc:TKMPoint; Stage: Byte): Boolean;
-var h,i: Byte;
+function TTerrain.ObjectIsChopableTree(X,Y: Word): Boolean;
+var I: Byte; K: TChopableAge;
 begin
-  //If Stage is not in 1..6 then assume they mean any type of tree
-  Result:=false;
-  for h:=1 to length(ChopableTrees) do
-    if Stage in [1..6] then
-      Result := Result or (Land[Loc.Y,Loc.X].Obj = ChopableTrees[h,Stage])
-    else for i:=1 to 6 do
-      Result := Result or (Land[Loc.Y,Loc.X].Obj = ChopableTrees[h,i])
+  Result := True;
+
+  for I := 1 to Length(ChopableTrees) do
+    for K := Low(TChopableAge) to High(TChopableAge) do
+      if (Land[Y,X].Obj = ChopableTrees[I,K]) then Exit;
+
+  Result := False;
+end;
+
+
+function TTerrain.ObjectIsChopableTree(Loc: TKMPoint; aStage: TChopableAge): Boolean;
+var I: Byte;
+begin
+  Result := True;
+
+  for I := 1 to Length(ChopableTrees) do
+    if (Land[Loc.Y, Loc.X].Obj = ChopableTrees[I, aStage]) then Exit;
+
+  Result := False;
 end;
 
 
@@ -1127,7 +1140,7 @@ begin
   //Scan terrain and add all trees/spots into lists
   ValidTiles := TKMPointList.Create;
   GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
-  for I := 0 to ValidTiles.Count-1 do
+  for I := 0 to ValidTiles.Count - 1 do
   begin
      //Store in temp variable for speed
     T := ValidTiles[I];
@@ -1138,7 +1151,7 @@ begin
 
       //Grownup tree
       if (aPlantAct in [taCut, taAny])
-      and ObjectIsChopableTree(T, 4)
+      and ObjectIsChopableTree(T, caAgeFull)
       and (Land[T.Y,T.X].TreeAge >= TREE_AGE_FULL)
       //Woodcutter could be standing on any tile surrounding this tree
       and not TileIsLocked(T)
@@ -1153,7 +1166,7 @@ begin
       and (CanPlantTrees in Land[T.Y,T.X].Passability)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
-        if (Land[T.Y,T.X].Obj = 255) or (ObjectIsChopableTree(T, 6)) then
+        if (Land[T.Y,T.X].Obj = 255) or (ObjectIsChopableTree(T, caAgeStomp)) then
           BestToPlant.AddEntry(T) //Stump/empty places
         else
           SecondBestToPlant.AddEntry(T); //Other objects that can be dug out (e.g. mushrooms) if no other options available
@@ -1218,10 +1231,10 @@ function TTerrain.ChooseTreeToPlant(aLoc:TKMPoint):integer;
 begin
   //This function randomly chooses a tree object based on the terrain type. Values matched to KaM, using all soil tiles.
   case Land[aLoc.Y,aLoc.X].Terrain of
-    0..3,5,6,8,9,11,13,14,18,19,56,57,66..69,72..74,84..86,93..98,180,188: Result := ChopableTrees[1+KaMRandom(7),1]; //Grass (oaks, etc.)
-    26..28,75..80,182,190:                                                 Result := ChopableTrees[7+KaMRandom(2),1]; //Yellow dirt
-    16,17,20,21,34..39,47,49,58,64,65,87..89,183,191,220,247:              Result := ChopableTrees[9+KaMRandom(5),1]; //Brown dirt (pine trees)
-    else Result := ChopableTrees[1+KaMRandom(length(ChopableTrees)),1]; //If it isn't one of those soil types then choose a random tree
+    0..3,5,6,8,9,11,13,14,18,19,56,57,66..69,72..74,84..86,93..98,180,188: Result := ChopableTrees[1+KaMRandom(7), caAge1]; //Grass (oaks, etc.)
+    26..28,75..80,182,190:                                                 Result := ChopableTrees[7+KaMRandom(2), caAge1]; //Yellow dirt
+    16,17,20,21,34..39,47,49,58,64,65,87..89,183,191,220,247:              Result := ChopableTrees[9+KaMRandom(5), caAge1]; //Brown dirt (pine trees)
+    else Result := ChopableTrees[1+KaMRandom(Length(ChopableTrees)), caAge1]; //If it isn't one of those soil types then choose a random tree
   end;
 end;
 
@@ -1315,8 +1328,8 @@ end;
 
 procedure TTerrain.SetTree(Loc: TKMPoint; ID: Integer);
 begin
-  Land[Loc.Y,Loc.X].Obj :=  ID;
-  Land[Loc.Y,Loc.X].TreeAge :=  1;
+  Land[Loc.Y,Loc.X].Obj := ID;
+  Land[Loc.Y,Loc.X].TreeAge := 1;
 
   //Add 1 tile on sides because surrounding tiles will be affected (CanPlantTrees)
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
@@ -1327,15 +1340,15 @@ end;
 
 
 {Remove the tree and place a falling tree instead}
-procedure TTerrain.FallTree(Loc:TKMPoint);
-var h:integer;
+procedure TTerrain.FallTree(Loc: TKMPoint);
+var I: Integer;
 begin
-  for h:=1 to length(ChopableTrees) do
-    if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
+  for I := 1 to Length(ChopableTrees) do
+    if ChopableTrees[I, caAgeFull] = Land[Loc.Y,Loc.X].Obj then
     begin
-      Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];                        //Set stump object
-      FallingTrees.AddEntry(Loc,ChopableTrees[h,5],fAnimStep);  //along with falling tree
-      fSoundLib.Play(sfx_TreeDown,Loc,true);
+      Land[Loc.Y,Loc.X].Obj := ChopableTrees[I, caAgeStomp];                        //Set stump object
+      FallingTrees.AddEntry(Loc,ChopableTrees[I, caAgeFall], fAnimStep);  //along with falling tree
+      fSoundLib.Play(sfx_TreeDown, Loc, True);
       Exit;
     end;
 end;
@@ -2809,7 +2822,8 @@ procedure TTerrain.UpdateState;
       UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrowTopLeft(KMRect(X,Y,X,Y),1), True);
   end;
 var
-  H, I, J, K, A: Word;
+  H, I, K, A: Word;
+  J: TChopableAge;
   T: Integer;
 begin
   inc(fAnimStep);
@@ -2862,12 +2876,12 @@ begin
           or (Land[I,K].TreeAge = TREE_AGE_2)
           or (Land[I,K].TreeAge = TREE_AGE_FULL) then //Speedup
             for H := Low(ChopableTrees) to High(ChopableTrees) do
-              for J := 1 to 3 do
+              for J := caAge1 to caAge3 do
                 if Land[I,K].Obj = ChopableTrees[H,J] then
                   case Land[I,K].TreeAge of
-                    TREE_AGE_1:    Land[I,K].Obj := ChopableTrees[H,2];
-                    TREE_AGE_2:    Land[I,K].Obj := ChopableTrees[H,3];
-                    TREE_AGE_FULL: Land[I,K].Obj := ChopableTrees[H,4];
+                    TREE_AGE_1:    Land[I,K].Obj := ChopableTrees[H, caAge2];
+                    TREE_AGE_2:    Land[I,K].Obj := ChopableTrees[H, caAge3];
+                    TREE_AGE_FULL: Land[I,K].Obj := ChopableTrees[H, caAgeFull];
                   end;
         end;
       end;

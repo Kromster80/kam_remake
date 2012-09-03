@@ -168,7 +168,7 @@ begin
     gs_WoodCutterPlant: Result := CheckPassability(WorkPlan.Loc, CanPlantTrees);
     gs_WoodCutterCut:   begin
                           P := KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir);
-                          Result := ObjectIsChopableTree(P, 4) and (Land[P.Y, P.X].TreeAge >= TREE_AGE_FULL);
+                          Result := ObjectIsChopableTree(P, caAgeFull) and (Land[P.Y, P.X].TreeAge >= TREE_AGE_FULL);
                         end;
     else                Result := True;
   end;

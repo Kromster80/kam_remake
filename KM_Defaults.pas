@@ -582,10 +582,12 @@ type
                     vu_NWSE,    //Vertex is used NW-SE like this: \
                     vu_NESW);   //Vertex is used NE-SW like this: /
 
+  TChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStomp);
+
 const
   //Chopable tree, Chopdown animation,
   //Age1, Age2, Age3, Age4, Falling, Stomp
-  ChopableTrees: array [1..13, 1..6] of byte = (
+  ChopableTrees: array [1..13, TChopableAge] of byte = (
   //For grass
   (  88,  89,  90,  90,  91,  37), //These two are very look alike
   (  97,  98,  99, 100, 101,  41), //yet different in small detail and fall direction
