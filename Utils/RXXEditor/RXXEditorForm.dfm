@@ -3,7 +3,7 @@ object RXXForm1: TRXXForm1
   Top = 90
   Caption = 'RXX Editor'
   ClientHeight = 489
-  ClientWidth = 689
+  ClientWidth = 473
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,9 +18,9 @@ object RXXForm1: TRXXForm1
   object Label1: TLabel
     Left = 8
     Top = 40
-    Width = 37
+    Width = 54
     Height = 13
-    Caption = 'Label1'
+    Caption = 'Contents:'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
@@ -191,9 +191,9 @@ object RXXForm1: TRXXForm1
     Height = 22
     MaxValue = 0
     MinValue = 0
-    ReadOnly = True
     TabOrder = 11
     Value = 0
+    OnChange = PivotChange
   end
   object edtPivotY: TSpinEdit
     Left = 408
@@ -202,16 +202,17 @@ object RXXForm1: TRXXForm1
     Height = 22
     MaxValue = 0
     MinValue = 0
-    ReadOnly = True
     TabOrder = 12
     Value = 0
+    OnChange = PivotChange
   end
   object chkHasMask: TCheckBox
     Left = 400
     Top = 264
     Width = 65
-    Height = 17
+    Height = 15
     Caption = 'Has mask'
+    Enabled = False
     TabOrder = 13
     OnClick = chkHasMaskClick
   end
@@ -220,15 +221,15 @@ object RXXForm1: TRXXForm1
     Filter = 'Supported images (*.bmp;*.png)|*.bmp;*.png'
     Options = [ofAllowMultiSelect, ofPathMustExist, ofFileMustExist, ofEnableSizing]
     Title = 'Select images'
-    Left = 480
-    Top = 8
+    Left = 32
+    Top = 72
   end
   object SaveDialog1: TSaveDialog
     OnShow = SaveDialog1Show
     DefaultExt = '*.rxx'
     Filter = 'RXX packages (*.rxx)|*.rxx'
     Options = [ofHideReadOnly, ofPathMustExist, ofEnableSizing]
-    Left = 480
-    Top = 56
+    Left = 32
+    Top = 128
   end
 end

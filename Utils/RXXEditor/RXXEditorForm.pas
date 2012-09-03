@@ -45,6 +45,7 @@ type
     procedure btnMaskReplaceClick(Sender: TObject);
     procedure btnMaskExportClick(Sender: TObject);
     procedure chkHasMaskClick(Sender: TObject);
+    procedure PivotChange(Sender: TObject);
   private
     fPalettes: TKMPalettes;
     fSprites: TKMSpritePackEdit;
@@ -85,14 +86,14 @@ end;
 procedure TRXXForm1.lbSpritesListClick(Sender: TObject);
   procedure ToggleImageButtons(aState: Boolean);
   begin
+    edtPivotX.Enabled := aState;
+    edtPivotY.Enabled := aState;
     btnDelete.Enabled := aState;
     btnReplace.Enabled := aState;
     btnExport.Enabled := aState;
+    {chkHasMask.Enabled := aState;
     btnMaskReplace.Enabled := aState;
-    btnMaskExport.Enabled := aState;
-    edtPivotX.Enabled := aState;
-    edtPivotY.Enabled := aState;
-    chkHasMask.Enabled := aState;
+    btnMaskExport.Enabled := aState;}
   end;
 var
   ID: Integer;
@@ -288,6 +289,22 @@ end;
 procedure TRXXForm1.chkHasMaskClick(Sender: TObject);
 begin
   //
+end;
+
+
+procedure TRXXForm1.PivotChange(Sender: TObject);
+var
+  ID: Integer;
+begin
+  //To avoid OnChange misfire when we change selected Item we disable controls
+  if not TEdit(Sender).Enabled then Exit;
+  if not TryStrToInt(TEdit(Sender).Text, ID) then Exit;
+
+  ID := lbSpritesList.ItemIndex + 1;
+  if ID = 0 then Exit;
+
+  fSprites.RXData.Pivot[ID].x := edtPivotX.Value;
+  fSprites.RXData.Pivot[ID].y := edtPivotY.Value;
 end;
 
 
