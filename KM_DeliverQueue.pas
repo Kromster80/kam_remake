@@ -31,7 +31,7 @@ type
 
   TKMDeliverQueue = class
   private
-    OfferCount:integer;
+    OfferCount: Integer;
     fOffer:array of
     record
       Resource:TResourceType;
@@ -92,22 +92,22 @@ type
     fQueue: TKMDeliverQueue;
 
     fSerfCount: Integer;
-    fSerfs: array of record
+    fSerfs: array of record //Not sure what else props we planned to add here
       Serf: TKMUnitSerf;
     end;
 
     procedure RemSerf(aIndex: Integer);
     procedure RemoveExtraSerfs;
-    function GetIdleSerfCount:Integer;
+    function GetIdleSerfCount: Integer;
   public
-    procedure AddSerf(aSerf: TKMUnitSerf);
-
-    property Queue: TKMDeliverQueue read fQueue;
-
     constructor Create;
     destructor Destroy; override;
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+
+    procedure AddSerf(aSerf: TKMUnitSerf);
+    property Queue: TKMDeliverQueue read fQueue;
+
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
   end;
@@ -135,7 +135,7 @@ begin
 end;
 
 
-procedure TKMDeliveries.Save(SaveStream:TKMemoryStream);
+procedure TKMDeliveries.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
   SaveStream.Write('SerfList');
@@ -153,7 +153,7 @@ begin
 end;
 
 
-procedure TKMDeliveries.Load(LoadStream:TKMemoryStream);
+procedure TKMDeliveries.Load(LoadStream: TKMemoryStream);
 var I: Integer;
 begin
   LoadStream.ReadAssert('SerfList');
@@ -196,24 +196,25 @@ procedure TKMDeliveries.RemSerf(aIndex: Integer);
 begin
   fPlayers.CleanUpUnitPointer(TKMUnit(fSerfs[aIndex].Serf));
 
+  //Serf order is not important, so we just move last one into freed spot
   if aIndex <> fSerfCount - 1 then
-    Move(fSerfs[aIndex+1], fSerfs[aIndex], SizeOf(fSerfs[aIndex]) * (fSerfCount - 1 - aIndex));
+    fSerfs[aIndex] := fSerfs[fSerfCount - 1];
 
   Dec(fSerfCount);
 end;
 
 
-function TKMDeliveries.GetIdleSerfCount:Integer;
-var I:Integer;
+function TKMDeliveries.GetIdleSerfCount: Integer;
+var I: Integer;
 begin
   Result := 0;
   for I := 0 to fSerfCount - 1 do
     if fSerfs[I].Serf.IsIdle then
-      inc(Result);
+      Inc(Result);
 end;
 
 
-//Remove dead workers
+//Remove dead serfs
 procedure TKMDeliveries.RemoveExtraSerfs;
 var
   I: Integer;
@@ -226,12 +227,12 @@ end;
 
 procedure TKMDeliveries.UpdateState;
 
-  function AnySerfCanDoDelivery(iO,iD:Integer):Boolean;
+  function AnySerfCanDoDelivery(iO,iD: Integer): Boolean;
   var I: Integer;
   begin
     Result := False;
     for I := 0 to fSerfCount - 1 do
-      if fSerfs[I].Serf.IsIdle and fQueue.SerfCanDoDelivery(iO,iD,fSerfs[I].Serf) then
+      if fSerfs[I].Serf.IsIdle and fQueue.SerfCanDoDelivery(iO, iD, fSerfs[I].Serf) then
       begin
         Result := True;
         Exit;
@@ -239,16 +240,16 @@ procedure TKMDeliveries.UpdateState;
   end;
 
 var
-  I,K,iD,iO,FoundO,FoundD:Integer;
-  Bid,BestBid:Single;
-  AvailableDeliveries,AvailableSerfs:Integer;
-  Serf:TKMUnitSerf;
+  I, K, iD, iO, FoundO, FoundD: Integer;
+  Bid, BestBid: Single;
+  AvailableDeliveries, AvailableSerfs: Integer;
+  Serf: TKMUnitSerf;
 begin
   RemoveExtraSerfs;
 
   AvailableDeliveries := fQueue.GetAvailableDeliveriesCount;
   AvailableSerfs := GetIdleSerfCount;
-  if AvailableSerfs*AvailableDeliveries = 0 then Exit;
+  if AvailableSerfs * AvailableDeliveries = 0 then Exit;
 
   if AvailableDeliveries > AvailableSerfs then
   begin
@@ -268,9 +269,9 @@ begin
       BestBid := -1;
       FoundO := -1;
       FoundD := -1;
-      for iD:=1 to fQueue.DemandCount do
+      for iD := 1 to fQueue.DemandCount do
         if fQueue.fDemand[iD].Resource <> rt_None then
-          for iO:=1 to fQueue.OfferCount do
+          for iO := 1 to fQueue.OfferCount do
             if (fQueue.fOffer[iO].Resource <> rt_None)
             and fQueue.ValidDelivery(iO,iD)
             and AnySerfCanDoDelivery(iO,iD) then //Only choose this delivery if at least one of the serfs can do it
@@ -283,9 +284,10 @@ begin
                 FoundD := iD;
               end;
             end;
+
+      //FoundO and FoundD give us the best delivery to do at this moment. Now find the best serf for the job.
       if BestBid <> -1 then
       begin
-        //FoundO and FoundD give us the best delivery to do at this moment. Now find the best serf for the job.
         Serf := nil;
         BestBid := -1;
         for K := 0 to fSerfCount - 1 do
@@ -310,29 +312,40 @@ end;
 //Adds new Offer to the list. List is stored without sorting
 //(it matters only for Demand to keep everything in waiting its order in line),
 //so we just find an empty place and write there.
-procedure TKMDeliverQueue.AddOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
-var i,k:integer;
+procedure TKMDeliverQueue.AddOffer(aHouse: TKMHouse; aResource: TResourceType; aCount: Integer);
+var
+  I, K: Integer;
 begin
   //Add Count of resource to old offer
-  for i:=1 to OfferCount do
-    if (fOffer[i].Loc_House=aHouse)and(fOffer[i].Resource=aResource)and not fOffer[i].IsDeleted then
+  for I := 1 to OfferCount do
+    if (fOffer[I].Loc_House = aHouse)
+    and (fOffer[I].Resource = aResource)
+    and not fOffer[I].IsDeleted then
     begin
-      inc(fOffer[i].Count, aCount);
-      exit; //we should exit now
+      Inc(fOffer[I].Count, aCount);
+      Exit; //Count added, thats all
     end;
 
-  i:=1; while (i<=OfferCount)and(fOffer[i].Resource<>rt_None) do inc(i);
-  if i>OfferCount then begin
-    inc(OfferCount, LENGTH_INC);
-    SetLength(fOffer, OfferCount+1);
-    for k:=i to OfferCount do FillChar(fOffer[k],SizeOf(fOffer[k]),#0); //Initialise the new queue space
+  //Find empty place or allocate new one
+  I := 1;
+  while (I <= OfferCount) and (fOffer[I].Resource <> rt_None) do
+    Inc(I);
+  if I > OfferCount then
+  begin
+    Inc(OfferCount, LENGTH_INC);
+    SetLength(fOffer, OfferCount + 1);
+    for K := I to OfferCount do
+      FillChar(fOffer[K], SizeOf(fOffer[K]), #0); //Initialise the new queue space
   end;
 
-  with fOffer[i] do begin //Put offer
-    if aHouse <> nil then Loc_House:=aHouse.GetHousePointer;
-    Resource:=aResource;
-    Count:=aCount;
-    assert((BeingPerformed=0) and not IsDeleted); //Make sure this item has been closed properly, if not there is a flaw
+  //Add offer
+  with fOffer[I] do
+  begin
+    if aHouse <> nil then
+      Loc_House := aHouse.GetHousePointer;
+    Resource := aResource;
+    Count := aCount;
+    Assert((BeingPerformed = 0) and not IsDeleted); //Make sure this item has been closed properly, if not there is a flaw
   end;
 end;
 
