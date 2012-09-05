@@ -375,24 +375,22 @@ procedure TKMayor.CheckHouseFood;
 var Req: Integer;
 begin
   //Build at least 2 Farms early on
-  Req := 2 + Byte(fSetup.Strong) * 2 * Byte(HouseCount(ht_Swine) > 0)
-           + fPlayers[fOwner].Stats.GetCitizensCount div 30;
+  Req := 1;
   if Req > HouseCount(ht_Farm) then
     TryBuildHouse(ht_Farm);
 
   //Wineyard
-  Req := 2 + Byte(fSetup.Strong) * 2
-           + fPlayers[fOwner].Stats.GetCitizensCount div 30;
+  Req := 1;
   if Req > HouseCount(ht_Wineyard) then
     TryBuildHouse(ht_Wineyard);
 
   //Mill
-  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Farm) div 4;
+  Req := 1;
   if Req > HouseCount(ht_Mill) then
     TryBuildHouse(ht_Mill);
 
   //Bakery
-  Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Mill) div 2;
+  Req := 1;
   if Req > HouseCount(ht_Bakery) then
     TryBuildHouse(ht_Bakery);
 end;
@@ -401,6 +399,28 @@ end;
 procedure TKMayor.CheckHouseFoodAdv;
 var Req: Integer;
 begin
+  //Build at least 2 Farms early on
+  Req := 1 + Byte(fSetup.Strong) * 2 * Byte(HouseCount(ht_Swine) > 0)
+           + fPlayers[fOwner].Stats.GetCitizensCount div 30;
+  if Req > HouseCount(ht_Farm) then
+    TryBuildHouse(ht_Farm);
+
+  //Wineyard
+  Req := 1 + Byte(fSetup.Strong) * 2
+           + fPlayers[fOwner].Stats.GetCitizensCount div 30;
+  if Req > HouseCount(ht_Wineyard) then
+    TryBuildHouse(ht_Wineyard);
+
+  //Mill
+  Req := Byte(fSetup.Strong) + HouseCount(ht_Farm) div 4;
+  if Req > HouseCount(ht_Mill) then
+    TryBuildHouse(ht_Mill);
+
+  //Bakery
+  Req := Byte(fSetup.Strong) + HouseCount(ht_Mill) div 2;
+  if Req > HouseCount(ht_Bakery) then
+    TryBuildHouse(ht_Bakery);
+
   //Swine
   Req := 1 + Byte(fSetup.Strong) + HouseCount(ht_Farm) div 4;
   if Req > HouseCount(ht_Swine) then
