@@ -26,7 +26,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain;
+uses KM_PlayersCollection, KM_Terrain, KM_Units;
 
 
 { TPathFindingRoad }
@@ -83,10 +83,18 @@ end;
 
 
 function TPathFindingRoad.DestinationReached(aX, aY: Word): Boolean;
+var
+  RoadWorkNear: Boolean;
 begin
+  //Since we can't step on to WIP tiles we check for them nearby
+  RoadWorkNear := ((aX > 1) and (fTerrain.Land[aY, aX-1].TileLock = tlRoadWork) and (TKMUnit(fTerrain.Land[aY, aX-1].IsUnit).GetOwner = fOwner))
+  or ((aX < fTerrain.MapX - 1) and (fTerrain.Land[aY, aX+1].TileLock = tlRoadWork) and (TKMUnit(fTerrain.Land[aY, aX+1].IsUnit).GetOwner = fOwner))
+  or ((aY > 1) and (fTerrain.Land[aY-1, aX].TileLock = tlRoadWork) and (TKMUnit(fTerrain.Land[aY-1, aX].IsUnit).GetOwner = fOwner))
+  or ((aY < fTerrain.MapY - 1) and (fTerrain.Land[aY+1, aX].TileLock = tlRoadWork) and (TKMUnit(fTerrain.Land[aY+1, aX].IsUnit).GetOwner = fOwner));
+
   Result := ((aX = fLocB.X) and (aY = fLocB.Y)) //We reached destination point
             or ((fTerrain.Land[aY, aX].TileOverlay = to_Road) and (fTerrain.Land[aY, aX].TileOwner = fOwner)) //We reached own road
-            or ((fTerrain.Land[aY, aX].TileLock = tlRoadWork) and (fTerrain.Land[aY, aX].TileOwner = fOwner)) //We reached our roadplan being constructed
+            or RoadWorkNear //We reached our roadplan being constructed
             or (fPlayers[fOwner].BuildList.FieldworksList.HasField(KMPoint(aX, aY)) = ft_Road);
 end;
 

@@ -43,6 +43,7 @@ type
   TKMAIFields = class
   private
     fPlayerCount: Integer;
+    fMapX, fMapY: Word;
     fShowInfluenceMap: Boolean;
     fShowNavMesh: Boolean;
 
@@ -54,9 +55,10 @@ type
 
     procedure NavMeshGenerate;
   public
-    AvoidBuilding: array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
-    InfluenceMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Byte;
-    InfluenceMinMap: array of array [0..MAX_MAP_SIZE, 0..MAX_MAP_SIZE] of Integer;
+    AvoidBuilding: array of array of Byte;
+    Forest: array of array of Word;
+    InfluenceMap: array of array of array of Byte;
+    InfluenceMinMap: array of array of array of Integer;
 
     constructor Create;
     destructor Destroy; override;
@@ -70,6 +72,7 @@ type
     procedure ExportInfluenceMaps;
 
     procedure UpdateInfluenceAvoid;
+    procedure UpdateInfluenceForest;
     procedure UpdateInfluenceMaps;
     procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
@@ -387,9 +390,14 @@ begin
 
   if AI_GEN_INFLUENCE_MAPS then
   begin
-    SetLength(InfluenceMap, fPlayerCount);
-    SetLength(InfluenceMinMap, fPlayerCount);
+    fMapX := fTerrain.MapX;
+    fMapY := fTerrain.MapY;
+    SetLength(AvoidBuilding, fMapY, fMapX);
+    SetLength(Forest, fMapY, fMapX);
+    SetLength(InfluenceMap, fPlayerCount, fMapY, fMapX);
+    SetLength(InfluenceMinMap, fPlayerCount, fMapY, fMapX);
     UpdateInfluenceAvoid;
+    UpdateInfluenceForest;
     UpdateInfluenceMaps;
   end;
 
@@ -681,10 +689,43 @@ begin
 end;
 
 
+procedure TKMAIFields.UpdateInfluenceForest;
+const
+  TREE_WEIGHT = 8; //Each tree adds this weight lineary fading to forest map
+  procedure DoFill(X,Y: SmallInt);
+  var
+    I,K: Integer;
+  begin
+    //Distribute tree weight lineary in TREE_WEIGHT radius
+    //loops are TREE_WEIGHT-1 because we skip 0 weight edges
+    for I := Max(Y - TREE_WEIGHT+1, 1) to Min(Y + TREE_WEIGHT-1, fTerrain.MapY - 1) do
+    for K := Max(X - TREE_WEIGHT+1, 1) to Min(X + TREE_WEIGHT-1, fTerrain.MapX - 1) do
+    if Abs(I-Y) + Abs(K-X) < TREE_WEIGHT then
+      Forest[I,K] := Forest[I,K] + TREE_WEIGHT - (Abs(I-Y) + Abs(K-X));
+  end;
+var
+  I, K: Integer;
+begin
+  if not AI_GEN_INFLUENCE_MAPS then Exit;
+  Assert(fTerrain <> nil);
+
+  for I := 0 to fMapY - 1 do
+  for K := 0 to fMapX - 1 do
+    Forest[I,K] := 0;
+
+  //Update forest influence map
+  for I := 1 to fMapY - 1 do
+  for K := 1 to fMapX - 1 do
+  if fTerrain.ObjectIsChopableTree(K,I) then
+    DoFill(K,I);
+end;
+
+
 procedure TKMAIFields.UpdateInfluenceMaps;
 var
   J: Integer;
   procedure DoFill(X,Y: Integer; V: Word);
+  const DECAY = 3; //Decay affects how much space AI needs to be able to expand, smaller than 3 blocks green AI on AcrossDesert very early
   begin
     if (V > InfluenceMap[J, Y, X])
     and InRange(Y, 2, fTerrain.MapY - 2)
@@ -692,14 +733,14 @@ var
     and (CanOwn in fTerrain.Land[Y,X].Passability) then
     begin
       InfluenceMap[J, Y, X] := V;
-      DoFill(X, Y-1, Max(V - 2, 0));
-      DoFill(X-1, Y, Max(V - 2, 0));
-      DoFill(X+1, Y, Max(V - 2, 0));
-      DoFill(X, Y+1, Max(V - 2, 0));
-      {DoFill(X-1, Y-1, Max(V - 3, 0));
-      DoFill(X+1, Y-1, Max(V - 3, 0));
-      DoFill(X-1, Y+1, Max(V - 3, 0));
-      DoFill(X+1, Y+1, Max(V - 3, 0));}
+      DoFill(X, Y-1, Max(V - DECAY, 0));
+      DoFill(X-1, Y, Max(V - DECAY, 0));
+      DoFill(X+1, Y, Max(V - DECAY, 0));
+      DoFill(X, Y+1, Max(V - DECAY, 0));
+      {DoFill(X-1, Y-1, Max(V - DECAY*1.41, 0));
+      DoFill(X+1, Y-1, Max(V - DECAY*1.41, 0));
+      DoFill(X-1, Y+1, Max(V - DECAY*1.41, 0));
+      DoFill(X+1, Y+1, Max(V - DECAY*1.41, 0));}
     end;
   end;
 var
@@ -740,9 +781,10 @@ begin
       L := Max(L, InfluenceMinMap[J, I, K]);
     end;
 
-    for I := 2 to fTerrain.MapY - 2 do
+    //Normalization is not working as intended, it gives unfair advantage to one using it, muting neighbours areas beyond reason
+    {for I := 2 to fTerrain.MapY - 2 do
     for K := 2 to fTerrain.MapX - 2 do
-      InfluenceMinMap[J, I, K] := Max(InfluenceMinMap[J, I, K] - L + 255, 0);
+      InfluenceMinMap[J, I, K] := Max(InfluenceMinMap[J, I, K] - L + 255, 0);}
   end;
 end;
 
@@ -808,6 +850,8 @@ begin
       end;
 
       //Col := InfluenceAvoid[I,K] * 65793 or $80000000;
+
+      //Col := Forest[I,K] * 8 * 65793 or $80000000;
 
       fRenderAux.Quad(K, I, Col);
     end;

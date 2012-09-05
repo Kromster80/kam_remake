@@ -14,7 +14,6 @@ type
     fOwner: TPlayerIndex;
     fPerfLog: TKMPerfLog;
 
-    function FindNearest(aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aEnd: TKMPoint): Boolean;
     function NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
     function NextToHouse(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
@@ -24,6 +23,7 @@ type
     constructor Create(aPlayer: TPlayerIndex);
     destructor Destroy; override;
 
+    function FindNearest(aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aEnd: TKMPoint): Boolean;
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
     procedure Save(SaveStream: TKMemoryStream);
@@ -337,24 +337,7 @@ end;
 function TKMCityPlanner.NextToTrees(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
 const
   SEARCH_RAD = 20; //Search for forests within this radius
-  SEARCH_SIDE = SEARCH_RAD*2+1; //Length of the Forest map side
-  TREE_WEIGHT = 8; //Each tree adds this weight lineary fading to forest map
   HUT_RAD = 5; //Search for the best place for a hut in this radius
-var
-  Forest: array of array of Word;
-
-  procedure DoFill(X,Y: SmallInt);
-  var
-    I,K: Integer;
-  begin
-    //Distribute tree weight lineary in TREE_WEIGHT radius
-    //loops are TREE_WEIGHT-1 because we skip 0 weight edges
-    for I := Max(Y - TREE_WEIGHT+1, 0) to Min(Y + TREE_WEIGHT-1, SEARCH_SIDE-1) do
-    for K := Max(X - TREE_WEIGHT+1, 0) to Min(X + TREE_WEIGHT-1, SEARCH_SIDE-1) do
-    if Abs(I-Y) + Abs(K-X) < TREE_WEIGHT then
-      Forest[I,K] := Forest[I,K] + TREE_WEIGHT - (Abs(I-Y) + Abs(K-X));
-  end;
-
 var
   S: TKMHouse;
   I, K: Integer;
@@ -370,28 +353,15 @@ begin
   if S = nil then Exit;
   StoreLoc := S.GetPosition;
 
-  //Fill in forest map
-  SetLength(Forest, SEARCH_SIDE, SEARCH_SIDE);
-  for I := Max(StoreLoc.Y - SEARCH_RAD, 1) to Min(StoreLoc.Y + SEARCH_RAD, fTerrain.MapY - 1) do
-  for K := Max(StoreLoc.X - SEARCH_RAD, 1) to Min(StoreLoc.X + SEARCH_RAD, fTerrain.MapX - 1) do
-    if fTerrain.ObjectIsChopableTree(K,I)
-    and (fAIFields.AvoidBuilding[I,K] = 0)
-    and (fAIFields.GetBestOwner(K, I) = fOwner) then
-    begin
-      Fx := K - StoreLoc.X + SEARCH_RAD;
-      Fy := I - StoreLoc.Y + SEARCH_RAD;
-      DoFill(Fx, Fy);
-    end;
-
   //Find heart of the forest
   BestBid := 0;
-  for I := 0 to SEARCH_SIDE-1 do
-  for K := 0 to SEARCH_SIDE-1 do
+  for I := Max(StoreLoc.Y - SEARCH_RAD, 1) to Min(StoreLoc.Y + SEARCH_RAD, fTerrain.MapY - 1) do
+  for K := Max(StoreLoc.X - SEARCH_RAD, 1) to Min(StoreLoc.X + SEARCH_RAD, fTerrain.MapX - 1) do
   begin
-    Bid := Forest[I,K] + KaMRandom * 6; //Add some noise for varied results
+    Bid := fAIFields.Forest[I,K] + KaMRandom * 6; //Add some noise for varied results
     if Bid > BestBid then
     begin
-      TreeLoc := KMPoint(K + StoreLoc.X - SEARCH_RAD, I + StoreLoc.Y - SEARCH_RAD);
+      TreeLoc := KMPoint(K, I);
       BestBid := Bid;
     end;
   end;

@@ -346,6 +346,8 @@ begin
     FreeAndNil(fRoadsList);
   end;
 
+  fAI.Mayor.AfterMissionInit;
+
   for I := 0 to fPlayers.Count - 1 do
     if fPlayerIndex <> I then
       fArmyEval.AddEnemy(fPlayers[I]);

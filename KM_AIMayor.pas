@@ -15,10 +15,13 @@ type
     fPathFindingRoad: TPathFindingRoad;
 
     fRoadBelowStore: Boolean;
+    fWooden: Boolean;
 
     function HouseCount(aHouse: THouseType): Integer;
     procedure TryBuildHouse(aHouse: THouseType);
     function TryConnectToRoad(aLoc: TKMPoint): Boolean;
+
+    procedure CheckStrategy;
 
     procedure CheckUnitCount;
     procedure CheckHouseVital;
@@ -37,6 +40,7 @@ type
 
     property CityPlanner: TKMCityPlanner read fCityPlanner;
 
+    procedure AfterMissionInit;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
 
     procedure UpdateState(aTick: Cardinal);
@@ -85,30 +89,42 @@ begin
 end;
 
 
+procedure TKMayor.AfterMissionInit;
+begin
+  CheckStrategy;
+end;
+
+
 { Check existing unit count vs house count and train missing citizens }
 procedure TKMayor.CheckUnitCount;
 var
   HS: TKMHouseSchool;
   UnitReq: array [TUnitType] of Integer;
 
-  function CheckUnitRequirements(Req:integer; aUnitType:TUnitType):boolean;
+  function HasEnoughGold: Boolean;
+  begin
+    //todo: (Gold > 10) or (Has MinerInCoal+MinerInGold+Metallurgist)
+    Result := True;
+  end;
+
+  function TryAddToQueue(aUnitType: TUnitType; aReq: Integer): Boolean;
   begin
     //We summ up requirements for e.g. Recruits required at Towers and Barracks
-    if fPlayers[fOwner].Stats.GetUnitQty(aUnitType) < (Req+UnitReq[aUnitType]) then
+    if fPlayers[fOwner].Stats.GetUnitQty(aUnitType) < (aReq + UnitReq[aUnitType]) then
     begin
-      dec(UnitReq[aUnitType]); //So other schools don't order same unit
+      Dec(UnitReq[aUnitType]); //So other schools don't order same unit
       HS.AddUnitToQueue(aUnitType, 1);
-      Result := true;
+      Result := True;
     end
     else
-      Result := false;
+      Result := False;
   end;
 
 var
-  i,k:integer;
-  H:THouseType;
-  UT:TUnitType;
-  Schools:array of TKMHouseSchool;
+  I,K: Integer;
+  H: THouseType;
+  UT: TUnitType;
+  Schools: array of TKMHouseSchool;
   P: TKMPlayer;
 begin
   //todo: When training new units make sure we have enough gold left to train
@@ -118,7 +134,7 @@ begin
   P := fPlayers[fOwner];
 
   //Find school and make sure it's free of tasks
-  FillChar(UnitReq,SizeOf(UnitReq),#0); //Clear up
+  FillChar(UnitReq, SizeOf(UnitReq), #0); //Clear up
 
   //Citizens
   //Count overall unit requirement (excluding Barracks and ownerless houses)
@@ -142,29 +158,30 @@ begin
   end;
 
   //Order the training
-  for k:=1 to Length(Schools) do
+  for K := 0 to High(Schools) do
   begin
-    HS := Schools[k-1];
-    if (HS<>nil)and(HS.QueueIsEmpty) then
+    HS := Schools[K];
+    if (HS <> nil) and (HS.QueueIsEmpty) then
     begin
       //Order citizen training
-      for UT:=Low(UnitReq) to High(UnitReq) do
-        if (UnitReq[UT] > 0) and
-           (UnitReq[UT] > P.Stats.GetUnitQty(UT)) and
-           (UT <> ut_None) then
+      for UT := Low(UnitReq) to High(UnitReq) do
+        if (UT <> ut_None)
+        and (UnitReq[UT] > P.Stats.GetUnitQty(UT)) then
         begin
-          dec(UnitReq[UT]); //So other schools don't order same unit
+          Dec(UnitReq[UT]); //So other schools don't order same unit
           HS.AddUnitToQueue(UT, 1);
-          break; //Don't need more UnitTypes yet
+          Break; //Don't need more UnitTypes yet
         end;
+
 
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
+      if HasEnoughGold then
       if HS.QueueIsEmpty then //Still haven't found a match...
-        if not CheckUnitRequirements(Round((10/fSetup.SerfFactor) * P.Stats.GetHouseQty(ht_Any)), ut_Serf) then
-          if not CheckUnitRequirements(fSetup.WorkerFactor, ut_Worker) then
+        if not TryAddToQueue(ut_Serf, Round((10/fSetup.SerfFactor) * P.Stats.GetHouseQty(ht_Any))) then
+          if not TryAddToQueue(ut_Worker, fSetup.WorkerFactor) then
             if fGame.CheckTime(fSetup.RecruitDelay) then //Recruits can only be trained after this time
-              if not CheckUnitRequirements(fSetup.RecruitFactor * P.Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
+              if not TryAddToQueue(ut_Recruit, fSetup.RecruitFactor * P.Stats.GetHouseQty(ht_Barracks)) then
                 Break; //There's no unit demand at all
     end;
   end;
@@ -337,7 +354,7 @@ begin
   //Town needs at least 2 woodcutters build early and 2 more after Sawmill
   Req := 2 +
          Byte(fSetup.Strong and (HouseCount(ht_Sawmill) > 0)) * 2 +
-         Byte(fSetup.Wooden) * 2;
+         Byte(fWooden) * 2;
   if Req > HouseCount(ht_Woodcutters) then
     TryBuildHouse(ht_Woodcutters);
 
@@ -354,7 +371,7 @@ begin
   //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
   Req := 2 +
          Byte(fSetup.Strong) * 2 +
-         Byte(not fSetup.Wooden) * 2; //For iron production
+         Byte(not fWooden) * 2; //For iron production
   if Req > HouseCount(ht_CoalMine) then
     TryBuildHouse(ht_CoalMine);
 
@@ -443,7 +460,7 @@ procedure TKMayor.CheckHouseWeaponry;
 var
   Req: Integer;
 begin
-  if fSetup.Wooden then
+  if fWooden then
   begin
     //
     Req := 1 + Byte(fSetup.Strong);
@@ -545,7 +562,7 @@ begin
 
   //This is one time task to build roads around Store
   //When town becomes larger add road around Store to make traffic smoother
-  if not fRoadBelowStore and (P.Stats.GetCitizensCount > 20) then
+  if not fRoadBelowStore and (P.Stats.GetHouseQty(ht_Any) > 10) then
   begin
     fRoadBelowStore := True;
 
@@ -558,6 +575,24 @@ begin
     if P.CanAddFieldPlan(KMPoint(K, I), ft_Road) then
       P.BuildList.FieldworksList.AddField(KMPoint(K, I), ft_Road);
   end;
+end;
+
+
+procedure TKMayor.CheckStrategy;
+const
+  CheckDistance: array [Boolean] of Byte = (25, 32);
+var
+  P: TKMPlayer;
+  Store: TKMHouse;
+  StoreLoc, T: TKMPoint;
+begin
+  Store := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1);
+  if Store = nil then Exit;
+  StoreLoc := Store.GetEntrance;
+
+  //AI will be Wooden if there no iron/coal nearby
+  fWooden := not fCityPlanner.FindNearest(StoreLoc, CheckDistance[fSetup.Strong], fnIron, T)
+             or not fCityPlanner.FindNearest(StoreLoc, CheckDistance[fSetup.Strong], fnCoal, T);
 end;
 
 
