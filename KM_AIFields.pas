@@ -837,7 +837,7 @@ var
   T1, T2: TKMPointF;
   Col, Col2: Cardinal;
   Outline: TKMWeightSegments;
-begin
+begin                   exit;
   if AI_GEN_INFLUENCE_MAPS and fShowInfluenceMap then
     for I := aRect.Top to aRect.Bottom do
     for K := aRect.Left to aRect.Right do

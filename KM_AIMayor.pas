@@ -66,6 +66,19 @@ const //Sample list made by AntonP
   ht_IronSmithy, ht_Farm, ht_Swine, ht_WeaponSmithy, ht_ArmorSmithy
   );
 
+  //Vital (Store, School, Inn)
+  //Mining_Core (Quary x3, Woodcutters x3, Sawmill)
+  //Mining_Gold (CoalMine x2, GoldMine, Metallurgists)
+  //Food_Basic (Farm, Mill, Bakery, Wineyard)
+
+  //Food
+
+  //Warfare_Leather (Woodcutters x2, Sawmill, Swine x4, Tannery x2, Armor x2, Weapon x3)
+  //Warfare_Iron (Coal x4, Iron x2, IronSmithy x2, Armor, Weapon x2)
+
+  //Hiring_Army (Barracks)
+  //Hiring_Army2 (School, CoalMine x2, GoldMine)
+
   WOOD_RAD = 6;
 
 
@@ -75,7 +88,7 @@ begin
   inherited Create;
   fOwner := aPlayer;
   fPathFindingRoad := TPathFindingRoad.Create(fOwner);
-  fCityPlanner := TKMCityPlanner.Create(fOwner{, fPathFindingRoad});
+  fCityPlanner := TKMCityPlanner.Create(fOwner);
 
   fSetup := aSetup;
 end;
@@ -98,19 +111,21 @@ end;
 { Check existing unit count vs house count and train missing citizens }
 procedure TKMayor.CheckUnitCount;
 var
+  P: TKMPlayer;
   HS: TKMHouseSchool;
   UnitReq: array [TUnitType] of Integer;
 
   function HasEnoughGold: Boolean;
   begin
-    //todo: (Gold > 10) or (Has MinerInCoal+MinerInGold+Metallurgist)
-    Result := True;
+    //Producing gold or (Gold > 10)
+    Result := (P.Stats.GetGoodsProduced(rt_Gold) > 1)
+              or (P.Stats.GetResourceQty(rt_Gold) > 10);
   end;
 
   function TryAddToQueue(aUnitType: TUnitType; aReq: Integer): Boolean;
   begin
     //We summ up requirements for e.g. Recruits required at Towers and Barracks
-    if fPlayers[fOwner].Stats.GetUnitQty(aUnitType) < (aReq + UnitReq[aUnitType]) then
+    if P.Stats.GetUnitQty(aUnitType) < (aReq + UnitReq[aUnitType]) then
     begin
       Dec(UnitReq[aUnitType]); //So other schools don't order same unit
       HS.AddUnitToQueue(aUnitType, 1);
@@ -125,7 +140,6 @@ var
   H: THouseType;
   UT: TUnitType;
   Schools: array of TKMHouseSchool;
-  P: TKMPlayer;
 begin
   //todo: When training new units make sure we have enough gold left to train
   //stonemason-woodcutter-carpenter-2miners-metallurgist. In other words -
@@ -133,28 +147,26 @@ begin
 
   P := fPlayers[fOwner];
 
-  //Find school and make sure it's free of tasks
-  FillChar(UnitReq, SizeOf(UnitReq), #0); //Clear up
-
   //Citizens
   //Count overall unit requirement (excluding Barracks and ownerless houses)
+  FillChar(UnitReq, SizeOf(UnitReq), #0); //Clear up
   for H := Low(THouseType) to High(THouseType) do
     if fResource.HouseDat[H].IsValid and (fResource.HouseDat[H].OwnerType <> ut_None) and (H <> ht_Barracks) then
-      inc(UnitReq[fResource.HouseDat[H].OwnerType], P.Stats.GetHouseQty(H));
+      Inc(UnitReq[fResource.HouseDat[H].OwnerType], P.Stats.GetHouseQty(H));
 
   //Schools
   //Count overall schools count and exclude already training units from UnitReq
   SetLength(Schools, P.Stats.GetHouseQty(ht_School));
   K := 1;
-  HS := TKMHouseSchool(P.FindHouse(ht_School,K));
+  HS := TKMHouseSchool(P.FindHouse(ht_School, K));
   while HS <> nil do
   begin
     Schools[K-1] := HS;
     for I := 0 to High(HS.Queue) do //Decrease requirement for each unit in training
       if HS.Queue[I] <> ut_None then
         Dec(UnitReq[HS.Queue[I]]); //Can be negative and compensated by e.g. ReqRecruits
-    inc(K);
-    HS := TKMHouseSchool(P.FindHouse(ht_School,K));
+    Inc(K);
+    HS := TKMHouseSchool(P.FindHouse(ht_School, K));
   end;
 
   //Order the training
@@ -166,6 +178,7 @@ begin
       //Order citizen training
       for UT := Low(UnitReq) to High(UnitReq) do
         if (UT <> ut_None)
+        and (UnitReq[UT] > 0) //Exclude untrainable units like Wolfs
         and (UnitReq[UT] > P.Stats.GetUnitQty(UT)) then
         begin
           Dec(UnitReq[UT]); //So other schools don't order same unit
@@ -173,16 +186,15 @@ begin
           Break; //Don't need more UnitTypes yet
         end;
 
-
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
-      if HasEnoughGold then
       if HS.QueueIsEmpty then //Still haven't found a match...
-        if not TryAddToQueue(ut_Serf, Round((10/fSetup.SerfFactor) * P.Stats.GetHouseQty(ht_Any))) then
-          if not TryAddToQueue(ut_Worker, fSetup.WorkerFactor) then
-            if fGame.CheckTime(fSetup.RecruitDelay) then //Recruits can only be trained after this time
-              if not TryAddToQueue(ut_Recruit, fSetup.RecruitFactor * P.Stats.GetHouseQty(ht_Barracks)) then
-                Break; //There's no unit demand at all
+        if HasEnoughGold then //If we are low on Gold don't hire more ppl
+          if not TryAddToQueue(ut_Serf, Round((10/fSetup.SerfFactor) * P.Stats.GetHouseQty(ht_Any))) then
+            if not TryAddToQueue(ut_Worker, fSetup.WorkerFactor) then
+              if fGame.CheckTime(fSetup.RecruitDelay) then //Recruits can only be trained after this time
+                if not TryAddToQueue(ut_Recruit, fSetup.RecruitFactor * P.Stats.GetHouseQty(ht_Barracks)) then
+                  Break; //There's no unit demand at all
     end;
   end;
 end;
@@ -519,9 +531,45 @@ end;
 
 
 procedure TKMayor.CheckHouseCount;
+var
+  P: TKMPlayer;
+  HT: THouseType;
+  HouseWeight: array [HOUSE_MIN..HOUSE_MAX] of Single;
+  BestHouse: THouseType;
 begin
+  P := fPlayers[fOwner];
+
   //Number of simultaneous WIP houses is limited to 3
-  if (fPlayers[fOwner].Stats.GetHouseWip(ht_Any) >= 3) then Exit;
+  if (P.Stats.GetHouseWip(ht_Any) >= 3) then Exit;
+
+  for HT := HOUSE_MIN to HOUSE_MAX do
+    HouseWeight[HT] := 0;
+
+  //AI absolutely needs at least one Store. Each house increases the need by 0.025
+  //so at some point second Store is constructed
+  HouseWeight[ht_Store] := 1 - P.Stats.GetHouseQty(ht_Store) + P.Stats.GetHouseQty(ht_Any) / 40;
+  HouseWeight[ht_School] := 1 - P.Stats.GetHouseQty(ht_School) + P.Stats.GetUnitQty(ut_Any) / 50;
+  HouseWeight[ht_Inn] := 1 - P.Stats.GetHouseQty(ht_Inn) + P.Stats.GetUnitQty(ut_Any) / 50;
+
+  HouseWeight[ht_Quary] := 1 - P.Stats.GetHouseQty(ht_Quary) / 5 - P.Stats.GetResourceQty(rt_Stone) / 200;
+  HouseWeight[ht_Woodcutters] := 1 - P.Stats.GetHouseQty(ht_Woodcutters) / 4 - P.Stats.GetResourceQty(rt_Wood) / 200;
+  HouseWeight[ht_Sawmill] := 1 - P.Stats.GetHouseQty(ht_Sawmill) / 3 - P.Stats.GetResourceQty(rt_Wood) / 200;
+
+  for HT := HOUSE_MIN to HOUSE_MAX do
+    HouseWeight[HT] := HouseWeight[HT] * Byte(P.Stats.GetCanBuild(HT));
+
+  BestHouse := HOUSE_MIN;
+  for HT := HOUSE_MIN to HOUSE_MAX do
+  if HouseWeight[HT] > HouseWeight[BestHouse] then
+    BestHouse := HT;
+
+  if HouseWeight[BestHouse] > 0.25 then
+    TryBuildHouse(BestHouse);
+
+  Exit;
+
+
+
 
   //Check if we have Store/Inn/School in adequate counts
   CheckHouseVital;
@@ -562,7 +610,7 @@ begin
 
   //This is one time task to build roads around Store
   //When town becomes larger add road around Store to make traffic smoother
-  if not fRoadBelowStore and (P.Stats.GetHouseQty(ht_Any) > 10) then
+  if not fRoadBelowStore and (P.Stats.GetHouseQty(ht_Any) > 14) then
   begin
     fRoadBelowStore := True;
 

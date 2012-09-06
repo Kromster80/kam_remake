@@ -56,11 +56,11 @@ type
     procedure HousePlanRemoved(aType: THouseType);
     procedure HouseStarted(aType: THouseType);
     procedure HouseEnded(aType: THouseType);
-    procedure HouseCreated(aType: THouseType; aWasBuilt:boolean);
+    procedure HouseCreated(aType: THouseType; aWasBuilt: Boolean);
     procedure HouseLost(aType: THouseType);
     procedure HouseSelfDestruct(aType: THouseType);
     procedure HouseDestroyed(aType: THouseType);
-    procedure UnitCreated(aType: TUnitType; aWasTrained:boolean);
+    procedure UnitCreated(aType: TUnitType; aWasTrained: Boolean);
     procedure UnitLost(aType: TUnitType);
     procedure UnitKilled(aType: TUnitType);
 
@@ -70,21 +70,23 @@ type
     function GetHouseQty(aType: THouseType): Integer;
     function GetHouseWip(aType: THouseType): Integer;
     function GetUnitQty(aType: TUnitType): Integer;
-    function GetArmyCount:Integer;
+    function GetResourceQty(aRT: TResourceType): Integer;
+    function GetArmyCount: Integer;
     function GetCitizensCount: Integer;
-    function GetCanBuild(aType: THouseType):boolean;
+    function GetCanBuild(aType: THouseType): Boolean;
 
-    function GetCitizensTrained:cardinal;
-    function GetCitizensLost:cardinal;
-    function GetCitizensKilled:cardinal;
-    function GetHousesBuilt:cardinal;
-    function GetHousesLost:cardinal;
-    function GetHousesDestroyed:cardinal;
-    function GetWarriorsTrained:cardinal;
-    function GetWarriorsKilled:cardinal;
-    function GetWarriorsLost:cardinal;
-    function GetGoodsProduced:cardinal;
-    function GetWeaponsProduced:cardinal;
+    function GetCitizensTrained: Cardinal;
+    function GetCitizensLost: Cardinal;
+    function GetCitizensKilled: Cardinal;
+    function GetHousesBuilt: Cardinal;
+    function GetHousesLost: Cardinal;
+    function GetHousesDestroyed: Cardinal;
+    function GetWarriorsTrained: Cardinal;
+    function GetWarriorsKilled: Cardinal;
+    function GetWarriorsLost: Cardinal;
+    function GetGoodsProduced(aRT: TResourceType): Cardinal; overload;
+    function GetGoodsProduced: Cardinal; overload;
+    function GetWeaponsProduced: Cardinal;
 
     property GraphCount: Integer read fGraphCount;
     property GraphHouses: TCardinalArray read fGraphHouses;
@@ -299,6 +301,21 @@ begin
 end;
 
 
+function TKMPlayerStats.GetResourceQty(aRT: TResourceType): Integer;
+var RT: TResourceType;
+begin
+  Result := 0;
+  case aRT of
+    rt_None:    ;
+    rt_All:     for RT := WARE_MIN to WARE_MAX do
+                  Result := Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed;
+    rt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
+                  Result := Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed;
+    else        Result := Goods[aRT].Initial + Goods[aRT].Produced - Goods[aRT].Consumed;
+  end;
+end;
+
+
 function TKMPlayerStats.GetArmyCount: Integer;
 var UT: TUnitType;
 begin
@@ -363,7 +380,7 @@ end;
 
 
 //The value includes only citizens, Warriors are counted separately
-function TKMPlayerStats.GetCitizensTrained:cardinal;
+function TKMPlayerStats.GetCitizensTrained: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -372,7 +389,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetCitizensLost:cardinal;
+function TKMPlayerStats.GetCitizensLost: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -381,7 +398,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetCitizensKilled:cardinal;
+function TKMPlayerStats.GetCitizensKilled: Cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -390,7 +407,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetHousesBuilt:cardinal;
+function TKMPlayerStats.GetHousesBuilt: Cardinal;
 var HT: THouseType;
 begin
   Result := 0;
@@ -400,7 +417,7 @@ end;
 
 
 
-function TKMPlayerStats.GetHousesLost:cardinal;
+function TKMPlayerStats.GetHousesLost: Cardinal;
 var HT: THouseType;
 begin
   Result := 0;
@@ -444,6 +461,13 @@ begin
   Result := 0;
   for UT := WARRIOR_MIN to WARRIOR_MAX do
     Inc(Result, Units[UT].Killed);
+end;
+
+
+function TKMPlayerStats.GetGoodsProduced(aRT: TResourceType): Cardinal;
+begin
+  //todo: Handle rt_SpecialTypes
+  Result := Goods[aRT].Produced;
 end;
 
 

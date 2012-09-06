@@ -506,6 +506,9 @@ type
   THouseActionSet = set of THouseActionType;
 
 const
+  HOUSE_MIN = ht_ArmorSmithy;
+  HOUSE_MAX = ht_Woodcutters;
+
   HouseAction:array[THouseActionType] of string = (
   'ha_Work1', 'ha_Work2', 'ha_Work3', 'ha_Work4', 'ha_Work5', //Start, InProgress, .., .., Finish
   'ha_Smoke', 'ha_FlagShtok', 'ha_Idle',
