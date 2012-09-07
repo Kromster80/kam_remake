@@ -545,24 +545,72 @@ begin
   for HT := HOUSE_MIN to HOUSE_MAX do
     HouseWeight[HT] := 0;
 
-  //AI absolutely needs at least one Store. Each house increases the need by 0.025
-  //so at some point second Store is constructed
-  HouseWeight[ht_Store] := 1 - P.Stats.GetHouseQty(ht_Store) + P.Stats.GetHouseQty(ht_Any) / 40;
-  HouseWeight[ht_School] := 1 - P.Stats.GetHouseQty(ht_School) + P.Stats.GetUnitQty(ut_Any) / 50;
-  HouseWeight[ht_Inn] := 1 - P.Stats.GetHouseQty(ht_Inn) + P.Stats.GetUnitQty(ut_Any) / 50;
+  //When thinking about house weight arguments should be
+  //  Base need for a house 0..1
+  //    is it a must like an Inn (1), or an option like Stables (0)
+  //- What is considered to reduce the need
+  //    over 9000 stones at Store make Quary absolutely not needed
+  //+ What makes this house more needed
+  //    every citizen increases the need for an Inn
 
-  HouseWeight[ht_Quary] := 1 - P.Stats.GetHouseQty(ht_Quary) / 5 - P.Stats.GetResourceQty(rt_Stone) / 200;
-  HouseWeight[ht_Woodcutters] := 1 - P.Stats.GetHouseQty(ht_Woodcutters) / 4 - P.Stats.GetResourceQty(rt_Wood) / 200;
-  HouseWeight[ht_Sawmill] := 1 - P.Stats.GetHouseQty(ht_Sawmill) / 3 - P.Stats.GetResourceQty(rt_Wood) / 200;
+  //Range is meant to be like
+  //      absolutely not needed
+  // 0.0
+  //      not needed
+  // 0.25 <- after more than this weight Strong AI will build it
+  //      averagely needed
+  // 0.5  <- after more than this weight Weak AI will build it
+  //      quite needed
+  // 0.75
+  //      really needed
+  // 1.0  <- must (e.g. first house of kind)
 
+  //AI absolutely needs at least one Store
+  //After 10th house each house increases the need by 0.025
+  //0  20-50  60-90  100-130
+  HouseWeight[ht_Store]  := 1
+                            - HouseCount(ht_Store)
+                            + Max(HouseCount(ht_Any) - 10, 0) * 0.025;
+
+  //When we have Barracks we need 2nd School, but it's not very important
+  HouseWeight[ht_School] := 1
+                            - HouseCount(ht_School)
+                            + Byte(HouseCount(ht_Barracks) > 0) * 0.45;
+
+  //Every new citizen increases need by 0.02
+  //0 37-75 87-125
+  HouseWeight[ht_Inn]         := 1
+                                 - HouseCount(ht_Inn)
+                                 + Max(P.Stats.GetUnitQty(ut_Any) - 25, 0) * 0.02;
+
+  //Weak QQWWS
+  //Strong QQQWWQSW
+  HouseWeight[ht_Quary]       := 1
+                                 - HouseCount(ht_Quary) * 0.45
+                                 - P.Stats.GetResourceQty(rt_Stone) / 300
+                                 + Byte(HouseCount(ht_Woodcutters) > 0) * 0.95
+                                 + Byte(fSetup.Strong
+                                        and (HouseCount(ht_Woodcutters) > 0)) * 0.95;
+
+  HouseWeight[ht_Woodcutters] := 1
+                                 - HouseCount(ht_Woodcutters) / 4
+                                 - P.Stats.GetResourceQty(rt_Wood) / 300;
+
+  HouseWeight[ht_Sawmill]     := 0.79
+                                 - HouseCount(ht_Sawmill) / 3
+                                 - P.Stats.GetResourceQty(rt_Wood) / 300;
+
+  //Check ability to build house
   for HT := HOUSE_MIN to HOUSE_MAX do
     HouseWeight[HT] := HouseWeight[HT] * Byte(P.Stats.GetCanBuild(HT));
 
+  //Pick best house
   BestHouse := HOUSE_MIN;
   for HT := HOUSE_MIN to HOUSE_MAX do
   if HouseWeight[HT] > HouseWeight[BestHouse] then
     BestHouse := HT;
 
+  //Everything that is below 0.25 gets ignored for now
   if HouseWeight[BestHouse] > 0.25 then
     TryBuildHouse(BestHouse);
 
