@@ -1,4 +1,5 @@
 unit KM_PolySimplify;
+{$I KaM_Remake.inc}
 interface
 uses
   KM_Points, Math;

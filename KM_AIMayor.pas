@@ -24,9 +24,9 @@ type
     procedure CheckStrategy;
 
     procedure CheckUnitCount;
-    procedure CheckHouseVital;
+    procedure CheckHouseCore;
     procedure CheckHouseMining;
-    procedure CheckHouseMiningAdv;
+    procedure BuildMoreGold;
     procedure CheckHouseFood;
     procedure CheckHouseFoodAdv;
     procedure CheckHouseDefence;
@@ -326,7 +326,7 @@ begin
 end;
 
 
-procedure TKMayor.CheckHouseVital;
+procedure TKMayor.CheckHouseCore;
 var Req: Integer;
 begin
   //Build at least one Store and add one more for each 30 houses
@@ -343,6 +343,28 @@ begin
   Req := 1 + fPlayers[fOwner].Stats.GetCitizensCount div 60;
   if Req > HouseCount(ht_Inn) then
     TryBuildHouse(ht_Inn);
+
+  //Quary
+  //Town needs at least 2 quaries build early and 1 more after Sawmill
+  Req := 2
+         + Byte(HouseCount(ht_Sawmill) > 0)
+         - fPlayers[fOwner].Stats.GetResourceQty(rt_Stone) div 500;
+  if Req > HouseCount(ht_Quary) then
+    TryBuildHouse(ht_Quary);
+
+  //Woodcutters
+  //Town needs at least 2 woodcutters build early and 1 more after Sawmill
+  Req := 2
+         + Byte(HouseCount(ht_Sawmill) > 0)
+         - fPlayers[fOwner].Stats.GetResourceQty(rt_Trunk) div 100
+         - fPlayers[fOwner].Stats.GetResourceQty(rt_Wood) div 300;
+  if Req > HouseCount(ht_Woodcutters) then
+    TryBuildHouse(ht_Woodcutters);
+
+  //Sawmill
+  Req := 1;
+  if Req > HouseCount(ht_Sawmill) then
+    TryBuildHouse(ht_Sawmill);
 end;
 
 
@@ -377,9 +399,14 @@ begin
 end;
 
 
-procedure TKMayor.CheckHouseMiningAdv;
-var Req: Integer;
+procedure TKMayor.BuildMoreGold;
+var Req: Integer; Production: Single;
 begin
+  //Calculate existing production rate
+  Production := Min(HouseCount(ht_GoldMine), HouseCount(ht_Metallurgists) / 2);
+
+  //+ proportional share in coal mines
+
   //Competitive opponent needs at least 2 gold mines and maybe 2 more later on?
   Req := 2 +
          Byte(fSetup.Strong) * 2 +
@@ -542,6 +569,7 @@ begin
   //Number of simultaneous WIP houses is limited to 3
   if (P.Stats.GetHouseWip(ht_Any) >= 3) then Exit;
 
+  {Weights idea seems like too hard to balance
   for HT := HOUSE_MIN to HOUSE_MAX do
     HouseWeight[HT] := 0;
 
@@ -614,17 +642,29 @@ begin
   if HouseWeight[BestHouse] > 0.25 then
     TryBuildHouse(BestHouse);
 
-  Exit;
+  Exit;}
 
 
+  //Check if we have Store/Inn/School/Quary/Wood in adequate counts
+  CheckHouseCore;
 
+  //Try to express needs
 
-  //Check if we have Store/Inn/School in adequate counts
-  CheckHouseVital;
+  //How much we'll need - How much we get - how much we have
+  {NeedForGold := (1 - P.Stats.GetResourceQty(rt_Gold) * 0.01) / (Byte(HasGoldProduction) + 1);
+  NeedForFood := P.Stats.GetUnitQty(ut_Any)
+
+  //Pick direction
+  case Need of
+    Gold: BuildMoreGold;
+    Food: BuildMoreFood; (fast food like wine/bread/fish and slow like sausages)
+    Weapons: NeedMoreWeapons; ()
+    Defence:
+  end;}
 
   CheckHouseMining;
   CheckHouseFood;
-  CheckHouseMiningAdv;
+  //CheckHouseMiningAdv;
   CheckHouseFoodAdv;
 
   if fSetup.Strong then
