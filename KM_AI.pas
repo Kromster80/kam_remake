@@ -110,12 +110,8 @@ begin
   //Of course opponent can rebuild with workers, but that will take a lot of time in
   //already half-ruined city.
 
-  Defeat := (Stat.GetHouseQty(ht_School) = 0) and
-            (Stat.GetArmyCount = 0) and
-            (Stat.GetHouseQty(ht_Barracks) = 0) and
-            (Stat.GetHouseQty(ht_Store) = 0) and
-            (Stat.GetHouseQty(ht_TownHall) = 0) and
-            (Stat.GetHouseQty(ht_SiegeWorkshop) = 0);
+  Defeat := (Stat.GetHouseQty([ht_School, ht_Barracks, ht_Store, ht_TownHall, ht_SiegeWorkshop]) = 0) and
+            (Stat.GetArmyCount = 0);
 
   //Let the event system know (defeat may trigger events for other players)
   if Defeat then
@@ -137,18 +133,18 @@ procedure TKMPlayerAI.CheckGoals;
       Stat := nil;
 
     case aGoal.GoalCondition of
-      gc_BuildTutorial:     Result := Stat.GetHouseQty(ht_Tannery) = 0; //For some reason this goal is gs_False in KaM, that's why check is =0 not  > 0
+      gc_BuildTutorial:     Result := Stat.GetHouseQty([ht_Tannery]) = 0; //For some reason this goal is gs_False in KaM, that's why check is =0 not  > 0
       //gc_Time is disabled as we process messages in Event system now. Return true so players
       //do not have to wait for all messages to show before they are allowed to win (same in TPR)
       gc_Time:              Result := True;
-      gc_Buildings:         Result := (Stat.GetHouseQty(ht_Store) > 0) or (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetHouseQty(ht_Barracks) > 0);
+      gc_Buildings:         Result := (Stat.GetHouseQty([ht_Store, ht_School, ht_Barracks]) > 0);
       gc_Troops:            Result := (Stat.GetArmyCount > 0);
-      gc_MilitaryAssets:    Result := (Stat.GetArmyCount > 0) or (Stat.GetHouseQty(ht_Barracks) > 0) or (Stat.GetHouseQty(ht_CoalMine) > 0) or
-                                      (Stat.GetHouseQty(ht_WeaponWorkshop) > 0) or (Stat.GetHouseQty(ht_ArmorWorkshop) > 0) or (Stat.GetHouseQty(ht_Stables) > 0) or
-                                      (Stat.GetHouseQty(ht_IronMine) > 0) or (Stat.GetHouseQty(ht_IronSmithy) > 0) or (Stat.GetHouseQty(ht_WeaponSmithy) > 0) or
-                                      (Stat.GetHouseQty(ht_ArmorSmithy) > 0) or (Stat.GetHouseQty(ht_TownHall) > 0) or (Stat.GetHouseQty(ht_SiegeWorkshop) > 0);
-      gc_SerfsAndSchools:   Result := (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetUnitQty(ut_Serf) > 0);
-      gc_EconomyBuildings:  Result := (Stat.GetHouseQty(ht_Store) > 0) or (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetHouseQty(ht_Inn) > 0);
+      gc_MilitaryAssets:    Result := (Stat.GetArmyCount > 0) or
+                                      (Stat.GetHouseQty([ht_Barracks, ht_CoalMine, ht_WeaponWorkshop, ht_ArmorWorkshop, ht_Stables,
+                                                         ht_IronMine, ht_IronSmithy ,ht_WeaponSmithy, ht_ArmorSmithy, ht_TownHall,
+                                                         ht_SiegeWorkshop]) > 0);
+      gc_SerfsAndSchools:   Result := (Stat.GetHouseQty([ht_School]) > 0) or (Stat.GetUnitQty(ut_Serf) > 0);
+      gc_EconomyBuildings:  Result := (Stat.GetHouseQty([ht_Store, ht_School, ht_Inn]) > 0);
       else                  Assert(false, 'Unknown goal');
     end;
     if aGoal.GoalStatus = gs_False then

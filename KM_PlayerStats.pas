@@ -67,8 +67,10 @@ type
     property Ratio[aRes: TResourceType; aHouse: THouseType]: Byte read GetRatio write SetRatio;
 
     //Output
-    function GetHouseQty(aType: THouseType): Integer;
-    function GetHouseWip(aType: THouseType): Integer;
+    function GetHouseQty(aType: THouseType): Integer; overload;
+    function GetHouseQty(aType: array of THouseType): Integer; overload;
+    function GetHouseWip(aType: THouseType): Integer; overload;
+    function GetHouseWip(aType: array of THouseType): Integer; overload;
     function GetUnitQty(aType: TUnitType): Integer;
     function GetResourceQty(aRT: TResourceType): Integer;
     function GetArmyCount: Integer;
@@ -262,9 +264,34 @@ begin
     ht_None:    ;
     ht_Any:     for H := Low(THouseType) to High(THouseType) do
                 if fResource.HouseDat[H].IsValid then
-                  Inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost);
+                  Result := Result + Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost;
     else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost;
   end;
+end;
+
+
+//How many houses are there
+function TKMPlayerStats.GetHouseQty(aType: array of THouseType): Integer;
+var
+  I: Integer;
+  H: THouseType;
+begin
+  Result := 0;
+  if (Length(aType) = 0) then
+    Assert(False, 'Quering wrong house type')
+  else
+  if (Length(aType) = 1) and (aType[0] = ht_Any) then
+  begin
+    for H := Low(THouseType) to High(THouseType) do
+    if fResource.HouseDat[H].IsValid then
+      Result := Result + Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost;
+  end
+  else
+  for I := Low(aType) to High(aType) do
+    if fResource.HouseDat[aType[I]].IsValid then
+      Result := Result + Houses[aType[I]].Initial + Houses[aType[I]].Built - Houses[aType[I]].SelfDestruct - Houses[aType[I]].Lost
+    else
+      Assert(False, 'Quering wrong house type');
 end;
 
 
@@ -277,9 +304,34 @@ begin
     ht_None:    ;
     ht_Any:     for H := Low(THouseType) to High(THouseType) do
                 if fResource.HouseDat[H].IsValid then
-                  Inc(Result, Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved);
+                  Result := Result + Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved;
     else        Result := Houses[aType].Started + Houses[aType].Planned - Houses[aType].Ended - Houses[aType].PlanRemoved;
   end;
+end;
+
+
+//How many houses are planned and in progress
+function TKMPlayerStats.GetHouseWip(aType: array of THouseType): Integer;
+var
+  I: Integer;
+  H: THouseType;
+begin
+  Result := 0;
+  if (Length(aType) = 0) then
+    Assert(False, 'Quering wrong house type')
+  else
+  if (Length(aType) = 1) and (aType[0] = ht_Any) then
+  begin
+    for H := Low(THouseType) to High(THouseType) do
+    if fResource.HouseDat[H].IsValid then
+      Result := Result + Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved;
+  end
+  else
+  for I := Low(aType) to High(aType) do
+    if fResource.HouseDat[aType[I]].IsValid then
+      Result := Result + Houses[aType[I]].Started + Houses[aType[I]].Planned - Houses[aType[I]].Ended - Houses[aType[I]].PlanRemoved
+    else
+      Assert(False, 'Quering wrong house type');
 end;
 
 
@@ -290,7 +342,7 @@ begin
   case aType of
     ut_None:    ;
     ut_Any:     for UT := HUMANS_MIN to HUMANS_MAX do
-                  Result := Units[UT].Initial + Units[UT].Trained - Units[UT].Lost;
+                  Result := Result + Units[UT].Initial + Units[UT].Trained - Units[UT].Lost;
     else        begin
                   Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
                   if aType = ut_Recruit then
