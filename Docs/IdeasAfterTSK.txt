@@ -30,6 +30,8 @@ Worker "teams" to be assigned to jobs, so you can be building in two places with
 
 Geologist unit, that would go around mountains and coalmines and discover small new deposits of resources
 
+New house to convert Trunks into Coal
+
 Take resources from captured enemy storehouses (or your ally's storehouse if he is defeated in multiplayer)
 
 Capturable villages and "king of the hill" mode for multiplayer
