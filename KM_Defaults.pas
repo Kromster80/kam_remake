@@ -102,6 +102,7 @@ var
   SHOW_CMDQUEUE_COUNT   :Boolean = False; //Show how many commands were processed and stored by TGameInputProcess
   SHOW_NETWORK_DELAY    :Boolean = False; //Show the current delay in multiplayer game
   SHOW_ARMYEVALS        :Boolean = False; //Show result of enemy armies evaluation
+  SHOW_WARE_BALANCE     :Boolean = True; //Show wares balance (Produced - Consumed)
   INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
   SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_SAVE_SCAN        :Boolean = False; //Scan saves with a pause to emulate uncached file access
@@ -262,9 +263,9 @@ const
     $FF0040, $00FF40, $FFFF40, $FF0080, $FFFF80,
     $101080, $0080FF, $FFBF00);
 
-  //How much time on AVERAGE it takes to produce 1 item of resource
+  //How many of resource gets produced per minute on AVERAGE
   //Measured on a test map RES_COUNT / TIME
-  ProductionTime: array [TResourceType] of Single = (
+  ProductionRate: array [TResourceType] of Single = (
     0,
      88/120, 414/120, 390/120, 160/120, 160/120,
     155/120, 218/120, 330/120, 120/120, 138/120,

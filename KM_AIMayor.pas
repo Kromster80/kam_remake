@@ -69,6 +69,7 @@ type
 
     procedure AfterMissionInit;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
+    function BalanceText: string;
 
     procedure UpdateState(aTick: Cardinal);
     procedure Save(SaveStream: TKMemoryStream);
@@ -744,40 +745,40 @@ begin
   //Gold
   with fDemandGold do
   begin
-    CoalProductionRate := HouseCount(ht_CoalMine) * ProductionTime[rt_Coal];
-    CoalConsumptionRate := HouseCount(ht_ArmorSmithy) * ProductionTime[rt_Shield]
-                         + HouseCount(ht_IronSmithy) * ProductionTime[rt_Steel]
-                         + HouseCount(ht_Metallurgists) * ProductionTime[rt_Gold]
-                         + HouseCount(ht_WeaponSmithy) * ProductionTime[rt_Sword];
+    CoalProductionRate := HouseCount(ht_CoalMine) * ProductionRate[rt_Coal];
+    CoalConsumptionRate := HouseCount(ht_ArmorSmithy) * ProductionRate[rt_Shield] //Each operations uses 1 Coal per product
+                         + HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel]
+                         + HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]
+                         + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Sword];
     CoalFlow := CoalProductionRate - CoalConsumptionRate;
     CoalTheory := CoalFlow * 2;
     if HouseCount([ht_Metallurgists]) <> 0 then
-      CoalTheory := HouseCount(ht_CoalMine) / CoalConsumptionRate * (HouseCount(ht_Metallurgists) * ProductionTime[rt_Gold]) * 2;
-    GoldOreTheory := HouseCount(ht_GoldMine) * ProductionTime[rt_GoldOre] * 2;
-    GoldTheory := HouseCount(ht_Metallurgists) * ProductionTime[rt_Gold];
+      CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]) * 2;
+    GoldOreTheory := HouseCount(ht_GoldMine) * ProductionRate[rt_GoldOre] * 2; //*2 since every Ore becomes 2 Gold
+    GoldTheory := HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold];
     //Actual production is minimum of the above
     Production := Min(CoalTheory, GoldOreTheory, GoldTheory);
     Consumption := 1 + Byte(fSetup.Strong); //For now it's a static coef
     Balance := Production - Consumption;
-    Text := Format('Gold: ProductionRate: %.2f|Consumption: %.2f|Balance: %.2f', [Production, Consumption, Balance]);
+    Text := Format('Gold balance: %.2f - %.2f = %.2f', [Production, Consumption, Balance]);
   end;
 
   //Food
   with fDemandFood do
   begin
-    CornProductionRate := HouseCount(ht_Farm) * ProductionTime[rt_Corn];
-    CornConsumptionRate := HouseCount(ht_Mill) * ProductionTime[rt_Flour]
-                       + HouseCount(ht_Swine) * ProductionTime[rt_Pig] * 5
-                       + HouseCount(ht_Stables) * ProductionTime[rt_Horse] * 5;
+    CornProductionRate := HouseCount(ht_Farm) * ProductionRate[rt_Corn];
+    CornConsumptionRate := HouseCount(ht_Mill) * ProductionRate[rt_Flour]
+                       + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5
+                       + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 5;
     CornFlow := CornProductionRate - CornConsumptionRate;
 
     //Bread
     //Calculate how much bread each link could possibly produce
     Bread.FarmTheory := CornFlow * 2;
     if HouseCount(ht_Mill) <> 0 then //Take proportional share of all Farms
-      Bread.FarmTheory := CornProductionRate / CornConsumptionRate * (HouseCount(ht_Mill) * ProductionTime[rt_Flour]) * 2;
-    Bread.MillTheory := HouseCount(ht_Mill) * ProductionTime[rt_Flour] * 2;
-    Bread.BakeryTheory := HouseCount(ht_Bakery) * ProductionTime[rt_Bread];
+      Bread.FarmTheory := CornProductionRate / CornConsumptionRate * (HouseCount(ht_Mill) * ProductionRate[rt_Flour]) * 2;
+    Bread.MillTheory := HouseCount(ht_Mill) * ProductionRate[rt_Flour] * 2;
+    Bread.BakeryTheory := HouseCount(ht_Bakery) * ProductionRate[rt_Bread];
     //Actual production is minimum of the above
     BreadProduction := Min(Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory);
 
@@ -785,14 +786,14 @@ begin
     //Calculate how many sausages each link could possibly produce
     Sausages.FarmTheory := CornFlow / 5 * 3;
     if HouseCount(ht_Swine) <> 0 then
-      Sausages.FarmTheory := HouseCount(ht_Farm) / CornConsumptionRate * HouseCount(ht_Swine) * ProductionTime[rt_Pig] / 5 * 3;
-    Sausages.SwineTheory := HouseCount(ht_Swine) * ProductionTime[rt_Pig] * 3;
-    Sausages.ButchersTheory := HouseCount(ht_Butchers) * ProductionTime[rt_Sausages];
+      Sausages.FarmTheory := CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Pig] / 5 * 3;
+    Sausages.SwineTheory := HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 3;
+    Sausages.ButchersTheory := HouseCount(ht_Butchers) * ProductionRate[rt_Sausages];
     //Actual production is minimum of the above
     SausagesProduction := Min(Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory);
     //Wine, Fish
-    WineProduction := HouseCount(ht_Wineyard) * ProductionTime[rt_Wine];
-    FishProduction := HouseCount(ht_FisherHut) * ProductionTime[rt_Fish];
+    WineProduction := HouseCount(ht_Wineyard) * ProductionRate[rt_Wine];
+    FishProduction := HouseCount(ht_FisherHut) * ProductionRate[rt_Fish];
 
     //Count in "food units per minute"
     Production := BreadProduction * 0.4 +
@@ -806,8 +807,14 @@ begin
                              P.Stats.GetResourceQty(rt_Wine) * 0.3 +
                              P.Stats.GetResourceQty(rt_Fish) * 0.5;}
     Balance := Production - Consumption;
-    Text := Format('Food: ProductionRate: %.2f|Consumption: %.2f|Balance: %.2f', [Production, Consumption, Balance]);
+    Text := Format('Food balance: %.2f - %.2f = %.2f', [Production, Consumption, Balance]);
   end;
+end;
+
+
+function TKMayor.BalanceText: string;
+begin
+  Result := fDemandGold.Text + '|' + fDemandFood.Text;
 end;
 
 
