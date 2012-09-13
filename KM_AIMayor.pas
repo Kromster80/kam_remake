@@ -7,6 +7,28 @@ uses
   KM_AISetup;
 
 type
+  TKMWareBalanceGold = record
+    CoalTheory, GoldOreTheory, GoldTheory: Single;
+    Production: Single; //How much do we produce
+    Consumption: Single; //How much is used
+    Balance: Single; //Resulting balance
+    Text: string;
+  end;
+  TKMWareBalanceFood = record
+    Bread: record
+      FarmTheory, MillTheory, BakeryTheory: Single;
+    end;
+    Sausages: record
+      FarmTheory, SwineTheory, ButchersTheory: Single;
+    end;
+    BreadProduction, SausagesProduction, WineProduction, FishProduction: Single;
+    Production: Single; //How much food do we produce
+    Consumption: Single; //How much food do we use
+    Balance: Single; //Resulting balance
+    Text: string;
+  end;
+
+type
   TKMayor = class
   private
     fOwner: TPlayerIndex;
@@ -17,12 +39,9 @@ type
     fRoadBelowStore: Boolean;
     fWooden: Boolean;
 
-    fDemandForCore: Single;
-    fLackOfGold: Single;
-    fLackOfFood: Single;
-    fDemandForMaterials: Single;
-    fDemandForWarfare: Single;
-    fDemandForDefence: Single;
+    fDemandCore: Single;
+    fDemandGold: TKMWareBalanceGold;
+    fDemandFood: TKMWareBalanceFood;
 
     function HouseCount(aHouse: THouseType): Integer; overload;
     function HouseCount(aHouse: array of THouseType): Integer; overload;
@@ -42,11 +61,7 @@ type
     procedure CheckRoadsCount;
 
     procedure UpdateDemands;
-    function GetProductionRateGold: Single;
   public
-    fDemandGoldString: string;
-    fDemandFoodString: string;
-
     constructor Create(aPlayer: TPlayerIndex; aSetup: TKMPlayerAISetup);
     destructor Destroy; override;
 
@@ -365,19 +380,17 @@ begin
   //Quary
   //Town needs at least 2 quaries build early and 1 more after Sawmill
   Req := 2
-         + Byte(HouseCount(ht_Sawmill) > 0)
-         - fPlayers[fOwner].Stats.GetResourceQty(rt_Stone) div 500;
-  Req := Max(Req, 1);
+         + Byte((HouseCount(ht_Sawmill) > 0)
+            and (fPlayers[fOwner].Stats.GetResourceQty(rt_Stone) < 500));
   if Req > HouseCount(ht_Quary) then
     TryBuildHouse(ht_Quary);
 
   //Woodcutters
   //Town needs at least 2 woodcutters build early and 1 more after Sawmill
   Req := 2
-         + Byte(HouseCount(ht_Sawmill) > 0)
-         - fPlayers[fOwner].Stats.GetResourceQty(rt_Trunk) div 100
-         - fPlayers[fOwner].Stats.GetResourceQty(rt_Wood) div 300;
-  Req := Max(Req, 1);
+         + Byte((HouseCount(ht_Sawmill) > 0)
+           and ((fPlayers[fOwner].Stats.GetResourceQty(rt_Trunk) < 150)
+                or (fPlayers[fOwner].Stats.GetResourceQty(rt_Wood) < 300)));
   if Req > HouseCount(ht_Woodcutters) then
     TryBuildHouse(ht_Woodcutters);
 
@@ -393,52 +406,40 @@ end;
 procedure TKMayor.BuildMoreGold;
 var
   P: TKMPlayer;
-  CoalShare, GoldShare, MetallurgShare: Single;
 begin
   P := fPlayers[fOwner];
 
-  if HouseCount([ht_ArmorSmithy, ht_IronSmithy, ht_Metallurgists, ht_WeaponSmithy]) = 0 then
-    CoalShare := (HouseCount(ht_CoalMine) - P.Stats.GetResourceQty(rt_Coal) / 150)
-  else
-    CoalShare := (HouseCount(ht_CoalMine) - P.Stats.GetResourceQty(rt_Coal) / 150)
-                 / HouseCount([ht_ArmorSmithy, ht_IronSmithy, ht_Metallurgists, ht_WeaponSmithy])
-                 * HouseCount(ht_Metallurgists);
-
-  GoldShare := HouseCount(ht_GoldMine) - P.Stats.GetResourceQty(rt_GoldOre) / 150;
-
-  MetallurgShare := HouseCount(ht_Metallurgists) * 2;
-
   //If all 3 shares 0 we whould pick in that order Gold > Coal > Metallurgists
-  if CoalShare <= MetallurgShare then
-    if CoalShare <= GoldShare then
-      TryBuildHouse(ht_CoalMine)
+  with fDemandGold do
+  begin
+    if CoalTheory <= GoldTheory then
+      if CoalTheory <= GoldOreTheory then
+        TryBuildHouse(ht_CoalMine)
+      else
+        TryBuildHouse(ht_GoldMine)
     else
-      TryBuildHouse(ht_GoldMine)
-  else
-    if GoldShare <= MetallurgShare then
-      TryBuildHouse(ht_GoldMine)
-    else
-      TryBuildHouse(ht_Metallurgists);
+      if GoldOreTheory <= GoldTheory then
+        TryBuildHouse(ht_GoldMine)
+      else
+        TryBuildHouse(ht_Metallurgists);
+  end;
 end;
 
 
 procedure TKMayor.BuildMoreFood;
 var
   P: TKMPlayer;
-  CornExtra: Single;
-  BCornShare, FlourShare, BakeryShare, BreadProduction: Single;
-  SCornShare, SwineShare, ButchersShare, SausagesProduction: Single;
-  WineProduction: Single;
 
   procedure IncProdBread;
   begin
-    if BCornShare <= BakeryShare then
-      if BCornShare <= FlourShare then
+    with fDemandFood.Bread do
+    if FarmTheory <= BakeryTheory then
+      if FarmTheory <= MillTheory then
         TryBuildHouse(ht_Farm)
       else
         TryBuildHouse(ht_Mill)
     else
-      if FlourShare <= BakeryShare then
+      if MillTheory <= BakeryTheory then
         TryBuildHouse(ht_Mill)
       else
         TryBuildHouse(ht_Bakery);
@@ -446,13 +447,14 @@ var
 
   procedure IncProdSausages;
   begin
-    if SCornShare <= ButchersShare then
-      if SCornShare <= SwineShare then
+    with fDemandFood.Sausages do
+    if FarmTheory <= ButchersTheory then
+      if FarmTheory <= SwineTheory then
         TryBuildHouse(ht_Farm)
       else
         TryBuildHouse(ht_Swine)
     else
-      if SwineShare <= ButchersShare then
+      if SwineTheory <= ButchersTheory then
         TryBuildHouse(ht_Swine)
       else
         TryBuildHouse(ht_Butchers);
@@ -465,48 +467,20 @@ var
 begin
   P := fPlayers[fOwner];
 
-  //Calculate production of all food type
-
-  //Extra farms that produce corn for noone
-  CornExtra := HouseCount(ht_Farm) - HouseCount([ht_Mill, ht_Swine, ht_Stables]) * 2;
-
-  //Bread production (limited by minimum share)
-  BCornShare := CornExtra;
-  if HouseCount(ht_Mill) <> 0 then
-    BCornShare := HouseCount(ht_Farm)
-                 / HouseCount([ht_Mill, ht_Swine, ht_Stables])
-                 * HouseCount(ht_Mill);
-  FlourShare := HouseCount(ht_Mill);
-  BakeryShare := HouseCount(ht_Bakery) * 2;
-  BreadProduction := Min(BCornShare, FlourShare, BakeryShare);
-
-  //Sausages production (limited by minimum share)
-  SCornShare := CornExtra;
-  if HouseCount(ht_Swine) <> 0 then
-    SCornShare := HouseCount(ht_Farm)
-                 / HouseCount([ht_Mill, ht_Swine, ht_Stables])
-                 * HouseCount(ht_Swine);
-  SwineShare := HouseCount(ht_Swine) * 2;
-  ButchersShare := HouseCount(ht_Butchers) * 4;
-  SausagesProduction := Min(SCornShare, SwineShare, ButchersShare);
-
-  //Wine production (limited by Wineyard only)
-  WineProduction := HouseCount(ht_Wineyard);
-
-  //Fish production (limited by FisherHut only)
-  //FishProduction := HouseCount(ht_FisherHut);
-
   //Pick smallest production and increase it
-  if BreadProduction <= WineProduction then
-    if BreadProduction <= SausagesProduction then
-      IncProdBread
+  with fDemandFood do
+  begin
+    if BreadProduction <= WineProduction then
+      if BreadProduction <= SausagesProduction then
+        IncProdBread
+      else
+        IncProdSausages
     else
-      IncProdSausages
-  else
-    if SausagesProduction <= WineProduction then
-      IncProdSausages
-    else
-      IncProdWine;
+      if SausagesProduction <= WineProduction then
+        IncProdSausages
+      else
+        IncProdWine;
+  end;
 end;
 
 
@@ -579,11 +553,14 @@ end;
 
 
 procedure TKMayor.CheckHouseCount;
+type
+  TNeedMore = (nmNone, nmGold, nmFood);
 var
   P: TKMPlayer;
   HT: THouseType;
   HouseWeight: array [HOUSE_MIN..HOUSE_MAX] of Single;
   BestHouse: THouseType;
+  NM: TNeedMore;
 begin
   P := fPlayers[fOwner];
 
@@ -672,24 +649,11 @@ begin
   //Try to express needs
   UpdateDemands;
 
-  if fLackOfGold < -0.7 then
-    BuildMoreGold;
-
-  if fLackOfFood < -0.5 then
+  if fDemandGold.Balance < -0.5 then
+    BuildMoreGold
+  else
+  if fDemandFood.Balance < -0.5 then
     BuildMoreFood;
-
-                  exit;
-  //How much we'll need - How much we get - how much we have
-  {NeedForGold := (1 - P.Stats.GetResourceQty(rt_Gold) * 0.01) / (Byte(HasGoldProduction) + 1);
-  NeedForFood := P.Stats.GetUnitQty(ut_Any)
-
-  //Pick direction
-  case Need of
-    Gold: BuildMoreGold;
-    Food: BuildMoreFood; (fast food like wine/bread/fish and slow like sausages)
-    Weapons: NeedMoreWeapons; ()
-    Defence:
-  end;}
 
   //todo: Check if we need to demolish depleted mining houses
   //Not sure if AI should do that though
@@ -757,50 +721,93 @@ begin
 end;
 
 
-//
+//Calculate various demands and save intermediate numbers in case we need them
+//in determing what exactly to build to satisfy demand the best
+//Production is how much of this resource gets made each minute
+// - we evaluate each links theoretical production of end resource (1 Corn = 3/5 Sausages)
+// - in chain production the speed is limited by slowest link
+// - resource in reserve adds to each production rate a fraction
+//Consumption is how much gets consumed
+//Balance = Production - Consumption;
 procedure TKMayor.UpdateDemands;
 var
   P: TKMPlayer;
-  Available, ProductionRate, ConsumptionRate: Single;
-  Share1, Share2: Single;
+  CoalProductionRate, CoalConsumptionRate, CoalFlow: Single;
+  CornProductionRate, CornConsumptionRate, CornFlow: Single;
 begin
   P := fPlayers[fOwner];
 
   //Core
   //We always need core houses
-  fDemandForCore := 1;
+  fDemandCore := 1;
 
   //Gold
-  Available := P.Stats.GetResourceQty(rt_Gold);
-  ProductionRate := GetProductionRateGold;
-  ConsumptionRate := 1 + Byte(fSetup.Strong);
-  fLackOfGold := ProductionRate - ConsumptionRate + Available / 50;
-  fDemandGoldString := Format('Gold: Available: %.2f|ProductionRate: %.2f|Consumption: %.2f|Balance: %.2f', [Available, ProductionRate, ConsumptionRate, fLackOfGold]);
+  with fDemandGold do
+  begin
+    CoalProductionRate := HouseCount(ht_CoalMine) * ProductionTime[rt_Coal];
+    CoalConsumptionRate := HouseCount(ht_ArmorSmithy) * ProductionTime[rt_Shield]
+                         + HouseCount(ht_IronSmithy) * ProductionTime[rt_Steel]
+                         + HouseCount(ht_Metallurgists) * ProductionTime[rt_Gold]
+                         + HouseCount(ht_WeaponSmithy) * ProductionTime[rt_Sword];
+    CoalFlow := CoalProductionRate - CoalConsumptionRate;
+    CoalTheory := CoalFlow * 2;
+    if HouseCount([ht_Metallurgists]) <> 0 then
+      CoalTheory := HouseCount(ht_CoalMine) / CoalConsumptionRate * (HouseCount(ht_Metallurgists) * ProductionTime[rt_Gold]) * 2;
+    GoldOreTheory := HouseCount(ht_GoldMine) * ProductionTime[rt_GoldOre] * 2;
+    GoldTheory := HouseCount(ht_Metallurgists) * ProductionTime[rt_Gold];
+    //Actual production is minimum of the above
+    Production := Min(CoalTheory, GoldOreTheory, GoldTheory);
+    Consumption := 1 + Byte(fSetup.Strong); //For now it's a static coef
+    Balance := Production - Consumption;
+    Text := Format('Gold: ProductionRate: %.2f|Consumption: %.2f|Balance: %.2f', [Production, Consumption, Balance]);
+  end;
 
   //Food
-  //Count in "food units per minute"
-  Available := P.Stats.GetResourceQty(rt_Bread) * 0.4 +
-               P.Stats.GetResourceQty(rt_Sausages) * 0.6 +
-               P.Stats.GetResourceQty(rt_Wine) * 0.3 +
-               P.Stats.GetResourceQty(rt_Fish) * 0.5;
-  //How many farms are used by Bread industry
-  Share1 := 0;
-  if HouseCount([ht_Mill, ht_Swine, ht_Stables]) <> 0 then
-    Share1 := HouseCount(ht_Farm) / HouseCount([ht_Mill, ht_Swine, ht_Stables]) * HouseCount(ht_Mill);
-  ProductionRate := Min(Share1, HouseCount(ht_Mill), HouseCount(ht_Bakery)*2) * 0.4;
-  //How many farms are used by Sausage industry
-  Share2 := 0;
-  if HouseCount([ht_Mill, ht_Swine, ht_Stables]) <> 0 then
-    Share2 := HouseCount(ht_Farm) / HouseCount([ht_Mill, ht_Swine, ht_Stables]) * HouseCount(ht_Swine);
-  ProductionRate := ProductionRate + Min(Share2, HouseCount(ht_Swine)*2, HouseCount(ht_Butchers)*3) * 0.6;
-  ProductionRate := ProductionRate + HouseCount(ht_Wineyard) * 2 * 0.3;
-  ProductionRate := ProductionRate + HouseCount(ht_FisherHut) * 2 * 0.5;
+  with fDemandFood do
+  begin
+    CornProductionRate := HouseCount(ht_Farm) * ProductionTime[rt_Corn];
+    CornConsumptionRate := HouseCount(ht_Mill) * ProductionTime[rt_Flour]
+                       + HouseCount(ht_Swine) * ProductionTime[rt_Pig] * 5
+                       + HouseCount(ht_Stables) * ProductionTime[rt_Horse] * 5;
+    CornFlow := CornProductionRate - CornConsumptionRate;
 
-  ConsumptionRate := P.Stats.GetUnitQty(ut_Any) / 40; //On average unit eats each 40min
+    //Bread
+    //Calculate how much bread each link could possibly produce
+    Bread.FarmTheory := CornFlow * 2;
+    if HouseCount(ht_Mill) <> 0 then //Take proportional share of all Farms
+      Bread.FarmTheory := CornProductionRate / CornConsumptionRate * (HouseCount(ht_Mill) * ProductionTime[rt_Flour]) * 2;
+    Bread.MillTheory := HouseCount(ht_Mill) * ProductionTime[rt_Flour] * 2;
+    Bread.BakeryTheory := HouseCount(ht_Bakery) * ProductionTime[rt_Bread];
+    //Actual production is minimum of the above
+    BreadProduction := Min(Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory);
 
-  //Given these inputs we try to predict
-  fLackOfFood := ProductionRate - ConsumptionRate + Available / 100;
-  fDemandFoodString := Format('Food: Available: %.2f|ProductionRate: %.2f|Consumption: %.2f|Balance: %.2f', [Available,ProductionRate,ConsumptionRate,fLackOfFood]);
+    //Sausages
+    //Calculate how many sausages each link could possibly produce
+    Sausages.FarmTheory := CornFlow / 5 * 3;
+    if HouseCount(ht_Swine) <> 0 then
+      Sausages.FarmTheory := HouseCount(ht_Farm) / CornConsumptionRate * HouseCount(ht_Swine) * ProductionTime[rt_Pig] / 5 * 3;
+    Sausages.SwineTheory := HouseCount(ht_Swine) * ProductionTime[rt_Pig] * 3;
+    Sausages.ButchersTheory := HouseCount(ht_Butchers) * ProductionTime[rt_Sausages];
+    //Actual production is minimum of the above
+    SausagesProduction := Min(Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory);
+    //Wine, Fish
+    WineProduction := HouseCount(ht_Wineyard) * ProductionTime[rt_Wine];
+    FishProduction := HouseCount(ht_FisherHut) * ProductionTime[rt_Fish];
+
+    //Count in "food units per minute"
+    Production := BreadProduction * 0.4 +
+                  SausagesProduction * 0.6 +
+                  WineProduction * 0.3 +
+                  FishProduction * 0.5;
+
+    Consumption := P.Stats.GetUnitQty(ut_Any) / 40; //On average unit eats each 40min
+    {Available := P.Stats.GetResourceQty(rt_Bread) * 0.4 +
+                             P.Stats.GetResourceQty(rt_Sausages) * 0.6 +
+                             P.Stats.GetResourceQty(rt_Wine) * 0.3 +
+                             P.Stats.GetResourceQty(rt_Fish) * 0.5;}
+    Balance := Production - Consumption;
+    Text := Format('Food: ProductionRate: %.2f|Consumption: %.2f|Balance: %.2f', [Production, Consumption, Balance]);
+  end;
 end;
 
 
@@ -838,24 +845,6 @@ begin
 
   fCityPlanner.Load(LoadStream);
   fPathFindingRoad.Load(LoadStream);
-end;
-
-
-function TKMayor.GetProductionRateGold: Single;
-var
-  P: TKMPlayer;
-  CoalExtra, GoldShare: Single;
-begin
-  P := fPlayers[fOwner];
-
-  //How many mines are used by Gold industry
-  CoalExtra := HouseCount(ht_CoalMine) - HouseCount([ht_ArmorSmithy, ht_IronSmithy, ht_Metallurgists, ht_WeaponSmithy]);
-  GoldShare := CoalExtra;
-  if HouseCount([ht_Metallurgists]) <> 0 then
-    GoldShare := HouseCount(ht_CoalMine)
-              / HouseCount([ht_ArmorSmithy, ht_IronSmithy, ht_Metallurgists, ht_WeaponSmithy])
-              * HouseCount(ht_Metallurgists);
-  Result := Min(GoldShare, HouseCount(ht_GoldMine), HouseCount(ht_Metallurgists) * 2);
 end;
 
 
