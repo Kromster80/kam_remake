@@ -27,17 +27,33 @@ type
     Balance: Single; //Resulting balance
     Text: string;
   end;
-  TKMWareBalanceSteelWeaponry = record
+  TKMWareBalanceWeaponry = record
+    SteelWeapon: record
+      CoalTheory, IronTheory, SteelTheory, SmithyTheory: Single;
+    end;
+    SteelArmor: record
+      CoalTheory, IronTheory, SteelTheory, SmithyTheory: Single;
+    end;
+    WoodenWeapon: record
+      TrunkTheory, WoodTheory, WorkshopTheory: Single;
+    end;
+    WoodenArmor: record
+      TrunkTheory, WoodTheory: Single;
+      FarmTheory, SwineTheory, TanneryTheory, WorkshopTheory: Single;
+    end;
+    Horse: record
+      FarmTheory, StablesTheory: Single;
+    end;
+    SteelWeaponProduction, SteelArmorProduction,
+    WoodenWeaponProduction, WoodenArmorProduction, WoodenShieldProduction,
+    HorseProduction: Single;
     //Let General tell us what proportions of warriors it needs
-    Weapon: record
-      CoalTheory, IronTheory, SteelTheory, SmithyTheory: Single;
-    end;
-    Armor: record
-      CoalTheory, IronTheory, SteelTheory, SmithyTheory: Single;
-    end;
-    WeaponProduction, ArmorProduction, HorseProduction: Single;
-    Production: Single; //How much weaponry from required do we produce
-    Demand: Single; //How much weaponry is needed
+    SteelWeaponDemand, SteelArmorDemand,
+    WoodenWeaponDemand, WoodenArmorDemand, WoodenShieldDemand,
+    HorseDemand: Single;
+    SteelWeaponBalance, SteelArmorBalance,
+    WoodenWeaponBalance, WoodenArmorBalance, WoodenShieldBalance,
+    HorseBalance: Single;
     Balance: Single; //Resulting balance
     Text: string;
   end;
@@ -56,7 +72,7 @@ type
     fDemandCore: Single;
     fDemandGold: TKMWareBalanceGold;
     fDemandFood: TKMWareBalanceFood;
-    fDemandWeaponry: TKMWareBalanceSteelWeaponry;
+    fDemandWeaponry: TKMWareBalanceWeaponry;
 
     function HouseCount(aHouse: THouseType): Integer;
     procedure TryBuildHouse(aHouse: THouseType);
@@ -74,10 +90,8 @@ type
     procedure CheckHousePlans;
     procedure CheckRoadsCount;
 
-    procedure UpdateDemands;
+    procedure CalculateBalance;
   public
-    FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single;
-
     constructor Create(aPlayer: TPlayerIndex; aSetup: TKMPlayerAISetup);
     destructor Destroy; override;
 
@@ -85,6 +99,7 @@ type
 
     procedure AfterMissionInit;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
+    procedure SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
     function BalanceText: string;
 
     procedure UpdateState(aTick: Cardinal);
@@ -136,10 +151,7 @@ begin
 
   fSetup := aSetup;
 
-  FootmenDemand := 1;
-  PikemenDemand := 1;
-  HorsemenDemand := 0.5;
-  ArchersDemand := 1;
+  SetArmyDemand(1, 0.5, 0.5, 1);
 end;
 
 
@@ -420,82 +432,35 @@ end;
 
 //Increase Gold production
 procedure TKMayor.BuildMoreGold;
-var
-  P: TKMPlayer;
 begin
-  P := fPlayers[fOwner];
-
   //If all 3 shares 0 we whould pick in that order Gold > Coal > Metallurgists
   with fDemandGold do
-  begin
-    if CoalTheory <= GoldTheory then
-      if CoalTheory <= GoldOreTheory then
-        TryBuildHouse(ht_CoalMine)
-      else
-        TryBuildHouse(ht_GoldMine)
-    else
-      if GoldOreTheory <= GoldTheory then
-        TryBuildHouse(ht_GoldMine)
-      else
-        TryBuildHouse(ht_Metallurgists);
+  case PickMin([CoalTheory, GoldOreTheory, GoldTheory]) of
+    0:  TryBuildHouse(ht_CoalMine);
+    1:  TryBuildHouse(ht_GoldMine);
+    2:  TryBuildHouse(ht_Metallurgists);
   end;
 end;
 
 
 procedure TKMayor.BuildMoreFood;
-var
-  P: TKMPlayer;
-
-  procedure IncProdBread;
-  begin
-    with fDemandFood.Bread do
-    if FarmTheory <= BakeryTheory then
-      if FarmTheory <= MillTheory then
-        TryBuildHouse(ht_Farm)
-      else
-        TryBuildHouse(ht_Mill)
-    else
-      if MillTheory <= BakeryTheory then
-        TryBuildHouse(ht_Mill)
-      else
-        TryBuildHouse(ht_Bakery);
-  end;
-
-  procedure IncProdSausages;
-  begin
-    with fDemandFood.Sausages do
-    if FarmTheory <= ButchersTheory then
-      if FarmTheory <= SwineTheory then
-        TryBuildHouse(ht_Farm)
-      else
-        TryBuildHouse(ht_Swine)
-    else
-      if SwineTheory <= ButchersTheory then
-        TryBuildHouse(ht_Swine)
-      else
-        TryBuildHouse(ht_Butchers);
-  end;
-
-  procedure IncProdWine;
-  begin
-    TryBuildHouse(ht_Wineyard);
-  end;
 begin
-  P := fPlayers[fOwner];
-
   //Pick smallest production and increase it
   with fDemandFood do
-  begin
-    if BreadProduction <= WineProduction then
-      if BreadProduction <= SausagesProduction then
-        IncProdBread
-      else
-        IncProdSausages
-    else
-      if SausagesProduction <= WineProduction then
-        IncProdSausages
-      else
-        IncProdWine;
+  case PickMin([BreadProduction, SausagesProduction, WineProduction]) of
+    0:  with Bread do
+        case PickMin([FarmTheory, MillTheory, BakeryTheory]) of
+          0:  TryBuildHouse(ht_Farm);
+          1:  TryBuildHouse(ht_Mill);
+          2:  TryBuildHouse(ht_Bakery);
+        end;
+    1:  with Sausages do
+        case PickMin([FarmTheory, SwineTheory, ButchersTheory]) of
+          0:  TryBuildHouse(ht_Farm);
+          1:  TryBuildHouse(ht_Swine);
+          2:  TryBuildHouse(ht_Butchers);
+        end;
+    2:  TryBuildHouse(ht_Wineyard);
   end;
 end;
 
@@ -507,58 +472,60 @@ end;
 
 
 procedure TKMayor.BuildMoreWeaponry;
-var
-  Req: Integer;
 begin
+  with fDemandWeaponry do
   if fWooden then
   begin
-    //
-    Req := 1 + Byte(fSetup.Strong);
-    if Req > HouseCount(ht_Tannery) then
-      TryBuildHouse(ht_Tannery);
-
-    //
-    Req := 1 + Byte(fSetup.Strong);
-    if Req > HouseCount(ht_ArmorWorkshop) then
-      TryBuildHouse(ht_ArmorWorkshop);
-
-    //
-    Req := 1 + Byte(fSetup.Strong);
-    if Req > HouseCount(ht_WeaponWorkshop) then
-      TryBuildHouse(ht_WeaponWorkshop);
+    //Pick best link to improve
+    case PickMin([WoodenWeaponBalance, WoodenArmorBalance, WoodenShieldBalance, HorseBalance]) of
+      0:  with fDemandWeaponry.WoodenWeapon do
+          case PickMin([TrunkTheory, WoodTheory, WorkshopTheory]) of
+            0: TryBuildHouse(ht_Woodcutters);
+            1: TryBuildHouse(ht_Sawmill);
+            2: TryBuildHouse(ht_WeaponWorkshop);
+          end;
+      1:  with fDemandWeaponry.WoodenArmor do
+          case PickMin([FarmTheory, SwineTheory, TanneryTheory, WorkshopTheory]) of
+            0: TryBuildHouse(ht_Farm);
+            1: TryBuildHouse(ht_Swine);
+            2: TryBuildHouse(ht_Tannery);
+            3: TryBuildHouse(ht_ArmorWorkshop);
+          end;
+      2:  with fDemandWeaponry.WoodenArmor do
+          case PickMin([TrunkTheory, WoodTheory, WorkshopTheory]) of
+            0: TryBuildHouse(ht_Woodcutters);
+            1: TryBuildHouse(ht_Sawmill);
+            2: TryBuildHouse(ht_WeaponWorkshop);
+          end;
+      3:  case PickMin([Horse.FarmTheory, Horse.StablesTheory]) of
+            0: TryBuildHouse(ht_Farm);
+            1: TryBuildHouse(ht_Stables);
+          end;
+    end;
   end
   else
   begin
-    //
-    Req := 1 + Byte(fSetup.Strong);
-    if Req > HouseCount(ht_IronMine) then
-      TryBuildHouse(ht_IronMine);
-
-    //
-    Req := 1 + Byte(fSetup.Strong);
-    if Req > HouseCount(ht_IronSmithy) then
-      TryBuildHouse(ht_IronSmithy);
-
-    //
-    Req := 1 + Byte(fSetup.Strong);
-    if Req > HouseCount(ht_WeaponSmithy) then
-      TryBuildHouse(ht_WeaponSmithy);
-
-    //
-    Req := 1 + Byte(fSetup.Strong);
-    if Req > HouseCount(ht_ArmorSmithy) then
-      TryBuildHouse(ht_ArmorSmithy);
+    case PickMin([SteelWeaponBalance, SteelArmorBalance, HorseBalance]) of
+      0:  with fDemandWeaponry.SteelWeapon do
+          case PickMin([CoalTheory, IronTheory, SteelTheory, SmithyTheory]) of
+            0: TryBuildHouse(ht_CoalMine);
+            1: TryBuildHouse(ht_IronMine);
+            2: TryBuildHouse(ht_IronSmithy);
+            3: TryBuildHouse(ht_WeaponSmithy);
+          end;
+      1:  with fDemandWeaponry.SteelArmor do
+          case PickMin([CoalTheory, IronTheory, SteelTheory, SmithyTheory]) of
+            0: TryBuildHouse(ht_CoalMine);
+            1: TryBuildHouse(ht_IronMine);
+            2: TryBuildHouse(ht_IronSmithy);
+            3: TryBuildHouse(ht_ArmorSmithy);
+          end;
+      2:  case PickMin([Horse.FarmTheory, Horse.StablesTheory]) of
+            0: TryBuildHouse(ht_Farm);
+            1: TryBuildHouse(ht_Stables);
+          end;
+    end;
   end;
-
-  //One Stables is enough
-  Req := 1;
-  if Req > HouseCount(ht_Stables) then
-    TryBuildHouse(ht_Stables);
-
-  //One barracks is enough
-  Req := 1;
-  if Req > HouseCount(ht_Barracks) then
-    TryBuildHouse(ht_Barracks);
 end;
 
 
@@ -662,7 +629,7 @@ begin
   BuildCore;
 
   //Try to express needs
-  UpdateDemands;
+  CalculateBalance;
 
   if fDemandGold.Balance < 0 then
     BuildMoreGold
@@ -747,20 +714,10 @@ end;
 // - resource in reserve adds to each production rate a fraction
 //Consumption is how much gets consumed
 //Balance = Production - Consumption;
-procedure TKMayor.UpdateDemands;
-var
-  P: TKMPlayer;
-  CoalProductionRate, CoalConsumptionRate: Single;
-  CornProductionRate, CornConsumptionRate: Single;
-begin
-  P := fPlayers[fOwner];
-
-  //Core
-  //We always need core houses
-  fDemandCore := 1;
-
-  //Gold
-  with fDemandGold do
+procedure TKMayor.CalculateBalance;
+  procedure CoalDistribution;
+  var
+    CoalProductionRate, CoalConsumptionRate: Single;
   begin
     CoalProductionRate := HouseCount(ht_CoalMine) * ProductionRate[rt_Coal];
     CoalConsumptionRate := HouseCount(ht_ArmorSmithy) * ProductionRate[rt_Shield] //Each operations uses 1 Coal per product
@@ -769,12 +726,90 @@ begin
                          + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Sword];
 
     if CoalProductionRate >= CoalConsumptionRate then
+    begin
       //Let every industry think the extra belongs to it
-      CoalTheory := (CoalProductionRate - CoalConsumptionRate + HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]) * 2
+      fDemandGold.CoalTheory := (CoalProductionRate - CoalConsumptionRate + HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]) * 2;
+      fDemandWeaponry.SteelWeapon.CoalTheory := CoalProductionRate - CoalConsumptionRate + HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Pike];
+      fDemandWeaponry.SteelArmor.CoalTheory := CoalProductionRate - CoalConsumptionRate + HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor];
+    end
     else
+    begin
       //Share proportionaly
-      CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]) * 2;
+      fDemandGold.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold]) * 2;
+      fDemandWeaponry.SteelWeapon.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Pike]);
+      fDemandWeaponry.SteelArmor.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor]);
+    end;
+  end;
+  procedure CornDistribution;
+  var
+    CornProductionRate, CornConsumptionRate: Single;
+  begin
+    CornProductionRate := HouseCount(ht_Farm) * ProductionRate[rt_Corn];
+    CornConsumptionRate := HouseCount(ht_Mill) * ProductionRate[rt_Flour]
+                         + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5
+                         + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 5;
 
+    if CornProductionRate >= CornConsumptionRate then
+    begin
+      //Let every industry think the extra belongs to it
+      fDemandFood.Bread.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Mill) * ProductionRate[rt_Flour]) * 2;
+      fDemandFood.Sausages.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5) / 5 * 3;
+      fDemandWeaponry.WoodenArmor.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 5) / 5 * 2;
+      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 5) / 5;
+    end
+    else
+    begin
+      //Share proportionaly
+      fDemandFood.Bread.FarmTheory := CornProductionRate / CornConsumptionRate * (HouseCount(ht_Mill) * ProductionRate[rt_Flour]) * 2;
+      fDemandFood.Sausages.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Pig]) / 5 * 3;
+      fDemandWeaponry.WoodenArmor.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 5) / 5 * 2;
+      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Stables) * ProductionRate[rt_Horse]) / 5;
+    end;
+  end;
+  procedure WoodDistribution;
+  var
+    TrunkProductionRate: Single;
+    WoodProductionRate, WoodConsumptionRate: Single;
+  begin
+    TrunkProductionRate := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
+    WoodProductionRate := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
+    WoodConsumptionRate := 1 //For city building
+                         + HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor]
+                         + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
+    with fDemandWeaponry do
+    begin
+      if WoodProductionRate >= WoodConsumptionRate then
+      begin
+        //Let every industry think the extra belongs to it
+        WoodenWeapon.WoodTheory := (WoodProductionRate - WoodConsumptionRate + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike]);
+        WoodenArmor.WoodTheory := (WoodProductionRate - WoodConsumptionRate + HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor]);
+      end
+      else
+      begin
+        //Share proportionaly
+        WoodenWeapon.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
+        WoodenArmor.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor];
+      end;
+      WoodenWeapon.TrunkTheory := WoodenWeapon.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
+      WoodenArmor.TrunkTheory := WoodenArmor.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
+    end;
+  end;
+var
+  P: TKMPlayer;
+begin
+  P := fPlayers[fOwner];
+
+  //Core
+  //We always need core houses
+  fDemandCore := 1;
+
+  CoalDistribution;
+  CornDistribution;
+  WoodDistribution;
+
+  //Gold
+  with fDemandGold do
+  begin
     GoldOreTheory := HouseCount(ht_GoldMine) * ProductionRate[rt_GoldOre] * 2; //*2 since every Ore becomes 2 Gold
     GoldTheory := HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold];
     //Actual production is minimum of the above
@@ -787,28 +822,9 @@ begin
   //Food
   with fDemandFood do
   begin
-    CornProductionRate := HouseCount(ht_Farm) * ProductionRate[rt_Corn];
-    CornConsumptionRate := HouseCount(ht_Mill) * ProductionRate[rt_Flour]
-                         + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5
-                         + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 5;
-
-    if CornProductionRate >= CornConsumptionRate then
-    begin
-      //Let every industry think the extra belongs to it
-      Bread.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Mill) * ProductionRate[rt_Flour]) * 2;
-      Sausages.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5) / 5 * 3;
-      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 5) / 5;
-    end
-    else
-    begin
-      //Share proportionaly
-      Bread.FarmTheory := CornProductionRate / CornConsumptionRate * (HouseCount(ht_Mill) * ProductionRate[rt_Flour]) * 2;
-      Sausages.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Pig]) / 5 * 3;
-      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Stables) * ProductionRate[rt_Horse]) / 5;
-    end;
-
     //Bread
     //Calculate how much bread each link could possibly produce
+    //Bread.FarmTheory calculated above
     Bread.MillTheory := HouseCount(ht_Mill) * ProductionRate[rt_Flour] * 2;
     Bread.BakeryTheory := HouseCount(ht_Bakery) * ProductionRate[rt_Bread];
     //Actual production is minimum of the above
@@ -816,6 +832,7 @@ begin
 
     //Sausages
     //Calculate how many sausages each link could possibly produce
+    //Sausages.FarmTheory calculated above
     Sausages.SwineTheory := HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 3;
     Sausages.ButchersTheory := HouseCount(ht_Butchers) * ProductionRate[rt_Sausages];
     //Actual production is minimum of the above
@@ -845,55 +862,97 @@ begin
   //Weaponry
   with fDemandWeaponry do
   begin
-    if CoalProductionRate >= CoalConsumptionRate then
-    begin
-      //Let every industry think the extra belongs to it
-      Weapon.CoalTheory := CoalProductionRate - CoalConsumptionRate + HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Pike];
-      Armor.CoalTheory := CoalProductionRate - CoalConsumptionRate + HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor];
-    end
-    else
-    begin
-      //Share proportionaly
-      Weapon.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Pike]);
-      Armor.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor]);
-    end;
-
     //Weapon
     //Calculate how much Weapon each link could possibly produce
-    Weapon.IronTheory := HouseCount(ht_IronMine) * ProductionRate[rt_IronOre];
-    Weapon.SteelTheory := HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel];
-    Weapon.SmithyTheory := HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Pike]; //All 3 weapons are the same
-    WeaponProduction := Min(Min(Weapon.CoalTheory, Weapon.IronTheory), Min(Weapon.SteelTheory, Weapon.SmithyTheory));
+    with SteelWeapon do
+    begin
+      //Coal calculated above
+      IronTheory := HouseCount(ht_IronMine) * ProductionRate[rt_IronOre];
+      SteelTheory := HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel];
+      SmithyTheory := HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Hallebard]; //All 3 weapons are the same
+      SteelWeaponProduction := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory));
+      SteelWeaponBalance := SteelWeaponProduction - SteelWeaponDemand;
+    end;
 
     //Armor
     //Calculate how many Armor each link could possibly produce
-    Armor.IronTheory := HouseCount(ht_IronMine) * ProductionRate[rt_IronOre];
-    Armor.SteelTheory := HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel];
-    Armor.SmithyTheory := HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor];
-    ArmorProduction := Min(Min(Armor.CoalTheory, Armor.IronTheory), Min(Armor.SteelTheory, Armor.SmithyTheory));
+    with SteelArmor do
+    begin
+      //Coal calculated above
+      IronTheory := HouseCount(ht_IronMine) * ProductionRate[rt_IronOre];
+      SteelTheory := HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel];
+      SmithyTheory := HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor];
+      SteelArmorProduction := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory));
+      SteelArmorBalance := SteelArmorProduction - SteelArmorDemand;
+    end;
 
-    HorseProduction := HouseCount(ht_Stables) * ProductionRate[rt_Horse];
+    with WoodenWeapon do
+    begin
+      //Trunk
+      //Wood
+      WorkshopTheory := HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
+      WoodenWeaponProduction := Min(TrunkTheory, WoodTheory, WorkshopTheory);
+      WoodenWeaponBalance := WoodenWeaponProduction - WoodenWeaponDemand;
+    end;
 
-    //Count in "food units per minute"
-    Production := WeaponProduction + ArmorProduction;
+    with WoodenArmor do
+    begin
+      //Trunk
+      //Wood
+      //FarmTheory calculated above
+      SwineTheory := HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 2;
+      TanneryTheory := HouseCount(ht_Tannery) * ProductionRate[rt_Leather];
+      WorkshopTheory := HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor];
+      WoodenShieldProduction := Min(TrunkTheory, WoodTheory, WorkshopTheory);
+      WoodenShieldBalance := WoodenShieldProduction - WoodenShieldDemand;
+      WoodenArmorProduction := Min(Min(FarmTheory, SwineTheory), Min(TanneryTheory, WorkshopTheory));
+      WoodenArmorBalance := WoodenArmorProduction - WoodenArmorDemand;
+    end;
 
-    Consumption := P.Stats.GetUnitQty(ut_Any) / 40; //On average unit eats each 40min
-    {Available := P.Stats.GetResourceQty(rt_Bread) * 0.4 +
-                             P.Stats.GetResourceQty(rt_Sausages) * 0.6 +
-                             P.Stats.GetResourceQty(rt_Wine) * 0.3 +
-                             P.Stats.GetResourceQty(rt_Fish) * 0.5;}
-    Balance := Production - Consumption;
-    Text := Format('Food balance: %.2f - %.2f = %.2f|', [Production, Consumption, Balance])
-          + Format('       Bread: min(F%.2f, M%.2f, B%.2f)|', [Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory])
-          + Format('    Sausages: min(F%.2f, S%.2f, B%.2f)|', [Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory])
-          + Format('  Food value: %.2f + %.2f + %.2f + %.2f|', [BreadProduction * 0.4, SausagesProduction * 0.6, WineProduction * 0.3, FishProduction * 0.5]);
+    //Horse.FarmTheory calculated above
+    Horse.StablesTheory := HouseCount(ht_Stables) * ProductionRate[rt_Horse];
+    HorseProduction := Min(Horse.FarmTheory, Horse.StablesTheory);
+    HorseBalance := HorseProduction - HorseDemand;
+
+    //Balance := Min(hProduction, ) - Consumption;
+    Text := Format('  SteelW balance: %.2f - %.2f = %.2f|', [SteelWeaponProduction, SteelWeaponDemand, SteelWeaponBalance])
+          + Format('          SteelW: min(C%.2f, I%.2f, S%.2f, W%.2f)|',
+                   [SteelWeapon.CoalTheory, SteelWeapon.IronTheory, SteelWeapon.SteelTheory, SteelWeapon.SmithyTheory])
+          + Format('  SteelW balance: %.2f - %.2f = %.2f|', [SteelWeaponProduction, SteelWeaponDemand, SteelWeaponBalance])
+          + Format('          SteelA: min(C%.2f, I%.2f, S%.2f, W%.2f)|',
+                   [SteelArmor.CoalTheory, SteelArmor.IronTheory, SteelArmor.SteelTheory, SteelArmor.SmithyTheory])
+          + Format('      WoodWeapon: min(T%.2f, W%.2f, W%.2f)|',
+                   [WoodenWeapon.TrunkTheory, WoodenWeapon.WoodTheory, WoodenWeapon.WorkshopTheory])
+          + Format('      WoodShield: min(T%.2f, W%.2f, W%.2f)|',
+                   [WoodenArmor.TrunkTheory, WoodenArmor.WoodTheory, WoodenArmor.WorkshopTheory])
+          + Format('       WoodArmor: min(F%.2f, S%.2f, T%.2f, W%.2f)|',
+                   [WoodenArmor.FarmTheory, WoodenArmor.SwineTheory, WoodenArmor.TanneryTheory, WoodenArmor.WorkshopTheory])
+          + Format('  Horses balance: %.2f - %.2f = %.2f|',
+                   [HorseProduction, HorseDemand, HorseBalance])
+          + Format('          Horses: min(F%.2f, S%.2f)|',
+                   [Horse.FarmTheory, Horse.StablesTheory]);
+
+  end;
+end;
+
+
+//Tell Mayor what proportions of army is needed
+procedure TKMayor.SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
+begin
+  with fDemandWeaponry do
+  begin
+    SteelWeaponDemand := FootmenDemand + HorsemenDemand + PikemenDemand + ArchersDemand;
+    SteelArmorDemand := FootmenDemand * 2 + HorsemenDemand * 2 + PikemenDemand + ArchersDemand;
+    WoodenWeaponDemand := FootmenDemand + HorsemenDemand + PikemenDemand + ArchersDemand;
+    WoodenArmorDemand := FootmenDemand + HorsemenDemand + PikemenDemand + ArchersDemand;
+    WoodenShieldDemand := FootmenDemand + HorsemenDemand;
   end;
 end;
 
 
 function TKMayor.BalanceText: string;
 begin
-  Result := fDemandGold.Text + '|' + fDemandFood.Text;
+  Result := fDemandGold.Text + '|' + fDemandFood.Text + '|' + fDemandWeaponry.Text;
 end;
 
 
