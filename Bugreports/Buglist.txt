@@ -28,6 +28,7 @@
  +	The map editor no longer removes the terrain data used by Krom's Map Editor, so you can use terrain brushes there after saving with the Remake
  +	Leaders of archers would sometimes not fire after walking, instead they would lock up and stand still
  +	Fixed some crashes/bugs in the Linux dedicated server
+ +	You won't get victory if you defeat enemy towns before recieving scripted text messages
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -53,7 +54,6 @@
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Heights look different on certain systems, see heights.jpg images and dxdiag report
 	Colored rectangle below cursor
-	TSK9 script error. You won't get victory if you defeat enemy towns before Barbarians attack script is executed
 
 Improvements:
  +	High quality alpha-blended shadows for houses
