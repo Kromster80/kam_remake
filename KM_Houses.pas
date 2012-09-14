@@ -521,12 +521,6 @@ begin
 
   //Road is removed in CloseHouse
   CloseHouse(NoRubble);
-
-  //Only Done houses are treated as Self-Destruct
-  if fBuildState = hbs_Done then
-    fPlayers.Player[fOwner].Stats.HouseSelfDestruct(fHouseType)
-  else
-    fPlayers.Player[fOwner].Stats.HouseEnded(fHouseType);
 end;
 
 
