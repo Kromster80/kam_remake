@@ -34,6 +34,7 @@ function int2fix(Number,Len:integer):string;
 
 function Min(const A,B,C: integer):integer; overload;
 function Min(const A,B,C: single):single; overload;
+function Min(Values: array of Single): Single; overload;
 function PickMin(Values: array of Single): Byte;
 
 function Max(const A,B,C: integer):integer; overload;
@@ -93,6 +94,17 @@ end;
 function Min(const A,B,C: single): single; overload;
 begin if A < B then if A < C then Result := A else Result := C
                else if B < C then Result := B else Result := C;
+end;
+
+
+function Min(Values: array of Single): Single;
+var
+  I: Integer;
+begin
+  Result := Values[0];
+  for I := 1 to High(Values) do
+  if Values[I] < Result then
+    Result := Values[I];
 end;
 
 

@@ -391,7 +391,7 @@ procedure TKMayor.BuildCore;
 var Req: Integer;
 begin
   //Build at least one Store and add one more for each 30 houses
-  Req := 1 + (HouseCount(ht_Any) div 30);
+  Req := 1 + (HouseCount(ht_Any) div 35);
   if Req > HouseCount(ht_Store) then
     TryBuildHouse(ht_Store);
 
@@ -400,8 +400,8 @@ begin
   if Req > HouseCount(ht_School) then
     TryBuildHouse(ht_School);
 
-  //Build at least one Inn and one more for every 60 citizens
-  Req := 1 + fPlayers[fOwner].Stats.GetCitizensCount div 60;
+  //Build at least one Inn and one more for every 80 citizens
+  Req := 1 + fPlayers[fOwner].Stats.GetCitizensCount div 80;
   if Req > HouseCount(ht_Inn) then
     TryBuildHouse(ht_Inn);
 
@@ -426,6 +426,10 @@ begin
   Req := 1;
   if Req > HouseCount(ht_Sawmill) then
     TryBuildHouse(ht_Sawmill);
+
+  Req := Byte(fPlayers[fOwner].Stats.GetWeaponsProduced > 3);
+  if Req > HouseCount(ht_Barracks) then
+    TryBuildHouse(ht_Barracks);
 end;
 
 
@@ -536,94 +540,13 @@ end;
 
 
 procedure TKMayor.CheckHouseCount;
-type
-  TNeedMore = (nmNone, nmGold, nmFood);
 var
   P: TKMPlayer;
-  HT: THouseType;
-  HouseWeight: array [HOUSE_MIN..HOUSE_MAX] of Single;
-  BestHouse: THouseType;
 begin
   P := fPlayers[fOwner];
 
   //Number of simultaneous WIP houses is limited to 3
   if (P.Stats.GetHouseWip(ht_Any) >= 3) then Exit;
-
-  {Weights idea seems like too hard to balance
-  for HT := HOUSE_MIN to HOUSE_MAX do
-    HouseWeight[HT] := 0;
-
-  //When thinking about house weight arguments should be
-  //  Base need for a house 0..1
-  //    is it a must like an Inn (1), or an option like Stables (0)
-  //- What is considered to reduce the need
-  //    over 9000 stones at Store make Quary absolutely not needed
-  //+ What makes this house more needed
-  //    every citizen increases the need for an Inn
-
-  //Range is meant to be like
-  //      absolutely not needed
-  // 0.0
-  //      not needed
-  // 0.25 <- after more than this weight Strong AI will build it
-  //      averagely needed
-  // 0.5  <- after more than this weight Weak AI will build it
-  //      quite needed
-  // 0.75
-  //      really needed
-  // 1.0  <- must (e.g. first house of kind)
-
-  //AI absolutely needs at least one Store
-  //After 10th house each house increases the need by 0.025
-  //0  20-50  60-90  100-130
-  HouseWeight[ht_Store]  := 1
-                            - HouseCount(ht_Store)
-                            + Max(HouseCount(ht_Any) - 10, 0) * 0.025;
-
-  //When we have Barracks we need 2nd School, but it's not very important
-  HouseWeight[ht_School] := 1
-                            - HouseCount(ht_School)
-                            + Byte(HouseCount(ht_Barracks) > 0) * 0.45;
-
-  //Every new citizen increases need by 0.02
-  //0 37-75 87-125
-  HouseWeight[ht_Inn]         := 1
-                                 - HouseCount(ht_Inn)
-                                 + Max(P.Stats.GetUnitQty(ut_Any) - 25, 0) * 0.02;
-
-  //Weak QQWWS
-  //Strong QQQWWQSW
-  HouseWeight[ht_Quary]       := 1
-                                 - HouseCount(ht_Quary) * 0.45
-                                 - P.Stats.GetResourceQty(rt_Stone) / 300
-                                 + Byte(HouseCount(ht_Woodcutters) > 0) * 0.95
-                                 + Byte(fSetup.Strong
-                                        and (HouseCount(ht_Woodcutters) > 0)) * 0.95;
-
-  HouseWeight[ht_Woodcutters] := 1
-                                 - HouseCount(ht_Woodcutters) / 4
-                                 - P.Stats.GetResourceQty(rt_Wood) / 300;
-
-  HouseWeight[ht_Sawmill]     := 0.79
-                                 - HouseCount(ht_Sawmill) / 3
-                                 - P.Stats.GetResourceQty(rt_Wood) / 300;
-
-  //Check ability to build house
-  for HT := HOUSE_MIN to HOUSE_MAX do
-    HouseWeight[HT] := HouseWeight[HT] * Byte(P.Stats.GetCanBuild(HT));
-
-  //Pick best house
-  BestHouse := HOUSE_MIN;
-  for HT := HOUSE_MIN to HOUSE_MAX do
-  if HouseWeight[HT] > HouseWeight[BestHouse] then
-    BestHouse := HT;
-
-  //Everything that is below 0.25 gets ignored for now
-  if HouseWeight[BestHouse] > 0.25 then
-    TryBuildHouse(BestHouse);
-
-  Exit;}
-
 
   //Ensure that we have Store/Inn/School/Quary/Wood in adequate counts
   BuildCore;
@@ -684,7 +607,7 @@ procedure TKMayor.CheckStrategy;
 const
   CheckDistance: array [Boolean] of Byte = (25, 32);
 var
-  P: TKMPlayer;
+  //P: TKMPlayer;
   Store: TKMHouse;
   StoreLoc, T: TKMPoint;
 begin
@@ -870,7 +793,7 @@ begin
       IronTheory := HouseCount(ht_IronMine) * ProductionRate[rt_IronOre];
       SteelTheory := HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel];
       SmithyTheory := HouseCount(ht_WeaponSmithy) * ProductionRate[rt_Hallebard]; //All 3 weapons are the same
-      SteelWeaponProduction := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory));
+      SteelWeaponProduction := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) / 3;
       SteelWeaponBalance := SteelWeaponProduction - SteelWeaponDemand;
     end;
 
@@ -882,7 +805,7 @@ begin
       IronTheory := HouseCount(ht_IronMine) * ProductionRate[rt_IronOre];
       SteelTheory := HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel];
       SmithyTheory := HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor];
-      SteelArmorProduction := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory));
+      SteelArmorProduction := Min(Min(CoalTheory, IronTheory), Min(SteelTheory, SmithyTheory)) / 2;
       SteelArmorBalance := SteelArmorProduction - SteelArmorDemand;
     end;
 
@@ -891,7 +814,7 @@ begin
       //Trunk
       //Wood
       WorkshopTheory := HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
-      WoodenWeaponProduction := Min(TrunkTheory, WoodTheory, WorkshopTheory);
+      WoodenWeaponProduction := Min(TrunkTheory, WoodTheory, WorkshopTheory) / 3;
       WoodenWeaponBalance := WoodenWeaponProduction - WoodenWeaponDemand;
     end;
 
@@ -903,9 +826,9 @@ begin
       SwineTheory := HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 2;
       TanneryTheory := HouseCount(ht_Tannery) * ProductionRate[rt_Leather];
       WorkshopTheory := HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor];
-      WoodenShieldProduction := Min(TrunkTheory, WoodTheory, WorkshopTheory);
+      WoodenShieldProduction := Min(TrunkTheory, WoodTheory, WorkshopTheory) / 2;
       WoodenShieldBalance := WoodenShieldProduction - WoodenShieldDemand;
-      WoodenArmorProduction := Min(Min(FarmTheory, SwineTheory), Min(TanneryTheory, WorkshopTheory));
+      WoodenArmorProduction := Min(Min(FarmTheory, SwineTheory), Min(TanneryTheory, WorkshopTheory)) / 2;
       WoodenArmorBalance := WoodenArmorProduction - WoodenArmorDemand;
     end;
 
@@ -914,21 +837,33 @@ begin
     HorseProduction := Min(Horse.FarmTheory, Horse.StablesTheory);
     HorseBalance := HorseProduction - HorseDemand;
 
-    //Balance := Min(hProduction, ) - Consumption;
-    Text := Format('  SteelW balance: %.2f - %.2f = %.2f|', [SteelWeaponProduction, SteelWeaponDemand, SteelWeaponBalance])
+    if fWooden then
+      Balance := Min([WoodenWeaponBalance, WoodenArmorBalance, WoodenShieldBalance, HorseBalance])
+    else
+      Balance := Min([SteelWeaponBalance, SteelArmorBalance, HorseBalance]);
+
+    Text := Format('Weaponry Balance: %.2f|', [Balance])
+          + Format('  SteelW balance: %.2f - %.2f = %.2f|', [SteelWeaponProduction, SteelWeaponDemand, SteelWeaponBalance])
           + Format('          SteelW: min(C%.2f, I%.2f, S%.2f, W%.2f)|',
                    [SteelWeapon.CoalTheory, SteelWeapon.IronTheory, SteelWeapon.SteelTheory, SteelWeapon.SmithyTheory])
-          + Format('  SteelW balance: %.2f - %.2f = %.2f|', [SteelWeaponProduction, SteelWeaponDemand, SteelWeaponBalance])
+
+          + Format('  SteelA balance: %.2f - %.2f = %.2f|', [SteelArmorProduction, SteelArmorDemand, SteelArmorBalance])
           + Format('          SteelA: min(C%.2f, I%.2f, S%.2f, W%.2f)|',
                    [SteelArmor.CoalTheory, SteelArmor.IronTheory, SteelArmor.SteelTheory, SteelArmor.SmithyTheory])
+
+          + Format('WoodWeap balance: %.2f - %.2f = %.2f|', [WoodenWeaponProduction, WoodenWeaponDemand, WoodenWeaponBalance])
           + Format('      WoodWeapon: min(T%.2f, W%.2f, W%.2f)|',
                    [WoodenWeapon.TrunkTheory, WoodenWeapon.WoodTheory, WoodenWeapon.WorkshopTheory])
+
+          + Format('WoodShie balance: %.2f - %.2f = %.2f|', [WoodenShieldProduction, WoodenShieldDemand, WoodenShieldBalance])
           + Format('      WoodShield: min(T%.2f, W%.2f, W%.2f)|',
                    [WoodenArmor.TrunkTheory, WoodenArmor.WoodTheory, WoodenArmor.WorkshopTheory])
+
+          + Format('WoodArmo balance: %.2f - %.2f = %.2f|', [WoodenArmorProduction, WoodenArmorDemand, WoodenArmorBalance])
           + Format('       WoodArmor: min(F%.2f, S%.2f, T%.2f, W%.2f)|',
                    [WoodenArmor.FarmTheory, WoodenArmor.SwineTheory, WoodenArmor.TanneryTheory, WoodenArmor.WorkshopTheory])
-          + Format('  Horses balance: %.2f - %.2f = %.2f|',
-                   [HorseProduction, HorseDemand, HorseBalance])
+
+          + Format('  Horses balance: %.2f - %.2f = %.2f|', [HorseProduction, HorseDemand, HorseBalance])
           + Format('          Horses: min(F%.2f, S%.2f)|',
                    [Horse.FarmTheory, Horse.StablesTheory]);
 

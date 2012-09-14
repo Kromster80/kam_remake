@@ -55,7 +55,7 @@ begin
   //Remake properties
   Strong := (KaMRandom > 0.5);
   WorkerFactor := IfThen(Strong, 12, 6);
-  SerfFactor := IfThen(Strong, 5, 10);
+  SerfFactor := IfThen(Strong, 7, 10);
 end;
 
 
