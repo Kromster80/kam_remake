@@ -89,6 +89,7 @@ type
     procedure CheckHouseCount;
     procedure CheckHousePlans;
     procedure CheckRoadsCount;
+    procedure CheckExhaustedMines;
 
     procedure CalculateBalance;
   public
@@ -423,7 +424,7 @@ begin
     TryBuildHouse(ht_Woodcutters);
 
   //Sawmill
-  Req := 1;
+  Req := 2;
   if Req > HouseCount(ht_Sawmill) then
     TryBuildHouse(ht_Sawmill);
 
@@ -539,6 +540,18 @@ begin
 end;
 
 
+procedure TKMayor.CheckExhaustedMines;
+var
+  I: Integer;
+begin
+  with  fPlayers[fOwner] do
+  for I := 0 to Houses.Count - 1 do
+  if not Houses[I].IsDestroyed
+  and Houses[I].ResourceDepletedMsgIssued then
+    Houses[I].DemolishHouse(False);
+end;
+
+
 procedure TKMayor.CheckHouseCount;
 var
   P: TKMPlayer;
@@ -563,8 +576,8 @@ begin
   if fDemandWeaponry.Balance < 0 then
     BuildMoreWeaponry;
 
-  //todo: Check if we need to demolish depleted mining houses
-  //Not sure if AI should do that though
+  //Check if we need to demolish depleted mining houses
+  CheckExhaustedMines;
 
   //todo: Check if planned houses are not building
   //(e.g. worker died while digging or elevation changed to impassable)
@@ -696,7 +709,7 @@ procedure TKMayor.CalculateBalance;
   begin
     TrunkProductionRate := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
     WoodProductionRate := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
-    WoodConsumptionRate := 1 //For city building
+    WoodConsumptionRate := 1.25 //For city building
                          + HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor]
                          + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
     with fDemandWeaponry do
@@ -874,6 +887,7 @@ end;
 //Tell Mayor what proportions of army is needed
 procedure TKMayor.SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);
 begin
+  //Convert army request into how many weapons are needed
   with fDemandWeaponry do
   begin
     SteelWeaponDemand := FootmenDemand + HorsemenDemand + PikemenDemand + ArchersDemand;
@@ -881,6 +895,7 @@ begin
     WoodenWeaponDemand := FootmenDemand + HorsemenDemand + PikemenDemand + ArchersDemand;
     WoodenArmorDemand := FootmenDemand + HorsemenDemand + PikemenDemand + ArchersDemand;
     WoodenShieldDemand := FootmenDemand + HorsemenDemand;
+    HorseDemand := HorsemenDemand;
   end;
 end;
 

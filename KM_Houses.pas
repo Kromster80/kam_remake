@@ -521,6 +521,12 @@ begin
 
   //Road is removed in CloseHouse
   CloseHouse(NoRubble);
+
+  //Only Done houses are treated as Self-Destruct
+  if fBuildState = hbs_Done then
+    fPlayers.Player[fOwner].Stats.HouseSelfDestruct(fHouseType)
+  else
+    fPlayers.Player[fOwner].Stats.HouseEnded(fHouseType);
 end;
 
 
@@ -856,11 +862,18 @@ end;
 
 
 {Check amount of placed order for given ID}
-function TKMHouse.CheckResOrder(aID:byte):word;
+function TKMHouse.CheckResOrder(aID: Byte): Word;
+const
+  //Values are proportional to how many types of troops need this armament
+  DefOrderCount: array [WEAPON_MIN..WEAPON_MAX] of Byte = (
+    2, 2, 4, 4, 2, 2, 1, 1, 1, 1);
+    //rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor, rt_Axe,
+    //rt_Sword, rt_Pike, rt_Hallebard, rt_Bow, rt_Arbalet
 begin
   //AI always order production of everything. Could be changed later with a script command to only make certain things
-  if (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (fResource.HouseDat[fHouseType].ResOutput[aID] <> rt_None) then
-    Result := 1
+  if (fPlayers.Player[fOwner].PlayerType = pt_Computer)
+  and (fResource.HouseDat[fHouseType].ResOutput[aID] <> rt_None) then
+    Result := DefOrderCount[fResource.HouseDat[fHouseType].ResOutput[aID]]
   else
     Result := fResourceOrder[aID];
 end;

@@ -589,10 +589,6 @@ begin
   if H = nil then Exit; //Due to network delays the house might have already been destroyed by now
 
   H.DemolishHouse(DoSilent, IsEditor);
-  if H.BuildingState = hbs_Done then //Only Done houses are treated as Self-Destruct
-    fStats.HouseSelfDestruct(H.HouseType)
-  else
-    fStats.HouseEnded(H.HouseType);
 end;
 
 
