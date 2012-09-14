@@ -2996,8 +2996,13 @@ end;
 
 //Fills aList with all of the tiles within aRadius of aStart with aPass using either a
 //simple radius or a floodfill walking distance calculation depending on USE_WALKING_DISTANCE
-procedure TTerrain.GetTilesWithinDistance(aStart:TKMPoint; aRadius:Byte; aPass:TPassability; aList:TKMPointList);
-var Visited: array of array of Byte;
+procedure TTerrain.GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
+const
+  STRAIGHT_COST = 5;
+  DIAG_COST = Round(STRAIGHT_COST * 1.41);
+  MAX_RAD = (255 - DIAG_COST) div STRAIGHT_COST;
+var
+  Visited: array of array of Byte;
 
   //Uses a floodfill style algorithm but only on a small area (with aRadius)
   procedure Visit(X,Y: Word; aWalkDistance: Byte);
@@ -3005,10 +3010,10 @@ var Visited: array of array of Byte;
   begin
     //Test whether this tile is valid and exit immediately if not
     //Multiply the radius by 10 because of diagonal approximation (straight=10, diagonal=14)
-    if (aWalkDistance > aRadius*10) or
+    if (aWalkDistance > aRadius * STRAIGHT_COST) or
     not (aPass in Land[Y,X].Passability) then Exit;
-    Xt := aStart.X-X+aRadius;
-    Yt := aStart.Y-Y+aRadius;
+    Xt := aStart.X - X + aRadius;
+    Yt := aStart.Y - Y + aRadius;
     if (aWalkDistance >= Visited[Xt,Yt]) then Exit;
 
     //Only add to results once (255 is the intial value)
@@ -3024,35 +3029,35 @@ var Visited: array of array of Byte;
     if X-1 >= 1 then
     begin
       if (Y-1 >= 1) and not MapElem[Land[Y,X].Obj].DiagonalBlocked then
-        Visit(X-1, Y-1, aWalkDistance+14);
-      Visit(X-1, Y, aWalkDistance+10);
+        Visit(X-1, Y-1, aWalkDistance + DIAG_COST);
+      Visit(X-1, Y, aWalkDistance + STRAIGHT_COST);
       if (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj].DiagonalBlocked then
-        Visit(X-1,Y+1, aWalkDistance+14);
+        Visit(X-1,Y+1, aWalkDistance + DIAG_COST);
     end;
 
-    if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance+10);
-    if Y+1 <= fMapY then Visit(X, Y+1, aWalkDistance+10);
+    if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance + STRAIGHT_COST);
+    if Y+1 <= fMapY then Visit(X, Y+1, aWalkDistance + STRAIGHT_COST);
 
     if X+1 <= fMapX then
     begin
       if (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj].DiagonalBlocked then
-        Visit(X+1, Y-1, aWalkDistance+14);
-      Visit(X+1, Y, aWalkDistance+10);
+        Visit(X+1, Y-1, aWalkDistance + DIAG_COST);
+      Visit(X+1, Y, aWalkDistance + STRAIGHT_COST);
       if (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj].DiagonalBlocked then
-        Visit(X+1, Y+1, aWalkDistance+14);
+        Visit(X+1, Y+1, aWalkDistance + DIAG_COST);
     end;
   end;
 
-var i,k: Integer;
+var I,K: Integer;
 begin
   if USE_WALKING_DISTANCE then
   begin
     //Because we use 10 for straight and 14 for diagonal in byte storage 24 is the maximum allowed
-    Assert(aRadius <= 24, 'GetTilesWithinDistance can''t handle radii > 24');
-    SetLength(Visited, 2*aRadius+1, 2*aRadius+1);
-    for i:=0 to 2*aRadius do
-      for k:=0 to 2*aRadius do
-        Visited[i,k] := 255; //Maximum distance so we will always prefer the route we find
+    Assert(aRadius <= MAX_RAD, 'GetTilesWithinDistance can''t handle radii > MAX_RAD');
+    SetLength(Visited, aRadius * 2 + 1, aRadius * 2 + 1);
+    for I := 0 to aRadius * 2 do
+      for K := 0 to aRadius * 2 do
+        Visited[I, K] := 255; //Maximum distance so we will always prefer the route we find
 
     Visit(aStart.X, aStart.Y, 0); //Starting tile is at walking distance zero
   end

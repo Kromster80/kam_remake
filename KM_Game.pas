@@ -414,18 +414,21 @@ begin
       fMapEditor := TKMMapEditor.Create;
       MyPlayer := fPlayers.Player[0];
       fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
-      for I := 0 to MAX_PLAYERS - 1 do
+      for I := 0 to fPlayers.Count - 1 do
         fPlayers[I].FogOfWar.RevealEverything;
     end
     else
     if fGameMode = gmSingle then
     begin
       MyPlayer := fPlayers.Player[Parser.MissionInfo.HumanPlayerID];
-      Assert(MyPlayer.PlayerType = pt_Human);
+      Assert(ALLOW_NO_HUMAN_IN_SP or (MyPlayer.PlayerType = pt_Human));
+      if ALLOW_NO_HUMAN_IN_SP and (MyPlayer.PlayerType = pt_Computer) then
+        for I := 0 to fPlayers.Count - 1 do
+          fPlayers[I].FogOfWar.RevealEverything;
     end;
 
     if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then
-      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|'+Parser.MinorErrors, KMPoint(0,0));
+      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|' + Parser.MinorErrors, KMPoint(0,0));
 
     fMissionMode := Parser.MissionInfo.MissionMode;
   finally

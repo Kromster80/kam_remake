@@ -158,6 +158,7 @@ end;
 
 
 function TKMCityPlanner.NextToHouse(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+const RAD = 15;
 var
   TargetHouseType: THouseType;
   TargetH: TKMHouse;
@@ -177,8 +178,8 @@ begin
   BestBid := MaxSingle;
   TargetLoc := TargetH.GetEntrance;
 
-  for I := Max(TargetLoc.Y - 10, 1) to Min(TargetLoc.Y + 10, fTerrain.MapY - 1) do
-  for K := Max(TargetLoc.X - 10, 1) to Min(TargetLoc.X + 10, fTerrain.MapX - 1) do
+  for I := Max(TargetLoc.Y - RAD, 1) to Min(TargetLoc.Y + RAD, fTerrain.MapY - 1) do
+  for K := Max(TargetLoc.X - RAD, 1) to Min(TargetLoc.X + RAD, fTerrain.MapX - 1) do
     if P.CanAddHousePlanAI(K, I, aHouse, False) then
     begin
       Bid := KMLengthDiag(KMPoint(K,I), TargetLoc) - fAIFields.InfluenceMinMap[fOwner,I,K] + KaMRandom * 5;
@@ -193,6 +194,7 @@ end;
 
 
 function TKMCityPlanner.NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+const RAD = 32;
 var
   S: TKMHouse;
   I, K: Integer;
@@ -206,7 +208,7 @@ begin
   if S = nil then Exit;
   StoreLoc := S.GetPosition;
 
-  if not fTerrain.FindStone(KMPointBelow(S.GetPosition), 20, KMPoint(0,0), StoneLoc) then Exit;
+  if not fTerrain.FindStone(KMPointBelow(S.GetPosition), RAD, KMPoint(0,0), StoneLoc) then Exit;
 
   BestBid := MaxSingle;
 

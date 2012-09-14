@@ -175,7 +175,7 @@ procedure TKMayor.CheckUnitCount;
 var
   P: TKMPlayer;
   HS: TKMHouseSchool;
-  UnitReq: array [TUnitType] of Integer;
+  UnitReq: array [CITIZEN_MIN..CITIZEN_MAX] of Integer;
 
   function HasEnoughGold: Boolean;
   begin
@@ -239,8 +239,7 @@ begin
     begin
       //Order citizen training
       for UT := Low(UnitReq) to High(UnitReq) do
-        if (UT <> ut_None)
-        and (UnitReq[UT] > 0) //Exclude untrainable units like Wolfs
+        if (UnitReq[UT] > 0) //Skip units that dont needed by houses (Serf/Worker)
         and (UnitReq[UT] > P.Stats.GetUnitQty(UT)) then
         begin
           Dec(UnitReq[UT]); //So other schools don't order same unit
@@ -252,7 +251,7 @@ begin
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
       if HS.QueueIsEmpty then //Still haven't found a match...
         if HasEnoughGold then //If we are low on Gold don't hire more ppl
-          if not TryAddToQueue(ut_Serf, Round((10/fSetup.SerfFactor) * P.Stats.GetHouseQty(ht_Any))) then
+          if not TryAddToQueue(ut_Serf, Round((10/fSetup.SerfFactor) * (P.Stats.GetHouseQty(ht_Any) + P.Stats.GetUnitQty(ut_Worker)/2))) then
             if not TryAddToQueue(ut_Worker, fSetup.WorkerFactor) then
               if fGame.CheckTime(fSetup.RecruitDelay) then //Recruits can only be trained after this time
                 if not TryAddToQueue(ut_Recruit, fSetup.RecruitFactor * P.Stats.GetHouseQty(ht_Barracks)) then
@@ -389,47 +388,43 @@ end;
 
 
 procedure TKMayor.BuildCore;
-var Req: Integer;
+var
+  Demand: Integer;
 begin
-  //Build at least one Store and add one more for each 30 houses
-  Req := 1 + (HouseCount(ht_Any) div 35);
-  if Req > HouseCount(ht_Store) then
+  Demand := 1 + HouseCount(ht_Any) div 35;
+  if Demand > HouseCount(ht_Store) then
     TryBuildHouse(ht_Store);
 
-  //Build at least one School
-  Req := 1;
-  if Req > HouseCount(ht_School) then
+  Demand := 1;
+  if Demand > HouseCount(ht_School) then
     TryBuildHouse(ht_School);
 
-  //Build at least one Inn and one more for every 80 citizens
-  Req := 1 + fPlayers[fOwner].Stats.GetCitizensCount div 80;
-  if Req > HouseCount(ht_Inn) then
+  Demand := 1 + fPlayers[fOwner].Stats.GetCitizensCount div 80;
+  if Demand > HouseCount(ht_Inn) then
     TryBuildHouse(ht_Inn);
 
-  //Quary
-  //Town needs at least 2 quaries build early and 1 more after Sawmill
-  Req := 2
-         + Byte((HouseCount(ht_Sawmill) > 0)
+  Demand := 2
+            + Byte((HouseCount(ht_Sawmill) > 0)
             and (fPlayers[fOwner].Stats.GetResourceQty(rt_Stone) < 500));
-  if Req > HouseCount(ht_Quary) then
+  if Demand > HouseCount(ht_Quary) then
     TryBuildHouse(ht_Quary);
 
   //Woodcutters
   //Town needs at least 2 woodcutters build early and 1 more after Sawmill
-  Req := 2
+  Demand := 2
          + Byte((HouseCount(ht_Sawmill) > 0)
            and ((fPlayers[fOwner].Stats.GetResourceQty(rt_Trunk) < 150)
                 or (fPlayers[fOwner].Stats.GetResourceQty(rt_Wood) < 300)));
-  if Req > HouseCount(ht_Woodcutters) then
+  if Demand > HouseCount(ht_Woodcutters) then
     TryBuildHouse(ht_Woodcutters);
 
   //Sawmill
-  Req := 2;
-  if Req > HouseCount(ht_Sawmill) then
+  Demand := 2;
+  if Demand > HouseCount(ht_Sawmill) then
     TryBuildHouse(ht_Sawmill);
 
-  Req := Byte(fPlayers[fOwner].Stats.GetWeaponsProduced > 3);
-  if Req > HouseCount(ht_Barracks) then
+  Demand := Byte(fPlayers[fOwner].Stats.GetWeaponsProduced > 3);
+  if Demand > HouseCount(ht_Barracks) then
     TryBuildHouse(ht_Barracks);
 end;
 
@@ -544,11 +539,11 @@ procedure TKMayor.CheckExhaustedMines;
 var
   I: Integer;
 begin
-  with  fPlayers[fOwner] do
+  with fPlayers[fOwner] do
   for I := 0 to Houses.Count - 1 do
   if not Houses[I].IsDestroyed
   and Houses[I].ResourceDepletedMsgIssued then
-    Houses[I].DemolishHouse(False);
+    fPlayers[fOwner].RemHouse(Houses[I].GetEntrance, False); //todo: Rework house demolishing to be more sensible (Houses[I].Demolish and call events from it?)
 end;
 
 

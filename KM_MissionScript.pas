@@ -542,7 +542,10 @@ begin
 
   //SinglePlayer needs a player
   if (fMissionInfo.HumanPlayerID = PLAYER_NONE) and (fParsingMode = mpm_Single) then
-    AddError('No human player detected - ''ct_SetHumanPlayer''', True);
+    if ALLOW_NO_HUMAN_IN_SP then
+      fMissionInfo.HumanPlayerID := 0 //We need to choose some player to look at
+    else
+      AddError('No human player detected - ''ct_SetHumanPlayer''', True);
 
   //If we have reach here without exiting then loading was successful if no errors were reported
   Result := (fFatalErrors = '');

@@ -115,6 +115,7 @@ var
   DEBUG_CHEATS          :Boolean = True; //Cheats for debug (place scout and reveal map) which can be turned On from menu
   MULTIPLAYER_SPEEDUP   :Boolean = True; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
   SKIP_EXE_CRC          :Boolean = False; //Don't check KaM_Remake.exe CRC before MP game (useful for testing with different versions)
+  ALLOW_NO_HUMAN_IN_SP  :Boolean = True; //Allow to load SP maps without Human player (usefull for AI testing)
   {Data output}
   WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
