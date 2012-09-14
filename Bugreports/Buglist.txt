@@ -53,6 +53,7 @@
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Heights look different on certain systems, see heights.jpg images and dxdiag report
 	Colored rectangle below cursor
+	TSK9 script error. You won't get victory if you defeat enemy towns before Barbarians attack script is executed
 
 Improvements:
  +	High quality alpha-blended shadows for houses
