@@ -225,8 +225,8 @@ const
     DoesOrders: 1;
     BuildIcon:  311;
     TabletIcon: 261;
-    Input:      (rt_Steel,      rt_Coal,       rt_None,       rt_None);
-    Output:     (rt_MetalArmor, rt_MetalShield,rt_None,       rt_None);
+    Input:      (rt_Steel,       rt_Coal,       rt_None,       rt_None);
+    Output:     (rt_MetalShield, rt_MetalArmor, rt_None,       rt_None);
     ReleasedBy: ht_IronSmithy;
     ),
     ( //Armor workshop
@@ -450,7 +450,7 @@ const
     DoesOrders: 1;
     BuildIcon:  303;
     TabletIcon: 253;
-    Input:      (rt_Coal,       rt_Steel,      rt_None,       rt_None);
+    Input:      (rt_Steel,       rt_Coal,      rt_None,       rt_None);
     Output:     (rt_Sword,      rt_Hallebard,  rt_Arbalet,    rt_None);
     ReleasedBy: ht_IronSmithy;
     ),
