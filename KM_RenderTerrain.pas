@@ -17,7 +17,7 @@ type
     fRect: TKMRect;
     fFOW: TKMFogOfWar;
     fTextG: GLuint; //Shading gradient for lighting
-    fUseVBO: Boolean; //Wherever to render terrain through VBO (faster but GL1.5) or DrawCalls (slower but GL1.1)
+    fUseVBO: Boolean; //Wherever to render terrain through VBO (faster but needs GL1.5) or DrawCalls (slower but needs only GL1.1)
     fPos: array of TVertice;
     fInd: array of Integer;
     fVtxShd: GLUint;
@@ -422,6 +422,11 @@ var
 begin
   fRect := aRect;
   fFOW := aFOW;
+
+  //VBO has proper vertice coords only for Light/Shadow
+  //it cant handle 3D yet and because of FOW leaves terrain revealed, which is an exploit in MP
+  //Thus we allow VBO only in 2D
+  fUseVBO := GL_VERSION_1_5 and not RENDER_3D;
 
   glPushAttrib(GL_DEPTH_BUFFER_BIT);
 
