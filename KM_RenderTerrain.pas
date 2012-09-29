@@ -327,7 +327,7 @@ begin
   end
   else
   begin
-    glBegin(GL_QUADS);
+    glBegin(GL_TRIANGLE_FAN);
       with fTerrain do
       if RENDER_3D then
         for I := fRect.Top to fRect.Bottom do
@@ -377,7 +377,7 @@ begin
   end
   else
   begin
-    glBegin(GL_QUADS);
+    glBegin(GL_TRIANGLE_FAN);
       with fTerrain do
       if RENDER_3D then
         for I := fRect.Top to fRect.Bottom do
@@ -460,7 +460,7 @@ begin
 end;
 
 
-{Render one terrian cell}
+//Render single terrian cell
 procedure TRenderTerrain.RenderTile(Index: Byte; pX,pY,Rot: Integer);
 var
   K, I: Integer;
