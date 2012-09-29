@@ -327,27 +327,29 @@ begin
   end
   else
   begin
-    glBegin(GL_TRIANGLE_FAN);
-      with fTerrain do
-      if RENDER_3D then
-        for I := fRect.Top to fRect.Bottom do
-        for K := fRect.Left to fRect.Right do
-        begin
+    with fTerrain do
+    if RENDER_3D then
+      for I := fRect.Top to fRect.Bottom do
+      for K := fRect.Left to fRect.Right do
+      begin
+        glBegin(GL_TRIANGLE_FAN);
           glTexCoord1f(Land[  I,   K].Light); glVertex3f(K-1, I-1, -Land[  I,   K].Height / CELL_HEIGHT_DIV);
           glTexCoord1f(Land[I+1,   K].Light); glVertex3f(K-1,   I, -Land[I+1,   K].Height / CELL_HEIGHT_DIV);
           glTexCoord1f(Land[I+1, K+1].Light); glVertex3f(  K,   I, -Land[I+1, K+1].Height / CELL_HEIGHT_DIV);
           glTexCoord1f(Land[  I, K+1].Light); glVertex3f(  K, I-1, -Land[  I, K+1].Height / CELL_HEIGHT_DIV);
-        end
-      else
-        for I := fRect.Top to fRect.Bottom do
-        for K := fRect.Left to fRect.Right do
-        begin
+        glEnd;
+      end
+    else
+      for I := fRect.Top to fRect.Bottom do
+      for K := fRect.Left to fRect.Right do
+      begin
+        glBegin(GL_TRIANGLE_FAN);
           glTexCoord1f(Land[  I,   K].Light); glVertex3f(K-1, I-1 - Land[  I,   K].Height / CELL_HEIGHT_DIV, -I);
           glTexCoord1f(Land[I+1,   K].Light); glVertex3f(K-1,   I - Land[I+1,   K].Height / CELL_HEIGHT_DIV, -I);
           glTexCoord1f(Land[I+1, K+1].Light); glVertex3f(  K,   I - Land[I+1, K+1].Height / CELL_HEIGHT_DIV, -I);
           glTexCoord1f(Land[  I, K+1].Light); glVertex3f(  K, I-1 - Land[  I, K+1].Height / CELL_HEIGHT_DIV, -I);
-        end;
-    glEnd;
+        glEnd;
+      end;
   end;
 end;
 
@@ -377,12 +379,12 @@ begin
   end
   else
   begin
-    glBegin(GL_TRIANGLE_FAN);
-      with fTerrain do
-      if RENDER_3D then
-        for I := fRect.Top to fRect.Bottom do
-        for K := fRect.Left to fRect.Right do
-        begin
+    with fTerrain do
+    if RENDER_3D then
+      for I := fRect.Top to fRect.Bottom do
+      for K := fRect.Left to fRect.Right do
+      begin
+        glBegin(GL_TRIANGLE_FAN);
           glTexCoord1f(kromutils.max(0, -Land[I, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I - 1, true) / 255));
           glVertex3f(K - 1, I - 1, -Land[I, K].Height / CELL_HEIGHT_DIV);
           glTexCoord1f(kromutils.max(0, -Land[I + 1, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I, true) / 255));
@@ -391,11 +393,13 @@ begin
           glVertex3f(K, I, -Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV);
           glTexCoord1f(kromutils.max(0, -Land[I, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I - 1, true) / 255));
           glVertex3f(K, I - 1, -Land[I, K + 1].Height / CELL_HEIGHT_DIV);
-        end
-      else
-        for I := fRect.Top to fRect.Bottom do
-        for K := fRect.Left to fRect.Right do
-        begin
+        glEnd;
+      end
+    else
+      for I := fRect.Top to fRect.Bottom do
+      for K := fRect.Left to fRect.Right do
+      begin
+        glBegin(GL_TRIANGLE_FAN);
           glTexCoord1f(max(-Land[I, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I - 1, true) / 255));
           glVertex3f(K - 1, I - 1 - Land[I, K].Height / CELL_HEIGHT_DIV, -I);
           glTexCoord1f(max(-Land[I + 1, K].Light, 1 - fFOW.CheckVerticeRevelation(K - 1, I, true) / 255));
@@ -404,8 +408,8 @@ begin
           glVertex3f(K, I - Land[I + 1, K + 1].Height / CELL_HEIGHT_DIV, -I);
           glTexCoord1f(max(-Land[I, K + 1].Light, 1 - fFOW.CheckVerticeRevelation(K, I - 1, true) / 255));
           glVertex3f(K, I - 1 - Land[I, K + 1].Height / CELL_HEIGHT_DIV, -I);
-        end;
-    glEnd;
+        glEnd;
+      end;
   end;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
