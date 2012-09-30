@@ -1167,21 +1167,21 @@ begin
     cm_Equalize:begin
                   Rad := GameCursor.MapEdSize;
                   Slope := GameCursor.MapEdSlope;
-                  for I := Max((Trunc(F.Y) - Rad), 1) to Min((Ceil(F.Y) + Rad), fTerrain.MapY) do
-                  for K := Max((Trunc(F.X) - Rad), 1) to Min((Ceil(F.X) + Rad), fTerrain.MapX) do
+                  for I := Max((Round(F.Y) - Rad), 1) to Min((Round(F.Y) + Rad), fTerrain.MapY -1) do
+                  for K := Max((Round(F.X) - Rad), 1) to Min((Round(F.X) + Rad), fTerrain.MapX - 1) do
                   begin
                     case GameCursor.MapEdShape of
-                      hsCircle: Tmp := 1 - GetLength(I-F.Y, K-F.X) / Rad;
-                      hsSquare: Tmp := 1 - Math.max(abs(I-F.Y), abs(K-F.X)) / Rad;
+                      hsCircle: Tmp := 1 - GetLength(I-Round(F.Y), K-Round(F.X)) / Rad;
+                      hsSquare: Tmp := 1 - Math.max(abs(I-Round(F.Y)), abs(K-Round(F.X))) / Rad;
                       else                 Tmp := 0;
                     end;
                     Tmp := Power(Abs(Tmp), (Slope + 1) / 6) * Sign(Tmp); //Modify slopes curve
-                    Tmp := EnsureRange(Tmp * 1.5, 0, 1); //*1.5 makes dots more visible
+                    Tmp := EnsureRange(Tmp * 2.5, 0, 1); //*2.5 makes dots more visible
                     fRenderAux.DotOnTerrain(K, I, $FF or (Round(Tmp*255) shl 24));
                   end;
                   case GameCursor.MapEdShape of
-                    hsCircle: fRenderAux.CircleOnTerrain(F.X, F.Y, Rad, $00000000,  $FFFFFFFF);
-                    hsSquare: fRenderAux.SquareOnTerrain(F.X - Rad, F.Y - Rad, F.X + Rad, F.Y + Rad, $00000000,  $FFFFFFFF);
+                    hsCircle: fRenderAux.CircleOnTerrain(round(F.X), round(F.Y), Rad, $00000000,  $FFFFFFFF);
+                    hsSquare: fRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $00000000,  $FFFFFFFF);
                   end;
                 end;
     cm_Units:   if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then

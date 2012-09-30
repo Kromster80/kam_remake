@@ -573,7 +573,7 @@ begin
       HeightElevate.CapOffsetY  := -12;
       HeightUnequalize          := TKMButtonFlat.Create(Panel_Heights,8,100,180,20,0);
       HeightUnequalize.OnClick  := Terrain_HeightChange;
-      HeightUnequalize.Caption  := 'Uniqualize/flat';
+      HeightUnequalize.Caption  := 'Unequalize/flatten';
       HeightUnequalize.CapOffsetY  := -12;
 
       HeightSize.OnChange   := Terrain_HeightChange;

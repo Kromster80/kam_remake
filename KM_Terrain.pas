@@ -2659,49 +2659,61 @@ var
   aRaise: Boolean;
 begin
   aLoc    := KMPointF(GameCursor.Float.X+1, GameCursor.Float.Y+1); // Mouse point
-  aRaise  := ssLeft in GameCursor.SState;         // Raise or Lowered
+  aRaise  := ssLeft in GameCursor.SState;         // Raise or Lowered (Left or Right mousebtn)
   Rad     := GameCursor.MapEdSize;
   Slope   := GameCursor.MapEdSlope;
-
+  I := Min((round(aLoc.Y) + Rad), fMapY);
   for I := Max((round(aLoc.Y) - Rad), 1) to Min((round(aLoc.Y) + Rad), fMapY) do
   for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), fMapX) do
   begin
+  // We have square area basing on mouse point +/- radius
+  // Now we need to check whether point is inside brush type area(circle etc.)
+  // Every MapEdShape case has it's own check routine
     case GameCursor.MapEdShape of
-      hsCircle: Tmp := 1 - GetLength(I-aLoc.Y, K-aLoc.X) / Rad;
-      hsSquare: Tmp := 1 - Math.max(abs(I-aLoc.Y), abs(K-aLoc.X)) / Rad;
-      else      Tmp := 0;
-    end;
+        hsCircle:
+            Tmp := Max(1 - GetLength(I - round(aLoc.Y), round(K - aLoc.X)) / Rad, 0);   // Negative number means that point is outside circle
+        hsSquare:
+          Tmp := 1 - Max(Abs(I - round(aLoc.Y)), Abs(K - round(aLoc.X))) / Rad;
+      else
+        Tmp := 0;
+      end;
+  // Default cursor mode is elevate/decrease
     if GameCursor.Mode = cm_Equalize then
-    begin
-      if aRaise then   // Unequalize
+    begin // START Unequalize
+      if aRaise then
       begin
-        if (i > 1) and (k >1) and (i < fMapY-1) and (k < fMapX-1) then
+        if (i > 1) and (k >1) and (i < fMapY - 1) and (k < fMapX - 1) then
         begin
+        // Unequalize compares heights of adjacent tiles and increases differences
           if (Land[I,K].Height < Land[I-1,K+1].Height) then
-            Tmp := -min(Land[I-1,K+1].Height-Land[i,k].Height,tmp)
+            Tmp := -Min(Land[I-1,K+1].Height - Land[I,K].Height, Tmp)
           else
-            if (Land[I,K].Height > Land[I-1,K+1].Height) then
-              Tmp := min(Land[i,k].Height-Land[I-1,K+1].Height,tmp)
-            else
-              Tmp := 0;
+          if (Land[I,K].Height > Land[I-1,K+1].Height) then
+            Tmp := Min(Land[I,K].Height - Land[I-1,K+1].Height, Tmp)
+          else
+            Tmp := 0;
         end
         else
           Tmp := 0;
-      end else         // Flatten
+       //END Unequalize
+      end else
+      // START Flatten
       begin
-        if (Land[I,K].Height < Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height) then
-          Tmp := -min(Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height-Land[i,k].Height,tmp)
+      //Flatten comapres heights of mouse click and active tile then it increases/decreases height of active tile
+        if (Land[I,K].Height < Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height) then
+          Tmp := - Min(Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height - Land[I,K].Height, Tmp)
         else
-          if (Land[I,K].Height > Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height) then
-            Tmp := min(Land[i,k].Height-Land[trunc(Max(aLoc.Y,1)),trunc(Max(aLoc.X,1))].Height,tmp)
+          if (Land[I,K].Height > Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height) then
+            Tmp := Min(Land[I,K].Height - Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height, Tmp)
           else
             Tmp := 0;
       end;
+      //END Flatten
     end;
-
+    //COMMON PART FOR Elevate/Lower and Unequalize/Flatten
     //Compute resulting floating-point height
     Tmp := power(abs(Tmp),(Slope+1)/6)*sign(Tmp); //Modify slopes curve
-    Tmp := EnsureRange(Land[I,K].Height + Land[I,K].HeightAdd/255 + Math.max(0,Tmp) * (Byte(aRaise)*2-1), 0, 100);
+    Tmp := EnsureRange(Land[I,K].Height + Land[I,K].HeightAdd/255 + Tmp * (Byte(aRaise)*2-1), 0, 100);
     Land[I,K].Height := trunc(Tmp);
     Land[I,K].HeightAdd := round(frac(Tmp)*255); //write fractional part in 0..255 range (1Byte) to save us mem
   end;

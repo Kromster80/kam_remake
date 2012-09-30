@@ -32,6 +32,7 @@
  +	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
  +	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them
  +	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them
+ +	Flatten/equalise in the MapEd doesn't seem to work properly (like Krom's editor). Unequalise is ok.
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Deliveries should use the actual walking route length (opposed to Radius)
 	AIs should retaliate when the arrow is in mid flight or when it lands, not while the archer is still aiming/firing
@@ -51,7 +52,6 @@
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
 	Few terrain tiles (4th, 14th) have noticeable seams on their side when looked closely at
 	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
-	Flatten/equalise in the MapEd doesn't seem to work properly (like Krom's editor). Unequalise is ok.
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Heights look different on certain systems, see heights.jpg images and dxdiag report
 	Colored rectangle below cursor
@@ -94,6 +94,7 @@ Improvements:
 	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
 	Allow host to set a title for his lobby shown in a column on the server selection page ("beginners/pros only", "fight map only", etc.)
 	Clicking a location on the lobby minimap selects that location if it's available
+	Holding shift while placing a house keeps the house selected instead of changing to road
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
