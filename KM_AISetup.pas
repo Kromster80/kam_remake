@@ -53,8 +53,8 @@ begin
   TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
 
   //Remake properties
-  Strong := (KaMRandom > 0.5);
-  WorkerFactor := IfThen(Strong, 12, 6);
+  Strong := True;//(KaMRandom > 0.5);
+  WorkerFactor := IfThen(Strong, 15, 6);
   SerfFactor := IfThen(Strong, 7, 10);
 end;
 

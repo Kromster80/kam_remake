@@ -389,43 +389,30 @@ end;
 
 procedure TKMayor.BuildCore;
 var
-  Demand: Integer;
+  StoreBalance, SchoolBalance, InnBalance,
+  QuaryBalance, WoodBalance, SawmillBalance,
+  BarracksBalance: Single;
 begin
-  Demand := 1 + HouseCount(ht_Any) div 35;
-  if Demand > HouseCount(ht_Store) then
-    TryBuildHouse(ht_Store);
+  //Balance          //Exists                     //Demand
+  StoreBalance    := HouseCount(ht_Store)       - HouseCount(ht_Any) / 35;
+  SchoolBalance   := HouseCount(ht_School)      - 1;
+  InnBalance      := HouseCount(ht_Inn)         - fPlayers[fOwner].Stats.GetCitizensCount / 80;
+  QuaryBalance    := HouseCount(ht_Quary)       - 3 * Byte(HouseCount(ht_Inn) >= 1);
+  WoodBalance     := HouseCount(ht_Woodcutters) - 4 * Byte(HouseCount(ht_Quary) >= 3);
+  SawmillBalance  := HouseCount(ht_Sawmill)     - 2 * Byte(HouseCount(ht_Woodcutters) >= 2);
+  BarracksBalance := HouseCount(ht_Barracks)    - Byte(fPlayers[fOwner].Stats.GetWeaponsProduced > 0);
 
-  Demand := 1;
-  if Demand > HouseCount(ht_School) then
-    TryBuildHouse(ht_School);
+  if Min([StoreBalance, SchoolBalance, InnBalance, QuaryBalance, WoodBalance, SawmillBalance, BarracksBalance]) >= 0 then Exit;
 
-  Demand := 1 + fPlayers[fOwner].Stats.GetCitizensCount div 80;
-  if Demand > HouseCount(ht_Inn) then
-    TryBuildHouse(ht_Inn);
-
-  Demand := 2
-            + Byte((HouseCount(ht_Sawmill) > 0)
-            and (fPlayers[fOwner].Stats.GetResourceQty(rt_Stone) < 500));
-  if Demand > HouseCount(ht_Quary) then
-    TryBuildHouse(ht_Quary);
-
-  //Woodcutters
-  //Town needs at least 2 woodcutters build early and 1 more after Sawmill
-  Demand := 2
-         + Byte((HouseCount(ht_Sawmill) > 0)
-           and ((fPlayers[fOwner].Stats.GetResourceQty(rt_Trunk) < 150)
-                or (fPlayers[fOwner].Stats.GetResourceQty(rt_Wood) < 300)));
-  if Demand > HouseCount(ht_Woodcutters) then
-    TryBuildHouse(ht_Woodcutters);
-
-  //Sawmill
-  Demand := 2;
-  if Demand > HouseCount(ht_Sawmill) then
-    TryBuildHouse(ht_Sawmill);
-
-  Demand := Byte(fPlayers[fOwner].Stats.GetWeaponsProduced > 3);
-  if Demand > HouseCount(ht_Barracks) then
-    TryBuildHouse(ht_Barracks);
+  case PickMin([StoreBalance, SchoolBalance, InnBalance, QuaryBalance, WoodBalance, SawmillBalance, BarracksBalance]) of
+    0:  TryBuildHouse(ht_Store);
+    1:  TryBuildHouse(ht_School);
+    2:  TryBuildHouse(ht_Inn);
+    3:  TryBuildHouse(ht_Quary);
+    4:  TryBuildHouse(ht_Woodcutters);
+    5:  TryBuildHouse(ht_Sawmill);
+    6:  TryBuildHouse(ht_Barracks);
+  end;
 end;
 
 
@@ -556,20 +543,16 @@ begin
   //Number of simultaneous WIP houses is limited to 3
   if (P.Stats.GetHouseWip(ht_Any) >= 3) then Exit;
 
-  //Ensure that we have Store/Inn/School/Quary/Wood in adequate counts
-  BuildCore;
-
   //Try to express needs
   CalculateBalance;
 
-  if fDemandGold.Balance < 0 then
-    BuildMoreGold
-  else
-  if fDemandFood.Balance < 0 then
-    BuildMoreFood
-  else
-  if fDemandWeaponry.Balance < 0 then
-    BuildMoreWeaponry;
+  case PickMin([0, fDemandCore * 100, fDemandGold.Balance * 10, fDemandFood.Balance * 5, fDemandWeaponry.Balance]) of
+    0:  {BuildNothing};
+    1:  BuildCore;
+    2:  BuildMoreGold;
+    3:  BuildMoreFood;
+    4:  BuildMoreWeaponry;
+  end;
 
   //Check if we need to demolish depleted mining houses
   CheckExhaustedMines;
@@ -732,7 +715,7 @@ begin
 
   //Core
   //We always need core houses
-  fDemandCore := 1;
+  fDemandCore := -1;
 
   CoalDistribution;
   CornDistribution;

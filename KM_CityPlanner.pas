@@ -212,7 +212,7 @@ begin
 
   BestBid := MaxSingle;
 
-  for I := Min(StoneLoc.Loc.Y + 2, fTerrain.MapY - 1) to Min(StoneLoc.Loc.Y + 4, fTerrain.MapY - 1) do
+  for I := StoneLoc.Loc.Y to Min(StoneLoc.Loc.Y + 5, fTerrain.MapY - 1) do
   for K := Max(StoneLoc.Loc.X - 5, 1) to Min(StoneLoc.Loc.X + 5, fTerrain.MapX - 1) do
     if (fAIFields.GetBestOwner(K,I) = fOwner)
     and fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
