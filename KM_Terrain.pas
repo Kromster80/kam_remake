@@ -1104,23 +1104,23 @@ end;
 //taPlant - Woodcutter specifically wants to get an empty place to plant a Tree
 //taAny - Anything will do since Woodcutter is querying from home
 //Result indicates if desired TreeAct place was found successfully
-procedure TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; BestToPlant,SecondBestToPlant: TKMPointList);
+procedure TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees: TKMPointDirList; BestToPlant, SecondBestToPlant: TKMPointList);
 
-  function ChooseCuttingDirection(aTree:TKMPoint; out CuttingPoint:TKMPointDir):Boolean;
+  function ChooseCuttingDirection(aTree: TKMPoint; out CuttingPoint: TKMPointDir): Boolean;
   var I, K, BestSlope, Slope: Integer;
   begin
     BestSlope := 255;
     Result := False; //It is already tested that we can walk to the tree, but double-check
 
-    for i:=-1 to 0 do for k:=-1 to 0 do
-    if Route_CanBeMade(aLoc, KMPoint(aTree.X+k, aTree.Y+i), CanWalk, 0) then
+    for I:=-1 to 0 do for K:=-1 to 0 do
+    if Route_CanBeMade(aLoc, KMPoint(aTree.X+K, aTree.Y+I), CanWalk, 0) then
     begin
-      Slope := Round(HeightAt(aTree.X+k-0.5, aTree.Y+i-0.5) * CELL_HEIGHT_DIV) - Land[aTree.Y, aTree.X].Height;
+      Slope := Round(HeightAt(aTree.X+K-0.5, aTree.Y+I-0.5) * CELL_HEIGHT_DIV) - Land[aTree.Y, aTree.X].Height;
       //Cutting trees which are higher than us from the front looks visually poor, (axe hits ground) so avoid it where possible
-      if (i = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
+      if (I = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
       if Abs(Slope) < BestSlope then
       begin
-        CuttingPoint := KMPointDir(aTree.X+k, aTree.Y+i, KMGetVertexDir(k, i));
+        CuttingPoint := KMPointDir(aTree.X+K, aTree.Y+I, KMGetVertexDir(K, I));
         Result := True;
         BestSlope := Abs(Slope);
       end;
@@ -1131,7 +1131,7 @@ var
   ValidTiles: TKMPointList;
   I: Integer;
   T: TKMPoint;
-  CuttingPoint:TKMPointDir;
+  CuttingPoint: TKMPointDir;
 begin
   //Why do we use 3 lists instead of one like Corn does?
   //Because we should always prefer stumps over empty places
@@ -1166,10 +1166,10 @@ begin
       and (CanPlantTrees in Land[T.Y,T.X].Passability)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
-        if (Land[T.Y,T.X].Obj = 255) or (ObjectIsChopableTree(T, caAgeStomp)) then
-          BestToPlant.AddEntry(T) //Stump/empty places
+        if ObjectIsChopableTree(T, caAgeStomp) then
+          BestToPlant.AddEntry(T) //Prefer to dig out and plant on stomps to avoid cluttering whole area with em
         else
-          SecondBestToPlant.AddEntry(T); //Other objects that can be dug out (e.g. mushrooms) if no other options available
+          SecondBestToPlant.AddEntry(T); //Empty space and other objects that can be dug out (e.g. mushrooms) if no other options available
     end;
   end;
   ValidTiles.Free;

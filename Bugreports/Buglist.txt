@@ -33,6 +33,7 @@
  +	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them
  +	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them
  +	Flatten/equalise in the MapEd doesn't seem to work properly (like Krom's editor). Unequalise is ok.
+ +	Woodcutters would clutter whole available area within mining radius with stomps after few hours
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Deliveries should use the actual walking route length (opposed to Radius)
 	AIs should retaliate when the arrow is in mid flight or when it lands, not while the archer is still aiming/firing

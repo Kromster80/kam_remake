@@ -40,14 +40,14 @@ type
     property General: TKMGeneral read fGeneral;
     property WonOrLost: TWonOrLost read fWonOrLost;
 
-    procedure OwnerUpdate(aPlayer:TPlayerIndex);
+    procedure OwnerUpdate(aPlayer: TPlayerIndex);
 
     procedure CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
-    procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
-    procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
+    procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
+    procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnitWarrior);
     procedure WarriorEquipped(aWarrior: TKMUnitWarrior);
 
-    function HouseAutoRepair:boolean; //Do we automatically repair all houses?
+    function HouseAutoRepair: Boolean; //Do we automatically repair all houses?
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
