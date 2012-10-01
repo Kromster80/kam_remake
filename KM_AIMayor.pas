@@ -7,6 +7,13 @@ uses
   KM_AISetup;
 
 type
+  TKMCoreBalance = record
+    StoreBalance, SchoolBalance, InnBalance,
+    QuaryBalance, WoodBalance, SawmillBalance,
+    BarracksBalance: Single;
+    Balance: Single; //Resulting balance
+    Text: string;
+  end;
   TKMWareBalanceGold = record
     CoalTheory, GoldOreTheory, GoldTheory: Single;
     Production: Single; //How much do we produce
@@ -69,7 +76,7 @@ type
     fRoadBelowStore: Boolean;
     fWooden: Boolean;
 
-    fDemandCore: Single;
+    fDemandCore: TKMCoreBalance;
     fDemandGold: TKMWareBalanceGold;
     fDemandFood: TKMWareBalanceFood;
     fDemandWeaponry: TKMWareBalanceWeaponry;
@@ -388,22 +395,8 @@ end;
 
 
 procedure TKMayor.BuildCore;
-var
-  StoreBalance, SchoolBalance, InnBalance,
-  QuaryBalance, WoodBalance, SawmillBalance,
-  BarracksBalance: Single;
 begin
-  //Balance          //Exists                     //Demand
-  StoreBalance    := HouseCount(ht_Store)       - HouseCount(ht_Any) / 35;
-  SchoolBalance   := HouseCount(ht_School)      - 1;
-  InnBalance      := HouseCount(ht_Inn)         - fPlayers[fOwner].Stats.GetCitizensCount / 80;
-  QuaryBalance    := HouseCount(ht_Quary)       - 3 * Byte(HouseCount(ht_Inn) >= 1);
-  WoodBalance     := HouseCount(ht_Woodcutters) - 4 * Byte(HouseCount(ht_Quary) >= 3);
-  SawmillBalance  := HouseCount(ht_Sawmill)     - 2 * Byte(HouseCount(ht_Woodcutters) >= 2);
-  BarracksBalance := HouseCount(ht_Barracks)    - Byte(fPlayers[fOwner].Stats.GetWeaponsProduced > 0);
-
-  if Min([StoreBalance, SchoolBalance, InnBalance, QuaryBalance, WoodBalance, SawmillBalance, BarracksBalance]) >= 0 then Exit;
-
+  with fDemandCore do
   case PickMin([StoreBalance, SchoolBalance, InnBalance, QuaryBalance, WoodBalance, SawmillBalance, BarracksBalance]) of
     0:  TryBuildHouse(ht_Store);
     1:  TryBuildHouse(ht_School);
@@ -414,7 +407,6 @@ begin
     6:  TryBuildHouse(ht_Barracks);
   end;
 end;
-
 
 
 //Increase Gold production
@@ -546,7 +538,7 @@ begin
   //Try to express needs
   CalculateBalance;
 
-  case PickMin([0, fDemandCore * 100, fDemandGold.Balance * 10, fDemandFood.Balance * 5, fDemandWeaponry.Balance]) of
+  case PickMin([0, fDemandCore.Balance * 100, fDemandGold.Balance * 10, fDemandFood.Balance * 5, fDemandWeaponry.Balance]) of
     0:  {BuildNothing};
     1:  BuildCore;
     2:  BuildMoreGold;
@@ -714,8 +706,19 @@ begin
   P := fPlayers[fOwner];
 
   //Core
-  //We always need core houses
-  fDemandCore := -1;
+  with fDemandCore do
+  begin
+    StoreBalance    := HouseCount(ht_Store)       - HouseCount(ht_Any) / 35;
+    SchoolBalance   := HouseCount(ht_School)      - 1;
+    InnBalance      := HouseCount(ht_Inn)         - fPlayers[fOwner].Stats.GetCitizensCount / 60;
+    QuaryBalance    := HouseCount(ht_Quary)       - 3 * Byte(HouseCount(ht_Inn) >= 1);
+    WoodBalance     := HouseCount(ht_Woodcutters) - 4 * Byte(HouseCount(ht_Quary) >= 3);
+    SawmillBalance  := HouseCount(ht_Sawmill)     - 2 * Byte(HouseCount(ht_Woodcutters) >= 2);
+    BarracksBalance := HouseCount(ht_Barracks)    - Byte(fPlayers[fOwner].Stats.GetWeaponsProduced > 0);
+
+    Balance := Min([StoreBalance, SchoolBalance, InnBalance, QuaryBalance, WoodBalance, SawmillBalance, BarracksBalance]);
+    Text := Format('Core balance: %.2f (St%.2f, Sc%.2f, In%.2f, Qu%.2f, Wo%.2f, Sa%.2f, Ba%.2f)', [StoreBalance, SchoolBalance, InnBalance, QuaryBalance, WoodBalance, SawmillBalance, BarracksBalance, Balance]);
+  end;
 
   CoalDistribution;
   CornDistribution;
@@ -922,4 +925,3 @@ end;
 
 
 end.
-
