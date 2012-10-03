@@ -3,15 +3,26 @@ unit KM_CityPlanner;
 interface
 uses
   Classes, Graphics, KromUtils, Math, SysUtils, TypInfo,
-  KM_Defaults, KM_Points, KM_CommonClasses, KM_PerfLog;
+  KM_Defaults, KM_Points, KM_CommonClasses, KM_TerrainFinder, KM_PerfLog;
 
 
 type
   TFindNearest = (fnStone, fnTrees, fnSoil, fnWater, fnCoal, fnIron, fnGold);
 
+  TKMTerrainFinderCity = class(TKMTerrainFinder)
+  protected
+    fOwner: TPlayerIndex;
+    function CanWalkHere(const X,Y: Word): Boolean; override;
+    function CanUse(const X,Y: Word): Boolean; override;
+  public
+    fType: TFindNearest;
+    constructor Create(aOwner: TPlayerIndex);
+  end;
+
   TKMCityPlanner = class
   private
     fOwner: TPlayerIndex;
+    fFinder: TKMTerrainFinderCity;
     fPerfLog: TKMPerfLog;
 
     function NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
@@ -23,7 +34,7 @@ type
     constructor Create(aPlayer: TPlayerIndex);
     destructor Destroy; override;
 
-    function FindNearest(aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aEnd: TKMPoint): Boolean;
+    function FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aResultLoc: TKMPoint): Boolean;
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
     procedure Save(SaveStream: TKMemoryStream);
@@ -46,6 +57,7 @@ constructor TKMCityPlanner.Create(aPlayer: TPlayerIndex);
 begin
   inherited Create;
   fOwner := aPlayer;
+  fFinder := TKMTerrainFinderCity.Create(fOwner);
 
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
 end;
@@ -55,6 +67,7 @@ destructor TKMCityPlanner.Destroy;
 begin
   if DO_PERF_LOGGING then fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLogCity'+IntToStr(fOwner)+'.txt');
   if DO_PERF_LOGGING then fPerfLog.Free;
+  fFinder.Free;
 
   inherited;
 end;
@@ -228,86 +241,10 @@ begin
 end;
 
 
-function TKMCityPlanner.FindNearest(aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aEnd: TKMPoint): Boolean;
-var
-  MapX, MapY: Word;
-  Visited: array of array of Byte;
-  BestDist: Byte;
-  BestLoc: TKMPoint;
-
-  //Uses a floodfill style algorithm but only on a small area (with aRadius)
-  procedure Visit(X,Y: Word; aWalkDistance: Byte);
-  var
-    Xt, Yt: Word;
-    P: TPlayerIndex;
-    CanPlace: Boolean;
-  begin
-    Xt := aStart.X - X + aRadius;
-    Yt := aStart.Y - Y + aRadius;
-
-    if not (CanOwn in fTerrain.Land[Y,X].Passability) then Exit;
-
-    //Don't build on allies and/or enemies territory
-    P := fAIFields.GetBestOwner(X,Y);
-    if (P <> fOwner) and (P <> PLAYER_NONE) then Exit;
-
-    //If new path is longer than old we don't care about it
-    if (aWalkDistance >= Visited[Xt,Yt]) then Exit;
-
-    //New path is new or better than old
-    case aType of
-      fnCoal:
-          CanPlace := (fTerrain.TileIsCoal(X, Y) > 1)
-                      and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, True);
-      fnIron:
-          CanPlace := (fTerrain.TileIsIron(X, Max(Y-1, 1)) > 0)
-                      and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, True);
-      fnGold:
-          CanPlace := (fTerrain.TileIsGold(X, Max(Y-1, 1)) > 0)
-                      and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, True);
-      else CanPlace := False;
-    end;
-    if CanPlace then
-    begin
-      BestDist := aWalkDistance;
-      BestLoc := KMPoint(X,Y);
-    end;
-
-    //Mark this tile as visited
-    Visited[Xt,Yt] := aWalkDistance;
-
-    //Run again on surrounding tiles
-    //We check only 4 neighbors, because that x6 times faster than 8 neighbors
-    //and we don't really care for perfect circle test
-    if (aWalkDistance + 2 <= BestDist) then
-    begin
-      if X-1 >= 1 then     Visit(X-1, Y, aWalkDistance+2);
-      if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance+2);
-      if Y+1 <= MapY then  Visit(X, Y+1, aWalkDistance+2);
-      if X+1 <= MapX then  Visit(X+1, Y, aWalkDistance+2);
-    end;
-  end;
-
-var I,K: Integer;
+function TKMCityPlanner.FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aResultLoc: TKMPoint): Boolean;
 begin
-  Assert(aRadius <= 120, 'GetTilesWithinDistance can''t handle radii > 80');
-
-  //Assign Rad to local variable,
-  //when we find better Loc we reduce the Rad to skip any farther Locs
-  BestDist := aRadius * 2;
-  BestLoc := KMPoint(0,0);
-  MapX := fTerrain.MapX;
-  MapY := fTerrain.MapY;
-
-  SetLength(Visited, 2*aRadius+1, 2*aRadius+1);
-  for I := 0 to 2 * aRadius do
-  for K := 0 to 2 * aRadius do
-    Visited[I,K] := 255; //Initially all tiles are unexplored
-
-  Visit(aStart.X, aStart.Y, 0); //Starting tile is at walking distance zero
-
-  aEnd := BestLoc;
-  Result := BestLoc.X <> 0;
+  fFinder.fType := aType;
+  Result := fFinder.FindNearest(aStart, aRadius, CanOwn, aResultLoc);
 end;
 
 
@@ -391,9 +328,6 @@ begin
 end;
 
 
-
-
-
 procedure TKMCityPlanner.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fOwner);
@@ -404,5 +338,46 @@ procedure TKMCityPlanner.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fOwner);
 end;
+
+
+{ TKMTerrainFinderCity }
+constructor TKMTerrainFinderCity.Create(aOwner: TPlayerIndex);
+begin
+  inherited Create;
+
+  fOwner := aOwner;
+end;
+
+
+function TKMTerrainFinderCity.CanUse(const X, Y: Word): Boolean;
+begin
+  case fType of
+    fnCoal:
+        Result := (fTerrain.TileIsCoal(X, Y) > 1)
+                    and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, True);
+    fnIron:
+        Result := (fTerrain.TileIsIron(X, Max(Y-1, 1)) > 0)
+                    and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, True);
+    fnGold:
+        Result := (fTerrain.TileIsGold(X, Max(Y-1, 1)) > 0)
+                    and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, True);
+    else Result := False;
+  end;
+end;
+
+
+function TKMTerrainFinderCity.CanWalkHere(const X,Y: Word): Boolean;
+var
+  P: TPlayerIndex;
+begin
+  Result := False;
+
+  //Don't build on allies and/or enemies territory
+  P := fAIFields.GetBestOwner(X,Y);
+  if (P <> fOwner) and (P <> PLAYER_NONE) then Exit;
+
+  Result := True;
+end;
+
 
 end.

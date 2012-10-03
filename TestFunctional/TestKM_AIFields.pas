@@ -1,7 +1,7 @@
 unit TestKM_AIFields;
 interface
 uses
-  TestFramework, KM_CommonTypes, SysUtils, KM_CommonClasses, Delaunay, KM_Points,
+  TestFramework, KM_CommonTypes, SysUtils, KM_CommonClasses, KM_Points,
   KM_Defaults, KromUtils, Classes, KM_Utils, Math, KM_Player, KM_PolySimplify,
   KM_AIFields, KM_Log, KM_Terrain, KM_Resource, KM_ResourceTileset;
 
@@ -73,7 +73,7 @@ begin
           begin
             try
               fTerrain.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
-              fAIFields.UpdateNavMesh;
+              fAIFields.UpdateState(0);
               Inc(Count);
             except
               //Report and swallow asserts
