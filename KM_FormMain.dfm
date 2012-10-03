@@ -1,10 +1,10 @@
 object FormMain: TFormMain
-  Left = 405
-  Top = 215
+  Left = 221
+  Top = 419
   HelpType = htKeyword
   BorderStyle = bsNone
-  ClientHeight = 245
-  ClientWidth = 867
+  ClientHeight = 532
+  ClientWidth = 521
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,7 +14,7 @@ object FormMain: TFormMain
   KeyPreview = True
   Menu = MainMenu1
   OldCreateOrder = False
-  Position = poScreenCenter
+  Position = poDesigned
   Scaled = False
   OnCanResize = FormCanResize
   OnClose = FormClose
@@ -25,15 +25,15 @@ object FormMain: TFormMain
   OnKeyUp = FormKeyUp
   OnMouseWheel = FormMouseWheel
   DesignSize = (
-    867
-    245)
+    521
+    532)
   PixelsPerInch = 96
   TextHeight = 13
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 867
-    Height = 225
+    Width = 521
+    Height = 512
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Color = clMaroon
@@ -42,11 +42,13 @@ object FormMain: TFormMain
     OnMouseDown = Panel1MouseDown
     OnMouseMove = Panel1MouseMove
     OnMouseUp = Panel1MouseUp
+    ExplicitWidth = 846
+    ExplicitHeight = 225
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 225
-    Width = 867
+    Top = 512
+    Width = 521
     Height = 20
     Panels = <
       item
@@ -65,50 +67,51 @@ object FormMain: TFormMain
         Text = '50.0 fps (50)'
         Width = 80
       end>
+    ExplicitTop = 225
+    ExplicitWidth = 846
   end
   object GroupBox1: TGroupBox
-    Left = 408
+    Left = 304
     Top = 8
-    Width = 425
-    Height = 73
-    Caption = 
-      ' Additional controls   ..   Press F11 to swap controls visibilit' +
-      'y'
+    Width = 209
+    Height = 449
+    Anchors = [akTop, akRight]
+    Caption = ' Development controls '
     TabOrder = 2
     object Label2: TLabel
-      Left = 101
-      Top = 15
+      Left = 104
+      Top = 136
       Width = 49
       Height = 13
       Caption = 'Passability'
     end
     object Label3: TLabel
-      Left = 101
-      Top = 33
-      Width = 27
+      Left = 104
+      Top = 160
+      Width = 32
       Height = 13
       Caption = 'Angle'
     end
     object Label1: TLabel
-      Left = 102
-      Top = 49
-      Width = 93
+      Left = 104
+      Top = 184
+      Width = 97
       Height = 13
       Caption = 'House building step'
       Visible = False
     end
-    object CheckBox2: TCheckBox
-      Left = 168
-      Top = 16
+    object chkSuperSpeed: TCheckBox
+      Left = 8
+      Top = 88
       Width = 75
       Height = 17
       Caption = 'Speed x300'
       TabOrder = 1
-      OnClick = CheckBox2Click
+      OnClick = chkSuperSpeedClick
     end
-    object Debug_PassabilityTrack: TTrackBar
-      Left = 2
-      Top = 14
+    object tbPassability: TTrackBar
+      Left = 8
+      Top = 136
       Width = 95
       Height = 17
       Max = 14
@@ -117,15 +120,15 @@ object FormMain: TFormMain
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
-      OnChange = Debug_PassabilityTrackChange
+      OnChange = tbPassabilityChange
     end
     object RGPlayer: TRadioGroup
-      Left = 304
-      Top = 8
-      Width = 105
-      Height = 61
-      Caption = ' Player '
-      Columns = 3
+      Left = 8
+      Top = 24
+      Width = 185
+      Height = 57
+      Caption = ' Select player '
+      Columns = 4
       ItemIndex = 0
       Items.Strings = (
         '1'
@@ -140,17 +143,17 @@ object FormMain: TFormMain
       OnClick = RGPlayerClick
     end
     object Button_Stop: TButton
-      Left = 264
-      Top = 16
-      Width = 33
+      Left = 8
+      Top = 112
+      Width = 89
       Height = 17
-      Caption = 'Stop'
+      Caption = 'Stop the game'
       TabOrder = 3
       OnClick = Button_StopClick
     end
-    object TB_Angle: TTrackBar
-      Left = 2
-      Top = 32
+    object tbAngle: TTrackBar
+      Left = 8
+      Top = 160
       Width = 95
       Height = 17
       Max = 90
@@ -161,9 +164,9 @@ object FormMain: TFormMain
       TickStyle = tsNone
       OnChange = TB_Angle_Change
     end
-    object TrackBar1: TTrackBar
-      Left = 2
-      Top = 48
+    object tbBuildingStep: TTrackBar
+      Left = 8
+      Top = 184
       Width = 95
       Height = 17
       Max = 100
@@ -172,17 +175,43 @@ object FormMain: TFormMain
       TickMarks = tmBoth
       TickStyle = tsNone
       Visible = False
-      OnChange = TrackBar1Change
+      OnChange = tbBuildingStepChange
     end
     object Button_CalcArmy: TButton
-      Left = 216
-      Top = 51
-      Width = 81
-      Height = 16
+      Left = 104
+      Top = 112
+      Width = 89
+      Height = 17
       Caption = 'TestCalcArmy'
       TabOrder = 6
       Visible = False
       OnClick = Button_CalcArmyClick
+    end
+    object GroupBox2: TGroupBox
+      Left = 8
+      Top = 208
+      Width = 185
+      Height = 57
+      Caption = ' AI '
+      TabOrder = 7
+      object chkShowInfluence: TCheckBox
+        Left = 8
+        Top = 16
+        Width = 97
+        Height = 17
+        Caption = 'Show influences'
+        TabOrder = 0
+        OnClick = chkShowInfluenceClick
+      end
+      object chkShowNavMesh: TCheckBox
+        Left = 8
+        Top = 32
+        Width = 97
+        Height = 17
+        Caption = 'Show navmesh'
+        TabOrder = 1
+        OnClick = chkShowNavMeshClick
+      end
     end
   end
   object OpenDialog1: TOpenDialog

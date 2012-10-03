@@ -89,13 +89,14 @@ var
   SHOW_GROUND_LINES     :Boolean = False; //Show a line below all sprites to mark the ground height used in Z-Order
   SHOW_UNIT_MOVEMENT    :Boolean = False; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
   SHOW_WALK_CONNECT     :Boolean = False; //Show floodfill areas of interconnected areas
-  SHOW_INFLUENCE_MAP    :Byte = 0; //Show AI influence maps
   TEST_VIEW_CLIP_INSET  :Boolean = False; //Renders smaller area to see if everything gets clipped well
   OUTLINE_ALL_SPRITES   :Boolean = False; //Render outline around every sprite
   SHOW_ATTACK_RADIUS    :Boolean = False; //Render towers/archers attack radius
   DISPLAY_SOUNDS        :Boolean = False; //Display sounds on map
   RENDER_3D             :Boolean = False; //Experimental 3D render
   HOUSE_BUILDING_STEP   :Single = 0;
+  OVERLAY_NAVMESH       :Boolean = True; //Show navmesh
+  OVERLAY_INFLUENCES    :Boolean = True; //Show influence maps
   {Stats}
   SHOW_SPRITE_COUNT     :Boolean = False; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :Boolean = False; //Show debug total count of unit/house pointers being tracked

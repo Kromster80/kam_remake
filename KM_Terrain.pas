@@ -88,7 +88,7 @@ type
     property MapY: Word read fMapY;
 
     procedure SetTileLock(aLoc: TKMPoint; aTileLock: TTileLock);
-    procedure UnlockTile(aLoc:TKMPoint);
+    procedure UnlockTile(aLoc: TKMPoint);
     procedure SetRoads(aList: TKMPointList; aOwner: TPlayerIndex; aUpdateWalkConnects: Boolean = True);
     procedure SetField(Loc: TKMPoint; aOwner: TPlayerIndex; aFieldType: TFieldType);
     procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TPlayerIndex; const aFlattenTerrain: Boolean = False);
@@ -2563,9 +2563,9 @@ procedure TTerrain.UpdateBorders(Loc: TKMPoint; CheckSurrounding: Boolean = True
       Result := False;
   end;
 begin
- if not TileInMapCoords(Loc.X,Loc.Y) then exit;
+ if not TileInMapCoords(Loc.X, Loc.Y) then exit;
 
-  Land[Loc.Y,Loc.X].Border:=GetBorderType;
+  Land[Loc.Y,Loc.X].Border := GetBorderType;
   if Land[Loc.Y,Loc.X].Border = bt_None then
     Land[Loc.Y,Loc.X].BorderSide := 0
   else
@@ -2578,10 +2578,10 @@ begin
 
   if CheckSurrounding then
   begin
-    UpdateBorders(KMPoint(Loc.X-1,Loc.Y),false);
-    UpdateBorders(KMPoint(Loc.X+1,Loc.Y),false);
-    UpdateBorders(KMPoint(Loc.X,Loc.Y-1),false);
-    UpdateBorders(KMPoint(Loc.X,Loc.Y+1),false);
+    UpdateBorders(KMPoint(Loc.X-1, Loc.Y), False);
+    UpdateBorders(KMPoint(Loc.X+1, Loc.Y), False);
+    UpdateBorders(KMPoint(Loc.X, Loc.Y-1), False);
+    UpdateBorders(KMPoint(Loc.X, Loc.Y+1), False);
   end;
 end;
 

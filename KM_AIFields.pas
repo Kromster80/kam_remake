@@ -44,8 +44,6 @@ type
   private
     fPlayerCount: Integer;
     fMapX, fMapY: Word;
-    fShowInfluenceMap: Boolean;
-    fShowNavMesh: Boolean;
 
     fRawOutlines: TKMShapesArray;
     fSimpleOutlines: TKMShapesArray;
@@ -370,9 +368,6 @@ end;
 constructor TKMAIFields.Create;
 begin
   inherited Create;
-
-  fShowInfluenceMap := True;
-  fShowNavMesh := False;
 end;
 
 
@@ -837,8 +832,8 @@ var
   T1, T2: TKMPointF;
   Col, Col2: Cardinal;
   Outline: TKMWeightSegments;
-begin                   exit;
-  if AI_GEN_INFLUENCE_MAPS and fShowInfluenceMap then
+begin
+  if AI_GEN_INFLUENCE_MAPS and OVERLAY_INFLUENCES then
     for I := aRect.Top to aRect.Bottom do
     for K := aRect.Left to aRect.Right do
     begin
@@ -857,14 +852,14 @@ begin                   exit;
     end;
 
   //Raw obstacle outlines
-  if AI_GEN_NAVMESH and fShowNavMesh then
+  if AI_GEN_NAVMESH and OVERLAY_NAVMESH then
     for I := 0 to fRawOutlines.Count - 1 do
     for K := 0 to fRawOutlines.Shape[I].Count - 1 do
     with fRawOutlines.Shape[I] do
       fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FFFF00FF);
 
   //NavMesh polys coverage
-  if AI_GEN_NAVMESH and fShowNavMesh then
+  if AI_GEN_NAVMESH and OVERLAY_NAVMESH then
     for I := 0 to fNavMesh.fPolyCount - 1 do
       fRenderAux.Triangle(
         fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[0]].Loc.X,
@@ -875,7 +870,7 @@ begin                   exit;
         fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[2]].Loc.Y, $60FF0000);
 
   //NavMesh edges
-  if AI_GEN_NAVMESH and fShowNavMesh then
+  if AI_GEN_NAVMESH and OVERLAY_NAVMESH then
     for I := 0 to fNavMesh.fPolyCount - 1 do
     with fNavMesh.fPolygons[I] do
     for K := 0 to 2 do
@@ -892,14 +887,14 @@ begin                   exit;
       fRenderAux.Text(fNavMesh.fVertices[I].X,fNavMesh.fVertices[I].Y, IntToStr(I), $FF000000); //}
 
   //Simplified obstacle outlines
-  if AI_GEN_NAVMESH and fShowNavMesh then
+  if AI_GEN_NAVMESH and OVERLAY_NAVMESH then
     for I := 0 to fSimpleOutlines.Count - 1 do
     for K := 0 to fSimpleOutlines.Shape[I].Count - 1 do
     with fSimpleOutlines.Shape[I] do
       fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FF00FF00, $FF00);
 
   //NavMesh influences
-  if AI_GEN_NAVMESH and fShowNavMesh then
+  if AI_GEN_NAVMESH and OVERLAY_NAVMESH then
     for I := 0 to fNavMesh.fNodeCount - 1 do
     begin
       Col := $FF000000;
@@ -917,7 +912,7 @@ begin                   exit;
         fNavMesh.fNodes[I].Loc.Y, 0.4, Col, Col2);
     end;
 
-  if AI_GEN_NAVMESH and fShowNavMesh then
+  if AI_GEN_NAVMESH and OVERLAY_NAVMESH then
   for I := 0 to fPlayers.Count - 1 do
   begin
     fNavMesh.GetDefenceOutline(I, Outline);
