@@ -565,6 +565,7 @@ var I: Integer; LastVisiblePage: TKMPanel;
     for T := Low(TKMTabButtons) to High(TKMTabButtons) do Button_Main[T].Visible := ShowEm;
     Button_Back.Visible := not ShowEm;
     Label_MenuTitle.Visible := not ShowEm;
+
   end;
 
 begin
@@ -1864,13 +1865,16 @@ begin
   //Press the button
   TKMButtonFlat(Sender).Down := true;
 
-  //Reset cursor and see if it needs to be changed
+  //Reset building mode
+  // and see if it needs to be changed
+
   GameCursor.Mode := cm_None;
   GameCursor.Tag1 := 0;
 
   Label_BuildCost_Wood.Caption  := '-';
   Label_BuildCost_Stone.Caption := '-';
   Label_Build.Caption := '';
+
 
   if Button_BuildCancel.Down then begin
     GameCursor.Mode:=cm_Erase;
@@ -3565,6 +3569,7 @@ var
   H: TKMHouse;
   W: TKMUnitWarrior;
   OldSelected: TObject;
+  I: Integer;
 begin
   inherited;
 
@@ -3652,12 +3657,13 @@ begin
                     cm_Wine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
                     cm_Wall:  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
                     cm_Houses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
-                              begin
-                                fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
-                                Build_ButtonClick(Button_BuildRoad);
-                              end
-                              else
-                                fSoundLib.Play(sfx_CantPlace,P,false,4.0);
+                      begin
+                        fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P,
+                          THouseType(GameCursor.Tag1));
+                        if not (ssShift in Shift) then Build_ButtonClick(Button_BuildRoad);
+                      end
+                      else
+                        fSoundLib.Play(sfx_CantPlace,P,false,4.0);
                     cm_Erase: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then
                               begin
                                 H := MyPlayer.HousesHitTest(P.X, P.Y);
