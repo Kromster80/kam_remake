@@ -101,7 +101,7 @@ type
         BrushCircle,BrushSquare:TKMButtonFlat;
         //BrushesTable:array[1..27] of TKMButtonFlat; // todo
       Panel_Heights:TKMPanel;
-        HeightSize,HeightShape:TKMTrackBar;
+        HeightSize,HeightSlope:TKMTrackBar;
         HeightCircle,HeightSquare:TKMButtonFlat;
         HeightElevate, HeightUnequalize: TKMButtonFlat;
       Panel_Tiles:TKMPanel;
@@ -541,9 +541,13 @@ var i,k:Integer;
 begin
   Panel_Terrain := TKMPanel.Create(Panel_Common,0,128,196,28);
     Button_Terrain[1] := TKMButton.Create(Panel_Terrain,   8, 4, 36, 24, 383, rxGui, bsGame);
+    Button_Terrain[1].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HINTS_BRUSHES];
     Button_Terrain[2] := TKMButton.Create(Panel_Terrain,  48, 4, 36, 24, 388, rxGui, bsGame);
+    Button_Terrain[2].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HINTS_HEIGHTS];
     Button_Terrain[3] := TKMButton.Create(Panel_Terrain,  88, 4, 36, 24, 382, rxGui, bsGame);
+    Button_Terrain[3].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HINTS_TILES];
     Button_Terrain[4] := TKMButton.Create(Panel_Terrain, 128, 4, 36, 24, 385, rxGui, bsGame);
+    Button_Terrain[4].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HINTS_OBJECTS];
     for i:=1 to 4 do Button_Terrain[i].OnClick := SwitchPage;
 
     Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,196,400);
@@ -562,22 +566,28 @@ begin
 
     Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,196,400);
       HeightSize   := TKMTrackBar.Create(Panel_Heights, 8, 10, 100, 1, 15); //1..15(4bit) for size
+      HeightSize.Hint :=   fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_SIZE];
       HeightCircle := TKMButtonFlat.Create(Panel_Heights, 114, 8, 24, 24, 359);
+      HeightCircle.Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_CIRCLE];
       HeightSquare := TKMButtonFlat.Create(Panel_Heights, 142, 8, 24, 24, 352);
-      HeightShape  := TKMTrackBar.Create(Panel_Heights, 8, 30, 100, 1, 15); //1..15(4bit) for slope shape
+      HeightSquare.Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_SQUARE];
+      HeightSlope  := TKMTrackBar.Create(Panel_Heights, 8, 30, 100, 1, 15); //1..15(4bit) for slope shape
+      HeightSlope.Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_SLOPE];
 
       HeightElevate             := TKMButtonFlat.Create(Panel_Heights,8,70,180,20,0);
       HeightElevate.OnClick     := Terrain_HeightChange;
       HeightElevate.Down        := True;
-      HeightElevate.Caption     := 'Elevate';
+      HeightElevate.Caption     := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_ELEVATE];
       HeightElevate.CapOffsetY  := -12;
+      HeightElevate.Hint        := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_HINTS_ELEVATE];
       HeightUnequalize          := TKMButtonFlat.Create(Panel_Heights,8,100,180,20,0);
       HeightUnequalize.OnClick  := Terrain_HeightChange;
-      HeightUnequalize.Caption  := 'Unequalize/flatten';
+      HeightUnequalize.Caption  := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_UNEQUALIZE];
       HeightUnequalize.CapOffsetY  := -12;
+      HeightUnequalize.Hint      := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_HINTS_UNEQUALIZE];
 
       HeightSize.OnChange   := Terrain_HeightChange;
-      HeightShape.OnChange  := Terrain_HeightChange;
+      HeightSlope.OnChange  := Terrain_HeightChange;
       HeightCircle.OnClick  := Terrain_HeightChange;
       HeightSquare.OnClick  := Terrain_HeightChange;
 
@@ -1142,7 +1152,7 @@ end;
 procedure TKMapEdInterface.Terrain_HeightChange(Sender: TObject);
 begin
   GameCursor.MapEdSize := HeightSize.Position;
-  GameCursor.MapEdSlope := HeightShape.Position;
+  GameCursor.MapEdSlope := HeightSlope.Position;
 
   if Sender = HeightCircle then
   begin
@@ -2037,7 +2047,7 @@ begin
       cm_Houses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
                 begin
                   MyPlayer.AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
-                  Build_ButtonClick(Button_BuildRoad);
+                  if not(ssShift in Shift) then Build_ButtonClick(Button_BuildRoad);
                 end;
       cm_Elevate,
       cm_Equalize:; //handled in UpdateStateIdle
