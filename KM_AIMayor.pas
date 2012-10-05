@@ -7,10 +7,14 @@ uses
   KM_AISetup;
 
 type
+  TCoreBalanceEnum = (cbStore, cbSchool, cbInn, cbBarracks);
   TKMCoreBalance = record
-    StoreBalance, SchoolBalance, InnBalance,
-    QuaryBalance, WoodBalance, SawmillBalance,
-    BarracksBalance: Single;
+    IndBalance: array[TCoreBalanceEnum] of Single;
+    Balance: Single; //Resulting balance
+    Text: string;
+  end;
+  TKMMaterialsBalance = record
+    QuaryBalance, WoodBalance, SawmillBalance: Single;
     Balance: Single; //Resulting balance
     Text: string;
   end;
@@ -77,28 +81,32 @@ type
     fWooden: Boolean;
 
     fDemandCore: TKMCoreBalance;
+    fDemandMaterials: TKMMaterialsBalance;
     fDemandGold: TKMWareBalanceGold;
     fDemandFood: TKMWareBalanceFood;
     fDemandWeaponry: TKMWareBalanceWeaponry;
 
     function HouseCount(aHouse: THouseType): Integer;
-    procedure TryBuildHouse(aHouse: THouseType);
+    function TryBuildHouse(aHouse: THouseType): Boolean;
     function TryConnectToRoad(aLoc: TKMPoint): Boolean;
 
     procedure CheckStrategy;
 
     procedure CheckUnitCount;
     procedure BuildCore;
-    procedure BuildMoreGold;
-    procedure BuildMoreFood;
-    procedure BuildMoreDefence;
-    procedure BuildMoreWeaponry;
+    procedure BuildMaterials;
+    procedure BuildGold;
+    procedure BuildFood;
+    procedure BuildDefence;
+    procedure BuildWeaponry;
     procedure CheckHouseCount;
     procedure CheckHousePlans;
     procedure CheckRoadsCount;
     procedure CheckExhaustedMines;
 
-    procedure CalculateBalance;
+    procedure UpdateBalance;
+    procedure UpdateBalanceCore;
+    procedure UpdateBalanceMaterials;
   public
     constructor Create(aPlayer: TPlayerIndex; aSetup: TKMPlayerAISetup);
     destructor Destroy; override;
@@ -310,13 +318,16 @@ begin
 end;
 
 
-procedure TKMayor.TryBuildHouse(aHouse: THouseType);
+//Try to place a building plan for requested house
+//Report back if failed to do so (that will allow requester to choose different action)
+function TKMayor.TryBuildHouse(aHouse: THouseType): Boolean;
 var
   I, K: Integer;
   Loc: TKMPoint;
   P: TKMPlayer;
   NodeTagList: TKMPointTagList;
 begin
+  Result := False;
   P := fPlayers[fOwner];
 
   //Skip disabled houses
@@ -332,7 +343,7 @@ begin
   P.AddHousePlan(aHouse, Loc);
 
   //Try to connect newly planned house to road network
-  //This is final test, if it is passed - we can place the house
+  //if it is not possible - scrap the plan
   if not TryConnectToRoad(KMPointBelow(Loc)) then
   begin
     P.RemHousePlan(Loc);
@@ -385,6 +396,8 @@ begin
     for K := Max(Loc.X - 2, 1) to Min(Loc.X + 2, fTerrain.MapY - 1) do
     if P.CanAddFieldPlan(KMPoint(K, I), ft_Road) then
       P.BuildList.FieldworksList.AddField(KMPoint(K, I), ft_Road);
+
+  Result := True;
 end;
 
 
@@ -395,34 +408,97 @@ end;
 
 
 procedure TKMayor.BuildCore;
+var
+  I: TCoreBalanceEnum;
+  Best: TCoreBalanceEnum;
+  Success: Boolean;
 begin
   with fDemandCore do
-  case PickMin([StoreBalance, SchoolBalance, InnBalance, QuaryBalance, WoodBalance, SawmillBalance, BarracksBalance]) of
-    0:  TryBuildHouse(ht_Store);
-    1:  TryBuildHouse(ht_School);
-    2:  TryBuildHouse(ht_Inn);
-    3:  TryBuildHouse(ht_Quary);
-    4:  TryBuildHouse(ht_Woodcutters);
-    5:  TryBuildHouse(ht_Sawmill);
-    6:  TryBuildHouse(ht_Barracks);
+  repeat
+    Success := True;
+
+    //Select smallest Balance (this will be most required house)
+    Best := Low(IndBalance);
+    for I := Low(IndBalance) to High(IndBalance) do
+    if IndBalance[I] < IndBalance[Best] then
+      Best := I;
+
+    //Break if best house is not needed
+    if IndBalance[Best] >= 0 then Break;
+
+    case Best of
+      cbStore:    Success := TryBuildHouse(ht_Store);
+      cbSchool:   Success := TryBuildHouse(ht_School);
+      cbInn:      Success := TryBuildHouse(ht_Inn);
+      cbBarracks: Success := TryBuildHouse(ht_Barracks);
+    end;
+
+    //If required house could not be built - scrap it and try build next one in queue
+    if not Success then
+      IndBalance[Best] := 0;
+
+  until (Success);
+end;
+
+
+procedure TKMayor.BuildMaterials;
+const
+  //We need to build in this order to make sure we dont run out of Stone or Wood:
+  DesiredOrder: array [0 .. 8] of THouseType = (
+    ht_Quary, ht_Quary, ht_Woodcutters, ht_Sawmill, ht_Quary,
+    ht_Woodcutters, ht_Woodcutters, ht_Sawmill, ht_Woodcutters);
+var
+  I: Integer;
+  P: TKMPlayer;
+  TopDesire: Integer;
+  DesiredCount: array [THouseType] of Byte;
+begin
+  P := fPlayers[fOwner];
+
+  //Default desires
+  DesiredCount[ht_Quary] := 3;
+  DesiredCount[ht_Woodcutters] := 4;
+  DesiredCount[ht_Sawmill] := 2;
+
+  if P.Stats.GetHouseQty(ht_Quary) < 2 then
+  begin
+    TopDesire := 0;
+    DesiredCount[ht_Quary] := 2;
+  end
+  else
+  if P.Stats.GetHouseQty(ht_Sawmill) < 1 then
+  begin
+    TopDesire := 3;
+    //DesiredCount[ht_Quary] := 2;
+    DesiredCount[ht_Woodcutters] := 2;
+    DesiredCount[ht_Sawmill] := 1;
+  end
+  else
+  begin
+    TopDesire := High(DesiredOrder);
   end;
+
+
+  for I := 0 to TopDesire do
+  if HouseCount(DesiredOrder[I]) < DesiredCount[DesiredOrder[I]] then
+    TryBuildHouse(DesiredOrder[I]);
 end;
 
 
 //Increase Gold production
-procedure TKMayor.BuildMoreGold;
+procedure TKMayor.BuildGold;
 begin
   //If all 3 shares 0 we whould pick in that order Gold > Coal > Metallurgists
   with fDemandGold do
-  case PickMin([CoalTheory, GoldOreTheory, GoldTheory]) of
-    0:  TryBuildHouse(ht_CoalMine);
-    1:  TryBuildHouse(ht_GoldMine);
+  case PickMin([GoldOreTheory, CoalTheory, GoldTheory]) of
+    0:  TryBuildHouse(ht_GoldMine);
+    1:  TryBuildHouse(ht_CoalMine);
     2:  TryBuildHouse(ht_Metallurgists);
   end;
 end;
 
 
-procedure TKMayor.BuildMoreFood;
+procedure TKMayor.BuildFood;
 begin
   //Pick smallest production and increase it
   with fDemandFood do
@@ -444,13 +520,13 @@ begin
 end;
 
 
-procedure TKMayor.BuildMoreDefence;
+procedure TKMayor.BuildDefence;
 begin
 
 end;
 
 
-procedure TKMayor.BuildMoreWeaponry;
+procedure TKMayor.BuildWeaponry;
 begin
   with fDemandWeaponry do
   if fWooden then
@@ -535,15 +611,20 @@ begin
   //Number of simultaneous WIP houses is limited to 3
   if (P.Stats.GetHouseWip(ht_Any) >= 3) then Exit;
 
-  //Try to express needs
-  CalculateBalance;
+  //Try to express needs in terms of Balance = Production - Demand
+  UpdateBalance;
 
-  case PickMin([0, fDemandCore.Balance * 100, fDemandGold.Balance * 10, fDemandFood.Balance * 5, fDemandWeaponry.Balance]) of
+  if fDemandCore.Balance < 0 then
+    BuildCore
+  else
+  if fDemandMaterials.Balance < 0 then
+    BuildMaterials
+  else
+  case PickMin([0, fDemandGold.Balance * 10, fDemandFood.Balance * 5, fDemandWeaponry.Balance]) of
     0:  {BuildNothing};
-    1:  BuildCore;
-    2:  BuildMoreGold;
-    3:  BuildMoreFood;
-    4:  BuildMoreWeaponry;
+    1:  BuildGold;
+    2:  BuildFood;
+    3:  BuildWeaponry;
   end;
 
   //Check if we need to demolish depleted mining houses
@@ -615,12 +696,12 @@ end;
 //Calculate various demands and save intermediate numbers in case we need them
 //in determing what exactly to build to satisfy demand the best
 //Production is how much of this resource gets made each minute
-// - we evaluate each links theoretical production of end resource (1 Corn = 3/5 Sausages)
+// - we evaluate each links theoretical production of end resource (f.e. 1 Corn = 3/5 Sausages)
 // - in chain production the speed is limited by slowest link
-// - resource in reserve adds to each production rate a fraction
+//todo: - resource in reserve adds to each production rate a fraction
 //Consumption is how much gets consumed
 //Balance = Production - Consumption;
-procedure TKMayor.CalculateBalance;
+procedure TKMayor.UpdateBalance;
   procedure CoalDistribution;
   var
     CoalProductionRate, CoalConsumptionRate: Single;
@@ -705,20 +786,8 @@ var
 begin
   P := fPlayers[fOwner];
 
-  //Core
-  with fDemandCore do
-  begin
-    StoreBalance    := HouseCount(ht_Store)       - HouseCount(ht_Any) / 35;
-    SchoolBalance   := HouseCount(ht_School)      - 1;
-    InnBalance      := HouseCount(ht_Inn)         - fPlayers[fOwner].Stats.GetCitizensCount / 60;
-    QuaryBalance    := HouseCount(ht_Quary)       - 3 * Byte(HouseCount(ht_Inn) >= 1);
-    WoodBalance     := HouseCount(ht_Woodcutters) - 4 * Byte(HouseCount(ht_Quary) >= 3);
-    SawmillBalance  := HouseCount(ht_Sawmill)     - 2 * Byte(HouseCount(ht_Woodcutters) >= 2);
-    BarracksBalance := HouseCount(ht_Barracks)    - Byte(fPlayers[fOwner].Stats.GetWeaponsProduced > 0);
-
-    Balance := Min([StoreBalance, SchoolBalance, InnBalance, QuaryBalance, WoodBalance, SawmillBalance, BarracksBalance]);
-    Text := Format('Core balance: %.2f (St%.2f, Sc%.2f, In%.2f, Qu%.2f, Wo%.2f, Sa%.2f, Ba%.2f)', [StoreBalance, SchoolBalance, InnBalance, QuaryBalance, WoodBalance, SawmillBalance, BarracksBalance, Balance]);
-  end;
+  UpdateBalanceCore;
+  UpdateBalanceMaterials;
 
   CoalDistribution;
   CornDistribution;
@@ -860,7 +929,46 @@ begin
           + Format('  Horses balance: %.2f - %.2f = %.2f|', [HorseProduction, HorseDemand, HorseBalance])
           + Format('          Horses: min(F%.2f, S%.2f)|',
                    [Horse.FarmTheory, Horse.StablesTheory]);
+  end;
+end;
 
+
+procedure TKMayor.UpdateBalanceCore;
+var
+  P: TKMPlayer;
+begin
+  P := fPlayers[fOwner];
+
+  //Core
+  with fDemandCore do
+  begin
+    //Balance = Available - Required
+    IndBalance[cbStore]    := HouseCount(ht_Store)       - HouseCount(ht_Any) / 35;
+    IndBalance[cbSchool]   := HouseCount(ht_School)      - 1;
+    IndBalance[cbInn]      := HouseCount(ht_Inn)         - P.Stats.GetCitizensCount / 80;
+    IndBalance[cbBarracks] := HouseCount(ht_Barracks)    - Byte(P.Stats.GetWeaponsProduced > 0);
+
+    Balance := Min(IndBalance);
+    Text := Format
+      ('Core balance: %.2f (St%.2f, Sc%.2f, In%.2f, Ba%.2f)',
+      [Balance, IndBalance[cbStore], IndBalance[cbSchool], IndBalance[cbInn], IndBalance[cbBarracks]]);
+  end;
+end;
+
+
+procedure TKMayor.UpdateBalanceMaterials;
+begin
+  with fDemandMaterials do
+  begin
+    //Balance = Available - Required
+    QuaryBalance    := HouseCount(ht_Quary)       - 3;
+    WoodBalance     := HouseCount(ht_Woodcutters) - 4;
+    SawmillBalance  := HouseCount(ht_Sawmill)     - 2;
+
+    Balance := Min(QuaryBalance, WoodBalance, SawmillBalance);
+    Text := Format
+      ('Materials balance: %.2f (Qu%.2f, Wo%.2f, Sa%.2f)',
+      [Balance, QuaryBalance, WoodBalance, SawmillBalance]);
   end;
 end;
 
@@ -883,7 +991,11 @@ end;
 
 function TKMayor.BalanceText: string;
 begin
-  Result := fDemandGold.Text + '|' + fDemandFood.Text + '|' + fDemandWeaponry.Text;
+  Result := fDemandCore.Text + '|' +
+            fDemandMaterials.Text + '|' +
+            fDemandGold.Text + '|' +
+            fDemandFood.Text + '|' +
+            fDemandWeaponry.Text;
 end;
 
 

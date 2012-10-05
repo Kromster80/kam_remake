@@ -255,7 +255,7 @@ begin
 end;
 
 
-//How many houses are there
+//How many complete houses are there
 function TKMPlayerStats.GetHouseQty(aType: THouseType): Integer;
 var H: THouseType;
 begin
@@ -270,7 +270,7 @@ begin
 end;
 
 
-//How many houses are there
+//How many complete houses are there
 function TKMPlayerStats.GetHouseQty(aType: array of THouseType): Integer;
 var
   I: Integer;
