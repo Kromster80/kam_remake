@@ -2,11 +2,11 @@ unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_Defaults, KM_Points, KM_Terrain;
+  KM_Defaults, KM_Points, KM_Terrain, KM_Units;
 
 
 type
-  TRawDeposit = (rdStone, rdCoal, rdIron, rdGold);
+  TRawDeposit = (rdStone, rdCoal, rdIron, rdGold, rdFish);
 
   //Scans the map and reports raw resources deposits info
   TKMDeposits = class
@@ -69,23 +69,32 @@ end;
 
 //Get tile resource deposit
 function TKMDeposits.TileDeposit(aMat: TRawDeposit; X,Y: Word): Byte;
+var
+curUnit : TKMUnit;
 begin
   case aMat of
     rdStone: Result := 3*fTerrain.TileIsStone(X+1, Y+1); //3 stone produced by each time
     rdCoal:  Result := fTerrain.TileIsCoal(X+1, Y+1);
     rdIron:  Result := fTerrain.TileIsIron(X+1, Y+1);
     rdGold:  Result := fTerrain.TileIsGold(X+1, Y+1);
+    rdFish:  begin
+                  curUnit := fTerrain.Land[Y + 1, X + 1].IsUnit;
+                 if (curUnit <> nil) and (curUnit is TKMUnitAnimal) then
+                     Result := TKMUnitAnimal(curUnit).FishCount
+                 else
+                     Result := 0;
+             end
     else     Result := 0;
   end;
 end;
-
 
 procedure TKMDeposits.FloodFill(const aMat: array of TRawDeposit);
 var
   R: TRawDeposit;
   AreaID: Word;
   Count: Integer;
-
+  //Procedure uses recurence to check test area then it creates one deposit
+  //Deposit is created when tiles are connected - but not diagonally
   procedure FillArea(X,Y: Word);
   begin
     //Untested area that matches passability
@@ -94,13 +103,14 @@ var
       fArea[R,Y,X] := AreaID;
       Inc(Count);
       //Dont test diagonals to save time
-      if X-1 >= 0 then     FillArea(X-1, Y);
-      if Y-1 >= 0 then     FillArea(X, Y-1);
-      if Y+1 <= fTerrain.MapY-1 then FillArea(X, Y+1);
+      if X-1 >= 0 then     FillArea(X-1, Y);  // Will work till map left edge
+      if Y-1 >= 0 then     FillArea(X, Y-1);  // If not goin outside map - step down
+      if Y+1 <= fTerrain.MapY-1 then FillArea(X, Y+1); //If not goin
       if X+1 <= fTerrain.MapX-1 then FillArea(X+1, Y);
     end;
   end;
 var I,K,J: Integer;
+
 begin
   Assert(fTerrain <> nil);
   for J := Low(aMat) to High(aMat) do
@@ -211,7 +221,7 @@ end;
 
 procedure TKMMapEditor.Update;
 begin
-  fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold]);
+  fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold, rdFish]);
   fAIFields.AfterMissionInit;
   fAIFields.UpdateState(0);
 end;
