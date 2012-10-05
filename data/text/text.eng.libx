@@ -1,5 +1,5 @@
 
-MaxID:2779
+MaxID:2804
 
 0:Sawmill
 1:Iron smithy
@@ -520,3 +520,16 @@ MaxID:2779
 2777:Sowing corn
 2778:Mining stone
 2779:Attacking
+2785:Elevate / Lower
+2787:Elevate (left click) / Lower (right click)
+2788:Unequalize / Flatten
+2790:Unequalize (left click) / Flatten (right click)
+2792:Square-shaped brush
+2793:Circle-shaped brush
+2794:Slide to change brush slope // 1 - plateu ... 15 - peak
+2795:Slide to change brush size 
+2797:Objects
+2798:Tiles
+2799:Brushes
+2800:Heights
+2804:Scroll to explore tiles, click to pick one.
