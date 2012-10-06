@@ -1018,6 +1018,7 @@ begin
         Shape_MatAmount.Width := 10 + 10 * Length(Label_MatAmount.Caption);
         Shape_MatAmount.Left := ScreenLoc.X - Shape_MatAmount.Width div 2;
         Shape_MatAmount.Top := ScreenLoc.Y - 10;
+        Shape_MatAmount.LineColor := DEPOSIT_COLORS[R];
         Shape_MatAmount.Paint;
         //Paint the label on top of the background
         Label_MatAmount.Left := ScreenLoc.X;
