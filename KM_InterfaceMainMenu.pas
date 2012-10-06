@@ -39,6 +39,7 @@ type
 
     //We remember old values to enable "Apply" button dynamicaly
     OldResolutionID: TResIndex;
+    SelectedRefRate: Integer;
 
     procedure Create_MainMenu_Page;
     procedure Create_SinglePlayer_Page;
@@ -104,7 +105,7 @@ type
     procedure MP_HostFail(const aData: string);
     procedure MP_BackClick(Sender: TObject);
 
-    procedure Lobby_Reset(Sender: TObject; aPreserveMessage: Boolean = False);
+    procedure Lobby_Reset(Sender: TObject; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
     procedure Lobby_GameOptionsChange(Sender: TObject);
     procedure Lobby_OnGameOptions(Sender: TObject);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
@@ -2118,7 +2119,12 @@ end;
 procedure TKMMainMenuInterface.MainMenu_MultiplayerClick(Sender: TObject);
 begin
   if fMain.LockMutex then
-    SwitchMenuPage(Sender)
+  begin
+    if not fGameApp.CheckDATConsistency then
+      ShowScreen(msError, fTextLibrary[TX_ERROR_MODS])
+    else
+      SwitchMenuPage(Sender);
+  end
   else
     ShowScreen(msError, fTextLibrary[TX_MULTIPLE_INSTANCES]);
 end;
@@ -2824,7 +2830,7 @@ end;
 
 
 //Reset everything to it's defaults depending on users role (Host/Joiner/Reassigned)
-procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject; aPreserveMessage: Boolean = False);
+procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
 var I: Integer;
 begin
   Label_LobbyServerName.Caption := '';
@@ -2863,7 +2869,7 @@ begin
   begin
     Radio_LobbyMapType.Enable;
     Radio_LobbyMapType.ItemIndex := 0;
-    Lobby_MapTypeSelect(nil);
+    if not aPreserveMaps then Lobby_MapTypeSelect(nil);
     DropCol_LobbyMaps.Show;
     Label_LobbyMapName.Hide;
     Label_LobbyChooseMap.Show;
@@ -2981,7 +2987,7 @@ end;
 //We should reflect it to UI
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
 var
-  I,ID: Integer;
+  I,ID,LocaleID: Integer;
   MyNik, CanEdit, HostCanEdit, IsSave, IsValid: Boolean;
 begin
   IsSave := fGameApp.Networking.SelectGameKind = ngk_Save;
@@ -2990,8 +2996,9 @@ begin
   for I:=0 to fGameApp.Networking.NetPlayers.Count - 1 do
   begin
     //Flag icon
-    if fGameApp.Networking.NetPlayers[I+1].LangCode <> '' then
-      Image_LobbyFlag[I].TexID := fLocales.GetLocale(fGameApp.Networking.NetPlayers[I+1].LangCode).FlagSpriteID
+    LocaleID := fLocales.GetIDFromCode(fGameApp.Networking.NetPlayers[I+1].LangCode);
+    if LocaleID <> -1 then
+      Image_LobbyFlag[I].TexID := fLocales[LocaleID].FlagSpriteID
     else
       if fGameApp.Networking.NetPlayers[I+1].IsComputer then
         Image_LobbyFlag[I].TexID := 62 //PC icon
@@ -3414,14 +3421,16 @@ procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
   begin
     DropCol_LobbyMaps.ItemIndex := -1;
     for I := 0 to DropCol_LobbyMaps.Count - 1 do
-      if DropCol_LobbyMaps.Item[I].Cells[1].Caption = aName then
+      if DropCol_LobbyMaps.Item[I].Cells[0].Caption = aName then
       begin
         DropCol_LobbyMaps.ItemIndex := I;
         Break;
       end;
   end;
+var OldMapType: byte;
 begin
-  Lobby_Reset(Button_MP_CreateLAN, True); //Will reset the lobby page into host mode, preserving messages
+  Lobby_Reset(Button_MP_CreateLAN, True, True); //Will reset the lobby page into host mode, preserving messages/maps
+  OldMapType := Radio_LobbyMapType.ItemIndex;
   if fGameApp.Networking.SelectGameKind = ngk_None then
     Radio_LobbyMapType.ItemIndex := 0 //Default
   else
@@ -3436,8 +3445,12 @@ begin
         else
           Radio_LobbyMapType.ItemIndex := 0;
 
+  //Don't force rescanning all the maps unless the map type changed or no map was selected
+  if (Radio_LobbyMapType.ItemIndex <> OldMapType) or (DropCol_LobbyMaps.ItemIndex = -1) then
+    Lobby_MapTypeSelect(nil)
+  else
+    Lobby_RefreshMapList(False); //Just fill the list from fMapMP
 
-  Lobby_MapTypeSelect(nil);
   if fGameApp.Networking.SelectGameKind = ngk_Save then
     SelectByName(fGameApp.Networking.SaveInfo.FileName) //Select the map
   else
@@ -3971,7 +3984,6 @@ end;
 procedure TKMMainMenuInterface.Options_ChangeRes(Sender: TObject);
 var
   I: Integer;
-  RefRate: Integer;
   ResID, RefID: Integer;
 begin
   if fMain.Resolutions.Count = 0 then Exit;
@@ -3985,16 +3997,13 @@ begin
     ResID := DropBox_Options_Resolution.ItemIndex;
     RefID := DropBox_Options_RefreshRate.ItemIndex;
 
-    //Remember refresh rate (we will try to reuse it below)
-    RefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
-
     //Reset refresh rates, because they are different for each resolution
     DropBox_Options_RefreshRate.Clear;
     for I := 0 to fMain.Resolutions.Items[ResID].RefRateCount - 1 do
     begin
       DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[ResID].RefRate[I]]));
-      //Make sure to select something
-      if (I = 0) or (fMain.Resolutions.Items[ResID].RefRate[I] = RefRate) then
+      //Make sure to select something. SelectedRefRate is prefered, otherwise select first
+      if (I = 0) or (fMain.Resolutions.Items[ResID].RefRate[I] = SelectedRefRate) then
         DropBox_Options_RefreshRate.ItemIndex := I;
     end;
   end;
@@ -4006,6 +4015,8 @@ begin
       (fMain.Settings.FullScreen <> CheckBox_Options_FullScreen.Checked) or
       (CheckBox_Options_FullScreen.Checked and ((OldResolutionID.ResID <> ResID) or
                                                 (OldResolutionID.RefID <> RefID)));
+  //Remember which one we have selected so we can reselect it if the user changes resolution
+  SelectedRefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
 end;
 
 
@@ -4059,7 +4070,10 @@ begin
     begin
       DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[R.ResID].RefRate[I]]));
       if (I = 0) or (I = R.RefID) then
+      begin
         DropBox_Options_RefreshRate.ItemIndex := I;
+        SelectedRefRate := fMain.Resolutions.Items[R.ResID].RefRate[I];
+      end;
     end;
   end
   else

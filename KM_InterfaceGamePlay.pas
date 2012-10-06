@@ -408,8 +408,8 @@ begin
   for i:=1 to ResRatioHouseCount[RatioTab] do
   begin
     HT := ResRatioHouse[RatioTab, i];
-    //Do not allow player to see yet unreleased houses. Though house may be prebuilt and unreleased
-    if MyPlayer.Stats.GetCanBuild(HT) or (MyPlayer.Stats.GetHouseQty(HT) > 0) then
+    //Do not allow player to see blocked house (never able to build). Though house may be prebuilt and blocked
+    if (not MyPlayer.Stats.HouseBlocked[HT]) or (MyPlayer.Stats.GetHouseQty(HT) > 0) then
     begin
       Image_RatioPic[i].TexID := fResource.HouseDat[HT].GUIIcon;
       TrackBar_RatioRat[i].Caption := fResource.HouseDat[HT].HouseName;
@@ -3186,13 +3186,14 @@ end;
 
 procedure TKMGamePlayInterface.AlliesOnPlayerSetup(Sender: TObject);
 var
-  I: Integer;
+  I,LocaleID: Integer;
 begin
   for I := 0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     //Show players locale flag
-    if fGame.Networking.NetPlayers[I+1].LangCode <> '' then
-      Image_AlliesLang[I].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[I+1].LangCode).FlagSpriteID
+    LocaleID := fLocales.GetIDFromCode(fGame.Networking.NetPlayers[I+1].LangCode);
+    if LocaleID <> -1 then
+      Image_AlliesLang[I].TexID := fLocales[LocaleID].FlagSpriteID
     else
       if fGame.Networking.NetPlayers[I+1].IsComputer then
         Image_AlliesLang[I].TexID := 62 //PC icon
@@ -3915,9 +3916,12 @@ begin
       MapLoc := fTerrain.FlatToHeight(UnitLoc);
       ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
 
-      Label_TeamName.Left := ScreenLoc.X;
-      Label_TeamName.Top := ScreenLoc.Y;
-      Label_TeamName.Paint;
+      if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
+      begin
+        Label_TeamName.Left := ScreenLoc.X;
+        Label_TeamName.Top := ScreenLoc.Y;
+        Label_TeamName.Paint;
+      end;
     end;
   end;
   Label_TeamName.Visible := False; //Only visible while we're using it, otherwise it shows up in other places
