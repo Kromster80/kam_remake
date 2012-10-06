@@ -123,3 +123,10 @@ nor.NoKaM=Installasjonsveiviseren oppdaget at du ikke har Knights and Merchants:
 nor.CantUpdate=Installasjonen kunne ikke finne en eksisterende versjon av KaM Remake е oppdatere. Vennligst last ned og installer det fullstendige installasjonsprogrammet i stedet. Installasjonen vil bli avbrutt.
 nor.OpenAL=Шnsker du at installasjonsveiviseren skal installere OpenAL? (Anbefales sterkt) Det er nшdvendig for at lyder skal fungere i KaM Remake
 nor.ViewReadme=Vis Readme
+
+;Belarusian
+bel.CreateStartShortcut=Стварыць цэтлік ў меню "Пуск"
+bel.NoKaM=Майстар ўстаноўкі выявіў што ў вас няма ўсталяванай iгры Knights and Merchants: The Peasants Rebellion. Вы павінны ўсталяваць арыгінальную iгру каб іграць ў KaM Remake. Устаноўка будзе спынена.
+bel.CantUpdate=Майстру ўстаноўкі не ўдаецца знайсці версію KaM Remake для абнаўлення. Калі ласка загрузіце поўны пакет ўстаноўкі. Устаноўка будзе спынена.
+bel.OpenAL=Вы хочаце ўсталяваць OpenAL? (настойліва рэкамендуецца) Гэта неабходна для работы гуку ў KaM Remake
+bel.ViewReadme=Адкрыць Readme
