@@ -55,6 +55,7 @@
 	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Colored rectangle below cursor
+	Make Serfs face the house plan entrance when handing building materials to it
 
 Improvements:
  +	High quality alpha-blended shadows for houses
