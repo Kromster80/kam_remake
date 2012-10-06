@@ -3570,7 +3570,6 @@ var
   H: TKMHouse;
   W: TKMUnitWarrior;
   OldSelected: TObject;
-  I: Integer;
 begin
   inherited;
 
@@ -3661,7 +3660,7 @@ begin
                       begin
                         fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P,
                           THouseType(GameCursor.Tag1));
-                        if not (ssShift in Shift) then Build_ButtonClick(Button_BuildRoad);
+                        if not (ssShift in Shift) then Build_ButtonClick(Button_BuildRoad); //If shift pressed do not reset cursor(keep selected building)
                       end
                       else
                         fSoundLib.Play(sfx_CantPlace,P,false,4.0);
