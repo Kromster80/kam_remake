@@ -14,7 +14,7 @@ Future
 	Multiplayer trading (from a new building "Trading Post"?)
 
 
-5th Multiplayer Demo (r39??) - 2012-09-??:
+5th Multiplayer Demo (r4001) - 2012-10-04:
  +	Custom campaigns
  +	Charts of game results
  +	Reworked tileset render

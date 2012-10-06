@@ -1,0 +1,65 @@
+=====================
+Fixed in 5th MP demo:
+=====================
+ISSUE: Making food was mostly not necessary.
+SOLUTION: Measure unit initial hunger level from TPR and reset it to that.
+
+ISSUE: Wine was not useful, other food types were much better
+SOLUTION: Change restore from 20% -> 30%, fields required from 11 -> 9.
+
+
+=====================
+Pending
+=====================
+ISSUE:
+Axemen/swordsmen are not used because lancemen/pikemen are much cheaper and still good as a "meatshield" for archers. Knights/scouts are not used often because of high price (horses are slow)
+SOLUTIONS:
+ 1. Make units with shield (including knights/scouts) have +1 defence against archers:
+    + Paper-scissors-rock is unchanged (already well balanced)
+    + Makes them best as the main melee unit, as they were in TSK
+    - 1 extra defence might be too much, needs thorough testing
+
+
+ISSUE:
+Bowmen are rarely used, crossbowmen are so much better.
+SOLUTIONS:
+ 1. Decrease aiming pause for bowmen
+    + Overall damage-per-second will be more equal
+    + Makes bowmen more effective at destroying towers, that gives them a special role and means we might see more towers being shot down.
+    + Makes bowmen different from crossbowmen, not just a weaker/less powerful crossbowmen, they have a unique difference.
+    + Fairly realistic, AFAIK crossbows take longer to draw and reload.
+ 2. Increase bowmen attack
+    - Arrows by nature are weaker than bolts
+ 3. Increase bowmen accuracy
+    - Lewin: IMO it makes more sense for bowmen/crossbowmen to have similar accuracy.
+ 4. Decrease Arbaletmen attack down from 120 (which is already the highest attack except Towers)
+
+
+ISSUE:
+Storm attack is not practical, especially in MP with lag delays
+SOLUTIONS:
+ 1. Make storm attack last longer and be easier to aim (tell them where to storm to, rather than clicking button at the right moment)
+    + Works well even with high network lag, storm becomes like a special move instruction, where each unit faces that direction (closest) and storms.
+
+
+ISSUE:
+Killing fleeing bowmen/crossbowmen is hard, even with knights, as they keep going away from the hits unless you flank/suround them.
+SOLUTIONS:
+ 1. After warrior/group refactoring we can make attack orders be followed through if the enemy steps away so they are pursued (within a few tiles)
+
+
+ISSUE:
+Archers attacking houses can be exploited to skip their reload time if repeatedly repeating attack. It resets their animation and the house is destroyed nearly twice faster. Test whether this also effects attacking units by pressing "halt" to reset reloading, maybe it doesn't because of the repositioning pause.
+SOLUTIONS:
+ 1. Add a pause before starting shooting at house for the first time after order is issued.
+
+
+ISSUE:
+Tower spam might be overpowered, needs more evidence.
+SOLUTIONS:
+ 1. Allow host to select maximum number of towers per player
+    + Players can choose to play in the style they want to, no game style is excluded.
+    - Unnatural/doesn't fit with KaM (other houses/units don't have artifical limits)
+    - Divides community further over what "true KaM gameplay" is
+ 2. Make towers less accurate like they were in r3392
+    - Towers become basically useless, no way to protect yourself and have sieges. Games finish 10 min after PT ends.
