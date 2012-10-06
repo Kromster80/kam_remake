@@ -3,7 +3,7 @@ unit KM_Saves;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, SyncObjs,
-  KM_CommonClasses, KM_Defaults, KM_GameInfo, KM_GameOptions, KM_Minimap;
+  KM_CommonClasses, KM_Defaults, KM_GameInfo, KM_GameOptions, KM_Minimap, KM_TextLibrary, KM_Resource;
 
 
 type
@@ -134,6 +134,9 @@ begin
   fGameOptions.Load(LoadStream);
   fSaveError := fInfo.ParseError;
 
+  if (fSaveError = '') and (fInfo.DATCRC <> fResource.GetDATCRC) then
+    fSaveError := fTextLibrary[TX_SAVE_UNSUPPORTED_MODS];
+
   if fSaveError <> '' then
     fInfo.Title := fSaveError;
 
@@ -176,7 +179,7 @@ end;
 
 function TKMSaveInfo.IsValid: Boolean;
 begin
-  Result := FileExists(fPath + fFileName + '.sav') and (fSaveError = '') and fInfo.IsValid;
+  Result := FileExists(fPath + fFileName + '.sav') and (fSaveError = '') and fInfo.IsValid(True);
 //  fLog.AppendLog(fPath + fFileName + '.sav');
 //  fLog.AppendLog(fSaveError);
 end;

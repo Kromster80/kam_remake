@@ -97,6 +97,11 @@ begin
     LogMessage := LogMessage + ' at location ' + TypeToString(ELocError(ExceptIntf.ExceptObject).Loc);
   fLog.AppendLog(LogMessage);
 
+  //Append the exception message on a new paragraph of the dialog. It might be useful to the user (e.g. file permissions wrong)
+  //and sometimes people send us a screenshot of the crash report window, it would be nice to know what the error was from that.
+  if fTextLibrary <> nil then
+    ExceptIntf.ExceptMsg := fTextLibrary[TX_ERROR_MESSAGE]+#13#10+#13#10+LogMessage;
+
   //We want to add some of our own files to the report
   CrashFile := 'KaM_Crash_' + GAME_REVISION + '_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss', Now) + '.zip';
   MESettings.BugReportZip := CrashFile; //Exception info also goes in the zip

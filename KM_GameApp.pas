@@ -56,6 +56,7 @@ type
     function RenderVersion: string;
     procedure PrintScreen(aFilename: string = '');
     procedure PauseMusicToPlayFile(aFileName:string);
+    function CheckDATConsistency: Boolean;
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
@@ -123,7 +124,7 @@ begin
   fResource     := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources(fGameSettings.Locale);
 
-  fSoundLib     := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume); //Required for button click sounds
+  fSoundLib     := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume, True); //Required for button click sounds
   fMusicLib     := TMusicLib.Create(fGameSettings.MusicVolume);
   fSoundLib.OnRequestFade   := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
@@ -209,7 +210,9 @@ begin
   //Recreate resources that use Locale info
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
-  fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume);
+  //Don't reshow the warning dialog when initing sounds, it gets stuck behind in full screen
+  //and the user already saw it when starting the game.
+  fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume, False);
   fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
   fResource.ResourceFont.LoadFonts(fGameSettings.Locale);
@@ -521,8 +524,11 @@ begin
   LoadGameFromScript(MapNameToPath(aFileName, 'dat', True), aFileName, '', 0, gmMulti);
 
   //Copy the chat and typed lobby message to the in-game chat
-  fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
-  fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+  if fGame <> nil then
+  begin
+    fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
+    fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+  end;
 end;
 
 
@@ -656,6 +662,12 @@ begin
   if not FileExists(aFileName) then Exit;
   fSoundLib.AbortAllFadeSounds; //Victory/defeat sounds also fade music, so stop those in the rare chance they might still be playing
   fMusicLib.PauseMusicToPlayFile(aFileName, fGameSettings.SoundFXVolume);
+end;
+
+
+function TKMGameApp.CheckDATConsistency: Boolean;
+begin
+  Result := ALLOW_MP_MODS or (fResource.GetDATCRC = $4F5458E6); //That's the magic CRC of official .dat files
 end;
 
 

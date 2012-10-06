@@ -180,17 +180,16 @@ begin
   if FileExists(fPath + fFileName + '.txt') then
   begin
     AssignFile(ft, fPath + fFileName + '.txt');
-    FileMode := 0;
+    FileMode := fmOpenRead;
     Reset(ft);
-    FileMode := 2;
     repeat
-      readln(ft,st);
-      if SameText(st, 'Author')    then readln(ft, Author);
-      if SameText(st, 'SmallDesc') then readln(ft, SmallDesc);
-      if SameText(st, 'BigDesc')   then readln(ft, BigDesc);
+      ReadLn(ft,st);
+      if SameText(st, 'Author')    then ReadLn(ft, Author);
+      if SameText(st, 'SmallDesc') then ReadLn(ft, SmallDesc);
+      if SameText(st, 'BigDesc')   then ReadLn(ft, BigDesc);
       if SameText(st, 'SetCoop')   then IsCoop := true;
     until(eof(ft));
-    closefile(ft);
+    CloseFile(ft);
   end;
 end;
 
@@ -229,7 +228,7 @@ end;
 
 function TKMapInfo.IsValid: Boolean;
 begin
-  Result := fInfo.IsValid and
+  Result := fInfo.IsValid(False) and
             FileExists(fPath + fFileName + '.dat') and
             FileExists(fPath + fFileName + '.map');
 end;

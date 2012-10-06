@@ -1661,8 +1661,8 @@ const TASK_TEXT: array[TUnitTaskName] of Integer = (
 -1,-1,                   //utn_Unknown, utn_SelfTrain
 TX_UNIT_TASK_DELVERING,  //utn_Deliver
 TX_UNIT_TASK_ROAD,       //utn_BuildRoad
-TX_UNIT_TASK_FIELD,      //utn_BuildWine
-TX_UNIT_TASK_WINEFIELD,  //utn_BuildField
+TX_UNIT_TASK_WINEFIELD,  //utn_BuildWine
+TX_UNIT_TASK_FIELD,      //utn_BuildField
 -1,                      //utn_BuildWall (unused)
 TX_UNIT_TASK_HOUSE_SITE, //utn_BuildHouseArea
 TX_UNIT_TASK_HOUSE,      //utn_BuildHouse

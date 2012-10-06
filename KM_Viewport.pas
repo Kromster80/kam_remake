@@ -75,7 +75,7 @@ end;
 
 procedure TViewport.ResetZoom;
 begin
-  Zoom := 0.1;
+  Zoom := 1;
 end;
 
 
@@ -162,7 +162,7 @@ const
     kmc_Scroll3, kmc_Default, kmc_Default, kmc_Default);
 var
   ScrollAdv: Single;
-  CursorPoint: TKMPoint;
+  CursorPoint: TKMPointI;
   ScreenBounds: TRect;
   Temp:byte;
   MousePos: TPoint;

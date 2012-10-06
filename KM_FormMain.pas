@@ -126,6 +126,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure chkShowInfluenceClick(Sender: TObject);
     procedure chkShowNavMeshClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;

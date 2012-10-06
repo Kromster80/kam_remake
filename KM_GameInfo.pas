@@ -13,6 +13,7 @@ type
   public
     Title: AnsiString; //Used for campaigns and to store in savegames
     Version: AnsiString; //Savegame version, yet unused in maps, they always have actual version
+    DATCRC: Cardinal; //CRC of defines .dat files
     TickCount: cardinal;
     MissionMode: TKMissionMode; //Fighting or Build-a-City map
     MapSizeX, MapSizeY: Integer;
@@ -30,7 +31,7 @@ type
     procedure Load(LoadStream: TKMemoryStream);
 
     property ParseError: string read fParseError;
-    function IsValid: Boolean;
+    function IsValid(aCheckDATCRC: Boolean): Boolean;
     function AICount: Integer;
     function MapSizeText:string;
     function MissionModeText:string;
@@ -40,7 +41,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Utils;
+uses KM_Resource, KM_TextLibrary, KM_Utils;
 
 
 { TKMGameInfo }
@@ -60,6 +61,8 @@ begin
     fParseError := Format(fTextLibrary[TX_SAVE_UNSUPPORTED_VERSION], [Version]);
     Exit;
   end;
+
+  LoadStream.Read(DATCRC); //Don't check it here (maps don't care), if required somebody else will check it
 
   LoadStream.Read(Title); //GameName
   LoadStream.Read(TickCount); //TickCount
@@ -85,6 +88,7 @@ var I: Integer;
 begin
   SaveStream.Write('KaM_GameInfo');
   SaveStream.Write(AnsiString(GAME_REVISION)); //Save current revision
+  SaveStream.Write(fResource.GetDATCRC);
 
   SaveStream.Write(Title); //GameName
   SaveStream.Write(TickCount);
@@ -105,9 +109,9 @@ begin
 end;
 
 
-function TKMGameInfo.IsValid:boolean;
+function TKMGameInfo.IsValid(aCheckDATCRC: Boolean): Boolean;
 begin
-  Result := PlayerCount > 0;
+  Result := (PlayerCount > 0) and (not aCheckDATCRC or (DATCRC = fResource.GetDATCRC));
 end;
 
 
@@ -155,7 +159,7 @@ end;
 
 function TKMGameInfo.GetTitleWithTime: string;
 begin
-  if IsValid then
+  if IsValid(True) then
     Result := Title + ' ' + TimeToString(TickCount/24/60/60/10)
   else
     Result := Title;

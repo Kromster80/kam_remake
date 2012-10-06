@@ -273,9 +273,9 @@ function TKMUnitDatClass.GetMiningRange: byte;
 begin
   case fUnitType of
     ut_Woodcutter:  Result := 10;
-    ut_Farmer:      Result := 8;
-    ut_Stonecutter: Result := 14;
-    ut_Fisher:      Result := 12;
+    ut_Farmer:      Result := 10;
+    ut_Stonecutter: Result := 16;
+    ut_Fisher:      Result := 14;
     else            begin
                       Result := 0;
                       Assert(false, UnitName + ' has no mining range');

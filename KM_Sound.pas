@@ -164,7 +164,7 @@ type
     procedure PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false); overload;
     procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
   public
-    constructor Create(aLocale:string; aVolume:single);
+    constructor Create(aLocale:string; aVolume:single; aShowWarningDlg: Boolean);
     destructor Destroy; override;
     function ActiveCount:byte;
 
@@ -265,7 +265,7 @@ const
 
 
 { TSoundLib }
-constructor TSoundLib.Create(aLocale:string; aVolume:single);
+constructor TSoundLib.Create(aLocale:string; aVolume:single; aShowWarningDlg: Boolean);
 var
   Context: PALCcontext;
   I: Integer;
@@ -286,8 +286,9 @@ begin
   fIsSoundInitialized := InitOpenAL;
   if not fIsSoundInitialized then begin
     fLog.AddToLog('OpenAL warning. OpenAL could not be initialized.');
-    //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
-    MessageDlg('OpenAL could not be initialized. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
+    if aShowWarningDlg then
+      //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
+      MessageDlg('OpenAL could not be initialized. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
     Exit;
   end;
