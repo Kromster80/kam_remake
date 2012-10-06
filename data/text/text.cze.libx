@@ -380,7 +380,7 @@ MaxID:2804
 1847:Sníit mnoství
 1848:Ukládám hru...
 1849:%s byl poraen!
-1850:OSTATNÍ ZVUKY
+1850:OSTATNÍ ZVUKY:
 1851:Vyhodit hráèe
 1852:Hostitel bude moci vyhodit tyto hráèe za %d sekund
 1853:Hostitel nyní mùe vyhodit tyto hráèe
@@ -472,3 +472,51 @@ MaxID:2804
 2727:Odesílání hlášení o chybì bylo neúspìšné! Náš server mùe bıt zaneprázdnìn, prosím zkuste to odeslat znovu.
 2728:Informace
 2729:Prosím èekejte...
+2730:Kampanì
+2731:Uivatelské kampanì
+2732:Zaèít kampaò!
+2734:Poraeno vojákù
+2736:Název
+2737:Mapy
+2738:Odemèeno
+2739:Èas
+2740:Restartovat pøehrávání
+2741:Ukonèit pøehrávání
+2742:pokraèovat v pøehrávání
+2743:Pøehrávat po krocích
+2744:Pozastavit
+2745:KaM Remake mùete mít v multplayeru spuštìnı jen jednou.
+2746:Pøehrávání zkonèilo
+2747:DALŠÍ HUDBA:
+2748:Ty
+2749:Hráè %d
+2750:Vojsko
+2751:Obèané
+2752:Stavby
+2753:Zdroje
+2754:Vyprodukováno zdrojù
+2755:Statistiky
+2756:Ekonomika
+2757:Staví dùm
+2758:Zarovnává terén
+2759:Buduje vinici
+2760:Kope pole
+2761:Staví cestu
+2762:Dodávka
+2763:Sází strom
+2764:Jde domù
+2765:Opravuje dùm
+2766:Bojuje
+2767:Støílí
+2768:Útoèí na dùm
+2769:Jde do hostince
+2770:Kácí strom
+2771:Neèinnı
+2772:Pøemisuje se
+2773:Náhlı útok
+2774:Rybaøí
+2775:Trhá hrozny
+2776:Sklízí obilí
+2777:Zasévá obilí
+2778:Tìí kámen
+2779:Útoèí

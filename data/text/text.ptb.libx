@@ -22,7 +22,7 @@ MaxID:2804
 18:Prefeitura
 19:Oficina de armas
 20:Oficina de armaduras
-21:Barracks
+21:Quartel
 22:Moinho
 23:Oficina de qualidade
 24:Açougueiro
@@ -74,13 +74,13 @@ MaxID:2804
 81:Metalúrgico
 82:Recruta
 83:Milícia
-84:Escoteiro
-85:Escoteiro de espada
+84:Lutador de espada
+85:Luatdor de espada
 86:Arqueiro
 87:Besteiro
 88:Lanceiro
 89:Lanceiro de aço
-90:Cavaleiro
+90:Explorador
 91:Cavaleiro Real
 92:Bárbaro
 93:Rebelde
@@ -123,8 +123,8 @@ MaxID:2804
 164:Alterar o Volume
 165:Musica
 166:Musica ligar/desligar
-167:Salvar Auto
-168:Player de música
+167:Salvar Automaticamente
+168:Reprodutor de música
 169:Faixa anterior
 170:Próxima faixa
 171:Demolir
@@ -144,8 +144,8 @@ MaxID:2804
 185:Destruir
 186:Você quer realmente|demolir esta construção?
 187:Destruir edifício selecionado
-188:Decrease order amount
-189:Increase order amount
+188:Diminuir valor do pedido
+189:Aumentar valor do pedido
 190:Tipo de soldado anterior
 191:Próximo tipo de soldado
 192:Equipar tipo de soldado atual
@@ -153,7 +153,7 @@ MaxID:2804
 194:Profissão anterior
 195:Adicionar à fila
 196:Custo:
-197:ligar/desligar reparo da casa
+197:ativar/desativar reparo da casa
 198:Edifício não disponível no momento
 199:Condição
 200:virar tropa á esquerda
@@ -199,6 +199,10 @@ MaxID:2804
 433:entrada
 434:Azul profundo
 435:Luta
+436:Quartel Real
+437:aristocracia
+438:No porto
+439:Jornada
 849:Jogar um Mapa Único
 850:Iniciar Mapa
 851:Voltar ao Menu
@@ -206,7 +210,7 @@ MaxID:2804
 853:Multi-jogador
 854:Opções
 855:Créditos
-856:Sair do jogo
+856:Encerrar Aplicativo
 857:Continuar
 858:Reiniciar Missão
 859:Resolução:
@@ -219,7 +223,7 @@ MaxID:2804
 866:Edifícios construídos:
 867:Unidades treinadas:
 868:Armas produzidas:
-869:Soldadps treinados:
+869:Soldados treinados:
 870:Missão completada em:
 1000:JOYMANIA ENTERTAINMENT||PROGRAMADOR:|Peter Ohlmann||EFEITOS GRÁFICOS:|Adam Sprys||DESIGN DE LEVELS:|Adam Sprys|Andre Quaß||EDIÇÃO E MIXAGEM DE SOM:|Tonstudio Mannheim||MUSICAS:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRAÇÕES:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUÇÃO:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||DIRETOR GERAL:|Achim Heidelauf||PUBLICADO POR:|TopWare Interactive||DIREÇÃO DE CUTSCENES:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOZES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||TRABALHO DE ARTES:|Boleslaw Kasza|Adam Sprys||ANIMAÇÃO INICIAL:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||AGRADECIMENTOS ESPECIAIS:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
 1686:Missão cancelada
@@ -272,9 +276,9 @@ MaxID:2804
 1736:Sair para o Menu
 1737:Indisponível
 1738:Pressione %s para continuar o jogo
-1739:Para o time
+1739:Para a equipe
 1740:Informações dos jogadores
-1741:Chat
+1741:Bate-papo
 1742:Já existe um jogo salvo
 1743:Sobrescrever
 1744:Salvar
@@ -293,10 +297,10 @@ MaxID:2804
 1760:Para x%d
 1761:Editar terreno
 1762:Planejamento de Aldeia
-1763:Visual scripts
-1764:Global scripting
+1763:Roteiro visual
+1764:Roteiro global
 1765:Menu
-1766:Status:
+1766:Estado:
 1767:Nome do jogador
 1768:CRIAR SERVIDOR
 1769:Nome
@@ -315,21 +319,22 @@ MaxID:2804
 1782:Sala
 1783:Entrar
 1784:Conectando, por favor aguarde...
-1785:Carregando anunciamentos...
+1785:Carregando anúncios...
 1786:Recarregando...
 1787:Lista de Jogadores
 1788:Iniciar local
-1789:Time
-1791:Pronto
+1789:Equipe
+1790:Cor
+1791:Preparado
 1792:Ping
 1793:Kick
 1794:Aberto
-1795:Jogador AI
+1795:Jogador CPU
 1796:Selecionar..
 1797:Aleatório
 1799:Nenhum
 1802:Correio de mensagens:
-1803:Map type
+1803:Tipo do mapa:
 1804:Mapa Único
 1805:Jogo Salvo
 1806:Selecionar um mapa...
@@ -339,7 +344,7 @@ MaxID:2804
 1810:Modo:
 1811:Condições:
 1813:Sair da sala
-1814:Pronto
+1814:Preparado
 1815:Iniciar!
 1816:Aguardando por jogadores:
 1817:Créditos do KaM Remake
@@ -349,82 +354,171 @@ MaxID:2804
 1821:GRÁFICOS ADICIONAIS:
 1822:TRADUÇÕES ADICIONAIS:
 1823:AGRADECIMENTOS ESPECIAIS:
-1824:Mapas multiplayer
+1824:Mapas multi-jogador
 1825:Mapas singleplayer
 1826:Velocidade do Scroll
-1827:No servers found
-1828:Shuffle tracks
-1829:Game information:
+1827:Sem servidores! Verifique|a conexão com a internet.
+1828:misturar as faixas
+1829:Informação do jogo:
 1830:-
-1831:Lobby
-1832:Loading
-1833:Game
-1834:Location %d
-1835:Building and Fighting
-1836:Fighting
-1837:Not ready
-1838:Ready
-1839:Error: Please select a player from the save to control
-1840:Error: Map failed to load or no map selected
-1841:Cannot start: %s
-1842:Not everyone is ready to start
-1843:Player count exceeds map limit
-1844:Wrong protocol version: %s. Server uses: %s
-1845:Server has assigned hosting rights to us
-1846:Increase trade amount
-1847:Decrease trade amount
-1848:Saving game...
-1849:%s was defeated!
-1850:ADDITIONAL SOUNDS:
-1851:Drop Players
-1852:The host will be allowed to drop these players after %d seconds
-1853:The host is now allowed to drop these players
-1854:The host (%s) has quit
-1855:The connection to the server was lost. Attempting to reconnect...
-1856:Are you sure you want to quit?
-1857:Are you sure you want to permanently drop these players?
+1831:Aguardando
+1832:Carregando
+1833:Em andamento
+1834:Lugar %d
+1835:Construir e lutar
+1836:Lutar
+1837:Despreparado
+1838:Pronto
+1839:Erro: Please select a player from the save to control
+1840:Erro: Falha no mapa ou mapa não-caregado
+1841: Não é possível iniciar: %s
+1842:Alguns jogadores não estão prontos para iniciar
+1843:Erro: Há mais jogadores do que o mapa permite
+1844: Versão do protocolo errado: %s. Servidor usa: %s
+1845:O servidor atribuiu direitos de hospedagem para nós
+1846:Aumentar a quantidade de comércio
+1847:Diminuir a quantidade de comércio
+1848:Salvando Jogo...
+1849:%s foi derrotado!
+1850:SONS ADICIONAIS:
+1851:Retirar Jogadores
+1852:O administrador pode retirar o jogador depois de %d segundos
+1853:O administrador pode agora descartar os jogadores:
+1854:O administrador (%s) saiu do jogo
+1855:A conexão com o servidor foi perdida. Tentando se reconectar...
+1856:Você tem certeza que quer sair?
+1857:Você tem certeza que quer tirar este jogador permanentemente?
 1858:Cancelar
-1859:Citizens|trained
-1860:Citizens|lost
-1861:Soldiers|equipped
-1862:Soldiers|lost
-1863:Units|defeated
-1864:Buildings|constructed
-1865:Buildings|lost
-1866:Buildings|destroyed
-1867:Wares|produced
-1868:Weapons|produced
-1869:Trading this resource is not available in this mission
-1870:Plant and fell
-1871:Fell only
-1872:Game started
-1873:Building Map
-1874:Fighting Map
-1875:Co-operative Map
-1876:You are not allowed to do that during peacetime
-1877:Peacetime remaining: %s
-1878:Peacetime is over. To thy weapons!
-1879:Game time:|%s
-1880:Game options:
-1884:Halt troop ('%s')
-1885:Link up troop ('%s')
-1886:Separate troop ('%s')
-1887:Replay Viewer
-1888:View Replay
-1889:Peacetime (minutes)
-1890:Unsupported format %s
-1891:Unsupported version %s
-1893:initializing
-1895:script
-1896:New Mission
-1897:An error has occurred while parsing the file %s
-1898:Closed
-1899:Host does player setup
+1859:Povoado|treinado
+1860:Povoado|perdido
+1861:Soldados|equipados
+1862:Soldados|perdidos
+1863:Unidades|derrotado
+1864:Edifícios|construídos
+1865:Edifícios|Perdido
+1866:Edifícios|destruído
+1867:Mercadoria| produzida
+1868:Armas|Produzidas
+1869:Este recurso não está disponível nesta missão
+1870:Plantar e cortar
+1871:Somente cortar
+1872:O jogo iniciou
+1873:Mapa de construção
+1874:Mapa de luta
+1875:Mapa cooperativo
+1876:Você está no tempo de paz. Não pode usar soldados!
+1877:Tempo de paz faltando: %s
+1878:o tempo de paz acabou. Use suas armas!
+1879:Tempo do jogo:|%s
+1880:Opções do Jogo:
+1884:Parar tropa ('%s')
+1885:Juntar tropa ('%s')
+1886:Separar tropa ('%s')
+1887:Ver replays
+1888:Ver Replay
+1889:Tempo de paz (Minutos)
+1890:Formato não suportado %s
+1891:Versão não suportada %s
+1893:Inicializando
+1895:Roteiro
+1896:Nova Missão
+1897:Um erro aconteceu com o arquivo: %s
+1898:Fechado
+1899:Administrador faz configuração do jogo
 1901:units
-1902:houses
-1903:trees
-1904:definitions
-1905:tileset
-2691:Cancel
-2692:Cancel
+1902:Casas
+1903:Árvores
+1904:Definições
+1905:Sel. Título
+2687:Criar servidor
+2688:PROCURAR SERVIDOR
+2689:Conectar
+2690:Procurar servidor por IP
+2691:Cancelar
+2692:Cancelar
+2693:Não suportado
+2694:Não suportado
+2695:Erro: Jogador %d tem um nome muito longo
+2696:Erro: Jogador contém caracteres ilegais
+2697:Qualidade da sombra:
+2698:Baixo
+2699:Alto
+2700:Mapa não encontrado: %s
+2701:Arquivo do mapa não coincide com o administrador para o : %s
+2702:Save não encontrado: %s
+2703:Arquivo de Save não coincide com o administrador para o: %s
 2705:Por favor atualize os seus drivers gráficos para ter um melhor desempenho
+2706:Ocorreu um erro na aplicação. Por favor, clique em Enviar relatório de erros para que possamos investigar esta questão. Obrigado por sua ajuda!
+2707:Enviar relatório de erros
+2708:Mostrar Dados Brutos
+2709:O replay falhou uma verificação de consistência. Este é um bug conhecido, que afeta a reprodução de alguns replays. Você quer continuar a ver?
+2710:Seu nome: (Opcional)
+2711:Seu e-mail:(Opcional)
+2712:Lembre-me
+2713:Na situação que o erro ocorre? Você pode fornecer alguma informação adicional? (Inglês preferido)
+2714:Anexar uma imagem para o relatório de bug
+2715:(Clique para editar a imagem)
+2716:Encerrar aplicativo
+2717:Continuar aplicativo
+2718:Próximo
+2719:Enviar relatório
+2720:Cancelar
+2721:Detalhes do contato
+2722:Detalhes do erro
+2723:Screenshot
+2724:Enviando relatório de erros...
+2725:Conectando servidor...
+2726:Envio de dados ...
+2727:Envio do relatório de acidente falhou! Nosso servidor pode estar ocupado, por favor, tente enviar novamente.
+2728:Informação
+2729:Por favor, espere um momento...
+2730:Campanhas
+2731:Campanhas personalizadas
+2732:Iniciar Campanha!
+2734:Soldados|derrotados
+2736:Título
+2737:Mapas
+2738:Desbloqueado
+2739:Tempo
+2740:Reiniciar replay
+2741:Sair do replay
+2742:Continuar replay pausado
+2743:Passo 1 carrapato frente
+2744:Pausar replay
+2745:Você só pode ter uma instância do jogo no modo multiplayer de uma só vez
+2746:Fim do replay
+2747:MÚSICA ADICIONAL
+2748:Você
+2749:Jogador %d
+2750:Armas
+2751:Povoado
+2752:Casas
+2753:Recursos
+2754:Recursos Produzidos
+2755:Estatísticas
+2756:Economia
+2757:construção de casa
+2758:Site de aplanamento da casa
+2759:Construindo videira
+2760:campo de escavação
+2761:Construindo Estrada
+2762:Cumprindo
+2763:Plantando árvore
+2764:Indo para casa
+2765:Arrumando casa
+2766:Lutando
+2767:Acendimento
+2768:Atacando casa
+2769:Indo para o restaurante
+2770:Cortando árvore
+2771:Parado
+2772:Se movendo
+2773:Ataque tempestade!
+2774:Pescando
+2775:Cultivo de Uvas
+2776:Cultivando milho
+2777:Semeando Milho
+2778:Extraindo pedra
+2779:Atacando
+2780:Modificações para o jogo não são permitidos no multiplayer.|Reinstale para restaurar os arquivos originais.
+2781:Modificações não suportadas

@@ -34,12 +34,12 @@ MaxID:2804
 39:Tronc d'Arbre
 40:Pierre
 41:Planche
-42:Minerai Fer
-43:Minerai Or
+42:Minerai de Fer
+43:Minerai d'Or
 44:Charbon
 45:Fer
 46:Caisse d'Or
-47:Barrique Vin
+47:Barrique de Vin
 48:Blé
 49:Miche de Pain
 50:Farine
@@ -47,10 +47,10 @@ MaxID:2804
 52:Saucisse
 53:Porc Dépecé
 54:Peau
-55:Bouclier Bois
-56:Bouclier Long
-57:Armure Cuir
-58:Cuirasse
+55:Bouclier de Bois
+56:Bouclier de Fer
+57:Armure de Cuir
+58:Armure de Fer
 59:Hache
 60:Épée
 61:Lance
@@ -80,7 +80,7 @@ MaxID:2804
 87:Arbalétrier
 88:Lancier
 89:Hallebardier
-90:Cavalerie Légère
+90:Cav. Légère
 91:Chevalier
 92:Barbare
 93:Rebelle
@@ -89,34 +89,34 @@ MaxID:2804
 96:Vagabond
 97:Catapulte
 98:Baliste
-99:Les Serfs livrent les matières premières nécessaires à vos constructions.||Notez qu'il doit exister une route reliant les différents bâtiments.
-100:Pour obtenir les troncs d'arbres qui seront utilisés par la Scierie, il faut un Bûcheron.||Le Bûcheron assure par ailleurs le reboisement.
-101:Le Mineur extrait du Charbon, des minerais de Fer et d'Or dans les Mines.
-102:À la Porcherie et aux Écuries, l'Éleveur nourrit les bêtes avec du Blé.
-103:Le Paysan sème et récolte le Blé à la Ferme.||Il fait aussi du Vin dans le Chai.
-104:Le Charpentier travaille à la Scierie, à l'Atelier d'Armement et à l'Atelier d'Armures.||Il construit également des Catapultes et des Balistes dans l'Atelier de Siège.
-105:Le Boulanger cuit du pain au Fournil.||Il fait aussi de la Farine au Moulin.
-106:Le Charcutier fait des Saucisses à la Charcuterie et du Cuir à la Tannerie.
-107:Le Pêcheur pêche du poisson dans les eaux environnantes.
-108:Le Maçon construit des bâtiments et des routes. Sélectionnez simplement l'emplacement que vous avez choisi et il exécutera automatiquement vos ordres.||Il répare également les bâtiments endommagés.
-109:Afin de fournir suffisamment de Pierres à vos Maçons pour construire des routes et des bâtiments, le Tailleur de Pierres extrait des blocs de pierres et les taille.
-110:Les armures et les armes lourdes sont fabriquées par les Forgerons à la Forge d'Armures et à la Forge d'Armes.
-111:Le Métallurgiste produit des Caisses d'Or et des barres de Fer à partir du minerai extrait dans les Mines d'Or et de Fer.
-112:Dans l'enceinte du Château, la Recrue est équipée et entraînée.||Elle se poste également dans la Tour de Guet.
-147:Sélection des Bâtiments
+99:Les serfs livrent les matières premières nécessaires à vos constructions.||Notez qu'il doit exister une route reliant les différents bâtiments.
+100:Pour obtenir les troncs d'arbres qui seront utilisés par la scierie, il faut un bûcheron.||Le bûcheron assure par ailleurs le reboisement.
+101:Le mineur extrait du charbon, des minerais de fer et d'or dans les mines.
+102:À la porcherie et aux écuries, l'éleveur nourrit les bêtes avec du blé.
+103:Le paysan sème et récolte le blé à la ferme.||Il fait aussi du vin dans le chai.
+104:Le charpentier travaille à la scierie, à l'atelier d'armes et à l'atelier d'armures.||Il construit également des catapultes et des balistes dans l'atelier de siège.
+105:Le boulanger cuit du pain au fournil.||Il fait aussi de la farine au moulin.
+106:Le charcutier fait des saucisses à la charcuterie et du cuir à la tannerie.
+107:Le pêcheur pêche du poisson dans les eaux environnantes.
+108:Le maçon construit des bâtiments et des routes. Sélectionnez simplement l'emplacement que vous avez choisi et il exécutera automatiquement vos ordres.||Il répare également les bâtiments endommagés.
+109:Afin de fournir suffisamment de pierres à vos maçons pour construire des routes et des bâtiments, le tailleur de pierres extrait des blocs de pierres et les taille.
+110:Les armures et les armes lourdes sont fabriquées par les forgerons à la forge d'armures et à la forge d'armes.
+111:Le métallurgiste produit des caisses d'or et des barres de fer à partir du minerai extrait dans les mines d'or et de fer.
+112:Dans l'enceinte du château, la recrue est équipée et entraînée.||Elle se poste également dans la tour de guet.
+147:Sélection d'un Bâtiment
 148:Répartition des Matières Premières
 149:Statistiques
 150:Options
 151:Retour
-152:Sélection d'un|Bâtiment
-153:Répartition|des Matières|Premières
+152:Sélection|Bâtiment
+153:Répartition|Matières|Premières
 154:Statistiques
 155:Options
 156:Charger Partie
 157:Enregistrer Partie
 158:Êtes-vous sûr(e)|de vouloir quitter|cette mission ?
 159:Quitter la Mission
-160:Retour
+160:Annuler
 161:Paramètres
 162:Quitter la Mission
 163:Effets Sonores
@@ -172,7 +172,7 @@ MaxID:2804
 213:Centrer l'écran sur l'objet de ce message
 214:Fermer
 215:Refermer ce message
-216:|Votre Tailleur de Pierres ne peut plus rien tirer de cette Carrière.
+216:|Votre tailleur de pierres ne peut plus rien tirer de cette carrière.
 217:|Vos gisements de charbon sont épuisés.
 218:|Vos gisements de fer sont épuisés.
 219:|Vos gisements d'or sont épuisés.
@@ -271,7 +271,7 @@ MaxID:2804
 1731:Vous avez Perdu !
 1732:Continuer à Regarder
 1733:Défaite !
-1734:Le Replay est Terminé
+1734:Le replay est terminé
 1735:Continuer à Regarder
 1736:Quitter au Menu
 1737:Non disponible
@@ -279,7 +279,7 @@ MaxID:2804
 1739:Pour l'alliance
 1740:Infos sur les joueurs
 1741:Chat
-1742:Save. déjà existante
+1742:Fichier déjà existant
 1743:Écraser
 1744:Enregistrer
 1745:Charger
@@ -289,12 +289,12 @@ MaxID:2804
 1751:Connexion échouée : %s.
 1752:Vous vous êtes déconnecté.
 1753:Mission %d
-1754:|La Hutte de votre Pêcheur est trop éloignée de l'eau.
-1755:|Votre Pêcheur ne peut plus pêcher de poissons dans les eaux environnantes.
+1754:|La hutte de votre pêcheur est trop éloignée de l'eau.
+1755:|Votre pêcheur ne peut plus pêcher de poissons dans les eaux environnantes.
 1757:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
 1758:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
-1759:De : (x%d)
-1760:Contre : (x%d)
+1759:de x%d
+1760:à x%d
 1761:Édition du Terrain
 1762:Planification du Village
 1763:Scripts Visuels
@@ -334,12 +334,12 @@ MaxID:2804
 1797:Aléatoire
 1799:Aucune
 1802:Envoyer un Message :
-1803:Type de Carte :
+1803:Type de Mission :
 1804:Carte Solo
 1805:Partie Enregistrée
-1806:Sélect. une carte...
+1806:Sélect. une mission...
 1807:Sélect. une sauvegarde...
-1808:Informations sur la Carte :
+1808:Informations sur la Mission :
 1809:Joueurs : %d
 1810:Mode :
 1811:Conditions :
@@ -373,7 +373,7 @@ MaxID:2804
 1840:Erreur : Le chargement de la carte a échoué ou aucune carte n'a été sélectionnée.
 1841:Impossible de débuter : %s.
 1842:Tout le monde n'est pas prêt pour débuter.
-1843:Le nombre de joueurs dépasse la limite de la carte.
+1843:Le nombre de joueurs dépasse la limite de la mission.
 1844:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
 1845:Le Serveur vous a attribué les droits d'hébergement.
 1846:Augmenter le nombre d'échanges
@@ -381,13 +381,13 @@ MaxID:2804
 1848:Enregistrement de la partie...
 1849:%s a perdu !
 1850:EFFETS SONORES ADDITIONNELS :
-1851:Abandonner les Joueurs
-1852:L'hôte sera autorisé à abandonner les joueurs après %d secondes.
-1853:L'hôte est désormais autorisé à abandonner les joueurs.
+1851:Abandonner ces Joueurs
+1852:L'hôte sera autorisé à abandonner ces joueurs après %d secondes.
+1853:L'hôte est désormais autorisé à abandonner ces joueurs.
 1854:L'hôte (%s) a quitté.
 1855:La connexion vers le serveur a été perdue. Tentative de reconnexion...
 1856:Êtes-vous sûr(e) de vouloir quitter ?
-1857:Êtes-vous sûr(e) de vouloir abandonner les joueurs ?
+1857:Êtes-vous sûr(e) de vouloir abandonner ces joueurs ?
 1858:Annuler
 1859:Unités|formées
 1860:Unités|perdues
@@ -424,7 +424,7 @@ MaxID:2804
 1896:Nouvelle Mission
 1897:Une erreur est survenue lors de l'analyse du fichier %s.
 1898:Fermé
-1899:L'hôte configure les Joueurs
+1899:L'hôte configure les joueurs
 1901:unités
 1902:bâtiments
 1903:arbres
@@ -448,15 +448,15 @@ MaxID:2804
 2702:Sauvegarde non trouvée : %s
 2703:Le fichier de sauvegarde n'est pas le même que celui de l'hôte : %s
 2705:Veuillez mettre à jour votre pilote graphique pour obtenir une meilleure performance.
-2706:Une erreur s'est produite dans l'application. Veuillez cliquer sur Envoyer le Rapport du Bogue pour que nous puissions examiner ce problème. Merci pour votre aide !
-2707:Envoyer le Rapport du Bogue
+2706:Une erreur s'est produite dans l'application. Veuillez cliquer sur Envoyer le Rapport de Bug pour que nous puissions examiner ce problème. Merci pour votre aide !
+2707:Envoyer le Rapport de Bug
 2708:Afficher les Données Brutes
-2709:Le replay a échoué à une vérification de consistance. C'est un bogue connu qui affecte la lecture de plusieurs replays. Voulez-vous continuer à le regarder ?
+2709:Le replay a échoué à une vérification de consistance. C'est un bug connu qui affecte la lecture de plusieurs replays. Voulez-vous continuer à le regarder ?
 2710:Votre nom : (optionnel)
 2711:Votre email : (optionnel)
 2712:Se souvenir de moi
-2713:Dans quelle situation l'erreur se produit-elle ? Pouvez-vous fournir toute information supplémentaire ?
-2714:Joindre une capture d'écran au rapport du bogue
+2713:Dans quelle situation l'erreur se produit-elle ? Pouvez-vous fournir toute information supplémentaire ? (en anglais de préférence)
+2714:Joindre une capture d'écran au rapport de bug
 2715:(cliquez pour modifier l'image)
 2716:Quitter l'Application
 2717:Reprendre l'Application
@@ -466,7 +466,59 @@ MaxID:2804
 2721:Détails de Contact
 2722:Détails de l'Erreur
 2723:Capture d'écran
-2724:Envoi du rapport du bogue...
+2724:Envoi du rapport de bug...
 2725:Connexion au serveur...
 2726:Envoi des données...
-2727:L'envoi du rapport du crash a échoué ! Notre serveur peut être occupé, veuillez réessayer l'envoi à nouveau.
+2727:L'envoi du rapport de crash a échoué ! Notre serveur était peut-être occupé, veuillez réessayer l'envoi à nouveau.
+2728:Information
+2729:Veuillez patienter un moment...
+2730:Campagnes
+2731:Campagnes Personnalisées :
+2732:Débuter !
+2734:Soldats|éliminés
+2736:Titre
+2737:Cartes
+2738:Débloquées
+2739:Temps
+2740:Répétition
+2741:Stopper
+2742:Reprendre
+2743:Avancer d"une frame
+2744:Suspendre
+2745:Vous ne pouvez qu'avoir une instance du jeu en mode multijoueur à la fois.
+2746:Replay Terminé
+2747:MUSIQUES ADDITIONNELLES :
+2748:Vous
+2749:Joueur %d
+2750:Armée
+2751:Unités
+2752:Bâtiments
+2753:Ressources
+2754:Ressources produites
+2755:Statistiques
+2756:Économie
+2757:Construit un bâtiment
+2758:Aplatit l'emplacement
+2759:Plante une vigne
+2760:Labour un champ
+2761:Construit une route
+2762:Délivre
+2763:Plante un arbre
+2764:Déplacement vers son bâtiment
+2765:Répare un bâtiment
+2766:Combat
+2767:Tire
+2768:Attaque un bâtiment
+2769:Déplacement vers l'auberge
+2770:Abat un arbre
+2771:Inoccupé
+2772:Mouvement
+2773:Charge
+2774:Pêche du poisson
+2775:Récolte des vignes
+2776:Récolte du blé
+2777:Sème du blé
+2778:Extrait de la pierre
+2779:Attaque
+2780:Les modifications du jeu ne sont pas autorisées en multijoueur.|Veuillez le réinstaller pour restaurer les fichiers originaux.
+2781:Modifications non supportées

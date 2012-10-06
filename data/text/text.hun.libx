@@ -455,7 +455,7 @@ MaxID:2804
 2710:A neved: (opcionális)
 2711:Az email címed: (opcionális)
 2712:Emlékezz rám
-2713:Milyen helyzetben történt a hiba? Meg tudnál adni további információkat?
+2713:Milyen helyzetben történt a hiba? Meg tudnál adni további információkat? (Lehetõleg angolul)
 2714:Képernyõmentés hozzáadása a hibajelentéshez
 2715:(kattints a kép szerkesztéséhez)
 2716:Alkalmazás Bezárása
@@ -472,3 +472,51 @@ MaxID:2804
 2727:A hibajelentés elküldése sikertelen! A szerverünk valószínûleg túlterhelt, kérlek próbáld meg újra.
 2728:Információ
 2729:Kérlek várj egy pillanatot...
+2730:Hadjáratok
+2731:Egyedi Hadjáratok
+2732:Hadjárat Indítása!
+2734:Katonák|legyõzött
+2736:Cím
+2737:Pályák
+2738:Feloldva
+2739:Idõ
+2740:Visszajátszás újraindítása
+2741:Kilépés a visszajátszásból
+2742:Megállított visszajátszás folytatása
+2743:1 egységet léptet elõre
+2744:Visszajátszás megállítása
+2745:Csak egyetlen példányt futtathatsz a játékból többjátékos módban egyszerre
+2746:Visszajátszás véget ért
+2747:TOVÁBBI ZENE:
+2748:Te
+2749:Játékos %d
+2750:Hadsereg
+2751:Lakosok
+2752:Házak
+2753:Nyersanyagok
+2754:Termelt nyersanyagok
+2755:Statisztika
+2756:Gazdaság
+2757:Házat épít
+2758:Ház területet egyenget
+2759:Szõlõtõkét ültet
+2760:Felássa a területet
+2761:Utat épít
+2762:Szállít
+2763:Fát ültet
+2764:Hazamegy
+2765:Házat javít
+2766:Harcol
+2767:Tüzel
+2768:Házat támad
+2769:Enni megy
+2770:Fát vág
+2771:Várakozik
+2772:Megy
+2773:Rohamoz
+2774:Halászik
+2775:Szõlõt szüretel
+2776:Gabonát arat
+2777:Gabonát ültet
+2778:Követ bányász
+2779:Támad

@@ -455,7 +455,7 @@ MaxID:2804
 2710:Twoje imiê: (opcjonalnie)
 2711:Twój email: (opcjonalnie)
 2712:Zapamiêtaj mnie
-2713:W jakiej sytuacji wystêpuje b³¹d? Mo¿esz podaæ dodatkowe informacje?
+2713:W jakiej sytuacji wystêpuje b³¹d? Mo¿esz podaæ dodatkowe informacje? (preferowany agielski)
 2714:Do³¹cz zrzut ekranu do raportu o b³êdzie
 2715:(kliknij, aby edytowaæ obraz)
 2716:Zakoñcz Aplikacjê
@@ -472,12 +472,51 @@ MaxID:2804
 2727:Wysy³anie raportu o awarii nie powiod³o siê! Nasz serwer mo¿e byæ zajêty, proszê spróbowaæ wys³aæ go ponownie.
 2728:Informacja
 2729:Proszê czekaæ...
-2757:Konstruowanie budynku
-2758:Wyrównywanie placu budowy
-2759:Sadzenie winoroœli
+2730:Kampanie
+2731:Zarz¹dzanie Kampaniami
+2732:Zacznij Kampaniê
+2734:¯o³nierze|pokonani
+2736:Tytu³
+2737:Mapy
+2738:Odblokowane
+2739:Czas
+2740:Uruchom ponownie powtórkê
+2741:Zamknij powtórkê
+2742:Wznów wstrzyman¹ powtórkê
+2743:Jeden krok do przodu
+2744:Wstrzymaj powtórkê
+2745:Mo¿esz mieæ tylko jedn¹ otwart¹ grê w trybie wieloosobowym naraz.
+2746:Powtórka zakoñczona
+2747:DODATKOWA MUZYKA:
+2748:Ty
+2749:Gracz %d
+2750:Armia
+2751:Mieszkañcy
+2752:Domy
+2753:Surowce
+2754:Wyprodukowane surowce
+2755:Statystyki
+2756:Ekonomia
+2757:Budowanie domu
+2758:Wyrównywanie terenu pod dom
+2759:Konstruowanie winnicy
 2760:Kopanie pola
 2761:Budowanie drogi
 2762:Dostarczanie
-2764:Na drodze do domu
-2765:Naprawianie budynku
-2769:Na drodze do gospody
+2763:Sadzienie drzewa
+2764:Idzie do domu
+2765:Naprawianie domu
+2766:Walczenie
+2767:Strzelanie
+2768:Atakowanie domu
+2769:Idzie do gospody
+2770:Œcinanie drzewa
+2771:Odpoczynek
+2772:Idzie
+2773:Szturmowanie
+2774:£owienie
+2775:Zbieranie winogron
+2776:Zbieranie zbo¿a
+2777:Sianie zbo¿a
+2778:Wydobywanie kamienia
+2779:Atakowanie

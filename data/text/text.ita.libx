@@ -119,7 +119,7 @@ MaxID:2804
 160:Indietro
 161:Impostazioni
 162:Abbandona
-163:SFX
+163:Effetti Sonori
 164:Cambia il volume
 165:Musica
 166:Musica sì/no
@@ -419,7 +419,7 @@ MaxID:2804
 1889:Tempo di pace (min.)
 1890:Formato %s non supportato
 1891:Versione %s non supportata
-1893:inizializzando
+1893:inizializzazione
 1895:script
 1896:Nuova Missione
 1897:Si è verificato un errore durante l'analisi del file %s
@@ -455,7 +455,7 @@ MaxID:2804
 2710:Il tuo nome: (facoltativo)
 2711:La tua email: (facoltativo)
 2712:Ricordati di me
-2713:In che situazione si è verificato l'errore? Potresti fornire informazioni aggiuntive?
+2713:In che situazione si è verificato l'errore? Potresti fornire informazioni aggiuntive? (preferibilmente in Inglese)
 2714:Allega uno screenshot alla segnalazione
 2715:(clicca per modificare l'immagine)
 2716:Termina applicazione
@@ -472,3 +472,51 @@ MaxID:2804
 2727:Invio della segnalazione fallito! Il nostro server potrebbe essere occupato; per favore, prova ad inviarla nuovamente.
 2728:Informazioni
 2729:Per favore, attendi un momento...
+2730:Campagne
+2731:Campagne Personalizzate
+2732:Avvia la Campagna!
+2734:Soldati|sconfitti
+2736:Titolo
+2737:Mappe
+2738:Sbloccata
+2739:Tempo
+2740:Riavvia replay
+2741:Termina replay
+2742:Riprendi replay
+2743:Avanza di un fotogramma
+2744:Interrompi replay
+2745:Una sola sessione di gioco per volta può essere avviata in modalità multiplayer
+2746:Replay terminato
+2747:MUSICA ADDIZIONALE
+2748:Tu
+2749:Giocatore %d
+2750:Esercito
+2751:Civili
+2752:Edifici
+2753:Risorse
+2754:Risorse prodotte
+2755:Statistiche
+2756:Economia
+2757:Costruisce
+2758:Prepara le fondamenta
+2759:Impianta un vigneto
+2760:Ara un campo
+2761:Pavimenta una strada
+2762:Trasporta della merce
+2763:Pianta un albero
+2764:Va a casa
+2765:Ripara
+2766:Combatte
+2767:Tira
+2768:Attacca un edificio
+2769:Va alla mensa
+2770:Taglia un albero
+2771:Inattivo
+2772:Si sposta
+2773:Carica il nemico
+2774:Pesca
+2775:Raccoglie l'uva
+2776:Miete il grano
+2777:Pianta il grano
+2778:Scava la roccia
+2779:Attacca

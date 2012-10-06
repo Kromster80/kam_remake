@@ -177,7 +177,7 @@ MaxID:2804
 218:|Vaše ily so eleznou rudou sú vyèerpané.
 219:|Vaše zlaté ily sú vyèerpané.
 220:|Táto budova nie je obıvaná.
-221:|Tento vojak je skutoène hladnı. Bolo by lepšie mu da|ve¾mi skoro nieèo zajes!
+221:|Tento vojak je skutoène hladnı.|Mal by dosta èo najrıchlejšie nieèo zajes!
 222:PAUZA
 223:Zmena hlasitosti
 224:Zapnú/Vypnú dodávku tovaru
@@ -497,3 +497,26 @@ MaxID:2804
 2754:Vyprodukované suroviny
 2755:Štatistiky
 2756:Ekonomika
+2757:Vıstavba budovy
+2758:Nivelizácia pôdy pre dom
+2759:Stavba vynièného po¾a
+2760:Okopávanie po¾a
+2761:Vıstavba cesty
+2762:Plnenie
+2763:Sadenie stromu
+2764:Idem domov
+2765:Oprava budovy
+2766:Bojovanie
+2767:Horenie
+2768:Útok na dom
+2769:Idem do hostinca
+2770:Pílenie stromu
+2771:Lenivı
+2772:Presun
+2773:Bleskovı útok
+2774:Rybolov
+2775:Zber hrozna
+2776:Zber kukurice
+2777:Siatie kukurice
+2778:aba kameòa
+2779:Útoèenie

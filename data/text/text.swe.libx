@@ -25,7 +25,7 @@ MaxID:2804
 21:Kasern
 22:Väderkvarn
 23:Belägringsverkstad
-24:Slaktare
+24:Slakteri
 25:Garveri
 26:Träningshall
 27:Värdshus
@@ -177,7 +177,7 @@ MaxID:2804
 218:|En järnådra är tömd.
 219:|En guldådra är tömd.
 220:|Detta hus har ingen ägare.
-221:|Truppen är utsvulten, det är bäst att de får nåt att äta snart!
+221:|Den här truppen är utsvulten, det är bäst att de får nåt att äta snart!
 222:PAUS
 223:Ändra volym
 224:Sätt på/stäng av leveranser
@@ -448,6 +448,75 @@ MaxID:2804
 2702:Hittar inte sparningen: %s
 2703:Sparfilen stämmer inte överens med värdens fil: %s
 2705:Var god uppdatera dina grafikkortsdrivrutiner för bättre prestanda
+2706:Ett fel uppstod i programmet. Var vänlig klicka på Skicka Buggrapport så att vi kan undersöka saken. Tack för hjälpen!
+2707:Skicka Buggrapport
+2708:Visa Rå Data
+2709:Reprisen misslyckades vid en konsistenskontroll. Detta är en känd bugg som påverkar återspelande av vissa repriser. Vill du titta vidare?
 2710:Ditt namn: (valfritt)
 2711:Din e-post: (valfritt)
+2712:Kom ihåg mig
+2713:I vilken situation uppstod felet? Finns det någon mer information att ge? (Helst på engelska)
+2714:Bifoga en skärmdump till buggrapporten
+2715:(klicka för att editera bilden)
+2716:Avsluta programmet
+2717:Återuppta programmet
+2718:Nästa
+2719:Skicka rapporten
+2720:Avbryt
+2721:Kontaktuppgifter
+2722:Feldetaljer
+2723:Skärmdump
+2724:Skickar buggrapport...
+2725:Kopplar upp mot servern...
+2726:Skickar data...
+2727:Lyckades inte skicka kraschrapporten! Vår server kan eventuellt vara upptagen, försök igen.
+2728:Information
+2729:Var god dröj ett ögonblick...
+2730:Kampanjer
+2731:Egna kampanjer
+2732:Starta kampanj!
+2734:Besegrade|soldater
+2736:Titel
+2737:Kartor
+2738:Upplåst
+2739:Tid
+2740:Starta om reprisen
+2741:Avsluta reprisen
+2742:Återuppta reprisen
+2743:Gå 1 steg framåt
+2744:Pausa reprisen
+2745:Du kan bara ha en instans av spelet igång i flerspelarläge i taget
+2746:Slut på repris
 2747:YTTERLIGARE MUSIK:
+2748:Du
+2749:Spelare %d
+2750:Armé
+2751:Invånare
+2752:Hus
+2753:Resurser
+2754:Producerade resurser
+2755:Statistik
+2756:Ekonomi
+2757:Bygger hus
+2758:Jämnar ut husgrund
+2759:Bygger vinfält
+2760:Gräver åker
+2761:Bygger väg
+2762:Levererar
+2763:Planterar träd
+2764:På väg hem
+2765:Reparerar hus
+2766:Slåss
+2767:Skjuter
+2768:Attackerar hus
+2769:På väg till värdshus
+2770:Hugger träd
+2771:Ledig
+2772:Går
+2773:Stormattack
+2774:Fiskar
+2775:Skördar druvor
+2776:Skördar säd
+2777:Sår säd
+2778:Hugger sten
+2779:Attackerar

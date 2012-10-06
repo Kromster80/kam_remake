@@ -312,7 +312,7 @@ MaxID:2804
 1775:Spieler
 1776:Ping
 1777:Aktualisiere Serverliste
-1778:SERVERDETAILS
+1778:SERVER DETAILS
 1779:Spielerliste:
 1780:Adresse
 1781:Port
@@ -328,7 +328,7 @@ MaxID:2804
 1791:Bereit
 1792:Ping
 1793:Kick
-1794:Öffnen
+1794:Anzeigen
 1795:Computer
 1796:Wähle...
 1797:Zufällig
@@ -348,7 +348,7 @@ MaxID:2804
 1815:Start!
 1816:Warte auf Spieler:
 1817:KaM Remake Credits
-1818:Ursprünglichel Knights & Merchants Credits
+1818:Original Knights & Merchants Credits
 1819:PROGRAMMIERUNG:
 1820:WEITERE PROGRAMMIERUNG:
 1821:WEITERE GRAFIKEN:
@@ -416,14 +416,14 @@ MaxID:2804
 1886:Truppe trennen ('%s')
 1887:Replays
 1888:Replay anzeigen
-1889:Friedenszeit (Min.):
+1889:Friedenszeit (in Minuten):
 1890:Nicht unterstütztes Format %s!
 1891:Nicht unterstützte Version %s!
 1893:Initialisierung
 1895:Skript
 1896:Neue Mission
 1897:Ein Fehler trat während der Syntaxanalyse in Datei %s auf.
-1898:Geschlossen
+1898:Leer
 1899:Host übernimmt Spieler Setup.
 1901:Einheiten
 1902:Gebäude
@@ -472,3 +472,50 @@ MaxID:2804
 2727:Der Bug Report konnte nicht gesendet werden! Unsere Server scheinen alle überlastet zu sein. Bitte versuche es später erneut.
 2728:Information
 2729:Bitte gedulde Dich einen Augenblick...
+2730:Kampagnen
+2731:Übersicht Kampagnen
+2732:Starte Kampagne!
+2734:Soldaten|besiegt
+2736:Titel
+2737:Missionen
+2738:Freigeschaltet
+2739:Zeit
+2740:Starte Replay neu
+2741:Replay beenden
+2742:Replay fortsetzen
+2744:Replay pausieren
+2745:Du kannst nur eine Instanz des Spiels im Multiplayer starten.
+2746:Replay beendet
+2747:ZUSÄTZLICHE MUSIK:
+2748:Du
+2749:Spieler %d
+2750:Armee
+2751:Bürger
+2752:Gebäude
+2753:Ressourcen
+2754:Produzierte Ressourcen
+2755:Statistiken
+2756:Wirtschaft
+2757:Errichtet Gebäude.
+2758:Planiert Baustelle.
+2759:Errichtet Weinfeld.
+2760:Pflügt Weinfeld.
+2761:Legt Straße an.
+2762:Beliefert.
+2763:Pflanzt Baum
+2764:Geht nach Hause.
+2765:Repariert Gebäude.
+2766:Kämpft.
+2767:Schießt.
+2768:Attackiert Gebäude.
+2769:Geht ins Wirtshaus.
+2770:Fällt Bäume.
+2771:Ruht sich aus.
+2772:In Bewegung.
+2773:Sturmangriff
+2774:Am Fischen.
+2775:Erntet Weinbeeren.
+2776:Erntet Weizen.
+2777:Säet Korn.
+2778:Baut Granit ab.
+2779:Attackiert.

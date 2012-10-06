@@ -1,6 +1,7 @@
 //Code, Title,                Codepage, FlagSpriteID, Fallback Locale, TranslatorCredit
 
-ptb,    Brazilian Portuguese, 1252,     48,           ,                Vinycius Maia
+bel,    Belarusian,           1251,     71,           ,                Mik0
+ptb,    Brazilian Portuguese, 1252,     48,           ,                |Vinycius Maia & Edson Hoffmann Junior
 bul,    Bulgarian,            1251,     58,           ,                Christian & Boyan
 chn,    Chinese,              1252,     69,           ,                [CN] Team
 cze,    Czech,                1250,     49,           svk,             Jolinar_CZ & Milan Molnar
