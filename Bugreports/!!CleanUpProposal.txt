@@ -7,5 +7,7 @@ My proposal is to create spreadsheets in xls (prefered) or ods to store data reg
 5. Authors of the idea
 6. Contributors/developers working on the topic
 
+Above will give us a good history of changes - unified and stored in one place. 
+
 Please give comms about that, 
 Cheers
