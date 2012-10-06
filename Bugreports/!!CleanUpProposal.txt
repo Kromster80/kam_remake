@@ -1,0 +1,11 @@
+Krom & Lewin / Marcin
+My proposal is to create spreadsheets in xls (prefered) or ods to store data regarding:
+1. Scope
+2. Progress
+3. Plans
+4. Dates of modification
+5. Authors of the idea
+6. Contributors/developers working on the topic
+
+Please give comms about that, 
+Cheers
