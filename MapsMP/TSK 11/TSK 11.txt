@@ -1,0 +1,4 @@
+SetCoop
+
+BigDesc
+Mission 11 from The Shattered Kingdom campaign converted for co-operative by andreus.||Locations:|HUMAN TEAM 1:|1,5|AI TEAM 2:|2,3,4||You MUST use this setup exactly for the mission to work properly.

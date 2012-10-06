@@ -1,0 +1,4 @@
+SetCoop
+
+BigDesc
+Team 1 players:| Location 1, 2, 3.||Team 2 enemy AI:| Location 4, 5, 6.||Made by Creations

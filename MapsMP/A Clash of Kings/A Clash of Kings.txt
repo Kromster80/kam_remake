@@ -1,3 +1,3 @@
 SetCoop
 BigDesc
-First you must defeat the computer opponent and later the human players! To reach the opposing human team you must fight through a strong fortress. This map is difficult!||Important: Play with no peacetime!||Teams must be:|Team 1 (AI):|- Location 1|- Location 2|- Location 7||Team 2 (human):|- Location 3|- Location 4||Team 3 (human):|- Location 5|- Location 6||Made by PAKER TEAM:|(Luki, PAKER)
+First you must defeat the computer opponent and later the human players! To reach the opposing human team you must fight through a strong fortress. This map is difficult!||Important: Play with no peacetime!||Teams must be:|Team 1 (AI):|- Location 1|- Location 2|- Location 7||Team 2 (human):|- Location 3|- Location 4||Team 3 (human):|- Location 5|- Location 6||Made by PAKER TEAM:|(Woloszek, Luki, PAKER)

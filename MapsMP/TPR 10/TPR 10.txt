@@ -1,0 +1,4 @@
+SetCoop
+
+BigDesc
+Mission 10 from The Peasants Rebellion campaign converted for co-operative by andreus.||Locations:|HUMAN TEAM 1:|1,6|AI TEAM 2:|2,3,4,5,7||You MUST use this setup exactly for the mission to work properly.
