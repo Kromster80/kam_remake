@@ -1,4 +1,4 @@
-ï»¿Since r3392:
+Since r3392:
 <===================================================================================>
  +	Improved units/objects visibility along map edges
  +	Crash if you change locale and don't have OpenAL installed due to using non-blocking Application.MessageBox instead of MessageDlg
@@ -46,7 +46,7 @@
 	Clicking on the splash screen registers the click on the main menu once it is loaded
 	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
 	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
-	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800Ñ…600 .. 1366Ñ…768
+	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800?600 .. 1366?768
 	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
 	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window
 	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
@@ -75,7 +75,8 @@ Improvements:
  +	Add PlayerCount and Size columns to MapEd selection menu, as well allow to sort maps there
  +	Edges of messages and other scrolls should be transparent so they look smooth
  +	Clicking RMB in schools queue should cancel units on right
-	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
+ +   Added fish deposits	
+Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	The story message on campaign map should fade when you move mouse over it, without jumping
 	Mutltiplayer spectator mode
@@ -351,7 +352,7 @@ Fixed in r2039:
  +	When the host disconnected from a dedicated server, the next client is automatically assigned hosting rights
  +	Added in-game chat for multiplayer with an option to send only to your team
  +	Archers now have friendly fire, stray arrows can hit your own units/buildings
- +	The German LIBX (translation file) special characters like Ãœ,Ã¶,ÃŸ,Ã¼,Ã¤, etc. appeared incorrectly in the game (Ãœ = ÃƒÂœ, Ã¶ = ÃƒÂ¶, etc.)
+ +	The German LIBX (translation file) special characters like Ü,ö,ß,ü,ä, etc. appeared incorrectly in the game (Ü = ??, ö = ?¶, etc.)
  +	Arrow keys for scrolling could become "stuck" when using a victory/defeat screen appears or the game is paused
  +	AI did not attack unbuilt houses
  +	Bowmen are smarter about shooting after walking
