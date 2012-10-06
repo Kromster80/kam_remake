@@ -376,7 +376,7 @@ type
     procedure SetCursorPos(aPos: Integer);
     procedure SetText(aText: string);
     procedure ValidateText();
-    function KeyEventHandled(Key: Word): Boolean;
+    function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
   public
     Masked: Boolean; //Mask entered text as *s
     ReadOnly: Boolean;
@@ -1955,6 +1955,8 @@ begin
   SetCursorPos(Length(Text));
   ValidateText();
 end;
+
+
 //Validates fText basing on predefined sets of allowed or disallowed chars
 //It iterates from end to start of a string - deletes chars and moves cursor appropriately
 procedure TKMEdit.ValidateText();
@@ -1977,8 +1979,10 @@ begin
         end;
     end;
 end;
+
+
 //Key events which have no effect should not be handled (allows scrolling while chat window open with no text entered)
-function TKMEdit.KeyEventHandled(Key: Word): Boolean;
+function TKMEdit.KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := True;
   if fText = '' then
@@ -1995,13 +1999,14 @@ begin
     end;
   //We want these keys to be ignored by chat, so game shortcuts still work
   if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
+  //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
+  if ssCtrl in Shift then Result := (Key in [Ord('C'), Ord('X'), Ord('V')]);
 end;
 
 
 function TKMEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
-
 begin
-  Result := KeyEventHandled(Key);
+  Result := KeyEventHandled(Key, Shift);
   if inherited KeyDown(Key, Shift) or ReadOnly then exit;
 
   //Clipboard operations
@@ -3283,7 +3288,8 @@ begin
   inherited;
 
   if (ssLeft in Shift)
-  and (InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible)))
+  and InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible))
+  and InRange(Y, Top + fHeader.Height*Byte(fHeader.Visible), Top + fHeader.Height*Byte(fHeader.Visible) + GetVisibleRows * fItemHeight - 1)
   then begin
     NewIndex := TopIndex + (Y - Top - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
 
