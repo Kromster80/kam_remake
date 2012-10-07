@@ -121,11 +121,23 @@ var
     begin
       fArea[R,Y,X] := AreaID;
       Inc(Count);
-      //Dont test diagonals to save time
-      if X-1 >= 0 then     FillArea(X-1, Y);  // Will work till map left edge
-      if Y-1 >= 0 then     FillArea(X, Y-1);  // If not goin outside map - step down
-      if Y+1 <= fTerrain.MapY-1 then FillArea(X, Y+1); //If not goin
-      if X+1 <= fTerrain.MapX-1 then FillArea(X+1, Y);
+      //We must test diagonals for at least fish since they can be taken from water through diagonals
+      if X-1 >= 0 then
+      begin
+        if Y-1 >= 0 then               FillArea(X-1, Y-1);
+                                       FillArea(X-1, Y);
+        if Y+1 <= fTerrain.MapY-1 then FillArea(X-1, Y+1);
+      end;
+
+      if Y-1 >= 0 then     FillArea(X, Y-1);
+      if Y+1 <= fTerrain.MapY-1 then FillArea(X, Y+1);
+
+      if X+1 <= fTerrain.MapX-1 then
+      begin
+        if Y-1 >= 0 then               FillArea(X+1, Y-1);
+                                       FillArea(X+1, Y);
+        if Y+1 <= fTerrain.MapY-1 then FillArea(X+1, Y+1);
+      end;
     end;
   end;
 var I,K,J: Integer;

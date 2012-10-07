@@ -1,5 +1,5 @@
 
-MaxID:2804
+MaxID:2809
 
 0:Sawmill
 1:Iron smithy
@@ -528,10 +528,15 @@ MaxID:2804
 2790:Unequalize (left click) / Flatten (right click)
 2792:Square-shaped brush
 2793:Circle-shaped brush
-2794:Slide to change brush slope // 1 - plateu ... 15 - peak
-2795:Slide to change brush size 
+2794:Slide to change brush slope: 1 = plateau ... 15 = peak
+2795:Slide to change brush size
 2797:Objects
 2798:Tiles
 2799:Brushes
 2800:Heights
-2804:Scroll to explore tiles, click to pick one.
+2804:Use right click to rotate the selected tile
+2805:Tick for randomized tile direction or use right click to rotate the selected tile
+2806:Random Direction
+2807:Size
+2808:Slope
+2809:Remove an object
