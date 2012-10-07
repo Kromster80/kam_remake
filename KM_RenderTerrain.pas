@@ -30,6 +30,7 @@ type
     procedure DoLighting;
     procedure DoWater(AnimStep: Integer);
     procedure DoShadows;
+    function VBOSupported:Boolean;
   public
     constructor Create;
     procedure Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar);
@@ -58,13 +59,21 @@ begin
 
   fTextG := TRender.GenTexture(256, 1, @pData[0], tf_RGBA8);
 
-  fUseVBO := GL_VERSION_1_5;
+  fUseVBO := VBOSupported;
 
   if fUseVBO then
   begin
     glGenBuffers(1, @fVtxShd);
     glGenBuffers(1, @fIndShd);
   end;
+end;
+
+
+function TRenderTerrain.VBOSupported:Boolean;
+begin
+  Result := Assigned(glGenBuffers)        and Assigned(glBindBuffer)    and Assigned(glBufferData) and
+            Assigned(glEnableClientState) and Assigned(glVertexPointer) and Assigned(glClientActiveTexture) and
+            Assigned(glTexCoordPointer)   and Assigned(glDrawElements)  and Assigned(glDisableClientState);
 end;
 
 
@@ -430,7 +439,7 @@ begin
   //VBO has proper vertice coords only for Light/Shadow
   //it cant handle 3D yet and because of FOW leaves terrain revealed, which is an exploit in MP
   //Thus we allow VBO only in 2D
-  fUseVBO := GL_VERSION_1_5 and not RENDER_3D;
+  fUseVBO := VBOSupported and not RENDER_3D;
 
   glPushAttrib(GL_DEPTH_BUFFER_BIT);
 

@@ -1,6 +1,7 @@
 ﻿Since r4001:
 <===================================================================================>
  +	Belarusian letter Ў had upper and lower case swapped in fonts
+ +	Intel 965/963 GPU does not comply with OGL 1.5 spec on VBOs, check Assigned instead of OGL version
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -28,7 +29,6 @@
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
-	Intel 965/963 GPU does not comply with OpenGL spec on VBOs, using ARB will fix it?: http://lwjgl.org/forum/index.php?topic=3021.0
 	Colored rectangle below cursor
 
 Improvements:
