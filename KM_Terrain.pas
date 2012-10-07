@@ -1175,8 +1175,8 @@ begin
       and (CanPlantTrees in Land[T.Y,T.X].Passability)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
-        if ObjectIsChopableTree(T, caAgeStomp) then
-          BestToPlant.AddEntry(T) //Prefer to dig out and plant on stomps to avoid cluttering whole area with em
+        if ObjectIsChopableTree(T, caAgeStump) then
+          BestToPlant.AddEntry(T) //Prefer to dig out and plant on stumps to avoid cluttering whole area with em
         else
           SecondBestToPlant.AddEntry(T); //Empty space and other objects that can be dug out (e.g. mushrooms) if no other options available
     end;
@@ -1355,8 +1355,8 @@ begin
   for I := 1 to Length(ChopableTrees) do
     if ChopableTrees[I, caAgeFull] = Land[Loc.Y,Loc.X].Obj then
     begin
-      Land[Loc.Y,Loc.X].Obj := ChopableTrees[I, caAgeStomp];                        //Set stump object
-      FallingTrees.AddEntry(Loc,ChopableTrees[I, caAgeFall], fAnimStep);  //along with falling tree
+      Land[Loc.Y,Loc.X].Obj := ChopableTrees[I, caAgeStump];             //Set stump object
+      FallingTrees.AddEntry(Loc,ChopableTrees[I, caAgeFall], fAnimStep); //along with falling tree
       fSoundLib.Play(sfx_TreeDown, Loc, True);
       Exit;
     end;
