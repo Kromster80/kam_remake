@@ -1017,16 +1017,20 @@ begin
         MapLoc := fTerrain.FlatToHeight(Depo.Location[R, I]);
         ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
 
-        //Paint the background
-        Shape_MatAmount.Width := 10 + 10 * Length(Label_MatAmount.Caption);
-        Shape_MatAmount.Left := ScreenLoc.X - Shape_MatAmount.Width div 2;
-        Shape_MatAmount.Top := ScreenLoc.Y - 10;
-        Shape_MatAmount.LineColor := DEPOSIT_COLORS[R];
-        Shape_MatAmount.Paint;
-        //Paint the label on top of the background
-        Label_MatAmount.Left := ScreenLoc.X;
-        Label_MatAmount.Top := ScreenLoc.Y - 7;
-        Label_MatAmount.Paint;
+        //At extreme zoom coords may become out of range of SmallInt used in controls painting
+        if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
+        begin
+          //Paint the background
+          Shape_MatAmount.Width := 10 + 10 * Length(Label_MatAmount.Caption);
+          Shape_MatAmount.Left := ScreenLoc.X - Shape_MatAmount.Width div 2;
+          Shape_MatAmount.Top := ScreenLoc.Y - 10;
+          Shape_MatAmount.LineColor := DEPOSIT_COLORS[R];
+          Shape_MatAmount.Paint;
+          //Paint the label on top of the background
+          Label_MatAmount.Left := ScreenLoc.X;
+          Label_MatAmount.Top := ScreenLoc.Y - 7;
+          Label_MatAmount.Paint;
+        end;
       end;
     Label_MatAmount.Hide; //Only make it visible while we need it
     Shape_MatAmount.Hide;
@@ -1047,19 +1051,21 @@ begin
         MapLoc := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.DefencePositions[K].Position.Loc));
         ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
 
-        //Paint the background
-        Shape_DefencePos.Width := 10 + 10 * Length(Label_DefencePos.Caption);
-        Shape_DefencePos.Left := ScreenLoc.X - Shape_DefencePos.Width div 2;
-        Shape_DefencePos.Top := ScreenLoc.Y - 10;
-        Shape_DefencePos.FillColor := DefColor[fPlayers[I].AI.DefencePositions[K].DefenceType];
-        Shape_DefencePos.Paint;
-        //Paint the label on top of the background
-        Label_DefenceID.Left := ScreenLoc.X;
-        Label_DefenceID.Top := ScreenLoc.Y - 22;
-        Label_DefenceID.Paint;
-        Label_DefencePos.Left := ScreenLoc.X;
-        Label_DefencePos.Top := ScreenLoc.Y - 7;
-        Label_DefencePos.Paint;
+        if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
+        begin
+          //Paint the background
+          Shape_DefencePos.Width := 10 + 10 * Length(Label_DefencePos.Caption);
+          Shape_DefencePos.Left := ScreenLoc.X - Shape_DefencePos.Width div 2;
+          Shape_DefencePos.Top := ScreenLoc.Y - 10;
+          Shape_DefencePos.Paint;
+          //Paint the label on top of the background
+          Label_DefenceID.Left := ScreenLoc.X;
+          Label_DefenceID.Top := ScreenLoc.Y - 22;
+          Label_DefenceID.Paint;
+          Label_DefencePos.Left := ScreenLoc.X;
+          Label_DefencePos.Top := ScreenLoc.Y - 7;
+          Label_DefencePos.Paint;
+        end;
       end;
     //Only make it visible while we need it
     Label_DefenceID.Hide;

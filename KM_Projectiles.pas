@@ -261,7 +261,7 @@ begin
               pt_SlingRock,
               pt_Bolt:      if (U <> nil) and not U.IsDeadOrDying and U.Visible and not (U is TKMUnitAnimal)
                             //Can't hit units past max range because that's unintuitive/confusing to player
-                            and (GetLength(fShotFrom, U.PositionF) <= fMaxLength) then
+                            and (KMLengthSqr(fShotFrom, U.PositionF) <= Sqr(fMaxLength)) then
                             begin
                               Damage := 0;
                               if fType = pt_Arrow then Damage := fResource.UnitDat[ut_Bowman].Attack;
