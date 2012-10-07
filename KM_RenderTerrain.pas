@@ -33,6 +33,7 @@ type
     function VBOSupported:Boolean;
   public
     constructor Create;
+    destructor Destroy; override;
     procedure Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
   end;
@@ -69,11 +70,27 @@ begin
 end;
 
 
+destructor TRenderTerrain.Destroy;
+begin
+  fUseVBO := VBOSupported; //Could have been set to false if 3D rendering is enabled, so reset it
+  if fUseVBO then
+  begin
+    //Since RenderTerrain is created fresh everytime fGame is created, we should clear
+    //the buffers to avoid memory leaks.
+    glDeleteBuffers(1, @fVtxShd);
+    glDeleteBuffers(1, @fIndShd);
+  end;
+  Inherited;
+end;
+
+
 function TRenderTerrain.VBOSupported:Boolean;
 begin
+  //Some GPUs don't comply with OpenGL 1.5 spec on VBOs, so check Assigned instead of GL_VERSION_1_5
   Result := Assigned(glGenBuffers)        and Assigned(glBindBuffer)    and Assigned(glBufferData) and
             Assigned(glEnableClientState) and Assigned(glVertexPointer) and Assigned(glClientActiveTexture) and
-            Assigned(glTexCoordPointer)   and Assigned(glDrawElements)  and Assigned(glDisableClientState);
+            Assigned(glTexCoordPointer)   and Assigned(glDrawElements)  and Assigned(glDisableClientState) and
+            Assigned(glDeleteBuffers);
 end;
 
 
