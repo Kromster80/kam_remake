@@ -188,6 +188,15 @@ uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse;
 const
   LENGTH_INC = 32; //Increment array lengths by this value
   BID_MODIF = 5; //Modificator for every next assigned worker
+  MAX_WORKERS: array[THouseType] of Byte = (
+  0,0, //ht_None, ht_Any
+  8, {ht_ArmorSmithy}  8,{ht_ArmorWorkshop}  8, {ht_Bakery}      12,{ht_Barracks}      8, {ht_Butchers}
+  6, {ht_CoalMine}     8,{ht_Farm}           7, {ht_FisherHut}   3, {ht_GoldMine}      10,{ht_Inn}
+  4, {ht_IronMine}     8,{ht_IronSmithy}     10,{ht_Marketplace} 8, {ht_Metallurgists} 8, {ht_Mill}
+  6, {ht_Quary}        8,{ht_Sawmill}        10,{ht_School}      8, {ht_SiegeWorkshop} 10,{ht_Stables}
+  10,{ht_Store}        8,{ht_Swine}          8, {ht_Tannery}     10,{ht_TownHall}      6, {ht_WatchTower}
+  8, {ht_WeaponSmithy} 8,{ht_WeaponWorkshop} 8, {ht_Wineyard}    6  {ht_Woodcutters}
+  );
 
 
 {TKMHouseList}
@@ -234,6 +243,7 @@ begin
   aBid := MaxSingle;
   for I := fHousesCount - 1 downto 0 do
   if (fHouses[i].House <> nil) and fHouses[i].House.CheckResToBuild
+  and (fHouses[I].Assigned < MAX_WORKERS[fHouses[i].House.HouseType])
   and aWorker.CanWalkTo(KMPointBelow(fHouses[i].House.GetEntrance), 0)
   then
   begin
@@ -1252,7 +1262,8 @@ begin
   end
   else
     for I := 0 to fHouseList.fHousesCount - 1 do
-      if (fHouseList.fHouses[i].House <> nil) and fHouseList.fHouses[i].House.CheckResToBuild then
+      if (fHouseList.fHouses[i].House <> nil) and fHouseList.fHouses[i].House.CheckResToBuild
+      and(fHouseList.fHouses[I].Assigned < MAX_WORKERS[fHouseList.fHouses[i].House.HouseType]) then
       begin
         BestWorker := GetBestWorker(KMPointBelow(fHouseList.fHouses[I].House.GetEntrance));
         if BestWorker <> nil then fHouseList.GiveTask(I, BestWorker);
