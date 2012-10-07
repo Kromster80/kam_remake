@@ -1008,6 +1008,8 @@ begin
     Depo := fGame.MapEditor.Deposits;
     for R := Low(TRawDeposit) to High(TRawDeposit) do
       for I := 0 to Depo.Count[R] - 1 do
+      //Ignore water areas with 0 fish in them
+      if Depo.Amount[R, I] > 0 then
       begin
         Label_MatAmount.Caption := IntToStr(Depo.Amount[R, I]);
 

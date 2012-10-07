@@ -28,7 +28,7 @@ type
     function GetCount(aMat: TRawDeposit): Integer;
     function GetAmount(aMat: TRawDeposit; aIndex: Integer): Integer;
     function GetLocation(aMat: TRawDeposit; aIndex: Integer): TKMPointF;
-    function TileDepositExist(aMat: TRawDeposit; X,Y: Word): Boolean;
+    function TileDepositExists(aMat: TRawDeposit; X,Y: Word): Boolean;
     function TileDeposit(aMat: TRawDeposit; X,Y: Word): Byte;
     procedure FloodFill(const aMat: array of TRawDeposit);
     procedure RecalcAmounts(const aMat: array of TRawDeposit);
@@ -78,12 +78,12 @@ begin
 end;
 //Check whether deposit exist and do proper action
 //TileIsWater is used to make an area from whole water body - not only connected fish
-function TKMDeposits.TileDepositExist(aMat: TRawDeposit; X,Y: Word) : Boolean;
+function TKMDeposits.TileDepositExists(aMat: TRawDeposit; X,Y: Word) : Boolean;
 begin
-            if aMat = rdFish then
-            Result := fTerrain.TileIsWater(X+1,Y+1)
-            else
-            Result := TileDeposit(aMat,X,Y) > 0;
+  if aMat = rdFish then
+    Result := fTerrain.TileIsWater(KMPoint(X+1,Y+1))
+  else
+    Result := TileDeposit(aMat,X,Y) > 0;
 end;
 
 //Get tile resource deposit
@@ -97,11 +97,11 @@ begin
     rdIron:  Result := fTerrain.TileIsIron(X+1, Y+1);
     rdGold:  Result := fTerrain.TileIsGold(X+1, Y+1);
     rdFish:  begin
-                 curUnit := fTerrain.Land[Y + 1, X + 1].IsUnit;
-                 if (curUnit <> nil) and (curUnit is TKMUnitAnimal) then
-                     Result := TKMUnitAnimal(curUnit).FishCount
-                 else
-                     Result := 0;
+               curUnit := fTerrain.Land[Y + 1, X + 1].IsUnit;
+               if (curUnit <> nil) and (curUnit is TKMUnitAnimal) and (curUnit.UnitType = ut_Fish) then
+                 Result := 2*TKMUnitAnimal(curUnit).FishCount //You get 2 fish from each trip
+               else
+                 Result := 0;
              end
     else     Result := 0;
   end;
@@ -117,7 +117,7 @@ var
   procedure FillArea(X,Y: Word);
   begin
     //Untested area that matches passability
-    if (fArea[R,Y,X] = 0) and (TileDepositExist(R,X,Y)) then
+    if (fArea[R,Y,X] = 0) and (TileDepositExists(R,X,Y)) then
     begin
       fArea[R,Y,X] := AreaID;
       Inc(Count);
@@ -142,7 +142,7 @@ begin
     AreaID := 0;
     for I := 0 to fTerrain.MapY - 1 do
     for K := 0 to fTerrain.MapX - 1 do
-    if (fArea[R,I,K] = 0) and (TileDepositExist(R,K,I)) then
+    if (fArea[R,I,K] = 0) and (TileDepositExists(R,K,I)) then
     begin
       Inc(AreaID);
       Count := 0;
