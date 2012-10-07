@@ -222,7 +222,7 @@ begin
   fItems[I].fScreenEnd.Y := fTerrain.FlatToHeight(fItems[I].fTarget).Y + 0.5;
 
   fItems[I].fPosition := 0; //projectile position on its route
-  fItems[I].fLength   := KMLength(fItems[I].fScreenStart, fItems[I].fScreenEnd.X); //route length
+  fItems[I].fLength   := KMLength(fItems[I].fScreenStart, fItems[I].fScreenEnd); //route length
   fItems[I].fMaxLength:= aMaxLength;
 
   if (MyPlayer.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y, true) >= 255) then
