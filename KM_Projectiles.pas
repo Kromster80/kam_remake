@@ -193,42 +193,42 @@ end;
 { Return flight time (archers like to know when they hit target before firing again) }
 function TKMProjectiles.AddItem(aStart,aAim,aEnd:TKMPointF; aSpeed,aArc,aMaxLength:single; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
 const //TowerRock position is a bit different for reasons said below
-  OffsetX:array[TProjectileType] of single = (0.5,0.5,0.5,-0.25); //Recruit stands in entrance, Tower middleline is X-0.75
-  OffsetY:array[TProjectileType] of single = (0.2,0.2,0.2,-0.5); //Add towers height
+  OffsetX: array [TProjectileType] of Single = (0.5, 0.5, 0.5, -0.25); //Recruit stands in entrance, Tower middleline is X-0.75
+  OffsetY: array [TProjectileType] of Single = (0.2, 0.2, 0.2, -0.5); //Add towers height
 var
-  i:integer;
+  I: Integer;
 begin
-  i := -1;
+  I := -1;
   repeat
-    inc(i);
-    if i >= length(fItems) then
-      SetLength(fItems, i+8); //Add new
-  until(fItems[i].fSpeed = 0);
+    inc(I);
+    if I >= length(fItems) then
+      SetLength(fItems, I+8); //Add new
+  until(fItems[I].fSpeed = 0);
 
   //Fill in basic info
-  fItems[i].fType   := aProjType;
-  fItems[i].fSpeed  := aSpeed;
-  fItems[i].fArc    := aArc;
-  fItems[i].fOwner  := aOwner;
-  fItems[i].fAim    := aAim;
+  fItems[I].fType   := aProjType;
+  fItems[I].fSpeed  := aSpeed;
+  fItems[I].fArc    := aArc;
+  fItems[I].fOwner  := aOwner;
+  fItems[I].fAim    := aAim;
   //Don't allow projectile to land off map, (we use fTaret for hit tests, FOW, etc.) but on borders is fine
-  fItems[i].fTarget.X := EnsureRange(aEnd.X, 0, fTerrain.MapX-0.01);
-  fItems[i].fTarget.Y := EnsureRange(aEnd.Y, 0, fTerrain.MapY-0.01);
-  fItems[i].fShotFrom := aStart;
+  fItems[I].fTarget.X := EnsureRange(aEnd.X, 0, fTerrain.MapX-0.01);
+  fItems[I].fTarget.Y := EnsureRange(aEnd.Y, 0, fTerrain.MapY-0.01);
+  fItems[I].fShotFrom := aStart;
 
-  fItems[i].fScreenStart.X := aStart.X + OffsetX[aProjType];
-  fItems[i].fScreenStart.Y := fTerrain.FlatToHeight(aStart).Y + OffsetY[aProjType];
-  fItems[i].fScreenEnd.X := fItems[i].fTarget.X + 0.5; //projectile hits on Unit's chest height
-  fItems[i].fScreenEnd.Y := fTerrain.FlatToHeight(fItems[i].fTarget).Y + 0.5;
+  fItems[I].fScreenStart.X := aStart.X + OffsetX[aProjType];
+  fItems[I].fScreenStart.Y := fTerrain.FlatToHeight(aStart).Y + OffsetY[aProjType];
+  fItems[I].fScreenEnd.X := fItems[I].fTarget.X + 0.5; //projectile hits on Unit's chest height
+  fItems[I].fScreenEnd.Y := fTerrain.FlatToHeight(fItems[I].fTarget).Y + 0.5;
 
-  fItems[i].fPosition := 0; //projectile position on its route
-  fItems[i].fLength   := GetLength(fItems[i].fScreenStart.X - fItems[i].fScreenEnd.X, fItems[i].fScreenStart.Y - fItems[i].fScreenEnd.Y); //route length
-  fItems[i].fMaxLength:= aMaxLength;
+  fItems[I].fPosition := 0; //projectile position on its route
+  fItems[I].fLength   := KMLength(fItems[I].fScreenStart, fItems[I].fScreenEnd.X); //route length
+  fItems[I].fMaxLength:= aMaxLength;
 
   if (MyPlayer.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y, true) >= 255) then
     fSoundLib.Play(ProjectileLaunchSounds[aProjType], aStart);
 
-  Result := round(fItems[i].fLength / fItems[i].fSpeed);
+  Result := round(fItems[I].fLength / fItems[I].fSpeed);
 end;
 
 
