@@ -36,6 +36,7 @@ Improvements:
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
  +	The map editor shows the number of fish in a water body like other resource deposits
  +	Holding shift while placing a house keeps the house selected instead of changing to road
+ +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
 	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	The story message on campaign map should fade when you move mouse over it, without jumping
@@ -54,8 +55,27 @@ Improvements:
 	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
 	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
 	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
-	Allow host to set a title for his lobby shown in a column on the server selection page ("beginners/pros only", "fight map only", etc.)
+	Allow host to set a title for his lobby shown in a column on the server selection page ("noobs/pros only", "fight map only", "chat lobby", etc.)
 	Clicking a location on the lobby minimap selects that location if it's available
+
+	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams
+	M	Scrolling around the map using middle mouse click, as in TPR
+	M	Sliders in lobby for selecting speed during peacetime and after peacetime
+	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy) [Marcin]
+	M	Some way to visualise fog of war for the selected player in replays (and MapEd) (semi-transparent?) so you can understand player's perspective [Krom/Lewin]
+	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
+	M	Pause in multiplayer (only host can use it, maybe later have a lobby setting "clients may pause")
+	L	Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
+	L	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (saves entire game state which can be loaded) Using compression can keep the save file tiny.
+			Krom: Not sure how this will cope with 29hour games
+			Lewin: We can delete save points as the game goes longer. By the time we reach 29 hours we only keep save points from every 1-2 hours. For 90 minute games we keep one every 10 minutes.
+	L	Way to place roads/fields/destroyed buildings belonging to no player (for maps like Battle In The Ruined City where currently the roads don't always show depending on which locations are played) (maybe through special player like animals?
+	L	The close door button in a house also stops a new occupant from taking it, so you can make recruits go to the barracks instead of walking to watchtowers, and so you can prioritize for example which mines get occupied first. It should also block the "house not occupied" message.
+	LM	Place all the roads for all players, then all the houses for all players, then all the units for all players from the script, repositioning units that are on houses and do floodfill for houses once at the end rather than for each house
+	L	Changing teams in multiplayer
+			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
+	L	Clicking on a player inserts "/whisper PlayerName " into chat to send private message
+	M	Display material delivery progress for houses under construction
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

@@ -1,77 +1,57 @@
 Ideas that have not been decided. Should be moved to Bugslist.txt when a decision is made
 We can discuss them in dialog-style and maybe move to GC issues later on
 <===================================================================================>
-	The multiplayer in-game player list could be ordered (grouped) by teams
-		Krom: This seems rather minor feature, I dont have anything else against it
-	Scrolling around the map using middle mouse click, as in TPR
-		Krom: Don't have anything against it
-		Lewin: Me either
-	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
-		Krom: I would rather add x2 speedup to games setup
-	Show the mining radius of the selected house or house that you are placing
-		Krom: Idea is okay. We need to display mining "strength" (think coalmine) as well, in some nice way, also show ranges of all houses of the same king to allow player to plan his mining better (e.g. avoid overlaps). Iron/Gold don't need this mostly, but Coal/Fish/Towers - do.
-		Krom: Another note - mining radies should show effective range with regard to walking legth.
-		Lewin: Yes showing walking length shouldn't be a problem, we can use GetTilesWithinDistance and highlight the returned tiles. We'll need to "cache" the list so we don't call GetTilesWithinDistance every time we paint (or maybe 1-2ms doesn't matter so much?)
-	Gameplay mutators in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple mutators.
-	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
-		Krom: Easiest implementation seems to be floodfill from towns until areas make borders
-		Lewin: Agreed.
-	AI warriors should automatically engage enemies within 3-4 tiles (happens in KaM?)
-		Krom: 2 tiles seems quite enough to me
-	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
-		not sure about this one. Probably ruins balance and feel of KaM
-	New column in load/replays menus: Date/time (from file modified date?)
-		Krom: Think we can write/read the data to/from replay/save files as modified date is not very trustworthy
-		Lewin: Sounds good
-	Some way to visualise fog of war for the selected player in replays (and MapEd) (semi-transparent?) so you can understand player's perspective
-	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay)
-	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
-	When player leaves allow his allies to take control over his village and army
-	Try extending height to 0..255 rather than 0..100 so it's easier to have multiple "levels" on a map (e.g. plateau with a hill on it)
-		Krom: I disagree. This is not as simple as a matter of just extending it. We need to discuss
-	Make lobby flag selection using list of countries that speak that language. With English you could choose USA, UK, AU, NZ. With Spanish you could choose Spain, Argentina, Chille.
-		Lewin: Sounds ok. Means we need to include ~200 flags I guess, but with RXX packing that's no big problem.
-		Krom: Flag represents locale, language that the player can read/type, not an actual location.
-		Lewin: The problem is languages don't have flags, countries do. The best we can do is use the country of origin for the flag (e.g. Spain not Argentina, UK not US) Although people use the flag to assume where you are from.
-	Do not send a Recruit to WatchTower when Player has built it but did not connected it with road
-		Krom: I think that makes good sense. But if Player made 10 towers and 10 recruits and only then connected them with roads - will/should recruits walk from Barracks to Towers?
-		Lewin: The only case this can happen is when the player starts with the towers right? You can't build a house without connecting it to road. I think it's ok for the recruits to go to the towers, but stones definitely should not.
-	Pause button in multiplayer (only host can use it? Or majority of players must press it?)
-	Separate crash situations into gameplay (stop the game because recovery is impossible due to wrongful game state after unfinished UpdateState) and UI (where recovery is much more likely)
-	Add a button into MapEd to allow quickplay the map
-	Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
-	It doesn't make sense for sausages to be cheaper than bread in the market when sauasges are better food
-	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (saves entire game state which can be loaded) Using compression can keep the save file tiny.
-		Krom: Not sure how this will cope with 29hour games
-		Lewin: We can delete save points as the game goes longer. By the time we reach 29 hours we only keep save points from every 1-2 hours. For 90 minute games we keep one every 10 minutes.
-	Way to place roads/fields/destroyed buildings belonging to no player (for maps like Battle In The Ruined City where currently the roads don't always show depending on which locations are played)
-		Krom: Maybe we can assign them to animals player?
-	Value of resources at the market increases as you buy them and decreases as you sell them to prevent exploiting? (Age of Empires style)
-		Lewin: With peacetime of at least 1 hour I haven't heard of market exploits being more profitable than normal play
-		Krom: I think our prices are good as they are (just add some tweaks to bread/sausages cost)
-	Add soldiers counts to statistics page in game (take icons from MapEd)
-		Krom: That could be too much detail without real need
-	Allow dedicated server host to do announcements (e.g. server will be closed in 5min, plz save and quit)
-	Add shortcut keys to common messsages in MP (defend here, attack, check ur base, etc.)
-	Add fan-made section where fans could add LOLCat, Welsh, Simple English, Funny and other translations with fallback to existing locale
-	Way to make chat messages sent to only a specific player (could make it easier to play unfairly, e.g. in 1vs1vs1 two players could plan to destroy the other player)
-	Changing teams in multiplayer
-		Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
-	The close door button in a house also stops a new occupant from taking it, so you can make recruits go to the barracks instead of walking to watchtowers, and so you can prioritize for example which mines get occupied first. It should also block the "house not occupied" message.
-	Place all the roads for all players, then all the houses for all players, then all the units for all players from the script, repositioning units that are on houses and do floodfill for houses once at the end rather than for each house
+	L	Show the mining radius of the selected house or house that you are placing
+			Krom: Idea is okay. We need to display mining "strength" (think coalmine) as well, in some nice way, also show ranges of all houses of the same king to allow player to plan his mining better (e.g. avoid overlaps). Iron/Gold don't need this mostly, but Coal/Fish/Towers - do.
+			Krom: Another note - mining radies should show effective range with regard to walking legth.
+			Lewin: Yes showing walking length shouldn't be a problem, we can use GetTilesWithinDistance and highlight the returned tiles. We'll need to "cache" the list so we don't call GetTilesWithinDistance every time we paint (or maybe 1-2ms doesn't matter so much?)
+	L	Gameplay mutators in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple mutators.
+	L	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
+			Krom: Easiest implementation seems to be floodfill from towns until areas make borders
+			Lewin: Agreed.
+	L	AI warriors should automatically engage enemies within 3-4 tiles (happens in KaM?)
+			Krom: 2 tiles seems quite enough to me
+	L	Split network protocol (commands) into server-client level (queries, rooms, connecting, disconnecting) and game level (lobby, gameplay) [Lewin]
+			Relates to security and futureproofing
+	L	When player leaves allow his allies to take control over his village and army
+	L	Make lobby flag selection using list of countries that speak that language. With English you could choose USA, UK, AU, NZ. With Spanish you could choose Spain, Argentina, Chille.
+			Lewin: Sounds ok. Means we need to include ~200 flags I guess, but with RXX packing that's no big problem.
+			Krom: Flag represents locale, language that the player can read/type, not an actual location.
+			Lewin: The problem is languages don't have flags, countries do. The best we can do is use the country of origin for the flag (e.g. Spain not Argentina, UK not US) Although people use the flag to assume where you are from.
+	L	Add a button into MapEd to allow quickplay the map
+	L	Change army counts in charts and statistics to army power (e.g. knights worth more than militia)
+	L	Allow dedicated server host to do announcements (e.g. server will be closed in 5min, plz save and quit)
+	L	Add shortcut keys to common messsages in MP (defend here, attack, check ur base, etc.)
+
 	Warriors should remember their last attack order after a fight "ends", so if you ask cavalry to attack archers they do not stop and stand still as soon as the first one dies because the others are not within direct reach. Probably all orders should be remembered and resumed after a fight, so if you ask a warrior to move somewhere and he bumps into a bowman, after killing him he should continue on his way.
 	Select multiple saves at once to be deleted (click+drag or hold shift/ctrl)
 	Aggressive/defensive stances for soldiers, so they will attack a unit within a few tiles in aggressive mode and only start shooting when the enemy is close in defensive mode
 	Shortcuts for all soldier buttons: , & . to rotate, [ & ] to add/withdraw lines, x to charge, f for food?
 	Add a "seperate one unit from the group" button for scouting etc. (we can rearrange interface due to unused move/attack buttons)
 	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
-	Default height in map editor to 20-33 for new maps (and allow user to set it before making the new map?)
 	Clicking on player's name/flag in lobby opens a drop down menu with options like: kick, ban, promote to host
 	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
 	Settings page allows players to save their default resource slider options (minor feature)
 	Add pause to MP. Allow each player to ask for a 1-2min pause once per match, maybe elective?
-	Lobby command to add description to the server room (e.g. Chatting lobby, or NoNoobs)
-	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
 	Switch beacon from B to more convenient Alt+Click as in other RTS?
 	Rally point for the barracks
-	
+	If woodcutter is in "chop only" mode and he runs out of trees, send the player a message like other resource depleted messages
+	House not occupied message should mention which house it is ("This farm is not occupied")
+
+REJECTED:
+ -	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
+		not sure about this one. Probably ruins balance and feel of KaM
+ -	Try extending height to 0..255 rather than 0..100 so it's easier to have multiple "levels" on a map (e.g. plateau with a hill on it)
+		Krom: I disagree. This is not as simple as a matter of just extending it. We need to discuss
+ -	Do not send a Recruit to WatchTower when Player has built it but did not connected it with road
+		Krom: I think that makes good sense. But if Player made 10 towers and 10 recruits and only then connected them with roads - will/should recruits walk from Barracks to Towers?
+		Lewin: The only case this can happen is when the player starts with the towers right? You can't build a house without connecting it to road. I think it's ok for the recruits to go to the towers, but stones definitely should not.
+		Rejection reason: Map maker can fill towers with rocks at the start, so recruits are useful
+ -	Separate crash situations into gameplay (stop the game because recovery is impossible due to wrongful game state after unfinished UpdateState) and UI (where recovery is much more likely)
+ -	Value of resources at the market increases as you buy them and decreases as you sell them to prevent exploiting? (Age of Empires style)
+		Lewin: With peacetime of at least 1 hour I haven't heard of market exploits being more profitable than normal play
+		Krom: I think our prices are good as they are (just add some tweaks to bread/sausages cost)
+ -	Add soldiers counts to statistics page in game (take icons from MapEd)
+		Krom: That could be too much detail without real need
+ -	Add fan-made section where fans could add LOLCat, Welsh, Simple English, Funny and other translations with fallback to existing locale
+ 
