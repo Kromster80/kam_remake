@@ -1,4 +1,71 @@
-Since r3392:
+Since r4001:
+<===================================================================================>
+ +	Belarusian letter ? had upper and lower case swapped in fonts
+	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
+	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
+	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
+	Deliveries should use the actual walking route length (opposed to Radius)
+	AIs should retaliate when the arrow is in mid flight or when it lands, not while the archer is still aiming/firing
+	Archers behave badly when you tell them to attack directly (houses and units), and they should step backwards when too close
+	Make houses highlight red when about to erase them as trees/units do (in MapEd)
+	Replays sometimes end up with a mismatch while watching them, cause unknown
+	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
+	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
+	Players that have intentionally quit (not just disconnected) should count as defeated
+	Clicking on the splash screen registers the click on the main menu once it is loaded
+	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
+	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
+	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800x600 .. 1366x768
+	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
+	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
+	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
+	Few terrain tiles (4th, 14th) have noticeable seams on their side when looked closely at
+	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
+	Make Serfs face the house plan entrance when handing building materials to it
+	Chasing down archers even with knights is ineffective, knight starts to attack and archers keep stepping away, then the knight stops and just stands there
+	Opening chat or sending a message at the right moment during the reconnect cycle can cause a crash because Networking.MyIndex does not exist (or is not you) in NetPlayersList
+	Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
+
+	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
+	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
+	Colored rectangle below cursor
+
+Improvements:
+ wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
+ wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
+ +	The map editor shows the number of fish in a water body like other resource deposits
+ +	Holding shift while placing a house keeps the house selected instead of changing to road
+	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
+	Ctrl+C/V to copy chat messages with e.g. links or quotes
+	The story message on campaign map should fade when you move mouse over it, without jumping
+	Mutltiplayer spectator mode
+	256x256 icons for EXE (for vista/7/8 users)
+	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
+	Master server use MySQL for storage rather than .txt files
+	Chat logs
+	Wares need to be taken out of the barracks for trading at the market
+	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
+	Some way to delete multiplayer saves from within the KaM Remake
+	Keyboard shortcuts to zoom for people without a scrollwheel
+	Allow chat over multiplayer results screen
+	Add support for 1024x600 (1280x720) resolution in the map editor
+	Economic goals such as produce X amount of resource A
+	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
+	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
+	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
+	Allow host to set a title for his lobby shown in a column on the server selection page ("beginners/pros only", "fight map only", etc.)
+	Clicking a location on the lobby minimap selects that location if it's available
+
+ -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
+ -	The ingame briefing texture is too short, see attached picture
+ -	Serfs should take wares back or to suitable house if destination is destroyed
+ -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
+ - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
+ -	Many texts will not change if I change the language in options menu (we are always working on it)
+
+
+
+Fixed in r4001:
 <===================================================================================>
  +	Improved units/objects visibility along map edges
  +	Crash if you change locale and don't have OpenAL installed due to using non-blocking Application.MessageBox instead of MessageDlg
@@ -28,39 +95,16 @@ Since r3392:
  +	The map editor no longer removes the terrain data used by Krom's Map Editor, so you can use terrain brushes there after saving with the Remake
  +	Leaders of archers would sometimes not fire after walking, instead they would lock up and stand still
  +	Fixed some crashes/bugs in the Linux dedicated server
- +	You won't get a victory if you defeat enemy towns until after recieving all scripted text messages 
+ +	You won't get a victory if you defeat enemy towns until after recieving all scripted text messages
+ +	Crash when selecting a high refresh rate then selecting a resolution that only supports lower refresh rates
+ +	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
  +	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
  +	Flatten/equalise in the MapEd doesn't seem to work properly (like Krom's editor). Unequalise is ok.
- +	Heights look different on certain systems, see heights.jpg images and dxdiag report
-	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
-	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
-	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
-	Deliveries should use the actual walking route length (opposed to Radius)
-	AIs should retaliate when the arrow is in mid flight or when it lands, not while the archer is still aiming/firing
-	Archers behave badly when you tell them to attack directly (houses and units), and they should step backwards when too close
-	Make houses highlight red when about to erase them as trees/units do (in MapEd)
-	Replays sometimes end up with a mismatch while watching them, cause unknown
-	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
-	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
-	Players that have intentionally quit (not just disconnected) should count as defeated
-	Clicking on the splash screen registers the click on the main menu once it is loaded
-	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
-	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
-	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800x600 .. 1366x768
-	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
-	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window
-	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
-	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
-	Few terrain tiles (4th, 14th) have noticeable seams on their side when looked closely at
-	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
-	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
-	Colored rectangle below cursor
-	Make Serfs face the house plan entrance when handing building materials to it
+ +	Heights look different on certain systems, see heights.jpg images and dxdiag report (triangulation issue)
+
 
 Improvements:
  +	High quality alpha-blended shadows for houses
- wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
- wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
  +	Display charts in game results screens (army, wares count, etc.)
  +	Show the player's name above each group (flag holder) while 'T' key is kept pressed
  +	Non-fatal mission script errors will be shown on start
@@ -75,35 +119,6 @@ Improvements:
  +	Add PlayerCount and Size columns to MapEd selection menu, as well allow to sort maps there
  +	Edges of messages and other scrolls should be transparent so they look smooth
  +	Clicking RMB in schools queue should cancel units on right
- +	The map editor shows the number of fish in a water body like other resource deposits
-	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
-	Ctrl+C/V to copy chat messages with e.g. links or quotes
-	The story message on campaign map should fade when you move mouse over it, without jumping
-	Mutltiplayer spectator mode
-	256x256 icons for EXE (for vista/7/8 users)
-	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
-	Master server use MySQL for storage rather than .txt files
-	Chat logs
-	Wares need to be taken out of the barracks for trading at the market
-	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
-	Some way to delete multiplayer saves from within the KaM Remake
-	Keyboard shortcuts to zoom for people without a scrollwheel
-	Allow chat over multiplayer results screen
-	Add support for 1024x600 (1280x720) resolution in the map editor
-	Economic goals such as produce X amount of resource A
-	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
-	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
-	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
-	Allow host to set a title for his lobby shown in a column on the server selection page ("beginners/pros only", "fight map only", etc.)
-	Clicking a location on the lobby minimap selects that location if it's available
-	Holding shift while placing a house keeps the house selected instead of changing to road
-
- -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
- -	The ingame briefing texture is too short, see attached picture
- -	Serfs should take wares back or to suitable house if destination is destroyed
- -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
- - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
- -	Many texts will not change if I change the language in options menu (we are always working on it)
 
 
 
