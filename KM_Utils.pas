@@ -5,8 +5,8 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points;
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
-  function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer; out aTargetCanBeReached:boolean):TKMPoint;
-  function GetPositionFromIndex(aOrigin:TKMPoint; aIndex:byte):TKMPointI;
+  function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aI, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
+  function GetPositionFromIndex(aOrigin: TKMPoint; aIndex: Byte): TKMPointI;
 
   function MapNameToPath(const aMapName, aExtension:string; aIsMultiplayer:boolean):string;
   function FixDelim(const aString:string):string;
@@ -97,7 +97,7 @@ end;
 {$ENDIF}
 
 
-function KMGetCursorDirection(X,Y: integer): TKMDirection;
+function KMGetCursorDirection(X,Y: Integer): TKMDirection;
 var Ang, Dist: Single;
 begin
   Dist := GetLength(X, Y);
@@ -117,13 +117,13 @@ end;
 {Returns point where unit should be placed regarding direction & offset from Commanders position}
 // 23145     231456
 // 6789X     789xxx
-function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer; out aTargetCanBeReached:boolean):TKMPoint;
-const DirAngle:array[TKMDirection]of word =   (0,    0,    45,   90,   135,  180,   225,  270,   315);
-const DirRatio:array[TKMDirection]of single = (0,    1,  1.41,    1,  1.41,    1,  1.41,    1,  1.41);
-var PlaceX, PlaceY, ResultX, ResultY:integer;
+function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aI, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
+const DirAngle: array [TKMDirection] of Word =   (0,    0,    45,   90,   135,  180,   225,  270,   315);
+const DirRatio: array [TKMDirection] of Single = (0,    1,  1.41,    1,  1.41,    1,  1.41,    1,  1.41);
+var PlaceX, PlaceY, ResultX, ResultY: Integer;
 begin
-  Assert(aUnitPerRow>0);
-  if aI=1 then begin
+  Assert(aUnitPerRow > 0);
+  if aI = 1 then begin
     PlaceX := 0;
     PlaceY := 0;
   end else begin
@@ -133,8 +133,8 @@ begin
     PlaceY := (aI-1) div aUnitPerRow;
   end;
 
-  ResultX := OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
-  ResultY := OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
+  ResultX := OriginX + Round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
+  ResultY := OriginY + Round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
 
   aTargetCanBeReached := InRange(ResultX, 1, MapX-1) and InRange(ResultY, 1, MapY-1);
   //Fit to bounds
@@ -150,14 +150,15 @@ const
 //Ring#  1  2  3  4   5   6   7    8    9    10
         (0, 1, 9, 25, 49, 81, 121, 169, 225, 289);
 var
-  Ring, Span, Span2, Orig:byte;
-  Off1,Off2,Off3,Off4,Off5:byte;
+  Ring, Span, Span2, Orig: Byte;
+  Off1,Off2,Off3,Off4,Off5: Byte;
 begin
   //Quick solution
-  if aIndex=0 then begin
+  if aIndex = 0 then
+  begin
     Result.X := aOrigin.X;
     Result.Y := aOrigin.Y;
-    exit;
+    Exit;
   end;
 
   //Find ring in which Index is located

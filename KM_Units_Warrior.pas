@@ -704,26 +704,26 @@ begin
 end;
 
 
-function TKMUnitWarrior.IsRanged:boolean;
+function TKMUnitWarrior.IsRanged: Boolean;
 begin
   Result := fResource.UnitDat[fUnitType].FightType = ft_Ranged;
 end;
 
 
-function TKMUnitWarrior.FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
-var i,k:integer; FoundUnit:TKMUnit;
+function TKMUnitWarrior.FindLinkUnit(aLoc: TKMPoint): TKMUnitWarrior;
+var I,K: Integer; FoundUnit: TKMUnit;
 begin
   Result := nil;
 
   //Replacing it with fTerrain.UnitsHitTestWithinRad sounds plausible, but would require
   //to change input parameters to include TKMUnitWarrior, fOwner, UnitType.
   //I think thats just not worth it
-  for i:=-LINK_RADIUS to LINK_RADIUS do
-  for k:=-LINK_RADIUS to LINK_RADIUS do
-  if (GetLength(i,k) < LINK_RADIUS) //Check within circle area
-  and fTerrain.TileInMapCoords(aLoc.X+i,aLoc.Y+k) then //Do not pass negative coordinates to fTerrain.UnitsHitTest
+  for I:=-LINK_RADIUS to LINK_RADIUS do
+  for K:=-LINK_RADIUS to LINK_RADIUS do
+  if (GetLength(I,K) < LINK_RADIUS) //Check within circle area
+  and fTerrain.TileInMapCoords(aLoc.X+I,aLoc.Y+K) then //Do not pass negative coordinates to fTerrain.UnitsHitTest
   begin
-    FoundUnit := fTerrain.Land[aLoc.Y+k, aLoc.X+i].IsUnit; //Use IsUnit rather than HitTest because it's faster and we don't care whether the unit is visible (as long as it's on an IsUnit)
+    FoundUnit := fTerrain.Land[aLoc.Y+K, aLoc.X+I].IsUnit; //Use IsUnit rather than HitTest because it's faster and we don't care whether the unit is visible (as long as it's on an IsUnit)
     if (FoundUnit is TKMUnitWarrior) and
        (FoundUnit <> Self) and
        (FoundUnit.GetOwner = fOwner) and
