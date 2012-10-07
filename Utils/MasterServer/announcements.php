@@ -5,19 +5,9 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
-if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311"))
+if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r3812") || ($Rev == "r3870") || ($Rev == "r3967") || ($Rev == "r3985"))
 {
-  die('[$0000FF]THE 4TH MULTIPLAYER DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
-}
-
-if(($Rev == "r3870"))
-{
-  die('[$FF00FF]Welcome to the second release candidate[] :)||Please continue to report any problems.');
-}
-
-if(($Rev == "r3812"))
-{
-  die('[$0000FF]This release candidate is now outdated![]||If you have not received the new release candidate yet please email: contact@kamremake.com');
+  die('[$0000FF]THE 5TH MULTIPLAYER DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
 //First see if they are up to date
@@ -26,6 +16,9 @@ if($Rev != $MAIN_VERSION)
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|";
 	switch($Lang)
 	{
+		case 'bel':
+			echo "Ваша версія KaM Remake ўстарэла! Вы выкарыстоўваеце ".$Rev.", а самая апошняя версія ".$MAIN_VERSION.". ||Калі ласка загрузіце абнаўленне па адрасе: www.kamremake.com";
+			break;
 		case 'nor':
 			echo "Din versjon av KaM Remake er utdatert! Du kjшrer ".$Rev." men den mest nylige versjonen er ".$MAIN_VERSION.".||Vennligst last ned oppdateringen pе: www.kamremake.com";
 			break;
