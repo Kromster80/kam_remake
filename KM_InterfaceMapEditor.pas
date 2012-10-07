@@ -483,11 +483,11 @@ begin
     Button_Main[3] := TKMButton.Create(Panel_Common,  84, 72, 36, 36,  41, rxGui, bsGame);
     Button_Main[4] := TKMButton.Create(Panel_Common, 122, 72, 36, 36, 441, rxGui, bsGame);
     Button_Main[5] := TKMButton.Create(Panel_Common, 160, 72, 36, 36, 389, rxGui, bsGame);
-    Button_Main[1].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN];
-    Button_Main[2].Hint := fTextLibrary[TX_MAPEDITOR_VILLAGE];
-    Button_Main[3].Hint := fTextLibrary[TX_MAPEDITOR_SCRIPTS_VISUAL];
-    Button_Main[4].Hint := fTextLibrary[TX_MAPEDITOR_SCRIPTS_GLOBAL];
-    Button_Main[5].Hint := fTextLibrary[TX_MAPEDITOR_MENU];
+    Button_Main[1].Hint := fTextLibrary[TX_MAPED_TERRAIN];
+    Button_Main[2].Hint := fTextLibrary[TX_MAPED_VILLAGE];
+    Button_Main[3].Hint := fTextLibrary[TX_MAPED_SCRIPTS_VISUAL];
+    Button_Main[4].Hint := fTextLibrary[TX_MAPED_SCRIPTS_GLOBAL];
+    Button_Main[5].Hint := fTextLibrary[TX_MAPED_MENU];
     for i:=1 to 5 do Button_Main[i].OnClick := SwitchPage;
 
     Label_MenuTitle:=TKMLabel.Create(Panel_Common,8,112,184,36,'',fnt_Metal,taLeft); //Should be one-line
@@ -541,21 +541,21 @@ var i,k:Integer;
 begin
   Panel_Terrain := TKMPanel.Create(Panel_Common,0,128,196,28);
     Button_Terrain[1] := TKMButton.Create(Panel_Terrain,   8, 4, 36, 24, 383, rxGui, bsGame);
-    Button_Terrain[1].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HINTS_BRUSHES];
+    Button_Terrain[1].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_BRUSHES];
     Button_Terrain[2] := TKMButton.Create(Panel_Terrain,  48, 4, 36, 24, 388, rxGui, bsGame);
-    Button_Terrain[2].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HINTS_HEIGHTS];
+    Button_Terrain[2].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_HEIGHTS];
     Button_Terrain[3] := TKMButton.Create(Panel_Terrain,  88, 4, 36, 24, 382, rxGui, bsGame);
-    Button_Terrain[3].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HINTS_TILES];
+    Button_Terrain[3].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_TILES];
     Button_Terrain[4] := TKMButton.Create(Panel_Terrain, 128, 4, 36, 24, 385, rxGui, bsGame);
-    Button_Terrain[4].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HINTS_OBJECTS];
+    Button_Terrain[4].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_OBJECTS];
     for i:=1 to 4 do Button_Terrain[i].OnClick := SwitchPage;
 
     Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,196,400);
       BrushSize   := TKMTrackBar.Create(Panel_Brushes, 8, 10, 100, 1, 12);
       BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 114, 8, 24, 24, 592);
-      BrushCircle.Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_CIRCLE];
+      BrushCircle.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
       BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 142, 8, 24, 24, 593);
-      BrushSquare.Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_SQUARE];
+      BrushSquare.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
 
       TKMButtonFlat.Create(Panel_Brushes, 8, 30, 32, 32, 1, rxTiles);   // grass
 
@@ -568,32 +568,32 @@ begin
 
     Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,196,400);
       HeightSize   := TKMTrackBar.Create(Panel_Heights, 8, 40, 180, 1, 15); //1..15(4bit) for size
-      HeightSize.Caption := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_SIZE];
-      HeightSize.Hint :=   fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_SIZE_HINT];
+      HeightSize.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SIZE];
+      HeightSize.Hint :=   fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT];
       HeightSlope  := TKMTrackBar.Create(Panel_Heights, 8, 94, 180, 1, 15); //1..15(4bit) for slope shape
-      HeightSlope.Caption := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_SLOPE];
-      HeightSlope.Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_SLOPE_HINT];
+      HeightSlope.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SLOPE];
+      HeightSlope.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SLOPE_HINT];
       //todo: Speed selection for heights
       {HeightSpeed  := TKMTrackBar.Create(Panel_Heights, 8, 128, 140, 1, 15); //1..15(4bit) for speed
       HeightSpeed.Caption := 'Speed';
-      HeightSpeed.Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_SLOPE];}
+      HeightSpeed.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SLOPE];}
 
       HeightCircle := TKMButtonFlat.Create(Panel_Heights, 8, 8, 24, 24, 592);
-      HeightCircle.Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_CIRCLE];
+      HeightCircle.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
       HeightSquare := TKMButtonFlat.Create(Panel_Heights, 38, 8, 24, 24, 593);
-      HeightSquare.Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_SQUARE];
+      HeightSquare.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
 
       HeightElevate             := TKMButtonFlat.Create(Panel_Heights,8,150,180,20,0);
       HeightElevate.OnClick     := Terrain_HeightChange;
       HeightElevate.Down        := True;
-      HeightElevate.Caption     := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_ELEVATE];
+      HeightElevate.Caption     := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_ELEVATE];
       HeightElevate.CapOffsetY  := -12;
-      HeightElevate.Hint        := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_HINTS_ELEVATE];
+      HeightElevate.Hint        := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_ELEVATE_HINT];
       HeightUnequalize          := TKMButtonFlat.Create(Panel_Heights,8,180,180,20,0);
       HeightUnequalize.OnClick  := Terrain_HeightChange;
-      HeightUnequalize.Caption  := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_UNEQUALIZE];
+      HeightUnequalize.Caption  := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE];
       HeightUnequalize.CapOffsetY  := -12;
-      HeightUnequalize.Hint      := fTextLibrary[TX_MAPEDITOR_TERRAIN_HEIGHTS_HINTS_UNEQUALIZE];
+      HeightUnequalize.Hint      := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE_HINT];
 
       HeightSize.OnChange   := Terrain_HeightChange;
       HeightSlope.OnChange  := Terrain_HeightChange;
@@ -601,10 +601,10 @@ begin
       HeightSquare.OnClick  := Terrain_HeightChange;
 
     Panel_Tiles := TKMPanel.Create(Panel_Terrain,0,28,196,400);
-      TilesRandom := TKMCheckBox.Create(Panel_Tiles, 8, 4, 188, 20, fTextLibrary[TX_MAPEDITOR_TERRAIN_TILES_RANDOM], fnt_Metal);
+      TilesRandom := TKMCheckBox.Create(Panel_Tiles, 8, 4, 188, 20, fTextLibrary[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
       TilesRandom.Checked := True;
       TilesRandom.OnClick := Terrain_TilesChange;
-      TilesRandom.Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_TILES_HINTS_RANDOM];
+      TilesRandom.Hint := fTextLibrary[TX_MAPED_TERRAIN_TILES_RANDOM_HINT];
       TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 30 + 4 + MAPED_TILES_ROWS * 32, 194, 20, sa_Horizontal, bsGame);
       TilesScroll.MaxValue := 256 div MAPED_TILES_ROWS - MAPED_TILES_COLS; // 16 - 6
       TilesScroll.Position := 0;
@@ -614,7 +614,7 @@ begin
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (k-1)*MAPED_TILES_COLS+i; //Store ID
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := Terrain_TilesChange;
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnMouseWheel := TilesScroll.MouseWheel;
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_TILES_HINTS_MAIN];
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Hint := fTextLibrary[TX_MAPED_TERRAIN_TILES_MAIN_HINT];
       end;
       Terrain_TilesChange(TilesScroll); //This ensures that the displayed images get updated the first time
       Terrain_TilesChange(TilesTable[1]);
@@ -626,7 +626,7 @@ begin
       ObjectsScroll.Position := 0;
       ObjectsScroll.OnChange := Terrain_ObjectsChange;
       ObjectErase := TKMButtonFlat.Create(Panel_Objects, 8, 8,32,32,340);
-      ObjectErase.Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN_OBJECTS_REMOVE];
+      ObjectErase.Hint := fTextLibrary[TX_MAPED_TERRAIN_OBJECTS_REMOVE];
       for I := 0 to 2 do for K := 0 to 2 do
       begin
         ObjectsTable[I*3+K] := TKMButtonFlat.Create(Panel_Objects, 8+I*65, 40+K*85,64,84,1,rxTrees); //RXid=1  // 1 2
