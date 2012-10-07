@@ -73,4 +73,5 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Lobby command to add description to the server room (e.g. Chatting lobby, or NoNoobs)
 	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
 	Switch beacon from B to more convenient Alt+Click as in other RTS?
+	Rally point for the barracks
 	

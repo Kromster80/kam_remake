@@ -28,6 +28,7 @@
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
+	Intel 965/963 GPU does not comply with OpenGL spec on VBOs, using ARB will fix it?: http://lwjgl.org/forum/index.php?topic=3021.0
 	Colored rectangle below cursor
 
 Improvements:
