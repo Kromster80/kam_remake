@@ -1,6 +1,6 @@
-Since r4001:
+ï»¿Since r4001:
 <===================================================================================>
- +	Belarusian letter ? had upper and lower case swapped in fonts
+ +	Belarusian letter ÐŽ had upper and lower case swapped in fonts
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -367,7 +367,7 @@ Fixed in r2039:
  +	When the host disconnected from a dedicated server, the next client is automatically assigned hosting rights
  +	Added in-game chat for multiplayer with an option to send only to your team
  +	Archers now have friendly fire, stray arrows can hit your own units/buildings
- +	The German LIBX (translation file) special characters like Ü,ö,ß,ü,ä, etc. appeared incorrectly in the game (Ü = Ã, ö = Ã¶, etc.)
+ +	The German LIBX (translation file) special characters like Ãœ,Ã¶,ÃŸ,Ã¼,Ã¤, etc. appeared incorrectly in the game (Ãœ = ÃƒÂœ, Ã¶ = ÃƒÂ¶, etc.)
  +	Arrow keys for scrolling could become "stuck" when using a victory/defeat screen appears or the game is paused
  +	AI did not attack unbuilt houses
  +	Bowmen are smarter about shooting after walking
