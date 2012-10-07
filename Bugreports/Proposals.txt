@@ -23,20 +23,11 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	L	Allow dedicated server host to do announcements (e.g. server will be closed in 5min, plz save and quit)
 	L	Add shortcut keys to common messsages in MP (defend here, attack, check ur base, etc.)
 
-	Warriors should remember their last attack order after a fight "ends", so if you ask cavalry to attack archers they do not stop and stand still as soon as the first one dies because the others are not within direct reach. Probably all orders should be remembered and resumed after a fight, so if you ask a warrior to move somewhere and he bumps into a bowman, after killing him he should continue on his way.
-	Select multiple saves at once to be deleted (click+drag or hold shift/ctrl)
-	Aggressive/defensive stances for soldiers, so they will attack a unit within a few tiles in aggressive mode and only start shooting when the enemy is close in defensive mode
-	Shortcuts for all soldier buttons: , & . to rotate, [ & ] to add/withdraw lines, x to charge, f for food?
-	Add a "seperate one unit from the group" button for scouting etc. (we can rearrange interface due to unused move/attack buttons)
-	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
-	Clicking on player's name/flag in lobby opens a drop down menu with options like: kick, ban, promote to host
-	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
-	Settings page allows players to save their default resource slider options (minor feature)
-	Add pause to MP. Allow each player to ask for a 1-2min pause once per match, maybe elective?
-	Switch beacon from B to more convenient Alt+Click as in other RTS?
-	Rally point for the barracks
-	If woodcutter is in "chop only" mode and he runs out of trees, send the player a message like other resource depleted messages
-	House not occupied message should mention which house it is ("This farm is not occupied")
+		Warriors should remember their last attack order after a fight "ends", so if you ask cavalry to attack archers they do not stop and stand still as soon as the first one dies because the others are not within direct reach. Probably all orders should be remembered and resumed after a fight, so if you ask a warrior to move somewhere and he bumps into a bowman, after killing him he should continue on his way.
+		Aggressive/defensive stances for soldiers, so they will attack a unit within a few tiles in aggressive mode and only start shooting when the enemy is close in defensive mode
+	L	Add a "seperate one unit from the group" button for scouting etc. (we can rearrange interface due to unused move/attack buttons)
+	L	Add a way to feed only <30% hungry units
+		Switch beacon from B to more convenient Alt+Click as in other RTS?
 
 REJECTED:
  -	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
@@ -54,4 +45,4 @@ REJECTED:
  -	Add soldiers counts to statistics page in game (take icons from MapEd)
 		Krom: That could be too much detail without real need
  -	Add fan-made section where fans could add LOLCat, Welsh, Simple English, Funny and other translations with fallback to existing locale
- 
+ - 	Select multiple saves at once to be deleted (click+drag or hold shift/ctrl)

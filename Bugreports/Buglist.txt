@@ -37,27 +37,27 @@ Improvements:
  +	The map editor shows the number of fish in a water body like other resource deposits
  +	Holding shift while placing a house keeps the house selected instead of changing to road
  +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
-	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
-	Ctrl+C/V to copy chat messages with e.g. links or quotes
-	The story message on campaign map should fade when you move mouse over it, without jumping
-	Mutltiplayer spectator mode
-	256x256 icons for EXE (for vista/7/8 users)
-	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
-	Master server use MySQL for storage rather than .txt files
-	Chat logs
-	Wares need to be taken out of the barracks for trading at the market
-	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
-	Some way to delete multiplayer saves from within the KaM Remake
-	Keyboard shortcuts to zoom for people without a scrollwheel
-	Allow chat over multiplayer results screen
-	Add support for 1024x600 (1280x720) resolution in the map editor
-	Economic goals such as produce X amount of resource A
-	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
-	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
-	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
-	Allow host to set a title for his lobby shown in a column on the server selection page ("noobs/pros only", "fight map only", "chat lobby", etc.)
-	Clicking a location on the lobby minimap selects that location if it's available
+	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
+	L	Ctrl+C/V to copy chat messages with e.g. links or quotes
+	L	The story message on campaign map should fade when you move mouse over it, without jumping
+	L	Mutltiplayer spectator mode
+	L	256x256 icons for EXE (for vista/7/8 users)
+	L	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
+	L	Master server use MySQL for storage rather than .txt files
+	L	Chat logs
+	L	Wares need to be taken out of the barracks for trading at the market
+	M	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
+	L	Some way to delete multiplayer saves from within the KaM Remake
+	L	Keyboard shortcuts to zoom for people without a scrollwheel
+	L	Allow chat over multiplayer results screen
+	L	Add support for 1024x600 (1280x720) resolution in the map editor
+	L	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
+	L	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
+	L	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
+	M	Allow host to set a title for his lobby shown in a column on the server selection page ("noobs/pros only", "fight map only", "chat lobby", etc.)
+	L	Clicking a location on the lobby minimap selects that location if it's available
 
+	H	Refactor army management with TGroup layer
 	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams
 	M	Scrolling around the map using middle mouse click, as in TPR
 	M	Sliders in lobby for selecting speed during peacetime and after peacetime
@@ -76,6 +76,15 @@ Improvements:
 			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
 	L	Clicking on a player inserts "/whisper PlayerName " into chat to send private message
 	M	Display material delivery progress for houses under construction
+	L	Shortcuts for all soldier buttons: , & . to rotate, [ & ] to add/withdraw lines, x to charge, f for food?
+	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
+	L	Add an option /givehost# to give hosting rights to another player in lobby
+	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
+	L	Rally point for the barracks (with new beacon/flag)
+	L	If woodcutter is in "chop only" mode and he runs out of trees, send the player a message like other resource depleted messages
+	L	House not occupied message should mention which house it is ("This farm is not occupied")
+	L	Draw highlight on houses mentioned in an open message
+	L	Make hints more visible with background
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
