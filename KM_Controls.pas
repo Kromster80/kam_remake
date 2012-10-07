@@ -2049,7 +2049,7 @@ end;
 
 function TKMEdit.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
-  Result := KeyEventHandled(Key);
+  Result := KeyEventHandled(Key, Shift);
   if inherited KeyUp(Key, Shift) or ReadOnly then exit;
 
   if Assigned(OnChange) then OnChange(Self);

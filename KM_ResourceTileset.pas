@@ -74,16 +74,17 @@ begin
   Result := false;
   if not FileExists(FileName) then
     Exit;
-  assignfile(f, FileName);
-  reset(f, 1);
-  blockread(f, PatternDAT[1], 6 * 256);
+  AssignFile(f, FileName);
+  FileMode := fmOpenRead;
+  Reset(f, 1);
+  BlockRead(f, PatternDAT[1], 6 * 256);
   for I := 1 to 30 do
   begin
-    blockread(f, TileTable[I, 1], 30 * 10);
-    blockread(f, s, 1);
+    BlockRead(f, TileTable[I, 1], 30 * 10);
+    BlockRead(f, s, 1);
   end;
 
-  closefile(f);
+  CloseFile(f);
   fCRC := Adler32CRC(FileName);
 
   if WriteResourceInfoToTXT then

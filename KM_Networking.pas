@@ -850,12 +850,8 @@ end;
 
 function TKMNetworking.CalculateGameCRC:Cardinal;
 begin
-  //CRC checks are done on the data we already loaded, not the source files which can change.
-  Result := fResource.HouseDat.CRC xor
-            fResource.UnitDat.CRC xor
-            fResource.MapElements.CRC xor
-            fResource.Tileset.CRC;
-            //any others that can cause inconsistencies and crashes? (gfx/sfx/text doesn't matter)
+  //CRC checks are done on the data we already loaded, not the files on HDD which can change.
+  Result := fResource.GetDATCRC;
 
   //For debugging/testing it's useful to skip this check sometimes (but defines .dat files should always be checked)
   if not SKIP_EXE_CRC then
@@ -1259,7 +1255,7 @@ begin
     mk_StartingLocQuery:
             if IsHost and not fNetPlayers.HostDoesSetup then begin
               LocID := Param;
-              if (GameInfo <> nil) and GameInfo.IsValid and
+              if (GameInfo <> nil) and GameInfo.IsValid(False) and
                  (LocID <= GameInfo.PlayerCount) and
                  fNetPlayers.LocAvailable(LocID) then
               begin //Update Players setup

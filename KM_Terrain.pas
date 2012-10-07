@@ -2671,7 +2671,7 @@ begin
   aRaise  := ssLeft in GameCursor.SState;         // Raise or Lowered (Left or Right mousebtn)
   Rad     := GameCursor.MapEdSize;
   Slope   := GameCursor.MapEdSlope;
-  I := Min((round(aLoc.Y) + Rad), fMapY);
+
   for I := Max((round(aLoc.Y) - Rad), 1) to Min((round(aLoc.Y) + Rad), fMapY) do
   for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), fMapX) do
   begin

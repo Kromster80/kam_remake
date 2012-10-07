@@ -102,7 +102,7 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource,
-  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields;
+  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_GameApp;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -645,7 +645,7 @@ begin
   if DoImmediateRender then
     RenderSprite(rxUnits, ID, CornerX, CornerY, FlagColor, 255, Deleting);
 
-  if SHOW_UNIT_MOVEMENT then
+  if SHOW_UNIT_MOVEMENT and fGameApp.AllowDebugRendering then
   if NewInst then
   begin
     fRenderAux.DotOnTerrain(pX, pY, FlagColor);
@@ -753,7 +753,7 @@ begin
     fRenderList.AddSprite(rxUnits, IDFlag, FlagX, FlagY, FlagColor);
   end;
 
-  if SHOW_UNIT_MOVEMENT then
+  if SHOW_UNIT_MOVEMENT and fGameApp.AllowDebugRendering then
     fRenderAux.DotOnTerrain(pX, pY, FlagColor); // Render dot where unit is
 end;
 
@@ -908,6 +908,11 @@ begin
 
   if fAIFields <> nil then
     fAIFields.Paint(Rect);
+
+  //Don't do debug rendering in MP to prevent cheating. It's not enough to simply check
+  //global vars like SHOW_TERRAIN_WIRES since the user could start an SP game, enable debugging,
+  //then start an MP game and debugging would stay enabled.
+  if not fGameApp.AllowDebugRendering then Exit;
 
   if SHOW_TERRAIN_WIRES then
     fRenderAux.Wires(Rect);

@@ -880,6 +880,7 @@ begin
     Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,0,fTextLibrary[TX_UNIT_CONDITION],fnt_Grey,taCenter);
     KMConditionBar_Unit   := TKMPercentBar.Create(Panel_Unit,73,55,116,15);
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
+    Label_UnitDescription.AutoWrap := True;
 
   Panel_Army:=TKMPanel.Create(Panel_Unit,0,160,200,400);
     Button_Army_RotCCW   := TKMButton.Create(Panel_Army,  8, 0, 56, 40, 23, rxGui, bsGame);

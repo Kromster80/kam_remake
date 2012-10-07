@@ -123,7 +123,6 @@ type
     procedure Debug_ExportMenuPagesClick(Sender: TObject);
     procedure HousesDat1Click(Sender: TObject);
     procedure tbBuildingStepChange(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure chkShowInfluenceClick(Sender: TObject);
     procedure chkShowNavMeshClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
