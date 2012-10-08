@@ -86,6 +86,7 @@ Improvements:
 	L	House not occupied message should mention which house it is ("This farm is not occupied")
 	L	Draw highlight on houses mentioned in an open message
 	L	Make hints more visible with background
+	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
