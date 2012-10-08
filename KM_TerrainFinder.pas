@@ -5,7 +5,7 @@ uses Math, KM_Defaults, KM_CommonClasses, KM_Points;
 
 type
   //General implementation of algorithm that finds something on terrain
-  TKMTerrainFinder = class
+  TKMTerrainFinderCommon = class
   private
     fStart: TKMPoint;
     fRadius: Byte;
@@ -24,12 +24,20 @@ type
   end;
 
 
+  //Simple algorithm implementation required to override abstract methods
+  TKMTerrainFinder = class(TKMTerrainFinderCommon)
+  protected
+    function CanWalkHere(const X,Y: Word): Boolean; override;
+    function CanUse(const X,Y: Word): Boolean; override;
+  end;
+
+
 implementation
 uses KM_ResourceMapElements, KM_Terrain;
 
 
 { TKMTerrainFinder }
-constructor TKMTerrainFinder.Create;
+constructor TKMTerrainFinderCommon.Create;
 begin
   inherited;
 
@@ -38,7 +46,7 @@ begin
 end;
 
 
-function TKMTerrainFinder.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; out aEnd: TKMPoint): Boolean;
+function TKMTerrainFinderCommon.FindNearest(aStart: TKMPoint; aRadius: Byte; aPassability: TPassability; out aEnd: TKMPoint): Boolean;
   //Uses a floodfill style algorithm but only on a small area (with aRadius)
   procedure Visit(const X,Y: Word; aWalkDistance: Byte);
   var
@@ -101,7 +109,7 @@ end;
 
 //Fills aList with all of the tiles within aRadius of aStart with aPass using either a
 //simple radius or a floodfill walking distance calculation depending on USE_WALKING_DISTANCE
-procedure TKMTerrainFinder.GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
+procedure TKMTerrainFinderCommon.GetTilesWithinDistance(aStart: TKMPoint; aRadius: Byte; aPass: TPassability; aList: TKMPointList);
 const
   STRAIGHT_COST = 5;
   DIAG_COST = Round(STRAIGHT_COST * 1.41);
@@ -173,6 +181,21 @@ begin
         if (aPass in fTerrain.Land[I,K].Passability) and (KMLengthDiag(aStart, KMPoint(K,I)) <= aRadius) then
           aList.AddEntry(KMPoint(K,I));
   end;
+end;
+
+
+{ TKMTerrainFinder }
+function TKMTerrainFinder.CanUse(const X, Y: Word): Boolean;
+begin
+  //We don't need to check anything extra in common case
+  Result := True;
+end;
+
+
+function TKMTerrainFinder.CanWalkHere(const X, Y: Word): Boolean;
+begin
+  //We don't need to check anything extra in common case
+  Result := True;
 end;
 
 

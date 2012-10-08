@@ -9,7 +9,7 @@ uses
 type
   TFindNearest = (fnStone, fnTrees, fnSoil, fnWater, fnCoal, fnIron, fnGold);
 
-  TKMTerrainFinderCity = class(TKMTerrainFinder)
+  TKMTerrainFinderCity = class(TKMTerrainFinderCommon)
   protected
     fOwner: TPlayerIndex;
     function CanWalkHere(const X,Y: Word): Boolean; override;
