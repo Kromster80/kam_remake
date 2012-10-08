@@ -578,7 +578,8 @@ begin
 
   //Modifications for bidding system
   if (fDemand[iD].Resource=rt_All) //Always prefer deliveries House>House instead of House>Store
-  or (fOffer[iO].Loc_House.HouseType = ht_Store) then //Prefer taking wares from House rather than Store
+  or ((fOffer[iO].Loc_House.HouseType = ht_Store) //Prefer taking wares from House rather than Store...
+  and (fDemand[iD].Resource <> rt_Warfare)) then    //...except weapons Store>Barracks, that is also prefered
     Result := Result + 1000;
 
   if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
