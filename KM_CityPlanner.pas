@@ -157,7 +157,8 @@ begin
 
   for I := Max(TargetLoc.Y - 5, 1) to Min(TargetLoc.Y + 6, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - 7, 1) to Min(TargetLoc.X + 7, fTerrain.MapX - 1) do
-    if CanPlaceHouse(aHouse, K, I) then
+  if fAIFields.AvoidBuilding[I,K] = 0 then
+  if CanPlaceHouse(aHouse, K, I) then
     begin
       Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 4;
       if Bid < BestBid then
@@ -227,6 +228,7 @@ begin
 
   for I := StoneLoc.Loc.Y to Min(StoneLoc.Loc.Y + 5, fTerrain.MapY - 1) do
   for K := Max(StoneLoc.Loc.X - 5, 1) to Min(StoneLoc.Loc.X + 5, fTerrain.MapX - 1) do
+  if fAIFields.AvoidBuilding[I,K] = 0 then
     if (fAIFields.GetBestOwner(K,I) = fOwner)
     and fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin
@@ -296,6 +298,7 @@ begin
   BestBid := 0;
   for I := Max(StoreLoc.Y - SEARCH_RAD, 1) to Min(StoreLoc.Y + SEARCH_RAD, fTerrain.MapY - 1) do
   for K := Max(StoreLoc.X - SEARCH_RAD, 1) to Min(StoreLoc.X + SEARCH_RAD, fTerrain.MapX - 1) do
+  if fAIFields.AvoidBuilding[I,K] = 0 then
   begin
     Bid := fAIFields.Forest[I,K] + KaMRandom * 6; //Add some noise for varied results
     if Bid > BestBid then
@@ -308,6 +311,7 @@ begin
   BestBid := MaxSingle;
   for I := Max(TreeLoc.Y - HUT_RAD, 1) to Min(TreeLoc.Y + HUT_RAD, fTerrain.MapY - 1) do
   for K := Max(TreeLoc.X - HUT_RAD, 1) to Min(TreeLoc.X + HUT_RAD, fTerrain.MapX - 1) do
+  if fAIFields.AvoidBuilding[I,K] = 0 then
     if (fAIFields.GetBestOwner(K, I) = fOwner)
     and fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin

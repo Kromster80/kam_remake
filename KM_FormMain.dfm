@@ -42,8 +42,6 @@ object FormMain: TFormMain
     OnMouseDown = Panel1MouseDown
     OnMouseMove = Panel1MouseMove
     OnMouseUp = Panel1MouseUp
-    ExplicitWidth = 846
-    ExplicitHeight = 225
   end
   object StatusBar1: TStatusBar
     Left = 0
@@ -67,8 +65,6 @@ object FormMain: TFormMain
         Text = '50.0 fps (50)'
         Width = 80
       end>
-    ExplicitTop = 225
-    ExplicitWidth = 846
   end
   object GroupBox1: TGroupBox
     Left = 304
@@ -88,14 +84,14 @@ object FormMain: TFormMain
     object Label3: TLabel
       Left = 104
       Top = 160
-      Width = 32
+      Width = 27
       Height = 13
       Caption = 'Angle'
     end
     object Label1: TLabel
       Left = 104
       Top = 184
-      Width = 97
+      Width = 93
       Height = 13
       Caption = 'House building step'
       Visible = False
@@ -191,7 +187,7 @@ object FormMain: TFormMain
       Left = 8
       Top = 208
       Width = 185
-      Height = 57
+      Height = 105
       Caption = ' AI '
       TabOrder = 7
       object chkShowInfluence: TCheckBox
@@ -205,12 +201,30 @@ object FormMain: TFormMain
       end
       object chkShowNavMesh: TCheckBox
         Left = 8
-        Top = 32
+        Top = 64
         Width = 97
         Height = 17
         Caption = 'Show navmesh'
         TabOrder = 1
         OnClick = chkShowNavMeshClick
+      end
+      object chkShowForest: TCheckBox
+        Left = 8
+        Top = 48
+        Width = 97
+        Height = 17
+        Caption = 'Show forest'
+        TabOrder = 2
+        OnClick = chkShowForestClick
+      end
+      object chkShowAvoid: TCheckBox
+        Left = 8
+        Top = 32
+        Width = 97
+        Height = 17
+        Caption = 'Show avoid'
+        TabOrder = 3
+        OnClick = chkShowAvoidClick
       end
     end
   end

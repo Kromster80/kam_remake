@@ -77,6 +77,8 @@ type
     GroupBox2: TGroupBox;
     chkShowInfluence: TCheckBox;
     chkShowNavMesh: TCheckBox;
+    chkShowForest: TCheckBox;
+    chkShowAvoid: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
@@ -126,6 +128,8 @@ type
     procedure chkShowInfluenceClick(Sender: TObject);
     procedure chkShowNavMeshClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure chkShowForestClick(Sender: TObject);
+    procedure chkShowAvoidClick(Sender: TObject);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -427,6 +431,18 @@ begin
 
   if (fPlayers <> nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
     MyPlayer := fPlayers[RGPlayer.ItemIndex];
+end;
+
+
+procedure TFormMain.chkShowAvoidClick(Sender: TObject);
+begin
+  OVERLAY_AVOID := chkShowAvoid.Checked;
+end;
+
+
+procedure TFormMain.chkShowForestClick(Sender: TObject);
+begin
+  OVERLAY_FOREST := chkShowForest.Checked;
 end;
 
 

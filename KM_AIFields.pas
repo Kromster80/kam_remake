@@ -840,14 +840,23 @@ begin
       Col := $80000000;
       J := GetBestOwner(K,I);
       if J <> PLAYER_NONE then
-      begin
         Col := (fPlayers[J].FlagColor and $FFFFFF) or (Byte(Max(InfluenceMinMap[J,I,K],0)) shl 24);
-      end;
+      fRenderAux.Quad(K, I, Col);
+    end;
 
-      //Col := InfluenceAvoid[I,K] * 65793 or $80000000;
+  if AI_GEN_INFLUENCE_MAPS and OVERLAY_AVOID then
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+    begin
+      Col := AvoidBuilding[I,K] * 65793 or $80000000;
+      fRenderAux.Quad(K, I, Col);
+    end;
 
-      //Col := Forest[I,K] * 8 * 65793 or $80000000;
-
+  if AI_GEN_INFLUENCE_MAPS and OVERLAY_FOREST then
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+    begin
+      Col := Min(Forest[I,K] * 6, 255) * 65793 or $80000000;
       fRenderAux.Quad(K, I, Col);
     end;
 

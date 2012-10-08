@@ -474,10 +474,7 @@ begin
     DesiredCount[ht_Sawmill] := 1;
   end
   else
-  begin
     TopDesire := High(DesiredOrder);
-  end;
-
 
   for I := 0 to TopDesire do
   if HouseCount(DesiredOrder[I]) < DesiredCount[DesiredOrder[I]] then
@@ -605,26 +602,30 @@ end;
 procedure TKMayor.CheckHouseCount;
 var
   P: TKMPlayer;
+  I: Integer;
 begin
   P := fPlayers[fOwner];
 
   //Number of simultaneous WIP houses is limited to 3
   if (P.Stats.GetHouseWip(ht_Any) >= 3) then Exit;
 
-  //Try to express needs in terms of Balance = Production - Demand
-  UpdateBalance;
+  for I := P.Stats.GetHouseWip(ht_Any) to 3 do
+  begin
+    //Try to express needs in terms of Balance = Production - Demand
+    UpdateBalance;
 
-  if fDemandCore.Balance < 0 then
-    BuildCore
-  else
-  if fDemandMaterials.Balance < 0 then
-    BuildMaterials
-  else
-  case PickMin([0, fDemandGold.Balance * 10, fDemandFood.Balance * 5, fDemandWeaponry.Balance]) of
-    0:  {BuildNothing};
-    1:  BuildGold;
-    2:  BuildFood;
-    3:  BuildWeaponry;
+    if fDemandCore.Balance < 0 then
+      BuildCore
+    else
+    if fDemandMaterials.Balance < 0 then
+      BuildMaterials
+    else
+    case PickMin([0, fDemandGold.Balance * 10, fDemandFood.Balance * 5, fDemandWeaponry.Balance]) of
+      0:  {BuildNothing};
+      1:  BuildGold;
+      2:  BuildFood;
+      3:  BuildWeaponry;
+    end;
   end;
 
   //Check if we need to demolish depleted mining houses
