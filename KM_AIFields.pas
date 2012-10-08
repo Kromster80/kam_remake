@@ -51,7 +51,10 @@ type
 
     fNavMesh: TKMNavMesh;
 
-    procedure NavMeshGenerate;
+    procedure InitInfluenceAvoid;
+    procedure InitInfluenceForest;
+    procedure InitNavMesh;
+    procedure UpdateInfluenceMaps;
   public
     AvoidBuilding: array of array of Byte;
     Forest: array of array of Word;
@@ -61,17 +64,12 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    property NavMesh: TKMNavMesh read fNavMesh;
+
     procedure AfterMissionInit;
     procedure AddAvoidBuilding(X,Y: Word; aRad: Byte);
-    procedure AddInfluence(aLoc: TKMPoint; aHouseType: THouseType);
-
     function GetBestOwner(X, Y: Word): TPlayerIndex;
-    property NavMesh: TKMNavMesh read fNavMesh;
     procedure ExportInfluenceMaps;
-
-    procedure UpdateInfluenceAvoid;
-    procedure UpdateInfluenceForest;
-    procedure UpdateInfluenceMaps;
     procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
   end;
@@ -176,6 +174,8 @@ var
 var
   I: Integer;
 begin
+  if not AI_GEN_INFLUENCE_MAPS then Exit;
+
   for OwnerID := 0 to fPlayers.Count - 1 do
     for I := 0 to fNodeCount - 1 do
       if fNodes[I].Owner[OwnerID] = 255 then
@@ -332,6 +332,8 @@ var
   I, K: Integer;
   Poly: Integer;
 begin
+  if not AI_GEN_NAVMESH then Exit;
+
   //Clear
   for I := 0 to fNodeCount - 1 do
     for K := 0 to fPlayers.Count - 1 do
@@ -367,7 +369,8 @@ end;
 { TKMAIFields }
 constructor TKMAIFields.Create;
 begin
-  inherited Create;
+  inherited;
+
 end;
 
 
@@ -391,19 +394,20 @@ begin
     SetLength(Forest, fMapY, fMapX);
     SetLength(InfluenceMap, fPlayerCount, fMapY, fMapX);
     SetLength(InfluenceMinMap, fPlayerCount, fMapY, fMapX);
-    UpdateInfluenceAvoid;
-    UpdateInfluenceForest;
+    InitInfluenceAvoid;
+    InitInfluenceForest;
     UpdateInfluenceMaps;
   end;
 
   if AI_GEN_NAVMESH then
   begin
-    NavMeshGenerate;
+    InitNavMesh;
     fNavMesh.UpdateOwnership;
   end;
 end;
 
 
+//Make the area around to be avoided by common houses
 procedure TKMAIFields.AddAvoidBuilding(X,Y: Word; aRad: Byte);
 var I,K: Integer;
 begin
@@ -414,13 +418,7 @@ begin
 end;
 
 
-procedure TKMAIFields.AddInfluence(aLoc: TKMPoint; aHouseType: THouseType);
-begin
-
-end;
-
-
-procedure TKMAIFields.NavMeshGenerate;
+procedure TKMAIFields.InitNavMesh;
 type
   TStepDirection = (sdNone, sdUp, sdRight, sdDown, sdLeft);
 var
@@ -635,6 +633,7 @@ begin
 end;
 
 
+//Return index of player who has most influence on this tile, or none
 function TKMAIFields.GetBestOwner(X, Y: Word): TPlayerIndex;
 var
   I: Integer;
@@ -651,7 +650,8 @@ begin
 end;
 
 
-procedure TKMAIFields.UpdateInfluenceAvoid;
+//AI should avoid certain areas, keeping them for special houses
+procedure TKMAIFields.InitInfluenceAvoid;
 var
   S: TKMHouse;
   I, K, J: Integer;
@@ -659,7 +659,7 @@ var
   M: Integer;
   N: Integer;
 begin
-  //Avoid Gold/Iron
+  //Avoid areas where Gold/Iron mines should be
   for I := 1 to fTerrain.MapY - 1 do
   for K := 1 to fTerrain.MapX - 1 do
   if (fTerrain.TileIsIron(K, I) > 1) or (fTerrain.TileIsGold(K, I) > 1) then
@@ -667,12 +667,12 @@ begin
     for N := Max(K - 1, 1) to Min(K + 1, fTerrain.MapX - 1) do
       AvoidBuilding[M, N] := 255;
 
-  //Avoid Coal
+  //Avoid Coal fields
   for I := 1 to fTerrain.MapY - 1 do
   for K := 1 to fTerrain.MapX - 1 do
    AvoidBuilding[I,K] := AvoidBuilding[I,K] or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
 
-  //Leave some free space around Stores
+  //Leave free space around all players Stores
   for J := 0 to fPlayerCount - 1 do
   begin
     S := fPlayers[J].FindHouse(ht_Store);
@@ -684,10 +684,11 @@ begin
 end;
 
 
-procedure TKMAIFields.UpdateInfluenceForest;
-const
-  TREE_WEIGHT = 8; //Each tree adds this weight lineary fading to forest map
+procedure TKMAIFields.InitInfluenceForest;
   procedure DoFill(X,Y: SmallInt);
+  const
+    //Each tree adds this weight lineary fading to forest map
+    TREE_WEIGHT = 8;
   var
     I,K: Integer;
   begin
@@ -720,7 +721,10 @@ procedure TKMAIFields.UpdateInfluenceMaps;
 var
   J: Integer;
   procedure DoFill(X,Y: Integer; V: Word);
-  const DECAY = 3; //Decay affects how much space AI needs to be able to expand, smaller than 3 blocks green AI on AcrossDesert very early
+  const
+    //Decay affects how much space AI needs to be able to expand
+    //Values smaller than 3 start to block green AI on AcrossDesert too fast
+    DECAY = 3;
   begin
     if (V > InfluenceMap[J, Y, X])
     and InRange(Y, 2, fTerrain.MapY - 2)
@@ -732,10 +736,7 @@ var
       DoFill(X-1, Y, Max(V - DECAY, 0));
       DoFill(X+1, Y, Max(V - DECAY, 0));
       DoFill(X, Y+1, Max(V - DECAY, 0));
-      {DoFill(X-1, Y-1, Max(V - DECAY*1.41, 0));
-      DoFill(X+1, Y-1, Max(V - DECAY*1.41, 0));
-      DoFill(X-1, Y+1, Max(V - DECAY*1.41, 0));
-      DoFill(X+1, Y+1, Max(V - DECAY*1.41, 0));}
+      //We can get away with 4-tap fill, it looks fine already
     end;
   end;
 var
@@ -776,10 +777,9 @@ begin
       L := Max(L, InfluenceMinMap[J, I, K]);
     end;
 
-    //Normalization is not working as intended, it gives unfair advantage to one using it, muting neighbours areas beyond reason
-    {for I := 2 to fTerrain.MapY - 2 do
-    for K := 2 to fTerrain.MapX - 2 do
-      InfluenceMinMap[J, I, K] := Max(InfluenceMinMap[J, I, K] - L + 255, 0);}
+    //Normalization is not working as intended,
+    //it gives unfair advantage to one using it,
+    //muting neighbours areas beyond reason
   end;
 end;
 

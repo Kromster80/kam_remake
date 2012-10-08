@@ -95,8 +95,8 @@ var
   DISPLAY_SOUNDS        :Boolean = False; //Display sounds on map
   RENDER_3D             :Boolean = False; //Experimental 3D render
   HOUSE_BUILDING_STEP   :Single = 0;
-  OVERLAY_NAVMESH       :Boolean = True; //Show navmesh
-  OVERLAY_INFLUENCES    :Boolean = True; //Show influence maps
+  OVERLAY_NAVMESH       :Boolean = False; //Show navmesh
+  OVERLAY_INFLUENCES    :Boolean = False; //Show influence maps
   {Stats}
   SHOW_SPRITE_COUNT     :Boolean = False; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :Boolean = False; //Show debug total count of unit/house pointers being tracked
