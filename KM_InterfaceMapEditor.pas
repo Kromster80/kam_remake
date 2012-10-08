@@ -596,6 +596,7 @@ begin
 
       HeightSize.OnChange   := Terrain_HeightChange;
       HeightSlope.OnChange  := Terrain_HeightChange;
+      HeightSpeed.OnChange  := Terrain_HeightChange;
       HeightCircle.OnClick  := Terrain_HeightChange;
       HeightSquare.OnClick  := Terrain_HeightChange;
 

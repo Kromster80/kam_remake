@@ -2727,7 +2727,7 @@ begin
     //COMMON PART FOR Elevate/Lower and Unequalize/Flatten
     //Compute resulting floating-point height
     Tmp := power(abs(Tmp),(Slope+1)/6)*sign(Tmp); //Modify slopes curve
-    Tmp := Tmp * (3.75*(Speed - 1)/14 + 0.25);
+    Tmp := Tmp * (4.75/14*(Speed - 1) + 0.25);
     Tmp := EnsureRange(Land[I,K].Height + Land[I,K].HeightAdd/255 + Tmp * (Byte(aRaise)*2 - 1), 0, 100); // (Byte(aRaise)*2 - 1) - LeftButton pressed it equals 1, otherwise equals -1
     Land[I,K].Height := trunc(Tmp);
     Land[I,K].HeightAdd := round(frac(Tmp)*255); //write fractional part in 0..255 range (1Byte) to save us mem

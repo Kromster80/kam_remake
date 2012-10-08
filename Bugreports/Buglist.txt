@@ -38,6 +38,7 @@ Improvements:
  +	The map editor shows the number of fish in a water body like other resource deposits
  +	Holding shift while placing a house keeps the house selected instead of changing to road
  +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
+ +      Map editor has speed slider along with size and slope
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	L	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	L	The story message on campaign map should fade when you move mouse over it, without jumping
