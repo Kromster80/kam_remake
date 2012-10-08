@@ -3,6 +3,7 @@
  +	Belarusian letter Ў had upper and lower case swapped in fonts
  +	Intel 965/963 GPU does not comply with OGL 1.5 spec on VBOs, check Assigned instead of OGL version
  +	Taking weapons from store>barracks should not be a lower priority than house>house deliveries
+ +      Make Serfs face the house plan entrance when handing building materials to it
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -23,7 +24,6 @@
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
 	Few terrain tiles (4th, 14th) have noticeable seams on their side when looked closely at
 	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
-	Make Serfs face the house plan entrance when handing building materials to it
 	Chasing down archers even with knights is ineffective, knight starts to attack and archers keep stepping away, then the knight stops and just stands there
 	Opening chat or sending a message at the right moment during the reconnect cycle can cause a crash because Networking.MyIndex does not exist (or is not you) in NetPlayersList
 	Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
