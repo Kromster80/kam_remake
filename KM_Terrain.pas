@@ -162,7 +162,8 @@ type
     function VerticeInMapCoords(X,Y:integer; Inset: Byte=0): Boolean;
     function EnsureTileInMapCoords(X,Y:integer; Inset: Byte=0):TKMPoint;
 
-    function TileIsWater(Loc:TKMPoint): Boolean;
+    function TileIsWater(Loc:TKMPoint): Boolean; overload;
+    function TileIsWater(X,Y : Word): Boolean; overload;
     function TileIsStone(X,Y:Word): Byte;
     function TileIsCoal(X,Y: Word): Byte;
     function TileIsIron(X,Y: Word): Byte;
@@ -467,6 +468,10 @@ begin
   Result := fTileset.TileIsWater(Land[Loc.Y, Loc.X].Terrain);
 end;
 
+function TTerrain.TileIsWater(X,Y : Word): Boolean;
+begin
+  Result := fTileset.TileIsWater(Land[Y, X].Terrain);
+end;
 
 //Check if requested tile is sand suitable for crabs
 function TTerrain.TileIsSand(Loc: TKMPoint): Boolean;
@@ -2661,7 +2666,7 @@ end;
 procedure TTerrain.MapEdHeight;
 var
   I, K: Integer;
-  Rad, Slope: Byte;
+  Rad, Slope, Speed: Byte;
   Tmp: Single;
   R: TKMRect;
   aLoc : TKMPointF;
@@ -2669,9 +2674,9 @@ var
 begin
   aLoc    := KMPointF(GameCursor.Float.X+1, GameCursor.Float.Y+1); // Mouse point
   aRaise  := ssLeft in GameCursor.SState;         // Raise or Lowered (Left or Right mousebtn)
-  Rad     := GameCursor.MapEdSize;
-  Slope   := GameCursor.MapEdSlope;
-
+  Rad     := GameCursor.MapEdSize;                // Radius basing on brush size
+  Slope   := GameCursor.MapEdSlope;               // Elevation slope
+  Speed   := GameCursor.MapEdSpeed;               // Elvation speed
   for I := Max((round(aLoc.Y) - Rad), 1) to Min((round(aLoc.Y) + Rad), fMapY) do
   for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), fMapX) do
   begin
@@ -2680,7 +2685,7 @@ begin
   // Every MapEdShape case has it's own check routine
     case GameCursor.MapEdShape of
         hsCircle:
-            Tmp := Max(1 - GetLength(I - round(aLoc.Y), round(K - aLoc.X)) / Rad, 0);   // Negative number means that point is outside circle
+            Tmp := Max((1 - GetLength(I - round(aLoc.Y), round(K - aLoc.X)) / Rad), 0);   // Negative number means that point is outside circle
         hsSquare:
           Tmp := 1 - Max(Abs(I - round(aLoc.Y)), Abs(K - round(aLoc.X))) / Rad;
       else
@@ -2708,7 +2713,7 @@ begin
       end else
       // START Flatten
       begin
-      //Flatten comapres heights of mouse click and active tile then it increases/decreases height of active tile
+      //Flatten compares heights of mouse click and active tile then it increases/decreases height of active tile
         if (Land[I,K].Height < Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height) then
           Tmp := - Min(Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height - Land[I,K].Height, Tmp)
         else
@@ -2722,7 +2727,8 @@ begin
     //COMMON PART FOR Elevate/Lower and Unequalize/Flatten
     //Compute resulting floating-point height
     Tmp := power(abs(Tmp),(Slope+1)/6)*sign(Tmp); //Modify slopes curve
-    Tmp := EnsureRange(Land[I,K].Height + Land[I,K].HeightAdd/255 + Tmp * (Byte(aRaise)*2-1), 0, 100);
+    Tmp := Tmp * (3.75*(Speed - 1)/14 + 0.25);
+    Tmp := EnsureRange(Land[I,K].Height + Land[I,K].HeightAdd/255 + Tmp * (Byte(aRaise)*2 - 1), 0, 100); // (Byte(aRaise)*2 - 1) - LeftButton pressed it equals 1, otherwise equals -1
     Land[I,K].Height := trunc(Tmp);
     Land[I,K].HeightAdd := round(frac(Tmp)*255); //write fractional part in 0..255 range (1Byte) to save us mem
   end;

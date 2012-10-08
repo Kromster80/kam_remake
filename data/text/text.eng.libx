@@ -1,5 +1,5 @@
 
-MaxID:2809
+MaxID:2811
 
 0:Sawmill
 1:Iron smithy
@@ -528,7 +528,7 @@ MaxID:2809
 2790:Unequalize (left click) / Flatten (right click)
 2792:Square-shaped brush
 2793:Circle-shaped brush
-2794:Slide to change brush slope: 1 = plateau ... 15 = peak
+2794:Slide to change elevation slope: 1 = plateau ... 15 = peak
 2795:Slide to change brush size
 2797:Objects
 2798:Tiles
@@ -540,3 +540,5 @@ MaxID:2809
 2807:Size
 2808:Slope
 2809:Remove an object
+2810:Slide to change elevation speed: 1 = slow ... 15 = very fast
+2811:Speed

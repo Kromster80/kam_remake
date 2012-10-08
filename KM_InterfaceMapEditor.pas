@@ -101,7 +101,7 @@ type
         BrushCircle,BrushSquare:TKMButtonFlat;
         //BrushesTable:array[1..27] of TKMButtonFlat; // todo
       Panel_Heights:TKMPanel;
-        HeightSize,HeightSlope:TKMTrackBar;
+        HeightSize, HeightSlope, HeightSpeed:TKMTrackBar;
         HeightCircle,HeightSquare:TKMButtonFlat;
         HeightElevate, HeightUnequalize: TKMButtonFlat;
       Panel_Tiles:TKMPanel;
@@ -573,23 +573,22 @@ begin
       HeightSlope  := TKMTrackBar.Create(Panel_Heights, 8, 94, 180, 1, 15); //1..15(4bit) for slope shape
       HeightSlope.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SLOPE];
       HeightSlope.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SLOPE_HINT];
-      //todo: Speed selection for heights
-      {HeightSpeed  := TKMTrackBar.Create(Panel_Heights, 8, 128, 140, 1, 15); //1..15(4bit) for speed
-      HeightSpeed.Caption := 'Speed';
-      HeightSpeed.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SLOPE];}
+      HeightSpeed  := TKMTrackBar.Create(Panel_Heights, 8, 148, 180, 1, 15); //1..15(4bit) for speed
+      HeightSpeed.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SPEED];
+      HeightSpeed.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SPEED_HINT];
 
       HeightCircle := TKMButtonFlat.Create(Panel_Heights, 8, 8, 24, 24, 592);
       HeightCircle.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
       HeightSquare := TKMButtonFlat.Create(Panel_Heights, 38, 8, 24, 24, 593);
       HeightSquare.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
 
-      HeightElevate             := TKMButtonFlat.Create(Panel_Heights,8,150,180,20,0);
+      HeightElevate             := TKMButtonFlat.Create(Panel_Heights, 8, 204, 180, 20, 0);
       HeightElevate.OnClick     := Terrain_HeightChange;
       HeightElevate.Down        := True;
       HeightElevate.Caption     := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_ELEVATE];
       HeightElevate.CapOffsetY  := -12;
       HeightElevate.Hint        := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_ELEVATE_HINT];
-      HeightUnequalize          := TKMButtonFlat.Create(Panel_Heights,8,180,180,20,0);
+      HeightUnequalize          := TKMButtonFlat.Create(Panel_Heights, 8, 234, 180, 20, 0);
       HeightUnequalize.OnClick  := Terrain_HeightChange;
       HeightUnequalize.Caption  := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE];
       HeightUnequalize.CapOffsetY  := -12;
@@ -1175,6 +1174,7 @@ procedure TKMapEdInterface.Terrain_HeightChange(Sender: TObject);
 begin
   GameCursor.MapEdSize := HeightSize.Position;
   GameCursor.MapEdSlope := HeightSlope.Position;
+  GameCursor.MapEdSpeed := HeightSpeed.Position;
 
   if Sender = HeightCircle then
   begin
