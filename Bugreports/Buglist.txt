@@ -45,7 +45,6 @@ Improvements:
 	L	The story message on campaign map should fade when you move mouse over it, without jumping
 	L	Mutltiplayer spectator mode
 	L	256x256 icons for EXE (for vista/7/8 users)
-	L	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
 	L	Master server use MySQL for storage rather than .txt files
 	L	Chat logs
 	L	Wares need to be taken out of the barracks for trading at the market
@@ -86,8 +85,14 @@ Improvements:
 	L	Rally point for the barracks (with new beacon/flag)
 	L	House not occupied message should mention which house it is ("This farm is not occupied")
 	L	Draw highlight on houses mentioned in an open message
-	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
-
+	
+        M       MapEd: Opacity for trees and other objects (make them partially visible) [Marcin]                   
+        L       MapEd: Random objects brush
+        M       MapEd: Tiles rotation, not only random [Marcin]
+        L       MapEd: Undo last action
+	L	MapEd: Artistic brushes (those that place random types of trees and/or decorations)
+        L       MapEd: Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
+ 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
