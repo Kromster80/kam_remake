@@ -137,6 +137,7 @@ const
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map
+  MAX_AI_PLANS      = 4;    //How many houses AI is allowed to plan at once (after establishing Materials supply)
   AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
 var

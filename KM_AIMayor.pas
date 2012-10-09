@@ -7,9 +7,8 @@ uses
   KM_AISetup;
 
 type
-  TCoreBalanceEnum = (cbStore, cbSchool, cbInn, cbBarracks);
   TKMCoreBalance = record
-    IndBalance: array[TCoreBalanceEnum] of Single;
+    StoreBalance, SchoolBalance, InnBalance, BarracksBalance: Single;
     Balance: Single; //Resulting balance
     Text: string;
   end;
@@ -333,8 +332,8 @@ begin
   //Skip disabled houses
   if not P.Stats.GetCanBuild(aHouse) then Exit;
 
-  //Number of simultaneous WIP houses is limited to 3
-  if (P.Stats.GetHouseWip(ht_Any) >= 3) then Exit;
+  //Number of simultaneous WIP houses is limited
+  if (P.Stats.GetHouseWip(ht_Any) > MAX_AI_PLANS) then Exit;
 
   //Maybe we get more lucky next tick
   if not fCityPlanner.FindPlaceForHouse(aHouse, Loc) then Exit;
@@ -408,36 +407,14 @@ end;
 
 
 procedure TKMayor.BuildCore;
-var
-  I: TCoreBalanceEnum;
-  Best: TCoreBalanceEnum;
-  Success: Boolean;
 begin
   with fDemandCore do
-  repeat
-    Success := True;
-
-    //Select smallest Balance (this will be most required house)
-    Best := Low(IndBalance);
-    for I := Low(IndBalance) to High(IndBalance) do
-    if IndBalance[I] < IndBalance[Best] then
-      Best := I;
-
-    //Break if best house is not needed
-    if IndBalance[Best] >= 0 then Break;
-
-    case Best of
-      cbStore:    Success := TryBuildHouse(ht_Store);
-      cbSchool:   Success := TryBuildHouse(ht_School);
-      cbInn:      Success := TryBuildHouse(ht_Inn);
-      cbBarracks: Success := TryBuildHouse(ht_Barracks);
-    end;
-
-    //If required house could not be built - scrap it and try build next one in queue
-    if not Success then
-      IndBalance[Best] := 0;
-
-  until (Success);
+  case PickMin([StoreBalance, SchoolBalance, InnBalance, BarracksBalance]) of
+    0: TryBuildHouse(ht_Store);
+    1: TryBuildHouse(ht_School);
+    2: TryBuildHouse(ht_Inn);
+    3: TryBuildHouse(ht_Barracks);
+  end;
 end;
 
 
@@ -606,10 +583,8 @@ var
 begin
   P := fPlayers[fOwner];
 
-  //Number of simultaneous WIP houses is limited to 3
-  if (P.Stats.GetHouseWip(ht_Any) >= 3) then Exit;
-
-  for I := P.Stats.GetHouseWip(ht_Any) to 3 do
+  //Number of simultaneous WIP houses is limited
+  for I := P.Stats.GetHouseWip(ht_Any) to MAX_AI_PLANS do
   begin
     //Try to express needs in terms of Balance = Production - Demand
     UpdateBalance;
@@ -940,19 +915,18 @@ var
 begin
   P := fPlayers[fOwner];
 
-  //Core
   with fDemandCore do
   begin
     //Balance = Available - Required
-    IndBalance[cbStore]    := HouseCount(ht_Store)       - HouseCount(ht_Any) / 35;
-    IndBalance[cbSchool]   := HouseCount(ht_School)      - 1;
-    IndBalance[cbInn]      := HouseCount(ht_Inn)         - P.Stats.GetCitizensCount / 80;
-    IndBalance[cbBarracks] := HouseCount(ht_Barracks)    - Byte(P.Stats.GetWeaponsProduced > 0);
+    StoreBalance    := HouseCount(ht_Store)       - HouseCount(ht_Any) / 35;
+    SchoolBalance   := HouseCount(ht_School)      - 1;
+    InnBalance      := HouseCount(ht_Inn)         - P.Stats.GetCitizensCount / 80;
+    BarracksBalance := HouseCount(ht_Barracks)    - Byte(P.Stats.GetWeaponsProduced > 0);
 
-    Balance := Min(IndBalance);
+    Balance := Min([StoreBalance, SchoolBalance, InnBalance, BarracksBalance]);
     Text := Format
-      ('Core balance: %.2f (St%.2f, Sc%.2f, In%.2f, Ba%.2f)',
-      [Balance, IndBalance[cbStore], IndBalance[cbSchool], IndBalance[cbInn], IndBalance[cbBarracks]]);
+      ('Core balance: %.2f (Store %.2f, School %.2f, Inn %.2f, Barracks %.2f)',
+      [Balance, StoreBalance, SchoolBalance, InnBalance, BarracksBalance]);
   end;
 end;
 
@@ -968,7 +942,7 @@ begin
 
     Balance := Min(QuaryBalance, WoodBalance, SawmillBalance);
     Text := Format
-      ('Materials balance: %.2f (Qu%.2f, Wo%.2f, Sa%.2f)',
+      ('Materials balance: %.2f (Quary %.2f, Wood %.2f, Sawmill %.2f)',
       [Balance, QuaryBalance, WoodBalance, SawmillBalance]);
   end;
 end;
