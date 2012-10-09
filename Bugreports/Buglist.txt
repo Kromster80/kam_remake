@@ -92,7 +92,6 @@ Improvements:
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display
 	L	MapEd: Random objects brush
-	M	MapEd: Tiles rotation, not only random [Marcin]
 	L	MapEd: Allow to Undo/Redo actions (implement a queue)
 	L	MapEd: Artistic brushes (those that place random types of trees and/or decorations)
 	L	MapEd: Magic water brush to allow to change waterflow direction on whole area
