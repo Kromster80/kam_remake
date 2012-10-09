@@ -647,7 +647,6 @@ procedure TKMayor.CheckStrategy;
 const
   CheckDistance: array [Boolean] of Byte = (25, 32);
 var
-  //P: TKMPlayer;
   Store: TKMHouse;
   StoreLoc, T: TKMPoint;
 begin
@@ -658,6 +657,8 @@ begin
   //AI will be Wooden if there no iron/coal nearby
   fWooden := not fCityPlanner.FindNearest(StoreLoc, CheckDistance[fSetup.Strong], fnIron, T)
              or not fCityPlanner.FindNearest(StoreLoc, CheckDistance[fSetup.Strong], fnCoal, T);
+
+  fWooden := True;
 end;
 
 

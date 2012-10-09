@@ -113,6 +113,15 @@ procedure TRenderAux.CircleOnTerrain(X, Y, Rad: Single; Fill, Line: TColor4);
 const SEC_COUNT = 24;
 var I: Integer; C,S: Single;
 begin
+  glColor4ubv(@Fill);
+  glBegin(GL_POLYGON);
+    for I := -SEC_COUNT to SEC_COUNT - 1 do
+    begin
+      C := Cos(I / SEC_COUNT * Pi) * Rad;
+      S := Sin(I / SEC_COUNT * Pi) * Rad;
+      glVertex2f(X + C, fTerrain.FlatToHeight(X + C, Y + S));
+    end;
+  glEnd;
   glColor4ubv(@Line);
   glBegin(GL_LINE_LOOP);
     for I := -SEC_COUNT to SEC_COUNT - 1 do

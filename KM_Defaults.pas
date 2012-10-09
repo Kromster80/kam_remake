@@ -105,7 +105,7 @@ var
   SHOW_CMDQUEUE_COUNT   :Boolean = False; //Show how many commands were processed and stored by TGameInputProcess
   SHOW_NETWORK_DELAY    :Boolean = False; //Show the current delay in multiplayer game
   SHOW_ARMYEVALS        :Boolean = False; //Show result of enemy armies evaluation
-  SHOW_WARE_BALANCE     :Boolean = True; //Show wares balance (Produced - Consumed)
+  SHOW_WARE_BALANCE     :Boolean = False; //Show wares balance (Produced - Consumed)
   INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
   SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_SAVE_SCAN        :Boolean = False; //Scan saves with a pause to emulate uncached file access

@@ -3900,7 +3900,7 @@ begin
       S := S + Format('Enemy %d: %f|', [I, RoundTo(MyPlayer.ArmyEval.Evaluations[I].fPower, -3)]);
 
   if SHOW_WARE_BALANCE then
-    S := S + MyPlayer.AI.Mayor.BalanceText;
+    S := S + MyPlayer.AI.Mayor.BalanceText + '|';
 
   Label_DebugInfo.Caption := S;
 end;
