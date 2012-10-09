@@ -39,6 +39,7 @@ Improvements:
  +	Holding shift while placing a house keeps the house selected instead of changing to road
  +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
  +      Map editor has speed slider along with size and slope
+ +	If woodcutter is in "chop only" mode and he runs out of trees, send the player a message like other resource depleted messages
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	L	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	L	The story message on campaign map should fade when you move mouse over it, without jumping
@@ -83,7 +84,6 @@ Improvements:
 	L	Add an option /givehost# to give hosting rights to another player in lobby
 	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
 	L	Rally point for the barracks (with new beacon/flag)
-	L	If woodcutter is in "chop only" mode and he runs out of trees, send the player a message like other resource depleted messages
 	L	House not occupied message should mention which house it is ("This farm is not occupied")
 	L	Draw highlight on houses mentioned in an open message
 	L	Make hints more visible with background

@@ -1,5 +1,5 @@
 
-MaxID:2811
+MaxID:2812
 
 0:Sawmill
 1:Iron smithy
@@ -542,3 +542,4 @@ MaxID:2811
 2809:Remove an object
 2810:Slide to change elevation speed: 1 = slow ... 15 = very fast
 2811:Speed
+2812:|Your woodcutter cannot find any further trees to fell and was instructed by you to not plant trees

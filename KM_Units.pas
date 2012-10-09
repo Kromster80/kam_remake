@@ -450,15 +450,16 @@ var
   Msg: Word;
 begin
   case fHome.HouseType of
-    ht_Quary:     Msg := TX_MSG_STONE_DEPLETED;
-    ht_CoalMine:  Msg := TX_MSG_COAL_DEPLETED;
-    ht_IronMine:  Msg := TX_MSG_IRON_DEPLETED;
-    ht_GoldMine:  Msg := TX_MSG_GOLD_DEPLETED;
-    ht_FisherHut: if not fTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), fResource.UnitDat[fUnitType].MiningRange) then
-                    Msg := TX_MSG_FISHERMAN_TOO_FAR
-                  else
-                    Msg := TX_MSG_FISHERMAN_CANNOT_CATCH;
-    else         Msg := 0;
+    ht_Quary:       Msg := TX_MSG_STONE_DEPLETED;
+    ht_CoalMine:    Msg := TX_MSG_COAL_DEPLETED;
+    ht_IronMine:    Msg := TX_MSG_IRON_DEPLETED;
+    ht_GoldMine:    Msg := TX_MSG_GOLD_DEPLETED;
+    ht_Woodcutters: Msg := TX_MSG_WOODCUTTER_DEPLETED;
+    ht_FisherHut:   if not fTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), fResource.UnitDat[fUnitType].MiningRange) then
+                      Msg := TX_MSG_FISHERMAN_TOO_FAR
+                    else
+                      Msg := TX_MSG_FISHERMAN_CANNOT_CATCH;
+    else            Msg := 0;
   end;
 
   Assert(Msg <> 0, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');

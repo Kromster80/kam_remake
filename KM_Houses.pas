@@ -274,8 +274,11 @@ type
 
 
   TKMHouseWoodcutters = class(TKMHouse)
+  private
+    fWoodcutterMode: TWoodcutterMode;
+    procedure SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
   public
-    WoodcutterMode: TWoodcutterMode;
+    property WoodcutterMode: TWoodcutterMode read fWoodcutterMode write SetWoodcutterMode;
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -2122,14 +2125,23 @@ end;
 constructor TKMHouseWoodcutters.Load(LoadStream:TKMemoryStream);
 begin
   inherited;
-  LoadStream.Read(WoodcutterMode, SizeOf(WoodcutterMode));
+  LoadStream.Read(fWoodcutterMode, SizeOf(fWoodcutterMode));
 end;
 
 
 procedure TKMHouseWoodcutters.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
-  SaveStream.Write(WoodcutterMode, SizeOf(WoodcutterMode));
+  SaveStream.Write(fWoodcutterMode, SizeOf(fWoodcutterMode));
+end;
+
+
+procedure TKMHouseWoodcutters.SetWoodcutterMode(aWoodcutterMode: TWoodcutterMode);
+begin
+  fWoodcutterMode := aWoodcutterMode;
+  //If we're allowed to plant again, we should reshow the depleted message if we are changed to cut and run out of trees
+  if fWoodcutterMode = wcm_ChopAndPlant then
+    ResourceDepletedMsgIssued := False;
 end;
 
 

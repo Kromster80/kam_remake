@@ -31,6 +31,8 @@ type
     function TileIsRoadable(Loc:TKMPoint): Boolean;
     function TileIsFactorable(Loc:TKMPoint): Boolean;
 
+    function ChooseCuttingDirection(aLoc, aTree: TKMPoint; out CuttingPoint: TKMPointDir): Boolean;
+
     procedure UpdateBorders(Loc: TKMPoint; CheckSurrounding: Boolean = True);
     procedure UpdateLighting(aRect: TKMRect);
     procedure UpdatePassability(aRect: TKMRect); overload;
@@ -112,6 +114,7 @@ type
     function FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir): Boolean;
     function FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir): Boolean;
     function FindOre(aLoc: TKMPoint; aRes: TResourceType; out OrePoint: TKMPoint): Boolean;
+    function CanFindTree(aLoc: TKMPoint; aRadius: Word):Boolean;
     procedure FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; BestToPlant,SecondBestToPlant: TKMPointList);
     function FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir): Boolean;
     function CanFindFishingWater(aLoc:TKMPoint; aRadius:integer): Boolean;
@@ -1112,6 +1115,59 @@ begin
 end;
 
 
+function TTerrain.ChooseCuttingDirection(aLoc, aTree: TKMPoint; out CuttingPoint: TKMPointDir): Boolean;
+var I, K, BestSlope, Slope: Integer;
+begin
+  BestSlope := MaxInt;
+  Result := False; //It is already tested that we can walk to the tree, but double-check
+
+  for I:=-1 to 0 do for K:=-1 to 0 do
+  if Route_CanBeMade(aLoc, KMPoint(aTree.X+K, aTree.Y+I), CanWalk, 0) then
+  begin
+    Slope := Round(HeightAt(aTree.X+K-0.5, aTree.Y+I-0.5) * CELL_HEIGHT_DIV) - Land[aTree.Y, aTree.X].Height;
+    //Cutting trees which are higher than us from the front looks visually poor, (axe hits ground) so avoid it where possible
+    if (I = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
+    if Abs(Slope) < BestSlope then
+    begin
+      CuttingPoint := KMPointDir(aTree.X+K, aTree.Y+I, KMGetVertexDir(K, I));
+      Result := True;
+      BestSlope := Abs(Slope);
+    end;
+  end;
+end;
+
+
+function TTerrain.CanFindTree(aLoc: TKMPoint; aRadius: Word):Boolean;
+var
+  ValidTiles: TKMPointList;
+  I: Integer;
+  T: TKMPoint;
+  CuttingPoint: TKMPointDir;
+begin
+  Result := False;
+  //Scan terrain and add all trees/spots into lists
+  ValidTiles := TKMPointList.Create;
+  fFinder.GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
+  for I := 0 to ValidTiles.Count - 1 do
+  begin
+     //Store in temp variable for speed
+    T := ValidTiles[I];
+
+    if (KMLengthDiag(aLoc, T) <= aRadius)
+    //Any age tree will do
+    and (ObjectIsChopableTree(T, caAge1) or ObjectIsChopableTree(T, caAge2) or
+         ObjectIsChopableTree(T, caAge3) or ObjectIsChopableTree(T, caAgeFull))
+    and Route_CanBeMadeToVertex(aLoc, T, CanWalk)
+    and ChooseCuttingDirection(aLoc, T, CuttingPoint) then
+    begin
+      Result := True;
+      Break;
+    end;
+  end;
+  ValidTiles.Free;
+end;
+
+
 //Return location of a Tree or a place to plant a tree depending on TreeAct
 //taChop - Woodcutter wants to get a Tree because he went from home with an axe
 //        (maybe his first target was already chopped down, so he either needs a tree or will go home)
@@ -1119,28 +1175,6 @@ end;
 //taAny - Anything will do since Woodcutter is querying from home
 //Result indicates if desired TreeAct place was found successfully
 procedure TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees: TKMPointDirList; BestToPlant, SecondBestToPlant: TKMPointList);
-
-  function ChooseCuttingDirection(aTree: TKMPoint; out CuttingPoint: TKMPointDir): Boolean;
-  var I, K, BestSlope, Slope: Integer;
-  begin
-    BestSlope := 255;
-    Result := False; //It is already tested that we can walk to the tree, but double-check
-
-    for I:=-1 to 0 do for K:=-1 to 0 do
-    if Route_CanBeMade(aLoc, KMPoint(aTree.X+K, aTree.Y+I), CanWalk, 0) then
-    begin
-      Slope := Round(HeightAt(aTree.X+K-0.5, aTree.Y+I-0.5) * CELL_HEIGHT_DIV) - Land[aTree.Y, aTree.X].Height;
-      //Cutting trees which are higher than us from the front looks visually poor, (axe hits ground) so avoid it where possible
-      if (I = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
-      if Abs(Slope) < BestSlope then
-      begin
-        CuttingPoint := KMPointDir(aTree.X+K, aTree.Y+I, KMGetVertexDir(K, I));
-        Result := True;
-        BestSlope := Abs(Slope);
-      end;
-    end;
-  end;
-
 var
   ValidTiles: TKMPointList;
   I: Integer;
@@ -1173,7 +1207,7 @@ begin
       and ((T.Y = 1) or not TileIsLocked(KMPoint(T.X, T.Y-1)))
       and ((T.X = 1) or (T.Y = 1) or not TileIsLocked(KMPoint(T.X-1, T.Y-1)))
       and Route_CanBeMadeToVertex(aLoc, T, CanWalk) then
-        if ChooseCuttingDirection(T, CuttingPoint) then
+        if ChooseCuttingDirection(aLoc, T, CuttingPoint) then
           Trees.AddItem(CuttingPoint); //Tree
 
       if (aPlantAct in [taPlant, taAny])

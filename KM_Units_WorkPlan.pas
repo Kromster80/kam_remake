@@ -234,6 +234,7 @@ begin
                       begin
                         fIssued := ChooseTree(aLoc, KMPoint(0,0), fResource.UnitDat[aUnit.UnitType].MiningRange, aPlantAct, aUnit, Tmp, PlantAct);
                         if fIssued then
+                        begin
                           case PlantAct of
                             taCut:    begin //Cutting uses DirNW,DirSW,DirSE,DirNE (1,3,5,7) of ua_Work
                                         ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
@@ -244,6 +245,11 @@ begin
                                       end;
                             else      fIssued := False;
                           end;
+                        end
+                        else
+                          if (aPlantAct = taCut)
+                          and not fTerrain.CanFindTree(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange) then
+                            ResourceDepleted := True; //No more trees to cut
                       end;
     ut_Miner:         if aHome = ht_CoalMine then
                       begin
