@@ -24,8 +24,8 @@ type
     fDatSize: Integer;
     fCRC: Cardinal;
     procedure ScanMap;
-    procedure LoadFromFile(const aPath:string);
-    procedure SaveToFile(const aPath:string);
+    procedure LoadFromFile(const aPath: string);
+    procedure SaveToFile(const aPath: string);
   public
     Author, SmallDesc, BigDesc: string;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
