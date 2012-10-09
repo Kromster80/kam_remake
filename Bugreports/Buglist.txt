@@ -16,7 +16,6 @@
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
 	Players that have intentionally quit (not just disconnected) should count as defeated
 	Clicking on the splash screen registers the click on the main menu once it is loaded
-	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
 	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
 	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800x600 .. 1366x768
 	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
@@ -40,6 +39,7 @@ Improvements:
  +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
  +      Map editor has speed slider along with size and slope
  +	If woodcutter is in "chop only" mode and he runs out of trees, send the player a message like other resource depleted messages
+ +	Make hints more visible with background
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	L	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	L	The story message on campaign map should fade when you move mouse over it, without jumping
@@ -86,7 +86,6 @@ Improvements:
 	L	Rally point for the barracks (with new beacon/flag)
 	L	House not occupied message should mention which house it is ("This farm is not occupied")
 	L	Draw highlight on houses mentioned in an open message
-	L	Make hints more visible with background
 	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
@@ -152,6 +151,7 @@ Improvements:
  +	Add PlayerCount and Size columns to MapEd selection menu, as well allow to sort maps there
  +	Edges of messages and other scrolls should be transparent so they look smooth
  +	Clicking RMB in schools queue should cancel units on right
+ +	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
 
 
 

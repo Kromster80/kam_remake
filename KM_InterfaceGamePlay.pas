@@ -143,6 +143,7 @@ type
       Sidebar_Middle: TKMImage;
       MinimapView: TKMMinimapView;
       Label_DebugInfo, Label_Hint: TKMLabel;
+      Bevel_HintBG: TKMBevel;
 
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
       Label_MPChatUnread: TKMLabel;
@@ -684,8 +685,17 @@ end;
 procedure TKMGamePlayInterface.DisplayHint(Sender: TObject);
 begin
   if (PrevHint = Sender) then Exit; //Hint didn't changed
-  if Sender = nil then Label_Hint.Caption := ''
-                else Label_Hint.Caption := TKMControl(Sender).Hint;
+  if (Sender = nil) or (TKMControl(Sender).Hint = '') then
+  begin
+    Label_Hint.Caption := '';
+    Bevel_HintBG.Hide;
+  end
+  else
+  begin
+    Label_Hint.Caption := TKMControl(Sender).Hint;
+    Bevel_HintBG.Show;
+    Bevel_HintBG.Width := 8+fResource.ResourceFont.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
+  end;
   PrevHint := Sender;
 end;
 
@@ -790,7 +800,11 @@ begin
   Create_PlayMore_Page; //Must be created last, so that all controls behind are blocked
   Create_MPPlayMore_Page;
 
-  Label_Hint := TKMLabel.Create(Panel_Main,224+32,Panel_Main.Height-16,0,0,'',fnt_Outline,taLeft);
+  Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
+  Bevel_HintBG.BackAlpha := 0.5;
+  Bevel_HintBG.Hide;
+  Bevel_HintBG.Anchors := [akLeft, akBottom];
+  Label_Hint := TKMLabel.Create(Panel_Main,224+36,Panel_Main.Height-21,0,0,'',fnt_Outline,taLeft);
   Label_Hint.Anchors := [akLeft, akBottom];
 
   //Controls without a hint will reset the Hint to ''

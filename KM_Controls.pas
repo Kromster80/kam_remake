@@ -225,6 +225,7 @@ type
     property FontColor: TColor4 read fFontColor write fFontColor;
     property Strikethrough: Boolean read fStrikethrough write fStrikethrough;
     property TextSize: TKMPoint read fTextSize;
+    property Font: TKMFont read fFont write fFont;
     procedure Paint; override;
   end;
 
