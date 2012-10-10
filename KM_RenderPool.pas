@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
-  KM_Defaults, KM_CommonClasses, KM_Pics, KM_Render, KM_RenderTerrain, KM_ResourceSprites, KM_Points, KM_Terrain;
+  KM_Defaults, KM_CommonClasses, KM_Pics, KM_Render, KM_RenderTerrain, KM_ResourceSprites, KM_Points, KM_Terrain, KM_MapEditor;
 
 type
   TRenderList = class
@@ -233,8 +233,9 @@ var
 begin
   for I := aRect.Top to aRect.Bottom do
   for K := aRect.Left to aRect.Right do
-    if fTerrain.Land[I, K].Obj <> 255 then
-      RenderObjectOrQuad(fTerrain.Land[I, K].Obj, AnimStep, K, I);
+    if (fTerrain.Land[I, K].Obj <> 255) and (mlObjects in fGame.MapEditor.VisibleLayers) then
+       RenderObjectOrQuad(fTerrain.Land[I, K].Obj, AnimStep, K, I);
+
 
   //Falling trees are in a separate list
   with fTerrain do
@@ -430,6 +431,7 @@ var
   ID,ID2: Integer;
   CornerX, CornerY, GroundWood, GroundStone, gX, gY: Single;
 begin
+
   R := fRXData[rxHouses];
   ID := fResource.HouseDat[aHouse].WoodPic + 1;
   ID2 := fResource.HouseDat[aHouse].StonePic + 1;
@@ -1254,6 +1256,12 @@ end;
 //New items must provide their ground level
 procedure TRenderList.AddSpriteG(aRX: TRXType; aID: Word; pX,pY,gX,gY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
+  if fGame.IsMapEditor then  //We check whether user in mapEditor has chosen not to show some layers
+    case aRX of
+      rxHouses: if not (mlHouses in fGame.MapEditor.VisibleLayers) then exit; //If user don't want to have visible houses - don't render
+      rxUnits:  if not (mlUnits in fGame.MapEditor.VisibleLayers) then exit;  //If user don't want to have visible units - don't render
+    end;
+
   if fCount >= Length(RenderList) then SetLength(RenderList, fCount + 256); //Book some space
 
   RenderList[fCount].Loc        := KMPointF(pX, pY); //Position of sprite, floating-point
@@ -1272,6 +1280,12 @@ end;
 //Child items don't need ground level
 procedure TRenderList.AddSprite(aRX: TRXType; aID: Word; pX,pY: Single; aTeam: Cardinal = $0; aAlphaStep: Single = -1);
 begin
+  if fGame.IsMapEditor then  //We check whether user in mapEditor has chosen not to show some layers
+    case aRX of
+      rxHouses: if not (mlHouses in fGame.MapEditor.VisibleLayers) then exit; //If user don't want to have visible houses - don't render
+      rxUnits:  if not (mlUnits in fGame.MapEditor.VisibleLayers) then exit;  //If user don't want to have visible units - don't render
+    end;
+
   if fCount >= Length(RenderList) then SetLength(RenderList, fCount + 256); //Book some space
 
   RenderList[fCount].Loc        := KMPointF(pX,pY); //Position of sprite, floating-point

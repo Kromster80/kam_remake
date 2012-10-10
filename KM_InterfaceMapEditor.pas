@@ -102,6 +102,7 @@ type
         //BrushesTable:array[1..27] of TKMButtonFlat; // todo
       Panel_Heights:TKMPanel;
         HeightSize, HeightSlope, HeightSpeed:TKMTrackBar;
+        HeightShapeLabel:TKMLabel;
         HeightCircle,HeightSquare:TKMButtonFlat;
         HeightElevate, HeightUnequalize: TKMButtonFlat;
       Panel_Tiles:TKMPanel;
@@ -577,9 +578,10 @@ begin
       HeightSpeed.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SPEED];
       HeightSpeed.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SPEED_HINT];
 
-      HeightCircle := TKMButtonFlat.Create(Panel_Heights, 8, 8, 24, 24, 592);
+      HeightShapeLabel := TKMLabel.Create(Panel_Heights, 8, 14, 110, 0, fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SHAPE], fnt_Metal, taLeft);
+      HeightCircle := TKMButtonFlat.Create(Panel_Heights, 128, 10, 24, 24, 592);
       HeightCircle.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
-      HeightSquare := TKMButtonFlat.Create(Panel_Heights, 38, 8, 24, 24, 593);
+      HeightSquare := TKMButtonFlat.Create(Panel_Heights, 158, 10, 24, 24, 593);
       HeightSquare.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
 
       HeightElevate             := TKMButtonFlat.Create(Panel_Heights, 8, 204, 180, 20, 0);
@@ -1014,7 +1016,7 @@ var
   R: TRawDeposit;
   Depo: TKMDeposits;
 begin
-  if fGame.MapEditor.ShowDeposits then
+  if mlDeposits in fGame.MapEditor.VisibleLayers then
   begin
     Label_MatAmount.Show; //Only make it visible while we need it
     Shape_MatAmount.Show;
@@ -1048,7 +1050,7 @@ begin
     Shape_MatAmount.Hide;
   end;
 
-  if fGame.MapEditor.ShowDefencePositions then
+  if mlDefences in fGame.MapEditor.VisibleLayers then
   begin
     //Only make it visible while we need it
     Label_DefenceID.Show;

@@ -10,14 +10,18 @@ type
 
 const
   DEPOSIT_COLORS: array[TRawDeposit] of Cardinal = (
-  $FFBFBFBF, //rdStone
-  $FF606060, //rdCoal
-  $FFBF4040, //rdIron
-  $FF00FFFF, //rdGold
-  $FFE3BB5B  //rdFish
+  $FFBFBFBF, //rdStone - gray
+  $FF606060, //rdCoal - black
+  $FFBF4040, //rdIron - iron
+  $FF00FFFF, //rdGold - gold
+  $FFE3BB5B  //rdFish - light blue
   );
 
 type
+  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences);  //Enum representing mapEditor visible layers
+  TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
+
+
   //Scans the map and reports raw resources deposits info
   TKMDeposits = class
   private
@@ -43,14 +47,12 @@ type
   TKMMapEditor = class
   private
     fDeposits: TKMDeposits;
-    fShowDefencePositions: Boolean;
-    fShowDeposits: Boolean;
+    fVisibleLayers: TMapEdLayerSet;
   public
     constructor Create;
     destructor Destroy; override;
     property Deposits: TKMDeposits read fDeposits;
-    property ShowDefencePositions: Boolean read fShowDefencePositions;
-    property ShowDeposits: Boolean read fShowDeposits;
+    property VisibleLayers: TMapEdLayerSet read fVisibleLayers;
     procedure Update;
     procedure Paint;
   end;
@@ -237,8 +239,8 @@ begin
 
   fDeposits := TKMDeposits.Create;
 
-  fShowDefencePositions := True;
-  fShowDeposits := True;
+  fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDefences];
+
 end;
 
 
@@ -261,7 +263,7 @@ end;
 procedure TKMMapEditor.Paint;
 var I, K: Integer; MapLoc: TKMPoint;
 begin
-  if fShowDefencePositions then
+  if mlDefences in fVisibleLayers then
   begin
     for I := 0 to fPlayers.Count - 1 do
       for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
