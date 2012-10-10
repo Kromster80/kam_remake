@@ -45,6 +45,7 @@ type
     constructor Create(aType:TUnitType);
     function IsValid:boolean;
     function IsAnimal: boolean;
+    function GetDefenceVsProjectiles: smallint;
     procedure LoadFromStream(Stream:TMemoryStream);
     //Derived from KaM
     property HitPoints:smallint read fUnitDat.HitPoints;
@@ -146,6 +147,14 @@ end;
 function TKMUnitDatClass.IsAnimal: boolean;
 begin
   Result := fUnitType in [ANIMAL_MIN..ANIMAL_MAX];
+end;
+
+
+function TKMUnitDatClass.GetDefenceVsProjectiles: smallint;
+begin
+  Result := Defence;
+  if fUnitType in [ut_AxeFighter, ut_Swordsman, ut_HorseScout, ut_Cavalry] then
+    Inc(Result, 1); //Shielded units get a small bonus
 end;
 
 

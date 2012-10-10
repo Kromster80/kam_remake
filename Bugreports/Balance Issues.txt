@@ -63,3 +63,19 @@ SOLUTIONS:
     - Divides community further over what "true KaM gameplay" is
  2. Make towers less accurate like they were in r3392
     - Towers become basically useless, no way to protect yourself and have sieges. Games finish 10 min after PT ends.
+
+
+ISSUE:
+A player who uses the market will beat an equal player who doesn't use the market. I'd rather the market be a strategic choice not "the only way to victory".
+SOLUTIONS:
+ 1. Make costs higher so it's less abusable, especially good trades are coal/iron/gold/tree trunks
+    + We can target resources that are being abused in trading while still keeping good prices for other resources
+    - Might not solve the problem unless costs are fairly high, since coal/gold/iron are effectively unlimited on most maps because games only last 2 hours max.
+ 2. Make value of resources increase as you buy them and decrease as you sell them, Age of Empires style
+    - That just makes the market more useful at the start and less useful at the end
+    - Age of Empires has 4 resources, KaM has 27, so it's not really comparable
+ 3. Remove the market's current function, make it only for trading player to player
+    - The current function is useful, many players like it
+    - Current market is useful for emergency situations, makes the game more accessible/forgiving to mistakes like running out of gold
+    + We don't have to make/find graphics for the planned "Trading Post" for this purpose
+    + The Dark Lord will be eternally grateful xD
