@@ -1026,8 +1026,12 @@ end;
 
 
 procedure TKMHouse.MakeSound;
-var Work:THouseActionType; Step:byte;
+var
+  Work: THouseActionType;
+  Step: Byte;
 begin
+  if SKIP_SOUND then Exit;
+
   //Do not play sounds if house is invisible to MyPlayer
   if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then exit;
   if fCurrentAction = nil then exit; //no action means no sound ;)

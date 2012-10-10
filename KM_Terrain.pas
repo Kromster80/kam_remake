@@ -2887,6 +2887,8 @@ var
   J: TChopableAge;
   T: Integer;
 begin
+  if not DYNAMIC_TERRAIN then Exit;
+
   inc(fAnimStep);
 
   //Update falling trees animation

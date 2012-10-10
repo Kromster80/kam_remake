@@ -28,23 +28,14 @@ implementation
 
 
 function TKMRunnerStone.Execute(aRun: Integer): TKMRunResult;
-var I: Integer; T: Cardinal;
 begin
+  DYNAMIC_TERRAIN := False;
   //Total amount of stones = 4140
   fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\StoneMines\StoneMines.dat', 'StoneMines');
 
   SetKaMSeed(aRun+1);
 
-  T := GetTickCount;
-
-  for I := 1 to 2*60*60*10 do
-  begin
-    Application.ProcessMessages;
-    fGameApp.Game.UpdateGame(nil);
-    if fGameApp.Game.IsPaused then
-      fGameApp.Game.GameHold(False, gr_Win);
-  end;
-  //Status('Done in ' + IntToStr(GetTickCount - T) + ' ms');
+  SimulateGame(2*60*60*10);
 
   //fGameApp.Game.Save('StoneTest');
 //  Check(fPlayers[0].Stats.GetGoodsProduced >= 4140 * 0.9, 'StoneMining got broken? Mined '+IntToStr(fPlayers[0].Stats.GetGoodsProduced)+'/3800');
@@ -58,53 +49,47 @@ function TKMRunnerFight95.Execute(aRun: Integer): TKMRunResult;
 var
   I, K: Integer;
 begin
+  DYNAMIC_TERRAIN := False;
   fGameApp.NewEmptyMap(128, 128);
   SetKaMSeed(aRun + 1);
 
   //fPlayers[0].AddUnitGroup(ut_Cavalry, KMPoint(63, 64), dir_E, 8, 24);
   //fPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
 
-  fPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
-  fPlayers[0].AddUnitGroup(ut_Hallebardman, KMPoint(65, 64), dir_W, 8, 24);
+  fPlayers[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
+  fPlayers[1].AddUnitGroup(ut_Hallebardman, KMPoint(65, 64), dir_W, 8, 24);
 
   //fPlayers[0].AddUnitGroup(ut_Hallebardman, KMPoint(63, 64), dir_E, 8, 24);
   //fPlayers[1].AddUnitGroup(ut_Cavalry, KMPoint(65, 64), dir_W, 8, 24);
 
   TKMUnitWarrior(fPlayers[1].Units[0]).OrderAttackUnit(fPlayers[0].Units[0]);
 
-  for I := 1 to 1000 do
-  begin
-    fGameApp.Game.UpdateGame(nil);
-    if fGameApp.Game.IsPaused then
-      fGameApp.Game.GameHold(False, gr_Win);
-    if fPlayers[0].Stats.GetArmyCount * fPlayers[1].Stats.GetArmyCount = 0 then
-      Break;
-  end;
+  SimulateGame(1000);
 
-  Result.Value := fPlayers[0].Stats.GetWarriorsKilled;// - fPlayers[1].Stats.GetWarriorsKilled;
+  Result.Value := fPlayers[0].Stats.GetUnitQty(ut_Any);// - fPlayers[1].Stats.GetWarriorsKilled;
 
   fGameApp.Stop(gr_Silent);
-
-  //Status(Format('Victories %d:%d, Best survivals %d-%d:%d-%d', [Victory1, Victory2, Worst1, Best1, Worst2, Best2]));
 end;
 
 
 function TKMRunnerAIBuild.Execute(aRun: Integer): TKMRunResult;
-var I: Integer; T: Cardinal;
 begin
-  fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + 'AcrossDesert.dat', 'AcrossDesert');
+  fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\MapsMP\Across the Desert\Across the Desert.dat', 'Across the Desert');
 
-  T := GetTickCount;
+  fPlayers.RemovePlayer(5);
+  fPlayers.RemovePlayer(4);
+  fPlayers.RemovePlayer(3);
+  fPlayers.RemovePlayer(2);
+  fPlayers.RemovePlayer(0);
+  MyPlayer := fPlayers[0];
 
-  for I := 1 to 2*60*60*10 do
-  begin
-    fGameApp.Game.UpdateGame(nil);
-    if fGameApp.Game.IsPaused then
-      fGameApp.Game.GameHold(False, gr_Win);
-  end;
-  //Status('Done in ' + IntToStr(GetTickCount - T) + ' ms');
+  SetKaMSeed(aRun + 1);
 
-  fGameApp.Game.Save('AcrossDesert');
+  SimulateGame(1*60*60*10);
+
+  Result.Value := fPlayers[0].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
+
+  fGameApp.Stop(gr_Silent);
 end;
 
 

@@ -1549,6 +1549,13 @@ end;
 
 procedure TKMUnit.UpdateHunger;
 begin
+  //Surprisingly this func is quite overused
+  //todo: Optimize fCondition/fAnimFlag
+  //fTicker: Cardinal; //Measures ticks from unit creation and is used as flag anim as well
+  //fLiveTill: Cardinal; //Tick at which unit will die of hunger if not fed
+  //When unit eats increase his fLiveTill by amount of food value he ate
+  //Check unit hunger each 600 ticks, if fLiveTill > fTicker then KillUnit;
+
   if fCondition>0 then //Make unit hungry as long as they are not currently eating in the inn
     if not((fUnitTask is TTaskGoEat) and (TTaskGoEat(fUnitTask).Eating)) then
       dec(fCondition);

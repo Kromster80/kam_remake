@@ -21,6 +21,7 @@ type
     procedure SetUp; virtual;
     procedure TearDown; virtual;
     function Execute(aRun: Integer): TKMRunResult; virtual; abstract;
+    procedure SimulateGame(aTicks: Integer);
   public
     function Run(aCount: Integer): TKMRunResults;
   end;
@@ -50,7 +51,11 @@ begin
   SetUp;
 
   for I := 0 to aCount - 1 do
+  begin
+
     Result[I] := Execute(I);
+
+  end;
 
   TearDown;
 end;
@@ -76,6 +81,20 @@ begin
   FreeAndNil(fTextLibrary);
   FreeAndNil(fLocales);
   FreeAndNil(fLog);
+end;
+
+
+procedure TKMRunnerCommon.SimulateGame(aTicks: Integer);
+var I: Integer;
+begin
+  for I := 0 to aTicks - 1 do
+  begin
+    fGameApp.Game.UpdateGame(nil);
+    if fGameApp.Game.IsPaused then
+      fGameApp.Game.GameHold(False, gr_Win);
+   // if aTicks mod 6000 then
+   //   OnProgress(aTicks mod 600);
+  end;
 end;
 
 

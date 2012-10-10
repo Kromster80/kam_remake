@@ -360,7 +360,7 @@ begin
   case aRT of
     rt_None:    ;
     rt_All:     for RT := WARE_MIN to WARE_MAX do
-                  Result := Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed;
+                  Result := Result + Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed;
     rt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
                   Result := Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed;
     else        Result := Goods[aRT].Initial + Goods[aRT].Produced - Goods[aRT].Consumed;

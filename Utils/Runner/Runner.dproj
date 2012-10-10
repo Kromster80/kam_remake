@@ -72,6 +72,9 @@
 			<DCC_RemoteDebug>true</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
+			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<VerInfo_Locale>1033</VerInfo_Locale>
@@ -92,6 +95,7 @@
 			</DCCReference>
 			<DCCReference Include="Unit_Runner.pas"/>
 			<DCCReference Include="Runner_Game.pas"/>
+			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
