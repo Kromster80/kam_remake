@@ -426,7 +426,7 @@ begin
         fUnitTask := TTaskGoHome.Create(Self) //Home found - go there
       else begin
         fThought := th_Quest; //Always show quest when idle, unlike serfs who randomly show it
-        SetActionStay(60, ua_Walk) //There's no home
+        SetActionStay(20, ua_Walk) //There's no home, but there will hopefully be one soon so don't sleep too long
       end
     else
       if fVisible then //Unit is not at home, but it has one
