@@ -11,7 +11,7 @@ type
   TKMRunnerClass = class of TKMRunnerCommon;
 
   TKMRunResult = record
-    Value: Integer;
+    Value: Single;
   end;
 
   TKMRunResults = array of TKMRunResult;

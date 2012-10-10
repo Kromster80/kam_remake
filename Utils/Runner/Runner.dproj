@@ -89,7 +89,6 @@
 			</DelphiCompile>
 			<DCCReference Include="Unit1.pas">
 				<Form>Form2</Form>
-				<FormType>dfm</FormType>
 			</DCCReference>
 			<DCCReference Include="Unit_Runner.pas"/>
 			<DCCReference Include="Runner_Game.pas"/>
