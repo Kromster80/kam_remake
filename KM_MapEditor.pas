@@ -239,7 +239,7 @@ begin
 
   fDeposits := TKMDeposits.Create;
 
-  fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDefences];
+  fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences];
 
 end;
 

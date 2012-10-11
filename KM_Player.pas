@@ -4,7 +4,7 @@ interface
 uses Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ArmyEvaluation, KM_BuildList, KM_DeliverQueue, KM_FogOfWar,
-  KM_Goals, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units;
+  KM_Goals, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_MapEditor;
 
 
 type
@@ -160,6 +160,8 @@ end;
 
 procedure TKMPlayerCommon.Paint;
 begin
+  if fGame.IsMapEditor and not (mlUnits in fGame.MapEditor.VisibleLayers) then exit;
+
   fUnits.Paint;
 end;
 
@@ -920,6 +922,8 @@ end;
 procedure TKMPlayer.Paint;
 begin
   inherited;
+  if fGame.IsMapEditor and not(mlHouses in fGame.MapEditor.VisibleLayers) then exit;
+
   fHouses.Paint;
 end;
 
