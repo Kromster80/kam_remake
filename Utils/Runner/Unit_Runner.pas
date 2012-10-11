@@ -6,22 +6,28 @@ uses Classes, Math, SysUtils,
   KM_GameApp, KM_Locales, KM_Log, KM_TextLibrary, KM_Utils;
 
 
+const
+  MAX_VALUES = 8;
+
 type
   TKMRunnerCommon = class;
   TKMRunnerClass = class of TKMRunnerCommon;
 
-  TKMRunResult = record
-    Value: Single;
+  TKMRunResults = record
+    RunCount: Integer; //How many runs were logged
+    ValCount: Integer; //How many values each run has
+    ValueMin, ValueMax: array of Single;
+    Value: array of array [0..MAX_VALUES - 1] of Single;
   end;
-
-  TKMRunResults = array of TKMRunResult;
 
   TKMRunnerCommon = class
   protected
+    fResults: TKMRunResults;
     procedure SetUp; virtual;
     procedure TearDown; virtual;
-    function Execute(aRun: Integer): TKMRunResult; virtual; abstract;
+    procedure Execute(aRun: Integer); virtual; abstract;
     procedure SimulateGame(aTicks: Integer);
+    procedure ProcessRunResults;
   public
     function Run(aCount: Integer): TKMRunResults;
   end;
@@ -46,18 +52,39 @@ function TKMRunnerCommon.Run(aCount: Integer): TKMRunResults;
 var
   I: Integer;
 begin
-  SetLength(Result, aCount);
-
   SetUp;
 
+  fResults.RunCount := aCount;
+  SetLength(fResults.Value, aCount);
+  SetLength(fResults.ValueMin, aCount);
+  SetLength(fResults.ValueMax, aCount);
+
   for I := 0 to aCount - 1 do
-  begin
-
-    Result[I] := Execute(I);
-
-  end;
+    Execute(I);
 
   TearDown;
+
+  ProcessRunResults;
+  Result := fResults;
+end;
+
+
+procedure TKMRunnerCommon.ProcessRunResults;
+var
+  I, K: Integer;
+begin
+  //Get min max
+  with fResults do
+  for I := 0 to ValCount - 1 do
+  begin
+    ValueMin[I] := Value[0,I];
+    ValueMax[I] := Value[0,I];
+    for K := 1 to RunCount - 1 do
+    begin
+      ValueMin[I] := Min(ValueMin[I], Value[K,I]);
+      ValueMax[I] := Max(ValueMax[I], Value[K,I]);
+    end;
+  end;
 end;
 
 

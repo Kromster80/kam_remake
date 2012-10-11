@@ -10,26 +10,39 @@ uses
 type
   TKMRunnerStone = class(TKMRunnerCommon)
   protected
-    function Execute(aRun: Integer): TKMRunResult; override;
+    procedure SetUp; override;
+    procedure Execute(aRun: Integer); override;
   end;
 
   TKMRunnerFight95 = class(TKMRunnerCommon)
   protected
-    function Execute(aRun: Integer): TKMRunResult; override;
+    procedure SetUp; override;
+    procedure Execute(aRun: Integer); override;
   end;
 
   TKMRunnerAIBuild = class(TKMRunnerCommon)
   protected
-    function Execute(aRun: Integer): TKMRunResult; override;
+    procedure SetUp; override;
+    procedure Execute(aRun: Integer); override;
   end;
 
 
 implementation
 
 
-function TKMRunnerStone.Execute(aRun: Integer): TKMRunResult;
+procedure TKMRunnerStone.SetUp;
 begin
+  inherited;
+  fResults.ValCount := 1;
+
+  AI_GEN_INFLUENCE_MAPS := False;
+  AI_GEN_NAVMESH := False;
   DYNAMIC_TERRAIN := False;
+end;
+
+
+procedure TKMRunnerStone.Execute(aRun: Integer);
+begin
   //Total amount of stones = 4140
   fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\StoneMines\StoneMines.dat', 'StoneMines');
 
@@ -37,49 +50,61 @@ begin
 
   SimulateGame(2*60*60*10);
 
-  //fGameApp.Game.Save('StoneTest');
-//  Check(fPlayers[0].Stats.GetGoodsProduced >= 4140 * 0.9, 'StoneMining got broken? Mined '+IntToStr(fPlayers[0].Stats.GetGoodsProduced)+'/3800');
-  Result.Value := fPlayers[0].Stats.GetGoodsProduced;
+  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetGoodsProduced;
 
+  //fGameApp.Game.Save('StoneTest');
   fGameApp.Stop(gr_Silent);
 end;
 
 
-function TKMRunnerFight95.Execute(aRun: Integer): TKMRunResult;
-var
-  I, K: Integer;
+procedure TKMRunnerFight95.SetUp;
 begin
+  inherited;
+  fResults.ValCount := 2;
+
   DYNAMIC_TERRAIN := False;
+end;
+
+
+procedure TKMRunnerFight95.Execute(aRun: Integer);
+begin
   fGameApp.NewEmptyMap(128, 128);
   SetKaMSeed(aRun + 1);
 
   //fPlayers[0].AddUnitGroup(ut_Cavalry, KMPoint(63, 64), dir_E, 8, 24);
   //fPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
 
-  fPlayers[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
-  fPlayers[1].AddUnitGroup(ut_Hallebardman, KMPoint(65, 64), dir_W, 8, 24);
+  //fPlayers[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
+  //fPlayers[1].AddUnitGroup(ut_Hallebardman, KMPoint(65, 64), dir_W, 8, 24);
 
   //fPlayers[0].AddUnitGroup(ut_Hallebardman, KMPoint(63, 64), dir_E, 8, 24);
   //fPlayers[1].AddUnitGroup(ut_Cavalry, KMPoint(65, 64), dir_W, 8, 24);
 
+  fPlayers[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
+  fPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
+
   TKMUnitWarrior(fPlayers[1].Units[0]).OrderAttackUnit(fPlayers[0].Units[0]);
 
-  SimulateGame(1000);
+  SimulateGame(1200);
 
-  Result.Value := fPlayers[0].Stats.GetUnitQty(ut_Any);// - fPlayers[1].Stats.GetWarriorsKilled;
+  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetUnitQty(ut_Any);
+  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetUnitQty(ut_Any);
 
   fGameApp.Stop(gr_Silent);
 end;
 
 
-function TKMRunnerAIBuild.Execute(aRun: Integer): TKMRunResult;
+procedure TKMRunnerAIBuild.SetUp;
+begin
+  inherited;
+  fResults.ValCount := 5;
+end;
+
+
+procedure TKMRunnerAIBuild.Execute(aRun: Integer);
 begin
   fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\MapsMP\Across the Desert\Across the Desert.dat', 'Across the Desert');
 
-  fPlayers.RemovePlayer(5);
-  fPlayers.RemovePlayer(4);
-  fPlayers.RemovePlayer(3);
-  fPlayers.RemovePlayer(2);
   fPlayers.RemovePlayer(0);
   MyPlayer := fPlayers[0];
 
@@ -87,7 +112,11 @@ begin
 
   SimulateGame(1*60*60*10);
 
-  Result.Value := fPlayers[0].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
+  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
+  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
+  fResults.Value[aRun, 2] := fPlayers[2].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
+  fResults.Value[aRun, 3] := fPlayers[3].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
+  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
 
   fGameApp.Stop(gr_Silent);
 end;

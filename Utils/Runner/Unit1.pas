@@ -2,7 +2,7 @@ unit Unit1;
 {$I KaM_Remake.inc}
 interface
 uses
-  Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Math, Windows,
+  Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Graphics, Types, Math, Windows,
   Unit_Runner;
 
 
@@ -76,56 +76,60 @@ end;
 
 
 procedure TForm2.RadioGroup1Click(Sender: TObject);
+const
+  LineCol: array [0..MAX_VALUES - 1] of TColor =
+    (clRed, clBlue, clGreen, clPurple, clYellow, clGray, clBlack, clOlive);
 var
-  I, K: Integer;
-  ValueMin, ValueMax: Single;
+  J: Integer;
+  I: Integer;
   DotX, DotY: Word;
+  StatMax: Single;
   Stats: array of Integer;
+  S: string;
 begin
+  Memo1.Clear;
   Image1.Canvas.FillRect(Image1.Canvas.ClipRect);
-  if Length(fResults) = 0 then Exit;
 
-  ValueMin := fResults[0].Value;
-  ValueMax := fResults[0].Value;
-  for I := 1 to High(fResults) do
+  for J := 0 to fResults.ValCount - 1 do
   begin
-    ValueMin := Min(ValueMin, fResults[I].Value);
-    ValueMax := Max(ValueMax, fResults[I].Value);
-  end;
-
-  case RadioGroup1.ItemIndex of
-    0:  for I := 0 to High(fResults) do
-        begin
-          DotX := Round(I / Length(fResults) * Image1.Width);
-          DotY := Image1.Height - Round(fResults[I].Value / ValueMax * Image1.Height);
-          Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
-        end;
-    1:  begin
-          SetLength(Stats, Round(ValueMax) - Round(ValueMin) + 1);
-          for I := 0 to High(fResults) do
-            Inc(Stats[Round(fResults[I].Value) - Round(ValueMin)]);
-
-          ValueMin := Stats[Low(Stats)];
-          ValueMax := Stats[Low(Stats)];
-          for I := Low(Stats)+1 to High(Stats) do
+    Image1.Canvas.PenPos := Point(0, Image1.Height);
+    Image1.Canvas.Pen.Color := LineCol[J];
+    case RadioGroup1.ItemIndex of
+      0:  for I := 0 to fResults.RunCount - 1 do
           begin
-            ValueMin := Min(ValueMin, Stats[I]);
-            ValueMax := Max(ValueMax, Stats[I]);
-          end;
-
-          Image1.Canvas.PenPos := Point(0, Image1.Height);
-          for I := Low(Stats) to High(Stats) do
-          begin
-            DotX := Round((I - Low(Stats)) / Length(Stats) * Image1.Width);
-            DotY := Image1.Height - Round(Stats[I] / ValueMax * Image1.Height);
+            DotX := Round(I / fResults.RunCount * Image1.Width);
+            DotY := Image1.Height - Round(fResults.Value[I,J] / fResults.ValueMax[J] * Image1.Height);
             Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
             Image1.Canvas.LineTo(DotX, DotY);
           end;
-        end;
+      1:  begin
+            SetLength(Stats, Round(fResults.ValueMax[J]) - Round(fResults.ValueMin[J]) + 1);
+            for I := 0 to fResults.RunCount - 1 do
+              Inc(Stats[Round(fResults.Value[I,J]) - Round(fResults.ValueMin[J])]);
+
+            StatMax := Stats[Low(Stats)];
+            for I := Low(Stats)+1 to High(Stats) do
+              StatMax := Max(StatMax, Stats[I]);
+
+            for I := Low(Stats) to High(Stats) do
+            begin
+              DotX := Round((I - Low(Stats)) / Length(Stats) * Image1.Width);
+              DotY := Image1.Height - Round(Stats[I] / StatMax * Image1.Height);
+              Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
+              Image1.Canvas.LineTo(DotX, DotY);
+            end;
+          end;
+    end;
   end;
 
-  for I := 0 to High(fResults) do
-    Memo1.Lines.Append(Format('%d. %.2f', [I, fResults[I].Value]));
+  for I := 0 to fResults.RunCount - 1 do
+  begin
+    S := IntToStr(I) + '.';
+    for J := 0 to fResults.ValCount - 1 do
+      S := S + Format(' %.2f', [fResults.Value[I,J]]);
+    Memo1.Lines.Append(S);
+  end;
+
   Memo1.Lines.Append(fRunTime);
 end;
 
