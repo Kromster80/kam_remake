@@ -112,11 +112,11 @@ begin
 
   SimulateGame(1*60*60*10);
 
-  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
-  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
-  fResults.Value[aRun, 2] := fPlayers[2].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
-  fResults.Value[aRun, 3] := fPlayers[3].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
-  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetResourceQty(rt_All);// - fPlayers[1].Stats.GetWarriorsKilled;
+  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetResourceQty(rt_All);
+  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetResourceQty(rt_All);
+  fResults.Value[aRun, 2] := fPlayers[2].Stats.GetResourceQty(rt_All);
+  fResults.Value[aRun, 3] := fPlayers[3].Stats.GetResourceQty(rt_All);
+  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetResourceQty(rt_All);
 
   fGameApp.Stop(gr_Silent);
 end;
