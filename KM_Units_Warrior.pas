@@ -11,7 +11,6 @@ type
   TKMUnitWarrior = class(TKMUnit)
   private
   {Individual properties}
-    fFlagAnim:cardinal;
     fRequestedFood:boolean;
     fTimeSinceHungryReminder:integer;
     fState:TWarriorState; //This property is individual to each unit, including commander
@@ -113,7 +112,6 @@ begin
   fOrderTargetUnit   := nil;
   fOrderTargetHouse  := nil;
   fRequestedFood     := false;
-  fFlagAnim          := 0;
   fTimeSinceHungryReminder := 0;
   fOrder             := wo_None;
   fState             := ws_None;
@@ -131,7 +129,6 @@ begin
   LoadStream.Read(fCommander, 4); //subst on syncload
   LoadStream.Read(fOrderTargetUnit, 4); //subst on syncload
   LoadStream.Read(fOrderTargetHouse, 4); //subst on syncload
-  LoadStream.Read(fFlagAnim);
   LoadStream.Read(fRequestedFood);
   LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fOrder, SizeOf(fOrder));
@@ -889,7 +886,6 @@ begin
     SaveStream.Write(fOrderTargetHouse.ID) //Store ID
   else
     SaveStream.Write(Integer(0));
-  SaveStream.Write(fFlagAnim);
   SaveStream.Write(fRequestedFood);
   SaveStream.Write(fTimeSinceHungryReminder);
   SaveStream.Write(fOrder, SizeOf(fOrder));
@@ -942,7 +938,7 @@ begin
 end;
 
 
-function TKMUnitWarrior.CheckForEnemy:boolean;
+function TKMUnitWarrior.CheckForEnemy: Boolean;
 var FoundEnemy: TKMUnit;
 begin
   Result := false; //Didn't find anyone to fight
@@ -1044,11 +1040,12 @@ begin
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitWarrior.UpdateState',fCurrPosition);
   if IsDeadOrDying then
   begin
-    Result:=true; //Required for override compatibility
+    Result := True; //Required for override compatibility
     inherited UpdateState;
-    exit;
+    Exit;
   end;
 
+  //Check Commander integrity
   if fCommander <> nil then
   begin
     if fCommander.IsDeadOrDying then raise ELocError.Create('fCommander.IsDeadOrDying',GetPosition);
@@ -1056,9 +1053,11 @@ begin
   end;
   if GetCommander.fCommander <> nil then raise ELocError.Create('GetCommander.fCommander <> nil',GetPosition);
 
-  inc(fFlagAnim);
-  if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat; //th_Death checked in parent UpdateState
-  if fFlagAnim mod HUNGER_CHECK_FREQ = 0 then UpdateHungerMessage;
+  if fCondition < UNIT_MIN_CONDITION then
+    fThought := th_Eat; //th_Death checked in parent UpdateState
+
+  if fTicker mod HUNGER_CHECK_FREQ = 0 then
+    UpdateHungerMessage;
 
   //Choose a random foe from our commander, then use that from here on (only if needed and not every tick)
   if GetCommander.ArmyInFight and (not (GetUnitAction is TUnitActionFight))
@@ -1197,9 +1196,9 @@ begin
     fState := ws_None; //Not needed for storm attack
   end;
 
-  if (fFlagAnim mod 5 = 0) and (fState <> ws_RepositionPause) then CheckForEnemy; //Split into seperate procedure so it can be called from other places
+  if (fTicker mod 5 = 0) and (fState <> ws_RepositionPause) then CheckForEnemy; //Split into seperate procedure so it can be called from other places
 
-  Result:=true; //Required for override compatibility
+  Result := True; //Required for override compatibility
   if inherited UpdateState then exit;
 
 
@@ -1285,10 +1284,11 @@ begin
     else
       FlagColor := fPlayers.Player[fOwner].FlagColor; //Normal color
 
+    //In MapEd units fTicker always the same, use Terrain instead
     if fGame.GameMode = gmMapEd then
       FlagStep := fTerrain.AnimStep
     else
-      FlagStep := fFlagAnim;
+      FlagStep := fTicker;
     fRenderPool.AddUnitFlag(fUnitType, Act, Direction, AnimStep, FlagStep, UnitPos.X, UnitPos.Y, FlagColor, fPlayers.Player[fOwner].FlagColor);
   end
   else

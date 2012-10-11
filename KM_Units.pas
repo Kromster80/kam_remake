@@ -60,21 +60,22 @@ type
 
   TKMUnit = class
   protected //Accessible for child classes
-    fID:integer; //unique unit ID, used for save/load to sync to
+    fID: Integer; //unique unit ID, used for save/load to sync to
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
-    fThought:TUnitThought;
-    fHitPoints:byte;
-    fHitPointCounter: cardinal;
-    fCondition:integer; //Unit condition, when it reaches zero unit should die
-    fOwner:TPlayerIndex;
-    fHome:TKMHouse;
+    fThought: TUnitThought;
+    fHitPoints: Byte;
+    fHitPointCounter: Cardinal; //Counter for hit point restoration, separate cos it resets on first hit
+    fCondition: Integer; //Unit condition, when it reaches zero unit should die (rarely can be negative due to WalkExchange)
+    fTicker: Cardinal; //ticks of life for the unit (allows to spread updates)
+    fOwner: TPlayerIndex;
+    fHome: TKMHouse;
     fPosition: TKMPointF;
-    fVisible:boolean;
-    fIsDead:boolean;
-    fKillASAP:boolean;
-    fPointerCount:integer;
+    fVisible: Boolean;
+    fIsDead: Boolean;
+    fKillASAP: Boolean;
+    fPointerCount: Word;
     fInHouse: TKMHouse; //House we are currently in
     fCurrPosition: TKMPoint; //Where we are now
     fPrevPosition: TKMPoint; //Where we were
@@ -83,14 +84,13 @@ type
 
     function GetDesiredPassability: TPassability;
     function GetHitPointsMax: Byte;
-    procedure SetDirection(aValue:TKMDirection);
-    procedure SetAction(aAction: TUnitAction; aStep:integer=0);
+    procedure SetDirection(aValue: TKMDirection);
+    procedure SetAction(aAction: TUnitAction; aStep: Integer = 0);
     procedure SetNextPosition(aLoc: TKMPoint);
-    function GetSlide(aCheck:TCheckAxis): single;
+    function GetSlide(aCheck: TCheckAxis): Single;
     function CanAccessHome: Boolean;
 
     procedure UpdateHunger;
-    procedure UpdateFOW;
     procedure UpdateThoughts;
     function UpdateVisibility:boolean;
     procedure UpdateHitPoints;
@@ -105,7 +105,7 @@ type
 
     function GetUnitPointer: TKMUnit; //Returns self and adds one to the pointer counter
     procedure ReleaseUnitPointer;  //Decreases the pointer counter
-    property GetPointerCount: Integer read fPointerCount;
+    property GetPointerCount: Word read fPointerCount;
 
     procedure KillUnit; virtual; //Creates TTaskDie which then will Close the unit from further access
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); dynamic;
@@ -141,7 +141,7 @@ type
     property UnitType: TUnitType read fUnitType;
     function GetUnitActText:string;
     property Condition: integer read fCondition write fCondition;
-    function  HitPointsDecrease(aAmount:integer):boolean;
+    function  HitPointsDecrease(aAmount: Byte): Boolean;
     property HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
     property Visible: boolean read fVisible write fVisible;
@@ -376,10 +376,11 @@ begin
 end;
 
 
-function TKMUnitCitizen.UpdateState:boolean;
-var H:TKMHouseInn;
+function TKMUnitCitizen.UpdateState: Boolean;
+var
+  H: TKMHouseInn;
 begin
-  Result:=true; //Required for override compatibility
+  Result := True; //Required for override compatibility
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitCitizen.UpdateState',fCurrPosition);
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
@@ -410,18 +411,20 @@ begin
     Idle..}
 
 
-  if fCondition<UNIT_MIN_CONDITION then
+  //See if need to get to eat
+  if fCondition < UNIT_MIN_CONDITION then
   begin
     H := fPlayers.Player[fOwner].FindInn(fCurrPosition,Self,not fVisible);
-    if H<>nil then
-      fUnitTask := TTaskGoEat.Create(H,Self)
+    if H <> nil then
+      fUnitTask := TTaskGoEat.Create(H, Self)
     else
       if (fHome <> nil) and not fVisible then
-        fUnitTask:=TTaskGoOutShowHungry.Create(Self)
+        //If we inside home - go out and return (I suspect that was same task as TTaskGoEat in KaM though)
+        fUnitTask := TTaskGoOutShowHungry.Create(Self)
   end;
 
-  if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
-    if fHome=nil then
+  if fUnitTask = nil then //If Unit still got nothing to do, nevermind hunger
+    if fHome = nil then
       if FindHome then
         fUnitTask := TTaskGoHome.Create(Self) //Home found - go there
       else begin
@@ -437,11 +440,12 @@ begin
           SetActionStay(60, ua_Walk) //Home can't be reached
       end else begin
         fUnitTask := InitiateMining; //Unit is at home, so go get a job
-        if fUnitTask=nil then //We didn't find any job to do - rest at home
+        if fUnitTask = nil then //We didn't find any job to do - rest at home
           SetActionStay(fResource.HouseDat[fHome.HouseType].WorkerRest*10, ua_Walk);
       end;
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitCitizen.UpdateState',fCurrPosition);
+  if fCurrentAction = nil then
+    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitCitizen.UpdateState', fCurrPosition);
 end;
 
 
@@ -590,14 +594,14 @@ begin
 
   fThought := th_None;
 
-  if fCondition<UNIT_MIN_CONDITION then
+  if fCondition < UNIT_MIN_CONDITION then
   begin
-    H:=fPlayers.Player[fOwner].FindInn(fCurrPosition,Self,not fVisible);
-    if H<>nil then
-      fUnitTask:=TTaskGoEat.Create(H,Self)
+    H := fPlayers.Player[fOwner].FindInn(fCurrPosition,Self,not fVisible);
+    if H <> nil then
+      fUnitTask := TTaskGoEat.Create(H,Self)
     else
       if (fHome <> nil) and not fVisible then
-        fUnitTask:=TTaskGoOutShowHungry.Create(Self)
+        fUnitTask := TTaskGoOutShowHungry.Create(Self);
   end;
 
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
@@ -726,33 +730,36 @@ end;
 
 function TKMUnitSerf.UpdateState:boolean;
 var
-  H:TKMHouseInn;
-  OldThought:TUnitThought;
-  WasIdle:Boolean;
+  H: TKMHouseInn;
+  OldThought: TUnitThought;
+  WasIdle: Boolean;
 begin
-  Result:=true; //Required for override compatibility
+  Result := True; //Required for override compatibility
   WasIdle := IsIdle;
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitSerf.UpdateState',fCurrPosition);
+  if fCurrentAction = nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitSerf.UpdateState',fCurrPosition);
   if inherited UpdateState then exit;
 
-  OldThought:=fThought;
-  fThought:=th_None;
+  OldThought := fThought;
+  fThought := th_None;
 
-  if fCondition<UNIT_MIN_CONDITION then begin
-    H:=fPlayers.Player[fOwner].FindInn(fCurrPosition,Self);
-    if H<>nil then
-      fUnitTask:=TTaskGoEat.Create(H,Self);
+  if fCondition < UNIT_MIN_CONDITION then
+  begin
+    H := fPlayers.Player[fOwner].FindInn(fCurrPosition, Self);
+    if H <> nil then
+      fUnitTask := TTaskGoEat.Create(H, Self);
   end;
 
   //Only show quest thought if we have been idle since the last update (not HadTask)
   //and not thinking anything else (e.g. death)
-  if fUnitTask=nil then begin
-    if WasIdle and (OldThought=th_None) and (KaMRandom(2)=0) then
-      fThought:=th_Quest;
+  if fUnitTask = nil then
+  begin
+    if WasIdle and (OldThought = th_None) and (KaMRandom(2) = 0) then
+      fThought := th_Quest;
     SetActionStay(60,ua_Walk); //Stay idle
   end;
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitSerf.UpdateState',fCurrPosition);
+  if fCurrentAction = nil then
+    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitSerf.UpdateState', fCurrPosition);
 end;
 
 
@@ -963,6 +970,7 @@ constructor TKMUnit.Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:intege
 begin
   inherited Create;
   fID           := aID;
+  fTicker       := fID; //Units upsate states will be evenly spread that way
   fPointerCount := 0;
   fIsDead       := false;
   fKillASAP     := false;
@@ -971,7 +979,7 @@ begin
   fInHouse      := nil;
   fPosition.X   := PosX;
   fPosition.Y   := PosY;
-  fCurrPosition := KMPoint(PosX,PosY);
+  fCurrPosition := KMPoint(PosX, PosY);
   fPrevPosition := fCurrPosition; //Init values
   fNextPosition := fCurrPosition; //Init values
   fOwner        := aOwner;
@@ -1061,6 +1069,7 @@ begin
 
   LoadStream.Read(fThought, SizeOf(fThought));
   LoadStream.Read(fCondition);
+  LoadStream.Read(fTicker);
   LoadStream.Read(fHitPoints);
   LoadStream.Read(fHitPointCounter);
   LoadStream.Read(fInHouse, 4);
@@ -1208,16 +1217,22 @@ end;
 
 
 //Return TRUE if unit was killed
-function TKMUnit.HitPointsDecrease(aAmount:integer):boolean;
+function TKMUnit.HitPointsDecrease(aAmount: Byte): Boolean;
 begin
-  Result := false;
+  Result := False;
+  Assert(aAmount > 0, '0 damage should be handled outside so not to reset HPCounter');
+
   //When we are first hit reset the counter
-  if (aAmount > 0) and (fHitPoints = HitPointsMax) then fHitPointCounter := 1;
-  // Sign of aAmount does not affect
-  fHitPoints := EnsureRange(fHitPoints - abs(aAmount), 0, HitPointsMax);
-  if (fHitPoints = 0) and not IsDeadOrDying then begin //Kill only once
+  if fHitPoints = HitPointsMax then
+    fHitPointCounter := 1;
+
+  // Sign of aAmount does not affect (how come it ever did 0_o)
+  fHitPoints := Max(fHitPoints - aAmount, 0);
+  if (fHitPoints = 0) and not IsDeadOrDying then
+  begin
+    //Make sure to kill only once
     KillUnit;
-    Result := true;
+    Result := True;
   end;
 end;
 
@@ -1471,7 +1486,7 @@ end;
 
 procedure TKMUnit.Feed(Amount: Single);
 begin
-  fCondition := Math.min(fCondition + round(Amount), UNIT_MAX_CONDITION);
+  fCondition := Math.min(fCondition + Round(Amount), UNIT_MAX_CONDITION);
 end;
 
 
@@ -1556,24 +1571,13 @@ begin
   //When unit eats increase his fLiveTill by amount of food value he ate
   //Check unit hunger each 600 ticks, if fLiveTill > fTicker then KillUnit;
 
-  if fCondition>0 then //Make unit hungry as long as they are not currently eating in the inn
+  if fCondition > 0 then //Make unit hungry as long as they are not currently eating in the inn
     if not((fUnitTask is TTaskGoEat) and (TTaskGoEat(fUnitTask).Eating)) then
       dec(fCondition);
-
-  //Feed the unit automatically. Don't align it with dec(fCondition) cos FOW uses it as a timer
-  if (not DO_UNIT_HUNGER)and(fCondition<UNIT_MIN_CONDITION+100) then fCondition := UNIT_MAX_CONDITION;
 
   //Unit killing could be postponed by few ticks, hence fCondition could be <0
   if fCondition <= 0 then
     KillUnit;
-end;
-
-
-//Can use fCondition as a sort of counter to reveal terrain X times a sec
-procedure TKMUnit.UpdateFOW;
-begin
-  if fCondition mod 10 = 0 then
-    fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
 end;
 
 
@@ -1665,25 +1669,26 @@ end;
 
 
 function TKMUnit.GetActivityText: string;
-const TASK_TEXT: array[TUnitTaskName] of Integer = (
--1,-1,                   //utn_Unknown, utn_SelfTrain
-TX_UNIT_TASK_DELVERING,  //utn_Deliver
-TX_UNIT_TASK_ROAD,       //utn_BuildRoad
-TX_UNIT_TASK_WINEFIELD,  //utn_BuildWine
-TX_UNIT_TASK_FIELD,      //utn_BuildField
--1,                      //utn_BuildWall (unused)
-TX_UNIT_TASK_HOUSE_SITE, //utn_BuildHouseArea
-TX_UNIT_TASK_HOUSE,      //utn_BuildHouse
-TX_UNIT_TASK_REPAIRING,  //utn_BuildHouseRepair
-TX_UNIT_TASK_HOME,       //utn_GoHome
-TX_UNIT_TASK_INN,        //utn_GoEat
--1,                      //utn_Mining (overridden by Citizen)
--1,                      //utn_Die (never visible)
-TX_UNIT_TASK_INN,        //utn_GoOutShowHungry
--1,                      //utn_AttackHouse (overridden by Warrior)
--1                       //utn_ThrowRock (never visible)
-);
-begin                  
+const
+  TASK_TEXT: array[TUnitTaskName] of Integer = (
+      -1,-1,                   //utn_Unknown, utn_SelfTrain
+      TX_UNIT_TASK_DELVERING,  //utn_Deliver
+      TX_UNIT_TASK_ROAD,       //utn_BuildRoad
+      TX_UNIT_TASK_WINEFIELD,  //utn_BuildWine
+      TX_UNIT_TASK_FIELD,      //utn_BuildField
+      -1,                      //utn_BuildWall (unused)
+      TX_UNIT_TASK_HOUSE_SITE, //utn_BuildHouseArea
+      TX_UNIT_TASK_HOUSE,      //utn_BuildHouse
+      TX_UNIT_TASK_REPAIRING,  //utn_BuildHouseRepair
+      TX_UNIT_TASK_HOME,       //utn_GoHome
+      TX_UNIT_TASK_INN,        //utn_GoEat
+      -1,                      //utn_Mining (overridden by Citizen)
+      -1,                      //utn_Die (never visible)
+      TX_UNIT_TASK_INN,        //utn_GoOutShowHungry
+      -1,                      //utn_AttackHouse (overridden by Warrior)
+      -1                       //utn_ThrowRock (never visible)
+    );
+begin
   if (fUnitTask <> nil) and (TASK_TEXT[fUnitTask.TaskName] <> -1) then
     Result := fTextLibrary[TASK_TEXT[fUnitTask.TaskName]]
   else
@@ -1695,9 +1700,11 @@ procedure TKMUnit.UpdateHitPoints;
 begin
   //Use fHitPointCounter as a counter to restore hit points every X ticks (Humbelum says even when in fights)
   if HITPOINT_RESTORE_PACE = 0 then Exit; //0 pace means don't restore
-  if fHitPointCounter mod HITPOINT_RESTORE_PACE = 0 then
-    fHitPoints := Min(fHitPoints + 1, HitPointsMax);
-  fHitPointCounter := fHitPointCounter mod High(Cardinal) + 1;
+
+  if (fHitPointCounter mod HITPOINT_RESTORE_PACE = 0) and (fHitPoints < HitPointsMax) then
+    Inc(fHitPoints);
+
+  Inc(fHitPointCounter); //Increasing each tick by 1 would require 13,6 years to overflow Cardinal
 end;
 
 
@@ -1789,6 +1796,7 @@ begin
 
   SaveStream.Write(fThought, SizeOf(fThought));
   SaveStream.Write(fCondition);
+  SaveStream.Write(fTicker);
   SaveStream.Write(fHitPoints);
   SaveStream.Write(fHitPointCounter);
 
@@ -1842,8 +1850,11 @@ begin
   end;
 
   UpdateHunger;
+
   //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
-  if FOG_OF_WAR_ENABLE then UpdateFOW;
+  if FOG_OF_WAR_ENABLE and (fTicker mod 10 = 0) then
+    fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
+
   UpdateThoughts;
   UpdateHitPoints;
   if UpdateVisibility then exit; //incase units home was destroyed. Returns true if the unit was killed due to lack of space
