@@ -209,7 +209,7 @@ begin
     if (U <> nil)
     and (U.GetUnitAction is TUnitActionStay)
     and not TUnitActionStay(U.GetUnitAction).Locked
-    and (not (U is TKMUnitWarrior) or (fPlayers.CheckAlliance(U.GetOwner,fUnit.GetOwner) = at_Ally)) then
+    and (not (U is TKMUnitWarrior) or (fPlayers.CheckAlliance(U.Owner,fUnit.Owner) = at_Ally)) then
       Result := U;
   end;
 end;
@@ -261,13 +261,13 @@ var LinkUnit: TKMUnitWarrior;
 begin
   if (fUnit is TKMUnitWarrior) and (fHouse is TKMHouseBarracks) then
   begin
-    case fPlayers.Player[fUnit.GetOwner].PlayerType of
+    case fPlayers.Player[fUnit.Owner].PlayerType of
       pt_Human:    begin
                      LinkUnit := TKMUnitWarrior(fUnit).FindLinkUnit(fStreet);
                      if LinkUnit <> nil then
                        TKMUnitWarrior(fUnit).OrderLinkTo(LinkUnit);
                    end;
-      pt_Computer: fPlayers[fUnit.GetOwner].AI.WarriorEquipped(TKMUnitWarrior(fUnit));
+      pt_Computer: fPlayers[fUnit.Owner].AI.WarriorEquipped(TKMUnitWarrior(fUnit));
     end;
   end;
 end;

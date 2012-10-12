@@ -296,11 +296,11 @@ begin
     att_CustomPosition:               begin
                                         TargetHouse := fPlayers.HousesHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetHouse <> nil) and
-                                           (fPlayers.CheckAlliance(fPlayerIndex, TargetHouse.GetOwner) = at_Ally) then
+                                           (fPlayers.CheckAlliance(fPlayerIndex, TargetHouse.Owner) = at_Ally) then
                                           TargetHouse := nil;
                                         TargetUnit := fTerrain.UnitsHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetUnit <> nil) and
-                                           (fPlayers.CheckAlliance(fPlayerIndex, TargetUnit.GetOwner) = at_Ally) then
+                                           (fPlayers.CheckAlliance(fPlayerIndex, TargetUnit.Owner) = at_Ally) then
                                           TargetUnit := nil;
                                       end;
   end;

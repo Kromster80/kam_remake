@@ -416,7 +416,7 @@ begin
       //If unit becomes nil that is fine, we will simply walk to it's last known location. But update fOrderLoc to make sure this happens!
       TKMUnitWarrior(fUnit).OrderLocDir := KMPointDir(fWalkTo,TKMUnitWarrior(fUnit).OrderLocDir.Dir);
       //If we are an AI player then we do not keep walking to a dead enemy's position, we halt (and go home) instead
-      if (fPlayers.Player[fUnit.GetOwner].PlayerType = pt_Computer) then
+      if (fPlayers.Player[fUnit.Owner].PlayerType = pt_Computer) then
         TKMUnitWarrior(fUnit).OrderHalt;
       Result := tc_TargetUpdated;
     end
@@ -531,7 +531,7 @@ begin
     //by the enemy instead of fighting them.
     //CheckAlliance is for optimisation since pushing allies doesn't matter
     if (fOpponent is TKMUnitWarrior)
-    and (fPlayers.CheckAlliance(fOpponent.GetOwner, fUnit.GetOwner) = at_Enemy)
+    and (fPlayers.CheckAlliance(fOpponent.Owner, fUnit.Owner) = at_Enemy)
     and TKMUnitWarrior(fOpponent).CheckForEnemy then
       Exit;
 
@@ -567,7 +567,7 @@ begin
     //with the enemy instead of fighting them.
     //CheckAlliance is for optimisation since pushing allies doesn't matter
     if (fOpponent is TKMUnitWarrior)
-    and (fPlayers.CheckAlliance(fOpponent.GetOwner, fUnit.GetOwner) = at_Enemy)
+    and (fPlayers.CheckAlliance(fOpponent.Owner, fUnit.Owner) = at_Enemy)
     and TKMUnitWarrior(fOpponent).CheckForEnemy then
       Exit;
 

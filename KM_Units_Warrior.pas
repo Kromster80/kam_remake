@@ -723,7 +723,7 @@ begin
     FoundUnit := fTerrain.Land[aLoc.Y+K, aLoc.X+I].IsUnit; //Use IsUnit rather than HitTest because it's faster and we don't care whether the unit is visible (as long as it's on an IsUnit)
     if (FoundUnit is TKMUnitWarrior) and
        (FoundUnit <> Self) and
-       (FoundUnit.GetOwner = fOwner) and
+       (FoundUnit.Owner = fOwner) and
        (not FoundUnit.IsDeadOrDying) and //Can't link to a dying unit
        (UnitGroups[FoundUnit.UnitType] = UnitGroups[fUnitType]) then //They must be the same group type
     begin
@@ -977,7 +977,7 @@ begin
     TestDir := dir_NA;
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
-  Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange(true), GetOwner, at_Enemy, TestDir, not RANDOM_TARGETS);
+  Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange(true), Owner, at_Enemy, TestDir, not RANDOM_TARGETS);
 
   //Only stop attacking a house if it's a warrior
   if (fUnitTask <> nil) and (fUnitTask is TTaskAttackHouse) and (GetUnitAction is TUnitActionStay) and not (Result is TKMUnitWarrior) then

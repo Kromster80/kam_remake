@@ -134,7 +134,7 @@ type
     procedure Feed(Amount: Single);
     procedure AbandonWalk;
     property DesiredPassability: TPassability read GetDesiredPassability;
-    property GetOwner: TPlayerIndex read fOwner;
+    property Owner: TPlayerIndex read fOwner;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
     property UnitTask: TUnitTask read fUnitTask;
@@ -678,7 +678,7 @@ begin
   //Remember current task
   T := fUnitTask;
   //Try to get a new one
-  fPlayers.Player[GetOwner].Deliveries.Queue.AskForDelivery(Self, aFrom);
+  fPlayers.Player[Owner].Deliveries.Queue.AskForDelivery(Self, aFrom);
 
   //Return True if we've got a new deliery
   Result := fUnitTask <> T;
@@ -2185,10 +2185,10 @@ end;
 
 
 procedure TKMUnitsCollection.OwnerUpdate(aOwner:TPlayerIndex);
-var i:integer;
+var I: Integer;
 begin
-  for i:=0 to Count-1 do
-    Units[i].fOwner := aOwner;
+  for I := 0 to Count - 1 do
+    Units[I].fOwner := aOwner;
 end;
 
 

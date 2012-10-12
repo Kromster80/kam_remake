@@ -206,8 +206,8 @@ begin
       begin
         U := fMyTerrain.Land[I+1,K+1].IsUnit;
         if U <> nil then
-          if U.GetOwner <> PLAYER_ANIMAL then
-            fBase[I*fMapX + K] := fPlayers.Player[U.GetOwner].FlagColor
+          if U.Owner <> PLAYER_ANIMAL then
+            fBase[I*fMapX + K] := fPlayers.Player[U.Owner].FlagColor
           else
             fBase[I*fMapX + K] := fResource.UnitDat[U.UnitType].MinimapColor
         else

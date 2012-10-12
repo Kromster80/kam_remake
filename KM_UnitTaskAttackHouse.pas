@@ -133,7 +133,7 @@ begin
        end;
     2: begin
          //Let the house know it is being attacked
-         fPlayers.Player[fHouse.GetOwner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
+         fPlayers.Player[fHouse.Owner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
          fDestroyingHouse := true;
          if IsRanged then
            SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0) //Start shooting
@@ -145,9 +145,9 @@ begin
          begin //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            case UnitType of
-             ut_Arbaletman: fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Bolt, GetOwner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
-             ut_Bowman:     fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Arrow, GetOwner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
-             ut_Slingshot:  fGame.Projectiles.AimTarget(PositionF, fHouse, pt_SlingRock, GetOwner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+             ut_Arbaletman: fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Bolt, Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+             ut_Bowman:     fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Arrow, Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+             ut_Slingshot:  fGame.Projectiles.AimTarget(PositionF, fHouse, pt_SlingRock, Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
              else Assert(false, 'Unknown shooter');
            end;
            AnimLength := fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count;
@@ -156,8 +156,8 @@ begin
          end else begin
            SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack
            if fHouse.AddDamage(2) then //All melee units do 2 damage per strike
-             if (fPlayers <> nil) and (fPlayers.Player[GetOwner] <> nil) then
-               fPlayers.Player[GetOwner].Stats.HouseDestroyed(fHouse.HouseType);
+             if (fPlayers <> nil) and (fPlayers.Player[Owner] <> nil) then
+               fPlayers.Player[Owner].Stats.HouseDestroyed(fHouse.HouseType);
 
            //Play a sound. We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
            if MyPlayer.FogOfWar.CheckTileRevelation(GetPosition.X, GetPosition.Y, true) >= 255 then

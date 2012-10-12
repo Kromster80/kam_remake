@@ -228,8 +228,8 @@ begin
 
     //Fire the arrow
     case fUnit.UnitType of
-      ut_Arbaletman: fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit.GetOwner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
-      ut_Bowman:     fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit.GetOwner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+      ut_Arbaletman: fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit.Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+      ut_Bowman:     fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit.Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
       ut_Slingshot:  ;
       else Assert(false, 'Unknown shooter');
     end;
@@ -238,7 +238,7 @@ begin
   end;
   if Step = SLINGSHOT_FIRING_DELAY then
     if fUnit.UnitType = ut_Slingshot then
-      fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.GetOwner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+      fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
 end;
 
 
@@ -262,7 +262,7 @@ begin
     IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
     if IsHit then
       if fOpponent.HitPointsDecrease(1) then
-        fPlayers.Player[fUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
+        fPlayers.Player[fUnit.Owner].Stats.UnitKilled(fOpponent.UnitType);
 
     MakeSound(IsHit); //Different sounds for hit and for miss
   end;
@@ -313,11 +313,11 @@ begin
   if Step = 1 then
   begin
     //Tell the Opponent we are attacking him
-    fPlayers.Player[fOpponent.GetOwner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
+    fPlayers.Player[fOpponent.Owner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
 
     //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
     if (fOpponent is TKMUnitWarrior) and not TKMUnitWarrior(fUnit).IsRanged then
-      fPlayers.Player[fUnit.GetOwner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
+      fPlayers.Player[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
   end;
 
   if TKMUnitWarrior(fUnit).IsRanged then

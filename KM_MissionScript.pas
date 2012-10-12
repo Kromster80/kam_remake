@@ -894,12 +894,12 @@ begin
     with fAttackPositions[i] do
     begin
       H := fPlayers.HousesHitTest(Target.X,Target.Y); //Attack house
-      if (H <> nil) and (not H.IsDestroyed) and (fPlayers.CheckAlliance(Warrior.GetOwner,H.GetOwner) = at_Enemy) then
+      if (H <> nil) and (not H.IsDestroyed) and (fPlayers.CheckAlliance(Warrior.Owner,H.Owner) = at_Enemy) then
         Warrior.OrderAttackHouse(H)
       else
       begin
         U := fTerrain.UnitsHitTest(Target.X,Target.Y); //Chase/attack unit
-        if (U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(Warrior.GetOwner,U.GetOwner) = at_Enemy) then
+        if (U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(Warrior.Owner,U.Owner) = at_Enemy) then
           Warrior.OrderAttackUnit(U)
         else
           Warrior.OrderWalk(Target); //Just move to position

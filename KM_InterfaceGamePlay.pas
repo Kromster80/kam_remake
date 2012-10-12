@@ -1944,7 +1944,7 @@ begin
   Image_House_Logo.TexID    := fResource.HouseDat[Sender.HouseType].GUIIcon;
   Image_House_Worker.TexID  := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIIcon;
   Image_House_Worker.Hint   := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
-  Image_House_Worker.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
+  Image_House_Worker.FlagColor := fPlayers[Sender.Owner].FlagColor;
   HealthBar_House.Caption   := inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
   HealthBar_House.Position  := Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth;
 
@@ -2011,12 +2011,12 @@ begin
     ht_School:
         begin
           ResRow_School_Resource.ResourceCount := Sender.CheckResIn(rt_Gold) - byte(TKMHouseSchool(Sender).HideOneGold);
-          Button_School_UnitWIP.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
+          Button_School_UnitWIP.FlagColor := fPlayers[Sender.Owner].FlagColor;
           for I := 1 to 5 do
-            Button_School_UnitPlan[I].FlagColor := fPlayers[Sender.GetOwner].FlagColor;
-          Image_School_Left.FlagColor  := fPlayers[Sender.GetOwner].FlagColor;
-          Image_School_Right.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
-          Image_School_Train.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
+            Button_School_UnitPlan[I].FlagColor := fPlayers[Sender.Owner].FlagColor;
+          Image_School_Left.FlagColor  := fPlayers[Sender.Owner].FlagColor;
+          Image_School_Right.FlagColor := fPlayers[Sender.Owner].FlagColor;
+          Image_School_Train.FlagColor := fPlayers[Sender.Owner].FlagColor;
           House_SchoolUnitChange(nil, mbLeft);
           SwitchPage(Panel_House_School);
         end;
@@ -2024,10 +2024,10 @@ begin
     ht_Barracks:
         begin
           Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
-          Image_Barracks_Left.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
-          Image_Barracks_Right.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
-          Image_Barracks_Train.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
-          Button_BarracksRecruit.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
+          Image_Barracks_Left.FlagColor := fPlayers[Sender.Owner].FlagColor;
+          Image_Barracks_Right.FlagColor := fPlayers[Sender.Owner].FlagColor;
+          Image_Barracks_Train.FlagColor := fPlayers[Sender.Owner].FlagColor;
+          Button_BarracksRecruit.FlagColor := fPlayers[Sender.Owner].FlagColor;
           House_BarracksUnitChange(nil, mbLeft);
           SwitchPage(Panel_HouseBarracks);
         end;
@@ -2170,7 +2170,7 @@ begin
   //Common properties
   Label_UnitName.Caption      := fResource.UnitDat[Sender.UnitType].UnitName;
   Image_UnitPic.TexID         := fResource.UnitDat[Sender.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor     := fPlayers[Sender.GetOwner].FlagColor;
+  Image_UnitPic.FlagColor     := fPlayers[Sender.Owner].FlagColor;
   ConditionBar_Unit.Position  := Sender.Condition / UNIT_MAX_CONDITION;
   Label_UnitTask.Caption      := Sender.GetActivityText;
 
@@ -3401,12 +3401,12 @@ begin
   //See if we can show DirectionSelector
   //Can walk to ally units place, can't walk to house place anyway, unless it's a markup and allied
   if (Button = mbRight) and not fReplay and not HasLostMPGame and not fJoiningGroups and not fPlacingBeacon and (fPlayers.Selected is TKMUnitWarrior)
-    and (TKMUnitWarrior(fPlayers.Selected).GetOwner = MyPlayer.PlayerIndex) then
+    and (TKMUnitWarrior(fPlayers.Selected).Owner = MyPlayer.PlayerIndex) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-    if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Ally)) and
-       ((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Ally)) and
+    if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.Owner) = at_Ally)) and
+       ((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.Owner) = at_Ally)) and
       TKMUnitWarrior(fPlayers.Selected).CanWalkTo(GameCursor.Cell, 0) then
     begin
       SelectingTroopDirection := True; //MouseMove will take care of cursor changing
@@ -3540,7 +3540,7 @@ begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if (U <> nil)
     and (U is TKMUnitWarrior)
-    and (U.GetOwner = MyPlayer.PlayerIndex)
+    and (U.Owner = MyPlayer.PlayerIndex)
     and (not U.IsDeadOrDying)
     and (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fPlayers.Selected)))
     and (UnitGroups[U.UnitType] = UnitGroups[TKMUnitWarrior(fPlayers.Selected).UnitType]) then
@@ -3562,8 +3562,8 @@ begin
     begin
       U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
       H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-      if ((U<>nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy)) or
-         ((H<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy)) then
+      if ((U<>nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.Owner) = at_Enemy)) or
+         ((H<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.Owner) = at_Enemy)) then
         fResource.Cursors.Cursor := kmc_Attack
       else
       if not fGame.Viewport.Scrolling then
@@ -3647,8 +3647,8 @@ begin
                                 //In a replay we want in-game statistics (and other things) to be shown for the owner of the last select object
                                 if fReplay then
                                 begin
-                                  if fPlayers.Selected is TKMHouse then MyPlayer := fPlayers[TKMHouse(fPlayers.Selected).GetOwner];
-                                  if fPlayers.Selected is TKMUnit  then MyPlayer := fPlayers[TKMUnit (fPlayers.Selected).GetOwner];
+                                  if fPlayers.Selected is TKMHouse then MyPlayer := fPlayers[TKMHouse(fPlayers.Selected).Owner];
+                                  if fPlayers.Selected is TKMUnit  then MyPlayer := fPlayers[TKMUnit (fPlayers.Selected).Owner];
                                 end;
 
                                 if (fPlayers.Selected is TKMHouse) then
@@ -3723,12 +3723,12 @@ begin
                   //Attack or Walk
                   if not fReplay and not HasLostMPGame and not fJoiningGroups and not fPlacingBeacon
                   and W.GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
-                  and (W.GetOwner = MyPlayer.PlayerIndex) then
+                  and (W.Owner = MyPlayer.PlayerIndex) then
                   begin
                     //Try to Attack unit
                     U := fTerrain.UnitsHitTest(P.X, P.Y);
                     if (U <> nil) and not U.IsDeadOrDying
-                    and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy) then
+                    and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.Owner) = at_Enemy) then
                     begin
                       fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, W.GetCommander, U);
                       fSoundLib.PlayWarrior(W.UnitType, sp_Attack);
@@ -3737,7 +3737,7 @@ begin
                     begin //If there's no unit - try to Attack house
                       H := fPlayers.HousesHitTest(P.X, P.Y);
                       if (H <> nil) and not H.IsDestroyed
-                      and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy) then
+                      and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.Owner) = at_Enemy) then
                       begin
                         fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, W.GetCommander, H);
                         fSoundLib.PlayWarrior(W.UnitType, sp_Attack);
@@ -3920,8 +3920,8 @@ begin
     for I := 0 to fTeamNames.Count - 1 do
     begin
       U := TKMUnit(fTeamNames[I]);
-      Label_TeamName.Caption := fPlayers[U.GetOwner].PlayerName;
-      Label_TeamName.FontColor := FlagColorToTextColor(fPlayers[U.GetOwner].FlagColor);
+      Label_TeamName.Caption := fPlayers[U.Owner].PlayerName;
+      Label_TeamName.FontColor := FlagColorToTextColor(fPlayers[U.Owner].FlagColor);
 
       UnitLoc := U.PositionF;
       UnitLoc.X := UnitLoc.X - 0.5;

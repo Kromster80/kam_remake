@@ -1391,13 +1391,13 @@ begin
     exit;
   end;
 
-  SetActivePlayer(Sender.GetOwner);
+  SetActivePlayer(Sender.Owner);
 
   {Common data}
   Label_House.Caption:=fResource.HouseDat[Sender.HouseType].HouseName;
   Image_House_Logo.TexID:=fResource.HouseDat[Sender.HouseType].GUIIcon;
   Image_House_Worker.TexID:=fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIIcon;
-  Image_House_Worker.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
+  Image_House_Worker.FlagColor := fPlayers[Sender.Owner].FlagColor;
   Image_House_Worker.Hint := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
   KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
   KMHealthBar_House.Position := Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth;
@@ -1433,12 +1433,12 @@ begin
     Exit;
   end;
 
-  SetActivePlayer(Sender.GetOwner);
+  SetActivePlayer(Sender.Owner);
 
   SwitchPage(Panel_Unit);
   Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].UnitName;
   Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
+  Image_UnitPic.FlagColor := fPlayers[Sender.Owner].FlagColor;
   KMConditionBar_Unit.Position := Sender.Condition / UNIT_MAX_CONDITION;
   if Sender is TKMUnitWarrior then
   begin

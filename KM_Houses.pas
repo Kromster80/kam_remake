@@ -99,7 +99,7 @@ type
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
-    property GetOwner:TPlayerIndex read fOwner;
+    property Owner:TPlayerIndex read fOwner;
     function GetHealth:word;
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
