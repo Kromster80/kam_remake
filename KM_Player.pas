@@ -381,7 +381,7 @@ begin
   //Don't allow placing on allies plans either
   if Result then
     for I := 0 to fPlayers.Count - 1 do
-      if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+      if (I <> fPlayerIndex) and (fAlliances[I] = at_Ally) then
         Result := Result and (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
                          and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
 end;
@@ -399,7 +399,7 @@ begin
   //Don't allow placing on allies plans either
   if Result then
     for I := 0 to fPlayers.Count - 1 do
-      if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+      if (I <> fPlayerIndex) and (fAlliances[I] = at_Ally) then
         Result := Result and (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
                          and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
 end;
@@ -425,7 +425,7 @@ begin
 
     //This tile must not contain fields/houses of allied players or self
     for J := 0 to fPlayers.Count - 1 do
-      if (J = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally) then
+      if (J = fPlayerIndex) or (fAlliances[J] = at_Ally) then
       begin
         Result := Result and (fPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) = ft_None);
         //Surrounding tiles must not be a house
@@ -473,7 +473,7 @@ begin
 
     //This tile must not contain fields/houses of allied players or self
     for J := 0 to fPlayers.Count - 1 do
-      if (J = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally) then
+      if (J = fPlayerIndex) or (fAlliances[J] = at_Ally) then
       begin
         Result := Result and (fPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) = ft_None);
         //Surrounding tiles must not be a house

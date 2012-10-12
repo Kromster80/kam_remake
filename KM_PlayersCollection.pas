@@ -231,7 +231,7 @@ begin
 
   //Check all players
   for I := 0 to fCount - 1 do
-  if (aIndex <> I) and (CheckAlliance(aIndex, I) = aAlliance) then
+  if (aIndex <> I) and (Player[aIndex].Alliances[I] = aAlliance) then
   begin
     H := fPlayerList[I].Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, aOnlyCompleted);
     if (H <> nil) and ((Result = nil) or (H.GetDistance(aLoc) < Result.GetDistance(aLoc))) then

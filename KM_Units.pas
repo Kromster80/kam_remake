@@ -134,7 +134,7 @@ type
     procedure Feed(Amount: Single);
     procedure AbandonWalk;
     property DesiredPassability: TPassability read GetDesiredPassability;
-    property GetOwner:TPlayerIndex read fOwner;
+    property GetOwner: TPlayerIndex read fOwner;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
     property UnitTask: TUnitTask read fUnitTask;
@@ -360,7 +360,7 @@ begin
                           //(it's very annoying if they do)
                           Result := True;
                           for I := 0 to fPlayers.Count - 1 do
-                            if (I = fOwner) or (fPlayers.CheckAlliance(fOwner, I) = at_Ally) then
+                            if (I = fOwner) or (fPlayers[fOwner].Alliances[I] = at_Ally) then
                               Result := Result and not fPlayers[I].BuildList.HousePlanList.HasPlan(aLoc);
                         end;
     else Result := True;
@@ -1554,11 +1554,11 @@ end;
 function TKMUnit.CanStepTo(X,Y: Integer): Boolean;
 begin
   Result := fTerrain.TileInMapCoords(X,Y)
+        and (fTerrain.Land[Y,X].IsUnit = nil)
         and (fTerrain.CheckPassability(KMPoint(X,Y), DesiredPassability))
         and (not KMStepIsDiag(GetPosition, KMPoint(X,Y)) //Only check vertex usage if the step is diagonal
              or (not fTerrain.HasVertexUnit(KMGetDiagVertex(GetPosition, KMPoint(X,Y)))))
-        and (fTerrain.CanWalkDiagonaly(GetPosition, KMPoint(X,Y)))
-        and (fTerrain.Land[Y,X].IsUnit = nil);
+        and (fTerrain.CanWalkDiagonaly(GetPosition, KMPoint(X,Y)));
 end;
 
 
