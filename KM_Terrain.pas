@@ -26,7 +26,7 @@ type
     fBoundsWC: TKMRect; //WC rebuild bounds used in FlattenTerrain (put outside to fight with recursion SO error in FlattenTerrain EnsureWalkable)
 
     function TileIsSand(Loc:TKMPoint): Boolean;
-    function TileIsSoil(Loc:TKMPoint): Boolean;
+    function TileIsSoil(X,Y: Word): Boolean;
     function TileIsWalkable(Loc:TKMPoint): Boolean;
     function TileIsRoadable(Loc:TKMPoint): Boolean;
     function TileIsFactorable(Loc:TKMPoint): Boolean;
@@ -165,6 +165,9 @@ type
     function VerticeInMapCoords(X,Y:integer; Inset: Byte=0): Boolean;
     function EnsureTileInMapCoords(X,Y:integer; Inset: Byte=0):TKMPoint;
 
+    function TileGoodForIron(X,Y: Word): Boolean;
+    function TileGoodForGold(X,Y: Word): Boolean;
+    function TileGoodForField(X,Y: Word): Boolean;
     function TileIsWater(Loc:TKMPoint): Boolean; overload;
     function TileIsWater(X,Y : Word): Boolean; overload;
     function TileIsStone(X,Y:Word): Byte;
@@ -465,6 +468,60 @@ begin
 end;
 
 
+function TTerrain.TileGoodForIron(X,Y: Word): Boolean;
+  function HousesNearTile: Boolean;
+  var I,K: Integer;
+  begin
+    Result := False;
+    for I := -1 to 1 do
+    for K := -1 to 1 do
+      if (Land[Y+I,X+K].TileLock in [tlFenced,tlDigged,tlHouse]) then
+        Result := True;
+  end;
+begin
+  Result := (Land[Y,X].Terrain in [109,166..170])
+    and (Land[Y,X].Rotation mod 4 = 0) //only horizontal mountain edges allowed
+    and ((Land[Y,X].Obj = 255) or (MapElem[Land[Y,X].Obj].CanBeRemoved))
+    and TileInMapCoords(X,Y, 1)
+    and not HousesNearTile
+    and (Land[Y,X].TileLock = tlNone)
+    and CheckHeightPass(KMPoint(X,Y), hpBuildingMines);
+end;
+
+
+function TTerrain.TileGoodForGold(X,Y: Word): Boolean;
+  function HousesNearTile: Boolean;
+  var I,K: Integer;
+  begin
+    Result := False;
+    for I := -1 to 1 do
+    for K := -1 to 1 do
+      if (Land[Y+I,X+K].TileLock in [tlFenced,tlDigged,tlHouse]) then
+        Result := True;
+  end;
+begin
+  Result := (Land[Y,X].Terrain in [171..175])
+    and (Land[Y,X].Rotation mod 4 = 0) //only horizontal mountain edges allowed
+    and ((Land[Y,X].Obj = 255) or (MapElem[Land[Y,X].Obj].CanBeRemoved))
+    and TileInMapCoords(X,Y, 1)
+    and not HousesNearTile
+    and (Land[Y,X].TileLock = tlNone)
+    and CheckHeightPass(KMPoint(X,Y), hpBuildingMines);
+end;
+
+
+function TTerrain.TileGoodForField(X,Y: Word): Boolean;
+begin
+  Result := TileIsSoil(X,Y)
+    and not MapElem[Land[Y,X].Obj].AllBlocked
+    and (Land[Y,X].TileLock = tlNone)
+    and (Land[Y,X].TileOverlay <> to_Road)
+    and not TileIsWineField(KMPoint(X,Y))
+    and not TileIsCornField(KMPoint(X,Y))
+    and CheckHeightPass(KMPoint(X,Y), hpWalking);
+end;
+
+
 //Check if requested tile is water suitable for fish and/or sail. No waterfalls, but swamps/shallow water allowed
 function TTerrain.TileIsWater(Loc: TKMPoint): Boolean;
 begin
@@ -509,9 +566,9 @@ end;
 
 
 //Check if requested tile is soil suitable for fields and trees
-function TTerrain.TileIsSoil(Loc: TKMPoint): Boolean;
+function TTerrain.TileIsSoil(X,Y: Word): Boolean;
 begin
-  Result := fTileset.TileIsSoil(Land[Loc.Y, Loc.X].Terrain);
+  Result := fTileset.TileIsSoil(Land[Y, X].Terrain);
 end;
 
 
@@ -1331,8 +1388,8 @@ begin
 
       //Check house-specific conditions, e.g. allow shipyards only near water and etc..
       case aHouseType of
-        ht_IronMine: AllowBuild := (CanBuildIron in Land[P2.Y,P2.X].Passability);
-        ht_GoldMine: AllowBuild := (CanBuildGold in Land[P2.Y,P2.X].Passability);
+        ht_IronMine: AllowBuild := TileGoodForIron(P2.X, P2.Y);
+        ht_GoldMine: AllowBuild := TileGoodForGold(P2.X, P2.Y);
         else         AllowBuild := (CanBuild     in Land[P2.Y,P2.X].Passability);
       end;
 
@@ -1637,28 +1694,6 @@ begin
     and CheckHeightPass(Loc, hpBuilding) then
       AddPassability(CanBuild);
 
-    if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])
-    and (Land[Loc.Y,Loc.X].Rotation mod 4 = 0) //only horizontal mountain edges allowed
-    and ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved))
-    and not HousesNearTile
-    and not TileIsCornField(Loc) //Can't build houses on fields
-    and not TileIsWineField(Loc)
-    and (Land[Loc.Y,Loc.X].TileLock = tlNone)
-    and TileInMapCoords(Loc.X,Loc.Y, 1)
-    and CheckHeightPass(Loc, hpBuildingMines) then
-      AddPassability(CanBuildIron);
-
-    if (Land[Loc.Y,Loc.X].Terrain in [171..175])
-    and (Land[Loc.Y,Loc.X].Rotation mod 4 = 0)
-    and ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved))
-    and not HousesNearTile
-    and not TileIsCornField(Loc) //Can't build houses on fields
-    and not TileIsWineField(Loc)
-    and (Land[Loc.Y,Loc.X].TileLock = tlNone)
-    and TileInMapCoords(Loc.X,Loc.Y, 1)
-    and CheckHeightPass(Loc, hpBuildingMines) then
-      AddPassability(CanBuildGold);
-
     if TileIsRoadable(Loc)
     and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
@@ -1666,16 +1701,7 @@ begin
     and CheckHeightPass(Loc, hpWalking) then
       AddPassability(CanMakeRoads);
 
-    if TileIsSoil(Loc)
-    and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
-    and (Land[Loc.Y,Loc.X].TileLock = tlNone)
-    and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
-    and not TileIsWineField(Loc)
-    and not TileIsCornField(Loc)
-    and CheckHeightPass(Loc, hpWalking) then
-      AddPassability(CanMakeFields);
-
-    if TileIsSoil(Loc)
+    if TileIsSoil(Loc.X,Loc.Y)
     and not IsObjectsNearby(Loc.X,Loc.Y) //This function checks surrounding tiles
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and (Loc.X > 1) and (Loc.Y > 1) //Not top/left of map, but bottom/right is ok
@@ -1698,7 +1724,7 @@ begin
     and CheckHeightPass(Loc, hpWalking) then //Can't crab on houses, fields and roads (can walk on fenced house so you can't kill them by placing a house on top of them)
       AddPassability(CanCrab);
 
-    if TileIsSoil(Loc)
+    if TileIsSoil(Loc.X,Loc.Y)
     and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
     //TileLock checked in outer begin/end
     //Wolf are big enough to run over roads, right?
@@ -2430,7 +2456,7 @@ end;
 
 {Check if house can be placed in that place}
 function TTerrain.CanPlaceHouse(Loc: TKMPoint; aHouseType: THouseType): Boolean;
-var I,K: Integer; HA: THouseArea;
+var I,K,X,Y: Integer; HA: THouseArea;
 begin
   Result := True;
   HA := fResource.HouseDat[aHouseType].BuildArea;
@@ -2439,13 +2465,15 @@ begin
   for K := 1 to 4 do
     if Result and (HA[I,K] <> 0) then
     begin
+      X := Loc.X + k - 3;
+      Y := Loc.Y + i - 4;
       //Inset one tile from map edges
-      Result := Result and TileInMapCoords(Loc.X + k - 3, Loc.Y + i - 4, 1);
+      Result := Result and TileInMapCoords(X, Y, 1);
 
       case aHouseType of
-        ht_IronMine: Result := Result and (CanBuildIron in Land[Loc.Y+I-4,Loc.X+K-3].Passability);
-        ht_GoldMine: Result := Result and (CanBuildGold in Land[Loc.Y+I-4,Loc.X+K-3].Passability);
-        else         Result := Result and (CanBuild in Land[Loc.Y+I-4,Loc.X+K-3].Passability);
+        ht_IronMine: Result := Result and TileGoodForIron(X, Y);
+        ht_GoldMine: Result := Result and TileGoodForGold(X, Y);
+        else         Result := Result and (CanBuild in Land[Y,X].Passability);
       end;
     end;
 end;
@@ -2497,8 +2525,8 @@ begin
   Result := TileInMapCoords(aX, aY);
   case aFieldType of
     ft_Road:  Result := Result and (CanMakeRoads  in Land[aY, aX].Passability);
-    ft_Corn:  Result := Result and (CanMakeFields in Land[aY, aX].Passability);
-    ft_Wine:  Result := Result and (CanMakeFields in Land[aY, aX].Passability);
+    ft_Corn,
+    ft_Wine:  Result := Result and TileGoodForField(aX, aY);
     ft_Wall:  Result := Result and (CanMakeRoads  in Land[aY, aX].Passability);
     else      Result := False;
   end;
