@@ -107,7 +107,7 @@ type
     function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType): Boolean;
     function CanPlaceHouseFromScript(aHouseType: THouseType; Loc:TKMPoint): Boolean;
     function CanAddField(aX, aY: Word; aFieldType: TFieldType): Boolean;
-    function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability): Boolean;
+    function CheckHeightPass(aLoc:TKMPoint; aPass:THeightPass): Boolean;
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
     function FindWineField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir): Boolean;
@@ -1598,7 +1598,7 @@ begin
 
   if TileIsWalkable(Loc)
   and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
-  and CheckHeightPass(Loc, CanWalk) then
+  and CheckHeightPass(Loc, hpWalking) then
     AddPassability(CanOwn);
 
   //For all passability types other than CanAll, houses and fenced houses are excluded
@@ -1607,7 +1607,7 @@ begin
 
     if TileIsWalkable(Loc)
     and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
-    and CheckHeightPass(Loc, CanWalk) then
+    and CheckHeightPass(Loc, hpWalking) then
       AddPassability(CanWalk);
 
     if (Land[Loc.Y,Loc.X].TileOverlay = to_Road)
@@ -1634,7 +1634,7 @@ begin
     and not TileIsWineField(Loc)
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and TileInMapCoords(Loc.X, Loc.Y, 1)
-    and CheckHeightPass(Loc, CanBuild) then //No houses nearby
+    and CheckHeightPass(Loc, hpBuilding) then
       AddPassability(CanBuild);
 
     if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])
@@ -1645,7 +1645,7 @@ begin
     and not TileIsWineField(Loc)
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and TileInMapCoords(Loc.X,Loc.Y, 1)
-    and CheckHeightPass(Loc, CanBuildIron) then
+    and CheckHeightPass(Loc, hpBuildingMines) then
       AddPassability(CanBuildIron);
 
     if (Land[Loc.Y,Loc.X].Terrain in [171..175])
@@ -1656,14 +1656,14 @@ begin
     and not TileIsWineField(Loc)
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and TileInMapCoords(Loc.X,Loc.Y, 1)
-    and CheckHeightPass(Loc,CanBuildGold) then
+    and CheckHeightPass(Loc, hpBuildingMines) then
       AddPassability(CanBuildGold);
 
     if TileIsRoadable(Loc)
     and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
     and (Land[Loc.Y,Loc.X].TileLock = tlNone)
     and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
-    and CheckHeightPass(Loc,CanMakeRoads) then
+    and CheckHeightPass(Loc, hpWalking) then
       AddPassability(CanMakeRoads);
 
     if TileIsSoil(Loc)
@@ -1672,7 +1672,7 @@ begin
     and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
     and not TileIsWineField(Loc)
     and not TileIsCornField(Loc)
-    and CheckHeightPass(Loc,CanMakeFields) then
+    and CheckHeightPass(Loc, hpWalking) then
       AddPassability(CanMakeFields);
 
     if TileIsSoil(Loc)
@@ -1683,7 +1683,7 @@ begin
     and not HousesNearVertex
     //Woodcutter will dig out other object in favour of his tree
     and ((Land[Loc.Y,Loc.X].Obj = 255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved))
-    and CheckHeightPass(Loc, CanPlantTrees) then
+    and CheckHeightPass(Loc, hpWalking) then
       AddPassability(CanPlantTrees);
 
     if TileIsWater(Loc) then
@@ -1695,7 +1695,7 @@ begin
     and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
     and not TileIsCornField(Loc)
     and not TileIsWineField(Loc)
-    and CheckHeightPass(Loc, CanCrab) then //Can't crab on houses, fields and roads (can walk on fenced house so you can't kill them by placing a house on top of them)
+    and CheckHeightPass(Loc, hpWalking) then //Can't crab on houses, fields and roads (can walk on fenced house so you can't kill them by placing a house on top of them)
       AddPassability(CanCrab);
 
     if TileIsSoil(Loc)
@@ -1704,13 +1704,13 @@ begin
     //Wolf are big enough to run over roads, right?
     and not TileIsCornField(Loc)
     and not TileIsWineField(Loc)
-    and CheckHeightPass(Loc,CanWolf) then
+    and CheckHeightPass(Loc, hpWalking) then
       AddPassability(CanWolf);
   end;
 
   if TileIsWalkable(Loc)
   and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
-  and CheckHeightPass(Loc, CanWalk)
+  and CheckHeightPass(Loc, hpWalking)
   and (Land[Loc.Y,Loc.X].TileLock <> tlHouse) then
     AddPassability(CanWorker);
 
@@ -2091,7 +2091,7 @@ var TilesFactored: Integer;
     //We did not recalculated passability yet, hence tile has CanWalk but CheckHeightPass=False already
     if (Land[aY,aX].IsUnit <> nil)
     and CheckPassability(KMPoint(aX,aY), CanWalk)
-    and not CheckHeightPass(KMPoint(aX,aY), CanWalk)
+    and not CheckHeightPass(KMPoint(aX,aY), hpWalking)
     and not fMapEditor //Allow units to become "stuck" in MapEd, as height changing is allowed anywhere
     then
       //This recursive call should be garanteed to exit, as eventually the terrain will be flat enough
@@ -2505,7 +2505,7 @@ begin
 end;
 
 
-function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability): Boolean;
+function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:THeightPass): Boolean;
   function TestHeight(aHeight: Byte): Boolean;
   var Points: array[1..4] of byte;
   begin
@@ -2544,11 +2544,10 @@ begin
   Result := true;
   if not TileInMapCoords(aLoc.X,aLoc.Y) then exit;
   case aPass of
-    CanWalk,CanWalkRoad,CanMakeRoads,CanMakeFields,CanPlantTrees,CanCrab,CanWolf:
-                               Result := TestHeight(25);
-    CanBuildGold,CanBuildIron: Result := TestHeight(25);
-    CanBuild:                  Result := TestHeight(18);
-  end; //For other passabilities we ignore height (return default true)
+    hpWalking: Result := TestHeight(25);
+    hpBuilding: Result := TestHeight(18);
+    hpBuildingMines: Result := TestHeight(25);
+  end;
 end;
 
 

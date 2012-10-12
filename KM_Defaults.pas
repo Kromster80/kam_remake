@@ -324,6 +324,8 @@ type
     );
   TPassabilitySet = set of TPassability;
 
+  THeightPass = (hpWalking, hpBuilding, hpBuildingMines);
+
 type
   TWalkConnect = (
     wcWalk,
