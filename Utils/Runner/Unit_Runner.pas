@@ -2,7 +2,7 @@ unit Unit_Runner;
 {$I KaM_Remake.inc}
 interface
 uses Classes, Math, SysUtils,
-  KM_Defaults, KM_CommonClasses, KromUtils,
+  KM_Defaults, KM_CommonClasses, KM_CommonTypes, KromUtils,
   KM_GameApp, KM_Locales, KM_Log, KM_TextLibrary, KM_Utils;
 
 
@@ -22,6 +22,7 @@ type
 
   TKMRunnerCommon = class
   protected
+    fRun: Integer;
     fResults: TKMRunResults;
     procedure SetUp; virtual;
     procedure TearDown; virtual;
@@ -29,6 +30,7 @@ type
     procedure SimulateGame(aTicks: Integer);
     procedure ProcessRunResults;
   public
+    OnProgress: TStringEvent;
     function Run(aCount: Integer): TKMRunResults;
   end;
 
@@ -60,7 +62,10 @@ begin
   SetLength(fResults.ValueMax, aCount);
 
   for I := 0 to aCount - 1 do
+  begin
+    fRun := I;
     Execute(I);
+  end;
 
   TearDown;
 
@@ -119,8 +124,10 @@ begin
     fGameApp.Game.UpdateGame(nil);
     if fGameApp.Game.IsPaused then
       fGameApp.Game.GameHold(False, gr_Win);
-   // if aTicks mod 6000 then
-   //   OnProgress(aTicks mod 600);
+    if (I mod 60*10 = 0) and Assigned(OnProgress) then
+    begin
+      OnProgress(Format('%d (%d min)', [fRun, I div 600]));
+    end;
   end;
 end;
 

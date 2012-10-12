@@ -27,6 +27,13 @@ object Form2: TForm2
     Height = 13
     Caption = 'Cycles'
   end
+  object Label2: TLabel
+    Left = 132
+    Top = 136
+    Width = 3
+    Height = 13
+    Alignment = taRightJustify
+  end
   object Button1: TButton
     Left = 144
     Top = 136

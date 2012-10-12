@@ -1262,13 +1262,13 @@ end;
 
 procedure TKMUnitWarrior.Paint;
 var
-  Act:TUnitActionType;
+  Act: TUnitActionType;
   UnitPos: TKMPointF;
-  FlagColor: cardinal;
+  FlagColor: Cardinal;
   FlagStep: Integer;
-  i,k:integer;
+  I,K: Integer;
   UnitPosition: TKMPoint;
-  DoesFit:boolean;
+  DoesFit: Boolean;
 begin
   inherited;
   if not fVisible then exit;
@@ -1299,9 +1299,9 @@ begin
 
   //Paint members in MapEd mode
   if fMapEdMembersCount <> 0 then
-  for i:=1 to fMapEdMembersCount do
+  for I := 1 to fMapEdMembersCount do
   begin
-    UnitPosition := GetPositionInGroup2(GetPosition.X, GetPosition.Y, Direction, i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
+    UnitPosition := GetPositionInGroup2(GetPosition.X, GetPosition.Y, Direction, I+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
     if not DoesFit then continue; //Don't render units that are off the map in the map editor
     UnitPos.X := UnitPosition.X + UNIT_OFF_X; //MapEd units don't have sliding
     UnitPos.Y := UnitPosition.Y + UNIT_OFF_Y;
@@ -1310,11 +1310,11 @@ begin
 
   if SHOW_ATTACK_RADIUS then
     if IsRanged then
-    for i := -round(GetFightMaxRange) - 1 to round(GetFightMaxRange) do
-    for k := -round(GetFightMaxRange) - 1 to round(GetFightMaxRange) do
-    if InRange(GetLength(i, k), GetFightMinRange, GetFightMaxRange) then
-    if fTerrain.TileInMapCoords(GetPosition.X + k, GetPosition.Y + i) then
-      fRenderAux.Quad(GetPosition.X + k, GetPosition.Y + i, $40FFFFFF);
+    for I := -Round(GetFightMaxRange) - 1 to Round(GetFightMaxRange) do
+    for K := -Round(GetFightMaxRange) - 1 to Round(GetFightMaxRange) do
+    if InRange(GetLength(I, K), GetFightMinRange, GetFightMaxRange) then
+    if fTerrain.TileInMapCoords(GetPosition.X + K, GetPosition.Y + I) then
+      fRenderAux.Quad(GetPosition.X + K, GetPosition.Y + I, $40FFFFFF);
 end;
 
 

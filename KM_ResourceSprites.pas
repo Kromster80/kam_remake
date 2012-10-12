@@ -292,6 +292,7 @@ var
   InputStream: TFileStream;
   DecompressionStream: TDecompressionStream;
 begin
+  if SKIP_RENDER then Exit;
   if not FileExists(aFileName) then Exit;
 
   InputStream := TFileStream.Create(aFileName, fmOpenRead or fmShareDenyNone);
@@ -367,6 +368,8 @@ procedure TKMSpritePack.OverloadFromFolder(const aFolder: string);
     end;
   end;
 begin
+  if SKIP_RENDER then Exit;
+
   ProcessFolder(aFolder);
   ProcessFolder(aFolder + IntToStr(Byte(fRT) + 1) + '\');
 end;

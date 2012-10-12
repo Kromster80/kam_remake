@@ -16,12 +16,14 @@ type
     ListBox1: TListBox;
     Memo2: TMemo;
     RadioGroup1: TRadioGroup;
+    Label2: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
   private
     fResults: TKMRunResults;
     fRunTime: string;
+    procedure RunnerProgress(const aValue: string);
   end;
 
 
@@ -60,6 +62,7 @@ begin
 
     RunnerClass := RunnerList[ID];
     Runner := RunnerClass.Create;
+    Runner.OnProgress := RunnerProgress;
     try
       T := GetTickCount;
       fResults := Runner.Run(Count);
@@ -92,7 +95,6 @@ begin
 
   for J := 0 to fResults.ValCount - 1 do
   begin
-    Image1.Canvas.PenPos := Point(0, Image1.Height);
     Image1.Canvas.Pen.Color := LineCol[J];
     case RadioGroup1.ItemIndex of
       0:  for I := 0 to fResults.RunCount - 1 do
@@ -100,7 +102,10 @@ begin
             DotX := Round(I / fResults.RunCount * Image1.Width);
             DotY := Image1.Height - Round(fResults.Value[I,J] / fResults.ValueMax[J] * Image1.Height);
             Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
-            Image1.Canvas.LineTo(DotX, DotY);
+            if I = 0 then
+              Image1.Canvas.PenPos := Point(DotX, DotY)
+            else
+              Image1.Canvas.LineTo(DotX, DotY);
           end;
       1:  begin
             SetLength(Stats, Round(fResults.ValueMax[J]) - Round(fResults.ValueMin[J]) + 1);
@@ -116,7 +121,10 @@ begin
               DotX := Round((I - Low(Stats)) / Length(Stats) * Image1.Width);
               DotY := Image1.Height - Round(Stats[I] / StatMax * Image1.Height);
               Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
-              Image1.Canvas.LineTo(DotX, DotY);
+              if I = 0 then
+                Image1.Canvas.PenPos := Point(DotX, DotY)
+              else
+                Image1.Canvas.LineTo(DotX, DotY);
             end;
           end;
     end;
@@ -133,5 +141,12 @@ begin
   Memo1.Lines.Append(fRunTime);
 end;
 
+
+procedure TForm2.RunnerProgress(const aValue: string);
+begin
+  Label2.Caption := aValue;
+  Label2.Refresh;
+  Application.ProcessMessages;
+end;
 
 end.

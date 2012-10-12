@@ -2492,23 +2492,17 @@ end;
 
 
 function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability): Boolean;
-  function GetHgtSafe(X,Y:word): Byte;
-  begin
-    if TileInMapCoords(X,Y) then
-      Result := Land[Y,X].Height //Use requested tile
-    else
-      Result := Land[aLoc.Y,aLoc.X].Height; //Otherwise return height of original tile which will have no effect
-  end;
   function TestHeight(aHeight: Byte): Boolean;
   var Points: array[1..4] of byte;
   begin
     //Put points into an array like this so it's easy to understand:
     // 1 2
     // 3 4
-    Points[1] := GetHgtSafe(aLoc.X,   aLoc.Y);
-    Points[2] := GetHgtSafe(aLoc.X+1, aLoc.Y);
-    Points[3] := GetHgtSafe(aLoc.X,   aLoc.Y+1);
-    Points[4] := GetHgtSafe(aLoc.X+1, aLoc.Y+1);
+    //Local map boundaries test is faster
+    Points[1] := Land[aLoc.Y,                 aLoc.X].Height;
+    Points[2] := Land[aLoc.Y,                 Min(aLoc.X+1, fMapX-1)].Height;
+    Points[3] := Land[Min(aLoc.Y+1, fMapY-1), aLoc.X].Height;
+    Points[4] := Land[Min(aLoc.Y+1, fMapY-1), Min(aLoc.X+1, fMapX-1)].Height;
 
     {KaM method checks the differences between the 4 verticies around the tile.
     There is a special case that means it is more (twice) as tolerant to bottom-left to top right (2-3) and

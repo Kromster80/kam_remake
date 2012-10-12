@@ -62,7 +62,7 @@ type
     Debug_ShowPanel: TMenuItem;
     Export_TreeAnim1: TMenuItem;
     Export_GUIMainHRX: TMenuItem;
-    tbAngle: TTrackBar;
+    tbAngleX: TTrackBar;
     Label3: TLabel;
     ExportMainMenu: TMenuItem;
     Debug_EnableCheats: TMenuItem;
@@ -79,9 +79,10 @@ type
     chkShowNavMesh: TCheckBox;
     chkShowForest: TCheckBox;
     chkShowAvoid: TCheckBox;
+    tbAngleY: TTrackBar;
+    Label4: TLabel;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
-    procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Debug_ExportMenuClick(Sender: TObject);
@@ -130,6 +131,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure chkShowForestClick(Sender: TObject);
     procedure chkShowAvoidClick(Sender: TObject);
+    procedure tbAngleChange(Sender: TObject);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -491,18 +493,19 @@ begin // For test Army evaluation
 end;
 
 
-procedure TFormMain.TB_Angle_Change(Sender: TObject);
+procedure TFormMain.tbAngleChange(Sender: TObject);
 begin
   if fRenderPool = nil then Exit; //Otherwise it crashes on the main menu?
-  RENDER_3D := tbAngle.Position <> 0;
-  Label3.Caption := 'Angle ' + IntToStr(tbAngle.Position);
-  fRenderPool.SetRotation(-tbAngle.Position, 0, 0);
+  RENDER_3D := tbAngleX.Position + tbAngleY.Position <> 0;
+  Label3.Caption := 'AngleX ' + IntToStr(tbAngleX.Position);
+  Label4.Caption := 'AngleY ' + IntToStr(tbAngleY.Position);
+  fRenderPool.SetRotation(-tbAngleX.Position, 0, -tbAngleY.Position);
   fMain.Render;
 end;
 
 
 procedure TFormMain.ToggleControlsVisibility(aShowCtrls: Boolean);
-var i:integer;
+var I: Integer;
 begin
   Refresh;
 
@@ -516,8 +519,8 @@ begin
 
   GroupBox1.Enabled  := aShowCtrls;
   StatusBar1.Enabled := aShowCtrls;
-  for i:=1 to MainMenu1.Items.Count do
-    MainMenu1.Items[i-1].Enabled := aShowCtrls;
+  for I := 0 to MainMenu1.Items.Count - 1 do
+    MainMenu1.Items[I].Enabled := aShowCtrls;
 
   Refresh;
 

@@ -90,11 +90,18 @@ object FormMain: TFormMain
     end
     object Label1: TLabel
       Left = 104
-      Top = 184
+      Top = 200
       Width = 93
       Height = 13
       Caption = 'House building step'
       Visible = False
+    end
+    object Label4: TLabel
+      Left = 104
+      Top = 176
+      Width = 27
+      Height = 13
+      Caption = 'Angle'
     end
     object chkSuperSpeed: TCheckBox
       Left = 8
@@ -147,7 +154,7 @@ object FormMain: TFormMain
       TabOrder = 3
       OnClick = Button_StopClick
     end
-    object tbAngle: TTrackBar
+    object tbAngleX: TTrackBar
       Left = 8
       Top = 160
       Width = 95
@@ -158,11 +165,11 @@ object FormMain: TFormMain
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
-      OnChange = TB_Angle_Change
+      OnChange = tbAngleChange
     end
     object tbBuildingStep: TTrackBar
       Left = 8
-      Top = 184
+      Top = 200
       Width = 95
       Height = 17
       Max = 100
@@ -185,7 +192,7 @@ object FormMain: TFormMain
     end
     object GroupBox2: TGroupBox
       Left = 8
-      Top = 208
+      Top = 232
       Width = 185
       Height = 105
       Caption = ' AI '
@@ -226,6 +233,19 @@ object FormMain: TFormMain
         TabOrder = 3
         OnClick = chkShowAvoidClick
       end
+    end
+    object tbAngleY: TTrackBar
+      Left = 8
+      Top = 176
+      Width = 95
+      Height = 17
+      Max = 90
+      PageSize = 1
+      TabOrder = 8
+      ThumbLength = 14
+      TickMarks = tmBoth
+      TickStyle = tsNone
+      OnChange = tbAngleChange
     end
   end
   object OpenDialog1: TOpenDialog
