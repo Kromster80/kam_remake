@@ -310,7 +310,6 @@ type
     CanWalkRoad,    // Type of passability for Serfs when transporting goods, only roads have it
     CanBuild,       // Can we build a house on this tile?
     CanMakeRoads,   // Thats less strict than house building, roads Can be placed almost everywhere where units Can walk, except e.g. bridges
-    CanPlantTrees,  // If Forester Can plant a tree here, trees need free space around
     CanFish,        // Water tiles where fish Can move around
     CanCrab,        // Sand tiles where crabs Can move around
     CanWolf,        // Soil tiles where wolfs Can move around

@@ -165,7 +165,7 @@ begin
                         end;
     gs_FarmerWine:      Result := TileIsWineField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = CORN_AGE_MAX);
     gs_FisherCatch:     Result := CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir),true);
-    gs_WoodCutterPlant: Result := CheckPassability(WorkPlan.Loc, CanPlantTrees);
+    gs_WoodCutterPlant: Result := TileGoodForTree(WorkPlan.Loc.X, WorkPlan.Loc.Y);
     gs_WoodCutterCut:   begin
                           P := KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir);
                           Result := ObjectIsChopableTree(P, caAgeFull) and (Land[P.Y, P.X].TreeAge >= TREE_AGE_FULL);

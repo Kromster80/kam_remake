@@ -168,6 +168,7 @@ type
     function TileGoodForIron(X,Y: Word): Boolean;
     function TileGoodForGold(X,Y: Word): Boolean;
     function TileGoodForField(X,Y: Word): Boolean;
+    function TileGoodForTree(X,Y: Word): Boolean;
     function TileIsWater(Loc:TKMPoint): Boolean; overload;
     function TileIsWater(X,Y : Word): Boolean; overload;
     function TileIsStone(X,Y:Word): Byte;
@@ -518,6 +519,62 @@ begin
     and (Land[Y,X].TileOverlay <> to_Road)
     and not TileIsWineField(KMPoint(X,Y))
     and not TileIsCornField(KMPoint(X,Y))
+    and CheckHeightPass(KMPoint(X,Y), hpWalking);
+end;
+
+
+function TTerrain.TileGoodForTree(X,Y: Word): Boolean;
+  function IsObjectsNearby: Boolean;
+  var I,K: Integer; P: TKMPoint;
+  begin
+    Result := False;
+    for I := -1 to 1 do
+      for K := -1 to 1 do
+        if ((I<>0) or (K<>0)) and TileInMapCoords(X+I, Y+K) then
+        begin
+          P := KMPoint(X+I, Y+K);
+
+          //Tiles next to it can't be trees/stumps
+          if MapElem[Land[P.Y,P.X].Obj].DontPlantNear then
+            Result := True;
+
+          //Tiles above or to the left can't be road/field/locked
+          if (I <= 0) and (K <= 0) then
+            if (Land[P.Y,P.X].TileLock <> tlNone)
+            or (Land[P.Y,P.X].TileOverlay = to_Road)
+            or TileIsCornField(P)
+            or TileIsWineField(P) then
+              Result := True;
+
+          if Result then Exit;
+        end;
+  end;
+
+  function HousesNearVertex: Boolean;
+  var I,K: Integer;
+  begin
+    Result := False;
+    for I := -1 to 1 do
+    for K := -1 to 1 do
+      if TileInMapCoords(X+K, Y+I)
+      and (Land[Y+I,X+K].TileLock in [tlFenced,tlDigged,tlHouse]) then
+      begin
+        if (I+1 in [0,1]) and (K+1 in [0,1]) then //Only houses above/left of the tile
+          Result := True;
+      end;
+  end;
+
+begin
+  //todo: Optimize above functions. Recheck UpdatePass and WC if the check Rects can be made smaller
+
+  Result := TileIsSoil(X,Y)
+    and not IsObjectsNearby //This function checks surrounding tiles
+    and (Land[Y,X].TileLock = tlNone)
+    and (X > 1) and (Y > 1) //Not top/left of map, but bottom/right is ok
+    and (Land[Y,X].TileOverlay <> to_Road)
+    and not HousesNearVertex
+    //Woodcutter will dig out other object in favour of his tree
+    and ((Land[Y,X].Obj = 255) or (MapElem[Land[Y,X].Obj].CanBeRemoved))
     and CheckHeightPass(KMPoint(X,Y), hpWalking);
 end;
 
@@ -1282,7 +1339,7 @@ begin
           Trees.AddItem(CuttingPoint); //Tree
 
       if (aPlantAct in [taPlant, taAny])
-      and (CanPlantTrees in Land[T.Y,T.X].Passability)
+      and TileGoodForTree(T.X, T.Y)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
         if ObjectIsChopableTree(T, caAgeStump) then
@@ -1619,32 +1676,6 @@ procedure TTerrain.UpdatePassability(Loc: TKMPoint);
   begin
     Land[Loc.Y,Loc.X].Passability := Land[Loc.Y,Loc.X].Passability + [aPass];
   end;
-
-  function IsObjectsNearby(X,Y: Integer): Boolean;
-  var I,K: Integer; P: TKMPoint;
-  begin
-    Result := False;
-    for I := -1 to 1 do
-      for K := -1 to 1 do
-        if ((I<>0) or (K<>0)) and TileInMapCoords(X+I, Y+K) then
-        begin
-          P := KMPoint(X+I, Y+K);
-
-          //Tiles next to it can't be trees/stumps
-          if MapElem[Land[P.Y,P.X].Obj].DontPlantNear then
-            Result := True;
-
-          //Tiles above or to the left can't be road/field/locked
-          if (I <= 0) and (K <= 0) then
-            if (Land[P.Y,P.X].TileLock <> tlNone)
-            or (Land[P.Y,P.X].TileOverlay = to_Road)
-            or TileIsCornField(P)
-            or TileIsWineField(P) then
-              Result := True;
-
-          if Result then Exit;
-        end;
-  end;
 var
   I, K: Integer;
   HousesNearTile, HousesNearVertex: Boolean;
@@ -1673,16 +1704,11 @@ begin
 
     //Check for houses around this tile/vertex
     HousesNearTile := False;
-    HousesNearVertex := False;
     for i := -1 to 1 do
     for k := -1 to 1 do
       if TileInMapCoords(Loc.X+k, Loc.Y+i)
       and (Land[Loc.Y+i,Loc.X+k].TileLock in [tlFenced,tlDigged,tlHouse]) then
-      begin
         HousesNearTile := True;
-        if (i+1 in [0,1]) and (k+1 in [0,1]) then //Only houses above/left of the tile
-          HousesNearVertex := True;
-      end;
 
     if TileIsRoadable(Loc)
     and ((Land[Loc.Y,Loc.X].Obj = 255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved)) //Only certain objects are excluded
@@ -1700,17 +1726,6 @@ begin
     and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
     and CheckHeightPass(Loc, hpWalking) then
       AddPassability(CanMakeRoads);
-
-    if TileIsSoil(Loc.X,Loc.Y)
-    and not IsObjectsNearby(Loc.X,Loc.Y) //This function checks surrounding tiles
-    and (Land[Loc.Y,Loc.X].TileLock = tlNone)
-    and (Loc.X > 1) and (Loc.Y > 1) //Not top/left of map, but bottom/right is ok
-    and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)
-    and not HousesNearVertex
-    //Woodcutter will dig out other object in favour of his tree
-    and ((Land[Loc.Y,Loc.X].Obj = 255) or (MapElem[Land[Loc.Y,Loc.X].Obj].CanBeRemoved))
-    and CheckHeightPass(Loc, hpWalking) then
-      AddPassability(CanPlantTrees);
 
     if TileIsWater(Loc) then
       AddPassability(CanFish);
