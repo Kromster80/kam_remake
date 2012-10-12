@@ -782,25 +782,39 @@ begin
 end;
 
 
-//Place lock on tile, any new TileLock replaces old one, thats okay}
+//Place lock on tile, any new TileLock replaces old one, thats okay
 procedure TTerrain.SetTileLock(aLoc: TKMPoint; aTileLock: TTileLock);
+var
+  R: TKMRect;
 begin
-  Land[aLoc.Y, aLoc.X].TileLock := aTileLock;
-  UpdatePassability(KMRectGrow(KMRect(aLoc), 1));
+  Assert(aTileLock in [tlDigged, tlRoadWork, tlFieldWork], 'We expect only these 3 locks, that affect only 1 tile an don''t change neighbours Passability');
 
-  //TileLocks affect passability so therefore also floodfill
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(aLoc), False);
+  Land[aLoc.Y, aLoc.X].TileLock := aTileLock;
+  R := KMRect(aLoc);
+
+  //Placing a lock on tile blocks tiles CanPlantTree
+  UpdatePassability(KMRectGrow(R, 1));
+
+  //Allowed TileLocks affect passability on this single tile
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], R, False);
 end;
 
 
-{Remove lock from tile}
+//Remove lock from tile
 procedure TTerrain.UnlockTile(aLoc: TKMPoint);
+var
+  R: TKMRect;
 begin
-  Land[aLoc.Y, aLoc.X].TileLock := tlNone;
-  UpdatePassability(KMRectGrow(KMRect(aLoc), 1));
+  Assert(Land[aLoc.Y, aLoc.X].TileLock in [tlDigged, tlRoadWork, tlFieldWork], 'We expect only these 3 locks, that affect only 1 tile an don''t change neighbours Passability');
 
-  //TileLocks affect passability so therefore also floodfill
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(aLoc), False);
+  Land[aLoc.Y, aLoc.X].TileLock := tlNone;
+  R := KMRect(aLoc);
+
+  //Removing a lock from tile unblock BR tiles CanPlantTree
+  UpdatePassability(KMRectGrow(R, 1));
+
+  //Allowed TileLocks affect passability on this single tile
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], R, False);
 end;
 
 
@@ -825,7 +839,7 @@ begin
 
   //Grow the bounds by extra tile because some passabilities
   //depend on road nearby (e.g. CanPlantTree)
-  UpdatePassability(KMRectGrow(Bounds, 1));
+  UpdatePassability(KMRectGrowBottomRight(Bounds));
 
   //Roads don't affect wcWalk or wcFish
   if aUpdateWalkConnects then
@@ -839,7 +853,7 @@ begin
   Land[Loc.Y,Loc.X].TileOverlay := to_None;
   Land[Loc.Y,Loc.X].FieldAge  := 0;
   UpdateBorders(Loc);
-  UpdatePassability(KMRectGrow(KMRect(Loc), 1));
+  UpdatePassability(KMRectGrowBottomRight(KMRect(Loc)));
 
   //Roads don't affect wcWalk or wcFish
   UpdateWalkConnect([wcRoad], KMRect(Loc), False);
@@ -937,7 +951,7 @@ begin
   UpdateBorders(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
   //Walk and Road because Grapes are blocking diagonal moves
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(Loc),1), (aFieldType = ft_Wine)); //Grape object blocks diagonal, others don't
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(Loc)), (aFieldType = ft_Wine)); //Grape object blocks diagonal, others don't
 end;
 
 
@@ -1383,7 +1397,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Tree could have blocked the only diagonal passage
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(Loc),1), True); //Trees block diagonal
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(Loc)), True); //Trees block diagonal
 end;
 
 
@@ -1410,7 +1424,7 @@ begin
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //WalkConnect takes diagonal passability into account
-  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(Loc),1), True); //Trees block diagonals
+  UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(Loc)), True); //Trees block diagonals
 end;
 
 
@@ -1422,7 +1436,7 @@ begin
     BlockedDiagonal := MapElem[Land[Loc.Y,Loc.X].Obj].DiagonalBlocked;
     Land[Loc.Y,Loc.X].Obj := 255;
     if BlockedDiagonal then
-      UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrowTopLeft(KMRect(Loc),1), True);
+      UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrowTopLeft(KMRect(Loc)), True);
   end;
 end;
 
@@ -2874,7 +2888,7 @@ procedure TTerrain.UpdateState;
     FloodfillNeeded   := MapElem[Land[Y,X].Obj].DiagonalBlocked <> MapElem[aObj].DiagonalBlocked;
     Land[Y,X].Obj     := aObj;
     if FloodfillNeeded then //When trees are removed by corn growing we need to update floodfill
-      UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrowTopLeft(KMRect(X,Y,X,Y),1), True);
+      UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrowTopLeft(KMRect(X,Y,X,Y)), True);
   end;
 var
   H, I, K, A: Word;

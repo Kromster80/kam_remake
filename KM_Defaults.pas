@@ -313,7 +313,7 @@ type
     CanBuildGold,   // Special allowance for Gold Mines
     CanMakeRoads,   // Thats less strict than house building, roads Can be placed almost everywhere where units Can walk, except e.g. bridges
     CanMakeFields,  // Thats more strict than roads, cos e.g. on beaches you Can't make fields
-    CanPlantTrees,  // If Forester Can plant a tree here, dunno if it's the same as fields
+    CanPlantTrees,  // If Forester Can plant a tree here, trees need free space around
     CanFish,        // Water tiles where fish Can move around
     CanCrab,        // Sand tiles where crabs Can move around
     CanWolf,        // Soil tiles where wolfs Can move around
