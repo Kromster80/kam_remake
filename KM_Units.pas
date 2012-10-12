@@ -1849,6 +1849,8 @@ begin
     Assert(IsDeadOrDying); //Just in case KillUnit failed
   end;
 
+  Inc(fTicker);
+
   UpdateHunger;
 
   //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
