@@ -1,6 +1,7 @@
 program Runner;
 {$I KaM_Remake.inc}
 uses
+  //FastMM4,
   Forms,
   Unit1 in 'Unit1.pas' {Form2},
   Unit_Runner in 'Unit_Runner.pas',

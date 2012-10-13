@@ -31,7 +31,7 @@ type
     function GetEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
     procedure UpdateOwnership;
   public
-    constructor Create(const aTriMesh: TKMTriMesh);
+    procedure AssignMesh(const aTriMesh: TKMTriMesh);
     procedure GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
     function EnemyPresence(aLoc: TKMpoint): Word;
     procedure UpdateState(aTick: Cardinal);
@@ -82,11 +82,10 @@ uses KM_PlayersCollection, KM_RenderAux, KM_Houses;
 
 
 { TKMNavMesh }
-constructor TKMNavMesh.Create(const aTriMesh: TKMTriMesh);
-var I: Integer;
+procedure TKMNavMesh.AssignMesh(const aTriMesh: TKMTriMesh);
+var
+  I: Integer;
 begin
-  inherited Create;
-
   fNodeCount := Length(aTriMesh.Vertices);
   fPolyCount := Length(aTriMesh.Polygons);
 
@@ -317,12 +316,13 @@ constructor TKMAIFields.Create;
 begin
   inherited;
 
+  fNavMesh := TKMNavMesh.Create;
 end;
 
 
 destructor TKMAIFields.Destroy;
 begin
-
+  FreeAndNil(fNavMesh);
   inherited;
 end;
 
@@ -575,7 +575,7 @@ begin
 
   Assert(Length(fRawMesh.Polygons) > 8);
 
-  fNavMesh := TKMNavMesh.Create(fRawMesh);
+  fNavMesh.AssignMesh(fRawMesh);
 end;
 
 

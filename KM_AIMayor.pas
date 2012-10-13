@@ -751,15 +751,31 @@ procedure TKMayor.UpdateBalance;
       else
       begin
         //Share proportionaly
-        WoodenWeapon.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
-        WoodenArmor.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor];
+        if WoodConsumptionRate <> 0 then
+        begin
+          WoodenWeapon.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
+          WoodenArmor.WoodTheory := WoodProductionRate / WoodConsumptionRate * HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor];
+        end else
+        begin
+          WoodenWeapon.WoodTheory := 0;
+          WoodenArmor.WoodTheory := 0;
+        end;
       end;
-      WoodenWeapon.TrunkTheory := WoodenWeapon.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
-      WoodenArmor.TrunkTheory := WoodenArmor.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
+
+      if WoodProductionRate <> 0 then
+      begin
+        WoodenWeapon.TrunkTheory := WoodenWeapon.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
+        WoodenArmor.TrunkTheory := WoodenArmor.WoodTheory / WoodProductionRate * TrunkProductionRate * 2;
+      end else
+      begin
+        WoodenWeapon.TrunkTheory := 0;
+        WoodenArmor.TrunkTheory := 0;
+      end;
     end;
   end;
 var
   P: TKMPlayer;
+  S: string;
 begin
   P := fPlayers[fOwner];
 
@@ -882,30 +898,33 @@ begin
     else
       Balance := Min([SteelWeaponBalance, SteelArmorBalance, HorseBalance]);
 
-    Text := Format('Weaponry Balance: %.2f|', [Balance])
+    //Append text in separate lines to isolate bugs
+    S := Format('Weaponry Balance: %.2f|', [Balance])
           + Format('  SteelW balance: %.2f - %.2f = %.2f|', [SteelWeaponProduction, SteelWeaponDemand, SteelWeaponBalance])
           + Format('          SteelW: min(C%.2f, I%.2f, S%.2f, W%.2f)|',
-                   [SteelWeapon.CoalTheory, SteelWeapon.IronTheory, SteelWeapon.SteelTheory, SteelWeapon.SmithyTheory])
-
+                   [SteelWeapon.CoalTheory, SteelWeapon.IronTheory, SteelWeapon.SteelTheory, SteelWeapon.SmithyTheory]);
+    S := S
           + Format('  SteelA balance: %.2f - %.2f = %.2f|', [SteelArmorProduction, SteelArmorDemand, SteelArmorBalance])
           + Format('          SteelA: min(C%.2f, I%.2f, S%.2f, W%.2f)|',
-                   [SteelArmor.CoalTheory, SteelArmor.IronTheory, SteelArmor.SteelTheory, SteelArmor.SmithyTheory])
-
+                   [SteelArmor.CoalTheory, SteelArmor.IronTheory, SteelArmor.SteelTheory, SteelArmor.SmithyTheory]);
+    S := S
           + Format('WoodWeap balance: %.2f - %.2f = %.2f|', [WoodenWeaponProduction, WoodenWeaponDemand, WoodenWeaponBalance])
           + Format('      WoodWeapon: min(T%.2f, W%.2f, W%.2f)|',
-                   [WoodenWeapon.TrunkTheory, WoodenWeapon.WoodTheory, WoodenWeapon.WorkshopTheory])
-
+                   [WoodenWeapon.TrunkTheory, WoodenWeapon.WoodTheory, WoodenWeapon.WorkshopTheory]);
+    S := S
           + Format('WoodShie balance: %.2f - %.2f = %.2f|', [WoodenShieldProduction, WoodenShieldDemand, WoodenShieldBalance])
           + Format('      WoodShield: min(T%.2f, W%.2f, W%.2f)|',
-                   [WoodenArmor.TrunkTheory, WoodenArmor.WoodTheory, WoodenArmor.WorkshopTheory])
-
+                   [WoodenArmor.TrunkTheory, WoodenArmor.WoodTheory, WoodenArmor.WorkshopTheory]);
+    S := S
           + Format('WoodArmo balance: %.2f - %.2f = %.2f|', [WoodenArmorProduction, WoodenArmorDemand, WoodenArmorBalance])
           + Format('       WoodArmor: min(F%.2f, S%.2f, T%.2f, W%.2f)|',
-                   [WoodenArmor.FarmTheory, WoodenArmor.SwineTheory, WoodenArmor.TanneryTheory, WoodenArmor.WorkshopTheory])
-
+                   [WoodenArmor.FarmTheory, WoodenArmor.SwineTheory, WoodenArmor.TanneryTheory, WoodenArmor.WorkshopTheory]);
+    S := S
           + Format('  Horses balance: %.2f - %.2f = %.2f|', [HorseProduction, HorseDemand, HorseBalance])
           + Format('          Horses: min(F%.2f, S%.2f)|',
                    [Horse.FarmTheory, Horse.StablesTheory]);
+
+    Text := S;
   end;
 end;
 

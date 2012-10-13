@@ -72,6 +72,9 @@
 			<DCC_RemoteDebug>true</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<DCC_RangeChecking>true</DCC_RangeChecking>
+			<DCC_DebugDCUs>true</DCC_DebugDCUs>
+			<DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
 			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
 			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
 			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
