@@ -1833,7 +1833,7 @@ begin
 
   //Update hunger
   if (fTicker mod CONDITION_PACE = 0)
-  and (fCondition > 0) then 
+  and (fCondition > 0)
   and not ((fUnitTask is TTaskGoEat) and TTaskGoEat(fUnitTask).Eating) then
     //Make unit hungry as long as they are not currently eating in the inn
     Dec(fCondition);
