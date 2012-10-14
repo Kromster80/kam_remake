@@ -34,7 +34,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Sound, KM_Units_Warrior, KM_Game, KM_Resource;
+uses KM_PlayersCollection, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles;
 
 const STRIKE_STEP = 5; //Melee units place hit on step 5
 
@@ -228,8 +228,8 @@ begin
 
     //Fire the arrow
     case fUnit.UnitType of
-      ut_Arbaletman: fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit.Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
-      ut_Bowman:     fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit.Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+      ut_Arbaletman: fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit.Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+      ut_Bowman:     fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit.Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
       ut_Slingshot:  ;
       else Assert(false, 'Unknown shooter');
     end;
@@ -238,7 +238,7 @@ begin
   end;
   if Step = SLINGSHOT_FIRING_DELAY then
     if fUnit.UnitType = ut_Slingshot then
-      fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+      fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
 end;
 
 

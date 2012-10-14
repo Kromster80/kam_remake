@@ -101,7 +101,7 @@ var
 
 
 implementation
-uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource,
+uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Projectiles, KM_Game, KM_Sound, KM_Resource,
   KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_GameApp;
 
 
@@ -937,7 +937,7 @@ begin
 
   RenderTerrainObjects(Rect, fTerrain.AnimStep);
   fPlayers.Paint; //Quite slow           //Units and houses
-  fGame.Projectiles.Paint;
+  fProjectiles.Paint;
   fGame.Alerts.Paint;
 
   fRenderList.Render;

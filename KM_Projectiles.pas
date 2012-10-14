@@ -37,9 +37,13 @@ type
     procedure UpdateState;
     procedure Paint;
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
+
+
+var
+  fProjectiles: TKMProjectiles;
 
 
 implementation

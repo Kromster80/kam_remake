@@ -630,7 +630,7 @@ end;
 
 function TKMUnitRecruit.InitiateActivity: TUnitTask;
 var
-  Enemy:TKMUnit;
+  Enemy: TKMUnit;
 begin
   Result := nil;
 

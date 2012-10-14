@@ -30,7 +30,6 @@ type
     fAlerts: TKMAlerts;
     fGameOptions: TKMGameOptions;
     fNetworking: TKMNetworking;
-    fProjectiles: TKMProjectiles;
     fGameInputProcess: TGameInputProcess;
     fMinimap: TKMMinimap;
     fPathfinding: TPathFinding;
@@ -148,7 +147,6 @@ type
     property Minimap: TKMMinimap read fMinimap;
     property Networking: TKMNetworking read fNetworking;
     property Pathfinding: TPathFinding read fPathfinding;
-    property Projectiles: TKMProjectiles read fProjectiles;
     property GameInputProcess: TGameInputProcess read fGameInputProcess;
     property GameOptions: TKMGameOptions read fGameOptions;
     property GamePlayInterface: TKMGamePlayInterface read fGamePlayInterface;
