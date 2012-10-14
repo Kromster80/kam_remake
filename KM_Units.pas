@@ -97,7 +97,7 @@ type
     AnimStep: Integer;
     IsExchanging: Boolean; //Current walk is an exchange, used for sliding
 
-    constructor Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -206,16 +206,16 @@ type
   private
     fCarry: TResourceType;
   public
-    constructor Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
-    constructor Load(LoadStream:TKMemoryStream); override;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
 
     procedure Deliver(aFrom: TKMHouse; toHouse: TKMHouse; Res: TResourceType; aID: integer); overload;
     procedure Deliver(aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: integer); overload;
     function TryDeliverFrom(aFrom: TKMHouse): Boolean;
 
     property Carry: TResourceType read fCarry;
-    procedure CarryGive(Res:TResourceType);
+    procedure CarryGive(Res: TResourceType);
     procedure CarryTake;
     procedure SetNewDelivery(aDelivery:TUnitTask);
 
@@ -241,7 +241,7 @@ type
   private
     fFishCount:byte; //1-5
   public
-    constructor Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex); overload;
+    constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex); overload;
     constructor Load(LoadStream: TKMemoryStream); override;
     property FishCount: byte read fFishCount;
     function ReduceFish:boolean;
@@ -259,7 +259,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace: boolean = true; RequiredWalkConnect: Byte = 0): TKMUnit;
-    function AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aDir: TKMDirection; aUnitPerRow, aUnitCount: word; aMapEditor: boolean = false): TKMUnit;
+    function AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word; aMapEditor: Boolean = False): TKMUnit;
     property Units[aIndex: Integer]: TKMUnit read GetUnit write SetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
     procedure OwnerUpdate(aOwner: TPlayerIndex);
@@ -650,7 +650,7 @@ end;
 
 
 { TKMSerf }
-constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
+constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
 begin
   inherited;
   fCarry := rt_None;
@@ -862,7 +862,7 @@ end;
 
 
 { TKMUnitAnimal }
-constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
+constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
 begin
   inherited;
 
@@ -965,19 +965,18 @@ end;
 
 
 { TKMUnit }
-constructor TKMUnit.Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
+constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
 begin
   inherited Create;
   fID           := aID;
-  fTicker       := fID; //Units upsate states will be evenly spread that way
+  fTicker       := fID; //Units update states will be spread more evenly that way
   fPointerCount := 0;
   fIsDead       := false;
   fKillASAP     := false;
   fThought      := th_None;
   fHome         := nil;
   fInHouse      := nil;
-  fPosition.X   := PosX;
-  fPosition.Y   := PosY;
+  fPosition     := KMPointF(PosX, PosY);
   fCurrPosition := KMPoint(PosX, PosY);
   fPrevPosition := fCurrPosition; //Init values
   fNextPosition := fCurrPosition; //Init values
@@ -2109,8 +2108,13 @@ begin
 end;
 
 
-function TKMUnitsCollection.AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
-var U:TKMUnit; Commander,W:TKMUnitWarrior; i:integer; UnitPosition:TKMPoint; DoesFit: boolean;
+function TKMUnitsCollection.AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word; aMapEditor: Boolean = False): TKMUnit;
+var
+  U: TKMUnit;
+  Commander, W: TKMUnitWarrior;
+  I: Integer;
+  UnitPosition: TKMPoint;
+  DoesFit: Boolean;
 begin
   Assert(aDir <> dir_NA);
   aUnitPerRow := Math.min(aUnitPerRow,aUnitCount); //Can have more rows than units
