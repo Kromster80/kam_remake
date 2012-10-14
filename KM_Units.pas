@@ -90,7 +90,6 @@ type
     function GetSlide(aCheck: TCheckAxis): Single;
     function CanAccessHome: Boolean;
 
-    procedure UpdateHunger;
     procedure UpdateThoughts;
     function UpdateVisibility:boolean;
     procedure UpdateHitPoints;
@@ -1562,25 +1561,6 @@ begin
 end;
 
 
-procedure TKMUnit.UpdateHunger;
-begin
-  //Surprisingly this func is quite overused
-  //todo: Optimize fCondition/fAnimFlag
-  //fTicker: Cardinal; //Measures ticks from unit creation and is used as flag anim as well
-  //fLiveTill: Cardinal; //Tick at which unit will die of hunger if not fed
-  //When unit eats increase his fLiveTill by amount of food value he ate
-  //Check unit hunger each 600 ticks, if fLiveTill > fTicker then KillUnit;
-
-  if fCondition > 0 then //Make unit hungry as long as they are not currently eating in the inn
-    if not((fUnitTask is TTaskGoEat) and (TTaskGoEat(fUnitTask).Eating)) then
-      dec(fCondition);
-
-  //Unit killing could be postponed by few ticks, hence fCondition could be <0
-  if fCondition <= 0 then
-    KillUnit;
-end;
-
-
 procedure TKMUnit.UpdateThoughts;
 begin
   if (fThought <> th_Death) and (fCondition <= UNIT_MIN_CONDITION div 3) then
@@ -1851,7 +1831,16 @@ begin
 
   Inc(fTicker);
 
-  UpdateHunger;
+  //Update hunger
+  if (fTicker mod CONDITION_PACE = 0)
+  and (fCondition > 0) then 
+  and not ((fUnitTask is TTaskGoEat) and TTaskGoEat(fUnitTask).Eating) then
+    //Make unit hungry as long as they are not currently eating in the inn
+    Dec(fCondition);
+
+  //Unit killing could be postponed by few ticks, hence fCondition could be <0
+  if fCondition <= 0 then
+    KillUnit;
 
   //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
   if FOG_OF_WAR_ENABLE and (fTicker mod 10 = 0) then
@@ -2075,7 +2064,7 @@ end;
 
 { AutoPlace means should we find a spot for this unit or just place it where we are told.
   Used for creating units still inside schools }
-function TKMUnitsCollection.Add(aOwner: shortint; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0): TKMUnit;
+function TKMUnitsCollection.Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0): TKMUnit;
 var
   ID: Cardinal;
   P: TKMPoint;
