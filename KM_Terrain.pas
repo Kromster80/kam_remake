@@ -2901,6 +2901,8 @@ begin
   for i:=1 to fMapY do for k:=1 to fMapX do
     UpdateBorders(KMPoint(k,i), False);
 
+  fFinder := TKMTerrainFinder.Create;
+
   UpdateLighting(KMRect(1, 1, fMapX, fMapY));
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
