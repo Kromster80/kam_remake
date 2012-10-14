@@ -412,7 +412,7 @@ begin
     if fGameMode = gmMapEd then
     begin
       fMapEditor := TKMMapEditor.Create;
-      MyPlayer := fPlayers.Player[0];
+      MyPlayer := fPlayers[0];
       fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
       for I := 0 to fPlayers.Count - 1 do
         fPlayers[I].FogOfWar.RevealEverything;
@@ -420,7 +420,7 @@ begin
     else
     if fGameMode = gmSingle then
     begin
-      MyPlayer := fPlayers.Player[Parser.MissionInfo.HumanPlayerID];
+      MyPlayer := fPlayers[Parser.MissionInfo.HumanPlayerID];
       Assert(ALLOW_NO_HUMAN_IN_SP or (MyPlayer.PlayerType = pt_Human));
       if ALLOW_NO_HUMAN_IN_SP and (MyPlayer.PlayerType = pt_Computer) then
         for I := 0 to fPlayers.Count - 1 do
@@ -480,25 +480,25 @@ begin
   for i:=1 to fNetworking.NetPlayers.Count do
   begin
     PlayerIndex := fNetworking.NetPlayers[i].StartLocation - 1; //PlayerID is 0 based
-    fNetworking.NetPlayers[i].PlayerIndex := fPlayers.Player[PlayerIndex];
-    fPlayers.Player[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].GetPlayerType;
-    fPlayers.Player[PlayerIndex].PlayerName := fNetworking.NetPlayers[i].Nikname;
+    fNetworking.NetPlayers[i].PlayerIndex := fPlayers[PlayerIndex];
+    fPlayers[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].GetPlayerType;
+    fPlayers[PlayerIndex].PlayerName := fNetworking.NetPlayers[i].Nikname;
 
     //Setup alliances
     if fNetworking.SelectGameKind = ngk_Map then
       for k:=0 to fPlayers.Count-1 do
         if (fNetworking.NetPlayers[i].Team = 0) or (fNetworking.NetPlayers.StartingLocToLocal(k+1) = -1) or
           (fNetworking.NetPlayers[i].Team <> fNetworking.NetPlayers[fNetworking.NetPlayers.StartingLocToLocal(k+1)].Team) then
-          fPlayers.Player[PlayerIndex].Alliances[k] := at_Enemy
+          fPlayers[PlayerIndex].Alliances[k] := at_Enemy
         else
-          fPlayers.Player[PlayerIndex].Alliances[k] := at_Ally;
+          fPlayers[PlayerIndex].Alliances[k] := at_Ally;
 
-    fPlayers.Player[PlayerIndex].FlagColor := fNetworking.NetPlayers[i].FlagColor;
+    fPlayers[PlayerIndex].FlagColor := fNetworking.NetPlayers[i].FlagColor;
     PlayerUsed[PlayerIndex] := true;
   end;
 
   //MyPlayer is a pointer to TKMPlayer
-  MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
+  MyPlayer := fPlayers[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
 
   //Clear remaining players
   for i:=fPlayers.Count-1 downto 0 do
@@ -734,7 +734,7 @@ begin
 
   fMapEditor := TKMMapEditor.Create;
   fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
-  MyPlayer := fPlayers.Player[0];
+  MyPlayer := fPlayers[0];
   MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
 
   fPlayers.AfterMissionInit(false);

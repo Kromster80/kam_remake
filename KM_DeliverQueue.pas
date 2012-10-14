@@ -480,7 +480,7 @@ begin
 
   //NEVER deliver weapons to the storehouse when player has a barracks
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Store)or
-                       (not (fOffer[iO].Resource in [WARFARE_MIN..WARFARE_MAX]))or(fPlayers.Player[fDemand[iD].Loc_House.Owner].Stats.GetHouseQty(ht_Barracks)=0));
+                       (not (fOffer[iO].Resource in [WARFARE_MIN..WARFARE_MAX]))or(fPlayers[fDemand[iD].Loc_House.Owner].Stats.GetHouseQty(ht_Barracks)=0));
 
   //If Demand and Offer are different HouseTypes, means forbid Store<->Store deliveries except the case where 2nd store is being built and requires building materials
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fOffer[iO].Loc_House.HouseType<>fDemand[iD].Loc_House.HouseType)or(fOffer[iO].Loc_House.IsComplete<>fDemand[iD].Loc_House.IsComplete));

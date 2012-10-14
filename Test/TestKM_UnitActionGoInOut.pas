@@ -37,7 +37,7 @@ begin
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'log.log');
   fResource := TResource.Create(nil, nil, nil);
   fResource.LoadMenuResources('');
-  fSoundLib := TSoundLib.Create('', 0);
+  fSoundLib := TSoundLib.Create('', 0, False);
   fTerrain := TTerrain.Create;
   fTerrain.MakeNewMap(32, 32, False);
   fPlayers := TKMPlayersCollection.Create;
@@ -112,7 +112,7 @@ begin
     for K := 0 to I do
       FUnitActionGoInOut.Execute;
 
-    fUnit.HitPointsDecrease(1000);
+    fUnit.HitPointsDecrease(255);
     FUnitActionGoInOut.Execute;
     TearDown;
   end;

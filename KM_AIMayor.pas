@@ -161,8 +161,8 @@ constructor TKMayor.Create(aPlayer: TPlayerIndex; aSetup: TKMPlayerAISetup);
 begin
   inherited Create;
   fOwner := aPlayer;
-  fPathFindingRoad := TPathFindingRoad.Create(fOwner);
   fCityPlanner := TKMCityPlanner.Create(fOwner);
+  fPathFindingRoad := TPathFindingRoad.Create(fOwner);
 
   fSetup := aSetup;
 
@@ -655,8 +655,9 @@ begin
   StoreLoc := Store.GetEntrance;
 
   //AI will be Wooden if there no iron/coal nearby
-  fWooden := not fCityPlanner.FindNearest(StoreLoc, CheckDistance[fSetup.Strong], fnIron, T)
-             or not fCityPlanner.FindNearest(StoreLoc, CheckDistance[fSetup.Strong], fnCoal, T);
+  fWooden := (fPlayers[fOwner].PlayerType = pt_Computer) and fSetup.AutoBuild
+             and (not fCityPlanner.FindNearest(StoreLoc, CheckDistance[fSetup.Strong], fnIron, T)
+               or not fCityPlanner.FindNearest(StoreLoc, CheckDistance[fSetup.Strong], fnCoal, T));
 
   fWooden := True;
 end;

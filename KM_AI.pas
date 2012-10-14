@@ -12,7 +12,7 @@ type
 
   TKMPlayerAI = class
   private
-    fPlayerIndex: TPlayerIndex;
+    fOwner: TPlayerIndex;
     fSetup: TKMPlayerAISetup;
     fMayor: TKMayor;
     fGeneral: TKMGeneral;
@@ -73,13 +73,13 @@ constructor TKMPlayerAI.Create(aPlayerIndex: TPlayerIndex);
 begin
   inherited Create;
 
-  fPlayerIndex := aPlayerIndex;
+  fOwner := aPlayerIndex;
   fSetup := TKMPlayerAISetup.Create;
-  fMayor := TKMayor.Create(fPlayerIndex, fSetup);
-  fGeneral := TKMGeneral.Create(fPlayerIndex, fSetup);
+  fMayor := TKMayor.Create(fOwner, fSetup);
+  fGeneral := TKMGeneral.Create(fOwner, fSetup);
   fWonOrLost := wol_None;
 
-  DefencePositions := TAIDefencePositions.Create();
+  DefencePositions := TAIDefencePositions.Create;
 
   fAttacks := TAIAttacks.Create;
 end;
@@ -102,7 +102,7 @@ var
   Defeat: Boolean;
   Stat: TKMPlayerStats;
 begin
-  Stat := fPlayers[fPlayerIndex].Stats;
+  Stat := fPlayers[fOwner].Stats;
 
   //KaM defeat conditions are merge of two things: simplicity and objective.
   //They imply that enemy is powerful enough to destroy all houses and units,
@@ -115,7 +115,7 @@ begin
 
   //Let the event system know (defeat may trigger events for other players)
   if Defeat then
-    fEventsManager.ProcDefeated(fPlayerIndex);
+    fEventsManager.ProcDefeated(fOwner);
 end;
 
 
@@ -163,7 +163,7 @@ begin
   VictorySatisfied  := True;
   SurvivalSatisfied := True;
 
-  with fPlayers[fPlayerIndex] do
+  with fPlayers[fOwner] do
   for I := 0 to Goals.Count - 1 do //Test each goal to see if it has occured
     if GoalConditionSatisfied(Goals[I]) then
     begin
@@ -202,12 +202,12 @@ begin
 
   //Let everyone know in MP mode
   if not fGame.IsReplay
-  and (fGame.IsMultiplayer or (MyPlayer = fPlayers[fPlayerIndex])) then
+  and (fGame.IsMultiplayer or (MyPlayer = fPlayers[fOwner])) then
     if not SurvivalSatisfied then
-      fGame.PlayerDefeat(fPlayerIndex)
+      fGame.PlayerDefeat(fOwner)
     else
     if VictorySatisfied then
-      fGame.PlayerVictory(fPlayerIndex);
+      fGame.PlayerVictory(fOwner);
 end;
 
 
@@ -222,7 +222,8 @@ var
   GroupReq: array[TGroupType] of integer;
 begin
   if fGame.IsPeaceTime then Exit; //Do not process train soldiers during peacetime
-  if fPlayers[fPlayerIndex].Stats.GetArmyCount >= Setup.MaxSoldiers then Exit; //Don't train if we have reached our limit
+
+  if fPlayers[fOwner].Stats.GetArmyCount >= Setup.MaxSoldiers then Exit; //Don't train if we have reached our limit
   //Delay between equipping soldiers for KaM compatibility
   CanEquipIron := fGame.CheckTime(fLastEquippedTime+Setup.EquipRateIron);
   CanEquipLeather := fGame.CheckTime(fLastEquippedTime+Setup.EquipRateLeather);
@@ -238,14 +239,14 @@ begin
       inc(GroupReq[GroupType], DefencePositions.TroopFormations[GroupType].NumUnits - (CurrentCommander.GetMemberCount+1));
 
   //Find barracks
-  SetLength(Barracks, fPlayers[fPlayerIndex].Stats.GetHouseQty(ht_Barracks));
+  SetLength(Barracks, fPlayers[fOwner].Stats.GetHouseQty(ht_Barracks));
   k := 1;
-  HB := TKMHouseBarracks(fPlayers[fPlayerIndex].FindHouse(ht_Barracks,k));
+  HB := TKMHouseBarracks(fPlayers[fOwner].FindHouse(ht_Barracks,k));
   while HB <> nil do
   begin
     Barracks[k-1] := HB;
     inc(k);
-    HB := TKMHouseBarracks(fPlayers[fPlayerIndex].FindHouse(ht_Barracks,k));
+    HB := TKMHouseBarracks(fPlayers[fOwner].FindHouse(ht_Barracks,k));
   end;
 
   //Train troops where possible in each barracks
@@ -266,7 +267,7 @@ begin
       if (UT <> ut_None)
       and ((CanEquipIron and (UT in WARRIORS_IRON)) or (CanEquipLeather and not (UT in WARRIORS_IRON))) then
         while HB.CanEquip(UT) and (GroupReq[GType] > 0) and
-              (fPlayers[fPlayerIndex].Stats.GetArmyCount < Setup.MaxSoldiers) do
+              (fPlayers[fOwner].Stats.GetArmyCount < Setup.MaxSoldiers) do
         begin
           HB.Equip(UT, 1);
           dec(GroupReq[GType]);
@@ -290,17 +291,17 @@ begin
 
   //Find target
   case aTarget of
-    att_ClosestUnit:                  TargetUnit := fPlayers.GetClosestUnit(aCommander.GetPosition, fPlayerIndex, at_Enemy);
-    att_ClosestBuildingFromArmy:      TargetHouse := fPlayers.GetClosestHouse(aCommander.GetPosition, fPlayerIndex, at_Enemy, false);
-    att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(Setup.StartPosition, fPlayerIndex, at_Enemy, false);
+    att_ClosestUnit:                  TargetUnit := fPlayers.GetClosestUnit(aCommander.GetPosition, fOwner, at_Enemy);
+    att_ClosestBuildingFromArmy:      TargetHouse := fPlayers.GetClosestHouse(aCommander.GetPosition, fOwner, at_Enemy, false);
+    att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(Setup.StartPosition, fOwner, at_Enemy, false);
     att_CustomPosition:               begin
                                         TargetHouse := fPlayers.HousesHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetHouse <> nil) and
-                                           (fPlayers.CheckAlliance(fPlayerIndex, TargetHouse.Owner) = at_Ally) then
+                                           (fPlayers.CheckAlliance(fOwner, TargetHouse.Owner) = at_Ally) then
                                           TargetHouse := nil;
                                         TargetUnit := fTerrain.UnitsHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetUnit <> nil) and
-                                           (fPlayers.CheckAlliance(fPlayerIndex, TargetUnit.Owner) = at_Ally) then
+                                           (fPlayers.CheckAlliance(fOwner, TargetUnit.Owner) = at_Ally) then
                                           TargetUnit := nil;
                                       end;
   end;
@@ -331,10 +332,10 @@ begin
         CurrentCommander := nil;
 
   //Iterate units list in search of warrior commanders, and then check the following: Hunger, (feed) formation, (units per row) position (from defence positions)
-  for i:=0 to fPlayers[fPlayerIndex].Units.Count-1 do
+  for i:=0 to fPlayers[fOwner].Units.Count-1 do
   begin
-    if TKMUnit(fPlayers[fPlayerIndex].Units.Items[i]) is TKMUnitWarrior then
-      with TKMUnitWarrior(fPlayers[fPlayerIndex].Units.Items[i]) do
+    if TKMUnit(fPlayers[fOwner].Units.Items[i]) is TKMUnitWarrior then
+      with TKMUnitWarrior(fPlayers[fOwner].Units.Items[i]) do
       if not IsDeadOrDying and Visible then //Ignore warriors which are dead or still in barracks
       begin
         //ALL WARRIORS: Check hunger and feed
@@ -387,7 +388,7 @@ begin
           //In this case we choose the closest group, then move to a higher priority one later (see above)
           //This means at the start of the mission troops will take the position they are placed at rather than swapping around
           if not Positioned then
-            Positioned := DefencePositions.FindPlaceForWarrior(TKMUnitWarrior(fPlayers[fPlayerIndex].Units.Items[i]), AI_LINK_IDLE, AI_FILL_CLOSEST);
+            Positioned := DefencePositions.FindPlaceForWarrior(TKMUnitWarrior(fPlayers[fOwner].Units.Items[i]), AI_LINK_IDLE, AI_FILL_CLOSEST);
 
           //Just chill and link with other idle groups
           if not Positioned then
@@ -444,10 +445,10 @@ begin
   //Take all idling Groups that are:
   // - not linked to any Defence positions
   // - are in backline defence positions
-  for I := 0 to fPlayers[fPlayerIndex].Units.Count - 1 do
-  if TKMUnit(fPlayers[fPlayerIndex].Units.Items[I]) is TKMUnitWarrior then
+  for I := 0 to fPlayers[fOwner].Units.Count - 1 do
+  if TKMUnit(fPlayers[fOwner].Units.Items[I]) is TKMUnitWarrior then
   begin
-    W := TKMUnitWarrior(fPlayers[fPlayerIndex].Units.Items[I]);
+    W := TKMUnitWarrior(fPlayers[fOwner].Units.Items[I]);
     if not W.IsDeadOrDying //Ignore warriors which are dead
     and W.Visible  //Ignore warriors which are still in barracks
     and W.IsCommander
@@ -487,8 +488,9 @@ end;
 
 procedure TKMPlayerAI.OwnerUpdate(aPlayer: TPlayerIndex);
 begin
-  fPlayerIndex := aPlayer;
-  fMayor.OwnerUpdate(aPlayer);
+  fOwner := aPlayer;
+  fMayor.OwnerUpdate(fOwner);
+  fGeneral.OwnerUpdate(fOwner);
 end;
 
 
@@ -511,7 +513,7 @@ end;
 procedure TKMPlayerAI.RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
 var I: Integer;
 begin
-  if fPlayers[fPlayerIndex].PlayerType = pt_Human then Exit;
+  if fPlayers[fOwner].PlayerType = pt_Human then Exit;
 
   //todo: Right now "idle" troops (without an assigned defence position) will do nothing (no attacking, defending, etc.)
   //Any defence position that is within their defence radius of this threat will retaliate against it
@@ -528,12 +530,12 @@ end;
 //aHouse is our house that was attacked
 procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
 begin
-  case fPlayers[fPlayerIndex].PlayerType of
+  case fPlayers[fOwner].PlayerType of
     pt_Human:
       begin
         //No fight alerts in replays, and only show alerts for ourselves
-        if (not fGame.IsReplay) and (fPlayerIndex = MyPlayer.PlayerIndex) then
-          fGame.Alerts.AddFight(KMPointF(aHouse.GetPosition), fPlayerIndex, an_Town);
+        if (not fGame.IsReplay) and (fOwner = MyPlayer.PlayerIndex) then
+          fGame.Alerts.AddFight(KMPointF(aHouse.GetPosition), fOwner, an_Town);
       end;
     pt_Computer:
       RetaliateAgainstThreat(aAttacker);
@@ -546,11 +548,11 @@ procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnitW
 const
   NotifyKind: array [Boolean] of TAttackNotification = (an_Citizens, an_Troops);
 begin
-  case fPlayers[fPlayerIndex].PlayerType of
+  case fPlayers[fOwner].PlayerType of
     pt_Human:
       //No fight alerts in replays, and only show alerts for ourselves
-      if (not fGame.IsReplay) and (fPlayerIndex = MyPlayer.PlayerIndex) then
-        fGame.Alerts.AddFight(aUnit.PositionF, fPlayerIndex, NotifyKind[aUnit is TKMUnitWarrior]);
+      if (not fGame.IsReplay) and (fOwner = MyPlayer.PlayerIndex) then
+        fGame.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior]);
     pt_Computer:
       begin
         //If we are attacked, then we should counter attack the attacker!
@@ -578,7 +580,7 @@ end;
 procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write('PlayerAI');
-  SaveStream.Write(fPlayerIndex);
+  SaveStream.Write(fOwner);
   SaveStream.Write(fWonOrLost, SizeOf(fWonOrLost));
   SaveStream.Write(fLastEquippedTime);
 
@@ -593,7 +595,7 @@ end;
 procedure TKMPlayerAI.Load(LoadStream:TKMemoryStream);
 begin
   LoadStream.ReadAssert('PlayerAI');
-  LoadStream.Read(fPlayerIndex);
+  LoadStream.Read(fOwner);
   LoadStream.Read(fWonOrLost, SizeOf(fWonOrLost));
   LoadStream.Read(fLastEquippedTime);
 
@@ -617,20 +619,20 @@ end;
 procedure TKMPlayerAI.UpdateState(aTick: Cardinal);
 begin
   //Check if player has been defeated for Events
-  if (aTick + Byte(fPlayerIndex)) mod MAX_PLAYERS = 0 then
+  if (aTick + Byte(fOwner)) mod MAX_PLAYERS = 0 then
     CheckDefeated;
 
   //Check goals for all players to maintain multiplayer consistency
   //AI does not care if it won or lost and Human dont need Mayor and Army management
-  case fPlayers[fPlayerIndex].PlayerType of
+  case fPlayers[fOwner].PlayerType of
     pt_Human:     begin
-                    if (aTick + Byte(fPlayerIndex)) mod MAX_PLAYERS = 0 then
+                    if (aTick + Byte(fOwner)) mod MAX_PLAYERS = 0 then
                       CheckGoals; //This procedure manages victory and loss
                   end;
     pt_Computer:  begin
                     fMayor.UpdateState(aTick);
                     fGeneral.UpdateState(aTick);
-                    if (aTick + Byte(fPlayerIndex)) mod MAX_PLAYERS = 0 then
+                    if (aTick + Byte(fOwner)) mod MAX_PLAYERS = 0 then
                     begin
                       CheckArmy; //Feed army, position defence, arrange/organise groups
                       CheckCanAttack;

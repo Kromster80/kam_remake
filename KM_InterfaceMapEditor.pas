@@ -40,10 +40,10 @@ type
     procedure DisplayHint(Sender: TObject);
     procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
 
-    procedure Menu_Save(Sender:TObject);
-    procedure Menu_Load(Sender:TObject);
-    procedure Menu_QuitMission(Sender:TObject);
-    procedure Load_MapTypeChange(Sender:TObject);
+    procedure Menu_Save(Sender: TObject);
+    procedure Menu_Load(Sender: TObject);
+    procedure Menu_QuitMission(Sender: TObject);
+    procedure Load_MapTypeChange(Sender: TObject);
     procedure Load_MapListUpdate;
     procedure Load_MapListUpdateDone(Sender: TObject);
     procedure Terrain_HeightChange(Sender: TObject);
@@ -56,21 +56,22 @@ type
     procedure Unit_ButtonClick(Sender: TObject);
     procedure Unit_ArmyChange1(Sender: TObject); overload;
     procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
-    procedure Barracks_Fill(Sender:TObject);
-    procedure Barracks_SelectWare(Sender:TObject);
-    procedure Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
-    procedure Store_Fill(Sender:TObject);
-    procedure Store_SelectWare(Sender:TObject);
-    procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
+    procedure Barracks_Fill(Sender: TObject);
+    procedure Barracks_SelectWare(Sender: TObject);
+    procedure Barracks_EditWareCount(Sender: TObject; AButton:TMouseButton);
+    procedure Store_Fill(Sender: TObject);
+    procedure Store_SelectWare(Sender: TObject);
+    procedure Store_EditWareCount(Sender: TObject; AButton:TMouseButton);
     procedure Player_ChangeActive(Sender: TObject);
     procedure SetActivePlayer(aIndex: TPlayerIndex);
     procedure SetTileDirection(aTileDirection: byte);
-    procedure Player_ColorClick(Sender:TObject);
+    procedure Player_AutobuildClick(Sender: TObject);
+    procedure Player_BlockClick(Sender: TObject);
     procedure Player_BlockRefresh;
-    procedure Player_BlockClick(Sender:TObject);
-    procedure Mission_AlliancesChange(Sender:TObject);
-    procedure Mission_PlayerTypesChange(Sender:TObject);
-    procedure View_Passability(Sender:TObject);
+    procedure Player_ColorClick(Sender: TObject);
+    procedure Mission_AlliancesChange(Sender: TObject);
+    procedure Mission_PlayerTypesChange(Sender: TObject);
+    procedure View_Passability(Sender: TObject);
 
     function GetSelectedTile: TObject;
     function GetSelectedObject: TObject;
@@ -134,6 +135,7 @@ type
       Panel_Color:TKMPanel;
         ColorSwatch_Color:TKMColorSwatch;
       Panel_Block: TKMPanel;
+        CheckBox_Autobuild: TKMCheckBox;
         Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
         Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
       Panel_RevealFOW: TKMPanel;
@@ -757,22 +759,23 @@ begin
       ColorSwatch_Color.OnClick := Player_ColorClick;
 
     Panel_Block := TKMPanel.Create(Panel_Player,0,28,196,400);
-      TKMLabel.Create(Panel_Block, 100, 10, 184, 0, 'Block houses', fnt_Outline, taCenter);
+      CheckBox_Autobuild := TKMCheckBox.Create(Panel_Block, 8, 30, 100, 20, 'Autobuild', fnt_Metal);
+      CheckBox_Autobuild.OnClick := Player_AutobuildClick;
 
+      TKMLabel.Create(Panel_Block, 100, 10, 184, 0, 'Block/Release houses', fnt_Outline, taCenter);
       for I := 1 to GUI_HOUSE_COUNT do
       if GUIHouseOrder[I] <> ht_None then begin
-        Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_Block, 8+((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
+        Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_Block, 8+((I-1) mod 5)*37, 50 + ((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
         Button_BlockHouse[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
         Button_BlockHouse[I].OnClick := Player_BlockClick;
         Button_BlockHouse[I].Tag := I;
-        Image_BlockHouse[I] := TKMImage.Create(Panel_Block, 8+((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
+        Image_BlockHouse[I] := TKMImage.Create(Panel_Block, 8+((I-1) mod 5)*37 + 13, 50 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
         Image_BlockHouse[I].Hitable := False;
         Image_BlockHouse[I].ImageCenter;
       end;
 
     Panel_RevealFOW := TKMPanel.Create(Panel_Player,0,28,196,400);
       TKMLabel.Create(Panel_RevealFOW,100,10,184,0,'Reveal fog',fnt_Outline,taCenter);
-
 end;
 
 
@@ -1144,8 +1147,8 @@ procedure TKMapEdInterface.Player_UpdateColors;
 var I: Integer;
 begin
   //Set player colors
-  for I:=0 to MAX_PLAYERS-1 do
-    Button_PlayerSelect[I].ShapeColor := fPlayers.Player[I].FlagColor;
+  for I := 0 to MAX_PLAYERS - 1 do
+    Button_PlayerSelect[I].ShapeColor := fPlayers[I].FlagColor;
 
   Button_Village[vtUnits].FlagColor := MyPlayer.FlagColor;
   for I := Low(Button_Citizen) to High(Button_Citizen) do
@@ -1157,6 +1160,7 @@ end;
 
 procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 begin
+  //If we had selected House or Unit - discard them
   if Panel_House.Visible or Panel_Unit.Visible or Panel_Defence.Visible then
     SwitchPage(nil);
 
@@ -1167,6 +1171,7 @@ begin
   else
     SetActivePlayer(-1);
 
+  //Refresh per-player settings
   Player_BlockRefresh;
 end;
 
@@ -1175,9 +1180,9 @@ procedure TKMapEdInterface.SetActivePlayer(aIndex: TPlayerIndex);
 var I: Integer;
 begin
   if aIndex <> -1 then
-    MyPlayer := fPlayers.Player[aIndex]
+    MyPlayer := fPlayers[aIndex]
   else
-    MyPlayer := fPlayers.Player[0];
+    MyPlayer := fPlayers[0];
 
   for I := 0 to MAX_PLAYERS - 1 do
     Button_PlayerSelect[I].Down := (I = MyPlayer.PlayerIndex);
@@ -1474,7 +1479,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Menu_Save(Sender:TObject);
+procedure TKMapEdInterface.Menu_Save(Sender: TObject);
 begin
   if (Sender = Edit_SaveName) or (Sender = Radio_Save_MapType) then
   begin
@@ -1518,7 +1523,7 @@ end;
 
 
 {Quit the mission and return to main menu}
-procedure TKMapEdInterface.Menu_QuitMission(Sender:TObject);
+procedure TKMapEdInterface.Menu_QuitMission(Sender: TObject);
 begin
   fGameApp.Stop(gr_MapEdEnd);
 end;
@@ -1622,7 +1627,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Store_Fill(Sender:TObject);
+procedure TKMapEdInterface.Store_Fill(Sender: TObject);
 var i,Tmp:Integer;
 begin
   if fPlayers.Selected=nil then exit;
@@ -1634,7 +1639,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Barracks_Fill(Sender:TObject);
+procedure TKMapEdInterface.Barracks_Fill(Sender: TObject);
 var i,Tmp:Integer;
 begin
   if fPlayers.Selected=nil then exit;
@@ -1726,7 +1731,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Store_SelectWare(Sender:TObject);
+procedure TKMapEdInterface.Store_SelectWare(Sender: TObject);
 var i:Integer;
 begin
   if not Panel_HouseStore.Visible then exit;
@@ -1740,7 +1745,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
+procedure TKMapEdInterface.Barracks_EditWareCount(Sender: TObject; AButton:TMouseButton);
 var
   Res: TResourceType;
   Barracks: TKMHouseBarracks;
@@ -1766,7 +1771,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
+procedure TKMapEdInterface.Store_EditWareCount(Sender: TObject; AButton:TMouseButton);
 var
   Res: TResourceType;
   Store: TKMHouseStore;
@@ -1792,7 +1797,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Player_ColorClick(Sender:TObject);
+procedure TKMapEdInterface.Player_ColorClick(Sender: TObject);
 begin
   if not (Sender = ColorSwatch_Color) then exit;
   MyPlayer.FlagColor := ColorSwatch_Color.GetColor;
@@ -1800,7 +1805,13 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Player_BlockClick(Sender:TObject);
+procedure TKMapEdInterface.Player_AutobuildClick(Sender: TObject);
+begin
+  MyPlayer.AI.Setup.AutoBuild := CheckBox_Autobuild.Checked;
+end;
+
+
+procedure TKMapEdInterface.Player_BlockClick(Sender: TObject);
 var
   I: Integer;
   H: THouseType;
@@ -1834,6 +1845,8 @@ var
   I: Integer;
   H: THouseType;
 begin
+  CheckBox_Autobuild.Checked := MyPlayer.AI.Setup.AutoBuild;
+
   for I := 1 to GUI_HOUSE_COUNT do
   begin
     H := GUIHouseOrder[I];
@@ -1851,14 +1864,14 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Mission_AlliancesChange(Sender:TObject);
+procedure TKMapEdInterface.Mission_AlliancesChange(Sender: TObject);
 var i,k:Integer;
 begin
   if Sender = nil then begin
     for i:=0 to fPlayers.Count-1 do
     for k:=0 to fPlayers.Count-1 do
-      if (fPlayers.Player[i]<>nil)and(fPlayers.Player[k]<>nil) then
-        CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers.Player[i].PlayerIndex, fPlayers.Player[k].PlayerIndex)=at_Ally)
+      if (fPlayers[i]<>nil)and(fPlayers[k]<>nil) then
+        CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers[i].PlayerIndex, fPlayers[k].PlayerIndex)=at_Ally)
       else
         CheckBox_Alliances[i,k].Disable; //Player does not exist?
     exit;
@@ -1866,18 +1879,18 @@ begin
 
   i := TKMCheckBox(Sender).Tag div fPlayers.Count;
   k := TKMCheckBox(Sender).Tag mod fPlayers.Count;
-  if CheckBox_Alliances[i,k].Checked then fPlayers.Player[i].Alliances[k] := at_Ally
-                                     else fPlayers.Player[i].Alliances[k] := at_Enemy;
+  if CheckBox_Alliances[i,k].Checked then fPlayers[i].Alliances[k] := at_Ally
+                                     else fPlayers[i].Alliances[k] := at_Enemy;
 
   //Copy status to symmetrical item
   if CheckBox_AlliancesSym.Checked then begin
     CheckBox_Alliances[k,i].Checked := CheckBox_Alliances[i,k].Checked;
-    fPlayers.Player[k].Alliances[i] := fPlayers.Player[i].Alliances[k];
+    fPlayers[k].Alliances[i] := fPlayers[i].Alliances[k];
   end;
 end;
 
 
-procedure TKMapEdInterface.Mission_PlayerTypesChange(Sender:TObject);
+procedure TKMapEdInterface.Mission_PlayerTypesChange(Sender: TObject);
 var i:Integer;
 begin
   if Sender = nil then begin

@@ -16,7 +16,7 @@ type
   TKMRunResults = record
     RunCount: Integer; //How many runs were logged
     ValCount: Integer; //How many values each run has
-    ValueMin, ValueMax: array of Single;
+    ValueMin, ValueMax: Single;
     Value: array of array [0..MAX_VALUES - 1] of Single;
   end;
 
@@ -58,8 +58,6 @@ begin
 
   fResults.RunCount := aCount;
   SetLength(fResults.Value, aCount);
-  SetLength(fResults.ValueMin, aCount);
-  SetLength(fResults.ValueMax, aCount);
 
   for I := 0 to aCount - 1 do
   begin
@@ -80,14 +78,14 @@ var
 begin
   //Get min max
   with fResults do
-  for I := 0 to ValCount - 1 do
   begin
-    ValueMin[I] := Value[0,I];
-    ValueMax[I] := Value[0,I];
-    for K := 1 to RunCount - 1 do
+    ValueMin := Value[0,0];
+    ValueMax := Value[0,0];
+    for I := 0 to RunCount - 1 do
+    for K := 0 to ValCount - 1 do
     begin
-      ValueMin[I] := Min(ValueMin[I], Value[K,I]);
-      ValueMax[I] := Max(ValueMax[I], Value[K,I]);
+      ValueMin := Min(ValueMin, Value[I,K]);
+      ValueMax := Max(ValueMax, Value[I,K]);
     end;
   end;
 end;

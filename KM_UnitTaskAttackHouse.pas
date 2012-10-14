@@ -133,7 +133,7 @@ begin
        end;
     2: begin
          //Let the house know it is being attacked
-         fPlayers.Player[fHouse.Owner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
+         fPlayers[fHouse.Owner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
          fDestroyingHouse := true;
          if IsRanged then
            SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0) //Start shooting
@@ -156,8 +156,8 @@ begin
          end else begin
            SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack
            if fHouse.AddDamage(2) then //All melee units do 2 damage per strike
-             if (fPlayers <> nil) and (fPlayers.Player[Owner] <> nil) then
-               fPlayers.Player[Owner].Stats.HouseDestroyed(fHouse.HouseType);
+             if (fPlayers <> nil) and (fPlayers[Owner] <> nil) then
+               fPlayers[Owner].Stats.HouseDestroyed(fHouse.HouseType);
 
            //Play a sound. We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
            if MyPlayer.FogOfWar.CheckTileRevelation(GetPosition.X, GetPosition.Y, true) >= 255 then

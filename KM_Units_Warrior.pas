@@ -261,7 +261,7 @@ begin
       //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
       fCommander := NewCommander;
     end;
-    fPlayers.Player[fOwner].AI.CommanderDied(Self, NewCommander); //Tell our AI that we have died so it can update defence positions, etc.
+    fPlayers[fOwner].AI.CommanderDied(Self, NewCommander); //Tell our AI that we have died so it can update defence positions, etc.
   end;
 
   //We need to tell the interface in case this warrior was a hotkey, so it updates automatically to the new commander
@@ -515,7 +515,7 @@ procedure TKMUnitWarrior.OrderFood;
 var i:integer;
 begin
   if (fCondition<(UNIT_MAX_CONDITION*TROOPS_FEED_MAX)) and not (fRequestedFood) then begin
-    fPlayers.Player[fOwner].Deliveries.Queue.AddDemand(nil, Self, rt_Food, 1, dt_Once, di_High);
+    fPlayers[fOwner].Deliveries.Queue.AddDemand(nil, Self, rt_Food, 1, dt_Once, di_High);
     fRequestedFood := true;
   end;
   //Commanders also tell troops to ask for some food
@@ -1282,17 +1282,17 @@ begin
     if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then
       FlagColor := $FFFFFFFF //Highlight with White color
     else
-      FlagColor := fPlayers.Player[fOwner].FlagColor; //Normal color
+      FlagColor := fPlayers[fOwner].FlagColor; //Normal color
 
     //In MapEd units fTicker always the same, use Terrain instead
     if fGame.GameMode = gmMapEd then
       FlagStep := fTerrain.AnimStep
     else
       FlagStep := fTicker;
-    fRenderPool.AddUnitFlag(fUnitType, Act, Direction, AnimStep, FlagStep, UnitPos.X, UnitPos.Y, FlagColor, fPlayers.Player[fOwner].FlagColor);
+    fRenderPool.AddUnitFlag(fUnitType, Act, Direction, AnimStep, FlagStep, UnitPos.X, UnitPos.Y, FlagColor, fPlayers[fOwner].FlagColor);
   end
   else
-    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers.Player[fOwner].FlagColor, True);
+    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers[fOwner].FlagColor, True);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fThought, UnitPos.X, UnitPos.Y);
@@ -1305,7 +1305,7 @@ begin
     if not DoesFit then continue; //Don't render units that are off the map in the map editor
     UnitPos.X := UnitPosition.X + UNIT_OFF_X; //MapEd units don't have sliding
     UnitPos.Y := UnitPosition.Y + UNIT_OFF_Y;
-    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers.Player[fOwner].FlagColor, true);
+    fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, UnitPos.X, UnitPos.Y, fPlayers[fOwner].FlagColor, true);
   end;
 
   if SHOW_ATTACK_RADIUS then

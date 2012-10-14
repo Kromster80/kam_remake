@@ -17,6 +17,7 @@ type
   public
     fType: TFindNearest;
     constructor Create(aOwner: TPlayerIndex);
+    procedure OwnerUpdate(aPlayer: TPlayerIndex);
   end;
 
   TKMCityPlanner = class
@@ -329,6 +330,7 @@ end;
 procedure TKMCityPlanner.OwnerUpdate(aPlayer: TPlayerIndex);
 begin
   fOwner := aPlayer;
+  fFinder.OwnerUpdate(fOwner);
 end;
 
 
@@ -350,6 +352,12 @@ begin
   inherited Create;
 
   fOwner := aOwner;
+end;
+
+
+procedure TKMTerrainFinderCity.OwnerUpdate(aPlayer: TPlayerIndex);
+begin
+  fOwner := aPlayer;
 end;
 
 

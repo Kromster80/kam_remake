@@ -13,7 +13,7 @@ type
 
   THouseAction = class
   private
-    fHouse:TKMHouse;
+    fHouse: TKMHouse;
     fHouseState: THouseState;
     fSubAction: THouseActionSet;
     procedure SetHouseState(aHouseState: THouseState);
@@ -23,47 +23,47 @@ type
     procedure SubActionAdd(aActionSet: THouseActionSet);
     procedure SubActionRem(aActionSet: THouseActionSet);
     property State: THouseState read fHouseState write SetHouseState;
-    property SubAction:THouseActionSet read fSubAction;
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    property SubAction: THouseActionSet read fSubAction;
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
   TKMHouse = class
   private
-    fID:integer; //unique ID, used for save/load to sync to
+    fID: Integer; //unique ID, used for save/load to sync to
     fHouseType: THouseType; //House type
     fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
     fOwner: TPlayerIndex; //House owner player, determines flag color as well
 
-    fBuildSupplyWood: byte; //How much Wood was delivered to house building site
-    fBuildSupplyStone: byte; //How much Stone was delivered to house building site
-    fBuildReserve: byte; //Take one build supply resource into reserve and "build from it"
-    fBuildingProgress: word; //That is how many efforts were put into building (Wooding+Stoning)
-    fDamage: word; //Damaged inflicted to house
+    fBuildSupplyWood: Byte; //How much Wood was delivered to house building site
+    fBuildSupplyStone: Byte; //How much Stone was delivered to house building site
+    fBuildReserve: Byte; //Take one build supply resource into reserve and "build from it"
+    fBuildingProgress: Word; //That is how many efforts were put into building (Wooding+Stoning)
+    fDamage: Word; //Damaged inflicted to house
 
-    fHasOwner: boolean; //which is some TKMUnit
-    fBuildingRepair: boolean; //If on and the building is damaged then labourers will come and repair it
-    fWareDelivery: boolean; //If on then no wares will be delivered here
+    fHasOwner: Boolean; //which is some TKMUnit
+    fBuildingRepair: Boolean; //If on and the building is damaged then labourers will come and repair it
+    fWareDelivery: Boolean; //If on then no wares will be delivered here
 
-    fResourceIn:array[1..4] of byte; //Resource count in input
-    fResourceDeliveryCount:array[1..4] of word; //Count of the resources we have ordered for the input (used for ware distribution)
-    fResourceOut:array[1..4]of byte; //Resource count in output
-    fResourceOrder:array[1..4]of word; //If HousePlaceOrders=true then here are production orders
-    fLastOrderProduced: byte; //Last order we made (1..4)
+    fResourceIn: array[1..4] of Byte; //Resource count in input
+    fResourceDeliveryCount: array[1..4] of Word; //Count of the resources we have ordered for the input (used for ware distribution)
+    fResourceOut: array[1..4]of Byte; //Resource count in output
+    fResourceOrder: array[1..4]of Word; //If HousePlaceOrders=true then here are production orders
+    fLastOrderProduced: Byte; //Last order we made (1..4)
 
     FlagAnimStep: cardinal; //Used for Flags and Burning animation
     WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
 
-    fIsDestroyed:boolean;
-    RemoveRoadWhenDemolish:boolean;
-    fPointerCount:integer;
-    fTimeSinceUnoccupiedReminder:integer;
+    fIsDestroyed: Boolean;
+    RemoveRoadWhenDemolish: Boolean;
+    fPointerCount: Cardinal;
+    fTimeSinceUnoccupiedReminder: Integer;
 
-    procedure Activate(aWasBuilt:boolean); virtual;
-    procedure CloseHouse(IsEditor:boolean=false); virtual;
-    procedure SetWareDelivery(aVal:boolean);
+    procedure Activate(aWasBuilt: Boolean); virtual;
+    procedure CloseHouse(IsEditor: Boolean = False); virtual;
+    procedure SetWareDelivery(aVal: Boolean);
     procedure EnableRepair;
     procedure DisableRepair;
 
@@ -75,15 +75,15 @@ type
     DoorwayUse: byte; //number of units using our door way. Used for sliding.
 
     constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
-    constructor Load(LoadStream:TKMemoryStream); virtual;
+    constructor Load(LoadStream: TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
-    function GetHousePointer:TKMHouse; //Returns self and adds one to the pointer counter
+    function GetHousePointer: TKMHouse; //Returns self and adds one to the pointer counter
     procedure ReleaseHousePointer; //Decreases the pointer counter
-    property PointerCount:integer read fPointerCount;
+    property PointerCount: Cardinal read fPointerCount;
 
     procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); virtual;
-    property ID:integer read fID;
+    property ID: Integer read fID;
 
     property GetPosition: TKMPoint read fPosition;
     procedure SetPosition(aPos: TKMPoint); //Used only by map editor
@@ -465,7 +465,7 @@ end;
 procedure TKMHouse.Activate(aWasBuilt: Boolean);
 var I: Integer; Res: TResourceType;
 begin
-  fPlayers.Player[fOwner].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
+  fPlayers[fOwner].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
   fPlayers.RevealForTeam(fOwner, fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_MAX);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
@@ -476,7 +476,7 @@ begin
   for i:=1 to 4 do
   begin
     Res := fResource.HouseDat[fHouseType].ResInput[i];
-    with fPlayers.Player[fOwner].Deliveries.Queue do
+    with fPlayers[fOwner].Deliveries.Queue do
     case Res of
       rt_None:    ;
       rt_Warfare: AddDemand(Self, nil, Res, 1, dt_Always, di_Norm);
@@ -502,20 +502,20 @@ begin
     fSoundLib.Play(sfx_HouseDestroy, fPosition);
 
   //Dispose of delivery tasks performed in DeliverQueue unit
-  fPlayers.Player[fOwner].Deliveries.Queue.RemOffer(Self);
-  fPlayers.Player[fOwner].Deliveries.Queue.RemDemand(Self);
+  fPlayers[fOwner].Deliveries.Queue.RemOffer(Self);
+  fPlayers[fOwner].Deliveries.Queue.RemDemand(Self);
 
-  fPlayers.Player[fOwner].Stats.GoodConsumed(rt_Wood, fBuildSupplyWood);
-  fPlayers.Player[fOwner].Stats.GoodConsumed(rt_Stone, fBuildSupplyStone);
+  fPlayers[fOwner].Stats.GoodConsumed(rt_Wood, fBuildSupplyWood);
+  fPlayers[fOwner].Stats.GoodConsumed(rt_Stone, fBuildSupplyStone);
 
   for I := 1 to 4 do
   begin
     R := fResource.HouseDat[fHouseType].ResInput[I];
     if R in [WARE_MIN..WARE_MAX] then
-      fPlayers.Player[fOwner].Stats.GoodConsumed(R, fResourceIn[I]);
+      fPlayers[fOwner].Stats.GoodConsumed(R, fResourceIn[I]);
     R := fResource.HouseDat[fHouseType].ResOutput[I];
     if R in [WARE_MIN..WARE_MAX] then
-      fPlayers.Player[fOwner].Stats.GoodConsumed(R, fResourceOut[I]);
+      fPlayers[fOwner].Stats.GoodConsumed(R, fResourceOut[I]);
   end;
 
   fTerrain.SetHouse(fPosition,fHouseType,hsNone,-1);
@@ -726,12 +726,12 @@ begin
   if (fBuildState=hbs_Stone) and (fBuildingProgress-fResource.HouseDat[fHouseType].WoodCost*50 = fResource.HouseDat[fHouseType].StoneCost*50) then
   begin
     fBuildState := hbs_Done;
-    fPlayers.Player[fOwner].Stats.HouseEnded(fHouseType);
+    fPlayers[fOwner].Stats.HouseEnded(fHouseType);
     Activate(true);
     fEventsManager.ProcHouseBuilt(fHouseType, fOwner);
     //House was damaged while under construction, so set the repair mode now it is complete
     if (fDamage > 0) and BuildingRepair then
-      fPlayers.Player[fOwner].BuildList.RepairList.AddHouse(Self);
+      fPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
   end;
 end;
 
@@ -753,13 +753,13 @@ begin
   if fBuildState < hbs_Wood then
   begin
     //Still make the "house destroyed" noise when an incomplete house is destroyed
-    fPlayers.Player[fOwner].RemHouse(GetEntrance, False);
+    fPlayers[fOwner].RemHouse(GetEntrance, False);
     Exit;
   end;
 
   fDamage := Math.min(fDamage + aAmount, MaxHealth);
   if (fBuildState = hbs_Done) and BuildingRepair then
-    fPlayers.Player[fOwner].BuildList.RepairList.AddHouse(Self);
+    fPlayers[fOwner].BuildList.RepairList.AddHouse(Self);
 
   if fBuildState = hbs_Done then
     UpdateDamage; //Only update fire if the house is complete
@@ -767,11 +767,11 @@ begin
   if (GetHealth = 0) and not aIsEditor then
   begin
     DemolishHouse(false); //Destroyed by Enemy
-    if Assigned(fPlayers) and Assigned(fPlayers.Player[fOwner]) then
+    if Assigned(fPlayers) and Assigned(fPlayers[fOwner]) then
       if (fBuildState = hbs_Done) then
-        fPlayers.Player[fOwner].Stats.HouseLost(fHouseType)
+        fPlayers[fOwner].Stats.HouseLost(fHouseType)
       else
-        fPlayers.Player[fOwner].Stats.HouseEnded(fHouseType);
+        fPlayers[fOwner].Stats.HouseEnded(fHouseType);
     Result := true;
   end;
 end;
@@ -892,7 +892,7 @@ const
     //rt_Sword, rt_Pike, rt_Hallebard, rt_Bow, rt_Arbalet
 begin
   //AI always order production of everything. Could be changed later with a script command to only make certain things
-  if (fPlayers.Player[fOwner].PlayerType = pt_Computer)
+  if (fPlayers[fOwner].PlayerType = pt_Computer)
   and (fResource.HouseDat[fHouseType].ResOutput[aID] <> rt_None) then
     Result := DefOrderCount[fResource.HouseDat[fHouseType].ResOutput[aID]]
   else
@@ -967,7 +967,7 @@ begin
       if aFromScript then
       begin
         inc(fResourceDeliveryCount[i], aCount);
-        OrdersRemoved := fPlayers.Player[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aResource, aCount);
+        OrdersRemoved := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aResource, aCount);
         dec(fResourceDeliveryCount[i], OrdersRemoved);
       end;
     end;
@@ -982,7 +982,7 @@ begin
   if aResource = fResource.HouseDat[fHouseType].ResOutput[i] then
     begin
       inc(fResourceOut[i], aCount);
-      fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, aResource, aCount);
+      fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aResource, aCount);
     end;
 end;
 
@@ -1014,7 +1014,7 @@ begin
     for k:=1 to aCount do
       if fResourceDeliveryCount[i] < GetResDistribution(i) then
       begin
-        fPlayers.Player[fOwner].Deliveries.Queue.AddDemand(Self,nil,aResource,1,dt_Once,di_Norm);
+        fPlayers[fOwner].Deliveries.Queue.AddDemand(Self,nil,aResource,1,dt_Once,di_Norm);
         inc(fResourceDeliveryCount[i]);
       end;
     Exit;
@@ -1045,7 +1045,7 @@ end;
 
 function TKMHouse.GetResDistribution(aID:byte):byte;
 begin
-  Result := fPlayers.Player[fOwner].Stats.Ratio[fResource.HouseDat[fHouseType].ResInput[aID],fHouseType];
+  Result := fPlayers[fOwner].Stats.Ratio[fResource.HouseDat[fHouseType].ResInput[aID],fHouseType];
 end;
 
 
@@ -1178,7 +1178,7 @@ begin
       if fResourceDeliveryCount[i] < GetResDistribution(i) then
       begin
         Count := GetResDistribution(i)-fResourceDeliveryCount[i];
-        fPlayers.Player[fOwner].Deliveries.Queue.AddDemand(
+        fPlayers[fOwner].Deliveries.Queue.AddDemand(
           Self, nil, fResource.HouseDat[fHouseType].ResInput[i], Count, dt_Once, di_Norm);
 
         inc(fResourceDeliveryCount[i], Count);
@@ -1187,7 +1187,7 @@ begin
       if fResourceDeliveryCount[i] > GetResDistribution(i) then
       begin
         Excess := fResourceDeliveryCount[i]-GetResDistribution(i);
-        Count := fPlayers.Player[fOwner].Deliveries.Queue.TryRemoveDemand(
+        Count := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(
                    Self, fResource.HouseDat[fHouseType].ResInput[i], Excess);
 
         dec(fResourceDeliveryCount[i], Count); //Only reduce it by the number that were actually removed
@@ -1200,9 +1200,9 @@ procedure TKMHouse.UpdateState;
 begin
   if fBuildState<>hbs_Done then exit; //Don't update unbuilt houses
   //Toggle repair for AI players (allows AI to turn repair on and off based on requirements)
-  if (not fBuildingRepair) and (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (fPlayers.Player[fOwner].AI.HouseAutoRepair) then
+  if (not fBuildingRepair) and (fPlayers[fOwner].PlayerType = pt_Computer) and (fPlayers[fOwner].AI.HouseAutoRepair) then
     EnableRepair;
-  if fBuildingRepair and (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (not fPlayers.Player[fOwner].AI.HouseAutoRepair) then
+  if fBuildingRepair and (fPlayers[fOwner].PlayerType = pt_Computer) and (not fPlayers[fOwner].AI.HouseAutoRepair) then
     DisableRepair;
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
@@ -1254,7 +1254,7 @@ begin
                     fRenderPool.AddHouseStone(fHouseType, fPosition, 1);
                     fRenderPool.AddHouseSupply(fHouseType, fPosition, fResourceIn, fResourceOut);
                     if fCurrentAction <> nil then
-                      fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, fPlayers.Player[fOwner].FlagColor);
+                      fRenderPool.AddHouseWork(fHouseType, fPosition, fCurrentAction.SubAction, WorkAnimStep, fPlayers[fOwner].FlagColor);
                   end;
                 end;
   end;
@@ -1337,7 +1337,7 @@ begin
   if fCurrentAction<>nil then
     fRenderPool.AddHouseWork(fHouseType, fPosition,
                             fCurrentAction.SubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5],
-                            WorkAnimStep, fPlayers.Player[fOwner].FlagColor);
+                            WorkAnimStep, fPlayers[fOwner].FlagColor);
 end;
 
 
@@ -1446,7 +1446,7 @@ begin
     fRenderPool.AddHouseEater(fPosition, Eater[i].UnitType, ua_Eat,
                               AnimDir(i), AnimStep,
                               OffX[(i-1) mod 3], OffY[(i-1) mod 3],
-                              fPlayers.Player[fOwner].FlagColor);
+                              fPlayers[fOwner].FlagColor);
   end;
 end;
 
@@ -1468,7 +1468,7 @@ begin
   inherited;
 
   for R := WARE_MIN to WARE_MAX do
-    fPlayers.Player[fOwner].Stats.GoodConsumed(R, fMarketResIn[R] + fMarketResOut[R]);
+    fPlayers[fOwner].Stats.GoodConsumed(R, fMarketResIn[R] + fMarketResOut[R]);
 end;
 
 
@@ -1546,14 +1546,14 @@ begin
     if ResRequired > 0 then
     begin
       inc(fMarketDeliveryCount[aResource], Min(aCount, ResRequired));
-      fPlayers.Player[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dt_Once, di_Norm);
+      fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dt_Once, di_Norm);
     end;
     AttemptExchange;
   end
   else
   begin
     inc(fMarketResOut[aResource], aCount); //Place the new resource in the OUT list
-    fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, aResource, aCount);
+    fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aResource, aCount);
   end;
 end;
 
@@ -1570,11 +1570,11 @@ begin
     TradeCount := Min((fMarketResIn[fResFrom] div RatioFrom), fTradeAmount);
 
     dec(fMarketResIn[fResFrom], TradeCount * RatioFrom);
-    fPlayers.Player[fOwner].Stats.GoodConsumed(fResFrom, TradeCount * RatioFrom);
+    fPlayers[fOwner].Stats.GoodConsumed(fResFrom, TradeCount * RatioFrom);
     dec(fTradeAmount, TradeCount);
     inc(fMarketResOut[fResTo], TradeCount * RatioTo);
-    fPlayers.Player[fOwner].Stats.GoodProduced(fResTo, TradeCount * RatioTo);
-    fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
+    fPlayers[fOwner].Stats.GoodProduced(fResTo, TradeCount * RatioTo);
+    fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, fResTo, TradeCount * RatioTo);
 
     fSoundLib.Play(sfxn_Trade,GetEntrance);
   end;
@@ -1631,7 +1631,7 @@ begin
   if (fTradeAmount = 0) and (fMarketResIn[fResFrom] > 0) then
   begin
     inc(fMarketResOut[fResFrom], fMarketResIn[fResFrom]);
-    fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, fResFrom, fMarketResIn[fResFrom]);
+    fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, fResFrom, fMarketResIn[fResFrom]);
     fMarketResIn[fResFrom] := 0;
   end;
 
@@ -1652,13 +1652,13 @@ begin
   if (ResRequired > 0) and (OrdersAllowed > 0) then
   begin
     inc(fMarketDeliveryCount[fResFrom], Min(ResRequired,OrdersAllowed));
-    fPlayers.Player[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(ResRequired,OrdersAllowed), dt_Once, di_Norm)
+    fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, fResFrom, Min(ResRequired,OrdersAllowed), dt_Once, di_Norm)
   end
   else
     //There are too many resources ordered, so remove as many as we can from the delivery list (some will be being performed)
     if (ResRequired < 0) then
     begin
-      OrdersRemoved := fPlayers.Player[fOwner].Deliveries.Queue.TryRemoveDemand(Self, fResFrom, -ResRequired);
+      OrdersRemoved := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(Self, fResFrom, -ResRequired);
       dec(fMarketDeliveryCount[fResFrom], OrdersRemoved);
     end;
 end;
@@ -1821,7 +1821,7 @@ begin
   Queue[High(Queue)] := ut_None; //Set the last one empty
 
   //Create the Unit
-  UnitWIP := fPlayers.Player[fOwner].TrainUnit(Queue[0], GetEntrance);
+  UnitWIP := fPlayers[fOwner].TrainUnit(Queue[0], GetEntrance);
   TKMUnit(UnitWIP).TrainInHouse(Self); //Let the unit start the training task
 
   WorkAnimStep := 0;
@@ -1836,7 +1836,7 @@ begin
   UnitWIP := nil;
   Queue[0] := ut_None; //Clear the unit in training
   ResTakeFromIn(rt_Gold); //Do the goldtaking
-  fPlayers.Player[fOwner].Stats.GoodConsumed(rt_Gold);
+  fPlayers[fOwner].Stats.GoodConsumed(rt_Gold);
   fHideOneGold := False;
   fTrainProgress := 0;
 
@@ -1913,12 +1913,12 @@ begin
   case aResource of
     rt_All:     for R := Low(ResourceCount) to High(ResourceCount) do begin
                   ResourceCount[R] := EnsureRange(ResourceCount[R]+aCount, 0, High(Word));
-                  fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self, R, aCount);
+                  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, R, aCount);
                 end;
     WARE_MIN..
     WARE_MAX:   begin
                   ResourceCount[aResource]:=EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
-                  fPlayers.Player[fOwner].Deliveries.Queue.AddOffer(Self,aResource,aCount);
+                  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self,aResource,aCount);
                 end;
     else        raise ELocError.Create('Cant''t add '+fResource.Resources[aResource].Title, GetPosition);
   end;
@@ -1944,7 +1944,7 @@ begin
   inherited;
 
   for R := WARE_MIN to WARE_MAX do
-    fPlayers.Player[fOwner].Stats.GoodConsumed(R, ResourceCount[R]);
+    fPlayers[fOwner].Stats.GoodConsumed(R, ResourceCount[R]);
 end;
 
 
@@ -2055,7 +2055,7 @@ begin
   RecruitsList.Clear;
 
   for R := WARFARE_MIN to WARFARE_MAX do
-    fPlayers.Player[fOwner].Stats.GoodConsumed(R, ResourceCount[R]);
+    fPlayers[fOwner].Stats.GoodConsumed(R, ResourceCount[R]);
 end;
 
 
@@ -2112,7 +2112,7 @@ begin
       if TroopCost[aUnitType,I] <> rt_None then
       begin
         Dec(ResourceCount[TroopCost[aUnitType, I]]);
-        fPlayers.Player[fOwner].Stats.GoodConsumed(TroopCost[aUnitType, I]);
+        fPlayers[fOwner].Stats.GoodConsumed(TroopCost[aUnitType, I]);
       end;
 
     //Special way to kill the Recruit because it is in a house
@@ -2120,7 +2120,7 @@ begin
     RecruitsList.Delete(0); //Delete first recruit in the list
 
     //Make new unit
-    Soldier := TKMUnitWarrior(fPlayers.Player[fOwner].AddUnit(aUnitType,GetEntrance,false,true));
+    Soldier := TKMUnitWarrior(fPlayers[fOwner].AddUnit(aUnitType,GetEntrance,false,true));
     fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
     Soldier.SetInHouse(Self); //Put him in the barracks, so when it is destroyed he is placed somewhere
     Soldier.Visible := false; //Make him invisible as he is inside the barracks

@@ -308,7 +308,7 @@ function TKMUnitCitizen.FindHome:boolean;
 var H:TKMHouse;
 begin
   Result:=false;
-  H := fPlayers.Player[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
+  H := fPlayers[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
   if H<>nil then begin
     fHome  := H.GetHousePointer;
     Result := true;
@@ -332,16 +332,16 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
         if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+          fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
       end;
   end;
 
@@ -413,7 +413,7 @@ begin
   //See if need to get to eat
   if fCondition < UNIT_MIN_CONDITION then
   begin
-    H := fPlayers.Player[fOwner].FindInn(fCurrPosition,Self,not fVisible);
+    H := fPlayers[fOwner].FindInn(fCurrPosition,Self,not fVisible);
     if H <> nil then
       fUnitTask := TTaskGoEat.Create(H, Self)
     else
@@ -518,7 +518,7 @@ function TKMUnitRecruit.FindHome:boolean;
 var H:TKMHouse;
 begin
   Result  := false;
-  H := fPlayers.Player[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
+  H := fPlayers[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
   if H<>nil then begin
     fHome  := H.GetHousePointer;
     Result := true;
@@ -540,16 +540,16 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
         if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+          fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
       end;
   end;
 
@@ -595,7 +595,7 @@ begin
 
   if fCondition < UNIT_MIN_CONDITION then
   begin
-    H := fPlayers.Player[fOwner].FindInn(fCurrPosition,Self,not fVisible);
+    H := fPlayers[fOwner].FindInn(fCurrPosition,Self,not fVisible);
     if H <> nil then
       fUnitTask := TTaskGoEat.Create(H,Self)
     else
@@ -677,7 +677,7 @@ begin
   //Remember current task
   T := fUnitTask;
   //Try to get a new one
-  fPlayers.Player[Owner].Deliveries.Queue.AskForDelivery(Self, aFrom);
+  fPlayers[Owner].Deliveries.Queue.AskForDelivery(Self, aFrom);
 
   //Return True if we've got a new deliery
   Result := fUnitTask <> T;
@@ -706,14 +706,14 @@ begin
   XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(UnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+  fRenderPool.AddUnit(UnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry <> rt_None then
     fRenderPool.AddUnitCarry(Carry, Direction, AnimStep, XPaintPos, YPaintPos)
   else
-    fRenderPool.AddUnit(UnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+    fRenderPool.AddUnit(UnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
@@ -743,7 +743,7 @@ begin
 
   if fCondition < UNIT_MIN_CONDITION then
   begin
-    H := fPlayers.Player[fOwner].FindInn(fCurrPosition, Self);
+    H := fPlayers[fOwner].FindInn(fCurrPosition, Self);
     if H <> nil then
       fUnitTask := TTaskGoEat.Create(H, Self);
   end;
@@ -827,7 +827,7 @@ begin
   XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(UnitType, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+  fRenderPool.AddUnit(UnitType, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
@@ -844,7 +844,7 @@ begin
 
   if fCondition < UNIT_MIN_CONDITION then
   begin
-    H := fPlayers.Player[fOwner].FindInn(fCurrPosition, Self);
+    H := fPlayers[fOwner].FindInn(fCurrPosition, Self);
     if H <> nil then
       fUnitTask := TTaskGoEat.Create(H, Self);
   end;
@@ -1181,7 +1181,7 @@ begin
 
   //Update statistics
   if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) and (fOwner <> PLAYER_ANIMAL) then
-    fPlayers.Player[fOwner].Stats.UnitLost(fUnitType);
+    fPlayers[fOwner].Stats.UnitLost(fUnitType);
 
   fThought := th_None; //Reset thought
   SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
@@ -1498,7 +1498,7 @@ end;
 
 function TKMUnit.CanGoEat: Boolean;
 begin
-  Result := fPlayers.Player[fOwner].FindInn(fCurrPosition,Self) <> nil;
+  Result := fPlayers[fOwner].FindInn(fCurrPosition,Self) <> nil;
 end;
 
 
@@ -1592,7 +1592,7 @@ begin
       begin
         //There is no space for this unit so it must be destroyed
         if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) and (fOwner <> PLAYER_ANIMAL) then
-          fPlayers.Player[fOwner].Stats.UnitLost(fUnitType);
+          fPlayers[fOwner].Stats.UnitLost(fUnitType);
         FreeAndNil(fCurrentAction);
         FreeAndNil(fUnitTask);
         CloseUnit(false); //Close the unit without removing tile usage (because this unit was in a house it has none)
@@ -2122,7 +2122,7 @@ begin
       U := Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y); //U will be _nil_ if unit didn't fit on map
       if U<>nil then
       begin
-        fPlayers.Player[aOwner].Stats.UnitCreated(aUnitType, false);
+        fPlayers[aOwner].Stats.UnitCreated(aUnitType, false);
         U.Direction := aDir;
         U.AnimStep  := UnitStillFrames[aDir];
       end;
@@ -2136,7 +2136,7 @@ begin
   Result := Commander;
 
   if Commander=nil then exit; //Don't add group without a commander
-  fPlayers.Player[aOwner].Stats.UnitCreated(aUnitType, false);
+  fPlayers[aOwner].Stats.UnitCreated(aUnitType, false);
 
   Commander.Direction := aDir;
   Commander.AnimStep  := UnitStillFrames[aDir];
@@ -2154,7 +2154,7 @@ begin
     W := TKMUnitWarrior(Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y, true, fTerrain.GetWalkConnectID(KMPoint(PosX,PosY)))); //W will be _nil_ if unit didn't fit on map
     if W<>nil then
     begin
-      fPlayers.Player[aOwner].Stats.UnitCreated(aUnitType, false);
+      fPlayers[aOwner].Stats.UnitCreated(aUnitType, false);
       W.Direction := aDir;
       W.AnimStep  := UnitStillFrames[aDir];
       Commander.AddMember(W);

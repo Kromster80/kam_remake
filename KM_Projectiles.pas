@@ -271,7 +271,7 @@ begin
                               if (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
                               and (Damage >= KaMRandom(101))
                               and U.HitPointsDecrease(1) then
-                                fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
+                                fPlayers[fOwner].Stats.UnitKilled(U.UnitType);
                             end
                             else
                             begin
@@ -279,13 +279,13 @@ begin
                               if (H <> nil)
                               and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, H.Owner)= at_Enemy))
                               and H.AddDamage(1) then //House was destroyed
-                                fPlayers.Player[fOwner].Stats.HouseDestroyed(H.HouseType);
+                                fPlayers[fOwner].Stats.HouseDestroyed(H.HouseType);
                             end;
               pt_TowerRock: if (U <> nil) and not U.IsDeadOrDying and U.Visible
                             and not (U is TKMUnitAnimal)
                             and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
                             and U.HitPointsDecrease(U.HitPointsMax) then //Instant death
-                              fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
+                              fPlayers[fOwner].Stats.UnitKilled(U.UnitType);
             end;
           end;
           RemItem(i);

@@ -125,10 +125,10 @@ procedure TKMPlayersCollection.AfterMissionInit(aFlattenRoads: Boolean);
 var
   I: Integer;
 begin
+  fAIFields.AfterMissionInit;
+
   for I := 0 to fCount - 1 do
     fPlayerList[I].AfterMissionInit(aFlattenRoads);
-
-  fAIFields.AfterMissionInit;
 end;
 
 

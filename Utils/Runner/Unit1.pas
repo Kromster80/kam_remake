@@ -100,7 +100,7 @@ begin
       0:  for I := 0 to fResults.RunCount - 1 do
           begin
             DotX := Round(I / fResults.RunCount * Image1.Width);
-            DotY := Image1.Height - Round(fResults.Value[I,J] / fResults.ValueMax[J] * Image1.Height);
+            DotY := Image1.Height - Round(fResults.Value[I,J] / fResults.ValueMax * Image1.Height);
             Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
             if I = 0 then
               Image1.Canvas.PenPos := Point(DotX, DotY)
@@ -108,9 +108,9 @@ begin
               Image1.Canvas.LineTo(DotX, DotY);
           end;
       1:  begin
-            SetLength(Stats, Round(fResults.ValueMax[J]) - Round(fResults.ValueMin[J]) + 1);
+            SetLength(Stats, Round(fResults.ValueMax) - Round(fResults.ValueMin) + 1);
             for I := 0 to fResults.RunCount - 1 do
-              Inc(Stats[Round(fResults.Value[I,J]) - Round(fResults.ValueMin[J])]);
+              Inc(Stats[Round(fResults.Value[I,J]) - Round(fResults.ValueMin)]);
 
             StatMax := Stats[Low(Stats)];
             for I := Low(Stats)+1 to High(Stats) do

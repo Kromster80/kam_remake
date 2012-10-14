@@ -40,7 +40,6 @@ type
   //Influence maps, navmeshes, etc
   TKMAIFields = class
   private
-    fPlayerCount: Integer;
     fMapX, fMapY: Word;
 
     fRawOutlines: TKMShapesArray;
@@ -329,17 +328,14 @@ end;
 
 procedure TKMAIFields.AfterMissionInit;
 begin
-  //Book space for all players;
-  fPlayerCount := fPlayers.Count;
-
   if AI_GEN_INFLUENCE_MAPS then
   begin
     fMapX := fTerrain.MapX;
     fMapY := fTerrain.MapY;
     SetLength(AvoidBuilding, fMapY, fMapX);
     SetLength(Forest, fMapY, fMapX);
-    SetLength(InfluenceMap, fPlayerCount, fMapY, fMapX);
-    SetLength(InfluenceMinMap, fPlayerCount, fMapY, fMapX);
+    SetLength(InfluenceMap, fPlayers.Count, fMapY, fMapX);
+    SetLength(InfluenceMinMap, fPlayers.Count, fMapY, fMapX);
     InitInfluenceAvoid;
     InitInfluenceForest;
     UpdateInfluenceMaps;
@@ -587,7 +583,7 @@ var
 begin
   Best := 0;
   Result := PLAYER_NONE;
-  for I := 0 to fPlayerCount - 1 do
+  for I := 0 to fPlayers.Count - 1 do
   if InfluenceMinMap[I,Y,X] > Best then
   begin
     Best := InfluenceMinMap[I,Y,X];
@@ -619,7 +615,7 @@ begin
    AvoidBuilding[I,K] := AvoidBuilding[I,K] or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
 
   //Leave free space around all players Stores
-  for J := 0 to fPlayerCount - 1 do
+  for J := 0 to fPlayers.Count - 1 do
   begin
     S := fPlayers[J].FindHouse(ht_Store);
     if S <> nil then
@@ -693,7 +689,7 @@ begin
   Assert(fTerrain <> nil);
 
   //Update direct influence maps
-  for J := 0 to fPlayerCount - 1 do
+  for J := 0 to fPlayers.Count - 1 do
   begin
     //Sync tile ownership
     for I := 1 to fTerrain.MapY - 1 do
@@ -707,7 +703,7 @@ begin
       DoFill(K,I,InfluenceMap[J, I, K]+1);
   end;
 
-  for J := 0 to fPlayerCount - 1 do
+  for J := 0 to fPlayers.Count - 1 do
   begin
     for I := 1 to fTerrain.MapY - 1 do
     for K := 1 to fTerrain.MapX - 1 do
@@ -716,7 +712,7 @@ begin
       begin
         L := InfluenceMap[J, I, K];
 
-        for H := 0 to fPlayerCount - 1 do
+        for H := 0 to fPlayers.Count - 1 do
         if (H <> J) and (fPlayers.CheckAlliance(J, H) = at_Enemy) then
           L := L - InfluenceMap[H, I, K];
 
@@ -736,7 +732,7 @@ procedure TKMAIFields.ExportInfluenceMaps;
 var
   I, J, K: Integer;
 begin
-  for J := 0 to fPlayerCount - 1 do
+  for J := 0 to fPlayers.Count - 1 do
   with TBitmap.Create do
   begin
     Width := fTerrain.MapX;
@@ -748,7 +744,7 @@ begin
     SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
   end;
 
-  for J := 0 to fPlayerCount - 1 do
+  for J := 0 to fPlayers.Count - 1 do
   with TBitmap.Create do
   begin
     Width := fTerrain.MapX;

@@ -262,7 +262,7 @@ begin
     IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
     if IsHit then
       if fOpponent.HitPointsDecrease(1) then
-        fPlayers.Player[fUnit.Owner].Stats.UnitKilled(fOpponent.UnitType);
+        fPlayers[fUnit.Owner].Stats.UnitKilled(fOpponent.UnitType);
 
     MakeSound(IsHit); //Different sounds for hit and for miss
   end;
@@ -313,11 +313,11 @@ begin
   if Step = 1 then
   begin
     //Tell the Opponent we are attacking him
-    fPlayers.Player[fOpponent.Owner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
+    fPlayers[fOpponent.Owner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
 
     //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
     if (fOpponent is TKMUnitWarrior) and not TKMUnitWarrior(fUnit).IsRanged then
-      fPlayers.Player[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
+      fPlayers[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
   end;
 
   if TKMUnitWarrior(fUnit).IsRanged then

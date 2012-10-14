@@ -261,7 +261,7 @@ var LinkUnit: TKMUnitWarrior;
 begin
   if (fUnit is TKMUnitWarrior) and (fHouse is TKMHouseBarracks) then
   begin
-    case fPlayers.Player[fUnit.Owner].PlayerType of
+    case fPlayers[fUnit.Owner].PlayerType of
       pt_Human:    begin
                      LinkUnit := TKMUnitWarrior(fUnit).FindLinkUnit(fStreet);
                      if LinkUnit <> nil then

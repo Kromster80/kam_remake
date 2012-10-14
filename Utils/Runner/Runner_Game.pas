@@ -12,18 +12,21 @@ type
   protected
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
+    procedure TearDown; override;
   end;
 
   TKMRunnerFight95 = class(TKMRunnerCommon)
   protected
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
+    procedure TearDown; override;
   end;
 
   TKMRunnerAIBuild = class(TKMRunnerCommon)
   protected
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
+    procedure TearDown; override;
   end;
 
 
@@ -38,6 +41,15 @@ begin
   AI_GEN_INFLUENCE_MAPS := False;
   AI_GEN_NAVMESH := False;
   DYNAMIC_TERRAIN := False;
+end;
+
+
+procedure TKMRunnerStone.TearDown;
+begin
+  inherited;
+  AI_GEN_INFLUENCE_MAPS := True;
+  AI_GEN_NAVMESH := True;
+  DYNAMIC_TERRAIN := True;
 end;
 
 
@@ -63,6 +75,13 @@ begin
   fResults.ValCount := 2;
 
   DYNAMIC_TERRAIN := False;
+end;
+
+
+procedure TKMRunnerFight95.TearDown;
+begin
+  inherited;
+  DYNAMIC_TERRAIN := True;
 end;
 
 
@@ -101,6 +120,13 @@ begin
 end;
 
 
+procedure TKMRunnerAIBuild.TearDown;
+begin
+  inherited;
+  //
+end;
+
+
 procedure TKMRunnerAIBuild.Execute(aRun: Integer);
 begin
   fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\MapsMP\Across the Desert\Across the Desert.dat', 'Across the Desert');
@@ -110,7 +136,9 @@ begin
 
   SetKaMSeed(aRun + 1);
 
-  SimulateGame(1*60*60*10);
+  SimulateGame(60*600);
+
+  fGameApp.Game.Save('AI Build #' + IntToStr(aRun));
 
   fResults.Value[aRun, 0] := fPlayers[0].Stats.GetWarriorsTrained;//(rt_All);
   fResults.Value[aRun, 1] := fPlayers[1].Stats.GetWarriorsTrained;//(rt_All);

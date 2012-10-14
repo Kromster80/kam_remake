@@ -201,13 +201,13 @@ begin
       fBase[I*fMapX + K] := $FF000000
     else
       if fMyTerrain.Land[I+1,K+1].TileOwner <> -1 then
-        fBase[I*fMapX + K] := fPlayers.Player[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
+        fBase[I*fMapX + K] := fPlayers[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
       else
       begin
         U := fMyTerrain.Land[I+1,K+1].IsUnit;
         if U <> nil then
           if U.Owner <> PLAYER_ANIMAL then
-            fBase[I*fMapX + K] := fPlayers.Player[U.Owner].FlagColor
+            fBase[I*fMapX + K] := fPlayers[U.Owner].FlagColor
           else
             fBase[I*fMapX + K] := fResource.UnitDat[U.UnitType].MinimapColor
         else

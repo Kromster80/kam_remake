@@ -243,7 +243,7 @@ var P: TKMPlayer; IsSilent: boolean; U,U2: TKMUnit; H,H2: TKMHouse;
 begin
   //NOTE: MyPlayer should not be used for important stuff here, use P instead (commands must be executed the same for all players)
   IsSilent := (aCommand.PlayerIndex <> MyPlayer.PlayerIndex);
-  P := fPlayers.Player[aCommand.PlayerIndex];
+  P := fPlayers[aCommand.PlayerIndex];
   U := nil; U2 := nil; H := nil; H2 := nil;
 
   with aCommand do
@@ -567,7 +567,7 @@ begin
   begin
     //Changing MyPlayer affect AI replay which leads to replay mismatch errors soon after
     //if aCommand.CommandType = gic_TempChangeMyPlayer then
-      //MyPlayer := fPlayers.Player[aCommand.Params[1]];
+      //MyPlayer := fPlayers[aCommand.Params[1]];
     Exit;
   end;
 
