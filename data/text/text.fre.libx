@@ -343,7 +343,7 @@ MaxID:2813
 1809:Joueurs : %d
 1810:Mode :
 1811:Conditions :
-1813:Quitter le Lobby
+1813:Quitter la Préparation
 1814:Prêt
 1815:Débuter !
 1816:Attente des Joueurs :
@@ -361,7 +361,7 @@ MaxID:2813
 1828:Lecture aléatoire
 1829:Informations sur la Partie :
 1830:-
-1831:Lobby
+1831:Préparation
 1832:Chargement
 1833:Partie
 1834:Position %d
