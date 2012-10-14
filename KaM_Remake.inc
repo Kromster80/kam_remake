@@ -4,6 +4,7 @@
 {$IFDEF VER150} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi 7 compiler
 {$IFDEF VER220} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi XE compiler
 {$IFDEF VER230} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi XE2 compiler
+{$IFDEF VER240} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi XE2 compiler
 {.$DEFINE FPC} //Define Free Pascal compiler (defined automatically by Lazarus)
 
 {$IFDEF FPC}

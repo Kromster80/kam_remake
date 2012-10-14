@@ -645,7 +645,7 @@ end;
 
 {Build page}
 procedure TKMapEdInterface.Create_Village_Page;
-const VillageTabIcon: array [TKMVillageTab] of Word = (454, 141, 327, 43);
+const VillageTabIcon: array [TKMVillageTab] of Word = (391, 141, 327, 43);
 var
   I: Integer;
   VT: TKMVillageTab;
