@@ -129,13 +129,14 @@ type
         List_Defences: TKMListBox;
 
     Panel_Player:TKMPanel;
-      Button_Player:array[1..3]of TKMButton;
+      Button_Player:array[1..4]of TKMButton;
       Panel_Goals:TKMPanel;
       Panel_Color:TKMPanel;
         ColorSwatch_Color:TKMColorSwatch;
       Panel_Block: TKMPanel;
         Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
         Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
+      Panel_RevealFOW: TKMPanel;
 
     Panel_Mission:TKMPanel;
       Button_Mission:array[1..2]of TKMButton;
@@ -342,6 +343,13 @@ begin
     Label_MenuTitle.Caption:='Player - Block houses';
   end else
 
+  if (Sender = Button_Main[3])or(Sender = Button_Player[4]) then begin
+    Player_BlockRefresh;
+    Panel_Player.Show;
+    Panel_RevealFOW.Show;
+    Label_MenuTitle.Caption:='Player - Reveal fog';
+  end else
+
   if (Sender = Button_Main[4])or(Sender = Button_Mission[1]) then begin
     Panel_Mission.Show;
     Panel_Alliances.Show;
@@ -481,7 +489,7 @@ begin
     {5 big tabs}
     Button_Main[1] := TKMButton.Create(Panel_Common,   8, 72, 36, 36, 381, rxGui, bsGame);
     Button_Main[2] := TKMButton.Create(Panel_Common,  46, 72, 36, 36, 368, rxGui, bsGame);
-    Button_Main[3] := TKMButton.Create(Panel_Common,  84, 72, 36, 36,  41, rxGui, bsGame);
+    Button_Main[3] := TKMButton.Create(Panel_Common,  84, 72, 36, 36, 392, rxGui, bsGame);
     Button_Main[4] := TKMButton.Create(Panel_Common, 122, 72, 36, 36, 441, rxGui, bsGame);
     Button_Main[5] := TKMButton.Create(Panel_Common, 160, 72, 36, 36, 389, rxGui, bsGame);
     Button_Main[1].Hint := fTextLibrary[TX_MAPED_TERRAIN];
@@ -734,7 +742,8 @@ begin
     Button_Player[1] := TKMButton.Create(Panel_Player,   8, 4, 36, 24,  41, rxGui, bsGame);
     Button_Player[2] := TKMButton.Create(Panel_Player,  48, 4, 36, 24, 382, rxGui, bsGame);
     Button_Player[3] := TKMButton.Create(Panel_Player,  88, 4, 36, 24,  38, rxGui, bsGame);
-    for I := 1 to 3 do Button_Player[I].OnClick := SwitchPage;
+    Button_Player[4] := TKMButton.Create(Panel_Player, 128, 4, 36, 24, 393, rxGui, bsGame);
+    for I := 1 to 4 do Button_Player[I].OnClick := SwitchPage;
 
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,196,400);
       TKMLabel.Create(Panel_Goals,100,10,184,0,'Goals',fnt_Outline,taCenter);
@@ -760,6 +769,10 @@ begin
         Image_BlockHouse[I].Hitable := False;
         Image_BlockHouse[I].ImageCenter;
       end;
+
+    Panel_RevealFOW := TKMPanel.Create(Panel_Player,0,28,196,400);
+      TKMLabel.Create(Panel_RevealFOW,100,10,184,0,'Reveal fog',fnt_Outline,taCenter);
+
 end;
 
 
