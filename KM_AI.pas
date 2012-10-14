@@ -235,7 +235,7 @@ begin
     if CurrentCommander = nil then
       inc(GroupReq[GroupType], DefencePositions.TroopFormations[GroupType].NumUnits)
     else
-      inc(GroupReq[GroupType], DefencePositions.TroopFormations[GroupType].NumUnits - (TKMUnitWarrior(CurrentCommander).GetMemberCount+1));
+      inc(GroupReq[GroupType], DefencePositions.TroopFormations[GroupType].NumUnits - (CurrentCommander.GetMemberCount+1));
 
   //Find barracks
   SetLength(Barracks, fPlayers[fPlayerIndex].Stats.GetHouseQty(ht_Barracks));
