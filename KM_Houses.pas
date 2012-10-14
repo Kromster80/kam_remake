@@ -101,6 +101,8 @@ type
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
     property Owner:TPlayerIndex read fOwner;
     function GetHealth:word;
+    function GetBuildWoodDelivered: Byte;
+    function GetBuildStoneDelivered: Byte;
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
@@ -674,6 +676,28 @@ end;
 function TKMHouse.GetHealth:word;
 begin
   Result := max(fBuildingProgress - fDamage, 0);
+end;
+
+
+function TKMHouse.GetBuildWoodDelivered: Byte;
+begin
+  case fBuildState of
+    hbs_Stone,
+    hbs_Done: Result := fResource.HouseDat[fHouseType].WoodCost;
+    hbs_Wood: Result := fBuildSupplyWood+Ceil(fBuildingProgress/50);
+    else      Result := 0;
+  end;
+end;
+
+
+function TKMHouse.GetBuildStoneDelivered: Byte;
+begin
+  case fBuildState of
+    hbs_Done:  Result := fResource.HouseDat[fHouseType].StoneCost;
+    hbs_Wood:  Result := fBuildSupplyStone;
+    hbs_Stone: Result := fBuildSupplyStone+Ceil(fBuildingProgress/50)-fResource.HouseDat[fHouseType].WoodCost;
+    else       Result := 0;
+  end;
 end;
 
 
