@@ -63,7 +63,6 @@ type
 
     procedure Activate(aWasBuilt: Boolean); virtual;
     procedure CloseHouse(IsEditor: Boolean = False); virtual;
-    procedure SetWareDelivery(aVal: Boolean);
     procedure EnableRepair;
     procedure DisableRepair;
 
@@ -97,7 +96,7 @@ type
     function HitTest(X, Y: Integer): Boolean;
     property HouseType: THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
-    property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
+    property WareDelivery:boolean read fWareDelivery write fWareDelivery;
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
     property Owner:TPlayerIndex read fOwner;
     function GetHealth:word;
@@ -304,7 +303,7 @@ type
     function GetHouseByID(aID: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
     function FindHouse(aType:THouseType; X,Y:word; const aIndex:byte=1; aOnlyCompleted:boolean=true): TKMHouse;
-    function GetTotalPointers: integer;
+    function GetTotalPointers: Cardinal;
     property SelectedHouse: TKMHouse read fSelectedHouse write fSelectedHouse;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -1261,12 +1260,6 @@ begin
 
   if SHOW_POINTER_DOTS then
     fRenderAux.UnitPointers(fPosition.X + 0.5, fPosition.Y + 1, fPointerCount);
-end;
-
-
-procedure TKMHouse.SetWareDelivery(aVal:boolean);
-begin
-  fWareDelivery := aVal;
 end;
 
 
@@ -2522,7 +2515,7 @@ begin
 end;
 
 
-function TKMHousesCollection.GetTotalPointers: Integer;
+function TKMHousesCollection.GetTotalPointers: Cardinal;
 var I: Integer;
 begin
   Result := 0;
