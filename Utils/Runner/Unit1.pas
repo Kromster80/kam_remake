@@ -59,7 +59,6 @@ begin
   Memo1.Clear;
   Button1.Enabled := False;
   try
-
     RunnerClass := RunnerList[ID];
     Runner := RunnerClass.Create;
     Runner.OnProgress := RunnerProgress;

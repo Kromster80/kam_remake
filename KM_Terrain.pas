@@ -112,7 +112,7 @@ type
 
     function FindWineField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir): Boolean;
     function FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir): Boolean;
-    function FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir): Boolean;
+    function FindStone(aLoc: TKMPoint; aRadius: Byte; aAvoidLoc: TKMPoint; out StonePoint: TKMPointDir): Boolean;
     function FindOre(aLoc: TKMPoint; aRes: TResourceType; out OrePoint: TKMPoint): Boolean;
     function CanFindTree(aLoc: TKMPoint; aRadius: Word):Boolean;
     procedure FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; BestToPlant,SecondBestToPlant: TKMPointList);
@@ -1155,7 +1155,7 @@ end;
 
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
-function TTerrain.FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir): Boolean;
+function TTerrain.FindStone(aLoc: TKMPoint; aRadius: Byte; aAvoidLoc: TKMPoint; out StonePoint: TKMPointDir): Boolean;
 var
   I: Integer;
   ValidTiles: TKMPointList;
@@ -2154,6 +2154,8 @@ var
   I, K: Word;
   Avg: Word;
 begin
+  Assert(TileInMapCoords(Loc.X, Loc.Y), 'Can''t flatten tile outside map coordinates');
+
   if aUpdateWalkConnects then
     fBoundsWC := KMRect(Loc.X, Loc.Y, Loc.X, Loc.Y);
 
@@ -2162,8 +2164,6 @@ begin
   if fBoundsWC.Top > Loc.Y - 1 then fBoundsWC.Top := Loc.Y - 1;
   if fBoundsWC.Right < Loc.X + 1 then fBoundsWC.Right := Loc.X + 1;
   if fBoundsWC.Bottom < Loc.Y + 1 then fBoundsWC.Bottom := Loc.Y + 1;
-
-  Assert(TileInMapCoords(Loc.X, Loc.Y), 'Can''t flatten tile outside map coordinates');
 
   TilesFactored := 0; //GetHeight will add to this
   Avg :=                                   GetHeight(Loc.X,Loc.Y-1,True ) + GetHeight(Loc.X+1,Loc.Y-1,True ) +

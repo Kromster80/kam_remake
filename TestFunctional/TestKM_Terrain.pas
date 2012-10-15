@@ -22,6 +22,7 @@ implementation
 procedure TestKMTerrain.SetUp;
 begin
   SKIP_RENDER := True;
+  SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
 
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');

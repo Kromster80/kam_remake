@@ -54,18 +54,46 @@ end;
 
 
 procedure TKMRunnerStone.Execute(aRun: Integer);
+var
+  I,K: Integer;
+  L: TKMPointList;
+  P: TKMPoint;
 begin
-  //Total amount of stones = 4140
-  fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\StoneMines\StoneMines.dat', 'StoneMines');
+  //Total amount of stone = 4140
+  fTerrain := TTerrain.Create;
+  fTerrain.LoadFromFile(ExeDir + 'Maps\StoneMines\StoneMines.map', False);
 
   SetKaMSeed(aRun+1);
 
-  SimulateGame(2*60*60*10);
+  L := TKMPointList.Create;
+  for I := 1 to fTerrain.MapY - 2 do
+  for K := 1 to fTerrain.MapX - 1 do
+  if fTerrain.TileIsStone(K,I) > 0 then
+    L.AddEntry(KMPoint(K,I));
 
-  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetGoodsProduced;
+  I := 0;
+  fResults.Value[aRun, 0] := 0;
+  repeat
+    L.GetRandom(P);
 
-  //fGameApp.Game.Save('StoneTest');
-  fGameApp.Stop(gr_Silent);
+    if fTerrain.TileIsStone(P.X,P.Y) > 0 then
+    begin
+      if fTerrain.CheckPassability(KMPointBelow(P), CanWalk) then
+      begin
+        fTerrain.DecStoneDeposit(P);
+        fResults.Value[aRun, 0] := fResults.Value[aRun, 0] + 3;
+        I := 0;
+      end;
+    end
+    else
+      L.RemoveEntry(P);
+
+    Inc(I);
+    if I > 200 then
+      Break;
+  until (L.Count = 0);
+
+  FreeAndNil(fTerrain);
 end;
 
 
@@ -104,7 +132,7 @@ begin
 
   TKMUnitWarrior(fPlayers[1].Units[0]).OrderAttackUnit(fPlayers[0].Units[0]);
 
-  SimulateGame(1200);
+  SimulateGame(2*600);
 
   fResults.Value[aRun, 0] := fPlayers[0].Stats.GetUnitQty(ut_Any);
   fResults.Value[aRun, 1] := fPlayers[1].Stats.GetUnitQty(ut_Any);
