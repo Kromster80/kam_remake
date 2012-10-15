@@ -238,14 +238,14 @@ uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_MapEd
 
 
 const
-  BIG_TAB_W = 36;
-  BIG_PAD_W = 38;
+  BIG_TAB_W = 37;
+  BIG_PAD_W = 37;
   BIG_TAB_H = 36;
-  BIG_PAD_H = 40;
-  SMALL_TAB_W = 36;
-  SMALL_PAD_W = SMALL_TAB_W + 4;
-  SMALL_TAB_H = 24;
-  SMALL_PAD_H = SMALL_TAB_H + 4;
+  //BIG_PAD_H = 40;
+  SMALL_TAB_W = 32;
+  SMALL_PAD_W = SMALL_TAB_W + 0;
+  SMALL_TAB_H = 26;
+  //SMALL_PAD_H = SMALL_TAB_H + 4;
 
 {Switch between pages}
 procedure TKMapEdInterface.SwitchPage(Sender: TObject);
@@ -491,8 +491,9 @@ begin
 
     Label_MissionName := TKMLabel.Create(Panel_Main, 230, 10, 184, 10, '<<<LEER>>>', fnt_Grey, taLeft);
     Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fnt_Grey, taLeft);
+    Label_Stat := TKMLabel.Create(Panel_Main, 230, 50, 0, 0, '', fnt_Outline, taLeft);
 
-    TKMLabel.Create(Panel_Main,8,195,184,0,'Players:',fnt_Outline,taLeft);
+    TKMLabel.Create(Panel_Main, 8, 195, 184, 0, 'Players:', fnt_Outline, taLeft);
     for I := 0 to MAX_PLAYERS - 1 do
     begin
       Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 215, 21, 21, inttostr(I+1), fnt_Grey, $FF0000FF);
@@ -501,8 +502,7 @@ begin
       Button_PlayerSelect[I].OnClick := Player_ChangeActive;
     end;
 
-    Label_Stat := TKMLabel.Create(Panel_Main, 224 + 8, 16, 0, 0, '', fnt_Outline, taLeft);
-    Label_Hint := TKMLabel.Create(Panel_Main, 224 + 8, Panel_Main.Height - 16, 0, 0, '', fnt_Outline, taLeft);
+    Label_Hint := TKMLabel.Create(Panel_Main, 224 + 38, Panel_Main.Height - 16, 0, 0, '', fnt_Outline, taLeft);
     Label_Hint.Anchors := [akLeft, akBottom];
 
   Panel_Common := TKMPanel.Create(Panel_Main,0,255,224,768);
@@ -578,13 +578,13 @@ procedure TKMapEdInterface.Create_Terrain_Page;
 var i,k:Integer;
 begin
   Panel_Terrain := TKMPanel.Create(Panel_Common,0,60,196,28);
-    Button_Terrain[1] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 0, 0, SMALL_PAD_W, SMALL_TAB_H, 383, rxGui, bsGame);
+    Button_Terrain[1] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H, 383, rxGui, bsGame);
     Button_Terrain[1].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_BRUSHES];
-    Button_Terrain[2] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 1, 0, SMALL_PAD_W, SMALL_TAB_H, 388, rxGui, bsGame);
+    Button_Terrain[2] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 388, rxGui, bsGame);
     Button_Terrain[2].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_HEIGHTS];
-    Button_Terrain[3] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 2, 0, SMALL_PAD_W, SMALL_TAB_H, 382, rxGui, bsGame);
+    Button_Terrain[3] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 2, 0, SMALL_TAB_W, SMALL_TAB_H, 382, rxGui, bsGame);
     Button_Terrain[3].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_TILES];
-    Button_Terrain[4] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 3, 0, SMALL_PAD_W, SMALL_TAB_H, 385, rxGui, bsGame);
+    Button_Terrain[4] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 3, 0, SMALL_TAB_W, SMALL_TAB_H, 385, rxGui, bsGame);
     Button_Terrain[4].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_OBJECTS];
     for i:=1 to 4 do Button_Terrain[i].OnClick := SwitchPage;
 
@@ -773,10 +773,10 @@ procedure TKMapEdInterface.Create_Player_Page;
 var I: Integer; Col: array [0..255] of TColor4;
 begin
   Panel_Player := TKMPanel.Create(Panel_Common,0,60,196,28);
-    Button_Player[1] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 0, 0, SMALL_PAD_W, SMALL_TAB_H,  41, rxGui, bsGame);
-    Button_Player[2] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 1, 0, SMALL_PAD_W, SMALL_TAB_H, 382, rxGui, bsGame);
-    Button_Player[3] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 2, 0, SMALL_PAD_W, SMALL_TAB_H,  38, rxGui, bsGame);
-    Button_Player[4] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 3, 0, SMALL_PAD_W, SMALL_TAB_H, 393, rxGui, bsGame);
+    Button_Player[1] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H,  41, rxGui, bsGame);
+    Button_Player[2] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 382, rxGui, bsGame);
+    Button_Player[3] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 2, 0, SMALL_TAB_W, SMALL_TAB_H,  38, rxGui, bsGame);
+    Button_Player[4] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 3, 0, SMALL_TAB_W, SMALL_TAB_H, 393, rxGui, bsGame);
     for I := 1 to 4 do Button_Player[I].OnClick := SwitchPage;
 
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,196,400);
@@ -815,8 +815,8 @@ procedure TKMapEdInterface.Create_Mission_Page;
 var i,k:Integer;
 begin
   Panel_Mission := TKMPanel.Create(Panel_Common,0,60,196,28);
-    Button_Mission[1] := TKMButton.Create(Panel_Mission, 8 + SMALL_PAD_W * 0, 0, SMALL_PAD_W, SMALL_TAB_H, 41, rxGui, bsGame);
-    Button_Mission[2] := TKMButton.Create(Panel_Mission, 8 + SMALL_PAD_W * 1, 0, SMALL_PAD_W, SMALL_TAB_H, 41, rxGui, bsGame);
+    Button_Mission[1] := TKMButton.Create(Panel_Mission, 8 + SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
+    Button_Mission[2] := TKMButton.Create(Panel_Mission, 8 + SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
     for i:=1 to 2 do Button_Mission[i].OnClick := SwitchPage;
 
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,196,400);
