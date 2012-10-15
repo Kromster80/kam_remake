@@ -860,7 +860,7 @@ end;
 
 function TUnitActionWalkTo.GetNextNextPosition(out NextNextPos: TKMPoint): Boolean;
 begin
-  if InRange(NodePos, 0, NodeList.Count - 1) then
+  if InRange(NodePos+1, 0, NodeList.Count - 1) then
   begin
     NextNextPos := NodeList[NodePos+1];
     Result := True;
