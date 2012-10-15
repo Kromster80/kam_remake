@@ -31,6 +31,7 @@ type
     procedure Create_MenuSave_Page;
     procedure Create_MenuLoad_Page;
     procedure Create_MenuQuit_Page;
+    procedure Create_Extra_Page;
     procedure Create_Unit_Page;
     procedure Create_House_Page;
     procedure Create_Store_Page;
@@ -65,7 +66,8 @@ type
     procedure Player_ChangeActive(Sender: TObject);
     procedure SetActivePlayer(aIndex: TPlayerIndex);
     procedure SetTileDirection(aTileDirection: byte);
-    procedure Player_AutobuildClick(Sender: TObject);
+    procedure Village_ScriptRefresh;
+    procedure Village_ScriptChange(Sender: TObject);
     procedure Player_BlockClick(Sender: TObject);
     procedure Player_BlockRefresh;
     procedure Player_ColorClick(Sender: TObject);
@@ -94,6 +96,7 @@ type
       Button_Main:array[1..5]of TKMButton; //5 buttons
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu below
       Label_MissionName: TKMLabel;
+      Image_Extra: TKMImage;
 
     Panel_Terrain:TKMPanel;
       Button_Terrain:array[1..4]of TKMButton;
@@ -126,6 +129,9 @@ type
         Button_Warriors:array[0..13]of TKMButtonFlat;
         Button_Animals:array[0..7]of TKMButtonFlat;
       Panel_Script: TKMPanel;
+        CheckBox_Autobuild: TKMCheckBox;
+        TrackBar_SerfFactor: TKMTrackBar;
+        TrackBar_WorkerFactor: TKMTrackBar;
       Panel_Defence: TKMPanel;
         List_Defences: TKMListBox;
 
@@ -135,7 +141,6 @@ type
       Panel_Color:TKMPanel;
         ColorSwatch_Color:TKMColorSwatch;
       Panel_Block: TKMPanel;
-        CheckBox_Autobuild: TKMCheckBox;
         Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
         Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
       Panel_RevealFOW: TKMPanel;
@@ -167,6 +172,9 @@ type
 
       Panel_Quit:TKMPanel;
         Button_Quit_Yes,Button_Quit_No:TKMButton;
+
+    Panel_Extra: TKMPanel;
+      Image_ExtraClose: TKMImage;
 
     Panel_Unit:TKMPanel;
       Label_UnitName:TKMLabel;
@@ -228,6 +236,16 @@ uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_MapEd
      KM_Utils, KM_Game, KM_GameApp, KM_Resource, KM_ResourceUnit, KM_ResourceCursors,
      KM_ResourceMapElements, KM_AIDefensePos;
 
+
+const
+  BIG_TAB_W = 36;
+  BIG_PAD_W = 38;
+  BIG_TAB_H = 36;
+  BIG_PAD_H = 40;
+  SMALL_TAB_W = 36;
+  SMALL_PAD_W = SMALL_TAB_W + 4;
+  SMALL_TAB_H = 24;
+  SMALL_PAD_H = SMALL_TAB_H + 4;
 
 {Switch between pages}
 procedure TKMapEdInterface.SwitchPage(Sender: TObject);
@@ -313,6 +331,7 @@ begin
   else
   if (Sender = Button_Village[vtScript]) then
   begin
+    Village_ScriptRefresh;
     Panel_Village.Show;
     Panel_Script.Show;
     Label_MenuTitle.Caption := 'Village - Script';
@@ -408,6 +427,11 @@ begin
     TKMPanel(Sender).Show;
   end;
 
+  if Sender = Image_Extra then
+    Panel_Extra.Show;
+
+  if Sender = Image_ExtraClose then
+    Panel_Extra.Hide;
 end;
 
 
@@ -429,9 +453,9 @@ begin
 end;
 
 
-constructor TKMapEdInterface.Create(aScreenX, aScreenY: word);
+constructor TKMapEdInterface.Create(aScreenX, aScreenY: Word);
 var
-  i: Integer;
+  I: Integer;
 begin
   inherited;
 
@@ -465,43 +489,39 @@ begin
     MinimapView := TKMMinimapView.Create(Panel_Main, 10, 10, 176, 176);
     MinimapView.OnChange := Minimap_Update;
 
-    Label_Coordinates := TKMLabel.Create(Panel_Main,8,192,184,0,'X: Y:',fnt_Outline,taLeft);
-    TrackBar_Passability := TKMTrackBar.Create(Panel_Main, 8, 210, 184, 0, Byte(High(TPassability)));
-    TrackBar_Passability.Caption := 'View passability';
-    TrackBar_Passability.Position := 0; //Disabled by default
-    TrackBar_Passability.OnChange := View_Passability;
-    Label_Passability := TKMLabel.Create(Panel_Main,8,248,184,0,'Off',fnt_Metal,taLeft);
+    Label_MissionName := TKMLabel.Create(Panel_Main, 230, 10, 184, 10, '<<<LEER>>>', fnt_Grey, taLeft);
+    Label_Coordinates := TKMLabel.Create(Panel_Main, 230, 30, 'X: Y:', fnt_Grey, taLeft);
 
-    TKMLabel.Create(Panel_Main,8,270,184,0,'Player',fnt_Metal,taLeft);
-    for i:=0 to MAX_PLAYERS-1 do begin
-      Button_PlayerSelect[i]         := TKMFlatButtonShape.Create(Panel_Main, 8 + i*23, 290, 21, 32, inttostr(i+1), fnt_Grey, $FF0000FF);
-      Button_PlayerSelect[i].CapOffsetY := -3;
-      Button_PlayerSelect[i].Tag     := i;
-      Button_PlayerSelect[i].OnClick := Player_ChangeActive;
+    TKMLabel.Create(Panel_Main,8,195,184,0,'Players:',fnt_Outline,taLeft);
+    for I := 0 to MAX_PLAYERS - 1 do
+    begin
+      Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 215, 21, 21, inttostr(I+1), fnt_Grey, $FF0000FF);
+      Button_PlayerSelect[I].CapOffsetY := -12;
+      Button_PlayerSelect[I].Tag     := I;
+      Button_PlayerSelect[I].OnClick := Player_ChangeActive;
     end;
 
-    Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 184, 10, '<<<LEER>>>', fnt_Metal, taLeft);
-
-    Label_Stat:=TKMLabel.Create(Panel_Main,224+8,16,0,0,'',fnt_Outline,taLeft);
-    Label_Hint:=TKMLabel.Create(Panel_Main,224+8,Panel_Main.Height-16,0,0,'',fnt_Outline,taLeft);
+    Label_Stat := TKMLabel.Create(Panel_Main, 224 + 8, 16, 0, 0, '', fnt_Outline, taLeft);
+    Label_Hint := TKMLabel.Create(Panel_Main, 224 + 8, Panel_Main.Height - 16, 0, 0, '', fnt_Outline, taLeft);
     Label_Hint.Anchors := [akLeft, akBottom];
 
-  Panel_Common := TKMPanel.Create(Panel_Main,0,300,224,768);
+  Panel_Common := TKMPanel.Create(Panel_Main,0,255,224,768);
 
     {5 big tabs}
-    Button_Main[1] := TKMButton.Create(Panel_Common,   8, 72, 36, 36, 381, rxGui, bsGame);
-    Button_Main[2] := TKMButton.Create(Panel_Common,  46, 72, 36, 36, 368, rxGui, bsGame);
-    Button_Main[3] := TKMButton.Create(Panel_Common,  84, 72, 36, 36, 392, rxGui, bsGame);
-    Button_Main[4] := TKMButton.Create(Panel_Common, 122, 72, 36, 36, 441, rxGui, bsGame);
-    Button_Main[5] := TKMButton.Create(Panel_Common, 160, 72, 36, 36, 389, rxGui, bsGame);
+    Button_Main[1] := TKMButton.Create(Panel_Common, 8 + BIG_PAD_W*0, 0, BIG_TAB_W, BIG_TAB_H, 381, rxGui, bsGame);
+    Button_Main[2] := TKMButton.Create(Panel_Common, 8 + BIG_PAD_W*1, 0, BIG_TAB_W, BIG_TAB_H, 368, rxGui, bsGame);
+    Button_Main[3] := TKMButton.Create(Panel_Common, 8 + BIG_PAD_W*2, 0, BIG_TAB_W, BIG_TAB_H, 392, rxGui, bsGame);
+    Button_Main[4] := TKMButton.Create(Panel_Common, 8 + BIG_PAD_W*3, 0, BIG_TAB_W, BIG_TAB_H, 441, rxGui, bsGame);
+    Button_Main[5] := TKMButton.Create(Panel_Common, 8 + BIG_PAD_W*4, 0, BIG_TAB_W, BIG_TAB_H, 389, rxGui, bsGame);
     Button_Main[1].Hint := fTextLibrary[TX_MAPED_TERRAIN];
     Button_Main[2].Hint := fTextLibrary[TX_MAPED_VILLAGE];
     Button_Main[3].Hint := fTextLibrary[TX_MAPED_SCRIPTS_VISUAL];
     Button_Main[4].Hint := fTextLibrary[TX_MAPED_SCRIPTS_GLOBAL];
     Button_Main[5].Hint := fTextLibrary[TX_MAPED_MENU];
-    for i:=1 to 5 do Button_Main[i].OnClick := SwitchPage;
+    for I := 1 to 5 do
+      Button_Main[I].OnClick := SwitchPage;
 
-    Label_MenuTitle:=TKMLabel.Create(Panel_Common,8,112,184,36,'',fnt_Metal,taLeft); //Should be one-line
+    Label_MenuTitle := TKMLabel.Create(Panel_Common,8,40,184,0,'',fnt_Metal,taLeft);
 
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
@@ -516,11 +536,18 @@ begin
     Create_MenuLoad_Page;
     Create_MenuQuit_Page;
 
+  Create_Extra_Page;
+
   Create_Unit_Page;
   Create_House_Page;
     Create_Store_Page;
     Create_Barracks_Page;
     //Create_TownHall_Page;
+
+  Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
+  Image_Extra.Anchors := [akLeft, akBottom];
+  Image_Extra.HighlightOnMouseOver := True;
+  Image_Extra.OnClick := SwitchPage;
 
   fMyControls.OnHint := DisplayHint;
 
@@ -550,14 +577,14 @@ end;
 procedure TKMapEdInterface.Create_Terrain_Page;
 var i,k:Integer;
 begin
-  Panel_Terrain := TKMPanel.Create(Panel_Common,0,128,196,28);
-    Button_Terrain[1] := TKMButton.Create(Panel_Terrain,   8, 4, 36, 24, 383, rxGui, bsGame);
+  Panel_Terrain := TKMPanel.Create(Panel_Common,0,60,196,28);
+    Button_Terrain[1] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 0, 0, SMALL_PAD_W, SMALL_TAB_H, 383, rxGui, bsGame);
     Button_Terrain[1].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_BRUSHES];
-    Button_Terrain[2] := TKMButton.Create(Panel_Terrain,  48, 4, 36, 24, 388, rxGui, bsGame);
+    Button_Terrain[2] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 1, 0, SMALL_PAD_W, SMALL_TAB_H, 388, rxGui, bsGame);
     Button_Terrain[2].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_HEIGHTS];
-    Button_Terrain[3] := TKMButton.Create(Panel_Terrain,  88, 4, 36, 24, 382, rxGui, bsGame);
+    Button_Terrain[3] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 2, 0, SMALL_PAD_W, SMALL_TAB_H, 382, rxGui, bsGame);
     Button_Terrain[3].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_TILES];
-    Button_Terrain[4] := TKMButton.Create(Panel_Terrain, 128, 4, 36, 24, 385, rxGui, bsGame);
+    Button_Terrain[4] := TKMButton.Create(Panel_Terrain, 8 + SMALL_PAD_W * 3, 0, SMALL_PAD_W, SMALL_TAB_H, 385, rxGui, bsGame);
     Button_Terrain[4].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_OBJECTS];
     for i:=1 to 4 do Button_Terrain[i].OnClick := SwitchPage;
 
@@ -660,11 +687,11 @@ var
   I: Integer;
   VT: TKMVillageTab;
 begin
-  Panel_Village := TKMPanel.Create(Panel_Common,0,128,196,28);
+  Panel_Village := TKMPanel.Create(Panel_Common,0,60,196,28);
 
     for VT := Low(TKMVillageTab) to High(TKMVillageTab) do
     begin
-      Button_Village[VT] := TKMButton.Create(Panel_Village, Byte(VT) * 40 + 8, 4, 36, 24, VillageTabIcon[VT], rxGui, bsGame);
+      Button_Village[VT] := TKMButton.Create(Panel_Village, 8 + SMALL_PAD_W * Byte(VT), 0, SMALL_TAB_W, SMALL_TAB_H, VillageTabIcon[VT], rxGui, bsGame);
       Button_Village[VT].OnClick := SwitchPage;
     end;
 
@@ -726,9 +753,14 @@ begin
 
     Panel_Script := TKMPanel.Create(Panel_Village, 0, 28, 196, 400);
       TKMLabel.Create(Panel_Script, 100, 10, 184, 0, 'Scripts', fnt_Outline, taCenter);
-      {Button_ScriptReveal         := TKMButtonFlat.Create(Panel_Script,  8,28,33,33,335);
-      Button_ScriptReveal.OnClick := Script_ButtonClick;
-      Button_ScriptReveal.Hint    := 'Reveal a portion of map';}
+      CheckBox_Autobuild := TKMCheckBox.Create(Panel_Script, 8, 30, 180, 20, 'Autobuild', fnt_Metal);
+      CheckBox_Autobuild.OnClick := Village_ScriptChange;
+      TrackBar_SerfFactor := TKMTrackBar.Create(Panel_Script, 8, 50, 180, 1, 20);
+      TrackBar_SerfFactor.Caption := 'Serf factor';
+      TrackBar_SerfFactor.OnClick := Village_ScriptChange;
+      TrackBar_WorkerFactor := TKMTrackBar.Create(Panel_Script, 8, 90, 180, 3, 30);
+      TrackBar_WorkerFactor.Caption := 'Workers';
+      TrackBar_WorkerFactor.OnClick := Village_ScriptChange;
 
     Panel_Defence := TKMPanel.Create(Panel_Village, 0, 28, 196, 400);
       TKMLabel.Create(Panel_Defence, 100, 10, 184, 0, 'Defence', fnt_Outline, taCenter);
@@ -740,11 +772,11 @@ end;
 procedure TKMapEdInterface.Create_Player_Page;
 var I: Integer; Col: array [0..255] of TColor4;
 begin
-  Panel_Player := TKMPanel.Create(Panel_Common,0,128,196,28);
-    Button_Player[1] := TKMButton.Create(Panel_Player,   8, 4, 36, 24,  41, rxGui, bsGame);
-    Button_Player[2] := TKMButton.Create(Panel_Player,  48, 4, 36, 24, 382, rxGui, bsGame);
-    Button_Player[3] := TKMButton.Create(Panel_Player,  88, 4, 36, 24,  38, rxGui, bsGame);
-    Button_Player[4] := TKMButton.Create(Panel_Player, 128, 4, 36, 24, 393, rxGui, bsGame);
+  Panel_Player := TKMPanel.Create(Panel_Common,0,60,196,28);
+    Button_Player[1] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 0, 0, SMALL_PAD_W, SMALL_TAB_H,  41, rxGui, bsGame);
+    Button_Player[2] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 1, 0, SMALL_PAD_W, SMALL_TAB_H, 382, rxGui, bsGame);
+    Button_Player[3] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 2, 0, SMALL_PAD_W, SMALL_TAB_H,  38, rxGui, bsGame);
+    Button_Player[4] := TKMButton.Create(Panel_Player, 8 + SMALL_PAD_W * 3, 0, SMALL_PAD_W, SMALL_TAB_H, 393, rxGui, bsGame);
     for I := 1 to 4 do Button_Player[I].OnClick := SwitchPage;
 
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,196,400);
@@ -759,32 +791,32 @@ begin
       ColorSwatch_Color.OnClick := Player_ColorClick;
 
     Panel_Block := TKMPanel.Create(Panel_Player,0,28,196,400);
-      CheckBox_Autobuild := TKMCheckBox.Create(Panel_Block, 8, 30, 100, 20, 'Autobuild', fnt_Metal);
-      CheckBox_Autobuild.OnClick := Player_AutobuildClick;
-
       TKMLabel.Create(Panel_Block, 100, 10, 184, 0, 'Block/Release houses', fnt_Outline, taCenter);
       for I := 1 to GUI_HOUSE_COUNT do
       if GUIHouseOrder[I] <> ht_None then begin
-        Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_Block, 8+((I-1) mod 5)*37, 50 + ((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
+        Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_Block, 8+((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
         Button_BlockHouse[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
         Button_BlockHouse[I].OnClick := Player_BlockClick;
         Button_BlockHouse[I].Tag := I;
-        Image_BlockHouse[I] := TKMImage.Create(Panel_Block, 8+((I-1) mod 5)*37 + 13, 50 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
+        Image_BlockHouse[I] := TKMImage.Create(Panel_Block, 8+((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
         Image_BlockHouse[I].Hitable := False;
         Image_BlockHouse[I].ImageCenter;
       end;
 
     Panel_RevealFOW := TKMPanel.Create(Panel_Player,0,28,196,400);
       TKMLabel.Create(Panel_RevealFOW,100,10,184,0,'Reveal fog',fnt_Outline,taCenter);
+      {Button_ScriptReveal         := TKMButtonFlat.Create(Panel_Script,  8,28,33,33,335);
+      Button_ScriptReveal.OnClick := Script_ButtonClick;
+      Button_ScriptReveal.Hint    := 'Reveal a portion of map';}
 end;
 
 
 procedure TKMapEdInterface.Create_Mission_Page;
 var i,k:Integer;
 begin
-  Panel_Mission := TKMPanel.Create(Panel_Common,0,128,196,28);
-    Button_Mission[1] := TKMButton.Create(Panel_Mission,  8, 4, 36, 24, 41, rxGui, bsGame);
-    Button_Mission[2] := TKMButton.Create(Panel_Mission, 48, 4, 36, 24, 41, rxGui, bsGame);
+  Panel_Mission := TKMPanel.Create(Panel_Common,0,60,196,28);
+    Button_Mission[1] := TKMButton.Create(Panel_Mission, 8 + SMALL_PAD_W * 0, 0, SMALL_PAD_W, SMALL_TAB_H, 41, rxGui, bsGame);
+    Button_Mission[2] := TKMButton.Create(Panel_Mission, 8 + SMALL_PAD_W * 1, 0, SMALL_PAD_W, SMALL_TAB_H, 41, rxGui, bsGame);
     for i:=1 to 2 do Button_Mission[i].OnClick := SwitchPage;
 
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,196,400);
@@ -898,6 +930,32 @@ begin
     Button_Quit_No.Hint       := fTextLibrary[TX_MENU_DONT_QUIT_MISSION];
     Button_Quit_Yes.OnClick   := Menu_QuitMission;
     Button_Quit_No.OnClick    := SwitchPage;
+end;
+
+
+procedure TKMapEdInterface.Create_Extra_Page;
+begin
+  Panel_Extra := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 190, Panel_Main.Width - TOOLBAR_WIDTH, 190);
+  Panel_Extra.Anchors := [akLeft, akBottom];
+  Panel_Extra.Hide;
+
+    with TKMImage.Create(Panel_Extra,0,0,800,190,409) do
+    begin
+      Anchors := [akLeft,akTop,akBottom];
+      ImageStretch;
+    end;
+
+    Image_ExtraClose := TKMImage.Create(Panel_Extra, 800-35, 20, 32, 32, 52);
+    Image_ExtraClose.Anchors := [akTop, akRight];
+    Image_ExtraClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
+    Image_ExtraClose.OnClick := SwitchPage;
+    Image_ExtraClose.HighlightOnMouseOver := True;
+
+    TrackBar_Passability := TKMTrackBar.Create(Panel_Extra, 18, 50, 184, 0, Byte(High(TPassability)));
+    TrackBar_Passability.Caption := 'View passability';
+    TrackBar_Passability.Position := 0; //Disabled by default
+    TrackBar_Passability.OnChange := View_Passability;
+    Label_Passability := TKMLabel.Create(Panel_Extra, 18, 90, 184, 0, 'Off', fnt_Metal, taLeft);
 end;
 
 
@@ -1143,6 +1201,22 @@ begin
 end;
 
 
+procedure TKMapEdInterface.Village_ScriptRefresh;
+begin
+  CheckBox_Autobuild.Checked := MyPlayer.AI.Setup.AutoBuild;
+  TrackBar_SerfFactor.Position := MyPlayer.AI.Setup.SerfFactor;
+  TrackBar_WorkerFactor.Position := MyPlayer.AI.Setup.WorkerFactor;
+end;
+
+
+procedure TKMapEdInterface.Village_ScriptChange(Sender: TObject);
+begin
+  MyPlayer.AI.Setup.AutoBuild := CheckBox_Autobuild.Checked;
+  MyPlayer.AI.Setup.SerfFactor := TrackBar_SerfFactor.Position;
+  MyPlayer.AI.Setup.WorkerFactor := TrackBar_WorkerFactor.Position;
+end;
+
+
 procedure TKMapEdInterface.Player_UpdateColors;
 var I: Integer;
 begin
@@ -1172,6 +1246,7 @@ begin
     SetActivePlayer(-1);
 
   //Refresh per-player settings
+  Village_ScriptRefresh;
   Player_BlockRefresh;
 end;
 
@@ -1805,12 +1880,6 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Player_AutobuildClick(Sender: TObject);
-begin
-  MyPlayer.AI.Setup.AutoBuild := CheckBox_Autobuild.Checked;
-end;
-
-
 procedure TKMapEdInterface.Player_BlockClick(Sender: TObject);
 var
   I: Integer;
@@ -1845,8 +1914,6 @@ var
   I: Integer;
   H: THouseType;
 begin
-  CheckBox_Autobuild.Checked := MyPlayer.AI.Setup.AutoBuild;
-
   for I := 1 to GUI_HOUSE_COUNT do
   begin
     H := GUIHouseOrder[I];

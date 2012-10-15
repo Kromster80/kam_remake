@@ -80,6 +80,16 @@ implementation
 uses KM_PlayersCollection, KM_RenderAux, KM_Houses;
 
 
+const
+  //Decay affects how much space AI needs to be able to expand
+  //Values smaller than 3 start to block green AI on AcrossDesert too fast
+  INFLUENCE_DECAY = 2;
+
+  //Should be within 16 tiles and at least one corner within 8 tiles
+  OWN_MARGIN = 128;
+  OWN_THRESHOLD = 80;
+
+
 { TKMNavMesh }
 procedure TKMNavMesh.AssignMesh(const aTriMesh: TKMTriMesh);
 var
@@ -182,10 +192,6 @@ end;
 
 
 procedure TKMNavMesh.GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
-const
-  //Should be within 16 tiles and at least one corner within 8 tiles
-  OWN_MARGIN = 192;
-  OWN_THRESHOLD = 160;
 var
   I, K: Integer;
   ECount: Integer;
@@ -290,12 +296,12 @@ begin
 
   for I := 0 to fNodeCount - 1 do
     for K := 0 to fPlayers.Count - 1 do
-      fNodes[I].Owner[K] := Max(
+      fNodes[I].Owner[K] := Min(255, Max(
         Max(fAIFields.InfluenceMinMap[K, Max(fNodes[I].Loc.Y, 1), Max(fNodes[I].Loc.X, 1)],
             fAIFields.InfluenceMinMap[K, Max(fNodes[I].Loc.Y, 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)]),
         Max(fAIFields.InfluenceMinMap[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Max(fNodes[I].Loc.X, 1)],
             fAIFields.InfluenceMinMap[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)])
-            );
+            ));
 end;
 
 
@@ -663,10 +669,6 @@ procedure TKMAIFields.UpdateInfluenceMaps;
 var
   J: Integer;
   procedure DoFill(X,Y: Integer; V: Word);
-  const
-    //Decay affects how much space AI needs to be able to expand
-    //Values smaller than 3 start to block green AI on AcrossDesert too fast
-    DECAY = 4;
   begin
     if  InRange(Y, 1, fTerrain.MapY - 1)
     and InRange(X, 1, fTerrain.MapX - 1)
@@ -674,16 +676,17 @@ var
     and (CanOwn in fTerrain.Land[Y,X].Passability) then
     begin
       InfluenceMap[J, Y, X] := V;
-      DoFill(X, Y-1, Max(V - DECAY, 0));
-      DoFill(X-1, Y, Max(V - DECAY, 0));
-      DoFill(X+1, Y, Max(V - DECAY, 0));
-      DoFill(X, Y+1, Max(V - DECAY, 0));
+      DoFill(X, Y-1, Max(V - INFLUENCE_DECAY, 0));
+      DoFill(X-1, Y, Max(V - INFLUENCE_DECAY, 0));
+      DoFill(X+1, Y, Max(V - INFLUENCE_DECAY, 0));
+      DoFill(X, Y+1, Max(V - INFLUENCE_DECAY, 0));
       //We can get away with 4-tap fill, it looks fine already
     end;
   end;
 var
   I, K, H: Integer;
   L: Integer;
+  P: TKMPoint;
 begin
   if not AI_GEN_INFLUENCE_MAPS then Exit;
   Assert(fTerrain <> nil);
@@ -691,10 +694,17 @@ begin
   //Update direct influence maps
   for J := 0 to fPlayers.Count - 1 do
   begin
-    //Sync tile ownership
     for I := 1 to fTerrain.MapY - 1 do
     for K := 1 to fTerrain.MapX - 1 do
-      InfluenceMap[J, I, K] := Byte(fTerrain.Land[I, K].TileOwner = J) * 254;
+      InfluenceMap[J, I, K] := 0;
+
+    //Sync tile ownership
+    for I := 0 to fPlayers[J].Houses.Count - 1 do
+    if fPlayers[J].Houses[I].HouseType <> ht_WatchTower then
+    begin
+      P := fPlayers[J].Houses[I].GetPosition;
+      InfluenceMap[J, P.Y, P.X] := 254;
+    end;
 
     //Expand influence with faloff
     for I := 1 to fTerrain.MapY - 1 do
@@ -710,7 +720,7 @@ begin
     begin
       if InfluenceMap[J, I, K] <> 0 then
       begin
-        L := InfluenceMap[J, I, K];
+        L := InfluenceMap[J, I, K] * 2;
 
         for H := 0 to fPlayers.Count - 1 do
         if (H <> J) and (fPlayers.CheckAlliance(J, H) = at_Enemy) then
