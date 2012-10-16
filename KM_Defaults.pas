@@ -196,7 +196,10 @@ const
 {Cursors}
 type
   TCursorMode = ( cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
-                  cm_Elevate, cm_Equalize, cm_Tiles, cm_Objects, cm_Units); //MapEditor
+                  cm_Elevate, cm_Equalize, cm_Tiles, cm_Objects, cm_Units, cm_Markers); //MapEditor
+
+const
+  MARKER_REVEAL = 1;
 
 const
   MAPED_TILES_COLS = 6;

@@ -2,7 +2,7 @@ unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_Defaults, KM_Points, KM_Terrain, KM_Units;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units;
 
 
 type
@@ -18,9 +18,16 @@ const
   );
 
 type
-  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences);  //Enum representing mapEditor visible layers
+  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
+  TMarkerType = (mtNone, mtDefence, mtRevealFOW);
+
+  TKMMapEdMarker = record
+    MarkerType: TMarkerType;
+    Owner: TPlayerIndex;
+    Index: SmallInt;
+  end;
 
   //Scans the map and reports raw resources deposits info
   TKMDeposits = class
@@ -47,12 +54,16 @@ type
   TKMMapEditor = class
   private
     fDeposits: TKMDeposits;
+    fRevealers: array [0..MAX_PLAYERS-1] of TKMPointTagList;
     fVisibleLayers: TMapEdLayerSet;
+    function GetRevealer(aIndex: Byte): TKMPointTagList;
   public
     constructor Create;
     destructor Destroy; override;
     property Deposits: TKMDeposits read fDeposits;
+    property Revealers[aIndex: Byte]: TKMPointTagList read GetRevealer;
     property VisibleLayers: TMapEdLayerSet read fVisibleLayers;
+    function HitTest(X,Y: Integer): TKMMapEdMarker;
     procedure Update;
     procedure Paint;
   end;
@@ -234,6 +245,8 @@ end;
 
 { TKMMapEditor }
 constructor TKMMapEditor.Create;
+var
+  I: Integer;
 begin
   inherited Create;
 
@@ -241,14 +254,62 @@ begin
 
   fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences];
 
+  for I := Low(fRevealers) to High(fRevealers) do
+    fRevealers[I] := TKMPointTagList.Create;
 end;
 
 
 destructor TKMMapEditor.Destroy;
+var
+  I: Integer;
 begin
   FreeAndNil(fDeposits);
 
+  for I := Low(fRevealers) to High(fRevealers) do
+    fRevealers[I].Free;
+
   inherited;
+end;
+
+
+function TKMMapEditor.GetRevealer(aIndex: Byte): TKMPointTagList;
+begin
+  Result := fRevealers[aIndex];
+end;
+
+
+function TKMMapEditor.HitTest(X, Y: Integer): TKMMapEdMarker;
+var I,K: Integer;
+begin
+  if mlDefences in fVisibleLayers then
+  begin
+    for I := 0 to fPlayers.Count - 1 do
+      for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
+        if (fPlayers[I].AI.DefencePositions[K].Position.Loc.X = X)
+        and (fPlayers[I].AI.DefencePositions[K].Position.Loc.Y = Y) then
+        begin
+          Result.MarkerType := mtDefence;
+          Result.Owner := I;
+          Result.Index := K;
+          Exit;
+        end;
+  end;
+
+  if mlRevealFOW in fVisibleLayers then
+  begin
+    for I := 0 to fPlayers.Count - 1 do
+      for K := 0 to fRevealers[I].Count - 1 do
+        if (fRevealers[I][K].X = X) and (fRevealers[I][K].Y = Y) then
+        begin
+          Result.MarkerType := mtRevealFOW;
+          Result.Owner := I;
+          Result.Index := K;
+          Exit;
+        end;
+  end;
+
+  //Else nothing is found
+  Result.MarkerType := mtNone;
 end;
 
 

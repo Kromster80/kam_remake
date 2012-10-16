@@ -5,7 +5,7 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
-     KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units,
+     KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_MapEditor,
      KM_Points, KM_InterfaceDefaults, KM_Terrain;
 
 type
@@ -18,7 +18,7 @@ type
     fStorehouseItem: Byte; //Selected ware in storehouse
     fBarracksItem: Byte; //Selected ware in barracks
     fTileDirection: Byte;
-    //fShowRawMaterials: Boolean; //Not sure how we will enable this and blocked tiles display
+    fCurrentMarker: TKMMapEdMarker;
 
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
@@ -36,10 +36,14 @@ type
     procedure Create_House_Page;
     procedure Create_Store_Page;
     procedure Create_Barracks_Page;
+    procedure Create_Markers_Page;
 
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
     procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
+    procedure ShowHouseInfo(Sender:TKMHouse);
+    procedure ShowUnitInfo(Sender:TKMUnit);
+    procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
 
     procedure Menu_Save(Sender: TObject);
     procedure Menu_Load(Sender: TObject);
@@ -71,9 +75,11 @@ type
     procedure Player_BlockClick(Sender: TObject);
     procedure Player_BlockRefresh;
     procedure Player_ColorClick(Sender: TObject);
+    procedure Player_RevealClick(Sender: TObject);
     procedure Mission_AlliancesChange(Sender: TObject);
     procedure Mission_PlayerTypesChange(Sender: TObject);
     procedure View_Passability(Sender: TObject);
+    procedure Marker_Change(Sender: TObject);
 
     function GetSelectedTile: TObject;
     function GetSelectedObject: TObject;
@@ -144,6 +150,7 @@ type
         Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
         Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
       Panel_RevealFOW: TKMPanel;
+        Button_Reveal: TKMButtonFlat;
 
     Panel_Mission:TKMPanel;
       Button_Mission:array[1..2]of TKMButton;
@@ -197,22 +204,28 @@ type
       KMHealthBar_House:TKMPercentBar;
       Button_HouseHealthDec,Button_HouseHealthInc:TKMButton;
 
-    Panel_HouseStore:TKMPanel;
-      Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
-      Label_Store_WareCount:TKMLabel;
-      Button_StoreDec100,Button_StoreDec:TKMButton;
-      Button_StoreInc100,Button_StoreInc:TKMButton;
-    Panel_HouseBarracks:TKMPanel;
-      Button_Barracks:array[1..BARRACKS_RES_COUNT]of TKMButtonFlat;
-      Label_Barracks_WareCount:TKMLabel;
-      Button_BarracksDec100,Button_BarracksDec:TKMButton;
-      Button_BarracksInc100,Button_BarracksInc:TKMButton;
+      Panel_HouseStore:TKMPanel;
+        Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
+        Label_Store_WareCount:TKMLabel;
+        Button_StoreDec100,Button_StoreDec:TKMButton;
+        Button_StoreInc100,Button_StoreInc:TKMButton;
+      Panel_HouseBarracks:TKMPanel;
+        Button_Barracks:array[1..BARRACKS_RES_COUNT]of TKMButtonFlat;
+        Label_Barracks_WareCount:TKMLabel;
+        Button_BarracksDec100,Button_BarracksDec:TKMButton;
+        Button_BarracksInc100,Button_BarracksInc:TKMButton;
+
+    Panel_Marker: TKMPanel;
+      Label_MarkerName: TKMLabel;
+      Image_MarkerPic: TKMImage;
+
+      Panel_MarkerReveal: TKMPanel;
+        TrackBar_RevealSize: TKMTrackBar;
+
   public
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
     procedure Player_UpdateColors;
-    procedure ShowHouseInfo(Sender:TKMHouse);
-    procedure ShowUnitInfo(Sender:TKMUnit);
     procedure SetMinimap;
     procedure SetMapName(const aName:string);
     procedure RightClick_Cancel;
@@ -232,7 +245,7 @@ type
 
 
 implementation
-uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_MapEditor,
+uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary,
      KM_Utils, KM_Game, KM_GameApp, KM_Resource, KM_ResourceUnit, KM_ResourceCursors,
      KM_ResourceMapElements, KM_AIDefensePos;
 
@@ -805,9 +818,9 @@ begin
 
     Panel_RevealFOW := TKMPanel.Create(Panel_Player,0,28,196,400);
       TKMLabel.Create(Panel_RevealFOW,100,10,184,0,'Reveal fog',fnt_Outline,taCenter);
-      {Button_ScriptReveal         := TKMButtonFlat.Create(Panel_Script,  8,28,33,33,335);
-      Button_ScriptReveal.OnClick := Script_ButtonClick;
-      Button_ScriptReveal.Hint    := 'Reveal a portion of map';}
+      Button_Reveal         := TKMButtonFlat.Create(Panel_Script, 8, 30, 33, 33, 335);
+      Button_Reveal.OnClick := Player_RevealClick;
+      Button_Reveal.Hint    := 'Reveal a portion of map';
 end;
 
 
@@ -1070,6 +1083,19 @@ begin
     Button_BarracksDec.OnClickEither    := Barracks_EditWareCount;
     Button_BarracksInc100.OnClickEither := Barracks_EditWareCount;
     Button_BarracksInc.OnClickEither    := Barracks_EditWareCount;
+end;
+
+
+procedure TKMapEdInterface.Create_Markers_Page;
+var I: Integer;
+begin
+  Panel_Marker := TKMPanel.Create(Panel_Common, 0, 0, 200, 400);
+    Label_MarkerName := TKMLabel.Create(Panel_House,100,14,184,0,'',fnt_Outline,taCenter);
+    Image_MarkerPic := TKMImage.Create(Panel_House,8,35,32,32,338);
+
+    Panel_MarkerReveal := TKMPanel.Create(Panel_Marker, 0, 70, 200, 400);
+      TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 8, 20, 180, 1, 128);
+      TrackBar_RevealSize.OnChange := Marker_Change;
 end;
 
 
@@ -1554,6 +1580,37 @@ begin
 end;
 
 
+procedure TKMapEdInterface.ShowMarkerInfo(aMarker: TKMMapEdMarker);
+var
+  I: Integer;
+begin
+  fCurrentMarker := aMarker;
+
+  if (aMarker.MarkerType = mtNone) or (aMarker.Index = -1) then
+  begin
+    SwitchPage(nil);
+    Exit;
+  end;
+
+  SetActivePlayer(aMarker.Owner);
+
+  SwitchPage(Panel_Marker);
+  Label_MarkerName.Caption := 'Some marker';
+  Image_MarkerPic.FlagColor := fPlayers[aMarker.Owner].FlagColor;
+
+  for I := 1 to Panel_Marker.ChildCount do
+    Panel_Marker.Childs[I].Hide;
+
+  case aMarker.MarkerType of
+    mtRevealFOW:  begin
+                    Panel_RevealFOW.Show;
+                    TrackBar_RevealSize.Position := fGame.MapEditor.Revealers[aMarker.Owner].Tag[aMarker.Index];
+                  end;
+
+  end;
+end;
+
+
 procedure TKMapEdInterface.Menu_Save(Sender: TObject);
 begin
   if (Sender = Edit_SaveName) or (Sender = Radio_Save_MapType) then
@@ -1577,6 +1634,12 @@ begin
 
     SwitchPage(Button_SaveCancel); //return to previous menu
   end;
+end;
+
+
+procedure TKMapEdInterface.Marker_Change(Sender: TObject);
+begin
+
 end;
 
 
@@ -1933,6 +1996,23 @@ begin
 end;
 
 
+procedure TKMapEdInterface.Player_RevealClick(Sender: TObject);
+begin
+  //Press the button
+  TKMButtonFlat(Sender).Down := True;
+
+  //Reset cursor and see if it needs to be changed
+  GameCursor.Mode := cm_None;
+  GameCursor.Tag1 := 0;
+
+  if Button_Reveal.Down then
+  begin
+    GameCursor.Mode := cm_Markers;
+    GameCursor.Tag1 := MARKER_REVEAL;
+  end;
+end;
+
+
 procedure TKMapEdInterface.Mission_AlliancesChange(Sender: TObject);
 var i,k:Integer;
 begin
@@ -2071,7 +2151,9 @@ end;
 
 
 procedure TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
-var P: TKMPoint;
+var
+  P: TKMPoint;
+  Marker: TKMMapEdMarker;
 begin
   inherited;
 
@@ -2083,11 +2165,17 @@ begin
 
   fGame.UpdateGameCursor(X,Y,Shift);
   if GameCursor.Mode = cm_None then
+  begin
+    Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    if Marker.MarkerType <> mtNone then
+      fResource.Cursors.Cursor := kmc_Info
+    else
     if fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y, False) <> nil then
       fResource.Cursors.Cursor := kmc_Info
     else
       if not fGame.Viewport.Scrolling then
         fResource.Cursors.Cursor := kmc_Default;
+  end;
 
   Label_Coordinates.Caption := Format('X: %d, Y: %d',[GameCursor.Cell.X,GameCursor.Cell.Y]);
 
@@ -2117,7 +2205,9 @@ end;
 
 
 procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-var P: TKMPoint;
+var
+  P: TKMPoint;
+  Marker: TKMMapEdMarker;
 begin
   inherited;
 
@@ -2145,20 +2235,27 @@ begin
       TKMHouse(fPlayers.Selected).SetPosition(P); //Can place is checked in SetPosition
 
     if fPlayers.Selected is TKMUnit then
-      if fTerrain.CanPlaceUnit(P, TKMUnit(fPlayers.Selected).UnitType) then
-        TKMUnit(fPlayers.Selected).SetPosition(P);
+      TKMUnit(fPlayers.Selected).SetPosition(P);
 
   end
   else
   if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
     case GameCursor.Mode of
       cm_None:  begin
-                  fPlayers.SelectHitTest(GameCursor.Cell.X, GameCursor.Cell.Y, False);
+                  //If there are some additional layers we first HitTest them
+                  //as they are rendered ontop of Houses/Objects
+                  Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                  if Marker.MarkerType <> mtNone then
+                    ShowMarkerInfo(Marker)
+                  else
+                  begin
+                    fPlayers.SelectHitTest(GameCursor.Cell.X, GameCursor.Cell.Y, False);
 
-                  if fPlayers.Selected is TKMHouse then
-                    ShowHouseInfo(TKMHouse(fPlayers.Selected));
-                  if fPlayers.Selected is TKMUnit then
-                    ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                    if fPlayers.Selected is TKMHouse then
+                      ShowHouseInfo(TKMHouse(fPlayers.Selected));
+                    if fPlayers.Selected is TKMUnit then
+                      ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                  end;
                 end;
       cm_Road:  if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);
       cm_Field: if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);

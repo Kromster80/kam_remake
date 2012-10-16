@@ -1193,6 +1193,8 @@ procedure TKMUnit.SetPosition(aPos: TKMPoint);
 begin
   //This is only used by the map editor, set all positions to aPos
   Assert(fGame.GameMode = gmMapEd);
+  if not fTerrain.CanPlaceUnit(aPos, UnitType) then Exit;
+
   fTerrain.UnitRem(fCurrPosition);
   fCurrPosition := aPos;
   fNextPosition := aPos;

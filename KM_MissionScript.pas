@@ -611,10 +611,18 @@ begin
     ct_CenterScreen:    if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].CenterScreen := KMPoint(P[0]+1,P[1]+1);
     ct_ClearUp:         if fLastPlayer >= 0 then
-                          if P[0] = 255 then
-                            fPlayers[fLastPlayer].FogOfWar.RevealEverything
+                        begin
+                          if fParsingMode = mpm_Editor then
+                            if P[0] = 255 then
+                              fGame.MapEditor.Revealers[fLastPlayer].AddEntry(KMPoint(0,0), 255, 0)
+                            else
+                              fGame.MapEditor.Revealers[fLastPlayer].AddEntry(KMPoint(P[0]+1,P[1]+1), P[2], 0)
                           else
-                            fPlayers[fLastPlayer].FogOfWar.RevealCircle(KMPoint(P[0]+1,P[1]+1), P[2], 255);
+                            if P[0] = 255 then
+                              fPlayers[fLastPlayer].FogOfWar.RevealEverything
+                            else
+                              fPlayers[fLastPlayer].FogOfWar.RevealCircle(KMPoint(P[0]+1,P[1]+1), P[2], 255);
+                        end;
     ct_SetHouse:        if fLastPlayer >= 0 then
                           if InRange(P[0], Low(HouseKaMType), High(HouseKaMType)) then
                             if fTerrain.CanPlaceHouseFromScript(HouseKaMType[P[0]], KMPoint(P[1]+1, P[2]+1)) then
@@ -995,6 +1003,13 @@ begin
     AddCommand(ct_SetMapColor, [fPlayers[i].FlagColorIndex]);
     if not KMSamePoint(fPlayers[i].CenterScreen, KMPoint(0,0)) then
       AddCommand(ct_CenterScreen, [fPlayers[i].CenterScreen.X-1,fPlayers[i].CenterScreen.Y-1]);
+
+    with fGame.MapEditor.Revealers[I] do
+    for K := 0 to Count - 1 do
+      if (Items[K].X = 0) and (Items[K].Y = 0) and (Tag[K] = 255) then
+        AddCommand(ct_ClearUp, [255])
+      else
+        AddCommand(ct_ClearUp, [Items[K].X-1, Items[K].Y-1, Tag[K]]);
 
     AddData(''); //NL
 
