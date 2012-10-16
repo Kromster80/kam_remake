@@ -96,6 +96,11 @@ implementation
 uses KM_CommonClasses, KM_Defaults, KM_MissionScript, KM_Player, KM_TextLibrary, KM_Utils;
 
 
+const
+  //Folder name containing single maps for SP/MP mode
+  MAP_FOLDER_MP: array [Boolean] of string = ('Maps', 'MapsMP');
+
+
 { TKMapInfo }
 constructor TKMapInfo.Create;
 begin
@@ -117,11 +122,9 @@ begin
 end;
 
 
-procedure TKMapInfo.Load(const aFolder:string; aStrictParsing, aIsMultiplayer:boolean);
+procedure TKMapInfo.Load(const aFolder:string; aStrictParsing, aIsMultiplayer: Boolean);
 begin
-  if aIsMultiplayer then fPath := ExeDir+'MapsMP\'
-                    else fPath := ExeDir+'Maps\';
-  fPath := fPath+aFolder+'\';
+  fPath := ExeDir + MAP_FOLDER_MP[aIsMultiplayer] + aFolder + '\';
   fFileName := aFolder;
 
   fStrictParsing := aStrictParsing;
@@ -448,9 +451,8 @@ end;
 
 
 class function TKMapsCollection.FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
-const MapFolder: array [Boolean] of string = ('Maps', 'MapsMP');
 begin
-  Result := ExeDir + MapFolder[aMultiplayer] + '\' + aName + '\' + aName + aExt;
+  Result := ExeDir + MAP_FOLDER_MP[aMultiplayer] + '\' + aName + '\' + aName + aExt;
 end;
 
 
@@ -487,10 +489,7 @@ var
   PathToMaps: string;
   Map: TKMapInfo;
 begin
-  if fMultiplayerPath then
-    PathToMaps := ExeDir + 'MapsMP\'
-  else
-    PathToMaps := ExeDir + 'Maps\';
+  PathToMaps := ExeDir + MAP_FOLDER_MP[fMultiplayerPath];
 
   if not DirectoryExists(PathToMaps) then Exit;
 

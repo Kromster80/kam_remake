@@ -778,19 +778,19 @@ procedure TKMGame.SaveMapEditor(const aMissionName: string; aMultiplayer: Boolea
 var
   i: integer;
   fMissionParser: TMissionParserStandard;
+  MapName: string;
 begin
   if aMissionName = '' then exit;
 
   //Prepare and save
   fPlayers.RemoveEmptyPlayers;
-  if aMultiplayer then
-    ForceDirectories(ExeDir + 'MapsMP\' + aMissionName)
-  else
-    ForceDirectories(ExeDir + 'Maps\' + aMissionName);
 
-  fTerrain.SaveToFile(TKMapsCollection.FullPath(aMissionName, '.map', aMultiplayer));
+  MapName := TKMapsCollection.FullPath(aMissionName, '.map', aMultiplayer);
+  ForceDirectories(ExtractFilePath(MapName));
+
+  fTerrain.SaveToFile(MapName);
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
-  fMissionParser.SaveDATFile(TKMapsCollection.FullPath(aMissionName, 'dat', aMultiplayer));
+  fMissionParser.SaveDATFile(ChangeFileExt(MapName, '.dat'));
   FreeAndNil(fMissionParser);
 
   fGameName := aMissionName;
