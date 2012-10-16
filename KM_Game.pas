@@ -176,7 +176,7 @@ uses
   KM_CommonClasses, KM_Log, KM_Utils,
   KM_ArmyEvaluation, KM_Events, KM_GameApp, KM_GameInfo, KM_MissionScript,
   KM_Player, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceCursors,
-  KM_Sound, KM_Terrain, KM_TextLibrary, KM_AIFields,
+  KM_Sound, KM_Terrain, KM_TextLibrary, KM_AIFields, KM_Maps,
   KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
@@ -783,10 +783,14 @@ begin
 
   //Prepare and save
   fPlayers.RemoveEmptyPlayers;
-  ForceDirectories(ExeDir + 'Maps\' + aMissionName);
-  fTerrain.SaveToFile(MapNameToPath(aMissionName, 'map', aMultiplayer));
+  if aMultiplayer then
+    ForceDirectories(ExeDir + 'MapsMP\' + aMissionName)
+  else
+    ForceDirectories(ExeDir + 'Maps\' + aMissionName);
+
+  fTerrain.SaveToFile(TKMapsCollection.FullPath(aMissionName, '.map', aMultiplayer));
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
-  fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat', aMultiplayer));
+  fMissionParser.SaveDATFile(TKMapsCollection.FullPath(aMissionName, 'dat', aMultiplayer));
   FreeAndNil(fMissionParser);
 
   fGameName := aMissionName;

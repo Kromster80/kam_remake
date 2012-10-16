@@ -1558,7 +1558,7 @@ procedure TKMapEdInterface.Menu_Save(Sender: TObject);
 begin
   if (Sender = Edit_SaveName) or (Sender = Radio_Save_MapType) then
   begin
-    CheckBox_SaveExists.Enabled := FileExists(MapNameToPath(Edit_SaveName.Text, 'dat', Radio_Save_MapType.ItemIndex = 1));
+    CheckBox_SaveExists.Enabled := FileExists(TKMapsCollection.FullPath(Edit_SaveName.Text, '.dat', Radio_Save_MapType.ItemIndex = 1));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := false;
     Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
@@ -1580,7 +1580,7 @@ begin
 end;
 
 
-//Mmission loading dialog
+//Mission loading dialog
 procedure TKMapEdInterface.Menu_Load(Sender: TObject);
 var
   MapName: string;
@@ -1590,8 +1590,10 @@ begin
 
   MapName := ListBox_Load.Item[ListBox_Load.ItemIndex];
   IsMulti := Radio_Load_MapType.ItemIndex = 1;
-  fGameApp.NewMapEditor(MapNameToPath(MapName, 'dat', IsMulti), 0, 0);
-  //Keep MP/SP selected in the new map editor interface (this one is destroyed already)
+  fGameApp.NewMapEditor(TKMapsCollection.FullPath(MapName, '.dat', IsMulti), 0, 0);
+
+  //Keep MP/SP selected in the new map editor interface
+  //this one is destroyed already by `fGameApp.NewMapEditor`
   if (fGame <> nil) and (fGame.MapEditorInterface <> nil) then
     fGame.MapEditorInterface.SetLoadMode(IsMulti);
 end;

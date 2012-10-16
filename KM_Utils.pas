@@ -8,7 +8,6 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points;
   function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aI, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
   function GetPositionFromIndex(aOrigin: TKMPoint; aIndex: Byte): TKMPointI;
 
-  function MapNameToPath(const aMapName, aExtension:string; aIsMultiplayer:boolean):string;
   function FixDelim(const aString:string):string;
 
   procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
@@ -183,14 +182,6 @@ begin
   //Compute result
   Result.X := aOrigin.X + Off1 - Off3 + Off5;
   Result.Y := aOrigin.Y - Span2 + Off2 - Off4;
-end;
-
-
-function MapNameToPath(const aMapName, aExtension:string; aIsMultiplayer:boolean):string;
-begin
-  if aIsMultiplayer then Result := ExeDir+'MapsMP\'
-                    else Result := ExeDir+'Maps\';
-  Result := Result+aMapName+'\'+aMapName+'.'+aExtension;
 end;
 
 

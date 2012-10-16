@@ -38,6 +38,7 @@ type
     property Info: TKMGameInfo read fInfo;
     property Path: string read fPath;
     property FileName: string read fFileName;
+    function FullPath(const aExt: string): string;
     property CRC: Cardinal read fCRC;
 
     function IsValid: Boolean;
@@ -79,6 +80,8 @@ type
     property Count: Integer read fCount;
     property Maps[aIndex: Integer]: TKMapInfo read GetMap; default;
 
+    class function FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
+
     procedure Refresh(aOnRefresh: TNotifyEvent);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
@@ -105,6 +108,12 @@ destructor TKMapInfo.Destroy;
 begin
   fInfo.Free;
   inherited;
+end;
+
+
+function TKMapInfo.FullPath(const aExt: string): string;
+begin
+  Result := fPath + fFileName + aExt;
 end;
 
 
@@ -438,6 +447,13 @@ begin
 end;
 
 
+class function TKMapsCollection.FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
+const MapFolder: array [Boolean] of string = ('Maps', 'MapsMP');
+begin
+  Result := ExeDir + MapFolder[aMultiplayer] + '\' + aName + '\' + aName + aExt;
+end;
+
+
 { TTMapsScanner }
 //aOnMapAdd - signal that there's new map that should be added
 //aOnMapAddDone - signal that map has been added. Can safely call main thread methods since it's executed in Synchronize
@@ -481,8 +497,8 @@ begin
   FindFirst(PathToMaps + '*', faDirectory, SearchRec);
   repeat
     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-    and FileExists(MapNameToPath(SearchRec.Name, 'dat', fMultiplayerPath))
-    and FileExists(MapNameToPath(SearchRec.Name, 'map', fMultiplayerPath)) then
+    and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', fMultiplayerPath))
+    and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', fMultiplayerPath)) then
     begin
       Map := TKMapInfo.Create;
       Map.Load(SearchRec.Name, false, fMultiplayerPath);

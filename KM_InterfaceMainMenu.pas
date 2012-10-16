@@ -2377,7 +2377,7 @@ begin
     Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[aIndex].Info.DefeatCondition]);
 
     MinimapView_Single.Show;
-    fMinimap.LoadFromMission(MapNameToPath(fMaps[aIndex].FileName, 'dat', False));
+    fMinimap.LoadFromMission(fMaps[aIndex].FullPath('.dat'));
     fMinimap.Update(False);
     MinimapView_Single.SetMinimap(fMinimap);
   end;
@@ -2401,7 +2401,7 @@ begin
     begin
       //Scan should be terminated, as it is no longer needed
       fMaps.TerminateScan;
-      fGameApp.NewSingleMap(MapNameToPath(fMaps[I].FileName, 'dat', False), fMaps[I].FileName); //Provide mission FileName mask and title here
+      fGameApp.NewSingleMap(fMaps[I].FullPath('.dat'), fMaps[I].FileName); //Provide mission FileName mask and title here
       Break;
     end;
 end;
@@ -3347,7 +3347,10 @@ end;
 
 
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData: string);
-var I: Integer; DropText: string;
+var
+  I: Integer;
+  DropText: string;
+  M: TKMapInfo;
 begin
   //Common settings
   MinimapView_Lobby.Visible := (fGameApp.Networking.SelectGameKind = ngk_Map) and fGameApp.Networking.MapInfo.IsValid;
@@ -3380,27 +3383,27 @@ begin
                   DropText := DropText + fGameApp.Networking.GameInfo.LocationName[I] + eol;
               end;
     ngk_Map:  begin
+                M := fGameApp.Networking.MapInfo;
                 if not fGameApp.Networking.IsHost then
                 begin
-                  if fGameApp.Networking.MapInfo.IsCoop then
+                  if M.IsCoop then
                     Radio_LobbyMapType.ItemIndex := 2
                   else
-                    if fGameApp.Networking.MapInfo.Info.MissionMode = mm_Tactic then
+                    if M.Info.MissionMode = mm_Tactic then
                       Radio_LobbyMapType.ItemIndex := 1
                     else
                       Radio_LobbyMapType.ItemIndex := 0;
                 end;
 
                 //Only load the minimap preview if the map is valid
-                if fGameApp.Networking.MapInfo.IsValid then
+                if M.IsValid then
                 begin
-                  fMinimap.LoadFromMission(MapNameToPath(fGameApp.Networking.MapInfo.FileName, 'dat', True));
+                  fMinimap.LoadFromMission(M.FullPath('.dat'));
                   fMinimap.Update(True);
                   MinimapView_Lobby.SetMinimap(fMinimap);
                 end;
-
                 Label_LobbyMapName.Caption := fGameApp.Networking.GameInfo.Title;
-                Memo_LobbyMapDesc.Text := fGameApp.Networking.MapInfo.BigDesc;
+                Memo_LobbyMapDesc.Text := M.BigDesc;
 
               //Starting locations text
               DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
@@ -3765,8 +3768,8 @@ end;
 
 procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
 var
-  MapName: string;
   MapEdSizeX, MapEdSizeY: Integer;
+  ID: Integer;
   Maps: TKMapsCollection;
 begin
   if Sender = Button_MapEd_Create then
@@ -3780,11 +3783,12 @@ begin
   if ((Sender = Button_MapEd_Load) or (Sender = List_MapEd)) and
      Button_MapEd_Load.Enabled and (List_MapEd.ItemIndex <> -1) then
   begin
+    ID := List_MapEd.Rows[List_MapEd.ItemIndex].Tag;
     if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
 
-    MapName := MapNameToPath(Maps[List_MapEd.Rows[List_MapEd.ItemIndex].Tag].FileName, 'dat', Radio_MapEd_MapType.ItemIndex = 1);
-    fGameApp.NewMapEditor(MapName, 0, 0);
+    fGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
     //Keep MP/SP selected in the map editor interface
+    //(if mission failed to load we would have fGame = nil)
     if (fGame <> nil) and (fGame.MapEditorInterface <> nil) then
       fGame.MapEditorInterface.SetLoadMode(Radio_MapEd_MapType.ItemIndex = 1);
   end;
@@ -3891,20 +3895,18 @@ end;
 procedure TKMMainMenuInterface.MapEditor_SelectMap(Sender: TObject);
 var
   ID: Integer;
-  MapName: string;
   Maps: TKMapsCollection;
 begin
-  ID := List_MapEd.ItemIndex;
-  Button_MapEd_Load.Enabled := (ID <> -1);
+  Button_MapEd_Load.Enabled := (List_MapEd.ItemIndex <> -1);
 
   if Button_MapEd_Load.Enabled then
   begin
+    ID := List_MapEd.Rows[List_MapEd.ItemIndex].Tag;
     if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
 
     fLastMapCRC := Maps[ID].CRC;
 
-    MapName := MapNameToPath(Maps[List_MapEd.Rows[List_MapEd.ItemIndex].Tag].FileName, 'dat', Radio_MapEd_MapType.ItemIndex = 1);
-    fMinimap.LoadFromMission(MapName);
+    fMinimap.LoadFromMission(Maps[ID].FullPath('.dat'));
     fMinimap.Update(True);
     MinimapView_MapEd.SetMinimap(fMinimap);
     MinimapView_MapEd.Show;
