@@ -27,7 +27,7 @@ type
     property CurrentCommander: TKMUnitWarrior read fCurrentCommander write SetCurrentCommander;
     property GroupType: TGroupType read fGroupType; //Type of group to defend this position (e.g. melee)
     property Position: TKMPointDir read fPosition; //Position and direction the group defending will stand
-    property Radius: Integer read fRadius; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
+    property Radius: Integer read fRadius write fRadius; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
     function IsFullyStocked(aAmount: Integer): Boolean;
     function UITitle: string;
     procedure Save(SaveStream: TKMemoryStream);

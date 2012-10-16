@@ -124,7 +124,7 @@ end;
 
 procedure TKMapInfo.Load(const aFolder:string; aStrictParsing, aIsMultiplayer: Boolean);
 begin
-  fPath := ExeDir + MAP_FOLDER_MP[aIsMultiplayer] + aFolder + '\';
+  fPath := ExeDir + MAP_FOLDER_MP[aIsMultiplayer] + '\' + aFolder + '\';
   fFileName := aFolder;
 
   fStrictParsing := aStrictParsing;
@@ -489,7 +489,7 @@ var
   PathToMaps: string;
   Map: TKMapInfo;
 begin
-  PathToMaps := ExeDir + MAP_FOLDER_MP[fMultiplayerPath];
+  PathToMaps := ExeDir + MAP_FOLDER_MP[fMultiplayerPath] + '\';
 
   if not DirectoryExists(PathToMaps) then Exit;
 

@@ -62,7 +62,7 @@ type
     destructor Destroy; override;
     property Deposits: TKMDeposits read fDeposits;
     property Revealers[aIndex: Byte]: TKMPointTagList read GetRevealer;
-    property VisibleLayers: TMapEdLayerSet read fVisibleLayers;
+    property VisibleLayers: TMapEdLayerSet read fVisibleLayers write fVisibleLayers;
     function HitTest(X,Y: Integer): TKMMapEdMarker;
     procedure Update;
     procedure Paint;
@@ -310,6 +310,8 @@ begin
 
   //Else nothing is found
   Result.MarkerType := mtNone;
+  Result.Owner := PLAYER_NONE;
+  Result.Index := -1;
 end;
 
 
@@ -331,6 +333,15 @@ begin
       begin
         MapLoc := fPlayers[I].AI.DefencePositions[K].Position.Loc;
         fRenderAux.CircleOnTerrain(MapLoc.X, MapLoc.Y, fPlayers[I].AI.DefencePositions[K].Radius, $20FF8000, $FFFF8000);
+      end;
+  end;
+  if mlRevealFOW in fVisibleLayers then
+  begin
+    for I := 0 to fPlayers.Count - 1 do
+      for K := 0 to fRevealers[I].Count - 1 do
+      begin
+        MapLoc := fRevealers[I][K];
+        fRenderAux.CircleOnTerrain(MapLoc.X, MapLoc.Y, fRevealers[I].Tag[K], $20FFFFFF, $FFFFFFFF);
       end;
   end;
 end;

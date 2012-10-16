@@ -221,6 +221,8 @@ type
 
       Panel_MarkerReveal: TKMPanel;
         TrackBar_RevealSize: TKMTrackBar;
+      Panel_MarkerDefence: TKMPanel;
+        TrackBar_DefenceRad: TKMTrackBar;
 
   public
     constructor Create(aScreenX, aScreenY: word);
@@ -263,12 +265,14 @@ const
 {Switch between pages}
 procedure TKMapEdInterface.SwitchPage(Sender: TObject);
 var
-  i, k:Integer;
+  I,K: Integer;
 begin
-
   //Reset cursor mode
   GameCursor.Mode := cm_None;
   GameCursor.Tag1 := 0;
+
+  if fGame <> nil then
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers - [mlDefences, mlRevealFOW];
 
   //If the user clicks on the tab that is open, it closes it (main buttons only)
   if ((Sender = Button_Main[1]) and Panel_Terrain.Visible) or
@@ -289,14 +293,14 @@ begin
 
   Label_MenuTitle.Caption := '';
   //Now hide all existing pages
-    for i:=1 to Panel_Common.ChildCount do
-      if Panel_Common.Childs[i] is TKMPanel then
-      begin
-        for k:=1 to TKMPanel(Panel_Common.Childs[i]).ChildCount do
-          if TKMPanel(Panel_Common.Childs[i]).Childs[k] is TKMPanel then
-            TKMPanel(Panel_Common.Childs[i]).Childs[k].Hide;
-        Panel_Common.Childs[i].Hide;
-      end;
+  for I := 1 to Panel_Common.ChildCount do
+    if Panel_Common.Childs[I] is TKMPanel then
+    begin
+      Panel_Common.Childs[I].Hide;
+      for K := 1 to TKMPanel(Panel_Common.Childs[I]).ChildCount do
+        if TKMPanel(Panel_Common.Childs[I]).Childs[K] is TKMPanel then
+          TKMPanel(Panel_Common.Childs[I]).Childs[K].Hide;
+    end;
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[1]) then begin
     Panel_Terrain.Show;
@@ -352,6 +356,7 @@ begin
   else
   if (Sender = Button_Village[vtDefences]) then
   begin
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
     Defence_FillList;
     Panel_Village.Show;
     Panel_Defence.Show;
@@ -378,7 +383,7 @@ begin
   end else
 
   if (Sender = Button_Main[3])or(Sender = Button_Player[4]) then begin
-    Player_BlockRefresh;
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
     Panel_Player.Show;
     Panel_RevealFOW.Show;
     Label_MenuTitle.Caption:='Player - Reveal fog';
@@ -436,6 +441,18 @@ begin
   end else
 
   if Sender=Panel_HouseStore then begin
+    TKMPanel(Sender).Parent.Show;
+    TKMPanel(Sender).Show;
+  end;
+
+  if Sender = Panel_MarkerReveal then begin
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
+    TKMPanel(Sender).Parent.Show;
+    TKMPanel(Sender).Show;
+  end;
+
+  if Sender = Panel_MarkerDefence then begin
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
     TKMPanel(Sender).Parent.Show;
     TKMPanel(Sender).Show;
   end;
@@ -556,6 +573,7 @@ begin
     Create_Store_Page;
     Create_Barracks_Page;
     //Create_TownHall_Page;
+  Create_Markers_Page;
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [akLeft, akBottom];
@@ -1087,15 +1105,20 @@ end;
 
 
 procedure TKMapEdInterface.Create_Markers_Page;
-var I: Integer;
 begin
-  Panel_Marker := TKMPanel.Create(Panel_Common, 0, 0, 200, 400);
-    Label_MarkerName := TKMLabel.Create(Panel_House,100,14,184,0,'',fnt_Outline,taCenter);
-    Image_MarkerPic := TKMImage.Create(Panel_House,8,35,32,32,338);
+  Panel_Marker := TKMPanel.Create(Panel_Common, 0, 60, 200, 400);
+    Label_MarkerName := TKMLabel.Create(Panel_Marker,100,10,184,0,'',fnt_Outline,taCenter);
+    Image_MarkerPic := TKMImage.Create(Panel_Marker,8,30,32,32,338);
 
     Panel_MarkerReveal := TKMPanel.Create(Panel_Marker, 0, 70, 200, 400);
       TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 8, 20, 180, 1, 128);
+      TrackBar_RevealSize.Caption := 'Area';
       TrackBar_RevealSize.OnChange := Marker_Change;
+
+    Panel_MarkerDefence := TKMPanel.Create(Panel_Marker, 0, 70, 200, 400);
+      TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 8, 20, 180, 1, 128);
+      TrackBar_DefenceRad.Caption := 'Radius';
+      TrackBar_DefenceRad.OnChange := Marker_Change;
 end;
 
 
@@ -1586,27 +1609,25 @@ var
 begin
   fCurrentMarker := aMarker;
 
-  if (aMarker.MarkerType = mtNone) or (aMarker.Index = -1) then
+  if (aMarker.MarkerType = mtNone) or (aMarker.Owner = PLAYER_NONE) or (aMarker.Index = -1) then
   begin
     SwitchPage(nil);
     Exit;
   end;
 
   SetActivePlayer(aMarker.Owner);
-
-  SwitchPage(Panel_Marker);
-  Label_MarkerName.Caption := 'Some marker';
+  Label_MarkerName.Caption := 'Some marker name';
   Image_MarkerPic.FlagColor := fPlayers[aMarker.Owner].FlagColor;
 
-  for I := 1 to Panel_Marker.ChildCount do
-    Panel_Marker.Childs[I].Hide;
-
   case aMarker.MarkerType of
+    mtDefence:    begin
+                    SwitchPage(Panel_MarkerDefence);
+                    TrackBar_DefenceRad.Position := fPlayers[aMarker.Owner].AI.DefencePositions[aMarker.Index].Radius;
+                  end;
     mtRevealFOW:  begin
-                    Panel_RevealFOW.Show;
+                    SwitchPage(Panel_MarkerReveal);
                     TrackBar_RevealSize.Position := fGame.MapEditor.Revealers[aMarker.Owner].Tag[aMarker.Index];
                   end;
-
   end;
 end;
 
@@ -1639,7 +1660,10 @@ end;
 
 procedure TKMapEdInterface.Marker_Change(Sender: TObject);
 begin
-
+  case fCurrentMarker.MarkerType of
+    mtDefence:   fPlayers[fCurrentMarker.Owner].AI.DefencePositions[fCurrentMarker.Index].Radius := TrackBar_DefenceRad.Position;
+    mtRevealFOW: fGame.MapEditor.Revealers[fCurrentMarker.Owner].Tag[fCurrentMarker.Index] := TrackBar_RevealSize.Position;
+  end;
 end;
 
 
@@ -2236,6 +2260,10 @@ begin
 
     if fPlayers.Selected is TKMUnit then
       TKMUnit(fPlayers.Selected).SetPosition(P);
+
+    case fCurrentMarker.MarkerType of
+      mtRevealFOW: fGame.MapEditor.Revealers[fCurrentMarker.Owner][fCurrentMarker.Index] := P;
+    end;
 
   end
   else

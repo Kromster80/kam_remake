@@ -65,7 +65,7 @@ type
 
     //Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderCursors;
-    procedure RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK);
+    procedure RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderCursorWireQuad(P: TKMPoint; Col: TColor4);
     procedure RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
   public
@@ -1063,11 +1063,10 @@ begin
 end;
 
 
-procedure TRenderPool.RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK);
+procedure TRenderPool.RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK; aFlagColor: TColor4 = $FFFFFFFF);
 begin
   if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
-    RenderSprite(rxGui, aID, aLoc.X - 0.8, fTerrain.FlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) + 0.3,
-      $FFFFFFFF, 255);
+    RenderSprite(rxGui, aID, aLoc.X - 0.8, fTerrain.FlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) + 0.3, aFlagColor, 255);
 end;
 
 
@@ -1099,6 +1098,19 @@ var
   Rad, Slope: Byte;
 begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
+
+  if fGame.IsMapEditor then
+  begin
+    if mlDefences in fGame.MapEditor.VisibleLayers then
+    for I := 0 to fPlayers.Count - 1 do
+      for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
+        RenderCursorBuildIcon(fPlayers[I].AI.DefencePositions[K].Position.Loc, 519, fPlayers[I].FlagColor);
+
+    if mlRevealFOW in fGame.MapEditor.VisibleLayers then
+    for I := 0 to fPlayers.Count - 1 do
+      for K := 0 to fGame.MapEditor.Revealers[I].Count - 1 do
+        RenderCursorBuildIcon(fGame.MapEditor.Revealers[I][K], 394, fPlayers[I].FlagColor);
+  end;
 
   P := GameCursor.Cell;
   F := GameCursor.Float;
@@ -1196,6 +1208,9 @@ begin
                   AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, MyPlayer.FlagColor, True)
                 else
                   RenderCursorBuildIcon(P); //Red X
+    cm_Markers: begin
+                  RenderCursorBuildIcon(P, 394, MyPlayer.FlagColor);
+                end;
   end;
 end;
 

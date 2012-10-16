@@ -402,6 +402,10 @@ begin
     else      ParseMode := mpm_Single; //To make compiler happy
   end;
 
+  if fGameMode = gmMapEd then
+    //Mission loader needs to read the data into MapEd (e.g. FOW revealers)
+    fMapEditor := TKMMapEditor.Create;
+
   Parser := TMissionParserStandard.Create(ParseMode, PlayerRemap, False);
   try
     if not Parser.LoadMission(aMissionFile) then
@@ -409,7 +413,6 @@ begin
 
     if fGameMode = gmMapEd then
     begin
-      fMapEditor := TKMMapEditor.Create;
       MyPlayer := fPlayers[0];
       fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
       for I := 0 to fPlayers.Count - 1 do
