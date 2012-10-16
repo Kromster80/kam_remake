@@ -86,8 +86,8 @@ const
   INFLUENCE_DECAY = 2;
 
   //Should be within 16 tiles and at least one corner within 8 tiles
-  OWN_MARGIN = 128;
-  OWN_THRESHOLD = 80;
+  OWN_MARGIN = 160;
+  OWN_THRESHOLD = 128;
 
 
 { TKMNavMesh }
@@ -720,11 +720,11 @@ begin
     begin
       if InfluenceMap[J, I, K] <> 0 then
       begin
-        L := InfluenceMap[J, I, K] * 2;
+        L := InfluenceMap[J, I, K];
 
         for H := 0 to fPlayers.Count - 1 do
         if (H <> J) and (fPlayers.CheckAlliance(J, H) = at_Enemy) then
-          L := L - InfluenceMap[H, I, K];
+          L := L - InfluenceMap[H, I, K] div 3;
 
         InfluenceMinMap[J, I, K] := Max(L, 0);
       end
