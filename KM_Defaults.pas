@@ -156,6 +156,17 @@ const //Here we store options that are hidden somewhere in code
   UNIT_CONDITION_RANDOM     = 0.1;        //Random jitter of unit's starting health (KaM did not have this, all units started the same)
   TROOPS_TRAINED_CONDITION  = 0.6;        //Condition troops start with when trained (measured from KaM)
 
+  //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
+  //Bread    = +40%
+  //Sausages = +60%
+  //Wine     = +20% (We changed this to +30% for balance)
+  //Fish     = +50%
+  BREAD_RESTORE = 0.4;
+  SAUSAGE_RESTORE = 0.6;
+  WINE_RESTORE = 0.3;
+  FISH_RESTORE = 0.5;
+
+
   DEFAULT_HITPOINT_RESTORE  = 100;        //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
   TIME_BETWEEN_MESSAGES     = 4*600;      //Time between messages saying house is unoccupied or unit is hungry. In KaM it's 4 minutes
 

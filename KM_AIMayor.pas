@@ -738,7 +738,7 @@ procedure TKMayor.UpdateBalance;
   begin
     TrunkProductionRate := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
     WoodProductionRate := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
-    WoodConsumptionRate := 1.25 //For city building
+    WoodConsumptionRate := 1 + Byte(fSetup.Strong) //For city building
                          + HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor]
                          + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
     with fDemandWeaponry do
@@ -822,21 +822,17 @@ begin
     FishProduction := HouseCount(ht_FisherHut) * ProductionRate[rt_Fish];
 
     //Count in "food units per minute"
-    Production := BreadProduction * 0.4 +
-                  SausagesProduction * 0.6 +
-                  WineProduction * 0.3 +
-                  FishProduction * 0.5;
+    Production := BreadProduction * BREAD_RESTORE +
+                  SausagesProduction * SAUSAGE_RESTORE +
+                  WineProduction *  WINE_RESTORE +
+                  FishProduction * FISH_RESTORE;
 
     Consumption := P.Stats.GetUnitQty(ut_Any) / 40; //On average unit eats each 40min
-    {Available := P.Stats.GetResourceQty(rt_Bread) * 0.4 +
-                             P.Stats.GetResourceQty(rt_Sausages) * 0.6 +
-                             P.Stats.GetResourceQty(rt_Wine) * 0.3 +
-                             P.Stats.GetResourceQty(rt_Fish) * 0.5;}
     Balance := Production - Consumption;
     Text := Format('Food balance: %.2f - %.2f = %.2f|', [Production, Consumption, Balance])
           + Format('       Bread: min(F%.2f, M%.2f, B%.2f)|', [Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory])
           + Format('    Sausages: min(F%.2f, S%.2f, B%.2f)|', [Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory])
-          + Format('  Food value: %.2f + %.2f + %.2f + %.2f|', [BreadProduction * 0.4, SausagesProduction * 0.6, WineProduction * 0.3, FishProduction * 0.5]);
+          + Format('  Food value: %.2f + %.2f + %.2f + %.2f|', [BreadProduction * BREAD_RESTORE, SausagesProduction * SAUSAGE_RESTORE, WineProduction * WINE_RESTORE, FishProduction * FISH_RESTORE]);
   end;
 
   //Weaponry
