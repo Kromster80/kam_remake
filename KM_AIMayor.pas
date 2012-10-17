@@ -13,7 +13,8 @@ type
     Text: string;
   end;
   TKMMaterialsBalance = record
-    QuaryBalance, WoodBalance, SawmillBalance: Single;
+    WoodcutTheory, SawmillTheory: Single;
+    StoneBalance, WoodBalance: Single;
     Balance: Single; //Resulting balance
     Text: string;
   end;
@@ -106,6 +107,7 @@ type
     procedure UpdateBalance;
     procedure UpdateBalanceCore;
     procedure UpdateBalanceMaterials;
+    procedure UpdateBalanceFood;
   public
     constructor Create(aPlayer: TPlayerIndex; aSetup: TKMPlayerAISetup);
     destructor Destroy; override;
@@ -419,43 +421,21 @@ end;
 
 
 procedure TKMayor.BuildMaterials;
-const
-  //We need to build in this order to make sure we dont run out of Stone or Wood:
-  DesiredOrder: array [0 .. 8] of THouseType = (
-    ht_Quary, ht_Quary, ht_Woodcutters, ht_Sawmill, ht_Quary,
-    ht_Woodcutters, ht_Woodcutters, ht_Sawmill, ht_Woodcutters);
 var
-  I: Integer;
   P: TKMPlayer;
-  TopDesire: Integer;
-  DesiredCount: array [THouseType] of Byte;
 begin
   P := fPlayers[fOwner];
 
-  //Default desires
-  DesiredCount[ht_Quary] := 3;
-  DesiredCount[ht_Woodcutters] := 4;
-  DesiredCount[ht_Sawmill] := 2;
-
-  if P.Stats.GetHouseQty(ht_Quary) < 2 then
-  begin
-    TopDesire := 0;
-    DesiredCount[ht_Quary] := 2;
-  end
-  else
-  if P.Stats.GetHouseQty(ht_Sawmill) < 1 then
-  begin
-    TopDesire := 3;
-    //DesiredCount[ht_Quary] := 2;
-    DesiredCount[ht_Woodcutters] := 2;
-    DesiredCount[ht_Sawmill] := 1;
-  end
-  else
-    TopDesire := High(DesiredOrder);
-
-  for I := 0 to TopDesire do
-  if HouseCount(DesiredOrder[I]) < DesiredCount[DesiredOrder[I]] then
-    TryBuildHouse(DesiredOrder[I]);
+  with fDemandMaterials do
+  case PickMin([0, StoneBalance, WoodBalance]) of
+    0:  ;
+    1:  TryBuildHouse(ht_Quary);
+    2:  if (P.Stats.GetHouseQty(ht_Quary) >= 2) and (P.Stats.GetHouseWip(ht_Any) < 2) then
+          if (WoodcutTheory < SawmillTheory) or not P.Stats.GetCanBuild(ht_Sawmill) then
+            TryBuildHouse(ht_Woodcutters)
+          else
+            TryBuildHouse(ht_Sawmill);
+  end;
 end;
 
 
@@ -705,32 +685,6 @@ procedure TKMayor.UpdateBalance;
       fDemandWeaponry.SteelArmor.CoalTheory := CoalProductionRate / CoalConsumptionRate * (HouseCount(ht_IronSmithy) * ProductionRate[rt_Steel] + HouseCount(ht_ArmorSmithy) * ProductionRate[rt_MetalArmor]);
     end;
   end;
-  procedure CornDistribution;
-  var
-    CornProductionRate, CornConsumptionRate: Single;
-  begin
-    CornProductionRate := HouseCount(ht_Farm) * ProductionRate[rt_Corn];
-    CornConsumptionRate := HouseCount(ht_Mill) * ProductionRate[rt_Flour]
-                         + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5
-                         + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 5;
-
-    if CornProductionRate >= CornConsumptionRate then
-    begin
-      //Let every industry think the extra belongs to it
-      fDemandFood.Bread.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Mill) * ProductionRate[rt_Flour]) * 2;
-      fDemandFood.Sausages.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5) / 5 * 3;
-      fDemandWeaponry.WoodenArmor.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 5) / 5 * 2;
-      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 5) / 5;
-    end
-    else
-    begin
-      //Share proportionaly
-      fDemandFood.Bread.FarmTheory := CornProductionRate / CornConsumptionRate * (HouseCount(ht_Mill) * ProductionRate[rt_Flour]) * 2;
-      fDemandFood.Sausages.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Pig]) / 5 * 3;
-      fDemandWeaponry.WoodenArmor.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 5) / 5 * 2;
-      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Stables) * ProductionRate[rt_Horse]) / 5;
-    end;
-  end;
   procedure WoodDistribution;
   var
     TrunkProductionRate: Single;
@@ -738,7 +692,7 @@ procedure TKMayor.UpdateBalance;
   begin
     TrunkProductionRate := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
     WoodProductionRate := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
-    WoodConsumptionRate := 1 + Byte(fSetup.Strong) //For city building
+    WoodConsumptionRate := 4 //For city building
                          + HouseCount(ht_ArmorWorkshop) * ProductionRate[rt_Armor]
                          + HouseCount(ht_WeaponWorkshop) * ProductionRate[rt_Pike];
     with fDemandWeaponry do
@@ -782,9 +736,9 @@ begin
 
   UpdateBalanceCore;
   UpdateBalanceMaterials;
+  UpdateBalanceFood;
 
   CoalDistribution;
-  CornDistribution;
   WoodDistribution;
 
   //Gold
@@ -797,42 +751,6 @@ begin
     Consumption := 1 + Byte(fSetup.Strong); //For now it's a static coef
     Balance := Production - Consumption;
     Text := Format('Gold balance: %.2f - %.2f = %.2f', [Production, Consumption, Balance]);
-  end;
-
-  //Food
-  with fDemandFood do
-  begin
-    //Bread
-    //Calculate how much bread each link could possibly produce
-    //Bread.FarmTheory calculated above
-    Bread.MillTheory := HouseCount(ht_Mill) * ProductionRate[rt_Flour] * 2;
-    Bread.BakeryTheory := HouseCount(ht_Bakery) * ProductionRate[rt_Bread];
-    //Actual production is minimum of the above
-    BreadProduction := Min(Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory);
-
-    //Sausages
-    //Calculate how many sausages each link could possibly produce
-    //Sausages.FarmTheory calculated above
-    Sausages.SwineTheory := HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 3;
-    Sausages.ButchersTheory := HouseCount(ht_Butchers) * ProductionRate[rt_Sausages];
-    //Actual production is minimum of the above
-    SausagesProduction := Min(Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory);
-    //Wine, Fish
-    WineProduction := HouseCount(ht_Wineyard) * ProductionRate[rt_Wine];
-    FishProduction := HouseCount(ht_FisherHut) * ProductionRate[rt_Fish];
-
-    //Count in "food units per minute"
-    Production := BreadProduction * BREAD_RESTORE +
-                  SausagesProduction * SAUSAGE_RESTORE +
-                  WineProduction *  WINE_RESTORE +
-                  FishProduction * FISH_RESTORE;
-
-    Consumption := P.Stats.GetUnitQty(ut_Any) / 40; //On average unit eats each 40min
-    Balance := Production - Consumption;
-    Text := Format('Food balance: %.2f - %.2f = %.2f|', [Production, Consumption, Balance])
-          + Format('       Bread: min(F%.2f, M%.2f, B%.2f)|', [Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory])
-          + Format('    Sausages: min(F%.2f, S%.2f, B%.2f)|', [Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory])
-          + Format('  Food value: %.2f + %.2f + %.2f + %.2f|', [BreadProduction * BREAD_RESTORE, SausagesProduction * SAUSAGE_RESTORE, WineProduction * WINE_RESTORE, FishProduction * FISH_RESTORE]);
   end;
 
   //Weaponry
@@ -949,21 +867,93 @@ end;
 
 
 procedure TKMayor.UpdateBalanceMaterials;
+const
+  STONE_DEMAND = 10; //Average town needs 10 stone/minute
+  WOOD_DEMAND = 3.5; //Average town needs 4 wood/minute
 begin
   with fDemandMaterials do
   begin
     //Balance = Available - Required
-    QuaryBalance    := HouseCount(ht_Quary)       - 3;
-    WoodBalance     := HouseCount(ht_Woodcutters) - 4;
-    SawmillBalance  := HouseCount(ht_Sawmill)     - 2;
+    StoneBalance    := HouseCount(ht_Quary) * ProductionRate[rt_Stone] - STONE_DEMAND;
+    WoodcutTheory   := HouseCount(ht_Woodcutters) * ProductionRate[rt_Trunk];
+    SawmillTheory   := HouseCount(ht_Sawmill) * ProductionRate[rt_Wood];
+    WoodBalance     := Min(WoodcutTheory, SawmillTheory) - WOOD_DEMAND;
 
-    Balance := Min(QuaryBalance, WoodBalance, SawmillBalance);
-    Text := Format
-      ('Materials balance: %.2f (Quary %.2f, Wood %.2f, Sawmill %.2f)',
-      [Balance, QuaryBalance, WoodBalance, SawmillBalance]);
+    Balance := Min(StoneBalance, WoodBalance);
+    Text := Format('Materials balance: %.2f (Stone %.2f, Wood %.2f)', [Balance, StoneBalance, WoodBalance]);
   end;
 end;
 
+
+procedure TKMayor.UpdateBalanceFood;
+  procedure CornDistribution;
+  var
+    CornProductionRate, CornConsumptionRate: Single;
+  begin
+    CornProductionRate := HouseCount(ht_Farm) * ProductionRate[rt_Corn];
+    CornConsumptionRate := HouseCount(ht_Mill) * ProductionRate[rt_Flour]
+                         + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5
+                         + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 5;
+
+    if CornProductionRate >= CornConsumptionRate then
+    begin
+      //Let every industry think the extra belongs to it
+      fDemandFood.Bread.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Mill) * ProductionRate[rt_Flour]) * 2;
+      fDemandFood.Sausages.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 5) / 5 * 3;
+      fDemandWeaponry.WoodenArmor.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 5) / 5 * 2;
+      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate - CornConsumptionRate + HouseCount(ht_Stables) * ProductionRate[rt_Horse] * 5) / 5;
+    end
+    else
+    begin
+      //Share proportionaly
+      fDemandFood.Bread.FarmTheory := CornProductionRate / CornConsumptionRate * (HouseCount(ht_Mill) * ProductionRate[rt_Flour]) * 2;
+      fDemandFood.Sausages.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Pig]) / 5 * 3;
+      fDemandWeaponry.WoodenArmor.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Swine) * ProductionRate[rt_Skin] * 5) / 5 * 2;
+      fDemandWeaponry.Horse.FarmTheory := (CornProductionRate / CornConsumptionRate * HouseCount(ht_Stables) * ProductionRate[rt_Horse]) / 5;
+    end;
+  end;
+var
+  P: TKMPlayer;
+begin
+  P := fPlayers[fOwner];
+
+  CornDistribution;
+
+  with fDemandFood do
+  begin
+    //Bread
+    //Calculate how much bread each link could possibly produce
+    //Bread.FarmTheory calculated above
+    Bread.MillTheory := HouseCount(ht_Mill) * ProductionRate[rt_Flour] * 2;
+    Bread.BakeryTheory := HouseCount(ht_Bakery) * ProductionRate[rt_Bread];
+    //Actual production is minimum of the above
+    BreadProduction := Min(Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory);
+
+    //Sausages
+    //Calculate how many sausages each link could possibly produce
+    //Sausages.FarmTheory calculated above
+    Sausages.SwineTheory := HouseCount(ht_Swine) * ProductionRate[rt_Pig] * 3;
+    Sausages.ButchersTheory := HouseCount(ht_Butchers) * ProductionRate[rt_Sausages];
+    //Actual production is minimum of the above
+    SausagesProduction := Min(Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory);
+    //Wine, Fish
+    WineProduction := HouseCount(ht_Wineyard) * ProductionRate[rt_Wine];
+    FishProduction := HouseCount(ht_FisherHut) * ProductionRate[rt_Fish];
+
+    //Count in "food units per minute"
+    Production := BreadProduction * BREAD_RESTORE +
+                  SausagesProduction * SAUSAGE_RESTORE +
+                  WineProduction *  WINE_RESTORE +
+                  FishProduction * FISH_RESTORE;
+
+    Consumption := P.Stats.GetUnitQty(ut_Any) / 40; //On average unit eats each 40min
+    Balance := Production - Consumption;
+    Text := Format('Food balance: %.2f - %.2f = %.2f|', [Production, Consumption, Balance])
+          + Format('       Bread: min(F%.2f, M%.2f, B%.2f)|', [Bread.FarmTheory, Bread.MillTheory, Bread.BakeryTheory])
+          + Format('    Sausages: min(F%.2f, S%.2f, B%.2f)|', [Sausages.FarmTheory, Sausages.SwineTheory, Sausages.ButchersTheory])
+          + Format('  Food value: %.2f + %.2f + %.2f + %.2f|', [BreadProduction * BREAD_RESTORE, SausagesProduction * SAUSAGE_RESTORE, WineProduction * WINE_RESTORE, FishProduction * FISH_RESTORE]);
+  end;
+end;
 
 //Tell Mayor what proportions of army is needed
 procedure TKMayor.SetArmyDemand(FootmenDemand, PikemenDemand, HorsemenDemand, ArchersDemand: Single);

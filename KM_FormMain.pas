@@ -81,6 +81,7 @@ type
     chkShowAvoid: TCheckBox;
     tbAngleY: TTrackBar;
     Label4: TLabel;
+    chkShowBalance: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -132,6 +133,7 @@ type
     procedure chkShowForestClick(Sender: TObject);
     procedure chkShowAvoidClick(Sender: TObject);
     procedure tbAngleChange(Sender: TObject);
+    procedure chkShowBalanceClick(Sender: TObject);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -433,6 +435,12 @@ begin
 
   if (fPlayers <> nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
     MyPlayer := fPlayers[RGPlayer.ItemIndex];
+end;
+
+
+procedure TFormMain.chkShowBalanceClick(Sender: TObject);
+begin
+  SHOW_AI_WARE_BALANCE := chkShowBalance.Checked;
 end;
 
 

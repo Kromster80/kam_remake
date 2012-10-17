@@ -194,12 +194,12 @@ object FormMain: TFormMain
       Left = 8
       Top = 232
       Width = 185
-      Height = 105
+      Height = 121
       Caption = ' AI '
       TabOrder = 7
       object chkShowInfluence: TCheckBox
         Left = 8
-        Top = 16
+        Top = 63
         Width = 97
         Height = 17
         Caption = 'Show influences'
@@ -208,7 +208,7 @@ object FormMain: TFormMain
       end
       object chkShowNavMesh: TCheckBox
         Left = 8
-        Top = 64
+        Top = 80
         Width = 97
         Height = 17
         Caption = 'Show navmesh'
@@ -232,6 +232,15 @@ object FormMain: TFormMain
         Caption = 'Show avoid'
         TabOrder = 3
         OnClick = chkShowAvoidClick
+      end
+      object chkShowBalance: TCheckBox
+        Left = 8
+        Top = 16
+        Width = 97
+        Height = 17
+        Caption = 'Show AI balance'
+        TabOrder = 4
+        OnClick = chkShowBalanceClick
       end
     end
     object tbAngleY: TTrackBar

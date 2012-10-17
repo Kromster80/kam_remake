@@ -40,8 +40,6 @@ type
 
   TKMInfluences = class
   private
-    fMapX, fMapY: Word;
-
     procedure InitInfluenceAvoid;
     procedure InitInfluenceForest;
     procedure UpdateInfluenceMaps;
@@ -323,12 +321,8 @@ end;
 
 procedure TKMNavMesh.UpdateState(aTick: Cardinal);
 begin
-  //Maybe we recalculate Influences or navmesh sectors once in a while
-
-  if (aTick mod 60 = 0) then
-  begin
+  if aTick mod 600 = 0 then
     UpdateOwnership;
-  end;
 end;
 
 
@@ -443,13 +437,14 @@ end;
 
 
 procedure TKMInfluences.Init;
+var X,Y: Word;
 begin
-  fMapX := fTerrain.MapX;
-  fMapY := fTerrain.MapY;
-  SetLength(AvoidBuilding, fMapY, fMapX);
-  SetLength(Forest, fMapY, fMapX);
-  SetLength(Influence, fPlayers.Count, fMapY, fMapX);
-  SetLength(Ownership, fPlayers.Count, fMapY, fMapX);
+  X := fTerrain.MapX;
+  Y := fTerrain.MapY;
+  SetLength(AvoidBuilding, Y, X);
+  SetLength(Forest, Y, X);
+  SetLength(Influence, fPlayers.Count, Y, X);
+  SetLength(Ownership, fPlayers.Count, Y, X);
   InitInfluenceAvoid;
   InitInfluenceForest;
   UpdateInfluenceMaps;
@@ -511,13 +506,13 @@ begin
   if not AI_GEN_INFLUENCE_MAPS then Exit;
   Assert(fTerrain <> nil);
 
-  for I := 0 to fMapY - 1 do
-  for K := 0 to fMapX - 1 do
+  for I := 0 to fTerrain.MapY - 1 do
+  for K := 0 to fTerrain.MapX - 1 do
     Forest[I,K] := 0;
 
   //Update forest influence map
-  for I := 1 to fMapY - 1 do
-  for K := 1 to fMapX - 1 do
+  for I := 1 to fTerrain.MapY - 1 do
+  for K := 1 to fTerrain.MapX - 1 do
   if fTerrain.ObjectIsChopableTree(K,I) then
     DoFill(K,I);
 end;
@@ -921,7 +916,6 @@ end;
 procedure TKMAIFields.UpdateState(aTick: Cardinal);
 begin
   fInfluences.UpdateState(aTick);
-
   fNavMesh.UpdateState(aTick);
 end;
 
