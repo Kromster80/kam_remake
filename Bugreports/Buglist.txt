@@ -29,6 +29,7 @@
 	Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
 	If just one player cannot run the game smoothly MP will lag for everyone in his game. For example if you zoom out a lot you will get a poor frame rate and your game will run at < 10 ticks per second forcing other players down to that speed. The lagger's ping will not look any different. Maybe have a way to indicate to that player and the others on the server that he is causing the lag? Our planned 2x speed in MP will make this much worse as some computers will lag more.
 	Players can cause "tactical lag" by zooming out so their framerate drops and the game slows down for everyone. Dynamically limit zooming to maintain good framerate? Threaded rendering would probably solve this problem too since most of the time spent in rendering is non-critical (waiting for GPU so game updating can happen simultaneously)
+	If you halt your archers after they shoot they will shoot without reloading, increasing their firing speed. Add some kind of special pause before the first shot or after halting? Also applies to attacking houses.
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
@@ -43,6 +44,7 @@ Improvements:
  +      Map editor has speed slider along with size and slope
  +	If woodcutter is in "chop only" mode and he runs out of trees, send the player a message like other resource depleted messages
  +	Make hints more visible with background
+ +	Number of building materials delivered to an under construction house is shown when it is selected
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	L	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	L	The story message on campaign map should fade when you move mouse over it, without jumping
