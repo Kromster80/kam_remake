@@ -35,38 +35,54 @@ type
     procedure GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
     function EnemyPresence(aLoc: TKMpoint): Word;
     procedure UpdateState(aTick: Cardinal);
+    procedure Paint(aRect: TKMRect);
   end;
+
+  TKMInfluences = class
+  private
+    fMapX, fMapY: Word;
+
+    procedure InitInfluenceAvoid;
+    procedure InitInfluenceForest;
+    procedure UpdateInfluenceMaps;
+  public
+    //Common map of areas where building is undesired (around Store, Mines, Woodcutters)
+    AvoidBuilding: array of array of Byte;
+    //Areas of forests, needed only for initial Woodcutters placement and gets calculated once on mission start
+    Forest: array of array of Word;
+
+    Influence: array of array of array of Byte;
+    Ownership: array of array of array of SmallInt;
+    //Tension: array of array of array of SmallInt;
+
+    procedure AddAvoidBuilding(X,Y: Word; aRad: Byte);
+    function GetBestOwner(X, Y: Word): TPlayerIndex;
+    procedure Init;
+    procedure ExportInfluenceMaps;
+    procedure UpdateState(aTick: Cardinal);
+    procedure Paint(aRect: TKMRect);
+  end;
+
 
   //Influence maps, navmeshes, etc
   TKMAIFields = class
   private
-    fMapX, fMapY: Word;
-
     fRawOutlines: TKMShapesArray;
     fSimpleOutlines: TKMShapesArray;
     fRawMesh: TKMTriMesh;
 
     fNavMesh: TKMNavMesh;
+    fInfluences: TKMInfluences;
 
-    procedure InitInfluenceAvoid;
-    procedure InitInfluenceForest;
     procedure InitNavMesh;
-    procedure UpdateInfluenceMaps;
   public
-    AvoidBuilding: array of array of Byte;
-    Forest: array of array of Word;
-    InfluenceMap: array of array of array of Byte;
-    InfluenceMinMap: array of array of array of SmallInt;
-
     constructor Create;
     destructor Destroy; override;
 
     property NavMesh: TKMNavMesh read fNavMesh;
+    property Influences: TKMInfluences read fInfluences;
 
     procedure AfterMissionInit;
-    procedure AddAvoidBuilding(X,Y: Word; aRad: Byte);
-    function GetBestOwner(X, Y: Word): TPlayerIndex;
-    procedure ExportInfluenceMaps;
     procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
   end;
@@ -297,10 +313,10 @@ begin
   for I := 0 to fNodeCount - 1 do
     for K := 0 to fPlayers.Count - 1 do
       fNodes[I].Owner[K] := Min(255, Max(
-        Max(fAIFields.InfluenceMinMap[K, Max(fNodes[I].Loc.Y, 1), Max(fNodes[I].Loc.X, 1)],
-            fAIFields.InfluenceMinMap[K, Max(fNodes[I].Loc.Y, 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)]),
-        Max(fAIFields.InfluenceMinMap[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Max(fNodes[I].Loc.X, 1)],
-            fAIFields.InfluenceMinMap[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)])
+        Max(fAIFields.Influences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Max(fNodes[I].Loc.X, 1)],
+            fAIFields.Influences.Ownership[K, Max(fNodes[I].Loc.Y, 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)]),
+        Max(fAIFields.Influences.Ownership[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Max(fNodes[I].Loc.X, 1)],
+            fAIFields.Influences.Ownership[K, Min(fNodes[I].Loc.Y+1, fTerrain.MapY - 1), Min(fNodes[I].Loc.X+1, fTerrain.MapX - 1)])
             ));
 end;
 
@@ -316,18 +332,360 @@ begin
 end;
 
 
-{ TKMAIFields }
+//Render debug symbols
+procedure TKMNavMesh.Paint(aRect: TKMRect);
+var
+  I, K, J: Integer;
+  T1, T2: TKMPointF;
+  Col, Col2: Cardinal;
+  Sz: Single;
+  Outline: TKMWeightSegments;
+begin
+  if not AI_GEN_NAVMESH then Exit;
+
+  //NavMesh polys coverage
+  if OVERLAY_NAVMESH then
+    for I := 0 to fPolyCount - 1 do
+      fRenderAux.Triangle(
+        fNodes[fPolygons[I].Indices[0]].Loc.X,
+        fNodes[fPolygons[I].Indices[0]].Loc.Y,
+        fNodes[fPolygons[I].Indices[1]].Loc.X,
+        fNodes[fPolygons[I].Indices[1]].Loc.Y,
+        fNodes[fPolygons[I].Indices[2]].Loc.X,
+        fNodes[fPolygons[I].Indices[2]].Loc.Y, $60FF0000);
+
+  //NavMesh edges
+  if OVERLAY_NAVMESH then
+    for I := 0 to fPolyCount - 1 do
+    with fPolygons[I] do
+    for K := 0 to 2 do
+    begin
+      T1 := KMPointF(fNodes[Indices[K]].Loc);
+      J := (K + 1) mod 2;
+      T2 := KMPointF(fNodes[Indices[J]].Loc);
+      fRenderAux.Line(T1, T2, $FFFF8000, $F0F0);
+    end;
+
+  //NavMesh vertice ids
+  {if OVERLAY_NAVMESH then
+    for I := 0 to High(fVertices) do
+      fRenderAux.Text(fVertices[I].X,fVertices[I].Y, IntToStr(I), $FF000000); //}
+
+  {//Simplified obstacle outlines
+  if OVERLAY_NAVMESH then
+    for I := 0 to fSimpleOutlines.Count - 1 do
+    for K := 0 to fSimpleOutlines.Shape[I].Count - 1 do
+    with fSimpleOutlines.Shape[I] do
+      fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FF00FF00, $FF00);//}
+
+  //NavMesh influences
+  if OVERLAY_NAVMESH then
+    for I := 0 to fNodeCount - 1 do
+    begin
+      K := GetBestOwner(I);
+      if K <> PLAYER_NONE then
+      begin
+        Col := fPlayers[K].FlagColor or $FF000000;
+        Col2 := IfThen(fNodes[I].Owner[K] = 255, $FFFFFFFF);
+        Sz := Max(fNodes[I].Owner[K] - 128, 0) / 64;
+
+        fRenderAux.CircleOnTerrain(
+          fNodes[I].Loc.X,
+          fNodes[I].Loc.Y, Sz, Col, Col2);
+      end;
+    end;
+
+  //Defence outlines
+  if OVERLAY_NAVMESH then
+    for I := 0 to fPlayers.Count - 1 do
+    begin
+      GetDefenceOutline(I, Outline);
+      for K := 0 to High(Outline) do
+      begin
+        fRenderAux.Line(Outline[K].A, Outline[K].B, $FF00F0F0);
+        T1 := KMPointF(Outline[K].A);
+        T2 := KMPerpendecular(Outline[K].A, Outline[K].B);
+        fRenderAux.Line(T1, T2, $FF00F0F0);
+      end;
+    end;
+end;
+
+
+{ TKMInfluenceMaps }
+//Make the area around to be avoided by common houses
+procedure TKMInfluences.AddAvoidBuilding(X,Y: Word; aRad: Byte);
+var I,K: Integer;
+begin
+  for I := Max(Y - aRad, 1) to Min(Y + aRad, fTerrain.MapY - 1) do
+  for K := Max(X - aRad, 1) to Min(X + aRad, fTerrain.MapX - 1) do
+    if Sqr(X-K) + Sqr(Y-I) <= Sqr(aRAD) then
+      AvoidBuilding[I,K] := 255;
+end;
+
+
+
+
+//Return index of player who has most influence on this tile, or none
+function TKMInfluences.GetBestOwner(X, Y: Word): TPlayerIndex;
+var
+  I: Integer;
+  Best: Integer;
+begin
+  Best := 0;
+  Result := PLAYER_NONE;
+  for I := 0 to fPlayers.Count - 1 do
+  if Ownership[I,Y,X] > Best then
+  begin
+    Best := Ownership[I,Y,X];
+    Result := I;
+  end;
+end;
+
+
+procedure TKMInfluences.Init;
+begin
+  fMapX := fTerrain.MapX;
+  fMapY := fTerrain.MapY;
+  SetLength(AvoidBuilding, fMapY, fMapX);
+  SetLength(Forest, fMapY, fMapX);
+  SetLength(Influence, fPlayers.Count, fMapY, fMapX);
+  SetLength(Ownership, fPlayers.Count, fMapY, fMapX);
+  InitInfluenceAvoid;
+  InitInfluenceForest;
+  UpdateInfluenceMaps;
+end;
+
+
+//AI should avoid certain areas, keeping them for special houses
+procedure TKMInfluences.InitInfluenceAvoid;
+var
+  S: TKMHouse;
+  I, K, J: Integer;
+  Bmp: TBitmap;
+  M: Integer;
+  N: Integer;
+begin
+  //Avoid areas where Gold/Iron mines should be
+  for I := 1 to fTerrain.MapY - 1 do
+  for K := 1 to fTerrain.MapX - 1 do
+  if (fTerrain.TileIsIron(K, I) > 1) or (fTerrain.TileIsGold(K, I) > 1) then
+    for M := I to Min(I + 2, fTerrain.MapY - 1) do
+    for N := Max(K - 1, 1) to Min(K + 1, fTerrain.MapX - 1) do
+      AvoidBuilding[M, N] := 255;
+
+  //Avoid Coal fields
+  for I := 1 to fTerrain.MapY - 1 do
+  for K := 1 to fTerrain.MapX - 1 do
+   AvoidBuilding[I,K] := AvoidBuilding[I,K] or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
+
+  //Leave free space around all players Stores
+  for J := 0 to fPlayers.Count - 1 do
+  begin
+    S := fPlayers[J].FindHouse(ht_Store);
+    if S <> nil then
+    for I := Max(S.GetEntrance.Y - 4, 1) to Min(S.GetEntrance.Y + 3, fTerrain.MapY - 1) do
+    for K := Max(S.GetEntrance.X - 3, 1) to Min(S.GetEntrance.X + 3, fTerrain.MapX - 1) do
+      AvoidBuilding[I,K] := AvoidBuilding[I,K] or $FF;
+  end;
+end;
+
+
+procedure TKMInfluences.InitInfluenceForest;
+  procedure DoFill(X,Y: SmallInt);
+  const
+    //Each tree adds this weight lineary fading to forest map
+    TREE_WEIGHT = 8;
+  var
+    I,K: Integer;
+  begin
+    //Distribute tree weight lineary in TREE_WEIGHT radius
+    //loops are TREE_WEIGHT-1 because we skip 0 weight edges
+    for I := Max(Y - TREE_WEIGHT+1, 1) to Min(Y + TREE_WEIGHT-1, fTerrain.MapY - 1) do
+    for K := Max(X - TREE_WEIGHT+1, 1) to Min(X + TREE_WEIGHT-1, fTerrain.MapX - 1) do
+    if Abs(I-Y) + Abs(K-X) < TREE_WEIGHT then
+      Forest[I,K] := Forest[I,K] + TREE_WEIGHT - (Abs(I-Y) + Abs(K-X));
+  end;
+var
+  I, K: Integer;
+begin
+  if not AI_GEN_INFLUENCE_MAPS then Exit;
+  Assert(fTerrain <> nil);
+
+  for I := 0 to fMapY - 1 do
+  for K := 0 to fMapX - 1 do
+    Forest[I,K] := 0;
+
+  //Update forest influence map
+  for I := 1 to fMapY - 1 do
+  for K := 1 to fMapX - 1 do
+  if fTerrain.ObjectIsChopableTree(K,I) then
+    DoFill(K,I);
+end;
+
+
+procedure TKMInfluences.UpdateInfluenceMaps;
+var
+  J: Integer;
+
+  procedure DoFill(X,Y: Integer; V: Word);
+  begin
+    if  InRange(Y, 1, fTerrain.MapY - 1)
+    and InRange(X, 1, fTerrain.MapX - 1)
+    and (V > Influence[J, Y, X])
+    and (CanOwn in fTerrain.Land[Y,X].Passability) then
+    begin
+      Influence[J, Y, X] := V;
+      DoFill(X, Y-1, Max(V - INFLUENCE_DECAY, 0));
+      DoFill(X-1, Y, Max(V - INFLUENCE_DECAY, 0));
+      DoFill(X+1, Y, Max(V - INFLUENCE_DECAY, 0));
+      DoFill(X, Y+1, Max(V - INFLUENCE_DECAY, 0));
+      //We can get away with 4-tap fill, it looks fine already
+    end;
+  end;
+var
+  I, K, H: Integer;
+  L: Integer;
+  P: TKMPoint;
+begin
+  if not AI_GEN_INFLUENCE_MAPS then Exit;
+  Assert(fTerrain <> nil);
+
+  //Update direct influence maps
+  for J := 0 to fPlayers.Count - 1 do
+  begin
+    for I := 1 to fTerrain.MapY - 1 do
+    for K := 1 to fTerrain.MapX - 1 do
+      Influence[J, I, K] := 0;
+
+    //Sync tile ownership
+    for I := 0 to fPlayers[J].Houses.Count - 1 do
+    if fPlayers[J].Houses[I].HouseType <> ht_WatchTower then
+    begin
+      P := fPlayers[J].Houses[I].GetPosition;
+      Influence[J, P.Y, P.X] := 254;
+    end;
+
+    //Expand influence with faloff
+    for I := 1 to fTerrain.MapY - 1 do
+    for K := 1 to fTerrain.MapX - 1 do
+    if Influence[J, I, K] = 254 then
+      DoFill(K,I,Influence[J, I, K]+1);
+  end;
+
+  //Fill Ownership map
+  //Ownerhip = influence of player - influences of enemies
+  for J := 0 to fPlayers.Count - 1 do
+  begin
+    for I := 1 to fTerrain.MapY - 1 do
+    for K := 1 to fTerrain.MapX - 1 do
+    begin
+      if Influence[J, I, K] <> 0 then
+      begin
+        L := Influence[J, I, K];
+
+        for H := 0 to fPlayers.Count - 1 do
+        if (H <> J) and (fPlayers[J].Alliances[H] = at_Enemy) then
+          L := L - Influence[H, I, K] div 3;
+
+        Ownership[J, I, K] := Max(L, 0);
+      end
+      else
+        Ownership[J, I, K] := 0;
+    end;
+    //Normalization is not working as intended,
+    //it gives unfair advantage to one using it,
+    //muting neighbours areas beyond reason
+  end;
+end;
+
+
+procedure TKMInfluences.ExportInfluenceMaps;
+var
+  I, J, K: Integer;
+begin
+  for J := 0 to fPlayers.Count - 1 do
+  with TBitmap.Create do
+  begin
+    Width := fTerrain.MapX;
+    Height:= fTerrain.MapY;
+    PixelFormat := pf32bit;
+    for I := 0 to Height-1 do
+      for K := 0 to Width-1 do
+        Canvas.Pixels[K,I] := Influence[J, I, K];
+    SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
+  end;
+
+  for J := 0 to fPlayers.Count - 1 do
+  with TBitmap.Create do
+  begin
+    Width := fTerrain.MapX;
+    Height:= fTerrain.MapY;
+    PixelFormat := pf32bit;
+    for I := 0 to Height-1 do
+      for K := 0 to Width-1 do
+        Canvas.Pixels[K,I] := Influence[J, I, K];
+    SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
+  end;
+end;
+
+
+procedure TKMInfluences.UpdateState(aTick: Cardinal);
+begin
+  if aTick mod 600 = 0 then
+    UpdateInfluenceMaps;
+end;
+
+
+//Render debug symbols
+procedure TKMInfluences.Paint(aRect: TKMRect);
+var
+  I, K, J: Integer;
+  Col: Cardinal;
+begin
+  if not AI_GEN_INFLUENCE_MAPS then Exit;
+
+  if OVERLAY_INFLUENCES then
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+    begin
+      Col := $80000000;
+      J := GetBestOwner(K,I);
+      if J <> PLAYER_NONE then
+        Col := (fPlayers[J].FlagColor and $FFFFFF) or (Byte(Max(Ownership[J,I,K],0)) shl 24);
+      fRenderAux.Quad(K, I, Col);
+    end;
+
+  if OVERLAY_AVOID then
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+    begin
+      Col := AvoidBuilding[I,K] * 65793 or $80000000;
+      fRenderAux.Quad(K, I, Col);
+    end;
+
+  if OVERLAY_FOREST then
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+    begin
+      Col := Min(Forest[I,K] * 6, 255) * 65793 or $80000000;
+      fRenderAux.Quad(K, I, Col);
+    end;
+end;
+
+
 constructor TKMAIFields.Create;
 begin
   inherited;
 
   fNavMesh := TKMNavMesh.Create;
+  fInfluences := TKMInfluences.Create;
 end;
 
 
 destructor TKMAIFields.Destroy;
 begin
   FreeAndNil(fNavMesh);
+  FreeAndNil(fInfluences);
   inherited;
 end;
 
@@ -335,34 +693,13 @@ end;
 procedure TKMAIFields.AfterMissionInit;
 begin
   if AI_GEN_INFLUENCE_MAPS then
-  begin
-    fMapX := fTerrain.MapX;
-    fMapY := fTerrain.MapY;
-    SetLength(AvoidBuilding, fMapY, fMapX);
-    SetLength(Forest, fMapY, fMapX);
-    SetLength(InfluenceMap, fPlayers.Count, fMapY, fMapX);
-    SetLength(InfluenceMinMap, fPlayers.Count, fMapY, fMapX);
-    InitInfluenceAvoid;
-    InitInfluenceForest;
-    UpdateInfluenceMaps;
-  end;
+    fInfluences.Init;
 
   if AI_GEN_NAVMESH then
   begin
     InitNavMesh;
     fNavMesh.UpdateOwnership;
   end;
-end;
-
-
-//Make the area around to be avoided by common houses
-procedure TKMAIFields.AddAvoidBuilding(X,Y: Word; aRad: Byte);
-var I,K: Integer;
-begin
-  for I := Max(Y - aRad, 1) to Min(Y + aRad, fTerrain.MapY - 1) do
-  for K := Max(X - aRad, 1) to Min(X + aRad, fTerrain.MapX - 1) do
-    if Sqr(X-K) + Sqr(Y-I) <= Sqr(aRAD) then
-      AvoidBuilding[I,K] := 255;
 end;
 
 
@@ -581,199 +918,9 @@ begin
 end;
 
 
-//Return index of player who has most influence on this tile, or none
-function TKMAIFields.GetBestOwner(X, Y: Word): TPlayerIndex;
-var
-  I: Integer;
-  Best: Integer;
-begin
-  Best := 0;
-  Result := PLAYER_NONE;
-  for I := 0 to fPlayers.Count - 1 do
-  if InfluenceMinMap[I,Y,X] > Best then
-  begin
-    Best := InfluenceMinMap[I,Y,X];
-    Result := I;
-  end;
-end;
-
-
-//AI should avoid certain areas, keeping them for special houses
-procedure TKMAIFields.InitInfluenceAvoid;
-var
-  S: TKMHouse;
-  I, K, J: Integer;
-  Bmp: TBitmap;
-  M: Integer;
-  N: Integer;
-begin
-  //Avoid areas where Gold/Iron mines should be
-  for I := 1 to fTerrain.MapY - 1 do
-  for K := 1 to fTerrain.MapX - 1 do
-  if (fTerrain.TileIsIron(K, I) > 1) or (fTerrain.TileIsGold(K, I) > 1) then
-    for M := I to Min(I + 2, fTerrain.MapY - 1) do
-    for N := Max(K - 1, 1) to Min(K + 1, fTerrain.MapX - 1) do
-      AvoidBuilding[M, N] := 255;
-
-  //Avoid Coal fields
-  for I := 1 to fTerrain.MapY - 1 do
-  for K := 1 to fTerrain.MapX - 1 do
-   AvoidBuilding[I,K] := AvoidBuilding[I,K] or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
-
-  //Leave free space around all players Stores
-  for J := 0 to fPlayers.Count - 1 do
-  begin
-    S := fPlayers[J].FindHouse(ht_Store);
-    if S <> nil then
-    for I := Max(S.GetEntrance.Y - 4, 1) to Min(S.GetEntrance.Y + 3, fTerrain.MapY - 1) do
-    for K := Max(S.GetEntrance.X - 3, 1) to Min(S.GetEntrance.X + 3, fTerrain.MapX - 1) do
-      AvoidBuilding[I,K] := AvoidBuilding[I,K] or $FF;
-  end;
-end;
-
-
-procedure TKMAIFields.InitInfluenceForest;
-  procedure DoFill(X,Y: SmallInt);
-  const
-    //Each tree adds this weight lineary fading to forest map
-    TREE_WEIGHT = 8;
-  var
-    I,K: Integer;
-  begin
-    //Distribute tree weight lineary in TREE_WEIGHT radius
-    //loops are TREE_WEIGHT-1 because we skip 0 weight edges
-    for I := Max(Y - TREE_WEIGHT+1, 1) to Min(Y + TREE_WEIGHT-1, fTerrain.MapY - 1) do
-    for K := Max(X - TREE_WEIGHT+1, 1) to Min(X + TREE_WEIGHT-1, fTerrain.MapX - 1) do
-    if Abs(I-Y) + Abs(K-X) < TREE_WEIGHT then
-      Forest[I,K] := Forest[I,K] + TREE_WEIGHT - (Abs(I-Y) + Abs(K-X));
-  end;
-var
-  I, K: Integer;
-begin
-  if not AI_GEN_INFLUENCE_MAPS then Exit;
-  Assert(fTerrain <> nil);
-
-  for I := 0 to fMapY - 1 do
-  for K := 0 to fMapX - 1 do
-    Forest[I,K] := 0;
-
-  //Update forest influence map
-  for I := 1 to fMapY - 1 do
-  for K := 1 to fMapX - 1 do
-  if fTerrain.ObjectIsChopableTree(K,I) then
-    DoFill(K,I);
-end;
-
-
-procedure TKMAIFields.UpdateInfluenceMaps;
-var
-  J: Integer;
-  procedure DoFill(X,Y: Integer; V: Word);
-  begin
-    if  InRange(Y, 1, fTerrain.MapY - 1)
-    and InRange(X, 1, fTerrain.MapX - 1)
-    and (V > InfluenceMap[J, Y, X])
-    and (CanOwn in fTerrain.Land[Y,X].Passability) then
-    begin
-      InfluenceMap[J, Y, X] := V;
-      DoFill(X, Y-1, Max(V - INFLUENCE_DECAY, 0));
-      DoFill(X-1, Y, Max(V - INFLUENCE_DECAY, 0));
-      DoFill(X+1, Y, Max(V - INFLUENCE_DECAY, 0));
-      DoFill(X, Y+1, Max(V - INFLUENCE_DECAY, 0));
-      //We can get away with 4-tap fill, it looks fine already
-    end;
-  end;
-var
-  I, K, H: Integer;
-  L: Integer;
-  P: TKMPoint;
-begin
-  if not AI_GEN_INFLUENCE_MAPS then Exit;
-  Assert(fTerrain <> nil);
-
-  //Update direct influence maps
-  for J := 0 to fPlayers.Count - 1 do
-  begin
-    for I := 1 to fTerrain.MapY - 1 do
-    for K := 1 to fTerrain.MapX - 1 do
-      InfluenceMap[J, I, K] := 0;
-
-    //Sync tile ownership
-    for I := 0 to fPlayers[J].Houses.Count - 1 do
-    if fPlayers[J].Houses[I].HouseType <> ht_WatchTower then
-    begin
-      P := fPlayers[J].Houses[I].GetPosition;
-      InfluenceMap[J, P.Y, P.X] := 254;
-    end;
-
-    //Expand influence with faloff
-    for I := 1 to fTerrain.MapY - 1 do
-    for K := 1 to fTerrain.MapX - 1 do
-    if InfluenceMap[J, I, K] = 254 then
-      DoFill(K,I,InfluenceMap[J, I, K]+1);
-  end;
-
-  for J := 0 to fPlayers.Count - 1 do
-  begin
-    for I := 1 to fTerrain.MapY - 1 do
-    for K := 1 to fTerrain.MapX - 1 do
-    begin
-      if InfluenceMap[J, I, K] <> 0 then
-      begin
-        L := InfluenceMap[J, I, K];
-
-        for H := 0 to fPlayers.Count - 1 do
-        if (H <> J) and (fPlayers.CheckAlliance(J, H) = at_Enemy) then
-          L := L - InfluenceMap[H, I, K] div 3;
-
-        InfluenceMinMap[J, I, K] := Max(L, 0);
-      end
-      else
-        InfluenceMinMap[J, I, K] := 0;
-    end;
-    //Normalization is not working as intended,
-    //it gives unfair advantage to one using it,
-    //muting neighbours areas beyond reason
-  end;
-end;
-
-
-procedure TKMAIFields.ExportInfluenceMaps;
-var
-  I, J, K: Integer;
-begin
-  for J := 0 to fPlayers.Count - 1 do
-  with TBitmap.Create do
-  begin
-    Width := fTerrain.MapX;
-    Height:= fTerrain.MapY;
-    PixelFormat := pf32bit;
-    for I := 0 to Height-1 do
-      for K := 0 to Width-1 do
-        Canvas.Pixels[K,I] := InfluenceMap[J, I, K];
-    SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
-  end;
-
-  for J := 0 to fPlayers.Count - 1 do
-  with TBitmap.Create do
-  begin
-    Width := fTerrain.MapX;
-    Height:= fTerrain.MapY;
-    PixelFormat := pf32bit;
-    for I := 0 to Height-1 do
-      for K := 0 to Width-1 do
-        Canvas.Pixels[K,I] := InfluenceMap[J, I, K];
-    SaveToFile(ExeDir + 'Export\Influence map Player'+IntToStr(J) + '.bmp');
-  end;
-end;
-
-
 procedure TKMAIFields.UpdateState(aTick: Cardinal);
 begin
-  //Maybe we recalculate Influences or navmesh sectors once in a while
-
-  if aTick mod 600 = 0 then
-    UpdateInfluenceMaps;
+  fInfluences.UpdateState(aTick);
 
   fNavMesh.UpdateState(aTick);
 end;
@@ -782,119 +929,20 @@ end;
 //Render debug symbols
 procedure TKMAIFields.Paint(aRect: TKMRect);
 var
-  I, K, J: Integer;
-  T1, T2: TKMPointF;
-  Col, Col2: Cardinal;
-  Sz: Single;
-  Outline: TKMWeightSegments;
+  I, K: Integer;
 begin
   if AI_GEN_INFLUENCE_MAPS then
-  begin
-
-    if OVERLAY_INFLUENCES then
-      for I := aRect.Top to aRect.Bottom do
-      for K := aRect.Left to aRect.Right do
-      begin
-        Col := $80000000;
-        J := GetBestOwner(K,I);
-        if J <> PLAYER_NONE then
-          Col := (fPlayers[J].FlagColor and $FFFFFF) or (Byte(Max(InfluenceMinMap[J,I,K],0)) shl 24);
-        fRenderAux.Quad(K, I, Col);
-      end;
-
-    if OVERLAY_AVOID then
-      for I := aRect.Top to aRect.Bottom do
-      for K := aRect.Left to aRect.Right do
-      begin
-        Col := AvoidBuilding[I,K] * 65793 or $80000000;
-        fRenderAux.Quad(K, I, Col);
-      end;
-
-    if OVERLAY_FOREST then
-      for I := aRect.Top to aRect.Bottom do
-      for K := aRect.Left to aRect.Right do
-      begin
-        Col := Min(Forest[I,K] * 6, 255) * 65793 or $80000000;
-        fRenderAux.Quad(K, I, Col);
-      end;
-  end;
+    fInfluences.Paint(aRect);
 
   //Raw obstacle outlines
-  if AI_GEN_NAVMESH and OVERLAY_NAVMESH then
+  if OVERLAY_NAVMESH then
     for I := 0 to fRawOutlines.Count - 1 do
     for K := 0 to fRawOutlines.Shape[I].Count - 1 do
     with fRawOutlines.Shape[I] do
       fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FFFF00FF);
 
-  //NavMesh polys coverage
   if AI_GEN_NAVMESH then
-  begin
-
-    if OVERLAY_NAVMESH then
-      for I := 0 to fNavMesh.fPolyCount - 1 do
-        fRenderAux.Triangle(
-          fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[0]].Loc.X,
-          fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[0]].Loc.Y,
-          fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[1]].Loc.X,
-          fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[1]].Loc.Y,
-          fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[2]].Loc.X,
-          fNavMesh.fNodes[fNavMesh.fPolygons[I].Indices[2]].Loc.Y, $60FF0000);
-
-    //NavMesh edges
-    if OVERLAY_NAVMESH then
-      for I := 0 to fNavMesh.fPolyCount - 1 do
-      with fNavMesh.fPolygons[I] do
-      for K := 0 to 2 do
-      begin
-        T1 := KMPointF(fNavMesh.fNodes[Indices[K]].Loc);
-        J := (K + 1) mod 2;
-        T2 := KMPointF(fNavMesh.fNodes[Indices[J]].Loc);
-        fRenderAux.Line(T1, T2, $FFFF8000, $F0F0);
-      end;
-
-    //NavMesh vertice ids
-    {if OVERLAY_NAVMESH then
-      for I := 0 to High(fNavMesh.fVertices) do
-        fRenderAux.Text(fNavMesh.fVertices[I].X,fNavMesh.fVertices[I].Y, IntToStr(I), $FF000000); //}
-
-    {//Simplified obstacle outlines
-    if OVERLAY_NAVMESH then
-      for I := 0 to fSimpleOutlines.Count - 1 do
-      for K := 0 to fSimpleOutlines.Shape[I].Count - 1 do
-      with fSimpleOutlines.Shape[I] do
-        fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FF00FF00, $FF00);//}
-
-    //NavMesh influences
-    if OVERLAY_NAVMESH then
-      for I := 0 to fNavMesh.fNodeCount - 1 do
-      begin
-        K := fNavMesh.GetBestOwner(I);
-        if K <> PLAYER_NONE then
-        begin
-          Col := fPlayers[K].FlagColor or $FF000000;
-          Col2 := IfThen(fNavMesh.fNodes[I].Owner[K] = 255, $FFFFFFFF);
-          Sz := Max(fNavMesh.fNodes[I].Owner[K] - 128, 0) / 64;
-
-          fRenderAux.CircleOnTerrain(
-            fNavMesh.fNodes[I].Loc.X,
-            fNavMesh.fNodes[I].Loc.Y, Sz, Col, Col2);
-        end;
-      end;
-
-    //Defence outlines
-    if OVERLAY_NAVMESH then
-      for I := 0 to fPlayers.Count - 1 do
-      begin
-        fNavMesh.GetDefenceOutline(I, Outline);
-        for K := 0 to High(Outline) do
-        begin
-          fRenderAux.Line(Outline[K].A, Outline[K].B, $FF00F0F0);
-          T1 := KMPointF(Outline[K].A);
-          T2 := KMPerpendecular(Outline[K].A, Outline[K].B);
-          fRenderAux.Line(T1, T2, $FF00F0F0);
-        end;
-      end;
-  end;
+    fNavMesh.Paint(aRect);
 end;
 
 

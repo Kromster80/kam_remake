@@ -387,7 +387,7 @@ begin
 
   //Block any buildings nearby
   if aHouse = ht_Woodcutters then
-    fAIFields.AddAvoidBuilding(Loc.X-1, Loc.Y, WOOD_RAD); //X-1 because entrance is on right
+    fAIFields.Influences.AddAvoidBuilding(Loc.X-1, Loc.Y, WOOD_RAD); //X-1 because entrance is on right
 
   //Build more roads around 2nd Store
   if aHouse = ht_Store then

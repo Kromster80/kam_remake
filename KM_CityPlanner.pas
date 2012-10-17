@@ -158,7 +158,7 @@ begin
 
   for I := Max(TargetLoc.Y - 5, 1) to Min(TargetLoc.Y + 6, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - 7, 1) to Min(TargetLoc.X + 7, fTerrain.MapX - 1) do
-  if fAIFields.AvoidBuilding[I,K] = 0 then
+  if fAIFields.Influences.AvoidBuilding[I,K] = 0 then
   if CanPlaceHouse(aHouse, K, I) then
     begin
       Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 4;
@@ -197,8 +197,8 @@ begin
   for K := Max(TargetLoc.X - RAD, 1) to Min(TargetLoc.X + RAD, fTerrain.MapX - 1) do
     if P.CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := KMLengthDiag(KMPoint(K,I), TargetLoc) - fAIFields.InfluenceMinMap[fOwner,I,K] + KaMRandom * 5;
-      if (Bid < BestBid) and (fAIFields.GetBestOwner(K,I) = fOwner) then
+      Bid := KMLengthDiag(KMPoint(K,I), TargetLoc) - fAIFields.Influences.Ownership[fOwner,I,K] + KaMRandom * 5;
+      if (Bid < BestBid) and (fAIFields.Influences.GetBestOwner(K,I) = fOwner) then
       begin
         aLoc := KMPoint(K,I);
         BestBid := Bid;
@@ -229,11 +229,11 @@ begin
 
   for I := StoneLoc.Loc.Y to Min(StoneLoc.Loc.Y + 5, fTerrain.MapY - 1) do
   for K := Max(StoneLoc.Loc.X - 5, 1) to Min(StoneLoc.Loc.X + 5, fTerrain.MapX - 1) do
-  if fAIFields.AvoidBuilding[I,K] = 0 then
-    if (fAIFields.GetBestOwner(K,I) = fOwner)
+  if fAIFields.Influences.AvoidBuilding[I,K] = 0 then
+    if (fAIFields.Influences.GetBestOwner(K,I) = fOwner)
     and fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := KMLength(KMPoint(K,I), StoreLoc) - fAIFields.InfluenceMinMap[fOwner,I,K] + KaMRandom * 4;
+      Bid := KMLength(KMPoint(K,I), StoreLoc) - fAIFields.Influences.Ownership[fOwner,I,K] + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -299,9 +299,9 @@ begin
   BestBid := 0;
   for I := Max(StoreLoc.Y - SEARCH_RAD, 1) to Min(StoreLoc.Y + SEARCH_RAD, fTerrain.MapY - 1) do
   for K := Max(StoreLoc.X - SEARCH_RAD, 1) to Min(StoreLoc.X + SEARCH_RAD, fTerrain.MapX - 1) do
-  if fAIFields.AvoidBuilding[I,K] = 0 then
+  if fAIFields.Influences.AvoidBuilding[I,K] = 0 then
   begin
-    Bid := fAIFields.Forest[I,K] + KaMRandom * 6; //Add some noise for varied results
+    Bid := fAIFields.Influences.Forest[I,K] + KaMRandom * 6; //Add some noise for varied results
     if Bid > BestBid then
     begin
       TreeLoc := KMPoint(K, I);
@@ -312,8 +312,8 @@ begin
   BestBid := MaxSingle;
   for I := Max(TreeLoc.Y - HUT_RAD, 1) to Min(TreeLoc.Y + HUT_RAD, fTerrain.MapY - 1) do
   for K := Max(TreeLoc.X - HUT_RAD, 1) to Min(TreeLoc.X + HUT_RAD, fTerrain.MapX - 1) do
-  if fAIFields.AvoidBuilding[I,K] = 0 then
-    if (fAIFields.GetBestOwner(K, I) = fOwner)
+  if fAIFields.Influences.AvoidBuilding[I,K] = 0 then
+    if (fAIFields.Influences.GetBestOwner(K, I) = fOwner)
     and fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin
       Bid := KMLength(KMPoint(K,I), StoreLoc) + KaMRandom * 5;
@@ -385,7 +385,7 @@ begin
   Result := False;
 
   //Don't build on allies and/or enemies territory
-  P := fAIFields.GetBestOwner(X,Y);
+  P := fAIFields.Influences.GetBestOwner(X,Y);
   if (P <> fOwner) and (P <> PLAYER_NONE) then Exit;
 
   Result := True;

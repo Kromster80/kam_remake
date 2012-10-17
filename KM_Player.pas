@@ -461,7 +461,7 @@ begin
     Result := Result and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
 
     //Check if tile's blocked
-    Result := Result and (aIgnoreInfluence or not AI_GEN_INFLUENCE_MAPS or (fAIFields.AvoidBuilding[Ty, Tx] = 0));
+    Result := Result and (aIgnoreInfluence or not AI_GEN_INFLUENCE_MAPS or (fAIFields.Influences.AvoidBuilding[Ty, Tx] = 0));
 
     //Make sure we can add road below house, full width + 1 on each side
     if (I = 4) then
