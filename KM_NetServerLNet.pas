@@ -102,6 +102,7 @@ begin
   inc(fLastTag);
   aSocket.UserData := Pointer(fLastTag);
   fOnClientConnect(fLastTag);
+  aSocket.SetState(ssNoDelay, True); //Send packets ASAP (disables Nagle's algorithm)
 end;
 
 

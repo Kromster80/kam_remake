@@ -66,6 +66,7 @@ procedure TKMNetServerOverbyte.StartListening(aPort:string);
 begin
   FreeAndNil(fSocketServer);
   fSocketServer := TWSocketServer.Create(nil);
+  fSocketServer.ComponentOptions := [wsoTcpNoDelay]; //Send packets ASAP (disables Nagle's algorithm)
   fSocketServer.Proto  := 'tcp';
   fSocketServer.Addr   := '0.0.0.0'; //Listen to whole range
   fSocketServer.Port   := aPort; //todo: Somewhere along the hierarchy we might want to set aPort to be Word
@@ -74,6 +75,7 @@ begin
   fSocketServer.OnClientDisconnect := ClientDisconnect;
   fSocketServer.OnDataAvailable := DataAvailable;
   fSocketServer.Listen;
+  fSocketServer.SetTcpNoDelayOption; //Send packets ASAP (disables Nagle's algorithm)
 end;
 
 
@@ -100,6 +102,8 @@ begin
   Client.Tag := fLastTag;
 
   Client.OnDataAvailable := DataAvailable;
+  Client.ComponentOptions := [wsoTcpNoDelay]; //Send packets ASAP (disables Nagle's algorithm)
+  Client.SetTcpNoDelayOption;
   fOnClientConnect(Client.Tag);
 end;
 

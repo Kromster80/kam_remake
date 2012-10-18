@@ -67,6 +67,7 @@ procedure TKMNetClientOverbyte.ConnectTo(const aAddress:string; const aPort:stri
 begin
   FreeAndNil(fSocket);
   fSocket := TWSocket.Create(nil);
+  fSocket.ComponentOptions := [wsoTcpNoDelay]; //Send packets ASAP (disables Nagle's algorithm)
   fSocket.Proto     := 'tcp';
   fSocket.Addr      := aAddress;
   fSocket.Port      := aPort;
@@ -104,7 +105,10 @@ begin
   if Error <> 0 then
     fOnConnectFailed('Error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')')
   else
+  begin
     fOnConnectSucceed(Self);
+    fSocket.SetTcpNoDelayOption; //Send packets ASAP (disables Nagle's algorithm)
+  end;
 end;
 
 

@@ -99,6 +99,7 @@ end;
 procedure TKMNetClientLNet.Connected(aSocket: TLSocket);
 begin
   fOnConnectSucceed(Self);
+  aSocket.SetState(ssNoDelay, True); //Send packets ASAP (disables Nagle's algorithm)
 end;
 
 
