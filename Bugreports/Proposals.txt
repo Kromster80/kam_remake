@@ -29,6 +29,8 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	L	Add a way to feed only <30% hungry units
 		Switch beacon from B to more convenient Alt+Click as in other RTS?
 
+		In-game player list should show who is defeated (shown seperately to who is disconnected which is already shown by strikethrough)
+
 REJECTED:
  -	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
 		not sure about this one. Probably ruins balance and feel of KaM
