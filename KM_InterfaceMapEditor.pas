@@ -92,6 +92,7 @@ type
       Label_Passability:TKMLabel;
       Button_PlayerSelect:array[0..MAX_PLAYERS-1]of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint:TKMLabel;
+      Bevel_HintBG: TKMBevel;
       Label_MatAmount: TKMLabel;
       Shape_MatAmount: TKMShape;
       Label_DefenceID: TKMLabel;
@@ -469,8 +470,17 @@ procedure TKMapEdInterface.DisplayHint(Sender: TObject);
 begin
   if (fPrevHint = Sender) then exit; //Hint didn't changed
 
-  if Sender=nil then Label_Hint.Caption:=''
-                else Label_Hint.Caption:=TKMControl(Sender).Hint;
+  if (Sender=nil) or (TKMControl(Sender).Hint = '') then
+  begin
+    Label_Hint.Caption := '';
+    Bevel_HintBG.Hide;
+  end
+  else
+  begin
+    Label_Hint.Caption := TKMControl(Sender).Hint;
+    Bevel_HintBG.Show;
+    Bevel_HintBG.Width := 8+fResource.ResourceFont.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
+  end;
 
   fPrevHint := Sender;
 end;
@@ -532,7 +542,12 @@ begin
       Button_PlayerSelect[I].OnClick := Player_ChangeActive;
     end;
 
-    Label_Hint := TKMLabel.Create(Panel_Main, 224 + 38, Panel_Main.Height - 16, 0, 0, '', fnt_Outline, taLeft);
+    Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
+    Bevel_HintBG.BackAlpha := 0.5;
+    Bevel_HintBG.Hide;
+    Bevel_HintBG.Anchors := [akLeft, akBottom];
+
+    Label_Hint := TKMLabel.Create(Panel_Main, 224 + 36, Panel_Main.Height - 21, 0, 0, '', fnt_Outline, taLeft);
     Label_Hint.Anchors := [akLeft, akBottom];
 
   Panel_Common := TKMPanel.Create(Panel_Main,0,255,224,768);
@@ -2185,7 +2200,9 @@ begin
   begin
     GameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
     Exit;
-  end;
+  end
+  else
+    DisplayHint(nil); //Clear shown hint
 
   fGame.UpdateGameCursor(X,Y,Shift);
   if GameCursor.Mode = cm_None then
