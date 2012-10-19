@@ -1532,17 +1532,13 @@ begin
 
     HealthBar_House := TKMPercentBar.Create(Panel_House,129,57,55,15);
     Label_House_UnderConstruction := TKMLabel.Create(Panel_House,100,110,184,100,fTextLibrary[TX_HOUSE_UNDER_CONSTRUCTION],fnt_Grey,taCenter);
-    {Image_HouseConstructionWood  := TKMImage.Create(Panel_House,8,170,18,18,fResource.Resources[rt_Wood].GUIIcon);
-    Image_HouseConstructionStone := TKMImage.Create(Panel_House,8,200,18,18,fResource.Resources[rt_Stone].GUIIcon);
-    Label_HouseConstructionWood  := TKMLabel.Create(Panel_House,32,170,160,22,fResource.Resources[rt_Wood].Title,fnt_Grey,taLeft);
-    Label_HouseConstructionStone := TKMLabel.Create(Panel_House,32,200,160,22,fResource.Resources[rt_Stone].Title,fnt_Grey,taLeft);}
 
     Image_HouseConstructionWood  := TKMImage.Create(Panel_House,50,170,40,40,655);
     Image_HouseConstructionWood.ImageCenter;
     Image_HouseConstructionStone := TKMImage.Create(Panel_House,110,170,40,40,654);
     Image_HouseConstructionStone.ImageCenter;
-    Label_HouseConstructionWood  := TKMLabel.Create(Panel_House,70,215,60,22,fResource.Resources[rt_Wood].Title,fnt_Grey,taCenter);
-    Label_HouseConstructionStone := TKMLabel.Create(Panel_House,130,215,60,22,fResource.Resources[rt_Stone].Title,fnt_Grey,taCenter);
+    Label_HouseConstructionWood  := TKMLabel.Create(Panel_House,70,210,60,22,fResource.Resources[rt_Wood].Title,fnt_Grey,taCenter);
+    Label_HouseConstructionStone := TKMLabel.Create(Panel_House,130,210,60,22,fResource.Resources[rt_Stone].Title,fnt_Grey,taCenter);
 
     Label_House_Demolish := TKMLabel.Create(Panel_House,100,130,184,55,fTextLibrary[TX_HOUSE_DEMOLISH],fnt_Grey,taCenter);
     Label_House_Demolish.AutoWrap := True;
@@ -1987,8 +1983,6 @@ begin
     Image_HouseConstructionStone.Show;
     Label_HouseConstructionWood.Show;
     Label_HouseConstructionStone.Show;
-    //Label_HouseConstructionWood.Caption := fResource.Resources[rt_Wood].Title+': '+IntToStr(Sender.GetBuildWoodDelivered)+' / '+IntToStr(fResource.HouseDat[Sender.HouseType].WoodCost);
-    //Label_HouseConstructionStone.Caption := fResource.Resources[rt_Stone].Title+': '+IntToStr(Sender.GetBuildStoneDelivered)+' / '+IntToStr(fResource.HouseDat[Sender.HouseType].StoneCost);
     Label_HouseConstructionWood.Caption := IntToStr(Sender.GetBuildWoodDelivered)+' / '+IntToStr(fResource.HouseDat[Sender.HouseType].WoodCost);
     Label_HouseConstructionStone.Caption := IntToStr(Sender.GetBuildStoneDelivered)+' / '+IntToStr(fResource.HouseDat[Sender.HouseType].StoneCost);
     Label_House.Show;
