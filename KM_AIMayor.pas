@@ -729,10 +729,8 @@ procedure TKMayor.UpdateBalance;
     end;
   end;
 var
-  P: TKMPlayer;
   S: string;
 begin
-  P := fPlayers[fOwner];
 
   UpdateBalanceCore;
   UpdateBalanceMaterials;

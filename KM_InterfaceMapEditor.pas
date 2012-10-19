@@ -37,6 +37,7 @@ type
     procedure Create_Store_Page;
     procedure Create_Barracks_Page;
     procedure Create_Markers_Page;
+    procedure Create_FormationsPopUp;
 
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
@@ -80,6 +81,8 @@ type
     procedure Mission_PlayerTypesChange(Sender: TObject);
     procedure View_Passability(Sender: TObject);
     procedure Marker_Change(Sender: TObject);
+    procedure Formations_Show(Sender: TObject);
+    procedure Formations_Close(Sender: TObject);
 
     function GetSelectedTile: TObject;
     function GetSelectedObject: TObject;
@@ -125,6 +128,10 @@ type
         ObjectsTable:array[0..8] of TKMButtonFlat;
         ObjectsScroll:TKMScrollBar;
 
+    //todo: How to know where certain page should be?
+    //Village - panels that will become mostly obsolete in a battle mission?
+    //Player - panels that make sense both in town and battle mode?
+
     Panel_Village: TKMPanel;
       Button_Village: array [TKMVillageTab] of TKMButton;
       Panel_Build: TKMPanel;
@@ -140,7 +147,15 @@ type
         TrackBar_SerfFactor: TKMTrackBar;
         TrackBar_WorkerFactor: TKMTrackBar;
       Panel_Defence: TKMPanel;
+        Button_EditFormations: TKMButton;
         List_Defences: TKMListBox;
+
+    Panel_Formations: TKMPanel;
+      Image_FormationsFlag: TKMImage;
+      NumEdit_FormationsCount,
+      NumEdit_FormationsColumns: array [TGroupType] of TKMNumericEdit;
+      Button_Formations_Ok: TKMButton;
+      Button_Formations_Cancel: TKMButton;
 
     Panel_Player:TKMPanel;
       Button_Player:array[1..4]of TKMButton;
@@ -303,20 +318,22 @@ begin
           TKMPanel(Panel_Common.Childs[I]).Childs[K].Hide;
     end;
 
-  if (Sender = Button_Main[1])or(Sender = Button_Terrain[1]) then begin
+  if (Sender = Button_Main[1]) or (Sender = Button_Terrain[1]) then begin
     Panel_Terrain.Show;
     Panel_Brushes.Show;
     Label_MenuTitle.Caption:='Terrain - Brushes';
   end else
 
-  if (Sender = Button_Main[1])or(Sender = Button_Terrain[2]) then begin
+  if (Sender = Button_Terrain[2]) then
+  begin
     Panel_Terrain.Show;
     Panel_Heights.Show;
     Label_MenuTitle.Caption:='Terrain - Heights';
     Terrain_HeightChange(HeightElevate); //Select the default mode
   end else
 
-  if (Sender = Button_Main[1])or(Sender = Button_Terrain[3]) then begin
+  if (Sender = Button_Terrain[3]) then
+  begin
     Panel_Terrain.Show;
     Panel_Tiles.Show;
     Label_MenuTitle.Caption:='Terrain - Tiles';
@@ -324,7 +341,8 @@ begin
     Terrain_TilesChange(GetSelectedTile);
   end else
 
-  if (Sender = Button_Main[1])or(Sender = Button_Terrain[4]) then begin
+  if (Sender = Button_Terrain[4]) then
+  begin
     Panel_Terrain.Show;
     Panel_Objects.Show;
     Label_MenuTitle.Caption:='Terrain - Objects';
@@ -362,104 +380,122 @@ begin
     Panel_Village.Show;
     Panel_Defence.Show;
     Label_MenuTitle.Caption := 'Village - Defences';
-  end
-  else
-  if (Sender = Button_Main[3])or(Sender = Button_Player[1]) then begin
+  end else
+
+  if (Sender = Button_Main[3])or(Sender = Button_Player[1]) then
+  begin
     Panel_Player.Show;
     Panel_Goals.Show;
     Label_MenuTitle.Caption:='Player - Goals';
   end else
 
-  if (Sender = Button_Main[3])or(Sender = Button_Player[2]) then begin
+  if (Sender = Button_Player[2]) then
+  begin
     Panel_Player.Show;
     Panel_Color.Show;
     Label_MenuTitle.Caption:='Player - Color';
   end else
 
-  if (Sender = Button_Main[3])or(Sender = Button_Player[3]) then begin
+  if (Sender = Button_Player[3]) then
+  begin
     Player_BlockRefresh;
     Panel_Player.Show;
     Panel_Block.Show;
     Label_MenuTitle.Caption:='Player - Block houses';
   end else
 
-  if (Sender = Button_Main[3])or(Sender = Button_Player[4]) then begin
+  if (Sender = Button_Player[4]) then
+  begin
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
     Panel_Player.Show;
     Panel_RevealFOW.Show;
     Label_MenuTitle.Caption:='Player - Reveal fog';
   end else
 
-  if (Sender = Button_Main[4])or(Sender = Button_Mission[1]) then begin
+  if (Sender = Button_Main[4])or(Sender = Button_Mission[1]) then
+  begin
     Panel_Mission.Show;
     Panel_Alliances.Show;
     Label_MenuTitle.Caption:='Mission - Alliances';
     Mission_AlliancesChange(nil);
   end else
 
-  if (Sender = Button_Main[4])or(Sender = Button_Mission[2]) then begin
+  if (Sender = Button_Mission[2]) then
+  begin
     Panel_Mission.Show;
     Panel_PlayerTypes.Show;
     Label_MenuTitle.Caption:='Mission - Player Types';
     Mission_PlayerTypesChange(nil);
   end else
 
-  if (Sender=Button_Main[5]) or
-     (Sender=Button_Quit_No) or
+  if (Sender = Button_Main[5]) or
+     (Sender = Button_Quit_No) or
      (Sender = Button_LoadCancel) or
-     (Sender = Button_SaveCancel) then begin
+     (Sender = Button_SaveCancel) then
+  begin
     Panel_Menu.Show;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_OPTIONS];
   end else
 
-  if Sender=Button_Menu_Quit then begin
+  if Sender = Button_Menu_Quit then
+  begin
     Panel_Quit.Show;
   end;
 
-  if Sender = Button_Menu_Save then begin
+  if Sender = Button_Menu_Save then
+  begin
     Edit_SaveName.Text := fGame.GameName;
     Menu_Save(Edit_SaveName);
     Panel_Save.Show;
   end;
 
-  if Sender = Button_Menu_Load then begin
+  if Sender = Button_Menu_Load then
+  begin
     Load_MapListUpdate;
     Panel_Load.Show;
   end;
 
-  //Now process all other kinds of pages
-  if Sender=Panel_Unit then begin
-    TKMPanel(Sender).Show;
-  end else
+  //Info pages
 
-  if Sender=Panel_House then begin
-    TKMPanel(Sender).Show;
-  end;
+  if Sender = Panel_Unit then
+    TKMPanel(Sender).Show
+  else
 
-  if Sender=Panel_HouseBarracks then begin
+  if Sender = Panel_House then
+    TKMPanel(Sender).Show
+  else
+
+  if Sender = Panel_HouseBarracks then
+  begin
     TKMPanel(Sender).Parent.Show;
     TKMPanel(Sender).Show;
   end else
 
-  if Sender=Panel_HouseStore then begin
+  if Sender = Panel_HouseStore then
+  begin
     TKMPanel(Sender).Parent.Show;
     TKMPanel(Sender).Show;
-  end;
+  end else
 
-  if Sender = Panel_MarkerReveal then begin
+  if Sender = Panel_MarkerReveal then
+  begin
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
     TKMPanel(Sender).Parent.Show;
     TKMPanel(Sender).Show;
-  end;
+  end else
 
-  if Sender = Panel_MarkerDefence then begin
+  if Sender = Panel_MarkerDefence then
+  begin
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
     TKMPanel(Sender).Parent.Show;
     TKMPanel(Sender).Show;
   end;
 
+  //Additional panels
+
   if Sender = Image_Extra then
-    Panel_Extra.Show;
+    Panel_Extra.Show
+  else
 
   if Sender = Image_ExtraClose then
     Panel_Extra.Hide;
@@ -470,7 +506,7 @@ procedure TKMapEdInterface.DisplayHint(Sender: TObject);
 begin
   if (fPrevHint = Sender) then exit; //Hint didn't changed
 
-  if (Sender=nil) or (TKMControl(Sender).Hint = '') then
+  if (Sender = nil) or (TKMControl(Sender).Hint = '') then
   begin
     Label_Hint.Caption := '';
     Bevel_HintBG.Hide;
@@ -479,10 +515,44 @@ begin
   begin
     Label_Hint.Caption := TKMControl(Sender).Hint;
     Bevel_HintBG.Show;
-    Bevel_HintBG.Width := 8+fResource.ResourceFont.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
+    Bevel_HintBG.Width := 8 + fResource.ResourceFont.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
   end;
 
   fPrevHint := Sender;
+end;
+
+
+procedure TKMapEdInterface.Formations_Show(Sender: TObject);
+var
+  GT: TGroupType;
+begin
+  Assert(MyPlayer <> nil);
+
+  Image_FormationsFlag.FlagColor := MyPlayer.FlagColor;
+  for GT := Low(TGroupType) to High(TGroupType) do
+  begin
+    NumEdit_FormationsCount[GT].Value := MyPlayer.AI.DefencePositions.TroopFormations[GT].NumUnits;
+    NumEdit_FormationsColumns[GT].Value := MyPlayer.AI.DefencePositions.TroopFormations[GT].UnitsPerRow;
+  end;
+
+  Panel_Formations.Show;
+end;
+
+
+procedure TKMapEdInterface.Formations_Close(Sender: TObject);
+var
+  GT: TGroupType;
+begin
+  Assert(Image_FormationsFlag.FlagColor <> MyPlayer.FlagColor, 'Cheap test to see if active player didn''t changed');
+
+  if Sender = Button_Formations_Ok then
+  for GT := Low(TGroupType) to High(TGroupType) do
+  begin
+    MyPlayer.AI.DefencePositions.TroopFormations[GT].NumUnits := NumEdit_FormationsCount[GT].Value;
+    MyPlayer.AI.DefencePositions.TroopFormations[GT].UnitsPerRow := NumEdit_FormationsColumns[GT].Value;
+  end;
+
+  Panel_Formations.Hide;
 end;
 
 
@@ -594,6 +664,9 @@ begin
   Image_Extra.Anchors := [akLeft, akBottom];
   Image_Extra.HighlightOnMouseOver := True;
   Image_Extra.OnClick := SwitchPage;
+
+  //Pages that need to be on top of everything
+  Create_FormationsPopUp;
 
   fMyControls.OnHint := DisplayHint;
 
@@ -728,7 +801,8 @@ end;
 
 {Build page}
 procedure TKMapEdInterface.Create_Village_Page;
-const VillageTabIcon: array [TKMVillageTab] of Word = (391, 141, 327, 43);
+const
+  VillageTabIcon: array [TKMVillageTab] of Word = (391, 141, 327, 43);
 var
   I: Integer;
   VT: TKMVillageTab;
@@ -809,8 +883,11 @@ begin
       TrackBar_WorkerFactor.OnClick := Village_ScriptChange;
 
     Panel_Defence := TKMPanel.Create(Panel_Village, 0, 28, 196, 400);
-      TKMLabel.Create(Panel_Defence, 100, 10, 184, 0, 'Defence', fnt_Outline, taCenter);
-      List_Defences := TKMListBox.Create(Panel_Defence, 8, 30, 180, 160, fnt_Grey, bsGame);
+      TKMLabel.Create(Panel_Defence, 100, 5, 184, 0, 'Defence', fnt_Outline, taCenter);
+      Button_EditFormations := TKMButton.Create(Panel_Defence, 8, 30, 182, 25, 'Edit formations', bsGame);
+      Button_EditFormations.OnClick := Formations_Show;
+
+      List_Defences := TKMListBox.Create(Panel_Defence, 8, 70, 182, 160, fnt_Grey, bsGame);
       List_Defences.OnDoubleClick := Defence_ItemClicked;
 end;
 
@@ -1002,6 +1079,48 @@ begin
     TrackBar_Passability.Position := 0; //Disabled by default
     TrackBar_Passability.OnChange := View_Passability;
     Label_Passability := TKMLabel.Create(Panel_Extra, 18, 90, 184, 0, 'Off', fnt_Metal, taLeft);
+end;
+
+
+procedure TKMapEdInterface.Create_FormationsPopUp;
+const
+  T: array [TGroupType] of string = ('Melee', 'AntiHorse', 'Ranged', 'Mounted');
+  SIZE_X = 570;
+  SIZE_Y = 200;
+var
+  GT: TGroupType;
+  Img: TKMImage;
+begin
+  Panel_Formations := TKMPanel.Create(Panel_Main, 362, 250, SIZE_X, SIZE_Y);
+  Panel_Formations.Anchors := [];
+  Panel_Formations.Hide;
+
+    TKMBevel.Create(Panel_Formations, -1000,  -1000, 4000, 4000);
+    Img := TKMImage.Create(Panel_Formations, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
+    Img.ImageStretch;
+    TKMBevel.Create(Panel_Formations,   0,  0, SIZE_X, SIZE_Y);
+    TKMLabel.Create(Panel_Formations, SIZE_X div 2, 10, 'Troop Formations', fnt_Outline, taCenter);
+
+    Image_FormationsFlag := TKMImage.Create(Panel_Formations, 10, 10, 0, 0, 30, rxGuiMain);
+
+    TKMLabel.Create(Panel_Formations, 20, 70, 80, 0, 'Count', fnt_Metal, taLeft);
+    TKMLabel.Create(Panel_Formations, 20, 95, 80, 0, 'Columns', fnt_Metal, taLeft);
+
+    for GT := Low(TGroupType) to High(TGroupType) do
+    begin
+      TKMLabel.Create(Panel_Formations, 130 + Byte(GT) * 110 + 32, 50, 0, 0, T[GT], fnt_Metal, taCenter);
+      NumEdit_FormationsCount[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 70);
+      NumEdit_FormationsCount[GT].ValueMin := 1;
+      NumEdit_FormationsCount[GT].ValueMax := 255;
+      NumEdit_FormationsColumns[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 95);
+      NumEdit_FormationsColumns[GT].ValueMin := 1;
+      NumEdit_FormationsColumns[GT].ValueMax := 255;
+    end;
+
+    Button_Formations_Ok := TKMButton.Create(Panel_Formations, SIZE_X-20-320-10, 150, 160, 30, 'Ok', bsMenu);
+    Button_Formations_Ok.OnClick := Formations_Close;
+    Button_Formations_Cancel := TKMButton.Create(Panel_Formations, SIZE_X-20-160, 150, 160, 30, 'Cancel', bsMenu);
+    Button_Formations_Cancel.OnClick := Formations_Close;
 end;
 
 
@@ -1619,8 +1738,6 @@ end;
 
 
 procedure TKMapEdInterface.ShowMarkerInfo(aMarker: TKMMapEdMarker);
-var
-  I: Integer;
 begin
   fCurrentMarker := aMarker;
 

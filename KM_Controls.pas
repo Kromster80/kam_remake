@@ -467,6 +467,24 @@ type
   end;
 
 
+  TKMNumericEdit = class(TKMControl)
+  private
+    fButtonInc: TKMButton;
+    fLabelValue: TKMLabel;
+    fButtonDec: TKMButton;
+    procedure ButtonClick(Sender: TObject; AButton: TMouseButton);
+  protected
+    procedure SetEnabled(aValue: Boolean); override;
+    procedure SetVisible(aValue: Boolean); override;
+  public
+    Value: Word;
+    ValueMin: Word;
+    ValueMax: Word;
+    OnChange: TNotifyEvent;
+    constructor Create(aParent: TKMPanel; aLeft,aTop: Integer);
+    procedure Paint; override;
+  end;
+
   {Resource order bar}
   TKMResourceOrderRow = class(TKMControl)
   private
@@ -2251,6 +2269,66 @@ begin
 end;
 
 
+{ TKMNumericEdit }
+constructor TKMNumericEdit.Create(aParent: TKMPanel; aLeft, aTop: Integer);
+begin
+  inherited Create(aParent, aLeft, aTop, 66, 20);
+
+  ValueMax := 100;
+
+  fButtonDec := TKMButton.Create(aParent, aLeft,      aTop, 20, 20, '-', bsGame);
+  fLabelValue := TKMLabel.Create(aParent, aLeft + 33, aTop + 2, '', fnt_Grey, taCenter);
+  fButtonInc := TKMButton.Create(aParent, aLeft + 46, aTop, 20, 20, '+', bsGame);
+  fButtonDec.OnClickEither := ButtonClick;
+  fButtonInc.OnClickEither := ButtonClick;
+end;
+
+procedure TKMNumericEdit.ButtonClick(Sender: TObject; AButton: TMouseButton);
+var
+  NewValue: Integer; //Could be -1 or 65536
+begin
+  if Sender = fButtonDec then
+    NewValue := Value - Byte(AButton = mbLeft) - Byte(AButton = mbRight) * 10;
+
+  if Sender = fButtonInc then
+    NewValue := Value + Byte(AButton = mbLeft) + Byte(AButton = mbRight) * 10;
+
+  Value := EnsureRange(NewValue, ValueMin, ValueMax);
+
+  //Signal if new value has been assigned successfuly
+  if (NewValue = Value) and Assigned(OnChange) then
+    OnChange(Self);
+end;
+
+procedure TKMNumericEdit.SetEnabled(aValue: Boolean);
+begin
+  inherited;
+  fButtonDec.Enabled := fEnabled;
+  fLabelValue.Enabled := fEnabled;
+  fButtonInc.Enabled := fEnabled;
+end;
+
+procedure TKMNumericEdit.SetVisible(aValue: Boolean);
+begin
+  inherited;
+  fButtonDec.Visible := fVisible;
+  fLabelValue.Visible := fVisible;
+  fButtonInc.Visible := fVisible;
+end;
+
+procedure TKMNumericEdit.Paint;
+begin
+  inherited;
+  fButtonDec.Top := Round(fTop); //Use internal fTop instead of GetTop (which will return absolute value)
+  fLabelValue.Top := Round(fTop + 2);
+  fButtonInc.Top := Round(fTop);
+
+  fRenderUI.WriteBevel(Left + 20, Top, Width - 40, Height);
+  fLabelValue.Caption := IntToStr(Value);
+
+end;
+
+
 { TKMResourceOrderRow }
 constructor TKMResourceOrderRow.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
@@ -2283,7 +2361,7 @@ end;
 
 
 procedure TKMResourceOrderRow.Paint;
-var i: Integer;
+var I: Integer;
 begin
   inherited;
   fOrderRem.Top := Round(fTop); //Use internal fTop instead of GetTop (which will return absolute value)
@@ -2294,8 +2372,8 @@ begin
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width - 8, Caption, fnt_Game, taLeft, $FFE0E0E0);
-  for i:=1 to ResourceCount do
-    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RX, TexID, $00000000);
+  for I := 1 to ResourceCount do
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-I)*14, Top+1, RX, TexID, $00000000);
 end;
 
 
