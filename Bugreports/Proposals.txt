@@ -30,6 +30,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Switch beacon from B to more convenient Alt+Click as in other RTS?
 
 		In-game player list should show who is defeated (shown seperately to who is disconnected which is already shown by strikethrough)
+		Allow to build fields over winefields, allow to destruct own fields and roads by workers.
 
 REJECTED:
  -	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
