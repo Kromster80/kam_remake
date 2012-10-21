@@ -5,6 +5,7 @@
  +	Taking weapons from store>barracks should not be a lower priority than house>house deliveries
  +	Make Serfs face the house plan entrance when handing building materials to it
  +	Network latency in KaM Remake was always far higher than necessary due to Nagle's algorithm being enabled by default for TCP (we now use TCP_NODELAY)
+ +	A unit should not take a home that he can't walk to
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -64,6 +65,7 @@ Improvements:
 	L	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
 	M	Allow host to set a title for his lobby shown in a column on the server selection page ("noobs/pros only", "fight map only", "chat lobby", etc.)
 	L	Clicking a location on the lobby minimap selects that location if it's available
+	L	VSync should be configurable on the settings page, it can reduce performance a bit on some systems and players might like to change it
 
 	H	Refactor army management with TGroup layer
 	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams
