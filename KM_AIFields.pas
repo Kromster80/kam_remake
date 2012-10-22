@@ -47,7 +47,7 @@ type
     //Common map of areas where building is undesired (around Store, Mines, Woodcutters)
     AvoidBuilding: array of array of Byte;
     //Areas of forests, needed only for initial Woodcutters placement and gets calculated once on mission start
-    Forest: array of array of Word;
+    Forest: array of array of Byte; //0..255 is enough
 
     Influence: array of array of array of Byte;
     Ownership: array of array of array of SmallInt;
@@ -498,7 +498,7 @@ procedure TKMInfluences.InitInfluenceForest;
     for I := Max(Y - TREE_WEIGHT+1, 1) to Min(Y + TREE_WEIGHT-1, fTerrain.MapY - 1) do
     for K := Max(X - TREE_WEIGHT+1, 1) to Min(X + TREE_WEIGHT-1, fTerrain.MapX - 1) do
     if Abs(I-Y) + Abs(K-X) < TREE_WEIGHT then
-      Forest[I,K] := Forest[I,K] + TREE_WEIGHT - (Abs(I-Y) + Abs(K-X));
+      Forest[I,K] := Min(Forest[I,K] + TREE_WEIGHT - (Abs(I-Y) + Abs(K-X)), 255);
   end;
 var
   I, K: Integer;

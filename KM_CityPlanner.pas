@@ -26,10 +26,12 @@ type
     fFinder: TKMTerrainFinderCity;
     fPerfLog: TKMPerfLog;
 
+    function GetSourceLocation(aHouseType: array of THouseType; out Loc: TKMPoint): Boolean;
+
     function NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
     function NextToHouse(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-    function NextToTrees(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+    function NextToTrees(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToGrass(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
   public
     constructor Create(aPlayer: TPlayerIndex);
@@ -102,7 +104,7 @@ begin
     ht_IronMine:      Result := NextToOre(aHouse, rt_IronOre, aLoc);
 
     ht_Quary:         Result := NextToStone(aHouse, aLoc);
-    ht_Woodcutters:   Result := NextToTrees(aHouse, aLoc);
+    ht_Woodcutters:   Result := NextToTrees([ht_Store, ht_Woodcutters], aHouse, aLoc);
     ht_Farm:          Result := NextToGrass(ht_Any, aHouse, aLoc);
     ht_Wineyard:      Result := NextToGrass(ht_Any, aHouse, aLoc);
     ht_FisherHut:     {Result := NextToWater(aHouse, aLoc)};
@@ -111,6 +113,23 @@ begin
     //ht_SiegeWorkshop:;
     //ht_TownHall:;
     //ht_WatchTower:;
+  end;
+end;
+
+
+function TKMCityPlanner.GetSourceLocation(aHouseType: array of THouseType; out Loc: TKMPoint): Boolean;
+var
+  HT: THouseType;
+  House: TKMHouse;
+begin
+  Result := False;
+  HT := aHouseType[KaMRandom(Length(aHouseType))];
+
+  House := fPlayers[fOwner].Houses.FindHouse(HT, 0, 0, KaMRandom(fPlayers[fOwner].Stats.GetHouseQty(HT)) + 1);
+  if House <> nil then
+  begin
+    Loc := House.GetPosition;
+    Result := True;
   end;
 end;
 
@@ -141,21 +160,15 @@ function TKMCityPlanner.NextToGrass(aTarget, aHouse: THouseType; out aLoc: TKMPo
     end;
   end;
 var
-  TargetH: TKMHouse;
   I, K: Integer;
   Bid, BestBid: Single;
   TargetLoc: TKMPoint;
-  P: TKMPlayer;
 begin
   Result := False;
 
-  P := fPlayers[fOwner];
-  TargetH := P.Houses.FindHouse(aTarget, 0, 0, KaMRandom(P.Stats.GetHouseQty(aTarget)) + 1);
-  if TargetH = nil then Exit;
-  TargetLoc := TargetH.GetPosition;
+  if not GetSourceLocation([aTarget], TargetLoc) then Exit;
 
   BestBid := MaxSingle;
-
   for I := Max(TargetLoc.Y - 5, 1) to Min(TargetLoc.Y + 6, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - 7, 1) to Min(TargetLoc.X + 7, fTerrain.MapX - 1) do
   if fAIFields.Influences.AvoidBuilding[I,K] = 0 then
@@ -175,8 +188,6 @@ end;
 function TKMCityPlanner.NextToHouse(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
 const RAD = 15;
 var
-  TargetHouseType: THouseType;
-  TargetH: TKMHouse;
   I, K: Integer;
   Bid, BestBid: Single;
   TargetLoc: TKMPoint;
@@ -184,15 +195,11 @@ var
 begin
   Result := False;
 
-  TargetHouseType := aTarget[KaMRandom(Length(aTarget))];
+  if not GetSourceLocation(aTarget, TargetLoc) then Exit;
 
   P := fPlayers[fOwner];
-  TargetH := P.Houses.FindHouse(TargetHouseType, 0, 0, KaMRandom(P.Stats.GetHouseQty(TargetHouseType)) + 1);
-  if TargetH = nil then Exit;
 
   BestBid := MaxSingle;
-  TargetLoc := TargetH.GetEntrance;
-
   for I := Max(TargetLoc.Y - RAD, 1) to Min(TargetLoc.Y + RAD, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - RAD, 1) to Min(TargetLoc.X + RAD, fTerrain.MapX - 1) do
     if P.CanAddHousePlanAI(K, I, aHouse, False) then
@@ -211,29 +218,24 @@ end;
 function TKMCityPlanner.NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
 const RAD = 32;
 var
-  S: TKMHouse;
   I, K: Integer;
   Bid, BestBid: Single;
   StoneLoc: TKMPointDir;
-  StoreLoc: TKMPoint;
+  TargetLoc: TKMPoint;
 begin
   Result := False;
 
-  S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
-  if S = nil then Exit;
-  StoreLoc := S.GetPosition;
-
-  if not fTerrain.FindStone(KMPointBelow(S.GetPosition), RAD, KMPoint(0,0), StoneLoc) then Exit;
+  if not GetSourceLocation([ht_Store], TargetLoc) then Exit;
+  if not fTerrain.FindStone(KMPointBelow(TargetLoc), RAD, KMPoint(0,0), StoneLoc) then Exit;
 
   BestBid := MaxSingle;
-
   for I := StoneLoc.Loc.Y to Min(StoneLoc.Loc.Y + 5, fTerrain.MapY - 1) do
   for K := Max(StoneLoc.Loc.X - 5, 1) to Min(StoneLoc.Loc.X + 5, fTerrain.MapX - 1) do
   if fAIFields.Influences.AvoidBuilding[I,K] = 0 then
     if (fAIFields.Influences.GetBestOwner(K,I) = fOwner)
     and fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := KMLength(KMPoint(K,I), StoreLoc) - fAIFields.Influences.Ownership[fOwner,I,K] + KaMRandom * 4;
+      Bid := KMLength(KMPoint(K,I), TargetLoc) - fAIFields.Influences.Ownership[fOwner,I,K] + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -253,22 +255,18 @@ end;
 
 function TKMCityPlanner.NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
 var
-  S: TKMHouse;
   P: TKMPoint;
-  StoreLoc: TKMPoint;
+  TargetLoc: TKMPoint;
 begin
   Result := False;
 
-  //Store is the center of our town
-  S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
-  if S = nil then Exit;
-  StoreLoc := S.GetPosition;
+  if not GetSourceLocation([ht_Store], TargetLoc) then Exit;
 
   //Look for nearest Ore
   case aOreType of
-    rt_Coal:    if not FindNearest(StoreLoc, 40, fnCoal, P) then Exit;
-    rt_IronOre: if not FindNearest(StoreLoc, 40, fnIron, P) then Exit;
-    rt_GoldOre: if not FindNearest(StoreLoc, 40, fnGold, P) then Exit;
+    rt_Coal:    if not FindNearest(TargetLoc, 40, fnCoal, P) then Exit;
+    rt_IronOre: if not FindNearest(TargetLoc, 40, fnIron, P) then Exit;
+    rt_GoldOre: if not FindNearest(TargetLoc, 40, fnGold, P) then Exit;
   end;
 
   aLoc := P;
@@ -276,33 +274,28 @@ begin
 end;
 
 
-function TKMCityPlanner.NextToTrees(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
+function TKMCityPlanner.NextToTrees(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
 const
-  SEARCH_RAD = 20; //Search for forests within this radius
+  SEARCH_RAD = 22; //Search for forests within this radius
   HUT_RAD = 5; //Search for the best place for a hut in this radius
 var
-  S: TKMHouse;
   I, K: Integer;
   Bid, BestBid: Single;
-  Tmp, StoreLoc: TKMPoint;
+  TargetLoc: TKMPoint;
   TreeLoc: TKMPoint;
-  Fx, Fy: Byte;
-  Tree: Boolean;
 begin
   Result := False;
 
-  S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
-  if S = nil then Exit;
-  StoreLoc := S.GetPosition;
+  if not GetSourceLocation(aTarget, TargetLoc) then Exit;
 
   //Find heart of the forest
-  BestBid := 0;
-  for I := Max(StoreLoc.Y - SEARCH_RAD, 1) to Min(StoreLoc.Y + SEARCH_RAD, fTerrain.MapY - 1) do
-  for K := Max(StoreLoc.X - SEARCH_RAD, 1) to Min(StoreLoc.X + SEARCH_RAD, fTerrain.MapX - 1) do
+  BestBid := MaxSingle;
+  for I := Max(TargetLoc.Y - SEARCH_RAD, 1) to Min(TargetLoc.Y + SEARCH_RAD, fTerrain.MapY - 1) do
+  for K := Max(TargetLoc.X - SEARCH_RAD, 1) to Min(TargetLoc.X + SEARCH_RAD, fTerrain.MapX - 1) do
   if fAIFields.Influences.AvoidBuilding[I,K] = 0 then
   begin
-    Bid := fAIFields.Influences.Forest[I,K] + KaMRandom * 6; //Add some noise for varied results
-    if Bid > BestBid then
+    Bid := KMLengthDiag(TargetLoc, KMPoint(K,I)) - fAIFields.Influences.Forest[I,K] / 8 + KaMRandom * 6; //Add some noise for varied results
+    if Bid < BestBid then
     begin
       TreeLoc := KMPoint(K, I);
       BestBid := Bid;
@@ -312,11 +305,11 @@ begin
   BestBid := MaxSingle;
   for I := Max(TreeLoc.Y - HUT_RAD, 1) to Min(TreeLoc.Y + HUT_RAD, fTerrain.MapY - 1) do
   for K := Max(TreeLoc.X - HUT_RAD, 1) to Min(TreeLoc.X + HUT_RAD, fTerrain.MapX - 1) do
-  if fAIFields.Influences.AvoidBuilding[I,K] = 0 then
-    if (fAIFields.Influences.GetBestOwner(K, I) = fOwner)
+    if (fAIFields.Influences.AvoidBuilding[I,K] = 0)
+    and (fAIFields.Influences.GetBestOwner(K, I) = fOwner)
     and fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := KMLength(KMPoint(K,I), StoreLoc) + KaMRandom * 5;
+      Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 5;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
