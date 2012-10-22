@@ -82,3 +82,5 @@ SOLUTIONS:
     - Current market is useful for emergency situations, makes the game more accessible/forgiving to mistakes like running out of gold
     + We don't have to make/find graphics for the planned "Trading Post" for this purpose
     + The Dark Lord will be eternally grateful xD
+ 4. Recalculate market prices with regard to time it takes to get first ware (e.g. time in minutes it takes to get first ware in normal way).
+    + Horses, Pigs and their subproducts will become more expensive, thus discouraging trading of "fast" resources (coal, stone) for Horses, Sausages, etc..
