@@ -100,7 +100,10 @@ begin
   //Append the exception message on a new paragraph of the dialog. It might be useful to the user (e.g. file permissions wrong)
   //and sometimes people send us a screenshot of the crash report window, it would be nice to know what the error was from that.
   if fTextLibrary <> nil then
-    ExceptIntf.ExceptMsg := fTextLibrary[TX_ERROR_MESSAGE]+#13#10+#13#10+LogMessage;
+    ExceptIntf.ExceptMsg := fTextLibrary[TX_ERROR_MESSAGE]+#13#10+#13#10+LogMessage
+  else
+    //Still need a sensible message if fTextLibrary failed to load for some reason. ENG is default
+    ExceptIntf.ExceptMsg := 'An error occurred in the application. Please click Send Bug Report so we can investigate this issue. Thanks for your help!'+#13#10+#13#10+LogMessage;
 
   //We want to add some of our own files to the report
   CrashFile := 'KaM_Crash_' + GAME_REVISION + '_' + FormatDateTime('yyyy-mm-dd_hh-nn-ss', Now) + '.zip';

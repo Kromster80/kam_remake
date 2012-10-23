@@ -247,14 +247,17 @@ end;
 { Destroy what was created }
 destructor TKMGame.Destroy;
 begin
+  //We might have crashed part way through .Create, so we can't assume ANYTHING exists here.
+  //Doing so causes a 2nd exception which overrides 1st. Hence check <> nil on everything except Frees, TObject.Free does that already.
+
   if fGameLockedMutex then fMain.UnlockMutex;
-  fTimerGame.Enabled := False;
+  if fTimerGame <> nil then fTimerGame.Enabled := False;
   fIsExiting := True;
 
   //if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
   //  fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl', fGameMode = gmMulti));
 
-  if DO_PERF_LOGGING then fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
+  if DO_PERF_LOGGING and (fPerfLog <> nil) then fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
 
   FreeAndNil(fTimerGame);
 

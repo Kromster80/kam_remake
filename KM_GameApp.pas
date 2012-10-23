@@ -161,13 +161,17 @@ end;
 { Destroy what was created }
 destructor TKMGameApp.Destroy;
 begin
-  fTimerUI.Enabled := False;
-  fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
+  //We might have crashed part way through .Create, so we can't assume ANYTHING exists here.
+  //Doing so causes a 2nd exception which overrides 1st. Hence check <> nil on everything except Free (TObject.Free does that already)
+
+  if fTimerUI <> nil then fTimerUI.Enabled := False;
+  //Stop music imediently, so it doesn't keep playing and jerk while things closes
+  if fMusicLib <> nil then fMusicLib.StopMusic;
 
   Stop(gr_Silent);
 
   FreeAndNil(fTimerUI);
-  fCampaigns.SaveProgress(ExeDir + 'Saves\Campaigns.dat');
+  if fCampaigns <> nil then fCampaigns.SaveProgress(ExeDir + 'Saves\Campaigns.dat');
   FreeThenNil(fCampaigns);
   FreeThenNil(fGameSettings);
   FreeThenNil(fLocales);
