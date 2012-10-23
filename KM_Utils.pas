@@ -8,11 +8,12 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points;
   function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aI, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
   function GetPositionFromIndex(aOrigin: TKMPoint; aIndex: Byte): TKMPointI;
 
-  function FixDelim(const aString:string):string;
+  function FixDelim(const aString: string): string;
 
   procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
   procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
-  function GetPingColor(aPing:word):cardinal;
+  function ApplyBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
+  function GetPingColor(aPing: Word): Cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
   function TimeToString(aTime: TDateTime): string;
 
@@ -314,6 +315,18 @@ begin
   R := Round(Rt * 255);
   G := Round(Gt * 255);
   B := Round(Bt * 255);
+end;
+
+
+function ApplyBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
+begin
+  Result := Round((aColor and $FF) / 255 * aBrightness)
+            or
+            Round((aColor shr 8 and $FF) / 255 * aBrightness) shl 8
+            or
+            Round((aColor shr 16 and $FF) / 255 * aBrightness) shl 16
+            or
+            (aColor and $FF000000);
 end;
 
 

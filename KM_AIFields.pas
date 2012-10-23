@@ -40,6 +40,7 @@ type
 
   TKMInfluences = class
   private
+    Influence: array of array of array of Byte;
     procedure InitInfluenceAvoid;
     procedure InitInfluenceForest;
     procedure UpdateInfluenceMaps;
@@ -49,7 +50,6 @@ type
     //Areas of forests, needed only for initial Woodcutters placement and gets calculated once on mission start
     Forest: array of array of Byte; //0..255 is enough
 
-    Influence: array of array of array of Byte;
     Ownership: array of array of array of SmallInt;
     //Tension: array of array of array of SmallInt;
 
@@ -97,11 +97,12 @@ uses KM_PlayersCollection, KM_RenderAux, KM_Houses;
 const
   //Decay affects how much space AI needs to be able to expand
   //Values smaller than 3 start to block green AI on AcrossDesert too fast
-  INFLUENCE_DECAY = 2;
+  INFLUENCE_DECAY = 5;
+  INFLUENCE_ENEMY_DIV = 2;
 
   //Should be within 16 tiles and at least one corner within 8 tiles
   OWN_MARGIN = 160;
-  OWN_THRESHOLD = 128;
+  OWN_THRESHOLD = 144;
 
 
 { TKMNavMesh }
@@ -580,7 +581,7 @@ begin
 
         for H := 0 to fPlayers.Count - 1 do
         if (H <> J) and (fPlayers[J].Alliances[H] = at_Enemy) then
-          L := L - Influence[H, I, K] div 3;
+          L := L - Influence[H, I, K] div INFLUENCE_ENEMY_DIV;
 
         Ownership[J, I, K] := Max(L, 0);
       end

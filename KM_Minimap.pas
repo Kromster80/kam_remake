@@ -49,7 +49,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_Units, KM_Units_Warrior;
+uses KM_AIFields, KM_PlayersCollection, KM_Resource, KM_Units, KM_Units_Warrior;
 
 
 { TKMMinimap }
@@ -189,7 +189,22 @@ var
   P: TKMPoint;
   DoesFit: Boolean;
   Light: Smallint;
+  Owner: TPlayerIndex;
 begin
+  if OVERLAY_INFLUENCES then
+  begin
+    for I := 0 to fMapY - 1 do
+    for K := 0 to fMapX - 1 do
+    begin
+      Owner := fAIFields.Influences.GetBestOwner(K,I);
+      if Owner <> PLAYER_NONE then
+        fBase[I*fMapX + K] := ApplyBrightness(fPlayers[Owner].FlagColor, Byte(Max(fAIFields.Influences.Ownership[Owner,I,K],0)))
+      else
+        fBase[I*fMapX + K] := $FF000000;
+    end;
+    Exit;
+  end;
+
   for I := 0 to fMapY - 1 do
   for K := 0 to fMapX - 1 do
   begin
