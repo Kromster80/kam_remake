@@ -779,7 +779,7 @@ procedure TKMPlayer.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList:
       if KMSamePoint(aList[I], aPoint) then
         aList.RemoveEntry(aPoint);
 
-    aList.AddEntry(aPoint, aID, 0);
+    aList.AddEntry(aPoint, aID);
   end;
 
 var

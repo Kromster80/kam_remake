@@ -1422,7 +1422,7 @@ procedure TTerrain.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: 
     for I := 0 to aList.Count - 1 do //Skip wires from comparison
       if (aList.Tag[I] <> 0) and KMSamePoint(aList[I], aPoint) then
         Exit;
-    aList.AddEntry(aPoint, aID, 0);
+    aList.AddEntry(aPoint, aID);
   end;
 
 var
@@ -1463,7 +1463,7 @@ begin
       //Mark the tile according to previous check results
       if AllowBuild then
       begin
-        aList.AddEntry(P2, 0, 0);
+        aList.AddEntry(P2, 0);
         if HA[i,k] = 2 then
           MarkPoint(P2, TC_ENTRANCE);
       end else
@@ -2776,7 +2776,7 @@ begin
         Tmp := 0;
       end;
   // Default cursor mode is elevate/decrease
-    if GameCursor.Mode = cm_Equalize then
+    if GameCursor.Mode = cmEqualize then
     begin // START Unequalize
       if aRaise then
       begin
@@ -3009,10 +3009,10 @@ end;
 procedure TTerrain.UpdateStateIdle;
 begin
   case GameCursor.Mode of
-    cm_Elevate,
-    cm_Equalize:  if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
+    cmElevate,
+    cmEqualize:  if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
                     MapEdHeight;
-    cm_Tiles:     if (ssLeft in GameCursor.SState) then
+    cmTiles:     if (ssLeft in GameCursor.SState) then
                     if GameCursor.MapEdDir in [0..3] then //Defined direction
                       MapEdTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.MapEdDir)
                     else //Random direction

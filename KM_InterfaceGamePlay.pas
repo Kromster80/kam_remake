@@ -1878,7 +1878,11 @@ end;
 procedure TKMGamePlayInterface.Build_ButtonClick(Sender: TObject);
 var I: Integer;
 begin
-  if Sender=nil then begin GameCursor.Mode:=cm_None; exit; end;
+  if Sender = nil then 
+  begin
+    GameCursor.Mode := cmNone; 
+    Exit;
+  end;
 
   //Release all buttons (houses and fields)
   for i:=1 to Panel_Build.ChildCount do
@@ -1891,7 +1895,7 @@ begin
   //Reset building mode
   // and see if it needs to be changed
 
-  GameCursor.Mode := cm_None;
+  GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
 
   Label_BuildCost_Wood.Caption  := '-';
@@ -1900,23 +1904,23 @@ begin
 
 
   if Button_BuildCancel.Down then begin
-    GameCursor.Mode:=cm_Erase;
+    GameCursor.Mode:=cmErase;
     Image_Build_Selected.TexID := 340;
     Label_Build.Caption := fTextLibrary[TX_BUILD_DEMOLISH];
   end;
   if Button_BuildRoad.Down then begin
-    GameCursor.Mode:=cm_Road;
+    GameCursor.Mode:=cmRoad;
     Image_Build_Selected.TexID := 335;
     Label_BuildCost_Stone.Caption:='1';
     Label_Build.Caption := fTextLibrary[TX_BUILD_ROAD];
   end;
   if Button_BuildField.Down then begin
-    GameCursor.Mode:=cm_Field;
+    GameCursor.Mode:=cmField;
     Image_Build_Selected.TexID := 337;
     Label_Build.Caption := fTextLibrary[TX_BUILD_FIELD];
   end;
   if Button_BuildWine.Down then begin
-    GameCursor.Mode:=cm_Wine;
+    GameCursor.Mode:=cmWine;
     Image_Build_Selected.TexID := 336;
     Label_BuildCost_Wood.Caption:='1';
     Label_Build.Caption := fTextLibrary[TX_BUILD_WINE];
@@ -1925,7 +1929,7 @@ begin
   for i:=1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[i] <> ht_None then
   if Button_Build[i].Down then begin
-     GameCursor.Mode:=cm_Houses;
+     GameCursor.Mode:=cmHouses;
      GameCursor.Tag1:=byte(GUIHouseOrder[i]);
      Image_Build_Selected.TexID := fResource.HouseDat[GUIHouseOrder[i]].GUIIcon;
      Label_BuildCost_Wood.Caption:=inttostr(fResource.HouseDat[GUIHouseOrder[i]].WoodCost);
@@ -3514,22 +3518,22 @@ begin
     P := GameCursor.Cell; //Get cursor position tile-wise
     if MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) > 0 then
     case GameCursor.Mode of
-      cm_Road:  if MyPlayer.CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
+      cmRoad:  if MyPlayer.CanAddFakeFieldPlan(P, ft_Road) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
                   LastDragPoint := GameCursor.Cell;
                 end;
-      cm_Field: if MyPlayer.CanAddFakeFieldPlan(P, ft_Corn) and not KMSamePoint(LastDragPoint, P) then
+      cmField: if MyPlayer.CanAddFakeFieldPlan(P, ft_Corn) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
                   LastDragPoint := GameCursor.Cell;
                 end;
-      cm_Wine:  if MyPlayer.CanAddFakeFieldPlan(P, ft_Wine) and not KMSamePoint(LastDragPoint, P) then
+      cmWine:  if MyPlayer.CanAddFakeFieldPlan(P, ft_Wine) and not KMSamePoint(LastDragPoint, P) then
                 begin
                   fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
                   LastDragPoint := GameCursor.Cell;
                 end;
-      cm_Erase: if not KMSamePoint(LastDragPoint, P) then
+      cmErase: if not KMSamePoint(LastDragPoint, P) then
                 begin
                   if MyPlayer.BuildList.HousePlanList.HasPlan(P) then
                   begin
@@ -3546,7 +3550,7 @@ begin
     end;
   end;
 
-  if GameCursor.Mode <> cm_None then
+  if GameCursor.Mode <> cmNone then
   begin
     //Use the default cursor while placing roads, don't become stuck on c_Info or others
     if not fGame.Viewport.Scrolling then
@@ -3651,12 +3655,12 @@ begin
                 //Only allow placing of roads etc. with the left mouse button
                 if MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, True) = 0 then
                 begin
-                  if GameCursor.Mode in [cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses] then
+                  if GameCursor.Mode in [cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses] then
                     fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Can't place noise when clicking on unexplored areas
                 end
                 else
                   case GameCursor.Mode of
-                    cm_None:  begin
+                    cmNone:  begin
                                 //Remember previous selection to play sound if it changes
                                 OldSelected := fPlayers.Selected;
 
@@ -3685,11 +3689,11 @@ begin
                                   end;
                                 end;
                               end;
-                    cm_Road:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
-                    cm_Field: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
-                    cm_Wine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
-                    cm_Wall:  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
-                    cm_Houses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+                    cmRoad:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
+                    cmField: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
+                    cmWine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
+                    cmWall:  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
+                    cmHouses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
                       begin
                         fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P,
                           THouseType(GameCursor.Tag1));
@@ -3697,7 +3701,7 @@ begin
                       end
                       else
                         fSoundLib.Play(sfx_CantPlace,P,false,4.0);
-                    cm_Erase: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then
+                    cmErase: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then
                               begin
                                 H := MyPlayer.HousesHitTest(P.X, P.Y);
                                 //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)

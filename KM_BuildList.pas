@@ -394,7 +394,7 @@ var I: Integer;
 begin
   for I := 0 to fFieldsCount - 1 do
   if (fFields[I].FieldType <> ft_None) and KMInRect(fFields[I].Loc, aRect) then
-    aList.AddEntry(fFields[I].Loc, Byte(fFields[I].FieldType), 0);
+    aList.AddEntry(fFields[I].Loc, Byte(fFields[I].FieldType));
 
   if aIncludeFake then
   begin
@@ -402,7 +402,7 @@ begin
       //It is possible to have a fake fieldplans at the position of a real fieldplan temporarily when
       //clicking on one tile repeatly due to network delay. Don't add duplicate points to the list.
       if fFakeFields[I].Active and not aList.Contains(fFakeFields[I].Loc) then
-        aList.AddEntry(fFakeFields[I].Loc, Byte(fFakeFields[I].FieldType), 0);
+        aList.AddEntry(fFakeFields[I].Loc, Byte(fFakeFields[I].FieldType));
     //Fields that have been deleted should not be painted
     for I := 0 to Length(fFakeDeletedFields) - 1 do
       if fFakeDeletedFields[I].Active then
@@ -829,7 +829,7 @@ begin
   if (fPlans[I].HouseType <> ht_None)
   and InRange(fPlans[I].Loc.X - 2, Rect.Left, Rect.Right)
   and InRange(fPlans[I].Loc.Y - 2, Rect.Top, Rect.Bottom) then
-    aList.AddEntry(KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType), 0);
+    aList.AddEntry(KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType));
 end;
 
 

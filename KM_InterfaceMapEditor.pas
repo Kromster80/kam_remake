@@ -167,6 +167,8 @@ type
         Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
       Panel_RevealFOW: TKMPanel;
         Button_Reveal: TKMButtonFlat;
+        TrackBar_RevealNewSize: TKMTrackBar;
+        CheckBox_RevealAll: TKMCheckBox;
 
     Panel_Mission:TKMPanel;
       Button_Mission:array[1..2]of TKMButton;
@@ -284,7 +286,7 @@ var
   I,K: Integer;
 begin
   //Reset cursor mode
-  GameCursor.Mode := cm_None;
+  GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
 
   if fGame <> nil then
@@ -927,10 +929,13 @@ begin
       end;
 
     Panel_RevealFOW := TKMPanel.Create(Panel_Player,0,28,196,400);
-      TKMLabel.Create(Panel_RevealFOW,100,10,184,0,'Reveal fog',fnt_Outline,taCenter);
-      Button_Reveal         := TKMButtonFlat.Create(Panel_Script, 8, 30, 33, 33, 335);
+      TKMLabel.Create(Panel_RevealFOW, 100, 10, 184, 0, 'Reveal fog', fnt_Outline, taCenter);
+      Button_Reveal         := TKMButtonFlat.Create(Panel_RevealFOW, 8, 30, 33, 33, 335);
       Button_Reveal.OnClick := Player_RevealClick;
       Button_Reveal.Hint    := 'Reveal a portion of map';
+      TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_RevealFOW, 45, 35, 140, 1, 50);
+      CheckBox_RevealAll      := TKMCheckBox.Create(Panel_RevealFOW, 8, 75, 140, 20, 'Reveal all', fnt_Metal);
+      CheckBox_RevealAll.Enabled := False;
 end;
 
 
@@ -1471,13 +1476,13 @@ begin
   begin
     HeightElevate.Down := True;
     HeightUnequalize.Down:=false;
-    GameCursor.Mode := cm_Elevate;
+    GameCursor.Mode := cmElevate;
   end;
   if Sender = HeightUnequalize then
   begin
     HeightElevate.Down  := false;
     HeightUnequalize.Down := true;
-    GameCursor.Mode := cm_Equalize;
+    GameCursor.Mode := cmEqualize;
   end;
 end;
 
@@ -1510,7 +1515,7 @@ begin
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].TexID := 0;
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Disable;
       end;
-      if GameCursor.Mode = cm_Tiles then
+      if GameCursor.Mode = cmTiles then
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (GameCursor.Tag1+1 = GetTileIDFromTag((k-1)*MAPED_TILES_COLS+i));
     end;
   if Sender is TKMButtonFlat then
@@ -1518,7 +1523,7 @@ begin
     TileID := GetTileIDFromTag(TKMButtonFlat(Sender).Tag);
     if TileID <> 0 then
     begin
-      GameCursor.Mode := cm_Tiles;
+      GameCursor.Mode := cmTiles;
       GameCursor.Tag1 := TileID-1; //MapEdTileRemap is 1 based, tag is 0 based
       if TilesRandom.Checked then
         GameCursor.MapEdDir := 4;
@@ -1568,7 +1573,7 @@ begin
     and not (TKMButtonFlat(Sender).Tag = 255) then
       Exit; //Don't let them click if it is out of range
 
-    GameCursor.Mode := cm_Objects;
+    GameCursor.Mode := cmObjects;
     if TKMButtonFlat(Sender).Tag = 255 then
       GameCursor.Tag1 := 255 //erase object
     else
@@ -1592,20 +1597,20 @@ begin
   TKMButtonFlat(Sender).Down := True;
 
   //Reset cursor and see if it needs to be changed
-  GameCursor.Mode := cm_None;
+  GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
 
   if Button_BuildCancel.Down then
-    GameCursor.Mode := cm_Erase
+    GameCursor.Mode := cmErase
   else
   if Button_BuildRoad.Down then
-    GameCursor.Mode := cm_Road
+    GameCursor.Mode := cmRoad
   else
   if Button_BuildField.Down then
-    GameCursor.Mode := cm_Field
+    GameCursor.Mode := cmField
   else
   if Button_BuildWine.Down then
-    GameCursor.Mode := cm_Wine
+    GameCursor.Mode := cmWine
   else
   //if Button_BuildWall.Down then
   //  GameCursor.Mode:=cm_Wall;
@@ -1613,7 +1618,7 @@ begin
   for I := 1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[I] <> ht_None then
   if Button_Build[I].Down then begin
-     GameCursor.Mode := cm_Houses;
+     GameCursor.Mode := cmHouses;
      GameCursor.Tag1 := Byte(GUIHouseOrder[I]);
   end;
 end;
@@ -1623,7 +1628,7 @@ procedure TKMapEdInterface.Unit_ButtonClick(Sender: TObject);
 var I: Integer;
 begin
   //Reset cursor and see if it needs to be changed
-  GameCursor.Mode := cm_None;
+  GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
 
   if Sender = nil then Exit;
@@ -1637,11 +1642,11 @@ begin
   TKMButtonFlat(Sender).Down := True;
 
   if Button_UnitCancel.Down then
-    GameCursor.Mode := cm_Erase
+    GameCursor.Mode := cmErase
   else
   if (TKMButtonFlat(Sender).Tag in [byte(UNIT_MIN)..byte(UNIT_MAX)]) then
   begin
-    GameCursor.Mode := cm_Units;
+    GameCursor.Mode := cmUnits;
     GameCursor.Tag1 := byte(TKMButtonFlat(Sender).Tag);
   end;
 end;
@@ -1865,7 +1870,7 @@ begin
   //We should drop the tool but don't close opened tab. This allows eg: Place a warrior, right click so you are not placing more warriors, select the placed warrior.
   //Before you would have had to close the tab to do this.
   if GetShownPage = esp_Terrain then exit; //Terrain uses both buttons for relief changing, tile rotation etc.
-  GameCursor.Mode:=cm_None;
+  GameCursor.Mode:=cmNone;
   GameCursor.Tag1:=0;
 end;
 
@@ -2158,12 +2163,12 @@ begin
   TKMButtonFlat(Sender).Down := True;
 
   //Reset cursor and see if it needs to be changed
-  GameCursor.Mode := cm_None;
+  GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
 
   if Button_Reveal.Down then
   begin
-    GameCursor.Mode := cm_Markers;
+    GameCursor.Mode := cmMarkers;
     GameCursor.Tag1 := MARKER_REVEAL;
   end;
 end;
@@ -2322,7 +2327,7 @@ begin
     DisplayHint(nil); //Clear shown hint
 
   fGame.UpdateGameCursor(X,Y,Shift);
-  if GameCursor.Mode = cm_None then
+  if GameCursor.Mode = cmNone then
   begin
     Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if Marker.MarkerType <> mtNone then
@@ -2341,12 +2346,12 @@ begin
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
     case GameCursor.Mode of
-      cm_Road:      if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);
-      cm_Field:     if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
-      cm_Wine:      if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
+      cmRoad:      if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);
+      cmField:     if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
+      cmWine:      if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
       //cm_Wall:  if MyPlayer.CanAddFieldPlan(P, ft_Wall) then MyPlayer.AddField(P, ft_Wine);
-      cm_Objects:   if GameCursor.Tag1 = 255 then fTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
-      cm_Erase:     case GetShownPage of
+      cmObjects:   if GameCursor.Tag1 = 255 then fTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
+      cmErase:     case GetShownPage of
                       esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
                       esp_Units:      fPlayers.RemAnyUnit(P);
                       esp_Buildings:  begin
@@ -2382,11 +2387,11 @@ begin
 
     //Right click performs some special functions and shortcuts
     case GameCursor.Mode of
-      cm_Tiles:   begin
+      cmTiles:   begin
                     SetTileDirection(GameCursor.MapEdDir+1); //Rotate tile direction
                     TilesRandom.Checked := false; //Reset
                   end;
-      cm_Objects: fTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
+      cmObjects: fTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
     end;
     //Move the selected object to the cursor location
     if fPlayers.Selected is TKMHouse then
@@ -2403,7 +2408,7 @@ begin
   else
   if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
     case GameCursor.Mode of
-      cm_None:  begin
+      cmNone:  begin
                   //If there are some additional layers we first HitTest them
                   //as they are rendered ontop of Houses/Objects
                   Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -2419,31 +2424,34 @@ begin
                       ShowUnitInfo(TKMUnit(fPlayers.Selected));
                   end;
                 end;
-      cm_Road:  if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);
-      cm_Field: if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
-      cm_Wine:  if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
+      cmRoad:  if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);
+      cmField: if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
+      cmWine:  if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
       //cm_Wall:
-      cm_Houses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+      cmHouses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
                 begin
                   MyPlayer.AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
                   if not(ssShift in Shift) then Build_ButtonClick(Button_BuildRoad);
                 end;
-      cm_Elevate,
-      cm_Equalize:; //handled in UpdateStateIdle
-      cm_Objects: fTerrain.SetTree(P, GameCursor.Tag1);
-      cm_Units: if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
+      cmElevate,
+      cmEqualize:; //handled in UpdateStateIdle
+      cmObjects: fTerrain.SetTree(P, GameCursor.Tag1);
+      cmUnits: if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                 begin //Check if we can really add a unit
                   if TUnitType(GameCursor.Tag1) in [HUMANS_MIN..HUMANS_MAX] then
                     MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, false)
                   else
                     fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);
                 end;
-      cm_Erase:
+      cmMarkers:
+                case GetShownPage of
+                  esp_Reveal: fGame.MapEditor.Revealers[MyPlayer.PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
+                end;
+
+      cmErase:
                 case GetShownPage of
                   esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
-                  esp_Units:      begin
-                                    fPlayers.RemAnyUnit(P);
-                                  end;
+                  esp_Units:      fPlayers.RemAnyUnit(P);
                   esp_Buildings:  begin
                                     fPlayers.RemAnyHouse(P);
                                     if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
@@ -2451,6 +2459,7 @@ begin
                                     if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
                                       fTerrain.RemField(P);
                                   end;
+                  //todo: esp_Reveal:   fGame.MapEditor.Revealers.Remove(P);
                 end;
     end;
 end;
@@ -2459,12 +2468,10 @@ end;
 function TKMapEdInterface.GetShownPage: TKMMapEdShownPage;
 begin
   Result := esp_Unknown;
-  if Panel_Terrain.Visible then
-    Result := esp_Terrain;
-  if Panel_Build.Visible then
-    Result := esp_Buildings;
-  if Panel_Units.Visible then
-    Result := esp_Units;
+  if Panel_Terrain.Visible then   Result := esp_Terrain;
+  if Panel_Build.Visible then     Result := esp_Buildings;
+  if Panel_Units.Visible then     Result := esp_Units;
+  if Panel_RevealFOW.Visible then Result := esp_Reveal;
 end;
 
 

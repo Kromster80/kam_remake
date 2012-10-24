@@ -197,7 +197,7 @@ const //Here we store options that are hidden somewhere in code
   CHARTS_SAMPLING_FOR_TACTICS = 50; //Each 5sec, cos average game length is much shorter
 
 type
-  TPlayerIndex = {type} shortint;
+  TPlayerIndex = {type} ShortInt;
   TPlayerArray = array [0..MAX_PLAYERS-1] of TPlayerIndex;
 
 const
@@ -206,8 +206,10 @@ const
 
 {Cursors}
 type
-  TCursorMode = ( cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
-                  cm_Elevate, cm_Equalize, cm_Tiles, cm_Objects, cm_Units, cm_Markers); //MapEditor
+  TKMCursorMode = (
+    cmNone, cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses, // Gameplay
+    cmElevate, cmEqualize, cmTiles, cmObjects, cmUnits, cmMarkers // MapEditor
+    );
 
 const
   MARKER_REVEAL = 1;
@@ -250,8 +252,9 @@ type //Indexing should start from 1.
 }
 
 
-//Which MapEditor page is being shown. Add more as they are needed.
-type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);
+type
+  //Which MapEditor page is being shown
+  TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units, esp_Reveal);
 
     TKMissionMode = (mm_Normal, mm_Tactic);
 
@@ -785,7 +788,7 @@ var
     Float: TKMPointF;    //Precise cursor position in map coords
     Cell: TKMPoint;      //Cursor position cell
     SState: TShiftState; //Thats actually used to see if Left or Right mouse button is pressed
-    Mode: TCursorMode;   //Modes used in game (building, unit, road, etc..)
+    Mode: TKMCursorMode;   //Modes used in game (building, unit, road, etc..)
     Tag1: Byte;    //Tag to know building type, unit type etc.
 
     MapEdDir: Byte;

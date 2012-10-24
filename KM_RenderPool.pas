@@ -1115,15 +1115,15 @@ begin
   P := GameCursor.Cell;
   F := GameCursor.Float;
 
-  if (GameCursor.Mode <> cm_None) and (GameCursor.Mode <> cm_Houses) and
+  if (GameCursor.Mode <> cmNone) and (GameCursor.Mode <> cmHouses) and
      (MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) = 0) then
     RenderCursorBuildIcon(P)       //Red X
   else
 
   with fTerrain do
   case GameCursor.Mode of
-    cm_None:   ;
-    cm_Erase:   case fGame.GameMode of
+    cmNone:   ;
+    cmErase:   case fGame.GameMode of
                   gmMapEd:
                     begin
                       //With Units tab see if there's a unit below cursor
@@ -1157,34 +1157,34 @@ begin
                         RenderCursorBuildIcon(P); //Red X
                     end;
                 end;
-    cm_Road:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Road) then
+    cmRoad:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Road) then
                   RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(P);       //Red X
-    cm_Field:   if MyPlayer.CanAddFakeFieldPlan(P, ft_Corn) then
+    cmField:   if MyPlayer.CanAddFakeFieldPlan(P, ft_Corn) then
                   RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(P);       //Red X
-    cm_Wine:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Wine) then
+    cmWine:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Wine) then
                   RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(P);       //Red X
-    cm_Wall:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Wall) then
+    cmWall:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Wall) then
                   RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(P);       //Red X
-    cm_Houses:  RenderCursorWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
-    cm_Tiles:   if GameCursor.MapEdDir in [0..3] then
+    cmHouses:  RenderCursorWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
+    cmTiles:   if GameCursor.MapEdDir in [0..3] then
                   fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, GameCursor.MapEdDir)
                 else
                   fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, (fTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
-    cm_Objects: begin
+    cmObjects: begin
                   //If there's object below - paint it in Red
                   RenderObjectOrQuad(fTerrain.Land[P.Y,P.X].Obj, fTerrain.AnimStep, P.X, P.Y, true, true);
                   RenderObjectOrQuad(GameCursor.Tag1, fTerrain.AnimStep, P.X, P.Y, true);
                 end;
-    cm_Elevate,
-    cm_Equalize:begin
+    cmElevate,
+    cmEqualize:begin
                   Rad := GameCursor.MapEdSize;
                   Slope := GameCursor.MapEdSlope;
                   for I := Max((Round(F.Y) - Rad), 1) to Min((Round(F.Y) + Rad), fTerrain.MapY -1) do
@@ -1204,11 +1204,11 @@ begin
                     hsSquare: fRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $00000000,  $FFFFFFFF);
                   end;
                 end;
-    cm_Units:   if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
+    cmUnits:   if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                   AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, MyPlayer.FlagColor, True)
                 else
                   RenderCursorBuildIcon(P); //Red X
-    cm_Markers: begin
+    cmMarkers: begin
                   RenderCursorBuildIcon(P, 394, MyPlayer.FlagColor);
                 end;
   end;

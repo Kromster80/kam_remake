@@ -41,15 +41,15 @@ type
     procedure LoadFromPath(aPath: string);
 
     property BackGroundPic: TKMPic read fBackGroundPic write fBackGroundPic;
-    property MapCount: byte read fMapCount write SetMapCount;
+    property MapCount: Byte read fMapCount write SetMapCount;
     property ShortTitle: AnsiString read fShortTitle write fShortTitle;
-    property UnlockedMap: byte read fUnlockedMap write SetUnlockedMap;
+    property UnlockedMap: Byte read fUnlockedMap write SetUnlockedMap;
 
     function CampaignTitle: string;
-    function MissionFile(aIndex: byte): string;
-    function MissionTitle(aIndex: byte): AnsiString;
-    function MissionText(aIndex: byte): AnsiString;
-    function BreifingAudioFile(aIndex: byte; aLang:string): string;
+    function MissionFile(aIndex: Byte): string;
+    function MissionTitle(aIndex: Byte): AnsiString;
+    function MissionText(aIndex: Byte): AnsiString;
+    function BreifingAudioFile(aIndex: Byte; aLang: string): string;
   end;
 
 
@@ -366,7 +366,7 @@ begin
 end;
 
 
-procedure TKMCampaign.SetMapCount(aValue: byte);
+procedure TKMCampaign.SetMapCount(aValue: Byte);
 begin
   fMapCount := aValue;
   SetLength(Maps, fMapCount);
@@ -379,14 +379,14 @@ begin
 end;
 
 
-function TKMCampaign.MissionFile(aIndex: byte): string;
+function TKMCampaign.MissionFile(aIndex: Byte): string;
 begin
   Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + '\' +
             fShortTitle + Format('%.2d', [aIndex+1]) + '.dat';
 end;
 
 
-function TKMCampaign.MissionTitle(aIndex: byte): AnsiString;
+function TKMCampaign.MissionTitle(aIndex: Byte): AnsiString;
 begin
   Result := Format(fTextLibrary[fFirstTextIndex + 1], [aIndex+1]);
 end;
@@ -394,13 +394,13 @@ end;
 
 //Mission texts of original campaigns are available in all languages,
 //custom campaigns are unlikely to have more texts in more than 1-2 languages
-function TKMCampaign.MissionText(aIndex: byte): AnsiString;
+function TKMCampaign.MissionText(aIndex: Byte): AnsiString;
 begin
   Result := fTextLibrary[fFirstTextIndex + 10 + aIndex];
 end;
 
 
-function TKMCampaign.BreifingAudioFile(aIndex: byte; aLang:string): string;
+function TKMCampaign.BreifingAudioFile(aIndex: Byte; aLang: string): string;
 begin
   Result := fPath + fShortTitle + Format('%.2d', [aIndex+1]) + '\' +
             fShortTitle + Format('%.2d', [aIndex+1]) + '.' + aLang + '.mp3';
@@ -409,7 +409,7 @@ end;
 
 {When player completes one map we allow to reveal the next one, note that
 player may be replaying previous maps, in that case his progress remains the same}
-procedure TKMCampaign.SetUnlockedMap(aValue: byte);
+procedure TKMCampaign.SetUnlockedMap(aValue: Byte);
 begin
   fUnlockedMap := EnsureRange(aValue, fUnlockedMap, fMapCount - 1);
 end;
