@@ -82,6 +82,10 @@ type
     tbAngleY: TTrackBar;
     Label4: TLabel;
     chkShowBalance: TCheckBox;
+    tbOwnMargin: TTrackBar;
+    tbOwnThresh: TTrackBar;
+    Label5: TLabel;
+    Label6: TLabel;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -134,6 +138,8 @@ type
     procedure chkShowAvoidClick(Sender: TObject);
     procedure tbAngleChange(Sender: TObject);
     procedure chkShowBalanceClick(Sender: TObject);
+    procedure tbOwnMarginChange(Sender: TObject);
+    procedure tbOwnThreshChange(Sender: TObject);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -566,6 +572,17 @@ begin
   HOUSE_BUILDING_STEP := tbBuildingStep.Position / tbBuildingStep.Max;
 end;
 
+
+procedure TFormMain.tbOwnMarginChange(Sender: TObject);
+begin
+  OWN_MARGIN := tbOwnMargin.Position;
+  tbOwnThresh.Max := OWN_MARGIN;
+end;
+
+procedure TFormMain.tbOwnThreshChange(Sender: TObject);
+begin
+  OWN_THRESHOLD := tbOwnThresh.Position;
+end;
 
 {$IFDEF MSWindows}
 procedure TFormMain.WMSysCommand(var Msg: TWMSysCommand);

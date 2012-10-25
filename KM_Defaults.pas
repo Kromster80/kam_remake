@@ -204,6 +204,12 @@ const
   PLAYER_NONE = -1; //No player
   PLAYER_ANIMAL = -2; //animals
 
+var
+  //Values are empirical
+  OWN_MARGIN   :Byte = 160;
+  OWN_THRESHOLD:Byte = 96;
+
+
 {Cursors}
 type
   TKMCursorMode = (

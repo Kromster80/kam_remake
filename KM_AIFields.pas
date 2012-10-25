@@ -14,6 +14,10 @@ type
   //Strcucture to describe NavMesh layout
   TKMNavMesh = class
   private
+    fRawOutlines: TKMShapesArray;
+    fSimpleOutlines: TKMShapesArray;
+    fRawMesh: TKMTriMesh;
+
     fNodeCount: Integer;
     fPolyCount: Integer;
     fNodes: array of record
@@ -31,9 +35,8 @@ type
     function GetEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
     procedure UpdateOwnership;
   public
-    procedure AssignMesh(const aTriMesh: TKMTriMesh);
+    procedure Init;
     procedure GetDefenceOutline(aOwner: TPlayerIndex; out aOutline: TKMWeightSegments);
-    function EnemyPresence(aLoc: TKMpoint): Word;
     procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
   end;
@@ -65,14 +68,8 @@ type
   //Influence maps, navmeshes, etc
   TKMAIFields = class
   private
-    fRawOutlines: TKMShapesArray;
-    fSimpleOutlines: TKMShapesArray;
-    fRawMesh: TKMTriMesh;
-
     fNavMesh: TKMNavMesh;
     fInfluences: TKMInfluences;
-
-    procedure InitNavMesh;
   public
     constructor Create;
     destructor Destroy; override;
@@ -100,30 +97,234 @@ const
   INFLUENCE_DECAY = 5;
   INFLUENCE_ENEMY_DIV = 2;
 
-  //Should be within 16 tiles and at least one corner within 8 tiles
-  OWN_MARGIN = 160;
-  OWN_THRESHOLD = 144;
-
 
 { TKMNavMesh }
-procedure TKMNavMesh.AssignMesh(const aTriMesh: TKMTriMesh);
+procedure TKMNavMesh.Init;
+type
+  TStepDirection = (sdNone, sdUp, sdRight, sdDown, sdLeft);
 var
-  I: Integer;
+  fTileOutlines: TKMShapesArray;
+  Tmp: array of array of Byte;
+  PrevStep, NextStep: TStepDirection;
+
+  procedure Step(X,Y: Word);
+    function IsTilePassable(aX, aY: Word): Boolean;
+    begin
+      Result := InRange(aX, 1, fTerrain.MapX-1)
+                and InRange(aY, 1, fTerrain.MapY-1)
+                and (Tmp[aY,aX] > 0);
+      //Mark tiles we've been on, so they do not trigger new duplicate contour
+      if Result then
+        Tmp[aY,aX] := Tmp[aY,aX] - (Tmp[aY,aX] div 2);
+    end;
+  var
+    State: Byte;
+  begin
+    prevStep := nextStep;
+
+    //Assemble bitmask
+    State :=  Byte(IsTilePassable(X  ,Y  )) +
+              Byte(IsTilePassable(X+1,Y  )) * 2 +
+              Byte(IsTilePassable(X  ,Y+1)) * 4 +
+              Byte(IsTilePassable(X+1,Y+1)) * 8;
+
+    //Where do we go from here
+    case State of
+      1:  nextStep := sdUp;
+      2:  nextStep := sdRight;
+      3:  nextStep := sdRight;
+      4:  nextStep := sdLeft;
+      5:  nextStep := sdUp;
+      6:  if (prevStep = sdUp) then
+            nextStep := sdLeft
+          else
+            nextStep := sdRight;
+      7:  nextStep := sdRight;
+      8:  nextStep := sdDown;
+      9:  if (prevStep = sdRight) then
+            nextStep := sdUp
+          else
+            nextStep := sdDown;
+      10: nextStep := sdDown;
+      11: nextStep := sdDown;
+      12: nextStep := sdLeft;
+      13: nextStep := sdUp;
+      14: nextStep := sdLeft;
+      else nextStep := sdNone;
+    end;
+  end;
+
+  procedure WalkPerimeter(aStartX, aStartY: Word);
+  var
+    X, Y: Integer;
+  begin
+    X := aStartX;
+    Y := aStartY;
+    nextStep := sdNone;
+
+    SetLength(fTileOutlines.Shape, fTileOutlines.Count + 1);
+    fTileOutlines.Shape[fTileOutlines.Count].Count := 0;
+
+    repeat
+      Step(X, Y);
+
+      case NextStep of
+        sdUp:     Dec(Y);
+        sdRight:  Inc(X);
+        sdDown:   Inc(Y);
+        sdLeft:   Dec(X);
+        else
+      end;
+
+      //Append new node vertice
+      with fTileOutlines.Shape[fTileOutlines.Count] do
+      begin
+        if Length(Nodes) <= Count then
+          SetLength(Nodes, Count + 32);
+        Nodes[Count] := KMPointI(X, Y);
+        Inc(Count);
+      end;
+    until((X = aStartX) and (Y = aStartY));
+
+    //Do not include too small regions
+    if fTileOutlines.Shape[fTileOutlines.Count].Count >= 12 then
+      Inc(fTileOutlines.Count);
+  end;
+
+var
+  fDelaunay: TDelaunay;
+  I, K, L, M: Integer;
+  C1, C2, C3, C4: Boolean;
+  MeshDensityX, MeshDensityY: Byte;
+  SizeX, SizeY: Word;
+  PX,PY,TX,TY: Integer;
+  Skip: Boolean;
 begin
-  fNodeCount := Length(aTriMesh.Vertices);
-  fPolyCount := Length(aTriMesh.Polygons);
+  SetLength(Tmp, fTerrain.MapY+1, fTerrain.MapX+1);
+
+  //Copy map to temp array where we can use Keys 0-1-2 for internal purposes
+  //0 - no obstacle
+  //1 - parsed obstacle
+  //2 - non-parsed obstacle
+  for I := 1 to fTerrain.MapY - 1 do
+  for K := 1 to fTerrain.MapX - 1 do
+    Tmp[I,K] := 2 - Byte(CanOwn in fTerrain.Land[I,K].Passability) * 2;
+
+  fTileOutlines.Count := 0;
+  for I := 1 to fTerrain.MapY - 2 do
+  for K := 1 to fTerrain.MapX - 2 do
+  begin
+    //Find new seed among unparsed obstacles
+    //C1-C2
+    //C3-C4
+    C1 := (Tmp[I,K] = 2);
+    C2 := (Tmp[I,K+1] = 2);
+    C3 := (Tmp[I+1,K] = 2);
+    C4 := (Tmp[I+1,K+1] = 2);
+
+    //todo: Skip cases where C1..C4 are all having value of 1-2
+    if (C1 or C2 or C3 or C4) <> (C1 and C2 and C3 and C4) then
+      WalkPerimeter(K,I);
+  end;
+
+  SimplifyStraights(fTileOutlines, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fRawOutlines);
+
+  with TKMSimplifyShapes.Create(2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1)) do
+  begin
+    Execute(fRawOutlines, fSimpleOutlines);
+    Free;
+  end;
+
+  //Fill Delaunay triangles
+  fDelaunay := TDelaunay.Create(-1, -1, fTerrain.MapX, fTerrain.MapY);
+  try
+    fDelaunay.Tolerance := 1;
+    for I := 0 to fSimpleOutlines.Count - 1 do
+    with fSimpleOutlines.Shape[I] do
+      for K := 0 to Count - 1 do
+        fDelaunay.AddPoint(Nodes[K].X, Nodes[K].Y);
+
+    //Add more points on edges
+    SizeX := fTerrain.MapX-1;
+    SizeY := fTerrain.MapY-1;
+    MeshDensityX := SizeX div 15; //once per 15 tiles
+    MeshDensityY := SizeY div 15;
+    for I := 0 to MeshDensityY do
+    for K := 0 to MeshDensityX do
+    if (I = 0) or (I = MeshDensityY) or (K = 0) or (K = MeshDensityX) then
+    begin
+      Skip := False;
+      PX := Round(SizeX / MeshDensityX * K);
+      PY := Round(SizeY / MeshDensityY * I);
+
+      //Don't add point to obstacle outline if there's one below
+      for L := 0 to fSimpleOutlines.Count - 1 do
+      with fSimpleOutlines.Shape[L] do
+        for M := 0 to Count - 1 do
+        begin
+          TX := Nodes[(M + 1) mod Count].X;
+          TY := Nodes[(M + 1) mod Count].Y;
+          if InRange(PX, Nodes[M].X, TX) and InRange(PY, Nodes[M].Y, TY)
+          or InRange(PX, TX, Nodes[M].X) and InRange(PY, TY, Nodes[M].Y) then
+            Skip := True;
+        end;
+
+      if not Skip then
+        fDelaunay.AddPoint(PX, PY);
+    end;
+
+    //Tolerance must be a little higher than longest span we expect from polysimplification
+    //so that not a single node was placed on an outline segment (otherwise RemObstaclePolys will not be able to trace outlines)
+    fDelaunay.Tolerance := 7;
+    for I := 1 to MeshDensityY - 1 do
+    for K := 1 to MeshDensityX - Byte(I mod 2 = 1) - 1 do
+      fDelaunay.AddPoint(Round(SizeX / MeshDensityX * (K + Byte(I mod 2 = 1) / 2)), Round(SizeY / MeshDensityY * I));
+
+    fDelaunay.Mesh;
+
+    //Bring triangulated mesh back
+    SetLength(fRawMesh.Vertices, fDelaunay.VerticeCount);
+    for I := 0 to fDelaunay.VerticeCount - 1 do
+    begin
+      fRawMesh.Vertices[I].X := Round(fDelaunay.Vertex[I].X);
+      fRawMesh.Vertices[I].Y := Round(fDelaunay.Vertex[I].Y);
+    end;
+    SetLength(fRawMesh.Polygons, fDelaunay.PolyCount);
+    for I := 0 to fDelaunay.PolyCount - 1 do
+    begin
+      fRawMesh.Polygons[I,0] := fDelaunay.Triangle^[I].vv0;
+      fRawMesh.Polygons[I,1] := fDelaunay.Triangle^[I].vv1;
+      fRawMesh.Polygons[I,2] := fDelaunay.Triangle^[I].vv2;
+    end;
+  finally
+    FreeAndNil(fDelaunay);
+  end;
+
+  ForceOutlines(fRawMesh, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fSimpleOutlines);
+
+  RemoveObstaclePolies(fRawMesh, fSimpleOutlines);
+
+  RemoveFrame(fRawMesh);
+
+  CheckForDegenerates(fRawMesh);//}
+
+  Assert(Length(fRawMesh.Polygons) > 8);
+
+  //--------------------------------------
+  fNodeCount := Length(fRawMesh.Vertices);
+  fPolyCount := Length(fRawMesh.Polygons);
 
   //Bring triangulated mesh back
   SetLength(fNodes, fNodeCount);
   for I := 0 to fNodeCount - 1 do
-    fNodes[I].Loc := KMPoint(aTriMesh.Vertices[I]);
+    fNodes[I].Loc := KMPoint(fRawMesh.Vertices[I]);
 
   SetLength(fPolygons, fPolyCount);
   for I := 0 to fPolyCount - 1 do
   begin
-    fPolygons[I].Indices[0] := aTriMesh.Polygons[I,0];
-    fPolygons[I].Indices[1] := aTriMesh.Polygons[I,1];
-    fPolygons[I].Indices[2] := aTriMesh.Polygons[I,2];
+    fPolygons[I].Indices[0] := fRawMesh.Polygons[I,0];
+    fPolygons[I].Indices[1] := fRawMesh.Polygons[I,1];
+    fPolygons[I].Indices[2] := fRawMesh.Polygons[I,2];
   end;
 
   InitConnectivity;
@@ -197,12 +398,6 @@ begin
   for I := 0 to fPlayers.Count - 1 do
   if (I <> aOwner) and (fPlayers.CheckAlliance(aOwner, I) = at_Enemy) then
     Result := Result + fNodes[aIndex].Owner[I];
-end;
-
-
-function TKMNavMesh.EnemyPresence(aLoc: TKMpoint): Word;
-begin
-  //
 end;
 
 
@@ -295,6 +490,10 @@ begin
 
   //5. Remove spans that face isolated areas
 
+  //5a.
+  for I := 0 to High(aOutline) do
+
+
   //6. See if we can expand our area while reducing outline length
 
   //7. Deal with allies
@@ -337,6 +536,13 @@ var
   Outline: TKMWeightSegments;
 begin
   if not AI_GEN_NAVMESH then Exit;
+
+  //Raw obstacle outlines
+  if OVERLAY_NAVMESH then
+    for I := 0 to fRawOutlines.Count - 1 do
+    for K := 0 to fRawOutlines.Shape[I].Count - 1 do
+    with fRawOutlines.Shape[I] do
+      fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FFFF00FF);
 
   //NavMesh polys coverage
   if OVERLAY_NAVMESH then
@@ -693,224 +899,9 @@ begin
 
   if AI_GEN_NAVMESH then
   begin
-    InitNavMesh;
+    fNavMesh.Init;
     fNavMesh.UpdateOwnership;
   end;
-end;
-
-
-procedure TKMAIFields.InitNavMesh;
-type
-  TStepDirection = (sdNone, sdUp, sdRight, sdDown, sdLeft);
-var
-  fTileOutlines: TKMShapesArray;
-  Tmp: array of array of Byte;
-  PrevStep, NextStep: TStepDirection;
-
-  procedure Step(X,Y: Word);
-    function IsTilePassable(aX, aY: Word): Boolean;
-    begin
-      Result := InRange(aX, 1, fTerrain.MapX-1)
-                and InRange(aY, 1, fTerrain.MapY-1)
-                and (Tmp[aY,aX] > 0);
-      //Mark tiles we've been on, so they do not trigger new duplicate contour
-      if Result then
-        Tmp[aY,aX] := Tmp[aY,aX] - (Tmp[aY,aX] div 2);
-    end;
-  var
-    State: Byte;
-  begin
-    prevStep := nextStep;
-
-    //Assemble bitmask
-    State :=  Byte(IsTilePassable(X  ,Y  )) +
-              Byte(IsTilePassable(X+1,Y  )) * 2 +
-              Byte(IsTilePassable(X  ,Y+1)) * 4 +
-              Byte(IsTilePassable(X+1,Y+1)) * 8;
-
-    //Where do we go from here
-    case State of
-      1:  nextStep := sdUp;
-      2:  nextStep := sdRight;
-      3:  nextStep := sdRight;
-      4:  nextStep := sdLeft;
-      5:  nextStep := sdUp;
-      6:  if (prevStep = sdUp) then
-            nextStep := sdLeft
-          else
-            nextStep := sdRight;
-      7:  nextStep := sdRight;
-      8:  nextStep := sdDown;
-      9:  if (prevStep = sdRight) then
-            nextStep := sdUp
-          else
-            nextStep := sdDown;
-      10: nextStep := sdDown;
-      11: nextStep := sdDown;
-      12: nextStep := sdLeft;
-      13: nextStep := sdUp;
-      14: nextStep := sdLeft;
-      else nextStep := sdNone;
-    end;
-  end;
-
-  procedure WalkPerimeter(aStartX, aStartY: Word);
-  var
-    X, Y: Integer;
-  begin
-    X := aStartX;
-    Y := aStartY;
-    nextStep := sdNone;
-
-    SetLength(fTileOutlines.Shape, fTileOutlines.Count + 1);
-    fTileOutlines.Shape[fTileOutlines.Count].Count := 0;
-
-    repeat
-      Step(X, Y);
-
-      case NextStep of
-        sdUp:     Dec(Y);
-        sdRight:  Inc(X);
-        sdDown:   Inc(Y);
-        sdLeft:   Dec(X);
-        else
-      end;
-
-      //Append new node vertice
-      with fTileOutlines.Shape[fTileOutlines.Count] do
-      begin
-        if Length(Nodes) <= Count then
-          SetLength(Nodes, Count + 32);
-        Nodes[Count] := KMPointI(X, Y);
-        Inc(Count);
-      end;
-    until((X = aStartX) and (Y = aStartY));
-
-    //Do not include too small regions
-    if fTileOutlines.Shape[fTileOutlines.Count].Count >= 12 then
-      Inc(fTileOutlines.Count);
-  end;
-
-var
-  fDelaunay: TDelaunay;
-  I, K, L, M: Integer;
-  C1, C2, C3, C4: Boolean;
-  MeshDensityX, MeshDensityY: Byte;
-  SizeX, SizeY: Word;
-  PX,PY,TX,TY: Integer;
-  Skip: Boolean;
-begin
-  SetLength(Tmp, fTerrain.MapY+1, fTerrain.MapX+1);
-
-  //Copy map to temp array where we can use Keys 0-1-2 for internal purposes
-  //0 - no obstacle
-  //1 - parsed obstacle
-  //2 - non-parsed obstacle
-  for I := 1 to fTerrain.MapY - 1 do
-  for K := 1 to fTerrain.MapX - 1 do
-    Tmp[I,K] := 2 - Byte(CanOwn in fTerrain.Land[I,K].Passability) * 2;
-
-  fTileOutlines.Count := 0;
-  for I := 1 to fTerrain.MapY - 2 do
-  for K := 1 to fTerrain.MapX - 2 do
-  begin
-    //Find new seed among unparsed obstacles
-    //C1-C2
-    //C3-C4
-    C1 := (Tmp[I,K] = 2);
-    C2 := (Tmp[I,K+1] = 2);
-    C3 := (Tmp[I+1,K] = 2);
-    C4 := (Tmp[I+1,K+1] = 2);
-
-    //todo: Skip cases where C1..C4 are all having value of 1-2
-    if (C1 or C2 or C3 or C4) <> (C1 and C2 and C3 and C4) then
-      WalkPerimeter(K,I);
-  end;
-
-  SimplifyStraights(fTileOutlines, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fRawOutlines);
-
-  with TKMSimplifyShapes.Create(2, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1)) do
-  begin
-    Execute(fRawOutlines, fSimpleOutlines);
-    Free;
-  end;
-
-  //Fill Delaunay triangles
-  fDelaunay := TDelaunay.Create(-1, -1, fTerrain.MapX, fTerrain.MapY);
-  try
-    fDelaunay.Tolerance := 1;
-    for I := 0 to fSimpleOutlines.Count - 1 do
-    with fSimpleOutlines.Shape[I] do
-      for K := 0 to Count - 1 do
-        fDelaunay.AddPoint(Nodes[K].X, Nodes[K].Y);
-
-    //Add more points on edges
-    SizeX := fTerrain.MapX-1;
-    SizeY := fTerrain.MapY-1;
-    MeshDensityX := SizeX div 15; //once per 15 tiles
-    MeshDensityY := SizeY div 15;
-    for I := 0 to MeshDensityY do
-    for K := 0 to MeshDensityX do
-    if (I = 0) or (I = MeshDensityY) or (K = 0) or (K = MeshDensityX) then
-    begin
-      Skip := False;
-      PX := Round(SizeX / MeshDensityX * K);
-      PY := Round(SizeY / MeshDensityY * I);
-
-      //Don't add point to obstacle outline if there's one below
-      for L := 0 to fSimpleOutlines.Count - 1 do
-      with fSimpleOutlines.Shape[L] do
-        for M := 0 to Count - 1 do
-        begin
-          TX := Nodes[(M + 1) mod Count].X;
-          TY := Nodes[(M + 1) mod Count].Y;
-          if InRange(PX, Nodes[M].X, TX) and InRange(PY, Nodes[M].Y, TY)
-          or InRange(PX, TX, Nodes[M].X) and InRange(PY, TY, Nodes[M].Y) then
-            Skip := True;
-        end;
-
-      if not Skip then
-        fDelaunay.AddPoint(PX, PY);
-    end;
-
-    //Tolerance must be a little higher than longest span we expect from polysimplification
-    //so that not a single node was placed on an outline segment (otherwise RemObstaclePolys will not be able to trace outlines)
-    fDelaunay.Tolerance := 7;
-    for I := 1 to MeshDensityY - 1 do
-    for K := 1 to MeshDensityX - Byte(I mod 2 = 1) - 1 do
-      fDelaunay.AddPoint(Round(SizeX / MeshDensityX * (K + Byte(I mod 2 = 1) / 2)), Round(SizeY / MeshDensityY * I));
-
-    fDelaunay.Mesh;
-
-    //Bring triangulated mesh back
-    SetLength(fRawMesh.Vertices, fDelaunay.VerticeCount);
-    for I := 0 to fDelaunay.VerticeCount - 1 do
-    begin
-      fRawMesh.Vertices[I].X := Round(fDelaunay.Vertex[I].X);
-      fRawMesh.Vertices[I].Y := Round(fDelaunay.Vertex[I].Y);
-    end;
-    SetLength(fRawMesh.Polygons, fDelaunay.PolyCount);
-    for I := 0 to fDelaunay.PolyCount - 1 do
-    begin
-      fRawMesh.Polygons[I,0] := fDelaunay.Triangle^[I].vv0;
-      fRawMesh.Polygons[I,1] := fDelaunay.Triangle^[I].vv1;
-      fRawMesh.Polygons[I,2] := fDelaunay.Triangle^[I].vv2;
-    end;
-  finally
-    FreeAndNil(fDelaunay);
-  end;
-
-  ForceOutlines(fRawMesh, KMRect(0, 0, fTerrain.MapX-1, fTerrain.MapY-1), fSimpleOutlines);
-
-  RemoveObstaclePolies(fRawMesh, fSimpleOutlines);
-
-  RemoveFrame(fRawMesh);
-
-  CheckForDegenerates(fRawMesh);//}
-
-  Assert(Length(fRawMesh.Polygons) > 8);
-
-  fNavMesh.AssignMesh(fRawMesh);
 end;
 
 
@@ -923,18 +914,9 @@ end;
 
 //Render debug symbols
 procedure TKMAIFields.Paint(aRect: TKMRect);
-var
-  I, K: Integer;
 begin
   if AI_GEN_INFLUENCE_MAPS then
     fInfluences.Paint(aRect);
-
-  //Raw obstacle outlines
-  if OVERLAY_NAVMESH then
-    for I := 0 to fRawOutlines.Count - 1 do
-    for K := 0 to fRawOutlines.Shape[I].Count - 1 do
-    with fRawOutlines.Shape[I] do
-      fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FFFF00FF);
 
   if AI_GEN_NAVMESH then
     fNavMesh.Paint(aRect);

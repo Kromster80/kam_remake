@@ -194,9 +194,23 @@ object FormMain: TFormMain
       Left = 8
       Top = 232
       Width = 185
-      Height = 121
+      Height = 193
       Caption = ' AI '
       TabOrder = 7
+      object Label5: TLabel
+        Left = 104
+        Top = 112
+        Width = 32
+        Height = 13
+        Caption = 'Margin'
+      end
+      object Label6: TLabel
+        Left = 104
+        Top = 136
+        Width = 47
+        Height = 13
+        Caption = 'Threshold'
+      end
       object chkShowInfluence: TCheckBox
         Left = 8
         Top = 63
@@ -241,6 +255,34 @@ object FormMain: TFormMain
         Caption = 'Show AI balance'
         TabOrder = 4
         OnClick = chkShowBalanceClick
+      end
+      object tbOwnMargin: TTrackBar
+        Left = 8
+        Top = 112
+        Width = 95
+        Height = 17
+        Max = 255
+        Min = 64
+        Position = 64
+        TabOrder = 5
+        ThumbLength = 14
+        TickMarks = tmBoth
+        TickStyle = tsNone
+        OnChange = tbOwnMarginChange
+      end
+      object tbOwnThresh: TTrackBar
+        Left = 8
+        Top = 136
+        Width = 95
+        Height = 17
+        Max = 255
+        Min = 64
+        Position = 64
+        TabOrder = 6
+        ThumbLength = 14
+        TickMarks = tmBoth
+        TickStyle = tsNone
+        OnChange = tbOwnThreshChange
       end
     end
     object tbAngleY: TTrackBar
