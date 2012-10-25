@@ -28,7 +28,7 @@ type
 
 implementation
 uses KM_Game, KM_Houses, KM_PlayersCollection, KM_Player, KM_Terrain,
-  KM_Utils, KM_AIFields, KM_AIDefensePos;
+  KM_Utils, KM_AIFields, KM_AIDefensePos, KM_NavMesh;
 
 
 { TKMGeneral }
