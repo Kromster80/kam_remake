@@ -199,14 +199,14 @@ object FormMain: TFormMain
       TabOrder = 7
       object Label5: TLabel
         Left = 104
-        Top = 112
+        Top = 128
         Width = 32
         Height = 13
         Caption = 'Margin'
       end
       object Label6: TLabel
         Left = 104
-        Top = 136
+        Top = 152
         Width = 47
         Height = 13
         Caption = 'Threshold'
@@ -258,7 +258,7 @@ object FormMain: TFormMain
       end
       object tbOwnMargin: TTrackBar
         Left = 8
-        Top = 112
+        Top = 128
         Width = 95
         Height = 17
         Max = 255
@@ -272,7 +272,7 @@ object FormMain: TFormMain
       end
       object tbOwnThresh: TTrackBar
         Left = 8
-        Top = 136
+        Top = 152
         Width = 95
         Height = 17
         Max = 255
@@ -283,6 +283,15 @@ object FormMain: TFormMain
         TickMarks = tmBoth
         TickStyle = tsNone
         OnChange = tbOwnThreshChange
+      end
+      object chkShowDefences: TCheckBox
+        Left = 8
+        Top = 96
+        Width = 97
+        Height = 17
+        Caption = 'Show defences'
+        TabOrder = 7
+        OnClick = chkShowDefencesClick
       end
     end
     object tbAngleY: TTrackBar

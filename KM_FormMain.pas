@@ -86,6 +86,7 @@ type
     tbOwnThresh: TTrackBar;
     Label5: TLabel;
     Label6: TLabel;
+    chkShowDefences: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -140,6 +141,7 @@ type
     procedure chkShowBalanceClick(Sender: TObject);
     procedure tbOwnMarginChange(Sender: TObject);
     procedure tbOwnThreshChange(Sender: TObject);
+    procedure chkShowDefencesClick(Sender: TObject);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -447,6 +449,12 @@ end;
 procedure TFormMain.chkShowBalanceClick(Sender: TObject);
 begin
   SHOW_AI_WARE_BALANCE := chkShowBalance.Checked;
+end;
+
+
+procedure TFormMain.chkShowDefencesClick(Sender: TObject);
+begin
+  OVERLAY_DEFENCES := chkShowDefences.Checked;
 end;
 
 

@@ -18,6 +18,10 @@ type
 
   PKMShapesArray = ^TKMShapesArray;
 
+  TKMEdgesArray = record
+    Count: Word;
+    Nodes: array of array [0..1] of SmallInt; //Allow for negative values to mark odd egdes
+  end;
 
   //Class to simplify shapes by removing points within aError
   TKMSimplifyShapes = class

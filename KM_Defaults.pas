@@ -96,6 +96,7 @@ var
   RENDER_3D             :Boolean = False; //Experimental 3D render
   HOUSE_BUILDING_STEP   :Single = 0;
   OVERLAY_NAVMESH       :Boolean = False; //Show navmesh
+  OVERLAY_DEFENCES      :Boolean = False; //Show AI defence perimeters
   OVERLAY_INFLUENCES    :Boolean = False; //Show influence maps
   OVERLAY_AVOID         :Boolean = False; //Show avoidance map
   OVERLAY_FOREST        :Boolean = False; //Show forest map
