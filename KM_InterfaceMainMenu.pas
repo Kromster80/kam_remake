@@ -1317,8 +1317,12 @@ begin
   Panel_Single := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Single.Stretch;
 
-    ColList_SingleMaps := TKMColumnListBox.Create(Panel_Single, 524, 135, 465, 520, fnt_Metal, bsMenu);
+    ColList_SingleMaps := TKMColumnListBox.Create(Panel_Single, 524, 135, 465, 520, fnt_MainMapGold, bsMenu);
     ColList_SingleMaps.SetColumns(fnt_Outline, ['', '', 'Title', 'Size'], [0, 50, 100, 380]);
+    ColList_SingleMaps.Columns[2].Font := fnt_Metal;
+    ColList_SingleMaps.Columns[2].HintFont := fnt_Grey;
+    ColList_SingleMaps.Columns[1].TextAlign := taCenter;
+    ColList_SingleMaps.Columns[3].TextAlign := taCenter;
     ColList_SingleMaps.ItemHeight := 40;
     ColList_SingleMaps.ShowLines := True;
     ColList_SingleMaps.Header.Height := 40;
@@ -2273,7 +2277,8 @@ begin
 
   for I := 0 to fMaps.Count - 1 do
   begin
-    ColList_SingleMaps.AddItem(MakeListRow(['', IntToStr(fMaps[I].Info.PlayerCount), fMaps[I].FileName + '|' + fMaps[I].SmallDesc, fMaps[I].Info.MapSizeText]));
+    ColList_SingleMaps.AddItem(MakeListRow(['', IntToStr(fMaps[I].Info.PlayerCount), fMaps[I].FileName, fMaps[I].Info.MapSizeText]));
+    ColList_SingleMaps.Rows[I].Cells[2].Hint := fMaps[I].SmallDesc;
     ColList_SingleMaps.Rows[I].Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].Info.MissionMode <> mm_Tactic)*14);
   end;
 end;

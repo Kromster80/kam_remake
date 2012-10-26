@@ -650,21 +650,23 @@ type
     fTextAlign: TTextAlign;
     function GetColumnIndex(X: Integer): Integer;
     function GetColumn(aIndex: Integer): TKMListHeaderColumn;
+    procedure ClearColumns;
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
   public
     OnColumnClick: TIntegerEvent;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
     destructor Destroy; override;
 
+    procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
+
     property BackAlpha: Single read fBackAlpha write fBackAlpha;
     property Font: TKMFont read fFont write fFont;
-    property ColumnCount: Integer read fCount write fCount;
+    property ColumnCount: Integer read fCount;
     property Columns[aIndex: Integer]: TKMListHeaderColumn read GetColumn;
     property SortIndex: Integer read fSortIndex write fSortIndex;
     property SortDirection: TSortDirection read fSortDirection write fSortDirection;
     property TextAlign: TTextAlign read fTextAlign write fTextAlign;
 
-    procedure AddColumn(aCaption: string; aOffset: Word);
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure Paint; override;
   end;
@@ -672,10 +674,17 @@ type
   TKMListRow = record
     Cells: array of record
       Caption: string;
+      Hint: string;
       Color: TColor4;
       Pic: TKMPic;
     end;
     Tag: Integer;
+  end;
+
+  TKMListColumn = class
+    Font: TKMFont;
+    HintFont: TKMFont;
+    TextAlign: TTextAlign;
   end;
 
   TKMColumnListBox = class(TKMControl)
@@ -686,6 +695,7 @@ type
     fItemIndex: Smallint;
     fRowCount: Integer;
     fRows: array of TKMListRow;
+    fColumns: array of TKMListColumn;
     fHeader: TKMListHeader;
     fShowHeader: Boolean;
     fShowLines: Boolean;
@@ -703,6 +713,8 @@ type
     procedure SetShowHeader(aValue: Boolean);
     function GetOnColumnClick: TIntegerEvent;
     procedure SetOnColumnClick(const Value: TIntegerEvent);
+    function GetColumn(aIndex: Integer): TKMListColumn;
+    procedure ClearColumns;
   protected
     procedure SetTop(aValue: Integer); override;
     procedure SetHeight(aValue: Integer); override;
@@ -711,8 +723,9 @@ type
     procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
+    destructor Destroy; override;
 
-    procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
+    procedure SetColumns(aHeaderFont: TKMFont; aCaptions: array of string; aOffsets: array of Word);
     procedure AddItem(aItem: TKMListRow);
     procedure Clear;
     function GetVisibleRows: Integer;
@@ -720,6 +733,7 @@ type
     property ShowLines: Boolean read fShowLines write fShowLines;
 
     property Rows[aIndex: Integer]: TKMListRow read GetRow;
+    property Columns[aIndex: Integer]: TKMListColumn read GetColumn;
 
     property BackAlpha: Single read fBackAlpha write SetBackAlpha;
     property RowCount: Integer read fRowCount;
@@ -928,7 +942,7 @@ type
     procedure Paint; override;
   end;
 
-  TGraphLine = record
+  TKMGraphLine = record
                 Title: string;
                 Tag: Integer;
                 Color: TColor4;
@@ -944,12 +958,12 @@ type
     fItemHeight: Byte;
     fLegendWidth: Word;
     fLineOver: Integer;
-    fLines: array of TGraphLine;
+    fLines: array of TKMGraphLine;
     fMaxLength: Cardinal; //Maximum samples (by horizontal axis)
     fMaxTime: Cardinal; //Maximum time (in sec), used only for Rendering time ticks
     fMaxValue: Cardinal; //Maximum value (by vertical axis)
     procedure UpdateMaxValue;
-    function GetLine(aIndex:Integer):TGraphLine;
+    function GetLine(aIndex:Integer):TKMGraphLine;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
@@ -959,7 +973,7 @@ type
     procedure SetLineVisible(aLineID:Integer; aVisible:Boolean);
     property MaxLength: Cardinal read fMaxLength write fMaxLength;
     property MaxTime: Cardinal read fMaxTime write fMaxTime;
-    property Lines[aIndex: Integer]: TGraphLine read GetLine;
+    property Lines[aIndex: Integer]: TKMGraphLine read GetLine;
     property LineCount:Integer read fCount;
     property Font: TKMFont read fFont write fFont;
 
@@ -3017,14 +3031,21 @@ end;
 
 
 destructor TKMListHeader.Destroy;
+begin
+  ClearColumns;
+
+  inherited;
+end;
+
+
+procedure TKMListHeader.ClearColumns;
 var
   I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    fColumns[I].Free;
-
-  inherited;
+    FreeAndNil(fColumns[I]);
 end;
+
 
 function TKMListHeader.GetColumnIndex(X: Integer): Integer;
 var I: Integer;
@@ -3072,16 +3093,24 @@ begin
 end;
 
 
-procedure TKMListHeader.AddColumn(aCaption: string; aOffset: Word);
+procedure TKMListHeader.SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
+var
+  I: Integer;
 begin
-  if fCount >= Length(fColumns) then
-    SetLength(fColumns, fCount + 8);
+  Assert(Length(aColumns) = Length(aColumnOffsets));
 
-  fColumns[fCount] := TKMListHeaderColumn.Create;
-  fColumns[fCount].Caption := aCaption;
-  fColumns[fCount].Offset := aOffset;
+  fFont := aFont;
 
-  Inc(fCount);
+  ClearColumns;
+
+  fCount := Length(aColumns);
+  SetLength(fColumns, fCount);
+  for I := 0 to fCount - 1 do
+  begin
+    fColumns[I] := TKMListHeaderColumn.Create;
+    fColumns[I].Caption := aColumns[I];
+    fColumns[I].Offset := aColumnOffsets[I];
+  end;
 end;
 
 
@@ -3245,6 +3274,12 @@ begin
 end;
 
 
+function TKMColumnListBox.GetColumn(aIndex: Integer): TKMListColumn;
+begin
+  Result := fColumns[aIndex];
+end;
+
+
 function TKMColumnListBox.GetOnColumnClick: TIntegerEvent;
 begin
   Result := fHeader.OnColumnClick;
@@ -3280,17 +3315,24 @@ end;
 
 
 //If we don't add columns there will be Assert on items add
-procedure TKMColumnListBox.SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
-var I: Integer;
+procedure TKMColumnListBox.SetColumns(aHeaderFont: TKMFont; aCaptions: array of string; aOffsets: array of Word);
+var
+  I: Integer;
 begin
-  Assert(Length(aColumns) = Length(aColumnOffsets));
+  Assert(Length(aCaptions) = Length(aOffsets));
 
   Clear; //We don't want to conflict with already added rows elements
+  ClearColumns;
 
-  fHeader.Font := aFont;
+  fHeader.SetColumns(aHeaderFont, aCaptions, aOffsets);
 
-  for I := 0 to Length(aColumns) - 1 do
-    fHeader.AddColumn(aColumns[I], aColumnOffsets[I]);
+  SetLength(fColumns, fHeader.ColumnCount);
+  for I := 0 to fHeader.ColumnCount - 1 do
+  begin
+    fColumns[I] := TKMListColumn.Create;
+    fColumns[I].Font := fFont; //Reset to default font
+    fColumns[I].TextAlign := taLeft; //Default alignment
+  end;
 end;
 
 
@@ -3314,6 +3356,15 @@ begin
   fRowCount := 0;
   fItemIndex := -1;
   UpdateScrollBar;
+end;
+
+
+procedure TKMColumnListBox.ClearColumns;
+var
+  I: Integer;
+begin
+  for I := 0 to fHeader.ColumnCount - 1 do
+    FreeAndNil(fColumns[I]);
 end;
 
 
@@ -3387,6 +3438,14 @@ begin
 end;
 
 
+destructor TKMColumnListBox.Destroy;
+begin
+  ClearColumns;
+
+  inherited;
+end;
+
+
 procedure TKMColumnListBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer);
 var
   I: Integer;
@@ -3414,14 +3473,28 @@ begin
                              fRows[aIndex].Cells[I].Color);
 
     if fRows[aIndex].Cells[I].Caption <> '' then
-    begin
-      TextSize := fResource.ResourceFont.GetTextSize(fRows[aIndex].Cells[I].Caption, fFont);
-      fRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
-                          Y + (fItemHeight - TextSize.Y) div 2 + 2,
-                          AvailWidth,
-                          fRows[aIndex].Cells[I].Caption,
-                          fFont, taLeft, fRows[aIndex].Cells[I].Color);
-    end;
+      if fRows[aIndex].Cells[I].Hint <> '' then
+      begin
+        TextSize := fResource.ResourceFont.GetTextSize(fRows[aIndex].Cells[I].Caption, fFont);
+        fRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
+                            Y + 4,
+                            AvailWidth,
+                            fRows[aIndex].Cells[I].Caption,
+                            fColumns[I].Font, fColumns[I].TextAlign, fRows[aIndex].Cells[I].Color);
+        fRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
+                            Y + fItemHeight div 2 + 1,
+                            AvailWidth,
+                            fRows[aIndex].Cells[I].Hint,
+                            fColumns[I].HintFont, fColumns[I].TextAlign, $FFB0B0B0);
+      end else
+      begin
+        TextSize := fResource.ResourceFont.GetTextSize(fRows[aIndex].Cells[I].Caption, fFont);
+        fRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
+                            Y + (fItemHeight - TextSize.Y) div 2 + 2,
+                            AvailWidth,
+                            fRows[aIndex].Cells[I].Caption,
+                            fColumns[I].Font, fColumns[I].TextAlign, fRows[aIndex].Cells[I].Color);
+      end;
   end;
 
   if fShowLines then
@@ -4200,7 +4273,7 @@ begin
 end;
 
 
-function TKMGraph.GetLine(aIndex:Integer):TGraphLine;
+function TKMGraph.GetLine(aIndex:Integer):TKMGraphLine;
 begin
   Result := fLines[aIndex];
 end;
