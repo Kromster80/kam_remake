@@ -623,8 +623,8 @@ procedure TKMNavMesh.Paint(aRect: TKMRect);
 var
   I, K, J: Integer;
   T1, T2: TKMPointF;
-  Col, Col2: Cardinal;
-  Sz: Single;
+  //Col, Col2: Cardinal;
+  //Sz: Single;
   Outline1, Outline2: TKMWeightSegments;
 begin
   if not AI_GEN_NAVMESH then Exit;
@@ -664,7 +664,7 @@ begin
     for I := 0 to High(fVertices) do
       fRenderAux.Text(fVertices[I].X,fVertices[I].Y, IntToStr(I), $FF000000); //}
 
-  //NavMesh vertice ids
+  {//NavMesh polys ids
   if OVERLAY_NAVMESH then
     for I := 0 to fPolyCount - 1 do
     with fPolygons[I] do
@@ -672,7 +672,7 @@ begin
       T1.X := (fNodes[Indices[0]].Loc.X + fNodes[Indices[1]].Loc.X + fNodes[Indices[2]].Loc.X) / 3;
       T1.Y := (fNodes[Indices[0]].Loc.Y + fNodes[Indices[1]].Loc.Y + fNodes[Indices[2]].Loc.Y) / 3;
       fRenderAux.Text(Round(T1.X), Round(T1.Y) + 1, IntToStr(I), $FF000000);
-    end;
+    end;//}
 
   {//Simplified obstacle outlines
   if OVERLAY_NAVMESH then
@@ -681,7 +681,7 @@ begin
     with fSimpleOutlines.Shape[I] do
       fRenderAux.Line(Nodes[K], Nodes[(K + 1) mod Count], $FF00FF00, $FF00);//}
 
-  //NavMesh influences
+  {//NavMesh influences
   if OVERLAY_NAVMESH then
     for I := 0 to fNodeCount - 1 do
     begin
@@ -696,7 +696,7 @@ begin
           fNodes[I].Loc.X,
           fNodes[I].Loc.Y, Sz, Col, Col2);
       end;
-    end;
+    end;//}
 
   //Defence outlines
   if OVERLAY_DEFENCES then

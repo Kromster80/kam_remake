@@ -16,7 +16,6 @@ type
     fOwner: TPlayerIndex;
   protected
     function GetTexMinimap: TKMPic; virtual; abstract;
-    function GetTexMinimapOffset: TKMPointI; virtual; abstract;
     function GetTexTerrain: TKMPic; virtual; abstract;
     function GetTeamColor: Cardinal; virtual; abstract;
     function GetVisibleMinimap: Boolean; virtual; abstract;
@@ -28,7 +27,6 @@ type
     property Loc: TKMPointF read fLoc;
     property Owner: TPlayerIndex read fOwner;
     property TexMinimap: TKMPic read GetTexMinimap;
-    property TexMinimapOffset: TKMPointI read GetTexMinimapOffset;
     property TexTerrain: TKMPic read GetTexTerrain;
     property TeamColor: Cardinal read GetTeamColor;
     property VisibleMinimap: Boolean read GetVisibleMinimap;
@@ -71,7 +69,6 @@ type
   TKMAlertBeacon = class(TKMAlert)
   protected
     function GetTexMinimap: TKMPic; override;
-    function GetTexMinimapOffset: TKMPointI; override;
     function GetTexTerrain: TKMPic; override;
     function GetTeamColor: Cardinal; override;
     function GetVisibleMinimap: Boolean; override;
@@ -86,7 +83,6 @@ type
     fLastLookedAt: Byte;
   protected
     function GetTexMinimap: TKMPic; override;
-    function GetTexMinimapOffset: TKMPointI; override;
     function GetTexTerrain: TKMPic; override;
     function GetTeamColor: Cardinal; override;
     function GetVisibleMinimap: Boolean; override;
@@ -144,12 +140,6 @@ begin
 end;
 
 
-function TKMAlertBeacon.GetTexMinimapOffset: TKMPointI;
-begin
-  Result := KMPointI(-4,-10);
-end;
-
-
 function TKMAlertBeacon.GetTexTerrain: TKMPic;
 begin
   Result.RX := rxGui;
@@ -190,12 +180,6 @@ function TKMAlertAttacked.GetTexMinimap: TKMPic;
 begin
   Result.RX := rxGui;
   Result.ID := 53;
-end;
-
-
-function TKMAlertAttacked.GetTexMinimapOffset: TKMPointI;
-begin
-  Result := KMPointI(-11,-7);
 end;
 
 

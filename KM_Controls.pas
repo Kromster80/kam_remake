@@ -211,7 +211,6 @@ type
     fTextAlign: TTextAlign;
     fTextSize: TKMPoint;
     fStrikethrough: Boolean;
-    function AreaLeft: Integer;
     function TextLeft: Integer;
     procedure SetCaption(aCaption: string);
     procedure SetAutoWrap(aValue: boolean);
@@ -633,31 +632,38 @@ type
 
   TSortDirection = (sdNone, sdUp, sdDown);
 
+  TKMListHeaderColumn = class
+    Caption: string;
+    Glyph: TKMPic;
+    Offset: Word; //Offsets are easier to handle than widths
+  end;
+
   TKMListHeader = class (TKMControl)
   private
     fFont: TKMFont;
     fBackAlpha: Single; //Alpha of background
     fCount: Integer;
-    fColumns: array of string;
+    fColumns: array of TKMListHeaderColumn;
     fColumnHighlight: Integer;
-    fColumnOffsets: array of Word; //Offsets are easier to handle than widths
     fSortIndex: Integer;
     fSortDirection: TSortDirection;
+    fTextAlign: TTextAlign;
     function GetColumnIndex(X: Integer): Integer;
-    function GetColumnOffset(aIndex: Integer): Word;
+    function GetColumn(aIndex: Integer): TKMListHeaderColumn;
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
   public
     OnColumnClick: TIntegerEvent;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+    destructor Destroy; override;
 
     property BackAlpha: Single read fBackAlpha write fBackAlpha;
     property Font: TKMFont read fFont write fFont;
     property ColumnCount: Integer read fCount write fCount;
-    property ColumnOffset[aIndex: Integer]: Word read GetColumnOffset;
+    property Columns[aIndex: Integer]: TKMListHeaderColumn read GetColumn;
     property SortIndex: Integer read fSortIndex write fSortIndex;
     property SortDirection: TSortDirection read fSortDirection write fSortDirection;
+    property TextAlign: TTextAlign read fTextAlign write fTextAlign;
 
-    procedure SetColumnText(aIndex:word; aText:string);
     procedure AddColumn(aCaption: string; aOffset: Word);
     procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure Paint; override;
@@ -682,6 +688,7 @@ type
     fRows: array of TKMListRow;
     fHeader: TKMListHeader;
     fShowHeader: Boolean;
+    fShowLines: Boolean;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
     function GetTopIndex: Integer;
@@ -708,15 +715,15 @@ type
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
     procedure AddItem(aItem: TKMListRow);
     procedure Clear;
-    function HeaderHeight: Integer;
     function GetVisibleRows: Integer;
     property ShowHeader: Boolean read fShowHeader write SetShowHeader;
+    property ShowLines: Boolean read fShowLines write fShowLines;
 
     property Rows[aIndex: Integer]: TKMListRow read GetRow;
 
     property BackAlpha: Single read fBackAlpha write SetBackAlpha;
     property RowCount: Integer read fRowCount;
-    property ItemHeight: Byte read fItemHeight;
+    property ItemHeight: Byte read fItemHeight write fItemHeight;
     property ItemIndex: Smallint read fItemIndex write fItemIndex;
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
     property Header: TKMListHeader read fHeader;
@@ -968,6 +975,10 @@ type
   private
     fMinimap: TKMMinimap;
     fView: TViewport;
+    fPaintWidth: Integer;
+    fPaintHeight: Integer;
+    fNewLeft: Integer;
+    fNewTop: Integer;
 
     fOnChange, fOnMinimapClick: TPointEvent;
     fShowLocs: Boolean;
@@ -975,7 +986,8 @@ type
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
-    function LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
+    function LocalToMapCoords(X,Y: Integer; const Inset: ShortInt = 0): TKMPoint;
+    function MapCoordsToLocal(X,Y: Single; const Inset: ShortInt = 0): TKMPoint;
     procedure SetMinimap(aMinimap: TKMMinimap);
     procedure SetViewport(aViewport: TViewport);
     property ShowLocs: Boolean read fShowLocs write fShowLocs;
@@ -1160,7 +1172,15 @@ begin
   if Self is TKMLabel then begin //Special case for aligned text
     Tmp := TKMLabel(Self).TextSize;
     fRenderUI.WriteLayer(TKMLabel(Self).TextLeft, Top, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
-    fRenderUI.WriteRect(TKMLabel(Self).AreaLeft, Top, fWidth, fHeight, 1, $FFFFFFFF);
+    fRenderUI.WriteRect(Left, Top, fWidth, fHeight, 1, $FFFFFFFF);
+    fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
+    Exit;
+  end;
+
+  if Self is TKMLabelScroll then begin //Special case for aligned text
+    Tmp := TKMLabelScroll(Self).TextSize;
+    fRenderUI.WriteLayer(TKMLabelScroll(Self).TextLeft, Top, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
+    fRenderUI.WriteRect(Left, Top, fWidth, fHeight, 1, $FFFFFFFF);
     fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
     Exit;
   end;
@@ -1472,22 +1492,12 @@ begin
 end;
 
 
-function TKMLabel.AreaLeft: Integer;
-begin
-  case fTextAlign of
-    taCenter: Result := Left - Width div 2;
-    taRight:  Result := Left - Width;
-    else      Result := Left;
-  end;
-end;
-
-
 function TKMLabel.TextLeft: Integer;
 begin
   case fTextAlign of
-    taCenter: Result := Left - fTextSize.X div 2;
-    taRight:  Result := Left - fTextSize.X;
-    else      Result := Left;
+    taLeft:   Result := Left;
+    taCenter: Result := Left + Round((Width - fTextSize.X) / 2);
+    taRight:  Result := Left + (Width - fTextSize.X);
   end;
 end;
 
@@ -1509,7 +1519,7 @@ end;
 //Override usual hittest with regard to text alignment
 function TKMLabel.HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean;
 begin
-  Result := Hitable and InRange(X, AreaLeft, AreaLeft + Width) and InRange(Y, Top, Top + Height);
+  Result := Hitable and InRange(X, TextLeft, TextLeft + fTextSize.X) and InRange(Y, Top, Top + Height);
 end;
 
 
@@ -1553,6 +1563,8 @@ end;
 procedure TKMLabelScroll.Paint;
 var NewTop: Integer; Col: Cardinal;
 begin
+  inherited;
+
   fRenderUI.SetupClipY(Top, Top+Height);
   NewTop := EnsureRange(Top + Height - Integer(TimeGet - SmoothScrollToTop) div 50, -MINSHORT, MAXSHORT); //Compute delta and shift by it upwards (Credits page)
 
@@ -1609,49 +1621,14 @@ end;
 {If image area is bigger than image - do center image in it}
 procedure TKMImage.Paint;
 var
-  OffsetX, OffsetY, DrawWidth, DrawHeight: SmallInt; //variable parameters
-  StretchDraw: Boolean; //Check if the picture should be stretched
   PaintLightness: Single;
 begin
   inherited;
   if fTexID = 0 then Exit; //No picture to draw
 
-  StretchDraw := False;
-  DrawWidth   := fWidth;
-  DrawHeight  := fHeight;
-  OffsetX     := 0;
-  OffsetY     := 0;
-
-  //Both ImageAnchors means that we will need to stretch the image
-  if (akLeft in ImageAnchors) and (akRight in ImageAnchors) then
-    StretchDraw := True
-  else
-  if akLeft in ImageAnchors then
-    //Use defaults
-  else
-  if akRight in ImageAnchors then
-    OffsetX := fWidth - GFXData[fRX, fTexID].PxWidth
-  else
-    //No ImageAnchors means: draw the image in center
-    OffsetX := (fWidth - GFXData[fRX, fTexID].PxWidth) div 2;
-
-  if (akTop in ImageAnchors) and (akBottom in ImageAnchors) then
-    StretchDraw := True
-  else
-  if akTop in ImageAnchors then
-    //Use defaults
-  else
-  if akBottom in ImageAnchors then
-    OffsetY := fHeight - GFXData[fRX, fTexID].PxHeight
-  else
-    OffsetY := (fHeight - GFXData[fRX, fTexID].PxHeight) div 2;
-
   PaintLightness := Lightness + 0.4 * (Byte(HighlightOnMouseOver and (csOver in State)) + Byte(Highlight));
 
-  if StretchDraw then
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, fRX, fTexID, fEnabled, PaintLightness)
-  else
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, fRX, fTexID, fFlagColor, fEnabled, PaintLightness);
+  fRenderUI.WritePicture(Left, Top, fWidth, fHeight, ImageAnchors, fRX, fTexID, fEnabled, fFlagColor, PaintLightness);
 end;
 
 
@@ -1702,11 +1679,11 @@ begin
   if i <> fHighlightID then
     fRenderUI.WritePicture(Left + CenterX + OffsetX * ((i-1) mod fColumns),
                             Top + CenterY + OffsetY * ((i-1) div fColumns),
-                            fDrawWidth, fDrawHeight, fRX, fTexID1, fEnabled)
+                            fDrawWidth, fDrawHeight, [akLeft, akTop, akRight, akBottom], fRX, fTexID1, fEnabled)
   else
     fRenderUI.WritePicture(Left + CenterX + OffsetX * ((i-1) mod fColumns),
                             Top + CenterY + OffsetY * ((i-1) div fColumns),
-                            fDrawWidth, fDrawHeight, fRX, fTexID2, fEnabled);
+                            fDrawWidth, fDrawHeight, [akLeft, akTop, akRight, akBottom], fRX, fTexID2, fEnabled);
 end;
 
 
@@ -1863,7 +1840,7 @@ begin
   //If disabled then text should be faded
   Col := IfThen(fEnabled, $FFFFFFFF, $FF888888);
 
-  fRenderUI.WriteText(Left + Width div 2 + Byte(csDown in State),
+  fRenderUI.WriteText(Left + Byte(csDown in State),
                       (Top + Height div 2)-7 + Byte(csDown in State), Width, fCaption, fFont, fTextAlign, Col);
 end;
 
@@ -1919,7 +1896,7 @@ begin
   inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteLayer(Left+1,Top+1,Width-2,Width-2, ShapeColor, $00000000);
-  fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY, Width, fCaption, fFont, taCenter);
+  fRenderUI.WriteText(Left,Top+(Height div 2)+4+CapOffsetY, Width, fCaption, fFont, taCenter);
   if (csOver in State) and fEnabled then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $40FFFFFF, $00000000);
   if (csDown in State) or Down then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $00000000, $FFFFFFFF);
 end;
@@ -2250,22 +2227,22 @@ begin
   if Caption <> '' then
   begin
     //Shadow
-    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)+TextYOffset-4, Width-4, Caption, fFont, fTextAlign, $FF000000);
+    fRenderUI.WriteText(Left + 2, (Top + Height div 2)+TextYOffset-4, Width-4, Caption, fFont, fTextAlign, $FF000000);
     //Text
-    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)+TextYOffset-5, Width-4, Caption, fFont, fTextAlign, FontColor);
+    fRenderUI.WriteText(Left + 1, (Top + Height div 2)+TextYOffset-5, Width-4, Caption, fFont, fTextAlign, FontColor);
   end;
 end;
 
 
 { TKMResourceRow }
 procedure TKMResourceRow.Paint;
-var i: Integer;
+var I: Integer;
 begin
   inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width-8, Caption, fnt_Game, taLeft, $FFE0E0E0);
-  for i:=1 to ResourceCount do
-    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RX, TexID, $00000000);
+  for I:=1 to ResourceCount do
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, 14, 14, [], RX, TexID);
 end;
 
 
@@ -2373,7 +2350,7 @@ begin
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width - 8, Caption, fnt_Game, taLeft, $FFE0E0E0);
   for I := 1 to ResourceCount do
-    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-I)*14, Top+1, RX, TexID, $00000000);
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-I)*14, Top+1, 14, 14, [], RX, TexID);
 end;
 
 
@@ -2382,8 +2359,8 @@ procedure TKMCostsRow.Paint;
 begin
   inherited;
   fRenderUI.WriteText(Left, Top + 4, Width-20, Caption, fnt_Grey, taLeft, $FFFFFFFF);
-  if TexID1 <> 0 then fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[RX,TexID1].PxHeight) div 2, RX, TexID1, $00000000);
-  if TexID2 <> 0 then fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[RX,TexID2].PxHeight) div 2, RX, TexID2, $00000000);
+  if TexID1 <> 0 then fRenderUI.WritePicture(Left+Width-40, Top, 20, fHeight, [], RX, TexID1);
+  if TexID2 <> 0 then fRenderUI.WritePicture(Left+Width-20, Top, 20, fHeight, [], RX, TexID2);
 end;
 
 
@@ -2471,7 +2448,7 @@ begin
 
   ThumbHeight := fResource.Sprites[rxGui].RXData.Size[132].Y;
 
-  fRenderUI.WritePicture(Left + ThumbPos + 2, Top+fTrackTop, ThumbWidth, ThumbHeight, rxGui, 132, True);
+  fRenderUI.WritePicture(Left + ThumbPos + 2, Top+fTrackTop, ThumbWidth, ThumbHeight, [], rxGui, 132);
   fRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+fTrackTop+3, 0, IntToStr(Position), fnt_Metal, taCenter, TextColor[fEnabled]);
 end;
 
@@ -3039,21 +3016,30 @@ begin
 end;
 
 
+destructor TKMListHeader.Destroy;
+var
+  I: Integer;
+begin
+  for I := 0 to fCount - 1 do
+    fColumns[I].Free;
+
+  inherited;
+end;
+
 function TKMListHeader.GetColumnIndex(X: Integer): Integer;
-var i: Integer;
+var I: Integer;
 begin
   Result := -1;
 
-  for i := 0 to fCount - 1 do
-    if X - Left > fColumnOffsets[i] then
-      Result := i;
+  for I := 0 to fCount - 1 do
+    if X - Left > fColumns[I].Offset then
+      Result := I;
 end;
 
 
-function TKMListHeader.GetColumnOffset(aIndex: Integer): Word;
+function TKMListHeader.GetColumn(aIndex: Integer): TKMListHeaderColumn;
 begin
-  Assert(InRange(aIndex, 0, fCount - 1));
-  Result := fColumnOffsets[aIndex];
+  Result := fColumns[aIndex];
 end;
 
 
@@ -3086,24 +3072,16 @@ begin
 end;
 
 
-procedure TKMListHeader.SetColumnText(aIndex:word; aText:string);
-begin
-  fColumns[aIndex] := aText;
-end;
-
-
 procedure TKMListHeader.AddColumn(aCaption: string; aOffset: Word);
 begin
   if fCount >= Length(fColumns) then
-  begin
     SetLength(fColumns, fCount + 8);
-    SetLength(fColumnOffsets, fCount + 8);
-  end;
 
-  fColumns[fCount] := aCaption;
-  fColumnOffsets[fCount] := aOffset;
+  fColumns[fCount] := TKMListHeaderColumn.Create;
+  fColumns[fCount].Caption := aCaption;
+  fColumns[fCount].Offset := aOffset;
 
-  inc(fCount);
+  Inc(fCount);
 end;
 
 
@@ -3117,28 +3095,39 @@ end;
 procedure TKMListHeader.Paint;
 var
   I: Integer;
+  ColumnLeft: Integer;
   ColumnWidth: Integer;
+  TextSize: TKMPoint;
 begin
   inherited;
 
   for I := 0 to fCount - 1 do
   begin
     if I < fCount - 1 then
-      ColumnWidth := fColumnOffsets[I+1] - fColumnOffsets[I]
+      ColumnWidth := fColumns[I+1].Offset - fColumns[I].Offset
     else
-      ColumnWidth := Width - fColumnOffsets[I];
+      ColumnWidth := Width - fColumns[I].Offset;
 
     if ColumnWidth <= 0 then Break;
 
-    fRenderUI.WriteBevel(Left + fColumnOffsets[I], Top, ColumnWidth, Height, True, fBackAlpha);
+    ColumnLeft := Left + fColumns[I].Offset;
+
+    fRenderUI.WriteBevel(ColumnLeft, Top, ColumnWidth, Height, True, fBackAlpha);
     if Assigned(OnColumnClick) and (csOver in State) and (fColumnHighlight = I) then
-      fRenderUI.WriteLayer(Left + fColumnOffsets[I], Top, ColumnWidth, Height, $20FFFFFF, $00000000);
-    fRenderUI.WriteText(Left + fColumnOffsets[I] + 4, Top + 4, 0, fColumns[I], fFont, taLeft);
+      fRenderUI.WriteLayer(ColumnLeft, Top, ColumnWidth, Height, $20FFFFFF, $00000000);
+
+    if fColumns[I].Glyph.ID <> 0 then
+      fRenderUI.WritePicture(ColumnLeft + 4, Top, ColumnWidth - 8, Height, [], fColumns[I].Glyph.RX, fColumns[I].Glyph.ID)
+    else
+    begin
+      TextSize := fResource.ResourceFont.GetTextSize(fColumns[I].Caption, fFont);
+      fRenderUI.WriteText(ColumnLeft + 4, Top + 4, ColumnWidth - 8, fColumns[I].Caption, fFont, fTextAlign);
+    end;
 
     if Assigned(OnColumnClick) and (fSortIndex = I) then
       case fSortDirection of
-        sdDown: fRenderUI.WritePicture(Left + fColumnOffsets[I] + ColumnWidth - 4-10, Top + 6, 10, 11, rxGui, 60, True);
-        sdUp:   fRenderUI.WritePicture(Left + fColumnOffsets[I] + ColumnWidth - 4-10, Top + 6, 10, 11, rxGui, 59, True);
+        sdDown: fRenderUI.WritePicture(ColumnLeft + ColumnWidth - 4-10, Top + 6, 10, 11, [], rxGui, 60);
+        sdUp:   fRenderUI.WritePicture(ColumnLeft + ColumnWidth - 4-10, Top + 6, 10, 11, [], rxGui, 59);
       end;
   end;
 end;
@@ -3222,10 +3211,10 @@ begin
 end;
 
 
-function TKMColumnListBox.HeaderHeight: Integer;
+{function TKMColumnListBox.HeaderHeight: Integer;
 begin
   Result := fHeader.Height;
-end;
+end;}
 
 
 function TKMColumnListBox.GetVisibleRows: Integer;
@@ -3401,24 +3390,42 @@ end;
 procedure TKMColumnListBox.DoPaintLine(aIndex: Integer; X, Y: Integer; PaintWidth: Integer);
 var
   I: Integer;
-  ItemWidth: Integer;
+  AvailWidth: Integer;
+  TextSize: TKMPoint;
 begin
   for I := 0 to fHeader.ColumnCount - 1 do
   begin
-    //Determine allowed width
+    //Determine available width
     if I = fHeader.ColumnCount - 1 then
-      ItemWidth := PaintWidth - 4 - fHeader.ColumnOffset[I] - 4
+      AvailWidth := PaintWidth - 4 - fHeader.Columns[I].Offset - 4
     else
-      ItemWidth := fHeader.ColumnOffset[I + 1] - fHeader.ColumnOffset[I] - 4;
+      AvailWidth := fHeader.Columns[I+1].Offset - fHeader.Columns[I].Offset - 4;
     //Trim the width based on our allowed PaintWidth
-    ItemWidth := Min(ItemWidth, PaintWidth-fHeader.ColumnOffset[I]);
-    if ItemWidth <= 0 then Continue; //If the item overflows our allowed PaintWidth do not paint it
+    AvailWidth := Min(AvailWidth, PaintWidth - fHeader.Columns[I].Offset);
+
+    if AvailWidth <= 0 then Continue; //If the item overflows our allowed PaintWidth do not paint it
 
     if fRows[aIndex].Cells[I].Pic.ID <> 0 then
-      fRenderUI.WritePicture(X + 4 + fHeader.ColumnOffset[I], Y + 1, fRows[aIndex].Cells[I].Pic.RX, fRows[aIndex].Cells[I].Pic.ID, fRows[aIndex].Cells[I].Color);
+      fRenderUI.WritePicture(X + 4 + fHeader.Columns[I].Offset, Y + 1,
+                             AvailWidth, fItemHeight, [],
+                             fRows[aIndex].Cells[I].Pic.RX,
+                             fRows[aIndex].Cells[I].Pic.ID,
+                             True,
+                             fRows[aIndex].Cells[I].Color);
+
     if fRows[aIndex].Cells[I].Caption <> '' then
-      fRenderUI.WriteText(X + 4 + fHeader.ColumnOffset[I], Y + 3, ItemWidth, fRows[aIndex].Cells[I].Caption, fFont, taLeft, fRows[aIndex].Cells[I].Color);
+    begin
+      TextSize := fResource.ResourceFont.GetTextSize(fRows[aIndex].Cells[I].Caption, fFont);
+      fRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
+                          Y + (fItemHeight - TextSize.Y) div 2 + 2,
+                          AvailWidth,
+                          fRows[aIndex].Cells[I].Caption,
+                          fFont, taLeft, fRows[aIndex].Cells[I].Color);
+    end;
   end;
+
+  if fShowLines then
+    fRenderUI.WriteLayer(X, Y + fItemHeight-1, PaintWidth, 2, $FFBBBBBB, $00000000);
 end;
 
 
@@ -3436,13 +3443,13 @@ begin
   fHeader.Width := PaintWidth;
 
   Y := Top + fHeader.Height * Byte(fShowHeader);
-  MaxItem := GetVisibleRows-1;
+  MaxItem := GetVisibleRows - 1;
 
   fRenderUI.WriteBevel(Left, Y, PaintWidth, Height - fHeader.Height * Byte(fShowHeader), false, fBackAlpha);
 
   //Selected item highlight on background
   if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, MaxItem) then
-    fRenderUI.WriteLayer(Left, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
+    fRenderUI.WriteLayer(Left, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight-1, $88888888, $FFFFFFFF);
 
   for I := 0 to Math.min(fRowCount - 1, MaxItem) do
     DoPaintLine(TopIndex + I, Left, Y + I * fItemHeight, PaintWidth);
@@ -3776,7 +3783,7 @@ procedure TKMDropColumns.UpdateDropPosition;
 begin
   if (Count > 0) then
   begin
-    fList.Height := Math.min(fDropCount, fList.RowCount) * fList.ItemHeight + fList.HeaderHeight * Byte(fList.ShowHeader);
+    fList.Height := Math.min(fDropCount, fList.RowCount) * fList.ItemHeight + fList.Header.Height * Byte(fList.ShowHeader);
     if fDropUp then
       fList.Top := Top - fList.Height - MasterParent.Top
     else
@@ -3929,6 +3936,21 @@ end;
 procedure TKMMinimapView.SetMinimap(aMinimap: TKMMinimap);
 begin
   fMinimap := aMinimap;
+
+  if fMinimap.MapX > fMinimap.MapY then
+  begin
+    fPaintWidth := Width;
+    fPaintHeight := Round(Height * fMinimap.MapY / Max(fMinimap.MapX, 1)); // X could = 0
+    fNewLeft := Left;
+    fNewTop := Top + (Height - fPaintHeight) div 2;
+  end
+  else
+  begin
+    fPaintWidth := Round(Width * fMinimap.MapX / Max(fMinimap.MapY, 1)); // Y could = 0
+    fPaintHeight := Height;
+    fNewLeft := Left + (Width - fPaintWidth) div 2;
+    fNewTop := Top;
+  end;
 end;
 
 
@@ -3938,27 +3960,19 @@ begin
 end;
 
 
-function TKMMinimapView.LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
-var PaintWidth, PaintHeight, NewLeft, NewTop: Integer;
+function TKMMinimapView.LocalToMapCoords(X,Y: Integer; const Inset: ShortInt = 0): TKMPoint;
 begin
-  if fMinimap.MapX > fMinimap.MapY then
-  begin
-    PaintWidth := Width;
-    PaintHeight := Round(Height*fMinimap.MapY/Max(fMinimap.MapX,1)); //X could = 0
-    NewLeft := Left;
-    NewTop := Top + (Height - PaintHeight) div 2;
-  end
-  else
-  begin
-    PaintWidth := Round(Width*fMinimap.MapX/Max(fMinimap.MapY,1)); //Y could = 0
-    PaintHeight := Height;
-    NewLeft := Left + (Width - PaintWidth) div 2;
-    NewTop := Top;
-  end;
+  Assert(Inset >= -1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
+  Result.X := EnsureRange(Round((X - fNewLeft) * fMinimap.MapX / fPaintWidth),  1+Inset, fMinimap.MapX-Inset);
+  Result.Y := EnsureRange(Round((Y - fNewTop)  * fMinimap.MapY / fPaintHeight), 1+Inset, fMinimap.MapY-Inset);
+end;
 
-  Assert(Inset>=-1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
-  Result.X := EnsureRange(Round((X - NewLeft)*fMinimap.MapX/PaintWidth), 1+Inset, fMinimap.MapX-Inset);
-  Result.Y := EnsureRange(Round((Y - NewTop)*fMinimap.MapY/PaintHeight), 1+Inset, fMinimap.MapY-Inset);
+
+function TKMMinimapView.MapCoordsToLocal(X,Y: Single; const Inset: ShortInt = 0): TKMPoint;
+begin
+  Assert(Inset >= -1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
+  Result.X := fNewLeft + EnsureRange(Round(X * fPaintWidth /  fMinimap.MapX), Inset, fPaintWidth  - Inset);
+  Result.Y := fNewTop  + EnsureRange(Round(Y * fPaintHeight / fMinimap.MapY), Inset, fPaintHeight - Inset);
 end;
 
 
@@ -4002,73 +4016,57 @@ const
   LOC_RAD = 8; //Radius of circle around player location
   ALERT_RAD = 4;
 var
-  I, PaintWidth, PaintHeight, NewLeft, NewTop: Integer;
-  C: TKMRect;
+  I: Integer;
+  R: TKMRect;
+  T: TKMPoint;
 begin
   inherited;
 
-  //Calculate actual minimap image bounds
   if (fMinimap = nil) or (fMinimap.MapX * fMinimap.MapY = 0) then
-  begin
-    PaintWidth := 0;
-    PaintHeight := 0;
-    NewLeft := Left;
-    NewTop := Top;
-  end
-  else
-    if fMinimap.MapX > fMinimap.MapY then
-    begin
-      PaintWidth := Width;
-      PaintHeight := Round(Height * fMinimap.MapY / Max(fMinimap.MapX, 1)); // X could = 0
-      NewLeft := Left;
-      NewTop := Top + (Height - PaintHeight) div 2;
-    end
-    else
-    begin
-      PaintWidth := Round(Width * fMinimap.MapX / Max(fMinimap.MapY, 1)); // Y could = 0
-      PaintHeight := Height;
-      NewLeft := Left + (Width - PaintWidth) div 2;
-      NewTop := Top;
-    end;
+    Exit;
 
-  if (fMinimap <> nil) and (fMinimap.MapTex.Tex <> 0) then
-    fRenderUI.WriteTexture(NewLeft, NewTop, PaintWidth, PaintHeight, fMinimap.MapTex, $FFFFFFFF)
+  if (fMinimap.MapTex.Tex <> 0) then
+    fRenderUI.WriteTexture(fNewLeft, fNewTop, fPaintWidth, fPaintHeight, fMinimap.MapTex, $FFFFFFFF)
   else
-    fRenderUI.WriteBevel(NewLeft, NewTop, PaintWidth, PaintHeight);
+    fRenderUI.WriteBevel(Left, Top, fWidth, fHeight);
 
   //Paint alerts (under viewport rectangle)
-  if (fMinimap <> nil) and (fMinimap.Alerts <> nil) then
+  if (fMinimap.Alerts <> nil) then
   for I := 0 to fMinimap.Alerts.Count - 1 do
   if fMinimap.Alerts[I].VisibleMinimap then
-    fRenderUI.WritePicture(NewLeft+EnsureRange(Round(fMinimap.Alerts[I].Loc.X*PaintWidth /  fMinimap.MapX), ALERT_RAD, PaintWidth -ALERT_RAD)+fMinimap.Alerts[I].TexMinimapOffset.X,
-                           NewTop +EnsureRange(Round(fMinimap.Alerts[I].Loc.Y*PaintHeight / fMinimap.MapY), ALERT_RAD, PaintHeight-ALERT_RAD)+fMinimap.Alerts[I].TexMinimapOffset.Y,
-                           fMinimap.Alerts[I].TexMinimap.RX, fMinimap.Alerts[I].TexMinimap.ID, fMinimap.Alerts[I].TeamColor, True, abs((TimeGet mod 1000)/500 - 1)); //0..1..0..1..
+  begin
+    T := MapCoordsToLocal(fMinimap.Alerts[I].Loc.X, fMinimap.Alerts[I].Loc.Y, ALERT_RAD);
+    fRenderUI.WritePicture(T.X, T.Y, 0, 0, [],
+                           fMinimap.Alerts[I].TexMinimap.RX, fMinimap.Alerts[I].TexMinimap.ID, True, fMinimap.Alerts[I].TeamColor, Abs((TimeGet mod 1000)/500 - 1)); //0..1..0..1..
+  end;
 
   //Paint viewport rectangle
   if fView <> nil then
   begin
-    C := fView.GetMinimapClip;
-    if (C.Right - C.Left) * (C.Bottom - C.Top) > 0 then
-      fRenderUI.WriteRect(NewLeft + Round(C.Left*PaintWidth / fMinimap.MapX),
-                          NewTop  + Round(C.Top*PaintHeight / fMinimap.MapY),
-                          Round((C.Right - C.Left)*PaintWidth / fMinimap.MapX),
-                          Round((C.Bottom - C.Top)*PaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
+    R := fView.GetMinimapClip;
+    if (R.Right - R.Left) * (R.Bottom - R.Top) > 0 then
+      fRenderUI.WriteRect(fNewLeft + Round(R.Left*fPaintWidth / fMinimap.MapX),
+                          fNewTop  + Round(R.Top*fPaintHeight / fMinimap.MapY),
+                          Round((R.Right - R.Left)*fPaintWidth / fMinimap.MapX),
+                          Round((R.Bottom - R.Top)*fPaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
   end;
 
-  if (fMinimap = nil) or not fShowLocs then Exit;
+  if not fShowLocs then Exit;
 
   //Draw all the circles, THEN all the numbers so the numbers are not covered by circles when they are close
   for I := 1 to MAX_PLAYERS do
   if not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
-    fRenderUI.WriteCircle(NewLeft+EnsureRange(Round(fMinimap.PlayerLocations[I].X*PaintWidth / fMinimap.MapX),LOC_RAD,PaintWidth-LOC_RAD),
-                          NewTop +EnsureRange(Round(fMinimap.PlayerLocations[I].Y*PaintHeight / fMinimap.MapY),LOC_RAD,PaintHeight-LOC_RAD),
-                          LOC_RAD, fMinimap.PlayerColors[I]);
+  begin
+    T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, LOC_RAD);
+    fRenderUI.WriteCircle(T.X, T.Y, LOC_RAD, fMinimap.PlayerColors[I]);
+  end;
 
   for I := 1 to MAX_PLAYERS do
   if not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
-    fRenderUI.WriteText(NewLeft+EnsureRange(Round(fMinimap.PlayerLocations[I].X*PaintWidth / fMinimap.MapX),LOC_RAD,PaintWidth-LOC_RAD),
-                        NewTop +EnsureRange(Round(fMinimap.PlayerLocations[I].Y*PaintHeight / fMinimap.MapY),LOC_RAD,PaintHeight-LOC_RAD)-6,
-                        16, IntToStr(I), fnt_Outline, taCenter);
+  begin
+    T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, LOC_RAD);
+    fRenderUI.WriteText(T.X, T.Y - 6, 16, IntToStr(I), fnt_Outline, taCenter);
+  end;
 end;
 
 

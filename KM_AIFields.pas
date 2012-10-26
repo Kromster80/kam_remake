@@ -64,6 +64,7 @@ const
   INFLUENCE_DECAY = 5;
   INFLUENCE_ENEMY_DIV = 2;
 
+
 { TKMInfluenceMaps }
 //Make the area around to be avoided by common houses
 procedure TKMInfluences.AddAvoidBuilding(X,Y: Word; aRad: Byte);
@@ -74,8 +75,6 @@ begin
     if Sqr(X-K) + Sqr(Y-I) <= Sqr(aRAD) then
       AvoidBuilding[I,K] := 255;
 end;
-
-
 
 
 //Return index of player who has most influence on this tile, or none

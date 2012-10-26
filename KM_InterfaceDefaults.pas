@@ -31,9 +31,15 @@ type
 
 
 const
+  //Toolbar pads
+  TB_PAD = 9; //Picked up empirically
+  TB_WIDTH = 180;
+
+  //Options sliders
   OPT_SLIDER_MIN = 0;
   OPT_SLIDER_MAX = 20;
 
+  //Shortcuts
   SC_MENU_BUILD = VK_F1;
   SC_MENU_RATIO = VK_F2;
   SC_MENU_STATS = VK_F3;
@@ -55,6 +61,7 @@ const
   SC_PAUSE = Ord('P');
   SC_SHOW_TEAMS = Ord('T');
 
+  //
   GUI_HOUSE_COUNT = 27;   //Number of KaM houses to show in GUI
   GUIHouseOrder: array [1..GUI_HOUSE_COUNT] of THouseType = (
     ht_School, ht_Inn, ht_Quary, ht_Woodcutters, ht_Sawmill,

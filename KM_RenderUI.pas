@@ -1,10 +1,13 @@
 unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
-uses dglOpenGL, Graphics, Math, KromOGLUtils, StrUtils, SysUtils,
+uses dglOpenGL, Controls, Graphics, Math, KromOGLUtils, StrUtils, SysUtils,
   KM_Defaults, KM_Controls, KM_CommonTypes, KM_Points, KM_Pics, KM_ResourceSprites;
 
 type
+  //Dont do taps and fit because pixel graphics aren't supposed to be stretched
+  //paStretch used only a couple of time when we need to scale large menu elements
+
   TRenderUI = class
   public
     procedure SetupClipX        (X1,X2:smallint);
@@ -14,8 +17,8 @@ type
     procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
-    procedure WritePicture      (PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; aLightness: Single = 0); overload;
-    procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; aLightness: Single = 0); overload;
+    procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
+
     procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
@@ -140,8 +143,7 @@ begin
     if aID <> 0 then
     begin
       glColor4f(1,1,1,1);
-      WritePicture((SizeX-GFXData[aRX,aID].PxWidth ) div 2 + Down,
-                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 + Down, aRX, aID, aFlagColor);
+      WritePicture(Down, Down, SizeX, SizeY, [], aRX, aID, True, aFlagColor);
     end;
 
     //Render MouseOver highlight
@@ -176,14 +178,13 @@ begin
     if aID <> 0 then
     begin
       TexOffsetY := TexOffsetY - 6 * byte(Caption <> '');
-      WritePicture((SizeX-GFXData[aRX,aID].PxWidth) div 2 + TexOffsetX,
-                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 + TexOffsetY, aRX, aID, aColor, True);
+      WritePicture(TexOffsetX, TexOffsetY, SizeX, SizeY, [], aRX, aID, True, aColor);
     end;
 
     if bsDisabled in State then
-      WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, taCenter, $FF808080)
+      WriteText(0, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, taCenter, $FF808080)
     else
-      WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, taCenter, $FFE0E0E0);
+      WriteText(0, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, taCenter, $FFE0E0E0);
 
     if bsOver in State then
     begin
@@ -295,23 +296,55 @@ begin
 end;
 
 
-procedure TRenderUI.WritePicture(PosX,PosY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; Enabled: Boolean = True; aLightness: Single = 0);
+procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
+var
+  OffX, OffY: Integer;
+  DrawWidth, DrawHeight: Integer;
 begin
   if aID = 0 then Exit;
+
+  OffX  := 0;
+  OffY  := 0;
+  DrawWidth   := GFXData[aRX, aID].PxWidth;
+  DrawHeight  := GFXData[aRX, aID].PxHeight;
+
+  //Both aAnchors means that we will need to stretch the image
+  if (akLeft in aAnchors) and (akRight in aAnchors) then
+    DrawWidth := SizeX
+  else
+  if akLeft in aAnchors then
+    //Use defaults
+  else
+  if akRight in aAnchors then
+    OffX := SizeX - DrawWidth
+  else
+    //No aAnchors means: draw the image in center
+    OffX := (SizeX - DrawWidth) div 2;
+
+  if (akTop in aAnchors) and (akBottom in aAnchors) then
+    DrawHeight  := SizeY
+  else
+  if akTop in aAnchors then
+    //Use defaults
+  else
+  if akBottom in aAnchors then
+    OffY := SizeY - DrawHeight
+  else
+    OffY := (SizeY - DrawHeight) div 2;
 
   with GFXData[aRX, aID] do
   begin
     glPushMatrix;
-      glTranslatef(PosX, PosY, 0);
+      glTranslatef(PosX + OffX, PosY + OffY, 0);
 
       //Base layer
       glBindTexture(GL_TEXTURE_2D, Tex.ID);
       if Enabled then glColor3f(1,1,1) else glColor3f(0.33,0.33,0.33);
       glBegin(GL_QUADS);
-        glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0        , 0         );
-        glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0+PxWidth, 0         );
-        glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(0+PxWidth, 0+PxHeight);
-        glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(0        , 0+PxHeight);
+        glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0            , 0             );
+        glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0 + DrawWidth, 0             );
+        glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(0 + DrawWidth, 0 + DrawHeight);
+        glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(0            , 0 + DrawHeight);
       glEnd;
 
       //Color overlay for unit icons and scrolls
@@ -323,10 +356,10 @@ begin
         else
           glColor3f(aColor AND $FF / 768, aColor SHR 8 AND $FF / 768, aColor SHR 16 AND $FF / 768);
         glBegin(GL_QUADS);
-          glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(0        , 0         );
-          glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(0+PxWidth, 0         );
-          glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(0+PxWidth, 0+PxHeight);
-          glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(0        , 0+PxHeight);
+          glTexCoord2f(Alt.u1,Alt.v1); glVertex2f(0            , 0             );
+          glTexCoord2f(Alt.u2,Alt.v1); glVertex2f(0 + DrawWidth, 0             );
+          glTexCoord2f(Alt.u2,Alt.v2); glVertex2f(0 + DrawWidth, 0 + DrawHeight);
+          glTexCoord2f(Alt.u1,Alt.v2); glVertex2f(0            , 0 + DrawHeight);
         glEnd;
       end;
 
@@ -340,53 +373,14 @@ begin
           glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
         glColor3f(aLightness, aLightness, aLightness);
         glBegin(GL_QUADS);
-          glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0         ,0         );
-          glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0+PxWidth ,0         );
-          glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(0+PxWidth ,0+PxHeight);
-          glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(0         ,0+PxHeight);
+          glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0            , 0             );
+          glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0 + DrawWidth, 0             );
+          glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(0 + DrawWidth, 0 + DrawHeight);
+          glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(0            , 0 + DrawHeight);
         glEnd;
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       end;
 
-    glPopMatrix;
-  end;
-  glBindTexture(GL_TEXTURE_2D, 0);
-end;
-
-
-{Stretched pic}
-procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; aLightness: Single = 0);
-begin
-  if aID <> 0 then
-  with GFXData[aRX, aID] do
-  begin
-    glBindTexture(GL_TEXTURE_2D, Tex.ID);
-    glPushMatrix;
-      glTranslatef(PosX, PosY, 0);
-      if Enabled then glColor4f(1,1,1,1) else glColor4f(0.33,0.33,0.33,1);
-
-      glBegin(GL_QUADS);
-        glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0      , 0      );
-        glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0+SizeX, 0      );
-        glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(0+SizeX, 0+SizeY);
-        glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(0      , 0+SizeY);
-      glEnd;
-
-      if aLightness <> 0 then
-      begin
-        if aLightness > 0 then
-          glBlendFunc(GL_SRC_ALPHA, GL_ONE)
-        else
-          glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-        glColor4f(1, 1, 1, Abs(aLightness));
-        glBegin(GL_QUADS);
-          glTexCoord2f(Tex.u1,Tex.v1); glVertex2f(0      , 0      );
-          glTexCoord2f(Tex.u2,Tex.v1); glVertex2f(0+SizeX, 0      );
-          glTexCoord2f(Tex.u2,Tex.v2); glVertex2f(0+SizeX, 0+SizeY);
-          glTexCoord2f(Tex.u1,Tex.v2); glVertex2f(0      , 0+SizeY);
-        glEnd;
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      end;
     glPopMatrix;
   end;
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -447,7 +441,7 @@ end;
 procedure TRenderUI.WriteText(X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean = False);
 var
   I, K: Integer;
-  LineCount,AdvX,LineHeight,BlockWidth: Integer;
+  LineCount,AdvX,AdvY,LineHeight,BlockWidth: Integer;
   LineWidth: array of Integer; //Use signed format since some fonts may have negative CharSpacing
   FontData: TKMFontData;
   TmpColor: Integer;
@@ -459,11 +453,7 @@ begin
   if (aText = '') or (aColor = $00000000) then Exit;
 
   if W <> 0 then
-    case aAlign of
-      taLeft:   SetupClipX(X, X+W);
-      taCenter: SetupClipX(X-W div 2, X+W div 2);
-      taRight:  SetupClipX(X-W, X+W);
-    end;
+    SetupClipX(X, X + W);
 
   //Look for [$FFFFFF][] patterns that markup text color
   I := 0;
@@ -525,25 +515,24 @@ begin
 
   dec(LineCount);
   BlockWidth := 0;
-  for I:=1 to LineCount do
+  for I := 1 to LineCount do
     BlockWidth := Math.max(BlockWidth, LineWidth[I]);
 
-  AdvX := 0;
+  case aAlign of
+    taLeft:   AdvX := X;
+    taCenter: AdvX := X + (W - LineWidth[1]) div 2;
+    taRight:  AdvX := X + W - LineWidth[1];
+  end;
+  AdvY := Y;
   LineCount := 1;
 
   glPushMatrix;
     glBindTexture(GL_TEXTURE_2D, FontData.TexID);
     glColor4ubv(@aColor);
 
-    case aAlign of
-      taLeft:   glTranslatef(X,                      Y, 0);
-      taCenter: glTranslatef(X - LineWidth[1] div 2, Y, 0);
-      taRight:  glTranslatef(X - LineWidth[1],       Y, 0);
-    end;
-
     glBegin(GL_QUADS);
       K := 0;
-      for I:=1 to length(aText) do
+      for I := 1 to Length(aText) do
       begin
 
         //Loop as there might be adjoined tags on same position
@@ -556,29 +545,28 @@ begin
           Inc(K);
         end;
 
-        //Switch line if needed
-        //Actually KaM uses #124 or vertical bar (|) for new lines in the LIB files,
-        //so lets do the same here. Saves complex conversions...
-        if aText[I]=#124 then begin
-          glEnd;
-          inc(LineCount);
-          case aAlign of
-            taLeft:   glTranslatef(0, LineHeight, 0); //Negate previous line length
-            taCenter: glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1]) div 2, LineHeight, 0);
-            taRight:  glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], LineHeight, 0);
-          end;
-          AdvX := 0;
-          glBegin(GL_QUADS);
-        end else
-        if aText[I]=#32 then
-          inc(AdvX, FontData.WordSpacing)
+        if aText[I] = #32 then
+          Inc(AdvX, FontData.WordSpacing)
         else
-        with FontData.Letters[byte(aText[I])] do begin
-          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +YOffset);
-          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +YOffset);
-          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+YOffset);
-          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+YOffset);
-          inc(AdvX, Width + FontData.CharSpacing);
+        if aText[I] = #124 then
+        begin
+          //KaM uses #124 or vertical bar (|) for new lines in the LIB files,
+          //so lets do the same here. Saves complex conversions...
+          Inc(AdvY, LineHeight);
+          Inc(LineCount);
+          case aAlign of
+            taLeft:   AdvX := X;
+            taCenter: AdvX := X + (W - LineWidth[LineCount]) div 2;
+            taRight:  AdvX := X + W - LineWidth[LineCount];
+          end;
+        end else
+        with FontData.Letters[byte(aText[I])] do
+        begin
+          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,AdvY       +YOffset);
+          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,AdvY       +YOffset);
+          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,AdvY+Height+YOffset);
+          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,AdvY+Height+YOffset);
+          Inc(AdvX, Width + FontData.CharSpacing);
         end;
       end;
     glEnd;
@@ -589,9 +577,9 @@ begin
   begin
     glPushMatrix;
       case aAlign of
-        taLeft:   glTranslatef(X,                      Y, 0);
-        taCenter: glTranslatef(X - LineWidth[1] div 2, Y, 0);
-        taRight:  glTranslatef(X - LineWidth[1],       Y, 0);
+        taLeft:   glTranslatef(X,                          Y, 0);
+        taCenter: glTranslatef(X + (W - BlockWidth) div 2, Y, 0);
+        taRight:  glTranslatef(X + (W - BlockWidth),       Y, 0);
       end;
 
       glColor4f(1,0,0,0.5);

@@ -73,11 +73,9 @@ type
     procedure SingleMap_ScanUpdate(Sender: TObject);
     procedure SingleMap_SortUpdate(Sender: TObject);
     procedure SingleMap_RefreshList(aJumpToSelected:Boolean);
-    procedure SingleMap_ScrollChange(Sender: TObject);
-    procedure SingleMap_MapClick(Sender: TObject);
-    procedure SingleMap_SelectMap(aIndex: Integer);
+    procedure SingleMap_ListClick(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
-    procedure SingleMap_Sort(Sender: TObject);
+    procedure SingleMap_Sort(aColumn: Integer);
 
     procedure MP_Init(Sender: TObject);
     procedure MP_BindEvents;
@@ -261,20 +259,22 @@ type
         Label_CampaignTitle,Label_CampaignText:TKMLabel;
       Button_CampaignStart,Button_CampaignBack:TKMButton;
     Panel_Single:TKMPanel;
-      MinimapView_Single: TKMMinimapView;
-      Panel_SingleList,Panel_SingleDesc:TKMPanel;
-      Button_SingleHeadMode,Button_SingleHeadTeams,Button_SingleHeadTitle,Button_SingleHeadSize:TKMButton;
-      Bevel_SingleBG: array of array[1..4]of TKMBevel;
-      Image_SingleMode: array of TKMImage;
-      Label_SinglePlayers,Label_SingleSize,
-      Label_SingleTitle1,Label_SingleTitle2: array of TKMLabel;
-      Shape_SingleOverlay: array of TKMShape;
-      ScrollBar_SingleMaps:TKMScrollBar;
-      Shape_SingleMap:TKMShape;
-      Label_SingleTitle:TKMLabel;
-      Memo_SingleDesc:TKMMemo;
-      Label_SingleCondTyp,Label_SingleCondWin,Label_SingleCondDef:TKMLabel;
-      Label_SingleAllies,Label_SingleEnemies:TKMLabel;
+      Panel_SingleDesc: TKMPanel;
+        Label_SingleTitle: TKMLabel;
+        Memo_SingleDesc: TKMMemo;
+        MinimapView_Single: TKMMinimapView;
+        Label_SingleCondTyp,Label_SingleCondWin,Label_SingleCondDef: TKMLabel;
+        Label_SingleAllies,Label_SingleEnemies: TKMLabel;
+      ColList_SingleMaps: TKMColumnListBox;
+      {Panel_SingleList: TKMPanel;
+        Button_SingleHeadMode,Button_SingleHeadTeams,Button_SingleHeadTitle,Button_SingleHeadSize:TKMButton;
+        Bevel_SingleBG: array of array[1..4]of TKMBevel;
+        Image_SingleMode: array of TKMImage;
+        Label_SinglePlayers,Label_SingleSize,
+        Label_SingleTitle1,Label_SingleTitle2: array of TKMLabel;
+        Shape_SingleOverlay: array of TKMShape;
+        ScrollBar_SingleMaps:TKMScrollBar;
+        Shape_SingleMap:TKMShape;}
       Button_SingleBack,Button_SingleStart:TKMButton;
     Panel_Load:TKMPanel;
       List_Load: TKMColumnListBox;
@@ -957,7 +957,7 @@ begin
   Panel_MainMenu := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_MainMenu.Anchors := [];
     TKMImage.Create(Panel_MainMenu, 300, 120, 423, 164, 4, rxGuiMain);
-    TKMLabel.Create(Panel_MainMenu, 512, 300,   0,   0, 'Remake', fnt_Metal, taCenter);
+    TKMLabel.Create(Panel_MainMenu, 512, 300, 'Remake', fnt_Metal, taCenter);
 
     with TKMImage.Create(Panel_MainMenu,  50, 220, round(218*1.3), round(291*1.3), 5, rxGuiMain) do
       ImageStretch;
@@ -989,7 +989,7 @@ begin
   Panel_SinglePlayer := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_SinglePlayer.Anchors := [];
     TKMImage.Create(Panel_SinglePlayer, 300, 120, 423, 164, 4, rxGuiMain);
-    TKMLabel.Create(Panel_SinglePlayer, 512, 300, 0, 0, 'Remake', fnt_Metal, taCenter);
+    TKMLabel.Create(Panel_SinglePlayer, 512, 300, 'Remake', fnt_Metal, taCenter);
     with TKMImage.Create(Panel_SinglePlayer, 50, 220, Round(218 * 1.3), Round(291 * 1.3), 5, rxGuiMain) do ImageStretch;
     with TKMImage.Create(Panel_SinglePlayer, 705, 220, Round(207 * 1.3), Round(295 * 1.3), 6, rxGuiMain) do ImageStretch;
 
@@ -1018,7 +1018,7 @@ procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
       TKMBevel.Create(Panel_MPCreateServer, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPCreateServer, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPCreateServer,   0,  0, 320, 300);
-      TKMLabel.Create(Panel_MPCreateServer, 160, 10, 280, 20, fTextLibrary[TX_MP_MENU_CREATE_SERVER_HEADER], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_MPCreateServer, 20, 10, 280, 20, fTextLibrary[TX_MP_MENU_CREATE_SERVER_HEADER], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_MPCreateServer, 20, 50, 280, 20, fTextLibrary[TX_MP_MENU_CREATE_SERVER_NAME], fnt_Outline, taLeft);
       Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 20, 70, 280, 20, fnt_Grey);
       TKMLabel.Create(Panel_MPCreateServer, 20, 100, 284, 20, fTextLibrary[TX_MP_MENU_CREATE_SERVER_PORT], fnt_Outline, taLeft);
@@ -1038,7 +1038,7 @@ procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
       TKMBevel.Create(Panel_MPFindServer, -1000,  -1000, 4000, 4000);
       TKMImage.Create(Panel_MPFindServer, -20, -75, 340, 310, 15, rxGuiMain);
       TKMBevel.Create(Panel_MPFindServer,   0,  0, 320, 300);
-      TKMLabel.Create(Panel_MPFindServer, 160, 10, 280, 20, fTextLibrary[TX_MP_MENU_FIND_SERVER_HEADER], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_MPFindServer,  20, 10, 280, 20, fTextLibrary[TX_MP_MENU_FIND_SERVER_HEADER], fnt_Outline, taCenter);
 
       TKMLabel.Create(Panel_MPFindServer, 20, 50, 156, 20, fTextLibrary[TX_MP_MENU_FIND_SERVER_ADDRESS], fnt_Outline, taLeft);
       Edit_MP_FindIP := TKMEdit.Create(Panel_MPFindServer, 20, 70, 152, 20, fnt_Grey);
@@ -1090,7 +1090,7 @@ begin
     ColList_Servers.OnColumnClick := MP_ServersSort;
     ColList_Servers.OnChange := MP_ServersClick;
     ColList_Servers.OnDoubleClick := MP_ServersDoubleClick;
-    Label_Servers_Status := TKMLabel.Create(Panel_MultiPlayer, 45+310, 240+230, 0, 0, '', fnt_Grey, taCenter);
+    Label_Servers_Status := TKMLabel.Create(Panel_MultiPlayer, 45+310, 240+230, '', fnt_Grey, taCenter);
     Label_Servers_Status.Anchors := [akLeft];
     Label_Servers_Status.Hide;
 
@@ -1098,7 +1098,7 @@ begin
     Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 675, 240, 320, 465);
     Panel_MPServerDetails.Anchors := [akLeft, akTop, akBottom];
       with TKMBevel.Create(Panel_MPServerDetails, 0, 0, 320, 465) do Stretch;
-      TKMLabel.Create(Panel_MPServerDetails, 160, 6, 304, 20, fTextLibrary[TX_MP_MENU_HEADER_SERVER_DETAILS], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_MPServerDetails, 8, 6, 304, 20, fTextLibrary[TX_MP_MENU_HEADER_SERVER_DETAILS], fnt_Outline, taCenter);
       TKMLabel.Create(Panel_MPServerDetails, 8, 30, 304, 20, fTextLibrary[TX_MP_MENU_GAME_INFORMATION], fnt_Outline, taLeft);
       Label_MP_Map := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 304, 30, '', fnt_Metal, taLeft);
       Label_MP_GameTime := TKMLabel.Create(Panel_MPServerDetails, 8, 70, 304, 30, '--:--:--', fnt_Metal, taLeft);
@@ -1141,8 +1141,8 @@ begin
       TKMLabel.Create(Panel_LobbyPlayers, C2, 40, 150,  20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_LobbyPlayers, C3, 40,  80,  20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_LobbyPlayers, C4, 40,  80,  20, fTextLibrary[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, C5, 40,  100,  20, fTextLibrary[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
-      TKMLabel.Create(Panel_LobbyPlayers, C6, 40,  70,  20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_LobbyPlayers, C5, 40, fTextLibrary[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_LobbyPlayers, C6, 40, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
 
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 60+i*24;
@@ -1177,7 +1177,7 @@ begin
         Drop_LobbyColors[i].OnChange := Lobby_PlayersSetupChange;
 
         Image_LobbyReady[i] := TKMImage.Create(Panel_LobbyPlayers, C5-8, top, 16, 16, 32, rxGuiMain);
-        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, C6, top, 50, 20, '', fnt_Metal, taCenter);
+        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, C6, top, '', fnt_Metal, taCenter);
       end;
 
     //Chat
@@ -1244,7 +1244,7 @@ begin
   Panel_CampSelect := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_CampSelect.Stretch;
 
-    L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 230, 0, 0, fTextLibrary[TX_MENU_CAMP_CUSTOM], fnt_Outline, taCenter);
+    L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 230, fTextLibrary[TX_MENU_CAMP_CUSTOM], fnt_Outline, taCenter);
     L.Anchors := [];
     List_Camps := TKMColumnListBox.Create(Panel_CampSelect, 80, 260, 600, 300, fnt_Grey, bsMenu);
     List_Camps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_CAMPAIGNS_TITLE],
@@ -1297,7 +1297,7 @@ begin
 
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}3,rxGuiMain);
     Image_Scroll.ImageStretch;
-    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 180, 18,100,20, '<<<LEER>>>', fnt_Outline, taCenter);
+    Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 130, 18,100,20, '<<<LEER>>>', fnt_Outline, taCenter);
 
     Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 50, 325, 310, '<<<LEER>>>', fnt_Briefing, taLeft);
     Label_CampaignText.AutoWrap := true;
@@ -1313,69 +1313,28 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_SingleMap_Page;
-var i:integer;
-const
-  C1 =  0; C2 = 50; C3 = 100; C4 = 380; CS = 440; // Columns offsets
-  W1 = 50; W2 = 50; W3 = 280; W4 = 60; // Columns widths
 begin
-  Panel_Single:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
+  Panel_Single := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Single.Stretch;
-    Panel_SingleList:=TKMPanel.Create(Panel_Single,524,135,465,520);
-    Panel_SingleList.Anchors := [];
 
-      ScrollBar_SingleMaps := TKMScrollBar.Create(Panel_SingleList,CS,40,25,MENU_SP_MAPS_COUNT*40, sa_Vertical, bsMenu);
-      ScrollBar_SingleMaps.OnChange := SingleMap_ScrollChange;
+    ColList_SingleMaps := TKMColumnListBox.Create(Panel_Single, 524, 135, 465, 520, fnt_Metal, bsMenu);
+    ColList_SingleMaps.SetColumns(fnt_Outline, ['', '', 'Title', 'Size'], [0, 50, 100, 380]);
+    ColList_SingleMaps.ItemHeight := 40;
+    ColList_SingleMaps.ShowLines := True;
+    ColList_SingleMaps.Header.Height := 40;
+    ColList_SingleMaps.Header.TextAlign := taCenter;
+    ColList_SingleMaps.Header.Columns[0].Glyph := MakePic(rxGui, 42);
+    ColList_SingleMaps.Header.Columns[1].Glyph := MakePic(rxGui, 31);
 
-      Button_SingleHeadMode  := TKMButton.Create(Panel_SingleList, C1,0, W1,40,42,rxGui,bsMenu);
-      Button_SingleHeadMode.OnClick := SingleMap_Sort;
-      Button_SingleHeadTeams := TKMButton.Create(Panel_SingleList, C2,0, W2,40,31,rxGui,bsMenu);
-      Button_SingleHeadTeams.OnClick := SingleMap_Sort;
-      Button_SingleHeadTitle := TKMButton.Create(Panel_SingleList, C3,0, W3,40,fTextLibrary[TX_MENU_MAP_TITLE],bsMenu);
-      Button_SingleHeadTitle.OnClick := SingleMap_Sort;
-      Button_SingleHeadSize  := TKMButton.Create(Panel_SingleList, C4,0, W4,40,fTextLibrary[TX_MENU_MAP_SIZE],bsMenu);
-      Button_SingleHeadSize.OnClick := SingleMap_Sort;
-      with TKMButton.Create(Panel_SingleList,CS,0, 25,40,'',bsMenu) do Disable;
+    //ColList_SingleMaps.
 
-      SetLength(Bevel_SingleBG, MENU_SP_MAPS_COUNT);
-      SetLength(Image_SingleMode, MENU_SP_MAPS_COUNT);
-      SetLength(Label_SinglePlayers, MENU_SP_MAPS_COUNT);
-      SetLength(Label_SingleTitle1, MENU_SP_MAPS_COUNT);
-      SetLength(Label_SingleTitle2, MENU_SP_MAPS_COUNT);
-      SetLength(Label_SingleSize, MENU_SP_MAPS_COUNT);
-      SetLength(Shape_SingleOverlay, MENU_SP_MAPS_COUNT);
+    ColList_SingleMaps.OnColumnClick := SingleMap_Sort;
+    ColList_SingleMaps.OnChange := SingleMap_ListClick;
 
-      for i := 0 to MENU_SP_MAPS_COUNT - 1 do
-      begin
-        Bevel_SingleBG[i,1] := TKMBevel.Create(Panel_SingleList,C1, 40+i*40, W1,40);
-        Bevel_SingleBG[i,2] := TKMBevel.Create(Panel_SingleList,C2, 40+i*40, W2,40);
-        Bevel_SingleBG[i,3] := TKMBevel.Create(Panel_SingleList,C3, 40+i*40, W3,40);
-        Bevel_SingleBG[i,4] := TKMBevel.Create(Panel_SingleList,C4, 40+i*40, W4,40);
-
-        Image_SingleMode[i]    := TKMImage.Create(Panel_SingleList,  0   ,40+i*40,50,40,28);
-        Image_SingleMode[i].ImageCenter;
-        Label_SinglePlayers[i] := TKMLabel.Create(Panel_SingleList, C2+25, 40+i*40+14, 40,20,'0',fnt_Metal, taCenter);
-        Label_SingleTitle1[i]  := TKMLabel.Create(Panel_SingleList, C3+ 6, 40+i*40+ 5, 268,0,'<<<LEER>>>',fnt_Metal, taLeft);
-        Label_SingleTitle2[i]  := TKMLabel.Create(Panel_SingleList, C3+ 6, 40+i*40+22, 268,0,'<<<LEER>>>',fnt_Game, taLeft);
-        Label_SingleTitle2[i].FontColor := $FFD0D0D0; //Grey for minor description
-        Label_SingleSize[i]    := TKMLabel.Create(Panel_SingleList,C4+30, 40+i*40+14, 50,20,'0',fnt_Metal, taCenter);
-
-        Shape_SingleOverlay[i] := TKMShape.Create(Panel_SingleList, 0, 40+i*40, CS, 40);
-        Shape_SingleOverlay[i].LineWidth := 0;
-        Shape_SingleOverlay[i].Tag := i;
-        Shape_SingleOverlay[i].OnClick := SingleMap_MapClick;
-        Shape_SingleOverlay[i].OnDoubleClick := SingleMap_Start;
-        Shape_SingleOverlay[i].OnMouseWheel := ScrollBar_SingleMaps.MouseWheel;
-      end;
-
-      Shape_SingleMap := TKMShape.Create(Panel_SingleList,0,40,CS,40);
-      Shape_SingleMap.LineColor := $FFFFFF00;
-      Shape_SingleMap.LineWidth := 2;
-      Shape_SingleMap.Hitable := False; //All hits should go to Shape_SingleOverlay[i] not this
-
-    Panel_SingleDesc:=TKMPanel.Create(Panel_Single,45,135,445,520);
+    Panel_SingleDesc := TKMPanel.Create(Panel_Single, 45, 135, 445, 520);
     Panel_SingleDesc.Anchors := [];
 
-      Label_SingleTitle := TKMLabel.Create(Panel_SingleDesc,445 div 2,0,433,20,'',fnt_Outline, taCenter);
+      Label_SingleTitle := TKMLabel.Create(Panel_SingleDesc,445 div 2,0,'',fnt_Outline, taCenter);
       Memo_SingleDesc  := TKMMemo.Create(Panel_SingleDesc,15,25,415,129,fnt_Metal, bsMenu);
       Memo_SingleDesc.AutoWrap := True;
 
@@ -1407,7 +1366,7 @@ begin
   Panel_Load := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Load.Stretch;
 
-    TKMLabel.Create(Panel_Load, Panel_Main.Width div 2, 50, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
+    TKMLabel.Create(Panel_Load, Panel_Main.Width div 2, 50, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
     List_Load := TKMColumnListBox.Create(Panel_Load, 62, 86, 700, 485, fnt_Metal, bsMenu);
     List_Load.Anchors := [akLeft,akTop,akBottom];
@@ -1424,7 +1383,7 @@ begin
     Button_Delete.Anchors := [akLeft,akBottom];
     Button_Delete.OnClick := Load_Delete_Click;
 
-    Label_DeleteConfirm := TKMLabel.Create(Panel_Load, Panel_Main.Width div 2, 634, 550, 30, fTextLibrary[TX_MENU_LOAD_DELETE_CONFIRM], fnt_Outline, taCenter);
+    Label_DeleteConfirm := TKMLabel.Create(Panel_Load, Panel_Main.Width div 2, 634, fTextLibrary[TX_MENU_LOAD_DELETE_CONFIRM], fnt_Outline, taCenter);
     Label_DeleteConfirm.Anchors := [akLeft,akBottom];
     Button_DeleteYes := TKMButton.Create(Panel_Load, 337, 660, 170, 30, fTextLibrary[TX_MENU_LOAD_DELETE_DELETE], bsMenu);
     Button_DeleteYes.Anchors := [akLeft,akBottom];
@@ -1498,7 +1457,7 @@ begin
   Panel_Replays := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Replays.Stretch;
 
-    TKMLabel.Create(Panel_Replays, Panel_Main.Width div 2, 50, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
+    TKMLabel.Create(Panel_Replays, Panel_Main.Width div 2, 50, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
     TKMBevel.Create(Panel_Replays, 62, 86, 900, 50);
     Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,70,94,300,40,fnt_Grey);
@@ -1634,11 +1593,11 @@ end;
 procedure TKMMainMenuInterface.Create_Credits_Page;
 const OFFSET = 312;
 begin
-  Panel_Credits:=TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
+  Panel_Credits := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Credits.Stretch;
 
-    TKMLabel.Create(Panel_Credits, Panel_Main.Width div 2 - OFFSET,70,400,20,fTextLibrary[TX_CREDITS],fnt_Outline,taCenter);
-    Label_Credits_Remake := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 - OFFSET, 110, 400, Panel_Main.Height - 130,
+    TKMLabel.Create(Panel_Credits, Panel_Main.Width div 2 - OFFSET, 70, fTextLibrary[TX_CREDITS],fnt_Outline,taCenter);
+    Label_Credits_Remake := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 - OFFSET, 110, 0, Panel_Main.Height - 130,
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex|Danjb||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer|Malin||'+
@@ -1649,8 +1608,8 @@ begin
     ,fnt_Grey,taCenter);
     Label_Credits_Remake.Anchors := [akLeft,akTop,akBottom];
 
-    TKMLabel.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 70, 400, 20, fTextLibrary[TX_CREDITS_ORIGINAL], fnt_Outline, taCenter);
-    Label_Credits_KaM := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 110, 400, Panel_Main.Height - 130, fTextLibrary[TX_CREDITS_TEXT], fnt_Grey, taCenter);
+    TKMLabel.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 70, fTextLibrary[TX_CREDITS_ORIGINAL], fnt_Outline, taCenter);
+    Label_Credits_KaM := TKMLabelScroll.Create(Panel_Credits, Panel_Main.Width div 2 + OFFSET, 110, 0, Panel_Main.Height - 130, fTextLibrary[TX_CREDITS_TEXT], fnt_Grey, taCenter);
     Label_Credits_KaM.Anchors := [akLeft,akTop,akBottom];
 
     Button_CreditsHomepage:=TKMButton.Create(Panel_Credits,400,610,224,30,'[$F8A070]www.kamremake.com[]',bsMenu);
@@ -1671,9 +1630,9 @@ procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
   Panel_Loading:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Loading.Stretch;
-    with TKMLabel.Create(Panel_Loading, Panel_Main.Width div 2, Panel_Main.Height div 2 - 20, 0,0,fTextLibrary[TX_MENU_LOADING],fnt_Outline,taCenter) do
+    with TKMLabel.Create(Panel_Loading, Panel_Main.Width div 2, Panel_Main.Height div 2 - 20, fTextLibrary[TX_MENU_LOADING], fnt_Outline, taCenter) do
       Center;
-    Label_Loading := TKMLabel.Create(Panel_Loading, Panel_Main.Width div 2, Panel_Main.Height div 2+10, 0, 0,'...',fnt_Grey,taCenter);
+    Label_Loading := TKMLabel.Create(Panel_Loading, Panel_Main.Width div 2, Panel_Main.Height div 2+10, '...', fnt_Grey, taCenter);
     Label_Loading.Center;
 end;
 
@@ -1682,9 +1641,9 @@ procedure TKMMainMenuInterface.Create_Error_Page;
 begin
   Panel_Error := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Error.Stretch;
-    with TKMLabel.Create(Panel_Error, Panel_Main.Width div 2,Panel_Main.Height div 2 - 20, 0, 30, fTextLibrary[TX_MENU_ERROR], fnt_Antiqua, taCenter) do
+    with TKMLabel.Create(Panel_Error, Panel_Main.Width div 2, Panel_Main.Height div 2 - 20, fTextLibrary[TX_MENU_ERROR], fnt_Antiqua, taCenter) do
       Center;
-    Label_Error := TKMLabel.Create(Panel_Error, Panel_Main.Width div 2, Panel_Main.Height div 2+10, Panel_Main.Width-16, 200, '...', fnt_Grey, taCenter);
+    Label_Error := TKMLabel.Create(Panel_Error, 8, Panel_Main.Height div 2+10, Panel_Main.Width-16, 200, '...', fnt_Grey, taCenter);
     Label_Error.Center;
     Label_Error.AutoWrap := True;
     Button_ErrorBack := TKMButton.Create(Panel_Error,100,630,224,30,fTextLibrary[TX_MENU_BACK],bsMenu);
@@ -1715,7 +1674,7 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_Results := TKMLabel.Create(Panel_Results,512,140,900,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_Results := TKMLabel.Create(Panel_Results,62,140,900,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_Results.Anchors := [akLeft];
 
     Panel_Stats := TKMPanel.Create(Panel_Results, 30, 216, 360, 354);
@@ -1735,7 +1694,7 @@ begin
         if I in [3,6,7] then inc(Adv, 15);
         if I = 9 then inc(Adv, 45); //Last one goes right at the bottom of the scroll
         TKMLabel.Create(Panel_Stats,20,Adv,240,20,fTextLibrary[StatText[I]],fnt_Metal,taLeft);
-        Label_Stat[I] := TKMLabel.Create(Panel_Stats,340,Adv,80,20,'00',fnt_Metal,taRight);
+        Label_Stat[I] := TKMLabel.Create(Panel_Stats,260,Adv,80,20,'00',fnt_Metal,taRight);
       end;
 
     if DISPLAY_CHARTS_RESULT then
@@ -1831,7 +1790,7 @@ begin
       FillColor := $A0000000;
     end;
 
-    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,125,900,20,'<<<LEER>>>',fnt_Metal,taCenter);
+    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,62,125,900,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_ResultsMP.Anchors := [akLeft];
 
     Button_MPResultsStats := TKMButtonFlat.Create(Panel_ResultsMP, 160, 155, 176, 20, 8, rxGuiMain);
@@ -1874,7 +1833,7 @@ begin
 
       for k:=0 to 4 do
       begin
-        with TKMLabel.Create(Panel_StatsMP1, 160 + BarHalf+BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns1[k]], fnt_Metal, taCenter) do
+        with TKMLabel.Create(Panel_StatsMP1, 160 + BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns1[k]], fnt_Metal, taCenter) do
           AutoWrap := true;
         for i:=0 to 7 do
         begin
@@ -1892,7 +1851,7 @@ begin
 
       for k:=0 to 4 do
       begin
-        with TKMLabel.Create(Panel_StatsMP2, 160 + BarHalf+BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns2[k]], fnt_Metal, taCenter) do
+        with TKMLabel.Create(Panel_StatsMP2, 160 + BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns2[k]], fnt_Metal, taCenter) do
           AutoWrap := true;
         for i:=0 to 7 do
         begin
@@ -2272,19 +2231,9 @@ end;
 
 
 procedure TKMMainMenuInterface.SingleMap_Clear;
-var I: Integer;
 begin
-  for I := 0 to MENU_SP_MAPS_COUNT - 1 do
-  begin
-    Image_SingleMode[I].TexID       := 0;
-    Label_SinglePlayers[I].Caption  := '';
-    Label_SingleTitle1[I].Caption   := '';
-    Label_SingleTitle2[I].Caption   := '';
-    Label_SingleSize[I].Caption     := '';
-  end;
-
-  ScrollBar_SingleMaps.MaxValue := 0;
-  SingleMap_SelectMap(-1);
+  ColList_SingleMaps.Clear;
+  SingleMap_ListClick(nil);
   fLastMapCRC := 0;
 end;
 
@@ -2301,12 +2250,11 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.SingleMap_RefreshList(aJumpToSelected:Boolean);
+procedure TKMMainMenuInterface.SingleMap_RefreshList(aJumpToSelected: Boolean);
 var
-  I, MapID, MapIndex: Integer;
+  I, MapIndex: Integer;
 begin
-  //Updating MaxValue may change Position
-  ScrollBar_SingleMaps.MaxValue := Max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
+  ColList_SingleMaps.Clear;
 
   //IDs of maps could changed, so use CRC to check which one was selected
   MapIndex := -1;
@@ -2315,48 +2263,30 @@ begin
       MapIndex := I;
 
   if aJumpToSelected
-  and not InRange(MapIndex - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1)
+  and not InRange(MapIndex - ColList_SingleMaps.TopIndex, 0, MENU_SP_MAPS_COUNT - 1)
   then
-    if MapIndex < ScrollBar_SingleMaps.Position + MENU_SP_MAPS_COUNT - 1 then
-      ScrollBar_SingleMaps.Position := MapIndex
+    if MapIndex < ColList_SingleMaps.TopIndex + MENU_SP_MAPS_COUNT - 1 then
+      ColList_SingleMaps.TopIndex := MapIndex
     else
-    if MapIndex > ScrollBar_SingleMaps.Position + MENU_SP_MAPS_COUNT - 1 then
-      ScrollBar_SingleMaps.Position := MapIndex - MENU_SP_MAPS_COUNT + 1;
+    if MapIndex > ColList_SingleMaps.TopIndex + MENU_SP_MAPS_COUNT - 1 then
+      ColList_SingleMaps.TopIndex := MapIndex - MENU_SP_MAPS_COUNT + 1;
 
-  for I := 0 to MENU_SP_MAPS_COUNT - 1 do
+  for I := 0 to fMaps.Count - 1 do
   begin
-    MapID := ScrollBar_SingleMaps.Position + I;
-    if MapID <= fMaps.Count - 1 then
-    begin
-      Image_SingleMode[I].TexID       := 28 + Byte(fMaps[MapID].Info.MissionMode <> mm_Tactic)*14;  //28 or 42
-      Label_SinglePlayers[I].Caption  := IntToStr(fMaps[MapID].Info.PlayerCount);
-      Label_SingleTitle1[I].Caption   := fMaps[MapID].FileName;
-      Label_SingleTitle2[I].Caption   := fMaps[MapID].SmallDesc;
-      Label_SingleSize[I].Caption     := fMaps[MapID].Info.MapSizeText;
-    end;
+    ColList_SingleMaps.AddItem(MakeListRow(['', IntToStr(fMaps[I].Info.PlayerCount), fMaps[I].FileName + '|' + fMaps[I].SmallDesc, fMaps[I].Info.MapSizeText]));
+    ColList_SingleMaps.Rows[I].Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].Info.MissionMode <> mm_Tactic)*14);
   end;
-
-  Shape_SingleMap.Visible := InRange(MapIndex - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
-  Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (MapIndex - ScrollBar_SingleMaps.Position + 1); // Including header height
 end;
 
 
-procedure TKMMainMenuInterface.SingleMap_ScrollChange(Sender: TObject);
+procedure TKMMainMenuInterface.SingleMap_ListClick(Sender: TObject);
+var
+  ID: Integer;
 begin
-  SingleMap_RefreshList(False);
-end;
+  ID := ColList_SingleMaps.ItemIndex;
 
-
-procedure TKMMainMenuInterface.SingleMap_MapClick(Sender: TObject);
-begin
-  SingleMap_SelectMap(ScrollBar_SingleMaps.Position + TKMControl(Sender).Tag);
-end;
-
-
-procedure TKMMainMenuInterface.SingleMap_SelectMap(aIndex: Integer);
-begin
   //User could have clicked on empty space in list and we get -1 or unused id
-  if not InRange(aIndex, 0, fMaps.Count - 1) then
+  if not InRange(ID, 0, fMaps.Count - 1) then
   begin
     fLastMapCRC := 0;
     Label_SingleTitle.Caption   := '';
@@ -2369,22 +2299,20 @@ begin
   end
   else
   begin
-    fLastMapCRC := fMaps[aIndex].CRC;
-    Label_SingleTitle.Caption   := fMaps[aIndex].FileName;
-    Memo_SingleDesc.Text        := fMaps[aIndex].BigDesc;
-    Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[aIndex].Info.MissionModeText]);
-    Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[aIndex].Info.VictoryCondition]);
-    Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[aIndex].Info.DefeatCondition]);
+    fLastMapCRC := fMaps[ID].CRC;
+    Label_SingleTitle.Caption   := fMaps[ID].FileName;
+    Memo_SingleDesc.Text        := fMaps[ID].BigDesc;
+    Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[ID].Info.MissionModeText]);
+    Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[ID].Info.VictoryCondition]);
+    Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[ID].Info.DefeatCondition]);
 
     MinimapView_Single.Show;
-    fMinimap.LoadFromMission(fMaps[aIndex].FullPath('.dat'));
+    fMinimap.LoadFromMission(fMaps[ID].FullPath('.dat'));
     fMinimap.Update(False);
     MinimapView_Single.SetMinimap(fMinimap);
   end;
 
-  Button_SingleStart.Enabled := aIndex <> -1;
-  Shape_SingleMap.Visible := InRange(aIndex - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
-  Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (aIndex - ScrollBar_SingleMaps.Position + 1); // Including header height
+  Button_SingleStart.Enabled := ID <> -1;
 end;
 
 
@@ -2407,36 +2335,32 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.SingleMap_Sort(Sender: TObject);
+procedure TKMMainMenuInterface.SingleMap_Sort(aColumn: Integer);
 var
   Method: TMapsSortMethod;
 begin
   //Set Descending order by default and invert it if same column selected again
-  if Sender = Button_SingleHeadTitle then
-    if fMaps.SortMethod = smByNameDesc then
-      Method := smByNameAsc
+  case aColumn of
+    0:  if fMaps.SortMethod = smByModeDesc then
+          Method := smByModeAsc
+        else
+          Method := smByModeDesc;
+    1:
+        if fMaps.SortMethod = smByPlayersDesc then
+          Method := smByPlayersAsc
+        else
+          Method := smByPlayersDesc;
+    2:  if fMaps.SortMethod = smByNameDesc then
+          Method := smByNameAsc
+        else
+          Method := smByNameDesc;
+    3:  if fMaps.SortMethod = smBySizeDesc then
+          Method := smBySizeAsc
+        else
+          Method := smBySizeDesc;
     else
-      Method := smByNameDesc
-  else
-  if Sender = Button_SingleHeadSize then
-    if fMaps.SortMethod = smBySizeDesc then
-      Method := smBySizeAsc
-    else
-      Method := smBySizeDesc
-  else
-  if Sender = Button_SingleHeadTeams then
-    if fMaps.SortMethod = smByPlayersDesc then
-      Method := smByPlayersAsc
-    else
-      Method := smByPlayersDesc
-  else
-  if Sender = Button_SingleHeadMode then
-    if fMaps.SortMethod = smByModeDesc then
-      Method := smByModeAsc
-    else
-      Method := smByModeDesc
-  else
-    Method := smByNameAsc; //Default
+        Method := smByNameAsc; //Default
+  end;
 
   //Start sorting and wait for SortComplete event
   fMaps.Sort(Method, SingleMap_SortUpdate);
@@ -3137,30 +3061,30 @@ begin
         begin
           fMapsMP.Refresh(Lobby_ScanUpdate);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.List.Header.SetColumnText(0, fTextLibrary[TX_MENU_MAP_TITLE]);
-          DropCol_LobbyMaps.List.Header.SetColumnText(2, fTextLibrary[TX_MENU_MAP_SIZE]);
+          DropCol_LobbyMaps.List.Header.Columns[0].Caption := fTextLibrary[TX_MENU_MAP_TITLE];
+          DropCol_LobbyMaps.List.Header.Columns[2].Caption := fTextLibrary[TX_MENU_MAP_SIZE];
         end;
     1:  //Fight Map
         begin
           fMapsMP.Refresh(Lobby_ScanUpdate);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.List.Header.SetColumnText(0, fTextLibrary[TX_MENU_MAP_TITLE]);
-          DropCol_LobbyMaps.List.Header.SetColumnText(2, fTextLibrary[TX_MENU_MAP_SIZE]);
+          DropCol_LobbyMaps.List.Header.Columns[0].Caption := fTextLibrary[TX_MENU_MAP_TITLE];
+          DropCol_LobbyMaps.List.Header.Columns[2].Caption := fTextLibrary[TX_MENU_MAP_SIZE];
         end;
     2:  //Co-op Map
         begin
           fMapsMP.Refresh(Lobby_ScanUpdate);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-          DropCol_LobbyMaps.List.Header.SetColumnText(0, fTextLibrary[TX_MENU_MAP_TITLE]);
-          DropCol_LobbyMaps.List.Header.SetColumnText(2, fTextLibrary[TX_MENU_MAP_SIZE]);
+          DropCol_LobbyMaps.List.Header.Columns[0].Caption := fTextLibrary[TX_MENU_MAP_TITLE];
+          DropCol_LobbyMaps.List.Header.Columns[2].Caption := fTextLibrary[TX_MENU_MAP_SIZE];
         end;
     3:  //Saved Game
         begin
           fMapsMP.TerminateScan;
           fSavesMP.Refresh(Lobby_ScanUpdate, True);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
-          DropCol_LobbyMaps.List.Header.SetColumnText(0, fTextLibrary[TX_MENU_LOAD_FILE]);
-          DropCol_LobbyMaps.List.Header.SetColumnText(2, fTextLibrary[TX_MENU_SAVE_TIME]);
+          DropCol_LobbyMaps.List.Header.Columns[0].Caption := fTextLibrary[TX_MENU_LOAD_FILE];
+          DropCol_LobbyMaps.List.Header.Columns[2].Caption := fTextLibrary[TX_MENU_SAVE_TIME];
         end;
     else
         begin
