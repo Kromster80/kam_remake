@@ -330,7 +330,6 @@ type
   private
     fFont: TKMFont;
     fFlagColor: TColor4;
-    TextAlign: TTextAlign;
   public
     RX: TRXType;
     TexID: Word;
@@ -355,8 +354,8 @@ type
   private
     fCaption: string;
     fFont: TKMFont;
+    fFontHeight: Byte;
   public
-    CapOffsetY: Shortint;
     ShapeColor: TColor4;
     Down: Boolean;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aShapeColor: TColor4);
@@ -1185,17 +1184,17 @@ begin
 
   if Self is TKMLabel then begin //Special case for aligned text
     Tmp := TKMLabel(Self).TextSize;
-    fRenderUI.WriteLayer(TKMLabel(Self).TextLeft, Top, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
-    fRenderUI.WriteRect(Left, Top, fWidth, fHeight, 1, $FFFFFFFF);
-    fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
+    fRenderUI.WriteShape(TKMLabel(Self).TextLeft, Top, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
+    fRenderUI.WriteOutline(Left, Top, fWidth, fHeight, 1, $FFFFFFFF);
+    fRenderUI.WriteShape(Left-3, Top-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
     Exit;
   end;
 
   if Self is TKMLabelScroll then begin //Special case for aligned text
     Tmp := TKMLabelScroll(Self).TextSize;
-    fRenderUI.WriteLayer(TKMLabelScroll(Self).TextLeft, Top, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
-    fRenderUI.WriteRect(Left, Top, fWidth, fHeight, 1, $FFFFFFFF);
-    fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
+    fRenderUI.WriteShape(TKMLabelScroll(Self).TextLeft, Top, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
+    fRenderUI.WriteOutline(Left, Top, fWidth, fHeight, 1, $FFFFFFFF);
+    fRenderUI.WriteShape(Left-3, Top-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
     Exit;
   end;
 
@@ -1208,8 +1207,8 @@ begin
 
   if csOver in State then sColor := sColor OR $30000000; //Highlight on mouse over
 
-  fRenderUI.WriteLayer(Left, Top, fWidth, fHeight, sColor, $FFFFFFFF);
-  fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
+  fRenderUI.WriteShape(Left, Top, fWidth, fHeight, sColor, $FFFFFFFF);
+  fRenderUI.WriteShape(Left-3, Top-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
 end;
 
 
@@ -1477,8 +1476,8 @@ end;
 procedure TKMShape.Paint;
 begin
   inherited;
-  fRenderUI.WriteLayer(Left,Top,Width,Height,FillColor,$00000000);
-  fRenderUI.WriteRect(Left,Top,Width,Height,LineWidth,LineColor);
+  fRenderUI.WriteShape(Left, Top, Width, Height, FillColor);
+  fRenderUI.WriteOutline(Left, Top, Width, Height, LineWidth, LineColor);
 end;
 
 
@@ -1562,7 +1561,7 @@ begin
   fRenderUI.WriteText(Left, Top, Width, fText, fFont, fTextAlign, Col);
 
   if fStrikethrough then
-    fRenderUI.WriteLayer(TextLeft, Top + fTextSize.Y div 2 - 2, fTextSize.X, 3, Col, $FF000000);
+    fRenderUI.WriteShape(TextLeft, Top + fTextSize.Y div 2 - 2, fTextSize.X, 3, Col, $FF000000);
 end;
 
 
@@ -1768,16 +1767,16 @@ begin
   begin
     //Render miniature copy of all available colors with '?' on top
     for i:=0 to Length(Colors)-1 do
-      fRenderUI.WriteLayer(Left+(i mod fColumnCount)*(fCellSize div fColumnCount)+2, Top+(i div fColumnCount)*(fCellSize div fColumnCount)+2, (fCellSize div fColumnCount), (fCellSize div fColumnCount), Colors[i], $00);
+      fRenderUI.WriteShape(Left+(i mod fColumnCount)*(fCellSize div fColumnCount)+2, Top+(i div fColumnCount)*(fCellSize div fColumnCount)+2, (fCellSize div fColumnCount), (fCellSize div fColumnCount), Colors[i]);
     fRenderUI.WriteText(Left + fCellSize div 2, Top + fCellSize div 4, 0, '?', fnt_Metal, taCenter);
     Start := 1;
   end;
 
   for i:=Start to Length(Colors)-1 do
-    fRenderUI.WriteLayer(Left+(i mod fColumnCount)*fCellSize, Top+(i div fColumnCount)*fCellSize, fCellSize, fCellSize, Colors[i], $00);
+    fRenderUI.WriteShape(Left+(i mod fColumnCount)*fCellSize, Top+(i div fColumnCount)*fCellSize, fCellSize, fCellSize, Colors[i]);
 
   //Paint selection
-  fRenderUI.WriteLayer(Left+(fColorIndex mod fColumnCount)*fCellSize, Top+(fColorIndex div fColumnCount)*fCellSize, fCellSize, fCellSize, $00, $FFFFFFFF);
+  fRenderUI.WriteOutline(Left+(fColorIndex mod fColumnCount)*fCellSize, Top+(fColorIndex div fColumnCount)*fCellSize, fCellSize, fCellSize, 1, $FFFFFFFF);
 end;
 
 
@@ -1800,7 +1799,7 @@ begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fTexID      := 0;
   fCaption    := aCaption;
-  fFlagColor := $FFFF00FF;
+  fFlagColor  := $FFFF00FF;
   fFont       := fnt_Metal;
   fTextAlign  := taCenter; //Thats default everywhere in KaM
   fStyle      := aStyle;
@@ -1852,22 +1851,21 @@ begin
   if fTexID <> 0 then Exit;
 
   //If disabled then text should be faded
-  Col := IfThen(fEnabled, $FFFFFFFF, $FF888888);
+  Col := IfThen(fEnabled, $FFFFFFFF, $FF808080);
 
   fRenderUI.WriteText(Left + Byte(csDown in State),
                       (Top + Height div 2)-7 + Byte(csDown in State), Width, fCaption, fFont, fTextAlign, Col);
 end;
 
 
-{Simple version of button, with a caption and image}
+//Simple version of button, with a caption and image
 constructor TKMButtonFlat.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID: Integer; aRX: TRXType = rxGui);
 begin
-  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   RX          := aRX;
   TexID       := aTexID;
   fFlagColor  := $FFFF00FF;
-  fFont       := fnt_Grey;
-  TextAlign   := taLeft;
+  fFont       := fnt_Game;
 end;
 
 
@@ -1879,18 +1877,28 @@ end;
 
 
 procedure TKMButtonFlat.Paint;
-var StateSet: TButtonStateSet;
+const
+  TextCol: array [Boolean] of TColor4 = ($FF808080, $FFFFFFFF);
 begin
   inherited;
-  StateSet:=[];
-  if (csOver in State) and fEnabled and not HideHighlight then
-    StateSet := StateSet+[bsOver];
-  if Down then
-    StateSet := StateSet + [bsDown];
-  if not Enabled then
-    StateSet := StateSet + [bsDisabled];
 
-  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RX,TexID,fFlagColor,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
+  fRenderUI.WriteBevel(Left, Top, Width, Height);
+
+  if TexID <> 0 then
+    fRenderUI.WritePicture(Left + TexOffsetX,
+                           Top + TexOffsetY - 6 * Byte(Caption <> ''),
+                           Width, Height, [], RX, TexID, True, fFlagColor);
+
+  if (csOver in State) and fEnabled and not HideHighlight then
+    fRenderUI.WriteShape(Left+1, Top+1, Width-2, Height-2, $40FFFFFF);
+
+  fRenderUI.WriteText(Left, Top + (Height div 2) + 4 + CapOffsetY, Width, Caption, fFont, taCenter, TextCol[fEnabled]);
+
+  {if not fEnabled then
+    fRenderUI.WriteShape(Left, Top, Width, Height, $80000000);}
+
+  if Down then
+    fRenderUI.WriteOutline(Left, Top, Width, Height, 1, $FFFFFFFF);
 end;
 
 
@@ -1899,20 +1907,29 @@ constructor TKMFlatButtonShape.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeig
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fCaption    := aCaption;
-  CapOffsetY  := 0;
   ShapeColor  := aShapeColor;
   fFont       := aFont;
+  fFontHeight := fResource.ResourceFont.FontData[fFont].Unk1 + 2;
 end;
 
 
 procedure TKMFlatButtonShape.Paint;
 begin
   inherited;
-  fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteLayer(Left+1,Top+1,Width-2,Width-2, ShapeColor, $00000000);
-  fRenderUI.WriteText(Left,Top+(Height div 2)+4+CapOffsetY, Width, fCaption, fFont, taCenter);
-  if (csOver in State) and fEnabled then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $40FFFFFF, $00000000);
-  if (csDown in State) or Down then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $00000000, $FFFFFFFF);
+
+  fRenderUI.WriteBevel(Left, Top, Width, Height);
+
+  //Shape within bevel
+  fRenderUI.WriteShape(Left + 1, Top + 1, Width - 2, Width - 2, ShapeColor);
+
+  fRenderUI.WriteText(Left, Top + (Height - fFontHeight) div 2,
+                      Width, fCaption, fFont, taCenter);
+
+  if (csOver in State) and fEnabled then
+    fRenderUI.WriteShape(Left + 1, Top + 1, Width - 2, Height - 2, $40FFFFFF);
+
+  if (csDown in State) or Down then
+    fRenderUI.WriteOutline(Left, Top, Width, Height, 1, $FFFFFFFF);
 end;
 
 
@@ -2098,7 +2115,7 @@ begin
   begin
     SetLength(RText, CursorPos - fLeftIndex);
     OffX := Left + 2 + fResource.ResourceFont.GetTextSize(RText, fFont).X;
-    fRenderUI.WriteLayer(OffX, Top+2, 3, Height-4, Col, $FF000000);
+    fRenderUI.WriteShape(OffX, Top+2, 3, Height-4, Col, $FF000000);
   end;
 end;
 
@@ -2132,7 +2149,7 @@ begin
   if fFlatStyle then begin
     fRenderUI.WriteBevel(Left, Top, Width, Height, true);
     if fChecked then
-      fRenderUI.WriteLayer(Left+4, Top+4, Width-8, Height-8, $C0A0A0A0, $D0A0A0A0);
+      fRenderUI.WriteShape(Left+4, Top+4, Width-8, Height-8, $C0A0A0A0, $D0A0A0A0);
   end else
   begin
     fRenderUI.WriteText(Left, Top, Width, '[ ] '+fCaption, fFont, taLeft, Col);
@@ -3013,7 +3030,7 @@ begin
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
 
   if (fItemIndex <> -1) and InRange(fItemIndex - TopIndex, 0, (fHeight div fItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
+    fRenderUI.WriteShape(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
     fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, PaintWidth-8, fItems.Strings[TopIndex+i] , fFont, taLeft);
@@ -3143,7 +3160,7 @@ begin
 
     fRenderUI.WriteBevel(ColumnLeft, Top, ColumnWidth, Height, True, fBackAlpha);
     if Assigned(OnColumnClick) and (csOver in State) and (fColumnHighlight = I) then
-      fRenderUI.WriteLayer(ColumnLeft, Top, ColumnWidth, Height, $20FFFFFF, $00000000);
+      fRenderUI.WriteShape(ColumnLeft, Top, ColumnWidth, Height, $20FFFFFF);
 
     if fColumns[I].Glyph.ID <> 0 then
       fRenderUI.WritePicture(ColumnLeft + 4, Top, ColumnWidth - 8, Height, [], fColumns[I].Glyph.RX, fColumns[I].Glyph.ID)
@@ -3238,12 +3255,6 @@ function TKMColumnListBox.GetTopIndex: Integer;
 begin
   Result := fScrollBar.Position;
 end;
-
-
-{function TKMColumnListBox.HeaderHeight: Integer;
-begin
-  Result := fHeader.Height;
-end;}
 
 
 function TKMColumnListBox.GetVisibleRows: Integer;
@@ -3496,9 +3507,6 @@ begin
                             fColumns[I].Font, fColumns[I].TextAlign, fRows[aIndex].Cells[I].Color);
       end;
   end;
-
-  if fShowLines then
-    fRenderUI.WriteLayer(X, Y + fItemHeight-1, PaintWidth, 2, $FFBBBBBB, $00000000);
 end;
 
 
@@ -3520,10 +3528,19 @@ begin
 
   fRenderUI.WriteBevel(Left, Y, PaintWidth, Height - fHeader.Height * Byte(fShowHeader), false, fBackAlpha);
 
-  //Selected item highlight on background
-  if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, MaxItem) then
-    fRenderUI.WriteLayer(Left, Y + fItemHeight * (fItemIndex - TopIndex), PaintWidth, fItemHeight-1, $88888888, $FFFFFFFF);
+  //Grid lines should be below selection focus
+  if fShowLines then
+  for I := 0 to Math.min(fRowCount - 1, MaxItem) do
+    fRenderUI.WriteShape(Left+1, Y + I * fItemHeight - 1, PaintWidth - 2, 1, $FFBBBBBB);
 
+  //Selection highlight
+  if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, MaxItem) then
+  begin
+    fRenderUI.WriteShape(Left, Y + fItemHeight * (fItemIndex - TopIndex) - 1, PaintWidth, fItemHeight+1, $88888888);
+    fRenderUI.WriteOutline(Left, Y + fItemHeight * (fItemIndex - TopIndex) - 1, PaintWidth, fItemHeight+1, 1 + Byte(fShowLines), $FFFFFFFF);
+  end;
+
+  //Rows above selection for clear visibility
   for I := 0 to Math.min(fRowCount - 1, MaxItem) do
     DoPaintLine(TopIndex + I, Left, Y + I * fItemHeight, PaintWidth);
 end;
@@ -3990,7 +4007,7 @@ var Col: TColor4;
 begin
   inherited;
   fRenderUI.WriteBevel(Left, Top, Width-fButton.Width, Height);
-  fRenderUI.WriteLayer(Left+2, Top+1, Width-fButton.Width-3, Height-2, fSwatch.GetColor, $00);
+  fRenderUI.WriteShape(Left+2, Top+1, Width-fButton.Width-3, Height-2, fSwatch.GetColor);
   if (fRandomCaption <> '') and (fSwatch.ColorIndex = 0) then
   begin
     if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
@@ -4118,7 +4135,7 @@ begin
   begin
     R := fView.GetMinimapClip;
     if (R.Right - R.Left) * (R.Bottom - R.Top) > 0 then
-      fRenderUI.WriteRect(fNewLeft + Round(R.Left*fPaintWidth / fMinimap.MapX),
+      fRenderUI.WriteOutline(fNewLeft + Round(R.Left*fPaintWidth / fMinimap.MapX),
                           fNewTop  + Round(R.Top*fPaintHeight / fMinimap.MapY),
                           Round((R.Right - R.Left)*fPaintWidth / fMinimap.MapX),
                           Round((R.Bottom - R.Top)*fPaintHeight / fMinimap.MapY), 1, $FFFFFFFF);
@@ -4355,7 +4372,7 @@ begin
       fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[I].Values, TopValue, NewColor, 2);
 
     //Checkboxes
-    fRenderUI.WriteLayer(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, NewColor, $00000000);
+    fRenderUI.WriteShape(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, NewColor);
     if fLines[I].Visible then
       fRenderUI.WriteText(G.Right + 5, G.Top - 2 + I*fItemHeight - 1, 0, 'v', fnt_Game, taLeft, $FF000000);
 
@@ -4368,7 +4385,7 @@ begin
     fRenderUI.WritePlot(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, fLines[fLineOver].Values, TopValue, $FFFF00FF, 3);
 
   //Outline
-  fRenderUI.WriteRect(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, $FFFFFFFF);
+  fRenderUI.WriteOutline(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, $FFFFFFFF);
 
   //Title
   fRenderUI.WriteText(G.Left + 5, G.Top + 5, 0, fCaption, fFont, taLeft);
@@ -4390,7 +4407,7 @@ begin
   for I := 1 to (TopValue div Best) do
   begin
     fRenderUI.WriteText(G.Left - 5, G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top)) - 6, 0, IntToStr(I * Best), fnt_Game, taRight);
-    fRenderUI.WriteLayer(G.Left - 2, G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top)), 5, 2, $FFFFFFFF, $00000000);
+    fRenderUI.WriteShape(G.Left - 2, G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top)), 5, 2, $FFFFFFFF);
   end;
 
   //Render horizontal axis ticks
@@ -4406,7 +4423,7 @@ begin
   if Best <> 0 then
   for I := 1 to (fMaxTime div Best) do
   begin
-    fRenderUI.WriteLayer(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom - 2, 2, 5, $FFFFFFFF, $00000000);
+    fRenderUI.WriteShape(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom - 2, 2, 5, $FFFFFFFF);
     fRenderUI.WriteText(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom + 4, 0, TimeToString((I * Best) / 24 / 60 / 60), fnt_Game, taLeft);
   end;
 end;

@@ -21,9 +21,10 @@ type
 
     Strong: Boolean;
 
-    function GetEquipRate(aUnit:TUnitType): Word;
-
     constructor Create;
+
+    function GetEquipRate(aUnit: TUnitType): Word;
+
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
   end;

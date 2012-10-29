@@ -545,7 +545,7 @@ procedure TKMapEdInterface.Formations_Close(Sender: TObject);
 var
   GT: TGroupType;
 begin
-  Assert(Image_FormationsFlag.FlagColor <> MyPlayer.FlagColor, 'Cheap test to see if active player didn''t changed');
+  Assert(Image_FormationsFlag.FlagColor = MyPlayer.FlagColor, 'Cheap test to see if active player didn''t changed');
 
   if Sender = Button_Formations_Ok then
   for GT := Low(TGroupType) to High(TGroupType) do
@@ -609,7 +609,6 @@ begin
     for I := 0 to MAX_PLAYERS - 1 do
     begin
       Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 215, 21, 21, inttostr(I+1), fnt_Grey, $FF0000FF);
-      Button_PlayerSelect[I].CapOffsetY := -12;
       Button_PlayerSelect[I].Tag     := I;
       Button_PlayerSelect[I].OnClick := Player_ChangeActive;
     end;
@@ -809,7 +808,7 @@ var
   I: Integer;
   VT: TKMVillageTab;
 begin
-  Panel_Village := TKMPanel.Create(Panel_Common, TB_PAD,60,TB_WIDTH,28);
+  Panel_Village := TKMPanel.Create(Panel_Common, 0,60,TB_WIDTH,28);
 
     for VT := Low(TKMVillageTab) to High(TKMVillageTab) do
     begin

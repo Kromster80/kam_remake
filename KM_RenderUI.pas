@@ -10,21 +10,19 @@ type
 
   TRenderUI = class
   public
-    procedure SetupClipX        (X1,X2:smallint);
-    procedure SetupClipY        (Y1,Y2:smallint);
+    procedure SetupClipX        (X1,X2: SmallInt);
+    procedure SetupClipY        (Y1,Y2: SmallInt);
     procedure ReleaseClip;
     procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
-    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
-
     procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
-    procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
-    procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
+    procedure WriteOutline      (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
+    procedure WriteShape        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
     procedure WriteText         (X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
     procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
-    procedure WriteCircle       (PosX,PosY,Rad:smallint; Col:TColor4);
+    procedure WriteCircle       (PosX,PosY: SmallInt; Rad: Byte; aFillCol: TColor4);
   end;
 
 
@@ -168,52 +166,6 @@ begin
 end;
 
 
-procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor: TColor4; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
-begin
-  WriteBevel(PosX, PosY, SizeX, SizeY);
-
-  glPushMatrix;
-    glTranslatef(PosX, PosY, 0);
-
-    if aID <> 0 then
-    begin
-      TexOffsetY := TexOffsetY - 6 * byte(Caption <> '');
-      WritePicture(TexOffsetX, TexOffsetY, SizeX, SizeY, [], aRX, aID, True, aColor);
-    end;
-
-    if bsDisabled in State then
-      WriteText(0, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, taCenter, $FF808080)
-    else
-      WriteText(0, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, taCenter, $FFE0E0E0);
-
-    if bsOver in State then
-    begin
-      glColor4f(1,1,1,0.25);
-      glBegin(GL_QUADS);
-        glkRect(0,0,SizeX-1,SizeY-1);
-      glEnd;
-    end;
-
-    {if bsDisabled in State then
-    begin
-      glColor4f(0,0,0,0.5);
-      glBegin (GL_QUADS);
-        glkRect(0,0,SizeX-1,SizeY-1);
-      glEnd;
-    end;}
-
-    if bsDown in State then
-    begin
-      glColor4f(1,1,1,1);
-      glBegin(GL_LINE_LOOP);
-        glkRect(0.5,0.5,SizeX-0.5,SizeY-0.5);
-      glEnd;
-    end;
-
-  glPopMatrix;
-end;
-
-
 procedure TRenderUI.WriteBevel(PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
 begin
   if (SizeX < 0) or (SizeY < 0) then Exit;
@@ -279,7 +231,7 @@ begin
 
       //Skip the seam if it matches high border
       if (aSeam < 1) then
-        WriteRect(Round(aSeam * (SizeX - 2)) + 1, 1, 1, SizeY-2, 1, $FFFFFFFF);
+        WriteOutline(Round(aSeam * (SizeX - 2)) + 1, 1, 1, SizeY-2, 1, $FFFFFFFF);
     end;
 
     //Draw shadow on top and left of the bar, just like real one
@@ -406,26 +358,26 @@ begin
 end;
 
 
-procedure TRenderUI.WriteRect(PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
+procedure TRenderUI.WriteOutline(PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
 begin
   if LineWidth = 0 then Exit;
   glPushAttrib(GL_LINE_BIT);
     glLineWidth(LineWidth);
     glColor4ubv(@Col);
     glBegin(GL_LINE_LOOP);
-      glkRect(PosX+0.5, PosY+0.5, PosX+SizeX-0.5, PosY+SizeY-0.5);
+      glkRect(PosX+LineWidth/2, PosY+LineWidth/2, PosX+SizeX-LineWidth/2, PosY+SizeY-LineWidth/2);
     glEnd;
   glPopAttrib;
 end;
 
 
-{Renders plane with given color}
-procedure TRenderUI.WriteLayer(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
+//Renders plane with given color and optional 1px outline
+procedure TRenderUI.WriteShape(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
 begin
   glPushAttrib(GL_LINE_BIT);
     glColor4ubv(@Col);
     glBegin(GL_QUADS);
-      glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
+      glkRect(PosX, PosY, PosX+SizeX, PosY+SizeY);
     glEnd;
     glLineWidth(1);
     glColor4ubv(@Outline);
@@ -619,15 +571,17 @@ begin
 end;
 
 
-procedure TRenderUI.WriteCircle(PosX,PosY,Rad:smallint; Col:TColor4);
-var Ang: Single; I: Byte;
+procedure TRenderUI.WriteCircle(PosX,PosY: SmallInt; Rad: Byte; aFillCol: TColor4);
+var
+  Ang: Single;
+  I: Byte;
 begin
-  if Rad=0 then exit;
-  glColor4ubv(@Col);
+  if Rad = 0 then Exit;
+  glColor4ubv(@aFillCol);
   glBegin(GL_POLYGON);
     for I := 0 to 15 do
     begin
-      Ang := I/8*pi;
+      Ang := I / 8 * Pi;
       glVertex2f(PosX + Sin(Ang) * Rad, PosY + Cos(Ang) * Rad);
     end;
   glEnd;

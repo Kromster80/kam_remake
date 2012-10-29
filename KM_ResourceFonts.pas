@@ -323,8 +323,8 @@ begin
   end;
 
   dec(LineCount);
-  Result.Y := (fFontData[Fnt].Unk1 + FONT_INTERLINE)*LineCount;
-  for I:=1 to LineCount do
+  Result.Y := (fFontData[Fnt].Unk1 + FONT_INTERLINE) * LineCount;
+  for I := 1 to LineCount do
     Result.X := Math.max(Result.X, LineWidth[I]);
 end;
 

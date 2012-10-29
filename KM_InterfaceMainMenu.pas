@@ -1672,7 +1672,7 @@ begin
       Center;
     end;
     //Fade to black by 62.5%
-    with TKMShape.Create(Panel_Results,0,0,Panel_Main.Width+1, Panel_Main.Height+1) do
+    with TKMShape.Create(Panel_Results,0,0,Panel_Main.Width, Panel_Main.Height) do
     begin
       Center;
       FillColor := $A0000000;
@@ -1788,7 +1788,7 @@ begin
       ImageStretch;
       Center;
     end;
-    with TKMShape.Create(Panel_ResultsMP,0,0,Panel_Main.Width+1, Panel_Main.Height+1) do
+    with TKMShape.Create(Panel_ResultsMP,0,0,Panel_Main.Width, Panel_Main.Height) do
     begin
       Center;
       FillColor := $A0000000;
