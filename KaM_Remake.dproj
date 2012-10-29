@@ -203,6 +203,7 @@
 			<DCCReference Include="KM_UnitActionSteer.pas"/>
 			<DCCReference Include="KM_UnitActionStormAttack.pas"/>
 			<DCCReference Include="KM_UnitActionWalkTo.pas"/>
+			<DCCReference Include="KM_UnitGroups.pas"/>
 			<DCCReference Include="KM_Units.pas"/>
 			<DCCReference Include="KM_Units_Warrior.pas"/>
 			<DCCReference Include="KM_Units_WorkPlan.pas"/>

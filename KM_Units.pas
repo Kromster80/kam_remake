@@ -1284,9 +1284,9 @@ end;
 
 
 //Only ClearUnit can set fDirection to NA, no other circumstances it is allowed
-procedure TKMUnit.SetDirection(aValue:TKMDirection);
+procedure TKMUnit.SetDirection(aValue: TKMDirection);
 begin
-  Assert(aValue<>dir_NA);
+  Assert(aValue <> dir_NA);
   fDirection := aValue;
 end;
 
