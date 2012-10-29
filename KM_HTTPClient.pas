@@ -6,6 +6,7 @@ uses Classes, SysUtils
      {$IFDEF FPC} ,KM_HTTPClientLNet {$ENDIF};
 
 type
+  //General wrapper for Delphi/Lazarus implementations
   TKMHTTPClient = class
   private
     {$IFDEF WDC} fClient: TKMHTTPClientOverbyte; {$ENDIF}

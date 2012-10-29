@@ -6,22 +6,22 @@ uses Classes, SysUtils, lNet, URLUtils, lHTTP;
 type
   TKMHTTPClientLNet = class
   private
-    fHTTPClient:TLHTTPClient;
+    fHTTPClient: TLHTTPClient;
     HTTPBuffer: string;
-    fOnError:TGetStrProc;
-    fOnGetCompleted:TGetStrProc;
+    fOnError: TGetStrProc;
+    fOnGetCompleted: TGetStrProc;
     procedure HTTPClientDoneInput(ASocket: TLHTTPClientSocket);
     procedure HTTPClientError(const msg: string; aSocket: TLSocket);
-    function HTTPClientInput(ASocket: TLHTTPClientSocket; ABuffer: pchar; ASize: integer): integer;
+    function HTTPClientInput(ASocket: TLHTTPClientSocket; ABuffer: PChar; ASize: Integer): Integer;
   public
     constructor Create;
     destructor Destroy; override;
 
-    procedure GetURL(aURL:string);
+    procedure GetURL(aURL: string);
     procedure UpdateStateIdle;
 
-    property OnError:TGetStrProc write fOnError;
-    property OnGetCompleted:TGetStrProc write fOnGetCompleted;
+    property OnError: TGetStrProc write fOnError;
+    property OnGetCompleted: TGetStrProc write fOnGetCompleted;
   end;
 
 implementation
@@ -29,7 +29,7 @@ implementation
 
 constructor TKMHTTPClientLNet.Create;
 begin
-  Inherited Create;
+  inherited Create;
   fHTTPClient := TLHTTPClient.Create(nil);
   fHTTPClient.Timeout := 0;
   fHTTPClient.OnInput := HTTPClientInput;
@@ -41,20 +41,20 @@ end;
 destructor TKMHTTPClientLNet.Destroy;
 begin
   fHTTPClient.Free;
-  Inherited;
+  inherited;
 end;
 
 
-procedure TKMHTTPClientLNet.GetURL(aURL:string);
+procedure TKMHTTPClientLNet.GetURL(aURL: string);
 var
-  Proto, User, Pass, Host, Port, Path : String;
+  Proto, User, Pass, Host, Port, Path: string;
 begin
   fHTTPClient.Disconnect(true); //If we were doing something, stop it
   HTTPBuffer := '';
   ParseURL(aURL, Proto, User, Pass, Host, Port, Path);
   fHTTPClient.Host := Host;
   fHTTPClient.URI := Path;
-  fHTTPClient.Port := StrToIntDef(Port,80);
+  fHTTPClient.Port := StrToIntDef(Port, 80);
   fHTTPClient.SendRequest;
 end;
 
@@ -75,15 +75,15 @@ begin
 end;
 
 
-function TKMHTTPClientLNet.HTTPClientInput(ASocket: TLHTTPClientSocket; ABuffer: pchar; ASize: integer): integer;
+function TKMHTTPClientLNet.HTTPClientInput(ASocket: TLHTTPClientSocket; ABuffer: PChar; ASize: Integer): Integer;
 var
   oldLength: dword;
 begin
   if ASize > 0 then
   begin
     oldLength := Length(HTTPBuffer);
-    setlength(HTTPBuffer,oldLength + ASize);
-    move(ABuffer^,HTTPBuffer[oldLength + 1], ASize);
+    setlength(HTTPBuffer, oldLength + ASize);
+    move(ABuffer^, HTTPBuffer[oldLength + 1], ASize);
   end;
   Result := aSize; // tell the http buffer we read it all
 end;
@@ -93,6 +93,7 @@ procedure TKMHTTPClientLNet.UpdateStateIdle;
 begin
   fHTTPClient.CallAction; //Process network events
 end;
+
 
 end.
  

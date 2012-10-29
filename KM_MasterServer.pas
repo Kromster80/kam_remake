@@ -9,27 +9,28 @@ uses Classes, SysUtils,
 
 
 type
+  //Interaction with MasterServer
   TKMMasterServer = class
   private
     fHTTPClient: TKMHTTPClient; //To update server status and fetch server list
     fHTTPAnnouncementsClient: TKMHTTPClient; //To fetch the annoucenemnts at the same time as the server list
     fHTTPMapsClient: TKMHTTPClient; //To tell master server about the map we played
     fMasterServerAddress: string;
-    fOnError:TGetStrProc;
-    fOnServerList:TGetStrProc;
-    fOnAnnouncements:TGetStrProc;
+    fOnError: TGetStrProc;
+    fOnServerList: TGetStrProc;
+    fOnAnnouncements: TGetStrProc;
 
-    procedure Receive(const S: string);
+    procedure ReceiveServerList(const S: string);
     procedure ReceiveAnnouncements(const S: string);
     procedure Error(const S: string);
   public
     constructor Create(const aMasterServerAddress:string);
     destructor Destroy; override;
 
-    property OnError:TGetStrProc write fOnError;
-    property OnServerList:TGetStrProc write fOnServerList;
-    property OnAnnouncements:TGetStrProc write fOnAnnouncements;
-    procedure AnnounceServer(aName, aPort:string; aPlayerCount, aTTL:integer);
+    property OnError: TGetStrProc write fOnError;
+    property OnServerList: TGetStrProc write fOnServerList;
+    property OnAnnouncements: TGetStrProc write fOnAnnouncements;
+    procedure AnnounceServer(aName, aPort: string; aPlayerCount, aTTL: Integer);
     procedure QueryServer;
     procedure FetchAnnouncements(const aLang: string);
     procedure SendMapInfo(const aMapName: string; aPlayerCount: Integer);
@@ -42,7 +43,7 @@ type
 implementation
 
 
-constructor TKMMasterServer.Create(const aMasterServerAddress:string);
+constructor TKMMasterServer.Create(const aMasterServerAddress: string);
 begin
   inherited Create;
   fHTTPClient := TKMHTTPClient.Create;
@@ -69,7 +70,7 @@ begin
 end;
 
 
-procedure TKMMasterServer.Receive(const S: string);
+procedure TKMMasterServer.ReceiveServerList(const S: string);
 begin
   if Assigned(fOnServerList) then fOnServerList(S);
 end;
@@ -92,7 +93,7 @@ end;
 
 procedure TKMMasterServer.QueryServer;
 begin
-  fHTTPClient.OnReceive := Receive;
+  fHTTPClient.OnReceive := ReceiveServerList;
   fHTTPClient.GetURL(fMasterServerAddress+'serverquery.php?rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));
 end;
 

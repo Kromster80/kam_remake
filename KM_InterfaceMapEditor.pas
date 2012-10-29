@@ -808,7 +808,7 @@ var
   I: Integer;
   VT: TKMVillageTab;
 begin
-  Panel_Village := TKMPanel.Create(Panel_Common, 0,60,TB_WIDTH,28);
+  Panel_Village := TKMPanel.Create(Panel_Common, 0, 60, TB_WIDTH, 28);
 
     for VT := Low(TKMVillageTab) to High(TKMVillageTab) do
     begin
