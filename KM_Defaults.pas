@@ -263,9 +263,9 @@ type
   //Which MapEditor page is being shown
   TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units, esp_Reveal);
 
-    TKMissionMode = (mm_Normal, mm_Tactic);
+  TKMissionMode = (mm_Normal, mm_Tactic);
 
-    TAllianceType = (at_Enemy=0, at_Ally=1); //Must match KaM script IDs for now
+  TAllianceType = (at_Enemy=0, at_Ally=1); //Must match KaM script IDs for now
 
 {Resources}
 type
@@ -376,20 +376,21 @@ type
     ut_Wolf,         ut_Fish,         ut_Watersnake,   ut_Seastar,
     ut_Crab,         ut_Waterflower,  ut_Waterleaf,    ut_Duck);
 
-const UNIT_MIN = ut_Serf;
-      UNIT_MAX = ut_Duck;
-      CITIZEN_MIN = ut_Serf;
-      CITIZEN_MAX = ut_Recruit;
-      WARRIOR_MIN = ut_Militia;
-      WARRIOR_MAX = ut_Horseman;
-      WARRIOR_EQUIPABLE_MIN = ut_Militia; //Available from barracks
-      WARRIOR_EQUIPABLE_MAX = ut_Barbarian;
-      HUMANS_MIN = ut_Serf;
-      HUMANS_MAX = ut_Horseman;
-      ANIMAL_MIN = ut_Wolf;
-      ANIMAL_MAX = ut_Duck;
+const
+  UNIT_MIN = ut_Serf;
+  UNIT_MAX = ut_Duck;
+  CITIZEN_MIN = ut_Serf;
+  CITIZEN_MAX = ut_Recruit;
+  WARRIOR_MIN = ut_Militia;
+  WARRIOR_MAX = ut_Horseman;
+  WARRIOR_EQUIPABLE_MIN = ut_Militia; //Available from barracks
+  WARRIOR_EQUIPABLE_MAX = ut_Barbarian;
+  HUMANS_MIN = ut_Serf;
+  HUMANS_MAX = ut_Horseman;
+  ANIMAL_MIN = ut_Wolf;
+  ANIMAL_MAX = ut_Duck;
 
-      WARRIORS_IRON = [ut_Swordsman, ut_Arbaletman, ut_Hallebardman, ut_Cavalry];
+  WARRIORS_IRON = [ut_Swordsman, ut_Arbaletman, ut_Hallebardman, ut_Cavalry];
 
 type
   TCheckAxis = (ax_X, ax_Y);
@@ -465,10 +466,8 @@ type
         utn_GoEat,     utn_Mining,         utn_Die,        utn_GoOutShowHungry,  utn_AttackHouse,
         utn_ThrowRock);
 
-type
   TUnitActionName = (uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack, uan_Steer);
 
-type
   TUnitActionType = (ua_Walk=120, ua_Work, ua_Spec, ua_Die, ua_Work1,
                      ua_Work2, ua_WorkEnd, ua_Eat, ua_WalkArm, ua_WalkTool,
                      ua_WalkBooty, ua_WalkTool2, ua_WalkBooty2, ua_Unknown);
@@ -574,17 +573,17 @@ const
 
 
 const
-//Tiles table made by JBSnorro, thanks to him :)
-MapEdTileRemap:array[1..256]of integer = (
- 1,73,74,75,37,21,22, 38, 33, 34, 32,181,173,177,129,130,131,132,133, 49,193,197,217,225,  0,  0, 45, 24, 13, 23,208,224,
-27,76,77,78,36,39,40,198,100,101,102,189,169,185,134,135,136,137,138,124,125,126,229,218,219,220, 46, 11,  5,  0, 26,216,
-28,79,80,81,35,88,89, 90, 70, 71, 72,182,174,178,196,139,140,141,142,127,128,  0,230,226,227,228, 47,204,205,206,203,207,
-29,82,83,84,85,86,87,  0,112,113,114,190,170,186,161,162,163,164,165,106,107,108,233,234,231,  0, 48,221,213,214,199,200,
-30,94,95,96,57,58,59,  0,103,104,105,183,175,179,157,202,158,159,160,117,118,119,209,210,241,245,194,248, 65, 66,195, 25,
-31, 9,19,20,41,42,43, 44,  6,  7, 10,191,171,187,149,150,151,152, 16,242,243,244,235,238,239,240,  0, 50,172, 52,222,223,
-18,67,68,69,91,92,93,  0,  3,  4,  2,184,176,180,145,146,147,148,  8,115,116,120,236,237,143,144,  0, 53,167, 55,215,232,
-17,97,98,99, 0, 0, 0,  0, 12, 14, 15,192,168,188,153,154,155,156,  0,121,122,123,211,212,201,  0,246,166, 51, 54,  0,  0);
-// 247 - doesn't work in game, replaced with random road
+  //Tiles table made by JBSnorro, thanks to him :)
+  MapEdTileRemap: array [1..256] of Integer = (
+     1,73,74,75,37,21,22, 38, 33, 34, 32,181,173,177,129,130,131,132,133, 49,193,197,217,225,  0,  0, 45, 24, 13, 23,208,224,
+    27,76,77,78,36,39,40,198,100,101,102,189,169,185,134,135,136,137,138,124,125,126,229,218,219,220, 46, 11,  5,  0, 26,216,
+    28,79,80,81,35,88,89, 90, 70, 71, 72,182,174,178,196,139,140,141,142,127,128,  0,230,226,227,228, 47,204,205,206,203,207,
+    29,82,83,84,85,86,87,  0,112,113,114,190,170,186,161,162,163,164,165,106,107,108,233,234,231,  0, 48,221,213,214,199,200,
+    30,94,95,96,57,58,59,  0,103,104,105,183,175,179,157,202,158,159,160,117,118,119,209,210,241,245,194,248, 65, 66,195, 25,
+    31, 9,19,20,41,42,43, 44,  6,  7, 10,191,171,187,149,150,151,152, 16,242,243,244,235,238,239,240,  0, 50,172, 52,222,223,
+    18,67,68,69,91,92,93,  0,  3,  4,  2,184,176,180,145,146,147,148,  8,115,116,120,236,237,143,144,  0, 53,167, 55,215,232,
+    17,97,98,99, 0, 0, 0,  0, 12, 14, 15,192,168,188,153,154,155,156,  0,121,122,123,211,212,201,  0,246,166, 51, 54,  0,  0);
+    // 247 - doesn't work in game, replaced with random road
 
 {Terrain}
 type
