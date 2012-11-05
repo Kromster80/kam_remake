@@ -46,6 +46,10 @@ type
   public
     procedure Init;
     procedure GetDefenceOutline(aOwner: TPlayerIndex; out aOutline1, aOutline2: TKMWeightSegments);
+
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
+
     procedure UpdateState(aTick: Cardinal);
     procedure Paint(aRect: TKMRect);
   end;
@@ -608,6 +612,18 @@ begin
   //7. Deal with allies
   //   Two players could be on same island and share defence lines,
   //   also they dont need defence line between them
+end;
+
+
+procedure TKMNavMesh.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.Write('NavMesh');
+end;
+
+
+procedure TKMNavMesh.Load(LoadStream: TKMemoryStream);
+begin
+  LoadStream.ReadAssert('NavMesh');
 end;
 
 

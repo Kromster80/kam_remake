@@ -3,7 +3,7 @@ unit KM_PlayersCollection;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_Units, KM_Terrain, KM_Houses, KM_Defaults, KM_Player, KM_Utils, KM_Points;
+  KM_CommonClasses, KM_Units, KM_UnitGroups, KM_Terrain, KM_Houses, KM_Defaults, KM_Player, KM_Utils, KM_Points;
 
 
 { Players are identified by their starting location }
@@ -15,7 +15,7 @@ type
     fPlayerAnimals: TKMPlayerAnimals;
     function GetPlayer(aIndex: Integer): TKMPlayer;
   public
-    Selected: TObject; //Unit or House
+    Selected: TObject; //Unit or House or Group
 
     constructor Create;
     destructor Destroy; override;
@@ -28,14 +28,16 @@ type
 
     procedure RemoveEmptyPlayers;
     procedure RemovePlayer(aIndex: TPlayerIndex);
-    procedure AfterMissionInit(aFlattenRoads:boolean);
-    function HousesHitTest(X,Y:Integer): TKMHouse;
+    procedure AfterMissionInit(aFlattenRoads: Boolean);
+    function HousesHitTest(X,Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
+    function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
     function GetClosestUnit(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType): TKMUnit;
     function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
     procedure GetUnitsInRect(aRect: TKMRect; List: TList);
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
+    function GetGroupByID(aID: Integer): TKMUnitGroup;
     function HitTest(X,Y: Integer; aOnlyMyPlayer: Boolean): TObject;
     procedure SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
     function GetUnitCount:integer;
@@ -52,6 +54,7 @@ type
     ///	</summary>
     function CheckAlliance(aPlay1, aPlay2: TPlayerIndex): TAllianceType;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit);
+    procedure CleanUpGroupPointer(var aGroup: TKMUnitGroup);
     procedure CleanUpHousePointer(var aHouse: TKMHouse);
     procedure RemAnyHouse(Position: TKMPoint);
     procedure RemAnyUnit(Position: TKMPoint);
@@ -82,7 +85,6 @@ begin
   inherited Create;
 
   fPlayerAnimals := TKMPlayerAnimals.Create(PLAYER_ANIMAL); //Always create Animals
-
 end;
 
 
@@ -203,6 +205,20 @@ begin
 end;
 
 
+function TKMPlayersCollection.GroupsHitTest(X, Y: Integer): TKMUnitGroup;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to fCount - 1 do
+  begin
+    Result := fPlayerList[I].GroupsHitTest(X, Y);
+    if Result <> nil then
+      Exit; //There can't be 2 groups on one tile
+  end;
+end;
+
+
 function TKMPlayersCollection.GetClosestUnit(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType): TKMUnit;
 var
   I: Integer;
@@ -269,25 +285,48 @@ begin
 end;
 
 
-//Houses have priority over units, so you can't select an occupant
-//Selection priority is as follows:
-//BuiltHouses > Units > IncompleteHouses
+function TKMPlayersCollection.GetGroupByID(aID: Integer): TKMUnitGroup;
+var I: Integer;
+begin
+  Result := nil;
+  if aID = 0 then Exit;
+
+  for I := 0 to fCount - 1 do
+  begin
+    Result := fPlayerList[I].UnitGroups.GetGroupByID(aID);
+    if Result <> nil then Exit; //else keep on testing
+  end;
+end;
+
+
 function TKMPlayersCollection.HitTest(X,Y: Integer; aOnlyMyPlayer: Boolean): TObject;
 var
   H: TKMHouse;
   U: TKMUnit;
+  G: TKMUnitGroup;
 begin
+  //Houses have priority over units, so you can't select an occupant
+  //Selection priority is as follows:
+  //BuiltHouses > UnitGroups > Units > IncompleteHouses
+
   if aOnlyMyPlayer then
   begin
     H := MyPlayer.HousesHitTest(X,Y);
     if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
       Result := H
-    else begin
-      U := MyPlayer.UnitsHitTest(X,Y);
-      if (U <> nil) and (not U.IsDeadOrDying) then
-        Result := U
+    else
+    begin
+      G := MyPlayer.GroupsHitTest(X,Y);
+      if (G <> nil) then
+        Result := G
       else
-        Result := H;
+      begin
+        U := MyPlayer.UnitsHitTest(X,Y);
+        if (U <> nil) and (not U.IsDeadOrDying) then
+          Result := U
+        else
+          Result := H; //Incomplete house or nil
+      end;
     end
   end
   else
@@ -296,11 +335,17 @@ begin
     if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
       Result := H
     else begin
-      U := UnitsHitTest(X,Y);
-      if (U <> nil) and (not U.IsDeadOrDying) then
-        Result := U
+      G := GroupsHitTest(X,Y);
+      if (G <> nil) then
+        Result := G
       else
-        Result := H;
+      begin
+        U := UnitsHitTest(X,Y);
+        if (U <> nil) and (not U.IsDeadOrDying) then
+          Result := U
+        else
+          Result := H; //Incomplete house or nil
+      end;
     end;
   end;
 end;
@@ -313,17 +358,21 @@ begin
   Obj := HitTest(X, Y, aOnlyMyPlayer);
 
   if Obj <> nil then
+  begin
     Selected := Obj;
+    if Selected is TKMUnitGroup then
+      TKMUnitGroup(Selected).SelectHitTest(X,Y);
+  end;
 end;
 
 
 //Get total unit count for statistics display
-function TKMPlayersCollection.GetUnitCount:integer;
-var i:integer;
+function TKMPlayersCollection.GetUnitCount: Integer;
+var I: Integer;
 begin
   Result := 0;
-  for i:=0 to fCount-1 do
-    inc(Result, fPlayerList[i].Units.Count);
+  for I := 0 to fCount - 1 do
+    Inc(Result, fPlayerList[I].Units.Count);
 end;
 
 
@@ -381,6 +430,14 @@ begin
   if (aUnit <> nil) and not fGame.IsExiting then
     aUnit.ReleaseUnitPointer;
   aUnit := nil;
+end;
+
+
+procedure TKMPlayersCollection.CleanUpGroupPointer(var aGroup: TKMUnitGroup);
+begin
+  if (aGroup <> nil) and (fGame <> nil) and not fGame.IsExiting then
+    aGroup.ReleaseGroupPointer;
+  aGroup := nil;
 end;
 
 

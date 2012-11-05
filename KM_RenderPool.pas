@@ -86,7 +86,7 @@ type
     procedure AddUnit(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepID: Integer; pX,pY: Single; FlagColor: TColor4; NewInst: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure AddUnitCarry(aCarry: TResourceType; aDir: TKMDirection; StepID: Integer; pX,pY: Single);
     procedure AddUnitThought(Thought: TUnitThought; pX,pY: Single);
-    procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; UnitAnim, FlagAnim: Integer; pX,pY: Single; FlagColor, TeamColor: TColor4);
+    procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; UnitAnim, FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
     procedure AddUnitWithDefaultArm(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepID: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
     property RenderList: TRenderList read fRenderList;
@@ -718,23 +718,20 @@ end;
 procedure TRenderPool.AddUnitFlag(
   aUnit: TUnitType; aAct: TUnitActionType;
   aDir: TKMDirection; UnitAnim, FlagAnim: Integer;
-  pX, pY: Single; FlagColor, TeamColor: TColor4);
+  pX, pY: Single; FlagColor: TColor4);
 var
   R: TRXData;
   A: TKMAnimLoop;
-  ID0, IDUnit, IDFlag: Integer;
-  FlagX, FlagY, CornerX, CornerY, Ground: Single;
+  ID0, IDFlag: Integer;
+  FlagX, FlagY, Ground: Single;
 begin
   R := fRXData[rxUnits];
 
   //Unit position
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
-  IDUnit := A.Step[UnitAnim mod Byte(A.Count) + 1] + 1;
-  ID0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count)+1] + 1;
-  if IDUnit <= 0 then Exit;
+  ID0 := A.Step[UnitStillFrames[aDir] mod Byte(A.Count) + 1] + 1;
 
-  CornerX := pX + R.Pivot[IDUnit].X / CELL_SIZE_PX;
-  CornerY := fTerrain.FlatToHeight(pX, pY) + (R.Pivot[IDUnit].Y + R.Size[IDUnit].Y) / CELL_SIZE_PX;
+  //Units feet
   Ground := pY + (R.Pivot[ID0].Y + R.Size[ID0].Y) / CELL_SIZE_PX;
 
   //Flag position
@@ -745,19 +742,7 @@ begin
   FlagX := pX + (R.Pivot[IDFlag].X + FlagXOffset[UnitGroups[aUnit], aDir]) / CELL_SIZE_PX - 0.5;
   FlagY := fTerrain.FlatToHeight(pX, pY) + (R.Pivot[IDFlag].Y + FlagYOffset[UnitGroups[aUnit], aDir] + R.Size[IDFlag].Y) / CELL_SIZE_PX - 2.25;
 
-  if aDir in [dir_SE, dir_S, dir_SW, dir_W] then
-  begin
-    fRenderList.AddSpriteG(rxUnits, IDFlag, FlagX, FlagY, pX, Ground, FlagColor);
-    fRenderList.AddSprite(rxUnits, IDUnit, CornerX, CornerY, TeamColor);
-  end
-  else
-  begin
-    fRenderList.AddSpriteG(rxUnits, IDUnit, CornerX, CornerY, pX, Ground, TeamColor);
-    fRenderList.AddSprite(rxUnits, IDFlag, FlagX, FlagY, FlagColor);
-  end;
-
-  if SHOW_UNIT_MOVEMENT and fGameApp.AllowDebugRendering then
-    fRenderAux.DotOnTerrain(pX, pY, FlagColor); // Render dot where unit is
+  fRenderList.AddSpriteG(rxUnits, IDFlag, FlagX, FlagY, pX, Ground, FlagColor);
 end;
 
 

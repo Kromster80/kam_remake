@@ -93,9 +93,6 @@ begin
   if WalkShouldAbandon then
   begin
     Result := TaskDone;
-    //Commander should reposition his men after destroying the house
-    if TKMUnitWarrior(fUnit).IsCommander then
-      TKMUnitWarrior(fUnit).OrderWalk(fUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
     Exit;
   end;
 
@@ -111,10 +108,6 @@ begin
        else
          SetActionWalkToHouse(fHouse, 1);
     1: begin
-         //Once we've reached the house, if the player clicks halt we reposition here
-         if IsCommander then
-           OrderLocDir := KMPointDir(GetPosition, OrderLocDir.Dir);
-
          if IsRanged then begin
            SetActionLockedStay(AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within

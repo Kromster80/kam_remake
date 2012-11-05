@@ -5,7 +5,7 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
-     KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_MapEditor,
+     KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
      KM_Points, KM_InterfaceDefaults, KM_Terrain;
 
 type
@@ -44,6 +44,7 @@ type
     procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
+    procedure ShowGroupInfo(Sender: TKMUnitGroup);
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
 
     procedure Menu_Save(Sender: TObject);
@@ -1720,24 +1721,33 @@ begin
   Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := fPlayers[Sender.Owner].FlagColor;
   KMConditionBar_Unit.Position := Sender.Condition / UNIT_MAX_CONDITION;
-  if Sender is TKMUnitWarrior then
+
+  Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
+  Label_UnitDescription.Show;
+end;
+
+
+procedure TKMapEdInterface.ShowGroupInfo(Sender: TKMUnitGroup);
+begin
+  if (Sender = nil) or Sender.IsDead then
   begin
-    //Warrior specific
-    Label_UnitDescription.Hide;
-    Commander := TKMUnitWarrior(Sender).GetCommander;
-    if Commander<>nil then
-    begin
-      ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1); //Count+commander, Columns
-      Label_ArmyCount.Caption := IntToStr(Commander.fMapEdMembersCount + 1);
-    end;
-    Panel_Army.Show;
-  end
-  else
-  begin
-    //Citizen specific
-    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
-    Label_UnitDescription.Show;
+    SwitchPage(nil);
+    Exit;
   end;
+
+  SetActivePlayer(Sender.Owner);
+
+  SwitchPage(Panel_Unit);
+  Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].UnitName;
+  Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
+  Image_UnitPic.FlagColor := fPlayers[Sender.Owner].FlagColor;
+  KMConditionBar_Unit.Position := Sender.Condition / UNIT_MAX_CONDITION;
+
+  //Warrior specific
+  Label_UnitDescription.Hide;
+  ImageStack_Army.SetCount(Sender.MapEdCount, Sender.UnitsPerRow, Sender.UnitsPerRow div 2 + 1);
+  Label_ArmyCount.Caption := IntToStr(Sender.MapEdCount);
+  Panel_Army.Show;
 end;
 
 
@@ -1969,28 +1979,29 @@ end;
 
 
 procedure TKMapEdInterface.Unit_ArmyChange1(Sender: TObject);
-var Commander:TKMUnitWarrior;
+var
+  Group: TKMUnitGroup;
 begin
-  if not (fPlayers.Selected is TKMUnitWarrior) then Exit;
+  if not (fPlayers.Selected is TKMUnitGroup) then Exit;
 
-  Commander := TKMUnitWarrior(fPlayers.Selected).GetCommander;
-  if Sender = Button_Army_ForUp then Commander.UnitsPerRow := max(Commander.UnitsPerRow-1,1);
-  if Sender = Button_Army_ForDown then Commander.UnitsPerRow := min(Commander.UnitsPerRow+1,Commander.fMapEdMembersCount+1);
-  ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1);
-  Label_ArmyCount.Caption := IntToStr(Commander.fMapEdMembersCount + 1);
+  Group := TKMUnitGroup(fPlayers.Selected);
+  if Sender = Button_Army_ForUp then Group.UnitsPerRow := Group.UnitsPerRow - 1;
+  if Sender = Button_Army_ForDown then Group.UnitsPerRow := Group.UnitsPerRow + 1;
 
-  if Sender = Button_Army_RotCW then Commander.Direction := KMNextDirection(Commander.Direction);
-  if Sender = Button_Army_RotCCW then Commander.Direction := KMPrevDirection(Commander.Direction);
-  Commander.AnimStep := UnitStillFrames[Commander.Direction];
+  ImageStack_Army.SetCount(Group.MapEdCount, Group.UnitsPerRow, Group.UnitsPerRow div 2 + 1);
+  Label_ArmyCount.Caption := IntToStr(Group.MapEdCount);
+
+  if Sender = Button_Army_RotCW then  Group.Direction := KMNextDirection(Group.Direction);
+  if Sender = Button_Army_RotCCW then Group.Direction := KMPrevDirection(Group.Direction);
 
   //Toggle between full and half condition
   if Sender = Button_ArmyFood then
   begin
-    if Commander.Condition = UNIT_MAX_CONDITION then
-      Commander.Condition := UNIT_MAX_CONDITION div 2
+    if Group.Condition = UNIT_MAX_CONDITION then
+      Group.Condition := UNIT_MAX_CONDITION div 2
     else
-      Commander.Condition := UNIT_MAX_CONDITION;
-    KMConditionBar_Unit.Position := Commander.Condition / UNIT_MAX_CONDITION;
+      Group.Condition := UNIT_MAX_CONDITION;
+    KMConditionBar_Unit.Position := Group.Condition / UNIT_MAX_CONDITION;
   end;
 end;
 
@@ -1998,21 +2009,20 @@ end;
 procedure TKMapEdInterface.Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton);
 var
   NewCount: Integer;
-  Commander: TKMUnitWarrior;
+  Group: TKMUnitGroup;
 begin
-  if not (fPlayers.Selected is TKMUnitWarrior) then Exit;
+  if not (fPlayers.Selected is TKMUnitGroup) then Exit;
 
-  Commander := TKMUnitWarrior(fPlayers.Selected).GetCommander;
+  Group := TKMUnitGroup(fPlayers.Selected);
 
   if Sender = Button_ArmyDec then //Decrease
-    NewCount := Commander.fMapEdMembersCount - ClickAmount[AButton]
+    NewCount := Group.MapEdCount - ClickAmount[AButton]
   else //Increase
-    NewCount := Commander.fMapEdMembersCount + ClickAmount[AButton];
+    NewCount := Group.MapEdCount + ClickAmount[AButton];
 
-  Commander.fMapEdMembersCount := EnsureRange(NewCount, 0, 200); //Limit max members
-  Commander.UnitsPerRow := min(Commander.UnitsPerRow,Commander.fMapEdMembersCount+1); //Ensure units per row is <= unit count
-  ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1);
-  Label_ArmyCount.Caption := IntToStr(Commander.fMapEdMembersCount + 1);
+  Group.MapEdCount := EnsureRange(NewCount, 0, 200); //Limit max members
+  ImageStack_Army.SetCount(Group.MapEdCount, Group.UnitsPerRow, Group.UnitsPerRow div 2 + 1);
+  Label_ArmyCount.Caption := IntToStr(Group.MapEdCount);
 end;
 
 
@@ -2023,8 +2033,8 @@ begin
   if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
   if TKMButtonFlat(Sender).Tag = 0 then exit; //with set Tag
 
-  for i:=1 to BARRACKS_RES_COUNT do
-    Button_Barracks[i].Down := False;
+  for I:=1 to BARRACKS_RES_COUNT do
+    Button_Barracks[I].Down := False;
   TKMButtonFlat(Sender).Down := True;
   fBarracksItem := TKMButtonFlat(Sender).Tag;
   Barracks_EditWareCount(Sender, mbLeft);
@@ -2399,6 +2409,9 @@ begin
     if fPlayers.Selected is TKMUnit then
       TKMUnit(fPlayers.Selected).SetPosition(P);
 
+    if fPlayers.Selected is TKMUnitGroup then
+      TKMUnitGroup(fPlayers.Selected).Position := P;
+
     case fCurrentMarker.MarkerType of
       mtRevealFOW: fGame.MapEditor.Revealers[fCurrentMarker.Owner][fCurrentMarker.Index] := P;
     end;
@@ -2421,6 +2434,8 @@ begin
                       ShowHouseInfo(TKMHouse(fPlayers.Selected));
                     if fPlayers.Selected is TKMUnit then
                       ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                    if fPlayers.Selected is TKMUnitGroup then
+                      ShowGroupInfo(TKMUnitGroup(fPlayers.Selected));
                   end;
                 end;
       cmRoad:  if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);

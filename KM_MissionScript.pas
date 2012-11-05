@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Classes, KromUtils, SysUtils, Dialogs, Math,
   KM_Utils, KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_AIAttacks, KM_Houses, KM_Units, KM_Terrain, KM_Units_Warrior;
+  KM_AIAttacks, KM_Houses, KM_Units, KM_Terrain, KM_UnitGroups, KM_Units_Warrior;
 
 
 type
@@ -42,7 +42,7 @@ type
   end;
 
   TKMAttackPosition = record
-    Warrior: TKMUnitWarrior;
+    Group: TKMUnitGroup;
     Target: TKMPoint;
   end;
 
@@ -83,7 +83,7 @@ type
 
     fLastPlayer: integer;
     fLastHouse: TKMHouse;
-    fLastTroop: TKMUnitWarrior;
+    fLastTroop: TKMUnitGroup;
     fAIAttack: TAIAttack;
     fAttackPositions: array of TKMAttackPosition;
     fAttackPositionsCount: integer;
@@ -753,14 +753,13 @@ begin
                             fPlayers[fLastPlayer].Stats.HouseGranted[HT] := True;
     ct_SetGroup:        if fLastPlayer >= 0 then
                           if InRange(P[0], Low(TroopsRemap), High(TroopsRemap)) and (TroopsRemap[P[0]] <> ut_None) then
-                            fLastTroop := TKMUnitWarrior(fPlayers[fLastPlayer].AddUnitGroup(
+                            fLastTroop := fPlayers[fLastPlayer].AddUnitGroup(
                               TroopsRemap[P[0]],
                               KMPoint(P[1]+1, P[2]+1),
                               TKMDirection(P[3]+1),
                               P[4],
-                              P[5],
-                              fParsingMode=mpm_Editor //Editor mode = true
-                              ));
+                              P[5]
+                              );
     ct_SendGroup:       if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >= 0 then
                         begin
@@ -773,7 +772,7 @@ begin
                         if fLastPlayer >= 0 then
                         begin
                           if fLastTroop <> nil then
-                            fLastTroop.SetGroupFullCondition
+                            fLastTroop.Condition := UNIT_MAX_CONDITION
                           else
                             AddError('ct_SetGroupFood without prior declaration of Troop');
                         end;
@@ -820,7 +819,7 @@ begin
                           begin
                             inc(fAttackPositionsCount);
                             SetLength(fAttackPositions, fAttackPositionsCount+1);
-                            fAttackPositions[fAttackPositionsCount-1].Warrior := fLastTroop;
+                            fAttackPositions[fAttackPositionsCount-1].Group := fLastTroop;
                             fAttackPositions[fAttackPositionsCount-1].Target := KMPoint(P[0]+1,P[1]+1);
                           end
                           else
@@ -902,15 +901,15 @@ begin
     with fAttackPositions[i] do
     begin
       H := fPlayers.HousesHitTest(Target.X,Target.Y); //Attack house
-      if (H <> nil) and (not H.IsDestroyed) and (fPlayers.CheckAlliance(Warrior.Owner,H.Owner) = at_Enemy) then
-        Warrior.OrderAttackHouse(H)
+      if (H <> nil) and (not H.IsDestroyed) and (fPlayers.CheckAlliance(Group.Owner,H.Owner) = at_Enemy) then
+        Group.OrderAttackHouse(H)
       else
       begin
         U := fTerrain.UnitsHitTest(Target.X,Target.Y); //Chase/attack unit
-        if (U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(Warrior.Owner,U.Owner) = at_Enemy) then
-          Warrior.OrderAttackUnit(U)
+        if (U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(Group.Owner,U.Owner) = at_Enemy) then
+          Group.OrderAttackUnit(U)
         else
-          Warrior.OrderWalk(Target); //Just move to position
+          Group.OrderWalk(Target); //Just move to position
       end;
     end;
 end;
@@ -929,6 +928,7 @@ var
   G: TGroupType;
   U: TKMUnit;
   H: TKMHouse;
+  Group: TKMUnitGroup;
   HT: THouseType;
   ReleaseAllHouses: boolean;
   SaveString: AnsiString;
@@ -1184,17 +1184,17 @@ begin
     for k:=0 to fPlayers[i].Units.Count-1 do
     begin
       U := fPlayers[i].Units[k];
-      if U is TKMUnitWarrior then
-      begin
-        if TKMUnitWarrior(U).IsCommander then //Parse only Commanders
-        begin
-          AddCommand(ct_SetGroup, [TroopsReverseRemap[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1, Byte(U.Direction)-1, TKMUnitWarrior(U).UnitsPerRow, TKMUnitWarrior(U).fMapEdMembersCount+1]);
-          if U.Condition = UNIT_MAX_CONDITION then
-            AddCommand(ct_SetGroupFood, []);
-        end;
-      end
-      else
+      if not (U is TKMUnitWarrior) then
         AddCommand(ct_SetUnit, [UnitReverseRemap[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
+    end;
+
+    //Unit groups
+    for k:=0 to fPlayers[i].UnitGroups.Count-1 do
+    begin
+      Group := fPlayers[i].UnitGroups[K];
+      AddCommand(ct_SetGroup, [TroopsReverseRemap[Group.UnitType], Group.Position.X-1, Group.Position.Y-1, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.Count]);
+      if Group.Condition = UNIT_MAX_CONDITION then
+        AddCommand(ct_SetGroupFood, []);
     end;
 
     AddData(''); //NL
@@ -1319,9 +1319,9 @@ begin
                          ProcessCommand(ct_SetRoad, [   P[0]  ,P[1]+1]);
                        end;
     ct_SetGroup:       if InRange(P[0], Low(TroopsRemap), High(TroopsRemap)) and (TroopsRemap[P[0]] <> ut_None) then
-                         for i:= 1 to P[5] do
+                         for i:= 0 to P[5] - 1 do
                          begin
-                           Loc := GetPositionInGroup2(P[1]+1,P[2]+1,TKMDirection(P[3]+1),i,P[4],fMapX,fMapY,Valid);
+                           Loc := GetPositionInGroup2(P[1]+1,P[2]+1,TKMDirection(P[3]+1), I, P[4],fMapX,fMapY,Valid);
                            if Valid then
                            begin
                              SetOwner(Loc.X,Loc.Y);

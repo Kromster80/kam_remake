@@ -30,7 +30,7 @@ const
   MENU_SIZE_MIN_X       = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_SIZE_MIN_Y       = 576;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r4036';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r4146';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '5th Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -475,12 +475,12 @@ type
 
   //What player has ordered us to do
   TWarriorOrder = (
-    wo_None, //No orders
-    wo_Walk, //Walk somewhere
-    wo_WalkOut, //Walk out of Barracks
-    wo_AttackUnit, //Attack someone
-    wo_AttackHouse, //Attack house
-    wo_Storm //Do Storm attack
+    woNone, //No orders
+    woWalk, //Walk somewhere
+    woWalkOut, //Walk out of Barracks
+    woAttackUnit, //Attack someone
+    woAttackHouse, //Attack house
+    woStorm //Do Storm attack
   );
 
   //What we are doing at the moment

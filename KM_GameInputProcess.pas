@@ -2,7 +2,7 @@ unit KM_GameInputProcess;
 {$I KaM_Remake.inc}
 interface
 uses SysUtils, Controls, KM_CommonClasses, KM_Defaults,
-    KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
+    KM_Houses, KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Points;
 
 { A. This unit takes and adjoins players input from TGame and TGamePlayInterfaces clicks and keys
   Then passes it on to game events.
@@ -38,7 +38,8 @@ type
     gic_ArmyLink,
     gic_ArmyAttackUnit,
     gic_ArmyAttackHouse,
-    gic_ArmyHalt,         //Formation commands
+    gic_ArmyHalt,
+    gic_ArmyFormation,         //Formation commands
     gic_ArmyWalk,         //Walking
     gic_ArmyStorm,        //StormAttack
 
@@ -83,9 +84,10 @@ type
     //IX.     Text messages for multiplayer (moved to Networking)
     );
 const
-  BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,
-                      gic_ArmyAttackHouse,gic_ArmyHalt,gic_ArmyWalk,gic_ArmyStorm,gic_HouseBarracksEquip];
-  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon,gic_GameSave];
+  BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit, gic_ArmyLink,
+    gic_ArmyAttackUnit, gic_ArmyAttackHouse, gic_ArmyHalt, gic_ArmyFormation,
+    gic_ArmyWalk, gic_ArmyStorm, gic_HouseBarracksEquip];
+  AllowedAfterDefeat: set of TGameInputCommandType = [gic_GameAlertBeacon, gic_GameSave];
 
 type
   TGameInputCommand = record
@@ -121,11 +123,12 @@ type
     constructor Create(aReplayState: TGIPReplayState);
     destructor Destroy; override;
 
-    procedure CmdArmy(aCommandType: TGameInputCommandType; aWarrior: TKMUnitWarrior); overload;
-    procedure CmdArmy(aCommandType: TGameInputCommandType; aWarrior: TKMUnitWarrior; aUnit: TKMUnit); overload;
-    procedure CmdArmy(aCommandType: TGameInputCommandType; aWarrior: TKMUnitWarrior; aHouse: TKMHouse); overload;
-    procedure CmdArmy(aCommandType: TGameInputCommandType; aWarrior: TKMUnitWarrior; aTurnAmount: TKMTurnDirection; aLineAmount:shortint); overload;
-    procedure CmdArmy(aCommandType: TGameInputCommandType; aWarrior: TKMUnitWarrior; aLoc: TKMPoint; aDirection: TKMDirection); overload;
+    procedure CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup); overload;
+    procedure CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aUnit: TKMUnit); overload;
+    procedure CmdArmy(aCommandType: TGameInputCommandType; aGroup1, aGroup2: TKMUnitGroup); overload;
+    procedure CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aHouse: TKMHouse); overload;
+    procedure CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aTurnAmount: TKMTurnDirection; aLineAmount:shortint); overload;
+    procedure CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aLoc: TKMPoint; aDirection: TKMDirection); overload;
 
     procedure CmdBuild(aCommandType: TGameInputCommandType; aLoc: TKMPoint); overload;
     procedure CmdBuild(aCommandType: TGameInputCommandType; aLoc: TKMPoint; aFieldType: TFieldType); overload;
@@ -239,29 +242,47 @@ end;
 
 
 procedure TGameInputProcess.ExecCommand(aCommand: TGameInputCommand);
-var P: TKMPlayer; IsSilent: boolean; U,U2: TKMUnit; H,H2: TKMHouse;
+var
+  P: TKMPlayer;
+  IsSilent: boolean;
+  Group1, Group2: TKMUnitGroup;
+  U: TKMUnit;
+  H, H2: TKMHouse;
 begin
   //NOTE: MyPlayer should not be used for important stuff here, use P instead (commands must be executed the same for all players)
   IsSilent := (aCommand.PlayerIndex <> MyPlayer.PlayerIndex);
   P := fPlayers[aCommand.PlayerIndex];
-  U := nil; U2 := nil; H := nil; H2 := nil;
+  Group1 := nil;
+  Group2 := nil;
+  H := nil;
+  H2 := nil;
+  U := nil;
 
   with aCommand do
   begin
     //It is possible that units/houses have died by now
-    if CommandType in [gic_ArmyFeed,gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,gic_ArmyAttackHouse,gic_ArmyHalt,gic_ArmyWalk,gic_ArmyStorm] then begin
-      U := fPlayers.GetUnitByID(Params[1]);
+    if CommandType in [gic_ArmyFeed,gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,gic_ArmyAttackHouse,gic_ArmyHalt,gic_ArmyFormation,gic_ArmyWalk,gic_ArmyStorm] then
+    begin
+      Group1 := fPlayers.GetGroupByID(Params[1]);
+      if (Group1 = nil) or Group1.IsDead then Exit; //Group has died before command could be executed
+    end;
+    if CommandType in [gic_ArmyLink] then
+    begin
+      Group2 := fPlayers.GetGroupByID(Params[2]);
+      if (Group2 = nil) or Group2.IsDead then Exit; //Unit has died before command could be executed
+    end;
+    if CommandType in [gic_ArmyAttackUnit] then
+    begin
+      U := fPlayers.GetUnitByID(Params[2]);
       if (U = nil) or U.IsDeadOrDying then exit; //Unit has died before command could be executed
     end;
-    if CommandType in [gic_ArmyLink,gic_ArmyAttackUnit] then begin
-      U2 := fPlayers.GetUnitByID(Params[2]);
-      if (U2 = nil) or U2.IsDeadOrDying then exit; //Unit has died before command could be executed
-    end;
-    if CommandType in [gic_HouseRepairToggle,gic_HouseDeliveryToggle,gic_HouseOrderProduct,gic_HouseMarketFrom,gic_HouseMarketTo,gic_HouseStoreAcceptFlag,gic_HouseBarracksEquip,gic_HouseSchoolTrain,gic_HouseRemoveTrain,gic_HouseWoodcutterMode] then begin
+    if CommandType in [gic_HouseRepairToggle,gic_HouseDeliveryToggle,gic_HouseOrderProduct,gic_HouseMarketFrom,gic_HouseMarketTo,gic_HouseStoreAcceptFlag,gic_HouseBarracksEquip,gic_HouseSchoolTrain,gic_HouseRemoveTrain,gic_HouseWoodcutterMode] then
+    begin
       H := fPlayers.GetHouseByID(Params[1]);
       if (H = nil) or H.IsDestroyed then exit; //House has been destroyed before command could be executed
     end;
-    if CommandType in [gic_ArmyAttackHouse] then begin
+    if CommandType in [gic_ArmyAttackHouse] then
+    begin
       H2 := fPlayers.GetHouseByID(Params[2]);
       if (H2 = nil) or H2.IsDestroyed then exit; //House has been destroyed before command could be executed
     end;
@@ -275,14 +296,15 @@ begin
       Exit;
 
     case CommandType of
-      gic_ArmyFeed:         TKMUnitWarrior(U).OrderFood;
-      gic_ArmySplit:        TKMUnitWarrior(U).OrderSplit;
-      gic_ArmyStorm:        TKMUnitWarrior(U).OrderStorm;
-      gic_ArmyLink:         TKMUnitWarrior(U).OrderLinkTo(TKMUnitWarrior(U2));
-      gic_ArmyAttackUnit:   TKMUnitWarrior(U).GetCommander.OrderAttackUnit(U2);
-      gic_ArmyAttackHouse:  TKMUnitWarrior(U).GetCommander.OrderAttackHouse(H2);
-      gic_ArmyHalt:         TKMUnitWarrior(U).OrderHalt(TKMTurnDirection(Params[2]),Params[3]);
-      gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
+      gic_ArmyFeed:         Group1.OrderFood;
+      gic_ArmySplit:        Group1.OrderSplit;
+      gic_ArmyStorm:        Group1.OrderStorm;
+      gic_ArmyLink:         Group1.OrderLinkTo(Group2);
+      gic_ArmyAttackUnit:   Group1.OrderAttackUnit(U);
+      gic_ArmyAttackHouse:  Group1.OrderAttackHouse(H2);
+      gic_ArmyHalt:         Group1.OrderHalt;
+      gic_ArmyFormation:    Group1.OrderFormation(TKMTurnDirection(Params[2]),Params[3]);
+      gic_ArmyWalk:         Group1.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
       gic_BuildAddFieldPlan:      P.ToggleFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3]), not fGame.IsMultiplayer); //Make sound in singleplayer mode only
       gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]), not fGame.IsMultiplayer); //Make sound in singleplayer mode only
@@ -338,38 +360,45 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aWarrior: TKMUnitWarrior);
+procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup);
 begin
-  Assert(aCommandType in [gic_ArmyFeed, gic_ArmySplit, gic_ArmyStorm]);
-  TakeCommand(MakeCommand(aCommandType, aWarrior.ID));
+  Assert(aCommandType in [gic_ArmyFeed, gic_ArmySplit, gic_ArmyStorm, gic_ArmyHalt]);
+  TakeCommand(MakeCommand(aCommandType, [aGroup.ID]));
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aWarrior: TKMUnitWarrior; aUnit: TKMUnit);
+procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aUnit: TKMUnit);
 begin
-  Assert(aCommandType in [gic_ArmyLink, gic_ArmyAttackUnit]);
-  TakeCommand(MakeCommand(aCommandType, [aWarrior.ID, aUnit.ID]));
+  Assert(aCommandType in [gic_ArmyAttackUnit]);
+  TakeCommand(MakeCommand(aCommandType, [aGroup.ID, aUnit.ID]));
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aWarrior: TKMUnitWarrior; aHouse: TKMHouse);
+procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup1, aGroup2: TKMUnitGroup);
+begin
+  Assert(aCommandType in [gic_ArmyLink]);
+  TakeCommand(MakeCommand(aCommandType, [aGroup1.ID, aGroup2.ID]));
+end;
+
+
+procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aHouse: TKMHouse);
 begin
   Assert(aCommandType = gic_ArmyAttackHouse);
-  TakeCommand(MakeCommand(aCommandType, [aWarrior.ID, aHouse.ID]));
+  TakeCommand(MakeCommand(aCommandType, [aGroup.ID, aHouse.ID]));
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aWarrior: TKMUnitWarrior; aTurnAmount: TKMTurnDirection; aLineAmount:shortint);
+procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aTurnAmount: TKMTurnDirection; aLineAmount:shortint);
 begin
-  Assert(aCommandType = gic_ArmyHalt);
-  TakeCommand(MakeCommand(aCommandType, [aWarrior.ID, byte(aTurnAmount), aLineAmount]));
+  Assert(aCommandType = gic_ArmyFormation);
+  TakeCommand(MakeCommand(aCommandType, [aGroup.ID, byte(aTurnAmount), aLineAmount]));
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aWarrior: TKMUnitWarrior; aLoc: TKMPoint; aDirection: TKMDirection);
+procedure TGameInputProcess.CmdArmy(aCommandType: TGameInputCommandType; aGroup: TKMUnitGroup; aLoc: TKMPoint; aDirection: TKMDirection);
 begin
   Assert(aCommandType = gic_ArmyWalk);
-  TakeCommand(MakeCommand(aCommandType, [aWarrior.ID, aLoc.X, aLoc.Y, byte(aDirection)]));
+  TakeCommand(MakeCommand(aCommandType, [aGroup.ID, aLoc.X, aLoc.Y, byte(aDirection)]));
 end;
 
 

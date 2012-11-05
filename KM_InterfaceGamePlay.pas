@@ -7,7 +7,7 @@ uses
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_CommonTypes,
   KM_InterfaceDefaults, KM_Terrain, KM_Pics,
-  KM_Controls, KM_Houses, KM_Units, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
+  KM_Controls, KM_Houses, KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
 const MAX_VISIBLE_MSGS = 32;
@@ -71,7 +71,7 @@ type
     procedure Create_Woodcutter_Page;
 
     procedure Beacon_Cancel;
-    procedure Army_ActivateControls(aCommander: TKMUnitWarrior);
+    procedure Army_ActivateControls(aGroup: TKMUnitGroup);
     procedure Army_HideJoinMenu(Sender:TObject);
     procedure Army_Issue_Order(Sender:TObject);
     procedure Unit_Dismiss(Sender:TObject);
@@ -335,7 +335,8 @@ type
     constructor Create(aScreenX, aScreenY: Word; aMultiplayer, aReplay: Boolean); reintroduce;
     destructor Destroy; override;
     procedure ShowHouseInfo(Sender: TKMHouse; aAskDemolish: Boolean = False);
-    procedure ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
+    procedure ShowUnitInfo(Sender: TKMUnit; aAskDismiss:boolean=false);
+    procedure ShowGroupInfo(Sender: TKMUnitGroup);
     procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
     procedure SetMenuState(aTactic: Boolean);
     procedure ClearOpenMenu;
@@ -712,19 +713,19 @@ end;
 procedure TKMGamePlayInterface.Minimap_RightClick(Sender: TObject; const X,Y:integer);
 var
   Loc: TKMPoint;
-  W: TKMUnitWarrior;
+  Group: TKMUnitGroup;
 begin
   Loc := MinimapView.LocalToMapCoords(X, Y, -1); //Inset by 1 pixel to catch cases "outside of map"
   if not fTerrain.TileInMapCoords(Loc.X, Loc.Y) then Exit; //Must be inside map
 
   //Send move order, if applicable
-  if (fPlayers.Selected is TKMUnitWarrior) and not fJoiningGroups and not fPlacingBeacon and not fReplay and not HasLostMPGame then
+  if (fPlayers.Selected is TKMUnitGroup) and not fJoiningGroups and not fPlacingBeacon and not fReplay and not HasLostMPGame then
   begin
-    W := TKMUnitWarrior(fPlayers.Selected);
-    if W.CanWalkTo(Loc, 0) then
+    Group := TKMUnitGroup(fPlayers.Selected);
+    if Group.CanWalkTo(Loc, 0) then
     begin
-      fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, W, Loc, W.Direction);
-      fSoundLib.PlayWarrior(W.UnitType, sp_Move);
+      fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, Loc, dir_NA);
+      fSoundLib.PlayWarrior(Group.UnitType, sp_Move);
     end;
   end;
 end;
@@ -2179,7 +2180,6 @@ end;
 
 
 procedure TKMGamePlayInterface.ShowUnitInfo(Sender: TKMUnit; aAskDismiss: Boolean = False);
-var Commander: TKMUnitWarrior;
 begin
   Assert(fPlayers.Selected = Sender);
 
@@ -2200,35 +2200,59 @@ begin
   ConditionBar_Unit.Position  := Sender.Condition / UNIT_MAX_CONDITION;
   Label_UnitTask.Caption      := Sender.GetActivityText;
 
-  //While selecting target to join we could get attacked
-  //Then we must cancel the dialog
-  if Sender is TKMUnitWarrior then
+  Label_UnitDescription.Show;
+  Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and not fAskDismiss;
+  Panel_Army.Hide;
+  Panel_Army_JoinGroups.Hide;
+  Panel_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and fAskDismiss;
+
+  Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
+end;
+
+
+procedure TKMGamePlayInterface.ShowGroupInfo(Sender: TKMUnitGroup);
+var
+  W: TKMUnitWarrior;
+begin
+  Assert(fPlayers.Selected = Sender);
+
+  if (Sender = nil) or Sender.IsDead then
   begin
-    Commander := TKMUnitWarrior(Sender).GetCommander;
-    if not Commander.ArmyCanTakeOrders then
-      Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
+    SwitchPage(nil);
+    Exit;
   end;
 
-  Label_UnitDescription.Visible := not (Sender is TKMUnitWarrior);
+  W := Sender.SelectedUnit;
+  SwitchPage(Panel_Unit);
+
+  //Common properties
+  Label_UnitName.Caption      := fResource.UnitDat[W.UnitType].UnitName;
+  Image_UnitPic.TexID         := fResource.UnitDat[W.UnitType].GUIScroll;
+  Image_UnitPic.FlagColor     := fPlayers[W.Owner].FlagColor;
+  ConditionBar_Unit.Position  := W.Condition / UNIT_MAX_CONDITION;
+  Label_UnitTask.Caption      := W.GetActivityText;
+
+  //While selecting target to join we could get attacked
+  //Then we must cancel the dialog
+  if not Sender.CanTakeOrders then
+      Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
+
+  Label_UnitDescription.Hide;
   Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and not fAskDismiss and not fJoiningGroups;
-  Panel_Army.Visible := (Sender is TKMUnitWarrior) and not fAskDismiss and not fJoiningGroups;
-  Panel_Army_JoinGroups.Visible := (Sender is TKMUnitWarrior) and not fAskDismiss and fJoiningGroups;
+  Panel_Army.Visible := not fAskDismiss and not fJoiningGroups;
+  Panel_Army_JoinGroups.Visible := not fAskDismiss and fJoiningGroups;
   Panel_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and fAskDismiss and not fJoiningGroups;
 
   //Update army controls if required
   if Panel_Army.Visible then
   begin
-    Commander := TKMUnitWarrior(Sender).GetCommander;
-    ImageStack_Army.SetCount(Commander.GetMemberCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1); //Count+commander, Columns
-    Army_ActivateControls(Commander);
+    ImageStack_Army.SetCount(Sender.Count, Sender.UnitsPerRow, Sender.UnitsPerRow div 2 + 1);
+    Army_ActivateControls(Sender);
   end;
-
-  if not (Sender is TKMUnitWarrior) then
-    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
 end;
 
 
-procedure TKMGamePlayInterface.House_Demolish(Sender:TObject);
+procedure TKMGamePlayInterface.House_Demolish(Sender: TObject);
 begin
   if (fPlayers.Selected = nil) or not (fPlayers.Selected is TKMHouse) then Exit;
 
@@ -2521,56 +2545,57 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Army_Issue_Order(Sender:TObject);
-var Commander: TKMUnitWarrior;
+procedure TKMGamePlayInterface.Army_Issue_Order(Sender: TObject);
+var
+  Group: TKMUnitGroup;
 begin
   if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMUnitGroup) then Exit;
 
+  {Not implemented yet
   if Sender = Button_Unit_Dismiss then
   begin
     ShowUnitInfo(TKMUnit(fPlayers.Selected), true);
-  end;
+  end;}
 
-  if not (fPlayers.Selected is TKMUnitWarrior) then exit;
-
-  Commander := TKMUnitWarrior(fPlayers.Selected).GetCommander;
+  Group := TKMUnitGroup(fPlayers.Selected);
 
   //if Sender = Button_Army_GoTo    then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_Stop    then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, 0);
-    fSoundLib.PlayWarrior(Commander.UnitType, sp_Halt);
+    fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Group);
+    fSoundLib.PlayWarrior(Group.UnitType, sp_Halt);
   end;
   //if Sender = Button_Army_Attack  then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_RotCW   then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdCW, 0);
-    fSoundLib.PlayWarrior(Commander.UnitType, sp_RotRight);
+    fGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdCW, 0);
+    fSoundLib.PlayWarrior(Group.UnitType, sp_RotRight);
   end;
   if Sender = Button_Army_Storm   then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyStorm, Commander);
-    fSoundLib.PlayWarrior(Commander.UnitType, sp_StormAttack);
+    fGame.GameInputProcess.CmdArmy(gic_ArmyStorm, Group);
+    fSoundLib.PlayWarrior(Group.UnitType, sp_StormAttack);
   end;
   if Sender = Button_Army_RotCCW  then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdCCW, 0);
-    fSoundLib.PlayWarrior(Commander.UnitType, sp_RotLeft);
+    fGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdCCW, 0);
+    fSoundLib.PlayWarrior(Group.UnitType, sp_RotLeft);
   end;
   if Sender = Button_Army_ForDown then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, 1);
-    fSoundLib.PlayWarrior(Commander.UnitType, sp_Formation);
+    fGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdNone, 1);
+    fSoundLib.PlayWarrior(Group.UnitType, sp_Formation);
   end;
   if Sender = Button_Army_ForUp   then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, -1);
-    fSoundLib.PlayWarrior(Commander.UnitType, sp_Formation);
+    fGame.GameInputProcess.CmdArmy(gic_ArmyFormation, Group, tdNone, -1);
+    fSoundLib.PlayWarrior(Group.UnitType, sp_Formation);
   end;
   if Sender = Button_Army_Split   then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmySplit, Commander);
-    fSoundLib.PlayWarrior(Commander.UnitType, sp_Split);
+    fGame.GameInputProcess.CmdArmy(gic_ArmySplit, Group);
+    fSoundLib.PlayWarrior(Group.UnitType, sp_Split);
   end;
   if Sender = Button_Army_Join    then
   begin
@@ -2580,8 +2605,8 @@ begin
   end;
   if Sender = Button_Army_Feed    then
   begin
-    fGame.GameInputProcess.CmdArmy(gic_ArmyFeed, Commander);
-    fSoundLib.PlayWarrior(Commander.UnitType, sp_Eat);
+    fGame.GameInputProcess.CmdArmy(gic_ArmyFeed, Group);
+    fSoundLib.PlayWarrior(Group.UnitType, sp_Eat);
   end;
 end;
 
@@ -2870,20 +2895,20 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Army_ActivateControls(aCommander: TKMUnitWarrior);
+procedure TKMGamePlayInterface.Army_ActivateControls(aGroup: TKMUnitGroup);
 var AcceptOrders: Boolean;
 begin
-  AcceptOrders := aCommander.ArmyCanTakeOrders and not fReplay and not HasLostMPGame;
+  AcceptOrders := aGroup.CanTakeOrders and not fReplay and not HasLostMPGame;
 
   //Button_Army_GoTo.Enabled    := AcceptOrders;
   Button_Army_Stop.Enabled    := AcceptOrders;
   //Button_Army_Attack.Enabled  := AcceptOrders;
   Button_Army_RotCW.Enabled   := AcceptOrders;
-  Button_Army_Storm.Enabled   := AcceptOrders and (UnitGroups[aCommander.UnitType] = gt_Melee);
+  Button_Army_Storm.Enabled   := AcceptOrders and (aGroup.GroupType = gt_Melee);
   Button_Army_RotCCW.Enabled  := AcceptOrders;
-  Button_Army_ForUp.Enabled   := AcceptOrders and (aCommander.GetMemberCount > 0);
-  Button_Army_ForDown.Enabled := AcceptOrders and (aCommander.GetMemberCount > 0);
-  Button_Army_Split.Enabled   := AcceptOrders and (aCommander.GetMemberCount > 0);
+  Button_Army_ForUp.Enabled   := AcceptOrders and (aGroup.Count > 1);
+  Button_Army_ForDown.Enabled := AcceptOrders and (aGroup.Count > 1);
+  Button_Army_Split.Enabled   := AcceptOrders and (aGroup.Count > 1);
   Button_Army_Join.Enabled    := AcceptOrders;
   Button_Army_Feed.Enabled    := AcceptOrders;
 end;
@@ -3408,6 +3433,7 @@ end;
 //2. Show SelectingTroopDirection
 procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var
+  Group: TKMUnitGroup;
   U: TKMUnit;
   H: TKMHouse;
   MyRect: TRect;
@@ -3426,27 +3452,35 @@ begin
 
   //See if we can show DirectionSelector
   //Can walk to ally units place, can't walk to house place anyway, unless it's a markup and allied
-  if (Button = mbRight) and not fReplay and not HasLostMPGame and not fJoiningGroups and not fPlacingBeacon and (fPlayers.Selected is TKMUnitWarrior)
-    and (TKMUnitWarrior(fPlayers.Selected).Owner = MyPlayer.PlayerIndex) then
+  if (Button = mbRight)
+  and not fReplay
+  and not HasLostMPGame
+  and not fJoiningGroups
+  and not fPlacingBeacon
+  and (fPlayers.Selected is TKMUnitGroup) then
   begin
-    U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-    H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-    if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.Owner) = at_Ally)) and
-       ((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.Owner) = at_Ally)) and
-      TKMUnitWarrior(fPlayers.Selected).CanWalkTo(GameCursor.Cell, 0) then
+    Group := TKMUnitGroup(fPlayers.Selected);
+    if Group.Owner = MyPlayer.PlayerIndex then
     begin
-      SelectingTroopDirection := True; //MouseMove will take care of cursor changing
-      //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
-      {$IFDEF MSWindows}
-      MyRect := fMain.ClientRect;
-      ClipCursor(@MyRect);
-      {$ENDIF}
-      //Now record it as Client XY
-      SelectingDirPosition.X := X;
-      SelectingDirPosition.Y := Y;
-      SelectedDirection := dir_NA;
-      DirectionCursorShow(X, Y, SelectedDirection);
-      fResource.Cursors.Cursor := kmc_Invisible;
+      U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+      H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+      if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.Owner) = at_Ally)) and
+         ((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.Owner) = at_Ally)) and
+        Group.CanWalkTo(GameCursor.Cell, 0) then
+      begin
+        SelectingTroopDirection := True; //MouseMove will take care of cursor changing
+        //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
+        {$IFDEF MSWindows}
+        MyRect := fMain.ClientRect;
+        ClipCursor(@MyRect);
+        {$ENDIF}
+        //Now record it as Client XY
+        SelectingDirPosition.X := X;
+        SelectingDirPosition.Y := Y;
+        SelectedDirection := dir_NA;
+        DirectionCursorShow(X, Y, SelectedDirection);
+        fResource.Cursors.Cursor := kmc_Invisible;
+      end;
     end;
   end;
 end;
@@ -3462,6 +3496,7 @@ var
   U: TKMUnit;
   H: TKMHouse;
   P: TKMPoint;
+  Group: TKMUnitGroup;
 begin
   inherited;
 
@@ -3561,15 +3596,16 @@ begin
     Exit;
   end;
 
-  if fJoiningGroups and (fPlayers.Selected is TKMUnitWarrior) then
+  if fJoiningGroups and (fPlayers.Selected is TKMUnitGroup) then
   begin
+    Group := TKMUnitGroup(fPlayers.Selected);
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if (U <> nil)
     and (U is TKMUnitWarrior)
     and (U.Owner = MyPlayer.PlayerIndex)
-    and (not U.IsDeadOrDying)
-    and (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fPlayers.Selected)))
-    and (UnitGroups[U.UnitType] = UnitGroups[TKMUnitWarrior(fPlayers.Selected).UnitType]) then
+    and not U.IsDeadOrDying
+    and not Group.HasMember(TKMUnitWarrior(U))
+    and (UnitGroups[U.UnitType] = Group.GroupType) then
       fResource.Cursors.Cursor := kmc_JoinYes
     else
       fResource.Cursors.Cursor := kmc_JoinNo;
@@ -3608,7 +3644,7 @@ var
   P: TKMPoint;
   U: TKMUnit;
   H: TKMHouse;
-  W: TKMUnitWarrior;
+  Group, Group2: TKMUnitGroup;
   OldSelected: TObject;
 begin
   inherited;
@@ -3634,18 +3670,21 @@ begin
   case Button of
     mbLeft:   begin
                 //Process groups joining
-                if fJoiningGroups and (fPlayers.Selected is TKMUnitWarrior) then
+                if fJoiningGroups and (fPlayers.Selected is TKMUnitGroup) then
                 begin
-                  U  := MyPlayer.UnitsHitTest(P.X, P.Y); //Scan only teammates
-                  if (U is TKMUnitWarrior) and (not U.IsDeadOrDying) and
-                     (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fPlayers.Selected))) and
-                     (UnitGroups[U.UnitType] = UnitGroups[TKMUnitWarrior(fPlayers.Selected).UnitType]) then
+                  Group := TKMUnitGroup(fPlayers.Selected);
+                  U := MyPlayer.UnitsHitTest(P.X, P.Y); //Scan only teammates
+                  if (U is TKMUnitWarrior)
+                  and not U.IsDeadOrDying
+                  and not Group.HasMember(U)
+                  and (Group.GroupType = UnitGroups[U.UnitType]) then
                   begin
-                    fGame.GameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fPlayers.Selected), U);
-                    fSoundLib.PlayWarrior(TKMUnitWarrior(fPlayers.Selected).UnitType, sp_Join);
+                    Group2 := MyPlayer.UnitGroups.GetGroupByMember(TKMUnitWarrior(U));
+                    fSoundLib.PlayWarrior(Group.UnitType, sp_Join); //In SP joining is instant, Group does not exist after that
+                    fGame.GameInputProcess.CmdArmy(gic_ArmyLink, Group, Group2);
                     Army_HideJoinMenu(nil);
                   end;
-                  exit;
+                  Exit;
                 end;
 
                 if fPlacingBeacon then
@@ -3684,12 +3723,15 @@ begin
                                 begin
                                   ShowUnitInfo(TKMUnit(fPlayers.Selected));
                                   if (OldSelected <> fPlayers.Selected) and not fReplay and not HasLostMPGame then
-                                  begin
-                                    if fPlayers.Selected is TKMUnitWarrior then
-                                      fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select)
-                                    else
-                                      fSoundLib.PlayCitizen(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
-                                  end;
+                                    fSoundLib.PlayCitizen(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
+                                end;
+
+                                if (fPlayers.Selected is TKMUnitGroup) then
+                                begin
+                                  Group := TKMUnitGroup(fPlayers.Selected);
+                                  ShowGroupInfo(Group);
+                                  if (OldSelected <> fPlayers.Selected) and not fReplay and not HasLostMPGame then
+                                    fSoundLib.PlayWarrior(Group.SelectedUnit.UnitType, sp_Select);
                                 end;
                               end;
                     cmRoad:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
@@ -3742,22 +3784,24 @@ begin
                 end;
 
                 //Process warrior commands
-                if fPlayers.Selected is TKMUnitWarrior then
+                if not fReplay
+                and not HasLostMPGame
+                and not fJoiningGroups
+                and not fPlacingBeacon
+                and (fPlayers.Selected is TKMUnitGroup) then
                 begin
-                  W := TKMUnitWarrior(fPlayers.Selected);
+                  Group := TKMUnitGroup(fPlayers.Selected);
 
                   //Attack or Walk
-                  if not fReplay and not HasLostMPGame and not fJoiningGroups and not fPlacingBeacon
-                  and W.GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
-                  and (W.Owner = MyPlayer.PlayerIndex) then
+                  if Group.CanTakeOrders and (Group.Owner = MyPlayer.PlayerIndex) then
                   begin
                     //Try to Attack unit
                     U := fTerrain.UnitsHitTest(P.X, P.Y);
                     if (U <> nil) and not U.IsDeadOrDying
                     and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.Owner) = at_Enemy) then
                     begin
-                      fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, W.GetCommander, U);
-                      fSoundLib.PlayWarrior(W.UnitType, sp_Attack);
+                      fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, Group, U);
+                      fSoundLib.PlayWarrior(Group.UnitType, sp_Attack);
                     end
                     else
                     begin //If there's no unit - try to Attack house
@@ -3765,14 +3809,14 @@ begin
                       if (H <> nil) and not H.IsDestroyed
                       and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.Owner) = at_Enemy) then
                       begin
-                        fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, W.GetCommander, H);
-                        fSoundLib.PlayWarrior(W.UnitType, sp_Attack);
+                        fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, Group, H);
+                        fSoundLib.PlayWarrior(Group.UnitType, sp_Attack);
                       end
                       else //If there's no house - Walk to spot
-                        if W.CanWalkTo(P, 0) then
+                        if Group.CanWalkTo(P, 0) then
                         begin
-                          fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, W, P, SelectedDirection);
-                          fSoundLib.PlayWarrior(W.UnitType, sp_Move);
+                          fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, Group, P, SelectedDirection);
+                          fSoundLib.PlayWarrior(Group.UnitType, sp_Move);
                         end;
                     end;
                   end;
@@ -3827,6 +3871,9 @@ var
   Rect: TKMRect;
 begin
   //Update unit/house information
+  if fPlayers.Selected is TKMUnitGroup then
+    ShowGroupInfo(TKMUnitGroup(fPlayers.Selected))
+  else
   if fPlayers.Selected is TKMUnit then
     ShowUnitInfo(TKMUnit(fPlayers.Selected), fAskDismiss)
   else

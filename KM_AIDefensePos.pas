@@ -2,7 +2,7 @@ unit KM_AIDefensePos;
 {$I KaM_Remake.inc}
 interface
 uses Classes, Math,
-  KM_CommonClasses, KM_Defaults, KM_Units, KM_Units_Warrior, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Points;
 
 
 type
@@ -12,19 +12,19 @@ type
 
   TAIDefencePosition = class
   private
-    fCurrentCommander: TKMUnitWarrior; //Commander of group currently occupying position
+    fCurrentGroup: TKMUnitGroup; //Commander of group currently occupying position
 
     fGroupType: TGroupType; //Type of group to defend this position (e.g. melee)
     fPosition: TKMPointDir; //Position and direction the group defending will stand
     fRadius: Integer; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
-    procedure SetCurrentCommander(aCommander: TKMUnitWarrior);
+    procedure SetCurrentGroup(aGroup: TKMUnitGroup);
     procedure ClearCurrentCommander;
   public
     DefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
     constructor Create(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
     constructor Load(LoadStream: TKMemoryStream);
     destructor Destroy; override;
-    property CurrentCommander: TKMUnitWarrior read fCurrentCommander write SetCurrentCommander;
+    property CurrentGroup: TKMUnitGroup read fCurrentGroup write SetCurrentGroup;
     property GroupType: TGroupType read fGroupType; //Type of group to defend this position (e.g. melee)
     property Position: TKMPointDir read fPosition; //Position and direction the group defending will stand
     property Radius: Integer read fRadius write fRadius; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
@@ -32,6 +32,7 @@ type
     function UITitle: string;
     procedure Save(SaveStream: TKMemoryStream);
     procedure SyncLoad;
+    procedure UpdateState;
   end;
 
   TAIDefencePositions = class
@@ -48,10 +49,9 @@ type
 
     procedure Clear;
     procedure AddDefencePosition(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
-    function FindPlaceForWarrior(aWarrior: TKMUnitWarrior; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
-    procedure RestockPositionWith(aDefenceGroup, aCommander: TKMUnitWarrior);
-    function FindPositionOf(aCommander: TKMUnitWarrior): TAIDefencePosition;
-    procedure ReplaceCommander(aDeadCommander, aNewCommander: TKMUnitWarrior);
+    function FindPlaceForGroup(aGroup: TKMUnitGroup; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
+    procedure RestockPositionWith(aDefenceGroup, aGroup: TKMUnitGroup);
+    function FindPositionOf(aGroup: TKMUnitGroup): TAIDefencePosition;
 
     property Count: Integer read fCount;
     property Positions[aIndex: Integer]: TAIDefencePosition read GetPosition; default;
@@ -59,6 +59,7 @@ type
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
+    procedure UpdateState;
   end;
 
 
@@ -74,7 +75,7 @@ begin
   fGroupType := aGroupType;
   fRadius := aRadius;
   DefenceType := aDefenceType;
-  CurrentCommander := nil; //Unoccupied
+  CurrentGroup := nil; //Unoccupied
 end;
 
 
@@ -87,15 +88,15 @@ end;
 
 procedure TAIDefencePosition.ClearCurrentCommander;
 begin
-  fPlayers.CleanUpUnitPointer(TKMUnit(fCurrentCommander));
+  fPlayers.CleanUpGroupPointer(fCurrentGroup);
 end;
 
 
-procedure TAIDefencePosition.SetCurrentCommander(aCommander: TKMUnitWarrior);
+procedure TAIDefencePosition.SetCurrentGroup(aGroup: TKMUnitGroup);
 begin
   ClearCurrentCommander;
-  if aCommander <> nil then
-    fCurrentCommander := TKMUnitWarrior(aCommander.GetUnitPointer);
+  if aGroup <> nil then
+    fCurrentGroup := aGroup.GetGroupPointer;
 end;
 
 
@@ -105,8 +106,8 @@ begin
   SaveStream.Write(fGroupType, SizeOf(fGroupType));
   SaveStream.Write(fRadius);
   SaveStream.Write(DefenceType, SizeOf(DefenceType));
-  if fCurrentCommander <> nil then
-    SaveStream.Write(fCurrentCommander.ID) //Store ID
+  if fCurrentGroup <> nil then
+    SaveStream.Write(fCurrentGroup.ID) //Store ID
   else
     SaveStream.Write(Integer(0));
 end;
@@ -119,13 +120,13 @@ begin
   LoadStream.Read(fGroupType, SizeOf(fGroupType));
   LoadStream.Read(fRadius);
   LoadStream.Read(DefenceType, SizeOf(DefenceType));
-  LoadStream.Read(fCurrentCommander, 4); //subst on syncload
+  LoadStream.Read(fCurrentGroup, 4); //subst on syncload
 end;
 
 
 procedure TAIDefencePosition.SyncLoad;
 begin
-  fCurrentCommander := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fCurrentCommander)));
+  fCurrentGroup := fPlayers.GetGroupByID(Cardinal(fCurrentGroup));
 end;
 
 
@@ -138,7 +139,28 @@ end;
 
 function TAIDefencePosition.IsFullyStocked(aAmount: integer): Boolean;
 begin
-  Result := (CurrentCommander <> nil) and (CurrentCommander.GetMemberCount + 1 >= aAmount);
+  Result := (CurrentGroup <> nil) and (CurrentGroup.Count >= aAmount);
+end;
+
+
+procedure TAIDefencePosition.UpdateState;
+begin
+  if (CurrentGroup <> nil) and CurrentGroup.IsDead then
+    CurrentGroup := nil;
+
+  //If this group belongs to a defence position and they are too far away we should disassociate
+  //them from the defence position so new warriors can take up the defence if needs be
+  if (CurrentGroup <> nil)
+  and (CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackGroup, goAttackUnit]))
+  and (KMLengthDiag(Position.Loc, CurrentGroup.Position) > Radius) then
+    CurrentGroup := nil;
+
+  if (CurrentGroup = nil) or CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackGroup, goAttackUnit]) then
+    Exit;
+
+  //If they are not already walking and can reach their position, tell them to walk there
+  if (CurrentGroup.Order <> goWalkTo) and CurrentGroup.CanWalkTo(Position.Loc, 0) then
+    CurrentGroup.OrderWalk(Position.Loc, Position.Dir);
 end;
 
 
@@ -185,7 +207,7 @@ begin
 end;
 
 
-function TAIDefencePositions.FindPlaceForWarrior(aWarrior: TKMUnitWarrior; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
+function TAIDefencePositions.FindPlaceForGroup(aGroup: TKMUnitGroup; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
 var
   I, MenRequired, Matched: Integer;
   Distance, Best: Single;
@@ -195,7 +217,7 @@ begin
   Best := MaxSingle;
 
   for I := 0 to Count - 1 do
-  if Positions[I].GroupType = UnitGroups[aWarrior.UnitType] then
+  if Positions[I].GroupType = UnitGroups[aGroup.UnitType] then
   begin
     //If not aCanLinkToExisting then a group with 1 member or more counts as fully stocked already
     if aCanLinkToExisting then
@@ -206,7 +228,7 @@ begin
     if not Positions[I].IsFullyStocked(MenRequired) then
     begin
       //Take closest position that is empty or requries restocking
-      Distance := KMLengthSqr(aWarrior.GetPosition, Positions[I].Position.Loc);
+      Distance := KMLengthSqr(aGroup.Position, Positions[I].Position.Loc);
       if Distance < Best then
       begin
         Matched := I;
@@ -219,51 +241,39 @@ begin
   if Matched <> -1 then
   begin
     Result := True;
-    if Positions[Matched].CurrentCommander = nil then
+    if Positions[Matched].CurrentGroup = nil then
     begin //New position
-      Positions[Matched].CurrentCommander := aWarrior.GetCommander;
-      aWarrior.OrderWalk(Positions[Matched].Position);
+      Positions[Matched].CurrentGroup := aGroup;
+      aGroup.OrderWalk(Positions[Matched].Position.Loc);
     end
     else //Restock existing position
-      RestockPositionWith(Positions[Matched].CurrentCommander, aWarrior.GetCommander);
+      RestockPositionWith(Positions[Matched].CurrentGroup, aGroup);
   end;
 end;
 
 
-procedure TAIDefencePositions.ReplaceCommander(aDeadCommander, aNewCommander: TKMUnitWarrior);
-var
-  DP: TAIDefencePosition;
-begin
-  DP := FindPositionOf(aDeadCommander);
-
-  //DP could be nil if dead commander was not part of any DP
-  if DP <> nil then
-    DP.CurrentCommander := aNewCommander; //Don't need to use GetPointer/ReleasePointer because setting CurrentCommander does that
-end;
-
-
-procedure TAIDefencePositions.RestockPositionWith(aDefenceGroup, aCommander: TKMUnitWarrior);
+procedure TAIDefencePositions.RestockPositionWith(aDefenceGroup, aGroup: TKMUnitGroup);
 var Needed: integer;
 begin
-  Needed := TroopFormations[UnitGroups[aDefenceGroup.UnitType]].NumUnits - (aDefenceGroup.GetMemberCount+1);
+  Needed := TroopFormations[aDefenceGroup.GroupType].NumUnits - (aDefenceGroup.Count);
   if Needed <= 0 then exit;
-  if aCommander.GetMemberCount+1 <= Needed then
-    aCommander.OrderLinkTo(aDefenceGroup) //Link entire group
+  if aGroup.Count+1 <= Needed then
+    aGroup.OrderLinkTo(aDefenceGroup) //Link entire group
   else
-    aCommander.OrderSplitLinkTo(aDefenceGroup,Needed); //Link only as many units as are needed
+    aGroup.OrderSplitLinkTo(aDefenceGroup, Needed); //Link only as many units as are needed
 end;
 
 
 //Find DefencePosition to which this Commander belongs
 //(Result could be nil if CommanderCount > PositionsCount
-function TAIDefencePositions.FindPositionOf(aCommander: TKMUnitWarrior): TAIDefencePosition;
+function TAIDefencePositions.FindPositionOf(aGroup: TKMUnitGroup): TAIDefencePosition;
 var
   I: Integer;
 begin
   Result := nil;
 
   for I := 0 to fCount - 1 do
-  if Positions[I].CurrentCommander = aCommander then
+  if Positions[I].CurrentGroup = aGroup then
   begin
     Result := Positions[I];
     Break;
@@ -301,6 +311,26 @@ var I: Integer;
 begin
   for I := 0 to fCount - 1 do
     fPositions[I].SyncLoad;
+end;
+
+
+procedure TAIDefencePositions.UpdateState;
+var I,K: Integer;
+begin
+  //Make sure no defence position Group is dead
+  for I := 0 to Count - 1 do
+    fPositions[I].UpdateState;
+
+  //In KaM the order of defence positions is the priority: The first defined is higher priority
+  for I := 0 to Count - 1 do
+  if (fPositions[I].CurrentGroup = nil) then
+    for K := I + 1 to Count - 1 do
+    if fPositions[I].GroupType = fPositions[K].GroupType then
+    begin
+      fPositions[I].CurrentGroup := fPositions[K].CurrentGroup; //Take new position
+      fPositions[K].CurrentGroup := nil; //Leave current position
+      Break;
+    end;
 end;
 
 

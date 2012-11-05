@@ -3,7 +3,7 @@ unit KM_UnitActionGoInOut;
 interface
 uses Classes, KromUtils, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Houses, KM_Units;
+  KM_Houses, KM_Units, KM_UnitGroups;
 
 
 type
@@ -37,7 +37,6 @@ type
     property GetHasStarted: boolean read fHasStarted;
     property GetWaitingForPush: boolean read fWaitingForPush;
     function GetDoorwaySlide(aCheck: TCheckAxis): Single;
-    procedure DoLinking; //Public because we need it when the barracks is destroyed
     function Execute: TActionResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
@@ -248,28 +247,13 @@ begin
   and (fUnit.GetHome = fHouse) then //And is the house we are walking from
     fHouse.fCurrentAction.SubActionRem([ha_Flagpole]);
 
-  DoLinking; //Warriors attempt to link as they leave the house
+  //Warriors attempt to link as they leave the house
+  if (fUnit is TKMUnitWarrior) and (fHouse is TKMHouseBarracks) then
+    fPlayers[fUnit.Owner].UnitGroups.WarriorTrained(TKMUnitWarrior(fUnit));
 
   //We are walking straight
   if fStreet.X = fDoor.X then
    IncDoorway;
-end;
-
-
-procedure TUnitActionGoInOut.DoLinking;
-var LinkUnit: TKMUnitWarrior;
-begin
-  if (fUnit is TKMUnitWarrior) and (fHouse is TKMHouseBarracks) then
-  begin
-    case fPlayers[fUnit.Owner].PlayerType of
-      pt_Human:    begin
-                     LinkUnit := TKMUnitWarrior(fUnit).FindLinkUnit(fStreet);
-                     if LinkUnit <> nil then
-                       TKMUnitWarrior(fUnit).OrderLinkTo(LinkUnit);
-                   end;
-      pt_Computer: fPlayers[fUnit.Owner].AI.WarriorEquipped(TKMUnitWarrior(fUnit));
-    end;
-  end;
 end;
 
 

@@ -87,7 +87,6 @@ type
     procedure SetDirection(aValue: TKMDirection);
     procedure SetAction(aAction: TUnitAction; aStep: Integer = 0);
     procedure SetNextPosition(aLoc: TKMPoint);
-    function GetSlide(aCheck: TCheckAxis): Single;
     function CanAccessHome: Boolean;
 
     procedure UpdateThoughts;
@@ -171,6 +170,7 @@ type
     procedure VertexAdd(aFrom, aTo: TKMPoint);
     procedure Walk(aFrom, aTo: TKMPoint);
     function GetActivityText: string; virtual;
+    function GetSlide(aCheck: TCheckAxis): Single;
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
     function UpdateState: Boolean; virtual;
@@ -1609,8 +1609,9 @@ begin
       fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
       if GetUnitAction is TUnitActionGoInOut then
       begin
-        TUnitActionGoInOut(GetUnitAction).DoLinking; //Warriors will be linked as normal
-        SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
+        if (Self is TKMUnitWarrior) and (fInHouse is TKMHouseBarracks) then
+          fPlayers[fOwner].UnitGroups.WarriorTrained(TKMUnitWarrior(Self));
+        SetActionLockedStay(0, ua_Walk); //Abandon the walk out in this case
       end;
       if (UnitTask is TTaskGoEat) and (TTaskGoEat(UnitTask).Eating) then
       begin
@@ -2113,61 +2114,28 @@ end;
 function TKMUnitsCollection.AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word; aMapEditor: Boolean = False): TKMUnit;
 var
   U: TKMUnit;
-  Commander, W: TKMUnitWarrior;
   I: Integer;
   UnitPosition: TKMPoint;
   DoesFit: Boolean;
 begin
   Assert(aDir <> dir_NA);
-  aUnitPerRow := Math.min(aUnitPerRow,aUnitCount); //Can have more rows than units
-  if not (aUnitType in [WARRIOR_MIN..WARRIOR_MAX]) then
+  Assert(aUnitType in [WARRIOR_MIN..WARRIOR_MAX]);
+
+  aUnitPerRow := Math.min(aUnitPerRow, aUnitCount); //Can have more rows than units
+
+  for I := 0 to aUnitCount - 1 do
   begin
-    for i:=1 to aUnitCount do
-    begin
-      UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, i, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
-      U := Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y); //U will be _nil_ if unit didn't fit on map
-      if U<>nil then
-      begin
-        fPlayers[aOwner].Stats.UnitCreated(aUnitType, false);
-        U.Direction := aDir;
-        U.AnimStep  := UnitStillFrames[aDir];
-      end;
-    end;
-    Result := nil; //Dunno what to return here
-    exit; // Don't do anything else for citizens
+    UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, I, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
+    if not DoesFit then Continue;
+
+    U := Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y); //U will be _nil_ if unit didn't fit on map
+    if U = nil then Continue;
+
+    fPlayers[aOwner].Stats.UnitCreated(aUnitType, false);
+    U.Direction := aDir;
+    U.AnimStep  := UnitStillFrames[aDir];
   end;
-
-  //Add commander first
-  Commander := TKMUnitWarrior(Add(aOwner, aUnitType, PosX, PosY));
-  Result := Commander;
-
-  if Commander=nil then exit; //Don't add group without a commander
-  fPlayers[aOwner].Stats.UnitCreated(aUnitType, false);
-
-  Commander.Direction := aDir;
-  Commander.AnimStep  := UnitStillFrames[aDir];
-  Commander.OrderLocDir := KMPointDir(Commander.OrderLocDir.Loc, aDir); //So when they click Halt for the first time it knows where to place them
-
-  //In MapEditor we need only fMapEdMembersCount property, without actual members
-  if aMapEditor then begin
-    Commander.fMapEdMembersCount := aUnitCount-1; //Skip commander
-    Commander.UnitsPerRow := aUnitPerRow; //Must be set at the end AFTER adding members
-    exit;
-  end;
-
-  for i:=2 to aUnitCount do begin //Commander already placed
-    UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, i, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
-    W := TKMUnitWarrior(Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y, true, fTerrain.GetWalkConnectID(KMPoint(PosX,PosY)))); //W will be _nil_ if unit didn't fit on map
-    if W<>nil then
-    begin
-      fPlayers[aOwner].Stats.UnitCreated(aUnitType, false);
-      W.Direction := aDir;
-      W.AnimStep  := UnitStillFrames[aDir];
-      Commander.AddMember(W);
-      W.fCondition := Commander.fCondition; //Whole group will have same condition
-    end;
-  end;
-  Commander.UnitsPerRow := aUnitPerRow; //Must be set at the end AFTER adding members
+  Result := nil; //Dunno what to return here
 end;
 
 
@@ -2201,13 +2169,13 @@ end;
 
 
 function TKMUnitsCollection.GetUnitByID(aID: Integer): TKMUnit;
-var i:integer;
+var I: Integer;
 begin
   Result := nil;
-  for i := 0 to Count-1 do
-    if aID = Units[i].ID then
+  for I := 0 to Count - 1 do
+    if aID = Units[I].ID then
     begin
-      Result := Units[i];
+      Result := Units[I];
       exit;
     end;
 end;
@@ -2220,7 +2188,6 @@ begin
     if KMInRect(Units[I].PositionF, aRect)
     and not Units[I].IsDeadOrDying
     and Units[I].Visible
-    and (not (Units[I] is TKMUnitWarrior) or TKMUnitWarrior(Units[I]).IsCommander)
     and (MyPlayer.FogOfWar.CheckRevelation(Units[I].PositionF, True) > FOG_OF_WAR_MIN) then
       List.Add(Units[I]);
 end;
@@ -2255,26 +2222,28 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.Save(SaveStream:TKMemoryStream);
-var i:integer;
+procedure TKMUnitsCollection.Save(SaveStream: TKMemoryStream);
+var I: Integer;
 begin
   SaveStream.Write('Units');
   SaveStream.Write(Count);
-  for i := 0 to Count - 1 do
+  for I := 0 to Count - 1 do
   begin
     //We save unit type to know which unit class to load
-    SaveStream.Write(Units[i].UnitType, SizeOf(Units[i].UnitType));
-    Units[i].Save(SaveStream);
+    SaveStream.Write(Units[I].UnitType, SizeOf(Units[I].UnitType));
+    Units[I].Save(SaveStream);
   end;
 end;
 
 
-procedure TKMUnitsCollection.Load(LoadStream:TKMemoryStream);
-var i,UnitCount:integer; UnitType:TUnitType;
+procedure TKMUnitsCollection.Load(LoadStream: TKMemoryStream);
+var
+  I, NewCount: Integer;
+  UnitType: TUnitType;
 begin
   LoadStream.ReadAssert('Units');
-  LoadStream.Read(UnitCount);
-  for i := 0 to UnitCount - 1 do
+  LoadStream.Read(NewCount);
+  for I := 0 to NewCount - 1 do
   begin
     LoadStream.Read(UnitType, SizeOf(UnitType));
     case UnitType of
@@ -2292,18 +2261,19 @@ end;
 
 
 procedure TKMUnitsCollection.SyncLoad;
-var i:integer;
+var
+  I: Integer;
 begin
-  for i:=0 to Count-1 do
+  for I := 0 to Count - 1 do
   begin
-    case Units[i].fUnitType of
-      ut_Serf:                  TKMUnitSerf(Items[i]).SyncLoad;
-      ut_Worker:                TKMUnitWorker(Items[i]).SyncLoad;
+    case Units[I].fUnitType of
+      ut_Serf:                  TKMUnitSerf(Items[I]).SyncLoad;
+      ut_Worker:                TKMUnitWorker(Items[I]).SyncLoad;
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                                TKMUnitCitizen(Items[i]).SyncLoad;
-      ut_Recruit:               TKMUnitRecruit(Items[i]).SyncLoad;
-      WARRIOR_MIN..WARRIOR_MAX: TKMUnitWarrior(Items[i]).SyncLoad;
-      ANIMAL_MIN..ANIMAL_MAX:   TKMUnitAnimal(Items[i]).SyncLoad;
+                                TKMUnitCitizen(Items[I]).SyncLoad;
+      ut_Recruit:               TKMUnitRecruit(Items[I]).SyncLoad;
+      WARRIOR_MIN..WARRIOR_MAX: TKMUnitWarrior(Items[I]).SyncLoad;
+      ANIMAL_MIN..ANIMAL_MAX:   TKMUnitAnimal(Items[I]).SyncLoad;
     end;
   end;
 end;

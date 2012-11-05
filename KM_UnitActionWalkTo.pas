@@ -7,7 +7,7 @@ uses Classes, KromUtils, Math, SysUtils, TypInfo,
 
 type
   TDestinationCheck = (dc_NoChanges, dc_RouteChanged, dc_NoRoute);
-  TTargetDiedCheck = (tc_NoChanges, tc_TargetUpdated, tc_Died);
+  TTargetDiedCheck = (tc_NoChanges, tc_Died);
   TObstacleCheck = (oc_NoObstacle, oc_ReRouteMade, oc_NoRoute);
 
   TUnitActionWalkTo = class(TUnitAction)
@@ -280,7 +280,7 @@ end;
 function TUnitActionWalkTo.CanAbandonExternal: boolean;
 begin
   Result := (not fDoExchange) //Other unit could have set this
-            and KMSamePointF(KMPointF(fUnit.GetPosition),fUnit.PositionF);
+            and KMSamePointF(KMPointF(fUnit.GetPosition), fUnit.PositionF);
 end;
 
 
@@ -406,7 +406,7 @@ begin
   if (fTargetUnit = nil) or not fTargetUnit.IsDeadOrDying then
     Result := tc_NoChanges
   else
-    if (fUnit is TKMUnitWarrior) and (fTargetUnit is TKMUnitWarrior) and (TKMUnitWarrior(fUnit).GetWarriorState <> ws_Engage) then
+    {if (fUnit is TKMUnitWarrior) and (fTargetUnit is TKMUnitWarrior) and (TKMUnitWarrior(fUnit).GetWarriorState <> ws_Engage) then
     begin
       //If a warrior is following a unit it means we are attacking it. (for now anyway)
       //So if this unit dies we must now follow it's commander
@@ -420,7 +420,7 @@ begin
         TKMUnitWarrior(fUnit).OrderHalt;
       Result := tc_TargetUpdated;
     end
-    else
+    else}
       Result := tc_Died;
 end;
 
@@ -988,12 +988,6 @@ begin
     begin
       //If target unit has moved then change course and keep following it
       ChangeWalkTo(fTargetUnit, fDistance);
-      //If we are a warrior commander tell our memebers to use this new position
-      if (fUnit is TKMUnitWarrior) and TKMUnitWarrior(fUnit).IsCommander then
-      begin
-        TKMUnitWarrior(fUnit).OrderAttackUnit(fTargetUnit, True); //Give members new position
-        TKMUnitWarrior(fUnit).OrderLocDir := KMPointDir(fTargetUnit.GetPosition, TKMUnitWarrior(fUnit).OrderLocDir.Dir); //This line is notsuperflous
-      end;
     end;
 
     //Check if we need to walk to a new destination
@@ -1022,8 +1016,8 @@ begin
     //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself
     if CanAbandonInternal then
       case CheckTargetHasDied of
-        tc_NoChanges, tc_TargetUpdated:;
-        tc_Died: begin Result := ActAborted; Exit; end;
+        tc_NoChanges: ;
+        tc_Died:      begin Result := ActAborted; Exit; end;
       end;
 
     //This is sometimes caused by unit interaction changing the route so simply ignore it

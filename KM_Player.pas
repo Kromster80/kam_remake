@@ -4,7 +4,7 @@ interface
 uses Classes, KromUtils, SysUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ArmyEvaluation, KM_BuildList, KM_DeliverQueue, KM_FogOfWar,
-  KM_Goals, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_MapEditor;
+  KM_Goals, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_UnitGroups, KM_MapEditor;
 
 
 type
@@ -46,6 +46,7 @@ type
     fHouses: TKMHousesCollection;
     fRoadsList: TKMPointList; //Used only once to speedup mission loading, then freed
     fStats: TKMPlayerStats;
+    fUnitGroups: TKMUnitGroups;
 
     fPlayerName: string;
     fPlayerType: TPlayerType;
@@ -69,6 +70,7 @@ type
     property Goals: TKMGoals read fGoals;
     property FogOfWar: TKMFogOfWar read fFogOfWar;
     property ArmyEval: TKMArmyEvaluation read fArmyEval;
+    property UnitGroups: TKMUnitGroups read fUnitGroups;
 
     procedure SetPlayerID(aNewIndex: TPlayerIndex);
     property PlayerName: string read fPlayerName write fPlayerName;
@@ -83,7 +85,7 @@ type
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean = False): TKMUnit; reintroduce;
     procedure AddUnitAndLink(aUnitType: TUnitType; Position: TKMPoint);
-    function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean = False): TKMUnit;
+    function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean = False): TKMUnitGroup;
 
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     procedure TrainingDone(aUnit: TKMUnit);
@@ -109,6 +111,7 @@ type
     function FindHouse(aType: THouseType; aPosition: TKMPoint; Index: Byte=1): TKMHouse; overload;
     function FindHouse(aType: THouseType; Index: Byte=1): TKMHouse; overload;
     function HousesHitTest(X, Y: Integer): TKMHouse;
+    function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
     procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
 
     function GetFieldsCount: Integer;
@@ -160,7 +163,7 @@ end;
 
 procedure TKMPlayerCommon.Paint;
 begin
-  if fGame.IsMapEditor and not (mlUnits in fGame.MapEditor.VisibleLayers) then exit;
+  if fGame.IsMapEditor and not (mlUnits in fGame.MapEditor.VisibleLayers) then Exit;
 
   fUnits.Paint;
 end;
@@ -221,6 +224,7 @@ begin
   fDeliveries   := TKMDeliveries.Create;
   fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
+  fUnitGroups   := TKMUnitGroups.Create;
 
   fPlayerName   := '';
   fPlayerType   := pt_Computer;
@@ -239,6 +243,7 @@ begin
   FreeThenNil(fArmyEval);
   FreeThenNil(fRoadsList);
   FreeThenNil(fHouses);
+  FreeThenNil(fUnitGroups);
 
   //Should be freed after Houses and Units, as they write Stats on Destroy
   FreeThenNil(fStats);
@@ -273,16 +278,11 @@ end;
 procedure TKMPlayer.AddUnitAndLink(aUnitType: TUnitType; Position: TKMPoint);
 var
   U: TKMUnit;
-  W: TKMUnitWarrior;
 begin
   U := AddUnit(aUnitType, Position);
 
   if (U <> nil) and (U is TKMUnitWarrior) then
-  begin
-    W := TKMUnitWarrior(U).FindLinkUnit(U.GetPosition);
-    if W <> nil then
-      TKMUnitWarrior(U).OrderLinkTo(W);
-  end;
+    fUnitGroups.WarriorTrained(TKMUnitWarrior(U));
 end;
 
 
@@ -310,9 +310,9 @@ begin
 end;
 
 
-function TKMPlayer.AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean=false): TKMUnit;
+function TKMPlayer.AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean=false): TKMUnitGroup;
 begin
-  Result := fUnits.AddGroup(fPlayerIndex, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount, aMapEditor);
+  Result := fUnitGroups.AddGroup(fPlayerIndex, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount);
   //Add unit to statistic inside the function for some units may not fit on map
 end;
 
@@ -682,13 +682,19 @@ begin
 end;
 
 
+function TKMPlayer.GroupsHitTest(X, Y: Integer): TKMUnitGroup;
+begin
+  Result:= fUnitGroups.HitTest(X, Y);
+end;
+
+
 function TKMPlayer.GetColorIndex: Byte;
-var i: Integer;
+var I: Integer;
 begin
   Result := 3; //3 = Black which can be the default when a non-palette 32 bit color value is used
-  for i:=0 to 255 do
-    if fResource.Palettes.DefDal.Color32(i) = fFlagColor then
-      Result := i;
+  for I := 0 to 255 do
+    if fResource.Palettes.DefDal.Color32(I) = fFlagColor then
+      Result := I;
 end;
 
 
@@ -845,6 +851,7 @@ begin
   fGoals.Save(SaveStream);
   fHouses.Save(SaveStream);
   fStats.Save(SaveStream);
+  fUnitGroups.Save(SaveStream);
 
   SaveStream.Write(fPlayerIndex);
   SaveStream.Write(fPlayerName);
@@ -866,6 +873,7 @@ begin
   fGoals.Load(LoadStream);
   fHouses.Load(LoadStream);
   fStats.Load(LoadStream);
+  fUnitGroups.Load(LoadStream);
 
   LoadStream.Read(fPlayerIndex);
   LoadStream.Read(s); fPlayerName := s;
@@ -879,6 +887,7 @@ end;
 procedure TKMPlayer.SyncLoad;
 begin
   inherited;
+  fUnitGroups.SyncLoad;
   fHouses.SyncLoad;
   fDeliveries.SyncLoad;
   fBuildList.SyncLoad;
@@ -894,6 +903,9 @@ end;
 
 procedure TKMPlayer.UpdateState(aTick: Cardinal);
 begin
+  //Update Groups logic before Units
+  fUnitGroups.UpdateState;
+
   inherited;
 
   fHouses.UpdateState;
@@ -924,6 +936,7 @@ begin
   inherited;
   if fGame.IsMapEditor and not(mlHouses in fGame.MapEditor.VisibleLayers) then exit;
 
+  fUnitGroups.Paint;
   fHouses.Paint;
 end;
 

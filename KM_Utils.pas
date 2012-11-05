@@ -5,7 +5,7 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points;
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
-  function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aI, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
+  function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
   function GetPositionFromIndex(aOrigin: TKMPoint; aIndex: Byte): TKMPointI;
 
   function FixDelim(const aString: string): string;
@@ -117,24 +117,29 @@ end;
 {Returns point where unit should be placed regarding direction & offset from Commanders position}
 // 23145     231456
 // 6789X     789xxx
-function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aI, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
-const DirAngle: array [TKMDirection] of Word =   (0,    0,    45,   90,   135,  180,   225,  270,   315);
-const DirRatio: array [TKMDirection] of Single = (0,    1,  1.41,    1,  1.41,    1,  1.41,    1,  1.41);
-var PlaceX, PlaceY, ResultX, ResultY: Integer;
+function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
+const
+  DirAngle: array [TKMDirection] of Word   = (0, 0, 45, 90, 135, 180, 225, 270, 315);
+  DirRatio: array [TKMDirection] of Single = (0, 1, 1.41, 1, 1.41, 1, 1.41, 1, 1.41);
+var
+  PlaceX, PlaceY, ResultX, ResultY: integer;
 begin
   Assert(aUnitPerRow > 0);
-  if aI = 1 then begin
-    PlaceX := 0;
-    PlaceY := 0;
-  end else begin
-    if aI <= aUnitPerRow div 2 + 1 then
-      dec(aI);
-    PlaceX := (aI-1) mod aUnitPerRow - aUnitPerRow div 2;
-    PlaceY := (aI-1) div aUnitPerRow;
-  end;
+  if aIndex = 0 then
+  begin
+    ResultX := OriginX;
+    ResultY := OriginY;
+  end
+  else
+  begin
+    if aIndex <= aUnitPerRow div 2 then
+      Dec(aIndex);
+    PlaceX := aIndex mod aUnitPerRow - aUnitPerRow div 2;
+    PlaceY := aIndex div aUnitPerRow;
 
-  ResultX := OriginX + Round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
-  ResultY := OriginY + Round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
+    ResultX := OriginX + Round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
+    ResultY := OriginY + Round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
+  end;
 
   aTargetCanBeReached := InRange(ResultX, 1, MapX-1) and InRange(ResultY, 1, MapY-1);
   //Fit to bounds

@@ -196,10 +196,6 @@ begin
     end
     else
     begin
-      //Tell commanders to reposition after a fight, if we don't have other plans (order)
-      if TKMUnitWarrior(fUnit).IsCommander and not TKMUnitWarrior(fUnit).ArmyInFight and
-         (TKMUnitWarrior(fUnit).GetOrder = wo_None) and (fUnit.UnitTask = nil) then
-        TKMUnitWarrior(fUnit).OrderWalk(fUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
       //No one else to fight, so we exit
       Result := ActDone;
     end;
@@ -288,7 +284,7 @@ end;
 
 
 function TUnitActionFight.Execute: TActionResult;
-var Cycle,Step:byte;
+var Cycle,Step: Byte;
 begin
   Cycle := max(fResource.UnitDat[fUnit.UnitType].UnitAnim[ActionType, fUnit.Direction].Count, 1);
   Step  := fUnit.AnimStep mod Cycle;

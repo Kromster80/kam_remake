@@ -58,7 +58,7 @@ type
     SteelWeaponProduction, SteelArmorProduction,
     WoodenWeaponProduction, WoodenArmorProduction, WoodenShieldProduction,
     HorseProduction: Single;
-    //Let General tell us what proportions of warriors it needs
+    //Let General tell us what proportions of warriors he needs
     SteelWeaponDemand, SteelArmorDemand,
     WoodenWeaponDemand, WoodenArmorDemand, WoodenShieldDemand,
     HorseDemand: Single;

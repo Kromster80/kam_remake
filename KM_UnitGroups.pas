@@ -2,86 +2,265 @@ unit KM_UnitGroups;
 {$I KaM_Remake.inc}
 interface
 uses Classes, Math, SysUtils,
-     KM_Defaults, KM_CommonTypes, KM_Points, KM_PlayersCollection,
+     KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points, KM_Houses, KM_Units,
      KM_UnitActionFight, KM_Units_Warrior;
 
 type
+  TKMTurnDirection = (tdNone, tdCW, tdCCW);
+
+  TKMGroupOrder = (
+    goNone,         //Last order was executed and now we have nothing to do
+    goWalkTo,       //Ordered to walk somewhere or just change formation
+    goAttackHouse,  //Attack house
+    goAttackGroup,  //Pursue and destroy to the last member
+    goAttackUnit,   //Attack specific unit
+    goStorm         //Run forward
+    );
+
   TKMUnitGroup = class
   private
-    fMembers: TList; // Warriors. List of TKMUnitWarrior.
-    fUnitsPerRow: Integer;
-    fPosition: TKMPointDir;
+    fID: Cardinal;
+    fPointerCount: Cardinal;
+    fTicker: Cardinal;
+    fMembers: TList;
+    fSelected: TKMUnitWarrior; //Unit selected by player in GUI
+    fUnitsPerRow: Word;
+    fTimeSinceHungryReminder: Integer;
+    fGroupType: TGroupType;
+
+    fOrder: TKMGroupOrder; //Remember last order incase we need to repeat it (e.g. to joined members)
+    fOrderLoc: TKMPointDir; //Dir is the direction to face after order
+    fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
+    fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
+
+    fMapEdCount: Word;
 
     function GetCount: Integer;
     function GetMember(aIndex: Integer): TKMUnitWarrior;
-    procedure SetUnitsPerRow(aCount: Integer);
-    procedure SetPosition(aValue: TKMPointDir);
+    function GetNearestMember(aUnit: TKMUnitWarrior): Integer;
+    procedure SetUnitsPerRow(aCount: Word);
+    function GetOwner: TPlayerIndex;
+    procedure SetDirection(Value: TKMDirection);
+    procedure SetCondition(aValue: Integer);
+    procedure SetPosition(aValue: TKMPoint);
+    procedure ClearOrderTarget;
+    function GetOrderUnitTarget: TKMUnit;
+    function GetOrderHouseTarget: TKMHouse;
+    procedure SetOrderUnitTarget(aUnit: TKMUnit);
+    procedure SetOrderHouseTarget(aHouse: TKMHouse);
+    procedure CheckOrderDone;
+    procedure UpdateHungerMessage;
+
+    procedure Member_Killed(aWarrior: TKMUnitWarrior);
+
+    function GetCondition: Integer;
+    function GetDirection: TKMDirection;
+    function GetPosition: TKMPoint;
   public
-    constructor Create(aCreator: TKMUnitWarrior); overload;
-    constructor Create(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word; aMapEditor: Boolean = False); overload;
+
+    constructor Create(aID: Cardinal; aCreator: TKMUnitWarrior); overload;
+    constructor Create(aID: Cardinal; aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word); overload;
+    constructor Create(LoadStream: TKMemoryStream); overload;
+    procedure SyncLoad;
+    procedure Save(SaveStream: TKMemoryStream);
     destructor Destroy; override;
 
+    function GetGroupPointer: TKMUnitGroup;
+    procedure ReleaseGroupPointer;
     procedure AddMember(aWarrior: TKMUnitWarrior);
-    function ArmyInFight: Boolean;
+    function HitTest(X,Y: Integer): Boolean;
+    procedure SelectHitTest(X,Y: Integer);
+    function HasMember(aWarrior: TKMUnit): Boolean;
+    function InFight: Boolean; //Fighting and can't take any orders from player
+    function IsAttackingHouse: Boolean; //Attacking house
+    function IsAttackingEnemy: Boolean; //Attacking another group/citizens, but not yet fighting (e.g. attacking archers)
     function CanTakeOrders: Boolean;
+    function CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean;
     function IsRanged: Boolean;
-
+    function IsDead: Boolean;
+    function UnitType: TUnitType;
+    property GroupType: TGroupType read fGroupType;
+    property ID: Cardinal read fID;
     property Count: Integer read GetCount;
+    property MapEdCount: Word read fMapEdCount write fMapEdCount;
     property Members[aIndex: Integer]: TKMUnitWarrior read GetMember;
-    property Position: TKMPointDir read fPosition write SetPosition;
-    property UnitsPerRow: Integer read fUnitsPerRow write SetUnitsPerRow;
+    property Owner: TPlayerIndex read GetOwner;
+    property Position: TKMPoint read GetPosition write SetPosition;
+    property Direction: TKMDirection read GetDirection write SetDirection;
+    property UnitsPerRow: Word read fUnitsPerRow write SetUnitsPerRow;
+    property SelectedUnit: TKMUnitWarrior read fSelected;
+    property Condition: Integer read GetCondition write SetCondition;
+    property Order: TKMGroupOrder read fOrder;
+
+    procedure OrderAttackGroup(aGroup: TKMUnitGroup);
+    procedure OrderAttackHouse(aHouse: TKMHouse);
+    procedure OrderAttackUnit(aUnit: TKMUnit);
+    procedure OrderFood;
+    procedure OrderFormation(aTurnAmount: TKMTurnDirection; aColumnsChange: ShortInt);
+    procedure OrderHalt;
+    procedure OrderLinkTo(aTargetGroup: TKMUnitGroup);
+    procedure OrderNone;
+    procedure OrderRepeat;
+    procedure OrderSplit;
+    procedure OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word);
+    procedure OrderStorm;
+    procedure OrderWalk(aLoc: TKMPoint; aDir: TKMDirection = dir_NA);
+
+    procedure UpdateState;
+    procedure Paint;
   end;
 
 
   TKMUnitGroups = class
   private
     fGroups: TList;
-    fOwner: TPlayerIndex;
 
     function GetCount: Integer;
     function GetGroup(aIndex: Integer): TKMUnitGroup;
   public
-    constructor Create(aOwner: TPlayerIndex);
+    constructor Create;
     destructor Destroy; override;
 
-    function AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word; aMapEditor: Boolean = False): TKMUnitGroup;
+    function AddGroup(aWarrior: TKMUnitWarrior): TKMUnitGroup; overload;
+    function AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word): TKMUnitGroup; overload;
 
     property Count: Integer read GetCount;
     property Groups[aIndex: Integer]: TKMUnitGroup read GetGroup; default;
+    function GetGroupByID(aID: Integer): TKMUnitGroup;
+    function GetGroupByMember(aUnit: TKMUnitWarrior): TKMUnitGroup;
+    function HitTest(X,Y: Integer): TKMUnitGroup;
+
+    procedure WarriorTrained(aUnit: TKMUnitWarrior);
+
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
+    procedure SyncLoad;
+    procedure UpdateState;
+    procedure Paint;
   end;
 
 
 implementation
-uses KM_Resource, KM_ResourceUnit, KM_Terrain, KM_Units;
+uses KM_Game, KM_Player, KM_PlayersCollection, KM_Resource, KM_ResourceUnit, KM_Terrain, KM_Utils, KM_TextLibrary, KM_RenderPool;
+
+
+const
+  HUNGER_CHECK_FREQ = 10; //Check warrior hunger every 1 second
+  UG_PASS_FOCUS_TO_LIVE = True; //When selected unit is killed - change selection to nearest unit
 
 
 { TKMUnitGroup }
-constructor TKMUnitGroup.Create(aCreator: TKMUnitWarrior);
+constructor TKMUnitGroup.Create(aID: Cardinal; aCreator: TKMUnitWarrior);
 begin
   inherited Create;
 
+  fID := aID;
+  fGroupType := UnitGroups[aCreator.UnitType];
   fMembers := TList.Create;
-  fUnitsPerRow := 1;
+
+  //So when they click Halt for the first time it knows where to place them
+  fOrderLoc := KMPointDir(aCreator.GetPosition.X, aCreator.GetPosition.Y, aCreator.Direction);
 
   AddMember(aCreator);
+  UnitsPerRow := 1;
 end;
 
 
-constructor TKMUnitGroup.Create(aOwner: TPlayerIndex; aUnitType: TUnitType;
-  PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word;
-  aMapEditor: Boolean);
+constructor TKMUnitGroup.Create(aID: Cardinal; aOwner: TPlayerIndex; aUnitType: TUnitType;
+  PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word);
 var
-  Commander: TKMUnitWarrior;
+  Warrior: TKMUnitWarrior;
+  I: Integer;
+  DoesFit: Boolean;
+  UnitLoc: TKMPoint;
+  Condition: Word;
 begin
   inherited Create;
 
-  //Add commander first
-  Commander := TKMUnitWarrior(fPlayers[aOwner].Units.Add(aOwner, aUnitType, PosX, PosY));
-  if Commander = nil then
-    Exit;
-  fPlayers[aOwner].Stats.UnitCreated(aUnitType, False);
+  fID := aID;
+  fGroupType := UnitGroups[aUnitType];
+  fMembers := TList.Create;
+
+  //So when they click Halt for the first time it knows where to place them
+  fOrderLoc := KMPointDir(PosX, PosY, aDir);
+
+  //Whole group should have same condition
+  Condition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)));
+
+  if fGame.IsMapEditor then
+  begin
+    Warrior := TKMUnitWarrior(fPlayers[aOwner].Units.Add(aOwner, aUnitType, PosX, PosY, True, fTerrain.GetWalkConnectID(KMPoint(PosX,PosY))));
+    if Warrior <> nil then
+    begin
+      Warrior.Direction := aDir;
+      Warrior.AnimStep  := UnitStillFrames[aDir];
+      AddMember(Warrior);
+      Warrior.Condition := UNIT_MAX_CONDITION div 2;
+      fMapEdCount := aUnitCount;
+    end;
+  end
+  else
+  for I := 0 to aUnitCount - 1 do
+  begin
+    UnitLoc := GetPositionInGroup2(PosX, PosY, aDir, I, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
+    if not DoesFit then Continue;
+
+    Warrior := TKMUnitWarrior(fPlayers[aOwner].Units.Add(aOwner, aUnitType, UnitLoc.X, UnitLoc.Y, True, fTerrain.GetWalkConnectID(KMPoint(PosX,PosY))));
+    if Warrior = nil then Continue;
+
+    fPlayers[aOwner].Stats.UnitCreated(aUnitType, False);
+    Warrior.Direction := aDir;
+    Warrior.AnimStep  := UnitStillFrames[aDir];
+    AddMember(Warrior);
+    Warrior.Condition := Condition;
+  end;
+
+  //We could not set it earlier cos it's limited by Count
+  UnitsPerRow := aUnitPerRow;
+end;
 
 
+constructor TKMUnitGroup.Create(LoadStream: TKMemoryStream);
+var
+  I, aCount: Integer;
+  W: TKMUnitWarrior;
+begin
+  inherited Create;
+  fMembers := TList.Create;
+
+  LoadStream.Read(fGroupType, SizeOf(fGroupType));
+  LoadStream.Read(fID);
+  LoadStream.Read(aCount);
+  for I := 0 to aCount - 1 do
+  begin
+    LoadStream.Read(W, 4); //subst on syncload
+    fMembers.Add(W);
+  end;
+
+  LoadStream.Read(fOrder, SizeOf(fOrder));
+  LoadStream.Read(fOrderLoc);
+  LoadStream.Read(fOrderTargetHouse, 4); //subst on syncload
+  LoadStream.Read(fOrderTargetUnit, 4); //subst on syncload
+  LoadStream.Read(fPointerCount);
+  LoadStream.Read(fSelected, 4); //subst on syncload
+  LoadStream.Read(fTicker);
+  LoadStream.Read(fTimeSinceHungryReminder);
+  LoadStream.Read(fUnitsPerRow);
+end;
+
+
+procedure TKMUnitGroup.SyncLoad;
+var I: Integer;
+begin
+  inherited;
+  for I := 0 to Count - 1 do
+  begin
+    fMembers[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fMembers.Items[I])));
+    Members[I].OnKilled := Member_Killed;
+  end;
+  fOrderTargetUnit := fPlayers.GetUnitByID(cardinal(fOrderTargetUnit));
+  fOrderTargetHouse := fPlayers.GetHouseByID(cardinal(fOrderTargetHouse));
+  fSelected := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fSelected)));
 end;
 
 
@@ -93,43 +272,178 @@ begin
 end;
 
 
+procedure TKMUnitGroup.Save(SaveStream: TKMemoryStream);
+var I: Integer;
+begin
+  inherited;
+  SaveStream.Write(fGroupType, SizeOf(fGroupType));
+  SaveStream.Write(fID);
+  SaveStream.Write(fMembers.Count);
+  for I := 0 to fMembers.Count - 1 do
+    SaveStream.Write(Members[I].ID);
+  SaveStream.Write(fOrder, SizeOf(fOrder));
+  SaveStream.Write(fOrderLoc);
+  if fOrderTargetHouse <> nil then
+    SaveStream.Write(fOrderTargetHouse.ID)
+  else
+    SaveStream.Write(Integer(0));
+  if fOrderTargetUnit <> nil then
+    SaveStream.Write(fOrderTargetUnit.ID)
+  else
+    SaveStream.Write(Integer(0));
+  SaveStream.Write(fPointerCount);
+  if fSelected <> nil then
+    SaveStream.Write(fSelected.ID)
+  else
+    SaveStream.Write(Integer(0));
+  SaveStream.Write(fTicker);
+  SaveStream.Write(fTimeSinceHungryReminder);
+  SaveStream.Write(fUnitsPerRow);
+end;
+
+
+function TKMUnitGroup.GetCondition: Integer;
+var
+  I: Integer;
+begin
+  Result := UNIT_MAX_CONDITION;
+  for I := 0 to Count - 1 do
+    Result := Min(Result, Members[I].Condition);
+end;
+
+
 function TKMUnitGroup.GetCount: Integer;
 begin
   Result := fMembers.Count;
 end;
 
 
+function TKMUnitGroup.GetDirection: TKMDirection;
+begin
+  Result := fOrderLoc.Dir;
+end;
+
+
 function TKMUnitGroup.GetMember(aIndex: Integer): TKMUnitWarrior;
 begin
-  // Assert is not needed
-  // If Index is wrong, then TList.Get raise exception
-  Result := TKMUnitWarrior(fMembers.Items[aIndex]);
+  Result := fMembers.Items[aIndex];
 end;
 
 
-procedure TKMUnitGroup.SetPosition(aValue: TKMPointDir);
+function TKMUnitGroup.GetNearestMember(aUnit: TKMUnitWarrior): Integer;
+var
+  I: Integer;
+  Dist, Best: Single;
 begin
-  fPosition := aValue;
+  Result := -1;
+  Best := MaxSingle;
+  for I := 0 to Count - 1 do
+  if (Members[I] <> aUnit) and not Members[I].IsDeadOrDying then
+  begin
+    Dist := KMLengthSqr(aUnit.NextPosition, Members[I].NextPosition);
+    if Dist < Best then
+    begin
+      Best := Dist;
+      Result := I;
+    end;
+  end;
 end;
 
 
-procedure TKMUnitGroup.SetUnitsPerRow(aCount: Integer);
+{Returns self and adds on to the pointer counter}
+function TKMUnitGroup.GetGroupPointer: TKMUnitGroup;
 begin
-  fUnitsPerRow := EnsureRange(aCount, 1, fMembers.Count);
+  Inc(fPointerCount);
+  Result := Self;
+end;
+
+
+{Decreases the pointer counter}
+//Should be used only by fPlayers for clarity sake
+procedure TKMUnitGroup.ReleaseGroupPointer;
+begin
+  if fPointerCount < 1 then
+    raise ELocError.Create('Group remove pointer', Position);
+  Dec(fPointerCount);
+end;
+
+
+function TKMUnitGroup.GetOwner: TPlayerIndex;
+begin
+  Result := Members[0].Owner;
+end;
+
+
+function TKMUnitGroup.GetPosition: TKMPoint;
+begin
+  Result := fOrderLoc.Loc;
+end;
+
+
+procedure TKMUnitGroup.SetPosition(aValue: TKMPoint);
+begin
+  Assert(fGame.IsMapEditor);
+  fOrderLoc.Loc := aValue;
+  Members[0].SetPosition(aValue);
+end;
+
+
+procedure TKMUnitGroup.SetCondition(aValue: Integer);
+var I: Integer;
+begin
+  for I := 0 to Count - 1 do
+    Members[I].Condition := aValue;
+end;
+
+
+procedure TKMUnitGroup.SetDirection(Value: TKMDirection);
+begin
+  Assert(fGame.IsMapEditor);
+  fOrderLoc.Dir := Value;
+  Members[0].Direction := Value;
+end;
+
+
+procedure TKMUnitGroup.SetUnitsPerRow(aCount: Word);
+begin
+  if fGame.IsMapEditor then
+    fUnitsPerRow := Max(aCount, 1)
+  else
+    fUnitsPerRow := EnsureRange(aCount, 1, Count);
 end;
 
 
 procedure TKMUnitGroup.AddMember(aWarrior: TKMUnitWarrior);
 begin
   Assert(fMembers.IndexOf(aWarrior) = -1, 'We already have this Warrior in group');
-  fMembers.Add(aWarrior);
+  fMembers.Add(aWarrior.GetUnitPointer);
+  aWarrior.OnKilled := Member_Killed;
+end;
+
+
+function TKMUnitGroup.HasMember(aWarrior: TKMUnit): Boolean;
+begin
+  Result := fMembers.IndexOf(aWarrior) <> -1;
 end;
 
 
 //If the player is allowed to issue orders to group
 function TKMUnitGroup.CanTakeOrders: Boolean;
 begin
-  Result := IsRanged or not ArmyInFight; //Ranged units can always take orders
+  Result := IsRanged or not InFight; //Ranged units can always take orders
+end;
+
+
+function TKMUnitGroup.CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean;
+begin
+  Result := Members[0].CanWalkTo(aTo, aDistance);
+end;
+
+
+//Group is dead, but still exists cos of pointers to it
+function TKMUnitGroup.IsDead: Boolean;
+begin
+  Result := fMembers.Count = 0;
 end;
 
 
@@ -139,15 +453,109 @@ begin
 end;
 
 
-function TKMUnitGroup.ArmyInFight: Boolean;
-var I: Integer;
+//Member reports that he has died (or been killed)
+procedure TKMUnitGroup.Member_Killed(aWarrior: TKMUnitWarrior);
+var
+  I: Integer;
+  NewSel: Integer;
+begin
+  I := fMembers.IndexOf(aWarrior);
+  Assert(I <> -1, 'No such member');
+
+  if (aWarrior = fSelected) then
+  begin
+    fSelected := nil;
+
+    //Transfer selection to nearest member
+    if UG_PASS_FOCUS_TO_LIVE then
+    begin
+      NewSel := GetNearestMember(aWarrior);
+      if NewSel <> -1 then
+        fSelected := Members[NewSel];
+    end;
+  end;
+
+  Members[I].ReleaseUnitPointer;
+  fMembers.Delete(I);
+
+  //Move nearest member to placeholders place
+  if I = 0 then
+  begin
+    NewSel := GetNearestMember(aWarrior);
+    if NewSel <> -1 then
+      fMembers.Exchange(NewSel, 0);
+  end;
+
+  SetUnitsPerRow(fUnitsPerRow);
+
+  if not IsDead and CanTakeOrders then
+    OrderRepeat;
+end;
+
+
+//Member signals that he is done
+//We check whole group to see if it's done
+procedure TKMUnitGroup.CheckOrderDone;
+var
+  I: Integer;
+  OrderExecuted: Boolean;
+begin
+  case fOrder of
+    goNone:         OrderExecuted := False;
+    goWalkTo:       begin
+                      OrderExecuted := True;
+
+                      for I := 0 to Count - 1 do
+                      begin
+                        OrderExecuted := OrderExecuted and Members[I].IsIdle and Members[I].OrderDone;
+
+                        if Members[I].IsIdle and not Members[I].OrderDone then
+                          if not InFight then
+                            Members[I].OrderWalk(Members[I].OrderLocDir, Members[I].UseExactTarget)
+                          else
+                            //todo: OrderFight?
+                      end;
+                    end;
+    goAttackHouse:  OrderExecuted := False;
+    goAttackGroup:  OrderExecuted := False;
+    goAttackUnit:   begin
+                      OrderExecuted := True;
+                      for I := 0 to Count - 1 do
+                      if Members[I].IsIdle and not Members[I].OrderDone then
+                      begin
+                        //Help fellow members to kill the enemy
+                          //Pick the enemy (Archers: random from within range)
+                          //               (Melee: random from enemy group)
+
+                        //Let the unit handle it itself
+                        //Members[I].OrderAttackUnit();
+                        OrderExecuted := False;
+                      end;
+                    end;
+    goStorm:        OrderExecuted := False;
+  end;
+
+  if OrderExecuted then
+  begin
+    for I := 0 to Count - 1 do
+    if fOrderLoc.Dir <> dir_NA then
+      Members[I].Direction := fOrderLoc.Dir;
+    OrderNone;
+  end;
+end;
+
+
+//Fighting with citizens does not count
+function TKMUnitGroup.InFight: Boolean;
+var
+  I: Integer;
 begin
   Result := False;
 
   for I := 0 to Count - 1 do
     if (Members[I].GetUnitAction is TUnitActionFight)
-    and(TUnitActionFight(Members[I].GetUnitAction).GetOpponent is TKMUnitWarrior)
-    and not(TUnitActionFight(Members[I].GetUnitAction).GetOpponent.IsDeadOrDying) then
+    and (TUnitActionFight(Members[I].GetUnitAction).GetOpponent is TKMUnitWarrior)
+    and not TUnitActionFight(Members[I].GetUnitAction).GetOpponent.IsDeadOrDying then
     begin
       Result := True;
       Exit;
@@ -155,12 +563,472 @@ begin
 end;
 
 
+function TKMUnitGroup.IsAttackingEnemy: Boolean;
+begin
+  //
+end;
+
+
+function TKMUnitGroup.IsAttackingHouse: Boolean;
+var I: Integer;
+begin
+  Result := False;
+
+  for I := 0 to Count - 1 do
+    if (Members[I].UnitTask <> nil)
+    and (Members[I].UnitTask.TaskName = utn_AttackHouse) then
+    begin
+      Result := True;
+      Exit;
+    end;
+end;
+
+
+function TKMUnitGroup.HitTest(X,Y: Integer): Boolean;
+var I: Integer;
+begin
+  Result := False;
+
+  for I := 0 to Count - 1 do
+  if Members[I].HitTest(X, Y) and not Members[I].IsDead then
+  begin
+    Result := True;
+    Break;
+  end;
+end;
+
+
+procedure TKMUnitGroup.SelectHitTest(X,Y: Integer);
+var
+  U: TKMUnit;
+begin
+  U := fTerrain.UnitsHitTest(X,Y);
+  Assert((U <> nil) and (U is TKMUnitWarrior) and HasMember(TKMUnitWarrior(U)),
+    'Should match with HitTest that selected this group in TKMPlayersCollection.SelectHitTest');
+
+  fSelected := TKMUnitWarrior(U);
+end;
+
+
+procedure TKMUnitGroup.OrderAttackGroup(aGroup: TKMUnitGroup);
+//var I: Integer;
+begin
+  //for I := 0 to Count - 1 do
+  //  Members[I].OrderAttackGroup(aGroup);
+end;
+
+
+//All units are assigned TTaskAttackHouse which does everything for us (move to position, hit house, abandon, etc.)
+procedure TKMUnitGroup.OrderAttackHouse(aHouse: TKMHouse);
+var I: Integer;
+begin
+  fOrder := goAttackUnit;
+  fOrderLoc := KMPointDir(0, 0, dir_NA);
+  SetOrderHouseTarget(aHouse);
+
+  for I := 0 to Count - 1 do
+    Members[I].OrderAttackHouse(aHouse);
+end;
+
+
+procedure TKMUnitGroup.OrderAttackUnit(aUnit: TKMUnit);
+var I: Integer;
+begin
+  fOrder := goAttackUnit;
+  fOrderLoc := KMPointDir(0, 0, dir_NA);
+  SetOrderUnitTarget(aUnit);
+
+  for I := 0 to Count - 1 do
+    Members[I].OrderAttackUnit(aUnit);
+end;
+
+
+//Order some food for troops
+procedure TKMUnitGroup.OrderFood;
+var I: Integer;
+begin
+  for I := 0 to Count - 1 do
+    Members[I].OrderFood;
+
+  OrderHalt;
+end;
+
+
+procedure TKMUnitGroup.OrderFormation(aTurnAmount: TKMTurnDirection; aColumnsChange: ShortInt);
+begin
+  if IsDead then Exit;
+
+  //If it is yet unset - use first members direction
+  if fOrderLoc.Dir = dir_NA then
+    fOrderLoc.Dir := Members[0].Direction;
+
+  case aTurnAmount of
+    tdCW:   fOrderLoc.Dir := KMNextDirection(fOrderLoc.Dir);
+    tdCCW:  fOrderLoc.Dir := KMPrevDirection(fOrderLoc.Dir);
+  end;
+
+  SetUnitsPerRow(Max(fUnitsPerRow + aColumnsChange, 0));
+
+  OrderRepeat;
+end;
+
+
+//Forcefull termination of any activity
+procedure TKMUnitGroup.OrderHalt;
+begin
+  //Halt is not a true order, it is just OrderWalk
+  //hose target depends on previous activity
+  case fOrder of
+    goNone:         OrderWalk(fOrderLoc.Loc);
+    goWalkTo:       OrderWalk(Members[0].NextPosition);
+    goAttackHouse:  OrderWalk(Members[0].NextPosition);
+    goAttackGroup:  OrderWalk(Members[0].NextPosition);
+    goAttackUnit:   OrderWalk(Members[0].NextPosition);
+    goStorm:        OrderWalk(Members[0].NextPosition);
+  end;
+end;
+
+
+procedure TKMUnitGroup.OrderLinkTo(aTargetGroup: TKMUnitGroup);
+begin
+  //Any could have died since the time order was issued due to Net delay
+  if IsDead or aTargetGroup.IsDead then Exit;
+
+  //Only link to same group type
+  if aTargetGroup.GroupType <> GroupType then Exit;
+
+  //Can't link to self for obvious reasons
+  if aTargetGroup = Self then Exit;
+
+  //Move our members and self to the new group
+  while (fMembers.Count <> 0) do
+  begin
+    aTargetGroup.AddMember(Members[0]);
+    Members[0].ReleaseUnitPointer;
+    fMembers.Delete(0);
+  end;
+
+  //In MP commands execution may be delayed, check if we still selected
+  if fPlayers.Selected = Self then
+  begin
+    fPlayers.Selected := aTargetGroup;
+    //What if fSelected died by now
+    if not fSelected.IsDeadOrDying then
+    begin
+      Assert(aTargetGroup.HasMember(fSelected), 'Make sure we joined selected unit');
+      aTargetGroup.fSelected := fSelected;
+    end;
+  end;
+
+  //Repeat targets group order to newly linked members
+  aTargetGroup.OrderRepeat;
+end;
+
+
+procedure TKMUnitGroup.OrderNone;
+var
+  I: Integer;
+begin
+  fOrder := goWalkTo;
+  //fOrderLoc remains old
+  ClearOrderTarget;
+
+  for I := 0 to Count - 1 do
+    Members[I].OrderNone;
+end;
+
+
+//Repeat last order e.g. if new members have joined
+procedure TKMUnitGroup.OrderRepeat;
+begin
+  case fOrder of
+    goNone:         OrderHalt;
+    goWalkTo:       OrderWalk(fOrderLoc.Loc);
+    //goAttackGroup:  OrderAttackGroup(fOrderTargetGroup);
+    goAttackHouse:  OrderAttackHouse(fOrderTargetHouse);
+    goAttackUnit:   OrderAttackUnit(fOrderTargetUnit);
+    goStorm:        ;
+  end;
+end;
+
+
+//Split group in half
+//prefer to split different unit types apart
+procedure TKMUnitGroup.OrderSplit;
+var
+  I, DeletedCount: Integer;
+  NewGroup: TKMUnitGroup;
+  NewCommander: TKMUnitWarrior;
+  MultipleTypes: Boolean;
+begin
+  if IsDead then Exit; //Only commanders have members
+  if Count < 2 then Exit;
+
+  //If there are different unit types in the group, split should just split them first
+  MultipleTypes := False;
+  for I := 1 to Count - 1 do
+    if Members[I].UnitType <> Members[0].UnitType then
+    begin
+      MultipleTypes := True;
+      //New commander is first unit of different type, for simplicity
+      NewCommander := Members[I];
+      Break;
+    end;
+
+  //Choose the new leader (if we haven't already due to multiple types) and remove him from members
+  if not MultipleTypes then
+    NewCommander := Members[(Count div 2) + (Min(fUnitsPerRow, Count div 2) div 2)];
+
+  NewCommander.ReleaseUnitPointer;
+  fMembers.Remove(NewCommander);
+
+  NewGroup := fPlayers[Owner].UnitGroups.AddGroup(NewCommander);
+
+  DeletedCount := 0;
+  for I := 0 to Count - 1 do
+  begin
+    // Either split evenly, or when there are multiple types, split if they are different to the commander (us)
+    if (MultipleTypes and (Members[I - DeletedCount].UnitType <> UnitType))
+    or (not MultipleTypes and (I - DeletedCount > Count div 2)) then
+    begin
+      NewGroup.AddMember(Members[I - DeletedCount]); // Join new group
+      Members[I - DeletedCount].ReleaseUnitPointer;
+      fMembers.Delete(I - DeletedCount); // Leave this group
+      Inc(DeletedCount);
+    end;
+  end;
+
+  //Make sure units per row is still valid for both groups
+  UnitsPerRow := fUnitsPerRow;
+  NewGroup.UnitsPerRow := fUnitsPerRow;
+  NewGroup.fTimeSinceHungryReminder := fTimeSinceHungryReminder; //If we are hungry then don't repeat message each time we split, give new commander our counter
+  //Commander OrderLoc must always be valid, but because this guy wasn't a commander it might not be
+  NewGroup.fOrderLoc := KMPointDir(NewCommander.GetPosition, fOrderLoc.Dir);
+
+  //Tell both groups to to reposition
+  OrderHalt;
+  NewGroup.OrderHalt;
+end;
+
+
+//Splits X number of men from the group and adds them to the new commander
+procedure TKMUnitGroup.OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word);
+var
+  I: Integer;
+begin
+  Assert(aCount < Count); //Not allowed to take the commander, only members (if you want the command too use normal LinkTo)
+
+  //Take units from the end of fMembers
+  for I := fMembers.Count - 1 downto fMembers.Count - aCount do
+  begin
+    aGroup.AddMember(Members[I]);
+    fMembers.Delete(I);
+  end;
+
+  //Make sure units per row is still valid
+  aGroup.SetUnitsPerRow(aGroup.UnitsPerRow);
+
+  //Tell both groups to reposition
+  OrderHalt;
+  aGroup.OrderHalt;
+end;
+
+
+procedure TKMUnitGroup.OrderStorm;
+var I: Integer;
+begin
+  //Don't allow ordering a second storm attack while there is still one active (possible due to network lag)
+  if not CanTakeOrders then Exit;
+
+  fOrder := goStorm;
+  fOrderLoc := KMPointDir(0, 0, dir_NA);
+  ClearOrderTarget;
+
+  //Each next row delayed by few ticks to avoid crowding
+  for I := 0 to Count - 1 do
+    Members[I].OrderStorm(I div fUnitsPerRow);
+end;
+
+
+procedure TKMUnitGroup.OrderWalk(aLoc: TKMPoint; aDir: TKMDirection = dir_NA);
+var
+  I: Integer;
+  NewDir: TKMDirection;
+  NewLoc: TKMPoint;
+  DoesFit: Boolean;
+begin
+  if IsDead then Exit;
+
+  if aDir = dir_NA then
+    if fOrderLoc.Dir = dir_NA then
+      NewDir := Members[0].Direction
+    else
+      NewDir := fOrderLoc.Dir
+  else
+    NewDir := aDir;
+
+  fOrder := goWalkTo;
+  fOrderLoc := KMPointDir(aLoc, NewDir);
+  ClearOrderTarget;
+
+  for I := 0 to Count - 1 do
+  begin
+    //Allow off map positions so GetClosestTile works properly
+    NewLoc := GetPositionInGroup2(aLoc.X, aLoc.Y, NewDir, I, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
+    DoesFit := DoesFit and fTerrain.CheckPassability(NewLoc, CanWalk);
+    Members[I].OrderWalk(KMPointDir(NewLoc, NewDir), DoesFit);
+  end;
+end;
+
+
+function TKMUnitGroup.UnitType: TUnitType;
+begin
+  //todo: Used when playing confirmation sounds.
+  //Maybe we need to pick flag carrier, or strongest unit, or fSelected, or random?
+  Result := Members[0].UnitType;
+end;
+
+
+//Tell the player to feed us if we are hungry
+procedure TKMUnitGroup.UpdateHungerMessage;
+var
+  I: Integer;
+  SomeoneHungry: Boolean;
+begin
+  if IsDead then Exit;
+
+  SomeoneHungry := False;
+  for I := 0 to Count - 1 do
+  begin
+    SomeoneHungry := SomeoneHungry
+                     or ((Members[I].Condition < UNIT_MIN_CONDITION)
+                     and not Members[I].RequestedFood);
+    if SomeoneHungry then Break;
+  end;
+
+  if SomeoneHungry then
+  begin
+    dec(fTimeSinceHungryReminder, HUNGER_CHECK_FREQ);
+    if fTimeSinceHungryReminder < 1 then
+    begin
+      if (Owner = MyPlayer.PlayerIndex) and not fGame.IsReplay then
+        fGame.ShowMessage(mkUnit, fTextLibrary[TX_MSG_TROOP_HUNGRY], Position);
+      fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
+    end;
+  end
+  else
+    fTimeSinceHungryReminder := 0;
+end;
+
+
+procedure TKMUnitGroup.ClearOrderTarget;
+begin
+  //Set fOrderTargets to nil, removing pointer if it's still valid
+  fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
+  fPlayers.CleanUpHousePointer(fOrderTargetHouse);
+end;
+
+
+function TKMUnitGroup.GetOrderUnitTarget: TKMUnit;
+begin
+  //If the target unit has died then clear it
+  if (fOrderTargetUnit <> nil) and fOrderTargetUnit.IsDeadOrDying then ClearOrderTarget;
+  Result := fOrderTargetUnit;
+end;
+
+
+function TKMUnitGroup.GetOrderHouseTarget: TKMHouse;
+begin
+  //If the target house has been destroyed then clear it
+  if (fOrderTargetHouse <> nil) and fOrderTargetHouse.IsDestroyed then ClearOrderTarget;
+  Result := fOrderTargetHouse;
+end;
+
+
+procedure TKMUnitGroup.SetOrderUnitTarget(aUnit: TKMUnit);
+begin
+  //Remove previous value
+  ClearOrderTarget;
+  if aUnit <> nil then
+    fOrderTargetUnit := aUnit.GetUnitPointer; //Else it will be nil from ClearOrderTarget
+end;
+
+
+procedure TKMUnitGroup.SetOrderHouseTarget(aHouse: TKMHouse);
+begin
+  //Remove previous value
+  ClearOrderTarget;
+  if aHouse <> nil then
+    fOrderTargetHouse := aHouse.GetHousePointer; //Else it will be nil from ClearOrderTarget
+end;
+
+
+procedure TKMUnitGroup.UpdateState;
+begin
+  Inc(fTicker);
+
+  if fTicker mod HUNGER_CHECK_FREQ = 0 then
+    UpdateHungerMessage;
+
+  if fTicker mod 11 = 0 then
+    CheckOrderDone;
+end;
+
+
+procedure TKMUnitGroup.Paint;
+var
+  FlagCarrier: TKMUnitWarrior;
+  UnitPos: TKMPointF;
+  FlagColor: Cardinal;
+  FlagStep: Cardinal;
+  I: Integer;
+  NewPos: TKMPoint;
+  DoesFit: Boolean;
+begin
+  if IsDead then Exit;
+
+  FlagCarrier := Members[0]; //
+
+  if not FlagCarrier.Visible then Exit;
+  if FlagCarrier.IsDeadOrDying then Exit;
+
+  UnitPos.X := FlagCarrier.PositionF.X + UNIT_OFF_X + FlagCarrier.GetSlide(ax_X);
+  UnitPos.Y := FlagCarrier.PositionF.Y + UNIT_OFF_Y + FlagCarrier.GetSlide(ax_Y);
+
+  //Highlight selected group
+  FlagColor := IfThen(fPlayers.Selected = Self, $FFFFFFFF, fPlayers[FlagCarrier.Owner].FlagColor);
+
+  //In MapEd units fTicker always the same, use Terrain instead
+  FlagStep := IfThen(fGame.GameMode = gmMapEd, fTerrain.AnimStep, fTicker);
+
+  //Flag needs to be rendered above or below unit depending on direction (see AddUnitFlag)
+
+  if FlagCarrier.Direction in [dir_SE, dir_S, dir_SW, dir_W] then
+    UnitPos.Y := UnitPos.Y - 0.01
+  else
+    UnitPos.Y := UnitPos.Y + 0.01;
+
+  fRenderPool.AddUnitFlag(FlagCarrier.UnitType, FlagCarrier.GetUnitAction.ActionType,
+    FlagCarrier.Direction, FlagCarrier.AnimStep, FlagStep, UnitPos.X, UnitPos.Y,
+    FlagColor);
+
+  //Paint virtual members in MapEd mode
+  for I := 1 to fMapEdCount - 1 do
+  begin
+    NewPos := GetPositionInGroup2(fOrderLoc.Loc.X, fOrderLoc.Loc.Y, fOrderLoc.Dir, I, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
+    if not DoesFit then Continue; //Don't render units that are off the map in the map editor
+    UnitPos.X := NewPos.X + UNIT_OFF_X; //MapEd units don't have sliding
+    UnitPos.Y := NewPos.Y + UNIT_OFF_Y;
+    fRenderPool.AddUnit(FlagCarrier.UnitType, ua_Walk, fOrderLoc.Dir, 0, UnitPos.X, UnitPos.Y, fPlayers[FlagCarrier.Owner].FlagColor, True);
+  end;
+end;
+
+
 { TKMUnitGroups }
-constructor TKMUnitGroups.Create(aOwner: TPlayerIndex);
+constructor TKMUnitGroups.Create;
 begin
   inherited Create;
 
-  fOwner := aOwner;
   fGroups := TList.Create;
 end;
 
@@ -185,23 +1053,144 @@ begin
 end;
 
 
+function TKMUnitGroups.AddGroup(aWarrior: TKMUnitWarrior): TKMUnitGroup;
+begin
+  Result := TKMUnitGroup.Create(fGame.GetNewID, aWarrior);
+  fGroups.Add(Result)
+end;
+
+
 function TKMUnitGroups.AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType;
-  PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word;
-  aMapEditor: Boolean): TKMUnitGroup;
+  PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word): TKMUnitGroup;
 begin
   Result := nil;
 
   Assert(aDir <> dir_NA);
   Assert(aUnitType in [WARRIOR_MIN..WARRIOR_MAX]);
 
-  Result := TKMUnitGroup.Create(aOwner, aUnitType, PosX, PosY, aDir, aUnitPerRow, aUnitCount, aMapEditor);
+  Result := TKMUnitGroup.Create(fGame.GetNewID, aOwner, aUnitType, PosX, PosY, aDir, aUnitPerRow, aUnitCount);
 
   //If group failed to create (e.g. due to being placed on unwalkable position)
   //then its memberCount = 0
-  if Result.Count > 0 then
+  if not Result.IsDead then
     fGroups.Add(Result)
   else
     FreeAndNil(Result);
+end;
+
+
+function TKMUnitGroups.GetGroupByID(aID: Integer): TKMUnitGroup;
+var i:integer;
+begin
+  Result := nil;
+  for i := 0 to Count-1 do
+    if aID = Groups[i].ID then
+    begin
+      Result := Groups[i];
+      exit;
+    end;
+end;
+
+
+function TKMUnitGroups.GetGroupByMember(aUnit: TKMUnitWarrior): TKMUnitGroup;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to Count - 1 do
+    if Groups[I].HasMember(aUnit) then
+    begin
+      Result := Groups[I];
+      Break;
+    end;
+end;
+
+
+procedure TKMUnitGroups.WarriorTrained(aUnit: TKMUnitWarrior);
+var
+  LinkUnit: TKMUnitWarrior;
+  LinkGroup: TKMUnitGroup;
+begin
+  case fPlayers[aUnit.Owner].PlayerType of
+    pt_Human:    begin
+                   LinkUnit := aUnit.FindLinkUnit(aUnit.GetPosition);
+                   if LinkUnit <> nil then
+                   begin
+                     LinkGroup := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
+                     LinkGroup.AddMember(aUnit);
+                   end
+                   else
+                   begin
+                     fGroups.Add(TKMUnitGroup.Create(fGame.GetNewID, aUnit));
+                   end;
+                 end;
+    pt_Computer: fGroups.Add(TKMUnitGroup.Create(fGame.GetNewID, aUnit));
+  end;
+end;
+
+
+function TKMUnitGroups.HitTest(X,Y: Integer): TKMUnitGroup;
+var
+  I: Integer;
+  U: TKMUnit;
+begin
+  Result := nil;
+  U := fTerrain.UnitsHitTest(X,Y);
+  if (U <> nil) and (U is TKMUnitWarrior) then
+  for I := 0 to Count - 1 do
+    if Groups[I].HitTest(X,Y) then
+    begin
+      Result := Groups[I];
+      Break;
+    end;
+end;
+
+
+procedure TKMUnitGroups.Save(SaveStream: TKMemoryStream);
+var I: Integer;
+begin
+  SaveStream.Write('UnitGroups');
+  SaveStream.Write(Count);
+  for I := 0 to Count - 1 do
+    Groups[I].Save(SaveStream);
+end;
+
+
+procedure TKMUnitGroups.Load(LoadStream: TKMemoryStream);
+var
+  I, NewCount: Integer;
+begin
+  LoadStream.ReadAssert('UnitGroups');
+  LoadStream.Read(NewCount);
+  for I := 0 to NewCount - 1 do
+    fGroups.Add(TKMUnitGroup.Create(LoadStream));
+end;
+
+
+procedure TKMUnitGroups.SyncLoad;
+var
+  I: Integer;
+begin
+  for I := 0 to Count - 1 do
+    Groups[I].SyncLoad;
+end;
+
+
+procedure TKMUnitGroups.UpdateState;
+var
+  I: Integer;
+begin
+  for I := 0 to Count - 1 do
+    Groups[I].UpdateState;
+end;
+
+
+procedure TKMUnitGroups.Paint;
+var
+  I: Integer;
+begin
+  for I := 0 to Count - 1 do
+    Groups[I].Paint;
 end;
 
 

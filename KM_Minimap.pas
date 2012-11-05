@@ -49,7 +49,7 @@ type
 
 
 implementation
-uses KM_AIFields, KM_PlayersCollection, KM_Resource, KM_Units, KM_Units_Warrior;
+uses KM_AIFields, KM_PlayersCollection, KM_Resource, KM_Units, KM_Units_Warrior, KM_UnitGroups;
 
 
 { TKMMinimap }
@@ -190,6 +190,7 @@ var
   DoesFit: Boolean;
   Light: Smallint;
   Owner: TPlayerIndex;
+  Group: TKMUnitGroup;
 begin
   if OVERLAY_INFLUENCES then
   begin
@@ -239,15 +240,13 @@ begin
   //Scan all players units and paint all virtual group members in MapEd
   if fIsMapEditor then
     for I := 0 to fPlayers.Count - 1 do
-    for K := 0 to fPlayers[I].Units.Count - 1 do
-    if fPlayers[I].Units[K] is TKMUnitWarrior then
+    for K := 0 to fPlayers[I].UnitGroups.Count - 1 do
     begin
-      W := TKMUnitWarrior(fPlayers[I].Units[K]);
-      for J := 1 to W.fMapEdMembersCount do
+      Group := fPlayers[I].UnitGroups[K];
+      for J := 1 to Group.MapEdCount - 1 do
       begin
-        //GetPositionInGroup2 operates with 1..N terrain, while Minimap uses 0..N-1
-        //hence the +1 -1 fixes
-        P := GetPositionInGroup2(W.GetPosition.X, W.GetPosition.Y, W.Direction, J+1, W.UnitsPerRow, fMapX+1, fMapY+1, DoesFit);
+        //GetPositionInGroup2 operates with 1..N terrain, while Minimap uses 0..N-1, hence the +1 -1 fixes
+        P := GetPositionInGroup2(Group.Position.X, Group.Position.Y, Group.Direction, J, Group.UnitsPerRow, fMapX+1, fMapY+1, DoesFit);
         if not DoesFit then Continue; //Don't render units that are off the map in the map editor
         fBase[(P.Y - 1) * fMapX + P.X - 1] := fPlayers[I].FlagColor;
       end;
