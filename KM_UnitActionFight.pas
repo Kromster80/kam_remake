@@ -166,7 +166,7 @@ begin
 end;
 
 
-function TUnitActionFight.ExecuteValidateOpponent(Step:byte): TActionResult;
+function TUnitActionFight.ExecuteValidateOpponent(Step: Byte): TActionResult;
 begin
   Result := ActContinues;
   //See if Opponent has walked away (i.e. Serf) or died

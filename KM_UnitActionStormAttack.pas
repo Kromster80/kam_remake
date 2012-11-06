@@ -116,7 +116,6 @@ function TUnitActionStormAttack.Execute: TActionResult;
 var
   DX, DY: ShortInt;
   WalkX, WalkY, Distance: Single;
-  FoundEnemy: TKMUnit;
 begin
   if KMSamePoint(fNextPos, KMPoint(0,0)) then
     fNextPos := fUnit.GetPosition; //Set fNextPos to current pos so it initializes on the first run
@@ -153,24 +152,13 @@ begin
     //Begin the next step
     fNextPos := KMPoint(KMGetPointInDir(fUnit.GetPosition, fUnit.Direction));
 
-    Locked := false; //So find enemy works
-    FoundEnemy := TKMUnitWarrior(fUnit).FindEnemy;
     //Action ends if: 1: Used up stamina. 2: There is an enemy to fight. 3: NextPos is an obsticle
-    if (fTileSteps >= fStamina) or (FoundEnemy <> nil) or not fUnit.CanStepTo(fNextPos.X, fNextPos.Y) then
+    if (fTileSteps >= fStamina) or not fUnit.CanStepTo(fNextPos.X, fNextPos.Y) then
     begin
       Result := ActDone; //Finished run
-      //Make it so that when we halt we stay at this new location if we have not been given different order
-      if TKMUnitWarrior(fUnit).GetOrder = woNone then
-        TKMUnitWarrior(fUnit).OrderLocDir := KMPointDir(fUnit.GetPosition, TKMUnitWarrior(fUnit).OrderLocDir.Dir);
-      //Begin the fight right now
-      if FoundEnemy <> nil then
-      begin
-        TKMUnitWarrior(fUnit).FightEnemy(FoundEnemy);
-        Result := ActContinues; //Set result to ActContinues so the new fight action isn't destroyed
-      end;
       Exit; //Must exit right away as we might have changed this action to fight
     end;
-    Locked := True; //Finished using FindEnemy
+
     //Do some house keeping because we have now stepped on a new tile
     fUnit.NextPosition := fNextPos;
     fUnit.Walk(fUnit.PrevPosition, fUnit.NextPosition); //Pre-occupy next tile

@@ -3618,20 +3618,18 @@ begin
     Exit;
   end;
 
-  if (fPlayers.Selected is TKMUnitWarrior) and not fReplay and not HasLostMPGame then
+  if (fPlayers.Selected is TKMUnitGroup) and not fReplay and not HasLostMPGame
+  and (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, false) > 0) then
   begin
-    if (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, false) > 0) then
-    begin
-      U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
-      H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-      if ((U<>nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.Owner) = at_Enemy)) or
-         ((H<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.Owner) = at_Enemy)) then
-        fResource.Cursors.Cursor := kmc_Attack
-      else
-      if not fGame.Viewport.Scrolling then
-        fResource.Cursors.Cursor := kmc_Default;
-      Exit;
-    end;
+    U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
+    H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    if ((U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.Owner) = at_Enemy)) or
+       ((H <> nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.Owner) = at_Enemy)) then
+      fResource.Cursors.Cursor := kmc_Attack
+    else
+    if not fGame.Viewport.Scrolling then
+      fResource.Cursors.Cursor := kmc_Default;
+    Exit;
   end;
 
   if not fGame.Viewport.Scrolling then

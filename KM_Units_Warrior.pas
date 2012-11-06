@@ -4,18 +4,20 @@ interface
 uses Classes, SysUtils, KromUtils, Math,
   KM_CommonClasses, KM_Defaults, KM_Utils, KM_Terrain, KM_Units, KM_Houses, KM_Points;
 
-type
 
+type
   TKMUnitWarrior = class;
   TKMWarriorEvent = procedure(aWarrior: TKMUnitWarrior) of object;
+  TKMWarriorState = (wsNone, wsWalk, wsWalkOut, wsEngage);
 
   //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
   private
     fRequestedFood: Boolean;
 
-    fNewOrder: TWarriorOrder;
-    fOrder: TWarriorOrder;
+    fNewOrder: TWarriorOrder; //New order we should perform as soon as we can change tasks
+    fOrder: TWarriorOrder; //Order we are performing
+    fState: TKMWarriorState; //state we are in
     fOrderLoc: TKMPointDir; //Dir is the direction to face after order
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
@@ -28,6 +30,7 @@ type
     procedure SetOrderTarget(aUnit: TKMUnit);
     function GetOrderTarget: TKMUnit;
     function GetOrderHouseTarget: TKMHouse;
+    procedure SetOrderHouseTarget(aHouse: TKMHouse);
   public
     OnKilled: TKMWarriorEvent;
 
@@ -40,7 +43,6 @@ type
     procedure KillUnit; override;
 
     property RequestedFood: Boolean read fRequestedFood write fRequestedFood; //Cleared by Serf delivering food
-    procedure SetOrderHouseTarget(aHouse: TKMHouse);
 
   //Commands from player
     procedure OrderFood;
@@ -56,7 +58,7 @@ type
     function WithinFightRange(Value: TKMPoint): Boolean;
     property OrderTarget: TKMUnit read GetOrderTarget write SetOrderTarget;
     property OrderLocDir: TKMPointDir read fOrderLoc write fOrderLoc;
-    property GetOrder: TWarriorOrder read fOrder;
+    property GetOrder: TKMWarriorState read fState;
     property UseExactTarget: Boolean read fUseExactTarget;
 
     function IsRanged: Boolean;
@@ -91,6 +93,7 @@ begin
   fRequestedFood     := False;
   fNewOrder          := woNone;
   fOrder             := woNone;
+  fState             := wsNone;
   fOrderLoc          := KMPointDir(PosX, PosY, dir_NA);
 end;
 
@@ -100,6 +103,7 @@ begin
   inherited;
   LoadStream.Read(fNewOrder, SizeOf(fNewOrder));
   LoadStream.Read(fOrder, SizeOf(fOrder));
+  LoadStream.Read(fState, SizeOf(fState));
   LoadStream.Read(fOrderLoc);
   LoadStream.Read(fOrderTargetHouse, 4); //subst on syncload
   LoadStream.Read(fOrderTargetUnit, 4); //subst on syncload
@@ -122,7 +126,7 @@ begin
   fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
   fPlayers.CleanUpHousePointer(fOrderTargetHouse);
   fNewOrder := woNone;
-  fOrder := woNone;
+  fState := wsNone;
   inherited;
 end;
 
@@ -289,14 +293,7 @@ end;
 
 function TKMUnitWarrior.GetActivityText: string;
 begin
-  case fOrder of
-    woNone: ;
-    woWalk: ;
-    woWalkOut: ;
-    woAttackUnit: ;
-    woAttackHouse: ;
-    woStorm: ;
-  end;
+  //case fState of
   Result := '';
   {if fCurrentAction is TUnitActionFight then
   begin
@@ -325,7 +322,7 @@ begin
   Assert(aGoDir = gd_GoOutside, 'Walking inside is not implemented yet');
   Assert(aHouse.HouseType = ht_Barracks, 'Only Barracks so far');
   inherited;
-  fOrder := woWalkOut;
+  fState := wsWalkOut;
 end;
 
 
@@ -348,7 +345,6 @@ begin
 
   fNewOrder := woAttackUnit; //Only commander has order Attack, other units have walk to (this means they walk in formation and not in a straight line meeting the enemy one at a time
   fOrderLoc := KMPointDir(aTargetUnit.GetPosition, fOrderLoc.Dir);
-  SetOrderHouseTarget(nil);
   SetOrderTarget(aTargetUnit);
 
   //Only the commander tracks the target, group members are just told to walk to the position
@@ -386,7 +382,6 @@ end;
 procedure TKMUnitWarrior.OrderAttackHouse(aTargetHouse: TKMHouse);
 begin
   fNewOrder := woAttackHouse;
-  SetOrderTarget(nil);
   SetOrderHouseTarget(aTargetHouse);
 end;
 
@@ -396,6 +391,7 @@ begin
   inherited;
   SaveStream.Write(fNewOrder, SizeOf(fNewOrder));
   SaveStream.Write(fOrder, SizeOf(fOrder));
+  SaveStream.Write(fState, SizeOf(fState));
   SaveStream.Write(fOrderLoc);
   if fOrderTargetHouse <> nil then
     SaveStream.Write(fOrderTargetHouse.ID) //Store ID
@@ -412,7 +408,8 @@ end;
 
 
 function TKMUnitWarrior.CheckForEnemy: Boolean;
-var FoundEnemy: TKMUnit;
+var
+  FoundEnemy: TKMUnit;
 begin
   Result := false; //Didn't find anyone to fight
   FoundEnemy := FindEnemy;
@@ -471,27 +468,25 @@ begin
       FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
   end;
 
-  //Attempt to resume walks/attacks after interuption
+  {//Attempt to resume walks/attacks after interuption
   if (GetUnitAction is TUnitActionWalkTo)
-  and (fOrder = woAttackUnit)
+  and (fState = woAttackUnit)
   and not (aEnemy is TKMUnitWarrior) then
   begin
     if GetOrderTarget <> nil then
       fNewOrder := woAttackUnit
     else
       fNewOrder := woWalk;
-  end;
+  end;}
 
   SetActionFight(ua_Work, aEnemy);
   if aEnemy is TKMUnitWarrior then
-  begin
-    TKMUnitWarrior(aEnemy).CheckForEnemy; //Let opponent know he is attacked
-  end;
+    TKMUnitWarrior(aEnemy).CheckForEnemy; //Let opponent know he is attacked ASAP
 end;
 
 
 { See if we can abandon other actions in favor of more important things }
-function TKMUnitWarrior.CanInterruptAction:boolean;
+function TKMUnitWarrior.CanInterruptAction: Boolean;
 begin
   if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandonExternal and GetUnitAction.StepDone else //Only when unit is idling during Interaction pauses
   if(GetUnitAction is TUnitActionStay) and
@@ -652,7 +647,8 @@ begin
 
 
 
-  if (fTicker mod 5 = 0) then CheckForEnemy; //Split into seperate procedure so it can be called from other places
+  if (fTicker mod 5 = 0) then
+    CheckForEnemy; //Split into seperate procedure so it can be called from other places
 
   Result := True; //Required for override compatibility
   if inherited UpdateState then exit;
