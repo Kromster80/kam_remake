@@ -2798,11 +2798,11 @@ begin
       // START Flatten
       begin
       //Flatten compares heights of mouse click and active tile then it increases/decreases height of active tile
-        if (Land[I,K].Height < Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height) then
-          Tmp := - Min(Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height - Land[I,K].Height, Tmp)
+        if (Land[I,K].Height < Land[Max(trunc(aLoc.Y, 1)), Max(trunc(aLoc.X, 1))].Height) then
+          Tmp := - Min(Land[Max(trunc(aLoc.Y, 1)), Max(trunc(aLoc.X, 1))].Height - Land[I,K].Height, Tmp)
         else
-          if (Land[I,K].Height > Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height) then
-            Tmp := Min(Land[I,K].Height - Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height, Tmp)
+          if (Land[I,K].Height > Land[Max(trunc(aLoc.Y, 1)), Max(trunc(aLoc.X, 1))].Height) then
+            Tmp := Min(Land[I,K].Height - Land[Max(trunc(aLoc.Y, 1)), Max(trunc(aLoc.X, 1))].Height, Tmp)
           else
             Tmp := 0;
       end;
