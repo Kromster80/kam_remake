@@ -8,18 +8,18 @@ uses Classes, SysUtils,
 type
   TTaskAttackHouse = class(TUnitTask)
   private
-    fHouse:TKMHouse;
-    fDestroyingHouse:boolean; //House destruction in progress
-    LocID:byte; //Current attack location
+    fHouse: TKMHouse;
+    fDestroyingHouse: Boolean; //House destruction in progress
+    LocID: Byte; //Current attack location
   public
-    constructor Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
-    constructor Load(LoadStream:TKMemoryStream); override;
+    constructor Create(aWarrior: TKMUnitWarrior; aHouse: TKMHouse);
+    constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
-    property DestroyingHouse:boolean read fDestroyingHouse;
-    function WalkShouldAbandon:boolean; override;
-    function Execute:TTaskResult; override;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    property DestroyingHouse: Boolean read fDestroyingHouse;
+    function WalkShouldAbandon: Boolean; override;
+    function Execute: TTaskResult; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
 

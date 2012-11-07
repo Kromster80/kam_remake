@@ -18,7 +18,7 @@ type
     fNewOrder: TWarriorOrder; //New order we should perform as soon as we can change tasks
     fOrder: TWarriorOrder; //Order we are performing
     fState: TKMWarriorState; //state we are in
-    fOrderLoc: TKMPointDir; //Dir is the direction to face after order
+    fOrderLoc: TKMPoint; //Dir is the direction to face after order
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
     fStormDelay: Word;
@@ -48,20 +48,21 @@ type
     procedure OrderFood;
     procedure OrderNone;
     procedure OrderStorm(aDelay: Word);
-    procedure OrderWalk(aLoc: TKMPointDir; aUseExactTarget: Boolean = True);
-    procedure OrderAttackUnit(aTargetUnit: TKMUnit);
+    procedure OrderWalk(aLoc: TKMPoint; aUseExactTarget: Boolean = True);
     procedure OrderAttackHouse(aTargetHouse: TKMHouse);
+    procedure OrderAttackUnit(aTargetUnit: TKMUnit);
     function OrderDone: Boolean;
 
     function GetFightMinRange: Single;
     function GetFightMaxRange(aTileBased: Boolean = False): Single;
     function WithinFightRange(Value: TKMPoint): Boolean;
     property OrderTarget: TKMUnit read GetOrderTarget write SetOrderTarget;
-    property OrderLocDir: TKMPointDir read fOrderLoc write fOrderLoc;
+    property OrderLoc: TKMPoint read fOrderLoc write fOrderLoc;
     property GetOrder: TKMWarriorState read fState;
     property UseExactTarget: Boolean read fUseExactTarget;
 
     function IsRanged: Boolean;
+    function InFight: Boolean;
     function FindLinkUnit(aLoc: TKMPoint): TKMUnitWarrior;
     function GetActivityText: string; override;
 
@@ -94,7 +95,7 @@ begin
   fNewOrder          := woNone;
   fOrder             := woNone;
   fState             := wsNone;
-  fOrderLoc          := KMPointDir(PosX, PosY, dir_NA);
+  fOrderLoc          := KMPoint(PosX, PosY);
 end;
 
 
@@ -256,6 +257,14 @@ begin
 end;
 
 
+function TKMUnitWarrior.InFight: Boolean;
+begin
+  Result := (GetUnitAction is TUnitActionFight)
+            and (TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior)
+            and not TUnitActionFight(GetUnitAction).GetOpponent.IsDeadOrDying;
+end;
+
+
 function TKMUnitWarrior.IsRanged: Boolean;
 begin
   Result := fResource.UnitDat[fUnitType].FightType = ft_Ranged;
@@ -326,29 +335,12 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.OrderWalk(aLoc: TKMPointDir; aUseExactTarget: Boolean = True);
+procedure TKMUnitWarrior.OrderWalk(aLoc: TKMPoint; aUseExactTarget: Boolean = True);
 begin
-  Assert(aLoc.Dir <> dir_NA);
-
   fNewOrder := woWalk;
   fOrderLoc := aLoc;
   fUseExactTarget := aUseExactTarget;
   ClearOrderTarget;
-end;
-
-
-//Attack works like this: Commander tracks target unit in walk action. Members are ordered to walk to formation with commaner at target unit's location.
-//If target moves in WalkAction, commander will reissue PlaceOrder with aOnlySetMembers = true, so members will walk to new location.
-procedure TKMUnitWarrior.OrderAttackUnit(aTargetUnit: TKMUnit);
-begin
-  //todo: Support archers attacking units that cannot be reached by foot, e.g. ones up on a wall.
-
-  fNewOrder := woAttackUnit; //Only commander has order Attack, other units have walk to (this means they walk in formation and not in a straight line meeting the enemy one at a time
-  fOrderLoc := KMPointDir(aTargetUnit.GetPosition, fOrderLoc.Dir);
-  SetOrderTarget(aTargetUnit);
-
-  //Only the commander tracks the target, group members are just told to walk to the position
-  OrderWalk(KMPointDir(aTargetUnit.GetPosition, fOrderLoc.Dir), True); //Only set members
 end;
 
 
@@ -360,7 +352,7 @@ begin
   case fOrder of
     woNone:         Result := True;
     woWalk:         begin
-                      if not fUseExactTarget or KMSamePoint(GetPosition, fOrderLoc.Loc) then
+                      if not fUseExactTarget or KMSamePoint(GetPosition, fOrderLoc) then
                         Result := True
                       else
                       begin
@@ -383,6 +375,13 @@ procedure TKMUnitWarrior.OrderAttackHouse(aTargetHouse: TKMHouse);
 begin
   fNewOrder := woAttackHouse;
   SetOrderHouseTarget(aTargetHouse);
+end;
+
+
+procedure TKMUnitWarrior.OrderAttackUnit(aTargetUnit: TKMUnit);
+begin
+  fNewOrder := woAttackUnit;
+  SetOrderTarget(aTargetUnit);
 end;
 
 
@@ -572,7 +571,7 @@ begin
                       and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
                       begin
                         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-                        TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, 0, fUseExactTarget);
+                        TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc, 0, fUseExactTarget);
                         fNewOrder := woNone;
                         fOrder := woWalk;
                       end
@@ -581,7 +580,7 @@ begin
                       if CanInterruptAction then
                       begin
                         FreeAndNil(fUnitTask);
-                        SetActionWalkToSpot(fOrderLoc.Loc, ua_Walk, fUseExactTarget);
+                        SetActionWalkToSpot(fOrderLoc, ua_Walk, fUseExactTarget);
                         fNewOrder := woNone;
                         fOrder := woWalk;
                       end;
@@ -623,7 +622,7 @@ begin
                       begin
                         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
                         fUnitTask := TTaskAttackHouse.Create(Self, GetOrderHouseTarget);
-                        fOrderLoc := KMPointDir(GetPosition, fOrderLoc.Dir); //Once the house is destroyed we will position where we are standing
+                        fOrderLoc := GetPosition; //Once the house is destroyed we will position where we are standing
                         fNewOrder := woNone;
                         fOrder := woAttackHouse;
                       end;

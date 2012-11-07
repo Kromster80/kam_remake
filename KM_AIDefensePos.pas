@@ -151,11 +151,11 @@ begin
   //If this group belongs to a defence position and they are too far away we should disassociate
   //them from the defence position so new warriors can take up the defence if needs be
   if (CurrentGroup <> nil)
-  and (CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackGroup, goAttackUnit]))
+  and (CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackUnit]))
   and (KMLengthDiag(Position.Loc, CurrentGroup.Position) > Radius) then
     CurrentGroup := nil;
 
-  if (CurrentGroup = nil) or CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackGroup, goAttackUnit]) then
+  if (CurrentGroup = nil) or CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackUnit]) then
     Exit;
 
   //If they are not already walking and can reach their position, tell them to walk there

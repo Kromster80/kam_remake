@@ -2116,9 +2116,9 @@ begin
     Soldier := TKMUnitWarrior(fPlayers[fOwner].AddUnit(aUnitType,GetEntrance,false,true));
     fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
     Soldier.SetInHouse(Self); //Put him in the barracks, so when it is destroyed he is placed somewhere
-    Soldier.Visible := false; //Make him invisible as he is inside the barracks
-    Soldier.Condition := Round(TROOPS_TRAINED_CONDITION*UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
-    Soldier.OrderLocDir := KMPointDir(KMPointBelow(GetEntrance),dir_N); //Position in front of the barracks facing north
+    Soldier.Visible := False; //Make him invisible as he is inside the barracks
+    Soldier.Condition := Round(TROOPS_TRAINED_CONDITION * UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
+    //Soldier.OrderLoc := KMPointBelow(GetEntrance); //Position in front of the barracks facing north
     Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
   end;
 end;

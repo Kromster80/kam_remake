@@ -12,7 +12,6 @@ type
     goNone,         //Last order was executed and now we have nothing to do
     goWalkTo,       //Ordered to walk somewhere or just change formation
     goAttackHouse,  //Attack house
-    goAttackGroup,  //Pursue and destroy to the last member
     goAttackUnit,   //Attack specific unit
     goStorm         //Run forward
     );
@@ -40,6 +39,7 @@ type
     function GetMember(aIndex: Integer): TKMUnitWarrior;
     function GetNearestMember(aUnit: TKMUnitWarrior): Integer; overload;
     function GetNearestMember(aLoc: TKMPoint): TKMUnitWarrior; overload;
+    function GetRandomMember: TKMUnitWarrior;
     procedure SetUnitsPerRow(aCount: Word);
     function GetOwner: TPlayerIndex;
     procedure SetDirection(Value: TKMDirection);
@@ -94,7 +94,6 @@ type
     property Condition: Integer read GetCondition write SetCondition;
     property Order: TKMGroupOrder read fOrder;
 
-    procedure OrderAttackGroup(aGroup: TKMUnitGroup);
     procedure OrderAttackHouse(aHouse: TKMHouse);
     procedure OrderAttackUnit(aUnit: TKMUnit);
     procedure OrderFood;
@@ -372,6 +371,27 @@ begin
 end;
 
 
+function TKMUnitGroup.GetRandomMember: TKMUnitWarrior;
+var
+  I,K: Integer;
+  Live: array of Word;
+begin
+  Result := nil;
+
+  K := 0;
+  SetLength(Live, Count);
+  for I := 0 to Count - 1 do
+  if not Members[I].IsDeadOrDying then
+  begin
+    Live[K] := I;
+    Inc(K);
+  end;
+
+  if K <> 0 then
+    Result := Members[Live[KaMRandom(K)]];
+end;
+
+
 {Returns self and adds on to the pointer counter}
 function TKMUnitGroup.GetGroupPointer: TKMUnitGroup;
 begin
@@ -521,7 +541,27 @@ procedure TKMUnitGroup.CheckOrderDone;
 var
   I: Integer;
   OrderExecuted: Boolean;
+  U: TKMUnitWarrior;
 begin
+  //If we picked up a fight, while doing any other order - manage it
+  if InFight then
+  begin
+    for I := 0 to Count - 1 do
+    begin
+      //let idle help fellow members
+      if Members[I].IsIdle then
+        //We need to pick one of enemy groups, which could be many and <>fOrderTargetGroup
+        {if fOrderTargetGroup <> nil then
+        begin
+          U := fOrderTargetGroup.GetRandomMember;
+          if U <> nil then
+          Members[I].OrderWalk(U.NextPosition);
+        end
+        else
+          Members[I].OrderWalk(fOrderTargetUnit);}
+    end;
+  end;
+
   case fOrder of
     goNone:         OrderExecuted := False;
     goWalkTo:       begin
@@ -533,34 +573,32 @@ begin
                         //Attempt to execute the order
                         if Members[I].IsIdle and not Members[I].OrderDone then
                           if not InFight then
-                            Members[I].OrderWalk(Members[I].OrderLocDir, Members[I].UseExactTarget)
+                            Members[I].OrderWalk(Members[I].OrderLoc, Members[I].UseExactTarget)
                           else
                             //todo: OrderFight?
                       end;
                     end;
     goAttackHouse:  OrderExecuted := False;
-    goAttackGroup:  OrderExecuted := False;
     goAttackUnit:   begin
-                      OrderExecuted := fOrderTargetUnit.IsDeadOrDying;
+                      if IsRanged then
+                      begin
+                        //Do nothing, CheckForEnemy will attack all the units within range
+                        OrderExecuted := fOrderTargetUnit.IsDeadOrDying;
 
-                      if OrderExecuted then
-                        if IsRanged then
-                        begin
-                          //Do nothing, CheckForEnemy will attack all the units within range
-                        end
-                        else
-                        begin
-                          if fOrderTargetGroup <> nil then
-                          begin
-                            //Pick closest member of same group and attack it
-                            //for I := 0 to Count - 1 do
-                            //if Members[I].IsIdle and not fOrderTargetGroup.IsDead then
-                              //todo: Members[I].OrderAttackUnit(fOrderTargetGroup.GetNearestMember(Members[I].GetPosition));
+                        if not OrderExecuted
+                        and not KMSamePoint(fOrderLoc.Loc, fOrderTargetUnit.NextPosition) then
+                          OrderAttackUnit(fOrderTargetUnit);
+                      end
+                      else
+                      begin
+                        OrderExecuted := ((fOrderTargetGroup = nil) and fOrderTargetUnit.IsDeadOrDying)
+                                       or (fOrderTargetGroup <> nil) and fOrderTargetGroup.IsDead;
 
-
-                          end;
-                        end;
-
+                        //If not - walk to Enemy
+                        if not OrderExecuted
+                        and not KMSamePoint(fOrderLoc.Loc, fOrderTargetUnit.NextPosition) then
+                          OrderAttackUnit(fOrderTargetUnit);
+                      end;
                     end;
     goStorm:        OrderExecuted := False;
   end;
@@ -583,13 +621,11 @@ begin
   Result := False;
 
   for I := 0 to Count - 1 do
-    if (Members[I].GetUnitAction is TUnitActionFight)
-    and (TUnitActionFight(Members[I].GetUnitAction).GetOpponent is TKMUnitWarrior)
-    and not TUnitActionFight(Members[I].GetUnitAction).GetOpponent.IsDeadOrDying then
-    begin
-      Result := True;
-      Exit;
-    end;
+  if Members[I].InFight then
+  begin
+    Result := True;
+    Exit;
+  end;
 end;
 
 
@@ -640,14 +676,6 @@ begin
 end;
 
 
-procedure TKMUnitGroup.OrderAttackGroup(aGroup: TKMUnitGroup);
-//var I: Integer;
-begin
-  //for I := 0 to Count - 1 do
-  //  Members[I].OrderAttackGroup(aGroup);
-end;
-
-
 //All units are assigned TTaskAttackHouse which does everything for us (move to position, hit house, abandon, etc.)
 procedure TKMUnitGroup.OrderAttackHouse(aHouse: TKMHouse);
 var I: Integer;
@@ -662,13 +690,29 @@ end;
 
 
 procedure TKMUnitGroup.OrderAttackUnit(aUnit: TKMUnit);
+var I: Integer;
 begin
-  //Walk in formation towards enemy
-  OrderWalk(aUnit.NextPosition);
+  if IsRanged then
+  begin
+    for I := 0 to Count - 1 do
+    if KMLengthSqr(Members[I].NextPosition, aUnit.NextPosition) > Members[I].GetFightMaxRange then
+      Members[I].OrderWalk(aUnit.NextPosition)
+    else
+    if KMLengthSqr(Members[I].NextPosition, aUnit.NextPosition) < Members[I].GetFightMinRange then
+      //Stay idle?
+    else
+      Members[I].OrderAttackUnit(aUnit);
+  end
+  else
+  begin
+    //Walk in formation towards enemy,
+    //Members will take care of attack when we approach
+    OrderWalk(aUnit.NextPosition);
+  end;
 
   //Update Order
   fOrder := goAttackUnit;
-  fOrderLoc := KMPointDir(0, 0, dir_NA);
+  fOrderLoc := KMPointDir(aUnit.NextPosition, dir_NA); //Remember where unit stand
   SetOrderUnitTarget(aUnit);
 end;
 
@@ -712,7 +756,6 @@ begin
     goNone:         OrderWalk(fOrderLoc.Loc);
     goWalkTo:       OrderWalk(Members[0].NextPosition);
     goAttackHouse:  OrderWalk(Members[0].NextPosition);
-    goAttackGroup:  OrderWalk(Members[0].NextPosition);
     goAttackUnit:   OrderWalk(Members[0].NextPosition);
     goStorm:        OrderWalk(Members[0].NextPosition);
   end;
@@ -774,7 +817,6 @@ begin
   case fOrder of
     goNone:         OrderHalt;
     goWalkTo:       OrderWalk(fOrderLoc.Loc);
-    //goAttackGroup:  OrderAttackGroup(fOrderTargetGroup);
     goAttackHouse:  OrderAttackHouse(fOrderTargetHouse);
     goAttackUnit:   OrderAttackUnit(fOrderTargetUnit);
     goStorm:        ;
@@ -906,7 +948,7 @@ begin
     //Allow off map positions so GetClosestTile works properly
     NewLoc := GetPositionInGroup2(aLoc.X, aLoc.Y, NewDir, I, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
     DoesFit := DoesFit and fTerrain.CheckPassability(NewLoc, CanWalk);
-    Members[I].OrderWalk(KMPointDir(NewLoc, NewDir), DoesFit);
+    Members[I].OrderWalk(NewLoc, DoesFit);
   end;
 end;
 
