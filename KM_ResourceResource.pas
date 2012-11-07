@@ -31,6 +31,7 @@ type
     constructor Create;
     destructor Destroy; override;
     property Resources[aIndex: TResourceType]: TKMResourceDat read GetResource; default;
+    procedure ExportCostsTable(const aFilename: string);
   end;
 
 
@@ -74,6 +75,21 @@ begin
   for i:=Low(TResourceType) to High(TResourceType) do
     fList[i].Free;
   inherited;
+end;
+
+
+procedure TKMResourceCollection.ExportCostsTable(const aFilename: string);
+var
+  SL: TStringList;
+  i:TResourceType;
+begin
+  SL := TStringList.Create;
+
+  for i:=Low(TResourceType) to High(TResourceType) do
+    SL.Add(fList[i].GetTitle+#9+#9+FloatToStr(fList[i].fMarketPrice));
+
+  SL.SaveToFile(aFilename);
+  SL.Free;
 end;
 
 

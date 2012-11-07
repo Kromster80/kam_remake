@@ -87,6 +87,7 @@ type
     Label5: TLabel;
     Label6: TLabel;
     chkShowDefences: TCheckBox;
+    ResourceValues1: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -142,6 +143,7 @@ type
     procedure tbOwnMarginChange(Sender: TObject);
     procedure tbOwnThreshChange(Sender: TObject);
     procedure chkShowDefencesClick(Sender: TObject);
+    procedure ResourceValues1Click(Sender: TObject);
   private
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
@@ -691,6 +693,12 @@ begin
     s := s + IntToStr(i) + eol + fPlayers[i].AI.Attacks.GetAsText + eol;
 
   ShowMessage(s);
+end;
+
+
+procedure TFormMain.ResourceValues1Click(Sender: TObject);
+begin
+  fResource.Resources.ExportCostsTable('ResourceValues.txt');
 end;
 
 

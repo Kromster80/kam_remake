@@ -440,6 +440,10 @@ object FormMain: TFormMain
       object N2: TMenuItem
         Caption = '-'
       end
+      object ResourceValues1: TMenuItem
+        Caption = 'Resource Values'
+        OnClick = ResourceValues1Click
+      end
       object Export_Deliverlists1: TMenuItem
         Caption = 'Export Deliver lists'
         OnClick = Export_Deliverlists1Click
