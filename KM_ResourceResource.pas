@@ -85,7 +85,7 @@ var
 begin
   SL := TStringList.Create;
 
-  for i:=Low(TResourceType) to High(TResourceType) do
+  for i:=WARE_MIN to WARE_MAX do
     SL.Add(fList[i].GetTitle+#9+#9+FloatToStr(fList[i].fMarketPrice));
 
   SL.SaveToFile(aFilename);
@@ -95,39 +95,41 @@ end;
 
 procedure TKMResourceCollection.CalculateCostsTable;
 const
-  NonRenewableFactor = 2;
-  ProcessingCost = 1;
+  NON_RENEW = 1.25; //Non-renewable resources are +50% more valuable than renewable ones
+  TREE_ADDN = 0.25; //Trees require a large area (e.g. compared to corn)
+  WINE_ADDN = 0.1; //Wine takes extra wood to build
+  ORE_ADDN = 0.2; //You can only build a few iron/gold mines on most maps (compared to coal)
 begin
   //Take advantage of the fact that we have both classes in same unit
   //and assign to private field directly
-  Resources[rt_Trunk      ].fMarketPrice := 1;
-  Resources[rt_Stone      ].fMarketPrice := (1/3)*NonRenewableFactor;
-  Resources[rt_Wood       ].fMarketPrice := (1/2)*(ProcessingCost + Resources[rt_Trunk].MarketPrice);
-  Resources[rt_IronOre    ].fMarketPrice := 1*NonRenewableFactor;
-  Resources[rt_GoldOre    ].fMarketPrice := 1*NonRenewableFactor;
-  Resources[rt_Coal       ].fMarketPrice := 1*NonRenewableFactor;
-  Resources[rt_Steel      ].fMarketPrice := ProcessingCost + Resources[rt_IronOre].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Gold       ].fMarketPrice := (1/2)*(ProcessingCost + Resources[rt_GoldOre].MarketPrice + Resources[rt_Coal].MarketPrice);
-  Resources[rt_Wine       ].fMarketPrice := 1;
-  Resources[rt_Corn       ].fMarketPrice := 1;
-  Resources[rt_Flour      ].fMarketPrice := ProcessingCost + Resources[rt_Corn].MarketPrice;
-  Resources[rt_Bread      ].fMarketPrice := (1/2)*(ProcessingCost + Resources[rt_Flour].MarketPrice);
-  Resources[rt_Pig        ].fMarketPrice := (1/2)*4*(ProcessingCost + Resources[rt_Corn].MarketPrice); //1/2 because two products are made simultaneously
-  Resources[rt_Skin       ].fMarketPrice := (1/2)*4*(ProcessingCost + Resources[rt_Corn].MarketPrice); //1/2 because two products are made simultaneously
-  Resources[rt_Leather    ].fMarketPrice := (1/2)*(ProcessingCost + Resources[rt_Skin].MarketPrice);
-  Resources[rt_Sausages   ].fMarketPrice := (1/3)*(ProcessingCost + Resources[rt_Pig].MarketPrice);
-  Resources[rt_Shield     ].fMarketPrice := ProcessingCost + Resources[rt_Wood].MarketPrice;
-  Resources[rt_MetalShield].fMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Armor      ].fMarketPrice := ProcessingCost + Resources[rt_Leather].MarketPrice;
-  Resources[rt_MetalArmor ].fMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Axe        ].fMarketPrice := ProcessingCost + 2*Resources[rt_Wood].MarketPrice;
-  Resources[rt_Sword      ].fMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Pike       ].fMarketPrice := ProcessingCost + 2*Resources[rt_Wood].MarketPrice;
-  Resources[rt_Hallebard  ].fMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Bow        ].fMarketPrice := ProcessingCost + 2*Resources[rt_Wood].MarketPrice;
-  Resources[rt_Arbalet    ].fMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Horse      ].fMarketPrice := ProcessingCost + 4*Resources[rt_Corn].MarketPrice;
-  Resources[rt_Fish       ].fMarketPrice := (1/2)*NonRenewableFactor + 0.5; //+0.5 because Fishing is very slow
+  Resources[rt_Trunk      ].fMarketPrice := (1/ProductionRate[rt_Trunk]) + TREE_ADDN;
+  Resources[rt_Stone      ].fMarketPrice := NON_RENEW*(1/ProductionRate[rt_Stone]);
+  Resources[rt_Wood       ].fMarketPrice := (1/ProductionRate[rt_Wood]) + (1/2)*Resources[rt_Trunk].MarketPrice;
+  Resources[rt_IronOre    ].fMarketPrice := NON_RENEW*(1/ProductionRate[rt_IronOre]) + ORE_ADDN;
+  Resources[rt_GoldOre    ].fMarketPrice := NON_RENEW*(1/ProductionRate[rt_GoldOre]) + ORE_ADDN;
+  Resources[rt_Coal       ].fMarketPrice := NON_RENEW*(1/ProductionRate[rt_Coal]);
+  Resources[rt_Steel      ].fMarketPrice := (1/ProductionRate[rt_Steel]) + Resources[rt_IronOre].MarketPrice + Resources[rt_Coal].MarketPrice;
+  Resources[rt_Gold       ].fMarketPrice := (1/ProductionRate[rt_Gold]) + (1/2)*(Resources[rt_GoldOre].MarketPrice + Resources[rt_Coal].MarketPrice);
+  Resources[rt_Wine       ].fMarketPrice := (1/ProductionRate[rt_Wine]) + WINE_ADDN;
+  Resources[rt_Corn       ].fMarketPrice := (1/ProductionRate[rt_Corn]);
+  Resources[rt_Flour      ].fMarketPrice := (1/ProductionRate[rt_Flour]) + Resources[rt_Corn].MarketPrice;
+  Resources[rt_Bread      ].fMarketPrice := (1/ProductionRate[rt_Bread]) + (1/2)*Resources[rt_Flour].MarketPrice;
+  Resources[rt_Pig        ].fMarketPrice := (1/ProductionRate[rt_Pig]) + (1/2)*4*Resources[rt_Corn].MarketPrice; //1/2 because two products are made simultaneously
+  Resources[rt_Skin       ].fMarketPrice := (1/ProductionRate[rt_Skin]) + (1/2)*4*Resources[rt_Corn].MarketPrice; //1/2 because two products are made simultaneously
+  Resources[rt_Leather    ].fMarketPrice := (1/ProductionRate[rt_Leather]) + (1/2)*Resources[rt_Skin].MarketPrice;
+  Resources[rt_Sausages   ].fMarketPrice := (1/ProductionRate[rt_Sausages]) + (1/3)*Resources[rt_Pig].MarketPrice;
+  Resources[rt_Shield     ].fMarketPrice := (1/ProductionRate[rt_Shield]) + Resources[rt_Wood].MarketPrice;
+  Resources[rt_MetalShield].fMarketPrice := (1/ProductionRate[rt_MetalShield]) + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
+  Resources[rt_Armor      ].fMarketPrice := (1/ProductionRate[rt_Armor]) + Resources[rt_Leather].MarketPrice;
+  Resources[rt_MetalArmor ].fMarketPrice := (1/ProductionRate[rt_MetalArmor]) + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
+  Resources[rt_Axe        ].fMarketPrice := (1/ProductionRate[rt_Axe]) + 2*Resources[rt_Wood].MarketPrice;
+  Resources[rt_Sword      ].fMarketPrice := (1/ProductionRate[rt_Sword]) + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
+  Resources[rt_Pike       ].fMarketPrice := (1/ProductionRate[rt_Pike]) + 2*Resources[rt_Wood].MarketPrice;
+  Resources[rt_Hallebard  ].fMarketPrice := (1/ProductionRate[rt_Hallebard]) + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
+  Resources[rt_Bow        ].fMarketPrice := (1/ProductionRate[rt_Bow]) + 2*Resources[rt_Wood].MarketPrice;
+  Resources[rt_Arbalet    ].fMarketPrice := (1/ProductionRate[rt_Arbalet]) + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
+  Resources[rt_Horse      ].fMarketPrice := (1/ProductionRate[rt_Horse]) + 4*Resources[rt_Corn].MarketPrice;
+  Resources[rt_Fish       ].fMarketPrice := NON_RENEW*(1/ProductionRate[rt_Fish]);
 end;
 
 

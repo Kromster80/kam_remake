@@ -34,6 +34,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		KaM Launcher that will do automatic game client updates
 		Allow to mute certain players in lobby/game
 			Krom: Sounds like half-measure against trolls
+		Add "plant-only" option to the woodcutter, useful if the woodcutter has some trees but you don't need them cut yet, also for getting your woodcutters in different phases so they are not all choppping/planting in sync (less efficient)
 
 REJECTED:
  -	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
