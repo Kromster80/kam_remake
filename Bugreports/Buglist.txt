@@ -1,11 +1,6 @@
 ﻿Since r4001:
 <===================================================================================>
- +	Belarusian letter Ў had upper and lower case swapped in fonts
- +	Intel 965/963 GPU does not comply with OGL 1.5 spec on VBOs, check Assigned instead of OGL version
- +	Taking weapons from store>barracks should not be a lower priority than house>house deliveries
  +	Make Serfs face the house plan entrance when handing building materials to it
- +	Network latency in KaM Remake was always far higher than necessary due to Nagle's algorithm being enabled by default for TCP (we now use TCP_NODELAY)
- +	A unit should not take a home that he can't walk to
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -40,13 +35,6 @@
 Improvements:
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
- +	The map editor shows the number of fish in a water body like other resource deposits
- +	Holding shift while placing a house keeps the house selected instead of changing to road
- +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
- +      Map editor has speed slider along with size and slope
- +	If woodcutter is in "chop only" mode and he runs out of trees, send the player a message like other resource depleted messages
- +	Make hints more visible with background
- +	Number of building materials delivered to an under construction house is shown when it is selected
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
 	L	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	L	The story message on campaign map should fade when you move mouse over it, without jumping
@@ -109,6 +97,28 @@ Improvements:
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
  - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
  -	Many texts will not change if I change the language in options menu (we are always working on it)
+
+
+
+Fixed in r41XX:
+<===================================================================================>
+ +	Belarusian letter Ў had upper and lower case swapped in fonts
+ +	Intel 965/963 GPU does not comply with OGL 1.5 spec on VBOs, check Assigned instead of OGL version
+ +	Taking weapons from store>barracks should not be a lower priority than house>house deliveries
+ +	Network latency in KaM Remake was always far higher than necessary due to Nagle's algorithm being enabled by default for TCP (we now use TCP_NODELAY)
+ +	A unit should not take a home that he can't walk to
+ +	TSK 5 some purple scouts would sit in the top right corner and not attack
+ +	Fixed crashes related to TimeGet/GetTickCount overflowing
+
+
+Improvements:
+ +	The map editor shows the number of fish in a water body like other resource deposits
+ +	Make hints more visible with background
+ +	Number of building materials delivered to an under construction house is shown when it is selected
+ +	Holding shift while placing a house keeps the house selected instead of changing to road
+ +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
+ +	Map editor has speed slider along with size and slope
+ +	Marketplace trade values have been significantly changed
 
 
 
