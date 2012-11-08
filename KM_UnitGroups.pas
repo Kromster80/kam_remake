@@ -290,6 +290,7 @@ end;
 destructor TKMUnitGroup.Destroy;
 begin
   fMembers.Free;
+  fFoes.Free;
 
   inherited;
 end;
@@ -486,7 +487,7 @@ end;
 procedure TKMUnitGroup.SetUnitsPerRow(aCount: Word);
 begin
   if fGame.IsMapEditor then
-    fUnitsPerRow := Max(aCount, 1)
+    fUnitsPerRow := EnsureRange(aCount, 1, fMapEdCount)
   else
     fUnitsPerRow := EnsureRange(aCount, 1, Count);
 end;
