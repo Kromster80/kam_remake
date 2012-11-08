@@ -793,6 +793,7 @@ begin
 
   MapName := TKMapsCollection.FullPath(aMissionName, '.map', aMultiplayer);
   ForceDirectories(ExtractFilePath(MapName));
+  fLog.AppendLog('Saving from map editor: '+MapName);
 
   fTerrain.SaveToFile(MapName);
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
@@ -983,7 +984,7 @@ var
   i, NetIndex: integer;
   s: string;
 begin
-  fLog.AppendLog('Saving game');
+  fLog.AppendLog('Saving game: '+aPathName);
 
   if fGameMode in [gmMapEd, gmReplaySingle, gmReplayMulti] then
   begin
