@@ -1,7 +1,7 @@
 unit KM_NetServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KM_CommonClasses, KM_NetworkTypes, KM_Defaults
+uses Classes, SysUtils, Math, KM_CommonClasses, KM_NetworkTypes, KM_Defaults, KM_Utils
      {$IFDEF MSWindows} ,Windows {$ENDIF}
      {$IFDEF WDC} ,KM_NetServerOverbyte {$ENDIF}
      {$IFDEF FPC} ,KM_NetServerLNet {$ENDIF}
@@ -123,9 +123,6 @@ type
 
 
 implementation
-{$IFDEF Unix}
-uses KM_Utils; //Needed in Linux for FakeGetTickCount
-{$ENDIF}
 
 
 { TKMServerClient }
@@ -283,8 +280,7 @@ end;
 procedure TKMNetServer.MeasurePings;
 var M:TKMemoryStream; i: integer; TickCount:DWord;
 begin
-  TickCount := {$IFDEF MSWindows}GetTickCount{$ENDIF}
-               {$IFDEF Unix} FakeGetTickCount{$ENDIF};
+  TickCount := TimeGet;
   //Sends current ping info to everyone
   M := TKMemoryStream.Create;
   M.Write(fClientList.Count);
@@ -304,7 +300,7 @@ begin
     end
     else
       //If they don't respond within a reasonable time, kick them
-      if TickCount-fClientList[i].fPingStarted > fKickTimeout*1000 then
+      if GetTimeSince(fClientList[i].fPingStarted) > fKickTimeout*1000 then
       begin
         Status('Client timed out '+inttostr(fClientList[i].fHandle));
         SendMessage(fClientList[i].fHandle, mk_Kicked, 0, 'Disconnected by the server: Timeout detected');
@@ -543,9 +539,7 @@ begin
             begin
              if (fClientList.GetByHandle(aSenderHandle).fPingStarted <> 0) then
              begin
-               fClientList.GetByHandle(aSenderHandle).Ping := Math.Min({$IFDEF MSWindows}GetTickCount{$ENDIF}
-                                                                       {$IFDEF Unix} FakeGetTickCount{$ENDIF}
-                                                                       - fClientList.GetByHandle(aSenderHandle).fPingStarted, High(Word));
+               fClientList.GetByHandle(aSenderHandle).Ping := Math.Min(GetTimeSince(fClientList.GetByHandle(aSenderHandle).fPingStarted), High(Word));
                fClientList.GetByHandle(aSenderHandle).fPingStarted := 0;
              end;
             end;

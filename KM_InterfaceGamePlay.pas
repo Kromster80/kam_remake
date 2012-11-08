@@ -3080,7 +3080,7 @@ begin
       if fNetWaitDropPlayersDelayStarted = 0 then
       begin
         Label_NetDropPlayersDelay.Caption := '';
-        fNetWaitDropPlayersDelayStarted := GetTickCount; //Initialise it
+        fNetWaitDropPlayersDelayStarted := TimeGet; //Initialise it
         Button_NetDropPlayers.Disable; //Must wait the minimum time before enabling it
       end;
   end;
@@ -3923,7 +3923,7 @@ begin
       Label_NetDropPlayersDelay.Caption := ''
     else
     begin
-      i := NET_DROP_PLAYER_MIN_WAIT - EnsureRange((GetTickCount-fNetWaitDropPlayersDelayStarted) div 1000, 0, NET_DROP_PLAYER_MIN_WAIT);
+      i := NET_DROP_PLAYER_MIN_WAIT - EnsureRange(GetTimeSince(fNetWaitDropPlayersDelayStarted) div 1000, 0, NET_DROP_PLAYER_MIN_WAIT);
       if i > 0 then
         Label_NetDropPlayersDelay.Caption := Format(fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_DELAY], [i])
       else

@@ -70,7 +70,7 @@ type
 
 
 implementation
-uses KM_Log;
+uses KM_Log, KM_Utils;
 
 const FADE_TIME = 2000; //Time that a fade takes to occur in ms
 
@@ -379,7 +379,7 @@ procedure TMusicLib.FadeMusic;
 begin
   if (not IsMusicInitialized) then exit;
   fFadeState := fsFadeOut; //Fade it out
-  fFadeStarted := GetTickCount;
+  fFadeStarted := TimeGet;
   {$IFDEF USELIBZPLAY}
   ZPlayer.GetPosition(StartTime);
   EndTime.ms := StartTime.ms + FADE_TIME;
@@ -401,7 +401,7 @@ var
 begin
   if (not IsMusicInitialized) then exit;
   fFadeState := fsFadeIn; //Fade it in
-  fFadeStarted := GetTickCount;
+  fFadeStarted := TimeGet;
   {$IFDEF USELIBZPLAY}
   //LibZPlay has a nice SlideVolume function we can use
   ZPlayer.ResumePlayback; //Music may have been paused due to fade out
@@ -423,7 +423,7 @@ begin
 
   if fFadeState in [fsFadeIn, fsFadeOut] then
   begin
-    if GetTickCount - fFadeStarted > FADE_TIME then
+    if GetTimeSince(fFadeStarted) > FADE_TIME then
     begin
       if fFadeState = fsFadeOut then //Fade out is complete so pause the music
       begin
@@ -434,7 +434,7 @@ begin
       if fFadeState = fsFadeIn then fFadeState := fsNone;
     end;
     //Start playback of other file half way through the fade
-    if (fFadeState = fsFadeOut) and (GetTickCount - fFadeStarted > FADE_TIME div 2)
+    if (fFadeState = fsFadeOut) and (GetTimeSince(fFadeStarted) > FADE_TIME div 2)
     and (fToPlayAfterFade <> '') then
     begin
       fFadedToPlayOther := True;

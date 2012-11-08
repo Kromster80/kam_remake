@@ -199,7 +199,7 @@ var
 
 
 implementation
-uses KM_CommonClasses, KM_RenderAux, KM_Log, KM_Locales;
+uses KM_CommonClasses, KM_RenderAux, KM_Log, KM_Locales, KM_Utils;
 
 
 const
@@ -647,7 +647,7 @@ begin
     fSound[FreeBuf].Name := ExtractFileName(aFile);
   fSound[FreeBuf].Position := Loc;
   fSound[FreeBuf].Duration := WAVDuration;
-  fSound[FreeBuf].PlaySince := GetTickCount;
+  fSound[FreeBuf].PlaySince := TimeGet;
   fSound[FreeBuf].FadesMusic := FadeMusic;
 end;
 
@@ -745,7 +745,7 @@ var I: Integer;
 begin
   Result := 0;
   for I := 1 to MAX_SOUNDS do
-  if (fSound[I].PlaySince <> 0) and (fSound[I].PlaySince + fSound[I].Duration > GetTickCount) then
+  if (fSound[I].PlaySince <> 0) and (GetTimeSince(fSound[I].PlaySince) < fSound[I].Duration) then
     Inc(Result)
   else
     fSound[I].PlaySince := 0;
@@ -757,7 +757,7 @@ var I: Integer;
 begin
   fRenderAux.CircleOnTerrain(fListener.Pos[1], fListener.Pos[2], MAX_DISTANCE, $00000000, $FFFFFFFF);
   for I := 1 to MAX_SOUNDS do
-  if (fSound[I].PlaySince <> 0) and (fSound[I].PlaySince + fSound[I].Duration > GetTickCount) then
+  if (fSound[I].PlaySince <> 0) and (GetTimeSince(fSound[I].PlaySince) < fSound[I].Duration) then
   begin
     fRenderAux.CircleOnTerrain(fSound[I].Position.X, fSound[I].Position.Y, 5, $4000FFFF, $FFFFFFFF);
     fRenderAux.Text(Round(fSound[I].Position.X), Round(fSound[I].Position.Y), fSound[I].Name, $FFFFFFFF);
@@ -776,7 +776,7 @@ begin
     if fSound[I].FadesMusic then
     begin
       FoundFaded := true;
-      if (fSound[I].PlaySince <> 0) and (fSound[I].PlaySince + fSound[I].Duration > GetTickCount) then
+      if (fSound[I].PlaySince <> 0) and (GetTimeSince(fSound[I].PlaySince) < fSound[I].Duration) then
         Exit //There is still a faded sound playing
       else
         fSound[I].FadesMusic := False; //Make sure we don't resume more than once for this sound

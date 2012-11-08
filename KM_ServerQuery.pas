@@ -272,7 +272,7 @@ procedure TKMQuery.PerformQuery(aAddress, aPort:string; aServerID:integer);
 begin
   fQueryActive := true;
   fServerID := aServerID;
-  fQueryStarted := GetTickCount;
+  fQueryStarted := TimeGet;
   fNetClient.Disconnect;
   fNetClient.OnRecieveData := NetClientReceive;
   fNetClient.ConnectTo(aAddress,aPort);
@@ -290,7 +290,7 @@ procedure TKMQuery.UpdateStateIdle;
 begin
   if not fQueryActive then exit;
   fNetClient.UpdateStateIdle;
-  if GetTickCount-fQueryStarted > QUERY_TIMEOUT then
+  if GetTimeSince(fQueryStarted) > QUERY_TIMEOUT then
     fQueryIsDone := true; //Give up
   if fQueryIsDone then
   begin
@@ -328,7 +328,7 @@ begin
     mk_IndexOnServer:
     begin
       fIndexOnServer := Param;
-      fPingStarted := GetTickCount;
+      fPingStarted := TimeGet;
       PacketSend(NET_ADDRESS_SERVER, mk_GetServerInfo, '', 0);
     end;
 
@@ -422,7 +422,7 @@ begin
   M := TKMemoryStream.Create;
   M.WriteAsText(aData);
   fRoomList.LoadData(aServerID, M); //Tell RoomsList to load data about rooms
-  fServerList.SetPing(aServerID, GetTickCount - aPingStarted); //Tell ServersList ping
+  fServerList.SetPing(aServerID, GetTimeSince(aPingStarted)); //Tell ServersList ping
   M.Free;
   Sort; //Apply sorting
   if Assigned(fOnListUpdated) then fOnListUpdated(Self);

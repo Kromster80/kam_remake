@@ -37,7 +37,7 @@ type
 
 
 implementation
-{$IFDEF Unix} uses KM_Utils; {$ENDIF} //Needed in Linux for FakeGetTickCount
+uses KM_Utils;
 
   //Enforce a minimum so our master server doesn't get spammed
   const MINIMUM_ANNOUNCE_INTERVAL = 180;
@@ -88,24 +88,21 @@ end;
 
 
 procedure TKMDedicatedServer.UpdateState;
-var TickCount:DWord;
+var TickCount:Cardinal;
 begin
   fNetServer.UpdateStateIdle;
   fMasterServer.UpdateStateIdle;
 
   if not fNetServer.Listening then Exit; //Do not measure pings or announce the server if we are not listening
 
-  TickCount := {$IFDEF MSWindows}GetTickCount{$ENDIF}
-               {$IFDEF Unix} FakeGetTickCount{$ENDIF};
-  //They must be cast as Int64 otherwise it crashes when TickCount > fLastPing with "Integer Overflow"
-  if abs(Int64(TickCount)-Int64(fLastPing)) >= fPingInterval then
+  TickCount := TimeGet;
+  if GetTimeSince(fLastPing) >= fPingInterval then
   begin
     fNetServer.MeasurePings;
     fLastPing := TickCount;
   end;
 
-  //They must be cast as Int64 otherwise it crashes when TickCount > fLastPing with "Integer Overflow"
-  if fPublishServer and (abs(Int64(TickCount)-Int64(fLastAnnounce)) >= fAnnounceInterval*1000) then
+  if fPublishServer and (GetTimeSince(fLastAnnounce) >= fAnnounceInterval*1000) then
   begin
     fMasterServer.AnnounceServer(fServerName,fPort,fNetServer.GetPlayerCount,fAnnounceInterval+20);
     fLastAnnounce := TickCount;

@@ -207,7 +207,7 @@ begin
 
   //Counting FPS
   begin
-    FrameTime  := TimeGet - fOldTimeFPS;
+    FrameTime  := GetTimeSince(fOldTimeFPS);
     fOldTimeFPS := TimeGet;
 
     if CAP_MAX_FPS and (FPS_LAG <> 1) and (FrameTime < FPS_LAG) then

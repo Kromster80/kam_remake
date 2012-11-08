@@ -1,7 +1,11 @@
 unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
-uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points;
+uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
+  {$IFDEF MSWindows}
+  ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
+  {$ENDIF}
+  ;
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
@@ -25,9 +29,10 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points;
   function KaMRandom(aMax:integer):integer; overload;
   function KaMRandomS(Range_Both_Directions:integer):integer; overload;
   function KaMRandomS(Range_Both_Directions:single):single; overload;
-  {$IFDEF Unix}
-  function FakeGetTickCount: DWord;
-  {$ENDIF}
+
+  function TimeGet: Cardinal;
+  function GetTimeSince(aTime:Cardinal):Cardinal;
+
   //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linux without using Controls)
   procedure KMSwapInt(var A,B:byte); overload;
   procedure KMSwapInt(var A,B:shortint); overload;
@@ -88,13 +93,25 @@ begin
 end;
 
 
-//This is a fake GetTickCount for Linux (Linux does not have one)
-{$IFDEF Unix}
-function FakeGetTickCount: DWord;
+//This unit must not know about KromUtils because it is used by the Linux Dedicated servers
+//and KromUtils is not Linux compatible. Therefore this function is copied directly from KromUtils.
+//Do not remove and add KromUtils to uses, that would cause the Linux build to fail
+function TimeGet: Cardinal;
 begin
-  Result := DWord(Trunc(Now * 24 * 60 * 60 * 1000));
+  {$IFDEF MSWindows}
+  Result := TimeGetTime; //Return milliseconds with ~1ms precision
+  {$ENDIF}
+  {$IFDEF Unix}
+  Result := Cardinal(Trunc(Now * 24 * 60 * 60 * 1000) mod high(Cardinal));
+  {$ENDIF}
 end;
-{$ENDIF}
+
+
+function GetTimeSince(aTime:Cardinal):Cardinal;
+begin
+  //TimeGet will loop back to zero after ~49 days since system start
+  Result := (Int64(TimeGet) - Int64(aTime) + Int64(High(Cardinal))) mod Int64(High(Cardinal));
+end;
 
 
 function KMGetCursorDirection(X,Y: Integer): TKMDirection;

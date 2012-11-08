@@ -267,7 +267,7 @@ begin
 
   fWelcomeMessage := '';
   fIgnorePings := 0; //Accept pings
-  fJoinTimeout := GetTickCount;
+  fJoinTimeout := TimeGet;
   fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
   fMyIndexOnServer := -1; //Assigned by Server
   fRoomToJoin := aRoom;
@@ -830,7 +830,7 @@ end;
 
 procedure TKMNetworking.AttemptReconnection;
 begin
-  if fReconnectRequested = 0 then fReconnectRequested := GetTickCount; //Do it soon
+  if fReconnectRequested = 0 then fReconnectRequested := TimeGet; //Do it soon
 end;
 
 
@@ -964,7 +964,7 @@ begin
                 else
                 begin
                   PacketSend(NET_ADDRESS_HOST, mk_AskToReconnect, fMyNikname, 0);
-                  fJoinTimeout := GetTickCount; //Wait another X seconds for host to reply before timing out
+                  fJoinTimeout := TimeGet; //Wait another X seconds for host to reply before timing out
                   if WRITE_RECONNECT_LOG then fLog.AppendLog('Asking to reconnect');
                 end;
               end
@@ -983,7 +983,7 @@ begin
                   lpk_Joiner:
                   begin
                       SetGameState(lgs_Query);
-                      fJoinTimeout := GetTickCount; //Wait another X seconds for host to reply before timing out
+                      fJoinTimeout := TimeGet; //Wait another X seconds for host to reply before timing out
                       PacketSend(NET_ADDRESS_HOST, mk_AskToJoin, fMyNikname, 0);
                   end;
                 end;
@@ -1454,10 +1454,10 @@ end;
 procedure TKMNetworking.UpdateState(aTick: cardinal);
 begin
   //Reconnection delay
-  if (fReconnectRequested <> 0) and (abs(GetTickCount - fReconnectRequested) > RECONNECT_PAUSE) then DoReconnection;
+  if (fReconnectRequested <> 0) and (GetTimeSince(fReconnectRequested) > RECONNECT_PAUSE) then DoReconnection;
   //Joining timeout
   if fNetGameState in [lgs_Connecting,lgs_Reconnecting,lgs_Query] then
-    if (GetTickCount-fJoinTimeout > JOIN_TIMEOUT) and (fReconnectRequested = 0) then
+    if (GetTimeSince(fJoinTimeout) > JOIN_TIMEOUT) and (fReconnectRequested = 0) then
       if Assigned(fOnJoinFail) then fOnJoinFail('Query timed out');
 end;
 

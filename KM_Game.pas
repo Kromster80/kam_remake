@@ -1277,7 +1277,7 @@ begin
                       if (fGameTickCount mod 600 = 0) and fGameApp.GameSettings.Autosave then
                         AutoSave;
 
-                      if DO_PERF_LOGGING then fPerfLog.AddTime(TimeGet - T);
+                      if DO_PERF_LOGGING then fPerfLog.AddTime(GetTimeSince(T));
 
                       //Break the for loop (if we are using speed up)
                       if DoGameHold then break;
