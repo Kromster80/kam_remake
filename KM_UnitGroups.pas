@@ -640,11 +640,17 @@ begin
                         OrderExecuted := OrderExecuted and Members[I].IsIdle and Members[I].OrderDone;
 
                         //Attempt to execute the order
-                        if Members[I].IsIdle and not Members[I].OrderDone then
-                        begin
-                          P := GetMemberLoc(I);
-                          Members[I].OrderWalk(P.Loc, P.Exact);
-                        end;
+                        if Members[I].IsIdle then
+                          if Members[I].OrderDone then
+                          begin
+                            if fOrderLoc.Dir <> dir_NA then
+                              Members[I].Direction := fOrderLoc.Dir;
+                          end
+                          else
+                          begin
+                            P := GetMemberLoc(I);
+                            Members[I].OrderWalk(P.Loc, P.Exact);
+                          end;
                       end;
                     end;
     goAttackHouse:  begin
