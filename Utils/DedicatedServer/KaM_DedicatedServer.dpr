@@ -8,7 +8,7 @@ program KaM_DedicatedServer;
 uses
   {$IFDEF UNIX} cthreads, {$ENDIF} //We use a thread for deleting old log files
   SysUtils,
-  {$IFDEF MSWindows}Windows,{$ENDIF}
+  {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
   {$IFDEF Unix} KM_Utils, {$ENDIF} //Needed in Linux for FakeGetTickCount
   KM_Defaults,
   KM_Log,
@@ -98,6 +98,9 @@ end;
 
 
 begin
+  {$IFDEF MSWindows}
+  TimeBeginPeriod(1); //initialize timer precision
+  {$ENDIF}
   fEventHandler := TKMServerEventHandler.Create;
   Writeln('=========== KaM Remake '+GAME_VERSION+' Dedicated Server ===========');
   Writeln('');
@@ -132,4 +135,7 @@ begin
   fDedicatedServer.Stop;
   fDedicatedServer.Free;
   fEventHandler.Free;
+  {$IFDEF MSWindows}
+  TimeEndPeriod(1);
+  {$ENDIF}
 end.
