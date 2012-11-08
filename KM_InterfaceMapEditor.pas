@@ -1784,7 +1784,7 @@ begin
   begin
     CheckBox_SaveExists.Enabled := FileExists(TKMapsCollection.FullPath(Edit_SaveName.Text, '.dat', Radio_Save_MapType.ItemIndex = 1));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
-    CheckBox_SaveExists.Checked := false;
+    CheckBox_SaveExists.Checked := False;
     Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
   end;
 
@@ -2452,8 +2452,11 @@ begin
       cmObjects: fTerrain.SetTree(P, GameCursor.Tag1);
       cmUnits: if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                 begin //Check if we can really add a unit
-                  if TUnitType(GameCursor.Tag1) in [HUMANS_MIN..HUMANS_MAX] then
-                    MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, false)
+                  if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
+                    MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, False)
+                  else
+                  if TUnitType(GameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
+                    MyPlayer.AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1, True)
                   else
                     fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);
                 end;

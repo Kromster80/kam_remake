@@ -108,7 +108,8 @@ begin
        else
          SetActionWalkToHouse(fHouse, 1);
     1: begin
-         if IsRanged then begin
+         if IsRanged then
+         begin
            SetActionLockedStay(AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
              Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
@@ -119,7 +120,9 @@ begin
                ut_Slingshot:  fSoundLib.Play(sfx_SlingerShoot, PositionF); //Aiming
                else Assert(false, 'Unknown shooter');
              end;
-         end else begin
+         end
+         else
+         begin
            SetActionLockedStay(0,ua_Work,false); //Melee units pause after the hit
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
              Direction := KMGetDirection(GetPosition, fHouse.GetClosestCell(GetPosition)); //Look at house
@@ -128,15 +131,16 @@ begin
     2: begin
          //Let the house know it is being attacked
          fPlayers[fHouse.Owner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
-         fDestroyingHouse := true;
+         fDestroyingHouse := True;
          if IsRanged then
-           SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0) //Start shooting
+           SetActionLockedStay(FIRING_DELAY, ua_Work, False, 0, 0) //Start shooting
          else
-           SetActionLockedStay(6,ua_Work,false,0,0); //Start the hit
+           SetActionLockedStay(6, ua_Work, False, 0, 0); //Start the hit
        end;
     3: begin
          if IsRanged then
-         begin //Launch the missile and forget about it
+         begin
+           //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            case UnitType of
              ut_Arbaletman: fProjectiles.AimTarget(PositionF, fHouse, pt_Bolt, Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
@@ -147,7 +151,9 @@ begin
            AnimLength := fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count;
            SetActionLockedStay(AnimLength-FIRING_DELAY-1,ua_Work,false,0,FIRING_DELAY); //Reload for next attack
            fPhase := 0; //Go for another shot (will be 1 after inc below)
-         end else begin
+         end
+         else
+         begin
            SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack
            if fHouse.AddDamage(2) then //All melee units do 2 damage per strike
              if (fPlayers <> nil) and (fPlayers[Owner] <> nil) then

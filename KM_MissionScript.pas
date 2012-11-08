@@ -1181,18 +1181,18 @@ begin
     AddData(''); //NL
 
     //Units
-    for k:=0 to fPlayers[i].Units.Count-1 do
+    for K := 0 to fPlayers[I].Units.Count - 1 do
     begin
-      U := fPlayers[i].Units[k];
-      if not (U is TKMUnitWarrior) then
+      U := fPlayers[I].Units[K];
+      if not (U is TKMUnitWarrior) then //Groups get saved separately
         AddCommand(ct_SetUnit, [UnitReverseRemap[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
     end;
 
     //Unit groups
-    for k:=0 to fPlayers[i].UnitGroups.Count-1 do
+    for K := 0 to fPlayers[I].UnitGroups.Count - 1 do
     begin
-      Group := fPlayers[i].UnitGroups[K];
-      AddCommand(ct_SetGroup, [TroopsReverseRemap[Group.UnitType], Group.Position.X-1, Group.Position.Y-1, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.Count]);
+      Group := fPlayers[I].UnitGroups[K];
+      AddCommand(ct_SetGroup, [TroopsReverseRemap[Group.UnitType], Group.Position.X-1, Group.Position.Y-1, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.MapEdCount]);
       if Group.Condition = UNIT_MAX_CONDITION then
         AddCommand(ct_SetGroupFood, []);
     end;

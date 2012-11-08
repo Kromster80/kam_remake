@@ -23,6 +23,7 @@ type
     property Units: TKMUnitsCollection read fUnits;
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true): TKMUnit;
+    procedure RemGroup(Position: TKMPoint); virtual;
     procedure RemUnit(Position: TKMPoint);
     function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
 
@@ -103,6 +104,7 @@ type
     procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
     procedure AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint; out House: TKMHouse);
+    procedure RemGroup(Position: TKMPoint); override;
     procedure RemHouse(Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean = False);
     procedure RemHousePlan(Position: TKMPoint);
     procedure RemFieldPlan(Position: TKMPoint; aMakeSound:Boolean);
@@ -169,9 +171,17 @@ begin
 end;
 
 
+procedure TKMPlayerCommon.RemGroup(Position: TKMPoint);
+begin
+  Assert(fGame.IsMapEditor);
+end;
+
+
 procedure TKMPlayerCommon.RemUnit(Position: TKMPoint);
 var U: TKMUnit;
 begin
+  Assert(fGame.IsMapEditor);
+
   U := fUnits.HitTest(Position.X, Position.Y);
   if U <> nil then
     fUnits.RemoveUnit(U);
@@ -617,6 +627,16 @@ begin
   if aMakeSound and not fGame.IsReplay and (Self = MyPlayer) then fSoundLib.Play(sfx_Click);
 end;
 
+
+procedure TKMPlayer.RemGroup(Position: TKMPoint);
+var Group: TKMUnitGroup;
+begin
+  inherited;
+
+  Group := fUnitGroups.HitTest(Position.X, Position.Y);
+  if Group <> nil then
+    fUnitGroups.RemGroup(Group);
+end;
 
 //This is called immediately when the user clicks erase on a field plan.
 //We know that an erase command is queued and will be processed in some ticks,

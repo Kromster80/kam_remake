@@ -49,6 +49,7 @@ type
     procedure SetPosition(aValue: TKMPoint);
     procedure ClearOrderTarget;
     function GetOrderUnitTarget: TKMUnit;
+    function GetOrderGroupTarget: TKMUnitGroup;
     function GetOrderHouseTarget: TKMHouse;
     procedure SetOrderUnitTarget(aUnit: TKMUnit);
     procedure SetOrderHouseTarget(aHouse: TKMHouse);
@@ -128,6 +129,7 @@ type
 
     function AddGroup(aWarrior: TKMUnitWarrior): TKMUnitGroup; overload;
     function AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word): TKMUnitGroup; overload;
+    procedure RemGroup(aGroup: TKMUnitGroup);
 
     property Count: Integer read GetCount;
     property Groups[aIndex: Integer]: TKMUnitGroup read GetGroup; default;
@@ -245,6 +247,13 @@ begin
     fMembers.Add(W);
   end;
 
+  LoadStream.Read(aCount);
+  for I := 0 to aCount - 1 do
+  begin
+    LoadStream.Read(W, 4); //subst on syncload
+    fFoes.Add(W);
+  end;
+
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fOrderLoc);
   LoadStream.Read(fOrderTargetHouse, 4); //subst on syncload
@@ -261,11 +270,17 @@ procedure TKMUnitGroup.SyncLoad;
 var I: Integer;
 begin
   inherited;
+
   for I := 0 to Count - 1 do
   begin
-    fMembers[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fMembers.Items[I])));
+    fMembers[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fMembers[I])));
     Members[I].OnKilled := Member_Killed;
+    Members[I].OnPickedFight := Member_PickedFight;
   end;
+
+  for I := 0 to fFoes.Count - 1 do
+    fFoes[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(TKMUnitWarrior(fFoes[I]))));
+
   fOrderTargetUnit := fPlayers.GetUnitByID(cardinal(fOrderTargetUnit));
   fOrderTargetHouse := fPlayers.GetHouseByID(cardinal(fOrderTargetHouse));
   fSelected := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fSelected)));
@@ -289,6 +304,9 @@ begin
   SaveStream.Write(fMembers.Count);
   for I := 0 to fMembers.Count - 1 do
     SaveStream.Write(Members[I].ID);
+  SaveStream.Write(fFoes.Count);
+  for I := 0 to fFoes.Count - 1 do
+    SaveStream.Write(TKMUnitWarrior(fFoes[I]).ID);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc);
   if fOrderTargetHouse <> nil then
@@ -625,26 +643,36 @@ begin
                         end;
                       end;
                     end;
-    goAttackHouse:  OrderExecuted := False;
+    goAttackHouse:  begin
+                      OrderExecuted := (GetOrderHouseTarget = nil);
+                      //Thats Task responsibility to execute it
+                    end;
     goAttackUnit:   begin
                       if IsRanged then
                       begin
                         //Do nothing, CheckForEnemy will attack all the units within range
-                        OrderExecuted := fOrderTargetUnit.IsDeadOrDying;
+                        OrderExecuted := (GetOrderUnitTarget = nil);
 
                         if not OrderExecuted
                         and not KMSamePoint(fOrderLoc.Loc, fOrderTargetUnit.NextPosition) then
+                          //Continue pursuit
                           OrderAttackUnit(fOrderTargetUnit);
                       end
                       else
                       begin
-                        OrderExecuted := ((fOrderTargetGroup = nil) and fOrderTargetUnit.IsDeadOrDying)
-                                       or (fOrderTargetGroup <> nil) and fOrderTargetGroup.IsDead;
+                        OrderExecuted := (GetOrderUnitTarget = nil) and (GetOrderGroupTarget = nil);
 
                         //If not - walk to Enemy
-                        if not OrderExecuted
-                        and not KMSamePoint(fOrderLoc.Loc, fOrderTargetUnit.NextPosition) then
-                          OrderAttackUnit(fOrderTargetUnit);
+                        if not OrderExecuted then
+                        begin
+                          if (fOrderTargetUnit = nil) and (fOrderTargetGroup <> nil) then
+                            //Old target died, change target
+                            OrderAttackUnit(fOrderTargetGroup.GetNearestMember(Members[0].GetPosition))
+                          else
+                          if (fOrderTargetUnit <> nil)
+                          and not KMSamePoint(fOrderLoc.Loc, fOrderTargetUnit.NextPosition) then
+                            OrderAttackUnit(fOrderTargetUnit);
+                        end;
                       end;
                     end;
     goStorm:        OrderExecuted := False;
@@ -718,7 +746,7 @@ end;
 procedure TKMUnitGroup.OrderAttackHouse(aHouse: TKMHouse);
 var I: Integer;
 begin
-  fOrder := goAttackUnit;
+  fOrder := goAttackHouse;
   fOrderLoc := KMPointDir(0, 0, dir_NA);
   SetOrderHouseTarget(aHouse);
 
@@ -1040,8 +1068,20 @@ end;
 function TKMUnitGroup.GetOrderUnitTarget: TKMUnit;
 begin
   //If the target unit has died then clear it
-  if (fOrderTargetUnit <> nil) and fOrderTargetUnit.IsDeadOrDying then ClearOrderTarget;
+  if (fOrderTargetUnit <> nil) and fOrderTargetUnit.IsDeadOrDying then
+    fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
+
   Result := fOrderTargetUnit;
+end;
+
+
+function TKMUnitGroup.GetOrderGroupTarget: TKMUnitGroup;
+begin
+  //If the target group has died then clear it
+  if (fOrderTargetGroup <> nil) and fOrderTargetGroup.IsDead then
+    fPlayers.CleanUpGroupPointer(fOrderTargetGroup);
+
+  Result := fOrderTargetGroup;
 end;
 
 
@@ -1258,6 +1298,12 @@ begin
 end;
 
 
+procedure TKMUnitGroups.RemGroup(aGroup: TKMUnitGroup);
+begin
+  fGroups.Remove(aGroup);
+end;
+
+
 procedure TKMUnitGroups.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
@@ -1309,6 +1355,7 @@ var
   I: Integer;
 begin
   for I := 0 to Count - 1 do
+  if not Groups[I].IsDead then
     Groups[I].Paint;
 end;
 

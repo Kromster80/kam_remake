@@ -463,7 +463,9 @@ procedure TKMPlayersCollection.RemAnyUnit(Position: TKMPoint);
 var I: Integer;
 begin
   for I := 0 to fCount - 1 do
-    fPlayerList[i].RemUnit(Position);
+    fPlayerList[I].RemGroup(Position);
+  for I := 0 to fCount - 1 do
+    fPlayerList[I].RemUnit(Position);
   fPlayerAnimals.RemUnit(Position);
 end;
 
