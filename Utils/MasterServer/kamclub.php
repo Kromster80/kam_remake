@@ -4,6 +4,12 @@ if($_REQUEST['type'] == 'graph')
 {
   $RefRate = $RefRate*10;
 }
+$format = $_REQUEST['format'];
+if($format == "")
+{
+  $format = "kamclub";
+}
+
 ?><html>
 <head>
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"><meta http-equiv="refresh" content="<? echo $RefRate; ?>">
@@ -13,9 +19,9 @@ if($_REQUEST['type'] == 'graph')
 <body style="font-size:9px; font-family:Arial,Tahoma">
 <?
 if($_REQUEST['type'] == 'list')
-	echo file_get_contents('http://kam.hodgman.id.au/serverquery.php?format=kamclub');
+	echo file_get_contents('http://kam.hodgman.id.au/serverquery.php?format='.$format);
 if($_REQUEST['type'] == 'graph')
-	echo file_get_contents('http://kam.hodgman.id.au/statistics.php?since='.(time()-(24*60*60)-(10*60)).'&to=0&width=500&height=250&period=18&format=kamclub');
+	echo file_get_contents('http://kam.hodgman.id.au/statistics.php?since='.(time()-(24*60*60)-(10*60)).'&to=0&width=500&height=250&period=18&format='.$format);
 ?>
 </body>
 </html>

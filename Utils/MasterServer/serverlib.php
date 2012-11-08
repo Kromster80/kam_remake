@@ -234,6 +234,8 @@ function GetStats($Format)
 	{
 		case "kamclub":
 			return '<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"><meta http-equiv="refresh" content="65"></head><body><div style="font-size:11px; font-family:Arial,Tahoma"><b>Кол-во серверов:</b> '.$ServerCount.'<BR><b>Кол-во игроков:</b> '.$TotalPlayerCount.'</font></div></body></html>';
+		case "kamclubeng":
+			return '<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"><meta http-equiv="refresh" content="65"></head><body><div style="font-size:11px; font-family:Arial,Tahoma"><b>Server count:</b> '.$ServerCount.'<BR><b>Player count:</b> '.$TotalPlayerCount.'</font></div></body></html>';
 		case "ajaxupdate":
 			$data = json_encode(Array("pct"=>$TotalPlayerCount,"sct"=>$ServerCount));
 			return $_GET['jsonp_callback']."(".$data.")";
@@ -275,6 +277,9 @@ function GetServers($aFormat,$aRev)
 		break;
 		case "kamclub":
 			$Result .= '<table border="1" width="100%" id="ajxtbl" style="font-size:11px; font-family:Arial,Tahoma"><tr><td><strong>Название сервера</strong></td><td><strong>Адрес</strong></td><td style="text-align: center"><strong>Кол-во игроков</strong></td></tr>';
+		break;
+		case "kamclubeng":
+			$Result .= '<table border="1" width="100%" id="ajxtbl" style="font-size:11px; font-family:Arial,Tahoma"><tr><td><strong>Server name</strong></td><td><strong>Address</strong></td><td style="text-align: center"><strong>Players</strong></td></tr>';
 		default:
 	}
 	$Lines = file($DATA_FILE);
@@ -290,6 +295,7 @@ function GetServers($aFormat,$aRev)
 			{
 				case "refresh":
 				case "kamclub":
+				case "kamclubeng":
 				case "table":
 					$Country = IPToCountry($IP);
 					$Warning = '';
@@ -319,6 +325,7 @@ function GetServers($aFormat,$aRev)
 			$Result = $_GET['jsonp_callback']."(".$Result.")";
 			break;
 		case "kamclub":
+		case "kamclubeng":
 		case "refresh":
 		case "table":
 			$Result .= '</table>';
