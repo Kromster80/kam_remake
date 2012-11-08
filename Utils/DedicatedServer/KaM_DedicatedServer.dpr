@@ -9,7 +9,7 @@ uses
   {$IFDEF UNIX} cthreads, {$ENDIF} //We use a thread for deleting old log files
   SysUtils,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
-  {$IFDEF Unix} KM_Utils, {$ENDIF} //Needed in Linux for FakeGetTickCount
+  KM_Utils,
   KM_Defaults,
   KM_Log,
   KM_Settings,
@@ -21,7 +21,7 @@ var
   fDedicatedServer: TKMDedicatedServer;
   fSettings: TGameSettings;
   fSettingsLastModified: integer;
-  TickCount, fLastSettingsFileCheck: cardinal;
+  fLastSettingsFileCheck: Cardinal;
 
 {$IFDEF WDC}
 procedure MyProcessMessages;
@@ -51,12 +51,10 @@ begin
   while True do
   begin
     fDedicatedServer.UpdateState;
-    TickCount := {$IFDEF MSWindows}GetTickCount{$ENDIF}
-                 {$IFDEF Unix} FakeGetTickCount{$ENDIF};
     //Reload the INI file if it has changed, by checking the file age every 5 seconds
-    if (abs(Int64(TickCount)-Int64(fLastSettingsFileCheck)) >= 5000) then
+    if GetTimeSince(fLastSettingsFileCheck) >= 5000 then
     begin
-      fLastSettingsFileCheck := TickCount;
+      fLastSettingsFileCheck := TimeGet;
       if FileAge(ExeDir+SETTINGS_FILE) <> fSettingsLastModified then
       begin
         fEventHandler.ServerStatusMessage('Reloading updated settings from '+ExeDir+SETTINGS_FILE);
