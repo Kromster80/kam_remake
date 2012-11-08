@@ -2,7 +2,7 @@ unit KM_Units;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KromUtils, TypInfo,
+  Classes, Math, SysUtils, KromUtils, TypInfo, Types,
   KM_CommonClasses, KM_Defaults, KM_Utils, KM_Terrain, KM_Houses, KM_Points;
 
 //Memo on directives:
@@ -982,10 +982,10 @@ begin
   fNextPosition := fCurrPosition; //Init values
   fOwner        := aOwner;
   fUnitType     := aUnitType;
-  Direction     := dir_S;
+  fDirection    := dir_S;
   fVisible      := true;
   IsExchanging  := false;
-  AnimStep      := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
+  AnimStep      := UnitStillFrames[fDirection]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 0.5 to 0.7 (KaM uses 0.6 for all units)
   //By adding the random amount they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   if (fGame <> nil) and (fGame.GameMode <> gmMapEd) then
@@ -1278,7 +1278,7 @@ begin
   fPrevPosition := NextPosition;
   fNextPosition := aLoc;
   //If we're not using dynamic fog of war we only need to update it when the unit steps on a new tile
-  if (not FOG_OF_WAR_ENABLE) and (fOwner <> PLAYER_ANIMAL) then
+  if not FOG_OF_WAR_ENABLE and (fOwner <> PLAYER_ANIMAL) then
     fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
 end;
 
@@ -1288,6 +1288,9 @@ procedure TKMUnit.SetDirection(aValue: TKMDirection);
 begin
   Assert(aValue <> dir_NA);
   fDirection := aValue;
+
+  //if fCurrentAction is TUnitActionStay then
+  //  AnimStep := UnitStillFrames[fDirection];
 end;
 
 
@@ -1331,7 +1334,7 @@ end;
 procedure TKMUnit.SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 begin
   //When standing still in walk, use default frame
-  if (aAction = ua_Walk)and(aStayStill) then
+  if (aAction = ua_Walk) and aStayStill then
   begin
     aStillFrame := UnitStillFrames[Direction];
     aStep := UnitStillFrames[Direction];
@@ -1356,7 +1359,7 @@ end;
 procedure TKMUnit.SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 begin
   //When standing still in walk, use default frame
-  if (aAction = ua_Walk)and(aStayStill) then
+  if (aAction = ua_Walk) and aStayStill then
   begin
     aStillFrame := UnitStillFrames[Direction];
     aStep := UnitStillFrames[Direction];
@@ -2156,14 +2159,14 @@ end;
 
 
 function TKMUnitsCollection.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
-var i:integer;
+var I: Integer;
 begin
-  Result:= nil;
-  for i:=0 to Count-1 do
-    if Units[i].HitTest(X,Y,UT) and (not Units[i].IsDead) then
+  Result := nil;
+  for I := 0 to Count - 1 do
+    if Units[I].HitTest(X,Y,UT) and not Units[I].IsDead then
     begin
-      Result := Units[i];
-      exit;
+      Result := Units[I];
+      Exit;
     end;
 end;
 

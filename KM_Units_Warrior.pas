@@ -519,42 +519,6 @@ begin
   if fCondition < UNIT_MIN_CONDITION then
     fThought := th_Eat; //th_Death checked in parent UpdateState
 
-  {//Help out our fellow group members in combat if we are not fighting and someone else is
-  if (fState <> ws_Engage) and (ChosenFoe <> nil) then
-    if IsRanged then
-    begin
-      //Archers should abandon walk to start shooting if there is a foe
-      if WithinFightRange(ChosenFoe.GetPosition)
-      and (GetUnitAction is TUnitActionWalkTo)
-      and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
-      begin
-        if TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-          SetActionStay(0, ua_Walk)
-        else
-          AbandonWalk;
-      end;
-      //But if we are already idle then just start shooting right away
-      if WithinFightRange(ChosenFoe.GetPosition)
-        and(GetUnitAction is TUnitActionStay) then
-      begin
-        //Archers - If foe is reachable then turn in that direction and CheckForEnemy
-        Direction := KMGetDirection(PositionF, ChosenFoe.PositionF);
-        AnimStep := UnitStillFrames[Direction];
-        CheckForEnemy;
-      end;
-    end
-    else
-    begin
-      //Melee
-      //todo: Try to avoid making a route through other units. Path finding should weight tiles with units high,
-      //      tiles with fighting (locked) units very high so we route around the locked the battle rather
-      //      than getting stuck trying to walk through fighting units (this will make the fighting system appear smarter)
-      fOrder := wo_AttackUnit;
-      fState := ws_Engage; //Special state so we don't issue this order continuously
-      SetOrderTarget(ChosenFoe);
-    end;}
-
-
   //Part 1 - Take orders into execution if there are any
   //Part 2 - UpdateState
   //Part 3 -
@@ -650,71 +614,17 @@ begin
   end;
 
 
-
   if (fTicker mod 5 = 0) then
     CheckForEnemy; //Split into seperate procedure so it can be called from other places
 
   Result := True; //Required for override compatibility
   if inherited UpdateState then exit;
 
-
-  {//This means we are idle, so make sure our direction is right and if we are commander reposition our troops if needed
-  PositioningDone := true;
-  if fCommander = nil then
-  if (fState = ws_Walking) or (fState = ws_RepositionPause) then
-  begin
-    //Wait for self and all team members to be in position before we set fState to None (means we no longer worry about group position)
-    if not (UnitTask is TTaskAttackHouse) and not (GetUnitAction is TUnitActionWalkTo)
-    and not (GetUnitAction is TUnitActionAbandonWalk)
-    and not KMSamePoint(GetPosition,fOrderLoc.Loc)
-    and CanWalkTo(fOrderLoc.Loc, 0) then
-    begin
-      SetActionWalkToSpot(fOrderLoc.Loc); //Walk to correct position
-      fState := ws_Walking;
-    end;
-
-    //If we have no crew then just exit
-    if fMembers <> nil then
-      //Tell everyone to reposition
-      for i:=0 to fMembers.Count-1 do
-        //Must wait for unit(s) to get into position before we have truely finished walking
-        if PositioningDone then
-          PositioningDone := TKMUnitWarrior(fMembers.Items[i]).RePosition
-        else
-          TKMUnitWarrior(fMembers.Items[i]).RePosition; //We must call it directly like this, if we used the above method then lazy boolean evaluation will skip it.
-  end;}
-
   //Make sure we didn't get given an action above
-  if GetUnitAction <> nil then exit;
+  if GetUnitAction <> nil then
+    Exit;
 
   SetActionStay(50, ua_Walk);
-
-  {if fState = ws_Walking then
-  begin
-    fState := ws_RepositionPause; //Means we are in position and waiting until we turn
-    SetActionStay(4+KaMRandom(2),ua_Walk); //Pause 0.5 secs before facing right direction. Slight random amount so they don't look so much like robots ;) (actually they still do, we need to add more randoms)
-    //Do not check for enemy, let archers face right direction first (enemies could be behind = unattackable)
-  end
-  else
-  begin
-    if fState = ws_RepositionPause then
-    begin
-      if fOrderLoc.Dir <> dir_NA then //This should not be the case but will be used as a temporary fix until we refactor into TGroup
-        Direction := fOrderLoc.Dir; //Face the way we were told to after our walk (this creates a short pause before we fix direction)
-      CheckForEnemy; //Important for archers, check for enemy once we are in position
-      if PositioningDone then
-        fState := ws_None;
-    end;
-    if (GetUnitAction = nil) then //CheckForEnemy could have assigned an action
-    begin
-      if PositioningDone then
-        SetActionStay(50,ua_Walk) //Idle if we did not receive a walk action above
-      else
-        SetActionStay(5,ua_Walk);
-    end;
-  end; }
-
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitWarrior.UpdateState',fCurrPosition);
 end;
 
 

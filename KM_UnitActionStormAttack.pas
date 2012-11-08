@@ -126,7 +126,7 @@ begin
     Dec(fDelay);
     fUnit.AnimStep := UnitStillFrames[fUnit.Direction];
     Result := ActContinues;
-    exit;
+    Exit;
   end;
 
   //First and last steps are walking, inbetween are running
