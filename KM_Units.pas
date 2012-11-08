@@ -2283,7 +2283,7 @@ procedure TKMUnitsCollection.UpdateState;
 var
   I: integer;
 begin
-  for I:=Count-1 downto 0 do
+  for I := Count - 1 downto 0 do
   if not Units[I].IsDead then
     Units[I].UpdateState
   else //Else try to destroy the unit object if all pointers are freed

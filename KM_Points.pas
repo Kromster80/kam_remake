@@ -11,6 +11,7 @@ type
   //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
   TKMPoint = packed record X,Y: Word; end;
   TKMPointDir = packed record Loc: TKMPoint; Dir: TKMDirection; end;
+  TKMPointExact = packed record Loc: TKMPoint; Exact: Boolean; end;
   TKMPointF = packed record X,Y: Single; end;
   TKMPointI = packed record X,Y: Integer; end; //Allows negative values
   TKMPointArray = array of TKMPointI;

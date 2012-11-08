@@ -170,12 +170,13 @@ function TUnitActionFight.ExecuteValidateOpponent(Step: Byte): TActionResult;
 begin
   Result := ActContinues;
   //See if Opponent has walked away (i.e. Serf) or died
-  if (fOpponent.IsDeadOrDying) or (not fOpponent.Visible) //Don't continue to fight dead units in units that have gone into a house
-  or not InRange(KMLength(fUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(fUnit).GetFightMinRange, TKMUnitWarrior(fUnit).GetFightMaxRange)
+  if fOpponent.IsDeadOrDying //Don't continue to fight dead units
+  or not fOpponent.Visible //Don't continue to fight units that have went into a house
+  or not TKMUnitWarrior(fUnit).WithinFightRange(fOpponent.GetPosition)
   or not fUnit.CanWalkDiagonaly(fUnit.GetPosition, fOpponent.GetPosition) then //Might be a tree between us now
   begin
     //After killing an opponent there is a very high chance that there is another enemy to be fought immediately
-    //Try to start fighting that enemy by reusing this FightAction, rather than destorying it and making a new one
+    //Try to start fighting that enemy by reusing this FightAction, rather than destroying it and making a new one
     Locked := false; //Fight can be interrupted by FindEnemy, otherwise it will always return nil!
     fPlayers.CleanUpUnitPointer(fOpponent); //We are finished with the old opponent
     fOpponent := TKMUnitWarrior(fUnit).FindEnemy; //Find a new opponent
@@ -267,12 +268,11 @@ begin
   //plus it adds randomness to battles
   if Step in [0,3,6] then
   begin
-    if fFightDelay=-1 then //Initialize
-    begin
+    if fFightDelay = -1 then //Initialize
       fFightDelay := KaMRandom(2);
-    end;
 
-    if fFightDelay>0 then begin
+    if fFightDelay > 0 then
+    begin
       dec(fFightDelay);
       Result := true; //Means exit from Execute
       exit;
@@ -284,7 +284,8 @@ end;
 
 
 function TUnitActionFight.Execute: TActionResult;
-var Cycle,Step: Byte;
+var
+  Cycle, Step: Byte;
 begin
   Cycle := max(fResource.UnitDat[fUnit.UnitType].UnitAnim[ActionType, fUnit.Direction].Count, 1);
   Step  := fUnit.AnimStep mod Cycle;

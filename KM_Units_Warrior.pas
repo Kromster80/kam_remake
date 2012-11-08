@@ -8,6 +8,7 @@ uses Classes, SysUtils, KromUtils, Math,
 type
   TKMUnitWarrior = class;
   TKMWarriorEvent = procedure(aWarrior: TKMUnitWarrior) of object;
+  TKMWarrior2Event = procedure(aWarrior: TKMUnitWarrior; aUnit: TKMUnit) of object;
   TKMWarriorState = (wsNone, wsWalk, wsWalkOut, wsEngage);
 
   //Possibly melee warrior class? with Archer class separate?
@@ -33,6 +34,7 @@ type
     procedure SetOrderHouseTarget(aHouse: TKMHouse);
   public
     OnKilled: TKMWarriorEvent;
+    OnPickedFight: TKMWarrior2Event;
 
     constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -408,13 +410,16 @@ end;
 
 function TKMUnitWarrior.CheckForEnemy: Boolean;
 var
-  FoundEnemy: TKMUnit;
+  NewEnemy: TKMUnit;
 begin
-  Result := false; //Didn't find anyone to fight
-  FoundEnemy := FindEnemy;
-  if FoundEnemy = nil then exit;
-  FightEnemy(FoundEnemy);
-  Result := true; //Found someone
+  Result := False; //Didn't find anyone to fight
+  NewEnemy := FindEnemy;
+  if NewEnemy <> nil then
+  begin
+    OnPickedFight(Self, NewEnemy);
+    FightEnemy(NewEnemy);
+    Result := True; //Found someone
+  end;
 end;
 
 

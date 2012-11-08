@@ -22,6 +22,7 @@ type
     fPointerCount: Cardinal;
     fTicker: Cardinal;
     fMembers: TList;
+    fFoes: TList;
     fSelected: TKMUnitWarrior; //Unit selected by player in GUI
     fUnitsPerRow: Word;
     fTimeSinceHungryReminder: Integer;
@@ -40,6 +41,7 @@ type
     function GetNearestMember(aUnit: TKMUnitWarrior): Integer; overload;
     function GetNearestMember(aLoc: TKMPoint): TKMUnitWarrior; overload;
     function GetRandomMember: TKMUnitWarrior;
+    function GetMemberLoc(aIndex: Integer): TKMPointExact;
     procedure SetUnitsPerRow(aCount: Word);
     function GetOwner: TPlayerIndex;
     procedure SetDirection(Value: TKMDirection);
@@ -50,10 +52,12 @@ type
     function GetOrderHouseTarget: TKMHouse;
     procedure SetOrderUnitTarget(aUnit: TKMUnit);
     procedure SetOrderHouseTarget(aHouse: TKMHouse);
+    procedure CheckForFight;
     procedure CheckOrderDone;
     procedure UpdateHungerMessage;
 
-    procedure Member_Killed(aWarrior: TKMUnitWarrior);
+    procedure Member_Killed(aMember: TKMUnitWarrior);
+    procedure Member_PickedFight(aMember: TKMUnitWarrior; aEnemy: TKMUnit);
 
     function GetCondition: Integer;
     function GetDirection: TKMDirection;
@@ -158,6 +162,7 @@ begin
   fID := aID;
   fGroupType := UnitGroups[aCreator.UnitType];
   fMembers := TList.Create;
+  fFoes := TList.Create;
 
   //So when they click Halt for the first time it knows where to place them
   fOrderLoc := KMPointDir(aCreator.GetPosition.X, aCreator.GetPosition.Y, aCreator.Direction);
@@ -181,6 +186,7 @@ begin
   fID := aID;
   fGroupType := UnitGroups[aUnitType];
   fMembers := TList.Create;
+  fFoes := TList.Create;
 
   //So when they click Halt for the first time it knows where to place them
   fOrderLoc := KMPointDir(PosX, PosY, aDir);
@@ -228,6 +234,7 @@ var
 begin
   inherited Create;
   fMembers := TList.Create;
+  fFoes := TList.Create;
 
   LoadStream.Read(fGroupType, SizeOf(fGroupType));
   LoadStream.Read(fID);
@@ -328,6 +335,18 @@ end;
 function TKMUnitGroup.GetMember(aIndex: Integer): TKMUnitWarrior;
 begin
   Result := fMembers.Items[aIndex];
+end;
+
+
+//Get member order location within formation
+function TKMUnitGroup.GetMemberLoc(aIndex: Integer): TKMPointExact;
+begin
+  //Allow off map positions so GetClosestTile works properly
+  Result.Loc := GetPositionInGroup2(fOrderLoc.Loc.X, fOrderLoc.Loc.Y,
+                                    fOrderLoc.Dir, aIndex, fUnitsPerRow,
+                                    fTerrain.MapX, fTerrain.MapY,
+                                    Result.Exact);
+  Result.Exact := Result.Exact and fTerrain.CheckPassability(Result.Loc, CanWalk);
 end;
 
 
@@ -459,6 +478,7 @@ procedure TKMUnitGroup.AddMember(aWarrior: TKMUnitWarrior);
 begin
   Assert(fMembers.IndexOf(aWarrior) = -1, 'We already have this Warrior in group');
   fMembers.Add(aWarrior.GetUnitPointer);
+  aWarrior.OnPickedFight := Member_PickedFight;
   aWarrior.OnKilled := Member_Killed;
 end;
 
@@ -496,22 +516,22 @@ end;
 
 
 //Member reports that he has died (or been killed)
-procedure TKMUnitGroup.Member_Killed(aWarrior: TKMUnitWarrior);
+procedure TKMUnitGroup.Member_Killed(aMember: TKMUnitWarrior);
 var
   I: Integer;
   NewSel: Integer;
 begin
-  I := fMembers.IndexOf(aWarrior);
+  I := fMembers.IndexOf(aMember);
   Assert(I <> -1, 'No such member');
 
-  if (aWarrior = fSelected) then
+  if (aMember = fSelected) then
   begin
     fSelected := nil;
 
     //Transfer selection to nearest member
     if UG_PASS_FOCUS_TO_LIVE then
     begin
-      NewSel := GetNearestMember(aWarrior);
+      NewSel := GetNearestMember(aMember);
       if NewSel <> -1 then
         fSelected := Members[NewSel];
     end;
@@ -523,7 +543,7 @@ begin
   //Move nearest member to placeholders place
   if I = 0 then
   begin
-    NewSel := GetNearestMember(aWarrior);
+    NewSel := GetNearestMember(aMember);
     if NewSel <> -1 then
       fMembers.Exchange(NewSel, 0);
   end;
@@ -535,33 +555,60 @@ begin
 end;
 
 
-//Member signals that he is done
-//We check whole group to see if it's done
+//Member got in a fight
+//Remember who we are fighting with, to guide idle units to
+procedure TKMUnitGroup.Member_PickedFight(aMember: TKMUnitWarrior; aEnemy: TKMUnit);
+begin
+  if (aEnemy is TKMUnitWarrior) then
+  begin
+    fFoes.Add(aEnemy.GetUnitPointer);
+  end;
+end;
+
+
+//If we picked up a fight, while doing any other order - manage it
+procedure TKMUnitGroup.CheckForFight;
+var
+  I,K: Integer;
+begin
+  //Verify we still have foes
+  for I := fFoes.Count - 1 downto 0 do
+  if TKMUnitWarrior(fFoes[I]).IsDeadOrDying then
+  begin
+    TKMUnitWarrior(fFoes[I]).ReleaseUnitPointer;
+    fFoes.Delete(I);
+  end;
+
+  if not InFight then Exit;
+
+  if IsRanged then
+  for I := 0 to Count - 1 do
+  begin
+    //Try shooting the offenders
+    if not Members[I].InFight then
+      for K := 0 to fFoes.Count - 1 do
+      if Members[I].WithinFightRange(TKMUnitWarrior(fFoes[K]).GetPosition) then
+        Members[I].OrderAttackUnit(TKMUnitWarrior(fFoes[K]))
+      else
+        //todo: Try to walk near and attack
+  end
+  else
+  begin
+    //let idle help fellow members
+    for I := 0 to Count - 1 do
+    if not Members[I].InFight then
+      Members[I].OrderWalk(TKMUnitWarrior(fFoes[KaMRandom(fFoes.Count)]).NextPosition, False);
+  end;
+end;
+
+
+//Check if order has been executed and if necessary attempt to repeat it
 procedure TKMUnitGroup.CheckOrderDone;
 var
   I: Integer;
   OrderExecuted: Boolean;
-  U: TKMUnitWarrior;
+  P: TKMPointExact;
 begin
-  //If we picked up a fight, while doing any other order - manage it
-  if InFight then
-  begin
-    for I := 0 to Count - 1 do
-    begin
-      //let idle help fellow members
-      if Members[I].IsIdle then
-        //We need to pick one of enemy groups, which could be many and <>fOrderTargetGroup
-        {if fOrderTargetGroup <> nil then
-        begin
-          U := fOrderTargetGroup.GetRandomMember;
-          if U <> nil then
-          Members[I].OrderWalk(U.NextPosition);
-        end
-        else
-          Members[I].OrderWalk(fOrderTargetUnit);}
-    end;
-  end;
-
   case fOrder of
     goNone:         OrderExecuted := False;
     goWalkTo:       begin
@@ -572,10 +619,10 @@ begin
 
                         //Attempt to execute the order
                         if Members[I].IsIdle and not Members[I].OrderDone then
-                          if not InFight then
-                            Members[I].OrderWalk(Members[I].OrderLoc, Members[I].UseExactTarget)
-                          else
-                            //todo: OrderFight?
+                        begin
+                          P := GetMemberLoc(I);
+                          Members[I].OrderWalk(P.Loc, P.Exact);
+                        end;
                       end;
                     end;
     goAttackHouse:  OrderExecuted := False;
@@ -615,17 +662,8 @@ end;
 
 //Fighting with citizens does not count
 function TKMUnitGroup.InFight: Boolean;
-var
-  I: Integer;
 begin
-  Result := False;
-
-  for I := 0 to Count - 1 do
-  if Members[I].InFight then
-  begin
-    Result := True;
-    Exit;
-  end;
+  Result := fFoes.Count > 0;
 end;
 
 
@@ -926,8 +964,7 @@ procedure TKMUnitGroup.OrderWalk(aLoc: TKMPoint; aDir: TKMDirection = dir_NA);
 var
   I: Integer;
   NewDir: TKMDirection;
-  NewLoc: TKMPoint;
-  DoesFit: Boolean;
+  P: TKMPointExact;
 begin
   if IsDead then Exit;
 
@@ -945,10 +982,8 @@ begin
 
   for I := 0 to Count - 1 do
   begin
-    //Allow off map positions so GetClosestTile works properly
-    NewLoc := GetPositionInGroup2(aLoc.X, aLoc.Y, NewDir, I, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
-    DoesFit := DoesFit and fTerrain.CheckPassability(NewLoc, CanWalk);
-    Members[I].OrderWalk(NewLoc, DoesFit);
+    P := GetMemberLoc(I);
+    Members[I].OrderWalk(P.Loc, P.Exact);
   end;
 end;
 
@@ -1039,11 +1074,15 @@ end;
 procedure TKMUnitGroup.UpdateState;
 begin
   Inc(fTicker);
+  if IsDead then Exit;
 
   if fTicker mod HUNGER_CHECK_FREQ = 0 then
     UpdateHungerMessage;
 
-  if fTicker mod 11 = 0 then
+  if fTicker mod 5 = 0 then
+    CheckForFight;
+
+  if not InFight and (fTicker mod 11 = 0) then
     CheckOrderDone;
 end;
 
@@ -1253,8 +1292,15 @@ procedure TKMUnitGroups.UpdateState;
 var
   I: Integer;
 begin
-  for I := 0 to Count - 1 do
-    Groups[I].UpdateState;
+  for I := Count - 1 downto 0 do
+    if not Groups[I].IsDead then
+      Groups[I].UpdateState
+    else
+    if FREE_POINTERS and (Groups[I].fPointerCount = 0) then
+    begin
+      Groups[I].Free;
+      fGroups.Delete(I);
+    end;
 end;
 
 
