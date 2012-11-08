@@ -1,7 +1,7 @@
 unit KM_UnitGroups;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils,
+uses Classes, Math, SysUtils, Types,
      KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points, KM_Houses, KM_Units,
      KM_UnitActionFight, KM_Units_Warrior;
 
@@ -74,7 +74,7 @@ type
 
     function GetGroupPointer: TKMUnitGroup;
     procedure ReleaseGroupPointer;
-    procedure AddMember(aWarrior: TKMUnitWarrior);
+    procedure AddMember(aWarrior: TKMUnitWarrior; aIndex: Integer = -1);
     function HitTest(X,Y: Integer): Boolean;
     procedure SelectHitTest(X,Y: Integer);
     function HasMember(aWarrior: TKMUnit): Boolean;
@@ -493,10 +493,13 @@ begin
 end;
 
 
-procedure TKMUnitGroup.AddMember(aWarrior: TKMUnitWarrior);
+procedure TKMUnitGroup.AddMember(aWarrior: TKMUnitWarrior; aIndex: Integer = -1);
 begin
   Assert(fMembers.IndexOf(aWarrior) = -1, 'We already have this Warrior in group');
-  fMembers.Add(aWarrior.GetUnitPointer);
+  if aIndex <> -1 then
+    fMembers.Insert(aIndex, aWarrior.GetUnitPointer)
+  else
+    fMembers.Add(aWarrior.GetUnitPointer);
   aWarrior.OnPickedFight := Member_PickedFight;
   aWarrior.OnKilled := Member_Killed;
 end;
@@ -690,6 +693,7 @@ end;
 
 
 //Fighting with citizens does not count
+//Ranged groups don't get into fights
 function TKMUnitGroup.InFight: Boolean;
 begin
   Result := fFoes.Count > 0;
@@ -892,16 +896,19 @@ end;
 
 
 //Split group in half
-//prefer to split different unit types apart
+//or split different unit types apart
 procedure TKMUnitGroup.OrderSplit;
 var
-  I, DeletedCount: Integer;
+  I: Integer;
   NewGroup: TKMUnitGroup;
-  NewCommander: TKMUnitWarrior;
+  NewLeader: TKMUnitWarrior;
   MultipleTypes: Boolean;
 begin
-  if IsDead then Exit; //Only commanders have members
+  if IsDead then Exit;
   if Count < 2 then Exit;
+
+  //Choose the new leader
+  NewLeader := Members[(Count div 2) + (Min(fUnitsPerRow, Count div 2) div 2)];
 
   //If there are different unit types in the group, split should just split them first
   MultipleTypes := False;
@@ -910,41 +917,37 @@ begin
     begin
       MultipleTypes := True;
       //New commander is first unit of different type, for simplicity
-      NewCommander := Members[I];
+      NewLeader := Members[I];
       Break;
     end;
 
-  //Choose the new leader (if we haven't already due to multiple types) and remove him from members
-  if not MultipleTypes then
-    NewCommander := Members[(Count div 2) + (Min(fUnitsPerRow, Count div 2) div 2)];
+  //Remove from the group
+  NewLeader.ReleaseUnitPointer;
+  fMembers.Remove(NewLeader);
 
-  NewCommander.ReleaseUnitPointer;
-  fMembers.Remove(NewCommander);
+  NewGroup := fPlayers[Owner].UnitGroups.AddGroup(NewLeader);
 
-  NewGroup := fPlayers[Owner].UnitGroups.AddGroup(NewCommander);
-
-  DeletedCount := 0;
-  for I := 0 to Count - 1 do
+  //Split by UnitTypes or by Count (make NewGroup half or smaller half)
+  for I := Count - 1 downto 0 do
+  if (MultipleTypes and (Members[I].UnitType = NewLeader.UnitType))
+  or (not MultipleTypes and (Count > NewGroup.Count + 1)) then
   begin
-    // Either split evenly, or when there are multiple types, split if they are different to the commander (us)
-    if (MultipleTypes and (Members[I - DeletedCount].UnitType <> UnitType))
-    or (not MultipleTypes and (I - DeletedCount > Count div 2)) then
-    begin
-      NewGroup.AddMember(Members[I - DeletedCount]); // Join new group
-      Members[I - DeletedCount].ReleaseUnitPointer;
-      fMembers.Delete(I - DeletedCount); // Leave this group
-      Inc(DeletedCount);
-    end;
+    Members[I].ReleaseUnitPointer;
+    NewGroup.AddMember(Members[I], 1); // Join new group (insert next to commander)
+    fMembers.Delete(I); // Leave this group
   end;
 
   //Make sure units per row is still valid for both groups
   UnitsPerRow := fUnitsPerRow;
   NewGroup.UnitsPerRow := fUnitsPerRow;
-  NewGroup.fTimeSinceHungryReminder := fTimeSinceHungryReminder; //If we are hungry then don't repeat message each time we split, give new commander our counter
-  //Commander OrderLoc must always be valid, but because this guy wasn't a commander it might not be
-  NewGroup.fOrderLoc := KMPointDir(NewCommander.GetPosition, fOrderLoc.Dir);
 
-  //Tell both groups to to reposition
+  //If we are hungry then don't repeat message each time we split, give new commander our counter
+  NewGroup.fTimeSinceHungryReminder := fTimeSinceHungryReminder;
+
+  //Commander OrderLoc must always be valid, but because this guy wasn't a commander it might not be
+  NewGroup.fOrderLoc := KMPointDir(NewLeader.GetPosition, fOrderLoc.Dir);
+
+  //Tell both groups to reposition
   OrderHalt;
   NewGroup.OrderHalt;
 end;
