@@ -494,9 +494,6 @@ end;
 procedure TKMHouse.DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
 var I: Integer; R: TResourceType;
 begin
-  if fPlayers.Selected = Self then
-    fPlayers.Selected := nil;
-
   if not DoSilent and not NoRubble then
     fSoundLib.Play(sfx_HouseDestroy, fPosition);
 

@@ -14,7 +14,7 @@ type
   TKMUnitWarrior = class(TKMUnit)
   private
 
-    fNewOrder: TWarriorOrder; //New order we should perform as soon as we can change tasks
+    fNextOrder: TWarriorOrder; //New order we should perform as soon as we can change tasks
     fOrder: TWarriorOrder; //Order we are performing
     fOrderLoc: TKMPoint; //Dir is the direction to face after order
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
@@ -92,7 +92,7 @@ begin
   fOrderTargetUnit   := nil;
   fOrderTargetHouse  := nil;
   fRequestedFood     := False;
-  fNewOrder          := woNone;
+  fNextOrder          := woNone;
   fOrder             := woNone;
   fOrderLoc          := KMPoint(PosX, PosY);
 end;
@@ -101,7 +101,7 @@ end;
 constructor TKMUnitWarrior.Load(LoadStream:TKMemoryStream);
 begin
   inherited;
-  LoadStream.Read(fNewOrder, SizeOf(fNewOrder));
+  LoadStream.Read(fNextOrder, SizeOf(fNextOrder));
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fOrderLoc);
   LoadStream.Read(fOrderTargetHouse, 4); //subst on syncload
@@ -124,7 +124,7 @@ procedure TKMUnitWarrior.CloseUnit;
 begin
   fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
   fPlayers.CleanUpHousePointer(fOrderTargetHouse);
-  fNewOrder := woNone;
+  fNextOrder := woNone;
   inherited;
 end;
 
@@ -163,7 +163,7 @@ end;
 
 procedure TKMUnitWarrior.OrderNone;
 begin
-  fNewOrder := woNone;
+  fNextOrder := woNone;
   fUseExactTarget := False;
   ClearOrderTarget;
 end;
@@ -171,7 +171,7 @@ end;
 
 procedure TKMUnitWarrior.OrderStorm(aDelay: Word);
 begin
-  fNewOrder := woStorm;
+  fNextOrder := woStorm;
   ClearOrderTarget;
 
   fStormDelay := aDelay;
@@ -333,7 +333,7 @@ end;
 
 procedure TKMUnitWarrior.OrderWalk(aLoc: TKMPoint; aUseExactTarget: Boolean = True);
 begin
-  fNewOrder := woWalk;
+  fNextOrder := woWalk;
   fOrderLoc := aLoc;
   fUseExactTarget := aUseExactTarget;
   ClearOrderTarget;
@@ -369,14 +369,14 @@ end;
 //All units are assigned TTaskAttackHouse which does everything for us (move to position, hit house, abandon, etc.) }
 procedure TKMUnitWarrior.OrderAttackHouse(aTargetHouse: TKMHouse);
 begin
-  fNewOrder := woAttackHouse;
+  fNextOrder := woAttackHouse;
   SetOrderHouseTarget(aTargetHouse);
 end;
 
 
 procedure TKMUnitWarrior.OrderAttackUnit(aTargetUnit: TKMUnit);
 begin
-  fNewOrder := woAttackUnit;
+  fNextOrder := woAttackUnit;
   SetOrderTarget(aTargetUnit);
 end;
 
@@ -384,7 +384,7 @@ end;
 procedure TKMUnitWarrior.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fNewOrder, SizeOf(fNewOrder));
+  SaveStream.Write(fNextOrder, SizeOf(fNextOrder));
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc);
   if fOrderTargetHouse <> nil then
@@ -517,15 +517,15 @@ begin
   //Part 3 -
 
   //Make sure attack order is still valid
-  if ((fNewOrder = woAttackUnit) and (GetOrderTarget = nil))
-  or ((fNewOrder = woAttackHouse) and (GetOrderHouseTarget = nil)) then
+  if ((fNextOrder = woAttackUnit) and (GetOrderTarget = nil))
+  or ((fNextOrder = woAttackHouse) and (GetOrderHouseTarget = nil)) then
     fOrder := woNone;
 
   //Override current action if there's an Order in queue paying attention
   //to unit WalkTo current position (let the unit arrive on next tile first!)
   //As well let the unit finish it's curent Attack action before taking a new order
   //This should make units response a bit delayed.
-  case fNewOrder of
+  case fNextOrder of
     woNone: ;
     woWalk:         begin
                       //We can update existing Walk action with minimum changes
@@ -534,7 +534,7 @@ begin
                       begin
                         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
                         TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc, 0, fUseExactTarget);
-                        fNewOrder := woNone;
+                        fNextOrder := woNone;
                         fOrder := woWalk;
                       end
                       else
@@ -543,7 +543,7 @@ begin
                       begin
                         FreeAndNil(fUnitTask);
                         SetActionWalkToSpot(fOrderLoc, ua_Walk, fUseExactTarget);
-                        fNewOrder := woNone;
+                        fNextOrder := woNone;
                         fOrder := woWalk;
                       end;
                     end;
@@ -556,7 +556,7 @@ begin
                         //If we are not the commander then walk to near
                         //todo: Do not WalkTo enemies location if we are archers, stay in place
                         TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget, GetFightMaxRange);
-                        fNewOrder := woNone;
+                        fNextOrder := woNone;
                         fOrder := woAttackUnit;
                       end;
 
@@ -567,7 +567,7 @@ begin
                       begin
                         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
                         SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);
-                        fNewOrder := woNone;
+                        fNextOrder := woNone;
                         fOrder := woAttackUnit;
                         //todo: We need a ws_AttackingUnit to make this work properly for archers, so they know to shoot the enemy after finishing the walk and follow him if he keeps moving away.
                         //todo: If an archer is too close to attack, move back
@@ -585,7 +585,7 @@ begin
                         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
                         fUnitTask := TTaskAttackHouse.Create(Self, GetOrderHouseTarget);
                         fOrderLoc := GetPosition; //Once the house is destroyed we will position where we are standing
-                        fNewOrder := woNone;
+                        fNextOrder := woNone;
                         fOrder := woAttackHouse;
                       end;
                     end;
@@ -600,7 +600,7 @@ begin
                       begin
                         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
                         SetActionStorm(fStormDelay);
-                        fNewOrder := woNone;
+                        fNextOrder := woNone;
                         fOrder := woStorm;
                       end;
                     end;

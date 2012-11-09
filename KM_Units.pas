@@ -1163,9 +1163,6 @@ end;
 // CloseUnit - erase all unit data and hide it from further access
 procedure TKMUnit.KillUnit;
 begin
-  if fPlayers.Selected = Self then
-    fPlayers.Selected := nil;
-
   //Don't kill unit if it's already dying
   if fUnitTask is TTaskDie then
     Exit;
