@@ -1127,7 +1127,7 @@ begin
   //if not KMSamePoint(fCurrPosition,NextPosition) then
   //  Assert(false, 'Not sure where to die?');
 
-  if fHome<>nil then
+  if fHome <> nil then
   begin
     fHome.GetHasOwner := false;
     fPlayers.CleanUpHousePointer(fHome);
@@ -1395,12 +1395,12 @@ procedure TKMUnit.SetActionWalkToUnit(aUnit:TKMUnit; aDistance:single; aActionTy
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
 
-  Assert(aDistance>=1,'Should not walk to units place');
+  Assert(aDistance >= 1, 'Should not walk to units place');
   SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
                                       aUnit.fCurrPosition,//Target position
                                       aActionType,        //
                                       aDistance,          //Proximity
-                                      false,              //If we were pushed
+                                      False,              //If we were pushed
                                       aUnit,              //Unit
                                       nil                 //House
                                       ));

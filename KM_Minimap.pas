@@ -185,7 +185,6 @@ var
   FOW,ID: Byte;
   I,J,K: Integer;
   U: TKMUnit;
-  W: TKMUnitWarrior;
   P: TKMPoint;
   DoesFit: Boolean;
   Light: Smallint;

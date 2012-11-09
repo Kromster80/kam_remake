@@ -44,7 +44,7 @@ type
     property Items[aIndex: Integer]: TAIAttack read GetAttack; default;
 
     procedure AddAttack(aAttack: TAIAttack);
-    function MayOccur(aIndex: Integer; MenAvailable: Integer; GroupsAvailableCount: array of Integer; aTick: Cardinal): Boolean;
+    function MayOccur(aIndex: Integer; MenAvailable: Integer; const GroupsAvailableCount: array of Word; aTick: Cardinal): Boolean;
     procedure Occured(aIndex: Integer);
 
     function GetAsText: string;
@@ -58,7 +58,7 @@ implementation
 
 
 { TAIAttacks }
-function TAIAttacks.MayOccur(aIndex: Integer; MenAvailable: Integer; GroupsAvailableCount: array of Integer; aTick: Cardinal): Boolean;
+function TAIAttacks.MayOccur(aIndex: Integer; MenAvailable: Integer; const GroupsAvailableCount: array of Word; aTick: Cardinal): Boolean;
 var GT: TGroupType;
 begin
   begin

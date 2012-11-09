@@ -627,19 +627,20 @@ begin
 end;
 
 
+//True length between 2 points
 function KMLength(A,B: TKMPoint): Single;
 begin
-  Result := sqrt(sqr(A.x-B.x) + sqr(A.y-B.y));
+  Result := Sqrt(Sqr(A.X - B.X) + Sqr(A.Y - B.Y));
 end;
 
 
 function KMLength(A,B: TKMPointF): Single;
 begin
-  Result := sqrt(sqr(A.x-B.x) + sqr(A.y-B.y));
+  Result := Sqrt(Sqr(A.X - B.X) + Sqr(A.Y - B.Y));
 end;
 
 
-//Length as straight and diagonal
+//Rough and faster Length as combination of straight and diagonal
 function KMLengthDiag(A, B: TKMPoint): Single;
 begin
   if Abs(A.X-B.X) > Abs(A.Y-B.Y) then
@@ -649,6 +650,9 @@ begin
 end;
 
 
+//Squared length for cases where we need to compare two lengths
+//or pick the best one and actual value is not that important
+//we can save some cycles on ommitting SQRT
 function KMLengthSqr(A, B: TKMPoint): Integer;
 begin
   Result := Sqr(A.X - B.X) + Sqr(A.Y - B.Y);

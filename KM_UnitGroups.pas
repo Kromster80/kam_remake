@@ -631,6 +631,8 @@ var
   OrderExecuted: Boolean;
   P: TKMPointExact;
 begin
+  OrderExecuted := False;
+
   case fOrder of
     goNone:         OrderExecuted := False;
     goWalkTo:       begin
@@ -660,13 +662,17 @@ begin
     goAttackUnit:   begin
                       if IsRanged then
                       begin
-                        //Do nothing, CheckForEnemy will attack all the units within range
+                        //All members Task is to hunt down the TargetUnit
+                        //once it's done members can stay still
                         OrderExecuted := (GetOrderUnitTarget = nil);
 
-                        if not OrderExecuted
-                        and not KMSamePoint(fOrderLoc.Loc, fOrderTargetUnit.NextPosition) then
-                          //Continue pursuit
-                          OrderAttackUnit(fOrderTargetUnit);
+                        //If members attack someone keep em busy
+                        if OrderExecuted then
+                        for I := 0 to Count - 1 do
+                          OrderExecuted := OrderExecuted and not Members[I].InFight;
+
+                        //Should Idle members help their atacking comrades?
+
                       end
                       else
                       begin
@@ -772,12 +778,6 @@ begin
   if IsRanged then
   begin
     for I := 0 to Count - 1 do
-    if KMLengthSqr(Members[I].NextPosition, aUnit.NextPosition) > Members[I].GetFightMaxRange then
-      Members[I].OrderWalk(aUnit.NextPosition)
-    else
-    if KMLengthSqr(Members[I].NextPosition, aUnit.NextPosition) < Members[I].GetFightMinRange then
-      //Stay idle?
-    else
       Members[I].OrderAttackUnit(aUnit);
   end
   else

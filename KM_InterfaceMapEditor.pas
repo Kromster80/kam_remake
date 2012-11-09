@@ -1706,9 +1706,8 @@ end;
 
 
 procedure TKMapEdInterface.ShowUnitInfo(Sender: TKMUnit);
-var Commander: TKMUnitWarrior;
 begin
-  if (Sender = nil) or not Sender.Visible or Sender.IsDead then
+  if Sender = nil then
   begin
     SwitchPage(nil);
     Exit;

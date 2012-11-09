@@ -98,7 +98,7 @@ begin
 end;
 
 
-constructor TKMUnitWarrior.Load(LoadStream:TKMemoryStream);
+constructor TKMUnitWarrior.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fNextOrder, SizeOf(fNextOrder));
@@ -254,6 +254,7 @@ begin
 end;
 
 
+//We are actively fighting with an enemy
 function TKMUnitWarrior.InFight: Boolean;
 begin
   Result := (GetUnitAction is TUnitActionFight)
@@ -406,6 +407,9 @@ var
   NewEnemy: TKMUnit;
 begin
   Result := False; //Didn't find anyone to fight
+
+  if IsRanged and not IsIdle then Exit;
+
   NewEnemy := FindEnemy;
   if NewEnemy <> nil then
   begin
@@ -464,17 +468,6 @@ begin
     else
       FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
   end;
-
-  {//Attempt to resume walks/attacks after interuption
-  if (GetUnitAction is TUnitActionWalkTo)
-  and (fState = woAttackUnit)
-  and not (aEnemy is TKMUnitWarrior) then
-  begin
-    if GetOrderTarget <> nil then
-      fNewOrder := woAttackUnit
-    else
-      fNewOrder := woWalk;
-  end;}
 
   SetActionFight(ua_Work, aEnemy);
   if aEnemy is TKMUnitWarrior then
@@ -554,23 +547,21 @@ begin
                       begin
                         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
                         //If we are not the commander then walk to near
-                        //todo: Do not WalkTo enemies location if we are archers, stay in place
                         TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget, GetFightMaxRange);
                         fNextOrder := woNone;
                         fOrder := woAttackUnit;
+                        fOrderLoc := fOrderTargetUnit.GetPosition;
                       end;
 
                       //Take attack order
-                      if CanInterruptAction
-                      and (GetOrderTarget <> nil)
-                      and not WithinFightRange(GetOrderTarget.GetPosition) then
+                      if CanInterruptAction then
                       begin
                         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-                        SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);
                         fNextOrder := woNone;
                         fOrder := woAttackUnit;
-                        //todo: We need a ws_AttackingUnit to make this work properly for archers, so they know to shoot the enemy after finishing the walk and follow him if he keeps moving away.
-                        //todo: If an archer is too close to attack, move back
+                        fOrderLoc := fOrderTargetUnit.GetPosition;
+
+                        //Unit chase section will kick in below
                       end;
                     end;
     woAttackHouse:  begin
@@ -604,6 +595,42 @@ begin
                         fOrder := woStorm;
                       end;
                     end;
+  end;
+
+
+  //Do the chase
+  //--We don't take advantage of ChangeWalkTo yet for the sake of simplicity?
+  if (fOrder = woAttackUnit)
+  and not InFight
+  and (GetOrderTarget <> nil)
+  and CanInterruptAction then
+  begin
+    if IsRanged then
+    begin
+      //Check target in range, and if not - chase it / back up from it
+      if (KMLength(GetPosition, fOrderTargetUnit.GetPosition) > GetFightMaxRange) then
+      begin
+        //Too far away
+        if (GetUnitAction is TUnitActionWalkTo)
+        and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
+          TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget, GetFightMaxRange)
+        else
+        if CanInterruptAction then
+          SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);
+      end
+      else
+      if (KMLength(GetPosition, fOrderTargetUnit.GetPosition) < GetFightMinRange) then
+      begin
+        //Too close
+      end
+      else
+        //WithinRange
+        FightEnemy(fOrderTargetUnit);
+    end
+    else
+    begin
+      //Melee
+    end;
   end;
 
 
