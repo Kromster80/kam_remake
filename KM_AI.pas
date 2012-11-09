@@ -327,6 +327,7 @@ begin
 
   //Check: Hunger, (feed) formation, (units per row) position (from defence positions)
   for I := 0 to fPlayers[fOwner].UnitGroups.Count - 1 do
+  if not fPlayers[fOwner].UnitGroups[I].IsDead then
   begin
     Group := fPlayers[fOwner].UnitGroups[I];
 

@@ -9,21 +9,20 @@ type
   TKMUnitWarrior = class;
   TKMWarriorEvent = procedure(aWarrior: TKMUnitWarrior) of object;
   TKMWarrior2Event = procedure(aWarrior: TKMUnitWarrior; aUnit: TKMUnit) of object;
-  TKMWarriorState = (wsNone, wsWalk, wsWalkOut, wsEngage);
 
   //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
   private
-    fRequestedFood: Boolean;
 
     fNewOrder: TWarriorOrder; //New order we should perform as soon as we can change tasks
     fOrder: TWarriorOrder; //Order we are performing
-    fState: TKMWarriorState; //state we are in
     fOrderLoc: TKMPoint; //Dir is the direction to face after order
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
-    fStormDelay: Word;
     fUseExactTarget: Boolean; //Do we try to reach exact position or is it e.g. unwalkable
+
+    fRequestedFood: Boolean;
+    fStormDelay: Word;
 
     function CanInterruptAction: Boolean;
 
@@ -60,7 +59,6 @@ type
     function WithinFightRange(Value: TKMPoint): Boolean;
     property OrderTarget: TKMUnit read GetOrderTarget write SetOrderTarget;
     property OrderLoc: TKMPoint read fOrderLoc write fOrderLoc;
-    property GetOrder: TKMWarriorState read fState;
     property UseExactTarget: Boolean read fUseExactTarget;
 
     function IsRanged: Boolean;
@@ -96,7 +94,6 @@ begin
   fRequestedFood     := False;
   fNewOrder          := woNone;
   fOrder             := woNone;
-  fState             := wsNone;
   fOrderLoc          := KMPoint(PosX, PosY);
 end;
 
@@ -106,7 +103,6 @@ begin
   inherited;
   LoadStream.Read(fNewOrder, SizeOf(fNewOrder));
   LoadStream.Read(fOrder, SizeOf(fOrder));
-  LoadStream.Read(fState, SizeOf(fState));
   LoadStream.Read(fOrderLoc);
   LoadStream.Read(fOrderTargetHouse, 4); //subst on syncload
   LoadStream.Read(fOrderTargetUnit, 4); //subst on syncload
@@ -129,7 +125,6 @@ begin
   fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
   fPlayers.CleanUpHousePointer(fOrderTargetHouse);
   fNewOrder := woNone;
-  fState := wsNone;
   inherited;
 end;
 
@@ -333,7 +328,6 @@ begin
   Assert(aGoDir = gd_GoOutside, 'Walking inside is not implemented yet');
   Assert(aHouse.HouseType = ht_Barracks, 'Only Barracks so far');
   inherited;
-  fState := wsWalkOut;
 end;
 
 
@@ -392,7 +386,6 @@ begin
   inherited;
   SaveStream.Write(fNewOrder, SizeOf(fNewOrder));
   SaveStream.Write(fOrder, SizeOf(fOrder));
-  SaveStream.Write(fState, SizeOf(fState));
   SaveStream.Write(fOrderLoc);
   if fOrderTargetHouse <> nil then
     SaveStream.Write(fOrderTargetHouse.ID) //Store ID

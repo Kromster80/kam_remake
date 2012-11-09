@@ -10,19 +10,20 @@ uses
 type
   TKMPlayersCollection = class
   private
+    fSelected: TObject; //Unit or House or Group
     fCount: Byte;
     fPlayerList: array of TKMPlayer;
     fPlayerAnimals: TKMPlayerAnimals;
     function GetPlayer(aIndex: Integer): TKMPlayer;
+    procedure SetSelected(Value: TObject);
   public
-    Selected: TObject; //Unit or House or Group
-
     constructor Create;
     destructor Destroy; override;
 
     property Count: Byte read fCount;
     property Player[aIndex: Integer]: TKMPlayer read GetPlayer; default;
     property PlayerAnimals: TKMPlayerAnimals read fPlayerAnimals;
+    property Selected: TObject read fSelected write SetSelected;
 
     procedure AddPlayers(aCount:byte); //Batch add several players
 
@@ -360,9 +361,34 @@ begin
   if Obj <> nil then
   begin
     Selected := Obj;
+    //Update selected unit within a group
     if Selected is TKMUnitGroup then
       TKMUnitGroup(Selected).SelectHitTest(X,Y);
   end;
+end;
+
+
+procedure TKMPlayersCollection.SetSelected(Value: TObject);
+begin
+  if Value = fSelected then Exit;
+                                
+  if fSelected is TKMHouse then
+    CleanUpHousePointer(TKMHouse(fSelected))
+  else
+  if fSelected is TKMUnit then
+    CleanUpUnitPointer(TKMUnit(fSelected))
+  else
+  if fSelected is TKMUnitGroup then
+    CleanUpGroupPointer(TKMUnitGroup(fSelected));
+
+  if Value is TKMHouse then
+    fSelected := TKMHouse(Value).GetHousePointer
+  else
+  if Value is TKMUnit then
+    fSelected := TKMUnit(Value).GetUnitPointer
+  else
+  if Value is TKMUnitGroup then
+    fSelected := TKMUnitGroup(Value).GetGroupPointer;
 end;
 
 
@@ -579,6 +605,17 @@ procedure TKMPlayersCollection.UpdateState(aTick: Cardinal);
 var
   I: Integer;
 begin
+  //Update selection (and drop it if necessary)
+  if (Selected is TKMHouse) and TKMHouse(Selected).IsDestroyed then
+    Selected := nil
+  else
+  if (Selected is TKMUnit)
+  and (TKMUnit(Selected).IsDeadOrDying or not TKMUnit(Selected).Visible) then
+    Selected := nil
+  else
+  if (Selected is TKMUnitGroup) and (TKMUnitGroup(Selected).IsDead) then
+    Selected := nil;
+
   //Update AI every 2sec for different player to even the CPU load
   for I := 0 to fCount - 1 do
     if not fGame.IsPaused and not fGame.IsExiting then

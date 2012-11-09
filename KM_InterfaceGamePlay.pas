@@ -2185,7 +2185,7 @@ begin
 
   fAskDismiss  := aAskDismiss;
 
-  if (Sender = nil) or not Sender.Visible or Sender.IsDeadOrDying then
+  if Sender = nil then
   begin
     SwitchPage(nil);
     Exit;
@@ -2216,7 +2216,7 @@ var
 begin
   Assert(fPlayers.Selected = Sender);
 
-  if (Sender = nil) or Sender.IsDead then
+  if Sender = nil then
   begin
     SwitchPage(nil);
     Exit;
@@ -3880,8 +3880,8 @@ begin
     if fPlayers.Selected is TKMHouse then
       ShowHouseInfo(TKMHouse(fPlayers.Selected), fAskDemolish)
     else
-    if Panel_House.Visible or Panel_Unit.Visible then
-      SwitchPage(nil);
+      if Panel_House.Visible or Panel_Unit.Visible then
+        SwitchPage(nil);
   end;
 
   //Update peacetime counter

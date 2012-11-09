@@ -18,7 +18,6 @@ type
     fPosition: TKMPointDir; //Position and direction the group defending will stand
     fRadius: Integer; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
     procedure SetCurrentGroup(aGroup: TKMUnitGroup);
-    procedure ClearCurrentCommander;
   public
     DefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
     constructor Create(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
@@ -81,26 +80,23 @@ end;
 
 destructor TAIDefencePosition.Destroy;
 begin
-  ClearCurrentCommander; //Ensure pointer is removed
+  CurrentGroup := nil; //Ensure pointer is removed
   inherited;
-end;
-
-
-procedure TAIDefencePosition.ClearCurrentCommander;
-begin
-  fPlayers.CleanUpGroupPointer(fCurrentGroup);
 end;
 
 
 procedure TAIDefencePosition.SetCurrentGroup(aGroup: TKMUnitGroup);
 begin
-  ClearCurrentCommander;
+  //Release previous group
+  fPlayers.CleanUpGroupPointer(fCurrentGroup);
+
+  //Take new one
   if aGroup <> nil then
     fCurrentGroup := aGroup.GetGroupPointer;
 end;
 
 
-procedure TAIDefencePosition.Save(SaveStream:TKMemoryStream);
+procedure TAIDefencePosition.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fPosition);
   SaveStream.Write(fGroupType, SizeOf(fGroupType));
@@ -113,7 +109,7 @@ begin
 end;
 
 
-constructor TAIDefencePosition.Load(LoadStream:TKMemoryStream);
+constructor TAIDefencePosition.Load(LoadStream: TKMemoryStream);
 begin
   inherited Create;
   LoadStream.Read(fPosition);
@@ -145,14 +141,14 @@ end;
 
 procedure TAIDefencePosition.UpdateState;
 begin
-  if (CurrentGroup <> nil) and CurrentGroup.IsDead then
-    CurrentGroup := nil;
+  if CurrentGroup = nil then
+    Exit;
 
-  //If this group belongs to a defence position and they are too far away we should disassociate
+  //If the group is Dead or too far away we should disassociate
   //them from the defence position so new warriors can take up the defence if needs be
-  if (CurrentGroup <> nil)
-  and (CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackUnit]))
-  and (KMLengthDiag(Position.Loc, CurrentGroup.Position) > Radius) then
+  if CurrentGroup.IsDead
+  or ((CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackUnit]))
+      and (KMLengthDiag(Position.Loc, CurrentGroup.Position) > Radius)) then
     CurrentGroup := nil;
 
   if (CurrentGroup = nil) or CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackUnit]) then
