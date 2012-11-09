@@ -31,6 +31,9 @@ type
     function GetOrderTarget: TKMUnit;
     function GetOrderHouseTarget: TKMHouse;
     procedure SetOrderHouseTarget(aHouse: TKMHouse);
+
+    procedure TakeNextOrder;
+    procedure ChaseTargetUnit;
   public
     OnKilled: TKMWarriorEvent;
     OnPickedFight: TKMWarrior2Event;
@@ -490,34 +493,13 @@ begin
 end;
 
 
-function TKMUnitWarrior.UpdateState: Boolean;
+
+//Override current action if there's an Order in queue paying attention
+//to unit WalkTo current position (let the unit arrive on next tile first!)
+//As well let the unit finish it's curent Attack action before taking a new order
+//This should make units response a bit delayed.
+procedure TKMUnitWarrior.TakeNextOrder;
 begin
-  if fCurrentAction = nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitWarrior.UpdateState',fCurrPosition);
-
-  if IsDeadOrDying then
-  begin
-    Result := True; //Required for override compatibility
-    inherited UpdateState;
-    Exit;
-  end;
-
-  if fCondition < UNIT_MIN_CONDITION then
-    fThought := th_Eat; //th_Death checked in parent UpdateState
-
-  //Part 1 - Take orders into execution if there are any
-  //Part 2 - UpdateState
-  //Part 3 -
-
-  //Make sure attack order is still valid
-  if ((fNextOrder = woAttackUnit) and (GetOrderTarget = nil))
-  or ((fNextOrder = woAttackHouse) and (GetOrderHouseTarget = nil)) then
-    fOrder := woNone;
-
-  //Override current action if there's an Order in queue paying attention
-  //to unit WalkTo current position (let the unit arrive on next tile first!)
-  //As well let the unit finish it's curent Attack action before taking a new order
-  //This should make units response a bit delayed.
   case fNextOrder of
     woNone: ;
     woWalk:         begin
@@ -596,43 +578,73 @@ begin
                       end;
                     end;
   end;
+end;
 
 
-  //Do the chase
+procedure TKMUnitWarrior.ChaseTargetUnit;
+begin
+  if InFight or (GetOrderTarget = nil) or not CanInterruptAction then Exit;
+
   //--We don't take advantage of ChangeWalkTo yet for the sake of simplicity?
-  if (fOrder = woAttackUnit)
-  and not InFight
-  and (GetOrderTarget <> nil)
-  and CanInterruptAction then
+  if IsRanged then
   begin
-    if IsRanged then
+    //Check target in range, and if not - chase it / back up from it
+    if (KMLength(GetPosition, fOrderTargetUnit.GetPosition) > GetFightMaxRange) then
     begin
-      //Check target in range, and if not - chase it / back up from it
-      if (KMLength(GetPosition, fOrderTargetUnit.GetPosition) > GetFightMaxRange) then
-      begin
-        //Too far away
-        if (GetUnitAction is TUnitActionWalkTo)
-        and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
-          TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget, GetFightMaxRange)
-        else
-        if CanInterruptAction then
-          SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);
-      end
+      //Too far away
+      if (GetUnitAction is TUnitActionWalkTo)
+      and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
+        TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget, GetFightMaxRange)
       else
-      if (KMLength(GetPosition, fOrderTargetUnit.GetPosition) < GetFightMinRange) then
-      begin
-        //Too close
-      end
-      else
-        //WithinRange
-        FightEnemy(fOrderTargetUnit);
+      if CanInterruptAction then
+        SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);
     end
     else
+    if (KMLength(GetPosition, fOrderTargetUnit.GetPosition) < GetFightMinRange) then
     begin
-      //Melee
-    end;
+      //Too close
+    end
+    else
+      //WithinRange
+      FightEnemy(fOrderTargetUnit);
+  end
+  else
+  begin
+    //Melee
+  end;
+end;
+
+
+function TKMUnitWarrior.UpdateState: Boolean;
+begin
+  if fCurrentAction = nil then
+    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitWarrior.UpdateState',fCurrPosition);
+
+  if IsDeadOrDying then
+  begin
+    Result := True; //Required for override compatibility
+    inherited UpdateState;
+    Exit;
   end;
 
+  if fCondition < UNIT_MIN_CONDITION then
+    fThought := th_Eat; //th_Death checked in parent UpdateState
+
+  //Part 1 - Take orders into execution if there are any
+  //Part 2 - UpdateState
+  //Part 3 -
+
+  //Make sure attack order is still valid
+  if ((fNextOrder = woAttackUnit) and (GetOrderTarget = nil))
+  or ((fNextOrder = woAttackHouse) and (GetOrderHouseTarget = nil)) then
+    fOrder := woNone;
+
+  if fNextOrder <> woNone then
+    TakeNextOrder;
+
+  //Do the chase
+  if fOrder = woAttackUnit then
+    ChaseTargetUnit;
 
   if (fTicker mod 5 = 0) then
     CheckForEnemy; //Split into seperate procedure so it can be called from other places
