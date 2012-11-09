@@ -47,4 +47,12 @@ rd /s /q "MapsMP\Heroes of Might & Axe I"
 rd /s /q "MapsMP\Dark Rock 4P"
 rd /s /q "MapsMP\Dark Rock 6P"
 
+rd /s /q "MapsMP\TPR 5"
+rd /s /q "MapsMP\TPR 6"
+rd /s /q "MapsMP\TPR 7"
+rd /s /q "MapsMP\TPR 8"
+rd /s /q "MapsMP\TPR 9"
+rd /s /q "MapsMP\TSK 7"
+rd /s /q "MapsMP\TSK 8"
+
 del PostInstallClean.bat

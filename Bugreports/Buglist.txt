@@ -1,4 +1,4 @@
-﻿Since r4001:
+﻿Since r4179:
 <===================================================================================>
  +	Make Serfs face the house plan entrance when handing building materials to it
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
@@ -100,7 +100,7 @@ Improvements:
 
 
 
-Fixed in r41XX:
+Fixed in r4179:
 <===================================================================================>
  +	Belarusian letter Ў had upper and lower case swapped in fonts
  +	Intel 965/963 GPU does not comply with OGL 1.5 spec on VBOs, check Assigned instead of OGL version
