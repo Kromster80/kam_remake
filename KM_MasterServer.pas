@@ -41,6 +41,11 @@ type
 
 
 implementation
+const
+  {$IFDEF MSWindows} OS = 'Windows'; {$ENDIF}
+  {$IFDEF UNIX}      OS = 'Unix'; {$ENDIF}
+  {$IFDEF WDC} COMPILER = 'WDC'; {$ENDIF}
+  {$IFDEF FPC} COMPILER = 'FPC'; {$ENDIF}
 
 
 constructor TKMMasterServer.Create(const aMasterServerAddress: string);
@@ -87,7 +92,8 @@ begin
   fHTTPClient.OnReceive := nil; //We don't care about the response
   fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(aPort)
                      +'&playercount='+UrlEncode(IntToStr(aPlayerCount))+'&ttl='+UrlEncode(IntToStr(aTTL))
-                     +'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));
+                     +'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION)
+                     +'&os='+UrlEncode(OS)+'&compiler='+UrlEncode(COMPILER));
 end;
 
 
