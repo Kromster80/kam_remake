@@ -22,7 +22,7 @@ type
   public
     constructor Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word;
                        const aMasterServerAddress:string; const aHTMLStatusFile:string;
-                       const aWelcomeMessage:string);
+                       const aWelcomeMessage:string; aDedicated:Boolean);
     destructor Destroy; override;
 
     procedure Start(const aServerName:string; const aPort:string; aPublishServer:boolean);
@@ -47,11 +47,11 @@ uses KM_Utils;
 //Announce interval of -1 means the server will not be published (LAN)
 constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word;
                                       const aMasterServerAddress:string; const aHTMLStatusFile:string;
-                                      const aWelcomeMessage:string);
+                                      const aWelcomeMessage:string; aDedicated:Boolean);
 begin
   inherited Create;
   fNetServer := TKMNetServer.Create(aMaxRooms, aKickTimeout, aHTMLStatusFile, aWelcomeMessage);
-  fMasterServer := TKMMasterServer.Create(aMasterServerAddress);
+  fMasterServer := TKMMasterServer.Create(aMasterServerAddress, aDedicated);
   fMasterServer.OnError := MasterServerError;
   fAnnounceInterval := Max(MINIMUM_ANNOUNCE_INTERVAL, aAnnounceInterval);
   fPingInterval := aPingInterval;

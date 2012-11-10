@@ -475,7 +475,7 @@ begin
   end;
 
   if aRecipient = NET_ADDRESS_ALL then
-    for i:=0 to fClientList.Count-1 do
+    for i:=fClientList.Count-1 downto 0 do
       fServer.SendData(fClientList[i].Handle, M.Memory, M.Size)
   else
     fServer.SendData(aRecipient, M.Memory, M.Size);
@@ -589,11 +589,11 @@ begin
 
     case PacketRecipient of
       NET_ADDRESS_OTHERS: //Transmit to all except sender
-          for i:=0 to fClientList.Count-1 do
+          for i:=fClientList.Count-1 downto 0 do
               if (aHandle <> fClientList[i].Handle) and (SenderRoom = fClientList[i].Room) then
                 fServer.SendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
       NET_ADDRESS_ALL: //Transmit to all including sender (used mainly by TextMessages)
-              for i:=0 to fClientList.Count-1 do
+              for i:=fClientList.Count-1 downto 0 do
                 if SenderRoom = fClientList[i].Room then
                   fServer.SendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
       NET_ADDRESS_HOST:

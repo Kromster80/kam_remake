@@ -199,7 +199,7 @@ begin
   inherited Create;
   SetGameState(lgs_None);
   fMyLang := aLang;
-  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '');
+  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '', False);
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);

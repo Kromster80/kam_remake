@@ -171,6 +171,7 @@ begin
     begin
       if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
         fSocketServer.Client[i].Close;
+      Exit; //Only one client should have this handle
     end;
 end;
 

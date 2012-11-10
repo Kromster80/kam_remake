@@ -144,7 +144,7 @@ begin
   if fSocketServer <> nil then
   begin
     //We have to disconnect all the clients too
-    for i:=0 to fSocketServer.Count-1 do
+    for i:=fSocketServer.Count-1 downto 0 do
       fSocketServer.Socks[i].Disconnect(true);
 
     fSocketServer.Disconnect(true);
@@ -235,24 +235,21 @@ end;
 
 
 procedure TKMNetServerLNet.Kick(aHandle:integer);
-var i:integer; Found:boolean;
+var i:integer;
 begin
-  Found := false;
   for i:=0 to fSocketServer.Count-1 do
     if (fSocketServer.Socks[i].UserData <> nil) and (TClientInfo(fSocketServer.Socks[i].UserData).Tag = aHandle) then
     begin
       if fSocketServer.Socks[i].Connected then //Sometimes this occurs just before ClientDisconnect
       begin
-        Found := true;
         fSocketServer.Socks[i].Disconnect(true);
         fOnClientDisconnect(aHandle); //A forceful disconnect does not always trigger the disconnect event so we need to do it manually
       end;
+      Exit; //Only one client should have this handle
     end;
-  if not Found then
-  begin
-    fOnError('Warning: Attempted to kick a client that has already disconnected');
-    fOnClientDisconnect(aHandle); //Client has already disconnected somehow, so send the event to ensure they are removed
-  end;
+  //If we reached here we didn't find a match
+  fOnError('Warning: Attempted to kick a client that has already disconnected');
+  fOnClientDisconnect(aHandle); //Client has already disconnected somehow, so send the event to ensure they are removed
 end;
 
 
