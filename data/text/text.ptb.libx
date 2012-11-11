@@ -2,21 +2,21 @@
 MaxID:2813
 
 0:Serraria
-1:Forjador de ferro
-2:Serraria de armas
+1:Forja de ferro
+2:Forja de armas
 3:Mina de carvão
 4:Mina de ferro
 5:Mina de ouro
-6:Pescador
+6:Cabana do pescador
 7:Padaria
 8:Fazenda
 9:Lenhador
-10:Serraria de armaduras
+10:Forja de armaduras
 11:Armazém
 12:Estábulos
 13:Escola
 14:Pedreira
-15:Metalúrgico
+15:Casa de fundição
 16:Fazenda de porcos
 17:Torre de vigia
 18:Prefeitura
@@ -24,8 +24,8 @@ MaxID:2813
 20:Oficina de armaduras
 21:Quartel
 22:Moinho
-23:Oficina de qualidade
-24:Açougueiro
+23:Oficina para armas de cerco
+24:Açougue
 25:Curtume
 26:Edifício de treinamento
 27:Pousada
@@ -88,16 +88,16 @@ MaxID:2813
 95:Guerreiro
 96:Vagabundo
 97:Catapulta
-98:Ballista
+98:Balista
 99:Os servos levarão os suprimentos de suas contruções com a matéria-prima necessária.||Note que deve existir uma ligação com a estrada entre os edifícios
-100:Para produzir troncos de árvores para a serraria, você precisa de um lenhador.||O lenhador corta e planta arvores de forma independente.
-101:O mineiro retira minério a partir das minas de carvão, ferro e ouro.
-102:O criador de animais usa milho para criar porcos na granja de suínos e cavalos nos estábulos.
-103:O agricultor planta e colhe milho na fazenda.||Ele também produz vinho no vinheiro.
-104:O carpinteiro trabalha na serraria e nas oficinas de arsenais.||Ele também constrói catapultas, balistas e arsenais de qualidade.
+100:Para produzir troncos de árvores para a serraria, você precisa de um lenhador.||O lenhador corta e planta árvores de forma independente.
+101:O mineiro retira minério das minas de carvão, ferro e ouro.
+102:O criador de animais usa milho para criar porcos no curral de suínos e cavalos nos estábulos.
+103:O agricultor planta e colhe milho na fazenda.||Ele também produz vinho na vinícola.
+104:O carpinteiro trabalha na serraria, na oficina de armas e na oficina de armaduras.||Ele também constrói catapultas e balistas  na oficina de armas de cerco.
 105:O padeiro transforma milho em farinha no moinho.||Ele também assa pão na padaria.
 106:O açougueiro faz salsichas no açougue e também talhos de couro no curtume.
-107:O pescador pega peixe nas águas das proximidades.
+107:O pescador pesca peixes nas águas das proximidades.
 108:O trabalhador constrói edifícios e estradas. Basta destacar o seu local preferido e ele vai executar os seus comandos automaticamente.||Ele também repara edifícios danificados.
 109:Para suprir seus trabalhadores com material suficiente para construção de estradas e edifícios, o pedreiro vai cortar e lapidar pedras.
 110:O ferreiro forja armas e armaduras de ferro.
@@ -121,9 +121,9 @@ MaxID:2813
 162:Terminar missão
 163:SFX
 164:Alterar o Volume
-165:Musica
-166:Musica ligar/desligar
-167:Salvar Automaticamente
+165:Música
+166:Ligar/desligar música
+167:Salvar automaticamente
 168:Reprodutor de música
 169:Faixa anterior
 170:Próxima faixa
@@ -156,51 +156,51 @@ MaxID:2813
 197:ativar/desativar reparo da casa
 198:Edifício não disponível no momento
 199:Condição
-200:virar tropa á esquerda
-201:Virar tropa á direita
+200:Virar tropa à esquerda
+201:Virar tropa à direita
 202:Atacar ('a')
 203:Enviar tropa ('d')
-204:Abastecer tropa com alimentos
+204:Alimentar tropa
 205:Iniciar Ataque Tempestade
 206:Adicionar linha:
 207:Retirar linha
 208:Selecionar|grupo
 209:Cancelar
-210:Deletar
-211:Deletar mensagem atual
+210:Excluir
+211:Excluir mensagem atual
 212:Ir para
 213:Ir para a posição atual da mensagem
 214:Fechar
 215:Fechar janela
-216:|O seu pedreiro não pode encontrar material de trabalho.
+216:|O seu pedreiro não consegue mais alcançar nenhuma reserva de pedra.
 217:|Sua mina de carvão se esgotou.
 218:|Sua mina de ferro se esgotou.
 219:|Sua mina de ouro se esgotou.
 220:|Esta casa não está ocupada.
-221:|Esta tropa está verdadeiramente com fome, é melhor comer alguma coisa logo!
+221:|Esta tropa está realmente com fome, é melhor eles se alimentarem logo!
 222:PAUSAR
 223:Alterar o Volume
-224:ligar/desligar entrega de mercadorias
+224:ativar/desativar entrega de mercadorias
 418:Espírito
 419:Ocupado
-420:Chifres da idade média
+420:Chifre da idade média
 421:Primavera
 422:Alaúde
-423:Mercenario
+423:Mercenário
 424:A Princesa
 425:A Rainha
 426:No mercado
 427:No campo de batalha
-428:Tribunal de dança
+428:Dança da corte
 429:O Exército
 430:No Castelo
 431:Fanfarras
 432:Na Corte
-433:entrada
-434:Azul profundo
+433:Entrada
+434:Azul marinho
 435:Luta
 436:Quartel Real
-437:aristocracia
+437:Aristocracia
 438:No porto
 439:Jornada
 849:Jogar um Mapa Único
@@ -248,7 +248,7 @@ MaxID:2813
 1707:Controles:
 1708:Em jogo:
 1709:Som:
-1710:Desativar musica
+1710:Desativar música
 1711:Gráficos:
 1712:Brilho
 1713:Tela Cheia
@@ -283,20 +283,20 @@ MaxID:2813
 1743:Sobrescrever
 1744:Salvar
 1745:Carregar
-1748:Uma versão antiga do OpenGL foi detectada, o jogo poderá apresentar falhas grafícas
+1748:Uma versão antiga do OpenGL foi detectada, o jogo poderá apresentar falhas gráficas
 1749:Erro de rede
 1750:Erro: Nome do jogador não pode ficar em branco
 1751:Conexão falhou: %s
 1752:Você foi desconectado
 1753:Missão %d
 1754:A cabana do seu pescador está muito longe da água.
-1755:Seu pescador não pode pegar nenhum peixe nas aguas próximas.
-1757:Use o botão esquerdo do mouse para selecionar o artigo de comércio
-1758:Use o botão direito do mouse para selecionar o artigo de comércio
+1755:Seu pescador não consegue mais pescar nenhum peixe nas águas próximas.
+1757:Use o botão esquerdo do mouse para selecionar a mercadoria a ser trocada(enviada).
+1758:Use o botão direito do mouse para selecionar a mercadoria a ser trocada(recebida)
 1759:De x%d
 1760:Para x%d
 1761:Editar terreno
-1762:Planejamento de Aldeia
+1762:Planejamento da vila
 1763:Roteiro visual
 1764:Roteiro global
 1765:Menu
@@ -327,7 +327,7 @@ MaxID:2813
 1790:Cor
 1791:Preparado
 1792:Ping
-1793:Kick
+1793:Chutar fora
 1794:Aberto
 1795:Jogador CPU
 1796:Selecionar..
@@ -346,7 +346,7 @@ MaxID:2813
 1813:Sair da sala
 1814:Preparado
 1815:Iniciar!
-1816:Aguardando por jogadores:
+1816:Aguardando jogadores:
 1817:Créditos do KaM Remake
 1818:Créditos Originais do Knights & Merchants
 1819:PROGRAMADORES:
@@ -356,9 +356,9 @@ MaxID:2813
 1823:AGRADECIMENTOS ESPECIAIS:
 1824:Mapas multi-jogador
 1825:Mapas singleplayer
-1826:Velocidade do Scroll
+1826:Velocidade do Rolamento
 1827:Sem servidores! Verifique|a conexão com a internet.
-1828:misturar as faixas
+1828:Misturar as faixas
 1829:Informação do jogo:
 1830:-
 1831:Aguardando
@@ -369,12 +369,12 @@ MaxID:2813
 1836:Lutar
 1837:Despreparado
 1838:Pronto
-1839:Erro: Please select a player from the save to control
-1840:Erro: Falha no mapa ou mapa não-caregado
-1841: Não é possível iniciar: %s
+1839:Erro: Por favor,  selecione um jogador do salvo para controlar
+1840:Erro: Falha no mapa ou mapa não carregado
+1841:Não é possível iniciar: %s
 1842:Alguns jogadores não estão prontos para iniciar
 1843:Erro: Há mais jogadores do que o mapa permite
-1844: Versão do protocolo errado: %s. Servidor usa: %s
+1844:Versão do protocolo errado: %s. Servidor usa: %s
 1845:O servidor atribuiu direitos de hospedagem para nós
 1846:Aumentar a quantidade de comércio
 1847:Diminuir a quantidade de comércio
@@ -389,14 +389,14 @@ MaxID:2813
 1856:Você tem certeza que quer sair?
 1857:Você tem certeza que quer tirar este jogador permanentemente?
 1858:Cancelar
-1859:Povoado|treinado
-1860:Povoado|perdido
+1859:Aldeões|treinados
+1860:Aldeões|perdidos
 1861:Soldados|equipados
 1862:Soldados|perdidos
-1863:Unidades|derrotado
+1863:Unidades|derrotadas
 1864:Edifícios|construídos
-1865:Edifícios|Perdido
-1866:Edifícios|destruído
+1865:Edifícios|perdidos
+1866:Edifícios|destruídos
 1867:Mercadoria| produzida
 1868:Armas|Produzidas
 1869:Este recurso não está disponível nesta missão
@@ -406,9 +406,9 @@ MaxID:2813
 1873:Mapa de construção
 1874:Mapa de luta
 1875:Mapa cooperativo
-1876:Você está no tempo de paz. Não pode usar soldados!
+1876:Você está em tempo de paz. Não pode usar soldados!
 1877:Tempo de paz faltando: %s
-1878:o tempo de paz acabou. Use suas armas!
+1878:O tempo de paz acabou. Às armas!
 1879:Tempo do jogo:|%s
 1880:Opções do Jogo:
 1884:Parar tropa ('%s')
@@ -425,11 +425,11 @@ MaxID:2813
 1897:Um erro aconteceu com o arquivo: %s
 1898:Fechado
 1899:Administrador faz configuração do jogo
-1901:units
+1901:unidades
 1902:Casas
 1903:Árvores
 1904:Definições
-1905:Sel. Título
+1905:Def. texturas
 2687:Criar servidor
 2688:PROCURAR SERVIDOR
 2689:Conectar
@@ -445,17 +445,17 @@ MaxID:2813
 2699:Alto
 2700:Mapa não encontrado: %s
 2701:Arquivo do mapa não coincide com o administrador para o : %s
-2702:Save não encontrado: %s
-2703:Arquivo de Save não coincide com o administrador para o: %s
+2702:Salvo não encontrado: %s
+2703:Arquivo de Salvo não coincide com o administrador para o: %s
 2705:Por favor atualize os seus drivers gráficos para ter um melhor desempenho
 2706:Ocorreu um erro na aplicação. Por favor, clique em Enviar relatório de erros para que possamos investigar esta questão. Obrigado por sua ajuda!
 2707:Enviar relatório de erros
 2708:Mostrar Dados Brutos
-2709:O replay falhou uma verificação de consistência. Este é um bug conhecido, que afeta a reprodução de alguns replays. Você quer continuar a ver?
+2709:O replay falhou em uma verificação de consistência. Este é um bug conhecido, que afeta a reprodução de alguns replays. Você quer continuar a ver?
 2710:Seu nome: (Opcional)
 2711:Seu e-mail:(Opcional)
 2712:Lembre-me
-2713:Na situação que o erro ocorre? Você pode fornecer alguma informação adicional? (Inglês preferido)
+2713:Em qual situação ocorreu o erro? Você pode nos fornecer alguma informação adicional? (em inglês, preferencialmente)
 2714:Anexar uma imagem para o relatório de bug
 2715:(Clique para editar a imagem)
 2716:Encerrar aplicativo
@@ -467,9 +467,9 @@ MaxID:2813
 2722:Detalhes do erro
 2723:Screenshot
 2724:Enviando relatório de erros...
-2725:Conectando servidor...
-2726:Envio de dados ...
-2727:Envio do relatório de acidente falhou! Nosso servidor pode estar ocupado, por favor, tente enviar novamente.
+2725:Conectando-se ao servidor...
+2726:Enviando dados ...
+2727:O envio do relatório de acidente falhou! Nosso servidor pode estar ocupado, por favor, tente enviar novamente.
 2728:Informação
 2729:Por favor, espere um momento...
 2730:Campanhas
@@ -483,31 +483,31 @@ MaxID:2813
 2740:Reiniciar replay
 2741:Sair do replay
 2742:Continuar replay pausado
-2743:Passo 1 carrapato frente
+2743:Avançar um marco
 2744:Pausar replay
-2745:Você só pode ter uma instância do jogo no modo multiplayer de uma só vez
+2745:Você só pode ter uma instância do jogo no modo multi-jogador cada vez
 2746:Fim do replay
 2747:MÚSICA ADICIONAL
 2748:Você
 2749:Jogador %d
-2750:Armas
-2751:Povoado
+2750:Exército
+2751:Aldeões
 2752:Casas
 2753:Recursos
 2754:Recursos Produzidos
 2755:Estatísticas
 2756:Economia
-2757:construção de casa
-2758:Site de aplanamento da casa
+2757:Construindo casa
+2758:Aplainando o terreno
 2759:Construindo videira
-2760:campo de escavação
+2760:Arando campo
 2761:Construindo Estrada
-2762:Cumprindo
+2762:Transportando
 2763:Plantando árvore
 2764:Indo para casa
-2765:Arrumando casa
+2765:Consertando casa
 2766:Lutando
-2767:Acendimento
+2767:Atirando
 2768:Atacando casa
 2769:Indo para o restaurante
 2770:Cortando árvore
@@ -515,10 +515,32 @@ MaxID:2813
 2772:Se movendo
 2773:Ataque tempestade!
 2774:Pescando
-2775:Cultivo de Uvas
+2775:Cultivando uvas
 2776:Cultivando milho
 2777:Semeando Milho
 2778:Extraindo pedra
 2779:Atacando
-2780:Modificações para o jogo não são permitidos no multiplayer.|Reinstale para restaurar os arquivos originais.
+2780:Modificações para o jogo não são permitidas no modo multi-jogador.|Reinstale para restaurar os arquivos originais.
 2781:Modificações não suportadas
+2785:Elevar/Abaixar
+2787:Elevar(botão esquerdo)/Abaixar(botão direito)
+2788:Desnivelar/Aplainar
+2790:Desnivelar(botão esquerdo)/Aplainar(botão direito)
+2792:Escova quadrada
+2793:Escova circular
+2794:Arraste para mudar a elevação da subida: 1-planalto 15-pico
+2795:Arraste para mudar o tamanho da escova
+2797:Objetos
+2798:Pisos
+2799:Escovas
+2800:Planaltos
+2804:Clique com o botão direito para girar o piso selecionado
+2805:Manter direção aleatória do piso ou clique com o botão direito para girar o piso selecionado
+2806:Direção aleatória
+2807:Tamanho
+2808:Subida
+2809:Remover objeto
+2810:Arraste para alterar a velocidade da elevação 1 = devagar ... 15 = muito rápido
+2811:Velocidade
+2812:|Seu lenhador não consegue mais encontrar árvores para cortar e foi instruído a não plantar mais árvores
+2813:Forma da escova
