@@ -28,6 +28,7 @@
 	Players can cause "tactical lag" by zooming out so their framerate drops and the game slows down for everyone. Dynamically limit zooming to maintain good framerate? Threaded rendering would probably solve this problem too since most of the time spent in rendering is non-critical (waiting for GPU so game updating can happen simultaneously)
 	If you halt your archers after they shoot they will shoot without reloading, increasing their firing speed. Add some kind of special pause before the first shot or after halting? Also applies to attacking houses.
 	Saving a map in MapEd with a name ending/starting in a space crashes with "Invalid file name"
+	There's no message in MP when you defeat AI opponent (if you defeat human opponent it shows one)
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
