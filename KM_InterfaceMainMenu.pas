@@ -1334,6 +1334,7 @@ begin
 
     ColList_SingleMaps.OnColumnClick := SingleMap_Sort;
     ColList_SingleMaps.OnChange := SingleMap_ListClick;
+    ColList_SingleMaps.OnDoubleClick := SingleMap_Start;
 
     Panel_SingleDesc := TKMPanel.Create(Panel_Single, 45, 135, 445, 520);
     Panel_SingleDesc.Anchors := [];
