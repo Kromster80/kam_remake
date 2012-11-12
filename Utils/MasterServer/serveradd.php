@@ -11,9 +11,17 @@ $Port = $_REQUEST["port"];
 $PlayerCount = $_REQUEST["playercount"];
 $TTL = $_REQUEST["ttl"];
 $Rev = $_REQUEST["rev"];
+$Coderev = $_REQUEST["coderev"];
 if(($Name == "") || ($IP == "") || ($Port == "") || ($TTL == "") || ($PlayerCount == ""))
 {
 	die("Incorrect parameters");
 }
+
+//Don't allow buggy Linux server versions, Windows server (ICS) is ok
+if((($Coderev == "r4179") || ($Coderev == "r4185")) && ($_SERVER['HTTP_USER_AGENT'] != "Mozilla/4.0 (compatible; ICS)"))
+{
+	die("Please download the server update");
+}
+
 echo AddServer($Name,$IP,$Port,$PlayerCount,$TTL,$Rev);
 ?>

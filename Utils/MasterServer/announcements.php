@@ -89,7 +89,7 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-	echo 'Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to support future development. Visit [$F8A070]www.kamremake.com/donations[]||Use [$F23A40]TeamSpeak[] to talk with your allies while playing KaM. There are instructions at [$F8A070]www.kamremake.com[]';
+	echo 'The recent bugs with the servers causing games to fail to start should be all fixed! If you experience any further problems please contact us at our website.||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to support future development. Visit [$F8A070]www.kamremake.com/donations[]||Use [$F23A40]TeamSpeak[] to talk with your allies while playing KaM. There are instructions at [$F8A070]www.kamremake.com[]';
 	//echo 'The 2 vs 2 Powah Tournament has begun! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
 	//echo 'Powah Tour (Florek, Mulberry, To) are organising a tournament! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
 	//echo '[$FF6EAF]Welcome to the 4th multiplayer demo[] :)|Please report any issues.';
