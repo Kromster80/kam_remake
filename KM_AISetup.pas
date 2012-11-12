@@ -31,7 +31,6 @@ type
 
 
 implementation
-uses KM_Utils;
 
 
 { TKMPlayerAISetup }

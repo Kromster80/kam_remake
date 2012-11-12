@@ -3,7 +3,7 @@ unit KM_UnitGroups;
 interface
 uses Classes, Math, SysUtils, Types,
      KM_Defaults, KM_CommonClasses, KM_CommonTypes, KM_Points, KM_Houses, KM_Units,
-     KM_UnitActionFight, KM_Units_Warrior;
+     KM_Units_Warrior;
 
 type
   TKMTurnDirection = (tdNone, tdCW, tdCCW);

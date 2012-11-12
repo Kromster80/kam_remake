@@ -841,7 +841,7 @@ begin
     Exit;
   end;
 
-  with fUnit do
+  with TKMUnitWorker(fUnit) do
     case fPhase of
       0: if PickRandomSpot(Cells, BuildFrom) then
          begin
@@ -957,7 +957,7 @@ begin
     Exit;
   end;
 
-  with fUnit do
+  with TKMUnitWorker(fUnit) do
     case fPhase of
       0:  if PickRandomSpot(Cells, BuildFrom) then
           begin

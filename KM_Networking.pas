@@ -189,8 +189,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Sound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource,
-  KM_ResourceTileset, KM_ResourceMapElements;
+uses KM_TextLibrary, KM_Sound, KM_Log, KM_Utils, StrUtils, Math, KM_Resource;
 
 
 { TKMNetworking }

@@ -93,7 +93,7 @@ type
 
 
 implementation
-uses KM_CommonClasses, KM_Defaults, KM_MissionScript, KM_Player, KM_TextLibrary, KM_Utils;
+uses KM_CommonClasses, KM_Defaults, KM_MissionScript, KM_Player, KM_TextLibrary;
 
 
 const

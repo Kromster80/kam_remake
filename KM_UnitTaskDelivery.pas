@@ -247,7 +247,7 @@ begin
           if (fToUnit is TKMUnitWarrior) then
           begin
             fToUnit.Feed(UNIT_MAX_CONDITION); //Feed the warrior
-            TKMUnitWarrior(fToUnit).RequestedFood := false;
+            TKMUnitWarrior(fToUnit).RequestedFood := False;
           end;
           fPlayers[Owner].Stats.GoodConsumed(Carry);
           CarryTake;

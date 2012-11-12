@@ -266,9 +266,10 @@ type
 
 
 implementation
-uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary,
-     KM_Utils, KM_Game, KM_GameApp, KM_Resource, KM_ResourceUnit, KM_ResourceCursors,
-     KM_ResourceMapElements, KM_AIDefensePos;
+
+uses
+  KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Game, KM_GameApp, KM_Resource,
+  KM_ResourceUnit, KM_ResourceCursors, KM_ResourceMapElements, KM_AIDefensePos;
 
 
 const

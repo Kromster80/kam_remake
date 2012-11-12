@@ -3,7 +3,7 @@ unit KM_NavMesh;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics, Delaunay,
-  KM_CommonClasses, KM_CommonTypes, KM_Defaults,
+  KM_CommonClasses, KM_Defaults,
   KM_Points, KM_PolySimplify;
 
 type

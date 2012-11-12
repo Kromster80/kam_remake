@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF WDC} Graphics, JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet -> FPReadJPEG?
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  dglOpenGL, KromOGLUtils, KromUtils, Math;
+  Math, dglOpenGL, KromOGLUtils, KromUtils;
 
 
 type
@@ -18,7 +18,6 @@ type
   TexFormatSize: array [TTexFormat] of Byte = (2, 4, 1);
 
 type
-  TCardinalArray = array of Cardinal;
   TRenderMode = (rm2D, rm3D);
 
   //General OpenGL handling

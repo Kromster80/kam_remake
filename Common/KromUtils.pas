@@ -13,8 +13,8 @@ uses
   ;
 
 type
-  TStringArray = array of String;
   TAnsiStringArray = array of AnsiString;
+  TStringArray = array of String;
 
 
 function TimeGet: Cardinal;

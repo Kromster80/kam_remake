@@ -29,7 +29,7 @@ type
   end;
 
 implementation
-uses KM_Units_Warrior, KM_Resource;
+uses KM_Resource;
 
 
 const

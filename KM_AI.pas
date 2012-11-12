@@ -56,8 +56,8 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
-     KM_Sound, KM_Events, KM_UnitActionWalkTo;
+uses KM_Game, KM_PlayersCollection, KM_Goals, KM_Player, KM_PlayerStats,
+     KM_Sound, KM_Events;
 
 
 const

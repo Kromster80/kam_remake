@@ -3,8 +3,8 @@ unit KM_AIFields;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_CommonTypes, KM_Terrain, KM_Defaults,
-  KM_Player, KM_Utils, KM_Points, KM_NavMesh;
+  KM_CommonClasses, KM_Terrain, KM_Defaults,
+  KM_Player, KM_Points, KM_NavMesh;
 
 type
   //Strcucture to describe NavMesh layout

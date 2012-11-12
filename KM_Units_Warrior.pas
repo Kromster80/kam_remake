@@ -2,7 +2,8 @@ unit KM_Units_Warrior;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, KromUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Utils, KM_Terrain, KM_Units, KM_Houses, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_Houses, KM_Terrain, KM_Units;
 
 
 type
@@ -10,10 +11,8 @@ type
   TKMWarriorEvent = procedure(aWarrior: TKMUnitWarrior) of object;
   TKMWarrior2Event = procedure(aWarrior: TKMUnitWarrior; aUnit: TKMUnit) of object;
 
-  //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
   private
-
     fNextOrder: TWarriorOrder; //New order we should perform as soon as we can change tasks
     fOrder: TWarriorOrder; //Order we are performing
     fOrderLoc: TKMPoint; //Dir is the direction to face after order
@@ -25,6 +24,7 @@ type
     fStormDelay: Word;
 
     function CanInterruptAction: Boolean;
+    procedure FightEnemy(aEnemy: TKMUnit);
 
     procedure ClearOrderTarget;
     procedure SetOrderTarget(aUnit: TKMUnit);
@@ -44,36 +44,29 @@ type
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); override;
     destructor Destroy; override;
 
+    function GetActivityText: string; override;
     procedure KillUnit; override;
 
-    property RequestedFood: Boolean read fRequestedFood write fRequestedFood; //Cleared by Serf delivering food
-
-  //Commands from player
+    //Commands from TKMUnitGroup
     procedure OrderFood;
     procedure OrderNone;
     procedure OrderStorm(aDelay: Word);
     procedure OrderWalk(aLoc: TKMPoint; aUseExactTarget: Boolean = True);
     procedure OrderAttackHouse(aTargetHouse: TKMHouse);
     procedure OrderAttackUnit(aTargetUnit: TKMUnit);
-    function OrderDone: Boolean;
 
     function GetFightMinRange: Single;
     function GetFightMaxRange(aTileBased: Boolean = False): Single;
     function WithinFightRange(Value: TKMPoint): Boolean;
-    property OrderTarget: TKMUnit read GetOrderTarget write SetOrderTarget;
-    property OrderLoc: TKMPoint read fOrderLoc write fOrderLoc;
-    property UseExactTarget: Boolean read fUseExactTarget;
-
+    function OrderDone: Boolean;
+    property RequestedFood: Boolean read fRequestedFood write fRequestedFood; //Cleared by Serf delivering food
     function IsRanged: Boolean;
     function InFight: Boolean;
     function FindLinkUnit(aLoc: TKMPoint): TKMUnitWarrior;
-    function GetActivityText: string; override;
-
-    procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse: TKMHouse); override;
-
     function CheckForEnemy: Boolean;
     function FindEnemy: TKMUnit;
-    procedure FightEnemy(aEnemy: TKMUnit);
+
+    procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse: TKMHouse); override;
 
     procedure Save(SaveStream: TKMemoryStream); override;
     function UpdateState: Boolean; override;
@@ -82,7 +75,7 @@ type
 
 
 implementation
-uses KM_CommonTypes, KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux,
+uses KM_DeliverQueue, KM_TextLibrary, KM_PlayersCollection, KM_RenderPool, KM_RenderAux,
   KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit;
