@@ -117,6 +117,7 @@ end;
 
 destructor TKMNetServerLNet.Destroy;
 begin
+  StopListening;
   if fSocketServer<> nil then fSocketServer.Free;
   Inherited;
 end;
@@ -132,7 +133,7 @@ begin
   fSocketServer.OnReceive := ReceiveData;
   fSocketServer.OnCanSend := CanSend;
   fSocketServer.Timeout := 1; //This is the time it will wait in CallAction for the OS to respond, it's better than calling Sleep(1)
-  fSocketServer.ReuseAddress := false; //Abort if the port is in use
+  fSocketServer.ReuseAddress := True; //Allows us to overwrite an old connection in the wait state rather than saying the port is still in use
   if not fSocketServer.Listen(StrToInt(aPort)) then
     raise Exception.Create('Server failed to start');
 end;
@@ -144,10 +145,17 @@ begin
   if fSocketServer <> nil then
   begin
     //We have to disconnect all the clients too
-    for i:=fSocketServer.Count-1 downto 0 do
-      fSocketServer.Socks[i].Disconnect(true);
-
-    fSocketServer.Disconnect(true);
+    fSocketServer.IterReset;
+    while fSocketServer.IterNext do
+    begin
+      fSocketServer.Iterator.Disconnect(True);
+      if fSocketServer.Iterator.UserData <> nil then
+      begin
+        TClientInfo(fSocketServer.Iterator.UserData).Free;
+        fSocketServer.Iterator.UserData := nil;
+      end;
+    end;
+    fSocketServer.Disconnect(True);
   end;
   FreeAndNil(fSocketServer);
   fLastTag := FIRST_TAG-1;
@@ -216,33 +224,34 @@ end;
 
 //Make sure we send data to specified client
 procedure TKMNetServerLNet.SendData(aHandle:integer; aData:pointer; aLength:cardinal);
-var i, LenSent: Integer;
+var LenSent: Integer;
 begin
-  for i:=0 to fSocketServer.Count-1 do
-    if fSocketServer.Socks[i].Connected then //Sometimes this occurs just before ClientDisconnect
-      if (fSocketServer.Socks[i].UserData <> nil) and (TClientInfo(fSocketServer.Socks[i].UserData).Tag = aHandle) then
+  fSocketServer.IterReset;
+  while fSocketServer.IterNext do
+    if fSocketServer.Iterator.Connected then //Sometimes this occurs just before ClientDisconnect
+      if (fSocketServer.Iterator.UserData <> nil) and (TClientInfo(fSocketServer.Iterator.UserData).Tag = aHandle) then
       begin
-        if TClientInfo(fSocketServer.Socks[i].UserData).BufferFull then
+        if TClientInfo(fSocketServer.Iterator.UserData).BufferFull then
         begin
-          fOnError('Send buffer full for client '+IntToStr(TClientInfo(fSocketServer.Socks[i].UserData).Tag));
+          fOnError('Send buffer full for client '+IntToStr(TClientInfo(fSocketServer.Iterator.UserData).Tag));
           Exit;
         end;
-        TClientInfo(fSocketServer.Socks[i].UserData).PutInBuffer(aData, aLength);
-        TClientInfo(fSocketServer.Socks[i].UserData).AttemptSend(fSocketServer.Socks[i]);
+        TClientInfo(fSocketServer.Iterator.UserData).PutInBuffer(aData, aLength);
+        TClientInfo(fSocketServer.Iterator.UserData).AttemptSend(fSocketServer.Iterator);
         Exit;
       end;
 end;
 
 
 procedure TKMNetServerLNet.Kick(aHandle:integer);
-var i:integer;
 begin
-  for i:=0 to fSocketServer.Count-1 do
-    if (fSocketServer.Socks[i].UserData <> nil) and (TClientInfo(fSocketServer.Socks[i].UserData).Tag = aHandle) then
+  fSocketServer.IterReset;
+  while fSocketServer.IterNext do
+    if (fSocketServer.Iterator.UserData <> nil) and (TClientInfo(fSocketServer.Iterator.UserData).Tag = aHandle) then
     begin
-      if fSocketServer.Socks[i].Connected then //Sometimes this occurs just before ClientDisconnect
+      if fSocketServer.Iterator.Connected then //Sometimes this occurs just before ClientDisconnect
       begin
-        fSocketServer.Socks[i].Disconnect(true);
+        fSocketServer.Iterator.Disconnect(True);
         fOnClientDisconnect(aHandle); //A forceful disconnect does not always trigger the disconnect event so we need to do it manually
       end;
       Exit; //Only one client should have this handle

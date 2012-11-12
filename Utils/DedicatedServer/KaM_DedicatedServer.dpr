@@ -6,7 +6,7 @@ program KaM_DedicatedServer;
 {$ENDIF}
 
 uses
-  {$IFDEF UNIX} cthreads, {$ENDIF} //We use a thread for deleting old log files
+  {$IFDEF UNIX} BaseUnix, cthreads, {$ENDIF} //We use a thread for deleting old log files
   SysUtils,
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
   KM_Utils,
@@ -95,10 +95,52 @@ begin
 end;
 {$ENDIF}
 
+//Called when our process is asked to terminate (by either Windows or Linux)
+procedure ServerKilled;
+begin
+  if fEventHandler <> nil then
+    fEventHandler.ServerStatusMessage('Interrupt received, shutting down server...')
+  else
+    Writeln('Interrupt received, shutting down server...');
+
+  if fDedicatedServer <> nil then
+  begin
+    fDedicatedServer.Stop;
+    fDedicatedServer.Free;
+  end;
+  if fEventHandler <> nil then fEventHandler.Free;
+
+  Halt; //Terminate the process
+end;
+
+{$IFDEF MSWindows}
+function OnConsoleCtrl(ACtrl: DWord): LongBool; stdcall;
+begin
+  Result := False;
+  if (ACtrl = CTRL_C_EVENT) or (ACtrl = CTRL_BREAK_EVENT) or (ACtrl = CTRL_CLOSE_EVENT) then
+  begin
+    Result := True;
+    ServerKilled;
+  end;
+end;
+{$ENDIF}
+
+{$IFDEF UNIX}
+procedure OnInterrupt(ASignal: cint); cdecl;
+begin
+  ServerKilled;
+end;
+{$ENDIF}
 
 begin
+  {$IFDEF UNIX}
+  //Handle interupts (requests for our process to terminate)
+  FpSignal(SIGTerm, @OnInterrupt);
+  FpSignal(SIGINT, @OnInterrupt);
+  {$ENDIF}
   {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
+  SetConsoleCtrlHandler(@OnConsoleCtrl, True); //Handle requests for our process to terminate
   {$ENDIF}
   fEventHandler := TKMServerEventHandler.Create;
   Writeln('=========== KaM Remake '+GAME_VERSION+' Dedicated Server ===========');
@@ -112,7 +154,7 @@ begin
   fSettings := TGameSettings.Create;
   fSettings.SaveSettings(true);
   fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
-  fLastSettingsFileCheck := 0;
+  fLastSettingsFileCheck := TimeGet;
 
   while True do
   begin
