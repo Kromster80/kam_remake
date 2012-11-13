@@ -7,9 +7,14 @@ uses Classes, KromUtils, Math, SysUtils,
 
 type
   TKMPlayerAISetup = class
+  private
+    fStrongCoef: Byte;
+    procedure SetStrongCoef(Value: Byte);
+  public
     Aggressiveness: Integer; //-1 means not used or default
     AutoBuild: Boolean;
     AutoRepair: Boolean;
+    AutoDefend: Boolean;
     EquipRateLeather, EquipRateIron: Word; //Number of ticks between soldiers being equipped. Seperated into Leather/Iron to keep KaM compatibility.
     MaxSoldiers: Integer; //-1 means not used or default
     RecruitDelay: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
@@ -19,11 +24,9 @@ type
     TownDefence: Integer; //-1 means not used or default
     WorkerFactor: Byte;
 
-    Strong: Boolean;
-
     constructor Create;
-
     function GetEquipRate(aUnit: TUnitType): Word;
+    property StrongCoef: Byte read fStrongCoef write SetStrongCoef;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -42,6 +45,7 @@ begin
   Aggressiveness := 100; //No idea what the default for this is, it's barely used
   AutoBuild := True; //In KaM it is On by default, and most missions turn it off
   AutoRepair := False; //In KaM it is Off by default
+  AutoDefend := False;
   EquipRateIron := 500; //Measured in KaM: AI equips 1 iron soldier every ~50 seconds
   EquipRateLeather := 1000; //Measured in KaM: AI equips 1 leather soldier every ~100 seconds (if no iron one was already equipped)
   MaxSoldiers := High(MaxSoldiers); //No limit by default
@@ -53,9 +57,17 @@ begin
   TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
 
   //Remake properties
-  Strong := True;//(KaMRandom > 0.5);
-  WorkerFactor := IfThen(Strong, 15, 6);
-  SerfFactor := IfThen(Strong, 7, 10);
+  fStrongCoef := 1;
+
+end;
+
+
+procedure TKMPlayerAISetup.SetStrongCoef(Value: Byte);
+begin
+  fStrongCoef := EnsureRange(Value, 1, 3);
+
+  WorkerFactor := fStrongCoef * 6;
+  SerfFactor := 11 - fStrongCoef;
 end;
 
 
@@ -73,6 +85,7 @@ begin
   SaveStream.Write(Aggressiveness);
   SaveStream.Write(AutoBuild);
   SaveStream.Write(AutoRepair);
+  SaveStream.Write(AutoDefend);
   SaveStream.Write(EquipRateLeather);
   SaveStream.Write(EquipRateIron);
   SaveStream.Write(MaxSoldiers);
@@ -83,7 +96,7 @@ begin
   SaveStream.Write(TownDefence);
   SaveStream.Write(WorkerFactor);
 
-  SaveStream.Write(Strong);
+  SaveStream.Write(fStrongCoef);
 end;
 
 
@@ -92,6 +105,7 @@ begin
   LoadStream.Read(Aggressiveness);
   LoadStream.Read(AutoBuild);
   LoadStream.Read(AutoRepair);
+  LoadStream.Read(AutoDefend);
   LoadStream.Read(EquipRateLeather);
   LoadStream.Read(EquipRateIron);
   LoadStream.Read(MaxSoldiers);
@@ -102,7 +116,7 @@ begin
   LoadStream.Read(TownDefence);
   LoadStream.Read(WorkerFactor);
 
-  LoadStream.Read(Strong);
+  LoadStream.Read(fStrongCoef);
 end;
 
 

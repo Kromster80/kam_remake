@@ -1035,7 +1035,7 @@ begin
     if fPlayers[i].PlayerType = pt_Computer then
     begin
       AddCommand(ct_AIStartPosition, [fPlayers[i].AI.Setup.StartPosition.X-1,fPlayers[i].AI.Setup.StartPosition.Y-1]);
-      if not fPlayers[i].AI.Setup.Autobuild then
+      if not fPlayers[i].AI.Setup.AutoBuild then
         AddCommand(ct_AINoBuild, []);
       AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[i].AI.Setup.RecruitFactor]);
       AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers[i].AI.Setup.SerfFactor]);

@@ -296,27 +296,21 @@ end;
 
 function TKMUnitWarrior.GetActivityText: string;
 begin
-  //case fState of
   Result := '';
-  {if fCurrentAction is TUnitActionFight then
-  begin
+  if fCurrentAction is TUnitActionFight then
     if IsRanged then
       Result := fTextLibrary[TX_UNIT_TASK_FIRING]
     else
-      Result := fTextLibrary[TX_UNIT_TASK_FIGHTING];
-  end
-  else if fCurrentAction is TUnitActionStormAttack then
-    Result := fTextLibrary[TX_UNIT_TASK_STORM_ATTACK]
-  //Sometimes only commanders are given order to walk to the unit, so check their action as well
-  else if ((fCurrentAction is TUnitActionWalkTo) and (TUnitActionWalkTo(fCurrentAction).WalkingToUnit)
-       or  (GetCommander.fCurrentAction is TUnitActionWalkTo) and (TUnitActionWalkTo(GetCommander.fCurrentAction).WalkingToUnit)) then
-    Result := fTextLibrary[TX_UNIT_TASK_ATTACKING]
-  else if (fCurrentAction is TUnitActionWalkTo) or (fCurrentAction is TUnitActionAbandonWalk) then
-    Result := fTextLibrary[TX_UNIT_TASK_MOVING]
-  else if (fUnitTask is TTaskAttackHouse) then
-    Result := fTextLibrary[TX_UNIT_TASK_ATTACKING_HOUSE]
+      Result := fTextLibrary[TX_UNIT_TASK_FIGHTING]
   else
-    Result := fTextLibrary[TX_UNIT_TASK_IDLE];}
+  case fOrder of
+    woNone:         Result := fTextLibrary[TX_UNIT_TASK_IDLE];
+    woWalk:         Result := fTextLibrary[TX_UNIT_TASK_MOVING];
+    woWalkOut:      Result := fTextLibrary[TX_UNIT_TASK_MOVING];
+    woAttackUnit:   Result := fTextLibrary[TX_UNIT_TASK_ATTACKING];
+    woAttackHouse:  Result := fTextLibrary[TX_UNIT_TASK_ATTACKING_HOUSE];
+    woStorm:        Result := fTextLibrary[TX_UNIT_TASK_STORM_ATTACK];
+  end;
 end;
 
 

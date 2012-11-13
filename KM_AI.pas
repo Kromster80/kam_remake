@@ -212,69 +212,82 @@ end;
 
 procedure TKMPlayerAI.CheckArmiesCount;
 var
-  Barracks:array of TKMHouseBarracks;
-  HB:TKMHouseBarracks;
-  GType: TGroupType;
-  i,k:integer;
+  Barracks: array of TKMHouseBarracks;
+  HB: TKMHouseBarracks;
+  GT: TGroupType;
+  I,K: Integer;
   UT: TUnitType;
-  TrainedSomething, CanEquipIron, CanEquipLeather:boolean;
-  GroupReq: array[TGroupType] of integer;
+  TrainedSomething, CanEquipIron, CanEquipLeather: Boolean;
+  GroupReq: array [TGroupType] of Integer;
 begin
-  if fGame.IsPeaceTime then Exit; //Do not process train soldiers during peacetime
+  if fGame.IsPeaceTime then Exit; //Do not train soldiers during peacetime
 
   if fPlayers[fOwner].Stats.GetArmyCount >= Setup.MaxSoldiers then Exit; //Don't train if we have reached our limit
+
   //Delay between equipping soldiers for KaM compatibility
-  CanEquipIron := fGame.CheckTime(fLastEquippedTime+Setup.EquipRateIron);
-  CanEquipLeather := fGame.CheckTime(fLastEquippedTime+Setup.EquipRateLeather);
+  CanEquipIron := fGame.CheckTime(fLastEquippedTime + Setup.EquipRateIron);
+  CanEquipLeather := fGame.CheckTime(fLastEquippedTime + Setup.EquipRateLeather);
+
   if not CanEquipIron and not CanEquipLeather then Exit;
 
   //Create a list of troops that need to be trained based on defence position requirements
   FillChar(GroupReq, SizeOf(GroupReq), #0); //Clear up
-  for k:=0 to fDefencePositions.Count - 1 do
-    with fDefencePositions[k] do
-    if CurrentGroup = nil then
-      inc(GroupReq[GroupType], fDefencePositions.TroopFormations[GroupType].NumUnits)
-    else
-      inc(GroupReq[GroupType], fDefencePositions.TroopFormations[GroupType].NumUnits - (CurrentGroup.Count));
+  for I := 0 to fDefencePositions.Count - 1 do
+  with fDefencePositions[I] do
+  if CurrentGroup = nil then
+    Inc(GroupReq[GroupType], fDefencePositions.TroopFormations[GroupType].NumUnits)
+  else
+    Inc(GroupReq[GroupType], Max(fDefencePositions.TroopFormations[GroupType].NumUnits - CurrentGroup.Count, 0));
+
+  //If we don't need anyone - Exit
+  I := 0;
+  for GT := Low(GroupReq) to High(GroupReq) do
+    Inc(I, GroupReq[GT]);
+  if I = 0 then Exit;
 
   //Find barracks
   SetLength(Barracks, fPlayers[fOwner].Stats.GetHouseQty(ht_Barracks));
-  k := 1;
-  HB := TKMHouseBarracks(fPlayers[fOwner].FindHouse(ht_Barracks,k));
+  I := 0;
+  HB := TKMHouseBarracks(fPlayers[fOwner].FindHouse(ht_Barracks, I+1));
   while HB <> nil do
   begin
-    Barracks[k-1] := HB;
-    inc(k);
-    HB := TKMHouseBarracks(fPlayers[fOwner].FindHouse(ht_Barracks,k));
+    Barracks[I] := HB;
+    Inc(I);
+    HB := TKMHouseBarracks(fPlayers[fOwner].FindHouse(ht_Barracks, I+1));
   end;
 
   //Train troops where possible in each barracks
-  for k:=1 to Length(Barracks) do
+  for I := 0 to High(Barracks) do
   begin
-    HB := Barracks[k-1];
+    HB := Barracks[I];
     //Chose a random group type that we are going to attempt to train (so we don't always train certain group types first)
-    i := 0;
+    K := 0;
     repeat
-      GType := TGroupType(KaMRandom(4)); //Pick random from overall count
-      inc(i);
-    until (GroupReq[GType] > 0) or (i > 9); //Limit number of attempts to guarantee it doesn't loop forever
+      GT := TGroupType(KaMRandom(4)); //Pick random from overall count
+      Inc(K);
+    until (GroupReq[GT] > 0) or (K > 9); //Limit number of attempts to guarantee it doesn't loop forever
 
-    for i:=1 to 3 do
+    if GroupReq[GT] = 0 then Break; //Don't train
+
+    for K := 1 to 3 do
     begin
-      TrainedSomething := false;
-      UT := AITroopTrainOrder[GType,i];
+      TrainedSomething := False;
+      UT := AITroopTrainOrder[GT, K];
       if (UT <> ut_None)
       and ((CanEquipIron and (UT in WARRIORS_IRON)) or (CanEquipLeather and not (UT in WARRIORS_IRON))) then
-        while HB.CanEquip(UT) and (GroupReq[GType] > 0) and
-              (fPlayers[fOwner].Stats.GetArmyCount < Setup.MaxSoldiers) do
+        while HB.CanEquip(UT)
+        and (GroupReq[GT] > 0)
+        and (fPlayers[fOwner].Stats.GetArmyCount < Setup.MaxSoldiers) do
         begin
           HB.Equip(UT, 1);
-          dec(GroupReq[GType]);
-          TrainedSomething := true;
+          Dec(GroupReq[GT]);
+          TrainedSomething := True;
           fLastEquippedTime := fGame.GameTickCount; //Only reset it when we actually trained something
-          if Setup.GetEquipRate(UT) > 0 then break; //Only equip 1 soldier when we have a restricted equip rate
+          if Setup.GetEquipRate(UT) > 0 then
+            Break; //Only equip 1 soldier when we have a restricted equip rate
         end;
-      if TrainedSomething and (Setup.GetEquipRate(UT) > 0) then break; //Only equip 1 soldier when we have a restricted equip rate
+      if TrainedSomething and (Setup.GetEquipRate(UT) > 0) then
+        Break; //Only equip 1 soldier when we have a restricted equip rate
     end;
   end;
 end;
@@ -317,7 +330,7 @@ end;
 
 procedure TKMPlayerAI.CheckArmy;
 var
-  I, k, j: Integer;
+  I: Integer;
   G: TGroupType;
   Positioned: Boolean;
   Group: TKMUnitGroup;
@@ -344,36 +357,30 @@ begin
     if Group.UnitsPerRow < fDefencePositions.TroopFormations[Group.GroupType].UnitsPerRow then
       Group.UnitsPerRow := fDefencePositions.TroopFormations[Group.GroupType].UnitsPerRow;
 
-    //Position this group to defend if they already belong to a defence position
-    Positioned := False;
-    for K := 0 to fDefencePositions.Count - 1 do
-      if fDefencePositions[K].CurrentGroup = Group then
-      begin
-        Positioned := True; //We already have a position, finished with this group
-        Break;
-      end;
+    //We already have a position, finished with this group
+    Positioned := fDefencePositions.FindPositionOf(Group) <> nil;
+
+    if Positioned then Continue;
 
     //Look for group that needs additional members, or a new position to defend
     //In this case we choose the closest group, then move to a higher priority one later (see above)
     //This means at the start of the mission troops will take the position they are placed at rather than swapping around
-    if not Positioned then
-      Positioned := fDefencePositions.FindPlaceForGroup(Group, AI_LINK_IDLE, AI_FILL_CLOSEST);
+    Positioned := fDefencePositions.FindPlaceForGroup(Group, AI_LINK_IDLE, AI_FILL_CLOSEST);
+
+    if Positioned then Continue;
 
     //Just chill and link with other idle groups
-    if not Positioned then
-    begin
-      if AI_LINK_IDLE then
-        //If this group doesn't have enough members
-        if (Group.Count < fDefencePositions.TroopFormations[Group.GroupType].NumUnits) then
-          if NeedsLinkingTo[Group.GroupType] = nil then
-            NeedsLinkingTo[Group.GroupType] := Group //Flag us as needing to be added to
-          else
-          begin
-            fDefencePositions.RestockPositionWith(NeedsLinkingTo[UnitGroups[Group.UnitType]], Group);
-            if NeedsLinkingTo[Group.GroupType].Count >= fDefencePositions.TroopFormations[UnitGroups[Group.UnitType]].NumUnits then
-              NeedsLinkingTo[Group.GroupType] := nil; //Group is now full
-          end;
-    end;
+    if AI_LINK_IDLE then
+      //If this group doesn't have enough members
+      if (Group.Count < fDefencePositions.TroopFormations[Group.GroupType].NumUnits) then
+        if NeedsLinkingTo[Group.GroupType] = nil then
+          NeedsLinkingTo[Group.GroupType] := Group //Flag us as needing to be added to
+        else
+        begin
+          fDefencePositions.RestockPositionWith(NeedsLinkingTo[UnitGroups[Group.UnitType]], Group);
+          if NeedsLinkingTo[Group.GroupType].Count >= fDefencePositions.TroopFormations[UnitGroups[Group.UnitType]].NumUnits then
+            NeedsLinkingTo[Group.GroupType] := nil; //Group is now full
+        end;
   end;
 end;
 

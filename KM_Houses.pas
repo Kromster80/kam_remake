@@ -2394,7 +2394,7 @@ begin
   UsePosition := X*Y <> 0; //Calculate this once to save computing lots of multiplications
   Assert((not UsePosition) or (aIndex = 1), 'Can''t find house basing both on Position and Index');
 
-  for I := 0 to Count-1 do
+  for I := 0 to Count - 1 do
   if ((Houses[I].fHouseType = aType) or (aType = ht_Any))
   and (Houses[I].IsComplete or not aOnlyCompleted)
   and not Houses[I].fIsDestroyed then

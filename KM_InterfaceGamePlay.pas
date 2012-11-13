@@ -2230,7 +2230,7 @@ begin
   Image_UnitPic.TexID         := fResource.UnitDat[W.UnitType].GUIScroll;
   Image_UnitPic.FlagColor     := fPlayers[W.Owner].FlagColor;
   ConditionBar_Unit.Position  := W.Condition / UNIT_MAX_CONDITION;
-  Label_UnitTask.Caption      := W.GetActivityText;
+  Label_UnitTask.Caption      := Sender.GetOrderText + '|' + W.GetActivityText;
 
   //While selecting target to join we could get attacked
   //Then we must cancel the dialog

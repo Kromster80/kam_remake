@@ -86,6 +86,7 @@ type
     function IsRanged: Boolean;
     function IsDead: Boolean;
     function UnitType: TUnitType;
+    function GetOrderText: string;
     property GroupType: TGroupType read fGroupType;
     property ID: Cardinal read fID;
     property Count: Integer read GetCount;
@@ -879,7 +880,7 @@ procedure TKMUnitGroup.OrderNone;
 var
   I: Integer;
 begin
-  fOrder := goWalkTo;
+  fOrder := goNone;
   //fOrderLoc remains old
   ClearOrderTarget;
 
@@ -964,17 +965,19 @@ procedure TKMUnitGroup.OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word);
 var
   I: Integer;
 begin
-  Assert(aCount < Count); //Not allowed to take the commander, only members (if you want the command too use normal LinkTo)
+  //Make sure to leave someone in the group
+  Assert(aCount < Count);
 
-  //Take units from the end of fMembers
+  //Take units from the end, to keep flagholder
   for I := fMembers.Count - 1 downto fMembers.Count - aCount do
   begin
+    Members[I].ReleaseUnitPointer;
     aGroup.AddMember(Members[I]);
     fMembers.Delete(I);
   end;
 
   //Make sure units per row is still valid
-  aGroup.SetUnitsPerRow(aGroup.UnitsPerRow);
+  SetUnitsPerRow(UnitsPerRow);
 
   //Tell both groups to reposition
   OrderHalt;
@@ -1031,6 +1034,18 @@ begin
   //todo: Used when playing confirmation sounds.
   //Maybe we need to pick flag carrier, or strongest unit, or fSelected, or random?
   Result := Members[0].UnitType;
+end;
+
+
+function TKMUnitGroup.GetOrderText: string;
+begin
+  case fOrder of
+    goNone:         Result := 'Idle';
+    goWalkTo:       Result := 'Walk';
+    goAttackHouse:  Result := 'Attack house';
+    goAttackUnit:   Result := 'Attack unit';
+    goStorm:        Result := 'Storm';
+  end;
 end;
 
 

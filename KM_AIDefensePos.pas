@@ -151,11 +151,15 @@ begin
       and (KMLengthDiag(Position.Loc, CurrentGroup.Position) > Radius)) then
     CurrentGroup := nil;
 
-  if (CurrentGroup = nil) or CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackUnit]) then
+  if (CurrentGroup = nil)
+  or CurrentGroup.InFight
+  or (CurrentGroup.Order in [goAttackHouse, goAttackUnit]) then
     Exit;
 
-  //If they are not already walking and can reach their position, tell them to walk there
-  if (CurrentGroup.Order <> goWalkTo) and CurrentGroup.CanWalkTo(Position.Loc, 0) then
+  //Tell group to walk to its position
+  //It's easier to repeat the order than check that all members are in place
+  if (CurrentGroup.Order <> goWalkTo)
+  and CurrentGroup.CanWalkTo(Position.Loc, 0) then
     CurrentGroup.OrderWalk(Position.Loc, Position.Dir);
 end;
 

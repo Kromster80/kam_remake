@@ -10,7 +10,7 @@ type
   TKMGeneral = class
   private
     fOwner: TPlayerIndex;
-    //fSetup: TKMPlayerAISetup;
+    fSetup: TKMPlayerAISetup;
 
     procedure CheckDefences;
   public
@@ -37,6 +37,7 @@ begin
   inherited Create;
 
   fOwner := aPlayer;
+  fSetup := aSetup;
 end;
 
 
@@ -114,7 +115,8 @@ begin
   if (aTick + Byte(fOwner)) mod (MAX_PLAYERS * 120) <> 0 then Exit;
 
   //Manage defence positions
-  CheckDefences;
+  if fSetup.AutoDefend then
+    CheckDefences;
 end;
 
 

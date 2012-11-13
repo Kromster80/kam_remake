@@ -624,8 +624,6 @@ end;
 
 
 procedure TKMayor.CheckStrategy;
-const
-  CheckDistance: array [Boolean] of Byte = (25, 32);
 var
   Store: TKMHouse;
   StoreLoc, T: TKMPoint;
@@ -636,8 +634,8 @@ begin
 
   //AI will be Wooden if there no iron/coal nearby
   fWooden := (fPlayers[fOwner].PlayerType = pt_Computer) and fSetup.AutoBuild
-             and (not fCityPlanner.FindNearest(StoreLoc, CheckDistance[fSetup.Strong], fnIron, T)
-               or not fCityPlanner.FindNearest(StoreLoc, CheckDistance[fSetup.Strong], fnCoal, T));
+             and (not fCityPlanner.FindNearest(StoreLoc, 30, fnIron, T)
+               or not fCityPlanner.FindNearest(StoreLoc, 30, fnCoal, T));
 
   fWooden := True;
 end;
@@ -746,7 +744,7 @@ begin
     GoldTheory := HouseCount(ht_Metallurgists) * ProductionRate[rt_Gold];
     //Actual production is minimum of the above
     Production := Min(CoalTheory, GoldOreTheory, GoldTheory);
-    Consumption := 1 + Byte(fSetup.Strong); //For now it's a static coef
+    Consumption := 1;// + Byte(fSetup.Strong); //For now it's a static coef
     Balance := Production - Consumption;
     Text := Format('Gold balance: %.2f - %.2f = %.2f', [Production, Consumption, Balance]);
   end;
