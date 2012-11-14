@@ -33,7 +33,6 @@ type
     procedure SetOrderHouseTarget(aHouse: TKMHouse);
 
     procedure TakeNextOrder;
-    procedure ChaseTargetUnit;
   public
     OnKilled: TKMWarriorEvent;
     OnPickedFight: TKMWarrior2Event;
@@ -53,7 +52,7 @@ type
     procedure OrderStorm(aDelay: Word);
     procedure OrderWalk(aLoc: TKMPoint; aUseExactTarget: Boolean = True);
     procedure OrderAttackHouse(aTargetHouse: TKMHouse);
-    procedure OrderAttackUnit(aTargetUnit: TKMUnit);
+    procedure OrderFight(aTargetUnit: TKMUnit);
 
     function GetFightMinRange: Single;
     function GetFightMaxRange(aTileBased: Boolean = False): Single;
@@ -159,17 +158,18 @@ end;
 
 procedure TKMUnitWarrior.OrderNone;
 begin
+  ClearOrderTarget;
+
   fNextOrder := woNone;
   fUseExactTarget := False;
-  ClearOrderTarget;
 end;
 
 
 procedure TKMUnitWarrior.OrderStorm(aDelay: Word);
 begin
-  fNextOrder := woStorm;
   ClearOrderTarget;
 
+  fNextOrder := woStorm;
   fStormDelay := aDelay;
 end;
 
@@ -324,10 +324,11 @@ end;
 
 procedure TKMUnitWarrior.OrderWalk(aLoc: TKMPoint; aUseExactTarget: Boolean = True);
 begin
+  ClearOrderTarget;
+
   fNextOrder := woWalk;
   fOrderLoc := aLoc;
   fUseExactTarget := aUseExactTarget;
-  ClearOrderTarget;
 end;
 
 
@@ -365,7 +366,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.OrderAttackUnit(aTargetUnit: TKMUnit);
+procedure TKMUnitWarrior.OrderFight(aTargetUnit: TKMUnit);
 begin
   fNextOrder := woAttackUnit;
   SetOrderTarget(aTargetUnit);
@@ -487,6 +488,11 @@ end;
 //This should make units response a bit delayed.
 procedure TKMUnitWarrior.TakeNextOrder;
 begin
+  //Make sure attack orders are still valid
+  if ((fNextOrder = woAttackUnit) and (GetOrderTarget = nil))
+  or ((fNextOrder = woAttackHouse) and (GetOrderHouseTarget = nil)) then
+    fNextOrder := woNone;
+
   case fNextOrder of
     woNone: ;
     woWalk:         begin
@@ -511,26 +517,13 @@ begin
                     end;
     woWalkOut:      ;
     woAttackUnit:   begin
-                      if (GetUnitAction is TUnitActionWalkTo)
-                      and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
-                      begin
-                        FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-                        //If we are not the commander then walk to near
-                        TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget, GetFightMaxRange);
-                        fNextOrder := woNone;
-                        fOrder := woAttackUnit;
-                        fOrderLoc := fOrderTargetUnit.GetPosition;
-                      end;
-
-                      //Take attack order
                       if CanInterruptAction then
                       begin
                         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
                         fNextOrder := woNone;
                         fOrder := woAttackUnit;
                         fOrderLoc := fOrderTargetUnit.GetPosition;
-
-                        //Unit chase section will kick in below
+                        FightEnemy(fOrderTargetUnit);
                       end;
                     end;
     woAttackHouse:  begin
@@ -568,7 +561,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.ChaseTargetUnit;
+{procedure TKMUnitWarrior.ChaseTargetUnit;
 begin
   if InFight or (GetOrderTarget = nil) or not CanInterruptAction then Exit;
 
@@ -589,17 +582,26 @@ begin
     else
     if (KMLength(GetPosition, fOrderTargetUnit.GetPosition) < GetFightMinRange) then
     begin
-      //Too close
+      //todo: Archer is too close, back up
     end
     else
       //WithinRange
       FightEnemy(fOrderTargetUnit);
   end
   else
+  //IsMelee
   begin
-    //Melee
+    if (GetUnitAction is TUnitActionWalkTo)
+    and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
+      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget, 1)
+    else
+    if CanInterruptAction then
+      SetActionWalkToUnit(GetOrderTarget, 1, ua_Walk);
   end;
-end;
+
+  fOrder := woAttackUnit;
+  fOrderLoc := fOrderTargetUnit.GetPosition;
+end;}
 
 
 function TKMUnitWarrior.UpdateState: Boolean;
@@ -621,25 +623,16 @@ begin
   //Part 2 - UpdateState
   //Part 3 -
 
-  //Make sure attack order is still valid
-  if ((fNextOrder = woAttackUnit) and (GetOrderTarget = nil))
-  or ((fNextOrder = woAttackHouse) and (GetOrderHouseTarget = nil)) then
-    fOrder := woNone;
-
   if fNextOrder <> woNone then
     TakeNextOrder;
 
-  //Do the chase
-  if fOrder = woAttackUnit then
-    ChaseTargetUnit;
-
-  if (fTicker mod 5 = 0) then
+  if (fTicker mod 8 = 0) and not InFight then
     CheckForEnemy; //Split into seperate procedure so it can be called from other places
 
   Result := True; //Required for override compatibility
   if inherited UpdateState then exit;
 
-  //Make sure we didn't get given an action above
+  //Make sure we didn't get an action above
   if GetUnitAction <> nil then
     Exit;
 

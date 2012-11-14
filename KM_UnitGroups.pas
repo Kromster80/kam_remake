@@ -22,7 +22,7 @@ type
     fPointerCount: Cardinal;
     fTicker: Cardinal;
     fMembers: TList;
-    fFoes: TList;
+    fOffenders: TList;
     fSelected: TKMUnitWarrior; //Unit selected by player in GUI
     fUnitsPerRow: Word;
     fTimeSinceHungryReminder: Integer;
@@ -48,11 +48,13 @@ type
     procedure SetCondition(aValue: Integer);
     procedure SetPosition(aValue: TKMPoint);
     procedure ClearOrderTarget;
-    function GetOrderUnitTarget: TKMUnit;
-    function GetOrderGroupTarget: TKMUnitGroup;
-    function GetOrderHouseTarget: TKMHouse;
-    procedure SetOrderUnitTarget(aUnit: TKMUnit);
-    procedure SetOrderHouseTarget(aHouse: TKMHouse);
+
+    function GetOrderTargetUnit: TKMUnit;
+    function GetOrderTargetGroup: TKMUnitGroup;
+    function GetOrderTargetHouse: TKMHouse;
+    procedure SetOrderTargetUnit(aUnit: TKMUnit);
+    procedure SetOrderTargetHouse(aHouse: TKMHouse);
+
     procedure CheckForFight;
     procedure CheckOrderDone;
     procedure UpdateHungerMessage;
@@ -80,7 +82,6 @@ type
     function HasMember(aWarrior: TKMUnit): Boolean;
     function InFight: Boolean; //Fighting and can't take any orders from player
     function IsAttackingHouse: Boolean; //Attacking house
-    function IsAttackingEnemy: Boolean; //Attacking another group/citizens, but not yet fighting (e.g. attacking archers)
     function CanTakeOrders: Boolean;
     function CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean;
     function IsRanged: Boolean;
@@ -99,6 +100,10 @@ type
     property SelectedUnit: TKMUnitWarrior read fSelected;
     property Condition: Integer read GetCondition write SetCondition;
     property Order: TKMGroupOrder read fOrder;
+
+    property OrderTargetUnit: TKMUnit read GetOrderTargetUnit write SetOrderTargetUnit;
+    property OrderTargetGroup: TKMUnitGroup read GetOrderTargetGroup;
+    property OrderTargetHouse: TKMHouse read GetOrderTargetHouse write SetOrderTargetHouse;
 
     procedure OrderAttackHouse(aHouse: TKMHouse);
     procedure OrderAttackUnit(aUnit: TKMUnit);
@@ -165,7 +170,7 @@ begin
   fID := aID;
   fGroupType := UnitGroups[aCreator.UnitType];
   fMembers := TList.Create;
-  fFoes := TList.Create;
+  fOffenders := TList.Create;
 
   //So when they click Halt for the first time it knows where to place them
   fOrderLoc := KMPointDir(aCreator.GetPosition.X, aCreator.GetPosition.Y, aCreator.Direction);
@@ -189,7 +194,7 @@ begin
   fID := aID;
   fGroupType := UnitGroups[aUnitType];
   fMembers := TList.Create;
-  fFoes := TList.Create;
+  fOffenders := TList.Create;
 
   //So when they click Halt for the first time it knows where to place them
   fOrderLoc := KMPointDir(PosX, PosY, aDir);
@@ -237,7 +242,7 @@ var
 begin
   inherited Create;
   fMembers := TList.Create;
-  fFoes := TList.Create;
+  fOffenders := TList.Create;
 
   LoadStream.Read(fGroupType, SizeOf(fGroupType));
   LoadStream.Read(fID);
@@ -252,7 +257,7 @@ begin
   for I := 0 to aCount - 1 do
   begin
     LoadStream.Read(W, 4); //subst on syncload
-    fFoes.Add(W);
+    fOffenders.Add(W);
   end;
 
   LoadStream.Read(fOrder, SizeOf(fOrder));
@@ -279,8 +284,8 @@ begin
     Members[I].OnPickedFight := Member_PickedFight;
   end;
 
-  for I := 0 to fFoes.Count - 1 do
-    fFoes[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(TKMUnitWarrior(fFoes[I]))));
+  for I := 0 to fOffenders.Count - 1 do
+    fOffenders[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(TKMUnitWarrior(fOffenders[I]))));
 
   fOrderTargetUnit := fPlayers.GetUnitByID(cardinal(fOrderTargetUnit));
   fOrderTargetHouse := fPlayers.GetHouseByID(cardinal(fOrderTargetHouse));
@@ -291,7 +296,7 @@ end;
 destructor TKMUnitGroup.Destroy;
 begin
   fMembers.Free;
-  fFoes.Free;
+  fOffenders.Free;
 
   inherited;
 end;
@@ -306,9 +311,9 @@ begin
   SaveStream.Write(fMembers.Count);
   for I := 0 to fMembers.Count - 1 do
     SaveStream.Write(Members[I].ID);
-  SaveStream.Write(fFoes.Count);
-  for I := 0 to fFoes.Count - 1 do
-    SaveStream.Write(TKMUnitWarrior(fFoes[I]).ID);
+  SaveStream.Write(fOffenders.Count);
+  for I := 0 to fOffenders.Count - 1 do
+    SaveStream.Write(TKMUnitWarrior(fOffenders[I]).ID);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc);
   if fOrderTargetHouse <> nil then
@@ -580,12 +585,11 @@ end;
 
 //Member got in a fight
 //Remember who we are fighting with, to guide idle units to
+//This only works for melee offenders
 procedure TKMUnitGroup.Member_PickedFight(aMember: TKMUnitWarrior; aEnemy: TKMUnit);
 begin
   if (aEnemy is TKMUnitWarrior) then
-  begin
-    fFoes.Add(aEnemy.GetUnitPointer);
-  end;
+    fOffenders.Add(aEnemy.GetUnitPointer);
 end;
 
 
@@ -595,32 +599,35 @@ var
   I,K: Integer;
 begin
   //Verify we still have foes
-  for I := fFoes.Count - 1 downto 0 do
-  if TKMUnitWarrior(fFoes[I]).IsDeadOrDying then
+  for I := fOffenders.Count - 1 downto 0 do
+  if TKMUnitWarrior(fOffenders[I]).IsDeadOrDying then
   begin
-    TKMUnitWarrior(fFoes[I]).ReleaseUnitPointer;
-    fFoes.Delete(I);
+    TKMUnitWarrior(fOffenders[I]).ReleaseUnitPointer;
+    fOffenders.Delete(I);
+    if fOffenders.Count = 0 then
+      OrderRepeat;
   end;
 
-  if not InFight then Exit;
+  //Fight is over
+  if fOffenders.Count = 0 then Exit;
 
   if IsRanged then
-  for I := 0 to Count - 1 do
-  begin
-    //Try shooting the offenders
-    if not Members[I].InFight then
-      for K := 0 to fFoes.Count - 1 do
-      if Members[I].WithinFightRange(TKMUnitWarrior(fFoes[K]).GetPosition) then
-        Members[I].OrderAttackUnit(TKMUnitWarrior(fFoes[K]))
-      else
-        //todo: Try to walk near and attack
-  end
+    for I := 0 to Count - 1 do
+    begin
+      //Try shooting the offenders
+      if not Members[I].InFight then
+        for K := 0 to fOffenders.Count - 1 do
+        if Members[I].WithinFightRange(TKMUnitWarrior(fOffenders[K]).GetPosition) then
+          Members[I].OrderFight(TKMUnitWarrior(fOffenders[K]))
+        else
+          //todo: Try to walk near and attack?
+    end
   else
   begin
-    //let idle help fellow members
+    //Let idle help fellow members
     for I := 0 to Count - 1 do
     if not Members[I].InFight then
-      Members[I].OrderWalk(TKMUnitWarrior(fFoes[KaMRandom(fFoes.Count)]).NextPosition, False);
+      Members[I].OrderWalk(TKMUnitWarrior(fOffenders[KaMRandom(fOffenders.Count)]).NextPosition, False);
   end;
 end;
 
@@ -631,9 +638,12 @@ var
   I: Integer;
   OrderExecuted: Boolean;
   P: TKMPointExact;
+  U: TKMUnitWarrior;
 begin
   OrderExecuted := False;
 
+  //1. Check the Order
+  //2. Attempt to finish the order
   case fOrder of
     goNone:         OrderExecuted := False;
     goWalkTo:       begin
@@ -642,7 +652,7 @@ begin
                       begin
                         OrderExecuted := OrderExecuted and Members[I].IsIdle and Members[I].OrderDone;
 
-                        //Attempt to execute the order
+                        //Guide Idle units to their places
                         if Members[I].IsIdle then
                           if Members[I].OrderDone then
                           begin
@@ -657,38 +667,41 @@ begin
                       end;
                     end;
     goAttackHouse:  begin
-                      OrderExecuted := (GetOrderHouseTarget = nil);
-                      //Thats Task responsibility to execute it
+                      //It is TaskAttackHouse responsibility to execute it
+                      OrderExecuted := (OrderTargetHouse = nil);
                     end;
     goAttackUnit:   begin
                       if IsRanged then
                       begin
-                        //All members Task is to hunt down the TargetUnit
-                        //once it's done members can stay still
-                        OrderExecuted := (GetOrderUnitTarget = nil);
+                        //Ranged units must kill target unit only
+                        //Then they will attacck anything within their reach by themselves
+                        OrderExecuted := (OrderTargetUnit = nil);
 
-                        //If members attack someone keep em busy
-                        if OrderExecuted then
+                        if not OrderExecuted then
+                          OrderAttackUnit(fOrderTargetUnit);
+
+                        {if OrderExecuted then
+                        //Look for more enemies ASAP (instead of waiting 5 ticks in Unit.UpdateState)
                         for I := 0 to Count - 1 do
-                          OrderExecuted := OrderExecuted and not Members[I].InFight;
-
-                        //Should Idle members help their atacking comrades?
-
+                          Members[I].CheckForEnemy;}
                       end
                       else
                       begin
-                        OrderExecuted := (GetOrderUnitTarget = nil) and (GetOrderGroupTarget = nil);
+                        //Melee units must kill target unit and its Group
+                        OrderExecuted := (OrderTargetUnit = nil) and (OrderTargetGroup = nil);
 
-                        //If not - walk to Enemy
-                        if not OrderExecuted then
+                        //See if target is escaping
+                        if (OrderTargetUnit <> nil)
+                        and not KMSamePoint(OrderTargetUnit.NextPosition, fOrderLoc.Loc) then
+                          OrderAttackUnit(fOrderTargetUnit);
+
+                        //If Enemy was killed, but target Group still exists
+                        if (OrderTargetUnit = nil) and (OrderTargetGroup <> nil) then
                         begin
-                          if (fOrderTargetUnit = nil) and (fOrderTargetGroup <> nil) then
-                            //Old target died, change target
-                            OrderAttackUnit(fOrderTargetGroup.GetNearestMember(Members[0].GetPosition))
-                          else
-                          if (fOrderTargetUnit <> nil)
-                          and not KMSamePoint(fOrderLoc.Loc, fOrderTargetUnit.NextPosition) then
-                            OrderAttackUnit(fOrderTargetUnit);
+                          //Old enemy has died, change target to his comrades
+                          U := fOrderTargetGroup.GetNearestMember(Members[0].GetPosition);
+                          Assert(U <> nil, 'We checked that Group is not dead, hence we should have a valid Unit');
+                          OrderAttackUnit(U);
                         end;
                       end;
                     end;
@@ -706,16 +719,17 @@ end;
 
 
 //Fighting with citizens does not count
-//Ranged groups don't get into fights
 function TKMUnitGroup.InFight: Boolean;
+var I: Integer;
 begin
-  Result := fFoes.Count > 0;
-end;
+  Result := False;
 
-
-function TKMUnitGroup.IsAttackingEnemy: Boolean;
-begin
-  //
+  for I := 0 to Count - 1 do
+  if Members[I].InFight then
+  begin
+    Result := True;
+    Exit;
+  end;
 end;
 
 
@@ -766,7 +780,7 @@ var I: Integer;
 begin
   fOrder := goAttackHouse;
   fOrderLoc := KMPointDir(0, 0, dir_NA);
-  SetOrderHouseTarget(aHouse);
+  OrderTargetHouse := aHouse;
 
   for I := 0 to Count - 1 do
     Members[I].OrderAttackHouse(aHouse);
@@ -776,22 +790,41 @@ end;
 procedure TKMUnitGroup.OrderAttackUnit(aUnit: TKMUnit);
 var I: Integer;
 begin
+  Assert(aUnit <> nil);
+
   if IsRanged then
   begin
+    //Update Order
+    fOrder := goAttackUnit;
+    fOrderLoc := KMPointDir(aUnit.NextPosition, dir_NA); //Remember where unit stand
+    OrderTargetUnit := aUnit;
+
     for I := 0 to Count - 1 do
-      Members[I].OrderAttackUnit(aUnit);
+    if not Members[I].InFight then
+    begin
+      //Check target in range, and if not - chase it / back up from it
+      if (KMLength(GetPosition, OrderTargetUnit.GetPosition) > Members[I].GetFightMaxRange) then
+        //Too far away
+        Members[I].OrderWalk(fOrderTargetUnit.NextPosition)
+      else
+      if (KMLength(GetPosition, OrderTargetUnit.GetPosition) < Members[I].GetFightMinRange) then
+        //todo: Archer is too close, back up
+      else
+        //WithinRange
+        Members[I].OrderFight(OrderTargetUnit);
+    end;
   end
   else
   begin
     //Walk in formation towards enemy,
     //Members will take care of attack when we approach
     OrderWalk(aUnit.NextPosition);
-  end;
 
-  //Update Order
-  fOrder := goAttackUnit;
-  fOrderLoc := KMPointDir(aUnit.NextPosition, dir_NA); //Remember where unit stand
-  SetOrderUnitTarget(aUnit);
+    //Revert Order to proper one (we disguise Walk)
+    fOrder := goAttackUnit;
+    fOrderLoc := KMPointDir(aUnit.NextPosition, dir_NA); //Remember where unit stand
+    OrderTargetUnit := aUnit;
+  end;
 end;
 
 
@@ -895,8 +928,8 @@ begin
   case fOrder of
     goNone:         OrderHalt;
     goWalkTo:       OrderWalk(fOrderLoc.Loc);
-    goAttackHouse:  OrderAttackHouse(fOrderTargetHouse);
-    goAttackUnit:   OrderAttackUnit(fOrderTargetUnit);
+    goAttackHouse:  if OrderTargetHouse <> nil then OrderAttackHouse(fOrderTargetHouse);
+    goAttackUnit:   if OrderTargetUnit <> nil then OrderAttackUnit(fOrderTargetUnit);
     goStorm:        ;
   end;
 end;
@@ -1046,6 +1079,7 @@ begin
     goAttackUnit:   Result := 'Attack unit';
     goStorm:        Result := 'Storm';
   end;
+  Result := Result + '(' + IntToStr(fOffenders.Count) + ')';
 end;
 
 
@@ -1090,7 +1124,7 @@ begin
 end;
 
 
-function TKMUnitGroup.GetOrderUnitTarget: TKMUnit;
+function TKMUnitGroup.GetOrderTargetUnit: TKMUnit;
 begin
   //If the target unit has died then clear it
   if (fOrderTargetUnit <> nil) and fOrderTargetUnit.IsDeadOrDying then
@@ -1100,7 +1134,7 @@ begin
 end;
 
 
-function TKMUnitGroup.GetOrderGroupTarget: TKMUnitGroup;
+function TKMUnitGroup.GetOrderTargetGroup: TKMUnitGroup;
 begin
   //If the target group has died then clear it
   if (fOrderTargetGroup <> nil) and fOrderTargetGroup.IsDead then
@@ -1110,7 +1144,7 @@ begin
 end;
 
 
-function TKMUnitGroup.GetOrderHouseTarget: TKMHouse;
+function TKMUnitGroup.GetOrderTargetHouse: TKMHouse;
 begin
   //If the target house has been destroyed then clear it
   if (fOrderTargetHouse <> nil) and fOrderTargetHouse.IsDestroyed then ClearOrderTarget;
@@ -1118,16 +1152,20 @@ begin
 end;
 
 
-procedure TKMUnitGroup.SetOrderUnitTarget(aUnit: TKMUnit);
+procedure TKMUnitGroup.SetOrderTargetUnit(aUnit: TKMUnit);
 begin
   //Remove previous value
   ClearOrderTarget;
   if aUnit <> nil then
+  begin
     fOrderTargetUnit := aUnit.GetUnitPointer; //Else it will be nil from ClearOrderTarget
+    if (aUnit is TKMUnitWarrior) and not IsRanged then
+      fOrderTargetGroup := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit)).GetGroupPointer;
+  end;
 end;
 
 
-procedure TKMUnitGroup.SetOrderHouseTarget(aHouse: TKMHouse);
+procedure TKMUnitGroup.SetOrderTargetHouse(aHouse: TKMHouse);
 begin
   //Remove previous value
   ClearOrderTarget;

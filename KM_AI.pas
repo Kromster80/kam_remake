@@ -341,46 +341,50 @@ begin
 
   //Check: Hunger, (feed) formation, (units per row) position (from defence positions)
   for I := 0 to fPlayers[fOwner].UnitGroups.Count - 1 do
-  if not fPlayers[fOwner].UnitGroups[I].IsDead then
   begin
     Group := fPlayers[fOwner].UnitGroups[I];
 
-    //Check hunger and order food
-    //todo: Not sure we could order food for e.g. fighting groups, maybe move below
-    if (Group.Condition < UNIT_MIN_CONDITION) then
-      Group.OrderFood;
+    if not Group.IsDead
+    and not Group.InFight
+    and not (Group.Order in [goAttackHouse, goAttackUnit, goStorm]) then
+    begin
 
-    if fGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
+      //Check hunger and order food
+      if (Group.Condition < UNIT_MIN_CONDITION) then
+        Group.OrderFood;
 
-    //Check formation. If the script has defined a group with more units per row than there should be, do not change it
-    //todo: That should be checked only once on creation of the group
-    if Group.UnitsPerRow < fDefencePositions.TroopFormations[Group.GroupType].UnitsPerRow then
-      Group.UnitsPerRow := fDefencePositions.TroopFormations[Group.GroupType].UnitsPerRow;
+      if fGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
 
-    //We already have a position, finished with this group
-    Positioned := fDefencePositions.FindPositionOf(Group) <> nil;
+      //Check formation. If the script has defined a group with more units per row than there should be, do not change it
+      //todo: That should be checked only once on creation of the group
+      if Group.UnitsPerRow < fDefencePositions.TroopFormations[Group.GroupType].UnitsPerRow then
+        Group.UnitsPerRow := fDefencePositions.TroopFormations[Group.GroupType].UnitsPerRow;
 
-    if Positioned then Continue;
+      //We already have a position, finished with this group
+      Positioned := fDefencePositions.FindPositionOf(Group) <> nil;
 
-    //Look for group that needs additional members, or a new position to defend
-    //In this case we choose the closest group, then move to a higher priority one later (see above)
-    //This means at the start of the mission troops will take the position they are placed at rather than swapping around
-    Positioned := fDefencePositions.FindPlaceForGroup(Group, AI_LINK_IDLE, AI_FILL_CLOSEST);
+      if Positioned then Continue;
 
-    if Positioned then Continue;
+      //Look for group that needs additional members, or a new position to defend
+      //In this case we choose the closest group, then move to a higher priority one later (see above)
+      //This means at the start of the mission troops will take the position they are placed at rather than swapping around
+      Positioned := fDefencePositions.FindPlaceForGroup(Group, AI_LINK_IDLE, AI_FILL_CLOSEST);
 
-    //Just chill and link with other idle groups
-    if AI_LINK_IDLE then
-      //If this group doesn't have enough members
-      if (Group.Count < fDefencePositions.TroopFormations[Group.GroupType].NumUnits) then
-        if NeedsLinkingTo[Group.GroupType] = nil then
-          NeedsLinkingTo[Group.GroupType] := Group //Flag us as needing to be added to
-        else
-        begin
-          fDefencePositions.RestockPositionWith(NeedsLinkingTo[UnitGroups[Group.UnitType]], Group);
-          if NeedsLinkingTo[Group.GroupType].Count >= fDefencePositions.TroopFormations[UnitGroups[Group.UnitType]].NumUnits then
-            NeedsLinkingTo[Group.GroupType] := nil; //Group is now full
-        end;
+      if Positioned then Continue;
+
+      //Just chill and link with other idle groups
+      if AI_LINK_IDLE then
+        //If this group doesn't have enough members
+        if (Group.Count < fDefencePositions.TroopFormations[Group.GroupType].NumUnits) then
+          if NeedsLinkingTo[Group.GroupType] = nil then
+            NeedsLinkingTo[Group.GroupType] := Group //Flag us as needing to be added to
+          else
+          begin
+            fDefencePositions.RestockPositionWith(NeedsLinkingTo[UnitGroups[Group.UnitType]], Group);
+            if NeedsLinkingTo[Group.GroupType].Count >= fDefencePositions.TroopFormations[UnitGroups[Group.UnitType]].NumUnits then
+              NeedsLinkingTo[Group.GroupType] := nil; //Group is now full
+          end;
+    end;
   end;
 end;
 
@@ -421,7 +425,7 @@ begin
   for I := 0 to fPlayers[fOwner].UnitGroups.Count - 1 do
   begin
     Group := fPlayers[fOwner].UnitGroups[I];
-    if not Group.IsDead //Ignore warriors which are dead
+    if not Group.IsDead
     and not Group.InFight
     and not (Group.Order in [goAttackUnit, goAttackHouse, goStorm]) then
     begin
@@ -470,14 +474,15 @@ begin
 
   //todo: Right now "idle" troops (without an assigned defence position) will do nothing (no attacking, defending, etc.)
   //Any defence position that is within their defence radius of this threat will retaliate against it
-  for i := 0 to fDefencePositions.Count - 1 do
+  for I := 0 to fDefencePositions.Count - 1 do
   begin
-    Group := fDefencePositions[i].CurrentGroup;
-    if (Group <> nil) and not Group.IsDead
-      and not Group.InFight
-      and Group.IsAttackingEnemy
-      and (KMLengthDiag(Group.Position, aAttacker.GetPosition) <= fDefencePositions[I].Radius) then
-        Group.OrderAttackUnit(aAttacker);
+    Group := fDefencePositions[I].CurrentGroup;
+    if (Group <> nil)
+    and not Group.IsDead
+    and not Group.InFight
+    and not (Group.Order in [goAttackHouse, goAttackUnit, goStorm])
+    and (KMLengthDiag(Group.Position, aAttacker.GetPosition) <= fDefencePositions[I].Radius) then
+      Group.OrderAttackUnit(aAttacker);
   end;
 end;
 
@@ -508,7 +513,7 @@ begin
   case fPlayers[fOwner].PlayerType of
     pt_Human:
       //No fight alerts in replays, and only show alerts for ourselves
-      if (not fGame.IsReplay) and (fOwner = MyPlayer.PlayerIndex) then
+      if not fGame.IsReplay and (fOwner = MyPlayer.PlayerIndex) then
         fGame.Alerts.AddFight(aUnit.PositionF, fOwner, NotifyKind[aUnit is TKMUnitWarrior]);
     pt_Computer:
       begin
@@ -516,9 +521,11 @@ begin
         if aUnit is TKMUnitWarrior then
         begin
           Group := fPlayers[fOwner].UnitGroups.GetGroupByMember(TKMUnitWarrior(aUnit));
+          Assert(Group <> nil, 'Each Warrior must belong to some Group');
           //If we are already in the process of attacking something, don't change our minds,
           //otherwise you can make a unit walk backwards and forwards forever between two groups of archers.
-          if not Group.InFight and Group.IsAttackingEnemy then
+          if not Group.IsDead
+          and not Group.InFight then
             Group.OrderAttackUnit(aAttacker);
         end;
         RetaliateAgainstThreat(aAttacker); //Nearby soldiers should come to assist

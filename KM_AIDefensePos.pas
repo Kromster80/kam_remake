@@ -141,24 +141,19 @@ end;
 
 procedure TAIDefencePosition.UpdateState;
 begin
-  if CurrentGroup = nil then
-    Exit;
-
   //If the group is Dead or too far away we should disassociate
   //them from the defence position so new warriors can take up the defence if needs be
-  if CurrentGroup.IsDead
+  if (CurrentGroup = nil)
+  or CurrentGroup.IsDead
   or ((CurrentGroup.InFight or (CurrentGroup.Order in [goAttackHouse, goAttackUnit]))
       and (KMLengthDiag(Position.Loc, CurrentGroup.Position) > Radius)) then
     CurrentGroup := nil;
 
-  if (CurrentGroup = nil)
-  or CurrentGroup.InFight
-  or (CurrentGroup.Order in [goAttackHouse, goAttackUnit]) then
-    Exit;
-
   //Tell group to walk to its position
   //It's easier to repeat the order than check that all members are in place
-  if (CurrentGroup.Order <> goWalkTo)
+  if (CurrentGroup <> nil)
+  and not CurrentGroup.InFight
+  and (CurrentGroup.Order = goNone)
   and CurrentGroup.CanWalkTo(Position.Loc, 0) then
     CurrentGroup.OrderWalk(Position.Loc, Position.Dir);
 end;

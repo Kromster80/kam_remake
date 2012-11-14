@@ -35,10 +35,10 @@ type
     MapPath: string;
     MapSizeX, MapSizeY: Integer;
     MissionMode: TKMissionMode;
-    PlayerCount: shortint;
+    PlayerCount: ShortInt;
     HumanPlayerID: TPlayerIndex;
-    VictoryCond:string;
-    DefeatCond:string;
+    VictoryCond: string;
+    DefeatCond: string;
   end;
 
   TKMAttackPosition = record
@@ -81,12 +81,12 @@ type
     fRemapCount: byte;
     fRemap: TPlayerArray;
 
-    fLastPlayer: integer;
+    fLastPlayer: TPlayerIndex;
     fLastHouse: TKMHouse;
     fLastTroop: TKMUnitGroup;
     fAIAttack: TAIAttack;
     fAttackPositions: array of TKMAttackPosition;
-    fAttackPositionsCount: integer;
+    fAttackPositionsCount: Integer;
 
     function ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam: AnsiString):boolean;
     procedure ProcessAttackPositions;
@@ -116,7 +116,7 @@ type
     fMapX: Integer;
     fMapY: Integer;
     fPlayerPreview: array [1..MAX_PLAYERS] of TPlayerPreviewInfo;
-    fMapPreview: array[1..MAX_MAP_SIZE*MAX_MAP_SIZE] of TTilePreviewInfo;
+    fMapPreview: array [1..MAX_MAP_SIZE*MAX_MAP_SIZE] of TTilePreviewInfo;
 
     fLastPlayer: Integer;
     fHumanPlayer: Integer;
@@ -128,8 +128,8 @@ type
   public
     property MapPreview[X,Y: Integer]: TTilePreviewInfo read GetTileInfo;
     property PlayerPreview[Index: Byte]: TPlayerPreviewInfo read GetPlayerInfo;
-    property MapX: integer read fMapX;
-    property MapY: integer read fMapY;
+    property MapX: Integer read fMapX;
+    property MapY: Integer read fMapY;
     function LoadMission(const aFileName: string): boolean; override;
   end;
 
@@ -140,7 +140,7 @@ uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos,
 
 
 const
-  COMMANDVALUES: array[TKMCommandType] of AnsiString = (
+  COMMANDVALUES: array [TKMCommandType] of AnsiString = (
     '','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
     'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR',
     'CENTER_SCREEN','CLEAR_UP','BLOCK_TRADE','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES',

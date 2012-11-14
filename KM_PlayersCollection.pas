@@ -605,6 +605,16 @@ procedure TKMPlayersCollection.UpdateState(aTick: Cardinal);
 var
   I: Integer;
 begin
+  //Update AI every 2sec for different player to even the CPU load
+  for I := 0 to fCount - 1 do
+    if not fGame.IsPaused and not fGame.IsExiting then
+      fPlayerList[I].UpdateState(aTick)
+    else
+      //PlayerAI can stop the game and clear everything
+      Exit;
+
+  PlayerAnimals.UpdateState(aTick); //Animals don't have any AI yet
+
   //Update selection (and drop it if necessary)
   if (Selected is TKMHouse) and TKMHouse(Selected).IsDestroyed then
     Selected := nil
@@ -615,16 +625,6 @@ begin
   else
   if (Selected is TKMUnitGroup) and (TKMUnitGroup(Selected).IsDead) then
     Selected := nil;
-
-  //Update AI every 2sec for different player to even the CPU load
-  for I := 0 to fCount - 1 do
-    if not fGame.IsPaused and not fGame.IsExiting then
-      fPlayerList[I].UpdateState(aTick)
-    else
-      //PlayerAI can stop the game and clear everything
-      Exit;
-
-  PlayerAnimals.UpdateState(aTick); //Animals don't have any AI yet
 end;
 
 
