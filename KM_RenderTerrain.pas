@@ -257,12 +257,10 @@ begin
     with fTerrain do
     for I := fRect.Top to fRect.Bottom do
     for K := fRect.Left to fRect.Right do
-    if (fFOW.CheckTileRevelation(K,I,true) > FOG_OF_WAR_ACT) then //No animation in FOW
+    if (TexOffset + Land[I,K].Terrain + 1 <= High(GFXData[rxTiles]))
+    and (GFXData[rxTiles, TexOffset + Land[I,K].Terrain + 1].Tex.ID <> 0)
+    and (fFOW.CheckTileRevelation(K,I,true) > FOG_OF_WAR_ACT) then //No animation in FOW
     begin
-
-      if (TexOffset + Land[I,K].Terrain + 1 > High(GFXData[rxTiles]))
-      or (GFXData[rxTiles, TexOffset + Land[I,K].Terrain + 1].Tex.ID = 0) then Continue;
-
       glBindTexture(GL_TEXTURE_2D, GFXData[rxTiles, TexOffset + Land[I,K].Terrain + 1].Tex.ID);
       TexC := GetTileUV(TexOffset + Land[I,K].Terrain, Land[I,K].Rotation);
 

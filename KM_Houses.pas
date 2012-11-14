@@ -1052,8 +1052,6 @@ var
 begin
   if SKIP_SOUND then Exit;
 
-  //Do not play sounds if house is invisible to MyPlayer
-  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then exit;
   if fCurrentAction = nil then exit; //no action means no sound ;)
 
   if ha_Work1 in fCurrentAction.SubAction then Work := ha_Work1 else
@@ -1067,6 +1065,10 @@ begin
   if Step=0 then exit;
 
   Step := WorkAnimStep mod Step;
+
+  //Do not play sounds if house is invisible to MyPlayer
+  //This check is slower so we do it after other Exit checks
+  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then exit;
 
   case fHouseType of //Various buildings and HouseActions producing sounds
     ht_School:        if (Work = ha_Work5)and(Step = 28) then fSoundLib.Play(sfx_SchoolDing, fPosition); //Ding as the clock strikes 12
