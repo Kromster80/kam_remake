@@ -112,11 +112,11 @@ type
 
     function FindWineField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir): Boolean;
     function FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir): Boolean;
-    function FindStone(aLoc: TKMPoint; aRadius: Byte; aAvoidLoc: TKMPoint; out StonePoint: TKMPointDir): Boolean;
+    function FindStone(aLoc: TKMPoint; aRadius: Byte; aAvoidLoc: TKMPoint; aIgnoreWorkingUnits:Boolean; out StonePoint: TKMPointDir): Boolean;
     function FindOre(aLoc: TKMPoint; aRes: TResourceType; out OrePoint: TKMPoint): Boolean;
     function CanFindTree(aLoc: TKMPoint; aRadius: Word):Boolean;
     procedure FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; BestToPlant,SecondBestToPlant: TKMPointList);
-    function FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir): Boolean;
+    function FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aIgnoreWorkingUnits:Boolean; out FishPoint: TKMPointDir): Boolean;
     function CanFindFishingWater(aLoc:TKMPoint; aRadius:integer): Boolean;
     function ChooseTreeToPlant(aLoc:TKMPoint):integer;
     procedure GetHouseMarks(aLoc:TKMPoint; aHouseType:THouseType; aList:TKMPointTagList);
@@ -1155,7 +1155,7 @@ end;
 
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
-function TTerrain.FindStone(aLoc: TKMPoint; aRadius: Byte; aAvoidLoc: TKMPoint; out StonePoint: TKMPointDir): Boolean;
+function TTerrain.FindStone(aLoc: TKMPoint; aRadius: Byte; aAvoidLoc: TKMPoint; aIgnoreWorkingUnits:Boolean; out StonePoint: TKMPointDir): Boolean;
 var
   I: Integer;
   ValidTiles: TKMPointList;
@@ -1172,7 +1172,7 @@ begin
     if (P.Y >= 2) //Can't mine stone from top row of the map (don't call TileIsStone with Y=0)
     and not KMSamePoint(aAvoidLoc, P)
     and (TileIsStone(P.X, P.Y - 1) > 0)
-    and not TileIsLocked(P) //Already taken by another stonemason
+    and (aIgnoreWorkingUnits or not TileIsLocked(P)) //Already taken by another stonemason
     and Route_CanBeMade(aLoc, P, CanWalk, 0) then
       ChosenTiles.AddEntry(P);
   end;
@@ -1354,7 +1354,7 @@ end;
 
 {Find seaside}
 {Return walkable tile nearby}
-function TTerrain.FindFishWater(aLoc: TKMPoint; aRadius: Integer; aAvoidLoc: TKMPoint; out FishPoint: TKMPointDir): Boolean;
+function TTerrain.FindFishWater(aLoc: TKMPoint; aRadius: Integer; aAvoidLoc: TKMPoint; aIgnoreWorkingUnits:Boolean; out FishPoint: TKMPointDir): Boolean;
 var I,J,K: Integer;
     P: TKMPoint;
     ValidTiles: TKMPointList;
@@ -1368,7 +1368,7 @@ begin
   begin
     P := ValidTiles[I];
     //Check that this tile is valid
-    if not TileIsLocked(P) //Taken by another fisherman
+    if (aIgnoreWorkingUnits or not TileIsLocked(P)) //Taken by another fisherman
     and Route_CanBeMade(aLoc, P, CanWalk, 0)
     and not KMSamePoint(aAvoidLoc, P) then
       //Now find a tile around this one that is water
@@ -1376,7 +1376,8 @@ begin
         for K := -1 to 1 do
           if ((K <> 0) or (J <> 0))
           and TileInMapCoords(P.X+J, P.Y+K)
-          and TileIsWater(KMPoint(P.X+J, P.Y+K)) and WaterHasFish(KMPoint(P.X+J, P.Y+K)) then //Limit to only tiles which are water and have fish
+          and TileIsWater(KMPoint(P.X+J, P.Y+K))
+          and WaterHasFish(KMPoint(P.X+J, P.Y+K)) then //Limit to only tiles which are water and have fish
             ChosenTiles.AddItem(KMPointDir(P, KMGetDirection(J, K)));
   end;
 

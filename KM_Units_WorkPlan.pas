@@ -130,7 +130,7 @@ var
 begin
   with fTerrain do
   case GatheringScript of
-    gs_StoneCutter:     Found := FindStone(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, NewLoc);
+    gs_StoneCutter:     Found := FindStone(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
     gs_FarmerSow:       Found := FindCornField(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, taPlant, PlantAct, NewLoc);
     gs_FarmerCorn:      begin
                           Found := FindCornField(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, taAny, PlantAct, NewLoc);
@@ -148,7 +148,7 @@ begin
                           Found := FindWineField(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, NewLoc);
                           NewLoc.Dir := dir_N; //The animation for picking grapes is only defined for facing north
                         end;
-    gs_FisherCatch:     Found := FindFishWater(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, NewLoc);
+    gs_FisherCatch:     Found := FindFishWater(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, aAvoidLoc, False, NewLoc);
     gs_WoodCutterCut:   Found := ChooseTree(aLoc, KMGetVertexTile(aAvoidLoc, WorkDir), fResource.UnitDat[aUnit.UnitType].MiningRange, taCut, aUnit, NewLoc, PlantAct);
     gs_WoodCutterPlant: Found := ChooseTree(aLoc, aAvoidLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, taPlant, aUnit, NewLoc, PlantAct);
     else                Found := False; //Can find a new resource for an unknown gathering script, so return with false
@@ -450,17 +450,18 @@ begin
                       end;
     ut_Fisher:        if aHome = ht_FisherHut then
                       begin
-                        fIssued := fTerrain.FindFishWater(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), Tmp);
+                        fIssued := fTerrain.FindFishWater(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), False, Tmp);
                         if fIssued then
                         begin
                           ResourcePlan(rt_None,0,rt_None,0,rt_Fish);
                           WalkStyle(Tmp,ua_Walk,ua_Work2,12,0,ua_WalkTool,gs_FisherCatch);
                         end else
-                          ResourceDepleted := True;
+                          //We must check again this time ignoring working units since they don't indicate the resource is depleted
+                          ResourceDepleted := not fTerrain.FindFishWater(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), True, Tmp);
                       end;
     ut_StoneCutter:   if aHome = ht_Quary then
                       begin
-                        fIssued := fTerrain.FindStone(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), Tmp);
+                        fIssued := fTerrain.FindStone(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), False, Tmp);
                         if fIssued then
                         begin
                           ResourcePlan(rt_None,0,rt_None,0,rt_Stone);
@@ -469,7 +470,8 @@ begin
                           SubActAdd(ha_Work2,9);
                           SubActAdd(ha_Work5,1);
                         end else
-                          ResourceDepleted := True;
+                          //We must check again this time ignoring working units since they don't indicate the resource is depleted
+                          ResourceDepleted := not fTerrain.FindStone(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange, KMPoint(0,0), True, Tmp);
                       end;
     ut_Smith:         if (aHome = ht_ArmorSmithy) and (aProduct = rt_MetalArmor) then
                       begin

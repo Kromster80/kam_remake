@@ -226,7 +226,7 @@ begin
   Result := False;
 
   if not GetSourceLocation([ht_Store], TargetLoc) then Exit;
-  if not fTerrain.FindStone(KMPointBelow(TargetLoc), RAD, KMPoint(0,0), StoneLoc) then Exit;
+  if not fTerrain.FindStone(KMPointBelow(TargetLoc), RAD, KMPoint(0,0), True, StoneLoc) then Exit;
 
   BestBid := MaxSingle;
   for I := StoneLoc.Loc.Y to Min(StoneLoc.Loc.Y + 5, fTerrain.MapY - 1) do
