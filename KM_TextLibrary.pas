@@ -63,7 +63,7 @@ begin
   if (fLocale <> DEFAULT_LOCALE) and FileExists(aLibPath+'text.'+fLocale+'.libx') then
     LoadLIBXFile(aLibPath+'text.'+fLocale+'.libx', 0, GameStrings, True); //Overwrite with selected locale
 
-  fLog.AppendLog('TextLib init done');
+  fLog.AddTime('TextLib init done');
 end;
 
 

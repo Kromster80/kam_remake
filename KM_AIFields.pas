@@ -306,17 +306,17 @@ begin
   SaveStream.Write(SizeX);
 
   for I := 0 to PCount - 1 do
-    for K := 0 to SizeY do
+    for K := 0 to SizeY - 1 do
       SaveStream.Write(Influence[I,K,0], SizeX * SizeOf(Influence[0,0,0]));
 
   for I := 0 to PCount - 1 do
-    for K := 0 to SizeY do
+    for K := 0 to SizeY - 1 do
       SaveStream.Write(Ownership[I,K,0], SizeX * SizeOf(Ownership[0,0,0]));
 
-  for K := 0 to SizeY do
+  for K := 0 to SizeY - 1 do
     SaveStream.Write(AvoidBuilding[K,0], SizeX * SizeOf(AvoidBuilding[0,0]));
 
-  for K := 0 to SizeY do
+  for K := 0 to SizeY - 1 do
     SaveStream.Write(Forest[K,0], SizeX * SizeOf(Forest[0,0]));
 end;
 
@@ -340,17 +340,17 @@ begin
   SetLength(Forest, SizeY, SizeX);
 
   for I := 0 to PCount - 1 do
-    for K := 0 to SizeY do
+    for K := 0 to SizeY - 1 do
       LoadStream.Read(Influence[I,K,0], SizeX * SizeOf(Influence[0,0,0]));
 
   for I := 0 to PCount - 1 do
-    for K := 0 to SizeY do
+    for K := 0 to SizeY - 1 do
       LoadStream.Read(Ownership[I,K,0], SizeX * SizeOf(Ownership[0,0,0]));
 
-  for K := 0 to SizeY do
+  for K := 0 to SizeY - 1 do
     LoadStream.Read(AvoidBuilding[K,0], SizeX * SizeOf(AvoidBuilding[0,0]));
 
-  for K := 0 to SizeY do
+  for K := 0 to SizeY - 1 do
     LoadStream.Read(Forest[K,0], SizeX * SizeOf(Forest[0,0]));
 end;
 

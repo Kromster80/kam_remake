@@ -3847,7 +3847,7 @@ begin
   fMessageList.Load(LoadStream);
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
   Message_UpdateStack;
-  fLog.AppendLog('Interface loaded');
+  fLog.AddTime('Interface loaded');
 end;
 
 

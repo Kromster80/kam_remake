@@ -104,7 +104,10 @@ begin
            //SetActionWalkFromHouse(fHouse, GetFightMinRange)
            Result := TaskDone
          else
+         if fHouse.GetDistance(GetPosition) > GetFightMaxRange then
            SetActionWalkToHouse(fHouse, GetFightMaxRange)
+         else
+           SetActionStay(0, ua_Walk)
        else
          SetActionWalkToHouse(fHouse, 1);
     1: begin

@@ -458,7 +458,7 @@ begin
     S.Hitable := False;
   end;
 
-  fLog.AppendLog('Main menu init done');
+  fLog.AddTime('Main menu init done');
 //Use ShowScreen to select properscreen after fGame init is done
 end;
 

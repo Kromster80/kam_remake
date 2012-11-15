@@ -293,7 +293,7 @@ begin
 
   fMapEditor := aMapEditor;
 
-  fLog.AppendLog('Loading map file: ' + FileName);
+  fLog.AddTime('Loading map file: ' + FileName);
 
   S := TKMemoryStream.Create;
   try
@@ -351,7 +351,7 @@ begin
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
-  fLog.AppendLog('Map file loaded');
+  fLog.AddTime('Map file loaded');
 end;
 
 
@@ -2909,7 +2909,7 @@ begin
 
   UpdateWalkConnect([wcWalk, wcRoad, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
 
-  fLog.AppendLog('Terrain loaded');
+  fLog.AddTime('Terrain loaded');
 end;
 
 

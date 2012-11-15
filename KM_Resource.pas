@@ -79,7 +79,7 @@ constructor TResource.Create(aRender: TRender; aLS: TEvent; aLT: TStringEvent);
 begin
   inherited Create;
   fDataState := dls_None;
-  fLog.AppendLog('Resource loading state - None');
+  fLog.AddTime('Resource loading state - None');
 
   fRender := aRender;
   OnLoadingStep := aLS;
@@ -131,7 +131,7 @@ begin
   StepCaption('Reading palettes ...');
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes;
-  fLog.AppendLog('Reading palettes', True);
+  fLog.AddTime('Reading palettes', True);
 
   fSprites := TKMSprites.Create(StepRefresh, StepCaption);
 
@@ -143,7 +143,7 @@ begin
   StepCaption('Reading fonts ...');
   fResourceFont := TResourceFont.Create(fRender);
   fResourceFont.LoadFonts(aLocale);
-  fLog.AppendLog('Read fonts is done');
+  fLog.AddTime('Read fonts is done');
 
   fTileset := TKMTileset.Create(ExeDir + 'data\defines\pattern.dat');
   fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
@@ -158,9 +158,9 @@ begin
   fUnitDat := TKMUnitDatCollection.Create;
 
   StepRefresh;
-  fLog.AppendLog('ReadGFX is done');
+  fLog.AddTime('ReadGFX is done');
   fDataState := dls_Menu;
-  fLog.AppendLog('Resource loading state - Menu');
+  fLog.AddTime('Resource loading state - Menu');
 end;
 
 
@@ -175,7 +175,7 @@ begin
   end;
 
   fDataState := dls_All;
-  fLog.AppendLog('Resource loading state - Game');
+  fLog.AddTime('Resource loading state - Game');
 end;
 
 

@@ -2082,7 +2082,7 @@ begin
 
   //Check if Pos is within map coords first, as other checks rely on this
   if not fTerrain.TileInMapCoords(PosX, PosY) then begin
-    fLog.AppendLog('Unable to add unit to '+KM_Points.TypeToString(KMPoint(PosX,PosY)));
+    fLog.AddTime('Unable to add unit to '+KM_Points.TypeToString(KMPoint(PosX,PosY)));
     Result := nil;
     exit;
   end;
@@ -2253,7 +2253,7 @@ begin
       ut_Recruit:               inherited Add(TKMUnitRecruit.Load(LoadStream));
       WARRIOR_MIN..WARRIOR_MAX: inherited Add(TKMUnitWarrior.Load(LoadStream));
       ANIMAL_MIN..ANIMAL_MAX:   inherited Add(TKMUnitAnimal.Load(LoadStream));
-      else fLog.AssertToLog(false, 'Unknown unit type in Savegame')
+      else                      fLog.AddAssert('Unknown unit type in Savegame');
     end;
   end;
 end;

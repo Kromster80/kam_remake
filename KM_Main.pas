@@ -263,9 +263,9 @@ begin
                                 StatusBarText);
   fGameApp.AfterConstruction(aReturnToOptions);
 
-  fLog.AppendLog('ToggleFullscreen');
-  fLog.AppendLog('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
-  fLog.AppendLog('Panel Width/Height: '+inttostr(fFormMain.Panel5.Width)+':'+inttostr(fFormMain.Panel5.Height));
+  fLog.AddTime('ToggleFullscreen');
+  fLog.AddTime('Form Width/Height: '+inttostr(fFormMain.Width)+':'+inttostr(fFormMain.Height));
+  fLog.AddTime('Panel Width/Height: '+inttostr(fFormMain.Panel5.Width)+':'+inttostr(fFormMain.Panel5.Height));
 
   //Hide'n'show will make form go ontop of taskbar
   fFormMain.Hide;

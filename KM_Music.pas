@@ -104,7 +104,7 @@ begin
   for I := 1 to MusicCount do
     TrackOrder[I] := I;
 
-  fLog.AppendLog('Music init done, ' + IntToStr(MusicCount) + ' tracks found');
+  fLog.AddTime('Music init done, ' + IntToStr(MusicCount) + ' tracks found');
 end;
 
 

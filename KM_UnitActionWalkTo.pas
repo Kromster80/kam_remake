@@ -28,7 +28,7 @@ type
     function AssembleTheRoute: Boolean;
     function CanWalkToTarget(aFrom: TKMPoint; aPass: TPassability): Boolean;
     function CheckForNewDestination: TDestinationCheck;
-    function CheckTargetHasDied:TTargetDiedCheck;
+    function CheckTargetHasDied: Boolean;
     function CheckForObstacle:TObstacleCheck;
     function CheckWalkComplete:boolean;
     function CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer):boolean;
@@ -165,7 +165,7 @@ begin
 
   //If route fails to build that's a serious issue, (consumes CPU) Can*** should mean that never happens
   if not RouteBuilt then //NoList.Count = 0, means it will exit in Execute
-    fLog.AddToLog('Unable to make a route for '+fResource.UnitDat[aUnit.UnitType].UnitName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with pass '+GetEnumName(TypeInfo(TPassability), Byte(fPass)));
+    fLog.AddNoTime('Unable to make a route for '+fResource.UnitDat[aUnit.UnitType].UnitName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with pass '+GetEnumName(TypeInfo(TPassability), Byte(fPass)));
 end;
 
 
@@ -400,28 +400,9 @@ begin
 end;
 
 
-function TUnitActionWalkTo.CheckTargetHasDied: TTargetDiedCheck;
-var TempTargetUnit: TKMUnit;
+function TUnitActionWalkTo.CheckTargetHasDied: Boolean;
 begin
-  if (fTargetUnit = nil) or not fTargetUnit.IsDeadOrDying then
-    Result := tc_NoChanges
-  else
-    {if (fUnit is TKMUnitWarrior) and (fTargetUnit is TKMUnitWarrior) and (TKMUnitWarrior(fUnit).GetWarriorState <> ws_Engage) then
-    begin
-      //If a warrior is following a unit it means we are attacking it. (for now anyway)
-      //So if this unit dies we must now follow it's commander
-      TempTargetUnit := fTargetUnit;
-      fPlayers.CleanUpUnitPointer(fTargetUnit);
-      fTargetUnit := TKMUnitWarrior(TempTargetUnit).GetCommander.GetUnitPointer;
-      //If unit becomes nil that is fine, we will simply walk to it's last known location. But update fOrderLoc to make sure this happens!
-      TKMUnitWarrior(fUnit).OrderLocDir := KMPointDir(fWalkTo,TKMUnitWarrior(fUnit).OrderLocDir.Dir);
-      //If we are an AI player then we do not keep walking to a dead enemy's position, we halt (and go home) instead
-      if (fPlayers[fUnit.Owner].PlayerType = pt_Computer) then
-        TKMUnitWarrior(fUnit).OrderHalt;
-      Result := tc_TargetUpdated;
-    end
-    else}
-      Result := tc_Died;
+  Result := (fTargetUnit <> nil) and not fTargetUnit.IsDeadOrDying;
 end;
 
 
@@ -1015,9 +996,10 @@ begin
 
     //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself
     if CanAbandonInternal then
-      case CheckTargetHasDied of
-        tc_NoChanges: ;
-        tc_Died:      begin Result := ActAborted; Exit; end;
+      if CheckTargetHasDied then
+      begin
+        Result := ActAborted;
+        Exit;
       end;
 
     //This is sometimes caused by unit interaction changing the route so simply ignore it

@@ -136,7 +136,7 @@ begin
 
   LoadFromINI(ExeDir + SETTINGS_FILE);
   fNeedsSave := False;
-  fLog.AppendLog('Global settings loaded from ' + SETTINGS_FILE);
+  fLog.AddTime('Global settings loaded from ' + SETTINGS_FILE);
 end;
 
 destructor TMainSettings.Destroy;
@@ -276,7 +276,7 @@ end;
 procedure TGameSettings.ReloadSettings;
 begin
   LoadFromINI(ExeDir + SETTINGS_FILE);
-  fLog.AppendLog('Game settings loaded from ' + SETTINGS_FILE);
+  fLog.AddTime('Game settings loaded from ' + SETTINGS_FILE);
 end;
 
 

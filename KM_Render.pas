@@ -72,9 +72,9 @@ begin
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_FRONT);
 
-    fOpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('OpenGL Vendor: '   + string(fOpenGL_Vendor));
-    fOpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer: ' + string(fOpenGL_Renderer));
-    fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version: '  + string(fOpenGL_Version));
+    fOpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddNoTime('OpenGL Vendor: '   + string(fOpenGL_Vendor));
+    fOpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddNoTime('OpenGL Renderer: ' + string(fOpenGL_Renderer));
+    fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddNoTime('OpenGL Version: '  + string(fOpenGL_Version));
 
     SetupVSync(aVSync);
     BuildFont(h_DC, 16, FW_BOLD);

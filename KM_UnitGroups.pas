@@ -40,7 +40,6 @@ type
     function GetMember(aIndex: Integer): TKMUnitWarrior;
     function GetNearestMember(aUnit: TKMUnitWarrior): Integer; overload;
     function GetNearestMember(aLoc: TKMPoint): TKMUnitWarrior; overload;
-    function GetRandomMember: TKMUnitWarrior;
     function GetMemberLoc(aIndex: Integer): TKMPointExact;
     procedure SetUnitsPerRow(aCount: Word);
     function GetOwner: TPlayerIndex;
@@ -415,27 +414,6 @@ begin
 end;
 
 
-function TKMUnitGroup.GetRandomMember: TKMUnitWarrior;
-var
-  I,K: Integer;
-  Live: array of Word;
-begin
-  Result := nil;
-
-  K := 0;
-  SetLength(Live, Count);
-  for I := 0 to Count - 1 do
-  if not Members[I].IsDeadOrDying then
-  begin
-    Live[K] := I;
-    Inc(K);
-  end;
-
-  if K <> 0 then
-    Result := Members[Live[KaMRandom(K)]];
-end;
-
-
 {Returns self and adds on to the pointer counter}
 function TKMUnitGroup.GetGroupPointer: TKMUnitGroup;
 begin
@@ -621,7 +599,7 @@ begin
         if Members[I].WithinFightRange(TKMUnitWarrior(fOffenders[K]).GetPosition) then
           Members[I].OrderFight(TKMUnitWarrior(fOffenders[K]))
         else
-          //todo: Try to walk near and attack?
+          //todo: Try to walk near/farter and attack, or just ignore?
     end
   else
   begin
@@ -1065,8 +1043,6 @@ end;
 
 function TKMUnitGroup.UnitType: TUnitType;
 begin
-  //todo: Used when playing confirmation sounds.
-  //Maybe we need to pick flag carrier, or strongest unit, or fSelected, or random?
   Result := Members[0].UnitType;
 end;
 

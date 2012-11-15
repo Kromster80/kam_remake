@@ -285,7 +285,7 @@ begin
 
   fIsSoundInitialized := InitOpenAL;
   if not fIsSoundInitialized then begin
-    fLog.AddToLog('OpenAL warning. OpenAL could not be initialized.');
+    fLog.AddNoTime('OpenAL warning. OpenAL could not be initialized.');
     if aShowWarningDlg then
       //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
       MessageDlg('OpenAL could not be initialized. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
@@ -296,7 +296,7 @@ begin
   //Open device
   fALDevice := alcOpenDevice(nil); // this is supposed to select the "preferred device"
   if fALDevice = nil then begin
-    fLog.AddToLog('OpenAL warning. Device could not be opened.');
+    fLog.AddNoTime('OpenAL warning. Device could not be opened.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('OpenAL device could not be opened. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
@@ -306,7 +306,7 @@ begin
   //Create context(s)
   Context := alcCreateContext(fALDevice, nil);
   if Context = nil then begin
-    fLog.AddToLog('OpenAL warning. Context could not be created.');
+    fLog.AddNoTime('OpenAL warning. Context could not be created.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('OpenAL context could not be created. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
@@ -315,7 +315,7 @@ begin
 
   //Set active context
   if alcMakeContextCurrent(Context) > 1 then begin //valid returns are AL_NO_ERROR=0 and AL_TRUE=1
-    fLog.AddToLog('OpenAL warning. Context could not be made current.');
+    fLog.AddNoTime('OpenAL warning. Context could not be made current.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('OpenAL context could not be made current. Please refer to Readme.html for solution', mtWarning, [mbOk], 0);
     fIsSoundInitialized := false;
@@ -327,13 +327,13 @@ begin
 
   //Set attenuation model
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
-  fLog.AppendLog('Pre-LoadSFX init', True);
+  fLog.AddTime('Pre-LoadSFX init', True);
 
   alcGetIntegerv(fALDevice, ALC_MONO_SOURCES, 4, @NumMono);
   alcGetIntegerv(fALDevice, ALC_STEREO_SOURCES, 4, @NumStereo);
 
-  fLog.AppendLog('ALC_MONO_SOURCES',NumMono);
-  fLog.AppendLog('ALC_STEREO_SOURCES',NumStereo);
+  fLog.AddTime('ALC_MONO_SOURCES',NumMono);
+  fLog.AddTime('ALC_STEREO_SOURCES',NumStereo);
 
   for i:=1 to MAX_SOUNDS do begin
     AlGenBuffers(1, @fSound[i].ALBuffer);
@@ -349,13 +349,13 @@ begin
   AlListenerfv(AL_ORIENTATION, @fListener.Ori);
   fSoundGain := aVolume;
 
-  fLog.AppendLog('OpenAL init done');
+  fLog.AddTime('OpenAL init done');
 
   LoadSoundsDAT;
-  fLog.AppendLog('Load Sounds.dat',true);
+  fLog.AddTime('Load Sounds.dat',true);
 
   ScanWarriorSounds;
-  fLog.AppendLog('Warrior sounds scanned',true);
+  fLog.AddTime('Warrior sounds scanned',true);
 end;
 
 
@@ -379,7 +379,7 @@ var ErrCode: Integer;
 begin
   ErrCode := alcGetError(fALDevice);
   if ErrCode <> ALC_NO_ERROR then begin
-    fLog.AddToLog('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
+    fLog.AddNoTime('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
     //MessageDlg works better than Application.MessageBox or others, it stays on top and pauses here until the user clicks ok.
     MessageDlg('There is OpenAL error '+IntToStr(ErrCode)+' raised. Sound will be disabled.', mtWarning, [mbOk], 0);
     fIsSoundInitialized := False;
@@ -597,7 +597,7 @@ begin
       //continual clashes over sound files.
       on E: EFOpenError do
       begin
-        fLog.AppendLog('Error loading sound file: '+E.Message);
+        fLog.AddTime('Error loading sound file: '+E.Message);
         Exit;
       end;
     end;

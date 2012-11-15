@@ -420,7 +420,7 @@ end;
 
 procedure TFormMain.Export_Fonts1Click(Sender: TObject);
 begin
-  fLog.AssertToLog(fResource<>nil, 'Can''t export Fonts cos they aren''t loaded yet');
+  Assert(fResource <> nil, 'Can''t export Fonts cos they aren''t loaded yet');
   fResource.ResourceFont.ExportFonts(fGameApp.GameSettings.Locale);
 end;
 

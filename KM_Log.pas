@@ -14,22 +14,21 @@ type
     fFirstTick: cardinal;
     fPreviousTick: cardinal;
     fPreviousDate: TDateTime;
-    procedure AddLine(const aText: string);
+    procedure AddLineTime(const aText: string);
     procedure AddLineNoTime(const aText: string);
   public
     constructor Create(const aPath: string);
     // AppendLog adds the line to Log along with time passed since previous line added
-    procedure AppendLog(const aText: string); overload;
-    procedure AppendLog(const aText: string; num: integer); overload;
-    procedure AppendLog(const aText: string; num: single); overload;
-    procedure AppendLog(num: integer; const aText: string); overload;
-    procedure AppendLog(const aText: string; Res: boolean); overload;
-    procedure AppendLog(a, b: integer); overload;
+    procedure AddTime(const aText: string); overload;
+    procedure AddTime(const aText: string; num: Integer); overload;
+    procedure AddTime(const aText: string; num: Single); overload;
+    procedure AddTime(num: Integer; const aText: string); overload;
+    procedure AddTime(const aText: string; Res: boolean); overload;
+    procedure AddTime(a, b: integer); overload;
     // Add line if TestValue=false
-    procedure AssertToLog(TestValue: boolean; const aMessageText: string);
+    procedure AddAssert(const aMessageText: string);
     // AddToLog simply adds the text
-    procedure AddToLog(const aText: string);
-    property LogPath: string read fLogPath;
+    procedure AddNoTime(const aText: string);
     procedure DeleteOldLogs;
   end;
 
@@ -92,8 +91,8 @@ begin
   AssignFile(fl, fLogPath);
   Rewrite(fl);
   CloseFile(fl);
-  AddLine('Log is up and running. Game version: ' + GAME_VERSION);
-  AddLine('Timestamp'#9'Elapsed time'#9'Delta'#9'Description');
+  AddLineNoTime('Timestamp'#9'Elapsed'#9'Delta'#9'Description');
+  AddLineTime('Log is up and running. Game version: ' + GAME_VERSION);
 end;
 
 
@@ -107,7 +106,7 @@ end;
 
 //Lines are timestamped, each line invokes file open/close for writing,
 //meaning that no lines will be lost if Remake crashes
-procedure TKMLog.AddLine(const aText: string);
+procedure TKMLog.AddLineTime(const aText: string);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);
@@ -132,36 +131,36 @@ procedure TKMLog.AddLineNoTime(const aText: string);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);
-  WriteLn(fl, #9#9 + aText);
+  WriteLn(fl, #9#9#9#9 + aText);
   CloseFile(fl);
 end;
 
 
-procedure TKMLog.AppendLog(const aText: string);
+procedure TKMLog.AddTime(const aText: string);
 begin
-  AddLine(aText);
+  AddLineTime(aText);
 end;
 
 
-procedure TKMLog.AppendLog(const aText: string; num: integer);
+procedure TKMLog.AddTime(const aText: string; num: integer);
 begin
-  AddLine(aText + ' ' + inttostr(num));
+  AddLineTime(aText + ' ' + inttostr(num));
 end;
 
 
-procedure TKMLog.AppendLog(const aText: string; num: single);
+procedure TKMLog.AddTime(const aText: string; num: single);
 begin
-  AddLine(aText + ' ' + floattostr(num));
+  AddLineTime(aText + ' ' + floattostr(num));
 end;
 
 
-procedure TKMLog.AppendLog(num: integer; const aText: string);
+procedure TKMLog.AddTime(num: integer; const aText: string);
 begin
-  AddLine(inttostr(num) + ' ' + aText);
+  AddLineTime(inttostr(num) + ' ' + aText);
 end;
 
 
-procedure TKMLog.AppendLog(const aText: string; Res: boolean);
+procedure TKMLog.AddTime(const aText: string; Res: boolean);
 var
   s: string;
 begin
@@ -169,26 +168,24 @@ begin
     s := 'done'
   else
     s := 'fail';
-  AddLine(aText + ' ... ' + s);
+  AddLineTime(aText + ' ... ' + s);
 end;
 
 
-procedure TKMLog.AppendLog(A, B: integer);
+procedure TKMLog.AddTime(A, B: integer);
 begin
-  AddLine(inttostr(A) + ' : ' + inttostr(B));
+  AddLineTime(inttostr(A) + ' : ' + inttostr(B));
 end;
 
 
-procedure TKMLog.AssertToLog(TestValue: boolean; const aMessageText: string);
+procedure TKMLog.AddAssert(const aMessageText: string);
 begin
-  if TestValue then
-    exit;
-  AddLine('ASSERTION FAILED! Msg: ' + aMessageText);
-  Assert(false, 'ASSERTION FAILED! Msg: ' + aMessageText);
+  AddLineNoTime('ASSERTION FAILED! Msg: ' + aMessageText);
+  Assert(False, 'ASSERTION FAILED! Msg: ' + aMessageText);
 end;
 
 
-procedure TKMLog.AddToLog(const aText: string);
+procedure TKMLog.AddNoTime(const aText: string);
 begin
   AddLineNoTime(aText);
 end;

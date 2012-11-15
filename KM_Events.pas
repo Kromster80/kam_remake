@@ -219,7 +219,7 @@ var
 begin
   if not FileExists(aFileName) then
   begin
-    fLog.AddToLog(aFileName + ' was not found. It is okay for mission to have no events.');
+    fLog.AddNoTime(aFileName + ' was not found. It is okay for mission to have no events.');
     Exit;
   end;
 

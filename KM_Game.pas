@@ -232,7 +232,7 @@ begin
   InitUnitStatEvals; //Army
 
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
-  fLog.AppendLog('<== Game creation is done ==>');
+  fLog.AddTime('<== Game creation is done ==>');
   fAlerts := TKMAlerts.Create(@fGameTickCount, fViewport);
   fEventsManager := TKMEventsManager.Create;
   fPathfinding := TPathfinding.Create;
@@ -372,7 +372,7 @@ var
   PlayerRemap: TPlayerArray;
   Parser: TMissionParserStandard;
 begin
-  fLog.AppendLog('GameStart');
+  fLog.AddTime('GameStart');
   Assert(fGameMode in [gmMulti, gmMapEd, gmSingle]);
 
   fGameName := aGameName;
@@ -381,7 +381,7 @@ begin
   fMissionFile := ExtractRelativePath(ExeDir, aMissionFile);
   fSaveFile := '';
 
-  fLog.AppendLog('Loading DAT file: ' + aMissionFile);
+  fLog.AddTime('Loading DAT file: ' + aMissionFile);
 
   if fGameMode = gmMulti then
   begin
@@ -446,7 +446,7 @@ begin
     fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
   else
     fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-  fLog.AppendLog('Gameplay recording initialized', True);
+  fLog.AddTime('Gameplay recording initialized', True);
 
   if fGameMode = gmMulti then
     MultiplayerRig;
@@ -465,7 +465,7 @@ begin
   UpdateUI;
   fViewport.Position := KMPointF(MyPlayer.CenterScreen);
 
-  fLog.AppendLog('Gameplay initialized', true);
+  fLog.AddTime('Gameplay initialized', true);
 end;
 
 
@@ -537,7 +537,7 @@ procedure TKMGame.GameMPPlay(Sender:TObject);
 begin
   GameWaitingForNetwork(false); //Finished waiting for players
   fNetworking.AnnounceGameInfo(MissionTime, GameName);
-  fLog.AppendLog('Net game began');
+  fLog.AddTime('Net game began');
 end;
 
 
@@ -552,7 +552,7 @@ procedure TKMGame.GameMPDisconnect(const aData:string);
 begin
   if fNetworking.NetGameState in [lgs_Game, lgs_Reconnecting] then
   begin
-    if WRITE_RECONNECT_LOG then fLog.AppendLog('GameMPDisconnect: '+aData);
+    if WRITE_RECONNECT_LOG then fLog.AddTime('GameMPDisconnect: '+aData);
     fNetworking.PostLocalMessage('Connection failed: '+aData,false); //Debugging that should be removed later
     fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
     fNetworking.OnJoinAssignedHost := nil;
@@ -613,7 +613,7 @@ procedure TKMGame.ReplayInconsistancy;
 begin
   //Stop game from executing while the user views the message
   fIsPaused := True;
-  fLog.AppendLog('Replay failed a consistency check at tick '+IntToStr(fGameTickCount));
+  fLog.AddTime('Replay failed a consistency check at tick '+IntToStr(fGameTickCount));
   if MessageDlg(fTextLibrary[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
     fGameApp.Stop(gr_Error, '')
   else
@@ -753,7 +753,7 @@ begin
   UpdateUI;
   fViewport.Position := KMPointF(aSizeX/2, aSizeY/2);
 
-  fLog.AppendLog('Gameplay initialized', True);
+  fLog.AddTime('Gameplay initialized', True);
 end;
 
 
@@ -793,7 +793,7 @@ begin
 
   MapName := TKMapsCollection.FullPath(aMissionName, '.map', aMultiplayer);
   ForceDirectories(ExtractFilePath(MapName));
-  fLog.AppendLog('Saving from map editor: '+MapName);
+  fLog.AddTime('Saving from map editor: '+MapName);
 
   fTerrain.SaveToFile(MapName);
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
@@ -984,7 +984,7 @@ var
   i, NetIndex: integer;
   s: string;
 begin
-  fLog.AppendLog('Saving game: '+aPathName);
+  fLog.AddTime('Saving game: ' + aPathName);
 
   if fGameMode in [gmMapEd, gmReplaySingle, gmReplayMulti] then
   begin
@@ -1052,6 +1052,7 @@ begin
 
     fTerrain.Save(SaveStream); //Saves the map
     fPlayers.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
+    fAIFields.Save(SaveStream);
     fProjectiles.Save(SaveStream);
     fEventsManager.Save(SaveStream);
 
@@ -1081,6 +1082,8 @@ begin
   finally
     SaveStream.Free;
   end;
+
+  fLog.AddTime('Saving game: ' + aPathName);
 end;
 
 
@@ -1102,10 +1105,10 @@ begin
   CopyFile(PChar(SaveName('basesave', 'bas', IsMultiplayer)), PChar(SaveName(aName, 'bas', IsMultiplayer)), False);
 
   //Save replay queue
-  fLog.AppendLog('Saving replay info');
+  fLog.AddTime('Saving replay info');
   fGameInputProcess.SaveToFile(ChangeFileExt(PathName, '.rpl'));
 
-  fLog.AppendLog('Saving game', True);
+  fLog.AddTime('Saving game', True);
 end;
 
 
@@ -1119,7 +1122,7 @@ var
 begin
   fSaveFile := ChangeFileExt(ExtractRelativePath(ExeDir, aPathName), '.sav');
 
-  fLog.AppendLog('Loading game from: ' + aPathName);
+  fLog.AddTime('Loading game from: ' + aPathName);
 
   LoadStream := TKMemoryStream.Create;
   try
@@ -1179,7 +1182,7 @@ begin
   fTerrain.Load(LoadStream);
 
   fPlayers.Load(LoadStream);
-  //todo: Load fAIFields here
+  fAIFields.Load(LoadStream);
 
   fProjectiles.Load(LoadStream);
   fEventsManager.Load(LoadStream);
@@ -1228,7 +1231,7 @@ begin
   if SaveIsMultiplayer then //MP does not saves view position cos of save identity for all players
     fViewport.Position := KMPointF(MyPlayer.CenterScreen);
 
-  fLog.AppendLog('Loading game', True);
+  fLog.AddTime('Loading game', True);
 
   finally
     FreeAndNil(LoadStream);
