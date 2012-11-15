@@ -2216,7 +2216,7 @@ var
 begin
   Assert(fPlayers.Selected = Sender);
 
-  if Sender = nil then
+  if (Sender = nil) or (Sender.SelectedUnit = nil) then
   begin
     SwitchPage(nil);
     Exit;
@@ -2235,7 +2235,7 @@ begin
   //While selecting target to join we could get attacked
   //Then we must cancel the dialog
   if not Sender.CanTakeOrders then
-      Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
+    Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
 
   Label_UnitDescription.Hide;
   Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and not fAskDismiss and not fJoiningGroups;
@@ -3193,8 +3193,6 @@ begin
   begin
     OldSelected := fPlayers.Selected;
     fPlayers.Selected := fPlayers.GetUnitByID(fSelection[Key]);
-    if (fPlayers.Selected <> nil) and TKMUnit(fPlayers.Selected).IsDeadOrDying then
-      fPlayers.Selected := nil; //Don't select dying units
     if fPlayers.Selected <> nil then
     begin
       if (OldSelected <> fPlayers.Selected) and not fReplay and not HasLostMPGame then

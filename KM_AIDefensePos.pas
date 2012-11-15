@@ -18,13 +18,14 @@ type
     fPosition: TKMPointDir; //Position and direction the group defending will stand
     fRadius: Integer; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
     procedure SetCurrentGroup(aGroup: TKMUnitGroup);
+    procedure SetGroupType(const Value: TGroupType);
   public
     DefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
     constructor Create(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
     constructor Load(LoadStream: TKMemoryStream);
     destructor Destroy; override;
     property CurrentGroup: TKMUnitGroup read fCurrentGroup write SetCurrentGroup;
-    property GroupType: TGroupType read fGroupType; //Type of group to defend this position (e.g. melee)
+    property GroupType: TGroupType read fGroupType write SetGroupType; //Type of group to defend this position (e.g. melee)
     property Position: TKMPointDir read fPosition; //Position and direction the group defending will stand
     property Radius: Integer read fRadius write fRadius; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
     function IsFullyStocked(aAmount: Integer): Boolean;
@@ -63,7 +64,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection;
+uses KM_Game, KM_PlayersCollection;
 
 
 { TAIDefencePosition }
@@ -93,6 +94,13 @@ begin
   //Take new one
   if aGroup <> nil then
     fCurrentGroup := aGroup.GetGroupPointer;
+end;
+
+
+procedure TAIDefencePosition.SetGroupType(const Value: TGroupType);
+begin
+  Assert(fGame.IsMapEditor);
+  fGroupType := Value;
 end;
 
 
@@ -127,7 +135,8 @@ end;
 
 
 function TAIDefencePosition.UITitle: string;
-const T: array [TGroupType] of string = ('Melee', 'AntiHorse', 'Ranged', 'Mounted');
+const
+  T: array [TGroupType] of string = ('Melee', 'AntiHorse', 'Ranged', 'Mounted');
 begin
   Result := T[fGroupType];
 end;

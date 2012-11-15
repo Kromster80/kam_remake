@@ -235,12 +235,13 @@ type
         Button_BarracksInc100,Button_BarracksInc:TKMButton;
 
     Panel_Marker: TKMPanel;
-      Label_MarkerName: TKMLabel;
+      Label_MarkerType: TKMLabel;
       Image_MarkerPic: TKMImage;
 
       Panel_MarkerReveal: TKMPanel;
         TrackBar_RevealSize: TKMTrackBar;
       Panel_MarkerDefence: TKMPanel;
+        DropList_DefenceType: TKMDropList;
         TrackBar_DefenceRad: TKMTrackBar;
 
   public
@@ -1246,17 +1247,21 @@ end;
 
 procedure TKMapEdInterface.Create_Markers_Page;
 begin
-  Panel_Marker := TKMPanel.Create(Panel_Common, 0, 60, TB_WIDTH, 400);
-    Label_MarkerName := TKMLabel.Create(Panel_Marker,0,10,TB_WIDTH,0,'',fnt_Outline,taCenter);
-    Image_MarkerPic := TKMImage.Create(Panel_Marker,0,30,32,32,338);
+  Panel_Marker := TKMPanel.Create(Panel_Common, 0, 50, TB_WIDTH, 400);
 
-    Panel_MarkerReveal := TKMPanel.Create(Panel_Marker, 0, 70, TB_WIDTH, 400);
-      TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 20, TB_WIDTH, 1, 128);
+  Label_MarkerType := TKMLabel.Create(Panel_Marker, 0, 10, TB_WIDTH, 0, '', fnt_Outline, taCenter);
+  Image_MarkerPic := TKMImage.Create(Panel_Marker, 0, 30, 32, 32, 338);
+
+    Panel_MarkerReveal := TKMPanel.Create(Panel_Marker, 0, 60, TB_WIDTH, 400);
+      TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 10, TB_WIDTH, 1, 128);
       TrackBar_RevealSize.Caption := 'Area';
       TrackBar_RevealSize.OnChange := Marker_Change;
 
-    Panel_MarkerDefence := TKMPanel.Create(Panel_Marker, 0, 70, TB_WIDTH, 400);
-      TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 0, 20, TB_WIDTH, 1, 128);
+    Panel_MarkerDefence := TKMPanel.Create(Panel_Marker, 0, 60, TB_WIDTH, 400);
+      DropList_DefenceType := TKMDropList.Create(Panel_MarkerDefence, 0, 10, TB_WIDTH, 20, fnt_Game, '', bsGame);
+      DropList_DefenceType.SetItems('Melee'+eol+'AntiHorse'+eol+'Ranged'+eol+'Mounted');
+      DropList_DefenceType.OnChange := Marker_Change;
+      TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 0, 30, TB_WIDTH, 1, 128);
       TrackBar_DefenceRad.Caption := 'Radius';
       TrackBar_DefenceRad.OnChange := Marker_Change;
 end;
@@ -1762,17 +1767,19 @@ begin
   end;
 
   SetActivePlayer(aMarker.Owner);
-  Label_MarkerName.Caption := 'Some marker name';
   Image_MarkerPic.FlagColor := fPlayers[aMarker.Owner].FlagColor;
 
   case aMarker.MarkerType of
     mtDefence:    begin
-                    SwitchPage(Panel_MarkerDefence);
+                    Label_MarkerType.Caption := 'Defence position';
+                    DropList_DefenceType.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.DefencePositions[aMarker.Index].GroupType);
                     TrackBar_DefenceRad.Position := fPlayers[aMarker.Owner].AI.DefencePositions[aMarker.Index].Radius;
+                    SwitchPage(Panel_MarkerDefence);
                   end;
     mtRevealFOW:  begin
-                    SwitchPage(Panel_MarkerReveal);
+                    Label_MarkerType.Caption := 'Reveal FOW';
                     TrackBar_RevealSize.Position := fGame.MapEditor.Revealers[aMarker.Owner].Tag[aMarker.Index];
+                    SwitchPage(Panel_MarkerReveal);
                   end;
   end;
 end;
@@ -1805,9 +1812,15 @@ end;
 
 
 procedure TKMapEdInterface.Marker_Change(Sender: TObject);
+var
+  DP: TAIDefencePosition;
 begin
   case fCurrentMarker.MarkerType of
-    mtDefence:   fPlayers[fCurrentMarker.Owner].AI.DefencePositions[fCurrentMarker.Index].Radius := TrackBar_DefenceRad.Position;
+    mtDefence:    begin
+                    DP := fPlayers[fCurrentMarker.Owner].AI.DefencePositions[fCurrentMarker.Index];
+                    DP.Radius := TrackBar_DefenceRad.Position;
+                    DP.GroupType := TGroupType(DropList_DefenceType.ItemIndex);
+                  end;
     mtRevealFOW: fGame.MapEditor.Revealers[fCurrentMarker.Owner].Tag[fCurrentMarker.Index] := TrackBar_RevealSize.Position;
   end;
 end;

@@ -25,7 +25,7 @@ type
     property PlayerAnimals: TKMPlayerAnimals read fPlayerAnimals;
     property Selected: TObject read fSelected write SetSelected;
 
-    procedure AddPlayers(aCount:byte); //Batch add several players
+    procedure AddPlayers(aCount: Byte); //Batch add several players
 
     procedure RemoveEmptyPlayers;
     procedure RemovePlayer(aIndex: TPlayerIndex);
@@ -67,6 +67,8 @@ type
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure IncAnimStep;
+
+    procedure UpdateSelected;
     procedure UpdateState(aTick: Cardinal);
     procedure Paint;
   end;
@@ -392,6 +394,21 @@ begin
 end;
 
 
+procedure TKMPlayersCollection.UpdateSelected;
+begin
+  //Update selection (and drop it if necessary)
+  if (fSelected is TKMHouse) and TKMHouse(fSelected).IsDestroyed then
+    fSelected := nil
+  else
+  if (fSelected is TKMUnit)
+  and (TKMUnit(fSelected).IsDeadOrDying or not TKMUnit(fSelected).Visible) then
+    fSelected := nil
+  else
+  if (fSelected is TKMUnitGroup) and TKMUnitGroup(fSelected).IsDead then
+    fSelected := nil;
+end;
+
+
 //Get total unit count for statistics display
 function TKMPlayersCollection.GetUnitCount: Integer;
 var I: Integer;
@@ -614,17 +631,6 @@ begin
       Exit;
 
   PlayerAnimals.UpdateState(aTick); //Animals don't have any AI yet
-
-  //Update selection (and drop it if necessary)
-  if (Selected is TKMHouse) and TKMHouse(Selected).IsDestroyed then
-    Selected := nil
-  else
-  if (Selected is TKMUnit)
-  and (TKMUnit(Selected).IsDeadOrDying or not TKMUnit(Selected).Visible) then
-    Selected := nil
-  else
-  if (Selected is TKMUnitGroup) and (TKMUnitGroup(Selected).IsDead) then
-    Selected := nil;
 end;
 
 

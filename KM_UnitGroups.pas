@@ -460,9 +460,10 @@ begin
 end;
 
 
+//Get current groups location (we use flagholder)
 function TKMUnitGroup.GetPosition: TKMPoint;
 begin
-  Result := fOrderLoc.Loc;
+  Result := Members[0].GetPosition;
 end;
 
 
@@ -803,11 +804,11 @@ begin
     if not Members[I].InFight then
     begin
       //Check target in range, and if not - chase it / back up from it
-      if (KMLength(GetPosition, OrderTargetUnit.GetPosition) > Members[I].GetFightMaxRange) then
+      if (KMLength(Members[I].GetPosition, OrderTargetUnit.GetPosition) > Members[I].GetFightMaxRange) then
         //Too far away
         Members[I].OrderWalk(fOrderTargetUnit.NextPosition)
       else
-      if (KMLength(GetPosition, OrderTargetUnit.GetPosition) < Members[I].GetFightMinRange) then
+      if (KMLength(Members[I].GetPosition, OrderTargetUnit.GetPosition) < Members[I].GetFightMinRange) then
         //todo: Archer is too close, back up
       else
         //WithinRange

@@ -1330,7 +1330,10 @@ end;
 procedure TKMGame.UpdateState(aGlobalTickCount: Cardinal);
 begin
   if not fIsPaused then
+  begin
+    fPlayers.UpdateSelected;
     fActiveInterface.UpdateState(aGlobalTickCount);
+  end;
 
   //Update minimap every 1000ms
   if aGlobalTickCount mod 10 = 0 then

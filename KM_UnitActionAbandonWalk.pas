@@ -1,7 +1,7 @@
 unit KM_UnitActionAbandonWalk;
 {$I KaM_Remake.inc}
 interface
-uses Math, 
+uses Math,
   KM_CommonClasses, KM_Defaults, KM_Units, KM_Points;
 
 
@@ -16,9 +16,9 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     destructor Destroy; override;
     function ActName: TUnitActionName; override;
-    function GetExplanation:string; override;
+    function GetExplanation: string; override;
     function Execute: TActionResult; override;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
 
@@ -29,7 +29,7 @@ uses KM_Resource;
 { TUnitActionAbandonWalk }
 constructor TUnitActionAbandonWalk.Create(aUnit: TKMUnit; LocB, aVertexOccupied: TKMPoint; aActionType: TUnitActionType);
 begin
-  Assert(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
+  Assert(LocB.X*LocB.Y <> 0, 'Illegal WalkTo 0;0');
   inherited Create(aUnit, aActionType, False);
 
   fWalkTo         := LocB;
@@ -48,7 +48,7 @@ begin
 end;
 
 
-constructor TUnitActionAbandonWalk.Load(LoadStream:TKMemoryStream);
+constructor TUnitActionAbandonWalk.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
   LoadStream.Read(fWalkTo);
@@ -70,7 +70,8 @@ end;
 
 function TUnitActionAbandonWalk.Execute: TActionResult;
 var
-  DX,DY:shortint; WalkX,WalkY,Distance:single;
+  DX, DY: ShortInt;
+  WalkX, WalkY, Distance: Single;
 begin
   Result := ActContinues;
 
@@ -81,13 +82,13 @@ begin
   if KMSamePointF(fUnit.PositionF, KMPointF(fWalkTo), Distance/2) then
   begin
     fUnit.PositionF := KMPointF(fWalkTo); //Set precise position to avoid rounding errors
-    fUnit.IsExchanging := false; //Disable sliding (in case it was set in previous step)
+    fUnit.IsExchanging := False; //Disable sliding (in case it was set in previous step)
     if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
     begin
       fUnit.VertexRem(fVertexOccupied); //Unoccupy vertex
       fVertexOccupied := KMPoint(0,0);
     end;
-    StepDone := true;
+    StepDone := True;
     Result := ActDone;
     exit;
   end;
@@ -102,11 +103,11 @@ begin
 
   fUnit.PositionF := KMPointF(fUnit.PositionF.X + DX*Math.min(Distance,abs(WalkX)),
                               fUnit.PositionF.Y + DY*Math.min(Distance,abs(WalkY)));
-  inc(fUnit.AnimStep);
+  Inc(fUnit.AnimStep);
 end;
 
 
-procedure TUnitActionAbandonWalk.Save(SaveStream:TKMemoryStream);
+procedure TUnitActionAbandonWalk.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(fWalkTo);
