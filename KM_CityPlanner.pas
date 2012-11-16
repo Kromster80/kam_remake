@@ -24,7 +24,6 @@ type
   private
     fOwner: TPlayerIndex;
     fFinder: TKMTerrainFinderCity;
-    fPerfLog: TKMPerfLog;
 
     function GetSourceLocation(aHouseType: array of THouseType; out Loc: TKMPoint): Boolean;
 
@@ -61,15 +60,11 @@ begin
   inherited Create;
   fOwner := aPlayer;
   fFinder := TKMTerrainFinderCity.Create(fOwner);
-
-  if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
 end;
 
 
 destructor TKMCityPlanner.Destroy;
 begin
-  if DO_PERF_LOGGING then fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLogCity'+IntToStr(fOwner)+'.txt');
-  if DO_PERF_LOGGING then fPerfLog.Free;
   fFinder.Free;
 
   inherited;

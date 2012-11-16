@@ -46,6 +46,7 @@ begin
   S := TFileStream.Create(aFilename, fmCreate);
 
   for I := 0 to fCount - 1 do
+  if fTimes[I] > 15 then
   begin
     ss := Format('%d'#9'%d' + eol, [I, fTimes[I]]);
     S.WriteBuffer(ss[1], Length(ss));

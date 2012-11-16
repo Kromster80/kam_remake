@@ -653,16 +653,11 @@ begin
                       if IsRanged then
                       begin
                         //Ranged units must kill target unit only
-                        //Then they will attacck anything within their reach by themselves
+                        //Then they will attack anything within their reach by themselves
                         OrderExecuted := (OrderTargetUnit = nil);
 
                         if not OrderExecuted then
                           OrderAttackUnit(fOrderTargetUnit);
-
-                        {if OrderExecuted then
-                        //Look for more enemies ASAP (instead of waiting 5 ticks in Unit.UpdateState)
-                        for I := 0 to Count - 1 do
-                          Members[I].CheckForEnemy;}
                       end
                       else
                       begin
@@ -779,12 +774,13 @@ begin
     OrderTargetUnit := aUnit;
 
     for I := 0 to Count - 1 do
-    if not Members[I].InFight then
+    if Members[I].IsIdle then
     begin
       //Check target in range, and if not - chase it / back up from it
       if (KMLength(Members[I].GetPosition, OrderTargetUnit.GetPosition) > Members[I].GetFightMaxRange) then
         //Too far away
-        Members[I].OrderWalk(fOrderTargetUnit.NextPosition)
+        //Walk to the enemy
+        Members[I].SetActionWalkToUnit(fOrderTargetUnit, Members[I].GetFightMaxRange)
       else
       if (KMLength(Members[I].GetPosition, OrderTargetUnit.GetPosition) < Members[I].GetFightMinRange) then
         //todo: Archer is too close, back up
