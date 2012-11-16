@@ -1073,7 +1073,7 @@ begin
   Panel_Extra.Anchors := [akLeft, akBottom];
   Panel_Extra.Hide;
 
-    with TKMImage.Create(Panel_Extra,0,0,800,190,409) do
+    with TKMImage.Create(Panel_Extra, 0, 0, 800, 190, 409) do
     begin
       Anchors := [akLeft,akTop,akBottom];
       ImageStretch;
@@ -1798,10 +1798,14 @@ end;
 
 
 procedure TKMapEdInterface.Menu_Save(Sender: TObject);
+var
+  SaveName: string;
 begin
+  SaveName := Trim(Edit_SaveName.Text);
+
   if (Sender = Edit_SaveName) or (Sender = Radio_Save_MapType) then
   begin
-    CheckBox_SaveExists.Enabled := FileExists(TKMapsCollection.FullPath(Edit_SaveName.Text, '.dat', Radio_Save_MapType.ItemIndex = 1));
+    CheckBox_SaveExists.Enabled := FileExists(TKMapsCollection.FullPath(SaveName, '.dat', Radio_Save_MapType.ItemIndex = 1));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := False;
     Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
@@ -1810,9 +1814,10 @@ begin
   if Sender = CheckBox_SaveExists then
     Button_SaveSave.Enabled := CheckBox_SaveExists.Checked;
 
-  if Sender = Button_SaveSave then begin
+  if Sender = Button_SaveSave then
+  begin
     //Should we expand the path here? It depends.. since we are passing mask for map/dat files/folder
-    fGame.SaveMapEditor(Edit_SaveName.Text, Radio_Save_MapType.ItemIndex = 1);
+    fGame.SaveMapEditor(SaveName, Radio_Save_MapType.ItemIndex = 1);
 
     Player_UpdateColors;
     Player_ChangeActive(nil);

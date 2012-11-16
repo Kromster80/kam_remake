@@ -506,13 +506,16 @@ end;
 
 
 procedure TKMGamePlayInterface.Menu_Save_Click(Sender: TObject);
+var
+  SaveName: string;
 begin
-  LastSaveName := Edit_Save.Text; //Do this before saving so it is included in the save
+  SaveName := Trim(Edit_Save.Text);
+  LastSaveName := SaveName; //Do this before saving so it is included in the save
   if fMultiplayer then
     //Don't tell everyone in the game that we are saving yet, as the command hasn't been processed
-    fGame.GameInputProcess.CmdGame(gic_GameSave, Edit_Save.Text)
+    fGame.GameInputProcess.CmdGame(gic_GameSave, SaveName)
   else
-    fGame.Save(Edit_Save.Text);
+    fGame.Save(SaveName);
 
   fSaves.TerminateScan; //stop scan as it is no longer needed
   SwitchPage(nil); //Close save menu after saving

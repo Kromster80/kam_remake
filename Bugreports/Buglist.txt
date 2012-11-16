@@ -1,13 +1,15 @@
 ﻿Since r4179:
 <===================================================================================>
  +	Make Serfs face the house plan entrance when handing building materials to it
- +	Stonemasons/fishermen would report that resources are depleted when the only mining spots were blocked by another stonemason/fisherman
+ +	Stonemasons/fishermen would report that resources are depleted when the only mining spots were blocked by another unit
+ +	Archers behave badly when you tell them to attack directly (houses and units)
+ +	Saving a game or a map in MapEd with a name ending/starting in a space crashes with "Invalid file name"
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Deliveries should use the actual walking route length (opposed to Radius)
-	AIs should retaliate when the arrow is in mid flight or when it lands, not while the archer is still aiming/firing
-	Archers behave badly when you tell them to attack directly (houses and units), and they should step backwards when too close
+	AIs shoulwd retaliate when the arrow is in mid flight or when it lands, not while the archer is still aiming/firing
+	Archers should step backwards when too close to attack target
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Replays sometimes end up with a mismatch while watching them, cause unknown
 	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
@@ -26,9 +28,7 @@
 	Opening chat or sending a message at the right moment during the reconnect cycle can cause a crash because Networking.MyIndex does not exist (or is not you) in NetPlayersList
 	Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
 	If just one player cannot run the game smoothly MP will lag for everyone in his game. For example if you zoom out a lot you will get a poor frame rate and your game will run at < 10 ticks per second forcing other players down to that speed. The lagger's ping will not look any different. Maybe have a way to indicate to that player and the others on the server that he is causing the lag? Our planned 2x speed in MP will make this much worse as some computers will lag more.
-	Players can cause "tactical lag" by zooming out so their framerate drops and the game slows down for everyone. Dynamically limit zooming to maintain good framerate? Threaded rendering would probably solve this problem too since most of the time spent in rendering is non-critical (waiting for GPU so game updating can happen simultaneously)
 	If you halt your archers after they shoot they will shoot without reloading, increasing their firing speed. Add some kind of special pause before the first shot or after halting? Also applies to attacking houses.
-	Saving a map in MapEd with a name ending/starting in a space crashes with "Invalid file name"
 	There's no message in MP when you defeat AI opponent (if you defeat human opponent it shows one)
 	Listbox scrollbars jump when trying to drag them by upper/lower thumb edge [Krom]
 
@@ -37,6 +37,7 @@
 	Colored rectangle below cursor
 
 Improvements:
+ +	H	Refactor army management with TGroup layer
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -59,7 +60,6 @@ Improvements:
 	L	Clicking a location on the lobby minimap selects that location if it's available
 	L	VSync should be configurable on the settings page, it can reduce performance a bit on some systems and players might like to change it
 
-	H	Refactor army management with TGroup layer
 	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams
 	M	Scrolling around the map using middle mouse click, as in TPR
 	M	Sliders in lobby for selecting speed during peacetime and after peacetime
