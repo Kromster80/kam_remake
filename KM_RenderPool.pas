@@ -1044,9 +1044,14 @@ end;
 
 
 procedure TRenderPool.RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK; aFlagColor: TColor4 = $FFFFFFFF);
+var
+  pX, pY: Single;
 begin
-  if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
-    RenderSprite(rxGui, aID, aLoc.X - 0.8, fTerrain.FlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) + 0.3, aFlagColor, 255);
+  if not fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then Exit;
+
+  pX := aLoc.X - 0.5 - GFXData[rxGui, aID].PxWidth/CELL_SIZE_PX/2;
+  pY := fTerrain.FlatToHeight(aLoc.X - 0.5, aLoc.Y - 0.5) + GFXData[rxGui, aID].PxHeight/CELL_SIZE_PX/2;
+  RenderSprite(rxGui, aID, pX, pY, aFlagColor, 255);
 end;
 
 
@@ -1071,6 +1076,7 @@ end;
 procedure TRenderPool.RenderCursors;
 var
   P: TKMPoint;
+  PD: TKMPointDir;
   F: TKMPointF;
   U: TKMUnit;
   I,K: Integer;
@@ -1084,7 +1090,10 @@ begin
     if mlDefences in fGame.MapEditor.VisibleLayers then
     for I := 0 to fPlayers.Count - 1 do
       for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
-        RenderCursorBuildIcon(fPlayers[I].AI.DefencePositions[K].Position.Loc, 519, fPlayers[I].FlagColor);
+      begin
+        PD := fPlayers[I].AI.DefencePositions[K].Position;
+        RenderCursorBuildIcon(PD.Loc, 510 + Byte(PD.Dir), fPlayers[I].FlagColor);
+      end;
 
     if mlRevealFOW in fGame.MapEditor.VisibleLayers then
     for I := 0 to fPlayers.Count - 1 do

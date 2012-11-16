@@ -355,11 +355,6 @@ begin
 
       if fGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
 
-      //Check formation. If the script has defined a group with more units per row than there should be, do not change it
-      //todo: That should be checked only once on creation of the group
-      if Group.UnitsPerRow < fDefencePositions.TroopFormations[Group.GroupType].UnitsPerRow then
-        Group.UnitsPerRow := fDefencePositions.TroopFormations[Group.GroupType].UnitsPerRow;
-
       //We already have a position, finished with this group
       Positioned := fDefencePositions.FindPositionOf(Group) <> nil;
 

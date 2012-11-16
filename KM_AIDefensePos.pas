@@ -12,22 +12,27 @@ type
 
   TAIDefencePosition = class
   private
-    fCurrentGroup: TKMUnitGroup; //Commander of group currently occupying position
-
+    fDefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
     fGroupType: TGroupType; //Type of group to defend this position (e.g. melee)
     fPosition: TKMPointDir; //Position and direction the group defending will stand
     fRadius: Integer; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
+
+    fCurrentGroup: TKMUnitGroup; //Commander of group currently occupying position
     procedure SetCurrentGroup(aGroup: TKMUnitGroup);
     procedure SetGroupType(const Value: TGroupType);
+    procedure SetDefenceType(const Value: TAIDefencePosType);
+    procedure SetPosition(const Value: TKMPointDir);
   public
-    DefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
     constructor Create(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
     constructor Load(LoadStream: TKMemoryStream);
     destructor Destroy; override;
-    property CurrentGroup: TKMUnitGroup read fCurrentGroup write SetCurrentGroup;
+
+    property DefenceType: TAIDefencePosType read fDefenceType write SetDefenceType;
     property GroupType: TGroupType read fGroupType write SetGroupType; //Type of group to defend this position (e.g. melee)
-    property Position: TKMPointDir read fPosition; //Position and direction the group defending will stand
+    property Position: TKMPointDir read fPosition write SetPosition; //Position and direction the group defending will stand
     property Radius: Integer read fRadius write fRadius; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
+
+    property CurrentGroup: TKMUnitGroup read fCurrentGroup write SetCurrentGroup;
     function IsFullyStocked(aAmount: Integer): Boolean;
     function UITitle: string;
     procedure Save(SaveStream: TKMemoryStream);
@@ -74,7 +79,7 @@ begin
   fPosition := aPos;
   fGroupType := aGroupType;
   fRadius := aRadius;
-  DefenceType := aDefenceType;
+  fDefenceType := aDefenceType;
   CurrentGroup := nil; //Unoccupied
 end;
 
@@ -97,10 +102,24 @@ begin
 end;
 
 
+procedure TAIDefencePosition.SetDefenceType(const Value: TAIDefencePosType);
+begin
+  Assert(fGame.IsMapEditor);
+  fDefenceType := Value;
+end;
+
+
 procedure TAIDefencePosition.SetGroupType(const Value: TGroupType);
 begin
   Assert(fGame.IsMapEditor);
   fGroupType := Value;
+end;
+
+
+procedure TAIDefencePosition.SetPosition(const Value: TKMPointDir);
+begin
+  Assert(fGame.IsMapEditor);
+  fPosition := Value;
 end;
 
 
@@ -109,7 +128,7 @@ begin
   SaveStream.Write(fPosition);
   SaveStream.Write(fGroupType, SizeOf(fGroupType));
   SaveStream.Write(fRadius);
-  SaveStream.Write(DefenceType, SizeOf(DefenceType));
+  SaveStream.Write(fDefenceType, SizeOf(fDefenceType));
   if fCurrentGroup <> nil then
     SaveStream.Write(fCurrentGroup.ID) //Store ID
   else
@@ -123,7 +142,7 @@ begin
   LoadStream.Read(fPosition);
   LoadStream.Read(fGroupType, SizeOf(fGroupType));
   LoadStream.Read(fRadius);
-  LoadStream.Read(DefenceType, SizeOf(DefenceType));
+  LoadStream.Read(fDefenceType, SizeOf(fDefenceType));
   LoadStream.Read(fCurrentGroup, 4); //subst on syncload
 end;
 
@@ -237,7 +256,7 @@ begin
       begin
         Matched := I;
         Best := Distance;
-        if not aTakeClosest then break; //Take first one we find - that's what KaM does
+        if not aTakeClosest then Break; //Take first one we find - that's what KaM does
       end;
     end;
   end;
@@ -248,6 +267,8 @@ begin
     if Positions[Matched].CurrentGroup = nil then
     begin //New position
       Positions[Matched].CurrentGroup := aGroup;
+      if aGroup.UnitsPerRow < TroopFormations[aGroup.GroupType].UnitsPerRow then
+        aGroup.UnitsPerRow := TroopFormations[aGroup.GroupType].UnitsPerRow;
       aGroup.OrderWalk(Positions[Matched].Position.Loc);
     end
     else //Restock existing position
@@ -265,6 +286,9 @@ begin
     aGroup.OrderLinkTo(aDefenceGroup) //Link entire group
   else
     aGroup.OrderSplitLinkTo(aDefenceGroup, Needed); //Link only as many units as are needed
+
+  if aDefenceGroup.UnitsPerRow < TroopFormations[aDefenceGroup.GroupType].UnitsPerRow then
+    aDefenceGroup.UnitsPerRow := TroopFormations[aDefenceGroup.GroupType].UnitsPerRow;
 end;
 
 

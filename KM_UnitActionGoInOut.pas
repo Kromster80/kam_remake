@@ -342,7 +342,7 @@ begin
   and (fHouse <> nil) then
     fUnit.IsExchanging := (fHouse.DoorwayUse > 1);
 
-  Assert((fHouse = nil) or KMSamePoint(fDoor,fHouse.GetEntrance)); //Must always go in/out the entrance of the house
+  Assert((fHouse = nil) or KMSamePoint(fDoor, fHouse.GetEntrance)); //Must always go in/out the entrance of the house
   Distance := fResource.UnitDat[fUnit.UnitType].Speed;
 
   //Actual speed is slower if we are moving diagonally, due to the fact we are moving in X and Y

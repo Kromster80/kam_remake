@@ -18,7 +18,7 @@ type
     fStorehouseItem: Byte; //Selected ware in storehouse
     fBarracksItem: Byte; //Selected ware in barracks
     fTileDirection: Byte;
-    fCurrentMarker: TKMMapEdMarker;
+    fActiveMarker: TKMMapEdMarker;
 
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
@@ -241,8 +241,12 @@ type
       Panel_MarkerReveal: TKMPanel;
         TrackBar_RevealSize: TKMTrackBar;
       Panel_MarkerDefence: TKMPanel;
+        DropList_DefenceGroup: TKMDropList;
         DropList_DefenceType: TKMDropList;
         TrackBar_DefenceRad: TKMTrackBar;
+        Button_DefenceCW: TKMButton;
+        Button_DefenceCCW: TKMButton;
+
 
   public
     constructor Create(aScreenX, aScreenY: word);
@@ -1143,8 +1147,8 @@ begin
     Label_UnitDescription.AutoWrap := True;
 
     Panel_Army := TKMPanel.Create(Panel_Unit, 0, 160, TB_WIDTH, 400);
-    Button_Army_RotCCW   := TKMButton.Create(Panel_Army,      0, 0, 56, 40, 23, rxGui, bsGame);
-    Button_Army_RotCW  := TKMButton.Create(Panel_Army,      124, 0, 56, 40, 24, rxGui, bsGame);
+    Button_Army_RotCCW  := TKMButton.Create(Panel_Army,       0, 0, 56, 40, 23, rxGui, bsGame);
+    Button_Army_RotCW   := TKMButton.Create(Panel_Army,     124, 0, 56, 40, 24, rxGui, bsGame);
     Button_Army_ForUp   := TKMButton.Create(Panel_Army,       0, 46, 56, 40, 33, rxGui, bsGame);
     ImageStack_Army     := TKMImageStack.Create(Panel_Army,  62, 46, 56, 40, 43, 50);
     Label_ArmyCount     := TKMLabel.Create(Panel_Army,       62, 60, 56, 20, '-', fnt_Outline, taCenter);
@@ -1258,12 +1262,19 @@ begin
       TrackBar_RevealSize.OnChange := Marker_Change;
 
     Panel_MarkerDefence := TKMPanel.Create(Panel_Marker, 0, 60, TB_WIDTH, 400);
-      DropList_DefenceType := TKMDropList.Create(Panel_MarkerDefence, 0, 10, TB_WIDTH, 20, fnt_Game, '', bsGame);
-      DropList_DefenceType.SetItems('Melee'+eol+'AntiHorse'+eol+'Ranged'+eol+'Mounted');
+      DropList_DefenceGroup := TKMDropList.Create(Panel_MarkerDefence, 0, 10, TB_WIDTH, 20, fnt_Game, '', bsGame);
+      DropList_DefenceGroup.SetItems('Melee'+eol+'AntiHorse'+eol+'Ranged'+eol+'Mounted');
+      DropList_DefenceGroup.OnChange := Marker_Change;
+      DropList_DefenceType := TKMDropList.Create(Panel_MarkerDefence, 0, 40, TB_WIDTH, 20, fnt_Game, '', bsGame);
+      DropList_DefenceType.SetItems('FrontLine'+eol+'BackLine');
       DropList_DefenceType.OnChange := Marker_Change;
-      TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 0, 30, TB_WIDTH, 1, 128);
+      TrackBar_DefenceRad := TKMTrackBar.Create(Panel_MarkerDefence, 0, 70, TB_WIDTH, 1, 128);
       TrackBar_DefenceRad.Caption := 'Radius';
       TrackBar_DefenceRad.OnChange := Marker_Change;
+      Button_DefenceCCW  := TKMButton.Create(Panel_MarkerDefence, 0, 120, 50, 35, 23, rxGui, bsGame);
+      Button_DefenceCCW.OnClick := Marker_Change;
+      Button_DefenceCW := TKMButton.Create(Panel_MarkerDefence, 130, 120, 50, 35, 24, rxGui, bsGame);
+      Button_DefenceCW.OnClick := Marker_Change;
 end;
 
 
@@ -1758,7 +1769,7 @@ end;
 
 procedure TKMapEdInterface.ShowMarkerInfo(aMarker: TKMMapEdMarker);
 begin
-  fCurrentMarker := aMarker;
+  fActiveMarker := aMarker;
 
   if (aMarker.MarkerType = mtNone) or (aMarker.Owner = PLAYER_NONE) or (aMarker.Index = -1) then
   begin
@@ -1772,7 +1783,8 @@ begin
   case aMarker.MarkerType of
     mtDefence:    begin
                     Label_MarkerType.Caption := 'Defence position';
-                    DropList_DefenceType.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.DefencePositions[aMarker.Index].GroupType);
+                    DropList_DefenceGroup.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.DefencePositions[aMarker.Index].GroupType);
+                    DropList_DefenceType.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.DefencePositions[aMarker.Index].DefenceType);
                     TrackBar_DefenceRad.Position := fPlayers[aMarker.Owner].AI.DefencePositions[aMarker.Index].Radius;
                     SwitchPage(Panel_MarkerDefence);
                   end;
@@ -1815,13 +1827,20 @@ procedure TKMapEdInterface.Marker_Change(Sender: TObject);
 var
   DP: TAIDefencePosition;
 begin
-  case fCurrentMarker.MarkerType of
+  case fActiveMarker.MarkerType of
     mtDefence:    begin
-                    DP := fPlayers[fCurrentMarker.Owner].AI.DefencePositions[fCurrentMarker.Index];
+                    DP := fPlayers[fActiveMarker.Owner].AI.DefencePositions[fActiveMarker.Index];
                     DP.Radius := TrackBar_DefenceRad.Position;
-                    DP.GroupType := TGroupType(DropList_DefenceType.ItemIndex);
+                    DP.DefenceType := TAIDefencePosType(DropList_DefenceType.ItemIndex);
+                    DP.GroupType := TGroupType(DropList_DefenceGroup.ItemIndex);
+
+                    if Sender = Button_DefenceCW then
+                      DP.Position := KMPointDir(DP.Position.Loc, KMNextDirection(DP.Position.Dir));
+                    if Sender = Button_DefenceCCW then
+                      DP.Position := KMPointDir(DP.Position.Loc, KMPrevDirection(DP.Position.Dir));
+
                   end;
-    mtRevealFOW: fGame.MapEditor.Revealers[fCurrentMarker.Owner].Tag[fCurrentMarker.Index] := TrackBar_RevealSize.Position;
+    mtRevealFOW: fGame.MapEditor.Revealers[fActiveMarker.Owner].Tag[fActiveMarker.Index] := TrackBar_RevealSize.Position;
   end;
 end;
 
@@ -2392,7 +2411,8 @@ end;
 procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var
   P: TKMPoint;
-  Marker: TKMMapEdMarker;
+  DP: TAIDefencePosition;
+  SelMarker: TKMMapEdMarker;
 begin
   inherited;
 
@@ -2425,8 +2445,12 @@ begin
     if fPlayers.Selected is TKMUnitGroup then
       TKMUnitGroup(fPlayers.Selected).Position := P;
 
-    case fCurrentMarker.MarkerType of
-      mtRevealFOW: fGame.MapEditor.Revealers[fCurrentMarker.Owner][fCurrentMarker.Index] := P;
+    case fActiveMarker.MarkerType of
+      mtDefence:   begin
+                     DP := fPlayers[fActiveMarker.Owner].AI.DefencePositions[fActiveMarker.Index];
+                     DP.Position := KMPointDir(P, DP.Position.Dir);
+                   end;
+      mtRevealFOW: fGame.MapEditor.Revealers[fActiveMarker.Owner][fActiveMarker.Index] := P;
     end;
 
   end
@@ -2436,9 +2460,9 @@ begin
       cmNone:  begin
                   //If there are some additional layers we first HitTest them
                   //as they are rendered ontop of Houses/Objects
-                  Marker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                  if Marker.MarkerType <> mtNone then
-                    ShowMarkerInfo(Marker)
+                  SelMarker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                  if SelMarker.MarkerType <> mtNone then
+                    ShowMarkerInfo(SelMarker)
                   else
                   begin
                     fPlayers.SelectHitTest(GameCursor.Cell.X, GameCursor.Cell.Y, False);
