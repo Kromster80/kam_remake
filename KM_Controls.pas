@@ -3167,7 +3167,7 @@ begin
     else
     begin
       TextSize := fResource.ResourceFont.GetTextSize(fColumns[I].Caption, fFont);
-      fRenderUI.WriteText(ColumnLeft + 4, Top + 4, ColumnWidth - 8, fColumns[I].Caption, fFont, fTextAlign);
+      fRenderUI.WriteText(ColumnLeft + 4, Top + (Height - TextSize.Y) div 2 + 2, ColumnWidth - 8, fColumns[I].Caption, fFont, fTextAlign);
     end;
 
     if Assigned(OnColumnClick) and (fSortIndex = I) then

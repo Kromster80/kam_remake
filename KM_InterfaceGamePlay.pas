@@ -313,7 +313,6 @@ type
       Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
       Image_Store_Accept:array[1..STORE_RES_COUNT]of TKMImage;
     Panel_House_School:TKMPanel;
-      Label_School_Res:TKMLabel;
       ResRow_School_Resource:TKMResourceRow;
       Button_School_UnitWIP:TKMButton;
       Button_School_UnitWIPBar:TKMPercentBar;
@@ -1668,13 +1667,16 @@ end;
 procedure TKMGamePlayInterface.Create_School_Page;
 var I: Integer;
 begin
-  Panel_House_School:=TKMPanel.Create(Panel_House,0,76,TB_WIDTH,266);
-    Label_School_Res:=TKMLabel.Create(Panel_House_School,0,2,TB_WIDTH,30,fTextLibrary[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
+  Panel_House_School := TKMPanel.Create(Panel_House, 0, 76, TB_WIDTH, 266);
+
+    TKMLabel.Create(Panel_House_School,0,2,TB_WIDTH,30,fTextLibrary[TX_HOUSE_NEEDS],fnt_Grey,taCenter);
+
     ResRow_School_Resource := TKMResourceRow.Create(Panel_House_School, 0,22,TB_WIDTH,20);
     ResRow_School_Resource.RX := rxGui;
     ResRow_School_Resource.TexID := fResource.Resources[rt_Gold].GUIIcon;
     ResRow_School_Resource.Caption := fResource.Resources[rt_Gold].Title;
     ResRow_School_Resource.Hint := fResource.Resources[rt_Gold].Title;
+
     Button_School_UnitWIP := TKMButton.Create(Panel_House_School,  0,48,32,32,0, rxGui, bsGame);
     Button_School_UnitWIP.Hint := fTextLibrary[TX_HOUSE_SCHOOL_WIP_HINT];
     Button_School_UnitWIP.Tag := 0;
@@ -1686,7 +1688,8 @@ begin
       Button_School_UnitPlan[i].Tag := I;
       Button_School_UnitPlan[i].OnClickEither := House_SchoolUnitRemove;
     end;
-    Label_School_Unit := TKMLabel.Create(Panel_House_School,0,116,TB_WIDTH,30,'',fnt_Outline,taCenter);
+
+    Label_School_Unit := TKMLabel.Create(Panel_House_School,   0,116,TB_WIDTH,30,'',fnt_Outline,taCenter);
     Image_School_Left := TKMImage.Create(Panel_House_School,   0,136,54,80,521);
     Image_School_Train := TKMImage.Create(Panel_House_School, 62,136,54,80,522);
     Image_School_Right := TKMImage.Create(Panel_House_School,124,136,54,80,523);
@@ -1709,15 +1712,15 @@ procedure TKMGamePlayInterface.Create_Barracks_Page;
 var I: Integer;
 begin
   Panel_HouseBarracks := TKMPanel.Create(Panel_House, 0, 76, TB_WIDTH, 266);
-    for i:=1 to BARRACKS_RES_COUNT do
+    for I := 1 to BARRACKS_RES_COUNT do
     begin
-      Button_Barracks[i] := TKMButtonFlat.Create(Panel_HouseBarracks, ((i-1)mod 6)*31, 8+((i-1)div 6)*42, 28, 38, 0);
-      Button_Barracks[i].TexOffsetX := 1;
-      Button_Barracks[i].TexOffsetY := 1;
-      Button_Barracks[i].CapOffsetY := 2;
-      Button_Barracks[i].HideHighlight := True;
-      Button_Barracks[i].TexID := fResource.Resources[BarracksResType[i]].GUIIcon;
-      Button_Barracks[i].Hint := fResource.Resources[BarracksResType[i]].Title;
+      Button_Barracks[I] := TKMButtonFlat.Create(Panel_HouseBarracks, ((I-1)mod 6)*31, 8+((I-1)div 6)*42, 28, 38, 0);
+      Button_Barracks[I].TexOffsetX := 1;
+      Button_Barracks[I].TexOffsetY := 1;
+      Button_Barracks[I].CapOffsetY := 2;
+      Button_Barracks[I].HideHighlight := True;
+      Button_Barracks[I].TexID := fResource.Resources[BarracksResType[I]].GUIIcon;
+      Button_Barracks[I].Hint := fResource.Resources[BarracksResType[I]].Title;
     end;
 
     Button_BarracksRecruit := TKMButtonFlat.Create(Panel_HouseBarracks, ((BARRACKS_RES_COUNT)mod 6)*31,8+((BARRACKS_RES_COUNT)div 6)*42,28,38,0);
