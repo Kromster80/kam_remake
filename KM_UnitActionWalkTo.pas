@@ -7,7 +7,6 @@ uses Classes, KromUtils, Math, SysUtils, TypInfo,
 
 type
   TDestinationCheck = (dc_NoChanges, dc_RouteChanged, dc_NoRoute);
-  TTargetDiedCheck = (tc_NoChanges, tc_Died);
   TObstacleCheck = (oc_NoObstacle, oc_ReRouteMade, oc_NoRoute);
 
   TUnitActionWalkTo = class(TUnitAction)
@@ -402,7 +401,7 @@ end;
 
 function TUnitActionWalkTo.CheckTargetHasDied: Boolean;
 begin
-  Result := (fTargetUnit <> nil) and not fTargetUnit.IsDeadOrDying;
+  Result := (fTargetUnit <> nil) and fTargetUnit.IsDeadOrDying;
 end;
 
 
