@@ -67,68 +67,121 @@ object FormMain: TFormMain
       end>
   end
   object GroupBox1: TGroupBox
-    Left = 304
+    Left = 320
     Top = 8
-    Width = 209
-    Height = 449
+    Width = 193
+    Height = 489
     Anchors = [akTop, akRight]
     Caption = ' Development controls '
     TabOrder = 2
-    object Label2: TLabel
-      Left = 104
-      Top = 136
-      Width = 49
-      Height = 13
-      Caption = 'Passability'
+    object GroupBox4: TGroupBox
+      Left = 8
+      Top = 400
+      Width = 177
+      Height = 81
+      Caption = ' Graphics tweaks '
+      TabOrder = 5
+      object Label3: TLabel
+        Left = 100
+        Top = 16
+        Width = 27
+        Height = 13
+        Caption = 'Angle'
+      end
+      object Label4: TLabel
+        Left = 100
+        Top = 32
+        Width = 27
+        Height = 13
+        Caption = 'Angle'
+      end
+      object Label1: TLabel
+        Left = 100
+        Top = 56
+        Width = 60
+        Height = 13
+        Caption = 'Building step'
+        Visible = False
+      end
+      object tbAngleX: TTrackBar
+        Left = 4
+        Top = 16
+        Width = 95
+        Height = 17
+        Max = 90
+        PageSize = 1
+        TabOrder = 0
+        ThumbLength = 14
+        TickMarks = tmBoth
+        TickStyle = tsNone
+        OnChange = ControlsUpdate
+      end
+      object tbAngleY: TTrackBar
+        Left = 4
+        Top = 32
+        Width = 95
+        Height = 17
+        Max = 90
+        PageSize = 1
+        TabOrder = 1
+        ThumbLength = 14
+        TickMarks = tmBoth
+        TickStyle = tsNone
+        OnChange = ControlsUpdate
+      end
+      object tbBuildingStep: TTrackBar
+        Left = 4
+        Top = 56
+        Width = 95
+        Height = 17
+        Max = 100
+        TabOrder = 2
+        ThumbLength = 14
+        TickMarks = tmBoth
+        TickStyle = tsNone
+        Visible = False
+        OnChange = ControlsUpdate
+      end
     end
-    object Label3: TLabel
-      Left = 104
-      Top = 160
-      Width = 27
-      Height = 13
-      Caption = 'Angle'
-    end
-    object Label1: TLabel
-      Left = 104
-      Top = 200
-      Width = 93
-      Height = 13
-      Caption = 'House building step'
-      Visible = False
-    end
-    object Label4: TLabel
-      Left = 104
-      Top = 176
-      Width = 27
-      Height = 13
-      Caption = 'Angle'
+    object GroupBox3: TGroupBox
+      Left = 8
+      Top = 344
+      Width = 177
+      Height = 57
+      Caption = ' User Interface '
+      TabOrder = 4
+      object chkUIControlsBounds: TCheckBox
+        Left = 8
+        Top = 16
+        Width = 97
+        Height = 17
+        Caption = 'Controls bounds'
+        TabOrder = 0
+        OnClick = ControlsUpdate
+      end
+      object chkUITextBounds: TCheckBox
+        Left = 8
+        Top = 32
+        Width = 81
+        Height = 17
+        Caption = 'Text bounds'
+        TabOrder = 1
+        OnClick = ControlsUpdate
+      end
     end
     object chkSuperSpeed: TCheckBox
       Left = 8
-      Top = 88
+      Top = 80
       Width = 75
       Height = 17
       Caption = 'Speed x300'
-      TabOrder = 1
-      OnClick = chkSuperSpeedClick
-    end
-    object tbPassability: TTrackBar
-      Left = 8
-      Top = 136
-      Width = 95
-      Height = 17
-      Max = 14
-      PageSize = 1
       TabOrder = 0
-      ThumbLength = 14
-      TickMarks = tmBoth
-      TickStyle = tsNone
-      OnChange = tbPassabilityChange
+      OnClick = chkSuperSpeedClick
     end
     object RGPlayer: TRadioGroup
       Left = 8
-      Top = 24
-      Width = 185
+      Top = 16
+      Width = 177
       Height = 57
       Caption = ' Select player '
       Columns = 4
@@ -142,83 +195,47 @@ object FormMain: TFormMain
         '6'
         '7'
         '8')
-      TabOrder = 2
+      TabOrder = 1
       OnClick = RGPlayerClick
     end
     object Button_Stop: TButton
-      Left = 8
-      Top = 112
+      Left = 96
+      Top = 80
       Width = 89
       Height = 17
       Caption = 'Stop the game'
-      TabOrder = 3
+      TabOrder = 2
       OnClick = Button_StopClick
-    end
-    object tbAngleX: TTrackBar
-      Left = 8
-      Top = 160
-      Width = 95
-      Height = 17
-      Max = 90
-      PageSize = 1
-      TabOrder = 4
-      ThumbLength = 14
-      TickMarks = tmBoth
-      TickStyle = tsNone
-      OnChange = tbAngleChange
-    end
-    object tbBuildingStep: TTrackBar
-      Left = 8
-      Top = 200
-      Width = 95
-      Height = 17
-      Max = 100
-      TabOrder = 5
-      ThumbLength = 14
-      TickMarks = tmBoth
-      TickStyle = tsNone
-      Visible = False
-      OnChange = tbBuildingStepChange
-    end
-    object Button_CalcArmy: TButton
-      Left = 104
-      Top = 112
-      Width = 89
-      Height = 17
-      Caption = 'TestCalcArmy'
-      TabOrder = 6
-      Visible = False
-      OnClick = Button_CalcArmyClick
     end
     object GroupBox2: TGroupBox
       Left = 8
-      Top = 232
-      Width = 185
-      Height = 193
+      Top = 184
+      Width = 177
+      Height = 161
       Caption = ' AI '
-      TabOrder = 7
+      TabOrder = 3
       object Label5: TLabel
-        Left = 104
-        Top = 128
+        Left = 108
+        Top = 116
         Width = 32
         Height = 13
         Caption = 'Margin'
       end
       object Label6: TLabel
-        Left = 104
-        Top = 152
+        Left = 108
+        Top = 132
         Width = 47
         Height = 13
         Caption = 'Threshold'
       end
       object chkShowInfluence: TCheckBox
         Left = 8
-        Top = 63
+        Top = 64
         Width = 97
         Height = 17
         Caption = 'Show influences'
         TabOrder = 0
-        OnClick = chkShowInfluenceClick
+        OnClick = ControlsUpdate
       end
       object chkShowNavMesh: TCheckBox
         Left = 8
@@ -227,39 +244,39 @@ object FormMain: TFormMain
         Height = 17
         Caption = 'Show navmesh'
         TabOrder = 1
-        OnClick = chkShowNavMeshClick
+        OnClick = ControlsUpdate
       end
       object chkShowForest: TCheckBox
         Left = 8
         Top = 48
-        Width = 97
+        Width = 81
         Height = 17
         Caption = 'Show forest'
         TabOrder = 2
-        OnClick = chkShowForestClick
+        OnClick = ControlsUpdate
       end
       object chkShowAvoid: TCheckBox
         Left = 8
         Top = 32
-        Width = 97
+        Width = 113
         Height = 17
-        Caption = 'Show avoid'
+        Caption = 'Show avoid building'
         TabOrder = 3
-        OnClick = chkShowAvoidClick
+        OnClick = ControlsUpdate
       end
       object chkShowBalance: TCheckBox
         Left = 8
         Top = 16
-        Width = 97
+        Width = 105
         Height = 17
         Caption = 'Show AI balance'
         TabOrder = 4
-        OnClick = chkShowBalanceClick
+        OnClick = ControlsUpdate
       end
       object tbOwnMargin: TTrackBar
-        Left = 8
-        Top = 128
-        Width = 95
+        Left = 4
+        Top = 116
+        Width = 101
         Height = 17
         Max = 255
         Min = 64
@@ -268,12 +285,12 @@ object FormMain: TFormMain
         ThumbLength = 14
         TickMarks = tmBoth
         TickStyle = tsNone
-        OnChange = tbOwnMarginChange
+        OnChange = ControlsUpdate
       end
       object tbOwnThresh: TTrackBar
-        Left = 8
-        Top = 152
-        Width = 95
+        Left = 4
+        Top = 132
+        Width = 101
         Height = 17
         Max = 255
         Min = 64
@@ -282,7 +299,7 @@ object FormMain: TFormMain
         ThumbLength = 14
         TickMarks = tmBoth
         TickStyle = tsNone
-        OnChange = tbOwnThreshChange
+        OnChange = ControlsUpdate
       end
       object chkShowDefences: TCheckBox
         Left = 8
@@ -291,32 +308,65 @@ object FormMain: TFormMain
         Height = 17
         Caption = 'Show defences'
         TabOrder = 7
-        OnClick = chkShowDefencesClick
+        OnClick = ControlsUpdate
       end
     end
-    object tbAngleY: TTrackBar
+    object GroupBox5: TGroupBox
       Left = 8
-      Top = 176
-      Width = 95
-      Height = 17
-      Max = 90
-      PageSize = 1
-      TabOrder = 8
-      ThumbLength = 14
-      TickMarks = tmBoth
-      TickStyle = tsNone
-      OnChange = tbAngleChange
+      Top = 104
+      Width = 177
+      Height = 81
+      Caption = ' Debug render '
+      TabOrder = 6
+      object Label2: TLabel
+        Left = 100
+        Top = 16
+        Width = 49
+        Height = 13
+        Caption = 'Passability'
+      end
+      object tbPassability: TTrackBar
+        Left = 4
+        Top = 16
+        Width = 95
+        Height = 17
+        Max = 14
+        PageSize = 1
+        TabOrder = 0
+        ThumbLength = 14
+        TickMarks = tmBoth
+        TickStyle = tsNone
+        OnChange = ControlsUpdate
+      end
+      object chkShowRoutes: TCheckBox
+        Left = 8
+        Top = 56
+        Width = 97
+        Height = 17
+        Caption = 'Show unit routes'
+        TabOrder = 1
+        OnClick = ControlsUpdate
+      end
+      object chkShowWires: TCheckBox
+        Left = 8
+        Top = 40
+        Width = 105
+        Height = 17
+        Caption = 'Show terrain wires'
+        TabOrder = 2
+        OnClick = ControlsUpdate
+      end
     end
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
-    Left = 48
-    Top = 192
+    Left = 80
+    Top = 8
   end
   object MainMenu1: TMainMenu
     Left = 16
-    Top = 192
+    Top = 8
     object File1: TMenuItem
       Caption = 'File'
       object OpenMissionMenu: TMenuItem
@@ -337,25 +387,13 @@ object FormMain: TFormMain
     end
     object Debug1: TMenuItem
       Caption = 'Debug'
-      object Debug_ShowWires: TMenuItem
-        Caption = 'Show wires'
-        OnClick = Debug_ShowWiresClick
-      end
       object Debug_PrintScreen: TMenuItem
         Caption = 'PrintScreen'
         OnClick = Debug_PrintScreenClick
       end
-      object Debug_ShowOverlay: TMenuItem
-        Caption = 'Show Overlay'
-        OnClick = Debug_ShowOverlayClick
-      end
       object Debug_ShowPanel: TMenuItem
         Caption = 'Show Debug panel'
         OnClick = Debug_ShowPanelClick
-      end
-      object Debug_ShowUnits: TMenuItem
-        Caption = 'Show Units'
-        OnClick = Debug_ShowUnitClick
       end
       object ExportMainMenu: TMenuItem
         Caption = 'Export MainMenu'

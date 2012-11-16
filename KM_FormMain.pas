@@ -2,7 +2,7 @@ unit KM_FormMain;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, TypInfo,
+  Classes, ComCtrls, Controls, Buttons, Dialogs, ExtCtrls, Forms, Graphics, Math, Menus, StdCtrls, SysUtils, StrUtils, TypInfo,
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, Messages; {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType; {$ENDIF}
@@ -25,7 +25,6 @@ type
   TFormMain = class(TForm)
     MenuItem1: TMenuItem;
     N2: TMenuItem;
-    Debug_ShowUnits: TMenuItem;
     OpenDialog1: TOpenDialog;
     StatusBar1: TStatusBar;
     MainMenu1: TMainMenu;
@@ -34,7 +33,6 @@ type
     N1: TMenuItem;
     About1: TMenuItem;
     Debug1: TMenuItem;
-    Debug_ShowWires: TMenuItem;
     Panel5: TPanel;
     Debug_PrintScreen: TMenuItem;
     Export1: TMenuItem;
@@ -49,21 +47,16 @@ type
     Export_Text: TMenuItem;
     Export_Deliverlists1: TMenuItem;
     Export_Sounds1: TMenuItem;
-    tbPassability: TTrackBar;
-    Label2: TLabel;
     Export_HouseAnim1: TMenuItem;
     Export_UnitAnim1: TMenuItem;
     RGPlayer: TRadioGroup;
     Button_Stop: TButton;
     OpenMissionMenu: TMenuItem;
-    Debug_ShowOverlay: TMenuItem;
     AnimData1: TMenuItem;
     Other1: TMenuItem;
     Debug_ShowPanel: TMenuItem;
     Export_TreeAnim1: TMenuItem;
     Export_GUIMainHRX: TMenuItem;
-    tbAngleX: TTrackBar;
-    Label3: TLabel;
     ExportMainMenu: TMenuItem;
     Debug_EnableCheats: TMenuItem;
     ShowAIAttacks1: TMenuItem;
@@ -71,16 +64,11 @@ type
     ExportMenuPages: TMenuItem;
     Resources1: TMenuItem;
     HousesDat1: TMenuItem;
-    tbBuildingStep: TTrackBar;
-    Label1: TLabel;
-    Button_CalcArmy: TButton;
     GroupBox2: TGroupBox;
     chkShowInfluence: TCheckBox;
     chkShowNavMesh: TCheckBox;
     chkShowForest: TCheckBox;
     chkShowAvoid: TCheckBox;
-    tbAngleY: TTrackBar;
-    Label4: TLabel;
     chkShowBalance: TCheckBox;
     tbOwnMargin: TTrackBar;
     tbOwnThresh: TTrackBar;
@@ -88,6 +76,21 @@ type
     Label6: TLabel;
     chkShowDefences: TCheckBox;
     ResourceValues1: TMenuItem;
+    GroupBox3: TGroupBox;
+    chkUIControlsBounds: TCheckBox;
+    chkUITextBounds: TCheckBox;
+    GroupBox4: TGroupBox;
+    tbAngleX: TTrackBar;
+    tbAngleY: TTrackBar;
+    Label3: TLabel;
+    Label4: TLabel;
+    tbBuildingStep: TTrackBar;
+    Label1: TLabel;
+    GroupBox5: TGroupBox;
+    tbPassability: TTrackBar;
+    Label2: TLabel;
+    chkShowRoutes: TCheckBox;
+    chkShowWires: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -96,7 +99,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure Button_CalcArmyClick(Sender: TObject);
     procedure Debug_EnableCheatsClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -104,7 +106,6 @@ type
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure AboutClick(Sender: TObject);
     procedure ExitClick(Sender: TObject);
-    procedure Debug_ShowWiresClick(Sender: TObject);
     procedure Debug_PrintScreenClick(Sender: TObject);
     procedure Export_TreesRXClick(Sender: TObject);
     procedure Export_HousesRXClick(Sender: TObject);
@@ -118,13 +119,10 @@ type
     procedure Export_TextClick(Sender: TObject);
     procedure Export_Fonts1Click(Sender: TObject);
     procedure Export_DeliverLists1Click(Sender: TObject);
-    procedure tbPassabilityChange(Sender: TObject);
-    procedure Debug_ShowOverlayClick(Sender: TObject);
     procedure Button_StopClick(Sender: TObject);
     procedure RGPlayerClick(Sender: TObject);
     procedure Open_MissionMenuClick(Sender: TObject);
     procedure chkSuperSpeedClick(Sender: TObject);
-    procedure Debug_ShowUnitClick(Sender: TObject);
     procedure Debug_ShowPanelClick(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure Panel5MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
@@ -132,24 +130,17 @@ type
     procedure Debug_ExportGamePagesClick(Sender: TObject);
     procedure Debug_ExportMenuPagesClick(Sender: TObject);
     procedure HousesDat1Click(Sender: TObject);
-    procedure tbBuildingStepChange(Sender: TObject);
-    procedure chkShowInfluenceClick(Sender: TObject);
-    procedure chkShowNavMeshClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure chkShowForestClick(Sender: TObject);
-    procedure chkShowAvoidClick(Sender: TObject);
-    procedure tbAngleChange(Sender: TObject);
-    procedure chkShowBalanceClick(Sender: TObject);
-    procedure tbOwnMarginChange(Sender: TObject);
-    procedure tbOwnThreshChange(Sender: TObject);
-    procedure chkShowDefencesClick(Sender: TObject);
     procedure ResourceValues1Click(Sender: TObject);
+    procedure ControlsUpdate(Sender: TObject);
   private
+    fUpdating: Boolean;
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg: TWMSysCommand); message WM_SYSCOMMAND;
     {$ENDIF}
   public
-    procedure ToggleControlsVisibility(aShowCtrls: Boolean);
+    procedure ControlsSetVisibile(aShowCtrls: Boolean);
+    procedure ControlsReset;
     procedure ToggleFullscreen(aFullscreen: Boolean);
   end;
 
@@ -171,7 +162,7 @@ uses
   KM_Controls,
   KM_GameApp,
   KM_PlayersCollection,
-  KM_Sound, 
+  KM_Sound,
   KM_Pics,
   KM_RenderPool,
   KM_TextLibrary,
@@ -281,7 +272,7 @@ begin
 
   if Key = VK_F11  then begin
     SHOW_DEBUG_CONTROLS := not SHOW_DEBUG_CONTROLS;
-    ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
+    ControlsSetVisibile(SHOW_DEBUG_CONTROLS);
   end;
 
   if fGameApp <> nil then fGameApp.KeyUp(Key, Shift);
@@ -337,28 +328,6 @@ end;
 
 
 //Debug Options
-procedure TFormMain.Debug_ShowWiresClick(Sender: TObject);
-begin
-  Debug_ShowWires.Checked := not Debug_ShowWires.Checked and fGameApp.AllowDebugRendering;
-  SHOW_TERRAIN_WIRES := Debug_ShowWires.Checked and fGameApp.AllowDebugRendering;
-end;
-
-
-procedure TFormMain.Debug_ShowOverlayClick(Sender: TObject);
-begin
-  Debug_ShowOverlay.Checked := not Debug_ShowOverlay.Checked;
-  SHOW_CONTROLS_OVERLAY := Debug_ShowOverlay.Checked;
-end;
-
-
-procedure TFormMain.Debug_ShowUnitClick(Sender: TObject);
-begin
-  Debug_ShowUnits.Checked := not Debug_ShowUnits.Checked and fGameApp.AllowDebugRendering;
-  SHOW_UNIT_MOVEMENT := Debug_ShowUnits.Checked and fGameApp.AllowDebugRendering;
-  SHOW_UNIT_ROUTES   := Debug_ShowUnits.Checked and fGameApp.AllowDebugRendering;
-end;
-
-
 procedure TFormMain.Debug_EnableCheatsClick(Sender: TObject);
 begin
   Debug_EnableCheats.Checked := not Debug_EnableCheats.Checked;
@@ -375,21 +344,6 @@ end;
 
 procedure TFormMain.Debug_ShowPanelClick(Sender: TObject);
 begin GroupBox1.Visible := not GroupBox1.Visible; end;
-
-
-procedure TFormMain.tbPassabilityChange(Sender: TObject);
-begin
-  SHOW_TERRAIN_WIRES := (tbPassability.Position <> 0) and fGameApp.AllowDebugRendering;
-  tbPassability.Max := Byte(High(TPassability));
-  if tbPassability.Position <> 0 then
-    Label2.Caption := GetEnumName(TypeInfo(TPassability), tbPassability.Position)
-  else
-    Label2.Caption := '';
-  if (fGameApp <> nil) and fGameApp.AllowDebugRendering then
-    SHOW_TERRAIN_PASS := tbPassability.Position
-  else
-    SHOW_TERRAIN_PASS := 0;
-end;
 
 
 //Exports
@@ -426,13 +380,13 @@ end;
 
 
 procedure TFormMain.Export_DeliverLists1Click(Sender: TObject);
-var i:integer;
+var I: Integer;
 begin
   if fPlayers = nil then Exit;
   //You could possibly cheat in multiplayer by seeing what supplies your enemy has
-  if fGameApp.AllowDebugRendering then Exit;
-  for i:=0 to fPlayers.Count-1 do
-    fPlayers[i].Deliveries.Queue.ExportToFile(ExeDir+'Player_'+inttostr(i)+'_Deliver_List.txt');
+  if (fGameApp.Game <> nil) and (not fGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS) then
+  for I := 0 to fPlayers.Count - 1 do
+    fPlayers[I].Deliveries.Queue.ExportToFile(ExeDir + 'Player_' + IntToStr(I) + '_Deliver_List.txt');
 end;
 
 
@@ -445,42 +399,6 @@ begin
 
   if (fPlayers <> nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
     MyPlayer := fPlayers[RGPlayer.ItemIndex];
-end;
-
-
-procedure TFormMain.chkShowBalanceClick(Sender: TObject);
-begin
-  SHOW_AI_WARE_BALANCE := chkShowBalance.Checked;
-end;
-
-
-procedure TFormMain.chkShowDefencesClick(Sender: TObject);
-begin
-  OVERLAY_DEFENCES := chkShowDefences.Checked;
-end;
-
-
-procedure TFormMain.chkShowAvoidClick(Sender: TObject);
-begin
-  OVERLAY_AVOID := chkShowAvoid.Checked;
-end;
-
-
-procedure TFormMain.chkShowForestClick(Sender: TObject);
-begin
-  OVERLAY_FOREST := chkShowForest.Checked;
-end;
-
-
-procedure TFormMain.chkShowInfluenceClick(Sender: TObject);
-begin
-  OVERLAY_INFLUENCES := chkShowInfluence.Checked;
-end;
-
-
-procedure TFormMain.chkShowNavMeshClick(Sender: TObject);
-begin
-  OVERLAY_NAVMESH := chkShowNavMesh.Checked;
 end;
 
 
@@ -504,31 +422,31 @@ begin
 end;
 
 
-procedure TFormMain.Button_CalcArmyClick(Sender: TObject);
-begin // For test Army evaluation
-  fGameApp.NewSingleMap('', 'TestCalcArmy');
-  Assert(MyPlayer<>nil);
-  {Point.X := 10; Point.Y := 10;
-  MyPlayer.AddUnitGroup(ut_Bowman, Point, dir_E, 3, 50);}
-  MyPlayer.AddUnitGroup(ut_Militia, KMPoint(12,31), dir_E, 2, 20);
-  fPlayers[1].AddUnitGroup(ut_AxeFighter, KMPoint(30,31), dir_W, 2, 10);
-  {Point.X := 32; Point.Y := 10;
-  fPlayers[1].AddUnitGroup(ut_Bowman, Point, dir_W, 1, 1);}
-end;
-
-
-procedure TFormMain.tbAngleChange(Sender: TObject);
+//Revert all controls to defaults (e.g. before MP session)
+procedure TFormMain.ControlsReset;
+  procedure ResetGroupBox(aBox: TGroupBox);
+  var
+    I: Integer;
+  begin
+    for I := 0 to aBox.ControlCount - 1 do
+    if aBox.Controls[I] is TCheckBox then
+      TCheckBox(aBox.Controls[I]).Checked := False
+    else
+    if aBox.Controls[I] is TTrackBar then
+      TTrackBar(aBox.Controls[I]).Position := 0
+    else
+    if aBox.Controls[I] is TGroupBox then
+      ResetGroupBox(TGroupBox(aBox.Controls[I]));
+  end;
 begin
-  if fRenderPool = nil then Exit; //Otherwise it crashes on the main menu?
-  RENDER_3D := tbAngleX.Position + tbAngleY.Position <> 0;
-  Label3.Caption := 'AngleX ' + IntToStr(tbAngleX.Position);
-  Label4.Caption := 'AngleY ' + IntToStr(tbAngleY.Position);
-  fRenderPool.SetRotation(-tbAngleX.Position, 0, -tbAngleY.Position);
-  fMain.Render;
+  fUpdating := True;
+  ResetGroupBox(GroupBox1);
+  fUpdating := False;
+  ControlsUpdate(nil);
 end;
 
 
-procedure TFormMain.ToggleControlsVisibility(aShowCtrls: Boolean);
+procedure TFormMain.ControlsSetVisibile(aShowCtrls: Boolean);
 var I: Integer;
 begin
   Refresh;
@@ -556,6 +474,67 @@ begin
 end;
 
 
+procedure TFormMain.ControlsUpdate(Sender: TObject);
+var
+  I: Integer;
+  AllowDebugChange: Boolean;
+begin
+  if fUpdating then Exit;
+
+  //You could possibly cheat in multiplayer by seeing debug render info
+  AllowDebugChange := (fGameApp.Game = nil)
+                   or (not fGameApp.Game.IsMultiplayer or MULTIPLAYER_CHEATS)
+                   or ((Sender is TCheckBox) and not TCheckBox(Sender).Checked)
+                   or ((Sender is TTrackBar) and (TTrackBar(Sender).Position = 0))
+                   or (Sender = nil);
+
+  //Debug render
+  if AllowDebugChange then
+  begin
+    I := tbPassability.Position;
+    tbPassability.Max := Byte(High(TPassability));
+    Label2.Caption := IfThen(I <> 0, GetEnumName(TypeInfo(TPassability), I), '');
+    SHOW_TERRAIN_PASS := I;
+    SHOW_TERRAIN_WIRES := chkShowWires.Checked;
+    SHOW_UNIT_ROUTES := chkShowRoutes.Checked;
+  end;
+
+  //AI
+  if AllowDebugChange then
+  begin
+    SHOW_AI_WARE_BALANCE := chkShowBalance.Checked;
+    OVERLAY_DEFENCES := chkShowDefences.Checked;
+    OVERLAY_AVOID := chkShowAvoid.Checked;
+    OVERLAY_FOREST := chkShowForest.Checked;
+    OVERLAY_INFLUENCES := chkShowInfluence.Checked;
+    OVERLAY_NAVMESH := chkShowNavMesh.Checked;
+
+    OWN_MARGIN := tbOwnMargin.Position;
+    tbOwnThresh.Max := OWN_MARGIN;
+    OWN_THRESHOLD := tbOwnThresh.Position;
+  end;
+
+  //UI
+  SHOW_CONTROLS_OVERLAY := chkUIControlsBounds.Checked;
+  SHOW_TEXT_OUTLINES := chkUITextBounds.Checked;
+
+  //Graphics
+  if AllowDebugChange then
+  begin
+    //Otherwise it could crash on the main menu
+    if fRenderPool <> nil then
+    begin
+      RENDER_3D := tbAngleX.Position + tbAngleY.Position <> 0;
+      Label3.Caption := 'AngleX ' + IntToStr(tbAngleX.Position);
+      Label4.Caption := 'AngleY ' + IntToStr(tbAngleY.Position);
+      fRenderPool.SetRotation(-tbAngleX.Position, 0, -tbAngleY.Position);
+      fMain.Render;
+    end;
+    HOUSE_BUILDING_STEP := tbBuildingStep.Position / tbBuildingStep.Max;
+  end;
+end;
+
+
 procedure TFormMain.ToggleFullscreen(aFullscreen: Boolean);
 begin
   if aFullScreen then begin
@@ -574,24 +553,6 @@ begin
 
   //Make sure Panel is properly aligned
   Panel5.Align := alClient;
-end;
-
-
-procedure TFormMain.tbBuildingStepChange(Sender: TObject);
-begin
-  HOUSE_BUILDING_STEP := tbBuildingStep.Position / tbBuildingStep.Max;
-end;
-
-
-procedure TFormMain.tbOwnMarginChange(Sender: TObject);
-begin
-  OWN_MARGIN := tbOwnMargin.Position;
-  tbOwnThresh.Max := OWN_MARGIN;
-end;
-
-procedure TFormMain.tbOwnThreshChange(Sender: TObject);
-begin
-  OWN_THRESHOLD := tbOwnThresh.Position;
 end;
 
 {$IFDEF MSWindows}

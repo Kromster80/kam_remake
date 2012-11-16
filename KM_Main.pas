@@ -32,15 +32,16 @@ type
     procedure Resize(X,Y: Integer);
     procedure Render;
     procedure ShowAbout;
+    property FormMain: TFormMain read fFormMain;
 
     procedure ApplyCursorRestriction;
-    function GetScreenBounds(out Bounds: TRect):Boolean;
+    function GetScreenBounds(out Bounds: TRect): Boolean;
     function IsFormActive: Boolean;
     function ClientRect: TRect;
     function ClientToScreen(aPoint: TPoint): TPoint;
     procedure ReinitRender(aReturnToOptions: Boolean);
 
-    function LockMutex:Boolean;
+    function LockMutex: Boolean;
     procedure UnlockMutex;
 
     procedure StatusBarText(aPanelIndex: Integer; const aText: string); overload;
@@ -114,7 +115,7 @@ begin
 
   fFormMain.Caption := 'KaM Remake - ' + GAME_VERSION;
   //Will make the form slightly higher, so do it before ReinitRender so it is reset
-  fFormMain.ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
+  fFormMain.ControlsSetVisibile(SHOW_DEBUG_CONTROLS);
 
   ReinitRender(False);
 

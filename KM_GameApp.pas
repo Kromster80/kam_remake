@@ -52,7 +52,6 @@ type
     procedure ToggleLocale(aLocale: ShortString);
     procedure NetworkInit;
     procedure SendMPGameInfo(Sender: TObject);
-    function AllowDebugRendering: Boolean;
     function RenderVersion: string;
     procedure PrintScreen(aFilename: string = '');
     procedure PauseMusicToPlayFile(aFileName:string);
@@ -96,7 +95,7 @@ var
 
 implementation
 uses
-  KM_Log,
+  KM_Log, KM_Main,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
   KM_Maps, KM_Resource, KM_Sound, KM_Utils;
 
@@ -423,6 +422,7 @@ var
 begin
   Stop(gr_Silent); //Stop everything silently
   LoadGameAssets;
+  fMain.FormMain.ControlsReset;
 
   fGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
@@ -452,6 +452,7 @@ var
 begin
   Stop(gr_Silent); //Stop everything silently
   LoadGameAssets;
+  fMain.FormMain.ControlsReset;
 
   fGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
@@ -481,6 +482,7 @@ var
 begin
   Stop(gr_Silent); //Stop everything silently
   LoadGameAssets;
+  fMain.FormMain.ControlsReset;
 
   fGame := TKMGame.Create(aGameMode, fRender, nil);
   try
@@ -611,14 +613,6 @@ begin
     fNetworking.AnnounceGameInfo(fGame.MissionTime, fGame.GameName)
   else
     fNetworking.AnnounceGameInfo(-1, ''); //fNetworking will fill the details from lobby
-end;
-
-
-//Debug rendering may be used as a cheat in MP to see unrevealed areas, thats why we block it there
-function TKMGameApp.AllowDebugRendering: Boolean;
-begin
-  Result := (fGame <> nil) and //Avoid crashing if using debug controls on the main menu
-            ((fGame.GameMode in [gmSingle, gmMapEd, gmReplaySingle, gmReplayMulti]) or (MULTIPLAYER_CHEATS and (fGame.GameMode = gmMulti)));
 end;
 
 
