@@ -34,8 +34,9 @@ type
   //Actions we can do
   TEventAction = (
     eaDelayedMessage, //[Delay, MsgIndex] Adds new etTime/eaShowMessage event (usefull to display delayed messages)
-    //eaShowAlert,      //[PosX, PosY, AlertType]
+    //eaShowAlert,    //[PosX, PosY, AlertType]
     eaShowMessage,    //[MsgIndex]
+    eaUnlockHouse,    //[HouseType] Allow player to build certain house type
     eaVictory);       //[]
 
   //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
@@ -108,9 +109,9 @@ uses KM_Game, KM_CommonTypes,  KM_PlayersCollection, KM_TextLibrary, KM_Log;
 const
   //How many parameters each trigger/action has
   StrTriggers: array [TEventTrigger] of string = ('DEFEATED', 'TIME', 'HOUSE_BUILT');
-  StrActions: array [TEventAction] of string = ('DELAYED_MESSAGE', 'SHOW_MESSAGE', 'VICTORY');
+  StrActions: array [TEventAction] of string = ('DELAYED_MESSAGE', 'SHOW_MESSAGE', 'UNLOCK_HOUSE', 'VICTORY');
   TriggerParamCount: array [TEventTrigger] of byte = (0, 1, 1);
-  ActionParamCount: array [TEventAction] of byte = (2, 1, 0);
+  ActionParamCount: array [TEventAction] of byte = (2, 1, 1, 0);
 
 function MakeAction(aAct: TEventAction; aPlayer: TPlayerIndex; const aParams: array of Integer): TKMAction;
 var
@@ -387,11 +388,14 @@ begin
   for I := 0 to TriggerParamCount[aTrigger.Trigger] - 1 do
     Result := Result and (fTrigger.Params[I] = aTrigger.Params[I]);
 
+  //We dont care about MP synchronisation because all the events happen simultaneously and exactly the same for all MP players
+
   if Result then
   case fAction.Action of
     eaDelayedMessage: fOwner.AddEvent(MakeTrigger(etTime, -1, [fGame.GameTickCount + Cardinal(fAction.Params[0])]), MakeAction(eaShowMessage, fAction.Player, [fAction.Params[1]]));
     eaShowMessage:    if MyPlayer.PlayerIndex = fAction.Player then
                         fGame.ShowMessage(mkText, fTextLibrary.GetMissionString(fAction.Params[0]), KMPoint(0,0));
+    eaUnlockHouse:    fPlayers[fAction.Player].Stats.HouseGranted[THouseType(fAction.Params[0])] := True;
     eaVictory:        fGame.PlayerVictory(fAction.Player);
   end;
 end;
