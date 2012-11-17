@@ -133,7 +133,7 @@ type
     destructor Destroy; override;
 
     function AddGroup(aWarrior: TKMUnitWarrior): TKMUnitGroup; overload;
-    function AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word): TKMUnitGroup; overload;
+    function AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup; overload;
     procedure RemGroup(aGroup: TKMUnitGroup);
 
     property Count: Integer read GetCount;
@@ -180,7 +180,7 @@ end;
 
 
 constructor TKMUnitGroup.Create(aID: Cardinal; aOwner: TPlayerIndex; aUnitType: TUnitType;
-  PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word);
+  PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word);
 var
   Warrior: TKMUnitWarrior;
   I: Integer;
@@ -210,11 +210,11 @@ begin
       Warrior.AnimStep  := UnitStillFrames[aDir];
       AddMember(Warrior);
       Warrior.Condition := UNIT_MAX_CONDITION div 2;
-      fMapEdCount := aUnitCount;
+      fMapEdCount := aCount;
     end;
   end
   else
-  for I := 0 to aUnitCount - 1 do
+  for I := 0 to aCount - 1 do
   begin
     UnitLoc := GetPositionInGroup2(PosX, PosY, aDir, I, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
     if not DoesFit then Continue;

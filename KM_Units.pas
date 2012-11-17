@@ -258,7 +258,6 @@ type
     constructor Create;
     destructor Destroy; override;
     function Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace: boolean = true; RequiredWalkConnect: Byte = 0): TKMUnit;
-    function AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word; aMapEditor: Boolean = False): TKMUnit;
     property Units[aIndex: Integer]: TKMUnit read GetUnit write SetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
     procedure OwnerUpdate(aOwner: TPlayerIndex);
@@ -2107,34 +2106,6 @@ begin
 
   if Result <> nil then
     inherited Add(Result);
-end;
-
-
-function TKMUnitsCollection.AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word; aMapEditor: Boolean = False): TKMUnit;
-var
-  U: TKMUnit;
-  I: Integer;
-  UnitPosition: TKMPoint;
-  DoesFit: Boolean;
-begin
-  Assert(aDir <> dir_NA);
-  Assert(aUnitType in [WARRIOR_MIN..WARRIOR_MAX]);
-
-  aUnitPerRow := Math.min(aUnitPerRow, aUnitCount); //Can have more rows than units
-
-  for I := 0 to aUnitCount - 1 do
-  begin
-    UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, I, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
-    if not DoesFit then Continue;
-
-    U := Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y); //U will be _nil_ if unit didn't fit on map
-    if U = nil then Continue;
-
-    fPlayers[aOwner].Stats.UnitCreated(aUnitType, false);
-    U.Direction := aDir;
-    U.AnimStep  := UnitStillFrames[aDir];
-  end;
-  Result := nil; //Dunno what to return here
 end;
 
 
