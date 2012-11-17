@@ -432,7 +432,7 @@ begin
     end;
 
     if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then
-      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|' + Parser.MinorErrors, KMPoint(0,0));
+      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|' + Parser.MinorErrors);
 
     fMissionMode := Parser.MissionInfo.MissionMode;
   finally
@@ -440,6 +440,9 @@ begin
   end;
 
   fEventsManager.LoadFromFile(ChangeFileExt(aMissionFile, '.evt'));
+  if (fEventsManager.ErrorString <> '') and (fGameMode <> gmMapEd) then
+    fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in events script:|' + fEventsManager.ErrorString);
+
   fTextLibrary.LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
 
   if fGameMode = gmMulti then

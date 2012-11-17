@@ -336,7 +336,8 @@ type
     procedure ShowHouseInfo(Sender: TKMHouse; aAskDemolish: Boolean = False);
     procedure ShowUnitInfo(Sender: TKMUnit; aAskDismiss:boolean=false);
     procedure ShowGroupInfo(Sender: TKMUnitGroup);
-    procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+    procedure MessageIssue(aKind: TKMMessageKind; aText: string); overload;
+    procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint); overload;
     procedure SetMenuState(aTactic: Boolean);
     procedure ClearOpenMenu;
     procedure SetMinimap;
@@ -2734,6 +2735,14 @@ begin
     fGame.GameHold(true, gr_ReplayEnd);
     SetButtons(True);
   end;
+end;
+
+
+procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: string);
+begin
+  fMessageList.AddEntry(aKind, aText, KMPoint(0,0));
+  Message_UpdateStack;
+  fSoundLib.Play(sfx_MessageNotice, 4); //Play horn sound on new message if it is the right type
 end;
 
 
