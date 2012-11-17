@@ -22,7 +22,7 @@ uses
   //In TPR, you must defeat the enemies AND build the tannery.
 
 const
-  MAX_EVENT_PARAMS = 2;
+  MAX_EVENT_PARAMS = 4;
 
 type
   //Triggers we handle
@@ -34,6 +34,7 @@ type
   //Actions we can do
   TEventAction = (
     eaDelayedMessage, //[Delay, MsgIndex] Adds new etTime/eaShowMessage event (usefull to display delayed messages)
+    eaGiveUnits,      //[UnitType, X, Y, Count] Give player more units
     eaGiveWares,      //[WareType, Count]
     //eaShowAlert,    //[PosX, PosY, AlertType]
     eaShowMessage,    //[MsgIndex]
@@ -107,15 +108,15 @@ var
 
 
 implementation
-uses KM_Houses, KM_Game, KM_CommonTypes, KM_PlayersCollection, KM_TextLibrary, KM_Log;
+uses KM_Houses, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection, KM_TextLibrary, KM_Log;
 
 
 const
   //How many parameters each trigger/action has
   StrTriggers: array [TEventTrigger] of string = ('DEFEATED', 'TIME', 'HOUSE_BUILT');
-  StrActions: array [TEventAction] of string = ('DELAYED_MESSAGE', 'GIVE_WARES', 'SHOW_MESSAGE', 'UNLOCK_HOUSE', 'VICTORY');
+  StrActions: array [TEventAction] of string = ('DELAYED_MESSAGE', 'GIVE_UNITS', 'GIVE_WARES', 'SHOW_MESSAGE', 'UNLOCK_HOUSE', 'VICTORY');
   TriggerParamCount: array [TEventTrigger] of Byte = (0, 1, 1);
-  ActionParamCount: array [TEventAction] of Byte = (2, 2, 1, 1, 0);
+  ActionParamCount: array [TEventAction] of Byte = (2, 4, 2, 1, 1, 0);
 
 
 //Create action out of supplied parameters
@@ -443,6 +444,11 @@ begin
     eaDelayedMessage: Result := Result +
                                 PlayerExists +
                                 IfThen(not InRange(fAction.Params[0], 0, 24*60*600), 'Time should be within 0..24hours|');
+    eaGiveUnits:      Result := Result +
+                                PlayerExists +
+                                IfThen(not (TUnitType(fAction.Params[0]) in [HUMANS_MIN..HUMANS_MAX]), 'Unit type is invalid|') +
+                                IfThen(not fTerrain.TileInMapCoords(fAction.Params[1], fAction.Params[2]), 'Units should be placed within map coords|') +
+                                IfThen(not InRange(fAction.Params[3], 1, 99), 'Unit count should be within 1..99|');
     eaGiveWares:      Result := Result +
                                 PlayerExists +
                                 IfThen(not (TResourceType(fAction.Params[0]) in [WARE_MIN..WARE_MAX]), 'Ware type is invalid|') +
@@ -472,6 +478,7 @@ begin
   if Result then
   case fAction.Action of
     eaDelayedMessage: fOwner.AddEvent(MakeTrigger(etTime, -1, [fGame.GameTickCount + Cardinal(fAction.Params[0])]), MakeAction(eaShowMessage, fAction.Player, [fAction.Params[1]]));
+    eaGiveUnits:      fPlayers[fAction.Player].AddUnitGroup(TUnitType(fAction.Params[0]), KMPoint(fAction.Params[1], fAction.Params[2]), dir_N, Round(Sqrt(fAction.Params[3])), fAction.Params[3]);
     eaGiveWares:      begin
                         Store := TKMHouseStore(fPlayers[fAction.Player].FindHouse(ht_Store));
                         if Store <> nil then

@@ -2498,7 +2498,7 @@ begin
                     MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, False)
                   else
                   if TUnitType(GameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-                    MyPlayer.AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1, True)
+                    MyPlayer.AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
                   else
                     fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);
                 end;

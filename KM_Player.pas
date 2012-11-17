@@ -23,7 +23,6 @@ type
     property Units: TKMUnitsCollection read fUnits;
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true): TKMUnit;
-    procedure RemGroup(Position: TKMPoint); virtual;
     procedure RemUnit(Position: TKMPoint);
     function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
 
@@ -86,7 +85,7 @@ type
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean = False): TKMUnit; reintroduce;
     procedure AddUnitAndLink(aUnitType: TUnitType; Position: TKMPoint);
-    function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean = False): TKMUnitGroup;
+    function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     procedure TrainingDone(aUnit: TKMUnit);
@@ -104,7 +103,7 @@ type
     procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
     procedure AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint; out House: TKMHouse);
-    procedure RemGroup(Position: TKMPoint); override;
+    procedure RemGroup(Position: TKMPoint);
     procedure RemHouse(Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean = False);
     procedure RemHousePlan(Position: TKMPoint);
     procedure RemFieldPlan(Position: TKMPoint; aMakeSound:Boolean);
@@ -168,12 +167,6 @@ begin
   if fGame.IsMapEditor and not (mlUnits in fGame.MapEditor.VisibleLayers) then Exit;
 
   fUnits.Paint;
-end;
-
-
-procedure TKMPlayerCommon.RemGroup(Position: TKMPoint);
-begin
-  Assert(fGame.IsMapEditor);
 end;
 
 
@@ -267,7 +260,7 @@ end;
 
 //Add unit of aUnitType to Position
 //AutoPlace - add unit to nearest available spot if Position is already taken (or unwalkable)
-//WasTrained - the uniot was trained by player and therefor counted by Stats
+//WasTrained - the unit was trained by player and therefor will be counted by Stats
 function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean=false): TKMUnit;
 begin
   Result := inherited AddUnit(aUnitType, Position, AutoPlace);
@@ -320,10 +313,21 @@ begin
 end;
 
 
-function TKMPlayer.AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean=false): TKMUnitGroup;
+function TKMPlayer.AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
+var
+  I: Integer;
 begin
-  Result := fUnitGroups.AddGroup(fPlayerIndex, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount);
-  //Add unit to statistic inside the function for some units may not fit on map
+  Assert(aDir <> dir_NA);
+  Result := nil;
+
+  if aUnitType in [CITIZEN_MIN..CITIZEN_MAX] then
+    for I := 0 to aCount - 1 do
+      AddUnit(aUnitType, Position, True)
+  else
+  if aUnitType in [WARRIOR_MIN..WARRIOR_MAX] then
+    Result := fUnitGroups.AddGroup(fPlayerIndex, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aCount);
+
+  //Units will be added to statistic inside the function for some units may not fit on map
 end;
 
 
@@ -631,7 +635,7 @@ end;
 procedure TKMPlayer.RemGroup(Position: TKMPoint);
 var Group: TKMUnitGroup;
 begin
-  inherited;
+  Assert(fGame.IsMapEditor);
 
   Group := fUnitGroups.HitTest(Position.X, Position.Y);
   if Group <> nil then

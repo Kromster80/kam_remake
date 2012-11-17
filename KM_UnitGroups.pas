@@ -67,7 +67,7 @@ type
   public
 
     constructor Create(aID: Cardinal; aCreator: TKMUnitWarrior); overload;
-    constructor Create(aID: Cardinal; aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word); overload;
+    constructor Create(aID: Cardinal; aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word); overload;
     constructor Create(LoadStream: TKMemoryStream); overload;
     procedure SyncLoad;
     procedure Save(SaveStream: TKMemoryStream);
@@ -1249,14 +1249,12 @@ end;
 
 
 function TKMUnitGroups.AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType;
-  PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word): TKMUnitGroup;
+  PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 begin
   Result := nil;
-
-  Assert(aDir <> dir_NA);
   Assert(aUnitType in [WARRIOR_MIN..WARRIOR_MAX]);
 
-  Result := TKMUnitGroup.Create(fGame.GetNewID, aOwner, aUnitType, PosX, PosY, aDir, aUnitPerRow, aUnitCount);
+  Result := TKMUnitGroup.Create(fGame.GetNewID, aOwner, aUnitType, PosX, PosY, aDir, aUnitPerRow, aCount);
 
   //If group failed to create (e.g. due to being placed on unwalkable position)
   //then its memberCount = 0
