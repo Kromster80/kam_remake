@@ -6,18 +6,47 @@ uses
   SysUtils,
   dwsComp, dwsCompiler, dwsExprs, dwsSymbols;
 
-procedure Execute(aText: string);
-var
-  DWS: TDelphiWebScript;
-  dwsUnit: TdwsUnit;
-  prog: IdwsProgram;
-  exec: IdwsProgramExecution;
+
+type
+  TUnitType = (utSerf, utAxeman);
+
+  TMyClass = class
+  published
+    function GetUnitCount{(aType: TUnitType)}: Integer;
+  end;
+
+  TTest = class
+    DWS: TDelphiWebScript;
+    dwsUnit: TdwsUnit;
+    fStats: TMyClass;
+    prog: IdwsProgram;
+    exec: IdwsProgramExecution;
+    procedure ExposeInstancesAfterInitTable(Sender: TObject);
+    procedure Execute(aText: string);
+  end;
+
+function TMyClass.GetUnitCount{(aType: TUnitType)}: Integer;
+begin
+  Result := 4;
+end;
+
+
+procedure TTest.ExposeInstancesAfterInitTable(Sender: TObject);
+begin
+  dwsUnit.ExposeInstanceToUnit('fStats', 'TMyClass', fStats);
+end;
+
+
+procedure TTest.Execute(aText: string);
 begin
   DWS := TDelphiWebScript.Create(nil);
   dwsUnit := TdwsUnit.Create(nil);
   dwsUnit.UnitName := 'Test';
   try
     dwsUnit.Script := DWS;
+    dwsUnit.ExposeClassToUnit(TMyClass, TObject);
+    //dwsUnit.OnAfterInitUnitTable := ExposeInstancesAfterInitTable;
+    //fStats := TMyClass.Create;
 
     prog := DWS.Compile(aText);
 
@@ -32,9 +61,12 @@ begin
     dwsUnit.Free;
     DWS.Free;
   end;
-  readln;
+  Readln;
 end;
 
+{ TMyClass }
+
 begin
-  Execute('var s: string; s := ''12345''; PrintLn(s);');
+  TTest.Create.Execute('var s: string; s := ''12345''; PrintLn(s); '{ +
+          'PrintLn(IntToStr(fStats.GetUnitCount));'});
 end.

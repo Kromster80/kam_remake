@@ -1,10 +1,11 @@
-program sample2;
+program PascalScript_Sample2;
 
 {$APPTYPE CONSOLE}
 
 uses
   uPSCompiler,
   uPSRuntime;
+
 
 procedure MyOwnFunction(const Data: string);
 begin
@@ -14,10 +15,12 @@ begin
   Readln;
 end;
 
+
 function MyOwnFunction2(): Integer;
 begin
   Result := 8;
 end;
+
 
 {$IFDEF UNICODE}
 function ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
