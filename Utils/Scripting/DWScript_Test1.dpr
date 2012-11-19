@@ -31,12 +31,6 @@ begin
 end;
 
 
-procedure TTest.ExposeInstancesAfterInitTable(Sender: TObject);
-begin
-  dwsUnit.ExposeInstanceToUnit('fStats', 'TMyClass', fStats);
-end;
-
-
 procedure TTest.Execute(aText: string);
 begin
   DWS := TDelphiWebScript.Create(nil);
@@ -44,9 +38,13 @@ begin
   dwsUnit.UnitName := 'Test';
   try
     dwsUnit.Script := DWS;
-    dwsUnit.ExposeClassToUnit(TMyClass, TObject);
-    //dwsUnit.OnAfterInitUnitTable := ExposeInstancesAfterInitTable;
-    //fStats := TMyClass.Create;
+
+   cls:=dwsUnit.Classes.Add;
+   cls.Name:='TMyClass';
+   cls.OnCleanUp:=DoCleanupExternal;
+   cst:=cls.Constructors.Add as TdwsConstructor;
+   cst.Name:='Create';
+   cst.OnEval:=DoCreateExternal;
 
     prog := DWS.Compile(aText);
 
