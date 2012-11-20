@@ -31,6 +31,7 @@
 	If you halt your archers after they shoot they will shoot without reloading, increasing their firing speed. Add some kind of special pause before the first shot or after halting? Also applies to attacking houses.
 	There's no message in MP when you defeat AI opponent (if you defeat human opponent it shows one)
 	Listbox scrollbars jump when trying to drag them by upper/lower thumb edge [Krom]
+	Unexpectedly high ping values (high_ping.jpg)
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
