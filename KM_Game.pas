@@ -176,7 +176,7 @@ uses
   KM_CommonClasses, KM_Log, KM_Utils,
   KM_ArmyEvaluation, KM_Events, KM_GameApp, KM_GameInfo, KM_MissionScript,
   KM_Player, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceCursors,
-  KM_Sound, KM_Terrain, KM_TextLibrary, KM_AIFields, KM_Maps,
+  KM_Sound, KM_Terrain, KM_TextLibrary, KM_AIFields, KM_Maps, KM_Scripting,
   KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
@@ -235,6 +235,7 @@ begin
   fLog.AddTime('<== Game creation is done ==>');
   fAlerts := TKMAlerts.Create(@fGameTickCount, fViewport);
   fEventsManager := TKMEventsManager.Create;
+  fScripting := TKMScripting.Create;
   fPathfinding := TPathfinding.Create;
   fProjectiles := TKMProjectiles.Create;
 
@@ -268,6 +269,7 @@ begin
   FreeAndNil(fProjectiles);
   FreeAndNil(fPathfinding);
   FreeAndNil(fEventsManager);
+  FreeAndNil(fScripting);
   FreeAndNil(fAlerts);
 
   FreeThenNil(fGamePlayInterface);
@@ -439,9 +441,16 @@ begin
     Parser.Free;
   end;
 
-  fEventsManager.LoadFromFile(ChangeFileExt(aMissionFile, '.evt'));
-  if (fEventsManager.ErrorString <> '') and (fGameMode <> gmMapEd) then
-    fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in events script:|' + fEventsManager.ErrorString);
+  if fGameMode <> gmMapEd then
+  begin
+    fEventsManager.LoadFromFile(ChangeFileExt(aMissionFile, '.evt'));
+    if (fEventsManager.ErrorString <> '') then
+      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in events script:|' + fEventsManager.ErrorString);
+
+    fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.ds'));
+    if (fScripting.ErrorString <> '') then
+      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in script:|' + fScripting.ErrorString);
+  end;
 
   fTextLibrary.LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
 
@@ -1058,6 +1067,7 @@ begin
     fAIFields.Save(SaveStream);
     fProjectiles.Save(SaveStream);
     fEventsManager.Save(SaveStream);
+    fScripting.Save(SaveStream);
 
     //Relative path to strings will be the same for all MP players
     s := ExtractRelativePath(ExeDir, ChangeFileExt(fMissionFile, '.%s.libx'));
@@ -1189,6 +1199,7 @@ begin
 
   fProjectiles.Load(LoadStream);
   fEventsManager.Load(LoadStream);
+  fScripting.Load(LoadStream);
 
   //Load LIBX strings used in a mission by their relative path to ExeDir
   //Relative path should be the same across all MP players,
@@ -1266,6 +1277,7 @@ begin
                         fNetworking.ServerQuery.SendMapInfo(fGameName, fNetworking.NetPlayers.GetConnectedCount);
 
                       fEventsManager.ProcTime(fGameTickCount);
+                      fScripting.UpdateState;
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       fTerrain.UpdateState;
                       fAIFields.UpdateState(fGameTickCount);
@@ -1301,6 +1313,7 @@ begin
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
                     fEventsManager.ProcTime(fGameTickCount); //In future events could effect game outcome, and maybe you want to see when a message saying "you will be attacked" appears during the replay?
+                    fScripting.UpdateState;
                     UpdatePeacetime; //Send warning messages about peacetime if required (peacetime sound should still be played in replays)
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(fGameTickCount); //Quite slow

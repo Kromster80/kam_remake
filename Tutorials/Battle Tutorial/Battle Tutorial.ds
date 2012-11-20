@@ -1,0 +1,6 @@
+begin
+  if GameTime = 20 then ShowMsg(0, 1);
+  if Defeated(2) then ShowMsg(0, 2);
+  if Defeated(3) then ShowMsg(0, 3);
+  if Defeated(4) then ShowMsg(0, 4);
+end.
