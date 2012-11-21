@@ -57,7 +57,7 @@ type
 
 implementation
 uses KM_Game, KM_PlayersCollection, KM_Goals, KM_Player, KM_PlayerStats,
-     KM_Sound, KM_Events;
+     KM_Sound, KM_Events, KM_Scripting;
 
 
 const
@@ -114,7 +114,10 @@ begin
 
   //Let the event system know (defeat may trigger events for other players)
   if Defeat then
+  begin
     fEventsManager.ProcDefeated(fOwner);
+    fScripting.ProcDefeated(fOwner);
+  end;
 end;
 
 

@@ -11,14 +11,55 @@ uses
   //In TSK, there are no enemies and you win when you build the tannery.
   //In TPR, you must defeat the enemies AND build the tannery.
 
+const
+  MAX_PARAMS = 4;
+
 type
-  //Collection of events
+  TKMEventTrigger = (
+    etDefeated,       //[] Certain player has been defeated, we rely on Conditions to generate that event
+    etTime,           //[Tick] Time has come
+    etHouseBuilt);    //[House] Certain house was built
+
+  //All functions can be split into these three categories:
+  // - Event, when something has happened (e.g. House was built)
+  // - State, describing the state of something (e.g. Houses.Built.Count >= 1)
+  // - Action, when we need to perform something (e.g. show a message)
+  TKMScriptEvents = class
+  private
+    //We need to collect all events into one batch to be able to process them together
+    fCount: Word;
+    fItems: array of record
+      Trigger: TKMEventTrigger;
+      Params: array[0..MAX_PARAMS-1] of Integer;
+    end;
+    procedure Add(aTrigger: TKMEventTrigger; aParams: array of Integer);
+    procedure Clear;
+    function Contains(aTrigger: TKMEventTrigger; aParams: array of Integer): Word;
+  public
+    function Defeated(aPlayer: Integer): Boolean;
+  end;
+
+  TKMScriptStates = class
+    function GameTime: Cardinal;
+  end;
+
+  TKMScriptActions = class
+    procedure ShowMsg(aPlayer: Integer; aIndex: Word);
+  end;
+
+
   TKMScripting = class
   private
     fScriptCode: AnsiString;
     fByteCode: AnsiString;
     fExec: TPSExec;
-    fErrorString: string; //Contains info about found mistakes
+    fErrorString: string; //Info about found mistakes
+
+    fEvents: TKMScriptEvents;
+    fStates: TKMScriptStates;
+    fActions: TKMScriptActions;
+
+    function ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
     procedure CompileScript;
     procedure LinkRuntime;
   public
@@ -27,6 +68,9 @@ type
 
     property ErrorString: string read fErrorString;
     procedure LoadFromFile(aFileName: string);
+
+    procedure ProcDefeated(aPlayer: TPlayerIndex);
+    procedure ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -43,60 +87,63 @@ implementation
 uses KM_AI, KM_Houses, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection, KM_TextLibrary, KM_Log;
 
 
-function Defeated(aPlayer: Integer): Boolean;
+{ TKMScriptEvents }
+procedure TKMScriptEvents.Add(aTrigger: TKMEventTrigger; aParams: array of Integer);
+var
+  I: Integer;
 begin
-  Result := (fPlayers[aPlayer].AI.WonOrLost = wol_Lost);
+  if fCount > High(fItems) then
+    SetLength(fItems, fCount + 8);
+  fItems[fCount].Trigger := aTrigger;
+  for I := Low(aParams) to High(aParams) do
+    fItems[fCount].Params[I] := aParams[I];
+  Inc(fCount);
 end;
 
 
-function GameTime: Cardinal;
+procedure TKMScriptEvents.Clear;
+begin
+  fCount := 0;
+end;
+
+
+//See how many times requested Trigger is met in a list,
+//we return Count since in rare cases two identical events could be registered
+//in one tick. e.g. UnitDied event in a fight
+function TKMScriptEvents.Contains(aTrigger: TKMEventTrigger; aParams: array of Integer): Word;
+var
+  I,K: Integer;
+  Match: Boolean;
+begin
+  Result := 0;
+  for I := 0 to fCount - 1 do
+  if fItems[I].Trigger = aTrigger then
+  begin
+    Match := True;
+    for K := 0 to High(aParams) do
+      Match := Match and (fItems[I].Params[K] = aParams[K]);
+    if Match then
+      Inc(Result);
+  end;
+end;
+
+
+function TKMScriptEvents.Defeated(aPlayer: Integer): Boolean;
+begin
+  Result := Contains(etDefeated, [aPlayer]) > 0;
+end;
+
+
+function TKMScriptStates.GameTime: Cardinal;
 begin
   Result := fGame.GameTickCount;
 end;
 
 
-procedure ShowMsg(aPlayer: Integer; aIndex: Word);
+procedure TKMScriptActions.ShowMsg(aPlayer: Integer; aIndex: Word);
 begin
   if MyPlayer.PlayerIndex = aPlayer then
     fGame.ShowMessage(mkText, fTextLibrary.GetMissionString(aIndex), KMPoint(0,0));
-end;
-
-
-type
-  TScriptExpose = record
-    Addr: Pointer;
-    Name: AnsiString;
-    Decl: AnsiString;
-  end;
-const
-  //List of functions we expose to PascalScript
-  //We expose standalone functions to be able to freely change internal
-  //implementation, but keep interface the same
-  FUNCS_COUNT = 3;
-  ScriptFunctions: array [0..FUNCS_COUNT - 1] of TScriptExpose = (
-    (Addr: @Defeated; Name: 'DEFEATED'; Decl: 'function Defeated(aPlayer: Integer): Boolean'),
-    (Addr: @GameTime; Name: 'GAMETIME'; Decl: 'function GameTime: Cardinal'),
-    (Addr: @ShowMsg;  Name: 'SHOWMSG';  Decl: 'procedure ShowMsg(aPlayer: Integer; aIndex: Word)')
-  );
-
-
-//The OnUses callback function is called for each "uses" in the script.
-//It's always called with the parameter 'SYSTEM' at the top of the script.
-//For example: uses ii1, ii2;
-//This will call this function 3 times. First with 'SYSTEM' then 'II1' and then 'II2'
-function ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
-var
-  I: Integer;
-begin
-  if Name = 'SYSTEM' then
-  begin
-    //Register functions to the script engine.
-    //After that they can be used from within the script.
-    for I := Low(ScriptFunctions) to High(ScriptFunctions) do
-      Sender.AddDelphiFunction(ScriptFunctions[I].Decl);
-    Result := True;
-  end else
-    Result := False;
 end;
 
 
@@ -105,11 +152,17 @@ constructor TKMScripting.Create;
 begin
   inherited;
   fExec := TPSExec.Create;  // Create an instance of the executer.
+  fEvents := TKMScriptEvents.Create;
+  fStates := TKMScriptStates.Create;
+  fActions := TKMScriptActions.Create;
 end;
 
 
 destructor TKMScripting.Destroy;
 begin
+  FreeAndNil(fEvents);
+  FreeAndNil(fStates);
+  FreeAndNil(fActions);
   FreeAndNil(fExec);
   inherited;
 end;
@@ -117,7 +170,6 @@ end;
 
 procedure TKMScripting.LoadFromFile(aFileName: string);
 var
-  I: Integer;
   SL: TStringList;
 begin
   fErrorString := '';
@@ -133,7 +185,13 @@ begin
   try
     SL.LoadFromFile(aFileName);
     fScriptCode := SL.Text;
-    fScriptCode := 'begin if GameTime = 20 then ShowMsg(0, 66); end.';
+    {fScriptCode := 'var I: Integer; ' +
+                   'begin ' +
+                   '  if States.GameTime = 10 then ' +
+                   '    I := 27; ' +
+                   '  if States.GameTime = I then ' +
+                   '    Actions.ShowMsg(0, I); ' +
+                   'end.';}
     CompileScript;
   finally
     SL.Free;
@@ -141,10 +199,51 @@ begin
 end;
 
 
+//The OnUses callback function is called for each "uses" in the script.
+//It's always called with the parameter 'SYSTEM' at the top of the script.
+//For example: uses ii1, ii2;
+//This will call this function 3 times. First with 'SYSTEM' then 'II1' and then 'II2'
+function TKMScripting.ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
+var
+  I: Integer;
+  V: TPSVar;
+begin
+  if Name = 'SYSTEM' then
+  begin
+
+    //Register classes and methods to the script engine.
+    //After that they can be used from within the script.
+    with Sender.AddClassN(nil, 'TKMScriptEvents') do
+    begin
+      RegisterMethod('function Defeated(aPlayer: Integer): Boolean');
+    end;
+
+    with Sender.AddClassN(nil, 'TKMScriptStates') do
+    begin
+      RegisterMethod('function GameTime: Cardinal');
+    end;
+
+    with Sender.AddClassN(nil, 'TKMScriptActions') do
+    begin
+      RegisterMethod('procedure ShowMsg(aPlayer: Integer; aIndex: Word)');
+    end;
+
+    //Register objects
+    AddImportedClassVariable(Sender, 'Events', 'TKMScriptEvents');
+    AddImportedClassVariable(Sender, 'States', 'TKMScriptStates');
+    AddImportedClassVariable(Sender, 'Actions', 'TKMScriptActions');
+
+    Result := True;
+  end else
+    Result := False;
+end;
+
+
 procedure TKMScripting.CompileScript;
 var
   I: Integer;
   Compiler: TPSPascalCompiler;
+  V: TPSVar;
 begin
   Compiler := TPSPascalCompiler.Create; // create an instance of the compiler.
   try
@@ -167,14 +266,29 @@ end;
 
 //Link the ByteCode with used functions and load it into Executioner
 procedure TKMScripting.LinkRuntime;
-var I: Integer;
+var I: Integer; CI: TPSRuntimeClassImporter;
 begin
-  //This will register exposed functions to the executer
-  // - pointer to the function
-  // - name of the function (in uppercase)
-  // - calling convention (usually Register)
-  for I := Low(ScriptFunctions) to High(ScriptFunctions) do
-    fExec.RegisterDelphiFunction(ScriptFunctions[I].Addr, ScriptFunctions[I].Name, cdRegister);
+  //Create an instance of the runtime class importer
+  CI := TPSRuntimeClassImporter.Create;
+
+  //Register classes and their methods
+  with CI.Add(TKMScriptEvents) do
+  begin
+    RegisterMethod(@TKMScriptEvents.Defeated, 'DEFEATED');
+  end;
+
+  with CI.Add(TKMScriptStates) do
+  begin
+    RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
+  end;
+
+  with CI.Add(TKMScriptActions) do
+  begin
+    RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
+  end;
+
+  //Append classes info to Exec
+  RegisterClassLibraryRuntime(fExec, CI);
 
   if not fExec.LoadData(fByteCode) then // Load the data from the Data string.
   begin
@@ -183,6 +297,23 @@ begin
     fErrorString := fErrorString + 'Uknown error in loading bytecode to Exec|';
     Exit;
   end;
+
+  //Link script objects with objects
+  SetVariantToClass(fExec.GetVarNo(fExec.GetVar('EVENTS')), fEvents);
+  SetVariantToClass(fExec.GetVarNo(fExec.GetVar('STATES')), fStates);
+  SetVariantToClass(fExec.GetVarNo(fExec.GetVar('ACTIONS')), fActions);
+end;
+
+
+procedure TKMScripting.ProcDefeated(aPlayer: TPlayerIndex);
+begin
+  fEvents.Add(etDefeated, [aPlayer]);
+end;
+
+
+procedure TKMScripting.ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
+begin
+  fEvents.Add(etHouseBuilt, [aOwner, Byte(aHouseType)]);
 end;
 
 
@@ -197,12 +328,16 @@ end;
 procedure TKMScripting.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fScriptCode);
+  Assert(fEvents.fCount = 0, 'We''d expect Events to be saved after UpdateState');
 end;
 
 
 procedure TKMScripting.UpdateState;
 begin
   fExec.RunScript;
+
+  //Remove any events, we need to process them only once
+  fEvents.Clear;
 end;
 
 

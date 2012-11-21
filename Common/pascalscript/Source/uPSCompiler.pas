@@ -882,7 +882,7 @@ type
 
   TPSOnUseVariable = procedure (Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString);
 
-  TPSOnUses = function(Sender: TPSPascalCompiler; const Name: tbtString): Boolean;
+  TPSOnUses = function(Sender: TPSPascalCompiler; const Name: tbtString): Boolean of object;
 
   TPSOnExportCheck = function(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: tbtString): Boolean;
 

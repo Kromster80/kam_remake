@@ -1544,8 +1544,8 @@ begin
     Image_HouseConstructionWood.ImageCenter;
     Image_HouseConstructionStone := TKMImage.Create(Panel_House,100,170,40,40,654);
     Image_HouseConstructionStone.ImageCenter;
-    Label_HouseConstructionWood  := TKMLabel.Create(Panel_House,60,210,60,22,fResource.Resources[rt_Wood].Title,fnt_Grey,taCenter);
-    Label_HouseConstructionStone := TKMLabel.Create(Panel_House,120,210,60,22,fResource.Resources[rt_Stone].Title,fnt_Grey,taCenter);
+    Label_HouseConstructionWood  := TKMLabel.Create(Panel_House,60,210,fResource.Resources[rt_Wood].Title,fnt_Grey,taCenter);
+    Label_HouseConstructionStone := TKMLabel.Create(Panel_House,120,210,fResource.Resources[rt_Stone].Title,fnt_Grey,taCenter);
 
     Label_House_Demolish := TKMLabel.Create(Panel_House,0,130,TB_WIDTH,0,fTextLibrary[TX_HOUSE_DEMOLISH],fnt_Grey,taCenter);
     Label_House_Demolish.AutoWrap := True;
