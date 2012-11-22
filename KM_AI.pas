@@ -39,6 +39,8 @@ type
     property General: TKMGeneral read fGeneral;
     property DefencePositions: TAIDefencePositions read fDefencePositions;
 
+    procedure Defeat; //Defeat the player, this is not reversible
+
     property WonOrLost: TWonOrLost read fWonOrLost;
 
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
@@ -96,9 +98,24 @@ begin
 end;
 
 
+//Defeat Player (from scripting?), this is not reversible.
+//Defeated player remains in place, but does no actions
+procedure TKMPlayerAI.Defeat;
+begin
+  if fWonOrLost <> wol_Lost then
+  begin
+    fWonOrLost := wol_Lost;
+
+    //Script may have additional event processors
+    fEventsManager.ProcDefeated(fOwner);
+    fScripting.ProcDefeated(fOwner);
+  end;
+end;
+
+
 procedure TKMPlayerAI.CheckDefeated;
 var
-  Defeat: Boolean;
+  DoDefeat: Boolean;
   Stat: TKMPlayerStats;
 begin
   Stat := fPlayers[fOwner].Stats;
@@ -109,15 +126,12 @@ begin
   //Of course opponent can rebuild with workers, but that will take a lot of time in
   //already half-ruined city.
 
-  Defeat := (Stat.GetHouseQty([ht_School, ht_Barracks, ht_Store, ht_TownHall, ht_SiegeWorkshop]) = 0) and
+  DoDefeat := (Stat.GetHouseQty([ht_School, ht_Barracks, ht_Store, ht_TownHall, ht_SiegeWorkshop]) = 0) and
             (Stat.GetArmyCount = 0);
 
   //Let the event system know (defeat may trigger events for other players)
-  if Defeat then
-  begin
-    fEventsManager.ProcDefeated(fOwner);
-    fScripting.ProcDefeated(fOwner);
-  end;
+  if DoDefeat then
+    Defeat;
 end;
 
 

@@ -3,7 +3,7 @@ unit KM_Scripting;
 interface
 uses
   Classes, Math, SysUtils, StrUtils,
-  uPSCompiler, uPSRuntime,
+  uPSCompiler, uPSRuntime, uPSUtils,
   KM_CommonClasses, KM_Defaults, KM_ScriptingESA;
 
   //Dynamic scripts allow mapmakers to control the mission flow
@@ -23,6 +23,7 @@ type
     fStates: TKMScriptStates;
     fActions: TKMScriptActions;
 
+    function ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
     function ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
     procedure CompileScript;
     procedure LinkRuntime;
@@ -42,6 +43,8 @@ type
     procedure UpdateState;
   end;
 
+
+  TTestFunction = function (aIndex: Integer): AnsiString of object;
 
 var
   fScripting: TKMScripting;
@@ -103,6 +106,30 @@ begin
 end;
 
 
+{ The OnExportCheck callback function is called for each function in the script
+  (Also for the main proc, with '!MAIN' as a Proc^.Name). ProcDecl contains the
+  result type and parameter types of a function using this format:
+  ProcDecl: ResultType + ' ' + Parameter1 + ' ' + Parameter2 + ' '+Parameter3 + .....
+  Parameter: ParameterType+TypeName
+  ParameterType is @ for a normal parameter and ! for a var parameter.
+  A result type of 0 means no result}
+function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
+begin
+  Result := True;
+
+  //Check if the proc is the proc we want
+  if Proc.Name = 'ONPLAYERDEFEATED' then
+    //Check if the proc has the correct params
+    if not ExportCheck(Sender, Proc, [btString, btS32], [pmIn]) then
+    begin
+      //Something is wrong, so cause an error
+      Sender.MakeError('', ecTypeMismatch, '');
+      Result := False;
+      Exit;
+    end;
+end;
+
+
 //The OnUses callback function is called for each "uses" in the script.
 //It's always called with the parameter 'SYSTEM' at the top of the script.
 //For example: uses ii1, ii2;
@@ -112,7 +139,7 @@ begin
   if Name = 'SYSTEM' then
   begin
 
-    Sender.AddTypeS('THouseType', '(utSerf, utAxeman)');
+    //Sender.AddTypeS('THouseType', '(utSerf, utAxeman)');
 
     //Register classes and methods to the script engine.
     //After that they can be used from within the script.
@@ -129,6 +156,7 @@ begin
 
     with Sender.AddClassN(nil, fActions.ClassName) do
     begin
+      RegisterMethod('procedure Defeat(aPlayer: Integer)');
       RegisterMethod('procedure ShowMsg(aPlayer: Integer; aIndex: Word)');
     end;
 
@@ -151,6 +179,8 @@ begin
   Compiler := TPSPascalCompiler.Create; // create an instance of the compiler.
   try
     Compiler.OnUses := ScriptOnUses; // assign the OnUses event.
+    Compiler.OnExportCheck := ScriptOnExportCheck; // Assign the onExportCheck event.
+
     if not Compiler.Compile(fScriptCode) then  // Compile the Pascal script into bytecode.
     begin
       for I := 0 to Compiler.MsgCount - 1 do
@@ -189,6 +219,7 @@ begin
 
   with ClassImp.Add(TKMScriptActions) do
   begin
+    RegisterMethod(@TKMScriptActions.Defeat, 'DEFEAT');
     RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
   end;
 
@@ -211,8 +242,14 @@ end;
 
 
 procedure TKMScripting.ProcDefeated(aPlayer: TPlayerIndex);
+var
+  TestFunc: TTestFunction;
 begin
-  fEvents.Add(etDefeated, [aPlayer]);
+  //fEvents.Add(etDefeated, [aPlayer]);
+
+  TestFunc := TTestFunction(fExec.GetProcAsMethodN('ONPLAYERDEFEATED'));
+  if @TestFunc <> nil then
+    TestFunc(aPlayer);
 end;
 
 

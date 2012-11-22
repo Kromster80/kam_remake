@@ -1,0 +1,11 @@
+function OnPlayerDefeated(aIndex: Integer): AnsiString;
+begin
+  if aIndex = 2 then Actions.ShowMsg(0, 2);
+  if aIndex = 3 then Actions.ShowMsg(0, 3);
+  if aIndex = 4 then Actions.ShowMsg(0, 4);
+end;
+
+begin
+  if States.GameTime = 20 then 
+    Actions.ShowMsg(0, 1);
+end.

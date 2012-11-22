@@ -447,7 +447,7 @@ begin
     if (fEventsManager.ErrorString <> '') then
       fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in events script:|' + fEventsManager.ErrorString);
 
-    fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.ds'));
+    fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'));
     if (fScripting.ErrorString <> '') then
       fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in script:|' + fScripting.ErrorString);
   end;

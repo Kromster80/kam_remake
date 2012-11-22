@@ -52,6 +52,7 @@ type
   TKMScriptActions = class
   published
     { Methods we expose to scripts }
+    procedure Defeat(aPlayer: Integer);
     procedure ShowMsg(aPlayer: Integer; aIndex: Word);
   end;
 
@@ -118,6 +119,13 @@ end;
 function TKMScriptStates.GameTime: Cardinal;
 begin
   Result := fGame.GameTickCount;
+end;
+
+
+procedure TKMScriptActions.Defeat(aPlayer: Integer);
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    fPlayers[aPlayer].AI.Defeat;
 end;
 
 
