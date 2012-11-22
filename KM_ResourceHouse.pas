@@ -167,7 +167,7 @@ const
   //These tables are used to convert between KaM script IDs and Remake enums
   HouseDatCount = 30;
   //KaM scripts and HouseDat address houses in this order
-  HouseKaMType: array [0..HouseDatCount-1] of THouseType = (
+  HouseIndexToType: array [0..HouseDatCount-1] of THouseType = (
   ht_Sawmill, ht_IronSmithy, ht_WeaponSmithy, ht_CoalMine, ht_IronMine,
   ht_GoldMine, ht_FisherHut, ht_Bakery, ht_Farm, ht_Woodcutters,
   ht_ArmorSmithy, ht_Store, ht_Stables, ht_School, ht_Quary,
@@ -177,7 +177,7 @@ const
 
   //THouseType corresponds to this index in KaM scripts and libs
   //KaM scripts are 0 based, so we must use HouseKaMOrder[H]-1 in script usage. Other cases are 1 based.
-  HouseKaMOrder: array [THouseType] of byte = (0, 0,
+  HouseTypeToIndex: array [THouseType] of byte = (0, 0,
   11, 21, 8, 22, 25, 4, 9, 7, 6, 28,
   5, 2, 30, 16, 23, 15, 1, 14, 24, 13, 12,
   17, 26, 19, 18, 3, 20, 29, 10);
@@ -497,7 +497,7 @@ constructor TKMHouseDatClass.Create(aHouseType: THouseType);
 begin
   inherited Create;
   fHouseType := aHouseType;
-  fNameTextID := TX_HOUSES_NAMES__29 + HouseKaMOrder[fHouseType] - 1; //May be overridden for new houses
+  fNameTextID := TX_HOUSES_NAMES__29 + HouseTypeToIndex[fHouseType] - 1; //May be overridden for new houses
 end;
 
 
@@ -731,8 +731,8 @@ begin
 
     //Read the records one by one because we need to reorder them and skip one in the middle
     for i:=0 to 28 do //KaM has only 28 houses
-    if HouseKaMType[i] <> ht_None then
-      fItems[HouseKaMType[i]].LoadFromStream(S)
+    if HouseIndexToType[i] <> ht_None then
+      fItems[HouseIndexToType[i]].LoadFromStream(S)
     else
       S.Seek(SizeOf(TKMHouseDat), soFromCurrent);
 
