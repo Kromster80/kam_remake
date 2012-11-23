@@ -244,7 +244,7 @@ begin
   //Store house by its KaM index to keep it consistent with DAT scripts
   TestFunc := TTestFunction2(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
   if @TestFunc <> nil then
-    TestFunc(aOwner, HouseTypeToIndex[aHouseType]);
+    TestFunc(aOwner, HouseTypeToIndex[aHouseType] - 1);
 end;
 
 

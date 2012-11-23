@@ -1,0 +1,56 @@
+var 
+  NextMsg: Integer;
+  NextTime: Integer;
+
+procedure OnHouseBuilt(aIndex: Integer; aHouseType: Integer);
+begin
+  if aIndex = 0 then //Make sure we process only human player
+  case aHouseType of
+    13: begin
+          Actions.ShowMsg(0,4);
+          NextMsg := 5;
+          NextTime := States.GameTime + 100;
+        end;
+    27: Actions.ShowMsg(0,6);
+    14: Actions.ShowMsg(0,7);
+     9: Actions.ShowMsg(0,8);
+     0: Actions.ShowMsg(0,9);
+     6: Actions.ShowMsg(0,10);
+     8: Actions.ShowMsg(0,11);
+    22: Actions.ShowMsg(0,12);
+     7: Actions.ShowMsg(0,13);
+    28: Actions.ShowMsg(0,14);
+    16: Actions.ShowMsg(0,15);
+    24: Actions.ShowMsg(0,16);
+    21: begin
+          Actions.ShowMsg(0,17);
+          NextMsg := 18;
+          NextTime := States.GameTime + 100;
+        end;
+    19: begin
+          Actions.ShowMsg(0,19);
+          NextMsg := 20;
+          NextTime := States.GameTime + 100;
+        end;
+    25: Actions.ShowMsg(0,21);
+    20: begin
+          Actions.ShowMsg(0,22);
+          NextMsg := 23;
+          NextTime := States.GameTime + 100;
+        end;
+  end;
+end;
+
+procedure OnPlayerDefeated(aIndex: Integer);
+begin
+  if aIndex = 1 then Actions.ShowMsg(0, 24);
+  if aIndex = 2 then Actions.ShowMsg(0, 25);
+end;
+
+begin
+  if States.GameTime = 30 then Actions.ShowMsg(0,1);
+  if States.GameTime = 160 then Actions.ShowMsg(0,2);
+  if States.GameTime = 340 then Actions.ShowMsg(0,3);
+
+  if States.GameTime = NextTime then Actions.ShowMsg(0,NextMsg);
+end.
