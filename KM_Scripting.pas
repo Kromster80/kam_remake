@@ -19,7 +19,6 @@ type
     fExec: TPSExec;
     fErrorString: string; //Info about found mistakes
 
-    fEvents: TKMScriptEvents;
     fStates: TKMScriptStates;
     fActions: TKMScriptActions;
 
@@ -44,7 +43,8 @@ type
   end;
 
 
-  TTestFunction = function (aIndex: Integer): AnsiString of object;
+  TTestFunction = procedure (aIndex: Integer) of object;
+  TTestFunction2 = procedure (aIndex, aParam: Integer) of object;
 
 var
   fScripting: TKMScripting;
@@ -59,7 +59,6 @@ constructor TKMScripting.Create;
 begin
   inherited;
   fExec := TPSExec.Create;  // Create an instance of the executer.
-  fEvents := TKMScriptEvents.Create;
   fStates := TKMScriptStates.Create;
   fActions := TKMScriptActions.Create;
 end;
@@ -67,7 +66,6 @@ end;
 
 destructor TKMScripting.Destroy;
 begin
-  FreeAndNil(fEvents);
   FreeAndNil(fStates);
   FreeAndNil(fActions);
   FreeAndNil(fExec);
@@ -118,9 +116,18 @@ begin
   Result := True;
 
   //Check if the proc is the proc we want
+  if Proc.Name = 'ONHOUSEBUILT' then
+    //Check if the proc has the correct params
+    if not ExportCheck(Sender, Proc, [0, btS32, btS32], [pmIn, pmIn]) then
+    begin
+      //Something is wrong, so cause an error
+      Sender.MakeError('', ecTypeMismatch, '');
+      Result := False;
+      Exit;
+    end;
   if Proc.Name = 'ONPLAYERDEFEATED' then
     //Check if the proc has the correct params
-    if not ExportCheck(Sender, Proc, [btString, btS32], [pmIn]) then
+    if not ExportCheck(Sender, Proc, [0, btS32], [pmIn]) then
     begin
       //Something is wrong, so cause an error
       Sender.MakeError('', ecTypeMismatch, '');
@@ -143,12 +150,6 @@ begin
 
     //Register classes and methods to the script engine.
     //After that they can be used from within the script.
-    with Sender.AddClassN(nil, fEvents.ClassName) do
-    begin
-      RegisterMethod('function HouseBuilt(aPlayer: Integer; aHouseIndex: Integer): Byte');
-      RegisterMethod('function PlayerDefeated(aPlayer: Integer): Boolean');
-    end;
-
     with Sender.AddClassN(nil, fStates.ClassName) do
     begin
       RegisterMethod('function GameTime: Cardinal');
@@ -161,7 +162,6 @@ begin
     end;
 
     //Register objects
-    AddImportedClassVariable(Sender, 'Events', fEvents.ClassName);
     AddImportedClassVariable(Sender, 'States', fStates.ClassName);
     AddImportedClassVariable(Sender, 'Actions', fActions.ClassName);
 
@@ -206,12 +206,6 @@ begin
   ClassImp := TPSRuntimeClassImporter.Create;
 
   //Register classes and their exposed methods to Runtime (must be uppercase)
-  with ClassImp.Add(TKMScriptEvents) do
-  begin
-    RegisterMethod(@TKMScriptEvents.HouseBuilt, 'HOUSEBUILT');
-    RegisterMethod(@TKMScriptEvents.PlayerDefeated, 'PLAYERDEFEATED');
-  end;
-
   with ClassImp.Add(TKMScriptStates) do
   begin
     RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
@@ -235,7 +229,6 @@ begin
   end;
 
   //Link script objects with objects
-  SetVariantToClass(fExec.GetVarNo(fExec.GetVar('EVENTS')), fEvents);
   SetVariantToClass(fExec.GetVarNo(fExec.GetVar('STATES')), fStates);
   SetVariantToClass(fExec.GetVarNo(fExec.GetVar('ACTIONS')), fActions);
 end;
@@ -245,8 +238,7 @@ procedure TKMScripting.ProcDefeated(aPlayer: TPlayerIndex);
 var
   TestFunc: TTestFunction;
 begin
-  //fEvents.Add(etDefeated, [aPlayer]);
-
+  //Check if event handler (procedure) exists and run it
   TestFunc := TTestFunction(fExec.GetProcAsMethodN('ONPLAYERDEFEATED'));
   if @TestFunc <> nil then
     TestFunc(aPlayer);
@@ -254,9 +246,14 @@ end;
 
 
 procedure TKMScripting.ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
+var
+  TestFunc: TTestFunction2;
 begin
+  //Check if event handler (procedure) exists and run it
   //Store house by its KaM index to keep it consistent with DAT scripts
-  fEvents.Add(etHouseBuilt, [aOwner, HouseTypeToIndex[aHouseType]]);
+  TestFunc := TTestFunction2(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
+  if @TestFunc <> nil then
+    TestFunc(aOwner, HouseTypeToIndex[aHouseType]);
 end;
 
 
@@ -271,16 +268,12 @@ end;
 procedure TKMScripting.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fScriptCode);
-  Assert(fEvents.Count = 0, 'We''d expect Events to be saved after UpdateState');
 end;
 
 
 procedure TKMScripting.UpdateState;
 begin
   fExec.RunScript;
-
-  //Remove any events, we need to process them only once
-  fEvents.Clear;
 end;
 
 

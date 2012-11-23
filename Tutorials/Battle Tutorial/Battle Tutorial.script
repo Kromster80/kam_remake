@@ -1,4 +1,4 @@
-function OnPlayerDefeated(aIndex: Integer): AnsiString;
+procedure OnPlayerDefeated(aIndex: Integer);
 begin
   if aIndex = 2 then Actions.ShowMsg(0, 2);
   if aIndex = 3 then Actions.ShowMsg(0, 3);
