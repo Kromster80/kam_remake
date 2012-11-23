@@ -28,8 +28,9 @@ type
   end;
 
   TKMScriptActions = class
-    procedure Defeat(aPlayer: Integer);
-    procedure ShowMsg(aPlayer: Integer; aIndex: Word);
+    procedure Defeat(aPlayer: Word);
+    procedure GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word);
+    procedure ShowMsg(aPlayer, aIndex: Word);
   end;
 
 
@@ -43,14 +44,20 @@ begin
 end;
 
 
-procedure TKMScriptActions.Defeat(aPlayer: Integer);
+procedure TKMScriptActions.Defeat(aPlayer: Word);
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
     fPlayers[aPlayer].AI.Defeat;
 end;
 
 
-procedure TKMScriptActions.ShowMsg(aPlayer: Integer; aIndex: Word);
+procedure TKMScriptActions.GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word);
+begin
+
+end;
+
+
+procedure TKMScriptActions.ShowMsg(aPlayer, aIndex: Word);
 begin
   if aPlayer = MyPlayer.PlayerIndex then
     fGame.ShowMessage(mkText, fTextLibrary.GetMissionString(aIndex), KMPoint(0,0));

@@ -108,7 +108,7 @@ begin
 
     //Script may have additional event processors
     fEventsManager.ProcDefeated(fOwner);
-    fScripting.ProcDefeated(fOwner);
+    fScripting.ProcPlayerDefeated(fOwner);
   end;
 end;
 

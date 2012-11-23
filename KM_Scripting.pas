@@ -33,8 +33,8 @@ type
     property ErrorString: string read fErrorString;
     procedure LoadFromFile(aFileName: string);
 
-    procedure ProcDefeated(aPlayer: TPlayerIndex);
     procedure ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
+    procedure ProcPlayerDefeated(aPlayer: TPlayerIndex);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -157,8 +157,9 @@ begin
 
     with Sender.AddClassN(nil, fActions.ClassName) do
     begin
-      RegisterMethod('procedure Defeat(aPlayer: Integer)');
-      RegisterMethod('procedure ShowMsg(aPlayer: Integer; aIndex: Word)');
+      RegisterMethod('procedure Defeat(aPlayer: Word)');
+      RegisterMethod('procedure GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns)');
+      RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
     end;
 
     //Register objects
@@ -214,6 +215,7 @@ begin
   with ClassImp.Add(TKMScriptActions) do
   begin
     RegisterMethod(@TKMScriptActions.Defeat, 'DEFEAT');
+    RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
     RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
   end;
 
@@ -234,17 +236,6 @@ begin
 end;
 
 
-procedure TKMScripting.ProcDefeated(aPlayer: TPlayerIndex);
-var
-  TestFunc: TTestFunction;
-begin
-  //Check if event handler (procedure) exists and run it
-  TestFunc := TTestFunction(fExec.GetProcAsMethodN('ONPLAYERDEFEATED'));
-  if @TestFunc <> nil then
-    TestFunc(aPlayer);
-end;
-
-
 procedure TKMScripting.ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
 var
   TestFunc: TTestFunction2;
@@ -254,6 +245,17 @@ begin
   TestFunc := TTestFunction2(fExec.GetProcAsMethodN('ONHOUSEBUILT'));
   if @TestFunc <> nil then
     TestFunc(aOwner, HouseTypeToIndex[aHouseType]);
+end;
+
+
+procedure TKMScripting.ProcPlayerDefeated(aPlayer: TPlayerIndex);
+var
+  TestFunc: TTestFunction;
+begin
+  //Check if event handler (procedure) exists and run it
+  TestFunc := TTestFunction(fExec.GetProcAsMethodN('ONPLAYERDEFEATED'));
+  if @TestFunc <> nil then
+    TestFunc(aPlayer);
 end;
 
 
