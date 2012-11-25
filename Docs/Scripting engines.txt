@@ -1,0 +1,19 @@
+PascalScript: Freewre
+ + Easier methods and events rigging
+ + Supports D7
+ - No active development
+ - Requires manual serialization
+
+
+DWScript: Freeware
+ + Actively developed
+ + More syntax features
+ + Possibly easier serialization(?)
+ - Harder to rig
+ - No support for D7 (only D2009+ ?)
+
+
+PaxCompiler: Shareware
+ + Claimed to be fastest out there
+ - Not freeware
+ - ?

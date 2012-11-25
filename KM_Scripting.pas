@@ -3,7 +3,7 @@ unit KM_Scripting;
 interface
 uses
   Classes, Math, SysUtils, StrUtils,
-  uPSCompiler, uPSRuntime, uPSUtils,
+  uPSCompiler, uPSRuntime, uPSUtils, uPSDisassembly,
   KM_CommonClasses, KM_Defaults, KM_ScriptingESA;
 
   //Dynamic scripts allow mapmakers to control the mission flow
@@ -22,8 +22,9 @@ type
     fStates: TKMScriptStates;
     fActions: TKMScriptActions;
 
-    function ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
     function ScriptOnUses(Sender: TPSPascalCompiler; const Name: AnsiString): Boolean;
+    procedure ScriptOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString);
+    function ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
     procedure CompileScript;
     procedure LinkRuntime;
   public
@@ -104,39 +105,6 @@ begin
 end;
 
 
-{ The OnExportCheck callback function is called for each function in the script
-  (Also for the main proc, with '!MAIN' as a Proc^.Name). ProcDecl contains the
-  result type and parameter types of a function using this format:
-  ProcDecl: ResultType + ' ' + Parameter1 + ' ' + Parameter2 + ' '+Parameter3 + .....
-  Parameter: ParameterType+TypeName
-  ParameterType is @ for a normal parameter and ! for a var parameter.
-  A result type of 0 means no result}
-function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
-begin
-  Result := True;
-
-  //Check if the proc is the proc we want
-  if Proc.Name = 'ONHOUSEBUILT' then
-    //Check if the proc has the correct params
-    if not ExportCheck(Sender, Proc, [0, btS32, btS32], [pmIn, pmIn]) then
-    begin
-      //Something is wrong, so cause an error
-      Sender.MakeError('', ecTypeMismatch, '');
-      Result := False;
-      Exit;
-    end;
-  if Proc.Name = 'ONPLAYERDEFEATED' then
-    //Check if the proc has the correct params
-    if not ExportCheck(Sender, Proc, [0, btS32], [pmIn]) then
-    begin
-      //Something is wrong, so cause an error
-      Sender.MakeError('', ecTypeMismatch, '');
-      Result := False;
-      Exit;
-    end;
-end;
-
-
 //The OnUses callback function is called for each "uses" in the script.
 //It's always called with the parameter 'SYSTEM' at the top of the script.
 //For example: uses ii1, ii2;
@@ -172,17 +140,60 @@ begin
 end;
 
 
+procedure TKMScripting.ScriptOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Integer; ProcNo, Position: Cardinal; const PropData: tbtString);
+begin
+  //There's no variable type info here
+  //GetVarCount is not including this current variable yet either
+end;
+
+
+{ The OnExportCheck callback function is called for each function in the script
+  (Also for the main proc, with '!MAIN' as a Proc^.Name). ProcDecl contains the
+  result type and parameter types of a function using this format:
+  ProcDecl: ResultType + ' ' + Parameter1 + ' ' + Parameter2 + ' '+Parameter3 + .....
+  Parameter: ParameterType+TypeName
+  ParameterType is @ for a normal parameter and ! for a var parameter.
+  A result type of 0 means no result}
+function TKMScripting.ScriptOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: AnsiString): Boolean;
+begin
+  Result := True;
+
+  //Check if the proc is the proc we want
+  if Proc.Name = 'ONHOUSEBUILT' then
+    //Check if the proc has the correct params
+    if not ExportCheck(Sender, Proc, [0, btS32, btS32], [pmIn, pmIn]) then
+    begin
+      //Something is wrong, so cause an error
+      Sender.MakeError('', ecTypeMismatch, '');
+      Result := False;
+      Exit;
+    end;
+  if Proc.Name = 'ONPLAYERDEFEATED' then
+    //Check if the proc has the correct params
+    if not ExportCheck(Sender, Proc, [0, btS32], [pmIn]) then
+    begin
+      //Something is wrong, so cause an error
+      Sender.MakeError('', ecTypeMismatch, '');
+      Result := False;
+      Exit;
+    end;
+end;
+
+
 procedure TKMScripting.CompileScript;
 var
   I: Integer;
   Compiler: TPSPascalCompiler;
 begin
-  Compiler := TPSPascalCompiler.Create; // create an instance of the compiler.
+  Compiler := TPSPascalCompiler.Create; // create an instance of the compiler
   try
-    Compiler.OnUses := ScriptOnUses; // assign the OnUses event.
-    Compiler.OnExportCheck := ScriptOnExportCheck; // Assign the onExportCheck event.
+    Compiler.OnUses := ScriptOnUses; // assign the OnUses event
+    Compiler.OnUseVariable := ScriptOnUseVariable;
+    Compiler.OnExportCheck := ScriptOnExportCheck; // Assign the onExportCheck event
 
-    if not Compiler.Compile(fScriptCode) then  // Compile the Pascal script into bytecode.
+    //Compiler.AllowNoEnd
+
+    if not Compiler.Compile(fScriptCode) then  // Compile the Pascal script into bytecode
     begin
       for I := 0 to Compiler.MsgCount - 1 do
         fErrorString := fErrorString + Compiler.Msg[I].MessageToString + '|';
@@ -202,6 +213,9 @@ end;
 procedure TKMScripting.LinkRuntime;
 var
   ClassImp: TPSRuntimeClassImporter;
+  I: Integer;
+  Allowed: Boolean;
+  V: PIFVariant;
 begin
   //Create an instance of the runtime class importer
   ClassImp := TPSRuntimeClassImporter.Create;
@@ -228,6 +242,16 @@ begin
       library that has been used at compile time isn't registered at runtime. }
     fErrorString := fErrorString + 'Uknown error in loading bytecode to Exec|';
     Exit;
+  end;
+
+  for I := 0 to fExec.GetVarCount - 1 do
+  begin
+    V := fExec.GetVarNo(I);
+    Allowed := (V.FType.BaseType in [btU8, btS32, btSingle, btStaticArray])
+               or SameText(V.FType.ExportName, 'TKMScriptStates')
+               or SameText(V.FType.ExportName, 'TKMScriptActions');
+    if not Allowed then
+      fErrorString := fErrorString + 'Unsupported global variable type ' + IntToStr(V.FType.BaseType) + '|';
   end;
 
   //Link script objects with objects
@@ -260,16 +284,86 @@ end;
 
 
 procedure TKMScripting.Load(LoadStream: TKMemoryStream);
+var
+  I: Integer;
+  V: PIFVariant;
+  TmpInt: Integer;
+  TmpSingle: Single;
 begin
+  LoadStream.ReadAssert('Script');
+
   LoadStream.Read(fScriptCode);
 
   CompileScript;
+
+  //Read script variables
+  LoadStream.Read(I);
+  Assert(I = fExec.GetVarCount, 'Script variable count mismatches saved variables count');
+  for I := 0 to fExec.GetVarCount - 1 do
+  begin
+    V := fExec.GetVarNo(I);
+    case V.FType.BaseType of
+      btU8, btS32:  begin
+                      LoadStream.Read(TmpInt);
+                      VSetInt(V, TmpInt);
+                    end;
+      btSingle: begin
+                  LoadStream.Read(TmpSingle);
+                  VSetReal(V, TmpSingle);
+                end;
+      btStaticArray:
+                begin
+
+                end;
+    end;
+  end;
 end;
 
 
 procedure TKMScripting.Save(SaveStream: TKMemoryStream);
+var
+  I,K: Integer;
+  V: PIFVariant;
+  s: string;
+  SL: TStringList;
+  TmpSingle: Single;
+  ArrayT: TPSTypeRec;
 begin
+  SaveStream.Write('Script');
+
+  //Write script code
   SaveStream.Write(fScriptCode);
+
+  SL := TStringList.Create;
+  IFPS3DataToText(fByteCode, s);
+  SL.Text := s;
+  SL.SaveToFile(ExeDir  + 's.txt');
+  SL.Free;
+
+  //Write script variables
+  SaveStream.Write(fExec.GetVarCount);
+  for I := 0 to fExec.GetVarCount - 1 do
+  begin
+    V := fExec.GetVarNo(I);
+    case V.FType.BaseType of
+      btU8, btS32:  SaveStream.Write(Integer(VGetInt(V)));   //Byte, Boolean, Integer
+      btSingle:     begin                                    //Single
+                      TmpSingle := VGetReal(V);
+                      SaveStream.Write(TmpSingle);
+                    end;
+      btStaticArray:
+                    begin
+                    //todo: arrays
+                      {ArrayT := TPSTypeRec_StaticArray(V.FType).ArrayType; //Type of elements of array
+                      for K := 0 to TPSTypeRec_StaticArray(V.FType).Size - 1 do
+                      begin
+                      PSGetArrayField()
+                        FinalizeVariant(p, t);
+                        p := Pointer(IPointer(p) + t.RealSize);
+                      end;}
+                    end;
+    end;
+  end;
 end;
 
 

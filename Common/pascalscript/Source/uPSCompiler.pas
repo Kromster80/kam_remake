@@ -880,7 +880,7 @@ type
 
   TPSUnOperatorType = (otNot, otMinus, otCast);
 
-  TPSOnUseVariable = procedure (Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString);
+  TPSOnUseVariable = procedure (Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtString) of object;
 
   TPSOnUses = function(Sender: TPSPascalCompiler; const Name: tbtString): Boolean of object;
 
