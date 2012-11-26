@@ -5,6 +5,8 @@ var
 
   procedure Show(aMsg, aMsg2: Byte);
   begin
+    if MsgShown[aMsg] then Exit; //Show messages only once
+
     Actions.ShowMsg(0, aMsg);
     if aMsg2 <> 0 then
     begin

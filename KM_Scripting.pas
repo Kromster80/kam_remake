@@ -33,6 +33,7 @@ type
 
     property ErrorString: string read fErrorString;
     procedure LoadFromFile(aFileName: string);
+    procedure DoExport;
 
     procedure ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
     procedure ProcPlayerDefeated(aPlayer: TPlayerIndex);
@@ -247,7 +248,8 @@ begin
   for I := 0 to fExec.GetVarCount - 1 do
   begin
     V := fExec.GetVarNo(I);
-    Allowed := (V.FType.BaseType in [btU8, btS32, btSingle, btStaticArray])
+    Allowed := (V.FType.BaseType in [btU8, btS32, btSingle])
+               or ((V.FType.BaseType = btStaticArray) and (TPSTypeRec_StaticArray(V.FType).ArrayType.BaseType in [btU8, btS32, btSingle]))
                or SameText(V.FType.ExportName, 'TKMScriptStates')
                or SameText(V.FType.ExportName, 'TKMScriptActions');
     if not Allowed then
@@ -283,10 +285,30 @@ begin
 end;
 
 
+procedure TKMScripting.DoExport;
+var
+  s: string;
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+  try
+    IFPS3DataToText(fByteCode, s);
+    SL.Text := s;
+    ForceDirectories(ExeDir  + 'Export\');
+    SL.SaveToFile(ExeDir  + 'Export\script_DataText.txt');
+  finally
+    SL.Free;
+  end;
+end;
+
+
 procedure TKMScripting.Load(LoadStream: TKMemoryStream);
 var
-  I: Integer;
+  I,K: Integer;
   V: PIFVariant;
+  ArrayCount: Integer;
+  ArrayType: TPSTypeRec;
+  ArrayVar: TPSVariantIFC;
   TmpInt: Integer;
   TmpSingle: Single;
 begin
@@ -301,20 +323,40 @@ begin
   Assert(I = fExec.GetVarCount, 'Script variable count mismatches saved variables count');
   for I := 0 to fExec.GetVarCount - 1 do
   begin
+    //todo: So far we blindly assume that vars order is exactly the same
     V := fExec.GetVarNo(I);
     case V.FType.BaseType of
       btU8, btS32:  begin
                       LoadStream.Read(TmpInt);
                       VSetInt(V, TmpInt);
                     end;
-      btSingle: begin
-                  LoadStream.Read(TmpSingle);
-                  VSetReal(V, TmpSingle);
-                end;
-      btStaticArray:
-                begin
+      btSingle:     begin
+                      LoadStream.Read(TmpSingle);
+                      VSetReal(V, TmpSingle);
+                    end;
+      btStaticArray:begin
+                      //See uPSRuntime line 1630 for algo idea
+                      LoadStream.Read(ArrayCount);
+                      Assert(ArrayCount = TPSTypeRec_StaticArray(V.FType).Size, 'Elements in array mismatch');
 
-                end;
+                      ArrayType := TPSTypeRec_StaticArray(V.FType).ArrayType; //Type of elements of array
+
+                      case ArrayType.BaseType of
+                        btU8, btS32:  for K := 0 to ArrayCount - 1 do
+                                      begin
+                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
+                                        LoadStream.Read(TmpInt);  //Byte, Boolean, Integer
+                                        VNSetInt(ArrayVar, TmpInt);
+                                      end;
+                        btSingle:     for K := 0 to ArrayCount - 1 do
+                                      begin
+                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
+                                        LoadStream.Read(TmpSingle);  //Byte, Boolean, Integer
+                                        VNSetReal(ArrayVar, TmpSingle);
+                                      end;
+                        else Assert(False);
+                      end;
+                    end;
     end;
   end;
 end;
@@ -324,21 +366,16 @@ procedure TKMScripting.Save(SaveStream: TKMemoryStream);
 var
   I,K: Integer;
   V: PIFVariant;
-  s: string;
-  SL: TStringList;
+  ArrayCount: Integer;
+  ArrayType: TPSTypeRec;
+  ArrayVar: TPSVariantIFC;
+  TmpInt: Integer;
   TmpSingle: Single;
-  ArrayT: TPSTypeRec;
 begin
   SaveStream.Write('Script');
 
   //Write script code
   SaveStream.Write(fScriptCode);
-
-  SL := TStringList.Create;
-  IFPS3DataToText(fByteCode, s);
-  SL.Text := s;
-  SL.SaveToFile(ExeDir  + 's.txt');
-  SL.Free;
 
   //Write script variables
   SaveStream.Write(fExec.GetVarCount);
@@ -351,16 +388,28 @@ begin
                       TmpSingle := VGetReal(V);
                       SaveStream.Write(TmpSingle);
                     end;
-      btStaticArray:
-                    begin
-                    //todo: arrays
-                      {ArrayT := TPSTypeRec_StaticArray(V.FType).ArrayType; //Type of elements of array
-                      for K := 0 to TPSTypeRec_StaticArray(V.FType).Size - 1 do
-                      begin
-                      PSGetArrayField()
-                        FinalizeVariant(p, t);
-                        p := Pointer(IPointer(p) + t.RealSize);
-                      end;}
+      btStaticArray:begin
+                      //See uPSRuntime line 1630 for algo idea
+                      ArrayCount := TPSTypeRec_StaticArray(V.FType).Size; //Elements in array
+                      SaveStream.Write(ArrayCount);
+
+                      ArrayType := TPSTypeRec_StaticArray(V.FType).ArrayType; //Type of elements of array
+
+                      case ArrayType.BaseType of
+                        btU8, btS32:  for K := 0 to ArrayCount - 1 do
+                                      begin
+                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
+                                        TmpInt := Integer(VNGetInt(ArrayVar));
+                                        SaveStream.Write(TmpInt);  //Byte, Boolean, Integer
+                                      end;
+                        btSingle:     for K := 0 to ArrayCount - 1 do
+                                      begin
+                                        ArrayVar := PSGetArrayField(NewTPSVariantIFC(V, False), K);
+                                        TmpSingle := VNGetReal(ArrayVar);
+                                        SaveStream.Write(TmpSingle);  //Byte, Boolean, Integer
+                                      end;
+                        else Assert(False);
+                      end;
                     end;
     end;
   end;
