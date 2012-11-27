@@ -318,7 +318,7 @@ type
 implementation
 uses
   KM_CommonTypes, KM_DeliverQueue, KM_RenderPool, KM_RenderAux, KM_Units, KM_Scripting,
-  KM_Events, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary, KM_Player,
+  KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary, KM_Player,
   KM_Resource, KM_ResourceResource, KM_ResourceHouse, KM_Utils;
 
 
@@ -723,8 +723,7 @@ begin
   begin
     fBuildState := hbs_Done;
     fPlayers[fOwner].Stats.HouseEnded(fHouseType);
-    Activate(true);
-    fEventsManager.ProcHouseBuilt(fHouseType, fOwner);
+    Activate(True);
     fScripting.ProcHouseBuilt(fHouseType, fOwner);
     //House was damaged while under construction, so set the repair mode now it is complete
     if (fDamage > 0) and BuildingRepair then

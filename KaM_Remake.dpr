@@ -33,7 +33,6 @@ uses
   KM_DedicatedServer in 'KM_DedicatedServer.pas',
   KM_Defaults in 'KM_Defaults.pas',
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
-  KM_Events in 'KM_Events.pas',
   {$IFDEF USE_MAD_EXCEPT}KM_Exceptions in 'KM_Exceptions.pas',{$ENDIF}
   KM_FogOfWar in 'KM_FogOfWar.pas',
   KM_Houses in 'KM_Houses.pas',

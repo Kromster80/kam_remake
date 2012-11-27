@@ -6,14 +6,7 @@ uses
   uPSCompiler, uPSRuntime,
   KM_CommonClasses, KM_Defaults, KM_Points;
 
-const
-  MAX_PARAMS = 4;
-
 type
-  TKMEventTrigger = (
-    etDefeated,       //[] Certain player has been defeated, we rely on Conditions to generate that event
-    etHouseBuilt);    //[House] Certain house was built
-
   //All functions can be split into these three categories:
   // - Event, when something has happened (e.g. House was built)
   // - State, describing the state of something (e.g. Houses.Count >= 1)

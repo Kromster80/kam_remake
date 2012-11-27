@@ -59,7 +59,7 @@ type
 
 implementation
 uses KM_Game, KM_PlayersCollection, KM_Goals, KM_Player, KM_PlayerStats,
-     KM_Sound, KM_Events, KM_Scripting;
+     KM_Sound, KM_Scripting;
 
 
 const
@@ -107,7 +107,6 @@ begin
     fWonOrLost := wol_Lost;
 
     //Script may have additional event processors
-    fEventsManager.ProcDefeated(fOwner);
     fScripting.ProcPlayerDefeated(fOwner);
   end;
 end;

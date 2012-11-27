@@ -33,7 +33,7 @@ type
 
     property ErrorString: string read fErrorString;
     procedure LoadFromFile(aFileName: string);
-    procedure DoExport;
+    procedure ExportDataToText;
 
     procedure ProcHouseBuilt(aHouseType: THouseType; aOwner: TPlayerIndex);
     procedure ProcPlayerDefeated(aPlayer: TPlayerIndex);
@@ -285,7 +285,7 @@ begin
 end;
 
 
-procedure TKMScripting.DoExport;
+procedure TKMScripting.ExportDataToText;
 var
   s: string;
   SL: TStringList;

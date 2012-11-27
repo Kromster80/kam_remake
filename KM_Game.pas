@@ -174,7 +174,7 @@ var
 implementation
 uses
   KM_CommonClasses, KM_Log, KM_Utils,
-  KM_ArmyEvaluation, KM_Events, KM_GameApp, KM_GameInfo, KM_MissionScript,
+  KM_ArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript,
   KM_Player, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceCursors,
   KM_Sound, KM_Terrain, KM_TextLibrary, KM_AIFields, KM_Maps, KM_Scripting,
   KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
@@ -234,7 +234,6 @@ begin
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
   fLog.AddTime('<== Game creation is done ==>');
   fAlerts := TKMAlerts.Create(@fGameTickCount, fViewport);
-  fEventsManager := TKMEventsManager.Create;
   fScripting := TKMScripting.Create;
   fPathfinding := TPathfinding.Create;
   fProjectiles := TKMProjectiles.Create;
@@ -268,7 +267,6 @@ begin
   FreeAndNil(fAIFields);
   FreeAndNil(fProjectiles);
   FreeAndNil(fPathfinding);
-  FreeAndNil(fEventsManager);
   FreeAndNil(fScripting);
   FreeAndNil(fAlerts);
 
@@ -443,10 +441,6 @@ begin
 
   if fGameMode <> gmMapEd then
   begin
-    fEventsManager.LoadFromFile(ChangeFileExt(aMissionFile, '.evt'));
-    if (fEventsManager.ErrorString <> '') then
-      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in events script:|' + fEventsManager.ErrorString);
-
     fScripting.LoadFromFile(ChangeFileExt(aMissionFile, '.script'));
     if (fScripting.ErrorString <> '') then
       fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in script:|' + fScripting.ErrorString);
@@ -1066,7 +1060,6 @@ begin
     fPlayers.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
     fAIFields.Save(SaveStream);
     fProjectiles.Save(SaveStream);
-    fEventsManager.Save(SaveStream);
     fScripting.Save(SaveStream);
 
     //Relative path to strings will be the same for all MP players
@@ -1198,7 +1191,6 @@ begin
   fAIFields.Load(LoadStream);
 
   fProjectiles.Load(LoadStream);
-  fEventsManager.Load(LoadStream);
   fScripting.Load(LoadStream);
 
   //Load LIBX strings used in a mission by their relative path to ExeDir
@@ -1276,7 +1268,6 @@ begin
                          ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
                         fNetworking.ServerQuery.SendMapInfo(fGameName, fNetworking.NetPlayers.GetConnectedCount);
 
-                      fEventsManager.ProcTime(fGameTickCount);
                       fScripting.UpdateState;
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       fTerrain.UpdateState;
@@ -1312,7 +1303,6 @@ begin
                   for I := 1 to fGameSpeedMultiplier do
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
-                    fEventsManager.ProcTime(fGameTickCount); //In future events could effect game outcome, and maybe you want to see when a message saying "you will be attacked" appears during the replay?
                     fScripting.UpdateState;
                     UpdatePeacetime; //Send warning messages about peacetime if required (peacetime sound should still be played in replays)
                     fTerrain.UpdateState;
