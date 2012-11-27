@@ -3,10 +3,11 @@ unit KM_ScriptingESA;
 interface
 uses
   Classes, Math, SysUtils, StrUtils,
-  uPSCompiler, uPSRuntime,
   KM_CommonClasses, KM_Defaults, KM_Points;
 
 type
+  //Two classes exposed to scripting States and Actions
+
   //All functions can be split into these three categories:
   // - Event, when something has happened (e.g. House was built)
   // - State, describing the state of something (e.g. Houses.Count >= 1)
@@ -28,7 +29,8 @@ type
 
 
 implementation
-uses KM_AI, KM_Houses, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection, KM_TextLibrary;
+uses KM_AI, KM_Houses, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection,
+  KM_TextLibrary, KM_ResourceUnit;
 
 
 function TKMScriptStates.GameTime: Cardinal;
@@ -46,7 +48,14 @@ end;
 
 procedure TKMScriptActions.GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word);
 begin
-
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and fTerrain.TileInMapCoords(X,Y)
+  and (TKMDirection(aDir+1) in [dir_N..dir_NW]) then
+    fPlayers[aPlayer].AddUnitGroup(UnitIndexToType[aType],
+                                   KMPoint(X,Y),
+                                   TKMDirection(aDir+1),
+                                   aColumns,
+                                   aCount);
 end;
 
 

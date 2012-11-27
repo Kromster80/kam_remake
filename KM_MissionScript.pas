@@ -136,7 +136,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos,
-  KM_Resource, KM_ResourceHouse, KM_ResourceResource, KM_Game;
+  KM_Resource, KM_ResourceHouse, KM_ResourceUnit, KM_ResourceResource, KM_Game;
 
 
 const
@@ -159,37 +159,6 @@ const
     'TYPE', 'TOTAL_AMOUNT', 'COUNTER', 'RANGE', 'TROUP_AMOUNT', 'TARGET', 'POSITION', 'TAKEALL');
 
   MAX_PARAMS = 8;
-
-  //This is a map of the valid values for !SET_UNIT, and the corresponing unit that will be created (matches KaM behavior)
-  UnitIndexToType: array[0..31] of TUnitType = (ut_Serf,ut_Woodcutter,ut_Miner,ut_AnimalBreeder,
-    ut_Farmer,ut_Lamberjack,ut_Baker,ut_Butcher,ut_Fisher,ut_Worker,ut_StoneCutter,
-    ut_Smith,ut_Metallurgist,ut_Recruit, //Units
-    ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,ut_Pikeman,ut_Hallebardman,
-    ut_HorseScout,ut_Cavalry,ut_Barbarian, //Troops
-    ut_Wolf,ut_Fish,ut_Watersnake,ut_Seastar,ut_Crab,ut_Waterflower,ut_Waterleaf,ut_Duck); //Animals
-
-  UnitTypeToIndex: array[TUnitType] of integer = (
-  -1, -1, //ut_None, ut_Any
-  0,1,2,3,4,5,6,7,8,9,10,11,12,13, //Citizens
-  14,15,16,17,18,19,20,21,22,23, //Warriors
-  -1,-1,-1,-1, {-1,-1,} //TPR warriors (can't be placed with SET_UNIT)
-  24,25,26,27,28,29,30,31); //Animals
-
-  //This is a map of the valid values for !SET_GROUP, and the corresponing unit that will be created (matches KaM behavior)
-  TroopIndexToType: array[14..29] of TUnitType = (
-  ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
-  ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //TSK Troops
-  ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,
-  {ut_Catapult,ut_Ballista);} //Seige, which are not yet enabled
-  ut_None,ut_None); //Temp replacement for seige
-
-  TroopTypeToIndex: array[TUnitType] of integer = (
-  -1, -1, //ut_None, ut_Any
-  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, //Citizens
-  14,15,16,17,18,19,20,21,22,23, //Warriors
-  24,25,26,27, {28,29,} //TPR warriors
-  -1,-1,-1,-1,-1,-1,-1,-1); //Animals
-
 
 { TMissionParserGeneric }
 constructor TMissionParserCommon.Create(aStrictParsing: boolean);
@@ -637,19 +606,19 @@ begin
                             AddError('ct_SetHouseDamage without prior declaration of House');
     ct_SetUnit:         begin
                           //Animals should be added regardless of current player
-                          if UnitIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX] then
-                            fPlayers.PlayerAnimals.AddUnit(UnitIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1))
+                          if UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX] then
+                            fPlayers.PlayerAnimals.AddUnit(UnitOldIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1))
                           else
-                          if (fLastPlayer >= 0) and (UnitIndexToType[P[0]] in [HUMANS_MIN..HUMANS_MAX]) then
-                            fPlayers[fLastPlayer].AddUnit(UnitIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1));
+                          if (fLastPlayer >= 0) and (UnitOldIndexToType[P[0]] in [HUMANS_MIN..HUMANS_MAX]) then
+                            fPlayers[fLastPlayer].AddUnit(UnitOldIndexToType[P[0]], KMPoint(P[1]+1, P[2]+1));
                         end;
 
     ct_SetUnitByStock:  if fLastPlayer >= 0 then
-                          if UnitIndexToType[P[0]] in [HUMANS_MIN..HUMANS_MAX] then
+                          if UnitOldIndexToType[P[0]] in [HUMANS_MIN..HUMANS_MAX] then
                           begin
                             H := fPlayers[fLastPlayer].FindHouse(ht_Store, 1);
                             if H <> nil then
-                              fPlayers[fLastPlayer].AddUnit(UnitIndexToType[P[0]], KMPoint(H.GetEntrance.X, H.GetEntrance.Y+1));
+                              fPlayers[fLastPlayer].AddUnit(UnitOldIndexToType[P[0]], KMPoint(H.GetEntrance.X, H.GetEntrance.Y+1));
                           end;
     ct_SetRoad:         if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AddRoadToList(KMPoint(P[0]+1,P[1]+1));
@@ -752,9 +721,9 @@ begin
                           for HT:=Low(THouseType) to High(THouseType) do
                             fPlayers[fLastPlayer].Stats.HouseGranted[HT] := True;
     ct_SetGroup:        if fLastPlayer >= 0 then
-                          if InRange(P[0], Low(TroopIndexToType), High(TroopIndexToType)) and (TroopIndexToType[P[0]] <> ut_None) then
+                          if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None) then
                             fLastTroop := fPlayers[fLastPlayer].AddUnitGroup(
-                              TroopIndexToType[P[0]],
+                              UnitIndexToType[P[0]],
                               KMPoint(P[1]+1, P[2]+1),
                               TKMDirection(P[3]+1),
                               P[4],
@@ -1185,14 +1154,14 @@ begin
     begin
       U := fPlayers[I].Units[K];
       if not (U is TKMUnitWarrior) then //Groups get saved separately
-        AddCommand(ct_SetUnit, [UnitTypeToIndex[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
+        AddCommand(ct_SetUnit, [UnitTypeToOldIndex[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
     end;
 
     //Unit groups
     for K := 0 to fPlayers[I].UnitGroups.Count - 1 do
     begin
       Group := fPlayers[I].UnitGroups[K];
-      AddCommand(ct_SetGroup, [TroopTypeToIndex[Group.UnitType], Group.Position.X-1, Group.Position.Y-1, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.MapEdCount]);
+      AddCommand(ct_SetGroup, [UnitTypeToIndex[Group.UnitType], Group.Position.X-1, Group.Position.Y-1, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.MapEdCount]);
       if Group.Condition = UNIT_MAX_CONDITION then
         AddCommand(ct_SetGroupFood, []);
     end;
@@ -1208,7 +1177,7 @@ begin
   for i:=0 to fPlayers.PlayerAnimals.Units.Count-1 do
   begin
     U := fPlayers.PlayerAnimals.Units[i];
-    AddCommand(ct_SetUnit, [UnitTypeToIndex[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
+    AddCommand(ct_SetUnit, [UnitTypeToOldIndex[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
   end;
   AddData(''); //NL
 
@@ -1307,10 +1276,10 @@ begin
     ct_SetRoad,
     ct_SetField,
     ct_Set_Winefield:  SetOwner(P[0]+1, P[1]+1);
-    ct_SetUnit:        if not (UnitIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
+    ct_SetUnit:        if not (UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
                        begin
                          SetOwner(P[1]+1, P[2]+1);
-                         RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitIndexToType[P[0]]].Sight);
+                         RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
                        end;
     ct_SetStock:       begin
                          ProcessCommand(ct_SetHouse,[11,P[0]+1,P[1]+1]);
@@ -1318,14 +1287,14 @@ begin
                          ProcessCommand(ct_SetRoad, [   P[0]-1,P[1]+1]);
                          ProcessCommand(ct_SetRoad, [   P[0]  ,P[1]+1]);
                        end;
-    ct_SetGroup:       if InRange(P[0], Low(TroopIndexToType), High(TroopIndexToType)) and (TroopIndexToType[P[0]] <> ut_None) then
-                         for i:= 0 to P[5] - 1 do
+    ct_SetGroup:       if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None) then
+                         for I := 0 to P[5] - 1 do
                          begin
                            Loc := GetPositionInGroup2(P[1]+1,P[2]+1,TKMDirection(P[3]+1), I, P[4],fMapX,fMapY,Valid);
                            if Valid then
                            begin
                              SetOwner(Loc.X,Loc.Y);
-                             RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitIndexToType[P[0]]].Sight);
+                             RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
                            end;
                          end;
     ct_ClearUp:        if (fHumanPlayer <> 0) and (fHumanPlayer = fLastPlayer) then

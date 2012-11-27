@@ -127,7 +127,7 @@ begin
     with Sender.AddClassN(nil, fActions.ClassName) do
     begin
       RegisterMethod('procedure Defeat(aPlayer: Word)');
-      RegisterMethod('procedure GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns)');
+      RegisterMethod('procedure GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word)');
       RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
     end;
 

@@ -88,46 +88,50 @@ type
     procedure ExportCSV(aPath: string);
   end;
 
-
 const
-  School_Order:array[0..13] of TUnitType = (
-    ut_Serf, ut_Worker, ut_StoneCutter, ut_Woodcutter, ut_Lamberjack,
-    ut_Fisher, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher,
-    ut_Miner, ut_Metallurgist, ut_Smith, ut_Recruit);
+  //This is a map of the valid values for !SET_UNIT,
+  //TSK did not had place for new warriors that were inserted in the middle(!)
+  UnitOldIndexToType: array[0..31] of TUnitType = (
+    ut_Serf,ut_Woodcutter,ut_Miner,ut_AnimalBreeder,ut_Farmer,
+    ut_Lamberjack,ut_Baker,ut_Butcher,ut_Fisher,ut_Worker,
+    ut_StoneCutter,ut_Smith,ut_Metallurgist,ut_Recruit, //Units
+    ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
+    ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //Troops
+    ut_Wolf,ut_Fish,ut_Watersnake,ut_Seastar,ut_Crab,
+    ut_Waterflower,ut_Waterleaf,ut_Duck); //Animals
 
-  Barracks_Order:array[0..8] of TUnitType = (
-    ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
-    ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry);
+  //and the corresponing unit that will be created (matches KaM behavior)
+  UnitTypeToOldIndex: array[TUnitType] of integer = (
+  -1, -1, //ut_None, ut_Any
+  0,1,2,3,4,5,6,7,8,9,10,11,12,13, //Citizens
+  14,15,16,17,18,19,20,21,22,23, //Warriors
+  -1,-1,-1,-1, {-1,-1,} //TPR warriors (can't be placed with SET_UNIT)
+  24,25,26,27,28,29,30,31); //Animals
 
-  UnitDatCount = 41;
-  UnitKaMType: array[0..UnitDatCount-1] of TUnitType = (
-  {0..13}
-  ut_Serf, ut_Woodcutter, ut_Miner, ut_AnimalBreeder, ut_Farmer,
-  ut_Lamberjack, ut_Baker, ut_Butcher, ut_Fisher, ut_Worker,
-  ut_StoneCutter, ut_Smith, ut_Metallurgist, ut_Recruit,
-  {14..23}
-  ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
-  ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian,
-  {24..29}
-  ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman, //ut_Catapult, ut_Ballista,
-  ut_None, ut_None,
-  {30..37}
-  ut_Wolf, ut_Fish, ut_Watersnake, ut_Seastar, ut_Crab,
-  ut_Waterflower, ut_Waterleaf, ut_Duck,
-  {38..40}
-  ut_None, ut_None, ut_None);
+  //This is a map of the valid values for !SET_GROUP, and the corresponing unit that will be created (matches KaM behavior)
+  UnitIndexToType: array[0..40] of TUnitType = (
+    ut_Serf,ut_Woodcutter,ut_Miner,ut_AnimalBreeder,ut_Farmer,
+    ut_Lamberjack,ut_Baker,ut_Butcher,ut_Fisher,ut_Worker,
+    ut_StoneCutter,ut_Smith,ut_Metallurgist,ut_Recruit, //Units
+    ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
+    ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //TSK Troops
+    ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,
+    {ut_Catapult,ut_Ballista}ut_None,ut_None, //Placeholder for Seige weapons
+    ut_Wolf, ut_Fish, ut_Watersnake, ut_Seastar, ut_Crab,
+    ut_Waterflower, ut_Waterleaf, ut_Duck,
+    ut_None, ut_None, ut_None
+    );
+
+  UnitTypeToIndex: array[TUnitType] of ShortInt = (
+  -1, -1, //ut_None, ut_Any
+  0,1,2,3,4,5,6,7,8,9,10,11,12,13, //Citizens
+  14,15,16,17,18,19,20,21,22,23, //Warriors
+  24,25,26,27, {28,29,} //TPR warriors
+  30,31,32,33,34,35,36,37); //Animals
 
 
 implementation
 uses KromUtils, KM_TextLibrary;
-
-
-var
-  UnitKaMOrder: array[TUnitType] of byte = (0, 0,
-  1, 2, 3, 4, 5, 6, 7, 8, 9,
-  10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-  20, 21, 22, 23, 24, 25, 26, 27, 28, {29,
-  30,} 31, 32, 33, 34, 35, 36, 37, 38);
 
 
 { TKMUnitsDatClass }
@@ -248,7 +252,7 @@ end;
 function TKMUnitDatClass.GetGUIIcon: word;
 begin
   if IsValid then
-    Result := 140 + UnitKaMOrder[fUnitType]
+    Result := 141 + UnitTypeToIndex[fUnitType]
   else
     Result := 0;
 end;
@@ -257,7 +261,7 @@ end;
 function TKMUnitDatClass.GetGUIScroll: word;
 begin
   if IsValid then
-    Result := 520 + UnitKaMOrder[fUnitType]
+    Result := 521 + UnitTypeToIndex[fUnitType]
   else
     Result := 0;
 end;
@@ -320,7 +324,7 @@ begin
       ut_Waterflower: Result := 'Waterflower';
       ut_Waterleaf:   Result := 'Waterleaf';
       ut_Duck:        Result := 'Duck';
-      else            Result := fTextLibrary[TX_UNITS_NAMES__29 + UnitKaMOrder[fUnitType] - 1];
+      else            Result := fTextLibrary[TX_UNITS_NAMES__29 + UnitTypeToIndex[fUnitType]];
     end
   else
     Result := 'N/A';
@@ -330,7 +334,7 @@ end;
 function TKMUnitDatClass.GetDescription: string;
 begin
   if IsValid and not IsAnimal then
-    Result := fTextLibrary[TX_UNITS_DESCRIPTIONS__13 + UnitKaMOrder[fUnitType] - 1]
+    Result := fTextLibrary[TX_UNITS_DESCRIPTIONS__13 + UnitTypeToIndex[fUnitType]]
   else
     Result := 'N/A';
 end;
@@ -426,9 +430,10 @@ end;
 
 
 function TKMUnitDatCollection.LoadUnitsDat(aPath: string): Cardinal;
+const UNIT_DAT_COUNT = 41;
 var
-  S:TKMemoryStream;
-  i:integer;
+  S: TKMemoryStream;
+  I: Integer;
 begin
   Assert(FileExists(aPath));
 
@@ -438,12 +443,11 @@ begin
 
     S.Read(fSerfCarry, SizeOf(fSerfCarry){28*8*70});
 
-    for i:=0 to UnitDatCount-1 do
-    if UnitKaMType[i] <> ut_None then
-      fItems[UnitKaMType[i]].LoadFromStream(S)
-    else
+    for I := 0 to UNIT_DAT_COUNT - 1 do
+    if UnitIndexToType[I] <> ut_None then
+      fItems[UnitIndexToType[I]].LoadFromStream(S)
+    else //Skip
       S.Seek(SizeOf(TKMUnitDat) + SizeOf(TKMUnitSprite) + SizeOf(TKMUnitSprite2), soFromCurrent);
-
 
     Result := Adler32CRC(S);
   finally

@@ -85,6 +85,15 @@ const
      rt_Axe,      rt_Sword,   rt_Pike,        rt_Hallebard, rt_Bow,
      rt_Arbalet,  rt_Horse,   rt_Fish);
 
+  School_Order:array[0..13] of TUnitType = (
+    ut_Serf, ut_Worker, ut_StoneCutter, ut_Woodcutter, ut_Lamberjack,
+    ut_Fisher, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher,
+    ut_Miner, ut_Metallurgist, ut_Smith, ut_Recruit);
+
+  Barracks_Order:array[0..8] of TUnitType = (
+    ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
+    ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry);
+
   //Statistics page in game menu
   //0=space, 1=house, 2=unit
   StatCount:array[1..8,1..8]of byte = (

@@ -542,11 +542,11 @@ begin
 end;
 
 
-//fHouseDat.OwnerType is read from DAT file and is shortint, it can be out of range (i.e. -1)
 function TKMHouseDatClass.GetOwnerType: TUnitType;
 begin
-  if InRange(fHouseDat.OwnerType, Low(UnitKaMType), High(UnitKaMType)) then
-    Result := UnitKaMType[fHouseDat.OwnerType]
+  //fHouseDat.OwnerType is read from DAT file and is shortint, it can be out of range (i.e. -1)
+  if InRange(fHouseDat.OwnerType, Low(UnitIndexToType), High(UnitIndexToType)) then
+    Result := UnitIndexToType[fHouseDat.OwnerType]
   else
     Result := ut_None;
 end;
