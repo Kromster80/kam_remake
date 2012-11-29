@@ -2836,15 +2836,17 @@ begin
 end;
 
 
+//Get highest walkable hill on a maps top row to use for viewport top bound
 function TTerrain.TopHill: Byte;
-var K: Integer;
+var
+  I,K: Integer;
 begin
   Result := 0;
+  //Check last 2 strips in case 2nd has a taller hill
+  for I := 1 to 2 do
   for K := 2 to fMapX do
-  if (Land[1, K].Height > Result)
-  and ((canWalk in Land[1, K-1].Passability) or (canWalk in Land[1, K].Passability))
-  then
-    Result := Land[1, K].Height;
+  if ((canWalk in Land[I, K-1].Passability) or (canWalk in Land[I, K].Passability)) then
+    Result := Max(Result, Land[I, K].Height - (I-1) * CELL_SIZE_PX);
 end;
 
 
