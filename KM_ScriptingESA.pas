@@ -5,6 +5,7 @@ uses
   Classes, Math, SysUtils, StrUtils,
   KM_CommonClasses, KM_Defaults, KM_Points;
 
+
 type
   //Two classes exposed to scripting States and Actions
 
@@ -42,12 +43,14 @@ uses KM_AI, KM_Houses, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection
   // - skip silently and log
   // - report to player
 
+{ TKMScriptStates }
 function TKMScriptStates.GameTime: Cardinal;
 begin
   Result := fGame.GameTickCount;
 end;
 
 
+{ TKMScriptActions }
 procedure TKMScriptActions.LogError(aFuncName: string; const aValues: array of Integer);
 var
   I: Integer;

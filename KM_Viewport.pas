@@ -9,6 +9,7 @@ type
   TViewport = class
   private
     fMapX, fMapY: Word;
+    fTopHill: Single;
     fPosition: TKMPointF;
     fScrolling: Boolean;
     PrevScrollAdv: array [1..24] of Single;
@@ -31,7 +32,7 @@ type
 
     procedure ResetZoom;
     procedure Resize(NewWidth, NewHeight: Integer);
-    procedure ResizeMap(aMapX, aMapY: Integer);
+    procedure ResizeMap(aMapX, aMapY: Word; aTopHill: Single);
     function GetClip: TKMRect; //returns visible area dimensions in map space
     function GetMinimapClip: TKMRect;
     procedure ReleaseScrollKeys;
@@ -63,7 +64,7 @@ begin
 end;
 
 
-procedure TViewport.SetZoom(aZoom:single);
+procedure TViewport.SetZoom(aZoom: Single);
 begin
   fZoom := EnsureRange(aZoom, 0.01, 8);
   //Limit the zoom to within the map boundaries
@@ -93,15 +94,16 @@ begin
 end;
 
 
-procedure TViewport.ResizeMap(aMapX, aMapY: Integer);
+procedure TViewport.ResizeMap(aMapX, aMapY: Word; aTopHill: Single);
 begin
   fMapX := aMapX;
   fMapY := aMapY;
+  fTopHill := aTopHill;
   SetPosition(fPosition); //EnsureRanges
 end;
 
 
-function TViewport.GetPosition:TKMPointF;
+function TViewport.GetPosition: TKMPointF;
 begin
   Result.X := EnsureRange(fPosition.X, 1, fMapX);
   Result.Y := EnsureRange(fPosition.Y, 1, fMapY);
@@ -111,9 +113,15 @@ end;
 
 
 procedure TViewport.SetPosition(Value: TKMPointF);
+var PadTop, TilesX, TilesY: Single;
 begin
-  fPosition.X := EnsureRange(Value.X, 0 + fViewportClip.X/2/CELL_SIZE_PX/fZoom, fMapX - fViewportClip.X/2/CELL_SIZE_PX/fZoom - 1);
-  fPosition.Y := EnsureRange(Value.Y,-1 + fViewportClip.Y/2/CELL_SIZE_PX/fZoom, fMapY - fViewportClip.Y/2/CELL_SIZE_PX/fZoom); //Top row should be visible
+  PadTop := fTopHill + 0.75; //Leave place on top for highest hills + 1 unit
+
+  TilesX := fViewportClip.X/2/CELL_SIZE_PX/fZoom;
+  TilesY := fViewportClip.Y/2/CELL_SIZE_PX/fZoom;
+
+  fPosition.X := EnsureRange(Value.X, TilesX, fMapX - TilesX - 1);
+  fPosition.Y := EnsureRange(Value.Y, TilesY - PadTop, fMapY - TilesY - 1); //Top row should be visible
   fSoundLib.UpdateListener(fPosition.X, fPosition.Y);
 end;
 
@@ -148,6 +156,13 @@ begin
   ScrollKeyRight := false;
   ScrollKeyUp    := false;
   ScrollKeyDown  := false;
+end;
+
+
+function TViewport.MapToScreen(aMapLoc: TKMPointF): TKMPointI;
+begin
+  Result.X := Round((aMapLoc.X - fPosition.X) * CELL_SIZE_PX * fZoom + fViewRect.Right / 2 + TOOLBAR_WIDTH / 2);
+  Result.Y := Round((aMapLoc.Y - fPosition.Y) * CELL_SIZE_PX * fZoom + fViewRect.Bottom / 2);
 end;
 
 
@@ -254,13 +269,6 @@ begin
   LoadStream.Read(fPosition);
 
   SetPosition(fPosition); //EnsureRanges
-end;
-
-
-function TViewport.MapToScreen(aMapLoc: TKMPointF): TKMPointI;
-begin
-  Result.X := Round((aMapLoc.X - fPosition.X) * CELL_SIZE_PX * fZoom + fViewRect.Right / 2 + TOOLBAR_WIDTH / 2);
-  Result.Y := Round((aMapLoc.Y - fPosition.Y) * CELL_SIZE_PX * fZoom + fViewRect.Bottom / 2);
 end;
 
 

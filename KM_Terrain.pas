@@ -186,6 +186,7 @@ type
     function ObjectIsChopableTree(Loc: TKMPoint; aStage: TChopableAge): Boolean; overload;
     function CanWalkDiagonaly(const A,B: TKMPoint): Boolean;
 
+    function TopHill: Byte;
     procedure FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects: Boolean=true); overload;
     procedure FlattenTerrain(LocList:TKMPointList); overload;
 
@@ -2824,7 +2825,7 @@ begin
 end;
 
 
-procedure TTerrain.MapEdTile(aLoc:TKMPoint; aTile, aRotation: Byte);
+procedure TTerrain.MapEdTile(aLoc: TKMPoint; aTile, aRotation: Byte);
 begin
   if TileInMapCoords(aLoc.X, aLoc.Y) then
   begin
@@ -2832,6 +2833,18 @@ begin
     Land[aLoc.Y, aLoc.X].Rotation := aRotation;
     UpdatePassability(aLoc);
   end;
+end;
+
+
+function TTerrain.TopHill: Byte;
+var K: Integer;
+begin
+  Result := 0;
+  for K := 2 to fMapX do
+  if (Land[1, K].Height > Result)
+  and ((canWalk in Land[1, K-1].Passability) or (canWalk in Land[1, K].Passability))
+  then
+    Result := Land[1, K].Height;
 end;
 
 

@@ -1370,17 +1370,21 @@ begin
   fMinimap.LoadFromTerrain(fAlerts);
   fMinimap.Update(False);
 
-  fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
-  fViewport.ResetZoom;
 
   if fGameMode = gmMapEd then
   begin
+    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY, 100/CELL_SIZE_PX);
+    fViewport.ResetZoom;
+
     fMapEditorInterface.Player_UpdateColors;
     fMapEditorInterface.SetMapName(fGameName);
     fMapEditorInterface.SetMinimap;
   end
   else
   begin
+    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY, fTerrain.TopHill/CELL_SIZE_PX);
+    fViewport.ResetZoom;
+
     fGamePlayInterface.SetMinimap;
     fGamePlayInterface.SetMenuState(fMissionMode = mm_Tactic);
   end;
