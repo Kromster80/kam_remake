@@ -92,13 +92,6 @@ begin
   try
     SL.LoadFromFile(aFileName);
     fScriptCode := SL.Text;
-    {fScriptCode := 'var I: Integer; ' +
-                   'begin ' +
-                   '  if States.GameTime = 10 then ' +
-                   '    I := 27; ' +
-                   '  if States.GameTime = I then ' +
-                   '    Actions.ShowMsg(0, I); ' +
-                   'end.';}
     CompileScript;
   finally
     SL.Free;
@@ -129,6 +122,7 @@ begin
       RegisterMethod('procedure Defeat(aPlayer: Word)');
       RegisterMethod('procedure GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word)');
       RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
+      RegisterMethod('procedure UnlockHouse(aPlayer, aHouseType: Word)');
     end;
 
     //Register objects
@@ -232,6 +226,7 @@ begin
     RegisterMethod(@TKMScriptActions.Defeat, 'DEFEAT');
     RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
     RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
+    RegisterMethod(@TKMScriptActions.UnlockHouse, 'UNLOCKHOUSE');
   end;
 
   //Append classes info to Exec
