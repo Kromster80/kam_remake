@@ -130,7 +130,7 @@ begin
   fPlayers[0].AddUnitGroup(ut_Swordsman, KMPoint(63, 64), dir_E, 8, 24);
   fPlayers[1].AddUnitGroup(ut_Swordsman, KMPoint(65, 64), dir_W, 8, 24);
 
-  TKMUnitWarrior(fPlayers[1].Units[0]).OrderAttackUnit(fPlayers[0].Units[0]);
+  fPlayers[1].UnitGroups[0].OrderAttackUnit(fPlayers[0].Units[0]);
 
   SimulateGame(2*600);
 

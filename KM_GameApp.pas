@@ -482,7 +482,10 @@ var
 begin
   Stop(gr_Silent); //Stop everything silently
   LoadGameAssets;
-  fMain.FormMain.ControlsReset;
+
+  //Reset controls if MainForm exists (KMR could be run without main form)
+  if fMain <> nil then
+    fMain.FormMain.ControlsReset;
 
   fGame := TKMGame.Create(aGameMode, fRender, nil);
   try

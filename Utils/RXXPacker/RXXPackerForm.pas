@@ -115,7 +115,7 @@ begin
 
       //Tiles must stay the same size as they can't use pivots
       if RT <> rxTiles then
-        fLog.AddToLog('Trimmed ' + IntToStr(SpritePack.TrimSprites));
+        fLog.AddTime('Trimmed ' + IntToStr(SpritePack.TrimSprites));
 
       //Houses need some special treatment to adapt to GL_ALPHA_TEST that we use for construction steps
       if RT = rxHouses then

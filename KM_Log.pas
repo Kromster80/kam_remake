@@ -30,6 +30,7 @@ type
     // AddToLog simply adds the text
     procedure AddNoTime(const aText: string);
     procedure DeleteOldLogs;
+    property LogPath: string read fLogPath; //Used by dedicated server
   end;
 
   var

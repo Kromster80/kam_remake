@@ -140,14 +140,14 @@ end;
 procedure TFormMain.ServerStatusMessage(const aData: string);
 begin
   LogsMemo.Lines.Add(FormatDateTime('yyyy-mm-dd hh-nn-ss ', Now) + aData);
-  fLog.AppendLog(aData);
+  fLog.AddNoTime(aData);
 end;
 
 
 procedure TFormMain.ServerStatusMessageNoTime(const aData: string);
 begin
   LogsMemo.Lines.Add(aData);
-  fLog.AppendLog(aData);
+  fLog.AddNoTime(aData);
 end;
 
 
@@ -183,7 +183,8 @@ begin
                                                       fSettings.MasterAnnounceInterval,
                                                       fSettings.MasterServerAddress,
                                                       fSettings.HTMLStatusFile,
-                                                      fSettings.ServerWelcomeMessage);
+                                                      fSettings.ServerWelcomeMessage,
+                                                      True);
         fDedicatedServer.OnMessage := ServerStatusMessage;
         fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer);
 
