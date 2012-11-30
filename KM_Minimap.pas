@@ -3,7 +3,7 @@ unit KM_Minimap;
 interface
 uses Classes, dglOpenGL, KromUtils, KromOGLUtils, Math, StrUtils, SysUtils,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points, KM_Utils,
-  KM_MissionScript, KM_Render, KM_Terrain, KM_Alerts;
+  KM_MissionScript_Preview, KM_Render, KM_Terrain, KM_Alerts;
 
 
 type

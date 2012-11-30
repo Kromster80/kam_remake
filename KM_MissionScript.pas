@@ -18,7 +18,7 @@ type
   TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
                     ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_CenterScreen,
                     ct_ClearUp,ct_BlockTrade,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_AddLostGoal,
-                    ct_SetUnit,ct_SetRoad,ct_SetField,ct_Set_Winefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
+                    ct_SetUnit,ct_SetRoad,ct_SetField,ct_SetWinefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
                     ct_SetHouseDamage,ct_SetUnitByStock,ct_SetGroup,ct_SetGroupFood,ct_SendGroup,
                     ct_AttackPosition,ct_AddWareToSecond,ct_AddWareTo,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter,
                     ct_AINoBuild,ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack);
@@ -47,7 +47,7 @@ type
 
 
   TMissionParserCommon = class
-  private
+  protected
     fStrictParsing: Boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
     fMissionFileName: string;
     fFatalErrors: string; //Fatal errors descriptions accumulate here
@@ -95,41 +95,6 @@ type
     function LoadMission(const aFileName: string):boolean; overload; override;
 
     procedure SaveDATFile(const aFileName: String);
-  end;
-
-  TTilePreviewInfo = record
-                       TileID: Byte;
-                       TileHeight: Byte; //Used for calculating light
-                       TileOwner: Byte;
-                       Revealed: Boolean;
-                     end;
-
-  TPlayerPreviewInfo = record
-                         Color: Cardinal;
-                         StartingLoc: TKMPoint;
-                       end;
-
-  //Specially optimized mission parser for map previews
-  TMissionParserPreview = class(TMissionParserCommon)
-  private
-    fMapX: Integer;
-    fMapY: Integer;
-    fPlayerPreview: array [1..MAX_PLAYERS] of TPlayerPreviewInfo;
-    fMapPreview: array [1..MAX_MAP_SIZE*MAX_MAP_SIZE] of TTilePreviewInfo;
-
-    fLastPlayer: Integer;
-    fHumanPlayer: Integer;
-
-    function GetTileInfo(X,Y: Integer): TTilePreviewInfo;
-    function GetPlayerInfo(aIndex: Byte): TPlayerPreviewInfo;
-    procedure LoadMapData(const aFileName: string);
-    procedure ProcessCommand(CommandType: TKMCommandType; const P: array of integer);
-  public
-    property MapPreview[X,Y: Integer]: TTilePreviewInfo read GetTileInfo;
-    property PlayerPreview[aIndex: Byte]: TPlayerPreviewInfo read GetPlayerInfo;
-    property MapX: Integer read fMapX;
-    property MapY: Integer read fMapY;
-    function LoadMission(const aFileName: string): boolean; override;
   end;
 
 
@@ -623,7 +588,7 @@ begin
                           fPlayers[fLastPlayer].AddRoadToList(KMPoint(P[0]+1,P[1]+1));
     ct_SetField:        if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn);
-    ct_Set_Winefield:   if fLastPlayer >= 0 then
+    ct_SetWinefield:   if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AddField(KMPoint(P[0]+1,P[1]+1),ft_Wine);
     ct_SetStock:        if fLastPlayer >= 0 then
                         begin //This command basically means: Put a SH here with road bellow it
@@ -1123,7 +1088,7 @@ begin
           if fTerrain.TileIsCornField(KMPoint(iX,iY)) then
             AddCommand(ct_SetField, [iX-1,iY-1]);
           if fTerrain.TileIsWineField(KMPoint(iX,iY)) then
-            AddCommand(ct_Set_Winefield, [iX-1,iY-1]);
+            AddCommand(ct_SetWinefield, [iX-1,iY-1]);
         end;
     CommandLayerCount := -1; //Disable command layering
     AddData(''); //Extra NL because command layering doesn't put one
@@ -1177,193 +1142,6 @@ begin
   assignfile(f, aFileName); rewrite(f);
   write(f, SaveString);
   closefile(f);
-end;
-
-
-function TMissionParserPreview.GetTileInfo(X,Y:integer):TTilePreviewInfo;
-begin
-  Result := fMapPreview[(Y-1)*fMapX + X];
-end;
-
-
-function TMissionParserPreview.GetPlayerInfo(aIndex:byte):TPlayerPreviewInfo;
-begin
-  Result := fPlayerPreview[aIndex];
-end;
-
-
-//Load terrain data into liteweight structure, take only what we need for preview
-procedure TMissionParserPreview.LoadMapData(const aFileName: string);
-var
-  I: Integer;
-  S: TKMemoryStream;
-  NewX, NewY: Integer;
-begin
-  S := TKMemoryStream.Create;
-  try
-    S.LoadFromFile(aFileName);
-    S.Read(NewX); //We read header to new variables to avoid damage to existing map if header is wrong
-    S.Read(NewY);
-    Assert((NewX <= MAX_MAP_SIZE) and (NewY <= MAX_MAP_SIZE), 'Can''t open the map cos it has too big dimensions');
-    fMapX := NewX;
-    fMapY := NewY;
-    for I := 1 to fMapX * fMapY do
-    begin
-      S.Read(fMapPreview[I].TileID);
-      S.Seek(1, soFromCurrent);
-      S.Read(fMapPreview[I].TileHeight); //Height (for lighting)
-      S.Seek(20, soFromCurrent);
-    end;
-  finally
-    S.Free;
-  end;
-end;
-
-
-procedure TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; const P: array of integer);
-
-  procedure SetOwner(X,Y:Word);
-  begin
-    fMapPreview[X + Y*fMapX].TileOwner := fLastPlayer;
-  end;
-
-  procedure RevealCircle(X,Y,Radius:Word);
-  var i,k:Word;
-  begin
-    if (fHumanPlayer = 0) or (fHumanPlayer <> fLastPlayer) then exit;
-    for i:=max(Y-Radius,1) to min(Y+Radius,fMapY) do
-    for k:=max(X-Radius,1) to min(X+Radius,fMapX) do
-       if (sqr(X-k) + sqr(Y-i)) <= sqr(Radius) then
-         fMapPreview[(i-1)*fMapX + k].Revealed := True;
-  end;
-
-var i,k:integer; HA:THouseArea; Valid: Boolean; Loc: TKMPoint;
-begin
-  case CommandType of
-    ct_SetCurrPlayer:  fLastPlayer := P[0]+1;
-    ct_SetHumanPlayer: fHumanPlayer := P[0]+1;
-    ct_SetHouse:       if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
-                       begin
-                         RevealCircle(P[1]+1, P[2]+1, fResource.HouseDat[HouseIndexToType[P[0]]].Sight);
-                         HA := fResource.HouseDat[HouseIndexToType[P[0]]].BuildArea;
-                         for i:=1 to 4 do for k:=1 to 4 do
-                           if HA[i,k]<>0 then
-                             if InRange(P[1]+1+k-3, 1, fMapX) and InRange(P[2]+1+i-4, 1, fMapY) then
-                               SetOwner(P[1]+1+k-3, P[2]+1+i-4);
-                       end;
-    ct_SetMapColor:    if InRange(fLastPlayer, 1, MAX_PLAYERS) then
-                         fPlayerPreview[fLastPlayer].Color := fResource.Palettes.DefDal.Color32(P[0]);
-    ct_CenterScreen:   fPlayerPreview[fLastPlayer].StartingLoc := KMPoint(P[0]+1,P[1]+1);
-    ct_SetRoad,
-    ct_SetField,
-    ct_Set_Winefield:  SetOwner(P[0]+1, P[1]+1);
-    ct_SetUnit:        if not (UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
-                       begin
-                         SetOwner(P[1]+1, P[2]+1);
-                         RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
-                       end;
-    ct_SetStock:       begin
-                         ProcessCommand(ct_SetHouse,[11,P[0]+1,P[1]+1]);
-                         ProcessCommand(ct_SetRoad, [   P[0]-2,P[1]+1]);
-                         ProcessCommand(ct_SetRoad, [   P[0]-1,P[1]+1]);
-                         ProcessCommand(ct_SetRoad, [   P[0]  ,P[1]+1]);
-                       end;
-    ct_SetGroup:       if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None) then
-                         for I := 0 to P[5] - 1 do
-                         begin
-                           Loc := GetPositionInGroup2(P[1]+1,P[2]+1,TKMDirection(P[3]+1), I, P[4],fMapX,fMapY,Valid);
-                           if Valid then
-                           begin
-                             SetOwner(Loc.X,Loc.Y);
-                             RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
-                           end;
-                         end;
-    ct_ClearUp:        if (fHumanPlayer <> 0) and (fHumanPlayer = fLastPlayer) then
-                       begin
-                         if P[0] = 255 then
-                           for i:=1 to MAX_MAP_SIZE*MAX_MAP_SIZE do
-                             fMapPreview[i].Revealed := True
-                         else
-                           RevealCircle(P[0]+1,P[1]+1,P[2]);
-                       end;
-  end;
-end;
-
-
-function TMissionParserPreview.LoadMission(const aFileName: string):boolean;
-const
-  Max_Cmd=6;
-var
-  FileText: AnsiString;
-  CommandText, Param: AnsiString;
-  ParamList: array[1..Max_Cmd] of integer;
-  k, l, IntParam: integer;
-  CommandType: TKMCommandType;
-begin
-  inherited LoadMission(aFileName);
-
-  fLastPlayer := 0;
-  fHumanPlayer := 0;
-  FillChar(fMapPreview, SizeOf(fMapPreview), #0);
-  FillChar(fPlayerPreview, SizeOf(fPlayerPreview), #0);
-
-  LoadMapData(ChangeFileExt(fMissionFileName,'.map'));
-  Result := false;
-
-  FileText := ReadMissionFile(aFileName);
-  if FileText = '' then Exit;
-
-  //FileText should now be formatted nicely with 1 space between each parameter/command
-  k := 1;
-  repeat
-    if FileText[k]='!' then
-    begin
-      for l:=1 to Max_Cmd do
-        ParamList[l]:=-1;
-      CommandText:='';
-      //Extract command until a space
-      repeat
-        CommandText:=CommandText+FileText[k];
-        inc(k);
-      until((FileText[k]=#32)or(k>=length(FileText)));
-
-      //Try to make it faster by only processing commands used
-      if (CommandText='!SET_CURR_PLAYER')or(CommandText='!SET_HUMAN_PLAYER')or
-         (CommandText='!SET_MAP_COLOR')or(CommandText='!CENTER_SCREEN')or
-         (CommandText='!SET_STREET')or(CommandText='!SET_FIELD')or
-         (CommandText='!SET_WINEFIELD')or(CommandText='!SET_STOCK')or
-         (CommandText='!SET_HOUSE')or(CommandText='!CLEAR_UP')or
-         (CommandText='!SET_UNIT')or(CommandText='!SET_GROUP') then
-      begin
-        //Now convert command into type
-        CommandType := TextToCommandType(CommandText);
-        inc(k);
-        //Extract parameters
-        for l:=1 to Max_Cmd do
-          if (k<length(FileText)) and (FileText[k]<>'!') then
-          begin
-            Param := '';
-            repeat
-              Param := Param + FileText[k];
-              inc(k);
-            until((k >= Length(FileText)) or (FileText[k]='!') or (FileText[k]=#32)); //Until we find another ! OR we run out of data
-
-            //Convert to an integer, if possible
-            if TryStrToInt(String(Param), IntParam) then
-              ParamList[l] := IntParam;
-
-            if FileText[k]=#32 then inc(k);
-          end;
-        //We now have command text and parameters, so process them
-        ProcessCommand(CommandType,ParamList);
-      end;
-    end
-    else
-      inc(k);
-  until (k>=length(FileText));
-  //Apparently it's faster to parse till file end than check if all details are filled
-
-  Result := (fFatalErrors = '');
 end;
 
 

@@ -58,6 +58,7 @@ uses
   KM_MasterServer in 'KM_MasterServer.pas',
   KM_Minimap in 'KM_Minimap.pas',
   KM_MissionScript in 'KM_MissionScript.pas',
+  KM_MissionScript_Preview in 'KM_MissionScript_Preview.pas',
   KM_Music in 'KM_Music.pas',
   KM_NavMesh in 'KM_NavMesh.pas',
   KM_NetClient in 'KM_NetClient.pas',
