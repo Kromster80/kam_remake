@@ -15,6 +15,7 @@ Next release
 	Bugfixes
 	Defensive AI
 	Refactor warriors into TGroups
+	Scripting
 	File transfer in multiplayer for missions and saves [Lewin]
 	Change versioning system and drop Demo tag
 

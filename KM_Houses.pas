@@ -943,41 +943,41 @@ begin
   if fHouseType in [ht_Store, ht_Barracks, ht_Marketplace] then
     Result := High(Word)
   else
-    Result := 5; //All other houses can only stock 5 for now
+    Result := MAX_RES_IN_HOUSE; //All other houses can only stock 5 for now
 end;
 
 
 //Maybe it's better to rule out In/Out? No, it is required to separate what can be taken out of the house and what not.
 //But.. if we add "Evacuate" button to all house the separation becomes artificial..
 procedure TKMHouse.ResAddToIn(aResource:TResourceType; aCount:word=1; aFromScript:boolean=false);
-var i,OrdersRemoved:integer;
+var I,OrdersRemoved: Integer;
 begin
   Assert(aResource <> rt_None);
 
-  for i:=1 to 4 do
-    if aResource = fResource.HouseDat[fHouseType].ResInput[i] then
+  for I := 1 to 4 do
+    if aResource = fResource.HouseDat[fHouseType].ResInput[I] then
     begin
       //Don't allow the script to overfill houses
-      if aFromScript then aCount := EnsureRange(aCount, 0, GetMaxInRes-fResourceIn[i]);
-      inc(fResourceIn[i], aCount);
+      if aFromScript then aCount := Min(aCount, GetMaxInRes - fResourceIn[I]);
+      Inc(fResourceIn[I], aCount);
       if aFromScript then
       begin
-        inc(fResourceDeliveryCount[i], aCount);
+        Inc(fResourceDeliveryCount[I], aCount);
         OrdersRemoved := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(Self, aResource, aCount);
-        dec(fResourceDeliveryCount[i], OrdersRemoved);
+        Dec(fResourceDeliveryCount[I], OrdersRemoved);
       end;
     end;
 end;
 
 
 procedure TKMHouse.ResAddToOut(aResource:TResourceType; const aCount:integer=1);
-var i:integer;
+var I: Integer;
 begin
-  if aResource=rt_None then exit;
-  for i:=1 to 4 do
-  if aResource = fResource.HouseDat[fHouseType].ResOutput[i] then
+  if aResource = rt_None then exit;
+  for I := 1 to 4 do
+  if aResource = fResource.HouseDat[fHouseType].ResOutput[I] then
     begin
-      inc(fResourceOut[i], aCount);
+      inc(fResourceOut[I], aCount);
       fPlayers[fOwner].Deliveries.Queue.AddOffer(Self, aResource, aCount);
     end;
 end;
@@ -987,8 +987,8 @@ end;
 procedure TKMHouse.ResAddToBuild(aResource:TResourceType);
 begin
   case aResource of
-    rt_Wood: inc(fBuildSupplyWood);
-    rt_Stone: inc(fBuildSupplyStone);
+    rt_Wood: Inc(fBuildSupplyWood);
+    rt_Stone: Inc(fBuildSupplyStone);
   else raise ELocError.Create('WIP house is not supposed to recieve '+fResource.Resources[aResource].Title+', right?', fPosition);
   end;
 end;
@@ -996,22 +996,22 @@ end;
 
 //Take resource from Input and order more of that kind if DistributionRatios allow
 procedure TKMHouse.ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
-var i,k:integer;
+var I,K: Integer;
 begin
-  Assert(aResource<>rt_None);
+  Assert(aResource <> rt_None);
 
-  for i:=1 to 4 do
-  if aResource = fResource.HouseDat[fHouseType].ResInput[i] then
+  for I := 1 to 4 do
+  if aResource = fResource.HouseDat[fHouseType].ResInput[I] then
   begin
-    Assert(fResourceIn[i] >= aCount, 'fResourceIn[i]<0');
-    dec(fResourceIn[i], aCount);
-    dec(fResourceDeliveryCount[i], aCount);
+    Assert(fResourceIn[I] >= aCount, 'fResourceIn[i] < 0');
+    Dec(fResourceIn[I], aCount);
+    fResourceDeliveryCount[I] := Max(fResourceDeliveryCount[I] - aCount, 0);
     //Only request a new resource if it is allowed by the distribution of wares for our parent player
-    for k:=1 to aCount do
-      if fResourceDeliveryCount[i] < GetResDistribution(i) then
+    for K := 1 to aCount do
+      if fResourceDeliveryCount[I] < GetResDistribution(I) then
       begin
-        fPlayers[fOwner].Deliveries.Queue.AddDemand(Self,nil,aResource,1,dt_Once,di_Norm);
-        inc(fResourceDeliveryCount[i]);
+        fPlayers[fOwner].Deliveries.Queue.AddDemand(Self, nil, aResource, 1, dt_Once, di_Norm);
+        Inc(fResourceDeliveryCount[I]);
       end;
     Exit;
   end;

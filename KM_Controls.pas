@@ -2376,7 +2376,7 @@ begin
   fOrderLab.Top := Round(fTop + 4);
   fOrderAdd.Top := Round(fTop);
 
-  fOrderLab.Caption := inttostr(OrderCount);
+  fOrderLab.Caption := IntToStr(OrderCount);
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width - 8, Caption, fnt_Game, taLeft, $FFE0E0E0);

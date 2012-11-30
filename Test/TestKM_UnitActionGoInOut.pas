@@ -21,7 +21,6 @@ type
     procedure TestActName;
     procedure TestGetExplanation;
     procedure TestGetDoorwaySlide;
-    procedure TestDoLinking;
     procedure TestExecute;
   end;
 
@@ -89,12 +88,6 @@ var
 begin
   // TODO: Setup method call parameters
   ReturnValue := FUnitActionGoInOut.GetDoorwaySlide(aCheck);
-  // TODO: Validate method results
-end;
-
-procedure TestTUnitActionGoInOut.TestDoLinking;
-begin
-  FUnitActionGoInOut.DoLinking;
   // TODO: Validate method results
 end;
 

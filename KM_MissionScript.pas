@@ -889,9 +889,9 @@ procedure TMissionParserStandard.SaveDATFile(const aFileName: String);
 const
   COMMANDLAYERS = 4;
 var
-  f:textfile;
-  i: longint; //longint because it is used for encoding entire output, which will limit the file size
-  k,iX,iY,CommandLayerCount: Integer;
+  f: textfile;
+  I: longint; //longint because it is used for encoding entire output, which will limit the file size
+  K,iX,iY,CommandLayerCount: Integer;
   HouseCount: array[THouseType] of Integer;
   Res: TResourceType;
   G: TGroupType;
@@ -899,7 +899,7 @@ var
   H: TKMHouse;
   Group: TKMUnitGroup;
   HT: THouseType;
-  ReleaseAllHouses: boolean;
+  ReleaseAllHouses: Boolean;
   SaveString: AnsiString;
 
   procedure AddData(aText: AnsiString);
@@ -917,26 +917,26 @@ var
   end;
 
   procedure AddCommand(aCommand: TKMCommandType; aComParam: TKMCommandParamType; aParams: array of integer); overload;
-  var OutData: AnsiString; i:integer;
+  var OutData: AnsiString; I:integer;
   begin
     OutData := '!' + COMMANDVALUES[aCommand];
 
     if aComParam <> cpt_Unknown then
       OutData := OutData + ' ' + PARAMVALUES[aComParam];
 
-    for i:=Low(aParams) to High(aParams) do
-      OutData := OutData + ' ' + AnsiString(IntToStr(aParams[i]));
+    for I:=Low(aParams) to High(aParams) do
+      OutData := OutData + ' ' + AnsiString(IntToStr(aParams[I]));
 
     AddData(OutData);
   end;
 
   procedure AddCommand(aCommand: TKMCommandType; aComParam: TAIAttackParamType; aParams: array of integer); overload;
-  var OutData: AnsiString; i:integer;
+  var OutData: AnsiString; I:integer;
   begin
     OutData := '!' + COMMANDVALUES[aCommand] + ' ' + AI_ATTACK_PARAMS[aComParam];
 
-    for i:=Low(aParams) to High(aParams) do
-      OutData := OutData + ' ' + AnsiString(IntToStr(aParams[i]));
+    for I:=Low(aParams) to High(aParams) do
+      OutData := OutData + ' ' + AnsiString(IntToStr(aParams[I]));
 
     AddData(OutData);
   end;
@@ -959,19 +959,19 @@ begin
   AddData(''); //NL
 
   //Player loop
-  for i:=0 to fPlayers.Count-1 do
+  for I:=0 to fPlayers.Count-1 do
   begin
     //Player header, using same order of commands as KaM
-    AddCommand(ct_SetCurrPlayer, [i]); //In script player 0 is the first
-    if fPlayers[i].PlayerType = pt_Human then
-      AddCommand(ct_SetHumanPlayer, [i]);
-    AddCommand(ct_EnablePlayer, [i]);
-    if fPlayers[i].PlayerType = pt_Computer then
+    AddCommand(ct_SetCurrPlayer, [I]); //In script player 0 is the first
+    if fPlayers[I].PlayerType = pt_Human then
+      AddCommand(ct_SetHumanPlayer, [I]);
+    AddCommand(ct_EnablePlayer, [I]);
+    if fPlayers[I].PlayerType = pt_Computer then
       AddCommand(ct_AIPlayer, []);
 
-    AddCommand(ct_SetMapColor, [fPlayers[i].FlagColorIndex]);
-    if not KMSamePoint(fPlayers[i].CenterScreen, KMPoint(0,0)) then
-      AddCommand(ct_CenterScreen, [fPlayers[i].CenterScreen.X-1,fPlayers[i].CenterScreen.Y-1]);
+    AddCommand(ct_SetMapColor, [fPlayers[I].FlagColorIndex]);
+    if not KMSamePoint(fPlayers[I].CenterScreen, KMPoint(0,0)) then
+      AddCommand(ct_CenterScreen, [fPlayers[I].CenterScreen.X-1,fPlayers[I].CenterScreen.Y-1]);
 
     with fGame.MapEditor.Revealers[I] do
     for K := 0 to Count - 1 do
@@ -983,8 +983,8 @@ begin
     AddData(''); //NL
 
     //Human specific, e.g. goals, center screen (though all players can have it, only human can use it)
-    for k:=0 to fPlayers[i].Goals.Count-1 do
-      with fPlayers[i].Goals[k] do
+    for K:=0 to fPlayers[I].Goals.Count-1 do
+      with fPlayers[I].Goals[K] do
       begin
         if (GoalType = glt_Victory) or (GoalType = glt_None) then //For now treat none same as normal goal, we can add new command for it later
           if GoalCondition = gc_Time then
@@ -1001,32 +1001,32 @@ begin
     AddData(''); //NL
 
     //Computer specific, e.g. AI commands
-    if fPlayers[i].PlayerType = pt_Computer then
+    if fPlayers[I].PlayerType = pt_Computer then
     begin
-      AddCommand(ct_AIStartPosition, [fPlayers[i].AI.Setup.StartPosition.X-1,fPlayers[i].AI.Setup.StartPosition.Y-1]);
-      if not fPlayers[i].AI.Setup.AutoBuild then
+      AddCommand(ct_AIStartPosition, [fPlayers[I].AI.Setup.StartPosition.X-1,fPlayers[I].AI.Setup.StartPosition.Y-1]);
+      if not fPlayers[I].AI.Setup.AutoBuild then
         AddCommand(ct_AINoBuild, []);
-      AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[i].AI.Setup.RecruitFactor]);
-      AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers[i].AI.Setup.SerfFactor]);
-      AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers[i].AI.Setup.WorkerFactor]);
-      AddCommand(ct_AICharacter,cpt_TownDefence, [fPlayers[i].AI.Setup.TownDefence]);
+      AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[I].AI.Setup.RecruitFactor]);
+      AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers[I].AI.Setup.SerfFactor]);
+      AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers[I].AI.Setup.WorkerFactor]);
+      AddCommand(ct_AICharacter,cpt_TownDefence, [fPlayers[I].AI.Setup.TownDefence]);
       //Only store if a limit is in place (high is the default)
-      if fPlayers[i].AI.Setup.MaxSoldiers <> High(fPlayers[i].AI.Setup.MaxSoldiers) then
-        AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers[i].AI.Setup.MaxSoldiers]);
-      AddCommand(ct_AICharacter,cpt_EquipRate,    [fPlayers[i].AI.Setup.EquipRateLeather]); //Iron and Leather could be made into separate commands later
-      AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers[i].AI.Setup.Aggressiveness]);
-      AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers[i].AI.Setup.RecruitDelay]);
+      if fPlayers[I].AI.Setup.MaxSoldiers <> High(fPlayers[I].AI.Setup.MaxSoldiers) then
+        AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers[I].AI.Setup.MaxSoldiers]);
+      AddCommand(ct_AICharacter,cpt_EquipRate,    [fPlayers[I].AI.Setup.EquipRateLeather]); //Iron and Leather could be made into separate commands later
+      AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers[I].AI.Setup.Aggressiveness]);
+      AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers[I].AI.Setup.RecruitDelay]);
       for G:=Low(TGroupType) to High(TGroupType) do
-        if fPlayers[i].AI.DefencePositions.TroopFormations[G].NumUnits <> 0 then //Must be valid and used
-          AddCommand(ct_AICharacter, cpt_TroopParam, [KaMGroupType[G], fPlayers[i].AI.DefencePositions.TroopFormations[G].NumUnits, fPlayers[i].AI.DefencePositions.TroopFormations[G].UnitsPerRow]);
+        if fPlayers[I].AI.DefencePositions.TroopFormations[G].NumUnits <> 0 then //Must be valid and used
+          AddCommand(ct_AICharacter, cpt_TroopParam, [KaMGroupType[G], fPlayers[I].AI.DefencePositions.TroopFormations[G].NumUnits, fPlayers[I].AI.DefencePositions.TroopFormations[G].UnitsPerRow]);
       AddData(''); //NL
-      for k:=0 to fPlayers[i].AI.DefencePositions.Count - 1 do
-        with fPlayers[i].AI.DefencePositions[k] do
+      for K:=0 to fPlayers[I].AI.DefencePositions.Count - 1 do
+        with fPlayers[I].AI.DefencePositions[K] do
           AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,KaMGroupType[GroupType],Radius,byte(DefenceType)]);
       AddData(''); //NL
       AddData(''); //NL
-      for k:=0 to fPlayers[i].AI.Attacks.Count - 1 do
-        with fPlayers[i].AI.Attacks[k] do
+      for K:=0 to fPlayers[I].AI.Attacks.Count - 1 do
+        with fPlayers[I].AI.Attacks[K] do
         begin
           AddCommand(ct_AIAttack, cpt_Type, [KaMAttackType[AttackType]]);
           AddCommand(ct_AIAttack, cpt_TotalAmount, [TotalMen]);
@@ -1046,7 +1046,7 @@ begin
           if Range > 0 then
             AddCommand(ct_AIAttack,cpt_Range, [Range]);
 
-          AddCommand(ct_CopyAIAttack, [k]); //Store attack with ID number
+          AddCommand(ct_CopyAIAttack, [K]); //Store attack with ID number
           AddData(''); //NL
         end;
       AddData(''); //NL
@@ -1054,9 +1054,9 @@ begin
 
     //General, e.g. units, roads, houses, etc.
     //Alliances
-    for k:=0 to fPlayers.Count-1 do
-      if k<>i then
-        AddCommand(ct_SetAlliance, [k, byte(fPlayers[i].Alliances[k])]); //0=enemy, 1=ally
+    for K:=0 to fPlayers.Count-1 do
+      if K<>I then
+        AddCommand(ct_SetAlliance, [K, byte(fPlayers[I].Alliances[K])]); //0=enemy, 1=ally
     AddData(''); //NL
 
     //Release/block houses
@@ -1064,13 +1064,13 @@ begin
     for HT := Low(THouseType) to High(THouseType) do
     if fResource.HouseDat[HT].IsValid then //Exclude ht_None / ht_Any
     begin
-      if fPlayers[i].Stats.HouseBlocked[HT] then
+      if fPlayers[I].Stats.HouseBlocked[HT] then
       begin
         AddCommand(ct_BlockHouse, [HouseTypeToIndex[HT]-1]);
         ReleaseAllHouses := false;
       end
       else
-        if fPlayers[i].Stats.HouseGranted[HT] then
+        if fPlayers[I].Stats.HouseGranted[HT] then
           AddCommand(ct_ReleaseHouse, [HouseTypeToIndex[HT]-1])
         else
           ReleaseAllHouses := false;
@@ -1080,13 +1080,13 @@ begin
 
     //Block trades
     for Res := WARE_MIN to WARE_MAX do
-      if not fPlayers[i].Stats.AllowToTrade[Res] then
+      if not fPlayers[I].Stats.AllowToTrade[Res] then
         AddCommand(ct_BlockTrade, [ResourceKaMOrder[Res]]);
 
     //Houses
-    for k:=0 to fPlayers[i].Houses.Count-1 do
+    for K:=0 to fPlayers[I].Houses.Count-1 do
     begin
-      H := fPlayers[i].Houses[k];
+      H := fPlayers[I].Houses[K];
       if not H.IsDestroyed then
       begin
         AddCommand(ct_SetHouse, [HouseTypeToIndex[H.HouseType]-1, H.GetPosition.X-1, H.GetPosition.Y-1]);
@@ -1098,10 +1098,10 @@ begin
 
     //Wares. Check every house to see if it has any wares in it
     FillChar(HouseCount, SizeOf(HouseCount), #0);
-    for k:=0 to fPlayers[i].Houses.Count-1 do
+    for K := 0 to fPlayers[I].Houses.Count - 1 do
     begin
-      H := fPlayers[i].Houses[k];
-      inc(HouseCount[H.HouseType]);
+      H := fPlayers[I].Houses[K];
+      Inc(HouseCount[H.HouseType]);
 
       if H.IsDestroyed then Continue;
 
@@ -1136,7 +1136,7 @@ begin
     CommandLayerCount := 0; //Enable command layering
     for iY := 1 to fTerrain.MapY do
       for iX := 1 to fTerrain.MapX do
-        if fTerrain.Land[iY,iX].TileOwner = fPlayers[i].PlayerIndex then
+        if fTerrain.Land[iY,iX].TileOwner = fPlayers[I].PlayerIndex then
         begin
           if fTerrain.Land[iY,iX].TileOverlay = to_Road then
             AddCommand(ct_SetRoad, [iX-1,iY-1]);
@@ -1174,9 +1174,9 @@ begin
 
   //Animals, wares to all, etc. go here
   AddData('//Animals');
-  for i:=0 to fPlayers.PlayerAnimals.Units.Count-1 do
+  for I:=0 to fPlayers.PlayerAnimals.Units.Count-1 do
   begin
-    U := fPlayers.PlayerAnimals.Units[i];
+    U := fPlayers.PlayerAnimals.Units[I];
     AddCommand(ct_SetUnit, [UnitTypeToOldIndex[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
   end;
   AddData(''); //NL
@@ -1190,8 +1190,8 @@ begin
   closefile(f);
 
   //Encode it
-  for i:=1 to Length(SaveString) do
-    SaveString[i] := AnsiChar(Byte(SaveString[i]) xor 239);
+  for I:=1 to Length(SaveString) do
+    SaveString[I] := AnsiChar(Byte(SaveString[I]) xor 239);
 
   //Write it
   assignfile(f, aFileName); rewrite(f);

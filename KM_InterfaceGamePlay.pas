@@ -1562,20 +1562,20 @@ begin
       Label_Common_Costs  := TKMLabel.Create(Panel_House_Common,0,2,TB_WIDTH,0,fTextLibrary[TX_HOUSE_GOOD_COST],fnt_Grey,taCenter);
 
       //They get repositioned on display
-      for i:=1 to 4 do
+      for I := 1 to 4 do
       begin
-        ResRow_Common_Resource[i] := TKMResourceRow.Create(Panel_House_Common, 0,22,TB_WIDTH,20);
-        ResRow_Common_Resource[i].RX := rxGui;
+        ResRow_Common_Resource[I] := TKMResourceRow.Create(Panel_House_Common, 0,22,TB_WIDTH,20);
+        ResRow_Common_Resource[I].RX := rxGui;
 
-        ResRow_Order[i] := TKMResourceOrderRow.Create(Panel_House_Common, 0,22,TB_WIDTH,20);
-        ResRow_Order[i].RX := rxGui;
-        ResRow_Order[i].OrderRem.OnClickEither := House_OrderClick;
-        ResRow_Order[i].OrderAdd.OnClickEither := House_OrderClick;
-        ResRow_Order[i].OrderRem.Hint          := fTextLibrary[TX_HOUSE_ORDER_DEC_HINT];
-        ResRow_Order[i].OrderAdd.Hint          := fTextLibrary[TX_HOUSE_ORDER_INC_HINT];
+        ResRow_Order[I] := TKMResourceOrderRow.Create(Panel_House_Common, 0,22,TB_WIDTH,20);
+        ResRow_Order[I].RX := rxGui;
+        ResRow_Order[I].OrderRem.OnClickEither := House_OrderClick;
+        ResRow_Order[I].OrderAdd.OnClickEither := House_OrderClick;
+        ResRow_Order[I].OrderRem.Hint          := fTextLibrary[TX_HOUSE_ORDER_DEC_HINT];
+        ResRow_Order[I].OrderAdd.Hint          := fTextLibrary[TX_HOUSE_ORDER_INC_HINT];
 
-        ResRow_Costs[i] := TKMCostsRow.Create(Panel_House_Common, 0,22,TB_WIDTH,20);
-        ResRow_Costs[i].RX := rxGui;
+        ResRow_Costs[I] := TKMCostsRow.Create(Panel_House_Common, 0,22,TB_WIDTH,20);
+        ResRow_Costs[I].RX := rxGui;
       end;
 end;
 

@@ -63,10 +63,10 @@ type
     procedure Unit_ButtonClick(Sender: TObject);
     procedure Unit_ArmyChange1(Sender: TObject); overload;
     procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
-    procedure Barracks_Fill(Sender: TObject);
+    procedure Barracks_FillValues(Sender: TObject);
     procedure Barracks_SelectWare(Sender: TObject);
     procedure Barracks_EditWareCount(Sender: TObject; AButton:TMouseButton);
-    procedure Store_Fill(Sender: TObject);
+    procedure Store_FillValues(Sender: TObject);
     procedure Store_SelectWare(Sender: TObject);
     procedure Store_EditWareCount(Sender: TObject; AButton:TMouseButton);
     procedure Player_ChangeActive(Sender: TObject);
@@ -216,12 +216,13 @@ type
         Label_ArmyCount: TKMLabel;
         Button_ArmyDec,Button_ArmyFood,Button_ArmyInc: TKMButton;
 
-    Panel_House:TKMPanel;
-      Label_House:TKMLabel;
-      Image_House_Logo,Image_House_Worker:TKMImage;
-      Label_HouseHealth:TKMLabel;
-      KMHealthBar_House:TKMPercentBar;
-      Button_HouseHealthDec,Button_HouseHealthInc:TKMButton;
+    Panel_House: TKMPanel;
+      Label_House: TKMLabel;
+      Image_House_Logo, Image_House_Worker: TKMImage;
+      Label_HouseHealth: TKMLabel;
+      KMHealthBar_House: TKMPercentBar;
+      Button_HouseHealthDec, Button_HouseHealthInc: TKMButton;
+      ResRow_Resource: array [0..3] of TKMResourceOrderRow;
 
       Panel_HouseStore:TKMPanel;
         Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
@@ -274,7 +275,7 @@ implementation
 
 uses
   KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Game, KM_GameApp, KM_Resource,
-  KM_ResourceUnit, KM_ResourceCursors, KM_ResourceMapElements, KM_AIDefensePos;
+  KM_ResourceUnit, KM_ResourceCursors, KM_ResourceMapElements, KM_AIDefensePos, KM_ResourceHouse;
 
 
 const
@@ -1169,21 +1170,31 @@ end;
 
 {House description page}
 procedure TKMapEdInterface.Create_House_Page;
+var
+  I: Integer;
 begin
-  Panel_House:=TKMPanel.Create(Panel_Common,0,112,TB_WIDTH,400);
+  Panel_House := TKMPanel.Create(Panel_Common, 0, 44, TB_WIDTH, 400);
     //Thats common things
-    Label_House:=TKMLabel.Create(Panel_House,0,14,TB_WIDTH,0,'',fnt_Outline,taCenter);
-    Image_House_Logo:=TKMImage.Create(Panel_House,0,41,32,32,338);
+    Label_House := TKMLabel.Create(Panel_House, 0, 14, TB_WIDTH, 0, '', fnt_Outline, taCenter);
+    Image_House_Logo := TKMImage.Create(Panel_House, 0, 41, 32, 32, 338);
     Image_House_Logo.ImageCenter;
-    Image_House_Worker:=TKMImage.Create(Panel_House,30,41,32,32,141);
+    Image_House_Worker := TKMImage.Create(Panel_House, 30, 41, 32, 32, 141);
     Image_House_Worker.ImageCenter;
-    Label_HouseHealth := TKMLabel.Create(Panel_House,100,41,60,20,fTextLibrary[TX_HOUSE_CONDITION],fnt_Mini,taCenter);
+    Label_HouseHealth := TKMLabel.Create(Panel_House, 100, 41, 60, 20, fTextLibrary[TX_HOUSE_CONDITION], fnt_Mini, taCenter);
     Label_HouseHealth.FontColor := $FFE0E0E0;
-    KMHealthBar_House := TKMPercentBar.Create(Panel_House,100,53,60,20);
-    Button_HouseHealthDec := TKMButton.Create(Panel_House,80,53,20,20,'-', bsGame);
-    Button_HouseHealthInc := TKMButton.Create(Panel_House,160,53,20,20,'+', bsGame);
+    KMHealthBar_House := TKMPercentBar.Create(Panel_House, 100, 53, 60, 20);
+    Button_HouseHealthDec := TKMButton.Create(Panel_House, 80, 53, 20, 20, '-', bsGame);
+    Button_HouseHealthInc := TKMButton.Create(Panel_House, 160, 53, 20, 20, '+', bsGame);
     Button_HouseHealthDec.OnClickEither := House_HealthChange;
     Button_HouseHealthInc.OnClickEither := House_HealthChange;
+
+    for I := 0 to 3 do
+    begin
+      ResRow_Resource[I] := TKMResourceOrderRow.Create(Panel_House, 0, 80 + I * 25, TB_WIDTH, 20);
+      ResRow_Resource[I].RX := rxGui;
+      ResRow_Resource[I].OrderAdd.OnClickEither := House_HealthChange;
+      ResRow_Resource[I].OrderRem.OnClickEither := House_HealthChange;
+    end;
 end;
 
 
@@ -1682,6 +1693,10 @@ end;
 
 
 procedure TKMapEdInterface.ShowHouseInfo(Sender: TKMHouse);
+var
+  HouseDat: TKMHouseDatClass;
+  I: Integer;
+  Res: TResourceType;
 begin
   if Sender = nil then
   begin
@@ -1691,31 +1706,47 @@ begin
 
   SetActivePlayer(Sender.Owner);
 
+  HouseDat := fResource.HouseDat[Sender.HouseType];
+
   {Common data}
-  Label_House.Caption:=fResource.HouseDat[Sender.HouseType].HouseName;
-  Image_House_Logo.TexID:=fResource.HouseDat[Sender.HouseType].GUIIcon;
-  Image_House_Worker.TexID:=fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIIcon;
+  Label_House.Caption := HouseDat.HouseName;
+  Image_House_Logo.TexID := HouseDat.GUIIcon;
+  Image_House_Worker.TexID := fResource.UnitDat[HouseDat.OwnerType].GUIIcon;
   Image_House_Worker.FlagColor := fPlayers[Sender.Owner].FlagColor;
-  Image_House_Worker.Hint := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
-  KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
-  KMHealthBar_House.Position := Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth;
+  Image_House_Worker.Hint := fResource.UnitDat[HouseDat.OwnerType].UnitName;
+  Image_House_Worker.Visible := HouseDat.OwnerType <> ut_None;
+  KMHealthBar_House.Caption := IntToStr(Round(Sender.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
+  KMHealthBar_House.Position := Sender.GetHealth / HouseDat.MaxHealth;
 
-  Image_House_Worker.Visible := fResource.HouseDat[Sender.HouseType].OwnerType <> ut_None;
-
+  for I := 0 to 3 do
+  begin
+    Res := HouseDat.ResInput[I+1];
+    if fResource.Resources[Res].IsValid then
+    begin
+      ResRow_Resource[I].TexID := fResource.Resources[Res].GUIIcon;
+      ResRow_Resource[I].Caption := fResource.Resources[Res].Title;
+      ResRow_Resource[I].Hint := fResource.Resources[Res].Title;
+      ResRow_Resource[I].ResourceCount := Sender.CheckResIn(Res);
+      ResRow_Resource[I].OrderCount := Sender.CheckResIn(Res);
+      ResRow_Resource[I].Show;
+    end
+    else
+      ResRow_Resource[I].Hide;
+  end;
 
   case Sender.HouseType of
     ht_Store: begin
-          Store_Fill(nil);
+          Store_FillValues(nil);
           SwitchPage(Panel_HouseStore);
           Store_SelectWare(Button_Store[fStorehouseItem]); //Reselect the ware so the display is updated
         end;
 
     ht_Barracks: begin
-          Barracks_Fill(nil);
+          Barracks_FillValues(nil);
           Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
           SwitchPage(Panel_HouseBarracks);
           Barracks_SelectWare(Button_Barracks[fBarracksItem]); //Reselect the ware so the display is updated
-          end;
+        end;
     ht_TownHall:;
     else SwitchPage(Panel_House);
   end;
@@ -1974,27 +2005,32 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Store_Fill(Sender: TObject);
-var i,Tmp:Integer;
+procedure TKMapEdInterface.Store_FillValues(Sender: TObject);
+var
+  I, Tmp: Integer;
 begin
-  if fPlayers.Selected=nil then exit;
+  if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouseStore) then exit;
-  for i:=1 to STORE_RES_COUNT do begin
-    Tmp := TKMHouseStore(fPlayers.Selected).CheckResIn(StoreResType[i]);
-    Button_Store[i].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
+
+  for I := 1 to STORE_RES_COUNT do
+  begin
+    Tmp := TKMHouseStore(fPlayers.Selected).CheckResIn(StoreResType[I]);
+    Button_Store[I].Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
   end;
 end;
 
 
-procedure TKMapEdInterface.Barracks_Fill(Sender: TObject);
-var i,Tmp:Integer;
+procedure TKMapEdInterface.Barracks_FillValues(Sender: TObject);
+var
+  I, Tmp: Integer;
 begin
-  if fPlayers.Selected=nil then exit;
+  if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouseBarracks) then exit;
 
-  for i:=1 to BARRACKS_RES_COUNT do begin
-    Tmp := TKMHouseBarracks(fPlayers.Selected).CheckResIn(BarracksResType[i]);
-    Button_Barracks[i].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
+  for I := 1 to BARRACKS_RES_COUNT do
+  begin
+    Tmp := TKMHouseBarracks(fPlayers.Selected).CheckResIn(BarracksResType[I]);
+    Button_Barracks[I].Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
   end;
 end;
 
@@ -2002,12 +2038,33 @@ end;
 procedure TKMapEdInterface.House_HealthChange(Sender: TObject; AButton: TMouseButton);
 var
   H: TKMHouse;
+  I: Integer;
+  Res: TResourceType;
+  NewCount: Integer;
 begin
   if not (fPlayers.Selected is TKMHouse) then Exit;
   H := TKMHouse(fPlayers.Selected);
 
   if Sender = Button_HouseHealthDec then H.AddDamage(ClickAmount[AButton] * 5, True);
   if Sender = Button_HouseHealthInc then H.AddRepair(ClickAmount[AButton] * 5);
+
+  for I := 0 to 3 do
+  begin
+    Res := fResource.HouseDat[H.HouseType].ResInput[I+1];
+
+    if Sender = ResRow_Resource[I].OrderAdd then
+    begin
+      NewCount := Math.Min(ClickAmount[aButton], MAX_RES_IN_HOUSE - H.CheckResIn(Res));
+      H.ResAddToIn(Res, NewCount);
+    end;
+
+    if Sender = ResRow_Resource[I].OrderRem then
+    begin
+      NewCount := Math.Min(ClickAmount[aButton], H.CheckResIn(Res));
+      H.ResTakeFromIn(Res, NewCount);
+    end;
+  end;
+
   if H.IsDestroyed then
     ShowHouseInfo(nil)
   else
@@ -2114,7 +2171,7 @@ begin
   end;
 
   Label_Barracks_WareCount.Caption := IntToStr(Barracks.CheckResIn(Res));
-  Barracks_Fill(nil);
+  Barracks_FillValues(nil);
 end;
 
 
@@ -2140,7 +2197,7 @@ begin
     Store.ResAddToIn(Res, ClickAmount[aButton]*TKMButton(Sender).Tag);
 
   Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
-  Store_Fill(nil);
+  Store_FillValues(nil);
 end;
 
 
