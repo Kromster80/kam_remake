@@ -12,8 +12,7 @@ type
   TMissionParsingMode = (
                           mpm_Single,
                           mpm_Multi,  //Skip players
-                          mpm_Editor, //Ignore errors, load armies differently
-                          mpm_Preview //Skip as much as we can
+                          mpm_Editor  //Ignore errors, load armies differently
                         );
 
   TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
@@ -633,8 +632,7 @@ begin
                           fPlayers[fLastPlayer].AddRoadToList(KMPoint(P[0],P[1]+2));
                           fPlayers[fLastPlayer].AddRoadToList(KMPoint(P[0]-1,P[1]+2));
                         end;
-    ct_AddWare:         if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_AddWare:         if fLastPlayer >= 0 then
                         begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
@@ -646,8 +644,7 @@ begin
                           end;
 
                         end;
-    ct_AddWareToAll:    if (fParsingMode <> mpm_Preview) then
-                        begin
+    ct_AddWareToAll:    begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
                           for i:=0 to fPlayers.Count-1 do
@@ -660,8 +657,7 @@ begin
                             end;
                           end;
                         end;
-    ct_AddWareToSecond: if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_AddWareToSecond: if fLastPlayer >= 0 then
                         begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
@@ -673,8 +669,7 @@ begin
                             fPlayers[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
                           end;
                         end;
-    ct_AddWareTo:       if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_AddWareTo:       if fLastPlayer >= 0 then
                         begin //HouseType, House Order, Ware Type, Count
                           Qty := EnsureRange(P[3], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
@@ -686,8 +681,7 @@ begin
                             fPlayers[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[2]], Qty);
                           end;
                         end;
-    ct_AddWeapon:       if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_AddWeapon:       if fLastPlayer >= 0 then
                         begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
@@ -698,26 +692,22 @@ begin
                             fPlayers[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
                           end;
                         end;
-    ct_BlockTrade:      if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_BlockTrade:      if fLastPlayer >= 0 then
                         begin
                           if ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX] then
                             fPlayers[fLastPlayer].Stats.AllowToTrade[ResourceKaMIndex[P[0]]] := false;
                         end;
-    ct_BlockHouse:      if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_BlockHouse:      if fLastPlayer >= 0 then
                         begin
                           if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
                             fPlayers[fLastPlayer].Stats.HouseBlocked[HouseIndexToType[P[0]]] := True;
                         end;
-    ct_ReleaseHouse:    if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_ReleaseHouse:    if fLastPlayer >= 0 then
                         begin
                           if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
                             fPlayers[fLastPlayer].Stats.HouseGranted[HouseIndexToType[P[0]]] := True;
                         end;
-    ct_ReleaseAllHouses:if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_ReleaseAllHouses:if fLastPlayer >= 0 then
                           for HT:=Low(THouseType) to High(THouseType) do
                             fPlayers[fLastPlayer].Stats.HouseGranted[HT] := True;
     ct_SetGroup:        if fLastPlayer >= 0 then
@@ -729,24 +719,21 @@ begin
                               P[4],
                               P[5]
                               );
-    ct_SendGroup:       if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_SendGroup:       if fLastPlayer >= 0 then
                         begin
                           if fLastTroop <> nil then
                             fLastTroop.OrderWalk(KMPoint(P[0]+1, P[1]+1), TKMDirection(P[2]+1))
                           else
                             AddError('ct_SendGroup without prior declaration of Troop');
                         end;
-    ct_SetGroupFood:    if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_SetGroupFood:    if fLastPlayer >= 0 then
                         begin
                           if fLastTroop <> nil then
                             fLastTroop.Condition := UNIT_MAX_CONDITION
                           else
                             AddError('ct_SetGroupFood without prior declaration of Troop');
                         end;
-    ct_AICharacter:     if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_AICharacter:     if fLastPlayer >= 0 then
                         begin
                           if fPlayers[fLastPlayer].PlayerType <> pt_Computer then Exit;
                           iPlayerAI := fPlayers[fLastPlayer].AI; //Setup the AI's character
@@ -768,8 +755,7 @@ begin
                             iPlayerAI.DefencePositions.TroopFormations[TGroupType(P[1])].UnitsPerRow  := P[3];
                           end;
                         end;
-    ct_AINoBuild:       if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_AINoBuild:       if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Setup.Autobuild := False;
     ct_AIStartPosition: if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Setup.StartPosition := KMPoint(P[0]+1,P[1]+1);
@@ -778,8 +764,7 @@ begin
                             fPlayers[fLastPlayer].Alliances[fRemap[P[0]]] := at_Ally
                           else
                             fPlayers[fLastPlayer].Alliances[fRemap[P[0]]] := at_Enemy;
-    ct_AttackPosition:  if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_AttackPosition:  if fLastPlayer >= 0 then
                           //If target is building: Attack building
                           //If target is unit: Chase/attack unit
                           //If target is nothing: move to position
@@ -793,8 +778,7 @@ begin
                           end
                           else
                             AddError('ct_AttackPosition without prior declaration of Troop');
-    ct_AddGoal:         if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_AddGoal:         if fLastPlayer >= 0 then
                           //If the condition is time then P[3] is the time, else it is player ID
                           if TGoalCondition(P[0]) = gc_Time then
                             fPlayers[fLastPlayer].Goals.AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),P[3],P[2],-1)
@@ -804,8 +788,7 @@ begin
                                 fPlayers[fLastPlayer].Goals.AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],fRemap[P[3]])
                               else
                                 AddError('Add_Goal for non existing player');
-    ct_AddLostGoal:     if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_AddLostGoal:     if fLastPlayer >= 0 then
                           //If the condition is time then P[3] is the time, else it is player ID
                           if TGoalCondition(P[0]) = gc_Time then
                             fPlayers[fLastPlayer].Goals.AddGoal(glt_Survive,TGoalCondition(P[0]),TGoalStatus(P[1]),P[3],P[2],-1)
@@ -814,15 +797,13 @@ begin
                               fPlayers[fLastPlayer].Goals.AddGoal(glt_Survive,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],fRemap[P[3]])
                             else
                               AddError('Add_LostGoal for non existing player');
-    ct_AIDefence:       if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >=0 then
+    ct_AIDefence:       if fLastPlayer >=0 then
                         if InRange(P[3], Integer(Low(TGroupType)), Integer(High(TGroupType))) then //TPR 3 tries to set TGroupType 240 due to a missing space
                           fPlayers[fLastPlayer].AI.DefencePositions.AddDefencePosition(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastPlayer >=0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
                           fPlayers[fLastPlayer].FlagColor := fResource.Palettes.DefDal.Color32(P[0]);
-    ct_AIAttack:        if (fParsingMode <> mpm_Preview) then
-                        begin
+    ct_AIAttack:        begin
                           //Set up the attack command
                           if TextParam = AI_ATTACK_PARAMS[cpt_Type] then
                             if InRange(P[1], Low(RemakeAttackType), High(RemakeAttackType)) then
@@ -844,8 +825,7 @@ begin
                           if TextParam = AI_ATTACK_PARAMS[cpt_TakeAll] then
                             fAIAttack.TakeAll := True;
                         end;
-    ct_CopyAIAttack:    if (fParsingMode <> mpm_Preview) then
-                        if fLastPlayer >= 0 then
+    ct_CopyAIAttack:    if fLastPlayer >= 0 then
                           //Save the attack to the AI assets
                           fPlayers[fLastPlayer].AI.Attacks.AddAttack(fAIAttack);
     ct_EnablePlayer:    begin
@@ -1212,11 +1192,12 @@ begin
 end;
 
 
+//Load terrain data into liteweight structure, take only what we need for preview
 procedure TMissionParserPreview.LoadMapData(const aFileName: string);
 var
-  i:integer;
-  S:TKMemoryStream;
-  NewX,NewY:integer;
+  I: Integer;
+  S: TKMemoryStream;
+  NewX, NewY: Integer;
 begin
   S := TKMemoryStream.Create;
   try
@@ -1226,11 +1207,11 @@ begin
     Assert((NewX <= MAX_MAP_SIZE) and (NewY <= MAX_MAP_SIZE), 'Can''t open the map cos it has too big dimensions');
     fMapX := NewX;
     fMapY := NewY;
-    for i:=1 to fMapX*fMapY do
+    for I := 1 to fMapX * fMapY do
     begin
-      S.Read(fMapPreview[i].TileID);
+      S.Read(fMapPreview[I].TileID);
       S.Seek(1, soFromCurrent);
-      S.Read(fMapPreview[i].TileHeight); //Height (for lighting)
+      S.Read(fMapPreview[I].TileHeight); //Height (for lighting)
       S.Seek(20, soFromCurrent);
     end;
   finally
@@ -1382,7 +1363,8 @@ begin
   until (k>=length(FileText));
   //Apparently it's faster to parse till file end than check if all details are filled
 
-  Result := (fFatalErrors='');
+  Result := (fFatalErrors = '');
 end;
+
 
 end.
