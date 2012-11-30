@@ -90,26 +90,30 @@ begin
 
   Down := Byte(bsDown in State);
 
-  with GFXData[BackRX,BackID] do
-  with GFXData[BackRX,BackID].Tex do
-  if PxWidth*PxHeight<>0 then //Make sure data was loaded properly
+  with GFXData[BackRX, BackID] do
+  with GFXData[BackRX, BackID].Tex do
+  if PxWidth * PxHeight <> 0 then //Make sure data was loaded properly
   begin
-    A.x := u1 + (u2-u1) * (PosX         - Down) /2/ PxWidth;
-    B.x := u1 + (u2-u1) * (PosX + SizeX - Down) /2/ PxWidth;
-    A.y := v1 + (v2-v1) * (PosY         - Down) /2/ PxHeight;
-    B.y := v1 + (v2-v1) * (PosY + SizeY - Down) /2/ PxHeight;
-    A.x := A.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2; B.x := B.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2;
-    A.y := A.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2; B.y := B.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2;
-    A.x := EnsureRange(A.x,u1,u2); B.x := EnsureRange(B.x,u1,u2);
-    A.y := EnsureRange(A.y,v1,v2); B.y := EnsureRange(B.y,v1,v2);
+    A.X := u1 + (u2 - u1) * (PosX - Down) / 2 / PxWidth;
+    B.X := u1 + (u2 - u1) * (PosX + SizeX - Down) / 2 / PxWidth;
+    A.Y := v1 + (v2 - v1) * (PosY - Down) / 2 / PxHeight;
+    B.Y := v1 + (v2 - v1) * (PosY + SizeY - Down) / 2 / PxHeight;
+    A.X := A.X - (u2 - u1) * ((PosX + SizeX div 2) div PxWidth) / 2;
+    B.X := B.X - (u2 - u1) * ((PosX + SizeX div 2) div PxWidth) / 2;
+    A.Y := A.Y - (v2 - v1) * ((PosY + SizeY div 2) div PxHeight) / 2;
+    B.Y := B.Y - (v2 - v1) * ((PosY + SizeY div 2) div PxHeight) / 2;
+    A.X := EnsureRange(A.X, u1, u2);
+    B.X := EnsureRange(B.X, u1, u2);
+    A.Y := EnsureRange(A.Y, v1, v2);
+    B.Y := EnsureRange(B.Y, v1, v2);
   end;
 
   glPushMatrix;
     glTranslatef(PosX, PosY, 0);
 
       //Background
-      glColor4f(1,1,1,1);
-      glBindTexture(GL_TEXTURE_2D, GFXData[BackRX,BackID].Tex.ID);
+      glColor4f(1, 1, 1, 1);
+      glBindTexture(GL_TEXTURE_2D, GFXData[BackRX, BackID].Tex.ID);
       glBegin(GL_QUADS);
         glTexCoord2f(A.x,A.y); glVertex2f(0,0);
         glTexCoord2f(B.x,A.y); glVertex2f(SizeX,0);
@@ -140,25 +144,25 @@ begin
     //Render a pic ontop
     if aID <> 0 then
     begin
-      glColor4f(1,1,1,1);
+      glColor4f(1, 1, 1, 1);
       WritePicture(Down, Down, SizeX, SizeY, [], aRX, aID, True, aFlagColor);
     end;
 
     //Render MouseOver highlight
     if bsOver in State then
     begin
-      glColor4f(1,1,1,0.15);
+      glColor4f(1, 1, 1, 0.15);
       glBegin(GL_QUADS);
-        glkRect(0,0,SizeX,SizeY);
+        glkRect(0, 0, SizeX, SizeY);
       glEnd;
     end;
 
     //Render darklight when Disabled
     if bsDisabled in State then
     begin
-      glColor4f(0,0,0,0.5);
+      glColor4f(0, 0, 0, 0.5);
       glBegin(GL_QUADS);
-        glkRect(0,0,SizeX,SizeY);
+        glkRect(0, 0, SizeX, SizeY);
       glEnd;
     end;
 
