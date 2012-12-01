@@ -73,6 +73,7 @@ implementation
 uses KM_PlayersCollection, KM_RenderAux, KM_AIFields;
 
 
+{ TKMDeposits }
 function TKMDeposits.GetAmount(aMat: TRawDeposit; aIndex: Integer): Integer;
 begin
   Result := fAreaAmount[aMat, aIndex];
@@ -89,6 +90,8 @@ function TKMDeposits.GetLocation(aMat: TRawDeposit; aIndex: Integer): TKMPointF;
 begin
   Result := fAreaLoc[aMat, aIndex];
 end;
+
+
 //Check whether deposit exist and do proper action
 //TileIsWater is used to make an area from whole water body - not only connected fish
 function TKMDeposits.TileDepositExists(aMat: TRawDeposit; X,Y: Word) : Boolean;
@@ -98,6 +101,7 @@ begin
   else
     Result := TileDeposit(aMat,X,Y) > 0;
 end;
+
 
 //Get tile resource deposit
 function TKMDeposits.TileDeposit(aMat: TRawDeposit; X,Y: Word): Byte;
@@ -119,6 +123,7 @@ begin
     else     Result := 0;
   end;
 end;
+
 
 procedure TKMDeposits.FloodFill(const aMat: array of TRawDeposit);
 var
@@ -252,7 +257,7 @@ begin
 
   fDeposits := TKMDeposits.Create;
 
-  fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences];
+  fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits];
 
   for I := Low(fRevealers) to High(fRevealers) do
     fRevealers[I] := TKMPointTagList.Create;

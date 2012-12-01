@@ -16,6 +16,11 @@ type
     goStorm         //Run forward
     );
 
+  TKMMapEdOrder = record
+    Order: TKMGroupOrder;
+    Pos: TKMPointDir;
+  end;
+
   TKMUnitGroup = class
   private
     fID: Cardinal;
@@ -65,6 +70,7 @@ type
     function GetDirection: TKMDirection;
     function GetPosition: TKMPoint;
   public
+    MapEdOrder: TKMMapEdOrder;
 
     constructor Create(aID: Cardinal; aCreator: TKMUnitWarrior); overload;
     constructor Create(aID: Cardinal; aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word); overload;

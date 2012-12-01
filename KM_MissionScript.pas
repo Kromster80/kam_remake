@@ -94,7 +94,7 @@ type
     constructor Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean); overload;
     function LoadMission(const aFileName: string):boolean; overload; override;
 
-    procedure SaveDATFile(const aFileName: String);
+    procedure SaveDATFile(const aFileName: string);
   end;
 
 
@@ -375,20 +375,20 @@ end;
 { TMissionParserStandard }
 //Mode affect how certain parameters are loaded a bit differently
 constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aStrictParsing: boolean);
-var i:integer;
+var I: Integer;
 begin
   inherited Create(aStrictParsing);
   fParsingMode := aMode;
 
-  for i:=0 to High(fRemap) do
-    fRemap[i] := i;
+  for I := 0 to High(fRemap) do
+    fRemap[I] := I;
 
   fRemapCount := MAX_PLAYERS;
 end;
 
 
 constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersRemap: TPlayerArray; aStrictParsing: Boolean);
-var i:integer;
+var I: Integer;
 begin
   inherited Create(aStrictParsing);
   fParsingMode := aMode;
@@ -397,7 +397,7 @@ begin
   //and which players should be ignored
   fRemap := aPlayersRemap;
 
-  for i:=0 to High(fRemap) do
+  for I := 0 to High(fRemap) do
     inc(fRemapCount);
 end;
 
@@ -687,7 +687,13 @@ begin
     ct_SendGroup:       if fLastPlayer >= 0 then
                         begin
                           if fLastTroop <> nil then
-                            fLastTroop.OrderWalk(KMPoint(P[0]+1, P[1]+1), TKMDirection(P[2]+1))
+                            if fParsingMode = mpm_Editor then
+                            begin
+                              fLastTroop.MapEdOrder.Order := goWalkTo;
+                              fLastTroop.MapEdOrder.Pos := KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1));
+                            end
+                            else
+                              fLastTroop.OrderWalk(KMPoint(P[0]+1, P[1]+1), TKMDirection(P[2]+1))
                           else
                             AddError('ct_SendGroup without prior declaration of Troop');
                         end;
@@ -735,8 +741,14 @@ begin
                           //If target is nothing: move to position
                           //However, because the unit/house target may not have been created yet, this must be processed after everything else
                           if fLastTroop <> nil then
+                          if fParsingMode = mpm_Editor then
                           begin
-                            inc(fAttackPositionsCount);
+                            fLastTroop.MapEdOrder.Order := goAttackUnit;
+                            fLastTroop.MapEdOrder.Pos := KMPointDir(P[0]+1, P[1]+1, dir_NA);
+                          end
+                          else
+                          begin
+                            Inc(fAttackPositionsCount);
                             SetLength(fAttackPositions, fAttackPositionsCount+1);
                             fAttackPositions[fAttackPositionsCount-1].Group := fLastTroop;
                             fAttackPositions[fAttackPositionsCount-1].Target := KMPoint(P[0]+1,P[1]+1);
@@ -807,20 +819,22 @@ end;
 //Determine what we are attacking: House, Unit or just walking to some place
 procedure TMissionParserStandard.ProcessAttackPositions;
 var
-  i: integer;
+  I: Integer;
   H: TKMHouse;
   U: TKMUnit;
 begin
-  for i:=0 to fAttackPositionsCount-1 do
-    with fAttackPositions[i] do
+  Assert((fParsingMode <> mpm_Editor) or (fAttackPositionsCount = 0), 'AttackPositions should be handled by MapEd');
+
+  for I := 0 to fAttackPositionsCount - 1 do
+    with fAttackPositions[I] do
     begin
-      H := fPlayers.HousesHitTest(Target.X,Target.Y); //Attack house
-      if (H <> nil) and (not H.IsDestroyed) and (fPlayers.CheckAlliance(Group.Owner,H.Owner) = at_Enemy) then
+      H := fPlayers.HousesHitTest(Target.X, Target.Y); //Attack house
+      if (H <> nil) and (not H.IsDestroyed) and (fPlayers.CheckAlliance(Group.Owner, H.Owner) = at_Enemy) then
         Group.OrderAttackHouse(H)
       else
       begin
-        U := fTerrain.UnitsHitTest(Target.X,Target.Y); //Chase/attack unit
-        if (U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(Group.Owner,U.Owner) = at_Enemy) then
+        U := fTerrain.UnitsHitTest(Target.X, Target.Y); //Chase/attack unit
+        if (U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(Group.Owner, U.Owner) = at_Enemy) then
           Group.OrderAttackUnit(U)
         else
           Group.OrderWalk(Target); //Just move to position
@@ -830,7 +844,7 @@ end;
 
 
 //Write out a KaM format mission file to aFileName
-procedure TMissionParserStandard.SaveDATFile(const aFileName: String);
+procedure TMissionParserStandard.SaveDATFile(const aFileName: string);
 const
   COMMANDLAYERS = 4;
 var
@@ -886,7 +900,7 @@ var
     AddData(OutData);
   end;
 
-  procedure AddCommand(aCommand:TKMCommandType; aParams:array of integer); overload;
+  procedure AddCommand(aCommand:TKMCommandType; aParams: array of integer); overload;
   begin
     AddCommand(aCommand, cpt_Unknown, aParams);
   end;
@@ -1109,6 +1123,11 @@ begin
       AddCommand(ct_SetGroup, [UnitTypeToIndex[Group.UnitType], Group.Position.X-1, Group.Position.Y-1, Byte(Group.Direction)-1, Group.UnitsPerRow, Group.MapEdCount]);
       if Group.Condition = UNIT_MAX_CONDITION then
         AddCommand(ct_SetGroupFood, []);
+
+      if Group.MapEdOrder.Order = goWalkTo then
+        AddCommand(ct_SendGroup, [Group.MapEdOrder.Pos.Loc.X-1, Group.MapEdOrder.Pos.Loc.Y-1, Byte(Group.MapEdOrder.Pos.Dir)-1]);
+      if Group.MapEdOrder.Order = goAttackUnit then
+        AddCommand(ct_AttackPosition, [Group.MapEdOrder.Pos.Loc.X-1, Group.MapEdOrder.Pos.Loc.Y-1]);
     end;
 
     AddData(''); //NL

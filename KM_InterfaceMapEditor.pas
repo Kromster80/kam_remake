@@ -1165,6 +1165,8 @@ begin
     Button_ArmyDec.OnClickEither := Unit_ArmyChange2;
     Button_ArmyFood.OnClick := Unit_ArmyChange1;
     Button_ArmyInc.OnClickEither := Unit_ArmyChange2;
+
+    //todo: add Group order (see MapEdOrder field)
 end;
 
 

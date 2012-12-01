@@ -5,6 +5,7 @@
  +	Archers behave badly when you tell them to attack directly (houses and units)
  +	Saving a game or a map in MapEd with a name ending/starting in a space crashes with "Invalid file name"
  +	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows
+ +	MapEd did not saved Group orders (sendGroup and AttackPosition)
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
