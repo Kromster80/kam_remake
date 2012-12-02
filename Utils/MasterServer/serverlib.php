@@ -297,12 +297,16 @@ function GetServers($aFormat,$aRev)
 				case "kamclub":
 				case "kamclubeng":
 				case "table":
+					//Clean color codes matching [$xxxxxx] or []
+					$Name = preg_replace('/\\[\\$[0-9a-fA-F]{6}\\]|\\[\\]|\[\]/',"",$Name); //WTF regex
 					$Country = IPToCountry($IP);
 					$Warning = '';
 					if(!$Alive) $Warning = ' <IMG src="http://kam.hodgman.id.au/error.png" alt="Server unreachable" style="vertical-align:middle">';
 					$Result .= "<TR class=\"no_translate\"><TD><IMG src=\"http://kam.hodgman.id.au/flags/".strtolower($Country).".gif\" alt=\"".GetCountryName($Country)."\">&nbsp;$Name</TD><TD>$Warning$IP</TD><TD style=\"text-align: center\">$PlayerCount</TD></TR>\n";
 					break;
 				case "ajaxupdate":
+					//Clean color codes matching [$xxxxxx] or []
+					$Name = preg_replace('/\\[\\$[0-9a-fA-F]{6}\\]|\\[\\]|\[\]/',"",$Name); //WTF regex
 					$srvsgl = array();
 					$srvsgl['c'] = strtolower(IPToCountry($IP));
 					$srvsgl['n'] = $Name;
@@ -359,7 +363,7 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
 	  } else $aAlive = false;
 	}
 	else
-	  $aAlive = (file_get_contents('http://46.4.113.186/portcheckbool.php?ip='.$aIP.'&port='.$aPort.'') == 'TRUE');
+	  $aAlive = (file_get_contents('http://www.kamremake.com/portcheck.php?ip='.$aIP.'&port='.$aPort.'') == 'TRUE');
 	
 	//Only record statistics about the main revision (for now)
 	if (($DO_STATS) && ($aRev == $MAIN_VERSION)) StatsUpdate($aName,$aPlayerCount);
