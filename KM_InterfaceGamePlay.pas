@@ -448,10 +448,11 @@ begin
   begin
     fSave_Selected := TKMListBox(Sender).ItemIndex;
     Edit_Save.Text := fSaves[List_Save.ItemIndex].FileName;
-    CheckBox_SaveExists.Enabled := False;
-    Label_SaveExists.Visible := False;
+    //We just selected something from the list so it exists
+    CheckBox_SaveExists.Enabled := True;
     CheckBox_SaveExists.Checked := False;
-    Button_Save.Enabled := True;
+    Label_SaveExists.Visible := True;
+    Button_Save.Enabled := False;
   end;
 end;
 
@@ -474,7 +475,9 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Save_CheckboxChange(Sender: TObject);
 begin
-  Button_Save.Enabled := CheckBox_SaveExists.Checked;
+  //we should protect ourselves from empty names and whitespaces at beggining and at end of name
+  Button_Save.Enabled := CheckBox_SaveExists.Checked and (Edit_Save.Text <> '') and
+                         not (Edit_Save.Text[1] = ' ') and not (Edit_Save.Text[Length(Edit_Save.Text)] = ' ');
 end;
 
 
