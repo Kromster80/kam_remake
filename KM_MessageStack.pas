@@ -7,6 +7,7 @@ uses
 
 {Messages}
 type
+  //Individual message
   TKMMessage = class
     fKind: TKMMessageKind;
     fLoc: TKMPoint;
@@ -38,6 +39,8 @@ type
     procedure AddEntry(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
     procedure RemoveEntry(aIndex: Integer);
     procedure InsertEntry(aIndex: Integer; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+    function GetMessagesCount(aKind: TKMMessageKind): Word;
+    function GetNextMessage(aKind: TKMMessageKind; aIndex: Integer): Integer;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -107,6 +110,38 @@ begin
 end;
 
 
+function TKMMessageList.GetMessagesCount(aKind: TKMMessageKind): Word;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to Count - 1 do
+  if Messages[I].Kind = aKind then
+    Inc(Result);
+end;
+
+
+function TKMMessageList.GetNextMessage(aKind: TKMMessageKind; aIndex: Integer): Integer;
+var
+  StartFrom: Integer;
+  I: Integer;
+begin
+  //If requested message is invalid - start loop anew
+  if (aIndex >= Count) or (Messages[aIndex].Kind <> aKind) then
+    StartFrom := Count - 1
+  else
+    StartFrom := aIndex;
+
+  Result := -1;
+  for I := StartFrom + Count downto StartFrom + 1 do
+  if Messages[I mod Count].Kind = aKind then
+  begin
+    Result := I;
+    Exit;
+  end;
+end;
+
+
 procedure TKMMessageList.AddEntry(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
 begin
   SetLength(fList, fCount + 1);
@@ -119,7 +154,7 @@ procedure TKMMessageList.RemoveEntry(aIndex: Integer);
 begin
   FreeAndNil(fList[aIndex]); //Release the deleted message
 
-  //Move the messges to cover the gap
+  //Move the messages to cover the gap
   if aIndex <> fCount - 1 then
     Move(fList[aIndex + 1], fList[aIndex], (fCount - 1 - aIndex) * SizeOf(TKMMessage));
 

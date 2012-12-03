@@ -588,7 +588,7 @@ begin
                           fPlayers[fLastPlayer].AddRoadToList(KMPoint(P[0]+1,P[1]+1));
     ct_SetField:        if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn);
-    ct_SetWinefield:   if fLastPlayer >= 0 then
+    ct_SetWinefield:    if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AddField(KMPoint(P[0]+1,P[1]+1),ft_Wine);
     ct_SetStock:        if fLastPlayer >= 0 then
                         begin //This command basically means: Put a SH here with road bellow it

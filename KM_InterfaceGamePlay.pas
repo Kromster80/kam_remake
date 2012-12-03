@@ -10,7 +10,9 @@ uses
   KM_Controls, KM_Houses, KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
-const MAX_VISIBLE_MSGS = 32;
+const
+  MAX_VISIBLE_MSGS = 32;
+  STACK_MSGS = False;
 
 type
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);
@@ -100,7 +102,7 @@ type
     procedure Message_Click(Sender: TObject);
     procedure Message_Close(Sender: TObject);
     procedure Message_Delete(Sender: TObject);
-    procedure Message_Display(aIndex: Integer);
+    procedure Message_Show(aIndex: Integer);
     procedure Message_GoTo(Sender: TObject);
     procedure Message_UpdateStack;
     procedure Minimap_Update(Sender: TObject; const X,Y:integer);
@@ -148,6 +150,8 @@ type
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
       Label_MPChatUnread: TKMLabel;
       Image_Message: array[0..MAX_VISIBLE_MSGS]of TKMImage; //Queue of messages covers 32*48=1536px height
+      Image_MessageK: array [TKMMessageKind] of TKMImage;
+      Label_MessageK: array [TKMMessageKind] of TKMLabel;
       Image_Clock:TKMImage; //Clock displayed when game speed is increased
       Label_Clock:TKMLabel;
       Label_ClockSpeedup:TKMLabel;
@@ -959,7 +963,9 @@ end;
 
 
 procedure TKMGamePlayInterface.Create_SideStack;
-var I: Integer;
+var
+  I: Integer;
+  MT: TKMMessageKind;
 begin
   Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48,30,48,494);
   Image_MPChat.Anchors := [akLeft, akBottom];
@@ -974,13 +980,14 @@ begin
 
   Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48*2,30,48,496);
   Image_MPAllies.Anchors := [akLeft, akBottom];
-  Image_MPAllies.HighlightOnMouseOver := true;
+  Image_MPAllies.HighlightOnMouseOver := True;
   Image_MPAllies.Hint := fTextLibrary[TX_GAMEPLAY_PLAYERS_HINT];
   Image_MPAllies.OnClick := Allies_Click;
 
+  if not STACK_MSGS then
   for I := 0 to MAX_VISIBLE_MSGS do
   begin
-    Image_Message[I] := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,0,30,48,495);
+    Image_Message[I] := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, 0, 30, 48, 495);
     Image_Message[I].Top := Panel_Main.Height - (I+1)*48 - IfThen(fMultiplayer, 48*2);
     Image_Message[I].Anchors := [akLeft, akBottom];
     Image_Message[I].Disable;
@@ -988,6 +995,23 @@ begin
     Image_Message[I].HighlightOnMouseOver := True;
     Image_Message[I].Tag := I;
     Image_Message[I].OnClick := Message_Click;
+  end;
+
+  if STACK_MSGS then
+  for MT := Low(MT) to High(MT) do
+  begin
+    Image_MessageK[MT] := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, 0, 30, 48, 495);
+    Image_MessageK[MT].Top := Panel_Main.Height - (Byte(MT)+1) * 48 - IfThen(fMultiplayer, 48*2);
+    Image_MessageK[MT].Anchors := [akLeft, akBottom];
+    Image_MessageK[MT].Disable;
+    Image_MessageK[MT].Hide;
+    Image_MessageK[MT].HighlightOnMouseOver := True;
+    Image_MessageK[MT].Tag := Byte(MT);
+    Image_MessageK[MT].OnClick := Message_Click;
+    Label_MessageK[MT] := TKMLabel.Create(Panel_Main, TOOLBAR_WIDTH, Image_MessageK[MT].Top + 10, 30, 0, '', fnt_Outline, taCenter);
+    Label_MessageK[MT].AutoWrap := True;
+    Label_MessageK[MT].Hide;
+    Label_MessageK[MT].Hitable := False; //Clicks should only go to the image, not the flashing label
   end;
 end;
 
@@ -1821,21 +1845,43 @@ end;
 
 //Click on the same message again closes it
 procedure TKMGamePlayInterface.Message_Click(Sender: TObject);
+var
+  Msg: Integer;
 begin
+  if not STACK_MSGS then
   if TKMImage(Sender).Tag <> ShownMessage then
-    Message_Display(TKMImage(Sender).Tag)
+    Message_Show(TKMImage(Sender).Tag)
   else
     Message_Close(Sender);
+
+  //When clicking on a stacked messages - open top one
+  //On consecutive clicks - loop through
+  if STACK_MSGS then
+  begin
+    Msg := fMessageList.GetNextMessage(TKMMessageKind(TKMImage(Sender).Tag), ShownMessage);
+    if Msg <> ShownMessage then
+      Message_Show(Msg)
+    else
+      Message_Close(Sender);
+  end;
 end;
 
 
-procedure TKMGamePlayInterface.Message_Display(aIndex: Integer);
-var I: Integer;
+procedure TKMGamePlayInterface.Message_Show(aIndex: Integer);
+var
+  I: Integer;
+  MT: TKMMessageKind;
 begin
   ShownMessage := aIndex;
 
+  //Highlight target message icon
+  if not STACK_MSGS then
   for I := 0 to MAX_VISIBLE_MSGS do
     Image_Message[I].Highlight := (ShownMessage = I);
+
+  if STACK_MSGS then
+  for MT := Low(MT) to High(MT) do
+    Image_MessageK[MT].Highlight := fMessageList[ShownMessage].Kind = MT;
 
   Label_MessageText.Caption := fMessageList[ShownMessage].Text;
   Button_MessageGoTo.Enabled := fMessageList[ShownMessage].IsGoto;
@@ -1847,13 +1893,25 @@ begin
 end;
 
 
+//Message has been closed
 procedure TKMGamePlayInterface.Message_Close(Sender: TObject);
+var
+  MT: TKMMessageKind;
 begin
+  //Remove highlight
   if ShownMessage <> -1 then
   begin
-    Image_Message[ShownMessage].Highlight := False;
+    if not STACK_MSGS then
+      Image_Message[ShownMessage].Highlight := False;
+
+    if STACK_MSGS then
+    for MT := Low(MT) to High(MT) do
+      Image_MessageK[MT].Highlight := False;
+
+    //Play sound
     fSoundLib.Play(sfx_MessageClose);
   end;
+
   ShownMessage := -1;
   Panel_Message.Hide;
 end;
@@ -1862,6 +1920,15 @@ end;
 procedure TKMGamePlayInterface.Message_Delete(Sender: TObject);
 begin
   if ShownMessage = -1 then Exit; //Player pressed DEL with no Msg opened
+
+  //Feed in next message of same kind instead
+  if STACK_MSGS then
+  begin
+    //Get next before we delete current to preserve loop consistently
+    Msg := fMessageList.GetNextMessage(fMessageList[ShownMessage].Kind, ShownMessage);
+    if Msg <> ShownMessage then
+      Message_Show(Msg);
+  end;
 
   fMessageList.RemoveEntry(ShownMessage);
   Message_Close(Sender);
@@ -1877,9 +1944,13 @@ end;
 
 
 procedure TKMGamePlayInterface.Message_UpdateStack;
-var I: Integer;
+var
+  I: Integer;
+  MT: TKMMessageKind;
+  MsgCount: Word;
 begin
   //MassageList is unlimited, while Image_Message has fixed depth and samples data from the list on demand
+  if not STACK_MSGS then
   for I := 0 to MAX_VISIBLE_MSGS do
   begin
     //Disable and hide at once for safety
@@ -1887,6 +1958,16 @@ begin
     Image_Message[I].Visible := (I <= fMessageList.Count - 1);
     if I <= fMessageList.Count - 1 then
       Image_Message[i].TexID := fMessageList[I].Icon;
+  end;
+
+  if STACK_MSGS then
+  for MT := Low(MT) to High(MT) do
+  begin
+    MsgCount := fMessageList.GetMessagesCount(MT);
+    Image_MessageK[MT].Enabled := MsgCount > 0;
+    Image_MessageK[MT].Visible := MsgCount > 0;
+    Label_MessageK[MT].Visible := MsgCount > 0;
+    Label_MessageK[MT].Caption := IntToStr(MsgCount);
   end;
 end;
 

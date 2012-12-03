@@ -222,6 +222,7 @@ type
       Label_HouseHealth: TKMLabel;
       KMHealthBar_House: TKMPercentBar;
       Button_HouseHealthDec, Button_HouseHealthInc: TKMButton;
+      Label_House_Supply: TKMLabel;
       ResRow_Resource: array [0..3] of TKMResourceOrderRow;
 
       Panel_HouseStore:TKMPanel;
@@ -1190,9 +1191,11 @@ begin
     Button_HouseHealthDec.OnClickEither := House_HealthChange;
     Button_HouseHealthInc.OnClickEither := House_HealthChange;
 
+    Label_House_Supply := TKMLabel.Create(Panel_House, 0, 85, TB_WIDTH, 0, fTextLibrary[TX_HOUSE_SUPPLIES], fnt_Grey, taCenter);
+
     for I := 0 to 3 do
     begin
-      ResRow_Resource[I] := TKMResourceOrderRow.Create(Panel_House, 0, 80 + I * 25, TB_WIDTH, 20);
+      ResRow_Resource[I] := TKMResourceOrderRow.Create(Panel_House, 0, 105 + I * 25, TB_WIDTH, 20);
       ResRow_Resource[I].RX := rxGui;
       ResRow_Resource[I].OrderAdd.OnClickEither := House_HealthChange;
       ResRow_Resource[I].OrderRem.OnClickEither := House_HealthChange;
@@ -1720,6 +1723,7 @@ begin
   KMHealthBar_House.Caption := IntToStr(Round(Sender.GetHealth)) + '/' + IntToStr(HouseDat.MaxHealth);
   KMHealthBar_House.Position := Sender.GetHealth / HouseDat.MaxHealth;
 
+  Label_House_Supply.Hide;
   for I := 0 to 3 do
   begin
     Res := HouseDat.ResInput[I+1];
@@ -1731,6 +1735,7 @@ begin
       ResRow_Resource[I].ResourceCount := Sender.CheckResIn(Res);
       ResRow_Resource[I].OrderCount := Sender.CheckResIn(Res);
       ResRow_Resource[I].Show;
+      Label_House_Supply.Show;
     end
     else
       ResRow_Resource[I].Hide;
