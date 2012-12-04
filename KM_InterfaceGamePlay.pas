@@ -12,7 +12,7 @@ uses
 
 const
   MAX_VISIBLE_MSGS = 32;
-  STACK_MSGS = False;
+  STACK_MSGS = True;
 
 type
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);
@@ -1008,6 +1008,7 @@ begin
     Image_MessageK[MT].HighlightOnMouseOver := True;
     Image_MessageK[MT].Tag := Byte(MT);
     Image_MessageK[MT].OnClick := Message_Click;
+
     Label_MessageK[MT] := TKMLabel.Create(Panel_Main, TOOLBAR_WIDTH, Image_MessageK[MT].Top + 10, 30, 0, '', fnt_Outline, taCenter);
     Label_MessageK[MT].AutoWrap := True;
     Label_MessageK[MT].Hide;
@@ -1918,8 +1919,12 @@ end;
 
 
 procedure TKMGamePlayInterface.Message_Delete(Sender: TObject);
+var
+  Msg, ToDelete: Integer;
 begin
   if ShownMessage = -1 then Exit; //Player pressed DEL with no Msg opened
+
+  ToDelete := ShownMessage;
 
   //Feed in next message of same kind instead
   if STACK_MSGS then
@@ -1930,7 +1935,7 @@ begin
       Message_Show(Msg);
   end;
 
-  fMessageList.RemoveEntry(ShownMessage);
+  fMessageList.Remove(ToDelete);
   Message_Close(Sender);
   Message_UpdateStack;
   DisplayHint(nil);
@@ -2824,7 +2829,7 @@ end;
 
 procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: string);
 begin
-  fMessageList.AddEntry(aKind, aText, KMPoint(0,0));
+  fMessageList.Add(aKind, aText, KMPoint(0,0));
   Message_UpdateStack;
   fSoundLib.Play(sfx_MessageNotice, 4); //Play horn sound on new message if it is the right type
 end;
@@ -2832,7 +2837,7 @@ end;
 
 procedure TKMGamePlayInterface.MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
 begin
-  fMessageList.AddEntry(aKind, aText, aLoc);
+  fMessageList.Add(aKind, aText, aLoc);
   Message_UpdateStack;
   fSoundLib.Play(sfx_MessageNotice, 4); //Play horn sound on new message if it is the right type
 end;

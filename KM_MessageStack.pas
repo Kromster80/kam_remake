@@ -36,9 +36,9 @@ type
     property Count: Integer read fCount;
     property Messages[aIndex: Integer]: TKMMessage read GetMessage; default;
 
-    procedure AddEntry(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
-    procedure RemoveEntry(aIndex: Integer);
-    procedure InsertEntry(aIndex: Integer; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+    procedure Add(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+    procedure Remove(aIndex: Integer);
+    procedure Insert(aIndex: Integer; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
     function GetMessagesCount(aKind: TKMMessageKind): Word;
     function GetNextMessage(aKind: TKMMessageKind; aIndex: Integer): Integer;
 
@@ -121,28 +121,29 @@ begin
 end;
 
 
+//Get next topmost message after specified index (or start anew)
 function TKMMessageList.GetNextMessage(aKind: TKMMessageKind; aIndex: Integer): Integer;
 var
   StartFrom: Integer;
   I: Integer;
 begin
   //If requested message is invalid - start loop anew
-  if (aIndex >= Count) or (Messages[aIndex].Kind <> aKind) then
+  if not InRange(aIndex, 0, Count - 1) or (Messages[aIndex].Kind <> aKind) then
     StartFrom := Count - 1
   else
     StartFrom := aIndex;
 
   Result := -1;
-  for I := StartFrom + Count downto StartFrom + 1 do
+  for I := StartFrom + Count - 1 downto StartFrom do
   if Messages[I mod Count].Kind = aKind then
   begin
-    Result := I;
+    Result := (I mod Count);
     Exit;
   end;
 end;
 
 
-procedure TKMMessageList.AddEntry(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+procedure TKMMessageList.Add(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
 begin
   SetLength(fList, fCount + 1);
   fList[fCount] := TKMMessage.Create(aKind, aText, aLoc);
@@ -150,7 +151,7 @@ begin
 end;
 
 
-procedure TKMMessageList.RemoveEntry(aIndex: Integer);
+procedure TKMMessageList.Remove(aIndex: Integer);
 begin
   FreeAndNil(fList[aIndex]); //Release the deleted message
 
@@ -165,7 +166,7 @@ end;
 
 
 //Might be of use with priority messages
-procedure TKMMessageList.InsertEntry(aIndex: Integer; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
+procedure TKMMessageList.Insert(aIndex: Integer; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
 begin
   SetLength(fList, fCount + 1);
   if aIndex <> fCount then

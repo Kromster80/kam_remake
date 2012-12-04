@@ -6,7 +6,6 @@ program KaM_RemakeTests;
 //{$DEFINE DUNIT_TEST} Defined in ProjectOptions
 
 uses
-  //FastMM4,
   Forms,
   TestFramework,
   GUITestRunner,
@@ -16,7 +15,8 @@ uses
   TestKM_FogOfWar in 'TestKM_FogOfWar.pas',
   TestKM_Points in 'TestKM_Points.pas',
   TestKM_Utils in 'TestKM_Utils.pas',
-  TestKM_UnitActionGoInOut in 'TestKM_UnitActionGoInOut.pas';
+  TestKM_UnitActionGoInOut in 'TestKM_UnitActionGoInOut.pas',
+  TestKM_MessageStack in 'TestKM_MessageStack.pas';
 
 {$R *.RES}
 
