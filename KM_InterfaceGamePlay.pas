@@ -963,6 +963,8 @@ end;
 
 
 procedure TKMGamePlayInterface.Create_SideStack;
+const
+  MsgIcon: array [TKMMessageKind] of Word = (491, 492, 493, 495);
 var
   I: Integer;
   MT: TKMMessageKind;
@@ -1001,6 +1003,7 @@ begin
   for MT := Low(MT) to High(MT) do
   begin
     Image_MessageK[MT] := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, 0, 30, 48, 495);
+    Image_MessageK[MT].TexID := MsgIcon[MT];
     Image_MessageK[MT].Top := Panel_Main.Height - (Byte(MT)+1) * 48 - IfThen(fMultiplayer, 48*2);
     Image_MessageK[MT].Anchors := [akLeft, akBottom];
     Image_MessageK[MT].Disable;
@@ -1009,8 +1012,8 @@ begin
     Image_MessageK[MT].Tag := Byte(MT);
     Image_MessageK[MT].OnClick := Message_Click;
 
-    Label_MessageK[MT] := TKMLabel.Create(Panel_Main, TOOLBAR_WIDTH, Image_MessageK[MT].Top + 10, 30, 0, '', fnt_Outline, taCenter);
-    Label_MessageK[MT].AutoWrap := True;
+    Label_MessageK[MT] := TKMLabel.Create(Panel_Main, TOOLBAR_WIDTH, Image_MessageK[MT].Top + 3, 26, 0, '', fnt_Outline, taRight);
+    Label_MessageK[MT].Anchors := [akLeft, akBottom];
     Label_MessageK[MT].Hide;
     Label_MessageK[MT].Hitable := False; //Clicks should only go to the image, not the flashing label
   end;
@@ -1920,23 +1923,26 @@ end;
 
 procedure TKMGamePlayInterface.Message_Delete(Sender: TObject);
 var
-  Msg, ToDelete: Integer;
+  NewMsg, OldMsg: Integer;
+  OldKind: TKMMessageKind;
 begin
   if ShownMessage = -1 then Exit; //Player pressed DEL with no Msg opened
 
-  ToDelete := ShownMessage;
+  OldMsg := ShownMessage;
+  OldKind := fMessageList[ShownMessage].Kind;
+
+  Message_Close(Sender);
+  fMessageList.Remove(OldMsg);
 
   //Feed in next message of same kind instead
   if STACK_MSGS then
   begin
-    //Get next before we delete current to preserve loop consistently
-    Msg := fMessageList.GetNextMessage(fMessageList[ShownMessage].Kind, ShownMessage);
-    if Msg <> ShownMessage then
-      Message_Show(Msg);
+    //Get next message (which was below)
+    NewMsg := fMessageList.GetNextMessage(OldKind, OldMsg);
+    if (NewMsg <> -1) then
+      Message_Show(NewMsg);
   end;
 
-  fMessageList.Remove(ToDelete);
-  Message_Close(Sender);
   Message_UpdateStack;
   DisplayHint(nil);
 end;
@@ -1965,14 +1971,22 @@ begin
       Image_Message[i].TexID := fMessageList[I].Icon;
   end;
 
+  I := Panel_Main.Height - 48 - IfThen(fMultiplayer, 48 * 2);
   if STACK_MSGS then
   for MT := Low(MT) to High(MT) do
   begin
     MsgCount := fMessageList.GetMessagesCount(MT);
+
+    Image_MessageK[MT].Top := I;
+    Label_MessageK[MT].Top := I + 3;
+
     Image_MessageK[MT].Enabled := MsgCount > 0;
     Image_MessageK[MT].Visible := MsgCount > 0;
-    Label_MessageK[MT].Visible := MsgCount > 0;
+    Label_MessageK[MT].Visible := MsgCount > 1;
     Label_MessageK[MT].Caption := IntToStr(MsgCount);
+
+    if MsgCount > 0 then
+      Dec(I, Image_MessageK[MT].Height);
   end;
 end;
 
