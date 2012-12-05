@@ -20,6 +20,8 @@ type
   //3. Add method name to Runtime (TKMScripting.LinkRuntime)
   TKMScriptStates = class
     function GameTime: Cardinal;
+    function PlayerCount: Integer;
+    function PlayerDefeated(aIndex: Byte): Boolean;
   end;
 
   TKMScriptActions = class
@@ -47,6 +49,18 @@ uses KM_AI, KM_Houses, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection
 function TKMScriptStates.GameTime: Cardinal;
 begin
   Result := fGame.GameTickCount;
+end;
+
+
+function TKMScriptStates.PlayerCount: Integer;
+begin
+  Result := fPlayers.Count;
+end;
+
+
+function TKMScriptStates.PlayerDefeated(aIndex: Byte): Boolean;
+begin
+  Result := (fPlayers[aIndex].AI.WonOrLost = wol_Lost);
 end;
 
 

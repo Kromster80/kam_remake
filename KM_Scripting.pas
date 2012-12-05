@@ -115,6 +115,8 @@ begin
     with Sender.AddClassN(nil, fStates.ClassName) do
     begin
       RegisterMethod('function GameTime: Cardinal');
+      RegisterMethod('function PlayerCount: Integer');
+      RegisterMethod('function PlayerDefeated(aIndex: Byte): Boolean');
     end;
 
     with Sender.AddClassN(nil, fActions.ClassName) do
@@ -219,6 +221,8 @@ begin
   with ClassImp.Add(TKMScriptStates) do
   begin
     RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
+    RegisterMethod(@TKMScriptStates.PlayerCount, 'PLAYERCOUNT');
+    RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
   end;
 
   with ClassImp.Add(TKMScriptActions) do

@@ -12,7 +12,6 @@ uses
 
 const
   MAX_VISIBLE_MSGS = 32;
-  STACK_MSGS = True;
 
 type
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);

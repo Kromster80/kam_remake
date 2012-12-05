@@ -68,6 +68,7 @@ var
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
   AI_GEN_NAVMESH        :Boolean = True; //Generate navmesh for AI to plan attacks/defenses
   AI_GEN_INFLUENCE_MAPS :Boolean = True; //Generate influence maps for AI to plan attacks/defenses
+  STACK_MSGS            :Boolean = True; //Stack messages of similar kinds in UI
 
   //These are debug things, should be False
   {User interface options}
