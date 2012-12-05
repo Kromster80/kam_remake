@@ -374,7 +374,7 @@ type
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
     procedure SetCursorPos(aPos: Integer);
     procedure SetText(aText: string);
-    procedure ValidateText();
+    procedure ValidateText;
     function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
   public
     Masked: Boolean; //Mask entered text as *s
@@ -1936,7 +1936,7 @@ end;
 { TKMEdit }
 constructor TKMEdit.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 begin
-  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fText := '<<<LEER>>>';
   fFont := aFont;
   fAllowedChars := acText; //Set to the widest by default
@@ -1962,12 +1962,12 @@ begin
   else
   begin
     //Remove characters to the left of fLeftIndex
-    RText := Copy(fText, fLeftIndex+1, length(fText));
+    RText := Copy(fText, fLeftIndex+1, Length(fText));
     while fCursorPos-fLeftIndex > fResource.ResourceFont.CharsThatFit(RText, fFont, Width-8) do
     begin
-      inc(fLeftIndex);
+      Inc(fLeftIndex);
       //Remove characters to the left of fLeftIndex
-      RText := Copy(fText, fLeftIndex+1, length(fText));
+      RText := Copy(fText, fLeftIndex+1, Length(fText));
     end;
   end;
 end;
@@ -1976,35 +1976,33 @@ end;
 procedure TKMEdit.SetText(aText: string);
 begin
   fText := aText;
-  CursorPos := math.min(CursorPos, Length(fText));
+  CursorPos := Math.Min(CursorPos, Length(fText));
   //Setting the text should place cursor to the end
   fLeftIndex := 0;
   SetCursorPos(Length(Text));
-  ValidateText();
+  ValidateText;
 end;
 
 
 //Validates fText basing on predefined sets of allowed or disallowed chars
 //It iterates from end to start of a string - deletes chars and moves cursor appropriately
-procedure TKMEdit.ValidateText();
+procedure TKMEdit.ValidateText;
 var
-  i : integer;
+  I: Integer;
 const
   DigitChars: set of Char = ['1' .. '9', '0'];
   NonFileChars: set of Char = [#0 .. #31, '<', '>', '|', '"', '\', '/', ':', '*', '?'];
   NonTextChars: set of Char = [#0 .. #31, '|'];
 begin
-  for i:= Length(fText) downto 1 do
+  for I := Length(fText) downto 1 do
+  if (fAllowedChars = acDigits) and not(fText[i] in DigitChars) or
+     (fAllowedChars = acFileName) and (fText[i] in NonFileChars) or
+     (fAllowedChars = acText) and (fText[i] in NonTextChars) then
   begin
-    if(fAllowedChars = acDigits) and not(fText[i] in DigitChars) or
-      (fAllowedChars = acFileName) and (fText[i] in NonFileChars) or
-      (fAllowedChars = acText) and (fText[i] in NonTextChars) then
-        begin
-          Delete(fText, i, 1);
-          if CursorPos >= i then
-            CursorPos := CursorPos - 1;
-        end;
-    end;
+    Delete(fText, I, 1);
+    if CursorPos >= I then //Keep cursor in place
+      CursorPos := CursorPos - 1;
+  end;
 end;
 
 
@@ -2012,20 +2010,22 @@ end;
 function TKMEdit.KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := True;
-  if fText = '' then
-    //Don't include backspace/delete because edits should always handle those. Otherwise when you
-    //press backspace repeatedly to remove all characters it will apply other shortcuts like
-    //resetting the zoom if you press it once too many times.
-    case Key of
-      VK_UP,
-      VK_DOWN,
-      VK_LEFT,
-      VK_RIGHT,
-      VK_HOME,
-      VK_END: Result := False; //These keys have no effect when text is blank
-    end;
+
+  //Don't include backspace/delete because edits should always handle those. Otherwise when you
+  //press backspace repeatedly to remove all characters it will apply other shortcuts like
+  //resetting the zoom if you press it once too many times.
+  case Key of
+    VK_UP,
+    VK_DOWN,
+    VK_LEFT,
+    VK_RIGHT,
+    VK_HOME,
+    VK_END: Result := (fText <> ''); //These keys have no effect when text is blank
+  end;
+
   //We want these keys to be ignored by chat, so game shortcuts still work
   if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
+
   //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
   if ssCtrl in Shift then Result := (Key in [Ord('C'), Ord('X'), Ord('V')]);
 end;
@@ -2034,21 +2034,23 @@ end;
 function TKMEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := KeyEventHandled(Key, Shift);
-  if inherited KeyDown(Key, Shift) or ReadOnly then exit;
+  if inherited KeyDown(Key, Shift) or ReadOnly then Exit;
 
   //Clipboard operations
   if (Shift = [ssCtrl]) and (Key <> VK_CONTROL) then
   begin
     case Key of
-      Ord('C'):    Clipboard.AsText := fText;
-      Ord('X'):    begin Clipboard.AsText := fText; Text := ''; end;
-      Ord('V'):
-      begin
-          Insert(Clipboard.AsText, fText, CursorPos + 1);
-          CursorPos := CursorPos + Length(Clipboard.AsText);
-          ValidateText();
-        end;
-      end;
+      Ord('C'): Clipboard.AsText := fText;
+      Ord('X'): begin
+                  Clipboard.AsText := fText;
+                  Text := '';
+                end;
+      Ord('V'): begin
+                  Insert(Clipboard.AsText, fText, CursorPos + 1);
+                  CursorPos := CursorPos + Length(Clipboard.AsText);
+                  ValidateText;
+                end;
+    end;
   end;
 
   case Key of
@@ -2057,7 +2059,7 @@ begin
     VK_LEFT:    CursorPos := CursorPos-1;
     VK_RIGHT:   CursorPos := CursorPos+1;
     VK_HOME:    CursorPos := 0;
-    VK_END:     CursorPos := length(fText);
+    VK_END:     CursorPos := Length(fText);
   end;
 
   if Assigned(OnKeyDown) then OnKeyDown(Self, Key);
@@ -2070,14 +2072,14 @@ begin
 
   Insert(Key, fText, CursorPos + 1);
   CursorPos := CursorPos + 1;
-  ValidateText();
+  ValidateText;
 end;
 
 
 function TKMEdit.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := KeyEventHandled(Key, Shift);
-  if inherited KeyUp(Key, Shift) or ReadOnly then exit;
+  if inherited KeyUp(Key, Shift) or ReadOnly then Exit;
 
   if Assigned(OnChange) then OnChange(Self);
 end;
@@ -2087,7 +2089,7 @@ procedure TKMEdit.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton
 begin
   if ReadOnly then Exit;
   inherited;
-  CursorPos := length(fText);
+  CursorPos := Length(fText);
 end;
 
 
