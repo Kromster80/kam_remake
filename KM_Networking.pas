@@ -47,49 +47,49 @@ type
   //Should handle message exchange and routing, interacting with UI
   TKMNetworking = class
   private
-    fNetServer:TKMDedicatedServer;
-    fNetClient:TKMNetClient;
-    fServerQuery:TKMServerQuery;
-    fNetPlayerKind: TNetPlayerKind; //Our role (Host or Joiner)
+    fNetServer: TKMDedicatedServer;
+    fNetClient: TKMNetClient;
+    fServerQuery: TKMServerQuery;
+    fNetPlayerKind: TNetPlayerKind; // Our role (Host or Joiner)
     fNetGameState: TNetGameState;
-    fServerAddress:string; //Used for reconnecting
-    fServerPort:string; //Used for reconnecting
-    fRoomToJoin:integer; //The room we should join once we hear from the server
-    fLastProcessedTick:cardinal;
-    fReconnectRequested:cardinal; //TickCount at which a reconnection was requested
-    fMyLang:string;
-    fMyNikname:string;
-    fWelcomeMessage:string;
-    fServerName:string; //Name of the server we are currently in (shown in the lobby)
-    fMyIndexOnServer:integer;
-    fMyIndex:integer; //In NetPlayers list
-    fIgnorePings: integer; //During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
-    fJoinTimeout:cardinal;
-    fNetPlayers:TKMPlayersList;
+    fServerAddress: string; // Used for reconnecting
+    fServerPort: string; // Used for reconnecting
+    fRoomToJoin: integer; // The room we should join once we hear from the server
+    fLastProcessedTick: cardinal;
+    fReconnectRequested: cardinal; // TickCount at which a reconnection was requested
+    fMyLang: string;
+    fMyNikname: string;
+    fWelcomeMessage: string;
+    fServerName: string; // Name of the server we are currently in (shown in the lobby)
+    fMyIndexOnServer: integer;
+    fMyIndex: integer; // In NetPlayers list
+    fIgnorePings: integer; // During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
+    fJoinTimeout: cardinal;
+    fNetPlayers: TKMNetPlayersList;
 
-    fMapInfo:TKMapInfo; //Everything related to selected map
+    fMapInfo: TKMapInfo; // Everything related to selected map
     fSaveInfo: TKMSaveInfo;
     fSelectGameKind: TNetGameKind;
-    fNetGameOptions:TKMGameOptions;
+    fNetGameOptions: TKMGameOptions;
 
-    fOnJoinSucc:TNotifyEvent;
-    fOnJoinFail:TStringEvent;
-    fOnJoinAssignedHost:TNotifyEvent;
-    fOnHostFail:TStringEvent;
-    fOnReassignedHost:TNotifyEvent;
-    fOnTextMessage:TStringEvent;
-    fOnPlayersSetup:TNotifyEvent;
-    fOnGameOptions:TNotifyEvent;
-    fOnMapName:TStringEvent;
-    fOnStartMap:TStringEvent;
-    fOnStartSave:TStringEvent;
-    fOnPlay:TNotifyEvent;
-    fOnReadyToPlay:TNotifyEvent;
-    fOnDisconnect:TStringEvent;
-    fOnPingInfo:TNotifyEvent;
-    fOnMPGameInfoChanged:TNotifyEvent;
-    fOnCommands:TStringEvent;
-    fOnResyncFromTick:TResyncEvent;
+    fOnJoinSucc: TNotifyEvent;
+    fOnJoinFail: TStringEvent;
+    fOnJoinAssignedHost: TNotifyEvent;
+    fOnHostFail: TStringEvent;
+    fOnReassignedHost: TNotifyEvent;
+    fOnTextMessage: TStringEvent;
+    fOnPlayersSetup: TNotifyEvent;
+    fOnGameOptions: TNotifyEvent;
+    fOnMapName: TStringEvent;
+    fOnStartMap: TStringEvent;
+    fOnStartSave: TStringEvent;
+    fOnPlay: TNotifyEvent;
+    fOnReadyToPlay: TNotifyEvent;
+    fOnDisconnect: TStringEvent;
+    fOnPingInfo: TNotifyEvent;
+    fOnMPGameInfoChanged: TNotifyEvent;
+    fOnCommands: TStringEvent;
+    fOnResyncFromTick: TResyncEvent;
 
     procedure DecodePingInfo(aInfo:string);
     procedure ForcedDisconnect(const S: string);
@@ -154,7 +154,7 @@ type
     property GameInfo:TKMGameInfo read GetGameInfo;
     property NetGameOptions:TKMGameOptions read fNetGameOptions;
     property SelectGameKind: TNetGameKind read fSelectGameKind;
-    property NetPlayers:TKMPlayersList read fNetPlayers;
+    property NetPlayers:TKMNetPlayersList read fNetPlayers;
     property LastProcessedTick:cardinal write fLastProcessedTick;
     procedure GameCreated;
     procedure SendCommands(aStream:TKMemoryStream; aPlayerIndex:TPlayerIndex=-1);
@@ -200,7 +200,7 @@ begin
   fMyLang := aLang;
   fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '', False);
   fNetClient := TKMNetClient.Create;
-  fNetPlayers := TKMPlayersList.Create;
+  fNetPlayers := TKMNetPlayersList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
   fNetGameOptions := TKMGameOptions.Create;
 end;
