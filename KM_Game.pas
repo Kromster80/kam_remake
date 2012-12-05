@@ -140,6 +140,7 @@ type
     procedure SetGameSpeed(aSpeed: Word);
     procedure StepOneFrame;
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
+    procedure UpdateMultiplayerTeams;
 
     procedure UpdateGameCursor(X,Y: Integer; Shift: TShiftState);
 
@@ -369,7 +370,7 @@ procedure TKMGame.GameStart(aMissionFile, aGameName, aCampName: string; aCampMap
 var
   I: Integer;
   ParseMode: TMissionParsingMode;
-  PlayerRemap: TPlayerArray;
+  PlayerEnabled: TPlayerEnabledArray;
   Parser: TMissionParserStandard;
 begin
   fLog.AddTime('GameStart');
@@ -383,19 +384,16 @@ begin
 
   fLog.AddTime('Loading DAT file: ' + aMissionFile);
 
+  //Disable players in MP to skip their assets from loading by MissionParser
+  //In SP all players are enabled by default
   if fGameMode = gmMulti then
   begin
-    for I := 0 to High(PlayerRemap) do
-      PlayerRemap[I] := PLAYER_NONE; //Init with empty values
+    FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #0);
     for I := 1 to fNetworking.NetPlayers.Count do
-    begin
-      PlayerRemap[fNetworking.NetPlayers[I].StartLocation - 1] := I - 1; //PlayerID is 0 based
-      fNetworking.NetPlayers[I].StartLocation := I;
-    end;
+      PlayerEnabled[fNetworking.NetPlayers[I].StartLocation - 1] := True; //PlayerID is 0 based
   end
   else
-    for I := 0 to High(PlayerRemap) do
-      PlayerRemap[I] := I; //Init with empty values
+    FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #255);
 
   //Choose how we will parse the script
   case fGameMode of
@@ -409,7 +407,7 @@ begin
     //Mission loader needs to read the data into MapEd (e.g. FOW revealers)
     fMapEditor := TKMMapEditor.Create;
 
-  Parser := TMissionParserStandard.Create(ParseMode, PlayerRemap, False);
+  Parser := TMissionParserStandard.Create(ParseMode, PlayerEnabled, False);
   try
     if not Parser.LoadMission(aMissionFile) then
       raise Exception.Create(Parser.FatalErrors);
@@ -479,18 +477,18 @@ end;
 procedure TKMGame.MultiplayerRig;
 var
   i,k:integer;
-  PlayerIndex:TPlayerIndex;
-  PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
+  PlayerIndex: TPlayerIndex;
+  PlayerEnabled: TPlayerEnabledArray;
 begin
-  //Copy all game options from lobby to this game
+  //Copy game options from lobby to this game
   fGameOptions.Peacetime := fNetworking.NetGameOptions.Peacetime;
 
-  FillChar(PlayerUsed, SizeOf(PlayerUsed), #0);
+  FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #0);
+
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
-  for i:=1 to fNetworking.NetPlayers.Count do
+  for I := 1 to fNetworking.NetPlayers.Count do
   begin
     PlayerIndex := fNetworking.NetPlayers[i].StartLocation - 1; //PlayerID is 0 based
-    fNetworking.NetPlayers[i].PlayerIndex := fPlayers[PlayerIndex];
     fPlayers[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].GetPlayerType;
     fPlayers[PlayerIndex].PlayerName := fNetworking.NetPlayers[i].Nikname;
 
@@ -504,20 +502,18 @@ begin
           fPlayers[PlayerIndex].Alliances[k] := at_Ally;
 
     fPlayers[PlayerIndex].FlagColor := fNetworking.NetPlayers[i].FlagColor;
-    PlayerUsed[PlayerIndex] := true;
+    PlayerEnabled[PlayerIndex] := True;
   end;
 
   //MyPlayer is a pointer to TKMPlayer
   MyPlayer := fPlayers[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
 
-  //Clear remaining players
-  for i:=fPlayers.Count-1 downto 0 do
-    if not PlayerUsed[i] then
-      if fNetworking.SelectGameKind = ngk_Map then
-        fPlayers.RemovePlayer(i)
-      else
-        //We cannot remove a player from a save (as they might be interacting with other players) so make them inactive (uncontrolled human)
-        fPlayers[i].PlayerType := pt_Human;
+  //We cannot remove a player from a save (as they might be interacting with other players)
+  //so make them inactive (uncontrolled human)
+  if fNetworking.SelectGameKind = ngk_Save then
+    for I := 0 to fPlayers.Count - 1 do
+      if not PlayerEnabled[I] then
+        fPlayers[I].PlayerType := pt_Human; //Without controlling player it will be idling
 
   fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
   if fNetworking.SelectGameKind = ngk_Map then
@@ -533,7 +529,19 @@ begin
   fNetworking.OnReassignedHost := nil; //So it is no longer assigned to a lobby event
   fNetworking.GameCreated;
 
-  if fNetworking.Connected and (fNetworking.NetGameState = lgs_Loading) then GameWaitingForNetwork(true); //Waiting for players
+  if fNetworking.Connected and (fNetworking.NetGameState = lgs_Loading) then GameWaitingForNetwork(True); //Waiting for players
+end;
+
+
+procedure TKMGame.UpdateMultiplayerTeams;
+var I,K: Integer;
+begin
+  for I := 1 to fNetworking.NetPlayers.Count do
+    for K := 1 to fNetworking.NetPlayers.Count do
+      if (fNetworking.NetPlayers[I].Team = 0) or (fNetworking.NetPlayers[I].Team <> fNetworking.NetPlayers[K].Team) then
+        fPlayers[fNetworking.NetPlayers[I].StartLocation-1].Alliances[fPlayers[fNetworking.NetPlayers[K].StartLocation-1].PlayerIndex] := at_Enemy
+      else
+        fPlayers[fNetworking.NetPlayers[I].StartLocation-1].Alliances[fPlayers[fNetworking.NetPlayers[K].StartLocation-1].PlayerIndex] := at_Ally;
 end;
 
 

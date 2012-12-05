@@ -337,7 +337,7 @@ var
 begin
   Result := true;
   for I := 1 to fNetworking.NetPlayers.Count do
-    Result := Result and (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[I].PlayerIndex.PlayerIndex]
+    Result := Result and (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[I].StartLocation - 1]
               or not fNetworking.NetPlayers[I].IsHuman or fNetworking.NetPlayers[I].Dropped);
 end;
 
@@ -346,7 +346,7 @@ procedure TGameInputProcess_Multi.GetWaitingPlayers(aTick: Cardinal; aPlayersLis
 var I: Integer;
 begin
   for I := 1 to fNetworking.NetPlayers.Count do
-    if not (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] or
+    if not (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].StartLocation - 1] or
            (not fNetworking.NetPlayers[i].IsHuman) or fNetworking.NetPlayers[i].Dropped) then
       aPlayersList.Add(fNetworking.NetPlayers[i].Nikname);
 end;
@@ -378,6 +378,7 @@ begin
 
   //If we miss a few random checks during reconnections no one cares, inconsistencies will be detected as soon as it is over
   if fNetworking.Connected then SendRandomCheck(aTick);
+
   //It is possible that we have already recieved other player's random checks, if so check them now
   for I := 0 to fPlayers.Count-1 do
   begin

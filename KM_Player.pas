@@ -59,6 +59,8 @@ type
     function  GetAlliances(aIndex: Integer): TAllianceType;
     procedure SetAlliances(aIndex: Integer; aValue: TAllianceType);
   public
+    Enabled: Boolean;
+
     constructor Create(aPlayerIndex: TPlayerIndex);
     destructor Destroy; override;
 
@@ -203,7 +205,7 @@ end;
 
 function TKMPlayerCommon.UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
 begin
-  Result:= fUnits.HitTest(X, Y, UT);
+  Result := fUnits.HitTest(X, Y, UT);
 end;
 
 
@@ -218,6 +220,9 @@ constructor TKMPlayer.Create(aPlayerIndex: TPlayerIndex);
 var I: Integer;
 begin
   inherited Create(aPlayerIndex);
+
+  Enabled := True;
+
   fAI           := TKMPlayerAI.Create(fPlayerIndex);
   fFogOfWar     := TKMFogOfWar.Create(fTerrain.MapX, fTerrain.MapY);
   fGoals        := TKMGoals.Create;
@@ -867,6 +872,9 @@ end;
 
 procedure TKMPlayer.Save(SaveStream: TKMemoryStream);
 begin
+  SaveStream.Write(Enabled);
+  if not Enabled then Exit;
+
   inherited;
   fAI.Save(SaveStream);
   fBuildList.Save(SaveStream);
@@ -889,6 +897,9 @@ end;
 procedure TKMPlayer.Load(LoadStream: TKMemoryStream);
 var s: AnsiString;
 begin
+  LoadStream.Read(Enabled);
+  if not Enabled then Exit;
+
   inherited;
   fAI.Load(LoadStream);
   fBuildList.Load(LoadStream);
@@ -910,7 +921,10 @@ end;
 
 procedure TKMPlayer.SyncLoad;
 begin
+  if not Enabled then Exit;
+
   inherited;
+
   fUnitGroups.SyncLoad;
   fHouses.SyncLoad;
   fDeliveries.SyncLoad;
@@ -921,12 +935,16 @@ end;
 
 procedure TKMPlayer.IncAnimStep;
 begin
+  if not Enabled then Exit;
+
   fHouses.IncAnimStep;
 end;
 
 
 procedure TKMPlayer.UpdateState(aTick: Cardinal);
 begin
+  if not Enabled then Exit;
+
   //Update Groups logic before Units
   fUnitGroups.UpdateState;
 
@@ -957,6 +975,8 @@ end;
 
 procedure TKMPlayer.Paint;
 begin
+  if not Enabled then Exit;
+
   inherited;
   if fGame.IsMapEditor and not(mlHouses in fGame.MapEditor.VisibleLayers) then exit;
 

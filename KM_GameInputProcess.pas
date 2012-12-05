@@ -345,7 +345,7 @@ begin
                                   end;
       gic_GameTeamChange:         begin
                                     fGame.Networking.NetPlayers[Params[1]].Team := Params[2];
-                                    fGame.Networking.UpdateMultiplayerTeams;
+                                    fGame.UpdateMultiplayerTeams;
                                     fPlayers.SyncFogOfWar;
                                     if fGame.Networking.IsHost then
                                       fGame.Networking.SendPlayerListAndRefreshPlayersSetup;

@@ -77,9 +77,7 @@ type
   TMissionParserStandard = class(TMissionParserCommon)
   private
     fParsingMode: TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
-    fRemapCount: Byte;
-    fRemap: TPlayerArray;
-
+    fPlayerEnabled: TPlayerEnabledArray;
     fLastPlayer: TPlayerIndex;
     fLastHouse: TKMHouse;
     fLastTroop: TKMUnitGroup;
@@ -91,7 +89,7 @@ type
     procedure ProcessAttackPositions;
   public
     constructor Create(aMode: TMissionParsingMode; aStrictParsing: Boolean); overload;
-    constructor Create(aMode: TMissionParsingMode; aPlayersRemap: TPlayerArray; aStrictParsing: Boolean); overload;
+    constructor Create(aMode: TMissionParsingMode; aPlayersEnabled: TPlayerEnabledArray; aStrictParsing: Boolean); overload;
     function LoadMission(const aFileName: string): Boolean; overload; override;
 
     procedure SaveDATFile(const aFileName: string);
@@ -380,25 +378,19 @@ begin
   inherited Create(aStrictParsing);
   fParsingMode := aMode;
 
-  for I := 0 to High(fRemap) do
-    fRemap[I] := I;
-
-  fRemapCount := MAX_PLAYERS;
+  for I := 0 to High(fPlayerEnabled) do
+    fPlayerEnabled[I] := True;
 end;
 
 
-constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersRemap: TPlayerArray; aStrictParsing: Boolean);
+constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersEnabled: TPlayerEnabledArray; aStrictParsing: Boolean);
 var I: Integer;
 begin
   inherited Create(aStrictParsing);
   fParsingMode := aMode;
 
-  //PlayerRemap tells us which player should be used for which index
-  //and which players should be ignored
-  fRemap := aPlayersRemap;
-
-  for I := 0 to High(fRemap) do
-    inc(fRemapCount);
+  //Tells us which player should be enabled and which ignored/skipped
+  fPlayerEnabled := aPlayersEnabled;
 end;
 
 
@@ -514,17 +506,17 @@ begin
                           end;
                         end;
     ct_SetMaxPlayer:    begin
-                          if fParsingMode = mpm_Single then
-                            fPlayers.AddPlayers(P[0])
-                          else
-                            fPlayers.AddPlayers(fRemapCount);
+                          fPlayers.AddPlayers(P[0]);
                         end;
     ct_SetTactic:       begin
                           fMissionInfo.MissionMode := mm_Tactic;
                         end;
     ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_PLAYERS - 1) then
                         begin
-                          fLastPlayer := fRemap[P[0]]; //
+                          if fPlayerEnabled[P[0]] then
+                            fLastPlayer := P[0]
+                          else
+                            fLastPlayer := -1; //Lets us skip this player
                           fLastHouse := nil;
                           fLastTroop := nil;
                         end;
@@ -542,7 +534,7 @@ begin
                             fPlayers[fLastPlayer].PlayerType := pt_Computer;
                         //Multiplayer will set AI players itself after loading
     ct_CenterScreen:    if fLastPlayer >= 0 then
-                          fPlayers[fLastPlayer].CenterScreen := KMPoint(P[0]+1,P[1]+1);
+                          fPlayers[fLastPlayer].CenterScreen := KMPoint(P[0]+1, P[1]+1);
     ct_ClearUp:         if fLastPlayer >= 0 then
                         begin
                           if fParsingMode = mpm_Editor then
@@ -730,11 +722,11 @@ begin
                           fPlayers[fLastPlayer].AI.Setup.Autobuild := False;
     ct_AIStartPosition: if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Setup.StartPosition := KMPoint(P[0]+1,P[1]+1);
-    ct_SetAlliance:     if (fLastPlayer >=0) and (fRemap[P[0]] >= 0) then
+    ct_SetAlliance:     if (fLastPlayer >= 0) and fPlayerEnabled[P[0]] then
                           if P[1] = 1 then
-                            fPlayers[fLastPlayer].Alliances[fRemap[P[0]]] := at_Ally
+                            fPlayers[fLastPlayer].Alliances[P[0]] := at_Ally
                           else
-                            fPlayers[fLastPlayer].Alliances[fRemap[P[0]]] := at_Enemy;
+                            fPlayers[fLastPlayer].Alliances[P[0]] := at_Enemy;
     ct_AttackPosition:  if fLastPlayer >= 0 then
                           //If target is building: Attack building
                           //If target is unit: Chase/attack unit
@@ -760,18 +752,21 @@ begin
                           if TGoalCondition(P[0]) = gc_Time then
                             fPlayers[fLastPlayer].Goals.AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),P[3],P[2],-1)
                           else
-                            if fRemap[P[3]] >= 0 then
-                              if fRemap[P[3]] <= fPlayers.Count-1 then
-                                fPlayers[fLastPlayer].Goals.AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],fRemap[P[3]])
+                            if InRange(P[3], 0, fPlayers.Count - 1) then
+                              if fPlayerEnabled[P[3]] then
+                                fPlayers[fLastPlayer].Goals.AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],P[3])
                               else
-                                AddError('Add_Goal for non existing player');
+                            else
+                              AddError('Add_Goal for non existing player');
     ct_AddLostGoal:     if fLastPlayer >= 0 then
                           //If the condition is time then P[3] is the time, else it is player ID
                           if TGoalCondition(P[0]) = gc_Time then
                             fPlayers[fLastPlayer].Goals.AddGoal(glt_Survive,TGoalCondition(P[0]),TGoalStatus(P[1]),P[3],P[2],-1)
                           else
-                            if fRemap[P[3]] >= 0 then
-                              fPlayers[fLastPlayer].Goals.AddGoal(glt_Survive,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],fRemap[P[3]])
+                            if InRange(P[3], 0, fPlayers.Count - 1) then
+                              if fPlayerEnabled[P[3]] then
+                                fPlayers[fLastPlayer].Goals.AddGoal(glt_Survive,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],P[3])
+                              else
                             else
                               AddError('Add_LostGoal for non existing player');
     ct_AIDefence:       if fLastPlayer >=0 then

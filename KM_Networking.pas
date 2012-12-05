@@ -182,7 +182,6 @@ type
 
     property OnTextMessage:TStringEvent write fOnTextMessage;   //Text message recieved
 
-    procedure UpdateMultiplayerTeams;
     procedure UpdateState(aTick: cardinal);
     procedure UpdateStateIdle;
   end;
@@ -822,7 +821,7 @@ begin
     PacketSend(NET_ADDRESS_OTHERS, mk_Commands, aStream.ReadAsText, 0) //Send commands to all players
   else
   for i:=1 to fNetPlayers.Count do
-    if fNetPlayers[i].PlayerIndex.PlayerIndex = aPlayerIndex then
+    if fNetPlayers[i].StartLocation - 1 = aPlayerIndex then
       PacketSend(fNetPlayers[i].IndexOnServer, mk_Commands, aStream.ReadAsText, 0);
 end;
 
@@ -1323,7 +1322,7 @@ begin
               if Assigned(fOnResyncFromTick) and (PlayerIndex<>-1) then
               begin
                 if WRITE_RECONNECT_LOG then fLog.AddTime('Resyncing player '+fNetPlayers[PlayerIndex].Nikname);
-                fOnResyncFromTick(fNetPlayers[PlayerIndex].PlayerIndex.PlayerIndex,cardinal(Param));
+                fOnResyncFromTick(fNetPlayers[PlayerIndex].StartLocation - 1,cardinal(Param));
               end;
             end;
 
@@ -1435,18 +1434,6 @@ begin
   finally
     MPGameInfo.Free;
   end;
-end;
-
-
-procedure TKMNetworking.UpdateMultiplayerTeams;
-var I,K: Integer;
-begin
-  for I := 1 to fNetPlayers.Count do
-    for K := 1 to fNetPlayers.Count do
-      if (fNetPlayers[I].Team = 0) or (fNetPlayers[I].Team <> fNetPlayers[K].Team) then
-        fNetPlayers[I].PlayerIndex.Alliances[fNetPlayers[K].PlayerIndex.PlayerIndex] := at_Enemy
-      else
-        fNetPlayers[I].PlayerIndex.Alliances[fNetPlayers[K].PlayerIndex.PlayerIndex] := at_Ally;
 end;
 
 

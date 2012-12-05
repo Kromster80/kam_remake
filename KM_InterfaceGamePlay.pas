@@ -3385,7 +3385,7 @@ begin
         Image_AlliesLang[I].TexID := 0;
 
     Label_AlliesPlayer[I].Caption := fGame.Networking.NetPlayers[I+1].Nikname;
-    Label_AlliesPlayer[I].FontColor := fPlayers[fGame.Networking.NetPlayers[I+1].PlayerIndex.PlayerIndex].FlagColor;
+    Label_AlliesPlayer[I].FontColor := fPlayers[fGame.Networking.NetPlayers[I+1].StartLocation - 1].FlagColor;
     DropBox_AlliesTeam[I].ItemIndex := fGame.Networking.NetPlayers[I+1].Team;
     //Strikethrough for disconnected players
     Image_AlliesLang[I].Enabled := not fGame.Networking.NetPlayers[I+1].Dropped;

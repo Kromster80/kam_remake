@@ -26,7 +26,6 @@ type
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
     StartLocation: Integer;  //Start location, 0 means random
     Team: Integer;
-    PlayerIndex: TKMPlayer;
     ReadyToStart: Boolean;
     ReadyToPlay: Boolean;
     Connected: Boolean;      //Player is still connected
@@ -397,7 +396,6 @@ begin
   fNetPlayers[aSlot].fLangCode := '';
   fNetPlayers[aSlot].fIndexOnServer := -1;
   fNetPlayers[aSlot].PlayerNetType := nptComputer;
-  fNetPlayers[aSlot].PlayerIndex := nil;
   fNetPlayers[aSlot].Team := 0;
   fNetPlayers[aSlot].FlagColorID := 0;
   fNetPlayers[aSlot].StartLocation := 0;
@@ -422,7 +420,6 @@ begin
   fNetPlayers[aSlot].fLangCode := '';
   fNetPlayers[aSlot].fIndexOnServer := -1;
   fNetPlayers[aSlot].PlayerNetType := nptClosed;
-  fNetPlayers[aSlot].PlayerIndex := nil;
   fNetPlayers[aSlot].Team := 0;
   fNetPlayers[aSlot].FlagColorID := 0;
   fNetPlayers[aSlot].StartLocation := 0;
@@ -550,13 +547,13 @@ begin
 end;
 
 
-function TKMNetPlayersList.PlayerIndexToLocal(aIndex:TPlayerIndex):integer;
+function TKMNetPlayersList.PlayerIndexToLocal(aIndex: TPlayerIndex): Integer;
 var I: Integer;
 begin
   Result := -1;
-  for i:=1 to fCount do
-    if (fNetPlayers[i].PlayerIndex <> nil) and (fNetPlayers[i].PlayerIndex.PlayerIndex = aIndex) then
-      Result := i;
+  for I := 1 to Count do
+    if (aIndex = fNetPlayers[I].StartLocation - 1) then
+      Result := I;
 end;
 
 

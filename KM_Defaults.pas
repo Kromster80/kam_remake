@@ -201,6 +201,7 @@ const //Here we store options that are hidden somewhere in code
 type
   TPlayerIndex = {type} ShortInt;
   TPlayerArray = array [0..MAX_PLAYERS-1] of TPlayerIndex;
+  TPlayerEnabledArray = array [0..MAX_PLAYERS-1] of Boolean;
 
 const
   PLAYER_NONE = -1; //No player
