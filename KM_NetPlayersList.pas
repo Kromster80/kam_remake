@@ -24,31 +24,31 @@ type
     procedure SetLangCode(const aCode: AnsiString);
   public
     PlayerNetType: TNetPlayerType; //Human, Computer, Closed
-    StartLocation:integer;  //Start location, 0 means random
-    Team:integer;
-    PlayerIndex:TKMPlayer;
-    ReadyToStart:boolean;
-    ReadyToPlay:boolean;
-    Connected:boolean;      //Player is still connected
-    Dropped:boolean;        //Host elected to continue play without this player
-    procedure AddPing(aPing:word);
+    StartLocation: Integer;  //Start location, 0 means random
+    Team: Integer;
+    PlayerIndex: TKMPlayer;
+    ReadyToStart: Boolean;
+    ReadyToPlay: Boolean;
+    Connected: Boolean;      //Player is still connected
+    Dropped: Boolean;        //Host elected to continue play without this player
+    procedure AddPing(aPing: Word);
     procedure ResetPingRecord;
-    function GetInstantPing:word;
-    function GetMaxPing:word;
-    function IsHuman:boolean;
-    function IsComputer:boolean;
-    function IsClosed:boolean;
-    function GetPlayerType:TPlayerType;
-    function GetNickname:string;
+    function GetInstantPing: Word;
+    function GetMaxPing: Word;
+    function IsHuman: Boolean;
+    function IsComputer: Boolean;
+    function IsClosed: Boolean;
+    function GetPlayerType: TPlayerType;
+    function GetNickname: string;
     property Nikname: AnsiString read fNikname;
     property LangCode: AnsiString read fLangCode write SetLangCode;
-    property IndexOnServer:integer read fIndexOnServer;
-    property SetIndexOnServer:integer write fIndexOnServer;
-    property FlagColor:cardinal read GetFlagColor;
-    property FlagColorID:integer read fFlagColorID write fFlagColorID;
+    property IndexOnServer: Integer read fIndexOnServer;
+    property SetIndexOnServer: Integer write fIndexOnServer;
+    property FlagColor: Cardinal read GetFlagColor;
+    property FlagColorID: Integer read fFlagColorID write fFlagColorID;
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
   //Handles everything related to players list,
@@ -114,9 +114,9 @@ uses KM_TextLibrary;
 
 
 { TKMPlayerInfo }
-procedure TKMNetPlayerInfo.AddPing(aPing:word);
+procedure TKMNetPlayerInfo.AddPing(aPing: Word);
 begin
-  fPingPos := (fPingPos+1) mod PING_COUNT;
+  fPingPos := (fPingPos + 1) mod PING_COUNT;
   fPings[fPingPos] := aPing;
 end;
 
@@ -128,7 +128,7 @@ begin
 end;
 
 
-function TKMNetPlayerInfo.GetFlagColor: cardinal;
+function TKMNetPlayerInfo.GetFlagColor: Cardinal;
 begin
   if fFlagColorID <> 0 then
     Result := MP_TEAM_COLORS[fFlagColorID]
@@ -144,51 +144,55 @@ begin
 end;
 
 
-function TKMNetPlayerInfo.GetInstantPing:word;
+function TKMNetPlayerInfo.GetInstantPing: Word;
 begin
   Result := fPings[fPingPos];
 end;
 
 
-function TKMNetPlayerInfo.GetMaxPing:word;
-var i: integer;
+function TKMNetPlayerInfo.GetMaxPing: Word;
+var I: Integer;
 begin
   Result := 0;
-  for i:=0 to PING_COUNT-1 do
-    Result := Math.max(Result, fPings[i]);
+  for I := 0 to PING_COUNT - 1 do
+    Result := Math.max(Result, fPings[I]);
 end;
 
 
-function TKMNetPlayerInfo.IsHuman:boolean;
+function TKMNetPlayerInfo.IsHuman: Boolean;
 begin
   Result := PlayerNetType = nptHuman;
 end;
 
 
-function TKMNetPlayerInfo.IsComputer:boolean;
+function TKMNetPlayerInfo.IsComputer: Boolean;
 begin
   Result := PlayerNetType = nptComputer;
 end;
 
 
-function TKMNetPlayerInfo.IsClosed:boolean;
+function TKMNetPlayerInfo.IsClosed: Boolean;
 begin
   Result := PlayerNetType = nptClosed;
 end;
 
 
-function TKMNetPlayerInfo.GetPlayerType:TPlayerType;
-const PlayerTypes:array[TNetPlayerType] of TPlayerType = (pt_Human, pt_Computer, pt_Computer);
+function TKMNetPlayerInfo.GetPlayerType: TPlayerType;
+const
+  PlayerTypes: array[TNetPlayerType] of TPlayerType = (pt_Human, pt_Computer, pt_Computer);
 begin
   Result := PlayerTypes[PlayerNetType];
 end;
 
 
-function TKMNetPlayerInfo.GetNickname:string;
+function TKMNetPlayerInfo.GetNickname: string;
 begin
-  if IsComputer then Result := fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]
-  else if IsClosed then Result := fTextLibrary[TX_LOBBY_SLOT_CLOSED]
-  else Result := Nikname;
+  case PlayerNetType of
+    nptHuman:     Result := Nikname;
+    nptComputer:  Result := fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER];
+    nptClosed:    Result := fTextLibrary[TX_LOBBY_SLOT_CLOSED];
+    else          Result := '<<<LEER>>>';
+  end;
 end;
 
 
@@ -361,10 +365,10 @@ begin
 end;
 
 
-procedure TKMNetPlayersList.AddPlayer(aNik:string; aIndexOnServer:integer; const aLang:String='');
+procedure TKMNetPlayersList.AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: string = '');
 begin
-  Assert(fCount <= MAX_PLAYERS,'Can''t add player');
-  inc(fCount);
+  Assert(fCount <= MAX_PLAYERS, 'Can''t add player');
+  Inc(fCount);
   fPlayers[fCount].fNikname := aNik;
   fPlayers[fCount].fLangCode := aLang;
   fPlayers[fCount].fIndexOnServer := aIndexOnServer;
