@@ -74,7 +74,7 @@ type
 
     procedure SetPlayerID(aNewIndex: TPlayerIndex);
     property PlayerName: string read fPlayerName write fPlayerName;
-    function GetFormattedPlayerName:string;
+    function GetFormattedPlayerName: string;
     property PlayerType: TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor: Cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex: Byte read GetColorIndex;
@@ -722,7 +722,7 @@ begin
 end;
 
 
-function TKMPlayer.GetFormattedPlayerName:string;
+function TKMPlayer.GetFormattedPlayerName: string;
 begin
   if fPlayerName <> '' then
     Result := fPlayerName
@@ -731,7 +731,7 @@ begin
     if PlayerType = pt_Human then
       Result := fTextLibrary[TX_PLAYER_YOU]
     else
-      Result := Format(fTextLibrary[TX_PLAYER_X], [fPlayerIndex+1]);
+      Result := Format(fTextLibrary[TX_PLAYER_X], [fPlayerIndex + 1]);
   end;
 end;
 

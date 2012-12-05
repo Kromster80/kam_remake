@@ -77,7 +77,7 @@ type
   TMissionParserStandard = class(TMissionParserCommon)
   private
     fParsingMode: TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
-    fRemapCount: byte;
+    fRemapCount: Byte;
     fRemap: TPlayerArray;
 
     fLastPlayer: TPlayerIndex;
@@ -87,12 +87,12 @@ type
     fAttackPositions: array of TKMAttackPosition;
     fAttackPositionsCount: Integer;
 
-    function ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam: AnsiString):boolean;
+    function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString): Boolean;
     procedure ProcessAttackPositions;
   public
-    constructor Create(aMode:TMissionParsingMode; aStrictParsing:boolean); overload;
-    constructor Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean); overload;
-    function LoadMission(const aFileName: string):boolean; overload; override;
+    constructor Create(aMode: TMissionParsingMode; aStrictParsing: Boolean); overload;
+    constructor Create(aMode: TMissionParsingMode; aPlayersRemap: TPlayerArray; aStrictParsing: Boolean); overload;
+    function LoadMission(const aFileName: string): Boolean; overload; override;
 
     procedure SaveDATFile(const aFileName: string);
   end;
@@ -494,22 +494,22 @@ var
   HT: THouseType;
   iPlayerAI: TKMPlayerAI;
 begin
-  Result := false; //Set it right from the start. There are several Exit points below
+  Result := False; //Set it right from the start. There are several Exit points below
 
   case CommandType of
     ct_SetMap:          begin
                           MapFileName := RemoveQuotes(String(TextParam));
                           //Check for same filename.map in same folder first - Remake format
-                          if FileExists(ChangeFileExt(fMissionFileName,'.map')) then
-                            fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName,'.map'), fParsingMode = mpm_Editor)
+                          if FileExists(ChangeFileExt(fMissionFileName, '.map')) then
+                            fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpm_Editor)
                           else
                           //Check for KaM format map path
-                          if FileExists(ExeDir+MapFileName) then
+                          if FileExists(ExeDir + MapFileName) then
                             fTerrain.LoadFromFile(ExeDir+MapFileName, fParsingMode = mpm_Editor)
                           else
                           begin
                             //Else abort loading and fail
-                            AddError('Map file couldn''t be found',true);
+                            AddError('Map file couldn''t be found', True);
                             Exit;
                           end;
                         end;
@@ -522,7 +522,7 @@ begin
     ct_SetTactic:       begin
                           fMissionInfo.MissionMode := mm_Tactic;
                         end;
-    ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_PLAYERS-1) then
+    ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_PLAYERS - 1) then
                         begin
                           fLastPlayer := fRemap[P[0]]; //
                           fLastHouse := nil;
@@ -536,10 +536,10 @@ begin
                           end;
                         //Multiplayer will set Human player itself after loading
     ct_AIPlayer:        if (fParsingMode <> mpm_Multi) and (fPlayers <> nil) then
-                          if InRange(P[0],0,fPlayers.Count-1) then
-                            fPlayers[P[0]].PlayerType:=pt_Computer
+                          if InRange(P[0], 0, fPlayers.Count - 1) then
+                            fPlayers[P[0]].PlayerType := pt_Computer
                           else //This command doesn't require an ID, just use the current player
-                            fPlayers[fLastPlayer].PlayerType:=pt_Computer;
+                            fPlayers[fLastPlayer].PlayerType := pt_Computer;
                         //Multiplayer will set AI players itself after loading
     ct_CenterScreen:    if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].CenterScreen := KMPoint(P[0]+1,P[1]+1);
