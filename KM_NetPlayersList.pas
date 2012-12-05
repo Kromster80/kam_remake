@@ -1,4 +1,4 @@
-unit KM_NetPlayersList;
+﻿unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, StrUtils, Math, SysUtils,
@@ -56,14 +56,14 @@ type
   TKMNetPlayersList = class
   private
     fCount:integer;
-    fPlayers:array [1..MAX_PLAYERS] of TKMNetPlayerInfo;
+    fNetPlayers:array [1..MAX_PLAYERS] of TKMNetPlayerInfo;
     function GetPlayer(Index:integer):TKMNetPlayerInfo;
     procedure ValidateLocations(aMaxLoc:byte);
     procedure ValidateColors;
     procedure RemAllClosedPlayers;
     procedure UpdateAIPlayerNames;
   public
-    HostDoesSetup: boolean; //Gives host absolute control over locations/teams (not colors)
+    HostDoesSetup: Boolean; //Gives host absolute control over locations/teams (not colors)
     constructor Create;
     destructor Destroy; override;
     procedure Clear;
@@ -113,7 +113,7 @@ implementation
 uses KM_TextLibrary;
 
 
-{ TKMPlayerInfo }
+{ TKMNetPlayerInfo }
 procedure TKMNetPlayerInfo.AddPing(aPing: Word);
 begin
   fPingPos := (fPingPos + 1) mod PING_COUNT;
@@ -228,21 +228,21 @@ begin
 end;
 
 
-{ TKMPlayersList }
+{ TKMNetPlayersList }
 constructor TKMNetPlayersList.Create;
 var I: Integer;
 begin
   inherited;
-  for i:=1 to MAX_PLAYERS do
-    fPlayers[i] := TKMNetPlayerInfo.Create;
+  for I := 1 to MAX_PLAYERS do
+    fNetPlayers[I] := TKMNetPlayerInfo.Create;
 end;
 
 
 destructor TKMNetPlayersList.Destroy;
 var I: Integer;
 begin
-  for i:=1 to MAX_PLAYERS do
-    fPlayers[i].Free;
+  for I := 1 to MAX_PLAYERS do
+    fNetPlayers[I].Free;
   inherited;
 end;
 
@@ -254,9 +254,9 @@ begin
 end;
 
 
-function TKMNetPlayersList.GetPlayer(Index:integer):TKMNetPlayerInfo;
+function TKMNetPlayersList.GetPlayer(Index: Integer): TKMNetPlayerInfo;
 begin
-  Result := fPlayers[Index];
+  Result := fNetPlayers[Index];
 end;
 
 
@@ -269,17 +269,17 @@ var
 begin
   //All wrong start locations will be reset to "undefined"
   for i:=1 to fCount do
-    if not Math.InRange(fPlayers[i].StartLocation, 0, aMaxLoc) then fPlayers[i].StartLocation := 0;
+    if not Math.InRange(fNetPlayers[i].StartLocation, 0, aMaxLoc) then fNetPlayers[i].StartLocation := 0;
 
   SetLength(UsedLoc, aMaxLoc+1); //01..aMaxLoc, all false
   for i:=1 to aMaxLoc do UsedLoc[i] := false;
 
   //Remember all used locations and drop duplicates
   for i:=1 to fCount do
-    if UsedLoc[fPlayers[i].StartLocation] then
-      fPlayers[i].StartLocation := 0
+    if UsedLoc[fNetPlayers[i].StartLocation] then
+      fNetPlayers[i].StartLocation := 0
     else
-      UsedLoc[fPlayers[i].StartLocation] := true;
+      UsedLoc[fNetPlayers[i].StartLocation] := true;
 
   //Collect available locations in a list
   LocCount := 0;
@@ -296,15 +296,15 @@ begin
   //Allocate available starting locations
   k := 0;
   for i:=1 to fCount do
-  if fPlayers[i].StartLocation = 0 then begin
+  if fNetPlayers[i].StartLocation = 0 then begin
     inc(k);
     if k<=LocCount then
-      fPlayers[i].StartLocation := AvailableLoc[k];
+      fNetPlayers[i].StartLocation := AvailableLoc[k];
   end;
 
   //Check for odd players
   for i:=1 to fCount do
-    Assert(fPlayers[i].StartLocation <> 0, 'Everyone should have a starting location!');
+    Assert(fNetPlayers[i].StartLocation <> 0, 'Everyone should have a starting location!');
 end;
 
 
@@ -316,17 +316,17 @@ var
 begin
   //All wrong colors will be reset to random
   for i:=1 to fCount do
-    if not Math.InRange(fPlayers[i].FlagColorID, 0, MP_COLOR_COUNT) then
-      fPlayers[i].FlagColorID := 0;
+    if not Math.InRange(fNetPlayers[i].FlagColorID, 0, MP_COLOR_COUNT) then
+      fNetPlayers[i].FlagColorID := 0;
 
   FillChar(UsedColor, SizeOf(UsedColor), #0);
 
   //Remember all used colors and drop duplicates
   for i:=1 to fCount do
-    if UsedColor[fPlayers[i].FlagColorID] then
-      fPlayers[i].FlagColorID := 0
+    if UsedColor[fNetPlayers[i].FlagColorID] then
+      fNetPlayers[i].FlagColorID := 0
     else
-      UsedColor[fPlayers[i].FlagColorID] := true;
+      UsedColor[fNetPlayers[i].FlagColorID] := true;
 
   //Collect available colors
   ColorCount := 0;
@@ -343,16 +343,16 @@ begin
   //Allocate available colors
   k := 0;
   for i:=1 to fCount do
-  if fPlayers[i].FlagColorID = 0 then
+  if fNetPlayers[i].FlagColorID = 0 then
   begin
     inc(k);
     if k<=ColorCount then
-      fPlayers[i].FlagColorID := AvailableColor[k];
+      fNetPlayers[i].FlagColorID := AvailableColor[k];
   end;
 
   //Check for odd players
   for i:=1 to fCount do
-    Assert(fPlayers[i].FlagColorID <> 0, 'Everyone should have a color!');
+    Assert(fNetPlayers[i].FlagColorID <> 0, 'Everyone should have a color!');
 end;
 
 
@@ -369,23 +369,23 @@ procedure TKMNetPlayersList.AddPlayer(aNik: string; aIndexOnServer: Integer; con
 begin
   Assert(fCount <= MAX_PLAYERS, 'Can''t add player');
   Inc(fCount);
-  fPlayers[fCount].fNikname := aNik;
-  fPlayers[fCount].fLangCode := aLang;
-  fPlayers[fCount].fIndexOnServer := aIndexOnServer;
-  fPlayers[fCount].PlayerNetType := nptHuman;
-  fPlayers[fCount].PlayerIndex := nil;
-  fPlayers[fCount].Team := 0;
-  fPlayers[fCount].FlagColorID := 0;
-  fPlayers[fCount].StartLocation := 0;
-  fPlayers[fCount].ReadyToStart := false;
-  fPlayers[fCount].ReadyToPlay := false;
-  fPlayers[fCount].Connected := true;
-  fPlayers[fCount].Dropped := false;
-  fPlayers[fCount].ResetPingRecord;
+  fNetPlayers[fCount].fNikname := aNik;
+  fNetPlayers[fCount].fLangCode := aLang;
+  fNetPlayers[fCount].fIndexOnServer := aIndexOnServer;
+  fNetPlayers[fCount].PlayerNetType := nptHuman;
+  //fPlayers[fCount].PlayerIndex := nil;
+  fNetPlayers[fCount].Team := 0;
+  fNetPlayers[fCount].FlagColorID := 0;
+  fNetPlayers[fCount].StartLocation := 0;
+  fNetPlayers[fCount].ReadyToStart := false;
+  fNetPlayers[fCount].ReadyToPlay := false;
+  fNetPlayers[fCount].Connected := true;
+  fNetPlayers[fCount].Dropped := false;
+  fNetPlayers[fCount].ResetPingRecord;
 end;
 
 
-procedure TKMNetPlayersList.AddAIPlayer(aSlot:integer=-1);
+procedure TKMNetPlayersList.AddAIPlayer(aSlot: Integer = -1);
 begin
   if aSlot = -1 then
   begin
@@ -393,24 +393,24 @@ begin
     inc(fCount);
     aSlot := fCount;
   end;
-  fPlayers[aSlot].fNikname := 'AI Player';
-  fPlayers[aSlot].fLangCode := '';
-  fPlayers[aSlot].fIndexOnServer := -1;
-  fPlayers[aSlot].PlayerNetType := nptComputer;
-  fPlayers[aSlot].PlayerIndex := nil;
-  fPlayers[aSlot].Team := 0;
-  fPlayers[aSlot].FlagColorID := 0;
-  fPlayers[aSlot].StartLocation := 0;
-  fPlayers[aSlot].ReadyToStart := true;
-  fPlayers[aSlot].ReadyToPlay := true;
-  fPlayers[aSlot].Connected := true;
-  fPlayers[aSlot].Dropped := false;
-  fPlayers[aSlot].ResetPingRecord;
+  fNetPlayers[aSlot].fNikname := 'AI Player';
+  fNetPlayers[aSlot].fLangCode := '';
+  fNetPlayers[aSlot].fIndexOnServer := -1;
+  fNetPlayers[aSlot].PlayerNetType := nptComputer;
+  fNetPlayers[aSlot].PlayerIndex := nil;
+  fNetPlayers[aSlot].Team := 0;
+  fNetPlayers[aSlot].FlagColorID := 0;
+  fNetPlayers[aSlot].StartLocation := 0;
+  fNetPlayers[aSlot].ReadyToStart := true;
+  fNetPlayers[aSlot].ReadyToPlay := true;
+  fNetPlayers[aSlot].Connected := true;
+  fNetPlayers[aSlot].Dropped := false;
+  fNetPlayers[aSlot].ResetPingRecord;
   UpdateAIPlayerNames;
 end;
 
 
-procedure TKMNetPlayersList.AddClosedPlayer(aSlot:integer=-1);
+procedure TKMNetPlayersList.AddClosedPlayer(aSlot: Integer = -1);
 begin
   if aSlot = -1 then
   begin
@@ -418,19 +418,19 @@ begin
     inc(fCount);
     aSlot := fCount;
   end;
-  fPlayers[aSlot].fNikname := 'Closed';
-  fPlayers[aSlot].fLangCode := '';
-  fPlayers[aSlot].fIndexOnServer := -1;
-  fPlayers[aSlot].PlayerNetType := nptClosed;
-  fPlayers[aSlot].PlayerIndex := nil;
-  fPlayers[aSlot].Team := 0;
-  fPlayers[aSlot].FlagColorID := 0;
-  fPlayers[aSlot].StartLocation := 0;
-  fPlayers[aSlot].ReadyToStart := true;
-  fPlayers[aSlot].ReadyToPlay := true;
-  fPlayers[aSlot].Connected := true;
-  fPlayers[aSlot].Dropped := false;
-  fPlayers[aSlot].ResetPingRecord;
+  fNetPlayers[aSlot].fNikname := 'Closed';
+  fNetPlayers[aSlot].fLangCode := '';
+  fNetPlayers[aSlot].fIndexOnServer := -1;
+  fNetPlayers[aSlot].PlayerNetType := nptClosed;
+  fNetPlayers[aSlot].PlayerIndex := nil;
+  fNetPlayers[aSlot].Team := 0;
+  fNetPlayers[aSlot].FlagColorID := 0;
+  fNetPlayers[aSlot].StartLocation := 0;
+  fNetPlayers[aSlot].ReadyToStart := true;
+  fNetPlayers[aSlot].ReadyToPlay := true;
+  fNetPlayers[aSlot].Connected := true;
+  fNetPlayers[aSlot].Dropped := false;
+  fNetPlayers[aSlot].ResetPingRecord;
 end;
 
 
@@ -440,7 +440,7 @@ var ID:integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
   Assert(ID <> -1, 'Cannot disconnect player');
-  fPlayers[ID].Connected := false;
+  fNetPlayers[ID].Connected := false;
 end;
 
 //Mark all human players as disconnected (used when reconnecting if all clients were lost)
@@ -448,8 +448,8 @@ procedure TKMNetPlayersList.DisconnectAllClients(aOwnNikname:string);
 var I: Integer;
 begin
   for i:=1 to fCount do
-    if (fPlayers[i].IsHuman) and (fPlayers[i].Nikname <> aOwnNikname) then
-      fPlayers[i].Connected := false;
+    if (fNetPlayers[i].IsHuman) and (fNetPlayers[i].Nikname <> aOwnNikname) then
+      fNetPlayers[i].Connected := false;
 end;
 
 
@@ -459,8 +459,8 @@ var ID:integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
   Assert(ID <> -1, 'Cannot drop player');
-  fPlayers[ID].Connected := false;
-  fPlayers[ID].Dropped := true;
+  fNetPlayers[ID].Connected := false;
+  fNetPlayers[ID].Dropped := true;
 end;
 
 
@@ -469,11 +469,11 @@ var ID,I: Integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
   Assert(ID <> -1, 'Cannot remove player');
-  fPlayers[ID].Free;
+  fNetPlayers[ID].Free;
   for i:=ID to fCount-1 do
-    fPlayers[i] := fPlayers[i+1]; //Shift only pointers
+    fNetPlayers[i] := fNetPlayers[i+1]; //Shift only pointers
 
-  fPlayers[fCount] := TKMNetPlayerInfo.Create; //Empty players are created but not used
+  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; //Empty players are created but not used
   dec(fCount);
 end;
 
@@ -481,11 +481,11 @@ end;
 procedure TKMNetPlayersList.RemAIPlayer(ID:integer);
 var I: Integer;
 begin
-  fPlayers[ID].Free;
+  fNetPlayers[ID].Free;
   for i:=ID to fCount-1 do
-    fPlayers[i] := fPlayers[i+1]; //Shift only pointers
+    fNetPlayers[i] := fNetPlayers[i+1]; //Shift only pointers
 
-  fPlayers[fCount] := TKMNetPlayerInfo.Create; //Empty players are created but not used
+  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; //Empty players are created but not used
   dec(fCount);
   UpdateAIPlayerNames;
 end;
@@ -494,11 +494,11 @@ end;
 procedure TKMNetPlayersList.RemClosedPlayer(ID:integer);
 var I: Integer;
 begin
-  fPlayers[ID].Free;
+  fNetPlayers[ID].Free;
   for i:=ID to fCount-1 do
-    fPlayers[i] := fPlayers[i+1]; //Shift only pointers
+    fNetPlayers[i] := fNetPlayers[i+1]; //Shift only pointers
 
-  fPlayers[fCount] := TKMNetPlayerInfo.Create; //Empty players are created but not used
+  fNetPlayers[fCount] := TKMNetPlayerInfo.Create; //Empty players are created but not used
   dec(fCount);
 end;
 
@@ -508,10 +508,10 @@ var i, AICount:integer;
 begin
   AICount := 0;
   for i:=1 to fCount do
-    if fPlayers[i].PlayerNetType = nptComputer then
+    if fNetPlayers[i].PlayerNetType = nptComputer then
     begin
       inc(AICount);
-      fPlayers[i].fNikname := 'AI Player '+IntToStr(AICount);
+      fNetPlayers[i].fNikname := 'AI Player '+IntToStr(AICount);
     end;
 end;
 
@@ -521,7 +521,7 @@ var I: Integer;
 begin
   Result := -1;
   for i:=1 to fCount do
-    if fPlayers[i].fIndexOnServer = aIndexOnServer then
+    if fNetPlayers[i].fIndexOnServer = aIndexOnServer then
     begin
       Result := i;
       Exit;
@@ -535,7 +535,7 @@ var I: Integer;
 begin
   Result := -1;
   for i:=1 to fCount do
-    if fPlayers[i].fNikname = aNikname then
+    if fNetPlayers[i].fNikname = aNikname then
       Result := i;
 end;
 
@@ -545,7 +545,7 @@ var I: Integer;
 begin
   Result := -1;
   for i:=1 to fCount do
-    if fPlayers[i].StartLocation = aLoc then
+    if fNetPlayers[i].StartLocation = aLoc then
       Result := i;
 end;
 
@@ -555,7 +555,7 @@ var I: Integer;
 begin
   Result := -1;
   for i:=1 to fCount do
-    if (fPlayers[i].PlayerIndex <> nil) and (fPlayers[i].PlayerIndex.PlayerIndex = aIndex) then
+    if (fNetPlayers[i].PlayerIndex <> nil) and (fNetPlayers[i].PlayerIndex.PlayerIndex = aIndex) then
       Result := i;
 end;
 
@@ -602,7 +602,7 @@ begin
   if aIndex=0 then exit;
 
   for i:=1 to fCount do
-    Result := Result and not (fPlayers[i].StartLocation = aIndex);
+    Result := Result and not (fNetPlayers[i].StartLocation = aIndex);
 end;
 
 
@@ -613,7 +613,7 @@ begin
   if aIndex=0 then exit;
 
   for i:=1 to fCount do
-    Result := Result and not (fPlayers[i].FlagColorID = aIndex);
+    Result := Result and not (fNetPlayers[i].FlagColorID = aIndex);
 end;
 
 
@@ -622,8 +622,8 @@ var I: Integer;
 begin
   Result := true;
   for i:=1 to fCount do
-    if fPlayers[i].Connected and fPlayers[i].IsHuman then
-      Result := Result and fPlayers[i].ReadyToStart;
+    if fNetPlayers[i].Connected and fNetPlayers[i].IsHuman then
+      Result := Result and fNetPlayers[i].ReadyToStart;
 end;
 
 
@@ -632,8 +632,8 @@ var I: Integer;
 begin
   Result := true;
   for i:=1 to fCount do
-    if fPlayers[i].Connected and fPlayers[i].IsHuman then
-      Result := Result and fPlayers[i].ReadyToPlay;
+    if fNetPlayers[i].Connected and fNetPlayers[i].IsHuman then
+      Result := Result and fNetPlayers[i].ReadyToPlay;
 end;
 
 
@@ -643,13 +643,13 @@ begin
   Highest := 0;
   Highest2 := 0;
   for i:=1 to fCount do
-    if fPlayers[i].Connected and fPlayers[i].IsHuman then
+    if fNetPlayers[i].Connected and fNetPlayers[i].IsHuman then
     begin
-      if fPlayers[i].GetMaxPing > Highest then
-        Highest := fPlayers[i].GetMaxPing
+      if fNetPlayers[i].GetMaxPing > Highest then
+        Highest := fNetPlayers[i].GetMaxPing
       else
-        if fPlayers[i].GetMaxPing > Highest2 then
-          Highest2 := fPlayers[i].GetMaxPing;
+        if fNetPlayers[i].GetMaxPing > Highest2 then
+          Highest2 := fNetPlayers[i].GetMaxPing;
     end;
   Result := min(Highest + Highest2, High(Word));
 end;
@@ -659,8 +659,8 @@ procedure TKMNetPlayersList.GetNotReadyToPlayPlayers(aPlayerList:TStringList);
 var I: Integer;
 begin
   for i:=1 to fCount do
-    if (not fPlayers[i].ReadyToPlay) and fPlayers[i].IsHuman and fPlayers[i].Connected then
-      aPlayerList.Add(fPlayers[i].Nikname);
+    if (not fNetPlayers[i].ReadyToPlay) and fNetPlayers[i].IsHuman and fNetPlayers[i].Connected then
+      aPlayerList.Add(fNetPlayers[i].Nikname);
 end;
 
 
@@ -669,7 +669,7 @@ var I: Integer;
 begin
   Result := 0;
   for i:=1 to fCount do
-    if fPlayers[i].PlayerNetType = nptComputer then
+    if fNetPlayers[i].PlayerNetType = nptComputer then
       inc(Result);
 end;
 
@@ -679,7 +679,7 @@ var I: Integer;
 begin
   Result := 0;
   for i:=1 to fCount do
-    if fPlayers[i].PlayerNetType = nptClosed then
+    if fNetPlayers[i].PlayerNetType = nptClosed then
       inc(Result);
 end;
 
@@ -689,7 +689,7 @@ var I: Integer;
 begin
   Result := 0;
   for i:=1 to fCount do
-    if fPlayers[i].IsHuman and fPlayers[i].Connected then
+    if fNetPlayers[i].IsHuman and fNetPlayers[i].Connected then
       inc(Result);
 end;
 
@@ -699,9 +699,9 @@ var I: Integer;
 begin
   for i:=1 to fCount do
   begin
-    fPlayers[i].StartLocation := 0;
-    if fPlayers[i].PlayerNetType = nptHuman then //AI/closed players are always ready
-      fPlayers[i].ReadyToStart := false;
+    fNetPlayers[i].StartLocation := 0;
+    if fNetPlayers[i].PlayerNetType = nptHuman then //AI/closed players are always ready
+      fNetPlayers[i].ReadyToStart := false;
   end;
 end;
 
@@ -710,10 +710,10 @@ procedure TKMNetPlayersList.SetAIReady;
 var I: Integer;
 begin
   for i:=1 to fCount do
-    if fPlayers[i].PlayerNetType in [nptComputer,nptClosed] then
+    if fNetPlayers[i].PlayerNetType in [nptComputer,nptClosed] then
     begin
-      fPlayers[i].ReadyToStart := true;
-      fPlayers[i].ReadyToPlay := true;
+      fNetPlayers[i].ReadyToStart := true;
+      fNetPlayers[i].ReadyToPlay := true;
     end;
 end;
 
@@ -749,7 +749,7 @@ begin
   M.Write(HostDoesSetup);
   M.Write(fCount);
   for i:=1 to fCount do
-    fPlayers[i].Save(M);
+    fNetPlayers[i].Save(M);
 
   Result := M.ReadAsText;
   M.Free;
@@ -765,7 +765,7 @@ begin
     M.Read(HostDoesSetup);
     M.Read(fCount);
     for i:=1 to fCount do
-      fPlayers[i].Load(M);
+      fNetPlayers[i].Load(M);
   finally
     M.Free;
   end;
@@ -777,7 +777,7 @@ var I: Integer;
 begin
   for i:=1 to fCount do
   begin
-    Result := Result + StringReplace(fPlayers[i].Nikname,'|','',[rfReplaceAll]);
+    Result := Result + StringReplace(fNetPlayers[i].Nikname,'|','',[rfReplaceAll]);
     if i < fCount then Result := Result + '|';
   end;
 end;
@@ -788,7 +788,7 @@ var I: Integer;
 begin
   for i:=1 to fCount do
   begin
-    Result := Result + '   ' +IntToStr(i) + ': ' + fPlayers[i].Nikname;
+    Result := Result + '   ' +IntToStr(i) + ': ' + fNetPlayers[i].Nikname;
     if i < fCount then Result := Result + '|';
   end;
 end;

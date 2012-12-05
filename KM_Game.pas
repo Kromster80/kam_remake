@@ -1009,24 +1009,26 @@ begin
     fGameInfo.VictoryCondition := 'Win';
     fGameInfo.DefeatCondition := 'Lose';
     fGameInfo.PlayerCount := fPlayers.Count;
-    for i:=0 to fPlayers.Count-1 do
+    for I := 0 to fPlayers.Count - 1 do
     begin
       if fNetworking <> nil then
-        NetIndex := fNetworking.NetPlayers.PlayerIndexToLocal(i)
+        NetIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I)
       else
         NetIndex := -1;
 
-      if NetIndex = -1 then begin
-        fGameInfo.LocationName[i] := 'Unknown '+IntToStr(i+1);
-        fGameInfo.PlayerTypes[i] := pt_Human;
-        fGameInfo.ColorID[i] := 0;
-        fGameInfo.Team[i] := 0;
-      end else begin
-        fGameInfo.LocationName[i] := fNetworking.NetPlayers[NetIndex].Nikname;
-        fGameInfo.PlayerTypes[i] := fNetworking.NetPlayers[NetIndex].GetPlayerType;
-        fGameInfo.ColorID[i] := fNetworking.NetPlayers[NetIndex].FlagColorID;
-        fGameInfo.Team[i] := fNetworking.NetPlayers[NetIndex].Team;
-      end
+      if NetIndex = -1 then
+      begin
+        fGameInfo.LocationName[I] := 'Unknown ' + IntToStr(I + 1);
+        fGameInfo.PlayerTypes[I] := pt_Human;
+        fGameInfo.ColorID[I] := 0;
+        fGameInfo.Team[I] := 0;
+      end else
+      begin
+        fGameInfo.LocationName[I] := fNetworking.NetPlayers[NetIndex].Nikname;
+        fGameInfo.PlayerTypes[I] := fNetworking.NetPlayers[NetIndex].GetPlayerType;
+        fGameInfo.ColorID[I] := fNetworking.NetPlayers[NetIndex].FlagColorID;
+        fGameInfo.Team[I] := fNetworking.NetPlayers[NetIndex].Team;
+      end;
     end;
 
     fGameInfo.Save(SaveStream);
