@@ -54,10 +54,10 @@ type
   //but knows nothing about networking nor game setup. Only players.
   TKMNetPlayersList = class
   private
-    fCount:integer;
-    fNetPlayers:array [1..MAX_PLAYERS] of TKMNetPlayerInfo;
-    function GetPlayer(Index:integer):TKMNetPlayerInfo;
-    procedure ValidateLocations(aMaxLoc:byte);
+    fCount: Integer;
+    fNetPlayers: array [1 .. MAX_PLAYERS] of TKMNetPlayerInfo;
+    function GetPlayer(aIndex: Integer): TKMNetPlayerInfo;
+    procedure ValidateLocations(aMaxLoc: Byte);
     procedure ValidateColors;
     procedure RemAllClosedPlayers;
     procedure UpdateAIPlayerNames;
@@ -68,43 +68,44 @@ type
     procedure Clear;
     property Count:integer read fCount;
 
-    procedure AddPlayer(aNik:string; aIndexOnServer:integer; const aLang:String='');
-    procedure AddAIPlayer(aSlot:integer=-1);
-    procedure AddClosedPlayer(aSlot:integer=-1);
-    procedure DisconnectPlayer(aIndexOnServer:integer);
-    procedure DisconnectAllClients(aOwnNikname:string);
-    procedure DropPlayer(aIndexOnServer:integer);
-    procedure RemPlayer(aIndexOnServer:integer);
-    procedure RemAIPlayer(ID:integer);
-    procedure RemClosedPlayer(ID:integer);
-    property Player[Index:integer]:TKMNetPlayerInfo read GetPlayer; default;
+    procedure AddPlayer(aNik: string; aIndexOnServer: Integer; const aLang: string = '');
+    procedure AddAIPlayer(aSlot: Integer = -1);
+    procedure AddClosedPlayer(aSlot: Integer = -1);
+    procedure DisconnectPlayer(aIndexOnServer: Integer);
+    procedure DisconnectAllClients(aOwnNikname: string);
+    procedure DropPlayer(aIndexOnServer: Integer);
+    procedure RemPlayer(aIndexOnServer: Integer);
+    procedure RemAIPlayer(ID: Integer);
+    procedure RemClosedPlayer(ID: Integer);
+    property Player[aIndex: Integer]: TKMNetPlayerInfo read GetPlayer; default;
 
     //Getters
-    function ServerToLocal(aIndexOnServer:integer):integer;
-    function NiknameToLocal(aNikname:string):integer;
-    function StartingLocToLocal(aLoc:integer):integer;
-    function PlayerIndexToLocal(aIndex:TPlayerIndex):integer;
-    function CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
-    function CheckCanReconnect(aLocalIndex:integer):string;
-    function LocAvailable(aIndex:integer):boolean;
-    function ColorAvailable(aIndex:integer):boolean;
-    function AllReady:boolean;
-    function AllReadyToPlay:boolean;
-    function GetMaxHighestRoundTripLatency:word;
-    procedure GetNotReadyToPlayPlayers(aPlayerList:TStringList);
-    function GetAICount:integer;
-    function GetClosedCount:integer;
-    function GetConnectedCount:integer;
+    function ServerToLocal(aIndexOnServer: Integer): Integer;
+    function NiknameToLocal(aNikname: string): Integer;
+    function StartingLocToLocal(aLoc: Integer): Integer;
+    function PlayerIndexToLocal(aIndex: TPlayerIndex): Integer;
+
+    function CheckCanJoin(aNik: string; aIndexOnServer: Integer): string;
+    function CheckCanReconnect(aLocalIndex: Integer): string;
+    function LocAvailable(aIndex: Integer): Boolean;
+    function ColorAvailable(aIndex: Integer): Boolean;
+    function AllReady: Boolean;
+    function AllReadyToPlay: Boolean;
+    function GetMaxHighestRoundTripLatency: Word;
+    procedure GetNotReadyToPlayPlayers(aPlayerList: TStringList);
+    function GetAICount: Integer;
+    function GetClosedCount: Integer;
+    function GetConnectedCount: Integer;
 
     procedure ResetLocAndReady;
     procedure SetAIReady;
-    function ValidateSetup(aMaxLoc:byte; out ErrorMsg:String):boolean;
+    function ValidateSetup(aMaxLoc: Byte; out ErrorMsg: string): Boolean;
 
     //Import/Export
-    function GetAsText:string; //Gets all relevant information as text string
+    function GetAsText: string; //Gets all relevant information as text string
     procedure SetAsText(const aText:string); //Sets all relevant information from text string
-    function GetSimpleAsText:string; //Gets just names as a text string seperated by |
-    function GetPlayersWithIDs:string;
+    function GetSimpleAsText: string; //Gets just names as a text string seperated by |
+    function GetPlayersWithIDs: string;
   end;
 
 
@@ -253,9 +254,9 @@ begin
 end;
 
 
-function TKMNetPlayersList.GetPlayer(Index: Integer): TKMNetPlayerInfo;
+function TKMNetPlayersList.GetPlayer(aIndex: Integer): TKMNetPlayerInfo;
 begin
-  Result := fNetPlayers[Index];
+  Result := fNetPlayers[aIndex];
 end;
 
 

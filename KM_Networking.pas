@@ -345,17 +345,17 @@ begin
 end;
 
 
-procedure TKMNetworking.DropWaitingPlayers(aPlayers:TStringList);
-var i,ServerIndex:integer;
+procedure TKMNetworking.DropWaitingPlayers(aPlayers: TStringList);
+var I, ServerIndex: Integer;
 begin
   Assert(IsHost, 'Only the host is allowed to drop players');
-  for i:=0 to aPlayers.Count-1 do
+  for I := 0 to aPlayers.Count - 1 do
   begin
-    ServerIndex := NetPlayers[NetPlayers.NiknameToLocal(aPlayers[i])].IndexOnServer;
+    ServerIndex := NetPlayers[NetPlayers.NiknameToLocal(aPlayers[I])].IndexOnServer;
     //Make sure this player is properly disconnected from the server
-    PacketSend(NET_ADDRESS_SERVER,mk_KickPlayer,'',ServerIndex);
+    PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, '', ServerIndex);
     NetPlayers.DropPlayer(ServerIndex);
-    PostMessage('The host dropped '+aPlayers[i]+' from the game');
+    PostMessage('The host dropped ' + aPlayers[I] + ' from the game');
   end;
   SendPlayerListAndRefreshPlayersSetup;
 end;
@@ -615,11 +615,11 @@ begin
 end;
 
 
-procedure TKMNetworking.KickPlayer(aPlayerIndex:integer);
+procedure TKMNetworking.KickPlayer(aPlayerIndex: Integer);
 begin
-  assert(IsHost);
+  Assert(IsHost, 'Only host is allowed to kick players out');
   PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, '', fNetPlayers[aPlayerIndex].IndexOnServer);
-  PostMessage(fNetPlayers[aPlayerIndex].Nikname+' was kicked by the host');
+  PostMessage(fNetPlayers[aPlayerIndex].Nikname + ' was kicked by the host');
 end;
 
 
@@ -665,7 +665,9 @@ end;
 
 //Tell other players we want to start
 procedure TKMNetworking.StartClick;
-var PlayerCount: byte; ErrorMessage: String;
+var
+  PlayerCount: Byte;
+  ErrorMessage: string;
 begin
   Assert(IsHost, 'Only host can start the game');
   Assert(CanStart, 'Can''t start the game now');
@@ -678,13 +680,14 @@ begin
     ngk_Save: PlayerCount := fSaveInfo.Info.PlayerCount;
     else      PlayerCount := 0;
   end;
-
   if not fNetPlayers.ValidateSetup(PlayerCount, ErrorMessage) then
   begin
     PostLocalMessage(Format(fTextLibrary[TX_LOBBY_CANNOT_START], [ErrorMessage]));
     Exit;
   end;
-  fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname); //ValidateSetup removes closed players if successful, so our index changes
+
+  //ValidateSetup removes closed players if successful, so our index changes
+  fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
 
   //Let everyone start with final version of fNetPlayers and fNetGameOptions
   SendGameOptions;
@@ -729,18 +732,22 @@ begin
 end;
 
 
-procedure TKMNetworking.ConsoleCommand(aText:string);
-var s,PlayerID:Integer;
+procedure TKMNetworking.ConsoleCommand(aText: string);
+var
+  s,PlayerID: Integer;
+  ConsoleCmd: string;
 begin
-  PostLocalMessage('[$808080]'+aText+'[]');
-  s := PosEx(' ',aText);
-  if s = 0 then s := Length(aText)+1;
+  PostLocalMessage('[$808080]' + aText + '[]');
+  s := PosEx(' ', aText);
+  if s = 0 then s := Length(aText) + 1;
 
-  if SameText(LeftStr(aText, s-1), '/kick') then
+  ConsoleCmd := LowerCase(LeftStr(aText, s-1));
+
+  if ConsoleCmd = '/kick' then
   begin
     if not IsHost then
     begin
-      PostLocalMessage('Only the host can kick people',False);
+      PostLocalMessage('Only the host can kick players', False);
       Exit;
     end;
     if (Length(aText) >= s+1) and TryStrToInt(aText[s+1], PlayerID)
@@ -750,22 +757,23 @@ begin
       and (PlayerID <> MyIndex) then
         KickPlayer(PlayerID)
       else
-        PostLocalMessage('You cannot kick yourself or AI players.',False);
+        PostLocalMessage('You cannot kick yourself or AI players', False);
     end
     else
-      PostLocalMessage('Invalid syntax. Type /help for more info.',False);
+      PostLocalMessage('Invalid syntax. Type /help for more info', False);
   end
   else
-  if SameText(LeftStr(aText, s-1), '/help') then
+  if ConsoleCmd = '/help' then
     PostLocalMessage('The following console commands are available:|'+
                      '    /kick <Player ID> - Kicks a player from the lobby|'+
                    //'    /ban <Player ID> - Kicks and bans a player from the lobby|'+
                    //'    /newhost <Player ID> - Changes the host player|'+
                      '    /help - Displays this page|'+
-                     'Player IDs:|'+fNetPlayers.GetPlayersWithIDs,False)
+                     'Player IDs:|'+
+                     fNetPlayers.GetPlayersWithIDs, False)
   else
   begin
-    PostLocalMessage('Unknown console command "'+aText+'". Type /help for more info.',False);
+    PostLocalMessage('Unknown console command "' + aText + '". Type /help for more info', False);
   end;
 end;
 

@@ -28,10 +28,6 @@ uses Classes, SysUtils, Math, KM_CommonClasses, KM_NetworkTypes, KM_Defaults, KM
       2. request for players ping
       3. request for players IPs
       4. ...
-
-      //Following commands will be added to TKMessageKind
-      mk_KickPlayer
-      mk_WasKicked
 }
 
 type

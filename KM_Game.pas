@@ -491,19 +491,14 @@ begin
     PlayerIndex := fNetworking.NetPlayers[i].StartLocation - 1; //PlayerID is 0 based
     fPlayers[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].GetPlayerType;
     fPlayers[PlayerIndex].PlayerName := fNetworking.NetPlayers[i].Nikname;
-
-    //Setup alliances
-    if fNetworking.SelectGameKind = ngk_Map then
-      for k:=0 to fPlayers.Count-1 do
-        if (fNetworking.NetPlayers[i].Team = 0) or (fNetworking.NetPlayers.StartingLocToLocal(k+1) = -1) or
-          (fNetworking.NetPlayers[i].Team <> fNetworking.NetPlayers[fNetworking.NetPlayers.StartingLocToLocal(k+1)].Team) then
-          fPlayers[PlayerIndex].Alliances[k] := at_Enemy
-        else
-          fPlayers[PlayerIndex].Alliances[k] := at_Ally;
-
     fPlayers[PlayerIndex].FlagColor := fNetworking.NetPlayers[i].FlagColor;
     PlayerEnabled[PlayerIndex] := True;
   end;
+
+  //Setup alliances
+  //We mirror Lobby team setup on to alliances. Savegame has the setup already
+  if fNetworking.SelectGameKind = ngk_Map then
+    UpdateMultiplayerTeams;
 
   //MyPlayer is a pointer to TKMPlayer
   MyPlayer := fPlayers[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
@@ -534,14 +529,26 @@ end;
 
 
 procedure TKMGame.UpdateMultiplayerTeams;
-var I,K: Integer;
+var
+  I, K: Integer;
+  PlayerI: TKMPlayer;
+  PlayerK: Integer;
 begin
   for I := 1 to fNetworking.NetPlayers.Count do
+  begin
+    PlayerI := fPlayers[fNetworking.NetPlayers[I].StartLocation - 1]; //PlayerID is 0 based
     for K := 1 to fNetworking.NetPlayers.Count do
-      if (fNetworking.NetPlayers[I].Team = 0) or (fNetworking.NetPlayers[I].Team <> fNetworking.NetPlayers[K].Team) then
-        fPlayers[fNetworking.NetPlayers[I].StartLocation-1].Alliances[fPlayers[fNetworking.NetPlayers[K].StartLocation-1].PlayerIndex] := at_Enemy
+    begin
+      PlayerK := fNetworking.NetPlayers[K].StartLocation - 1; //PlayerID is 0 based
+
+      //Players are allies if they belong to same team (team 0 means free-for-all)
+      if (fNetworking.NetPlayers[I].Team <> 0)
+      and (fNetworking.NetPlayers[I].Team = fNetworking.NetPlayers[K].Team) then
+        PlayerI.Alliances[PlayerK] := at_Ally
       else
-        fPlayers[fNetworking.NetPlayers[I].StartLocation-1].Alliances[fPlayers[fNetworking.NetPlayers[K].StartLocation-1].PlayerIndex] := at_Ally;
+        PlayerI.Alliances[PlayerK] := at_Enemy;
+    end;
+  end;
 end;
 
 
