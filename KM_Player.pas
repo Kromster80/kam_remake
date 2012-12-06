@@ -86,7 +86,6 @@ type
     procedure AfterMissionInit(aFlattenRoads: Boolean);
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean = False): TKMUnit; reintroduce;
-    procedure AddUnitAndLink(aUnitType: TUnitType; Position: TKMPoint);
     function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aCount: Word): TKMUnitGroup;
 
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
@@ -276,21 +275,11 @@ begin
       fBuildList.AddWorker(TKMUnitWorker(Result));
     if aUnitType = ut_Serf then
       fDeliveries.AddSerf(TKMUnitSerf(Result));
+    if Result is TKMUnitWarrior then
+      fUnitGroups.WarriorTrained(TKMUnitWarrior(Result));
 
     fStats.UnitCreated(aUnitType, WasTrained);
   end;
-end;
-
-
-//Add the unit and link it to closest group
-procedure TKMPlayer.AddUnitAndLink(aUnitType: TUnitType; Position: TKMPoint);
-var
-  U: TKMUnit;
-begin
-  U := AddUnit(aUnitType, Position);
-
-  if (U <> nil) and (U is TKMUnitWarrior) then
-    fUnitGroups.WarriorTrained(TKMUnitWarrior(U));
 end;
 
 

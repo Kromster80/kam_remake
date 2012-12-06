@@ -37,6 +37,7 @@ type
   public
     procedure Defeat(aPlayer: Word);
     procedure GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word);
+    procedure GiveUnit(aPlayer, aType, X,Y, aDir: Word);
     procedure ShowMsg(aPlayer, aIndex: Word);
     procedure UnlockHouse(aPlayer, aHouseType: Word);
   end;
@@ -158,7 +159,22 @@ begin
                                    aColumns,
                                    aCount)
   else
-    LogError('Actions.GiveGroup', [aPlayer, aType, X,Y, aDir, aCount, aColumns]);
+    LogError('Actions.GiveGroup', [aPlayer, aType, X, Y, aDir, aCount, aColumns]);
+end;
+
+
+procedure TKMScriptActions.GiveUnit(aPlayer, aType, X, Y, aDir: Word);
+begin
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and (aType in [Low(UnitIndexToType)..High(UnitIndexToType)])
+  and fTerrain.TileInMapCoords(X,Y)
+  and (TKMDirection(aDir+1) in [dir_N..dir_NW]) then
+    fPlayers[aPlayer].AddUnit(UnitIndexToType[aType],
+                              KMPoint(X,Y))
+    //Direction is ignored for now
+  else
+    LogError('Actions.GiveUnit', [aPlayer, aType, X, Y, aDir]);
 end;
 
 

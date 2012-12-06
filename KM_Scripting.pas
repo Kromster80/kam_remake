@@ -127,6 +127,7 @@ begin
     begin
       RegisterMethod('procedure Defeat(aPlayer: Word)');
       RegisterMethod('procedure GiveGroup(aPlayer, aType, X, Y, aDir, aCount, aColumns: Word)');
+      RegisterMethod('procedure GiveUnit(aPlayer, aType, X, Y, aDir: Word)');
       RegisterMethod('procedure ShowMsg(aPlayer, aIndex: Word)');
       RegisterMethod('procedure UnlockHouse(aPlayer, aHouseType: Word)');
     end;
@@ -237,6 +238,7 @@ begin
   begin
     RegisterMethod(@TKMScriptActions.Defeat, 'DEFEAT');
     RegisterMethod(@TKMScriptActions.GiveGroup, 'GIVEGROUP');
+    RegisterMethod(@TKMScriptActions.GiveUnit, 'GIVEUNIT');
     RegisterMethod(@TKMScriptActions.ShowMsg, 'SHOWMSG');
     RegisterMethod(@TKMScriptActions.UnlockHouse, 'UNLOCKHOUSE');
   end;

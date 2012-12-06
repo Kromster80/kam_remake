@@ -330,7 +330,7 @@ begin
                                   end;
 
       gic_TempAddScout:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
-                                    P.AddUnitAndLink(ut_HorseScout, KMPoint(Params[1],Params[2]));
+                                    P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
       gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
                                     P.FogOfWar.RevealEverything;
       gic_TempDoNothing:          ;
