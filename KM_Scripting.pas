@@ -114,9 +114,12 @@ begin
     //After that they can be used from within the script.
     with Sender.AddClassN(nil, fStates.ClassName) do
     begin
+      RegisterMethod('function ArmyCount(aIndex: Byte): Integer');
+      RegisterMethod('function CitizenCount(aIndex: Byte): Integer');
       RegisterMethod('function GameTime: Cardinal');
       RegisterMethod('function PlayerCount: Integer');
       RegisterMethod('function PlayerDefeated(aIndex: Byte): Boolean');
+      RegisterMethod('function UnitCount(aIndex: Byte): Integer');
     end;
 
     with Sender.AddClassN(nil, fActions.ClassName) do
@@ -220,9 +223,12 @@ begin
   //Register classes and their exposed methods to Runtime (must be uppercase)
   with ClassImp.Add(TKMScriptStates) do
   begin
+    RegisterMethod(@TKMScriptStates.ArmyCount, 'ARMYCOUNT');
+    RegisterMethod(@TKMScriptStates.CitizenCount, 'CITIZENCOUNT');
     RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
     RegisterMethod(@TKMScriptStates.PlayerCount, 'PLAYERCOUNT');
     RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
+    RegisterMethod(@TKMScriptStates.UnitCount, 'UNITCOUNT');
   end;
 
   with ClassImp.Add(TKMScriptActions) do

@@ -19,9 +19,15 @@ type
   //2. Add method declaration to Compiler (TKMScripting.ScriptOnUses)
   //3. Add method name to Runtime (TKMScripting.LinkRuntime)
   TKMScriptStates = class
+  private
+    procedure LogError(aFuncName: string; const aValues: array of Integer);
+  public
+    function ArmyCount(aIndex: Byte): Integer;
+    function CitizenCount(aIndex: Byte): Integer;
     function GameTime: Cardinal;
     function PlayerCount: Integer;
     function PlayerDefeated(aIndex: Byte): Boolean;
+    function UnitCount(aIndex: Byte): Integer;
   end;
 
   TKMScriptActions = class
@@ -46,6 +52,35 @@ uses KM_AI, KM_Houses, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection
   // - report to player
 
 { TKMScriptStates }
+procedure TKMScriptStates.LogError(aFuncName: string; const aValues: array of Integer);
+var
+  I: Integer;
+  Values: string;
+begin
+  for I := Low(aValues) to High(aValues) do
+    Values := Values + IntToStr(aValues[I]) + IfThen(I<>High(aValues), ', ');
+  fLog.AddTime('Mistake in script usage' + aFuncName + ': ' + Values);
+end;
+
+
+function TKMScriptStates.ArmyCount(aIndex: Byte): Integer;
+begin
+  if InRange(aIndex, 0, fPlayers.Count - 1) then
+    Result := fPlayers[aIndex].Stats.GetArmyCount
+  else
+    LogError('States.ArmyCount', [aIndex]);
+end;
+
+
+function TKMScriptStates.CitizenCount(aIndex: Byte): Integer;
+begin
+  if InRange(aIndex, 0, fPlayers.Count - 1) then
+    Result := fPlayers[aIndex].Stats.GetCitizensCount
+  else
+    LogError('States.ArmyCount', [aIndex]);
+end;
+
+
 function TKMScriptStates.GameTime: Cardinal;
 begin
   Result := fGame.GameTickCount;
@@ -60,7 +95,19 @@ end;
 
 function TKMScriptStates.PlayerDefeated(aIndex: Byte): Boolean;
 begin
-  Result := (fPlayers[aIndex].AI.WonOrLost = wol_Lost);
+  if InRange(aIndex, 0, fPlayers.Count - 1) then
+    Result := (fPlayers[aIndex].AI.WonOrLost = wol_Lost)
+  else
+    LogError('States.PlayerDefeated', [aIndex]);
+end;
+
+
+function TKMScriptStates.UnitCount(aIndex: Byte): Integer;
+begin
+  if InRange(aIndex, 0, fPlayers.Count - 1) then
+    Result := fPlayers[aIndex].Stats.GetUnitQty(ut_Any)
+  else
+    LogError('States.UnitCount', [aIndex]);
 end;
 
 

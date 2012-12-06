@@ -468,7 +468,6 @@ begin
 end;
 
 
-
 function TKMPlayerStats.GetHousesLost: Cardinal;
 var HT: THouseType;
 begin
