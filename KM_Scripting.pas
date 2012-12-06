@@ -114,12 +114,13 @@ begin
     //After that they can be used from within the script.
     with Sender.AddClassN(nil, fStates.ClassName) do
     begin
-      RegisterMethod('function ArmyCount(aIndex: Byte): Integer');
-      RegisterMethod('function CitizenCount(aIndex: Byte): Integer');
+      RegisterMethod('function ArmyCount(aPlayer: Byte): Integer');
+      RegisterMethod('function CitizenCount(aPlayer: Byte): Integer');
       RegisterMethod('function GameTime: Cardinal');
       RegisterMethod('function PlayerCount: Integer');
-      RegisterMethod('function PlayerDefeated(aIndex: Byte): Boolean');
-      RegisterMethod('function UnitCount(aIndex: Byte): Integer');
+      RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
+      RegisterMethod('function UnitCount(aPlayer: Byte): Integer');
+      RegisterMethod('function UnitTypeCount(aPlayer, aUnitType: Byte): Integer');
     end;
 
     with Sender.AddClassN(nil, fActions.ClassName) do
@@ -229,6 +230,7 @@ begin
     RegisterMethod(@TKMScriptStates.PlayerCount, 'PLAYERCOUNT');
     RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
     RegisterMethod(@TKMScriptStates.UnitCount, 'UNITCOUNT');
+    RegisterMethod(@TKMScriptStates.UnitTypeCount, 'UNITTYPECOUNT');
   end;
 
   with ClassImp.Add(TKMScriptActions) do

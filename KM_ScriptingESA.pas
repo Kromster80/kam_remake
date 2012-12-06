@@ -22,12 +22,13 @@ type
   private
     procedure LogError(aFuncName: string; const aValues: array of Integer);
   public
-    function ArmyCount(aIndex: Byte): Integer;
-    function CitizenCount(aIndex: Byte): Integer;
+    function ArmyCount(aPlayer: Byte): Integer;
+    function CitizenCount(aPlayer: Byte): Integer;
     function GameTime: Cardinal;
     function PlayerCount: Integer;
-    function PlayerDefeated(aIndex: Byte): Boolean;
-    function UnitCount(aIndex: Byte): Integer;
+    function PlayerDefeated(aPlayer: Byte): Boolean;
+    function UnitCount(aPlayer: Byte): Integer;
+    function UnitTypeCount(aPlayer, aUnitType: Byte): Integer;
   end;
 
   TKMScriptActions = class
@@ -63,21 +64,21 @@ begin
 end;
 
 
-function TKMScriptStates.ArmyCount(aIndex: Byte): Integer;
+function TKMScriptStates.ArmyCount(aPlayer: Byte): Integer;
 begin
-  if InRange(aIndex, 0, fPlayers.Count - 1) then
-    Result := fPlayers[aIndex].Stats.GetArmyCount
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    Result := fPlayers[aPlayer].Stats.GetArmyCount
   else
-    LogError('States.ArmyCount', [aIndex]);
+    LogError('States.ArmyCount', [aPlayer]);
 end;
 
 
-function TKMScriptStates.CitizenCount(aIndex: Byte): Integer;
+function TKMScriptStates.CitizenCount(aPlayer: Byte): Integer;
 begin
-  if InRange(aIndex, 0, fPlayers.Count - 1) then
-    Result := fPlayers[aIndex].Stats.GetCitizensCount
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    Result := fPlayers[aPlayer].Stats.GetCitizensCount
   else
-    LogError('States.ArmyCount', [aIndex]);
+    LogError('States.ArmyCount', [aPlayer]);
 end;
 
 
@@ -93,21 +94,32 @@ begin
 end;
 
 
-function TKMScriptStates.PlayerDefeated(aIndex: Byte): Boolean;
+function TKMScriptStates.PlayerDefeated(aPlayer: Byte): Boolean;
 begin
-  if InRange(aIndex, 0, fPlayers.Count - 1) then
-    Result := (fPlayers[aIndex].AI.WonOrLost = wol_Lost)
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    Result := (fPlayers[aPlayer].AI.WonOrLost = wol_Lost)
   else
-    LogError('States.PlayerDefeated', [aIndex]);
+    LogError('States.PlayerDefeated', [aPlayer]);
 end;
 
 
-function TKMScriptStates.UnitCount(aIndex: Byte): Integer;
+function TKMScriptStates.UnitCount(aPlayer: Byte): Integer;
 begin
-  if InRange(aIndex, 0, fPlayers.Count - 1) then
-    Result := fPlayers[aIndex].Stats.GetUnitQty(ut_Any)
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    Result := fPlayers[aPlayer].Stats.GetUnitQty(ut_Any)
   else
-    LogError('States.UnitCount', [aIndex]);
+    LogError('States.UnitCount', [aPlayer]);
+end;
+
+
+function TKMScriptStates.UnitTypeCount(aPlayer, aUnitType: Byte): Integer;
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and (aUnitType in [Low(UnitIndexToType)..High(UnitIndexToType)])
+  then
+    Result := fPlayers[aPlayer].Stats.GetUnitQty(UnitIndexToType[aUnitType])
+  else
+    LogError('States.UnitTypeCount', [aPlayer]);
 end;
 
 
