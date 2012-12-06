@@ -384,7 +384,6 @@ end;
 
 
 constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersEnabled: TPlayerEnabledArray; aStrictParsing: Boolean);
-var I: Integer;
 begin
   inherited Create(aStrictParsing);
   fParsingMode := aMode;

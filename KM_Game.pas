@@ -476,7 +476,7 @@ end;
 //All setup data gets taken from fNetworking class
 procedure TKMGame.MultiplayerRig;
 var
-  i,k:integer;
+  I: Integer;
   PlayerIndex: TPlayerIndex;
   PlayerEnabled: TPlayerEnabledArray;
 begin
@@ -488,10 +488,10 @@ begin
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for I := 1 to fNetworking.NetPlayers.Count do
   begin
-    PlayerIndex := fNetworking.NetPlayers[i].StartLocation - 1; //PlayerID is 0 based
-    fPlayers[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].GetPlayerType;
-    fPlayers[PlayerIndex].PlayerName := fNetworking.NetPlayers[i].Nikname;
-    fPlayers[PlayerIndex].FlagColor := fNetworking.NetPlayers[i].FlagColor;
+    PlayerIndex := fNetworking.NetPlayers[I].StartLocation - 1; //PlayerID is 0 based
+    fPlayers[PlayerIndex].PlayerType := fNetworking.NetPlayers[I].GetPlayerType;
+    fPlayers[PlayerIndex].PlayerName := fNetworking.NetPlayers[I].Nikname;
+    fPlayers[PlayerIndex].FlagColor := fNetworking.NetPlayers[I].FlagColor;
     PlayerEnabled[PlayerIndex] := True;
   end;
 
