@@ -114,14 +114,4 @@ object Form2: TForm2
     TabOrder = 5
     OnClick = RadioGroup1Click
   end
-  object Chart1: TChart
-    Left = 480
-    Top = 368
-    Width = 400
-    Height = 250
-    Title.Text.Strings = (
-      'TChart')
-    TabOrder = 6
-    ColorPaletteIndex = 13
-  end
 end

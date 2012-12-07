@@ -17,7 +17,6 @@ type
     Memo2: TMemo;
     RadioGroup1: TRadioGroup;
     Label2: TLabel;
-    Chart1: TChart;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
