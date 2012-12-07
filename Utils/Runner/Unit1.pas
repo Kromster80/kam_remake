@@ -3,7 +3,7 @@ unit Unit1;
 interface
 uses
   Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Graphics, Types, Math, Windows,
-  Unit_Runner;
+  Unit_Runner, VCLTee.TeEngine, VCLTee.TeeProcs, VCLTee.Chart;
 
 
 type
@@ -17,11 +17,14 @@ type
     Memo2: TMemo;
     RadioGroup1: TRadioGroup;
     Label2: TLabel;
+    Chart1: TChart;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
     procedure FormResize(Sender: TObject);
   private
+    fY: array of TLabel;
+    fX: array of TLabel;
     fResults: TKMRunResults;
     fRunTime: string;
     procedure RunnerProgress(const aValue: string);
@@ -93,15 +96,15 @@ procedure TForm2.RadioGroup1Click(Sender: TObject);
 const
   COLORS_COUNT = 8;
   LineCol: array [0..COLORS_COUNT - 1] of TColor =
-    (clRed, clBlue, clGreen, clPurple, clYellow, clGray, clBlack, clOlive);
+    (clRed, clBlue, clGreen, clPurple, clMaroon, clGray, clBlack, clOlive);
 var
-  J: Integer;
-  I: Integer;
+  I,J: Integer;
+  Steps: Integer;
   DotX, DotY: Word;
-  StatMax: Single;
+  StatMax: Integer;
   Stats: array of Integer;
   S: string;
-  K: Integer;
+  TopX, TopY: Integer;
 begin
   Image1.Canvas.FillRect(Image1.Canvas.ClipRect);
 
@@ -111,7 +114,7 @@ begin
           Image1.Canvas.Pen.Color := LineCol[J mod COLORS_COUNT];
           for I := 0 to fResults.ChartsCount - 1 do
           begin
-            DotX := Round(I / fResults.ChartsCount * Image1.Width);
+            DotX := Round(I / (fResults.ChartsCount - 1) * Image1.Width);
             DotY := Image1.Height - Round(fResults.Value[I,J] / fResults.ValueMax * Image1.Height);
             Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
             if I = 0 then
@@ -119,6 +122,8 @@ begin
             else
               Image1.Canvas.LineTo(DotX, DotY);
           end;
+          TopX := fResults.ChartsCount;
+          TopY := fResults.ValueMax;
         end;
     1:  for J := 0 to fResults.ValueCount - 1 do
         begin
@@ -135,7 +140,7 @@ begin
 
           for I := Low(Stats) to High(Stats) do
           begin
-            DotX := Round((I - Low(Stats)) / Length(Stats) * Image1.Width);
+            DotX := Round((I - Low(Stats)) / (Length(Stats) - 1) * Image1.Width);
             DotY := Image1.Height - Round(Stats[I] / StatMax * Image1.Height);
 
             if DotY <> Image1.Height then
@@ -146,20 +151,56 @@ begin
             else
               Image1.Canvas.LineTo(DotX, DotY);
           end;
+          TopX := Length(Stats);
+          TopY := StatMax;
         end;
-    2:  for I := 0 to fResults.ChartsCount - 1 do
-        begin
-          Image1.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
-
-          for J := 0 to fResults.ValueCount - 1 do
+    2:  begin
+          for I := 0 to fResults.ChartsCount - 1 do
           begin
-            DotX := Round(J / fResults.ValueCount * Image1.Width);
-            DotY := Image1.Height - Round(fResults.Value[I,J] / fResults.ValueMax * Image1.Height);
+            Image1.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
 
-            Image1.Canvas.PenPos := Point(DotX, Image1.Height);
-            Image1.Canvas.LineTo(DotX, DotY);
+            for J := 0 to fResults.TimesCount - 1 do
+            begin
+              DotX := Round(J / (fResults.TimesCount - 1) * Image1.Width);
+              DotY := Image1.Height - Round(fResults.Times[I,J] / fResults.TimeMax * Image1.Height);
+
+              Image1.Canvas.PenPos := Point(DotX, Image1.Height);
+              Image1.Canvas.LineTo(DotX, DotY);
+            end;
           end;
+          TopX := fResults.TimesCount;
+          TopY := fResults.TimeMax;
         end;
+  end;
+
+  for I := 0 to High(fX) do
+    FreeAndNil(fX[I]);
+
+  for I := 0 to High(fY) do
+    FreeAndNil(fY[I]);
+
+  Steps := Min(TopY, Image1.Height div 36);
+  SetLength(fY, Steps);
+  for I := 0 to High(fY) do
+  begin
+    fY[I] := TLabel.Create(Self);
+    fY[I].Parent := Self;
+    fY[I].Alignment := taRightJustify;
+    fY[I].Left := Image1.Left - 6;
+    fY[I].Top := Image1.Top + Image1.Height - Round(Image1.Height / High(fY) * I) - fY[I].Height;
+    fY[I].Caption := IntToStr(Round(TopY / High(fY) * I));
+  end;
+
+  Steps := Min(TopX, Image1.Width div 40);
+  SetLength(fX, Steps);
+  for I := 0 to High(fX) do
+  begin
+    fX[I] := TLabel.Create(Self);
+    fX[I].Parent := Self;
+    fX[I].Alignment := taRightJustify;
+    fX[I].Left := Image1.Left + Round(Image1.Width / High(fX) * I);
+    fX[I].Top := Image1.Top + Image1.Height + 4;
+    fX[I].Caption := FloatToStr(Round(TopX / High(fX) * I*10)/10);
   end;
 
   Memo1.Clear;

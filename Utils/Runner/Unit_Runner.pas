@@ -13,8 +13,11 @@ type
   TKMRunResults = record
     ChartsCount: Integer; //How many charts return
     ValueCount: Integer; //How many values
-    ValueMin, ValueMax: Single;
+    ValueMin, ValueMax: Integer;
     Value: array of array of Integer;
+    TimesCount: Integer;
+    TimeMin, TimeMax: Integer;
+    Times: array of array of Integer;
   end;
 
   TKMRunnerCommon = class
@@ -24,7 +27,7 @@ type
     procedure SetUp; virtual;
     procedure TearDown; virtual;
     procedure Execute(aRun: Integer); virtual; abstract;
-    procedure SimulateGame(aTicks: Integer);
+    procedure SimulateGame;
     procedure ProcessRunResults;
   public
     OnProgress: TStringEvent;
@@ -55,6 +58,7 @@ begin
 
   fResults.ChartsCount := aCount;
   SetLength(fResults.Value, fResults.ChartsCount, fResults.ValueCount);
+  SetLength(fResults.Times, fResults.ChartsCount, fResults.TimesCount);
 
   for I := 0 to aCount - 1 do
   begin
@@ -75,6 +79,7 @@ var
 begin
   //Get min max
   with fResults do
+  if ValueCount > 0 then
   begin
     ValueMin := Value[0,0];
     ValueMax := Value[0,0];
@@ -83,6 +88,19 @@ begin
     begin
       ValueMin := Min(ValueMin, Value[I,K]);
       ValueMax := Max(ValueMax, Value[I,K]);
+    end;
+  end;
+  //Get min max
+  with fResults do
+  if TimesCount > 0 then
+  begin
+    TimeMin := Times[0,0];
+    TimeMax := Times[0,0];
+    for I := 0 to ChartsCount - 1 do
+    for K := 0 to TimesCount - 1 do
+    begin
+      TimeMin := Min(TimeMin, Times[I,K]);
+      TimeMax := Max(TimeMax, Times[I,K]);
     end;
   end;
 end;
@@ -107,10 +125,10 @@ begin
 end;
 
 
-procedure TKMRunnerCommon.SimulateGame(aTicks: Integer);
+procedure TKMRunnerCommon.SimulateGame;
 var I: Integer;
 begin
-  for I := 0 to aTicks - 1 do
+  for I := 0 to fResults.TimesCount - 1 do
   begin
 
     fGameApp.Game.UpdateGame(nil);
@@ -122,6 +140,9 @@ begin
       OnProgress(Format('%d (%d min)', [fRun, I div 600]));
 
   end;
+
+  for I := 0 to fResults.TimesCount - 1 do
+    fResults.Times[fRun, I] := fGameApp.Game.PerfLog.Times[I];
 end;
 
 

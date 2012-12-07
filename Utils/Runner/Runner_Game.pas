@@ -34,7 +34,6 @@ type
 
   TKMVortamicPF = class(TKMRunnerCommon)
   protected
-    RunTime: Word;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
     procedure TearDown; override;
@@ -48,6 +47,7 @@ procedure TKMRunnerStone.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
+  fResults.TimesCount := 0;
 
   AI_GEN_INFLUENCE_MAPS := False;
   AI_GEN_NAVMESH := False;
@@ -112,6 +112,7 @@ procedure TKMRunnerFight95.SetUp;
 begin
   inherited;
   fResults.ValueCount := 2;
+  fResults.TimesCount := 2*60*10;
 
   DYNAMIC_TERRAIN := False;
 end;
@@ -143,7 +144,7 @@ begin
 
   fPlayers[1].UnitGroups[0].OrderAttackUnit(fPlayers[0].Units[0]);
 
-  SimulateGame(2*600);
+  SimulateGame;
 
   fResults.Value[aRun, 0] := fPlayers[0].Stats.GetUnitQty(ut_Any);
   fResults.Value[aRun, 1] := fPlayers[1].Stats.GetUnitQty(ut_Any);
@@ -156,6 +157,7 @@ procedure TKMRunnerAIBuild.SetUp;
 begin
   inherited;
   fResults.ValueCount := 5;
+  fResults.TimesCount := 60*60*10;
 end;
 
 
@@ -175,7 +177,7 @@ begin
 
   SetKaMSeed(aRun + 1);
 
-  SimulateGame(60*600);
+  SimulateGame;
 
   fGameApp.Game.Save('AI Build #' + IntToStr(aRun));
 
@@ -193,8 +195,8 @@ end;
 procedure TKMVortamicPF.SetUp;
 begin
   inherited;
-  RunTime := 3000;
-  fResults.ValueCount := RunTime;
+  fResults.ValueCount := 0;
+  fResults.TimesCount := 5*60*10;
 end;
 
 procedure TKMVortamicPF.TearDown;
@@ -213,10 +215,7 @@ begin
 
   SetKaMSeed(aRun + 1);
 
-  SimulateGame(RunTime);
-
-  for I := 0 to fResults.ValueCount - 1 do
-    fResults.Value[aRun, I] := fGameApp.Game.PerfLog.Times[I];
+  SimulateGame;
 
   fGameApp.Stop(gr_Silent);
 end;

@@ -19,13 +19,11 @@ object Form2: TForm2
   PixelsPerInch = 96
   TextHeight = 13
   object Image1: TImage
-    Left = 280
+    Left = 296
     Top = 16
-    Width = 305
+    Width = 289
     Height = 249
     Anchors = [akLeft, akTop, akRight, akBottom]
-    ExplicitWidth = 321
-    ExplicitHeight = 233
   end
   object Label1: TLabel
     Left = 16
@@ -53,13 +51,12 @@ object Form2: TForm2
   object Memo1: TMemo
     Left = 16
     Top = 184
-    Width = 257
+    Width = 249
     Height = 129
     Anchors = [akLeft, akTop, akBottom]
     Lines.Strings = (
       'Memo1')
     TabOrder = 1
-    ExplicitHeight = 113
   end
   object seCycles: TSpinEdit
     Left = 16
@@ -82,7 +79,7 @@ object Form2: TForm2
   object Memo2: TMemo
     Left = 16
     Top = 312
-    Width = 337
+    Width = 249
     Height = 121
     Anchors = [akLeft, akBottom]
     BorderStyle = bsNone
@@ -90,22 +87,20 @@ object Form2: TForm2
     Lines.Strings = (
       'Runner'
       ''
-      
-        'Tool to run a game in pure simulation mode to test distribution ' +
-        'of '
+      'Tool to run a game in pure simulation mode to test '
+      'distribution of '
       'results and help catch bugs related to that.'
       ''
       'For example:'
-      
-        '  TestStone runs a stone mining that in theory should yeild same' +
-        ' '
+      '  TestStone runs a stone mining that in theory '
+      'should yeild same '
       'amount of stone each run')
     ReadOnly = True
     TabOrder = 4
   end
   object RadioGroup1: TRadioGroup
     Left = 280
-    Top = 272
+    Top = 288
     Width = 305
     Height = 41
     Anchors = [akLeft, akRight, akBottom]
@@ -118,7 +113,15 @@ object Form2: TForm2
       'Charts')
     TabOrder = 5
     OnClick = RadioGroup1Click
-    ExplicitTop = 256
-    ExplicitWidth = 321
+  end
+  object Chart1: TChart
+    Left = 480
+    Top = 368
+    Width = 400
+    Height = 250
+    Title.Text.Strings = (
+      'TChart')
+    TabOrder = 6
+    ColorPaletteIndex = 13
   end
 end
