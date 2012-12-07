@@ -5,6 +5,10 @@ uses SysUtils, Math, KromUtils,
   KM_CommonClasses, KM_Defaults, KM_Houses, KM_Terrain, KM_Points;
 
 
+const
+  PATH_CACHE_MAX = 12; //How many paths to cache
+  PATH_CACHE_INIT_WEIGHT = 5; //New path weight
+
 type
   TDestinationPoint = (
     dp_Location, //Walk to location
@@ -31,6 +35,12 @@ type
       Estim: Word;
       Parent: Word;//Reference to parent
     end;
+
+    fCache: array [0 .. PATH_CACHE_MAX - 1] of record
+      Weight: Word;
+      Pass: TPassabilitySet;
+      Route: TKMPointList;
+    end;
   private
     fPass: TPassabilitySet;
     fTargetWalkConnect: TWalkConnect;
@@ -40,6 +50,8 @@ type
     fDestination: TDestinationPoint;
     fTargetHouse: TKMHouse;
     fWeightRoutes: Boolean;
+    procedure AddToCache(NodeList: TKMPointList);
+    function TryRouteFromCache(NodeList: TKMPointList): Boolean;
     function MakeRoute: Boolean;
     procedure ReturnRoute(NodeList: TKMPointList);
   protected
@@ -51,9 +63,12 @@ type
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; virtual;
   public
     constructor Create;
+    destructor Destroy; override;
+
     function Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList; aWeightRoutes: Boolean = True): Boolean;
     function Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
     function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect: TWalkConnect; aTargetNetwork: Byte; aPass: TPassabilitySet; NodeList: TKMPointList): Boolean;
+    procedure UpdateState;
   end;
 
 
@@ -62,7 +77,25 @@ implementation
 
 { TPathFinding }
 constructor TPathFinding.Create;
+var
+  I: Integer;
 begin
+  inherited;
+
+  if CACHE_PATHFINDING then
+  for I := 0 to PATH_CACHE_MAX - 1 do
+    fCache[I].Route := TKMPointList.Create;
+end;
+
+
+destructor TPathFinding.Destroy;
+var
+  I: Integer;
+begin
+  if CACHE_PATHFINDING then
+  for I := 0 to PATH_CACHE_MAX - 1 do
+    FreeAndNil(fCache[I].Route);
+
   inherited;
 end;
 
@@ -87,6 +120,10 @@ begin
   else
     fDestination := dp_House;
 
+  //Try to find similar route in cache and reuse it
+  if CACHE_PATHFINDING and TryRouteFromCache(NodeList) then
+    Result := True
+  else
   if MakeRoute then
   begin
     ReturnRoute(NodeList);
@@ -290,6 +327,109 @@ begin
 
   //Reverse the list, since path is assembled LocB > LocA
   NodeList.Inverse;
+
+  //Cache long paths
+  if CACHE_PATHFINDING and (NodeList.Count > 20) then
+    AddToCache(NodeList);
+end;
+
+
+//Cache the route incase it is needed soon
+procedure TPathFinding.AddToCache(NodeList: TKMPointList);
+var
+  I: Integer;
+  Best: Integer;
+begin
+  //Find cached route with least weight and replace it
+  Best := 0;
+  for I := 1 to PATH_CACHE_MAX - 1 do
+  if fCache[I].Weight < fCache[Best].Weight then
+    Best := I;
+
+  fCache[Best].Weight := PATH_CACHE_INIT_WEIGHT;
+  fCache[Best].Pass := fPass;
+  fCache[Best].Route.Copy(NodeList);
+end;
+
+
+function TPathFinding.TryRouteFromCache(NodeList: TKMPointList): Boolean;
+  //Check if we can straightly walk to Route from our loc
+  function NearStart(const aRoute: TKMPointList): Boolean;
+  begin
+    Result := (KMLengthDiag(aRoute[0], fLocB) < 2)
+           or (KMLengthDiag(aRoute[1], fLocB) < 2)
+           or (KMLengthDiag(aRoute[2], fLocB) < 2);
+  end;
+  //Check if we can straightly walk to target from any of last Routes points
+  function NearEnd(const aRoute: TKMPointList): Boolean;
+  begin
+    Result := (KMLengthDiag(aRoute[aRoute.Count-1], fLocB) < 2)
+           or (KMLengthDiag(aRoute[aRoute.Count-2], fLocB) < 2)
+           or (KMLengthDiag(aRoute[aRoute.Count-3], fLocB) < 2);
+  end;
+var
+  I,K: Integer;
+  BestStart, BestEnd: Word;
+  NewL, BestL: Single;
+begin
+  Result := False;
+
+  for I := 0 to PATH_CACHE_MAX - 1 do
+  if (fCache[I].Route.Count > 0)
+  and (fCache[I].Pass = fPass) then
+  begin
+
+    //Check if route starts within reach
+    BestL := MaxSingle;
+    for K := 0 to 5 do
+    begin
+      NewL := KMLengthDiag(fLocA, fCache[I].Route[K]);
+      if NewL < 2 then
+      begin
+        BestStart := K;
+        BestL := NewL;
+      end;
+    end;
+
+    if BestL >= 2 then Continue;
+
+    //Check if route ends within reach
+    BestL := MaxSingle;
+    for K := fCache[I].Route.Count - 1 downto fCache[I].Route.Count - 5 do
+    begin
+      NewL := KMLengthDiag(fLocB, fCache[I].Route[K]);
+      if NewL < 2 then
+      begin
+        BestEnd := K;
+        BestL := NewL;
+      end;
+    end;
+
+    if BestL >= 2 then Continue;
+
+    //Assemble the route
+    NodeList.Clear;
+    NodeList.AddEntry(fLocA);
+    for K := BestStart to BestEnd do
+      NodeList.AddEntry(fCache[I].Route[K]);
+    NodeList.AddEntry(fLocB);
+
+    //Mark the cached route as more useful
+    Inc(fCache[I].Weight);
+
+    Result := True;
+    Exit;
+  end;
+end;
+
+
+procedure TPathFinding.UpdateState;
+var
+  I: Integer;
+begin
+  if CACHE_PATHFINDING then
+  for I := 0 to PATH_CACHE_MAX - 1 do
+    fCache[I].Weight := Max(fCache[I].Weight - 1, 0);
 end;
 
 

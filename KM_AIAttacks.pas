@@ -10,7 +10,7 @@ type
 
 const //KaM uses 0 for repeating attack in TSK (disused and replaced with later by Remake), 1 for once and 2 for repeating in TPR
   RemakeAttackType: array [0..2] of TAIAttackType = (aat_Repeating, aat_Once, aat_Repeating);
-  KaMAttackType: array [TAIAttackType] of byte = (1, 0);
+  KaMAttackType: array [TAIAttackType] of Byte = (1, 0);
 
 type
   //Indexes must match with KaM script values (for now)

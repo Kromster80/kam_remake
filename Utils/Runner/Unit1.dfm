@@ -52,12 +52,12 @@ object Form2: TForm2
       'Memo1')
     TabOrder = 1
   end
-  object SpinEdit1: TSpinEdit
+  object seCycles: TSpinEdit
     Left = 16
     Top = 152
     Width = 121
     Height = 22
-    MaxValue = 0
+    MaxValue = 1000000
     MinValue = 0
     TabOrder = 2
     Value = 10
@@ -106,5 +106,15 @@ object Form2: TForm2
       'Distribution')
     TabOrder = 5
     OnClick = RadioGroup1Click
+  end
+  object seMaxThreads: TSpinEdit
+    Left = 424
+    Top = 360
+    Width = 121
+    Height = 22
+    MaxValue = 16
+    MinValue = 1
+    TabOrder = 6
+    Value = 4
   end
 end

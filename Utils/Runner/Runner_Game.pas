@@ -29,6 +29,13 @@ type
     procedure TearDown; override;
   end;
 
+  TKMVortamicPF = class(TKMRunnerCommon)
+  protected
+    procedure SetUp; override;
+    procedure Execute(aRun: Integer); override;
+    procedure TearDown; override;
+  end;
+
 
 implementation
 
@@ -178,10 +185,41 @@ begin
 end;
 
 
+{ TKMVortamicPF }
+procedure TKMVortamicPF.SetUp;
+begin
+  inherited;
+  fResults.ValCount := 1;
+end;
+
+procedure TKMVortamicPF.TearDown;
+begin
+  inherited;
+
+end;
+
+procedure TKMVortamicPF.Execute(aRun: Integer);
+var T: Cardinal;
+begin
+  inherited;
+  T := GetTickCount;
+
+  fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\Vortamic\Vortamic.dat', 'Across the Desert');
+
+  SetKaMSeed(aRun + 1);
+
+  SimulateGame(5*60*10); //5min
+
+  fResults.Value[aRun, 0] := (GetTickCount - T);
+
+  fGameApp.Stop(gr_Silent);
+end;
+
 initialization
   RegisterRunner(TKMRunnerStone);
   RegisterRunner(TKMRunnerFight95);
   RegisterRunner(TKMRunnerAIBuild);
+  RegisterRunner(TKMVortamicPF);
 
 
 end.

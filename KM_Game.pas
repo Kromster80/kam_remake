@@ -1291,6 +1291,7 @@ begin
                       fAIFields.UpdateState(fGameTickCount);
                       fPlayers.UpdateState(fGameTickCount); //Quite slow
                       if fGame = nil then Exit; //Quit the update if game was stopped for some reason
+                      fPathfinding.UpdateState;
                       fProjectiles.UpdateState; //If game has stopped it's NIL
 
                       fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
@@ -1325,6 +1326,7 @@ begin
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(fGameTickCount); //Quite slow
                     if fGame = nil then Exit; //Quit the update if game was stopped for some reason
+                    fPathfinding.UpdateState;
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
                     //Issue stored commands

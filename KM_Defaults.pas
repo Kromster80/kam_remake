@@ -69,6 +69,7 @@ var
   AI_GEN_NAVMESH        :Boolean = True; //Generate navmesh for AI to plan attacks/defenses
   AI_GEN_INFLUENCE_MAPS :Boolean = True; //Generate influence maps for AI to plan attacks/defenses
   STACK_MSGS            :Boolean = True; //Stack messages of similar kinds in UI
+  CACHE_PATHFINDING     :Boolean = True; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
 
   //These are debug things, should be False
   {User interface options}
@@ -111,7 +112,7 @@ var
   INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
   SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_SAVE_SCAN        :Boolean = False; //Scan saves with a pause to emulate uncached file access
-  DO_PERF_LOGGING       :Boolean = False; //Write each ticks time to log
+  DO_PERF_LOGGING       :Boolean = True; //Write each ticks time to log
   {Gameplay cheats}
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm

@@ -82,6 +82,7 @@ type
     property Items[aIndex: Integer]: TKMPoint read GetPoint write SetPoint; default;
 
     procedure Clear; virtual;
+    procedure Copy(aSrc: TKMPointList);
     procedure AddEntry(aLoc: TKMPoint);
     function  RemoveEntry(aLoc: TKMPoint): Integer; virtual;
     procedure DeleteEntry(aIndex: Integer);
@@ -440,6 +441,15 @@ begin
     if Result then Exit;
   end;
   Result := False;
+end;
+
+
+procedure TKMPointList.Copy(aSrc: TKMPointList);
+begin
+  fCount := aSrc.Count;
+  SetLength(fItems, fCount);
+
+  Move(aSrc.fItems[0], fItems[0], SizeOf(fItems[0]) * fCount);
 end;
 
 

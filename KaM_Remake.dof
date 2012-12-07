@@ -80,10 +80,10 @@ UnsafeType=0
 UnsafeCode=0
 UnsafeCast=0
 [Linker]
-MapFile=3
+MapFile=0
 OutputObjs=0
 ConsoleApp=1
-DebugInfo=0
+DebugInfo=1
 RemoteSymbols=0
 MinStackSize=16384
 MaxStackSize=2097152
@@ -114,7 +114,7 @@ ActiveLang=
 ProjectLang=$00000419
 RootDir=
 [Version Info]
-IncludeVerInfo=0
+IncludeVerInfo=1
 AutoIncBuild=0
 MajorVer=1
 MinorVer=0
@@ -125,12 +125,24 @@ PreRelease=0
 Special=0
 Private=0
 DLL=0
-Locale=1049
-CodePage=1251
+Locale=1033
+CodePage=1252
 [Version Info Keys]
+CompanyName=
+FileDescription=
 FileVersion=1.0.0.0
-[Excluded Packages]
-C:\Documents and Settings\Admin\Рабочий стол\Maximus\bin\GLScene7.bpl=GLScene - OpenGL 3D library
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+[HistoryLists\hlConditionals]
+Count=1
+Item0=madExcept
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[HistoryLists\hlSearchPath]
+Count=1
+Item0=.\Common;.\Common\pngimage;.\Common\BGRABitmap;.\Common\Overbyte ICS 7;.\Common\zlib;.\Common\pascalscript\source

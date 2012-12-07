@@ -1,4 +1,4 @@
-﻿unit KM_NetPlayersList;
+unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, StrUtils, Math, SysUtils,

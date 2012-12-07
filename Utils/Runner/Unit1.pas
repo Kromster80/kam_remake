@@ -11,12 +11,13 @@ type
     Button1: TButton;
     Image1: TImage;
     Memo1: TMemo;
-    SpinEdit1: TSpinEdit;
+    seCycles: TSpinEdit;
     Label1: TLabel;
     ListBox1: TListBox;
     Memo2: TMemo;
     RadioGroup1: TRadioGroup;
     Label2: TLabel;
+    seMaxThreads: TSpinEdit;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
@@ -53,7 +54,7 @@ var
 begin
   ID := ListBox1.ItemIndex;
   if ID = -1 then Exit;
-  Count := SpinEdit1.Value;
+  Count := seCycles.Value;
   if Count <= 0 then Exit;
 
   Memo1.Clear;
@@ -147,5 +148,6 @@ begin
   Label2.Refresh;
   Application.ProcessMessages;
 end;
+
 
 end.
