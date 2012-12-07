@@ -294,9 +294,9 @@ begin
     fQueryIsDone := true; //Give up
   if fQueryIsDone then
   begin
-    fOnQueryDone(Self);
     fQueryIsDone := false;
     fQueryActive := false;
+    fOnQueryDone(Self);
   end;
 end;
 
