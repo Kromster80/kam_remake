@@ -113,7 +113,10 @@ begin
     1: begin
          if IsRanged then
          begin
-           SetActionLockedStay(AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
+           if UnitType = ut_Arbaletman then
+             SetActionLockedStay(CROSSBOWMEN_AIMING_DELAY_MIN+KaMRandom(CROSSBOWMEN_AIMING_DELAY_ADD),ua_Work,true) //Pretend to aim
+           else
+             SetActionLockedStay(BOWMEN_AIMING_DELAY_MIN+KaMRandom(BOWMEN_AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
              Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
            if MyPlayer.FogOfWar.CheckTileRevelation(Round(PositionF.X), Round(PositionF.Y), true) >= 255 then

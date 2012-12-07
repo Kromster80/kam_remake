@@ -185,10 +185,13 @@ const //Here we store options that are hidden somewhere in code
 
   LINK_RADIUS = 5; //Radius to search for groups to link to after being trained at the barracks (measured from KaM)
 
+  BOWMEN_AIMING_DELAY_MIN      = 4; //minimum time for archer to aim
+  BOWMEN_AIMING_DELAY_ADD      = 4; //random component
+  CROSSBOWMEN_AIMING_DELAY_MIN = 8; //minimum time for archer to aim
+  CROSSBOWMEN_AIMING_DELAY_ADD = 8; //random component
+
+  SLINGSHOT_FIRING_DELAY = 12; //on which frame slinger fires his rock
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
-  SLINGSHOT_FIRING_DELAY = 12; //on which frame archer fires his arrow/bolt
-  AIMING_DELAY_MIN = 8; //minimum time for archer to aim
-  AIMING_DELAY_ADD = 8; //random component
   FRIENDLY_FIRE = True; //Whenever archers could kill fellow men with their arrows
 
   NET_DROP_PLAYER_MIN_WAIT = 30; //Host must wait at least this long before dropping disconnected players

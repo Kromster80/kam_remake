@@ -271,7 +271,7 @@ begin
                               if fType = pt_Arrow then Damage := fResource.UnitDat[ut_Bowman].Attack;
                               if fType = pt_Bolt then Damage := fResource.UnitDat[ut_Arbaletman].Attack;
                               if fType = pt_SlingRock then Damage := fResource.UnitDat[ut_Slingshot].Attack;
-                              Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].GetDefenceVsProjectiles, 1); //Not needed, but animals have 0 defence
+                              Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].GetDefenceVsProjectiles, 1); //Max is not needed, but animals have 0 defence
                               if (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
                               and (Damage >= KaMRandom(101))
                               and U.HitPointsDecrease(1) then
