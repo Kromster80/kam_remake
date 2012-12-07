@@ -100,6 +100,8 @@ end;
 //Run thread to delete old logs.
 procedure TKMLog.DeleteOldLogs;
 begin
+  if Self = nil then Exit;
+
   //No need to remember the instance, it's set to FreeOnTerminate
   TKMOldLogsDeleter.Create(ExtractFilePath(fLogPath));
 end;
@@ -139,24 +141,32 @@ end;
 
 procedure TKMLog.AddTime(const aText: string);
 begin
+  if Self = nil then Exit;
+
   AddLineTime(aText);
 end;
 
 
 procedure TKMLog.AddTime(const aText: string; num: integer);
 begin
+  if Self = nil then Exit;
+
   AddLineTime(aText + ' ' + inttostr(num));
 end;
 
 
 procedure TKMLog.AddTime(const aText: string; num: single);
 begin
+  if Self = nil then Exit;
+
   AddLineTime(aText + ' ' + floattostr(num));
 end;
 
 
 procedure TKMLog.AddTime(num: integer; const aText: string);
 begin
+  if Self = nil then Exit;
+
   AddLineTime(inttostr(num) + ' ' + aText);
 end;
 
@@ -165,6 +175,8 @@ procedure TKMLog.AddTime(const aText: string; Res: boolean);
 var
   s: string;
 begin
+  if Self = nil then Exit;
+
   if Res then
     s := 'done'
   else
@@ -175,12 +187,16 @@ end;
 
 procedure TKMLog.AddTime(A, B: integer);
 begin
+  if Self = nil then Exit;
+
   AddLineTime(inttostr(A) + ' : ' + inttostr(B));
 end;
 
 
 procedure TKMLog.AddAssert(const aMessageText: string);
 begin
+  if Self = nil then Exit;
+
   AddLineNoTime('ASSERTION FAILED! Msg: ' + aMessageText);
   Assert(False, 'ASSERTION FAILED! Msg: ' + aMessageText);
 end;
@@ -188,6 +204,8 @@ end;
 
 procedure TKMLog.AddNoTime(const aText: string);
 begin
+  if Self = nil then Exit;
+
   AddLineNoTime(aText);
 end;
 

@@ -6,10 +6,9 @@ uses Classes, KromUtils, SysUtils;
 
 type
   TKMPerfLog = class
-  private
-    fCount: Integer;
-    fTimes: array of Cardinal;
   public
+    Count: Integer;
+    Times: array of Cardinal;
     procedure Clear;
     procedure AddTime(aTime: Cardinal);
     procedure SaveToFile(aFilename: string);
@@ -22,17 +21,17 @@ implementation
 { TKMPerfLog }
 procedure TKMPerfLog.Clear;
 begin
-  fCount := 0;
+  Count := 0;
 end;
 
 
 procedure TKMPerfLog.AddTime(aTime: Cardinal);
 begin
-  if fCount >= Length(fTimes) then
-    SetLength(fTimes, fCount + 1024);
+  if Count >= Length(Times) then
+    SetLength(Times, Count + 1024);
 
-  fTimes[fCount] := aTime;
-  inc(fCount);
+  Times[Count] := aTime;
+  Inc(Count);
 end;
 
 
@@ -45,10 +44,10 @@ begin
   ForceDirectories(ExtractFilePath(aFilename));
   S := TFileStream.Create(aFilename, fmCreate);
 
-  for I := 0 to fCount - 1 do
-  if fTimes[I] > 15 then
+  for I := 0 to Count - 1 do
+  if Times[I] > 15 then //Dont bother saving 95% of data
   begin
-    ss := Format('%d'#9'%d' + eol, [I, fTimes[I]]);
+    ss := Format('%d'#9'%d' + eol, [I, Times[I]]);
     S.WriteBuffer(ss[1], Length(ss));
   end;
 

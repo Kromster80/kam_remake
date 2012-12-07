@@ -8,6 +8,9 @@ uses
 
 
 type
+  //Typical usage:
+  //SetUp, Execute(1), Execute(2) .. Execute(N), TearDown
+
   TKMRunnerStone = class(TKMRunnerCommon)
   protected
     procedure SetUp; override;
@@ -31,6 +34,7 @@ type
 
   TKMVortamicPF = class(TKMRunnerCommon)
   protected
+    RunTime: Word;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
     procedure TearDown; override;
@@ -43,7 +47,7 @@ implementation
 procedure TKMRunnerStone.SetUp;
 begin
   inherited;
-  fResults.ValCount := 1;
+  fResults.ValueCount := 1;
 
   AI_GEN_INFLUENCE_MAPS := False;
   AI_GEN_NAVMESH := False;
@@ -107,7 +111,7 @@ end;
 procedure TKMRunnerFight95.SetUp;
 begin
   inherited;
-  fResults.ValCount := 2;
+  fResults.ValueCount := 2;
 
   DYNAMIC_TERRAIN := False;
 end;
@@ -151,7 +155,7 @@ end;
 procedure TKMRunnerAIBuild.SetUp;
 begin
   inherited;
-  fResults.ValCount := 5;
+  fResults.ValueCount := 5;
 end;
 
 
@@ -189,7 +193,8 @@ end;
 procedure TKMVortamicPF.SetUp;
 begin
   inherited;
-  fResults.ValCount := 1;
+  RunTime := 3000;
+  fResults.ValueCount := RunTime;
 end;
 
 procedure TKMVortamicPF.TearDown;
@@ -199,18 +204,19 @@ begin
 end;
 
 procedure TKMVortamicPF.Execute(aRun: Integer);
-var T: Cardinal;
+var
+  I: Integer;
 begin
   inherited;
-  T := GetTickCount;
 
   fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\Vortamic\Vortamic.dat', 'Across the Desert');
 
   SetKaMSeed(aRun + 1);
 
-  SimulateGame(5*60*10); //5min
+  SimulateGame(RunTime);
 
-  fResults.Value[aRun, 0] := (GetTickCount - T);
+  for I := 0 to fResults.ValueCount - 1 do
+    fResults.Value[aRun, I] := fGameApp.Game.PerfLog.Times[I];
 
   fGameApp.Stop(gr_Silent);
 end;

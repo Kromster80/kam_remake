@@ -142,6 +142,7 @@ type
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
     procedure UpdateMultiplayerTeams;
 
+    property PerfLog: TKMPerfLog read fPerfLog;
     procedure UpdateGameCursor(X,Y: Integer; Shift: TShiftState);
 
     property Alerts: TKMAlerts read fAlerts;

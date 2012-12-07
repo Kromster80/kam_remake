@@ -2,8 +2,8 @@ object Form2: TForm2
   Left = 0
   Top = 0
   Caption = 'Form2'
-  ClientHeight = 433
-  ClientWidth = 617
+  ClientHeight = 449
+  ClientWidth = 601
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,13 +12,20 @@ object Form2: TForm2
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnResize = FormResize
+  DesignSize = (
+    601
+    449)
   PixelsPerInch = 96
   TextHeight = 13
   object Image1: TImage
     Left = 280
     Top = 16
-    Width = 321
-    Height = 233
+    Width = 305
+    Height = 249
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    ExplicitWidth = 321
+    ExplicitHeight = 233
   end
   object Label1: TLabel
     Left = 16
@@ -47,10 +54,12 @@ object Form2: TForm2
     Left = 16
     Top = 184
     Width = 257
-    Height = 113
+    Height = 129
+    Anchors = [akLeft, akTop, akBottom]
     Lines.Strings = (
       'Memo1')
     TabOrder = 1
+    ExplicitHeight = 113
   end
   object seCycles: TSpinEdit
     Left = 16
@@ -74,7 +83,8 @@ object Form2: TForm2
     Left = 16
     Top = 312
     Width = 337
-    Height = 105
+    Height = 121
+    Anchors = [akLeft, akBottom]
     BorderStyle = bsNone
     Color = clBtnFace
     Lines.Strings = (
@@ -95,26 +105,20 @@ object Form2: TForm2
   end
   object RadioGroup1: TRadioGroup
     Left = 280
-    Top = 256
-    Width = 321
+    Top = 272
+    Width = 305
     Height = 41
+    Anchors = [akLeft, akRight, akBottom]
     Caption = ' Display '
-    Columns = 2
+    Columns = 3
     ItemIndex = 0
     Items.Strings = (
       'Sequential'
-      'Distribution')
+      'Distribution'
+      'Charts')
     TabOrder = 5
     OnClick = RadioGroup1Click
-  end
-  object seMaxThreads: TSpinEdit
-    Left = 424
-    Top = 360
-    Width = 121
-    Height = 22
-    MaxValue = 16
-    MinValue = 1
-    TabOrder = 6
-    Value = 4
+    ExplicitTop = 256
+    ExplicitWidth = 321
   end
 end

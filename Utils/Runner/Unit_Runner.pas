@@ -6,18 +6,15 @@ uses Classes, Math, SysUtils,
   KM_GameApp, KM_Locales, KM_Log, KM_TextLibrary, KM_Utils;
 
 
-const
-  MAX_VALUES = 8;
-
 type
   TKMRunnerCommon = class;
   TKMRunnerClass = class of TKMRunnerCommon;
 
   TKMRunResults = record
-    RunCount: Integer; //How many runs were logged
-    ValCount: Integer; //How many values each run has
+    ChartsCount: Integer; //How many charts return
+    ValueCount: Integer; //How many values
     ValueMin, ValueMax: Single;
-    Value: array of array [0..MAX_VALUES - 1] of Single;
+    Value: array of array of Integer;
   end;
 
   TKMRunnerCommon = class
@@ -56,8 +53,8 @@ var
 begin
   SetUp;
 
-  fResults.RunCount := aCount;
-  SetLength(fResults.Value, aCount);
+  fResults.ChartsCount := aCount;
+  SetLength(fResults.Value, fResults.ChartsCount, fResults.ValueCount);
 
   for I := 0 to aCount - 1 do
   begin
@@ -81,8 +78,8 @@ begin
   begin
     ValueMin := Value[0,0];
     ValueMax := Value[0,0];
-    for I := 0 to RunCount - 1 do
-    for K := 0 to ValCount - 1 do
+    for I := 0 to ChartsCount - 1 do
+    for K := 0 to ValueCount - 1 do
     begin
       ValueMin := Min(ValueMin, Value[I,K]);
       ValueMax := Max(ValueMax, Value[I,K]);
@@ -96,7 +93,7 @@ begin
   SKIP_RENDER := True;
   SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
+  //fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
   fGameApp := TKMGameApp.Create(0, 1024, 768, False, nil, nil, nil, True);
   fGameApp.GameSettings.Autosave := False;
 end;
@@ -115,13 +112,15 @@ var I: Integer;
 begin
   for I := 0 to aTicks - 1 do
   begin
+
     fGameApp.Game.UpdateGame(nil);
+
     if fGameApp.Game.IsPaused then
       fGameApp.Game.GameHold(False, gr_Win);
+
     if (I mod 60*10 = 0) and Assigned(OnProgress) then
-    begin
       OnProgress(Format('%d (%d min)', [fRun, I div 600]));
-    end;
+
   end;
 end;
 

@@ -17,10 +17,10 @@ type
     Memo2: TMemo;
     RadioGroup1: TRadioGroup;
     Label2: TLabel;
-    seMaxThreads: TSpinEdit;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     fResults: TKMRunResults;
     fRunTime: string;
@@ -42,6 +42,17 @@ var
 begin
   for I := 0 to High(RunnerList) do
     ListBox1.Items.Append(RunnerList[I].ClassName);
+end;
+
+
+procedure TForm2.FormResize(Sender: TObject);
+begin
+  if Image1.Picture.Graphic = nil then Exit;
+
+  Image1.Picture.Graphic.Width := Image1.Width;
+  Image1.Picture.Graphic.Height := Image1.Height;
+
+  RadioGroup1Click(nil);
 end;
 
 
@@ -80,7 +91,8 @@ end;
 
 procedure TForm2.RadioGroup1Click(Sender: TObject);
 const
-  LineCol: array [0..MAX_VALUES - 1] of TColor =
+  COLORS_COUNT = 8;
+  LineCol: array [0..COLORS_COUNT - 1] of TColor =
     (clRed, clBlue, clGreen, clPurple, clYellow, clGray, clBlack, clOlive);
 var
   J: Integer;
@@ -89,17 +101,17 @@ var
   StatMax: Single;
   Stats: array of Integer;
   S: string;
+  K: Integer;
 begin
-  Memo1.Clear;
   Image1.Canvas.FillRect(Image1.Canvas.ClipRect);
 
-  for J := 0 to fResults.ValCount - 1 do
-  begin
-    Image1.Canvas.Pen.Color := LineCol[J];
-    case RadioGroup1.ItemIndex of
-      0:  for I := 0 to fResults.RunCount - 1 do
+  case RadioGroup1.ItemIndex of
+    0:  for J := 0 to fResults.ValueCount - 1 do
+        begin
+          Image1.Canvas.Pen.Color := LineCol[J mod COLORS_COUNT];
+          for I := 0 to fResults.ChartsCount - 1 do
           begin
-            DotX := Round(I / fResults.RunCount * Image1.Width);
+            DotX := Round(I / fResults.ChartsCount * Image1.Width);
             DotY := Image1.Height - Round(fResults.Value[I,J] / fResults.ValueMax * Image1.Height);
             Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
             if I = 0 then
@@ -107,37 +119,57 @@ begin
             else
               Image1.Canvas.LineTo(DotX, DotY);
           end;
-      1:  begin
-            SetLength(Stats, Round(fResults.ValueMax) - Round(fResults.ValueMin) + 1);
-            for I := 0 to fResults.RunCount - 1 do
-              Inc(Stats[Round(fResults.Value[I,J]) - Round(fResults.ValueMin)]);
+        end;
+    1:  for J := 0 to fResults.ValueCount - 1 do
+        begin
+          Image1.Canvas.Pen.Color := LineCol[J mod COLORS_COUNT];
 
-            StatMax := Stats[Low(Stats)];
-            for I := Low(Stats)+1 to High(Stats) do
-              StatMax := Max(StatMax, Stats[I]);
+          SetLength(Stats, 0);
+          SetLength(Stats, Round(fResults.ValueMax) - Round(fResults.ValueMin) + 1);
+          for I := 0 to fResults.ChartsCount - 1 do
+            Inc(Stats[Round(fResults.Value[I,J]) - Round(fResults.ValueMin)]);
 
-            for I := Low(Stats) to High(Stats) do
-            begin
-              DotX := Round((I - Low(Stats)) / Length(Stats) * Image1.Width);
-              DotY := Image1.Height - Round(Stats[I] / StatMax * Image1.Height);
+          StatMax := Stats[Low(Stats)];
+          for I := Low(Stats)+1 to High(Stats) do
+            StatMax := Max(StatMax, Stats[I]);
+
+          for I := Low(Stats) to High(Stats) do
+          begin
+            DotX := Round((I - Low(Stats)) / Length(Stats) * Image1.Width);
+            DotY := Image1.Height - Round(Stats[I] / StatMax * Image1.Height);
+
+            if DotY <> Image1.Height then
               Image1.Canvas.Ellipse(DotX-2, DotY-2, DotX+2, DotY+2);
-              if I = 0 then
-                Image1.Canvas.PenPos := Point(DotX, DotY)
-              else
-                Image1.Canvas.LineTo(DotX, DotY);
-            end;
+
+            if I = 0 then
+              Image1.Canvas.PenPos := Point(DotX, DotY)
+            else
+              Image1.Canvas.LineTo(DotX, DotY);
           end;
-    end;
+        end;
+    2:  for I := 0 to fResults.ChartsCount - 1 do
+        begin
+          Image1.Canvas.Pen.Color := LineCol[I mod COLORS_COUNT];
+
+          for J := 0 to fResults.ValueCount - 1 do
+          begin
+            DotX := Round(J / fResults.ValueCount * Image1.Width);
+            DotY := Image1.Height - Round(fResults.Value[I,J] / fResults.ValueMax * Image1.Height);
+
+            Image1.Canvas.PenPos := Point(DotX, Image1.Height);
+            Image1.Canvas.LineTo(DotX, DotY);
+          end;
+        end;
   end;
 
-  for I := 0 to fResults.RunCount - 1 do
+  Memo1.Clear;
+  for I := 0 to fResults.ChartsCount - 1 do
   begin
-    S := IntToStr(I) + '.';
-    for J := 0 to fResults.ValCount - 1 do
-      S := S + Format(' %.2f', [fResults.Value[I,J]]);
+    S := IntToStr(I) + '. ';
+    for J := 0 to fResults.ValueCount - 1 do
+      S := S + Format('%d-%d ', [J, fResults.Value[I,J]]);
     Memo1.Lines.Append(S);
   end;
-
   Memo1.Lines.Append(fRunTime);
 end;
 
