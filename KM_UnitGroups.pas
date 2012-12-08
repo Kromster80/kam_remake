@@ -8,6 +8,13 @@ uses Classes, Math, SysUtils, Types,
 type
   TKMTurnDirection = (tdNone, tdCW, tdCCW);
 
+  //todo: If one group member is seperated and gets into combat and dies, all other group
+  //      members will forever try to attack the offenders that killed them, even if they
+  //      are on the far side of the map. The player loses control of these units until
+  //      the offenders die. If the player gives a fresh order (and the group is out of
+  //      combat) then the offenders list should be cleared right? Maybe also remove
+  //      offenders if they are more than X tiles away from the closest group member?
+
   TKMGroupOrder = (
     goNone,         //Last order was executed and now we have nothing to do
     goWalkTo,       //Ordered to walk somewhere or just change formation
@@ -52,6 +59,7 @@ type
     procedure SetCondition(aValue: Integer);
     procedure SetPosition(aValue: TKMPoint);
     procedure ClearOrderTarget;
+    procedure ClearOffenders;
 
     function GetOrderTargetUnit: TKMUnit;
     function GetOrderTargetGroup: TKMUnitGroup;
@@ -300,7 +308,10 @@ end;
 
 destructor TKMUnitGroup.Destroy;
 begin
+  //@Krom: Do we need to release unit pointers from fMembers? I guess the group is only destroyed
+  //       when fMembers.Count = 0 so it doesn't matter?
   fMembers.Free;
+  ClearOffenders; //Need to release unit pointers
   fOffenders.Free;
 
   inherited;
@@ -570,7 +581,7 @@ end;
 
 //Member got in a fight
 //Remember who we are fighting with, to guide idle units to
-//This only works for melee offenders
+//This only works for melee offenders(?)
 procedure TKMUnitGroup.Member_PickedFight(aMember: TKMUnitWarrior; aEnemy: TKMUnit);
 begin
   if (aEnemy is TKMUnitWarrior) then
@@ -1100,6 +1111,15 @@ begin
   fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
   fPlayers.CleanUpGroupPointer(fOrderTargetGroup);
   fPlayers.CleanUpHousePointer(fOrderTargetHouse);
+end;
+
+
+procedure TKMUnitGroup.ClearOffenders;
+var I: Integer;
+begin
+  for I := fOffenders.Count - 1 downto 0 do
+    TKMUnitWarrior(fOffenders[I]).ReleaseUnitPointer;
+  fOffenders.Clear;
 end;
 
 
