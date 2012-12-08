@@ -1189,7 +1189,7 @@ begin
       begin
         TKMLabel.Create(Panel_Allies,  70+(I div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
         TKMLabel.Create(Panel_Allies, 220+(I div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, 350+(I div 4)*380, 60, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
+        TKMLabel.Create(Panel_Allies, 350+(I div 4)*380, 60, fTextLibrary[TX_LOBBY_HEADER_PINGFPS], fnt_Outline, taCenter);
       end;
       Image_AlliesLang[I] := TKMImage.Create(Panel_Allies,       50+(I div 4)*380, 82+(I mod 4)*24, 16,  11,  0, rxGuiMain);
       Label_AlliesPlayer[I] := TKMLabel.Create(Panel_Allies,     70+(I div 4)*380, 80+(I mod 4)*24, 140, 20, '', fnt_Grey, taLeft);
@@ -3415,8 +3415,10 @@ begin
   for I := 0 to MAX_PLAYERS - 1 do
     if (I < fGame.Networking.NetPlayers.Count) and (fGame.Networking.NetPlayers[I+1].IsHuman) then
     begin
-      Label_AlliesPing[I].Caption := IntToStr(fGame.Networking.NetPlayers[I+1].GetInstantPing);
-      Label_AlliesPing[I].FontColor := GetPingColor(fGame.Networking.NetPlayers[I+1].GetInstantPing);
+      Label_AlliesPing[I].Caption := Format('[$%.6x]', [GetPingColor(fGame.Networking.NetPlayers[I+1].GetInstantPing) and $FFFFFF])+
+                                     IntToStr(fGame.Networking.NetPlayers[I+1].GetInstantPing)+'[] / '+
+                                     Format('[$%.6x]', [GetFPSColor(fGame.Networking.NetPlayers[I+1].FPS) and $FFFFFF])+
+                                     IntToStr(fGame.Networking.NetPlayers[I+1].FPS)+'[]';
     end
     else
       Label_AlliesPing[I].Caption := '';

@@ -18,6 +18,7 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
   procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
   function ApplyBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
   function GetPingColor(aPing: Word): Cardinal;
+  function GetFPSColor(aFPS: Word): Cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
   function TimeToString(aTime: TDateTime): string;
 
@@ -222,6 +223,17 @@ begin
     300..599: Result := icYellow;
     600..999: Result := icOrange;
     else      Result := icRed;
+  end;
+end;
+
+
+function GetFPSColor(aFPS: Word): Cardinal;
+begin
+  case aFPS of
+    0..9  : Result := icRed;
+    10..14: Result := icOrange;
+    15..19: Result := icYellow;
+    else    Result := icGreen;
   end;
 end;
 

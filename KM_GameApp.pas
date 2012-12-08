@@ -82,6 +82,7 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+    procedure FPSMeasurement(aFPS: Cardinal);
 
     procedure Render;
     procedure UpdateState(Sender: TObject);
@@ -321,6 +322,12 @@ begin
     fGame.MouseWheel(Shift, WheelDelta, X, Y)
   else
     fMainMenuInterface.MouseWheel(Shift, WheelDelta, X, Y);
+end;
+
+
+procedure TKMGameApp.FPSMeasurement(aFPS: Cardinal);
+begin
+  if fNetworking <> nil then fNetworking.FPSMeasurement(aFPS);
 end;
 
 

@@ -1295,6 +1295,9 @@ begin
                       fPathfinding.UpdateState;
                       fProjectiles.UpdateState; //If game has stopped it's NIL
 
+                      //The selected object could have died during this fProjectiles or fPlayers update
+                      fPlayers.UpdateSelected;
+
                       fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
                       //In aggressive mode store a command every tick so we can find exactly when a replay mismatch occurs
                       if AGGRESSIVE_REPLAYS then

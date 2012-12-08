@@ -1,5 +1,5 @@
 
-MaxID:2815
+MaxID:2816
 
 0:Sawmill
 1:Iron smithy
@@ -545,3 +545,4 @@ MaxID:2815
 2812:|Your woodcutter cannot find any further trees to fell and was instructed by you to not plant trees
 2813:Brush shape
 2815:Supplies:
+2816:Ping / FPS

@@ -32,10 +32,10 @@ const
     [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
      mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked],
     //lgs_Game
-    [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
+    [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_FPS,mk_PlayersList,
      mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected],
     //lgs_Reconnecting
-    [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,
+    [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_FPS,mk_ConnectedToRoom,
      mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked]
   );
 
@@ -184,6 +184,7 @@ type
 
     procedure UpdateState(aTick: cardinal);
     procedure UpdateStateIdle;
+    procedure FPSMeasurement(aFPS: Cardinal);
   end;
 
 
@@ -1171,6 +1172,14 @@ begin
               if Assigned(fOnPingInfo) then fOnPingInfo(Self);
             end;
 
+    mk_FPS:
+            begin
+              PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+              if PlayerIndex = -1 then Exit;
+              fNetPlayers[PlayerIndex].FPS := Cardinal(Param);
+              if Assigned(fOnPingInfo) then fOnPingInfo(Self);
+            end;
+
     mk_PlayersList:
             if fNetPlayerKind = lpk_Joiner then begin
               fNetPlayers.SetAsText(Msg); //Our index could have changed on players add/removal
@@ -1462,6 +1471,13 @@ begin
   //LNet requires network update calls unless it is being used as visual components
   fNetClient.UpdateStateIdle;
   fServerQuery.UpdateStateIdle;
+end;
+
+
+procedure TKMNetworking.FPSMeasurement(aFPS: Cardinal);
+begin
+  if fNetGameState = lgs_Game then
+    PacketSend(NET_ADDRESS_ALL, mk_FPS, '', Integer(aFPS));
 end;
 
 

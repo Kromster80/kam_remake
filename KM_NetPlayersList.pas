@@ -30,6 +30,7 @@ type
     ReadyToPlay: Boolean;
     Connected: Boolean;      //Player is still connected
     Dropped: Boolean;        //Host elected to continue play without this player
+    FPS: Cardinal;
     procedure AddPing(aPing: Word);
     procedure ResetPingRecord;
     function GetInstantPing: Word;

@@ -7,6 +7,7 @@
  +	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows
  +	MapEd did not saved Group orders (sendGroup and AttackPosition)
  +	Only the first 16 servers would be queried correctly, subsequent servers would not show in the list
+ +	Chasing down archers even with knights is ineffective, knight starts to attack and archers keep stepping away, then the knight stops and just stands there
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -25,7 +26,6 @@
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
 	Few terrain tiles (4th, 14th) have noticeable seams on their side when looked closely at
 	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
-	Chasing down archers even with knights is ineffective, knight starts to attack and archers keep stepping away, then the knight stops and just stands there
 	Opening chat or sending a message at the right moment during the reconnect cycle can cause a crash because Networking.MyIndex does not exist (or is not you) in NetPlayersList
 	Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
 	If just one player cannot run the game smoothly MP will lag for everyone in his game. For example if you zoom out a lot you will get a poor frame rate and your game will run at < 10 ticks per second forcing other players down to that speed. The lagger's ping will not look any different. Maybe have a way to indicate to that player and the others on the server that he is causing the lag? Our planned 2x speed in MP will make this much worse as some computers will lag more.
@@ -42,6 +42,7 @@
 Improvements:
  +	H	Refactor army management with TGroup layer
  +	L	Allow to set wares count in houses in MapEd
+ +	M	FPS shown along side ping so you can easily identify the player causing lag
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
