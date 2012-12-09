@@ -176,6 +176,7 @@ const
 
 
 { TKMUnitGroup }
+//Create a Group from a single warrior (short version)
 constructor TKMUnitGroup.Create(aID: Cardinal; aCreator: TKMUnitWarrior);
 begin
   inherited Create;
@@ -193,6 +194,7 @@ begin
 end;
 
 
+//Create a Group from script (creates all the warriors as well)
 constructor TKMUnitGroup.Create(aID: Cardinal; aOwner: TPlayerIndex; aUnitType: TUnitType;
   PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aCount: Word);
 var
@@ -212,11 +214,12 @@ begin
   //So when they click Halt for the first time it knows where to place them
   fOrderLoc := KMPointDir(PosX, PosY, aDir);
 
-  //Whole group should have same condition
+  //Whole group should have the same condition
   Condition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)));
 
   if fGame.IsMapEditor then
   begin
+    //In MapEd we create only flagholder, other members are virtual
     Warrior := TKMUnitWarrior(fPlayers[aOwner].Units.Add(aOwner, aUnitType, PosX, PosY, True, fTerrain.GetWalkConnectID(KMPoint(PosX,PosY))));
     if Warrior <> nil then
     begin
@@ -248,6 +251,7 @@ begin
 end;
 
 
+//Load the Group from savegame
 constructor TKMUnitGroup.Create(LoadStream: TKMemoryStream);
 var
   I, aCount: Integer;
@@ -290,6 +294,7 @@ var I: Integer;
 begin
   inherited;
 
+  //Assign event handlers after load
   for I := 0 to Count - 1 do
   begin
     fMembers[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fMembers[I])));
@@ -308,10 +313,12 @@ end;
 
 destructor TKMUnitGroup.Destroy;
 begin
-  //@Krom: Do we need to release unit pointers from fMembers? I guess the group is only destroyed
-  //       when fMembers.Count = 0 so it doesn't matter?
+  //We don't release unit pointers from fMembers, because the group is only destroyed when fMembers.Count = 0
+  //or when the game is canceled (then it doesn't matter)
   fMembers.Free;
-  ClearOffenders; //Need to release unit pointers
+
+  //We need to release offenders pointers
+  ClearOffenders;
   fOffenders.Free;
 
   inherited;
@@ -351,11 +358,12 @@ begin
 end;
 
 
+//Group condition is the Min from all members (so that AI feeds the Group when needed)
 function TKMUnitGroup.GetCondition: Integer;
 var
   I: Integer;
 begin
-  Result := UNIT_MAX_CONDITION;
+  Result := UNIT_MAX_CONDITION; //Assign const incase Count=0
   for I := 0 to Count - 1 do
     Result := Min(Result, Members[I].Condition);
 end;
@@ -387,6 +395,7 @@ begin
                                     fOrderLoc.Dir, aIndex, fUnitsPerRow,
                                     fTerrain.MapX, fTerrain.MapY,
                                     Result.Exact);
+  //Fits on map and is on passable terrain
   Result.Exact := Result.Exact and fTerrain.CheckPassability(Result.Loc, CanWalk);
 end;
 
@@ -431,7 +440,7 @@ begin
 end;
 
 
-{Returns self and adds on to the pointer counter}
+//Returns self and adds on to the pointer counter
 function TKMUnitGroup.GetGroupPointer: TKMUnitGroup;
 begin
   Inc(fPointerCount);
@@ -439,7 +448,7 @@ begin
 end;
 
 
-{Decreases the pointer counter}
+//Decreases the pointer counter
 //Should be used only by fPlayers for clarity sake
 procedure TKMUnitGroup.ReleaseGroupPointer;
 begin
