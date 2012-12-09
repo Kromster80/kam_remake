@@ -38,6 +38,7 @@ type
     procedure Defeat(aPlayer: Word);
     procedure GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word);
     procedure GiveUnit(aPlayer, aType, X,Y, aDir: Word);
+    procedure GiveWares(aPlayer, aType, aCount: Word);
     procedure ShowMsg(aPlayer, aIndex: Word);
     procedure UnlockHouse(aPlayer, aHouseType: Word);
   end;
@@ -45,7 +46,7 @@ type
 
 implementation
 uses KM_AI, KM_Houses, KM_Terrain, KM_Game, KM_CommonTypes, KM_PlayersCollection,
-  KM_TextLibrary, KM_ResourceUnit, KM_ResourceHouse, KM_Log;
+  KM_TextLibrary, KM_ResourceUnit, KM_ResourceResource, KM_ResourceHouse, KM_Log;
 
 
   //We need to check all input parameters as could be wildly off range due to
@@ -175,6 +176,27 @@ begin
     //Direction is ignored for now
   else
     LogError('Actions.GiveUnit', [aPlayer, aType, X, Y, aDir]);
+end;
+
+
+procedure TKMScriptActions.GiveWares(aPlayer, aType, aCount: Word);
+var
+  H: TKMHouse;
+begin
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and InRange(aCount, 0, High(Word))
+  and (aType in [Low(ResourceIndexToType)..High(ResourceIndexToType)]) then
+  begin
+    H := fPlayers[aPlayer].FindHouse(ht_Store, 1);
+    if H <> nil then
+    begin
+      H.ResAddToIn(ResourceIndexToType[aType], aCount);
+      fPlayers[aPlayer].Stats.GoodProduced(ResourceIndexToType[aType], aCount);
+    end;
+  end
+  else
+    LogError('Actions.GiveWares', [aPlayer, aType, aCount]);
 end;
 
 

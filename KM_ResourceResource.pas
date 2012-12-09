@@ -39,14 +39,14 @@ const
   MARKET_TRADEOFF_FACTOR = 2.0; //X resources buys 1 resource of equal value
 
 
-  ResourceKaMOrder: array [TResourceType] of byte = (0, //rt_None
+  ResourceTypeToIndex: array [TResourceType] of byte = (0, //rt_None
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
     11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
     22, 23, 24, 25, 26, 27,
     0, 0, 0); //rt_All, rt_Warfare, rt_Food
 
   RES_COUNT = 28;
-  ResourceKaMIndex: array [0..RES_COUNT-1] of TResourceType = (
+  ResourceIndexToType: array [0..RES_COUNT-1] of TResourceType = (
     rt_Trunk, rt_Stone, rt_Wood, rt_IronOre, rt_GoldOre,
     rt_Coal, rt_Steel, rt_Gold, rt_Wine, rt_Corn,
     rt_Bread, rt_Flour, rt_Leather, rt_Sausages, rt_Pig,
@@ -150,7 +150,7 @@ end;
 function TKMResourceDat.GetGUIIcon: Word;
 begin
   if IsValid then
-    Result := 351 + ResourceKaMOrder[fType]
+    Result := 351 + ResourceTypeToIndex[fType]
   else
     Result := 41; //Show "Question mark"
 end;
@@ -159,7 +159,7 @@ end;
 function TKMResourceDat.GetTitle: string;
 begin
   if IsValid then
-    Result := fTextLibrary[TX_RESOURCES_NAMES__27 + ResourceKaMOrder[fType]]
+    Result := fTextLibrary[TX_RESOURCES_NAMES__27 + ResourceTypeToIndex[fType]]
   else
     Result := 'N/A';
 end;

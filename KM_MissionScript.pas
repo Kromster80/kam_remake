@@ -593,10 +593,10 @@ begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
                           H := fPlayers[fLastPlayer].FindHouse(ht_Store,1);
-                          if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
+                          if (H <> nil) and (ResourceIndexToType[P[0]] in [WARE_MIN..WARE_MAX]) then
                           begin
-                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
+                            H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
+                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
                           end;
 
                         end;
@@ -606,10 +606,10 @@ begin
                           for i:=0 to fPlayers.Count-1 do
                           begin
                             H := fPlayers[i].FindHouse(ht_Store,1);
-                            if (H<>nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
+                            if (H<>nil) and (ResourceIndexToType[P[0]] in [WARE_MIN..WARE_MAX]) then
                             begin
-                              H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
-                              fPlayers[i].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
+                              H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
+                              fPlayers[i].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
                             end;
                           end;
                         end;
@@ -619,10 +619,10 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
                           H := TKMHouseStore(fPlayers[fLastPlayer].FindHouse(ht_Store, 2));
-                          if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
+                          if (H <> nil) and (ResourceIndexToType[P[0]] in [WARE_MIN..WARE_MAX]) then
                           begin
-                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
+                            H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
+                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
                           end;
                         end;
     ct_AddWareTo:       if fLastPlayer >= 0 then
@@ -631,10 +631,10 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
 
                           H := fPlayers[fLastPlayer].FindHouse(HouseIndexToType[P[0]], P[1]);
-                          if (H <> nil) and (ResourceKaMIndex[P[2]] in [WARE_MIN..WARE_MAX]) then
+                          if (H <> nil) and (ResourceIndexToType[P[2]] in [WARE_MIN..WARE_MAX]) then
                           begin
-                            H.ResAddToIn(ResourceKaMIndex[P[2]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[2]], Qty);
+                            H.ResAddToIn(ResourceIndexToType[P[2]], Qty, True);
+                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[2]], Qty);
                           end;
                         end;
     ct_AddWeapon:       if fLastPlayer >= 0 then
@@ -642,16 +642,16 @@ begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
                           H := TKMHouseBarracks(fPlayers[fLastPlayer].FindHouse(ht_Barracks, 1));
-                          if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARFARE_MIN..WARFARE_MAX]) then
+                          if (H <> nil) and (ResourceIndexToType[P[0]] in [WARFARE_MIN..WARFARE_MAX]) then
                           begin
-                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
-                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceKaMIndex[P[0]], Qty);
+                            H.ResAddToIn(ResourceIndexToType[P[0]], Qty, True);
+                            fPlayers[fLastPlayer].Stats.GoodInitial(ResourceIndexToType[P[0]], Qty);
                           end;
                         end;
     ct_BlockTrade:      if fLastPlayer >= 0 then
                         begin
-                          if ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX] then
-                            fPlayers[fLastPlayer].Stats.AllowToTrade[ResourceKaMIndex[P[0]]] := false;
+                          if ResourceIndexToType[P[0]] in [WARE_MIN..WARE_MAX] then
+                            fPlayers[fLastPlayer].Stats.AllowToTrade[ResourceIndexToType[P[0]]] := false;
                         end;
     ct_BlockHouse:      if fLastPlayer >= 0 then
                         begin
@@ -1034,7 +1034,7 @@ begin
     //Block trades
     for Res := WARE_MIN to WARE_MAX do
       if not fPlayers[I].Stats.AllowToTrade[Res] then
-        AddCommand(ct_BlockTrade, [ResourceKaMOrder[Res]]);
+        AddCommand(ct_BlockTrade, [ResourceTypeToIndex[Res]]);
 
     //Houses
     for K:=0 to fPlayers[I].Houses.Count-1 do
@@ -1064,8 +1064,8 @@ begin
         for Res := WARE_MIN to WARE_MAX do
           if H.CheckResIn(Res) > 0 then
             case HouseCount[ht_Store] of
-              1:  AddCommand(ct_AddWare, [ResourceKaMOrder[Res], H.CheckResIn(Res)]);
-              2:  AddCommand(ct_AddWareToSecond, [ResourceKaMOrder[Res], H.CheckResIn(Res)]);
+              1:  AddCommand(ct_AddWare, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
+              2:  AddCommand(ct_AddWareToSecond, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
             end;
       end
       else
@@ -1074,12 +1074,12 @@ begin
       begin
         for Res := WARFARE_MIN to WARFARE_MAX do
           if H.CheckResIn(Res) > 0 then
-            AddCommand(ct_AddWeapon, [ResourceKaMOrder[Res], H.CheckResIn(Res)]); //Ware, Count
+            AddCommand(ct_AddWeapon, [ResourceTypeToIndex[Res], H.CheckResIn(Res)]); //Ware, Count
       end
       else
         for Res := WARE_MIN to WARE_MAX do
           if H.CheckResIn(Res) > 0 then
-            AddCommand(ct_AddWareTo, [HouseTypeToIndex[H.HouseType]-1, HouseCount[H.HouseType], ResourceKaMOrder[Res], H.CheckResIn(Res)]);
+            AddCommand(ct_AddWareTo, [HouseTypeToIndex[H.HouseType]-1, HouseCount[H.HouseType], ResourceTypeToIndex[Res], H.CheckResIn(Res)]);
 
     end;
     AddData(''); //NL
