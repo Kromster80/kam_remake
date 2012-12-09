@@ -658,8 +658,11 @@ begin
                         if Members[I].IsIdle then
                           if Members[I].OrderDone then
                           begin
-                            if fOrderLoc.Dir <> dir_NA then
+                            if (fOrderLoc.Dir <> dir_NA) and (Members[I].Direction <> fOrderLoc.Dir) then
+                            begin
                               Members[I].Direction := fOrderLoc.Dir;
+                              Members[I].SetActionStay(50, ua_Walk); //Make sure the animation still frame is updated
+                            end;
                           end
                           else
                           begin
@@ -1076,6 +1079,7 @@ begin
   begin
     P := GetMemberLoc(I);
     Members[I].OrderWalk(P.Loc, P.Exact);
+    Members[I].FaceDir := NewDir;
   end;
 end;
 

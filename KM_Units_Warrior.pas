@@ -36,6 +36,7 @@ type
   public
     OnKilled: TKMWarriorEvent;
     OnPickedFight: TKMWarrior2Event;
+    FaceDir: TKMDirection; //Direction we should face after walking. Only check for enemies in this direction.
 
     constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -104,6 +105,7 @@ begin
   LoadStream.Read(fRequestedFood);
   LoadStream.Read(fStormDelay);
   LoadStream.Read(fUseExactTarget);
+  LoadStream.Read(FaceDir);
 end;
 
 
@@ -390,6 +392,7 @@ begin
   SaveStream.Write(fRequestedFood);
   SaveStream.Write(fStormDelay);
   SaveStream.Write(fUseExactTarget);
+  SaveStream.Write(FaceDir);
 end;
 
 
@@ -399,7 +402,8 @@ var
 begin
   Result := False; //Didn't find anyone to fight
 
-  if IsRanged and not IsIdle then Exit;
+  //Ranged units should not check for enemy while walking or when facing the wrong way
+  if IsRanged and ((not IsIdle) or ((FaceDir <> Direction) and (FaceDir <> dir_NA))) then Exit;
 
   NewEnemy := FindEnemy;
   if NewEnemy <> nil then
