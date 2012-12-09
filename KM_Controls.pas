@@ -1576,8 +1576,6 @@ end;
 procedure TKMLabelScroll.Paint;
 var NewTop: Integer; Col: Cardinal;
 begin
-  inherited;
-
   fRenderUI.SetupClipY(Top, Top+Height);
   NewTop := EnsureRange(Top + Height - GetTimeSince(SmoothScrollToTop) div 50, -MINSHORT, MAXSHORT); //Compute delta and shift by it upwards (Credits page)
 
