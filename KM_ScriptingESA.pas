@@ -39,6 +39,7 @@ type
     procedure GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word);
     procedure GiveUnit(aPlayer, aType, X,Y, aDir: Word);
     procedure GiveWares(aPlayer, aType, aCount: Word);
+    procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
     procedure ShowMsg(aPlayer, aIndex: Word);
     procedure UnlockHouse(aPlayer, aHouseType: Word);
   end;
@@ -197,6 +198,22 @@ begin
   end
   else
     LogError('Actions.GiveWares', [aPlayer, aType, aCount]);
+end;
+
+
+procedure TKMScriptActions.RevealCircle(aPlayer, X, Y, aRadius: Word);
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and fTerrain.TileInMapCoords(X,Y)
+  and InRange(aRadius, 0, 255) then
+  begin
+    if aRadius = 255 then
+      fPlayers[aPlayer].FogOfWar.RevealEverything
+    else
+      fPlayers[aPlayer].FogOfWar.RevealCircle(KMPoint(X, Y), aRadius, 255);
+  end
+  else
+    LogError('Actions.RevealCircle', [aPlayer, X, Y, aRadius]);
 end;
 
 
