@@ -172,7 +172,6 @@ uses KM_Game, KM_Player, KM_PlayersCollection, KM_Resource, KM_ResourceUnit, KM_
 
 const
   HUNGER_CHECK_FREQ = 10; //Check warrior hunger every 1 second
-  UG_PASS_FOCUS_TO_LIVE = True; //When selected unit is killed - change selection to nearest unit
 
 
 { TKMUnitGroup }
@@ -465,7 +464,10 @@ end;
 //Get current groups location (we use flagholder)
 function TKMUnitGroup.GetPosition: TKMPoint;
 begin
-  Result := Members[0].GetPosition;
+  if not IsDead then
+    Result := Members[0].GetPosition
+  else
+    Result := KMPoint(0,0);
 end;
 
 
@@ -529,20 +531,20 @@ end;
 
 function TKMUnitGroup.CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean;
 begin
-  Result := Members[0].CanWalkTo(aTo, aDistance);
+  Result := (Count > 0) and Members[0].CanWalkTo(aTo, aDistance);
 end;
 
 
 //Group is dead, but still exists cos of pointers to it
 function TKMUnitGroup.IsDead: Boolean;
 begin
-  Result := fMembers.Count = 0;
+  Result := (Count = 0);
 end;
 
 
 function TKMUnitGroup.IsRanged: Boolean;
 begin
-  Result := fResource.UnitDat[Members[0].UnitType].FightType = ft_Ranged;
+  Result := (fGroupType = gt_Ranged);
 end;
 
 
@@ -560,12 +562,9 @@ begin
     fSelected := nil;
 
     //Transfer selection to nearest member
-    if UG_PASS_FOCUS_TO_LIVE then
-    begin
-      NewSel := GetNearestMember(aMember);
-      if NewSel <> -1 then
-        fSelected := Members[NewSel];
-    end;
+    NewSel := GetNearestMember(aMember);
+    if NewSel <> -1 then
+      fSelected := Members[NewSel];
   end;
 
   Members[I].ReleaseUnitPointer;
