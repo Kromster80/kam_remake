@@ -19,6 +19,7 @@ type
     procedure SaveToINI(FileName: string);
     procedure SetFullScreen(aValue: Boolean);
     procedure SetResolution(const Value: TScreenRes);
+    procedure SetVSync(aValue: Boolean);
   public
     constructor Create;
     destructor Destroy; override;
@@ -28,7 +29,7 @@ type
 
     property FullScreen: Boolean read fFullScreen write SetFullScreen;
     property Resolution: TScreenRes read fResolution write SetResolution;
-    property VSync: Boolean read fVSync;
+    property VSync: Boolean read fVSync write SetVSync;
   end;
 
   //Gameplay settings, those that affect the game
@@ -232,6 +233,13 @@ end;
 procedure TMainSettings.SetResolution(const Value: TScreenRes);
 begin
   fResolution := Value;
+  fNeedsSave  := True;
+end;
+
+
+procedure TMainSettings.SetVSync(aValue: boolean);
+begin
+  fVSync := aValue;
   fNeedsSave  := True;
 end;
 

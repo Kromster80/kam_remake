@@ -301,6 +301,7 @@ type
     Panel_Options:TKMPanel;
       Panel_Options_GFX:TKMPanel;
         TrackBar_Options_Brightness:TKMTrackBar;
+        CheckBox_Options_VSync:TKMCheckBox;
         RadioGroup_Options_Shadows:TKMRadioGroup;
       Panel_Options_Ctrl:TKMPanel;
         TrackBar_Options_ScrollSpeed:TKMTrackBar;
@@ -1523,15 +1524,17 @@ begin
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
     //Graphics section
-    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,220,140);
+    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,360,300,220,178);
     Panel_Options_GFX.Anchors := [akLeft];
       TKMLabel.Create(Panel_Options_GFX,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_GFX,0,20,220,120);
+      TKMBevel.Create(Panel_Options_GFX,0,20,220,158);
       TrackBar_Options_Brightness:=TKMTrackBar.Create(Panel_Options_GFX,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       TrackBar_Options_Brightness.Caption := fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS];
       TrackBar_Options_Brightness.OnChange:=Options_Change;
-      TKMLabel.Create(Panel_Options_GFX,10,82,200,20,fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY],fnt_Metal,taLeft);
-      RadioGroup_Options_Shadows := TKMRadioGroup.Create(Panel_Options_GFX,10,100,200,32, fnt_Metal);
+      CheckBox_Options_VSync := TKMCheckBox.Create(Panel_Options_GFX, 10, 90, 200, 20, fTextLibrary[TX_MENU_OPTIONS_VSYNC], fnt_Metal);
+      CheckBox_Options_VSync.OnClick := Options_Change;
+      TKMLabel.Create(Panel_Options_GFX,10,120,200,20,fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY],fnt_Metal,taLeft);
+      RadioGroup_Options_Shadows := TKMRadioGroup.Create(Panel_Options_GFX,10,138,200,32, fnt_Metal);
       RadioGroup_Options_Shadows.Items.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_LOW]);
       RadioGroup_Options_Shadows.Items.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_HIGH]);
       RadioGroup_Options_Shadows.OnChange := Options_Change;
@@ -3856,6 +3859,7 @@ procedure TKMMainMenuInterface.Options_Fill(aMainSettings: TMainSettings; aGameS
 begin
   CheckBox_Options_Autosave.Checked     := aGameSettings.Autosave;
   TrackBar_Options_Brightness.Position  := aGameSettings.Brightness;
+  CheckBox_Options_VSync.Checked        := aMainSettings.VSync;
   RadioGroup_Options_Shadows.ItemIndex  := Byte(aGameSettings.AlphaShadows);
   TrackBar_Options_ScrollSpeed.Position := aGameSettings.ScrollSpeed;
   TrackBar_Options_SFX.Position         := Round(aGameSettings.SoundFXVolume * TrackBar_Options_SFX.MaxValue);
@@ -3882,6 +3886,7 @@ begin
 
   fGameApp.GameSettings.Autosave         := CheckBox_Options_Autosave.Checked;
   fGameApp.GameSettings.Brightness       := TrackBar_Options_Brightness.Position;
+  fMain.Settings.VSync                   := CheckBox_Options_VSync.Checked;
   fGameApp.GameSettings.AlphaShadows     := RadioGroup_Options_Shadows.ItemIndex = 1;
   fGameApp.GameSettings.ScrollSpeed      := TrackBar_Options_ScrollSpeed.Position;
   fGameApp.GameSettings.SoundFXVolume    := TrackBar_Options_SFX.Position / TrackBar_Options_SFX.MaxValue;
@@ -3893,6 +3898,7 @@ begin
 
   fSoundLib.UpdateSoundVolume(fGameApp.GameSettings.SoundFXVolume);
   fGameApp.MusicLib.UpdateMusicVolume(fGameApp.GameSettings.MusicVolume);
+  SetupVSync(fMain.Settings.VSync);
   if MusicToggled then
   begin
     fGameApp.MusicLib.ToggleMusic(not fGameApp.GameSettings.MusicOff);
