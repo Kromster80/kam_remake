@@ -183,7 +183,7 @@ begin
   and not CurrentGroup.InFight
   and (CurrentGroup.Order = goNone)
   and CurrentGroup.CanWalkTo(Position.Loc, 0) then
-    CurrentGroup.OrderWalk(Position.Loc, Position.Dir);
+    CurrentGroup.OrderWalk(Position.Loc, True, Position.Dir);
 end;
 
 
@@ -269,7 +269,7 @@ begin
       Positions[Matched].CurrentGroup := aGroup;
       if aGroup.UnitsPerRow < TroopFormations[aGroup.GroupType].UnitsPerRow then
         aGroup.UnitsPerRow := TroopFormations[aGroup.GroupType].UnitsPerRow;
-      aGroup.OrderWalk(Positions[Matched].Position.Loc);
+      aGroup.OrderWalk(Positions[Matched].Position.Loc, True);
     end
     else //Restock existing position
       RestockPositionWith(Positions[Matched].CurrentGroup, aGroup);
@@ -283,9 +283,9 @@ begin
   Needed := TroopFormations[aDefenceGroup.GroupType].NumUnits - (aDefenceGroup.Count);
   if Needed <= 0 then exit;
   if aGroup.Count+1 <= Needed then
-    aGroup.OrderLinkTo(aDefenceGroup) //Link entire group
+    aGroup.OrderLinkTo(aDefenceGroup, True) //Link entire group
   else
-    aGroup.OrderSplitLinkTo(aDefenceGroup, Needed); //Link only as many units as are needed
+    aGroup.OrderSplitLinkTo(aDefenceGroup, Needed, True); //Link only as many units as are needed
 
   if aDefenceGroup.UnitsPerRow < TroopFormations[aDefenceGroup.GroupType].UnitsPerRow then
     aDefenceGroup.UnitsPerRow := TroopFormations[aDefenceGroup.GroupType].UnitsPerRow;

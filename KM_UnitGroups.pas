@@ -118,18 +118,18 @@ type
     property OrderTargetGroup: TKMUnitGroup read GetOrderTargetGroup;
     property OrderTargetHouse: TKMHouse read GetOrderTargetHouse write SetOrderTargetHouse;
 
-    procedure OrderAttackHouse(aHouse: TKMHouse);
-    procedure OrderAttackUnit(aUnit: TKMUnit);
-    procedure OrderFood;
-    procedure OrderFormation(aTurnAmount: TKMTurnDirection; aColumnsChange: ShortInt);
-    procedure OrderHalt;
-    procedure OrderLinkTo(aTargetGroup: TKMUnitGroup);
+    procedure OrderAttackHouse(aHouse: TKMHouse; aClearOffenders: Boolean);
+    procedure OrderAttackUnit(aUnit: TKMUnit; aClearOffenders: Boolean);
+    procedure OrderFood(aClearOffenders: Boolean);
+    procedure OrderFormation(aTurnAmount: TKMTurnDirection; aColumnsChange: ShortInt; aClearOffenders: Boolean);
+    procedure OrderHalt(aClearOffenders: Boolean);
+    procedure OrderLinkTo(aTargetGroup: TKMUnitGroup; aClearOffenders: Boolean);
     procedure OrderNone;
     procedure OrderRepeat;
-    procedure OrderSplit;
-    procedure OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word);
-    procedure OrderStorm;
-    procedure OrderWalk(aLoc: TKMPoint; aDir: TKMDirection = dir_NA);
+    procedure OrderSplit(aClearOffenders: Boolean);
+    procedure OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word; aClearOffenders: Boolean);
+    procedure OrderStorm(aClearOffenders: Boolean);
+    procedure OrderWalk(aLoc: TKMPoint; aClearOffenders: Boolean; aDir: TKMDirection = dir_NA);
 
     procedure UpdateState;
     procedure Paint;
@@ -674,7 +674,7 @@ begin
                         OrderExecuted := (OrderTargetUnit = nil);
 
                         if not OrderExecuted then
-                          OrderAttackUnit(fOrderTargetUnit);
+                          OrderAttackUnit(fOrderTargetUnit, False);
                       end
                       else
                       begin
@@ -684,7 +684,7 @@ begin
                         //See if target is escaping
                         if (OrderTargetUnit <> nil)
                         and not KMSamePoint(OrderTargetUnit.NextPosition, fOrderLoc.Loc) then
-                          OrderAttackUnit(fOrderTargetUnit);
+                          OrderAttackUnit(fOrderTargetUnit, False);
 
                         //If Enemy was killed, but target Group still exists
                         if (OrderTargetUnit = nil) and (OrderTargetGroup <> nil) then
@@ -692,7 +692,7 @@ begin
                           //Old enemy has died, change target to his comrades
                           U := fOrderTargetGroup.GetNearestMember(Members[0].GetPosition);
                           Assert(U <> nil, 'We checked that Group is not dead, hence we should have a valid Unit');
-                          OrderAttackUnit(U);
+                          OrderAttackUnit(U, False);
                         end;
                       end;
                     end;
@@ -766,9 +766,11 @@ end;
 
 
 //All units are assigned TTaskAttackHouse which does everything for us (move to position, hit house, abandon, etc.)
-procedure TKMUnitGroup.OrderAttackHouse(aHouse: TKMHouse);
+procedure TKMUnitGroup.OrderAttackHouse(aHouse: TKMHouse; aClearOffenders: Boolean);
 var I: Integer;
 begin
+  if aClearOffenders and CanTakeOrders then ClearOffenders;
+
   fOrder := goAttackHouse;
   fOrderLoc := KMPointDir(0, 0, dir_NA);
   OrderTargetHouse := aHouse;
@@ -778,10 +780,11 @@ begin
 end;
 
 
-procedure TKMUnitGroup.OrderAttackUnit(aUnit: TKMUnit);
+procedure TKMUnitGroup.OrderAttackUnit(aUnit: TKMUnit; aClearOffenders: Boolean);
 var I: Integer;
 begin
   Assert(aUnit <> nil);
+  if aClearOffenders and CanTakeOrders then ClearOffenders;
 
   if IsRanged then
   begin
@@ -810,7 +813,7 @@ begin
   begin
     //Walk in formation towards enemy,
     //Members will take care of attack when we approach
-    OrderWalk(aUnit.NextPosition);
+    OrderWalk(aUnit.NextPosition, False);
 
     //Revert Order to proper one (we disguise Walk)
     fOrder := goAttackUnit;
@@ -821,19 +824,22 @@ end;
 
 
 //Order some food for troops
-procedure TKMUnitGroup.OrderFood;
+procedure TKMUnitGroup.OrderFood(aClearOffenders: Boolean);
 var I: Integer;
 begin
+  if aClearOffenders and CanTakeOrders then ClearOffenders;
+
   for I := 0 to Count - 1 do
     Members[I].OrderFood;
 
-  OrderHalt;
+  OrderHalt(False);
 end;
 
 
-procedure TKMUnitGroup.OrderFormation(aTurnAmount: TKMTurnDirection; aColumnsChange: ShortInt);
+procedure TKMUnitGroup.OrderFormation(aTurnAmount: TKMTurnDirection; aColumnsChange: ShortInt; aClearOffenders: Boolean);
 begin
   if IsDead then Exit;
+  if aClearOffenders and CanTakeOrders then ClearOffenders;
 
   //If it is yet unset - use first members direction
   if fOrderLoc.Dir = dir_NA then
@@ -851,22 +857,25 @@ end;
 
 
 //Forcefull termination of any activity
-procedure TKMUnitGroup.OrderHalt;
+procedure TKMUnitGroup.OrderHalt(aClearOffenders: Boolean);
 begin
+  if aClearOffenders and CanTakeOrders then ClearOffenders;
   //Halt is not a true order, it is just OrderWalk
   //hose target depends on previous activity
   case fOrder of
-    goNone:         OrderWalk(fOrderLoc.Loc);
-    goWalkTo:       OrderWalk(Members[0].NextPosition);
-    goAttackHouse:  OrderWalk(Members[0].NextPosition);
-    goAttackUnit:   OrderWalk(Members[0].NextPosition);
-    goStorm:        OrderWalk(Members[0].NextPosition);
+    goNone:         OrderWalk(fOrderLoc.Loc, False);
+    goWalkTo:       OrderWalk(Members[0].NextPosition, False);
+    goAttackHouse:  OrderWalk(Members[0].NextPosition, False);
+    goAttackUnit:   OrderWalk(Members[0].NextPosition, False);
+    goStorm:        OrderWalk(Members[0].NextPosition, False);
   end;
 end;
 
 
-procedure TKMUnitGroup.OrderLinkTo(aTargetGroup: TKMUnitGroup);
+procedure TKMUnitGroup.OrderLinkTo(aTargetGroup: TKMUnitGroup; aClearOffenders: Boolean);
 begin
+  if aClearOffenders and CanTakeOrders then ClearOffenders;
+
   //Any could have died since the time order was issued due to Net delay
   if IsDead or aTargetGroup.IsDead then Exit;
 
@@ -918,10 +927,10 @@ end;
 procedure TKMUnitGroup.OrderRepeat;
 begin
   case fOrder of
-    goNone:         OrderHalt;
-    goWalkTo:       OrderWalk(fOrderLoc.Loc);
-    goAttackHouse:  if OrderTargetHouse <> nil then OrderAttackHouse(fOrderTargetHouse);
-    goAttackUnit:   if OrderTargetUnit <> nil then OrderAttackUnit(fOrderTargetUnit);
+    goNone:         OrderHalt(False);
+    goWalkTo:       OrderWalk(fOrderLoc.Loc, False);
+    goAttackHouse:  if OrderTargetHouse <> nil then OrderAttackHouse(fOrderTargetHouse, False);
+    goAttackUnit:   if OrderTargetUnit <> nil then OrderAttackUnit(fOrderTargetUnit, False);
     goStorm:        ;
   end;
 end;
@@ -929,7 +938,7 @@ end;
 
 //Split group in half
 //or split different unit types apart
-procedure TKMUnitGroup.OrderSplit;
+procedure TKMUnitGroup.OrderSplit(aClearOffenders: Boolean);
 var
   I: Integer;
   NewGroup: TKMUnitGroup;
@@ -938,6 +947,7 @@ var
 begin
   if IsDead then Exit;
   if Count < 2 then Exit;
+  if aClearOffenders and CanTakeOrders then ClearOffenders;
 
   //Choose the new leader
   NewLeader := Members[(Count div 2) + (Min(fUnitsPerRow, Count div 2) div 2)];
@@ -980,18 +990,19 @@ begin
   NewGroup.fOrderLoc := KMPointDir(NewLeader.GetPosition, fOrderLoc.Dir);
 
   //Tell both groups to reposition
-  OrderHalt;
-  NewGroup.OrderHalt;
+  OrderHalt(False);
+  NewGroup.OrderHalt(False);
 end;
 
 
 //Splits X number of men from the group and adds them to the new commander
-procedure TKMUnitGroup.OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word);
+procedure TKMUnitGroup.OrderSplitLinkTo(aGroup: TKMUnitGroup; aCount: Word; aClearOffenders: Boolean);
 var
   I: Integer;
 begin
   //Make sure to leave someone in the group
   Assert(aCount < Count);
+  if aClearOffenders and CanTakeOrders then ClearOffenders;
 
   //Take units from the end, to keep flagholder
   for I := fMembers.Count - 1 downto fMembers.Count - aCount do
@@ -1005,16 +1016,17 @@ begin
   SetUnitsPerRow(UnitsPerRow);
 
   //Tell both groups to reposition
-  OrderHalt;
-  aGroup.OrderHalt;
+  OrderHalt(False);
+  aGroup.OrderHalt(False);
 end;
 
 
-procedure TKMUnitGroup.OrderStorm;
+procedure TKMUnitGroup.OrderStorm(aClearOffenders: Boolean);
 var I: Integer;
 begin
   //Don't allow ordering a second storm attack while there is still one active (possible due to network lag)
   if not CanTakeOrders then Exit;
+  if aClearOffenders and CanTakeOrders then ClearOffenders;
 
   fOrder := goStorm;
   fOrderLoc := KMPointDir(0, 0, dir_NA);
@@ -1026,13 +1038,14 @@ begin
 end;
 
 
-procedure TKMUnitGroup.OrderWalk(aLoc: TKMPoint; aDir: TKMDirection = dir_NA);
+procedure TKMUnitGroup.OrderWalk(aLoc: TKMPoint; aClearOffenders: Boolean; aDir: TKMDirection = dir_NA);
 var
   I: Integer;
   NewDir: TKMDirection;
   P: TKMPointExact;
 begin
   if IsDead then Exit;
+  if aClearOffenders and CanTakeOrders then ClearOffenders;
 
   if aDir = dir_NA then
     if fOrderLoc.Dir = dir_NA then

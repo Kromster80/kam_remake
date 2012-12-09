@@ -336,11 +336,11 @@ begin
 
   //Choose best option
   if TargetHouse <> nil then
-    aGroup.OrderAttackHouse(TargetHouse)
+    aGroup.OrderAttackHouse(TargetHouse, True)
   else if TargetUnit <> nil then
-    aGroup.OrderAttackUnit(TargetUnit)
+    aGroup.OrderAttackUnit(TargetUnit, True)
   else if aTarget = att_CustomPosition then
-    aGroup.OrderWalk(aCustomPos);
+    aGroup.OrderWalk(aCustomPos, True);
 end;
 
 
@@ -367,7 +367,7 @@ begin
 
       //Check hunger and order food
       if (Group.Condition < UNIT_MIN_CONDITION) then
-        Group.OrderFood;
+        Group.OrderFood(True);
 
       if fGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
 
@@ -493,7 +493,7 @@ begin
     and not Group.InFight
     and not (Group.Order in [goAttackHouse, goAttackUnit, goStorm])
     and (KMLengthDiag(Group.Position, aAttacker.GetPosition) <= fDefencePositions[I].Radius) then
-      Group.OrderAttackUnit(aAttacker);
+      Group.OrderAttackUnit(aAttacker, True);
   end;
 end;
 
@@ -537,7 +537,7 @@ begin
           //otherwise you can make a unit walk backwards and forwards forever between two groups of archers.
           if not Group.IsDead
           and not Group.InFight then
-            Group.OrderAttackUnit(aAttacker);
+            Group.OrderAttackUnit(aAttacker, True);
         end;
         RetaliateAgainstThreat(aAttacker); //Nearby soldiers should come to assist
       end;

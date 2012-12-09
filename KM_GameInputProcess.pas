@@ -296,15 +296,15 @@ begin
       Exit;
 
     case CommandType of
-      gic_ArmyFeed:         Group1.OrderFood;
-      gic_ArmySplit:        Group1.OrderSplit;
-      gic_ArmyStorm:        Group1.OrderStorm;
-      gic_ArmyLink:         Group1.OrderLinkTo(Group2);
-      gic_ArmyAttackUnit:   Group1.OrderAttackUnit(U);
-      gic_ArmyAttackHouse:  Group1.OrderAttackHouse(H2);
-      gic_ArmyHalt:         Group1.OrderHalt;
-      gic_ArmyFormation:    Group1.OrderFormation(TKMTurnDirection(Params[2]),Params[3]);
-      gic_ArmyWalk:         Group1.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
+      gic_ArmyFeed:         Group1.OrderFood(True);
+      gic_ArmySplit:        Group1.OrderSplit(True);
+      gic_ArmyStorm:        Group1.OrderStorm(True);
+      gic_ArmyLink:         Group1.OrderLinkTo(Group2, True);
+      gic_ArmyAttackUnit:   Group1.OrderAttackUnit(U, True);
+      gic_ArmyAttackHouse:  Group1.OrderAttackHouse(H2, True);
+      gic_ArmyHalt:         Group1.OrderHalt(True);
+      gic_ArmyFormation:    Group1.OrderFormation(TKMTurnDirection(Params[2]),Params[3], True);
+      gic_ArmyWalk:         Group1.OrderWalk(KMPoint(Params[2],Params[3]), True, TKMDirection(Params[4]));
 
       gic_BuildAddFieldPlan:      P.ToggleFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3]), not fGame.IsMultiplayer); //Make sound in singleplayer mode only
       gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]), not fGame.IsMultiplayer); //Make sound in singleplayer mode only
