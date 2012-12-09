@@ -985,6 +985,13 @@ begin
     fMembers.Delete(I); // Leave this group
   end;
 
+  //Keep the selected unit Selected
+  if NewGroup.HasMember(fSelected) then
+  begin
+    fPlayers.Selected := NewGroup;
+    NewGroup.fSelected := fSelected;
+  end;
+
   //Make sure units per row is still valid for both groups
   UnitsPerRow := fUnitsPerRow;
   NewGroup.UnitsPerRow := fUnitsPerRow;
