@@ -39,6 +39,7 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 		Fix fences shading along edges of FOW
 		Experiment with adding new terrain objects (Pawel's dandelion, unused sprite in Trees.rx). I think there are currently less than 255 objects so maybe we can just insert them in some of the free slots?
 		Clicking on allied soldiers shows a button that enables one to feed his ally's
+		Ability to set your default color next to your name on MP page (it will be selected in the lobby if available)
 
 
 REJECTED:

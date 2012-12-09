@@ -231,8 +231,8 @@ function GetFPSColor(aFPS: Word): Cardinal;
 begin
   case aFPS of
     0..9  : Result := icRed;
-    10..14: Result := icOrange;
-    15..19: Result := icYellow;
+    10..12: Result := icOrange;
+    13..15: Result := icYellow;
     else    Result := icGreen;
   end;
 end;
