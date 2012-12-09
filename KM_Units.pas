@@ -1632,11 +1632,8 @@ begin
       fNextPosition := fCurrPosition;
       fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
       if GetUnitAction is TUnitActionGoInOut then
-      begin
-        if (Self is TKMUnitWarrior) and (fInHouse is TKMHouseBarracks) then
-          fPlayers[fOwner].UnitGroups.WarriorTrained(TKMUnitWarrior(Self));
         SetActionLockedStay(0, ua_Walk); //Abandon the walk out in this case
-      end;
+
       if (UnitTask is TTaskGoEat) and (TTaskGoEat(UnitTask).Eating) then
       begin
         FreeAndNil(fUnitTask); //Stop the eating animation and makes the unit appear

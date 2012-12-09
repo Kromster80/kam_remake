@@ -1353,6 +1353,7 @@ begin
                    begin
                      LinkGroup := fPlayers[aUnit.Owner].UnitGroups.GetGroupByMember(LinkUnit);
                      LinkGroup.AddMember(aUnit);
+                     LinkGroup.OrderRepeat;
                    end
                    else
                    begin

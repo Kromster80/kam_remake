@@ -247,10 +247,6 @@ begin
   and (fUnit.GetHome = fHouse) then //And is the house we are walking from
     fHouse.fCurrentAction.SubActionRem([ha_Flagpole]);
 
-  //Warriors attempt to link as they leave the house
-  if (fUnit is TKMUnitWarrior) and (fHouse is TKMHouseBarracks) then
-    fPlayers[fUnit.Owner].UnitGroups.WarriorTrained(TKMUnitWarrior(fUnit));
-
   //We are walking straight
   if fStreet.X = fDoor.X then
    IncDoorway;
