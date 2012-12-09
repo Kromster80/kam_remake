@@ -12,6 +12,7 @@ type
     fDestroyingHouse: Boolean; //House destruction in progress
     LocID: Byte; //Current attack location
   public
+    CanAbandon: Boolean;
     constructor Create(aWarrior: TKMUnitWarrior; aHouse: TKMHouse);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
@@ -52,6 +53,7 @@ begin
   fHouse := aHouse.GetHousePointer;
   fDestroyingHouse := false;
   LocID  := 0;
+  CanAbandon := True;
 end;
 
 
@@ -88,6 +90,7 @@ function TTaskAttackHouse.Execute:TTaskResult;
 var AnimLength:integer;
 begin
   Result := TaskContinues;
+  CanAbandon := True; //Default
 
   //If the house is destroyed drop the task
   if WalkShouldAbandon then
@@ -157,6 +160,7 @@ begin
            AnimLength := fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count;
            SetActionLockedStay(AnimLength-FIRING_DELAY-1,ua_Work,false,0,FIRING_DELAY); //Reload for next attack
            fPhase := 0; //Go for another shot (will be 1 after inc below)
+           CanAbandon := False; //Can't abandoned while archer is reloading (halt exploit)
          end
          else
          begin
@@ -170,6 +174,7 @@ begin
              fSoundLib.Play(MeleeSoundsHouse[Random(Length(MeleeSoundsHouse))], PositionF);
 
            fPhase := 1; //Go for another hit (will be 2 after inc below)
+           CanAbandon := False; //Can't abandoned while withdrawing weapon (halt exploit)
          end;
        end;
   end;

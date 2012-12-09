@@ -471,12 +471,12 @@ function TKMUnitWarrior.CanInterruptAction: Boolean;
 begin
   if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandonExternal and GetUnitAction.StepDone else //Only when unit is idling during Interaction pauses
   if(GetUnitAction is TUnitActionStay) and
-    (UnitTask      is TTaskAttackHouse)      then Result := true else //We can abandon attack house if the action is stay
+    (UnitTask      is TTaskAttackHouse)      then Result := TTaskAttackHouse(UnitTask).CanAbandon else //We can abandon attack house if the action is stay and CanAbandon is true
   if GetUnitAction is TUnitActionStay        then Result := not GetUnitAction.Locked else //Initial pause before leaving barracks is locked
   if GetUnitAction is TUnitActionAbandonWalk then Result := GetUnitAction.StepDone and not GetUnitAction.Locked else //Abandon walk should never be abandoned, it will exit within 1 step anyway
   if GetUnitAction is TUnitActionGoInOut     then Result := not GetUnitAction.Locked else //Never interupt leaving barracks
   if GetUnitAction is TUnitActionStormAttack then Result := not GetUnitAction.Locked else //Never interupt storm attack
-  if GetUnitAction is TUnitActionFight       then Result := IsRanged or not GetUnitAction.Locked //Only allowed to interupt ranged fights
+  if GetUnitAction is TUnitActionFight       then Result := not GetUnitAction.Locked //Only allowed to interupt when action tells us so
   else Result := true;
 end;
 

@@ -8,6 +8,7 @@
  +	MapEd did not saved Group orders (sendGroup and AttackPosition)
  +	Only the first 16 servers would be queried correctly, subsequent servers would not show in the list
  +	Chasing down archers even with knights is ineffective, knight starts to attack and archers keep stepping away, then the knight stops and just stands there
+ +	If you halt your archers after they shoot they will shoot without reloading, increasing their firing speed
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -29,7 +30,6 @@
 	Opening chat or sending a message at the right moment during the reconnect cycle can cause a crash because Networking.MyIndex does not exist (or is not you) in NetPlayersList
 	Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
 	If just one player cannot run the game smoothly MP will lag for everyone in his game. For example if you zoom out a lot you will get a poor frame rate and your game will run at < 10 ticks per second forcing other players down to that speed. The lagger's ping will not look any different. Maybe have a way to indicate to that player and the others on the server that he is causing the lag? Our planned 2x speed in MP will make this much worse as some computers will lag more.
-	If you halt your archers after they shoot they will shoot without reloading, increasing their firing speed. Add some kind of special pause before the first shot or after halting? Also applies to attacking houses.
 	There's no message in MP when you defeat AI opponent (if you defeat human opponent it shows one)
 	Listbox scrollbars jump when trying to drag them by upper/lower thumb edge [Krom]
 	Unexpectedly high ping values (high_ping.jpg)

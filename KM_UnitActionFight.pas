@@ -208,6 +208,7 @@ end;
 function TUnitActionFight.ExecuteProcessRanged(Step:byte):boolean;
 begin
   Result := false;
+  Locked := True; //Can't abandoned while archer is reloading (halt exploit)
   if Step = FIRING_DELAY then
   begin
     if fFightDelay=-1 then //Initialize
@@ -222,6 +223,7 @@ begin
     if fFightDelay>0 then begin
       dec(fFightDelay);
       Result := true; //do not increment AnimStep, just exit;
+      Locked := False; //Allowed to abandon while we are aiming
       exit;
     end;
     if fUnit.UnitType = ut_Slingshot then MakeSound(false);
