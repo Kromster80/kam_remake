@@ -33,6 +33,7 @@ type
     fID: Cardinal;
     fPointerCount: Cardinal;
     fTicker: Cardinal;
+    fOwner: TPlayerIndex;
     fMembers: TList;
     fOffenders: TList;
     fSelected: TKMUnitWarrior; //Unit selected by player in GUI
@@ -54,7 +55,6 @@ type
     function GetNearestMember(aLoc: TKMPoint): TKMUnitWarrior; overload;
     function GetMemberLoc(aIndex: Integer): TKMPointExact;
     procedure SetUnitsPerRow(aCount: Word);
-    function GetOwner: TPlayerIndex;
     procedure SetDirection(Value: TKMDirection);
     procedure SetCondition(aValue: Integer);
     procedure SetPosition(aValue: TKMPoint);
@@ -106,7 +106,7 @@ type
     property Count: Integer read GetCount;
     property MapEdCount: Word read fMapEdCount write fMapEdCount;
     property Members[aIndex: Integer]: TKMUnitWarrior read GetMember;
-    property Owner: TPlayerIndex read GetOwner;
+    property Owner: TPlayerIndex read fOwner;
     property Position: TKMPoint read GetPosition write SetPosition;
     property Direction: TKMDirection read GetDirection write SetDirection;
     property UnitsPerRow: Word read fUnitsPerRow write SetUnitsPerRow;
@@ -182,6 +182,7 @@ begin
   inherited Create;
 
   fID := aID;
+  fOwner := aCreator.Owner;
   fGroupType := UnitGroups[aCreator.UnitType];
   fMembers := TList.Create;
   fOffenders := TList.Create;
@@ -207,6 +208,7 @@ begin
   inherited Create;
 
   fID := aID;
+  fOwner := aOwner;
   fGroupType := UnitGroups[aUnitType];
   fMembers := TList.Create;
   fOffenders := TList.Create;
@@ -263,6 +265,7 @@ begin
 
   LoadStream.Read(fGroupType, SizeOf(fGroupType));
   LoadStream.Read(fID);
+  LoadStream.Read(fOwner);
   LoadStream.Read(aCount);
   for I := 0 to aCount - 1 do
   begin
@@ -331,6 +334,7 @@ begin
   inherited;
   SaveStream.Write(fGroupType, SizeOf(fGroupType));
   SaveStream.Write(fID);
+  SaveStream.Write(fOwner);
   SaveStream.Write(fMembers.Count);
   for I := 0 to fMembers.Count - 1 do
     SaveStream.Write(Members[I].ID);
@@ -455,12 +459,6 @@ begin
   if fPointerCount < 1 then
     raise ELocError.Create('Group remove pointer', Position);
   Dec(fPointerCount);
-end;
-
-
-function TKMUnitGroup.GetOwner: TPlayerIndex;
-begin
-  Result := Members[0].Owner;
 end;
 
 
