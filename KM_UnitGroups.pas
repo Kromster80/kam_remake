@@ -8,13 +8,6 @@ uses Classes, Math, SysUtils, Types,
 type
   TKMTurnDirection = (tdNone, tdCW, tdCCW);
 
-  //todo: If one group member is seperated and gets into combat and dies, all other group
-  //      members will forever try to attack the offenders that killed them, even if they
-  //      are on the far side of the map. The player loses control of these units until
-  //      the offenders die. If the player gives a fresh order (and the group is out of
-  //      combat) then the offenders list should be cleared right? Maybe also remove
-  //      offenders if they are more than X tiles away from the closest group member?
-
   TKMGroupOrder = (
     goNone,         //Last order was executed and now we have nothing to do
     goWalkTo,       //Ordered to walk somewhere or just change formation
