@@ -1,6 +1,6 @@
 unit Unit_Finder;
 interface
-uses Types, Math;
+uses Types, Math, SysUtils;
 
 
 const
@@ -22,36 +22,34 @@ type
   private
     startNode, endNode: TJPSPoint;
 
-    openListCount: Word;
+    openListCount: SmallInt;
     openList: array [0..1000] of TJPSPoint;
 
     function OpenListEmpty: Boolean;
-    procedure OpenListPush(const aPoint: TJPSPoint);
+    procedure OpenListPush(aPoint: TJPSPoint);
     function OpenListPop: TJPSPoint;
 
-    function getNodeAt(x, y: Word): TJPSPoint;
+    function getNodeAt(x, y: SmallInt): TJPSPoint;
     function backtrace(aEnd: TJPSPoint): TPointArray;
-    procedure identifySuccessors(const node: TJPSPoint);
+    procedure identifySuccessors(node: TJPSPoint);
     function findNeighbors(const node: TJPSPoint): TPointArray;
-    function jump(x, y, px, py: Word): TPoint;
+    function jump(x, y, px, py: SmallInt): TPoint;
   public
-    constructor Create;
-    destructor Destroy; override;
-
     function MakeRoute(aStart, aEnd: TPoint): TPointArray;
-
   end;
 
-  TMap = class
+
+  TGrid = class
   public
     Map: array [0 .. MAX_SIZE - 1, 0 .. MAX_SIZE - 1] of Boolean;
+    Nodes: array [0 .. MAX_SIZE - 1, 0 .. MAX_SIZE - 1] of TJPSPoint;
     function IsInside(x, y: SmallInt): Boolean;
     function IsWalkableAt(x, y: SmallInt): Boolean;
   end;
 
 
 var
-  Map: TMap;
+  Grid: TGrid;
 
 
 
@@ -59,40 +57,26 @@ implementation
 
 
 { TMap }
-function TMap.IsInside(x, y: SmallInt): Boolean;
+function TGrid.IsInside(x, y: SmallInt): Boolean;
 begin
   Result := InRange(x, 0, MAX_SIZE) and InRange(y, 0, MAX_SIZE);
 end;
 
 
-function TMap.IsWalkableAt(x, y: SmallInt): Boolean;
+function TGrid.IsWalkableAt(x, y: SmallInt): Boolean;
 begin
   Result := IsInside(x, y) and Map[y,x];
 end;
 
 
 { TFinder }
-constructor TFinder.Create;
-begin
-  inherited Create;
-
-end;
-
-
-destructor TFinder.Destroy;
-begin
-
-  inherited;
-end;
-
-
 function TFinder.OpenListEmpty: Boolean;
 begin
   Result := openListCount = 0;
 end;
 
 
-procedure TFinder.OpenListPush(const aPoint: TJPSPoint);
+procedure TFinder.OpenListPush(aPoint: TJPSPoint);
 begin
   Move(openList[0], openList[1], openListCount * SizeOf(openList[0]));
   openList[0] := aPoint;
@@ -105,7 +89,7 @@ var
   I: Integer;
   Best: Integer;
 begin
-  //Return smallest f
+  //Return smallest f (which in JS was the top item, cos all items were sorted on Update)
   Best := 0;
   for I := 1 to openListCount - 1 do
   if openList[Best].f < openList[I].f then
@@ -122,21 +106,20 @@ end;
 
 function TFinder.MakeRoute(aStart, aEnd: TPoint): TPointArray;
 var
+  I,K: Integer;
   Node: TJPSPoint;
 begin
-  startNode := TJPSPoint.Create;
-  endNode := TJPSPoint.Create;
+  for I := 0 to MAX_SIZE - 1 do
+    for K := 0 to MAX_SIZE - 1 do
+      FreeAndNil(Grid.Nodes[I, K]);
 
-  startNode.x := aStart.X;
-  startNode.y := aStart.Y;
-  endNode.x := aEnd.X;
-  endNode.y := aEnd.Y;
+  startNode := getNodeAt(aStart.X, aStart.Y);
+  endNode := getNodeAt(aEnd.X, aEnd.Y);
 
   startNode.g := 0;
   startNode.f := 0;
 
   OpenListPush(startNode);
-
   startNode.opened := True;
 
   while (not OpenListEmpty) do
@@ -146,31 +129,23 @@ begin
     Node.closed := True;
 
     if (Node.X = endNode.X) and (Node.Y = endNode.Y) then
-    begin
       Result := backtrace(endNode);
-    end;
 
     identifySuccessors(Node);
   end;
 end;
 
 
-function TFinder.getNodeAt(x, y: Word): TJPSPoint;
-var
-  I: Integer;
+function TFinder.getNodeAt(x, y: SmallInt): TJPSPoint;
 begin
-  for I := 0 to openListCount - 1 do
-  if (openList[I].x = x) and (openList[I].y = y) then
+  if Grid.Nodes[y,x] = nil then
   begin
-    Result := openList[I];
-    Exit;
-  end
-  else
-  begin
-    Result := TJPSPoint.Create;
-    Result.x := x;
-    Result.y := y;
+    Grid.Nodes[y,x] := TJPSPoint.Create;
+    Grid.Nodes[y,x].x := x;
+    Grid.Nodes[y,x].y := y;
   end;
+
+  Result := Grid.Nodes[y,x];
 end;
 
 
@@ -197,23 +172,22 @@ end;
 //Identify successors for the given node. Runs a jump point search in the
 //direction of each available neighbor, adding any points found to the open
 //list
-procedure TFinder.identifySuccessors(const node: TJPSPoint);
+procedure TFinder.identifySuccessors(node: TJPSPoint);
 var
-  endX, endY: Word;
-  x,y,jx,jy: Word;
+  endX, endY: SmallInt;
+  x,y,jx,jy: SmallInt;
   neighbors: TPointArray;
   neighbor, jumpPoint: TPoint;
   jumpNode: TJPSPoint;
   I: Integer;
   d, ng: Single;
 begin
-  endX := endNode.X;
-  endY := endNode.Y;
-  x := node.X;
-  y := node.Y;
+    endX := endNode.X;
+    endY := endNode.Y;
+    x := node.X;
+    y := node.Y;
 
-  neighbors := findNeighbors(node);
-
+    neighbors := findNeighbors(node);
     for I := 0 to High(neighbors) do
     begin
         neighbor := neighbors[i];
@@ -226,9 +200,7 @@ begin
             jumpNode := getNodeAt(jx, jy);
 
             if (jumpNode.closed) then
-            begin
                 Continue;
-            end;
 
             // include distance, as parent may not be immediately adjacent:
             d := sqrt(sqr(jx - x) + sqr(jy - y));
@@ -258,31 +230,36 @@ end;
 
 //Search recursively in the direction (parent -> child), stopping only when a
 // jump point is found.
-function  TFinder.jump(x, y, px, py: Word): TPoint;
+function  TFinder.jump(x, y, px, py: SmallInt): TPoint;
 var
-  dx, dy: Word;
+  n: TJPSPoint;
+  dx, dy: SmallInt;
   jx, jy: TPoint;
 begin
     dx := x - px;
     dy := y - py;
 
-    if not Map.IsWalkableAt(x, y) then
+    if not Grid.IsWalkableAt(x, y) then
     begin
         Result := Point(-1, -1);
         Exit;
     end
-    else if (x = endNode.x) and (y = endNode.y) then
+    else
     begin
-        Result := Point(x, y);
-        Exit;
+        n := getNodeAt(x,y);
+        if (n.x = endNode.x) and (n.y = endNode.y) then
+        begin
+            Result := Point(x, y);
+            Exit;
+        end;
     end;
 
     // check for forced neighbors
     // along the diagonal
     if (dx <> 0) and (dy <> 0) then
     begin
-        if ((Map.isWalkableAt(x - dx, y + dy) and not Map.isWalkableAt(x - dx, y)) or
-            (Map.isWalkableAt(x + dx, y - dy) and not Map.isWalkableAt(x, y - dy))) then
+        if ((Grid.isWalkableAt(x - dx, y + dy) and not Grid.isWalkableAt(x - dx, y)) or
+            (Grid.isWalkableAt(x + dx, y - dy) and not Grid.isWalkableAt(x, y - dy))) then
         begin
           Result := Point(x, y);
           Exit;
@@ -290,18 +267,18 @@ begin
     end
     // horizontally/vertically
     else begin
-        if( dx <> 0 ) then
-        begin // moving along x
-            if((Map.isWalkableAt(x + dx, y + 1) and not Map.isWalkableAt(x, y + 1)) or
-               (Map.isWalkableAt(x + dx, y - 1) and not Map.isWalkableAt(x, y - 1))) then
+        if( dx <> 0 ) then // moving along x
+        begin
+            if((Grid.isWalkableAt(x + dx, y + 1) and not Grid.isWalkableAt(x, y + 1)) or
+               (Grid.isWalkableAt(x + dx, y - 1) and not Grid.isWalkableAt(x, y - 1))) then
             begin
                 Result := Point(x, y);
                 Exit;
             end;
         end
         else begin
-            if((Map.isWalkableAt(x + 1, y + dy) and not Map.isWalkableAt(x + 1, y)) or
-               (Map.isWalkableAt(x - 1, y + dy) and not Map.isWalkableAt(x - 1, y))) then
+            if((Grid.isWalkableAt(x + 1, y + dy) and not Grid.isWalkableAt(x + 1, y)) or
+               (Grid.isWalkableAt(x - 1, y + dy) and not Grid.isWalkableAt(x - 1, y))) then
             begin
                 Result := Point(x, y);
                 Exit;
@@ -323,13 +300,12 @@ begin
 
     // moving diagonally, must make sure one of the vertical/horizontal
     // neighbors is open to allow the path
-    if (Map.isWalkableAt(x + dx, y) or Map.isWalkableAt(x, y + dy)) then
-    begin
-        Result := jump(x + dx, y + dy, x, y);
-    end else begin
-        Result := Point(-1, -1);
-    end
+    if (Grid.isWalkableAt(x + dx, y) or Grid.isWalkableAt(x, y + dy)) then
+      Result := jump(x + dx, y + dy, x, y)
+    else
+      Result := Point(-1, -1);
 end;
+
 
 //Find the neighbors for the given node. If the node has a parent,
 //prune the neighbors based on the jump point search algorithm, otherwise
@@ -337,8 +313,8 @@ end;
 //@return {Array.<[number, number]>} The neighbors found.
 function TFinder.findNeighbors(const node: TJPSPoint): TPointArray;
 var
-  count: Word;
-  procedure Add(ax,ay: Word);
+  count: SmallInt;
+  procedure Add(ax,ay: SmallInt);
   begin
     Result[count].X := ax;
     Result[count].Y := ay;
@@ -346,8 +322,8 @@ var
   end;
 var
   parent: TJPSPoint;
-  x,y: Word;
-  px, py, dx, dy: Word;
+  x,y: SmallInt;
+  px, py, dx, dy: SmallInt;
 begin
   count := 0;
   SetLength(Result, 8);
@@ -368,89 +344,70 @@ begin
         // search diagonally
         if (dx <> 0) and (dy <> 0) then
         begin
-            if Map.IsWalkableAt(x, y + dy) then
-            begin
+            if Grid.IsWalkableAt(x, y + dy) then
               Add(x, y + dy);
-            end;
-            if Map.IsWalkableAt(x + dx, y) then
-            begin
+            if Grid.IsWalkableAt(x + dx, y) then
               Add(x + dx, y);
-            end;
-            if Map.IsWalkableAt(x, y + dy) or Map.IsWalkableAt(x + dx, y) then
-            begin
+            if Grid.IsWalkableAt(x, y + dy) or Grid.IsWalkableAt(x + dx, y) then
               Add(x + dx, y + dy);
-            end;
-            if (not Map.IsWalkableAt(x - dx, y)) and (not Map.IsWalkableAt(x, y + dy)) then
-            begin
+            if (not Grid.IsWalkableAt(x - dx, y)) and (not Grid.IsWalkableAt(x, y + dy)) then
               Add(x - dx, y + dy);
-            end;
-            if (not Map.IsWalkableAt(x, y - dy)) and (not Map.IsWalkableAt(x + dx, y)) then
-            begin
+            if (not Grid.IsWalkableAt(x, y - dy)) and (not Grid.IsWalkableAt(x + dx, y)) then
               Add(x + dx, y - dy);
-            end;
         end
         // search horizontally/vertically
-        else begin
+        else 
+        begin
             if (dx = 0) then
             begin
-                if Map.IsWalkableAt(x, y + dy) then
+                if Grid.IsWalkableAt(x, y + dy) then
                 begin
-                    if Map.IsWalkableAt(x, y + dy) then
-                    begin
+                    if Grid.IsWalkableAt(x, y + dy) then
                       Add(x, y + dy);
-                    end;
-                    if not Map.IsWalkableAt(x + 1, y) then
-                    begin
+                    if not Grid.IsWalkableAt(x + 1, y) then
                       Add(x + 1, y + dy);
-                    end;
-                    if not Map.IsWalkableAt(x - 1, y) then
-                    begin
+                    if not Grid.IsWalkableAt(x - 1, y) then
                       Add(x - 1, y + dy);
-                    end;
                 end;
             end
-            else begin
-                if Map.IsWalkableAt(x + dx, y) then
+            else
+            begin
+                if Grid.IsWalkableAt(x + dx, y) then
                 begin
-                    if Map.IsWalkableAt(x + dx, y) then
-                    begin
+                    if Grid.IsWalkableAt(x + dx, y) then
                       Add(x + dx, y);
-                    end;
-                    if not Map.IsWalkableAt(x, y + 1) then
-                    begin
+                    if not Grid.IsWalkableAt(x, y + 1) then
                       Add(x + dx, y + 1);
-                    end;
-                    if not Map.IsWalkableAt(x, y - 1) then
-                    begin
+                    if not Grid.IsWalkableAt(x, y - 1) then
                       Add(x + dx, y - 1);
-                    end;
-                end
+                end;
             end;
         end;
     end
-    // return all neighbors if parent = nil
-    else begin
-      if Map.IsWalkableAt(x, y-1) then
+    // return all neighbors (if parent = nil)
+    else
+    begin
+      if Grid.IsWalkableAt(x, y-1) then
         Add(x, y-1);
-      if Map.IsWalkableAt(x+1, y) then
+      if Grid.IsWalkableAt(x+1, y) then
         Add(x+1, y);
-      if Map.IsWalkableAt(x, y+1) then
+      if Grid.IsWalkableAt(x, y+1) then
         Add(x, y+1);
-      if Map.IsWalkableAt(x-1, y) then
+      if Grid.IsWalkableAt(x-1, y) then
         Add(x-1, y);
 
-      if Map.IsWalkableAt(x-1, y-1) then
+      if Grid.IsWalkableAt(x-1, y-1) then
         Add(x-1, y-1);
-      if Map.IsWalkableAt(x+1, y-1) then
+      if Grid.IsWalkableAt(x+1, y-1) then
         Add(x+1, y-1);
-      if Map.IsWalkableAt(x+1, y+1) then
+      if Grid.IsWalkableAt(x+1, y+1) then
         Add(x+1, y+1);
-      if Map.IsWalkableAt(x-1, y+1) then
+      if Grid.IsWalkableAt(x-1, y+1) then
         Add(x-1, y+1);
     end;
 
     //Invert array since we should have Pushed values to it, not appended
-  SetLength(Result, count);
+    SetLength(Result, count);
 end;
 
 

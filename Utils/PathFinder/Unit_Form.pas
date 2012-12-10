@@ -34,7 +34,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   LocA := Point(10, 10);
   LocB := Point(50, 50);
-  Map := TMap.Create;
+  Grid := TGrid.Create;
   Finder := TFinder.Create;
 end;
 
@@ -44,7 +44,7 @@ var
   I, J, K: Integer;
   L, T, W, H: Byte;
 begin
-  FillChar(Map.Map[0, 0], SizeOf(Map.Map), #255);
+  FillChar(Grid.Map[0,0], SizeOf(Grid.Map), #255);
 
   for I := 0 to 30 do
   begin
@@ -54,7 +54,7 @@ begin
     H := Random(20) + 3;
     for J := T to Min(T + H - 1, MAX_SIZE) do
       for K := L to Min(L + W - 1, MAX_SIZE) do
-        Map.Map[J, K] := False;
+        Grid.Map[J, K] := False;
   end;
 
   DisplayMap;
@@ -69,9 +69,9 @@ begin
   Image1.Canvas.Brush.Color := clBlack;
   Image1.Canvas.FillRect(Image1.Canvas.ClipRect);
 
-  for I := 0 to MAX_SIZE do
-    for K := 0 to MAX_SIZE do
-      if Map.Map[I, K] then
+  for I := 0 to MAX_SIZE - 1 do
+    for K := 0 to MAX_SIZE - 1 do
+      if Grid.Map[I, K] then
         Image1.Canvas.Pixels[K, I] := clGray;
 
   for I := 0 to High(R) do
@@ -95,7 +95,7 @@ begin
   LocB.X := X;
   LocB.Y := Y;
 
-  if Map.IsWalkableAt(LocA.X, LocA.Y) and Map.IsWalkableAt(LocB.X, LocB.Y) then
+  if Grid.IsWalkableAt(LocA.X, LocA.Y) and Grid.IsWalkableAt(LocB.X, LocB.Y) then
     R := Finder.MakeRoute(LocA, LocB);
 
   DisplayMap;
