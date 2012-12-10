@@ -97,7 +97,6 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Debug_ExportMenuClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure Debug_EnableCheatsClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -214,9 +213,15 @@ end;
 
 //Remove VCL panel and use flicker-free TMyPanel instead
 procedure TFormMain.FormCreate(Sender: TObject);
+var
+  Margin: TPoint;
 begin
-  RemoveControl(Panel5);
+  Margin.X := Width - ClientWidth;
+  Margin.Y := Height - ClientHeight;
+  Constraints.MinWidth := MIN_RESOLUTION_WIDTH + Margin.X;
+  Constraints.MinHeight := MIN_RESOLUTION_HEIGHT + Margin.Y;
 
+  RemoveControl(Panel5);
   Panel5 := TMyPanel.Create(Self);
   Panel5.Parent := Self;
   Panel5.BevelOuter := bvNone;
@@ -238,20 +243,6 @@ end;
 
 
 //Restrict minimum Form ClientArea size to MENU_DESIGN_X/Y
-procedure TFormMain.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
-var
-  Margin: TPoint;
-begin
-  Margin.X := Width - ClientWidth;
-  Margin.Y := Height - ClientHeight;
-
-  NewWidth := Math.max(NewWidth, MENU_SIZE_MIN_X + Margin.X);
-  NewHeight := Math.max(NewHeight, MENU_SIZE_MIN_Y + Margin.Y);
-
-  Resize := True;
-end;
-
-
 procedure TFormMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   Assert(KeyPreview, 'MainForm should recieve all keys to pass them to fGame');

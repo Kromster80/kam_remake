@@ -16,7 +16,6 @@ object FormMain: TFormMain
   OldCreateOrder = False
   Position = poDesigned
   Scaled = False
-  OnCanResize = FormCanResize
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
