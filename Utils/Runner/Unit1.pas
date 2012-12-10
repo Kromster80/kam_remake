@@ -3,7 +3,7 @@ unit Unit1;
 interface
 uses
   Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Graphics, Types, Math, Windows,
-  Unit_Runner, VCLTee.TeEngine, VCLTee.TeeProcs, VCLTee.Chart;
+  Unit_Runner;
 
 
 type
