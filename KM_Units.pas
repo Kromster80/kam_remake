@@ -1517,7 +1517,7 @@ end;
 //It's better not to start doing anything with dying units
 function TKMUnit.IsDeadOrDying: Boolean;
 begin
-  Result := fIsDead or (fUnitTask is TTaskDie) or fKillASAP;
+  Result := fIsDead or fKillASAP or (fUnitTask is TTaskDie);
 end;
 
 

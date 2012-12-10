@@ -228,7 +228,7 @@ end;
 
 function TPathFinding.MakeRoute: Boolean;
 const c_closed = 65535;
-var i,x,y: Integer;
+var I, X, Y: Integer;
 begin
   //Erase previous values
   SetLength(ORef, 0);
@@ -267,8 +267,8 @@ begin
         OList[OCount].Pos := KMPoint(x,y);
 
         if IsWalkableTile(X, Y) then
-        begin 
-          ORef[y,x] := OCount; 
+        begin
+          ORef[y,x] := OCount;
           OList[OCount].Parent := ORef[fMinCost.Pos.Y, fMinCost.Pos.X];
           OList[OCount].CostTo := OList[OList[OCount].Parent].CostTo + MovementCost(fMinCost.Pos.X, fMinCost.Pos.Y, X, Y);
           OList[OCount].Estim := (abs(x-fLocB.X) + abs(y-fLocB.Y)) * 10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
