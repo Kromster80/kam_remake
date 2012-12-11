@@ -15,7 +15,7 @@ type
     function IsEmpty: Boolean;
     function Pop: Pointer;
     procedure Push(x: Pointer);
-    procedure UpdateItem(aPoint: Pointer);
+    procedure UpdateItem(x: Pointer);
   End;
 
 
@@ -90,7 +90,7 @@ Begin
 End;
 
 
-procedure THeap.UpdateItem(aPoint: Pointer);
+procedure THeap.UpdateItem(x: Pointer);
 begin
   //
 end;
