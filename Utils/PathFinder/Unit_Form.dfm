@@ -3,7 +3,7 @@ object Form1: TForm1
   Top = 194
   Caption = 'Form1'
   ClientHeight = 529
-  ClientWidth = 689
+  ClientWidth = 673
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -55,13 +55,20 @@ object Form1: TForm1
     TabOrder = 1
     OnClick = Button2Click
   end
-  object Button3: TButton
+  object CheckBox1: TCheckBox
     Left = 8
-    Top = 72
-    Width = 137
-    Height = 25
-    Caption = '10 routes'
+    Top = 112
+    Width = 97
+    Height = 17
+    Caption = 'CheckBox1'
     TabOrder = 2
-    OnClick = Button3Click
+  end
+  object CheckBox2: TCheckBox
+    Left = 8
+    Top = 128
+    Width = 97
+    Height = 17
+    Caption = 'CheckBox1'
+    TabOrder = 3
   end
 end

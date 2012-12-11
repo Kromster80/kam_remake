@@ -22,7 +22,6 @@ type
   TFinder = class
   private
     startNode, endNode: TJPSPoint;
-
     Heap: THeap;
 
     function HeapCmp(A,B: Pointer): Boolean;

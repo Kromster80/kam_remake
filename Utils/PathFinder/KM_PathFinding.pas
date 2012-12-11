@@ -2,7 +2,7 @@ unit KM_PathFinding;
 {$I KaM_Remake.inc}
 interface
 uses SysUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Points, Unit_Finder, Unit_Heap;
+  KM_CommonClasses, KM_Defaults, KM_Points, Unit_Finder, Unit_HeapStub;
 
 
 const
@@ -28,18 +28,9 @@ type
   //I think we should refactor this unit and move some TTerrain methods here
   TPathFinding = class
   private
-    fNewCost: Integer;
-
     ORef: array of array of TANode; //References to OpenList, Sized as map
 
     MinN: TANode;
-{    OCount: Word;
-    OList: array of record //List of checked cells
-      Pos: TKMPoint;
-      CostTo: Word;
-      Estim: Word;
-      Parent: Word;//Reference to parent
-    end;}
 
     fCache: array [0 .. PATH_CACHE_MAX - 1] of record
       Weight: Word;
@@ -88,13 +79,15 @@ var
 begin
   inherited;
 
+  //Erase previous values
+  SetLength(ORef, MAX_SIZE+1, MAX_SIZE+1);
+
   if CACHE_PATHFINDING then
   for I := 0 to PATH_CACHE_MAX - 1 do
     fCache[I].Route := TKMPointList.Create;
 
   Heap := THeap.Create;
   Heap.Cmp := HeapCmp;
-  Heap.Init(60000);
 end;
 
 
@@ -240,18 +233,25 @@ end;
 
 function TPathFinding.MakeRoute: Boolean;
 const c_closed = 65535;
-var X, Y: Integer;
+var
   N: TANode;
+  X, Y: Integer;
+  I,K: Integer;
+  NewCost: Integer;
 begin
-  //Erase previous values
-  SetLength(ORef, 0);
-  SetLength(ORef, MAX_SIZE+1, MAX_SIZE+1);
+  Heap.Clear;
+
+  for I := 0 to High(ORef) do
+  for K := 0 to High(ORef[I]) do
+    FreeAndNil(ORef[I,K]);
+
 
   //Initialize first element
   N := TANode.Create;
   ORef[fLocA.Y, fLocA.X] := N;
   N.Pos     := fLocA;
   N.Estim   := (abs(fLocB.X-fLocA.X) + abs(fLocB.Y-fLocA.Y)) * 10;
+  N.Parent  := nil;
 
   //Seed
   MinN := N;
@@ -269,21 +269,19 @@ begin
       if CanWalkTo(MinN.Pos, KMPoint(x,y)) then
       begin
         N := TANode.Create;
-        N.Pos := KMPoint(x,y);
         ORef[y,x] := N;
+        N.Pos := KMPoint(x,y);
+        N.Parent := MinN;
 
         if IsWalkableTile(X, Y) then
         begin
-          N.Parent := MinN;
           N.CostTo := MinN.CostTo + MovementCost(MinN.Pos.X, MinN.Pos.Y, X, Y);
           N.Estim := (abs(x-fLocB.X) + abs(y-fLocB.Y)) * 10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
           Heap.Push(N);
         end
         else //If cell doen't meets Passability then mark it as Closed
           N.Estim := c_closed;
-
       end;
-
     end
     else //Else cell is old
     begin
@@ -292,38 +290,41 @@ begin
       if ORef[y,x].Estim <> c_closed then
       if CanWalkTo(MinN.Pos, KMPoint(x,y)) then
       begin
-        fNewCost := MovementCost(MinN.Pos.X, MinN.Pos.Y, X, Y);
-        if MinN.CostTo + fNewCost < ORef[y,x].CostTo then
+        NewCost := MovementCost(MinN.Pos.X, MinN.Pos.Y, X, Y);
+        if MinN.CostTo + NewCost < ORef[y,x].CostTo then
         begin
           ORef[y,x].Parent := MinN;
-          ORef[y,x].CostTo := MinN.CostTo + fNewCost;
-          //OList[ORef[y,x]].Estim:=(abs(x-fLocB.X) + abs(y-fLocB.Y))*10;
+          ORef[y,x].CostTo := MinN.CostTo + NewCost;
         end;
       end;
     end;
 
     //Find next cell with least (Estim+CostTo)
-    MinN := Heap.ExtractMin;
-    Heap.Pop;
+    MinN := Heap.Pop;
   end;
 
   Result := DestinationReached(MinN.Pos.X, MinN.Pos.Y);
+
   //Assert(fMinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
 end;
 
 
 procedure TPathFinding.ReturnRoute(NodeList: TKMPointList);
 var
-  I: TANode;
+  I,K: Integer;
+  N: TANode;
 begin
   NodeList.Clear;
 
   //Assemble the route
-  I := MinN;
-  repeat
-    NodeList.AddEntry(I.Pos);
-    I := I.Parent;
-  until I = nil;
+  I := 0;
+  N := MinN;
+  while N <> nil do
+  begin
+    Inc(I);
+    NodeList.AddEntry(N.Pos);
+    N := N.Parent;
+  end;
 
   //Reverse the list, since path is assembled LocB > LocA
   NodeList.Inverse;

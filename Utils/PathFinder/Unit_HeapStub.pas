@@ -1,36 +1,43 @@
 unit Unit_HeapStub;
 interface
-uses Types, Math, SysUtils, Unit_Heap;
+uses Types, Math, SysUtils;
 
 
 type
-  TComparator = function(A,B: Pointer) : Boolean of object;
+  TComparator = function(A, B: Pointer): Boolean of object;
 
   THeap = class
   private
     Count: SmallInt;
-    List: array [0..1000] of Pointer;
+    List: array [0..65535] of Pointer;
   public
     Cmp: TComparator;
+    procedure Clear;
     function IsEmpty: Boolean;
-    procedure Push(aPoint: Pointer);
     function Pop: Pointer;
-    procedure UpdateItem(aPoint: Pointer);
+    procedure Push(x: Pointer);
+    procedure UpdateItem(x: Pointer);
   end;
 
 
 implementation
 
 
-function THeap.IsEmpty: Boolean;
+procedure THeap.Clear;
 begin
-  Result := Count = 0;
+  Count := 0;
 end;
 
 
-procedure THeap.Push(aPoint: Pointer);
+function THeap.IsEmpty: Boolean;
 begin
-  List[Count] := aPoint;
+  Result := (Count = 0);
+end;
+
+
+procedure THeap.Push(x: Pointer);
+begin
+  List[Count] := x;
   Inc(Count);
 end;
 
@@ -40,8 +47,7 @@ var
   I: Integer;
   Best: Integer;
 begin
-  //Return smallest f
-  //(which in JS was the top item, cos all items were sorted on Update)
+  //Return smallest
   Best := 0;
   for I := 1 to Count - 1 do
   if Cmp(List[I], List[Best]) then
@@ -56,7 +62,7 @@ begin
 end;
 
 
-procedure THeap.UpdateItem(aPoint: Pointer);
+procedure THeap.UpdateItem(x: Pointer);
 begin
   //
 end;

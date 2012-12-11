@@ -11,14 +11,14 @@ type
     Label1: TLabel;
     Label2: TLabel;
     Button2: TButton;
-    Button3: TButton;
+    CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
     procedure Image1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FormCreate(Sender: TObject);
     procedure Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button2Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
   private
     Finder: TFinder;
     Old: TPathFinding;
@@ -85,7 +85,7 @@ procedure TForm1.Button2Click(Sender: TObject);
 var
   I: Integer;
 begin
-  for I := 0 to 29 do
+  for I := 0 to 49 do
   begin
     LocA.X := Random(MAX_SIZE);
     LocA.Y := Random(MAX_SIZE);
@@ -93,16 +93,8 @@ begin
     LocB.Y := Random(MAX_SIZE);
 
     MakeRoutes;
+    DisplayMap;
   end;
-end;
-
-
-procedure TForm1.Button3Click(Sender: TObject);
-begin
-  LocA := Point(6,6);
-  LocB := Point(7,6);
-
-  MakeRoutes;
 end;
 
 
@@ -144,6 +136,8 @@ begin
   finally
     bmp.Free;
   end;
+
+  Image1.Repaint;
 end;
 
 
@@ -172,23 +166,33 @@ var
   I: Integer;
   T: Cardinal;
 begin
+  SetLength(Route, 0);
+
   if Grid.IsWalkableAt(LocA.X, LocA.Y) and Grid.IsWalkableAt(LocB.X, LocB.Y) then
   begin
-    T := timeGetTime;
-    Route := Finder.MakeRoute(LocA, LocB);
-    Label1.Caption := 'JPS in ' + IntToStr(timeGetTime - T) + 'ms';
-
-    N := TKMPointList.Create;
-    T := timeGetTime;
-    Old.Route_Make(KMPoint(LocA.X, LocA.Y), KMPoint(LocB.X, LocB.Y), [], 0, N);
-    Label2.Caption := 'A* in ' + IntToStr(timeGetTime - T) + 'ms';
-    SetLength(Route, N.Count);
-    for I := 0 to N.Count - 1 do
+    if CheckBox1.Checked then
     begin
-      Route[I].X := N[I].X;
-      Route[I].Y := N[I].Y;
+      T := timeGetTime;
+      Route := Finder.MakeRoute(LocA, LocB);
+      Label1.Caption := 'JPS in ' + IntToStr(timeGetTime - T) + 'ms';
     end;
-    N.Free;
+
+    if CheckBox2.Checked then
+    begin
+      N := TKMPointList.Create;
+      T := timeGetTime;
+      //Old.Free;
+      //Old := TPathFinding.Create;
+      Old.Route_Make(KMPoint(LocA.X, LocA.Y), KMPoint(LocB.X, LocB.Y), [], 0, N);
+      Label2.Caption := 'A* in ' + IntToStr(timeGetTime - T) + 'ms';
+      SetLength(Route, N.Count);
+      for I := 0 to N.Count - 1 do
+      begin
+        Route[I].X := N[I].X;
+        Route[I].Y := N[I].Y;
+      end;
+      N.Free;
+    end;
   end;
 end;
 
