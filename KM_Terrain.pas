@@ -2980,7 +2980,8 @@ begin
           if TileIsCornField(KMPoint(K,I)) then
             case Land[I,K].FieldAge of
               CORN_AGE_1:     SetLand(K,I,59,255);
-              CORN_AGE_2:     SetLand(K,I,60,58);
+              CORN_AGE_2:     SetLand(K,I,60,255);
+              CORN_AGE_3:     SetLand(K,I,60,58);
               CORN_AGE_FULL:  begin
                                 //Skip to the end
                                 SetLand(K,I,60,59);

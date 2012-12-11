@@ -659,8 +659,9 @@ const
   TREE_AGE_2 = 25;
   TREE_AGE_FULL = 40; //Tree is old enough to be chopped
 
-  CORN_AGE_1 = 11;   //Number measured from KaM ~195sec
-  CORN_AGE_2 = 22;
+  CORN_AGE_1 = 7;    //Measured from KaM ~150sec
+  CORN_AGE_2 = 11;   //Number measured from KaM ~195sec
+  CORN_AGE_3 = 22;
   CORN_AGE_FULL = 32; //Corn ready to be cut
   CORN_AGE_MAX = 255; //We set it to this once it's fully grown
 
