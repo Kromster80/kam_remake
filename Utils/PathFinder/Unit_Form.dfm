@@ -24,15 +24,15 @@ object Form1: TForm1
     OnMouseUp = Image1MouseUp
   end
   object Label1: TLabel
-    Left = 8
-    Top = 160
+    Left = 64
+    Top = 112
     Width = 31
     Height = 13
     Caption = 'Label1'
   end
   object Label2: TLabel
-    Left = 8
-    Top = 176
+    Left = 64
+    Top = 128
     Width = 31
     Height = 13
     Caption = 'Label1'
@@ -51,24 +51,24 @@ object Form1: TForm1
     Top = 40
     Width = 137
     Height = 25
-    Caption = '10 routes'
+    Caption = 'Test 100 random routes'
     TabOrder = 1
     OnClick = Button2Click
   end
   object CheckBox1: TCheckBox
     Left = 8
     Top = 112
-    Width = 97
+    Width = 41
     Height = 17
-    Caption = 'CheckBox1'
+    Caption = 'JPS'
     TabOrder = 2
   end
   object CheckBox2: TCheckBox
     Left = 8
     Top = 128
-    Width = 97
+    Width = 33
     Height = 17
-    Caption = 'CheckBox1'
+    Caption = 'A*'
     TabOrder = 3
   end
 end

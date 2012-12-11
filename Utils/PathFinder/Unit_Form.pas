@@ -2,7 +2,7 @@ unit Unit_Form;
 interface
 uses
   Windows,SysUtils, Classes, Graphics, Types, Controls, Forms, ExtCtrls, StdCtrls, Math, MMSystem,
-  Unit_Finder, KM_PathFinding, KM_Points, KM_CommonClasses;
+  Unit_Finder, KM_PathFindingUpd, KM_Points, KM_CommonClasses;
 
 type
   TForm1 = class(TForm)
@@ -85,7 +85,7 @@ procedure TForm1.Button2Click(Sender: TObject);
 var
   I: Integer;
 begin
-  for I := 0 to 49 do
+  for I := 0 to 99 do
   begin
     LocA.X := Random(MAX_SIZE);
     LocA.Y := Random(MAX_SIZE);
