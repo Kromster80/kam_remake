@@ -3,7 +3,7 @@
 			<ProjectGuid>{CB64F5E8-91AE-4497-A8C4-89668924F870}</ProjectGuid>
 			<MainSource>KaM_Remake.dpr</MainSource>
 			<Base>True</Base>
-			<Config Condition="'$(Config)'==''">Release</Config>
+			<Config Condition="'$(Config)'==''">Debug</Config>
 			<TargetedPlatforms>1</TargetedPlatforms>
 			<AppType>Application</AppType>
 			<FrameworkType>VCL</FrameworkType>
