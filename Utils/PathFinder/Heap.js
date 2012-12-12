@@ -45,7 +45,6 @@
   This function should be called every time the item is being modified.
   */
 
-
   updateItem = function(array, item, cmp) {
     var pos;
     if (cmp == null) {
@@ -99,28 +98,6 @@
 
   Heap = (function() {
 
-    Heap.name = 'Heap';
-
-    Heap.push = heappush;
-
-    Heap.pop = heappop;
-
-    function Heap(cmp) {
-      this.cmp = cmp != null ? cmp : defaultCmp;
-      this.nodes = [];
-    }
-
-    Heap.prototype.push = function(x) {
-      return heappush(this.nodes, x, this.cmp);
-    };
-
-    Heap.prototype.pop = function() {
-      return heappop(this.nodes, this.cmp);
-    };
-
-    Heap.prototype.updateItem = function(x) {
-      return updateItem(this.nodes, x, this.cmp);
-    };
 
     Heap.prototype.clear = function() {
       return this.nodes = [];
@@ -130,24 +107,6 @@
       return this.nodes.length === 0;
     };
 
-    Heap.prototype.size = function() {
-      return this.nodes.length;
-    };
-
-    Heap.prototype.clone = function() {
-      var heap;
-      heap = new Heap();
-      heap.nodes = this.nodes.slice(0);
-      return heap;
-    };
-
-    Heap.prototype.toArray = function() {
-      return this.nodes.slice(0);
-    };
-
-    Heap.prototype.insert = Heap.prototype.push;
-
-    Heap.prototype.remove = Heap.prototype.pop;
 
     return Heap;
 

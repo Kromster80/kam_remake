@@ -2,7 +2,7 @@ unit KM_PathFindingUpd;
 {$I KaM_Remake.inc}
 interface
 uses SysUtils, Math,
-  KM_CommonClasses, KM_Defaults, KM_Points, Unit_Finder, Unit_HeapStub;
+  KM_CommonClasses, KM_Defaults, KM_Points, Unit_Finder, Unit_HeapJS;
 
 
 const
@@ -296,17 +296,14 @@ end;
 
 procedure TPathFinding.ReturnRoute(NodeList: TKMPointList);
 var
-  I,K: Integer;
   N: TANode;
 begin
   NodeList.Clear;
 
   //Assemble the route
-  I := 0;
   N := MinN;
   while N <> nil do
   begin
-    Inc(I);
     NodeList.AddEntry(N.Pos);
     N := N.Parent;
   end;

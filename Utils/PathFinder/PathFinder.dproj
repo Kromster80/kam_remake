@@ -99,6 +99,8 @@
 			</DCCReference>
 			<DCCReference Include="Unit_Finder.pas"/>
 			<DCCReference Include="Unit_Heap.pas"/>
+			<DCCReference Include="Unit_HeapJS.pas"/>
+			<DCCReference Include="Unit_HeapStub.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

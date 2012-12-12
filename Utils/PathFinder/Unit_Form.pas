@@ -22,7 +22,6 @@ type
   private
     Finder: TFinder;
     Old: TPathFinding;
-
     procedure MakeRoutes;
     procedure DisplayMap;
   end;
@@ -170,12 +169,6 @@ begin
 
   if Grid.IsWalkableAt(LocA.X, LocA.Y) and Grid.IsWalkableAt(LocB.X, LocB.Y) then
   begin
-    if CheckBox1.Checked then
-    begin
-      T := timeGetTime;
-      Route := Finder.MakeRoute(LocA, LocB);
-      Label1.Caption := 'JPS in ' + IntToStr(timeGetTime - T) + 'ms';
-    end;
 
     if CheckBox2.Checked then
     begin
@@ -193,6 +186,14 @@ begin
       end;
       N.Free;
     end;
+
+    if CheckBox1.Checked then
+    begin
+      T := timeGetTime;
+      Route := Finder.MakeRoute(LocA, LocB);
+      Label1.Caption := 'JPS in ' + IntToStr(timeGetTime - T) + 'ms';
+    end;
+
   end;
 end;
 
