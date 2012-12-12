@@ -1,12 +1,7 @@
-unit Unit_Finder;
+unit KM_PathFindingJPS;
 interface
-uses Types, Math, SysUtils,
+uses Types, Math, SysUtils, KM_PathFinding, BinaryHeap, KM_Points, KM_CommonClasses, KM_Terrain;
 
-  Unit_Heap;
-
-
-const
-  MAX_SIZE = 256;
 
 type
   TJPSPoint = class
@@ -21,80 +16,50 @@ type
 
   //Jump-Point-Search pathfinder
   //based on JavaScript implementation by aniero / https://github.com/aniero
-  TFinder = class
+  TPathFindingJPS = class(TPathFinding)
   private
+    Nodes: array of array of TJPSPoint;
     startNode, endNode: TJPSPoint;
-    Heap: THeap;
+    openList: THeap;
 
     function HeapCmp(A,B: Pointer): Boolean;
-
+    procedure Reset;
     function getNodeAt(x, y: SmallInt): TJPSPoint;
-    function backtrace(aEnd: TJPSPoint): TPointArray;
     procedure identifySuccessors(node: TJPSPoint);
     function findNeighbors(const node: TJPSPoint): TPointArray;
     function jump(x, y, px, py: SmallInt): TPoint;
+  protected
+    function IsWalkableTile(aX, aY: SmallInt): Boolean; reintroduce;
+    function MakeRoute: Boolean; override;
+    procedure ReturnRoute(NodeList: TKMPointList); override;
   public
     constructor Create;
     destructor Destroy; override;
-    function MakeRoute(aStart, aEnd: TPoint): TPointArray;
   end;
-
-
-  TGrid = class
-  public
-    Map: array [0 .. MAX_SIZE - 1, 0 .. MAX_SIZE - 1] of Boolean;
-    Nodes: array [0 .. MAX_SIZE - 1, 0 .. MAX_SIZE - 1] of TJPSPoint;
-    function IsInside(x, y: SmallInt): Boolean;
-    function IsWalkableAt(x, y: SmallInt): Boolean;
-    function CanWalkDiagonaly(ax, ay, tx, ty: SmallInt): Boolean;
-  end;
-
-
-var
-  Grid: TGrid;
 
 
 implementation
 
 
-{ TMap }
-function TGrid.CanWalkDiagonaly(ax, ay, tx, ty: SmallInt): Boolean;
-begin
-  Result := True;
-end;
-
-
-function TGrid.IsInside(x, y: SmallInt): Boolean;
-begin
-  Result := InRange(x, 0, MAX_SIZE-1) and InRange(y, 0, MAX_SIZE-1);
-end;
-
-
-function TGrid.IsWalkableAt(x, y: SmallInt): Boolean;
-begin
-  Result := InRange(x, 0, MAX_SIZE-1) and InRange(y, 0, MAX_SIZE-1) and Map[y,x];
-end;
-
-
-{ TFinder }
-constructor TFinder.Create;
+{ TPathFindingJPS }
+constructor TPathFindingJPS.Create;
 begin
   inherited;
 
-  Heap := THeap.Create;
-  Heap.Cmp := HeapCmp;
+  openList := THeap.Create;
+  openList.Cmp := HeapCmp;
 end;
 
 
-destructor TFinder.Destroy;
+destructor TPathFindingJPS.Destroy;
 begin
-  Heap.Free;
+  openList.Free;
 
   inherited;
 end;
 
 
-function TFinder.HeapCmp(A, B: Pointer): Boolean;
+function TPathFindingJPS.HeapCmp(A, B: Pointer): Boolean;
 begin
   if A = nil then
     Result := True
@@ -103,78 +68,87 @@ begin
 end;
 
 
-function TFinder.MakeRoute(aStart, aEnd: TPoint): TPointArray;
+procedure TPathFindingJPS.Reset;
 var
   I,K: Integer;
+begin
+  openList.Clear;
+
+  for I := 0 to High(Nodes) do
+    for K := 0 to High(Nodes[I]) do
+      FreeAndNil(Nodes[I,K]);
+end;
+
+
+function TPathFindingJPS.getNodeAt(x, y: SmallInt): TJPSPoint;
+begin
+  if Nodes[y,x] = nil then
+  begin
+    Nodes[y,x] := TJPSPoint.Create;
+    Nodes[y,x].x := x;
+    Nodes[y,x].y := y;
+  end;
+
+  Result := Nodes[y,x];
+end;
+
+
+//Find and return the the path.
+function TPathFindingJPS.MakeRoute: Boolean;
+var
   Node: TJPSPoint;
 begin
-  for I := 0 to MAX_SIZE - 1 do
-    for K := 0 to MAX_SIZE - 1 do
-      FreeAndNil(Grid.Nodes[I, K]);
+  SetLength(Nodes, fTerrain.MapY+1, fTerrain.MapX+1);
 
-  endNode := getNodeAt(aEnd.X, aEnd.Y);
-  startNode := getNodeAt(aStart.X, aStart.Y);
+  startNode := getNodeAt(fLocA.X, fLocA.Y);
+  endNode := getNodeAt(fLocB.X, fLocB.Y);
 
+  // set the `g` and `f` value of the start node to be 0 
   startNode.g := 0;
   startNode.f := 0;
 
-  Heap.Push(startNode);
+  openList.Push(startNode);
   startNode.opened := True;
 
-  while (not Heap.IsEmpty) do
+  while not openList.IsEmpty do
   begin
     // pop the position of node which has the minimum `f` value.
-    Node := Heap.Pop;
+    Node := openList.Pop;
     Node.closed := True;
 
-    if (Node.X = endNode.X) and (Node.Y = endNode.Y) then
-      Result := backtrace(endNode);
+    if Node = endNode then
+    begin
+      Result := True;
+      Exit;
+    end;
 
     identifySuccessors(Node);
   end;
+
+  Reset;
+  Result := False;
 end;
 
 
-function TFinder.getNodeAt(x, y: SmallInt): TJPSPoint;
-begin
-  if Grid.Nodes[y,x] = nil then
-  begin
-    Grid.Nodes[y,x] := TJPSPoint.Create;
-    Grid.Nodes[y,x].x := x;
-    Grid.Nodes[y,x].y := y;
-  end;
-
-  Result := Grid.Nodes[y,x];
-end;
-
-
-function TFinder.backtrace(aEnd: TJPSPoint): TPointArray;
+procedure TPathFindingJPS.ReturnRoute(NodeList: TKMPointList);
 var
   Node: TJPSPoint;
-  I: Integer;
-  T: TPoint;
 begin
-  Node := aEnd;
+  NodeList.Clear;
 
-  while Node.parent <> nil do
+  Node := endNode;
+
+  while Node <> nil do
   begin
-    SetLength(Result, Length(Result) + 1);
-    Result[High(Result)].X := Node.X;
-    Result[High(Result)].Y := Node.Y;
+    NodeList.AddEntry(KMPoint(Node.X, Node.Y));
     Node := Node.parent;
   end;
 
-  SetLength(Result, Length(Result) + 1);
-  Result[High(Result)].X := Node.X;
-  Result[High(Result)].Y := Node.Y;
-
   //Reverse the array
-  for I := 0 to High(Result) div 2 do
-  begin
-    T := Result[I];
-    Result[I] := Result[High(Result) - I];
-    Result[High(Result) - I] := T;
-  end;
+  NodeList.Inverse;
+  NodeList.SparseToDense;
+
+  Reset;
 end;
 
 
@@ -184,7 +158,7 @@ end;
  * list.
  * @protected
  *}
-procedure TFinder.identifySuccessors(node: TJPSPoint);
+procedure TPathFindingJPS.identifySuccessors(node: TJPSPoint);
 var
   endX, endY: SmallInt;
   x,y,jx,jy: SmallInt;
@@ -228,16 +202,22 @@ begin
 
                 if not jumpNode.opened then
                 begin
-                    Heap.Push(jumpNode);
+                    openList.Push(jumpNode);
                     jumpNode.opened := True;
                 end
                 else
                 begin
-                    Heap.UpdateItem(jumpNode);
+                    openList.UpdateItem(jumpNode);
                 end;
             end;
         end;
     end;
+end;
+
+
+function TPathFindingJPS.IsWalkableTile(aX, aY: SmallInt): Boolean;
+begin
+  Result := fTerrain.TileInMapCoords(aX, aY) and (inherited IsWalkableTile(aX, aY));
 end;
 
 
@@ -248,12 +228,12 @@ end;
  * @return Array.<[number, number]> The x, y coordinate of the jump point
  *     found, or null if not found
  *}
-function TFinder.jump(x, y, px, py: SmallInt): TPoint;
+function TPathFindingJPS.jump(x, y, px, py: SmallInt): TPoint;
 var
   dx, dy: SmallInt;
   jx, jy: TPoint;
 begin
-  if not Grid.IsWalkableAt(x, y) then
+  if not IsWalkableTile(x, y) then
   begin
     Result := Point(-1, -1);
     Exit;
@@ -272,8 +252,8 @@ begin
   // along the diagonal
   if (dx <> 0) and (dy <> 0) then
   begin
-    if ((Grid.isWalkableAt(x - dx, y + dy) and not Grid.isWalkableAt(x - dx, y)) or
-        (Grid.isWalkableAt(x + dx, y - dy) and not Grid.isWalkableAt(x, y - dy))) then
+    if ((IsWalkableTile(x - dx, y + dy) and not IsWalkableTile(x - dx, y)) or
+        (IsWalkableTile(x + dx, y - dy) and not IsWalkableTile(x, y - dy))) then
     begin
       Result := Point(x, y);
       Exit;
@@ -283,16 +263,16 @@ begin
   else begin
     if( dx <> 0 ) then // moving along x
     begin
-      if((Grid.isWalkableAt(x + dx, y + 1) and not Grid.isWalkableAt(x, y + 1)) or
-         (Grid.isWalkableAt(x + dx, y - 1) and not Grid.isWalkableAt(x, y - 1))) then
+      if((IsWalkableTile(x + dx, y + 1) and not IsWalkableTile(x, y + 1)) or
+         (IsWalkableTile(x + dx, y - 1) and not IsWalkableTile(x, y - 1))) then
       begin
         Result := Point(x, y);
         Exit;
       end;
     end
     else begin
-      if((Grid.isWalkableAt(x + 1, y + dy) and not Grid.isWalkableAt(x + 1, y)) or
-         (Grid.isWalkableAt(x - 1, y + dy) and not Grid.isWalkableAt(x - 1, y))) then
+      if((IsWalkableTile(x + 1, y + dy) and not IsWalkableTile(x + 1, y)) or
+         (IsWalkableTile(x - 1, y + dy) and not IsWalkableTile(x - 1, y))) then
       begin
         Result := Point(x, y);
         Exit;
@@ -314,7 +294,7 @@ begin
 
   // moving diagonally, must make sure one of the vertical/horizontal
   // neighbors is open to allow the path
-  if (Grid.isWalkableAt(x + dx, y) or Grid.isWalkableAt(x, y + dy)) then
+  if (IsWalkableTile(x + dx, y) or IsWalkableTile(x, y + dy)) then
     Result := jump(x + dx, y + dy, x, y)
   else
     Result := Point(-1, -1);
@@ -325,10 +305,10 @@ end;
 //prune the neighbors based on the jump point search algorithm, otherwise
 //return all available neighbors.
 //@return {Array.<[number, number]>} The neighbors found.
-function TFinder.findNeighbors(const node: TJPSPoint): TPointArray;
+function TPathFindingJPS.findNeighbors(const node: TJPSPoint): TPointArray;
 var
   count: SmallInt;
-  procedure Add(ax,ay: SmallInt);
+  procedure Push(ax,ay: SmallInt);
   begin
     Result[count].X := ax;
     Result[count].Y := ay;
@@ -358,42 +338,42 @@ begin
         // search diagonally
         if (dx <> 0) and (dy <> 0) then
         begin
-            if Grid.IsWalkableAt(x, y + dy) then
-              Add(x, y + dy);
-            if Grid.IsWalkableAt(x + dx, y) then
-              Add(x + dx, y);
-            if Grid.IsWalkableAt(x, y + dy) or Grid.IsWalkableAt(x + dx, y) then
-              Add(x + dx, y + dy);
-            if (not Grid.IsWalkableAt(x - dx, y)) and (not Grid.IsWalkableAt(x, y + dy)) then
-              Add(x - dx, y + dy);
-            if (not Grid.IsWalkableAt(x, y - dy)) and (not Grid.IsWalkableAt(x + dx, y)) then
-              Add(x + dx, y - dy);
+            if IsWalkableTile(x, y + dy) then
+              Push(x, y + dy);
+            if IsWalkableTile(x + dx, y) then
+              Push(x + dx, y);
+            if IsWalkableTile(x, y + dy) or IsWalkableTile(x + dx, y) then
+              Push(x + dx, y + dy);
+            if (not IsWalkableTile(x - dx, y)) and (not IsWalkableTile(x, y + dy)) then
+              Push(x - dx, y + dy);
+            if (not IsWalkableTile(x, y - dy)) and (not IsWalkableTile(x + dx, y)) then
+              Push(x + dx, y - dy);
         end
         // search horizontally/vertically
         else
         begin
             if (dx = 0) then
             begin
-                if Grid.IsWalkableAt(x, y + dy) then
+                if IsWalkableTile(x, y + dy) then
                 begin
-                    if Grid.IsWalkableAt(x, y + dy) then
-                      Add(x, y + dy);
-                    if not Grid.IsWalkableAt(x + 1, y) then
-                      Add(x + 1, y + dy);
-                    if not Grid.IsWalkableAt(x - 1, y) then
-                      Add(x - 1, y + dy);
+                    if IsWalkableTile(x, y + dy) then
+                      Push(x, y + dy);
+                    if not IsWalkableTile(x + 1, y) then
+                      Push(x + 1, y + dy);
+                    if not IsWalkableTile(x - 1, y) then
+                      Push(x - 1, y + dy);
                 end;
             end
             else
             begin
-                if Grid.IsWalkableAt(x + dx, y) then
+                if IsWalkableTile(x + dx, y) then
                 begin
-                    if Grid.IsWalkableAt(x + dx, y) then
-                      Add(x + dx, y);
-                    if not Grid.IsWalkableAt(x, y + 1) then
-                      Add(x + dx, y + 1);
-                    if not Grid.IsWalkableAt(x, y - 1) then
-                      Add(x + dx, y - 1);
+                    if IsWalkableTile(x + dx, y) then
+                      Push(x + dx, y);
+                    if not IsWalkableTile(x, y + 1) then
+                      Push(x + dx, y + 1);
+                    if not IsWalkableTile(x, y - 1) then
+                      Push(x + dx, y - 1);
                 end;
             end;
         end;
@@ -401,23 +381,23 @@ begin
     // return all neighbors (if parent = nil)
     else
     begin
-      if Grid.IsWalkableAt(x, y-1) then
-        Add(x, y-1);
-      if Grid.IsWalkableAt(x+1, y) then
-        Add(x+1, y);
-      if Grid.IsWalkableAt(x, y+1) then
-        Add(x, y+1);
-      if Grid.IsWalkableAt(x-1, y) then
-        Add(x-1, y);
+      if IsWalkableTile(x, y-1) then
+        Push(x, y-1);
+      if IsWalkableTile(x+1, y) then
+        Push(x+1, y);
+      if IsWalkableTile(x, y+1) then
+        Push(x, y+1);
+      if IsWalkableTile(x-1, y) then
+        Push(x-1, y);
 
-      if Grid.IsWalkableAt(x-1, y-1) then
-        Add(x-1, y-1);
-      if Grid.IsWalkableAt(x+1, y-1) then
-        Add(x+1, y-1);
-      if Grid.IsWalkableAt(x+1, y+1) then
-        Add(x+1, y+1);
-      if Grid.IsWalkableAt(x-1, y+1) then
-        Add(x-1, y+1);
+      if IsWalkableTile(x-1, y-1) then
+        Push(x-1, y-1);
+      if IsWalkableTile(x+1, y-1) then
+        Push(x+1, y-1);
+      if IsWalkableTile(x+1, y+1) then
+        Push(x+1, y+1);
+      if IsWalkableTile(x-1, y+1) then
+        Push(x-1, y+1);
     end;
 
     //Invert array since we should have Pushed values to it, not appended

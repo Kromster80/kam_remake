@@ -2,17 +2,17 @@ unit Unit_Form;
 interface
 uses
   Windows,SysUtils, Classes, Graphics, Types, Controls, Forms, ExtCtrls, StdCtrls, Math, MMSystem,
-  Unit_Finder, KM_PathFindingUpd, KM_Points, KM_CommonClasses;
+  KM_Defaults, KM_Points, KM_CommonClasses, KM_Terrain,
+  KM_PathFinding, KM_PathFindingAStarOld, KM_PathFindingAStarNew, KM_PathFindingJPS;
 
 type
   TForm1 = class(TForm)
     Button1: TButton;
     Image1: TImage;
-    Label1: TLabel;
-    Label2: TLabel;
     Button2: TButton;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
+    CheckBox3: TCheckBox;
     procedure Image1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FormCreate(Sender: TObject);
     procedure Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -20,15 +20,18 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure Button2Click(Sender: TObject);
   private
-    Finder: TFinder;
-    Old: TPathFinding;
+    FinderOld: TPathFindingAStarOld;
+    FinderNew: TPathFindingAStarNew;
+    FinderJPS: TPathFindingJPS;
     procedure MakeRoutes;
     procedure DisplayMap;
   end;
 
+  TPointArray = array of TPoint;
+
 var
   Form1: TForm1;
-  LocA, LocB: TPoint;
+  LocA, LocB: TKMPoint;
   Route: TPointArray;
 
 
@@ -40,11 +43,15 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   RandSeed := 4;
 
-  LocA := Point(10, 10);
-  LocB := Point(50, 50);
-  Grid := TGrid.Create;
-  Finder := TFinder.Create;
-  Old := TPathFinding.Create;
+  LocA := KMPoint(10, 10);
+  LocB := KMPoint(50, 50);
+  fTerrain := TTerrain.Create;
+  fTerrain.MapX := MAX_SIZE;
+  fTerrain.MapY := MAX_SIZE;
+
+  FinderOld := TPathFindingAStarOld.Create;
+  FinderNew := TPathFindingAStarNew.Create;
+  FinderJPS := TPathFindingJPS.Create;
 
   Button1Click(Self);
 
@@ -63,17 +70,17 @@ var
   I, J, K: Integer;
   L, T, W, H: Byte;
 begin
-  FillChar(Grid.Map[0,0], SizeOf(Grid.Map), #255);
+  FillChar(fTerrain.Land[1,1], SizeOf(fTerrain.Land), #0);
 
-  for I := 0 to 40 do
+  for I := 0 to 200 do
   begin
-    L := Random(MAX_SIZE);
-    T := Random(MAX_SIZE);
+    L := Random(MAX_SIZE)+1;
+    T := Random(MAX_SIZE)+1;
     W := Random(40) + 3;
     H := Random(40) + 3;
-    for J := T to Min(T + H - 1, MAX_SIZE-1) do
-    for K := L to Min(L + W - 1, MAX_SIZE-1) do
-      Grid.Map[J, K] := False;
+    for J := T to Min(T + H - 1, MAX_SIZE) do
+    for K := L to Min(L + W - 1, MAX_SIZE) do
+      fTerrain.Land[J, K].Passability := [CanWalk];
   end;
 
   DisplayMap;
@@ -112,24 +119,24 @@ begin
     bmp.Canvas.FillRect(bmp.Canvas.ClipRect);
 
     //Obstacles
-    for I := 0 to MAX_SIZE - 1 do
-      for K := 0 to MAX_SIZE - 1 do
-        if Grid.Map[I, K] then
-          bmp.Canvas.Pixels[K, I] := clGray;
+    for I := 1 to MAX_SIZE  do
+      for K := 1 to MAX_SIZE do
+        if (fTerrain.Land[I, K].Passability = [CanWalk]) then
+          bmp.Canvas.Pixels[K-1, I-1] := clGray;
 
     //Draw route
     bmp.Canvas.Pen.Color := clSilver;
-    bmp.Canvas.MoveTo(LocA.X, LocA.Y);
+    bmp.Canvas.MoveTo(LocA.X-1, LocA.Y-1);
     for I := 0 to High(Route) do
-      bmp.Canvas.LineTo(Route[I].X, Route[I].Y);
+      bmp.Canvas.LineTo(Route[I].X-1, Route[I].Y-1);
 
     //Route nodes
     for I := 0 to High(Route) do
-      bmp.Canvas.Pixels[Route[I].X, Route[I].Y] := clYellow;
+      bmp.Canvas.Pixels[Route[I].X-1, Route[I].Y-1] := clYellow;
 
     //Start/End
-    bmp.Canvas.Pixels[LocA.X, LocA.Y] := clRed;
-    bmp.Canvas.Pixels[LocB.X, LocB.Y] := clLime;
+    bmp.Canvas.Pixels[LocA.X-1, LocA.Y-1] := clRed;
+    bmp.Canvas.Pixels[LocB.X-1, LocB.Y-1] := clLime;
 
     Image1.Canvas.StretchDraw(Image1.Canvas.ClipRect, bmp);
   finally
@@ -167,17 +174,15 @@ var
 begin
   SetLength(Route, 0);
 
-  if Grid.IsWalkableAt(LocA.X, LocA.Y) and Grid.IsWalkableAt(LocB.X, LocB.Y) then
+  if fTerrain.CheckPassability(LocA, CanWalk) and fTerrain.CheckPassability(LocB, CanWalk) then
   begin
 
-    if CheckBox2.Checked then
+    if CheckBox1.Checked then
     begin
       N := TKMPointList.Create;
       T := timeGetTime;
-      //Old.Free;
-      //Old := TPathFinding.Create;
-      Old.Route_Make(KMPoint(LocA.X, LocA.Y), KMPoint(LocB.X, LocB.Y), [], 0, N);
-      Label2.Caption := 'A* in ' + IntToStr(timeGetTime - T) + 'ms';
+      FinderOld.Route_Make(KMPoint(LocA.X, LocA.Y), KMPoint(LocB.X, LocB.Y), [canWalk], 0, nil, N);
+      CheckBox1.Caption := 'A* old in ' + IntToStr(timeGetTime - T) + 'ms';
       SetLength(Route, N.Count);
       for I := 0 to N.Count - 1 do
       begin
@@ -187,11 +192,34 @@ begin
       N.Free;
     end;
 
-    if CheckBox1.Checked then
+    if CheckBox2.Checked then
     begin
+      N := TKMPointList.Create;
       T := timeGetTime;
-      Route := Finder.MakeRoute(LocA, LocB);
-      Label1.Caption := 'JPS in ' + IntToStr(timeGetTime - T) + 'ms';
+      FinderNew.Route_Make(KMPoint(LocA.X, LocA.Y), KMPoint(LocB.X, LocB.Y), [canWalk], 0, nil, N);
+      CheckBox2.Caption := 'A* new in ' + IntToStr(timeGetTime - T) + 'ms';
+      SetLength(Route, N.Count);
+      for I := 0 to N.Count - 1 do
+      begin
+        Route[I].X := N[I].X;
+        Route[I].Y := N[I].Y;
+      end;
+      N.Free;
+    end;
+
+    if CheckBox3.Checked then
+    begin
+      N := TKMPointList.Create;
+      T := timeGetTime;
+      FinderJPS.Route_Make(KMPoint(LocA.X, LocA.Y), KMPoint(LocB.X, LocB.Y), [canWalk], 0, nil, N);
+      CheckBox3.Caption := 'A* new in ' + IntToStr(timeGetTime - T) + 'ms';
+      SetLength(Route, N.Count);
+      for I := 0 to N.Count - 1 do
+      begin
+        Route[I].X := N[I].X;
+        Route[I].Y := N[I].Y;
+      end;
+      N.Free;
     end;
 
   end;

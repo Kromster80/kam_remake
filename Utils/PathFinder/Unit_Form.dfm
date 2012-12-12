@@ -23,26 +23,18 @@ object Form1: TForm1
     OnMouseDown = Image1MouseDown
     OnMouseUp = Image1MouseUp
   end
-  object Label1: TLabel
-    Left = 64
-    Top = 112
-    Width = 31
-    Height = 13
-    Caption = 'Label1'
-  end
-  object Label2: TLabel
-    Left = 64
-    Top = 128
-    Width = 31
-    Height = 13
-    Caption = 'Label1'
-  end
   object Button1: TButton
     Left = 8
     Top = 8
     Width = 137
-    Height = 25
+    Height = 33
     Caption = 'New maze'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 0
     OnClick = Button1Click
   end
@@ -50,25 +42,59 @@ object Form1: TForm1
     Left = 8
     Top = 40
     Width = 137
-    Height = 25
-    Caption = 'Test 100 random routes'
+    Height = 33
+    Caption = '100 Random | routes'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 1
     OnClick = Button2Click
   end
   object CheckBox1: TCheckBox
     Left = 8
-    Top = 112
-    Width = 41
+    Top = 104
+    Width = 129
     Height = 17
-    Caption = 'JPS'
+    Caption = 'Old'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 2
   end
   object CheckBox2: TCheckBox
     Left = 8
     Top = 128
-    Width = 33
+    Width = 129
     Height = 17
     Caption = 'A*'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 3
+  end
+  object CheckBox3: TCheckBox
+    Left = 8
+    Top = 152
+    Width = 129
+    Height = 17
+    Caption = 'A*'
+    Checked = True
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    State = cbChecked
+    TabOrder = 4
   end
 end

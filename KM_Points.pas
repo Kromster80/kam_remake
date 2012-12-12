@@ -452,7 +452,7 @@ end;
 
 function KMStepIsDiag(const P1,P2: TKMPoint): Boolean;
 begin
-  Result := (sign(P2.X-P1.X) <> 0) and (sign(P2.Y-P1.Y) <> 0);
+  Result := (P2.X - P1.X <> 0) and (P2.Y - P1.Y <> 0);
 end;
 
 

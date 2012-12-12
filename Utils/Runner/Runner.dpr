@@ -1,11 +1,11 @@
 program Runner;
 {$I KaM_Remake.inc}
 uses
-  //FastMM4,
   Forms,
   Unit1 in 'Unit1.pas' {Form2},
   Unit_Runner in 'Unit_Runner.pas',
-  Runner_Game in 'Runner_Game.pas';
+  Runner_Game in 'Runner_Game.pas',
+  KM_Defaults in '..\..\KM_Defaults.pas';
 
 {$R *.res}
 

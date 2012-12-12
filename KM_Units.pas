@@ -1529,7 +1529,7 @@ end;
 
 function TKMUnit.CanWalkDiagonaly(aFrom, aTo: TKMPoint): Boolean;
 begin
-  Result := fTerrain.CanWalkDiagonaly(aFrom, aTo);
+  Result := fTerrain.CanWalkDiagonaly(aFrom, aTo.X, aTo.Y);
 end;
 
 
@@ -1582,7 +1582,7 @@ begin
         and (fTerrain.CheckPassability(KMPoint(X,Y), DesiredPassability))
         and (not KMStepIsDiag(GetPosition, KMPoint(X,Y)) //Only check vertex usage if the step is diagonal
              or (not fTerrain.HasVertexUnit(KMGetDiagVertex(GetPosition, KMPoint(X,Y)))))
-        and (fTerrain.CanWalkDiagonaly(GetPosition, KMPoint(X,Y)));
+        and (fTerrain.CanWalkDiagonaly(GetPosition, X, Y));
 end;
 
 

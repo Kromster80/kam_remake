@@ -184,7 +184,7 @@ type
 
     function ObjectIsChopableTree(X,Y: Word): Boolean; overload;
     function ObjectIsChopableTree(Loc: TKMPoint; aStage: TChopableAge): Boolean; overload;
-    function CanWalkDiagonaly(const A,B: TKMPoint): Boolean;
+    function CanWalkDiagonaly(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
 
     function TopHill: Byte;
     procedure FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects: Boolean=true); overload;
@@ -802,7 +802,7 @@ begin
     if (MaxRad = 1) and KMStepIsDiag(aLoc, P) then
       RequiredMaxRad := 1.42; //Use diagonal radius sqrt(2) instead
 
-    if CanWalkDiagonaly(aLoc, P)
+    if CanWalkDiagonaly(aLoc, P.X, P.Y)
     and ((Abs(aLoc.X - P.X) <> 1)
           or (Abs(aLoc.Y - P.Y) <> 1)
           or VertexUsageCompatible(aLoc, P)
@@ -876,24 +876,24 @@ end;
 {Check wherever unit can walk from A to B diagonaly}
 {Return true if direction is either walkable or not diagonal}
 {Maybe this can also be used later for inter-tile passability}
-function TTerrain.CanWalkDiagonaly(const A,B:TKMPoint): Boolean;
+function TTerrain.CanWalkDiagonaly(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
 begin
   Result := true;
 
-  if (abs(A.X-B.X)<>1) or (abs(A.Y-B.Y)<>1) then exit; //Tiles are not diagonal to each other
+  if (abs(aFrom.X-bX)<>1) or (abs(aFrom.Y-bY)<>1) then Exit; //Tiles are not diagonal to each other
 
                                                                  //Relative tiles locations
-  if (A.X<B.X)and(A.Y<B.Y) then                                                 //   A
-    Result := not MapElem[Land[B.Y,B.X].Obj].DiagonalBlocked    //     B
+  if (aFrom.X<bX)and(aFrom.Y<bY) then                                                 //   A
+    Result := not MapElem[Land[bY,bX].Obj].DiagonalBlocked    //     B
   else
-  if (A.X<B.X)and(A.Y>B.Y) then                                                 //     B
-    Result := not MapElem[Land[B.Y+1,B.X].Obj].DiagonalBlocked  //   A
+  if (aFrom.X<bX)and(aFrom.Y>bY) then                                                 //     B
+    Result := not MapElem[Land[bY+1,bX].Obj].DiagonalBlocked  //   A
   else
-  if (A.X>B.X)and(A.Y>B.Y) then                                                 //   B
-    Result := not MapElem[Land[A.Y,A.X].Obj].DiagonalBlocked    //     A
+  if (aFrom.X>bX)and(aFrom.Y>bY) then                                                 //   B
+    Result := not MapElem[Land[aFrom.Y,aFrom.X].Obj].DiagonalBlocked    //     A
   else
-  if (A.X>B.X)and(A.Y<B.Y) then                                                 //     A
-    Result := not MapElem[Land[A.Y+1,A.X].Obj].DiagonalBlocked; //   B
+  if (aFrom.X>bX)and(aFrom.Y<bY) then                                                 //     A
+    Result := not MapElem[Land[aFrom.Y+1,aFrom.X].Obj].DiagonalBlocked; //   B
 end;
 
 
@@ -1830,7 +1830,7 @@ begin
   for I := -1 to 1 do for K := -1 to 1 do
     if (I <> 0) or (K <> 0) then
       if TileInMapCoords(Loc.X+K,Loc.Y+I) then
-        if CanWalkDiagonaly(Loc,KMPoint(Loc.X+K, Loc.Y+I)) then
+        if CanWalkDiagonaly(Loc, Loc.X+K, Loc.Y+I) then
           if (Land[Loc.Y+I,Loc.X+K].IsUnit = nil) or (not aCheckUnits) then
             if aPass in Land[Loc.Y+I,Loc.X+K].Passability then
             begin
@@ -1853,7 +1853,7 @@ begin
   for I:=-1 to 1 do for K:=-1 to 1 do
     if ((I<>0) or (K<>0))
     and TileInMapCoords(Loc.X+K, Loc.Y+I)
-    and CanWalkDiagonaly(Loc, KMPoint(Loc.X+K, Loc.Y+I)) //Check for trees that stop us walking on the diagonals!
+    and CanWalkDiagonaly(Loc, Loc.X + K, Loc.Y + I) //Check for trees that stop us walking on the diagonals!
     and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
     and (aPass in Land[Loc.Y+I,Loc.X+K].Passability) then
       L1.AddEntry(KMPoint(Loc.X+K, Loc.Y+I));
@@ -1901,7 +1901,7 @@ begin
     and TileInMapCoords(Loc.X+K,Loc.Y+I)
     and not KMSamePoint(KMPoint(Loc.X+K,Loc.Y+I), Loc2)
     and (aPass in Land[Loc.Y+I,Loc.X+K].Passability)
-    and CanWalkDiagonaly(Loc, KMPoint(Loc.X+K,Loc.Y+I)) //Check for trees that stop us walking on the diagonals!
+    and CanWalkDiagonaly(Loc, Loc.X+K, Loc.Y+I) //Check for trees that stop us walking on the diagonals!
     and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
     and (KMLengthDiag(KMPoint(Loc.X+K,Loc.Y+I),Loc2) <= 1) //Right next to Loc2 (not diagonal)
     and not HasUnit(KMPoint(Loc.X+K,Loc.Y+I)) then //Doesn't have a unit

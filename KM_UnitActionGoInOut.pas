@@ -199,7 +199,7 @@ begin
 
   if fTerrain.TileInMapCoords(X,Y)
   and (fTerrain.CheckPassability(KMPoint(X,Y), fUnit.DesiredPassability))
-  and (fTerrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(X,Y)))
+  and (fTerrain.CanWalkDiagonaly(fUnit.GetPosition, X, Y))
   and (fTerrain.Land[Y,X].IsUnit <> nil) then //If there's some unit we need to do a better check on him
   begin
     U := fTerrain.UnitsHitTest(X,Y); //Let's see who is standing there

@@ -1,5 +1,5 @@
 // From https://github.com/qiao/heap.js
-unit Unit_HeapJS;
+unit BinaryHeap;
 interface
 
 
@@ -9,7 +9,7 @@ type
   THeap = class
   private
     Count: Longint;
-    List: array [0..10000] of Pointer;
+    List: array [0..70000] of Pointer;
     procedure _siftdown(startpos, pos: SmallInt);
     procedure _siftup(pos: SmallInt);
   public

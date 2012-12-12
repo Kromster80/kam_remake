@@ -131,6 +131,8 @@ var
   //Statistic
   CtrlPaintCount: Word; //How many Controls were painted in last frame
 
+  PathFinderToUse       :Byte = 1;
+
 const
   MAX_RES_IN_HOUSE    = 5;     //Maximum resource items allowed to be in house
   MAX_ORDER           = 999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)

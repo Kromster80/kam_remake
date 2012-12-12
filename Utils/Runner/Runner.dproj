@@ -98,6 +98,7 @@
 			</DCCReference>
 			<DCCReference Include="Unit_Runner.pas"/>
 			<DCCReference Include="Runner_Game.pas"/>
+			<DCCReference Include="..\..\KM_Defaults.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

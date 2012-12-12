@@ -2,16 +2,16 @@ unit KM_PathFindingRoad;
 {$I KaM_Remake.inc}
 interface
 uses SysUtils, KromUtils,
-  KM_CommonClasses, KM_Defaults, KM_PathFinding, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_PathFindingAStarNew, KM_Points;
 
 
 type
   //Pathfinding with regard to players plans
-  TPathFindingRoad = class(TPathFinding)
+  TPathFindingRoad = class(TPathFindingAStarNew)
   private
     fOwner: TPlayerIndex;
   protected
-    function CanWalkTo(const aFrom, aTo: TKMPoint): Boolean; override;
+    function CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean; override;
     function DestinationReached(aX, aY: Word): Boolean; override;
     function IsWalkableTile(aX, aY: Word): Boolean; override;
     function MovementCost(aFromX, aFromY, aToX, aToY: Word): Word; override;
@@ -55,9 +55,9 @@ begin
 end;
 
 
-function TPathFindingRoad.CanWalkTo(const aFrom, aTo: TKMPoint): Boolean;
+function TPathFindingRoad.CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
 begin
-  Result := not KMStepIsDiag(aFrom, aTo);
+  Result := (bX - aFrom.X = 0) and (bY - aFrom.Y = 0);
 end;
 
 

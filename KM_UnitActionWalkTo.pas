@@ -409,15 +409,18 @@ end;
 1. go around the obstacle and keep on walking
 2. rebuild the route from current position from scratch}
 function TUnitActionWalkTo.CheckForObstacle: TObstacleCheck;
+var T: TKMPoint;
 begin
   Result := oc_NoObstacle;
 
-  if (not fTerrain.CheckPassability(NodeList[NodePos+1], GetEffectivePassability)) or
-     (not fTerrain.CanWalkDiagonaly(fUnit.GetPosition, NodeList[NodePos+1])) then
+  T := NodeList[NodePos+1];
+
+  if (not fTerrain.CheckPassability(T, GetEffectivePassability)) or
+     (not fTerrain.CanWalkDiagonaly(fUnit.GetPosition, T.X, T.Y)) then
 
     //Try side stepping the obsticle.
     //By making HighestInteractionCount be the required timeout, we assure the solution is always checked
-    if IntSolutionSideStep(NodeList[NodePos+1], SIDESTEP_TIMEOUT) then
+    if IntSolutionSideStep(T, SIDESTEP_TIMEOUT) then
       Result := oc_NoObstacle
     else
     //Completely re-route if no simple side step solution is available
@@ -644,7 +647,7 @@ begin
 
       //First make sure tile is on map and walkable!
       if fTerrain.TileInMapCoords(TempPos.X, TempPos.Y)
-      and fTerrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(TempPos))
+      and fTerrain.CanWalkDiagonaly(fUnit.GetPosition, TempPos.X, TempPos.Y)
       and (GetEffectivePassability in fTerrain.Land[TempPos.Y, TempPos.X].Passability) then
 
         if fTerrain.HasUnit(KMPoint(TempPos)) then //Now see if it has a unit

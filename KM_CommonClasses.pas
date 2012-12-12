@@ -91,6 +91,7 @@ type
     function  GetClosest(aLoc: TKMPoint; out Point: TKMPoint): Boolean;
     function Contains(aLoc: TKMPoint): Boolean;
     procedure Inverse;
+    procedure SparseToDense;
     function  GetBounds(out Bounds: TKMRect): Boolean;
     procedure SaveToStream(SaveStream: TKMemoryStream); virtual;
     procedure LoadFromStream(LoadStream: TKMemoryStream); virtual;
@@ -472,6 +473,40 @@ var
 begin
   for I := 0 to fCount div 2 - 1 do
     KMSwapPoints(fItems[I], fItems[fCount-1-I]);
+end;
+
+
+procedure TKMPointList.SparseToDense;
+var
+  I,K,J: Integer;
+  Tmp: array of TKMPoint;
+  Span: Word;
+  C,N: ^TKMPoint;
+begin
+  K := 0;
+  SetLength(Tmp, 8192);
+  for I := 0 to fCount - 1 do
+  begin
+    Tmp[K] := fItems[I];
+    Inc(K);
+
+    if (I <> fCount - 1) then
+    begin
+      C := @fItems[I];
+      N := @fItems[I+1];
+      Span := Max(Abs(N.X - C.X), Abs(N.Y - C.Y));
+      for J := 1 to Span - 1 do
+      begin
+        Tmp[K].X := C.X + Round((N.X - C.X) / Span * J);
+        Tmp[K].Y := C.Y + Round((N.Y - C.Y) / Span * J);
+        Inc(K);
+      end;
+    end;
+  end;
+
+  fCount := K;
+  SetLength(fItems, fCount);
+  Move(Tmp[0], fItems[0], SizeOf(fItems[0]) * fCount);
 end;
 
 

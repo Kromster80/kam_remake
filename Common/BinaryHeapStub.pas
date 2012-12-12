@@ -1,4 +1,4 @@
-unit Unit_HeapStub;
+unit BinaryHeapStub;
 interface
 uses Types, Math, SysUtils;
 

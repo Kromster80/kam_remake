@@ -9,8 +9,9 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Points,
   KM_Alerts, KM_GameInputProcess, KM_GameOptions,
   KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
-  KM_MapEditor, KM_Minimap, KM_Networking, KM_PathFinding, KM_PerfLog,
-  KM_Projectiles, KM_Render, KM_Viewport;
+  KM_MapEditor, KM_Minimap, KM_Networking, 
+  KM_PathFinding, KM_PathFindingAstarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
+  KM_PerfLog, KM_Projectiles, KM_Render, KM_Viewport;
 
 type
   TGameMode = (
@@ -237,7 +238,14 @@ begin
   fLog.AddTime('<== Game creation is done ==>');
   fAlerts := TKMAlerts.Create(@fGameTickCount, fViewport);
   fScripting := TKMScripting.Create;
-  fPathfinding := TPathfinding.Create;
+
+  case PathFinderToUse of
+    0:  fPathfinding := TPathfindingAStarOld.Create;
+    1:  fPathfinding := TPathfindingAStarNew.Create;
+    2:  fPathfinding := TPathfindingJPS.Create;
+  else  fPathfinding := TPathfindingAStarOld.Create;
+
+  end;
   fProjectiles := TKMProjectiles.Create;
 
   fRenderPool := TRenderPool.Create(aRender);
