@@ -6,8 +6,8 @@ uses Types, Math, SysUtils, KM_PathFinding, BinaryHeap, KM_Points, KM_CommonClas
 type
   TJPSPoint = class
     x,y: Word;
-    h: Word;
-    g, f: Single;
+    Estim: Word; //Estimated distance to End
+    g, f: Single; //G - CostTo, F - CostTo + Estim
     opened, closed: Boolean;
     parent: TJPSPoint;
   end;
@@ -103,7 +103,7 @@ begin
   startNode := getNodeAt(fLocA.X, fLocA.Y);
   endNode := getNodeAt(fLocB.X, fLocB.Y);
 
-  // set the `g` and `f` value of the start node to be 0 
+  // set the `g` and `f` value of the start node to be 0
   startNode.g := 0;
   startNode.f := 0;
 
@@ -125,6 +125,7 @@ begin
     identifySuccessors(Node);
   end;
 
+  // fail to find the path
   Reset;
   Result := False;
 end;
@@ -189,15 +190,15 @@ begin
                 Continue;
 
             // include distance, as parent may not be immediately adjacent:
-            d := sqrt(sqr(jx - x) + sqr(jy - y));
+            d := Sqrt(Sqr(jx - x) + Sqr(jy - y));
             ng := node.g + d; // next `g` value
 
             if (not jumpNode.opened) or (ng < jumpNode.g) then
             begin
                 jumpNode.g := ng;
-                if jumpNode.h = 0 then
-                  jumpNode.h := (abs(jx - endX) + abs(jy - endY));
-                jumpNode.f := jumpNode.g + jumpNode.h;
+                if jumpNode.Estim = 0 then
+                  jumpNode.Estim := (Abs(jx - endX) + Abs(jy - endY));
+                jumpNode.f := jumpNode.g + jumpNode.Estim;
                 jumpNode.parent := node;
 
                 if not jumpNode.opened then
@@ -239,7 +240,7 @@ begin
     Exit;
   end
   else
-  if (x = endNode.x) and (y = endNode.y) then
+  if (getNodeAt(x,y) = endNode) then
   begin
     Result := Point(x, y);
     Exit;
@@ -260,7 +261,8 @@ begin
     end;
   end
   // horizontally/vertically
-  else begin
+  else
+  begin
     if( dx <> 0 ) then // moving along x
     begin
       if((IsWalkableTile(x + dx, y + 1) and not IsWalkableTile(x, y + 1)) or
@@ -270,7 +272,8 @@ begin
         Exit;
       end;
     end
-    else begin
+    else
+    begin
       if((IsWalkableTile(x + 1, y + dy) and not IsWalkableTile(x + 1, y)) or
          (IsWalkableTile(x - 1, y + dy) and not IsWalkableTile(x - 1, y))) then
       begin
@@ -344,9 +347,9 @@ begin
               Push(x + dx, y);
             if IsWalkableTile(x, y + dy) or IsWalkableTile(x + dx, y) then
               Push(x + dx, y + dy);
-            if (not IsWalkableTile(x - dx, y)) and (not IsWalkableTile(x, y + dy)) then
+            if (not IsWalkableTile(x - dx, y)) and IsWalkableTile(x, y + dy) then
               Push(x - dx, y + dy);
-            if (not IsWalkableTile(x, y - dy)) and (not IsWalkableTile(x + dx, y)) then
+            if (not IsWalkableTile(x, y - dy)) and IsWalkableTile(x + dx, y) then
               Push(x + dx, y - dy);
         end
         // search horizontally/vertically
@@ -400,8 +403,7 @@ begin
         Push(x-1, y+1);
     end;
 
-    //Invert array since we should have Pushed values to it, not appended
-    SetLength(Result, count);
+  SetLength(Result, count);
 end;
 
 

@@ -13,13 +13,16 @@ type
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
+    Button3: TButton;
     procedure Image1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FormCreate(Sender: TObject);
     procedure Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
+    Times: array [0..2] of Integer;
     FinderOld: TPathFindingAStarOld;
     FinderNew: TPathFindingAStarNew;
     FinderJPS: TPathFindingJPS;
@@ -90,17 +93,36 @@ end;
 procedure TForm1.Button2Click(Sender: TObject);
 var
   I: Integer;
+  T: Single;
 begin
+  Times[0] := 0;
+  Times[1] := 0;
+  Times[2] := 0;
+
   for I := 0 to 99 do
   begin
     LocA.X := Random(MAX_SIZE);
     LocA.Y := Random(MAX_SIZE);
-    LocB.X := Random(MAX_SIZE);
-    LocB.Y := Random(MAX_SIZE);
+
+    T := Random; //Prefer shorter paths
+    LocB.X := LocA.X + Round((Sqr(T) * Sign(T) * MAX_SIZE / 2));
+    T := Random;
+    LocB.Y := LocA.Y + Round((Sqr(T) * Sign(T) * MAX_SIZE / 2));
 
     MakeRoutes;
     DisplayMap;
   end;
+end;
+
+
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+  Times[0] := 0;
+  Times[1] := 0;
+  Times[2] := 0;
+
+  MakeRoutes;
+  DisplayMap;
 end;
 
 
@@ -149,8 +171,8 @@ end;
 
 procedure TForm1.Image1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  LocA.X := X div 2;
-  LocA.Y := Y div 2;
+  LocA.X := Ceil(X / Image1.Width * MAX_SIZE);
+  LocA.Y := Ceil(Y / Image1.Height * MAX_SIZE);
 
   SetLength(Route, 0);
 end;
@@ -158,8 +180,12 @@ end;
 
 procedure TForm1.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  LocB.X := X div 2;
-  LocB.Y := Y div 2;
+  LocB.X := Ceil(X / Image1.Width * MAX_SIZE);
+  LocB.Y := Ceil(Y / Image1.Height * MAX_SIZE);
+
+  Times[0] := 0;
+  Times[1] := 0;
+  Times[2] := 0;
 
   MakeRoutes;
   DisplayMap;
@@ -182,7 +208,8 @@ begin
       N := TKMPointList.Create;
       T := timeGetTime;
       FinderOld.Route_Make(KMPoint(LocA.X, LocA.Y), KMPoint(LocB.X, LocB.Y), [canWalk], 0, nil, N);
-      CheckBox1.Caption := 'A* old in ' + IntToStr(timeGetTime - T) + 'ms';
+      Inc(Times[0], timeGetTime - T);
+      CheckBox1.Caption := 'A* old in ' + IntToStr(Times[0]) + 'ms';
       SetLength(Route, N.Count);
       for I := 0 to N.Count - 1 do
       begin
@@ -197,7 +224,8 @@ begin
       N := TKMPointList.Create;
       T := timeGetTime;
       FinderNew.Route_Make(KMPoint(LocA.X, LocA.Y), KMPoint(LocB.X, LocB.Y), [canWalk], 0, nil, N);
-      CheckBox2.Caption := 'A* new in ' + IntToStr(timeGetTime - T) + 'ms';
+      Inc(Times[1], timeGetTime - T);
+      CheckBox2.Caption := 'A* new in ' + IntToStr(Times[1]) + 'ms';
       SetLength(Route, N.Count);
       for I := 0 to N.Count - 1 do
       begin
@@ -212,7 +240,8 @@ begin
       N := TKMPointList.Create;
       T := timeGetTime;
       FinderJPS.Route_Make(KMPoint(LocA.X, LocA.Y), KMPoint(LocB.X, LocB.Y), [canWalk], 0, nil, N);
-      CheckBox3.Caption := 'A* new in ' + IntToStr(timeGetTime - T) + 'ms';
+      Inc(Times[2], timeGetTime - T);
+      CheckBox3.Caption := 'A* JPS in ' + IntToStr(Times[2]) + 'ms';
       SetLength(Route, N.Count);
       for I := 0 to N.Count - 1 do
       begin
