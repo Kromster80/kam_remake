@@ -195,8 +195,8 @@ end;
 procedure TKMVortamicPF.SetUp;
 begin
   inherited;
-  fResults.ValueCount := 0;
-  fResults.TimesCount := 5*60*10;
+  fResults.ValueCount := 1;
+  fResults.TimesCount := 6*60*10;
 end;
 
 procedure TKMVortamicPF.TearDown;
@@ -207,15 +207,20 @@ end;
 
 procedure TKMVortamicPF.Execute(aRun: Integer);
 var
-  I: Integer;
+  T: Cardinal;
 begin
   inherited;
 
+  PathFinderToUse := (aRun mod 4) div 2; //01230123 > 00110011
+  CACHE_PATHFINDING := Boolean(aRun mod 2);  //0101
+
   fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\Vortamic\Vortamic.dat', 'Across the Desert');
 
-  SetKaMSeed(aRun + 1);
+  SetKaMSeed(aRun div 4 + 1); //11112222
 
+  T := TimeGet;
   SimulateGame;
+  fResults.Value[aRun, 0] := TimeGet - T;
 
   fGameApp.Stop(gr_Silent);
 end;

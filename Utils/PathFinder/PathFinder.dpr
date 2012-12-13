@@ -6,7 +6,8 @@ uses
   KM_PathFinding in '..\..\KM_PathFinding.pas',
   KM_PathFindingAStarNew in '..\..\KM_PathFindingAStarNew.pas',
   KM_PathFindingAStarOld in '..\..\KM_PathFindingAStarOld.pas',
-  KM_PathFindingJPS in '..\..\KM_PathFindingJPS.pas';
+  KM_PathFindingJPS in '..\..\KM_PathFindingJPS.pas',
+  KM_Terrain in 'KM_Terrain.pas';
 
 {$R *.res}
 

@@ -102,6 +102,7 @@
 			<DCCReference Include="..\..\KM_PathFindingAStarNew.pas"/>
 			<DCCReference Include="..\..\KM_PathFindingAStarOld.pas"/>
 			<DCCReference Include="..\..\KM_PathFindingJPS.pas"/>
+			<DCCReference Include="KM_Terrain.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

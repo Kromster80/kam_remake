@@ -58,7 +58,7 @@ object Form1: TForm1
     Top = 104
     Width = 129
     Height = 17
-    Caption = 'Old'
+    Caption = 'A* old'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -72,7 +72,7 @@ object Form1: TForm1
     Top = 128
     Width = 129
     Height = 17
-    Caption = 'A*'
+    Caption = 'A* new'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -86,7 +86,7 @@ object Form1: TForm1
     Top = 152
     Width = 129
     Height = 17
-    Caption = 'A*'
+    Caption = 'A* JPS'
     Checked = True
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText

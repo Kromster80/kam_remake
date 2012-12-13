@@ -67,6 +67,7 @@ var
   AI_GEN_INFLUENCE_MAPS :Boolean = True; //Generate influence maps for AI to plan attacks/defenses
   STACK_MSGS            :Boolean = True; //Stack messages of similar kinds in UI
   CACHE_PATHFINDING     :Boolean = False; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
+  PathFinderToUse       :Byte = 1;
 
   //These are debug things, should be False
   {User interface options}
@@ -131,7 +132,6 @@ var
   //Statistic
   CtrlPaintCount: Word; //How many Controls were painted in last frame
 
-  PathFinderToUse       :Byte = 1;
 
 const
   MAX_RES_IN_HOUSE    = 5;     //Maximum resource items allowed to be in house
