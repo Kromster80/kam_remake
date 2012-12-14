@@ -20,7 +20,7 @@ type
   private
     Nodes: array of array of TJPSPoint;
     startNode, endNode: TJPSPoint;
-    openList: THeap;
+    openList: TBinaryHeap;
 
     function HeapCmp(A,B: Pointer): Boolean;
     procedure Reset;
@@ -46,7 +46,7 @@ constructor TPathFindingJPS.Create;
 begin
   inherited;
 
-  openList := THeap.Create;
+  openList := TBinaryHeap.Create(High(Word));
   openList.Cmp := HeapCmp;
 end;
 

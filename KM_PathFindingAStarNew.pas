@@ -18,7 +18,7 @@ type
   //I think we should refactor this unit and move some TTerrain methods here
   TPathFindingAStarNew = class(TPathFinding)
   private
-    Heap: THeap;
+    Heap: TBinaryHeap;
     MinN: TANode;
     ORef: array of array of TANode; //References to OpenList, Sized as map
     function HeapCmp(A,B: Pointer): Boolean;
@@ -40,7 +40,7 @@ constructor TPathFindingAStarNew.Create;
 begin
   inherited;
 
-  Heap := THeap.Create;
+  Heap := TBinaryHeap.Create(High(Word));
   Heap.Cmp := HeapCmp;
 end;
 

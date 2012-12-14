@@ -1,4 +1,5 @@
 // From https://github.com/qiao/heap.js
+//Ported by Krom for project Castlesand
 unit BinaryHeap;
 interface
 
@@ -6,14 +7,15 @@ interface
 type
   TComparator = function(A, B: Pointer) : Boolean of object;
 
-  THeap = class
+  TBinaryHeap = class
   private
-    Count: Longint;
-    List: array [0..70000] of Pointer;
+    fCount: Longint;
+    fItems: array of Pointer;
     procedure _siftdown(startpos, pos: SmallInt);
     procedure _siftup(pos: SmallInt);
   public
     Cmp: TComparator;
+    constructor Create(aSize: Cardinal);
     procedure Clear;
     function IsEmpty: Boolean;
     function Pop: Pointer;
@@ -25,30 +27,49 @@ type
 implementation
 
 
-//Push item onto heap, maintaining the heap invariant.
-//heappush = function(array, item, cmp) {
-procedure THeap.Push(x: Pointer);
+{ TBinaryHeap }
+constructor TBinaryHeap.Create(aSize: Cardinal);
 begin
-  List[Count] := x;
-  Inc(Count);
+  inherited Create;
 
-  _siftdown(0, Count - 1);
+  SetLength(fItems, aSize);
+end;
+
+
+procedure TBinaryHeap.Clear;
+begin
+  fCount := 0;
+end;
+
+
+function TBinaryHeap.IsEmpty: Boolean;
+begin
+  Result := (fCount = 0);
+end;
+
+
+//Push item onto heap, maintaining the heap invariant.
+procedure TBinaryHeap.Push(x: Pointer);
+begin
+  fItems[fCount] := x;
+  Inc(fCount);
+
+  _siftdown(0, fCount - 1);
 end;
 
 
 //Pop the smallest item off the heap, maintaining the heap invariant.
-//heappop = function(array, cmp)
-function THeap.Pop: Pointer;
+function TBinaryHeap.Pop: Pointer;
 var
   lastelt, returnitem: Pointer;
 begin
-  lastelt := List[Count - 1];
-  Dec(Count);
+  lastelt := fItems[fCount - 1];
+  Dec(fCount);
 
-  if (Count <> 0) then
+  if (fCount <> 0) then
   begin
-    returnitem := List[0];
-    List[0] := lastelt;
+    returnitem := fItems[0];
+    fItems[0] := lastelt;
     _siftup(0);
   end
   else
@@ -62,13 +83,12 @@ end;
 
 //Update the position of the given item in the heap.
 //This function should be called every time the item is being modified.
-//updateItem = function(array, item, cmp)
-procedure THeap.UpdateItem(x: Pointer);
+procedure TBinaryHeap.UpdateItem(x: Pointer);
 var
   I: ShortInt;
 begin
-  for I := 0 to Count - 1 do
-  if List[I] = x then
+  for I := 0 to fCount - 1 do
+  if fItems[I] = x then
     Break;
 
   _siftdown(0, I);
@@ -76,64 +96,48 @@ begin
 end;
 
 
-//_siftdown = function(array, startpos, pos, cmp)
-procedure THeap._siftdown(startpos, pos: SmallInt);
+procedure TBinaryHeap._siftdown(startpos, pos: SmallInt);
 var newitem, parent: Pointer;
   parentpos: SmallInt;
 begin
-    newitem := List[pos];
+    newitem := fItems[pos];
     while (pos > startpos) do
     begin
       parentpos := (pos - 1) shr 1;
-      parent := List[parentpos];
+      parent := fItems[parentpos];
       if Cmp(newitem, parent) then
       begin
-        List[pos] := parent;
+        fItems[pos] := parent;
         pos := parentpos;
         Continue;
       end;
       Break;
     end;
-  List[pos] := newitem;
+  fItems[pos] := newitem;
 end;
 
 
-//_siftup = function(array, pos, cmp)
-procedure THeap._siftup(pos: SmallInt);
+procedure TBinaryHeap._siftup(pos: SmallInt);
 var childpos, endpos, rightpos, startpos: SmallInt;
   newitem: Pointer;
 begin
-    endpos := Count;
+    endpos := fCount;
     startpos := pos;
-    newitem := List[pos];
+    newitem := fItems[pos];
     childpos := 2 * pos + 1;
     while (childpos < endpos) do
     begin
       rightpos := childpos + 1;
-      if (rightpos < endpos) and (not Cmp(List[childpos], List[rightpos])) then
+      if (rightpos < endpos) and (not Cmp(fItems[childpos], fItems[rightpos])) then
       begin
         childpos := rightpos;
       end;
-      List[pos] := List[childpos];
+      fItems[pos] := fItems[childpos];
       pos := childpos;
       childpos := 2 * pos + 1;
     end;
-    List[pos] := newitem;
+    fItems[pos] := newitem;
     _siftdown(startpos, pos);
-end;
-
-
-procedure THeap.Clear;
-begin
-  Count := 0;
-end;
-
-
-//Heap.prototype.empty = function()
-
-function THeap.IsEmpty: Boolean;
-begin
-  Result := (Count = 0);
 end;
 
 
