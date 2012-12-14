@@ -68,6 +68,7 @@ var
   STACK_MSGS            :Boolean = True; //Stack messages of similar kinds in UI
   CACHE_PATHFINDING     :Boolean = False; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
   PathFinderToUse       :Byte = 1;
+  TEST_HOUSE_SELECTION  :Boolean = True; //See how house selection looks (its indended to highlight houses mentioned in messages ONLY. not players selection)
 
   //These are debug things, should be False
   {User interface options}
@@ -625,7 +626,7 @@ type
         tlRoadWork  // -        X         X       X          -     X      -
         );
 
-  TFenceType = (ftNone, ftCorn, ftWine, ftHousePlan, ftHouseFence);
+  TFenceType = (fncNone, fncCorn, fncWine, fncHousePlan, fncHouseFence);
 
 
   TKMVertexUsage = (vu_None=0,  //Nobody is on this vertex

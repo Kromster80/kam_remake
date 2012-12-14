@@ -60,7 +60,7 @@ type
     procedure ReOpenPlan(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
     procedure ClosePlan(aIndex: Integer); //Worker has finished the task
 
-    procedure GetBorders(aList: TKMPointDirList; aRect: TKMRect);
+    procedure GetOutlines(aList: TKMPointDirList; aRect: TKMRect);
     procedure GetTablets(aList: TKMPointTagList; aRect: TKMRect);
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -781,7 +781,7 @@ begin
 end;
 
 
-procedure TKMHousePlanList.GetBorders(aList: TKMPointDirList; aRect: TKMRect);
+procedure TKMHousePlanList.GetOutlines(aList: TKMPointDirList; aRect: TKMRect);
 var
   I,J,K: Integer;
   Rect: TKMRect;

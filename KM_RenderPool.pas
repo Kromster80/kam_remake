@@ -54,6 +54,7 @@ type
     procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderObject(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderObjectQuad(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+    procedure RenderHouseOutline;
 
     //Terrain rendering sub-class
     procedure RenderTerrain;
@@ -101,7 +102,7 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Projectiles, KM_Game, KM_Sound, KM_Resource,
-  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_GameApp;
+  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_GameApp, KM_Houses;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -182,7 +183,7 @@ end;
 procedure TRenderPool.RenderTerrainOverlays(aRect: TKMRect);
 var
   I,K: Integer;
-  FencesList: TKMPointDirList;
+  HousePlansList: TKMPointDirList;
   FieldsList, TabletsList: TKMPointTagList;
 begin
   //@Lewin: Since plans are per-player now, what do we do about allies that:
@@ -192,26 +193,30 @@ begin
   //For enemies, if two plans overlap, the other should be removed when one is started.
   //This is currently working for roads/fields but not houses
 
-  //Fieldplans
+  //Field plans (road, corn, wine) for self and allies
   FieldsList := TKMPointTagList.Create;
   MyPlayer.GetFieldPlans(FieldsList, aRect, True, fGame.IsReplay); //Include fake field plans for painting
   for I := 0 to FieldsList.Count - 1 do
     RenderTerrainMarkup(FieldsList[I].X, FieldsList[I].Y, TFieldType(FieldsList.Tag[I]));
   FreeAndNil(FieldsList);
 
-  //Fences
-  FencesList := TKMPointDirList.Create;
-  MyPlayer.GetPlansFences(FencesList, aRect, fGame.IsReplay);
-  for I := 0 to FencesList.Count - 1 do
-    fRenderTerrain.RenderFence(ftHousePlan, FencesList[I].Dir, FencesList[I].Loc.X, FencesList[I].Loc.Y);
-  FreeAndNil(FencesList);
+  //House plans for self and allies
+  HousePlansList := TKMPointDirList.Create;
+  MyPlayer.GetHousePlans(HousePlansList, aRect, fGame.IsReplay);
+  for I := 0 to HousePlansList.Count - 1 do
+    fRenderTerrain.RenderFence(fncHousePlan, HousePlansList[I].Dir, HousePlansList[I].Loc.X, HousePlansList[I].Loc.Y);
+  FreeAndNil(HousePlansList);
 
-  //Tablets
+  //Tablets on house plans, for self and allies
   TabletsList := TKMPointTagList.Create;
   MyPlayer.GetPlansTablets(TabletsList, aRect, fGame.IsReplay);
   for I := 0 to TabletsList.Count - 1 do
     AddHouseTablet(THouseType(TabletsList.Tag[I]), TabletsList[I]);
   FreeAndNil(TabletsList);
+
+  if TEST_HOUSE_SELECTION then
+  if fPlayers.Selected is TKMHouse then
+    RenderHouseOutline;
 end;
 
 
@@ -963,6 +968,84 @@ begin
       glVertex2f(P.X  ,P.Y-1-Land[P.Y  ,P.X+1].Height/CELL_HEIGHT_DIV);
       glVertex2f(P.X  ,P.Y-  Land[P.Y+1,P.X+1].Height/CELL_HEIGHT_DIV);
       glVertex2f(P.X-1,P.Y-  Land[P.Y+1,P.X  ].Height/CELL_HEIGHT_DIV);
+    end;
+  glEnd;
+end;
+
+
+procedure TRenderPool.RenderHouseOutline;
+const
+  ColA = $C090FF90;
+  ColB = $0090FF90;
+var
+  Count: Integer;
+  Outline: array of record X,Y: SmallInt; Col: Cardinal; end;
+
+  procedure AddItem(X,Y: Word; Col: Cardinal);
+  begin
+    Outline[Count].X := X;
+    Outline[Count].Y := Y;
+    Outline[Count].Col := Col;
+    Inc(Count);
+  end;
+
+var
+  H: TKMHouse;
+  Loc: TKMPoint;
+  I,J,K: Integer;
+  Rect: TKMRect;
+  HA: THouseArea;
+begin
+  Count := 0;
+  SetLength(Outline, 64);
+
+  H := TKMHouse(fPlayers.Selected);
+  Loc := H.GetPosition;
+  HA := fResource.HouseDat[H.HouseType].BuildArea;
+
+  for J := 1 to 4 do
+  for K := 1 to 4 do
+  if HA[J,K] <> 0 then
+  begin
+    if (J = 1) or (HA[J-1, K] = 0) then
+    begin
+      AddItem(Loc.X + K - 4, Loc.Y + J - 5, ColA);
+      AddItem(Loc.X + K - 3, Loc.Y + J - 5, ColA);
+      AddItem(Loc.X + K - 3, Loc.Y + J - 6, ColB);
+      AddItem(Loc.X + K - 4, Loc.Y + J - 6, ColB);
+    end;
+
+    if (K = 4) or (HA[J, K+1] = 0) then
+    begin
+      AddItem(Loc.X + K - 3, Loc.Y + J - 5, ColA);
+      AddItem(Loc.X + K - 3, Loc.Y + J - 4, ColA);
+      AddItem(Loc.X + K - 2, Loc.Y + J - 4, ColB);
+      AddItem(Loc.X + K - 2, Loc.Y + J - 5, ColB);
+    end;
+
+    if (J = 4) or (HA[J+1, K] = 0) then
+    begin
+      AddItem(Loc.X + K - 3, Loc.Y + J - 4, ColA);
+      AddItem(Loc.X + K - 4, Loc.Y + J - 4, ColA);
+      AddItem(Loc.X + K - 4, Loc.Y + J - 3, ColB);
+      AddItem(Loc.X + K - 3, Loc.Y + J - 3, ColB);
+    end;
+
+    if (K = 1) or (HA[J, K-1] = 0) then
+    begin
+      AddItem(Loc.X + K - 4, Loc.Y + J - 4, ColA);
+      AddItem(Loc.X + K - 4, Loc.Y + J - 5, ColA);
+      AddItem(Loc.X + K - 5, Loc.Y + J - 5, ColB);
+      AddItem(Loc.X + K - 5, Loc.Y + J - 4, ColB);
+    end;
+  end;
+
+  glBegin(GL_QUADS);
+    with fTerrain do
+    for I := 0 to Count - 1 do
+    begin
+      glColor4ubv(@Outline[I].Col);
+      glVertex2f(Outline[I].X, Outline[I].Y-Land[ Outline[I].Y, Outline[I].X].Height / CELL_HEIGHT_DIV);
     end;
   glEnd;
 end;

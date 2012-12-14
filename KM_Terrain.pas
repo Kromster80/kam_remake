@@ -267,7 +267,7 @@ begin
     IsVertexUnit := vu_None;
     FieldAge     := 0;
     TreeAge      := IfThen(ObjectIsChopableTree(KMPoint(K,I), caAgeFull), TREE_AGE_FULL, 0);
-    Fence        := ftNone;
+    Fence        := fncNone;
     FenceSide    := 0;
   end;
 
@@ -317,7 +317,7 @@ begin
       Land[i,k].IsVertexUnit := vu_None;
       Land[i,k].FieldAge     := 0;
       Land[i,k].TreeAge      := 0;
-      Land[i,k].Fence       := ftNone;
+      Land[i,k].Fence       := fncNone;
       Land[i,k].FenceSide   := 0;
 
       S.Read(Land[i,k].Terrain); //1
@@ -2634,15 +2634,15 @@ procedure TTerrain.UpdateFences(Loc: TKMPoint; CheckSurrounding: Boolean = True)
   function GetFenceType: TFenceType;
   begin
     if TileIsCornField(Loc) then
-      Result := ftCorn
+      Result := fncCorn
     else
     if TileIsWineField(Loc) then
-      Result := ftWine
+      Result := fncWine
     else
     if Land[Loc.Y,Loc.X].TileLock in [tlFenced, tlDigged] then
-      Result := ftHouseFence
+      Result := fncHouseFence
     else
-      Result := ftNone;
+      Result := fncNone;
   end;
   function GetFenceEnabled(X, Y: SmallInt): Boolean;
   begin
@@ -2657,7 +2657,7 @@ begin
  if not TileInMapCoords(Loc.X, Loc.Y) then exit;
 
   Land[Loc.Y,Loc.X].Fence := GetFenceType;
-  if Land[Loc.Y,Loc.X].Fence = ftNone then
+  if Land[Loc.Y,Loc.X].Fence = fncNone then
     Land[Loc.Y,Loc.X].FenceSide := 0
   else
   begin

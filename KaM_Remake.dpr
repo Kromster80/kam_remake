@@ -67,6 +67,7 @@ uses
   KM_NetworkTypes in 'KM_NetworkTypes.pas',
   KM_NetPlayersList in 'KM_NetPlayersList.pas',
   KM_PathFinding in 'KM_PathFinding.pas',
+  KM_PathFindingAStarNew in 'KM_PathFindingAStarNew.pas',
   KM_PathFindingRoad in 'KM_PathFindingRoad.pas',
   KM_Pics in 'KM_Pics.pas',
   KM_Player in 'KM_Player.pas',

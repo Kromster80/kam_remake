@@ -57,7 +57,7 @@ end;
 
 function TPathFindingRoad.CanWalkTo(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
 begin
-  Result := (bX - aFrom.X = 0) and (bY - aFrom.Y = 0);
+  Result := (bX - aFrom.X = 0) or (bY - aFrom.Y = 0);
 end;
 
 

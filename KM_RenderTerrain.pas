@@ -552,11 +552,11 @@ var
   HeightInPx: Integer;
 begin
   case aFence of
-    ftHouseFence: if Pos in [dir_N,dir_S] then TexID:=463 else TexID:=467; //WIP (Wood planks)
-    ftHousePlan:     if Pos in [dir_N,dir_S] then TexID:=105 else TexID:=117; //Plan (Ropes)
-    ftWine:          if Pos in [dir_N,dir_S] then TexID:=462 else TexID:=466; //Fence (Wood)
-    ftCorn:         if Pos in [dir_N,dir_S] then TexID:=461 else TexID:=465; //Fence (Stones)
-    else              TexID := 0;
+    fncHouseFence: if Pos in [dir_N,dir_S] then TexID:=463 else TexID:=467; //WIP (Wood planks)
+    fncHousePlan:  if Pos in [dir_N,dir_S] then TexID:=105 else TexID:=117; //Plan (Ropes)
+    fncWine:       if Pos in [dir_N,dir_S] then TexID:=462 else TexID:=466; //Fence (Wood)
+    fncCorn:       if Pos in [dir_N,dir_S] then TexID:=461 else TexID:=465; //Fence (Stones)
+    else          TexID := 0;
   end;
 
   //With these directions render fences on next tile
