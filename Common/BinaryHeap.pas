@@ -9,7 +9,7 @@ type
 
   TBinaryHeap = class
   private
-    fCount: Longint;
+    fCount: Cardinal;
     fItems: array of Pointer;
     procedure _siftdown(startpos, pos: SmallInt);
     procedure _siftup(pos: SmallInt);

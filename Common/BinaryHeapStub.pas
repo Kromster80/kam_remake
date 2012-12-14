@@ -6,12 +6,13 @@ uses Types, Math, SysUtils;
 type
   TComparator = function(A, B: Pointer): Boolean of object;
 
-  THeap = class
+  TBinaryHeap = class
   private
-    Count: SmallInt;
-    List: array [0..65535] of Pointer;
+    fCount: Cardinal;
+    fItems: array of Pointer;
   public
     Cmp: TComparator;
+    constructor Create(aSize: Cardinal);
     procedure Clear;
     function IsEmpty: Boolean;
     function Pop: Pointer;
@@ -23,48 +24,57 @@ type
 implementation
 
 
-procedure THeap.Clear;
+{ TBinaryHeap }
+constructor TBinaryHeap.Create(aSize: Cardinal);
 begin
-  Count := 0;
+  inherited Create;
+
+  SetLength(fItems, aSize);
 end;
 
 
-function THeap.IsEmpty: Boolean;
+procedure TBinaryHeap.Clear;
 begin
-  Result := (Count = 0);
+  fCount := 0;
 end;
 
 
-procedure THeap.Push(x: Pointer);
+function TBinaryHeap.IsEmpty: Boolean;
 begin
-  List[Count] := x;
-  Inc(Count);
+  Result := (fCount = 0);
 end;
 
 
-function THeap.Pop: Pointer;
+procedure TBinaryHeap.Push(x: Pointer);
+begin
+  fItems[fCount] := x;
+  Inc(fCount);
+end;
+
+
+function TBinaryHeap.Pop: Pointer;
 var
   I: Integer;
   Best: Integer;
 begin
   //Return smallest
   Best := 0;
-  for I := 1 to Count - 1 do
-  if Cmp(List[I], List[Best]) then
+  for I := 1 to fCount - 1 do
+  if Cmp(fItems[I], fItems[Best]) then
     Best := I;
 
-  Result := List[Best];
+  Result := fItems[Best];
 
-  if Best <> Count then
-    Move(List[Best + 1], List[Best], (Count - Best) * SizeOf(List[0]));
+  if Best <> fCount then
+    Move(fItems[Best + 1], fItems[Best], (fCount - Best) * SizeOf(fItems[0]));
 
-  Dec(Count);
+  Dec(fCount);
 end;
 
 
-procedure THeap.UpdateItem(x: Pointer);
+procedure TBinaryHeap.UpdateItem(x: Pointer);
 begin
-  //
+  //Placeholder for compatibility with true TBinaryHeap
 end;
 
 
