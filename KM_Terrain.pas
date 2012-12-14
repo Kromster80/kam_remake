@@ -33,7 +33,7 @@ type
 
     function ChooseCuttingDirection(aLoc, aTree: TKMPoint; out CuttingPoint: TKMPointDir): Boolean;
 
-    procedure UpdateBorders(Loc: TKMPoint; CheckSurrounding: Boolean = True);
+    procedure UpdateFences(Loc: TKMPoint; CheckSurrounding: Boolean = True);
     procedure UpdateLighting(aRect: TKMRect);
     procedure UpdatePassability(aRect: TKMRect); overload;
     procedure UpdatePassability(Loc: TKMPoint); overload;
@@ -74,8 +74,8 @@ type
 
       WalkConnect: array [TWalkConnect] of Word; //Whole map is painted into interconnected areas
 
-      Border: TBorderType; //Borders (ropes, planks, stones)
-      BorderSide: Byte; //Bitfield whether the borders are enabled
+      Fence: TFenceType; //Fences (ropes, planks, stones)
+      FenceSide: Byte; //Bitfield whether the fences are enabled
     end;
 
     FallingTrees: TKMPointTagList;
@@ -267,8 +267,8 @@ begin
     IsVertexUnit := vu_None;
     FieldAge     := 0;
     TreeAge      := IfThen(ObjectIsChopableTree(KMPoint(K,I), caAgeFull), TREE_AGE_FULL, 0);
-    Border       := bt_None;
-    BorderSide   := 0;
+    Fence        := ftNone;
+    FenceSide    := 0;
   end;
 
   fFinder := TKMTerrainFinder.Create;
@@ -317,8 +317,8 @@ begin
       Land[i,k].IsVertexUnit := vu_None;
       Land[i,k].FieldAge     := 0;
       Land[i,k].TreeAge      := 0;
-      Land[i,k].Border       := bt_None;
-      Land[i,k].BorderSide   := 0;
+      Land[i,k].Fence       := ftNone;
+      Land[i,k].FenceSide   := 0;
 
       S.Read(Land[i,k].Terrain); //1
       S.Seek(1, soFromCurrent);
@@ -946,7 +946,7 @@ begin
     Land[aList[I].Y, aList[I].X].TileOwner   := aOwner;
     Land[aList[I].Y, aList[I].X].TileOverlay := to_Road;
     Land[aList[I].Y, aList[I].X].FieldAge    := 0;
-    UpdateBorders(aList[I]);
+    UpdateFences(aList[I]);
   end;
 
   HasBounds := aList.GetBounds(Bounds);
@@ -967,7 +967,7 @@ begin
   Land[Loc.Y,Loc.X].TileOwner := -1;
   Land[Loc.Y,Loc.X].TileOverlay := to_None;
   Land[Loc.Y,Loc.X].FieldAge  := 0;
-  UpdateBorders(Loc);
+  UpdateFences(Loc);
   UpdatePassability(KMRectGrowBottomRight(KMRect(Loc)));
 
   //Roads don't affect wcWalk or wcFish
@@ -990,7 +990,7 @@ begin
   else
     ObjectChanged := False;
   Land[Loc.Y,Loc.X].FieldAge := 0;
-  UpdateBorders(Loc);
+  UpdateFences(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
 
   //Update affected WalkConnect's
@@ -1016,7 +1016,7 @@ begin
   Land[Loc.Y,Loc.X].TileOwner := aOwner;
   Land[Loc.Y,Loc.X].TileOverlay := to_Wall;
   Land[Loc.Y,Loc.X].FieldAge := 0;
-  UpdateBorders(Loc);
+  UpdateFences(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
   UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRect(Loc), False);
 end;
@@ -1063,7 +1063,7 @@ begin
                   end;
   end;
 
-  UpdateBorders(Loc);
+  UpdateFences(Loc);
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
   //Walk and Road because Grapes are blocking diagonal moves
   UpdateWalkConnect([wcWalk, wcRoad, wcWork], KMRectGrowTopLeft(KMRect(Loc)), (aFieldType = ft_Wine)); //Grape object blocks diagonal, others don't
@@ -2429,7 +2429,7 @@ begin
                             end;
                           end;
         end;
-        UpdateBorders(KMPoint(x,y));
+        UpdateFences(KMPoint(x,y));
       end;
     end;
 
@@ -2629,22 +2629,22 @@ begin
 end;
 
 
-{Check 4 surrounding tiles, and if they are different place a border}
-procedure TTerrain.UpdateBorders(Loc: TKMPoint; CheckSurrounding: Boolean = True);
-  function GetBorderType: TBorderType;
+{Check 4 surrounding tiles, and if they are different place a fence}
+procedure TTerrain.UpdateFences(Loc: TKMPoint; CheckSurrounding: Boolean = True);
+  function GetFenceType: TFenceType;
   begin
     if TileIsCornField(Loc) then
-      Result := bt_Field
+      Result := ftCorn
     else
     if TileIsWineField(Loc) then
-      Result := bt_Wine
+      Result := ftWine
     else
     if Land[Loc.Y,Loc.X].TileLock in [tlFenced, tlDigged] then
-      Result := bt_HouseBuilding
+      Result := ftHouseFence
     else
-      Result := bt_None;
+      Result := ftNone;
   end;
-  function GetBorderEnabled(X, Y: SmallInt): Boolean;
+  function GetFenceEnabled(X, Y: SmallInt): Boolean;
   begin
     Result := True;
     if not TileInMapCoords(X,Y) then exit;
@@ -2656,23 +2656,23 @@ procedure TTerrain.UpdateBorders(Loc: TKMPoint; CheckSurrounding: Boolean = True
 begin
  if not TileInMapCoords(Loc.X, Loc.Y) then exit;
 
-  Land[Loc.Y,Loc.X].Border := GetBorderType;
-  if Land[Loc.Y,Loc.X].Border = bt_None then
-    Land[Loc.Y,Loc.X].BorderSide := 0
+  Land[Loc.Y,Loc.X].Fence := GetFenceType;
+  if Land[Loc.Y,Loc.X].Fence = ftNone then
+    Land[Loc.Y,Loc.X].FenceSide := 0
   else
   begin
-    Land[Loc.Y,Loc.X].BorderSide := Byte(GetBorderEnabled(Loc.X,Loc.Y-1)) + //N
-                                    Byte(GetBorderEnabled(Loc.X-1,Loc.Y)) * 2 + //E
-                                    Byte(GetBorderEnabled(Loc.X+1,Loc.Y)) * 4 + //W
-                                    Byte(GetBorderEnabled(Loc.X,Loc.Y+1)) * 8; //S
+    Land[Loc.Y,Loc.X].FenceSide := Byte(GetFenceEnabled(Loc.X,Loc.Y-1)) + //N
+                                   Byte(GetFenceEnabled(Loc.X-1,Loc.Y)) * 2 + //E
+                                   Byte(GetFenceEnabled(Loc.X+1,Loc.Y)) * 4 + //W
+                                   Byte(GetFenceEnabled(Loc.X,Loc.Y+1)) * 8; //S
   end;
 
   if CheckSurrounding then
   begin
-    UpdateBorders(KMPoint(Loc.X-1, Loc.Y), False);
-    UpdateBorders(KMPoint(Loc.X+1, Loc.Y), False);
-    UpdateBorders(KMPoint(Loc.X, Loc.Y-1), False);
-    UpdateBorders(KMPoint(Loc.X, Loc.Y+1), False);
+    UpdateFences(KMPoint(Loc.X-1, Loc.Y), False);
+    UpdateFences(KMPoint(Loc.X+1, Loc.Y), False);
+    UpdateFences(KMPoint(Loc.X, Loc.Y-1), False);
+    UpdateFences(KMPoint(Loc.X, Loc.Y+1), False);
   end;
 end;
 
@@ -2915,7 +2915,7 @@ begin
   end;
 
   for i:=1 to fMapY do for k:=1 to fMapX do
-    UpdateBorders(KMPoint(k,i), False);
+    UpdateFences(KMPoint(k,i), False);
 
   fFinder := TKMTerrainFinder.Create;
 

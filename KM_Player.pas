@@ -118,7 +118,7 @@ type
 
     function GetFieldsCount: Integer;
     procedure GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect; aIncludeFake:Boolean; aAllPlayers:Boolean);
-    procedure GetPlansBorders(aList: TKMPointDirList; aRect: TKMRect; aAllPlayers:Boolean);
+    procedure GetPlansFences(aList: TKMPointDirList; aRect: TKMRect; aAllPlayers:Boolean);
     procedure GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect; aAllPlayers:Boolean);
 
     procedure Save(SaveStream: TKMemoryStream); override;
@@ -769,7 +769,7 @@ begin
 end;
 
 
-procedure TKMPlayer.GetPlansBorders(aList: TKMPointDirList; aRect: TKMRect; aAllPlayers:Boolean);
+procedure TKMPlayer.GetPlansFences(aList: TKMPointDirList; aRect: TKMRect; aAllPlayers:Boolean);
 var
   I: TPlayerIndex;
 begin

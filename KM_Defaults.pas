@@ -625,7 +625,7 @@ type
         tlRoadWork  // -        X         X       X          -     X      -
         );
 
-  TBorderType = (bt_None, bt_Field, bt_Wine, bt_HousePlan, bt_HouseBuilding);
+  TFenceType = (ftNone, ftCorn, ftWine, ftHousePlan, ftHouseFence);
 
 
   TKMVertexUsage = (vu_None=0,  //Nobody is on this vertex

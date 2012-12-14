@@ -57,7 +57,7 @@ type
 
     //Terrain rendering sub-class
     procedure RenderTerrain;
-    procedure RenderTerrainFieldBorders(aRect: TKMRect);
+    procedure RenderTerrainOverlays(aRect: TKMRect);
     procedure RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
 
     procedure RenderSprites;
@@ -179,10 +179,10 @@ begin
 end;
 
 
-procedure TRenderPool.RenderTerrainFieldBorders(aRect: TKMRect);
+procedure TRenderPool.RenderTerrainOverlays(aRect: TKMRect);
 var
   I,K: Integer;
-  BordersList: TKMPointDirList;
+  FencesList: TKMPointDirList;
   FieldsList, TabletsList: TKMPointTagList;
 begin
   //@Lewin: Since plans are per-player now, what do we do about allies that:
@@ -199,12 +199,12 @@ begin
     RenderTerrainMarkup(FieldsList[I].X, FieldsList[I].Y, TFieldType(FieldsList.Tag[I]));
   FreeAndNil(FieldsList);
 
-  //Borders
-  BordersList := TKMPointDirList.Create;
-  MyPlayer.GetPlansBorders(BordersList, aRect, fGame.IsReplay);
-  for I := 0 to BordersList.Count - 1 do
-    fRenderTerrain.RenderBorder(bt_HousePlan, BordersList[I].Dir, BordersList[I].Loc.X, BordersList[I].Loc.Y);
-  FreeAndNil(BordersList);
+  //Fences
+  FencesList := TKMPointDirList.Create;
+  MyPlayer.GetPlansFences(FencesList, aRect, fGame.IsReplay);
+  for I := 0 to FencesList.Count - 1 do
+    fRenderTerrain.RenderFence(ftHousePlan, FencesList[I].Dir, FencesList[I].Loc.X, FencesList[I].Loc.Y);
+  FreeAndNil(FencesList);
 
   //Tablets
   TabletsList := TKMPointTagList.Create;
@@ -878,7 +878,7 @@ begin
 
   fRenderTerrain.Render(Rect, fTerrain.AnimStep, MyPlayer.FogOfWar);
 
-  RenderTerrainFieldBorders(Rect);
+  RenderTerrainOverlays(Rect);
 
   if fGame.IsMapEditor then
     fGame.MapEditor.Paint;
