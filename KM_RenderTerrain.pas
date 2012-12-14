@@ -30,7 +30,7 @@ type
     procedure DoLighting;
     procedure DoWater(AnimStep: Integer);
     procedure DoShadows;
-    function VBOSupported:Boolean;
+    function VBOSupported: Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -468,7 +468,7 @@ begin
       DoTiles(AnimStep);
       DoOverlays;
       DoLighting;
-      DoWater(AnimStep);
+      DoWater(AnimStep); //Unlit water goes above lit sand
       DoShadows;
     EndVBO;
 

@@ -138,6 +138,7 @@ type
     procedure DirectionCursorShow(X,Y: Integer; Dir:TKMDirection);
     procedure DirectionCursorHide;
     function HasLostMPGame:Boolean;
+    procedure UpdateDebugInfo;
   protected
     Panel_Main: TKMPanel;
       Sidebar_Top: TKMImage;
@@ -1050,28 +1051,28 @@ end;
 {Message page}
 procedure TKMGamePlayInterface.Create_Message_Page;
 begin
-  Panel_Message:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
+  Panel_Message := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
-    Image_Scroll := TKMImage.Create(Panel_Message,0,0,600,190,409);
+    Image_Scroll := TKMImage.Create(Panel_Message, 0, 0, 600, 190, 409);
     Image_Scroll.ImageStretch;
 
-    Label_MessageText:=TKMLabel.Create(Panel_Message,47,67,432,122,'',fnt_Antiqua,taLeft);
+    Label_MessageText := TKMLabel.Create(Panel_Message, 47, 67, 432, 122, '', fnt_Antiqua, taLeft);
     Label_MessageText.AutoWrap := True;
 
-    Button_MessageGoTo:=TKMButton.Create(Panel_Message,490,74,100,24,fTextLibrary[TX_MSG_GOTO], bsGame);
+    Button_MessageGoTo := TKMButton.Create(Panel_Message, 490, 74, 100, 24, fTextLibrary[TX_MSG_GOTO], bsGame);
     Button_MessageGoTo.Font := fnt_Antiqua;
     Button_MessageGoTo.Hint := fTextLibrary[TX_MSG_GOTO_HINT];
     Button_MessageGoTo.OnClick := Message_GoTo;
 
-    Button_MessageDelete:=TKMButton.Create(Panel_Message,490,104,100,24,fTextLibrary[TX_MSG_DELETE], bsGame);
+    Button_MessageDelete := TKMButton.Create(Panel_Message, 490, 104, 100, 24, fTextLibrary[TX_MSG_DELETE], bsGame);
     Button_MessageDelete.Font := fnt_Antiqua;
     Button_MessageDelete.Hint := fTextLibrary[TX_MSG_DELETE_HINT];
     Button_MessageDelete.OnClick := Message_Delete;
     Button_MessageDelete.MakesSound := False; //Don't play default Click as these buttons use sfx_MessageClose
 
-    Button_MessageClose:=TKMButton.Create(Panel_Message,490,134,100,24,fTextLibrary[TX_MSG_CLOSE], bsGame);
+    Button_MessageClose := TKMButton.Create(Panel_Message, 490, 134, 100, 24, fTextLibrary[TX_MSG_CLOSE], bsGame);
     Button_MessageClose.Font := fnt_Antiqua;
     Button_MessageClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Button_MessageClose.OnClick := Message_Close;
@@ -3986,7 +3987,6 @@ end;
 procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var
   I: Integer;
-  S: string;
   Rect: TKMRect;
 begin
   //Update unit/house information
@@ -4064,6 +4064,15 @@ begin
     end;
   end;
 
+  UpdateDebugInfo;
+end;
+
+
+procedure TKMGamePlayInterface.UpdateDebugInfo;
+var
+  I: Integer;
+  S: string;
+begin
   S := '';
 
   //Debug info
