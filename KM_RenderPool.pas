@@ -51,7 +51,6 @@ type
     procedure RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX, pY: Single; aFOW: Byte; aID2: Word = 0; Param2: Single = 0; X2: Single = 0; Y2: Single = 0);
     procedure RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
-    procedure RenderTerrainBorder(Border: TBorderType; Pos: TKMDirection; pX,pY: Integer);
     procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderObject(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderObjectQuad(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
@@ -186,16 +185,6 @@ var
   BordersList: TKMPointDirList;
   FieldsList, TabletsList: TKMPointTagList;
 begin
-  for I := aRect.Top to aRect.Bottom do
-  for K := aRect.Left to aRect.Right do
-  with fTerrain do
-  begin
-    if Land[I,K].BorderSide and 1 = 1 then RenderTerrainBorder(Land[I,K].Border, dir_N, K, I);
-    if Land[I,K].BorderSide and 2 = 2 then RenderTerrainBorder(Land[I,K].Border, dir_E, K, I);
-    if Land[I,K].BorderSide and 4 = 4 then RenderTerrainBorder(Land[I,K].Border, dir_W, K, I);
-    if Land[I,K].BorderSide and 8 = 8 then RenderTerrainBorder(Land[I,K].Border, dir_S, K, I);
-  end;
-
   //@Lewin: Since plans are per-player now, what do we do about allies that:
   // - have partially overlapping plans
   // - have plans/tablets on exact same spot
@@ -206,22 +195,22 @@ begin
   //Fieldplans
   FieldsList := TKMPointTagList.Create;
   MyPlayer.GetFieldPlans(FieldsList, aRect, True, fGame.IsReplay); //Include fake field plans for painting
-  for i := 0 to FieldsList.Count - 1 do
-    RenderTerrainMarkup(FieldsList[i].X, FieldsList[i].Y, TFieldType(FieldsList.Tag[i]));
+  for I := 0 to FieldsList.Count - 1 do
+    RenderTerrainMarkup(FieldsList[I].X, FieldsList[I].Y, TFieldType(FieldsList.Tag[I]));
   FreeAndNil(FieldsList);
 
   //Borders
   BordersList := TKMPointDirList.Create;
   MyPlayer.GetPlansBorders(BordersList, aRect, fGame.IsReplay);
-  for i := 0 to BordersList.Count - 1 do
-    RenderTerrainBorder(bt_HousePlan, BordersList[i].Dir, BordersList[i].Loc.X, BordersList[i].Loc.Y);
+  for I := 0 to BordersList.Count - 1 do
+    fRenderTerrain.RenderBorder(bt_HousePlan, BordersList[I].Dir, BordersList[I].Loc.X, BordersList[I].Loc.Y);
   FreeAndNil(BordersList);
 
   //Tablets
   TabletsList := TKMPointTagList.Create;
   MyPlayer.GetPlansTablets(TabletsList, aRect, fGame.IsReplay);
-  for i := 0 to TabletsList.Count - 1 do
-    AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList[i]);
+  for I := 0 to TabletsList.Count - 1 do
+    AddHouseTablet(THouseType(TabletsList.Tag[I]), TabletsList[I]);
   FreeAndNil(TabletsList);
 end;
 
@@ -960,70 +949,6 @@ begin
     glTexCoord2f(a.x,b.y); glVertex2f(aLocX  , aLocY-1 - fTerrain.Land[aLocY  ,aLocX+1].Height/CELL_HEIGHT_DIV-0.15);
     glTexCoord2f(b.x,b.y); glVertex2f(aLocX  , aLocY-1 - fTerrain.Land[aLocY  ,aLocX+1].Height/CELL_HEIGHT_DIV+0.10);
   glEnd;
-  glBindTexture(GL_TEXTURE_2D, 0);
-end;
-
-
-procedure TRenderPool.RenderTerrainBorder(Border: TBorderType; Pos: TKMDirection; pX,pY: Integer);
-var
-  A, b: TKMPointF;
-  ID: Integer;
-  BorderWidth: Single;
-  HeightInPx: Integer;
-  FOW: Byte;
-begin
-  case Border of
-    bt_HouseBuilding: if Pos in [dir_N,dir_S] then ID:=463 else ID:=467; //WIP (Wood planks)
-    bt_HousePlan:     if Pos in [dir_N,dir_S] then ID:=105 else ID:=117; //Plan (Ropes)
-    bt_Wine:          if Pos in [dir_N,dir_S] then ID:=462 else ID:=466; //Fence (Wood)
-    bt_Field:         if Pos in [dir_N,dir_S] then ID:=461 else ID:=465; //Fence (Stones)
-    else              ID := 0;
-  end;
-
-  //With these directions render borders on next tile
-  if Pos = dir_S then Inc(pY);
-  if Pos = dir_W then Inc(pX);
-
-  if Pos in [dir_N, dir_S] then
-  begin //Horizontal border
-    glBindTexture(GL_TEXTURE_2D,GFXData[rxGui,ID].Tex.ID);
-    A.X := GFXData[rxGui, ID].Tex.u1;
-    A.Y := GFXData[rxGui, ID].Tex.v1;
-    b.X := GFXData[rxGui, ID].Tex.u2;
-    b.Y := GFXData[rxGui, ID].Tex.v2;
-
-    BorderWidth := GFXData[rxGui,ID].PxWidth / CELL_SIZE_PX;
-    glBegin(GL_QUADS);
-      FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX-1, pY-1, True);
-      glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(b.x,a.y); glVertex2f(pX-1, pY-1+BorderWidth/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(a.x,a.y); glVertex2f(pX-1, pY-1-BorderWidth/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX, pY-1, True);
-      glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(a.x,b.y); glVertex2f(pX  , pY-1-BorderWidth/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(b.x,b.y); glVertex2f(pX  , pY-1+BorderWidth/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
-    glEnd;
-  end
-  else
-  begin //Vertical border
-    glBindTexture(GL_TEXTURE_2D,GFXData[rxGui,ID].Tex.ID);
-    HeightInPx := Round(CELL_SIZE_PX * (1 + (fTerrain.Land[pY,pX].Height - fTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV));
-    A.X := GFXData[rxGui, ID].Tex.u1;
-    A.Y := GFXData[rxGui, ID].Tex.v1;
-    b.X := GFXData[rxGui, ID].Tex.u2;
-    b.Y := Mix(GFXData[rxGui, ID].Tex.v2, GFXData[rxGui, ID].Tex.v1, HeightInPx / GFXData[rxGui, ID].pxHeight);
-    BorderWidth := GFXData[rxGui,ID].PxWidth / CELL_SIZE_PX;
-    glBegin(GL_QUADS);
-      FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX-1, pY-1, True);
-      glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(a.x,a.y); glVertex2f(pX-1-BorderWidth/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(b.x,a.y); glVertex2f(pX-1+BorderWidth/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX-1, pY, True);
-      glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(b.x,b.y); glVertex2f(pX-1+BorderWidth/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(a.x,b.y); glVertex2f(pX-1-BorderWidth/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
-    glEnd;
-  end;
   glBindTexture(GL_TEXTURE_2D, 0);
 end;
 

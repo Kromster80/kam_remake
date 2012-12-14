@@ -27,6 +27,7 @@ type
     procedure EndVBO;
     procedure DoTiles(AnimStep: Integer);
     procedure DoOverlays;
+    procedure DoFieldBorders;
     procedure DoLighting;
     procedure DoWater(AnimStep: Integer);
     procedure DoShadows;
@@ -36,6 +37,7 @@ type
     destructor Destroy; override;
     procedure Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
+    procedure RenderBorder(Border: TBorderType; Pos: TKMDirection; pX,pY: Integer);
   end;
 
 
@@ -325,6 +327,22 @@ begin
 end;
 
 
+procedure TRenderTerrain.DoFieldBorders;
+var
+  I,K: Integer;
+begin
+  for I := fRect.Top to fRect.Bottom do
+  for K := fRect.Left to fRect.Right do
+  with fTerrain do
+  begin
+    if Land[I,K].BorderSide and 1 = 1 then RenderBorder(Land[I,K].Border, dir_N, K, I);
+    if Land[I,K].BorderSide and 2 = 2 then RenderBorder(Land[I,K].Border, dir_E, K, I);
+    if Land[I,K].BorderSide and 4 = 4 then RenderBorder(Land[I,K].Border, dir_W, K, I);
+    if Land[I,K].BorderSide and 8 = 8 then RenderBorder(Land[I,K].Border, dir_S, K, I);
+  end;
+end;
+
+
 procedure TRenderTerrain.DoLighting;
 var
   I, K: Integer;
@@ -469,6 +487,7 @@ begin
       DoOverlays;
       DoLighting;
       DoWater(AnimStep); //Unlit water goes above lit sand
+      DoFieldBorders;
       DoShadows;
     EndVBO;
 
@@ -520,6 +539,62 @@ begin
       glTexCoord2fv(@TexC[4]); glVertex3f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV, -i);
     end;
   glEnd;
+  glBindTexture(GL_TEXTURE_2D, 0);
+end;
+
+
+procedure TRenderTerrain.RenderBorder(Border: TBorderType; Pos: TKMDirection; pX,pY: Integer);
+const BO = 8; //Border overlap
+var
+  UVa, UVb: TKMPointF;
+  TexID: Integer;
+  BorderWidth: Single;
+  HeightInPx: Integer;
+begin
+  case Border of
+    bt_HouseBuilding: if Pos in [dir_N,dir_S] then TexID:=463 else TexID:=467; //WIP (Wood planks)
+    bt_HousePlan:     if Pos in [dir_N,dir_S] then TexID:=105 else TexID:=117; //Plan (Ropes)
+    bt_Wine:          if Pos in [dir_N,dir_S] then TexID:=462 else TexID:=466; //Fence (Wood)
+    bt_Field:         if Pos in [dir_N,dir_S] then TexID:=461 else TexID:=465; //Fence (Stones)
+    else              TexID := 0;
+  end;
+
+  //With these directions render borders on next tile
+  if Pos = dir_S then Inc(pY);
+  if Pos = dir_W then Inc(pX);
+
+  if Pos in [dir_N, dir_S] then
+  begin //Horizontal border
+    glBindTexture(GL_TEXTURE_2D, GFXData[rxGui,TexID].Tex.ID);
+    UVa.X := GFXData[rxGui, TexID].Tex.u1;
+    UVa.Y := GFXData[rxGui, TexID].Tex.v1;
+    UVb.X := GFXData[rxGui, TexID].Tex.u2;
+    UVb.Y := GFXData[rxGui, TexID].Tex.v2;
+
+    BorderWidth := GFXData[rxGui,TexID].PxWidth / CELL_SIZE_PX;
+    glBegin(GL_QUADS);
+      glTexCoord2f(UVb.x, UVa.y); glVertex3f(pX-1, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV, -pY+1);
+      glTexCoord2f(UVa.x, UVa.y); glVertex3f(pX-1, pY-1-BorderWidth - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV, -pY+1);
+      glTexCoord2f(UVa.x, UVb.y); glVertex3f(pX  , pY-1-BorderWidth - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV, -pY+1);
+      glTexCoord2f(UVb.x, UVb.y); glVertex3f(pX  , pY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV, -pY+1);
+    glEnd;
+  end
+  else
+  begin //Vertical border
+    glBindTexture(GL_TEXTURE_2D, GFXData[rxGui,TexID].Tex.ID);
+    HeightInPx := Round(CELL_SIZE_PX * (1 + (fTerrain.Land[pY,pX].Height - fTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV)+BO);
+    UVa.X := GFXData[rxGui, TexID].Tex.u1;
+    UVa.Y := GFXData[rxGui, TexID].Tex.v1;
+    UVb.X := GFXData[rxGui, TexID].Tex.u2;
+    UVb.Y := Mix(GFXData[rxGui, TexID].Tex.v2, GFXData[rxGui, TexID].Tex.v1, HeightInPx / GFXData[rxGui, TexID].pxHeight);
+    BorderWidth := GFXData[rxGui,TexID].PxWidth / CELL_SIZE_PX;
+    glBegin(GL_QUADS);
+      glTexCoord2f(UVa.x, UVa.y); glVertex3f(pX-1-BorderWidth/2, pY-1 - (fTerrain.Land[pY,pX].Height+BO)/CELL_HEIGHT_DIV, -pY);
+      glTexCoord2f(UVb.x, UVa.y); glVertex3f(pX-1+BorderWidth/2, pY-1 - (fTerrain.Land[pY,pX].Height+BO)/CELL_HEIGHT_DIV, -pY);
+      glTexCoord2f(UVb.x, UVb.y); glVertex3f(pX-1+BorderWidth/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV, -pY);
+      glTexCoord2f(UVa.x, UVb.y); glVertex3f(pX-1-BorderWidth/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV, -pY);
+    glEnd;
+  end;
   glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
