@@ -187,6 +187,7 @@ begin
 
   Steps := Min(TopY, Image1.Height div 36);
   SetLength(fY, Steps);
+  if Steps > 1 then
   for I := 0 to High(fY) do
   begin
     fY[I] := TLabel.Create(Self);
@@ -199,6 +200,7 @@ begin
 
   Steps := Min(TopX, Image1.Width div 40);
   SetLength(fX, Steps);
+  if Steps > 1 then
   for I := 0 to High(fX) do
   begin
     fX[I] := TLabel.Create(Self);
