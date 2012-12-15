@@ -132,7 +132,9 @@ begin
   fSocketServer.OnDisconnect := ClientDisconnect;
   fSocketServer.OnReceive := ReceiveData;
   fSocketServer.OnCanSend := CanSend;
-  fSocketServer.Timeout := 1; //This is the time it will wait in CallAction for the OS to respond, it's better than calling Sleep(1)
+  //This is the time it will wait in CallAction for the OS to respond, it's better than calling Sleep(1)
+  //This value could be higher, it won't cause delays since it's just a timeout on waiting for network events
+  fSocketServer.Timeout := 100;
   fSocketServer.ReuseAddress := True; //Allows us to overwrite an old connection in the wait state rather than saying the port is still in use
   if not fSocketServer.Listen(StrToInt(aPort)) then
     raise Exception.Create('Server failed to start');

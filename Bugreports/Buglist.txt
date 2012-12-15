@@ -92,6 +92,7 @@ Improvements:
 	L	House not occupied message should mention which house it is ("This farm is not occupied")
 	L	Draw highlight on houses mentioned in an open message
 	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
+	L	Allow dedicated servers to optionally specify their IP in the INI file (some servers have multiple IP addresses, the external one the master server sees might not be the correct one)
 
 	M	MapEd: Terrain brushes	
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
