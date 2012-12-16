@@ -305,40 +305,39 @@ end;
 
 procedure TKMInfluences.Save(SaveStream: TKMemoryStream);
 var
-  PCount, SizeY, SizeX: Word;
+  PCount: Word;
   I: Integer;
   K: Integer;
   H: Integer;
 begin
   PCount := Length(Influence);
-  SizeY := Length(Influence[0]);
-  SizeX := Length(Influence[0][0]);
 
   SaveStream.Write('Influences');
 
   SaveStream.Write(PCount);
-  SaveStream.Write(SizeY);
-  SaveStream.Write(SizeX);
+  SaveStream.Write(fMapY);
+  SaveStream.Write(fMapX);
+  SaveStream.Write(fUpdatePlayerId);
 
   for I := 0 to PCount - 1 do
-    for K := 0 to SizeY - 1 do
-      SaveStream.Write(Influence[I,K,0], SizeX * SizeOf(Influence[0,0,0]));
+    for K := 0 to fMapY - 1 do
+      SaveStream.Write(Influence[I,K,0], fMapX * SizeOf(Influence[0,0,0]));
 
   for I := 0 to PCount - 1 do
-    for K := 0 to SizeY - 1 do
-      SaveStream.Write(Ownership[I,K,0], SizeX * SizeOf(Ownership[0,0,0]));
+    for K := 0 to fMapY - 1 do
+      SaveStream.Write(Ownership[I,K,0], fMapX * SizeOf(Ownership[0,0,0]));
 
-  for K := 0 to SizeY - 1 do
-    SaveStream.Write(AvoidBuilding[K,0], SizeX * SizeOf(AvoidBuilding[0,0]));
+  for K := 0 to fMapY - 1 do
+    SaveStream.Write(AvoidBuilding[K,0], fMapX * SizeOf(AvoidBuilding[0,0]));
 
-  for K := 0 to SizeY - 1 do
-    SaveStream.Write(Forest[K,0], SizeX * SizeOf(Forest[0,0]));
+  for K := 0 to fMapY - 1 do
+    SaveStream.Write(Forest[K,0], fMapX * SizeOf(Forest[0,0]));
 end;
 
 
 procedure TKMInfluences.Load(LoadStream: TKMemoryStream);
 var
-  PCount, SizeY, SizeX: Word;
+  PCount: Word;
   I: Integer;
   K: Integer;
   H: Integer;
@@ -346,27 +345,28 @@ begin
   LoadStream.ReadAssert('Influences');
 
   LoadStream.Read(PCount);
-  LoadStream.Read(SizeY);
-  LoadStream.Read(SizeX);
+  LoadStream.Read(fMapX);
+  LoadStream.Read(fMapY);
+  LoadStream.Read(fUpdatePlayerId);
 
-  SetLength(Influence, PCount, SizeY, SizeX);
-  SetLength(Ownership, PCount, SizeY, SizeX);
-  SetLength(AvoidBuilding, SizeY, SizeX);
-  SetLength(Forest, SizeY, SizeX);
-
-  for I := 0 to PCount - 1 do
-    for K := 0 to SizeY - 1 do
-      LoadStream.Read(Influence[I,K,0], SizeX * SizeOf(Influence[0,0,0]));
+  SetLength(Influence, PCount, fMapY, fMapX);
+  SetLength(Ownership, PCount, fMapY, fMapX);
+  SetLength(AvoidBuilding, fMapY, fMapX);
+  SetLength(Forest, fMapY, fMapX);
 
   for I := 0 to PCount - 1 do
-    for K := 0 to SizeY - 1 do
-      LoadStream.Read(Ownership[I,K,0], SizeX * SizeOf(Ownership[0,0,0]));
+    for K := 0 to fMapY - 1 do
+      LoadStream.Read(Influence[I,K,0], fMapX * SizeOf(Influence[0,0,0]));
 
-  for K := 0 to SizeY - 1 do
-    LoadStream.Read(AvoidBuilding[K,0], SizeX * SizeOf(AvoidBuilding[0,0]));
+  for I := 0 to PCount - 1 do
+    for K := 0 to fMapY - 1 do
+      LoadStream.Read(Ownership[I,K,0], fMapX * SizeOf(Ownership[0,0,0]));
 
-  for K := 0 to SizeY - 1 do
-    LoadStream.Read(Forest[K,0], SizeX * SizeOf(Forest[0,0]));
+  for K := 0 to fMapY - 1 do
+    LoadStream.Read(AvoidBuilding[K,0], fMapX * SizeOf(AvoidBuilding[0,0]));
+
+  for K := 0 to fMapY - 1 do
+    LoadStream.Read(Forest[K,0], fMapX * SizeOf(Forest[0,0]));
 end;
 
 
