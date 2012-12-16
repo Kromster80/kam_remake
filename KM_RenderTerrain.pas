@@ -331,6 +331,7 @@ procedure TRenderTerrain.DoFences;
 var
   I,K: Integer;
 begin
+  glDepthMask(False);
   for I := fRect.Top to fRect.Bottom do
   for K := fRect.Left to fRect.Right do
   with fTerrain do
@@ -340,6 +341,7 @@ begin
     if Land[I,K].FenceSide and 4 = 4 then RenderFence(Land[I,K].Fence, dir_W, K, I);
     if Land[I,K].FenceSide and 8 = 8 then RenderFence(Land[I,K].Fence, dir_S, K, I);
   end;
+  glDepthMask(True);
 end;
 
 
