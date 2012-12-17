@@ -919,80 +919,40 @@ end;
 
 
 procedure TRenderPool.RenderHouseOutline;
-const
-  ColA = $C090FF90;
-  ColB = $0090FF90;
 var
-  Count: Integer;
-  Outline: array of record X,Y: SmallInt; Col: Cardinal; end;
-
-  procedure AddItem(X,Y: Word; Col: Cardinal);
-  begin
-    Outline[Count].X := X;
-    Outline[Count].Y := Y;
-    Outline[Count].Col := Col;
-    Inc(Count);
-  end;
-
-var
+  Outline: TKMPointList;
   H: TKMHouse;
   Loc: TKMPoint;
-  I,J,K: Integer;
-  Rect: TKMRect;
+  I,K: Integer;
   HA: THouseArea;
 begin
-  Count := 0;
-  SetLength(Outline, 64);
+  //Get an outline of build area
+  Outline := TKMPointList.Create;
 
   H := TKMHouse(fPlayers.Selected);
   Loc := H.GetPosition;
   HA := fResource.HouseDat[H.HouseType].BuildArea;
-
-  for J := 1 to 4 do
+  for I := 1 to 4 do
   for K := 1 to 4 do
-  if HA[J,K] <> 0 then
+  if HA[I,K] <> 0 then
   begin
-    if (J = 1) or (HA[J-1, K] = 0) then
-    begin
-      AddItem(Loc.X + K - 4, Loc.Y + J - 5, ColA);
-      AddItem(Loc.X + K - 3, Loc.Y + J - 5, ColA);
-      AddItem(Loc.X + K - 3, Loc.Y + J - 6, ColB);
-      AddItem(Loc.X + K - 4, Loc.Y + J - 6, ColB);
-    end;
-
-    if (K = 4) or (HA[J, K+1] = 0) then
-    begin
-      AddItem(Loc.X + K - 3, Loc.Y + J - 5, ColA);
-      AddItem(Loc.X + K - 3, Loc.Y + J - 4, ColA);
-      AddItem(Loc.X + K - 2, Loc.Y + J - 4, ColB);
-      AddItem(Loc.X + K - 2, Loc.Y + J - 5, ColB);
-    end;
-
-    if (J = 4) or (HA[J+1, K] = 0) then
-    begin
-      AddItem(Loc.X + K - 3, Loc.Y + J - 4, ColA);
-      AddItem(Loc.X + K - 4, Loc.Y + J - 4, ColA);
-      AddItem(Loc.X + K - 4, Loc.Y + J - 3, ColB);
-      AddItem(Loc.X + K - 3, Loc.Y + J - 3, ColB);
-    end;
-
-    if (K = 1) or (HA[J, K-1] = 0) then
-    begin
-      AddItem(Loc.X + K - 4, Loc.Y + J - 4, ColA);
-      AddItem(Loc.X + K - 4, Loc.Y + J - 5, ColA);
-      AddItem(Loc.X + K - 5, Loc.Y + J - 5, ColB);
-      AddItem(Loc.X + K - 5, Loc.Y + J - 4, ColB);
-    end;
+    if (I = 1) or (HA[I-1, K] = 0) then Outline.AddEntry(KMPoint(Loc.X + K - 4, Loc.Y + I - 5));
+    if (K = 4) or (HA[I, K+1] = 0) then Outline.AddEntry(KMPoint(Loc.X + K - 3, Loc.Y + I - 5));
+    if (I = 4) or (HA[I+1, K] = 0) then Outline.AddEntry(KMPoint(Loc.X + K - 3, Loc.Y + I - 4));
+    if (K = 1) or (HA[I, K-1] = 0) then Outline.AddEntry(KMPoint(Loc.X + K - 4, Loc.Y + I - 4));
   end;
 
-  glBegin(GL_QUADS);
+  //Sort the points into loop (1st row added first, so the loop will be always CW)
+  Outline.SortAsLoop;
+
+  glColor3f(0,1,1);
+  glBegin(GL_LINE_LOOP);
     with fTerrain do
-    for I := 0 to Count - 1 do
-    begin
-      glColor4ubv(@Outline[I].Col);
+    for I := 0 to Outline.Count - 1 do
       glVertex2f(Outline[I].X, Outline[I].Y-Land[ Outline[I].Y+1, Outline[I].X+1].Height / CELL_HEIGHT_DIV);
-    end;
   glEnd;
+
+  Outline.Free;
 end;
 
 
