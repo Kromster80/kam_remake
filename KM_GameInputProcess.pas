@@ -264,27 +264,32 @@ begin
     if CommandType in [gic_ArmyFeed,gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,gic_ArmyAttackHouse,gic_ArmyHalt,gic_ArmyFormation,gic_ArmyWalk,gic_ArmyStorm] then
     begin
       Group1 := fPlayers.GetGroupByID(Params[1]);
-      if (Group1 = nil) or Group1.IsDead then Exit; //Group has died before command could be executed
+      if (Group1 = nil) or Group1.IsDead //Group has died before command could be executed
+      or (Group1.Owner <> aCommand.PlayerIndex) then Exit; //Potential exploit
     end;
     if CommandType in [gic_ArmyLink] then
     begin
       Group2 := fPlayers.GetGroupByID(Params[2]);
-      if (Group2 = nil) or Group2.IsDead then Exit; //Unit has died before command could be executed
+      if (Group2 = nil) or Group2.IsDead //Unit has died before command could be executed
+      or (Group2.Owner <> aCommand.PlayerIndex) then Exit; //Potential exploit
     end;
     if CommandType in [gic_ArmyAttackUnit] then
     begin
       U := fPlayers.GetUnitByID(Params[2]);
-      if (U = nil) or U.IsDeadOrDying then exit; //Unit has died before command could be executed
+      if (U = nil) or U.IsDeadOrDying //Unit has died before command could be executed
+      or (U.Owner <> aCommand.PlayerIndex) then Exit; //Potential exploit
     end;
     if CommandType in [gic_HouseRepairToggle,gic_HouseDeliveryToggle,gic_HouseOrderProduct,gic_HouseMarketFrom,gic_HouseMarketTo,gic_HouseStoreAcceptFlag,gic_HouseBarracksEquip,gic_HouseSchoolTrain,gic_HouseRemoveTrain,gic_HouseWoodcutterMode] then
     begin
       H := fPlayers.GetHouseByID(Params[1]);
-      if (H = nil) or H.IsDestroyed then exit; //House has been destroyed before command could be executed
+      if (H = nil) or H.IsDestroyed //House has been destroyed before command could be executed
+      or (H.Owner <> aCommand.PlayerIndex) then Exit; //Potential exploit
     end;
     if CommandType in [gic_ArmyAttackHouse] then
     begin
       H2 := fPlayers.GetHouseByID(Params[2]);
-      if (H2 = nil) or H2.IsDestroyed then exit; //House has been destroyed before command could be executed
+      if (H2 = nil) or H2.IsDestroyed //House has been destroyed before command could be executed
+      or (H2.Owner <> aCommand.PlayerIndex) then Exit; //Potential exploit
     end;
 
     //Some commands are blocked by peacetime (this is a fall back in case players try to cheat)
@@ -344,11 +349,12 @@ begin
                                       fGame.Networking.PostLocalMessage(fTextLibrary[TX_MULTIPLAYER_SAVING_GAME]);
                                   end;
       gic_GameTeamChange:         begin
-                                    fGame.Networking.NetPlayers[Params[1]].Team := Params[2];
+                                    //Currently unused, disabled to prevent potential exploitation
+                                    {fGame.Networking.NetPlayers[Params[1]].Team := Params[2];
                                     fGame.UpdateMultiplayerTeams;
                                     fPlayers.SyncFogOfWar;
                                     if fGame.Networking.IsHost then
-                                      fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
+                                      fGame.Networking.SendPlayerListAndRefreshPlayersSetup;}
                                   end;
       gic_GameAlertBeacon:        if fReplayState = gipRecording then //Beacons don't show up in replay
                                     //Beacons are only for allies
