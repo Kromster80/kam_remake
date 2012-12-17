@@ -129,7 +129,7 @@ procedure TKMDeposits.FloodFill(const aMat: array of TRawDeposit);
 var
   R: TRawDeposit;
   AreaID: Word;
-  Count: Integer;
+  AreaAmount: Integer;
   //Procedure uses recurence to check test area then it creates one deposit
   //Deposit is created when tiles are connected - but not diagonally
   procedure FillArea(X,Y: Word);
@@ -138,7 +138,7 @@ var
     if (fArea[R,Y,X] = 0) and (TileDepositExists(R,X,Y)) then
     begin
       fArea[R,Y,X] := AreaID;
-      Inc(Count);
+      Inc(AreaAmount);
       //We must test diagonals for at least fish since they can be taken from water through diagonals
       if X-1 >= 0 then
       begin
@@ -147,8 +147,8 @@ var
         if Y+1 <= fTerrain.MapY-1 then FillArea(X-1, Y+1);
       end;
 
-      if Y-1 >= 0 then     FillArea(X, Y-1);
-      if Y+1 <= fTerrain.MapY-1 then FillArea(X, Y+1);
+      if Y-1 >= 0 then                 FillArea(X, Y-1);
+      if Y+1 <= fTerrain.MapY-1 then   FillArea(X, Y+1);
 
       if X+1 <= fTerrain.MapX-1 then
       begin
@@ -158,8 +158,8 @@ var
       end;
     end;
   end;
-var I,K,J: Integer;
-
+var
+  I,K,J: Integer;
 begin
   Assert(fTerrain <> nil);
   for J := Low(aMat) to High(aMat) do
@@ -172,16 +172,16 @@ begin
     AreaID := 0;
     for I := 0 to fTerrain.MapY - 1 do
     for K := 0 to fTerrain.MapX - 1 do
-    if (fArea[R,I,K] = 0) and (TileDepositExists(R,K,I)) then
+    if (fArea[R,I,K] = 0) and TileDepositExists(R,K,I) then
     begin
       Inc(AreaID);
-      Count := 0;
+      AreaAmount := 0;
       FillArea(K,I);
 
-      if Count <= 1 then //Revert
+      if AreaAmount <= 1 then //Revert
       begin
         Dec(AreaID);
-        Count := 0;
+        AreaAmount := 0;
         fArea[R,I,K] := 0;
       end;
     end;

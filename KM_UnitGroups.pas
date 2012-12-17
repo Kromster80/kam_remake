@@ -195,7 +195,7 @@ var
   I: Integer;
   DoesFit: Boolean;
   UnitLoc: TKMPoint;
-  Condition: Word;
+  NewCondition: Word;
 begin
   inherited Create;
 
@@ -209,7 +209,7 @@ begin
   fOrderLoc := KMPointDir(PosX, PosY, aDir);
 
   //Whole group should have the same condition
-  Condition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)));
+  NewCondition := Round(UNIT_MAX_CONDITION * (UNIT_CONDITION_BASE + KaMRandomS(UNIT_CONDITION_RANDOM)));
 
   if fGame.IsMapEditor then
   begin
@@ -220,7 +220,7 @@ begin
       Warrior.Direction := aDir;
       Warrior.AnimStep  := UnitStillFrames[aDir];
       AddMember(Warrior);
-      Warrior.Condition := UNIT_MAX_CONDITION div 2;
+      Warrior.Condition := UNIT_MAX_CONDITION div 2; //Half-fed
       fMapEdCount := aCount;
     end;
   end
@@ -237,7 +237,7 @@ begin
     Warrior.Direction := aDir;
     Warrior.AnimStep  := UnitStillFrames[aDir];
     AddMember(Warrior);
-    Warrior.Condition := Condition;
+    Warrior.Condition := NewCondition;
   end;
 
   //We could not set it earlier cos it's limited by Count

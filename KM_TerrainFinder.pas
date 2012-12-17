@@ -114,8 +114,6 @@ const
   STRAIGHT_COST = 5;
   DIAG_COST = Round(STRAIGHT_COST * 1.41);
   MAX_RAD = (255 - DIAG_COST) div STRAIGHT_COST;
-var
-  Visited: array of array of Byte;
 
   //Uses a floodfill style algorithm but only on a small area (with aRadius)
   procedure Visit(X,Y: Word; aWalkDistance: Byte);
