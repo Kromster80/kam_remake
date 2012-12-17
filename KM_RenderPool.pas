@@ -57,7 +57,6 @@ type
 
     //Terrain rendering sub-class
     procedure RenderTerrain;
-    procedure RenderTerrainOverlays(aRect: TKMRect);
     procedure RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
 
     procedure RenderSprites;
@@ -176,11 +175,6 @@ begin
 
     if DISPLAY_SOUNDS then fSoundLib.Paint;
   glPopAttrib;
-end;
-
-
-procedure TRenderPool.RenderTerrainOverlays(aRect: TKMRect);
-begin
 end;
 
 
