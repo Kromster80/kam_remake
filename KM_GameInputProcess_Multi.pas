@@ -62,8 +62,6 @@ type
 
     procedure SetDelay(aNewDelay:integer);
     procedure AdjustDelay;
-
-    function CheckCommandPermission(Player: TPlayerIndex; const aCommand: TGameInputCommand): Boolean;
   protected
     procedure TakeCommand(aCommand:TGameInputCommand); override;
   public
@@ -237,14 +235,6 @@ begin
 end;
 
 
-//Does Player1 have permission to execute CommandType on Player2's behalf?
-function TGameInputProcess_Multi.CheckCommandPermission(Player: TPlayerIndex; const aCommand: TGameInputCommand): Boolean;
-begin
-  //For now players may only control themselves. Eventually that might change (for certain commands only?)
-  Result := (Player = aCommand.PlayerIndex);
-end;
-
-
 procedure TGameInputProcess_Multi.SendCommands(aTick:cardinal; aPlayerIndex:TPlayerIndex=-1);
 var Msg:TKMemoryStream;
 begin
@@ -380,8 +370,8 @@ begin
       NetplayersIndex := fNetworking.NetPlayers.PlayerIndexToLocal(I);
       // In the case where a player was removed from a save, NetplayersIndex = -1
       if (NetplayersIndex <> -1) and not fNetworking.NetPlayers[NetplayersIndex].Dropped
-      //Don't allow exploits like moving enemy soldiers
-      and CheckCommandPermission(I, fSchedule[Tick, I].Items[K]) then
+      //Don't allow exploits like moving enemy soldiers (but maybe one day you can control disconnected allies?)
+      and (I = fSchedule[Tick, I].Items[K].PlayerIndex) then
       begin
         StoreCommand(fSchedule[Tick, I].Items[K]); //Store the command first so if Exec fails we still have it in the replay
         ExecCommand(fSchedule[Tick, I].Items[K]);
