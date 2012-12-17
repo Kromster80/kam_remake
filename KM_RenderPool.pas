@@ -50,7 +50,6 @@ type
     fRenderTerrain: TRenderTerrain;
     procedure RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX, pY: Single; aFOW: Byte; aID2: Word = 0; Param2: Single = 0; X2: Single = 0; Y2: Single = 0);
-    procedure RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
     procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderObject(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderObjectQuad(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
@@ -172,7 +171,7 @@ begin
     //Sprites are added by Terrain/Players/Projectiles, then sorted by position
     RenderSprites;
 
-    //Cursor overlays (including wire plans)
+    //Cursor overlays (including blue-wire plans), go on top of everything
     RenderCursors;
 
     if DISPLAY_SOUNDS then fSoundLib.Paint;
@@ -181,65 +180,38 @@ end;
 
 
 procedure TRenderPool.RenderTerrainOverlays(aRect: TKMRect);
-var
-  I,K: Integer;
-  HousePlansList: TKMPointDirList;
-  FieldsList, TabletsList: TKMPointTagList;
 begin
-  //@Lewin: Since plans are per-player now, what do we do about allies that:
-  // - have partially overlapping plans
-  // - have plans/tablets on exact same spot
-  //@Krom: Allies should see each other's plans and not allow to place over existing ones.
-  //For enemies, if two plans overlap, the other should be removed when one is started.
-  //This is currently working for roads/fields but not houses
-
-  //Field plans (road, corn, wine) for self and allies
-  FieldsList := TKMPointTagList.Create;
-  MyPlayer.GetFieldPlans(FieldsList, aRect, True, fGame.IsReplay); //Include fake field plans for painting
-  for I := 0 to FieldsList.Count - 1 do
-    RenderTerrainMarkup(FieldsList[I].X, FieldsList[I].Y, TFieldType(FieldsList.Tag[I]));
-  FreeAndNil(FieldsList);
-
-  //House plans for self and allies
-  HousePlansList := TKMPointDirList.Create;
-  MyPlayer.GetHousePlans(HousePlansList, aRect, fGame.IsReplay);
-  for I := 0 to HousePlansList.Count - 1 do
-    fRenderTerrain.RenderFence(fncHousePlan, HousePlansList[I].Dir, HousePlansList[I].Loc.X, HousePlansList[I].Loc.Y);
-  FreeAndNil(HousePlansList);
-
-  //Tablets on house plans, for self and allies
-  TabletsList := TKMPointTagList.Create;
-  MyPlayer.GetPlansTablets(TabletsList, aRect, fGame.IsReplay);
-  for I := 0 to TabletsList.Count - 1 do
-    AddHouseTablet(THouseType(TabletsList.Tag[I]), TabletsList[I]);
-  FreeAndNil(TabletsList);
-
-  if TEST_HOUSE_SELECTION then
-  if fPlayers.Selected is TKMHouse then
-    RenderHouseOutline;
 end;
 
 
 procedure TRenderPool.RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
 var
   I, K: Integer;
+  TabletsList: TKMPointTagList;
 begin
-if fGame.IsMapEditor and not (mlObjects in fGame.MapEditor.VisibleLayers) then exit;
+  if fGame.IsMapEditor and not (mlObjects in fGame.MapEditor.VisibleLayers) then
+    Exit;
 
+  with fTerrain do
   for I := aRect.Top to aRect.Bottom do
   for K := aRect.Left to aRect.Right do
-    if fTerrain.Land[I, K].Obj <> 255 then
-       RenderObjectOrQuad(fTerrain.Land[I, K].Obj, AnimStep, K, I);
-
+    if Land[I, K].Obj <> 255 then
+      RenderObjectOrQuad(Land[I, K].Obj, AnimStep, K, I);
 
   //Falling trees are in a separate list
   with fTerrain do
-    for I := 0 to FallingTrees.Count - 1 do
-    begin
-      RenderObject(FallingTrees.Tag[I], AnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
-      Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
-    end;
+  for I := 0 to FallingTrees.Count - 1 do
+  begin
+    RenderObject(FallingTrees.Tag[I], AnimStep - FallingTrees.Tag2[I], FallingTrees[I].X, FallingTrees[I].Y);
+    Assert(AnimStep - FallingTrees.Tag2[I] <= 100, 'Falling tree overrun?');
+  end;
 
+  //Tablets on house plans, for self and allies
+  TabletsList := TKMPointTagList.Create;
+  MyPlayer.GetPlansTablets(TabletsList, aRect, fGame.IsReplay);
+  for I := 0 to TabletsList.Count - 1 do
+    AddHouseTablet(THouseType(TabletsList.Tag[I]), TabletsList[I]);
+  TabletsList.Free;
 end;
 
 
@@ -878,12 +850,30 @@ end;
 procedure TRenderPool.RenderTerrain;
 var
   Rect: TKMRect;
+  I: Integer;
+  FieldsList: TKMPointTagList;
+  HousePlansList: TKMPointDirList;
 begin
   Rect := fGame.Viewport.GetClip;
 
-  fRenderTerrain.Render(Rect, fTerrain.AnimStep, MyPlayer.FogOfWar);
+  //Field plans (road, corn, wine) for self and allies
+  FieldsList := TKMPointTagList.Create;
+  MyPlayer.GetFieldPlans(FieldsList, Rect, True, fGame.IsReplay); //Include fake field plans for painting
 
-  RenderTerrainOverlays(Rect);
+  //House plans for self and allies
+  HousePlansList := TKMPointDirList.Create;
+  MyPlayer.GetHousePlans(HousePlansList, Rect, fGame.IsReplay);
+
+
+  fRenderTerrain.Render(Rect, fTerrain.AnimStep, MyPlayer.FogOfWar, FieldsList, HousePlansList);
+
+
+  FreeAndNil(FieldsList);
+  FreeAndNil(HousePlansList);
+
+  if TEST_HOUSE_SELECTION then
+  if fPlayers.Selected is TKMHouse then
+    RenderHouseOutline;
 
   if fGame.IsMapEditor then
     fGame.MapEditor.Paint;
@@ -902,7 +892,7 @@ begin
 end;
 
 
-//Sprites are rendered with regard to their Z position
+//Collect all the sprites in the pool, sort them and render
 procedure TRenderPool.RenderSprites;
 var
   Rect: TKMRect;
@@ -910,51 +900,12 @@ begin
   Rect := fGame.Viewport.GetClip;
 
   RenderTerrainObjects(Rect, fTerrain.AnimStep);
+
   fPlayers.Paint; //Quite slow           //Units and houses
   fProjectiles.Paint;
   fGame.Alerts.Paint;
 
   fRenderList.Render;
-end;
-
-
-procedure TRenderPool.RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
-var
-  a,b: TKMPointF;
-  ID: Integer;
-  FOW: Byte;
-begin
-  case aFieldType of
-    ft_Road:  ID := 105; // Road
-    ft_Corn:  ID := 107; // Field
-    ft_Wine:  ID := 108; // Wine
-    ft_Wall:  ID := 111; // Wall
-  else
-    Exit; // WTF?
-  end;
-
-  FOW := MyPlayer.FogOfWar.CheckTileRevelation(aLocX, aLocY, true);
-
-  glColor3ub(FOW, FOW, FOW);
-  glBindTexture(GL_TEXTURE_2D, GFXData[rxGui, ID].Tex.ID);
-
-  a.X := GFXData[rxGui, ID].Tex.u1;
-  a.Y := GFXData[rxGui, ID].Tex.v1;
-  b.X := GFXData[rxGui, ID].Tex.u2;
-  b.Y := GFXData[rxGui, ID].Tex.v2;
-
-  glBegin(GL_QUADS);
-    glTexCoord2f(b.x,a.y); glVertex2f(aLocX-1, aLocY-1 - fTerrain.Land[aLocY  ,aLocX  ].Height/CELL_HEIGHT_DIV+0.10);
-    glTexCoord2f(a.x,a.y); glVertex2f(aLocX-1, aLocY-1 - fTerrain.Land[aLocY  ,aLocX  ].Height/CELL_HEIGHT_DIV-0.15);
-    glTexCoord2f(a.x,b.y); glVertex2f(aLocX  , aLocY   - fTerrain.Land[aLocY+1,aLocX+1].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(b.x,b.y); glVertex2f(aLocX  , aLocY   - fTerrain.Land[aLocY+1,aLocX+1].Height/CELL_HEIGHT_DIV);
-
-    glTexCoord2f(b.x,a.y); glVertex2f(aLocX-1, aLocY   - fTerrain.Land[aLocY+1,aLocX  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord2f(a.x,a.y); glVertex2f(aLocX-1, aLocY   - fTerrain.Land[aLocY+1,aLocX  ].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(a.x,b.y); glVertex2f(aLocX  , aLocY-1 - fTerrain.Land[aLocY  ,aLocX+1].Height/CELL_HEIGHT_DIV-0.15);
-    glTexCoord2f(b.x,b.y); glVertex2f(aLocX  , aLocY-1 - fTerrain.Land[aLocY  ,aLocX+1].Height/CELL_HEIGHT_DIV+0.10);
-  glEnd;
-  glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 
@@ -1045,7 +996,7 @@ begin
     for I := 0 to Count - 1 do
     begin
       glColor4ubv(@Outline[I].Col);
-      glVertex2f(Outline[I].X, Outline[I].Y-Land[ Outline[I].Y, Outline[I].X].Height / CELL_HEIGHT_DIV);
+      glVertex2f(Outline[I].X, Outline[I].Y-Land[ Outline[I].Y+1, Outline[I].X+1].Height / CELL_HEIGHT_DIV);
     end;
   glEnd;
 end;

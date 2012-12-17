@@ -3,7 +3,7 @@ unit KM_RenderTerrain;
 interface
 uses
   dglOpenGL, SysUtils, KromUtils, Math,
-  KM_Defaults, KM_FogOfWar, KM_Pics, KM_ResourceSprites, KM_Points, KM_Terrain;
+  KM_CommonClasses, KM_Defaults, KM_FogOfWar, KM_Pics, KM_ResourceSprites, KM_Points, KM_Terrain;
 
 type
   TUVRect = array [1 .. 4, 1 .. 2] of Single; // Texture UV coordinates
@@ -27,17 +27,18 @@ type
     procedure EndVBO;
     procedure DoTiles(AnimStep: Integer);
     procedure DoOverlays;
-    procedure DoFences;
+    procedure DoFences(aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
     procedure DoLighting;
     procedure DoWater(AnimStep: Integer);
     procedure DoShadows;
     function VBOSupported: Boolean;
+    procedure RenderFence(aFence: TFenceType; Pos: TKMDirection; pX,pY: Integer);
+    procedure RenderMarkup(pX, pY: Word; aFieldType: TFieldType);
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar);
+    procedure Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar; aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
-    procedure RenderFence(aFence: TFenceType; Pos: TKMDirection; pX,pY: Integer);
   end;
 
 
@@ -327,21 +328,36 @@ begin
 end;
 
 
-procedure TRenderTerrain.DoFences;
+procedure TRenderTerrain.DoFences(aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
 var
   I,K: Integer;
 begin
+  //Disable depth test and write to depth buffer,
+  //so that terrain shadows could be applied seamlessly ontop
   glDepthMask(False);
+  glDisable(GL_DEPTH_TEST);
+
+  with fTerrain do
   for I := fRect.Top to fRect.Bottom do
   for K := fRect.Left to fRect.Right do
-  with fTerrain do
   begin
     if Land[I,K].FenceSide and 1 = 1 then RenderFence(Land[I,K].Fence, dir_N, K, I);
     if Land[I,K].FenceSide and 2 = 2 then RenderFence(Land[I,K].Fence, dir_E, K, I);
     if Land[I,K].FenceSide and 4 = 4 then RenderFence(Land[I,K].Fence, dir_W, K, I);
     if Land[I,K].FenceSide and 8 = 8 then RenderFence(Land[I,K].Fence, dir_S, K, I);
   end;
+
+  //Rope field marks
+  for I := 0 to aFieldsList.Count - 1 do
+    RenderMarkup(aFieldsList[I].X, aFieldsList[I].Y, TFieldType(aFieldsList.Tag[I]));
+
+  //Rope outlines
+  for I := 0 to aHousePlansList.Count - 1 do
+    RenderFence(fncHousePlan, aHousePlansList[I].Dir, aHousePlansList[I].Loc.X, aHousePlansList[I].Loc.Y);
+
+  //Reenable depth test and write
   glDepthMask(True);
+  glEnable(GL_DEPTH_TEST);
 end;
 
 
@@ -464,7 +480,7 @@ end;
 //aRect - boundaries of render area in tilespace
 //AnimStep - animation step for terrain (water/etc)
 //aFOW - whose players FOW to apply
-procedure TRenderTerrain.Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar);
+procedure TRenderTerrain.Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar; aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
 var
   I,K: Integer;
 begin
@@ -489,7 +505,7 @@ begin
       DoOverlays;
       DoLighting;
       DoWater(AnimStep); //Unlit water goes above lit sand
-      DoFences;
+      DoFences(aFieldsList, aHousePlansList);
       DoShadows;
     EndVBO;
 
@@ -546,11 +562,13 @@ end;
 
 
 procedure TRenderTerrain.RenderFence(aFence: TFenceType; Pos: TKMDirection; pX,pY: Integer);
-const FO = 8; //Fence overlap
+const
+  FO = 4; //Fence overlap
+  VO = -4; //Move fences a little down to avoid visible overlap when unit stands behind fence, but is rendered ontop of it, due to Z sorting algo we use
 var
   UVa, UVb: TKMPointF;
   TexID: Integer;
-  FenceWidth: Single;
+  y1,y2,FenceWidth: Single;
   HeightInPx: Integer;
 begin
   case aFence of
@@ -573,12 +591,15 @@ begin
     UVb.X := GFXData[rxGui, TexID].Tex.u2;
     UVb.Y := GFXData[rxGui, TexID].Tex.v2;
 
+    y1 := pY - 1 - (fTerrain.Land[pY, pX].Height + VO) / CELL_HEIGHT_DIV;
+    y2 := pY - 1 - (fTerrain.Land[pY, pX + 1].Height + VO) / CELL_HEIGHT_DIV;
+
     FenceWidth := GFXData[rxGui,TexID].PxWidth / CELL_SIZE_PX;
     glBegin(GL_QUADS);
-      glTexCoord2f(UVb.x, UVa.y); glVertex3f(pX-1, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV, -pY+1);
-      glTexCoord2f(UVa.x, UVa.y); glVertex3f(pX-1, pY-1-FenceWidth - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV, -pY+1);
-      glTexCoord2f(UVa.x, UVb.y); glVertex3f(pX  , pY-1-FenceWidth - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV, -pY+1);
-      glTexCoord2f(UVb.x, UVb.y); glVertex3f(pX  , pY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV, -pY+1);
+      glTexCoord2f(UVb.x, UVa.y); glVertex2f(pX-1, y1);
+      glTexCoord2f(UVa.x, UVa.y); glVertex2f(pX-1, y1 - FenceWidth);
+      glTexCoord2f(UVa.x, UVb.y); glVertex2f(pX  , y2 - FenceWidth);
+      glTexCoord2f(UVb.x, UVb.y); glVertex2f(pX  , y2);
     glEnd;
   end
   else
@@ -589,14 +610,50 @@ begin
     UVa.Y := GFXData[rxGui, TexID].Tex.v1;
     UVb.X := GFXData[rxGui, TexID].Tex.u2;
     UVb.Y := Mix(GFXData[rxGui, TexID].Tex.v2, GFXData[rxGui, TexID].Tex.v1, HeightInPx / GFXData[rxGui, TexID].pxHeight);
+
+    y1 := pY - 1 - (fTerrain.Land[pY, pX].Height + FO + VO) / CELL_HEIGHT_DIV;
+    y2 := pY - (fTerrain.Land[pY + 1, pX].Height + VO) / CELL_HEIGHT_DIV;
+
     FenceWidth := GFXData[rxGui,TexID].PxWidth / CELL_SIZE_PX;
     glBegin(GL_QUADS);
-      glTexCoord2f(UVa.x, UVa.y); glVertex3f(pX-1-FenceWidth/2, pY-1 - (fTerrain.Land[pY,pX].Height+FO)/CELL_HEIGHT_DIV, -pY);
-      glTexCoord2f(UVb.x, UVa.y); glVertex3f(pX-1+FenceWidth/2, pY-1 - (fTerrain.Land[pY,pX].Height+FO)/CELL_HEIGHT_DIV, -pY);
-      glTexCoord2f(UVb.x, UVb.y); glVertex3f(pX-1+FenceWidth/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV, -pY);
-      glTexCoord2f(UVa.x, UVb.y); glVertex3f(pX-1-FenceWidth/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV, -pY);
+      glTexCoord2f(UVa.x, UVa.y); glVertex2f(pX-1-FenceWidth/2, y1);
+      glTexCoord2f(UVb.x, UVa.y); glVertex2f(pX-1+FenceWidth/2, y1);
+      glTexCoord2f(UVb.x, UVb.y); glVertex2f(pX-1+FenceWidth/2, y2);
+      glTexCoord2f(UVa.x, UVb.y); glVertex2f(pX-1-FenceWidth/2, y2);
     glEnd;
   end;
+  glBindTexture(GL_TEXTURE_2D, 0);
+end;
+
+
+procedure TRenderTerrain.RenderMarkup(pX, pY: Word; aFieldType: TFieldType);
+const
+  MarkupTex: array [TFieldType] of Word = (0, 105, 107, 0, 108, 111);
+var
+  ID: Integer;
+  UVa,UVb: TKMPointF;
+begin
+  ID := MarkupTex[aFieldType];
+
+  glBindTexture(GL_TEXTURE_2D, GFXData[rxGui, ID].Tex.ID);
+
+  UVa.X := GFXData[rxGui, ID].Tex.u1;
+  UVa.Y := GFXData[rxGui, ID].Tex.v1;
+  UVb.X := GFXData[rxGui, ID].Tex.u2;
+  UVb.Y := GFXData[rxGui, ID].Tex.v2;
+
+  glBegin(GL_QUADS);
+    glTexCoord2f(UVb.x, UVa.y); glVertex2f(pX-1, pY-1 - fTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV+0.10);
+    glTexCoord2f(UVa.x, UVa.y); glVertex2f(pX-1, pY-1 - fTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV-0.15);
+    glTexCoord2f(UVa.x, UVb.y); glVertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(UVb.x, UVb.y); glVertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV);
+
+    glTexCoord2f(UVb.x, UVa.y); glVertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(UVa.x, UVa.y); glVertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(UVa.x, UVb.y); glVertex2f(pX  , pY-1 - fTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV-0.15);
+    glTexCoord2f(UVb.x, UVb.y); glVertex2f(pX  , pY-1 - fTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV+0.10);
+  glEnd;
+
   glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
