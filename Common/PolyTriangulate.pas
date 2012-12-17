@@ -1,15 +1,16 @@
-unit KM_Triangulate;
 //
 //Original poly_unit.pas code by David E. Dirkse
 //(http://www.davdata.nl/math/index.html)
 //Refactoring by Krom Stern 2012
+//
+unit PolyTriangulate;
 interface
 uses KM_Points, Math;
 
 const
   maxpolypoint = 100;
 
-  procedure PolyTriangulate(pts: TKMPointArray; Count: Byte; var Tris: array of Word; out TCount: Word);
+procedure Triangulate(pts: TKMPointArray; Count: Byte; var Tris: array of Word; out TCount: Word);
 
 
 implementation
@@ -255,7 +256,7 @@ loop2:
 end;
 
 
-procedure PolyTriangulate(pts: TKMPointArray; Count: Byte; var Tris: array of Word; out TCount: Word);
+procedure Triangulate(pts: TKMPointArray; Count: Byte; var Tris: array of Word; out TCount: Word);
 var
   I: Integer;
   K: Integer;

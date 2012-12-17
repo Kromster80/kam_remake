@@ -58,7 +58,7 @@ procedure CheckForDegenerates(var aTriMesh: TKMTriMesh);
 
 
 implementation
-uses KM_CommonTypes, KromUtils, KM_Triangulate;
+uses KM_CommonTypes, KromUtils, PolyTriangulate;
 
 
 const
@@ -580,7 +580,7 @@ var
       V[L] := aTriMesh.Vertices[Loop[L]];
 
     //KMTriangulate(LoopCount, V, PCount, Pols);
-    PolyTriangulate(V, LoopCount, Pols, PCount);
+    Triangulate(V, LoopCount, Pols, PCount);
 
     for L := 0 to PCount - 1 do
     begin
