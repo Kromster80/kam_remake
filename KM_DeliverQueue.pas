@@ -61,8 +61,8 @@ type
     procedure CloseDemand(aID:integer);
     procedure CloseOffer(aID:integer);
     function ValidDelivery(iO,iD:integer):boolean;
-    function SerfCanDoDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
-    function PermitDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
+    function SerfCanDoDelivery(iO,iD:integer; aSerf:TKMUnitSerf):boolean;
+    function PermitDelivery(iO,iD:integer; aSerf:TKMUnitSerf):boolean;
     function CalculateBid(iO,iD:Integer; KMSerf: TKMUnitSerf):Single;
   public
     procedure AddOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
@@ -457,13 +457,13 @@ begin
 end;
 
 
-function TKMDeliverQueue.ValidDelivery(iO,iD:integer):boolean;
+function TKMDeliverQueue.ValidDelivery(iO,iD: Integer): Boolean;
 begin
   //If Offer Resource matches Demand
-  Result := (fDemand[iD].Resource = fOffer[iO].Resource)or
-            (fDemand[iD].Resource = rt_All)or
-            ((fDemand[iD].Resource = rt_Warfare)and(fOffer[iO].Resource in [WARFARE_MIN..WARFARE_MAX]))or
-            ((fDemand[iD].Resource = rt_Food)and(fOffer[iO].Resource in [rt_Bread,rt_Sausages,rt_Wine,rt_Fish]));
+  Result := (fDemand[iD].Resource = fOffer[iO].Resource) or
+            (fDemand[iD].Resource = rt_All) or
+            ((fDemand[iD].Resource = rt_Warfare) and (fOffer[iO].Resource in [WARFARE_MIN..WARFARE_MAX])) or
+            ((fDemand[iD].Resource = rt_Food) and (fOffer[iO].Resource in [rt_Bread, rt_Sausages, rt_Wine, rt_Fish]));
 
   //If Demand and Offer aren't reserved already
   Result := Result and ((not fDemand[iD].BeingPerformed) and (fOffer[iO].BeingPerformed < fOffer[iO].Count));
@@ -472,48 +472,68 @@ begin
   Result := Result and (not fDemand[iD].IsDeleted) and (not fOffer[iO].IsDeleted);
 
   //If Demand house has WareDelivery toggled ON
-  Result := Result and ((fDemand[iD].Loc_House=nil) or (fDemand[iD].Loc_House.WareDelivery));
+  Result := Result and ((fDemand[iD].Loc_House = nil) or (fDemand[iD].Loc_House.WareDelivery));
 
   //If Demand is a Storehouse and it has WareDelivery toggled ON
-  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Store)or
+  Result := Result and ((fDemand[iD].Loc_House = nil) or
+                        (fDemand[iD].Loc_House.HouseType <> ht_Store) or
                         (not TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[fOffer[iO].Resource]));
 
-  //NEVER deliver weapons to the storehouse when player has a barracks
-  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Store)or
-                       (not (fOffer[iO].Resource in [WARFARE_MIN..WARFARE_MAX]))or(fPlayers[fDemand[iD].Loc_House.Owner].Stats.GetHouseQty(ht_Barracks)=0));
+  //If Demand is a Barracks and it has WareDelivery toggled ON
+  Result := Result and ((fDemand[iD].Loc_House = nil) or
+                        (fDemand[iD].Loc_House.HouseType <> ht_Barracks) or
+                        (not TKMHouseBarracks(fDemand[iD].Loc_House).NotAcceptFlag[fOffer[iO].Resource]));
+
+  //Do not deliver weapons to the storehouse if player has a barracks
+  Result := Result and ((fDemand[iD].Loc_House = nil) or
+                        (fDemand[iD].Loc_House.HouseType <> ht_Store) or
+                        (not (fOffer[iO].Resource in [WARFARE_MIN..WARFARE_MAX])) or
+                        (fPlayers[fDemand[iD].Loc_House.Owner].Stats.GetHouseQty(ht_Barracks) = 0));
+
+//todo: Scan through players Barracks, if none accepts - allow deliver to Store
 
   //If Demand and Offer are different HouseTypes, means forbid Store<->Store deliveries except the case where 2nd store is being built and requires building materials
-  Result := Result and ((fDemand[iD].Loc_House=nil)or(fOffer[iO].Loc_House.HouseType<>fDemand[iD].Loc_House.HouseType)or(fOffer[iO].Loc_House.IsComplete<>fDemand[iD].Loc_House.IsComplete));
+  Result := Result and ((fDemand[iD].Loc_House = nil) or
+                        (fOffer[iO].Loc_House.HouseType <> fDemand[iD].Loc_House.HouseType) or
+                        (fOffer[iO].Loc_House.IsComplete <> fDemand[iD].Loc_House.IsComplete));
 
   Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
-            (fDemand[iD].Loc_House<>nil)and
+            (fDemand[iD].Loc_House <> nil) and
             (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), KMPointBelow(fDemand[iD].Loc_House.GetEntrance), CanWalkRoad, 0))
             )
             or
             ( //House-Unit delivery can be performed without connecting road
-            (fDemand[iD].Loc_Unit<>nil)and
+            (fDemand[iD].Loc_Unit <> nil) and
             (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance), fDemand[iD].Loc_Unit.GetPosition, CanWalk, 1))
             ));
 end;
 
 
-function TKMDeliverQueue.SerfCanDoDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
+//Delivery is only permitted if the serf can access the from house.
+function TKMDeliverQueue.SerfCanDoDelivery(iO,iD: Integer; aSerf: TKMUnitSerf): Boolean;
+var
+  LocA, LocB: TKMPoint;
 begin
-  Result := //Delivery is only permitted if the serf can access the from house. If the serf is inside (invisible) test from point below.
-           ((    KMSerf.Visible and KMSerf.CanWalkTo(KMSerf.GetPosition, KMPointBelow(fOffer[iO].Loc_House.GetEntrance), CanWalk, 0)) or
-            (not KMSerf.Visible and KMSerf.CanWalkTo(KMPointBelow(KMSerf.GetPosition), KMPointBelow(fOffer[iO].Loc_House.GetEntrance), CanWalk, 0)));
+  LocA := aSerf.GetPosition;
+  LocB := KMPointBelow(fOffer[iO].Loc_House.GetEntrance);
+
+  //If the serf is inside the house (invisible) test from point below
+  if not aSerf.Visible then
+    LocA := KMPointBelow(LocA);
+
+  Result := aSerf.CanWalkTo(LocA, LocB, CanWalk, 0);
 end;
 
 
-function TKMDeliverQueue.PermitDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
+function TKMDeliverQueue.PermitDelivery(iO,iD: Integer; aSerf: TKMUnitSerf): Boolean;
 begin
-  Result := ValidDelivery(iO,iD) and SerfCanDoDelivery(iO,iD,KMSerf);
+  Result := ValidDelivery(iO, iD) and SerfCanDoDelivery(iO, iD, aSerf);
 end;
 
 
 //Get the total number of possible deliveries with current Offers and Demands
-function TKMDeliverQueue.GetAvailableDeliveriesCount:Integer;
+function TKMDeliverQueue.GetAvailableDeliveriesCount: Integer;
 var
   iD,iO:integer;
   OffersTaken:Cardinal;

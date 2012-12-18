@@ -237,35 +237,38 @@ type
   private
     ResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
   public
+    NotAcceptFlag: array [WARFARE_MIN .. WARFARE_MAX] of Boolean;
     RecruitsList: TList;
-    constructor Create(aID: Cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
-    constructor Load(LoadStream:TKMemoryStream); override;
+    constructor Create(aID: cardinal; aHouseType: THouseType; PosX, PosY: Integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+    constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
-    procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); override;
-    procedure ResAddToIn(aResource:TResourceType; aCount:word=1; aFromScript:boolean=false); override;
-    function CheckResIn(aResource:TResourceType):word; override;
-    procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
-    function CanEquip(aUnitType: TUnitType):boolean;
-    procedure Equip(aUnitType: TUnitType; aCount:byte);
-    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Activate(aWasBuilt: Boolean); override;
+    procedure DemolishHouse(DoSilent: Boolean; NoRubble: Boolean = False); override;
+    procedure ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False); override;
+    function CheckResIn(aResource: TResourceType): Word; override;
+    procedure ResTakeFromOut(aResource: TResourceType; const aCount: Word = 1); override;
+    procedure ToggleAcceptFlag(aRes: TResourceType);
+    function CanEquip(aUnitType: TUnitType): Boolean;
+    procedure Equip(aUnitType: TUnitType; aCount: Byte);
+    procedure Save(SaveStream: TKMemoryStream); override;
   end;
 
   {Storehouse keeps all the resources and flags for them}
   TKMHouseStore = class(TKMHouse)
   private
-    ResourceCount:array[WARE_MIN..WARE_MAX]of word;
-    procedure Activate(aWasBuilt:boolean); override;
+    ResourceCount: array [WARE_MIN .. WARE_MAX] of Word;
+    procedure Activate(aWasBuilt: Boolean); override;
   public
-    NotAcceptFlag:array[WARE_MIN..WARE_MAX]of boolean;
-    constructor Load(LoadStream:TKMemoryStream); override;
-    procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false); override;
-    procedure ToggleAcceptFlag(aRes:TResourceType);
-    procedure ResAddToIn(aResource:TResourceType; aCount:word=1; aFromScript:boolean=false); override;
+    NotAcceptFlag: array [WARE_MIN .. WARE_MAX] of Boolean;
+    constructor Load(LoadStream: TKMemoryStream); override;
+    procedure DemolishHouse(DoSilent: Boolean; NoRubble: Boolean = False); override;
+    procedure ToggleAcceptFlag(aRes: TResourceType);
+    procedure ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aResource: TResourceType): Word; override;
-    procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
+    procedure ResTakeFromOut(aResource: TResourceType; const aCount: Word = 1); override;
     procedure Save(SaveStream: TKMemoryStream); override;
-  end;
+    end;
 
 
   TKMHouseTower = class(TKMHouse)
@@ -2019,6 +2022,7 @@ begin
     LoadStream.Read(U, 4); //subst on syncload
     RecruitsList.Add(U);
   end;
+  LoadStream.Read(NotAcceptFlag, SizeOf(NotAcceptFlag));
 end;
 
 
@@ -2034,6 +2038,21 @@ destructor TKMHouseBarracks.Destroy;
 begin
   RecruitsList.Free;
   inherited;
+end;
+
+
+procedure TKMHouseBarracks.Activate(aWasBuilt: Boolean);
+var
+  FirstBarracks: TKMHouseBarracks;
+  RT: TResourceType;
+begin
+  inherited;
+  //A new Barracks should inherit the accept properies of the first Barracksof that player,
+  //which stops a sudden flow of unwanted resources to it as soon as it is create.
+  FirstBarracks := TKMHouseBarracks(fPlayers[fOwner].FindHouse(ht_Barracks, 1));
+  if (FirstBarracks <> nil) and not FirstBarracks.IsDestroyed then
+    for RT := WARFARE_MIN to WARFARE_MAX do
+      NotAcceptFlag[RT] := FirstBarracks.NotAcceptFlag[RT];
 end;
 
 
@@ -2072,6 +2091,14 @@ procedure TKMHouseBarracks.ResTakeFromOut(aResource:TResourceType; const aCount:
 begin
   Assert(aCount <= ResourceCount[aResource]);
   dec(ResourceCount[aResource], aCount);
+end;
+
+
+procedure TKMHouseBarracks.ToggleAcceptFlag(aRes: TResourceType);
+begin
+  Assert(aRes in [WARFARE_MIN .. WARFARE_MAX]);
+
+  NotAcceptFlag[aRes] := not NotAcceptFlag[aRes];
 end;
 
 
@@ -2130,7 +2157,8 @@ begin
   SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
   SaveStream.Write(RecruitsList.Count);
   for I := 0 to RecruitsList.Count - 1 do
-    SaveStream.Write(TKMUnit(RecruitsList.Items[I]).ID) //Store ID
+    SaveStream.Write(TKMUnit(RecruitsList.Items[I]).ID); //Store ID
+  SaveStream.Write(NotAcceptFlag, SizeOf(NotAcceptFlag));
 end;
 
 

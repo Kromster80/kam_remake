@@ -45,6 +45,7 @@ Improvements:
  +	L	Allow to set wares count in houses in MapEd
  +	M	FPS shown along side ping so you can easily identify the player causing lag
  +	L	VSync should be configurable on the settings page, it can reduce performance a bit on some systems and players might like to change it
+ +	M	Block delivery flags for specific wares in the barracks
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
 	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
@@ -55,7 +56,7 @@ Improvements:
 	L	Master server use MySQL for storage rather than .txt files
 	L	Chat logs
 	L	Wares need to be taken out of the barracks for trading at the market
-	M	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
+	L	Evacuate wares from barracks
 	L	Some way to delete multiplayer saves from within the KaM Remake
 	L	Keyboard shortcuts to zoom for people without a scrollwheel
 	L	Allow chat over multiplayer results screen

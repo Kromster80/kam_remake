@@ -1,8 +1,7 @@
 unit KM_Pics;
 {$I KaM_Remake.inc}
 interface
-uses
-  Classes, SysUtils;
+
 
 type
   TRXType = (

@@ -52,15 +52,16 @@ type
 
     //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
     gic_HouseRepairToggle,
-    gic_HouseDeliveryToggle,  //Including storehouse. (On/Off, ResourceType)
-    gic_HouseOrderProduct,    //Place an order to manufacture warfare
-    gic_HouseMarketFrom,      //Select wares to trade in marketplace
-    gic_HouseMarketTo,        //Select wares to trade in marketplace
-    gic_HouseWoodcutterMode,  //Switch the woodcutter mode
-    gic_HouseStoreAcceptFlag, //Control wares delivery to store
-    gic_HouseSchoolTrain,     //Place an order to train citizen
-    gic_HouseBarracksEquip,   //Place an order to train warrior
-    gic_HouseRemoveTrain,     //Remove unit being trained from School
+    gic_HouseDeliveryToggle,      //Including storehouse. (On/Off, ResourceType)
+    gic_HouseOrderProduct,        //Place an order to manufacture warfare
+    gic_HouseMarketFrom,          //Select wares to trade in marketplace
+    gic_HouseMarketTo,            //Select wares to trade in marketplace
+    gic_HouseWoodcutterMode,      //Switch the woodcutter mode
+    gic_HouseStoreAcceptFlag,     //Control wares delivery to store
+    gic_HouseSchoolTrain,         //Place an order to train citizen
+    gic_HouseBarracksAcceptFlag,  //Control wares delivery to barracks
+    gic_HouseBarracksEquip,       //Place an order to train warrior
+    gic_HouseRemoveTrain,         //Remove unit being trained from School
 
     //IV.     Delivery ratios changes (and other game-global settings)
     gic_RatioChange,
@@ -279,7 +280,10 @@ begin
       if (U = nil) or U.IsDeadOrDying //Unit has died before command could be executed
       or (U.Owner <> aCommand.PlayerIndex) then Exit; //Potential exploit
     end;
-    if CommandType in [gic_HouseRepairToggle,gic_HouseDeliveryToggle,gic_HouseOrderProduct,gic_HouseMarketFrom,gic_HouseMarketTo,gic_HouseStoreAcceptFlag,gic_HouseBarracksEquip,gic_HouseSchoolTrain,gic_HouseRemoveTrain,gic_HouseWoodcutterMode] then
+    if CommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle,
+      gic_HouseOrderProduct, gic_HouseMarketFrom, gic_HouseMarketTo,
+      gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseBarracksEquip,
+      gic_HouseSchoolTrain, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
     begin
       H := fPlayers.GetHouseByID(Params[1]);
       if (H = nil) or H.IsDestroyed //House has been destroyed before command could be executed
@@ -325,6 +329,7 @@ begin
       gic_HouseMarketTo:          TKMHouseMarket(H).ResTo := TResourceType(Params[2]);
       gic_HouseStoreAcceptFlag:   TKMHouseStore(H).ToggleAcceptFlag(TResourceType(Params[2]));
       gic_HouseWoodcutterMode:    TKMHouseWoodcutters(H).WoodcutterMode := TWoodcutterMode(Params[2]);
+      gic_HouseBarracksAcceptFlag:TKMHouseBarracks(H).ToggleAcceptFlag(TResourceType(Params[2]));
       gic_HouseBarracksEquip:     TKMHouseBarracks(H).Equip(TUnitType(Params[2]), Params[3]);
       gic_HouseSchoolTrain:       TKMHouseSchool(H).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
       gic_HouseRemoveTrain:       TKMHouseSchool(H).RemUnitFromQueue(Params[2]);
@@ -459,7 +464,7 @@ end;
 
 procedure TGameInputProcess.CmdHouse(aCommandType: TGameInputCommandType; aHouse: TKMHouse; aItem: TResourceType);
 begin
-  Assert(aCommandType in [gic_HouseStoreAcceptFlag, gic_HouseMarketFrom, gic_HouseMarketTo]);
+  Assert(aCommandType in [gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseMarketFrom, gic_HouseMarketTo]);
   TakeCommand(MakeCommand(aCommandType, [aHouse.ID, byte(aItem)]));
 end;
 
