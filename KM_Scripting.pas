@@ -117,6 +117,7 @@ begin
       RegisterMethod('function ArmyCount(aPlayer: Byte): Integer');
       RegisterMethod('function CitizenCount(aPlayer: Byte): Integer');
       RegisterMethod('function GameTime: Cardinal');
+      RegisterMethod('function HouseTypeCount(aPlayer, aHouseType: Byte): Integer');
       RegisterMethod('function PlayerCount: Integer');
       RegisterMethod('function PlayerDefeated(aPlayer: Byte): Boolean');
       RegisterMethod('function UnitCount(aPlayer: Byte): Integer');
@@ -230,6 +231,7 @@ begin
     RegisterMethod(@TKMScriptStates.ArmyCount, 'ARMYCOUNT');
     RegisterMethod(@TKMScriptStates.CitizenCount, 'CITIZENCOUNT');
     RegisterMethod(@TKMScriptStates.GameTime, 'GAMETIME');
+    RegisterMethod(@TKMScriptStates.HouseTypeCount, 'HOUSETYPECOUNT');
     RegisterMethod(@TKMScriptStates.PlayerCount, 'PLAYERCOUNT');
     RegisterMethod(@TKMScriptStates.PlayerDefeated, 'PLAYERDEFEATED');
     RegisterMethod(@TKMScriptStates.UnitCount, 'UNITCOUNT');

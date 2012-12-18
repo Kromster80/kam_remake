@@ -25,6 +25,7 @@ type
     function ArmyCount(aPlayer: Byte): Integer;
     function CitizenCount(aPlayer: Byte): Integer;
     function GameTime: Cardinal;
+    function HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
     function PlayerCount: Integer;
     function PlayerDefeated(aPlayer: Byte): Boolean;
     function UnitCount(aPlayer: Byte): Integer;
@@ -88,6 +89,17 @@ end;
 function TKMScriptStates.GameTime: Cardinal;
 begin
   Result := fGame.GameTickCount;
+end;
+
+
+function TKMScriptStates.HouseTypeCount(aPlayer, aHouseType: Byte): Integer;
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
+  then
+    Result := fPlayers[aPlayer].Stats.GetHouseQty(HouseIndexToType[aHouseType])
+  else
+    LogError('States.HouseTypeCount', [aPlayer]);
 end;
 
 
