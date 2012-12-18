@@ -15,6 +15,24 @@ type
   TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
   TDemandImportance = (di_Norm, di_High);
 
+  TKMDeliveryOffer = record
+    Resource: TResourceType;
+    Count: Cardinal; //How many items are offered
+    Loc_House: TKMHouse;
+    BeingPerformed: Cardinal; //How many items are being delivered atm from total Count offered
+    IsDeleted: Boolean; //So we don't get pointer issues
+  end;
+
+  TKMDeliveryDemand =  record
+    Resource: TResourceType;
+    DemandType: TDemandType; //Once for everything, Always for Store and Barracks
+    Importance: TDemandImportance; //How important demand is, e.g. Workers and building sites should be di_High
+    Loc_House: TKMHouse;
+    Loc_Unit: TKMUnit;
+    BeingPerformed: Boolean;
+    IsDeleted: Boolean; //So we don't get pointer issues
+  end;
+
 type
   //Most complicated class
   //We need to combine 2 approaches for wares > serfs and wares < serfs
@@ -32,38 +50,22 @@ type
   TKMDeliverQueue = class
   private
     OfferCount: Integer;
-    fOffer:array of
+    fOffer: array of TKMDeliveryOffer;
+    DemandCount: Integer;
+    fDemand: array of TKMDeliveryDemand;
+    QueueCount: Integer;
+    fQueue: array of
     record
-      Resource:TResourceType;
-      Count:cardinal;
-      Loc_House:TKMHouse;
-      BeingPerformed:cardinal; //How many items are being delivered atm from total Count offered
-      IsDeleted:boolean; //So we don't get pointer issues
-    end;
-    DemandCount:integer;
-    fDemand:array of
-    record
-      Resource:TResourceType;
-      DemandType:TDemandType; //Once for everything, Always for Store and Barracks
-      Importance:TDemandImportance; //How important demand is, e.g. Workers and building sites should be di_High
-      Loc_House:TKMHouse;
-      Loc_Unit:TKMUnit;
-      BeingPerformed:boolean;
-      IsDeleted:boolean; //So we don't get pointer issues
-    end;
-    QueueCount:integer;
-    fQueue:array of
-    record
-      OfferID,DemandID:integer;
-      JobStatus:TJobStatus; //Empty slot, resource Taken, job Done
+      OfferID, DemandID: Integer;
+      JobStatus: TJobStatus; //Empty slot, resource Taken, job Done
     end;
     procedure CloseDelivery(aID:integer);
     procedure CloseDemand(aID:integer);
     procedure CloseOffer(aID:integer);
     function ValidDelivery(iO,iD:integer):boolean;
-    function SerfCanDoDelivery(iO,iD:integer; aSerf:TKMUnitSerf):boolean;
-    function PermitDelivery(iO,iD:integer; aSerf:TKMUnitSerf):boolean;
-    function CalculateBid(iO,iD:Integer; KMSerf: TKMUnitSerf):Single;
+    function SerfCanDoDelivery(iO,iD:integer; aSerf: TKMUnitSerf):boolean;
+    function PermitDelivery(iO,iD:integer; aSerf: TKMUnitSerf):boolean;
+    function CalculateBid(iO,iD:Integer; aSerf: TKMUnitSerf):Single;
   public
     procedure AddOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure RemOffer(aHouse:TKMHouse);
@@ -74,8 +76,8 @@ type
     procedure RemDemand(aUnit:TKMUnit); overload;
 
     function GetAvailableDeliveriesCount:Integer;
-    procedure AssignDelivery(iO,iD:Integer; KMSerf:TKMUnitSerf);
-    procedure AskForDelivery(KMSerf: TKMUnitSerf; KMHouse: TKMHouse=nil);
+    procedure AssignDelivery(iO,iD:Integer; aSerf:TKMUnitSerf);
+    procedure AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse=nil);
     procedure TakenOffer(aID:integer);
     procedure GaveDemand(aID:integer);
     procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
@@ -121,6 +123,7 @@ const
   LENGTH_INC = 32; //Increment array lengths by this value
 
 
+{ TKMDeliveries }
 constructor TKMDeliveries.Create;
 begin
   inherited;
@@ -587,7 +590,7 @@ begin
 end;
 
 
-function TKMDeliverQueue.CalculateBid(iO,iD:Integer; KMSerf: TKMUnitSerf):Single;
+function TKMDeliverQueue.CalculateBid(iO,iD:Integer; aSerf: TKMUnitSerf):Single;
 begin
   //Basic Bid is length of route
   if fDemand[iD].Loc_House<>nil then
@@ -608,8 +611,8 @@ begin
     Result := 10 + KaMRandom(20);
 
   //Also prefer deliveries near to the serf
-  if KMSerf <> nil then
-    Result := Result + KMLength(KMSerf.GetPosition,fOffer[iO].Loc_House.GetEntrance);
+  if aSerf <> nil then
+    Result := Result + KMLength(aSerf.GetPosition,fOffer[iO].Loc_House.GetEntrance);
 
   //Add some random element so in the case of identical bids the same resource will not always be chosen (e.g. weapons storehouse->barracks should take random weapon types not sequentially)
   Result := Result + KaMRandom(5);
@@ -640,7 +643,7 @@ end;
 
 //Should issue a job based on requesters location and job importance
 //Serf may ask for a job from within a house after completing previous delivery
-procedure TKMDeliverQueue.AskForDelivery(KMSerf: TKMUnitSerf; KMHouse: TKMHouse=nil);
+procedure TKMDeliverQueue.AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse=nil);
 var
   iD, iO, FoundD, FoundO: Integer;
   Bid, BestBid: Single;
@@ -657,12 +660,12 @@ begin
   if fDemand[iD].Resource <> rt_None then
   for iO:=1 to OfferCount do
    if BestBid=1 then break else //Quit loop when best bid is found
-    if (KMHouse = nil) or (fOffer[iO].Loc_House = KMHouse) then //Make sure from house is the one requested
+    if (aHouse = nil) or (fOffer[iO].Loc_House = aHouse) then //Make sure from house is the one requested
     if fOffer[iO].Resource <> rt_None then
 
-    if PermitDelivery(iO,iD,KMSerf) then
+    if PermitDelivery(iO,iD,aSerf) then
     begin
-      Bid := CalculateBid(iO,iD,KMSerf);
+      Bid := CalculateBid(iO,iD,aSerf);
 
       if fDemand[iD].Importance=di_High then //If Demand importance is high - make it done ASAP
       begin
@@ -684,11 +687,11 @@ begin
     end;
 
   if BestBid <> -1 then
-    AssignDelivery(FoundO,FoundD,KMSerf);
+    AssignDelivery(FoundO,FoundD,aSerf);
 end;
 
 
-procedure TKMDeliverQueue.AssignDelivery(iO,iD:Integer; KMSerf:TKMUnitSerf);
+procedure TKMDeliverQueue.AssignDelivery(iO,iD:Integer; aSerf:TKMUnitSerf);
 var i:Integer;
 begin
   //Find a place where Delivery will be written to after Offer-Demand pair is found
@@ -712,9 +715,9 @@ begin
 
   //Now we have best job and can perform it
   if fDemand[iD].Loc_House <> nil then
-    KMSerf.Deliver(fOffer[iO].Loc_House, fDemand[iD].Loc_House, fOffer[iO].Resource, i)
+    aSerf.Deliver(fOffer[iO].Loc_House, fDemand[iD].Loc_House, fOffer[iO].Resource, i)
   else
-    KMSerf.Deliver(fOffer[iO].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i)
+    aSerf.Deliver(fOffer[iO].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i)
 end;
 
 
