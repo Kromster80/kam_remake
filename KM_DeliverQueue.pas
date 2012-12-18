@@ -458,6 +458,9 @@ end;
 
 
 function TKMDeliverQueue.ValidDelivery(iO,iD: Integer): Boolean;
+var
+  I: Integer;
+  B: TKMHouseBarracks;
 begin
   //If Offer Resource matches Demand
   Result := (fDemand[iD].Resource = fOffer[iO].Resource) or
@@ -479,18 +482,33 @@ begin
                         (fDemand[iD].Loc_House.HouseType <> ht_Store) or
                         (not TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[fOffer[iO].Resource]));
 
-  //If Demand is a Barracks and it has WareDelivery toggled ON
-  Result := Result and ((fDemand[iD].Loc_House = nil) or
-                        (fDemand[iD].Loc_House.HouseType <> ht_Barracks) or
-                        (not TKMHouseBarracks(fDemand[iD].Loc_House).NotAcceptFlag[fOffer[iO].Resource]));
+  //Warfare has a preference to be deivered to Barracks
+  if Result
+  and (fOffer[iO].Resource in [WARFARE_MIN..WARFARE_MAX])
+  and (fDemand[iD].Loc_House <> nil) then
+  begin
+    //If Demand is a Barracks and it has WareDelivery toggled OFF
+    if (fDemand[iD].Loc_House.HouseType = ht_Barracks)
+    and TKMHouseBarracks(fDemand[iD].Loc_House).NotAcceptFlag[fOffer[iO].Resource] then
+      Result := False;
 
-  //Do not deliver weapons to the storehouse if player has a barracks
-  Result := Result and ((fDemand[iD].Loc_House = nil) or
-                        (fDemand[iD].Loc_House.HouseType <> ht_Store) or
-                        (not (fOffer[iO].Resource in [WARFARE_MIN..WARFARE_MAX])) or
-                        (fPlayers[fDemand[iD].Loc_House.Owner].Stats.GetHouseQty(ht_Barracks) = 0));
-
-//todo: Scan through players Barracks, if none accepts - allow deliver to Store
+    //Permit delivery of warfares to Store only if player has no Barracks or they all have blocked ware
+    if (fDemand[iD].Loc_House <> nil)
+    and (fDemand[iD].Loc_House.HouseType = ht_Store) then
+    begin
+      //Scan through players Barracks, if none accepts - allow deliver to Store
+      I := 1;
+      repeat
+        B := TKMHouseBarracks(fPlayers[fDemand[iD].Loc_House.Owner].FindHouse(ht_Barracks, I));
+        if (B <> nil) and (not B.NotAcceptFlag[fOffer[iO].Resource]) then
+        begin
+          Result := False;
+          Break;
+        end;
+        Inc(I);
+      until (B = nil);
+    end;
+  end;
 
   //If Demand and Offer are different HouseTypes, means forbid Store<->Store deliveries except the case where 2nd store is being built and requires building materials
   Result := Result and ((fDemand[iD].Loc_House = nil) or
@@ -623,7 +641,10 @@ end;
 //Should issue a job based on requesters location and job importance
 //Serf may ask for a job from within a house after completing previous delivery
 procedure TKMDeliverQueue.AskForDelivery(KMSerf: TKMUnitSerf; KMHouse: TKMHouse=nil);
-var iD,iO,FoundD,FoundO:integer; Bid,BestBid:single; BidIsPriority: boolean;
+var
+  iD, iO, FoundD, FoundO: Integer;
+  Bid, BestBid: Single;
+  BidIsPriority: boolean;
 begin
   //Find Offer matching Demand
   //TravelRoute Asker>Offer>Demand should be shortest
@@ -662,7 +683,7 @@ begin
 
     end;
 
-  if BestBid<>-1 then
+  if BestBid <> -1 then
     AssignDelivery(FoundO,FoundD,KMSerf);
 end;
 
