@@ -49,44 +49,45 @@ type
 
   TKMDeliverQueue = class
   private
-    OfferCount: Integer;
+    fOfferCount: Integer;
     fOffer: array of TKMDeliveryOffer;
-    DemandCount: Integer;
+    fDemandCount: Integer;
     fDemand: array of TKMDeliveryDemand;
-    QueueCount: Integer;
+    fQueueCount: Integer;
     fQueue: array of
     record
       OfferID, DemandID: Integer;
       JobStatus: TJobStatus; //Empty slot, resource Taken, job Done
     end;
-    procedure CloseDelivery(aID:integer);
-    procedure CloseDemand(aID:integer);
-    procedure CloseOffer(aID:integer);
-    function ValidDelivery(iO,iD:integer):boolean;
-    function SerfCanDoDelivery(iO,iD:integer; aSerf: TKMUnitSerf):boolean;
-    function PermitDelivery(iO,iD:integer; aSerf: TKMUnitSerf):boolean;
-    function CalculateBid(iO,iD:Integer; aSerf: TKMUnitSerf):Single;
+
+    procedure CloseDelivery(aID: Integer);
+    procedure CloseDemand(aID: Integer);
+    procedure CloseOffer(aID: Integer);
+    function ValidDelivery(iO, iD: Integer): Boolean;
+    function SerfCanDoDelivery(iO, iD: Integer; aSerf: TKMUnitSerf): Boolean;
+    function PermitDelivery(iO, iD: Integer; aSerf: TKMUnitSerf): Boolean;
+    function CalculateBid(iO, iD: Integer; aSerf: TKMUnitSerf): Single;
   public
     procedure AddOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure RemOffer(aHouse:TKMHouse);
 
-    procedure AddDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
-    function TryRemoveDemand(aHouse:TKMHouse; aResource:TResourceType; aCount:word):word;
-    procedure RemDemand(aHouse:TKMHouse); overload;
-    procedure RemDemand(aUnit:TKMUnit); overload;
+    procedure AddDemand(aHouse: TKMHouse; aUnit: TKMUnit; aResource: TResourceType; aCount: Byte; aType: TDemandType; aImp: TDemandImportance);
+    function TryRemoveDemand(aHouse: TKMHouse; aResource: TResourceType; aCount: Word): word;
+    procedure RemDemand(aHouse: TKMHouse); overload;
+    procedure RemDemand(aUnit: TKMUnit); overload;
 
-    function GetAvailableDeliveriesCount:Integer;
-    procedure AssignDelivery(iO,iD:Integer; aSerf:TKMUnitSerf);
-    procedure AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse=nil);
-    procedure TakenOffer(aID:integer);
-    procedure GaveDemand(aID:integer);
-    procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
+    function GetAvailableDeliveriesCount: Integer;
+    procedure AssignDelivery(iO, iD: Integer; aSerf: TKMUnitSerf);
+    procedure AskForDelivery(aSerf: TKMUnitSerf; aHouse: TKMHouse = nil);
+    procedure TakenOffer(aID: Integer);
+    procedure GaveDemand(aID: Integer);
+    procedure AbandonDelivery(aID: Integer); //Occurs when unit is killed or something alike happens
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
 
-    procedure ExportToFile(aFileName:string);
+    procedure ExportToFile(aFileName: string);
   end;
 
   TKMDeliveries = class
@@ -272,9 +273,9 @@ begin
       BestBid := -1;
       FoundO := -1;
       FoundD := -1;
-      for iD := 1 to fQueue.DemandCount do
+      for iD := 1 to fQueue.fDemandCount do
         if fQueue.fDemand[iD].Resource <> rt_None then
-          for iO := 1 to fQueue.OfferCount do
+          for iO := 1 to fQueue.fOfferCount do
             if (fQueue.fOffer[iO].Resource <> rt_None)
             and fQueue.ValidDelivery(iO,iD)
             and AnySerfCanDoDelivery(iO,iD) then //Only choose this delivery if at least one of the serfs can do it
@@ -320,7 +321,7 @@ var
   I, K: Integer;
 begin
   //Add Count of resource to old offer
-  for I := 1 to OfferCount do
+  for I := 1 to fOfferCount do
     if (fOffer[I].Loc_House = aHouse)
     and (fOffer[I].Resource = aResource)
     and not fOffer[I].IsDeleted then
@@ -331,13 +332,13 @@ begin
 
   //Find empty place or allocate new one
   I := 1;
-  while (I <= OfferCount) and (fOffer[I].Resource <> rt_None) do
+  while (I <= fOfferCount) and (fOffer[I].Resource <> rt_None) do
     Inc(I);
-  if I > OfferCount then
+  if I > fOfferCount then
   begin
-    Inc(OfferCount, LENGTH_INC);
-    SetLength(fOffer, OfferCount + 1);
-    for K := I to OfferCount do
+    Inc(fOfferCount, LENGTH_INC);
+    SetLength(fOffer, fOfferCount + 1);
+    for K := I to fOfferCount do
       FillChar(fOffer[K], SizeOf(fOffer[K]), #0); //Initialise the new queue space
   end;
 
@@ -359,7 +360,7 @@ procedure TKMDeliverQueue.RemOffer(aHouse:TKMHouse);
 var i:integer;
 begin
   //We need to parse whole list, never knowing how many offers the house had
-  for i:=1 to OfferCount do
+  for i:=1 to fOfferCount do
   if fOffer[i].Loc_House=aHouse then
     if fOffer[i].BeingPerformed > 0 then
     begin
@@ -378,7 +379,7 @@ procedure TKMDeliverQueue.RemDemand(aHouse:TKMHouse);
 var i:integer;
 begin
   assert(aHouse <> nil);
-  for i:=1 to DemandCount do
+  for i:=1 to fDemandCount do
   if fDemand[i].Loc_House=aHouse then
   begin
     if fDemand[i].BeingPerformed then
@@ -397,7 +398,7 @@ procedure TKMDeliverQueue.RemDemand(aUnit:TKMUnit);
 var i:integer;
 begin
   assert(aUnit <> nil);
-  for i:=1 to DemandCount do
+  for i:=1 to fDemandCount do
   if fDemand[i].Loc_Unit=aUnit then
   begin
     if fDemand[i].BeingPerformed then
@@ -417,7 +418,7 @@ begin
   Result := 0;
   if aCount = 0 then exit;
   assert(aHouse <> nil);
-  for i:=1 to DemandCount do
+  for i:=1 to fDemandCount do
     if (fDemand[i].Loc_House = aHouse) and (fDemand[i].Resource = aResource) then
       if not fDemand[i].BeingPerformed then
       begin
@@ -436,11 +437,11 @@ begin
   Assert(aResource <> rt_None, 'Demanding rt_None');
 
   for k:=1 to aCount do begin
-    i:=1; while (i<=DemandCount)and(fDemand[i].Resource<>rt_None) do inc(i);
-    if i>DemandCount then begin
-      inc(DemandCount, LENGTH_INC);
-      SetLength(fDemand, DemandCount+1);
-      for j:=i to DemandCount do FillChar(fDemand[j],SizeOf(fDemand[j]),#0); //Initialise the new queue space
+    i:=1; while (i<=fDemandCount)and(fDemand[i].Resource<>rt_None) do inc(i);
+    if i>fDemandCount then begin
+      inc(fDemandCount, LENGTH_INC);
+      SetLength(fDemand, fDemandCount+1);
+      for j:=i to fDemandCount do FillChar(fDemand[j],SizeOf(fDemand[j]),#0); //Initialise the new queue space
     end;
 
     with fDemand[i] do begin
@@ -560,15 +561,15 @@ var
   OffersTaken:Cardinal;
   DemandTaken:array of Boolean; //Each demand can only be taken once in our measurements
 begin
-  SetLength(DemandTaken,DemandCount+1);
-  FillChar(DemandTaken[0], SizeOf(Boolean)*(DemandCount+1), #0);
+  SetLength(DemandTaken,fDemandCount+1);
+  FillChar(DemandTaken[0], SizeOf(Boolean)*(fDemandCount+1), #0);
 
   Result := 0;
-  for iO:=1 to OfferCount do
+  for iO:=1 to fOfferCount do
     if (fOffer[iO].Resource <> rt_None) then
     begin
       OffersTaken := 0;
-      for iD:=1 to DemandCount do
+      for iD:=1 to fDemandCount do
         if (fDemand[iD].Resource <> rt_None) and not DemandTaken[iD] and ValidDelivery(iO,iD) then
         begin
           if fDemand[iD].DemandType = dt_Once then
@@ -655,10 +656,10 @@ begin
   FoundO := -1;
   FoundD := -1;
   BidIsPriority := false;
-  for iD:=1 to DemandCount do
+  for iD:=1 to fDemandCount do
   if BestBid=1 then break else //Quit loop when best bid is found
   if fDemand[iD].Resource <> rt_None then
-  for iO:=1 to OfferCount do
+  for iO:=1 to fOfferCount do
    if BestBid=1 then break else //Quit loop when best bid is found
     if (aHouse = nil) or (fOffer[iO].Loc_House = aHouse) then //Make sure from house is the one requested
     if fOffer[iO].Resource <> rt_None then
@@ -695,10 +696,10 @@ procedure TKMDeliverQueue.AssignDelivery(iO,iD:Integer; aSerf:TKMUnitSerf);
 var i:Integer;
 begin
   //Find a place where Delivery will be written to after Offer-Demand pair is found
-  i:=1; while (i<=QueueCount)and(fQueue[i].JobStatus<>js_Empty) do inc(i);
-  if i>QueueCount then begin
-    inc(QueueCount, LENGTH_INC);
-    SetLength(fQueue, QueueCount+1);
+  i:=1; while (i<=fQueueCount)and(fQueue[i].JobStatus<>js_Empty) do inc(i);
+  if i>fQueueCount then begin
+    inc(fQueueCount, LENGTH_INC);
+    SetLength(fQueue, fQueueCount+1);
   end;
 
   fQueue[i].DemandID:=iD;
@@ -815,8 +816,8 @@ procedure TKMDeliverQueue.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   SaveStream.Write('Deliveries');
-  SaveStream.Write(OfferCount);
-  for i:=1 to OfferCount do
+  SaveStream.Write(fOfferCount);
+  for i:=1 to fOfferCount do
   begin
     SaveStream.Write(fOffer[i].Resource, SizeOf(fOffer[i].Resource));
     SaveStream.Write(fOffer[i].Count);
@@ -828,8 +829,8 @@ begin
     SaveStream.Write(fOffer[i].IsDeleted);
   end;
 
-  SaveStream.Write(DemandCount);
-  for i:=1 to DemandCount do
+  SaveStream.Write(fDemandCount);
+  for i:=1 to fDemandCount do
   with fDemand[i] do
   begin
     SaveStream.Write(Resource, SizeOf(Resource));
@@ -841,8 +842,8 @@ begin
     SaveStream.Write(IsDeleted);
   end;
 
-  SaveStream.Write(QueueCount);
-  for i:=1 to QueueCount do
+  SaveStream.Write(fQueueCount);
+  for i:=1 to fQueueCount do
   begin
     SaveStream.Write(fQueue[i].OfferID);
     SaveStream.Write(fQueue[i].DemandID);
@@ -855,9 +856,9 @@ procedure TKMDeliverQueue.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
   LoadStream.ReadAssert('Deliveries');
-  LoadStream.Read(OfferCount);
-  SetLength(fOffer, OfferCount+1);
-  for i:=1 to OfferCount do
+  LoadStream.Read(fOfferCount);
+  SetLength(fOffer, fOfferCount+1);
+  for i:=1 to fOfferCount do
   begin
     LoadStream.Read(fOffer[i].Resource, SizeOf(fOffer[i].Resource));
     LoadStream.Read(fOffer[i].Count);
@@ -866,9 +867,9 @@ begin
     LoadStream.Read(fOffer[i].IsDeleted);
   end;
 
-  LoadStream.Read(DemandCount);
-  SetLength(fDemand, DemandCount+1);
-  for i:=1 to DemandCount do
+  LoadStream.Read(fDemandCount);
+  SetLength(fDemand, fDemandCount+1);
+  for i:=1 to fDemandCount do
   with fDemand[i] do
   begin
     LoadStream.Read(Resource, SizeOf(Resource));
@@ -880,9 +881,9 @@ begin
     LoadStream.Read(IsDeleted);
   end;
 
-  LoadStream.Read(QueueCount);
-  SetLength(fQueue, QueueCount+1);
-  for i:=1 to QueueCount do
+  LoadStream.Read(fQueueCount);
+  SetLength(fQueue, fQueueCount+1);
+  for i:=1 to fQueueCount do
   begin
     LoadStream.Read(fQueue[i].OfferID);
     LoadStream.Read(fQueue[i].DemandID);
@@ -894,10 +895,10 @@ end;
 procedure TKMDeliverQueue.SyncLoad;
 var i:integer;
 begin
-  for i:=1 to OfferCount do
+  for i:=1 to fOfferCount do
     fOffer[i].Loc_House := fPlayers.GetHouseByID(cardinal(fOffer[i].Loc_House));
 
-  for i:=1 to DemandCount do
+  for i:=1 to fDemandCount do
   with fDemand[i] do
   begin
     Loc_House := fPlayers.GetHouseByID(cardinal(Loc_House));
@@ -912,7 +913,7 @@ begin
   assignfile(f,aFileName); Rewrite(f);
 
   s:='Demand:'+eol+'---------------------------------'+eol;
-  for i:=1 to DemandCount do if fDemand[i].Resource<>rt_None then begin
+  for i:=1 to fDemandCount do if fDemand[i].Resource<>rt_None then begin
     s:=s+#9;
     if fDemand[i].Loc_House<>nil then s:=s+fResource.HouseDat[fDemand[i].Loc_House.HouseType].HouseName+#9+#9;
     if fDemand[i].Loc_Unit<>nil then s:=s+fResource.UnitDat[fDemand[i].Loc_Unit.UnitType].UnitName+#9+#9;
@@ -921,7 +922,7 @@ begin
     s:=s+eol;
   end;
   s:=s+eol+'Offer:'+eol+'---------------------------------'+eol;
-  for i:=1 to OfferCount do if fOffer[i].Resource<>rt_None then begin
+  for i:=1 to fOfferCount do if fOffer[i].Resource<>rt_None then begin
     s:=s+#9;
     if fOffer[i].Loc_House<>nil then s:=s+fResource.HouseDat[fOffer[i].Loc_House.HouseType].HouseName+#9+#9;
     s:=s+fResource.Resources[fOffer[i].Resource].Title+#9;
@@ -930,7 +931,7 @@ begin
   end;
 
   s:=s+eol+'Running deliveries:'+eol+'---------------------------------'+eol;
-  for i:=1 to QueueCount do if fQueue[i].OfferID<>0 then begin
+  for i:=1 to fQueueCount do if fQueue[i].OfferID<>0 then begin
 
     s:=s+'id '+inttostr(i)+'.'+#9;
     s:=s+fResource.Resources[fOffer[fQueue[i].OfferID].Resource].Title+#9;
