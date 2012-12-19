@@ -844,7 +844,6 @@ end;
 procedure TRenderPool.RenderTerrain;
 var
   Rect: TKMRect;
-  I: Integer;
   FieldsList: TKMPointTagList;
   HousePlansList: TKMPointDirList;
 begin

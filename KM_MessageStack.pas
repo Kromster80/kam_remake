@@ -13,6 +13,7 @@ type
     fLoc: TKMPoint;
     fText: AnsiString;
   public
+    IsRead: Boolean;
     constructor Create(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
     constructor CreateFromStream(LoadStream: TKMemoryStream);
 
@@ -27,20 +28,22 @@ type
 
   TKMMessageList = class
   private
-    fCount: Integer;
-    fList: array of TKMMessage; //0..Count-1
-    function GetMessage(aIndex: Integer): TKMMessage;
+    fCountStack: Integer;
+    fCountLog: Integer;
+    fListStack: array of TKMMessage; //Messages stacked on right
+    fListLog: array of TKMMessage; //Messages shown in log
+    function GetMessageStack(aIndex: Integer): TKMMessage;
+    function GetMessageLog(aIndex: Integer): TKMMessage;
   public
     destructor Destroy; override;
 
-    property Count: Integer read fCount;
-    property Messages[aIndex: Integer]: TKMMessage read GetMessage; default;
+    property CountStack: Integer read fCountStack;
+    property CountLog: Integer read fCountLog;
+    property MessagesStack[aIndex: Integer]: TKMMessage read GetMessageStack;
+    property MessagesLog[aIndex: Integer]: TKMMessage read GetMessageLog;
 
     procedure Add(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
-    procedure Remove(aIndex: Integer);
-    procedure Insert(aIndex: Integer; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
-    function GetMessagesCount(aKind: TKMMessageKind): Word;
-    function GetNextMessage(aKind: TKMMessageKind; aIndex: Integer): Integer;
+    procedure RemoveStack(aIndex: Integer);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -97,84 +100,59 @@ destructor TKMMessageList.Destroy;
 var
   I: Integer;
 begin
-  for I := 0 to fCount - 1 do
-    FreeAndNil(fList[I]);
+  for I := 0 to fCountStack - 1 do
+    FreeAndNil(fListStack[I]);
+  for I := 0 to fCountLog - 1 do
+    FreeAndNil(fListLog[I]);
+
   inherited;
 end;
 
 
-function TKMMessageList.GetMessage(aIndex: Integer): TKMMessage;
+function TKMMessageList.GetMessageStack(aIndex: Integer): TKMMessage;
 begin
-  Assert(InRange(aIndex, 0, fCount - 1));
-  Result := fList[aIndex];
+  Assert(InRange(aIndex, 0, fCountStack - 1));
+  Result := fListStack[aIndex];
 end;
 
 
-function TKMMessageList.GetMessagesCount(aKind: TKMMessageKind): Word;
-var
-  I: Integer;
+function TKMMessageList.GetMessageLog(aIndex: Integer): TKMMessage;
 begin
-  Result := 0;
-  for I := 0 to Count - 1 do
-  if Messages[I].Kind = aKind then
-    Inc(Result);
-end;
-
-
-//Get next topmost message after specified index (or start anew)
-function TKMMessageList.GetNextMessage(aKind: TKMMessageKind; aIndex: Integer): Integer;
-var
-  StartFrom: Integer;
-  I: Integer;
-begin
-  //If requested message is invalid - start loop anew
-  if not InRange(aIndex, 0, Count - 1) or (Messages[aIndex].Kind <> aKind) then
-    StartFrom := Count - 1
-  else
-    StartFrom := aIndex;
-
-  Result := -1;
-  for I := StartFrom + Count - 1 downto StartFrom do
-  if Messages[I mod Count].Kind = aKind then
-  begin
-    Result := (I mod Count);
-    Exit;
-  end;
+  Assert(InRange(aIndex, 0, fCountLog - 1));
+  Result := fListLog[aIndex];
 end;
 
 
 procedure TKMMessageList.Add(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
 begin
-  SetLength(fList, fCount + 1);
-  fList[fCount] := TKMMessage.Create(aKind, aText, aLoc);
-  Inc(fCount);
+  case aKind of
+    mkText, mkQuill:
+      begin
+        SetLength(fListStack, fCountStack + 1);
+        fListStack[fCountStack] := TKMMessage.Create(aKind, aText, aLoc);
+        Inc(fCountStack);
+      end;
+    mkHouse, mkUnit:
+      begin
+        SetLength(fListLog, fCountLog + 1);
+        fListLog[fCountLog] := TKMMessage.Create(aKind, aText, aLoc);
+        Inc(fCountLog);
+      end;
+  end;
 end;
 
 
-procedure TKMMessageList.Remove(aIndex: Integer);
+procedure TKMMessageList.RemoveStack(aIndex: Integer);
 begin
-  FreeAndNil(fList[aIndex]); //Release the deleted message
+  FreeAndNil(fListStack[aIndex]); //Release the deleted message
 
   //Move the messages to cover the gap
-  if aIndex <> fCount - 1 then
-    Move(fList[aIndex + 1], fList[aIndex], (fCount - 1 - aIndex) * SizeOf(TKMMessage));
+  if aIndex <> fCountStack - 1 then
+    Move(fListStack[aIndex + 1], fListStack[aIndex], (fCountStack - 1 - aIndex) * SizeOf(TKMMessage));
 
   //Keep it neat
-  Dec(fCount);
-  SetLength(fList, fCount);
-end;
-
-
-//Might be of use with priority messages
-procedure TKMMessageList.Insert(aIndex: Integer; aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
-begin
-  SetLength(fList, fCount + 1);
-  if aIndex <> fCount then
-    Move(fList[aIndex], fList[aIndex + 1], (fCount - aIndex) * SizeOf(TKMMessage));
-
-  fList[aIndex] := TKMMessage.Create(aKind, aText, aLoc);
-
-  Inc(fCount);
+  Dec(fCountStack);
+  SetLength(fListStack, fCountStack);
 end;
 
 
@@ -182,9 +160,13 @@ procedure TKMMessageList.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
 begin
-  SaveStream.Write(fCount);
-  for I := 0 to fCount - 1 do
-    Messages[I].Save(SaveStream);
+  SaveStream.Write(fCountStack);
+  for I := 0 to fCountStack - 1 do
+    MessagesStack[I].Save(SaveStream);
+
+  SaveStream.Write(fCountLog);
+  for I := 0 to fCountLog - 1 do
+    MessagesLog[I].Save(SaveStream);
 end;
 
 
@@ -192,11 +174,17 @@ procedure TKMMessageList.Load(LoadStream: TKMemoryStream);
 var
   I: Integer;
 begin
-  LoadStream.Read(fCount);
-  SetLength(fList, fCount);
+  LoadStream.Read(fCountStack);
+  SetLength(fListStack, fCountStack);
 
-  for I := 0 to fCount - 1 do
-    fList[I] := TKMMessage.CreateFromStream(LoadStream);
+  for I := 0 to fCountStack - 1 do
+    fListStack[I] := TKMMessage.CreateFromStream(LoadStream);
+
+  LoadStream.Read(fCountLog);
+  SetLength(fListLog, fCountLog);
+
+  for I := 0 to fCountLog - 1 do
+    fListLog[I] := TKMMessage.CreateFromStream(LoadStream);
 end;
 
 

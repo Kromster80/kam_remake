@@ -37,6 +37,7 @@ type
     fSaves: TKMSavesCollection;
     fTeamNames: TList;
     Label_TeamName: TKMLabel;
+    fMessageLogUnread: Integer;
 
     //Saved
     fLastSaveName: AnsiString; //The file name we last used to save this file (used as default in Save menu)
@@ -50,6 +51,7 @@ type
     procedure Create_Allies_Page;
     procedure Create_Chat_Page;
     procedure Create_Message_Page;
+    procedure Create_MessageLog;
     procedure Create_Pause_Page;
     procedure Create_PlayMore_Page;
     procedure Create_MPPlayMore_Page;
@@ -105,6 +107,10 @@ type
     procedure Message_Show(aIndex: Integer);
     procedure Message_GoTo(Sender: TObject);
     procedure Message_UpdateStack;
+    procedure MessageLog_Click(Sender: TObject);
+    procedure MessageLog_ItemClick(Sender: TObject);
+    procedure MessageLog_Close(Sender: TObject);
+    procedure MessageLog_Update;
     procedure Minimap_Update(Sender: TObject; const X,Y:integer);
     procedure Minimap_RightClick(Sender: TObject; const X,Y:integer);
     procedure Minimap_Click(Sender: TObject; const X,Y:integer);
@@ -149,10 +155,10 @@ type
       Bevel_HintBG: TKMBevel;
 
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
+      Image_MessageLog: TKMImage;
       Label_MPChatUnread: TKMLabel;
+      Label_MessageLogUnread: TKMLabel;
       Image_Message: array[0..MAX_VISIBLE_MSGS]of TKMImage; //Queue of messages covers 32*48=1536px height
-      Image_MessageK: array [TKMMessageKind] of TKMImage;
-      Label_MessageK: array [TKMMessageKind] of TKMLabel;
       Image_Clock:TKMImage; //Clock displayed when game speed is increased
       Label_Clock:TKMLabel;
       Label_ClockSpeedup:TKMLabel;
@@ -188,11 +194,13 @@ type
       CheckBox_SendToAllies: TKMCheckBox;
       Image_ChatClose: TKMImage;
     Panel_Message: TKMPanel;
-      Image_Scroll: TKMImage;
       Label_MessageText: TKMLabel;
       Button_MessageGoTo: TKMButton;
       Button_MessageDelete: TKMButton;
       Button_MessageClose: TKMButton;
+    Panel_MessageLog: TKMPanel;
+      ListBox_MessageLog: TKMColumnListBox;
+      Image_MessageLogClose: TKMImage;
     Panel_Pause:TKMPanel;
       Bevel_Pause:TKMBevel;
       Image_Pause:TKMImage;
@@ -808,6 +816,7 @@ begin
   Create_Allies_Page; //MessagePage sibling
   Create_Chat_Page; //On top of NetWait to allow players to chat while waiting for late opponents
   Create_Message_Page; //Must go bellow message stack
+  Create_MessageLog; //Must go bellow message stack
   Create_SideStack; //Messages, Allies, Chat icons
 
   Create_Pause_Page;
@@ -965,11 +974,8 @@ end;
 
 
 procedure TKMGamePlayInterface.Create_SideStack;
-const
-  MsgIcon: array [TKMMessageKind] of Word = (491, 492, 493, 495);
 var
   I: Integer;
-  MT: TKMMessageKind;
 begin
   Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48,30,48,494);
   Image_MPChat.Anchors := [akLeft, akBottom];
@@ -988,36 +994,27 @@ begin
   Image_MPAllies.Hint := fTextLibrary[TX_GAMEPLAY_PLAYERS_HINT];
   Image_MPAllies.OnClick := Allies_Click;
 
-  if not STACK_MSGS then
+  Image_MessageLog := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48 - IfThen(fMultiplayer, 48*2),30,48,495);
+  Image_MessageLog.Anchors := [akLeft, akBottom];
+  Image_MessageLog.HighlightOnMouseOver := true;
+  Image_MessageLog.Hint := 'Messgae log';
+  Image_MessageLog.OnClick := MessageLog_Click;
+  Label_MessageLogUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-30 - IfThen(fMultiplayer, 48*2),30,36,'',fnt_Outline,taCenter);
+  Label_MessageLogUnread.FontColor := $FF0080FF; //Orange
+  Label_MessageLogUnread.Anchors := [akLeft, akBottom];
+  Label_MessageLogUnread.Hitable := false; //Clicks should only go to the image, not the flashing label
+  Label_MessageLogUnread.AutoWrap := true;
+
   for I := 0 to MAX_VISIBLE_MSGS do
   begin
     Image_Message[I] := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, 0, 30, 48, 495);
-    Image_Message[I].Top := Panel_Main.Height - (I+1)*48 - IfThen(fMultiplayer, 48*2);
+    Image_Message[I].Top := Panel_Main.Height - (I+2)*48 - IfThen(fMultiplayer, 48*2);
     Image_Message[I].Anchors := [akLeft, akBottom];
     Image_Message[I].Disable;
     Image_Message[I].Hide;
     Image_Message[I].HighlightOnMouseOver := True;
     Image_Message[I].Tag := I;
     Image_Message[I].OnClick := Message_Click;
-  end;
-
-  if STACK_MSGS then
-  for MT := Low(MT) to High(MT) do
-  begin
-    Image_MessageK[MT] := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, 0, 30, 48, 495);
-    Image_MessageK[MT].TexID := MsgIcon[MT];
-    Image_MessageK[MT].Top := Panel_Main.Height - (Byte(MT)+1) * 48 - IfThen(fMultiplayer, 48*2);
-    Image_MessageK[MT].Anchors := [akLeft, akBottom];
-    Image_MessageK[MT].Disable;
-    Image_MessageK[MT].Hide;
-    Image_MessageK[MT].HighlightOnMouseOver := True;
-    Image_MessageK[MT].Tag := Byte(MT);
-    Image_MessageK[MT].OnClick := Message_Click;
-
-    Label_MessageK[MT] := TKMLabel.Create(Panel_Main, TOOLBAR_WIDTH, Image_MessageK[MT].Top + 3, 26, 0, '', fnt_Outline, taRight);
-    Label_MessageK[MT].Anchors := [akLeft, akBottom];
-    Label_MessageK[MT].Hide;
-    Label_MessageK[MT].Hitable := False; //Clicks should only go to the image, not the flashing label
   end;
 end;
 
@@ -1057,8 +1054,8 @@ begin
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
-    Image_Scroll := TKMImage.Create(Panel_Message, 0, 0, 600, 190, 409);
-    Image_Scroll.ImageStretch;
+    with TKMImage.Create(Panel_Message, 0, 0, 600, 190, 409) do
+      ImageStretch;
 
     Label_MessageText := TKMLabel.Create(Panel_Message, 47, 67, 432, 122, '', fnt_Antiqua, taLeft);
     Label_MessageText.AutoWrap := True;
@@ -1079,6 +1076,29 @@ begin
     Button_MessageClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Button_MessageClose.OnClick := Message_Close;
     Button_MessageClose.MakesSound := False; //Don't play default Click as these buttons use sfx_MessageClose
+end;
+
+
+{Message page}
+procedure TKMGamePlayInterface.Create_MessageLog;
+begin
+  Panel_MessageLog := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
+  Panel_MessageLog.Anchors := [akLeft, akRight, akBottom];
+  Panel_MessageLog.Hide; //Hide it now because it doesn't get hidden by SwitchPage
+
+    with TKMImage.Create(Panel_MessageLog, 0, 0, 800, 190, 409) do
+      ImageStretch;
+
+    Image_MessageLogClose := TKMImage.Create(Panel_MessageLog, 800-35, 20, 32, 32, 52);
+    Image_MessageLogClose.Anchors := [akTop, akRight];
+    Image_MessageLogClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
+    Image_MessageLogClose.OnClick := MessageLog_Close;
+    Image_MessageLogClose.HighlightOnMouseOver := True;
+
+    ListBox_MessageLog := TKMColumnListBox.Create(Panel_MessageLog, 45, 67, 800-90, 110, fnt_Metal, bsGame);
+    ListBox_MessageLog.SetColumns(fnt_Outline, ['Time', 'Message', 'Go to'], [0, 75, 650]);
+    ListBox_MessageLog.BackAlpha := 0.3;
+    ListBox_MessageLog.OnClick := MessageLog_ItemClick;
 end;
 
 
@@ -1866,49 +1886,29 @@ end;
 
 //Click on the same message again closes it
 procedure TKMGamePlayInterface.Message_Click(Sender: TObject);
-var
-  Msg: Integer;
 begin
-  if not STACK_MSGS then
   if TKMImage(Sender).Tag <> ShownMessage then
     Message_Show(TKMImage(Sender).Tag)
   else
     Message_Close(Sender);
-
-  //When clicking on a stacked messages - open top one
-  //On consecutive clicks - loop through
-  if STACK_MSGS then
-  begin
-    Msg := fMessageList.GetNextMessage(TKMMessageKind(TKMImage(Sender).Tag), ShownMessage);
-    if Msg <> ShownMessage then
-      Message_Show(Msg)
-    else
-      Message_Close(Sender);
-  end;
 end;
 
 
 procedure TKMGamePlayInterface.Message_Show(aIndex: Integer);
 var
   I: Integer;
-  MT: TKMMessageKind;
 begin
   ShownMessage := aIndex;
 
   //Highlight target message icon
-  if not STACK_MSGS then
   for I := 0 to MAX_VISIBLE_MSGS do
     Image_Message[I].Highlight := (ShownMessage = I);
 
-  if STACK_MSGS then
-  for MT := Low(MT) to High(MT) do
-    Image_MessageK[MT].Highlight := fMessageList[ShownMessage].Kind = MT;
-
-  Label_MessageText.Caption := fMessageList[ShownMessage].Text;
-  Button_MessageGoTo.Enabled := fMessageList[ShownMessage].IsGoto;
+  Label_MessageText.Caption := fMessageList.MessagesStack[ShownMessage].Text;
 
   Allies_Close(nil);
   Chat_Close(nil); //Removes focus from Edit_Text
+  MessageLog_Close(nil);
   Panel_Message.Show;
   fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
 end;
@@ -1916,18 +1916,11 @@ end;
 
 //Message has been closed
 procedure TKMGamePlayInterface.Message_Close(Sender: TObject);
-var
-  MT: TKMMessageKind;
 begin
   //Remove highlight
   if ShownMessage <> -1 then
   begin
-    if not STACK_MSGS then
-      Image_Message[ShownMessage].Highlight := False;
-
-    if STACK_MSGS then
-    for MT := Low(MT) to High(MT) do
-      Image_MessageK[MT].Highlight := False;
+    Image_Message[ShownMessage].Highlight := False;
 
     //Play sound
     fSoundLib.Play(sfx_MessageClose);
@@ -1940,25 +1933,14 @@ end;
 
 procedure TKMGamePlayInterface.Message_Delete(Sender: TObject);
 var
-  NewMsg, OldMsg: Integer;
-  OldKind: TKMMessageKind;
+  OldMsg: Integer;
 begin
   if ShownMessage = -1 then Exit; //Player pressed DEL with no Msg opened
 
   OldMsg := ShownMessage;
-  OldKind := fMessageList[ShownMessage].Kind;
 
   Message_Close(Sender);
-  fMessageList.Remove(OldMsg);
-
-  //Feed in next message of same kind instead
-  if STACK_MSGS then
-  begin
-    //Get next message (which was below)
-    NewMsg := fMessageList.GetNextMessage(OldKind, OldMsg);
-    if (NewMsg <> -1) then
-      Message_Show(NewMsg);
-  end;
+  fMessageList.RemoveStack(OldMsg);
 
   Message_UpdateStack;
   DisplayHint(nil);
@@ -1967,43 +1949,22 @@ end;
 
 procedure TKMGamePlayInterface.Message_GoTo(Sender: TObject);
 begin
-  fGame.Viewport.Position := KMPointF(fMessageList[ShownMessage].Loc);
+  fGame.Viewport.Position := KMPointF(fMessageList.MessagesStack[ShownMessage].Loc);
 end;
 
 
 procedure TKMGamePlayInterface.Message_UpdateStack;
 var
   I: Integer;
-  MT: TKMMessageKind;
-  MsgCount: Word;
 begin
-  //MassageList is unlimited, while Image_Message has fixed depth and samples data from the list on demand
-  if not STACK_MSGS then
+  //MessageList is unlimited, while Image_Message has fixed depth and samples data from the list on demand
   for I := 0 to MAX_VISIBLE_MSGS do
   begin
     //Disable and hide at once for safety
-    Image_Message[I].Enabled := (I <= fMessageList.Count - 1);
-    Image_Message[I].Visible := (I <= fMessageList.Count - 1);
-    if I <= fMessageList.Count - 1 then
-      Image_Message[i].TexID := fMessageList[I].Icon;
-  end;
-
-  I := Panel_Main.Height - 48 - IfThen(fMultiplayer, 48 * 2);
-  if STACK_MSGS then
-  for MT := Low(MT) to High(MT) do
-  begin
-    MsgCount := fMessageList.GetMessagesCount(MT);
-
-    Image_MessageK[MT].Top := I;
-    Label_MessageK[MT].Top := I + 3;
-
-    Image_MessageK[MT].Enabled := MsgCount > 0;
-    Image_MessageK[MT].Visible := MsgCount > 0;
-    Label_MessageK[MT].Visible := MsgCount > 1;
-    Label_MessageK[MT].Caption := IntToStr(MsgCount);
-
-    if MsgCount > 0 then
-      Dec(I, Image_MessageK[MT].Height);
+    Image_Message[I].Enabled := (I <= fMessageList.CountStack - 1);
+    Image_Message[I].Visible := (I <= fMessageList.CountStack - 1);
+    if I <= fMessageList.CountStack - 1 then
+      Image_Message[i].TexID := fMessageList.MessagesStack[I].Icon;
   end;
 end;
 
@@ -2893,6 +2854,63 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.MessageLog_Click(Sender: TObject);
+begin
+  if Panel_MessageLog.Visible then
+    Panel_MessageLog.Hide
+  else
+  begin
+    MessageLog_Update;
+    fMessageLogUnread := 0;
+    Label_MessageLogUnread.Caption := IntToStr(fMessageLogUnread);
+
+    Allies_Close(nil);
+    Chat_Close(nil); //Removes focus from Edit_Text
+    MessageLog_Close(nil);
+    Panel_MessageLog.Show;
+    ListBox_MessageLog.TopIndex := ListBox_MessageLog.RowCount;
+    fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
+  end;
+end;
+
+
+procedure TKMGamePlayInterface.MessageLog_ItemClick(Sender: TObject);
+var
+  ID: Integer;
+  Msg: Integer;
+begin
+  ID := ListBox_MessageLog.ItemIndex;
+  if ID = -1 then Exit;
+
+  Msg := ListBox_MessageLog.Rows[ID].Tag;
+  ListBox_MessageLog.Rows[ID].Cells[1].Color := $FFB0B0B0;
+  fMessageList.MessagesLog[Msg].IsRead := True;
+
+  fGame.Viewport.Position := KMPointF(fMessageList.MessagesLog[Msg].Loc);
+end;
+
+
+procedure TKMGamePlayInterface.MessageLog_Close(Sender: TObject);
+begin
+  Panel_MessageLog.Hide;
+end;
+
+
+procedure TKMGamePlayInterface.MessageLog_Update;
+var
+  I: Integer;
+begin
+  for I := ListBox_MessageLog.RowCount to fMessageList.CountLog - 1 do
+  begin
+    ListBox_MessageLog.AddItem(MakeListRow(['', fMessageList.MessagesLog[I].Text, ''], I));
+    ListBox_MessageLog.Rows[I].Cells[2].Pic := MakePic(rxGui, 59);
+    Inc(fMessageLogUnread);
+  end;
+
+  Label_MessageLogUnread.Caption := IntToStr(fMessageLogUnread);
+end;
+
+
 procedure TKMGamePlayInterface.House_MarketFill(aMarket: TKMHouseMarket);
 var
   R: TResourceType;
@@ -3539,7 +3557,8 @@ begin
   case Key of
     //Messages
     VK_SPACE:             //In KaM spacebar centers you on the message
-                          Button_MessageGoTo.Click;
+                          //Button_MessageGoTo.Click
+                          ;
     VK_DELETE:            Button_MessageDelete.Click;
     VK_RETURN:            //Enter is the shortcut to bring up chat in multiplayer
                           if fMultiplayer and not Panel_Chat.Visible then
@@ -4073,6 +4092,9 @@ begin
   Label_MPChatUnread.Visible := fMultiplayer and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
+  Label_MessageLogUnread.Visible := (Label_MessageLogUnread.Caption <> '') and not (aTickCount mod 10 < 5);
+
+  MessageLog_Update;
 
   //Update info on awaited players
   if Panel_NetWait.Visible then

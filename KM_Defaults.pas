@@ -65,7 +65,6 @@ var
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
   AI_GEN_NAVMESH        :Boolean = True; //Generate navmesh for AI to plan attacks/defenses
   AI_GEN_INFLUENCE_MAPS :Boolean = True; //Generate influence maps for AI to plan attacks/defenses
-  STACK_MSGS            :Boolean = True; //Stack messages of similar kinds in UI
   CACHE_PATHFINDING     :Boolean = False; //Cache routes incase they are needed soon (Vortamic PF runs x4 faster even with lame approach)
   PathFinderToUse       :Byte = 1;
   TEST_HOUSE_SELECTION  :Boolean = True; //See how house selection looks (its indended to highlight houses mentioned in messages ONLY. not players selection)
