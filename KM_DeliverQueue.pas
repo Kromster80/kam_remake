@@ -68,8 +68,8 @@ type
     function PermitDelivery(iO, iD: Integer; aSerf: TKMUnitSerf): Boolean;
     function CalculateBid(iO, iD: Integer; aSerf: TKMUnitSerf): Single;
   public
-    procedure AddOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
-    procedure RemOffer(aHouse:TKMHouse);
+    procedure AddOffer(aHouse: TKMHouse; aResource: TResourceType; aCount: Integer);
+    procedure RemOffer(aHouse: TKMHouse);
 
     procedure AddDemand(aHouse: TKMHouse; aUnit: TKMUnit; aResource: TResourceType; aCount: Byte; aType: TDemandType; aImp: TDemandImportance);
     function TryRemoveDemand(aHouse: TKMHouse; aResource: TResourceType; aCount: Word): word;
