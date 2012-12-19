@@ -300,6 +300,7 @@ begin
       end;
     end;
   end;
+  FoundUnits.Free;
 end;
 
 
