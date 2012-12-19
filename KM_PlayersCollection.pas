@@ -372,8 +372,11 @@ end;
 
 procedure TKMPlayersCollection.SetSelected(Value: TObject);
 begin
+  //todo: fSelected cannot use house/unit pointers in MP since those go into the save file,
+  //      and saves must be created the same on all computers in MP (set it to nil before MP saving, then set it back?)
   if Value = fSelected then Exit;
-                                
+  if fGame.IsExiting then Exit; //fSelected could be pointing at freed memory, and checking "is TKMHouse" makes it crash
+
   if fSelected is TKMHouse then
     CleanUpHousePointer(TKMHouse(fSelected))
   else
