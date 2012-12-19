@@ -154,6 +154,13 @@ begin
           SetActionGoIn(ua_Walk,gd_GoInside,fFrom);
         end;
     2:  begin
+          //Barracks can consume the resource (by equipping) before we arrive
+          if (fFrom is TKMHouseBarracks) and not TKMHouseBarracks(fFrom).CanTakeResOut(fResourceType) then
+          begin
+            SetActionGoIn(ua_Walk, gd_GoOutside, fFrom); //Step back out
+            fPhase := 99; //Exit next run
+            Exit;
+          end;
           SetActionLockedStay(5,ua_Walk); //Wait a moment inside
           fFrom.ResTakeFromOut(fResourceType);
           CarryGive(fResourceType);

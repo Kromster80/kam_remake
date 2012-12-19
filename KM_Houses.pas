@@ -248,6 +248,7 @@ type
     procedure ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False); override;
     function CheckResIn(aResource: TResourceType): Word; override;
     procedure ResTakeFromOut(aResource: TResourceType; const aCount: Word = 1); override;
+    function CanTakeResOut(aResource: TResourceType): Boolean;
     procedure ToggleAcceptFlag(aRes: TResourceType);
     function CanEquip(aUnitType: TUnitType): Boolean;
     procedure Equip(aUnitType: TUnitType; aCount: Byte);
@@ -501,7 +502,7 @@ begin
     fSoundLib.Play(sfx_HouseDestroy, fPosition);
 
   //Dispose of delivery tasks performed in DeliverQueue unit
-  fPlayers[fOwner].Deliveries.Queue.RemOffer(Self);
+  fPlayers[fOwner].Deliveries.Queue.RemAllOffers(Self);
   fPlayers[fOwner].Deliveries.Queue.RemDemand(Self);
 
   fPlayers[fOwner].Stats.GoodConsumed(rt_Wood, fBuildSupplyWood);
@@ -2075,6 +2076,7 @@ begin
   Assert(aResource in [WARFARE_MIN..WARFARE_MAX], 'Invalid resource added to barracks');
 
   ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
+  fPlayers[fOwner].Deliveries.Queue.AddOffer(Self,aResource,aCount);
 end;
 
 
@@ -2091,6 +2093,13 @@ procedure TKMHouseBarracks.ResTakeFromOut(aResource:TResourceType; const aCount:
 begin
   Assert(aCount <= ResourceCount[aResource]);
   dec(ResourceCount[aResource], aCount);
+end;
+
+
+function TKMHouseBarracks.CanTakeResOut(aResource: TResourceType): Boolean;
+begin
+  Assert(aResource in [WARFARE_MIN .. WARFARE_MAX]);
+  Result := (ResourceCount[aResource] > 0);
 end;
 
 
@@ -2132,6 +2141,7 @@ begin
       begin
         Dec(ResourceCount[TroopCost[aUnitType, I]]);
         fPlayers[fOwner].Stats.GoodConsumed(TroopCost[aUnitType, I]);
+        fPlayers[fOwner].Deliveries.Queue.RemOffer(Self, TroopCost[aUnitType,I], 1);
       end;
 
     //Special way to kill the Recruit because it is in a house

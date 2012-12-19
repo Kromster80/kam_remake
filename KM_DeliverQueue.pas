@@ -69,7 +69,8 @@ type
     function CalculateBid(iO, iD: Integer; aSerf: TKMUnitSerf): Single;
   public
     procedure AddOffer(aHouse: TKMHouse; aResource: TResourceType; aCount: Integer);
-    procedure RemOffer(aHouse: TKMHouse);
+    procedure RemAllOffers(aHouse: TKMHouse);
+    procedure RemOffer(aHouse: TKMHouse; aResource: TResourceType; aCount: Integer);
 
     procedure AddDemand(aHouse: TKMHouse; aUnit: TKMUnit; aResource: TResourceType; aCount: Byte; aType: TDemandType; aImp: TDemandImportance);
     function TryRemoveDemand(aHouse: TKMHouse; aResource: TResourceType; aCount: Word): word;
@@ -356,7 +357,7 @@ end;
 
 //Remove Offer from the list. E.G on house demolish
 //List is stored without sorting so we have to parse it to find that entry..
-procedure TKMDeliverQueue.RemOffer(aHouse:TKMHouse);
+procedure TKMDeliverQueue.RemAllOffers(aHouse:TKMHouse);
 var i:integer;
 begin
   //We need to parse whole list, never knowing how many offers the house had
@@ -370,6 +371,32 @@ begin
     end
     else
       CloseOffer(i);
+end;
+
+
+
+procedure TKMDeliverQueue.RemOffer(aHouse: TKMHouse; aResource: TResourceType; aCount: Integer);
+var
+  I, K: Integer;
+begin
+  //Add Count of resource to old offer
+  for I := 1 to fOfferCount do
+    if (fOffer[I].Loc_House = aHouse)
+    and (fOffer[I].Resource = aResource)
+    and not fOffer[I].IsDeleted then
+    begin
+      Assert(fOffer[I].Count >= aCount, 'Removing too many offers');
+      Dec(fOffer[I].Count, aCount);
+      if fOffer[I].Count = 0 then
+      begin
+        if fOffer[i].BeingPerformed > 0 then
+          fOffer[i].IsDeleted := True
+        else
+          CloseOffer(i);
+      end;
+      Exit; //Count decreased, that's all
+    end;
+  Assert(False, 'Failed to remove offer');
 end;
 
 
@@ -518,6 +545,11 @@ begin
   Result := Result and ((fDemand[iD].Loc_House = nil) or
                         (fOffer[iO].Loc_House.HouseType <> fDemand[iD].Loc_House.HouseType) or
                         (fOffer[iO].Loc_House.IsComplete <> fDemand[iD].Loc_House.IsComplete));
+
+  //Do not permit Barracks -> Store deliveries
+  Result := Result and ((fDemand[iD].Loc_House = nil) or
+                        (fDemand[iD].Loc_House.HouseType <> ht_Store) or
+                        (fOffer[iO].Loc_House.HouseType <> ht_Barracks));
 
   Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
