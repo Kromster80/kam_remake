@@ -292,7 +292,6 @@ type
 
   TKMHousesCollection = class(TKMList)
   private
-    fSelectedHouse: TKMHouse;
     function AddToCollection(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; aHBS:THouseBuildState):TKMHouse;
     function GetHouse(Index: Integer): TKMHouse;
     procedure SetHouse(Index: Integer; Item: TKMHouse);
@@ -308,7 +307,6 @@ type
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
     function FindHouse(aType:THouseType; X,Y:word; const aIndex:byte=1; aOnlyCompleted:boolean=true): TKMHouse;
     function GetTotalPointers: Cardinal;
-    property SelectedHouse: TKMHouse read fSelectedHouse write fSelectedHouse;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
@@ -2465,11 +2463,6 @@ procedure TKMHousesCollection.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
   SaveStream.Write('Houses');
-  //Multiplayer saves must be identical, thus we force that no house is selected
-  if (fSelectedHouse <> nil) and not fGame.IsMultiplayer then
-    SaveStream.Write(fSelectedHouse.ID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Integer(0));
 
   SaveStream.Write(Count);
   for I := 0 to Count - 1 do
@@ -2485,7 +2478,7 @@ procedure TKMHousesCollection.Load(LoadStream:TKMemoryStream);
 var i,HouseCount: Integer; HouseType: THouseType;
 begin
   LoadStream.ReadAssert('Houses');
-  LoadStream.Read(fSelectedHouse, 4);
+
   LoadStream.Read(HouseCount);
   for i := 0 to HouseCount - 1 do
   begin
@@ -2507,14 +2500,13 @@ end;
 
 
 procedure TKMHousesCollection.SyncLoad;
-var i:integer;
+var I:integer;
 begin
-  fSelectedHouse := fPlayers.GetHouseByID(cardinal(fSelectedHouse));
-  for i := 0 to Count - 1 do
+  for I := 0 to Count - 1 do
   begin
-    Houses[i].SyncLoad;
-    if Houses[i].fCurrentAction<>nil then
-      Houses[i].fCurrentAction.fHouse := fPlayers.GetHouseByID(cardinal(Houses[i].fCurrentAction.fHouse));
+    Houses[I].SyncLoad;
+    if Houses[I].fCurrentAction<>nil then
+      Houses[I].fCurrentAction.fHouse := fPlayers.GetHouseByID(cardinal(Houses[I].fCurrentAction.fHouse));
   end;
 end;
 
