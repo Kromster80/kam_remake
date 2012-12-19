@@ -264,7 +264,7 @@ type
     function HitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
     function GetClosestUnit(aPoint: TKMPoint): TKMUnit;
-    procedure GetUnitsInRect(aRect: TKMRect; List: TList);
+    procedure GetUnitsInRect(aRect: TKMRect; List: TList; aInvisibleAllowed: Boolean=False);
     function GetTotalPointers: Integer;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -2148,13 +2148,13 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.GetUnitsInRect(aRect: TKMRect; List: TList);
+procedure TKMUnitsCollection.GetUnitsInRect(aRect: TKMRect; List: TList; aInvisibleAllowed: Boolean=False);
 var I: Integer;
 begin
   for I := 0 to Count - 1 do
     if KMInRect(Units[I].PositionF, aRect)
     and not Units[I].IsDeadOrDying
-    and Units[I].Visible
+    and (aInvisibleAllowed or Units[I].Visible)
     and (MyPlayer.FogOfWar.CheckRevelation(Units[I].PositionF, True) > FOG_OF_WAR_MIN) then
       List.Add(Units[I]);
 end;

@@ -35,7 +35,6 @@
 	Listbox scrollbars jump when trying to drag them by upper/lower thumb edge [Krom]
 	Unexpectedly high ping values (high_ping.jpg)
 		Lewin: That's not our problem, it usually means his internet connection is not running smoothly. For example if you are downloading a file/video/youtube while playing your ping will go much higher because packets are queued and delayed by your modem when running at maximum speed. If all players have high ping that indicates a problem with the server, but in this case it's only him. It can also be due to being located a long way away from the server, although that will give you ~500 ping in the worst case (one side of the world to the other). Tell him to try a test website like pingtest.net to measure his internet connection quality
-	Warriors do not join into groups when leaving barracks
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")

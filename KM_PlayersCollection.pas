@@ -35,7 +35,7 @@ type
     function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
     function GetClosestUnit(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType): TKMUnit;
     function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
-    procedure GetUnitsInRect(aRect: TKMRect; List: TList);
+    procedure GetUnitsInRect(aRect: TKMRect; List: TList; aInvisibleAllowed: Boolean=False);
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     function GetGroupByID(aID: Integer): TKMUnitGroup;
@@ -419,13 +419,13 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.GetUnitsInRect(aRect: TKMRect; List: TList);
+procedure TKMPlayersCollection.GetUnitsInRect(aRect: TKMRect; List: TList; aInvisibleAllowed: Boolean=False);
 var I: Integer;
 begin
   Assert(List.Count = 0);
 
   for I := 0 to fCount - 1 do
-    fPlayerList[I].Units.GetUnitsInRect(aRect, List);
+    fPlayerList[I].Units.GetUnitsInRect(aRect, List, aInvisibleAllowed);
 end;
 
 
