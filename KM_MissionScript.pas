@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Classes, KromUtils, SysUtils, Dialogs, Math,
-  KM_Utils, KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_CommonClasses, KM_Defaults, KM_Points,
   KM_AIAttacks, KM_Houses, KM_Units, KM_Terrain, KM_UnitGroups, KM_Units_Warrior;
 
 

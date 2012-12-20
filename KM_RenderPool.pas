@@ -100,7 +100,7 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Projectiles, KM_Game, KM_Sound, KM_Resource,
-  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_GameApp, KM_Houses;
+  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_Houses;
 
 
 constructor TRenderPool.Create(aRender: TRender);

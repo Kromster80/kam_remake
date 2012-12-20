@@ -152,9 +152,7 @@ implementation
 uses
   KromUtils,
   KM_Defaults,
-  KM_Log,
   KM_Main,
-  KM_Points,
   //Use these units directly to avoid pass-through methods in fMain
   KM_Resource,
   KM_ResourceSprites,
@@ -165,7 +163,6 @@ uses
   KM_Pics,
   KM_RenderPool,
   KM_TextLibrary,
-  KM_GameInputProcess,
   KM_Locales;
 
 

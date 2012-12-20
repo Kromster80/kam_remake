@@ -4,7 +4,7 @@ interface
 uses
   Classes, KromUtils, SysUtils, Math,
   KM_Utils, KM_CommonClasses, KM_Defaults, KM_Points, KM_MissionScript,
-  KM_Terrain, KM_UnitGroups;
+  KM_Terrain;
 
 
 type

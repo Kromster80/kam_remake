@@ -3,7 +3,7 @@ unit KM_UnitActionGoInOut;
 interface
 uses Classes, KromUtils, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Houses, KM_Units, KM_UnitGroups;
+  KM_Houses, KM_Units;
 
 
 type
@@ -43,7 +43,7 @@ type
 
 
 implementation
-uses KM_Player, KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay,
+uses KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay,
   KM_Units_Warrior, KM_UnitTaskMining;
 
 

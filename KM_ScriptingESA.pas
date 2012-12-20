@@ -3,7 +3,7 @@ unit KM_ScriptingESA;
 interface
 uses
   Classes, Math, SysUtils, StrUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points;
+  KM_Defaults, KM_Points;
 
 
 type

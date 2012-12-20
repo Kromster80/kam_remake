@@ -160,7 +160,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Player, KM_PlayersCollection, KM_Resource, KM_ResourceUnit, KM_Terrain, KM_Utils, KM_TextLibrary, KM_RenderPool;
+uses KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain, KM_Utils, KM_TextLibrary, KM_RenderPool;
 
 
 const
