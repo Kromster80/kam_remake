@@ -289,9 +289,9 @@ begin
   if mlDefences in fVisibleLayers then
   begin
     for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
-        if (fPlayers[I].AI.DefencePositions[K].Position.Loc.X = X)
-        and (fPlayers[I].AI.DefencePositions[K].Position.Loc.Y = Y) then
+      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
+        if (fPlayers[I].AI.General.DefencePositions[K].Position.Loc.X = X)
+        and (fPlayers[I].AI.General.DefencePositions[K].Position.Loc.Y = Y) then
         begin
           Result.MarkerType := mtDefence;
           Result.Owner := I;
@@ -334,10 +334,10 @@ begin
   if mlDefences in fVisibleLayers then
   begin
     for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
+      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
       begin
-        MapLoc := fPlayers[I].AI.DefencePositions[K].Position.Loc;
-        fRenderAux.CircleOnTerrain(MapLoc.X, MapLoc.Y, fPlayers[I].AI.DefencePositions[K].Radius, $20FF8000, $FFFF8000);
+        MapLoc := fPlayers[I].AI.General.DefencePositions[K].Position.Loc;
+        fRenderAux.CircleOnTerrain(MapLoc.X, MapLoc.Y, fPlayers[I].AI.General.DefencePositions[K].Radius, $20FF8000, $FFFF8000);
       end;
   end;
   if mlRevealFOW in fVisibleLayers then

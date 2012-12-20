@@ -548,8 +548,8 @@ begin
   Image_FormationsFlag.FlagColor := MyPlayer.FlagColor;
   for GT := Low(TGroupType) to High(TGroupType) do
   begin
-    NumEdit_FormationsCount[GT].Value := MyPlayer.AI.DefencePositions.TroopFormations[GT].NumUnits;
-    NumEdit_FormationsColumns[GT].Value := MyPlayer.AI.DefencePositions.TroopFormations[GT].UnitsPerRow;
+    NumEdit_FormationsCount[GT].Value := MyPlayer.AI.General.DefencePositions.TroopFormations[GT].NumUnits;
+    NumEdit_FormationsColumns[GT].Value := MyPlayer.AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow;
   end;
 
   Panel_Formations.Show;
@@ -565,8 +565,8 @@ begin
   if Sender = Button_Formations_Ok then
   for GT := Low(TGroupType) to High(TGroupType) do
   begin
-    MyPlayer.AI.DefencePositions.TroopFormations[GT].NumUnits := NumEdit_FormationsCount[GT].Value;
-    MyPlayer.AI.DefencePositions.TroopFormations[GT].UnitsPerRow := NumEdit_FormationsColumns[GT].Value;
+    MyPlayer.AI.General.DefencePositions.TroopFormations[GT].NumUnits := NumEdit_FormationsCount[GT].Value;
+    MyPlayer.AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow := NumEdit_FormationsColumns[GT].Value;
   end;
 
   Panel_Formations.Hide;
@@ -1383,12 +1383,12 @@ begin
     Label_DefencePos.Show;
     Shape_DefencePos.Show;
     for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
+      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
       begin
         Label_DefenceID.Caption := IntToStr(K);
-        Label_DefencePos.Caption := fPlayers[I].AI.DefencePositions[K].UITitle;
+        Label_DefencePos.Caption := fPlayers[I].AI.General.DefencePositions[K].UITitle;
 
-        MapLoc := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.DefencePositions[K].Position.Loc));
+        MapLoc := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.General.DefencePositions[K].Position.Loc));
         ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
 
         if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
@@ -1441,7 +1441,7 @@ begin
 
   List_Defences.Clear;
 
-  with MyPlayer.AI.DefencePositions do
+  with MyPlayer.AI.General.DefencePositions do
   for I := 0 to Count - 1 do
     List_Defences.Add(Positions[I].UITitle);
 end;
@@ -1463,7 +1463,7 @@ begin
   I := List_Defences.ItemIndex;
   if I = -1 then Exit;
 
-  fGame.Viewport.Position := KMPointF(MyPlayer.AI.DefencePositions[I].Position.Loc);
+  fGame.Viewport.Position := KMPointF(MyPlayer.AI.General.DefencePositions[I].Position.Loc);
 end;
 
 
@@ -1868,9 +1868,9 @@ begin
   case aMarker.MarkerType of
     mtDefence:    begin
                     Label_MarkerType.Caption := 'Defence position';
-                    DropList_DefenceGroup.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.DefencePositions[aMarker.Index].GroupType);
-                    DropList_DefenceType.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.DefencePositions[aMarker.Index].DefenceType);
-                    TrackBar_DefenceRad.Position := fPlayers[aMarker.Owner].AI.DefencePositions[aMarker.Index].Radius;
+                    DropList_DefenceGroup.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].GroupType);
+                    DropList_DefenceType.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].DefenceType);
+                    TrackBar_DefenceRad.Position := fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].Radius;
                     SwitchPage(Panel_MarkerDefence);
                   end;
     mtRevealFOW:  begin
@@ -1919,7 +1919,7 @@ var
 begin
   case fActiveMarker.MarkerType of
     mtDefence:    begin
-                    DP := fPlayers[fActiveMarker.Owner].AI.DefencePositions[fActiveMarker.Index];
+                    DP := fPlayers[fActiveMarker.Owner].AI.General.DefencePositions[fActiveMarker.Index];
                     DP.Radius := TrackBar_DefenceRad.Position;
                     DP.DefenceType := TAIDefencePosType(DropList_DefenceType.ItemIndex);
                     DP.GroupType := TGroupType(DropList_DefenceGroup.ItemIndex);
@@ -2563,7 +2563,7 @@ begin
 
     case fActiveMarker.MarkerType of
       mtDefence:   begin
-                     DP := fPlayers[fActiveMarker.Owner].AI.DefencePositions[fActiveMarker.Index];
+                     DP := fPlayers[fActiveMarker.Owner].AI.General.DefencePositions[fActiveMarker.Index];
                      DP.Position := KMPointDir(P, DP.Position.Dir);
                    end;
       mtRevealFOW: fGame.MapEditor.Revealers[fActiveMarker.Owner][fActiveMarker.Index] := P;

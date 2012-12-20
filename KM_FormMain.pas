@@ -642,7 +642,7 @@ begin
   s := '';
 
   for i:=0 to fPlayers.Count-1 do
-    s := s + IntToStr(i) + eol + fPlayers[i].AI.Attacks.GetAsText + eol;
+    s := s + IntToStr(i) + eol + fPlayers[i].AI.General.Attacks.GetAsText + eol;
 
   ShowMessage(s);
 end;

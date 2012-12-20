@@ -713,8 +713,8 @@ begin
                           if TextParam = PARAMVALUES[cpt_AttackFactor] then iPlayerAI.Setup.Aggressiveness:= P[1];
                           if TextParam = PARAMVALUES[cpt_TroopParam]   then
                           begin
-                            iPlayerAI.DefencePositions.TroopFormations[TGroupType(P[1])].NumUnits := P[2];
-                            iPlayerAI.DefencePositions.TroopFormations[TGroupType(P[1])].UnitsPerRow  := P[3];
+                            iPlayerAI.General.DefencePositions.TroopFormations[TGroupType(P[1])].NumUnits := P[2];
+                            iPlayerAI.General.DefencePositions.TroopFormations[TGroupType(P[1])].UnitsPerRow  := P[3];
                           end;
                         end;
     ct_AINoBuild:       if fLastPlayer >= 0 then
@@ -772,7 +772,7 @@ begin
                               AddError('Add_LostGoal for non existing player');
     ct_AIDefence:       if fLastPlayer >=0 then
                         if InRange(P[3], Integer(Low(TGroupType)), Integer(High(TGroupType))) then //TPR 3 tries to set TGroupType 240 due to a missing space
-                          fPlayers[fLastPlayer].AI.DefencePositions.AddDefencePosition(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
+                          fPlayers[fLastPlayer].AI.General.DefencePositions.AddDefencePosition(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastPlayer >=0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
                           fPlayers[fLastPlayer].FlagColor := fResource.Palettes.DefDal.Color32(P[0]);
@@ -800,7 +800,7 @@ begin
                         end;
     ct_CopyAIAttack:    if fLastPlayer >= 0 then
                           //Save the attack to the AI assets
-                          fPlayers[fLastPlayer].AI.Attacks.AddAttack(fAIAttack);
+                          fPlayers[fLastPlayer].AI.General.Attacks.AddAttack(fAIAttack);
     ct_EnablePlayer:    begin
                           //Serves no real purpose, all players have this command anyway
                         end;
@@ -972,16 +972,16 @@ begin
       AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers[I].AI.Setup.Aggressiveness]);
       AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers[I].AI.Setup.RecruitDelay]);
       for G:=Low(TGroupType) to High(TGroupType) do
-        if fPlayers[I].AI.DefencePositions.TroopFormations[G].NumUnits <> 0 then //Must be valid and used
-          AddCommand(ct_AICharacter, cpt_TroopParam, [KaMGroupType[G], fPlayers[I].AI.DefencePositions.TroopFormations[G].NumUnits, fPlayers[I].AI.DefencePositions.TroopFormations[G].UnitsPerRow]);
+        if fPlayers[I].AI.General.DefencePositions.TroopFormations[G].NumUnits <> 0 then //Must be valid and used
+          AddCommand(ct_AICharacter, cpt_TroopParam, [KaMGroupType[G], fPlayers[I].AI.General.DefencePositions.TroopFormations[G].NumUnits, fPlayers[I].AI.General.DefencePositions.TroopFormations[G].UnitsPerRow]);
       AddData(''); //NL
-      for K:=0 to fPlayers[I].AI.DefencePositions.Count - 1 do
-        with fPlayers[I].AI.DefencePositions[K] do
+      for K:=0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
+        with fPlayers[I].AI.General.DefencePositions[K] do
           AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,KaMGroupType[GroupType],Radius,byte(DefenceType)]);
       AddData(''); //NL
       AddData(''); //NL
-      for K:=0 to fPlayers[I].AI.Attacks.Count - 1 do
-        with fPlayers[I].AI.Attacks[K] do
+      for K:=0 to fPlayers[I].AI.General.Attacks.Count - 1 do
+        with fPlayers[I].AI.General.Attacks[K] do
         begin
           AddCommand(ct_AIAttack, cpt_Type, [KaMAttackType[AttackType]]);
           AddCommand(ct_AIAttack, cpt_TotalAmount, [TotalMen]);

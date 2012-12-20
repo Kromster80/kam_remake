@@ -1001,9 +1001,9 @@ begin
   begin
     if mlDefences in fGame.MapEditor.VisibleLayers then
     for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
+      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
       begin
-        PD := fPlayers[I].AI.DefencePositions[K].Position;
+        PD := fPlayers[I].AI.General.DefencePositions[K].Position;
         RenderCursorBuildIcon(PD.Loc, 510 + Byte(PD.Dir), fPlayers[I].FlagColor);
       end;
 
