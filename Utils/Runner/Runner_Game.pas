@@ -181,11 +181,17 @@ begin
 
   fGameApp.Game.Save('AI Build #' + IntToStr(aRun));
 
-  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetWarriorsTrained;//(rt_All);
-  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetWarriorsTrained;//(rt_All);
-  fResults.Value[aRun, 2] := fPlayers[2].Stats.GetWarriorsTrained;//(rt_All);
-  fResults.Value[aRun, 3] := fPlayers[3].Stats.GetWarriorsTrained;//(rt_All);
-  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetWarriorsTrained;//(rt_All);
+  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetWarriorsTrained;
+  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetWarriorsTrained;
+  fResults.Value[aRun, 2] := fPlayers[2].Stats.GetWarriorsTrained;
+  fResults.Value[aRun, 3] := fPlayers[3].Stats.GetWarriorsTrained;
+  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetWarriorsTrained;
+
+  {fResults.Value[aRun, 0] := fPlayers[0].Stats.GetResourceQty(rt_All);
+  fResults.Value[aRun, 1] := fPlayers[1].Stats.GetResourceQty(rt_All);
+  fResults.Value[aRun, 2] := fPlayers[2].Stats.GetResourceQty(rt_All);
+  fResults.Value[aRun, 3] := fPlayers[3].Stats.GetResourceQty(rt_All);
+  fResults.Value[aRun, 4] := fPlayers[4].Stats.GetResourceQty(rt_All);}
 
   fGameApp.Stop(gr_Silent);
 end;
@@ -196,7 +202,7 @@ procedure TKMVortamicPF.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
-  fResults.TimesCount := 30*60*10;
+  fResults.TimesCount := 5*60*10;
 end;
 
 procedure TKMVortamicPF.TearDown;
@@ -214,7 +220,7 @@ begin
   PathFinderToUse := (aRun mod 4) div 2; //01230123 > 00110011
   CACHE_PATHFINDING := Boolean(aRun mod 2);  //0101
 
-  fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\AcrossDesert\AcrossDesert.dat', 'Across the Desert');
+  fGameApp.NewSingleMap(ExtractFilePath(ParamStr(0)) + '..\..\Maps\Vortamic\Vortamic.dat', 'Across the Desert');
 
   SetKaMSeed(aRun div 4 + 1); //11112222
 

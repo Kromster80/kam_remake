@@ -1335,7 +1335,7 @@ begin
   for I := 0 to Count - 1 do
     if Groups[I].HasMember(aUnit) then
     begin
-      Result := Groups[I];
+      Result := fGroups[I];
       Break;
     end;
 end;

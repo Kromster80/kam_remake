@@ -18,10 +18,11 @@ type
   //I think we should refactor this unit and move some TTerrain methods here
   TPathFindingAStarNew = class(TPathFinding)
   private
-    Heap: TBinaryHeap;
-    MinN: TANode;
-    ORef: array of array of TANode; //References to OpenList, Sized as map
+    fHeap: TBinaryHeap;
+    fMinN: TANode;
+    fOpenRef: array of array of TANode; //References to OpenList, Sized as map
     function HeapCmp(A,B: Pointer): Boolean;
+    function GetNodeAt(X,Y: SmallInt): TANode;
     procedure Reset;
   protected
     function MakeRoute: Boolean; override;
@@ -40,8 +41,8 @@ constructor TPathFindingAStarNew.Create;
 begin
   inherited;
 
-  Heap := TBinaryHeap.Create(High(Word));
-  Heap.Cmp := HeapCmp;
+  fHeap := TBinaryHeap.Create(High(Word));
+  fHeap.Cmp := HeapCmp;
 end;
 
 
@@ -50,7 +51,7 @@ var
   I: Integer;
 begin
   Reset;
-  Heap.Free;
+  fHeap.Free;
 
   inherited;
 end;
@@ -65,17 +66,34 @@ begin
 end;
 
 
+function TPathFindingAStarNew.GetNodeAt(X,Y: SmallInt): TANode;
+begin
+  //Cell is new
+  if fOpenRef[Y,X] = nil then
+  begin
+    fOpenRef[Y,X] := TANode.Create;
+    fOpenRef[Y,X].X := X;
+    fOpenRef[Y,X].Y := Y;
+  end;
+
+  Result := fOpenRef[Y,X];
+end;
+
+
 procedure TPathFindingAStarNew.Reset;
 var
   I,K: Integer;
+  X,Y: SmallInt;
 begin
-  for I := 0 to High(ORef) do
-  for K := 0 to High(ORef[I]) do
-  if ORef[I,K] <> nil then
+  for I := 0 to High(fOpenRef) do
+  for K := 0 to High(fOpenRef[I]) do
+  if fOpenRef[I,K] <> nil then
   begin
-    ORef[I,K].Free;
-    ORef[I,K] := nil;
+    fOpenRef[I,K].Free;
+    fOpenRef[I,K] := nil;
   end;
+
+  //Tested having a second list that stores only used ORef cells, it's slower
 end;
 
 
@@ -83,48 +101,42 @@ function TPathFindingAStarNew.MakeRoute: Boolean;
 const c_closed = 65535;
 var
   N: TANode;
-  X, Y: Integer;
-  NewCost: Integer;
+  X, Y: Word;
+  NewCost: Word;
 begin
   //Clear previous data
   Reset;
-  SetLength(ORef, fTerrain.MapY+1, fTerrain.MapX+1);
+  SetLength(fOpenRef, fTerrain.MapY+1, fTerrain.MapX+1);
 
   //Initialize first element
-  N := TANode.Create;
-  ORef[fLocA.Y, fLocA.X] := N;
-  N.X       := fLocA.X;
-  N.Y       := fLocA.Y;
-  N.Estim   := (abs(fLocB.X-fLocA.X) + abs(fLocB.Y-fLocA.Y)) * 10;
+  N := GetNodeAt(fLocA.X, fLocA.Y);
+  N.Estim := (Abs(fLocB.X - fLocA.X) + Abs(fLocB.Y - fLocA.Y)) * 10;
   N.Parent  := nil;
 
   //Seed
-  MinN := N;
+  fMinN := N;
 
-  while (MinN <> nil) and not DestinationReached(MinN.X, MinN.Y) do
+  while (fMinN <> nil) and not DestinationReached(fMinN.X, fMinN.Y) do
   begin
 
-    MinN.Estim := c_closed;
+    fMinN.Estim := c_closed;
 
     //Check all surrounding cells and issue costs to them
-    for y := Math.max(MinN.Y-1,1) to Math.min(MinN.Y+1, fTerrain.MapY-1) do
-    for x := Math.max(MinN.X-1,1) to Math.min(MinN.X+1, fTerrain.MapX-1) do
-    if ORef[y,x] = nil then //Cell is new
+    for Y := Math.max(fMinN.Y-1,1) to Math.min(fMinN.Y+1, fTerrain.MapY-1) do
+    for X := Math.max(fMinN.X-1,1) to Math.min(fMinN.X+1, fTerrain.MapX-1) do
+    if fOpenRef[Y,X] = nil then //Cell is new
     begin
-      if CanWalkTo(KMPoint(MinN.X, MinN.Y), x, y) then
+      if CanWalkTo(KMPoint(fMinN.X, fMinN.Y), X, Y) then
       begin
 
-        N := TANode.Create;
-        ORef[y,x] := N;
-        N.X := x;
-        N.Y := y;
-        N.Parent := MinN;
+        N := GetNodeAt(X, Y);
+        N.Parent := fMinN;
 
         if IsWalkableTile(X, Y) then
         begin
-          N.CostTo := MinN.CostTo + MovementCost(MinN.X, MinN.Y, X, Y);
-          N.Estim := (abs(x-fLocB.X) + abs(y-fLocB.Y)) * 10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
-          Heap.Push(N);
+          N.CostTo := fMinN.CostTo + MovementCost(fMinN.X, fMinN.Y, X, Y);
+          N.Estim := (Abs(X - fLocB.X) + Abs(Y - fLocB.Y)) * 10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
+          fHeap.Push(N);
         end
         else //If cell doen't meets Passability then mark it as Closed
           N.Estim := c_closed;
@@ -134,31 +146,30 @@ begin
     else //Else cell is old
     begin
 
-      //If route through new cell is shorter than ORef[y,x] then
-      if ORef[y,x].Estim <> c_closed then
-      if CanWalkTo(KMPoint(MinN.X, MinN.Y), x, y) then
+      //If route through new cell is shorter than ORef[Y,X] then
+      if fOpenRef[Y,X].Estim <> c_closed then
+      if CanWalkTo(KMPoint(fMinN.X, fMinN.Y), X, Y) then
       begin
-        NewCost := MovementCost(MinN.X, MinN.Y, X, Y);
-        if MinN.CostTo + NewCost < ORef[y,x].CostTo then
+        NewCost := MovementCost(fMinN.X, fMinN.Y, X, Y);
+        if fMinN.CostTo + NewCost < fOpenRef[Y,X].CostTo then
         begin
-          ORef[y,x].Parent := MinN;
-          ORef[y,x].CostTo := MinN.CostTo + NewCost;
+          fOpenRef[Y,X].Parent := fMinN;
+          fOpenRef[Y,X].CostTo := fMinN.CostTo + NewCost;
         end;
       end;
     end;
 
     //Find next cell with least (Estim+CostTo)
-    if Heap.IsEmpty then
+    if fHeap.IsEmpty then
       Break;
 
-    MinN := Heap.Pop;
+    fMinN := fHeap.Pop;
   end;
 
   //Route found, no longer need the lookups
-  Heap.Clear;
+  fHeap.Clear;
 
-  Result := DestinationReached(MinN.X, MinN.Y);
-  //Assert(fMinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
+  Result := DestinationReached(fMinN.X, fMinN.Y);
 end;
 
 
@@ -169,7 +180,7 @@ begin
   NodeList.Clear;
 
   //Assemble the route
-  N := MinN;
+  N := fMinN;
   while N <> nil do
   begin
     NodeList.AddEntry(KMPoint(N.X, N.Y));
