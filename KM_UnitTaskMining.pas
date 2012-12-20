@@ -200,6 +200,10 @@ begin
         begin
           GetHome.SetState(hst_Empty);
           SetActionGoIn(WorkPlan.ActionWalkTo, gd_GoOutside, GetHome); //Walk outside the house
+
+          //Woodcutter takes his axe with him when going to chop trees
+          if (WorkPlan.GatheringScript = gs_WoodCutterCut) then
+            GetHome.fCurrentAction.SubActionRem([ha_Flagpole]);
         end
         else
         begin

@@ -44,7 +44,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay,
-  KM_Units_Warrior, KM_UnitTaskMining;
+  KM_Units_Warrior;
 
 
 { TUnitActionGoInOut }
@@ -237,15 +237,6 @@ begin
   and (fUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
   and (fUnit.GetHome = fHouse) then //And is the house we are walking from
     TKMHouseBarracks(fHouse).RecruitsList.Remove(fUnit);
-
-  //Woodcutter takes his axe with him when going to chop trees
-  if (fUnit.UnitType = ut_Woodcutter)
-  and (fUnit.UnitTask.TaskName = utn_Mining)
-  and (TTaskMining(fUnit.UnitTask).WorkPlan.GatheringScript = gs_WoodCutterCut)
-  and (fUnit.GetHome <> nil)
-  and (fUnit.GetHome.HouseType = ht_Woodcutters)
-  and (fUnit.GetHome = fHouse) then //And is the house we are walking from
-    fHouse.fCurrentAction.SubActionRem([ha_Flagpole]);
 
   //We are walking straight
   if fStreet.X = fDoor.X then
