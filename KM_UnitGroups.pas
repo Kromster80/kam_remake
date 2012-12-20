@@ -1422,15 +1422,20 @@ procedure TKMUnitGroups.UpdateState;
 var
   I: Integer;
 begin
+  //We delete dead groups only next tick after they died
+  //so that fPlayers.Selected could register their death and reset
   for I := Count - 1 downto 0 do
-    if not Groups[I].IsDead then
-      Groups[I].UpdateState
-    else
-    if FREE_POINTERS and (Groups[I].fPointerCount = 0) then
-    begin
-      Groups[I].Free;
-      fGroups.Delete(I);
-    end;
+  if FREE_POINTERS
+  and Groups[I].IsDead
+  and (Groups[I].fPointerCount = 0) then
+  begin
+    Groups[I].Free;
+    fGroups.Delete(I);
+  end;
+
+  for I := 0 to Count - 1 do
+  if not Groups[I].IsDead then
+    Groups[I].UpdateState;
 end;
 
 

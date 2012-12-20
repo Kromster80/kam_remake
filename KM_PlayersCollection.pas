@@ -372,28 +372,9 @@ end;
 
 procedure TKMPlayersCollection.SetSelected(Value: TObject);
 begin
-  //todo: fSelected cannot use house/unit pointers in MP since those go into the save file,
-  //      and saves must be created the same on all computers in MP (set it to nil before MP saving, then set it back?)
-  if Value = fSelected then Exit;
-  if fGame.IsExiting then Exit; //fSelected could be pointing at freed memory, and checking "is TKMHouse" makes it crash
-
-  if fSelected is TKMHouse then
-    CleanUpHousePointer(TKMHouse(fSelected))
-  else
-  if fSelected is TKMUnit then
-    CleanUpUnitPointer(TKMUnit(fSelected))
-  else
-  if fSelected is TKMUnitGroup then
-    CleanUpGroupPointer(TKMUnitGroup(fSelected));
-
-  if Value is TKMHouse then
-    fSelected := TKMHouse(Value).GetHousePointer
-  else
-  if Value is TKMUnit then
-    fSelected := TKMUnit(Value).GetUnitPointer
-  else
-  if Value is TKMUnitGroup then
-    fSelected := TKMUnitGroup(Value).GetGroupPointer;
+  //fSelected cannot use house/unit pointers in MP since those go into the save file,
+  //and saves must be created the same on all computers in MP
+  fSelected := Value;
 end;
 
 
@@ -627,13 +608,12 @@ procedure TKMPlayersCollection.UpdateState(aTick: Cardinal);
 var
   I: Integer;
 begin
-  //Update AI every 2sec for different player to even the CPU load
-  for I := 0 to fCount - 1 do
-    if not fGame.IsPaused and not fGame.IsExiting then
-      fPlayerList[I].UpdateState(aTick)
-    else
-      //PlayerAI can stop the game and clear everything
-      Exit;
+  for I := 0 to Count - 1 do
+  if not fGame.IsPaused and not fGame.IsExiting then
+    fPlayerList[I].UpdateState(aTick)
+  else
+    //PlayerAI can stop the game and clear everything
+    Exit;
 
   PlayerAnimals.UpdateState(aTick); //Animals don't have any AI yet
 end;

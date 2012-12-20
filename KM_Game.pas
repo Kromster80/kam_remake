@@ -1341,6 +1341,9 @@ begin
                     fPathfinding.UpdateState;
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
+                    //The selected object could have died during this fProjectiles or fPlayers update
+                    fPlayers.UpdateSelected;
+
                     //Issue stored commands
                     fGameInputProcess.ReplayTimer(fGameTickCount);
                     if fGame = nil then Exit; //Quit if the game was stopped by a replay mismatch
@@ -1370,10 +1373,7 @@ end;
 procedure TKMGame.UpdateState(aGlobalTickCount: Cardinal);
 begin
   if not fIsPaused then
-  begin
-    fPlayers.UpdateSelected;
     fActiveInterface.UpdateState(aGlobalTickCount);
-  end;
 
   //Update minimap every 1000ms
   if aGlobalTickCount mod 10 = 0 then

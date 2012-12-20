@@ -2525,15 +2525,20 @@ procedure TKMHousesCollection.UpdateState;
 var
   I: Integer;
 begin
+  //We delete destroyed houses only next tick after they demolished
+  //so that fPlayers.Selected could register their destruction and reset
   for I := Count - 1 downto 0  do
+  if FREE_POINTERS
+  and Houses[I].IsDestroyed
+  and (Houses[I].PointerCount = 0) then
+  begin
+    Houses[I].Free; //Because no one needs this anymore it must DIE!!!!! :D
+    Delete(I);
+  end;
+
+  for I := 0 to Count - 1 do
   if not Houses[I].IsDestroyed then
-    Houses[I].UpdateState
-  else //Else try to destroy the house object if all pointers are freed
-    if FREE_POINTERS and (Houses[I].PointerCount = 0) then
-    begin
-      Houses[I].Free; //Because no one needs this anymore it must DIE!!!!! :D
-      Delete(I);
-    end;
+    Houses[I].UpdateState;
 end;
 
 
