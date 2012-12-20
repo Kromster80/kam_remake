@@ -45,7 +45,8 @@ begin
   Aggressiveness := 100; //No idea what the default for this is, it's barely used
   AutoBuild := True; //In KaM it is On by default, and most missions turn it off
   AutoRepair := False; //In KaM it is Off by default
-  AutoDefend := False;
+  AutoDefend := False; //It did not exist in KaM, we add it, Off by default
+
   EquipRateIron := 500; //Measured in KaM: AI equips 1 iron soldier every ~50 seconds
   EquipRateLeather := 1000; //Measured in KaM: AI equips 1 leather soldier every ~100 seconds (if no iron one was already equipped)
   MaxSoldiers := High(MaxSoldiers); //No limit by default

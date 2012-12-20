@@ -21,7 +21,7 @@ type
                     ct_SetUnit,ct_SetRoad,ct_SetField,ct_SetWinefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
                     ct_SetHouseDamage,ct_SetUnitByStock,ct_SetGroup,ct_SetGroupFood,ct_SendGroup,
                     ct_AttackPosition,ct_AddWareToSecond,ct_AddWareTo,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter,
-                    ct_AINoBuild,ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack);
+                    ct_AINoBuild,ct_AIAutoDefend,ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack);
 
   TKMCommandParamType = (cpt_Unknown=0,cpt_Recruits,cpt_Constructors,cpt_WorkerFactor,cpt_RecruitCount,cpt_TownDefence,
                          cpt_MaxSoldier,cpt_EquipRate,cpt_AttackFactor,cpt_TroopParam);
@@ -110,7 +110,7 @@ const
     'SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',
     'SET_GROUP','SET_GROUP_FOOD','SEND_GROUP','ATTACK_POSITION','ADD_WARE_TO_SECOND',
     'ADD_WARE_TO','ADD_WARE_TO_ALL','ADD_WEAPON','SET_AI_CHARACTER',
-    'SET_AI_NO_BUILD','SET_AI_START_POSITION','SET_AI_DEFENSE','SET_AI_ATTACK',
+    'SET_AI_NO_BUILD','SET_AI_AUTO_DEFEND','SET_AI_START_POSITION','SET_AI_DEFENSE','SET_AI_ATTACK',
     'COPY_AI_ATTACK');
 
   PARAMVALUES: array [TKMCommandParamType] of AnsiString = (
@@ -719,6 +719,8 @@ begin
                         end;
     ct_AINoBuild:       if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Setup.Autobuild := False;
+    ct_AIAutoDefend:    if fLastPlayer >= 0 then
+                          fPlayers[fLastPlayer].AI.Setup.AutoDefend := True;
     ct_AIStartPosition: if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].AI.Setup.StartPosition := KMPoint(P[0]+1,P[1]+1);
     ct_SetAlliance:     if (fLastPlayer >= 0) and fPlayerEnabled[P[0]] then
@@ -957,8 +959,8 @@ begin
     if fPlayers[I].PlayerType = pt_Computer then
     begin
       AddCommand(ct_AIStartPosition, [fPlayers[I].AI.Setup.StartPosition.X-1,fPlayers[I].AI.Setup.StartPosition.Y-1]);
-      if not fPlayers[I].AI.Setup.AutoBuild then
-        AddCommand(ct_AINoBuild, []);
+      if not fPlayers[I].AI.Setup.AutoBuild then AddCommand(ct_AINoBuild, []);
+      if fPlayers[I].AI.Setup.AutoDefend then    AddCommand(ct_AIAutoDefend, []);
       AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers[I].AI.Setup.RecruitFactor]);
       AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers[I].AI.Setup.SerfFactor]);
       AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers[I].AI.Setup.WorkerFactor]);

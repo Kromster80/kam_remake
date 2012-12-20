@@ -27,15 +27,15 @@ type
     procedure Create_Village_Page;
     procedure Create_Player_Page;
     procedure Create_Mission_Page;
-    procedure Create_Menu_Page;
-    procedure Create_MenuSave_Page;
-    procedure Create_MenuLoad_Page;
-    procedure Create_MenuQuit_Page;
+    procedure Create_Menu;
+    procedure Create_MenuSave;
+    procedure Create_MenuLoad;
+    procedure Create_MenuQuit;
     procedure Create_Extra_Page;
-    procedure Create_Unit_Page;
-    procedure Create_House_Page;
-    procedure Create_Store_Page;
-    procedure Create_Barracks_Page;
+    procedure Create_Unit;
+    procedure Create_House;
+    procedure Create_HouseStore;
+    procedure Create_HouseBarracks;
     procedure Create_Markers_Page;
     procedure Create_FormationsPopUp;
 
@@ -57,8 +57,9 @@ type
     procedure Terrain_TilesChange(Sender: TObject);
     procedure Terrain_ObjectsChange(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
-    procedure Defence_FillList;
-    procedure Defence_ItemClicked(Sender: TObject);
+    procedure Defence_Refresh;
+    procedure Defence_Change(Sender: TObject);
+    procedure Defence_ListClick(Sender: TObject);
     procedure House_HealthChange(Sender: TObject; AButton: TMouseButton);
     procedure Unit_ButtonClick(Sender: TObject);
     procedure Unit_ArmyChange1(Sender: TObject); overload;
@@ -144,12 +145,17 @@ type
         Button_Warriors:array[0..13]of TKMButtonFlat;
         Button_Animals:array[0..7]of TKMButtonFlat;
       Panel_Script: TKMPanel;
-        CheckBox_Autobuild: TKMCheckBox;
+        CheckBox_AutoBuild: TKMCheckBox;
+        CheckBox_AutoRepair: TKMCheckBox;
         TrackBar_SerfFactor: TKMTrackBar;
         TrackBar_WorkerFactor: TKMTrackBar;
       Panel_Defence: TKMPanel;
-        Button_EditFormations: TKMButton;
+        CheckBox_AutoDefence: TKMCheckBox;
+        TrackBar_EquipRateLeather: TKMTrackBar;
+        TrackBar_EquipRateIron: TKMTrackBar;
+        TrackBar_RecruitFactor: TKMTrackBar;
         List_Defences: TKMListBox;
+        Button_EditFormations: TKMButton;
 
     Panel_Formations: TKMPanel;
       Image_FormationsFlag: TKMImage;
@@ -387,7 +393,7 @@ begin
   if (Sender = Button_Village[vtDefences]) then
   begin
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
-    Defence_FillList;
+    Defence_Refresh;
     Panel_Village.Show;
     Panel_Defence.Show;
     Label_MenuTitle.Caption := 'Village - Defences';
@@ -656,17 +662,17 @@ begin
   Create_Player_Page;
   Create_Mission_Page;
 
-  Create_Menu_Page;
-    Create_MenuSave_Page;
-    Create_MenuLoad_Page;
-    Create_MenuQuit_Page;
+  Create_Menu;
+    Create_MenuSave;
+    Create_MenuLoad;
+    Create_MenuQuit;
 
   Create_Extra_Page;
 
-  Create_Unit_Page;
-  Create_House_Page;
-    Create_Store_Page;
-    Create_Barracks_Page;
+  Create_Unit;
+  Create_House;
+    Create_HouseStore;
+    Create_HouseBarracks;
     //Create_TownHall_Page;
   Create_Markers_Page;
 
@@ -825,6 +831,7 @@ begin
       Button_Village[VT].OnClick := SwitchPage;
     end;
 
+    //Town placement
     Panel_Build := TKMPanel.Create(Panel_Village,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Build,0,10,TB_WIDTH,0,'Roadworks',fnt_Outline,taCenter);
       Button_BuildRoad   := TKMButtonFlat.Create(Panel_Build,  0,28,33,33,335);
@@ -848,9 +855,9 @@ begin
           Button_Build[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
         end;
 
+    //Units placement
     Panel_Units := TKMPanel.Create(Panel_Village,0,28,TB_WIDTH,400);
 
-      //TKMLabel.Create(Panel_Units,100,10,0,0,'Citizens',fnt_Outline,taCenter);
       for I:=0 to High(Button_Citizen) do
       begin
         Button_Citizen[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,8+(I div 5)*37,33,33,fResource.UnitDat[School_Order[I]].GUIIcon); //List of tiles 5x5
@@ -862,7 +869,6 @@ begin
       Button_UnitCancel.Hint := fTextLibrary[TX_BUILD_CANCEL_HINT];
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
-      //TKMLabel.Create(Panel_Units,100,140,0,0,'Warriors',fnt_Outline,taCenter);
       for I:=0 to High(Button_Warriors) do
       begin
         Button_Warriors[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,124+(I div 5)*37,33,33, MapEd_Icon[I], rxGui);
@@ -871,7 +877,6 @@ begin
         Button_Warriors[I].OnClick := Unit_ButtonClick;
       end;
 
-      //TKMLabel.Create(Panel_Units,100,230,0,0,'Animals',fnt_Outline,taCenter);
       for I:=0 to High(Button_Animals) do
       begin
         Button_Animals[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,240+(I div 5)*37,33,33, Animal_Icon[I], rxGui);
@@ -881,24 +886,47 @@ begin
       end;
       Unit_ButtonClick(Button_Citizen[0]); //Select serf as default
 
+    //Town settings
     Panel_Script := TKMPanel.Create(Panel_Village, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Script, 0, 10, TB_WIDTH, 0, 'Scripts', fnt_Outline, taCenter);
-      CheckBox_Autobuild := TKMCheckBox.Create(Panel_Script, 0, 30, 180, 20, 'Autobuild', fnt_Metal);
-      CheckBox_Autobuild.OnClick := Village_ScriptChange;
-      TrackBar_SerfFactor := TKMTrackBar.Create(Panel_Script, 0, 50, 180, 1, 20);
+      CheckBox_AutoBuild := TKMCheckBox.Create(Panel_Script, 0, 30, TB_WIDTH, 20, 'Autobuild', fnt_Metal);
+      CheckBox_AutoBuild.OnClick := Village_ScriptChange;
+      CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 0, 50, TB_WIDTH, 20, 'Autorepair', fnt_Metal);
+      CheckBox_AutoRepair.OnClick := Village_ScriptChange;
+      TrackBar_SerfFactor := TKMTrackBar.Create(Panel_Script, 0, 70, TB_WIDTH, 1, 20);
       TrackBar_SerfFactor.Caption := 'Serf factor';
       TrackBar_SerfFactor.OnClick := Village_ScriptChange;
-      TrackBar_WorkerFactor := TKMTrackBar.Create(Panel_Script, 0, 90, 180, 3, 30);
+      TrackBar_WorkerFactor := TKMTrackBar.Create(Panel_Script, 0, 110, TB_WIDTH, 3, 30);
       TrackBar_WorkerFactor.Caption := 'Workers';
       TrackBar_WorkerFactor.OnClick := Village_ScriptChange;
 
+    //Defence settings
     Panel_Defence := TKMPanel.Create(Panel_Village, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Defence, 0, 5, TB_WIDTH, 0, 'Defence', fnt_Outline, taCenter);
-      Button_EditFormations := TKMButton.Create(Panel_Defence, 8, 30, 182, 25, 'Edit formations', bsGame);
-      Button_EditFormations.OnClick := Formations_Show;
 
-      List_Defences := TKMListBox.Create(Panel_Defence, 0, 70, TB_WIDTH, 160, fnt_Grey, bsGame);
-      List_Defences.OnDoubleClick := Defence_ItemClicked;
+      CheckBox_AutoDefence := TKMCheckBox.Create(Panel_Defence, 0, 30, TB_WIDTH, 20, 'AutoDefence', fnt_Metal);
+      CheckBox_AutoDefence.OnClick := Defence_Change;
+
+      TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Defence, 0, 50, TB_WIDTH, 10, 300);
+      TrackBar_EquipRateLeather.Caption := 'Equip rate iron';
+      TrackBar_EquipRateLeather.Step := 5;
+      TrackBar_EquipRateLeather.OnClick := Defence_Change;
+
+      TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Defence, 0, 90, TB_WIDTH, 10, 300);
+      TrackBar_EquipRateIron.Caption := 'Equip rate leather';
+      TrackBar_EquipRateIron.Step := 5;
+      TrackBar_EquipRateIron.OnClick := Defence_Change;
+
+      TrackBar_RecruitFactor := TKMTrackBar.Create(Panel_Defence, 0, 130, TB_WIDTH, 1, 20);
+      TrackBar_RecruitFactor.Caption := 'Recruits per Barracks';
+      TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks'; //@Lewin: Please check me on this one
+      TrackBar_RecruitFactor.OnClick := Defence_Change;
+
+      List_Defences := TKMListBox.Create(Panel_Defence, 0, 170, TB_WIDTH, 160, fnt_Grey, bsGame);
+      List_Defences.OnDoubleClick := Defence_ListClick;
+
+      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 340, TB_WIDTH, 25, 'Edit formations', bsGame);
+      Button_EditFormations.OnClick := Formations_Show;
 end;
 
 
@@ -915,15 +943,17 @@ begin
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Goals,0,10,TB_WIDTH,0,'Goals',fnt_Outline,taCenter);
 
-    Panel_Color := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Color,0,10,TB_WIDTH,0,'Colors',fnt_Outline,taCenter);
-      TKMBevel.Create(Panel_Color,0,30,TB_WIDTH,210);
+    //Players color
+    Panel_Color := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
+      TKMLabel.Create(Panel_Color, 0, 10, TB_WIDTH, 0, 'Colors', fnt_Outline, taCenter);
+      TKMBevel.Create(Panel_Color, 0, 30, TB_WIDTH, 210);
       ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 0, 32, 16, 16, 11);
-      for I:=0 to 255 do Col[I] := fResource.Palettes.DefDal.Color32(I);
+      for I := 0 to 255 do Col[I] := fResource.Palettes.DefDal.Color32(I);
       ColorSwatch_Color.SetColors(Col);
       ColorSwatch_Color.OnClick := Player_ColorClick;
 
-    Panel_Block := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
+    //Allow/Block house building
+    Panel_Block := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Block, 0, 10, TB_WIDTH, 0, 'Block/Release houses', fnt_Outline, taCenter);
       for I := 1 to GUI_HOUSE_COUNT do
       if GUIHouseOrder[I] <> ht_None then begin
@@ -936,6 +966,7 @@ begin
         Image_BlockHouse[I].ImageCenter;
       end;
 
+    //FOW settings
     Panel_RevealFOW := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_RevealFOW, 0, 10, TB_WIDTH, 0, 'Reveal fog', fnt_Outline, taCenter);
       Button_Reveal         := TKMButtonFlat.Create(Panel_RevealFOW, 0, 30, 33, 33, 335);
@@ -993,7 +1024,7 @@ end;
 
 
 {Menu page}
-procedure TKMapEdInterface.Create_Menu_Page;
+procedure TKMapEdInterface.Create_Menu;
 begin
   Panel_Menu := TKMPanel.Create(Panel_Common, 0, 128, TB_WIDTH, 400);
     Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, fTextLibrary[TX_MENU_SAVE_GAME], bsGame);
@@ -1012,7 +1043,7 @@ end;
 
 
 {Save page}
-procedure TKMapEdInterface.Create_MenuSave_Page;
+procedure TKMapEdInterface.Create_MenuSave;
 begin
   Panel_Save := TKMPanel.Create(Panel_Common,0,128,TB_WIDTH,400);
     TKMBevel.Create(Panel_Save, 0, 30, TB_WIDTH, 37);
@@ -1036,7 +1067,7 @@ end;
 
 
 {Load page}
-procedure TKMapEdInterface.Create_MenuLoad_Page;
+procedure TKMapEdInterface.Create_MenuLoad;
 begin
   Panel_Load := TKMPanel.Create(Panel_Common,0,108,TB_WIDTH,400);
     TKMLabel.Create(Panel_Load, 0, 2, TB_WIDTH, 30, 'Available maps', fnt_Outline, taLeft);
@@ -1056,7 +1087,7 @@ end;
 
 
 {Quit page}
-procedure TKMapEdInterface.Create_MenuQuit_Page;
+procedure TKMapEdInterface.Create_MenuQuit;
 begin
   Panel_Quit:=TKMPanel.Create(Panel_Common,0,128,TB_WIDTH,400);
     TKMLabel.Create(Panel_Quit,0,40,TB_WIDTH,60,'Any unsaved|changes will be lost',fnt_Outline,taCenter);
@@ -1138,7 +1169,7 @@ end;
 
 
 {Unit page}
-procedure TKMapEdInterface.Create_Unit_Page;
+procedure TKMapEdInterface.Create_Unit;
 begin
   Panel_Unit:=TKMPanel.Create(Panel_Common,0,112,TB_WIDTH,400);
     Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,0,'',fnt_Outline,taCenter);
@@ -1172,7 +1203,7 @@ end;
 
 
 {House description page}
-procedure TKMapEdInterface.Create_House_Page;
+procedure TKMapEdInterface.Create_House;
 var
   I: Integer;
 begin
@@ -1204,7 +1235,7 @@ end;
 
 
 {Store page}
-procedure TKMapEdInterface.Create_Store_Page;
+procedure TKMapEdInterface.Create_HouseStore;
 var I: Integer;
 begin
   Panel_HouseStore := TKMPanel.Create(Panel_House,0,76,TB_WIDTH,400);
@@ -1234,7 +1265,7 @@ end;
 
 
 {Barracks page}
-procedure TKMapEdInterface.Create_Barracks_Page;
+procedure TKMapEdInterface.Create_HouseBarracks;
 var i:Integer;
 begin
   Panel_HouseBarracks:=TKMPanel.Create(Panel_House,0,76,TB_WIDTH,400);
@@ -1399,10 +1430,15 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Defence_FillList;
+procedure TKMapEdInterface.Defence_Refresh;
 var
   I: Integer;
 begin
+  CheckBox_AutoDefence.Checked := MyPlayer.AI.Setup.AutoDefend;
+  TrackBar_EquipRateLeather.Position := MyPlayer.AI.Setup.EquipRateLeather div 10;
+  TrackBar_EquipRateIron.Position := MyPlayer.AI.Setup.EquipRateIron div 10;
+  TrackBar_RecruitFactor.Position := MyPlayer.AI.Setup.RecruitFactor;
+
   List_Defences.Clear;
 
   with MyPlayer.AI.DefencePositions do
@@ -1411,7 +1447,16 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Defence_ItemClicked(Sender: TObject);
+procedure TKMapEdInterface.Defence_Change(Sender: TObject);
+begin
+  MyPlayer.AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
+  MyPlayer.AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
+  MyPlayer.AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
+  MyPlayer.AI.Setup.RecruitFactor := TrackBar_RecruitFactor.Position;
+end;
+
+
+procedure TKMapEdInterface.Defence_ListClick(Sender: TObject);
 var
   I: Integer;
 begin
@@ -1424,7 +1469,8 @@ end;
 
 procedure TKMapEdInterface.Village_ScriptRefresh;
 begin
-  CheckBox_Autobuild.Checked := MyPlayer.AI.Setup.AutoBuild;
+  CheckBox_AutoBuild.Checked := MyPlayer.AI.Setup.AutoBuild;
+  CheckBox_AutoRepair.Checked := MyPlayer.AI.Setup.AutoRepair;
   TrackBar_SerfFactor.Position := MyPlayer.AI.Setup.SerfFactor;
   TrackBar_WorkerFactor.Position := MyPlayer.AI.Setup.WorkerFactor;
 end;
@@ -1432,7 +1478,8 @@ end;
 
 procedure TKMapEdInterface.Village_ScriptChange(Sender: TObject);
 begin
-  MyPlayer.AI.Setup.AutoBuild := CheckBox_Autobuild.Checked;
+  MyPlayer.AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
+  MyPlayer.AI.Setup.AutoRepair := CheckBox_AutoRepair.Checked;
   MyPlayer.AI.Setup.SerfFactor := TrackBar_SerfFactor.Position;
   MyPlayer.AI.Setup.WorkerFactor := TrackBar_WorkerFactor.Position;
 end;
