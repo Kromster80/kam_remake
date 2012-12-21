@@ -6,7 +6,7 @@ uses
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
      KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
-     KM_Points, KM_InterfaceDefaults, KM_Terrain;
+     KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_Terrain;
 
 type
   TKMVillageTab = (vtHouses, vtUnits, vtScript, vtDefences);
@@ -39,6 +39,11 @@ type
     procedure Create_Marker;
     procedure Create_FormationsPopUp;
 
+    procedure Attacks_Add(Sender: TObject);
+    procedure Attacks_Del(Sender: TObject);
+    procedure Attacks_Edit(aAttack: TAIAttack);
+    procedure Attacks_ListClick(Sender: TObject);
+    procedure Attacks_Refresh(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Defence_Refresh;
     procedure Defence_Change(Sender: TObject);
@@ -154,6 +159,11 @@ type
         TrackBar_EquipRateIron: TKMTrackBar;
         TrackBar_RecruitFactor: TKMTrackBar;
         Button_EditFormations: TKMButton;
+      Panel_Attacks: TKMPanel;
+        CheckBox_AutoAttack: TKMCheckBox;
+        List_Attacks: TKMColumnListBox;
+        Button_AttacksAdd: TKMButton;
+        Button_AttacksDel: TKMButton;
 
     Panel_Formations: TKMPanel;
       Image_FormationsFlag: TKMImage;
@@ -920,6 +930,22 @@ begin
 
       Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 175, TB_WIDTH, 25, 'Edit formations', bsGame);
       Button_EditFormations.OnClick := Formations_Show;
+
+    //Defence settings
+    Panel_Attacks := TKMPanel.Create(Panel_Village, 0, 28, TB_WIDTH, 400);
+      TKMLabel.Create(Panel_Attacks, 0, 5, TB_WIDTH, 0, 'Attacks', fnt_Outline, taCenter);
+
+      CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Attacks, 0, 30, TB_WIDTH, 20, 'AutoAttack', fnt_Metal);
+      CheckBox_AutoAttack.Disable;
+
+      List_Attacks := TKMColumnListBox.Create(Panel_Attacks, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
+      List_Attacks.SetColumns(fnt_Outline, ['Type','Delay','Men', 'Target', 'Loc'], [0, 20, 50, 90, 150]);
+      List_Attacks.OnDoubleClick := Attacks_ListClick;
+
+      Button_AttacksAdd := TKMButton.Create(Panel_Attacks, 0, 270, 25, 25, '+', bsGame);
+      Button_AttacksAdd.OnClick := Attacks_Add;
+      Button_AttacksDel := TKMButton.Create(Panel_Attacks, 0, 270, 25, 25, 'X', bsGame);
+      Button_AttacksDel.OnClick := Attacks_Del;
 end;
 
 
@@ -1646,6 +1672,51 @@ begin
       ObjectsTable[I].Down := (Sender = ObjectsTable[I]); //Mark the selected one
     ObjectErase.Down := (Sender = ObjectErase); //or delete button
   end;
+end;
+
+
+//Add a dummy attack and let mapmaker edit it
+procedure TKMapEdInterface.Attacks_Add(Sender: TObject);
+var
+  AA: TAIAttack;
+begin
+  MyPlayer.AI.General.Attacks.AddAttack(AA);
+
+  //Edit the attack we have just appended
+  Attacks_Edit(MyPlayer.AI.General.Attacks[MyPlayer.AI.General.Attacks.Count - 1]);
+end;
+
+
+procedure TKMapEdInterface.Attacks_Del(Sender: TObject);
+var I: Integer;
+begin
+  I := List_Attacks.ItemIndex;
+  if InRange(I, 0, MyPlayer.AI.General.Attacks.Count) then
+    MyPlayer.AI.General.Attacks.Delete(I);
+end;
+
+
+procedure TKMapEdInterface.Attacks_Edit(aAttack: TAIAttack);
+begin
+  //todo: Make a popup alike Defense formations to edit the props
+end;
+
+
+procedure TKMapEdInterface.Attacks_ListClick(Sender: TObject);
+var I: Integer;
+begin
+  I := List_Attacks.ItemIndex;
+
+  Button_AttacksDel.Enabled := InRange(I, 0, MyPlayer.AI.General.Attacks.Count);
+
+  if InRange(I, 0, MyPlayer.AI.General.Attacks.Count) then
+    Attacks_Edit(MyPlayer.AI.General.Attacks[I]);
+end;
+
+
+procedure TKMapEdInterface.Attacks_Refresh(Sender: TObject);
+begin
+  //todo: Fill attacks list
 end;
 
 

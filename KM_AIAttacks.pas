@@ -21,7 +21,7 @@ type
 
 
   //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
-  TAIAttack = packed record
+  TAIAttack = packed record //todo: Make it a class with initialized fields
     AttackType: TAIAttackType; //Once or repeating
     HasOccured: boolean; //Has this attack happened already?
     Delay: Cardinal; //The attack will not occur before this time has passed
@@ -44,6 +44,7 @@ type
     property Items[aIndex: Integer]: TAIAttack read GetAttack; default;
 
     procedure AddAttack(aAttack: TAIAttack);
+    procedure Delete(aIndex: Integer);
     function MayOccur(aIndex: Integer; MenAvailable: Integer; const GroupsAvailableCount: array of Word; aTick: Cardinal): Boolean;
     procedure Occured(aIndex: Integer);
 
@@ -87,7 +88,18 @@ begin
     SetLength(fAttacks, fCount + 16);
 
   fAttacks[fCount] := aAttack;
-  inc(fCount);
+  Inc(fCount);
+end;
+
+
+procedure TAIAttacks.Delete(aIndex: Integer);
+begin
+  Assert(InRange(aIndex, 0, Count - 1));
+
+  if (aIndex <> Count - 1) then
+    Move(fAttacks[aIndex + 1], fAttacks[aIndex], (Count - 1 - aIndex) * SizeOf(fAttacks[0]));
+
+  Dec(fCount);
 end;
 
 
