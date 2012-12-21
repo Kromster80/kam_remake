@@ -246,54 +246,59 @@ procedure TGameInputProcess.ExecCommand(aCommand: TGameInputCommand);
 var
   P: TKMPlayer;
   IsSilent: boolean;
-  Group1, Group2: TKMUnitGroup;
-  U: TKMUnit;
-  H, H2: TKMHouse;
+  SrcGroup, TgtGroup: TKMUnitGroup;
+  TgtUnit: TKMUnit;
+  SrcHouse, TgtHouse: TKMHouse;
 begin
   //NOTE: MyPlayer should not be used for important stuff here, use P instead (commands must be executed the same for all players)
   IsSilent := (aCommand.PlayerIndex <> MyPlayer.PlayerIndex);
   P := fPlayers[aCommand.PlayerIndex];
-  Group1 := nil;
-  Group2 := nil;
-  H := nil;
-  H2 := nil;
-  U := nil;
+  SrcGroup := nil;
+  TgtGroup := nil;
+  SrcHouse := nil;
+  TgtHouse := nil;
+  TgtUnit := nil;
 
   with aCommand do
   begin
     //It is possible that units/houses have died by now
-    if CommandType in [gic_ArmyFeed,gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,gic_ArmyAttackHouse,gic_ArmyHalt,gic_ArmyFormation,gic_ArmyWalk,gic_ArmyStorm] then
+    if CommandType in [gic_ArmyFeed, gic_ArmySplit, gic_ArmyLink, gic_ArmyAttackUnit,
+                       gic_ArmyAttackHouse, gic_ArmyHalt, gic_ArmyFormation,
+                       gic_ArmyWalk, gic_ArmyStorm]
+    then
     begin
-      Group1 := fPlayers.GetGroupByID(Params[1]);
-      if (Group1 = nil) or Group1.IsDead //Group has died before command could be executed
-      or (Group1.Owner <> aCommand.PlayerIndex) then Exit; //Potential exploit
+      SrcGroup := fPlayers.GetGroupByID(Params[1]);
+      if (SrcGroup = nil) or SrcGroup.IsDead //Group has died before command could be executed
+      or (SrcGroup.Owner <> aCommand.PlayerIndex) then //Potential exploit
+        Exit;
     end;
     if CommandType in [gic_ArmyLink] then
     begin
-      Group2 := fPlayers.GetGroupByID(Params[2]);
-      if (Group2 = nil) or Group2.IsDead //Unit has died before command could be executed
-      or (Group2.Owner <> aCommand.PlayerIndex) then Exit; //Potential exploit
+      TgtGroup := fPlayers.GetGroupByID(Params[2]);
+      if (TgtGroup = nil) or TgtGroup.IsDead //Unit has died before command could be executed
+      or (TgtGroup.Owner <> aCommand.PlayerIndex) then //Potential exploit
+        Exit;
     end;
     if CommandType in [gic_ArmyAttackUnit] then
     begin
-      U := fPlayers.GetUnitByID(Params[2]);
-      if (U = nil) or U.IsDeadOrDying //Unit has died before command could be executed
-      or (U.Owner <> aCommand.PlayerIndex) then Exit; //Potential exploit
+      TgtUnit := fPlayers.GetUnitByID(Params[2]);
+      if (TgtUnit = nil) or TgtUnit.IsDeadOrDying then //Unit has died before command could be executed
+        Exit;
     end;
     if CommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle,
       gic_HouseOrderProduct, gic_HouseMarketFrom, gic_HouseMarketTo,
       gic_HouseStoreAcceptFlag, gic_HouseBarracksAcceptFlag, gic_HouseBarracksEquip,
       gic_HouseSchoolTrain, gic_HouseRemoveTrain, gic_HouseWoodcutterMode] then
     begin
-      H := fPlayers.GetHouseByID(Params[1]);
-      if (H = nil) or H.IsDestroyed //House has been destroyed before command could be executed
-      or (H.Owner <> aCommand.PlayerIndex) then Exit; //Potential exploit
+      SrcHouse := fPlayers.GetHouseByID(Params[1]);
+      if (SrcHouse = nil) or SrcHouse.IsDestroyed //House has been destroyed before command could be executed
+      or (SrcHouse.Owner <> aCommand.PlayerIndex) then //Potential exploit
+        Exit;
     end;
     if CommandType in [gic_ArmyAttackHouse] then
     begin
-      H2 := fPlayers.GetHouseByID(Params[2]);
-      if (H2 = nil) or H2.IsDestroyed //House has been destroyed before command could be executed
-      or (H2.Owner <> aCommand.PlayerIndex) then Exit; //Potential exploit
+      TgtHouse := fPlayers.GetHouseByID(Params[2]);
+      if (TgtHouse = nil) or TgtHouse.IsDestroyed then Exit; //House has been destroyed before command could be executed
     end;
 
     //Some commands are blocked by peacetime (this is a fall back in case players try to cheat)
@@ -305,15 +310,15 @@ begin
       Exit;
 
     case CommandType of
-      gic_ArmyFeed:         Group1.OrderFood(True);
-      gic_ArmySplit:        Group1.OrderSplit(True);
-      gic_ArmyStorm:        Group1.OrderStorm(True);
-      gic_ArmyLink:         Group1.OrderLinkTo(Group2, True);
-      gic_ArmyAttackUnit:   Group1.OrderAttackUnit(U, True);
-      gic_ArmyAttackHouse:  Group1.OrderAttackHouse(H2, True);
-      gic_ArmyHalt:         Group1.OrderHalt(True);
-      gic_ArmyFormation:    Group1.OrderFormation(TKMTurnDirection(Params[2]),Params[3], True);
-      gic_ArmyWalk:         Group1.OrderWalk(KMPoint(Params[2],Params[3]), True, TKMDirection(Params[4]));
+      gic_ArmyFeed:         SrcGroup.OrderFood(True);
+      gic_ArmySplit:        SrcGroup.OrderSplit(True);
+      gic_ArmyStorm:        SrcGroup.OrderStorm(True);
+      gic_ArmyLink:         SrcGroup.OrderLinkTo(TgtGroup, True);
+      gic_ArmyAttackUnit:   SrcGroup.OrderAttackUnit(TgtUnit, True);
+      gic_ArmyAttackHouse:  SrcGroup.OrderAttackHouse(TgtHouse, True);
+      gic_ArmyHalt:         SrcGroup.OrderHalt(True);
+      gic_ArmyFormation:    SrcGroup.OrderFormation(TKMTurnDirection(Params[2]),Params[3], True);
+      gic_ArmyWalk:         SrcGroup.OrderWalk(KMPoint(Params[2],Params[3]), True, TKMDirection(Params[4]));
 
       gic_BuildAddFieldPlan:      P.ToggleFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3]), not fGame.IsMultiplayer); //Make sound in singleplayer mode only
       gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]), not fGame.IsMultiplayer); //Make sound in singleplayer mode only
@@ -322,17 +327,17 @@ begin
       gic_BuildHousePlan:         if P.CanAddHousePlan(KMPoint(Params[2],Params[3]), THouseType(Params[1])) then
                                     P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));
 
-      gic_HouseRepairToggle:      H.RepairToggle;
-      gic_HouseDeliveryToggle:    H.WareDelivery := not H.WareDelivery;
-      gic_HouseOrderProduct:      H.ResEditOrder(Params[2], Params[3]);
-      gic_HouseMarketFrom:        TKMHouseMarket(H).ResFrom := TResourceType(Params[2]);
-      gic_HouseMarketTo:          TKMHouseMarket(H).ResTo := TResourceType(Params[2]);
-      gic_HouseStoreAcceptFlag:   TKMHouseStore(H).ToggleAcceptFlag(TResourceType(Params[2]));
-      gic_HouseWoodcutterMode:    TKMHouseWoodcutters(H).WoodcutterMode := TWoodcutterMode(Params[2]);
-      gic_HouseBarracksAcceptFlag:TKMHouseBarracks(H).ToggleAcceptFlag(TResourceType(Params[2]));
-      gic_HouseBarracksEquip:     TKMHouseBarracks(H).Equip(TUnitType(Params[2]), Params[3]);
-      gic_HouseSchoolTrain:       TKMHouseSchool(H).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
-      gic_HouseRemoveTrain:       TKMHouseSchool(H).RemUnitFromQueue(Params[2]);
+      gic_HouseRepairToggle:      SrcHouse.RepairToggle;
+      gic_HouseDeliveryToggle:    SrcHouse.WareDelivery := not SrcHouse.WareDelivery;
+      gic_HouseOrderProduct:      SrcHouse.ResEditOrder(Params[2], Params[3]);
+      gic_HouseMarketFrom:        TKMHouseMarket(SrcHouse).ResFrom := TResourceType(Params[2]);
+      gic_HouseMarketTo:          TKMHouseMarket(SrcHouse).ResTo := TResourceType(Params[2]);
+      gic_HouseStoreAcceptFlag:   TKMHouseStore(SrcHouse).ToggleAcceptFlag(TResourceType(Params[2]));
+      gic_HouseWoodcutterMode:    TKMHouseWoodcutters(SrcHouse).WoodcutterMode := TWoodcutterMode(Params[2]);
+      gic_HouseBarracksAcceptFlag:TKMHouseBarracks(SrcHouse).ToggleAcceptFlag(TResourceType(Params[2]));
+      gic_HouseBarracksEquip:     TKMHouseBarracks(SrcHouse).Equip(TUnitType(Params[2]), Params[3]);
+      gic_HouseSchoolTrain:       TKMHouseSchool(SrcHouse).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
+      gic_HouseRemoveTrain:       TKMHouseSchool(SrcHouse).RemUnitFromQueue(Params[2]);
 
       gic_RatioChange:            begin
                                     P.Stats.Ratio[TResourceType(Params[1]), THouseType(Params[2])] := Params[3];
