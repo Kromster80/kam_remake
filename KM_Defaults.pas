@@ -27,8 +27,8 @@ const
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r4318';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = '5th Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
+  GAME_REVISION         = 'r4381';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Next Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
@@ -122,7 +122,7 @@ var
   ALLOW_MP_MODS         :Boolean = False; //Don't let people enter MP mode if they are using mods (unit.dat, house.dat, etc.)
   ALLOW_NO_HUMAN_IN_SP  :Boolean = True; //Allow to load SP maps without Human player (usefull for AI testing)
   {Data output}
-  WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
+  WRITE_DECODED_MISSION :Boolean = True; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
   WRITE_WALKTO_LOG      :Boolean = False; //Write even more output into log + slows down game noticably
   WRITE_RECONNECT_LOG   :Boolean = True;

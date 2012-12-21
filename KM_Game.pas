@@ -1401,7 +1401,6 @@ begin
   fMinimap.LoadFromTerrain(fAlerts);
   fMinimap.Update(False);
 
-
   if fGameMode = gmMapEd then
   begin
     fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY, 100/CELL_SIZE_PX);

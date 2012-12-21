@@ -1468,12 +1468,14 @@ end;
 
 
 procedure TKMapEdInterface.Player_UpdateColors;
-var I: Integer;
+var
+  I: Integer;
 begin
   //Set player colors
   for I := 0 to MAX_PLAYERS - 1 do
     Button_PlayerSelect[I].ShapeColor := fPlayers[I].FlagColor;
 
+  //Update pages that have colored elements to match new players color
   Button_Village[vtUnits].FlagColor := MyPlayer.FlagColor;
   for I := Low(Button_Citizen) to High(Button_Citizen) do
     Button_Citizen[I].FlagColor := MyPlayer.FlagColor;

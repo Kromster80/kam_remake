@@ -90,6 +90,7 @@ type
     function IsAttackingHouse: Boolean; //Attacking house
     function CanTakeOrders: Boolean;
     function CanWalkTo(aTo: TKMPoint; aDistance: Single): Boolean;
+    function FightMaxRange: Single;
     function IsRanged: Boolean;
     function IsDead: Boolean;
     function UnitType: TUnitType;
@@ -317,6 +318,17 @@ begin
   fOffenders.Free;
 
   inherited;
+end;
+
+
+function TKMUnitGroup.FightMaxRange: Single;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to Count - 1 do
+  if Members[I].GetFightMaxRange > Result then
+    Result := Members[I].GetFightMaxRange;
 end;
 
 
