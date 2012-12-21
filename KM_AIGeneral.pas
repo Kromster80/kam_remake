@@ -334,12 +334,12 @@ begin
     Loc := KMPointRound(KMLerp(Outline2[I].A, Outline2[I].B, 0.5));
     LocI := KMGetPointInDir(Loc, KMAddDirection(FaceDir, 4), 1);
     Loc := fTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
-    fDefencePositions.AddDefencePosition(KMPointDir(Loc, FaceDir), gt_Melee, 12, adt_FrontLine);
+    fDefencePositions.Add(KMPointDir(Loc, FaceDir), gt_Melee, 12, adt_FrontLine);
 
     Loc := KMPointRound(KMLerp(Outline2[I].A, Outline2[I].B, 0.5));
     LocI := KMGetPointInDir(Loc, KMAddDirection(FaceDir, 4), 4);
     Loc := fTerrain.EnsureTileInMapCoords(LocI.X, LocI.Y, 3);
-    fDefencePositions.AddDefencePosition(KMPointDir(Loc, FaceDir), gt_Ranged, 12, adt_FrontLine);
+    fDefencePositions.Add(KMPointDir(Loc, FaceDir), gt_Ranged, 12, adt_FrontLine);
   end;
 
   //Compare existing defence positions with the sample

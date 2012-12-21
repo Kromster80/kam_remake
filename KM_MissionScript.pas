@@ -772,7 +772,7 @@ begin
                               AddError('Add_LostGoal for non existing player');
     ct_AIDefence:       if fLastPlayer >=0 then
                         if InRange(P[3], Integer(Low(TGroupType)), Integer(High(TGroupType))) then //TPR 3 tries to set TGroupType 240 due to a missing space
-                          fPlayers[fLastPlayer].AI.General.DefencePositions.AddDefencePosition(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
+                          fPlayers[fLastPlayer].AI.General.DefencePositions.Add(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastPlayer >=0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
                           fPlayers[fLastPlayer].FlagColor := fResource.Palettes.DefDal.Color32(P[0]);

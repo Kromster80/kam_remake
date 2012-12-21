@@ -36,55 +36,54 @@ type
     procedure Create_House;
     procedure Create_HouseStore;
     procedure Create_HouseBarracks;
-    procedure Create_Markers_Page;
+    procedure Create_Marker;
     procedure Create_FormationsPopUp;
+
+    procedure Build_ButtonClick(Sender: TObject);
+    procedure Defence_Refresh;
+    procedure Defence_Change(Sender: TObject);
+    procedure Formations_Show(Sender: TObject);
+    procedure Formations_Close(Sender: TObject);
+    procedure House_HealthChange(Sender: TObject; AButton: TMouseButton);
+    procedure House_BarracksRefresh(Sender: TObject);
+    procedure House_BarracksSelectWare(Sender: TObject);
+    procedure House_BarracksEditCount(Sender: TObject; AButton:TMouseButton);
+    procedure House_StoreRefresh(Sender: TObject);
+    procedure House_StoreSelectWare(Sender: TObject);
+    procedure House_StoreEditCount(Sender: TObject; AButton:TMouseButton);
+    procedure Marker_Change(Sender: TObject);
+    procedure Menu_SaveClick(Sender: TObject);
+    procedure Menu_LoadClick(Sender: TObject);
+    procedure Menu_QuitClick(Sender: TObject);
+    procedure Menu_LoadChange(Sender: TObject);
+    procedure Menu_LoadUpdate;
+    procedure Menu_LoadUpdateDone(Sender: TObject);
+    procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
+    procedure Mission_AlliancesChange(Sender: TObject);
+    procedure Mission_PlayerTypesChange(Sender: TObject);
+    procedure Player_BlockClick(Sender: TObject);
+    procedure Player_BlockRefresh;
+    procedure Player_ChangeActive(Sender: TObject);
+    procedure Player_ColorClick(Sender: TObject);
+    procedure Player_RevealClick(Sender: TObject);
+    procedure Terrain_HeightChange(Sender: TObject);
+    procedure Terrain_TilesChange(Sender: TObject);
+    procedure Terrain_ObjectsChange(Sender: TObject);
+    procedure Unit_ButtonClick(Sender: TObject);
+    procedure Unit_ArmyChange1(Sender: TObject); overload;
+    procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
+    procedure View_Passability(Sender: TObject);
+    procedure Village_ScriptRefresh;
+    procedure Village_ScriptChange(Sender: TObject);
 
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
-    procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
     procedure ShowGroupInfo(Sender: TKMUnitGroup);
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
-
-    procedure Menu_Save(Sender: TObject);
-    procedure Menu_Load(Sender: TObject);
-    procedure Menu_QuitMission(Sender: TObject);
-    procedure Load_MapTypeChange(Sender: TObject);
-    procedure Load_MapListUpdate;
-    procedure Load_MapListUpdateDone(Sender: TObject);
-    procedure Terrain_HeightChange(Sender: TObject);
-    procedure Terrain_TilesChange(Sender: TObject);
-    procedure Terrain_ObjectsChange(Sender: TObject);
-    procedure Build_ButtonClick(Sender: TObject);
-    procedure Defence_Refresh;
-    procedure Defence_Change(Sender: TObject);
-    procedure Defence_ListClick(Sender: TObject);
-    procedure House_HealthChange(Sender: TObject; AButton: TMouseButton);
-    procedure Unit_ButtonClick(Sender: TObject);
-    procedure Unit_ArmyChange1(Sender: TObject); overload;
-    procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
-    procedure Barracks_FillValues(Sender: TObject);
-    procedure Barracks_SelectWare(Sender: TObject);
-    procedure Barracks_EditWareCount(Sender: TObject; AButton:TMouseButton);
-    procedure Store_FillValues(Sender: TObject);
-    procedure Store_SelectWare(Sender: TObject);
-    procedure Store_EditWareCount(Sender: TObject; AButton:TMouseButton);
-    procedure Player_ChangeActive(Sender: TObject);
     procedure SetActivePlayer(aIndex: TPlayerIndex);
     procedure SetTileDirection(aTileDirection: byte);
-    procedure Village_ScriptRefresh;
-    procedure Village_ScriptChange(Sender: TObject);
-    procedure Player_BlockClick(Sender: TObject);
-    procedure Player_BlockRefresh;
-    procedure Player_ColorClick(Sender: TObject);
-    procedure Player_RevealClick(Sender: TObject);
-    procedure Mission_AlliancesChange(Sender: TObject);
-    procedure Mission_PlayerTypesChange(Sender: TObject);
-    procedure View_Passability(Sender: TObject);
-    procedure Marker_Change(Sender: TObject);
-    procedure Formations_Show(Sender: TObject);
-    procedure Formations_Close(Sender: TObject);
 
     function GetSelectedTile: TObject;
     function GetSelectedObject: TObject;
@@ -154,7 +153,6 @@ type
         TrackBar_EquipRateLeather: TKMTrackBar;
         TrackBar_EquipRateIron: TKMTrackBar;
         TrackBar_RecruitFactor: TKMTrackBar;
-        List_Defences: TKMListBox;
         Button_EditFormations: TKMButton;
 
     Panel_Formations: TKMPanel;
@@ -248,14 +246,13 @@ type
 
       Panel_MarkerReveal: TKMPanel;
         TrackBar_RevealSize: TKMTrackBar;
+        Button_RevealDelete: TKMButton;
       Panel_MarkerDefence: TKMPanel;
         DropList_DefenceGroup: TKMDropList;
         DropList_DefenceType: TKMDropList;
         TrackBar_DefenceRad: TKMTrackBar;
-        Button_DefenceCW: TKMButton;
-        Button_DefenceCCW: TKMButton;
-
-
+        Button_DefenceCW, Button_DefenceCCW: TKMButton;
+        Button_DefenceDelete: TKMButton;
   public
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
@@ -279,9 +276,8 @@ type
 
 
 implementation
-
 uses
-  KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Game, KM_GameApp, KM_Resource,
+  KM_CommonClasses, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Game, KM_GameApp, KM_Resource,
   KM_ResourceUnit, KM_ResourceCursors, KM_ResourceMapElements, KM_AIDefensePos, KM_ResourceHouse;
 
 
@@ -462,13 +458,13 @@ begin
   if Sender = Button_Menu_Save then
   begin
     Edit_SaveName.Text := fGame.GameName;
-    Menu_Save(Edit_SaveName);
+    Menu_SaveClick(Edit_SaveName);
     Panel_Save.Show;
   end;
 
   if Sender = Button_Menu_Load then
   begin
-    Load_MapListUpdate;
+    Menu_LoadUpdate;
     Panel_Load.Show;
   end;
 
@@ -674,7 +670,7 @@ begin
     Create_HouseStore;
     Create_HouseBarracks;
     //Create_TownHall_Page;
-  Create_Markers_Page;
+  Create_Marker;
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
   Image_Extra.Anchors := [akLeft, akBottom];
@@ -922,10 +918,7 @@ begin
       TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks'; //@Lewin: Please check me on this one
       TrackBar_RecruitFactor.OnClick := Defence_Change;
 
-      List_Defences := TKMListBox.Create(Panel_Defence, 0, 170, TB_WIDTH, 160, fnt_Grey, bsGame);
-      List_Defences.OnDoubleClick := Defence_ListClick;
-
-      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 340, TB_WIDTH, 25, 'Edit formations', bsGame);
+      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 175, TB_WIDTH, 25, 'Edit formations', bsGame);
       Button_EditFormations.OnClick := Formations_Show;
 end;
 
@@ -1051,7 +1044,7 @@ begin
     Radio_Save_MapType.ItemIndex := 0;
     Radio_Save_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
     Radio_Save_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
-    Radio_Save_MapType.OnChange := Menu_Save;
+    Radio_Save_MapType.OnChange := Menu_SaveClick;
     TKMLabel.Create(Panel_Save,0,90,TB_WIDTH,20,'Save map',fnt_Outline,taCenter);
     Edit_SaveName       := TKMEdit.Create(Panel_Save,0,110,TB_WIDTH,20, fnt_Grey);
     Edit_SaveName.AllowedChars := acFileName;
@@ -1059,9 +1052,9 @@ begin
     CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,0,160,TB_WIDTH,20,'Overwrite', fnt_Metal);
     Button_SaveSave     := TKMButton.Create(Panel_Save,0,180,TB_WIDTH,30,'Save',bsGame);
     Button_SaveCancel   := TKMButton.Create(Panel_Save,0,220,TB_WIDTH,30,'Cancel',bsGame);
-    Edit_SaveName.OnChange      := Menu_Save;
-    CheckBox_SaveExists.OnClick := Menu_Save;
-    Button_SaveSave.OnClick     := Menu_Save;
+    Edit_SaveName.OnChange      := Menu_SaveClick;
+    CheckBox_SaveExists.OnClick := Menu_SaveClick;
+    Button_SaveSave.OnClick     := Menu_SaveClick;
     Button_SaveCancel.OnClick   := SwitchPage;
 end;
 
@@ -1076,12 +1069,12 @@ begin
     Radio_Load_MapType.ItemIndex := 0;
     Radio_Load_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
     Radio_Load_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
-    Radio_Load_MapType.OnChange := Load_MapTypeChange;
+    Radio_Load_MapType.OnChange := Menu_LoadChange;
     ListBox_Load := TKMListBox.Create(Panel_Load, 0, 75, TB_WIDTH, 205, fnt_Grey, bsGame);
     ListBox_Load.ItemHeight := 18;
     Button_LoadLoad     := TKMButton.Create(Panel_Load,0,290,TB_WIDTH,30,'Load',bsGame);
     Button_LoadCancel   := TKMButton.Create(Panel_Load,0,325,TB_WIDTH,30,'Cancel',bsGame);
-    Button_LoadLoad.OnClick     := Menu_Load;
+    Button_LoadLoad.OnClick     := Menu_LoadClick;
     Button_LoadCancel.OnClick   := SwitchPage;
 end;
 
@@ -1095,7 +1088,7 @@ begin
     Button_Quit_No    := TKMButton.Create(Panel_Quit,0,140,TB_WIDTH,30,fTextLibrary[TX_MENU_DONT_QUIT_MISSION],bsGame);
     Button_Quit_Yes.Hint      := fTextLibrary[TX_MENU_QUIT_MISSION];
     Button_Quit_No.Hint       := fTextLibrary[TX_MENU_DONT_QUIT_MISSION];
-    Button_Quit_Yes.OnClick   := Menu_QuitMission;
+    Button_Quit_Yes.OnClick   := Menu_QuitClick;
     Button_Quit_No.OnClick    := SwitchPage;
 end;
 
@@ -1245,7 +1238,7 @@ begin
       Button_Store[I].TexID := fResource.Resources[StoreResType[I]].GUIIcon;
       Button_Store[I].Tag := I;
       Button_Store[I].Hint := fResource.Resources[StoreResType[I]].Title;
-      Button_Store[I].OnClick := Store_SelectWare;
+      Button_Store[I].OnClick := House_StoreSelectWare;
     end;
 
     Button_StoreDec100      := TKMButton.Create(Panel_HouseStore,108,218,20,20,'<', bsGame);
@@ -1257,10 +1250,10 @@ begin
     Button_StoreInc100.Tag  := 100;
     Button_StoreInc       := TKMButton.Create(Panel_HouseStore,168,238,20,20,'+', bsGame);
     Button_StoreInc.Tag   := 1;
-    Button_StoreDec100.OnClickEither := Store_EditWareCount;
-    Button_StoreDec.OnClickEither    := Store_EditWareCount;
-    Button_StoreInc100.OnClickEither := Store_EditWareCount;
-    Button_StoreInc.OnClickEither    := Store_EditWareCount;
+    Button_StoreDec100.OnClickEither := House_StoreEditCount;
+    Button_StoreDec.OnClickEither    := House_StoreEditCount;
+    Button_StoreInc100.OnClickEither := House_StoreEditCount;
+    Button_StoreInc.OnClickEither    := House_StoreEditCount;
 end;
 
 
@@ -1278,7 +1271,7 @@ begin
       Button_Barracks[i].TexOffsetY := 1;
       Button_Barracks[i].CapOffsetY := 2;
       Button_Barracks[i].Hint := fResource.Resources[BarracksResType[i]].Title;
-      Button_Barracks[i].OnClick := Barracks_SelectWare;
+      Button_Barracks[i].OnClick := House_BarracksSelectWare;
     end;
     Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,108,218,20,20,'<', bsGame);
     Button_BarracksDec100.Tag := 100;
@@ -1289,14 +1282,14 @@ begin
     Button_BarracksInc100.Tag := 100;
     Button_BarracksInc      := TKMButton.Create(Panel_HouseBarracks,168,238,20,20,'+', bsGame);
     Button_BarracksInc.Tag  := 1;
-    Button_BarracksDec100.OnClickEither := Barracks_EditWareCount;
-    Button_BarracksDec.OnClickEither    := Barracks_EditWareCount;
-    Button_BarracksInc100.OnClickEither := Barracks_EditWareCount;
-    Button_BarracksInc.OnClickEither    := Barracks_EditWareCount;
+    Button_BarracksDec100.OnClickEither := House_BarracksEditCount;
+    Button_BarracksDec.OnClickEither    := House_BarracksEditCount;
+    Button_BarracksInc100.OnClickEither := House_BarracksEditCount;
+    Button_BarracksInc.OnClickEither    := House_BarracksEditCount;
 end;
 
 
-procedure TKMapEdInterface.Create_Markers_Page;
+procedure TKMapEdInterface.Create_Marker;
 begin
   Panel_Marker := TKMPanel.Create(Panel_Common, 0, 50, TB_WIDTH, 400);
 
@@ -1307,6 +1300,9 @@ begin
       TrackBar_RevealSize := TKMTrackBar.Create(Panel_MarkerReveal, 0, 10, TB_WIDTH, 1, 128);
       TrackBar_RevealSize.Caption := 'Area';
       TrackBar_RevealSize.OnChange := Marker_Change;
+      Button_RevealDelete := TKMButton.Create(Panel_MarkerReveal, 0, 55, 25, 25, 340, rxGui, bsGame);
+      Button_RevealDelete.Hint := 'Delete current marker';
+      Button_RevealDelete.OnClick := Marker_Change;
 
     Panel_MarkerDefence := TKMPanel.Create(Panel_Marker, 0, 60, TB_WIDTH, 400);
       DropList_DefenceGroup := TKMDropList.Create(Panel_MarkerDefence, 0, 10, TB_WIDTH, 20, fnt_Game, '', bsGame);
@@ -1322,6 +1318,9 @@ begin
       Button_DefenceCCW.OnClick := Marker_Change;
       Button_DefenceCW := TKMButton.Create(Panel_MarkerDefence, 130, 120, 50, 35, 24, rxGui, bsGame);
       Button_DefenceCW.OnClick := Marker_Change;
+      Button_DefenceDelete := TKMButton.Create(Panel_MarkerDefence, 0, 165, 25, 25, 340, rxGui, bsGame);
+      Button_DefenceDelete.Hint := 'Delete current marker';
+      Button_DefenceDelete.OnClick := Marker_Change;
 end;
 
 
@@ -1438,12 +1437,6 @@ begin
   TrackBar_EquipRateLeather.Position := MyPlayer.AI.Setup.EquipRateLeather div 10;
   TrackBar_EquipRateIron.Position := MyPlayer.AI.Setup.EquipRateIron div 10;
   TrackBar_RecruitFactor.Position := MyPlayer.AI.Setup.RecruitFactor;
-
-  List_Defences.Clear;
-
-  with MyPlayer.AI.General.DefencePositions do
-  for I := 0 to Count - 1 do
-    List_Defences.Add(Positions[I].UITitle);
 end;
 
 
@@ -1453,17 +1446,6 @@ begin
   MyPlayer.AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
   MyPlayer.AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
   MyPlayer.AI.Setup.RecruitFactor := TrackBar_RecruitFactor.Position;
-end;
-
-
-procedure TKMapEdInterface.Defence_ListClick(Sender: TObject);
-var
-  I: Integer;
-begin
-  I := List_Defences.ItemIndex;
-  if I = -1 then Exit;
-
-  fGame.Viewport.Position := KMPointF(MyPlayer.AI.General.DefencePositions[I].Position.Loc);
 end;
 
 
@@ -1790,16 +1772,16 @@ begin
 
   case Sender.HouseType of
     ht_Store: begin
-          Store_FillValues(nil);
+          House_StoreRefresh(nil);
           SwitchPage(Panel_HouseStore);
-          Store_SelectWare(Button_Store[fStorehouseItem]); //Reselect the ware so the display is updated
+          House_StoreSelectWare(Button_Store[fStorehouseItem]); //Reselect the ware so the display is updated
         end;
 
     ht_Barracks: begin
-          Barracks_FillValues(nil);
+          House_BarracksRefresh(nil);
           Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
           SwitchPage(Panel_HouseBarracks);
-          Barracks_SelectWare(Button_Barracks[fBarracksItem]); //Reselect the ware so the display is updated
+          House_BarracksSelectWare(Button_Barracks[fBarracksItem]); //Reselect the ware so the display is updated
         end;
     ht_TownHall:;
     else SwitchPage(Panel_House);
@@ -1882,7 +1864,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Menu_Save(Sender: TObject);
+procedure TKMapEdInterface.Menu_SaveClick(Sender: TObject);
 var
   SaveName: string;
 begin
@@ -1916,6 +1898,7 @@ end;
 procedure TKMapEdInterface.Marker_Change(Sender: TObject);
 var
   DP: TAIDefencePosition;
+  Rev: TKMPointTagList;
 begin
   case fActiveMarker.MarkerType of
     mtDefence:    begin
@@ -1929,14 +1912,32 @@ begin
                     if Sender = Button_DefenceCCW then
                       DP.Position := KMPointDir(DP.Position.Loc, KMPrevDirection(DP.Position.Dir));
 
+                    if Sender = Button_DefenceDelete then
+                    begin
+                      fPlayers[fActiveMarker.Owner].AI.General.DefencePositions.Delete(fActiveMarker.Index);
+                      SwitchPage(Button_Player[3]);
+                    end;
+
                   end;
-    mtRevealFOW: fGame.MapEditor.Revealers[fActiveMarker.Owner].Tag[fActiveMarker.Index] := TrackBar_RevealSize.Position;
+    mtRevealFOW:  begin
+                    //Shortcut to structure we update
+                    Rev := fGame.MapEditor.Revealers[fActiveMarker.Owner];
+
+                    if Sender = TrackBar_RevealSize then
+                      Rev.Tag[fActiveMarker.Index] := TrackBar_RevealSize.Position;
+
+                    if Sender = Button_RevealDelete then
+                    begin
+                      Rev.DeleteEntry(fActiveMarker.Index);
+                      SwitchPage(Button_Player[4]);
+                    end;
+                  end;
   end;
 end;
 
 
 //Mission loading dialog
-procedure TKMapEdInterface.Menu_Load(Sender: TObject);
+procedure TKMapEdInterface.Menu_LoadClick(Sender: TObject);
 var
   MapName: string;
   IsMulti: Boolean;
@@ -1955,19 +1956,19 @@ end;
 
 
 {Quit the mission and return to main menu}
-procedure TKMapEdInterface.Menu_QuitMission(Sender: TObject);
+procedure TKMapEdInterface.Menu_QuitClick(Sender: TObject);
 begin
   fGameApp.Stop(gr_MapEdEnd);
 end;
 
 
-procedure TKMapEdInterface.Load_MapTypeChange(Sender: TObject);
+procedure TKMapEdInterface.Menu_LoadChange(Sender: TObject);
 begin
-  Load_MapListUpdate;
+  Menu_LoadUpdate;
 end;
 
 
-procedure TKMapEdInterface.Load_MapListUpdate;
+procedure TKMapEdInterface.Menu_LoadUpdate;
 begin
   fMaps.TerminateScan;
   fMapsMP.TerminateScan;
@@ -1976,13 +1977,13 @@ begin
   ListBox_Load.ItemIndex := -1;
 
   if Radio_Load_MapType.ItemIndex = 0 then
-    fMaps.Refresh(Load_MapListUpdateDone)
+    fMaps.Refresh(Menu_LoadUpdateDone)
   else
-    fMapsMP.Refresh(Load_MapListUpdateDone);
+    fMapsMP.Refresh(Menu_LoadUpdateDone);
 end;
 
 
-procedure TKMapEdInterface.Load_MapListUpdateDone(Sender: TObject);
+procedure TKMapEdInterface.Menu_LoadUpdateDone(Sender: TObject);
 begin
   if Radio_Load_MapType.ItemIndex = 0 then
     ListBox_Load.SetItems(fMaps.MapList)
@@ -2029,37 +2030,45 @@ end;
 
 
 function TKMapEdInterface.GetSelectedTile: TObject;
-var i: byte;
+var I: Byte;
 begin
   Result := nil;
-  for i:=1 to MAPED_TILES_COLS*MAPED_TILES_ROWS do
-    if TilesTable[i].Down then Result := TilesTable[i];
+  for I := 1 to MAPED_TILES_COLS * MAPED_TILES_ROWS do
+    if TilesTable[I].Down then
+      Result := TilesTable[I];
 end;
 
 
 function TKMapEdInterface.GetSelectedObject: TObject;
-var i: byte;
+var I: Byte;
 begin
   Result := nil;
-  for i:=1 to 4 do
-    if ObjectsTable[i].Down then Result := ObjectsTable[i];
+  for I := 1 to 4 do
+    if ObjectsTable[I].Down then
+      Result := ObjectsTable[I];
 end;
 
 
 function TKMapEdInterface.GetSelectedUnit: TObject;
-var i: byte;
+var I: Byte;
 begin
   Result := nil;
-  for i:=0 to High(Button_Citizen) do
-    if Button_Citizen[i].Down then Result := Button_Citizen[i];
-  for i:=0 to High(Button_Warriors) do
-    if Button_Warriors[i].Down then Result := Button_Warriors[i];
-  for i:=0 to High(Button_Animals) do
-    if Button_Animals[i].Down then Result := Button_Animals[i];
+
+  for I := 0 to High(Button_Citizen) do
+    if Button_Citizen[I].Down then
+      Result := Button_Citizen[I];
+
+  for I := 0 to High(Button_Warriors) do
+    if Button_Warriors[I].Down then
+      Result := Button_Warriors[I];
+
+  for I := 0 to High(Button_Animals) do
+    if Button_Animals[I].Down then
+      Result := Button_Animals[I];
 end;
 
 
-procedure TKMapEdInterface.Store_FillValues(Sender: TObject);
+procedure TKMapEdInterface.House_StoreRefresh(Sender: TObject);
 var
   I, Tmp: Integer;
 begin
@@ -2074,7 +2083,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Barracks_FillValues(Sender: TObject);
+procedure TKMapEdInterface.House_BarracksRefresh(Sender: TObject);
 var
   I, Tmp: Integer;
 begin
@@ -2174,7 +2183,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Barracks_SelectWare(Sender: TObject);
+procedure TKMapEdInterface.House_BarracksSelectWare(Sender: TObject);
 var I: Integer;
 begin
   if not Panel_HouseBarracks.Visible then exit;
@@ -2185,25 +2194,27 @@ begin
     Button_Barracks[I].Down := False;
   TKMButtonFlat(Sender).Down := True;
   fBarracksItem := TKMButtonFlat(Sender).Tag;
-  Barracks_EditWareCount(Sender, mbLeft);
+  House_BarracksEditCount(Sender, mbLeft);
 end;
 
 
-procedure TKMapEdInterface.Store_SelectWare(Sender: TObject);
-var i:Integer;
+procedure TKMapEdInterface.House_StoreSelectWare(Sender: TObject);
+var I: Integer;
 begin
   if not Panel_HouseStore.Visible then exit;
   if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
   if TKMButtonFlat(Sender).Tag = 0 then exit; //with set Tag
-  for i:=1 to length(Button_Store) do
-    Button_Store[i].Down := false;
-  TKMButtonFlat(Sender).Down := true;
+
+  for I := 1 to Length(Button_Store) do
+    Button_Store[I].Down := False;
+
+  TKMButtonFlat(Sender).Down := True;
   fStorehouseItem := TKMButtonFlat(Sender).Tag;
-  Store_EditWareCount(Sender, mbLeft);
+  House_StoreEditCount(Sender, mbLeft);
 end;
 
 
-procedure TKMapEdInterface.Barracks_EditWareCount(Sender: TObject; AButton:TMouseButton);
+procedure TKMapEdInterface.House_BarracksEditCount(Sender: TObject; AButton:TMouseButton);
 var
   Res: TResourceType;
   Barracks: TKMHouseBarracks;
@@ -2225,11 +2236,11 @@ begin
   end;
 
   Label_Barracks_WareCount.Caption := IntToStr(Barracks.CheckResIn(Res));
-  Barracks_FillValues(nil);
+  House_BarracksRefresh(nil);
 end;
 
 
-procedure TKMapEdInterface.Store_EditWareCount(Sender: TObject; AButton:TMouseButton);
+procedure TKMapEdInterface.House_StoreEditCount(Sender: TObject; AButton:TMouseButton);
 var
   Res: TResourceType;
   Store: TKMHouseStore;
@@ -2251,7 +2262,7 @@ begin
     Store.ResAddToIn(Res, ClickAmount[aButton]*TKMButton(Sender).Tag);
 
   Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
-  Store_FillValues(nil);
+  House_StoreRefresh(nil);
 end;
 
 

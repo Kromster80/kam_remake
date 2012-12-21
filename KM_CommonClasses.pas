@@ -591,8 +591,8 @@ begin
   //Note that fCount is already decreased by 1
   if (Result <> -1) and (Result <> fCount) then
   begin
-    Move(Tag[Result+1], Tag[Result], SizeOf(Tag[Result]) * (fCount - Result));
-    Move(Tag2[Result+1], Tag2[Result], SizeOf(Tag2[Result]) * (fCount - Result));
+    Move(Tag[Result+1], Tag[Result], SizeOf(Tag[Result]) * (fCount - 1 - Result));
+    Move(Tag2[Result+1], Tag2[Result], SizeOf(Tag2[Result]) * (fCount - 1 - Result));
   end;
 end;
 

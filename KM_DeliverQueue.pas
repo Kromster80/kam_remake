@@ -374,10 +374,9 @@ begin
 end;
 
 
-
 procedure TKMDeliverQueue.RemOffer(aHouse: TKMHouse; aResource: TResourceType; aCount: Integer);
 var
-  I, K: Integer;
+  I: Integer;
 begin
   //Add Count of resource to old offer
   for I := 1 to fOfferCount do

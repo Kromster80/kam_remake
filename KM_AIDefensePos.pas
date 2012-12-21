@@ -52,14 +52,15 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure Add(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
     procedure Clear;
-    procedure AddDefencePosition(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
+    property Count: Integer read fCount;
+    procedure Delete(aIndex: Integer);
+    property Positions[aIndex: Integer]: TAIDefencePosition read GetPosition; default;
+
     function FindPlaceForGroup(aGroup: TKMUnitGroup; aCanLinkToExisting, aTakeClosest: Boolean): Boolean;
     procedure RestockPositionWith(aDefenceGroup, aGroup: TKMUnitGroup);
     function FindPositionOf(aGroup: TKMUnitGroup): TAIDefencePosition;
-
-    property Count: Integer read fCount;
-    property Positions[aIndex: Integer]: TAIDefencePosition read GetPosition; default;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -202,10 +203,9 @@ end;
 
 
 destructor TAIDefencePositions.Destroy;
-var I: Integer;
 begin
-  for I := 0 to fCount - 1 do
-    fPositions[I].Free;
+  Clear;
+
   inherited;
 end;
 
@@ -216,17 +216,38 @@ begin
 end;
 
 
-procedure TAIDefencePositions.AddDefencePosition(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
+procedure TAIDefencePositions.Add(aPos: TKMPointDir; aGroupType: TGroupType; aRadius: Integer; aDefenceType: TAIDefencePosType);
 begin
-  SetLength(fPositions, fCount + 1);
+  SetLength(fPositions, fCount + 8);
   fPositions[fCount] := TAIDefencePosition.Create(aPos, aGroupType, aRadius, aDefenceType);
-  inc(fCount);
+  Inc(fCount);
 end;
 
 
 procedure TAIDefencePositions.Clear;
+var
+  I: Integer;
 begin
+  for I := 0 to fCount - 1 do
+    fPositions[I].Free;
+
   fCount := 0;
+end;
+
+
+//Order of positions is important (AI fills them with troops from 0 to N)
+//@Lewin: Do we allow to delete DP during game? Probably yes, for scripting needs..
+procedure TAIDefencePositions.Delete(aIndex: Integer);
+begin
+  Assert(InRange(aIndex, 0, Count - 1));
+
+  //Release position
+  fPositions[aIndex].Free;
+
+  if (aIndex <> Count - 1) then
+    Move(fPositions[aIndex + 1], fPositions[aIndex], (Count - 1 - aIndex) * SizeOf(fPositions[0]));
+
+  Dec(fCount);
 end;
 
 
