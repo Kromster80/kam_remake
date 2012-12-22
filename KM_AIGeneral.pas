@@ -114,7 +114,7 @@ var
   I,K: Integer;
   UT: TUnitType;
   TrainedSomething, CanEquipIron, CanEquipLeather: Boolean;
-  GroupReq: array [TGroupType] of Integer;
+  GroupReq: TGroupTypeArray;
 begin
   if fGame.IsPeaceTime then Exit; //Do not train soldiers during peacetime
 
@@ -248,7 +248,7 @@ end;
 procedure TKMGeneral.CheckCanAttack;
 var
   AttackTotalAvailable: Word; //Total number of warriors available to attack the enemy
-  AttackGroupsCount: array [TGroupType] of Word;
+  AttackGroupsCount: TGroupTypeArray;
   AttackGroups: array [TGroupType] of array of TKMUnitGroup;
 
   procedure AddToAvailableToAttack(aGroup: TKMUnitGroup);
@@ -293,7 +293,7 @@ begin
 
   //Now process AI attacks (we have compiled a list of warriors available to attack)
   for I := 0 to Attacks.Count - 1 do
-  if Attacks.MayOccur(I, AttackTotalAvailable, AttackGroupsCount, fGame.GameTickCount) then //Check conditions are right
+  if Attacks.CanOccur(I, AttackTotalAvailable, AttackGroupsCount, fGame.GameTickCount) then //Check conditions are right
   begin
     //Order groups to attack
     if Attacks[I].TakeAll then
@@ -308,7 +308,7 @@ begin
         for K := 0 to Attacks[I].GroupAmounts[G] - 1 do
           OrderAttack(AttackGroups[G, K], Attacks[I].Target, Attacks[I].CustomPosition);
     end;
-    Attacks.Occured(I); //We can't set the flag to property record directly
+    Attacks.HasOccured(I); //We can't set the flag to property record directly
   end;
 end;
 

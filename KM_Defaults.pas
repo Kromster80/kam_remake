@@ -403,13 +403,14 @@ type
 //Used for AI defence and linking troops
 type
   TGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
+  TGroupTypeArray = array [TGroupType] of Word;
 
   TKMFormation = record NumUnits, UnitsPerRow: Integer; end;
 
 const
   KaMGroupType: array [TGroupType] of Byte = (0, 1, 2, 3);
 
-  UnitGroups: array[WARRIOR_MIN..WARRIOR_MAX] of TGroupType = (
+  UnitGroups: array [WARRIOR_MIN..WARRIOR_MAX] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
     gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman
     gt_AntiHorse,gt_AntiHorse,  //ut_Pikeman, ut_Hallebardman,
@@ -424,7 +425,7 @@ const
     );
 
   //AI's prefences for training troops
-  AITroopTrainOrder: array[TGroupType,1..3] of TUnitType = (
+  AITroopTrainOrder: array [TGroupType, 1..3] of TUnitType = (
     (ut_Swordsman,    ut_AxeFighter, ut_Militia),
     (ut_Hallebardman, ut_Pikeman,    ut_None),
     (ut_Arbaletman,   ut_Bowman,     ut_None),

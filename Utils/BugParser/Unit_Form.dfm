@@ -37,8 +37,8 @@ object Form1: TForm1
     DrawingStyle = gdsGradient
     FixedCols = 0
     RowCount = 2
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goRowSelect, goThumbTracking]
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goRowSelect, goThumbTracking, goFixedRowClick]
     TabOrder = 1
-    OnClick = StringGrid1Click
+    OnFixedCellClick = StringGrid1FixedCellClick
   end
 end

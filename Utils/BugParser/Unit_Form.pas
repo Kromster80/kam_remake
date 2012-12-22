@@ -10,7 +10,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure StringGrid1Click(Sender: TObject);
+    procedure StringGrid1FixedCellClick(Sender: TObject; ACol, ARow: Integer);
   public
     InfoList: TStringList;
     procedure ScanFolder(aPath: string; aList: TStringList);
@@ -92,6 +92,7 @@ procedure TForm1.ScanFolder(aPath: string; aList: TStringList);
       if K > I then
         Result[1] := Copy(SS, I, K-I+1);
     end;
+
     I := Pos('contact email     : ', SS);
     if I <> 0 then
     begin
@@ -99,6 +100,15 @@ procedure TForm1.ScanFolder(aPath: string; aList: TStringList);
       K := PosEx(#10, SS, I);
       if K > I then
         Result[2] := Copy(SS, I, K-I+1);
+    end;
+
+    I := Pos('from user:'#13#10, SS);
+    if I <> 0 then
+    begin
+      Inc(I, 12);
+      K := PosEx(#10, SS, I);
+      if K > I then
+        Result[3] := Copy(SS, I, K-I+1);
     end;
   end;
 var
@@ -137,16 +147,15 @@ procedure TForm1.SortStringGrid(var aStringGrid: TStringGrid; aColumn: Integer);
 const
   TheSeparator = '^';
 var
-  CountItem, I, J, K, ThePosition: integer;
+  RCount, I, J, K, ThePosition: integer;
   MyList: TStringList;
   MyString, TempString: string;
 begin
-  CountItem := aStringGrid.RowCount;
+  RCount := aStringGrid.RowCount;
   MyList := TStringList.Create;
   MyList.Sorted := False;
   try
-    begin
-      for I := 1 to (CountItem - 1) do
+      for I := 1 to (RCount - 1) do
         MyList.Add(aStringGrid.Rows[I].Strings[aColumn] + TheSeparator +
           aStringGrid.Rows[I].Text);
       Mylist.Sort;
@@ -160,18 +169,17 @@ begin
         MyList.Strings[(K - 1)] := '';
         MyList.Strings[(K - 1)] := TempString;
       end;
-      for J := 1 to (CountItem - 1) do
+      for J := 1 to (RCount - 1) do
         aStringGrid.Rows[J].Text := MyList.Strings[(J - 1)];
-    end;
   finally
     MyList.Free;
   end;
 end;
 
 
-procedure TForm1.StringGrid1Click(Sender: TObject);
+procedure TForm1.StringGrid1FixedCellClick(Sender: TObject; ACol, ARow: Integer);
 begin
-  SortStringGrid(StringGrid1, 2);
+  SortStringGrid(StringGrid1, aCol);
 end;
 
 end.

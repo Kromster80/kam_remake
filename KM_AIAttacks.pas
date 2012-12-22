@@ -23,13 +23,13 @@ type
   //Records must be packed so they are stored identically in MP saves (padding bytes are unknown values)
   TAIAttack = packed record //todo: Make it a class with initialized fields
     AttackType: TAIAttackType; //Once or repeating
-    HasOccured: boolean; //Has this attack happened already?
+    HasOccured: Boolean; //Has this attack happened already?
     Delay: Cardinal; //The attack will not occur before this time has passed
-    TotalMen: integer; //Number of idle (i.e. back line) warriors required in the AI army before the attack will launch
-    GroupAmounts: array[TGroupType] of byte; //How many squads of each group type will be taken
-    TakeAll: boolean; //Used instead of GroupAmounts, chooses groups randomly taking at most TotalMen warriors
+    TotalMen: Integer; //Number of idle (i.e. back line) warriors required in the AI army before the attack will launch
+    GroupAmounts: TGroupTypeArray; //How many squads of each group type will be taken
+    TakeAll: Boolean; //Used instead of GroupAmounts, chooses groups randomly taking at most TotalMen warriors
     Target: TAIAttackTarget;
-    Range: integer; //Will only occur when target is within this tile range (not properly tested yet)
+    Range: Integer; //Will only occur when target is within this tile range (not properly tested yet)
     CustomPosition: TKMPoint; //Used when Target = att_CustomPosition
   end;
 
@@ -45,10 +45,8 @@ type
 
     procedure AddAttack(aAttack: TAIAttack);
     procedure Delete(aIndex: Integer);
-    function MayOccur(aIndex: Integer; MenAvailable: Integer; const GroupsAvailableCount: array of Word; aTick: Cardinal): Boolean;
-    procedure Occured(aIndex: Integer);
-
-    function GetAsText: string;
+    function CanOccur(aIndex: Integer; aMenAvailable: Integer; const aGroupsAvailable: TGroupTypeArray; aTick: Cardinal): Boolean;
+    procedure HasOccured(aIndex: Integer);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -59,24 +57,23 @@ implementation
 
 
 { TAIAttacks }
-function TAIAttacks.MayOccur(aIndex: Integer; MenAvailable: Integer; const GroupsAvailableCount: array of Word; aTick: Cardinal): Boolean;
-var GT: TGroupType;
+function TAIAttacks.CanOccur(aIndex: Integer; aMenAvailable: Integer; const aGroupsAvailable: TGroupTypeArray; aTick: Cardinal): Boolean;
+var
+  GT: TGroupType;
 begin
-  begin
-    Result := ((fAttacks[aIndex].AttackType = aat_Repeating) or not fAttacks[aIndex].HasOccured)
-              and (aTick >= fAttacks[aIndex].Delay)
-              and (fAttacks[aIndex].TotalMen <= MenAvailable);
+  Result := ((fAttacks[aIndex].AttackType = aat_Repeating) or not fAttacks[aIndex].HasOccured)
+            and (aTick >= fAttacks[aIndex].Delay)
+            and (aMenAvailable >= fAttacks[aIndex].TotalMen);
 
-    if not fAttacks[aIndex].TakeAll then
-      for GT := Low(TGroupType) to High(TGroupType) do
-        Result := Result AND (fAttacks[aIndex].GroupAmounts[GT] <= GroupsAvailableCount[byte(GT)]);
+  if not fAttacks[aIndex].TakeAll then
+    for GT := Low(TGroupType) to High(TGroupType) do
+      Result := Result and (aGroupsAvailable[GT] >= fAttacks[aIndex].GroupAmounts[GT]);
 
-    //todo: Add support for the AI attack feature Range
-  end;
+  //todo: Add support for the AI attack feature Range
 end;
 
 
-procedure TAIAttacks.Occured(aIndex: Integer);
+procedure TAIAttacks.HasOccured(aIndex: Integer);
 begin
   fAttacks[aIndex].HasOccured := True;
 end;
@@ -100,38 +97,6 @@ begin
     Move(fAttacks[aIndex + 1], fAttacks[aIndex], (Count - 1 - aIndex) * SizeOf(fAttacks[0]));
 
   Dec(fCount);
-end;
-
-
-function TAIAttacks.GetAsText: string;
-var I: Integer; GT: TGroupType;
-begin
-  Result := '';
-
-  {  AttackType: TAIAttackType; //Once or repeating
-    HasOccured: boolean; //Has this attack happened already?
-    Delay: cardinal; //The attack will not occur before this time has passed
-    TotalMen: integer; //Number of idle (i.e. back line) warriors required in the AI army before the attack will launch
-    GroupAmounts: array[TGroupType] of byte; //How many squads of each group type will be taken
-    TakeAll: boolean; //Used instead of GroupAmounts, chooses groups randomly taking at most TotalMen warriors
-    Target: TAIAttackTarget;
-    Range: integer; //Will only occur when target is within this tile range (not properly tested yet)
-    CustomPosition: TKMPoint; //Used when Target = att_CustomPosition
-  }
-
-  for I := 0 to fCount - 1 do
-  begin
-    Result := Result + IfThen(fAttacks[I].AttackType = aat_Once, 'Once', 'Repeating') + eol;
-    Result := Result + 'Delay' + IntToStr(fAttacks[I].Delay) + eol;
-    Result := Result + 'TotalMen' + IntToStr(fAttacks[I].TotalMen) + eol;
-    for GT := Low(TGroupType) to High(TGroupType) do
-      Result := Result + IntToStr(fAttacks[I].GroupAmounts[GT]) + '/';
-    Result := Result + eol;
-
-    {Result := Result + 'TotalMen' + IntToStr(fAttacks[I].TotalMen) + eol;
-    Result := Result + 'TotalMen' + IntToStr(fAttacks[I].TotalMen) + eol;
-    Result := Result + 'TotalMen' + IntToStr(fAttacks[I].TotalMen) + eol;}
-  end;
 end;
 
 

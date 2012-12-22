@@ -485,10 +485,6 @@ object FormMain: TFormMain
         Caption = 'Export Deliver lists'
         OnClick = Export_Deliverlists1Click
       end
-      object ShowAIAttacks1: TMenuItem
-        Caption = 'Show AI Attacks'
-        OnClick = ShowAIAttacks1Click
-      end
       object HousesDat1: TMenuItem
         Caption = 'Houses Dat'
         OnClick = HousesDat1Click

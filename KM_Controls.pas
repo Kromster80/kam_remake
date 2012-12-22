@@ -479,7 +479,7 @@ type
     ValueMin: Word;
     ValueMax: Word;
     OnChange: TNotifyEvent;
-    constructor Create(aParent: TKMPanel; aLeft,aTop: Integer);
+    constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aValueMin, aValueMax: Word);
     procedure Paint; override;
   end;
 
@@ -2278,15 +2278,21 @@ end;
 
 
 { TKMNumericEdit }
-constructor TKMNumericEdit.Create(aParent: TKMPanel; aLeft, aTop: Integer);
+constructor TKMNumericEdit.Create(aParent: TKMPanel; aLeft, aTop: Integer; aValueMin, aValueMax: Word);
+var
+  W: Word;
 begin
-  inherited Create(aParent, aLeft, aTop, 66, 20);
+  // Text width + padding + buttons
+  W := fResource.ResourceFont.GetTextSize(IntToStr(aValueMax), fnt_Grey).X + 16 + 20 + 20;
 
-  ValueMax := 100;
+  inherited Create(aParent, aLeft, aTop, W, 20);
 
-  fButtonDec := TKMButton.Create(aParent, aLeft,      aTop, 20, 20, '-', bsGame);
-  fLabelValue := TKMLabel.Create(aParent, aLeft + 33, aTop + 2, '', fnt_Grey, taCenter);
-  fButtonInc := TKMButton.Create(aParent, aLeft + 46, aTop, 20, 20, '+', bsGame);
+  ValueMin := aValueMin;
+  ValueMax := aValueMax;
+
+  fButtonDec := TKMButton.Create(aParent, aLeft,           aTop, 20, 20, '-', bsGame);
+  fLabelValue := TKMLabel.Create(aParent, aLeft + W div 2, aTop + 2, '', fnt_Grey, taCenter);
+  fButtonInc := TKMButton.Create(aParent, aLeft + W - 20,  aTop, 20, 20, '+', bsGame);
   fButtonDec.OnClickEither := ButtonClick;
   fButtonInc.OnClickEither := ButtonClick;
 end;
@@ -2333,7 +2339,6 @@ begin
 
   fRenderUI.WriteBevel(Left + 20, Top, Width - 40, Height);
   fLabelValue.Caption := IntToStr(Value);
-
 end;
 
 

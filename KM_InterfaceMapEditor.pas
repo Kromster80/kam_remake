@@ -9,7 +9,7 @@ uses
      KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_Terrain;
 
 type
-  TKMVillageTab = (vtHouses, vtUnits, vtScript, vtDefences);
+  TKMVillageTab = (vtHouses, vtUnits, vtScript, vtDefences, vtOffence);
 
 type
   TKMapEdInterface = class (TKMUserInterface)
@@ -37,13 +37,17 @@ type
     procedure Create_HouseStore;
     procedure Create_HouseBarracks;
     procedure Create_Marker;
+    procedure Create_AttacksPopUp;
     procedure Create_FormationsPopUp;
 
+    procedure Attack_Change(Sender: TObject);
+    procedure Attack_Close(Sender: TObject);
+    procedure Attack_Refresh(aAttack: TAIAttack);
     procedure Attacks_Add(Sender: TObject);
     procedure Attacks_Del(Sender: TObject);
     procedure Attacks_Edit(aAttack: TAIAttack);
     procedure Attacks_ListClick(Sender: TObject);
-    procedure Attacks_Refresh(Sender: TObject);
+    procedure Attacks_Refresh;
     procedure Build_ButtonClick(Sender: TObject);
     procedure Defence_Refresh;
     procedure Defence_Change(Sender: TObject);
@@ -159,7 +163,7 @@ type
         TrackBar_EquipRateIron: TKMTrackBar;
         TrackBar_RecruitFactor: TKMTrackBar;
         Button_EditFormations: TKMButton;
-      Panel_Attacks: TKMPanel;
+      Panel_Offence: TKMPanel;
         CheckBox_AutoAttack: TKMCheckBox;
         List_Attacks: TKMColumnListBox;
         Button_AttacksAdd: TKMButton;
@@ -171,6 +175,19 @@ type
       NumEdit_FormationsColumns: array [TGroupType] of TKMNumericEdit;
       Button_Formations_Ok: TKMButton;
       Button_Formations_Cancel: TKMButton;
+
+    Panel_Attack: TKMPanel;
+      Radio_AttackType: TKMRadioGroup;
+      NumEdit_AttackDelay: TKMNumericEdit;
+      NumEdit_AttackMen: TKMNumericEdit;
+      NumEdit_AttackAmount: array [TGroupType] of TKMNumericEdit;
+      CheckBox_AttackTakeAll: TKMCheckBox;
+      Radio_AttackTarget: TKMRadioGroup;
+      TrackBar_AttackRange: TKMTrackBar;
+      NumEdit_AttackLocX: TKMNumericEdit;
+      NumEdit_AttackLocY: TKMNumericEdit;
+      Button_AttackOk: TKMButton;
+      Button_AttackCancel: TKMButton;
 
     Panel_Player:TKMPanel;
       Button_Player:array[1..4]of TKMButton;
@@ -403,6 +420,13 @@ begin
     Panel_Village.Show;
     Panel_Defence.Show;
     Label_MenuTitle.Caption := 'Village - Defences';
+  end else
+  if (Sender = Button_Village[vtOffence]) then
+  begin
+    Attacks_Refresh;
+    Panel_Village.Show;
+    Panel_Offence.Show;
+    Label_MenuTitle.Caption := 'Village - Offence';
   end else
 
   if (Sender = Button_Main[3])or(Sender = Button_Player[1]) then
@@ -688,6 +712,7 @@ begin
   Image_Extra.OnClick := SwitchPage;
 
   //Pages that need to be on top of everything
+  Create_AttacksPopUp;
   Create_FormationsPopUp;
 
   fMyControls.OnHint := DisplayHint;
@@ -824,7 +849,7 @@ end;
 {Build page}
 procedure TKMapEdInterface.Create_Village_Page;
 const
-  VillageTabIcon: array [TKMVillageTab] of Word = (391, 141, 327, 43);
+  VillageTabIcon: array [TKMVillageTab] of Word = (391, 141, 327, 43, 43);
 var
   I: Integer;
   VT: TKMVillageTab;
@@ -932,19 +957,19 @@ begin
       Button_EditFormations.OnClick := Formations_Show;
 
     //Defence settings
-    Panel_Attacks := TKMPanel.Create(Panel_Village, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Attacks, 0, 5, TB_WIDTH, 0, 'Attacks', fnt_Outline, taCenter);
+    Panel_Offence := TKMPanel.Create(Panel_Village, 0, 28, TB_WIDTH, 400);
+      TKMLabel.Create(Panel_Offence, 0, 5, TB_WIDTH, 0, 'Attacks', fnt_Outline, taCenter);
 
-      CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Attacks, 0, 30, TB_WIDTH, 20, 'AutoAttack', fnt_Metal);
+      CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 30, TB_WIDTH, 20, 'AutoAttack', fnt_Metal);
       CheckBox_AutoAttack.Disable;
 
-      List_Attacks := TKMColumnListBox.Create(Panel_Attacks, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
+      List_Attacks := TKMColumnListBox.Create(Panel_Offence, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
       List_Attacks.SetColumns(fnt_Outline, ['Type','Delay','Men', 'Target', 'Loc'], [0, 20, 50, 90, 150]);
       List_Attacks.OnDoubleClick := Attacks_ListClick;
 
-      Button_AttacksAdd := TKMButton.Create(Panel_Attacks, 0, 270, 25, 25, '+', bsGame);
+      Button_AttacksAdd := TKMButton.Create(Panel_Offence, 0, 270, 25, 25, '+', bsGame);
       Button_AttacksAdd.OnClick := Attacks_Add;
-      Button_AttacksDel := TKMButton.Create(Panel_Attacks, 0, 270, 25, 25, 'X', bsGame);
+      Button_AttacksDel := TKMButton.Create(Panel_Offence, 30, 270, 25, 25, 'X', bsGame);
       Button_AttacksDel.OnClick := Attacks_Del;
 end;
 
@@ -1145,6 +1170,77 @@ begin
 end;
 
 
+procedure TKMapEdInterface.Create_AttacksPopUp;
+const
+  T: array [TGroupType] of string = ('Melee', 'AntiHorse', 'Ranged', 'Mounted');
+  SIZE_X = 570;
+  SIZE_Y = 360;
+var
+  GT: TGroupType;
+  a: TAIAttack;
+begin
+  Panel_Attack := TKMPanel.Create(Panel_Main, 362, 250, SIZE_X, SIZE_Y);
+  Panel_Attack.Anchors := [];
+  Panel_Attack.Hide;
+
+    TKMBevel.Create(Panel_Attack, -1000,  -1000, 4000, 4000);
+    with TKMImage.Create(Panel_Attack, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain) do ImageStretch;
+    TKMBevel.Create(Panel_Attack,   0,  0, SIZE_X, SIZE_Y);
+    TKMLabel.Create(Panel_Attack, SIZE_X div 2, 10, 'Attack info', fnt_Outline, taCenter);
+
+    TKMLabel.Create(Panel_Attack, 20, 40, 'Type', fnt_Metal, taLeft);
+    Radio_AttackType := TKMRadioGroup.Create(Panel_Attack, 20, 60, 80, 40, fnt_Metal);
+    Radio_AttackType.Items.Add('Once');
+    Radio_AttackType.Items.Add('Repeating');
+    Radio_AttackType.OnChange := Attack_Change;
+
+    TKMLabel.Create(Panel_Attack, 130, 40, 'Delay', fnt_Metal, taLeft);
+    NumEdit_AttackDelay := TKMNumericEdit.Create(Panel_Attack, 130, 60, 0, High(Word));
+    NumEdit_AttackDelay.OnChange := Attack_Change;
+
+    TKMLabel.Create(Panel_Attack, 240, 40, 'Men', fnt_Metal, taLeft);
+    NumEdit_AttackMen := TKMNumericEdit.Create(Panel_Attack, 240, 60, 0, 1000);
+    NumEdit_AttackMen.OnChange := Attack_Change;
+
+    TKMLabel.Create(Panel_Attack, 340, 40, 'Group count', fnt_Metal, taLeft);
+    for GT := Low(TGroupType) to High(TGroupType) do
+    begin
+      TKMLabel.Create(Panel_Attack, 425, 60 + Byte(GT) * 20, 0, 0, T[GT], fnt_Metal, taLeft);
+      NumEdit_AttackAmount[GT] := TKMNumericEdit.Create(Panel_Attack, 340, 60 + Byte(GT) * 20, 0, 255);
+      NumEdit_AttackAmount[GT].OnChange := Attack_Change;
+    end;
+
+    CheckBox_AttackTakeAll := TKMCheckBox.Create(Panel_Attack, 340, 145, 160, 20, 'Take all', fnt_Metal);
+    CheckBox_AttackTakeAll.OnClick := Attack_Change;
+
+    //Second row
+
+    TKMLabel.Create(Panel_Attack, 20, 170, 'Target', fnt_Metal, taLeft);
+    Radio_AttackTarget := TKMRadioGroup.Create(Panel_Attack, 20, 190, 160, 80, fnt_Metal);
+    Radio_AttackTarget.Items.Add('Closest unit');
+    Radio_AttackTarget.Items.Add('Closest house 1');
+    Radio_AttackTarget.Items.Add('Closest house 2');
+    Radio_AttackTarget.Items.Add('Custom position');
+    Radio_AttackTarget.OnChange := Attack_Change;
+
+    TKMLabel.Create(Panel_Attack, 200, 170, 'Position', fnt_Metal, taLeft);
+    NumEdit_AttackLocX := TKMNumericEdit.Create(Panel_Attack, 200, 190, 0, MAX_MAP_SIZE);
+    NumEdit_AttackLocX.OnChange := Attack_Change;
+    NumEdit_AttackLocY := TKMNumericEdit.Create(Panel_Attack, 200, 210, 0, MAX_MAP_SIZE);
+    NumEdit_AttackLocY.OnChange := Attack_Change;
+
+    TKMLabel.Create(Panel_Attack, 200, 240, 'Range (untested)', fnt_Metal, taLeft);
+    TrackBar_AttackRange := TKMTrackBar.Create(Panel_Attack, 200, 260, 100, 0, 255);
+    TrackBar_AttackRange.Disable;
+    TrackBar_AttackRange.OnChange := Attack_Change;
+
+    Button_AttackOk := TKMButton.Create(Panel_Attack, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, 'Ok', bsMenu);
+    Button_AttackOk.OnClick := Attack_Close;
+    Button_AttackCancel := TKMButton.Create(Panel_Attack, SIZE_X-20-160, SIZE_Y - 50, 160, 30, 'Cancel', bsMenu);
+    Button_AttackCancel.OnClick := Attack_Close;
+end;
+
+
 procedure TKMapEdInterface.Create_FormationsPopUp;
 const
   T: array [TGroupType] of string = ('Melee', 'AntiHorse', 'Ranged', 'Mounted');
@@ -1172,12 +1268,8 @@ begin
     for GT := Low(TGroupType) to High(TGroupType) do
     begin
       TKMLabel.Create(Panel_Formations, 130 + Byte(GT) * 110 + 32, 50, 0, 0, T[GT], fnt_Metal, taCenter);
-      NumEdit_FormationsCount[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 70);
-      NumEdit_FormationsCount[GT].ValueMin := 1;
-      NumEdit_FormationsCount[GT].ValueMax := 255;
-      NumEdit_FormationsColumns[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 95);
-      NumEdit_FormationsColumns[GT].ValueMin := 1;
-      NumEdit_FormationsColumns[GT].ValueMax := 255;
+      NumEdit_FormationsCount[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 70, 1, 255);
+      NumEdit_FormationsColumns[GT] := TKMNumericEdit.Create(Panel_Formations, 130 + Byte(GT) * 110, 95, 1, 255);
     end;
 
     Button_Formations_Ok := TKMButton.Create(Panel_Formations, SIZE_X-20-320-10, 150, 160, 30, 'Ok', bsMenu);
@@ -1675,11 +1767,54 @@ begin
 end;
 
 
+procedure TKMapEdInterface.Attack_Change(Sender: TObject);
+var
+  GT: TGroupType;
+begin
+  for GT := Low(TGroupType) to High(TGroupType) do
+    NumEdit_AttackAmount[GT].Enabled := not CheckBox_AttackTakeAll.Checked;
+
+  NumEdit_AttackLocX.Enabled := (TAIAttackTarget(Radio_AttackTarget.ItemIndex) = att_CustomPosition);
+  NumEdit_AttackLocY.Enabled := (TAIAttackTarget(Radio_AttackTarget.ItemIndex) = att_CustomPosition);
+end;
+
+
+procedure TKMapEdInterface.Attack_Close(Sender: TObject);
+begin
+  if Sender = Button_AttackOk then
+  begin
+    //Copy attack info from controls to Attacks
+  end;
+
+  Panel_Attack.Hide;
+end;
+
+
+procedure TKMapEdInterface.Attack_Refresh(aAttack: TAIAttack);
+var
+  GT: TGroupType;
+begin
+  Radio_AttackType.ItemIndex := Byte(aAttack.AttackType);
+  NumEdit_AttackDelay.Value := aAttack.Delay;
+  NumEdit_AttackMen.Value := aAttack.TotalMen;
+
+  for GT := Low(TGroupType) to High(TGroupType) do
+    NumEdit_AttackAmount[GT].Value := aAttack.GroupAmounts[GT];
+
+  CheckBox_AttackTakeAll.Checked := aAttack.TakeAll;
+  Radio_AttackTarget.ItemIndex := Byte(aAttack.Target);
+  TrackBar_AttackRange.Position := aAttack.Range;
+  NumEdit_AttackLocX.Value := aAttack.CustomPosition.X;
+  NumEdit_AttackLocY.Value := aAttack.CustomPosition.Y;
+end;
+
+
 //Add a dummy attack and let mapmaker edit it
 procedure TKMapEdInterface.Attacks_Add(Sender: TObject);
 var
   AA: TAIAttack;
 begin
+  FillChar(AA, SizeOf(AA), #0);
   MyPlayer.AI.General.Attacks.AddAttack(AA);
 
   //Edit the attack we have just appended
@@ -1698,7 +1833,9 @@ end;
 
 procedure TKMapEdInterface.Attacks_Edit(aAttack: TAIAttack);
 begin
-  //todo: Make a popup alike Defense formations to edit the props
+  Attack_Refresh(aAttack);
+  Attack_Change(nil);
+  Panel_Attack.Show;
 end;
 
 
@@ -1714,9 +1851,21 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Attacks_Refresh(Sender: TObject);
+procedure TKMapEdInterface.Attacks_Refresh;
+const
+  Typ: array [TAIAttackType] of string = ('1', 'R');
+  Tgt: array [TAIAttackTarget] of string = ('U', 'H1', 'H2', 'Pos');
+var
+  I: Integer;
+  A: TAIAttack;
 begin
-  //todo: Fill attacks list
+  List_Attacks.Clear;
+
+  for I := 0 to MyPlayer.AI.General.Attacks.Count - 1 do
+  begin
+    A := MyPlayer.AI.General.Attacks[I];
+    List_Attacks.AddItem(MakeListRow([Typ[A.AttackType], IntToStr(A.Delay), IntToStr(A.TotalMen), Tgt[A.Target], TypeToString(A.CustomPosition)]));
+  end;
 end;
 
 

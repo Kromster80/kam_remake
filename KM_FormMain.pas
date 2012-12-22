@@ -59,7 +59,6 @@ type
     Export_GUIMainHRX: TMenuItem;
     ExportMainMenu: TMenuItem;
     Debug_EnableCheats: TMenuItem;
-    ShowAIAttacks1: TMenuItem;
     ExportGamePages: TMenuItem;
     ExportMenuPages: TMenuItem;
     Resources1: TMenuItem;
@@ -125,7 +124,6 @@ type
     procedure Debug_ShowPanelClick(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure Panel5MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure ShowAIAttacks1Click(Sender: TObject);
     procedure Debug_ExportGamePagesClick(Sender: TObject);
     procedure Debug_ExportMenuPagesClick(Sender: TObject);
     procedure HousesDat1Click(Sender: TObject);
@@ -629,19 +627,6 @@ end;
 procedure TFormMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   fMain.Stop(Self);
-end;
-
-
-procedure TFormMain.ShowAIAttacks1Click(Sender: TObject);
-var i: Integer; s: string;
-begin
-  if fPlayers = nil then Exit;
-  s := '';
-
-  for i:=0 to fPlayers.Count-1 do
-    s := s + IntToStr(i) + eol + fPlayers[i].AI.General.Attacks.GetAsText + eol;
-
-  ShowMessage(s);
 end;
 
 
