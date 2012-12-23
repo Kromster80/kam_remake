@@ -303,22 +303,17 @@ type
   {3DButton}
   TKMButton = class(TKMControl)
   private
-    fCaption: string;
-    fFont: TKMFont;
     fTextAlign: TTextAlign;
     fStyle: TButtonStyle;
-    fMakesSound: Boolean;
     fRX: TRXType;
-    fTexID: Word;
-    fFlagColor: TColor4; //When using an image
   public
+    Caption: string;
+    FlagColor: TColor4; //When using an image
+    Font: TKMFont;
+    MakesSound: Boolean;
+    TexID: Word;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType; aStyle: TButtonStyle); overload;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aStyle: TButtonStyle); overload;
-    property Caption: string read fCaption write fCaption;
-    property FlagColor: TColor4 read fFlagColor write fFlagColor;
-    property Font: TKMFont read fFont write fFont;
-    property MakesSound: Boolean read fMakesSound write fMakesSound;
-    property TexID: Word read fTexID write fTexID;
     function Click: Boolean; //Try to click a button and return TRUE if succeded
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
@@ -329,7 +324,6 @@ type
   TKMButtonFlat = class(TKMControl)
   private
     fFont: TKMFont;
-    fFlagColor: TColor4;
   public
     RX: TRXType;
     TexID: Word;
@@ -338,10 +332,10 @@ type
     CapOffsetY: Shortint;
     Caption: string;
     Down: Boolean;
+    FlagColor: TColor4;
     HideHighlight: Boolean;
 
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID: Integer; aRX: TRXType = rxGui);
-    property FlagColor: TColor4 read fFlagColor write fFlagColor;
 
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
 
@@ -1783,11 +1777,11 @@ constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integ
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fRX         := aRX;
-  fTexID      := aTexID;
-  fCaption    := '';
-  fFlagColor := $FFFF00FF;
+  TexID       := aTexID;
+  Caption     := '';
+  FlagColor   := $FFFF00FF;
   fStyle      := aStyle;
-  fMakesSound := true;
+  MakesSound  := true;
 end;
 
 
@@ -1795,13 +1789,13 @@ end;
 constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aStyle: TButtonStyle);
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  fTexID      := 0;
-  fCaption    := aCaption;
-  fFlagColor  := $FFFF00FF;
-  fFont       := fnt_Metal;
+  TexID       := 0;
+  Caption     := aCaption;
+  FlagColor   := $FFFF00FF;
+  Font        := fnt_Metal;
   fTextAlign  := taCenter; //Thats default everywhere in KaM
   fStyle      := aStyle;
-  fMakesSound := True;
+  MakesSound  := True;
 end;
 
 
@@ -1825,7 +1819,7 @@ end;
 
 procedure TKMButton.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  if fEnabled and fMakesSound and (csDown in State) then fSoundLib.Play(sfxn_ButtonClick);
+  if fEnabled and MakesSound and (csDown in State) then fSoundLib.Play(sfxn_ButtonClick);
   inherited;
 end;
 
@@ -1844,15 +1838,15 @@ begin
   if not fEnabled then
     StateSet := StateSet + [bsDisabled];
 
-  fRenderUI.Write3DButton(Left, Top, Width, Height, fRX, fTexID, fFlagColor, StateSet, fStyle);
+  fRenderUI.Write3DButton(Left, Top, Width, Height, fRX, TexID, FlagColor, StateSet, fStyle);
 
-  if fTexID <> 0 then Exit;
+  if TexID <> 0 then Exit;
 
   //If disabled then text should be faded
   Col := IfThen(fEnabled, $FFFFFFFF, $FF808080);
 
   fRenderUI.WriteText(Left + Byte(csDown in State),
-                      (Top + Height div 2)-7 + Byte(csDown in State), Width, fCaption, fFont, fTextAlign, Col);
+                      (Top + Height div 2)-7 + Byte(csDown in State), Width, Caption, Font, fTextAlign, Col);
 end;
 
 
@@ -1860,10 +1854,10 @@ end;
 constructor TKMButtonFlat.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID: Integer; aRX: TRXType = rxGui);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  RX          := aRX;
-  TexID       := aTexID;
-  fFlagColor  := $FFFF00FF;
-  fFont       := fnt_Game;
+  RX        := aRX;
+  TexID     := aTexID;
+  FlagColor := $FFFF00FF;
+  fFont     := fnt_Game;
 end;
 
 
@@ -1885,7 +1879,7 @@ begin
   if TexID <> 0 then
     fRenderUI.WritePicture(Left + TexOffsetX,
                            Top + TexOffsetY - 6 * Byte(Caption <> ''),
-                           Width, Height, [], RX, TexID, True, fFlagColor);
+                           Width, Height, [], RX, TexID, True, FlagColor);
 
   if (csOver in State) and fEnabled and not HideHighlight then
     fRenderUI.WriteShape(Left+1, Top+1, Width-2, Height-2, $40FFFFFF);
