@@ -1888,7 +1888,7 @@ begin
   //
   //Performing Tasks and Actions now
   //------------------------------------------------------------------------------------------------
-  if fCurrentAction=nil then
+  if fCurrentAction = nil then
     raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action in TKMUnit.UpdateState',fCurrPosition);
 
   fCurrPosition := KMPointRound(fPosition);
@@ -1899,13 +1899,11 @@ begin
   end;
   fCurrPosition := KMPointRound(fPosition);
 
-
   if fUnitTask <> nil then
   case fUnitTask.Execute of
     TaskContinues:  exit;
     TaskDone:       FreeAndNil(fUnitTask);
   end;
-
 
   //If we get to this point then it means that common part is done and now
   //we can perform unit-specific activities (ask for job, etc..)

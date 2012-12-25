@@ -243,14 +243,15 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
+
     procedure Activate(aWasBuilt: Boolean); override;
     procedure DemolishHouse(DoSilent: Boolean; NoRubble: Boolean = False); override;
     procedure ResAddToIn(aResource: TResourceType; aCount: Word = 1; aFromScript: Boolean = False); override;
-    function CheckResIn(aResource: TResourceType): Word; override;
     procedure ResTakeFromOut(aResource: TResourceType; const aCount: Word = 1); override;
+    function CheckResIn(aResource: TResourceType): Word; override;
     function CanTakeResOut(aResource: TResourceType): Boolean;
-    procedure ToggleAcceptFlag(aRes: TResourceType);
     function CanEquip(aUnitType: TUnitType): Boolean;
+    procedure ToggleAcceptFlag(aRes: TResourceType);
     procedure Equip(aUnitType: TUnitType; aCount: Byte);
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
@@ -2128,26 +2129,26 @@ var
 begin
   Assert(aUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX]);
 
-  for K := 1 to aCount do
+  for K := 0 to aCount - 1 do
   begin
     //Make sure we have enough resources to equip a unit
     if not CanEquip(aUnitType) then Exit;
 
     //Take resources
     for I := 1 to 4 do
-      if TroopCost[aUnitType,I] <> rt_None then
-      begin
-        Dec(ResourceCount[TroopCost[aUnitType, I]]);
-        fPlayers[fOwner].Stats.GoodConsumed(TroopCost[aUnitType, I]);
-        fPlayers[fOwner].Deliveries.Queue.RemOffer(Self, TroopCost[aUnitType,I], 1);
-      end;
+    if TroopCost[aUnitType, I] <> rt_None then
+    begin
+      Dec(ResourceCount[TroopCost[aUnitType, I]]);
+      fPlayers[fOwner].Stats.GoodConsumed(TroopCost[aUnitType, I]);
+      fPlayers[fOwner].Deliveries.Queue.RemOffer(Self, TroopCost[aUnitType, I], 1);
+    end;
 
     //Special way to kill the Recruit because it is in a house
     TKMUnitRecruit(RecruitsList.Items[0]).DestroyInBarracks;
     RecruitsList.Delete(0); //Delete first recruit in the list
 
     //Make new unit
-    Soldier := TKMUnitWarrior(fPlayers[fOwner].AddUnit(aUnitType,GetEntrance,false,true));
+    Soldier := TKMUnitWarrior(fPlayers[fOwner].AddUnit(aUnitType, GetEntrance, False, True));
     fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
     Soldier.SetInHouse(Self); //Put him in the barracks, so when it is destroyed he is placed somewhere
     Soldier.Visible := False; //Make him invisible as he is inside the barracks

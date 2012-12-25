@@ -1,10 +1,11 @@
 unit KM_AI;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils, Math,
-    KM_CommonClasses, KM_Defaults,
-    KM_Houses, KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Points,
-    KM_AISetup, KM_AIMayor, KM_AIGeneral;
+uses
+  Classes, KromUtils, SysUtils, Math,
+  KM_CommonClasses, KM_Defaults,
+  KM_Houses, KM_Units, KM_UnitGroups, KM_Units_Warrior, KM_Points,
+  KM_AISetup, KM_AIMayor, KM_AIGeneral;
 
 
 type
@@ -30,14 +31,10 @@ type
     property General: TKMGeneral read fGeneral;
 
     procedure Defeat; //Defeat the player, this is not reversible
-
     property WonOrLost: TWonOrLost read fWonOrLost;
-
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
-
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
     procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnitWarrior);
-
     function HouseAutoRepair: Boolean; //Do we automatically repair all houses?
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -48,8 +45,9 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Goals, KM_Player, KM_PlayerStats,
-     KM_Sound, KM_Scripting;
+uses
+  KM_Game, KM_PlayersCollection, KM_Goals, KM_Player, KM_PlayerStats,
+  KM_Sound, KM_Scripting;
 
 
 { TKMPlayerAI }

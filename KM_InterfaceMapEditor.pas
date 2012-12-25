@@ -45,8 +45,9 @@ type
     procedure Attack_Refresh(aAttack: TAIAttack);
     procedure Attacks_Add(Sender: TObject);
     procedure Attacks_Del(Sender: TObject);
-    procedure Attacks_Edit(aAttack: TAIAttack);
+    procedure Attacks_Edit(aIndex: Integer);
     procedure Attacks_ListClick(Sender: TObject);
+    procedure Attacks_ListDoubleClick(Sender: TObject);
     procedure Attacks_Refresh;
     procedure Build_ButtonClick(Sender: TObject);
     procedure Defence_Refresh;
@@ -575,6 +576,7 @@ var
 begin
   Assert(MyPlayer <> nil);
 
+  //Fill UI
   Image_FormationsFlag.FlagColor := MyPlayer.FlagColor;
   for GT := Low(TGroupType) to High(TGroupType) do
   begin
@@ -593,11 +595,12 @@ begin
   Assert(Image_FormationsFlag.FlagColor = MyPlayer.FlagColor, 'Cheap test to see if active player didn''t changed');
 
   if Sender = Button_Formations_Ok then
-  for GT := Low(TGroupType) to High(TGroupType) do
-  begin
-    MyPlayer.AI.General.DefencePositions.TroopFormations[GT].NumUnits := NumEdit_FormationsCount[GT].Value;
-    MyPlayer.AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow := NumEdit_FormationsColumns[GT].Value;
-  end;
+    //Save settings
+    for GT := Low(TGroupType) to High(TGroupType) do
+    begin
+      MyPlayer.AI.General.DefencePositions.TroopFormations[GT].NumUnits := NumEdit_FormationsCount[GT].Value;
+      MyPlayer.AI.General.DefencePositions.TroopFormations[GT].UnitsPerRow := NumEdit_FormationsColumns[GT].Value;
+    end;
 
   Panel_Formations.Hide;
 end;
@@ -965,7 +968,8 @@ begin
 
       List_Attacks := TKMColumnListBox.Create(Panel_Offence, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
       List_Attacks.SetColumns(fnt_Outline, ['Type','Delay','Men', 'Target', 'Loc'], [0, 20, 50, 90, 150]);
-      List_Attacks.OnDoubleClick := Attacks_ListClick;
+      List_Attacks.OnClick := Attacks_ListClick;
+      List_Attacks.OnDoubleClick := Attacks_ListDoubleClick;
 
       Button_AttacksAdd := TKMButton.Create(Panel_Offence, 0, 270, 25, 25, '+', bsGame);
       Button_AttacksAdd.OnClick := Attacks_Add;
@@ -975,7 +979,9 @@ end;
 
 
 procedure TKMapEdInterface.Create_Player_Page;
-var I: Integer; Col: array [0..255] of TColor4;
+var
+  I: Integer;
+  Col: array [0..255] of TColor4;
 begin
   Panel_Player := TKMPanel.Create(Panel_Common,0,60, TB_WIDTH,28);
     Button_Player[1] := TKMButton.Create(Panel_Player, SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H,  41, rxGui, bsGame);
@@ -1780,13 +1786,32 @@ end;
 
 
 procedure TKMapEdInterface.Attack_Close(Sender: TObject);
+var
+  I: Integer;
+  AA: TAIAttack;
+  GT: TGroupType;
 begin
   if Sender = Button_AttackOk then
   begin
+    //Attack we are editing
+    I := List_Attacks.ItemIndex;
+
     //Copy attack info from controls to Attacks
+    AA.AttackType := TAIAttackType(Radio_AttackType.ItemIndex);
+    AA.Delay := NumEdit_AttackDelay.Value * 10;
+    AA.TotalMen := NumEdit_AttackMen.Value;
+    for GT := Low(TGroupType) to High(TGroupType) do
+      AA.GroupAmounts[GT] := NumEdit_AttackAmount[GT].Value;
+    AA.TakeAll := CheckBox_AttackTakeAll.Checked;
+    AA.Target := TAIAttackTarget(Radio_AttackTarget.ItemIndex);
+    AA.Range := TrackBar_AttackRange.Position;
+    AA.CustomPosition := KMPoint(NumEdit_AttackLocX.Value, NumEdit_AttackLocY.Value);
+
+    MyPlayer.AI.General.Attacks[I] := AA;
   end;
 
   Panel_Attack.Hide;
+  Attacks_Refresh;
 end;
 
 
@@ -1794,18 +1819,20 @@ procedure TKMapEdInterface.Attack_Refresh(aAttack: TAIAttack);
 var
   GT: TGroupType;
 begin
+  //Set attack properties to UI
   Radio_AttackType.ItemIndex := Byte(aAttack.AttackType);
-  NumEdit_AttackDelay.Value := aAttack.Delay;
+  NumEdit_AttackDelay.Value := aAttack.Delay div 10;
   NumEdit_AttackMen.Value := aAttack.TotalMen;
-
   for GT := Low(TGroupType) to High(TGroupType) do
     NumEdit_AttackAmount[GT].Value := aAttack.GroupAmounts[GT];
-
   CheckBox_AttackTakeAll.Checked := aAttack.TakeAll;
   Radio_AttackTarget.ItemIndex := Byte(aAttack.Target);
   TrackBar_AttackRange.Position := aAttack.Range;
   NumEdit_AttackLocX.Value := aAttack.CustomPosition.X;
   NumEdit_AttackLocY.Value := aAttack.CustomPosition.Y;
+
+  //Certain values disable certain controls
+  Attack_Change(nil);
 end;
 
 
@@ -1817,8 +1844,11 @@ begin
   FillChar(AA, SizeOf(AA), #0);
   MyPlayer.AI.General.Attacks.AddAttack(AA);
 
+  Attacks_Refresh;
+  List_Attacks.ItemIndex := MyPlayer.AI.General.Attacks.Count - 1;
+
   //Edit the attack we have just appended
-  Attacks_Edit(MyPlayer.AI.General.Attacks[MyPlayer.AI.General.Attacks.Count - 1]);
+  Attacks_Edit(List_Attacks.ItemIndex);
 end;
 
 
@@ -1826,28 +1856,37 @@ procedure TKMapEdInterface.Attacks_Del(Sender: TObject);
 var I: Integer;
 begin
   I := List_Attacks.ItemIndex;
-  if InRange(I, 0, MyPlayer.AI.General.Attacks.Count) then
+  if InRange(I, 0, MyPlayer.AI.General.Attacks.Count - 1) then
     MyPlayer.AI.General.Attacks.Delete(I);
 end;
 
 
-procedure TKMapEdInterface.Attacks_Edit(aAttack: TAIAttack);
+procedure TKMapEdInterface.Attacks_Edit(aIndex: Integer);
 begin
-  Attack_Refresh(aAttack);
-  Attack_Change(nil);
+  Assert(InRange(aIndex, 0, MyPlayer.AI.General.Attacks.Count - 1));
+  Attack_Refresh(MyPlayer.AI.General.Attacks[aIndex]);
   Panel_Attack.Show;
 end;
 
 
 procedure TKMapEdInterface.Attacks_ListClick(Sender: TObject);
-var I: Integer;
+var
+  I: Integer;
+begin
+  I := List_Attacks.ItemIndex;
+  Button_AttacksDel.Enabled := InRange(I, 0, MyPlayer.AI.General.Attacks.Count);
+end;
+
+
+procedure TKMapEdInterface.Attacks_ListDoubleClick(Sender: TObject);
+var
+  I: Integer;
 begin
   I := List_Attacks.ItemIndex;
 
-  Button_AttacksDel.Enabled := InRange(I, 0, MyPlayer.AI.General.Attacks.Count);
-
-  if InRange(I, 0, MyPlayer.AI.General.Attacks.Count) then
-    Attacks_Edit(MyPlayer.AI.General.Attacks[I]);
+  //Check if user double-clicked on an existing item (not on an empty space)
+  if InRange(I, 0, MyPlayer.AI.General.Attacks.Count - 1) then
+    Attacks_Edit(I);
 end;
 
 

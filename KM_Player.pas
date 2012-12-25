@@ -275,8 +275,11 @@ begin
       fBuildList.AddWorker(TKMUnitWorker(Result));
     if aUnitType = ut_Serf then
       fDeliveries.AddSerf(TKMUnitSerf(Result));
+
+    //When player trains a warrior, we need that warrior to report to Groups
+    //when he walks out the Barracks, to properly link him to nearest Group
     if Result is TKMUnitWarrior then
-      fUnitGroups.WarriorTrained(TKMUnitWarrior(Result));
+      TKMUnitWarrior(Result).OnTrained := fUnitGroups.WarriorTrained;
 
     fStats.UnitCreated(aUnitType, WasTrained);
   end;

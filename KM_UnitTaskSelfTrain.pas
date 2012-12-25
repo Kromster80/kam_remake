@@ -4,19 +4,19 @@ interface
 uses Classes, KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, SysUtils;
 
 
-{Train in school}
+//Train citizen in school
 type
   TTaskSelfTrain = class(TUnitTask)
-    private
-      fSchool: TKMHouseSchool;
-    public
-      constructor Create(aUnit: TKMUnit; aSchool: TKMHouseSchool);
-      constructor Load(LoadStream: TKMemoryStream); override;
-      procedure SyncLoad; override;
-      destructor Destroy; override;
-      function Execute: TTaskResult; override;
-      procedure Save(SaveStream: TKMemoryStream); override;
-    end;
+  private
+    fSchool: TKMHouseSchool;
+  public
+    constructor Create(aUnit: TKMUnit; aSchool: TKMHouseSchool);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    procedure SyncLoad; override;
+    destructor Destroy; override;
+    function Execute: TTaskResult; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+  end;
 
 
 implementation
@@ -65,7 +65,7 @@ begin
   begin //School will cancel the training on own destruction
     Assert(False, 'Unexpected error. Destoyed school erases the task');
     Result := TaskDone;
-    exit;
+    Exit;
   end;
 
   with fUnit do

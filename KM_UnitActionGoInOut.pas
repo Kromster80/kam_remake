@@ -2,7 +2,7 @@ unit KM_UnitActionGoInOut;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
   KM_Houses, KM_Units;
 
 
@@ -12,15 +12,15 @@ type
   {This is a [fairly :P] simple action making unit go inside/outside of house}
   TUnitActionGoInOut = class(TUnitAction)
   private
-    fStep:single;
-    fHouse:TKMHouse;
-    fDirection:TGoInDirection;
-    fDoor:TKMPoint;
-    fStreet:TKMPoint;
-    fHasStarted:boolean;
+    fStep: Single;
+    fHouse: TKMHouse;
+    fDirection: TGoInDirection;
+    fDoor: TKMPoint;
+    fStreet: TKMPoint;
+    fHasStarted: Boolean;
     fPushedUnit: TKMUnit;
-    fWaitingForPush:boolean;
-    fUsedDoorway:boolean;
+    fWaitingForPush: Boolean;
+    fUsedDoorway: Boolean;
     procedure IncDoorway;
     procedure DecDoorway;
     function FindBestExit(aLoc: TKMPoint): TBestExit;
@@ -28,8 +28,9 @@ type
     procedure WalkIn;
     procedure WalkOut;
   public
-    constructor Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
-    constructor Load(LoadStream:TKMemoryStream); override;
+    OnWalkedOut: TEvent;
+    constructor Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection: TGoInDirection; aHouse: TKMHouse);
+    constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
     function ActName: TUnitActionName; override;
@@ -43,8 +44,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay,
-  KM_Units_Warrior;
+uses KM_PlayersCollection, KM_Resource, KM_Terrain, KM_UnitActionStay;
 
 
 { TUnitActionGoInOut }
@@ -193,7 +193,8 @@ end;
 
 //Check that tile is walkable and there's no unit blocking it or that unit can be pushed away
 function TUnitActionGoInOut.TileHasIdleUnit(X,Y: Word): TKMUnit;
-var U: TKMUnit;
+var
+  U: TKMUnit;
 begin
   Result := nil;
 
@@ -204,11 +205,11 @@ begin
   begin
     U := fTerrain.UnitsHitTest(X,Y); //Let's see who is standing there
 
-    //Check that the unit is idling and not an enemy warrior, so that we can push it away
+    //Check that the unit is idling and not an enemy, so that we can push it away
     if (U <> nil)
     and (U.GetUnitAction is TUnitActionStay)
     and not TUnitActionStay(U.GetUnitAction).Locked
-    and (not (U is TKMUnitWarrior) or (fPlayers.CheckAlliance(U.Owner,fUnit.Owner) = at_Ally)) then
+    and (fPlayers.CheckAlliance(U.Owner, fUnit.Owner) = at_Ally) then
       Result := U;
   end;
 end;
@@ -217,7 +218,7 @@ end;
 procedure TUnitActionGoInOut.WalkIn;
 begin
   fUnit.Direction := dir_N;  //one cell up
-  fUnit.NextPosition := KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y-1);
+  fUnit.NextPosition := KMPointAbove(fUnit.GetPosition);
   fTerrain.UnitRem(fUnit.GetPosition); //Unit does not occupy a tile while inside
 
   //We are walking straight
@@ -355,6 +356,7 @@ begin
         TKMHouseBarracks(fUnit.GetHome).RecruitsList.Add(fUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
       //Set us as inside even if the house is destroyed. In that case UpdateVisibility will sort things out.
 
+      //todo: Move to TaskMining
       //When any woodcutter returns home - add an Axe
       if (fUnit.UnitType = ut_Woodcutter)
       and (fUnit.GetHome <> nil)
@@ -368,10 +370,12 @@ begin
     begin
       fUnit.PositionF := KMPointF(fStreet);
       fUnit.SetInHouse(nil); //We are not in a house any longer
+      if Assigned(OnWalkedOut) then
+        OnWalkedOut;
     end;
   end
   else
-    inc(fUnit.AnimStep);
+    Inc(fUnit.AnimStep);
 end;
 
 

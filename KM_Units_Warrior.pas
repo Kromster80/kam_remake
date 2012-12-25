@@ -33,9 +33,11 @@ type
     procedure SetOrderHouseTarget(aHouse: TKMHouse);
 
     procedure TakeNextOrder;
+    procedure WalkedOut;
   public
     OnKilled: TKMWarriorEvent;
     OnPickedFight: TKMWarrior2Event;
+    OnTrained: TKMWarriorEvent;
     FaceDir: TKMDirection; //Direction we should face after walking. Only check for enemies in this direction.
 
     constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
@@ -329,6 +331,8 @@ begin
   Assert(aGoDir = gd_GoOutside, 'Walking inside is not implemented yet');
   Assert(aHouse.HouseType = ht_Barracks, 'Only Barracks so far');
   inherited;
+
+  TUnitActionGoInOut(GetUnitAction).OnWalkedOut := WalkedOut;
 end;
 
 
@@ -570,6 +574,15 @@ begin
                       end;
                     end;
   end;
+end;
+
+
+//Warrior has walked out of the Barracks
+procedure TKMUnitWarrior.WalkedOut;
+begin
+  //Report for duty (Groups will link us or create a new group)
+  if Assigned(OnTrained) then
+    OnTrained(Self);
 end;
 
 

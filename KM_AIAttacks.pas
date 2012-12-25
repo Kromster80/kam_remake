@@ -39,9 +39,10 @@ type
     fCount: Integer;
     fAttacks: array of TAIAttack;
     function GetAttack(aIndex: Integer): TAIAttack;
+    procedure SetAttack(aIndex: Integer; const aValue: TAIAttack);
   public
     property Count: Integer read fCount;
-    property Items[aIndex: Integer]: TAIAttack read GetAttack; default;
+    property Items[aIndex: Integer]: TAIAttack read GetAttack write SetAttack; default;
 
     procedure AddAttack(aAttack: TAIAttack);
     procedure Delete(aIndex: Integer);
@@ -104,6 +105,13 @@ function TAIAttacks.GetAttack(aIndex: Integer): TAIAttack;
 begin
   Assert(InRange(aIndex, 0, fCount - 1));
   Result := fAttacks[aIndex];
+end;
+
+
+procedure TAIAttacks.SetAttack(aIndex: Integer; const aValue: TAIAttack);
+begin
+  Assert(InRange(aIndex, 0, fCount - 1));
+  fAttacks[aIndex] := aValue;
 end;
 
 

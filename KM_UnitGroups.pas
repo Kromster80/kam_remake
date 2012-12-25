@@ -1368,9 +1368,7 @@ begin
                      LinkGroup.OrderRepeat;
                    end
                    else
-                   begin
                      fGroups.Add(TKMUnitGroup.Create(fGame.GetNewID, aUnit));
-                   end;
                  end;
     pt_Computer: fGroups.Add(TKMUnitGroup.Create(fGame.GetNewID, aUnit));
   end;
