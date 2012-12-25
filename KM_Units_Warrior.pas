@@ -280,19 +280,19 @@ begin
   Best := MaxSingle;
 
   FoundUnits := TList.Create;
-  fPlayers.GetUnitsInRect(KMRect(aLoc.X-LINK_RADIUS,
-                                 aLoc.Y-LINK_RADIUS,
-                                 aLoc.X+LINK_RADIUS,
-                                 aLoc.Y+LINK_RADIUS), FoundUnits, True);
+  fPlayers[fOwner].Units.GetUnitsInRect(KMRect(aLoc.X-LINK_RADIUS,
+                                               aLoc.Y-LINK_RADIUS,
+                                               aLoc.X+LINK_RADIUS,
+                                               aLoc.Y+LINK_RADIUS),
+                                        FoundUnits, True);
 
-  for I := 0 to FoundUnits.Count-1 do
+  for I := 0 to FoundUnits.Count - 1 do
   begin
     U := FoundUnits[I];
-    if (U is TKMUnitWarrior) and
-       (U <> Self) and
-       (U.Owner = fOwner) and
-       (not U.IsDeadOrDying) and //Can't link to a dying unit
-       (UnitGroups[U.UnitType] = UnitGroups[fUnitType]) then //They must be the same group type
+    if (U is TKMUnitWarrior)
+    and (U <> Self)
+    and (UnitGroups[U.UnitType] = UnitGroups[fUnitType]) //They must be the same group type
+    and Assigned(TKMUnitWarrior(U).OnKilled) then //This checks if warrior belongs to some Group
     begin
       L := KMLength(aLoc, U.GetPosition);
       if (L < Best) then
@@ -302,6 +302,7 @@ begin
       end;
     end;
   end;
+
   FoundUnits.Free;
 end;
 
