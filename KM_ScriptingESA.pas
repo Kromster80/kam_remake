@@ -73,7 +73,10 @@ begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
     Result := fPlayers[aPlayer].Stats.GetArmyCount
   else
+  begin
+    Result := 0;
     LogError('States.ArmyCount', [aPlayer]);
+  end;
 end;
 
 
@@ -82,7 +85,10 @@ begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
     Result := fPlayers[aPlayer].Stats.GetCitizensCount
   else
-    LogError('States.ArmyCount', [aPlayer]);
+  begin
+    Result := 0;
+    LogError('States.CitizenCount', [aPlayer]);
+  end;
 end;
 
 
@@ -99,7 +105,10 @@ begin
   then
     Result := fPlayers[aPlayer].Stats.GetHouseQty(HouseIndexToType[aHouseType])
   else
+  begin
+    Result := 0;
     LogError('States.HouseTypeCount', [aPlayer]);
+  end;
 end;
 
 
@@ -114,7 +123,10 @@ begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
     Result := (fPlayers[aPlayer].AI.WonOrLost = wol_Lost)
   else
+  begin
+    Result := False;
     LogError('States.PlayerDefeated', [aPlayer]);
+  end;
 end;
 
 
@@ -123,7 +135,10 @@ begin
   if InRange(aPlayer, 0, fPlayers.Count - 1) then
     Result := fPlayers[aPlayer].Stats.GetUnitQty(ut_Any)
   else
+  begin
+    Result := 0;
     LogError('States.UnitCount', [aPlayer]);
+  end;
 end;
 
 
@@ -134,7 +149,10 @@ begin
   then
     Result := fPlayers[aPlayer].Stats.GetUnitQty(UnitIndexToType[aUnitType])
   else
+  begin
+    Result := 0;
     LogError('States.UnitTypeCount', [aPlayer]);
+  end;
 end;
 
 
