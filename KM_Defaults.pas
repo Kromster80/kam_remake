@@ -227,8 +227,8 @@ const
   MARKER_REVEAL = 1;
 
 const
-  MAPED_TILES_COLS = 6;
-  MAPED_TILES_ROWS = 8;
+  MAPED_TILES_X = 6;
+  MAPED_TILES_Y = 8;
 
 
 const

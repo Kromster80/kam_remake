@@ -9,6 +9,7 @@ uses
      KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_Terrain;
 
 type
+  TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject);
   TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
 
 type
@@ -16,6 +17,8 @@ type
   private
     fPrevHint: TObject;
     fActivePage: TKMPanel;
+    fLastTile: Byte;
+    fLastObject: Byte;
     fStorehouseItem: Byte; //Selected ware in storehouse
     fBarracksItem: Byte; //Selected ware in barracks
     fTileDirection: Byte;
@@ -96,10 +99,6 @@ type
     procedure ShowMarkerInfo(aMarker: TKMMapEdMarker);
     procedure SetActivePlayer(aIndex: TPlayerIndex);
     procedure SetTileDirection(aTileDirection: byte);
-
-    function GetSelectedTile: TObject;
-    function GetSelectedObject: TObject;
-    function GetSelectedUnit: TObject;
   protected
     Panel_Main:TKMPanel;
       MinimapView: TKMMinimapView;
@@ -121,7 +120,7 @@ type
       Image_Extra: TKMImage;
 
     Panel_Terrain: TKMPanel;
-      Button_Terrain: array [1..4] of TKMButton;
+      Button_Terrain: array [TKMTerrainTab] of TKMButton;
       Panel_Brushes: TKMPanel;
         BrushSize: TKMTrackBar;
         BrushCircle,BrushSquare: TKMButtonFlat;
@@ -132,9 +131,9 @@ type
         HeightCircle,HeightSquare:TKMButtonFlat;
         HeightElevate, HeightUnequalize: TKMButtonFlat;
       Panel_Tiles:TKMPanel;
-        TilesTable:array[1..MAPED_TILES_COLS*MAPED_TILES_ROWS] of TKMButtonFlat; //how many are visible?
-        TilesScroll:TKMScrollBar;
-        TilesRandom:TKMCheckBox;
+        TilesTable: array [0 .. MAPED_TILES_X * MAPED_TILES_Y - 1] of TKMButtonFlat; //how many are visible?
+        TilesScroll: TKMScrollBar;
+        TilesRandom: TKMCheckBox;
       Panel_Objects:TKMPanel;
         ObjectErase:TKMButtonFlat;
         ObjectsTable:array[0..8] of TKMButtonFlat;
@@ -348,16 +347,16 @@ begin
     fPlayers.Selected := nil;
   end;
 
-  if (Sender = Button_Main[1]) or (Sender = Button_Terrain[1]) then
+  if (Sender = Button_Main[1]) or (Sender = Button_Terrain[ttBrush]) then
     DisplayPage(Panel_Brushes)
   else
-  if (Sender = Button_Terrain[2]) then
+  if (Sender = Button_Terrain[ttHeights]) then
     DisplayPage(Panel_Heights)
   else
-  if (Sender = Button_Terrain[3]) then
+  if (Sender = Button_Terrain[ttTile]) then
     DisplayPage(Panel_Tiles)
   else
-  if (Sender = Button_Terrain[4]) then
+  if (Sender = Button_Terrain[ttObject]) then
     DisplayPage(Panel_Objects)
   else
 
@@ -445,12 +444,11 @@ begin
   if aPage = Panel_Tiles then
   begin
     SetTileDirection(fTileDirection); //ensures tags are in allowed ranges
-    Terrain_TilesChange(GetSelectedTile);
+    Terrain_TilesChange(TilesTable[fLastTile]);
   end else
   if aPage = Panel_Objects then
-  begin
-    Terrain_ObjectsChange(GetSelectedObject);
-  end else
+    Terrain_ObjectsChange(ObjectsTable[fLastObject])
+  else
 
   if aPage = Panel_Build then
     Build_ButtonClick(Button_BuildRoad)
@@ -713,8 +711,8 @@ end;
 {Terrain page}
 procedure TKMapEdInterface.Create_Terrain_Page;
 const
-  BtnGlyph: array [1..4] of Word = (383, 388, 382, 385);
-  BtnHint: array [1..4] of Word = (
+  BtnGlyph: array [TKMTerrainTab] of Word = (383, 388, 382, 385);
+  BtnHint: array [TKMTerrainTab] of Word = (
     TX_MAPED_TERRAIN_HINTS_BRUSHES,
     TX_MAPED_TERRAIN_HINTS_HEIGHTS,
     TX_MAPED_TERRAIN_HINTS_TILES,
@@ -727,12 +725,14 @@ const
     ( 47,  46,  45, 132, 159),
     (164, 245,  20, 192, 155),
     (147, 151,  -1,  -1,  -1));
-var I,K: Integer;
+var
+  I: TKMTerrainTab;
+  J,K: Integer;
 begin
   Panel_Terrain := TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,28);
-    for I := 1 to 4 do
+    for I := Low(TKMTerrainTab) to High(TKMTerrainTab) do
     begin
-      Button_Terrain[I] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * I, 0, SMALL_TAB_W, SMALL_TAB_H, BtnGlyph[I], rxGui, bsGame);
+      Button_Terrain[I] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * Byte(I), 0, SMALL_TAB_W, SMALL_TAB_H, BtnGlyph[I], rxGui, bsGame);
       Button_Terrain[I].Hint := fTextLibrary[BtnHint[I]];
       Button_Terrain[I].OnClick := SwitchPage;
     end;
@@ -746,13 +746,13 @@ begin
       BrushSquare.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
 
       TKMLabel.Create(Panel_Brushes, 0, 60, TB_WIDTH, 0, 'Surface', fnt_Outline, taCenter);
-      for I := Low(Surfaces) to High(Surfaces) do
-      for K := Low(Surfaces[I]) to High(Surfaces[I]) do
-      if Surfaces[I,K] <> -1 then
+      for J := Low(Surfaces) to High(Surfaces) do
+      for K := Low(Surfaces[J]) to High(Surfaces[J]) do
+      if Surfaces[J,K] <> -1 then
       begin
-        BrushTable[I,K] := TKMButtonFlat.Create(Panel_Brushes, K * 36, 80 + I * 40, 34, 34, Surfaces[I,K]+1, rxTiles);  // grass
-        BrushTable[I,K].Disable;
-        //BrushTable[I,K].OnClick := Terrain_BrushClick;
+        BrushTable[J,K] := TKMButtonFlat.Create(Panel_Brushes, K * 36, 80 + J * 40, 34, 34, Surfaces[J,K]+1, rxTiles);  // grass
+        BrushTable[J,K].Disable;
+        //BrushTable[J,K].OnClick := Terrain_BrushClick;
       end;
 
     Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
@@ -793,23 +793,28 @@ begin
 
     Panel_Tiles := TKMPanel.Create(Panel_Terrain, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Tiles', fnt_Outline, taCenter);
-      TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 4, TB_WIDTH, 20, fTextLibrary[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
+      TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 30, TB_WIDTH, 20, fTextLibrary[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
       TilesRandom.Checked := True;
       TilesRandom.OnClick := Terrain_TilesChange;
       TilesRandom.Hint := fTextLibrary[TX_MAPED_TERRAIN_TILES_RANDOM_HINT];
-      TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 30 + 4 + MAPED_TILES_ROWS * 32, 194, 20, sa_Horizontal, bsGame);
-      TilesScroll.MaxValue := 256 div MAPED_TILES_ROWS - MAPED_TILES_COLS; // 16 - 6
+
+      //Create scroll first to link to its MouseWheel event
+      TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 50 + 4 + MAPED_TILES_Y * 32, 194, 20, sa_Horizontal, bsGame);
+      TilesScroll.MaxValue := 256 div MAPED_TILES_Y - MAPED_TILES_X; // 32 - 6
       TilesScroll.Position := 0;
       TilesScroll.OnChange := Terrain_TilesChange;
-      for i:=1 to MAPED_TILES_COLS do for k:=1 to MAPED_TILES_ROWS do begin
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k] := TKMButtonFlat.Create(Panel_Tiles,(i-1)*32,30+(k-1)*32,32,32,1,rxTiles); //2..9
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (k-1)*MAPED_TILES_COLS+i; //Store ID
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := Terrain_TilesChange;
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnMouseWheel := TilesScroll.MouseWheel;
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Hint := fTextLibrary[TX_MAPED_TERRAIN_TILES_MAIN_HINT];
+      for J := 0 to MAPED_TILES_Y - 1 do
+      for K := 0 to MAPED_TILES_X - 1 do
+      begin
+        TilesTable[J * MAPED_TILES_X + K] := TKMButtonFlat.Create(Panel_Tiles, K * 32, 50 + J * 32, 32, 32, 1, rxTiles);
+        TilesTable[J * MAPED_TILES_X + K].Tag :=  J * MAPED_TILES_X + K; //Store ID
+        TilesTable[J * MAPED_TILES_X + K].OnClick := Terrain_TilesChange;
+        TilesTable[J * MAPED_TILES_X + K].OnMouseWheel := TilesScroll.MouseWheel;
+        TilesTable[J * MAPED_TILES_X + K].Hint := fTextLibrary[TX_MAPED_TERRAIN_TILES_MAIN_HINT];
       end;
+
       Terrain_TilesChange(TilesScroll); //This ensures that the displayed images get updated the first time
-      Terrain_TilesChange(TilesTable[1]);
+      Terrain_TilesChange(TilesTable[0]);
 
     Panel_Objects := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Objects', fnt_Outline, taCenter);
@@ -820,12 +825,12 @@ begin
       ObjectsScroll.OnChange := Terrain_ObjectsChange;
       ObjectErase := TKMButtonFlat.Create(Panel_Objects, 0, 8,32,32,340);
       ObjectErase.Hint := fTextLibrary[TX_MAPED_TERRAIN_OBJECTS_REMOVE];
-      for I := 0 to 2 do for K := 0 to 2 do
+      for J := 0 to 2 do for K := 0 to 2 do
       begin
-        ObjectsTable[I*3+K] := TKMButtonFlat.Create(Panel_Objects, I*65, 40+K*85,64,84,1,rxTrees); //RXid=1  // 1 2
-        ObjectsTable[I*3+K].Tag := I*3+K; //Store ID
-        ObjectsTable[I*3+K].OnClick := Terrain_ObjectsChange;
-        ObjectsTable[I*3+K].OnMouseWheel := ObjectsScroll.MouseWheel;
+        ObjectsTable[J*3+K] := TKMButtonFlat.Create(Panel_Objects, J*65, 40+K*85,64,84,1,rxTrees); //RXid=1  // 1 2
+        ObjectsTable[J*3+K].Tag := J*3+K; //Store ID
+        ObjectsTable[J*3+K].OnClick := Terrain_ObjectsChange;
+        ObjectsTable[J*3+K].OnMouseWheel := ObjectsScroll.MouseWheel;
       end;
       ObjectErase.Tag := 255; //no object
       ObjectErase.OnClick := Terrain_ObjectsChange;
@@ -1658,47 +1663,52 @@ end;
 
 procedure TKMapEdInterface.Terrain_TilesChange(Sender: TObject);
 
-  function GetTileIDFromTag(aTag: byte):byte;
-  var Tile:byte;
+  function GetTileIDFromTag(aTag: Byte): Byte;
+  var X,Y,Tile: Byte;
   begin
-    Tile := 32*((aTag-1) div MAPED_TILES_COLS) + (aTag-1) mod MAPED_TILES_COLS + TilesScroll.Position;
-    Result := MapEdTileRemap[EnsureRange(Tile+1,1,256)];
+    X := aTag mod MAPED_TILES_X + TilesScroll.Position;
+    Y := (aTag div MAPED_TILES_X);
+    Tile := (256 div MAPED_TILES_Y) * Y + X;
+    Result := MapEdTileRemap[Tile + 1];
   end;
 
 var i,k,TileID:Integer;
 begin
   if Sender = TilesRandom then
-    GameCursor.MapEdDir := 4 * byte(TilesRandom.Checked); //Defined=0..3 or Random=4
+    GameCursor.MapEdDir := 4 * Byte(TilesRandom.Checked); //Defined=0..3 or Random=4
 
   if Sender = TilesScroll then //Shift tiles
-    for i:=1 to MAPED_TILES_COLS do
-    for k:=1 to MAPED_TILES_ROWS do
+    for I := 0 to MAPED_TILES_Y - 1 do
+    for K := 0 to MAPED_TILES_X - 1 do
     begin
-      if GetTileIDFromTag((k-1)*MAPED_TILES_COLS+i) <> 0 then
+      if GetTileIDFromTag(K * MAPED_TILES_X + I) <> 0 then
       begin
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].TexID := GetTileIDFromTag((k-1)*MAPED_TILES_COLS+i); //icons are in 2..9
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Enable;
+        TilesTable[I * MAPED_TILES_X + K].TexID := GetTileIDFromTag(I * MAPED_TILES_X + K); //icons are in 2..9
+        TilesTable[I * MAPED_TILES_X + K].Enable;
       end
       else
       begin
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].TexID := 0;
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Disable;
+        TilesTable[I * MAPED_TILES_X + K].TexID := 0;
+        TilesTable[I * MAPED_TILES_X + K].Disable;
       end;
       if GameCursor.Mode = cmTiles then
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (GameCursor.Tag1+1 = GetTileIDFromTag((k-1)*MAPED_TILES_COLS+i));
+        TilesTable[I * MAPED_TILES_X + K].Down := (GameCursor.Tag1+1 = GetTileIDFromTag(I * MAPED_TILES_X + K));
     end;
   if Sender is TKMButtonFlat then
   begin
+    //Release previous button
+    TilesTable[fLastTile].Down := False;
+
     TileID := GetTileIDFromTag(TKMButtonFlat(Sender).Tag);
     if TileID <> 0 then
     begin
       GameCursor.Mode := cmTiles;
-      GameCursor.Tag1 := TileID-1; //MapEdTileRemap is 1 based, tag is 0 based
+      GameCursor.Tag1 := TileID - 1; //MapEdTileRemap is 1 based, tag is 0 based
       if TilesRandom.Checked then
         GameCursor.MapEdDir := 4;
-      for i:=1 to MAPED_TILES_COLS do
-      for k:=1 to MAPED_TILES_ROWS do
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (Sender = TilesTable[(i-1)*MAPED_TILES_ROWS+k]);
+
+      fLastTile := TKMButtonFlat(Sender).Tag;
+      TilesTable[fLastTile].Down := True;
     end;
   end;
 end;
@@ -2268,45 +2278,6 @@ begin
     Radio_Load_MapType.ItemIndex := 0;
     Radio_Save_MapType.ItemIndex := 0;
   end;
-end;
-
-
-function TKMapEdInterface.GetSelectedTile: TObject;
-var I: Byte;
-begin
-  Result := nil;
-  for I := 1 to MAPED_TILES_COLS * MAPED_TILES_ROWS do
-    if TilesTable[I].Down then
-      Result := TilesTable[I];
-end;
-
-
-function TKMapEdInterface.GetSelectedObject: TObject;
-var I: Byte;
-begin
-  Result := nil;
-  for I := 1 to 4 do
-    if ObjectsTable[I].Down then
-      Result := ObjectsTable[I];
-end;
-
-
-function TKMapEdInterface.GetSelectedUnit: TObject;
-var I: Byte;
-begin
-  Result := nil;
-
-  for I := 0 to High(Button_Citizen) do
-    if Button_Citizen[I].Down then
-      Result := Button_Citizen[I];
-
-  for I := 0 to High(Button_Warriors) do
-    if Button_Warriors[I].Down then
-      Result := Button_Warriors[I];
-
-  for I := 0 to High(Button_Animals) do
-    if Button_Animals[I].Down then
-      Result := Button_Animals[I];
 end;
 
 
