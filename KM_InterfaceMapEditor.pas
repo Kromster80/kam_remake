@@ -9,7 +9,7 @@ uses
      KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_Terrain;
 
 type
-  TKMVillageTab = (vtHouses, vtUnits, vtScript, vtDefences, vtOffence);
+  TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
 
 type
   TKMapEdInterface = class (TKMUserInterface)
@@ -25,7 +25,7 @@ type
     fMapsMP: TKMapsCollection;
 
     procedure Create_Terrain_Page;
-    procedure Create_Village_Page;
+    procedure Create_Town_Page;
     procedure Create_Player_Page;
     procedure Create_Mission_Page;
     procedure Create_Menu;
@@ -51,8 +51,6 @@ type
     procedure Attacks_ListDoubleClick(Sender: TObject);
     procedure Attacks_Refresh;
     procedure Build_ButtonClick(Sender: TObject);
-    procedure Defence_Refresh;
-    procedure Defence_Change(Sender: TObject);
     procedure Formations_Show(Sender: TObject);
     procedure Formations_Close(Sender: TObject);
     procedure House_HealthChange(Sender: TObject; AButton: TMouseButton);
@@ -84,8 +82,10 @@ type
     procedure Unit_ArmyChange1(Sender: TObject); overload;
     procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
     procedure View_Passability(Sender: TObject);
-    procedure Village_ScriptRefresh;
-    procedure Village_ScriptChange(Sender: TObject);
+    procedure Town_DefenceRefresh;
+    procedure Town_DefenceChange(Sender: TObject);
+    procedure Town_ScriptRefresh;
+    procedure Town_ScriptChange(Sender: TObject);
 
     procedure SwitchPage(Sender: TObject);
     procedure DisplayPage(aPage: TKMPanel);
@@ -141,11 +141,11 @@ type
         ObjectsScroll:TKMScrollBar;
 
     //todo: How to know where certain page should be?
-    //Village - panels that will become mostly obsolete in a battle mission?
+    //Town - panels that will become mostly obsolete in a battle mission?
     //Player - panels that make sense both in town and battle mode?
 
-    Panel_Village: TKMPanel;
-      Button_Village: array [TKMVillageTab] of TKMButton;
+    Panel_Town: TKMPanel;
+      Button_Town: array [TKMTownTab] of TKMButton;
       Panel_Build: TKMPanel;
         Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildCancel: TKMButtonFlat;
         Button_Build: array [1..GUI_HOUSE_COUNT] of TKMButtonFlat;
@@ -333,7 +333,7 @@ begin
 
   //If the user clicks on the tab that is open, it closes it (main buttons only)
   if ((Sender = Button_Main[1]) and Panel_Terrain.Visible) or
-     ((Sender = Button_Main[2]) and Panel_Village.Visible) or
+     ((Sender = Button_Main[2]) and Panel_Town.Visible) or
      ((Sender = Button_Main[3]) and Panel_Player.Visible) or
      ((Sender = Button_Main[4]) and Panel_Mission.Visible) or
      ((Sender = Button_Main[5]) and Panel_Menu.Visible) then
@@ -361,19 +361,19 @@ begin
     DisplayPage(Panel_Objects)
   else
 
-  if (Sender = Button_Main[2])or(Sender = Button_Village[vtHouses]) then
+  if (Sender = Button_Main[2])or(Sender = Button_Town[ttHouses]) then
     DisplayPage(Panel_Build)
   else
-  if (Sender = Button_Village[vtUnits]) then
+  if (Sender = Button_Town[ttUnits]) then
     DisplayPage(Panel_Units)
   else
-  if (Sender = Button_Village[vtScript]) then
+  if (Sender = Button_Town[ttScript]) then
     DisplayPage(Panel_Script)
   else
-  if (Sender = Button_Village[vtDefences]) then
+  if (Sender = Button_Town[ttDefences]) then
     DisplayPage(Panel_Defence)
   else
-  if (Sender = Button_Village[vtOffence]) then
+  if (Sender = Button_Town[ttOffence]) then
     DisplayPage(Panel_Offence)
   else
 
@@ -453,26 +453,22 @@ begin
   end else
 
   if aPage = Panel_Build then
-  begin
-    Build_ButtonClick(Button_BuildRoad);
-  end else
+    Build_ButtonClick(Button_BuildRoad)
+  else
   if aPage = Panel_Units then
-  begin
-    Unit_ButtonClick(GetSelectedUnit);
-  end else
+    //Unit_ButtonClick(GetSelectedUnit)
+  else
   if aPage = Panel_Script then
-  begin
-    Village_ScriptRefresh;
-  end else
+    Town_ScriptRefresh
+  else
   if aPage = Panel_Defence then
   begin
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
-    Defence_Refresh;
+    Town_DefenceRefresh;
   end else
   if aPage = Panel_Offence then
-  begin
-    Attacks_Refresh;
-  end else
+    Attacks_Refresh
+  else
 
   if aPage = Panel_Goals then
   begin
@@ -663,7 +659,7 @@ begin
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
   Create_Terrain_Page;
-  Create_Village_Page;
+  Create_Town_Page;
   Create_Player_Page;
   Create_Mission_Page;
 
@@ -839,23 +835,23 @@ end;
 
 
 {Build page}
-procedure TKMapEdInterface.Create_Village_Page;
+procedure TKMapEdInterface.Create_Town_Page;
 const
-  VillageTabIcon: array [TKMVillageTab] of Word = (391, 141, 327, 43, 43);
+  TabGlyph: array [TKMTownTab] of Word = (391, 141, 327, 43, 43);
 var
   I: Integer;
-  VT: TKMVillageTab;
+  VT: TKMTownTab;
 begin
-  Panel_Village := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 28);
+  Panel_Town := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 28);
 
-    for VT := Low(TKMVillageTab) to High(TKMVillageTab) do
+    for VT := Low(TKMTownTab) to High(TKMTownTab) do
     begin
-      Button_Village[VT] := TKMButton.Create(Panel_Village, SMALL_PAD_W * Byte(VT), 0, SMALL_TAB_W, SMALL_TAB_H, VillageTabIcon[VT], rxGui, bsGame);
-      Button_Village[VT].OnClick := SwitchPage;
+      Button_Town[VT] := TKMButton.Create(Panel_Town, SMALL_PAD_W * Byte(VT), 0, SMALL_TAB_W, SMALL_TAB_H, TabGlyph[VT], rxGui, bsGame);
+      Button_Town[VT].OnClick := SwitchPage;
     end;
 
     //Town placement
-    Panel_Build := TKMPanel.Create(Panel_Village,0,28,TB_WIDTH,400);
+    Panel_Build := TKMPanel.Create(Panel_Town,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Build,0,PAGE_TITLE_Y,TB_WIDTH,0,'Roadworks',fnt_Outline,taCenter);
       Button_BuildRoad   := TKMButtonFlat.Create(Panel_Build,  0,28,33,33,335);
       Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 37,28,33,33,337);
@@ -879,7 +875,7 @@ begin
         end;
 
     //Units placement
-    Panel_Units := TKMPanel.Create(Panel_Village,0,28,TB_WIDTH,400);
+    Panel_Units := TKMPanel.Create(Panel_Town,0,28,TB_WIDTH,400);
 
       for I:=0 to High(Button_Citizen) do
       begin
@@ -910,46 +906,46 @@ begin
       Unit_ButtonClick(Button_Citizen[0]); //Select serf as default
 
     //Town settings
-    Panel_Script := TKMPanel.Create(Panel_Village, 0, 28, TB_WIDTH, 400);
+    Panel_Script := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Script, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Scripts', fnt_Outline, taCenter);
       CheckBox_AutoBuild := TKMCheckBox.Create(Panel_Script, 0, 30, TB_WIDTH, 20, 'Autobuild', fnt_Metal);
-      CheckBox_AutoBuild.OnClick := Village_ScriptChange;
+      CheckBox_AutoBuild.OnClick := Town_ScriptChange;
       CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 0, 50, TB_WIDTH, 20, 'Autorepair', fnt_Metal);
-      CheckBox_AutoRepair.OnClick := Village_ScriptChange;
+      CheckBox_AutoRepair.OnClick := Town_ScriptChange;
       TrackBar_SerfFactor := TKMTrackBar.Create(Panel_Script, 0, 70, TB_WIDTH, 1, 20);
       TrackBar_SerfFactor.Caption := 'Serf factor';
-      TrackBar_SerfFactor.OnClick := Village_ScriptChange;
+      TrackBar_SerfFactor.OnClick := Town_ScriptChange;
       TrackBar_WorkerFactor := TKMTrackBar.Create(Panel_Script, 0, 110, TB_WIDTH, 3, 30);
       TrackBar_WorkerFactor.Caption := 'Workers';
-      TrackBar_WorkerFactor.OnClick := Village_ScriptChange;
+      TrackBar_WorkerFactor.OnClick := Town_ScriptChange;
 
     //Defence settings
-    Panel_Defence := TKMPanel.Create(Panel_Village, 0, 28, TB_WIDTH, 400);
+    Panel_Defence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Defence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Defence', fnt_Outline, taCenter);
 
       CheckBox_AutoDefence := TKMCheckBox.Create(Panel_Defence, 0, 30, TB_WIDTH, 20, 'AutoDefence', fnt_Metal);
-      CheckBox_AutoDefence.OnClick := Defence_Change;
+      CheckBox_AutoDefence.OnClick := Town_DefenceChange;
 
       TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Defence, 0, 50, TB_WIDTH, 10, 300);
       TrackBar_EquipRateLeather.Caption := 'Equip rate iron';
       TrackBar_EquipRateLeather.Step := 5;
-      TrackBar_EquipRateLeather.OnClick := Defence_Change;
+      TrackBar_EquipRateLeather.OnClick := Town_DefenceChange;
 
       TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Defence, 0, 90, TB_WIDTH, 10, 300);
       TrackBar_EquipRateIron.Caption := 'Equip rate leather';
       TrackBar_EquipRateIron.Step := 5;
-      TrackBar_EquipRateIron.OnClick := Defence_Change;
+      TrackBar_EquipRateIron.OnClick := Town_DefenceChange;
 
       TrackBar_RecruitFactor := TKMTrackBar.Create(Panel_Defence, 0, 130, TB_WIDTH, 1, 20);
       TrackBar_RecruitFactor.Caption := 'Recruits per Barracks';
       TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks'; //@Lewin: Please check me on this one
-      TrackBar_RecruitFactor.OnClick := Defence_Change;
+      TrackBar_RecruitFactor.OnClick := Town_DefenceChange;
 
       Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 175, TB_WIDTH, 25, 'Edit formations', bsGame);
       Button_EditFormations.OnClick := Formations_Show;
 
     //Defence settings
-    Panel_Offence := TKMPanel.Create(Panel_Village, 0, 28, TB_WIDTH, 400);
+    Panel_Offence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Attacks', fnt_Outline, taCenter);
 
       CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 30, TB_WIDTH, 20, 'AutoAttack', fnt_Metal);
@@ -1541,7 +1537,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Defence_Refresh;
+procedure TKMapEdInterface.Town_DefenceRefresh;
 begin
   CheckBox_AutoDefence.Checked := MyPlayer.AI.Setup.AutoDefend;
   TrackBar_EquipRateLeather.Position := MyPlayer.AI.Setup.EquipRateLeather div 10;
@@ -1550,7 +1546,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Defence_Change(Sender: TObject);
+procedure TKMapEdInterface.Town_DefenceChange(Sender: TObject);
 begin
   MyPlayer.AI.Setup.AutoDefend := CheckBox_AutoDefence.Checked;
   MyPlayer.AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
@@ -1559,7 +1555,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Village_ScriptRefresh;
+procedure TKMapEdInterface.Town_ScriptRefresh;
 begin
   CheckBox_AutoBuild.Checked := MyPlayer.AI.Setup.AutoBuild;
   CheckBox_AutoRepair.Checked := MyPlayer.AI.Setup.AutoRepair;
@@ -1568,7 +1564,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Village_ScriptChange(Sender: TObject);
+procedure TKMapEdInterface.Town_ScriptChange(Sender: TObject);
 begin
   MyPlayer.AI.Setup.AutoBuild := CheckBox_AutoBuild.Checked;
   MyPlayer.AI.Setup.AutoRepair := CheckBox_AutoRepair.Checked;
@@ -1586,7 +1582,7 @@ begin
     Button_PlayerSelect[I].ShapeColor := fPlayers[I].FlagColor;
 
   //Update pages that have colored elements to match new players color
-  Button_Village[vtUnits].FlagColor := MyPlayer.FlagColor;
+  Button_Town[ttUnits].FlagColor := MyPlayer.FlagColor;
   for I := Low(Button_Citizen) to High(Button_Citizen) do
     Button_Citizen[I].FlagColor := MyPlayer.FlagColor;
   for I := Low(Button_Warriors) to High(Button_Warriors) do
