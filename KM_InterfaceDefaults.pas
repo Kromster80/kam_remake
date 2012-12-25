@@ -34,6 +34,7 @@ const
   //Toolbar pads
   TB_PAD = 9; //Picked up empirically
   TB_WIDTH = 180;
+  PAGE_TITLE_Y = 5; //Page title offset
 
   //Options sliders
   OPT_SLIDER_MIN = 0;

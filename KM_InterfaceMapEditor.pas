@@ -15,6 +15,7 @@ type
   TKMapEdInterface = class (TKMUserInterface)
   private
     fPrevHint: TObject;
+    fActivePage: TKMPanel;
     fStorehouseItem: Byte; //Selected ware in storehouse
     fBarracksItem: Byte; //Selected ware in barracks
     fTileDirection: Byte;
@@ -87,6 +88,7 @@ type
     procedure Village_ScriptChange(Sender: TObject);
 
     procedure SwitchPage(Sender: TObject);
+    procedure DisplayPage(aPage: TKMPanel);
     procedure DisplayHint(Sender: TObject);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
@@ -115,16 +117,15 @@ type
 
     Panel_Common:TKMPanel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
-      Label_MenuTitle: TKMLabel; //Displays the title of the current menu below
       Label_MissionName: TKMLabel;
       Image_Extra: TKMImage;
 
-    Panel_Terrain:TKMPanel;
-      Button_Terrain:array[1..4]of TKMButton;
-      Panel_Brushes:TKMPanel;
-        BrushSize:TKMTrackBar;
-        BrushCircle,BrushSquare:TKMButtonFlat;
-        //BrushesTable:array[1..27] of TKMButtonFlat; // todo
+    Panel_Terrain: TKMPanel;
+      Button_Terrain: array [1..4] of TKMButton;
+      Panel_Brushes: TKMPanel;
+        BrushSize: TKMTrackBar;
+        BrushCircle,BrushSquare: TKMButtonFlat;
+        BrushTable: array[0..6, 0..4] of TKMButtonFlat;
       Panel_Heights:TKMPanel;
         HeightSize, HeightSlope, HeightSpeed:TKMTrackBar;
         HeightShapeLabel:TKMLabel;
@@ -319,10 +320,9 @@ const
   SMALL_TAB_H = 26;
   //SMALL_PAD_H = SMALL_TAB_H + 4;
 
+
 {Switch between pages}
 procedure TKMapEdInterface.SwitchPage(Sender: TObject);
-var
-  I,K: Integer;
 begin
   //Reset cursor mode
   GameCursor.Mode := cmNone;
@@ -348,205 +348,180 @@ begin
     fPlayers.Selected := nil;
   end;
 
-  Label_MenuTitle.Caption := '';
-  //Now hide all existing pages
-  for I := 1 to Panel_Common.ChildCount do
-    if Panel_Common.Childs[I] is TKMPanel then
-    begin
-      Panel_Common.Childs[I].Hide;
-      for K := 1 to TKMPanel(Panel_Common.Childs[I]).ChildCount do
-        if TKMPanel(Panel_Common.Childs[I]).Childs[K] is TKMPanel then
-          TKMPanel(Panel_Common.Childs[I]).Childs[K].Hide;
-    end;
-
-  if (Sender = Button_Main[1]) or (Sender = Button_Terrain[1]) then begin
-    Panel_Terrain.Show;
-    Panel_Brushes.Show;
-    Label_MenuTitle.Caption:='Terrain - Brushes';
-  end else
-
+  if (Sender = Button_Main[1]) or (Sender = Button_Terrain[1]) then
+    DisplayPage(Panel_Brushes)
+  else
   if (Sender = Button_Terrain[2]) then
-  begin
-    Panel_Terrain.Show;
-    Panel_Heights.Show;
-    Label_MenuTitle.Caption:='Terrain - Heights';
-    Terrain_HeightChange(HeightElevate); //Select the default mode
-  end else
-
+    DisplayPage(Panel_Heights)
+  else
   if (Sender = Button_Terrain[3]) then
-  begin
-    Panel_Terrain.Show;
-    Panel_Tiles.Show;
-    Label_MenuTitle.Caption:='Terrain - Tiles';
-    SetTileDirection(fTileDirection); //ensures tags are in allowed ranges
-    Terrain_TilesChange(GetSelectedTile);
-  end else
-
+    DisplayPage(Panel_Tiles)
+  else
   if (Sender = Button_Terrain[4]) then
-  begin
-    Panel_Terrain.Show;
-    Panel_Objects.Show;
-    Label_MenuTitle.Caption:='Terrain - Objects';
-    Terrain_ObjectsChange(GetSelectedObject);
-  end else
+    DisplayPage(Panel_Objects)
+  else
 
   if (Sender = Button_Main[2])or(Sender = Button_Village[vtHouses]) then
-  begin
-    Panel_Village.Show;
-    Panel_Build.Show;
-    Label_MenuTitle.Caption := 'Village - Buildings';
-    Build_ButtonClick(Button_BuildRoad);
-  end else
-
+    DisplayPage(Panel_Build)
+  else
   if (Sender = Button_Village[vtUnits]) then
-  begin
-    Panel_Village.Show;
-    Panel_Units.Show;
-    Label_MenuTitle.Caption := 'Village - Units';
-    Unit_ButtonClick(GetSelectedUnit);
-  end
+    DisplayPage(Panel_Units)
   else
   if (Sender = Button_Village[vtScript]) then
-  begin
-    Village_ScriptRefresh;
-    Panel_Village.Show;
-    Panel_Script.Show;
-    Label_MenuTitle.Caption := 'Village - Script';
-  end
+    DisplayPage(Panel_Script)
   else
   if (Sender = Button_Village[vtDefences]) then
-  begin
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
-    Defence_Refresh;
-    Panel_Village.Show;
-    Panel_Defence.Show;
-    Label_MenuTitle.Caption := 'Village - Defences';
-  end else
+    DisplayPage(Panel_Defence)
+  else
   if (Sender = Button_Village[vtOffence]) then
-  begin
-    Attacks_Refresh;
-    Panel_Village.Show;
-    Panel_Offence.Show;
-    Label_MenuTitle.Caption := 'Village - Offence';
-  end else
+    DisplayPage(Panel_Offence)
+  else
 
   if (Sender = Button_Main[3])or(Sender = Button_Player[1]) then
-  begin
-    Panel_Player.Show;
-    Panel_Goals.Show;
-    Label_MenuTitle.Caption:='Player - Goals';
-  end else
-
+    DisplayPage(Panel_Goals)
+  else
   if (Sender = Button_Player[2]) then
-  begin
-    Panel_Player.Show;
-    Panel_Color.Show;
-    Label_MenuTitle.Caption:='Player - Color';
-  end else
-
+    DisplayPage(Panel_Color)
+  else
   if (Sender = Button_Player[3]) then
-  begin
-    Player_BlockRefresh;
-    Panel_Player.Show;
-    Panel_Block.Show;
-    Label_MenuTitle.Caption:='Player - Block houses';
-  end else
-
+    DisplayPage(Panel_Block)
+  else
   if (Sender = Button_Player[4]) then
-  begin
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
-    Panel_Player.Show;
-    Panel_RevealFOW.Show;
-    Label_MenuTitle.Caption:='Player - Reveal fog';
-  end else
+    DisplayPage(Panel_RevealFOW)
+  else
 
   if (Sender = Button_Main[4])or(Sender = Button_Mission[1]) then
-  begin
-    Panel_Mission.Show;
-    Panel_Alliances.Show;
-    Label_MenuTitle.Caption:='Mission - Alliances';
-    Mission_AlliancesChange(nil);
-  end else
-
+    DisplayPage(Panel_Alliances)
+  else
   if (Sender = Button_Mission[2]) then
-  begin
-    Panel_Mission.Show;
-    Panel_PlayerTypes.Show;
-    Label_MenuTitle.Caption:='Mission - Player Types';
-    Mission_PlayerTypesChange(nil);
-  end else
+    DisplayPage(Panel_PlayerTypes)
+  else
 
   if (Sender = Button_Main[5]) or
      (Sender = Button_Quit_No) or
      (Sender = Button_LoadCancel) or
      (Sender = Button_SaveCancel) then
-  begin
-    Panel_Menu.Show;
-    Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_OPTIONS];
-  end else
-
+    DisplayPage(Panel_Menu)
+  else
   if Sender = Button_Menu_Quit then
+    DisplayPage(Panel_Quit)
+  else
+  if Sender = Button_Menu_Save then
+    DisplayPage(Panel_Save)
+  else
+  if Sender = Button_Menu_Load then
+    DisplayPage(Panel_Load)
+  else
+
+  if Sender = Image_Extra then
+    DisplayPage(Panel_Extra)
+  else
+  if Sender = Image_ExtraClose then
+    Panel_Extra.Hide;
+end;
+
+
+procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
+var I,K: Integer;
+begin
+
+  //Hide all existing pages (2 levels)
+  for I := 1 to Panel_Common.ChildCount do
+  if Panel_Common.Childs[I] is TKMPanel then
   begin
-    Panel_Quit.Show;
+    Panel_Common.Childs[I].Hide;
+    for K := 1 to TKMPanel(Panel_Common.Childs[I]).ChildCount do
+    if TKMPanel(Panel_Common.Childs[I]).Childs[K] is TKMPanel then
+      TKMPanel(Panel_Common.Childs[I]).Childs[K].Hide;
   end;
 
-  if Sender = Button_Menu_Save then
+  if aPage = Panel_Brushes then
+
+  else
+  if aPage = Panel_Heights then
+  begin
+    Terrain_HeightChange(HeightElevate); //Select the default mode
+  end else
+  if aPage = Panel_Tiles then
+  begin
+    SetTileDirection(fTileDirection); //ensures tags are in allowed ranges
+    Terrain_TilesChange(GetSelectedTile);
+  end else
+  if aPage = Panel_Objects then
+  begin
+    Terrain_ObjectsChange(GetSelectedObject);
+  end else
+
+  if aPage = Panel_Build then
+  begin
+    Build_ButtonClick(Button_BuildRoad);
+  end else
+  if aPage = Panel_Units then
+  begin
+    Unit_ButtonClick(GetSelectedUnit);
+  end else
+  if aPage = Panel_Script then
+  begin
+    Village_ScriptRefresh;
+  end else
+  if aPage = Panel_Defence then
+  begin
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
+    Defence_Refresh;
+  end else
+  if aPage = Panel_Offence then
+  begin
+    Attacks_Refresh;
+  end else
+
+  if aPage = Panel_Goals then
+  begin
+  end else
+  if aPage = Panel_Color then
+  begin
+  end else
+  if aPage = Panel_Block then
+  begin
+    Player_BlockRefresh;
+  end else
+  if aPage = Panel_RevealFOW then
+  begin
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
+  end else
+
+  if aPage = Panel_Alliances then
+  begin
+    Mission_AlliancesChange(nil);
+  end else
+  if aPage = Panel_PlayerTypes then
+  begin
+    Mission_PlayerTypesChange(nil);
+  end else
+
+  if aPage = Panel_Menu then
+  else
+  if aPage = Panel_Save then
   begin
     Edit_SaveName.Text := fGame.GameName;
     Menu_SaveClick(Edit_SaveName);
-    Panel_Save.Show;
-  end;
-
-  if Sender = Button_Menu_Load then
-  begin
-    Menu_LoadUpdate;
-    Panel_Load.Show;
-  end;
-
-  //Info pages
-
-  if Sender = Panel_Unit then
-    TKMPanel(Sender).Show
+  end else
+  if aPage = Panel_Load then
+    Panel_Load.Show
   else
 
-  if Sender = Panel_House then
-    TKMPanel(Sender).Show
-  else
-
-  if Sender = Panel_HouseBarracks then
-  begin
-    TKMPanel(Sender).Parent.Show;
-    TKMPanel(Sender).Show;
-  end else
-
-  if Sender = Panel_HouseStore then
-  begin
-    TKMPanel(Sender).Parent.Show;
-    TKMPanel(Sender).Show;
-  end else
-
-  if Sender = Panel_MarkerReveal then
+  if aPage = Panel_MarkerReveal then
   begin
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
-    TKMPanel(Sender).Parent.Show;
-    TKMPanel(Sender).Show;
   end else
-
-  if Sender = Panel_MarkerDefence then
+  if aPage = Panel_MarkerDefence then
   begin
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
-    TKMPanel(Sender).Parent.Show;
-    TKMPanel(Sender).Show;
   end;
 
-  //Additional panels
-
-  if Sender = Image_Extra then
-    Panel_Extra.Show
-  else
-
-  if Sender = Image_ExtraClose then
-    Panel_Extra.Hide;
+  //Display the panel (and its parents)
+  fActivePage := aPage;
+  if aPage <> nil then
+    aPage.Show;
 end;
 
 
@@ -685,9 +660,6 @@ begin
     for I := 1 to 5 do
       Button_Main[I].OnClick := SwitchPage;
 
-    Label_MenuTitle := TKMLabel.Create(Panel_Common,0,40,TB_WIDTH,0,'',fnt_Metal,taLeft);
-
-
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
   Create_Terrain_Page;
@@ -706,7 +678,7 @@ begin
   Create_House;
     Create_HouseStore;
     Create_HouseBarracks;
-    //Create_TownHall_Page;
+    //Create_HouseTownHall;
   Create_Marker;
 
   Image_Extra := TKMImage.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 48, 30, 48, 494);
@@ -720,7 +692,7 @@ begin
 
   fMyControls.OnHint := DisplayHint;
 
-  SwitchPage(nil); //Update
+  DisplayPage(nil); //Update
 end;
 
 
@@ -744,36 +716,51 @@ end;
 
 {Terrain page}
 procedure TKMapEdInterface.Create_Terrain_Page;
-var i,k:Integer;
+const
+  BtnGlyph: array [1..4] of Word = (383, 388, 382, 385);
+  BtnHint: array [1..4] of Word = (
+    TX_MAPED_TERRAIN_HINTS_BRUSHES,
+    TX_MAPED_TERRAIN_HINTS_HEIGHTS,
+    TX_MAPED_TERRAIN_HINTS_TILES,
+    TX_MAPED_TERRAIN_HINTS_OBJECTS);
+  Surfaces: array [0 .. 6, 0 .. 4] of SmallInt = (
+    (  1,   9,  -1,  -1,  -1),
+    ( 17,  26,  34,  32,  29),
+    ( 35, 215,  28,  -1,  -1),
+    ( 27,  48,  40,  44,  -1),
+    ( 47,  46,  45, 132, 159),
+    (164, 245,  20, 192, 155),
+    (147, 151,  -1,  -1,  -1));
+var I,K: Integer;
 begin
-  Panel_Terrain := TKMPanel.Create(Panel_Common,0,60,TB_WIDTH,28);
-    Button_Terrain[1] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H, 383, rxGui, bsGame);
-    Button_Terrain[1].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_BRUSHES];
-    Button_Terrain[2] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 388, rxGui, bsGame);
-    Button_Terrain[2].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_HEIGHTS];
-    Button_Terrain[3] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * 2, 0, SMALL_TAB_W, SMALL_TAB_H, 382, rxGui, bsGame);
-    Button_Terrain[3].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_TILES];
-    Button_Terrain[4] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * 3, 0, SMALL_TAB_W, SMALL_TAB_H, 385, rxGui, bsGame);
-    Button_Terrain[4].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_OBJECTS];
-    for i:=1 to 4 do Button_Terrain[i].OnClick := SwitchPage;
+  Panel_Terrain := TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,28);
+    for I := 1 to 4 do
+    begin
+      Button_Terrain[I] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * I, 0, SMALL_TAB_W, SMALL_TAB_H, BtnGlyph[I], rxGui, bsGame);
+      Button_Terrain[I].Hint := fTextLibrary[BtnHint[I]];
+      Button_Terrain[I].OnClick := SwitchPage;
+    end;
 
     Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
-      BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 10, 100, 1, 12);
-      BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 116, 8, 24, 24, 592);
+      TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Brush', fnt_Outline, taCenter);
+      BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 30, 100, 1, 12);
+      BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 106, 28, 24, 24, 592);
       BrushCircle.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
-      BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 134, 8, 24, 24, 593);
+      BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 134, 28, 24, 24, 593);
       BrushSquare.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
 
-      TKMButtonFlat.Create(Panel_Brushes, 0, 30, 32, 32, 1, rxTiles);   // grass
-
-      {TKMButtonFlat.Create(Panel_Brushes, 40, 30, 32, 32, 9, rxTiles);  // grass 2
-      TKMButtonFlat.Create(Panel_Brushes, 8, 62, 32, 32, 35, rxTiles);  // dirt
-
-      {BrushSize.OnChange   := TerrainBrush_Change;
-      BrushCircle.OnChange := TerrainBrush_Change;
-      BrushSquare.OnChange := TerrainBrush_Change;}
+      TKMLabel.Create(Panel_Brushes, 0, 60, TB_WIDTH, 0, 'Surface', fnt_Outline, taCenter);
+      for I := Low(Surfaces) to High(Surfaces) do
+      for K := Low(Surfaces[I]) to High(Surfaces[I]) do
+      if Surfaces[I,K] <> -1 then
+      begin
+        BrushTable[I,K] := TKMButtonFlat.Create(Panel_Brushes, K * 36, 80 + I * 40, 34, 34, Surfaces[I,K]+1, rxTiles);  // grass
+        BrushTable[I,K].Disable;
+        //BrushTable[I,K].OnClick := Terrain_BrushClick;
+      end;
 
     Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
+      TKMLabel.Create(Panel_Heights, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Heights', fnt_Outline, taCenter);
       HeightSize   := TKMTrackBar.Create(Panel_Heights, 0, 40, TB_WIDTH, 1, 15); //1..15(4bit) for size
       HeightSize.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SIZE];
       HeightSize.Hint :=   fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT];
@@ -809,6 +796,7 @@ begin
       HeightSquare.OnClick  := Terrain_HeightChange;
 
     Panel_Tiles := TKMPanel.Create(Panel_Terrain, 0, 28, TB_WIDTH, 400);
+      TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Tiles', fnt_Outline, taCenter);
       TilesRandom := TKMCheckBox.Create(Panel_Tiles, 0, 4, TB_WIDTH, 20, fTextLibrary[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
       TilesRandom.Checked := True;
       TilesRandom.OnClick := Terrain_TilesChange;
@@ -828,6 +816,7 @@ begin
       Terrain_TilesChange(TilesTable[1]);
 
     Panel_Objects := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
+      TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Objects', fnt_Outline, taCenter);
       ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 0, 295, TB_WIDTH, 20, sa_Horizontal, bsGame);
       ObjectsScroll.MinValue := 0;
       ObjectsScroll.MaxValue := fResource.MapElements.ValidCount div 3 - 2;
@@ -857,7 +846,7 @@ var
   I: Integer;
   VT: TKMVillageTab;
 begin
-  Panel_Village := TKMPanel.Create(Panel_Common, 0, 60, TB_WIDTH, 28);
+  Panel_Village := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 28);
 
     for VT := Low(TKMVillageTab) to High(TKMVillageTab) do
     begin
@@ -867,7 +856,7 @@ begin
 
     //Town placement
     Panel_Build := TKMPanel.Create(Panel_Village,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Build,0,10,TB_WIDTH,0,'Roadworks',fnt_Outline,taCenter);
+      TKMLabel.Create(Panel_Build,0,PAGE_TITLE_Y,TB_WIDTH,0,'Roadworks',fnt_Outline,taCenter);
       Button_BuildRoad   := TKMButtonFlat.Create(Panel_Build,  0,28,33,33,335);
       Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 37,28,33,33,337);
       Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 74,28,33,33,336);
@@ -922,7 +911,7 @@ begin
 
     //Town settings
     Panel_Script := TKMPanel.Create(Panel_Village, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Script, 0, 10, TB_WIDTH, 0, 'Scripts', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Script, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Scripts', fnt_Outline, taCenter);
       CheckBox_AutoBuild := TKMCheckBox.Create(Panel_Script, 0, 30, TB_WIDTH, 20, 'Autobuild', fnt_Metal);
       CheckBox_AutoBuild.OnClick := Village_ScriptChange;
       CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 0, 50, TB_WIDTH, 20, 'Autorepair', fnt_Metal);
@@ -936,7 +925,7 @@ begin
 
     //Defence settings
     Panel_Defence := TKMPanel.Create(Panel_Village, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Defence, 0, 5, TB_WIDTH, 0, 'Defence', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Defence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Defence', fnt_Outline, taCenter);
 
       CheckBox_AutoDefence := TKMCheckBox.Create(Panel_Defence, 0, 30, TB_WIDTH, 20, 'AutoDefence', fnt_Metal);
       CheckBox_AutoDefence.OnClick := Defence_Change;
@@ -961,7 +950,7 @@ begin
 
     //Defence settings
     Panel_Offence := TKMPanel.Create(Panel_Village, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Offence, 0, 5, TB_WIDTH, 0, 'Attacks', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Attacks', fnt_Outline, taCenter);
 
       CheckBox_AutoAttack := TKMCheckBox.Create(Panel_Offence, 0, 30, TB_WIDTH, 20, 'AutoAttack', fnt_Metal);
       CheckBox_AutoAttack.Disable;
@@ -983,7 +972,7 @@ var
   I: Integer;
   Col: array [0..255] of TColor4;
 begin
-  Panel_Player := TKMPanel.Create(Panel_Common,0,60, TB_WIDTH,28);
+  Panel_Player := TKMPanel.Create(Panel_Common,0,45, TB_WIDTH,28);
     Button_Player[1] := TKMButton.Create(Panel_Player, SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H,  41, rxGui, bsGame);
     Button_Player[2] := TKMButton.Create(Panel_Player, SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 382, rxGui, bsGame);
     Button_Player[3] := TKMButton.Create(Panel_Player, SMALL_PAD_W * 2, 0, SMALL_TAB_W, SMALL_TAB_H,  38, rxGui, bsGame);
@@ -995,7 +984,7 @@ begin
 
     //Players color
     Panel_Color := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Color, 0, 10, TB_WIDTH, 0, 'Colors', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Color, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Colors', fnt_Outline, taCenter);
       TKMBevel.Create(Panel_Color, 0, 30, TB_WIDTH, 210);
       ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 0, 32, 16, 16, 11);
       for I := 0 to 255 do Col[I] := fResource.Palettes.DefDal.Color32(I);
@@ -1004,7 +993,7 @@ begin
 
     //Allow/Block house building
     Panel_Block := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Block, 0, 10, TB_WIDTH, 0, 'Block/Release houses', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Block, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Block/Release houses', fnt_Outline, taCenter);
       for I := 1 to GUI_HOUSE_COUNT do
       if GUIHouseOrder[I] <> ht_None then begin
         Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_Block, ((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
@@ -1018,7 +1007,7 @@ begin
 
     //FOW settings
     Panel_RevealFOW := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_RevealFOW, 0, 10, TB_WIDTH, 0, 'Reveal fog', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_RevealFOW, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Reveal fog', fnt_Outline, taCenter);
       Button_Reveal         := TKMButtonFlat.Create(Panel_RevealFOW, 0, 30, 33, 33, 335);
       Button_Reveal.OnClick := Player_RevealClick;
       Button_Reveal.Hint    := 'Reveal a portion of map';
@@ -1031,13 +1020,13 @@ end;
 procedure TKMapEdInterface.Create_Mission_Page;
 var i,k:Integer;
 begin
-  Panel_Mission := TKMPanel.Create(Panel_Common,0,60,TB_WIDTH,28);
+  Panel_Mission := TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,28);
     Button_Mission[1] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
     Button_Mission[2] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
     for i:=1 to 2 do Button_Mission[i].OnClick := SwitchPage;
 
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Alliances,0,10,TB_WIDTH,0,'Alliances',fnt_Outline,taCenter);
+      TKMLabel.Create(Panel_Alliances,0,PAGE_TITLE_Y,TB_WIDTH,0,'Alliances',fnt_Outline,taCenter);
       for i:=0 to MAX_PLAYERS-1 do begin
         TKMLabel.Create(Panel_Alliances,24+i*20+2,30,20,20,inttostr(i+1),fnt_Outline,taLeft);
         TKMLabel.Create(Panel_Alliances,4,50+i*25,20,20,inttostr(i+1),fnt_Outline,taLeft);
@@ -1056,7 +1045,7 @@ begin
       CheckBox_AlliancesSym.Disable;
 
     Panel_PlayerTypes := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_PlayerTypes,0,10,TB_WIDTH,0,'Player types',fnt_Outline,taCenter);
+      TKMLabel.Create(Panel_PlayerTypes,0,PAGE_TITLE_Y,TB_WIDTH,0,'Player types',fnt_Outline,taCenter);
       for i:=0 to MAX_PLAYERS-1 do begin
         TKMLabel.Create(Panel_PlayerTypes,4,30,20,20,'#',fnt_Grey,taLeft);
         TKMLabel.Create(Panel_PlayerTypes,24,30,100,20,'Human',fnt_Grey,taLeft);
@@ -1076,7 +1065,7 @@ end;
 {Menu page}
 procedure TKMapEdInterface.Create_Menu;
 begin
-  Panel_Menu := TKMPanel.Create(Panel_Common, 0, 128, TB_WIDTH, 400);
+  Panel_Menu := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
     Button_Menu_Save := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, fTextLibrary[TX_MENU_SAVE_GAME], bsGame);
     Button_Menu_Save.OnClick := SwitchPage;
     Button_Menu_Save.Hint := fTextLibrary[TX_MENU_SAVE_GAME];
@@ -1095,7 +1084,7 @@ end;
 {Save page}
 procedure TKMapEdInterface.Create_MenuSave;
 begin
-  Panel_Save := TKMPanel.Create(Panel_Common,0,128,TB_WIDTH,400);
+  Panel_Save := TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,400);
     TKMBevel.Create(Panel_Save, 0, 30, TB_WIDTH, 37);
     Radio_Save_MapType  := TKMRadioGroup.Create(Panel_Save,4,32,TB_WIDTH,35,fnt_Grey);
     Radio_Save_MapType.ItemIndex := 0;
@@ -1119,18 +1108,18 @@ end;
 {Load page}
 procedure TKMapEdInterface.Create_MenuLoad;
 begin
-  Panel_Load := TKMPanel.Create(Panel_Common,0,108,TB_WIDTH,400);
-    TKMLabel.Create(Panel_Load, 0, 2, TB_WIDTH, 30, 'Available maps', fnt_Outline, taLeft);
-    TKMBevel.Create(Panel_Load, 0, 20, TB_WIDTH, 38);
-    Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,0,22,TB_WIDTH,35,fnt_Grey);
+  Panel_Load := TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,400);
+    TKMLabel.Create(Panel_Load, 0, PAGE_TITLE_Y, TB_WIDTH, 30, 'Load map', fnt_Outline, taLeft);
+    TKMBevel.Create(Panel_Load, 0, 30, TB_WIDTH, 38);
+    Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,0,32,TB_WIDTH,35,fnt_Grey);
     Radio_Load_MapType.ItemIndex := 0;
     Radio_Load_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
     Radio_Load_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Load_MapType.OnChange := Menu_LoadChange;
-    ListBox_Load := TKMListBox.Create(Panel_Load, 0, 75, TB_WIDTH, 205, fnt_Grey, bsGame);
+    ListBox_Load := TKMListBox.Create(Panel_Load, 0, 85, TB_WIDTH, 205, fnt_Grey, bsGame);
     ListBox_Load.ItemHeight := 18;
-    Button_LoadLoad     := TKMButton.Create(Panel_Load,0,290,TB_WIDTH,30,'Load',bsGame);
-    Button_LoadCancel   := TKMButton.Create(Panel_Load,0,325,TB_WIDTH,30,'Cancel',bsGame);
+    Button_LoadLoad     := TKMButton.Create(Panel_Load,0,300,TB_WIDTH,30,'Load',bsGame);
+    Button_LoadCancel   := TKMButton.Create(Panel_Load,0,335,TB_WIDTH,30,'Cancel',bsGame);
     Button_LoadLoad.OnClick     := Menu_LoadClick;
     Button_LoadCancel.OnClick   := SwitchPage;
 end;
@@ -1139,7 +1128,7 @@ end;
 {Quit page}
 procedure TKMapEdInterface.Create_MenuQuit;
 begin
-  Panel_Quit:=TKMPanel.Create(Panel_Common,0,128,TB_WIDTH,400);
+  Panel_Quit:=TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,400);
     TKMLabel.Create(Panel_Quit,0,40,TB_WIDTH,60,'Any unsaved|changes will be lost',fnt_Outline,taCenter);
     Button_Quit_Yes   := TKMButton.Create(Panel_Quit,0,100,TB_WIDTH,30,fTextLibrary[TX_MENU_QUIT_MISSION],bsGame);
     Button_Quit_No    := TKMButton.Create(Panel_Quit,0,140,TB_WIDTH,30,fTextLibrary[TX_MENU_DONT_QUIT_MISSION],bsGame);
@@ -1183,7 +1172,6 @@ const
   SIZE_Y = 360;
 var
   GT: TGroupType;
-  a: TAIAttack;
 begin
   Panel_Attack := TKMPanel.Create(Panel_Main, 362, 250, SIZE_X, SIZE_Y);
   Panel_Attack.Anchors := [];
@@ -1554,8 +1542,6 @@ end;
 
 
 procedure TKMapEdInterface.Defence_Refresh;
-var
-  I: Integer;
 begin
   CheckBox_AutoDefence.Checked := MyPlayer.AI.Setup.AutoDefend;
   TrackBar_EquipRateLeather.Position := MyPlayer.AI.Setup.EquipRateLeather div 10;
@@ -1611,8 +1597,8 @@ end;
 procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 begin
   //If we had selected House or Unit - discard them
-  if Panel_House.Visible or Panel_Unit.Visible or Panel_Defence.Visible then
-    SwitchPage(nil);
+  if Panel_House.Visible or Panel_Unit.Visible or Panel_Marker.Visible then
+    fActivePage := nil;
 
   fPlayers.Selected := nil;
 
@@ -1622,8 +1608,7 @@ begin
     SetActivePlayer(-1);
 
   //Refresh per-player settings
-  Village_ScriptRefresh;
-  Player_BlockRefresh;
+  DisplayPage(fActivePage);
 end;
 
 
