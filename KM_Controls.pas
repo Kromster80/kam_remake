@@ -1306,15 +1306,8 @@ end;
 
 {Check Control including all its Parents to see if Control is actually displayed/visible}
 function TKMControl.GetVisible: Boolean;
-var C: TKMControl;
 begin
-  Result := fVisible;
-  C := Parent;
-  while C <> nil do
-  begin
-    Result := Result and C.fVisible;
-    C := C.Parent;
-  end;
+  Result := fVisible and ((Parent = nil) or Parent.Visible);
 end;
 
 
@@ -1337,7 +1330,7 @@ procedure TKMControl.Disable; begin SetEnabled(false); end;
 {Will show up entire branch in which control resides}
 procedure TKMControl.Show;
 begin
-  if Parent<>nil then Parent.Show;
+  if Parent <> nil then Parent.Show;
   Visible := true;
 end;
 

@@ -344,7 +344,7 @@ end;
 
 
 implementation
-{$IFDEF WDC} {$R *.dfm} {$ENDIF}
+{$R *.dfm}
 
 
 uses KM_Form_NewMap, KM_LoadDAT, KM_TPlayer, KM_TGATexture;
@@ -698,24 +698,25 @@ begin MiniMapMouseMove(nil,Shift,X,Y); MiniMapSpy:=false; end;
 
 procedure TForm1.TerrainTileSelect(Sender: TObject);
 begin
-LandBrush:=0;
-BrushMode:=bmNone;
-CopyAreaMenu.Checked:=false;
-PasteAreaMenu.Checked:=false;
-ActiveTileName:=Sender;
-s:=(TSpeedButton(Sender)).Name;
-if not TSpeedButton(Sender).Down then exit; //button released
-if s[1]+s[2]='LB' then
+  LandBrush := 0;
+  BrushMode := bmNone;
+  CopyAreaMenu.Checked := false;
+  PasteAreaMenu.Checked := false;
+  ActiveTileName := Sender;
+  s := (TSpeedButton(Sender)).Name;
+  if not TSpeedButton(Sender).Down then
+    exit; // button released
+  if s[1] + s[2] = 'LB' then
   begin
-  LandBrush:=strtoint(s[3]+s[4]); //Get brush ID 1..100
-  BrushMode:=bmTerrain;
+    LandBrush := strtoint(s[3] + s[4]); // Get brush ID 1..100
+    BrushMode := bmTerrain;
   end;
-if s[1]+s[2]='GB' then
+  if s[1] + s[2] = 'GB' then
   begin
-  LandBrush:=strtoint(s[3]+s[4]); //Get brush ID
-  BrushMode:=bmRelief;
+    LandBrush := strtoint(s[3] + s[4]); // Get brush ID
+    BrushMode := bmRelief;
   end;
-StatusBar1.Panels[3].Text:='Brush: '+inttostr(LandBrush);
+  StatusBar1.Panels[3].Text := 'Brush: ' + inttostr(LandBrush);
 end;
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);

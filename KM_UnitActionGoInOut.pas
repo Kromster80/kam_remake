@@ -29,6 +29,7 @@ type
     procedure WalkOut;
   public
     OnWalkedOut: TEvent;
+    OnWalkedIn: TEvent;
     constructor Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection: TGoInDirection; aHouse: TKMHouse);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad; override;
@@ -356,13 +357,16 @@ begin
         TKMHouseBarracks(fUnit.GetHome).RecruitsList.Add(fUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
       //Set us as inside even if the house is destroyed. In that case UpdateVisibility will sort things out.
 
-      //todo: Move to TaskMining
       //When any woodcutter returns home - add an Axe
+      //(this might happen when he walks home or when mining is done)
       if (fUnit.UnitType = ut_Woodcutter)
       and (fUnit.GetHome <> nil)
       and (fUnit.GetHome.HouseType = ht_Woodcutters)
       and (fUnit.GetHome = fHouse) then //And is the house we are walking from
         fHouse.fCurrentAction.SubActionAdd([ha_Flagpole]);
+
+      if Assigned(OnWalkedIn) then
+        OnWalkedIn;
 
       if fHouse <> nil then fUnit.SetInHouse(fHouse);
     end

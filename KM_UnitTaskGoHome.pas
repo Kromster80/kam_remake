@@ -1,12 +1,14 @@
 unit KM_UnitTaskGoHome;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KM_Units, SysUtils, KM_Points;
+uses Classes, SysUtils,
+  KM_Defaults, KM_Units, KM_Points;
+
 
 type
   TTaskGoHome = class(TUnitTask)
     public
-      constructor Create(aUnit:TKMUnit);
+      constructor Create(aUnit: TKMUnit);
       function Execute:TTaskResult; override;
     end;
 
@@ -15,38 +17,39 @@ implementation
 
 
 { TTaskGoHome }
-constructor TTaskGoHome.Create(aUnit:TKMUnit);
+constructor TTaskGoHome.Create(aUnit: TKMUnit);
 begin
   inherited Create(aUnit);
   fTaskName := utn_GoHome;
 end;
 
 
-function TTaskGoHome.Execute:TTaskResult;
+function TTaskGoHome.Execute: TTaskResult;
 begin
   Result := TaskContinues;
-  if fUnit.GetHome.IsDestroyed then begin
+  if fUnit.GetHome.IsDestroyed then
+  begin
     Result := TaskDone;
-    exit;
+    Exit;
   end;
+
   with fUnit do
   case fPhase of
-    0: begin
-         Thought := th_Home;
-         SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance));
-       end;
-    1: SetActionGoIn(ua_Walk, gd_GoInside, GetHome);
-    2: begin
-        Thought := th_None; //Only stop thinking once we are right inside
-        GetHome.SetState(hst_Idle);
-        SetActionStay(5,ua_Walk);
-       end;
+    0:  begin
+          Thought := th_Home;
+          SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance));
+        end;
+    1:  SetActionGoIn(ua_Walk, gd_GoInside, GetHome);
+    2:  begin
+          Thought := th_None; //Only stop thinking once we are right inside
+          GetHome.SetState(hst_Idle);
+          SetActionStay(5, ua_Walk);
+        end;
     else Result := TaskDone;
   end;
 
-  inc(fPhase);
+  Inc(fPhase);
 end;
-
 
 
 end.

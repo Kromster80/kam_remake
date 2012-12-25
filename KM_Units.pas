@@ -1341,7 +1341,7 @@ end;
 procedure TKMUnit.SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    raise ELocError.Create('Unit fight overrides walk',fCurrPosition);
+    raise ELocError.Create('Unit fight overrides walk', fCurrPosition);
   SetAction(TUnitActionFight.Create(Self, aAction, aOpponent));
 end;
 
