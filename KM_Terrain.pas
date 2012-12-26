@@ -18,7 +18,6 @@ type
     fMapEditor: Boolean; //In MapEd mode some features behave differently
     fMapX: Word; //Terrain width and height
     fMapY: Word; //Terrain width and height
-    fKromsMapEditorData: array of Byte;
 
     fTileset: TKMTileset;
     fFinder: TKMTerrainFinder;
@@ -329,15 +328,6 @@ begin
       if ObjectIsChopableTree(KMPoint(k,i), caAgeFull) then Land[i,k].TreeAge := TREE_AGE_FULL;
       //Everything else is default
     end;
-
-    //For now we just throw away the resource footer because we don't understand it (and save a blank one)
-    S.Read(ResHead,22);
-    S.Seek(17*ResHead.Allocated, soFromCurrent);
-
-    //Attempt to read addition tile data for Krom's map editor, so we can save it later (hackish)
-    SetLength(fKromsMapEditorData, 16+fMapX*fMapY);
-    i := S.Read(fKromsMapEditorData[0], 16+fMapX*fMapY);
-    SetLength(fKromsMapEditorData, i); //If part of it wasn't used, trim it
   finally
     S.Free;
   end;
@@ -425,7 +415,8 @@ begin
     ResHead.x5:=0;
   ResHead.Len17:=17;
 
-  for i:=1 to ResHead.Allocated do begin
+  for i:=1 to ResHead.Allocated do
+  begin
     Res[i].X1:=-842150451; Res[i].Y1:=-842150451;
     Res[i].X2:=-842150451; Res[i].Y2:=-842150451;
     Res[i].Typ:=255;
@@ -433,9 +424,6 @@ begin
 
   blockwrite(f,ResHead,22);
   for i:=1 to ResHead.Allocated do blockwrite(f,Res[i],17);
-
-  if Length(fKromsMapEditorData) > 0 then
-    blockwrite(f,fKromsMapEditorData[0],Length(fKromsMapEditorData));
 
   closefile(f);
 end;

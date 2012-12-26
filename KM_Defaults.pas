@@ -220,7 +220,7 @@ var
 type
   TKMCursorMode = (
     cmNone, cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses, // Gameplay
-    cmElevate, cmEqualize, cmTiles, cmObjects, cmUnits, cmMarkers // MapEditor
+    cmElevate, cmEqualize, cmBrush, cmTiles, cmObjects, cmUnits, cmMarkers // MapEditor
     );
 
 const

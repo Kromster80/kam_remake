@@ -423,8 +423,8 @@ begin
 
     if fGameMode = gmMapEd then
     begin
-      MyPlayer := fPlayers[0];
       fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
+      MyPlayer := fPlayers[0];
       for I := 0 to fPlayers.Count - 1 do
         fPlayers[I].FogOfWar.RevealEverything;
     end
@@ -828,6 +828,7 @@ begin
   fLog.AddTime('Saving from map editor: '+MapName);
 
   fTerrain.SaveToFile(MapName);
+  fTerrainPainter.SaveToFile(MapName);
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
   fMissionParser.SaveDATFile(ChangeFileExt(MapName, '.dat'));
   FreeAndNil(fMissionParser);

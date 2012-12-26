@@ -97,7 +97,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos,
+uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
   KM_Resource, KM_ResourceHouse, KM_ResourceUnit, KM_ResourceResource, KM_Game;
 
 
@@ -492,12 +492,20 @@ begin
                           MapFileName := RemoveQuotes(String(TextParam));
                           //Check for same filename.map in same folder first - Remake format
                           if FileExists(ChangeFileExt(fMissionFileName, '.map')) then
-                            fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpm_Editor)
+                          begin
+                            fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'), fParsingMode = mpm_Editor);
+                            if fParsingMode = mpm_Editor then
+                              fTerrainPainter.LoadFromFile(ChangeFileExt(fMissionFileName, '.map'));
+                          end
                           else
-                          //Check for KaM format map path
+                          {//Check for KaM format map path
                           if FileExists(ExeDir + MapFileName) then
+                          begin
                             fTerrain.LoadFromFile(ExeDir+MapFileName, fParsingMode = mpm_Editor)
-                          else
+                            if fParsingMode = mpm_Editor then
+                              fTerrainPainter.LoadFromFile(ExeDir+MapFileName);
+                          end
+                          else}
                           begin
                             //Else abort loading and fail
                             AddError('Map file couldn''t be found', True);

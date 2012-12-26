@@ -78,6 +78,7 @@ type
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender: TObject);
     procedure Player_RevealClick(Sender: TObject);
+    procedure Terrain_BrushChange(Sender: TObject);
     procedure Terrain_HeightChange(Sender: TObject);
     procedure Terrain_TilesChange(Sender: TObject);
     procedure Terrain_ObjectsChange(Sender: TObject);
@@ -727,7 +728,7 @@ const
     (147, 151,  -1,  -1,  -1));
 var
   I: TKMTerrainTab;
-  J,K: Integer;
+  J,K,L: Integer;
 begin
   Panel_Terrain := TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,28);
     for I := Low(TKMTerrainTab) to High(TKMTerrainTab) do
@@ -740,19 +741,24 @@ begin
     Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Brush', fnt_Outline, taCenter);
       BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 30, 100, 1, 12);
+      BrushSize.OnChange := Terrain_BrushChange;
       BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 106, 28, 24, 24, 592);
       BrushCircle.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
+      BrushCircle.OnClick := Terrain_BrushChange;
       BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 134, 28, 24, 24, 593);
       BrushSquare.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
+      BrushSquare.OnClick := Terrain_BrushChange;
 
       TKMLabel.Create(Panel_Brushes, 0, 60, TB_WIDTH, 0, 'Surface', fnt_Outline, taCenter);
+      L := 1;
       for J := Low(Surfaces) to High(Surfaces) do
       for K := Low(Surfaces[J]) to High(Surfaces[J]) do
       if Surfaces[J,K] <> -1 then
       begin
-        BrushTable[J,K] := TKMButtonFlat.Create(Panel_Brushes, K * 36, 80 + J * 40, 34, 34, Surfaces[J,K]+1, rxTiles);  // grass
-        BrushTable[J,K].Disable;
-        //BrushTable[J,K].OnClick := Terrain_BrushClick;
+        BrushTable[J,K] := TKMButtonFlat.Create(Panel_Brushes, K * 36, 80 + J * 40, 34, 34, Surfaces[J,K] + 1, rxTiles);  // grass
+        BrushTable[J,K].Tag := L;
+        BrushTable[J,K].OnClick := Terrain_BrushChange;
+        Inc(L);
       end;
 
     Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
@@ -760,18 +766,23 @@ begin
       HeightSize   := TKMTrackBar.Create(Panel_Heights, 0, 40, TB_WIDTH, 1, 15); //1..15(4bit) for size
       HeightSize.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SIZE];
       HeightSize.Hint :=   fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT];
+      HeightSize.OnChange   := Terrain_HeightChange;
       HeightSlope  := TKMTrackBar.Create(Panel_Heights, 0, 94, TB_WIDTH, 1, 15); //1..15(4bit) for slope shape
       HeightSlope.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SLOPE];
       HeightSlope.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SLOPE_HINT];
+      HeightSlope.OnChange  := Terrain_HeightChange;
       HeightSpeed  := TKMTrackBar.Create(Panel_Heights, 0, 148, TB_WIDTH, 1, 15); //1..15(4bit) for speed
       HeightSpeed.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SPEED];
       HeightSpeed.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SPEED_HINT];
+      HeightSpeed.OnChange  := Terrain_HeightChange;
 
       HeightShapeLabel := TKMLabel.Create(Panel_Heights, 0, 14, TB_WIDTH, 0, fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SHAPE], fnt_Metal, taLeft);
       HeightCircle := TKMButtonFlat.Create(Panel_Heights, 120, 10, 24, 24, 592);
       HeightCircle.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
+      HeightCircle.OnClick  := Terrain_HeightChange;
       HeightSquare := TKMButtonFlat.Create(Panel_Heights, 150, 10, 24, 24, 593);
       HeightSquare.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
+      HeightSquare.OnClick  := Terrain_HeightChange;
 
       HeightElevate             := TKMButtonFlat.Create(Panel_Heights, 0, 204, TB_WIDTH, 20, 0);
       HeightElevate.OnClick     := Terrain_HeightChange;
@@ -784,12 +795,6 @@ begin
       HeightUnequalize.Caption  := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE];
       HeightUnequalize.CapOffsetY  := -12;
       HeightUnequalize.Hint      := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE_HINT];
-
-      HeightSize.OnChange   := Terrain_HeightChange;
-      HeightSlope.OnChange  := Terrain_HeightChange;
-      HeightSpeed.OnChange  := Terrain_HeightChange;
-      HeightCircle.OnClick  := Terrain_HeightChange;
-      HeightSquare.OnClick  := Terrain_HeightChange;
 
     Panel_Tiles := TKMPanel.Create(Panel_Terrain, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Tiles, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Tiles', fnt_Outline, taCenter);
@@ -1628,6 +1633,38 @@ begin
 end;
 
 
+procedure TKMapEdInterface.Terrain_BrushChange(Sender: TObject);
+var
+  I,K: Integer;
+begin
+  GameCursor.Mode := cmBrush;
+  GameCursor.MapEdSize := BrushSize.Position;
+
+  if Sender = BrushCircle then
+  begin
+    BrushCircle.Down := True;
+    BrushSquare.Down := False;
+    GameCursor.MapEdShape := hsCircle;
+  end else
+  if Sender = BrushSquare then
+  begin
+    BrushCircle.Down := False;
+    BrushSquare.Down := True;
+    GameCursor.MapEdShape := hsSquare;
+  end else
+  if Sender is TKMButtonFlat then
+  begin
+    for I := Low(BrushTable) to High(BrushTable) do
+    for K := Low(BrushTable[I]) to High(BrushTable[I]) do
+    if BrushTable[I,K] <> nil then
+      BrushTable[I,K].Down := False;
+
+    TKMButtonFlat(Sender).Down := True;
+    GameCursor.Tag1 := TKMButtonFlat(Sender).Tag;
+  end;
+end;
+
+
 procedure TKMapEdInterface.Terrain_HeightChange(Sender: TObject);
 begin
   GameCursor.MapEdSize := HeightSize.Position;
@@ -1636,26 +1673,26 @@ begin
 
   if Sender = HeightCircle then
   begin
-    HeightCircle.Down := true;
-    HeightSquare.Down := false;
+    HeightCircle.Down := True;
+    HeightSquare.Down := False;
     GameCursor.MapEdShape := hsCircle;
   end else
   if Sender = HeightSquare then
   begin
-    HeightSquare.Down := true;
-    HeightCircle.Down := false;
+    HeightSquare.Down := True;
+    HeightCircle.Down := False;
     GameCursor.MapEdShape := hsSquare;
   end else
   if Sender = HeightElevate then
   begin
     HeightElevate.Down := True;
-    HeightUnequalize.Down:=false;
+    HeightUnequalize.Down := False;
     GameCursor.Mode := cmElevate;
   end;
   if Sender = HeightUnequalize then
   begin
-    HeightElevate.Down  := false;
-    HeightUnequalize.Down := true;
+    HeightElevate.Down  := False;
+    HeightUnequalize.Down := True;
     GameCursor.Mode := cmEqualize;
   end;
 end;
@@ -1691,8 +1728,9 @@ begin
         TilesTable[I * MAPED_TILES_X + K].TexID := 0;
         TilesTable[I * MAPED_TILES_X + K].Disable;
       end;
+      //If cursor has a tile then make sure its properly selected in table as well
       if GameCursor.Mode = cmTiles then
-        TilesTable[I * MAPED_TILES_X + K].Down := (GameCursor.Tag1+1 = GetTileIDFromTag(I * MAPED_TILES_X + K));
+        TilesTable[I * MAPED_TILES_X + K].Down := (GameCursor.Tag1 + 1 = GetTileIDFromTag(I * MAPED_TILES_X + K));
     end;
   if Sender is TKMButtonFlat then
   begin
@@ -2266,7 +2304,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.SetLoadMode(aMultiplayer:boolean);
+procedure TKMapEdInterface.SetLoadMode(aMultiplayer: Boolean);
 begin
   if aMultiplayer then
   begin
@@ -2797,64 +2835,61 @@ begin
   else
   if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
     case GameCursor.Mode of
-      cmNone:  begin
-                  //If there are some additional layers we first HitTest them
-                  //as they are rendered ontop of Houses/Objects
-                  SelMarker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                  if SelMarker.MarkerType <> mtNone then
-                    ShowMarkerInfo(SelMarker)
-                  else
-                  begin
-                    fPlayers.SelectHitTest(GameCursor.Cell.X, GameCursor.Cell.Y, False);
+      cmNone:     begin
+                    //If there are some additional layers we first HitTest them
+                    //as they are rendered ontop of Houses/Objects
+                    SelMarker := fGame.MapEditor.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                    if SelMarker.MarkerType <> mtNone then
+                      ShowMarkerInfo(SelMarker)
+                    else
+                    begin
+                      fPlayers.SelectHitTest(GameCursor.Cell.X, GameCursor.Cell.Y, False);
 
-                    if fPlayers.Selected is TKMHouse then
-                      ShowHouseInfo(TKMHouse(fPlayers.Selected));
-                    if fPlayers.Selected is TKMUnit then
-                      ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                    if fPlayers.Selected is TKMUnitGroup then
-                      ShowGroupInfo(TKMUnitGroup(fPlayers.Selected));
+                      if fPlayers.Selected is TKMHouse then
+                        ShowHouseInfo(TKMHouse(fPlayers.Selected));
+                      if fPlayers.Selected is TKMUnit then
+                        ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                      if fPlayers.Selected is TKMUnitGroup then
+                        ShowGroupInfo(TKMUnitGroup(fPlayers.Selected));
+                    end;
                   end;
-                end;
-      cmRoad:  if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);
-      cmField: if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
-      cmWine:  if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
+      cmRoad:     if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);
+      cmField:    if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
+      cmWine:     if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
       //cm_Wall:
-      cmHouses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
-                begin
-                  MyPlayer.AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
-                  if not(ssShift in Shift) then Build_ButtonClick(Button_BuildRoad);
-                end;
+      cmHouses:   if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+                  begin
+                    MyPlayer.AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
+                    if not(ssShift in Shift) then Build_ButtonClick(Button_BuildRoad);
+                  end;
       cmElevate,
       cmEqualize:; //handled in UpdateStateIdle
-      cmObjects: fTerrain.SetTree(P, GameCursor.Tag1);
-      cmUnits: if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
-                begin //Check if we can really add a unit
-                  if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
-                    MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, False)
-                  else
-                  if TUnitType(GameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
-                    MyPlayer.AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
-                  else
-                    fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);
-                end;
-      cmMarkers:
-                case GetShownPage of
-                  esp_Reveal: fGame.MapEditor.Revealers[MyPlayer.PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
-                end;
-
-      cmErase:
-                case GetShownPage of
-                  esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
-                  esp_Units:      fPlayers.RemAnyUnit(P);
-                  esp_Buildings:  begin
-                                    fPlayers.RemAnyHouse(P);
-                                    if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                                      fTerrain.RemRoad(P);
-                                    if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
-                                      fTerrain.RemField(P);
-                                  end;
-                  //todo: esp_Reveal:   fGame.MapEditor.Revealers.Remove(P);
-                end;
+      cmObjects:  fTerrain.SetTree(P, GameCursor.Tag1);
+      cmUnits:    if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
+                  begin //Check if we can really add a unit
+                    if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
+                      MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, False)
+                    else
+                    if TUnitType(GameCursor.Tag1) in [WARRIOR_MIN..WARRIOR_MAX] then
+                      MyPlayer.AddUnitGroup(TUnitType(GameCursor.Tag1), P, dir_S, 1, 1)
+                    else
+                      fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);
+                  end;
+      cmMarkers:  case GetShownPage of
+                    esp_Reveal: fGame.MapEditor.Revealers[MyPlayer.PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
+                  end;
+      cmErase:    case GetShownPage of
+                    esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
+                    esp_Units:      fPlayers.RemAnyUnit(P);
+                    esp_Buildings:  begin
+                                      fPlayers.RemAnyHouse(P);
+                                      if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                                        fTerrain.RemRoad(P);
+                                      if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
+                                        fTerrain.RemField(P);
+                                    end;
+                    //todo: esp_Reveal:   fGame.MapEditor.Revealers.Remove(P);
+                  end;
     end;
 end;
 

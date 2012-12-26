@@ -50,7 +50,6 @@ type
     fRenderTerrain: TRenderTerrain;
     procedure RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX, pY: Single; aFOW: Byte; aID2: Word = 0; Param2: Single = 0; X2: Single = 0; Y2: Single = 0);
-    procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderObject(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderObjectQuad(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderHouseOutline;
@@ -87,6 +86,9 @@ type
     procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; UnitAnim, FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
     procedure AddUnitWithDefaultArm(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepID: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
+    procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
+    procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
+
     property RenderList: TRenderList read fRenderList;
     procedure SetRotation(aH,aP,aB: Integer);
 
@@ -100,7 +102,7 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Projectiles, KM_Game, KM_Sound, KM_Resource,
-  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_Houses;
+  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_Houses, KM_TerrainPainter;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -206,6 +208,12 @@ begin
   for I := 0 to TabletsList.Count - 1 do
     AddHouseTablet(THouseType(TabletsList.Tag[I]), TabletsList[I]);
   TabletsList.Free;
+end;
+
+
+procedure TRenderPool.RenderTile(Index: Byte; pX, pY, Rot: Integer);
+begin
+  fRenderTerrain.RenderTile(Index, pX, pY, Rot);
 end;
 
 
@@ -995,7 +1003,7 @@ var
   Tmp: Single;
   Rad, Slope: Byte;
 begin
-  if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
+  if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
 
   if fGame.IsMapEditor then
   begin
@@ -1023,8 +1031,8 @@ begin
 
   with fTerrain do
   case GameCursor.Mode of
-    cmNone:   ;
-    cmErase:   case fGame.GameMode of
+    cmNone:     ;
+    cmErase:    case fGame.GameMode of
                   gmMapEd:
                     begin
                       //With Units tab see if there's a unit below cursor
@@ -1058,34 +1066,64 @@ begin
                         RenderCursorBuildIcon(P); //Red X
                     end;
                 end;
-    cmRoad:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Road) then
+    cmRoad:     if MyPlayer.CanAddFakeFieldPlan(P, ft_Road) then
                   RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(P);       //Red X
-    cmField:   if MyPlayer.CanAddFakeFieldPlan(P, ft_Corn) then
+    cmField:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Corn) then
                   RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(P);       //Red X
-    cmWine:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Wine) then
+    cmWine:     if MyPlayer.CanAddFakeFieldPlan(P, ft_Wine) then
                   RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(P);       //Red X
-    cmWall:    if MyPlayer.CanAddFakeFieldPlan(P, ft_Wall) then
+    cmWall:     if MyPlayer.CanAddFakeFieldPlan(P, ft_Wall) then
                   RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(P);       //Red X
-    cmHouses:  RenderCursorWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
-    cmTiles:   if GameCursor.MapEdDir in [0..3] then
+    cmHouses:   RenderCursorWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
+    cmBrush:    begin
+                  Rad := GameCursor.MapEdSize;
+                  if Rad = 0 then
+                    //brush size smaller than one cell
+                    fRenderAux.DotOnTerrain(P.X, P.Y, $FF80FF80)
+                  else
+                  //There are two brush types here, even and odd size
+                  if Rad mod 2 = 1 then
+                  begin
+                    //first comes odd sizes 1,3,5..
+                    Rad := Rad div 2;
+                    for I := -Rad to Rad do
+                    for K := -Rad to Rad do
+                    //Rounding corners in a nice way
+                    if (GameCursor.MapEdShape = hsSquare)
+                    or (sqrt(sqr(I)+sqr(K))<Rad+0.5) then
+                      RenderTile(Combo[GameCursor.Tag1, GameCursor.Tag1,1]+1,P.X+K,P.Y+I,0);
+                  end
+                  else
+                  begin
+                    //even sizes 2,4,6..
+                    Rad:=Rad div 2;
+                    for I:=-Rad to Rad-1 do
+                    for K:=-Rad to Rad-1 do
+                    //Rounding corners in a nice way
+                    if (GameCursor.MapEdShape = hsSquare)
+                    or (sqrt(sqr(I+0.5)+sqr(K+0.5))<Rad) then
+                      RenderTile(Combo[GameCursor.Tag1, GameCursor.Tag1,1],P.X+K,P.Y+I,0);
+                  end;
+                end;
+    cmTiles:    if GameCursor.MapEdDir in [0..3] then
                   fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, GameCursor.MapEdDir)
                 else
                   fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, (fTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
-    cmObjects: begin
+    cmObjects:  begin
                   //If there's object below - paint it in Red
                   RenderObjectOrQuad(fTerrain.Land[P.Y,P.X].Obj, fTerrain.AnimStep, P.X, P.Y, true, true);
                   RenderObjectOrQuad(GameCursor.Tag1, fTerrain.AnimStep, P.X, P.Y, true);
                 end;
     cmElevate,
-    cmEqualize:begin
+    cmEqualize: begin
                   Rad := GameCursor.MapEdSize;
                   Slope := GameCursor.MapEdSlope;
                   for I := Max((Round(F.Y) - Rad), 1) to Min((Round(F.Y) + Rad), fTerrain.MapY -1) do
@@ -1105,11 +1143,11 @@ begin
                     hsSquare: fRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $00000000,  $FFFFFFFF);
                   end;
                 end;
-    cmUnits:   if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
+    cmUnits:    if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                   AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, MyPlayer.FlagColor, True)
                 else
                   RenderCursorBuildIcon(P); //Red X
-    cmMarkers: begin
+    cmMarkers:  begin
                   RenderCursorBuildIcon(P, 394, MyPlayer.FlagColor);
                 end;
   end;
