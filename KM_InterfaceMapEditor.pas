@@ -106,8 +106,8 @@ type
       Label_Coordinates:TKMLabel;
       TrackBar_Passability:TKMTrackBar;
       Label_Passability:TKMLabel;
-      Button_PlayerSelect:array[0..MAX_PLAYERS-1]of TKMFlatButtonShape; //Animals are common for all
-      Label_Stat,Label_Hint:TKMLabel;
+      Button_PlayerSelect: array [0..MAX_PLAYERS-1] of TKMFlatButtonShape; //Animals are common for all
+      Label_Stat,Label_Hint: TKMLabel;
       Bevel_HintBG: TKMBevel;
       Label_MatAmount: TKMLabel;
       Shape_MatAmount: TKMShape;
@@ -115,8 +115,8 @@ type
       Label_DefencePos: TKMLabel;
       Shape_DefencePos: TKMShape;
 
-    Panel_Common:TKMPanel;
-      Button_Main:array[1..5]of TKMButton; //5 buttons
+    Panel_Common: TKMPanel;
+      Button_Main: array [1..5] of TKMButton; //5 buttons
       Label_MissionName: TKMLabel;
       Image_Extra: TKMImage;
 
@@ -125,20 +125,21 @@ type
       Panel_Brushes: TKMPanel;
         BrushSize: TKMTrackBar;
         BrushCircle,BrushSquare: TKMButtonFlat;
-        BrushTable: array[0..6, 0..4] of TKMButtonFlat;
-      Panel_Heights:TKMPanel;
-        HeightSize, HeightSlope, HeightSpeed:TKMTrackBar;
-        HeightShapeLabel:TKMLabel;
-        HeightCircle,HeightSquare:TKMButtonFlat;
+        BrushTable: array [0..6, 0..4] of TKMButtonFlat;
+        BrushRandom: TKMCheckBox;
+      Panel_Heights: TKMPanel;
+        HeightSize, HeightSlope, HeightSpeed: TKMTrackBar;
+        HeightShapeLabel: TKMLabel;
+        HeightCircle,HeightSquare: TKMButtonFlat;
         HeightElevate, HeightUnequalize: TKMButtonFlat;
-      Panel_Tiles:TKMPanel;
+      Panel_Tiles: TKMPanel;
         TilesTable: array [0 .. MAPED_TILES_X * MAPED_TILES_Y - 1] of TKMButtonFlat; //how many are visible?
         TilesScroll: TKMScrollBar;
         TilesRandom: TKMCheckBox;
-      Panel_Objects:TKMPanel;
-        ObjectErase:TKMButtonFlat;
-        ObjectsTable:array[0..8] of TKMButtonFlat;
-        ObjectsScroll:TKMScrollBar;
+      Panel_Objects: TKMPanel;
+        ObjectErase: TKMButtonFlat;
+        ObjectsTable: array [0..8] of TKMButtonFlat;
+        ObjectsScroll: TKMScrollBar;
 
     //todo: How to know where certain page should be?
     //Town - panels that will become mostly obsolete in a battle mission?
@@ -721,18 +722,18 @@ const
     TX_MAPED_TERRAIN_HINTS_TILES,
     TX_MAPED_TERRAIN_HINTS_OBJECTS);
   Surfaces: array [0 .. 6, 0 .. 4] of TTerrainKind = (
-    (tkGrass,       tkMoss,         tkCustom,     tkCustom,       tkCustom),
-    (tkRustyGrass1, tkRustyGrass2,  tkDirtGrass,  tkCustom,       tkCustom),
-    (tkSand,        tkRichSand,     tkDirt,       tkCobbleStone,  tkGrassSand1),
-    (tkGrassSand2,  tkGrassyWater,  tkSwamp,      tkIce,          tkShallowSnow),
-    (tkSnow,        tkDeepSnow,     tkStoneMount, tkGoldMount,    tkIronMount),
-    (tkAbyss,       tkGravel,       tkWater,      tkFastWater,    tkCustom),
-    (tkCoal,        tkGold,         tkIron,       tkCustom,       tkCustom));
+    (tkGrass,       tkMoss,         tkRustyGrass1,  tkRustyGrass2,  tkCustom),
+    (tkDirtGrass,   tkDirt,         tkGravel,       tkCobbleStone,  tkCustom),
+    (tkGrassSand2,  tkGrassSand1,   tkSand,         tkRichSand,     tkCustom),
+    (tkSwamp,       tkGrassyWater,  tkWater,        tkFastWater,    tkCustom),
+    (tkShallowSnow, tkSnow,         tkDeepSnow,     tkIce,          tkCustom),
+    (tkStoneMount,  tkGoldMount,    tkIronMount,    tkAbyss,        tkCustom),
+    (tkCoal,        tkGold,         tkIron,         tkCustom,       tkCustom));
 var
   I: TKMTerrainTab;
   J,K: Integer;
 begin
-  Panel_Terrain := TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,28);
+  Panel_Terrain := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 28);
     for I := Low(TKMTerrainTab) to High(TKMTerrainTab) do
     begin
       Button_Terrain[I] := TKMButton.Create(Panel_Terrain, SMALL_PAD_W * Byte(I), 0, SMALL_TAB_W, SMALL_TAB_H, BtnGlyph[I], rxGui, bsGame);
@@ -742,7 +743,7 @@ begin
 
     Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Brushes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Brush', fnt_Outline, taCenter);
-      BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 30, 100, 1, 12);
+      BrushSize   := TKMTrackBar.Create(Panel_Brushes, 0, 30, 100, 0, 12);
       BrushSize.OnChange := Terrain_BrushChange;
       BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 106, 28, 24, 24, 592);
       BrushCircle.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
@@ -751,15 +752,17 @@ begin
       BrushSquare.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
       BrushSquare.OnClick := Terrain_BrushChange;
 
-      TKMLabel.Create(Panel_Brushes, 0, 60, TB_WIDTH, 0, 'Surface', fnt_Outline, taCenter);
       for J := Low(Surfaces) to High(Surfaces) do
       for K := Low(Surfaces[J]) to High(Surfaces[J]) do
       if Surfaces[J,K] <> tkCustom then
       begin
-        BrushTable[J,K] := TKMButtonFlat.Create(Panel_Brushes, K * 36, 80 + J * 40, 34, 34, Combo[Surfaces[J,K], Surfaces[J,K], 1] + 1, rxTiles);  // grass
+        BrushTable[J,K] := TKMButtonFlat.Create(Panel_Brushes, K * 36, 60 + J * 40, 34, 34, Combo[Surfaces[J,K], Surfaces[J,K], 1] + 1, rxTiles);  // grass
         BrushTable[J,K].Tag := Byte(Surfaces[J,K]);
         BrushTable[J,K].OnClick := Terrain_BrushChange;
       end;
+
+      BrushRandom := TKMCheckBox.Create(Panel_Brushes, 0, 380, TB_WIDTH, 20, 'Random elements', fnt_Metal);
+      BrushRandom.OnClick := Terrain_BrushChange;
 
     Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Heights, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Heights', fnt_Outline, taCenter);
@@ -1637,6 +1640,7 @@ var
 begin
   GameCursor.Mode := cmBrush;
   GameCursor.MapEdSize := BrushSize.Position;
+  fTerrainPainter.RandomizeTiling := BrushRandom.Checked;
 
   if Sender = BrushCircle then
     GameCursor.MapEdShape := hsCircle

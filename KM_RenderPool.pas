@@ -1088,7 +1088,7 @@ begin
                   Rad := GameCursor.MapEdSize;
                   if Rad = 0 then
                     //brush size smaller than one cell
-                    fRenderAux.DotOnTerrain(P.X, P.Y, $FF80FF80)
+                    fRenderAux.DotOnTerrain(Round(F.X), Round(F.Y), $FF80FF80)
                   else
                   //There are two brush types here, even and odd size
                   if Rad mod 2 = 1 then
@@ -1099,18 +1099,18 @@ begin
                     for K := -Rad to Rad do
                     //Rounding corners in a nice way
                     if (GameCursor.MapEdShape = hsSquare)
-                    or (sqrt(sqr(I)+sqr(K))<Rad+0.5) then
+                    or (Sqr(I) + Sqr(K) < Sqr(Rad+0.5)) then
                       RenderTile(Combo[TTerrainKind(GameCursor.Tag1), TTerrainKind(GameCursor.Tag1),1]+1,P.X+K,P.Y+I,0);
                   end
                   else
                   begin
                     //even sizes 2,4,6..
-                    Rad:=Rad div 2;
-                    for I:=-Rad to Rad-1 do
-                    for K:=-Rad to Rad-1 do
+                    Rad := Rad div 2;
+                    for I := -Rad to Rad - 1 do
+                    for K := -Rad to Rad - 1 do
                     //Rounding corners in a nice way
                     if (GameCursor.MapEdShape = hsSquare)
-                    or (sqrt(sqr(I+0.5)+sqr(K+0.5))<Rad) then
+                    or (Sqr(I+0.5)+Sqr(K+0.5) < Sqr(Rad)) then
                       RenderTile(Combo[TTerrainKind(GameCursor.Tag1), TTerrainKind(GameCursor.Tag1),1],P.X+K,P.Y+I,0);
                   end;
                 end;

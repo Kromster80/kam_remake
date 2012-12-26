@@ -32,7 +32,7 @@ type
     MapXc2,MapYc2:integer; //keeps previous cell position
 
     procedure BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TTerrainKind);
-    function RandomizedTile(aTerrainKind: TTerrainKind): Byte;
+    function PickRandomTile(aTerrainKind: TTerrainKind): Byte;
     procedure RebuildMap(X,Y,Rad: Integer);
     procedure EditBrush(aLoc: TKMPoint; aTile: Byte);
     procedure EditHeight;
@@ -96,30 +96,30 @@ const
     (15,1,1,1,2,2,2,3,3,3,5,5,5,11,13,14), //reduced chance for "eye-catching" tiles
     (1,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (1,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,26,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,34,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (1,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,29,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (2,36,37,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,215,0,0,0,0,0,0,0,0,0,0,0,0,0,0),//Cobblestone
-    (0,28,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,48,0,0,0,0,0,0,0,0,0,0,0,0,0,0), //swamp
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),//Cobblestone
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0), //swamp
     (3,41,42,43,0,0,0,0,0,0,0,0,0,0,0,0),//brownswamp
-    (0,44,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,47,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,46,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,45,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (8,129,130,131,132,134,135,136,137,0,0,0,0,0,0,0),    //Stone
     (5,156,157,158,159,201{?},0,0,0,0,0,0,0,0,0,0),       //Grey
     (5,160,161,162,163,164,0,0,0,0,0,0,0,0,0,0),          //Rusty
-    (0,245,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (1,196,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
     (9,152,153,154,154,154,155,155,155,155,0,0,0,0,0,0), //Coal //enriched pattern
     (9,144,145,146,146,146,147,147,147,147,0,0,0,0,0,0), //Gold
     (9,148,149,150,150,150,151,151,151,151,0,0,0,0,0,0),  //Iron
-    (0,196,0,0,0,0,0,0,0,0,0,0,0,0,0,0) //FastWater
+    (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) //FastWater
   );
 
 
@@ -135,46 +135,37 @@ begin
 
   for I := 1 to MAX_MAP_SIZE do
   for K := 1 to MAX_MAP_SIZE do
-  begin
     Land2[I,K].TerType := tkGrass; //Grass
-  end;
 end;
 
 
 procedure TTerrainPainter.BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TTerrainKind);
-var
-  xx, yy, T: integer;
 begin
   if not fTerrain.TileInMapCoords(X, Y) then
     Exit;
 
-  xx := EnsureRange(X, 1, fTerrain.MapX - 1);
-  yy := EnsureRange(Y, 1, fTerrain.MapY - 1);
-  Land2[yy, xx].TerType := aTerrainKind;
-  Land2[yy, xx + 1].TerType := aTerrainKind;
-  Land2[yy + 1, xx + 1].TerType := aTerrainKind;
-  Land2[yy + 1, xx].TerType := aTerrainKind;
+  Land2[Y, X].TerType := aTerrainKind;
+  Land2[Y, X + 1].TerType := aTerrainKind;
+  Land2[Y + 1, X + 1].TerType := aTerrainKind;
+  Land2[Y + 1, X].TerType := aTerrainKind;
 
-  T := Abs(Combo[aTerrainKind, aTerrainKind, 1]); //Pick a tile ID from table
-  if RandomizeTiling then
-    T := RandomizedTile(TTerrainKind(GameCursor.Tag1));
-
-  fTerrain.Land[yy, xx].Terrain := T;
-  fTerrain.Land[yy, xx].Rotation := Random(4); //random direction for all plain tiles
+  fTerrain.Land[Y, X].Terrain := PickRandomTile(TTerrainKind(GameCursor.Tag1));
+  fTerrain.Land[Y, X].Rotation := Random(4); //Random direction for all plain tiles
 end;
 
 
-function TTerrainPainter.RandomizedTile(aTerrainKind: TTerrainKind): Byte;
+function TTerrainPainter.PickRandomTile(aTerrainKind: TTerrainKind): Byte;
 begin
-  case aTerrainKind of
-    tkGrass..tkDeepSnow,
-    tkAbyss..tkWater, tkFastWater:
-      if Random(6) = 1 then
-        Result := RandomTiling[aTerrainKind, Random(RandomTiling[aTerrainKind,0])+1]; // chance of 1/6
-    tkStoneMount..tkIronMount,
-    tkCoal..tkIron:
-      Result := RandomTiling[aTerrainKind, Random(RandomTiling[aTerrainKind,0])+1]; //equal chance
-  end;
+  Result := Abs(Combo[aTerrainKind, aTerrainKind, 1]);
+  if not RandomizeTiling or (RandomTiling[aTerrainKind, 0] = 0) then Exit;
+
+  if aTerrainKind in [tkStoneMount..tkIronMount, tkCoal..tkIron] then
+    //Equal chance
+    Result := RandomTiling[aTerrainKind, Random(RandomTiling[aTerrainKind, 0]) + 1]
+  else
+  if Random(6) = 1 then
+    //Chance reduced to 1/6
+    Result := RandomTiling[aTerrainKind, Random(RandomTiling[aTerrainKind, 0]) + 1];
 end;
 
 
@@ -187,8 +178,8 @@ begin
   for K := -Rad to Rad do
   if Sqr(I) + Sqr(K) < Sqr(Rad) then
   begin
-    pX := EnsureRange(X+K, 1, fTerrain.MapX);
-    pY := EnsureRange(Y+I, 1, fTerrain.MapY);
+    pX := EnsureRange(X+K, 1, fTerrain.MapX - 1);
+    pY := EnsureRange(Y+I, 1, fTerrain.MapY - 1);
 
     //don't touch custom placed tiles (tkCustom type)
     if (Land2[pY  ,pX].TerType <> tkCustom)
@@ -248,8 +239,7 @@ begin
       //for plain tiles only
       if Ter1 = Ter2 then
       begin
-        if RandomizeTiling then
-          T := RandomizedTile(Ter1);
+        T := PickRandomTile(Ter1);
 
         Rot := Random(4); //random direction for all plain tiles
       end;
@@ -326,18 +316,17 @@ begin
   for I := Max((round(aLoc.Y) - Rad), 1) to Min((round(aLoc.Y) + Rad), fTerrain.MapY) do
   for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), fTerrain.MapX) do
   begin
-  // We have square area basing on mouse point +/- radius
-  // Now we need to check whether point is inside brush type area(circle etc.)
-  // Every MapEdShape case has it's own check routine
+
+    // We have square area basing on mouse point +/- radius
+    // Now we need to check whether point is inside brush type area(circle etc.)
+    // Every MapEdShape case has it's own check routine
     case GameCursor.MapEdShape of
-        hsCircle:
-            Tmp := Max((1 - GetLength(I - round(aLoc.Y), round(K - aLoc.X)) / Rad), 0);   // Negative number means that point is outside circle
-        hsSquare:
-          Tmp := 1 - Max(Abs(I - round(aLoc.Y)), Abs(K - round(aLoc.X))) / Rad;
-      else
-        Tmp := 0;
-      end;
-  // Default cursor mode is elevate/decrease
+      hsCircle: Tmp := Max((1 - GetLength(I - round(aLoc.Y), round(K - aLoc.X)) / Rad), 0);   // Negative number means that point is outside circle
+      hsSquare: Tmp := 1 - Max(Abs(I - round(aLoc.Y)), Abs(K - round(aLoc.X))) / Rad;
+      else      Tmp := 0;
+    end;
+
+    // Default cursor mode is elevate/decrease
     if GameCursor.Mode = cmEqualize then
     begin // START Unequalize
       if aRaise then
