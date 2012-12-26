@@ -169,7 +169,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Utils, KM_AI;
+uses KM_Game, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Utils, KM_AI, KM_Units_Warrior;
 
 
 procedure SaveCommandToMemoryStream(aCommand: TGameInputCommand; aMemoryStream: TKMemoryStream);
@@ -249,6 +249,7 @@ var
   SrcGroup, TgtGroup: TKMUnitGroup;
   TgtUnit: TKMUnit;
   SrcHouse, TgtHouse: TKMHouse;
+  W: TKMUnitWarrior;
 begin
   //NOTE: MyPlayer should not be used for important stuff here, use P instead (commands must be executed the same for all players)
   IsSilent := (aCommand.PlayerIndex <> MyPlayer.PlayerIndex);
@@ -345,7 +346,11 @@ begin
                                   end;
 
       gic_TempAddScout:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
-                                    P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
+                                  begin
+                                    W := TKMUnitWarrior(P.AddUnit(ut_HorseScout, KMPoint(Params[1], Params[2])));
+                                    if W <> nil then
+                                      W.OnTrained(W);
+                                  end;
       gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.IsMultiplayer) then
                                     P.FogOfWar.RevealEverything;
       gic_TempDoNothing:          ;

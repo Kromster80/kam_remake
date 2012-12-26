@@ -2011,7 +2011,9 @@ end;
 
 
 constructor TKMHouseBarracks.Load(LoadStream: TKMemoryStream);
-var I,aCount: Integer; U: TKMUnit;
+var
+  I,aCount: Integer;
+  U: TKMUnit;
 begin
   inherited;
   LoadStream.Read(ResourceCount, SizeOf(ResourceCount));
@@ -2029,7 +2031,7 @@ end;
 procedure TKMHouseBarracks.SyncLoad;
 var I: Integer;
 begin
-  for I:=0 to RecruitsList.Count - 1 do
+  for I := 0 to RecruitsList.Count - 1 do
     RecruitsList.Items[I] := fPlayers.GetUnitByID(Cardinal(RecruitsList.Items[I]));
 end;
 

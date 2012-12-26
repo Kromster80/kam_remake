@@ -301,9 +301,9 @@ end;
 procedure TAIDefencePositions.RestockPositionWith(aDefenceGroup, aGroup: TKMUnitGroup);
 var Needed: integer;
 begin
-  Needed := TroopFormations[aDefenceGroup.GroupType].NumUnits - (aDefenceGroup.Count);
+  Needed := TroopFormations[aDefenceGroup.GroupType].NumUnits - aDefenceGroup.Count;
   if Needed <= 0 then exit;
-  if aGroup.Count+1 <= Needed then
+  if aGroup.Count <= Needed then
     aGroup.OrderLinkTo(aDefenceGroup, True) //Link entire group
   else
     aGroup.OrderSplitLinkTo(aDefenceGroup, Needed, True); //Link only as many units as are needed

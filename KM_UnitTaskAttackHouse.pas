@@ -63,6 +63,7 @@ begin
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fDestroyingHouse);
   LoadStream.Read(LocID);
+  LoadStream.Read(CanAbandon);
 end;
 
 
@@ -86,7 +87,7 @@ begin
 end;
 
 
-function TTaskAttackHouse.Execute:TTaskResult;
+function TTaskAttackHouse.Execute: TTaskResult;
 var AnimLength:integer;
 begin
   Result := TaskContinues;
@@ -192,6 +193,7 @@ begin
     SaveStream.Write(Integer(0));
   SaveStream.Write(fDestroyingHouse);
   SaveStream.Write(LocID);
+  SaveStream.Write(CanAbandon);
 end;
 
 

@@ -296,13 +296,15 @@ begin
     fMembers[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fMembers[I])));
     Members[I].OnKilled := Member_Killed;
     Members[I].OnPickedFight := Member_PickedFight;
+    //OnTrained
   end;
 
   for I := 0 to fOffenders.Count - 1 do
     fOffenders[I] := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(TKMUnitWarrior(fOffenders[I]))));
 
-  fOrderTargetUnit := fPlayers.GetUnitByID(cardinal(fOrderTargetUnit));
-  fOrderTargetHouse := fPlayers.GetHouseByID(cardinal(fOrderTargetHouse));
+  fOrderTargetGroup := fPlayers.GetGroupByID(Cardinal(fOrderTargetGroup));
+  fOrderTargetHouse := fPlayers.GetHouseByID(Cardinal(fOrderTargetHouse));
+  fOrderTargetUnit  := fPlayers.GetUnitByID(Cardinal(fOrderTargetUnit));
   fSelected := TKMUnitWarrior(fPlayers.GetUnitByID(Cardinal(fSelected)));
 end;
 
@@ -347,6 +349,10 @@ begin
     SaveStream.Write(TKMUnitWarrior(fOffenders[I]).ID);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc);
+  if fOrderTargetGroup <> nil then
+    SaveStream.Write(fOrderTargetGroup.ID)
+  else
+    SaveStream.Write(Integer(0));
   if fOrderTargetHouse <> nil then
     SaveStream.Write(fOrderTargetHouse.ID)
   else
@@ -1370,7 +1376,7 @@ begin
                    else
                      fGroups.Add(TKMUnitGroup.Create(fGame.GetNewID, aUnit));
                  end;
-    pt_Computer: fGroups.Add(TKMUnitGroup.Create(fGame.GetNewID, aUnit));
+    pt_Computer:   fGroups.Add(TKMUnitGroup.Create(fGame.GetNewID, aUnit));
   end;
 end;
 

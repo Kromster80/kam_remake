@@ -308,11 +308,11 @@ begin
   SaveStream.Write(fHousesCount);
   for I := 0 to fHousesCount - 1 do
   begin
-    if fHouses[i].House <> nil then
-      SaveStream.Write(fHouses[i].House.ID)
+    if fHouses[I].House <> nil then
+      SaveStream.Write(fHouses[I].House.ID)
     else
       SaveStream.Write(Integer(0));
-    SaveStream.Write(fHouses[i].Assigned);
+    SaveStream.Write(fHouses[I].Assigned);
   end;
 end;
 
@@ -326,8 +326,8 @@ begin
   SetLength(fHouses, fHousesCount);
   for I := 0 to fHousesCount - 1 do
   begin
-    LoadStream.Read(fHouses[i].House, 4);
-    LoadStream.Read(fHouses[i].Assigned);
+    LoadStream.Read(fHouses[I].House, 4);
+    LoadStream.Read(fHouses[I].Assigned);
   end;
 end;
 
@@ -336,7 +336,7 @@ procedure TKMHouseList.SyncLoad;
 var I: Integer;
 begin
   for I := 0 to fHousesCount - 1 do
-    fHouses[i].House := fPlayers.GetHouseByID(cardinal(fHouses[i].House));
+    fHouses[i].House := fPlayers.GetHouseByID(cardinal(fHouses[I].House));
 end;
 
 

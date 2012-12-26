@@ -4,17 +4,17 @@ interface
 uses
   KM_CommonClasses;
 
+
 type
   TKMGameOptions = class
-  private
   public
-    Peacetime:word; //Peacetime in minutes (should it be in ticks?)
+    Peacetime: Word; //Peacetime in minutes
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
     procedure Reset;
-    procedure SetAsText(const aText:string);
-    function GetAsText:string;
+    procedure SetAsText(const aText: string);
+    function GetAsText: string;
   end;
 
 
@@ -33,6 +33,7 @@ begin
   SaveStream.Write(Peacetime);
 end;
 
+
 //Resets values to defaults
 procedure TKMGameOptions.Reset;
 begin
@@ -40,8 +41,8 @@ begin
 end;
 
 
-procedure TKMGameOptions.SetAsText(const aText:string);
-var M:TKMemoryStream;
+procedure TKMGameOptions.SetAsText(const aText: string);
+var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   try
@@ -53,8 +54,8 @@ begin
 end;
 
 
-function TKMGameOptions.GetAsText:string;
-var M:TKMemoryStream;
+function TKMGameOptions.GetAsText: string;
+var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   Save(M);

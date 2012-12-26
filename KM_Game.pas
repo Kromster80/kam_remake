@@ -1088,6 +1088,7 @@ begin
     fTerrain.Save(SaveStream); //Saves the map
     fPlayers.Save(SaveStream, fGameMode = gmMulti); //Saves all players properties individually
     fAIFields.Save(SaveStream);
+    fPathfinding.Save(SaveStream);
     fProjectiles.Save(SaveStream);
     fScripting.Save(SaveStream);
 
@@ -1218,7 +1219,7 @@ begin
 
   fPlayers.Load(LoadStream);
   fAIFields.Load(LoadStream);
-
+  fPathfinding.Load(LoadStream);
   fProjectiles.Load(LoadStream);
   fScripting.Load(LoadStream);
 

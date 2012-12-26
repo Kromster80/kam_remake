@@ -2754,7 +2754,7 @@ end;
 
 
 procedure TTerrain.Save(SaveStream: TKMemoryStream);
-var i,k:integer;
+var I,K: Integer;
 begin
   Assert(not fMapEditor, 'MapEd mode is not intended to be saved into savegame');
 
@@ -2765,23 +2765,23 @@ begin
 
   FallingTrees.SaveToStream(SaveStream);
 
-  for i:=1 to fMapY do for k:=1 to fMapX do
+  for I:=1 to fMapY do for K:=1 to fMapX do
   begin
     //Only save fields that cannot be recalculated after loading
-    SaveStream.Write(Land[i,k].Terrain);
-    SaveStream.Write(Land[i,k].Height);
-    SaveStream.Write(Land[i,k].Rotation);
-    SaveStream.Write(Land[i,k].Obj);
-    SaveStream.Write(Land[i,k].TreeAge);
-    SaveStream.Write(Land[i,k].FieldAge);
-    SaveStream.Write(Land[i,k].TileLock,SizeOf(Land[i,k].TileLock));
-    SaveStream.Write(Land[i,k].TileOverlay,SizeOf(Land[i,k].TileOverlay));
-    SaveStream.Write(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
-    if Land[i,k].IsUnit <> nil then
-      SaveStream.Write(TKMUnit(Land[i,k].IsUnit).ID) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(Land[I,K].Terrain);
+    SaveStream.Write(Land[I,K].Height);
+    SaveStream.Write(Land[I,K].Rotation);
+    SaveStream.Write(Land[I,K].Obj);
+    SaveStream.Write(Land[I,K].TreeAge);
+    SaveStream.Write(Land[I,K].FieldAge);
+    SaveStream.Write(Land[I,K].TileLock, SizeOf(Land[I,K].TileLock));
+    SaveStream.Write(Land[I,K].TileOverlay, SizeOf(Land[I,K].TileOverlay));
+    SaveStream.Write(Land[I,K].TileOwner, SizeOf(Land[I,K].TileOwner));
+    if Land[I,K].IsUnit <> nil then
+      SaveStream.Write(TKMUnit(Land[I,K].IsUnit).ID) //Store ID, then substitute it with reference on SyncLoad
     else
       SaveStream.Write(Integer(0));
-    SaveStream.Write(Land[i,k].IsVertexUnit, SizeOf(Land[i,k].IsVertexUnit));
+    SaveStream.Write(Land[I,K].IsVertexUnit, SizeOf(Land[I,K].IsVertexUnit));
   end;
 end;
 

@@ -138,7 +138,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game,
-  KM_Units_Warrior, KM_TextLibrary, KM_AIFields;
+   KM_TextLibrary, KM_AIFields;
 
 
 { TKMPlayerCommon }
@@ -269,20 +269,14 @@ function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: 
 begin
   Result := inherited AddUnit(aUnitType, Position, AutoPlace);
 
-  if Result <> nil then
-  begin
-    if aUnitType = ut_Worker then
-      fBuildList.AddWorker(TKMUnitWorker(Result));
-    if aUnitType = ut_Serf then
-      fDeliveries.AddSerf(TKMUnitSerf(Result));
+  if Result = nil then Exit;
 
-    //When player trains a warrior, we need that warrior to report to Groups
-    //when he walks out the Barracks, to properly link him to nearest Group
-    if Result is TKMUnitWarrior then
-      TKMUnitWarrior(Result).OnTrained := fUnitGroups.WarriorTrained;
+  if aUnitType = ut_Worker then
+    fBuildList.AddWorker(TKMUnitWorker(Result));
+  if aUnitType = ut_Serf then
+    fDeliveries.AddSerf(TKMUnitSerf(Result));
 
-    fStats.UnitCreated(aUnitType, WasTrained);
-  end;
+  fStats.UnitCreated(aUnitType, WasTrained);
 end;
 
 

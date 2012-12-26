@@ -53,6 +53,9 @@ type
     function Route_Make(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList; aWeightRoutes: Boolean = True): Boolean;
     function Route_MakeAvoid(aLocA, aLocB: TKMPoint; aPass: TPassabilitySet; aDistance: Single; aTargetHouse: TKMHouse; NodeList: TKMPointList): Boolean;
     function Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect: TWalkConnect; aTargetNetwork: Byte; aPass: TPassabilitySet; NodeList: TKMPointList): Boolean;
+
+    procedure Save(SaveStream: TKMemoryStream); virtual;
+    procedure Load(LoadStream: TKMemoryStream); virtual;
     procedure UpdateState;
   end;
 
@@ -296,6 +299,38 @@ begin
 
     Result := True;
     Exit;
+  end;
+end;
+
+
+procedure TPathFinding.Save(SaveStream: TKMemoryStream);
+var
+  I: Integer;
+begin
+  SaveStream.Write('PathFinding');
+
+  if CACHE_PATHFINDING then
+  for I := 0 to PATH_CACHE_MAX - 1 do
+  begin
+    SaveStream.Write(fCache[I].Weight);
+    SaveStream.Write(fCache[I].Pass, SizeOf(fCache[I].Pass));
+    fCache[I].Route.SaveToStream(SaveStream);
+  end;
+end;
+
+
+procedure TPathFinding.Load(LoadStream: TKMemoryStream);
+var
+  I: Integer;
+begin
+  LoadStream.ReadAssert('PathFinding');
+
+  if CACHE_PATHFINDING then
+  for I := 0 to PATH_CACHE_MAX - 1 do
+  begin
+    LoadStream.Read(fCache[I].Weight);
+    LoadStream.Read(fCache[I].Pass, SizeOf(fCache[I].Pass));
+    fCache[I].Route.LoadFromStream(LoadStream);
   end;
 end;
 

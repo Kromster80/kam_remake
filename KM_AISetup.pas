@@ -7,9 +7,6 @@ uses Classes, KromUtils, Math, SysUtils,
 
 type
   TKMPlayerAISetup = class
-  private
-    fStrongCoef: Byte;
-    procedure SetStrongCoef(Value: Byte);
   public
     Aggressiveness: Integer; //-1 means not used or default
     AutoBuild: Boolean;
@@ -26,7 +23,6 @@ type
 
     constructor Create;
     function GetEquipRate(aUnit: TUnitType): Word;
-    property StrongCoef: Byte read fStrongCoef write SetStrongCoef;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -56,19 +52,6 @@ begin
   SerfFactor := 10; //Means 1 serf per building
   StartPosition := KMPoint(1,1);
   TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
-
-  //Remake properties
-  fStrongCoef := 1;
-
-end;
-
-
-procedure TKMPlayerAISetup.SetStrongCoef(Value: Byte);
-begin
-  fStrongCoef := EnsureRange(Value, 1, 3);
-
-  WorkerFactor := fStrongCoef * 6;
-  SerfFactor := 11 - fStrongCoef;
 end;
 
 
@@ -96,8 +79,6 @@ begin
   SaveStream.Write(StartPosition);
   SaveStream.Write(TownDefence);
   SaveStream.Write(WorkerFactor);
-
-  SaveStream.Write(fStrongCoef);
 end;
 
 
@@ -116,8 +97,6 @@ begin
   LoadStream.Read(StartPosition);
   LoadStream.Read(TownDefence);
   LoadStream.Read(WorkerFactor);
-
-  LoadStream.Read(fStrongCoef);
 end;
 
 

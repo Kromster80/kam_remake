@@ -20,8 +20,8 @@ type
 
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
     function Route_Make(aLocA, aLocB: TKMPoint; NodeList: TKMPointList): Boolean; reintroduce;//load;
-    procedure Save(SaveStream: TKMemoryStream);
-    procedure Load(LoadStream: TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream); override;
+    procedure Load(LoadStream: TKMemoryStream); override;
   end;
 
 
@@ -45,12 +45,14 @@ end;
 
 procedure TPathFindingRoad.Save(SaveStream: TKMemoryStream);
 begin
+  inherited;
   SaveStream.Write(fOwner);
 end;
 
 
 procedure TPathFindingRoad.Load(LoadStream: TKMemoryStream);
 begin
+  inherited;
   LoadStream.Read(fOwner);
 end;
 

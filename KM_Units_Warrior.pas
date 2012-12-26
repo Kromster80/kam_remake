@@ -90,9 +90,13 @@ begin
   fOrderTargetUnit   := nil;
   fOrderTargetHouse  := nil;
   fRequestedFood     := False;
-  fNextOrder          := woNone;
+  fNextOrder         := woNone;
   fOrder             := woNone;
   fOrderLoc          := KMPoint(PosX, PosY);
+
+  //When player trains a warrior, we need that warrior to report to Groups
+  //when he walks out of the Barracks, to properly link him to nearest Group
+  OnTrained := fPlayers[fOwner].UnitGroups.WarriorTrained;
 end;
 
 
@@ -108,6 +112,9 @@ begin
   LoadStream.Read(fStormDelay);
   LoadStream.Read(fUseExactTarget);
   LoadStream.Read(FaceDir);
+
+  //Incase save occured after warrior was created, but before he walked out of Barracks
+  OnTrained := fPlayers[fOwner].UnitGroups.WarriorTrained;
 end;
 
 

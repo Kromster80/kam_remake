@@ -15,7 +15,7 @@ type
     function CanWalkHere(const X,Y: Word): Boolean; override;
     function CanUse(const X,Y: Word): Boolean; override;
   public
-    fType: TFindNearest;
+    FindType: TFindNearest;
     constructor Create(aOwner: TPlayerIndex);
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
   end;
@@ -243,7 +243,7 @@ end;
 
 function TKMCityPlanner.FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aResultLoc: TKMPoint): Boolean;
 begin
-  fFinder.fType := aType;
+  fFinder.FindType := aType;
   Result := fFinder.FindNearest(aStart, aRadius, CanOwn, aResultLoc);
 end;
 
@@ -324,13 +324,13 @@ end;
 
 procedure TKMCityPlanner.Save(SaveStream: TKMemoryStream);
 begin
-  SaveStream.Write(fOwner);
+  //
 end;
 
 
 procedure TKMCityPlanner.Load(LoadStream: TKMemoryStream);
 begin
-  LoadStream.Read(fOwner);
+  //
 end;
 
 
@@ -351,17 +351,14 @@ end;
 
 function TKMTerrainFinderCity.CanUse(const X, Y: Word): Boolean;
 begin
-  case fType of
-    fnCoal:
-        Result := (fTerrain.TileIsCoal(X, Y) > 1)
-                    and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, True);
-    fnIron:
-        Result := (fTerrain.TileIsIron(X, Max(Y-1, 1)) > 0)
-                    and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, True);
-    fnGold:
-        Result := (fTerrain.TileIsGold(X, Max(Y-1, 1)) > 0)
-                    and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, True);
-    else Result := False;
+  case FindType of
+    fnCoal: Result := (fTerrain.TileIsCoal(X, Y) > 1)
+                       and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, True);
+    fnIron: Result := (fTerrain.TileIsIron(X, Max(Y-1, 1)) > 0)
+                       and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, True);
+    fnGold: Result := (fTerrain.TileIsGold(X, Max(Y-1, 1)) > 0)
+                       and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, True);
+    else    Result := False;
   end;
 end;
 

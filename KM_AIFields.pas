@@ -12,7 +12,7 @@ type
   private
     fMapX: Word;
     fMapY: Word;
-    fUpdatePlayerId: TPlayerIndex;
+    fUpdatePlayerId: TPlayerIndex; //Player we will be updating next
     Influence: array of array of array of Byte;
     procedure InitInfluenceAvoid;
     procedure InitInfluenceForest;
@@ -306,9 +306,7 @@ end;
 procedure TKMInfluences.Save(SaveStream: TKMemoryStream);
 var
   PCount: Word;
-  I: Integer;
-  K: Integer;
-  H: Integer;
+  I,K,H: Integer;
 begin
   PCount := Length(Influence);
 
@@ -338,9 +336,7 @@ end;
 procedure TKMInfluences.Load(LoadStream: TKMemoryStream);
 var
   PCount: Word;
-  I: Integer;
-  K: Integer;
-  H: Integer;
+  I,K,H: Integer;
 begin
   LoadStream.ReadAssert('Influences');
 

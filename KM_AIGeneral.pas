@@ -47,7 +47,7 @@ const
   //For compatibility with KaM these must be false. We can add a !REMAKE_AI command later
   //to make them more "intelligent", but for now these are required for the campaigns to be playable.
   AI_FILL_CLOSEST = false;
-  AI_LINK_IDLE = false;
+  AI_LINK_IDLE = not false;
 
 
 { TKMGeneral }
