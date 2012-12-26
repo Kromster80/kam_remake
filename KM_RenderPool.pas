@@ -1083,7 +1083,8 @@ begin
                 else
                   RenderCursorBuildIcon(P);       //Red X
     cmHouses:   RenderCursorWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
-    cmBrush:    begin
+    cmBrush:    if GameCursor.Tag1 <> 0 then
+                begin
                   Rad := GameCursor.MapEdSize;
                   if Rad = 0 then
                     //brush size smaller than one cell
@@ -1099,7 +1100,7 @@ begin
                     //Rounding corners in a nice way
                     if (GameCursor.MapEdShape = hsSquare)
                     or (sqrt(sqr(I)+sqr(K))<Rad+0.5) then
-                      RenderTile(Combo[GameCursor.Tag1, GameCursor.Tag1,1]+1,P.X+K,P.Y+I,0);
+                      RenderTile(Combo[TTerrainKind(GameCursor.Tag1), TTerrainKind(GameCursor.Tag1),1]+1,P.X+K,P.Y+I,0);
                   end
                   else
                   begin
@@ -1110,7 +1111,7 @@ begin
                     //Rounding corners in a nice way
                     if (GameCursor.MapEdShape = hsSquare)
                     or (sqrt(sqr(I+0.5)+sqr(K+0.5))<Rad) then
-                      RenderTile(Combo[GameCursor.Tag1, GameCursor.Tag1,1],P.X+K,P.Y+I,0);
+                      RenderTile(Combo[TTerrainKind(GameCursor.Tag1), TTerrainKind(GameCursor.Tag1),1],P.X+K,P.Y+I,0);
                   end;
                 end;
     cmTiles:    if GameCursor.MapEdDir in [0..3] then
