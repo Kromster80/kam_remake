@@ -196,6 +196,8 @@
 			<DCCReference Include="KM_Settings.pas"/>
 			<DCCReference Include="KM_Sound.pas"/>
 			<DCCReference Include="KM_Terrain.pas"/>
+			<DCCReference Include="KM_TerrainFinder.pas"/>
+			<DCCReference Include="KM_TerrainPainter.pas"/>
 			<DCCReference Include="KM_TextLibrary.pas"/>
 			<DCCReference Include="KM_UnitActionAbandonWalk.pas"/>
 			<DCCReference Include="KM_UnitActionFight.pas"/>
@@ -220,7 +222,6 @@
 			<DCCReference Include="KM_UnitTaskThrowRock.pas"/>
 			<DCCReference Include="KM_Utils.pas"/>
 			<DCCReference Include="KM_Viewport.pas"/>
-			<DCCReference Include="KM_TerrainFinder.pas"/>
 			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>

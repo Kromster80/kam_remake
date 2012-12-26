@@ -452,7 +452,7 @@ begin
   end;
 
   if Assigned(fOnCursorUpdate) then
-    fOnCursorUpdate(0, 'Map size: '+inttostr(fGame.MapX)+' x '+inttostr(fGame.MapY));
+    fOnCursorUpdate(0, 'Map size: ' + IntToStr(fGame.MapX) + ' x ' + IntToStr(fGame.MapY));
 end;
 
 

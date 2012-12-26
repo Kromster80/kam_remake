@@ -9,7 +9,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Points,
   KM_Alerts, KM_GameInputProcess, KM_GameOptions,
   KM_InterfaceDefaults, KM_InterfaceMapEditor, KM_InterfaceGamePlay,
-  KM_MapEditor, KM_Minimap, KM_Networking, 
+  KM_MapEditor, KM_Minimap, KM_Networking,
   KM_PathFinding, KM_PathFindingAstarOld, KM_PathFindingAStarNew, KM_PathFindingJPS,
   KM_PerfLog, KM_Projectiles, KM_Render, KM_Viewport;
 
@@ -110,11 +110,7 @@ type
 
     procedure AutoSave;
     procedure SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
-
-    ///	<summary>
-    ///	  Restart the replay but keep current viewport position/zoom
-    ///	</summary>
-    procedure RestartReplay;
+    procedure RestartReplay; //Restart the replay but keep current viewport position/zoom
 
     function MissionTime: TDateTime;
     function GetPeacetimeRemaining: TDateTime;
@@ -179,8 +175,8 @@ uses
   KM_CommonClasses, KM_Log, KM_Utils,
   KM_ArmyEvaluation, KM_GameApp, KM_GameInfo, KM_MissionScript,
   KM_Player, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceCursors,
-  KM_Sound, KM_Terrain, KM_TextLibrary, KM_AIFields, KM_Maps, KM_Scripting,
-  KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
+  KM_Sound, KM_Terrain, KM_TerrainPainter, KM_TextLibrary, KM_AIFields, KM_Maps,
+  KM_Scripting, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -273,6 +269,7 @@ begin
 
   FreeThenNil(fMapEditor);
   FreeThenNil(fPlayers);
+  FreeThenNil(fTerrainPainter);
   FreeThenNil(fTerrain);
   FreeAndNil(fAIFields);
   FreeAndNil(fProjectiles);
@@ -413,8 +410,11 @@ begin
   end;
 
   if fGameMode = gmMapEd then
+  begin
     //Mission loader needs to read the data into MapEd (e.g. FOW revealers)
     fMapEditor := TKMMapEditor.Create;
+    fTerrainPainter := TTerrainPainter.Create;
+  end;
 
   Parser := TMissionParserStandard.Create(ParseMode, PlayerEnabled, False);
   try
@@ -660,7 +660,8 @@ begin
   fViewport.ReleaseScrollKeys;
   PlayOnState := Msg;
 
-  if DoHold then begin
+  if DoHold then
+  begin
     fIsPaused := True;
     fGamePlayInterface.ShowPlayMore(true, Msg);
   end else
@@ -765,6 +766,7 @@ begin
   fSaveFile := '';
 
   fTerrain.MakeNewMap(aSizeX, aSizeY, True);
+  fTerrainPainter := TTerrainPainter.Create;
 
   fMapEditor := TKMMapEditor.Create;
   fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
@@ -1391,8 +1393,8 @@ begin
     fViewport.UpdateStateIdle(aFrameTime); //Check to see if we need to scroll
 
   //Terrain should be updated in real time when user applies brushes
-  if fGameMode = gmMapEd then
-    fTerrain.UpdateStateIdle;
+  if fTerrainPainter <> nil then
+    fTerrainPainter.UpdateStateIdle;
 end;
 
 
