@@ -562,13 +562,13 @@ begin
   SetLength(AreaPolys, fPolyCount);
 
   //1. Get ownership area
-  //Collect edges of polys that are well within our ownership area
+  //Collect polys that are well within our ownership area
   Edges.Count := 0;
   for I := 0 to fPolyCount - 1 do
   with fPolygons[I] do
   if ((fNodes[Indices[0]].Owner[aOwner] >= OWN_MARGIN)
-    or (fNodes[Indices[1]].Owner[aOwner] >= OWN_MARGIN)
-    or (fNodes[Indices[2]].Owner[aOwner] >= OWN_MARGIN))
+   or (fNodes[Indices[1]].Owner[aOwner] >= OWN_MARGIN)
+   or (fNodes[Indices[2]].Owner[aOwner] >= OWN_MARGIN))
   and (fNodes[Indices[0]].Owner[aOwner] >= OWN_THRESHOLD)
   and (fNodes[Indices[1]].Owner[aOwner] >= OWN_THRESHOLD)
   and (fNodes[Indices[2]].Owner[aOwner] >= OWN_THRESHOLD)
@@ -578,7 +578,7 @@ begin
     AddPoly(Edges, I);
 
 
-  //Obtain suboptimal outline
+  //Obtain suboptimal outline of owned polys
   ConvertEdgesToOutline(Edges, aOutline1);
 
   //5. Remove spans that face isolated areas
@@ -647,7 +647,8 @@ end;
 
 procedure TKMNavMesh.Load(LoadStream: TKMemoryStream);
 var
-  I,K,H: Integer;
+  I,K: Integer;
+  NewCount: Integer;
 begin
   LoadStream.ReadAssert('NavMesh');
 
@@ -657,9 +658,9 @@ begin
   begin
     LoadStream.Read(fNodes[I].Loc);
 
-    LoadStream.Read(H);
-    SetLength(fNodes[I].Nearby, H);
-    for K := 0 to H - 1 do
+    LoadStream.Read(NewCount);
+    SetLength(fNodes[I].Nearby, NewCount);
+    for K := 0 to NewCount - 1 do
       LoadStream.Read(fNodes[I].Nearby[K]);
 
     LoadStream.Read(fNodes[I].Owner, SizeOf(fNodes[I].Owner));
