@@ -652,6 +652,7 @@ begin
   LoadStream.ReadAssert('NavMesh');
 
   LoadStream.Read(fNodeCount);
+  SetLength(fNodes, fNodeCount);
   for I := 0 to fNodeCount - 1 do
   begin
     LoadStream.Read(fNodes[I].Loc);
@@ -665,6 +666,7 @@ begin
   end;
 
   LoadStream.Read(fPolyCount);
+  SetLength(fPolygons, fPolyCount);
   for I := 0 to fPolyCount - 1 do
   begin
     LoadStream.Read(fPolygons[I].Indices, SizeOf(fPolygons[I].Indices));

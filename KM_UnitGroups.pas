@@ -249,7 +249,7 @@ end;
 //Load the Group from savegame
 constructor TKMUnitGroup.Create(LoadStream: TKMemoryStream);
 var
-  I, aCount: Integer;
+  I, NewCount: Integer;
   W: TKMUnitWarrior;
 begin
   inherited Create;
@@ -259,15 +259,15 @@ begin
   LoadStream.Read(fGroupType, SizeOf(fGroupType));
   LoadStream.Read(fID);
   LoadStream.Read(fOwner);
-  LoadStream.Read(aCount);
-  for I := 0 to aCount - 1 do
+  LoadStream.Read(NewCount);
+  for I := 0 to NewCount - 1 do
   begin
     LoadStream.Read(W, 4); //subst on syncload
     fMembers.Add(W);
   end;
 
-  LoadStream.Read(aCount);
-  for I := 0 to aCount - 1 do
+  LoadStream.Read(NewCount);
+  for I := 0 to NewCount - 1 do
   begin
     LoadStream.Read(W, 4); //subst on syncload
     fOffenders.Add(W);
@@ -275,6 +275,7 @@ begin
 
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fOrderLoc);
+  LoadStream.Read(fOrderTargetGroup, 4); //subst on syncload
   LoadStream.Read(fOrderTargetHouse, 4); //subst on syncload
   LoadStream.Read(fOrderTargetUnit, 4); //subst on syncload
   LoadStream.Read(fPointerCount);
