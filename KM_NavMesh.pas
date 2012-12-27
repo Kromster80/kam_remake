@@ -20,6 +20,7 @@ type
     fSimpleOutlines: TKMShapesArray;
     fRawMesh: TKMTriMesh;
 
+    //Working data
     fNodeCount: Integer;
     fPolyCount: Integer;
     fNodes: array of record
@@ -94,6 +95,7 @@ begin
 
   Assert(Length(fRawMesh.Polygons) > 8);
 
+  //Fill in NavMesh structure
   AssembleNavMesh;
 end;
 
@@ -616,14 +618,59 @@ end;
 
 
 procedure TKMNavMesh.Save(SaveStream: TKMemoryStream);
+var
+  I,K: Integer;
 begin
   SaveStream.Write('NavMesh');
+
+  SaveStream.Write(fNodeCount);
+  for I := 0 to fNodeCount - 1 do
+  begin
+    SaveStream.Write(fNodes[I].Loc);
+
+    SaveStream.Write(Integer(Length(fNodes[I].Nearby)));
+    for K := 0 to Length(fNodes[I].Nearby) - 1 do
+      SaveStream.Write(fNodes[I].Nearby[K]);
+
+    SaveStream.Write(fNodes[I].Owner, SizeOf(fNodes[I].Owner));
+  end;
+
+  SaveStream.Write(fPolyCount);
+  for I := 0 to fPolyCount - 1 do
+  begin
+    SaveStream.Write(fPolygons[I].Indices, SizeOf(fPolygons[I].Indices));
+    SaveStream.Write(fPolygons[I].NearbyCount);
+    SaveStream.Write(fPolygons[I].Nearby, SizeOf(fPolygons[I].Nearby));
+  end;
 end;
 
 
 procedure TKMNavMesh.Load(LoadStream: TKMemoryStream);
+var
+  I,K,H: Integer;
 begin
   LoadStream.ReadAssert('NavMesh');
+
+  LoadStream.Read(fNodeCount);
+  for I := 0 to fNodeCount - 1 do
+  begin
+    LoadStream.Read(fNodes[I].Loc);
+
+    LoadStream.Read(H);
+    SetLength(fNodes[I].Nearby, H);
+    for K := 0 to H - 1 do
+      LoadStream.Read(fNodes[I].Nearby[K]);
+
+    LoadStream.Read(fNodes[I].Owner, SizeOf(fNodes[I].Owner));
+  end;
+
+  LoadStream.Read(fPolyCount);
+  for I := 0 to fPolyCount - 1 do
+  begin
+    LoadStream.Read(fPolygons[I].Indices, SizeOf(fPolygons[I].Indices));
+    LoadStream.Read(fPolygons[I].NearbyCount);
+    LoadStream.Read(fPolygons[I].Nearby, SizeOf(fPolygons[I].Nearby));
+  end;
 end;
 
 

@@ -52,7 +52,7 @@ type
     fPlayerType: TPlayerType;
     fFlagColor: Cardinal;
     fCenterScreen: TKMPoint;
-    fAlliances: array[0..MAX_PLAYERS-1] of TAllianceType;
+    fAlliances: array [0..MAX_PLAYERS-1] of TAllianceType;
 
     function GetColorIndex: Byte;
 
