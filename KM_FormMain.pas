@@ -64,7 +64,7 @@ type
     Resources1: TMenuItem;
     HousesDat1: TMenuItem;
     GroupBox2: TGroupBox;
-    chkShowInfluence: TCheckBox;
+    chkShowOwnership: TCheckBox;
     chkShowNavMesh: TCheckBox;
     chkShowForest: TCheckBox;
     chkShowAvoid: TCheckBox;
@@ -492,7 +492,7 @@ begin
     OVERLAY_DEFENCES := chkShowDefences.Checked;
     OVERLAY_AVOID := chkShowAvoid.Checked;
     OVERLAY_FOREST := chkShowForest.Checked;
-    OVERLAY_INFLUENCES := chkShowInfluence.Checked;
+    OVERLAY_OWNERSHIP := chkShowOwnership.Checked;
     OVERLAY_NAVMESH := chkShowNavMesh.Checked;
 
     OWN_MARGIN := tbOwnMargin.Position;

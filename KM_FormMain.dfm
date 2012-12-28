@@ -227,12 +227,12 @@ object FormMain: TFormMain
         Height = 13
         Caption = 'Threshold'
       end
-      object chkShowInfluence: TCheckBox
+      object chkShowOwnership: TCheckBox
         Left = 8
         Top = 64
         Width = 97
         Height = 17
-        Caption = 'Show influences'
+        Caption = 'Show ownership'
         TabOrder = 0
         OnClick = ControlsUpdate
       end

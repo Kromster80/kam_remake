@@ -97,7 +97,8 @@ var
   HOUSE_BUILDING_STEP   :Single = 0;
   OVERLAY_NAVMESH       :Boolean = False; //Show navmesh
   OVERLAY_DEFENCES      :Boolean = False; //Show AI defence perimeters
-  OVERLAY_INFLUENCES    :Boolean = False; //Show influence maps
+  OVERLAY_INFLUENCE     :Boolean = False; //Show influence map
+  OVERLAY_OWNERSHIP     :Boolean = False; //Show ownerhip map
   OVERLAY_AVOID         :Boolean = False; //Show avoidance map
   OVERLAY_FOREST        :Boolean = False; //Show forest map
   {Stats}

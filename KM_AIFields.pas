@@ -16,15 +16,17 @@ type
     Influence: array of array of array of Byte;
     procedure InitInfluenceAvoid;
     procedure InitInfluenceForest;
-    procedure UpdateDirectInfluence;
-    procedure UpdateOwnershipInfluence;
+    procedure InitInfluenceOwnable;
+    procedure UpdateDirectInfluence(aIndex: TPlayerIndex);
+    procedure UpdateOwnershipInfluence(aIndex: TPlayerIndex);
   public
     //Common map of areas where building is undesired (around Store, Mines, Woodcutters)
     AvoidBuilding: array of array of Byte;
     //Areas of forests, needed only for initial Woodcutters placement and gets calculated once on mission start
     Forest: array of array of Byte; //0..255 is enough
+    Ownable: array of array of Boolean;
 
-    Ownership: array of array of array of SmallInt;
+    Ownership: array of array of array of Byte;
     //Tension: array of array of array of SmallInt;
 
     procedure AddAvoidBuilding(X,Y: Word; aRad: Byte);
@@ -72,6 +74,7 @@ const
   //Decay affects how much space AI needs to be able to expand
   //Values smaller than 3 start to block green AI on AcrossDesert too fast
   INFLUENCE_DECAY = 5;
+  INFLUENCE_DECAY_D = 7;
   INFLUENCE_ENEMY_DIV = 2;
 
 
@@ -105,17 +108,25 @@ end;
 
 
 procedure TKMInfluences.Init;
+var
+  I: Integer;
 begin
   fMapX := fTerrain.MapX;
   fMapY := fTerrain.MapY;
   SetLength(AvoidBuilding, fMapY, fMapX);
   SetLength(Forest, fMapY, fMapX);
+  SetLength(Ownable, fMapY, fMapX);
   SetLength(Influence, fPlayers.Count, fMapY, fMapX);
   SetLength(Ownership, fPlayers.Count, fMapY, fMapX);
   InitInfluenceAvoid;
   InitInfluenceForest;
-  UpdateDirectInfluence;
-  UpdateOwnershipInfluence;
+  InitInfluenceOwnable;
+
+  for I := 0 to fPlayers.Count - 1 do
+  begin
+    UpdateDirectInfluence(I);
+    UpdateOwnershipInfluence(I);
+  end;
 end;
 
 
@@ -186,85 +197,93 @@ begin
 end;
 
 
-procedure TKMInfluences.UpdateDirectInfluence;
+procedure TKMInfluences.InitInfluenceOwnable;
 var
-  L: TPlayerIndex;
+  I, K: Integer;
+begin
+  //Update forest influence map
+  for I := 1 to fMapY - 1 do
+  for K := 1 to fMapX - 1 do
+    Ownable[I,K] := (CanOwn in fTerrain.Land[I,K].Passability);
+end;
 
+
+procedure TKMInfluences.UpdateDirectInfluence(aIndex: TPlayerIndex);
   procedure DoFill(X,Y: Integer; V: Byte);
   begin
     if  InRange(Y, 1, fMapY - 1)
     and InRange(X, 1, fMapX - 1)
-    and (V > Influence[L, Y, X])
-    and (CanOwn in fTerrain.Land[Y,X].Passability) then
+    and (V > Influence[aIndex, Y, X])
+    and (Ownable[Y,X]) then
     begin
-      Influence[L, Y, X] := V;
+      Influence[aIndex, Y, X] := V;
       DoFill(X, Y-1, Max(V - INFLUENCE_DECAY, 0));
       DoFill(X-1, Y, Max(V - INFLUENCE_DECAY, 0));
       DoFill(X+1, Y, Max(V - INFLUENCE_DECAY, 0));
       DoFill(X, Y+1, Max(V - INFLUENCE_DECAY, 0));
+
       //We can get away with 4-tap fill, it looks fine already
+      DoFill(X-1, Y-1, Max(V - INFLUENCE_DECAY_D, 0));
+      DoFill(X+1, Y-1, Max(V - INFLUENCE_DECAY_D, 0));
+      DoFill(X-1, Y+1, Max(V - INFLUENCE_DECAY_D, 0));
+      DoFill(X+1, Y+1, Max(V - INFLUENCE_DECAY_D, 0));
     end;
   end;
 var
-  I, K, H: Integer;
+  I, K: Integer;
   P: TKMPoint;
   PlayerHouses: TKMHousesCollection;
 begin
   if not AI_GEN_INFLUENCE_MAPS then Exit;
   Assert(fTerrain <> nil);
 
-  L := fUpdatePlayerId; //Shortcut
-
-  //Update direct influence maps
+  //Clear
   for I := 1 to fMapY - 1 do
   for K := 1 to fMapX - 1 do
-    Influence[L, I, K] := 0;
+    Influence[aIndex, I, K] := 0;
 
   //Sync tile ownership
-  PlayerHouses := fPlayers[L].Houses;
+  PlayerHouses := fPlayers[aIndex].Houses;
   for I := 0 to PlayerHouses.Count - 1 do
   if PlayerHouses[I].HouseType <> ht_WatchTower then
   begin
     P := PlayerHouses[I].GetPosition;
-    Influence[L, P.Y, P.X] := 254;
+    Influence[aIndex, P.Y, P.X] := 254;
   end;
 
   //Expand influence with faloff
   for I := 1 to fMapY - 1 do
   for K := 1 to fMapX - 1 do
-  if Influence[L, I, K] = 254 then
-    DoFill(K,I,Influence[L, I, K]+1);
+  if Influence[aIndex, I, K] = 254 then
+    DoFill(K,I,Influence[aIndex, I, K]+1);
 end;
 
 
-procedure TKMInfluences.UpdateOwnershipInfluence;
+procedure TKMInfluences.UpdateOwnershipInfluence(aIndex: TPlayerIndex);
 var
   I, K, H: Integer;
-  L: TPlayerIndex;
   T: Integer;
 begin
   if not AI_GEN_INFLUENCE_MAPS then Exit;
   Assert(fTerrain <> nil);
-
-  L := fUpdatePlayerId; //Shortcut
 
   //Fill Ownership map
   //Ownerhip = influence of player - influences of his enemies
   for I := 1 to fMapY - 1 do
   for K := 1 to fMapX - 1 do
   begin
-    if Influence[L, I, K] <> 0 then
+    if Influence[aIndex, I, K] <> 0 then
     begin
-      T := Influence[L, I, K];
+      T := Influence[aIndex, I, K];
 
       for H := 0 to fPlayers.Count - 1 do
-      if (H <> L) and (fPlayers[L].Alliances[H] = at_Enemy) then
+      if (H <> aIndex) and (fPlayers[aIndex].Alliances[H] = at_Enemy) then
         T := T - Influence[H, I, K] div INFLUENCE_ENEMY_DIV;
 
-      Ownership[L, I, K] := Max(T, 0);
+      Ownership[aIndex, I, K] := Max(T, 0);
     end
     else
-      Ownership[L, I, K] := 0;
+      Ownership[aIndex, I, K] := 0;
   end;
 
   //Normalization is not working as intended,
@@ -306,7 +325,7 @@ end;
 procedure TKMInfluences.Save(SaveStream: TKMemoryStream);
 var
   PCount: Word;
-  I,K,H: Integer;
+  I,K: Integer;
 begin
   PCount := Length(Influence);
 
@@ -336,7 +355,7 @@ end;
 procedure TKMInfluences.Load(LoadStream: TKMemoryStream);
 var
   PCount: Word;
-  I,K,H: Integer;
+  I,K: Integer;
 begin
   LoadStream.ReadAssert('Influences');
 
@@ -368,12 +387,13 @@ end;
 
 procedure TKMInfluences.UpdateState(aTick: Cardinal);
 begin
-  if aTick mod 50 = 15 then
+  //Update one player every 15 sec
+  if aTick mod 150 = 15 then
   begin
     fUpdatePlayerId := (fUpdatePlayerId + 1) mod fPlayers.Count;
 
-    UpdateDirectInfluence;
-    UpdateOwnershipInfluence;
+    UpdateDirectInfluence(fUpdatePlayerId);
+    UpdateOwnershipInfluence(fUpdatePlayerId);
   end;
 end;
 
@@ -386,14 +406,27 @@ var
 begin
   if not AI_GEN_INFLUENCE_MAPS then Exit;
 
-  if OVERLAY_INFLUENCES then
+  if OVERLAY_INFLUENCE then
     for I := aRect.Top to aRect.Bottom do
     for K := aRect.Left to aRect.Right do
     begin
       Col := $80000000;
       J := GetBestOwner(K,I);
       if J <> PLAYER_NONE then
-        Col := (fPlayers[J].FlagColor and $FFFFFF) or (Byte(Max(Ownership[J,I,K],0)) shl 24);
+        Col := (fPlayers[J].FlagColor and $FFFFFF) or (Influence[J,I,K] shl 24);
+      fRenderAux.Quad(K, I, Col);
+    end;
+
+  if OVERLAY_OWNERSHIP then
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+    begin
+      Col := $80000000;
+      J := GetBestOwner(K,I);
+      if J <> PLAYER_NONE then
+        Col := (fPlayers[J].FlagColor and $FFFFFF)
+                or (Ownership[J,I,K] shl 24)
+                or ((Byte(InRange(Ownership[J,I,K], 96, 160)) * 255) shl 24);
       fRenderAux.Quad(K, I, Col);
     end;
 

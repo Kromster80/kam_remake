@@ -191,7 +191,7 @@ var
   Owner: TPlayerIndex;
   Group: TKMUnitGroup;
 begin
-  if OVERLAY_INFLUENCES then
+  if OVERLAY_OWNERSHIP then
   begin
     for I := 0 to fMapY - 1 do
     for K := 0 to fMapX - 1 do
