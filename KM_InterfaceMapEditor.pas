@@ -92,7 +92,8 @@ type
     procedure Town_DefenceChange(Sender: TObject);
     procedure Town_ScriptRefresh;
     procedure Town_ScriptChange(Sender: TObject);
-    procedure Unit_ButtonClick(Sender: TObject);
+    procedure Town_UnitChange(Sender: TObject);
+    procedure Town_UnitRefresh;
     procedure Unit_ArmyChange1(Sender: TObject); overload;
     procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
     procedure View_Passability(Sender: TObject);
@@ -471,7 +472,7 @@ begin
     Town_BuildRefresh
   else
   if aPage = Panel_Units then
-    //Unit_ButtonClick(GetSelectedUnit)
+    Town_UnitRefresh
   else
   if aPage = Panel_Script then
     Town_ScriptRefresh
@@ -904,18 +905,19 @@ begin
         Button_Citizen[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,8+(I div 5)*37,33,33,fResource.UnitDat[School_Order[I]].GUIIcon); //List of tiles 5x5
         Button_Citizen[I].Hint := fResource.UnitDat[School_Order[I]].UnitName;
         Button_Citizen[I].Tag := byte(School_Order[I]); //Returns unit ID
-        Button_Citizen[I].OnClick := Unit_ButtonClick;
+        Button_Citizen[I].OnClick := Town_UnitChange;
       end;
       Button_UnitCancel := TKMButtonFlat.Create(Panel_Units,((High(Button_Citizen)+1) mod 5)*37,8+(length(Button_Citizen) div 5)*37,33,33,340);
       Button_UnitCancel.Hint := fTextLibrary[TX_BUILD_CANCEL_HINT];
-      Button_UnitCancel.OnClick := Unit_ButtonClick;
+      Button_Warriors[I].Tag := 255; //Erase
+      Button_UnitCancel.OnClick := Town_UnitChange;
 
       for I := 0 to High(Button_Warriors) do
       begin
         Button_Warriors[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,124+(I div 5)*37,33,33, MapEd_Icon[I], rxGui);
         Button_Warriors[I].Hint := fResource.UnitDat[MapEd_Order[I]].UnitName;
         Button_Warriors[I].Tag := byte(MapEd_Order[I]); //Returns unit ID
-        Button_Warriors[I].OnClick := Unit_ButtonClick;
+        Button_Warriors[I].OnClick := Town_UnitChange;
       end;
 
       for I := 0 to High(Button_Animals) do
@@ -923,7 +925,7 @@ begin
         Button_Animals[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,240+(I div 5)*37,33,33, Animal_Icon[I], rxGui);
         Button_Animals[I].Hint := fResource.UnitDat[Animal_Order[I]].UnitName;
         Button_Animals[I].Tag := byte(Animal_Order[I]); //Returns animal ID
-        Button_Animals[I].OnClick := Unit_ButtonClick;
+        Button_Animals[I].OnClick := Town_UnitChange;
       end;
 
     //Town settings
@@ -2003,30 +2005,25 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Unit_ButtonClick(Sender: TObject);
-var I: Integer;
+procedure TKMapEdInterface.Town_UnitChange(Sender: TObject);
 begin
-  //Reset cursor and see if it needs to be changed
-  GameCursor.Mode := cmNone;
-  GameCursor.Tag1 := 0;
+  GameCursor.Mode := cmUnits;
+  GameCursor.Tag1 := Byte(TKMButtonFlat(Sender).Tag);
 
-  if Sender = nil then Exit;
+  Town_UnitRefresh;
+end;
 
-  //Release all buttons
+
+procedure TKMapEdInterface.Town_UnitRefresh;
+var
+  I: Integer;
+  B: TKMButtonFlat;
+begin
   for I := 1 to Panel_Units.ChildCount do
-    if Panel_Units.Childs[I] is TKMButtonFlat then
-      TKMButtonFlat(Panel_Units.Childs[I]).Down := False;
-
-  //Press the Sender button
-  TKMButtonFlat(Sender).Down := True;
-
-  if Button_UnitCancel.Down then
-    GameCursor.Mode := cmErase
-  else
-  if (TKMButtonFlat(Sender).Tag in [byte(UNIT_MIN)..byte(UNIT_MAX)]) then
+  if Panel_Units.Childs[I] is TKMButtonFlat then
   begin
-    GameCursor.Mode := cmUnits;
-    GameCursor.Tag1 := byte(TKMButtonFlat(Sender).Tag);
+    B := TKMButtonFlat(Panel_Units.Childs[I]);
+    B.Down := (GameCursor.Mode = cmUnits) and (GameCursor.Tag1 = B.Tag);
   end;
 end;
 
@@ -2807,9 +2804,9 @@ begin
       cmWine:      if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
       //cm_Wall:  if MyPlayer.CanAddFieldPlan(P, ft_Wall) then MyPlayer.AddField(P, ft_Wine);
       cmObjects:   if GameCursor.Tag1 = 255 then fTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
+      cmUnits:     if GameCursor.Tag1 = 255 then fPlayers.RemAnyUnit(P);
       cmErase:     case GetShownPage of
                       esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
-                      esp_Units:      fPlayers.RemAnyUnit(P);
                       esp_Buildings:  begin
                                         fPlayers.RemAnyHouse(P);
                                         if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
@@ -2902,7 +2899,10 @@ begin
       cmElevate,
       cmEqualize:; //handled in UpdateStateIdle
       cmObjects:  fTerrain.SetTree(P, GameCursor.Tag1);
-      cmUnits:    if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
+      cmUnits:    if GameCursor.Tag1 = 255 then
+                    fPlayers.RemAnyUnit(P)
+                  else
+                  if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                   begin //Check if we can really add a unit
                     if TUnitType(GameCursor.Tag1) in [CITIZEN_MIN..CITIZEN_MAX] then
                       MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, False)
@@ -2917,7 +2917,6 @@ begin
                   end;
       cmErase:    case GetShownPage of
                     esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
-                    esp_Units:      fPlayers.RemAnyUnit(P);
                     esp_Buildings:  begin
                                       fPlayers.RemAnyHouse(P);
                                       if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
@@ -2936,7 +2935,6 @@ begin
   Result := esp_Unknown;
   if Panel_Terrain.Visible then   Result := esp_Terrain;
   if Panel_Build.Visible then     Result := esp_Buildings;
-  if Panel_Units.Visible then     Result := esp_Units;
   if Panel_RevealFOW.Visible then Result := esp_Reveal;
 end;
 

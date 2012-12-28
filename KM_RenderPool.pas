@@ -1035,24 +1035,16 @@ begin
     cmErase:    case fGame.GameMode of
                   gmMapEd:
                     begin
-                      //With Units tab see if there's a unit below cursor
-                      if (fGame.MapEditorInterface.GetShownPage = esp_Units) then
-                      begin
-                        U := fTerrain.UnitsHitTest(P.X, P.Y);
-                        if U <> nil then
-                          AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,MyPlayer.FlagColor,true,true);
-                      end
+                      //With Buildings tab see if we can remove Fields or Houses
+                      if (fGame.MapEditorInterface.GetShownPage = esp_Buildings)
+                         and (    TileIsCornField(P)
+                               or TileIsWineField(P)
+                               or (Land[P.Y,P.X].TileOverlay=to_Road)
+                               or (fPlayers.HousesHitTest(P.X, P.Y) <> nil))
+                      then
+                        RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
                       else
-                        //With Buildings tab see if we can remove Fields or Houses
-                        if (fGame.MapEditorInterface.GetShownPage = esp_Buildings)
-                           and (    TileIsCornField(P)
-                                 or TileIsWineField(P)
-                                 or (Land[P.Y,P.X].TileOverlay=to_Road)
-                                 or (fPlayers.HousesHitTest(P.X, P.Y) <> nil))
-                        then
-                          RenderCursorWireQuad(P, $FFFFFF00) //Cyan quad
-                        else
-                          RenderCursorBuildIcon(P); //Red X
+                        RenderCursorBuildIcon(P); //Red X
                     end;
 
                   gmSingle, gmMulti, gmReplaySingle, gmReplayMulti:
@@ -1144,7 +1136,13 @@ begin
                     hsSquare: fRenderAux.SquareOnTerrain(round(F.X) - Rad, round(F.Y) - Rad, round(F.X + Rad), round(F.Y) + Rad, $00000000,  $FFFFFFFF);
                   end;
                 end;
-    cmUnits:    if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
+    cmUnits:    if (GameCursor.Mode = cmUnits) and (GameCursor.Tag1 = 255) then
+                begin
+                  U := fTerrain.UnitsHitTest(P.X, P.Y);
+                  if U <> nil then
+                    AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,P.X+UNIT_OFF_X,P.Y+UNIT_OFF_Y,MyPlayer.FlagColor,true,true);
+                end else
+                if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                   AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, MyPlayer.FlagColor, True)
                 else
                   RenderCursorBuildIcon(P); //Red X

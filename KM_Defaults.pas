@@ -267,7 +267,7 @@ type //Indexing should start from 1.
 
 type
   //Which MapEditor page is being shown
-  TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units, esp_Reveal);
+  TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Reveal);
 
   TKMissionMode = (mm_Normal, mm_Tactic);
 
