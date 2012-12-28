@@ -50,7 +50,7 @@ type
     fPad: Byte; //Force padding between sprites to avoid neighbour edge visibility
     procedure MakeGFX_BinPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
     procedure MakeGFX_StripPacking(aTexType: TTexFormat; aStartingIndex: Word; var BaseRAM, ColorRAM, TexCount: Cardinal);
-    procedure SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray);
+    procedure SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TKMCardinalArray);
   protected
     fRT: TRXType;
     fRXData: TRXData;
@@ -762,7 +762,7 @@ begin
 end;
 
 
-procedure TKMSpritePack.SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TCardinalArray);
+procedure TKMSpritePack.SaveTextureToPNG(aWidth, aHeight: Word; aFilename: string; const Data: TKMCardinalArray);
 var
   I, K: Word;
   T: Cardinal;

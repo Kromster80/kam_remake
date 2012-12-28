@@ -11,8 +11,8 @@ type
   private
     fGraphCount: Integer;
     fGraphCapacity: Integer;
-    fGraphHouses, fGraphCitizens, fGraphArmy: TCardinalArray;
-    fGraphGoods: array [WARE_MIN..WARE_MAX] of TCardinalArray;
+    fGraphHouses, fGraphCitizens, fGraphArmy: TKMCardinalArray;
+    fGraphGoods: array [WARE_MIN..WARE_MAX] of TKMCardinalArray;
     fHouseUnlocked: array [THouseType] of Boolean; //If building requirements performed
     Houses: array [THouseType] of packed record
       Planned,          //Houseplans were placed
@@ -37,7 +37,7 @@ type
       Consumed: Cardinal;
     end;
     fResourceRatios: array [1..4, 1..4]of Byte;
-    function GetGraphGoods(aWare: TresourceType): TCardinalArray;
+    function GetGraphGoods(aWare: TresourceType): TKMCardinalArray;
     function GetRatio(aRes: TResourceType; aHouse: THouseType): Byte;
     procedure SetRatio(aRes: TResourceType; aHouse: THouseType; aValue: Byte);
     procedure UpdateReqDone(aType: THouseType);
@@ -91,10 +91,10 @@ type
     function GetWeaponsProduced: Cardinal;
 
     property GraphCount: Integer read fGraphCount;
-    property GraphHouses: TCardinalArray read fGraphHouses;
-    property GraphCitizens: TCardinalArray read fGraphCitizens;
-    property GraphArmy: TCardinalArray read fGraphArmy;
-    property GraphGoods[aWare: TResourceType]: TCardinalArray read GetGraphGoods;
+    property GraphHouses: TKMCardinalArray read fGraphHouses;
+    property GraphCitizens: TKMCardinalArray read fGraphCitizens;
+    property GraphArmy: TKMCardinalArray read fGraphArmy;
+    property GraphGoods[aWare: TResourceType]: TKMCardinalArray read GetGraphGoods;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -544,7 +544,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetGraphGoods(aWare: TresourceType): TCardinalArray;
+function TKMPlayerStats.GetGraphGoods(aWare: TresourceType): TKMCardinalArray;
 begin
   Result := fGraphGoods[aWare];
 end;

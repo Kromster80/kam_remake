@@ -554,10 +554,10 @@ var
   TempGraphCount: Integer;
   TempGraphs:array[0..MAX_PLAYERS-1] of record
                                           Color: Cardinal;
-                                          G: TCardinalArray;
+                                          G: TKMCardinalArray;
                                         end;
 
-  procedure AddToTempGraph(aColor:Cardinal; aGraph:TCardinalArray);
+  procedure AddToTempGraph(aColor:Cardinal; aGraph:TKMCardinalArray);
   var I, ID: Integer;
   begin
     ID := -1;
@@ -582,7 +582,7 @@ var
 var
   I: Integer;
   R: TResourceType;
-  G: TCardinalArray;
+  G: TKMCardinalArray;
 begin
   fGameResultMsg := aMsg;
   case aMsg of
@@ -750,7 +750,7 @@ var
   Bests: array [0..9] of Cardinal;
   Totals: array [0..9] of Cardinal;
   R: TResourceType;
-  G: TCardinalArray;
+  G: TKMCardinalArray;
 begin
   fGameResultMsg := aMsg;
   case aMsg of

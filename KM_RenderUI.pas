@@ -17,7 +17,7 @@ type
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
-    procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
+    procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
     procedure WriteOutline      (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteShape        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
     procedure WriteText         (X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
@@ -343,7 +343,7 @@ begin
 end;
 
 
-procedure TRenderUI.WritePlot(PosX,PosY,SizeX,SizeY: SmallInt; aValues: TCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
+procedure TRenderUI.WritePlot(PosX,PosY,SizeX,SizeY: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
 var
   I: Integer;
 begin

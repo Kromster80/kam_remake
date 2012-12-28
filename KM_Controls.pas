@@ -940,7 +940,7 @@ type
                 Tag: Integer;
                 Color: TColor4;
                 Visible: Boolean;
-                Values: TCardinalArray;
+                Values: TKMCardinalArray;
               end;
 
   TKMGraph = class(TKMControl)
@@ -960,7 +960,7 @@ type
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
-    procedure AddLine(aTitle: string; aColor: TColor4; const aValues: TCardinalArray; aTag:Integer=-1);
+    procedure AddLine(aTitle: string; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
     property Caption: string read fCaption write fCaption;
     procedure Clear;
     procedure SetLineVisible(aLineID:Integer; aVisible:Boolean);
@@ -4233,7 +4233,7 @@ begin
 end;
 
 
-procedure TKMGraph.AddLine(aTitle: string; aColor: TColor4; const aValues: TCardinalArray; aTag:Integer=-1);
+procedure TKMGraph.AddLine(aTitle: string; aColor: TColor4; const aValues: TKMCardinalArray; aTag:Integer=-1);
 begin
   if fMaxLength = 0 then Exit;
 

@@ -3,7 +3,7 @@ unit KM_NavMesh;
 interface
 uses
   Classes, KromUtils, Math, SysUtils, Graphics, Delaunay,
-  KM_CommonClasses, KM_Defaults,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults,
   KM_Points, KM_PolySimplify;
 
 type
@@ -456,19 +456,44 @@ var
   AreaPolys: array of Byte;
   AreaEnemy: array [1..254] of Word;
 
-  procedure AddPoly(var aEdges: TKMEdgesArray; const aIndex: Integer);
+  function GetOwnershipArea(aOwner: TPlayerIndex): TKMWordArray;
+  var I,K: Integer;
   begin
-    AreaPolys[aIndex] := AP_SEED;
-    with fPolygons[aIndex] do
+    //Collect polys that are well within our ownership area
+    K := 0;
+    SetLength(Result, fPolyCount);
+
+    for I := 0 to fPolyCount - 1 do
+    with fPolygons[I] do
+    if ((fNodes[Indices[0]].Owner[aOwner] >= OWN_MARGIN)
+     or (fNodes[Indices[1]].Owner[aOwner] >= OWN_MARGIN)
+     or (fNodes[Indices[2]].Owner[aOwner] >= OWN_MARGIN))
+    and (fNodes[Indices[0]].Owner[aOwner] >= OWN_THRESHOLD)
+    and (fNodes[Indices[1]].Owner[aOwner] >= OWN_THRESHOLD)
+    and (fNodes[Indices[2]].Owner[aOwner] >= OWN_THRESHOLD)
+    and (GetBestOwner(Indices[0]) = aOwner)
+    and (GetBestOwner(Indices[1]) = aOwner)
+    and (GetBestOwner(Indices[2]) = aOwner) then
     begin
-      SetLength(aEdges.Nodes, aEdges.Count + 3);
-      aEdges.Nodes[aEdges.Count  , 0] := Indices[0];
-      aEdges.Nodes[aEdges.Count  , 1] := Indices[1];
-      aEdges.Nodes[aEdges.Count+1, 0] := Indices[1];
-      aEdges.Nodes[aEdges.Count+1, 1] := Indices[2];
-      aEdges.Nodes[aEdges.Count+2, 0] := Indices[2];
-      aEdges.Nodes[aEdges.Count+2, 1] := Indices[0];
-      Inc(aEdges.Count, 3);
+      Result[K] := I;
+      Inc(K);
+    end;
+    SetLength(Result, K);
+  end;
+
+  function ConvertPolysToEdges(aPolys: TKMWordArray): TKMEdgesArray;
+  var I: Integer;
+  begin
+    Result.Count := 0;
+    SetLength(Result.Nodes, Length(aPolys) * 3);
+    for I := 0 to High(aPolys) do
+    begin
+      Result.Nodes[I * 3 + 0, 0] := fPolygons[aPolys[I]].Indices[0];
+      Result.Nodes[I * 3 + 0, 1] := fPolygons[aPolys[I]].Indices[1];
+      Result.Nodes[I * 3 + 1, 0] := fPolygons[aPolys[I]].Indices[1];
+      Result.Nodes[I * 3 + 1, 1] := fPolygons[aPolys[I]].Indices[2];
+      Result.Nodes[I * 3 + 2, 0] := fPolygons[aPolys[I]].Indices[2];
+      Result.Nodes[I * 3 + 2, 1] := fPolygons[aPolys[I]].Indices[0];
     end;
   end;
 
@@ -557,26 +582,15 @@ var
 
 var
   I,K: Integer;
+  Polys: TKMWordArray;
   Edges: TKMEdgesArray;
 begin
   SetLength(AreaPolys, fPolyCount);
 
   //1. Get ownership area
-  //Collect polys that are well within our ownership area
-  Edges.Count := 0;
-  for I := 0 to fPolyCount - 1 do
-  with fPolygons[I] do
-  if ((fNodes[Indices[0]].Owner[aOwner] >= OWN_MARGIN)
-   or (fNodes[Indices[1]].Owner[aOwner] >= OWN_MARGIN)
-   or (fNodes[Indices[2]].Owner[aOwner] >= OWN_MARGIN))
-  and (fNodes[Indices[0]].Owner[aOwner] >= OWN_THRESHOLD)
-  and (fNodes[Indices[1]].Owner[aOwner] >= OWN_THRESHOLD)
-  and (fNodes[Indices[2]].Owner[aOwner] >= OWN_THRESHOLD)
-  and (GetBestOwner(Indices[0]) = aOwner)
-  and (GetBestOwner(Indices[1]) = aOwner)
-  and (GetBestOwner(Indices[2]) = aOwner) then
-    AddPoly(Edges, I);
+  Polys := GetOwnershipArea(aOwner);
 
+  Edges := ConvertPolysToEdges(Polys);
 
   //Obtain suboptimal outline of owned polys
   ConvertEdgesToOutline(Edges, aOutline1);
@@ -601,6 +615,7 @@ begin
     end;
 
   //if enemy influence < 128 then mark as isolated
+  SetLength(Polys)
   for I := 0 to fPolyCount - 1 do
   if (AreaPolys[I] <> AP_CLEAR)
   and (AreaPolys[I] <> AP_SEED)

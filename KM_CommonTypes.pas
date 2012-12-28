@@ -4,9 +4,9 @@ interface
 
 
 type
-  TWordArray = array of Word;
-  PWordArray = ^TWordArray;
-  TCardinalArray = array of Cardinal;
+  TKMWordArray = array of Word;
+  PKMWordArray = ^TKMWordArray;
+  TKMCardinalArray = array of Cardinal;
   TRGBArray = array of record R,G,B: Byte end;
 
   TEvent = procedure of object;

@@ -20,7 +20,7 @@ type
     //sources which do not have Terrain in them (TMissionParserPreview, Stream)
     fMapY: Word;
     fMapX: Word;
-    fBase: TCardinalArray; //Base terrain layer
+    fBase: TKMCardinalArray; //Base terrain layer
     fMapTex: TTexture;
     fWidthPOT: Word;
     fHeightPOT: Word;
