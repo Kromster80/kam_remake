@@ -53,7 +53,6 @@ type
     procedure Attacks_ListClick(Sender: TObject);
     procedure Attacks_ListDoubleClick(Sender: TObject);
     procedure Attacks_Refresh;
-    procedure Build_ButtonClick(Sender: TObject);
     procedure Formations_Show(Sender: TObject);
     procedure Formations_Close(Sender: TObject);
     procedure House_HealthChange(Sender: TObject; AButton: TMouseButton);
@@ -79,17 +78,24 @@ type
     procedure Player_ColorClick(Sender: TObject);
     procedure Player_RevealClick(Sender: TObject);
     procedure Terrain_BrushChange(Sender: TObject);
+    procedure Terrain_BrushRefresh;
     procedure Terrain_HeightChange(Sender: TObject);
+    procedure Terrain_HeightRefresh;
     procedure Terrain_TilesChange(Sender: TObject);
+    procedure Terrain_TilesSet(aIndex: Integer);
+    procedure Terrain_TilesRefresh(Sender: TObject);
     procedure Terrain_ObjectsChange(Sender: TObject);
-    procedure Unit_ButtonClick(Sender: TObject);
-    procedure Unit_ArmyChange1(Sender: TObject); overload;
-    procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
-    procedure View_Passability(Sender: TObject);
+    procedure Terrain_ObjectsRefresh(Sender: TObject);
+    procedure Town_BuildChange(Sender: TObject);
+    procedure Town_BuildRefresh;
     procedure Town_DefenceRefresh;
     procedure Town_DefenceChange(Sender: TObject);
     procedure Town_ScriptRefresh;
     procedure Town_ScriptChange(Sender: TObject);
+    procedure Unit_ButtonClick(Sender: TObject);
+    procedure Unit_ArmyChange1(Sender: TObject); overload;
+    procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
+    procedure View_Passability(Sender: TObject);
 
     procedure SwitchPage(Sender: TObject);
     procedure DisplayPage(aPage: TKMPanel);
@@ -339,33 +345,42 @@ begin
      ((Sender = Button_Main[3]) and Panel_Player.Visible) or
      ((Sender = Button_Main[4]) and Panel_Mission.Visible) or
      ((Sender = Button_Main[5]) and Panel_Menu.Visible) then
-     Sender := nil;
+    Sender := nil;
 
   //Reset shown item if user clicked on any of the main buttons
   if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
      (Sender=Button_Main[3])or(Sender=Button_Main[4])or
      (Sender=Button_Main[5])or
      (Sender=Button_Menu_Settings)or(Sender=Button_Menu_Quit) then
-  begin
     fPlayers.Selected := nil;
-  end;
 
   if (Sender = Button_Main[1]) or (Sender = Button_Terrain[ttBrush]) then
-    DisplayPage(Panel_Brushes)
-  else
+  begin
+    Terrain_BrushChange(BrushTable[0,0]);
+    DisplayPage(Panel_Brushes);
+  end else
   if (Sender = Button_Terrain[ttHeights]) then
-    DisplayPage(Panel_Heights)
-  else
+  begin
+    Terrain_HeightChange(HeightCircle);
+    Terrain_HeightChange(HeightElevate);
+    DisplayPage(Panel_Heights);
+  end else
   if (Sender = Button_Terrain[ttTile]) then
-    DisplayPage(Panel_Tiles)
-  else
+  begin
+    Terrain_TilesSet(fLastTile);
+    DisplayPage(Panel_Tiles);
+  end else
   if (Sender = Button_Terrain[ttObject]) then
-    DisplayPage(Panel_Objects)
-  else
+  begin
+    Terrain_ObjectsChange(ObjectsTable[fLastObject]);
+    DisplayPage(Panel_Objects);
+  end else
 
-  if (Sender = Button_Main[2])or(Sender = Button_Town[ttHouses]) then
-    DisplayPage(Panel_Build)
-  else
+  if (Sender = Button_Main[2]) or (Sender = Button_Town[ttHouses]) then
+  begin
+    Town_BuildRefresh;
+    DisplayPage(Panel_Build);
+  end else
   if (Sender = Button_Town[ttUnits]) then
     DisplayPage(Panel_Units)
   else
@@ -438,23 +453,22 @@ begin
   end;
 
   if aPage = Panel_Brushes then
-    Terrain_BrushChange(nil) //Select the default mode
+    Terrain_BrushRefresh
   else
   if aPage = Panel_Heights then
-  begin
-    Terrain_HeightChange(HeightElevate); //Select the default mode
-  end else
+    Terrain_HeightRefresh
+  else
   if aPage = Panel_Tiles then
   begin
     SetTileDirection(fTileDirection); //ensures tags are in allowed ranges
-    Terrain_TilesChange(TilesTable[fLastTile]);
+    Terrain_TilesRefresh(nil);
   end else
   if aPage = Panel_Objects then
-    Terrain_ObjectsChange(ObjectsTable[fLastObject])
+    Terrain_ObjectsRefresh(nil)
   else
 
   if aPage = Panel_Build then
-    Build_ButtonClick(Button_BuildRoad)
+    Town_BuildRefresh
   else
   if aPage = Panel_Units then
     //Unit_ButtonClick(GetSelectedUnit)
@@ -810,7 +824,7 @@ begin
       TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 50 + 4 + MAPED_TILES_Y * 32, 194, 20, sa_Horizontal, bsGame);
       TilesScroll.MaxValue := 256 div MAPED_TILES_Y - MAPED_TILES_X; // 32 - 6
       TilesScroll.Position := 0;
-      TilesScroll.OnChange := Terrain_TilesChange;
+      TilesScroll.OnChange := Terrain_TilesRefresh;
       for J := 0 to MAPED_TILES_Y - 1 do
       for K := 0 to MAPED_TILES_X - 1 do
       begin
@@ -821,15 +835,13 @@ begin
         TilesTable[J * MAPED_TILES_X + K].Hint := fTextLibrary[TX_MAPED_TERRAIN_TILES_MAIN_HINT];
       end;
 
-      Terrain_TilesChange(TilesScroll); //This ensures that the displayed images get updated the first time
-
     Panel_Objects := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Objects, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Objects', fnt_Outline, taCenter);
       ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 0, 295, TB_WIDTH, 20, sa_Horizontal, bsGame);
       ObjectsScroll.MinValue := 0;
       ObjectsScroll.MaxValue := fResource.MapElements.ValidCount div 3 - 2;
       ObjectsScroll.Position := 0;
-      ObjectsScroll.OnChange := Terrain_ObjectsChange;
+      ObjectsScroll.OnChange := Terrain_ObjectsRefresh;
       ObjectErase := TKMButtonFlat.Create(Panel_Objects, 0, 8,32,32,340);
       ObjectErase.Hint := fTextLibrary[TX_MAPED_TERRAIN_OBJECTS_REMOVE];
       for J := 0 to 2 do for K := 0 to 2 do
@@ -841,8 +853,6 @@ begin
       end;
       ObjectErase.Tag := 255; //no object
       ObjectErase.OnClick := Terrain_ObjectsChange;
-
-      Terrain_ObjectsChange(ObjectsScroll); //This ensures that the displayed images get updated the first time
 end;
 
 
@@ -869,10 +879,10 @@ begin
       Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 37,28,33,33,337);
       Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 74,28,33,33,336);
       Button_BuildCancel := TKMButtonFlat.Create(Panel_Build,148,28,33,33,340);
-      Button_BuildRoad.OnClick  := Build_ButtonClick;
-      Button_BuildField.OnClick := Build_ButtonClick;
-      Button_BuildWine.OnClick  := Build_ButtonClick;
-      Button_BuildCancel.OnClick:= Build_ButtonClick;
+      Button_BuildRoad.OnClick  := Town_BuildChange;
+      Button_BuildField.OnClick := Town_BuildChange;
+      Button_BuildWine.OnClick  := Town_BuildChange;
+      Button_BuildCancel.OnClick:= Town_BuildChange;
       Button_BuildRoad.Hint     := fTextLibrary[TX_BUILD_ROAD_HINT];
       Button_BuildField.Hint    := fTextLibrary[TX_BUILD_FIELD_HINT];
       Button_BuildWine.Hint     := fTextLibrary[TX_BUILD_WINE_HINT];
@@ -882,7 +892,7 @@ begin
       for I:=1 to GUI_HOUSE_COUNT do
         if GUIHouseOrder[I] <> ht_None then begin
           Button_Build[I]:=TKMButtonFlat.Create(Panel_Build, ((I-1) mod 5)*37,83+((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
-          Button_Build[I].OnClick:=Build_ButtonClick;
+          Button_Build[I].OnClick:=Town_BuildChange;
           Button_Build[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
         end;
 
@@ -1635,8 +1645,6 @@ end;
 
 
 procedure TKMapEdInterface.Terrain_BrushChange(Sender: TObject);
-var
-  I,K: Integer;
 begin
   GameCursor.Mode := cmBrush;
   GameCursor.MapEdSize := BrushSize.Position;
@@ -1651,6 +1659,14 @@ begin
   if Sender is TKMButtonFlat then
     GameCursor.Tag1 := TKMButtonFlat(Sender).Tag;
 
+  Terrain_BrushRefresh;
+end;
+
+
+procedure TKMapEdInterface.Terrain_BrushRefresh;
+var
+  I,K: Integer;
+begin
   BrushCircle.Down := (GameCursor.MapEdShape = hsCircle);
   BrushSquare.Down := (GameCursor.MapEdShape = hsSquare);
 
@@ -1668,34 +1684,60 @@ begin
   GameCursor.MapEdSpeed := HeightSpeed.Position;
 
   if Sender = HeightCircle then
-  begin
-    HeightCircle.Down := True;
-    HeightSquare.Down := False;
-    GameCursor.MapEdShape := hsCircle;
-  end else
+    GameCursor.MapEdShape := hsCircle
+  else
   if Sender = HeightSquare then
-  begin
-    HeightSquare.Down := True;
-    HeightCircle.Down := False;
-    GameCursor.MapEdShape := hsSquare;
-  end else
+    GameCursor.MapEdShape := hsSquare
+  else
   if Sender = HeightElevate then
-  begin
-    HeightElevate.Down := True;
-    HeightUnequalize.Down := False;
-    GameCursor.Mode := cmElevate;
-  end;
+    GameCursor.Mode := cmElevate
+  else
   if Sender = HeightUnequalize then
-  begin
-    HeightElevate.Down  := False;
-    HeightUnequalize.Down := True;
     GameCursor.Mode := cmEqualize;
-  end;
+
+  Terrain_HeightRefresh;
+end;
+
+
+procedure TKMapEdInterface.Terrain_HeightRefresh;
+begin
+  HeightCircle.Down := (GameCursor.MapEdShape = hsCircle);
+  HeightSquare.Down := (GameCursor.MapEdShape = hsSquare);
+
+  HeightElevate.Down := (GameCursor.Mode = cmElevate);
+  HeightUnequalize.Down := (GameCursor.Mode = cmEqualize);
 end;
 
 
 procedure TKMapEdInterface.Terrain_TilesChange(Sender: TObject);
+begin
+  if Sender = TilesRandom then
+    GameCursor.MapEdDir := 4 * Byte(TilesRandom.Checked); //Defined=0..3 or Random=4
 
+  if Sender is TKMButtonFlat then
+    Terrain_TilesSet(TKMButtonFlat(Sender).TexID);
+
+  Terrain_TilesRefresh(nil);
+end;
+
+
+procedure TKMapEdInterface.Terrain_TilesSet(aIndex: Integer);
+begin
+  if aIndex <> 0 then
+  begin
+    GameCursor.Mode := cmTiles;
+    GameCursor.Tag1 := aIndex - 1; //MapEdTileRemap is 1 based, tag is 0 based
+    if TilesRandom.Checked then
+      GameCursor.MapEdDir := 4;
+
+    fLastTile := aIndex;
+  end;
+
+  Terrain_TilesRefresh(nil);
+end;
+
+
+procedure TKMapEdInterface.Terrain_TilesRefresh(Sender: TObject);
   function GetTileIDFromTag(aTag: Byte): Byte;
   var X,Y,Tile: Byte;
   begin
@@ -1704,97 +1746,75 @@ procedure TKMapEdInterface.Terrain_TilesChange(Sender: TObject);
     Tile := (256 div MAPED_TILES_Y) * Y + X;
     Result := MapEdTileRemap[Tile + 1];
   end;
-
-var i,k,TileID:Integer;
+var
+  I,K,L: Integer;
+  TileID: Integer;
 begin
-  if Sender = TilesRandom then
-    GameCursor.MapEdDir := 4 * Byte(TilesRandom.Checked); //Defined=0..3 or Random=4
+  TilesRandom.Checked := (GameCursor.MapEdDir = 4);
 
-  if Sender = TilesScroll then //Shift tiles
-    for I := 0 to MAPED_TILES_Y - 1 do
-    for K := 0 to MAPED_TILES_X - 1 do
-    begin
-      if GetTileIDFromTag(K * MAPED_TILES_X + I) <> 0 then
-      begin
-        TilesTable[I * MAPED_TILES_X + K].TexID := GetTileIDFromTag(I * MAPED_TILES_X + K); //icons are in 2..9
-        TilesTable[I * MAPED_TILES_X + K].Enable;
-      end
-      else
-      begin
-        TilesTable[I * MAPED_TILES_X + K].TexID := 0;
-        TilesTable[I * MAPED_TILES_X + K].Disable;
-      end;
-      //If cursor has a tile then make sure its properly selected in table as well
-      if GameCursor.Mode = cmTiles then
-        TilesTable[I * MAPED_TILES_X + K].Down := (GameCursor.Tag1 + 1 = GetTileIDFromTag(I * MAPED_TILES_X + K));
-    end;
-  if Sender is TKMButtonFlat then
+  for I := 0 to MAPED_TILES_Y - 1 do
+  for K := 0 to MAPED_TILES_X - 1 do
   begin
-    //Release previous button
-    TilesTable[fLastTile].Down := False;
-
-    TileID := GetTileIDFromTag(TKMButtonFlat(Sender).Tag);
-    if TileID <> 0 then
-    begin
-      GameCursor.Mode := cmTiles;
-      GameCursor.Tag1 := TileID - 1; //MapEdTileRemap is 1 based, tag is 0 based
-      if TilesRandom.Checked then
-        GameCursor.MapEdDir := 4;
-
-      fLastTile := TKMButtonFlat(Sender).Tag;
-      TilesTable[fLastTile].Down := True;
-    end;
+    L := I * MAPED_TILES_X + K;
+    TileID := GetTileIDFromTag(L);
+    TilesTable[L].TexID := TileID;
+    TilesTable[L].Enabled := TileID <> 0;
+    //If cursor has a tile then make sure its properly selected in table as well
+    TilesTable[L].Down := (GameCursor.Mode = cmTiles) and (GameCursor.Tag1 = TileID - 1);
   end;
 end;
 
 
 procedure TKMapEdInterface.Terrain_ObjectsChange(Sender: TObject);
-var I, ObjID: Integer;
+var
+  ObjID: Integer;
+begin
+  ObjID := ObjectsScroll.Position * 3 + TKMButtonFlat(Sender).Tag; //0..n-1
+
+  //Skip indexes out of range
+  if not InRange(ObjID, 0, fResource.MapElements.ValidCount - 1)
+  and not (TKMButtonFlat(Sender).Tag = 255) then
+    Exit;
+
+  GameCursor.Mode := cmObjects;
+  if TKMButtonFlat(Sender).Tag = 255 then
+    //Erase
+    GameCursor.Tag1 := 255
+  else
+    //Object
+    GameCursor.Tag1 := fResource.MapElements.ValidToObject[ObjID]; //0..n-1
+
+  fLastObject := TKMButtonFlat(Sender).Tag;
+
+  Terrain_ObjectsRefresh(nil);
+end;
+
+
+procedure TKMapEdInterface.Terrain_ObjectsRefresh(Sender: TObject);
+var
+  I: Integer;
+  ObjID: Integer;
 begin
   for I := 0 to 8 do
-    ObjectsTable[i].Down := False;
-
-  ObjectErase.Down := False;
-
-  if Sender = ObjectsScroll then
   begin
-    for I := 0 to 8 do
+    ObjID := ObjectsScroll.Position * 3 + I;
+    if ObjID < fResource.MapElements.ValidCount then
     begin
-      ObjID := ObjectsScroll.Position * 3 + I;
-      if ObjID < fResource.MapElements.ValidCount then
-      begin
-        ObjectsTable[I].TexID := MapElem[fResource.MapElements.ValidToObject[ObjID]].Anim.Step[1] + 1;
-        ObjectsTable[I].Caption := IntToStr(ObjID);
-        ObjectsTable[I].Enable;
-      end
-      else
-      begin
-        ObjectsTable[I].TexID := 0;
-        ObjectsTable[I].Caption := '';
-        ObjectsTable[I].Disable;
-      end;
-      ObjectsTable[I].Down := ObjID = fResource.MapElements.ObjectToValid[GameCursor.Tag1]; //Mark the selected one using reverse lookup
-    end;
-    ObjectErase.Down := (GameCursor.Tag1 = 255); //or delete button
-  end;
-
-  if Sender is TKMButtonFlat then
-  begin
-    ObjID := ObjectsScroll.Position * 3 + TKMButtonFlat(Sender).Tag; //0..n-1
-
-    if (not InRange(ObjID, 0, fResource.MapElements.ValidCount - 1))
-    and not (TKMButtonFlat(Sender).Tag = 255) then
-      Exit; //Don't let them click if it is out of range
-
-    GameCursor.Mode := cmObjects;
-    if TKMButtonFlat(Sender).Tag = 255 then
-      GameCursor.Tag1 := 255 //erase object
+      ObjectsTable[I].TexID := MapElem[fResource.MapElements.ValidToObject[ObjID]].Anim.Step[1] + 1;
+      ObjectsTable[I].Caption := IntToStr(ObjID);
+      ObjectsTable[I].Enable;
+    end
     else
-      GameCursor.Tag1 := fResource.MapElements.ValidToObject[ObjID]; //0..n-1
-    for I := 0 to 8 do
-      ObjectsTable[I].Down := (Sender = ObjectsTable[I]); //Mark the selected one
-    ObjectErase.Down := (Sender = ObjectErase); //or delete button
+    begin
+      ObjectsTable[I].TexID := 0;
+      ObjectsTable[I].Caption := '';
+      ObjectsTable[I].Disable;
+    end;
+    //Mark the selected one using reverse lookup
+    ObjectsTable[I].Down := (GameCursor.Mode = cmObjects) and (ObjID = fResource.MapElements.ObjectToValid[GameCursor.Tag1]);
   end;
+
+  ObjectErase.Down := (GameCursor.Mode = cmObjects) and (GameCursor.Tag1 = 255); //or delete button
 end;
 
 
@@ -1933,31 +1953,23 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Build_ButtonClick(Sender: TObject);
+procedure TKMapEdInterface.Town_BuildChange(Sender: TObject);
 var I: Integer;
 begin
-  //Release all buttons
-  for I := 1 to Panel_Build.ChildCount do
-    if Panel_Build.Childs[I] is TKMButtonFlat then
-      TKMButtonFlat(Panel_Build.Childs[I]).Down := False;
-
-  //Press the button
-  TKMButtonFlat(Sender).Down := True;
-
   //Reset cursor and see if it needs to be changed
   GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
 
-  if Button_BuildCancel.Down then
+  if Sender = Button_BuildCancel then
     GameCursor.Mode := cmErase
   else
-  if Button_BuildRoad.Down then
+  if Sender = Button_BuildRoad then
     GameCursor.Mode := cmRoad
   else
-  if Button_BuildField.Down then
+  if Sender = Button_BuildField then
     GameCursor.Mode := cmField
   else
-  if Button_BuildWine.Down then
+  if Sender = Button_BuildWine then
     GameCursor.Mode := cmWine
   else
   //if Button_BuildWall.Down then
@@ -1965,10 +1977,29 @@ begin
   //else
   for I := 1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[I] <> ht_None then
-  if Button_Build[I].Down then begin
-     GameCursor.Mode := cmHouses;
-     GameCursor.Tag1 := Byte(GUIHouseOrder[I]);
+  if Sender = Button_Build[I] then
+  begin
+    GameCursor.Mode := cmHouses;
+    GameCursor.Tag1 := Byte(GUIHouseOrder[I]);
   end;
+
+  Town_BuildRefresh;
+end;
+
+
+procedure TKMapEdInterface.Town_BuildRefresh;
+var
+  I: Integer;
+begin
+  Button_BuildCancel.Down := (GameCursor.Mode = cmErase);
+  Button_BuildRoad.Down   := (GameCursor.Mode = cmRoad);
+  Button_BuildField.Down  := (GameCursor.Mode = cmField);
+  Button_BuildWine.Down   := (GameCursor.Mode = cmWine);
+  //Button_BuildWall.Down := (GameCursor.Mode = cm_Wall);
+
+  for I := 1 to GUI_HOUSE_COUNT do
+  if GUIHouseOrder[I] <> ht_None then
+    Button_Build[I].Down := (GameCursor.Mode = cmHouses) and (GameCursor.Tag1 = Byte(GUIHouseOrder[I]));
 end;
 
 
@@ -2020,7 +2051,7 @@ var
 begin
   if Sender = nil then
   begin
-    SwitchPage(nil);
+    DisplayPage(nil);
     exit;
   end;
 
@@ -2057,20 +2088,22 @@ begin
   end;
 
   case Sender.HouseType of
-    ht_Store: begin
-          House_StoreRefresh(nil);
-          SwitchPage(Panel_HouseStore);
-          House_StoreSelectWare(Button_Store[fStorehouseItem]); //Reselect the ware so the display is updated
-        end;
-
-    ht_Barracks: begin
-          House_BarracksRefresh(nil);
-          Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
-          SwitchPage(Panel_HouseBarracks);
-          House_BarracksSelectWare(Button_Barracks[fBarracksItem]); //Reselect the ware so the display is updated
-        end;
+    ht_Store:     begin
+                    House_StoreRefresh(nil);
+                    //Reselect the ware so the display is updated
+                    House_StoreSelectWare(Button_Store[fStorehouseItem]);
+                    DisplayPage(Panel_HouseStore);
+                  end;
+    ht_Barracks:  begin
+                    House_BarracksRefresh(nil);
+                    //In the barrack the recruit icon is always enabled
+                    Image_House_Worker.Enable;
+                    //Reselect the ware so the display is updated
+                    House_BarracksSelectWare(Button_Barracks[fBarracksItem]);
+                    DisplayPage(Panel_HouseBarracks);
+                  end;
     ht_TownHall:;
-    else SwitchPage(Panel_House);
+    else          DisplayPage(Panel_House);
   end;
 end;
 
@@ -2079,13 +2112,13 @@ procedure TKMapEdInterface.ShowUnitInfo(Sender: TKMUnit);
 begin
   if Sender = nil then
   begin
-    SwitchPage(nil);
+    DisplayPage(nil);
     Exit;
   end;
 
   SetActivePlayer(Sender.Owner);
 
-  SwitchPage(Panel_Unit);
+  DisplayPage(Panel_Unit);
   Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].UnitName;
   Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := fPlayers[Sender.Owner].FlagColor;
@@ -2100,13 +2133,13 @@ procedure TKMapEdInterface.ShowGroupInfo(Sender: TKMUnitGroup);
 begin
   if (Sender = nil) or Sender.IsDead then
   begin
-    SwitchPage(nil);
+    DisplayPage(nil);
     Exit;
   end;
 
   SetActivePlayer(Sender.Owner);
 
-  SwitchPage(Panel_Unit);
+  DisplayPage(Panel_Unit);
   Label_UnitName.Caption := fResource.UnitDat[Sender.UnitType].UnitName;
   Image_UnitPic.TexID := fResource.UnitDat[Sender.UnitType].GUIScroll;
   Image_UnitPic.FlagColor := fPlayers[Sender.Owner].FlagColor;
@@ -2126,7 +2159,7 @@ begin
 
   if (aMarker.MarkerType = mtNone) or (aMarker.Owner = PLAYER_NONE) or (aMarker.Index = -1) then
   begin
-    SwitchPage(nil);
+    DisplayPage(nil);
     Exit;
   end;
 
@@ -2139,12 +2172,12 @@ begin
                     DropList_DefenceGroup.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].GroupType);
                     DropList_DefenceType.ItemIndex := Byte(fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].DefenceType);
                     TrackBar_DefenceRad.Position := fPlayers[aMarker.Owner].AI.General.DefencePositions[aMarker.Index].Radius;
-                    SwitchPage(Panel_MarkerDefence);
+                    DisplayPage(Panel_MarkerDefence);
                   end;
     mtRevealFOW:  begin
                     Label_MarkerType.Caption := 'Reveal FOW';
                     TrackBar_RevealSize.Position := fGame.MapEditor.Revealers[aMarker.Owner].Tag[aMarker.Index];
-                    SwitchPage(Panel_MarkerReveal);
+                    DisplayPage(Panel_MarkerReveal);
                   end;
   end;
 end;
@@ -2864,7 +2897,7 @@ begin
       cmHouses:   if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
                   begin
                     MyPlayer.AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
-                    if not(ssShift in Shift) then Build_ButtonClick(Button_BuildRoad);
+                    if not(ssShift in Shift) then Town_BuildChange(Button_BuildRoad);
                   end;
       cmElevate,
       cmEqualize:; //handled in UpdateStateIdle

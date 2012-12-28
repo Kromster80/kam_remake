@@ -2862,7 +2862,7 @@ begin
   begin
     MessageLog_Update;
     fMessageLogUnread := 0;
-    Label_MessageLogUnread.Caption := IntToStr(fMessageLogUnread);
+    Label_MessageLogUnread.Hide;
 
     Allies_Close(nil);
     Chat_Close(nil); //Removes focus from Edit_Text
@@ -2907,7 +2907,7 @@ begin
     Inc(fMessageLogUnread);
   end;
 
-  Label_MessageLogUnread.Caption := IntToStr(fMessageLogUnread);
+  Label_MessageLogUnread.Caption := IfThen(fMessageLogUnread > 0, IntToStr(fMessageLogUnread));
 end;
 
 
@@ -4092,9 +4092,9 @@ begin
   Label_MPChatUnread.Visible := fMultiplayer and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
-  Label_MessageLogUnread.Visible := (Label_MessageLogUnread.Caption <> '') and not (aTickCount mod 10 < 5);
 
   MessageLog_Update;
+  Label_MessageLogUnread.Visible := (Label_MessageLogUnread.Caption <> '') and not (aTickCount mod 10 < 5);
 
   //Update info on awaited players
   if Panel_NetWait.Visible then
