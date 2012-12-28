@@ -349,6 +349,9 @@ begin
 
   for K := 0 to fMapY - 1 do
     SaveStream.Write(Forest[K,0], fMapX * SizeOf(Forest[0,0]));
+
+  for K := 0 to fMapY - 1 do
+    SaveStream.Write(Ownable[K,0], fMapX * SizeOf(Ownable[0,0]));
 end;
 
 
@@ -368,6 +371,7 @@ begin
   SetLength(Ownership, PCount, fMapY, fMapX);
   SetLength(AvoidBuilding, fMapY, fMapX);
   SetLength(Forest, fMapY, fMapX);
+  SetLength(Ownable, fMapY, fMapX);
 
   for I := 0 to PCount - 1 do
     for K := 0 to fMapY - 1 do
@@ -382,6 +386,9 @@ begin
 
   for K := 0 to fMapY - 1 do
     LoadStream.Read(Forest[K,0], fMapX * SizeOf(Forest[0,0]));
+
+  for K := 0 to fMapY - 1 do
+    LoadStream.Read(Ownable[K,0], fMapX * SizeOf(Ownable[0,0]));
 end;
 
 
