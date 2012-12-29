@@ -260,7 +260,7 @@ begin
 
   fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits];
 
-  //C
+  //Create local controls (unparented) that we will use to render info
   Label_MatAmount := TKMLabel.Create(nil, 0, 0, '', fnt_Metal, taCenter);
   Shape_MatAmount := TKMShape.Create(nil, 0, 0, 80, 20);
   Shape_MatAmount.LineWidth := 2;
