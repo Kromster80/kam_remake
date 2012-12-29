@@ -731,6 +731,13 @@ const
   MIN_RESOLUTION_HEIGHT = 576;
 
 
+type
+  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW);  //Enum representing mapEditor visible layers
+  TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
+
+  TPaintLayer = (plTerrain, plObjects, plCursors, plUI);
+
+
 //Record storing resolution and refresh rate
 type
   TScreenRes = record

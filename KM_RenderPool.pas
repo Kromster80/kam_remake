@@ -5,7 +5,8 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
-  KM_Defaults, KM_CommonClasses, KM_Pics, KM_Render, KM_RenderTerrain, KM_ResourceSprites, KM_Points, KM_Terrain, KM_MapEditor;
+  KM_Defaults, KM_CommonClasses, KM_Pics, KM_Render,
+  KM_RenderTerrain, KM_ResourceSprites, KM_Points, KM_Terrain;
 
 type
   TRenderList = class
@@ -62,7 +63,6 @@ type
 
     //Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderCursors;
-    procedure RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderCursorWireQuad(P: TKMPoint; Col: TColor4);
     procedure RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
   public
@@ -86,6 +86,7 @@ type
     procedure AddUnitFlag(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; UnitAnim, FlagAnim: Integer; pX,pY: Single; FlagColor: TColor4);
     procedure AddUnitWithDefaultArm(aUnit: TUnitType; aAct: TUnitActionType; aDir: TKMDirection; StepID: Integer; pX,pY: Single; FlagColor: TColor4; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
+    procedure RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK; aFlagColor: TColor4 = $FFFFFFFF);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
     procedure RenderObjectOrQuad(aIndex: Byte; AnimStep,pX,pY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
 
@@ -877,7 +878,7 @@ begin
     RenderHouseOutline;
 
   if fGame.IsMapEditor then
-    fGame.MapEditor.Paint;
+    fGame.MapEditor.Paint(plTerrain);
 
   if fAIFields <> nil then
     fAIFields.Paint(Rect);
@@ -1006,20 +1007,7 @@ begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
 
   if fGame.IsMapEditor then
-  begin
-    if mlDefences in fGame.MapEditor.VisibleLayers then
-    for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
-      begin
-        PD := fPlayers[I].AI.General.DefencePositions[K].Position;
-        RenderCursorBuildIcon(PD.Loc, 510 + Byte(PD.Dir), fPlayers[I].FlagColor);
-      end;
-
-    if mlRevealFOW in fGame.MapEditor.VisibleLayers then
-    for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fGame.MapEditor.Revealers[I].Count - 1 do
-        RenderCursorBuildIcon(fGame.MapEditor.Revealers[I][K], 394, fPlayers[I].FlagColor);
-  end;
+    fGame.MapEditor.Paint(plCursors);
 
   P := GameCursor.Cell;
   F := GameCursor.Float;

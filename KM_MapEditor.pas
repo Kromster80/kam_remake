@@ -2,7 +2,7 @@ unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units, KM_RenderPool;
 
 
 type
@@ -18,8 +18,6 @@ const
   );
 
 type
-  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW);  //Enum representing mapEditor visible layers
-  TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
   TMarkerType = (mtNone, mtDefence, mtRevealFOW);
 
@@ -65,7 +63,7 @@ type
     property VisibleLayers: TMapEdLayerSet read fVisibleLayers write fVisibleLayers;
     function HitTest(X,Y: Integer): TKMMapEdMarker;
     procedure Update;
-    procedure Paint;
+    procedure Paint(aLayer: TPaintLayer);
   end;
 
 
@@ -328,26 +326,40 @@ begin
 end;
 
 
-procedure TKMMapEditor.Paint;
-var I, K: Integer; MapLoc: TKMPoint;
+procedure TKMMapEditor.Paint(aLayer: TPaintLayer);
+var
+  I, K: Integer;
+  Loc: TKMPoint;
+  LocDir: TKMPointDir;
 begin
   if mlDefences in fVisibleLayers then
+  for I := 0 to fPlayers.Count - 1 do
+  for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
   begin
-    for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
-      begin
-        MapLoc := fPlayers[I].AI.General.DefencePositions[K].Position.Loc;
-        fRenderAux.CircleOnTerrain(MapLoc.X, MapLoc.Y, fPlayers[I].AI.General.DefencePositions[K].Radius, $20FF8000, $FFFF8000);
-      end;
+    LocDir := fPlayers[I].AI.General.DefencePositions[K].Position;
+    case aLayer of
+      plTerrain:  fRenderAux.CircleOnTerrain(LocDir.Loc.X, LocDir.Loc.Y,
+                               fPlayers[I].AI.General.DefencePositions[K].Radius,
+                               fPlayers[I].FlagColor AND $20FFFF80,
+                               fPlayers[I].FlagColor);
+      plCursors:  fRenderPool.RenderCursorBuildIcon(LocDir.Loc,
+                      510 + Byte(LocDir.Dir), fPlayers[I].FlagColor);
+    end;
   end;
+
   if mlRevealFOW in fVisibleLayers then
+  for I := 0 to fPlayers.Count - 1 do
+  for K := 0 to fRevealers[I].Count - 1 do
   begin
-    for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fRevealers[I].Count - 1 do
-      begin
-        MapLoc := fRevealers[I][K];
-        fRenderAux.CircleOnTerrain(MapLoc.X, MapLoc.Y, fRevealers[I].Tag[K], $20FFFFFF, $FFFFFFFF);
-      end;
+    Loc := fRevealers[I][K];
+    case aLayer of
+      plTerrain:  fRenderAux.CircleOnTerrain(Loc.X, Loc.Y,
+                                           fRevealers[I].Tag[K],
+                                           fPlayers[I].FlagColor AND $20FFFFFF,
+                                           fPlayers[I].FlagColor);
+      plCursors:  fRenderPool.RenderCursorBuildIcon(Loc,
+                      394, fPlayers[I].FlagColor);
+    end;
   end;
 end;
 
