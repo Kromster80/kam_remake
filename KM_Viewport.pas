@@ -15,7 +15,7 @@ type
     PrevScrollAdv: array [1..24] of Single;
     PrevScrollPos: Byte;
     fViewportClip: TPoint;
-    fViewRect: TRect;
+    fViewRect: TKMRect;
     fZoom: Single;
     function GetPosition: TKMPointF;
     procedure SetPosition(Value: TKMPointF);
@@ -27,7 +27,7 @@ type
     property Position: TKMPointF read GetPosition write SetPosition;
     property Scrolling: Boolean read fScrolling;
     property ViewportClip: TPoint read fViewportClip;
-    property ViewRect: TRect read fViewRect;
+    property ViewRect: TKMRect read fViewRect;
     property Zoom: Single read fZoom write SetZoom;
 
     procedure ResetZoom;

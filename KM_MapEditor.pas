@@ -2,7 +2,7 @@ unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units, KM_RenderPool;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units, KM_RenderPool, KM_Controls;
 
 
 type
@@ -55,6 +55,9 @@ type
     fRevealers: array [0..MAX_PLAYERS-1] of TKMPointTagList;
     fVisibleLayers: TMapEdLayerSet;
     function GetRevealer(aIndex: Byte): TKMPointTagList;
+  protected
+    Label_MatAmount: TKMLabel;
+    Shape_MatAmount: TKMShape;
   public
     constructor Create;
     destructor Destroy; override;
@@ -68,7 +71,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_RenderAux, KM_AIFields;
+uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_AIFields;
 
 
 { TKMDeposits }
@@ -257,6 +260,13 @@ begin
 
   fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits];
 
+  //C
+  Label_MatAmount := TKMLabel.Create(nil, 0, 0, '', fnt_Metal, taCenter);
+  Shape_MatAmount := TKMShape.Create(nil, 0, 0, 80, 20);
+  Shape_MatAmount.LineWidth := 2;
+  Shape_MatAmount.LineColor := $F000FF00;
+  Shape_MatAmount.FillColor := $80000000;
+
   for I := Low(fRevealers) to High(fRevealers) do
     fRevealers[I] := TKMPointTagList.Create;
 end;
@@ -329,9 +339,43 @@ end;
 procedure TKMMapEditor.Paint(aLayer: TPaintLayer);
 var
   I, K: Integer;
+  R: TRawDeposit;
   Loc: TKMPoint;
+  LocF: TKMPointF;
+  ScreenLoc: TKMPointI;
   LocDir: TKMPointDir;
 begin
+  if aLayer = plUI then
+  if mlDeposits in fVisibleLayers then
+  begin
+    for R := Low(TRawDeposit) to High(TRawDeposit) do
+      for I := 0 to fDeposits.Count[R] - 1 do
+      //Ignore water areas with 0 fish in them
+      if fDeposits.Amount[R, I] > 0 then
+      begin
+        Label_MatAmount.Caption := IntToStr(fDeposits.Amount[R, I]);
+
+        LocF := fTerrain.FlatToHeight(fDeposits.Location[R, I]);
+        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
+
+        //At extreme zoom coords may become out of range of SmallInt used in controls painting
+        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
+        begin
+          //Paint the background
+          Shape_MatAmount.Width := 10 + 10 * Length(Label_MatAmount.Caption);
+          Shape_MatAmount.Left := ScreenLoc.X - Shape_MatAmount.Width div 2;
+          Shape_MatAmount.Top := ScreenLoc.Y - 10;
+          Shape_MatAmount.LineColor := DEPOSIT_COLORS[R];
+          Shape_MatAmount.Paint;
+          //Paint the label on top of the background
+          Label_MatAmount.Left := ScreenLoc.X;
+          Label_MatAmount.Top := ScreenLoc.Y - 7;
+          Label_MatAmount.Paint;
+        end;
+      end;
+  end;
+
+
   if mlDefences in fVisibleLayers then
   for I := 0 to fPlayers.Count - 1 do
   for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do

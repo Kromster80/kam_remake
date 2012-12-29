@@ -116,8 +116,6 @@ type
       Button_PlayerSelect: array [0..MAX_PLAYERS-1] of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint: TKMLabel;
       Bevel_HintBG: TKMBevel;
-      Label_MatAmount: TKMLabel;
-      Shape_MatAmount: TKMShape;
       Label_DefenceID: TKMLabel;
       Label_DefencePos: TKMLabel;
       Shape_DefencePos: TKMShape;
@@ -615,12 +613,6 @@ begin
 
   //Parent Page for whole toolbar in-game
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
-
-    Label_MatAmount := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Metal, taCenter);
-    Shape_MatAmount := TKMShape.Create(Panel_Main,0,0,80,20);
-    Shape_MatAmount.LineWidth := 2;
-    Shape_MatAmount.LineColor := $F000FF00;
-    Shape_MatAmount.FillColor := $80000000;
 
     Label_DefenceID := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Metal, taCenter);
     Label_DefencePos := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Metal, taCenter);
@@ -1472,40 +1464,9 @@ var
   R: TRawDeposit;
   Depo: TKMDeposits;
 begin
-  if mlDeposits in fGame.MapEditor.VisibleLayers then
-  begin
-    Label_MatAmount.Show; //Only make it visible while we need it
-    Shape_MatAmount.Show;
-    Depo := fGame.MapEditor.Deposits;
-    for R := Low(TRawDeposit) to High(TRawDeposit) do
-      for I := 0 to Depo.Count[R] - 1 do
-      //Ignore water areas with 0 fish in them
-      if Depo.Amount[R, I] > 0 then
-      begin
-        Label_MatAmount.Caption := IntToStr(Depo.Amount[R, I]);
+  fGame.MapEditor.Paint(plUI);
 
-        MapLoc := fTerrain.FlatToHeight(Depo.Location[R, I]);
-        ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
-
-        //At extreme zoom coords may become out of range of SmallInt used in controls painting
-        if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
-        begin
-          //Paint the background
-          Shape_MatAmount.Width := 10 + 10 * Length(Label_MatAmount.Caption);
-          Shape_MatAmount.Left := ScreenLoc.X - Shape_MatAmount.Width div 2;
-          Shape_MatAmount.Top := ScreenLoc.Y - 10;
-          Shape_MatAmount.LineColor := DEPOSIT_COLORS[R];
-          Shape_MatAmount.Paint;
-          //Paint the label on top of the background
-          Label_MatAmount.Left := ScreenLoc.X;
-          Label_MatAmount.Top := ScreenLoc.Y - 7;
-          Label_MatAmount.Paint;
-        end;
-      end;
-    Label_MatAmount.Hide; //Only make it visible while we need it
-    Shape_MatAmount.Hide;
-  end;
-
+  //todo: Move to MapEd unit (so that all MapEd render is in one place)
   if mlDefences in fGame.MapEditor.VisibleLayers then
   begin
     //Only make it visible while we need it
