@@ -46,9 +46,9 @@ begin
 end;
 
 begin
-  if States.GameTime = 30 then Actions.ShowMsg(0,1);
-  if States.GameTime = 160 then Actions.ShowMsg(0,2);
-  if States.GameTime = 340 then Actions.ShowMsg(0,3);
+  if States.GameTime = 30 then Actions.ShowMsg(0, 1);
+  if States.GameTime = 160 then Actions.ShowMsg(0, 2);
+  if States.GameTime = 340 then Actions.ShowMsg(0, 3);
 
-  if States.GameTime = NextTime then Actions.ShowMsg(0,NextMsg);
+  if States.GameTime = NextTime then Actions.ShowMsg(0, NextMsg);
 end.

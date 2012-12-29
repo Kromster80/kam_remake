@@ -12,6 +12,7 @@ uses
   GUITestRunner,
   TextTestRunner,
   TestKM_AIFields in 'TestKM_AIFields.pas',
+  TestKM_Scripting in 'TestKM_Scripting.pas',
   TestKM_Terrain in 'TestKM_Terrain.pas';
 
 {$R *.RES}
