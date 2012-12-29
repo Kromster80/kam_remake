@@ -904,19 +904,19 @@ begin
       begin
         Button_Citizen[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,8+(I div 5)*37,33,33,fResource.UnitDat[School_Order[I]].GUIIcon); //List of tiles 5x5
         Button_Citizen[I].Hint := fResource.UnitDat[School_Order[I]].UnitName;
-        Button_Citizen[I].Tag := byte(School_Order[I]); //Returns unit ID
+        Button_Citizen[I].Tag := Byte(School_Order[I]); //Returns unit ID
         Button_Citizen[I].OnClick := Town_UnitChange;
       end;
       Button_UnitCancel := TKMButtonFlat.Create(Panel_Units,((High(Button_Citizen)+1) mod 5)*37,8+(length(Button_Citizen) div 5)*37,33,33,340);
       Button_UnitCancel.Hint := fTextLibrary[TX_BUILD_CANCEL_HINT];
-      Button_Warriors[I].Tag := 255; //Erase
+      Button_UnitCancel.Tag := 255; //Erase
       Button_UnitCancel.OnClick := Town_UnitChange;
 
       for I := 0 to High(Button_Warriors) do
       begin
         Button_Warriors[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,124+(I div 5)*37,33,33, MapEd_Icon[I], rxGui);
         Button_Warriors[I].Hint := fResource.UnitDat[MapEd_Order[I]].UnitName;
-        Button_Warriors[I].Tag := byte(MapEd_Order[I]); //Returns unit ID
+        Button_Warriors[I].Tag := Byte(MapEd_Order[I]); //Returns unit ID
         Button_Warriors[I].OnClick := Town_UnitChange;
       end;
 
@@ -924,7 +924,7 @@ begin
       begin
         Button_Animals[I] := TKMButtonFlat.Create(Panel_Units,(I mod 5)*37,240+(I div 5)*37,33,33, Animal_Icon[I], rxGui);
         Button_Animals[I].Hint := fResource.UnitDat[Animal_Order[I]].UnitName;
-        Button_Animals[I].Tag := byte(Animal_Order[I]); //Returns animal ID
+        Button_Animals[I].Tag := Byte(Animal_Order[I]); //Returns animal ID
         Button_Animals[I].OnClick := Town_UnitChange;
       end;
 

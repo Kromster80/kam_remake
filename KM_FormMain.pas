@@ -427,6 +427,10 @@ procedure TFormMain.ControlsReset;
 begin
   fUpdating := True;
   ResetGroupBox(GroupBox1);
+
+  tbOwnMargin.Position := OWN_MARGIN;
+  tbOwnThresh.Position := OWN_THRESHOLD;
+
   fUpdating := False;
   ControlsUpdate(nil);
 end;

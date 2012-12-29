@@ -433,7 +433,7 @@ begin
       if J <> PLAYER_NONE then
         Col := (fPlayers[J].FlagColor and $FFFFFF)
                 or (Ownership[J,I,K] shl 24)
-                or ((Byte(InRange(Ownership[J,I,K], 96, 160)) * 255) shl 24);
+                or ((Byte(InRange(Ownership[J,I,K], OWN_THRESHOLD, OWN_MARGIN)) * 255) shl 24);
       fRenderAux.Quad(K, I, Col);
     end;
 

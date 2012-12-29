@@ -34,12 +34,18 @@ type
       Nearby: array [0..2] of Word; //Neighbour polygons
     end;
 
+    //Building the navmesh from terrain
     //Process involves many steps executed in a functional way
     procedure GenerateTileOutline(out aTileOutlines: TKMShapesArray);
     procedure TriangulateOutlines;
     procedure AssembleNavMesh;
-
     procedure InitConnectivity;
+
+    function GetOwnerPolys(aOwner: TPlayerIndex): TKMWordArray;
+    function ConvertPolysToEdges(aPolys: TKMWordArray): TKMEdgesArray;
+    function RemoveInnerEdges(const aEdges: TKMEdgesArray): TKMEdgesArray;
+    function EdgesToWeightOutline(const aEdges: TKMEdgesArray; aOwner: TPlayerIndex): TKMWeightSegments;
+
     function GetBestOwner(aIndex: Integer): TPlayerIndex;
     function NodeEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
     function PolyEnemyPresence(aIndex: Integer; aOwner: TPlayerIndex): Word;
@@ -447,6 +453,134 @@ begin
 end;
 
 
+function TKMNavMesh.GetOwnerPolys(aOwner: TPlayerIndex): TKMWordArray;
+var I,K: Integer;
+begin
+  //Collect polys that are well within our ownership area
+  K := 0;
+  SetLength(Result, fPolyCount);
+
+  for I := 0 to fPolyCount - 1 do
+  with fPolygons[I] do
+  if ((fNodes[Indices[0]].Owner[aOwner] >= OWN_MARGIN)
+   or (fNodes[Indices[1]].Owner[aOwner] >= OWN_MARGIN)
+   or (fNodes[Indices[2]].Owner[aOwner] >= OWN_MARGIN))
+  and (fNodes[Indices[0]].Owner[aOwner] >= OWN_THRESHOLD)
+  and (fNodes[Indices[1]].Owner[aOwner] >= OWN_THRESHOLD)
+  and (fNodes[Indices[2]].Owner[aOwner] >= OWN_THRESHOLD)
+  and (GetBestOwner(Indices[0]) = aOwner)
+  and (GetBestOwner(Indices[1]) = aOwner)
+  and (GetBestOwner(Indices[2]) = aOwner) then
+  begin
+    Result[K] := I;
+    Inc(K);
+  end;
+  SetLength(Result, K);
+end;
+
+
+function TKMNavMesh.ConvertPolysToEdges(aPolys: TKMWordArray): TKMEdgesArray;
+var I: Integer;
+begin
+  Result.Count := Length(aPolys) * 3;
+  SetLength(Result.Nodes, Length(aPolys) * 3);
+  for I := 0 to High(aPolys) do
+  begin
+    Result.Nodes[I * 3 + 0, 0] := fPolygons[aPolys[I]].Indices[0];
+    Result.Nodes[I * 3 + 0, 1] := fPolygons[aPolys[I]].Indices[1];
+    Result.Nodes[I * 3 + 1, 0] := fPolygons[aPolys[I]].Indices[1];
+    Result.Nodes[I * 3 + 1, 1] := fPolygons[aPolys[I]].Indices[2];
+    Result.Nodes[I * 3 + 2, 0] := fPolygons[aPolys[I]].Indices[2];
+    Result.Nodes[I * 3 + 2, 1] := fPolygons[aPolys[I]].Indices[0];
+  end;
+end;
+
+
+function TKMNavMesh.RemoveInnerEdges(const aEdges: TKMEdgesArray): TKMEdgesArray;
+var
+  I,K: Integer;
+  Edges: TKMEdgesArray;
+begin
+  //Duplicate to avoid spoiling (we need to copy arrays manually)
+  Edges.Count := aEdges.Count;
+  SetLength(Edges.Nodes, Edges.Count);
+  for I := 0 to aEdges.Count - 1 do
+  begin
+    Edges.Nodes[I][0] := aEdges.Nodes[I][0];
+    Edges.Nodes[I][1] := aEdges.Nodes[I][1];
+  end;
+
+  //Remove duplicate Edges, that will leave us with an outline
+  for I := 0 to Edges.Count - 1 do
+  if (Edges.Nodes[I, 0] > -1) and (Edges.Nodes[I, 1] > -1) then
+  for K := I + 1 to Edges.Count - 1 do
+  if (Edges.Nodes[K, 0] > -1) and (Edges.Nodes[K, 1] > -1) then
+  if (Edges.Nodes[I, 0] = Edges.Nodes[K, 1]) and (Edges.Nodes[I, 1] = Edges.Nodes[K, 0]) then
+  begin
+    Edges.Nodes[I, 0] := -1;
+    Edges.Nodes[I, 1] := -1;
+    Edges.Nodes[K, 0] := -1;
+    Edges.Nodes[K, 1] := -1;
+  end;
+
+  //3. Detect and dismiss inner Edges
+  //Separate Edges into open (having 2 polys) and closed (only 1 poly)
+  //Once again we take advantage of the fact that polys built in CW order
+  for I := 0 to fPolyCount - 1 do
+  with fPolygons[I] do
+  for K := 0 to Edges.Count - 1 do
+  if (Edges.Nodes[K, 0] <> -1) then
+  if ((Edges.Nodes[K, 0] = Indices[1]) and (Edges.Nodes[K, 1] = Indices[0]))
+  or ((Edges.Nodes[K, 0] = Indices[2]) and (Edges.Nodes[K, 1] = Indices[1]))
+  or ((Edges.Nodes[K, 0] = Indices[0]) and (Edges.Nodes[K, 1] = Indices[2])) then
+  begin
+    //Mark outer Edges
+    Edges.Nodes[K, 0] := -1000 - Edges.Nodes[K, 0];
+    Edges.Nodes[K, 1] := -1000 - Edges.Nodes[K, 1];
+  end;
+  K := 0;
+  for I := 0 to Edges.Count - 1 do
+  if (Edges.Nodes[I, 0] >= 0) then
+  begin //Dismiss inner Edges
+    Edges.Nodes[I, 0] := -1;
+    Edges.Nodes[I, 1] := -1;
+  end
+  else
+  if (Edges.Nodes[I, 0] < -1) then
+  begin //Promote marked outer Edges back
+    Edges.Nodes[I, 0] := -Edges.Nodes[I, 0] - 1000;
+    Edges.Nodes[I, 1] := -Edges.Nodes[I, 1] - 1000;
+    Inc(K);
+  end;
+
+  //4. Now we can assemble suboptimal outline from kept Edges
+  Result.Count := K;
+  SetLength(Result.Nodes, K);
+  K := 0;
+  for I := 0 to Edges.Count - 1 do
+  if (Edges.Nodes[I, 0] >= 0) then
+  begin
+    Result.Nodes[K, 0] := Edges.Nodes[I, 0];
+    Result.Nodes[K, 1] := Edges.Nodes[I, 1];
+    Inc(K);
+  end;
+end;
+
+
+function TKMNavMesh.EdgesToWeightOutline(const aEdges: TKMEdgesArray; aOwner: TPlayerIndex): TKMWeightSegments;
+var I: Integer;
+begin
+  SetLength(Result, aEdges.Count);
+  for I := 0 to aEdges.Count - 1 do
+  begin
+    Result[I].A := fNodes[aEdges.Nodes[I,0]].Loc;
+    Result[I].B := fNodes[aEdges.Nodes[I,1]].Loc;
+    Result[I].Weight := NodeEnemyPresence(aEdges.Nodes[I,0], aOwner)
+                      + NodeEnemyPresence(aEdges.Nodes[I,1], aOwner);
+  end;
+end;
+
+
 procedure TKMNavMesh.GetDefenceOutline(aOwner: TPlayerIndex; out aOutline1, aOutline2: TKMWeightSegments);
 const
   AP_CLEAR = 0;
@@ -455,117 +589,6 @@ var
   AreaID: Byte;
   AreaPolys: array of Byte;
   AreaEnemy: array [1..254] of Word;
-
-  function GetOwnershipArea(aOwner: TPlayerIndex): TKMWordArray;
-  var I,K: Integer;
-  begin
-    //Collect polys that are well within our ownership area
-    K := 0;
-    SetLength(Result, fPolyCount);
-
-    for I := 0 to fPolyCount - 1 do
-    with fPolygons[I] do
-    if ((fNodes[Indices[0]].Owner[aOwner] >= OWN_MARGIN)
-     or (fNodes[Indices[1]].Owner[aOwner] >= OWN_MARGIN)
-     or (fNodes[Indices[2]].Owner[aOwner] >= OWN_MARGIN))
-    and (fNodes[Indices[0]].Owner[aOwner] >= OWN_THRESHOLD)
-    and (fNodes[Indices[1]].Owner[aOwner] >= OWN_THRESHOLD)
-    and (fNodes[Indices[2]].Owner[aOwner] >= OWN_THRESHOLD)
-    and (GetBestOwner(Indices[0]) = aOwner)
-    and (GetBestOwner(Indices[1]) = aOwner)
-    and (GetBestOwner(Indices[2]) = aOwner) then
-    begin
-      Result[K] := I;
-      Inc(K);
-    end;
-    SetLength(Result, K);
-  end;
-
-  function ConvertPolysToEdges(aPolys: TKMWordArray): TKMEdgesArray;
-  var I: Integer;
-  begin
-    Result.Count := 0;
-    SetLength(Result.Nodes, Length(aPolys) * 3);
-    for I := 0 to High(aPolys) do
-    begin
-      Result.Nodes[I * 3 + 0, 0] := fPolygons[aPolys[I]].Indices[0];
-      Result.Nodes[I * 3 + 0, 1] := fPolygons[aPolys[I]].Indices[1];
-      Result.Nodes[I * 3 + 1, 0] := fPolygons[aPolys[I]].Indices[1];
-      Result.Nodes[I * 3 + 1, 1] := fPolygons[aPolys[I]].Indices[2];
-      Result.Nodes[I * 3 + 2, 0] := fPolygons[aPolys[I]].Indices[2];
-      Result.Nodes[I * 3 + 2, 1] := fPolygons[aPolys[I]].Indices[0];
-    end;
-  end;
-
-  procedure ConvertEdgesToOutline(const aInEdges: TKMEdgesArray; out aOutline: TKMWeightSegments);
-  var
-    I,K: Integer;
-    Edges: TKMEdgesArray;
-  begin
-    //Duplicate to avoid spoiling (we need to copy arrays manually)
-    Edges.Count := aInEdges.Count;
-    SetLength(Edges.Nodes, Edges.Count);
-    for I := 0 to aInEdges.Count - 1 do
-    begin
-      Edges.Nodes[I][0] := aInEdges.Nodes[I][0];
-      Edges.Nodes[I][1] := aInEdges.Nodes[I][1];
-    end;
-
-    //Remove duplicate Edges, that will leave us with an outline
-    for I := 0 to Edges.Count - 1 do
-    if (Edges.Nodes[I, 0] > -1) and (Edges.Nodes[I, 1] > -1) then
-    for K := I + 1 to Edges.Count - 1 do
-    if (Edges.Nodes[K, 0] > -1) and (Edges.Nodes[K, 1] > -1) then
-    if (Edges.Nodes[I, 0] = Edges.Nodes[K, 1]) and (Edges.Nodes[I, 1] = Edges.Nodes[K, 0]) then
-    begin
-      Edges.Nodes[I, 0] := -1;
-      Edges.Nodes[I, 1] := -1;
-      Edges.Nodes[K, 0] := -1;
-      Edges.Nodes[K, 1] := -1;
-    end;
-
-    //3. Detect and dismiss inner Edges
-    //Separate Edges into open (having 2 polys) and closed (only 1 poly)
-    //Once again we take advantage of the fact that polys built in CW order
-    for I := 0 to fPolyCount - 1 do
-    with fPolygons[I] do
-    for K := 0 to Edges.Count - 1 do
-    if (Edges.Nodes[K, 0] <> -1) then
-    if ((Edges.Nodes[K, 0] = Indices[1]) and (Edges.Nodes[K, 1] = Indices[0]))
-    or ((Edges.Nodes[K, 0] = Indices[2]) and (Edges.Nodes[K, 1] = Indices[1]))
-    or ((Edges.Nodes[K, 0] = Indices[0]) and (Edges.Nodes[K, 1] = Indices[2])) then
-    begin
-      //Mark outer Edges
-      Edges.Nodes[K, 0] := -1000 - Edges.Nodes[K, 0];
-      Edges.Nodes[K, 1] := -1000 - Edges.Nodes[K, 1];
-    end;
-    K := 0;
-    for I := 0 to Edges.Count - 1 do
-    if (Edges.Nodes[I, 0] >= 0) then
-    begin //Dismiss inner Edges
-      Edges.Nodes[I, 0] := -1;
-      Edges.Nodes[I, 1] := -1;
-    end
-    else
-    if (Edges.Nodes[I, 0] < -1) then
-    begin //Promote marked outer Edges back
-      Edges.Nodes[I, 0] := -Edges.Nodes[I, 0] - 1000;
-      Edges.Nodes[I, 1] := -Edges.Nodes[I, 1] - 1000;
-      Inc(K);
-    end;
-
-    //4. Now we can assemble suboptimal outline from kept Edges
-    SetLength(aOutline, K);
-    K := 0;
-    for I := 0 to Edges.Count - 1 do
-    if (Edges.Nodes[I, 0] >= 0) then
-    begin
-      aOutline[K].A := fNodes[Edges.Nodes[I,0]].Loc;
-      aOutline[K].B := fNodes[Edges.Nodes[I,1]].Loc;
-      aOutline[K].Weight := NodeEnemyPresence(Edges.Nodes[I,0], aOwner) + NodeEnemyPresence(Edges.Nodes[I,1], aOwner);
-      Inc(K);
-    end;
-  end;
 
   procedure FloodFillPolys(aIndex: Integer);
   var I: Integer;
@@ -585,50 +608,59 @@ var
   Polys: TKMWordArray;
   Edges: TKMEdgesArray;
 begin
-  SetLength(AreaPolys, fPolyCount);
-
   //1. Get ownership area
-  Polys := GetOwnershipArea(aOwner);
+  Polys := GetOwnerPolys(aOwner);
 
   Edges := ConvertPolysToEdges(Polys);
 
   //Obtain suboptimal outline of owned polys
-  ConvertEdgesToOutline(Edges, aOutline1);
+  Edges := RemoveInnerEdges(Edges);
+
+  aOutline1 := EdgesToWeightOutline(Edges, aOwner);
 
   //5. Remove spans that face isolated areas
-
+  SetLength(AreaPolys, fPolyCount);
   for I := Low(AreaEnemy) to High(AreaEnemy) do
     AreaEnemy[I] := 0;
 
-  //Mark inner polys
-  //(already made above)
+  for I := 0 to High(Polys) do
+    AreaPolys[Polys[I]] := AP_SEED;
 
   //Floodfill outer polys skipping inner ones, remember best enemy influence
   AreaID := 0;
-  for I := 0 to fPolyCount - 1 do
-  if (AreaPolys[I] = AP_SEED) then
-    for K := 0 to fPolygons[I].NearbyCount - 1 do
-    if (AreaPolys[fPolygons[I].Nearby[K]] = AP_CLEAR) then
+  for I := 0 to High(Polys) do
+  with fPolygons[Polys[I]] do
+    for K := 0 to NearbyCount - 1 do
+    if (AreaPolys[Nearby[K]] = AP_CLEAR) then
     begin
       Inc(AreaID);
-      FloodFillPolys(fPolygons[I].Nearby[K]);
+      FloodFillPolys(Polys[I]);
     end;
 
   //if enemy influence < 128 then mark as isolated
-  SetLength(Polys)
+  K := Length(Polys);
+  SetLength(Polys, fPolyCount);
   for I := 0 to fPolyCount - 1 do
   if (AreaPolys[I] <> AP_CLEAR)
   and (AreaPolys[I] <> AP_SEED)
   and (AreaEnemy[AreaPolys[I]] < 128) then
-    AddPoly(Edges, I);
+  begin
+    Polys[K] := I;
+    Inc(K);
+  end;
+  SetLength(Polys, K);
 
-  ConvertEdgesToOutline(Edges, aOutline2);
+  Edges := ConvertPolysToEdges(Polys);
+
+  Edges := RemoveInnerEdges(Edges);
+
+  aOutline2 := EdgesToWeightOutline(Edges, aOwner);
 
   //6. See if we can expand our area while reducing outline length
 
   //7. Deal with allies
   //   Two players could be on same island and share defence lines,
-  //   also they dont need defence line between them
+  //   also they dont need defence line between them}
 end;
 
 
