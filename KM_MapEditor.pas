@@ -58,6 +58,9 @@ type
   protected
     Label_MatAmount: TKMLabel;
     Shape_MatAmount: TKMShape;
+    Label_DefenceID: TKMLabel;
+    Label_DefencePos: TKMLabel;
+    Shape_DefencePos: TKMShape;
   public
     constructor Create;
     destructor Destroy; override;
@@ -66,6 +69,7 @@ type
     property VisibleLayers: TMapEdLayerSet read fVisibleLayers write fVisibleLayers;
     function HitTest(X,Y: Integer): TKMMapEdMarker;
     procedure Update;
+    procedure PaintUI;
     procedure Paint(aLayer: TPaintLayer);
   end;
 
@@ -267,6 +271,13 @@ begin
   Shape_MatAmount.LineColor := $F000FF00;
   Shape_MatAmount.FillColor := $80000000;
 
+  Label_DefenceID := TKMLabel.Create(nil, 0, 0, '', fnt_Metal, taCenter);
+  Label_DefencePos := TKMLabel.Create(nil, 0, 0, '', fnt_Metal, taCenter);
+  Shape_DefencePos := TKMShape.Create(nil, 0, 0, 80, 20);
+  Shape_DefencePos.LineWidth := 2;
+  Shape_DefencePos.LineColor := $F0FF8000;
+  Shape_DefencePos.FillColor := $80000000;
+
   for I := Low(fRevealers) to High(fRevealers) do
     fRevealers[I] := TKMPointTagList.Create;
 end;
@@ -336,16 +347,13 @@ begin
 end;
 
 
-procedure TKMMapEditor.Paint(aLayer: TPaintLayer);
+procedure TKMMapEditor.PaintUI;
 var
   I, K: Integer;
   R: TRawDeposit;
-  Loc: TKMPoint;
   LocF: TKMPointF;
   ScreenLoc: TKMPointI;
-  LocDir: TKMPointDir;
 begin
-  if aLayer = plUI then
   if mlDeposits in fVisibleLayers then
   begin
     for R := Low(TRawDeposit) to High(TRawDeposit) do
@@ -375,7 +383,51 @@ begin
       end;
   end;
 
+  if mlDefences in fGame.MapEditor.VisibleLayers then
+  begin
+    //Only make it visible while we need it
+    Label_DefenceID.Show;
+    Label_DefencePos.Show;
+    Shape_DefencePos.Show;
+    for I := 0 to fPlayers.Count - 1 do
+      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
+      begin
+        Label_DefenceID.Caption := IntToStr(K);
+        Label_DefencePos.Caption := fPlayers[I].AI.General.DefencePositions[K].UITitle;
 
+        LocF := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.General.DefencePositions[K].Position.Loc));
+        ScreenLoc := fGame.Viewport.MapToScreen(LocF);
+
+        if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
+        begin
+          //Paint the background
+          Shape_DefencePos.Width := 10 + 10 * Length(Label_DefencePos.Caption);
+          Shape_DefencePos.Left := ScreenLoc.X - Shape_DefencePos.Width div 2;
+          Shape_DefencePos.Top := ScreenLoc.Y - 10;
+          Shape_DefencePos.Paint;
+          //Paint the label on top of the background
+          Label_DefenceID.Left := ScreenLoc.X;
+          Label_DefenceID.Top := ScreenLoc.Y - 22;
+          Label_DefenceID.Paint;
+          Label_DefencePos.Left := ScreenLoc.X;
+          Label_DefencePos.Top := ScreenLoc.Y - 7;
+          Label_DefencePos.Paint;
+        end;
+      end;
+    //Only make it visible while we need it
+    Label_DefenceID.Hide;
+    Label_DefencePos.Hide;
+    Shape_DefencePos.Hide;
+  end;
+end;
+
+
+procedure TKMMapEditor.Paint(aLayer: TPaintLayer);
+var
+  I, K: Integer;
+  Loc: TKMPoint;
+  LocDir: TKMPointDir;
+begin
   if mlDefences in fVisibleLayers then
   for I := 0 to fPlayers.Count - 1 do
   for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do

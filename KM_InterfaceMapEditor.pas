@@ -116,9 +116,6 @@ type
       Button_PlayerSelect: array [0..MAX_PLAYERS-1] of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint: TKMLabel;
       Bevel_HintBG: TKMBevel;
-      Label_DefenceID: TKMLabel;
-      Label_DefencePos: TKMLabel;
-      Shape_DefencePos: TKMShape;
 
     Panel_Common: TKMPanel;
       Button_Main: array [1..5] of TKMButton; //5 buttons
@@ -613,13 +610,6 @@ begin
 
   //Parent Page for whole toolbar in-game
   Panel_Main := TKMPanel.Create(fMyControls, 0, 0, aScreenX, aScreenY);
-
-    Label_DefenceID := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Metal, taCenter);
-    Label_DefencePos := TKMLabel.Create(Panel_Main, 0, 0, '', fnt_Metal, taCenter);
-    Shape_DefencePos := TKMShape.Create(Panel_Main,0,0,80,20);
-    Shape_DefencePos.LineWidth := 2;
-    Shape_DefencePos.LineColor := $F0FF8000;
-    Shape_DefencePos.FillColor := $80000000;
 
     TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
     TKMImage.Create(Panel_Main,0, 200,224,400,404);
@@ -1455,54 +1445,8 @@ end;
 
 
 procedure TKMapEdInterface.Paint;
-const
-  DefColor: array [TAIDefencePosType] of TColor4 = ($FF000080, $FF008000);
-var
-  I, K: Integer;
-  MapLoc: TKMPointF;
-  ScreenLoc: TKMPointI;
-  R: TRawDeposit;
-  Depo: TKMDeposits;
 begin
-  fGame.MapEditor.Paint(plUI);
-
-  //todo: Move to MapEd unit (so that all MapEd render is in one place)
-  if mlDefences in fGame.MapEditor.VisibleLayers then
-  begin
-    //Only make it visible while we need it
-    Label_DefenceID.Show;
-    Label_DefencePos.Show;
-    Shape_DefencePos.Show;
-    for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
-      begin
-        Label_DefenceID.Caption := IntToStr(K);
-        Label_DefencePos.Caption := fPlayers[I].AI.General.DefencePositions[K].UITitle;
-
-        MapLoc := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.General.DefencePositions[K].Position.Loc));
-        ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
-
-        if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
-        begin
-          //Paint the background
-          Shape_DefencePos.Width := 10 + 10 * Length(Label_DefencePos.Caption);
-          Shape_DefencePos.Left := ScreenLoc.X - Shape_DefencePos.Width div 2;
-          Shape_DefencePos.Top := ScreenLoc.Y - 10;
-          Shape_DefencePos.Paint;
-          //Paint the label on top of the background
-          Label_DefenceID.Left := ScreenLoc.X;
-          Label_DefenceID.Top := ScreenLoc.Y - 22;
-          Label_DefenceID.Paint;
-          Label_DefencePos.Left := ScreenLoc.X;
-          Label_DefencePos.Top := ScreenLoc.Y - 7;
-          Label_DefencePos.Paint;
-        end;
-      end;
-    //Only make it visible while we need it
-    Label_DefenceID.Hide;
-    Label_DefencePos.Hide;
-    Shape_DefencePos.Hide;
-  end;
+  fGame.MapEditor.PaintUI;
 
   inherited;
 end;

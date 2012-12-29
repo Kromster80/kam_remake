@@ -45,7 +45,7 @@ begin
   Path := 'C:\Users\Krom\Desktop\123\';
   ScanFolder(Path, InfoList);
 
-  //InfoList.SaveToFile(Path + 'url_list.txt');
+  InfoList.SaveToFile(Path + 'url_list.txt');
 end;
 
 
