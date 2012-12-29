@@ -119,7 +119,7 @@ object frmMain: TfrmMain
     Top = 600
     Width = 145
     Height = 25
-    Caption = 'Save Font File'
+    Caption = 'Save Font File ...'
     TabOrder = 0
     OnClick = BitBtn1Click
   end
@@ -141,8 +141,6 @@ object frmMain: TfrmMain
         Text = 'Font Hex Code'
         Width = 50
       end>
-    ExplicitTop = 622
-    ExplicitWidth = 825
   end
   object Edit1: TEdit
     Left = 160
@@ -169,7 +167,7 @@ object frmMain: TfrmMain
     Top = 572
     Width = 73
     Height = 25
-    Caption = 'Export BMP'
+    Caption = 'Export BMP ...'
     TabOrder = 7
     OnClick = btnExportBigClick
   end
@@ -178,7 +176,7 @@ object frmMain: TfrmMain
     Top = 572
     Width = 73
     Height = 25
-    Caption = 'Import BMP'
+    Caption = 'Import BMP ...'
     TabOrder = 5
     OnClick = btnImportBigClick
   end

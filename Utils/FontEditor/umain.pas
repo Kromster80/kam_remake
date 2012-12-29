@@ -207,7 +207,7 @@ begin
   fPaintBox.Repaint;
   ShowPalette(FontPal[FontData.Title]);
   Edit1Change(nil);
-  StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex]+' Palette: '+PalFiles[FontPal[FontData.Title]];
+  StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex]+'  Palette: '+PalFiles[FontPal[FontData.Title]];
 
   ScrollBar1.Max := (fCharCount - 256) div 32;
   ScrollBar1.Enabled := ScrollBar1.Min <> ScrollBar1.Max;

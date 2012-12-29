@@ -935,10 +935,10 @@ begin
       CheckBox_AutoBuild.OnClick := Town_ScriptChange;
       CheckBox_AutoRepair := TKMCheckBox.Create(Panel_Script, 0, 50, TB_WIDTH, 20, 'Autorepair', fnt_Metal);
       CheckBox_AutoRepair.OnClick := Town_ScriptChange;
-      TrackBar_SerfFactor := TKMTrackBar.Create(Panel_Script, 0, 70, TB_WIDTH, 1, 20);
+      TrackBar_SerfFactor := TKMTrackBar.Create(Panel_Script, 0, 70, TB_WIDTH, 0, 20);
       TrackBar_SerfFactor.Caption := 'Serf factor';
       TrackBar_SerfFactor.OnClick := Town_ScriptChange;
-      TrackBar_WorkerFactor := TKMTrackBar.Create(Panel_Script, 0, 110, TB_WIDTH, 3, 30);
+      TrackBar_WorkerFactor := TKMTrackBar.Create(Panel_Script, 0, 110, TB_WIDTH, 0, 30);
       TrackBar_WorkerFactor.Caption := 'Workers';
       TrackBar_WorkerFactor.OnClick := Town_ScriptChange;
 
