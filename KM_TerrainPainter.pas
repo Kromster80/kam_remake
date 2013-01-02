@@ -296,6 +296,8 @@ begin
   MapYn2 := MapYn;
   MapXc2 := MapXc;
   MapYc2 := MapYc;
+
+  fTerrain.UpdatePassability(KMRectGrow(KMRect(aLoc), Rad+1));
 end;
 
 

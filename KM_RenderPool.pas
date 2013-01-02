@@ -1080,7 +1080,7 @@ begin
                     //Rounding corners in a nice way
                     if (GameCursor.MapEdShape = hsSquare)
                     or (Sqr(I) + Sqr(K) < Sqr(Rad+0.5)) then
-                      RenderTile(Combo[TTerrainKind(GameCursor.Tag1), TTerrainKind(GameCursor.Tag1),1]+1,P.X+K,P.Y+I,0);
+                      RenderTile(Combo[TTerrainKind(GameCursor.Tag1), TTerrainKind(GameCursor.Tag1),1],P.X+K,P.Y+I,0);
                   end
                   else
                   begin
