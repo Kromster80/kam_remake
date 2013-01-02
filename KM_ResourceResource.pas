@@ -95,8 +95,8 @@ end;
 
 procedure TKMResourceCollection.CalculateCostsTable;
 const
-  NON_RENEW = 1.25; //Non-renewable resources are +50% more valuable than renewable ones
-  TREE_ADDN = 0.25; //Trees require a large area (e.g. compared to corn)
+  NON_RENEW = 1.25; //Non-renewable resources are more valuable than renewable ones
+  TREE_ADDN = 0.15; //Trees require a large area (e.g. compared to corn)
   WINE_ADDN = 0.1; //Wine takes extra wood to build
   ORE_ADDN = 0.2; //You can only build a few iron/gold mines on most maps (compared to coal)
 begin
