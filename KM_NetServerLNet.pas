@@ -251,11 +251,13 @@ begin
   while fSocketServer.IterNext do
     if (fSocketServer.Iterator.UserData <> nil) and (TClientInfo(fSocketServer.Iterator.UserData).Tag = aHandle) then
     begin
-      if fSocketServer.Iterator.Connected then //Sometimes this occurs just before ClientDisconnect
+      if fSocketServer.Iterator.ConnectionStatus in [scConnected, scConnecting, scDisconnecting] then
       begin
         fSocketServer.Iterator.Disconnect(True);
         fOnClientDisconnect(aHandle); //A forceful disconnect does not always trigger the disconnect event so we need to do it manually
-      end;
+      end
+      else
+        fOnError('Warning: Attempted to kick a client that is not connected');
       Exit; //Only one client should have this handle
     end;
   //If we reached here we didn't find a match
