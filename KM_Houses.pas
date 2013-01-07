@@ -908,6 +908,7 @@ begin
     Res := ((fLastOrderProduced+i) mod 4)+1; //1..4
     Ware := fResource.HouseDat[fHouseType].ResOutput[Res];
     if (CheckResOrder(Res) > 0) //Player has ordered some of this
+    and (CheckResOut(Ware) < MAX_RES_IN_HOUSE) //Output of this is not full
     //Check we have wares to produce this weapon. If both are the same type check > 1 not > 0
     and ((WarfareCosts[Ware,1] <> WarfareCosts[Ware,2]) or (CheckResIn(WarfareCosts[Ware,1]) > 1))
     and ((WarfareCosts[Ware,1] = rt_None) or (CheckResIn(WarfareCosts[Ware,1]) > 0))
