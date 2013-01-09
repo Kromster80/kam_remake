@@ -104,9 +104,8 @@ begin
   case fPhase of
     0: if IsRanged then
          if fHouse.GetDistance(GetPosition) < GetFightMinRange then
-           //todo: Archer is too close, try to step back to the minimum range
-           //SetActionWalkFromHouse(fHouse, GetFightMinRange)
-           Result := TaskDone
+           //Archer is too close, try to step back to the minimum range
+           SetActionWalkFromHouse(fHouse, GetFightMinRange)
          else
          if fHouse.GetDistance(GetPosition) > GetFightMaxRange then
            SetActionWalkToHouse(fHouse, GetFightMaxRange)

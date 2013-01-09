@@ -46,36 +46,36 @@ type
     procedure IncVertex;
     procedure DecVertex;
     procedure SetInitValues;
-    function CanAbandonInternal: boolean;
-    function GetNextNextPosition(out NextNextPos:TKMPoint):boolean;
-    function GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
+    function CanAbandonInternal: Boolean;
+    function GetNextNextPosition(out NextNextPos: TKMPoint): Boolean;
+    function GetEffectivePassability: TPassability; //Returns passability that unit is allowed to walk on
     procedure ExplanationLogCreate;
     procedure ExplanationLogAdd;
   private //Debug items
     NodePos: Integer;
-    NodeList:TKMPointList;
-    Explanation:string; //Debug only, explanation what unit is doing
-    ExplanationLog:TStringList;
+    NodeList: TKMPointList;
+    Explanation: string; //Debug only, explanation what unit is doing
+    ExplanationLog: TStringList;
   public
     fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
-    constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aTargetUnit: TKMUnit; aTargetHouse: TKMHouse; aUseExactTarget: boolean=true);
+    constructor Create(aUnit: TKMUnit; aLocB: TKMPoint; aActionType: TUnitActionType; aDistance: Single; aSetPushed: Boolean; aTargetUnit: TKMUnit; aTargetHouse: TKMHouse; aUseExactTarget: boolean = True);
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure  SyncLoad; override;
     destructor Destroy; override;
 
     function ActName: TUnitActionName; override;
-    function CanAbandonExternal: boolean;
-    property DoesWalking:boolean read fDoesWalking;
-    property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
-    function GetExplanation:string; override;
-    function WalkingToUnit:Boolean; //Are we walking to a unit?
+    function CanAbandonExternal: Boolean;
+    property DoesWalking: Boolean read fDoesWalking;
+    property DoingExchange: Boolean read fDoExchange; //Critical piece, must not be abandoned
+    function GetExplanation: string; override;
+    function WalkingToUnit: Boolean; //Are we walking to a unit?
 
     //Modify route to go to this destination instead
     procedure ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True); overload;
     procedure ChangeWalkTo(aNewTargetUnit: TKMUnit; aDistance: Single); overload;
 
     function Execute: TActionResult; override;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Save(SaveStream: TKMemoryStream); override;
     procedure Paint; override; //Used only for debug so far
   end;
 

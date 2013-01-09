@@ -125,7 +125,9 @@ type
 
     procedure SetActionWalk(aLocB: TKMPoint; aActionType:TUnitActionType; aDistance:single; aTargetUnit: TKMUnit; aTargetHouse: TKMHouse);
     procedure SetActionWalkToHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
+    procedure SetActionWalkFromHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
     procedure SetActionWalkToUnit(aUnit: TKMUnit; aDistance:single; aActionType:TUnitActionType=ua_Walk);
+    procedure SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType:TUnitActionType=ua_Walk);
     procedure SetActionWalkToSpot(aLocB: TKMPoint; aActionType:TUnitActionType=ua_Walk; aUseExactTarget: Boolean=true);
     procedure SetActionWalkPushed(aLocB: TKMPoint; aActionType:TUnitActionType=ua_Walk);
 
@@ -1400,7 +1402,8 @@ end;
 //Approach house
 procedure TKMUnit.SetActionWalkToHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
-  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
+    Assert(False);
 
   SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
                                       //Target position is the closest cell to our current position (only used for estimating in path finding)
@@ -1414,10 +1417,21 @@ begin
 end;
 
 
-//Approach unit
-procedure TKMUnit.SetActionWalkToUnit(aUnit: TKMUnit; aDistance:single; aActionType:TUnitActionType=ua_Walk);
+procedure TKMUnit.SetActionWalkFromHouse(aHouse: TKMHouse; aDistance: Single; aActionType: TUnitActionType = ua_Walk);
 begin
-  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
+    Assert(False);
+
+  //todo: Make unit walk away from House
+  SetActionStay(20, aActionType);
+end;
+
+
+//Approach unit
+procedure TKMUnit.SetActionWalkToUnit(aUnit: TKMUnit; aDistance: Single; aActionType:TUnitActionType=ua_Walk);
+begin
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
+   Assert(False);
 
   Assert(aDistance >= 1, 'Should not walk to units place');
   SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
@@ -1428,6 +1442,16 @@ begin
                                       aUnit,              //Unit
                                       nil                 //House
                                       ));
+end;
+
+
+procedure TKMUnit.SetActionWalkFromUnit(aUnit: TKMUnit; aDistance: Single; aActionType:TUnitActionType=ua_Walk);
+begin
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
+    Assert(False);
+
+  //todo: Make unit walk away from Unit
+  SetActionStay(20, aActionType);
 end;
 
 

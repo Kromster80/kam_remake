@@ -634,7 +634,8 @@ begin
         if Members[I].WithinFightRange(TKMUnitWarrior(fOffenders[K]).GetPosition) then
           Members[I].OrderFight(TKMUnitWarrior(fOffenders[K]))
         else
-          //todo: Try to walk near/farter and attack, or just ignore?
+          //@Lewin: Perhaps archers should stay still and attack only those enemies they can
+          //without walking to/from them
     end
   else
   begin
@@ -824,7 +825,8 @@ begin
         Members[I].SetActionWalkToUnit(fOrderTargetUnit, Members[I].GetFightMaxRange)
       else
       if (KMLength(Members[I].GetPosition, OrderTargetUnit.GetPosition) < Members[I].GetFightMinRange) then
-        //todo: Archer is too close, back up
+        //Archer is too close, back up
+        Members[I].SetActionWalkFromUnit(fOrderTargetUnit, Members[I].GetFightMinRange)
       else
         //WithinRange
         Members[I].OrderFight(OrderTargetUnit);
