@@ -53,6 +53,7 @@ type
     procedure Attacks_ListClick(Sender: TObject);
     procedure Attacks_ListDoubleClick(Sender: TObject);
     procedure Attacks_Refresh;
+    procedure Extra_Change(Sender: TObject);
     procedure Formations_Show(Sender: TObject);
     procedure Formations_Close(Sender: TObject);
     procedure House_HealthChange(Sender: TObject; AButton: TMouseButton);
@@ -62,6 +63,7 @@ type
     procedure House_StoreRefresh(Sender: TObject);
     procedure House_StoreSelectWare(Sender: TObject);
     procedure House_StoreEditCount(Sender: TObject; AButton:TMouseButton);
+    procedure Layers_UpdateVisibility;
     procedure Marker_Change(Sender: TObject);
     procedure Menu_SaveClick(Sender: TObject);
     procedure Menu_LoadClick(Sender: TObject);
@@ -96,7 +98,6 @@ type
     procedure Town_UnitRefresh;
     procedure Unit_ArmyChange1(Sender: TObject); overload;
     procedure Unit_ArmyChange2(Sender: TObject; AButton: TMouseButton); overload;
-    procedure View_Passability(Sender: TObject);
 
     procedure SwitchPage(Sender: TObject);
     procedure DisplayPage(aPage: TKMPanel);
@@ -113,6 +114,7 @@ type
       Label_Coordinates:TKMLabel;
       TrackBar_Passability:TKMTrackBar;
       Label_Passability:TKMLabel;
+      CheckBox_ShowDeposits: TKMCheckBox;
       Button_PlayerSelect: array [0..MAX_PLAYERS-1] of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint: TKMLabel;
       Bevel_HintBG: TKMBevel;
@@ -332,9 +334,6 @@ begin
   GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
 
-  if fGame <> nil then
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers - [mlDefences, mlRevealFOW];
-
   //If the user clicks on the tab that is open, it closes it (main buttons only)
   if ((Sender = Button_Main[1]) and Panel_Terrain.Visible) or
      ((Sender = Button_Main[2]) and Panel_Town.Visible) or
@@ -437,7 +436,6 @@ end;
 procedure TKMapEdInterface.DisplayPage(aPage: TKMPanel);
 var I,K: Integer;
 begin
-
   //Hide all existing pages (2 levels)
   for I := 1 to Panel_Common.ChildCount do
   if Panel_Common.Childs[I] is TKMPanel then
@@ -473,10 +471,8 @@ begin
     Town_ScriptRefresh
   else
   if aPage = Panel_Defence then
-  begin
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
-    Town_DefenceRefresh;
-  end else
+    Town_DefenceRefresh
+  else
   if aPage = Panel_Offence then
     Attacks_Refresh
   else
@@ -488,14 +484,11 @@ begin
   begin
   end else
   if aPage = Panel_Block then
-  begin
-    Player_BlockRefresh;
-  end else
+    Player_BlockRefresh
+  else
   if aPage = Panel_RevealFOW then
-  begin
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
-    Player_RevealClick(nil);
-  end else
+    Player_RevealClick(nil)
+  else
 
   if aPage = Panel_Alliances then
   begin
@@ -517,14 +510,8 @@ begin
     Panel_Load.Show
   else
 
-  if aPage = Panel_MarkerReveal then
-  begin
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
-  end else
-  if aPage = Panel_MarkerDefence then
-  begin
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
-  end;
+  //Update list of visible layers with regard to active page and checkboxes
+  Layers_UpdateVisibility;
 
   //Display the panel (and its parents)
   fActivePage := aPage;
@@ -1158,11 +1145,14 @@ begin
     Image_ExtraClose.OnClick := SwitchPage;
     Image_ExtraClose.HighlightOnMouseOver := True;
 
-    TrackBar_Passability := TKMTrackBar.Create(Panel_Extra, 18, 50, 184, 0, Byte(High(TPassability)));
+    TrackBar_Passability := TKMTrackBar.Create(Panel_Extra, 20, 50, 180, 0, Byte(High(TPassability)));
     TrackBar_Passability.Caption := 'View passability';
     TrackBar_Passability.Position := 0; //Disabled by default
-    TrackBar_Passability.OnChange := View_Passability;
-    Label_Passability := TKMLabel.Create(Panel_Extra, 18, 90, 184, 0, 'Off', fnt_Metal, taLeft);
+    TrackBar_Passability.OnChange := Extra_Change;
+    Label_Passability := TKMLabel.Create(Panel_Extra, 20, 90, 180, 0, 'Off', fnt_Metal, taLeft);
+
+    CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 20, 120, 180, 20, 'Show deposits', fnt_Metal);
+    CheckBox_ShowDeposits.OnClick := Extra_Change;
 end;
 
 
@@ -1933,15 +1923,35 @@ begin
 end;
 
 
-procedure TKMapEdInterface.View_Passability(Sender: TObject);
+procedure TKMapEdInterface.Extra_Change(Sender: TObject);
 begin
-  SHOW_TERRAIN_WIRES := (TKMTrackBar(Sender).Position <> 0);
-  SHOW_TERRAIN_PASS := TKMTrackBar(Sender).Position;
+  SHOW_TERRAIN_WIRES := TrackBar_Passability.Position <> 0;
+  SHOW_TERRAIN_PASS := TrackBar_Passability.Position;
 
-  if TKMTrackBar(Sender).Position <> 0 then
+  if TrackBar_Passability.Position <> 0 then
     Label_Passability.Caption := GetEnumName(TypeInfo(TPassability), SHOW_TERRAIN_PASS)
   else
     Label_Passability.Caption := 'Off';
+
+  if Sender = CheckBox_ShowDeposits then
+    Layers_UpdateVisibility;
+end;
+
+
+procedure TKMapEdInterface.Layers_UpdateVisibility;
+begin
+  if fGame = nil then Exit; //Happens on init
+
+  fGame.MapEditor.VisibleLayers := [];
+
+  if Panel_Marker.Visible or Panel_MarkerReveal.Visible then
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
+
+  if Panel_Defence.Visible or Panel_MarkerDefence.Visible then
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
+
+  if CheckBox_ShowDeposits.Checked then
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDeposits];
 end;
 
 
