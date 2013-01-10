@@ -2,27 +2,30 @@ unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
 uses dglOpenGL, Controls, Graphics, Math, KromOGLUtils, StrUtils, SysUtils,
-  KM_Defaults, KM_Controls, KM_CommonTypes, KM_Points, KM_Pics, KM_ResourceSprites;
+  KM_Defaults, KM_CommonTypes, KM_Points, KM_Pics, KM_ResourceSprites;
 
 type
+  TTextAlign = (taLeft, taCenter, taRight);
+  TButtonStateSet = set of (bsOver, bsDown, bsDisabled);
+  TButtonStyle = (bsMenu, bsGame); //Menu buttons are metal, game buttons are stone
+
   //Dont do taps and fit because pixel graphics aren't supposed to be stretched
   //paStretch used only a couple of time when we need to scale large menu elements
-
-  TRenderUI = class
+  TKMRenderUI = class
   public
-    procedure SetupClipX        (X1,X2: SmallInt);
-    procedure SetupClipY        (Y1,Y2: SmallInt);
-    procedure ReleaseClip;
-    procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
-    procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
-    procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
-    procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
-    procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
-    procedure WriteOutline      (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
-    procedure WriteShape        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
-    procedure WriteText         (X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
-    procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
-    procedure WriteCircle       (PosX,PosY: SmallInt; Rad: Byte; aFillCol: TColor4);
+    class procedure SetupClipX        (X1,X2: SmallInt);
+    class procedure SetupClipY        (Y1,Y2: SmallInt);
+    class procedure ReleaseClip;
+    class procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
+    class procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
+    class procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
+    class procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
+    class procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
+    class procedure WriteOutline      (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
+    class procedure WriteShape        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
+    class procedure WriteText         (X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
+    class procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
+    class procedure WriteCircle       (PosX,PosY: SmallInt; Rad: Byte; aFillCol: TColor4);
   end;
 
 
@@ -32,7 +35,7 @@ uses KM_Resource, KM_ResourceFonts;
 
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are
 //clipped from both sides
-procedure TRenderUI.SetupClipX(X1,X2:smallint);
+class procedure TKMRenderUI.SetupClipX(X1,X2:smallint);
 var cp:array[0..3]of real; //Function uses 8byte floats //ClipPlane X+Y+Z=-D
 begin
   glEnable(GL_CLIP_PLANE0);
@@ -45,7 +48,7 @@ begin
 end;
 
 
-procedure TRenderUI.SetupClipY(Y1,Y2:smallint);
+class procedure TKMRenderUI.SetupClipY(Y1,Y2:smallint);
 var cp:array[0..3]of real; //Function uses 8byte floats //ClipPlane X+Y+Z=-D
 begin
   glEnable(GL_CLIP_PLANE2);
@@ -59,7 +62,7 @@ end;
 
 
 //Release all clipping planes
-procedure TRenderUI.ReleaseClip;
+class procedure TKMRenderUI.ReleaseClip;
 begin
   glDisable(GL_CLIP_PLANE0);
   glDisable(GL_CLIP_PLANE1);
@@ -68,7 +71,7 @@ begin
 end;
 
 
-procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
+class procedure TKMRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
 var
   Down: Byte;
   Chamfer: Byte;
@@ -170,7 +173,7 @@ begin
 end;
 
 
-procedure TRenderUI.WriteBevel(PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
+class procedure TKMRenderUI.WriteBevel(PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
 begin
   if (SizeX < 0) or (SizeY < 0) then Exit;
   glPushMatrix;
@@ -205,7 +208,7 @@ begin
 end;
 
 
-procedure TRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
+class procedure TKMRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
 const
   BAR_COLOR_GREEN: TColor4 = $FF00AA26;
   BAR_COLOR_BLUE: TColor4 = $FFBBAA00;
@@ -252,7 +255,7 @@ begin
 end;
 
 
-procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
+class procedure TKMRenderUI.WritePicture(PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
 var
   OffX, OffY: Integer;
   DrawWidth, DrawHeight: Integer;
@@ -343,7 +346,7 @@ begin
 end;
 
 
-procedure TRenderUI.WritePlot(PosX,PosY,SizeX,SizeY: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
+class procedure TKMRenderUI.WritePlot(PosX,PosY,SizeX,SizeY: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
 var
   I: Integer;
 begin
@@ -362,7 +365,7 @@ begin
 end;
 
 
-procedure TRenderUI.WriteOutline(PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
+class procedure TKMRenderUI.WriteOutline(PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
 begin
   if LineWidth = 0 then Exit;
   glPushAttrib(GL_LINE_BIT);
@@ -376,7 +379,7 @@ end;
 
 
 //Renders plane with given color and optional 1px outline
-procedure TRenderUI.WriteShape(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
+class procedure TKMRenderUI.WriteShape(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
 begin
   glPushAttrib(GL_LINE_BIT);
     glColor4ubv(@Col);
@@ -394,7 +397,7 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-procedure TRenderUI.WriteText(X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean = False);
+class procedure TKMRenderUI.WriteText(X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean = False);
 var
   I, K: Integer;
   LineCount,AdvX,AdvY,LineHeight,BlockWidth: Integer;
@@ -559,7 +562,7 @@ begin
 end;
 
 
-procedure TRenderUI.WriteTexture(PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
+class procedure TKMRenderUI.WriteTexture(PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
 begin
   glBindTexture(GL_TEXTURE_2D, aTexture.Tex);
 
@@ -575,7 +578,7 @@ begin
 end;
 
 
-procedure TRenderUI.WriteCircle(PosX,PosY: SmallInt; Rad: Byte; aFillCol: TColor4);
+class procedure TKMRenderUI.WriteCircle(PosX,PosY: SmallInt; Rad: Byte; aFillCol: TColor4);
 var
   Ang: Single;
   I: Byte;

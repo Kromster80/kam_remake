@@ -311,7 +311,7 @@ implementation
 uses
   KM_CommonClasses, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Game,
   KM_GameApp, KM_Resource, KM_TerrainPainter, KM_ResourceUnit, KM_ResourceCursors,
-  KM_ResourceMapElements, KM_AIDefensePos, KM_ResourceHouse;
+  KM_ResourceMapElements, KM_AIDefensePos, KM_ResourceHouse, KM_RenderUI;
 
 
 const

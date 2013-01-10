@@ -2,7 +2,7 @@ unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units, KM_RenderPool, KM_Controls;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units, KM_RenderPool;
 
 
 type
@@ -55,12 +55,6 @@ type
     fRevealers: array [0..MAX_PLAYERS-1] of TKMPointTagList;
     fVisibleLayers: TMapEdLayerSet;
     function GetRevealer(aIndex: Byte): TKMPointTagList;
-  protected
-    Label_MatAmount: TKMLabel;
-    Shape_MatAmount: TKMShape;
-    Label_DefenceID: TKMLabel;
-    Label_DefencePos: TKMLabel;
-    Shape_DefencePos: TKMShape;
   public
     constructor Create;
     destructor Destroy; override;
@@ -75,7 +69,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_AIFields;
+uses KM_Game, KM_PlayersCollection, KM_RenderAux, KM_RenderUI, KM_AIFields;
 
 
 { TKMDeposits }
@@ -264,20 +258,6 @@ begin
 
   fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits];
 
-  //Create local controls (unparented) that we will use to render info
-  Label_MatAmount := TKMLabel.Create(nil, 0, 0, '', fnt_Metal, taCenter);
-  Shape_MatAmount := TKMShape.Create(nil, 0, 0, 80, 20);
-  Shape_MatAmount.LineWidth := 2;
-  Shape_MatAmount.LineColor := $F000FF00;
-  Shape_MatAmount.FillColor := $80000000;
-
-  Label_DefenceID := TKMLabel.Create(nil, 0, 0, '', fnt_Metal, taCenter);
-  Label_DefencePos := TKMLabel.Create(nil, 0, 0, '', fnt_Metal, taCenter);
-  Shape_DefencePos := TKMShape.Create(nil, 0, 0, 80, 20);
-  Shape_DefencePos.LineWidth := 2;
-  Shape_DefencePos.LineColor := $F0FF8000;
-  Shape_DefencePos.FillColor := $80000000;
-
   for I := Low(fRevealers) to High(fRevealers) do
     fRevealers[I] := TKMPointTagList.Create;
 end;
@@ -348,6 +328,19 @@ end;
 
 
 procedure TKMMapEditor.PaintUI;
+  procedure PaintTextInShape(aText: string; X,Y: SmallInt; aLineColor: Cardinal);
+  var
+    W: Integer;
+  begin
+    //Paint the background
+    W := 10 + 10 * Length(aText);
+    TKMRenderUI.WriteShape(X - W div 2, Y - 10, W, 20, $80000000);
+    TKMRenderUI.WriteOutline(X - W div 2, Y - 10, W, 20, 2, aLineColor);
+
+    //Paint the label on top of the background
+    TKMRenderUI.WriteText(X, Y - 7, 0, aText, fnt_Metal, taCenter, $FFFFFFFF);
+  end;
+
 var
   I, K: Integer;
   R: TRawDeposit;
@@ -361,63 +354,29 @@ begin
       //Ignore water areas with 0 fish in them
       if fDeposits.Amount[R, I] > 0 then
       begin
-        Label_MatAmount.Caption := IntToStr(fDeposits.Amount[R, I]);
-
         LocF := fTerrain.FlatToHeight(fDeposits.Location[R, I]);
         ScreenLoc := fGame.Viewport.MapToScreen(LocF);
 
         //At extreme zoom coords may become out of range of SmallInt used in controls painting
         if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
-        begin
-          //Paint the background
-          Shape_MatAmount.Width := 10 + 10 * Length(Label_MatAmount.Caption);
-          Shape_MatAmount.Left := ScreenLoc.X - Shape_MatAmount.Width div 2;
-          Shape_MatAmount.Top := ScreenLoc.Y - 10;
-          Shape_MatAmount.LineColor := DEPOSIT_COLORS[R];
-          Shape_MatAmount.Paint;
-          //Paint the label on top of the background
-          Label_MatAmount.Left := ScreenLoc.X;
-          Label_MatAmount.Top := ScreenLoc.Y - 7;
-          Label_MatAmount.Paint;
-        end;
+          PaintTextInShape(IntToStr(fDeposits.Amount[R, I]), ScreenLoc.X, ScreenLoc.Y, DEPOSIT_COLORS[R]);
       end;
   end;
 
   if mlDefences in fGame.MapEditor.VisibleLayers then
   begin
-    //Only make it visible while we need it
-    Label_DefenceID.Show;
-    Label_DefencePos.Show;
-    Shape_DefencePos.Show;
     for I := 0 to fPlayers.Count - 1 do
       for K := 0 to fPlayers[I].AI.General.DefencePositions.Count - 1 do
       begin
-        Label_DefenceID.Caption := IntToStr(K);
-        Label_DefencePos.Caption := fPlayers[I].AI.General.DefencePositions[K].UITitle;
-
         LocF := fTerrain.FlatToHeight(KMPointF(fPlayers[I].AI.General.DefencePositions[K].Position.Loc));
         ScreenLoc := fGame.Viewport.MapToScreen(LocF);
 
         if KMInRect(ScreenLoc, fGame.Viewport.ViewRect) then
         begin
-          //Paint the background
-          Shape_DefencePos.Width := 10 + 10 * Length(Label_DefencePos.Caption);
-          Shape_DefencePos.Left := ScreenLoc.X - Shape_DefencePos.Width div 2;
-          Shape_DefencePos.Top := ScreenLoc.Y - 10;
-          Shape_DefencePos.Paint;
-          //Paint the label on top of the background
-          Label_DefenceID.Left := ScreenLoc.X;
-          Label_DefenceID.Top := ScreenLoc.Y - 22;
-          Label_DefenceID.Paint;
-          Label_DefencePos.Left := ScreenLoc.X;
-          Label_DefencePos.Top := ScreenLoc.Y - 7;
-          Label_DefencePos.Paint;
+          PaintTextInShape(IntToStr(K), ScreenLoc.X, ScreenLoc.Y - 15, $F0FF8000);
+          PaintTextInShape(fPlayers[I].AI.General.DefencePositions[K].UITitle, ScreenLoc.X, ScreenLoc.Y, $F0FF8000);
         end;
       end;
-    //Only make it visible while we need it
-    Label_DefenceID.Hide;
-    Label_DefencePos.Hide;
-    Shape_DefencePos.Hide;
   end;
 end;
 

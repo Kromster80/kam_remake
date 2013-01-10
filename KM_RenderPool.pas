@@ -997,7 +997,6 @@ end;
 procedure TRenderPool.RenderCursors;
 var
   P: TKMPoint;
-  PD: TKMPointDir;
   F: TKMPointF;
   U: TKMUnit;
   I,K: Integer;
