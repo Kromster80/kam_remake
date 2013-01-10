@@ -13,6 +13,9 @@ type
     fMapX: Word;
     fMapY: Word;
     fUpdatePlayerId: TPlayerIndex; //Player we will be updating next
+    //This is cache for CanOwn in fTerrain.Land
+    Ownable: array of array of Boolean;
+    //Each players area of influence
     Influence: array of array of array of Byte;
     procedure InitInfluenceAvoid;
     procedure InitInfluenceForest;
@@ -24,8 +27,8 @@ type
     AvoidBuilding: array of array of Byte;
     //Areas of forests, needed only for initial Woodcutters placement and gets calculated once on mission start
     Forest: array of array of Byte; //0..255 is enough
-    Ownable: array of array of Boolean;
 
+    //Tiles best owner and his influence
     Ownership: array of array of array of Byte;
     //Tension: array of array of array of SmallInt;
 
@@ -201,7 +204,6 @@ procedure TKMInfluences.InitInfluenceOwnable;
 var
   I, K: Integer;
 begin
-  //Update forest influence map
   for I := 1 to fMapY - 1 do
   for K := 1 to fMapX - 1 do
     Ownable[I,K] := (CanOwn in fTerrain.Land[I,K].Passability);
