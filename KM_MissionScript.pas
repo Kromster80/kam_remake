@@ -688,7 +688,7 @@ begin
                           if fLastTroop <> nil then
                             if fParsingMode = mpm_Editor then
                             begin
-                              fLastTroop.MapEdOrder.Order := goWalkTo;
+                              fLastTroop.MapEdOrder.Order := ioSendGroup;
                               fLastTroop.MapEdOrder.Pos := KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1));
                             end
                             else
@@ -742,18 +742,18 @@ begin
                           //If target is nothing: move to position
                           //However, because the unit/house target may not have been created yet, this must be processed after everything else
                           if fLastTroop <> nil then
-                          if fParsingMode = mpm_Editor then
-                          begin
-                            fLastTroop.MapEdOrder.Order := goAttackUnit;
-                            fLastTroop.MapEdOrder.Pos := KMPointDir(P[0]+1, P[1]+1, dir_NA);
-                          end
-                          else
-                          begin
-                            Inc(fAttackPositionsCount);
-                            SetLength(fAttackPositions, fAttackPositionsCount+1);
-                            fAttackPositions[fAttackPositionsCount-1].Group := fLastTroop;
-                            fAttackPositions[fAttackPositionsCount-1].Target := KMPoint(P[0]+1,P[1]+1);
-                          end
+                            if fParsingMode = mpm_Editor then
+                            begin
+                              fLastTroop.MapEdOrder.Order := ioAttackPosition;
+                              fLastTroop.MapEdOrder.Pos := KMPointDir(P[0]+1, P[1]+1, dir_NA);
+                            end
+                            else
+                            begin
+                              Inc(fAttackPositionsCount);
+                              SetLength(fAttackPositions, fAttackPositionsCount+1);
+                              fAttackPositions[fAttackPositionsCount-1].Group := fLastTroop;
+                              fAttackPositions[fAttackPositionsCount-1].Target := KMPoint(P[0]+1,P[1]+1);
+                            end
                           else
                             AddError('ct_AttackPosition without prior declaration of Troop');
     ct_AddGoal:         if fLastPlayer >= 0 then
@@ -1128,10 +1128,15 @@ begin
       if Group.Condition = UNIT_MAX_CONDITION then
         AddCommand(ct_SetGroupFood, []);
 
-      if Group.MapEdOrder.Order = goWalkTo then
-        AddCommand(ct_SendGroup, [Group.MapEdOrder.Pos.Loc.X-1, Group.MapEdOrder.Pos.Loc.Y-1, Byte(Group.MapEdOrder.Pos.Dir)-1]);
-      if Group.MapEdOrder.Order = goAttackUnit then
-        AddCommand(ct_AttackPosition, [Group.MapEdOrder.Pos.Loc.X-1, Group.MapEdOrder.Pos.Loc.Y-1]);
+      case Group.MapEdOrder.Order of
+        ioNoOrder: ;
+        ioSendGroup:
+          AddCommand(ct_SendGroup, [Group.MapEdOrder.Pos.Loc.X-1, Group.MapEdOrder.Pos.Loc.Y-1, Byte(Group.MapEdOrder.Pos.Dir)-1]);
+        ioAttackPosition:
+          AddCommand(ct_AttackPosition, [Group.MapEdOrder.Pos.Loc.X-1, Group.MapEdOrder.Pos.Loc.Y-1]);
+        else
+          Assert(False, 'Unexpected group order in MapEd');
+      end;
     end;
 
     AddData(''); //NL

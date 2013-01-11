@@ -258,6 +258,10 @@ type
         ImageStack_Army: TKMImageStack;
         Label_ArmyCount: TKMLabel;
         Button_ArmyDec,Button_ArmyFood,Button_ArmyInc: TKMButton;
+        DropBox_ArmyOrder: TKMDropList;
+        Edit_ArmyOrderX: TKMNumericEdit;
+        Edit_ArmyOrderY: TKMNumericEdit;
+        Edit_ArmyOrderDir: TKMNumericEdit;
 
     Panel_House: TKMPanel;
       Label_House: TKMLabel;
@@ -1194,8 +1198,8 @@ begin
     Radio_AttackType.Items.Add('Repeating');
     Radio_AttackType.OnChange := Attack_Change;
 
-    TKMLabel.Create(Panel_Attack, 130, 40, 'Delay', fnt_Metal, taLeft);
-    NumEdit_AttackDelay := TKMNumericEdit.Create(Panel_Attack, 130, 60, 0, High(Word));
+    TKMLabel.Create(Panel_Attack, 130, 40, 'Delay, s', fnt_Metal, taLeft);
+    NumEdit_AttackDelay := TKMNumericEdit.Create(Panel_Attack, 130, 60, 0, High(SmallInt));
     NumEdit_AttackDelay.OnChange := Attack_Change;
 
     TKMLabel.Create(Panel_Attack, 240, 40, 'Men', fnt_Metal, taLeft);
@@ -1282,7 +1286,7 @@ end;
 {Unit page}
 procedure TKMapEdInterface.Create_Unit;
 begin
-  Panel_Unit:=TKMPanel.Create(Panel_Common,0,112,TB_WIDTH,400);
+  Panel_Unit := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
     Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,0,'',fnt_Outline,taCenter);
     Image_UnitPic         := TKMImage.Create(Panel_Unit,0,38,54,100,521);
     Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,0,fTextLibrary[TX_UNIT_CONDITION],fnt_Grey,taCenter);
@@ -1291,8 +1295,8 @@ begin
     Label_UnitDescription.AutoWrap := True;
 
     Panel_Army := TKMPanel.Create(Panel_Unit, 0, 160, TB_WIDTH, 400);
-    Button_Army_RotCCW  := TKMButton.Create(Panel_Army,       0, 0, 56, 40, 23, rxGui, bsGame);
-    Button_Army_RotCW   := TKMButton.Create(Panel_Army,     124, 0, 56, 40, 24, rxGui, bsGame);
+    Button_Army_RotCCW  := TKMButton.Create(Panel_Army,       0,  0, 56, 40, 23, rxGui, bsGame);
+    Button_Army_RotCW   := TKMButton.Create(Panel_Army,     124,  0, 56, 40, 24, rxGui, bsGame);
     Button_Army_ForUp   := TKMButton.Create(Panel_Army,       0, 46, 56, 40, 33, rxGui, bsGame);
     ImageStack_Army     := TKMImageStack.Create(Panel_Army,  62, 46, 56, 40, 43, 50);
     Label_ArmyCount     := TKMLabel.Create(Panel_Army,       62, 60, 56, 20, '-', fnt_Outline, taCenter);
@@ -1305,11 +1309,21 @@ begin
     Button_ArmyDec      := TKMButton.Create(Panel_Army,  0,92,56,40,'-', bsGame);
     Button_ArmyFood     := TKMButton.Create(Panel_Army, 62,92,56,40,29, rxGui, bsGame);
     Button_ArmyInc      := TKMButton.Create(Panel_Army,124,92,56,40,'+', bsGame);
-    Button_ArmyDec.OnClickEither := Unit_ArmyChange2;
-    Button_ArmyFood.OnClick := Unit_ArmyChange1;
-    Button_ArmyInc.OnClickEither := Unit_ArmyChange2;
+    Button_ArmyDec.OnClickEither  := Unit_ArmyChange2;
+    Button_ArmyFood.OnClick       := Unit_ArmyChange1;
+    Button_ArmyInc.OnClickEither  := Unit_ArmyChange2;
 
-    //todo: add Group order (see MapEdOrder field)
+    //Group order
+    TKMLabel.Create(Panel_Army, 0, 140, TB_WIDTH, 0, 'Group order', fnt_Outline, taLeft);
+    DropBox_ArmyOrder   := TKMDropList.Create(Panel_Army, 0, 160, TB_WIDTH, 20, fnt_Metal, '', bsGame);
+    DropBox_ArmyOrder.SetItems('None'+eol+'Walk to'+eol+'Attack position');
+    DropBox_ArmyOrder.OnChange := Unit_ArmyChange1;
+    Edit_ArmyOrderX := TKMNumericEdit.Create(Panel_Army, 0, 185, 0, 255);
+    Edit_ArmyOrderX.OnChange := Unit_ArmyChange1;
+    Edit_ArmyOrderY := TKMNumericEdit.Create(Panel_Army, 0, 205, 0, 255);
+    Edit_ArmyOrderY.OnChange := Unit_ArmyChange1;
+    Edit_ArmyOrderDir := TKMNumericEdit.Create(Panel_Army, 80, 185, -1, 7);
+    Edit_ArmyOrderDir.OnChange := Unit_ArmyChange1;
 end;
 
 
@@ -1318,7 +1332,7 @@ procedure TKMapEdInterface.Create_House;
 var
   I: Integer;
 begin
-  Panel_House := TKMPanel.Create(Panel_Common, 0, 44, TB_WIDTH, 400);
+  Panel_House := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
     //Thats common things
     Label_House := TKMLabel.Create(Panel_House, 0, 14, TB_WIDTH, 0, '', fnt_Outline, taCenter);
     Image_House_Logo := TKMImage.Create(Panel_House, 0, 41, 32, 32, 338);
@@ -2086,6 +2100,10 @@ begin
   Label_UnitDescription.Hide;
   ImageStack_Army.SetCount(Sender.MapEdCount, Sender.UnitsPerRow, Sender.UnitsPerRow div 2 + 1);
   Label_ArmyCount.Caption := IntToStr(Sender.MapEdCount);
+  DropBox_ArmyOrder.ItemIndex := Byte(Sender.MapEdOrder.Order);
+  Edit_ArmyOrderX.Value := Sender.MapEdOrder.Pos.Loc.X;
+  Edit_ArmyOrderY.Value := Sender.MapEdOrder.Pos.Loc.Y;
+  Edit_ArmyOrderDir.Value := Byte(Sender.MapEdOrder.Pos.Dir) - 1;
   Panel_Army.Show;
 end;
 
@@ -2383,6 +2401,11 @@ begin
       Group.Condition := UNIT_MAX_CONDITION;
     KMConditionBar_Unit.Position := Group.Condition / UNIT_MAX_CONDITION;
   end;
+
+  Group.MapEdOrder.Order := TKMInitialOrder(DropBox_ArmyOrder.ItemIndex);
+  Group.MapEdOrder.Pos.Loc.X := Edit_ArmyOrderX.Value;
+  Group.MapEdOrder.Pos.Loc.Y := Edit_ArmyOrderY.Value;
+  Group.MapEdOrder.Pos.Dir := TKMDirection(Edit_ArmyOrderDir.Value + 1);
 end;
 
 

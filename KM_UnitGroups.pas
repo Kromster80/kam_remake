@@ -7,6 +7,7 @@ uses Classes, Math, SysUtils, Types,
 
 type
   TKMTurnDirection = (tdNone, tdCW, tdCCW);
+  TKMInitialOrder = (ioNoOrder, ioSendGroup, ioAttackPosition);
 
   TKMGroupOrder = (
     goNone,         //Last order was executed and now we have nothing to do
@@ -17,7 +18,7 @@ type
     );
 
   TKMMapEdOrder = record
-    Order: TKMGroupOrder;
+    Order: TKMInitialOrder;
     Pos: TKMPointDir;
   end;
 
@@ -71,6 +72,9 @@ type
     function GetDirection: TKMDirection;
     function GetPosition: TKMPoint;
   public
+    //Each group can have initial order
+    //SendGroup - walk to some location
+    //AttackPosition - attack something at position (or walk there if its empty)
     MapEdOrder: TKMMapEdOrder;
 
     constructor Create(aID: Cardinal; aCreator: TKMUnitWarrior); overload;

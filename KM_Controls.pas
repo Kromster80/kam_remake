@@ -464,11 +464,11 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
-    Value: Word;
-    ValueMin: Word;
-    ValueMax: Word;
+    Value: SmallInt;
+    ValueMin: SmallInt;
+    ValueMax: SmallInt;
     OnChange: TNotifyEvent;
-    constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aValueMin, aValueMax: Word);
+    constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aValueMin, aValueMax: SmallInt);
     procedure Paint; override;
   end;
 
@@ -2256,7 +2256,7 @@ end;
 
 
 { TKMNumericEdit }
-constructor TKMNumericEdit.Create(aParent: TKMPanel; aLeft, aTop: Integer; aValueMin, aValueMax: Word);
+constructor TKMNumericEdit.Create(aParent: TKMPanel; aLeft, aTop: Integer; aValueMin, aValueMax: SmallInt);
 var
   W: Word;
 begin
