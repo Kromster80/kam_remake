@@ -148,20 +148,22 @@ type
         ObjectsTable: array [0..8] of TKMButtonFlat;
         ObjectsScroll: TKMScrollBar;
 
-    //todo: How to know where certain page should be?
-    //Town - panels that will become mostly obsolete in a battle mission?
-    //Player - panels that make sense both in town and battle mode?
+    //How to know where certain page should be?
+    //see Docs\Map Editor menu structure.txt
 
     Panel_Town: TKMPanel;
       Button_Town: array [TKMTownTab] of TKMButton;
       Panel_Build: TKMPanel;
-        Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildCancel: TKMButtonFlat;
+        Button_BuildRoad: TKMButtonFlat;
+        Button_BuildField: TKMButtonFlat;
+        Button_BuildWine: TKMButtonFlat;
+        Button_BuildCancel: TKMButtonFlat;
         Button_Build: array [1..GUI_HOUSE_COUNT] of TKMButtonFlat;
-      Panel_Units:TKMPanel;
-        Button_UnitCancel:TKMButtonFlat;
-        Button_Citizen:array[0..13]of TKMButtonFlat;
-        Button_Warriors:array[0..13]of TKMButtonFlat;
-        Button_Animals:array[0..7]of TKMButtonFlat;
+      Panel_Units: TKMPanel;
+        Button_UnitCancel: TKMButtonFlat;
+        Button_Citizen: array [0..13] of TKMButtonFlat;
+        Button_Warriors: array [0..13] of TKMButtonFlat;
+        Button_Animals: array [0..7] of TKMButtonFlat;
       Panel_Script: TKMPanel;
         CheckBox_AutoBuild: TKMCheckBox;
         CheckBox_AutoRepair: TKMCheckBox;
@@ -199,11 +201,11 @@ type
       Button_AttackOk: TKMButton;
       Button_AttackCancel: TKMButton;
 
-    Panel_Player:TKMPanel;
-      Button_Player:array[1..4]of TKMButton;
-      Panel_Goals:TKMPanel;
-      Panel_Color:TKMPanel;
-        ColorSwatch_Color:TKMColorSwatch;
+    Panel_Player: TKMPanel;
+      Button_Player: array [1..4] of TKMButton;
+      Panel_Goals: TKMPanel;
+      Panel_Color: TKMPanel;
+        ColorSwatch_Color: TKMColorSwatch;
       Panel_Block: TKMPanel;
         Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
         Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
@@ -212,13 +214,13 @@ type
         TrackBar_RevealNewSize: TKMTrackBar;
         CheckBox_RevealAll: TKMCheckBox;
 
-    Panel_Mission:TKMPanel;
-      Button_Mission:array[1..2]of TKMButton;
-      Panel_Alliances:TKMPanel;
-        CheckBox_Alliances: array[0..MAX_PLAYERS-1,0..MAX_PLAYERS-1] of TKMCheckBox;
-        CheckBox_AlliancesSym:TKMCheckBox;
-      Panel_PlayerTypes:TKMPanel;
-        CheckBox_PlayerTypes: array[0..MAX_PLAYERS-1,0..1] of TKMCheckBox;
+    Panel_Mission: TKMPanel;
+      Button_Mission: array [1..2] of TKMButton;
+      Panel_Alliances: TKMPanel;
+        CheckBox_Alliances: array [0..MAX_PLAYERS-1, 0..MAX_PLAYERS-1] of TKMCheckBox;
+        CheckBox_AlliancesSym: TKMCheckBox;
+      Panel_PlayerTypes: TKMPanel;
+        CheckBox_PlayerTypes: array [0..MAX_PLAYERS-1, 0..1] of TKMCheckBox;
 
     Panel_Menu:TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit:TKMButton;

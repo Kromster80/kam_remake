@@ -1,25 +1,25 @@
 These are tabs we want to have in MapEditor mode:
 
-
 MainMenu
 
 	Terrain (PerMission)
-		Terrain
-		Tiles
+		Brushes
 		Heights
+		Tiles
 		Objects
 
 	Visuals (PerPlayer, tied to terrain)
-		Houses/roads/fields (click on houses to edit damage and wares count)
+		Build houses/roads/fields (click on houses to edit damage and wares count)
 		Units/troops/animals (click on troops to set count/direction)
-		AI Defence positions
-		Visual scripts (Start location, revealers, center screen)
-
+    Town management (serf/worker counts, AI settings)
+		Defence (positions, default formations, AI settings)
+    Offence (scripted attacks, AI settings)
+    Markers (FOW revealers, Start locations, Center screen, Zones?)
+    
 	Non-Visuals (PerPlayer, abstract)
-		AI mode (NoBuild, unit count restrictions, town defence mode)
-		House restrictions
+		House blocking
 		Trading permissions (for marketplace)
-		Messages (all EVT events?)
+		Script edit (open in NotePad?)
 		Player color
 		Goals (AI can ignore them, but it's required for multiplayer maps)
 
@@ -28,7 +28,10 @@ MainMenu
 		Player types (human, computer)
 
 	Menu (PerMission)
-		Save/Load
+		Save
+    Load
+    Settings(?)
+    Quit
 
 SideMenu
 
