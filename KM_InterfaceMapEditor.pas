@@ -114,6 +114,9 @@ type
       Label_Coordinates:TKMLabel;
       TrackBar_Passability:TKMTrackBar;
       Label_Passability:TKMLabel;
+      CheckBox_ShowObjects: TKMCheckBox;
+      CheckBox_ShowHouses: TKMCheckBox;
+      CheckBox_ShowUnits: TKMCheckBox;
       CheckBox_ShowDeposits: TKMCheckBox;
       Button_PlayerSelect: array [0..MAX_PLAYERS-1] of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint: TKMLabel;
@@ -1151,7 +1154,17 @@ begin
     TrackBar_Passability.OnChange := Extra_Change;
     Label_Passability := TKMLabel.Create(Panel_Extra, 20, 90, 180, 0, 'Off', fnt_Metal, taLeft);
 
-    CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 20, 120, 180, 20, 'Show deposits', fnt_Metal);
+    CheckBox_ShowObjects := TKMCheckBox.Create(Panel_Extra, 220, 50, 180, 20, 'Show objects', fnt_Metal);
+    CheckBox_ShowObjects.Checked := True; //Enabled by default
+    CheckBox_ShowObjects.OnClick := Extra_Change;
+    CheckBox_ShowHouses := TKMCheckBox.Create(Panel_Extra, 220, 70, 180, 20, 'Show houses', fnt_Metal);
+    CheckBox_ShowHouses.Checked := True; //Enabled by default
+    CheckBox_ShowHouses.OnClick := Extra_Change;
+    CheckBox_ShowUnits := TKMCheckBox.Create(Panel_Extra, 220, 90, 180, 20, 'Show units', fnt_Metal);
+    CheckBox_ShowUnits.Checked := True; //Enabled by default
+    CheckBox_ShowUnits.OnClick := Extra_Change;
+    CheckBox_ShowDeposits := TKMCheckBox.Create(Panel_Extra, 220, 110, 180, 20, 'Show deposits', fnt_Metal);
+    CheckBox_ShowDeposits.Checked := True; //Enabled by default
     CheckBox_ShowDeposits.OnClick := Extra_Change;
 end;
 
@@ -1933,11 +1946,12 @@ begin
   else
     Label_Passability.Caption := 'Off';
 
-  if Sender = CheckBox_ShowDeposits then
-    Layers_UpdateVisibility;
+  Layers_UpdateVisibility;
 end;
 
 
+//Set which layers are visible and which are not
+//Layer is always visible if corresponding editing page is active (to see what gets placed)
 procedure TKMapEdInterface.Layers_UpdateVisibility;
 begin
   if fGame = nil then Exit; //Happens on init
@@ -1949,6 +1963,15 @@ begin
 
   if Panel_Defence.Visible or Panel_MarkerDefence.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
+
+  if CheckBox_ShowObjects.Checked or Panel_Objects.Visible then
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlObjects];
+
+  if CheckBox_ShowHouses.Checked or Panel_Build.Visible or Panel_House.Visible then
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlHouses];
+
+  if CheckBox_ShowUnits.Checked or Panel_Units.Visible or Panel_Unit.Visible then
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlUnits];
 
   if CheckBox_ShowDeposits.Checked then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDeposits];

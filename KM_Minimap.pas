@@ -13,7 +13,7 @@ type
     fIsMapEditor: Boolean; //Paint missing army memmbers
     fSepia: Boolean; //Less saturated display for menu
     fParser: TMissionParserPreview;
-    fMyTerrain: TTerrain;
+    fMyTerrain: TKMTerrain;
     fAlerts: TKMAlerts;
 
     //We need to store map properties locally since Minimaps come from various

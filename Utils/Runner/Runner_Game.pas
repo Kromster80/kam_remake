@@ -71,7 +71,7 @@ var
   P: TKMPoint;
 begin
   //Total amount of stone = 4140
-  fTerrain := TTerrain.Create;
+  fTerrain := TKMTerrain.Create;
   fTerrain.LoadFromFile(ExeDir + 'Maps\StoneMines\StoneMines.map', False);
 
   SetKaMSeed(aRun+1);

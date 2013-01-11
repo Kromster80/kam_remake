@@ -224,7 +224,7 @@ begin
 
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
-  fTerrain := TTerrain.Create;
+  fTerrain := TKMTerrain.Create;
   fPlayers := TKMPlayersCollection.Create;
   fAIFields := TKMAIFields.Create;
 
@@ -413,7 +413,7 @@ begin
   begin
     //Mission loader needs to read the data into MapEd (e.g. FOW revealers)
     fMapEditor := TKMMapEditor.Create;
-    fTerrainPainter := TTerrainPainter.Create;
+    fTerrainPainter := TKMTerrainPainter.Create;
   end;
 
   Parser := TMissionParserStandard.Create(ParseMode, PlayerEnabled, False);
@@ -766,7 +766,7 @@ begin
   fSaveFile := '';
 
   fTerrain.MakeNewMap(aSizeX, aSizeY, True);
-  fTerrainPainter := TTerrainPainter.Create;
+  fTerrainPainter := TKMTerrainPainter.Create;
 
   fMapEditor := TKMMapEditor.Create;
   fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players

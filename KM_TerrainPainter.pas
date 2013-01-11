@@ -16,12 +16,12 @@ type
     tkAbyss, tkGravel, tkWater, tkCoal, tkGold,
     tkIron, tkFastWater);
 
-  TTerrainPainter = class
+  TKMTerrainPainter = class
   private
     //Fraction part of height, for smooth height editing
     HeightAdd: array [1 .. MAX_MAP_SIZE, 1 .. MAX_MAP_SIZE] of Byte;
 
-    Land2: array[1 .. MAX_MAP_SIZE, 1 .. MAX_MAP_SIZE] of record
+    Land2: array [1 .. MAX_MAP_SIZE, 1 .. MAX_MAP_SIZE] of record
       TerType: TTerrainKind; //Stores terrain type per node
       Tiles: SmallInt;  //Stores kind of transition tile used, no need to save into MAP footer
     end;
@@ -47,7 +47,7 @@ type
 
 
 var
-  fTerrainPainter: TTerrainPainter;
+  fTerrainPainter: TKMTerrainPainter;
 
 
 const
@@ -127,7 +127,7 @@ implementation
 uses KM_Log, KM_Utils;
 
 
-constructor TTerrainPainter.Create;
+constructor TKMTerrainPainter.Create;
 var
   I,K: Integer;
 begin
@@ -139,7 +139,7 @@ begin
 end;
 
 
-procedure TTerrainPainter.BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TTerrainKind);
+procedure TKMTerrainPainter.BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TTerrainKind);
 begin
   if not fTerrain.TileInMapCoords(X, Y) then
     Exit;
@@ -154,7 +154,7 @@ begin
 end;
 
 
-function TTerrainPainter.PickRandomTile(aTerrainKind: TTerrainKind): Byte;
+function TKMTerrainPainter.PickRandomTile(aTerrainKind: TTerrainKind): Byte;
 begin
   Result := Abs(Combo[aTerrainKind, aTerrainKind, 1]);
   if not RandomizeTiling or (RandomTiling[aTerrainKind, 0] = 0) then Exit;
@@ -169,7 +169,7 @@ begin
 end;
 
 
-procedure TTerrainPainter.RebuildMap(X,Y,Rad: Integer);
+procedure TKMTerrainPainter.RebuildMap(X,Y,Rad: Integer);
 var
   I, K, pY, pX, Nodes, Rot, T: Integer;
   Tmp, Ter1, Ter2, A, B, C, D: TTerrainKind;
@@ -256,7 +256,7 @@ begin
 end;
 
 
-procedure TTerrainPainter.EditBrush(aLoc: TKMPoint; aTile: Byte);
+procedure TKMTerrainPainter.EditBrush(aLoc: TKMPoint; aTile: Byte);
 var
   I,K,Rad: Integer;
 begin
@@ -301,7 +301,7 @@ begin
 end;
 
 
-procedure TTerrainPainter.EditHeight;
+procedure TKMTerrainPainter.EditHeight;
 var
   I, K: Integer;
   Rad, Slope, Speed: Byte;
@@ -376,7 +376,7 @@ begin
 end;
 
 
-procedure TTerrainPainter.EditTile(aLoc: TKMPoint; aTile, aRotation: Byte);
+procedure TKMTerrainPainter.EditTile(aLoc: TKMPoint; aTile, aRotation: Byte);
 begin
   if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
   begin
@@ -389,7 +389,7 @@ end;
 
 
 //Skip the KaM data and load MapEd vertice info
-procedure TTerrainPainter.LoadFromFile(FileName: string);
+procedure TKMTerrainPainter.LoadFromFile(FileName: string);
 var
   I,K: Integer;
   S: TKMemoryStream;
@@ -443,7 +443,7 @@ begin
 end;
 
 
-procedure TTerrainPainter.SaveToFile(FileName: string);
+procedure TKMTerrainPainter.SaveToFile(FileName: string);
 var
   I,K: Integer;
   S: TKMemoryStream;
@@ -483,7 +483,7 @@ end;
 
 
 //Only MapEd accesses it
-procedure TTerrainPainter.UpdateStateIdle;
+procedure TKMTerrainPainter.UpdateStateIdle;
 begin
   case GameCursor.Mode of
     cmElevate,

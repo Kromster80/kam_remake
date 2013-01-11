@@ -37,7 +37,7 @@ begin
   fResource := TResource.Create(nil, nil, nil);
   fResource.LoadMenuResources('');
   fSoundLib := TSoundLib.Create('', 0, False);
-  fTerrain := TTerrain.Create;
+  fTerrain := TKMTerrain.Create;
   fTerrain.MakeNewMap(32, 32, False);
   fPlayers := TKMPlayersCollection.Create;
   fPlayers.AddPlayers(1);
