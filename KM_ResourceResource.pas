@@ -15,8 +15,6 @@ type
   public
     constructor Create(aType: TResourceType);
     function IsValid: Boolean;
-    function IsWeapon: Boolean;
-    function IsGood: Boolean;
     property GUIIcon: Word read GetGUIIcon;
     property MarketPrice: Single read fMarketPrice;
     property Title: String read GetTitle;
@@ -168,18 +166,6 @@ end;
 function TKMResourceDat.IsValid: boolean;
 begin
   Result := fType in [WARE_MIN..WARE_MAX];
-end;
-
-
-function TKMResourceDat.IsWeapon: Boolean;
-begin
-  Result := fType in [WEAPON_MIN..WEAPON_MAX];
-end;
-
-
-function TKMResourceDat.IsGood: Boolean;
-begin
-  Result := IsValid and not (fType in [WEAPON_MIN..WEAPON_MAX]);
 end;
 
 

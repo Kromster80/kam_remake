@@ -803,20 +803,20 @@ begin
       if Bests[5] < GetHousesBuilt     then Bests[5] := GetHousesBuilt;
       if Bests[6] > GetHousesLost      then Bests[6] := GetHousesLost;
       if Bests[7] < GetHousesDestroyed then Bests[7] := GetHousesDestroyed;
-      if Bests[8] < GetGoodsProduced   then Bests[8] := GetGoodsProduced;
+      if Bests[8] < GetCivilProduced   then Bests[8] := GetCivilProduced;
       if Bests[9] < GetWeaponsProduced then Bests[9] := GetWeaponsProduced;
 
       //If Totals is 0 the category skipped and does not have "Best" icon on it
-      inc(Totals[0], GetCitizensTrained);
-      inc(Totals[1], GetCitizensLost);
-      inc(Totals[2], GetWarriorsTrained);
-      inc(Totals[3], GetWarriorsLost);
-      inc(Totals[4], GetWarriorsKilled);
-      inc(Totals[5], GetHousesBuilt);
-      inc(Totals[6], GetHousesLost);
-      inc(Totals[7], GetHousesDestroyed);
-      inc(Totals[8], GetGoodsProduced);
-      inc(Totals[9], GetWeaponsProduced);
+      Inc(Totals[0], GetCitizensTrained);
+      Inc(Totals[1], GetCitizensLost);
+      Inc(Totals[2], GetWarriorsTrained);
+      Inc(Totals[3], GetWarriorsLost);
+      Inc(Totals[4], GetWarriorsKilled);
+      Inc(Totals[5], GetHousesBuilt);
+      Inc(Totals[6], GetHousesLost);
+      Inc(Totals[7], GetHousesDestroyed);
+      Inc(Totals[8], GetCivilProduced);
+      Inc(Totals[9], GetWeaponsProduced);
     end;
 
   //Fill in raw values
@@ -839,17 +839,17 @@ begin
       Image_ResultsRosette[I,1].Visible := (GetCitizensLost    <= Bests[1]) and (Totals[1] > 0);
       Image_ResultsRosette[I,2].Visible := (GetWarriorsTrained >= Bests[2]) and (Totals[2] > 0);
       Image_ResultsRosette[I,3].Visible := (GetWarriorsLost    <= Bests[3]) and (Totals[3] > 0);
-      Image_ResultsRosette[I,4].Visible := (GetWarriorsKilled >= Bests[4]) and (Totals[4] > 0);
+      Image_ResultsRosette[I,4].Visible := (GetWarriorsKilled  >= Bests[4]) and (Totals[4] > 0);
       //Objects
       Bar_Results[I,5].Tag := GetHousesBuilt;
       Bar_Results[I,6].Tag := GetHousesLost;
       Bar_Results[I,7].Tag := GetHousesDestroyed;
-      Bar_Results[I,8].Tag := GetGoodsProduced;
+      Bar_Results[I,8].Tag := GetCivilProduced;
       Bar_Results[I,9].Tag := GetWeaponsProduced;
       Image_ResultsRosette[I,5].Visible := (GetHousesBuilt     >= Bests[5]) and (Totals[5] > 0);
       Image_ResultsRosette[I,6].Visible := (GetHousesLost      <= Bests[6]) and (Totals[6] > 0);
       Image_ResultsRosette[I,7].Visible := (GetHousesDestroyed >= Bests[7]) and (Totals[7] > 0);
-      Image_ResultsRosette[I,8].Visible := (GetGoodsProduced   >= Bests[8]) and (Totals[8] > 0);
+      Image_ResultsRosette[I,8].Visible := (GetCivilProduced   >= Bests[8]) and (Totals[8] > 0);
       Image_ResultsRosette[I,9].Visible := (GetWeaponsProduced >= Bests[9]) and (Totals[9] > 0);
     end;
   end;

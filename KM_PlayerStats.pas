@@ -86,8 +86,8 @@ type
     function GetWarriorsTrained: Cardinal;
     function GetWarriorsKilled: Cardinal;
     function GetWarriorsLost: Cardinal;
-    function GetGoodsProduced(aRT: TResourceType): Cardinal; overload;
-    function GetGoodsProduced: Cardinal; overload;
+    function GetGoodsProduced(aRT: TResourceType): Cardinal;
+    function GetCivilProduced: Cardinal;
     function GetWeaponsProduced: Cardinal;
 
     property GraphCount: Integer read fGraphCount;
@@ -264,13 +264,13 @@ begin
     ht_None:    ;
     ht_Any:     for H := Low(THouseType) to High(THouseType) do
                 if fResource.HouseDat[H].IsValid then
-                  Result := Result + Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost;
+                  Inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost);
     else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost;
   end;
 end;
 
 
-//How many complete houses are there
+//How many complete houses there are
 function TKMPlayerStats.GetHouseQty(aType: array of THouseType): Integer;
 var
   I: Integer;
@@ -284,12 +284,12 @@ begin
   begin
     for H := Low(THouseType) to High(THouseType) do
     if fResource.HouseDat[H].IsValid then
-      Result := Result + Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost;
+      Inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost);
   end
   else
   for I := Low(aType) to High(aType) do
     if fResource.HouseDat[aType[I]].IsValid then
-      Result := Result + Houses[aType[I]].Initial + Houses[aType[I]].Built - Houses[aType[I]].SelfDestruct - Houses[aType[I]].Lost
+      Inc(Result, Houses[aType[I]].Initial + Houses[aType[I]].Built - Houses[aType[I]].SelfDestruct - Houses[aType[I]].Lost)
     else
       Assert(False, 'Quering wrong house type');
 end;
@@ -304,7 +304,7 @@ begin
     ht_None:    ;
     ht_Any:     for H := Low(THouseType) to High(THouseType) do
                 if fResource.HouseDat[H].IsValid then
-                  Result := Result + Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved;
+                  Inc(Result, Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved);
     else        Result := Houses[aType].Started + Houses[aType].Planned - Houses[aType].Ended - Houses[aType].PlanRemoved;
   end;
 end;
@@ -324,12 +324,12 @@ begin
   begin
     for H := Low(THouseType) to High(THouseType) do
     if fResource.HouseDat[H].IsValid then
-      Result := Result + Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved;
+      Inc(Result, Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved);
   end
   else
   for I := Low(aType) to High(aType) do
     if fResource.HouseDat[aType[I]].IsValid then
-      Result := Result + Houses[aType[I]].Started + Houses[aType[I]].Planned - Houses[aType[I]].Ended - Houses[aType[I]].PlanRemoved
+      Inc(Result, Houses[aType[I]].Started + Houses[aType[I]].Planned - Houses[aType[I]].Ended - Houses[aType[I]].PlanRemoved)
     else
       Assert(False, 'Quering wrong house type');
 end;
@@ -342,7 +342,7 @@ begin
   case aType of
     ut_None:    ;
     ut_Any:     for UT := HUMANS_MIN to HUMANS_MAX do
-                  Result := Result + Units[UT].Initial + Units[UT].Trained - Units[UT].Lost;
+                  Inc(Result, Units[UT].Initial + Units[UT].Trained - Units[UT].Lost);
     else        begin
                   Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
                   if aType = ut_Recruit then
@@ -360,9 +360,9 @@ begin
   case aRT of
     rt_None:    ;
     rt_All:     for RT := WARE_MIN to WARE_MAX do
-                  Result := Result + Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed;
+                  Inc(Result, Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed);
     rt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
-                  Result := Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed;
+                  Inc(Result, Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed);
     else        Result := Goods[aRT].Initial + Goods[aRT].Produced - Goods[aRT].Consumed;
   end;
 end;
@@ -373,7 +373,7 @@ var UT: TUnitType;
 begin
   Result := 0;
   for UT := WARRIOR_MIN to WARRIOR_MAX do
-    Result := Result + GetUnitQty(UT);
+    Inc(Result, GetUnitQty(UT));
 end;
 
 
@@ -382,7 +382,7 @@ var UT: TUnitType;
 begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
-    Result := Result + GetUnitQty(UT);
+    Inc(Result, GetUnitQty(UT));
 end;
 
 
@@ -408,6 +408,7 @@ begin
     rt_Corn:  if aHouse = ht_Mill           then Result := fResourceRatios[4,1] else
               if aHouse = ht_Swine          then Result := fResourceRatios[4,2] else
               if aHouse = ht_Stables        then Result := fResourceRatios[4,3];
+    else      Assert(False, 'Unexpected resource at GetRatio');
   end;
 end;
 
@@ -426,7 +427,7 @@ begin
     rt_Corn:  if aHouse = ht_Mill           then fResourceRatios[4,1] := aValue else
               if aHouse = ht_Swine          then fResourceRatios[4,2] := aValue else
               if aHouse = ht_Stables        then fResourceRatios[4,3] := aValue;
-    else Assert(False, 'Unexpected resource at SetRatio');
+    else      Assert(False, 'Unexpected resource at SetRatio');
   end;
 end;
 
@@ -516,19 +517,27 @@ end;
 
 
 function TKMPlayerStats.GetGoodsProduced(aRT: TResourceType): Cardinal;
+var RT: TResourceType;
 begin
-  //todo: Handle rt_SpecialTypes
-  Result := Goods[aRT].Produced;
+  Result := 0;
+  case aRT of
+    rt_None:    ;
+    rt_All:     for RT := WARE_MIN to WARE_MAX do
+                  Inc(Result, Goods[RT].Produced);
+    rt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
+                  Inc(Result, Goods[RT].Produced);
+    else        Result := Goods[aRT].Produced;
+  end;
 end;
 
 
 //Everything except weapons
-function TKMPlayerStats.GetGoodsProduced: Cardinal;
+function TKMPlayerStats.GetCivilProduced: Cardinal;
 var RT: TResourceType;
 begin
   Result := 0;
   for RT := WARE_MIN to WARE_MAX do
-  if fResource.Resources[RT].IsGood then
+  if not (RT in [WEAPON_MIN..WEAPON_MAX]) then
     Inc(Result, Goods[RT].Produced);
 end;
 
@@ -538,8 +547,7 @@ function TKMPlayerStats.GetWeaponsProduced: Cardinal;
 var RT: TResourceType;
 begin
   Result := 0;
-  for RT := WARE_MIN to WARE_MAX do
-  if fResource.Resources[RT].IsWeapon then
+  for RT := WEAPON_MIN to WEAPON_MAX do
     Inc(Result, Goods[RT].Produced);
 end;
 

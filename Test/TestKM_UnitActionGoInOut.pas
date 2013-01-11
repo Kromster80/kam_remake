@@ -1,13 +1,12 @@
 unit TestKM_UnitActionGoInOut;
+{$I KaM_Remake.inc}
 interface
-
 uses
   TestFramework, KM_Units, KM_Points, KM_CommonClasses, Classes, KromUtils, SysUtils,
   KM_Defaults, KM_UnitActionGoInOut, KM_Houses;
 
 type
   // Test methods for class TUnitActionGoInOut
-
   TestTUnitActionGoInOut = class(TTestCase)
   strict private
     fUnit: TKMUnit;
@@ -17,15 +16,13 @@ type
     procedure SetUp; override;
     procedure TearDown; override;
   published
-    procedure TestSyncLoad;
-    procedure TestActName;
-    procedure TestGetExplanation;
-    procedure TestGetDoorwaySlide;
     procedure TestExecute;
   end;
 
+
 implementation
 uses KM_Log, KM_PlayersCollection, KM_Resource, KM_Sound, KM_Terrain, KM_Utils;
+
 
 procedure TestTUnitActionGoInOut.SetUp;
 begin
@@ -48,6 +45,7 @@ begin
   FUnitActionGoInOut := TUnitActionGoInOut.Create(fUnit, ua_Walk, gd_GoInside, fHouse);
 end;
 
+
 procedure TestTUnitActionGoInOut.TearDown;
 begin
   FUnitActionGoInOut.Free;
@@ -59,37 +57,6 @@ begin
   FUnitActionGoInOut := nil;
 end;
 
-procedure TestTUnitActionGoInOut.TestSyncLoad;
-begin
-  FUnitActionGoInOut.SyncLoad;
-  // TODO: Validate method results
-end;
-
-procedure TestTUnitActionGoInOut.TestActName;
-var
-  ReturnValue: TUnitActionName;
-begin
-  ReturnValue := FUnitActionGoInOut.ActName;
-  // TODO: Validate method results
-end;
-
-procedure TestTUnitActionGoInOut.TestGetExplanation;
-var
-  ReturnValue: string;
-begin
-  ReturnValue := FUnitActionGoInOut.GetExplanation;
-  // TODO: Validate method results
-end;
-
-procedure TestTUnitActionGoInOut.TestGetDoorwaySlide;
-var
-  ReturnValue: Single;
-  aCheck: TCheckAxis;
-begin
-  // TODO: Setup method call parameters
-  ReturnValue := FUnitActionGoInOut.GetDoorwaySlide(aCheck);
-  // TODO: Validate method results
-end;
 
 procedure TestTUnitActionGoInOut.TestExecute;
 var
@@ -113,8 +80,11 @@ begin
   SetUp;
 end;
 
+
 initialization
   // Register any test cases with the test runner
   RegisterTest(TestTUnitActionGoInOut.Suite);
+
+
 end.
 
