@@ -134,27 +134,36 @@ end;
 
 
 procedure TKMMain.CloseQuery(var CanClose: Boolean);
+var
+  WasRunning: Boolean;
 begin
   //MessageDlg works better than Application.MessageBox or others, it stays on top and
-  //pauses here until the user clicks ok.
-  CanClose := (fGameApp = nil) or fGameApp.CanClose;
+  //pauses here until the user clicks ok. However for some reason we chose MessageBox
+  //thus we need to pause the game manually
+
+  CanClose := (fGameApp = nil) or (fGameApp.Game = nil) or fGameApp.Game.IsReplay;
 
   if not CanClose then
   begin
-    //todo: Pause the game
-    //if fGame.Running then fGame.Pause
+    //We want to pause the game for the time user verifies he really wants to close
+    WasRunning := not fGameApp.Game.IsMultiplayer
+                  and not fGameApp.Game.IsMapEditor
+                  and not fGameApp.Game.IsPaused;
+
+    //Pause the game
+    if WasRunning then
+      fGameApp.Game.IsPaused := True;
 
     //Ask the Player
-    CanClose :=
-      //(MessageDlg('Any unsaved changes will be lost. Exit?', mtWarning, [mbYes, mbNo], 0) = mrYes);
-      MessageBox(fFormMain.Handle, PChar('Any unsaved changes will be lost. Exit?'),
-                         PChar('Warning'),
-                         MB_YESNO or MB_ICONWARNING or MB_SETFOREGROUND
-                         or MB_TASKMODAL) = IDYES;//}
+    CanClose := MessageBox( fFormMain.Handle,
+                            PChar('Any unsaved changes will be lost. Exit?'),
+                            PChar('Warning'),
+                            MB_YESNO or MB_ICONWARNING or MB_SETFOREGROUND or MB_TASKMODAL
+                           ) = IDYES;
 
-    //todo: Resume the game
-    if not CanClose then
-      //if fGame.WasRunning then fGame.Resume
+    //Resume the game
+    if not CanClose and WasRunning then
+      fGameApp.Game.IsPaused := False;
   end;
 end;
 

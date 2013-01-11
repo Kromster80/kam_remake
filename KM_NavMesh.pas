@@ -121,7 +121,7 @@ var
                 and (Tmp[aY,aX] > 0);
       //Mark tiles we've been on, so they do not trigger new duplicate contour
       if Result then
-        Tmp[aY,aX] := Tmp[aY,aX] - (Tmp[aY,aX] div 2);
+        Tmp[aY,aX] := 1; //Mark unpassable but visited
     end;
   var
     State: Byte;
@@ -223,7 +223,8 @@ begin
     C3 := (Tmp[I+1,K] = 2);
     C4 := (Tmp[I+1,K+1] = 2);
 
-    //todo: Skip cases where C1..C4 are all having value of 1-2
+    //Maybe skip cases where C1..C4 are all having value of 1-2
+    //but I'm not sure this is going to get us any improvements
     if (C1 or C2 or C3 or C4) <> (C1 and C2 and C3 and C4) then
       WalkPerimeter(K,I);
   end;

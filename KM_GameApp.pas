@@ -191,9 +191,9 @@ end;
 //Determine if the game can be closed without loosing any important progress
 function TKMGameApp.CanClose: Boolean;
 begin
-  //There are no unsaved changes in MainMenu and in Replay.
+  //There are no unsaved changes in MainMenu and in Replays
   //In all other cases (maybe except gsOnHold?) there are potentially unsaved changes
-  Result := (fGame = nil) or (fGame.GameMode in [gmReplaySingle,gmReplayMulti]);
+  Result := (fGame = nil) or (fGame.GameMode in [gmReplaySingle, gmReplayMulti]);
 end;
 
 

@@ -394,7 +394,7 @@ end;
 
 
 function TKMPlayerStats.GetRatio(aRes: TResourceType; aHouse: THouseType): Byte;
-begin
+begin  
   Result := 5; //Default should be 5, for house/resource combinations that don't have a setting (on a side note this should be the only place the resourse limit is defined)
   case aRes of
     rt_Steel: if aHouse = ht_WeaponSmithy   then Result := fResourceRatios[1,1] else
@@ -408,7 +408,7 @@ begin
     rt_Corn:  if aHouse = ht_Mill           then Result := fResourceRatios[4,1] else
               if aHouse = ht_Swine          then Result := fResourceRatios[4,2] else
               if aHouse = ht_Stables        then Result := fResourceRatios[4,3];
-    else      Assert(False, 'Unexpected resource at GetRatio');
+    else      //Handled in 1st row to avoid repeating in if .. else lines
   end;
 end;
 
