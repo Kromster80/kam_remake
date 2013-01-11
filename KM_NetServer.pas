@@ -91,7 +91,7 @@ type
     procedure Status(const S: string);
     procedure ClientConnect(aHandle:integer);
     procedure ClientDisconnect(aHandle:integer);
-    procedure SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer; aText:string);
+    procedure SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer; aText:AnsiString);
     procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
     procedure SaveServerInfo(M: TKMemoryStream);
@@ -445,8 +445,10 @@ end;
 
 
 //Assemble the packet as [Sender.Recepient.Length.Data]
-procedure TKMNetServer.SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer; aText:string);
-var i:integer; M:TKMemoryStream;
+procedure TKMNetServer.SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer; aText:AnsiString);
+var
+  I: Integer;
+  M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
 
@@ -456,7 +458,7 @@ begin
   M.Write(Byte(aKind));
   case NetPacketType[aKind] of
     pfNumber: M.Write(aMsg);
-    pfText:   M.Write(aText);
+    pfBinary: M.Write(aText);
   end;
 
   //Write PacketLength into header
@@ -472,12 +474,12 @@ begin
 
   if aRecipient = NET_ADDRESS_ALL then
     //Iterate backwards because sometimes calling Send results in ClientDisconnect (LNet only?)
-    for i:=fClientList.Count-1 downto 0 do
+    for I := fClientList.Count - 1 downto 0 do
       fServer.SendData(fClientList[i].Handle, M.Memory, M.Size)
   else
     fServer.SendData(aRecipient, M.Memory, M.Size);
 
-  inc(BytesTX,M.Size);
+  Inc(BytesTX,M.Size);
   M.Free;
 end;
 
@@ -499,7 +501,7 @@ begin
   M.Read(Kind, SizeOf(TKMessageKind));
   case NetPacketType[Kind] of
     pfNumber: M.Read(Param);
-    pfText:   M.Read(Msg);
+    pfBinary: M.Read(Msg);
   end;
   M.Free;
 

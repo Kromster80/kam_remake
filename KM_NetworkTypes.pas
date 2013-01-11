@@ -78,57 +78,59 @@ type
     );
 
 
-  //todo: Replace pfText with pfAnsiText (and use it only for utility 1 string packets)
-  //todo: Add pfBinary for data that is composed of TKMMemoryStream
-  TKMPacketFormat = (pfNoData, pfNumber, pfText);
+  TKMPacketFormat = (
+    pfNoData, //Packet contains no data
+    pfNumber, //Packet contains an integer
+    pfBinary   //Packet contains binary data (text or serialized data)
+    );
 
 const
   NetPacketType:array[TKMessageKind] of TKMPacketFormat =
-  ( pfText,     //mk_AskToJoin
+  ( pfBinary,   //mk_AskToJoin
     pfNoData,   //mk_AllowToJoin
-    pfText,     //mk_RefuseToJoin
+    pfBinary,   //mk_RefuseToJoin
     pfNoData,   //mk_HostingRights
     pfNumber,   //mk_IndexOnServer
     pfNumber,   //mk_ClientLost
     pfNumber,   //mk_ReassignHost
-    pfText,     //mk_GameVersion
-    pfText,     //mk_WelcomeMessage
-    pfText,     //mk_ServerName
+    pfBinary,   //mk_GameVersion
+    pfBinary,   //mk_WelcomeMessage
+    pfBinary,   //mk_ServerName
     pfNumber,   //mk_JoinRoom
     pfNumber,   //mk_ConnectedToRoom
-    pfText,     //mk_SetGameInfo
+    pfBinary,   //mk_SetGameInfo
     pfNumber,   //mk_KickPlayer
-    pfText,     //mk_Kicked
-    pfText,     //mk_LangCode
+    pfBinary,   //mk_Kicked
+    pfBinary,   //mk_LangCode
     pfNumber,   //mk_GameCRC
     pfNoData,   //mk_GetServerInfo
-    pfText,     //mk_ServerInfo
+    pfBinary,   //mk_ServerInfo
     pfNoData,   //mk_Disconnect
     pfNoData,   //mk_Ping
     pfNoData,   //mk_Pong
-    pfText,     //mk_PingInfo
+    pfBinary,   //mk_PingInfo
     pfNumber,   //mk_FPS
-    pfText,     //mk_PlayersList
-    pfText,     //mk_GameOptions
+    pfBinary,   //mk_PlayersList
+    pfBinary,   //mk_GameOptions
     pfNumber,   //mk_StartingLocQuery
     pfNumber,   //mk_SetTeam
     pfNumber,   //mk_FlagColorQuery
     pfNoData,   //mk_ResetMap
-    pfText,     //mk_MapSelect
+    pfBinary,   //mk_MapSelect
     pfNumber,   //mk_MapCRC
-    pfText,     //mk_SaveSelect
+    pfBinary,   //mk_SaveSelect
     pfNumber,   //mk_SaveCRC
     pfNoData,   //mk_ReadyToStart
-    pfText,     //mk_Start
+    pfBinary,   //mk_Start
     pfNoData,   //mk_ReadyToPlay
     pfNoData,   //mk_Play
-    pfText,     //mk_AskToReconnect
-    pfText,     //mk_RefuseReconnect
+    pfBinary,   //mk_AskToReconnect
+    pfBinary,   //mk_RefuseReconnect
     pfNumber,   //mk_ResyncFromTick
     pfNoData,   //mk_ReconnectionAccepted
     pfNumber,   //mk_ClientReconnected
-    pfText,     //mk_Commands
-    pfText      //mk_Text
+    pfBinary,   //mk_Commands
+    pfBinary    //mk_Text
   );
 
 

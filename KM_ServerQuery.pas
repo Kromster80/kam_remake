@@ -43,7 +43,7 @@ type
     fOnServerData: TServerDataEvent;
     fOnQueryDone: TNotifyEvent;
     procedure NetClientReceive(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal);
-    procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
+    procedure PacketSend(aRecipient: Integer; aKind: TKMessageKind; const aText: AnsiString; aParam:integer);
   public
     constructor Create;
     destructor Destroy; override;
@@ -316,7 +316,7 @@ begin
   M.Read(Kind, SizeOf(TKMessageKind)); //Depending on kind message contains either Text or a Number
   case NetPacketType[Kind] of
     pfNumber: M.Read(Param);
-    pfText:   M.Read(Msg);
+    pfBinary:   M.Read(Msg);
   end;
   M.Free;
 
@@ -341,7 +341,7 @@ begin
 end;
 
 
-procedure TKMQuery.PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
+procedure TKMQuery.PacketSend(aRecipient: Integer; aKind: TKMessageKind; const aText: AnsiString; aParam: Integer);
 var M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
@@ -349,7 +349,7 @@ begin
 
   case NetPacketType[aKind] of
     pfNumber: M.Write(aParam);
-    pfText:   M.Write(aText);
+    pfBinary: M.Write(aText);
   end;
 
   fNetClient.SendData(fIndexOnServer, aRecipient, M.Memory, M.Size);

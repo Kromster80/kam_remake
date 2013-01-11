@@ -105,7 +105,7 @@ type
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
     procedure PacketRecieve(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal); //Process all commands
-    procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
+    procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText: AnsiString; aParam:integer);
   public
     constructor Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word; aLang:string);
     destructor Destroy; override;
@@ -884,14 +884,14 @@ begin
 end;
 
 
-procedure TKMNetworking.PacketRecieve(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal);
+procedure TKMNetworking.PacketRecieve(aNetClient: TKMNetClient; aSenderIndex: Integer; aData: Pointer; aLength: Cardinal);
 var
-  Kind:TKMessageKind;
-  M:TKMemoryStream;
-  Param:integer;
+  Kind: TKMessageKind;
+  M: TKMemoryStream;
+  Param: Integer;
   Msg: AnsiString;
   ReMsg: AnsiString;
-  LocID,TeamID,ColorID,PlayerIndex:integer;
+  LocID,TeamID,ColorID,PlayerIndex: Integer;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
   if not Connected then exit;
@@ -902,7 +902,7 @@ begin
   M.Read(Kind, SizeOf(TKMessageKind)); //Depending on kind message contains either Text or a Number
   case NetPacketType[Kind] of
     pfNumber: M.Read(Param);
-    pfText:   M.Read(Msg);
+    pfBinary: M.Read(Msg);
   end;
   M.Free;
 
@@ -1369,7 +1369,7 @@ end;
 
 
 //MessageKind.Data(depends on Kind)
-procedure TKMNetworking.PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
+procedure TKMNetworking.PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText: AnsiString; aParam:integer);
 var M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
@@ -1377,7 +1377,7 @@ begin
 
   case NetPacketType[aKind] of
     pfNumber: M.Write(aParam);
-    pfText:   M.Write(aText);
+    pfBinary: M.Write(aText);
   end;
 
   fNetClient.SendData(fMyIndexOnServer, aRecipient, M.Memory, M.Size);
