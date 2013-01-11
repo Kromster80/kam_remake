@@ -945,6 +945,8 @@ begin
       Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 175, TB_WIDTH, 25, 'Edit formations', bsGame);
       Button_EditFormations.OnClick := Formations_Show;
 
+      //todo: Button_DefencePosAdd
+
     //Defence settings
     Panel_Offence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Attacks', fnt_Outline, taCenter);
@@ -2191,7 +2193,6 @@ begin
                       fPlayers[fActiveMarker.Owner].AI.General.DefencePositions.Delete(fActiveMarker.Index);
                       SwitchPage(Button_Player[3]);
                     end;
-
                   end;
     mtRevealFOW:  begin
                     //Shortcut to structure we update
@@ -2887,7 +2888,6 @@ begin
                                       if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
                                         fTerrain.RemField(P);
                                     end;
-                    //todo: esp_Reveal:   fGame.MapEditor.Revealers.Remove(P);
                   end;
     end;
 end;
