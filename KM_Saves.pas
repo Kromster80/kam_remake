@@ -421,7 +421,7 @@ end;
 
 { TTSavesScanner }
 //aOnSaveAdd - signal that there's new save that should be added
-//aOnSaveAddDone - signal that save has been added. Can safely call main thread methods since it's executed in Synchronize
+//aOnSaveAddDone - signal that save has been added
 //aOnComplete - scan is complete
 constructor TTSavesScanner.Create(aMultiplayerPath: Boolean; aOnSaveAdd: TSaveEvent; aOnSaveAddDone, aOnComplete: TNotifyEvent);
 begin

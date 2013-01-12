@@ -462,7 +462,7 @@ end;
 
 { TTMapsScanner }
 //aOnMapAdd - signal that there's new map that should be added
-//aOnMapAddDone - signal that map has been added. Can safely call main thread methods since it's executed in Synchronize
+//aOnMapAddDone - signal that map has been added
 //aOnComplete - scan is complete
 constructor TTMapsScanner.Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
 begin
