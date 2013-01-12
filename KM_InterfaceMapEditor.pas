@@ -431,8 +431,10 @@ begin
     DisplayPage(Panel_Save)
   else
   if Sender = Button_Menu_Load then
+  begin
+    Menu_LoadUpdate;
     DisplayPage(Panel_Load)
-  else
+  end else
 
   if Sender = Image_Extra then
     DisplayPage(Panel_Extra)
