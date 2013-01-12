@@ -4138,7 +4138,7 @@ begin
   if not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
   begin
     T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, LOC_RAD);
-    TKMRenderUI.WriteText(T.X, T.Y - 6, 16, IntToStr(I), fnt_Outline, taCenter);
+    TKMRenderUI.WriteText(T.X, T.Y - 6, 0, IntToStr(I), fnt_Outline, taCenter);
   end;
 end;
 
