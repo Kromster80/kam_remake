@@ -2262,29 +2262,31 @@ procedure TKMMainMenuInterface.SingleMap_RefreshList(aJumpToSelected: Boolean);
 var
   I, MapIndex: Integer;
 begin
-  ColList_SingleMaps.Clear;
+  fMaps.Lock;
+    ColList_SingleMaps.Clear;
 
-  //IDs of maps could changed, so use CRC to check which one was selected
-  MapIndex := -1;
-  for I := 0 to fMaps.Count-1 do
-    if (fMaps[I].CRC = fLastMapCRC) then
-      MapIndex := I;
+    //IDs of maps could changed, so use CRC to check which one was selected
+    MapIndex := -1;
+      for I := 0 to fMaps.Count-1 do
+        if (fMaps[I].CRC = fLastMapCRC) then
+          MapIndex := I;
 
-  if aJumpToSelected
-  and not InRange(MapIndex - ColList_SingleMaps.TopIndex, 0, MENU_SP_MAPS_COUNT - 1)
-  then
-    if MapIndex < ColList_SingleMaps.TopIndex + MENU_SP_MAPS_COUNT - 1 then
-      ColList_SingleMaps.TopIndex := MapIndex
-    else
-    if MapIndex > ColList_SingleMaps.TopIndex + MENU_SP_MAPS_COUNT - 1 then
-      ColList_SingleMaps.TopIndex := MapIndex - MENU_SP_MAPS_COUNT + 1;
+    if aJumpToSelected
+    and not InRange(MapIndex - ColList_SingleMaps.TopIndex, 0, MENU_SP_MAPS_COUNT - 1)
+    then
+      if MapIndex < ColList_SingleMaps.TopIndex + MENU_SP_MAPS_COUNT - 1 then
+        ColList_SingleMaps.TopIndex := MapIndex
+      else
+      if MapIndex > ColList_SingleMaps.TopIndex + MENU_SP_MAPS_COUNT - 1 then
+        ColList_SingleMaps.TopIndex := MapIndex - MENU_SP_MAPS_COUNT + 1;
 
-  for I := 0 to fMaps.Count - 1 do
-  begin
-    ColList_SingleMaps.AddItem(MakeListRow(['', IntToStr(fMaps[I].Info.PlayerCount), fMaps[I].FileName, fMaps[I].Info.MapSizeText]));
-    ColList_SingleMaps.Rows[I].Cells[2].Hint := fMaps[I].SmallDesc;
-    ColList_SingleMaps.Rows[I].Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].Info.MissionMode <> mm_Tactic)*14);
-  end;
+      for I := 0 to fMaps.Count - 1 do
+      begin
+        ColList_SingleMaps.AddItem(MakeListRow(['', IntToStr(fMaps[I].Info.PlayerCount), fMaps[I].FileName, fMaps[I].Info.MapSizeText]));
+        ColList_SingleMaps.Rows[I].Cells[2].Hint := fMaps[I].SmallDesc;
+        ColList_SingleMaps.Rows[I].Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].Info.MissionMode <> mm_Tactic)*14);
+      end;
+  fMaps.Unlock;
 end;
 
 
@@ -2292,36 +2294,38 @@ procedure TKMMainMenuInterface.SingleMap_ListClick(Sender: TObject);
 var
   ID: Integer;
 begin
-  ID := ColList_SingleMaps.ItemIndex;
+  fMaps.Lock;
+    ID := ColList_SingleMaps.ItemIndex;
 
-  //User could have clicked on empty space in list and we get -1 or unused id
-  if not InRange(ID, 0, fMaps.Count - 1) then
-  begin
-    fLastMapCRC := 0;
-    Label_SingleTitle.Caption   := '';
-    Memo_SingleDesc.Text        := '';
-    Label_SingleCondTyp.Caption := '';
-    Label_SingleCondWin.Caption := '';
-    Label_SingleCondDef.Caption := '';
+    //User could have clicked on empty space in list and we get -1 or unused id
+    if not InRange(ID, 0, fMaps.Count - 1) then
+    begin
+      fLastMapCRC := 0;
+      Label_SingleTitle.Caption   := '';
+      Memo_SingleDesc.Text        := '';
+      Label_SingleCondTyp.Caption := '';
+      Label_SingleCondWin.Caption := '';
+      Label_SingleCondDef.Caption := '';
 
-    MinimapView_Single.Hide;
-  end
-  else
-  begin
-    fLastMapCRC := fMaps[ID].CRC;
-    Label_SingleTitle.Caption   := fMaps[ID].FileName;
-    Memo_SingleDesc.Text        := fMaps[ID].BigDesc;
-    Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[ID].Info.MissionModeText]);
-    Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[ID].Info.VictoryCondition]);
-    Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[ID].Info.DefeatCondition]);
+      MinimapView_Single.Hide;
+    end
+    else
+    begin
+      fLastMapCRC := fMaps[ID].CRC;
+      Label_SingleTitle.Caption   := fMaps[ID].FileName;
+      Memo_SingleDesc.Text        := fMaps[ID].BigDesc;
+      Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[ID].Info.MissionModeText]);
+      Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[ID].Info.VictoryCondition]);
+      Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[ID].Info.DefeatCondition]);
 
-    MinimapView_Single.Show;
-    fMinimap.LoadFromMission(fMaps[ID].FullPath('.dat'));
-    fMinimap.Update(False);
-    MinimapView_Single.SetMinimap(fMinimap);
-  end;
+      MinimapView_Single.Show;
+      fMinimap.LoadFromMission(fMaps[ID].FullPath('.dat'));
+      fMinimap.Update(False);
+      MinimapView_Single.SetMinimap(fMinimap);
+    end;
 
-  Button_SingleStart.Enabled := ID <> -1;
+    Button_SingleStart.Enabled := ID <> -1;
+  fMaps.Unlock;
 end;
 
 
@@ -2333,14 +2337,16 @@ begin
   if not Button_SingleStart.Enabled then
     Exit;
 
-  for I := 0 to fMaps.Count - 1 do
-    if fLastMapCRC = fMaps[I].CRC then
-    begin
-      //Scan should be terminated, as it is no longer needed
-      fMaps.TerminateScan;
-      fGameApp.NewSingleMap(fMaps[I].FullPath('.dat'), fMaps[I].FileName); //Provide mission FileName mask and title here
-      Break;
-    end;
+  fMaps.Lock;
+    for I := 0 to fMaps.Count - 1 do
+      if fLastMapCRC = fMaps[I].CRC then
+      begin
+        //Scan should be terminated, as it is no longer needed
+        fMaps.TerminateScan;
+        fGameApp.NewSingleMap(fMaps[I].FullPath('.dat'), fMaps[I].FileName); //Provide mission FileName mask and title here
+        Break;
+      end;
+  fMaps.Unlock;
 end;
 
 
@@ -3089,7 +3095,6 @@ begin
         end;
     3:  //Saved Game
         begin
-          fMapsMP.TerminateScan;
           fSavesMP.Refresh(Lobby_ScanUpdate, True);
           DropCol_LobbyMaps.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
           DropCol_LobbyMaps.List.Header.Columns[0].Caption := fTextLibrary[TX_MENU_LOAD_FILE];
@@ -3134,48 +3139,50 @@ var
   PrevMap: string;
   AddMap: Boolean;
 begin
-  //Remember previous map selected
-  if DropCol_LobbyMaps.ItemIndex <> -1 then
-    PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
-  else
-    PrevMap := '';
+  fMapsMP.Lock;
+    //Remember previous map selected
+    if DropCol_LobbyMaps.ItemIndex <> -1 then
+      PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
+    else
+      PrevMap := '';
 
-  OldTopIndex := DropCol_LobbyMaps.List.TopIndex;
-  DropCol_LobbyMaps.Clear;
+    OldTopIndex := DropCol_LobbyMaps.List.TopIndex;
+    DropCol_LobbyMaps.Clear;
 
-  for I := 0 to fMapsMP.Count - 1 do
-  begin
-    //Different modes allow different maps
-    case Radio_LobbyMapType.ItemIndex of
-      0:    AddMap := (fMapsMP[I].Info.MissionMode = mm_Normal) and not fMapsMP[I].IsCoop; //BuildMap
-      1:    AddMap := (fMapsMP[I].Info.MissionMode = mm_Tactic) and not fMapsMP[I].IsCoop; //FightMap
-      2:    AddMap := fMapsMP[I].IsCoop; //CoopMap
-      else  AddMap := False; //Other cases are already handled in Lobby_MapTypeSelect
+    for I := 0 to fMapsMP.Count - 1 do
+    begin
+      //Different modes allow different maps
+      case Radio_LobbyMapType.ItemIndex of
+        0:    AddMap := (fMapsMP[I].Info.MissionMode = mm_Normal) and not fMapsMP[I].IsCoop; //BuildMap
+        1:    AddMap := (fMapsMP[I].Info.MissionMode = mm_Tactic) and not fMapsMP[I].IsCoop; //FightMap
+        2:    AddMap := fMapsMP[I].IsCoop; //CoopMap
+        else  AddMap := False; //Other cases are already handled in Lobby_MapTypeSelect
+      end;
+
+      if AddMap then
+        DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].Info.Title,
+                                           IntToStr(fMapsMP[I].Info.PlayerCount),
+                                           fMapsMP[I].Info.MapSizeText], I));
     end;
 
-    if AddMap then
-      DropCol_LobbyMaps.Add(MakeListRow([fMapsMP[I].Info.Title,
-                                         IntToStr(fMapsMP[I].Info.PlayerCount),
-                                         fMapsMP[I].Info.MapSizeText], I));
-  end;
+    //Restore previously selected map
+    if PrevMap <> '' then
+      for I := 0 to DropCol_LobbyMaps.Count - 1 do
+        if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevMap then
+          DropCol_LobbyMaps.ItemIndex := I;
 
-  //Restore previously selected map
-  if PrevMap <> '' then
-    for I := 0 to DropCol_LobbyMaps.Count - 1 do
-      if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevMap then
-        DropCol_LobbyMaps.ItemIndex := I;
-
-  //Restore the top index
-  DropCol_LobbyMaps.List.TopIndex := OldTopIndex;
-  if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
-  and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
-  begin
-    if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
-      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
-    else
-    if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
-      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
-  end;
+    //Restore the top index
+    DropCol_LobbyMaps.List.TopIndex := OldTopIndex;
+    if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
+    and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
+    begin
+      if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+        DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
+      else
+      if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+        DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
+    end;
+  fMapsMP.Unlock;
 end;
 
 
@@ -3719,7 +3726,10 @@ begin
     ID := List_MapEd.Rows[List_MapEd.ItemIndex].Tag;
     if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
 
-    fGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
+    Maps.Lock;
+      fGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
+    Maps.Unlock;
+    Maps := nil; //Make sure nobody else tries to use it once it's unlocked
     //Keep MP/SP selected in the map editor interface
     //(if mission failed to load we would have fGame = nil)
     if (fGame <> nil) and (fGame.MapEditorInterface <> nil) then
@@ -3777,12 +3787,16 @@ begin
 
   if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
 
-  for I := 0 to Maps.Count - 1 do
-    List_MapEd.AddItem(MakeListRow([Maps[I].Info.Title, IntToStr(Maps[I].Info.PlayerCount), Maps[I].Info.MapSizeText], I));
+  Maps.Lock;
+    for I := 0 to Maps.Count - 1 do
+      List_MapEd.AddItem(MakeListRow([Maps[I].Info.Title, IntToStr(Maps[I].Info.PlayerCount), Maps[I].Info.MapSizeText], I));
 
-  for I := 0 to Maps.Count - 1 do
-    if (Maps[I].CRC = fLastMapCRC) then
-      List_MapEd.ItemIndex := I;
+    for I := 0 to Maps.Count - 1 do
+      if (Maps[I].CRC = fLastMapCRC) then
+        List_MapEd.ItemIndex := I;
+
+  Maps.Unlock;
+  Maps := nil; //Make sure nobody else tries to use it once it's unlocked
 
   List_MapEd.TopIndex := OldTopIndex;
 
@@ -3837,9 +3851,12 @@ begin
     ID := List_MapEd.Rows[List_MapEd.ItemIndex].Tag;
     if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
 
-    fLastMapCRC := Maps[ID].CRC;
+    Maps.Lock;
+      fLastMapCRC := Maps[ID].CRC;
 
-    fMinimap.LoadFromMission(Maps[ID].FullPath('.dat'));
+      fMinimap.LoadFromMission(Maps[ID].FullPath('.dat'));
+    Maps.Unlock;
+    Maps := nil; //Make sure nobody else tries to use it once it's unlocked
     fMinimap.Update(True);
     MinimapView_MapEd.SetMinimap(fMinimap);
     MinimapView_MapEd.Show;
@@ -4073,7 +4090,8 @@ end;
 //Should update anything we want to be updated, obviously
 procedure TKMMainMenuInterface.UpdateState(aTickCount: Cardinal);
 begin
-  //
+  if fMaps <> nil then fMaps.UpdateState;
+  if fMapsMP <> nil then fMapsMP.UpdateState;
 end;
 
 

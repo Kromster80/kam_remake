@@ -51,7 +51,6 @@ type
     fOnMapAddDone: TNotifyEvent;
   public
     constructor Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent; aOnMapAddDone, aOnComplete: TNotifyEvent);
-    procedure MapAddDone;
     procedure Execute; override;
   end;
 
@@ -64,9 +63,8 @@ type
     CS: TCriticalSection;
     fScanner: TTMapsScanner;
     fScanning: Boolean; //Flag if scan is in progress
+    fUpdateNeeded: Boolean;
     fOnRefresh: TNotifyEvent;
-    procedure Lock;
-    procedure Unlock;
     procedure Clear;
     procedure MapAdd(aMap: TKMapInfo);
     procedure MapAddDone(Sender: TObject);
@@ -79,6 +77,8 @@ type
 
     property Count: Integer read fCount;
     property Maps[aIndex: Integer]: TKMapInfo read GetMap; default;
+    procedure Lock;
+    procedure Unlock;
 
     class function FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
 
@@ -89,6 +89,7 @@ type
 
     //Should be accessed only as a part of aOnRefresh/aOnSort events handlers
     function MapList: string;
+    procedure UpdateState;
   end;
 
 
@@ -276,13 +277,10 @@ end;
 //Within CS we are guaranteed that noone will change the fMaps[aIndex] until we done
 function TKMapsCollection.GetMap(aIndex: Integer): TKMapInfo;
 begin
-  Lock;
-  try
-    Assert(InRange(aIndex, 0, fCount - 1));
-    Result := fMaps[aIndex];
-  finally
-    Unlock;
-  end;
+  //No point locking/unlocking here since we return a TObject that could be modified/freed
+  //by another thread before the caller uses it.
+  Assert(InRange(aIndex, 0, fCount - 1));
+  Result := fMaps[aIndex];
 end;
 
 
@@ -299,13 +297,13 @@ end;
 
 
 function TKMapsCollection.MapList: string;
-var
-  I: Integer;
+var I: Integer;
 begin
-  Assert(not fScanning, 'Guarding from access to inconsistent data');
-  Result := '';
-  for I := 0 to fCount - 1 do
-    Result := Result + fMaps[I].FileName + eol;
+  Lock;
+    Result := '';
+    for I := 0 to fCount - 1 do
+      Result := Result + fMaps[I].FileName + eol;
+  Unlock;
 end;
 
 
@@ -317,6 +315,18 @@ begin
   for I := 0 to fCount - 1 do
     FreeAndNil(fMaps[I]);
   fCount := 0;
+end;
+
+
+procedure TKMapsCollection.UpdateState;
+begin
+  if fUpdateNeeded then
+  begin
+    if Assigned(fOnRefresh) then
+      fOnRefresh(Self);
+
+    fUpdateNeeded := False;
+  end;
 end;
 
 
@@ -384,6 +394,7 @@ begin
     fScanner.WaitFor;
     fScanner.Free;
     fScanner := nil;
+    fScanning := False;
   end;
 end;
 
@@ -427,13 +438,7 @@ end;
 
 procedure TKMapsCollection.MapAddDone(Sender: TObject);
 begin
-  //Signal that we let UI access Count and Maps list safely, as they check for fScanning flag
-  fScanning := False;
-
-  if Assigned(fOnRefresh) then
-    fOnRefresh(Self);
-
-  fScanning := True;
+  fUpdateNeeded := True; //Next time the GUI thread calls UpdateState we will run fOnRefresh
 end;
 
 
@@ -476,13 +481,6 @@ begin
 end;
 
 
-//We need this wrapper since Synchronize can only call parameterless methods
-procedure TTMapsScanner.MapAddDone;
-begin
-  fOnMapAddDone(Self);
-end;
-
-
 procedure TTMapsScanner.Execute;
 var
   SearchRec: TSearchRec;
@@ -504,7 +502,7 @@ begin
       if SLOW_MAP_SCAN then
         Sleep(50);
       fOnMapAdd(Map);
-      Synchronize(MapAddDone); //Updates UI controls in main thread (to avoid clashes with e.g. Painting)
+      fOnMapAddDone(Self);
     end;
   until (FindNext(SearchRec) <> 0) or Terminated;
   FindClose(SearchRec);

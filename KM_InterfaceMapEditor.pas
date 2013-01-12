@@ -1463,7 +1463,8 @@ end;
 //Should update any items changed by game (resource counts, hp, etc..)
 procedure TKMapEdInterface.UpdateState(aTickCount: Cardinal);
 begin
-  //
+  if fMaps <> nil then fMaps.UpdateState;
+  if fMapsMP <> nil then fMapsMP.UpdateState;
 end;
 
 
