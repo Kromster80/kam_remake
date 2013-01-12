@@ -12,7 +12,7 @@
  +	Game window would move when resizing below minimum allowed size (should stay in place)
  +	If weapon maker had f.e. 5 axes and 5 lances in output and all weapons were ordered, he would not make bows
  +	Farms were significantly less efficient when sharing a large field between multiple farms
- +	Map lists are populated a lot faster now
+ +	Map/save/replay lists are populated a lot faster now
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)

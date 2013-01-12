@@ -458,16 +458,18 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Save_ListChange(Sender: TObject);
 begin
-  if InRange(TKMListBox(Sender).ItemIndex, 0, fSaves.Count-1) then
-  begin
-    fSave_Selected := TKMListBox(Sender).ItemIndex;
-    Edit_Save.Text := fSaves[List_Save.ItemIndex].FileName;
-    //We just selected something from the list so it exists
-    CheckBox_SaveExists.Enabled := True;
-    CheckBox_SaveExists.Checked := False;
-    Label_SaveExists.Visible := True;
-    Button_Save.Enabled := False;
-  end;
+  fSaves.Lock;
+    if InRange(TKMListBox(Sender).ItemIndex, 0, fSaves.Count-1) then
+    begin
+      fSave_Selected := TKMListBox(Sender).ItemIndex;
+      Edit_Save.Text := fSaves[List_Save.ItemIndex].FileName;
+      //We just selected something from the list so it exists
+      CheckBox_SaveExists.Enabled := True;
+      CheckBox_SaveExists.Checked := False;
+      Label_SaveExists.Visible := True;
+      Button_Save.Enabled := False;
+    end;
+  fSaves.Unlock;
 end;
 
 
@@ -515,8 +517,12 @@ begin
     Menu_Save_EditChange(nil);
 
   if (Sender = fSaves) then
-    for I := 0 to fSaves.Count - 1 do
-      List_Save.Add(fSaves[i].FileName);
+  begin
+    fSaves.Lock;
+      for I := 0 to fSaves.Count - 1 do
+        List_Save.Add(fSaves[i].FileName);
+    fSaves.Unlock;
+  end;
 
   List_Save.ItemIndex := fSave_Selected;
   List_Save.TopIndex := OldTopIndex;
@@ -542,13 +548,15 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Load_ListClick(Sender: TObject);
 begin
-  Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count - 1)
-                         and fSaves[List_Load.ItemIndex].IsValid;
-  if InRange(List_Load.ItemIndex,0,fSaves.Count-1) then
-  begin
-    Label_Load_Description.Caption := fSaves[List_Load.ItemIndex].Info.GetTitleWithTime;
-    fSave_Selected := List_Load.ItemIndex;
-  end;
+  fSaves.Lock;
+    Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count - 1)
+                           and fSaves[List_Load.ItemIndex].IsValid;
+    if InRange(List_Load.ItemIndex,0,fSaves.Count-1) then
+    begin
+      Label_Load_Description.Caption := fSaves[List_Load.ItemIndex].Info.GetTitleWithTime;
+      fSave_Selected := List_Load.ItemIndex;
+    end;
+  fSaves.Unlock;
 end;
 
 
@@ -568,8 +576,10 @@ begin
 
   if (Sender = fSaves) then
   begin
+    fSaves.Lock;
     for i:=0 to fSaves.Count-1 do
       List_Load.Add(fSaves[i].FileName);
+    fSaves.Unlock;
   end;
 
   List_Load.TopIndex := OldTopIndex;
@@ -4124,6 +4134,7 @@ begin
   end;
 
   UpdateDebugInfo;
+  if fSaves <> nil then fSaves.UpdateState;
 end;
 
 

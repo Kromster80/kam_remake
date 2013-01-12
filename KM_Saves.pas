@@ -48,7 +48,6 @@ type
     fOnSaveAddDone: TNotifyEvent;
   public
     constructor Create(aMultiplayerPath: Boolean; aOnSaveAdd: TSaveEvent; aOnSaveAddDone, aOnComplete: TNotifyEvent);
-    procedure SaveAddDone;
     procedure Execute; override;
   end;
 
@@ -61,9 +60,8 @@ type
     fScanner: TTSavesScanner;
     fScanning: Boolean;
     fScanFinished: Boolean;
+    fUpdateNeeded: Boolean;
     fOnRefresh: TNotifyEvent;
-    procedure Lock;
-    procedure Unlock;
     procedure Clear;
     procedure SaveAdd(aSave: TKMSaveInfo);
     procedure SaveAddDone(Sender: TObject);
@@ -76,6 +74,8 @@ type
 
     property Count: Word read fCount;
     property SavegameInfo[aIndex: Integer]: TKMSaveInfo read GetSave; default;
+    procedure Lock;
+    procedure Unlock;
 
     procedure Refresh(aOnRefresh: TNotifyEvent; aMultiplayerPath: Boolean);
     procedure TerminateScan;
@@ -86,6 +86,7 @@ type
     procedure DeleteSave(aIndex: Integer);
 
     function SavesList: string;
+    procedure UpdateState;
   end;
 
 
@@ -244,28 +245,27 @@ end;
 
 function TKMSavesCollection.GetSave(aIndex: Integer): TKMSaveInfo;
 begin
-  Lock;
-  try
-    Assert(InRange(aIndex, 0, fCount-1));
-    Result := fSaves[aIndex];
-  finally
-    Unlock;
-  end;
+  //No point locking/unlocking here since we return a TObject that could be modified/freed
+  //by another thread before the caller uses it.
+  Assert(InRange(aIndex, 0, fCount-1));
+  Result := fSaves[aIndex];
 end;
 
 
 procedure TKMSavesCollection.DeleteSave(aIndex: Integer);
 var I: Integer;
 begin
-  Assert(InRange(aIndex, 0, fCount-1));
-  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.sav');
-  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.rpl');
-  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.bas');
-  fSaves[aIndex].Free;
-  for I := aIndex to fCount - 2 do
-    fSaves[I] := fSaves[I+1]; //Move them down
-  dec(fCount);
-  SetLength(fSaves, fCount);
+  Lock;
+    Assert(InRange(aIndex, 0, fCount-1));
+    DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.sav');
+    DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.rpl');
+    DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFileName + '.bas');
+    fSaves[aIndex].Free;
+    for I := aIndex to fCount - 2 do
+      fSaves[I] := fSaves[I+1]; //Move them down
+    dec(fCount);
+    SetLength(fSaves, fCount);
+  Unlock;
 end;
 
 
@@ -299,10 +299,23 @@ end;
 function TKMSavesCollection.SavesList: string;
 var I: Integer;
 begin
-  Assert(not fScanning, 'Guarding from access to inconsistent data');
-  Result := '';
-  for I := 0 to fCount - 1 do
-    Result := Result + fSaves[I].FileName + eol;
+  Lock;
+    Result := '';
+    for I := 0 to fCount - 1 do
+      Result := Result + fSaves[I].FileName + eol;
+  Unlock;
+end;
+
+
+procedure TKMSavesCollection.UpdateState;
+begin
+  if fUpdateNeeded then
+  begin
+    if Assigned(fOnRefresh) then
+      fOnRefresh(Self);
+
+    fUpdateNeeded := False;
+  end;
 end;
 
 
@@ -343,6 +356,7 @@ begin
     fScanner.WaitFor;
     fScanner.Free;
     fScanner := nil;
+    fScanning := False;
   end;
 end;
 
@@ -387,13 +401,7 @@ end;
 
 procedure TKMSavesCollection.SaveAddDone(Sender: TObject);
 begin
-  //Signal that we let UI access Count and Saves list safely, as they check for fScanning flag
-  fScanning := False;
-
-  if Assigned(fOnRefresh) then
-    fOnRefresh(Self);
-
-  fScanning := True;
+  fUpdateNeeded := True; //Next time the GUI thread calls UpdateState we will run fOnRefresh
 end;
 
 
@@ -431,13 +439,6 @@ begin
 end;
 
 
-//We need this wrapper since Synchronize can only call parameterless methods
-procedure TTSavesScanner.SaveAddDone;
-begin
-  fOnSaveAddDone(Self);
-end;
-
-
 procedure TTSavesScanner.Execute;
 var
   PathToSaves: string;
@@ -461,7 +462,7 @@ begin
       if SLOW_SAVE_SCAN then
         Sleep(50);
       fOnSaveAdd(Save);
-      Synchronize(SaveAddDone);
+      fOnSaveAddDone(Self);
     end;
   until (FindNext(SearchRec) <> 0) or Terminated;
   FindClose(SearchRec);

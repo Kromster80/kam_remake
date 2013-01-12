@@ -274,7 +274,6 @@ begin
 end;
 
 
-//Within CS we are guaranteed that noone will change the fMaps[aIndex] until we done
 function TKMapsCollection.GetMap(aIndex: Integer): TKMapInfo;
 begin
   //No point locking/unlocking here since we return a TObject that could be modified/freed
