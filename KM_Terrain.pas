@@ -1104,14 +1104,14 @@ end;
 function TKMTerrain.FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir): Boolean;
 var
   I: Integer;
-  ValidTiles: TKMPointList;
-  ChosenTiles: TKMPointList;
+  ValidTiles, NearTiles, FarTiles: TKMPointList;
   P: TKMPoint;
 begin
   ValidTiles := TKMPointList.Create;
   fFinder.GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
-  ChosenTiles := TKMPointList.Create;
+  NearTiles := TKMPointList.Create;
+  FarTiles := TKMPointList.Create;
   for I := 0 to ValidTiles.Count - 1 do
   begin
     P := ValidTiles[i];
@@ -1121,12 +1121,22 @@ begin
           ((aPlantAct in [taAny, taCut])   and (Land[P.Y,P.X].FieldAge = CORN_AGE_MAX)) then
           if not TileIsLocked(P) then //Taken by another farmer
             if Route_CanBeMade(aLoc, P, CanWalk, 0) then
-              ChosenTiles.AddEntry(P);
+            begin
+              if KMLengthSqr(aLoc, P) <= Sqr(aRadius div 2) then
+                NearTiles.AddEntry(P)
+              else
+                FarTiles.AddEntry(P);
+            end;
   end;
 
-  Result := ChosenTiles.GetRandom(P);
+  //Prefer close tiles to reduce inefficiency with shared fields
+  Result := NearTiles.GetRandom(P);
+  if not Result then
+    Result := FarTiles.GetRandom(P);
+
   FieldPoint := KMPointDir(P, dir_NA);
-  ChosenTiles.Free;
+  NearTiles.Free;
+  FarTiles.Free;
   ValidTiles.Free;
   if not Result then
     PlantAct := taAny
