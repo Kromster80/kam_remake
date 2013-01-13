@@ -438,7 +438,7 @@ MaxID:2817
 2692:Abbrechen
 2693:Nicht unterstützt
 2694:Nicht unterstützt
-2695:Fehler: Der Spielername muss länger sein als %d Zeichen.
+2695:Fehler: Der Spielername muss kürzer sein als %d Zeichen.
 2696:Fehler: Spielername enthält nicht erlaubte Zeichen.
 2697:Schatten Qualität:
 2698:Niedrig
