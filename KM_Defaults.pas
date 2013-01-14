@@ -226,6 +226,7 @@ type
 
 const
   MARKER_REVEAL = 1;
+  MARKER_DEFENCE = 2;
 
 const
   MAPED_TILES_X = 6;

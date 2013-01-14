@@ -90,6 +90,7 @@ type
     procedure Terrain_ObjectsRefresh(Sender: TObject);
     procedure Town_BuildChange(Sender: TObject);
     procedure Town_BuildRefresh;
+    procedure Town_DefenceAddClick(Sender: TObject);
     procedure Town_DefenceRefresh;
     procedure Town_DefenceChange(Sender: TObject);
     procedure Town_ScriptRefresh;
@@ -174,6 +175,7 @@ type
         TrackBar_EquipRateLeather: TKMTrackBar;
         TrackBar_EquipRateIron: TKMTrackBar;
         TrackBar_RecruitFactor: TKMTrackBar;
+        Button_DefencePosAdd: TKMButtonFlat;
         Button_EditFormations: TKMButton;
       Panel_Offence: TKMPanel;
         CheckBox_AutoAttack: TKMCheckBox;
@@ -482,7 +484,10 @@ begin
     Town_ScriptRefresh
   else
   if aPage = Panel_Defence then
-    Town_DefenceRefresh
+  begin
+    Town_DefenceAddClick(nil);
+    Town_DefenceRefresh;
+  end
   else
   if aPage = Panel_Offence then
     Attacks_Refresh
@@ -518,16 +523,15 @@ begin
     Menu_SaveClick(Edit_SaveName);
   end else
   if aPage = Panel_Load then
-    Panel_Load.Show
-  else
-
-  //Update list of visible layers with regard to active page and checkboxes
-  Layers_UpdateVisibility;
+    Panel_Load.Show;
 
   //Display the panel (and its parents)
   fActivePage := aPage;
   if aPage <> nil then
     aPage.Show;
+
+  //Update list of visible layers with regard to active page and checkboxes
+  Layers_UpdateVisibility;
 end;
 
 
@@ -924,30 +928,32 @@ begin
 
     //Defence settings
     Panel_Defence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Defence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Defence', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Defence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Defence positions', fnt_Outline, taCenter);
+      Button_DefencePosAdd := TKMButtonFlat.Create(Panel_Defence, 0, 30, 33, 33, 335);
+      Button_DefencePosAdd.OnClick := Town_DefenceAddClick;
+      Button_DefencePosAdd.Hint    := 'Place defence position for AI';
 
-      CheckBox_AutoDefence := TKMCheckBox.Create(Panel_Defence, 0, 30, TB_WIDTH, 20, 'AutoDefence', fnt_Metal);
+      TKMLabel.Create(Panel_Defence, 0, 65, TB_WIDTH, 0, 'Defence', fnt_Outline, taCenter);
+      CheckBox_AutoDefence := TKMCheckBox.Create(Panel_Defence, 0, 90, TB_WIDTH, 20, 'AutoDefence', fnt_Metal);
       CheckBox_AutoDefence.OnClick := Town_DefenceChange;
 
-      TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Defence, 0, 50, TB_WIDTH, 10, 300);
+      TrackBar_EquipRateLeather := TKMTrackBar.Create(Panel_Defence, 0, 110, TB_WIDTH, 10, 300);
       TrackBar_EquipRateLeather.Caption := 'Equip rate iron';
       TrackBar_EquipRateLeather.Step := 5;
       TrackBar_EquipRateLeather.OnClick := Town_DefenceChange;
 
-      TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Defence, 0, 90, TB_WIDTH, 10, 300);
+      TrackBar_EquipRateIron := TKMTrackBar.Create(Panel_Defence, 0, 150, TB_WIDTH, 10, 300);
       TrackBar_EquipRateIron.Caption := 'Equip rate leather';
       TrackBar_EquipRateIron.Step := 5;
       TrackBar_EquipRateIron.OnClick := Town_DefenceChange;
 
-      TrackBar_RecruitFactor := TKMTrackBar.Create(Panel_Defence, 0, 130, TB_WIDTH, 1, 20);
+      TrackBar_RecruitFactor := TKMTrackBar.Create(Panel_Defence, 0, 190, TB_WIDTH, 1, 20);
       TrackBar_RecruitFactor.Caption := 'Recruits per Barracks';
       TrackBar_RecruitFactor.Hint := 'How many recruits AI should have in barracks'; //@Lewin: Please check me on this one
       TrackBar_RecruitFactor.OnClick := Town_DefenceChange;
 
-      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 175, TB_WIDTH, 25, 'Edit formations', bsGame);
+      Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 235, TB_WIDTH, 25, 'Edit formations', bsGame);
       Button_EditFormations.OnClick := Formations_Show;
-
-      //todo: Button_DefencePosAdd
 
     //Defence settings
     Panel_Offence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
@@ -1489,12 +1495,21 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Town_DefenceRefresh;
+procedure TKMapEdInterface.Town_DefenceAddClick(Sender: TObject);
 begin
-  CheckBox_AutoDefence.Checked := MyPlayer.AI.Setup.AutoDefend;
-  TrackBar_EquipRateLeather.Position := MyPlayer.AI.Setup.EquipRateLeather div 10;
-  TrackBar_EquipRateIron.Position := MyPlayer.AI.Setup.EquipRateIron div 10;
-  TrackBar_RecruitFactor.Position := MyPlayer.AI.Setup.RecruitFactor;
+  //Press the button
+  Button_DefencePosAdd.Down := not Button_DefencePosAdd.Down and (Sender = Button_DefencePosAdd);
+
+  if Button_DefencePosAdd.Down then
+  begin
+    GameCursor.Mode := cmMarkers;
+    GameCursor.Tag1 := MARKER_DEFENCE;
+  end
+  else
+  begin
+    GameCursor.Mode := cmNone;
+    GameCursor.Tag1 := 0;
+  end;
 end;
 
 
@@ -1504,6 +1519,15 @@ begin
   MyPlayer.AI.Setup.EquipRateLeather := TrackBar_EquipRateLeather.Position * 10;
   MyPlayer.AI.Setup.EquipRateIron := TrackBar_EquipRateIron.Position * 10;
   MyPlayer.AI.Setup.RecruitFactor := TrackBar_RecruitFactor.Position;
+end;
+
+
+procedure TKMapEdInterface.Town_DefenceRefresh;
+begin
+  CheckBox_AutoDefence.Checked := MyPlayer.AI.Setup.AutoDefend;
+  TrackBar_EquipRateLeather.Position := MyPlayer.AI.Setup.EquipRateLeather div 10;
+  TrackBar_EquipRateIron.Position := MyPlayer.AI.Setup.EquipRateIron div 10;
+  TrackBar_RecruitFactor.Position := MyPlayer.AI.Setup.RecruitFactor;
 end;
 
 
@@ -1979,7 +2003,7 @@ begin
 
   fGame.MapEditor.VisibleLayers := [];
 
-  if Panel_Marker.Visible or Panel_MarkerReveal.Visible then
+  if Panel_RevealFOW.Visible or Panel_MarkerReveal.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
 
   if Panel_Defence.Visible or Panel_MarkerDefence.Visible then
@@ -2578,8 +2602,7 @@ end;
 procedure TKMapEdInterface.Player_RevealClick(Sender: TObject);
 begin
   //Press the button
-  if Sender = Button_Reveal then
-    Button_Reveal.Down := not Button_Reveal.Down;
+  Button_Reveal.Down := not Button_Reveal.Down and (Sender = Button_Reveal);
 
   if Button_Reveal.Down then
   begin
@@ -2879,8 +2902,9 @@ begin
                     else
                       fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);
                   end;
-      cmMarkers:  case GetShownPage of
-                    esp_Reveal: fGame.MapEditor.Revealers[MyPlayer.PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
+      cmMarkers:  case GameCursor.Tag1 of
+                    MARKER_REVEAL:  fGame.MapEditor.Revealers[MyPlayer.PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
+                    MARKER_DEFENCE: MyPlayer.AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
                   end;
       cmErase:    case GetShownPage of
                     esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;

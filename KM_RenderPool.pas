@@ -1133,8 +1133,9 @@ begin
                   AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1), ua_Walk, dir_S, UnitStillFrames[dir_S], P.X+UNIT_OFF_X, P.Y+UNIT_OFF_Y, MyPlayer.FlagColor, True)
                 else
                   RenderCursorBuildIcon(P); //Red X
-    cmMarkers:  begin
-                  RenderCursorBuildIcon(P, 394, MyPlayer.FlagColor);
+    cmMarkers:  case GameCursor.Tag1 of
+                  MARKER_REVEAL:  RenderCursorBuildIcon(P, 394, MyPlayer.FlagColor);
+                  MARKER_DEFENCE: RenderCursorBuildIcon(P, 519, MyPlayer.FlagColor);
                 end;
   end;
 end;
