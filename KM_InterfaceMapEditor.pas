@@ -2717,10 +2717,10 @@ begin
   //  Button_Main[Key-48].DoPress;
 
   //Scrolling
-  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := true;
-  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := true;
-  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := true;
-  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := true;
+  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := True;
+  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := True;
+  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := True;
+  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := True;
 end;
 
 
@@ -2733,10 +2733,10 @@ begin
     Button_Main[Key-48].Click;
 
   //Scrolling
-  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := false;
-  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := false;
-  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := false;
-  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := false;
+  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := False;
+  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := False;
+  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := False;
+  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := False;
 
   //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
   //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
@@ -2750,7 +2750,7 @@ begin
 
   //So terrain brushes start on mouse down not mouse move
   if fMyControls.CtrlOver = nil then
-    fGame.UpdateGameCursor(X,Y,Shift);
+    fGame.UpdateGameCursor(X, Y, Shift);
 end;
 
 
@@ -2763,6 +2763,7 @@ begin
 
   if fMyControls.CtrlOver <> nil then
   begin
+    fResource.Cursors.Cursor := kmc_Default;
     GameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
     Exit;
   end
@@ -2783,7 +2784,7 @@ begin
         fResource.Cursors.Cursor := kmc_Default;
   end;
 
-  Label_Coordinates.Caption := Format('X: %d, Y: %d',[GameCursor.Cell.X,GameCursor.Cell.Y]);
+  Label_Coordinates.Caption := Format('X: %d, Y: %d', [GameCursor.Cell.X, GameCursor.Cell.Y]);
 
   if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
   begin

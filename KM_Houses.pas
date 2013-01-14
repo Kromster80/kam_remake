@@ -1172,29 +1172,34 @@ end;
 //      taken to the weapons workshop because the request doesn't get canceled.
 //      Maybe it's possible to cancel the current requests if no serf has taken them yet?
 procedure TKMHouse.UpdateResRequest;
-var i:byte; Count, Excess:shortint;
+var
+  I: Byte;
+  Count, Excess: ShortInt;
 begin
-  for i:=1 to 4 do
-    if not (fResource.HouseDat[fHouseType].ResInput[i] in [rt_All, rt_Warfare, rt_None]) then
+  for I := 1 to 4 do
+    if not (fResource.HouseDat[fHouseType].ResInput[I] in [rt_All, rt_Warfare, rt_None]) then
     begin
+
       //Not enough resources ordered, add new demand
-      if fResourceDeliveryCount[i] < GetResDistribution(i) then
+      if fResourceDeliveryCount[I] < GetResDistribution(I) then
       begin
-        Count := GetResDistribution(i)-fResourceDeliveryCount[i];
+        Count := GetResDistribution(I)-fResourceDeliveryCount[I];
         fPlayers[fOwner].Deliveries.Queue.AddDemand(
-          Self, nil, fResource.HouseDat[fHouseType].ResInput[i], Count, dt_Once, di_Norm);
+          Self, nil, fResource.HouseDat[fHouseType].ResInput[I], Count, dt_Once, di_Norm);
 
-        inc(fResourceDeliveryCount[i], Count);
+        inc(fResourceDeliveryCount[I], Count);
       end;
+
       //Too many resources ordered, attempt to remove demand if nobody has taken it yet
-      if fResourceDeliveryCount[i] > GetResDistribution(i) then
+      if fResourceDeliveryCount[I] > GetResDistribution(I) then
       begin
-        Excess := fResourceDeliveryCount[i]-GetResDistribution(i);
+        Excess := fResourceDeliveryCount[I]-GetResDistribution(I);
         Count := fPlayers[fOwner].Deliveries.Queue.TryRemoveDemand(
-                   Self, fResource.HouseDat[fHouseType].ResInput[i], Excess);
+                   Self, fResource.HouseDat[fHouseType].ResInput[I], Excess);
 
-        dec(fResourceDeliveryCount[i], Count); //Only reduce it by the number that were actually removed
+        dec(fResourceDeliveryCount[I], Count); //Only reduce it by the number that were actually removed
       end;
+
     end;
 end;
 

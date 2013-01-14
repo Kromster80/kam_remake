@@ -1,0 +1,546 @@
+
+MaxID:2813
+
+0:Seizaisho
+1:Tetsu kajiba
+2:Buki kajiba
+3:Sekitan kouzan
+4:Tetsu kouzan
+5:Kin kouzan
+6:Ryoushi no koya
+7:Pan ya
+8:Noujou
+9:Kikori no koya
+10:Yoroi kajiba
+11:Souko
+12:Kyuusha
+13:Gakkou
+14:Saisekijou
+15:Zouhei ba
+16:Butagoya
+17:Tou
+18:Machiyakuba
+19:Buki koubou
+20:Yoroi koubou
+21:Heisha
+22:Fuusha
+23:Koujouki koubou
+24:So-se-ji ya
+25:Hikaku koujou
+26:Doujou
+27:Yadoya
+28:Budou en
+29:Kouekisho
+39:Miki
+40:Ishi
+41:Mokuzai
+42:Tekkou
+43:Kin kouseki
+44:Sekitan
+45:Tetsu
+46:Kane
+47:Budoushu
+48:Kokumotsu
+49:Pan
+50:Komugiko
+51:Hikaku
+52:So-se-ji
+53:Buta
+54:Kawa
+55:Ki no tate
+56:Tetsu de tate
+57:Kawa de yoroi
+58:Tetsu de yoroi
+59:Ono
+60:Katana
+61:Nagayari
+62:Hoko
+63:Nagayumi
+64:Ishiyumi
+65:Uma
+66:Sakana
+69:Noudo
+70:Kikori
+71:Koufu
+72:Doubutsu nouka
+73:Nouka
+74:Daiku
+75:Pan shokunin
+76:Nikuya
+77:Ryoushi
+78:Roudousha
+79:Ishiku
+80:Kajiya
+81:Yakingakusha
+82:Gun no shinkaiin
+83:Minpei
+84:Ono hei
+85:Kenshi
+86:Shashu
+87:Ishiyumi hei
+88:Soukihei
+89:Hoko hei
+90:Sekkou
+91:Kishi
+92:Yabanjin
+93:Hangyakusha
+94:Akutou
+95:Senshi
+96:Furousha
+97:Touseki ki
+98:Gun no barisuta
+99:Noudo wa tatemono ni, hitsuyouna genzairyou o kyoukyuu suru.||Aida tatemono wa renraku no douro ni aranakereba narimasen ni chuui shite kudasai.
+100:Miki o tsukurimasu to genryou toshite mokkousho ni tsukau niwa,||kikori ga hitsuyouna desu.Kikori ga dokuritsu ni shinrin o saiuemasu.
+101:Fukou wa kin to sekitan to tetsu kouzan kara kouseki o torimasu.
+102:Butagoya ni buta o matawa kyuusha ni uma o sodateru niwa, doubutsu nouka wa kokumotsu o tsukarimasu
+103:Nouka wa noujou ni kokumotsu o maite karitorimasu.||Kare mo budou en ni budoushu o tsukaimasu.
+104:Daiku wa seizaisho ya buki koubou ya yoroi koubou ni hatarakimasu.||Kare mo touseki ki to baruisuta o houi ki koubou ni kumitatemasu.
+105:Pan shokunin wa fuusha ni kokumotsu o hiite komugiko o tsukaimasu.||Kare mo pan ya ni pan o yakimasu.
+106:Nikuya wa so-se-ji to hikaku o tsukaimasu.
+107:Ryoushi wa moyori no kawa ni tsurimasu.
+108:Roudousha wa kenzou ya douro o kouchiku shimasu. Suki na basho o tanni kyouchou suru to anata no meirei o jidouteki ni shitagaimasu.||Kare mo hason shite iru tatemono o shuuri shimasu.
+109:Kenzou ya douro o kouchiku suru niwa, roudousha ni shizai o kyoukyuu suru tame ni, ishiku wa ishi kiridashite taira ni nariremasu.
+110:Kajiya wa tetsu de buki to yoroi o kajiba ni kitaemasu.
+111:Yakingakusha wa sekitan o tsukuru to,  kin to tetsu kouseki o seisei shimasu.
+112:Gun no shinkaiin wa heisha ni heishi toshite soubi dekimasu.||Kare mo bourou ni sumu koto ga dekimasu.
+147:Kenzou no sentaku e
+148:Genryou no bunpu e
+149:Toukei e
+150:Opushon e
+151:Modorimasu
+152:Kenzou|Sentaku
+153:Genryou|no bunpu
+154:Toukei
+155:Opushon
+156:Ge-mu o ro-do
+157:Gemu o hozon
+158:Hontou ni ninmu|o haki|shitai ka.
+159:Ninmu o haki shimasu
+160:Modorimasu
+161:Settei
+162:Ninmu o haki shimasu
+163:Tokusatsu
+164:Onryou o henkou shimasu
+165:Ongaku
+166:Ongaku on/ofu
+167:Jidouteki na hozon
+168:Ongaku pure-ya-
+169:Mae no torakku
+170:Tsugi no torakku
+171:Hakai
+172:Tatemono/kyouchou nozokimasu
+173:Douro o tatemasu
+174:Douro o tatemasu
+175:Hatake o tagayashimasu
+176:Hatake o tagayashimasu
+177:Budou hatake o shikimasu
+178:Budou hatake o shikimasu
+179:Torikeshi
+180:Genzai kenshuu o teishi shimasu
+181:Hitsuyou:
+182:Joutai:
+183:Todokemasu
+184:Kouji chuu|tatemono
+185:Horobosu
+186:Hontou ni tatemono o| horoboshitai ka.
+187:Yotte iru tatemono o hakai shimasu
+188:Chuumon ryou herashimasu
+189:Chuumon ryou fuyashimasu
+190:Mae no heishi no shurui
+191:Tsugi no heishi no shurui
+192:Kono heishi o soubi shimasu
+193:Tsugi no shokugyou
+194:Mae no shokugyou
+195:Narabi ni tsuika suru
+196:Hiyou:
+197:Shuufuku ga dekimasu/dekimasen
+198:Imaya kenzou wa riyou dekimasen
+199:Joutai
+200:Sasetsu shimasu
+201:Migi ni magarimasu
+202:Osoimasu ('a')
+203:Guntai ni ikasemasu ('d')
+204:Guntai ni tabesasemasu
+205:Arashi kougeki shimasu
+206:Retsu o kuwaeru
+207:Retsu o nozokimasu
+208:Shuudan o |yorimasu
+209:Torikeshi
+210:Sakujo
+211:Tsuushin o nozokimasu
+212:Ako e ikimasu
+213:Genzai tsuushin no basho e ikimasu
+214:Tojimasu
+215:Uindou o shimemasu
+216:|Sekkou wa soreijou ishi shigen o todokimasen.
+217:|Anata no kouzan no sekitansou wa tsukaikirarete imasu.
+218:|Anata no tetsu kouzan no koumyaku wa tsukaikirarete imasu.
+219:|Anata no kin kouzan no koumyaku wa tsukaikirarete imasu.
+220:|Kaoku ni daremo sumimasen.
+221:|Kono guntai wa hijou ni uete imasu.| Taberu tame ni, imasugu karera ni nanika o morau hou ga ii!
+222:Ge-mu o yamete imasu
+223:Onryou o henkou shimasu
+224:Genzaryou o todokeru koto ga dekimasu / dekimasen
+418:Seishin
+419:Isogashii
+420:Chuusei tsunobue
+421:Haru
+422:Ryu-to
+423:Youhei
+424:Oujo
+425:Joou
+426:Ichiba e
+427:Senjou e
+428:Kyuutei no buyou
+429:Guntai
+430:Shiro e
+431:Fanfa-ru
+432:Saibansho e
+433:Nyuujou
+434:Massao
+435:Funtou
+436:Ouritsu no chiku
+437:Kizoku kaikyuu
+438:Minato e
+439:Ryokou
+849:Tandoku no chizu ni hairu
+850:Chizu o hajimeru
+851:Ichiran ni modoru
+852:Hozon shite iru ge-mu o ro-do shimasu
+853:Ikutsuka no oukoku
+854:Opushon
+855:Kaihatsusha
+856:Sarimasu
+857:Tsudzukeru
+858:Sai tameshimasu
+859:Bunkainou:
+860:SENSHOU!
+861:HAISEN!
+862:Ushinatta butai:
+863:Datou shimashita butai:
+864:Ushinatta tatemono:
+865:Hakai shimashita tatemono:
+866:Koushimashita tatemono:
+867:Shikomimashita butai:
+868:Tsukurimashita buki:
+869:Shikomimashita heishi:
+870:Itsumade ninmu o nashitogeta:
+1000:1000:1000:JOYMANIA ENTERTAINMENT||PUROGURAMINGU:|Peter Ohlmann||GE-MU GURAFIKUSU:|Adam Sprys||REBERU NO SEKKEI:|Adam Sprys|AndrÅEQuaﬂ||OTO NO HENKOU MATAWA MIKKUSU:|Tonstudio Mannheim||ONGAKU:|Gerd Hofmann|Joachim Sch‰fer|JÅEgen Rebhann|Klaus Staendike|Steffen SchÅEgel||SHASHIN:|Boleslaw Kasza|Christoph Werner||HON YAKU:|Ronnie Shankland|Patricia Bellantuono|Andrea Rumpelt|||ZUXXEZ ENTERTAINMENT AG||SEISANSHA:|Uwe Sch‰fer||SETSUMEISHO:|Peter Ohlmann|Uwe Sch‰fer||BE-TA SHIREN:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Sch‰fer|Ingrid Sch‰fer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GE-MU NO SHOCHOU:|Achim Heidelauf||HOKKOUSHA:|TopWare Interactive||DOUGA:||KANRI:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniewski||ONSEI:|Claus Boyen (Kataribe)||Tim Timmermann|Peter Houska|Dirk MÅElbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||GEIJUTSUSAKUHIN:|Boleslaw Kasza|Adam Sprys||KAISHI NO DOUGA:|Uwe Sch‰fer|Christian Bigalk|Tuika no 3D zoukei:|Niels Horstmann||TOKUBETSU NA KANSHA:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Sch‰fer
+1686:Ninmu o haki mashita
+1687:Machi gakushuuyou
+1688:Sentou gakushuuyou
+1689:Tandoku no oukoku
+1690:Chizu no henshusha
+1692:Ninmu o hajimeru
+1693:Hyoudai
+1694:Sunbou
+1695:Ninmu no shurui: %s
+1696:Katsu niwa: %s
+1697:Makeru niwa: %s
+1698:Doumeikoku:
+1699:Teki:
+1701:Atarashii chizu no ookisa
+1702:Haba
+1703:Takasa
+1704:Shinki na chizu o tsukuru
+1705:Shiyoukanou  na chizu
+1706:Kison no chizu o ro-do shimasu
+1707:Chousetsu:
+1708:Ge-mu pure-:
+1709:Oto:
+1710:Ongaku o mukou |ni naru
+1711:Gurafikosu:
+1712:Akarusa
+1713:Zengamen
+1714:Tekiyou
+1715:Gengo
+1716:Setsuzokuchuu... Matte kudasai
+1717:Mondai o hassei shimashita!
+1718:Atarashii roke-ru o ro-do shite imasu
+1719:Hozon shita ge-mu no ichiranhyou
+1720:Fairu no namae
+1721:Setsumei
+1722:Ro-do shimasu
+1723:Sakujo shimasu
+1724:Hontou ni hozon shite iru ge-mu o keshitai desu ka?
+1725:Sakujo shimasu
+1726:Torikeshi
+1728:Anata ga katta!
+1729:Pure- shitsudzukeshimasu
+1730:Senshou!
+1731:Anata ga maketa!
+1732:Mitsudzukeru
+1733:Haisen
+1734:Saien shimashita
+1735:Mitsudzukeru
+1736:Ichiran ni modoru
+1737:Riyou dekimasen
+1738:%s botan o oshimasu to ge-mu o pure- shitsudzukeru
+1739:Chi-mu ni
+1740:Kokuou no jouhou
+1741:Hanashi basho
+1742:Hozon shite iru ge-mu sudeni sonzai shimasu
+1743:Uwagaki shimasu
+1744:Hozon shimasu
+1745:Ro-do shimasu
+1748:Furui OpenGL ba-jon o kenshutsu shimashita. Ge-mu wa osoku ugokasareru kamo shiremasen  oyobi/matawa  gurafikusu kekkan ga hyotto shitara misemasu.
+1749:Nettuwa-ku mondai:
+1750:Mondai: Oukoku no namae o kuusho wa aru koto ga dekimasen.
+1751:Setsuzoku o kakashita: %s
+1752:Anata no setsuzoku o setsudan saremashita
+1753:Ninmu %d
+1754:Anata no ryoushi no koya wa kawa kara, hijou ni tooku desu.
+1755:Ryoushi wa moyori no kawa ni soreijou sakana o tsurimasen.
+1757:Akinau koto ga dekimasu, hidari no botan o kurikku suru to shouhin o yorimasu.
+1758:Akinau koto ga dekimasu, migi no botan o kurikku suru to shouhin o yorimasu.
+1759:%d ko no shouhin kara
+1760:%d ko no shouhin madenara
+1761:Chikei o heishuu shimasu
+1762:Mura no kikaku
+1763:Bijuaru yakuwari
+1764:Sekaiteki na yakuwari
+1765:Ichiran
+1766:Joutai:
+1767:Kokuou no namae
+1768:SE-BA O TSUKURIMASU
+1769:Namae
+1770:Po-to
+1771:Genchi no se-ba o tsukurimasu
+1772:Inta-netto se-ba o tsukurimasu
+1773:Se-ba no namae
+1774:Joutai
+1775:Kokuou
+1776:Pingu
+1777:Se-ba no meibo o sai yomikomu
+1778:SE-BA SHOUSAI
+1779:Kokuou meibo:
+1780:Basho
+1781:Po-to
+1782:Heya
+1783:Kuwawaru
+1784:Setsuzokuchuu, matte kudasai ...
+1785:Happyou o ro-do shite imasu...
+1786:Yomikonde imasu...
+1787:Shidousha no meibo
+1788:Kaishi no basho
+1789:Chi-mu
+1790:Iro
+1791:Junbi
+1792:Pingu
+1793:Desaseru
+1794:Hiraite iru
+1795:Jinkouchinou kokuou
+1796:Yorimasu..
+1797:Futokutei
+1799:Nashi
+1802:Tsuushin o toukou shite imasu:
+1803:Chizu no shurui
+1804:Tandoku no chizu
+1805:Hozon shita ge-mu
+1806:Chizu o yorimasu...
+1807:Ge-mu o yorimasu
+1808:Chizu ni jouhou:
+1809:Kokuou: %d
+1810:Mo-do:
+1811:Hitsuyou:
+1813:Soto e demasu
+1814:Totonotte iru
+1815:Hajimaru!
+1816:Kokuou o matte imasu:
+1817:Tsukurinaoshita "Kishi ya chounin" no guntai
+1818:Dokuji no "Kishi ya chounin" no guntai
+1819:PUROGURAMINGU:
+1820:TSUIKA NO PUROGURAMINGU:
+1821:TSUIKA NO GURAFIKKUSU:
+1822:TSUIKA NO HON YAKU:
+1823:TOKUBETSU NA KANSHA:
+1824:Ikutsuka no kokuou no chizu
+1825:Tandoku no kokuen no chizu
+1826:Sukuro-ru sokudo
+1827:Nani mo mitsukemasen deshita
+1828:|Detarame na yoru
+1829:Ge-mu no jouhou:
+1830:-
+1831:Kyuusokujo
+1832:Ro-do shite imasu
+1833:Ge-mu
+1834:Basho %d
+1835:Tatsukoto ya kougeki
+1836:Kougeki
+1837:Junbi shite imasen
+1838:Junbi shite imasu
+1839:Mondai: oukoku o seigyo suru tame ni, hozon shite iru ge-mu no kokuou o yotte kudasai
+1840:Mondai: Chizu wa yoraremasen soretomo ro-do o kakashimashita
+1841:Kaishi dekimasen: %s
+1842:Daremoja arimasen wa kaishi no tame ni junbishite imasu
+1843:Oukoku goukei wa chizu no jougen o koete imasu
+1844:Warui purotocoru ba-jon: %s. Se-ba wa %s o tsukatte imasu
+1845:Seba wa wareware ni hosuto kenri o yuzurimashita
+1846:Bouekigaku o fuyashimasu
+1847:Bouekigaku o herashimasu
+1848:Hozon shite imasu...
+1849:%s o taosaremashita!
+1850:TSUIKA NO OTO:
+1851:Oukoku o oroshimasu
+1852:Hosuto wa %d byou nochi ni kokuou o oroshimasu
+1853:Imaya hosuto wa kokuou o dasemasu
+1854:Hosuto (%s) wa demashita
+1855:Seba eno setsuzoku wa ushinaemashita. Sai setsuzoku shitemite imasu...
+1856:Hontou ni demasu ka.
+1857:Hontou ni oukoku wa koukyuuteki ni dasasetai ka.
+1858:Torikeshimasu
+1859:Shikonda|shimin
+1860:Ushinatta|shimin
+1861:Soubi shimashita|heishi
+1862:Ushinatta|heishi
+1863:Taoshita|butai
+1864:Tatemashita |tatemono
+1865:Ushinatta|tatemono
+1866:Hakai shimashita|tatemono
+1867:Tsukutta|shouhin
+1868:Tsukutta|buki
+1869:Kono ninmu ni kono shigen o akinau koto ga dekimasen
+1870:Uete taoshimasu
+1871:Kiritaosu dake
+1872:Ge-mu o hajimemashita
+1873:Tatsukoto chizu
+1874:Kougeki chizu
+1875:Kyouryoku no chizu
+1876:Heiji no aidajuu ni kono dousa wa yurusasemasen!
+1877:Nokotte imasu heiji: %s
+1878:Heiji wa owarimashita. Anata no buki o tsukatte!
+1879:Ge-mu no jikan:|%s
+1880:Ge-mu no settei:
+1884:Guntai  ni tomaraseru ('%s')
+1885:Guntai ni kuwawaraseru ('%s')
+1886:Guntai o wakemasu ('%s')
+1887:Saien shichousha
+1888:Saien o shichou shimasu
+1889:Heiji (fun)
+1890:Hitaiou no kakuchoushi %s
+1891:Hitaiou no ba-jon %s
+1893:Shokika shite imasu
+1895:Yakuwari
+1896:Shinki na ninmu
+1897:Fairu %s wa asshuku sarete imashi nagara, mondai ga saisei shimashita
+1898:Tojite iru
+1899:Hosuto dake wa oukoku o kamaemasu
+1901:Butai
+1902:Kenzou
+1903:Ki
+1904:Teigi
+1905:Jimen no kawara
+2687:Se-ba o tsukuru
+2688:Se-ba o mitsukeru
+2689:Setsuzoku shimasu
+2690:IP de se-ba o mitsukeru
+2691:Torikeshimasu
+2692:Torikeshimasu
+2693:Gokansei ga nai
+2694:Gokansei ga nai
+2695:Mondai: Kokuou no namae hou ga %d moji yori nagai desu
+2696:Mondai: Kokuou no namae wa ihou na moji  o fukunde imasu
+2697:Kage no hinjitsu:
+2698:Hikui
+2699:Takasa
+2700:Chizu o mitsukeraremasen: %s
+2701:Anata no chizu wa hosuto no chizu o chigaimasu: %s
+2702:Hozon shite iru fairu o mitsukeraremasen: %s
+2703:Anata no hozon shite iru fairu wa hosuto no hozon shite iru fairu o chigaimasu: %s
+2705:Gurafiku doraiba wa koushin sarete kudasai to gyouseki ga kaizen shimasu
+2706:Mondai wa apurike-shon de okitta. Wareware wa chousa ga dekimasu niwa "Bugu houkoku o soushin shimasu" botan o oshite kudasai. Anata no tedasuke o kanshi shimasu!
+2707:Bugu houkoku o soushin shimasu
+2708:Nama no jouhou o misemasu
+2709:Saien wa ikkansei kenshou o kakashimashita. Kono shirarete iru bugu wa jakkan no saien o jama shimasu .Mitaitsudzukemasu ka.
+2710:Anata no namae: (zuii)
+2711:Anata no meru: (zuii)
+2712:Watashi o oboerarete kudasai
+2713:Donna joukyou ni mondai o saisei shimashita ka. Tsuika no jouhou o kyoukyuu suremasu ka. (Eigo dake)
+2714:Bugu houkoku soushin ni sukuri-nshottu o tenpu shimasu
+2715:(Kurikku suru to shashin o henshuu shimasu)
+2716:Apurike-shon o shuuryou shimasu
+2717:Apurike-shon o tsudzukemasu
+2718:Tsugi
+2719:Houkoku o okurimasu
+2720:Torikesu
+2721:Sesshoku no shousai
+2722:Mondai no shousai
+2723:Sukuri-nshottu
+2724:Bugu houkoku o soushin shite imasu...
+2725:Se-ba ni setsuzoku shite imasu...
+2726:Jouhou o okutte imasu...
+2727:Kurasshu houkoku soushin o kakashimashita! Wareware no se-ba wa hyotto suru to isogashii desu, soushin o futatabi tameshite kudasai.
+2728:Jouhou
+2729:Chotto matte kudasai...
+2730:Juugun
+2731:Casutomaizu shita juugun
+2732:Ensei o hajimeru!
+2734:Taoshita|heishi
+2736:Daimei
+2737:Chizu
+2738:Genzai
+2739:Jikan
+2740:Saien o saikaishi shimasu
+2741:Saien o yoshimasu
+2742:Saien o tsudzukemasu
+2743:Sukoshi susumimasu
+2744:Saien o yamemasu
+2745:Tandoku na ikutsuka no oukoku modo de insutansu wa ichido ni ugokasemasu
+2746:Saien o oeta
+2747:TSUIKA NO ONGAKU:
+2748:Anata
+2749:Kokuou %d
+2750:Guntai
+2751:Shimin
+2752:Tatemono
+2753:Shigen
+2754:Tsukutta shigen
+2755:Toukei
+2756:Kenzai
+2757:Kenzou o tatte imasu
+2758:Kenchiku genba o taira ni natte imasu
+2759:Budou hatake o tsukutte imasu
+2760:Hatake o tagayashite imasu
+2761:Douro o kumitate imasu
+2762:Todokete imasu
+2763:Ki o uete imasu
+2764:Ie o itte imasu
+2765:Ie o tsukurotte imasu
+2766:Tatakatte imasu
+2767:Hassha shite imasu
+2768:Kenzou o semete imasu
+2769:Yado e itte imasu
+2770:Ki o kiritaoshite imasu
+2771:Taikichuu
+2772:Aruite imasu
+2773:Arashi kougeki
+2774:Tsutte imasu
+2775:Budou o shuukaku shite imasu
+2776:Kokumotsu o karitotte imasu
+2777:Maite imasu
+2778:Ishi o hikinuite imasu
+2779:Osotte imasu
+2780:Ge-mu henkou wa ikutsuka no oukoku modo ni yurushimasen.|Sai insuto-ru shite kudasai to henkou shite imasen chizu o modoshimasu.
+2781:Hitaiou no henkou
+2785:Agaru / sagaru
+2787:Agaru (hidari no kurikko) / Sagaru (migi no kurikko)
+2788:Dekoboko / taira ni narimasu
+2790:Dekoboko (hidari no kurikko) / taira (migi no kurikko) ni narimasu
+2792:Seihoukei hake
+2793:Marugata hake
+2794:Zureru to shamen no hyoukou o henkou shimasu: 1 = kougen ... 15 = mine
+2795:Zureru to hake no ookisa o henkou shimasu.
+2797:Mono
+2798:Kawara
+2799:Hake
+2800:Oka
+2804:Migi no kurikku shimasu to yotte iru kawara o mawarasemasu.
+2805:Ma-ku suru to detarame na kawara no houkou matawa, yotte iru kawara o mawaraseru tame ni, migi no kurikku shimasu.
+2806:Detarame na houkou
+2807:Sunpou
+2808:Shamen
+2809:Mono o torinozokimasu
+2810:Zureru to ageru koto sokudo o henkou shimasu: 1 = osoi... 15 = hayai
+2811:Sokudo
+2812:|Anata no kikori wa ochiru tame ni ki o mitsukemasen .Kare wa ki o uemasen.
+2813:Hake no keijou
