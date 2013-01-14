@@ -197,6 +197,7 @@ type
     function RatioTo: Byte;
 
     function AllowedToTrade(Value: TResourceType):boolean;
+    function TradeInProgress: Boolean;
     function GetResTotal(aResource: TResourceType): Word; overload;
     function CheckResIn(aResource:TResourceType):word; override;
     function CheckResOrder(aID:byte):word; override;
@@ -1603,11 +1604,18 @@ end;
 
 procedure TKMHouseMarket.SetResTo(Value: TResourceType);
 begin
-  if not AllowedToTrade(Value) then exit;
-  if fTradeAmount > 0 then Exit;
+  if not AllowedToTrade(Value) or TradeInProgress then
+    Exit;
+
   fResTo := Value;
   if fResFrom = fResTo then
     fResFrom := rt_None;
+end;
+
+
+function TKMHouseMarket.TradeInProgress: Boolean;
+begin
+  Result := fTradeAmount > 0;
 end;
 
 

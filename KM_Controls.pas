@@ -1863,7 +1863,7 @@ begin
   if TexID <> 0 then
     TKMRenderUI.WritePicture(Left + TexOffsetX,
                            Top + TexOffsetY - 6 * Byte(Caption <> ''),
-                           Width, Height, [], RX, TexID, True, FlagColor);
+                           Width, Height, [], RX, TexID, fEnabled, FlagColor);
 
   if (csOver in State) and fEnabled and not HideHighlight then
     TKMRenderUI.WriteShape(Left+1, Top+1, Width-2, Height-2, $40FFFFFF);

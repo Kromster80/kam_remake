@@ -2933,7 +2933,7 @@ begin
     begin
       Button_Market[I].TexID := fResource.Resources[R].GUIIcon;
       Button_Market[I].Hint := fResource.Resources[R].Title;
-      Tmp := aMarket.GetResTotal(TResourceType(Button_Market[I].Tag));
+      Tmp := aMarket.GetResTotal(R);
       Button_Market[I].Caption := IfThen(Tmp = 0, '-', IntToStr(Tmp));
     end
     else
@@ -2942,8 +2942,12 @@ begin
       Button_Market[I].Hint := fTextLibrary[TX_HOUSES_MARKET_HINT_BLOCKED];
       Button_Market[I].Caption := '-';
     end;
+
+    //Disabling buttons will let player know that he cant select new trade without canceling current one
+    Button_Market[I].Enabled := (R in [aMarket.ResFrom, aMarket.ResTo]) or not aMarket.TradeInProgress;
   end;
 
+  //Position the shape that marks the FROM ware
   Shape_Market_From.Visible := aMarket.ResFrom <> rt_None;
   if aMarket.ResFrom <> rt_None then
   begin
@@ -2958,6 +2962,7 @@ begin
     Button_Market_In.Caption := '-';
   end;
 
+  //Position the shape that marks the TO ware
   Shape_Market_To.Visible := aMarket.ResTo <> rt_None;
   if aMarket.ResTo <> rt_None then
   begin
@@ -2999,8 +3004,6 @@ begin
   if not (fPlayers.Selected is TKMHouseMarket) then Exit;
 
   M := TKMHouseMarket(fPlayers.Selected);
-
-  //todo: We need to tell player that he must cancel previous order first instead of silently refusing
 
   if aButton = mbLeft then
     fGame.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TResourceType(TKMButtonFlat(Sender).Tag));

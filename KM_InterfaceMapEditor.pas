@@ -955,7 +955,7 @@ begin
       Button_EditFormations := TKMButton.Create(Panel_Defence, 0, 235, TB_WIDTH, 25, 'Edit formations', bsGame);
       Button_EditFormations.OnClick := Formations_Show;
 
-    //Defence settings
+    //Offence settings
     Panel_Offence := TKMPanel.Create(Panel_Town, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Offence, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Attacks', fnt_Outline, taCenter);
 
@@ -963,7 +963,7 @@ begin
       CheckBox_AutoAttack.Disable;
 
       List_Attacks := TKMColumnListBox.Create(Panel_Offence, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
-      List_Attacks.SetColumns(fnt_Outline, ['Type','Delay','Men', 'Target', 'Loc'], [0, 20, 50, 90, 150]);
+      List_Attacks.SetColumns(fnt_Outline, ['Type', 'Delay', 'Men', 'Target', 'Loc'], [0, 20, 50, 90, 150]);
       List_Attacks.OnClick := Attacks_ListClick;
       List_Attacks.OnDoubleClick := Attacks_ListDoubleClick;
 
