@@ -682,7 +682,6 @@ type
     fItemHeight: Byte;
     fItemIndex: Smallint;
     fRowCount: Integer;
-    fRows: array of TKMListRow;
     fColumns: array of TKMListColumn;
     fHeader: TKMListHeader;
     fShowHeader: Boolean;
@@ -696,7 +695,6 @@ type
     procedure SetSortIndex(aIndex: Integer);
     function GetSortDirection: TSortDirection;
     procedure SetSortDirection(aDirection: TSortDirection);
-    function GetRow(aIndex: Integer): TKMListRow;
     procedure UpdateScrollBar;
     procedure SetShowHeader(aValue: Boolean);
     function GetOnColumnClick: TIntegerEvent;
@@ -710,6 +708,8 @@ type
     procedure SetVisible(aValue: Boolean); override;
     procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
   public
+    Rows: array of TKMListRow;
+
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
     destructor Destroy; override;
 
@@ -720,9 +720,7 @@ type
     property ShowHeader: Boolean read fShowHeader write SetShowHeader;
     property ShowLines: Boolean read fShowLines write fShowLines;
 
-    property Rows[aIndex: Integer]: TKMListRow read GetRow;
     property Columns[aIndex: Integer]: TKMListColumn read GetColumn;
-
     property BackAlpha: Single read fBackAlpha write SetBackAlpha;
     property RowCount: Integer read fRowCount;
     property ItemHeight: Byte read fItemHeight write fItemHeight;
@@ -3280,13 +3278,6 @@ begin
 end;
 
 
-function TKMColumnListBox.GetRow(aIndex: Integer): TKMListRow;
-begin
-  Assert(InRange(aIndex, 0, fRowCount - 1));
-  Result := fRows[aIndex];
-end;
-
-
 function TKMColumnListBox.GetSortDirection: TSortDirection;
 begin
   Result := fHeader.SortDirection;
@@ -3335,10 +3326,10 @@ begin
   Assert(fHeader.ColumnCount > 0);
   Assert(Length(aItem.Cells) = fHeader.ColumnCount);
 
-  if fRowCount >= Length(fRows) then
-    SetLength(fRows, fRowCount + 16);
+  if fRowCount >= Length(Rows) then
+    SetLength(Rows, fRowCount + 16);
 
-  fRows[fRowCount] := aItem;
+  Rows[fRowCount] := aItem;
 
   Inc(fRowCount);
   UpdateScrollBar;
@@ -3458,36 +3449,36 @@ begin
 
     if AvailWidth <= 0 then Continue; //If the item overflows our allowed PaintWidth do not paint it
 
-    if fRows[aIndex].Cells[I].Pic.ID <> 0 then
+    if Rows[aIndex].Cells[I].Pic.ID <> 0 then
       TKMRenderUI.WritePicture(X + 4 + fHeader.Columns[I].Offset, Y + 1,
                              AvailWidth, fItemHeight, [],
-                             fRows[aIndex].Cells[I].Pic.RX,
-                             fRows[aIndex].Cells[I].Pic.ID,
+                             Rows[aIndex].Cells[I].Pic.RX,
+                             Rows[aIndex].Cells[I].Pic.ID,
                              True,
-                             fRows[aIndex].Cells[I].Color);
+                             Rows[aIndex].Cells[I].Color);
 
-    if fRows[aIndex].Cells[I].Caption <> '' then
-      if fRows[aIndex].Cells[I].Hint <> '' then
+    if Rows[aIndex].Cells[I].Caption <> '' then
+      if Rows[aIndex].Cells[I].Hint <> '' then
       begin
-        TextSize := fResource.ResourceFont.GetTextSize(fRows[aIndex].Cells[I].Caption, fFont);
+        TextSize := fResource.ResourceFont.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
         TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
                             Y + 4,
                             AvailWidth,
-                            fRows[aIndex].Cells[I].Caption,
-                            fColumns[I].Font, fColumns[I].TextAlign, fRows[aIndex].Cells[I].Color);
+                            Rows[aIndex].Cells[I].Caption,
+                            fColumns[I].Font, fColumns[I].TextAlign, Rows[aIndex].Cells[I].Color);
         TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
                             Y + fItemHeight div 2 + 1,
                             AvailWidth,
-                            fRows[aIndex].Cells[I].Hint,
+                            Rows[aIndex].Cells[I].Hint,
                             fColumns[I].HintFont, fColumns[I].TextAlign, $FFB0B0B0);
       end else
       begin
-        TextSize := fResource.ResourceFont.GetTextSize(fRows[aIndex].Cells[I].Caption, fFont);
+        TextSize := fResource.ResourceFont.GetTextSize(Rows[aIndex].Cells[I].Caption, fFont);
         TKMRenderUI.WriteText(X + 4 + fHeader.Columns[I].Offset,
                             Y + (fItemHeight - TextSize.Y) div 2 + 2,
                             AvailWidth,
-                            fRows[aIndex].Cells[I].Caption,
-                            fColumns[I].Font, fColumns[I].TextAlign, fRows[aIndex].Cells[I].Color);
+                            Rows[aIndex].Cells[I].Caption,
+                            fColumns[I].Font, fColumns[I].TextAlign, Rows[aIndex].Cells[I].Color);
       end;
   end;
 end;

@@ -2888,12 +2888,14 @@ procedure TKMGamePlayInterface.MessageLog_ItemClick(Sender: TObject);
 var
   ID: Integer;
   Msg: Integer;
+  R: TKMListRow;
 begin
   ID := ListBox_MessageLog.ItemIndex;
   if ID = -1 then Exit;
 
   Msg := ListBox_MessageLog.Rows[ID].Tag;
-  ListBox_MessageLog.Rows[ID].Cells[1].Color := $FFB0B0B0;
+  R := ListBox_MessageLog.Rows[ID];
+  R.Cells[1].Color := $FFB0B0B0;
   fMessageList.MessagesLog[Msg].IsRead := True;
 
   fGame.Viewport.Position := KMPointF(fMessageList.MessagesLog[Msg].Loc);
@@ -2909,11 +2911,13 @@ end;
 procedure TKMGamePlayInterface.MessageLog_Update;
 var
   I: Integer;
+  R: TKMListRow;
 begin
   for I := ListBox_MessageLog.RowCount to fMessageList.CountLog - 1 do
   begin
-    ListBox_MessageLog.AddItem(MakeListRow(['', fMessageList.MessagesLog[I].Text, ''], I));
-    ListBox_MessageLog.Rows[I].Cells[2].Pic := MakePic(rxGui, 59);
+    R := MakeListRow(['', fMessageList.MessagesLog[I].Text, ''], I);
+    R.Cells[2].Pic := MakePic(rxGui, 59);
+    ListBox_MessageLog.AddItem(R);
     Inc(fMessageLogUnread);
   end;
 

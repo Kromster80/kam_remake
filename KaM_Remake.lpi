@@ -38,7 +38,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="122">
+    <Units Count="123">
       <Unit0>
         <Filename Value="KaM_Remake.dpr"/>
         <IsPartOfProject Value="True"/>
@@ -136,8 +136,8 @@
         <UnitName Value="KM_Controls"/>
         <EditorIndex Value="5"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="995"/>
-        <CursorPos X="87" Y="1008"/>
+        <TopLine Value="682"/>
+        <CursorPos X="1" Y="701"/>
         <UsageCount Value="23"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -205,11 +205,10 @@
         <Filename Value="KM_InterfaceGamePlay.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_InterfaceGamePlay"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="2896"/>
-        <CursorPos X="10" Y="2907"/>
+        <TopLine Value="2882"/>
+        <CursorPos X="35" Y="2897"/>
         <UsageCount Value="23"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -1186,8 +1185,20 @@
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit121>
+      <Unit122>
+        <Filename Value="Common\pascalscript\Source\uPSCompiler.pas"/>
+        <UnitName Value="uPSCompiler"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="6"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="2" Y="2"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit122>
     </Units>
-    <JumpHistory Count="8" HistoryIndex="7">
+    <JumpHistory Count="25" HistoryIndex="24">
       <Position1>
         <Filename Value="KM_InterfaceMainMenu.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
@@ -1220,6 +1231,74 @@
         <Filename Value="KM_InterfaceGamePlay.pas"/>
         <Caret Line="356" Column="18" TopLine="336"/>
       </Position8>
+      <Position9>
+        <Filename Value="KM_InterfaceGamePlay.pas"/>
+        <Caret Line="2907" Column="10" TopLine="2896"/>
+      </Position9>
+      <Position10>
+        <Filename Value="KM_InterfaceGamePlay.pas"/>
+        <Caret Line="2898" Column="4" TopLine="2881"/>
+      </Position10>
+      <Position11>
+        <Filename Value="KM_InterfaceGamePlay.pas"/>
+        <Caret Line="2891" Column="10" TopLine="2876"/>
+      </Position11>
+      <Position12>
+        <Filename Value="KM_InterfaceGamePlay.pas"/>
+        <Caret Line="2897" Column="38" TopLine="2882"/>
+      </Position12>
+      <Position13>
+        <Filename Value="KM_InterfaceGamePlay.pas"/>
+        <Caret Line="2894" Column="33" TopLine="2882"/>
+      </Position13>
+      <Position14>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="723" Column="14" TopLine="708"/>
+      </Position14>
+      <Position15>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="712" Column="5" TopLine="684"/>
+      </Position15>
+      <Position16>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="3278" Column="1" TopLine="3259"/>
+      </Position16>
+      <Position17>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="3316" Column="5" TopLine="3296"/>
+      </Position17>
+      <Position18>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="724" Column="1" TopLine="702"/>
+      </Position18>
+      <Position19>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="3342" Column="3" TopLine="3323"/>
+      </Position19>
+      <Position20>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="3346" Column="16" TopLine="3331"/>
+      </Position20>
+      <Position21>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="3467" Column="50" TopLine="3438"/>
+      </Position21>
+      <Position22>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="3455" Column="10" TopLine="3439"/>
+      </Position22>
+      <Position23>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="3474" Column="29" TopLine="3455"/>
+      </Position23>
+      <Position24>
+        <Filename Value="Common\pascalscript\Source\uPSCompiler.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position24>
+      <Position25>
+        <Filename Value="Common\pascalscript\Source\uPSCompiler.pas"/>
+        <Caret Line="15564" Column="38" TopLine="15549"/>
+      </Position25>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
