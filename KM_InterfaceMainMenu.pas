@@ -2261,6 +2261,7 @@ end;
 procedure TKMMainMenuInterface.SingleMap_RefreshList(aJumpToSelected: Boolean);
 var
   I, MapIndex: Integer;
+  R: TKMListRow;
 begin
   fMaps.Lock;
     ColList_SingleMaps.Clear;
@@ -2282,9 +2283,10 @@ begin
 
       for I := 0 to fMaps.Count - 1 do
       begin
-        ColList_SingleMaps.AddItem(MakeListRow(['', IntToStr(fMaps[I].Info.PlayerCount), fMaps[I].FileName, fMaps[I].Info.MapSizeText]));
-        ColList_SingleMaps.Rows[I].Cells[2].Hint := fMaps[I].SmallDesc;
-        ColList_SingleMaps.Rows[I].Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].Info.MissionMode <> mm_Tactic)*14);
+        R := MakeListRow(['', IntToStr(fMaps[I].Info.PlayerCount), fMaps[I].FileName, fMaps[I].Info.MapSizeText]);
+        R.Cells[2].Hint := fMaps[I].SmallDesc;
+        R.Cells[0].Pic := MakePic(rxGui, 28 + Byte(fMaps[I].Info.MissionMode <> mm_Tactic) * 14);
+        ColList_SingleMaps.AddItem(R);
       end;
   fMaps.Unlock;
 end;

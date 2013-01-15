@@ -25,7 +25,7 @@ type
     function GetTileUV(Index: Word; Rot: Byte): TUVRect;
     procedure BeginVBO;
     procedure EndVBO;
-    procedure DoTiles(AnimStep: Integer);
+    procedure DoTiles;
     procedure DoOverlays;
     procedure DoFences;
     procedure DoMarks(aFieldsList: TKMPointTagList; aHousePlansList: TKMPointDirList);
@@ -202,7 +202,7 @@ begin
 end;
 
 
-procedure TRenderTerrain.DoTiles(AnimStep: Integer);
+procedure TRenderTerrain.DoTiles;
 var
   TexC: TUVRect;
   I,K: Integer;
@@ -518,7 +518,7 @@ begin
     glDepthFunc(GL_LEQUAL);
 
     BeginVBO;
-      DoTiles(AnimStep);
+      DoTiles;
       DoOverlays;
       DoLighting;
       DoWater(AnimStep); //Unlit water goes above lit sand
