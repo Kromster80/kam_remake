@@ -486,14 +486,15 @@ end;
 
 procedure TKMNetServer.RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
 var
-  Kind:TKMessageKind;
-  M:TKMemoryStream;
-  Param:integer;
+  Kind: TKMessageKind;
+  M: TKMemoryStream;
+  RoomId, Param: Integer;
   Msg: AnsiString;
+  Client: TKMServerClient;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message');
 
-  inc(BytesRX,aLength);
+  Inc(BytesRX, aLength);
 
   M := TKMemoryStream.Create;
   M.WriteBuffer(aData^, aLength);
@@ -513,10 +514,11 @@ begin
   end;
 
   case Kind of
-    mk_JoinRoom:  AddClientToRoom(aSenderHandle,Param);
+    mk_JoinRoom:  AddClientToRoom(aSenderHandle, Param);
     mk_SetGameInfo:
             begin
-              fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].GameInfo.LoadFromText(Msg);
+              RoomId := fClientList.GetByHandle(aSenderHandle).Room;
+              fRoomInfo[RoomId].GameInfo.LoadFromText(Msg);
               SaveHTMLStatus;
             end;
     mk_KickPlayer:
@@ -536,14 +538,14 @@ begin
             end;
     mk_Pong:
             begin
-             if (fClientList.GetByHandle(aSenderHandle).fPingStarted <> 0) then
-             begin
-               fClientList.GetByHandle(aSenderHandle).Ping := Math.Min(GetTimeSince(fClientList.GetByHandle(aSenderHandle).fPingStarted), High(Word));
-               fClientList.GetByHandle(aSenderHandle).fPingStarted := 0;
-             end;
+              Client := fClientList.GetByHandle(aSenderHandle);
+              if (Client.fPingStarted <> 0) then
+              begin
+                Client.Ping := Math.Min(GetTimeSince(Client.fPingStarted), High(Word));
+                Client.fPingStarted := 0;
+              end;
             end;
   end;
-
 end;
 
 

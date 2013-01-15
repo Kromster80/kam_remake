@@ -47,8 +47,6 @@ end;
 
 
 destructor TPathFindingAStarNew.Destroy;
-var
-  I: Integer;
 begin
   Reset;
   fHeap.Free;
@@ -83,7 +81,6 @@ end;
 procedure TPathFindingAStarNew.Reset;
 var
   I,K: Integer;
-  X,Y: SmallInt;
 begin
   for I := 0 to High(fOpenRef) do
   for K := 0 to High(fOpenRef[I]) do

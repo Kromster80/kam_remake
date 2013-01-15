@@ -3742,12 +3742,15 @@ begin
      Button_MapEd_Load.Enabled and (List_MapEd.ItemIndex <> -1) then
   begin
     ID := List_MapEd.Rows[List_MapEd.ItemIndex].Tag;
-    if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
+    if Radio_MapEd_MapType.ItemIndex = 0 then
+      Maps := fMaps
+    else
+      Maps := fMapsMP;
 
     Maps.Lock;
       fGameApp.NewMapEditor(Maps[ID].FullPath('.dat'), 0, 0);
     Maps.Unlock;
-    Maps := nil; //Make sure nobody else tries to use it once it's unlocked
+
     //Keep MP/SP selected in the map editor interface
     //(if mission failed to load we would have fGame = nil)
     if (fGame <> nil) and (fGame.MapEditorInterface <> nil) then
@@ -3803,7 +3806,10 @@ begin
   OldTopIndex := List_MapEd.TopIndex;
   List_MapEd.Clear;
 
-  if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
+  if Radio_MapEd_MapType.ItemIndex = 0 then
+    Maps := fMaps
+  else
+    Maps := fMapsMP;
 
   Maps.Lock;
     for I := 0 to Maps.Count - 1 do
@@ -3812,9 +3818,7 @@ begin
     for I := 0 to Maps.Count - 1 do
       if (Maps[I].CRC = fLastMapCRC) then
         List_MapEd.ItemIndex := I;
-
   Maps.Unlock;
-  Maps := nil; //Make sure nobody else tries to use it once it's unlocked
 
   List_MapEd.TopIndex := OldTopIndex;
 
@@ -3867,14 +3871,16 @@ begin
   if Button_MapEd_Load.Enabled then
   begin
     ID := List_MapEd.Rows[List_MapEd.ItemIndex].Tag;
-    if Radio_MapEd_MapType.ItemIndex = 0 then Maps := fMaps else Maps := fMapsMP;
+    if Radio_MapEd_MapType.ItemIndex = 0 then
+      Maps := fMaps
+    else
+      Maps := fMapsMP;
 
     Maps.Lock;
       fLastMapCRC := Maps[ID].CRC;
-
       fMinimap.LoadFromMission(Maps[ID].FullPath('.dat'));
     Maps.Unlock;
-    Maps := nil; //Make sure nobody else tries to use it once it's unlocked
+
     fMinimap.Update(True);
     MinimapView_MapEd.SetMinimap(fMinimap);
     MinimapView_MapEd.Show;

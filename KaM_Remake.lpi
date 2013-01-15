@@ -134,10 +134,11 @@
         <Filename Value="KM_Controls.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Controls"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="5"/>
         <WindowIndex Value="0"/>
         <TopLine Value="682"/>
-        <CursorPos X="1" Y="701"/>
+        <CursorPos X="26" Y="683"/>
         <UsageCount Value="23"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -1188,17 +1189,14 @@
       <Unit122>
         <Filename Value="Common\pascalscript\Source\uPSCompiler.pas"/>
         <UnitName Value="uPSCompiler"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="6"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="2" Y="2"/>
+        <CursorPos X="1" Y="2"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit122>
     </Units>
-    <JumpHistory Count="25" HistoryIndex="24">
+    <JumpHistory Count="23" HistoryIndex="22">
       <Position1>
         <Filename Value="KM_InterfaceMainMenu.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
@@ -1291,14 +1289,6 @@
         <Filename Value="KM_Controls.pas"/>
         <Caret Line="3474" Column="29" TopLine="3455"/>
       </Position23>
-      <Position24>
-        <Filename Value="Common\pascalscript\Source\uPSCompiler.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
-      </Position24>
-      <Position25>
-        <Filename Value="Common\pascalscript\Source\uPSCompiler.pas"/>
-        <Caret Line="15564" Column="38" TopLine="15549"/>
-      </Position25>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

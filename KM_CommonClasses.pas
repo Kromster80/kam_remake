@@ -17,13 +17,13 @@ type
     function Write(const Value:TKMDirection): Longint; reintroduce; overload;
     function Write(const Value:TKMPoint ): Longint; reintroduce; overload;
     function Write(const Value:TKMPointF): Longint; reintroduce; overload;
-    function Write(const Value:single   ): Longint; reintroduce; overload;
-    function Write(const Value:integer  ): Longint; reintroduce; overload;
-    function Write(const Value:cardinal ): Longint; reintroduce; overload;
-    function Write(const Value:byte     ): Longint; reintroduce; overload;
-    function Write(const Value:boolean  ): Longint; reintroduce; overload;
-    function Write(const Value:word     ): Longint; reintroduce; overload;
-    function Write(const Value:shortint ): Longint; reintroduce; overload;
+    function Write(const Value:Single   ): Longint; reintroduce; overload;
+    function Write(const Value:Integer  ): Longint; reintroduce; overload;
+    function Write(const Value:Cardinal ): Longint; reintroduce; overload;
+    function Write(const Value:Byte     ): Longint; reintroduce; overload;
+    function Write(const Value:Boolean  ): Longint; reintroduce; overload;
+    function Write(const Value:Word     ): Longint; reintroduce; overload;
+    function Write(const Value:ShortInt ): Longint; reintroduce; overload;
     procedure WriteAsText(const aText: AnsiString); deprecated; //todo: Using text for data exchange is flawed idea. remove
 
     procedure Read(out Value: AnsiString); reintroduce; overload;
@@ -34,13 +34,13 @@ type
     function Read(out Value:TKMDirection): Longint; reintroduce; overload;
     function Read(out Value:TKMPoint    ): Longint; reintroduce; overload;
     function Read(out Value:TKMPointF   ): Longint; reintroduce; overload;
-    function Read(out Value:single      ): Longint; reintroduce; overload;
-    function Read(out Value:integer     ): Longint; reintroduce; overload;
-    function Read(out Value:cardinal    ): Longint; reintroduce; overload;
-    function Read(out Value:byte        ): Longint; reintroduce; overload;
-    function Read(out Value:boolean     ): Longint; reintroduce; overload;
-    function Read(out Value:word        ): Longint; reintroduce; overload;
-    function Read(out Value:shortint    ): Longint; reintroduce; overload;
+    function Read(out Value:Single      ): Longint; reintroduce; overload;
+    function Read(out Value:Integer     ): Longint; reintroduce; overload;
+    function Read(out Value:Cardinal    ): Longint; reintroduce; overload;
+    function Read(out Value:Byte        ): Longint; reintroduce; overload;
+    function Read(out Value:Boolean     ): Longint; reintroduce; overload;
+    function Read(out Value:Word        ): Longint; reintroduce; overload;
+    function Read(out Value:ShortInt    ): Longint; reintroduce; overload;
     procedure ReadAssert(const Value: string);
     function ReadAsText: AnsiString; deprecated; //todo: Using text for data exchange is flawed idea. remove
   end;

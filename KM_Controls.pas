@@ -708,6 +708,7 @@ type
     procedure SetVisible(aValue: Boolean); override;
     procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
   public
+    //Exposed to public since we need to edit sub-fields
     Rows: array of TKMListRow;
 
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);

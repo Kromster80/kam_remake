@@ -132,7 +132,7 @@ begin if A > B then if A > C then Result := A else Result := C
 end;
 
 
-//I re add this it is required by KM_Editor.
+//I re-add this it is required by KM_Editor.
 function ExtractOpenedFileName(in_s: string): string;
 var k:word; out_s:string; QMarks:boolean;
 begin
@@ -168,17 +168,16 @@ end else out_s:='';
 
 Result:=out_s;
 end;
+
+
 //Linux wants this instead of timegettime, it should work on Windows too
-//@Vytautas: WTF? ))))) You did it way too overcomplicated ))) No offense :)
-//           Just take a look at "Now" function and take SystemTime from it
-//@Lewin: I don't think this is a high priority, but if you happen to know the easy way - please write it here. To be deleted..
 function TimeGet: Cardinal;
 begin
   {$IFDEF MSWindows}
-  Result := TimeGetTime; //Return milliseconds with ~1ms precision
+  Result := TimeGetTime; //Returns milliseconds with ~1ms precision
   {$ENDIF}
   {$IFDEF Unix}
-  Result := cardinal(Trunc(Now * 24 * 60 * 60 * 1000));
+  Result := Cardinal(Trunc(Now * 24 * 60 * 60 * 1000));
   {$ENDIF}
 end;
 

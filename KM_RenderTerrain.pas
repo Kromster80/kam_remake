@@ -586,7 +586,7 @@ const
 var
   UVa, UVb: TKMPointF;
   TexID: Integer;
-  x1,x2,y1,y2,FenceX, FenceY: Single;
+  x1,y1,y2,FenceX, FenceY: Single;
   HeightInPx: Integer;
 begin
   case aFence of
@@ -634,14 +634,10 @@ begin
 
     FenceX := GFXData[rxGui,TexID].PxWidth / CELL_SIZE_PX;
 
-    if Pos = dir_W then
-    begin
-      x1 := pX - 1 - 3 / CELL_SIZE_PX;
-    end;
-    if Pos = dir_E then
-    begin
-      x1 := pX - 1 - FenceX + 3 / CELL_SIZE_PX;
-
+    case Pos of
+      dir_W:  x1 := pX - 1 - 3 / CELL_SIZE_PX;
+      dir_E:  x1 := pX - 1 - FenceX + 3 / CELL_SIZE_PX;
+      else    x1 := pX - 1; //Should never happen
     end;
 
     glBegin(GL_QUADS);

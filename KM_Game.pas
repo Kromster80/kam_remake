@@ -1276,7 +1276,7 @@ end;
 
 
 procedure TKMGame.UpdateGame(Sender: TObject);
-var I: Integer; T: Cardinal;
+var I: Integer;
 begin
   if fIsPaused then Exit;
 
@@ -1287,7 +1287,7 @@ begin
                   begin
                     if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
                     begin
-                      T := TimeGet;
+                      if DO_PERF_LOGGING then fPerfLog.EnterSection(psTick);
 
                       if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                       inc(fGameTickCount); //Thats our tick counter for gameplay events
@@ -1320,7 +1320,7 @@ begin
                       if (fGameTickCount mod 600 = 0) and fGameApp.GameSettings.Autosave then
                         AutoSave;
 
-                      if DO_PERF_LOGGING then fPerfLog.AddTime(GetTimeSince(T));
+                      if DO_PERF_LOGGING then fPerfLog.LeaveSection(psTick);
 
                       //Break the for loop (if we are using speed up)
                       if DoGameHold then break;

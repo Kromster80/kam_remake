@@ -279,8 +279,7 @@ procedure TKMTerrain.LoadFromFile(FileName: string; aMapEditor: Boolean);
 var
   i,k:integer;
   S:TKMemoryStream;
-  NewX,NewY:integer;
-  ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
+  NewX,NewY: Integer;
 begin
   fMapX := 0;
   fMapY := 0;
