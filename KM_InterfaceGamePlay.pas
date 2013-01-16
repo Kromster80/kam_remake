@@ -2730,20 +2730,24 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Unit_Dismiss(Sender:TObject);
+procedure TKMGamePlayInterface.Unit_Dismiss(Sender: TObject);
 begin
-  if fPlayers.Selected = nil then exit;
-    if not (fPlayers.Selected is TKMUnit) then exit;
+  if (fPlayers.Selected = nil)
+  or not (fPlayers.Selected is TKMUnit) then
+    Exit;
 
-    if Sender=Button_Unit_DismissYes then begin
-      //DISMISS UNIT
-      fAskDismiss:=false;
-      ShowUnitInfo(nil, false); //Simpliest way to reset page and ShownUnit
-      SwitchPage(nil); //Return to main menu after dismissing
-    end else begin
-      fAskDismiss:=false;
-      ShowUnitInfo(TKMUnit(fPlayers.Selected), false);  //Cancel and return to selected unit
-    end;
+  if Sender = Button_Unit_DismissYes then
+  begin
+    //DISMISS UNIT
+    fAskDismiss := False;
+    ShowUnitInfo(nil, False); //Simpliest way to reset page and ShownUnit
+    SwitchPage(nil); //Return to main menu after dismissing
+  end
+  else
+  begin
+    fAskDismiss := False;
+    ShowUnitInfo(TKMUnit(fPlayers.Selected), False);  //Cancel and return to selected unit
+  end;
 end;
 
 
@@ -2812,7 +2816,7 @@ end;
 
 
 procedure TKMGamePlayInterface.ReplayClick;
-  procedure SetButtons(aPaused:boolean);
+  procedure SetButtons(aPaused: Boolean);
   begin
     Button_ReplayPause.Enabled := aPaused;
     Button_ReplayStep.Enabled := not aPaused;
@@ -2825,24 +2829,28 @@ begin
     Exit; //Restarting the replay will destroy Self, so exit immediately
   end;
 
-  if (Sender = Button_ReplayPause) then begin
+  if (Sender = Button_ReplayPause) then
+  begin
     fGame.IsPaused := True;
     SetButtons(False);
   end;
 
-  if (Sender = Button_ReplayStep) then begin
+  if (Sender = Button_ReplayStep) then
+  begin
     fGame.StepOneFrame;
     fGame.IsPaused := False;
     SetButtons(False);
   end;
 
-  if (Sender = Button_ReplayResume) then begin
+  if (Sender = Button_ReplayResume) then
+  begin
     fGame.IsPaused := False;
     SetButtons(True);
   end;
 
-  if (Sender = Button_ReplayExit) then begin
-    fGame.GameHold(true, gr_ReplayEnd);
+  if (Sender = Button_ReplayExit) then
+  begin
+    fGame.GameHold(True, gr_ReplayEnd);
     SetButtons(True);
   end;
 end;

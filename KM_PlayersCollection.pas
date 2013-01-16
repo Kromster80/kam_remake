@@ -10,11 +10,13 @@ uses
 type
   TKMPlayersCollection = class
   private
-    fSelected: TObject; //Unit or House or Group
+    fHighlight: TObject; //Unit/House/Group that is shown highlighted to draw players attention
+    fSelected: TObject; //Unit/House/Group selected by player and shown in UI
     fCount: Byte;
     fPlayerList: array of TKMPlayer;
     fPlayerAnimals: TKMPlayerAnimals;
     function GetPlayer(aIndex: Integer): TKMPlayer;
+    procedure SetHighlight(Value: TObject);
     procedure SetSelected(Value: TObject);
   public
     constructor Create;
@@ -23,6 +25,7 @@ type
     property Count: Byte read fCount;
     property Player[aIndex: Integer]: TKMPlayer read GetPlayer; default;
     property PlayerAnimals: TKMPlayerAnimals read fPlayerAnimals;
+    property Highlight: TObject read fHighlight write SetHighlight;
     property Selected: TObject read fSelected write SetSelected;
 
     procedure AddPlayers(aCount: Byte); //Batch add several players
@@ -44,15 +47,9 @@ type
     function GetUnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType: TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 
-    ///	<summary>
-    ///	  <para>
-    ///	    Check how Player1 feels towards Player2.
-    ///	  </para>
-    ///	  <para>
-    ///	    Note: this is position dependant, e.g. Player1 may be allied with
-    ///	    Player2, but Player2 may be enemy to Player1
-    ///	  </para>
-    ///	</summary>
+    //Check how Player1 feels towards Player2
+    //Note: this is position dependant, e.g. Player1 may be allied with
+    //      Player2, but Player2 could be an enemy to Player1
     function CheckAlliance(aPlay1, aPlay2: TPlayerIndex): TAllianceType;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit);
     procedure CleanUpGroupPointer(var aGroup: TKMUnitGroup);
@@ -370,17 +367,38 @@ begin
 end;
 
 
+procedure TKMPlayersCollection.SetHighlight(Value: TObject);
+begin
+  //fHighlight cannot use house/unit pointers in MP since those go into the save file,
+  //and saves must be created identical on all computers in MP
+  //Instead we make sure after each tick that Highlight is still valid, otherwise nil it
+  fHighlight := Value;
+end;
+
+
 procedure TKMPlayersCollection.SetSelected(Value: TObject);
 begin
   //fSelected cannot use house/unit pointers in MP since those go into the save file,
-  //and saves must be created the same on all computers in MP
+  //and saves must be created identical on all computers in MP
+  //Instead we make sure after each tick that selection is still valid, otherwise nil it
   fSelected := Value;
 end;
 
 
 procedure TKMPlayersCollection.UpdateSelected;
 begin
-  //Update selection (and drop it if necessary)
+  //Update highlight after games tick (and nil it if necessary)
+  if (fHighlight is TKMHouse) and TKMHouse(fHighlight).IsDestroyed then
+    fHighlight := nil
+  else
+  if (fHighlight is TKMUnit)
+  and (TKMUnit(fHighlight).IsDeadOrDying or not TKMUnit(fHighlight).Visible) then
+    fHighlight := nil
+  else
+  if (fHighlight is TKMUnitGroup) and TKMUnitGroup(fHighlight).IsDead then
+    fHighlight := nil;
+
+  //Update selection after games tick (and nil it if necessary)
   if (fSelected is TKMHouse) and TKMHouse(fSelected).IsDestroyed then
     fSelected := nil
   else

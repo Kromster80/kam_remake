@@ -873,8 +873,7 @@ begin
   FreeAndNil(FieldsList);
   FreeAndNil(HousePlansList);
 
-  if TEST_HOUSE_SELECTION then
-  if fPlayers.Selected is TKMHouse then
+  if fPlayers.Highlight is TKMHouse then
     RenderHouseOutline;
 
   if fGame.IsMapEditor then

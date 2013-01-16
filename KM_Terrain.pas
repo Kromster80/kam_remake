@@ -128,7 +128,6 @@ type
     procedure CutCorn(Loc:TKMPoint);
     procedure CutGrapes(Loc:TKMPoint);
 
-    procedure SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
     procedure DecStoneDeposit(Loc:TKMPoint);
     function DecOreDeposit(Loc:TKMPoint; rt:TResourceType): Boolean;
 
@@ -139,41 +138,41 @@ type
     function GetWalkConnectID(Loc:TKMPoint): Byte;
     function GetConnectID(aWalkConnect: TWalkConnect; Loc:TKMPoint): Byte;
 
-    function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability; aCheckUnits: Boolean=true): Boolean;
-    function GetOutOfTheWay(Loc, PusherLoc:TKMPoint; aPass:TPassability):TKMPoint;
-    function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; aPass: TPassability; out SidePoint: TKMPoint; OnlyTakeBest: boolean=false): Boolean;
-    function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single): Boolean;
-    function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability): Boolean;
-    function GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TPassability; aAcceptTargetLoc: Boolean):TKMPoint;
+    function CheckAnimalIsStuck(Loc: TKMPoint; aPass: TPassability; aCheckUnits: Boolean = True): Boolean;
+    function GetOutOfTheWay(Loc, PusherLoc: TKMPoint; aPass: TPassability): TKMPoint;
+    function FindSideStepPosition(Loc, Loc2, Loc3: TKMPoint; aPass: TPassability; out SidePoint: TKMPoint; OnlyTakeBest: Boolean = False): Boolean;
+    function Route_CanBeMade(LocA, LocB: TKMPoint; aPass: TPassability; aDistance: Single): Boolean;
+    function Route_CanBeMadeToVertex(LocA, LocB: TKMPoint; aPass: TPassability): Boolean;
+    function GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TPassability; aAcceptTargetLoc: Boolean): TKMPoint;
 
-    procedure UnitAdd(LocTo:TKMPoint; aUnit: Pointer);
-    procedure UnitRem(LocFrom:TKMPoint);
-    procedure UnitWalk(LocFrom,LocTo:TKMPoint; aUnit: Pointer);
-    procedure UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom: Pointer);
-    procedure UnitVertexAdd(LocTo:TKMPoint; Usage: TKMVertexUsage); overload;
-    procedure UnitVertexAdd(LocFrom, LocTo:TKMPoint); overload;
-    procedure UnitVertexRem(LocFrom:TKMPoint);
-    function VertexUsageCompatible(LocFrom, LocTo:TKMPoint): Boolean;
-    function GetVertexUsageType(LocFrom, LocTo:TKMPoint): TKMVertexUsage;
+    procedure UnitAdd(LocTo: TKMPoint; aUnit: Pointer);
+    procedure UnitRem(LocFrom: TKMPoint);
+    procedure UnitWalk(LocFrom,LocTo: TKMPoint; aUnit: Pointer);
+    procedure UnitSwap(LocFrom,LocTo: TKMPoint; UnitFrom: Pointer);
+    procedure UnitVertexAdd(LocTo: TKMPoint; Usage: TKMVertexUsage); overload;
+    procedure UnitVertexAdd(LocFrom, LocTo: TKMPoint); overload;
+    procedure UnitVertexRem(LocFrom: TKMPoint);
+    function VertexUsageCompatible(LocFrom, LocTo: TKMPoint): Boolean;
+    function GetVertexUsageType(LocFrom, LocTo: TKMPoint): TKMVertexUsage;
 
-    function TileInMapCoords(X,Y:integer; Inset: Byte=0): Boolean;
-    function VerticeInMapCoords(X,Y:integer; Inset: Byte=0): Boolean;
-    function EnsureTileInMapCoords(X,Y:integer; Inset: Byte=0):TKMPoint;
+    function TileInMapCoords(X, Y: Integer; Inset: Byte = 0): Boolean;
+    function VerticeInMapCoords(X, Y: Integer; Inset: Byte = 0): Boolean;
+    function EnsureTileInMapCoords(X, Y: Integer; Inset: Byte = 0): TKMPoint;
 
-    function TileGoodForIron(X,Y: Word): Boolean;
-    function TileGoodForGold(X,Y: Word): Boolean;
-    function TileGoodForField(X,Y: Word): Boolean;
-    function TileGoodForTree(X,Y: Word): Boolean;
-    function TileIsWater(Loc:TKMPoint): Boolean; overload;
-    function TileIsWater(X,Y : Word): Boolean; overload;
-    function TileIsStone(X,Y:Word): Byte;
-    function TileIsCoal(X,Y: Word): Byte;
-    function TileIsIron(X,Y: Word): Byte;
-    function TileIsGold(X,Y: Word): Byte;
-    function TileIsCornField(Loc:TKMPoint): Boolean;
-    function TileIsWineField(Loc:TKMPoint): Boolean;
-    function TileIsLocked(aLoc:TKMPoint): Boolean;
-    function UnitsHitTest(X,Y:word): Pointer;
+    function TileGoodForIron(X, Y: Word): Boolean;
+    function TileGoodForGold(X, Y: Word): Boolean;
+    function TileGoodForField(X, Y: Word): Boolean;
+    function TileGoodForTree(X, Y: Word): Boolean;
+    function TileIsWater(Loc: TKMPoint): Boolean; overload;
+    function TileIsWater(X, Y: Word): Boolean; overload;
+    function TileIsStone(X, Y: Word): Byte;
+    function TileIsCoal(X, Y: Word): Byte;
+    function TileIsIron(X, Y: Word): Byte;
+    function TileIsGold(X, Y: Word): Byte;
+    function TileIsCornField(Loc: TKMPoint): Boolean;
+    function TileIsWineField(Loc: TKMPoint): Boolean;
+    function TileIsLocked(aLoc: TKMPoint): Boolean;
+    function UnitsHitTest(X, Y: Word): Pointer;
     function UnitsHitTestF(aLoc: TKMPointF): Pointer;
     function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 
@@ -182,8 +181,8 @@ type
     function CanWalkDiagonaly(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
 
     function TopHill: Byte;
-    procedure FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects: Boolean=true); overload;
-    procedure FlattenTerrain(LocList:TKMPointList); overload;
+    procedure FlattenTerrain(Loc: TKMPoint; aUpdateWalkConnects: Boolean=true); overload;
+    procedure FlattenTerrain(LocList: TKMPointList); overload;
 
     function ConvertCursorToMapCoord(inX,inY:single): Single;
     function FlatToHeight(inX, inY: Single): Single; overload;
@@ -216,13 +215,13 @@ uses KM_Log, KM_PlayersCollection,
   KM_Resource, KM_Units, KM_ResourceHouse, KM_ResourceMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
-{ TTerrain }
+{ TKMTerrain }
 constructor TKMTerrain.Create;
 begin
   inherited;
   fAnimStep := 0;
   FallingTrees := TKMPointTagList.Create;
-  fTileset := fResource.Tileset;
+  fTileset := fResource.Tileset; //Local shortcut
 end;
 
 
@@ -569,10 +568,12 @@ begin
   Result := fTileset.TileIsWater(Land[Loc.Y, Loc.X].Terrain);
 end;
 
+
 function TKMTerrain.TileIsWater(X,Y : Word): Boolean;
 begin
   Result := fTileset.TileIsWater(Land[Y, X].Terrain);
 end;
+
 
 //Check if requested tile is sand suitable for crabs
 function TKMTerrain.TileIsSand(Loc: TKMPoint): Boolean;
@@ -861,22 +862,23 @@ end;
 {Maybe this can also be used later for inter-tile passability}
 function TKMTerrain.CanWalkDiagonaly(const aFrom: TKMPoint; bX, bY: SmallInt): Boolean;
 begin
-  Result := true;
+  Result := True;
 
-  if (abs(aFrom.X-bX)<>1) or (abs(aFrom.Y-bY)<>1) then Exit; //Tiles are not diagonal to each other
-
+  //Tiles are not diagonal to each other
+  if (Abs(aFrom.X - bX) <> 1) or (Abs(aFrom.Y - bY) <> 1) then
+    Exit; 
                                                                  //Relative tiles locations
-  if (aFrom.X<bX)and(aFrom.Y<bY) then                                                 //   A
-    Result := not MapElem[Land[bY,bX].Obj].DiagonalBlocked    //     B
+  if (aFrom.X < bX) and (aFrom.Y < bY) then                               //   A
+    Result := not MapElem[Land[bY, bX].Obj].DiagonalBlocked               //     B
   else
-  if (aFrom.X<bX)and(aFrom.Y>bY) then                                                 //     B
-    Result := not MapElem[Land[bY+1,bX].Obj].DiagonalBlocked  //   A
+  if (aFrom.X < bX) and (aFrom.Y > bY) then                               //     B
+    Result := not MapElem[Land[bY+1, bX].Obj].DiagonalBlocked             //   A
   else
-  if (aFrom.X>bX)and(aFrom.Y>bY) then                                                 //   B
-    Result := not MapElem[Land[aFrom.Y,aFrom.X].Obj].DiagonalBlocked    //     A
+  if (aFrom.X > bX) and (aFrom.Y > bY) then                               //   B
+    Result := not MapElem[Land[aFrom.Y, aFrom.X].Obj].DiagonalBlocked     //     A
   else
-  if (aFrom.X>bX)and(aFrom.Y<bY) then                                                 //     A
-    Result := not MapElem[Land[aFrom.Y+1,aFrom.X].Obj].DiagonalBlocked; //   B
+  if (aFrom.X > bX) and (aFrom.Y < bY) then                               //     A
+    Result := not MapElem[Land[aFrom.Y+1, aFrom.X].Obj].DiagonalBlocked;  //   B
 end;
 
 
@@ -1370,7 +1372,7 @@ begin
         for K := -1 to 1 do
           if ((K <> 0) or (J <> 0))
           and TileInMapCoords(P.X+J, P.Y+K)
-          and TileIsWater(KMPoint(P.X+J, P.Y+K))
+          and TileIsWater(P.X+J, P.Y+K)
           and WaterHasFish(KMPoint(P.X+J, P.Y+K)) then //Limit to only tiles which are water and have fish
             ChosenTiles.AddItem(KMPointDir(P, KMGetDirection(J, K)));
   end;
@@ -1390,7 +1392,7 @@ begin
   for I := max(aLoc.Y - aRadius, Ins) to Min(aLoc.Y + aRadius, fMapY - Ins) do
   for K := max(aLoc.X - aRadius, Ins) to Min(aLoc.X + aRadius, fMapX - Ins) do
     if (KMLengthDiag(aLoc, KMPoint(K,I)) <= aRadius)
-    and TileIsWater(KMPoint(K,I)) then
+    and TileIsWater(K,I) then
     begin
       Result := True;
       Exit;
@@ -1480,18 +1482,18 @@ begin
 end;
 
 
-function TKMTerrain.WaterHasFish(aLoc:TKMPoint): Boolean;
+function TKMTerrain.WaterHasFish(aLoc: TKMPoint): Boolean;
 begin
   Result := (fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Y,aLoc.X].WalkConnect[wcFish],false) <> nil);
 end;
 
 
-function TKMTerrain.CatchFish(aLoc:TKMPointDir; TestOnly: Boolean=false): Boolean;
+function TKMTerrain.CatchFish(aLoc: TKMPointDir; TestOnly: Boolean = False): Boolean;
 var MyFish: TKMUnitAnimal;
 begin
   //Here we are catching fish in the tile 1 in the direction
   aLoc.Loc := KMPoint(KMGetPointInDir(aLoc.Loc, aLoc.Dir));
-  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Loc.Y,aLoc.Loc.X].WalkConnect[wcFish],not TestOnly);
+  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Loc.Y, aLoc.Loc.X].WalkConnect[wcFish], not TestOnly);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
 end;
@@ -1570,21 +1572,6 @@ procedure TKMTerrain.CutGrapes(Loc: TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge := 1;
   Land[Loc.Y,Loc.X].Obj := 54; //Reset the grapes
-end;
-
-
-{Used only in debug - places coal on map}
-procedure TKMTerrain.SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
-begin
-  if not TileInMapCoords(Loc.X, Loc.Y) then exit;
-  case rt of
-    rt_Stone:   Land[Loc.Y,Loc.X].Terrain:=132;
-    rt_Coal:    Land[Loc.Y,Loc.X].Terrain:=155;
-    rt_IronOre: Land[Loc.Y,Loc.X].Terrain:=151;
-    rt_GoldOre: Land[Loc.Y,Loc.X].Terrain:=147;
-    else        raise ELocError.Create('Wrong resource deposit',Loc);
-  end;
-  UpdatePassability(Loc);
 end;
 
 
