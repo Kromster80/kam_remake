@@ -251,11 +251,10 @@ begin
   while fSocketServer.IterNext do
     if (fSocketServer.Iterator.UserData <> nil) and (TClientInfo(fSocketServer.Iterator.UserData).Tag = aHandle) then
     begin
+      //Found the client that must be kicked
+      ClientDisconnect(fSocketServer.Iterator); //Seems to be a bug in LNet where ClientDisconnect is not called sometimes? So call it ourself just in case
       if fSocketServer.Iterator.ConnectionStatus in [scConnected, scConnecting, scDisconnecting] then
-      begin
-        fSocketServer.Iterator.Disconnect(True);
-        fOnClientDisconnect(aHandle); //A forceful disconnect does not always trigger the disconnect event so we need to do it manually
-      end
+        fSocketServer.Iterator.Disconnect(True)
       else
         fOnError('Warning: Attempted to kick a client that is not connected');
       Exit; //Only one client should have this handle
