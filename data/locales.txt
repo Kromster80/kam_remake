@@ -12,7 +12,7 @@ fre,    French,               1252,     51,           ,                Sylvain D
 ger,    German,               1252,     46,           ,                The Knight
 hun,    Hungarian,            1250,     57,           ,                Osi Attila (Jecy)
 ita,    Italian,              1252,     50,           ,                Paolo Castelvetere
-jap,    Japanese,             1252,     72,           ,                Guilherme Antunes da Silva
+jpn,    Japanese,             1252,     72,           ,                Guilherme Antunes da Silva
 lit,    Lithuanian,           LITH,     67,           ,                Audrius Arlauskas (Zaero)
 nor,    Norwegian,            1252,     70,           ,                Tokicchi
 pol,    Polish,               1250,     47,           ,                Przemyslaw Pietras
