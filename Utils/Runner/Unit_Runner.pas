@@ -14,10 +14,10 @@ type
     ChartsCount: Integer; //How many charts return
     ValueCount: Integer; //How many values
     ValueMin, ValueMax: Integer;
-    Value: array of array of Integer;
+    Value: array {Run} of array {Value} of Integer;
     TimesCount: Integer;
     TimeMin, TimeMax: Integer;
-    Times: array of array of Integer;
+    Times: array {Run} of array {Tick} of Integer;
   end;
 
   TKMRunnerCommon = class
@@ -62,6 +62,9 @@ begin
 
   for I := 0 to aCount - 1 do
   begin
+    if Assigned(OnProgress) then
+      OnProgress(Format('%d', [I]));
+
     fRun := I;
     Execute(I);
   end;
@@ -131,18 +134,18 @@ begin
   for I := 0 to fResults.TimesCount - 1 do
   begin
 
+    fResults.Times[fRun, I] := TimeGet;
+
     fGameApp.Game.UpdateGame(nil);
+
+    fResults.Times[fRun, I] := TimeGet - fResults.Times[fRun, I];
 
     if fGameApp.Game.IsPaused then
       fGameApp.Game.GameHold(False, gr_Win);
 
     if (I mod 60*10 = 0) and Assigned(OnProgress) then
       OnProgress(Format('%d (%d min)', [fRun, I div 600]));
-
   end;
-
-  for I := 0 to fResults.TimesCount - 1 do
-    fResults.Times[fRun, I] := fGameApp.Game.PerfLog.Times[I];
 end;
 
 

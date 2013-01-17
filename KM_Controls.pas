@@ -177,7 +177,7 @@ type
   TKMBevel = class(TKMControl)
   public
     BackAlpha: Single;
-    HalfBright: Boolean;
+    EdgeAlpha: Single;
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
     procedure Paint; override;
   end;
@@ -537,7 +537,6 @@ type
   { Scroll bar }
   TKMScrollBar = class(TKMControl)
   private
-    fBackAlpha: Single; //Alpha of background (usually 0.5, dropbox 1)
     fScrollAxis: TScrollAxis;
     fStyle: TButtonStyle;
     fMinValue: Integer;
@@ -558,8 +557,10 @@ type
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
   public
+    BackAlpha: Single; //Alpha of background (usually 0.5, dropbox 1)
+    EdgeAlpha: Single; //Alpha of background outline (usually 1)
+
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aScrollAxis: TScrollAxis; aStyle: TButtonStyle);
-    property BackAlpha: Single read fBackAlpha write fBackAlpha;
     property MinValue: Integer read fMinValue write SetMinValue;
     property MaxValue: Integer read fMaxValue write SetMaxValue;
     property Position: Integer read fPosition write SetPosition;
@@ -629,7 +630,6 @@ type
   TKMListHeader = class (TKMControl)
   private
     fFont: TKMFont;
-    fBackAlpha: Single; //Alpha of background
     fCount: Integer;
     fColumns: array of TKMListHeaderColumn;
     fColumnHighlight: Integer;
@@ -641,13 +641,15 @@ type
     procedure ClearColumns;
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
   public
+    BackAlpha: Single; //Alpha of background
+    EdgeAlpha: Single; //Alpha of background outline
+
     OnColumnClick: TIntegerEvent;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
     destructor Destroy; override;
 
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
 
-    property BackAlpha: Single read fBackAlpha write fBackAlpha;
     property Font: TKMFont read fFont write fFont;
     property ColumnCount: Integer read fCount;
     property Columns[aIndex: Integer]: TKMListHeaderColumn read GetColumn;
@@ -679,6 +681,7 @@ type
   private
     fFont: TKMFont;
     fBackAlpha: Single; //Alpha of background
+    fEdgeAlpha: Single; //Alpha of outline
     fItemHeight: Byte;
     fItemIndex: Smallint;
     fRowCount: Integer;
@@ -691,6 +694,7 @@ type
     function GetTopIndex: Integer;
     procedure SetTopIndex(aIndex: Integer);
     procedure SetBackAlpha(aValue: single);
+    procedure SetEdgeAlpha(aValue: Single);
     function GetSortIndex: Integer;
     procedure SetSortIndex(aIndex: Integer);
     function GetSortDirection: TSortDirection;
@@ -708,8 +712,8 @@ type
     procedure SetVisible(aValue: Boolean); override;
     procedure DoPaintLine(aIndex: Integer; X,Y: Integer; PaintWidth: Integer);
   public
-    //Exposed to public since we need to edit sub-fields
-    Rows: array of TKMListRow;
+    HideSelection: Boolean;
+    Rows: array of TKMListRow; //Exposed to public since we need to edit sub-fields
 
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aStyle: TButtonStyle);
     destructor Destroy; override;
@@ -723,6 +727,7 @@ type
 
     property Columns[aIndex: Integer]: TKMListColumn read GetColumn;
     property BackAlpha: Single read fBackAlpha write SetBackAlpha;
+    property EdgeAlpha: Single read fEdgeAlpha write SetEdgeAlpha;
     property RowCount: Integer read fRowCount;
     property ItemHeight: Byte read fItemHeight write fItemHeight;
     property ItemIndex: Smallint read fItemIndex write fItemIndex;
@@ -1431,13 +1436,14 @@ constructor TKMBevel.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Intege
 begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   BackAlpha := 0.4; //Default value
+  EdgeAlpha := 0.75; //Default value
 end;
 
 
 procedure TKMBevel.Paint;
 begin
   inherited;
-  TKMRenderUI.WriteBevel(Left,Top,Width,Height, HalfBright, BackAlpha);
+  TKMRenderUI.WriteBevel(Left,Top,Width,Height, EdgeAlpha, BackAlpha);
 end;
 
 
@@ -1735,7 +1741,7 @@ var i,Start: Integer;
 begin
   inherited;
 
-  TKMRenderUI.WriteBevel(Left, Top, Width, Height, false, fBackAlpha);
+  TKMRenderUI.WriteBevel(Left, Top, Width, Height, 1, fBackAlpha);
 
   Start := 0;
   if fInclRandom then
@@ -2124,7 +2130,7 @@ begin
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   if fFlatStyle then begin
-    TKMRenderUI.WriteBevel(Left, Top, Width, Height, true);
+    TKMRenderUI.WriteBevel(Left, Top, Width, Height, 0.5);
     if fChecked then
       TKMRenderUI.WriteShape(Left+4, Top+4, Width-8, Height-8, $C0A0A0A0, $D0A0A0A0);
   end else
@@ -2470,7 +2476,8 @@ end;
 constructor TKMScrollBar.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aScrollAxis: TScrollAxis; aStyle: TButtonStyle);
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  fBackAlpha := 0.5;
+  BackAlpha := 0.5;
+  EdgeAlpha := 0.75;
   fScrollAxis := aScrollAxis;
   fMinValue := 0;
   fMaxValue := 10;
@@ -2616,8 +2623,8 @@ begin
   ThumbPos := 0;
 
   case fScrollAxis of
-    sa_Vertical:   TKMRenderUI.WriteBevel(Left, Top+Width, Width, Height - Width*2, false, fBackAlpha);
-    sa_Horizontal: TKMRenderUI.WriteBevel(Left+Height, Top, Width - Height*2, Height, false, fBackAlpha);
+    sa_Vertical:   TKMRenderUI.WriteBevel(Left, Top+Width, Width, Height - Width*2, EdgeAlpha, BackAlpha);
+    sa_Horizontal: TKMRenderUI.WriteBevel(Left+Height, Top, Width - Height*2, Height, EdgeAlpha, BackAlpha);
   end;
 
   if fMaxValue > fMinValue then begin
@@ -2807,7 +2814,7 @@ begin
   else
     PaintWidth := Width; //List takes up the entire width
 
-  TKMRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, 0.5);
+  TKMRenderUI.WriteBevel(Left, Top, PaintWidth, Height, 1, 0.5);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
     TKMRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, Width-8, fItems.Strings[TopIndex+i] , fFont, taLeft);
@@ -3009,7 +3016,7 @@ begin
   else
     PaintWidth := Width; //List takes up the entire width
 
-  TKMRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
+  TKMRenderUI.WriteBevel(Left, Top, PaintWidth, Height, 1, fBackAlpha);
 
   if (fItemIndex <> -1) and InRange(fItemIndex - TopIndex, 0, (fHeight div fItemHeight)-1) then
     TKMRenderUI.WriteShape(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
@@ -3024,6 +3031,8 @@ constructor TKMListHeader.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
 
+  BackAlpha := 0.5;
+  EdgeAlpha := 0.75;
   fSortDirection := sdNone;
   fSortIndex := -1;
 end;
@@ -3140,7 +3149,7 @@ begin
 
     ColumnLeft := Left + fColumns[I].Offset;
 
-    TKMRenderUI.WriteBevel(ColumnLeft, Top, ColumnWidth, Height, True, fBackAlpha);
+    TKMRenderUI.WriteBevel(ColumnLeft, Top, ColumnWidth, Height, EdgeAlpha, BackAlpha);
     if Assigned(OnColumnClick) and (csOver in State) and (fColumnHighlight = I) then
       TKMRenderUI.WriteShape(ColumnLeft, Top, ColumnWidth, Height, $20FFFFFF);
 
@@ -3256,6 +3265,14 @@ begin
   fBackAlpha := aValue;
   fHeader.BackAlpha := aValue;
   fScrollBar.BackAlpha := aValue;
+end;
+
+
+procedure TKMColumnListBox.SetEdgeAlpha(aValue: Single);
+begin
+  fEdgeAlpha := aValue;
+  fHeader.EdgeAlpha := aValue;
+  fScrollBar.EdgeAlpha := aValue;
 end;
 
 
@@ -3501,7 +3518,7 @@ begin
   Y := Top + fHeader.Height * Byte(fShowHeader);
   MaxItem := GetVisibleRows - 1;
 
-  TKMRenderUI.WriteBevel(Left, Y, PaintWidth, Height - fHeader.Height * Byte(fShowHeader), false, fBackAlpha);
+  TKMRenderUI.WriteBevel(Left, Y, PaintWidth, Height - fHeader.Height * Byte(fShowHeader), 1, fBackAlpha);
 
   //Grid lines should be below selection focus
   if fShowLines then
@@ -3509,13 +3526,15 @@ begin
     TKMRenderUI.WriteShape(Left+1, Y + I * fItemHeight - 1, PaintWidth - 2, 1, $FFBBBBBB);
 
   //Selection highlight
-  if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, MaxItem) then
+  if not HideSelection
+  and (fItemIndex <> -1)
+  and InRange(ItemIndex - TopIndex, 0, MaxItem) then
   begin
     TKMRenderUI.WriteShape(Left, Y + fItemHeight * (fItemIndex - TopIndex) - 1, PaintWidth, fItemHeight+1, $88888888);
     TKMRenderUI.WriteOutline(Left, Y + fItemHeight * (fItemIndex - TopIndex) - 1, PaintWidth, fItemHeight+1, 1 + Byte(fShowLines), $FFFFFFFF);
   end;
 
-  //Rows above selection for clear visibility
+  //Paint rows text and icons above selection for clear visibility
   for I := 0 to Math.min(fRowCount - 1, MaxItem) do
     DoPaintLine(TopIndex + I, Left, Y + I * fItemHeight, PaintWidth);
 end;

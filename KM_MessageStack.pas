@@ -13,12 +13,12 @@ type
     fLoc: TKMPoint;
     fText: AnsiString;
   public
-    IsRead: Boolean;
+    IsRead: Boolean; //Does not gets saved, because it's UI thing
     constructor Create(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
     constructor CreateFromStream(LoadStream: TKMemoryStream);
 
-    function IsGoto: Boolean;
     function Icon: Word;
+    function IsGoto: Boolean;
     property Loc: TKMPoint read fLoc;
     property Text: AnsiString read fText;
     property Kind: TKMMessageKind read fKind;

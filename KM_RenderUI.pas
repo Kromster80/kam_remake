@@ -17,7 +17,7 @@ type
     class procedure SetupClipY        (Y1,Y2: SmallInt);
     class procedure ReleaseClip;
     class procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aFlagColor: TColor4; State: TButtonStateSet; aStyle: TButtonStyle);
-    class procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
+    class procedure WriteBevel        (X, Y, W, H: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
     class procedure WritePercentBar   (PosX,PosY,SizeX,SizeY:SmallInt; aSeam: Single; aPos: Single);
     class procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aAnchors: TAnchors; aRX: TRXType; aID: Word; Enabled: Boolean = True; aColor: TColor4 = $FFFF00FF; aLightness: Single = 0);
     class procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
@@ -173,36 +173,36 @@ begin
 end;
 
 
-class procedure TKMRenderUI.WriteBevel(PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
+class procedure TKMRenderUI.WriteBevel(X, Y, W, H: SmallInt; aEdgeAlpha: Single = 1; aBackAlpha: Single = 0.5);
 begin
-  if (SizeX < 0) or (SizeY < 0) then Exit;
+  if (W < 0) or (H < 0) then Exit;
   glPushMatrix;
-    glTranslatef(PosX, PosY, 0);
+    glTranslatef(X, Y, 0);
 
     //Background
-    glColor4f(0,0,0,BackAlpha);
+    glColor4f(0, 0, 0, aBackAlpha);
     glBegin(GL_QUADS);
-      glkRect(1,1,SizeX-1,SizeY-1);
+      glkRect(1, 1, W-1, H-1);
     glEnd;
 
     //2 Thin outlines rendered on top of background to avoid inset calculations
 
     //Bright edge
     glBlendFunc(GL_DST_COLOR, GL_ONE);
-    glColor3f(1-byte(HalfBright)/2, 1-byte(HalfBright)/2, 1-byte(HalfBright)/2);
+    glColor3f(0.75 * aEdgeAlpha, 0.75 * aEdgeAlpha, 0.75 * aEdgeAlpha);
     glBegin(GL_LINE_STRIP);
-      glVertex2f(SizeX-0.5,0.5);
-      glVertex2f(SizeX-0.5,SizeY-0.5);
-      glVertex2f(0.5,SizeY-0.5);
+      glVertex2f(W-0.5, 0.5);
+      glVertex2f(W-0.5, H-0.5);
+      glVertex2f(0.5, H-0.5);
     glEnd;
 
     //Dark edge
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0, 0, 0, 0.75 - byte(HalfBright)/6);
+    glColor4f(0, 0, 0, aEdgeAlpha);
     glBegin(GL_LINE_STRIP);
-      glVertex2f(0.5,SizeY-0.5);
-      glVertex2f(0.5,0.5);
-      glVertex2f(SizeX-0.5,0.5);
+      glVertex2f(0.5, H-0.5);
+      glVertex2f(0.5, 0.5);
+      glVertex2f(W-0.5, 0.5);
     glEnd;
   glPopMatrix;
 end;

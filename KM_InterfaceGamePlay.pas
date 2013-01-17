@@ -12,6 +12,7 @@ uses
 
 const
   MAX_VISIBLE_MSGS = 32;
+  MAX_LOG_MSGS = 8;
 
 type
   TKMTabButtons = (tbBuild, tbRatio, tbStats, tbMenu);
@@ -37,7 +38,7 @@ type
     fSaves: TKMSavesCollection;
     fTeamNames: TList;
     Label_TeamName: TKMLabel;
-    fMessageLogUnread: Integer;
+    fLastSyncedMessage: Word; //Last message that we synced with MessageLog
 
     //Saved
     fLastSaveName: AnsiString; //The file name we last used to save this file (used as default in Save menu)
@@ -110,7 +111,7 @@ type
     procedure MessageLog_Click(Sender: TObject);
     procedure MessageLog_ItemClick(Sender: TObject);
     procedure MessageLog_Close(Sender: TObject);
-    procedure MessageLog_Update;
+    procedure MessageLog_Update(aFullRefresh: Boolean);
     procedure Minimap_Update(Sender: TObject; const X,Y:integer);
     procedure Minimap_RightClick(Sender: TObject; const X,Y:integer);
     procedure Minimap_Click(Sender: TObject; const X,Y:integer);
@@ -157,7 +158,6 @@ type
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
       Image_MessageLog: TKMImage;
       Label_MPChatUnread: TKMLabel;
-      Label_MessageLogUnread: TKMLabel;
       Image_Message: array[0..MAX_VISIBLE_MSGS]of TKMImage; //Queue of messages covers 32*48=1536px height
       Image_Clock:TKMImage; //Clock displayed when game speed is increased
       Label_Clock:TKMLabel;
@@ -1009,11 +1009,6 @@ begin
   Image_MessageLog.HighlightOnMouseOver := true;
   Image_MessageLog.Hint := 'Messgae log';
   Image_MessageLog.OnClick := MessageLog_Click;
-  Label_MessageLogUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-30 - IfThen(fMultiplayer, 48*2),30,36,'',fnt_Outline,taCenter);
-  Label_MessageLogUnread.FontColor := $FF0080FF; //Orange
-  Label_MessageLogUnread.Anchors := [akLeft, akBottom];
-  Label_MessageLogUnread.Hitable := false; //Clicks should only go to the image, not the flashing label
-  Label_MessageLogUnread.AutoWrap := true;
 
   for I := 0 to MAX_VISIBLE_MSGS do
   begin
@@ -1089,14 +1084,17 @@ begin
 end;
 
 
-{Message page}
+//Message log page
+//there's a queue of not-that-important messages
 procedure TKMGamePlayInterface.Create_MessageLog;
+var
+  I: Integer;
 begin
-  Panel_MessageLog := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
+  Panel_MessageLog := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 205, Panel_Main.Width - TOOLBAR_WIDTH, 205);
   Panel_MessageLog.Anchors := [akLeft, akRight, akBottom];
   Panel_MessageLog.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
-    with TKMImage.Create(Panel_MessageLog, 0, 0, 800, 190, 409) do
+    with TKMImage.Create(Panel_MessageLog, 0, 0, 800, 205, 409) do
       ImageStretch;
 
     Image_MessageLogClose := TKMImage.Create(Panel_MessageLog, 800-35, 20, 32, 32, 52);
@@ -1105,10 +1103,16 @@ begin
     Image_MessageLogClose.OnClick := MessageLog_Close;
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
-    ListBox_MessageLog := TKMColumnListBox.Create(Panel_MessageLog, 45, 67, 800-90, 110, fnt_Metal, bsGame);
-    ListBox_MessageLog.SetColumns(fnt_Outline, ['Time', 'Message', 'Go to'], [0, 75, 650]);
-    ListBox_MessageLog.BackAlpha := 0.3;
+    ListBox_MessageLog := TKMColumnListBox.Create(Panel_MessageLog, 45, 67, 800-90, 18 * MAX_LOG_MSGS, fnt_Grey, bsGame);
+    ListBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message', 'Go to'], [0, 75, 650]);
+    ListBox_MessageLog.ShowHeader := False;
+    ListBox_MessageLog.HideSelection := True;
+    ListBox_MessageLog.ItemHeight := 18;
+    ListBox_MessageLog.BackAlpha := 0;
+    ListBox_MessageLog.EdgeAlpha := 0;
     ListBox_MessageLog.OnClick := MessageLog_ItemClick;
+    for I := 0 to MAX_LOG_MSGS - 1 do
+      ListBox_MessageLog.AddItem(MakeListRow(['', '', ''], -1));
 end;
 
 
@@ -2878,35 +2882,16 @@ begin
     Panel_MessageLog.Hide
   else
   begin
-    MessageLog_Update;
-    fMessageLogUnread := 0;
-    Label_MessageLogUnread.Hide;
+    MessageLog_Update(True);
 
     Allies_Close(nil);
     Chat_Close(nil); //Removes focus from Edit_Text
     MessageLog_Close(nil);
+
     Panel_MessageLog.Show;
     ListBox_MessageLog.TopIndex := ListBox_MessageLog.RowCount;
     fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
   end;
-end;
-
-
-procedure TKMGamePlayInterface.MessageLog_ItemClick(Sender: TObject);
-var
-  ID: Integer;
-  Msg: Integer;
-  R: TKMListRow;
-begin
-  ID := ListBox_MessageLog.ItemIndex;
-  if ID = -1 then Exit;
-
-  Msg := ListBox_MessageLog.Rows[ID].Tag;
-  R := ListBox_MessageLog.Rows[ID];
-  R.Cells[1].Color := $FFB0B0B0;
-  fMessageList.MessagesLog[Msg].IsRead := True;
-
-  fGame.Viewport.Position := KMPointF(fMessageList.MessagesLog[Msg].Loc);
 end;
 
 
@@ -2916,20 +2901,64 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.MessageLog_Update;
+procedure TKMGamePlayInterface.MessageLog_ItemClick(Sender: TObject);
 var
-  I: Integer;
+  ItemId, MessageId: Integer;
+  Msg: TKMMessage;
+  H: TKMHouse;
+begin
+  ItemId := ListBox_MessageLog.ItemIndex;
+  if ItemId = -1 then Exit;
+
+  MessageId := ListBox_MessageLog.Rows[ItemId].Tag;
+  if MessageId = -1 then Exit;
+
+  Msg := fMessageList.MessagesLog[MessageId];
+  Msg.IsRead := True;
+
+  //Jump to location
+  fGame.Viewport.Position := KMPointF(Msg.Loc);
+
+  //Try to highlight the house in question
+  H := fPlayers.HousesHitTest(Msg.Loc.X, Msg.Loc.Y);
+  if H <> nil then
+    fPlayers.Highlight := H;
+
+  MessageLog_Update(True);
+end;
+
+
+//Sync displayed messages with queue
+//We show only last 8 messages by design
+procedure TKMGamePlayInterface.MessageLog_Update(aFullRefresh: Boolean);
+var
+  I, K: Integer;
   R: TKMListRow;
 begin
-  for I := ListBox_MessageLog.RowCount to fMessageList.CountLog - 1 do
+  if fLastSyncedMessage = fMessageList.CountLog then Exit; //Synced already
+
+  K := 0;
+  for I := Max(fMessageList.CountLog - MAX_LOG_MSGS, 0) to fMessageList.CountLog - 1 do
   begin
     R := MakeListRow(['', fMessageList.MessagesLog[I].Text, ''], I);
     R.Cells[2].Pic := MakePic(rxGui, 59);
-    ListBox_MessageLog.AddItem(R);
-    Inc(fMessageLogUnread);
+
+    if fMessageList.MessagesLog[I].Kind = mkUnit then
+      if fMessageList.MessagesLog[I].IsRead then
+        R.Cells[1].Color := $FF0000B0
+      else
+        R.Cells[1].Color := $FF0000FF
+    else
+      if fMessageList.MessagesLog[I].IsRead then
+        R.Cells[1].Color := $FFB0B0B0
+      else
+        R.Cells[1].Color := $FFFFFFFF;
+
+    ListBox_MessageLog.Rows[K] := R;
+    Inc(K);
   end;
 
-  Label_MessageLogUnread.Caption := IfThen(fMessageLogUnread > 0, IntToStr(fMessageLogUnread));
+  fLastSyncedMessage := fMessageList.CountLog;
 end;
 
 
@@ -4118,8 +4147,8 @@ begin
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
 
-  MessageLog_Update;
-  Label_MessageLogUnread.Visible := (Label_MessageLogUnread.Caption <> '') and not (aTickCount mod 10 < 5);
+  if Panel_MessageLog.Visible then
+    MessageLog_Update(False);
 
   //Update info on awaited players
   if Panel_NetWait.Visible then

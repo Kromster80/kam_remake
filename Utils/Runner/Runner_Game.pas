@@ -76,6 +76,9 @@ begin
 
   SetKaMSeed(aRun+1);
 
+  //Stonemining is done programmatically, by iterating through all stone tiles
+  //and mining them if conditions are right (like Stonemasons would do)
+
   L := TKMPointList.Create;
   for I := 1 to fTerrain.MapY - 2 do
   for K := 1 to fTerrain.MapX - 1 do
@@ -153,11 +156,12 @@ begin
 end;
 
 
+{ TKMRunnerAIBuild }
 procedure TKMRunnerAIBuild.SetUp;
 begin
   inherited;
   fResults.ValueCount := 5;
-  fResults.TimesCount := 60*60*10;
+  fResults.TimesCount := 75*60*10;
 end;
 
 
@@ -193,6 +197,12 @@ begin
   fResults.Value[aRun, 3] := fPlayers[3].Stats.GetResourceQty(rt_All);
   fResults.Value[aRun, 4] := fPlayers[4].Stats.GetResourceQty(rt_All);}
 
+  fResults.Value[aRun, 0] := fPlayers[0].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 1] := fPlayers[0].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 2] := fPlayers[0].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 3] := fPlayers[0].Stats.GetHousesBuilt;
+  fResults.Value[aRun, 4] := fPlayers[0].Stats.GetHousesBuilt;
+
   fGameApp.Stop(gr_Silent);
 end;
 
@@ -216,6 +226,8 @@ var
   T: Cardinal;
 begin
   inherited;
+
+  //Intended to be run multiple of 4 times to compare different PF algorithms
 
   PathFinderToUse := (aRun mod 4) div 2; //01230123 > 00110011
   CACHE_PATHFINDING := Boolean(aRun mod 2);  //0101

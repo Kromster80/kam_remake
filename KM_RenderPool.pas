@@ -6,7 +6,7 @@ uses
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   KM_Defaults, KM_CommonClasses, KM_Pics, KM_Render,
-  KM_RenderTerrain, KM_ResourceSprites, KM_Points, KM_Terrain;
+  KM_RenderTerrain, KM_ResourceSprites, KM_Points, KM_Houses, KM_Terrain;
 
 type
   TRenderList = class
@@ -53,7 +53,7 @@ type
     procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX, pY: Single; aFOW: Byte; aID2: Word = 0; Param2: Single = 0; X2: Single = 0; Y2: Single = 0);
     procedure RenderObject(aIndex: Byte; AnimStep: Cardinal; LocX,LocY: Integer; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
     procedure RenderObjectQuad(aIndex: Byte; AnimStep: Cardinal; pX,pY: Integer; IsDouble: Boolean; DoImmediateRender: Boolean = False; Deleting: Boolean = False);
-    procedure RenderHouseOutline;
+    procedure RenderHouseOutline(aHouse: TKMHouse);
 
     //Terrain rendering sub-class
     procedure RenderTerrain;
@@ -103,7 +103,7 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Projectiles, KM_Game, KM_Sound, KM_Resource,
-  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_Houses, KM_TerrainPainter;
+  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields, KM_TerrainPainter;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -874,7 +874,7 @@ begin
   FreeAndNil(HousePlansList);
 
   if fPlayers.Highlight is TKMHouse then
-    RenderHouseOutline;
+    RenderHouseOutline(TKMHouse(fPlayers.Highlight));
 
   if fGame.IsMapEditor then
     fGame.MapEditor.Paint(plTerrain);
@@ -925,20 +925,21 @@ begin
 end;
 
 
-procedure TRenderPool.RenderHouseOutline;
+procedure TRenderPool.RenderHouseOutline(aHouse: TKMHouse);
 var
   Outline: TKMPointList;
-  H: TKMHouse;
   Loc: TKMPoint;
   I,K: Integer;
   HA: THouseArea;
 begin
+  if aHouse = nil then
+    Exit;
+
   //Get an outline of build area
   Outline := TKMPointList.Create;
 
-  H := TKMHouse(fPlayers.Selected);
-  Loc := H.GetPosition;
-  HA := fResource.HouseDat[H.HouseType].BuildArea;
+  Loc := aHouse.GetPosition;
+  HA := fResource.HouseDat[aHouse.HouseType].BuildArea;
   for I := 1 to 4 do
   for K := 1 to 4 do
   if HA[I,K] <> 0 then

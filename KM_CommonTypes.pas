@@ -23,7 +23,12 @@ type
                 end;
 
   //Message kind determines icon and available actions for Message
-  TKMMessageKind = (mkText, mkHouse, mkUnit, mkQuill);
+  TKMMessageKind = (
+    mkText, //Mission text message
+    mkHouse,
+    mkUnit,
+    mkQuill //Utility message (warnings in script loading)
+    );
 
 
 implementation

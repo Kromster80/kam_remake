@@ -134,7 +134,7 @@ begin
           begin
             Image1.Canvas.Pen.Color := LineCol[J mod COLORS_COUNT];
 
-            SetLength(Stats, 0);
+            SetLength(Stats, 0); //Erase
             SetLength(Stats, Round(fResults.ValueMax) - Round(fResults.ValueMin) + 1);
             for I := 0 to fResults.ChartsCount - 1 do
               Inc(Stats[Round(fResults.Value[I,J]) - Round(fResults.ValueMin)]);

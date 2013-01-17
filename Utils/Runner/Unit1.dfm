@@ -1,9 +1,9 @@
 object Form2: TForm2
   Left = 244
   Top = 169
-  Width = 609
-  Height = 476
   Caption = 'Form2'
+  ClientHeight = 449
+  ClientWidth = 601
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -110,7 +110,7 @@ object Form2: TForm2
     Items.Strings = (
       'Sequential'
       'Distribution'
-      'Charts')
+      'Timechart')
     TabOrder = 5
     OnClick = RadioGroup1Click
   end
