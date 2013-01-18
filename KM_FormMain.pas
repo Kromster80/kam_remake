@@ -66,7 +66,6 @@ type
     GroupBox2: TGroupBox;
     chkShowOwnership: TCheckBox;
     chkShowNavMesh: TCheckBox;
-    chkShowForest: TCheckBox;
     chkShowAvoid: TCheckBox;
     chkShowBalance: TCheckBox;
     tbOwnMargin: TTrackBar;
@@ -495,7 +494,6 @@ begin
     SHOW_AI_WARE_BALANCE := chkShowBalance.Checked;
     OVERLAY_DEFENCES := chkShowDefences.Checked;
     OVERLAY_AVOID := chkShowAvoid.Checked;
-    OVERLAY_FOREST := chkShowForest.Checked;
     OVERLAY_OWNERSHIP := chkShowOwnership.Checked;
     OVERLAY_NAVMESH := chkShowNavMesh.Checked;
 

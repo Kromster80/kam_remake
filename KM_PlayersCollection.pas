@@ -11,6 +11,7 @@ type
   TKMPlayersCollection = class
   private
     fHighlight: TObject; //Unit/House/Group that is shown highlighted to draw players attention
+    fHighlightEnd: Cardinal; //Highlight has a short time to live
     fSelected: TObject; //Unit/House/Group selected by player and shown in UI
     fCount: Byte;
     fPlayerList: array of TKMPlayer;
@@ -65,7 +66,7 @@ type
     procedure SyncLoad;
     procedure IncAnimStep;
 
-    procedure UpdateSelected;
+    procedure UpdateSelection;
     procedure UpdateState(aTick: Cardinal);
     procedure Paint;
   end;
@@ -373,6 +374,7 @@ begin
   //and saves must be created identical on all computers in MP
   //Instead we make sure after each tick that Highlight is still valid, otherwise nil it
   fHighlight := Value;
+  fHighlightEnd := TimeGet + 3000;
 end;
 
 
@@ -385,7 +387,7 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.UpdateSelected;
+procedure TKMPlayersCollection.UpdateSelection;
 begin
   //Update highlight after games tick (and nil it if necessary)
   if (fHighlight is TKMHouse) and TKMHouse(fHighlight).IsDestroyed then
@@ -396,6 +398,10 @@ begin
     fHighlight := nil
   else
   if (fHighlight is TKMUnitGroup) and TKMUnitGroup(fHighlight).IsDead then
+    fHighlight := nil;
+
+  //Hide the highlight
+  if TimeGet > fHighlightEnd then
     fHighlight := nil;
 
   //Update selection after games tick (and nil it if necessary)

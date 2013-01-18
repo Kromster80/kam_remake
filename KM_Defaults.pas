@@ -100,7 +100,6 @@ var
   OVERLAY_INFLUENCE     :Boolean = False; //Show influence map
   OVERLAY_OWNERSHIP     :Boolean = False; //Show ownerhip map
   OVERLAY_AVOID         :Boolean = False; //Show avoidance map
-  OVERLAY_FOREST        :Boolean = False; //Show forest map
   {Stats}
   SHOW_SPRITE_COUNT     :Boolean = False; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :Boolean = False; //Show debug total count of unit/house pointers being tracked

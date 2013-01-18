@@ -731,7 +731,7 @@ begin
   begin
     Label_Hint.Caption := TKMControl(Sender).Hint;
     Bevel_HintBG.Show;
-    Bevel_HintBG.Width := 8+fResource.ResourceFont.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
+    Bevel_HintBG.Width := 10 + fResource.ResourceFont.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
   end;
   PrevHint := Sender;
 end;
@@ -838,11 +838,12 @@ begin
   Create_PlayMore; //Must be created last, so that all controls behind are blocked
   Create_MPPlayMore;
 
-  Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
+  Bevel_HintBG := TKMBevel.Create(Panel_Main,224+35,Panel_Main.Height-23,300,21);
   Bevel_HintBG.BackAlpha := 0.5;
+  Bevel_HintBG.EdgeAlpha := 0.5;
   Bevel_HintBG.Hide;
   Bevel_HintBG.Anchors := [akLeft, akBottom];
-  Label_Hint := TKMLabel.Create(Panel_Main,224+36,Panel_Main.Height-21,0,0,'',fnt_Outline,taLeft);
+  Label_Hint := TKMLabel.Create(Panel_Main,224+40,Panel_Main.Height-21,0,0,'',fnt_Outline,taLeft);
   Label_Hint.Anchors := [akLeft, akBottom];
 
   //Controls without a hint will reset the Hint to ''
@@ -4163,6 +4164,11 @@ begin
   Label_MPChatUnread.Visible := fMultiplayer and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
+
+  //Flash the icon if there are unread messages
+  Image_MessageLog.Highlight := not Panel_MessageLog.Visible
+                                and (fLastSyncedMessage <> fMessageList.CountLog)
+                                and not (aTickCount mod 10 < 5);
 
   if Panel_MessageLog.Visible then
     MessageLog_Update(False);

@@ -271,29 +271,48 @@ end;
 
 function TKMCityPlanner.NextToTrees(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
 const
-  SEARCH_RAD = 22; //Search for forests within this radius
+  SEARCH_RAD = 20; //Search for forests within this radius
   HUT_RAD = 5; //Search for the best place for a hut in this radius
 var
   I, K: Integer;
   Bid, BestBid: Single;
   TargetLoc: TKMPoint;
   TreeLoc: TKMPoint;
+  Mx, My: Byte;
+  MyForest: array [0..7, 0..7] of ShortInt;
 begin
   Result := False;
 
   if not GetSourceLocation(aTarget, TargetLoc) then Exit;
 
-  //Find heart of the forest
-  BestBid := MaxSingle;
+  //Fill in MyForest map
+  FillChar(MyForest[0,0], SizeOf(MyForest), #0);
   for I := Max(TargetLoc.Y - SEARCH_RAD, 1) to Min(TargetLoc.Y + SEARCH_RAD, fTerrain.MapY - 1) do
   for K := Max(TargetLoc.X - SEARCH_RAD, 1) to Min(TargetLoc.X + SEARCH_RAD, fTerrain.MapX - 1) do
-  if fAIFields.Influences.AvoidBuilding[I,K] = 0 then
+  if fTerrain.ObjectIsChopableTree(K, I) then
   begin
-    Bid := KMLengthDiag(TargetLoc, KMPoint(K,I)) - fAIFields.Influences.Forest[I,K] / 8 + KaMRandom * 6; //Add some noise for varied results
-    if Bid < BestBid then
+    Mx := Round((K - TargetLoc.X + SEARCH_RAD) / (SEARCH_RAD * 2 + 1) * 7);
+    My := Round((I - TargetLoc.Y + SEARCH_RAD) / (SEARCH_RAD * 2 + 1) * 7);
+
+    Inc(MyForest[My, Mx]);
+  end;
+
+  //Find cell with most trees
+  BestBid := -MaxSingle;
+  TreeLoc := TargetLoc; //Init incase we cant find a spot at all
+  for I := Low(MyForest) to High(MyForest) do
+  for K := Low(MyForest[I]) to High(MyForest[I]) do
+  begin
+    Mx := Round(K / 7 * (SEARCH_RAD * 2 + 1) + TargetLoc.X - SEARCH_RAD);
+    My := Round(I / 7 * (SEARCH_RAD * 2 + 1) + TargetLoc.Y - SEARCH_RAD);
+    if fAIFields.Influences.AvoidBuilding[My, Mx] = 0 then
     begin
-      TreeLoc := KMPoint(K, I);
-      BestBid := Bid;
+      Bid := MyForest[I, K] + KaMRandom * 2; //Add some noise for varied results
+      if Bid > BestBid then
+      begin
+        TreeLoc := KMPoint(Mx, My);
+        BestBid := Bid;
+      end;
     end;
   end;
 

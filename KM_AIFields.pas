@@ -18,15 +18,12 @@ type
     //Each players area of influence
     Influence: array of array of array of Byte;
     procedure InitInfluenceAvoid;
-    procedure InitInfluenceForest;
     procedure InitInfluenceOwnable;
     procedure UpdateDirectInfluence(aIndex: TPlayerIndex);
     procedure UpdateOwnershipInfluence(aIndex: TPlayerIndex);
   public
     //Common map of areas where building is undesired (around Store, Mines, Woodcutters)
     AvoidBuilding: array of array of Byte;
-    //Areas of forests, needed only for initial Woodcutters placement and gets calculated once on mission start
-    Forest: array of array of Byte; //0..255 is enough
 
     //Tiles best owner and his influence
     Ownership: array of array of array of Byte;
@@ -99,8 +96,10 @@ var
   I: Integer;
   Best: Integer;
 begin
-  Best := 0;
   Result := PLAYER_NONE;
+  if not AI_GEN_INFLUENCE_MAPS then Exit;
+
+  Best := 0;
   for I := 0 to fPlayers.Count - 1 do
   if Ownership[I,Y,X] > Best then
   begin
@@ -117,14 +116,13 @@ begin
   fMapX := fTerrain.MapX;
   fMapY := fTerrain.MapY;
   SetLength(AvoidBuilding, fMapY, fMapX);
-  SetLength(Forest, fMapY, fMapX);
   SetLength(Ownable, fMapY, fMapX);
   SetLength(Influence, fPlayers.Count, fMapY, fMapX);
   SetLength(Ownership, fPlayers.Count, fMapY, fMapX);
   InitInfluenceAvoid;
-  InitInfluenceForest;
   InitInfluenceOwnable;
 
+  if AI_GEN_INFLUENCE_MAPS then
   for I := 0 to fPlayers.Count - 1 do
   begin
     UpdateDirectInfluence(I);
@@ -167,43 +165,12 @@ begin
 end;
 
 
-procedure TKMInfluences.InitInfluenceForest;
-  procedure DoFill(X,Y: SmallInt);
-  const
-    //Each tree adds this weight lineary fading to forest map
-    TREE_WEIGHT = 8;
-  var
-    I,K: Integer;
-  begin
-    //Distribute tree weight lineary in TREE_WEIGHT radius
-    //loops are TREE_WEIGHT-1 because we skip 0 weight edges
-    for I := Max(Y - TREE_WEIGHT+1, 1) to Min(Y + TREE_WEIGHT-1, fMapY - 1) do
-    for K := Max(X - TREE_WEIGHT+1, 1) to Min(X + TREE_WEIGHT-1, fMapX - 1) do
-    if Abs(I-Y) + Abs(K-X) < TREE_WEIGHT then
-      Forest[I,K] := Min(Forest[I,K] + TREE_WEIGHT - (Abs(I-Y) + Abs(K-X)), 255);
-  end;
-var
-  I, K: Integer;
-begin
-  if not AI_GEN_INFLUENCE_MAPS then Exit;
-  Assert(fTerrain <> nil);
-
-  for I := 0 to fMapY - 1 do
-  for K := 0 to fMapX - 1 do
-    Forest[I,K] := 0;
-
-  //Update forest influence map
-  for I := 1 to fMapY - 1 do
-  for K := 1 to fMapX - 1 do
-  if fTerrain.ObjectIsChopableTree(K,I) then
-    DoFill(K,I);
-end;
-
-
 procedure TKMInfluences.InitInfluenceOwnable;
 var
   I, K: Integer;
 begin
+  if not AI_GEN_INFLUENCE_MAPS then Exit;
+
   for I := 1 to fMapY - 1 do
   for K := 1 to fMapX - 1 do
     Ownable[I,K] := (CanOwn in fTerrain.Land[I,K].Passability);
@@ -350,9 +317,6 @@ begin
     SaveStream.Write(AvoidBuilding[K,0], fMapX * SizeOf(AvoidBuilding[0,0]));
 
   for K := 0 to fMapY - 1 do
-    SaveStream.Write(Forest[K,0], fMapX * SizeOf(Forest[0,0]));
-
-  for K := 0 to fMapY - 1 do
     SaveStream.Write(Ownable[K,0], fMapX * SizeOf(Ownable[0,0]));
 end;
 
@@ -372,7 +336,6 @@ begin
   SetLength(Influence, PCount, fMapY, fMapX);
   SetLength(Ownership, PCount, fMapY, fMapX);
   SetLength(AvoidBuilding, fMapY, fMapX);
-  SetLength(Forest, fMapY, fMapX);
   SetLength(Ownable, fMapY, fMapX);
 
   for I := 0 to PCount - 1 do
@@ -385,9 +348,6 @@ begin
 
   for K := 0 to fMapY - 1 do
     LoadStream.Read(AvoidBuilding[K,0], fMapX * SizeOf(AvoidBuilding[0,0]));
-
-  for K := 0 to fMapY - 1 do
-    LoadStream.Read(Forest[K,0], fMapX * SizeOf(Forest[0,0]));
 
   for K := 0 to fMapY - 1 do
     LoadStream.Read(Ownable[K,0], fMapX * SizeOf(Ownable[0,0]));
@@ -446,14 +406,6 @@ begin
       Col := AvoidBuilding[I,K] * 65793 or $80000000;
       fRenderAux.Quad(K, I, Col);
     end;
-
-  if OVERLAY_FOREST then
-    for I := aRect.Top to aRect.Bottom do
-    for K := aRect.Left to aRect.Right do
-    begin
-      Col := Min(Forest[I,K] * 6, 255) * 65793 or $80000000;
-      fRenderAux.Quad(K, I, Col);
-    end;
 end;
 
 
@@ -477,8 +429,7 @@ end;
 
 procedure TKMAIFields.AfterMissionInit;
 begin
-  if AI_GEN_INFLUENCE_MAPS then
-    fInfluences.Init;
+  fInfluences.Init;
 
   if AI_GEN_NAVMESH then
     fNavMesh.Init;

@@ -108,7 +108,7 @@ begin
 end;
 
 
-function GetTimeSince(aTime:Cardinal):Cardinal;
+function GetTimeSince(aTime: Cardinal): Cardinal;
 begin
   //TimeGet will loop back to zero after ~49 days since system start
   Result := (Int64(TimeGet) - Int64(aTime) + Int64(High(Cardinal))) mod Int64(High(Cardinal));

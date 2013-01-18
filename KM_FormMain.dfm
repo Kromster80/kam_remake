@@ -75,7 +75,7 @@ object FormMain: TFormMain
     TabOrder = 2
     object GroupBox4: TGroupBox
       Left = 8
-      Top = 400
+      Top = 392
       Width = 177
       Height = 81
       Caption = ' Graphics tweaks '
@@ -144,9 +144,9 @@ object FormMain: TFormMain
     end
     object GroupBox3: TGroupBox
       Left = 8
-      Top = 344
+      Top = 328
       Width = 177
-      Height = 57
+      Height = 65
       Caption = ' User Interface '
       TabOrder = 4
       object chkUIControlsBounds: TCheckBox
@@ -210,26 +210,26 @@ object FormMain: TFormMain
       Left = 8
       Top = 184
       Width = 177
-      Height = 161
+      Height = 145
       Caption = ' AI '
       TabOrder = 3
       object Label5: TLabel
         Left = 108
-        Top = 116
+        Top = 100
         Width = 32
         Height = 13
         Caption = 'Margin'
       end
       object Label6: TLabel
         Left = 108
-        Top = 132
+        Top = 116
         Width = 47
         Height = 13
         Caption = 'Threshold'
       end
       object chkShowOwnership: TCheckBox
         Left = 8
-        Top = 64
+        Top = 48
         Width = 97
         Height = 17
         Caption = 'Show ownership'
@@ -238,20 +238,11 @@ object FormMain: TFormMain
       end
       object chkShowNavMesh: TCheckBox
         Left = 8
-        Top = 80
+        Top = 64
         Width = 97
         Height = 17
         Caption = 'Show navmesh'
         TabOrder = 1
-        OnClick = ControlsUpdate
-      end
-      object chkShowForest: TCheckBox
-        Left = 8
-        Top = 48
-        Width = 81
-        Height = 17
-        Caption = 'Show forest'
-        TabOrder = 2
         OnClick = ControlsUpdate
       end
       object chkShowAvoid: TCheckBox
@@ -260,7 +251,7 @@ object FormMain: TFormMain
         Width = 113
         Height = 17
         Caption = 'Show avoid building'
-        TabOrder = 3
+        TabOrder = 2
         OnClick = ControlsUpdate
       end
       object chkShowBalance: TCheckBox
@@ -269,10 +260,24 @@ object FormMain: TFormMain
         Width = 105
         Height = 17
         Caption = 'Show AI balance'
-        TabOrder = 4
+        TabOrder = 3
         OnClick = ControlsUpdate
       end
       object tbOwnMargin: TTrackBar
+        Left = 4
+        Top = 100
+        Width = 101
+        Height = 17
+        Max = 255
+        Min = 64
+        Position = 64
+        TabOrder = 4
+        ThumbLength = 14
+        TickMarks = tmBoth
+        TickStyle = tsNone
+        OnChange = ControlsUpdate
+      end
+      object tbOwnThresh: TTrackBar
         Left = 4
         Top = 116
         Width = 101
@@ -286,27 +291,13 @@ object FormMain: TFormMain
         TickStyle = tsNone
         OnChange = ControlsUpdate
       end
-      object tbOwnThresh: TTrackBar
-        Left = 4
-        Top = 132
-        Width = 101
-        Height = 17
-        Max = 255
-        Min = 64
-        Position = 64
-        TabOrder = 6
-        ThumbLength = 14
-        TickMarks = tmBoth
-        TickStyle = tsNone
-        OnChange = ControlsUpdate
-      end
       object chkShowDefences: TCheckBox
         Left = 8
-        Top = 96
+        Top = 80
         Width = 97
         Height = 17
         Caption = 'Show defences'
-        TabOrder = 7
+        TabOrder = 6
         OnClick = ControlsUpdate
       end
     end

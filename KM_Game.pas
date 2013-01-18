@@ -1308,7 +1308,7 @@ begin
                       fProjectiles.UpdateState; //If game has stopped it's NIL
 
                       //The selected object could have died during this fProjectiles or fPlayers update
-                      fPlayers.UpdateSelected;
+                      fPlayers.UpdateSelection;
 
                       fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
                       //In aggressive mode store a command every tick so we can find exactly when a replay mismatch occurs
@@ -1346,7 +1346,7 @@ begin
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
                     //The selected object could have died during this fProjectiles or fPlayers update
-                    fPlayers.UpdateSelected;
+                    fPlayers.UpdateSelection;
 
                     //Issue stored commands
                     fGameInputProcess.ReplayTimer(fGameTickCount);
