@@ -1477,9 +1477,9 @@ end;
 
 
 //Same as above but with width/height ommitted, as in most cases we don't know/don't care
-constructor TKMLabel.Create(aParent: TKMPanel; aLeft,aTop: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
+constructor TKMLabel.Create(aParent: TKMPanel; aLeft, aTop: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
 begin
-  inherited Create(aParent, aLeft,aTop,0,0);
+  inherited Create(aParent, aLeft, aTop, 0, 0);
   fFont := aFont;
   fFontColor := $FFFFFFFF;
   fTextAlign := aTextAlign;
@@ -3518,7 +3518,7 @@ begin
   Y := Top + fHeader.Height * Byte(fShowHeader);
   MaxItem := GetVisibleRows - 1;
 
-  TKMRenderUI.WriteBevel(Left, Y, PaintWidth, Height - fHeader.Height * Byte(fShowHeader), 1, fBackAlpha);
+  TKMRenderUI.WriteBevel(Left, Y, PaintWidth, Height - fHeader.Height * Byte(fShowHeader), fEdgeAlpha, fBackAlpha);
 
   //Grid lines should be below selection focus
   if fShowLines then

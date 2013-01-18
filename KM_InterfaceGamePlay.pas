@@ -47,32 +47,32 @@ type
     fMessageList: TKMMessageList;
     fSelection: array [0..9] of Integer;
 
-    procedure Create_Controls_Page;
-    procedure Create_Replay_Page;
-    procedure Create_Allies_Page;
-    procedure Create_Chat_Page;
-    procedure Create_Message_Page;
+    procedure Create_Controls;
+    procedure Create_Replay;
+    procedure Create_Allies;
+    procedure Create_Chat;
+    procedure Create_Message;
     procedure Create_MessageLog;
-    procedure Create_Pause_Page;
-    procedure Create_PlayMore_Page;
-    procedure Create_MPPlayMore_Page;
-    procedure Create_NetWait_Page;
+    procedure Create_Pause;
+    procedure Create_PlayMore;
+    procedure Create_MPPlayMore;
+    procedure Create_NetWait;
     procedure Create_SideStack;
-    procedure Create_Build_Page;
-    procedure Create_Ratios_Page;
-    procedure Create_Stats_Page;
-    procedure Create_Menu_Page;
-    procedure Create_Save_Page;
-    procedure Create_Load_Page;
-    procedure Create_Settings_Page;
-    procedure Create_Quit_Page;
-    procedure Create_Unit_Page;
+    procedure Create_Build;
+    procedure Create_Ratios;
+    procedure Create_Stats;
+    procedure Create_Menu;
+    procedure Create_Save;
+    procedure Create_Load;
+    procedure Create_Settings;
+    procedure Create_Quit;
+    procedure Create_Unit;
     procedure Create_House;
     procedure Create_HouseMarket;
     procedure Create_HouseStore;
     procedure Create_HouseSchool;
     procedure Create_HouseBarracks;
-    procedure Create_Woodcutter_Page;
+    procedure Create_HouseWoodcutter;
 
     procedure Beacon_Cancel;
     procedure Army_ActivateControls(aGroup: TKMUnitGroup);
@@ -135,13 +135,13 @@ type
     procedure NetWaitClick(Sender:TObject);
     procedure ReplayClick(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
-    procedure Build_Fill(Sender:TObject);
+    procedure Build_Update;
     procedure Chat_Close(Sender: TObject);
     procedure Chat_Post(Sender:TObject; Key:word);
     procedure Chat_Resize(Sender: TObject; X,Y: Integer);
     procedure Allies_Close(Sender: TObject);
-    procedure Stats_Fill(Sender:TObject);
-    procedure Menu_Fill(Sender:TObject);
+    procedure Stats_Update;
+    procedure Menu_Update;
     procedure SetPause(aValue:boolean);
     procedure DirectionCursorShow(X,Y: Integer; Dir:TKMDirection);
     procedure DirectionCursorHide;
@@ -639,21 +639,24 @@ begin
 
   //If Sender is one of 4 main buttons, then open the page, hide the buttons and show Return button
   Flip4MainButtons(false);
-  if Sender = Button_Main[tbBuild] then begin
-    Build_Fill(nil);
+  if Sender = Button_Main[tbBuild] then
+  begin
+    Build_Update;
     Panel_Build.Show;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_BUILD];
     Build_ButtonClick(Button_BuildRoad);
   end else
 
-  if Sender = Button_Main[tbRatio] then begin
+  if Sender = Button_Main[tbRatio] then
+  begin
     Panel_Ratios.Show;
     SwitchPage_Ratios(Button_Ratios[1]); //Open 1st tab
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_DISTRIBUTE];
   end else
 
-  if Sender = Button_Main[tbStats] then begin
-    Stats_Fill(nil);
+  if Sender = Button_Main[tbStats] then
+  begin
+    Stats_Update;
     Panel_Stats.Show;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_STATISTICS];
   end else
@@ -663,12 +666,13 @@ begin
   or ((Sender = Button_Back) and ((LastVisiblePage = Panel_Settings)
                                or (LastVisiblePage = Panel_Load)
                                or (LastVisiblePage = Panel_Save))) then begin
-    Menu_Fill(Sender); //Make sure updating happens before it is shown
+    Menu_Update; //Make sure updating happens before it is shown
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_OPTIONS];
     Panel_Menu.Show;
   end else
 
-  if Sender = Button_Menu_Save then begin
+  if Sender = Button_Menu_Save then
+  begin
     fSave_Selected := -1;
     //Stop current now scan so it can't add a save after we clear the list
     fSaves.TerminateScan;
@@ -820,19 +824,19 @@ begin
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
-  Create_Controls_Page; //Includes all the child pages
+  Create_Controls; //Includes all the child pages
 
-  Create_NetWait_Page; //Overlay blocking everyhitng but sidestack and messages
-  Create_Allies_Page; //MessagePage sibling
-  Create_Chat_Page; //On top of NetWait to allow players to chat while waiting for late opponents
-  Create_Message_Page; //Must go bellow message stack
+  Create_NetWait; //Overlay blocking everyhitng but sidestack and messages
+  Create_Allies; //MessagePage sibling
+  Create_Chat; //On top of NetWait to allow players to chat while waiting for late opponents
+  Create_Message; //Must go bellow message stack
   Create_MessageLog; //Must go bellow message stack
   Create_SideStack; //Messages, Allies, Chat icons
 
-  Create_Pause_Page;
-  Create_Replay_Page; //Replay controls
-  Create_PlayMore_Page; //Must be created last, so that all controls behind are blocked
-  Create_MPPlayMore_Page;
+  Create_Pause;
+  Create_Replay; //Replay controls
+  Create_PlayMore; //Must be created last, so that all controls behind are blocked
+  Create_MPPlayMore;
 
   Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
   Bevel_HintBG.BackAlpha := 0.5;
@@ -889,7 +893,7 @@ end;
 
 
 {Pause overlay page}
-procedure TKMGamePlayInterface.Create_Pause_Page;
+procedure TKMGamePlayInterface.Create_Pause;
 begin
   Panel_Pause := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Pause.Stretch;
@@ -911,7 +915,7 @@ end;
 { Play More overlay page,
   It's backgrounded with a full-screen bevel area which not only fades image a bit,
   but also blocks all mouse clicks - neat }
-procedure TKMGamePlayInterface.Create_PlayMore_Page;
+procedure TKMGamePlayInterface.Create_PlayMore;
 begin
   Panel_PlayMore := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width,Panel_Main.Height);
   Panel_PlayMore.Stretch;
@@ -932,7 +936,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Create_MPPlayMore_Page;
+procedure TKMGamePlayInterface.Create_MPPlayMore;
 begin
   Panel_MPPlayMore := TKMPanel.Create(Panel_Main,(Panel_Main.Width div 2)-200,(Panel_Main.Height div 2)-100,400,200);
   Panel_MPPlayMore.Center;
@@ -952,7 +956,7 @@ end;
 
 
 //Waiting for Net events page, it's similar to PlayMore, but is layered differentlybelow chat panel
-procedure TKMGamePlayInterface.Create_NetWait_Page;
+procedure TKMGamePlayInterface.Create_NetWait;
 begin
   Panel_NetWait := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width,Panel_Main.Height);
   Panel_NetWait.Stretch;
@@ -1024,7 +1028,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Create_Replay_Page;
+procedure TKMGamePlayInterface.Create_Replay;
 begin
   Panel_Replay := TKMPanel.Create(Panel_Main, 0, 0, 1024, 768);
   Panel_Replay.Stretch;
@@ -1053,7 +1057,7 @@ end;
 
 
 {Message page}
-procedure TKMGamePlayInterface.Create_Message_Page;
+procedure TKMGamePlayInterface.Create_Message;
 begin
   Panel_Message := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
@@ -1089,24 +1093,27 @@ end;
 procedure TKMGamePlayInterface.Create_MessageLog;
 var
   I: Integer;
+  H: Integer;
 begin
-  Panel_MessageLog := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 205, Panel_Main.Width - TOOLBAR_WIDTH, 205);
+  H := 18 * MAX_LOG_MSGS;
+
+  Panel_MessageLog := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - (H + 65 + 20), Panel_Main.Width - TOOLBAR_WIDTH, H + 65 + 20);
   Panel_MessageLog.Anchors := [akLeft, akRight, akBottom];
   Panel_MessageLog.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
-    with TKMImage.Create(Panel_MessageLog, 0, 0, 800, 205, 409) do
+    with TKMImage.Create(Panel_MessageLog, 0, 0, Panel_MessageLog.Width, Panel_MessageLog.Height, 409) do
       ImageStretch;
 
-    Image_MessageLogClose := TKMImage.Create(Panel_MessageLog, 800-35, 20, 32, 32, 52);
+    Image_MessageLogClose := TKMImage.Create(Panel_MessageLog, Panel_MessageLog.Width - 35, 20, 32, 32, 52);
     Image_MessageLogClose.Anchors := [akTop, akRight];
     Image_MessageLogClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_MessageLogClose.OnClick := MessageLog_Close;
     Image_MessageLogClose.HighlightOnMouseOver := True;
 
-    ListBox_MessageLog := TKMColumnListBox.Create(Panel_MessageLog, 45, 67, 800-90, 18 * MAX_LOG_MSGS, fnt_Grey, bsGame);
-    ListBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message', 'Go to'], [0, 75, 650]);
+    ListBox_MessageLog := TKMColumnListBox.Create(Panel_MessageLog, 45, 65, Panel_MessageLog.Width - 90, H, fnt_Grey, bsGame);
+    ListBox_MessageLog.SetColumns(fnt_Outline, ['Icon', 'Message', 'Go to'], [0, 25, 650]);
     ListBox_MessageLog.ShowHeader := False;
-    ListBox_MessageLog.HideSelection := True;
+    //ListBox_MessageLog.HideSelection := True;
     ListBox_MessageLog.ItemHeight := 18;
     ListBox_MessageLog.BackAlpha := 0;
     ListBox_MessageLog.EdgeAlpha := 0;
@@ -1117,7 +1124,7 @@ end;
 
 
 {Chat page}
-procedure TKMGamePlayInterface.Create_Chat_Page;
+procedure TKMGamePlayInterface.Create_Chat;
 begin
   Panel_Chat := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Chat.Anchors := [akLeft, akBottom];
@@ -1156,7 +1163,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Create_Controls_Page;
+procedure TKMGamePlayInterface.Create_Controls;
 const
   MainHint: array [TKMTabButtons] of Word = (TX_MENU_TAB_HINT_BUILD, TX_MENU_TAB_HINT_DISTRIBUTE,
                                              TX_MENU_TAB_HINT_STATISTICS, TX_MENU_TAB_HINT_OPTIONS);
@@ -1187,29 +1194,29 @@ begin
     Label_MenuTitle := TKMLabel.Create(Panel_Controls, 54, 4, 138, 0, '', fnt_Metal, taLeft);
     Label_MenuTitle.AutoWrap := True;
 
-  Create_Build_Page;
-  Create_Ratios_Page;
-  Create_Stats_Page;
-  Create_Menu_Page;
-    Create_Save_Page;
-    Create_Load_Page;
-    Create_Settings_Page;
-    Create_Quit_Page;
+  Create_Build;
+  Create_Ratios;
+  Create_Stats;
+  Create_Menu;
+    Create_Save;
+    Create_Load;
+    Create_Settings;
+    Create_Quit;
 
-  Create_Unit_Page;
+  Create_Unit;
 
   Create_House;
     Create_HouseMarket;
     Create_HouseStore;
     Create_HouseSchool;
     Create_HouseBarracks;
-    Create_Woodcutter_Page;
+    Create_HouseWoodcutter;
     //Create_TownHall_Page; //I don't want to make it at all yet
 end;
 
 
 {Allies page}
-procedure TKMGamePlayInterface.Create_Allies_Page;
+procedure TKMGamePlayInterface.Create_Allies;
 var I,K: Integer;
 begin
   Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
@@ -1248,7 +1255,7 @@ end;
 
 
 {Build page}
-procedure TKMGamePlayInterface.Create_Build_Page;
+procedure TKMGamePlayInterface.Create_Build;
 var I: Integer;
 begin
   Panel_Build := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
@@ -1288,7 +1295,7 @@ end;
 
 
 {Ratios page}
-procedure TKMGamePlayInterface.Create_Ratios_Page;
+procedure TKMGamePlayInterface.Create_Ratios;
 const Res:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
 var I: Integer;
 begin
@@ -1316,7 +1323,7 @@ end;
 
 
 {Statistics page}
-procedure TKMGamePlayInterface.Create_Stats_Page;
+procedure TKMGamePlayInterface.Create_Stats;
 const LineHeight=34; Nil_Width=10; House_Width=30; Unit_Width=26;
 var i,k:integer; hc,uc,off:integer;
   LineBase:integer;
@@ -1389,7 +1396,7 @@ end;
 
 
 {Menu page}
-procedure TKMGamePlayInterface.Create_Menu_Page;
+procedure TKMGamePlayInterface.Create_Menu;
 begin
   Panel_Menu := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
   Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, fTextLibrary[TX_MENU_LOAD_GAME], bsGame);
@@ -1418,7 +1425,7 @@ end;
 
 
 {Save page}
-procedure TKMGamePlayInterface.Create_Save_Page;
+procedure TKMGamePlayInterface.Create_Save;
 begin
   Panel_Save := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
 
@@ -1438,7 +1445,7 @@ end;
 
 
 {Load page}
-procedure TKMGamePlayInterface.Create_Load_Page;
+procedure TKMGamePlayInterface.Create_Load;
 begin
   Panel_Load := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
 
@@ -1454,7 +1461,7 @@ end;
 
 
 {Options page}
-procedure TKMGamePlayInterface.Create_Settings_Page;
+procedure TKMGamePlayInterface.Create_Settings;
 const
   PAD = 10;
   WID = TB_WIDTH - PAD * 2;
@@ -1485,7 +1492,7 @@ end;
 
 
 {Quit page}
-procedure TKMGamePlayInterface.Create_Quit_Page;
+procedure TKMGamePlayInterface.Create_Quit;
 begin
   Panel_Quit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
     with TKMLabel.Create(Panel_Quit, 0, 30, TB_WIDTH, 70, fTextLibrary[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter) do
@@ -1500,7 +1507,7 @@ end;
 
 
 {Unit page}
-procedure TKMGamePlayInterface.Create_Unit_Page;
+procedure TKMGamePlayInterface.Create_Unit;
 begin
   Panel_Unit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
     Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,30,'',fnt_Outline,taCenter);
@@ -1839,7 +1846,7 @@ end;
 
 
 {Woodcutter page}
-procedure TKMGamePlayInterface.Create_Woodcutter_Page;
+procedure TKMGamePlayInterface.Create_HouseWoodcutter;
 begin
   Panel_HouseWoodcutter:=TKMPanel.Create(Panel_House,TB_PAD,76,TB_WIDTH,266);
     Button_Woodcutter := TKMButtonFlat.Create(Panel_HouseWoodcutter,0,64,32,32,51,rxGui);
@@ -2766,20 +2773,23 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Build_Fill(Sender:TObject);
+procedure TKMGamePlayInterface.Build_Update;
 var I: Integer;
 begin
-  for i:=1 to GUI_HOUSE_COUNT do
-  if GUIHouseOrder[i] <> ht_None then
-  if MyPlayer.Stats.GetCanBuild(GUIHouseOrder[i]) then begin
-    Button_Build[i].Enable;
-    Button_Build[i].TexID:=fResource.HouseDat[GUIHouseOrder[i]].GUIIcon;
-    Button_Build[i].OnClick:=Build_ButtonClick;
-    Button_Build[i].Hint:=fResource.HouseDat[GUIHouseOrder[i]].HouseName;
-  end else begin
-    Button_Build[i].OnClick:=nil;
-    Button_Build[i].TexID:=41;
-    Button_Build[i].Hint:=fTextLibrary[TX_HOUSE_NOT_AVAIABLE]; //Building not available
+  for I := 1 to GUI_HOUSE_COUNT do
+  if GUIHouseOrder[I] <> ht_None then
+  if MyPlayer.Stats.GetCanBuild(GUIHouseOrder[I]) then
+  begin
+    Button_Build[I].Enable;
+    Button_Build[I].TexID := fResource.HouseDat[GUIHouseOrder[I]].GUIIcon;
+    Button_Build[I].OnClick := Build_ButtonClick;
+    Button_Build[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
+  end
+  else
+  begin
+    Button_Build[I].OnClick := nil;
+    Button_Build[I].TexID := 41;
+    Button_Build[I].Hint := fTextLibrary[TX_HOUSE_NOT_AVAIABLE]; //Building not available
   end;
 end;
 
@@ -2935,7 +2945,8 @@ var
   I, K: Integer;
   R: TKMListRow;
 begin
-  if fLastSyncedMessage = fMessageList.CountLog then Exit; //Synced already
+  //Exit if synced already
+  if not aFullRefresh and (fLastSyncedMessage = fMessageList.CountLog) then Exit;
 
   K := 0;
   for I := Max(fMessageList.CountLog - MAX_LOG_MSGS, 0) to fMessageList.CountLog - 1 do
@@ -2944,15 +2955,21 @@ begin
     R.Cells[2].Pic := MakePic(rxGui, 59);
 
     if fMessageList.MessagesLog[I].Kind = mkUnit then
+    begin
+      R.Cells[0].Pic := MakePic(rxGui, 588);
       if fMessageList.MessagesLog[I].IsRead then
-        R.Cells[1].Color := $FF0000B0
+        R.Cells[1].Color := $FF0080B0
       else
-        R.Cells[1].Color := $FF0000FF
+        R.Cells[1].Color := $FF00B0FF
+    end
     else
+    begin
+      R.Cells[0].Pic := MakePic(rxGui, 587);
       if fMessageList.MessagesLog[I].IsRead then
         R.Cells[1].Color := $FFB0B0B0
       else
         R.Cells[1].Color := $FFFFFFFF;
+    end;
 
     ListBox_MessageLog.Rows[K] := R;
     Inc(K);
@@ -3070,7 +3087,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
+procedure TKMGamePlayInterface.Menu_Update;
 begin
   if fGameApp.GameSettings.MusicOff then
     Label_Menu_Track.Caption := '-'
@@ -3085,7 +3102,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Stats_Fill(Sender: TObject);
+procedure TKMGamePlayInterface.Stats_Update;
 var I, Tmp, Tmp2: Integer;
 begin
   for I := Low(StatHouse) to High(StatHouse) do
@@ -4138,9 +4155,9 @@ begin
   end;
 
   //Keep on updating these menu pages as game data keeps on changing
-  if Panel_Build.Visible then Build_Fill(nil);
-  if Panel_Stats.Visible then Stats_Fill(nil);
-  if Panel_Menu.Visible then Menu_Fill(nil);
+  if Panel_Build.Visible then Build_Update;
+  if Panel_Stats.Visible then Stats_Update;
+  if Panel_Menu.Visible then Menu_Update;
 
   //Flash unread message display
   Label_MPChatUnread.Visible := fMultiplayer and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);

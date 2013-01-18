@@ -186,24 +186,26 @@ begin
     glEnd;
 
     //2 Thin outlines rendered on top of background to avoid inset calculations
+    if aEdgeAlpha > 0 then
+    begin
+      //Bright edge
+      glBlendFunc(GL_DST_COLOR, GL_ONE);
+      glColor3f(0.75 * aEdgeAlpha, 0.75 * aEdgeAlpha, 0.75 * aEdgeAlpha);
+      glBegin(GL_LINE_STRIP);
+        glVertex2f(W-0.5, 0.5);
+        glVertex2f(W-0.5, H-0.5);
+        glVertex2f(0.5, H-0.5);
+      glEnd;
 
-    //Bright edge
-    glBlendFunc(GL_DST_COLOR, GL_ONE);
-    glColor3f(0.75 * aEdgeAlpha, 0.75 * aEdgeAlpha, 0.75 * aEdgeAlpha);
-    glBegin(GL_LINE_STRIP);
-      glVertex2f(W-0.5, 0.5);
-      glVertex2f(W-0.5, H-0.5);
-      glVertex2f(0.5, H-0.5);
-    glEnd;
-
-    //Dark edge
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0, 0, 0, aEdgeAlpha);
-    glBegin(GL_LINE_STRIP);
-      glVertex2f(0.5, H-0.5);
-      glVertex2f(0.5, 0.5);
-      glVertex2f(W-0.5, 0.5);
-    glEnd;
+      //Dark edge
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      glColor4f(0, 0, 0, aEdgeAlpha);
+      glBegin(GL_LINE_STRIP);
+        glVertex2f(0.5, H-0.5);
+        glVertex2f(0.5, 0.5);
+        glVertex2f(W-0.5, 0.5);
+      glEnd;
+    end;
   glPopMatrix;
 end;
 
