@@ -114,7 +114,8 @@ begin
   LoadStream.Read(FaceDir);
 
   //Incase save occured after warrior was created, but before he walked out of Barracks
-  OnTrained := fPlayers[fOwner].UnitGroups.WarriorTrained;
+  if not fIsDead then
+    OnTrained := fPlayers[fOwner].UnitGroups.WarriorTrained;
 end;
 
 

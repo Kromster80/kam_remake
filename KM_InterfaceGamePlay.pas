@@ -2830,7 +2830,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ReplayClick;
+procedure TKMGamePlayInterface.ReplayClick(Sender: TObject);
   procedure SetButtons(aPaused: Boolean);
   begin
     Button_ReplayPause.Enabled := aPaused;
@@ -3604,6 +3604,14 @@ begin
   end;
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
+
+  if fReplay and (Key = SC_PAUSE) then
+  begin
+    if Button_ReplayPause.Enabled then
+      ReplayClick(Button_ReplayPause)
+    else if Button_ReplayResume.Enabled then
+      ReplayClick(Button_ReplayResume);
+  end;
 
   case Key of
     //Scrolling
