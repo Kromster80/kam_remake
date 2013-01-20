@@ -2307,6 +2307,8 @@ begin
 
   //Terrain height uses both buttons for relief changing, tile rotation etc.
   if Panel_Heights.Visible then Exit;
+  //Terrain tiles uses right click for choosing tile rotation
+  if Panel_Tiles.Visible then Exit;
 
   GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
