@@ -184,6 +184,7 @@ begin
     begin
       //Start fighting this opponent by resetting the action
       fOpponent.GetUnitPointer; //Add to pointer count
+      TKMUnitWarrior(fUnit).OnPickedFight(TKMUnitWarrior(fUnit), fOpponent);
       Locked := true;
       fFightDelay := -1;
       //Ranged units should turn to face the new opponent immediately
