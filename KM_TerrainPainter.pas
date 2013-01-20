@@ -395,13 +395,32 @@ end;
 
 
 procedure TKMTerrainPainter.GenerateAddnData;
-var Accuracy: array [1 .. MAX_MAP_SIZE, 1 .. MAX_MAP_SIZE] of Byte;
+const
+  SPECIAL_TILES = [24,25,194,198,199,202,206,207,214,216..219,221..233,246]; //Waterfalls and bridges
+  OTHER_WATER_TILES = [193,208,209,240,244]; //Water tiles not used in painting (fast, straight, etc.)
+  //Accuracies
+  ACC_MAX = 5;  //Special tiles
+  ACC_HIGH = 4; //Primary tiles
+  ACC_MED = 3; //Random tiling
+  ACC_LOW = 2; //Edges
+  ACC_MIN = 1; //Coal random tiling (edges are better in this case)
+  ACC_NONE = 0;
+var
+  Accuracy: array [1 .. MAX_MAP_SIZE, 1 .. MAX_MAP_SIZE] of Byte;
 
   procedure SetTerrainKindVertex(X,Y: Integer; T:TTerrainKind; aAccuracy:Byte);
   begin
     if not fTerrain.TileInMapCoords(X,Y) then Exit;
+
+    //Special rules to fix stone hill corners:
+    // - Never overwrite tkStoneMount with tkGrass
+    // - Always allow tkStoneMount to overwrite tkGrass
+    if (Land2[Y,X].TerType = tkStoneMount) and (T = tkGrass) then Exit;
+    if (Land2[Y,X].TerType = tkGrass) and (T = tkStoneMount) then aAccuracy := ACC_MAX;
+
     //Skip if already set more accurately
     if aAccuracy < Accuracy[Y,X] then Exit;
+
     Land2[Y,X].TerType := T;
     Accuracy[Y,X] := aAccuracy;
   end;
@@ -414,15 +433,6 @@ var Accuracy: array [1 .. MAX_MAP_SIZE, 1 .. MAX_MAP_SIZE] of Byte;
     SetTerrainKindVertex(X+1, Y+1, T, aAccuracy);
   end;
 
-const
-  SPECIAL_TILES = [24,25,194,198,199,202,206,207,214,216..219,221..233,246]; //Waterfalls and bridges
-  OTHER_WATER_TILES = [193,208,209,240,244]; //Water tiles not used in painting (fast, straight, etc.)
-  //Accuracies
-  ACC_MAX = 5;  //Special tiles
-  ACC_HIGH = 4; //Primary tiles
-  ACC_MED = 3; //Random tiling
-  ACC_LOW = 1; //Edges
-  ACC_MIN = 0; //Coal random tiling (edges are better in this case)
 var
   I,K,J,Rot: Integer;
   A: Byte;
@@ -432,7 +442,7 @@ begin
   for K := 1 to MAX_MAP_SIZE do
   begin
     Land2[I,K].TerType := tkCustom; //Everything custom by default
-    Accuracy[I,K] := 0;
+    Accuracy[I,K] := ACC_NONE;
   end;
 
   for I := 1 to MAX_MAP_SIZE do
@@ -450,7 +460,10 @@ begin
           begin
             //METHOD 1: Terrain type is the primary tile for this terrain
             if fTerrain.Land[I,K].Terrain = Abs(Combo[T,T,1]) then
+            begin
               SetTerrainKindTile(K, I, T, ACC_HIGH);
+              Break; //Neither of the methods below can beat this one, so save time and don't check more TerrainKinds
+            end;
 
             //METHOD 2: Terrain type is in RandomTiling
             for J := 1 to RandomTiling[T,0] do
