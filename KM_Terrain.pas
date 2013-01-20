@@ -1077,13 +1077,14 @@ function TKMTerrain.FindWineField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMP
 var
   I: Integer;
   ValidTiles: TKMPointList;
-  ChosenTiles: TKMPointDirList;
+  NearTiles, FarTiles: TKMPointDirList;
   P: TKMPoint;
 begin
   ValidTiles := TKMPointList.Create;
   fFinder.GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
-  ChosenTiles := TKMPointDirList.Create;
+  NearTiles := TKMPointDirList.Create;
+  FarTiles := TKMPointDirList.Create;
   for I := 0 to ValidTiles.Count - 1 do
   begin
     P := ValidTiles[I];
@@ -1092,11 +1093,21 @@ begin
         if Land[P.Y,P.X].FieldAge = CORN_AGE_MAX then
           if not TileIsLocked(P) then //Taken by another farmer
             if Route_CanBeMade(aLoc, P, CanWalk, 0) then
-              ChosenTiles.AddItem(KMPointDir(P, dir_NA));
+            begin
+              if KMLengthSqr(aLoc, P) <= Sqr(aRadius div 2) then
+                NearTiles.AddItem(KMPointDir(P, dir_NA))
+              else
+                FarTiles.AddItem(KMPointDir(P, dir_NA));
+            end;
   end;
 
-  Result := ChosenTiles.GetRandom(FieldPoint);
-  ChosenTiles.Free;
+  //Prefer close tiles to reduce inefficiency with shared fields
+  Result := NearTiles.GetRandom(FieldPoint);
+  if not Result then
+    Result := FarTiles.GetRandom(FieldPoint);
+
+  NearTiles.Free;
+  FarTiles.Free;
   ValidTiles.Free;
 end;
 
