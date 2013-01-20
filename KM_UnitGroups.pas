@@ -325,6 +325,8 @@ begin
   ClearOffenders;
   fOffenders.Free;
 
+  ClearOrderTarget; //Free pointers
+
   inherited;
 end;
 
