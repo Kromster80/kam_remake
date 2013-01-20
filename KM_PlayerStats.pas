@@ -74,7 +74,7 @@ type
     function GetUnitQty(aType: TUnitType): Integer;
     function GetResourceQty(aRT: TResourceType): Integer;
     function GetArmyCount: Integer;
-    function GetCitizensCount: Integer;
+    function GetCitizensCount(aIncludeRecruits:Boolean=True): Integer;
     function GetCanBuild(aType: THouseType): Boolean;
 
     function GetCitizensTrained: Cardinal;
@@ -377,12 +377,13 @@ begin
 end;
 
 
-function TKMPlayerStats.GetCitizensCount: Integer;
+function TKMPlayerStats.GetCitizensCount(aIncludeRecruits:Boolean=True): Integer;
 var UT: TUnitType;
 begin
   Result := 0;
   for UT := CITIZEN_MIN to CITIZEN_MAX do
-    Inc(Result, GetUnitQty(UT));
+    if aIncludeRecruits or (UT <> ut_Recruit) then
+      Inc(Result, GetUnitQty(UT));
 end;
 
 
@@ -635,7 +636,7 @@ begin
 
   fGraphHouses[fGraphCount] := GetHouseQty(ht_Any);
   fGraphArmy[fGraphCount] := GetArmyCount;
-  fGraphCitizens[fGraphCount] := GetCitizensCount;
+  fGraphCitizens[fGraphCount] := GetCitizensCount(False);
 
   for I := WARE_MIN to WARE_MAX do
     fGraphGoods[I, fGraphCount] := Goods[I].Produced;
