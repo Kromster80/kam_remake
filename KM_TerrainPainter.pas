@@ -33,10 +33,11 @@ type
 
     procedure BrushTerrainTile(X, Y: SmallInt; aTerrainKind: TTerrainKind);
     function PickRandomTile(aTerrainKind: TTerrainKind): Byte;
-    procedure RebuildMap(X,Y,Rad: Integer);
+    procedure RebuildMap(X,Y,Rad: Integer; aSquare: Boolean);
     procedure EditBrush(aLoc: TKMPoint; aTile: Byte);
     procedure EditHeight;
     procedure EditTile(aLoc: TKMPoint; aTile,aRotation: Byte);
+    procedure GenerateAddnData;
   public
     RandomizeTiling: Boolean;
     constructor Create;
@@ -169,14 +170,14 @@ begin
 end;
 
 
-procedure TKMTerrainPainter.RebuildMap(X,Y,Rad: Integer);
+procedure TKMTerrainPainter.RebuildMap(X,Y,Rad: Integer; aSquare: Boolean);
 var
   I, K, pY, pX, Nodes, Rot, T: Integer;
   Tmp, Ter1, Ter2, A, B, C, D: TTerrainKind;
 begin
   for I := -Rad to Rad do
   for K := -Rad to Rad do
-  if Sqr(I) + Sqr(K) < Sqr(Rad) then
+  if aSquare or (Sqr(I) + Sqr(K) < Sqr(Rad)) then
   begin
     pX := EnsureRange(X+K, 1, fTerrain.MapX - 1);
     pY := EnsureRange(Y+I, 1, fTerrain.MapY - 1);
@@ -258,7 +259,7 @@ end;
 
 procedure TKMTerrainPainter.EditBrush(aLoc: TKMPoint; aTile: Byte);
 var
-  I,K,Rad: Integer;
+  I,K,Size,Rad: Integer;
 begin
   //Cell below cursor
   MapXc := EnsureRange(round(GameCursor.Float.X+0.5),1,fTerrain.MapX);
@@ -268,29 +269,34 @@ begin
   MapXn := EnsureRange(round(GameCursor.Float.X+1),1,fTerrain.MapX);
   MapYn := EnsureRange(round(GameCursor.Float.Y+1),1,fTerrain.MapY);
 
-  Rad := GameCursor.MapEdSize;
-  if (MapXn2 <> MapXn) or (MapYn2 <> MapYn) then
-    if Rad = 0 then
-      Land2[MapYn, MapXn].TerType := TTerrainKind(GameCursor.Tag1)
-    else
-    //There are two brush types here, even and odd size
-    if Rad mod 2 = 1 then
+  Size := GameCursor.MapEdSize;
+  Rad := Size div 2;
+
+  if Size = 0 then
+  begin
+    if (MapXn2 <> MapXn) or (MapYn2 <> MapYn) then
+      Land2[MapYn, MapXn].TerType := TTerrainKind(GameCursor.Tag1);
+  end
+  else
+    if (MapXc2 <> MapXc) or (MapYc2 <> MapYc) then
     begin
-      //first comes odd sizes 1,3,5..
-      Rad := Rad div 2;
-      for I:=-Rad to Rad do for K:=-Rad to Rad do
-      if (GameCursor.MapEdShape = hsSquare) or (Sqr(I) + Sqr(K) < Sqr(Rad + 0.5)) then               //Rounding corners in a nice way
-      BrushTerrainTile(MapXc+K, MapYc+I, TTerrainKind(GameCursor.Tag1));
-    end
-    else
-    begin
-      //even sizes 2,4,6..
-      Rad := Rad div 2;
-      for I:=-Rad to Rad-1 do for K:=-Rad to Rad-1 do
-      if (GameCursor.MapEdShape = hsSquare) or (Sqr(I + 0.5) + Sqr(K + 0.5) < Sqr(Rad)) then           //Rounding corners in a nice way
-      BrushTerrainTile(MapXc+K, MapYc+I, TTerrainKind(GameCursor.Tag1));
+      //There are two brush types here, even and odd size
+      if Size mod 2 = 1 then
+      begin
+        //first comes odd sizes 1,3,5..
+        for I:=-Rad to Rad do for K:=-Rad to Rad do
+        if (GameCursor.MapEdShape = hsSquare) or (Sqr(I) + Sqr(K) < Sqr(Rad + 0.5)) then               //Rounding corners in a nice way
+        BrushTerrainTile(MapXc+K, MapYc+I, TTerrainKind(GameCursor.Tag1));
+      end
+      else
+      begin
+        //even sizes 2,4,6..
+        for I:=-Rad to Rad-1 do for K:=-Rad to Rad-1 do
+        if (GameCursor.MapEdShape = hsSquare) or (Sqr(I + 0.5) + Sqr(K + 0.5) < Sqr(Rad)) then           //Rounding corners in a nice way
+        BrushTerrainTile(MapXc+K, MapYc+I, TTerrainKind(GameCursor.Tag1));
+      end;
     end;
-  RebuildMap(MapXc, MapYc, Rad + 5);
+  RebuildMap(MapXc, MapYc, Rad+2, (GameCursor.MapEdShape = hsSquare)); //+2 for surrounding tiles
 
   MapXn2 := MapXn;
   MapYn2 := MapYn;
@@ -388,6 +394,178 @@ begin
 end;
 
 
+procedure TKMTerrainPainter.GenerateAddnData;
+var Accuracy: array [1 .. MAX_MAP_SIZE, 1 .. MAX_MAP_SIZE] of Byte;
+
+  procedure SetTerrainKindVertex(X,Y: Integer; T:TTerrainKind; aAccuracy:Byte);
+  begin
+    if not fTerrain.TileInMapCoords(X,Y) then Exit;
+    //Skip if already set more accurately
+    if aAccuracy < Accuracy[Y,X] then Exit;
+    Land2[Y,X].TerType := T;
+    Accuracy[Y,X] := aAccuracy;
+  end;
+
+  procedure SetTerrainKindTile(X,Y: Integer; T:TTerrainKind; aAccuracy:Byte);
+  begin
+    SetTerrainKindVertex(X  , Y  , T, aAccuracy);
+    SetTerrainKindVertex(X+1, Y  , T, aAccuracy);
+    SetTerrainKindVertex(X  , Y+1, T, aAccuracy);
+    SetTerrainKindVertex(X+1, Y+1, T, aAccuracy);
+  end;
+
+const
+  SPECIAL_TILES = [24,25,194,198,199,202,206,207,214,216..219,221..233,246]; //Waterfalls and bridges
+  OTHER_WATER_TILES = [193,208,209,240,244]; //Water tiles not used in painting (fast, straight, etc.)
+  //Accuracies
+  ACC_MAX = 5;  //Special tiles
+  ACC_HIGH = 4; //Primary tiles
+  ACC_MED = 3; //Random tiling
+  ACC_LOW = 1; //Edges
+  ACC_MIN = 0; //Coal random tiling (edges are better in this case)
+var
+  I,K,J,Rot: Integer;
+  A: Byte;
+  T, T2: TTerrainKind;
+begin
+  for I := 1 to MAX_MAP_SIZE do
+  for K := 1 to MAX_MAP_SIZE do
+  begin
+    Land2[I,K].TerType := tkCustom; //Everything custom by default
+    Accuracy[I,K] := 0;
+  end;
+
+  for I := 1 to MAX_MAP_SIZE do
+  for K := 1 to MAX_MAP_SIZE do
+    //Special tiles such as bridges should remain as tkCustom
+    if fTerrain.Land[I,K].Terrain in SPECIAL_TILES then
+      SetTerrainKindTile(K, I, tkCustom, ACC_MAX) //Maximum accuracy
+    else
+      //Water tiles not used in painting (fast, straight, etc.)
+      if fTerrain.Land[I,K].Terrain in OTHER_WATER_TILES then
+        SetTerrainKindTile(K, I, tkWater, ACC_MED) //Same accuracy as random tiling (see below)
+      else
+        for T := Low(TTerrainKind) to High(TTerrainKind) do
+          if T <> tkCustom then
+          begin
+            //METHOD 1: Terrain type is the primary tile for this terrain
+            if fTerrain.Land[I,K].Terrain = Abs(Combo[T,T,1]) then
+              SetTerrainKindTile(K, I, T, ACC_HIGH);
+
+            //METHOD 2: Terrain type is in RandomTiling
+            for J := 1 to RandomTiling[T,0] do
+              if fTerrain.Land[I,K].Terrain = RandomTiling[T,J] then
+              begin
+                A := ACC_MED; //Random tiling is fairly accurate
+                if T = tkCoal then A := ACC_MIN; //Random coal tiles are also used for edges, so edges are more accurate
+                SetTerrainKindTile(K, I, T, A);
+              end;
+
+            //METHOD 3: Edging data
+            A := ACC_LOW; //Edging data is not as accurate as other methods (some edges reuse the same tiles)
+            for T2 := Low(TTerrainKind) to High(TTerrainKind) do
+            begin
+              //1 vertex is T, 3 vertexes are T2
+              if fTerrain.Land[I,K].Terrain = Abs(Combo[T,T2,1]) then
+              begin
+                Rot := fTerrain.Land[I,K].Rotation mod 4;
+                if Combo[T,T2,1] < 0 then Rot := (Rot+2) mod 4; //Flip
+                case Rot of
+                  0: begin
+                       SetTerrainKindVertex(K,   I,   T2, A);
+                       SetTerrainKindVertex(K+1, I,   T, A);
+                       SetTerrainKindVertex(K,   I+1, T2, A);
+                       SetTerrainKindVertex(K+1, I+1, T2, A);
+                     end;
+                  1: begin
+                       SetTerrainKindVertex(K,   I,   T2, A);
+                       SetTerrainKindVertex(K+1, I,   T2, A);
+                       SetTerrainKindVertex(K,   I+1, T2, A);
+                       SetTerrainKindVertex(K+1, I+1, T, A);
+                     end;
+                  2: begin
+                       SetTerrainKindVertex(K,   I,   T2, A);
+                       SetTerrainKindVertex(K+1, I,   T2, A);
+                       SetTerrainKindVertex(K,   I+1, T, A);
+                       SetTerrainKindVertex(K+1, I+1, T2, A);
+                     end;
+                  3: begin
+                       SetTerrainKindVertex(K,   I,   T, A);
+                       SetTerrainKindVertex(K+1, I,   T2, A);
+                       SetTerrainKindVertex(K,   I+1, T2, A);
+                       SetTerrainKindVertex(K+1, I+1, T2, A);
+                     end;
+                end;
+              end;
+              //Half T, half T2
+              if fTerrain.Land[I,K].Terrain = Abs(Combo[T,T2,2]) then
+              begin
+                Rot := fTerrain.Land[I,K].Rotation mod 4;
+                if Combo[T,T2,2] < 0 then Rot := (Rot+2) mod 4; //Flip
+                case Rot of
+                  0: begin
+                       SetTerrainKindVertex(K,   I,   T, A);
+                       SetTerrainKindVertex(K+1, I,   T, A);
+                       SetTerrainKindVertex(K,   I+1, T2, A);
+                       SetTerrainKindVertex(K+1, I+1, T2, A);
+                     end;
+                  1: begin
+                       SetTerrainKindVertex(K,   I,   T2, A);
+                       SetTerrainKindVertex(K+1, I,   T, A);
+                       SetTerrainKindVertex(K,   I+1, T2, A);
+                       SetTerrainKindVertex(K+1, I+1, T, A);
+                     end;
+                  2: begin
+                       SetTerrainKindVertex(K,   I,   T2, A);
+                       SetTerrainKindVertex(K+1, I,   T2, A);
+                       SetTerrainKindVertex(K,   I+1, T, A);
+                       SetTerrainKindVertex(K+1, I+1, T, A);
+                     end;
+                  3: begin
+                       SetTerrainKindVertex(K,   I,   T, A);
+                       SetTerrainKindVertex(K+1, I,   T2, A);
+                       SetTerrainKindVertex(K,   I+1, T, A);
+                       SetTerrainKindVertex(K+1, I+1, T2, A);
+                     end;
+                end;
+              end;
+              //3 vertex are T, 1 vertexes is T2
+              if fTerrain.Land[I,K].Terrain = Abs(Combo[T,T2,3]) then
+              begin
+                Rot := fTerrain.Land[I,K].Rotation mod 4;
+                if Combo[T,T2,3] < 0 then Rot := (Rot+2) mod 4; //Flip
+                case Rot of
+                  0: begin
+                       SetTerrainKindVertex(K,   I,   T, A);
+                       SetTerrainKindVertex(K+1, I,   T, A);
+                       SetTerrainKindVertex(K,   I+1, T2, A);
+                       SetTerrainKindVertex(K+1, I+1, T, A);
+                     end;
+                  1: begin
+                       SetTerrainKindVertex(K,   I,   T2, A);
+                       SetTerrainKindVertex(K+1, I,   T, A);
+                       SetTerrainKindVertex(K,   I+1, T, A);
+                       SetTerrainKindVertex(K+1, I+1, T, A);
+                     end;
+                  2: begin
+                       SetTerrainKindVertex(K,   I,   T, A);
+                       SetTerrainKindVertex(K+1, I,   T2, A);
+                       SetTerrainKindVertex(K,   I+1, T, A);
+                       SetTerrainKindVertex(K+1, I+1, T, A);
+                     end;
+                  3: begin
+                       SetTerrainKindVertex(K,   I,   T, A);
+                       SetTerrainKindVertex(K+1, I,   T, A);
+                       SetTerrainKindVertex(K,   I+1, T, A);
+                       SetTerrainKindVertex(K+1, I+1, T2, A);
+                     end;
+                end;
+              end;
+            end;
+          end;
+end;
+
+
 //Skip the KaM data and load MapEd vertice info
 procedure TKMTerrainPainter.LoadFromFile(FileName: string);
 var
@@ -396,6 +574,7 @@ var
   NewX,NewY: Integer;
   ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
   Chunk: AnsiString;
+  MapEdChunkFound: Boolean;
 begin
   if not CheckFileExists(FileName) then Exit;
 
@@ -414,6 +593,7 @@ begin
     S.Seek(17 * ResHead.Allocated, soFromCurrent);
 
     //ADDN
+    MapEdChunkFound := False;
     if S.Position < S.Size then
     begin
       Chunk := '    ';
@@ -428,6 +608,7 @@ begin
           for I := 1 to NewY do
           for K := 1 to NewX do
             S.Read(Land2[I,K].TerType, 1);
+          MapEdChunkFound := True; //Only set it once it's all loaded successfully
         end
         else
           fLog.AddNoTime(FileName + ' has no MapEd.TILE chunk');
@@ -439,6 +620,12 @@ begin
       fLog.AddNoTime(FileName + ' has no MapEd chunk');
   finally
     S.Free;
+  end;
+  //We can regenerate the MapEd data if it's missing (won't be as good as the original)
+  if not MapEdChunkFound then
+  begin
+    fLog.AddNoTime('Regenerating missing MapEd data as best as we can');
+    GenerateAddnData;
   end;
 end;
 
