@@ -150,14 +150,14 @@ begin
     fSocketServer.IterReset;
     while fSocketServer.IterNext do
     begin
-      fSocketServer.Iterator.Disconnect(True);
+      fSocketServer.Iterator.Disconnect;
       if fSocketServer.Iterator.UserData <> nil then
       begin
         TClientInfo(fSocketServer.Iterator.UserData).Free;
         fSocketServer.Iterator.UserData := nil;
       end;
     end;
-    fSocketServer.Disconnect(True);
+    fSocketServer.Disconnect;
   end;
   FreeAndNil(fSocketServer);
   fLastTag := FIRST_TAG-1;
@@ -195,7 +195,8 @@ var
 begin
   if aSocket.UserData = nil then
   begin
-    fOnError('Received data from an unknown client');
+    aSocket.Disconnect(True); //Sometimes disconnecting them fails the first time(?) LNet bug?
+    //fOnError('Received data from an unknown client');
     Exit;
   end;
 
@@ -254,7 +255,7 @@ begin
       //Found the client that must be kicked
       ClientDisconnect(fSocketServer.Iterator); //Seems to be a bug in LNet where ClientDisconnect is not called sometimes? So call it ourself just in case
       if fSocketServer.Iterator.ConnectionStatus in [scConnected, scConnecting, scDisconnecting] then
-        fSocketServer.Iterator.Disconnect(True)
+        fSocketServer.Iterator.Disconnect
       else
         fOnError('Warning: Attempted to kick a client that is not connected');
       Exit; //Only one client should have this handle
