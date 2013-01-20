@@ -322,6 +322,10 @@ end;
 procedure TKMMapEditor.Update;
 begin
   fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold, rdFish]);
+  //@Krom: This line takes ages, it makes the map editor lock up every few seconds.
+  //       On my PC the map editor is basically unusable unless I comment this out.
+  //       Why do we care about AI fields in the map editor anyway? And why would be
+  //       Init everything over and over, shouldn't we just do it once after loading?
   fAIFields.AfterMissionInit;
   fAIFields.UpdateState(0);
 end;
