@@ -2313,6 +2313,9 @@ begin
   GameCursor.Mode := cmNone;
   GameCursor.Tag1 := 0;
 
+  //Display page will hide the army panel
+  if Panel_Army.Visible then Exit;
+
   DisplayPage(fActivePage);
 end;
 
@@ -2421,6 +2424,7 @@ begin
 
   if Sender = Button_Army_RotCW then  Group.Direction := KMNextDirection(Group.Direction);
   if Sender = Button_Army_RotCCW then Group.Direction := KMPrevDirection(Group.Direction);
+  Group.ResetAnimStep;
 
   //Toggle between full and half condition
   if Sender = Button_ArmyFood then

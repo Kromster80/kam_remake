@@ -90,6 +90,7 @@ type
     function HitTest(X,Y: Integer): Boolean;
     procedure SelectHitTest(X,Y: Integer);
     function HasMember(aWarrior: TKMUnit): Boolean;
+    procedure ResetAnimStep;
     function InFight: Boolean; //Fighting and can't take any orders from player
     function IsAttackingHouse: Boolean; //Attacking house
     function CanTakeOrders: Boolean;
@@ -535,6 +536,14 @@ end;
 function TKMUnitGroup.HasMember(aWarrior: TKMUnit): Boolean;
 begin
   Result := fMembers.IndexOf(aWarrior) <> -1;
+end;
+
+
+//Used by the MapEd after changing direction (so warriors are frozen on the right frame)
+procedure TKMUnitGroup.ResetAnimStep;
+begin
+  Assert(fGame.IsMapEditor);
+  Members[0].AnimStep := UnitStillFrames[Members[0].Direction];
 end;
 
 
@@ -1281,7 +1290,7 @@ begin
     if not DoesFit then Continue; //Don't render units that are off the map in the map editor
     UnitPos.X := NewPos.X + UNIT_OFF_X; //MapEd units don't have sliding
     UnitPos.Y := NewPos.Y + UNIT_OFF_Y;
-    fRenderPool.AddUnit(FlagCarrier.UnitType, ua_Walk, fOrderLoc.Dir, 0, UnitPos.X, UnitPos.Y, fPlayers[FlagCarrier.Owner].FlagColor, True);
+    fRenderPool.AddUnit(FlagCarrier.UnitType, ua_Walk, fOrderLoc.Dir, UnitStillFrames[fOrderLoc.Dir], UnitPos.X, UnitPos.Y, fPlayers[FlagCarrier.Owner].FlagColor, True);
   end;
 end;
 
