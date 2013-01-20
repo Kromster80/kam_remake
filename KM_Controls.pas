@@ -4338,7 +4338,7 @@ const
 var
   I: Integer;
   G: TKMRect;
-  Best, TopValue: Integer;
+  Best, TopValue, Tmp: Integer;
   NewColor, TextColor: TColor4;
 begin
   inherited;
@@ -4400,8 +4400,9 @@ begin
   if Best <> 0 then
   for I := 1 to (TopValue div Best) do
   begin
-    TKMRenderUI.WriteText(G.Left - 5, G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top)) - 6, 0, IntToStr(I * Best), fnt_Game, taRight);
-    TKMRenderUI.WriteShape(G.Left - 2, G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top)), 5, 2, $FFFFFFFF);
+    Tmp := G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top));
+    TKMRenderUI.WriteText(G.Left - 5, Tmp - 6, 0, IntToStr(I * Best), fnt_Game, taRight);
+    TKMRenderUI.WriteLine(G.Left, Tmp, G.Right, Tmp, $FF7F7F7F, $CCCC);
   end;
 
   //Render horizontal axis ticks

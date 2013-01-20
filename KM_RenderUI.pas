@@ -23,6 +23,7 @@ type
     class procedure WritePlot         (PosX,PosY,SizeX,SizeY: SmallInt; aValues: TKMCardinalArray; aMaxValue: Cardinal; aColor: TColor4; LineWidth: Byte);
     class procedure WriteOutline      (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     class procedure WriteShape        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4 = $00000000);
+    class procedure WriteLine         (X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
     class procedure WriteText         (X,Y,W: smallint; aText: AnsiString; aFont: TKMFont; aAlign: TTextAlign; aColor: TColor4 = $FFFFFFFF; aIgnoreMarkup:Boolean = False; aShowMarkup:Boolean=False);
     class procedure WriteTexture      (PosX,PosY,SizeX,SizeY:smallint; aTexture: TTexture; aCol: TColor4);
     class procedure WriteCircle       (PosX,PosY: SmallInt; Rad: Byte; aFillCol: TColor4);
@@ -394,6 +395,21 @@ begin
       glkRect(PosX+0.5,PosY+0.5,PosX+SizeX-0.5,PosY+SizeY-0.5);
     glEnd;
   glPopAttrib;
+end;
+
+
+class procedure TKMRenderUI.WriteLine(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
+begin
+  glColor4ubv(@aCol);
+
+  glEnable(GL_LINE_STIPPLE);
+  glLineStipple(2, aPattern);
+
+  glBegin(GL_LINES);
+    glVertex2f(x1, y1);
+    glVertex2f(x2, y2);
+  glEnd;
+  glDisable(GL_LINE_STIPPLE);
 end;
 
 
