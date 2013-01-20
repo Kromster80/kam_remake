@@ -86,6 +86,7 @@ end;
 
 procedure TKMGeneral.Save(SaveStream: TKMemoryStream);
 begin
+  SaveStream.Write(fOwner);
   SaveStream.Write(fLastEquippedTime);
   fAttacks.Save(SaveStream);
   fDefencePositions.Save(SaveStream);
@@ -94,6 +95,7 @@ end;
 
 procedure TKMGeneral.Load(LoadStream: TKMemoryStream);
 begin
+  LoadStream.Read(fOwner);
   LoadStream.Read(fLastEquippedTime);
   fAttacks.Load(LoadStream);
   fDefencePositions.Load(LoadStream);
