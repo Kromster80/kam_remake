@@ -101,7 +101,7 @@ const
 
   //todo: Rework stats layout into
   //and get them stacked by UI logic (so that on taller screens they all were in nice pairs, and would stack up onli on short screens)
-  Stat2: array [0..13] of record
+ { Stat2: array [0..13] of record
     HouseType: array [0..3] of THouseType;
     UnitType: TUnitType;
   end = (
@@ -121,7 +121,7 @@ const
   (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
   (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
   (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter)
-   );
+   );   }
   //Statistics page in game menu
   //0=space, 1=house, 2=unit
   StatCount: array [1..8, 1..8] of Byte = (
