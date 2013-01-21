@@ -74,13 +74,15 @@ const
     ht_WeaponSmithy, ht_ArmorSmithy, ht_Barracks, ht_Store, ht_WatchTower,
     ht_FisherHut, ht_Marketplace);
 
+  //Template for how resources are shown in Barracks
   BARRACKS_RES_COUNT = 11;
   BarracksResType: array [1..BARRACKS_RES_COUNT] of TResourceType =
     (rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor, rt_Axe, rt_Sword,
      rt_Pike, rt_Hallebard, rt_Bow, rt_Arbalet, rt_Horse);
 
+  //Layout of resources in Store
   STORE_RES_COUNT = 28;
-  StoreResType: array[1..STORE_RES_COUNT] of TResourceType =
+  StoreResType: array [1..STORE_RES_COUNT] of TResourceType =
     (rt_Trunk,    rt_Stone,   rt_Wood,        rt_IronOre,   rt_GoldOre,
      rt_Coal,     rt_Steel,   rt_Gold,        rt_Wine,      rt_Corn,
      rt_Bread,    rt_Flour,   rt_Leather,     rt_Sausages,  rt_Pig,
@@ -88,18 +90,41 @@ const
      rt_Axe,      rt_Sword,   rt_Pike,        rt_Hallebard, rt_Bow,
      rt_Arbalet,  rt_Horse,   rt_Fish);
 
-  School_Order:array[0..13] of TUnitType = (
+  School_Order: array [0..13] of TUnitType = (
     ut_Serf, ut_Worker, ut_StoneCutter, ut_Woodcutter, ut_Lamberjack,
     ut_Fisher, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher,
     ut_Miner, ut_Metallurgist, ut_Smith, ut_Recruit);
 
-  Barracks_Order:array[0..8] of TUnitType = (
+  Barracks_Order: array [0..8] of TUnitType = (
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry);
 
+  //todo: Rework stats layout into
+  //and get them stacked by UI logic (so that on taller screens they all were in nice pairs, and would stack up onli on short screens)
+  Stat2: array [0..13] of record
+    HouseType: array [0..3] of THouseType;
+    UnitType: TUnitType;
+  end = (
+  //Building materials
+  (HouseType: (ht_Quary,        ht_None,      ht_None, ht_None); UnitType: ut_StoneCutter),
+  (HouseType: (ht_Woodcutters,  ht_None,      ht_None, ht_None); UnitType: ut_Woodcutter),
+  //Food
+  (HouseType: (ht_FisherHut,    ht_None,      ht_None, ht_None); UnitType: ut_Fisher),
+  (HouseType: (ht_Farm,         ht_Wineyard,  ht_None, ht_None); UnitType: ut_Farmer),
+  (HouseType: (ht_Mill,         ht_Bakery,    ht_None, ht_None); UnitType: ut_Baker),
+  (HouseType: (ht_Swine,        ht_Stables,   ht_None, ht_None); UnitType: ut_AnimalBreeder),
+  (HouseType: (ht_Butchers,     ht_Tannery,   ht_None, ht_None); UnitType: ut_Butcher),
+  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
+  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
+  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
+  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
+  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
+  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
+  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter)
+   );
   //Statistics page in game menu
   //0=space, 1=house, 2=unit
-  StatCount:array[1..8,1..8]of byte = (
+  StatCount: array [1..8, 1..8] of Byte = (
   (1,2,0,1,2,0,1,2),
   (1,1,2,0,1,1,2,0),
   (1,1,2,0,1,1,2,0),
@@ -109,7 +134,7 @@ const
   (1,0,0,0,0,1,1,2),
   (1,1,1,0,0,2,2,0));
 
-  StatHouse:array[1..27] of THouseType = (
+  StatHouse: array [1..27] of THouseType = (
   ht_Quary, ht_Woodcutters, ht_FisherHut,
   ht_Farm, ht_Wineyard, ht_Mill, ht_Bakery,
   ht_Swine, ht_Stables, ht_Butchers, ht_Tannery,
@@ -119,7 +144,7 @@ const
   ht_Marketplace, ht_Barracks, ht_WatchTower,
   ht_Store, ht_School, ht_Inn );
 
-  StatUnit:array[1..14] of TUnitType = (
+  StatUnit: array [1..14] of TUnitType = (
   ut_StoneCutter, ut_Woodcutter, ut_Fisher,
   ut_Farmer, ut_Baker,
   ut_AnimalBreeder, ut_Butcher,
@@ -129,21 +154,21 @@ const
   ut_Recruit,
   ut_Serf, ut_Worker);
 
-  MapEd_Order:array[0..13] of TUnitType = (
+  MapEd_Order: array [0..13] of TUnitType = (
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian,
     ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman);
 
-  MapEd_Icon:array[0..13] of word = (
+  MapEd_Icon: array [0..13] of Word = (
     61, 62, 63, 64, 65,
     66, 67, 68, 69, 70,
     79, 80, 81, 82);
 
-  Animal_Order:array[0..7] of TUnitType = (
+  Animal_Order: array [0..7] of TUnitType = (
     ut_Wolf, ut_Fish,        ut_Watersnake, ut_Seastar,
     ut_Crab, ut_Waterflower, ut_Waterleaf,  ut_Duck);
 
-  Animal_Icon:array[0..7] of word = (
+  Animal_Icon: array [0..7] of word = (
     71, 72, 73, 74,
     75, 76, 77, 78);
 
