@@ -9,7 +9,7 @@ uses
      KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_Terrain;
 
 type
-  TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject);
+  TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject, ttClipboard);
   TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
 
 type
@@ -88,6 +88,7 @@ type
     procedure Terrain_TilesRefresh(Sender: TObject);
     procedure Terrain_ObjectsChange(Sender: TObject);
     procedure Terrain_ObjectsRefresh(Sender: TObject);
+    procedure Terrain_ClipboardChange(Sender: TObject);
     procedure Town_BuildChange(Sender: TObject);
     procedure Town_BuildRefresh;
     procedure Town_DefenceAddClick(Sender: TObject);
@@ -148,6 +149,9 @@ type
         ObjectErase: TKMButtonFlat;
         ObjectsTable: array [0..8] of TKMButtonFlat;
         ObjectsScroll: TKMScrollBar;
+      Panel_Clipboard: TKMPanel;
+        ClipboardCopy,ClipboardPaste,ClipboardPasteFlippedH,ClipboardPasteFlippedV: TKMButtonFlat;
+
 
     //How to know where certain page should be?
     //see Docs\Map Editor menu structure.txt
@@ -380,6 +384,11 @@ begin
   begin
     Terrain_ObjectsChange(ObjectsTable[fLastObject]);
     DisplayPage(Panel_Objects);
+  end else
+  if (Sender = Button_Terrain[ttClipboard]) then
+  begin
+    Terrain_ClipboardChange(ClipboardCopy);
+    DisplayPage(Panel_Clipboard);
   end else
 
   if (Sender = Button_Main[2]) or (Sender = Button_Town[ttHouses]) then
@@ -714,11 +723,12 @@ end;
 {Terrain page}
 procedure TKMapEdInterface.Create_Terrain_Page;
 const
-  BtnGlyph: array [TKMTerrainTab] of Word = (383, 388, 382, 385);
+  BtnGlyph: array [TKMTerrainTab] of Word = (383, 388, 382, 385, 384);
   BtnHint: array [TKMTerrainTab] of Word = (
     TX_MAPED_TERRAIN_HINTS_BRUSHES,
     TX_MAPED_TERRAIN_HINTS_HEIGHTS,
     TX_MAPED_TERRAIN_HINTS_TILES,
+    TX_MAPED_TERRAIN_HINTS_OBJECTS,
     TX_MAPED_TERRAIN_HINTS_OBJECTS);
   Surfaces: array [0 .. 6, 0 .. 4] of TTerrainKind = (
     (tkGrass,       tkMoss,         tkRustyGrass1,  tkRustyGrass2,  tkCustom),
@@ -838,6 +848,21 @@ begin
       end;
       ObjectErase.Tag := 255; //no object
       ObjectErase.OnClick := Terrain_ObjectsChange;
+
+    Panel_Clipboard := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
+      TKMLabel.Create(Panel_Clipboard, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Copy/paste', fnt_Outline, taCenter);
+        ClipboardCopy := TKMButtonFlat.Create(Panel_Clipboard, 24, 28, 24, 24, 384);
+        ClipboardCopy.Hint := 'Copy terrain';
+        ClipboardCopy.OnClick := Terrain_ClipboardChange;
+        ClipboardPaste := TKMButtonFlat.Create(Panel_Clipboard, 52, 28, 24, 24, 384);
+        ClipboardPaste.Hint := 'Paste terrain';
+        ClipboardPaste.OnClick := Terrain_ClipboardChange;
+        ClipboardPasteFlippedH := TKMButtonFlat.Create(Panel_Clipboard, 80, 28, 24, 24, 384);
+        ClipboardPasteFlippedH.Hint := 'Paste horizontally flipped terrain';
+        ClipboardPasteFlippedH.OnClick := Terrain_ClipboardChange;
+        ClipboardPasteFlippedV := TKMButtonFlat.Create(Panel_Clipboard, 108, 28, 24, 24, 384);
+        ClipboardPasteFlippedV.Hint := 'Paste vertically flipped terrain';
+        ClipboardPasteFlippedV.OnClick := Terrain_ClipboardChange;
 end;
 
 
@@ -1770,6 +1795,15 @@ begin
   end;
 
   ObjectErase.Down := (GameCursor.Mode = cmObjects) and (GameCursor.Tag1 = 255); //or delete button
+end;
+
+
+procedure TKMapEdInterface.Terrain_ClipboardChange(Sender: TObject);
+begin
+  if Sender = ClipboardCopy then
+  begin
+
+  end;
 end;
 
 

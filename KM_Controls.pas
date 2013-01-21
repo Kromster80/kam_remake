@@ -4348,6 +4348,24 @@ begin
   //Add margin to MaxValue so that it does not blends with upper border
   TopValue := Max(Round(fMaxValue * 1.1), fMaxValue + 1);
 
+  //Find first interval that will have less than 10 ticks
+  Best := 0;
+  for I := 0 to 9 do
+    if TopValue div IntervalCount[I] < 10 then
+    begin
+      Best := IntervalCount[I];
+      Break;
+    end;
+
+  //Dashed lines in the background
+  if Best <> 0 then
+  for I := 1 to (TopValue div Best) do
+  begin
+    Tmp := G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top));
+    TKMRenderUI.WriteText(G.Left - 5, Tmp - 6, 0, IntToStr(I * Best), fnt_Game, taRight);
+    TKMRenderUI.WriteLine(G.Left, Tmp, G.Right, Tmp, $FF606060, $CCCC);
+  end;
+
   //Charts and legend
   for I := 0 to fCount - 1 do
   begin
@@ -4387,23 +4405,6 @@ begin
   //Render vertical axis captions
   TKMRenderUI.WriteText(G.Left - 5, G.Bottom + 5, 0, IntToStr(0), fnt_Game, taRight);
   //TKMRenderUI.WriteText(Left+20, Top + 20, 0, 0, IntToStr(fMaxValue), fnt_Game, taRight);
-
-  //Find first interval that will have less than 10 ticks
-  Best := 0;
-  for I := 0 to 9 do
-    if TopValue div IntervalCount[I] < 10 then
-    begin
-      Best := IntervalCount[I];
-      Break;
-    end;
-
-  if Best <> 0 then
-  for I := 1 to (TopValue div Best) do
-  begin
-    Tmp := G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top));
-    TKMRenderUI.WriteText(G.Left - 5, Tmp - 6, 0, IntToStr(I * Best), fnt_Game, taRight);
-    TKMRenderUI.WriteLine(G.Left, Tmp, G.Right, Tmp, $FF7F7F7F, $CCCC);
-  end;
 
   //Render horizontal axis ticks
   //Find first interval that will have less than 10 ticks

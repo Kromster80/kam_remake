@@ -90,7 +90,6 @@ Improvements:
 	L	Changing teams in multiplayer
 			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
 	L	Clicking on a player inserts "/whisper PlayerName " into chat to send private message
-	M	Display material delivery progress for houses under construction
 	L	Shortcuts for all soldier buttons: , & . to rotate, [ & ] to add/withdraw lines, x to charge, f for food?
 	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
 	L	Add an option /givehost# to give hosting rights to another player in lobby

@@ -296,7 +296,7 @@ begin
         BrushTerrainTile(MapXc+K, MapYc+I, TTerrainKind(GameCursor.Tag1));
       end;
     end;
-  RebuildMap(MapXc, MapYc, Rad+2, (GameCursor.MapEdShape = hsSquare)); //+2 for surrounding tiles
+  RebuildMap(MapXc, MapYc, Rad+3, (GameCursor.MapEdShape = hsSquare)); //+3 for surrounding tiles
 
   MapXn2 := MapXn;
   MapYn2 := MapYn;
