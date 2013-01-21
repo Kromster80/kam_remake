@@ -925,12 +925,14 @@ begin
 end;
 
 
+//Until profiling we use straightforward approach of recreating outline each frame
+//Optimize later if needed
 procedure TRenderPool.RenderHouseOutline(aHouse: TKMHouse);
 var
   Outline: TKMPointList;
   Loc: TKMPoint;
-  I,K: Integer;
-  HA: THouseArea;
+  I: Integer;
+  X,Y: Word;
 begin
   if aHouse = nil then
     Exit;
@@ -939,25 +941,17 @@ begin
   Outline := TKMPointList.Create;
 
   Loc := aHouse.GetPosition;
-  HA := fResource.HouseDat[aHouse.HouseType].BuildArea;
-  for I := 1 to 4 do
-  for K := 1 to 4 do
-  if HA[I,K] <> 0 then
-  begin
-    if (I = 1) or (HA[I-1, K] = 0) then Outline.AddEntry(KMPoint(Loc.X + K - 4, Loc.Y + I - 5));
-    if (K = 4) or (HA[I, K+1] = 0) then Outline.AddEntry(KMPoint(Loc.X + K - 3, Loc.Y + I - 5));
-    if (I = 4) or (HA[I+1, K] = 0) then Outline.AddEntry(KMPoint(Loc.X + K - 3, Loc.Y + I - 4));
-    if (K = 1) or (HA[I, K-1] = 0) then Outline.AddEntry(KMPoint(Loc.X + K - 4, Loc.Y + I - 4));
-  end;
+  fResource.HouseDat[aHouse.HouseType].GetOutline(Outline);
 
-  //Sort the points into loop (1st row added first, so the loop will be always CW)
-  Outline.SortAsLoop;
-
-  glColor3f(0,1,1);
+  glColor3f(0, 1, 1);
   glBegin(GL_LINE_LOOP);
     with fTerrain do
     for I := 0 to Outline.Count - 1 do
-      glVertex2f(Outline[I].X, Outline[I].Y-Land[ Outline[I].Y+1, Outline[I].X+1].Height / CELL_HEIGHT_DIV);
+    begin
+      X := Loc.X + Outline[I].X - 3;
+      Y := Loc.Y + Outline[I].Y - 4;
+      glVertex2f(X, Y - Land[Y+1, X+1].Height / CELL_HEIGHT_DIV);
+    end;
   glEnd;
 
   Outline.Free;

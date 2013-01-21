@@ -93,6 +93,7 @@ type
     property ResInput:THouseRes read GetResInput;
     property ResOutput:THouseRes read GetResOutput;
     property TabletIcon:word read GetTabletIcon;
+    procedure GetOutline(aList: TKMPointList);
   end;
 
 
@@ -184,7 +185,7 @@ const
 
 
 implementation
-uses KromUtils, KM_TextLibrary, KM_ResourceUnit;
+uses KromUtils, KM_Outline, KM_Points, KM_PolySimplify, KM_TextLibrary, KM_ResourceUnit;
 
 
 type
@@ -539,6 +540,28 @@ end;
 function TKMHouseDatClass.GetMaxHealth: word;
 begin
   Result := (fHouseDat.WoodCost + fHouseDat.StoneCost) * 50;
+end;
+
+
+//Write houses outline into given list
+procedure TKMHouseDatClass.GetOutline(aList: TKMPointList);
+var
+  I, K: Integer;
+  Tmp: TKMByte2Array;
+  Outlines: TKMShapesArray;
+begin
+  aList.Clear;
+  SetLength(Tmp, 6, 6);
+
+  for I := 0 to 3 do
+  for K := 0 to 3 do
+    Tmp[I+1,K+1] := Byte(HouseDatX[fHouseType].PlanYX[I+1,K+1] > 0);
+
+  GenerateOutline(Tmp, 2, Outlines);
+  Assert(Outlines.Count = 1, 'Houses are expected to have single outline');
+
+  for I := 0 to Outlines.Shape[0].Count - 1 do
+    aList.AddEntry(KMPoint(Outlines.Shape[0].Nodes[I].X, Outlines.Shape[0].Nodes[I].Y));
 end;
 
 

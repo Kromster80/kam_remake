@@ -63,7 +63,7 @@ type
 
 
 implementation
-uses KM_AIFields, KM_PlayersCollection, KM_RenderAux, KM_Terrain;
+uses KM_AIFields, KM_Outline, KM_PlayersCollection, KM_RenderAux, KM_Terrain;
 
 
 { TKMNavMesh }
@@ -107,126 +107,28 @@ end;
 
 
 procedure TKMNavMesh.GenerateTileOutline(out aTileOutlines: TKMShapesArray);
-type
-  TStepDirection = (sdNone, sdUp, sdRight, sdDown, sdLeft);
-var
-  Tmp: array of array of Byte;
-  PrevStep, NextStep: TStepDirection;
-
-  procedure Step(X,Y: Word);
-    function IsTilePassable(aX, aY: Word): Boolean;
-    begin
-      Result := InRange(aX, 1, fTerrain.MapX-1)
-                and InRange(aY, 1, fTerrain.MapY-1)
-                and (Tmp[aY,aX] > 0);
-      //Mark tiles we've been on, so they do not trigger new duplicate contour
-      if Result then
-        Tmp[aY,aX] := 1; //Mark unpassable but visited
-    end;
-  var
-    State: Byte;
-  begin
-    prevStep := nextStep;
-
-    //Assemble bitmask
-    State :=  Byte(IsTilePassable(X  ,Y  )) +
-              Byte(IsTilePassable(X+1,Y  )) * 2 +
-              Byte(IsTilePassable(X  ,Y+1)) * 4 +
-              Byte(IsTilePassable(X+1,Y+1)) * 8;
-
-    //Where do we go from here
-    case State of
-      1:  nextStep := sdUp;
-      2:  nextStep := sdRight;
-      3:  nextStep := sdRight;
-      4:  nextStep := sdLeft;
-      5:  nextStep := sdUp;
-      6:  if (prevStep = sdUp) then
-            nextStep := sdLeft
-          else
-            nextStep := sdRight;
-      7:  nextStep := sdRight;
-      8:  nextStep := sdDown;
-      9:  if (prevStep = sdRight) then
-            nextStep := sdUp
-          else
-            nextStep := sdDown;
-      10: nextStep := sdDown;
-      11: nextStep := sdDown;
-      12: nextStep := sdLeft;
-      13: nextStep := sdUp;
-      14: nextStep := sdLeft;
-      else nextStep := sdNone;
-    end;
-  end;
-
-  procedure WalkPerimeter(aStartX, aStartY: Word);
-  var
-    X, Y: Integer;
-  begin
-    X := aStartX;
-    Y := aStartY;
-    nextStep := sdNone;
-
-    SetLength(aTileOutlines.Shape, aTileOutlines.Count + 1);
-    aTileOutlines.Shape[aTileOutlines.Count].Count := 0;
-
-    repeat
-      Step(X, Y);
-
-      case NextStep of
-        sdUp:     Dec(Y);
-        sdRight:  Inc(X);
-        sdDown:   Inc(Y);
-        sdLeft:   Dec(X);
-        else
-      end;
-
-      //Append new node vertice
-      with aTileOutlines.Shape[aTileOutlines.Count] do
-      begin
-        if Length(Nodes) <= Count then
-          SetLength(Nodes, Count + 32);
-        Nodes[Count] := KMPointI(X, Y);
-        Inc(Count);
-      end;
-    until((X = aStartX) and (Y = aStartY));
-
-    //Do not include too small regions
-    if aTileOutlines.Shape[aTileOutlines.Count].Count >= 12 then
-      Inc(aTileOutlines.Count);
-  end;
-
 var
   I, K: Integer;
-  C1, C2, C3, C4: Boolean;
+  Tmp: TKMByte2Array;
 begin
-  SetLength(Tmp, fTerrain.MapY+1, fTerrain.MapX+1);
+  SetLength(Tmp, fTerrain.MapY-1, fTerrain.MapX-1);
 
-  //Copy map to temp array where we can use Keys 0-1-2 for internal purposes
+  //Copy map to temp array as 0/1 (generator uses other byte values for its needs)
   //0 - no obstacle
-  //1 - parsed obstacle
-  //2 - non-parsed obstacle
-  for I := 1 to fTerrain.MapY - 1 do
-  for K := 1 to fTerrain.MapX - 1 do
-    Tmp[I,K] := 2 - Byte(CanOwn in fTerrain.Land[I,K].Passability) * 2;
+  //1 - obstacle
+  for I := 0 to fTerrain.MapY - 2 do
+  for K := 0 to fTerrain.MapX - 2 do
+    Tmp[I,K] := 1 - Byte(CanOwn in fTerrain.Land[I+1,K+1].Passability);
 
-  aTileOutlines.Count := 0;
-  for I := 1 to fTerrain.MapY - 2 do
-  for K := 1 to fTerrain.MapX - 2 do
+  GenerateOutline(Tmp, 12, aTileOutlines);
+
+  //GenerateOutline is 0 based for versatility purposes, but Terrain in 1 based
+  //because of legacy reasons. Do the conversion
+  for I := 0 to aTileOutlines.Count - 1 do
+  for K := 0 to aTileOutlines.Shape[I].Count - 1 do
   begin
-    //Find new seed among unparsed obstacles
-    //C1-C2
-    //C3-C4
-    C1 := (Tmp[I,K] = 2);
-    C2 := (Tmp[I,K+1] = 2);
-    C3 := (Tmp[I+1,K] = 2);
-    C4 := (Tmp[I+1,K+1] = 2);
-
-    //Maybe skip cases where C1..C4 are all having value of 1-2
-    //but I'm not sure this is going to get us any improvements
-    if (C1 or C2 or C3 or C4) <> (C1 and C2 and C3 and C4) then
-      WalkPerimeter(K,I);
+    aTileOutlines.Shape[I].Nodes[K].X := aTileOutlines.Shape[I].Nodes[K].X + 1;
+    aTileOutlines.Shape[I].Nodes[K].Y := aTileOutlines.Shape[I].Nodes[K].Y + 1;
   end;
 end;
 
