@@ -3579,7 +3579,7 @@ begin
     VK_UP:    fGame.Viewport.ScrollKeyUp    := True;
     VK_DOWN:  fGame.Viewport.ScrollKeyDown  := True;
     //As we don't have names for teams in SP we only allow showing team names in MP or MP replays
-    SC_SHOW_TEAMS: if fMultiplayer or (fGame.GameMode = gmReplayMulti) then //Only MP replays
+    Ord(SC_SHOW_TEAMS): if fMultiplayer or (fGame.GameMode = gmReplayMulti) then //Only MP replays
     begin
       fGame.ShowTeamNames := True;
       //Update it immediately so there's no 300ms lag after pressing the key
@@ -3598,14 +3598,14 @@ procedure TKMGamePlayInterface.KeyUp(Key: Word; Shift: TShiftState);
 begin
   if fGame.IsPaused and not fMultiplayer and not fReplay then
   begin
-    if (Key = SC_PAUSE) then
+    if Key = Ord(SC_PAUSE) then
       SetPause(False);
     Exit;
   end;
 
   if fMyControls.KeyUp(Key, Shift) then Exit;
 
-  if fReplay and (Key = SC_PAUSE) then
+  if fReplay and (Key = Ord(SC_PAUSE)) then
   begin
     if Button_ReplayPause.Enabled then
       ReplayClick(Button_ReplayPause)
@@ -3627,7 +3627,7 @@ begin
     VK_F7:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedFast);
     VK_F8:    fGame.SetGameSpeed(fGameApp.GameSettings.SpeedVeryFast);
 
-    SC_SHOW_TEAMS:  fGame.ShowTeamNames := False;
+    Ord(SC_SHOW_TEAMS):  fGame.ShowTeamNames := False;
   end;
 
   //All the following keys don't work in Replay,
@@ -3655,7 +3655,7 @@ begin
     SC_MENU_STATS:  Button_Main[tbStats].Click;
     SC_MENU_MENU:   Button_Main[tbMenu].Click;
 
-    SC_SELECT_LOW..SC_SELECT_HIGH:
+    Ord(SC_SELECT_LOW)..Ord(SC_SELECT_HIGH):
                     if (ssCtrl in Shift) then
                       Selection_Assign(Key, fPlayers.Selected)
                     else
@@ -3667,8 +3667,8 @@ begin
     Ord(SC_ARMY_SPLIT):  if Panel_Army.Visible and not SelectingTroopDirection then Button_Army_Split.Click;
 
     //General function keys
-    SC_PAUSE:       if not fMultiplayer then SetPause(True); //Display pause overlay
-    SC_BEACON:      if not SelectingTroopDirection then
+    Ord(SC_PAUSE):  if not fMultiplayer then SetPause(True); //Display pause overlay
+    Ord(SC_BEACON): if not SelectingTroopDirection then
                     begin
                       fPlacingBeacon := True;
                       MinimapView.ClickableOnce := True;

@@ -41,26 +41,28 @@ const
   OPT_SLIDER_MAX = 20;
 
   //Shortcuts
+  //All shortcuts are in English and are the same for all languages to avoid
+  //names collisions and confusion in discussions
   SC_MENU_BUILD = VK_F1;
   SC_MENU_RATIO = VK_F2;
   SC_MENU_STATS = VK_F3;
   SC_MENU_MENU  = VK_F4;
 
-  SC_SELECT_LOW = Ord('0');
-  SC_SELECT_HIGH = Ord('9');
+  SC_SELECT_LOW = '0';
+  SC_SELECT_HIGH = '9';
 
-  SC_ARMY_HALT = ('H');
-  SC_ARMY_SPLIT = ('S');
-  SC_ARMY_LINK = ('L');
+  SC_ARMY_HALT = 'H';
+  SC_ARMY_SPLIT = 'S';
+  SC_ARMY_LINK = 'L';
 
-  SC_DEBUG_REVEALMAP = ('M');
-  SC_DEBUG_VICTORY = ('V');
-  SC_DEBUG_DEFEAT = ('D');
-  SC_DEBUG_ADDSCOUT = ('C'); //Usefull when mouse has no middle-button
+  SC_DEBUG_REVEALMAP = 'M';
+  SC_DEBUG_VICTORY = 'V';
+  SC_DEBUG_DEFEAT = 'D';
+  SC_DEBUG_ADDSCOUT = 'C'; //Usefull when mouse has no middle-button
 
-  SC_BEACON = Ord('B');
-  SC_PAUSE = Ord('P');
-  SC_SHOW_TEAMS = Ord('T');
+  SC_BEACON = 'B';
+  SC_PAUSE = 'P';
+  SC_SHOW_TEAMS = 'T';
 
   //
   GUI_HOUSE_COUNT = 27;   //Number of KaM houses to show in GUI
