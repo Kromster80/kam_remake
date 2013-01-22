@@ -21,13 +21,14 @@ type
   TStepDirection = (sdNone, sdUp, sdRight, sdDown, sdLeft);
 var
   PrevStep, NextStep: TStepDirection;
+  SizeX, SizeY: Word;
 
-  procedure Step(X,Y: ShortInt);
-    function IsTilePassable(aX, aY: ShortInt): Boolean;
+  procedure Step(X,Y: SmallInt);
+    function IsTilePassable(aX, aY: SmallInt): Boolean;
     begin
-      Result := InRange(aY, Low(aMap), High(aMap))
-                and InRange(aX, Low(aMap[aY]), High(aMap[aY]))
-                and (aMap[aY,aX] > 0);
+      Result := InRange(aY, 0, SizeY-1)
+            and InRange(aX, 0, SizeX-1)
+            and (aMap[aY,aX] > 0);
       //Mark tiles we've been on, so they do not trigger new duplicate contour
       if Result then
         aMap[aY,aX] := 255; //Mark unpassable but visited
@@ -69,7 +70,7 @@ var
     end;
   end;
 
-  procedure WalkPerimeter(aStartX, aStartY: ShortInt);
+  procedure WalkPerimeter(aStartX, aStartY: SmallInt);
   var
     X, Y: Integer;
   begin
@@ -110,9 +111,12 @@ var
   I, K: Integer;
   C1, C2, C3, C4: Boolean;
 begin
+  SizeX := Length(aMap[0]);
+  SizeY := Length(aMap);
+
   aOutlines.Count := 0;
-  for I := Low(aMap) to High(aMap) - 1 do
-  for K := Low(aMap[I]) to High(aMap[I]) - 1 do
+  for I := 0 to SizeY - 2 do
+  for K := 0 to SizeX - 2 do
   begin
     //Find new seed among unparsed obstacles
     //C1-C2

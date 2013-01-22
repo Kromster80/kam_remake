@@ -13,7 +13,7 @@ type
     GoalTime: Cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
     MessageToShow: Integer; //Message to be shown when the goal is completed
     MessageHasShown: Boolean; //Whether we have shown this message yet
-    PlayerIndex: ShortInt; //Player whose buildings or troops must be destroyed
+    PlayerIndex: TPlayerIndex; //Player whose buildings or troops must be destroyed
   end;
   //Because the goal system is hard to understand, here are some examples:
   {Destroy troops of player 2 in order to win
@@ -62,7 +62,7 @@ type
 
     property Count: Integer read fCount;
     property Item[aIndex: Integer]: TKMGoal read GetGoal; default;
-    procedure AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aPlayerIndex: ShortInt);
+    procedure AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aPlayerIndex: TPlayerIndex);
     procedure RemGoal(aIndex: Integer);
     procedure RemoveReference(aPlayerIndex: TPlayerIndex);
     procedure SetMessageHasShown(aIndex: Integer);
@@ -99,7 +99,7 @@ begin
 end;
 
 
-procedure TKMGoals.AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aPlayerIndex: ShortInt);
+procedure TKMGoals.AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aPlayerIndex: TPlayerIndex);
 begin
   SetLength(fGoals, fCount + 1);
   fGoals[fCount].GoalType := aType;

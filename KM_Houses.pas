@@ -294,13 +294,13 @@ type
 
   TKMHousesCollection = class(TKMList)
   private
-    function AddToCollection(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; aHBS:THouseBuildState):TKMHouse;
+    function AddToCollection(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex; aHBS:THouseBuildState):TKMHouse;
     function GetHouse(Index: Integer): TKMHouse;
     procedure SetHouse(Index: Integer; Item: TKMHouse);
   public
     constructor Create;
-    function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; RelativeEntrance:boolean):TKMHouse;
-    function AddHouseWIP(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint):TKMHouse;
+    function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex; RelativeEntrance:boolean):TKMHouse;
+    function AddHouseWIP(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex):TKMHouse;
     procedure RemoveHouse(aHouse:TKMHouse);
     procedure OwnerUpdate(aOwner:TPlayerIndex);
     property Houses[Index: Integer]: TKMHouse read GetHouse write SetHouse; default;
@@ -2302,7 +2302,7 @@ begin
 end;
 
 
-function TKMHousesCollection.AddToCollection(aHouseType: THouseType; PosX,PosY: Integer; aOwner: shortint; aHBS: THouseBuildState): TKMHouse;
+function TKMHousesCollection.AddToCollection(aHouseType: THouseType; PosX,PosY: Integer; aOwner: TPlayerIndex; aHBS: THouseBuildState): TKMHouse;
 var ID: Cardinal;
 begin
   ID := fGame.GetNewID;
@@ -2337,7 +2337,7 @@ begin
 end;
 
 
-function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; RelativeEntrance:boolean):TKMHouse;
+function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex; RelativeEntrance:boolean):TKMHouse;
 begin
   if RelativeEntrance then
     Result := AddToCollection(aHouseType,PosX - fResource.HouseDat[aHouseType].EntranceOffsetX,PosY,aOwner,hbs_Done)
@@ -2347,7 +2347,7 @@ end;
 
 
 {Add a plan for house}
-function TKMHousesCollection.AddHouseWIP(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint):TKMHouse;
+function TKMHousesCollection.AddHouseWIP(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerIndex):TKMHouse;
 begin
   Result := AddToCollection(aHouseType,PosX,PosY,aOwner,hbs_NoGlyph);
 end;
