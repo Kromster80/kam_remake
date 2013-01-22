@@ -99,60 +99,26 @@ const
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry);
 
-  //todo: Rework stats layout into
-  //and get them stacked by UI logic (so that on taller screens they all were in nice pairs, and would stack up onli on short screens)
- { Stat2: array [0..13] of record
+  //Stats get stacked by UI logic (so that on taller screens they all were
+  //in nice pairs, and would stack up only on short screens)
+  StatPlan: array [0..12] of record
     HouseType: array [0..3] of THouseType;
-    UnitType: TUnitType;
+    UnitType: array [0..1] of TUnitType;
   end = (
-  //Building materials
-  (HouseType: (ht_Quary,        ht_None,      ht_None, ht_None); UnitType: ut_StoneCutter),
-  (HouseType: (ht_Woodcutters,  ht_None,      ht_None, ht_None); UnitType: ut_Woodcutter),
-  //Food
-  (HouseType: (ht_FisherHut,    ht_None,      ht_None, ht_None); UnitType: ut_Fisher),
-  (HouseType: (ht_Farm,         ht_Wineyard,  ht_None, ht_None); UnitType: ut_Farmer),
-  (HouseType: (ht_Mill,         ht_Bakery,    ht_None, ht_None); UnitType: ut_Baker),
-  (HouseType: (ht_Swine,        ht_Stables,   ht_None, ht_None); UnitType: ut_AnimalBreeder),
-  (HouseType: (ht_Butchers,     ht_Tannery,   ht_None, ht_None); UnitType: ut_Butcher),
-  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
-  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
-  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
-  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
-  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
-  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter),
-  (HouseType: (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_None); UnitType: ut_StoneCutter)
-   );   }
-  //Statistics page in game menu
-  //0=space, 1=house, 2=unit
-  StatCount: array [1..8, 1..8] of Byte = (
-  (1,2,0,1,2,0,1,2),
-  (1,1,2,0,1,1,2,0),
-  (1,1,2,0,1,1,2,0),
-  (1,1,2,0,1,1,2,0),
-  (1,1,1,2,0,0,0,0),
-  (1,1,1,2,0,0,0,0),
-  (1,0,0,0,0,1,1,2),
-  (1,1,1,0,0,2,2,0));
-
-  StatHouse: array [1..27] of THouseType = (
-  ht_Quary, ht_Woodcutters, ht_FisherHut,
-  ht_Farm, ht_Wineyard, ht_Mill, ht_Bakery,
-  ht_Swine, ht_Stables, ht_Butchers, ht_Tannery,
-  ht_Metallurgists, ht_IronSmithy, ht_ArmorSmithy, ht_WeaponSmithy,
-  ht_CoalMine, ht_IronMine, ht_GoldMine,
-  ht_Sawmill, ht_WeaponWorkshop, ht_ArmorWorkshop,
-  ht_Marketplace, ht_Barracks, ht_WatchTower,
-  ht_Store, ht_School, ht_Inn );
-
-  StatUnit: array [1..14] of TUnitType = (
-  ut_StoneCutter, ut_Woodcutter, ut_Fisher,
-  ut_Farmer, ut_Baker,
-  ut_AnimalBreeder, ut_Butcher,
-  ut_Metallurgist, ut_Smith,
-  ut_Miner,
-  ut_Lamberjack,
-  ut_Recruit,
-  ut_Serf, ut_Worker);
+    (HouseType: (ht_Quary, ht_None, ht_None, ht_None); UnitType: (ut_StoneCutter, ut_None)),
+    (HouseType: (ht_Woodcutters, ht_None, ht_None, ht_None); UnitType: (ut_Woodcutter, ut_None)),
+    (HouseType: (ht_FisherHut, ht_None, ht_None, ht_None); UnitType: (ut_Fisher, ut_None)),
+    (HouseType: (ht_Farm, ht_Wineyard, ht_None, ht_None); UnitType: (ut_Farmer, ut_None)),
+    (HouseType: (ht_Mill, ht_Bakery, ht_None, ht_None); UnitType: (ut_Baker, ut_None)),
+    (HouseType: (ht_Swine, ht_Stables, ht_None, ht_None); UnitType: (ut_AnimalBreeder, ut_None)),
+    (HouseType: (ht_Butchers, ht_Tannery, ht_None, ht_None); UnitType: (ut_Butcher, ut_None)),
+    (HouseType: (ht_Metallurgists, ht_IronSmithy, ht_None, ht_None); UnitType: (ut_Metallurgist, ut_None)),
+    (HouseType: (ht_ArmorSmithy, ht_WeaponSmithy, ht_None, ht_None); UnitType: (ut_Smith, ut_None)),
+    (HouseType: (ht_CoalMine, ht_IronMine, ht_GoldMine, ht_None); UnitType: (ut_Miner, ut_None)),
+    (HouseType: (ht_Sawmill, ht_WeaponWorkshop, ht_ArmorWorkshop, ht_None); UnitType: (ut_Lamberjack, ut_None)),
+    (HouseType: (ht_Barracks, ht_WatchTower, ht_None, ht_None); UnitType: (ut_Recruit, ut_None)),
+    (HouseType: (ht_Store, ht_School, ht_Inn, ht_Marketplace); UnitType: (ut_Serf, ut_Worker))
+    );
 
   MapEd_Order: array [0..13] of TUnitType = (
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,

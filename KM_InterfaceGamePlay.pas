@@ -126,6 +126,7 @@ type
     procedure Menu_Load_Click(Sender: TObject);
     procedure Selection_Assign(aKey: Word; aObject: TObject);
     procedure Selection_Select(aKey: Word);
+    procedure Stats_Resize;
     procedure SwitchPage(Sender: TObject);
     procedure SwitchPage_Ratios(Sender: TObject);
     procedure RatiosChange(Sender: TObject);
@@ -234,8 +235,11 @@ type
       Image_RatioPic:array[1..4]of TKMImage;
       TrackBar_RatioRat:array[1..4]of TKMTrackBar;
     Panel_Stats:TKMPanel;
-      Stat_HousePic,Stat_UnitPic:array[1..32]of TKMImage;
-      Stat_HouseQty,Stat_HouseWip,Stat_UnitQty:array[1..32]of TKMLabel;
+      Panel_StatBlock: array [0..12] of TKMPanel;
+      Stat_HousePic: array [HOUSE_MIN..HOUSE_MAX] of TKMImage;
+      Stat_UnitPic: array [CITIZEN_MIN..CITIZEN_MAX] of TKMImage;
+      Stat_HouseQty, Stat_HouseWip: array [HOUSE_MIN..HOUSE_MAX] of TKMLabel;
+      Stat_UnitQty, Stat_UnitWip: array [CITIZEN_MIN..CITIZEN_MAX] of TKMLabel;
 
     Panel_Build:TKMPanel;
       Label_Build:TKMLabel;
@@ -656,6 +660,7 @@ begin
 
   if Sender = Button_Main[tbStats] then
   begin
+    Stats_Resize;
     Stats_Update;
     Panel_Stats.Show;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_STATISTICS];
@@ -886,10 +891,15 @@ begin
   Panel_Main.Height := Y;
 
   //Show swords filler if screen height allows
-  ShowSwords := (Panel_Main.Height >= Sidebar_Top.Height + Sidebar_Middle.Height + 10 + Panel_Controls.Height);
+  ShowSwords := (Panel_Main.Height >= 758);
   Sidebar_Middle.Visible := ShowSwords;
+
   //Needs to be -10 when the swords are hidden so it fits 1024x576
   Panel_Controls.Top := Sidebar_Top.Height - 10 + (10+Sidebar_Middle.Height) * Byte(ShowSwords);
+  Panel_Controls.Height := Panel_Main.Height - Panel_Controls.Top;
+
+  if Panel_Stats.Visible then
+    Stats_Resize;
 end;
 
 
@@ -1172,7 +1182,7 @@ var
   T: TKMTabButtons;
 begin
   Panel_Controls := TKMPanel.Create(Panel_Main, 0, 368, 224, 376);
-  Panel_Controls.Anchors := [akLeft, akTop];
+  //Resized manually on .Resize to be most efficient in space management
 
     //We need several of these to cover max of 1534x2560 (vertically oriented)
     TKMImage.Create(Panel_Controls, 0,    0, 224, 400, 404);
@@ -1259,7 +1269,7 @@ end;
 procedure TKMGamePlayInterface.Create_Build;
 var I: Integer;
 begin
-  Panel_Build := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
+  Panel_Build := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
     Label_Build := TKMLabel.Create(Panel_Build, 0, 10, TB_WIDTH, 0, '', fnt_Outline, taCenter);
     Image_Build_Selected := TKMImage.Create(Panel_Build, 0, 40, 32, 32, 335);
     Image_Build_Selected.ImageCenter;
@@ -1300,7 +1310,7 @@ procedure TKMGamePlayInterface.Create_Ratios;
 const Res:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
 var I: Integer;
 begin
-  Panel_Ratios:=TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
+  Panel_Ratios:=TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
 
   for i:=1 to 4 do begin
     Button_Ratios[i]         := TKMButton.Create(Panel_Ratios, (i-1)*40,20,32,32,0, rxGui, bsGame);
@@ -1325,73 +1335,51 @@ end;
 
 {Statistics page}
 procedure TKMGamePlayInterface.Create_Stats;
-const LineHeight=34; Nil_Width=10; House_Width=30; Unit_Width=26;
-var i,k:integer; hc,uc,off:integer;
-  LineBase:integer;
+const House_Width = 30; Unit_Width = 26;
+var
+  I, K: Integer;
+  HT: THouseType;
+  UT: TUnitType;
+  OffX: Integer;
 begin
-  Panel_Stats:=TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
+  Panel_Stats := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
+  Panel_Stats.Anchors := [akLeft, akTop, akBottom];
 
-  hc:=1; uc:=1;
-  for i:=1 to 8 do begin
-    LineBase := (i-1)*LineHeight;
-    case i of
-    1: begin
-          TKMBevel.Create(Panel_Stats,  0,LineBase, 56,30);
-          TKMBevel.Create(Panel_Stats, 63,LineBase, 56,30);
-          TKMBevel.Create(Panel_Stats,126,LineBase, 56,30);
-       end;
-    2: begin
-          TKMBevel.Create(Panel_Stats,  0,LineBase, 86,30);
-          TKMBevel.Create(Panel_Stats, 96,LineBase, 86,30);
-       end;
-    3: begin
-          TKMBevel.Create(Panel_Stats,  0,LineBase, 86,30);
-          TKMBevel.Create(Panel_Stats,96,LineBase, 86,30);
-       end;
-    4: begin
-          TKMBevel.Create(Panel_Stats,  0,LineBase, 86,30);
-          TKMBevel.Create(Panel_Stats, 96,LineBase, 86,30);
-       end;
-    5:    TKMBevel.Create(Panel_Stats,  0,LineBase,116,30);
-    6:    TKMBevel.Create(Panel_Stats,  0,LineBase,116,30);
-    7: begin
-         TKMBevel.Create(Panel_Stats,   0,LineBase, 32,30);
-         TKMBevel.Create(Panel_Stats,  70,LineBase, 86,30);
-       end;
-    8: begin
-          TKMBevel.Create(Panel_Stats,  0,LineBase, 90,30);
-          TKMBevel.Create(Panel_Stats,112,LineBase, 52,30);
-       end;
+  for I := 0 to High(StatPlan) do
+  begin
+    //Houses block
+    Panel_StatBlock[I] := TKMPanel.Create(Panel_Stats, 0, 0, 30, 30);
+    with TKMBevel.Create(Panel_StatBlock[I], 0, 0, 30, 30) do Stretch;
+
+    OffX := 0;
+    for K := Low(StatPlan[I].HouseType) to High(StatPlan[I].HouseType) do
+    if StatPlan[I].HouseType[K] <> ht_None then
+    begin
+      HT := StatPlan[I].HouseType[K];
+      Stat_HousePic[HT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, House_Width, 30, 41); //Filled with [?] at start
+      Stat_HousePic[HT].Hint := fResource.HouseDat[HT].HouseName;
+      Stat_HousePic[HT].ImageCenter;
+      Stat_HouseWip[HT] := TKMLabel.Create(Panel_StatBlock[I], OffX + House_Width  ,  0,  '', fnt_Grey, taRight);
+      Stat_HouseWip[HT].Hitable := False;
+      Stat_HouseQty[HT] := TKMLabel.Create(Panel_StatBlock[I], OffX + House_Width-2, 16, '-', fnt_Grey, taRight);
+      Stat_HouseQty[HT].Hitable := False;
+      Inc(OffX, House_Width);
     end;
 
-    off:=0;
-    for k:=1 to 8 do
-    case StatCount[i,k] of
-      0: if i=1 then
-           inc(off,Nil_Width-3) //Special fix to fit first row of 3x2 items
-         else
-           inc(off,Nil_Width);
-      1: begin
-          Stat_HousePic[hc] := TKMImage.Create(Panel_Stats,off,LineBase,House_Width,30,41); //Filled with [?] at start
-          Stat_HouseWip[hc] := TKMLabel.Create(Panel_Stats,off+House_Width  ,LineBase   ,'',fnt_Grey,taRight);
-          Stat_HouseQty[hc] := TKMLabel.Create(Panel_Stats,off+House_Width-2,LineBase+16,'-',fnt_Grey,taRight);
-          Stat_HousePic[hc].Hint := fResource.HouseDat[StatHouse[hc]].HouseName;
-          Stat_HouseQty[hc].Hitable := False;
-          Stat_HouseWip[hc].Hitable := False;
-          Stat_HousePic[hc].ImageCenter;
-          inc(hc);
-          inc(off,House_Width);
-         end;
-      2: begin
-          Stat_UnitPic[uc] := TKMImage.Create(Panel_Stats,off,LineBase,Unit_Width,30, fResource.UnitDat[StatUnit[uc]].GUIIcon);
-          Stat_UnitQty[uc] := TKMLabel.Create(Panel_Stats,off+Unit_Width-2,LineBase+16,'-',fnt_Grey,taRight);
-          Stat_UnitPic[uc].Hint := fResource.UnitDat[StatUnit[uc]].UnitName;
-          Stat_UnitQty[uc].Hitable := False;
-          Stat_UnitPic[uc].ImageCenter;
-          inc(uc);
-          inc(off,Unit_Width);
-         end;
+    for K := Low(StatPlan[I].UnitType) to High(StatPlan[I].UnitType) do
+    if StatPlan[I].UnitType[K] <> ut_None then
+    begin
+      UT := StatPlan[I].UnitType[K];
+      Stat_UnitPic[UT] := TKMImage.Create(Panel_StatBlock[I], OffX, 0, Unit_Width, 30, fResource.UnitDat[UT].GUIIcon);
+      Stat_UnitPic[UT].Hint := fResource.UnitDat[UT].UnitName;
+      Stat_UnitPic[UT].ImageCenter;
+      Stat_UnitWip[UT] := TKMLabel.Create(Panel_StatBlock[I], OffX + Unit_Width  ,  0,  '', fnt_Grey, taRight);
+      Stat_UnitWip[UT].Hitable := False;
+      Stat_UnitQty[UT] := TKMLabel.Create(Panel_StatBlock[I], OffX + Unit_Width-2, 16, '-', fnt_Grey, taRight);
+      Stat_UnitQty[UT].Hitable := False;
+      Inc(OffX, Unit_Width);
     end;
+    Panel_StatBlock[I].Width := OffX;
   end;
 end;
 
@@ -1399,7 +1387,7 @@ end;
 {Menu page}
 procedure TKMGamePlayInterface.Create_Menu;
 begin
-  Panel_Menu := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
+  Panel_Menu := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
   Button_Menu_Load := TKMButton.Create(Panel_Menu, 0, 20, TB_WIDTH, 30, fTextLibrary[TX_MENU_LOAD_GAME], bsGame);
   Button_Menu_Load.OnClick := SwitchPage;
   Button_Menu_Load.Hint := fTextLibrary[TX_MENU_LOAD_GAME];
@@ -1428,7 +1416,7 @@ end;
 {Save page}
 procedure TKMGamePlayInterface.Create_Save;
 begin
-  Panel_Save := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
+  Panel_Save := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
 
     List_Save := TKMListBox.Create(Panel_Save, 0, 4, TB_WIDTH, 220, fnt_Metal, bsGame);
     List_Save.OnChange := Menu_Save_ListChange;
@@ -1448,7 +1436,7 @@ end;
 {Load page}
 procedure TKMGamePlayInterface.Create_Load;
 begin
-  Panel_Load := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
+  Panel_Load := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
 
     List_Load := TKMListBox.Create(Panel_Load, 0, 2, TB_WIDTH, 260, fnt_Metal, bsGame);
     List_Load.OnChange := Menu_Load_ListClick;
@@ -1467,7 +1455,7 @@ const
   PAD = 10;
   WID = TB_WIDTH - PAD * 2;
 begin
-  Panel_Settings := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
+  Panel_Settings := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
     CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,PAD,15,WID,20,fTextLibrary[TX_MENU_OPTIONS_AUTOSAVE],fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
     TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,PAD,40,WID,0,20);
@@ -1495,7 +1483,7 @@ end;
 {Quit page}
 procedure TKMGamePlayInterface.Create_Quit;
 begin
-  Panel_Quit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
+  Panel_Quit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
     with TKMLabel.Create(Panel_Quit, 0, 30, TB_WIDTH, 70, fTextLibrary[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter) do
       AutoWrap := True;
     Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, fTextLibrary[TX_MENU_QUIT_MISSION], bsGame);
@@ -1510,7 +1498,7 @@ end;
 {Unit page}
 procedure TKMGamePlayInterface.Create_Unit;
 begin
-  Panel_Unit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
+  Panel_Unit := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
     Label_UnitName        := TKMLabel.Create(Panel_Unit,0,16,TB_WIDTH,30,'',fnt_Outline,taCenter);
     Image_UnitPic         := TKMImage.Create(Panel_Unit,0,38,54,100,521);
     Label_UnitCondition   := TKMLabel.Create(Panel_Unit,65,40,116,30,fTextLibrary[TX_UNIT_CONDITION],fnt_Grey,taCenter);
@@ -1595,7 +1583,7 @@ end;
 procedure TKMGamePlayInterface.Create_House;
 var I: Integer;
 begin
-  Panel_House := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 342);
+  Panel_House := TKMPanel.Create(Panel_Controls, TB_PAD, 44, TB_WIDTH, 332);
     //Thats common things
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     Label_House := TKMLabel.Create(Panel_House, 0, 14, TB_WIDTH, 0, '', fnt_Outline, taCenter);
@@ -3103,34 +3091,82 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Stats_Update;
-var I, Tmp, Tmp2: Integer;
+//Resize stats page in a way to display data in more readable form
+//Try to keep items in corresponding pairs and stack them when dont fit otherwise
+procedure TKMGamePlayInterface.Stats_Resize;
+const PAD_X = 4; PAD_Y = 4;
+var
+  Rows: Integer;
+  I, K: Integer;
+  OffX, NextWidth: Integer;
+  NeedToCompact: Boolean;
 begin
-  for I := Low(StatHouse) to High(StatHouse) do
+  //How many rows could fit
+  Rows := Panel_Stats.Height div (Panel_StatBlock[0].Height + PAD_Y);
+
+
+  //Adjoin rows till they fit
+  K := 0;
+  OffX := 0;
+  for I := 0 to High(StatPlan) do
   begin
-    Tmp := MyPlayer.Stats.GetHouseQty(StatHouse[I]);
-    Tmp2 := MyPlayer.Stats.GetHouseWip(StatHouse[I]);
-    Stat_HouseQty[I].Caption := IfThen(Tmp =0, '-', inttostr(Tmp));
-    Stat_HouseWip[I].Caption := IfThen(Tmp2=0, '', '+'+inttostr(Tmp2));
-    if MyPlayer.Stats.GetCanBuild(StatHouse[I]) or (Tmp > 0) then
+    Panel_StatBlock[I].Left := OffX;
+    Panel_StatBlock[I].Top := K * (Panel_StatBlock[0].Height + PAD_Y);
+
+    Inc(OffX, PAD_X + Panel_StatBlock[I].Width);
+
+    //Return caret
+    if I <> High(StatPlan) then
     begin
-      Stat_HousePic[I].TexID := fResource.HouseDat[StatHouse[I]].GUIIcon;
-      Stat_HousePic[I].Hint := fResource.HouseDat[StatHouse[I]].HouseName;
-      Stat_HouseQty[I].Hint := fResource.HouseDat[StatHouse[I]].HouseName;
-      Stat_HouseWip[I].Hint := fResource.HouseDat[StatHouse[I]].HouseName;
+      NeedToCompact := (Length(StatPlan) - I) > (Rows - K);
+      NextWidth := Panel_StatBlock[I].Width + PAD_X;
+      if not NeedToCompact or (OffX + NextWidth > TB_WIDTH) then
+      begin
+        OffX := 0;
+        Inc(K);
+      end;
+    end;
+  end;
+end;
+
+
+procedure TKMGamePlayInterface.Stats_Update;
+var
+  HT: THouseType;
+  UT: TUnitType;
+  Tmp, Tmp2: Integer;
+  I,K: Integer;
+begin
+  //Update display values
+  for I := 0 to High(StatPlan) do
+  for K := Low(StatPlan[I].HouseType) to High(StatPlan[I].HouseType) do
+  if StatPlan[I].HouseType[K] <> ht_None then
+  begin
+    HT := StatPlan[I].HouseType[K];
+    Tmp := MyPlayer.Stats.GetHouseQty(HT);
+    Tmp2 := MyPlayer.Stats.GetHouseWip(HT);
+    Stat_HouseQty[HT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
+    Stat_HouseWip[HT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
+    if MyPlayer.Stats.GetCanBuild(HT) or (Tmp > 0) then
+    begin
+      Stat_HousePic[HT].TexID := fResource.HouseDat[HT].GUIIcon;
+      Stat_HousePic[HT].Hint := fResource.HouseDat[HT].HouseName;
     end
     else
     begin
-      Stat_HousePic[I].TexID := 41;
-      Stat_HousePic[I].Hint := fTextLibrary[TX_HOUSE_NOT_AVAIABLE]; //Building not available
+      Stat_HousePic[HT].TexID := 41;
+      Stat_HousePic[HT].Hint := fTextLibrary[TX_HOUSE_NOT_AVAIABLE]; //Building not available
     end;
   end;
-  for I := Low(StatUnit) to High(StatUnit) do
+
+  for UT := CITIZEN_MIN to CITIZEN_MAX do
   begin
-    Tmp := MyPlayer.Stats.GetUnitQty(StatUnit[I]);
-    Stat_UnitQty[I].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
-    Stat_UnitPic[I].Hint := fResource.UnitDat[StatUnit[I]].UnitName;
-    Stat_UnitPic[I].FlagColor := MyPlayer.FlagColor;
+    Tmp := MyPlayer.Stats.GetUnitQty(UT);
+    Tmp2 := 0;//MyPlayer.Stats.GetUnitWip(UT);
+    Stat_UnitQty[UT].Caption := IfThen(Tmp  = 0, '-', IntToStr(Tmp));
+    Stat_UnitWip[UT].Caption := IfThen(Tmp2 = 0, '', '+' + IntToStr(Tmp2));
+    Stat_UnitPic[UT].Hint := fResource.UnitDat[UT].UnitName;
+    Stat_UnitPic[UT].FlagColor := MyPlayer.FlagColor;
   end;
 end;
 
