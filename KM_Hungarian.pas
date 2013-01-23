@@ -1,10 +1,13 @@
 unit KM_Hungarian;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math;
+uses Classes, SysUtils, Math, KM_CommonClasses, KM_Points;
 
 
 type
+  THungarianOptimisation = (hu_Overall, //Minimize total cost (oposite of hu_IndividualWork)
+                            hu_Individual); //20 agents taking 1 cost beats 1 agent taking 10 cost
+
   TLocation = record Row, Col: SmallInt; end;
   function Location(aRow, aCol: SmallInt): TLocation;
 
@@ -34,10 +37,14 @@ type
     function RunStep3: Integer;
     function RunStep4: Integer;
   public
-    Costs: array of array of Integer;
-    Solution: array of Integer;
-    procedure Solve;
+    Costs: array of array of Integer; //Input: Costs[X,Y] is the cost of agent X taking task Y
+    Solution: array of Integer;       //Output: Solution[X] is the task agent X should do
+    procedure Solve(aOptimisation: THungarianOptimisation); //Do calculation once Costs has been set up
   end;
+
+  TIntegerArray = array of Integer;
+
+  function HungarianMatchPoints(aAgents, aTasks: TKMPointList; aOptimisation: THungarianOptimisation): TIntegerArray;
 
 
 implementation
@@ -50,21 +57,28 @@ begin
 end;
 
 
-procedure THungarianSolver.Solve;
+procedure THungarianSolver.Solve(aOptimisation: THungarianOptimisation);
 var
-  i, j, min, step: Integer;
+  i, j, MinValue, step: Integer;
 begin
   h := Length(costs);
   w := Length(costs[0]);
+  Assert(w >= h, 'Hungarian only works when cols >= rows. Please rotate input matrix');
+
+  if aOptimisation = hu_Individual then
+    //Lewin's hack: Square the entire costs matrix to make high costs very bad compared to low costs
+    for i := 0 to h-1 do
+      for j := 0 to w-1 do
+        costs[i,j] := Sqr(costs[i,j]);
 
   //For each row of the matrix, find the smallest element and subtract it from every element in its row
   for i := 0 to h-1 do
   begin
-    min := High(Integer);
+    MinValue := High(Integer);
     for j := 0 to w-1 do
-      min := Math.Min(min, costs[i, j]);
+      MinValue := Math.Min(MinValue, costs[i, j]);
     for j := 0 to w-1 do
-      dec(costs[i, j], min);
+      dec(costs[i, j], MinValue);
   end;
 
   SetLength(masks, h, w);
@@ -286,6 +300,30 @@ begin
     for j := 0 to w-1 do
       if masks[i, j] = 2 then
         masks[i, j] := 0;
+end;
+
+
+function HungarianMatchPoints(aAgents, aTasks: TKMPointList; aOptimisation: THungarianOptimisation): TIntegerArray;
+var
+  Solver: THungarianSolver;
+  I, J: Integer;
+begin
+  Solver := THungarianSolver.Create;
+
+  //Input
+  SetLength(Solver.Costs, aAgents.Count, aTasks.Count);
+  for I := 0 to aAgents.Count-1 do
+    for J := 0 to aTasks.Count-1 do
+      Solver.Costs[I,J] := Round(10*KMLengthDiag(aAgents[I], aTasks[J]));
+
+  Solver.Solve(aOptimisation);
+
+  //Output
+  SetLength(Result, aAgents.Count);
+  for I := 0 to aAgents.Count-1 do
+    Result[I] := Solver.Solution[I];
+
+  Solver.Free;
 end;
 
 end.

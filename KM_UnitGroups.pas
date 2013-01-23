@@ -54,6 +54,7 @@ type
     procedure SetPosition(aValue: TKMPoint);
     procedure ClearOrderTarget;
     procedure ClearOffenders;
+    procedure HungarianReorderMemebers;
 
     function GetOrderTargetUnit: TKMUnit;
     function GetOrderTargetGroup: TKMUnitGroup;
@@ -166,7 +167,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain, KM_Utils, KM_TextLibrary, KM_RenderPool;
+uses KM_Game, KM_Player, KM_PlayersCollection, KM_Terrain, KM_Utils, KM_TextLibrary, KM_RenderPool, KM_Hungarian;
 
 
 const
@@ -1104,6 +1105,8 @@ begin
   fOrderLoc := KMPointDir(aLoc, NewDir);
   ClearOrderTarget;
 
+  HungarianReorderMemebers;
+
   for I := 0 to Count - 1 do
   begin
     P := GetMemberLoc(I);
@@ -1179,6 +1182,40 @@ begin
   for I := fOffenders.Count - 1 downto 0 do
     TKMUnitWarrior(fOffenders[I]).ReleaseUnitPointer;
   fOffenders.Clear;
+end;
+
+
+procedure TKMUnitGroup.HungarianReorderMemebers;
+var
+  P: TKMPointExact;
+  Agents, Tasks: TKMPointList;
+  I: Integer;
+  NewOrder: TIntegerArray;
+  NewfMembers: TList;
+begin
+  Agents := TKMPointList.Create;
+  Tasks := TKMPointList.Create;
+
+  //Skip leader, he can't be reordered
+  for I:=1 to fMembers.Count-1 do
+  begin
+    Agents.AddEntry(Members[I].GetPosition);
+    Tasks.AddEntry(GetMemberLoc(I).Loc);
+  end;
+
+  //hu_Individual as we'd prefer 20 members to take 1 step than 1 member to take 10 steps (minimize individual work rather than total work)
+  NewOrder := HungarianMatchPoints(Tasks, Agents, hu_Individual);
+  NewfMembers := TList.Create;
+  NewfMembers.Add(Members[0]);
+
+  for I:=1 to fMembers.Count-1 do
+    NewfMembers.Add(fMembers[NewOrder[I-1]+1]);
+
+  fMembers.Free;
+  fMembers := NewfMembers;
+
+  Agents.Free;
+  Tasks.Free;
 end;
 
 
