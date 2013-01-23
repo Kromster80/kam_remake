@@ -1189,15 +1189,16 @@ procedure TKMUnitGroup.HungarianReorderMemebers;
 var
   Agents, Tasks: TKMPointList;
   I: Integer;
-  NewOrder: TIntegerArray;
-  NewfMembers: TList;
+  NewOrder: TKMCardinalArray;
+  NewMembers: TList;
 begin
   if not HUNGARIAN_GROUP_ORDER then Exit;
   Agents := TKMPointList.Create;
   Tasks := TKMPointList.Create;
 
-  //Skip leader, he can't be reordered
-  for I:=1 to fMembers.Count-1 do
+  //Skip leader, he can't be reordered because he holds the flag
+  //(tossing flag around is quite complicated and looks unnatural in KaM)
+  for I := 1 to fMembers.Count - 1 do
   begin
     Agents.AddEntry(Members[I].GetPosition);
     Tasks.AddEntry(GetMemberLoc(I).Loc);
@@ -1205,14 +1206,14 @@ begin
 
   //hu_Individual as we'd prefer 20 members to take 1 step than 1 member to take 10 steps (minimize individual work rather than total work)
   NewOrder := HungarianMatchPoints(Tasks, Agents, hu_Individual);
-  NewfMembers := TList.Create;
-  NewfMembers.Add(Members[0]);
+  NewMembers := TList.Create;
+  NewMembers.Add(Members[0]);
 
-  for I:=1 to fMembers.Count-1 do
-    NewfMembers.Add(fMembers[NewOrder[I-1]+1]);
+  for I := 1 to fMembers.Count - 1 do
+    NewMembers.Add(fMembers[NewOrder[I-1]+1]);
 
   fMembers.Free;
-  fMembers := NewfMembers;
+  fMembers := NewMembers;
 
   Agents.Free;
   Tasks.Free;
