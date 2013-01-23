@@ -104,6 +104,7 @@ Improvements:
 	L	MP army graph should start when PT ends, otherwise half of the graph is wasted with no change
 	L	Pressing a character with a dropdown/listbox selected will choose the first item starting with that character
 	L	Icon before the server name: Swords/house/floppy for battle/build/save (save icon only shown while in lobby)
+	L	Shift+3 joins the selected warrior group to the group assigned to hotkey 3 (Starcraft style)
 
 	L	MapEd: Allow to toggle trees/objects opacity (make them partially visible) [Marcin]
 	L	MapEd: Allow to toggle AI defence positions display

@@ -1197,6 +1197,8 @@ begin
   Agents := TKMPointList.Create;
   Tasks := TKMPointList.Create;
 
+  //todo: Process each unit type seperately in mixed groups so their order is maintained
+
   //Skip leader, he can't be reordered because he holds the flag
   //(tossing flag around is quite complicated and looks unnatural in KaM)
   for I := 1 to fMembers.Count - 1 do
