@@ -1245,7 +1245,7 @@ begin
   Panel_CampSelect := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_CampSelect.Stretch;
 
-    L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 230, fTextLibrary[TX_MENU_CAMP_CUSTOM], fnt_Outline, taCenter);
+    L := TKMLabel.Create(Panel_CampSelect, Panel_Main.Width div 2, 230, fTextLibrary[TX_MENU_CAMP_HEADER], fnt_Outline, taCenter);
     L.Anchors := [];
     List_Camps := TKMColumnListBox.Create(Panel_CampSelect, 80, 260, 600, 300, fnt_Grey, bsMenu);
     List_Camps.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_CAMPAIGNS_TITLE],
