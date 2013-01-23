@@ -16,10 +16,12 @@ type
   //Hungarian solver algorithm based on: http://noldorin.com/programming/HungarianAlgorithm.cs
   //Copyright (c) 2010 Alex Regueiro
   //Licensed under MIT license, available at <http://www.opensource.org/licenses/mit-license.php>.
+  //A description of the algorithm and steps is here: http://csclab.murraystate.edu/bob.pilgrim/445/munkres.html
+  THungarianMask = (hmNone, hmStar, hmPrime);
   THungarianSolver = class
   private
     w, h: Integer;
-    masks: array of array of Byte;
+    masks: array of array of THungarianMask;
     rowsCovered: array of Boolean;
     colsCovered: array of Boolean;
     PathStart: TLocation;
@@ -90,7 +92,7 @@ begin
     for j := 0 to w-1 do
       if (costs[i, j] = 0) and (not rowsCovered[i]) and (not colsCovered[j]) then
       begin
-        masks[i, j] := 1;
+        masks[i, j] := hmStar;
         rowsCovered[i] := true;
         colsCovered[j] := true;
       end;
@@ -111,7 +113,7 @@ begin
   SetLength(Solution, h);
   for i := 0 to h-1 do
     for j := 0 to w-1 do
-      if masks[i, j] = 1 then
+      if masks[i, j] = hmStar then
       begin
         Solution[i] := j;
         Break;
@@ -124,7 +126,7 @@ var i,j,colsCoveredCount: Integer;
 begin
   for i := 0 to h-1 do
     for j := 0 to w-1 do
-      if masks[i, j] = 1 then
+      if masks[i, j] = hmStar then
         colsCovered[j] := true;
 
   colsCoveredCount := 0;
@@ -152,7 +154,7 @@ begin
     end
     else
     begin
-      masks[loc.Row, loc.Col] := 2;
+      masks[loc.Row, loc.Col] := hmPrime;
       starCol := FindStarInRow(loc.Row);
       if starCol <> -1 then
       begin
@@ -225,10 +227,10 @@ var i: Integer;
 begin
   for i := 0 to pathLength-1 do
   begin
-    if masks[path[i].Row, path[i].Col] = 1 then
-      masks[path[i].Row, path[i].Col] := 0;
-    if masks[path[i].Row, path[i].Col] = 2 then
-      masks[path[i].Row, path[i].Col] := 1;
+    if masks[path[i].Row, path[i].Col] = hmStar then
+      masks[path[i].Row, path[i].Col] := hmNone;
+    if masks[path[i].Row, path[i].Col] = hmPrime then
+      masks[path[i].Row, path[i].Col] := hmStar;
   end;
 end;
 
@@ -240,7 +242,10 @@ begin
   for i := 0 to h-1 do
     for j := 0 to w-1 do
       if (costs[i, j] = 0) and (not rowsCovered[i]) and (not colsCovered[j]) then
+      begin
          Result := Location(i, j);
+         Exit;
+      end;
 end;
 
 
@@ -249,7 +254,7 @@ var j:Integer;
 begin
   Result := -1;
   for j := 0 to w-1 do
-    if masks[j, aRow] = 1 then
+    if masks[j, aRow] = hmStar then
     begin
       Result := j;
       Exit;
@@ -262,7 +267,7 @@ var j:Integer;
 begin
   Result := -1;
   for j := 0 to w-1 do
-    if masks[aRow, j] = 1 then
+    if masks[aRow, j] = hmStar then
     begin
       Result := j;
       Exit;
@@ -275,7 +280,7 @@ var j:Integer;
 begin
   Result := -1;
   for j := 0 to w-1 do
-    if masks[aRow, j] = 2 then
+    if masks[aRow, j] = hmPrime then
     begin
       Result := j;
       Exit;
@@ -298,11 +303,12 @@ var i,j:Integer;
 begin
   for i := 0 to h-1 do
     for j := 0 to w-1 do
-      if masks[i, j] = 2 then
-        masks[i, j] := 0;
+      if masks[i, j] = hmPrime then
+        masks[i, j] := hmNone;
 end;
 
 
+//Returns the most efficient matching of aAgents to aTasks
 function HungarianMatchPoints(aAgents, aTasks: TKMPointList; aOptimisation: THungarianOptimisation): TIntegerArray;
 var
   Solver: THungarianSolver;
@@ -320,8 +326,7 @@ begin
 
   //Output
   SetLength(Result, aAgents.Count);
-  for I := 0 to aAgents.Count-1 do
-    Result[I] := Solver.Solution[I];
+  Move(Solver.Solution[0], Result[0], aAgents.Count*SizeOf(Result[0]));
 
   Solver.Free;
 end;

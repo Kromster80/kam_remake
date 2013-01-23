@@ -1187,12 +1187,12 @@ end;
 
 procedure TKMUnitGroup.HungarianReorderMemebers;
 var
-  P: TKMPointExact;
   Agents, Tasks: TKMPointList;
   I: Integer;
   NewOrder: TIntegerArray;
   NewfMembers: TList;
 begin
+  if not HUNGARIAN_GROUP_ORDER then Exit;
   Agents := TKMPointList.Create;
   Tasks := TKMPointList.Create;
 
