@@ -1193,6 +1193,7 @@ var
   NewMembers: TList;
 begin
   if not HUNGARIAN_GROUP_ORDER then Exit;
+  if fMembers.Count <= 1 then Exit; //If it's just the leader we can't rearrange
   Agents := TKMPointList.Create;
   Tasks := TKMPointList.Create;
 
