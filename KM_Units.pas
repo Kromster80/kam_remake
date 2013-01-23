@@ -2317,7 +2317,7 @@ begin
 
   for I := 0 to Count - 1 do
   if (Items[I] <> nil) and not Units[I].IsDead and KMInRect(Units[I].fPosition, Rect) then
-    Units[i].Paint;
+    Units[I].Paint;
 end;
 
 

@@ -681,9 +681,9 @@ var
   I,K: Integer;
 begin
   inherited;
-  if not fVisible then exit;
-  Act := fCurrentAction.ActionType;
+  if not fVisible then Exit;
 
+  Act := fCurrentAction.ActionType;
   UnitPos.X := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   UnitPos.Y := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 

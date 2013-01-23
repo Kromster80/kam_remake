@@ -537,12 +537,12 @@ begin
             taRight:  AdvX := X + W - LineWidth[LineCount];
           end;
         end else
-        with FontData.Letters[byte(aText[I])] do
+        with FontData.Letters[Byte(aText[I])] do
         begin
-          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,AdvY       +YOffset);
-          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,AdvY       +YOffset);
-          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,AdvY+Height+YOffset);
-          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,AdvY+Height+YOffset);
+          glTexCoord2f(u1,v1); glVertex2f(AdvX       , AdvY       +YOffset);
+          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width , AdvY       +YOffset);
+          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width , AdvY+Height+YOffset);
+          glTexCoord2f(u1,v2); glVertex2f(AdvX       , AdvY+Height+YOffset);
           Inc(AdvX, Width + FontData.CharSpacing);
         end;
       end;

@@ -2280,6 +2280,7 @@ begin
   fButtonInc.OnClickEither := ButtonClick;
 end;
 
+
 procedure TKMNumericEdit.ButtonClick(Sender: TObject; AButton: TMouseButton);
 var
   NewValue: Integer; //Could be -1 or 65536
@@ -2297,6 +2298,7 @@ begin
     OnChange(Self);
 end;
 
+
 procedure TKMNumericEdit.SetEnabled(aValue: Boolean);
 begin
   inherited;
@@ -2305,6 +2307,7 @@ begin
   fButtonInc.Enabled := fEnabled;
 end;
 
+
 procedure TKMNumericEdit.SetVisible(aValue: Boolean);
 begin
   inherited;
@@ -2312,6 +2315,7 @@ begin
   fLabelValue.Visible := fVisible;
   fButtonInc.Visible := fVisible;
 end;
+
 
 procedure TKMNumericEdit.Paint;
 begin
@@ -2328,11 +2332,11 @@ end;
 { TKMResourceOrderRow }
 constructor TKMResourceOrderRow.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
-  inherited Create(aParent, aLeft+68,aTop,aWidth-68,aHeight);
+  inherited Create(aParent, aLeft+68, aTop, aWidth-68, aHeight);
 
-  fOrderRem := TKMButton.Create(aParent,aLeft,aTop+2,20,aHeight,'-', bsGame);
-  fOrderLab := TKMLabel.Create(aParent,aLeft+33,aTop+4,'',fnt_Grey,taCenter);
-  fOrderAdd := TKMButton.Create(aParent,aLeft+46,aTop+2,20,aHeight,'+', bsGame);
+  fOrderRem := TKMButton.Create(aParent, aLeft, aTop+2, 20, aHeight, '-', bsGame);
+  fOrderLab := TKMLabel.Create(aParent, aLeft+33, aTop+4, '', fnt_Grey, taCenter);
+  fOrderAdd := TKMButton.Create(aParent, aLeft+46, aTop+2, 20, aHeight, '+', bsGame);
 end;
 
 
