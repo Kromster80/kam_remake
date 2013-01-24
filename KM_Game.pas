@@ -90,7 +90,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte); overload;
+    procedure GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte; aLocation: Byte; aColor: Cardinal); overload;
     procedure GameStart(aSizeX, aSizeY: Integer); overload;
     procedure Load(const aPathName: string);
 
@@ -124,6 +124,8 @@ type
     property GameName: string read fGameName;
     property CampaignName: AnsiString read fCampaignName;
     property CampaignMap: Byte read fCampaignMap;
+    function PlayerLoc: Byte;
+    function PlayerColor: Cardinal;
 
     property GameMode: TGameMode read fGameMode;
     property MissionFile: AnsiString read fMissionFile;
@@ -372,7 +374,7 @@ begin
 end;
 
 
-procedure TKMGame.GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte);
+procedure TKMGame.GameStart(aMissionFile, aGameName, aCampName: string; aCampMap: Byte; aLocation: Byte; aColor: Cardinal);
 var
   I: Integer;
   ParseMode: TMissionParsingMode;
@@ -431,11 +433,14 @@ begin
     else
     if fGameMode = gmSingle then
     begin
-      MyPlayer := fPlayers[Parser.MissionInfo.HumanPlayerID];
-      Assert(ALLOW_NO_HUMAN_IN_SP or (MyPlayer.PlayerType = pt_Human));
-      if ALLOW_NO_HUMAN_IN_SP and (MyPlayer.PlayerType = pt_Computer) then
-        for I := 0 to fPlayers.Count - 1 do
-          fPlayers[I].FogOfWar.RevealEverything;
+      //Revert all players to AI
+      for I := 0 to fPlayers.Count - 1 do
+      if I <> aLocation then
+        fPlayers[I].PlayerType := pt_Computer;
+
+      MyPlayer := fPlayers[aLocation];
+      MyPlayer.FlagColor := aColor;
+      Assert(ALLOW_TAKE_AI_PLAYERS or (MyPlayer.PlayerType = pt_Human));
     end;
 
     if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then
@@ -464,7 +469,7 @@ begin
   if fGameMode = gmMulti then
     MultiplayerRig;
 
-  fPlayers.AfterMissionInit(true);
+  fPlayers.AfterMissionInit(True);
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 
@@ -694,6 +699,12 @@ begin
 end;
 
 
+function TKMGame.PlayerColor: Cardinal;
+begin
+  Result := MyPlayer.FlagColor;
+end;
+
+
 procedure TKMGame.PlayerDefeat(aPlayerIndex:TPlayerIndex);
 begin
   if aPlayerIndex = MyPlayer.PlayerIndex then fSoundLib.Play(sfxn_Defeat, 1.0, true); //Fade music
@@ -711,6 +722,12 @@ begin
   end
   else
     RequestGameHold(gr_Defeat);
+end;
+
+
+function TKMGame.PlayerLoc: Byte;
+begin
+  Result := MyPlayer.PlayerIndex;
 end;
 
 

@@ -137,7 +137,7 @@ procedure TKMapInfo.ScanMap;
 var
   st,DatFile,MapFile:string;
   ft:textfile;
-  i:integer;
+  I: Integer;
   fMissionParser:TMissionParserInfo;
 begin
   //We scan only single-player maps which are in Maps\ folder, so DAT\MAP paths are straight
@@ -174,12 +174,12 @@ begin
 
       //This feature is only used for saves yet
       fInfo.PlayerCount       := fMissionParser.MissionInfo.PlayerCount;
-      for i:=Low(fInfo.LocationName) to High(fInfo.LocationName) do
+      for I := Low(fInfo.LocationName) to High(fInfo.LocationName) do
       begin
-        fInfo.LocationName[i] := Format(fTextLibrary[TX_LOBBY_LOCATION_X],[i+1]);;
-        fInfo.PlayerTypes[i] := pt_Human;
-        fInfo.ColorID[i] := 0;
-        fInfo.Team[i] := 0;
+        fInfo.LocationName[I] := Format(fTextLibrary[TX_LOBBY_LOCATION_X], [I+1]);;
+        fInfo.PlayerTypes[I] := pt_Human;
+        fInfo.ColorID[I] := 0;
+        fInfo.Team[I] := 0;
       end;
 
       fCRC := Adler32CRC(DatFile) xor Adler32CRC(MapFile);

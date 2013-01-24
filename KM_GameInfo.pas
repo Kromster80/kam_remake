@@ -14,17 +14,18 @@ type
     Title: AnsiString; //Used for campaigns and to store in savegames
     Version: AnsiString; //Savegame version, yet unused in maps, they always have actual version
     DATCRC: Cardinal; //CRC of defines .dat files
-    TickCount: cardinal;
+    TickCount: Cardinal;
     MissionMode: TKMissionMode; //Fighting or Build-a-City map
     MapSizeX, MapSizeY: Integer;
     VictoryCondition: AnsiString;
     DefeatCondition: AnsiString;
 
-    PlayerCount: byte;
-    LocationName: array[0..MAX_PLAYERS-1] of AnsiString;
-    PlayerTypes: array[0..MAX_PLAYERS-1] of TPlayerType;
-    ColorID: array[0..MAX_PLAYERS-1] of integer;
-    Team: array[0..MAX_PLAYERS-1] of integer;
+    PlayerCount: Byte;
+    //Location name is string because for savegames we store players name there
+    LocationName: array [0..MAX_PLAYERS-1] of AnsiString;
+    PlayerTypes: array [0..MAX_PLAYERS-1] of TPlayerType;
+    ColorID: array [0..MAX_PLAYERS-1] of Integer;
+    Team: array [0..MAX_PLAYERS-1] of Integer;
 
     //To be used in Savegames
     procedure Save(SaveStream: TKMemoryStream);
@@ -32,11 +33,11 @@ type
 
     property ParseError: string read fParseError;
     function IsValid(aCheckDATCRC: Boolean): Boolean;
-    function AICount: Integer;
-    function MapSizeText:string;
-    function MissionModeText:string;
-    function GetTimeText:string;
-    function GetTitleWithTime:string;
+    function AICount: Byte;
+    function MapSizeText: string;
+    function MissionModeText: string;
+    function GetTimeText: string;
+    function GetTitleWithTime: string;
   end;
 
 
@@ -117,13 +118,13 @@ end;
 
 //How many AI players are in this game,
 //so that Lobby could automatically create this much AIs when the save is selected
-function TKMGameInfo.AICount:integer;
-var I:integer;
+function TKMGameInfo.AICount: Byte;
+var I: Integer;
 begin
   Result := 0;
-  for I:=0 to PlayerCount-1 do
+  for I := 0 to PlayerCount - 1 do
     if PlayerTypes[I] = pt_Computer then
-      inc(Result);
+      Inc(Result);
 end;
 
 

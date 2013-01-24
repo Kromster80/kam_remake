@@ -41,6 +41,10 @@ type
     OldResolutionID: TResIndex;
     SelectedRefRate: Integer;
 
+    fSingleLoc: Integer;
+    fSingleLocations: array [0..MAX_PLAYERS - 1] of Byte;
+    fSingleColor: TColor4;
+
     procedure Create_MainMenu;
     procedure Create_SinglePlayer;
     procedure Create_CampSelect;
@@ -74,6 +78,7 @@ type
     procedure SingleMap_SortUpdate(Sender: TObject);
     procedure SingleMap_RefreshList(aJumpToSelected:Boolean);
     procedure SingleMap_ListClick(Sender: TObject);
+    procedure SingleMap_OptionsChange(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
     procedure SingleMap_Sort(aColumn: Integer);
 
@@ -263,6 +268,8 @@ type
         Label_SingleTitle: TKMLabel;
         Memo_SingleDesc: TKMMemo;
         MinimapView_Single: TKMMinimapView;
+        Drop_SingleLoc: TKMDropList;
+        Drop_SingleColor: TKMDropColumns;
         Label_SingleCondTyp,Label_SingleCondWin,Label_SingleCondDef: TKMLabel;
         Label_SingleAllies,Label_SingleEnemies: TKMLabel;
       ColList_SingleMaps: TKMColumnListBox;
@@ -1314,6 +1321,8 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_SingleMap;
+const
+  HW = 445; //Half width for panes
 begin
   Panel_Single := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Single.Stretch;
@@ -1331,33 +1340,44 @@ begin
     ColList_SingleMaps.Header.TextAlign := taCenter;
     ColList_SingleMaps.Header.Columns[0].Glyph := MakePic(rxGui, 42);
     ColList_SingleMaps.Header.Columns[1].Glyph := MakePic(rxGui, 31);
-
-    //ColList_SingleMaps.
-
     ColList_SingleMaps.OnColumnClick := SingleMap_Sort;
     ColList_SingleMaps.OnChange := SingleMap_ListClick;
     ColList_SingleMaps.OnDoubleClick := SingleMap_Start;
 
-    Panel_SingleDesc := TKMPanel.Create(Panel_Single, 45, 135, 445, 520);
+    Panel_SingleDesc := TKMPanel.Create(Panel_Single, 45, 135, HW, 520);
     Panel_SingleDesc.Anchors := [];
 
-      Label_SingleTitle := TKMLabel.Create(Panel_SingleDesc,445 div 2,0,'',fnt_Outline, taCenter);
-      Memo_SingleDesc  := TKMMemo.Create(Panel_SingleDesc,15,25,415,129,fnt_Metal, bsMenu);
+      Label_SingleTitle := TKMLabel.Create(Panel_SingleDesc, HW div 2, 0, '', fnt_Outline, taCenter);
+      Memo_SingleDesc  := TKMMemo.Create(Panel_SingleDesc,0,25,HW,129,fnt_Metal, bsMenu);
       Memo_SingleDesc.AutoWrap := True;
 
-      TKMBevel.Create(Panel_SingleDesc, 121, 160, 199, 199);
-      MinimapView_Single := TKMMinimapView.Create(Panel_SingleDesc, 125, 164, 191, 191);
+      TKMBevel.Create(Panel_SingleDesc, 0, 160, 195, 195);
+      MinimapView_Single := TKMMinimapView.Create(Panel_SingleDesc, 2, 162, 191, 191);
 
-      TKMBevel.Create(Panel_SingleDesc,0,368,445,20);
-      Label_SingleCondTyp:=TKMLabel.Create(Panel_SingleDesc,8,371,429,20,fTextLibrary[TX_MENU_MISSION_TYPE],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,390,445,20);
-      Label_SingleCondWin:=TKMLabel.Create(Panel_SingleDesc,8,393,429,20,fTextLibrary[TX_MENU_WIN_CONDITION],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,412,445,20);
-      Label_SingleCondDef:=TKMLabel.Create(Panel_SingleDesc,8,415,429,20,fTextLibrary[TX_MENU_DEFEAT_CONDITION],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,434,445,20);
-      Label_SingleAllies:=TKMLabel.Create(Panel_SingleDesc,8,437,429,20,fTextLibrary[TX_MENU_ALLIES],fnt_Metal, taLeft);
-      TKMBevel.Create(Panel_SingleDesc,0,456,445,20);
-      Label_SingleEnemies:=TKMLabel.Create(Panel_SingleDesc,8,459,429,20,fTextLibrary[TX_MENU_ENEMIES],fnt_Metal, taLeft);
+      TKMLabel.Create(Panel_SingleDesc, 200, 160, 245, 20, 'Location', fnt_Metal, taLeft);
+      Drop_SingleLoc := TKMDropList.Create(Panel_SingleDesc, 200, 180, 245, 20, fnt_Metal, 'Location', bsMenu);
+      Drop_SingleLoc.OnChange := SingleMap_OptionsChange;
+
+      TKMLabel.Create(Panel_SingleDesc, 200, 205, 245, 20, 'Flag color', fnt_Metal, taLeft);
+      Drop_SingleColor := TKMDropColumns.Create(Panel_SingleDesc, 200, 225, 245, 20, fnt_Grey, '', bsMenu);
+      Drop_SingleColor.SetColumns(fnt_Outline, [''], [0]);
+      Drop_SingleColor.List.ShowHeader := False;
+      Drop_SingleColor.FadeImageWhenDisabled := False;
+      Drop_SingleColor.Add(MakeListRow([''], [$FFFFFFFF], [MakePic(rxGuiMain, 31)], 0));
+      Drop_SingleColor.OnChange := SingleMap_OptionsChange;
+
+
+
+      TKMBevel.Create(Panel_SingleDesc,0,368,HW,20);
+      Label_SingleCondTyp:=TKMLabel.Create(Panel_SingleDesc,8,371,HW - 16,20,fTextLibrary[TX_MENU_MISSION_TYPE],fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc,0,390,HW,20);
+      Label_SingleCondWin:=TKMLabel.Create(Panel_SingleDesc,8,393,HW - 16,20,fTextLibrary[TX_MENU_WIN_CONDITION],fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc,0,412,HW,20);
+      Label_SingleCondDef:=TKMLabel.Create(Panel_SingleDesc,8,415,HW - 16,20,fTextLibrary[TX_MENU_DEFEAT_CONDITION],fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc,0,434,HW,20);
+      Label_SingleAllies:=TKMLabel.Create(Panel_SingleDesc,8,437,HW - 16,20,fTextLibrary[TX_MENU_ALLIES],fnt_Metal, taLeft);
+      TKMBevel.Create(Panel_SingleDesc,0,456,HW,20);
+      Label_SingleEnemies:=TKMLabel.Create(Panel_SingleDesc,8,459,HW - 16,20,fTextLibrary[TX_MENU_ENEMIES],fnt_Metal, taLeft);
 
     Button_SingleBack := TKMButton.Create(Panel_Single, 45, 625, 220, 30, fTextLibrary[TX_MENU_BACK], bsMenu);
     Button_SingleBack.Anchors := [];
@@ -2296,6 +2316,7 @@ end;
 procedure TKMMainMenuInterface.SingleMap_ListClick(Sender: TObject);
 var
   ID: Integer;
+  I, K: Integer;
 begin
   fMaps.Lock;
     ID := ColList_SingleMaps.ItemIndex;
@@ -2306,11 +2327,15 @@ begin
       fLastMapCRC := 0;
       Label_SingleTitle.Caption   := '';
       Memo_SingleDesc.Text        := '';
+
       Label_SingleCondTyp.Caption := '';
       Label_SingleCondWin.Caption := '';
       Label_SingleCondDef.Caption := '';
 
       MinimapView_Single.Hide;
+
+      Drop_SingleLoc.Clear;
+      Drop_SingleColor.Clear;
     end
     else
     begin
@@ -2325,10 +2350,34 @@ begin
       fMinimap.LoadFromMission(fMaps[ID].FullPath('.dat'));
       fMinimap.Update(False);
       MinimapView_Single.SetMinimap(fMinimap);
+
+      K := 0;
+      Drop_SingleLoc.Clear;
+      for I := 0 to fMaps[ID].Info.PlayerCount - 1 do
+      if ALLOW_TAKE_AI_PLAYERS or (fMaps[ID].Info.PlayerTypes[I] = pt_Human) then
+      begin
+        Drop_SingleLoc.Add(fMaps[ID].Info.LocationName[I]);
+        fSingleLocations[K] := I;
+        Inc(K);
+      end;
+
+      //Fill in colors for each map individually
+      //I plan to skip colors that are similar to those on a map already
+      Drop_SingleColor.Clear;
+      for I := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
+        Drop_SingleColor.Add(MakeListRow([''], [MP_TEAM_COLORS[I]], [MakePic(rxGuiMain, 30)]));
+      Drop_SingleColor.ItemIndex := 0; //Select default
     end;
 
     Button_SingleStart.Enabled := ID <> -1;
   fMaps.Unlock;
+end;
+
+
+procedure TKMMainMenuInterface.SingleMap_OptionsChange(Sender: TObject);
+begin
+  fSingleLoc := fSingleLocations[Drop_SingleLoc.ItemIndex];
+  fSingleColor := MP_TEAM_COLORS[Drop_SingleColor.ItemIndex + 1];
 end;
 
 
@@ -2347,7 +2396,9 @@ begin
       fMaps.Unlock; //We are about to exit so unlock now
       //Scan should be terminated, as it is no longer needed
       fMaps.TerminateScan;
-      fGameApp.NewSingleMap(fMaps[I].FullPath('.dat'), fMaps[I].FileName); //Provide mission FileName mask and title here
+
+      //Provide mission FileName mask and title here
+      fGameApp.NewSingleMap(fMaps[I].FullPath('.dat'), fMaps[I].FileName, fSingleLoc, fSingleColor);
       Exit;
     end;
 end;
@@ -3289,7 +3340,9 @@ begin
     fMapsMP.Lock;
       fGameApp.Networking.SelectMap(fMapsMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].Info.Title);
     fMapsMP.Unlock;
-  end else begin
+  end
+  else
+  begin
     fSavesMP.Lock;
       fGameApp.Networking.SelectSave(fSavesMP[DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Tag].FileName);
     fSavesMP.Unlock;

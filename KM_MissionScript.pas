@@ -35,7 +35,8 @@ type
     MapSizeX, MapSizeY: Integer;
     MissionMode: TKMissionMode;
     PlayerCount: ShortInt;
-    HumanPlayerID: TPlayerIndex;
+    PlayerHuman: array [0..MAX_PLAYERS-1] of Boolean;
+    PlayerAI: array [0..MAX_PLAYERS-1] of Boolean;
     VictoryCond: string;
     DefeatCond: string;
   end;
@@ -140,7 +141,8 @@ begin
   fMissionInfo.MapSizeY := 0;
   fMissionInfo.MissionMode := mm_Normal;
   fMissionInfo.PlayerCount := 0;
-  fMissionInfo.HumanPlayerID := PLAYER_NONE;
+  FillChar(fMissionInfo.PlayerHuman, SizeOf(fMissionInfo.PlayerHuman), #0);
+  FillChar(fMissionInfo.PlayerAI, SizeOf(fMissionInfo.PlayerAI), #0);
   fMissionInfo.VictoryCond := '';
   fMissionInfo.DefeatCond := '';
 
@@ -322,21 +324,22 @@ procedure TMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; const P
 begin
   with fMissionInfo do
   case CommandType of
-    ct_SetMap:         MapPath       := RemoveQuotes(String(TextParam));
-    ct_SetMaxPlayer:   PlayerCount   := P[0];
-    ct_SetTactic:      MissionMode   := mm_Tactic;
-    ct_SetHumanPlayer: HumanPlayerID := P[0];
+    ct_SetMap:         MapPath          := RemoveQuotes(String(TextParam));
+    ct_SetMaxPlayer:   PlayerCount      := P[0];
+    ct_SetTactic:      MissionMode      := mm_Tactic;
+    ct_SetHumanPlayer: PlayerHuman[P[0]] := True;
+    ct_AIPlayer:       PlayerAI[P[0]] := True;
 {                       if TGoalCondition(P[0]) = gc_Time then
                          VictoryCond := VictoryCond + fPlayers[fLastPlayer].AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),P[3],P[2],play_none)
                        else
                          fPlayers[fLastPlayer].AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],TPlayerID(P[3]));
 }
-    ct_AddGoal:        VictoryCond   := VictoryCond
-                                        + GoalConditionStr[TGoalCondition(P[0])] + ' '
-                                        + GoalStatusStr[TGoalStatus(P[1])]+', ';
-    ct_AddLostGoal:    DefeatCond    := DefeatCond
-                                        + GoalConditionStr[TGoalCondition(P[0])] + ' '
-                                        + GoalStatusStr[TGoalStatus(P[1])]+', ';
+    ct_AddGoal:        VictoryCond      := VictoryCond
+                                         + GoalConditionStr[TGoalCondition(P[0])] + ' '
+                                         + GoalStatusStr[TGoalStatus(P[1])]+', ';
+    ct_AddLostGoal:    DefeatCond       := DefeatCond
+                                         + GoalConditionStr[TGoalCondition(P[0])] + ' '
+                                         + GoalStatusStr[TGoalStatus(P[1])]+', ';
   end;
 end;
 
@@ -399,6 +402,8 @@ var
   ParamList: array [1..MAX_PARAMS] of integer;
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
+  I: Integer;
+  HumanDetected: Boolean;
 begin
   inherited LoadMission(aFileName);
 
@@ -464,12 +469,13 @@ begin
   //Post-processing of ct_Attack_Position commands which must be done after mission has been loaded
   ProcessAttackPositions;
 
-  //SinglePlayer needs a player
-  if (fMissionInfo.HumanPlayerID = PLAYER_NONE) and (fParsingMode = mpm_Single) then
-    if ALLOW_NO_HUMAN_IN_SP then
-      fMissionInfo.HumanPlayerID := 0 //We need to choose some player to look at
-    else
-      AddError('No human player detected - ''ct_SetHumanPlayer''', True);
+  //SinglePlayer needs a human player
+  HumanDetected := ALLOW_TAKE_AI_PLAYERS;
+  if (fParsingMode = mpm_Single) then
+  for I := 0 to High(fMissionInfo.PlayerHuman) do
+    HumanDetected := HumanDetected or fMissionInfo.PlayerHuman[I];
+  if not HumanDetected then
+    AddError('No human player detected - ''ct_SetHumanPlayer''', True);
 
   //If we have reach here without exiting then loading was successful if no errors were reported
   Result := (fFatalErrors = '');
@@ -527,19 +533,22 @@ begin
                           fLastHouse := nil;
                           fLastTroop := nil;
                         end;
-    ct_SetHumanPlayer:  if (fParsingMode <> mpm_Multi) and (fPlayers <> nil) then
-                          if InRange(P[0], 0, fPlayers.Count-1) then
+    ct_SetHumanPlayer:  //Multiplayer will set Human player itself after loading
+                        if (fParsingMode <> mpm_Multi) and (fPlayers <> nil) then
+                          if InRange(P[0], 0, fPlayers.Count - 1) then
                           begin
-                            fMissionInfo.HumanPlayerID := P[0];
+                            //We override it later
+                            //HumanPlayerID := P[0];
                             fPlayers[P[0]].PlayerType := pt_Human;
                           end;
-                        //Multiplayer will set Human player itself after loading
-    ct_AIPlayer:        if (fParsingMode <> mpm_Multi) and (fPlayers <> nil) then
+
+    ct_AIPlayer:        //Multiplayer will set Human player itself after loading
+                        if (fParsingMode <> mpm_Multi) and (fPlayers <> nil) then
                           if InRange(P[0], 0, fPlayers.Count - 1) then
                             fPlayers[P[0]].PlayerType := pt_Computer
-                          else //This command doesn't require an ID, just use the current player
+                          else
+                            //This command doesn't require an ID, just use the current player
                             fPlayers[fLastPlayer].PlayerType := pt_Computer;
-                        //Multiplayer will set AI players itself after loading
     ct_CenterScreen:    if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].CenterScreen := KMPoint(P[0]+1, P[1]+1);
     ct_ClearUp:         if fLastPlayer >= 0 then

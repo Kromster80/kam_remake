@@ -24,6 +24,8 @@ type
     fRepeatSave: string;
     fRepeatCampName: AnsiString;
     fRepeatCampMap: Byte;
+    fRepeatLocation: Byte;
+    fRepeatColor: Cardinal;
 
     fCampaigns: TKMCampaignsCollection;
     fGameSettings: TGameSettings;
@@ -38,7 +40,7 @@ type
     procedure GameLoadingStep(const aText: string);
     procedure LoadGameAssets;
     procedure LoadGameFromSave(aFilePath: string; aGameMode: TGameMode);
-    procedure LoadGameFromScript(aMissionFile, aGameName: string; aCampaignName: string; aMap: Byte; aGameMode: TGameMode);
+    procedure LoadGameFromScript(aMissionFile, aGameName: string; aCampaignName: string; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: Byte; aDesiredColor: Cardinal);
     procedure LoadGameFromScratch(aSizeX, aSizeY: Integer; aGameMode: TGameMode);
     function SaveName(const aName, aExt: string; aMultiPlayer: Boolean): string;
   public
@@ -59,7 +61,7 @@ type
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
-    procedure NewSingleMap(aMissionFile, aGameName: string);
+    procedure NewSingleMap(aMissionFile, aGameName: string; aDesiredLoc: Byte = 0; aDesiredColor: Cardinal = $00000000);
     procedure NewSingleSave(aSaveName: string);
     procedure NewMultiplayerMap(const aFileName: string);
     procedure NewMultiplayerSave(const aSaveName: string);
@@ -383,6 +385,8 @@ begin
   fRepeatSave := '';
   fRepeatCampName := '';
   fRepeatCampMap := 0;
+  fRepeatLocation := 0;
+  fRepeatColor := 0;
 
   case Msg of
     gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd:
@@ -404,6 +408,8 @@ begin
                         fRepeatSave := fGame.SaveFile;
                         fRepeatCampName := fGame.CampaignName;
                         fRepeatCampMap := fGame.CampaignMap;
+                        fRepeatLocation := fGame.PlayerLoc;
+                        fRepeatColor := fGame.PlayerColor;
 
                         fMainMenuInterface.Results_Fill(Msg);
                         fMainMenuInterface.ShowScreen(msResults, '', Msg);
@@ -456,7 +462,7 @@ begin
 end;
 
 
-procedure TKMGameApp.LoadGameFromScript(aMissionFile, aGameName: string; aCampaignName: string; aMap: Byte; aGameMode: TGameMode);
+procedure TKMGameApp.LoadGameFromScript(aMissionFile, aGameName: string; aCampaignName: string; aMap: Byte; aGameMode: TGameMode; aDesiredLoc: Byte; aDesiredColor: Cardinal);
 var
   LoadError: string;
 begin
@@ -469,7 +475,7 @@ begin
 
   fGame := TKMGame.Create(aGameMode, fRender, fNetworking);
   try
-    fGame.GameStart(aMissionFile, aGameName, aCampaignName, aMap);
+    fGame.GameStart(aMissionFile, aGameName, aCampaignName, aMap, aDesiredLoc, aDesiredColor);
   except
     on E : Exception do
     begin
@@ -524,13 +530,13 @@ end;
 
 procedure TKMGameApp.NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
 begin
-  LoadGameFromScript(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap), aCampaign.ShortTitle, aMap, gmSingle);
+  LoadGameFromScript(aCampaign.MissionFile(aMap), aCampaign.MissionTitle(aMap), aCampaign.ShortTitle, aMap, gmSingle, 0, 0);
 end;
 
 
-procedure TKMGameApp.NewSingleMap(aMissionFile, aGameName: string);
+procedure TKMGameApp.NewSingleMap(aMissionFile, aGameName: string; aDesiredLoc: Byte = 0; aDesiredColor: Cardinal = $00000000);
 begin
-  LoadGameFromScript(aMissionFile, aGameName, '', 0, gmSingle);
+  LoadGameFromScript(aMissionFile, aGameName, '', 0, gmSingle, aDesiredLoc, aDesiredColor);
 end;
 
 
@@ -543,9 +549,9 @@ end;
 
 procedure TKMGameApp.NewMultiplayerMap(const aFileName: string);
 begin
-  LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', True), aFileName, '', 0, gmMulti);
+  LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', True), aFileName, '', 0, gmMulti, 0, 0);
 
-  //Copy the chat and typed lobby message to the in-game chat
+  //Copy text from lobby to in-game chat
   if fGame <> nil then
   begin
     fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
@@ -569,7 +575,7 @@ end;
 procedure TKMGameApp.NewRestartLast;
 begin
   if FileExists(ExeDir + fRepeatMission) then
-    LoadGameFromScript(ExeDir + fRepeatMission, fRepeatGameName, fRepeatCampName, fRepeatCampMap, gmSingle)
+    LoadGameFromScript(ExeDir + fRepeatMission, fRepeatGameName, fRepeatCampName, fRepeatCampMap, gmSingle, fRepeatLocation, fRepeatColor)
   else
   if FileExists(ChangeFileExt(ExeDir + fRepeatSave, '.bas')) then
     LoadGameFromSave(ChangeFileExt(ExeDir + fRepeatSave, '.bas'), gmSingle)
@@ -587,7 +593,7 @@ end;
 procedure TKMGameApp.NewMapEditor(const aFileName: string; aSizeX, aSizeY: Integer);
 begin
   if aFileName <> '' then
-    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), '', 0, gmMapEd)
+    LoadGameFromScript(aFileName, TruncateExt(ExtractFileName(aFileName)), '', 0, gmMapEd, 0, 0)
   else
     LoadGameFromScratch(aSizeX, aSizeY, gmMapEd);
 end;
