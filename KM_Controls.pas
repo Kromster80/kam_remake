@@ -553,6 +553,7 @@ type
     procedure DecPosition(Sender: TObject);
     procedure UpdateThumbSize;
   protected
+    procedure SetTop(aValue: Integer); override;
     procedure SetHeight(aValue: Integer); override;
     procedure SetEnabled(aValue: Boolean); override;
     procedure SetVisible(aValue: Boolean); override;
@@ -2501,6 +2502,20 @@ begin
   fScrollInc.OnClick := IncPosition;
   fScrollInc.OnMouseWheel := MouseWheel;
   UpdateThumbSize;
+end;
+
+
+procedure TKMScrollBar.SetTop(aValue: Integer);
+begin
+  inherited;
+
+  fScrollDec.fTop := fTop;
+
+  if fScrollAxis = sa_Vertical then
+    fScrollInc.Top := Round(fTop + fHeight - fWidth);
+
+  if fScrollAxis = sa_Horizontal then
+    fScrollInc.fTop := fTop;
 end;
 
 

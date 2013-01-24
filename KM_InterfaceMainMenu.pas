@@ -41,22 +41,22 @@ type
     OldResolutionID: TResIndex;
     SelectedRefRate: Integer;
 
-    procedure Create_MainMenu_Page;
-    procedure Create_SinglePlayer_Page;
-    procedure Create_CampSelect_Page;
-    procedure Create_Campaign_Page;
-    procedure Create_SingleMap_Page;
-    procedure Create_Load_Page;
-    procedure Create_MultiPlayer_Page;
-    procedure Create_Lobby_Page;
-    procedure Create_MapEditor_Page;
-    procedure Create_Replays_Page;
-    procedure Create_Options_Page;
-    procedure Create_Credits_Page;
-    procedure Create_Loading_Page;
-    procedure Create_Error_Page;
-    procedure Create_Results_Page;
-    procedure Create_ResultsMP_Page;
+    procedure Create_MainMenu;
+    procedure Create_SinglePlayer;
+    procedure Create_CampSelect;
+    procedure Create_Campaign;
+    procedure Create_SingleMap;
+    procedure Create_Load;
+    procedure Create_MultiPlayer;
+    procedure Create_Lobby;
+    procedure Create_MapEditor;
+    procedure Create_Replays;
+    procedure Create_Options;
+    procedure Create_Credits;
+    procedure Create_Loading;
+    procedure Create_Error;
+    procedure Create_Results;
+    procedure Create_ResultsMP;
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_MultiplayerClick(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
@@ -423,22 +423,22 @@ begin
   with TKMImage.Create(Panel_Main,-448, 384,960,600,19,rxGuiMain) do Anchors := [];
   with TKMImage.Create(Panel_Main, 512, 384,960,600,20,rxGuiMain) do Anchors := [];
 
-  Create_MainMenu_Page;
-  Create_SinglePlayer_Page;
-    Create_CampSelect_Page;
-      Create_Campaign_Page;
-    Create_SingleMap_Page;
-    Create_Load_Page;
-  Create_MultiPlayer_Page;
-    Create_Lobby_Page;
-  Create_MapEditor_Page;
-  Create_Replays_Page;
-  Create_Options_Page;
-  Create_Credits_Page;
-  Create_Loading_Page;
-  Create_Error_Page;
-  Create_Results_Page;
-  Create_ResultsMP_Page;
+  Create_MainMenu;
+  Create_SinglePlayer;
+    Create_CampSelect;
+      Create_Campaign;
+    Create_SingleMap;
+    Create_Load;
+  Create_MultiPlayer;
+    Create_Lobby;
+  Create_MapEditor;
+  Create_Replays;
+  Create_Options;
+  Create_Credits;
+  Create_Loading;
+  Create_Error;
+  Create_Results;
+  Create_ResultsMP;
 
 
     {for i:=1 to length(FontFiles) do L[i]:=TKMLabel.Create(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),taLeft);//}
@@ -952,7 +952,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_MainMenu_Page;
+procedure TKMMainMenuInterface.Create_MainMenu;
 begin
   //Without anchors this page is centered on resize
   Panel_MainMenu := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
@@ -984,7 +984,7 @@ end;
 
 
 //Single player menu
-procedure TKMMainMenuInterface.Create_SinglePlayer_Page;
+procedure TKMMainMenuInterface.Create_SinglePlayer;
 begin
   //Without anchors this page is centered on resize
   Panel_SinglePlayer := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
@@ -1011,7 +1011,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
+procedure TKMMainMenuInterface.Create_MultiPlayer;
   procedure CreateServerPopUp;
   begin
     Panel_MPCreateServer := TKMPanel.Create(Panel_Main, 362, 250, 320, 300);
@@ -1119,7 +1119,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Lobby_Page;
+procedure TKMMainMenuInterface.Create_Lobby;
 const CW = 690; C1 = 35; C2 = 195; C3 = 355; C4 = 445; C5 = 570; C6 = 650;
 var i,k,top:integer;
 begin
@@ -1239,7 +1239,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_CampSelect_Page;
+procedure TKMMainMenuInterface.Create_CampSelect;
 var L: TKMLabel;
 begin
   Panel_CampSelect := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
@@ -1271,7 +1271,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Campaign_Page;
+procedure TKMMainMenuInterface.Create_Campaign;
 var I: Integer;
 begin
   Panel_Campaign := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
@@ -1313,12 +1313,13 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_SingleMap_Page;
+procedure TKMMainMenuInterface.Create_SingleMap;
 begin
   Panel_Single := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Single.Stretch;
 
     ColList_SingleMaps := TKMColumnListBox.Create(Panel_Single, 524, 135, 465, 520, fnt_MainMapGold, bsMenu);
+    ColList_SingleMaps.Anchors := [];
     ColList_SingleMaps.SetColumns(fnt_Outline, ['', '', 'Title', 'Size'], [0, 50, 100, 380]);
     ColList_SingleMaps.Columns[2].Font := fnt_Metal;
     ColList_SingleMaps.Columns[2].HintFont := fnt_Grey;
@@ -1367,7 +1368,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Load_Page;
+procedure TKMMainMenuInterface.Create_Load;
 begin
   Panel_Load := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Load.Stretch;
@@ -1409,7 +1410,7 @@ end;
 
 
 //Should contain options to make a map from scratch, load map from file, generate new one
-procedure TKMMainMenuInterface.Create_MapEditor_Page;
+procedure TKMMainMenuInterface.Create_MapEditor;
 var I: Integer;
 begin
   Panel_MapEd:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
@@ -1458,7 +1459,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Replays_Page;
+procedure TKMMainMenuInterface.Create_Replays;
 begin
   Panel_Replays := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Replays.Stretch;
@@ -1493,7 +1494,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Options_Page;
+procedure TKMMainMenuInterface.Create_Options;
 var I: Integer;
 begin
   Panel_Options:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
@@ -1598,7 +1599,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Credits_Page;
+procedure TKMMainMenuInterface.Create_Credits;
 const OFFSET = 312;
 begin
   Panel_Credits := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
@@ -1634,7 +1635,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Loading_Page;
+procedure TKMMainMenuInterface.Create_Loading;
 begin
   Panel_Loading:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width, Panel_Main.Height);
   Panel_Loading.Stretch;
@@ -1645,7 +1646,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Error_Page;
+procedure TKMMainMenuInterface.Create_Error;
 begin
   Panel_Error := TKMPanel.Create(Panel_Main, 0, 0, Panel_Main.Width, Panel_Main.Height);
   Panel_Error.Stretch;
@@ -1660,7 +1661,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Results_Page;
+procedure TKMMainMenuInterface.Create_Results;
 const StatText: array [1..9] of Word = (
     TX_RESULTS_UNITS_LOST,      TX_RESULTS_UNITS_DEFEATED,  TX_RESULTS_HOUSES_LOST,
     TX_RESULTS_HOUSES_DESTROYED,TX_RESULTS_HOUSES_BUILT,    TX_RESULTS_UNITS_TRAINED,
@@ -1771,7 +1772,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_ResultsMP_Page;
+procedure TKMMainMenuInterface.Create_ResultsMP;
 const
   BarStep = 150;
   RowHeight = 22;
