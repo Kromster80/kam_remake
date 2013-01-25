@@ -432,7 +432,7 @@ begin
 end;
 
 
-procedure TKMNetworking.MatchPlayersToSave(aPlayerID:integer=-1);
+procedure TKMNetworking.MatchPlayersToSave(aPlayerID: Integer = -1);
 var i,k: integer;
 begin
   Assert(IsHost, 'Only host can match players');

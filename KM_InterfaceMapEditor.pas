@@ -27,15 +27,15 @@ type
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
 
-    procedure Create_Terrain_Page;
-    procedure Create_Town_Page;
-    procedure Create_Player_Page;
-    procedure Create_Mission_Page;
+    procedure Create_Terrain;
+    procedure Create_Town;
+    procedure Create_Player;
+    procedure Create_Mission;
     procedure Create_Menu;
     procedure Create_MenuSave;
     procedure Create_MenuLoad;
     procedure Create_MenuQuit;
-    procedure Create_Extra_Page;
+    procedure Create_Extra;
     procedure Create_Unit;
     procedure Create_House;
     procedure Create_HouseStore;
@@ -669,17 +669,17 @@ begin
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
-  Create_Terrain_Page;
-  Create_Town_Page;
-  Create_Player_Page;
-  Create_Mission_Page;
+  Create_Terrain;
+  Create_Town;
+  Create_Player;
+  Create_Mission;
 
   Create_Menu;
     Create_MenuSave;
     Create_MenuLoad;
     Create_MenuQuit;
 
-  Create_Extra_Page;
+  Create_Extra;
 
   Create_Unit;
   Create_House;
@@ -722,7 +722,7 @@ end;
 
 
 {Terrain page}
-procedure TKMapEdInterface.Create_Terrain_Page;
+procedure TKMapEdInterface.Create_Terrain;
 const
   BtnGlyph: array [TKMTerrainTab] of Word = (383, 388, 382, 385, 384);
   BtnHint: array [TKMTerrainTab] of Word = (
@@ -868,7 +868,7 @@ end;
 
 
 {Build page}
-procedure TKMapEdInterface.Create_Town_Page;
+procedure TKMapEdInterface.Create_Town;
 const
   TabGlyph: array [TKMTownTab] of Word = (391, 141, 327, 43, 43);
 var
@@ -1000,7 +1000,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Create_Player_Page;
+procedure TKMapEdInterface.Create_Player;
 var
   I: Integer;
   Col: array [0..255] of TColor4;
@@ -1050,24 +1050,26 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Create_Mission_Page;
-var i,k:Integer;
+procedure TKMapEdInterface.Create_Mission;
+var I,K: Integer;
 begin
-  Panel_Mission := TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,28);
+  Panel_Mission := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 28);
     Button_Mission[1] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
     Button_Mission[2] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
-    for i:=1 to 2 do Button_Mission[i].OnClick := SwitchPage;
+    for I := 1 to 2 do Button_Mission[I].OnClick := SwitchPage;
 
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Alliances,0,PAGE_TITLE_Y,TB_WIDTH,0,'Alliances',fnt_Outline,taCenter);
-      for i:=0 to MAX_PLAYERS-1 do begin
-        TKMLabel.Create(Panel_Alliances,24+i*20+2,30,20,20,inttostr(i+1),fnt_Outline,taLeft);
-        TKMLabel.Create(Panel_Alliances,4,50+i*25,20,20,inttostr(i+1),fnt_Outline,taLeft);
-        for k:=0 to MAX_PLAYERS-1 do begin
-          CheckBox_Alliances[i,k] := TKMCheckBox.Create(Panel_Alliances, 20+k*20, 46+i*25, 20, 20, '', fnt_Metal);
-          CheckBox_Alliances[i,k].Tag       := i * MAX_PLAYERS + k;
-          CheckBox_Alliances[i,k].FlatStyle := true;
-          CheckBox_Alliances[i,k].OnClick   := Mission_AlliancesChange;
+      for I := 0 to MAX_PLAYERS - 1 do
+      begin
+        TKMLabel.Create(Panel_Alliances,24+I*20+2,30,20,20,inttostr(I+1),fnt_Outline,taLeft);
+        TKMLabel.Create(Panel_Alliances,4,50+I*25,20,20,inttostr(I+1),fnt_Outline,taLeft);
+        for K := 0 to MAX_PLAYERS - 1 do
+        begin
+          CheckBox_Alliances[I,K] := TKMCheckBox.Create(Panel_Alliances, 20+K*20, 46+I*25, 20, 20, '', fnt_Metal);
+          CheckBox_Alliances[I,K].Tag       := I * MAX_PLAYERS + K;
+          CheckBox_Alliances[I,K].FlatStyle := true;
+          CheckBox_Alliances[I,K].OnClick   := Mission_AlliancesChange;
         end;
       end;
 
@@ -1077,18 +1079,18 @@ begin
       CheckBox_AlliancesSym.Checked := true;
       CheckBox_AlliancesSym.Disable;
 
-    Panel_PlayerTypes := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
+    Panel_PlayerTypes := TKMPanel.Create(Panel_Mission, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_PlayerTypes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Player types', fnt_Outline, taCenter);
       for I := 0 to MAX_PLAYERS - 1 do
       begin
         TKMLabel.Create(Panel_PlayerTypes,  4, 30, 20, 20, '#',       fnt_Grey, taLeft);
         TKMLabel.Create(Panel_PlayerTypes, 24, 30, 60, 20, 'Default', fnt_Grey, taLeft);
-        TKMLabel.Create(Panel_PlayerTypes, 94, 30, 60, 20, 'Human',   fnt_Grey, taLeft);
-        TKMLabel.Create(Panel_PlayerTypes,164, 30, 60, 20, 'AI',      fnt_Grey, taLeft);
+        TKMImage.Create(Panel_PlayerTypes,104, 30, 60, 20, 588, rxGui);
+        TKMImage.Create(Panel_PlayerTypes,164, 30, 20, 20,  62, rxGuiMain);
         TKMLabel.Create(Panel_PlayerTypes,  4, 50+I*25, 20, 20, IntToStr(I+1), fnt_Outline, taLeft);
         for K := 0 to 2 do
         begin
-          CheckBox_PlayerTypes[I,K] := TKMCheckBox.Create(Panel_PlayerTypes, 44+K*70, 48+I*25, 20, 20, '', fnt_Metal);
+          CheckBox_PlayerTypes[I,K] := TKMCheckBox.Create(Panel_PlayerTypes, 44+K*60, 48+I*25, 20, 20, '', fnt_Metal);
           CheckBox_PlayerTypes[I,K].Tag       := I;
           CheckBox_PlayerTypes[I,K].FlatStyle := True;
           CheckBox_PlayerTypes[I,K].OnClick   := Mission_PlayerTypesChange;
@@ -1174,7 +1176,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Create_Extra_Page;
+procedure TKMapEdInterface.Create_Extra;
 begin
   Panel_Extra := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 190, Panel_Main.Width - TOOLBAR_WIDTH, 190);
   Panel_Extra.Anchors := [akLeft, akBottom];
