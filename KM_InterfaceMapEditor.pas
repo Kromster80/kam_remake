@@ -1165,14 +1165,14 @@ end;
 {Quit page}
 procedure TKMapEdInterface.Create_MenuQuit;
 begin
-  Panel_Quit:=TKMPanel.Create(Panel_Common,0,45,TB_WIDTH,400);
-    TKMLabel.Create(Panel_Quit,0,40,TB_WIDTH,60,'Any unsaved|changes will be lost',fnt_Outline,taCenter);
-    Button_Quit_Yes   := TKMButton.Create(Panel_Quit,0,100,TB_WIDTH,30,fTextLibrary[TX_MENU_QUIT_MISSION],bsGame);
-    Button_Quit_No    := TKMButton.Create(Panel_Quit,0,140,TB_WIDTH,30,fTextLibrary[TX_MENU_DONT_QUIT_MISSION],bsGame);
-    Button_Quit_Yes.Hint      := fTextLibrary[TX_MENU_QUIT_MISSION];
-    Button_Quit_No.Hint       := fTextLibrary[TX_MENU_DONT_QUIT_MISSION];
-    Button_Quit_Yes.OnClick   := Menu_QuitClick;
-    Button_Quit_No.OnClick    := SwitchPage;
+  Panel_Quit := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 400);
+    TKMLabel.Create(Panel_Quit, 0, 40, TB_WIDTH, 60, 'Any unsaved|changes will be lost', fnt_Outline, taCenter);
+    Button_Quit_Yes := TKMButton.Create(Panel_Quit, 0, 100, TB_WIDTH, 30, fTextLibrary[TX_MENU_QUIT_MISSION], bsGame);
+    Button_Quit_No  := TKMButton.Create(Panel_Quit, 0, 140, TB_WIDTH, 30, fTextLibrary[TX_MENU_DONT_QUIT_MISSION], bsGame);
+    Button_Quit_Yes.Hint    := fTextLibrary[TX_MENU_QUIT_MISSION];
+    Button_Quit_No.Hint     := fTextLibrary[TX_MENU_DONT_QUIT_MISSION];
+    Button_Quit_Yes.OnClick := Menu_QuitClick;
+    Button_Quit_No.OnClick  := SwitchPage;
 end;
 
 

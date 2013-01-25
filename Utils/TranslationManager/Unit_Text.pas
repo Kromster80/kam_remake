@@ -147,15 +147,33 @@ procedure TTextManager.SaveTextLibraryConsts(aFileName: string);
 var
   myFile : TextFile;
   I: integer;
+  s: string;
+  DefLoc: Integer;
 begin
   AssignFile(myFile, aFileName);
   ReWrite(myFile);
 
+  DefLoc := fLocales.GetIDFromCode(DEFAULT_LOCALE);
+
   for I := 0 to High(fConsts) do
-    if fConsts[I].TextID = -1 then
-      WriteLn(myFile, '')
-    else
-      WriteLn(myFile, fConsts[I].ConstName + ' = ' + IntToStr(fConsts[I].TextID) + ';');
+  if fConsts[I].TextID = -1 then
+    WriteLn(myFile, '')
+  else
+  begin
+    s := '';
+
+    //Append english text for easier lookup from code
+    if fTexts[fConsts[I].TextID, DefLoc] <> '' then
+    begin
+      s := fTexts[fConsts[I].TextID, DefLoc];
+      s := StringReplace(s, '\', '\\', [rfReplaceAll, rfIgnoreCase]); //Slash
+      s := StringReplace(s, eol, '\n', [rfReplaceAll, rfIgnoreCase]); //EOL
+    end;
+
+    s := fConsts[I].ConstName + ' = ' + IntToStr(fConsts[I].TextID) + '; //' + s;
+
+    WriteLn(myFile, s)
+  end;
 
   CloseFile(myFile);
 end;
@@ -165,7 +183,7 @@ procedure TTextManager.LoadConsts(aConstPath: string);
 var
   SL: TStringList;
   Line: string;
-  I, K, CenterPos: Integer;
+  I, K, CenterPos, CommentPos: Integer;
 begin
   SL := TStringList.Create;
   SL.LoadFromFile(aConstPath);
@@ -176,7 +194,7 @@ begin
   begin
     Line := Trim(SL[I]);
 
-    CenterPos := Pos(' = ',Line);
+    CenterPos := Pos(' = ', Line);
     //Separator (line without ' = ')
     if CenterPos = 0 then
     begin
@@ -185,7 +203,11 @@ begin
     end
     else
     begin
-      fConsts[I].TextID := StrToInt(Copy(Line, CenterPos + 3, Length(Line) - CenterPos - 3));
+      CommentPos := Pos('; //', Line);
+      if CommentPos = 0 then
+        fConsts[I].TextID := StrToInt(Copy(Line, CenterPos + 3, Length(Line) - CenterPos - 3))
+      else
+        fConsts[I].TextID := StrToInt(Copy(Line, CenterPos + 3, CommentPos - CenterPos - 3));
       fConsts[I].ConstName := Copy(Line, 1, CenterPos - 1);
     end;
   end;
