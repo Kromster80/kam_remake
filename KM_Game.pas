@@ -443,6 +443,7 @@ begin
       for I := 0 to fPlayers.Count - 1 do
         fPlayers[I].PlayerType := pt_Computer;
 
+      Assert(InRange(aLocation, 0, fPlayers.Count - 1), 'No human player detected');
       fPlayers[aLocation].PlayerType := pt_Human;
       MyPlayer := fPlayers[aLocation];
       MyPlayer.FlagColor := aColor;

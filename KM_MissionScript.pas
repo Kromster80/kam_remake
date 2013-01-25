@@ -485,16 +485,6 @@ begin
   //Post-processing of ct_Attack_Position commands which must be done after mission has been loaded
   ProcessAttackPositions;
 
-  //SinglePlayer needs a human player
-  if (fParsingMode = mpm_Single) then
-  begin
-    HumanDetected := ALLOW_TAKE_AI_PLAYERS;
-    for I := 0 to High(fMissionInfo.PlayerHuman) do
-      HumanDetected := HumanDetected or fMissionInfo.PlayerHuman[I];
-    if not HumanDetected then
-      AddError('No human player detected - ''ct_SetHumanPlayer''', True);
-  end;
-
   //If we have reach here without exiting then loading was successful if no errors were reported
   Result := (fFatalErrors = '');
 end;

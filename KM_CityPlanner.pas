@@ -278,7 +278,7 @@ var
   Bid, BestBid: Single;
   TargetLoc: TKMPoint;
   TreeLoc: TKMPoint;
-  Mx, My: Byte;
+  Mx, My: SmallInt;
   MyForest: array [0..7, 0..7] of ShortInt;
 begin
   Result := False;
@@ -305,7 +305,8 @@ begin
   begin
     Mx := Round(K / 7 * (SEARCH_RAD * 2 + 1) + TargetLoc.X - SEARCH_RAD);
     My := Round(I / 7 * (SEARCH_RAD * 2 + 1) + TargetLoc.Y - SEARCH_RAD);
-    if fAIFields.Influences.AvoidBuilding[My, Mx] = 0 then
+    if InRange(Mx, 1, fTerrain.MapX - 1) and InRange(My, 1, fTerrain.MapY - 1)
+    and (fAIFields.Influences.AvoidBuilding[My, Mx] = 0) then
     begin
       Bid := MyForest[I, K] + KaMRandom * 2; //Add some noise for varied results
       if Bid > BestBid then
