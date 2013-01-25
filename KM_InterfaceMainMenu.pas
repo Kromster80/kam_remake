@@ -42,7 +42,7 @@ type
     SelectedRefRate: Integer;
 
     fSingleLoc: Integer;
-    fSingleLocations: array [0..MAX_PLAYERS - 1] of Byte;
+    fSingleLocations: array [0..MAX_PLAYERS - 1] of Byte; //Lookup
     fSingleColor: TColor4;
 
     procedure Create_MainMenu;
@@ -2358,8 +2358,7 @@ begin
         fSingleLocations[K] := I;
         Inc(K);
       end;
-      Drop_SingleLoc.ItemIndex := fMaps[ID].Info.DefaultHuman;
-      Drop_SingleLoc.Enabled := Drop_SingleLoc.Count > 1;
+      Drop_SingleLoc.ItemIndex := fMaps[ID].DefaultHuman;
 
       //Color
       //Fill in colors for each map individually
@@ -2371,6 +2370,9 @@ begin
 
       SingleMap_OptionsChange(nil);
     end;
+
+    Drop_SingleLoc.Enabled := Drop_SingleLoc.Count > 1;
+    Drop_SingleColor.Enabled := Drop_SingleColor.Count > 1;
 
     Button_SingleStart.Enabled := ID <> -1;
   fMaps.Unlock;

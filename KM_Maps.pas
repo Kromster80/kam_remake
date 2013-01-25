@@ -20,6 +20,7 @@ type
     fInfo: TKMGameInfo;
     fPath: string;
     fFileName: string; //without extension
+    fDefaultHuman: ShortInt;
     fStrictParsing: Boolean; //Use strict map checking, important for MP
     fDatSize: Integer;
     fCRC: Cardinal;
@@ -40,6 +41,7 @@ type
     property FileName: string read fFileName;
     function FullPath(const aExt: string): string;
     property CRC: Cardinal read fCRC;
+    property DefaultHuman: ShortInt read fDefaultHuman;
 
     function IsValid: Boolean;
   end;
@@ -171,7 +173,6 @@ begin
       fInfo.MapSizeY          := fMissionParser.MissionInfo.MapSizeY;
       fInfo.VictoryCondition  := fMissionParser.MissionInfo.VictoryCond;
       fInfo.DefeatCondition   := fMissionParser.MissionInfo.DefeatCond;
-      fInfo.DefaultHuman      := fMissionParser.MissionInfo.DefaultHuman;
 
       //This feature is only used for saves yet
       fInfo.PlayerCount       := fMissionParser.MissionInfo.PlayerCount;
@@ -187,6 +188,8 @@ begin
       end;
 
       fCRC := Adler32CRC(DatFile) xor Adler32CRC(MapFile);
+      fDefaultHuman := fMissionParser.MissionInfo.DefaultHuman;
+
       SaveToFile(fPath + fFileName + '.mi'); //Save new TMP file
     finally
       fMissionParser.Free;
@@ -204,7 +207,7 @@ begin
       if SameText(st, 'Author')    then ReadLn(ft, Author);
       if SameText(st, 'SmallDesc') then ReadLn(ft, SmallDesc);
       if SameText(st, 'BigDesc')   then ReadLn(ft, BigDesc);
-      if SameText(st, 'SetCoop')   then IsCoop := true;
+      if SameText(st, 'SetCoop')   then IsCoop := True;
     until(eof(ft));
     CloseFile(ft);
   end;
@@ -222,6 +225,7 @@ begin
   S.LoadFromFile(aPath);
   fInfo.Load(S);
   S.Read(fCRC);
+  S.Read(fDefaultHuman);
   S.Read(fDatSize);
   S.Free;
 
@@ -240,6 +244,7 @@ begin
   try
     fInfo.Save(S);
     S.Write(fCRC);
+    S.Write(fDefaultHuman);
     S.Write(fDatSize);
     S.SaveToFile(aPath);
   finally

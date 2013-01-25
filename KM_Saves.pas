@@ -38,7 +38,7 @@ type
 
     function IsValid: Boolean;
     function IsReplayValid: Boolean;
-    function LoadMinimap(aMinimap:TKMMinimap):Boolean;
+    function LoadMinimap(aMinimap: TKMMinimap): Boolean;
   end;
 
   TTSavesScanner = class(TThread)
