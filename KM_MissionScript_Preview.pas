@@ -28,8 +28,8 @@ type
     fPlayerPreview: array [1 .. MAX_PLAYERS] of TPlayerPreviewInfo;
     fMapPreview: array [1 .. MAX_MAP_SIZE * MAX_MAP_SIZE] of TTilePreviewInfo;
 
-    fLastPlayer: Integer;
-    fHumanPlayer: Integer;
+    fLastPlayer: TPlayerIndex;
+    fRevealFor: TPlayerIndex;
 
     function GetTileInfo(X, Y: Integer): TTilePreviewInfo;
     function GetPlayerInfo(aIndex: Byte): TPlayerPreviewInfo;
@@ -40,7 +40,7 @@ type
     property PlayerPreview[aIndex: Byte]: TPlayerPreviewInfo read GetPlayerInfo;
     property MapX: Integer read fMapX;
     property MapY: Integer read fMapY;
-    function LoadMission(const aFileName: string): Boolean; override;
+    function LoadMission(const aFileName: string; aRevealFor: TPlayerIndex): Boolean; reintroduce;
   end;
 
 
@@ -98,20 +98,25 @@ procedure TMissionParserPreview.ProcessCommand(CommandType: TKMCommandType; cons
   end;
 
   procedure RevealCircle(X,Y,Radius: Word);
-  var i,k:Word;
+  var I,K:Word;
   begin
-    if (fHumanPlayer = 0) or (fHumanPlayer <> fLastPlayer) then exit;
-    for i:=max(Y-Radius,1) to min(Y+Radius,fMapY) do
-    for k:=max(X-Radius,1) to min(X+Radius,fMapX) do
-       if (sqr(X-k) + sqr(Y-i)) <= sqr(Radius) then
-         fMapPreview[(i-1)*fMapX + k].Revealed := True;
+    if (fRevealFor = 0) or (fRevealFor <> fLastPlayer) then
+      Exit;
+
+    for I:=max(Y-Radius,1) to min(Y+Radius,fMapY) do
+    for K:=max(X-Radius,1) to min(X+Radius,fMapX) do
+       if (sqr(X-K) + sqr(Y-I)) <= sqr(Radius) then
+         fMapPreview[(I-1)*fMapX + K].Revealed := True;
   end;
 
-var i,k:integer; HA:THouseArea; Valid: Boolean; Loc: TKMPoint;
+var
+  I, K: Integer;
+  HA: THouseArea;
+  Valid: Boolean;
+  Loc: TKMPoint;
 begin
   case CommandType of
     ct_SetCurrPlayer:  fLastPlayer := P[0]+1;
-    ct_SetHumanPlayer: fHumanPlayer := P[0]+1;
     ct_SetHouse:       if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
                        begin
                          RevealCircle(P[1]+1, P[2]+1, fResource.HouseDat[HouseIndexToType[P[0]]].Sight);
@@ -149,7 +154,7 @@ begin
                              RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
                            end;
                          end;
-    ct_ClearUp:        if (fHumanPlayer <> 0) and (fHumanPlayer = fLastPlayer) then
+    ct_ClearUp:        if (fRevealFor <> 0) and (fRevealFor = fLastPlayer) then
                        begin
                          if P[0] = 255 then
                            for i:=1 to MAX_MAP_SIZE*MAX_MAP_SIZE do
@@ -162,7 +167,7 @@ end;
 
 
 //We use custom mission loader for speed (compare only used commands)
-function TMissionParserPreview.LoadMission(const aFileName: string): Boolean;
+function TMissionParserPreview.LoadMission(const aFileName: string; aRevealFor: TPlayerIndex): Boolean;
 const
   MAX_CMD = 6;
 var
@@ -175,7 +180,7 @@ begin
   inherited LoadMission(aFileName);
 
   fLastPlayer := 0;
-  fHumanPlayer := 0;
+  fRevealFor := aRevealFor;
   FillChar(fMapPreview, SizeOf(fMapPreview), #0);
   FillChar(fPlayerPreview, SizeOf(fPlayerPreview), #0);
 
@@ -200,7 +205,7 @@ begin
       until((FileText[k]=#32)or(k>=length(FileText)));
 
       //Try to make it faster by only processing commands used
-      if (CommandText='!SET_CURR_PLAYER')or(CommandText='!SET_HUMAN_PLAYER')or
+      if (CommandText='!SET_CURR_PLAYER')or
          (CommandText='!SET_MAP_COLOR')or(CommandText='!CENTER_SCREEN')or
          (CommandText='!SET_STREET')or(CommandText='!SET_FIELD')or
          (CommandText='!SET_WINEFIELD')or(CommandText='!SET_STOCK')or

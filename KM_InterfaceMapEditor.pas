@@ -74,6 +74,7 @@ type
     procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
     procedure Mission_AlliancesChange(Sender: TObject);
     procedure Mission_PlayerTypesChange(Sender: TObject);
+    procedure Mission_PlayerTypesUpdate;
     procedure Player_BlockClick(Sender: TObject);
     procedure Player_BlockRefresh;
     procedure Player_ChangeActive(Sender: TObject);
@@ -226,7 +227,7 @@ type
         CheckBox_Alliances: array [0..MAX_PLAYERS-1, 0..MAX_PLAYERS-1] of TKMCheckBox;
         CheckBox_AlliancesSym: TKMCheckBox;
       Panel_PlayerTypes: TKMPanel;
-        CheckBox_PlayerTypes: array [0..MAX_PLAYERS-1, 0..1] of TKMCheckBox;
+        CheckBox_PlayerTypes: array [0..MAX_PLAYERS-1, 0..2] of TKMCheckBox;
 
     Panel_Menu:TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit:TKMButton;
@@ -521,7 +522,7 @@ begin
   end else
   if aPage = Panel_PlayerTypes then
   begin
-    Mission_PlayerTypesChange(nil);
+    Mission_PlayerTypesUpdate;
   end else
 
   if aPage = Panel_Menu then
@@ -1077,18 +1078,20 @@ begin
       CheckBox_AlliancesSym.Disable;
 
     Panel_PlayerTypes := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_PlayerTypes,0,PAGE_TITLE_Y,TB_WIDTH,0,'Player types',fnt_Outline,taCenter);
-      for i:=0 to MAX_PLAYERS-1 do begin
-        TKMLabel.Create(Panel_PlayerTypes,4,30,20,20,'#',fnt_Grey,taLeft);
-        TKMLabel.Create(Panel_PlayerTypes,24,30,100,20,'Human',fnt_Grey,taLeft);
-        TKMLabel.Create(Panel_PlayerTypes,94,30,100,20,'Computer',fnt_Grey,taLeft);
-        TKMLabel.Create(Panel_PlayerTypes,4,50+i*25,20,20,inttostr(i+1),fnt_Outline,taLeft);
-        for k:=0 to 1 do
+      TKMLabel.Create(Panel_PlayerTypes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Player types', fnt_Outline, taCenter);
+      for I := 0 to MAX_PLAYERS - 1 do
+      begin
+        TKMLabel.Create(Panel_PlayerTypes,  4, 30, 20, 20, '#',       fnt_Grey, taLeft);
+        TKMLabel.Create(Panel_PlayerTypes, 24, 30, 60, 20, 'Default', fnt_Grey, taLeft);
+        TKMLabel.Create(Panel_PlayerTypes, 94, 30, 60, 20, 'Human',   fnt_Grey, taLeft);
+        TKMLabel.Create(Panel_PlayerTypes,164, 30, 60, 20, 'AI',      fnt_Grey, taLeft);
+        TKMLabel.Create(Panel_PlayerTypes,  4, 50+I*25, 20, 20, IntToStr(I+1), fnt_Outline, taLeft);
+        for K := 0 to 2 do
         begin
-          CheckBox_PlayerTypes[i,k] := TKMCheckBox.Create(Panel_PlayerTypes, 44+k*70, 48+i*25, 20, 20, '', fnt_Metal);
-          CheckBox_PlayerTypes[i,k].Tag       := i;
-          CheckBox_PlayerTypes[i,k].FlatStyle := true;
-          CheckBox_PlayerTypes[i,k].OnClick   := Mission_PlayerTypesChange;
+          CheckBox_PlayerTypes[I,K] := TKMCheckBox.Create(Panel_PlayerTypes, 44+K*70, 48+I*25, 20, 20, '', fnt_Metal);
+          CheckBox_PlayerTypes[I,K].Tag       := I;
+          CheckBox_PlayerTypes[I,K].FlatStyle := True;
+          CheckBox_PlayerTypes[I,K].OnClick   := Mission_PlayerTypesChange;
         end;
       end;
 end;
@@ -2683,20 +2686,25 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Mission_PlayerTypesChange(Sender: TObject);
-var i:Integer;
+procedure TKMapEdInterface.Mission_PlayerTypesUpdate;
+var I: Integer;
 begin
-  if Sender = nil then begin
-    for i:=0 to fPlayers.Count-1 do
-    begin
-      CheckBox_PlayerTypes[i,0].Enabled := fPlayers[i]<>nil;
-      CheckBox_PlayerTypes[i,1].Enabled := fPlayers[i]<>nil;
-      CheckBox_PlayerTypes[i,0].Checked := (fPlayers[i]<>nil) and (fPlayers[i].PlayerType = pt_Human);
-      CheckBox_PlayerTypes[i,1].Checked := (fPlayers[i]<>nil) and (fPlayers[i].PlayerType = pt_Computer);
-    end;
-    Exit;
-  end;
+  for I := 0 to fPlayers.Count - 1 do
+  begin
+    CheckBox_PlayerTypes[I, 0].Enabled := fPlayers[I] <> nil;
+    CheckBox_PlayerTypes[I, 1].Enabled := fPlayers[I] <> nil;
+    CheckBox_PlayerTypes[I, 2].Enabled := fPlayers[I] <> nil;
 
+    CheckBox_PlayerTypes[I, 0].Checked := (fPlayers[I] <> nil) and (fGame.MapEditor.DefaultHuman = I);
+    CheckBox_PlayerTypes[I, 1].Checked := (fPlayers[I] <> nil) and (fGame.MapEditor.PlayerHuman[I] or CheckBox_PlayerTypes[I, 0].Checked);
+    CheckBox_PlayerTypes[I, 2].Checked := (fPlayers[I] <> nil) and fGame.MapEditor.PlayerAI[I];
+  end;
+end;
+
+
+procedure TKMapEdInterface.Mission_PlayerTypesChange(Sender: TObject);
+var PlayerId: Integer;
+begin
   //@Lewin: Are we allowed to define players freely, e.g. make 5 Human players?
   //How is it working in multiplayer?
   //@Krom: In KaM it works like this: Single player missions have 1 human player and the others computer.
@@ -2724,22 +2732,19 @@ begin
   //       Let me know what you think. Maybe we should discuss this.
   //@Lewin: Looks like we can't achieve it without changing(adding) mission scripts.. discussed in ICQ.
 
-  //Reset everything
-  for i:=0 to fPlayers.Count-1 do
-  begin
-    CheckBox_PlayerTypes[i,0].Checked := false;
-    CheckBox_PlayerTypes[i,1].Checked := true;
-    fPlayers[i].PlayerType := pt_Computer;
-  end;
+  PlayerId := TKMCheckBox(Sender).Tag;
 
-  //Define only 1 human player
-  i := TKMCheckBox(Sender).Tag;
-  if Sender = CheckBox_PlayerTypes[i,0] then
-  begin
-    CheckBox_PlayerTypes[i,0].Checked := true;
-    CheckBox_PlayerTypes[i,1].Checked := false;
-    fPlayers[i].PlayerType := pt_Human
-  end;
+  //There should be exactly one default human player
+  if Sender = CheckBox_PlayerTypes[PlayerId, 0] then
+    fGame.MapEditor.DefaultHuman := PlayerId;
+
+  if Sender = CheckBox_PlayerTypes[PlayerId, 1] then
+    fGame.MapEditor.PlayerHuman[PlayerId] := CheckBox_PlayerTypes[PlayerId, 1].Checked;
+
+  if Sender = CheckBox_PlayerTypes[PlayerId, 2] then
+    fGame.MapEditor.PlayerAI[PlayerId] := CheckBox_PlayerTypes[PlayerId, 2].Checked;
+
+  Mission_PlayerTypesUpdate;
 end;
 
 

@@ -2347,10 +2347,8 @@ begin
       Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[ID].Info.DefeatCondition]);
 
       MinimapView_Single.Show;
-      fMinimap.LoadFromMission(fMaps[ID].FullPath('.dat'));
-      fMinimap.Update(False);
-      MinimapView_Single.SetMinimap(fMinimap);
 
+      //Location
       K := 0;
       Drop_SingleLoc.Clear;
       for I := 0 to fMaps[ID].Info.PlayerCount - 1 do
@@ -2360,13 +2358,18 @@ begin
         fSingleLocations[K] := I;
         Inc(K);
       end;
+      Drop_SingleLoc.ItemIndex := fMaps[ID].Info.DefaultHuman;
+      Drop_SingleLoc.Enabled := Drop_SingleLoc.Count > 1;
 
+      //Color
       //Fill in colors for each map individually
       //I plan to skip colors that are similar to those on a map already
       Drop_SingleColor.Clear;
       for I := Low(MP_TEAM_COLORS) to High(MP_TEAM_COLORS) do
         Drop_SingleColor.Add(MakeListRow([''], [MP_TEAM_COLORS[I]], [MakePic(rxGuiMain, 30)]));
       Drop_SingleColor.ItemIndex := 0; //Select default
+
+      SingleMap_OptionsChange(nil);
     end;
 
     Button_SingleStart.Enabled := ID <> -1;
@@ -2375,9 +2378,18 @@ end;
 
 
 procedure TKMMainMenuInterface.SingleMap_OptionsChange(Sender: TObject);
+var
+  MapId: Integer;
 begin
   fSingleLoc := fSingleLocations[Drop_SingleLoc.ItemIndex];
   fSingleColor := MP_TEAM_COLORS[Drop_SingleColor.ItemIndex + 1];
+
+  //Refresh minimap with selected location and player color
+  MapId := ColList_SingleMaps.ItemIndex;
+  fMinimap.LoadFromMission(fMaps[MapId].FullPath('.dat'), fSingleLoc + 1);
+  fMinimap.PlayerColors[fSingleLoc+1] := fSingleColor;
+  fMinimap.Update(False);
+  MinimapView_Single.SetMinimap(fMinimap);
 end;
 
 
@@ -3402,7 +3414,7 @@ begin
                 //Only load the minimap preview if the map is valid
                 if M.IsValid then
                 begin
-                  fMinimap.LoadFromMission(M.FullPath('.dat'));
+                  fMinimap.LoadFromMission(M.FullPath('.dat'), -1);
                   fMinimap.Update(True);
                   MinimapView_Lobby.SetMinimap(fMinimap);
                 end;
@@ -3932,7 +3944,7 @@ begin
 
     Maps.Lock;
       fLastMapCRC := Maps[ID].CRC;
-      fMinimap.LoadFromMission(Maps[ID].FullPath('.dat'));
+      fMinimap.LoadFromMission(Maps[ID].FullPath('.dat'), -1);
     Maps.Unlock;
 
     fMinimap.Update(True);

@@ -394,14 +394,19 @@ begin
 
   //Disable players in MP to skip their assets from loading by MissionParser
   //In SP all players are enabled by default
-  if fGameMode = gmMulti then
-  begin
-    FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #0);
-    for I := 1 to fNetworking.NetPlayers.Count do
-      PlayerEnabled[fNetworking.NetPlayers[I].StartLocation - 1] := True; //PlayerID is 0 based
-  end
-  else
-    FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #255);
+  case fGameMode of
+    gmMulti:  begin
+                FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #0);
+                for I := 1 to fNetworking.NetPlayers.Count do
+                  //PlayerID is 0 based
+                  PlayerEnabled[fNetworking.NetPlayers[I].StartLocation - 1] := True;
+              end;
+    gmSingle: //Setup should tell us which player is AI and which not
+              for I := 0 to MAX_PLAYERS - 1 do
+                PlayerEnabled[I] := True;
+    else      FillChar(PlayerEnabled, SizeOf(PlayerEnabled), #255);
+  end;
+
 
   //Choose how we will parse the script
   case fGameMode of
@@ -423,6 +428,8 @@ begin
     if not Parser.LoadMission(aMissionFile) then
       raise Exception.Create(Parser.FatalErrors);
 
+    MyPlayer := nil;
+
     if fGameMode = gmMapEd then
     begin
       fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
@@ -433,14 +440,12 @@ begin
     else
     if fGameMode = gmSingle then
     begin
-      //Revert all players to AI
       for I := 0 to fPlayers.Count - 1 do
-      if I <> aLocation then
         fPlayers[I].PlayerType := pt_Computer;
 
+      fPlayers[aLocation].PlayerType := pt_Human;
       MyPlayer := fPlayers[aLocation];
       MyPlayer.FlagColor := aColor;
-      Assert(ALLOW_TAKE_AI_PLAYERS or (MyPlayer.PlayerType = pt_Human));
     end;
 
     if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then

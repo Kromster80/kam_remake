@@ -15,7 +15,7 @@ type
                           mpm_Editor  //Ignore errors, load armies differently
                         );
 
-  TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
+  TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_HumanPlayer,ct_HumanablePlayer,ct_SetHouse,
                     ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_CenterScreen,
                     ct_ClearUp,ct_BlockTrade,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_AddLostGoal,
                     ct_SetUnit,ct_SetRoad,ct_SetField,ct_SetWinefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
@@ -35,6 +35,7 @@ type
     MapSizeX, MapSizeY: Integer;
     MissionMode: TKMissionMode;
     PlayerCount: ShortInt;
+    DefaultHuman: ShortInt;
     PlayerHuman: array [0..MAX_PLAYERS-1] of Boolean;
     PlayerAI: array [0..MAX_PLAYERS-1] of Boolean;
     VictoryCond: string;
@@ -68,6 +69,7 @@ type
 
   TMissionParserInfo = class(TMissionParserCommon)
   private
+    fLastPlayer: ShortInt;
     function LoadMapInfo(const aFileName: string): Boolean;
     procedure ProcessCommand(CommandType: TKMCommandType; const P: array of integer; TextParam:AnsiString);
   public
@@ -104,7 +106,7 @@ uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
 
 const
   COMMANDVALUES: array [TKMCommandType] of AnsiString = (
-    '','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
+    '','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HUMANABLE_PLAYER','SET_HOUSE',
     'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR',
     'CENTER_SCREEN','CLEAR_UP','BLOCK_TRADE','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES',
     'ADD_GOAL','ADD_LOST_GOAL','SET_UNIT','SET_STREET','SET_FIELD','SET_WINEFIELD',
@@ -141,6 +143,7 @@ begin
   fMissionInfo.MapSizeY := 0;
   fMissionInfo.MissionMode := mm_Normal;
   fMissionInfo.PlayerCount := 0;
+  fMissionInfo.DefaultHuman := 0;
   FillChar(fMissionInfo.PlayerHuman, SizeOf(fMissionInfo.PlayerHuman), #0);
   FillChar(fMissionInfo.PlayerAI, SizeOf(fMissionInfo.PlayerAI), #0);
   fMissionInfo.VictoryCond := '';
@@ -262,8 +265,8 @@ begin
   FileText := ReadMissionFile(aFileName);
   if FileText = '' then Exit;
 
-  //We need only these 6 commands
-  //!SET_MAP, !SET_MAX_PLAYER, !SET_TACTIC, !SET_HUMAN_PLAYER, !ADD_GOAL, !ADD_LOST_GOAL
+  //For info we need only few commands,
+  //it makes sense to skip the rest
 
   //FileText should now be formatted nicely with 1 space between each parameter/command
   k := 1;
@@ -283,6 +286,8 @@ begin
       //Try to make it faster by only processing commands used
       if (CommandText='!SET_MAP')or(CommandText='!SET_MAX_PLAYER')or
          (CommandText='!SET_TACTIC')or(CommandText='!SET_HUMAN_PLAYER')or
+         (CommandText='!SET_CURR_PLAYER')or
+         (CommandText='!SET_HUMANABLE_PLAYER')or(CommandText='!SET_AI_PLAYER')or
          (CommandText='!ADD_GOAL')or(CommandText='!ADD_LOST_GOAL') then
       begin
         //Now convert command into type
@@ -324,11 +329,22 @@ procedure TMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; const P
 begin
   with fMissionInfo do
   case CommandType of
-    ct_SetMap:         MapPath          := RemoveQuotes(String(TextParam));
-    ct_SetMaxPlayer:   PlayerCount      := P[0];
-    ct_SetTactic:      MissionMode      := mm_Tactic;
-    ct_SetHumanPlayer: PlayerHuman[P[0]] := True;
-    ct_AIPlayer:       PlayerAI[P[0]] := True;
+    ct_SetMap:          MapPath          := RemoveQuotes(String(TextParam));
+    ct_SetMaxPlayer:    PlayerCount      := P[0];
+    ct_SetTactic:       MissionMode      := mm_Tactic;
+    ct_HumanPlayer:     begin
+                          DefaultHuman      := P[0];
+                          PlayerHuman[P[0]] := True;
+                        end;
+    ct_SetCurrPlayer:   fLastPlayer      := P[0];
+    ct_HumanablePlayer: if P[0] = -1 then
+                          PlayerHuman[fLastPlayer] := True
+                        else
+                          PlayerHuman[P[0]] := True;
+    ct_AIPlayer:       if P[0] = -1 then
+                          PlayerAI[fLastPlayer] := True
+                        else
+                          PlayerAI[P[0]] := True;
 {                       if TGoalCondition(P[0]) = gc_Time then
                          VictoryCond := VictoryCond + fPlayers[fLastPlayer].AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),P[3],P[2],play_none)
                        else
@@ -470,12 +486,14 @@ begin
   ProcessAttackPositions;
 
   //SinglePlayer needs a human player
-  HumanDetected := ALLOW_TAKE_AI_PLAYERS;
   if (fParsingMode = mpm_Single) then
-  for I := 0 to High(fMissionInfo.PlayerHuman) do
-    HumanDetected := HumanDetected or fMissionInfo.PlayerHuman[I];
-  if not HumanDetected then
-    AddError('No human player detected - ''ct_SetHumanPlayer''', True);
+  begin
+    HumanDetected := ALLOW_TAKE_AI_PLAYERS;
+    for I := 0 to High(fMissionInfo.PlayerHuman) do
+      HumanDetected := HumanDetected or fMissionInfo.PlayerHuman[I];
+    if not HumanDetected then
+      AddError('No human player detected - ''ct_SetHumanPlayer''', True);
+  end;
 
   //If we have reach here without exiting then loading was successful if no errors were reported
   Result := (fFatalErrors = '');
@@ -533,22 +551,30 @@ begin
                           fLastHouse := nil;
                           fLastTroop := nil;
                         end;
-    ct_SetHumanPlayer:  //Multiplayer will set Human player itself after loading
-                        if (fParsingMode <> mpm_Multi) and (fPlayers <> nil) then
+    ct_HumanPlayer:     //We use this command in a sense "Default human player"
+                        //MP and SP set human players themselves
+                        //Remains usefull for map preview and MapEd
+                        if (fParsingMode = mpm_Editor) and (fPlayers <> nil) then
+                        begin
+                          fGame.MapEditor.DefaultHuman := P[0];
+                          fGame.MapEditor.PlayerHuman[P[0]] := True;
+                        end;
+    ct_HumanablePlayer: //New command added by KMR - mark player as allowed to be human
+                        //MP and SP set human players themselves
+                        //Remains usefull for map preview and MapEd
+                        if (fParsingMode = mpm_Editor) and (fPlayers <> nil) then
                           if InRange(P[0], 0, fPlayers.Count - 1) then
-                          begin
-                            //We override it later
-                            //HumanPlayerID := P[0];
-                            fPlayers[P[0]].PlayerType := pt_Human;
-                          end;
-
-    ct_AIPlayer:        //Multiplayer will set Human player itself after loading
-                        if (fParsingMode <> mpm_Multi) and (fPlayers <> nil) then
-                          if InRange(P[0], 0, fPlayers.Count - 1) then
-                            fPlayers[P[0]].PlayerType := pt_Computer
+                            fGame.MapEditor.PlayerHuman[P[0]] := True
                           else
-                            //This command doesn't require an ID, just use the current player
-                            fPlayers[fLastPlayer].PlayerType := pt_Computer;
+                            fGame.MapEditor.PlayerHuman[fLastPlayer] := True;
+    ct_AIPlayer:        //New command added by KMR - mark player as allowed to be human
+                        //MP and SP set human players themselves
+                        //Remains usefull for map preview and MapEd
+                        if (fParsingMode = mpm_Editor) and (fPlayers <> nil) then
+                          if InRange(P[0], 0, fPlayers.Count - 1) then
+                            fGame.MapEditor.PlayerAI[P[0]] := True
+                          else
+                            fGame.MapEditor.PlayerAI[fLastPlayer] := True;
     ct_CenterScreen:    if fLastPlayer >= 0 then
                           fPlayers[fLastPlayer].CenterScreen := KMPoint(P[0]+1, P[1]+1);
     ct_ClearUp:         if fLastPlayer >= 0 then
@@ -928,17 +954,19 @@ begin
   AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + AnsiString(ExtractFileName(TruncateExt(aFileName))) + '.map"');
   if fGame.MissionMode = mm_Tactic then AddCommand(ct_SetTactic, []);
   AddCommand(ct_SetMaxPlayer, [fPlayers.Count]);
+  AddCommand(ct_HumanPlayer, [fGame.MapEditor.DefaultHuman]);
   AddData(''); //NL
 
   //Player loop
-  for I:=0 to fPlayers.Count-1 do
+  for I := 0 to fPlayers.Count - 1 do
   begin
     //Player header, using same order of commands as KaM
-    AddCommand(ct_SetCurrPlayer, [I]); //In script player 0 is the first
-    if fPlayers[I].PlayerType = pt_Human then
-      AddCommand(ct_SetHumanPlayer, [I]);
+    AddCommand(ct_SetCurrPlayer, [I]);
     AddCommand(ct_EnablePlayer, [I]);
-    if fPlayers[I].PlayerType = pt_Computer then
+
+    if fGame.MapEditor.PlayerHuman[I] then
+      AddCommand(ct_HumanablePlayer, []);
+    if fGame.MapEditor.PlayerAI[I] then
       AddCommand(ct_AIPlayer, []);
 
     AddCommand(ct_SetMapColor, [fPlayers[I].FlagColorIndex]);

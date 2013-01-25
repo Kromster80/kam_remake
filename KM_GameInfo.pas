@@ -21,6 +21,7 @@ type
     DefeatCondition: AnsiString;
 
     PlayerCount: Byte;
+    DefaultHuman: TPlayerIndex;
     //Location name is string because for savegames we store players name there
     LocationName: array [0..MAX_PLAYERS-1] of AnsiString;
     PlayerTypes: array [0..MAX_PLAYERS-1] of TPlayerType;
@@ -72,9 +73,10 @@ begin
   LoadStream.Read(MapSizeY);
   LoadStream.Read(VictoryCondition);
   LoadStream.Read(DefeatCondition);
+  LoadStream.Read(DefaultHuman);
 
   LoadStream.Read(PlayerCount);
-  for I:=0 to PlayerCount-1 do
+  for I := 0 to PlayerCount - 1 do
   begin
     LoadStream.Read(LocationName[I]);
     LoadStream.Read(PlayerTypes[I], SizeOf(PlayerTypes[I]));
@@ -98,6 +100,7 @@ begin
   SaveStream.Write(MapSizeY);
   SaveStream.Write(VictoryCondition);
   SaveStream.Write(DefeatCondition);
+  SaveStream.Write(DefaultHuman);
 
   SaveStream.Write(PlayerCount);
   for I := 0 to PlayerCount - 1 do

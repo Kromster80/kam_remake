@@ -56,6 +56,9 @@ type
     fVisibleLayers: TMapEdLayerSet;
     function GetRevealer(aIndex: Byte): TKMPointTagList;
   public
+    DefaultHuman: TPlayerIndex;
+    PlayerHuman: array [0..MAX_PLAYERS - 1] of Boolean;
+    PlayerAI: array [0..MAX_PLAYERS - 1] of Boolean;
     constructor Create;
     destructor Destroy; override;
     property Deposits: TKMDeposits read fDeposits;

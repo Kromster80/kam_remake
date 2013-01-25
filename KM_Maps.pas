@@ -171,13 +171,17 @@ begin
       fInfo.MapSizeY          := fMissionParser.MissionInfo.MapSizeY;
       fInfo.VictoryCondition  := fMissionParser.MissionInfo.VictoryCond;
       fInfo.DefeatCondition   := fMissionParser.MissionInfo.DefeatCond;
+      fInfo.DefaultHuman      := fMissionParser.MissionInfo.DefaultHuman;
 
       //This feature is only used for saves yet
       fInfo.PlayerCount       := fMissionParser.MissionInfo.PlayerCount;
       for I := Low(fInfo.LocationName) to High(fInfo.LocationName) do
       begin
-        fInfo.LocationName[I] := Format(fTextLibrary[TX_LOBBY_LOCATION_X], [I+1]);;
-        fInfo.PlayerTypes[I] := pt_Human;
+        fInfo.LocationName[I] := Format(fTextLibrary[TX_LOBBY_LOCATION_X], [I+1]);
+        if fMissionParser.MissionInfo.PlayerHuman[I] then
+          fInfo.PlayerTypes[I] := pt_Human
+        else
+          fInfo.PlayerTypes[I] := pt_Computer;
         fInfo.ColorID[I] := 0;
         fInfo.Team[I] := 0;
       end;
@@ -208,7 +212,9 @@ end;
 
 
 procedure TKMapInfo.LoadFromFile(const aPath: string);
-var S: TKMemoryStream; I: Integer;
+var
+  S: TKMemoryStream;
+  I: Integer;
 begin
   if not FileExists(aPath) then Exit;
 
@@ -218,9 +224,12 @@ begin
   S.Read(fCRC);
   S.Read(fDatSize);
   S.Free;
-  //We need to reset all of the location names since otherwise they could be in another language (when .mi files are zipped up with the map and sent to another person)
-  for I:=Low(fInfo.LocationName) to High(fInfo.LocationName) do
-    fInfo.LocationName[I] := Format(fTextLibrary[TX_LOBBY_LOCATION_X],[I+1]);;
+
+  //We need to reset all of the location names since otherwise they could be
+  //in another language (when .mi files are zipped up with the map and sent
+  //to another person)
+  for I := Low(fInfo.LocationName) to High(fInfo.LocationName) do
+    fInfo.LocationName[I] := Format(fTextLibrary[TX_LOBBY_LOCATION_X], [I+1]);
 end;
 
 
