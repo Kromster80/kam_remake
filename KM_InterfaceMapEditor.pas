@@ -11,7 +11,7 @@ uses
 type
   TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject, ttSelection);
   TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
-  TKMPlayerTab = (ptGoals, ptColor, ptBlock, ptBlockTrade);
+  TKMPlayerTab = (ptGoals, ptColor, ptBlockHouse, ptBlockTrade, ptMarkers);
 
 
   TKMapEdInterface = class (TKMUserInterface)
@@ -78,8 +78,10 @@ type
     procedure Mission_ModeUpdate;
     procedure Mission_PlayerTypesChange(Sender: TObject);
     procedure Mission_PlayerTypesUpdate;
-    procedure Player_BlockClick(Sender: TObject);
-    procedure Player_BlockRefresh;
+    procedure Player_BlockHouseClick(Sender: TObject);
+    procedure Player_BlockHouseRefresh;
+    procedure Player_BlockTradeClick(Sender: TObject);
+    procedure Player_BlockTradeRefresh;
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender: TObject);
     procedure Player_MarkerClick(Sender: TObject);
@@ -216,7 +218,7 @@ type
 
     //Non-visual stuff per-player
     Panel_Player: TKMPanel;
-      Button_Player: array [1..4] of TKMButton;
+      Button_Player: array [TKMPlayerTab] of TKMButton;
       Panel_Goals: TKMPanel;
         //
       Panel_Color: TKMPanel;
@@ -224,9 +226,9 @@ type
       Panel_BlockHouse: TKMPanel;
         Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
         Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
-      //Panel_BlockTrade: TKMPanel;
-      //  Button_BlockTrade: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
-      //  Image_BlockTrade: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
+      Panel_BlockTrade: TKMPanel;
+        Button_BlockTrade: array [1 .. STORE_RES_COUNT] of TKMButtonFlat;
+        Image_BlockTrade: array [1 .. STORE_RES_COUNT] of TKMImage;
       Panel_Markers: TKMPanel;
         Button_Reveal: TKMButtonFlat;
         TrackBar_RevealNewSize: TKMTrackBar;
@@ -425,16 +427,19 @@ begin
     DisplayPage(Panel_Offence)
   else
 
-  if (Sender = Button_Main[3])or(Sender = Button_Player[1]) then
+  if (Sender = Button_Main[3])or(Sender = Button_Player[ptGoals]) then
     DisplayPage(Panel_Goals)
   else
-  if (Sender = Button_Player[2]) then
+  if (Sender = Button_Player[ptColor]) then
     DisplayPage(Panel_Color)
   else
-  if (Sender = Button_Player[3]) then
+  if (Sender = Button_Player[ptBlockHouse]) then
     DisplayPage(Panel_BlockHouse)
   else
-  if (Sender = Button_Player[4]) then
+  if (Sender = Button_Player[ptBlockTrade]) then
+    DisplayPage(Panel_BlockTrade)
+  else
+  if (Sender = Button_Player[ptMarkers]) then
     DisplayPage(Panel_Markers)
   else
 
@@ -528,7 +533,10 @@ begin
   begin
   end else
   if aPage = Panel_BlockHouse then
-    Player_BlockRefresh
+    Player_BlockHouseRefresh
+  else
+  if aPage = Panel_BlockTrade then
+    Player_BlockTradeRefresh
   else
   if aPage = Panel_Markers then
     Player_MarkerClick(nil)
@@ -1020,16 +1028,20 @@ end;
 
 
 procedure TKMapEdInterface.Create_Player;
+const
+  TabGlyph: array [TKMPlayerTab] of Word = (41, 382, 38, 327, 393);
 var
   I: Integer;
   Col: array [0..255] of TColor4;
+  PT: TKMPlayerTab;
 begin
   Panel_Player := TKMPanel.Create(Panel_Common,0,45, TB_WIDTH,28);
-    Button_Player[1] := TKMButton.Create(Panel_Player, SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H,  41, rxGui, bsGame);
-    Button_Player[2] := TKMButton.Create(Panel_Player, SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 382, rxGui, bsGame);
-    Button_Player[3] := TKMButton.Create(Panel_Player, SMALL_PAD_W * 2, 0, SMALL_TAB_W, SMALL_TAB_H,  38, rxGui, bsGame);
-    Button_Player[4] := TKMButton.Create(Panel_Player, SMALL_PAD_W * 3, 0, SMALL_TAB_W, SMALL_TAB_H, 393, rxGui, bsGame);
-    for I := 1 to 4 do Button_Player[I].OnClick := SwitchPage;
+
+    for PT := Low(TKMPlayerTab) to High(TKMPlayerTab) do
+    begin
+      Button_Player[PT] := TKMButton.Create(Panel_Player, SMALL_PAD_W * Byte(PT), 0, SMALL_TAB_W, SMALL_TAB_H,  TabGlyph[PT], rxGui, bsGame);
+      Button_Player[PT].OnClick := SwitchPage;
+    end;
 
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Goals,0,10,TB_WIDTH,0,'Goals',fnt_Outline,taCenter);
@@ -1047,14 +1059,30 @@ begin
     Panel_BlockHouse := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_BlockHouse, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Block/Release houses', fnt_Outline, taCenter);
       for I := 1 to GUI_HOUSE_COUNT do
-      if GUIHouseOrder[I] <> ht_None then begin
+      if GUIHouseOrder[I] <> ht_None then
+      begin
         Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_BlockHouse, ((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
         Button_BlockHouse[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
-        Button_BlockHouse[I].OnClick := Player_BlockClick;
+        Button_BlockHouse[I].OnClick := Player_BlockHouseClick;
         Button_BlockHouse[I].Tag := I;
         Image_BlockHouse[I] := TKMImage.Create(Panel_BlockHouse, ((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
         Image_BlockHouse[I].Hitable := False;
         Image_BlockHouse[I].ImageCenter;
+      end;
+
+    //Allow/Block ware trading
+    Panel_BlockTrade := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
+      TKMLabel.Create(Panel_BlockTrade, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Block trade', fnt_Outline, taCenter);
+      for I := 1 to STORE_RES_COUNT do
+      begin
+        Button_BlockTrade[I] := TKMButtonFlat.Create(Panel_BlockTrade, ((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33, 0);
+        Button_BlockTrade[I].TexID := fResource.Resources[StoreResType[I]].GUIIcon;
+        Button_BlockTrade[I].Hint := fResource.Resources[StoreResType[I]].Title;
+        Button_BlockTrade[I].OnClick := Player_BlockTradeClick;
+        Button_BlockTrade[I].Tag := I;
+        Image_BlockTrade[I] := TKMImage.Create(Panel_BlockTrade, ((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
+        Image_BlockTrade[I].Hitable := False;
+        Image_BlockTrade[I].ImageCenter;
       end;
 
     //FOW settings
@@ -2288,7 +2316,7 @@ begin
                     if Sender = Button_DefenceDelete then
                     begin
                       fPlayers[fActiveMarker.Owner].AI.General.DefencePositions.Delete(fActiveMarker.Index);
-                      SwitchPage(Button_Player[3]);
+                      SwitchPage(Button_Town[ttDefences]);
                     end;
                   end;
     mtRevealFOW:  begin
@@ -2301,7 +2329,7 @@ begin
                     if Sender = Button_RevealDelete then
                     begin
                       Rev.DeleteEntry(fActiveMarker.Index);
-                      SwitchPage(Button_Player[4]);
+                      SwitchPage(Button_Player[ptMarkers]);
                     end;
                   end;
   end;
@@ -2624,7 +2652,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Player_BlockClick(Sender: TObject);
+procedure TKMapEdInterface.Player_BlockHouseClick(Sender: TObject);
 var
   I: Integer;
   H: THouseType;
@@ -2637,23 +2665,22 @@ begin
   begin
     MyPlayer.Stats.HouseBlocked[H] := True;
     MyPlayer.Stats.HouseGranted[H] := False;
-    Image_BlockHouse[I].TexID := 32;
   end else
   if MyPlayer.Stats.HouseBlocked[H] and not MyPlayer.Stats.HouseGranted[H] then
   begin
     MyPlayer.Stats.HouseBlocked[H] := False;
     MyPlayer.Stats.HouseGranted[H] := True;
-    Image_BlockHouse[I].TexID := 33;
   end else
   begin
     MyPlayer.Stats.HouseBlocked[H] := False;
     MyPlayer.Stats.HouseGranted[H] := False;
-    Image_BlockHouse[I].TexID := 0;
   end;
+
+  Player_BlockHouseRefresh;
 end;
 
 
-procedure TKMapEdInterface.Player_BlockRefresh;
+procedure TKMapEdInterface.Player_BlockHouseRefresh;
 var
   I: Integer;
   H: THouseType;
@@ -2671,6 +2698,36 @@ begin
       Image_BlockHouse[I].TexID := 0
     else
       Image_BlockHouse[I].TexID := 24; //Some erroneous value
+  end;
+end;
+
+
+procedure TKMapEdInterface.Player_BlockTradeClick(Sender: TObject);
+var
+  I: Integer;
+  R: TResourceType;
+begin
+  I := TKMButtonFlat(Sender).Tag;
+  R := StoreResType[I];
+
+  MyPlayer.Stats.AllowToTrade[R] := not MyPlayer.Stats.AllowToTrade[R];
+
+  Player_BlockTradeRefresh;
+end;
+
+
+procedure TKMapEdInterface.Player_BlockTradeRefresh;
+var
+  I: Integer;
+  R: TResourceType;
+begin
+  for I := 1 to STORE_RES_COUNT do
+  begin
+    R := StoreResType[I];
+    if MyPlayer.Stats.AllowToTrade[R] then
+      Image_BlockTrade[I].TexID := 33
+    else
+      Image_BlockTrade[I].TexID := 32;
   end;
 end;
 
