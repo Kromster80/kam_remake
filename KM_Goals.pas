@@ -1,7 +1,7 @@
 unit KM_Goals;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
+uses Classes, Math, SysUtils,
   KM_CommonClasses, KM_Defaults;
 
 
@@ -9,7 +9,7 @@ type
   TKMGoal = packed record
     GoalType: TGoalType; //Victory, survive, neither
     GoalCondition: TGoalCondition; //Buildings, troops, time passing
-    GoalStatus: TGoalStatus; //Must this condition be true or false (same as alive or dead) for victory/surival to occour?
+    GoalStatus: TGoalStatus; //Must this condition be true or false (same as alive or dead) for victory/surival to occur?
     GoalTime: Cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
     MessageToShow: Integer; //Message to be shown when the goal is completed
     MessageHasShown: Boolean; //Whether we have shown this message yet
@@ -62,8 +62,9 @@ type
 
     property Count: Integer read fCount;
     property Item[aIndex: Integer]: TKMGoal read GetGoal; default;
-    procedure AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aPlayerIndex: TPlayerIndex);
-    procedure RemGoal(aIndex: Integer);
+    procedure AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aPlayerIndex: TPlayerIndex); overload;
+    procedure AddGoal(aGoal: TKMGoal); overload;
+    procedure Delete(aIndex: Integer);
     procedure RemoveReference(aPlayerIndex: TPlayerIndex);
     procedure SetMessageHasShown(aIndex: Integer);
     procedure AddDefaultMPGoals(aBuildings: Boolean; aOurPlayerIndex: TPlayerIndex; const aEnemyIndexes: array of TPlayerIndex);
@@ -113,12 +114,24 @@ begin
 end;
 
 
-procedure TKMGoals.RemGoal(aIndex: Integer);
+procedure TKMGoals.AddGoal(aGoal: TKMGoal);
 begin
-  if aIndex <> fCount then
+  if fCount >= Length(fGoals) then
+    SetLength(fGoals, fCount + 16);
+
+  fGoals[fCount] := aGoal;
+  Inc(fCount);
+end;
+
+
+procedure TKMGoals.Delete(aIndex: Integer);
+begin
+  Assert(InRange(aIndex, 0, Count - 1));
+
+  if (aIndex <> Count - 1) then
     Move(fGoals[aIndex + 1], fGoals[aIndex], (fCount - 1 - aIndex) * SizeOf(TKMGoal));
+
   Dec(fCount);
-  SetLength(fGoals, fCount);
 end;
 
 
@@ -132,7 +145,7 @@ begin
     if fGoals[I].PlayerIndex > aPlayerIndex then
       fGoals[I].PlayerIndex := pred(fGoals[I].PlayerIndex)
     else if fGoals[I].PlayerIndex = aPlayerIndex then
-      RemGoal(I);
+      Delete(I);
 end;
 
 

@@ -57,6 +57,12 @@ type
     procedure Extra_Change(Sender: TObject);
     procedure Formations_Show(Sender: TObject);
     procedure Formations_Close(Sender: TObject);
+    procedure Goals_Add(Sender: TObject);
+    procedure Goals_Del(Sender: TObject);
+    procedure Goals_Edit(aIndex: Integer);
+    procedure Goals_ListClick(Sender: TObject);
+    procedure Goals_ListDoubleClick(Sender: TObject);
+    procedure Goals_Refresh;
     procedure House_HealthChange(Sender: TObject; AButton: TMouseButton);
     procedure House_BarracksRefresh(Sender: TObject);
     procedure House_BarracksSelectWare(Sender: TObject);
@@ -220,7 +226,9 @@ type
     Panel_Player: TKMPanel;
       Button_Player: array [TKMPlayerTab] of TKMButton;
       Panel_Goals: TKMPanel;
-        //
+        List_Goals: TKMColumnListBox;
+        Button_GoalsAdd: TKMButton;
+        Button_GoalsDel: TKMButton;
       Panel_Color: TKMPanel;
         ColorSwatch_Color: TKMColorSwatch;
       Panel_BlockHouse: TKMPanel;
@@ -344,7 +352,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Game,
+  KM_CommonClasses, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Game, KM_Goals,
   KM_GameApp, KM_Resource, KM_TerrainPainter, KM_ResourceUnit, KM_ResourceCursors,
   KM_ResourceMapElements, KM_AIDefensePos, KM_ResourceHouse, KM_RenderUI;
 
@@ -527,11 +535,11 @@ begin
   else
 
   if aPage = Panel_Goals then
-  begin
-  end else
+    Goals_Refresh
+  else
   if aPage = Panel_Color then
-  begin
-  end else
+
+  else
   if aPage = Panel_BlockHouse then
     Player_BlockHouseRefresh
   else
@@ -1044,7 +1052,16 @@ begin
     end;
 
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Goals,0,10,TB_WIDTH,0,'Goals',fnt_Outline,taCenter);
+      TKMLabel.Create(Panel_Goals, 0, 10, TB_WIDTH, 0, 'Goals', fnt_Outline, taCenter);
+      List_Goals := TKMColumnListBox.Create(Panel_Goals, 0, 50, TB_WIDTH, 210, fnt_Game, bsGame);
+      List_Goals.SetColumns(fnt_Outline, ['Type', 'Condition', 'Status', 'Player', 'Time', 'Msg'], [0, 20, 100, 120, 140, 160]);
+      List_Goals.OnClick := Goals_ListClick;
+      List_Goals.OnDoubleClick := Goals_ListDoubleClick;
+
+      Button_GoalsAdd := TKMButton.Create(Panel_Goals, 0, 270, 25, 25, '+', bsGame);
+      Button_GoalsAdd.OnClick := Goals_Add;
+      Button_GoalsDel := TKMButton.Create(Panel_Goals, 30, 270, 25, 25, 'X', bsGame);
+      Button_GoalsDel.OnClick := Goals_Del;
 
     //Players color
     Panel_Color := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
@@ -1088,14 +1105,14 @@ begin
     //FOW settings
     Panel_Markers := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Markers, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Reveal fog', fnt_Outline, taCenter);
-      Button_Reveal         := TKMButtonFlat.Create(Panel_Markers, 0, 30, 33, 33, 335);
+      Button_Reveal         := TKMButtonFlat.Create(Panel_Markers, 0, 30, 33, 33, 394);
       Button_Reveal.Hint    := 'Reveal a portion of map';
       Button_Reveal.OnClick := Player_MarkerClick;
       TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_Markers, 37, 35, 140, 1, 50);
       CheckBox_RevealAll      := TKMCheckBox.Create(Panel_Markers, 0, 75, 140, 20, 'Reveal all', fnt_Metal);
       CheckBox_RevealAll.Enabled := False;
       TKMLabel.Create(Panel_Markers, 0, 100, TB_WIDTH, 0, 'Center screen', fnt_Outline, taCenter);
-      Button_CenterScreen         := TKMButtonFlat.Create(Panel_Markers, 0, 120, 33, 33, 335);
+      Button_CenterScreen         := TKMButtonFlat.Create(Panel_Markers, 0, 120, 33, 33, 391);
       Button_CenterScreen.Hint    := 'Center screen on mission start';
       Button_CenterScreen.OnClick := Player_MarkerClick;
 end;
@@ -1972,7 +1989,7 @@ var
   I: Integer;
 begin
   I := List_Attacks.ItemIndex;
-  Button_AttacksDel.Enabled := InRange(I, 0, MyPlayer.AI.General.Attacks.Count);
+  Button_AttacksDel.Enabled := InRange(I, 0, MyPlayer.AI.General.Attacks.Count - 1);
 end;
 
 
@@ -2003,6 +2020,87 @@ begin
     A := MyPlayer.AI.General.Attacks[I];
     List_Attacks.AddItem(MakeListRow([Typ[A.AttackType], IntToStr(A.Delay), IntToStr(A.TotalMen), Tgt[A.Target], TypeToString(A.CustomPosition)]));
   end;
+
+  Attacks_ListClick(nil);
+end;
+
+
+//Add a dummy attack and let mapmaker edit it
+procedure TKMapEdInterface.Goals_Add(Sender: TObject);
+var
+  G: TKMGoal;
+begin
+  FillChar(G, SizeOf(G), #0);
+  MyPlayer.Goals.AddGoal(G);
+
+  Goals_Refresh;
+  List_Goals.ItemIndex := MyPlayer.Goals.Count - 1;
+
+  //Edit the attack we have just appended
+  Goals_Edit(List_Goals.ItemIndex);
+end;
+
+
+procedure TKMapEdInterface.Goals_Del(Sender: TObject);
+var I: Integer;
+begin
+  I := List_Goals.ItemIndex;
+  if InRange(I, 0, MyPlayer.Goals.Count - 1) then
+    MyPlayer.Goals.Delete(I);
+end;
+
+
+procedure TKMapEdInterface.Goals_Edit(aIndex: Integer);
+begin
+  Assert(InRange(aIndex, 0, MyPlayer.Goals.Count - 1));
+  //Goal_Refresh(MyPlayer.Goals[aIndex]);
+  //Panel_Goal.Show;
+end;
+
+
+procedure TKMapEdInterface.Goals_ListClick(Sender: TObject);
+var
+  I: Integer;
+begin
+  I := List_Goals.ItemIndex;
+  Button_GoalsDel.Enabled := InRange(I, 0, MyPlayer.Goals.Count - 1);
+end;
+
+
+procedure TKMapEdInterface.Goals_ListDoubleClick(Sender: TObject);
+var
+  I: Integer;
+begin
+  I := List_Goals.ItemIndex;
+
+  //Check if user double-clicked on an existing item (not on an empty space)
+  if InRange(I, 0, MyPlayer.Goals.Count - 1) then
+    Goals_Edit(I);
+end;
+
+
+procedure TKMapEdInterface.Goals_Refresh;
+const
+  Typ: array [TGoalType] of string = ('-', 'V', 'S');
+  Stat: array [TGoalStatus] of string = ('V', 'X');
+var
+  I: Integer;
+  G: TKMGoal;
+begin
+  List_Goals.Clear;
+
+  for I := 0 to MyPlayer.Goals.Count - 1 do
+  begin
+    G := MyPlayer.Goals[I];
+    List_Goals.AddItem(MakeListRow([Typ[G.GoalType],
+                                    IntToStr(Byte(G.GoalCondition)),
+                                    Stat[G.GoalStatus],
+                                    IntToStr(G.GoalTime),
+                                    IntToStr(G.MessageToShow),
+                                    IntToStr(G.PlayerIndex)]));
+  end;
+
+  Goals_ListClick(nil);
 end;
 
 
@@ -2725,9 +2823,9 @@ begin
   begin
     R := StoreResType[I];
     if MyPlayer.Stats.AllowToTrade[R] then
-      Image_BlockTrade[I].TexID := 33
+      Image_BlockTrade[I].TexID := 0
     else
-      Image_BlockTrade[I].TexID := 32;
+      Image_BlockTrade[I].TexID := 32; //Red cross
   end;
 end;
 
