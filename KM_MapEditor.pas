@@ -423,6 +423,20 @@ begin
                       394, fPlayers[I].FlagColor);
     end;
   end;
+
+  if mlCenterScreen in fVisibleLayers then
+  for I := 0 to fPlayers.Count - 1 do
+  begin
+    Loc := fPlayers[I].CenterScreen;
+    case aLayer of
+      plTerrain:  fRenderAux.SquareOnTerrain(Loc.X - 2, Loc.Y - 1.5,
+                                             Loc.X + 2, Loc.Y + 1.5,
+                                             fPlayers[I].FlagColor AND $20FFFFFF,
+                                             fPlayers[I].FlagColor);
+      plCursors:  fRenderPool.RenderCursorBuildIcon(Loc,
+                      391, fPlayers[I].FlagColor);
+    end;
+  end;
 end;
 
 

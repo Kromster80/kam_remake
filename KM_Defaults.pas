@@ -227,6 +227,7 @@ type
 const
   MARKER_REVEAL = 1;
   MARKER_DEFENCE = 2;
+  MARKER_CENTERSCREEN = 3;
 
 const
   MAPED_TILES_X = 6;
@@ -733,7 +734,7 @@ const
 
 
 type
-  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW);  //Enum representing mapEditor visible layers
+  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW, mlCenterScreen);  //Enum representing mapEditor visible layers
   TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
 
   TPaintLayer = (plTerrain, plObjects, plCursors);

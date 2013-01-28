@@ -418,8 +418,6 @@ var
   ParamList: array [1..MAX_PARAMS] of integer;
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
-  I: Integer;
-  HumanDetected: Boolean;
 begin
   inherited LoadMission(aFileName);
 

@@ -9,10 +9,11 @@ uses
      KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_Terrain;
 
 type
-  TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject, ttClipboard);
+  TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject, ttSelection);
   TKMTownTab = (ttHouses, ttUnits, ttScript, ttDefences, ttOffence);
+  TKMPlayerTab = (ptGoals, ptColor, ptBlock, ptBlockTrade);
 
-type
+
   TKMapEdInterface = class (TKMUserInterface)
   private
     fPrevHint: TObject;
@@ -73,13 +74,15 @@ type
     procedure Menu_LoadUpdateDone(Sender: TObject);
     procedure Minimap_Update(Sender: TObject; const X,Y: Integer);
     procedure Mission_AlliancesChange(Sender: TObject);
+    procedure Mission_ModeChange(Sender: TObject);
+    procedure Mission_ModeUpdate;
     procedure Mission_PlayerTypesChange(Sender: TObject);
     procedure Mission_PlayerTypesUpdate;
     procedure Player_BlockClick(Sender: TObject);
     procedure Player_BlockRefresh;
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender: TObject);
-    procedure Player_RevealClick(Sender: TObject);
+    procedure Player_MarkerClick(Sender: TObject);
     procedure Terrain_BrushChange(Sender: TObject);
     procedure Terrain_BrushRefresh;
     procedure Terrain_HeightChange(Sender: TObject);
@@ -150,13 +153,15 @@ type
         ObjectErase: TKMButtonFlat;
         ObjectsTable: array [0..8] of TKMButtonFlat;
         ObjectsScroll: TKMScrollBar;
-      Panel_Clipboard: TKMPanel;
-        ClipboardCopy,ClipboardPaste,ClipboardPasteFlippedH,ClipboardPasteFlippedV: TKMButtonFlat;
+      Panel_Selection: TKMPanel;
+        Button_SelectCopy, Button_SelectPaste: TKMButtonFlat;
+        Button_SelectFlipH, Button_SelectFlipV: TKMButtonFlat;
 
 
     //How to know where certain page should be?
     //see Docs\Map Editor menu structure.txt
 
+    //Town and Visual stuff
     Panel_Town: TKMPanel;
       Button_Town: array [TKMTownTab] of TKMButton;
       Panel_Build: TKMPanel;
@@ -182,55 +187,65 @@ type
         TrackBar_RecruitFactor: TKMTrackBar;
         Button_DefencePosAdd: TKMButtonFlat;
         Button_EditFormations: TKMButton;
+
+        Panel_Formations: TKMPanel;
+          Image_FormationsFlag: TKMImage;
+          NumEdit_FormationsCount,
+          NumEdit_FormationsColumns: array [TGroupType] of TKMNumericEdit;
+          Button_Formations_Ok: TKMButton;
+          Button_Formations_Cancel: TKMButton;
+
       Panel_Offence: TKMPanel;
         CheckBox_AutoAttack: TKMCheckBox;
         List_Attacks: TKMColumnListBox;
         Button_AttacksAdd: TKMButton;
         Button_AttacksDel: TKMButton;
 
-    Panel_Formations: TKMPanel;
-      Image_FormationsFlag: TKMImage;
-      NumEdit_FormationsCount,
-      NumEdit_FormationsColumns: array [TGroupType] of TKMNumericEdit;
-      Button_Formations_Ok: TKMButton;
-      Button_Formations_Cancel: TKMButton;
+        Panel_Attack: TKMPanel;
+          Radio_AttackType: TKMRadioGroup;
+          NumEdit_AttackDelay: TKMNumericEdit;
+          NumEdit_AttackMen: TKMNumericEdit;
+          NumEdit_AttackAmount: array [TGroupType] of TKMNumericEdit;
+          CheckBox_AttackTakeAll: TKMCheckBox;
+          Radio_AttackTarget: TKMRadioGroup;
+          TrackBar_AttackRange: TKMTrackBar;
+          NumEdit_AttackLocX: TKMNumericEdit;
+          NumEdit_AttackLocY: TKMNumericEdit;
+          Button_AttackOk: TKMButton;
+          Button_AttackCancel: TKMButton;
 
-    Panel_Attack: TKMPanel;
-      Radio_AttackType: TKMRadioGroup;
-      NumEdit_AttackDelay: TKMNumericEdit;
-      NumEdit_AttackMen: TKMNumericEdit;
-      NumEdit_AttackAmount: array [TGroupType] of TKMNumericEdit;
-      CheckBox_AttackTakeAll: TKMCheckBox;
-      Radio_AttackTarget: TKMRadioGroup;
-      TrackBar_AttackRange: TKMTrackBar;
-      NumEdit_AttackLocX: TKMNumericEdit;
-      NumEdit_AttackLocY: TKMNumericEdit;
-      Button_AttackOk: TKMButton;
-      Button_AttackCancel: TKMButton;
-
+    //Non-visual stuff per-player
     Panel_Player: TKMPanel;
       Button_Player: array [1..4] of TKMButton;
       Panel_Goals: TKMPanel;
+        //
       Panel_Color: TKMPanel;
         ColorSwatch_Color: TKMColorSwatch;
-      Panel_Block: TKMPanel;
+      Panel_BlockHouse: TKMPanel;
         Button_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
         Image_BlockHouse: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
-      Panel_RevealFOW: TKMPanel;
+      //Panel_BlockTrade: TKMPanel;
+      //  Button_BlockTrade: array [1 .. GUI_HOUSE_COUNT] of TKMButtonFlat;
+      //  Image_BlockTrade: array [1 .. GUI_HOUSE_COUNT] of TKMImage;
+      Panel_Markers: TKMPanel;
         Button_Reveal: TKMButtonFlat;
         TrackBar_RevealNewSize: TKMTrackBar;
         CheckBox_RevealAll: TKMCheckBox;
+        Button_CenterScreen: TKMButtonFlat;
 
+    //Global things
     Panel_Mission: TKMPanel;
-      Button_Mission: array [1..2] of TKMButton;
+      Button_Mission: array [1..3] of TKMButton;
+      Panel_Mode: TKMPanel;
+        Radio_MissionMode: TKMRadioGroup;
       Panel_Alliances: TKMPanel;
         CheckBox_Alliances: array [0..MAX_PLAYERS-1, 0..MAX_PLAYERS-1] of TKMCheckBox;
         CheckBox_AlliancesSym: TKMCheckBox;
       Panel_PlayerTypes: TKMPanel;
         CheckBox_PlayerTypes: array [0..MAX_PLAYERS-1, 0..2] of TKMCheckBox;
 
-    Panel_Menu:TKMPanel;
-      Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit:TKMButton;
+    Panel_Menu: TKMPanel;
+      Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit: TKMButton;
 
       Panel_Save:TKMPanel;
         Radio_Save_MapType:TKMRadioGroup;
@@ -386,10 +401,10 @@ begin
     Terrain_ObjectsChange(ObjectsTable[fLastObject]);
     DisplayPage(Panel_Objects);
   end else
-  if (Sender = Button_Terrain[ttClipboard]) then
+  if (Sender = Button_Terrain[ttSelection]) then
   begin
-    Terrain_ClipboardChange(ClipboardCopy);
-    DisplayPage(Panel_Clipboard);
+    Terrain_ClipboardChange(Button_SelectCopy);
+    DisplayPage(Panel_Selection);
   end else
 
   if (Sender = Button_Main[2]) or (Sender = Button_Town[ttHouses]) then
@@ -417,16 +432,19 @@ begin
     DisplayPage(Panel_Color)
   else
   if (Sender = Button_Player[3]) then
-    DisplayPage(Panel_Block)
+    DisplayPage(Panel_BlockHouse)
   else
   if (Sender = Button_Player[4]) then
-    DisplayPage(Panel_RevealFOW)
+    DisplayPage(Panel_Markers)
   else
 
   if (Sender = Button_Main[4])or(Sender = Button_Mission[1]) then
-    DisplayPage(Panel_Alliances)
+    DisplayPage(Panel_Mode)
   else
   if (Sender = Button_Mission[2]) then
+    DisplayPage(Panel_Alliances)
+  else
+  if (Sender = Button_Mission[3]) then
     DisplayPage(Panel_PlayerTypes)
   else
 
@@ -509,21 +527,22 @@ begin
   if aPage = Panel_Color then
   begin
   end else
-  if aPage = Panel_Block then
+  if aPage = Panel_BlockHouse then
     Player_BlockRefresh
   else
-  if aPage = Panel_RevealFOW then
-    Player_RevealClick(nil)
+  if aPage = Panel_Markers then
+    Player_MarkerClick(nil)
   else
 
+  if aPage = Panel_Mode then
+    Mission_ModeUpdate
+  else
   if aPage = Panel_Alliances then
-  begin
-    Mission_AlliancesChange(nil);
-  end else
+    Mission_AlliancesChange(nil)
+  else
   if aPage = Panel_PlayerTypes then
-  begin
-    Mission_PlayerTypesUpdate;
-  end else
+    Mission_PlayerTypesUpdate
+  else
 
   if aPage = Panel_Menu then
   else
@@ -850,20 +869,20 @@ begin
       ObjectErase.Tag := 255; //no object
       ObjectErase.OnClick := Terrain_ObjectsChange;
 
-    Panel_Clipboard := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Clipboard, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Copy/paste', fnt_Outline, taCenter);
-        ClipboardCopy := TKMButtonFlat.Create(Panel_Clipboard, 24, 28, 24, 24, 384);
-        ClipboardCopy.Hint := 'Copy terrain';
-        ClipboardCopy.OnClick := Terrain_ClipboardChange;
-        ClipboardPaste := TKMButtonFlat.Create(Panel_Clipboard, 52, 28, 24, 24, 384);
-        ClipboardPaste.Hint := 'Paste terrain';
-        ClipboardPaste.OnClick := Terrain_ClipboardChange;
-        ClipboardPasteFlippedH := TKMButtonFlat.Create(Panel_Clipboard, 80, 28, 24, 24, 384);
-        ClipboardPasteFlippedH.Hint := 'Paste horizontally flipped terrain';
-        ClipboardPasteFlippedH.OnClick := Terrain_ClipboardChange;
-        ClipboardPasteFlippedV := TKMButtonFlat.Create(Panel_Clipboard, 108, 28, 24, 24, 384);
-        ClipboardPasteFlippedV.Hint := 'Paste vertically flipped terrain';
-        ClipboardPasteFlippedV.OnClick := Terrain_ClipboardChange;
+    Panel_Selection := TKMPanel.Create(Panel_Terrain,0,28,TB_WIDTH,400);
+      TKMLabel.Create(Panel_Selection, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Copy/paste', fnt_Outline, taCenter);
+        Button_SelectCopy := TKMButtonFlat.Create(Panel_Selection, 24, 28, 24, 24, 384);
+        Button_SelectCopy.Hint := 'Copy terrain';
+        Button_SelectCopy.OnClick := Terrain_ClipboardChange;
+        Button_SelectPaste := TKMButtonFlat.Create(Panel_Selection, 52, 28, 24, 24, 384);
+        Button_SelectPaste.Hint := 'Paste terrain';
+        Button_SelectPaste.OnClick := Terrain_ClipboardChange;
+        Button_SelectFlipH := TKMButtonFlat.Create(Panel_Selection, 80, 28, 24, 24, 384);
+        Button_SelectFlipH.Hint := 'Paste horizontally flipped terrain';
+        Button_SelectFlipH.OnClick := Terrain_ClipboardChange;
+        Button_SelectFlipV := TKMButtonFlat.Create(Panel_Selection, 108, 28, 24, 24, 384);
+        Button_SelectFlipV.Hint := 'Paste vertically flipped terrain';
+        Button_SelectFlipV.OnClick := Terrain_ClipboardChange;
 end;
 
 
@@ -1025,28 +1044,32 @@ begin
       ColorSwatch_Color.OnClick := Player_ColorClick;
 
     //Allow/Block house building
-    Panel_Block := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
-      TKMLabel.Create(Panel_Block, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Block/Release houses', fnt_Outline, taCenter);
+    Panel_BlockHouse := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
+      TKMLabel.Create(Panel_BlockHouse, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Block/Release houses', fnt_Outline, taCenter);
       for I := 1 to GUI_HOUSE_COUNT do
       if GUIHouseOrder[I] <> ht_None then begin
-        Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_Block, ((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
+        Button_BlockHouse[I] := TKMButtonFlat.Create(Panel_BlockHouse, ((I-1) mod 5)*37, 30 + ((I-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[I]].GUIIcon);
         Button_BlockHouse[I].Hint := fResource.HouseDat[GUIHouseOrder[I]].HouseName;
         Button_BlockHouse[I].OnClick := Player_BlockClick;
         Button_BlockHouse[I].Tag := I;
-        Image_BlockHouse[I] := TKMImage.Create(Panel_Block, ((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
+        Image_BlockHouse[I] := TKMImage.Create(Panel_BlockHouse, ((I-1) mod 5)*37 + 13, 30 + ((I-1) div 5)*37 + 13, 16, 16, 0, rxGuiMain);
         Image_BlockHouse[I].Hitable := False;
         Image_BlockHouse[I].ImageCenter;
       end;
 
     //FOW settings
-    Panel_RevealFOW := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_RevealFOW, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Reveal fog', fnt_Outline, taCenter);
-      Button_Reveal         := TKMButtonFlat.Create(Panel_RevealFOW, 0, 30, 33, 33, 335);
-      Button_Reveal.OnClick := Player_RevealClick;
+    Panel_Markers := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
+      TKMLabel.Create(Panel_Markers, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Reveal fog', fnt_Outline, taCenter);
+      Button_Reveal         := TKMButtonFlat.Create(Panel_Markers, 0, 30, 33, 33, 335);
       Button_Reveal.Hint    := 'Reveal a portion of map';
-      TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_RevealFOW, 37, 35, 140, 1, 50);
-      CheckBox_RevealAll      := TKMCheckBox.Create(Panel_RevealFOW, 0, 75, 140, 20, 'Reveal all', fnt_Metal);
+      Button_Reveal.OnClick := Player_MarkerClick;
+      TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_Markers, 37, 35, 140, 1, 50);
+      CheckBox_RevealAll      := TKMCheckBox.Create(Panel_Markers, 0, 75, 140, 20, 'Reveal all', fnt_Metal);
       CheckBox_RevealAll.Enabled := False;
+      TKMLabel.Create(Panel_Markers, 0, 100, TB_WIDTH, 0, 'Center screen', fnt_Outline, taCenter);
+      Button_CenterScreen         := TKMButtonFlat.Create(Panel_Markers, 0, 120, 33, 33, 335);
+      Button_CenterScreen.Hint    := 'Center screen on mission start';
+      Button_CenterScreen.OnClick := Player_MarkerClick;
 end;
 
 
@@ -1056,10 +1079,18 @@ begin
   Panel_Mission := TKMPanel.Create(Panel_Common, 0, 45, TB_WIDTH, 28);
     Button_Mission[1] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 0, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
     Button_Mission[2] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 1, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
-    for I := 1 to 2 do Button_Mission[I].OnClick := SwitchPage;
+    Button_Mission[3] := TKMButton.Create(Panel_Mission, SMALL_PAD_W * 2, 0, SMALL_TAB_W, SMALL_TAB_H, 41, rxGui, bsGame);
+    for I := 1 to 3 do Button_Mission[I].OnClick := SwitchPage;
+
+    Panel_Mode := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
+      TKMLabel.Create(Panel_Mode, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Mode', fnt_Outline, taCenter);
+      Radio_MissionMode := TKMRadioGroup.Create(Panel_Mode, 0, 30, TB_WIDTH, 40, fnt_Metal);
+      Radio_MissionMode.Items.Add('Normal');
+      Radio_MissionMode.Items.Add('Tactic');
+      Radio_MissionMode.OnChange := Mission_ModeChange;
 
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
-      TKMLabel.Create(Panel_Alliances,0,PAGE_TITLE_Y,TB_WIDTH,0,'Alliances',fnt_Outline,taCenter);
+      TKMLabel.Create(Panel_Alliances, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Alliances', fnt_Outline, taCenter);
       for I := 0 to MAX_PLAYERS - 1 do
       begin
         TKMLabel.Create(Panel_Alliances,24+I*20+2,30,20,20,inttostr(I+1),fnt_Outline,taLeft);
@@ -1805,7 +1836,7 @@ end;
 
 procedure TKMapEdInterface.Terrain_ClipboardChange(Sender: TObject);
 begin
-  if Sender = ClipboardCopy then
+  if Sender = Button_SelectCopy then
   begin
 
   end;
@@ -2042,8 +2073,8 @@ begin
 
   fGame.MapEditor.VisibleLayers := [];
 
-  if Panel_RevealFOW.Visible or Panel_MarkerReveal.Visible then
-    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW];
+  if Panel_Markers.Visible or Panel_MarkerReveal.Visible then
+    fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlRevealFOW, mlCenterScreen];
 
   if Panel_Defence.Visible or Panel_MarkerDefence.Visible then
     fGame.MapEditor.VisibleLayers := fGame.MapEditor.VisibleLayers + [mlDefences];
@@ -2644,15 +2675,22 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Player_RevealClick(Sender: TObject);
+procedure TKMapEdInterface.Player_MarkerClick(Sender: TObject);
 begin
   //Press the button
   Button_Reveal.Down := not Button_Reveal.Down and (Sender = Button_Reveal);
+  Button_CenterScreen.Down := not Button_CenterScreen.Down and (Sender = Button_CenterScreen);
 
   if Button_Reveal.Down then
   begin
     GameCursor.Mode := cmMarkers;
     GameCursor.Tag1 := MARKER_REVEAL;
+  end
+  else
+  if Button_CenterScreen.Down then
+  begin
+    GameCursor.Mode := cmMarkers;
+    GameCursor.Tag1 := MARKER_CENTERSCREEN;
   end
   else
   begin
@@ -2685,6 +2723,18 @@ begin
     CheckBox_Alliances[k,i].Checked := CheckBox_Alliances[i,k].Checked;
     fPlayers[k].Alliances[i] := fPlayers[i].Alliances[k];
   end;
+end;
+
+
+procedure TKMapEdInterface.Mission_ModeChange(Sender: TObject);
+begin
+  fGame.MissionMode := TKMissionMode(Radio_MissionMode.ItemIndex);
+end;
+
+
+procedure TKMapEdInterface.Mission_ModeUpdate;
+begin
+  Radio_MissionMode.ItemIndex := Byte(fGame.MissionMode);
 end;
 
 
@@ -2951,8 +3001,9 @@ begin
                       fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);
                   end;
       cmMarkers:  case GameCursor.Tag1 of
-                    MARKER_REVEAL:  fGame.MapEditor.Revealers[MyPlayer.PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
-                    MARKER_DEFENCE: MyPlayer.AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
+                    MARKER_REVEAL:        fGame.MapEditor.Revealers[MyPlayer.PlayerIndex].AddEntry(P, TrackBar_RevealNewSize.Position);
+                    MARKER_DEFENCE:       MyPlayer.AI.General.DefencePositions.Add(KMPointDir(P, dir_N), gt_Melee, 10, adt_FrontLine);
+                    MARKER_CENTERSCREEN:  MyPlayer.CenterScreen := P;
                   end;
       cmErase:    case GetShownPage of
                     esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
@@ -2973,7 +3024,7 @@ begin
   Result := esp_Unknown;
   if Panel_Terrain.Visible then   Result := esp_Terrain;
   if Panel_Build.Visible then     Result := esp_Buildings;
-  if Panel_RevealFOW.Visible then Result := esp_Reveal;
+  if Panel_Markers.Visible then Result := esp_Reveal;
 end;
 
 
