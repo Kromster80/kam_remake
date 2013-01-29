@@ -6,7 +6,7 @@ uses
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, TypInfo,
      KM_Controls, KM_Defaults, KM_Pics, KM_Maps, KM_Houses, KM_Units, KM_UnitGroups, KM_MapEditor,
-     KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_Terrain;
+     KM_Points, KM_InterfaceDefaults, KM_AIAttacks, KM_Goals, KM_Terrain;
 
 type
   TKMTerrainTab = (ttBrush, ttHeights, ttTile, ttObject, ttSelection);
@@ -42,8 +42,9 @@ type
     procedure Create_HouseStore;
     procedure Create_HouseBarracks;
     procedure Create_Marker;
-    procedure Create_AttacksPopUp;
+    procedure Create_AttackPopUp;
     procedure Create_FormationsPopUp;
+    procedure Create_GoalPopUp;
 
     procedure Attack_Change(Sender: TObject);
     procedure Attack_Close(Sender: TObject);
@@ -57,6 +58,9 @@ type
     procedure Extra_Change(Sender: TObject);
     procedure Formations_Show(Sender: TObject);
     procedure Formations_Close(Sender: TObject);
+    procedure Goal_Change(Sender: TObject);
+    procedure Goal_Close(Sender: TObject);
+    procedure Goal_Refresh(aGoal: TKMGoal);
     procedure Goals_Add(Sender: TObject);
     procedure Goals_Del(Sender: TObject);
     procedure Goals_Edit(aIndex: Integer);
@@ -195,32 +199,11 @@ type
         TrackBar_RecruitFactor: TKMTrackBar;
         Button_DefencePosAdd: TKMButtonFlat;
         Button_EditFormations: TKMButton;
-
-        Panel_Formations: TKMPanel;
-          Image_FormationsFlag: TKMImage;
-          NumEdit_FormationsCount,
-          NumEdit_FormationsColumns: array [TGroupType] of TKMNumericEdit;
-          Button_Formations_Ok: TKMButton;
-          Button_Formations_Cancel: TKMButton;
-
       Panel_Offence: TKMPanel;
         CheckBox_AutoAttack: TKMCheckBox;
         List_Attacks: TKMColumnListBox;
         Button_AttacksAdd: TKMButton;
         Button_AttacksDel: TKMButton;
-
-        Panel_Attack: TKMPanel;
-          Radio_AttackType: TKMRadioGroup;
-          NumEdit_AttackDelay: TKMNumericEdit;
-          NumEdit_AttackMen: TKMNumericEdit;
-          NumEdit_AttackAmount: array [TGroupType] of TKMNumericEdit;
-          CheckBox_AttackTakeAll: TKMCheckBox;
-          Radio_AttackTarget: TKMRadioGroup;
-          TrackBar_AttackRange: TKMTrackBar;
-          NumEdit_AttackLocX: TKMNumericEdit;
-          NumEdit_AttackLocY: TKMNumericEdit;
-          Button_AttackOk: TKMButton;
-          Button_AttackCancel: TKMButton;
 
     //Non-visual stuff per-player
     Panel_Player: TKMPanel;
@@ -328,6 +311,37 @@ type
         TrackBar_DefenceRad: TKMTrackBar;
         Button_DefenceCW, Button_DefenceCCW: TKMButton;
         Button_DefenceDelete: TKMButton;
+
+    //PopUp panels
+    Panel_Formations: TKMPanel;
+      Image_FormationsFlag: TKMImage;
+      NumEdit_FormationsCount,
+      NumEdit_FormationsColumns: array [TGroupType] of TKMNumericEdit;
+      Button_Formations_Ok: TKMButton;
+      Button_Formations_Cancel: TKMButton;
+
+    Panel_Attack: TKMPanel;
+      Radio_AttackType: TKMRadioGroup;
+      NumEdit_AttackDelay: TKMNumericEdit;
+      NumEdit_AttackMen: TKMNumericEdit;
+      NumEdit_AttackAmount: array [TGroupType] of TKMNumericEdit;
+      CheckBox_AttackTakeAll: TKMCheckBox;
+      Radio_AttackTarget: TKMRadioGroup;
+      TrackBar_AttackRange: TKMTrackBar;
+      NumEdit_AttackLocX: TKMNumericEdit;
+      NumEdit_AttackLocY: TKMNumericEdit;
+      Button_AttackOk: TKMButton;
+      Button_AttackCancel: TKMButton;
+
+    Panel_Goal: TKMPanel;
+      Radio_GoalType: TKMRadioGroup;
+      Radio_GoalCondition: TKMRadioGroup;
+      Radio_GoalStatus: TKMRadioGroup;
+      NumEdit_GoalTime: TKMNumericEdit;
+      NumEdit_GoalMessage: TKMNumericEdit;
+      NumEdit_GoalPlayer: TKMNumericEdit;
+      Button_GoalOk: TKMButton;
+      Button_GoalCancel: TKMButton;
   public
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
@@ -352,7 +366,7 @@ type
 
 implementation
 uses
-  KM_CommonClasses, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Game, KM_Goals,
+  KM_CommonClasses, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Game,
   KM_GameApp, KM_Resource, KM_TerrainPainter, KM_ResourceUnit, KM_ResourceCursors,
   KM_ResourceMapElements, KM_AIDefensePos, KM_ResourceHouse, KM_RenderUI;
 
@@ -729,8 +743,9 @@ begin
   Image_Extra.OnClick := SwitchPage;
 
   //Pages that need to be on top of everything
-  Create_AttacksPopUp;
+  Create_AttackPopUp;
   Create_FormationsPopUp;
+  Create_GoalPopUp;
 
   fMyControls.OnHint := DisplayHint;
 
@@ -1291,7 +1306,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Create_AttacksPopUp;
+procedure TKMapEdInterface.Create_AttackPopUp;
 const
   T: array [TGroupType] of string = ('Melee', 'AntiHorse', 'Ranged', 'Mounted');
   SIZE_X = 570;
@@ -1396,6 +1411,70 @@ begin
     Button_Formations_Ok.OnClick := Formations_Close;
     Button_Formations_Cancel := TKMButton.Create(Panel_Formations, SIZE_X-20-160, 150, 160, 30, 'Cancel', bsMenu);
     Button_Formations_Cancel.OnClick := Formations_Close;
+end;
+
+
+procedure TKMapEdInterface.Create_GoalPopUp;
+const
+  SIZE_X = 600;
+  SIZE_Y = 300;
+var
+  Img: TKMImage;
+begin
+  Panel_Goal := TKMPanel.Create(Panel_Main, 362, 250, SIZE_X, SIZE_Y);
+  Panel_Goal.Anchors := [];
+  Panel_Goal.Hide;
+
+    TKMBevel.Create(Panel_Goal, -1000,  -1000, 4000, 4000);
+    Img := TKMImage.Create(Panel_Goal, -20, -50, SIZE_X+40, SIZE_Y+60, 15, rxGuiMain);
+    Img.ImageStretch;
+    TKMBevel.Create(Panel_Goal,   0,  0, SIZE_X, SIZE_Y);
+    TKMLabel.Create(Panel_Goal, SIZE_X div 2, 10, 'Goal', fnt_Outline, taCenter);
+
+    Image_FormationsFlag := TKMImage.Create(Panel_Goal, 10, 10, 0, 0, 30, rxGuiMain);
+
+    TKMLabel.Create(Panel_Goal, 20, 40, 100, 0, 'Type', fnt_Metal, taLeft);
+    Radio_GoalType := TKMRadioGroup.Create(Panel_Goal, 20, 60, 100, 60, fnt_Metal);
+    Radio_GoalType.Items.Add('None');
+    Radio_GoalType.Items.Add('Victory');
+    Radio_GoalType.Items.Add('Survive');
+    Radio_GoalType.OnChange := Goal_Change;
+
+    TKMLabel.Create(Panel_Goal, 140, 40, 180, 0, 'Condition', fnt_Metal, taLeft);
+    Radio_GoalCondition := TKMRadioGroup.Create(Panel_Goal, 140, 60, 180, 180, fnt_Metal);
+    Radio_GoalCondition.Items.Add('None');
+    Radio_GoalCondition.Items.Add('BuildTutorial');
+    Radio_GoalCondition.Items.Add('Time');
+    Radio_GoalCondition.Items.Add('Buildings');
+    Radio_GoalCondition.Items.Add('Troops');
+    Radio_GoalCondition.Items.Add('Unknown');
+    Radio_GoalCondition.Items.Add('MilitaryAssets');
+    Radio_GoalCondition.Items.Add('SerfsAndSchools');
+    Radio_GoalCondition.Items.Add('EconomyBuildings');
+    Radio_GoalCondition.OnChange := Goal_Change;
+
+    TKMLabel.Create(Panel_Goal, 330, 40, 'Player', fnt_Metal, taLeft);
+    NumEdit_GoalPlayer := TKMNumericEdit.Create(Panel_Goal, 330, 60, 0, MAX_PLAYERS - 1);
+    NumEdit_GoalPlayer.OnChange := Goal_Change;
+
+    TKMLabel.Create(Panel_Goal, 420, 40, 100, 0, 'Status', fnt_Metal, taLeft);
+    Radio_GoalStatus := TKMRadioGroup.Create(Panel_Goal, 420, 60, 100, 40, fnt_Metal);
+    Radio_GoalStatus.Items.Add('True');
+    Radio_GoalStatus.Items.Add('False');
+    Radio_GoalStatus.OnChange := Goal_Change;
+
+    TKMLabel.Create(Panel_Goal, 530, 40, 'Time', fnt_Metal, taLeft);
+    NumEdit_GoalTime := TKMNumericEdit.Create(Panel_Goal, 530, 60, 0, 1000);
+    NumEdit_GoalTime.OnChange := Goal_Change;
+
+    TKMLabel.Create(Panel_Goal, 530, 90, 'Message Id', fnt_Metal, taLeft);
+    NumEdit_GoalMessage := TKMNumericEdit.Create(Panel_Goal, 530, 110, 0, 1000);
+    NumEdit_GoalMessage.OnChange := Goal_Change;
+
+    Button_GoalOk := TKMButton.Create(Panel_Goal, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, 'Ok', bsMenu);
+    Button_GoalOk.OnClick := Goal_Close;
+    Button_GoalCancel := TKMButton.Create(Panel_Goal, SIZE_X-20-160, SIZE_Y - 50, 160, 30, 'Cancel', bsMenu);
+    Button_GoalCancel.OnClick := Goal_Close;
 end;
 
 
@@ -1892,6 +1971,9 @@ procedure TKMapEdInterface.Attack_Change(Sender: TObject);
 var
   GT: TGroupType;
 begin
+  //Settings get saved on close, now we just toggle fields
+  //because certain combinations can't coexist
+
   for GT := Low(TGroupType) to High(TGroupType) do
     NumEdit_AttackAmount[GT].Enabled := not CheckBox_AttackTakeAll.Checked;
 
@@ -2025,7 +2107,56 @@ begin
 end;
 
 
-//Add a dummy attack and let mapmaker edit it
+procedure TKMapEdInterface.Goal_Change(Sender: TObject);
+begin
+  //Settings get saved on close, now we just toggle fields
+  //because certain combinations can't coexist
+
+  NumEdit_GoalTime.Enabled := TGoalCondition(Radio_GoalCondition.ItemIndex) = gc_Time;
+end;
+
+
+procedure TKMapEdInterface.Goal_Close(Sender: TObject);
+var
+  I: Integer;
+  G: TKMGoal;
+begin
+  if Sender = Button_GoalOk then
+  begin
+    //Goal we are editing
+    I := List_Goals.ItemIndex;
+
+    //Copy Goal info from controls to Goals
+    G.GoalType := TGoalType(Radio_GoalType.ItemIndex);
+    G.GoalCondition := TGoalCondition(Radio_GoalCondition.ItemIndex);
+    G.GoalStatus := TGoalStatus(Radio_GoalStatus.ItemIndex);
+    G.GoalTime := NumEdit_GoalTime.Value * 10;
+    G.MessageToShow := NumEdit_GoalMessage.Value;
+    G.PlayerIndex := NumEdit_GoalPlayer.Value;
+
+    MyPlayer.Goals[I] := G;
+  end;
+
+  Panel_Goal.Hide;
+  Goals_Refresh;
+end;
+
+
+procedure TKMapEdInterface.Goal_Refresh(aGoal: TKMGoal);
+begin
+  Radio_GoalType.ItemIndex := Byte(aGoal.GoalType);
+  Radio_GoalCondition.ItemIndex := Byte(aGoal.GoalCondition);
+  Radio_GoalStatus.ItemIndex := Byte(aGoal.GoalStatus);
+  NumEdit_GoalTime.Value := aGoal.GoalTime div 10;
+  NumEdit_GoalMessage.Value := aGoal.MessageToShow;
+  NumEdit_GoalPlayer.Value := aGoal.PlayerIndex;
+
+  //Certain values disable certain controls
+  Goal_Change(nil);
+end;
+
+
+//Add a dummy goal and let mapmaker edit it
 procedure TKMapEdInterface.Goals_Add(Sender: TObject);
 var
   G: TKMGoal;
@@ -2053,8 +2184,8 @@ end;
 procedure TKMapEdInterface.Goals_Edit(aIndex: Integer);
 begin
   Assert(InRange(aIndex, 0, MyPlayer.Goals.Count - 1));
-  //Goal_Refresh(MyPlayer.Goals[aIndex]);
-  //Panel_Goal.Show;
+  Goal_Refresh(MyPlayer.Goals[aIndex]);
+  Panel_Goal.Show;
 end;
 
 

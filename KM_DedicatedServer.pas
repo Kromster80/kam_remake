@@ -1,4 +1,5 @@
 unit KM_DedicatedServer;
+{$I KaM_Remake.inc}
 interface
 uses
   SysUtils, Classes, Math,

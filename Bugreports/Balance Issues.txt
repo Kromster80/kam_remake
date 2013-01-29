@@ -84,3 +84,12 @@ SOLUTIONS:
     + The Dark Lord will be eternally grateful xD
  4. Recalculate market prices with regard to time it takes to get first ware (e.g. time in minutes it takes to get first ware in normal way).
     + Horses, Pigs and their subproducts will become more expensive, thus discouraging trading of "fast" resources (coal, stone) for Horses, Sausages, etc..
+
+
+ISSUE:
+Builder rushes when enemy spams builders and covers whole map in its houseplans.
+
+
+ISSUE:
+Excess builders used to empty enemies towers.
+

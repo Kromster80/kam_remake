@@ -56,12 +56,13 @@ type
     fCount: Integer;
     fGoals: array of TKMGoal;
     function GetGoal(aIndex: Integer): TKMGoal;
+    procedure SetGoal(aIndex: Integer; const Value: TKMGoal);
   public
     constructor Create;
     destructor Destroy; override;
 
     property Count: Integer read fCount;
-    property Item[aIndex: Integer]: TKMGoal read GetGoal; default;
+    property Item[aIndex: Integer]: TKMGoal read GetGoal write SetGoal; default;
     procedure AddGoal(aType: TGoalType; aCondition: TGoalCondition; aStatus: TGoalStatus; aTime: Cardinal; aMessageToShow: Integer; aPlayerIndex: TPlayerIndex); overload;
     procedure AddGoal(aGoal: TKMGoal); overload;
     procedure Delete(aIndex: Integer);
@@ -97,6 +98,12 @@ end;
 function TKMGoals.GetGoal(aIndex: Integer): TKMGoal;
 begin
   Result := fGoals[aIndex];
+end;
+
+
+procedure TKMGoals.SetGoal(aIndex: Integer; const Value: TKMGoal);
+begin
+  fGoals[aIndex] := Value;
 end;
 
 
