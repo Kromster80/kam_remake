@@ -1843,8 +1843,8 @@ begin
 
     Radio_Woodcutter := TKMRadioGroup.Create(Panel_HouseWoodcutter,38,64,TB_WIDTH-38,32,fnt_Grey);
     Radio_Woodcutter.ItemIndex := 0;
-    Radio_Woodcutter.Items.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_PLANT_CHOP]);
-    Radio_Woodcutter.Items.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_CHOP_ONLY]);
+    Radio_Woodcutter.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_PLANT_CHOP]);
+    Radio_Woodcutter.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_CHOP_ONLY]);
     Radio_Woodcutter.OnChange := House_WoodcutterChange;
 end;
 

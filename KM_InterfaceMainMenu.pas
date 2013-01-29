@@ -900,9 +900,9 @@ begin
   //Fill in chart values
   if DISPLAY_CHARTS_RESULT then
   begin
-    Radio_MPResultsWarePlayer.Items.Clear;
+    Radio_MPResultsWarePlayer.Clear;
     for I := 0 to fPlayers.Count - 1 do
-      Radio_MPResultsWarePlayer.Items.Add('[$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]');
+      Radio_MPResultsWarePlayer.Add('[$'+IntToHex(FlagColorToTextColor(fPlayers[I].FlagColor) and $00FFFFFF,6)+']'+fPlayers[I].PlayerName+'[]');
 
     Radio_MPResultsWarePlayer.ItemIndex := 0;
     Radio_MPResultsWarePlayer.Height := 25*fPlayers.Count;
@@ -1206,10 +1206,10 @@ begin
       with TKMBevel.Create(Panel_LobbySetup,  0,  0, 270, 712) do Stretch;
       Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 250, 20, fTextLibrary[TX_LOBBY_MAP_TYPE], fnt_Outline, taLeft);
       Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 29, 250, 60, fnt_Metal);
-      Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_BUILD]);
-      Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_FIGHT]);
-      Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_COOP]);
-      Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_SAVED]);
+      Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_BUILD]);
+      Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_FIGHT]);
+      Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_COOP]);
+      Radio_LobbyMapType.Add(fTextLibrary[TX_LOBBY_MAP_SAVED]);
       Radio_LobbyMapType.ItemIndex := 0;
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
 
@@ -1445,8 +1445,8 @@ begin
       Radio_MapEd_SizeX := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 10, 52, 88, 332, fnt_Metal);
       Radio_MapEd_SizeY := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 110, 52, 88, 332, fnt_Metal);
       for I := 1 to MAPSIZES_COUNT do begin
-        Radio_MapEd_SizeX.Items.Add(IntToStr(MapSize[I]));
-        Radio_MapEd_SizeY.Items.Add(IntToStr(MapSize[I]));
+        Radio_MapEd_SizeX.Add(IntToStr(MapSize[I]));
+        Radio_MapEd_SizeY.Add(IntToStr(MapSize[I]));
       end;
       Radio_MapEd_SizeX.ItemIndex := 2; //64
       Radio_MapEd_SizeY.ItemIndex := 2; //64
@@ -1460,8 +1460,8 @@ begin
       TKMBevel.Create(Panel_MapEd_Load, 0, 20, 300, 50);
       Radio_MapEd_MapType := TKMRadioGroup.Create(Panel_MapEd_Load,8,28,286,40,fnt_Grey);
       Radio_MapEd_MapType.ItemIndex := 0;
-      Radio_MapEd_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
-      Radio_MapEd_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
+      Radio_MapEd_MapType.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
+      Radio_MapEd_MapType.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
       Radio_MapEd_MapType.OnChange := MapEditor_MapTypeChange;
       List_MapEd := TKMColumnListBox.Create(Panel_MapEd_Load, 0, 80, 440, 310, fnt_Metal,  bsMenu);
       List_MapEd.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_MAP_TITLE], '#', fTextLibrary[TX_MENU_MAP_SIZE]], [0, 310, 340]);
@@ -1489,8 +1489,8 @@ begin
     TKMBevel.Create(Panel_Replays, 62, 86, 900, 50);
     Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,70,94,300,40,fnt_Grey);
     Radio_Replays_Type.ItemIndex := 0;
-    Radio_Replays_Type.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
-    Radio_Replays_Type.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
+    Radio_Replays_Type.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
+    Radio_Replays_Type.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Replays_Type.OnChange := Replay_TypeChange;
 
     List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 150, 700, 485, fnt_Metal, bsMenu);
@@ -1556,8 +1556,8 @@ begin
       CheckBox_Options_VSync.OnClick := Options_Change;
       TKMLabel.Create(Panel_Options_GFX,10,120,200,20,fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY],fnt_Metal,taLeft);
       RadioGroup_Options_Shadows := TKMRadioGroup.Create(Panel_Options_GFX,10,138,200,32, fnt_Metal);
-      RadioGroup_Options_Shadows.Items.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_LOW]);
-      RadioGroup_Options_Shadows.Items.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_HIGH]);
+      RadioGroup_Options_Shadows.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_LOW]);
+      RadioGroup_Options_Shadows.Add(fTextLibrary[TX_MENU_OPTIONS_SHADOW_QUALITY_HIGH]);
       RadioGroup_Options_Shadows.OnChange := Options_Change;
 
     //SFX section
@@ -1605,7 +1605,7 @@ begin
       SetLength(Image_Options_Lang_Flags,fLocales.Count);
       for i := 0 to fLocales.Count - 1 do
       begin
-        Radio_Options_Lang.Items.Add(fLocales[i].Title);
+        Radio_Options_Lang.Add(fLocales[i].Title);
         Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,28+(i*20),16,11,fLocales[i].FlagSpriteID,rxGuiMain);
         Image_Options_Lang_Flags[i].Tag := i;
         Image_Options_Lang_Flags[i].OnClick := Options_FlagClick;

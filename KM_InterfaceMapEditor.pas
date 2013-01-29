@@ -225,6 +225,7 @@ type
         TrackBar_RevealNewSize: TKMTrackBar;
         CheckBox_RevealAll: TKMCheckBox;
         Button_CenterScreen: TKMButtonFlat;
+        Label_PlayerCenterScreen: TKMLabel;
 
     //Global things
     Panel_Mission: TKMPanel;
@@ -687,7 +688,7 @@ begin
     TKMLabel.Create(Panel_Main, TB_PAD, 195, TB_WIDTH, 0, 'Players:', fnt_Outline, taLeft);
     for I := 0 to MAX_PLAYERS - 1 do
     begin
-      Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 215, 21, 21, inttostr(I+1), fnt_Grey, $FF0000FF);
+      Button_PlayerSelect[I]         := TKMFlatButtonShape.Create(Panel_Main, 8 + I*23, 215, 21, 21, IntToStr(I+1), fnt_Grey, $FF0000FF);
       Button_PlayerSelect[I].Tag     := I;
       Button_PlayerSelect[I].OnClick := Player_ChangeActive;
     end;
@@ -1118,18 +1119,19 @@ begin
       end;
 
     //FOW settings
-    Panel_Markers := TKMPanel.Create(Panel_Player,0,28,TB_WIDTH,400);
+    Panel_Markers := TKMPanel.Create(Panel_Player, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_Markers, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Reveal fog', fnt_Outline, taCenter);
       Button_Reveal         := TKMButtonFlat.Create(Panel_Markers, 0, 30, 33, 33, 394);
       Button_Reveal.Hint    := 'Reveal a portion of map';
       Button_Reveal.OnClick := Player_MarkerClick;
       TrackBar_RevealNewSize  := TKMTrackBar.Create(Panel_Markers, 37, 35, 140, 1, 50);
-      CheckBox_RevealAll      := TKMCheckBox.Create(Panel_Markers, 0, 75, 140, 20, 'Reveal all', fnt_Metal);
-      CheckBox_RevealAll.Enabled := False;
+      CheckBox_RevealAll          := TKMCheckBox.Create(Panel_Markers, 0, 75, 140, 20, 'Reveal all', fnt_Metal);
+      CheckBox_RevealAll.Enabled  := False;
       TKMLabel.Create(Panel_Markers, 0, 100, TB_WIDTH, 0, 'Center screen', fnt_Outline, taCenter);
       Button_CenterScreen         := TKMButtonFlat.Create(Panel_Markers, 0, 120, 33, 33, 391);
       Button_CenterScreen.Hint    := 'Center screen on mission start';
       Button_CenterScreen.OnClick := Player_MarkerClick;
+      Label_PlayerCenterScreen    := TKMLabel.Create(Panel_Markers, 40, 130, '[X,Y]', fnt_Metal, taLeft);
 end;
 
 
@@ -1145,8 +1147,8 @@ begin
     Panel_Mode := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
       TKMLabel.Create(Panel_Mode, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Mode', fnt_Outline, taCenter);
       Radio_MissionMode := TKMRadioGroup.Create(Panel_Mode, 0, 30, TB_WIDTH, 40, fnt_Metal);
-      Radio_MissionMode.Items.Add('Normal');
-      Radio_MissionMode.Items.Add('Tactic');
+      Radio_MissionMode.Add('Normal');
+      Radio_MissionMode.Add('Tactic');
       Radio_MissionMode.OnChange := Mission_ModeChange;
 
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,TB_WIDTH,400);
@@ -1172,12 +1174,12 @@ begin
 
     Panel_PlayerTypes := TKMPanel.Create(Panel_Mission, 0, 28, TB_WIDTH, 400);
       TKMLabel.Create(Panel_PlayerTypes, 0, PAGE_TITLE_Y, TB_WIDTH, 0, 'Player types', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_PlayerTypes,  4, 30, 20, 20, '#',       fnt_Grey, taLeft);
+      TKMLabel.Create(Panel_PlayerTypes, 24, 30, 60, 20, 'Default', fnt_Grey, taLeft);
+      TKMImage.Create(Panel_PlayerTypes,104, 30, 60, 20, 588, rxGui);
+      TKMImage.Create(Panel_PlayerTypes,164, 30, 20, 20,  62, rxGuiMain);
       for I := 0 to MAX_PLAYERS - 1 do
       begin
-        TKMLabel.Create(Panel_PlayerTypes,  4, 30, 20, 20, '#',       fnt_Grey, taLeft);
-        TKMLabel.Create(Panel_PlayerTypes, 24, 30, 60, 20, 'Default', fnt_Grey, taLeft);
-        TKMImage.Create(Panel_PlayerTypes,104, 30, 60, 20, 588, rxGui);
-        TKMImage.Create(Panel_PlayerTypes,164, 30, 20, 20,  62, rxGuiMain);
         TKMLabel.Create(Panel_PlayerTypes,  4, 50+I*25, 20, 20, IntToStr(I+1), fnt_Outline, taLeft);
         for K := 0 to 2 do
         begin
@@ -1216,8 +1218,8 @@ begin
     TKMBevel.Create(Panel_Save, 0, 30, TB_WIDTH, 37);
     Radio_Save_MapType  := TKMRadioGroup.Create(Panel_Save,4,32,TB_WIDTH,35,fnt_Grey);
     Radio_Save_MapType.ItemIndex := 0;
-    Radio_Save_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
-    Radio_Save_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
+    Radio_Save_MapType.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
+    Radio_Save_MapType.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Save_MapType.OnChange := Menu_SaveClick;
     TKMLabel.Create(Panel_Save,0,90,TB_WIDTH,20,'Save map',fnt_Outline,taCenter);
     Edit_SaveName       := TKMEdit.Create(Panel_Save,0,110,TB_WIDTH,20, fnt_Grey);
@@ -1241,8 +1243,8 @@ begin
     TKMBevel.Create(Panel_Load, 0, 30, TB_WIDTH, 38);
     Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,0,32,TB_WIDTH,35,fnt_Grey);
     Radio_Load_MapType.ItemIndex := 0;
-    Radio_Load_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
-    Radio_Load_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
+    Radio_Load_MapType.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
+    Radio_Load_MapType.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Load_MapType.OnChange := Menu_LoadChange;
     ListBox_Load := TKMListBox.Create(Panel_Load, 0, 85, TB_WIDTH, 205, fnt_Grey, bsGame);
     ListBox_Load.ItemHeight := 18;
@@ -1325,8 +1327,8 @@ begin
 
     TKMLabel.Create(Panel_Attack, 20, 40, 'Type', fnt_Metal, taLeft);
     Radio_AttackType := TKMRadioGroup.Create(Panel_Attack, 20, 60, 80, 40, fnt_Metal);
-    Radio_AttackType.Items.Add('Once');
-    Radio_AttackType.Items.Add('Repeating');
+    Radio_AttackType.Add('Once');
+    Radio_AttackType.Add('Repeating');
     Radio_AttackType.OnChange := Attack_Change;
 
     TKMLabel.Create(Panel_Attack, 130, 40, 'Delay, s', fnt_Metal, taLeft);
@@ -1352,10 +1354,10 @@ begin
 
     TKMLabel.Create(Panel_Attack, 20, 170, 'Target', fnt_Metal, taLeft);
     Radio_AttackTarget := TKMRadioGroup.Create(Panel_Attack, 20, 190, 160, 80, fnt_Metal);
-    Radio_AttackTarget.Items.Add('Closest unit');
-    Radio_AttackTarget.Items.Add('Closest house 1');
-    Radio_AttackTarget.Items.Add('Closest house 2');
-    Radio_AttackTarget.Items.Add('Custom position');
+    Radio_AttackTarget.Add('Closest unit');
+    Radio_AttackTarget.Add('Closest house 1');
+    Radio_AttackTarget.Add('Closest house 2');
+    Radio_AttackTarget.Add('Custom position');
     Radio_AttackTarget.OnChange := Attack_Change;
 
     TKMLabel.Create(Panel_Attack, 200, 170, 'Position', fnt_Metal, taLeft);
@@ -1435,41 +1437,42 @@ begin
 
     TKMLabel.Create(Panel_Goal, 20, 40, 100, 0, 'Type', fnt_Metal, taLeft);
     Radio_GoalType := TKMRadioGroup.Create(Panel_Goal, 20, 60, 100, 60, fnt_Metal);
-    Radio_GoalType.Items.Add('None');
-    Radio_GoalType.Items.Add('Victory');
-    Radio_GoalType.Items.Add('Survive');
+    Radio_GoalType.Add('None');
+    Radio_GoalType.Add('Victory');
+    Radio_GoalType.Add('Survive');
     Radio_GoalType.OnChange := Goal_Change;
 
     TKMLabel.Create(Panel_Goal, 140, 40, 180, 0, 'Condition', fnt_Metal, taLeft);
     Radio_GoalCondition := TKMRadioGroup.Create(Panel_Goal, 140, 60, 180, 180, fnt_Metal);
-    Radio_GoalCondition.Items.Add('None');
-    Radio_GoalCondition.Items.Add('BuildTutorial');
-    Radio_GoalCondition.Items.Add('Time');
-    Radio_GoalCondition.Items.Add('Buildings');
-    Radio_GoalCondition.Items.Add('Troops');
-    Radio_GoalCondition.Items.Add('Unknown');
-    Radio_GoalCondition.Items.Add('MilitaryAssets');
-    Radio_GoalCondition.Items.Add('SerfsAndSchools');
-    Radio_GoalCondition.Items.Add('EconomyBuildings');
+    Radio_GoalCondition.Add('None', False);
+    Radio_GoalCondition.Add('BuildTutorial', False);
+    Radio_GoalCondition.Add('Time', False);
+    Radio_GoalCondition.Add('Buildings');
+    Radio_GoalCondition.Add('Troops');
+    Radio_GoalCondition.Add('Unknown', False);
+    Radio_GoalCondition.Add('MilitaryAssets');
+    Radio_GoalCondition.Add('SerfsAndSchools');
+    Radio_GoalCondition.Add('EconomyBuildings');
     Radio_GoalCondition.OnChange := Goal_Change;
 
     TKMLabel.Create(Panel_Goal, 330, 40, 'Player', fnt_Metal, taLeft);
-    NumEdit_GoalPlayer := TKMNumericEdit.Create(Panel_Goal, 330, 60, 0, MAX_PLAYERS - 1);
+    NumEdit_GoalPlayer := TKMNumericEdit.Create(Panel_Goal, 330, 60, 1, MAX_PLAYERS);
     NumEdit_GoalPlayer.OnChange := Goal_Change;
 
     TKMLabel.Create(Panel_Goal, 420, 40, 100, 0, 'Status', fnt_Metal, taLeft);
     Radio_GoalStatus := TKMRadioGroup.Create(Panel_Goal, 420, 60, 100, 40, fnt_Metal);
-    Radio_GoalStatus.Items.Add('True');
-    Radio_GoalStatus.Items.Add('False');
+    Radio_GoalStatus.Add('True');
+    Radio_GoalStatus.Add('False');
     Radio_GoalStatus.OnChange := Goal_Change;
 
     TKMLabel.Create(Panel_Goal, 530, 40, 'Time', fnt_Metal, taLeft);
-    NumEdit_GoalTime := TKMNumericEdit.Create(Panel_Goal, 530, 60, 0, 1000);
+    NumEdit_GoalTime := TKMNumericEdit.Create(Panel_Goal, 530, 60, 0, 32767);
     NumEdit_GoalTime.OnChange := Goal_Change;
 
     TKMLabel.Create(Panel_Goal, 530, 90, 'Message Id', fnt_Metal, taLeft);
     NumEdit_GoalMessage := TKMNumericEdit.Create(Panel_Goal, 530, 110, 0, 1000);
-    NumEdit_GoalMessage.OnChange := Goal_Change;
+    NumEdit_GoalMessage.Disable; //We do not support this feature, use Script instead
+    NumEdit_GoalMessage.Hint := '0';
 
     Button_GoalOk := TKMButton.Create(Panel_Goal, SIZE_X-20-320-10, SIZE_Y - 50, 160, 30, 'Ok', bsMenu);
     Button_GoalOk.OnClick := Goal_Close;
@@ -2113,6 +2116,7 @@ begin
   //because certain combinations can't coexist
 
   NumEdit_GoalTime.Enabled := TGoalCondition(Radio_GoalCondition.ItemIndex) = gc_Time;
+  NumEdit_GoalPlayer.Enabled := TGoalCondition(Radio_GoalCondition.ItemIndex) <> gc_Time;
 end;
 
 
@@ -2132,7 +2136,7 @@ begin
     G.GoalStatus := TGoalStatus(Radio_GoalStatus.ItemIndex);
     G.GoalTime := NumEdit_GoalTime.Value * 10;
     G.MessageToShow := NumEdit_GoalMessage.Value;
-    G.PlayerIndex := NumEdit_GoalPlayer.Value;
+    G.PlayerIndex := NumEdit_GoalPlayer.Value - 1;
 
     MyPlayer.Goals[I] := G;
   end;
@@ -2149,7 +2153,7 @@ begin
   Radio_GoalStatus.ItemIndex := Byte(aGoal.GoalStatus);
   NumEdit_GoalTime.Value := aGoal.GoalTime div 10;
   NumEdit_GoalMessage.Value := aGoal.MessageToShow;
-  NumEdit_GoalPlayer.Value := aGoal.PlayerIndex;
+  NumEdit_GoalPlayer.Value := aGoal.PlayerIndex + 1;
 
   //Certain values disable certain controls
   Goal_Change(nil);
@@ -2226,9 +2230,9 @@ begin
     List_Goals.AddItem(MakeListRow([Typ[G.GoalType],
                                     IntToStr(Byte(G.GoalCondition)),
                                     Stat[G.GoalStatus],
-                                    IntToStr(G.GoalTime),
+                                    IntToStr(G.GoalTime div 10),
                                     IntToStr(G.MessageToShow),
-                                    IntToStr(G.PlayerIndex)]));
+                                    IntToStr(G.PlayerIndex + 1)]));
   end;
 
   Goals_ListClick(nil);
@@ -2983,6 +2987,8 @@ begin
     GameCursor.Mode := cmNone;
     GameCursor.Tag1 := 0;
   end;
+
+  Label_PlayerCenterScreen.Caption := TypeToString(MyPlayer.CenterScreen);
 end;
 
 

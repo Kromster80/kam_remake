@@ -407,17 +407,22 @@ type
   TKMRadioGroup = class(TKMControl)
   private
     fItemIndex: Integer;
-    fItems: TStringList;
+    fCount: Integer;
+    fItems: array of record
+      Text: string;
+      Enabled: Boolean;
+    end;
     fFont: TKMFont;
     fOnChange: TNotifyEvent;
-    function GetItemCount: Integer;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
     destructor Destroy; override;
-    property ItemCount: Integer read GetItemCount;
+
+    procedure Add(aText: string; aEnabled: Boolean = True);
+    procedure Clear;
+    property Count: Integer read fCount;
     property ItemIndex: Integer read fItemIndex write fItemIndex;
-    property Items: TStringList read fItems;
-    property OnChange: TNotifyEvent write fOnChange;
+    property OnChange: TNotifyEvent read fOnChange write fOnChange;
     procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
   end;
@@ -2149,30 +2154,43 @@ begin
   inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont := aFont;
   fItemIndex := -1;
-  fItems := TStringList.Create;
+
 end;
 
 
 destructor TKMRadioGroup.Destroy;
 begin
-  fItems.Free;
+
   inherited;
 end;
 
 
-function TKMRadioGroup.GetItemCount: Integer;
+procedure TKMRadioGroup.Add(aText: string; aEnabled: Boolean);
 begin
-  Result := fItems.Count;
+  if fCount >= Length(fItems) then
+    SetLength(fItems, fCount + 8);
+
+  fItems[fCount].Text := aText;
+  fItems[fCount].Enabled := aEnabled;
+
+  Inc(fCount);
+end;
+
+
+procedure TKMRadioGroup.Clear;
+begin
+  fCount := 0;
 end;
 
 
 procedure TKMRadioGroup.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-var NewIndex: Integer;
+var
+  NewIndex: Integer;
 begin
   if (csDown in State) and (Button = mbLeft) then
   begin
-    NewIndex := EnsureRange((Y-Top) div round(Height/ItemCount), 0, ItemCount-1); //Clicking at wrong place can select invalid ID
-    if NewIndex <> fItemIndex then
+    NewIndex := EnsureRange((Y-Top) div Round(Height/Count), 0, Count - 1); //Clicking at wrong place can select invalid ID
+    if (NewIndex <> fItemIndex) and (fItems[NewIndex].Enabled) then
     begin
       fItemIndex := NewIndex;
       if Assigned(fOnChange) then
@@ -2182,6 +2200,7 @@ begin
       end;
     end;
   end;
+
   inherited; //There are OnMouseUp and OnClick events there
 end;
 
@@ -2190,22 +2209,21 @@ end;
 //Might need additional graphics to be added to gui.rx
 //Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 procedure TKMRadioGroup.Paint;
+const FntCol: array [Boolean] of TColor4 = ($FF888888, $FFFFFFFF);
 var
-  Col: TColor4;
   LineHeight: Integer;
   I: Integer;
 begin
   inherited;
-  if ItemCount = 0 then Exit; //Avoid dividing by zero
-  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
+  if Count = 0 then Exit; //Avoid dividing by zero
 
-  LineHeight := Round(fHeight / ItemCount);
+  LineHeight := Round(fHeight / Count);
 
-  for I := 0 to ItemCount - 1 do
+  for I := 0 to Count - 1 do
   begin
-    TKMRenderUI.WriteText(Left, Top + I * LineHeight, Width, '[ ] ' + fItems.Strings[I], fFont, taLeft, Col);
+    TKMRenderUI.WriteText(Left, Top + I * LineHeight, Width, '[ ] ' + fItems[I].Text, fFont, taLeft, FntCol[fEnabled and fItems[I].Enabled]);
     if fItemIndex = I then
-      TKMRenderUI.WriteText(Left + 3, Top + I * LineHeight - 1, 0, 'x', fFont, taLeft, Col);
+      TKMRenderUI.WriteText(Left + 3, Top + I * LineHeight - 1, 0, 'x', fFont, taLeft, FntCol[fEnabled and fItems[I].Enabled]);
   end;
 end;
 
@@ -4158,14 +4176,14 @@ begin
 
   //Draw all the circles, THEN all the numbers so the numbers are not covered by circles when they are close
   for I := 1 to MAX_PLAYERS do
-  if not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
+  if fMinimap.PlayerShow[I] then
   begin
     T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, LOC_RAD);
     TKMRenderUI.WriteCircle(T.X, T.Y, LOC_RAD, fMinimap.PlayerColors[I]);
   end;
 
   for I := 1 to MAX_PLAYERS do
-  if not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
+  if fMinimap.PlayerShow[I] then
   begin
     T := MapCoordsToLocal(fMinimap.PlayerLocations[I].X, fMinimap.PlayerLocations[I].Y, LOC_RAD);
     TKMRenderUI.WriteText(T.X, T.Y - 6, 0, IntToStr(I), fnt_Outline, taCenter);

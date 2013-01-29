@@ -31,6 +31,7 @@ type
   public
     PlayerColors: array [1..MAX_PLAYERS] of Cardinal;
     PlayerLocations: array [1..MAX_PLAYERS] of TKMPoint;
+    PlayerShow: array [1..MAX_PLAYERS] of Boolean;
     constructor Create(aFromParser: Boolean; aIsMapEditor: Boolean; aSepia: Boolean);
     destructor Destroy; override;
 
@@ -93,6 +94,7 @@ begin
   begin
     PlayerColors[I] := fParser.PlayerPreview[I].Color;
     PlayerLocations[I] := fParser.PlayerPreview[I].StartingLoc;
+    PlayerShow[I] := fParser.PlayerPreview[I].CanHuman;
   end;
 end;
 
@@ -113,6 +115,7 @@ begin
   begin
     PlayerColors[I] := $00000000;
     PlayerLocations[I] := KMPoint(0,0);
+    PlayerShow[I] := False;
   end;
 
   fAlerts := aAlerts;
@@ -302,6 +305,7 @@ begin
   begin
     SaveStream.Write(PlayerColors[I]);
     SaveStream.Write(PlayerLocations[I]);
+    SaveStream.Write(PlayerShow[I]);
   end;
 end;
 
@@ -323,6 +327,7 @@ begin
   begin
     LoadStream.Read(PlayerColors[I]);
     LoadStream.Read(PlayerLocations[I]);
+    LoadStream.Read(PlayerShow[I]);
   end;
 
   fWidthPOT := MakePOT(fMapX);

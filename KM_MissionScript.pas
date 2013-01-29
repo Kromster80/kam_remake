@@ -15,7 +15,7 @@ type
                           mpm_Editor  //Ignore errors, load armies differently
                         );
 
-  TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_HumanPlayer,ct_HumanablePlayer,ct_SetHouse,
+  TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_HumanPlayer,ct_UserPlayer,ct_SetHouse,
                     ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_CenterScreen,
                     ct_ClearUp,ct_BlockTrade,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_AddLostGoal,
                     ct_SetUnit,ct_SetRoad,ct_SetField,ct_SetWinefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
@@ -106,8 +106,18 @@ uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_TerrainPainter,
 
 const
   COMMANDVALUES: array [TKMCommandType] of AnsiString = (
-    '','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HUMANABLE_PLAYER','SET_HOUSE',
-    'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR',
+    '',
+    'SET_MAP',
+    'SET_MAX_PLAYER',
+    'SET_CURR_PLAYER',
+    'SET_HUMAN_PLAYER', //Default human player (name left for compatibility with KaM)
+    'SET_USER_PLAYER', //Player can be human
+    'SET_HOUSE',
+    'SET_TACTIC',
+    'SET_AI_PLAYER', //Player can be AI
+    'ENABLE_PLAYER',
+    'SET_NEW_REMAP',
+    'SET_MAP_COLOR',
     'CENTER_SCREEN','CLEAR_UP','BLOCK_TRADE','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES',
     'ADD_GOAL','ADD_LOST_GOAL','SET_UNIT','SET_STREET','SET_FIELD','SET_WINEFIELD',
     'SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',
@@ -155,17 +165,19 @@ end;
 
 function TMissionParserCommon.TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
 var
-  i: TKMCommandType;
+  I: TKMCommandType;
 begin
   Result := ct_Unknown;
-  for i:=low(TKMCommandType) to high(TKMCommandType) do
+
+  for I := Low(TKMCommandType) to High(TKMCommandType) do
   begin
-    if ACommandText = '!' + COMMANDVALUES[i] then
+    if ACommandText = '!' + COMMANDVALUES[I] then
     begin
-      Result := i;
-      break;
+      Result := I;
+      Break;
     end;
   end;
+
   //Commented out because it slows down mission scanning
   //if Result = ct_Unknown then fLog.AddToLog(String(ACommandText));
 end;
@@ -284,11 +296,15 @@ begin
       until((FileText[k]=#32)or(k>=length(FileText)));
 
       //Try to make it faster by only processing commands used
-      if (CommandText='!SET_MAP')or(CommandText='!SET_MAX_PLAYER')or
-         (CommandText='!SET_TACTIC')or(CommandText='!SET_HUMAN_PLAYER')or
-         (CommandText='!SET_CURR_PLAYER')or
-         (CommandText='!SET_HUMANABLE_PLAYER')or(CommandText='!SET_AI_PLAYER')or
-         (CommandText='!ADD_GOAL')or(CommandText='!ADD_LOST_GOAL') then
+      if (CommandText='!SET_MAP')
+      or (CommandText='!SET_MAX_PLAYER')
+      or (CommandText='!SET_TACTIC')
+      or (CommandText='!SET_CURR_PLAYER')
+      or (CommandText='!SET_HUMAN_PLAYER')
+      or (CommandText='!SET_USER_PLAYER')
+      or (CommandText='!SET_AI_PLAYER')
+      or (CommandText='!ADD_GOAL')
+      or (CommandText='!ADD_LOST_GOAL') then
       begin
         //Now convert command into type
         CommandType := TextToCommandType(CommandText);
@@ -337,7 +353,7 @@ begin
                           PlayerHuman[P[0]] := True;
                         end;
     ct_SetCurrPlayer:   fLastPlayer      := P[0];
-    ct_HumanablePlayer: if P[0] = -1 then
+    ct_UserPlayer:      if P[0] = -1 then
                           PlayerHuman[fLastPlayer] := True
                         else
                           PlayerHuman[P[0]] := True;
@@ -547,7 +563,7 @@ begin
                           fGame.MapEditor.DefaultHuman := P[0];
                           fGame.MapEditor.PlayerHuman[P[0]] := True;
                         end;
-    ct_HumanablePlayer: //New command added by KMR - mark player as allowed to be human
+    ct_UserPlayer:      //New command added by KMR - mark player as allowed to be human
                         //MP and SP set human players themselves
                         //Remains usefull for map preview and MapEd
                         if (fParsingMode = mpm_Editor) and (fPlayers <> nil) then
@@ -952,10 +968,8 @@ begin
     AddCommand(ct_SetCurrPlayer, [I]);
     AddCommand(ct_EnablePlayer, [I]);
 
-    if fGame.MapEditor.PlayerHuman[I] then
-      AddCommand(ct_HumanablePlayer, []);
-    if fGame.MapEditor.PlayerAI[I] then
-      AddCommand(ct_AIPlayer, []);
+    if fGame.MapEditor.PlayerHuman[I] then AddCommand(ct_UserPlayer, []);
+    if fGame.MapEditor.PlayerAI[I] then AddCommand(ct_AIPlayer, []);
 
     AddCommand(ct_SetMapColor, [fPlayers[I].FlagColorIndex]);
     if not KMSamePoint(fPlayers[I].CenterScreen, KMPoint(0,0)) then

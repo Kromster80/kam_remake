@@ -18,6 +18,7 @@ type
   TPlayerPreviewInfo = record
                          Color: Cardinal;
                          StartingLoc: TKMPoint;
+                         CanHuman, CanAI: Boolean;
                        end;
 
   //Specially optimized mission parser for map previews
@@ -116,52 +117,54 @@ var
   Loc: TKMPoint;
 begin
   case CommandType of
-    ct_SetCurrPlayer:  fLastPlayer := P[0]+1;
-    ct_SetHouse:       if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
-                       begin
-                         RevealCircle(P[1]+1, P[2]+1, fResource.HouseDat[HouseIndexToType[P[0]]].Sight);
-                         HA := fResource.HouseDat[HouseIndexToType[P[0]]].BuildArea;
-                         for i:=1 to 4 do for k:=1 to 4 do
-                           if HA[i,k]<>0 then
-                             if InRange(P[1]+1+k-3, 1, fMapX) and InRange(P[2]+1+i-4, 1, fMapY) then
-                               SetOwner(P[1]+1+k-3, P[2]+1+i-4);
-                       end;
-    ct_SetMapColor:    if InRange(fLastPlayer, 1, MAX_PLAYERS) then
-                         fPlayerPreview[fLastPlayer].Color := fResource.Palettes.DefDal.Color32(P[0]);
-    ct_CenterScreen:   fPlayerPreview[fLastPlayer].StartingLoc := KMPoint(P[0]+1,P[1]+1);
+    ct_SetCurrPlayer:   fLastPlayer := P[0]+1;
+    ct_SetHouse:        if InRange(P[0], Low(HouseIndexToType), High(HouseIndexToType)) then
+                        begin
+                          RevealCircle(P[1]+1, P[2]+1, fResource.HouseDat[HouseIndexToType[P[0]]].Sight);
+                          HA := fResource.HouseDat[HouseIndexToType[P[0]]].BuildArea;
+                          for i:=1 to 4 do for k:=1 to 4 do
+                            if HA[i,k]<>0 then
+                              if InRange(P[1]+1+k-3, 1, fMapX) and InRange(P[2]+1+i-4, 1, fMapY) then
+                                SetOwner(P[1]+1+k-3, P[2]+1+i-4);
+                        end;
+    ct_SetMapColor:     if InRange(fLastPlayer, 1, MAX_PLAYERS) then
+                          fPlayerPreview[fLastPlayer].Color := fResource.Palettes.DefDal.Color32(P[0]);
+    ct_CenterScreen:    fPlayerPreview[fLastPlayer].StartingLoc := KMPoint(P[0]+1,P[1]+1);
+    ct_UserPlayer:      fPlayerPreview[fLastPlayer].CanHuman := True;
+    ct_AIPlayer:        fPlayerPreview[fLastPlayer].CanAI := True;
     ct_SetRoad,
     ct_SetField,
-    ct_SetWinefield:   SetOwner(P[0]+1, P[1]+1);
-    ct_SetUnit:        if not (UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
-                       begin
-                         SetOwner(P[1]+1, P[2]+1);
-                         RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
-                       end;
-    ct_SetStock:       begin
-                         //Set Store and roads below
-                         ProcessCommand(ct_SetHouse,[11,P[0]+1,P[1]+1]);
-                         ProcessCommand(ct_SetRoad, [   P[0]-2,P[1]+1]);
-                         ProcessCommand(ct_SetRoad, [   P[0]-1,P[1]+1]);
-                         ProcessCommand(ct_SetRoad, [   P[0]  ,P[1]+1]);
-                       end;
-    ct_SetGroup:       if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None) then
-                         for I := 0 to P[5] - 1 do
-                         begin
-                           Loc := GetPositionInGroup2(P[1]+1,P[2]+1,TKMDirection(P[3]+1), I, P[4],fMapX,fMapY,Valid);
-                           if Valid then
-                           begin
-                             SetOwner(Loc.X,Loc.Y);
-                             RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
-                           end;
-                         end;
-    ct_ClearUp:        if (fRevealFor <> 0) and (fRevealFor = fLastPlayer) then
-                       begin
-                         if P[0] = 255 then
-                           for i:=1 to MAX_MAP_SIZE*MAX_MAP_SIZE do
-                             fMapPreview[i].Revealed := True
-                         else
-                           RevealCircle(P[0]+1,P[1]+1,P[2]);
-                       end;
+    ct_SetWinefield:    SetOwner(P[0]+1, P[1]+1);
+    ct_SetUnit:         if not (UnitOldIndexToType[P[0]] in [ANIMAL_MIN..ANIMAL_MAX]) then //Skip animals
+                        begin
+                          SetOwner(P[1]+1, P[2]+1);
+                          RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
+                        end;
+    ct_SetStock:        begin
+                          //Set Store and roads below
+                          ProcessCommand(ct_SetHouse,[11,P[0]+1,P[1]+1]);
+                          ProcessCommand(ct_SetRoad, [   P[0]-2,P[1]+1]);
+                          ProcessCommand(ct_SetRoad, [   P[0]-1,P[1]+1]);
+                          ProcessCommand(ct_SetRoad, [   P[0]  ,P[1]+1]);
+                        end;
+    ct_SetGroup:        if InRange(P[0], Low(UnitIndexToType), High(UnitIndexToType)) and (UnitIndexToType[P[0]] <> ut_None) then
+                          for I := 0 to P[5] - 1 do
+                          begin
+                            Loc := GetPositionInGroup2(P[1]+1,P[2]+1,TKMDirection(P[3]+1), I, P[4],fMapX,fMapY,Valid);
+                            if Valid then
+                            begin
+                              SetOwner(Loc.X,Loc.Y);
+                              RevealCircle(P[1]+1, P[2]+1, fResource.UnitDat.UnitsDat[UnitOldIndexToType[P[0]]].Sight);
+                            end;
+                          end;
+    ct_ClearUp:         if (fRevealFor <> 0) and (fRevealFor = fLastPlayer) then
+                        begin
+                          if P[0] = 255 then
+                            for i:=1 to MAX_MAP_SIZE*MAX_MAP_SIZE do
+                              fMapPreview[i].Revealed := True
+                          else
+                            RevealCircle(P[0]+1,P[1]+1,P[2]);
+                        end;
   end;
 end;
 
@@ -205,12 +208,19 @@ begin
       until((FileText[k]=#32)or(k>=length(FileText)));
 
       //Try to make it faster by only processing commands used
-      if (CommandText='!SET_CURR_PLAYER')or
-         (CommandText='!SET_MAP_COLOR')or(CommandText='!CENTER_SCREEN')or
-         (CommandText='!SET_STREET')or(CommandText='!SET_FIELD')or
-         (CommandText='!SET_WINEFIELD')or(CommandText='!SET_STOCK')or
-         (CommandText='!SET_HOUSE')or(CommandText='!CLEAR_UP')or
-         (CommandText='!SET_UNIT')or(CommandText='!SET_GROUP') then
+      if (CommandText='!SET_CURR_PLAYER')
+      or (CommandText='!SET_MAP_COLOR')
+      or (CommandText='!CENTER_SCREEN')
+      or (CommandText='!SET_USER_PLAYER')
+      or (CommandText='!SET_AI_PLAYER')
+      or (CommandText='!SET_STREET')
+      or (CommandText='!SET_FIELD')
+      or (CommandText='!SET_WINEFIELD')
+      or (CommandText='!SET_STOCK')
+      or (CommandText='!SET_HOUSE')
+      or (CommandText='!CLEAR_UP')
+      or (CommandText='!SET_UNIT')
+      or (CommandText='!SET_GROUP') then
       begin
         //Now convert command into type
         CommandType := TextToCommandType(CommandText);
