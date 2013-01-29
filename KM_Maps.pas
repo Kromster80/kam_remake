@@ -96,7 +96,7 @@ type
 
 
 implementation
-uses KM_CommonClasses, KM_Defaults, KM_MissionScript, KM_Player, KM_TextLibrary;
+uses KM_CommonClasses, KM_Defaults, KM_MissionScript_Info, KM_Player, KM_TextLibrary;
 
 
 const
@@ -140,7 +140,7 @@ var
   st,DatFile,MapFile:string;
   ft:textfile;
   I: Integer;
-  fMissionParser:TMissionParserInfo;
+  fMissionParser: TMissionParserInfo;
 begin
   //We scan only single-player maps which are in Maps\ folder, so DAT\MAP paths are straight
   DatFile := fPath + fFileName + '.dat';
@@ -178,11 +178,9 @@ begin
       fInfo.PlayerCount       := fMissionParser.MissionInfo.PlayerCount;
       for I := Low(fInfo.LocationName) to High(fInfo.LocationName) do
       begin
+        fInfo.CanBeHuman[I] := False;
         fInfo.LocationName[I] := Format(fTextLibrary[TX_LOBBY_LOCATION_X], [I+1]);
-        if fMissionParser.MissionInfo.PlayerHuman[I] then
-          fInfo.PlayerTypes[I] := pt_Human
-        else
-          fInfo.PlayerTypes[I] := pt_Computer;
+        fInfo.PlayerTypes[I] := TPlayerType(-1);
         fInfo.ColorID[I] := 0;
         fInfo.Team[I] := 0;
       end;

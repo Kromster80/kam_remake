@@ -30,31 +30,18 @@ type
 
 
 type
-  TKMMissionInfo = record
-    MapPath: string;
-    MapSizeX, MapSizeY: Integer;
-    MissionMode: TKMissionMode;
-    PlayerCount: ShortInt;
-    DefaultHuman: ShortInt;
-    PlayerHuman: array [0..MAX_PLAYERS-1] of Boolean;
-    PlayerAI: array [0..MAX_PLAYERS-1] of Boolean;
-    VictoryCond: string;
-    DefeatCond: string;
-  end;
-
   TKMAttackPosition = record
     Group: TKMUnitGroup;
     Target: TKMPoint;
   end;
 
-
   TMissionParserCommon = class
   protected
     fStrictParsing: Boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
     fMissionFileName: string;
+    fLastPlayer: TPlayerIndex; //Current Player
     fFatalErrors: string; //Fatal errors descriptions accumulate here
     fMinorErrors: string; //Minor error descriptions accumulate here
-    fMissionInfo: TKMMissionInfo;
     function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
     function ReadMissionFile(const aFileName: string): AnsiString;
     procedure AddError(const ErrorMsg: string; aFatal: Boolean = False);
@@ -62,32 +49,18 @@ type
     constructor Create(aStrictParsing: Boolean);
     property FatalErrors: string read fFatalErrors;
     property MinorErrors: string read fMinorErrors;
-    property MissionInfo: TKMMissionInfo read fMissionInfo;
     function LoadMission(const aFileName: string): Boolean; overload; virtual;
   end;
-
-
-  TMissionParserInfo = class(TMissionParserCommon)
-  private
-    fLastPlayer: ShortInt;
-    function LoadMapInfo(const aFileName: string): Boolean;
-    procedure ProcessCommand(CommandType: TKMCommandType; const P: array of integer; TextParam:AnsiString);
-  public
-    function LoadMission(const aFileName: string): Boolean; override;
-  end;
-
 
   TMissionParserStandard = class(TMissionParserCommon)
   private
     fParsingMode: TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
     fPlayerEnabled: TPlayerEnabledArray;
-    fLastPlayer: TPlayerIndex;
     fLastHouse: TKMHouse;
     fLastTroop: TKMUnitGroup;
     fAIAttack: TAIAttack;
     fAttackPositions: array of TKMAttackPosition;
     fAttackPositionsCount: Integer;
-
     function ProcessCommand(CommandType: TKMCommandType; P: array of Integer; TextParam: AnsiString): Boolean;
     procedure ProcessAttackPositions;
   public
@@ -133,7 +106,6 @@ const
   AI_ATTACK_PARAMS: array [TAIAttackParamType] of AnsiString = (
     'TYPE', 'TOTAL_AMOUNT', 'COUNTER', 'RANGE', 'TROUP_AMOUNT', 'TARGET', 'POSITION', 'TAKEALL');
 
-  MAX_PARAMS = 8;
 
 { TMissionParserGeneric }
 constructor TMissionParserCommon.Create(aStrictParsing: boolean);
@@ -146,18 +118,7 @@ end;
 function TMissionParserCommon.LoadMission(const aFileName: string):boolean;
 begin
   fMissionFileName := aFileName;
-
-  //Set default values
-  fMissionInfo.MapPath := '';
-  fMissionInfo.MapSizeX := 0;
-  fMissionInfo.MapSizeY := 0;
-  fMissionInfo.MissionMode := mm_Normal;
-  fMissionInfo.PlayerCount := 0;
-  fMissionInfo.DefaultHuman := 0;
-  FillChar(fMissionInfo.PlayerHuman, SizeOf(fMissionInfo.PlayerHuman), #0);
-  FillChar(fMissionInfo.PlayerAI, SizeOf(fMissionInfo.PlayerAI), #0);
-  fMissionInfo.VictoryCond := '';
-  fMissionInfo.DefeatCond := '';
+  fLastPlayer := -1;
 
   Result := true;
 end;
@@ -222,7 +183,7 @@ begin
 
     //Save text after decoding but before cleaning
     if WRITE_DECODED_MISSION then
-      F.SaveToFile(aFileName+'.txt');
+      F.SaveToFile(aFileName + '.txt');
 
     for I := 0 to F.Size - 1 do
       if PByte(Cardinal(F.Memory)+I)^ in [9, 10, 13] then //tab, eol
@@ -232,10 +193,11 @@ begin
     for I := 0 to F.Size - 1 do
     begin
       PByte(Cardinal(F.Memory)+Num)^ := PByte(Cardinal(F.Memory)+I)^;
-      if (Num <= 0) or (
-        (PWord(Cardinal(F.Memory)+Num-1)^ <> $2020) //Skip double spaces and !!
-        and (PWord(Cardinal(F.Memory)+Num-1)^ <> $2121)) then
-        inc(Num);
+      if (Num <= 0)
+      or (
+          (PWord(Cardinal(F.Memory) + Num-1)^ <> $2020) //Skip double spaces and !!
+      and (PWord(Cardinal(F.Memory) + Num-1)^ <> $2121)) then
+        Inc(Num);
     end;
 
     SetLength(Result, Num); //Because some extra characters were removed
@@ -256,152 +218,6 @@ begin
 
   if not aFatal then
     fMinorErrors := fMinorErrors + ErrorMsg + '|';
-end;
-
-
-{ TMissionParserInfo }
-function TMissionParserInfo.LoadMission(const aFileName: string):boolean;
-const
-  Max_Cmd=2;
-var
-  FileText: AnsiString;
-  CommandText, Param, TextParam: AnsiString;
-  ParamList: array[1..Max_Cmd] of Integer;
-  k, l, IntParam: integer;
-  CommandType: TKMCommandType;
-begin
-  inherited LoadMission(aFileName);
-
-  Result := false;
-
-  FileText := ReadMissionFile(aFileName);
-  if FileText = '' then Exit;
-
-  //For info we need only few commands,
-  //it makes sense to skip the rest
-
-  //FileText should now be formatted nicely with 1 space between each parameter/command
-  k := 1;
-  repeat
-    if FileText[k]='!' then
-    begin
-      for l:=1 to Max_Cmd do
-        ParamList[l]:=-1;
-      TextParam:='';
-      CommandText:='';
-      //Extract command until a space
-      repeat
-        CommandText:=CommandText+FileText[k];
-        inc(k);
-      until((FileText[k]=#32)or(k>=length(FileText)));
-
-      //Try to make it faster by only processing commands used
-      if (CommandText='!SET_MAP')
-      or (CommandText='!SET_MAX_PLAYER')
-      or (CommandText='!SET_TACTIC')
-      or (CommandText='!SET_CURR_PLAYER')
-      or (CommandText='!SET_HUMAN_PLAYER')
-      or (CommandText='!SET_USER_PLAYER')
-      or (CommandText='!SET_AI_PLAYER')
-      or (CommandText='!ADD_GOAL')
-      or (CommandText='!ADD_LOST_GOAL') then
-      begin
-        //Now convert command into type
-        CommandType := TextToCommandType(CommandText);
-        inc(k);
-        //Extract parameters
-        for l:=1 to Max_Cmd do
-          if (k<length(FileText)) and (FileText[k]<>'!') then
-          begin
-            Param := '';
-            repeat
-              Param := Param + FileText[k];
-              inc(k);
-            until((k >= Length(FileText)) or (FileText[k]='!') or (FileText[k]=#32)); //Until we find another ! OR we run out of data
-
-            //Convert to an integer, if possible
-            if TryStrToInt(String(Param), IntParam) then
-              ParamList[l] := IntParam
-            else
-              if l = 1 then
-                TextParam := Param; //Accept text for first parameter
-
-            if FileText[k]=#32 then inc(k);
-          end;
-        //We now have command text and parameters, so process them
-        ProcessCommand(CommandType,ParamList,TextParam);
-      end;
-    end
-    else
-      inc(k);
-  until (k>=length(FileText));
-  //Apparently it's faster to parse till file end than check if all details are filled
-
-  Result := LoadMapInfo(ChangeFileExt(fMissionFileName,'.map')) and (fFatalErrors='');
-end;
-
-
-procedure TMissionParserInfo.ProcessCommand(CommandType: TKMCommandType; const P: array of integer; TextParam:AnsiString);
-begin
-  with fMissionInfo do
-  case CommandType of
-    ct_SetMap:          MapPath          := RemoveQuotes(String(TextParam));
-    ct_SetMaxPlayer:    PlayerCount      := P[0];
-    ct_SetTactic:       MissionMode      := mm_Tactic;
-    ct_HumanPlayer:     begin
-                          DefaultHuman      := P[0];
-                          PlayerHuman[P[0]] := True;
-                        end;
-    ct_SetCurrPlayer:   fLastPlayer      := P[0];
-    ct_UserPlayer:      if P[0] = -1 then
-                          PlayerHuman[fLastPlayer] := True
-                        else
-                          PlayerHuman[P[0]] := True;
-    ct_AIPlayer:       if P[0] = -1 then
-                          PlayerAI[fLastPlayer] := True
-                        else
-                          PlayerAI[P[0]] := True;
-{                       if TGoalCondition(P[0]) = gc_Time then
-                         VictoryCond := VictoryCond + fPlayers[fLastPlayer].AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),P[3],P[2],play_none)
-                       else
-                         fPlayers[fLastPlayer].AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],TPlayerID(P[3]));
-}
-    ct_AddGoal:        VictoryCond      := VictoryCond
-                                         + GoalConditionStr[TGoalCondition(P[0])] + ' '
-                                         + GoalStatusStr[TGoalStatus(P[1])]+', ';
-    ct_AddLostGoal:    DefeatCond       := DefeatCond
-                                         + GoalConditionStr[TGoalCondition(P[0])] + ' '
-                                         + GoalStatusStr[TGoalStatus(P[1])]+', ';
-  end;
-end;
-
-
-{Acquire specific map details in a fast way}
-function TMissionParserInfo.LoadMapInfo(const aFileName:string):boolean;
-var F:TKMemoryStream; sx,sy:integer;
-begin
-  Result := false;
-  if not FileExists(aFileName) then Exit;
-
-  F := TKMemoryStream.Create;
-  try
-    F.LoadFromFile(aFileName);
-    F.Read(sx);
-    F.Read(sy);
-  finally
-    F.Free;
-  end;
-
-  if (sx > MAX_MAP_SIZE) or (sy > MAX_MAP_SIZE) then
-  begin
-    AddError('MissionParser can''t open the map because it''s too big.',true);
-    Result := false;
-    Exit;
-  end;
-
-  fMissionInfo.MapSizeX := sx;
-  fMissionInfo.MapSizeY := sy;
-  Result := true;
 end;
 
 
@@ -429,9 +245,11 @@ end;
 
 
 function TMissionParserStandard.LoadMission(const aFileName: string): Boolean;
+const
+  MAX_CMD = 2;
 var
   FileText, CommandText, Param, TextParam: AnsiString;
-  ParamList: array [1..MAX_PARAMS] of integer;
+  ParamList: array [1..MAX_CMD] of integer;
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
@@ -439,10 +257,7 @@ begin
 
   Assert((fTerrain <> nil) and (fPlayers <> nil));
 
-  Result := false; //Set it right from the start
-
-  //Reset fPlayers and other stuff
-  fLastPlayer := -1;
+  Result := False;
 
   //Read the mission file into FileText
   FileText := ReadMissionFile(aFileName);
@@ -453,7 +268,7 @@ begin
   repeat
     if FileText[k]='!' then
     begin
-      for l:=1 to MAX_PARAMS do
+      for l:=1 to MAX_CMD do
         ParamList[l]:=-1;
       TextParam:='';
       CommandText:='';
@@ -466,8 +281,8 @@ begin
       CommandType := TextToCommandType(CommandText);
       inc(k);
       //Extract parameters
-      for l:=1 to MAX_PARAMS do
-        if (k<=length(FileText)) and (FileText[k]<>'!') then
+      for l:=1 to MAX_CMD do
+        if (k<Length(FileText)) and (FileText[k]<>'!') then
         begin
           Param := '';
           repeat
@@ -544,7 +359,7 @@ begin
                           fPlayers.AddPlayers(P[0]);
                         end;
     ct_SetTactic:       begin
-                          fMissionInfo.MissionMode := mm_Tactic;
+                          fGame.MissionMode := mm_Tactic;
                         end;
     ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_PLAYERS - 1) then
                         begin

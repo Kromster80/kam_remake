@@ -451,8 +451,6 @@ begin
 
     if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then
       fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|' + Parser.MinorErrors);
-
-    fMissionMode := Parser.MissionInfo.MissionMode;
   finally
     Parser.Free;
   end;
@@ -1068,12 +1066,14 @@ begin
 
       if NetIndex = -1 then
       begin
+        fGameInfo.CanBeHuman[I] := False;
         fGameInfo.LocationName[I] := 'Unknown ' + IntToStr(I + 1);
         fGameInfo.PlayerTypes[I] := pt_Human;
         fGameInfo.ColorID[I] := 0;
         fGameInfo.Team[I] := 0;
       end else
       begin
+        fGameInfo.CanBeHuman[I] := fNetworking.NetPlayers[NetIndex].IsHuman;
         fGameInfo.LocationName[I] := fNetworking.NetPlayers[NetIndex].Nikname;
         fGameInfo.PlayerTypes[I] := fNetworking.NetPlayers[NetIndex].GetPlayerType;
         fGameInfo.ColorID[I] := fNetworking.NetPlayers[NetIndex].FlagColorID;

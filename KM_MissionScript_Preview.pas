@@ -29,7 +29,6 @@ type
     fPlayerPreview: array [1 .. MAX_PLAYERS] of TPlayerPreviewInfo;
     fMapPreview: array [1 .. MAX_MAP_SIZE * MAX_MAP_SIZE] of TTilePreviewInfo;
 
-    fLastPlayer: TPlayerIndex;
     fRevealFor: TPlayerIndex;
 
     function GetTileInfo(X, Y: Integer): TTilePreviewInfo;
@@ -182,12 +181,11 @@ var
 begin
   inherited LoadMission(aFileName);
 
-  fLastPlayer := 0;
   fRevealFor := aRevealFor;
   FillChar(fMapPreview, SizeOf(fMapPreview), #0);
   FillChar(fPlayerPreview, SizeOf(fPlayerPreview), #0);
 
-  LoadMapData(ChangeFileExt(fMissionFileName,'.map'));
+  LoadMapData(ChangeFileExt(fMissionFileName, '.map'));
   Result := false;
 
   FileText := ReadMissionFile(aFileName);
@@ -227,7 +225,7 @@ begin
         inc(k);
         //Extract parameters
         for l:=1 to MAX_CMD do
-          if (k<length(FileText)) and (FileText[k]<>'!') then
+          if (k<Length(FileText)) and (FileText[k]<>'!') then
           begin
             Param := '';
             repeat

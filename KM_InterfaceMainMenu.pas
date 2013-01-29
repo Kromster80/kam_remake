@@ -2352,7 +2352,7 @@ begin
       K := 0;
       Drop_SingleLoc.Clear;
       for I := 0 to fMaps[ID].Info.PlayerCount - 1 do
-      if ALLOW_TAKE_AI_PLAYERS or (fMaps[ID].Info.PlayerTypes[I] = pt_Human) then
+      if fMaps[ID].Info.CanBeHuman[I] or ALLOW_TAKE_AI_PLAYERS then
       begin
         Drop_SingleLoc.Add(fMaps[ID].Info.LocationName[I]);
         fSingleLocations[K] := I;
@@ -3398,6 +3398,7 @@ begin
                 //Starting locations text
                 DropText := fTextLibrary[TX_LOBBY_SELECT] + eol;
                 for I := 0 to fGameApp.Networking.GameInfo.PlayerCount - 1 do
+                if fGameApp.Networking.GameInfo.CanBeHuman[I] then
                   DropText := DropText + fGameApp.Networking.GameInfo.LocationName[I] + eol;
               end;
     ngk_Map:  begin
@@ -3426,6 +3427,7 @@ begin
               //Starting locations text
               DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
               for I := 0 to fGameApp.Networking.GameInfo.PlayerCount - 1 do
+              if fGameApp.Networking.GameInfo.CanBeHuman[I] then
                 DropText := DropText + fGameApp.Networking.GameInfo.LocationName[I] + eol;
             end;
   end;
