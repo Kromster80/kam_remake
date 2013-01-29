@@ -173,12 +173,13 @@ begin
       fInfo.MapSizeY          := fMissionParser.MissionInfo.MapSizeY;
       fInfo.VictoryCondition  := fMissionParser.MissionInfo.VictoryCond;
       fInfo.DefeatCondition   := fMissionParser.MissionInfo.DefeatCond;
+      fDefaultHuman := fMissionParser.MissionInfo.DefaultHuman;
 
       //This feature is only used for saves yet
       fInfo.PlayerCount       := fMissionParser.MissionInfo.PlayerCount;
       for I := Low(fInfo.LocationName) to High(fInfo.LocationName) do
       begin
-        fInfo.CanBeHuman[I] := False;
+        fInfo.CanBeHuman[I] := fMissionParser.MissionInfo.PlayerHuman[I];
         fInfo.LocationName[I] := Format(fTextLibrary[TX_LOBBY_LOCATION_X], [I+1]);
         fInfo.PlayerTypes[I] := TPlayerType(-1);
         fInfo.ColorID[I] := 0;
@@ -186,7 +187,6 @@ begin
       end;
 
       fCRC := Adler32CRC(DatFile) xor Adler32CRC(MapFile);
-      fDefaultHuman := fMissionParser.MissionInfo.DefaultHuman;
 
       SaveToFile(fPath + fFileName + '.mi'); //Save new TMP file
     finally

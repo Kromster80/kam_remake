@@ -270,7 +270,7 @@ begin
     begin
       for l:=1 to MAX_CMD do
         ParamList[l]:=-1;
-      TextParam:='';
+      TextParam := '';
       CommandText:='';
       //Extract command until a space
       repeat
@@ -301,7 +301,8 @@ begin
         end;
       //We now have command text and parameters, so process them
 
-      if not ProcessCommand(CommandType, ParamList, TextParam) then //A returned value of false indicates an error has occoured and we should exit
+      if not ProcessCommand(CommandType, ParamList, TextParam) then
+      //A returned value of false indicates an error has occoured and we should exit
       begin
         Result := false;
         Exit;

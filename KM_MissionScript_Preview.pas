@@ -173,8 +173,7 @@ function TMissionParserPreview.LoadMission(const aFileName: string; aRevealFor: 
 const
   MAX_CMD = 6;
 var
-  FileText: AnsiString;
-  CommandText, Param: AnsiString;
+  FileText, CommandText, Param: AnsiString;
   ParamList: array[1..MAX_CMD] of Integer;
   k, l, IntParam: Integer;
   CommandType: TKMCommandType;
@@ -240,7 +239,7 @@ begin
             if FileText[k]=#32 then inc(k);
           end;
         //We now have command text and parameters, so process them
-        ProcessCommand(CommandType,ParamList);
+        ProcessCommand(CommandType, ParamList);
       end;
     end
     else

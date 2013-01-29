@@ -40,8 +40,7 @@ function TMissionParserInfo.LoadMission(const aFileName: string):boolean;
 const
   MAX_CMD = 2;
 var
-  FileText: AnsiString;
-  CommandText, Param, TextParam: AnsiString;
+  FileText, CommandText, Param, TextParam: AnsiString;
   ParamList: array[1..MAX_CMD] of Integer;
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
@@ -63,7 +62,7 @@ begin
     begin
       for l:=1 to MAX_CMD do
         ParamList[l]:=-1;
-      TextParam:='';
+      TextParam := '';
       CommandText:='';
       //Extract command until a space
       repeat
@@ -105,7 +104,7 @@ begin
             if FileText[k]=#32 then inc(k);
           end;
         //We now have command text and parameters, so process them
-        ProcessCommand(CommandType,ParamList,TextParam);
+        ProcessCommand(CommandType, ParamList, TextParam);
       end;
     end
     else
